@@ -600,7 +600,10 @@ def main():
             "ide-integrations", "mcp", "github-actions", "troubleshooting",
             "security", "settings", "hooks", "costs", "monitoring-usage",
         ]
-        missing_names = sorted(set(fallback_pages) - fetched_files)
+        # Compare against the actual filenames (with .md) already fetched in the
+        # localized pass, so pages that DO exist upstream in this language are
+        # never mistakenly treated as missing.
+        missing_names = sorted(n for n in fallback_pages if f"{n}.md" not in fetched_files)
         if missing_names:
             logger.info(
                 f"Found {len(missing_names)} page(s) not available in '{DOCS_LANG}', "
