@@ -11,8 +11,9 @@ echo "==============================="
 INSTALL_DIR="$HOME/.claude-code-docs"
 
 # Branch to use for installation. Override with INSTALL_BRANCH env var
-# (e.g. INSTALL_BRANCH=chinese for the Simplified Chinese docs branch).
-INSTALL_BRANCH="${INSTALL_BRANCH:-main}"
+# (e.g. INSTALL_BRANCH=main for the English docs branch).
+# Default is "chinese" (Simplified Chinese / zh-CN), the repository's default branch.
+INSTALL_BRANCH="${INSTALL_BRANCH:-chinese}"
 
 # Documented language for the chosen branch (used in messages only)
 if [[ "$INSTALL_BRANCH" == "chinese" ]]; then
