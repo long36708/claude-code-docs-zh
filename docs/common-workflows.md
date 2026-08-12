@@ -1,3 +1,5 @@
+<!-- 本页官方暂未提供中文翻译，以下为英文原文 / This page is not yet translated upstream; English original below. -->
+
 > ## Documentation Index
 > Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
 > Use this file to discover all available pages before exploring further.
