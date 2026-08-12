@@ -36,6 +36,11 @@ SITEMAP_URLS = [
 ]
 MANIFEST_FILE = "docs_manifest.json"
 
+# Documentation language to fetch. Default is English ("en"). For Simplified
+# Chinese set DOCS_LANG=zh-CN. The official docs site (code.claude.com) serves
+# localized docs under /docs/{lang}/ for every supported language.
+DOCS_LANG = os.environ.get("DOCS_LANG", "en")
+
 # Base URL will be discovered from sitemap
 # No longer using global variable
 
@@ -100,7 +105,8 @@ def url_to_safe_filename(url_path: str) -> str:
     # Remove any known prefix patterns (support both old and new structures)
     # Old: /en/docs/claude-code/hooks -> hooks
     # New: /docs/en/hooks -> hooks
-    for prefix in ['/docs/en/', '/en/docs/claude-code/', '/docs/claude-code/', '/claude-code/']:
+    # Localized: /docs/zh-CN/hooks -> hooks (DOCS_LANG aware)
+    for prefix in [f'/docs/{DOCS_LANG}/', '/docs/en/', '/en/docs/claude-code/', '/docs/claude-code/', '/claude-code/']:
         if prefix in url_path:
             path = url_path.split(prefix)[-1]
             break
@@ -213,19 +219,19 @@ def discover_claude_code_pages(session: requests.Session, sitemap_url: str) -> L
         
         logger.info(f"Found {len(urls)} total URLs in sitemap")
         
-        # Filter for ENGLISH Claude Code documentation pages only
+        # Filter for the configured language's Claude Code documentation pages only
         claude_code_pages = []
 
-        # Only accept English documentation patterns
-        # NOTE: URL structure changed from /en/docs/claude-code/ to /docs/en/
-        english_patterns = [
-            '/docs/en/',  # New structure (code.claude.com)
-            '/en/docs/claude-code/',  # Legacy structure (docs.anthropic.com)
+        # Only accept the configured language's documentation patterns
+        # NOTE: URL structure changed from /{lang}/docs/claude-code/ to /docs/{lang}/
+        lang_patterns = [
+            f'/docs/{DOCS_LANG}/',  # New structure (code.claude.com)
+            f'/{DOCS_LANG}/docs/claude-code/',  # Legacy structure (docs.anthropic.com)
         ]
-        
+
         for url in urls:
-            # Check if URL matches English pattern specifically
-            if any(pattern in url for pattern in english_patterns):
+            # Check if URL matches the language pattern specifically
+            if any(pattern in url for pattern in lang_patterns):
                 parsed = urlparse(url)
                 path = parsed.path
                 
@@ -259,23 +265,24 @@ def discover_claude_code_pages(session: requests.Session, sitemap_url: str) -> L
         logger.warning("Falling back to essential pages...")
 
         # More comprehensive fallback list (updated for new URL structure)
-        # NOTE: Changed from /en/docs/claude-code/ to /docs/en/
+        # NOTE: Changed from /en/docs/claude-code/ to /docs/{lang}/
+        lang = DOCS_LANG
         return [
-            "/docs/en/overview",
-            "/docs/en/setup",
-            "/docs/en/quickstart",
-            "/docs/en/memory",
-            "/docs/en/common-workflows",
-            "/docs/en/ide-integrations",
-            "/docs/en/mcp",
-            "/docs/en/github-actions",
-            "/docs/en/sdk",
-            "/docs/en/troubleshooting",
-            "/docs/en/security",
-            "/docs/en/settings",
-            "/docs/en/hooks",
-            "/docs/en/costs",
-            "/docs/en/monitoring-usage",
+            f"/docs/{lang}/overview",
+            f"/docs/{lang}/setup",
+            f"/docs/{lang}/quickstart",
+            f"/docs/{lang}/memory",
+            f"/docs/{lang}/common-workflows",
+            f"/docs/{lang}/ide-integrations",
+            f"/docs/{lang}/mcp",
+            f"/docs/{lang}/github-actions",
+            f"/docs/{lang}/sdk",
+            f"/docs/{lang}/troubleshooting",
+            f"/docs/{lang}/security",
+            f"/docs/{lang}/settings",
+            f"/docs/{lang}/hooks",
+            f"/docs/{lang}/costs",
+            f"/docs/{lang}/monitoring-usage",
         ]
 
 
@@ -512,23 +519,24 @@ def main():
             documentation_pages = discover_claude_code_pages(session, sitemap_url)
         else:
             # Use fallback pages if sitemap discovery failed (updated for new URL structure)
-            # NOTE: Changed from /en/docs/claude-code/ to /docs/en/
+            # NOTE: Changed from /en/docs/claude-code/ to /docs/{lang}/
+            lang = DOCS_LANG
             documentation_pages = [
-                "/docs/en/overview",
-                "/docs/en/setup",
-                "/docs/en/quickstart",
-                "/docs/en/memory",
-                "/docs/en/common-workflows",
-                "/docs/en/ide-integrations",
-                "/docs/en/mcp",
-                "/docs/en/github-actions",
-                "/docs/en/sdk",
-                "/docs/en/troubleshooting",
-                "/docs/en/security",
-                "/docs/en/settings",
-                "/docs/en/hooks",
-                "/docs/en/costs",
-                "/docs/en/monitoring-usage",
+                f"/docs/{lang}/overview",
+                f"/docs/{lang}/setup",
+                f"/docs/{lang}/quickstart",
+                f"/docs/{lang}/memory",
+                f"/docs/{lang}/common-workflows",
+                f"/docs/{lang}/ide-integrations",
+                f"/docs/{lang}/mcp",
+                f"/docs/{lang}/github-actions",
+                f"/docs/{lang}/sdk",
+                f"/docs/{lang}/troubleshooting",
+                f"/docs/{lang}/security",
+                f"/docs/{lang}/settings",
+                f"/docs/{lang}/hooks",
+                f"/docs/{lang}/costs",
+                f"/docs/{lang}/monitoring-usage",
             ]
         
         if not documentation_pages:

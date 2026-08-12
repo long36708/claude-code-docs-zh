@@ -10,8 +10,16 @@ echo "==============================="
 # Fixed installation location
 INSTALL_DIR="$HOME/.claude-code-docs"
 
-# Branch to use for installation
-INSTALL_BRANCH="main"
+# Branch to use for installation. Override with INSTALL_BRANCH env var
+# (e.g. INSTALL_BRANCH=chinese for the Simplified Chinese docs branch).
+INSTALL_BRANCH="${INSTALL_BRANCH:-main}"
+
+# Documented language for the chosen branch (used in messages only)
+if [[ "$INSTALL_BRANCH" == "chinese" ]]; then
+    DOCS_LANG_LABEL="简体中文 (zh-CN)"
+else
+    DOCS_LANG_LABEL="English"
+fi
 
 # Detect OS type
 if [[ "$OSTYPE" == "darwin"* ]]; then
