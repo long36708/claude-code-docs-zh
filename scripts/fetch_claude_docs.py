@@ -180,7 +180,7 @@ def discover_sitemap_and_base_url(session: requests.Session) -> Tuple[str, str]:
     raise Exception("Could not find a valid sitemap")
 
 
-def discover_claude_code_pages(session: requests.Session, sitemap_url: str) -> List[str]:
+def discover_claude_code_pages(session: requests.Session, sitemap_url: str, lang: str = DOCS_LANG) -> List[str]:
     """
     Dynamically discover all Claude Code documentation pages from the sitemap.
     Now with better pattern matching flexibility.
@@ -222,11 +222,11 @@ def discover_claude_code_pages(session: requests.Session, sitemap_url: str) -> L
         # Filter for the configured language's Claude Code documentation pages only
         claude_code_pages = []
 
-        # Only accept the configured language's documentation patterns
+        # Only accept the requested language's documentation patterns
         # NOTE: URL structure changed from /{lang}/docs/claude-code/ to /docs/{lang}/
         lang_patterns = [
-            f'/docs/{DOCS_LANG}/',  # New structure (code.claude.com)
-            f'/{DOCS_LANG}/docs/claude-code/',  # Legacy structure (docs.anthropic.com)
+            f'/docs/{lang}/',  # New structure (code.claude.com)
+            f'/{lang}/docs/claude-code/',  # Legacy structure (docs.anthropic.com)
         ]
 
         for url in urls:
@@ -590,21 +590,17 @@ def main():
     # source for those missing pages and mark them clearly in the file header.
     if DOCS_LANG != "en":
         logger.info("Localized build detected; checking for English fallback pages...")
-        en_pages = discover_claude_code_pages(
-            session,
-            "https://code.claude.com/docs/sitemap.xml",
-        ) if sitemap_url else []
-        # Build the set of English page names we would expect.
-        en_names = {url_to_safe_filename(p) for p in en_pages}
-        # Also include fallback list names so we never miss a core page.
-        for fb in [
+        # Only a fixed set of core pages are eligible for English fallback. These are
+        # the canonical Claude Code docs that should always exist; pages NOT in this
+        # list (e.g. self-hosted-environments*, agent-sdk/examples, whats-new week
+        # notes, mobile) are intentionally excluded — if the localized build lacks
+        # them, they stay removed by cleanup rather than being filled with English.
+        fallback_pages = [
             "overview", "setup", "quickstart", "memory", "common-workflows",
             "ide-integrations", "mcp", "github-actions", "sdk", "troubleshooting",
             "security", "settings", "hooks", "costs", "monitoring-usage",
-        ]:
-            en_names.add(fb)
-
-        missing_names = sorted(en_names - fetched_files)
+        ]
+        missing_names = sorted(set(fallback_pages) - fetched_files)
         if missing_names:
             logger.info(
                 f"Found {len(missing_names)} page(s) not available in '{DOCS_LANG}', "
@@ -646,7 +642,7 @@ def main():
                     failed += 1
                     failed_pages.append(en_path)
         else:
-            logger.info("All pages available in the localized language; no fallback needed.")
+            logger.info("All core pages available in the localized language; no fallback needed.")
 
     # Fetch Claude Code changelog
     logger.info("Fetching Claude Code changelog...")
