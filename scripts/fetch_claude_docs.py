@@ -597,7 +597,7 @@ def main():
         # them, they stay removed by cleanup rather than being filled with English.
         fallback_pages = [
             "overview", "setup", "quickstart", "memory", "common-workflows",
-            "ide-integrations", "mcp", "github-actions", "sdk", "troubleshooting",
+            "ide-integrations", "mcp", "github-actions", "troubleshooting",
             "security", "settings", "hooks", "costs", "monitoring-usage",
         ]
         missing_names = sorted(set(fallback_pages) - fetched_files)
