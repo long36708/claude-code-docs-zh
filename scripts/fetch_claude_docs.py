@@ -583,7 +583,71 @@ def main():
                 logger.error(f"Failed to process {page_path}: {e}")
                 failed += 1
                 failed_pages.append(page_path)
-    
+
+    # --- Fallback for localized builds (Strategy 1) ---
+    # When fetching a non-English language, some pages may not yet be translated
+    # upstream. To keep the localized doc set complete, fall back to the English
+    # source for those missing pages and mark them clearly in the file header.
+    if DOCS_LANG != "en":
+        logger.info("Localized build detected; checking for English fallback pages...")
+        en_pages = discover_claude_code_pages(
+            session,
+            "https://code.claude.com/docs/sitemap.xml",
+        ) if sitemap_url else []
+        # Build the set of English page names we would expect.
+        en_names = {url_to_safe_filename(p) for p in en_pages}
+        # Also include fallback list names so we never miss a core page.
+        for fb in [
+            "overview", "setup", "quickstart", "memory", "common-workflows",
+            "ide-integrations", "mcp", "github-actions", "sdk", "troubleshooting",
+            "security", "settings", "hooks", "costs", "monitoring-usage",
+        ]:
+            en_names.add(fb)
+
+        missing_names = sorted(en_names - fetched_files)
+        if missing_names:
+            logger.info(
+                f"Found {len(missing_names)} page(s) not available in '{DOCS_LANG}', "
+                f"falling back to English: {missing_names}"
+            )
+            for name in missing_names:
+                en_path = f"/docs/en/{name}"
+                try:
+                    filename, content = fetch_markdown_content(en_path, session, base_url)
+                    # filename resolves to the short name (e.g. overview.md) thanks to
+                    # the /docs/en/ prefix handling in url_to_safe_filename.
+                    fallback_notice = (
+                        "<!-- 本页官方暂未提供中文翻译，以下为英文原文 / "
+                        "This page is not yet translated upstream; English original below. -->\n\n"
+                    )
+                    content = fallback_notice + content
+                    old_hash = manifest.get("files", {}).get(filename, {}).get("hash", "")
+                    if content_has_changed(content, old_hash):
+                        content_hash = save_markdown_file(docs_dir, filename, content)
+                        last_updated = datetime.now().isoformat()
+                    else:
+                        content_hash = old_hash
+                        last_updated = (
+                            manifest.get("files", {}).get(filename, {})
+                            .get("last_updated", datetime.now().isoformat())
+                        )
+                    new_manifest["files"][filename] = {
+                        "original_url": f"{base_url}{en_path}",
+                        "original_md_url": f"{base_url}{en_path}.md",
+                        "hash": content_hash,
+                        "last_updated": last_updated,
+                        "fallback_to_english": True,
+                    }
+                    fetched_files.add(filename)
+                    successful += 1
+                    time.sleep(RATE_LIMIT_DELAY)
+                except Exception as e:
+                    logger.error(f"English fallback failed for {name}: {e}")
+                    failed += 1
+                    failed_pages.append(en_path)
+        else:
+            logger.info("All pages available in the localized language; no fallback needed.")
+
     # Fetch Claude Code changelog
     logger.info("Fetching Claude Code changelog...")
     try:
