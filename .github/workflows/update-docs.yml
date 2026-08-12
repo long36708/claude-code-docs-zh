@@ -2,8 +2,9 @@ name: Update Claude Code Documentation
 
 on:
   schedule:
-    # Run every 3 hours (at 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00 UTC)
-    - cron: '0 */3 * * *'
+    # Run every 3 hours in Beijing time (UTC+8), offset 30 min from the Chinese job.
+    # 01:00, 04:00, 07:00, 10:00, 13:00, 16:00, 19:00, 22:00 Beijing time.
+    - cron: '0 1,4,7,10,13,16,19,22 * * *'
   workflow_dispatch: # Allow manual trigger
 
 permissions:
