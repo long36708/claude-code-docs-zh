@@ -267,6 +267,7 @@ Enterprise administrators can use `allowManagedHooksOnly` to restrict which hook
 
 * Your user, project, local, and plugin hooks are blocked. Hooks from plugins force-enabled in managed settings `enabledPlugins` are exempt
 * Claude Code also narrows your [`statusLine`](/docs/en/statusline), [`fileSuggestion`](/docs/en/settings#file-suggestion-settings), and [`subagentStatusLine`](/docs/en/statusline#subagent-status-lines) settings to managed settings
+* Claude Code also disables plugins with a [`command` source](/docs/en/plugin-marketplaces#command-sources), including plugins force-enabled in managed settings `enabledPlugins`, unless [`disableCommandPluginSources`](/docs/en/settings#available-settings) is explicitly set to `false`
 
 See [Hook configuration](/docs/en/settings#hook-configuration).
 
@@ -897,8 +898,6 @@ To stop Claude entirely:
 For `PreToolUse` and `PostToolUse` hooks, the stop applies even when the tool call fails or completes while Claude is still streaming a response.
 
 #### Emit terminal notifications
-
-The `terminalSequence` field requires Claude Code v2.1.141 or later.
 
 Hooks run without a controlling terminal, so writing escape sequences directly to `/dev/tty` fails. Instead, return the escape sequence in the `terminalSequence` field and Claude Code emits it for you through its own terminal write path. This is race-free, works inside tmux and GNU screen, and works on Windows where there is no `/dev/tty`.
 
