@@ -694,8 +694,8 @@
     "model-config.md": {
       "original_url": "https://code.claude.com/docs/en/model-config",
       "original_md_url": "https://code.claude.com/docs/en/model-config.md",
-      "hash": "49c5f4b70fe663271d02932b4ab2ad93f5f4d777a833e54a89f9f2b46e82699c",
-      "last_updated": "2026-08-19T16:22:23.688659"
+      "hash": "1cc8e968cb97d343f05383168ff6ab66f918d4f8fa73f179dc7b19c818d86ff9",
+      "last_updated": "2026-08-19T19:20:52.920964"
     },
     "monitoring-usage.md": {
       "original_url": "https://code.claude.com/docs/en/monitoring-usage",
@@ -724,8 +724,8 @@
     "permission-modes.md": {
       "original_url": "https://code.claude.com/docs/en/permission-modes",
       "original_md_url": "https://code.claude.com/docs/en/permission-modes.md",
-      "hash": "5a765c23ee98a8b5d46cbc246f6f46e9d6e22f8060b579df404e4912546c19a6",
-      "last_updated": "2026-08-19T16:22:28.451295"
+      "hash": "1fcc0dfc821c04fb3c7dd84f0d4b4ef8457033b4a94475f27c72fe8465b7a3bb",
+      "last_updated": "2026-08-19T19:21:00.791731"
     },
     "permissions.md": {
       "original_url": "https://code.claude.com/docs/en/permissions",
@@ -796,8 +796,8 @@
     "remote-control.md": {
       "original_url": "https://code.claude.com/docs/en/remote-control",
       "original_md_url": "https://code.claude.com/docs/en/remote-control.md",
-      "hash": "7d5d8a1657469c7dcebaddd7852685349054a0bb68489e5ddaa1c858d97f8c37",
-      "last_updated": "2026-08-17T19:27:16.064092"
+      "hash": "e93415473d01ea5f98e471b29e92cb5c9ba3970e8a727902a950a2108bb764a4",
+      "last_updated": "2026-08-19T19:21:19.153641"
     },
     "routines.md": {
       "original_url": "https://code.claude.com/docs/en/routines",
@@ -1119,8 +1119,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-08-19T16:23:27.523473",
-    "fetch_duration_seconds": 196.192656,
+    "last_fetch_completed": "2026-08-19T19:22:04.175034",
+    "fetch_duration_seconds": 231.21375,
     "total_pages_discovered": 186,
     "pages_fetched_successfully": 187,
     "pages_failed": 0,
@@ -1130,7 +1130,7 @@
     "total_files": 186,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-08-19T16:23:27.523496",
+  "last_updated": "2026-08-19T19:22:04.175064",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
