@@ -138,12 +138,6 @@
       "hash": "574d20733c3687165c5d3d3c9ce5ece1ee7a57895a029295ba7d8ccfee57ff7a",
       "last_updated": "2026-08-12T15:48:48.445367"
     },
-    "agent-sdk__slash-commands.md": {
-      "original_url": "https://code.claude.com/docs/zh-CN/agent-sdk/slash-commands",
-      "original_md_url": "https://code.claude.com/docs/zh-CN/agent-sdk/slash-commands.md",
-      "hash": "18fdaaf3208d5f94233c5d9a6758b7732b242f4d1ee972979ba6854b24c923cc",
-      "last_updated": "2026-08-12T15:48:49.205512"
-    },
     "agent-sdk__streaming-output.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/agent-sdk/streaming-output",
       "original_md_url": "https://code.claude.com/docs/zh-CN/agent-sdk/streaming-output.md",
@@ -999,8 +993,8 @@
     "ide-integrations.md": {
       "original_url": "https://code.claude.com/docs/en/ide-integrations",
       "original_md_url": "https://code.claude.com/docs/en/ide-integrations.md",
-      "hash": "cad215cfff1d6500664089c5ca76b84f4bf729cf44e5a95d251f64432b856d39",
-      "last_updated": "2026-08-18T02:36:04.334967",
+      "hash": "2945a2298b344d697411baa883e178e8de2b47e8cd52e38e2d409bb856bcaa24",
+      "last_updated": "2026-08-20T19:56:34.916276",
       "fallback_to_english": true
     },
     "changelog.md": {
@@ -1012,18 +1006,18 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-08-20T17:02:46.192925",
-    "fetch_duration_seconds": 186.207548,
-    "total_pages_discovered": 166,
-    "pages_fetched_successfully": 168,
+    "last_fetch_completed": "2026-08-20T19:56:35.500278",
+    "fetch_duration_seconds": 166.577384,
+    "total_pages_discovered": 165,
+    "pages_fetched_successfully": 167,
     "pages_failed": 0,
     "failed_pages": [],
     "sitemap_url": "https://code.claude.com/docs/sitemap.xml",
     "base_url": "https://code.claude.com",
-    "total_files": 168,
+    "total_files": 167,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-08-20T17:02:46.192950",
+  "last_updated": "2026-08-20T19:56:35.500300",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
