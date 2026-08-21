@@ -207,8 +207,8 @@
     "agent-teams.md": {
       "original_url": "https://code.claude.com/docs/en/agent-teams",
       "original_md_url": "https://code.claude.com/docs/en/agent-teams.md",
-      "hash": "65cd7a894cd5c10c7b16a4d76edcf87625f94249f8eda6079c0d181b472f0621",
-      "last_updated": "2026-08-21T19:19:59.158224"
+      "hash": "e8b8d397750889f7aa005a5851b4eb56f5bf4f078f3974da98a58fd7295f0555",
+      "last_updated": "2026-08-21T22:14:29.565114"
     },
     "agent-view.md": {
       "original_url": "https://code.claude.com/docs/en/agent-view",
@@ -267,8 +267,8 @@
     "changelog.md": {
       "original_url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
       "original_raw_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-      "hash": "bed064bb93821d218dd9245e928cff030fbd040aaddcee24514f2ff05228d6ef",
-      "last_updated": "2026-08-20T22:19:58.879859",
+      "hash": "6bbc8768dd84d617db6561b1bf8f2d7fb4defb8b6f6be973340428064f39c522",
+      "last_updated": "2026-08-21T22:17:00.392062",
       "source": "claude-code-repository"
     },
     "channels.md": {
@@ -340,8 +340,8 @@
     "claude-directory.md": {
       "original_url": "https://code.claude.com/docs/en/claude-directory",
       "original_md_url": "https://code.claude.com/docs/en/claude-directory.md",
-      "hash": "589a933b4173311de3a0a12c0a522a992db9051a44ec586b40bbadc2994a2e56",
-      "last_updated": "2026-08-21T19:20:19.652680"
+      "hash": "908deb44bfee90fb0d0a412a07b339f5089b26b9fe9d728e311a78a8f379eae6",
+      "last_updated": "2026-08-21T22:14:53.298327"
     },
     "claude-platform-on-aws.md": {
       "original_url": "https://code.claude.com/docs/en/claude-platform-on-aws",
@@ -700,8 +700,8 @@
     "monitoring-usage.md": {
       "original_url": "https://code.claude.com/docs/en/monitoring-usage",
       "original_md_url": "https://code.claude.com/docs/en/monitoring-usage.md",
-      "hash": "f3664077c262ee3c9b512d0dc7f0bbae0e1ab6d1ef5f2627d8b0edcfe4de9f5d",
-      "last_updated": "2026-08-19T16:22:24.918112"
+      "hash": "ad759be0df755f6a39147b5dd09c9364f21b109056fc127ddbcbc792b1b9c8e8",
+      "last_updated": "2026-08-21T22:15:55.241594"
     },
     "network-config.md": {
       "original_url": "https://code.claude.com/docs/en/network-config",
@@ -1119,8 +1119,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-08-21T19:22:59.013220",
-    "fetch_duration_seconds": 213.860437,
+    "last_fetch_completed": "2026-08-21T22:17:00.392108",
+    "fetch_duration_seconds": 186.211074,
     "total_pages_discovered": 186,
     "pages_fetched_successfully": 187,
     "pages_failed": 0,
@@ -1130,7 +1130,7 @@
     "total_files": 186,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-08-21T19:22:59.013247",
+  "last_updated": "2026-08-21T22:17:00.392127",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
