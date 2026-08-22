@@ -993,21 +993,21 @@
     "ide-integrations.md": {
       "original_url": "https://code.claude.com/docs/en/ide-integrations",
       "original_md_url": "https://code.claude.com/docs/en/ide-integrations.md",
-      "hash": "afef985e6c4239932f33a617bc07db055dc08778b381fb80a7d770f2b557e9d0",
-      "last_updated": "2026-08-21T22:51:13.632279",
+      "hash": "0d898ac104c68b4d001083810592088168b2f06cee1a7befdd20008b1f22b8e0",
+      "last_updated": "2026-08-22T16:50:17.537603",
       "fallback_to_english": true
     },
     "changelog.md": {
       "original_url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
       "original_raw_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-      "hash": "6bbc8768dd84d617db6561b1bf8f2d7fb4defb8b6f6be973340428064f39c522",
-      "last_updated": "2026-08-21T22:51:14.155640",
+      "hash": "4461db77cb4af82924725881bf8bfdd07ad6de750ff4133ce6bc78a1a126ebea",
+      "last_updated": "2026-08-22T16:50:18.159442",
       "source": "claude-code-repository"
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-08-22T13:53:29.975926",
-    "fetch_duration_seconds": 170.590771,
+    "last_fetch_completed": "2026-08-22T16:50:18.159488",
+    "fetch_duration_seconds": 168.337958,
     "total_pages_discovered": 165,
     "pages_fetched_successfully": 167,
     "pages_failed": 0,
@@ -1017,7 +1017,7 @@
     "total_files": 167,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-08-22T13:53:29.975966",
+  "last_updated": "2026-08-22T16:50:18.159515",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
