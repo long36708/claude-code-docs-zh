@@ -279,8 +279,8 @@
     "claude-apps-gateway.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/claude-apps-gateway",
       "original_md_url": "https://code.claude.com/docs/zh-CN/claude-apps-gateway.md",
-      "hash": "88a54e524041d0face404f15ef531850f147c00d6a03ade5d7469f833d87116e",
-      "last_updated": "2026-08-12T15:49:10.681523"
+      "hash": "e8ce46e5ac571d7cd42a71232c2cc63da942d7127a5887234b42d954f6108d94",
+      "last_updated": "2026-08-22T19:45:04.343169"
     },
     "claude-apps-gateway-config.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/claude-apps-gateway-config",
@@ -1006,8 +1006,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-08-22T16:50:18.159488",
-    "fetch_duration_seconds": 168.337958,
+    "last_fetch_completed": "2026-08-22T19:46:46.081311",
+    "fetch_duration_seconds": 142.848521,
     "total_pages_discovered": 165,
     "pages_fetched_successfully": 167,
     "pages_failed": 0,
@@ -1017,7 +1017,7 @@
     "total_files": 167,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-08-22T16:50:18.159515",
+  "last_updated": "2026-08-22T19:46:46.081337",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

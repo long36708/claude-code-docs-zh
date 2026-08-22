@@ -36,7 +36,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 * **上游路由**：客户端向网关发送 Anthropic Messages API，网关为每个上游进行转换，无论是 Amazon Bedrock、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Google Cloud 的 Agent Platform、Microsoft Foundry 还是 Anthropic API，并在它们之间进行故障转移。您可以更改区域、提供商或故障转移顺序，而开发人员无需注意或重新配置。
 
 <Frame>
-  <img src="https://mintcdn.com/claude-code/st9_ZQOFsZa3cKFl/images/claude-gateway-architecture.svg?fit=max&auto=format&n=st9_ZQOFsZa3cKFl&q=85&s=560770d8f49bbd6f1ca7090ed1f13c03" alt="显示 Claude Code 客户端通过 HTTPS 和持有者令牌连接到基础设施内自托管的 Claude apps gateway 的图表，网关针对您的 IdP 对用户进行签名，在 PostgreSQL 中存储身份验证状态，将遥测转发到您的 OTLP 收集器，并将推理转发到 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud、Microsoft Foundry 或 Anthropic API" width="760" height="320" data-path="images/claude-gateway-architecture.svg" />
+  <img src="https://mintcdn.com/claude-code/VbyXug8hBU9UK6oT/images/claude-gateway-architecture.svg?fit=max&auto=format&n=VbyXug8hBU9UK6oT&q=85&s=9e4f1190fc56718144190a3db61c63af" alt="显示 Claude Code 客户端通过 HTTPS 和持有者令牌连接到基础设施内自托管的 Claude apps gateway 的图表，网关针对您的 IdP 对用户进行签名，在 PostgreSQL 中存储身份验证状态，将遥测转发到您的 OTLP 收集器，并将推理转发到 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud、Microsoft Foundry 或 Anthropic API" width="760" height="320" data-path="images/claude-gateway-architecture.svg" />
 </Frame>
 
 <Note>
