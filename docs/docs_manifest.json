@@ -315,8 +315,8 @@
     "claude-directory.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/claude-directory",
       "original_md_url": "https://code.claude.com/docs/zh-CN/claude-directory.md",
-      "hash": "901f2a3e7cf8b0407804790a10900969706b075645b7123f0f22aeb9899750e9",
-      "last_updated": "2026-08-12T15:49:15.933262"
+      "hash": "f434666965089ceeb783b85038f9fae59f625a36d23d447a55e135d50864eacb",
+      "last_updated": "2026-08-22T02:33:45.232784"
     },
     "claude-platform-on-aws.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/claude-platform-on-aws",
@@ -1006,8 +1006,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-08-21T22:51:14.155702",
-    "fetch_duration_seconds": 169.570755,
+    "last_fetch_completed": "2026-08-22T02:35:42.038510",
+    "fetch_duration_seconds": 170.9281,
     "total_pages_discovered": 165,
     "pages_fetched_successfully": 167,
     "pages_failed": 0,
@@ -1017,7 +1017,7 @@
     "total_files": 167,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-08-21T22:51:14.155722",
+  "last_updated": "2026-08-22T02:35:42.038538",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
