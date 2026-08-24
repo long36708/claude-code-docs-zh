@@ -363,8 +363,8 @@
     "context-window.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/context-window",
       "original_md_url": "https://code.claude.com/docs/zh-CN/context-window.md",
-      "hash": "7584bcd2c44e574bc1bcef2dac5e558f539330945bdfc35c2f30f73a4a461922",
-      "last_updated": "2026-08-12T15:49:23.795965"
+      "hash": "17a5ba4f15d438e47c225bfef6831521bf3b5f19b42d1028961dd95a8ec63235",
+      "last_updated": "2026-08-24T19:53:34.765939"
     },
     "corporate-launcher.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/corporate-launcher",
@@ -993,8 +993,8 @@
     "ide-integrations.md": {
       "original_url": "https://code.claude.com/docs/en/ide-integrations",
       "original_md_url": "https://code.claude.com/docs/en/ide-integrations.md",
-      "hash": "0d898ac104c68b4d001083810592088168b2f06cee1a7befdd20008b1f22b8e0",
-      "last_updated": "2026-08-22T16:50:17.537603",
+      "hash": "7d1a1a1fc60bf05df5e1a3fc8929017b74e0cdbc247b810fec6ed5de68b76b20",
+      "last_updated": "2026-08-24T19:55:54.393328",
       "fallback_to_english": true
     },
     "changelog.md": {
@@ -1006,8 +1006,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-08-24T17:07:20.739793",
-    "fetch_duration_seconds": 197.529919,
+    "last_fetch_completed": "2026-08-24T19:55:55.072952",
+    "fetch_duration_seconds": 205.992519,
     "total_pages_discovered": 165,
     "pages_fetched_successfully": 167,
     "pages_failed": 0,
@@ -1017,7 +1017,7 @@
     "total_files": 167,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-08-24T17:07:20.739824",
+  "last_updated": "2026-08-24T19:55:55.072975",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
