@@ -209,7 +209,7 @@ Before v2.1.227, `Connection lost before a response was produced` read `Connecti
 Claude Code doesn't retry these failures:
 
 * A TLS certificate validation failure, such as a TLS-inspecting proxy, a missing `NODE_EXTRA_CA_CERTS` bundle, or an expired certificate. Claude Code reports the error on the first attempt, so you can fix the certificate setup right away; see [SSL certificate errors](#ssl-certificate-errors). Claude Code still retries transient TLS conditions such as a handshake timeout. Before v2.1.199, Claude Code retried certificate failures through the full retry budget before showing the error.
-* A server error, dropped connection, or stalled stream that arrives after Claude has completed a block of text or a tool call, or has started one after finishing its thinking, but before it finishes the response. Claude Code could execute the same tool calls twice if it re-ran the request, so it keeps what Claude completed and shows an [incomplete-response notice](#the-response-above-may-be-incomplete). Claude Code still runs any tool calls Claude completed and continues the turn from their results. Before v2.1.199, Claude Code discarded the partial output and reported the whole turn as an error when a server error arrived mid-stream.
+* A server error, dropped connection, or stalled stream that arrives after Claude has completed a block of text or a tool call, or has started one after finishing its thinking, but before it finishes the response. Claude Code doesn't re-run the request, because that could execute the same tool calls twice. It keeps what Claude completed, runs any tool calls Claude finished, and continues the turn from their results. For what you see in an interactive session and in a non-interactive one, read [The response above may be incomplete](#the-response-above-may-be-incomplete). Before v2.1.199, Claude Code discarded the partial output and reported the whole turn as an error when a server error arrived mid-stream.
 * A failure that arrives after Claude has finished the response: nothing needs retrying, so Claude Code keeps the complete response and ends the turn normally.
 * An [Amazon Bedrock streaming response with an unexpected content-type](#bedrock-streaming-response-has-an-unexpected-content-type), because the gateway or proxy rewriting the response would rewrite the retry the same way. Requires Claude Code v2.1.208 or later.
 * A non-streaming retry of a failed streaming request that gets a success status but [no Claude API message in the body](#api-returned-an-empty-or-malformed-response). Claude Code ends the turn with that error.
@@ -221,7 +221,13 @@ While retrying, the spinner shows a `Retrying in Ns · attempt x/y` countdown af
 
 As of v2.1.198, the usual spinner tip is suppressed during retries. Once the error reason is revealed, if the failure is a 529 overload the line below the countdown also names where to check service status: `status.claude.com` on the Anthropic API, or the provider or gateway host named in the message on other configurations.
 
-If no data arrives on the response stream for 20 seconds while a request is still pending, the spinner shows `Waiting for API response · will retry in … · check your network` before any retry has started. The request hasn't failed yet: the countdown runs to the point where Claude Code aborts the stalled connection. After the abort, Claude Code retries the request, ends the turn with an error when the failure isn't retryable or [retries run out](#automatic-retries), shows [The response above may be incomplete](#the-response-above-may-be-incomplete) and continues the turn from the results of any tool calls Claude completed, or ends the turn normally when Claude had already finished the response before the stall. The banner clears on its own once data resumes or a retry succeeds; if it reappears on every attempt, treat it as a [network issue](#unable-to-connect-to-api). Before v2.1.185, the banner appeared after 10 seconds with different wording.
+If no data arrives on the response stream for 20 seconds while a request is still pending, the spinner shows `Waiting for API response · will retry in … · check your network` before any retry has started. The request hasn't failed yet: the countdown runs to the point where Claude Code aborts the stalled connection. After the abort, what you see depends on how far the response had got:
+
+* Before Claude has completed a block of text or a tool call, or started one after finishing its thinking, Claude Code retries the request or ends the turn with an error. [Automatic retries](#automatic-retries) says which stalls it retries and how many times.
+* After Claude has completed a block of text or a tool call, or started one after finishing its thinking, but before Claude has finished the response, Claude Code keeps what Claude completed, continues the turn from any tool calls Claude finished, and shows [The response above may be incomplete](#the-response-above-may-be-incomplete). In a non-interactive session, Claude Code may first prompt Claude to continue the response; that entry says when it does and when you still see the notice there.
+* After Claude finished the response, Claude Code ends the turn normally.
+
+The banner clears on its own once data resumes or a retry succeeds. If it reappears on every attempt, treat it as a [network issue](#unable-to-connect-to-api). Before v2.1.185, the banner appeared after 10 seconds with different wording.
 
 While Claude is consulting the [advisor](/docs/en/advisor), the banner appears after 90 seconds without data instead of 20, because a long advisor review can send nothing for well over 20 seconds. Before v2.1.214, the 20-second threshold applied during advisor calls too, so the banner appeared during advisor reviews even when nothing was wrong.
 
@@ -310,10 +316,11 @@ API Error: The response stopped arriving. The response above may be incomplete.
 
 Before v2.1.227, `Connection lost mid-response` read `Connection closed mid-response` and `The response stopped arriving` read `Response stalled mid-stream`.
 
-When one of these failures lands at another point in the turn, Claude Code handles it without this notice:
+In three cases, Claude Code handles the failure without showing this notice right away:
 
 * Earlier in the response, Claude Code either retries the failure or ends the turn with a different error. See [Automatic retries](#automatic-retries).
 * When one of these failures arrives after Claude has finished the response, Claude Code keeps the complete response and ends the turn normally, without this notice. Before v2.1.222, Claude Code showed this notice when the connection dropped or stalled after the response finished, and reported the turn as an error even though the response was complete.
+* In a [non-interactive session](/docs/en/headless), such as a `-p` run, an [Agent SDK](/docs/en/agent-sdk/overview) run, or a [cloud session](/docs/en/claude-code-on-the-web), you don't have to send `continue` yourself when the cut-off response is in the main conversation and contains text but no tool calls: Claude Code keeps the partial output and prompts Claude to continue from where it stopped, up to three times in a row. You see this notice for such a response only once Claude Code has used up those continuations. Before v2.1.246, Claude Code ended a non-interactive turn with this notice on the first cut-off.
 
 **What to do:**
 
@@ -321,7 +328,7 @@ When one of these failures lands at another point in the turn, Claude Code handl
 * In [non-interactive mode](/docs/en/headless) (`-p`):
   * With the default text output, Claude Code prints the last completed block of text it still holds from earlier in the turn, followed by this message. When it holds none, Claude Code prints this message alone, for example because Claude Code compacted the conversation mid-turn and cleared that text. Before v2.1.219, Claude Code printed only this message in `-p` text output and dropped the response it had already produced.
   * With `--output-format json` or `stream-json`, Claude Code reports this message in the `result` field.
-  * To continue the turn, resume the session and send `continue` as described in [Continue conversations](/docs/en/headless#continue-conversations).
+  * To continue the turn once the connection is stable, resume the session and send `continue` as described in [Continue conversations](/docs/en/headless#continue-conversations).
 
 ### Auto mode cannot determine the safety of an action
 
@@ -1225,7 +1232,7 @@ The status is the proxy's answer to the `CONNECT`. The host never answered, so e
 **What to do:**
 
 * Check the address and credentials in the proxy variable, as [Proxy configuration](/docs/en/network-config#proxy-configuration) describes, then run `curl -x http://proxy.example.com:8080 -I https://api.anthropic.com` from the shell you start Claude Code in, using your own proxy URL. On Windows PowerShell, run `curl.exe`. If this probe fails the same way, fix the proxy setup first. If it succeeds, the refusal is specific to the artifact host.
-* If your network lets Claude Code reach the artifact host directly, add `.claudeusercontent.com` to [`NO_PROXY`](/docs/en/network-config#environment-variables).
+* If your network lets Claude Code reach the artifact host directly, add `.frame.claudeusercontent.com` to [`NO_PROXY`](/docs/en/network-config#environment-variables). Keep the entry that narrow: a broader `.claudeusercontent.com` entry also bypasses the proxy for `bridge.claudeusercontent.com`, which organizations with [IP allowlisting](/docs/en/network-config#organization-ip-allowlists-and-proxy-egress) need to keep on the proxy.
 
 Before v2.1.238, Claude Code reported a refused tunnel as a generic network error.
 
