@@ -670,8 +670,8 @@
     "mcp.md": {
       "original_url": "https://code.claude.com/docs/en/mcp",
       "original_md_url": "https://code.claude.com/docs/en/mcp.md",
-      "hash": "81eb377a5fa1990e23398ae100425f130f08869e87754f20938bb5f04b627fb9",
-      "last_updated": "2026-08-27T02:27:13.664702"
+      "hash": "19a036f16bd0fc454dbc1505ef23ca747f8c1dd33d20b8c36290c7aaa282ce84",
+      "last_updated": "2026-08-27T14:54:04.710865"
     },
     "mcp-quickstart.md": {
       "original_url": "https://code.claude.com/docs/en/mcp-quickstart",
@@ -1149,8 +1149,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-08-27T02:28:39.744359",
-    "fetch_duration_seconds": 203.229396,
+    "last_fetch_completed": "2026-08-27T14:55:28.277084",
+    "fetch_duration_seconds": 207.042701,
     "total_pages_discovered": 191,
     "pages_fetched_successfully": 192,
     "pages_failed": 0,
@@ -1160,7 +1160,7 @@
     "total_files": 191,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-08-27T02:28:39.744377",
+  "last_updated": "2026-08-27T14:55:28.277116",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
