@@ -363,8 +363,8 @@
     "context-window.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/context-window",
       "original_md_url": "https://code.claude.com/docs/zh-CN/context-window.md",
-      "hash": "17a5ba4f15d438e47c225bfef6831521bf3b5f19b42d1028961dd95a8ec63235",
-      "last_updated": "2026-08-24T19:53:34.765939"
+      "hash": "ad9baa9779dbe84d2b1e1fa9684bfe2ebeebc4ef0338d5adce9505d92b7bf807",
+      "last_updated": "2026-09-01T06:27:51.976845"
     },
     "corporate-launcher.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/corporate-launcher",
@@ -1006,8 +1006,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-09-01T01:23:15.178328",
-    "fetch_duration_seconds": 159.499847,
+    "last_fetch_completed": "2026-09-01T06:29:34.363576",
+    "fetch_duration_seconds": 163.985985,
     "total_pages_discovered": 165,
     "pages_fetched_successfully": 167,
     "pages_failed": 0,
@@ -1017,7 +1017,7 @@
     "total_files": 167,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-09-01T01:23:15.178357",
+  "last_updated": "2026-09-01T06:29:34.363605",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
