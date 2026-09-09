@@ -993,8 +993,8 @@
     "ide-integrations.md": {
       "original_url": "https://code.claude.com/docs/en/ide-integrations",
       "original_md_url": "https://code.claude.com/docs/en/ide-integrations.md",
-      "hash": "8a4eb897b158eed267acc899b992fd766d96ba2c36d1d2f05d4a8c83d1be0155",
-      "last_updated": "2026-09-02T06:08:36.191471",
+      "hash": "acb33263da6c359173f74302128119aa3bc6183cf8761245f17e59d5f7a1d02c",
+      "last_updated": "2026-09-09T17:14:57.842350",
       "fallback_to_english": true
     },
     "changelog.md": {
@@ -1006,8 +1006,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-09-09T12:28:15.327402",
-    "fetch_duration_seconds": 187.490375,
+    "last_fetch_completed": "2026-09-09T17:14:58.374236",
+    "fetch_duration_seconds": 162.878436,
     "total_pages_discovered": 165,
     "pages_fetched_successfully": 167,
     "pages_failed": 0,
@@ -1017,7 +1017,7 @@
     "total_files": 167,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-09-09T12:28:15.327437",
+  "last_updated": "2026-09-09T17:14:58.374263",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
