@@ -7,7 +7,7 @@
 > 从.zip存档和URL加载插件，使用Ctrl+R跨每个项目搜索命令历史，从本地HEAD或远程默认分支创建新worktrees，以及使用自动模式硬拒绝规则无条件阻止操作。
 
 <div className="digest-meta">
-  <span>Releases <a href="/docs/docs/en/changelog#2-1-128">v2.1.128 → v2.1.136</a></span>
+  <span>Releases <a href="/docs/en/changelog#2-1-128">v2.1.128 → v2.1.136</a></span>
   <span>2 features · 5月4–8日</span>
 </div>
 

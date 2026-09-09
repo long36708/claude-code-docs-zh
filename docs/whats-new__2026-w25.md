@@ -7,7 +7,7 @@
 > 从您的会话中使用 Artifacts 发布实时可共享页面，在拒绝和询问规则中匹配工具参数，以及使用 /config 从提示中设置任何设置。
 
 <div className="digest-meta">
-  <span>发布版本 <a href="/docs/docs/en/changelog#2-1-178">v2.1.178 → v2.1.183</a></span>
+  <span>发布版本 <a href="/docs/en/changelog#2-1-178">v2.1.178 → v2.1.183</a></span>
   <span>3 项功能 · 6 月 15–19 日</span>
 </div>
 
@@ -28,7 +28,7 @@
   > Make an artifact that walks through this PR with the diff annotated inline.
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/artifacts#create-an-artifact">创建 Artifact</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/artifacts#create-an-artifact">创建 Artifact</a>
 </div>
 
 <div className="digest-feature">
@@ -49,7 +49,7 @@
   }
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/permissions#match-by-input-parameter">按输入参数匹配</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/permissions#match-by-input-parameter">按输入参数匹配</a>
 </div>
 
 <div className="digest-feature">
@@ -66,7 +66,7 @@
   > /config thinking=false
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/commands#all-commands">命令参考</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/commands#all-commands">命令参考</a>
 </div>
 
 <div className="digest-wins">

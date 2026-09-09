@@ -7,7 +7,7 @@
 > 在 Claude Opus 4.8 上运行 Claude Code，使用动态工作流编排大型任务，使用 security-guidance 插件捕获安全问题，并以更低的价格在 Opus 4.8 上使用快速模式。
 
 <div className="digest-meta">
-  <span>发布版本 <a href="/docs/docs/en/changelog#2-1-150">v2.1.150 → v2.1.157</a></span>
+  <span>发布版本 <a href="/docs/en/changelog#2-1-150">v2.1.150 → v2.1.157</a></span>
   <span>4 项功能 · 5 月 25–29</span>
 </div>
 

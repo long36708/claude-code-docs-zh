@@ -7,7 +7,7 @@
 > 自动模式用于免提权限、内置计算机使用、云端PR自动修复、转录搜索和Windows PowerShell工具。
 
 <div className="digest-meta">
-  <span>发布版本 <a href="/docs/docs/en/changelog#2-1-83">v2.1.83 → v2.1.85</a></span>
+  <span>发布版本 <a href="/docs/en/changelog#2-1-83">v2.1.83 → v2.1.85</a></span>
   <span>6项功能 · 3月23–27日</span>
 </div>
 
@@ -33,7 +33,7 @@
   }
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/permission-modes">权限模式指南</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/permission-modes">权限模式指南</a>
 </div>
 
 <div className="digest-feature">
@@ -54,7 +54,7 @@
   > Open the iOS simulator, tap through the onboarding flow, and screenshot each step
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/desktop#let-claude-use-your-computer">计算机使用指南</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/desktop#let-claude-use-your-computer">计算机使用指南</a>
 </div>
 
 <div className="digest-feature">
@@ -71,7 +71,7 @@
 
   <p className="digest-feature-try">在 Claude Code web 上创建 PR 后，在 CI 面板中切换自动修复。</p>
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/claude-code-on-the-web#auto-fix-pull-requests">自动修复拉取请求</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests">自动修复拉取请求</a>
 </div>
 
 <div className="digest-feature">
@@ -91,7 +91,7 @@
   N         # previous match
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/fullscreen#search-and-review-the-conversation">全屏指南</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/fullscreen#search-and-review-the-conversation">全屏指南</a>
 </div>
 
 <div className="digest-feature">
@@ -113,7 +113,7 @@
   }
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/tools-reference#powershell-tool">PowerShell 工具文档</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/tools-reference#powershell-tool">PowerShell 工具文档</a>
 </div>
 
 <div className="digest-feature">
@@ -140,7 +140,7 @@
   }
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/hooks">Hooks 参考</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/hooks">Hooks 参考</a>
 </div>
 
 <div className="digest-wins">

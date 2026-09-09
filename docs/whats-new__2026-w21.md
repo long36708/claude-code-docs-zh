@@ -7,7 +7,7 @@
 > 在 Pro 计划上使用自动模式并支持 Sonnet 4.6，在 /usage 中查看哪些 skills、subagents 和 MCP servers 驱动您的计划限制，并使用新的 /code-review 命令查看差异。
 
 <div className="digest-meta">
-  <span>Releases <a href="/docs/docs/en/changelog#2-1-143">v2.1.143 → v2.1.149</a></span>
+  <span>Releases <a href="/docs/en/changelog#2-1-143">v2.1.143 → v2.1.149</a></span>
   <span>1 feature · 5 月 18–22</span>
 </div>
 

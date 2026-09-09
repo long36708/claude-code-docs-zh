@@ -7,7 +7,7 @@
 > CLI 中的计算机使用、交互式产品内课程、无闪烁渲染、按工具 MCP 结果大小覆盖以及 PATH 上的插件可执行文件。
 
 <div className="digest-meta">
-  <span>发布版本 <a href="/docs/docs/en/changelog#2-1-86">v2.1.86 → v2.1.91</a></span>
+  <span>发布版本 <a href="/docs/en/changelog#2-1-86">v2.1.86 → v2.1.91</a></span>
   <span>5 项功能 · 3 月 30 日 – 4 月 3 日</span>
 </div>
 
@@ -29,7 +29,7 @@
   > Open the iOS simulator, tap through onboarding, and screenshot each step
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/computer-use">计算机使用指南</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/computer-use">计算机使用指南</a>
 </div>
 
 <div className="digest-feature">
@@ -50,7 +50,7 @@
   > /powerup
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/commands">命令参考</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/commands">命令参考</a>
 </div>
 
 <div className="digest-feature">
@@ -72,7 +72,7 @@
   claude
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/fullscreen">全屏渲染</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/fullscreen">全屏渲染</a>
 </div>
 
 <div className="digest-feature">
@@ -95,7 +95,7 @@
   }
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/mcp#raise-the-limit-for-a-specific-tool">MCP 参考</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/mcp#raise-the-limit-for-a-specific-tool">MCP 参考</a>
 </div>
 
 <div className="digest-feature">
@@ -116,7 +116,7 @@
       └── my-tool
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/docs/plugins-reference#file-locations-reference">插件参考</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/plugins-reference#file-locations-reference">插件参考</a>
 </div>
 
 <div className="digest-wins">
