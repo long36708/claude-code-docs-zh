@@ -208,7 +208,7 @@ Bash 规则中的 `*` 匹配任何文本，包括空格，因此一个规则涵�
   工具名称通配符
 </h3>
 
-拒绝和询问规则也接受工具名称位置中的 glob 模式。该模式必须匹配完整的工具名称：`"*"` 匹配每个工具，`"mcp__*"` 匹配所有服务器中的每个 MCP 工具。由裸名称 glob 拒绝规则匹配的工具会从 Claude 的上下文中移除，与裸工具名称相同，包括 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 异常：glob 拒绝在任何其他工具保留时无法移除它，glob 询问永远不会提示它。此配置拒绝每个 MCP 工具：
+拒绝和询问规则也接受工具名称位置中的 glob 模式。该模式必须匹配完整的工具名称：`"*"` 匹配每个工具，`"mcp__*"` 匹配所有服务器中的每个 MCP 工具。由裸名称 glob 拒绝规则匹配的工具会从 Claude 的上下文中移除，与裸工具名称相同，包括 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 例外：glob 拒绝在任何其他工具保留时无法移除它，glob 询问永远不会提示它。此配置拒绝每个 MCP 工具：
 
 ```json theme={null}
 {
@@ -582,7 +582,7 @@ Hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask 规则，�
 
 设置 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 以使文件工具在每种权限模式下都拒绝它围栏的路径。在自动模式下，Claude Code 会在 Claude 首次[读取工作目录外的文件](/docs/zh-CN/permission-modes#first-read-outside-the-working-directories)时提供打开它。
 
-在 macOS 上的后台会话中，会话主机会单独从您的终端请求访问受保护的文件夹（如 `~/Desktop`、`~/Documents` 和 `~/Downloads`），当 Claude 需要在那里读取或写入文件时；如果读取失败并显示 `Operation not permitted`，请参阅[如何向后台会话授予文件夹访问权限](/docs/zh-CN/agent-view#background-sessions-can't-read-desktop-documents-or-downloads-on-macos)。
+在 macOS 上的后台会话中，会话主机会单独从您的终端请求访问受保护的文件夹（如 `~/Desktop`、`~/Documents` 和 `~/Downloads`），当 Claude 需要在那里读取或写入文件时；如果读取失败并显示 `Operation not permitted`，请参阅[如何向后台会话授予文件夹访问权限](/docs/zh-CN/agent-view#background-sessions-can%E2%80%99t-read-desktop-documents-or-downloads-on-macos)。
 
 <h3 id="move-the-session-to-another-directory">
   将会话移动到另一个目录
@@ -698,18 +698,18 @@ Claude Code 仅在交互式会话中显示信任对话框。`claude -p` 运行�
   当您的本地设置文件需要信任时
 </h3>
 
-`.claude/settings.local.json` 通常是您自己的文件，因此 Claude Code 应用其允许规则和其他目录而无需信任步骤。当该文件在 git 中被跟踪，或 `.claude` 是符号链接时，Claude Code 将其视为存储库提供的文件，并保持其规则直到您信任该文件夹。
+`.claude/settings.local.json` 通常是您自己的文件，因此 Claude Code 应用其允许规则和其他目录而无需信任步骤。当该文件在 git 中被跟踪，或 `.claude` 是符号链接时，Claude Code 将其视为存储库提供的文件，并暂不应用其规则，直到您信任该文件夹为止。
 
 Claude Code 运行 git 来区分两者，并且仅在您信任该文件夹后才运行 git：您接受了它或其父目录的信任对话框，其信任扩展到它，或您在 `-p` 或 SDK 会话中，这被视为已接受。在此之前，您启动 Claude Code 的位置决定了该文件规则会发生什么：
 
-* **在您的配置主目录中：** Claude Code 立即应用该文件夹的 `.claude/settings.local.json` 而无需运行 git。您的配置主目录是您的主目录，或一个您已将其 `.claude` 子目录设置为 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars#variables) 的目录。如果该 `CLAUDE_CONFIG_DIR` 目录位于 git 存储库内，并且 Claude Code [在存储库根目录保持您的本地设置](/docs/zh-CN/settings#where-claude-code-looks-for-each-file)，它会像其他地方一样保持规则。
-* **其他任何地方：** Claude Code 像项目设置一样保持该文件的规则。一旦检查运行，Claude Code 应用未跟踪文件的规则，或位于任何 git 存储库外的目录中的文件的规则，即使您尚未信任该确切文件夹。
+* **在您的配置主目录中：** Claude Code 立即应用该文件夹的 `.claude/settings.local.json` 而无需运行 git。您的配置主目录是您的主目录，或一个您已将其 `.claude` 子目录设置为 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars#variables) 的目录。如果该 `CLAUDE_CONFIG_DIR` 目录位于 git 存储库内，并且 Claude Code 改为[将您的本地设置保留在存储库根目录](/docs/zh-CN/settings#where-claude-code-looks-for-each-file)，它会像在其他任何地方一样暂不应用这些规则。
+* **其他任何地方：** Claude Code 像对待项目设置一样暂不应用该文件的规则。一旦检查运行，Claude Code 应用未跟踪文件的规则，或位于任何 git 存储库外的目录中的文件的规则，即使您尚未信任该确切文件夹。
 
 <Note>
   配置主目录例外仅跳过信任步骤。`~/.claude/settings.local.json` 仍然是[本地范围](/docs/zh-CN/settings#compare-the-scope-of-each-settings-file)，因此 Claude Code 仅在您从主目录本身启动的会话中读取它，而不是在每个项目中。要在所有项目中应用权限规则，请将它们添加到您的用户设置中：`~/.claude/settings.json`，或当设置 `CLAUDE_CONFIG_DIR` 时为 `$CLAUDE_CONFIG_DIR/settings.json`。
 </Note>
 
-在版本 2.1.196 至 2.1.199 中，Claude Code 在您的配置主目录和 git 存储库外保持该文件的规则，并在那里打印[`this workspace has not been trusted`](/docs/zh-CN/errors#workspace-has-not-been-trusted)警告。在 v2.1.207 之前，Claude Code 在您接受对话框之前应用未跟踪文件的规则。
+在版本 2.1.196 至 2.1.199 中，Claude Code 在您的配置主目录中和 git 存储库外也会暂不应用该文件的规则，并在那里打印[`this workspace has not been trusted`](/docs/zh-CN/errors#workspace-has-not-been-trusted)警告。在 v2.1.207 之前，Claude Code 在您接受对话框之前应用未跟踪文件的规则。
 
 <h3 id="what-runs-before-you-trust-a-folder">
   在您信任文件夹之前运行什么

@@ -79,16 +79,16 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 
 所有这些都接受相同的规则格式 `ToolName(specifier)`。specifier 取决于工具，多个工具共享一种格式：
 
-| 规则格式                           | 适用于                       | 详情                                                         |
-| :----------------------------- | :------------------------ | :--------------------------------------------------------- |
-| `Bash(npm run *)`              | Bash, Monitor             | [命令模式匹配](/docs/zh-CN/permissions#bash)                          |
-| `PowerShell(Get-ChildItem *)`  | PowerShell                | [命令模式匹配](/docs/zh-CN/permissions#powershell)                    |
-| `Read(~/secrets/**)`           | Read, Grep, Glob, LSP     | [路径模式匹配](/docs/zh-CN/permissions#read-and-edit)                 |
-| `Edit(/src/**)`                | Edit, Write, NotebookEdit | [路径模式匹配](/docs/zh-CN/permissions#read-and-edit)                 |
-| `Skill(deploy *)`              | Skill                     | [Skill 名称匹配](/docs/zh-CN/skills#restrict-claude's-skill-access) |
-| `Agent(Explore)`               | Agent                     | [Subagent 类型匹配](/docs/zh-CN/permissions#agent-subagents)        |
-| `WebFetch(domain:example.com)` | WebFetch                  | [域名匹配](/docs/zh-CN/permissions#webfetch)                        |
-| `WebSearch`                    | WebSearch                 | 无 specifier；允许或拒绝整个工具                                      |
+| 规则格式                           | 适用于                       | 详情                                                                 |
+| :----------------------------- | :------------------------ | :----------------------------------------------------------------- |
+| `Bash(npm run *)`              | Bash, Monitor             | [命令模式匹配](/docs/zh-CN/permissions#bash)                                  |
+| `PowerShell(Get-ChildItem *)`  | PowerShell                | [命令模式匹配](/docs/zh-CN/permissions#powershell)                            |
+| `Read(~/secrets/**)`           | Read, Grep, Glob, LSP     | [路径模式匹配](/docs/zh-CN/permissions#read-and-edit)                         |
+| `Edit(/src/**)`                | Edit, Write, NotebookEdit | [路径模式匹配](/docs/zh-CN/permissions#read-and-edit)                         |
+| `Skill(deploy *)`              | Skill                     | [Skill 名称匹配](/docs/zh-CN/skills#restrict-claude%E2%80%99s-skill-access) |
+| `Agent(Explore)`               | Agent                     | [Subagent 类型匹配](/docs/zh-CN/permissions#agent-subagents)                |
+| `WebFetch(domain:example.com)` | WebFetch                  | [域名匹配](/docs/zh-CN/permissions#webfetch)                                |
+| `WebSearch`                    | WebSearch                 | 无 specifier；允许或拒绝整个工具                                              |
 
 此处未列出的工具，例如 `ExitPlanMode` 或 `ShareOnboardingGuide`，仅接受不带 specifier 的裸工具名称。
 

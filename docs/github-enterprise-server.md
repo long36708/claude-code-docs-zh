@@ -101,7 +101,7 @@ Claude 在您保存连接时生成应用的 webhook URL。点击 **添加配置*
   开发人员工作流
 </h2>
 
-一旦您的管理员连接了 GHES 实例，就不需要开发人员端的配置。Claude Code 从您工作目录中的 git 远程自动检测您的 GHES 主机名。
+一旦所有者连接了 GHES 实例，就不需要开发人员端的配置。Claude Code 从您工作目录中的 git 远程自动检测您的 GHES 主机名。
 
 像往常一样从您的 GHES 实例克隆存储库，将 `github.example.com` 和存储库路径替换为您的 GHES 主机名和存储库：
 

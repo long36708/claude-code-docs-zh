@@ -275,7 +275,7 @@ Fakechat 是一个官方支持的演示 channel，在 localhost 上运行聊天 
   </Step>
 </Steps>
 
-如果 Claude 在您离开终端时遇到权限提示，会话会暂停，直到您响应。声明[权限中继功能](/docs/zh-CN/channels-reference#relay-permission-prompts)的 Channel 服务器可以将这些提示转发给您，以便您可以远程批准或拒绝。对于无人值守使用，[`--dangerously-skip-permissions`](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode) 绕过大多数提示，但仅在您信任的环境中使用。即使这样，[actions no mode 自动批准](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)仍然适用。
+如果 Claude 在您离开终端时遇到权限提示，会话会暂停，直到您响应。声明[权限中继功能](/docs/zh-CN/channels-reference#relay-permission-prompts)的 Channel 服务器可以将这些提示转发给您，以便您可以远程批准或拒绝。对于无人值守使用，[`--dangerously-skip-permissions`](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode) 绕过大多数提示，但仅在您信任的环境中使用。即使这样，[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)仍然适用。
 
 当您使用 `-p` 以非交互模式运行 channels 时，需要终端输入的工具（如多选问题和 Plan Mode 批准）被禁用，以便会话永远不会因等待输入而停滞。
 
@@ -306,7 +306,7 @@ iMessage 的工作方式不同：给自己发短信会自动绕过门禁，您�
 
 管理员通过两个[托管设置](/docs/zh-CN/settings)控制可用性，用户无法覆盖。默认值取决于您如何进行身份验证：
 
-* **claude.ai Team 和 Enterprise**：channels 被阻止，直到管理员[启用它们](#enable-channels-for-your-organization)。
+* **claude.ai Team 和 Enterprise**：channels 被阻止，直到所有者[启用它们](#enable-channels-for-your-organization)。
 * **Anthropic 控制台与 API 密钥身份验证**：channels 默认被允许。仅当您的组织部署托管设置时才需要此设置。
 
 在所有情况下，在用户使用 `--channels` 为会话选择加入之前，没有 channel 会运行。
@@ -322,7 +322,7 @@ iMessage 的工作方式不同：给自己发短信会自动绕过门禁，您�
   为您的组织启用 channels
 </h3>
 
-管理员可以从 [**claude.ai → 管理员设置 → Claude Code → Channels**](https://claude.ai/admin-settings/claude-code) 启用 channels，或通过在托管设置中将 `channelsEnabled` 设置为 `true`。
+可以从 [**claude.ai → 管理员设置 → Claude Code → Channels**](https://claude.ai/admin-settings/claude-code) 为您的组织启用 channels（需要所有者角色），或通过在托管设置中将 `channelsEnabled` 设置为 `true`。
 
 启用后，您组织中的用户可以使用 `--channels` 将 channel 服务器选择加入到各个会话中。如果设置被禁用或未设置，MCP 服务器仍会连接，其工具可以工作，但 channel 消息不会到达。启动警告会告诉用户让管理员启用该设置。
 

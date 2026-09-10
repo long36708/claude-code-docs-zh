@@ -197,7 +197,7 @@ OTLP 事件日志记录在运行期间发出，携带相同的跟踪上下文：
       ...process.env,
       // ... 来自启用遥测导出示例的导出器配置 ...
       OTEL_SERVICE_NAME: "support-triage-agent",
-      OTEL_RESOURCE_ATTRIBUTES":
+      OTEL_RESOURCE_ATTRIBUTES:
         "service.version=1.4.0,deployment.environment=production",
     },
   };

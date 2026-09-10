@@ -36,7 +36,7 @@ Claude Code 的**默认**输出样式是其标准指令集，旨在帮助你高�
 
 * **Terminal**：运行 `/config` 并选择**输出样式**从菜单中选择一种样式。Claude Code 将你的选择保存到[本地项目级别](/docs/zh-CN/settings)的 `.claude/settings.local.json`。
 * **VS Code extension**：使用 `/` 打开[命令菜单](/docs/zh-CN/vs-code#use-the-prompt-box)并选择**输出样式**来选择一种样式，包括你的自定义样式。Claude Code 将你的选择保存到 `.claude/settings.local.json`，这是终端菜单写入的同一个文件。需要 Claude Code v2.1.257 或更高版本。
-* **Desktop app**：在设置文件中设置 `outputStyle` 字段，例如 `.claude/settings.local.json`，这是终端菜单写入的文件。当你在那里运行 `/config` 时，Claude Code [打开**设置 > Claude Code**](/docs/zh-CN/desktop#what's-not-available-in-desktop)而不是菜单。
+* **Desktop app**：在设置文件中设置 `outputStyle` 字段，例如 `.claude/settings.local.json`，这是终端菜单写入的文件。当你在那里运行 `/config` 时，Claude Code [打开**设置 > Claude Code**](/docs/zh-CN/desktop#what%E2%80%99s-not-available-in-desktop)而不是菜单。
 
 <Note>独立的 `/output-style` 命令在 v2.1.73 中已弃用，在 v2.1.91 中被移除。使用 `/config` 或直接编辑 `outputStyle` 设置。</Note>
 

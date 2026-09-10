@@ -48,7 +48,7 @@ Claude Code offers three ways to schedule recurring or one-off work:
 
 * 内置命令，例如 `/permissions`、`/model` 或 `/clear`
 * 标记为 [`disable-model-invocation: true`](/docs/zh-CN/skills#frontmatter-reference) 的 skill，包括 bundled `/verify` skill
-* 由 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 设置或 `Skill` [deny rule](/docs/zh-CN/skills#restrict-claude's-skill-access) 从 Claude 扣留的 skill
+* 由 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 设置或 `Skill` [deny rule](/docs/zh-CN/skills#restrict-claude%E2%80%99s-skill-access) 从 Claude 扣留的 skill
 * [MCP prompts](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)，例如 `/mcp__github__list_prs`
 
 <h3 id="run-on-a-fixed-interval">

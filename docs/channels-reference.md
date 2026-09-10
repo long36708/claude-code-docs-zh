@@ -338,7 +338,7 @@ Claude Code 不确认通知。`mcp.notification()` 上的 `await` 在消息写�
 
 这是完整的 `webhook.ts`，具有双向支持。出站回复通过 `GET /events` 使用 [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) (SSE) 流式传输，因此 `curl -N localhost:8788/events` 可以实时观看它们；入站聊天到达 `POST /`：
 
-```ts title="Full webhook.ts with reply tool' expandable theme={null}
+```ts title="Full webhook.ts with reply tool" expandable theme={null}
 #!/usr/bin/env bun
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
@@ -447,7 +447,7 @@ if (!allowed.has(message.from.id)) {  // 发送者，不是房间
 await mcp.notification({ ... })
 ```
 
-根据发送者的身份而不是聊天或房间身份进行门控：示例中的 `message.from.id`，而不是 `message.chat.id`。在群组聊天中，这些不同，根据房间进行门控会让允许列表中的任何人向会话注入消息。
+根据发送者的身份而不是聊天或房间身份进行门控：示例中的 `message.from.id`，而不是 `message.chat.id`。在群组聊天中，这些不同，根据房间进行门控会让已列入允许列表的群组中的任何人向会话注入消息。
 
 [Telegram](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/telegram) 和 [Discord](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/discord) 频道以相同的方式在发送者允许列表上进行门控。它们通过[配对](/docs/zh-CN/channels#security)引导列表。有关完整配对流程，请参阅任一实现。[iMessage](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/imessage) 频道采用不同的方法：它在启动时从 Messages 数据库检测用户自己的地址，并自动让它们通过，其他发送者通过句柄添加。
 
@@ -783,7 +783,7 @@ curl -N localhost:8788/events
 curl -d "list the files in this directory" -H "X-Sender: dev" localhost:8788
 ```
 
-列出文件是只读的，所以 Claude 在没有批准的情况下运行它。当 Claude 调用 `reply` 工具发送其答案回复时，权限对话打开。本地对话在您的 Claude Code 终端中打开，片刻后，提示出现在 `/events` 流中，包括五字母 ID。从远程端批准它：
+列出文件是只读的，所以 Claude 在没有批准的情况下运行它。当 Claude 调用 `reply` 工具发送其答案回复时，权限对话打开。本地对话在您的 Claude Code 终端中打开，片刻后，`mcp__webhook__reply` 的提示出现在 `/events` 流中，包括五字母 ID。从远程端批准它：
 
 ```bash theme={null}
 curl -d "yes <id>" -H "X-Sender: dev" localhost:8788

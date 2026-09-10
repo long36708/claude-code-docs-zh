@@ -123,7 +123,7 @@ claude --cloud "Refactor the logger to use structured output"
 
 当你从未连接到 GitHub 的存储库运行 `claude --cloud` 时，Claude Code 会捆绑你的本地存储库并直接上传到云会话。捆绑包包括你的完整存储库历史，跨所有分支，加上对跟踪文件的任何未提交更改。
 
-在 macOS、Linux 和 WSL 上，Claude Code 将未提交的更改留在名称类似于凭证或密钥的文件之外，并命名它留下的文件。这涵盖 `.env` 文件、Terraform `*.tfvars` 文件和密钥文件，如 `id_rsa` 和 `*.pem`。会话以每个的已提交版本开始，或如果没有提交则没有文件。在链接的 worktree、submodule 或类似布局中，Claude Code 将这些更改与其余部分一起上传，并命名它上传的文件。
+在 macOS、Linux 和 WSL 上，Claude Code 会将名称类似于凭证或密钥的文件的未提交更改排除在上传之外，并列出它排除的文件的名称。这涵盖 `.env` 文件、Terraform `*.tfvars` 文件和密钥文件，如 `id_rsa` 和 `*.pem`。会话以每个的已提交版本开始，或如果没有提交则没有文件。在链接的 worktree、submodule 或类似布局中，Claude Code 将这些更改与其余部分一起上传，并列出它上传的文件的名称。
 
 当 GitHub 访问不可用时，此回退会自动激活。要即使在 GitHub 已连接时也强制它，请设置 `CCR_FORCE_BUNDLE=1`：
 

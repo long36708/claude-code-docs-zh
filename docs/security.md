@@ -24,7 +24,7 @@
 
 在 Manual mode 中，Claude Code 在运行可以修改您的系统的 Bash 命令之前也会询问。它运行一组内置的[只读命令](/docs/zh-CN/permissions#read-only-commands)，如 `ls`、`cat` 和 `git status`，无需询问。您和您的组织可以直接配置这些权限。
 
-在 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 中，一个单独的分类器模型会审查操作而不是您，并阻止它认为不安全的操作。[分类器如何评估操作](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions) 列出了 Claude Code 直接批准的操作、发送给分类器的操作以及 Claude Code 仍然询问您的操作。您的明确要求和拒绝规则仍然适用，您的组织可以 [关闭 auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。
+在 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 中，一个单独的分类器模型会审查操作而不是您，并阻止它认为不安全的操作。[分类器如何评估操作](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions) 列出了 Claude Code 直接批准的操作、发送给分类器的操作以及 Claude Code 仍然询问您的操作。您显式设置的 ask 规则和拒绝规则仍然适用，您的组织可以 [关闭 auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。
 
 会话开始时使用哪种权限模式取决于您的计划、启动它的界面以及您的设置和您的组织的设置；请参阅 [Permission modes](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)。
 

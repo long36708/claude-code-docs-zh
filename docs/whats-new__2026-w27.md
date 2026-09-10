@@ -34,7 +34,7 @@
     <span className="digest-feature-pill">v2.1.198</span>
   </div>
 
-  <p className="digest-feature-lede">Chrome 集成已对所有直接 Anthropic 计划的用户正式推出预览版。Claude Code 通过 Claude in Chrome 扩展程序驱动您的浏览器：它打开标签页、点击浏览页面、填充表单、读取控制台日志并共享您的登录状态，因此它可以测试它构建的应用程序，而无需您切换上下文。</p>
+  <p className="digest-feature-lede">Chrome 集成已对所有直接 Anthropic 计划的用户结束预览阶段，正式推出。Claude Code 通过 Claude in Chrome 扩展程序驱动您的浏览器：它打开标签页、点击浏览页面、填充表单、读取控制台日志并共享您的登录状态，因此它可以测试它构建的应用程序，而无需您切换上下文。</p>
 
   <a className="digest-feature-link" href="/docs/zh-CN/chrome">使用 Claude Code 与 Chrome</a>
 </div>
@@ -93,7 +93,7 @@
     <div>"default"权限模式现在在 CLI、`--help`、VS Code 和 JetBrains 中命名为"Manual"；`--permission-mode manual` 与 `default` 一起被接受</div>
     <div>新的 <code>/dataviz</code> 技能提供图表和仪表板设计指导，带有可运行的调色板验证器</div>
     <div>内置的 Explore 代理现在继承主会话的模型（上限为 Opus），而不是在 Haiku 上运行</div>
-    <div>从 <code>claude agents</code> 启动的后台代理现在在 worktree 中完成代码工作时提交、推送并打开草稿 PR，而不是停止询问</div>
+    <div>从 <code>claude agents</code> 启动的后台代理现在在 worktree 中完成代码工作时提交、推送并打开草稿 PR，而不是停下来询问您</div>
     <div>带有连字符标识符（如 <code>code-reviewer</code>）的 Hook 匹配器现在精确匹配而不是子字符串匹配；使用 <code>mcp\_\_brave-search\_\_.\*</code> 匹配来自连字符 MCP 服务器的所有工具</div>
     <div>与您的使用限制无关的瞬时服务器速率限制错误现在对订阅者自动重试并进行退避，而不是使轮次失败</div>
     <div>流式空闲监视程序现在默认对所有提供商启用：当响应流在 5 分钟内不产生任何事件时，它会中止并重试（<code>CLAUDE\_ENABLE\_STREAM\_WATCHDOG=0</code> 禁用）</div>

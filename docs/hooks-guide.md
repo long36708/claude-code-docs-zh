@@ -198,7 +198,7 @@ Hooks 让你在 Claude Code 生命周期中的关键点运行代码：编辑后�
 | `elicitation_response`       | MCP 引导响应被发送回服务器                                                                                                                                                                                                                   |
 | `agent_needs_input`          | 后台会话开始等待你的输入，同时 [agent view](/docs/zh-CN/agent-view) 打开，或当前会话询问你一个[代理团队队友的终端设置问题](/docs/zh-CN/agent-teams#choose-a-display-mode)，且你约六秒内没有输入                                                                                                 |
 | `agent_completed`            | 后台会话完成或失败。仅在 [agent view](/docs/zh-CN/agent-view) 打开时触发                                                                                                                                                                                |
-| `quota_auto_resume_fired`    | Claude Code 在 claude.ai 使用限制暂停后继续你的任务：在重置时，或更早当你在 Claude Code 中做的某些事情（如添加使用额度、升级你的计划或切换模型）使使用可用时，使用 [model-setting 异常](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)                                                   |
+| `quota_auto_resume_fired`    | Claude Code 在 claude.ai 使用限制暂停后继续你的任务：在重置时，或更早当你在等待期间在 Claude Code 中做的某些事情（如添加使用额度、升级你的计划或切换模型）使使用量再次可用时，但有[模型设置例外](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)                                                      |
 | `quota_auto_resume_stale`    | claude.ai 使用限制在你的计算机睡眠超过约 30 分钟时重置。Claude Code 等待你按 `Enter` 而不是继续。在较短的睡眠后它继续并改为触发 `quota_auto_resume_fired`                                                                                                                       |
 | `quota_auto_resume_disabled` | Claude Code 结束其对 claude.ai 使用限制的等待而不继续你的任务：[`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit) 关闭或重置在 Claude Code 自己启动的等待期间移动超过 24 小时，继续的任务继续命中限制，或继续在到达模型前被阻止。当你按 `Esc` 或 `Ctrl+C` 或选择**不自动继续**时不触发 |
 
@@ -470,7 +470,7 @@ Claude Code 将你的命令写入 stdout 的任何纯文本添加到 Claude 的�
 要改为设置特定的权限模式，你的 hook 的输出可以包含一个 `updatedPermissions` 数组，其中包含 `setMode` 条目。`mode` 值是任何权限模式，如 `default`、`acceptEdits` 或 `bypassPermissions`，`destination: "session"` 仅将其应用于当前会话。
 
 <Note>
-  `bypassPermissions` 仅在会话已启动时应用，具有绕过模式可用：`--dangerously-skip-permissions`、`--permission-mode bypassPermissions`、`--allow-dangerously-skip-permissions` 或 [user、`--settings` 或 managed settings](/docs/zh-CN/settings-reference#permissions-defaultmode) 中的 `permissions.defaultMode: "bypassPermissions"`。它不适用于 [`permissions.disableBypassPermissionsMode`](/docs/zh-CN/permissions#managed-settings) 禁用绕过模式，或如果你在[受限模式](/docs/zh-CN/cli-reference#cli-flags)中启动会话。
+  `bypassPermissions` 仅在你启动会话时绕过模式已经可用的情况下才适用：`--dangerously-skip-permissions`、`--permission-mode bypassPermissions`、`--allow-dangerously-skip-permissions` 或 [用户设置、`--settings` 或托管设置](/docs/zh-CN/settings-reference#permissions-defaultmode) 中的 `permissions.defaultMode: "bypassPermissions"`。如果绕过模式已被 [`permissions.disableBypassPermissionsMode`](/docs/zh-CN/permissions#managed-settings) 禁用，或你是在[受限模式](/docs/zh-CN/cli-reference#cli-flags)中启动会话，则它不适用。
 
   Claude Code 永远不会将其保存为 `defaultMode`。
 </Note>
@@ -1014,7 +1014,7 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
 
 `PreToolUse` hooks 在任何权限模式检查之前触发，在每个[权限模式](/docs/zh-CN/permission-modes)中，包括 `dontAsk`。返回 `permissionDecision: "deny"` 的 hook 会阻止工具，即使在 `bypassPermissions` 模式或使用 `--dangerously-skip-permissions` 时也是如此。这让你强制执行用户无法通过更改其权限模式来绕过的策略。
 
-反面不成立：返回 `"allow"` 的 hook 不会绕过来自设置的拒绝规则，它也无法抑制标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具的提示或你的组织设置为 `ask` 的连接器工具[](/docs/zh-CN/mcp#organization-controls-on-connector-tools)在该设置到达 Claude Code 的会话中的提示。Hooks 可以收紧限制，但不能放松它们超过权限规则允许的范围。
+反面不成立：返回 `"allow"` 的 hook 不会绕过来自设置的拒绝规则，它也无法抑制标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具的提示或[你的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具在该设置到达 Claude Code 的会话中的提示。Hooks 可以收紧限制，但不能放松它们超过权限规则允许的范围。
 
 <h3 id="hook-not-firing">
   Hook 未触发

@@ -632,11 +632,11 @@ AWS 请求在请求内容上携带 SigV4 签名，因此一起掩盖 `AWS_ACCESS
 
 `/sandbox` 不是 [permission mode](/docs/zh-CN/permission-modes)。权限模式决定工具调用是否运行以及是否首先提示你，而沙箱限制 Bash 命令运行后可以访问的内容。它们在控制的内容和替换每个操作提示的内容上有所不同：
 
-|                                                                       | 它控制什么             | 替换提示的内容                                                                                                                                                        |
-| :-------------------------------------------------------------------- | :---------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/sandbox`                                                            | Bash 命令运行后可以访问的内容 | 沙箱边界本身，在 [auto-allow mode](#sandbox-modes) 中                                                                                                                   |
-| [Auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) | 每个工具调用是否运行        | 审查操作的分类器                                                                                                                                                       |
-| `--dangerously-skip-permissions`                                      | 每个工具调用是否运行        | 无。[Protected path](/docs/zh-CN/permission-modes#protected-paths) 检查也被跳过；[actions no mode auto-approves](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) 仍然适用 |
+|                                                                       | 它控制什么             | 替换提示的内容                                                                                                                              |
+| :-------------------------------------------------------------------- | :---------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| `/sandbox`                                                            | Bash 命令运行后可以访问的内容 | 沙箱边界本身，在 [auto-allow mode](#sandbox-modes) 中                                                                                         |
+| [Auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) | 每个工具调用是否运行        | 审查操作的分类器                                                                                                                             |
+| `--dangerously-skip-permissions`                                      | 每个工具调用是否运行        | 无。[受保护路径](/docs/zh-CN/permission-modes#protected-paths)检查也被跳过；[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)仍然适用 |
 
 沙箱的 [auto-allow mode](#sandbox-modes) 与 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 分开：自动允许批准 Bash 命令，因为沙箱边界包含它们，而自动模式使用分类器审查操作。两者独立工作，可以结合。要为无人值守运行选择隔离边界，请参阅 [Sandbox environments](/docs/zh-CN/sandbox-environments#how-isolation-relates-to-permission-modes)。有关常见权限模式和沙箱配对及启动每个配对的标志的表格，请参阅 [Common setups](/docs/zh-CN/permission-modes#common-setups)。
 

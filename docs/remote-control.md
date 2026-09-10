@@ -365,7 +365,7 @@ Claude Code 在您在连接的终端中输入或专注时会跳过移动推送�
 * **扩展网络中断**：如果您的机器处于唤醒状态但无法到达网络，接下来的操作取决于模式：
   * **服务器模式**：Claude Code 在大约 10 分钟后放弃，`claude remote-control` 进程退出。再次运行 `claude remote-control` 以启动新会话。
   * **交互式会话**：继续在本地工作。Claude Code 会在中断期间持续重试，并在网络恢复时自动重新连接。
-* **存在心跳失败**：如果交互式会话断开连接并显示 `could not reach the Remote Control server for about 30 minutes`，运行 `/remote-control` 以重新连接。Claude Code 仅在会话的存在心跳失败而其余连接保持正常时显示此消息；它在大约 30 分钟后重新注册会话，然后断开连接。
+* **存在心跳失败**：如果交互式会话断开连接并显示 `could not reach the Remote Control server for about 30 minutes`，运行 `/remote-control` 以重新连接。Claude Code 仅在会话的存在心跳失败而其余连接保持正常时显示此消息；它会在大约 30 分钟内持续重新注册会话，之后才断开连接。
 * **转发的对话过期**：Claude Code 会保持权限提示和 `AskUserQuestion` 问题打开，直到您回答。当 Claude Code 将另一种对话转发到远程会话时，例如安全拒绝后显示的模型选择提示，默认情况下它会等待五分钟，然后关闭对话并继续使用对话的无操作默认值。设置 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 以调整或禁用截止时间。需要 Claude Code v2.1.224 或更高版本。
 * **Fable 使用额度同意提示未被转发**：Claude Code 仅在会话运行的位置显示中途[Fable 使用额度同意提示](/docs/zh-CN/model-config#fable-and-usage-credits)，而不是在您的设备上。当会话在终端中运行且那里没有人在 Claude Code 关闭提示之前回答时，该轮结束而不发送请求；请参阅[确认提示未被回答](/docs/zh-CN/errors#the-prompt-to-confirm-went-unanswered)。
 * **某些命令仅限本地**：仅在终端界面中运行的命令，例如 `/plugin` 或 `/resume`，仅从本地 CLI 工作，无论您是否传递参数。以下命令可从移动和网络工作：
@@ -393,7 +393,7 @@ Claude Code 在您在连接的终端中输入或专注时会跳过移动推送�
 
 运行 `claude auth login` 并选择 claude.ai 选项。如果消息名称为 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，请在设置它的任何地方删除它：您的 shell 环境或[设置文件](/docs/zh-CN/settings-reference#env)的 `env` 块。如果它名称为 `apiKeyHelper`，请删除该设置。
 
-在 v2.1.206 之前，在未登出的情况下运行 `/remote-control` 会报告 `Unknown command: /remote-control` 而不是此消息。
+在 v2.1.206 之前，在未登录的情况下运行 `/remote-control` 会报告 `Unknown command: /remote-control` 而不是此消息。
 
 <h3 id="remote-control-requires-a-full-scope-login-token">
   "Remote Control 需要完整范围的登录令牌"
@@ -484,7 +484,7 @@ claude remote-control --verbose
 * **您在恢复前关闭了 Remote Control**：除非托管 Claude Code 的应用已告诉它该应用拥有 claude.ai 会话，否则当您从 CLI 的[状态面板](#check-connection-status)、VS Code 扩展或基于[Agent SDK](/docs/zh-CN/agent-sdk/overview) 构建的主机关闭 Remote Control 时，Claude Code 删除了重新连接记录，因此它不会重新连接。当拥有的应用关闭它时，Claude Code 保留记录并重新连接。
 * **此机器上的另一个 Claude Code 仍然拥有会话**：您会看到以 `Remote Control not started here` 开头的通知，Claude Code [在恢复的会话中保持 Remote Control 关闭](#resume-sessions-after-stopping-the-server)。在那里运行 `/remote-control` 以移动它。
 
-<span id="reconnect-history" />在 v2.1.232 之前，当服务器报告记录的会话已消失时，Claude Code 的响应不同。从 v2.1.227 到 v2.1.231，Claude Code 拒绝启动替换，即使记录与您的账户匹配。在 v2.1.226 之前，Claude Code 启动替换，无论记录是否与您的账户匹配，在 v2.1.224 到 v2.1.226 中，在该机器上登录的账户下创建它，从不是另一个账户的，不上传对话的早期消息到它。在 v2.1.200 之前，Claude Code 在任何重新连接失败后创建新会话。
+<span id="reconnect-history" />在 v2.1.232 之前，当服务器报告记录的会话已消失时，Claude Code 的响应不同。从 v2.1.227 到 v2.1.231，Claude Code 拒绝启动替换，即使记录与您的账户匹配。在 v2.1.226 及更早版本中，Claude Code 启动替换，无论记录是否与您的账户匹配，在 v2.1.224 到 v2.1.226 中，在该机器上登录的账户下创建它，从不是另一个账户的，不上传对话的早期消息到它。在 v2.1.200 之前，Claude Code 在任何重新连接失败后创建新会话。
 
 <h3 id="previous-session-is-unavailable">
   "Previous session is unavailable — run /remote-control to start a new one"

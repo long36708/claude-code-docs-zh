@@ -183,7 +183,7 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
 
     对于大多数用例，捕获第一个用户消息UUID（`message.uuid`）；回滚到它会将所有文件恢复到原始状态。要存储多个checkpoint并回滚到中间状态，请参阅[多个恢复点](#multiple-restore-points)。
 
-    捕获会话ID（`message.session_id`）是可选的；只有在您想在流完成后回滚时才需要它。如果您在处理消息时立即调用`rewindFiles()`（如[Checkpoint before risky operations](#checkpoint-before-risky-operations)中的示例所做的那样），您可以跳过捕获会话ID。
+    捕获会话ID（`message.session_id`）是可选的；只有在您想在流完成后回滚时才需要它。如果您在处理消息时立即调用`rewindFiles()`（如[在危险操作之前创建checkpoint](#checkpoint-before-risky-operations)中的示例所做的那样），您可以跳过捕获会话ID。
 
     <CodeGroup>
       ```python Python theme={null}
@@ -218,7 +218,7 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
   </Step>
 
   <Step title="回滚文件">
-    要在流完成后回滚，使用空提示恢复会话，并使用您的checkpoint UUID调用`rewind_files()`（Python）或`rewindFiles()`（TypeScript）。您也可以在流期间回滚；有关该模式，请参阅[Checkpoint before risky operations](#checkpoint-before-risky-operations)。
+    要在流完成后回滚，使用空提示恢复会话，并使用您的checkpoint UUID调用`rewind_files()`（Python）或`rewindFiles()`（TypeScript）。您也可以在流期间回滚；有关该模式，请参阅[在危险操作之前创建checkpoint](#checkpoint-before-risky-operations)。
 
     <CodeGroup>
       ```python Python theme={null}
@@ -264,7 +264,7 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
 这些模式显示了根据您的用例捕获和使用checkpoint UUID的不同方式。
 
 <h3 id="checkpoint-before-risky-operations">
-  Checkpoint before risky operations
+  在危险操作之前创建checkpoint
 </h3>
 
 此模式仅保留最新的checkpoint UUID，在每个agent轮次之前更新它。如果处理过程中出现问题，您可以立即回滚到最后的安全状态并跳出循环。
@@ -767,7 +767,7 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
   "File rewinding is not enabled"错误
 </h3>
 
-当您尝试在未启用checkpointing的情况下执行非交互式回滚时，会发生此错误：运行不带`--rewind-files`的裸`claude -p`，或运行SDK会话（包括已恢复的会话），其选项未启用checkpointing。SDK仅在启用了`enable_file_checkpointing`（Python）或`enableFileCheckpointing`（TypeScript）的会话执行回滚时，才在内部设置`CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING`环境变量；裸CLI永远不会设置它。
+当您尝试在未启用checkpointing的情况下执行非交互式回滚时，会发生此错误：运行带`--rewind-files`的裸`claude -p`，或运行SDK会话（包括已恢复的会话），其选项未启用checkpointing。SDK仅在启用了`enable_file_checkpointing`（Python）或`enableFileCheckpointing`（TypeScript）的会话执行回滚时，才在内部设置`CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING`环境变量；裸CLI永远不会设置它。
 
 **解决方案**：对于裸CLI，在运行命令时设置环境变量：
 

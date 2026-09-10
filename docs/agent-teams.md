@@ -120,7 +120,7 @@ Agent teams 支持两种显示模式：
   `tmux` 在某些操作系统上有已知限制，传统上在 macOS 上效果最好。在 iTerm2 中使用 `tmux -CC` 是进入 `tmux` 的建议入口点。
 </Note>
 
-默认值是 `"in-process"`。在 v2.1.179 之前，默认值是 `"auto"`，所以升级的会话如果之前打开了分割窗格，现在会保持在一个终端中，除非你显式设置模式。设置 `"auto"` 以在你已经在 tmux 会话中运行或你的终端是 iTerm2 时启用分割窗格，否则回退到 in-process。`"tmux"` 设置启用分割窗格模式，并根据你的终端自动检测是使用 tmux 还是 iTerm2。
+默认值是 `"in-process"`。在 v2.1.179 之前，默认值是 `"auto"`，所以升级的会话如果之前打开了分割窗格，现在会保持在一个终端中，除非你显式设置模式。设置 `"auto"` 以在你已经在 tmux 会话中运行，或你的终端是安装了 `it2` CLI 的 iTerm2 时启用分割窗格，否则回退到 in-process。`"tmux"` 设置启用分割窗格模式，并根据你的终端自动检测是使用 tmux 还是 iTerm2。
 
 从 v2.1.186 开始，设置 `"iterm2"` 以显式使用 iTerm2 原生分割窗格。此模式需要 [`it2` CLI](https://github.com/mkusaka/it2)，如果 `it2` 缺失，会显示带有安装命令的错误。当你的终端是 iTerm2 且 tmux 可用作备选方案时，在 `"auto"` 或 `"tmux"` 下会出现提供安装 `it2` 或切换到 tmux 的设置提示。
 
@@ -209,7 +209,7 @@ Spawn an architect teammate to refactor the authentication module.
 
 共享任务列表协调整个团队的工作。负责人创建任务，队友完成它们。任务有三种状态：待处理、进行中和已完成。任务也可以依赖其他任务：具有未解决依赖关系的待处理任务在这些依赖关系完成之前无法被认领。
 
-没有 Task 工具的 Agents [](/docs/zh-CN/tools-reference#task-tool-availability) 通过消息而不是共享任务列表进行协调。
+[没有 Task 工具](/docs/zh-CN/tools-reference#task-tool-availability)的 Agents 通过消息而不是共享任务列表进行协调。
 
 负责人可以显式分配任务，或队友可以自我认领：
 

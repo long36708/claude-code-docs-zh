@@ -369,7 +369,7 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
 }
 ```
 
-模式使用 glob 语法与绝对文件路径匹配。你可以在任何 [设置层](/docs/zh-CN/settings) 配置 `claudeMdExcludes`：用户、项目、本地或托管策略。数组跨层合并。
+模式使用 glob 语法与绝对文件路径匹配。你可以在任何 [设置层](/docs/zh-CN/settings#where-settings-live) 配置 `claudeMdExcludes`：用户、项目、本地或托管策略。数组跨层合并。
 
 要通过 [符号链接](#share-rules-across-projects-with-symlinks) 到达的规则文件排除它，无论文件还是其目录是链接，针对任一路径编写模式：文件在 `.claude/rules/` 下的路径或其链接目标。匹配任一路径的模式排除文件。在 v2.1.239 之前，仅匹配链接目标的模式排除文件。
 

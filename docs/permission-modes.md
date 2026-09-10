@@ -27,12 +27,12 @@
 
 在 CLI 中、`claude --help` 中、VS Code 和 JetBrains 扩展中以及桌面应用中，审查每个操作的模式被命名为 **Manual**。其配置值为 `default`，这是 hooks 和 SDK 集成使用的值。CLI 在任何地方都接受 `manual` 作为别名，例如 `claude --permission-mode manual` 或 `"defaultMode": "manual"`。Manual 标签和 `manual` 别名需要 Claude Code v2.1.200 或更高版本。桌面应用的标签不依赖于您的 CLI 版本。
 
-对[受保护路径](#protected-paths)的写入永远不会自动批准，除了在 `bypassPermissions` 模式下以及在 plan 模式会话中（其中绕过权限可用），意味着会话以[将 `bypassPermissions` 放入模式循环](#switch-permission-modes)的方式启动。
+对[受保护路径](#protected-paths)的写入永远不会自动批准，唯一的例外是 `bypassPermissions` 模式，以及可使用绕过权限的 plan 模式会话，也就是以[将 `bypassPermissions` 放入模式循环](#switch-permission-modes)的方式启动的会话。
 
 模式设置基线。在顶部分层[权限规则](/docs/zh-CN/permissions#manage-permissions)以预先批准或阻止特定工具。拒绝规则在每种模式下都会阻止，包括 `bypassPermissions`。拒绝和询问规则不适用于 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)，只要 Claude 仍然有至少一个其他工具可以调用。允许规则在 `bypassPermissions` 中无效。
 
 <h3 id="actions-no-mode-auto-approves">
-  没有任何模式自动批准的操作
+  任何模式都不会自动批准的操作
 </h3>
 
 Claude Code 在任何模式下都不会自动批准以下操作，包括 `bypassPermissions`。每个项目链接到说明在每种模式下会发生什么的部分：
@@ -100,7 +100,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 * 在终端中，一次，在会话顶部
 * 在 VS Code 扩展中，作为新对话屏幕上的卡片，保留直到您关闭它
 
-在 Pro、Max 和 Team 计划上，如果您的 `~/.claude/settings.json` 设置 `defaultMode` 而不是 `auto` 且没有其他设置文件设置一个，您的会话继续以该模式启动。Claude Code 在终端或 VS Code 扩展中询问一次是否将设置更改为自动模式。如果您拒绝，您的设置保持原样。
+在 Pro、Max 和 Team 计划上，如果您的 `~/.claude/settings.json` 将 `defaultMode` 设置为 `auto` 以外的值，且没有其他设置文件设置它，您的会话继续以该模式启动。Claude Code 在终端或 VS Code 扩展中询问一次是否将设置更改为自动模式。如果您拒绝，您的设置保持原样。
 
 <h3 id="start-in-a-different-mode">
   以不同的权限模式启动
@@ -378,7 +378,7 @@ Claude Code v2.1.200 及更高版本也默认阻止这些：
 * 删除或拆除 Claude 在会话中未创建的有状态资源，当没有更具体的删除规则适用且您未命名该资源时
 * 在不适合任务的第三方主机处重新指向 API 基础 URL、代理端点、webhook 接收器或注册表镜像，包括在 `.env.example` 等示例文件中
 * 使用 `git remote set-url` 或 `git remote add` 更改推送去向，除非您命名了新远程
-* 推送秘密或个人或受信任的数据到已知为公开的仓库，或推送不属于该仓库自己工作的机密材料。dotfiles 仓库自己的主题是个人或受信任数据的唯一例外，来自私有仓库到任何公开表面的内容以相同方式被阻止；两项改进都需要 Claude Code v2.1.203 或更高版本。在 v2.1.203 之前，个人数据与机密材料分组，仅当它不属于该仓库自己的工作时才被阻止。当仓库的可见性未确定时，分类器不仅基于此阻止；它改为根据其他规则判断内容
+* 推送秘密或个人或受信任的数据到已知为公开的仓库，或推送不属于该仓库自己工作的机密材料。dotfiles 仓库自己的主题是个人或受信任数据的唯一例外，来自私有仓库到任何公开表面的内容以相同方式被阻止；两项改进都需要 Claude Code v2.1.203 或更高版本。在 v2.1.203 之前，个人数据与机密材料分组，仅当它不属于该仓库自己的工作时才被阻止。当仓库的可见性未确定时，分类器不会仅凭这一点就阻止；它改为根据其他规则判断内容
 * 针对不同的仓库或组织打开拉取请求、使用 `gh repo fork` 进行分叉或推送到第三方仓库，除非您命名了该外部目标
 
 Claude Code v2.1.203 及更高版本也默认阻止这些：
@@ -387,7 +387,7 @@ Claude Code v2.1.203 及更高版本也默认阻止这些：
 
 Claude Code v2.1.205 及更高版本也默认阻止这些：
 
-* 写入 Claude Code 会话记录、`~/.claude/projects/` 下的 `.jsonl` 历史文件或您配置的配置目录，无论是直接还是通过 shell 命令。该规则也涵盖 Claude Code 为其自己的检查附加到每个记录条目的元数据行。读取记录不被阻止
+* 写入 Claude Code 会话记录，即 `~/.claude/projects/` 或您配置的配置目录下的 `.jsonl` 历史文件，无论是直接还是通过 shell 命令。该规则也涵盖 Claude Code 为其自己的检查附加到每个记录条目的元数据行。读取记录不被阻止
 * 递归强制删除，例如 `rm -rf "$VAR"` 或 `Remove-Item -Recurse -Force $dir`，其目标是分类器看不到在对话中任何地方分配的 shell 变量，或以一个为根的 glob。该值仅来自较早的命令输出，分类器从不接收，因此分类器无法根据其他删除规则验证删除目标。当您命名被删除的确切路径或 Claude 使用解析的文字路径写入的命令重新运行删除时，该块会清除。目标分类器可以解析的删除不受影响。目标是裸 `*` 或以 `/*` 或 `\*` 结尾的 `Remove-Item` 目标永远不会到达分类器：Claude Code [直接拒绝它们](#remove-item-in-powershell)
 
 Claude Code v2.1.257 及更高版本也默认阻止这些：
@@ -478,7 +478,7 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
 
     进入自动模式时，授予任意代码执行的广泛允许规则被删除：
 
-    * 空白 `Bash(*)` 或 `PowerShell(*)`
+    * 笼统的 `Bash(*)` 或 `PowerShell(*)`
     * 通配符解释器，如 `Bash(python*)`
     * 包管理器运行命令
     * `Agent` 允许规则
@@ -538,7 +538,7 @@ claude --permission-mode dontAsk
 
 `bypassPermissions` 模式禁用权限提示和安全检查，以便工具调用立即执行，包括对[受保护路径](#protected-paths)的写入。
 
-[actions no 模式自动批准](#actions-no-mode-auto-approves)在此模式下仍会提示。
+[任何模式都不会自动批准的操作](#actions-no-mode-auto-approves)在此模式下仍会提示。
 
 两个[跨会话消息传递](/docs/zh-CN/cross-session-messaging)保护措施在此模式下仍然适用，以及在具有可用绕过权限的计划模式会话中：
 
@@ -581,7 +581,7 @@ Claude Code 在您使用[`--restricted`](/docs/zh-CN/cli-reference#cli-flags)启
   受保护的路径
 </h2>
 
-对一小组路径的写入永远不会自动批准，除了在 `bypassPermissions` 模式下以及在 plan 模式会话中（其中[绕过权限](#skip-all-checks-with-bypasspermissions-mode)可用）。这可以防止意外损坏存储库状态和 Claude 自己的配置。
+对一小组路径的写入永远不会自动批准，唯一的例外是 `bypassPermissions` 模式，以及可使用[绕过权限](#skip-all-checks-with-bypasspermissions-mode)的 plan 模式会话。这可以防止意外损坏存储库状态和 Claude 自己的配置。
 
 | 模式                      | 受保护路径写入                                                                                                                            |
 | :---------------------- | :--------------------------------------------------------------------------------------------------------------------------------- |

@@ -366,7 +366,7 @@ gh pr diff "$1" | claude -p \
   继续对话
 </h3>
 
-使用 `--continue` 继续最近的对话，或使用 `--resume` 与会话 ID 继续特定对话。在 Claude Code v2.1.257 或更高版本上，当您传递 `--continue` 时，Claude Code 打开已完成但仍在运行的 [后台会话](/docs/zh-CN/sessions#resume-a-session)。此示例运行审查，然后发送后续提示：
+使用 `--continue` 继续最近的对话，或使用 `--resume` 与会话 ID 继续特定对话。在 Claude Code v2.1.257 或更高版本上，当您传递 `--continue` 时，Claude Code 会打开已完成的[后台会话](/docs/zh-CN/sessions#resume-a-session)，但不会打开仍在运行的后台会话。此示例运行审查，然后发送后续提示：
 
 ```bash theme={null}
 # First request

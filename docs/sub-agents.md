@@ -471,7 +471,7 @@ disallowedTools: Write, Edit
 
 当 `tools` 列表中没有任何内容解析为工具时，例如因为每个条目都拼写错误或命名了对 subagents 不可用的工具，Claude Code 通常拒绝启动 subagent，Agent 工具返回一个错误，命名未解析的条目；请参阅 [Agent would be spawned with zero tools](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools) 了解消息和如何修复每个条目。在 v2.1.208 之前，该 subagent 启动时没有工具，可能返回空的或令人困惑的结果。
 
-两个字段都接受 MCP 服务器级别的模式，除了精确的工具名称：`mcp__<server>` 或 `mcp__<server>__*` 授予或删除来自命名服务器的每个工具。在 `disallowedTools` 中，`mcp__*` 也删除来自任何服务器的每个 MCP 工具。此示例删除来自 `github` MCP 服务器的每个工具，同时保留来自其他服务器的工具和其池中的内置工具：
+除了精确的工具名称之外，两个字段还接受 MCP 服务器级别的模式：`mcp__<server>` 或 `mcp__<server>__*` 授予或删除来自命名服务器的每个工具。在 `disallowedTools` 中，`mcp__*` 也删除来自任何服务器的每个 MCP 工具。此示例删除来自 `github` MCP 服务器的每个工具，同时保留来自其他服务器的工具和其池中的内置工具：
 
 ```yaml theme={null}
 ---
@@ -572,23 +572,23 @@ Claude Code 加载两种服务器而不检查代理文件来自的文件夹的�
   权限模式
 </h4>
 
-设置 `permissionMode` 以选择 subagent 运行的权限模式。使用模式的配置值，因此手动模式是 `default`。如果您不设置它，subagent 继承主对话的模式，除非主对话的模式优先，如下所述。
+设置 `permissionMode` 以选择 subagent 运行的权限模式。使用模式的配置值，因此手动模式是 `default`。如果您不设置它，subagent 继承主对话的模式；在 Pro、Max 和 Team 计划上，该模式一开始是 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)，除非您的设置或您的组织更改了它。
 
 主对话的权限模式决定 Claude Code 是否使用您设置的值：
 
 * 当主对话在 `bypassPermissions`、`acceptEdits` 或 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 时，subagent 在该相同模式中运行，Claude Code 忽略您设置的 `permissionMode`。在自动模式下，分类器使用主对话的块和允许规则评估 subagent 的工具调用。
-* 当主对话在 `default`、`dontAsk` 或 `plan` 模式时，subagent 在您设置的权限模式中运行，除了 `bypassPermissions`。声明 `bypassPermissions` 的 subagent 改为保持主对话的模式。`bypassPermissions` 异常需要 Claude Code v2.1.267 或更高版本。
+* 当主对话在 `default`、`dontAsk` 或 `plan` 模式时，subagent 在您设置的权限模式中运行，除了 `bypassPermissions`。声明 `bypassPermissions` 的 subagent 改为保持主对话的模式。`bypassPermissions` 例外需要 Claude Code v2.1.267 或更高版本。
 
 `permissionMode` 接受这些值，以及 `manual` 作为 `default` 的别名：
 
-| Mode                | Behavior                                                                                                                                                                                                                                                  |
-| :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `default`           | 手动模式：提示权限                                                                                                                                                                                                                                                 |
-| `acceptEdits`       | 自动接受文件编辑和工作目录或 `additionalDirectories` 中路径的常见文件系统命令                                                                                                                                                                                                       |
-| `auto`              | [Auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：后台分类器审查命令和受保护目录的写入                                                                                                                                                                  |
-| `dontAsk`           | 自动拒绝权限提示。显式允许的工具仍然工作；`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具和 connector 工具 [您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 在启用该设置到达 Claude Code 的会话中被拒绝，即使您已允许它们 |
-| `bypassPermissions` | [Skip permission prompts](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)。Subagent 仅在主对话也这样做时在此模式中运行                                                                                                                                 |
-| `plan`              | Plan mode（只读探索）                                                                                                                                                                                                                                           |
+| Mode                | Behavior                                                                                                                                                                                                                                             |
+| :------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default`           | 手动模式：提示权限                                                                                                                                                                                                                                            |
+| `acceptEdits`       | 自动接受文件编辑和工作目录或 `additionalDirectories` 中路径的常见文件系统命令                                                                                                                                                                                                  |
+| `auto`              | [Auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：后台分类器审查命令和受保护目录的写入                                                                                                                                                             |
+| `dontAsk`           | 自动拒绝权限提示。显式允许的工具仍然工作；`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具，以及[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具（在该设置到达 Claude Code 的会话中）会被拒绝，即使您已允许它们 |
+| `bypassPermissions` | [Skip permission prompts](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)。Subagent 仅在主对话也这样做时在此模式中运行                                                                                                                            |
+| `plan`              | Plan mode（只读探索）                                                                                                                                                                                                                                      |
 
 <h4 id="preload-skills-into-subagents">
   将技能预加载到 subagents
@@ -760,7 +760,7 @@ Subagents 可以定义在 subagent 的生命周期中运行的 [hooks](/docs/zh-
   Frontmatter hooks 在代理通过 Agent 工具或 @-mention 作为 subagent 生成时触发，以及当代理通过 [`--agent`](#invoke-subagents-explicitly) 或 `agent` 设置作为主会话运行时触发。在主会话情况下，它们与在 [`settings.json`](/docs/zh-CN/hooks) 中定义的任何 hooks 一起运行。
 </Note>
 
-要让项目级 subagent 的 frontmatter hooks 运行，接受包含代理文件的文件夹的 [workspace trust dialog](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)。来自 `~/.claude/agents/` 中的用户级 subagents 的 Hooks 和来自您使用 `--agents` 或 SDK `agents` 选项传递的定义的 Hooks 无需此步骤即可运行。如果您从受信任工作区的存储库外使用 `--add-dir` 添加了文件夹，单独信任该文件夹：其 `.claude/agents/` hooks 不继承工作区的授予。
+要让项目级 subagent 的 frontmatter hooks 运行，接受包含代理文件的文件夹的 [workspace trust dialog](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)。来自 `~/.claude/agents/` 中的用户级 subagents 的 Hooks 和来自您使用 `--agents` 传递的定义的 Hooks 无需此步骤即可运行。如果您从受信任工作区的存储库外使用 `--add-dir` 添加了文件夹，单独信任该文件夹：其 `.claude/agents/` hooks 不继承工作区的授予。
 
 直到您信任文件夹，subagent 仍然运行，但 Claude Code 跳过其 frontmatter hooks 并向调试日志记录错误，解释如何信任文件夹。这是比 settings 文件中的 hooks 的规则更严格的规则：信任父文件夹不够，`-p` 会话不计为受信任。[What runs before you trust a folder](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 比较两者。在 v2.1.218 之前，frontmatter hooks 可以从您未信任的文件夹运行，包括在非交互式会话中。
 
@@ -1057,7 +1057,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 
 嵌套 subagents 适合委托任务本身分裂成并行子任务，例如审查者 subagent 为每个发现分派验证者，所以中间输出永远不会到达您的主对话。只有顶级 subagent 的摘要返回给您。
 
-要改变限制，在 [`settings.json`](/docs/zh-CN/settings) 中设置 [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](/docs/zh-CN/env-vars) 为您想要在主对话下方的 subagent 层数。例如，此条目在 [`settings.json`](/docs/zh-CN/settings) 中将嵌套限制为两层：
+要改变限制，将 [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](/docs/zh-CN/env-vars) 设置为您想要在主对话下方的 subagent 层数。例如，此条目在 [`settings.json`](/docs/zh-CN/settings) 中将嵌套限制为两层：
 
 ```json theme={null}
 {

@@ -104,7 +104,7 @@ Claude 根据您的更正和偏好为自己编写的笔记，按 git 存储库�
   Checkpoint
 </h3>
 
-在每个您发送的提示处创建的还原点。Claude Code 在每次编辑之前对文件进行快照，以便 checkpoint 可以恢复它们。按两次 `Esc` 或运行 `/rewind` 将代码、对话或两者恢复到较早的点，或从选定的消息总结对话的一部分。Checkpoints 是会话本地的，与 git 分开，不跟踪通过 Bash 工具进行的更改。
+在每个您发送的提示处创建的还原点。Claude Code 在每次编辑之前对文件进行快照，以便 checkpoint 可以恢复它们。按两次 `Esc` 或运行 `/rewind` 将代码、对话或两者恢复到较早的点，或从选定的消息总结对话的一部分。Checkpoints 会与对话一起保存，因此恢复的会话仍然可以 `/rewind` 到它们。它们与 git 分开，不跟踪通过 Bash 工具进行的更改。
 
 了解更多：[Checkpointing](/docs/zh-CN/checkpointing)
 
@@ -312,7 +312,7 @@ Hook 配置有三个级别：
   Project trust
 </h3>
 
-一个对话框，在 Claude Code 加载其配置之前接受目录。接受情况按项目目录保存，除了您的主目录，其中信任仅在当前会话中保持，并在每次启动时重新显示提示。在您信任目录之前，Claude Code 会保留其存储库提供的某些内容，例如来自 `.claude/settings.json` 的项目允许规则和市场。[在您信任文件夹之前运行的内容](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)列出了每种内容，包括 `-p` 会话在没有对话框的情况下运行的内容。
+一个对话框，在 Claude Code 加载其配置之前接受目录。接受情况按项目目录保存，除了您的主目录，其中信任仅在当前会话中保持，并在每次启动时重新显示提示。在您信任目录之前，Claude Code 会暂不加载其存储库提供的某些内容，例如来自 `.claude/settings.json` 的项目允许规则和市场。[在您信任文件夹之前运行的内容](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)列出了每种内容，包括 `-p` 会话在没有对话框的情况下运行的内容。
 
 了解更多：[`.claude` directory](/docs/zh-CN/claude-directory)
 

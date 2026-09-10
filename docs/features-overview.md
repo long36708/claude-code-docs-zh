@@ -139,7 +139,7 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
 
     **当您需要一个快速、专注的工作者时，使用 subagent**：研究一个问题、验证一个声明、审查一个文件。Subagent 完成工作并返回摘要，所以您的主对话保持清洁。Claude 在生成时命名的 subagents 也可以 [相互发送消息](/docs/zh-CN/sub-agents#what-loads-at-startup)。
 
-    \*\*当一个工作 [超出少数 subagents 的范围](/docs/zh-CN/workflows#when-to-use-a-workflow) 时，使用 dynamic workflow，或当您想在看到发现之前交叉检查它们时，例如代码库范围的审计、大型迁移或从多个角度起草的计划。要启动一个，[在您的提示中要求一个工作流](/docs/zh-CN/workflows#ask-for-a-workflow-in-your-prompt)。
+    当一个工作[超出少数 subagents 的范围](/docs/zh-CN/workflows#when-to-use-a-workflow)时，或当您想在看到发现之前交叉检查它们时，**使用 dynamic workflow**，例如代码库范围的审计、大型迁移或从多个角度起草的计划。要启动一个，[在您的提示中要求一个工作流](/docs/zh-CN/workflows#ask-for-a-workflow-in-your-prompt)。
 
     **要将一个发现从您的一个会话传递到另一个会话**，要求第一个会话的 Claude 发送它。Claude 使用 [cross-session messaging](/docs/zh-CN/cross-session-messaging) 传递它。[并行运行代理](/docs/zh-CN/agents) 比较了运行多个 Claude 的其他方式，包括您交接并稍后检查的会话。
   </Tab>
@@ -190,7 +190,7 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
 * **CLAUDE.md 文件** 是累加的：所有级别同时向 Claude 的上下文贡献内容。来自您的工作目录及以上的文件在启动时加载；子目录在您在其中工作时加载。当说明冲突时，Claude 使用判断来协调它们，更具体的说明通常优先。有关详细信息，请参阅 [CLAUDE.md 文件如何加载](/docs/zh-CN/memory#how-claude-md-files-load)。
 * **Skills 和 subagents** 按名称覆盖：当相同的名称存在于多个级别时，一个定义根据优先级获胜（对于 skills 为托管 > 用户 > 项目；对于 subagents 为托管 > CLI 标志 > 项目 > 用户 > plugin）。Plugin skills 是 [命名空间的](/docs/zh-CN/plugins#add-skills-to-your-plugin) 以避免冲突。有关详细信息，请参阅 [skill 发现](/docs/zh-CN/skills#resolve-skills-that-share-a-name) 和 [subagent 范围](/docs/zh-CN/sub-agents#choose-the-subagent-scope)。
 * **MCP 服务器** 按名称覆盖：本地 > 项目 > 用户。有关详细信息，请参阅 [MCP 范围](/docs/zh-CN/mcp#scope-hierarchy-and-precedence)。
-* **Hooks** 合并：所有注册的 hooks 为其匹配的事件触发，无论来源如何。有关详细信息，请参阅 [hooks](/docs/zh-CN/hooks-guide)。
+* **Hooks** 合并：所有注册的 hooks 为其匹配的事件触发，无论来源如何。有关详细信息，请参阅 [hooks](/docs/zh-CN/hooks)。
 
 <h3 id="combine-features">
   组合功能
