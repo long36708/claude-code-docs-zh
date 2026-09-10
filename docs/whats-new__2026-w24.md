@@ -42,7 +42,7 @@
   > /agents
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/sub-agents#spawn-nested-subagents">生成嵌套子代理</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents">生成嵌套子代理</a>
 </div>
 
 <div className="digest-feature">
@@ -72,7 +72,7 @@
     <div>在 <code>/plugin</code> 中浏览市场的插件现在有搜索栏</div>
     <div>新的 <code>disableBundledSkills</code> 设置和 <code>CLAUDE\_CODE\_DISABLE\_BUNDLED\_SKILLS</code> 隐藏捆绑的 skills、工作流和内置命令不让模型看到</div>
     <div>拒绝规则在工具名称位置接受 glob，因此 <code>"\*"</code> 拒绝所有工具，拒绝规则中的未知工具名称现在在启动时发出警告</div>
-    <div>跨会话消息传递得到加强：通过 <code>SendMessage</code> 从其他会话中继的消息不再携带用户权限，自动模式会阻止它们</div>
+    <div>代理消息传递得到加强：通过 <code>SendMessage</code> 从其他代理中继的消息不再携带用户权限，自动模式会阻止它们</div>
     <div>Amazon Bedrock 在 <code>AWS\_REGION</code> 未设置时从 <code>\~/.aws</code> 配置文件读取 AWS 区域，<code>/status</code> 显示区域来自何处</div>
     <div>新的 <code>enforceAvailableModels</code> 托管设置使 <code>availableModels</code> 允许列表也约束默认模型</div>
     <div>Chrome 浏览器工具中的 Claude 现在在单个批处理调用中加载，而不是每个工具一个</div>

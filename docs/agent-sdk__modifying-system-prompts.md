@@ -8,21 +8,14 @@
 
 系统提示词定义了 Claude 的行为、能力和响应风格。从用于 CLI 或 IDE 类编码工具的 `claude_code` 预设开始，其中人类观察并指导工作。为具有不同界面、身份或权限模型的代理编写自己的提示词。
 
-本页涵盖：
-
-* [系统提示词如何工作](#how-system-prompts-work)，包含一个决策表，用于在预设、带有 `append` 的预设和自定义提示词之间进行选择
-* [自定义代理行为](#customize-agent-behavior)，使用 CLAUDE.md 文件、输出样式、`append` 或自定义字符串
-* [比较四种方法](#compare-the-four-approaches)，按持久性、范围和它们保留的内容进行比较
-* [组合方法](#combine-approaches)，将自定义方法分层组合在一起
-
 <h2 id="how-system-prompts-work">
   系统提示词的工作原理
 </h2>
 
 系统提示词是初始指令集，它塑造了 Claude 在整个对话中的行为方式。Agent SDK 有三个起点：
 
-* **最小默认值**：当你在 TypeScript 中不设置 `systemPrompt` 或在 Python 中不设置 `system_prompt` 时，SDK 使用最小提示词，涵盖工具调用但省略了 Claude Code 的编码指南、响应风格和项目上下文。这与 `claude -p` 不同，后者默认使用完整的 Claude Code 提示词。如果你从 CLI 迁移并想要匹配的行为，请设置 `claude_code` 预设。
-* **`claude_code` 预设**：Claude Code CLI 使用的完整系统提示词，包含工具使用说明、代码风格和格式化指南、响应语气和详细程度规则、安全和安全指令，以及关于工作目录和环境的上下文。在 TypeScript 中设置 `systemPrompt: { type: "preset", preset: "claude_code" }`，或在 Python 中设置 `system_prompt={"type": "preset", "preset": "claude_code"}`，可选择使用 `append` 在末尾添加你自己的指令。
+* **最小默认值**：当你在 TypeScript 中不设置 `systemPrompt` 或在 Python 中不设置 `system_prompt` 时，SDK 使用最小提示词，涵盖工具调用但省略了 `claude_code` 预设的其余内容，包括其安全和安全指令以及关于工作目录和环境的上下文。这与 `claude -p` 不同，后者默认使用 Claude Code 系统提示词。如果你从 CLI 迁移并想要匹配的行为，请设置 `claude_code` 预设。
+* **`claude_code` 预设**：Claude Code CLI 使用的系统提示词，包含工具使用说明、安全和安全指令，以及关于工作目录和环境的上下文。在 TypeScript 中设置 `systemPrompt: { type: "preset", preset: "claude_code" }`，或在 Python 中设置 `system_prompt={"type": "preset", "preset": "claude_code"}`，可选择使用 `append` 在末尾添加你自己的指令。
 * **自定义字符串**：你自己编写的提示词。SDK 仅发送你提供的内容。
 
 <h3 id="decide-on-a-starting-point">
@@ -31,12 +24,12 @@
 
 决定因素是你的代理与 Claude Code 的相似程度：一个在存储库中运行的编码代理，有人类观看流式输出并指导工作。你的产品离这个越远，你就越想编写自己的提示词。
 
-| 你正在构建                                                | 使用                         | 你获得的内容                                        |
-| :--------------------------------------------------- | :------------------------- | :-------------------------------------------- |
-| 一个 CLI 或类似 IDE 的编码工具，其中人类观看和指导，Claude Code 的默认值是你想要的 | `claude_code` 预设           | 完整的 Claude Code 提示词：工具指导、安全规则、终端友好的响应、存储库约定感知 |
-| 相同类型的工具，加上产品特定的规则，如编码标准、输出格式或域上下文                    | `claude_code` 预设加 `append` | 上述所有内容，加上你的指令添加在预设之后。没有任何内容被删除，所以这是风险最低的自定义   |
-| 具有不同表面、身份或权限模型的代理，或非编码代理                             | 自定义提示词字符串                  | 仅你编写的内容。你负责替换你的代理仍然需要的工具指导和安全指令               |
-| 一个薄工具调用循环，没有代理角色，你在用户提示词中提供所有行为                      | 无 `systemPrompt` 选项        | 最小默认值：工具调用支持，仅此而已                             |
+| 你正在构建                                                | 使用                         | 你获得的内容                                      |
+| :--------------------------------------------------- | :------------------------- | :------------------------------------------ |
+| 一个 CLI 或类似 IDE 的编码工具，其中人类观看和指导，Claude Code 的默认值是你想要的 | `claude_code` 预设           | Claude Code 提示词，包括工具指导、安全规则和环境上下文           |
+| 相同类型的工具，加上产品特定的规则，如编码标准、输出格式或域上下文                    | `claude_code` 预设加 `append` | 上述所有内容，加上你的指令添加在预设之后。没有任何内容被删除，所以这是风险最低的自定义 |
+| 具有不同表面、身份或权限模型的代理，或非编码代理                             | 自定义提示词字符串                  | 仅你编写的内容。你负责替换你的代理仍然需要的工具指导和安全指令             |
+| 一个薄工具调用循环，没有代理角色，你在用户提示词中提供所有行为                      | 无 `systemPrompt` 选项        | 最小默认值：工具调用支持，仅此而已                           |
 
 "不同于 Claude Code" 通常意味着以下之一：
 
@@ -51,13 +44,13 @@
   自定义 agent 行为
 </h2>
 
-输出样式、`append` 和自定义提示词字符串各自直接改变系统提示词。CLAUDE.md 采用不同的方式：SDK 读取它并将其内容作为项目上下文注入到对话中，而不是注入到系统提示词中，因此它与你选择的任何系统提示词一起塑造行为。[Skills](/docs/zh-CN/agent-sdk/skills)、[hooks](/docs/zh-CN/agent-sdk/hooks) 和 [permissions](/docs/zh-CN/agent-sdk/permissions) 也在系统提示词之外塑造行为，并在各自的页面上介绍。
+`append` 和自定义提示词字符串各自直接改变系统提示词，输出样式改变 Claude Code 给 Claude 的每个响应的指令。CLAUDE.md 采用不同的方式：SDK 读取它并将其内容作为项目上下文注入到对话中，因此它与你选择的任何系统提示词一起塑造行为。[Skills](/docs/zh-CN/agent-sdk/skills)、[hooks](/docs/zh-CN/agent-sdk/hooks) 和 [permissions](/docs/zh-CN/agent-sdk/permissions) 也在系统提示词之外塑造行为，并在各自的页面上介绍。
 
 <h3 id="claude-md-files-for-project-level-instructions">
   CLAUDE.md 文件用于项目级指令
 </h3>
 
-CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其内容注入到对话中，而不是注入到系统提示词中，因此它们可以与任何系统提示词配置一起工作。关于在 CLAUDE.md 中放什么、在哪里放置它以及如何编写有效的指令，请参阅 [Claude 如何记住你的项目](/docs/zh-CN/memory)。本节涵盖 SDK 特定的内容：CLAUDE.md 如何加载。
+CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其内容注入到对话中，不改变系统提示词，因此它们可以与任何系统提示词配置一起工作。关于在 CLAUDE.md 中放什么、在哪里放置它以及如何编写有效的指令，请参阅 [When to add to CLAUDE.md](/docs/zh-CN/memory#when-to-add-to-claude-md) 和 [How Claude remembers your project](/docs/zh-CN/memory) 的其余部分。本节涵盖 SDK 特定的内容：CLAUDE.md 如何加载。
 
 当匹配的设置源被启用时，SDK 读取 CLAUDE.md：`'project'` 从工作目录加载 `CLAUDE.md` 或 `.claude/CLAUDE.md`，`'user'` 加载 `~/.claude/CLAUDE.md`。默认 `query()` 选项启用两个源，因此 CLAUDE.md 会自动加载。如果你在 TypeScript 中显式设置 `settingSources` 或在 Python 中设置 `setting_sources`，请包含你需要的源。CLAUDE.md 加载由设置源控制，而不是由 `claude_code` 预设控制。
 
@@ -90,25 +83,34 @@ CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其�
   ```
 
   ```python Python theme={null}
+  import asyncio
+
   from claude_agent_sdk import query, ClaudeAgentOptions
 
   messages = []
 
-  async for message in query(
-      prompt="Add a new React component for user profiles",
-      options=ClaudeAgentOptions(
-          system_prompt={
-              "type": "preset",
-              "preset": "claude_code",  # 使用 Claude Code 的系统提示词
-          },
-          setting_sources=["project"],  # 从项目加载 CLAUDE.md
-      ),
-  ):
-      messages.append(message)
+
+  async def main():
+      async for message in query(
+          prompt="Add a new React component for user profiles",
+          options=ClaudeAgentOptions(
+              system_prompt={
+                  "type": "preset",
+                  "preset": "claude_code",  # 使用 Claude Code 的系统提示词
+              },
+              setting_sources=["project"],  # 从项目加载 CLAUDE.md
+          ),
+      ):
+          messages.append(message)
+
+
+  asyncio.run(main())
 
   # 现在 Claude 可以访问来自 CLAUDE.md 的项目指南
   ```
 </CodeGroup>
+
+当你运行任一示例时，SDK 会在 Claude 工作时流式传输消息：系统初始化消息、助手消息、携带工具结果的用户消息，以及包含会话结果的最终结果消息。
 
 CLAUDE.md 在项目的所有会话中持久存在，通过 git 与你的团队共享，并自动发现而无需代码更改。如果你传递空的 `settingSources` 数组，则不会加载。
 
@@ -116,7 +118,7 @@ CLAUDE.md 在项目的所有会话中持久存在，通过 git 与你的团队�
   输出样式用于持久配置
 </h3>
 
-输出样式是保存的配置，可以修改 Claude 的系统提示词。它们存储为 markdown 文件，可以在会话和项目中重复使用。
+输出样式是保存的指令集，可以改变 Claude 的角色、语气和输出格式。它们存储为 markdown 文件，可以在会话和项目中重复使用。
 
 <h4 id="create-an-output-style">
   创建输出样式
@@ -124,7 +126,7 @@ CLAUDE.md 在项目的所有会话中持久存在，通过 git 与你的团队�
 
 输出样式是一个 markdown 文件，其 [frontmatter](/docs/zh-CN/output-styles#frontmatter) 中有元数据，后面是提示词内容。将其保存到 `~/.claude/output-styles/` 以获得在每个项目中可用的用户级样式，或保存到你的存储库中的 `.claude/output-styles/` 以获得可以提交和与你的团队共享的项目级样式。
 
-默认情况下，自定义输出样式会用你自己的指令替换 `claude_code` 预设的软件工程指令。要保留它们并在其基础上分层你的指令，请在 frontmatter 中设置 `keep-coding-instructions: true`。当你的 agent 仍在进行软件工程工作时保留它们。当你完全替换角色时省略它们。
+自定义输出样式会省略 `claude_code` 预设的软件工程指令，并使用你自己的。要保留它们并在其基础上分层你的指令，请在 frontmatter 中设置 `keep-coding-instructions: true`。这些指令仅在 Claude Code 的完整系统提示词中，因此该设置在较短系统提示词的会话中无效，你可以通过 [`CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT`](/docs/zh-CN/env-vars#variables) 打开或关闭该提示词。当你的 agent 仍在进行软件工程工作时保留它们。当你完全替换角色时省略它们。
 
 下面的示例定义了一个代码审查角色，它保留了编码指令，因为审查代码仍然受益于 Claude Code 的安全性和代码质量指导。将其保存为 `~/.claude/output-styles/code-reviewer.md` 以在项目中可用：
 
@@ -192,23 +194,30 @@ Python SDK 没有以编程方式选择输出样式的选项。对于无法写入
   ```
 
   ```python Python theme={null}
+  import asyncio
+
   from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage
 
   messages = []
 
-  async for message in query(
-      prompt="Help me write a Python function to calculate fibonacci numbers",
-      options=ClaudeAgentOptions(
-          system_prompt={
-              "type": "preset",
-              "preset": "claude_code",
-              "append": "Always include detailed docstrings and type hints in Python code.",
-          }
-      ),
-  ):
-      messages.append(message)
-      if isinstance(message, AssistantMessage):
-          print(message.content)
+
+  async def main():
+      async for message in query(
+          prompt="Help me write a Python function to calculate fibonacci numbers",
+          options=ClaudeAgentOptions(
+              system_prompt={
+                  "type": "preset",
+                  "preset": "claude_code",
+                  "append": "Always include detailed docstrings and type hints in Python code.",
+              }
+          ),
+      ):
+          messages.append(message)
+          if isinstance(message, AssistantMessage):
+              print(message.content)
+
+
+  asyncio.run(main())
   ```
 </CodeGroup>
 
@@ -221,7 +230,7 @@ Python SDK 没有以编程方式选择输出样式的选项。对于无法写入
 要使系统提示词在会话中相同，请在 TypeScript 中设置 `excludeDynamicSections: true`，或在 Python 中设置 `"exclude_dynamic_sections": True`。每个会话的上下文移动到第一条用户消息中，只在系统提示词中保留静态预设和你的 `append` 文本，以便相同的配置在用户和机器之间共享缓存条目。
 
 <Note>
-  `excludeDynamicSections` 需要 `@anthropic-ai/claude-agent-sdk` v0.2.98 或更高版本，或 Python 的 `claude-agent-sdk` v0.1.58 或更高版本。它仅适用于预设对象形式，当 `systemPrompt` 是字符串时无效。
+  `excludeDynamicSections` 需要 `@anthropic-ai/claude-agent-sdk` v0.2.98 或更高版本，或 Python 的 `claude-agent-sdk` v0.1.58 或更高版本。仅在预设对象形式上设置它。当你传递自定义提示词而不是预设时，SDK 会忽略它；要在 TypeScript SDK 中保持自定义提示词的指令缓存，请参阅 [Cache the static part of a custom prompt](#cache-the-static-part-of-a-custom-prompt)。
 </Note>
 
 以下示例将共享的 `append` 块与 `excludeDynamicSections` 配对，以便从不同目录运行的 agent 群可以重复使用相同的缓存系统提示词：
@@ -246,20 +255,27 @@ Python SDK 没有以编程方式选择输出样式的选项。对于无法写入
   ```
 
   ```python Python theme={null}
+  import asyncio
+
   from claude_agent_sdk import query, ClaudeAgentOptions
 
-  async for message in query(
-      prompt="Triage the open issues in this repo",
-      options=ClaudeAgentOptions(
-          system_prompt={
-              "type": "preset",
-              "preset": "claude_code",
-              "append": "You operate Acme's internal triage workflow. Label issues by component and severity.",
-              "exclude_dynamic_sections": True,
-          },
-      ),
-  ):
-      ...
+
+  async def main():
+      async for message in query(
+          prompt="Triage the open issues in this repo",
+          options=ClaudeAgentOptions(
+              system_prompt={
+                  "type": "preset",
+                  "preset": "claude_code",
+                  "append": "You operate Acme's internal triage workflow. Label issues by component and severity.",
+                  "exclude_dynamic_sections": True,
+              },
+          ),
+      ):
+          ...
+
+
+  asyncio.run(main())
   ```
 </CodeGroup>
 
@@ -301,6 +317,8 @@ Python SDK 没有以编程方式选择输出样式的选项。对于无法写入
   ```
 
   ```python Python theme={null}
+  import asyncio
+
   from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage
 
   custom_prompt = """You are a Python coding specialist.
@@ -313,15 +331,71 @@ Python SDK 没有以编程方式选择输出样式的选项。对于无法写入
 
   messages = []
 
-  async for message in query(
-      prompt="Create a data processing pipeline",
-      options=ClaudeAgentOptions(system_prompt=custom_prompt),
-  ):
-      messages.append(message)
-      if isinstance(message, AssistantMessage):
-          print(message.content)
+
+  async def main():
+      async for message in query(
+          prompt="Create a data processing pipeline",
+          options=ClaudeAgentOptions(system_prompt=custom_prompt),
+      ):
+          messages.append(message)
+          if isinstance(message, AssistantMessage):
+              print(message.content)
+
+
+  asyncio.run(main())
   ```
 </CodeGroup>
+
+在 Python 中，使用 `system_prompt={"type": "file", "path": "..."}` 从文件加载大型自定义提示词，而不是将其作为字符串传递。Python SDK 将字符串提示词作为一个命令行参数传递给 CLI 子进程，因此超过操作系统参数长度限制的提示词在任何 API 请求发送之前在进程生成时失败。在 Linux 上，错误是 `Argument list too long`。请参阅 [`SystemPromptFile`](/docs/zh-CN/agent-sdk/python#systempromptfile) 了解平台阈值和 Windows 行为。
+
+<h4 id="cache-the-static-part-of-a-custom-prompt">
+  缓存自定义提示词的静态部分
+</h4>
+
+在 TypeScript SDK 中，你可以将自定义提示词作为字符串数组而不是一个字符串传递，在静态部分和其余部分之间使用 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 标记。当你的提示词结合每个请求都相同的指令与每个请求都改变的上下文（例如 agent 处理的客户或工单）时，使用此方法。当你将两个部分作为一个字符串传递时，对每个请求部分的更改会改变整个系统提示词，因此静态指令也会错过缓存。此形式在 Python SDK 中不可用，其 `system_prompt` 选项接受字符串、预设或 [file](/docs/zh-CN/agent-sdk/python#systempromptfile)。
+
+<Note>
+  SDK 仅在直接调用 Claude API 或在 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上运行时拆分提示词。在所有其他配置中，例如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [LLM gateway](/docs/zh-CN/llm-gateway-connect)，以及每当你设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 时，SDK 会将整个提示词作为一个块发送，与传递一个字符串相同。
+</Note>
+
+要拆分提示词，从 `@anthropic-ai/claude-agent-sdk` 导入 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 并将其作为自己的数组元素在两个部分之间传递。SDK 将标记之前的字符串作为一个文本块发送，将标记之后的字符串作为第二个块发送，每个块都有自己的缓存断点。在下面的示例中，支持 agent 从文件加载其分类指令，并在每个请求上接收一个工单的详细信息，因此指令保持缓存而工单详细信息改变：
+
+```typescript TypeScript theme={null}
+import { readFile } from "node:fs/promises";
+import { query, SYSTEM_PROMPT_DYNAMIC_BOUNDARY } from "@anthropic-ai/claude-agent-sdk";
+
+// 在每个请求上相同
+const instructions = await readFile("triage-instructions.md", "utf8");
+// 在每个请求上不同
+const ticketContext = "Customer plan: Enterprise. Other open tickets from this customer: 3.";
+
+for await (const message of query({
+  prompt: "Triage ticket 4821",
+  options: {
+    systemPrompt: [instructions, SYSTEM_PROMPT_DYNAMIC_BOUNDARY, ticketContext]
+  }
+})) {
+  // ...
+}
+```
+
+[Track cache tokens](/docs/zh-CN/agent-sdk/cost-tracking#track-cache-tokens) 描述了每个结果消息上的 `cache_creation_input_tokens` 和 `cache_read_input_tokens` 字段。
+
+SDK 从数组中组装块如下：
+
+* SDK 将标记两侧的字符串与它们之间的空行连接，并删除标记本身，因此标记文本不会到达 Claude。
+* 如果你多次包含标记，第一个是拆分，SDK 删除其他的。
+* 如果你省略标记，SDK 将所有字符串连接到一个块中，与传递一个字符串相同。
+
+<h3 id="change-the-prompt-of-an-existing-session">
+  改变现有会话的提示词
+</h3>
+
+默认情况下，Claude Code 在会话的第一个请求时构建系统提示词一次，包括你的 `append` 文本或自定义提示词，并将其记录在会话中。在会话被压缩之前，每个后续请求都使用该记录的提示词，包括在你使用 `resume` 或 `continue` 返回会话后。如果你在该后续调用上传递不同的 `append` 或自定义提示词，它会在会话被压缩或在新会话中生效。
+
+记录适用于 [fetch feature flags](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话，因为使用 claude.ai 或 Console 账户的会话默认这样做。在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 以及其他不获取它们的会话中，Claude Code 在每个请求上重建提示词。如果你通过 `extraArgs` 传递 `--bare` 或设置 `CLAUDE_CODE_SIMPLE=1` 在 [bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 中启动 Claude Code，记录保持关闭，除非你在 `systemPrompt` 的对象形式上设置 `snapshot: true`。默认情况下记录 `append` 或自定义提示词需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑。
+
+要改为在每个请求上重建提示词，请在 TypeScript SDK 中的 `systemPrompt` 的对象形式上设置 `snapshot: false`：`{ type: "preset", preset: "claude_code", append, snapshot: false }` 或 `{ type: "custom", prompt, snapshot: false }`。当你在迭代提示词措辞时或当你的应用程序在恢复相同会话的调用之间改变 `append` 时，使用此形式。`snapshot` 字段需要 `@anthropic-ai/claude-agent-sdk` v0.3.257 或更高版本，在不获取特性标志的会话中无效。
 
 <h2 id="compare-the-four-approaches">
   比较四种方法
@@ -343,65 +417,6 @@ Python SDK 没有以编程方式选择输出样式的选项。对于无法写入
 
 "带有追加"是指在 TypeScript 中使用 `systemPrompt: { type: "preset", preset: "claude_code", append: "..." }`，或在 Python 中使用 `system_prompt={"type": "preset", "preset": "claude_code", "append": "..."}`。CLAUDE.md 不会改变系统提示本身：SDK 将其内容作为项目上下文注入到对话中。
 
-<h2 id="use-cases-and-best-practices">
-  用例和最佳实践
-</h2>
-
-<h3 id="when-to-use-claude-md">
-  何时使用 CLAUDE.md
-</h3>
-
-使用 CLAUDE.md 来存储应该应用于项目中每个会话的指令，无论该会话使用哪个系统提示词：编码标准、常见命令、架构上下文和团队约定。CLAUDE.md 被提交到你的存储库，因此它与它描述的代码保持同步。有关完整指导，请参阅 [何时添加到 CLAUDE.md](/docs/zh-CN/memory#when-to-add-to-claude-md)。
-
-当启用 `project` 设置源时，CLAUDE.md 文件会加载，这对默认的 `query()` 选项是这样的。如果你显式设置 `settingSources`（TypeScript）或 `setting_sources`（Python），请包含 `'project'` 以继续加载项目级 CLAUDE.md。
-
-<h3 id="when-to-use-output-styles">
-  何时使用输出样式
-</h3>
-
-输出样式用于你想在 CLI 和 SDK 中重复使用的角色，而无需更改应用程序代码。因为它们作为文件存在于 `.claude/output-styles` 中，同一个角色可从 CLI 中的 `/config` 和加载匹配设置源的任何 SDK 会话中获得。
-
-**最适合：**
-
-* 跨会话的持久行为更改
-* 团队共享配置
-* 专门的助手，如代码审查者、数据科学家或 DevOps 助手
-* 需要版本控制的复杂提示词修改
-
-**示例：**
-
-* 创建专用的 SQL 优化助手
-* 构建安全聚焦的代码审查者
-* 开发具有特定教学法的教学助手
-
-<h3 id="when-to-use-systemprompt-with-append">
-  何时使用带有追加的 `systemPrompt`
-</h3>
-
-当 `claude_code` 预设已经适合你的产品，而你只需要添加额外指令时，使用 `append`。你保留预设的工具指导、安全规则和编码约定，而无需重新实现它们。
-
-**最适合：**
-
-* 添加特定的编码标准或偏好
-* 自定义输出格式
-* 添加特定领域的知识
-* 修改响应详细程度
-* 增强 Claude Code 的默认行为而不失去工具指令
-
-<h3 id="when-to-use-custom-systemprompt">
-  何时使用自定义 `systemPrompt`
-</h3>
-
-当你的代理的表面、身份或权限模型与 Claude Code 的不同时，使用自定义提示词，如 [决定起点](#decide-on-a-starting-point) 中所述。你定义完整的指令集，包括你的代理需要的任何工具指导和安全规则。
-
-**最适合：**
-
-* 完全控制 Claude 的行为
-* 专门的单会话任务
-* 测试新的提示词策略
-* 不需要默认工具的情况
-* 构建具有独特行为的专门代理
-
 <h2 id="combine-approaches">
   组合方法
 </h2>
@@ -409,17 +424,17 @@ Python SDK 没有以编程方式选择输出样式的选项。对于无法写入
 这些方法可以组合使用。持久化的输出样式或 CLAUDE.md 设置长期行为，而 `append` 在不触及保存配置的情况下在顶部分层会话特定的指令。
 
 <h3 id="combine-an-output-style-with-session-specific-additions">
-  将输出样式与会话特定的添加组合
+  将输出样式与会话特定的添加内容组合
 </h3>
 
-下面的示例假设代码审查员输出样式已经处于活动状态。`append` 块在角色的基础上分层会话特定的焦点区域，因此单个审查会话可以优先考虑 OAuth 和令牌存储，而无需更改保存的输出样式：
+下面的示例假设已经激活了代码审查员输出样式。`append` 块在角色的基础上分层会话特定的关注领域，因此单个审查会话可以优先考虑 OAuth 和令牌存储，而无需更改保存的输出样式：
 
 <CodeGroup>
   ```typescript TypeScript theme={null}
   import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  // 假设"Code Reviewer"输出样式处于活动状态（通过 /config 或设置）
-  // 添加会话特定的焦点区域
+  // Assuming "Code Reviewer" output style is active (via /config or settings)
+  // Add session-specific focus areas
   const messages = [];
 
   for await (const message of query({
@@ -442,28 +457,35 @@ Python SDK 没有以编程方式选择输出样式的选项。对于无法写入
   ```
 
   ```python Python theme={null}
+  import asyncio
+
   from claude_agent_sdk import query, ClaudeAgentOptions
 
-  # 假设"Code Reviewer"输出样式处于活动状态（通过 /config 或设置）
-  # 添加会话特定的焦点区域
+  # Assuming "Code Reviewer" output style is active (via /config or settings)
+  # Add session-specific focus areas
   messages = []
 
-  async for message in query(
-      prompt="Review this authentication module",
-      options=ClaudeAgentOptions(
-          system_prompt={
-              "type": "preset",
-              "preset": "claude_code",
-              "append": """
-              For this review, prioritize:
-              - OAuth 2.0 compliance
-              - Token storage security
-              - Session management
-              """,
-          }
-      ),
-  ):
-      messages.append(message)
+
+  async def main():
+      async for message in query(
+          prompt="Review this authentication module",
+          options=ClaudeAgentOptions(
+              system_prompt={
+                  "type": "preset",
+                  "preset": "claude_code",
+                  "append": """
+                  For this review, prioritize:
+                  - OAuth 2.0 compliance
+                  - Token storage security
+                  - Session management
+                  """,
+              }
+          ),
+      ):
+          messages.append(message)
+
+
+  asyncio.run(main())
   ```
 </CodeGroup>
 

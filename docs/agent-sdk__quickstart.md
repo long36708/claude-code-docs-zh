@@ -19,7 +19,7 @@
 </h2>
 
 * **Node.js 18+** 或 **Python 3.10+**
-* 一个 **Anthropic 账户**（[在此注册](https://platform.claude.com/)）
+* 一个 **Anthropic 账户**。如果您还没有账户，[在此注册](https://platform.claude.com/)。
 
 <h2 id="setup">
   设置
@@ -49,7 +49,7 @@
         npm install --save-dev tsx
         ```
 
-        在 `package.json` 中设置 `"type": "module"` 让你的代理脚本使用顶级 `await`，而 [tsx](https://tsx.is) 直接运行 TypeScript 文件。
+        在 `package.json` 中设置 `"type": "module"` 让你的代理脚本使用顶级 `await`，而 [tsx](https://tsx.hirok.io) 直接运行 TypeScript 文件。npm 在安装成功时会打印 `added N packages`。
       </Tab>
 
       <Tab title="TypeScript（现有项目）">
@@ -58,7 +58,7 @@
         npm install --save-dev tsx
         ```
 
-        [tsx](https://tsx.is) 直接运行 TypeScript 文件。如果你的项目使用 CommonJS，将你的代理脚本命名为 `agent.mts` 而不是 `agent.ts`。`.mts` 扩展名使 tsx 将文件视为 ES 模块，所以顶级 `await` 可以工作，而无需将整个项目转换为 ES 模块。在本快速开始中后面的创建和运行步骤中使用 `agent.mts` 代替 `agent.ts`。
+        [tsx](https://tsx.hirok.io) 直接运行 TypeScript 文件。如果你的项目使用 CommonJS，将你的代理脚本命名为 `agent.mts` 而不是 `agent.ts`。`.mts` 扩展名使 tsx 将文件视为 ES 模块，所以顶级 `await` 可以工作，而无需将整个项目转换为 ES 模块。在本快速开始中后面的创建和运行步骤中使用 `agent.mts` 代替 `agent.ts`。
       </Tab>
 
       <Tab title="Python（uv）">
@@ -94,7 +94,10 @@
     </Tabs>
 
     <Note>
-      TypeScript SDK 为你的平台捆绑了一个本地 Claude Code 二进制文件作为可选依赖项，所以你不需要单独安装 Claude Code。
+      TypeScript 和 Python SDK 都捆绑了一个本地 Claude Code 二进制文件，所以大多数安装不需要单独安装 Claude Code。某些安装没有捆绑的二进制文件：
+
+      * 如果 pip 安装了 Python SDK 的源代码分发而不是平台 wheel，例如在 ARM64 Windows 上，则不会捆绑任何二进制文件。[本地安装 Claude Code](/docs/zh-CN/setup#install-claude-code)。Python SDK 在你的 `PATH` 上找到它。
+      * TypeScript SDK 通过 npm 可选依赖项安装其二进制文件，所以跳过它们的安装，例如 `npm ci --omit=optional`，即使在支持的平台上也不会获得二进制文件。重新安装而不跳过可选依赖项，或 [本地安装 Claude Code](/docs/zh-CN/setup#install-claude-code) 并将 `pathToClaudeCodeExecutable` 设置为其路径。
     </Note>
   </Step>
 
@@ -122,7 +125,7 @@
     * **Amazon Bedrock**：设置 `CLAUDE_CODE_USE_BEDROCK=1` 环境变量并配置 AWS 凭证
     * **Claude Platform on AWS**：设置 `CLAUDE_CODE_USE_ANTHROPIC_AWS=1` 和 `ANTHROPIC_AWS_WORKSPACE_ID`，然后配置 AWS 凭证
     * **Google Cloud 的 Agent Platform**：设置 `CLAUDE_CODE_USE_VERTEX=1` 环境变量并配置 Google Cloud 凭证
-    * **Microsoft Azure**：设置 `CLAUDE_CODE_USE_FOUNDRY=1` 环境变量并配置 Azure 凭证
+    * **Microsoft Foundry**：设置 `CLAUDE_CODE_USE_FOUNDRY=1` 环境变量并配置 Azure 凭证
 
     有关详细信息，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 的设置指南。
 
@@ -225,7 +228,7 @@ def get_user_name(user):
 
 3. **`options`**：代理的配置。此示例使用 `allowedTools` 预先批准 `Read`、`Edit` 和 `Glob`，以及 `permissionMode: "acceptEdits"` 来自动批准文件更改。其他选项包括 `systemPrompt`、`mcpServers` 等。查看 [Python](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 或 [TypeScript](/docs/zh-CN/agent-sdk/typescript#options) 的所有选项。
 
-`async for` 循环在 Claude 思考、调用工具、观察结果并决定下一步做什么时继续运行。每次迭代都会产生一条消息：Claude 的推理、工具调用、工具结果或最终结果。SDK 处理编排（工具执行、上下文管理、重试），所以你只需使用流。当 Claude 完成任务或遇到错误时，循环结束。
+`async for` 循环在 Claude 思考、调用工具、观察结果并决定下一步做什么时继续运行。每次迭代都会产生一条消息：Claude 的推理、工具调用、工具结果或最终结果。SDK 处理编排、工具执行、上下文管理和重试，所以你只需使用流。当 Claude 完成任务或遇到错误时，循环结束。
 
 循环内的消息处理过滤人类可读的输出。如果没有过滤，你会看到原始消息对象，包括系统初始化和内部状态，这对调试很有用，但通常很冗长。
 
@@ -272,7 +275,7 @@ def get_user_name(user):
 这就是 Agent SDK 的与众不同之处：Claude 直接执行工具，而不是要求你实现它们。
 
 <Note>
-  如果你看到"API key not found"，请确保你已在运行代理的 shell 中设置了 `ANTHROPIC_API_KEY` 环境变量。SDK 不会自动加载 `.env` 文件。有关更多帮助，请参阅[完整故障排除指南](/docs/zh-CN/troubleshooting)。
+  如果你看到身份验证错误，例如 `Not logged in` 或 `Invalid API key`，请确保你已在运行代理的 shell 中设置了 `ANTHROPIC_API_KEY` 环境变量。SDK 不会自动加载 `.env` 文件。有关更多帮助，请参阅[完整故障排除指南](/docs/zh-CN/troubleshooting)。
 </Note>
 
 <h3 id="try-other-prompts">
@@ -365,18 +368,7 @@ def get_user_name(user):
 | `Read`、`Edit`、`Glob`               | 分析和修改代码 |
 | `Read`、`Edit`、`Bash`、`Glob`、`Grep` | 完全自动化   |
 
-**权限模式**控制你想要多少人工监督：
-
-| 模式                  | 行为                                                                                                                                                                               | 用例             |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| `acceptEdits`       | 自动批准文件编辑和常见文件系统命令，询问其他操作                                                                                                                                                         | 受信任的开发工作流      |
-| `plan`              | 运行只读工具；文件编辑永远不会自动批准，并到达你的 `canUseTool` 回调                                                                                                                                        | 在批准执行前确定任务范围   |
-| `dontAsk`           | 拒绝不在 `allowedTools` 中的任何内容；连接器工具[你的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)和需要用户交互的工具即使你已列出它们也会被拒绝                                                      | 锁定的无头代理        |
-| `auto`              | 模型分类器批准或拒绝每个工具调用                                                                                                                                                                 | 具有安全防护的自主代理    |
-| `bypassPermissions` | 运行每个工具而不提示，除了显式的 [`ask` 规则](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)匹配的工具、连接器工具[你的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)和需要用户交互的工具 | 沙箱 CI、完全受信任的环境 |
-| `default`           | 需要 `canUseTool` 回调来处理批准                                                                                                                                                          | 自定义批准流程        |
-
-上面的示例使用 `acceptEdits` 模式，它自动批准文件操作，以便代理可以在没有交互式提示的情况下运行。如果你想提示用户批准，使用 `default` 模式并提供一个 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/user-input)来收集用户输入。为了获得更多控制，请参阅[权限](/docs/zh-CN/agent-sdk/permissions)。
+**权限模式**控制你想要多少人工监督。SDK 按照固定的顺序评估活跃模式以及你的允许和拒绝规则，详见[权限如何被评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)。有关完整的模式列表、它们的行为以及何时使用每种模式，请参阅[代理循环工作原理中的权限模式](/docs/zh-CN/agent-sdk/agent-loop#permission-mode)。
 
 <h2 id="next-steps">
   后续步骤
@@ -390,3 +382,4 @@ def get_user_name(user):
 * **[MCP 服务器](/docs/zh-CN/agent-sdk/mcp)**：连接到数据库、浏览器、API 和其他外部系统
 * **[托管](/docs/zh-CN/agent-sdk/hosting)**：将代理部署到 Docker、云和 CI/CD
 * **[示例代理](https://github.com/anthropics/claude-agent-sdk-demos)**：查看完整示例：电子邮件助手、研究代理等
+* **[故障排除](/docs/zh-CN/agent-sdk/troubleshooting)**：通过你看到的确切消息修复 Agent SDK 错误

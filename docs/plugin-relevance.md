@@ -8,9 +8,7 @@
 
 如果您为组织运营插件marketplace，您可以根据用户正在处理的内容让Claude Code向用户建议特定的插件。向`marketplace.json`中的插件条目添加`relevance`块，然后在托管设置中将marketplace加入允许列表。当用户的会话与声明的信号之一匹配时，Claude Code会显示该插件的安装建议。
 
-Marketplace声明的建议通过[托管设置](/docs/zh-CN/settings#settings-files)按marketplace选择加入。在管理员将任何marketplace添加到允许列表之前，没有marketplace的`relevance`声明会产生建议，包括官方Anthropic marketplace。Claude Code还包括一个独立于此允许列表的内置建议；当[`spinnerTipsEnabled`](/docs/zh-CN/settings#available-settings)设置为`false`时，该提示和所有marketplace声明的提示都会被禁用。
-
-此功能需要Claude Code v2.1.152或更高版本。较旧的客户端会忽略`relevance`字段。
+Marketplace声明的建议通过[托管设置](/docs/zh-CN/managed-settings)按marketplace选择加入。在管理员将任何marketplace添加到允许列表之前，没有marketplace的`relevance`声明会产生建议，包括官方Anthropic marketplace。Claude Code还包括一个独立于此允许列表的内置建议；当[`spinnerTipsEnabled`](/docs/zh-CN/settings-reference#spinnertipsenabled)设置为`false`时，该提示和所有marketplace声明的提示都会被禁用。
 
 此页面适用于marketplace运营商和企业管理员。如果您想要安装插件，请参阅[发现和安装插件](/docs/zh-CN/discover-plugins)。
 
@@ -25,10 +23,12 @@ Marketplace声明的建议通过[托管设置](/docs/zh-CN/settings#settings-fil
 当信号匹配且插件尚未安装时，Claude Code会在三个位置显示该插件：
 
 * **Spinner提示**：当Claude正在响应时，spinner下方会显示"使用\_topic\_？安装\_plugin\_插件"消息，附带`/plugin install`命令。
-* **会话启动建议**：如果`cwd`信号与工作目录匹配，在第一轮之前会显示一行`plugin suggestion: <name>@<marketplace> · /plugin`通知。此表面需要Claude Code v2.1.153或更高版本。
-* **`/plugin` Discover标签页**：插件被固定在Discover列表的顶部，带有"为此目录建议"或"为stripe命令建议"之类的注释。此表面需要Claude Code v2.1.154或更高版本。
+* **会话启动建议**：如果`cwd`信号与工作目录匹配，在第一轮之前会显示一行`plugin suggestion: <name>@<marketplace> · /plugin`通知。
+* **`/plugin` Discover标签页**：插件被固定在Discover列表的顶部，带有"为此目录建议"或"为stripe命令建议"之类的注释。
 
-Spinner提示和会话启动通知是spinner提示系统的一部分。当用户或项目将`spinnerTipsEnabled`设置为`false`，或当配置了带有`excludeDefault`的自定义`spinnerTipsOverride`时，两者都会被禁用。Discover标签页的固定独立于提示设置。
+Spinner提示和会话启动通知是spinner提示系统的一部分。当`spinnerTipsEnabled`在您的设置文件中解析为`false`时，Claude Code会禁用两者，或当`excludeDefault`在用户、`--settings`和托管设置中的[`spinnerTipsOverride`](/docs/zh-CN/settings-reference#spinnertipsoverride)键中解析为`true`时，这些键配置至少一个提示或`tipsFile`。
+
+Discover标签页的固定独立于提示设置。
 
 Claude Code永远不会自动安装插件。用户始终需要确认。
 
@@ -86,7 +86,7 @@ Claude Code永远不会自动安装插件。用户始终需要确认。
 | `filesRead`    | array of strings | 与Claude在此会话中读取的文件路径匹配的Glob模式，例如`["**/*.tf"]`。正斜杠规范化且不区分大小写。最多10个模式，每个256个字符。                                                                                                                                                                                                                                                                   |
 | `manifestDeps` | array of objects | Claude在此会话中读取的包清单中声明的依赖项。每个条目是`{ "file": "...", "pattern": "..." }`，其中`file`是与清单文件路径匹配的正则表达式（如会话状态中记录的，通常是绝对路径），`pattern`是与该文件内容匹配的正则表达式。在末尾锚定`file`，例如JSON转义形式中的`[/\\\\]package\\.json$`，因为起始锚定的模式永远不会匹配绝对路径。路径对于此信号不进行分隔符规范化，因此Windows路径使用反斜杠。大于512 KB的清单文件会被跳过。两个值都是最多256个字符的JavaScript `RegExp`源字符串。`file`不区分大小写匹配。`pattern`区分大小写。最多10个条目。 |
 
-`cli`、`hosts`、`filesRead`和`manifestDeps`信号需要会话历史记录，因此它们只能在spinner提示和Discover标签页上匹配。只有`cwd`可以在会话启动时匹配。`filesRead`和`manifestDeps`信号测试会话的记录文件状态，其中还包括Claude已写入或编辑的文件以及自动加载的`CLAUDE.md`内存文件。
+`cli`、`hosts`、`filesRead`和`manifestDeps`信号需要会话历史记录，因此它们只能在spinner提示和Discover标签页上匹配。`filesRead`和`manifestDeps`信号测试会话的记录文件状态，其中还包括Claude已写入或编辑的文件以及自动加载的`CLAUDE.md`内存文件。
 
 以下示例使用`manifestDeps`在Claude读取了依赖于`stripe`的`package.json`后建议Stripe插件。`file`模式使用`[/\\\\]`以匹配正斜杠和反斜杠路径分隔符，使用`\\.`以使点为字面。在JSON中，正则表达式中的每个反斜杠都写两次。
 
@@ -109,14 +109,14 @@ Claude Code永远不会自动安装插件。用户始终需要确认。
 ```
 
 <Note>
-  `relevance`和`relevance.signals`下的未知字段在加载时被忽略，因此较旧的Claude Code客户端继续加载您的marketplace。运行`claude plugin validate`以将它们显示为警告。
+  Claude Code在加载时忽略`relevance`和`relevance.signals`下的未知字段，因此较旧的客户端继续加载您的marketplace。
 </Note>
 
 <h2 id="enable-suggestions-in-managed-settings">
   在托管设置中启用建议
 </h2>
 
-在`marketplace.json`中声明`relevance`本身是不够的。管理员必须在[托管设置](/docs/zh-CN/settings#settings-files)中将marketplace加入允许列表，其建议才会显示给用户。
+在`marketplace.json`中声明`relevance`本身是不够的。管理员必须在[托管设置](/docs/zh-CN/managed-settings)中将marketplace加入允许列表，其建议才会显示给用户。
 
 将marketplace名称添加到`pluginSuggestionMarketplaces`。对于官方Anthropic marketplace以外的任何marketplace，还要在同一托管设置中声明marketplace源，要么作为该名称在`extraKnownMarketplaces`中的条目，要么作为`strictKnownMarketplaces`中的条目。如果在机器上注册的marketplace来自不同的源，则忽略允许列表中的名称。这可以防止无关的源以允许列表中的名称注册，以便在您的组织中建议其插件。
 
@@ -144,8 +144,6 @@ Claude Code永远不会自动安装插件。用户始终需要确认。
 }
 ```
 
-有关`pluginSuggestionMarketplaces`和[`extraKnownMarketplaces`](/docs/zh-CN/settings#extraknownmarketplaces)的完整配置详情，请参阅[设置参考](/docs/zh-CN/settings)。
-
 <h2 id="what-the-user-sees">
   用户看到的内容
 </h2>
@@ -165,7 +163,7 @@ plugin suggestion: terraform-helpers@acme-corp-plugins · /plugin
 
 给定插件的建议在spinner提示和会话启动通知的组合中最多每三个会话出现一次，一旦插件被安装，两者都不会重复。会话启动通知在建议显示两次后还会停止出现。
 
-在`/plugin` Discover标签页中，插件被固定在其他结果上方，带有命名匹配信号的注释，例如`suggested for this directory`或`suggested for terraform commands`。Discover标签页固定给定插件一次；后续访问以正常顺序列出它。Discover标签页固定需要Claude Code v2.1.154或更高版本。在v2.1.152上仅显示spinner提示；会话启动通知在v2.1.153中添加。
+在`/plugin` Discover标签页中，插件被固定在其他结果上方，带有命名匹配信号的注释，例如`suggested for this directory`或`suggested for terraform commands`。Discover标签页固定给定插件一次；后续访问以正常顺序列出它。
 
 <h2 id="validate-your-marketplace">
   验证您的marketplace
@@ -185,4 +183,4 @@ claude plugin validate ./my-marketplace
 
 * [创建和分发插件marketplace](/docs/zh-CN/plugin-marketplaces)：构建托管您的插件的marketplace
 * [从您的CLI推荐您的插件](/docs/zh-CN/plugin-hints)：从您自己的CLI而不是Claude Code的会话信号提示用户
-* [设置](/docs/zh-CN/settings)：`pluginSuggestionMarketplaces`和`extraKnownMarketplaces`的完整参考
+* [所有设置](/docs/zh-CN/settings-reference#pluginsuggestionmarketplaces)：`pluginSuggestionMarketplaces`和`extraKnownMarketplaces`

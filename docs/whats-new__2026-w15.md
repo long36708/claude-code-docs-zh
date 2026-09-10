@@ -25,8 +25,8 @@
 
   <p className="digest-feature-try">运行命令，或在任何提示中包含关键字：</p>
 
-  ```text Claude Code theme={null}
-  > /ultraplan migrate the auth service from sessions to JWTs
+  ```text title="Claude Code" wrap theme={null}
+  /ultraplan migrate the auth service from sessions to JWTs
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/ultraplan">Ultraplan 指南</a>
@@ -46,14 +46,14 @@
 
   <p className="digest-feature-try">要求 Claude 在您继续工作时监视某些内容：</p>
 
-  ```text Claude Code theme={null}
-  > Tail server.log in the background and tell me the moment a 5xx shows up
+  ```text title="Claude Code" wrap theme={null}
+  Tail server.log in the background and tell me the moment a 5xx shows up
   ```
 
   <p className="digest-feature-try">这与 <code>/loop</code> 配对，现在可自适应：省略间隔，Claude 会根据任务安排下一个时刻，或使用 Monitor 工具完全跳过轮询。</p>
 
-  ```text Claude Code theme={null}
-  > /loop check CI on my PR
+  ```text title="Claude Code" wrap theme={null}
+  /loop check CI on my PR
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/tools-reference#monitor-tool">Monitor 工具参考</a>
@@ -73,8 +73,8 @@
 
   <p className="digest-feature-try">从 PR 的分支运行它：</p>
 
-  ```text Claude Code theme={null}
-  > /autofix-pr
+  ```text title="Claude Code" wrap theme={null}
+  /autofix-pr
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests">自动修复拉取请求</a>
@@ -90,8 +90,8 @@
 
   <p className="digest-feature-try">在您花费了真实时间的项目中运行它：</p>
 
-  ```text Claude Code theme={null}
-  > /team-onboarding
+  ```text title="Claude Code" wrap theme={null}
+  /team-onboarding
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/commands">命令参考</a>

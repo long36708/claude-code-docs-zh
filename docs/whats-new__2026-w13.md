@@ -50,8 +50,8 @@
 
   <p className="digest-feature-try">在设置中启用它，授予操作系统权限，然后要求 Claude 端到端验证更改：</p>
 
-  ```text Claude Code theme={null}
-  > Open the iOS simulator, tap through the onboarding flow, and screenshot each step
+  ```text title="Claude Code" wrap theme={null}
+  打开 iOS 模拟器，点击完成入门流程，并对每个步骤进行截屏
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/desktop#let-claude-use-your-computer">计算机使用指南</a>
@@ -85,10 +85,10 @@
   <p className="digest-feature-try">打开转录模式并搜索：</p>
 
   ```text Claude Code theme={null}
-  Ctrl+O    # open transcript
-  /migrate  # search for "migrate"
-  n         # next match
-  N         # previous match
+  Ctrl+O    # 打开转录
+  /migrate  # 搜索"migrate"
+  n         # 下一个匹配项
+  N         # 上一个匹配项
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/fullscreen#search-and-review-the-conversation">全屏指南</a>

@@ -8,7 +8,7 @@
 
 定期任务在您选择的时间和频率自动启动新会话。使用它们进行定期工作，如日常代码审查、依赖项更新检查或从您的日历和收件箱中提取信息的早晨简报。
 
-Desktop 应用的 **Routines** 页面让您可以创建本地定期任务和远程 [routines](/docs/zh-CN/routines)。本地任务在您的机器上运行，可直接访问您的文件和工具，但仅在应用打开且计算机处于唤醒状态时才会触发。远程 routine 在 Anthropic 管理的云基础设施上运行，即使您的计算机关闭也可以运行，还可以通过 API 调用或 GitHub 事件触发。本页面涵盖本地定期任务；有关远程 routine 及其触发选项，请参阅 [Routines](/docs/zh-CN/routines)。
+Desktop 应用的 **Routines** 页面让您可以创建本地定期任务和远程 [routines](/docs/zh-CN/routines)。本地任务在您的机器上运行，可直接访问您的文件和工具，但仅在应用打开且计算机处于唤醒状态时才会触发。远程 routine 在云中运行，即使您的计算机关闭也可以运行，还可以通过 API 调用或 GitHub 事件触发。本页面涵盖本地定期任务；有关远程 routine 及其触发选项，请参阅 [Routines](/docs/zh-CN/routines)。
 
 <h2 id="compare-scheduling-options">
   比较调度选项
@@ -40,7 +40,7 @@ Claude Code offers three ways to schedule recurring or one-off work:
   创建定期任务
 </h2>
 
-单击侧边栏中的 **Routines**，然后单击 **New routine** 并选择 **Local**。配置这些字段：
+在 Claude Desktop 1.1.5368 之前的版本中，本地定期任务不可用。在 [**Code** 选项卡](/docs/zh-CN/desktop) 中，单击侧边栏中的 **Routines** 或侧边栏的 **More** 菜单中的 **Routines**，然后单击 **New routine** 并选择 **Local**。配置这些字段：
 
 | 字段           | 描述                                                                                                         |
 | ------------ | ---------------------------------------------------------------------------------------------------------- |
@@ -73,7 +73,7 @@ Claude Code offers three ways to schedule recurring or one-off work:
 
 定期任务在您的机器上运行。Desktop 在应用打开时每分钟检查一次调度，并在任务到期时启动一个新会话，独立于您打开的任何手动会话。每个任务在计划时间后会有几分钟的小延迟，以错开 API 流量。延迟是确定性的：同一任务总是在相同的偏移量处启动。
 
-当任务触发时，您会收到桌面通知，新会话会在侧边栏的 **Scheduled** 部分下出现。打开它以查看 Claude 做了什么、审查更改或响应权限提示。会话的工作方式与任何其他会话相同：Claude 可以编辑文件、运行命令、创建提交和打开拉取请求。
+当任务触发时，您会收到桌面通知，新会话会在侧边栏的 **Scheduled** 部分下出现。打开它以查看 Claude 做了什么、审查更改或响应权限提示。Claude 可以编辑文件、运行命令、创建提交和打开拉取请求，与您自己启动的会话相同，但无法通过 desktop 应用的会话界面发送或接收[您的 desktop 会话之间的消息](/docs/zh-CN/desktop#work-across-sessions)。
 
 任务仅在 desktop 应用运行且计算机处于唤醒状态时运行。如果您的计算机在计划时间内进入睡眠状态，该运行将被跳过。要防止空闲睡眠，请在 Settings 中的 **Desktop app → General** 下启用 **Keep computer awake**。关闭笔记本电脑盖仍会使其进入睡眠状态。对于需要在计算机关闭时运行或应该通过 API 调用或 GitHub 事件触发的任务，请改为创建远程 [routine](/docs/zh-CN/routines)。
 
@@ -89,17 +89,17 @@ Claude Code offers three ways to schedule recurring or one-off work:
   定期任务的权限
 </h2>
 
-每个任务都有自己的权限模式，您在创建或编辑任务时设置。来自 `~/.claude/settings.json` 的允许规则也适用于定期任务会话。如果任务在 Ask 模式下运行并需要运行它没有权限的工具，运行将停滞，直到您批准它。会话保持在侧边栏中打开，以便您稍后可以回答。
+每个任务都有自己的权限模式，您在创建或编辑任务时设置。来自 `~/.claude/settings.json` 的允许规则也适用于定期任务会话。如果任务在 [Manual 模式](/docs/zh-CN/desktop#choose-a-permission-mode)下运行并需要运行它没有权限的工具，运行将停滞，直到您批准它。会话保持在侧边栏中打开，以便您稍后可以回答。
 
 为了避免停滞，在创建任务后单击 **Run now**，查看权限提示，并为每个提示选择"always allow"。该任务的未来运行会自动批准相同的工具，无需提示。您可以从任务的详细信息页面查看和撤销这些批准。
 
-连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)和标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具在每次调用时都会提示，并且不提供"always allow"选项。调用这些工具的运行每次都会停滞。
+标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具在每次调用时都会提示，并且不提供"always allow"选项。调用这些工具的运行每次都会停滞。
 
 <h2 id="manage-scheduled-tasks">
   管理定期任务
 </h2>
 
-单击 **Routines** 列表中的任务以打开其详细信息页面。从这里您可以：
+在 **Code** 选项卡中，单击 **Routines** 列表中的任务以打开其详细信息页面。从这里您可以：
 
 * **Run now**：立即启动任务，无需等待下一个计划时间
 * **Status**：在 Active 和 Paused 之间切换，以暂停或恢复定期运行，而无需删除任务
@@ -118,7 +118,7 @@ Claude Code offers three ways to schedule recurring or one-off work:
   相关资源
 </h2>
 
-* [Routines](/docs/zh-CN/routines)：在 Anthropic 管理的基础设施上按计划、通过 API 调用或响应 GitHub 事件运行任务，即使您的计算机关闭
+* [Routines](/docs/zh-CN/routines)：在云端按计划、通过 API 调用或响应 GitHub 事件运行任务，即使您的计算机关闭
 * [Run prompts on a schedule](/docs/zh-CN/scheduled-tasks)：在 CLI 中使用 `/loop` 的会话范围调度
 * [Claude Code GitHub Actions](/docs/zh-CN/github-actions)：在 CI 中按计划运行 Claude，而不是在您的机器上
 * [Use Claude Code Desktop](/docs/zh-CN/desktop)：完整的 Desktop 应用指南

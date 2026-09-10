@@ -46,27 +46,30 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 每个绑定块指定一个**上下文**，其中绑定适用：
 
-| 上下文               | 描述                |
-| :---------------- | :---------------- |
-| `Global`          | 在应用程序的任何地方应用      |
-| `Chat`            | 主聊天输入区域           |
-| `Autocomplete`    | 自动完成菜单已打开         |
-| `Settings`        | 设置菜单              |
-| `Confirmation`    | 权限和确认对话框          |
-| `Tabs`            | 选项卡导航组件           |
-| `Help`            | 帮助菜单可见            |
-| `Transcript`      | 记录查看器             |
-| `HistorySearch`   | 历史搜索模式（Ctrl+R）    |
-| `Task`            | 后台任务正在运行          |
-| `ThemePicker`     | 主题选择器对话框          |
-| `Attachments`     | 图像附件在选择对话框中的导航    |
-| `Footer`          | 页脚指示器导航（任务、团队、差异） |
-| `MessageSelector` | 回溯和总结对话框消息选择      |
-| `DiffDialog`      | 差异查看器导航           |
-| `ModelPicker`     | 模型选择器工作量级别        |
-| `Select`          | 通用选择/列表组件         |
-| `Plugin`          | 插件对话框（浏览、发现、管理）   |
-| `Scroll`          | 对话滚动和全屏模式下的文本选择   |
+| 上下文               | 描述                                             |
+| :---------------- | :--------------------------------------------- |
+| `Global`          | 在应用程序的任何地方应用                                   |
+| `Chat`            | 主聊天输入区域                                        |
+| `Autocomplete`    | 自动完成菜单已打开                                      |
+| `Settings`        | 设置菜单                                           |
+| `Confirmation`    | 权限和确认对话框                                       |
+| `Tabs`            | 选项卡导航组件                                        |
+| `Help`            | 帮助菜单可见                                         |
+| `Transcript`      | 记录查看器                                          |
+| `HistorySearch`   | 历史搜索模式（Ctrl+R）                                 |
+| `Task`            | 后台任务正在运行                                       |
+| `ThemePicker`     | 主题选择器对话框                                       |
+| `Attachments`     | 图像附件在选择对话框中的导航                                 |
+| `Footer`          | 页脚指示器导航（任务、团队、差异、工件）                           |
+| `MessageSelector` | 回溯和总结对话框消息选择                                   |
+| `DiffDialog`      | 差异查看器导航                                        |
+| `DiffPanel`       | [差异面板](/docs/zh-CN/interactive-mode#diff-panel)已打开  |
+| `ModelPicker`     | 模型选择器工作量级别                                     |
+| `EffortSlider`    | 由 `/effort` 打开的工作量滑块                           |
+| `Select`          | 通用选择/列表组件                                      |
+| `Plugin`          | 插件对话框（浏览、发现、管理）                                |
+| `Agents`          | [Agent 视图](/docs/zh-CN/agent-view)（`claude agents`） |
+| `Scroll`          | 对话滚动和全屏模式下的文本选择                                |
 
 在 v2.1.205 之前，`/doctor` 诊断屏幕存在 `Doctor` 上下文和 `doctor:fix` 操作。
 
@@ -85,7 +88,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | 操作                     | 默认     | 描述                                                          |
 | :--------------------- | :----- | :---------------------------------------------------------- |
 | `app:interrupt`        | Ctrl+C | 取消当前操作                                                      |
-| `app:exit`             | Ctrl+D | 退出 Claude Code                                              |
+| `app:exit`             | Ctrl+D | 退出 Claude Code。在 800ms 内按两次以确认                              |
 | `app:redraw`           | （未绑定）  | 强制终端重绘                                                      |
 | `app:toggleTodos`      | Ctrl+T | 切换 Claude 待办事项清单的可见性。这不是 [`/tasks`](/docs/zh-CN/commands) 后台任务视图 |
 | `app:toggleTranscript` | Ctrl+O | 切换详细记录                                                      |
@@ -108,22 +111,23 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 在 `Chat` 上下文中可用的操作：
 
-| 操作                    | 默认                             | 描述                                                                                 |
-| :-------------------- | :----------------------------- | :--------------------------------------------------------------------------------- |
-| `chat:cancel`         | Escape                         | 取消当前输入                                                                             |
-| `chat:clearInput`     | Ctrl+L                         | 强制全屏重绘，保留输入。在[全屏渲染](/docs/zh-CN/fullscreen#clear-the-conversation)中，在两秒内按两次以运行 `/clear` |
-| `chat:clearScreen`    | Cmd+K                          | 在[全屏渲染](/docs/zh-CN/fullscreen#clear-the-conversation)中，在两秒内按两次以运行 `/clear`             |
-| `chat:killAgents`     | Ctrl+X Ctrl+K                  | 终止所有运行中的[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)在此会话中  |
-| `chat:cycleMode`      | Shift+Tab\*                    | 循环权限模式                                                                             |
-| `chat:modelPicker`    | Meta+P                         | 打开模型选择器                                                                            |
-| `chat:fastMode`       | Meta+O                         | 切换快速模式                                                                             |
-| `chat:thinkingToggle` | Meta+T                         | 切换扩展思考                                                                             |
-| `chat:submit`         | Enter                          | 提交消息                                                                               |
-| `chat:newline`        | Ctrl+J                         | 插入换行符而不提交                                                                          |
-| `chat:undo`           | Ctrl+\_, Ctrl+Shift+-          | 撤销上一个操作                                                                            |
-| `chat:externalEditor` | Ctrl+G, Ctrl+X Ctrl+E          | 在外部编辑器中打开                                                                          |
-| `chat:stash`          | Ctrl+S                         | 隐藏当前提示                                                                             |
-| `chat:imagePaste`     | Ctrl+V（Windows 和 WSL 上为 Alt+V） | 从剪贴板粘贴图像。在 WSL 上，默认情况下两个快捷键都已绑定                                                    |
+| 操作                    | 默认                             | 描述                                                                                                                                                                            |
+| :-------------------- | :----------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `chat:cancel`         | Escape                         | 取消当前输入                                                                                                                                                                        |
+| `chat:clearInput`     | Ctrl+L                         | 强制全屏重绘，保留输入和对话。在[全屏渲染](/docs/zh-CN/fullscreen#clear-the-conversation)中，也清除屏幕                                                                                                       |
+| `chat:clearScreen`    | Cmd+K                          | 与 `chat:clearInput` 相同。请参阅[清除对话](/docs/zh-CN/fullscreen#clear-the-conversation)了解 Cmd+K 在 iTerm2 和 Terminal.app 上的行为                                                               |
+| `chat:killAgents`     | Ctrl+X Ctrl+K                  | 停止此会话中所有运行中的[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)并关闭[工件自动回复](/docs/zh-CN/artifacts#let-claude-reply-to-comments-on-its-own)                         |
+| `chat:cycleMode`      | Shift+Tab\*                    | 循环权限模式                                                                                                                                                                        |
+| `chat:modelPicker`    | Meta+P                         | 打开模型选择器                                                                                                                                                                       |
+| `chat:fastMode`       | Meta+O                         | 切换快速模式                                                                                                                                                                        |
+| `chat:thinkingToggle` | Meta+T                         | 切换扩展思考                                                                                                                                                                        |
+| `chat:submit`         | Enter                          | 提交消息                                                                                                                                                                          |
+| `chat:queueSubmit`    | Ctrl+X Enter                   | 提交消息，标记为等待其轮次：当 Claude 工作时，Claude Code [将其排队](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)并且永远不会中断轮次。与 `chat:submit` 不同，即使自动完成建议被突出显示，它也会提交草稿。需要 v2.1.247 或更高版本 |
+| `chat:newline`        | Ctrl+J                         | 插入换行符而不提交                                                                                                                                                                     |
+| `chat:undo`           | Ctrl+\_, Ctrl+Shift+-          | 撤销上一个操作                                                                                                                                                                       |
+| `chat:externalEditor` | Ctrl+G, Ctrl+X Ctrl+E          | 在外部编辑器中打开。[代理视图调度输入](/docs/zh-CN/agent-view#keyboard-shortcuts)也遵循此操作的单键击绑定                                                                                                        |
+| `chat:stash`          | Ctrl+S                         | 隐藏当前提示                                                                                                                                                                        |
+| `chat:imagePaste`     | Ctrl+V（Windows 和 WSL 上为 Alt+V） | 从剪贴板粘贴图像。在 WSL 上，默认情况下两个快捷键都已绑定                                                                                                                                               |
 
 \*在没有 VT 模式的 Windows 上（Node \<24.2.0/\<22.17.0，Bun \<1.2.23），默认为 Meta+M。
 
@@ -146,17 +150,20 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 在 `Confirmation` 上下文中可用的操作：
 
-| 操作                          | 默认        | 描述                                                                           |
-| :-------------------------- | :-------- | :--------------------------------------------------------------------------- |
-| `confirm:yes`               | Y, Enter  | 确认操作                                                                         |
-| `confirm:no`                | N, Escape | 拒绝操作                                                                         |
-| `confirm:previous`          | Up        | 上一个选项                                                                        |
-| `confirm:next`              | Down      | 下一个选项                                                                        |
-| `confirm:nextField`         | Tab       | 下一个字段                                                                        |
-| `confirm:previousField`     | （未绑定）     | 上一个字段                                                                        |
-| `confirm:toggle`            | Space     | 切换选择                                                                         |
-| `confirm:cycleMode`         | Shift+Tab | 循环权限模式                                                                       |
-| `confirm:toggleExplanation` | Ctrl+E    | 在 Bash 和 PowerShell 权限提示上切换模型生成的[命令说明](/docs/zh-CN/permissions#permission-system) |
+| 操作                      | 默认          | 描述                                                                                                                                     |
+| :---------------------- | :---------- | :------------------------------------------------------------------------------------------------------------------------------------- |
+| `confirm:yes`           | Y, Enter    | 确认操作                                                                                                                                   |
+| `confirm:no`            | N, Escape   | 拒绝操作                                                                                                                                   |
+| `confirm:previous`      | Up          | 上一个选项                                                                                                                                  |
+| `confirm:next`          | Down        | 下一个选项                                                                                                                                  |
+| `confirm:nextField`     | Tab         | 下一个字段                                                                                                                                  |
+| `confirm:previousField` | （未绑定）       | 上一个字段                                                                                                                                  |
+| `confirm:toggle`        | Space       | 切换选择                                                                                                                                   |
+| `confirm:cycleMode`     | Shift+Tab\* | 循环权限模式。在文件权限提示上，关闭打开的[注释字段](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)；没有打开的字段时，选择允许此会话其余部分操作的选项（当提示提供该选项时） |
+
+\*在没有 VT 模式的 Windows 上（Node \<24.2.0/\<22.17.0，Bun \<1.2.23），默认为 Meta+M。
+
+在 v2.1.257 之前，`confirm:toggleExplanation` 操作（默认绑定到 `Ctrl+E`）在 Bash 和 PowerShell 权限提示上显示模型生成的命令说明。
 
 <h3 id="permission-actions">
   权限操作
@@ -179,6 +186,8 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `transcript:toggleShowAll` | Ctrl+E            | 切换显示所有内容 |
 | `transcript:exit`          | q, Ctrl+C, Escape | 退出记录查看   |
 
+`transcript:toggleShowAll` 仅在经典渲染器中应用；在[全屏渲染](/docs/zh-CN/fullscreen)中，记录查看器不提供显示全部切换。
+
 <h3 id="history-search-actions">
   历史搜索操作
 </h3>
@@ -193,15 +202,17 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `historySearch:execute`    | Enter       | 执行选定的命令         |
 | `historySearch:cycleScope` | Ctrl+S      | 循环范围：会话、项目、任何地方 |
 
+`historySearch:next`、`historySearch:accept`、`historySearch:cancel` 和 `historySearch:execute` 默认值适用于经典渲染器中的内联历史搜索，它始终搜索来自所有项目的提示。`historySearch:cycleScope` 仅在[全屏渲染](/docs/zh-CN/fullscreen)中生效，其中 `Ctrl+R` 打开搜索对话框，`Ctrl+S` 循环其范围。对话框的其他键是固定的，无法重新绑定：`Enter` 或 `Tab` 将突出显示的匹配项放在提示输入中，`Esc` 取消。
+
 <h3 id="task-actions">
   任务操作
 </h3>
 
 在 `Task` 上下文中可用的操作：
 
-| 操作                | 默认                    | 描述                                                     |
-| :---------------- | :-------------------- | :----------------------------------------------------- |
-| `task:background` | Ctrl+B, Ctrl+X Ctrl+B | 后台当前任务。Ctrl+X Ctrl+B 组合键需要 v2.1.169 或更高版本，避免 tmux 前缀冲突 |
+| 操作                | 默认                    | 描述                                   |
+| :---------------- | :-------------------- | :----------------------------------- |
+| `task:background` | Ctrl+B, Ctrl+X Ctrl+B | 后台当前任务。Ctrl+X Ctrl+B 组合键避免 tmux 前缀冲突 |
 
 <h3 id="theme-actions">
   主题操作
@@ -253,14 +264,15 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 在 `Footer` 上下文中可用的操作：
 
-| 操作                      | 默认     | 描述                |
-| :---------------------- | :----- | :---------------- |
-| `footer:next`           | Right  | 下一个页脚项            |
-| `footer:previous`       | Left   | 上一个页脚项            |
-| `footer:up`             | Up     | 在页脚中向上导航（在顶部取消选择） |
-| `footer:down`           | Down   | 在页脚中向下导航          |
-| `footer:openSelected`   | Enter  | 打开选定的页脚项          |
-| `footer:clearSelection` | Escape | 清除页脚选择            |
+| 操作                      | 默认                | 描述                                                                             |
+| :---------------------- | :---------------- | :----------------------------------------------------------------------------- |
+| `footer:next`           | Right             | 下一个页脚项                                                                         |
+| `footer:previous`       | Left              | 上一个页脚项                                                                         |
+| `footer:up`             | Up                | 在页脚中向上导航（在顶部取消选择）                                                              |
+| `footer:down`           | Down              | 在页脚中向下导航                                                                       |
+| `footer:openSelected`   | Enter             | 打开选定的页脚项                                                                       |
+| `footer:clearSelection` | Escape            | 清除页脚选择                                                                         |
+| `footer:dismiss`        | Backspace, Delete | 从页脚中关闭选定的[工件](/docs/zh-CN/artifacts)链接；已发布的工件本身不受影响。在其他页脚行上，这些键无效。需要 v2.1.217 或更高版本 |
 
 <h3 id="message-selector-actions">
   消息选择器操作
@@ -303,6 +315,21 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `scroll:top`          | G, Home        | 跳到顶部      |
 | `scroll:bottom`       | Shift+G, End   | 跳到底部      |
 
+<h3 id="diff-panel-actions">
+  Diff 面板操作
+</h3>
+
+用于 `/diff` 在全屏渲染中打开的 [diff 面板](/docs/zh-CN/interactive-mode#diff-panel)的操作。`app:cycleDiffBase` 在 `DiffPanel` 上下文中，在面板打开时处于活动状态；其他的在 `Global` 中。面板需要 Claude Code v2.1.260 或更高版本。
+
+| 操作                          | 默认                   | 描述                           |
+| :-------------------------- | :------------------- | :--------------------------- |
+| `app:toggleReplTab`         | （未绑定）                | 打开或关闭 diff 面板，与运行 `/diff` 相同 |
+| `app:cycleDiffBase`         | Ctrl+X B             | 循环面板的比较基础：此会话、未提交、然后分支       |
+| `app:diffFileListUp`        | Ctrl+Up, Meta+Up     | 当面板的文件列表溢出时向上滚动              |
+| `app:diffFileListDown`      | Ctrl+Down, Meta+Down | 当面板的文件列表溢出时向下滚动              |
+| `app:toggleDiffNoiseFilter` | （未绑定）                | 在面板中显示或隐藏测试和生成的文件            |
+| `app:toggleDiffPreSession`  | （未绑定）                | 展开或折叠此会话之前的更改                |
+
 <h3 id="model-picker-actions">
   模型选择器操作
 </h3>
@@ -315,18 +342,34 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `modelPicker:increaseEffort`  | Right | 提高工作量级别         |
 | `modelPicker:thisSessionOnly` | s     | 仅将突出显示的模型应用于此会话 |
 
+<h3 id="effort-slider-actions">
+  工作量滑块操作
+</h3>
+
+在 `EffortSlider` 上下文中可用的操作，这是运行不带参数的 `/effort` 时打开的滑块。滑块的 Left、Right、Enter 和 Escape 键无法重新绑定。
+
+| 操作                             | 默认 | 描述                                                                            |
+| :----------------------------- | :- | :---------------------------------------------------------------------------- |
+| `effortSlider:thisSessionOnly` | s  | 仅将聚焦的[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)应用于此会话。需要 v2.1.257 或更高版本 |
+
 <h3 id="select-actions">
   选择操作
 </h3>
 
 在 `Select` 上下文中可用的操作：
 
-| 操作                | 默认              | 描述    |
-| :---------------- | :-------------- | :---- |
-| `select:next`     | Down, J, Ctrl+N | 下一个选项 |
-| `select:previous` | Up, K, Ctrl+P   | 上一个选项 |
-| `select:accept`   | Enter           | 接受选择  |
-| `select:cancel`   | Escape          | 取消选择  |
+| 操作                | 默认              | 描述       |
+| :---------------- | :-------------- | :------- |
+| `select:next`     | Down, J, Ctrl+N | 下一个选项    |
+| `select:previous` | Up, K, Ctrl+P   | 上一个选项    |
+| `select:pageUp`   | PageUp          | 向上移动一页选项 |
+| `select:pageDown` | PageDown        | 向下移动一页选项 |
+| `select:first`    | Home            | 第一个选项    |
+| `select:last`     | End             | 最后一个选项   |
+| `select:accept`   | Enter           | 接受选择     |
+| `select:cancel`   | Escape          | 取消选择     |
+
+Claude Code 在 `/skills` 菜单中应用您的 `select:pageUp`、`select:pageDown`、`select:first` 和 `select:last` 绑定。在大多数其他列表中，例如 `/model` 选择器，Claude Code 使用 PageUp 和 PageDown 进行分页，无论您的绑定如何，并忽略 Home 和 End。
 
 <h3 id="plugin-actions">
   Plugin 操作
@@ -353,6 +396,23 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `select:accept`   | Enter, Space | 更改选定的设置或打开其子菜单 |
 | `confirm:no`      | Escape       | 关闭面板。更改已保存     |
 
+<h3 id="agents-actions">
+  代理操作
+</h3>
+
+在 `Agents` 上下文中可用的操作，该上下文适用于[代理视图](/docs/zh-CN/agent-view)，使用 `claude agents` 打开。需要 v2.1.257 或更高版本。
+
+| 操作                  | 默认     | 描述                                                    |
+| :------------------ | :----- | :---------------------------------------------------- |
+| `agents:switchView` | Ctrl+S | 在状态和目录之间切换[会话分组](/docs/zh-CN/agent-view#organize-the-list) |
+| `agents:togglePin`  | Ctrl+T | [固定或取消固定](/docs/zh-CN/agent-view#organize-the-list)选定的会话   |
+
+当代理视图打开时，Claude Code 对 `Agents` 上下文绑定的任何键使用 `Agents` 绑定，并忽略同一键上的 `Chat` 或 `Global` 绑定。例如，在代理视图中按 Ctrl+S 会切换会话分组，而不是触发默认的 `chat:stash`。
+
+调度输入的外部编辑器快捷键不是 `Agents` 操作。代理视图遵循 `Chat` 上下文的 `chat:externalEditor` 绑定，默认为 Ctrl+G。
+
+绑定在代理视图中的单个按键上触发，因此绑定到 `chat:externalEditor` 的 Ctrl+X Ctrl+E 组合键不会在那里打开编辑器。
+
 <h3 id="voice-actions">
   语音操作
 </h3>
@@ -371,8 +431,8 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 | 操作                          | 默认                   | 描述                                                   |
 | :-------------------------- | :------------------- | :--------------------------------------------------- |
-| `scroll:lineUp`             | （未绑定）                | 向上滚动一行。鼠标滚轮滚动触发此操作                                   |
-| `scroll:lineDown`           | （未绑定）                | 向下滚动一行。鼠标滚轮滚动触发此操作                                   |
+| `scroll:lineUp`             | `wheelup`            | 向上滚动一行。鼠标滚轮滚动触发此操作                                   |
+| `scroll:lineDown`           | `wheeldown`          | 向下滚动一行。鼠标滚轮滚动触发此操作                                   |
 | `scroll:pageUp`             | PageUp               | 向上滚动视口高度的一半                                          |
 | `scroll:pageDown`           | PageDown             | 向下滚动视口高度的一半                                          |
 | `scroll:top`                | Ctrl+Home            | 跳到对话的开始                                              |
@@ -382,7 +442,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `scroll:fullPageUp`         | （未绑定）                | 向上滚动整个视口高度                                           |
 | `scroll:fullPageDown`       | （未绑定）                | 向下滚动整个视口高度                                           |
 | `selection:copy`            | Ctrl+Shift+C / Cmd+C | 将选定的文本复制到剪贴板                                         |
-| `selection:clear`           | （未绑定）                | 清除活动的文本选择                                            |
+| `selection:clear`           | （未绑定）                | 清除活动的文本选择。需要 v2.1.234 或更高版本                          |
 | `selection:extendLeft`      | Shift+Left           | 将活动选择向左扩展一列                                          |
 | `selection:extendRight`     | Shift+Right          | 将活动选择向右扩展一列                                          |
 | `selection:extendUp`        | Shift+Up             | 将活动选择向上扩展一行。当选择到达顶部边缘时滚动视口                           |
@@ -420,9 +480,20 @@ ctrl+shift+c    多个修饰符
   大写字母
 </h3>
 
-独立的大写字母意味着 Shift。例如，`K` 等同于 `shift+k`。这对于 vim 风格的绑定很有用，其中大写和小写键有不同的含义。
+Claude Code 不区分大小写地解析按键名称，因此 `K` 与 `k` 的绑定相同，`ctrl+K` 与 `ctrl+k` 相同。要绑定 Shift 和一个字母，请写 `shift+k`。
 
-带有修饰符的大写字母（例如 `ctrl+K`）被视为风格上的，**不**意味着 Shift：`ctrl+K` 与 `ctrl+k` 相同。
+<h3 id="non-us-keyboard-layouts">
+  非美国键盘布局
+</h3>
+
+即使您的活动键盘布局输入其他字符，也要将 Ctrl 快捷键的按键名称写成拉丁字符。
+
+Claude Code 如何将您按下的按键与绑定匹配取决于布局的类型：
+
+* 在非拉丁布局（如西里尔字母）下，当终端使用 Kitty 键盘协议并报告该位置时，Claude Code 通过按键的美国布局位置来匹配 Ctrl 快捷键。在这样的终端中，使用俄语布局时，按下 Ctrl 和物理 W 键会触发 `ctrl+w`。在不报告位置的终端中，Claude Code 匹配终端为按键发送的任何内容：ASCII 控制代码触发拉丁快捷键，作为西里尔字符到达的按键不匹配任何绑定
+* 在重新排列拉丁字母的布局（如 AZERTY）下，Claude Code 匹配按键输入的字母，因此按下 Ctrl 和标记为 A 的按键会触发 `ctrl+a`
+
+在 v2.1.247 之前，在使用 Kitty 键盘协议的终端（如 Ghostty、Kitty、WezTerm 和 iTerm2）中，在非拉丁布局下按下 Ctrl 快捷键不会触发其绑定。
 
 <h3 id="chords">
   和弦
@@ -434,6 +505,8 @@ ctrl+shift+c    多个修饰符
 ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
 ```
 
+在前一个按键的 3 秒内按下每个按键。如果您等待更长时间，Claude Code 会取消和弦并显示一条简短通知。
+
 <h3 id="special-keys">
   特殊键
 </h3>
@@ -443,7 +516,10 @@ ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
 * `tab` - Tab 键
 * `space` - 空格键
 * `up`、`down`、`left`、`right` - 箭头键
+* `pageup`、`pagedown` - Page Up 和 Page Down 键
+* `home`、`end` - Home 和 End 键
 * `backspace`、`delete` - 删除键
+* `wheelup`、`wheeldown` - 鼠标滚轮滚动事件
 
 <h2 id="unbind-default-shortcuts">
   取消绑定默认快捷键
@@ -466,7 +542,7 @@ ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
 
 这也适用于和弦绑定。取消绑定共享前缀的每个和弦会释放该前缀以用作单键绑定。任何活跃上下文中的和弦都会保留其前缀，因此您必须在定义该和弦的上下文中取消绑定每个和弦。
 
-默认的 `Ctrl+X` 系列跨越两个上下文：`Chat` 中的 `ctrl+x ctrl+k` 和 `ctrl+x ctrl+e`，以及 `Task` 中的 `ctrl+x ctrl+b`。要将 `ctrl+x` 本身回收为单键绑定，请取消绑定所有这些：
+Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl+x ctrl+k`、`ctrl+x ctrl+e` 和 `ctrl+x enter`，`Task` 中的 `ctrl+x ctrl+b`，以及 `DiffPanel` 中的 `ctrl+x b`。`ctrl+x enter` 和弦需要 v2.1.247 或更高版本，`ctrl+x b` 需要 v2.1.260 或更高版本。要将 `ctrl+x` 本身回收为单键绑定，请取消绑定所有这些：
 
 ```json theme={null}
 {
@@ -478,10 +554,17 @@ ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
       }
     },
     {
+      "context": "DiffPanel",
+      "bindings": {
+        "ctrl+x b": null
+      }
+    },
+    {
       "context": "Chat",
       "bindings": {
         "ctrl+x ctrl+k": null,
         "ctrl+x ctrl+e": null,
+        "ctrl+x enter": null,
         "ctrl+x": "chat:newline"
       }
     }
@@ -497,12 +580,15 @@ ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
 
 这些快捷键无法重新绑定：
 
-| 快捷键       | 原因                     |
-| :-------- | :--------------------- |
-| Ctrl+C    | 硬编码的中断/取消              |
-| Ctrl+D    | 硬编码的退出                 |
-| Ctrl+M    | 与终端中的 Enter 相同（都发送 CR） |
-| Caps Lock | 不传递到终端应用程序             |
+| 快捷键       | 原因                                                                                                                                                                                     |
+| :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ctrl+C    | 硬编码的中断/取消                                                                                                                                                                              |
+| Ctrl+D    | 硬编码的退出                                                                                                                                                                                 |
+| Ctrl+M    | Claude Code 始终将其接收为 Enter                                                                                                                                                              |
+| Ctrl+\[   | Claude Code 始终将其接收为 Escape。在使用 Kitty 键盘协议的终端中，这需要 v2.1.242 或更高版本                                                                                                                       |
+| Ctrl+I    | Claude Code 始终将其接收为 Tab                                                                                                                                                                |
+| Ctrl+H    | 发送 ASCII 退格字节。[Claude Code 在 Windows 上如何读取它](/docs/zh-CN/terminal-config#fix-backspace-deleting-a-whole-word-on-windows)取决于您的终端和 [`CLAUDE_CODE_BS_AS_CTRL_BACKSPACE`](/docs/zh-CN/env-vars) 环境变量 |
+| Caps Lock | 不传递到终端应用程序                                                                                                                                                                             |
 
 <h2 id="terminal-conflicts">
   终端冲突
@@ -538,8 +624,9 @@ Claude Code 验证您的快捷键并显示以下警告：
 
 * 解析错误（无效的 JSON 或结构）
 * 无效的上下文名称
+* 无效的操作值，例如不是字符串或 `null` 的操作
+* 未知的操作名称，例如注册操作的拼写错误。Claude Code 跳过该绑定并保持该键的任何默认绑定有效。在 v2.1.246 之前，具有未知操作名称的绑定会静默禁用该键
 * 保留快捷键冲突
-* 终端多路复用器冲突
 * 同一上下文中的重复绑定
 
 Claude Code 在文件加载时报告警告，并将每个警告写入调试日志。使用 [`--debug`](/docs/zh-CN/cli-reference#cli-flags) 启动 Claude Code 以查看详细信息。

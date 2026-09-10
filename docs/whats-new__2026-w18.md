@@ -71,7 +71,7 @@
   https://github.com/your-org/your-repo/pull/1234
   ```
 
-  <p className="digest-feature-try">要跳过选择器，请改为在命令行上传递 PR 号：</p>
+  <p className="digest-feature-try">要打开已筛选到 PR 的选择器，请在命令行上传递 PR 号：</p>
 
   ```bash theme={null}
   claude --from-pr 1234

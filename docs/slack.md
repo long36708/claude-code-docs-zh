@@ -4,11 +4,14 @@
 
 # Slack 中的 Claude Code
 
-> 直接从 Slack 工作区委派编码任务
+> 直接从 Slack 工作区委派编码任务。Anthropic 正在为 Team 和 Enterprise 工作区停用此早期版本，转而使用 Claude Tag；它仍然是 Pro 和 Max 计划上的设置路径。
 
-<Note>
-  Slack 中的 Claude Code 正在被 [Claude Tag](https://claude.com/product/tag) 替代，用于 Team 和 Enterprise 工作区。Claude Tag 以您组织的共享身份运行 @Claude，具有管理员配置的访问权限，在同一 Slack 应用下运行，因此无需重新安装，现有设置在过渡期间继续工作。要切换工作区，请参阅 [从早期 Claude in Slack 迁移](https://claude.com/docs/claude-tag/admins/migrate-from-earlier)。
-</Note>
+<Warning>
+  本页面记录了早期的 Slack 中的 Claude Code，它在每个会话中以单个用户的账户运行。
+
+  * **Team 和 Enterprise 计划：** Anthropic 正在停用此版本，转而使用 [Claude Tag](https://claude.com/product/tag)，它以您组织的共享身份运行 @Claude，具有管理员配置的访问权限。您现有的 Slack 应用和 @Claude 处理保持不变，您的 Anthropic 账户团队可以告诉您切换日期。[为新工作区设置 Claude Tag](https://claude.com/docs/claude-tag/overview)；要移动已经使用此版本的工作区，请参阅 [从早期 Claude in Slack 迁移](https://claude.com/docs/claude-tag/admins/migrate-from-earlier)。
+  * **Pro 和 Max 计划：** Claude Tag 在个人计划上不可用，因此本页面仍然是设置路径。
+</Warning>
 
 Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack 工作区。当您使用编码任务提及 `@Claude` 时，Claude 会自动检测意图并在网络上创建 Claude Code 会话，允许您在不离开团队对话的情况下委派开发工作。
 
@@ -88,7 +91,7 @@ Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack
   自动检测
 </h3>
 
-当您在 Slack 频道或线程中提及 @Claude 时，Claude 会自动分析您的消息以确定它是否是编码任务。如果 Claude 检测到编码意图，它将把您的请求路由到网络上的 Claude Code，而不是作为常规聊天助手响应。
+在 Code + Chat 路由模式下，当您在 Slack 频道或线程中提及 @Claude 时，Claude 会自动检测您的消息是否是编码任务。编码任务会被发送到网络上的 Claude Code。其他任何内容都会获得常规聊天回复。在仅 Code 模式下，每个 @mention 都会发送到 Claude Code。
 
 您也可以明确告诉 Claude 将请求作为编码任务处理，即使它没有自动检测到。
 
@@ -124,12 +127,6 @@ Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack
 <h2 id="user-interface-elements">
   用户界面元素
 </h2>
-
-<h3 id="app-home">
-  应用程序主页
-</h3>
-
-应用程序主页选项卡显示您的连接状态，并允许您连接或断开您的 Claude 账户与 Slack 的连接。
 
 <h3 id="message-actions">
   消息操作
@@ -177,14 +174,7 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
   基于频道的访问控制
 </h3>
 
-安装后，Claude 不会自动添加到任何频道。用户必须明确邀请 Claude 到他们想要使用它的频道：
-
-* **需要邀请**：在任何频道中键入 `/invite @Claude` 以将 Claude 添加到该频道
-* **频道成员身份控制访问**：Claude 只能在已添加它的频道中响应 @mentions
-* **通过频道进行访问控制**：管理员可以通过管理哪些频道邀请了 Claude 以及谁有权访问这些频道来控制谁使用 Claude Code
-* **私有频道支持**：Claude 在公开和私有频道中都工作，为团队提供了控制可见性的灵活性
-
-这种基于频道的模型允许团队将 Claude Code 使用限制在特定频道，提供了超越工作区级权限的额外访问控制层。
+安装应用程序不会将 Claude 添加到任何频道。Claude 仅在已添加它的频道中响应 @mentions；使用 `/invite @Claude` 邀请它。它在公开和私有频道中都可以工作。管理员可以通过管理哪些频道邀请了 Claude 以及谁有权访问这些频道来控制谁使用 Claude Code。这在工作区级权限之外增加了一层访问控制。
 
 <h2 id="what’s-accessible-where">
   什么可以在哪里访问
@@ -192,7 +182,7 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
 
 **在 Slack 中**：您将看到状态更新、完成摘要和操作按钮。完整记录被保留并始终可访问。
 
-**在网络上**：完整的 Claude Code 会话，包含完整的对话历史、所有代码更改、文件操作以及继续会话或创建拉取请求的能力。
+**在网络上**：完整的 Claude Code 会话，包含完整的对话历史、所有代码更改和文件操作。会话保存在您的 Claude Code 历史记录中，位于 [claude.ai/code](https://claude.ai/code)，您可以在那里继续过去的会话、参考它们或创建拉取请求。
 
 对于 Enterprise 和 Team 账户，从 Slack 中的 Claude 创建的会话会自动对组织可见。有关更多详情，请参阅 [Claude Code 网络共享](/docs/zh-CN/claude-code-on-the-web#share-sessions)。
 
@@ -225,7 +215,7 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
   "Claude Code 未为您的账户启用"
 </h3>
 
-此错误意味着您的 Claude 账户还没有云环境，而不是管理员需要启用任何内容。使用连接到 Slack 的同一账户在 [claude.ai/code](https://claude.ai/code) 登录一次。首次访问会创建您的默认云环境，错误将在您下次提及时清除。每个用户必须单独执行此操作。
+此错误意味着您的 Claude 账户还没有云环境。使用连接到 Slack 的同一账户在 [claude.ai/code](https://claude.ai/code) 登录一次，并完成[网络入门](/docs/zh-CN/web-quickstart#connect-github)，这将创建您的默认云环境或要求您创建它。错误将在您下次提及时清除。每个用户必须单独执行此操作。
 
 <h3 id="sessions-not-starting">
   会话未启动
@@ -234,6 +224,19 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
 1. 验证您的 Claude 账户在 Claude 应用程序主页中已连接
 2. 检查您是否启用了网络上的 Claude Code 访问权限
 3. 确保您至少有一个 GitHub 存储库连接到 Claude Code
+
+<h3 id="sessions-from-a-claude-tag-channel-fail-to-start">
+  来自 Claude Tag 频道的会话启动失败
+</h3>
+
+此条目适用于使用 [Claude Tag](https://claude.com/docs/claude-tag/overview) 的工作区，其中 Claude 在频道中作为您组织的共享身份工作，而不是作为任何成员的账户。如果您在 [claude.ai/code](https://claude.ai/code) 创建了频道的云环境，它属于您的个人账户，Claude 无法在个人环境中启动频道会话。Claude Code 会立即使会话失败，重试也无法帮助。
+
+如果您是所有者，请从[管理设置](https://claude.ai/admin-settings)中的**云环境**页面将环境重新创建为[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)。您可以通过两种方式应用它：
+
+* 在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 将其设置为组织默认值。
+* [在 Claude Tag 管理设置中的频道上设置它](https://claude.com/docs/claude-tag/admins/troubleshooting#channel-sessions-use-the-wrong-environment-or-can%E2%80%99t-find-one)。
+
+如果您不是所有者，请将此条目发送给所有者。
 
 <h3 id="repository-not-showing">
   存储库未显示
@@ -258,21 +261,13 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
 2. 确保您在浏览器中登录到正确的 Claude 账户
 3. 检查您的 Claude 计划是否包括 Claude Code 访问权限
 
-<h3 id="session-expiration">
-  会话过期
-</h3>
-
-1. 会话在网络上的 Claude Code 历史中保持可访问
-2. 您可以从 [claude.ai/code](https://claude.ai/code) 继续或参考过去的会话
-
 <h2 id="current-limitations">
   当前限制
 </h2>
 
-* **仅 GitHub**：目前支持 GitHub 上的存储库。
+* **仅 GitHub**：存储库必须在 GitHub 上。
 * **一次一个 PR**：每个会话可以创建一个拉取请求。
-* **速率限制适用**：会话使用您的个人 Claude 计划的速率限制。
-* **需要网络访问**：用户必须具有网络上的 Claude Code 访问权限；没有它的用户将只获得标准 Claude 聊天响应。
+* **需要网络访问**：用户需要访问网络上的 Claude Code；没有访问权限的用户，Claude 将回复标准聊天响应。
 
 <h2 id="related-resources">
   相关资源

@@ -8,7 +8,7 @@
 
 如果您维护 CLI 或 SDK，并在官方 Anthropic 市场中拥有插件，您的工具可以提示 Claude Code 用户安装该插件。当您的 CLI 检测到它在 Claude Code 内运行时，会向 stderr 写入一行标记。Claude Code 读取该标记，将其从输出中删除，并向用户显示一次性安装提示。
 
-Claude Code 在将命令输出发送给模型之前会从命令输出中删除提示行，因此标记永远不会出现在对话中，也不会计入令牌使用量。该协议不需要额外命令，也不会改变您的 CLI 为 Claude Code 外部用户打印的内容。
+该协议不需要额外命令，也不会改变您的 CLI 为 Claude Code 外部用户打印的内容。
 
 本页面适用于 CLI 和 SDK 维护者。如果您正在寻找安装插件，请参阅[发现和安装插件](/docs/zh-CN/discover-plugins)。
 
@@ -67,8 +67,9 @@ Claude Code 永远不会自动安装插件。用户始终需要确认。
   ```
 
   ```shell Shell theme={null}
-  [ -n "$CLAUDECODE" ] &&
+  if [ -n "$CLAUDECODE" ]; then
     printf '%s\n' '<claude-code-hint v="1" type="plugin" value="example-cli@claude-plugins-official" />' >&2
+  fi
   ```
 </CodeGroup>
 
@@ -111,12 +112,14 @@ Claude Code 永远不会自动安装插件。用户始终需要确认。
 ─────────────────────────────────────────────────────────────
 ```
 
-提示会显示生成提示的命令的名称，以便用户可以发现工具与其推荐的插件之间的不匹配。如果用户在 30 秒内没有响应，提示会作为**否**关闭。
+提示会显示生成提示的命令的名称，以便用户可以发现工具与其推荐的插件之间的不匹配。如果用户在 30 秒内没有响应，Claude Code 会将提示作为**否**关闭。
 
-提示频率受限：
+提示频率受限，某些会话永远不会显示提示：
 
 * **每个插件一次**：显示提示后，Claude Code 会记录该插件，无论用户的答案如何，都不会再次提示该插件。
 * **每个会话一次**：在机器上的所有 CLI 中，每个 Claude Code 会话最多出现一个提示。
+* **仅主交互会话**：Claude Code 仅在用户正在输入的终端会话中显示提示。Claude Code 永远不会提示 [subagent](/docs/zh-CN/sub-agents) 运行的命令，也不会在用户使用 `-p` 标志以 [non-interactive mode](/docs/zh-CN/headless) 运行 Claude Code 或通过 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 时显示提示。Claude Code 在所有这些情况下仍然会从命令输出中删除提示行。
+* **遥测选择退出**：禁用分析的会话永远不会显示提示。这包括设置了 `DISABLE_TELEMETRY` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 的会话，以及 Amazon Bedrock 或 Google Cloud 的 Agent Platform 等第三方提供商上的会话，其中 [automatic telemetry opt-out](/docs/zh-CN/data-usage#default-behaviors-by-api-provider) 适用。
 
 选择**是**会将插件安装到用户范围。选择**否，不再显示插件安装提示**会禁用用户的所有未来提示。
 

@@ -6,7 +6,7 @@
 
 > Claude Code 术语定义。了解 agentic loop、compaction、CLAUDE.md、hooks、subagents、MCP 和其他核心概念的含义。
 
-本术语表定义了 Claude Code 术语。每个条目都链接到深入讨论该概念的页面。对于模型级概念（如 tokens、temperature 和 RAG），请参阅[平台术语表](https://platform.claude.com/docs/zh-CN/about-claude/glossary)。
+本术语表定义了 Claude Code 术语。每个条目都链接到深入讨论该概念的页面。对于模型级概念（如 tokens、temperature 和 RAG），请参阅[平台术语表](https://platform.claude.com/docs/zh-CN/about-claude/glossary)。对于 Claude Desktop 术语（如 desktop extension、MCPB 和 DXT），请参阅 [Claude 帮助中心](https://support.claude.com/)。
 
 <h2 id="a">
   A
@@ -16,7 +16,7 @@
   Agent teams
 </h3>
 
-由团队负责人协调的多个独立 Claude Code 会话，具有共享任务列表和点对点消息传递。与在单个会话中运行且仅向父级报告的 [subagents](#subagent) 不同，团队成员各自拥有自己的上下文窗口，您可以直接与任何一个交互。Agent teams 是实验性的，必须通过设置 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 来启用。
+由团队负责人协调的多个独立 Claude Code 会话，具有共享任务列表和点对点消息传递。与在单个会话中运行且仅向父级报告的 [subagents](#subagent) 不同，团队成员各自拥有自己的上下文窗口，您可以直接与任何一个交互。Agent teams 是实验性的，默认情况下被禁用；请参阅[启用 agent teams](/docs/zh-CN/agent-teams#enable-agent-teams)。
 
 了解更多：[运行 agent teams](/docs/zh-CN/agent-teams)
 
@@ -64,7 +64,7 @@ Claude 根据您的更正和偏好为自己编写的笔记，按 git 存储库�
   Auto mode
 </h3>
 
-一种[权限模式](#permission-mode)，其中单独的分类器模型在后台审查操作，因此大多数操作无需批准提示即可运行；显式 ask 规则仍会提示。分类器阻止范围升级、不受信任的基础设施和[提示注入](#prompt-injection)。它永远看不到工具结果，因此注入的指令无法影响其决策。
+一种[权限模式](#permission-mode)，其中单独的分类器模型审查操作而不是您，因此 Claude Code 可以在不询问您的情况下运行大多数操作。Claude Code 仍然会在您的显式 ask 规则匹配的操作之前询问您。在 Pro、Max 和 Team 计划上，auto mode 是交互式终端和 VS Code 会话的[内置起始权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)。分类器阻止范围升级、不受信任的基础设施和[提示注入](#prompt-injection)。工具结果从它看到的内容中被剥离，因此文件或网页中的恶意内容无法直接操纵它。
 
 了解更多：[使用 auto mode 消除提示](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)
 
@@ -76,7 +76,7 @@ Claude 根据您的更正和偏好为自己编写的笔记，按 git 存储库�
   Bare mode
 </h3>
 
-一个启动标志 `--bare`，跳过 hooks、skills、plugins、MCP servers、auto memory 和 CLAUDE.md 的自动发现。只有您显式传递的标志才会生效。建议用于 CI 和脚本调用，其中您需要在不同机器上的相同行为，无论本地配置如何。
+使用 `--bare`，Claude Code 启动时不加载 hooks、skills、custom commands、subagents、plugins、MCP servers、auto memory 或 CLAUDE.md，除了您通过 `--add-dir` 传递的目录中的 skills。建议用于 CI 和脚本调用，其中您需要在每台机器上获得相同的结果。
 
 了解更多：[使用 bare mode 更快启动](/docs/zh-CN/headless#start-faster-with-bare-mode)
 
@@ -132,6 +132,8 @@ Claude Code 读取项目范围配置的目录：settings、hooks、skills、suba
 
 一个可重用的指令，您可以通过在提示中键入 `/name` 来调用。内置命令（如 `/clear`、`/model` 和 `/compact`）控制会话。您可以在 `.claude/commands/` 中将自己的命令定义为文件，或从 [plugin](#plugin) 安装它们。[Skills](#skill) 是打包多步骤命令的推荐方式。
 
+这个词的另外两种用法是无关的：`claude` CLI 子命令，如 `claude mcp add`，列在 [CLI 参考](/docs/zh-CN/cli-reference#cli-commands) 中，以及 stdio [MCP server](#mcp-server) 条目的 `command` 字段，它指定 Claude Code 启动以启动服务器的可执行文件。
+
 了解更多：[Commands](/docs/zh-CN/commands) · [Skills](/docs/zh-CN/skills)
 
 <h3 id="compaction">
@@ -141,6 +143,14 @@ Claude Code 读取项目范围配置的目录：settings、hooks、skills、suba
 当 [context window](#context-window) 接近其限制时，自动总结您的对话。首先清除较旧的工具输出，然后总结对话。Project-root CLAUDE.md 和 auto memory 在 compaction 期间保留并从磁盘重新加载；仅在对话中给出的指令可能会丢失。运行 `/compact` 手动触发，可选择使用焦点，如 `/compact focus on the API changes`。
 
 了解更多：[What survives compaction](/docs/zh-CN/context-window#what-survives-compaction) · [When context fills up](/docs/zh-CN/how-claude-code-works#when-context-fills-up)
+
+<h3 id="connector">
+  Connector
+</h3>
+
+一个 [MCP server](#mcp-server)，添加到您的 claude.ai 账户而不是在 Claude Code 中配置。当您使用该账户登录 Claude Code 时，您的 connectors 会在 `/mcp` 中与您本地添加的服务器一起出现。组织也可以配置 connectors 并对其设置按工具控制。
+
+了解更多：[Use MCP servers from claude.ai](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)
 
 <h3 id="context-window">
   Context window
@@ -170,7 +180,7 @@ Claude Code 读取项目范围配置的目录：settings、hooks、skills、suba
   Effort level
 </h3>
 
-一个设置，控制 Claude 在每个回合上使用多少自适应推理思考预算。更高的努力意味着更多的思考 tokens 和更深入的推理；更低的努力更快且更便宜。Effort 在 Fable 5、Opus 4.6 及更高版本以及 Sonnet 4.6 及更高版本上受支持。
+一个设置，控制自适应推理，让模型决定是否以及在每一步上进行多少思考。更高的努力意味着更多的思考 tokens 和更深入的推理；更低的努力更快且更便宜。Effort 在 Fable 模型、Opus 4.6 及更高版本以及 Sonnet 4.6 及更高版本上受支持。
 
 了解更多：[调整 effort level](/docs/zh-CN/model-config#adjust-effort-level)
 
@@ -210,7 +220,7 @@ Hook 配置有三个级别：
 
 由 IT 或 DevOps 在组织范围内强制执行的设置，通过管理员控制台从 Anthropic 的服务器交付，或部署到 `~/.claude` 之外的操作系统级路径。用户和项目设置无法覆盖托管设置。服务器管理的交付适用于[符合条件的配置](/docs/zh-CN/server-managed-settings#platform-availability)；请参阅[安全考虑](/docs/zh-CN/server-managed-settings#security-considerations)。使用此功能可实现安全策略、合规要求或跨一个群体的标准化工具。
 
-了解更多：[服务器管理的设置](/docs/zh-CN/server-managed-settings) · [设置文件](/docs/zh-CN/settings#settings-files)
+了解更多：[服务器管理的设置](/docs/zh-CN/server-managed-settings) · [设置文件](/docs/zh-CN/settings#where-settings-live)
 
 <h3 id="mcp-model-context-protocol">
   MCP (Model Context Protocol)
@@ -220,11 +230,19 @@ Hook 配置有三个级别：
 
 了解更多：[Model Context Protocol](/docs/zh-CN/mcp)
 
+<h3 id="mcp-server">
+  MCP server
+</h3>
+
+一个为 Claude 提供工具、提示或资源的程序，通过 [MCP](#mcp-model-context-protocol)。您可以使用 `claude mcp add` 添加服务器，在 `.mcp.json` 中添加，通过 [plugin](#plugin) 添加，或作为 claude.ai [connector](#connector) 添加。本地 stdio 服务器作为一个进程运行，Claude Code 从其配置的 `command` 和 `args` 字段启动该进程，这与您在提示符处键入的 [commands](#command) 无关。
+
+了解更多：[Model Context Protocol](/docs/zh-CN/mcp)
+
 <h3 id="mcp-tool-search">
   MCP Tool Search
 </h3>
 
-一个上下文节省机制，延迟 MCP 工具 schemas 直到需要。只有工具名称在启动时加载；Claude 在决定使用特定工具时按需获取完整 schema。这使空闲 MCP servers 不会消耗太多上下文。
+一个上下文节省机制，延迟 MCP 工具 schemas 直到需要。只有工具名称和服务器指令在启动时加载；Claude 在决定使用特定工具时按需获取完整 schema。这使空闲 MCP servers 不会消耗太多上下文。
 
 了解更多：[使用 MCP Tool Search 扩展](/docs/zh-CN/mcp#scale-with-mcp-tool-search)
 
@@ -248,7 +266,7 @@ Hook 配置有三个级别：
   Output style
 </h3>
 
-一个配置，修改 Claude 的系统提示以改变响应行为、语气或格式。Output styles 关闭默认系统提示的软件工程特定部分，与 [CLAUDE.md](#claude-md) 不同，后者作为系统提示后的用户消息传递。内置样式包括 Default、Proactive、Explanatory 和 Learning。
+一个配置，改变 Claude Code 给予 Claude 的指令，以设置响应行为、语气或格式。与 [CLAUDE.md](#claude-md) 不同，后者在 Claude Code 的默认指令旁添加项目上下文，自定义输出样式可以替换默认的软件工程指令。
 
 了解更多：[Output styles](/docs/zh-CN/output-styles)
 
@@ -294,7 +312,7 @@ Hook 配置有三个级别：
   Project trust
 </h3>
 
-一个对话框，在 Claude Code 加载其配置之前接受目录。接受情况按项目目录保存，除了您的主目录，其中信任仅在当前会话中保持，并在每次启动时重新显示提示。信任控制市场 plugins 的自动安装和项目定义的 hooks 的执行。信任目录意味着其 `.claude/settings.json`、`.mcp.json` 和其他配置文件生效。
+一个对话框，在 Claude Code 加载其配置之前接受目录。接受情况按项目目录保存，除了您的主目录，其中信任仅在当前会话中保持，并在每次启动时重新显示提示。在您信任目录之前，Claude Code 会保留其存储库提供的某些内容，例如来自 `.claude/settings.json` 的项目允许规则和市场。[在您信任文件夹之前运行的内容](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)列出了每种内容，包括 `-p` 会话在没有对话框的情况下运行的内容。
 
 了解更多：[`.claude` directory](/docs/zh-CN/claude-directory)
 
@@ -302,7 +320,7 @@ Hook 配置有三个级别：
   Prompt injection
 </h3>
 
-嵌入在文件、网页或工具结果中的恶意指令，试图将 Claude 重定向到您从未要求的操作。Claude Code 的防御包括权限系统、命令黑名单和信任验证。[Auto mode](#auto-mode) 添加了一个服务器端探针，扫描工具结果中的可疑内容，以及一个永远看不到工具结果的分类器，因此注入的文本无法影响其批准决策。
+嵌入在文件、网页或工具结果中的恶意指令，试图将 Claude 重定向到您从未要求的操作。Claude Code 的防御包括权限系统、命令注入检测和信任验证。[Auto mode](#auto-mode) 添加了一个服务器端探针，扫描工具结果中的可疑内容，以及一个分类器，用于审查剥离工具结果的操作，因此注入的文本无法直接操纵它。
 
 了解更多：[防止提示注入](/docs/zh-CN/security#protect-against-prompt-injection)
 
@@ -350,9 +368,9 @@ Bash 工具的操作系统级文件系统和网络隔离。命令在您预先定
   Settings layers
 </h3>
 
-Claude Code 读取配置的层次结构，按优先级顺序从最高到最低：[托管策略](#managed-settings)、命令行参数、`.claude/settings.local.json` 处的本地设置、`.claude/settings.json` 处的项目设置，然后是 `~/.claude/settings.json` 处的用户设置。数组跨层合并；更高层的标量覆盖较低的。
+Claude Code 读取配置的层次结构，按优先级顺序从最高到最低：[managed policy](#managed-settings)、命令行参数、`.claude/settings.local.json` 处的本地设置、`.claude/settings.json` 处的项目设置，然后是 `~/.claude/settings.json` 处的用户设置。数组跨层合并；更高层的标量覆盖较低的。请参阅 [Settings precedence](/docs/zh-CN/settings#settings-precedence)。
 
-了解更多：[Settings files](/docs/zh-CN/settings#settings-files)
+了解更多：[Settings files](/docs/zh-CN/settings#where-settings-live)
 
 <h3 id="skill">
   Skill
@@ -368,7 +386,7 @@ Skills 是自定义命令的推荐后继。`.claude/commands/deploy.md` 处的�
   Subagent
 </h3>
 
-一个专门的 AI 助手，在其自己的上下文窗口中运行，具有自定义系统提示、特定工具访问和独立权限。它处理委派任务并向主对话返回摘要。使用 subagents 将大型探索保留在主上下文之外或运行并行研究。与 [agent teams](#agent-teams) 不同，其中每个代理都是您可以直接交谈的完整独立会话。
+一个专门的 AI 助手，在其自己的上下文窗口中运行，具有自定义系统提示、特定工具访问和独立权限。它处理委派任务并向主对话返回摘要。使用 subagents 将大型探索保留在主上下文之外或运行并行研究。Subagent 保持在生成它的会话内。要在您自己运行的单独会话之间传递发现，请使用 [cross-session messaging](/docs/zh-CN/cross-session-messaging)。
 
 内置 subagents 包括 Explore、Plan 和通用目的。
 
@@ -378,7 +396,7 @@ Skills 是自定义命令的推荐后继。`.claude/commands/deploy.md` 处的�
   Surface
 </h3>
 
-您访问 Claude Code 的任何地方：CLI、VS Code、JetBrains、Desktop 或 claude.ai。所有 surfaces 共享相同的引擎，因此您的 CLAUDE.md、settings 和 skills 在所有 surfaces 上以相同方式工作。Slack 和 Chrome 扩展是连接到 surface 的集成，而不是 surfaces 本身。
+您访问 Claude Code 的任何地方：CLI、VS Code、JetBrains、Desktop 或 claude.ai。所有 surfaces 共享相同的引擎。您机器上的会话读取您的本地 CLAUDE.md、settings 和 skills；[cloud sessions](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup) 从您的存储库的新克隆开始，不读取您机器上的 `~/.claude/`。Slack 和 Chrome 扩展是连接到 surface 的集成，而不是 surfaces 本身。
 
 了解更多：[平台和集成](/docs/zh-CN/platforms)
 

@@ -21,21 +21,6 @@ Claude Code 支持两种方式来添加自定义 skills、agents 和 hooks：
 | **独立**（`.claude/` 目录）                                                  | `/hello`             | 个人工作流、项目特定的自定义、快速实验       |
 | **插件**（包含 skills、agents、hooks 或 `.claude-plugin/plugin.json` 清单的自包含目录） | `/plugin-name:hello` | 与团队成员共享、分发到社区、版本化发布、跨项目重用 |
 
-**在以下情况下使用独立配置**：
-
-* 你正在为单个项目自定义 Claude Code
-* 配置是个人的，不需要共享
-* 你在打包 skills 或 hooks 之前进行实验
-* 你想要简短的 skill 名称，如 `/hello` 或 `/deploy`
-
-**在以下情况下使用插件**：
-
-* 你想与团队或社区共享功能
-* 你需要在多个项目中使用相同的 skills/agents
-* 你想要版本控制和轻松更新扩展
-* 你通过市场分发
-* 你可以接受命名空间化的 skills，如 `/my-plugin:hello`（命名空间可防止插件之间的冲突）
-
 <Tip>
   从 `.claude/` 中的独立配置开始进行快速迭代，然后在准备好共享时[转换为插件](#convert-existing-configurations-to-plugins)。
 </Tip>
@@ -51,10 +36,6 @@ Claude Code 支持两种方式来添加自定义 skills、agents 和 hooks：
 </h3>
 
 * Claude Code [已安装并已认证](/docs/zh-CN/quickstart#step-1-install-claude-code)
-
-<Note>
-  如果你没有看到 `/plugin` 命令，请将 Claude Code 更新到最新版本。有关升级说明，请参阅[故障排除](/docs/zh-CN/troubleshooting)。
-</Note>
 
 <h3 id="create-your-first-plugin">
   创建你的第一个插件
@@ -93,12 +74,12 @@ Claude Code 支持两种方式来添加自定义 skills、agents 和 hooks：
     }
     ```
 
-    | 字段            | 目的                                                                                                                      |
-    | :------------ | :---------------------------------------------------------------------------------------------------------------------- |
-    | `name`        | 唯一标识符和 skill 命名空间。Skills 以此为前缀（例如 `/my-first-plugin:hello`）。                                                            |
-    | `description` | 在浏览或安装插件时在插件管理器中显示。                                                                                                     |
-    | `version`     | 可选。如果设置，用户仅在你更新此字段时接收更新。如果省略且你的插件通过 git 分发，则使用提交 SHA，每个提交都计为新版本。请参阅[版本管理](/docs/zh-CN/plugins-reference#version-management)。 |
-    | `author`      | 可选。有助于归属。                                                                                                               |
+    | 字段            | 目的                                                                                                                                                                                                              |
+    | :------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `name`        | 唯一标识符和 skill 命名空间。Skills 以此为前缀（例如 `/my-first-plugin:hello`）。                                                                                                                                                    |
+    | `description` | 在浏览或安装插件时在插件管理器中显示。                                                                                                                                                                                             |
+    | `version`     | 可选。如果设置，用户仅在你更新此字段时接收更新，除了 [`command` 源](/docs/zh-CN/plugin-marketplaces#command-sources)；请参阅[版本管理](/docs/zh-CN/plugins-reference#version-management)。如果省略，版本来自[版本管理](/docs/zh-CN/plugins-reference#version-management)中的下一个源。 |
+    | `author`      | 可选。有助于归属。                                                                                                                                                                                                       |
 
     有关 `homepage`、`repository` 和 `license` 等其他字段，请参阅[完整清单架构](/docs/zh-CN/plugins-reference#plugin-manifest-schema)。
   </Step>
@@ -137,7 +118,7 @@ Claude Code 支持两种方式来添加自定义 skills、agents 和 hooks：
     /my-first-plugin:hello
     ```
 
-    你将看到 Claude 用问候语回应。运行 `/help` 以查看你的 skill 在插件命名空间下列出。
+    你将看到 Claude 用问候语回应。运行 `/help` 并打开**自定义命令**选项卡以查看你的 skill 在插件命名空间下列出。
 
     <Note>
       **为什么要命名空间？** 插件 skills 总是命名空间化的（如 `/my-first-plugin:hello`），以防止多个插件具有相同名称的 skills 时发生冲突。
@@ -161,7 +142,7 @@ Claude Code 支持两种方式来添加自定义 skills、agents 和 hooks：
     Greet the user named "$ARGUMENTS" warmly and ask how you can help them today. Make the greeting personal and encouraging.
     ```
 
-    运行 `/reload-plugins` 以获取更改，然后尝试使用你的名字的 skill：
+    运行 `/reload-plugins` 以获取更改。然后尝试使用你的名字的 skill：
 
     ```shell theme={null}
     /my-first-plugin:hello Alex
@@ -170,12 +151,6 @@ Claude Code 支持两种方式来添加自定义 skills、agents 和 hooks：
     Claude 将按名字问候你。有关向 skills 传递参数的更多信息，请参阅 [Skills](/docs/zh-CN/skills#pass-arguments-to-skills)。
   </Step>
 </Steps>
-
-你已成功创建并测试了一个包含以下关键组件的插件：
-
-* **插件清单**（`.claude-plugin/plugin.json`）：描述你的插件的元数据
-* **Skills 目录**（`skills/`）：包含你的自定义 skills
-* **Skill 参数**（`$ARGUMENTS`）：捕获用户输入以实现动态行为
 
 <Tip>
   `--plugin-dir` 标志对开发和测试很有用。当你准备好与他人共享你的插件时，请参阅[创建和分发插件市场](/docs/zh-CN/plugin-marketplaces)。
@@ -204,27 +179,23 @@ claude plugin init my-tool
 <Warning>
   **常见错误**：不要将 `commands/`、`agents/`、`skills/` 或 `hooks/` 放在 `.claude-plugin/` 目录内。只有 `plugin.json` 应该在 `.claude-plugin/` 内。所有其他目录必须在插件根级别。
 
-  插件根是单个插件自己的目录：包含 `.claude-plugin/plugin.json` 的目录。它永远不是 `~/.claude/`。例如，Claude Code 不会读取放在 `~/.claude/.mcp.json` 的 `.mcp.json`。
+  插件根是单个插件自己的目录，例如来自[快速开始](#quickstart)的 `my-first-plugin/`。它永远不是 `~/.claude/`。例如，Claude Code 不会读取放在 `~/.claude/.mcp.json` 的 `.mcp.json`。
 </Warning>
 
-| 目录                | 位置  | 目的                                       |
-| :---------------- | :-- | :--------------------------------------- |
-| `.claude-plugin/` | 插件根 | 包含 `plugin.json` 清单（如果组件使用默认位置，则可选）      |
-| `skills/`         | 插件根 | Skills 作为 `<name>/SKILL.md` 目录           |
-| `commands/`       | 插件根 | Skills 作为平面 Markdown 文件。为新插件使用 `skills/` |
-| `agents/`         | 插件根 | 自定义 agent 定义                             |
-| `hooks/`          | 插件根 | `hooks.json` 中的事件处理程序                    |
-| `.mcp.json`       | 插件根 | MCP server 配置                            |
-| `.lsp.json`       | 插件根 | 用于代码智能的 LSP server 配置                    |
-| `monitors/`       | 插件根 | `monitors.json` 中的后台监视器配置                |
-| `bin/`            | 插件根 | 在启用插件时添加到 Bash tool 的 `PATH` 的可执行文件      |
-| `settings.json`   | 插件根 | 启用插件时应用的默认[设置](/docs/zh-CN/settings)          |
+| 目录                | 位置  | 目的                                                                                                                                                     |
+| :---------------- | :-- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.claude-plugin/` | 插件根 | 包含 `plugin.json` 清单（如果组件使用默认位置，则可选）                                                                                                                    |
+| `skills/`         | 插件根 | Skills 作为 `<name>/SKILL.md` 目录                                                                                                                         |
+| `commands/`       | 插件根 | Skills 作为平面 Markdown 文件。为新插件使用 `skills/`                                                                                                               |
+| `agents/`         | 插件根 | 自定义 agent 定义                                                                                                                                           |
+| `hooks/`          | 插件根 | `hooks.json` 中的事件处理程序                                                                                                                                  |
+| `.mcp.json`       | 插件根 | MCP server 配置                                                                                                                                          |
+| `.lsp.json`       | 插件根 | 用于代码智能的 LSP server 配置                                                                                                                                  |
+| `monitors/`       | 插件根 | `monitors.json` 中的后台监视器配置                                                                                                                              |
+| `bin/`            | 插件根 | 在启用插件时添加到 Bash tool 的 `PATH` 的可执行文件。你不能在[通过 claude.ai 组织设置分发的插件中包含此目录](/docs/zh-CN/plugin-marketplaces#keep-executables-out-of-the-top-level-bin-directory) |
+| `settings.json`   | 插件根 | 启用插件时应用的默认[设置](/docs/zh-CN/settings)                                                                                                                        |
 
 恰好包含一个 skill 的插件可以直接在插件根目录放置 `SKILL.md`，而不是创建 `skills/` 目录。Claude Code 会将其作为单个 skill 加载，并使用 frontmatter 中的 `name` 字段作为调用名称。对于可能增长到多个 skill 的插件，请使用 `skills/` 布局。
-
-<Note>
-  **后续步骤**：准备好添加更多功能了吗？跳转到[开发更复杂的插件](#develop-more-complex-plugins)以添加 agents、hooks、MCP servers 和 LSP servers。有关所有插件组件的完整技术规范，请参阅[插件参考](/docs/zh-CN/plugins-reference)。
-</Note>
 
 <h2 id="develop-more-complex-plugins">
   开发更复杂的插件
@@ -263,7 +234,7 @@ When reviewing code, check for:
 4. Test coverage
 ```
 
-安装插件后，运行 `/reload-plugins` 以加载 Skills。有关完整的 Skill 编写指南，包括渐进式披露和工具限制，请参阅 [Agent Skills](/docs/zh-CN/skills)。
+安装插件后，检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，运行该命令以加载 Skills。有关完整的 Skill 编写指南，包括渐进式披露和工具限制，请参阅 [Agent Skills](/docs/zh-CN/skills)。
 
 <h3 id="add-lsp-servers-to-your-plugin">
   向你的插件添加 LSP servers
@@ -288,6 +259,8 @@ LSP（Language Server Protocol）插件为 Claude 提供实时代码智能。如
 ```
 
 安装你的插件的用户必须在其机器上安装语言服务器二进制文件。
+
+要确认服务器启动，使用启用的插件启动 Claude Code 并检查 `/plugin` Errors 标签：启动失败的语言服务器会出现在那里，例如当二进制文件未安装时显示 `Executable not found in $PATH`。具有无效配置的条目会被跳过；运行 `claude --debug` 以查看原因。
 
 有关完整的 LSP 配置选项，请参阅 [LSP servers](/docs/zh-CN/plugins-reference#lsp-servers)。
 
@@ -343,7 +316,7 @@ LSP（Language Server Protocol）插件为 Claude 提供实时代码智能。如
 claude --plugin-dir ./my-plugin
 ```
 
-该标志也接受插件目录的 `.zip` 存档，这需要 Claude Code v2.1.128 或更高版本。
+该标志也接受插件目录的 `.zip` 存档。
 
 ```bash theme={null}
 claude --plugin-dir ./my-plugin.zip
@@ -351,11 +324,11 @@ claude --plugin-dir ./my-plugin.zip
 
 当 `--plugin-dir` 插件与已安装的市场插件同名时，本地副本在该会话中优先。这让你可以测试已安装的插件的更改，而无需先卸载它。由托管设置强制启用或强制禁用的插件是唯一的例外：`--plugin-dir` 无法覆盖这些。
 
-当你对插件进行更改时，运行 `/reload-plugins` 以获取更新，无需重新启动。这会重新加载 plugins、skills、agents、hooks、插件 MCP servers 和插件 LSP servers。测试你的插件组件：
+当你对插件进行更改时，运行 `/reload-plugins` 以获取更新，无需重新启动。这会重新加载 plugins、skills、agents、hooks、插件 MCP servers 和插件 LSP servers；在没有交互式终端的会话中，插件 MCP server 更改[等待你的下一个会话](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting)。测试你的插件组件：
 
 * 使用 `/plugin-name:skill-name` 尝试你的 skills
 * 检查 agents 是否出现在 `/context` 中的 Custom Agents 下，或通过其作用域名称 @-mention 其中一个
-* 验证 hooks 是否按预期工作
+* 触发每个 hook 匹配的事件，例如要求 Claude 编辑文件以进行 `PostToolUse` hook，并确认其效果。Claude Code 在[调试日志](/docs/zh-CN/hooks#debug-hooks)中记录哪些 hooks 匹配、它们的退出代码和它们的输出
 
 <Tip>
   你可以通过多次指定标志来一次加载多个插件：
@@ -363,9 +336,16 @@ claude --plugin-dir ./my-plugin.zip
   ```bash theme={null}
   claude --plugin-dir ./plugin-one --plugin-dir ./plugin-two
   ```
+
+  要测试一个插件及其依赖的插件，请参阅 [Test a plugin and its dependency locally](/docs/zh-CN/plugin-dependencies#test-a-plugin-and-its-dependency-locally)。
 </Tip>
 
-要测试已打包为 `.zip` 存档并托管在 URL 上的插件（例如 CI 构建工件），请改用 `--plugin-url`。Claude Code 在启动时获取存档并仅为该会话加载它。如果获取失败或存档无效，Claude Code 会报告插件加载错误并在没有它的情况下启动。与任何插件源相同的[信任考虑](/docs/zh-CN/discover-plugins#security)适用：仅将此标志指向你控制或信任的存档。
+要从一个地方加载多个插件，请传递一个包含它们的文件夹，例如 `--plugin-dir ./plugins`。加载一个插件文件夹需要 Claude Code v2.1.265 或更高版本。Claude Code 读取文件夹的顶级以决定哪些插件加载，在交互式会话中，它也会监视文件夹以查找后续更改：
+
+* **加载的内容**：如果文件夹的顶级没有清单或插件组件，Claude Code 会将其视为插件文件夹。每个具有 `.claude-plugin/plugin.json` 清单的直接子文件夹作为单独的插件加载。Claude Code 跳过文件夹中的所有其他内容而不报告错误，包括没有清单的插件。
+* **交互式会话期间的更改**：你添加的子文件夹在其清单就位后作为新插件加载，当你删除子文件夹时，其插件卸载。Claude Code 为每个更改在会话中打印一行。如果在对话中间应用更改会[使提示缓存失效](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)，Claude Code 会保留它，该行说要运行 `/reload-plugins` 以应用它。
+
+要测试已打包为 `.zip` 存档并托管在 URL 上的插件（例如 CI 构建工件），请改用 `--plugin-url`。Claude Code 在启动时获取存档并仅为该会话加载它。如果 Claude Code 无法获取存档或存档无效，它会在没有插件的情况下启动并记录一个插件加载错误，你可以在 `/plugin` 管理器的 **Errors** 标签中查看。与任何插件源相同的[信任考虑](/docs/zh-CN/discover-plugins#security)适用：仅将此标志指向你控制或信任的存档。
 
 要加载多个插件，请为每个 URL 重复该标志：
 
@@ -396,7 +376,7 @@ claude --plugin-url "https://example.com/my-plugin.zip https://example.com/other
 当你的插件准备好共享时：
 
 1. **添加文档**：包含一个 `README.md`，其中包含安装和使用说明
-2. **选择版本控制策略**：决定是设置显式 `version` 还是依赖 git 提交 SHA。请参阅 [version management](/docs/zh-CN/plugins-reference#version-management)
+2. **选择版本控制策略**：决定是设置显式 `version` 还是依赖 [version management](/docs/zh-CN/plugins-reference#version-management) 中描述的回退。
 3. **创建或使用市场**：通过 [plugin marketplaces](/docs/zh-CN/plugin-marketplaces) 分发以供安装
 4. **与他人测试**：在更广泛分发之前让团队成员测试插件
 
@@ -408,7 +388,7 @@ claude --plugin-url "https://example.com/my-plugin.zip https://example.com/other
 
 Anthropic 为 Claude Code 插件维护两个公共市场：
 
-* **`claude-plugins-official`**：由 Anthropic 维护的精选插件集。在你首次以交互方式启动 Claude Code 时自动注册。在该首次启动之前运行的非交互式脚本必须使用 `claude plugin marketplace add anthropics/claude-plugins-official` 显式添加它。
+* **`claude-plugins-official`**：由 Anthropic 维护的精选插件集。在你首次以交互方式启动 Claude Code 时自动注册。如果你在该首次交互启动之前运行 Claude Code 非交互式，或[市场政策](/docs/zh-CN/plugin-marketplaces#managed-marketplace-restrictions)阻止了早期尝试，请使用 `claude plugin marketplace add anthropics/claude-plugins-official` 自己注册。
 * **`claude-community`**：公共社区市场，第三方提交在审查后进入。用户使用 `/plugin marketplace add anthropics/claude-plugins-community` 添加它，并从中安装为 `@claude-community`。
 
 要提交你的插件以供社区市场审查，请使用以下应用内表单之一：
@@ -418,17 +398,13 @@ Anthropic 为 Claude Code 插件维护两个公共市场：
 
 claude.ai 表单需要 Team 或 Enterprise 组织和目录管理访问权限；组织所有者默认具有此访问权限。不属于 Team 或 Enterprise 组织的个人作者可以改用 Console 表单。
 
-在提交之前，在本地运行 `claude plugin validate`。审查管道对每个提交运行相同的检查，以及自动安全筛选。
+在提交之前，在本地运行 `claude plugin validate ./your-plugin`，将 `./your-plugin` 替换为你的插件目录的路径。审查管道对每个提交运行相同的检查，以及自动安全筛选。当验证通过时，Claude Code 打印 `✔ Validation passed`，或如果有警告则打印 `✔ Validation passed with warnings`。警告不会导致验证失败；添加 `--strict` 以将它们视为错误。
 
 批准的插件被固定到 [`anthropics/claude-plugins-community`](https://github.com/anthropics/claude-plugins-community) 目录中的特定提交 SHA，当你向你的存储库推送新提交时，CI 会自动提升该固定。公共目录每晚从审查管道同步，因此批准和你的插件出现在 `marketplace.json` 中之间可能会有延迟。要检查你的插件是否已可安装，请在[社区目录](https://github.com/anthropics/claude-plugins-community/blob/main/.claude-plugin/marketplace.json)中搜索其名称。
 
 官方市场 `claude-plugins-official` 是单独策划的。Anthropic 自行决定包含哪些插件。没有申请流程，提交表单不会将插件添加到官方市场。
 
 如果 Anthropic 在官方市场中列出你的插件，你的 CLI 可以提示 Claude Code 用户安装它。请参阅 [Recommend your plugin from your CLI](/docs/zh-CN/plugin-hints)。
-
-<Note>
-  有关完整的技术规范、调试技术和分发策略，请参阅 [Plugins reference](/docs/zh-CN/plugins-reference)。
-</Note>
 
 <h2 id="convert-existing-configurations-to-plugins">
   将现有配置转换为插件
@@ -460,18 +436,17 @@ claude.ai 表单需要 Team 或 Enterprise 组织和目录管理访问权限；�
   </Step>
 
   <Step title="复制你现有的文件">
-    将你现有的配置复制到插件目录：
+    将你拥有的每个配置目录复制到插件根目录。你可能没有全部三个：如果一个目录不存在，`cp` 会打印 `No such file or directory` 并且不复制任何内容，所以跳过该命令或忽略错误。
 
     ```bash theme={null}
-    # Copy commands
     cp -r .claude/commands my-plugin/
 
-    # Copy agents (if any)
     cp -r .claude/agents my-plugin/
 
-    # Copy skills (if any)
     cp -r .claude/skills my-plugin/
     ```
+
+    你的插件现在包含了你在 `.claude/` 下拥有的目录的副本。运行 `ls my-plugin` 来确认：你应该看到你复制的每个目录。
   </Step>
 
   <Step title="迁移 hooks">
@@ -504,7 +479,7 @@ claude.ai 表单需要 Team 或 Enterprise 组织和目录管理访问权限；�
     claude --plugin-dir ./my-plugin
     ```
 
-    测试每个组件：运行你的命令、检查 agents 是否出现在 `/context` 中，并验证 hooks 是否正确触发。
+    测试每个组件：运行你的命令、检查 agents 是否出现在 `/context` 中，并触发每个 hook 匹配的事件以确认其效果。Claude Code 在[调试日志](/docs/zh-CN/hooks#debug-hooks)中记录了哪些 hooks 匹配以及它们如何退出。
   </Step>
 </Steps>
 

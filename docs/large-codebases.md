@@ -71,7 +71,7 @@ monorepo/
 | 存储库根目录  | 每个文件           | 仅根目录；当 Claude 在那里读取时，子目录文件按需加载 | 任务跨越多个包或子系统   |
 | 子目录     | 仅该子树，直到你授予更多权限 | 该目录的加上每个祖先的                    | 工作范围限于一个包或子系统 |
 
-`.claude/settings.json` 中的项目设置仅从你的启动目录加载，不像 CLAUDE.md 文件那样从父目录继承：存储库根目录的 `.claude/settings.json` 仅在你从根目录启动时适用。
+`.claude/settings.json` 中的项目设置不像 CLAUDE.md 文件那样从父目录继承。关于会话读取哪个目录的 `.claude/settings.json`，请参阅 [Claude Code 查找每个文件的位置](/docs/zh-CN/settings#where-claude-code-looks-for-each-file)。
 
 下面的每个部分都说明其设置文件应该位于存储库根目录还是你启动的子目录中，以及它是提交的还是保持本地的。
 
@@ -85,39 +85,28 @@ Claude Code 在启动时从你的工作目录和每个父目录加载每个 [CLA
 
 常见的分割是两个级别：
 
-* **根 `CLAUDE.md`**：适用于任何地方的指令，例如编码标准、提交约定和存储库布局
+* **根 `CLAUDE.md`**：适用于任何地方的指令，例如编码标准和提交约定
 * **按子目录 `CLAUDE.md`**：特定于该区域堆栈的约定。在 monorepo 中，这是每个包一个。在大型单树中，它是每个子系统一个，例如 `src/db/` 或 `src/api/`
 
 将这些文件提交到存储库，以便队友继承它们。每个目录的所有者通常维护其文件。
 
-根 `CLAUDE.md` 将 Claude 定向到存储库结构：
+要修剪已签入的文件，请运行 [`/doctor` 检查](/docs/zh-CN/memory#my-claude-md-is-too-large)。根 `CLAUDE.md` 包含在每个包中适用的规则：
 
 ```markdown CLAUDE.md theme={null}
-这是一个 monorepo，在 packages/ 下有三个包：
-
-- packages/api：使用 Express、TypeScript 和 PostgreSQL 的 Node.js REST API
-- packages/web：使用 Vite、TypeScript 和 TailwindCSS 的 React 前端
-- packages/shared：由 api 和 web 都使用的共享 TypeScript 实用程序
-
-从包目录运行命令，而不是从 monorepo 根目录。
-每个包都有自己的 tsconfig.json、package.json 和测试套件。
+从包目录运行包脚本，而不是从 monorepo 根目录。
+提交主题前缀为包名称，例如 `api: add rate limiting`。
+永远不要编辑 packages/*/generated/ 下的文件。改为在包中运行 `npm run codegen`。
 ```
 
-每个子目录的 `CLAUDE.md`，这里是 `packages/api/CLAUDE.md`，添加特定于该区域堆栈的上下文：
+每个子目录的 `CLAUDE.md`，这里是 `packages/api/CLAUDE.md`，添加特定于该区域的约定：
 
 ```markdown packages/api/CLAUDE.md theme={null}
-这个包是 REST API 服务器。
-
-- 运行测试：`npm test`（使用 Vitest）
-- 运行开发服务器：`npm run dev`（端口 3001）
-- 数据库迁移：`npm run migrate`
-- 环境变量：将 `.env.example` 复制到 `.env`
-
-API 路由在 src/routes/ 中。每个路由文件导出一个 Express 路由器。
-数据库查询在 src/db/ 中使用 Knex。永远不要在路由处理程序中写原始 SQL 字符串。
+在运行任何内容之前，将 `.env.example` 复制到 `.env`。没有它，测试和开发服务器会失败。
+使用 Knex 查询构建器编写数据库查询。永远不要在路由处理程序中放置原始 SQL 字符串。
+永远不要在迁移合并后编辑它。改为添加新迁移。
 ```
 
-当你从 `packages/api/` 启动 Claude 时，它加载 `packages/api/CLAUDE.md` 和根 `CLAUDE.md`。Claude 看到本地指令与存储库范围的规则一起，上下文中没有来自 `packages/web/` 的指令。对于非 monorepo 树中的任何子目录也是如此。
+当你从 `packages/api/` 启动 Claude 时，它加载 `packages/api/CLAUDE.md` 和根 `CLAUDE.md`。Claude 看到本地指令与存储库范围的规则一起，上下文中没有来自 `packages/web/` 的指令。对于非 monorepo 树中的任何子目录也是如此。要确认加载了哪些文件，请运行 `/context` 并检查 **Memory files** 下的列表。
 
 保持文件随着代码库和模型变化而最新的几种方法：
 
@@ -148,26 +137,25 @@ API 路由在 src/routes/ 中。每个路由文件导出一个 Express 路由器
 
 对你从不处理的目录使用此功能，例如其他团队的包、遗留代码或供应商子树。排除列表是静态的，不是按任务的开关。要今天专注于一个包，明天专注于另一个包，[从该包的目录启动 Claude](#choose-where-to-start-claude) 而不是编辑排除。
 
-如果你只想为自己排除这些，将设置放在 `.claude/settings.local.json` 中。Claude Code 在创建它时会 gitignore 该文件；由于你在这里手动创建它，请将其添加到你的 gitignore。模式使用 glob 语法与绝对文件路径匹配，所以以相对样式模式开头的 `**/` 以在树中的任何地方匹配。下面的示例排除其他团队拥有的包：
+如果你只想为自己排除这些，将设置放在 `.claude/settings.local.json` 中。Claude Code 在保存设置时会将该文件添加到你的全局 gitignore。由于你在这里手动创建它，请将其添加到你的 gitignore。模式使用 glob 语法与绝对文件路径匹配，所以以相对样式模式开头的 `**/` 以在树中的任何地方匹配。下面的示例排除其他团队拥有的包：
 
 ```json .claude/settings.local.json theme={null}
 {
   "claudeMdExcludes": [
-    "**/packages/admin-dashboard/**",
-    "**/packages/legacy-*/**"
+    "**/packages/web/**"
   ]
 }
 ```
 
-这跳过这些包下的每个 CLAUDE.md 和规则文件。根 CLAUDE.md 和你处理的包仍然正常加载。
+这跳过该包下的每个 CLAUDE.md 和规则文件。根 CLAUDE.md 和你处理的包仍然正常加载。
 
 这些模式涵盖其他常见情况：
 
 * `"**/packages/*/CLAUDE.md"`：排除每个包的 CLAUDE.md，同时保留根目录
-* `"**/packages/web/**"`：排除 web 包下的所有内容，包括规则
+* `"**/packages/legacy-*/**"`：排除每个名称与 glob 匹配的包，包括规则
 * `"/home/user/monorepo/legacy/CLAUDE.md"`：按绝对路径排除一个特定文件
 
-托管策略 CLAUDE.md 文件无法排除，因此组织范围的指令始终适用。你可以在任何[设置范围](/docs/zh-CN/settings#configuration-scopes)设置 `claudeMdExcludes`：用户、项目、本地或托管。数组在范围内合并，所以团队可以设置项目级别的默认值，同时个人添加本地覆盖。
+托管策略 CLAUDE.md 文件无法排除，因此组织范围的指令始终适用。你可以在任何[设置范围](/docs/zh-CN/settings#where-settings-live)设置 `claudeMdExcludes`：用户、项目、本地或托管。数组在范围内合并，所以团队可以设置项目级别的默认值，同时个人添加本地覆盖。
 
 有关完整的排除文档，请参阅[排除特定 CLAUDE.md 文件](/docs/zh-CN/memory#exclude-specific-claude-md-files)。
 
@@ -183,26 +171,32 @@ API 路由在 src/routes/ 中。每个路由文件导出一个 Express 路由器
 
 Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径，例如 `node_modules/`、`dist/` 和 `build/`，无需额外配置就会保持在搜索结果之外。
 
-对于已检入的路径，例如供应商 SDK 或提交的生成代码，在 `permissions.deny` 中添加 `Read` 拒绝规则以阻止 Claude 打开这些文件，即使搜索列出了它们。
+对于已检入的路径，例如供应商 SDK 或提交的生成代码，在 `permissions.deny` 中添加 `Read` 拒绝规则以阻止 Claude 打开这些文件。
 
-要为在存储库中工作的每个人应用这些排除，将它们提交到 `.claude/settings.json`。要保持个人，改用 `.claude/settings.local.json`。与本页面的其他项目设置一样，这些文件仅从你的启动目录加载。如果你从那里启动 Claude，将它们放在存储库根目录，或如果你从子目录启动，放在每个包的 `.claude/` 中。要在任何启动目录的每个会话中强制执行相同的拒绝规则，在[托管设置](/docs/zh-CN/settings#settings-files)中设置它们，用户和项目设置无法覆盖。
+拒绝规则可以覆盖在存储库中工作的每个人、仅你自己或机器上的每个会话，具体取决于你将它们放在哪个设置文件中：
 
-下面的示例阻止构建工件和供应商 SDK：
+* **在存储库中工作的每个人**：将规则提交到 `.claude/settings.json`，位于存储库根目录（如果你从那里启动 Claude），或位于每个包的 `.claude/`（如果你从子目录启动）。与本页面的其他项目设置一样，该文件不会从父目录继承。
+* **仅你自己**：使用位于存储库根目录的 `.claude/settings.local.json`，它在存储库内的每个 CLI 会话中加载，无论启动目录如何，除了 Claude Code [不使用存储库根目录](/docs/zh-CN/settings#where-claude-code-looks-for-each-file)的情况，例如在 Windows 上。相对模式（如示例中的 `Read(./**/vendor/**/*)`）仍然[锚定在会话的当前工作目录](/docs/zh-CN/permissions#read-and-edit)而不是存储库根目录，所以如果你从子目录启动会话，请在此文件中将规则写为 `//` 绝对路径，例如 `Read(//absolute/path/to/repo/**/vendor/**/*)`。在 v2.1.211 之前，`.claude/settings.local.json` 也仅从启动目录加载。
+* **每个人，在每个会话中强制执行**：在[托管设置](/docs/zh-CN/managed-settings)中设置规则，用户和项目设置无法覆盖。
+
+下面的示例阻止构建工件和供应商 SDK。其目录模式以 `/**/*` 而不是 `/**` 结尾，以便每个规则覆盖目录内的所有内容，但不覆盖目录本身。Claude 仍然可以列出这些目录或进入它们，例如使用 `ls dist` 或 `cd build`。
 
 ```json .claude/settings.json theme={null}
 {
   "permissions": {
     "deny": [
-      "Read(./**/dist/**)",
-      "Read(./**/build/**)",
+      "Read(./**/dist/**/*)",
+      "Read(./**/build/**/*)",
       "Read(./**/*.generated.*)",
-      "Read(./vendor/**)"
+      "Read(./**/vendor/**/*)"
     ]
   }
 }
 ```
 
-拒绝规则涵盖 Claude 的内置文件工具和识别的 Bash 文件命令，包括 `cat`、`head`、`grep` 和 `find`，当拒绝的路径作为参数传递时。它们不会从递归搜索的输出中过滤拒绝的路径，也不涵盖自己打开文件的任意子进程。有关完整的模式语法，请参阅[Read 和 Edit 权限规则](/docs/zh-CN/permissions#read-and-edit)。
+拒绝规则涵盖 Claude 的内置文件工具。在 Bash 中，它们涵盖 Claude Code 识别的文件命令，例如 `cat`、`head`、`grep` 和 `find`，当拒绝的路径作为参数出现时，以及[重定向](/docs/zh-CN/permissions#redirections)的目标，例如 `< file`。Claude Code 还尽力尝试将拒绝的路径排除在内置 Grep 和 Glob 工具的结果之外。对包含拒绝文件的目录进行的 Bash 搜索（例如 `grep -r` 或 `find`）仍然会在其输出中包含它们。
+
+拒绝规则不涵盖自己打开文件的子进程。有关完整的模式语法，请参阅 [Read 和 Edit 权限规则](/docs/zh-CN/permissions#read-and-edit)。
 
 <h3 id="reduce-file-reads-with-code-intelligence">
   使用代码智能减少文件读取
@@ -210,13 +204,18 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
 
 在大型代码库中，查找符号的定义或使用位置可能需要许多文件读取和 grep 调用。[代码智能插件](/docs/zh-CN/discover-plugins#code-intelligence)将 Claude 连接到语言服务器，以便它可以跳转到定义、查找引用和直接显示类型错误，而不是扫描树。
 
-官方市场有 TypeScript、Python、Go、Rust 和其他常见语言的插件。下面的示例安装 TypeScript 插件：
+官方市场有 TypeScript、Python、Go、Rust 和其他常见语言的插件。在 Claude Code 会话内运行下面的命令来安装 TypeScript 插件：
 
 ```shell theme={null}
 /plugin install typescript-lsp@claude-plugins-official
 ```
 
-要为存储库中的每个人启用插件而不是自己安装，将其添加到 [`enabledPlugins` 项目设置](/docs/zh-CN/settings#plugin-settings)。
+如果安装失败，请匹配 Claude Code 报告的消息：
+
+* `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
+* 插件[在市场中找不到](/docs/zh-CN/discover-plugins#install-plugins)：检查插件名称。
+
+要为存储库中的每个人启用插件而不是自己安装，请将其添加到 [`enabledPlugins` 项目设置](/docs/zh-CN/settings-reference#plugin-settings)。
 
 代码智能插件需要每个开发者机器上的语言的语言服务器二进制文件。查看[每种语言需要哪个二进制文件](/docs/zh-CN/discover-plugins#code-intelligence)。从官方市场安装需要网络访问 GitHub，市场在那里托管。在受限网络上，[从内部 Git 主机或本地路径添加市场](/docs/zh-CN/discover-plugins#add-from-other-git-hosts)。
 
@@ -234,7 +233,11 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
 
 `--worktree` 标志在新的 git worktree 中启动会话，以便更改与主检出隔离。默认情况下，它检出整个存储库。在大型存储库中，`worktree.sparsePaths` 设置使用 git sparse-checkout 仅将列出的目录加上根级文件写入磁盘，以便 worktrees 启动更快并使用更少空间。
 
-如果在此目录中工作的每个人都需要相同的路径，将设置提交到 `.claude/settings.json`。要为自己添加路径，使用 `.claude/settings.local.json`：列表在范围内合并，所以本地文件可以向提交的列表添加路径但不能删除它们。下面的示例显示提交的文件：
+如果在此目录中工作的每个人都需要相同的路径，将设置提交到 `.claude/settings.json`。要为自己添加路径，使用 `.claude/settings.local.json`：列表在范围内合并，所以本地文件可以向提交的列表添加路径但不能删除它们。
+
+本页面上的 JSON 示例一次显示一个设置。如果你的 `.claude/settings.json` 已经包含其他键，例如上面的 `permissions.deny` 规则，请在它们旁边添加 `worktree` 键，而不是替换文件。[将其放在一起](#put-it-together)显示组合结果。
+
+下面的示例显示提交的文件：
 
 ```json .claude/settings.json theme={null}
 {
@@ -279,7 +282,7 @@ Sparse checkout 需要 git 在存在 sparse worktree 时在存储库的共享 `.
   `sparsePaths` 和 `symlinkDirectories` 设置在创建 worktree 之前从你的启动目录读取。创建后，会话的工作目录是 worktree 根，而不是你启动的子目录。因此，worktree 内的项目设置从 worktree 根的 `.claude/settings.json`（存储库根文件的检出副本）加载。将你在 worktrees 内需要的任何其他设置（例如权限规则或 hooks）放在存储库根的 `.claude/settings.json` 中。
 </Note>
 
-有关完整的 worktree 设置参考，请参阅 [Worktree 设置](/docs/zh-CN/settings#worktree-settings)。
+有关完整的 worktree 设置参考，请参阅 [Worktree 设置](/docs/zh-CN/settings-reference#worktree)。
 
 <h3 id="grant-access-across-packages-or-repositories">
   跨包或存储库授予访问权限
@@ -291,7 +294,7 @@ Sparse checkout 需要 git 在存在 sparse worktree 时在存储库的共享 `.
 
 `.claude/settings.json` 中的 `additionalDirectories` 设置给 Claude 访问工作目录外的目录。下面的示例授予对两个同级包的访问权限：
 
-```json .claude/settings.json theme={null}
+```json packages/api/.claude/settings.json theme={null}
 {
   "permissions": {
     "additionalDirectories": [
@@ -387,7 +390,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 哪些 skills 在范围内取决于你从哪里启动 Claude：
 
 * **从子目录如 `packages/api/`**：来自该目录、每个父目录直到存储库根目录以及用户和企业级别的 skills
-* **从存储库根目录**：来自 Claude 在会话期间接触的每个子目录的 skills，可能累积到数百个
+* **从存储库根目录**：根 skills，加上来自 Claude 在会话期间接触的每个子目录的 skills，可能累积到数百个
 * **在使用 [`--add-dir`](#grant-access-across-packages-or-repositories) 添加同级后**：该同级的 skills 也加载。`additionalDirectories` 设置仅授予文件访问权限，不加载 skills
 
 名称始终加载，但[当有许多时描述被缩短](/docs/zh-CN/skills#skill-descriptions-are-cut-short)，这可能会剥离 Claude 用来决定 skill 是否适用的关键字。保持描述简短并以请求会包含的词开头，例如"在 `packages/api/` 中编写或修改测试"。
@@ -422,7 +425,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
   将其整合在一起
 </h2>
 
-下面的组合配置使用 monorepo 布局。相同的文件适用于大型单树中的任何子目录。项目设置仅从你启动 Claude 的目录加载，所以每个子目录的 `.claude/settings.json` 必须是自包含的而不是分层在根文件上。
+下面的组合配置使用 monorepo 布局。相同的文件适用于大型单树中的任何子目录。每个子目录的 `.claude/settings.json` 必须是自包含的而不是分层在根文件上。
 
 示例在 `.claude/settings.json` 中提交 `worktree`、`additionalDirectories` 和 `Read` 拒绝规则，以便 `packages/api/` 中的每个开发者获得相同的同级访问、稀疏路径和排除。下面的文件是 `packages/api/` 的提交的按区域设置：
 
@@ -443,8 +446,8 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
       "../shared"
     ],
     "deny": [
-      "Read(./**/dist/**)",
-      "Read(./**/build/**)"
+      "Read(./**/dist/**/*)",
+      "Read(./**/build/**/*)"
     ]
   }
 }
@@ -458,8 +461,8 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 {
   "permissions": {
     "deny": [
-      "Read(./**/dist/**)",
-      "Read(./**/build/**)"
+      "Read(./**/dist/**/*)",
+      "Read(./**/build/**/*)"
     ]
   }
 }
@@ -500,7 +503,7 @@ monorepo/
 两种技术帮助保持跨包更改的一致性：
 
 * **在一个会话中给 Claude 整个更改**：将共享编辑及其调用站点一起交付保持每个编辑背后的决策一致，而不是按包重新推导它们
-* **在编辑前将计划保存到文件**：[先计划](/docs/zh-CN/best-practices#explore-first-then-plan-then-code)并要求 Claude 将计划写入存储库中的 markdown 文件。长的跨包会话[在进行中压缩其上下文](/docs/zh-CN/context-window#what-survives-compaction)，保存的计划在对话历史可能不会的地方幸存。
+* **在编辑前计划**：[先计划](/docs/zh-CN/best-practices#explore-first-then-plan-then-code)在 [plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，Claude 将计划写入文件。长的跨包会话[在进行中压缩其上下文](/docs/zh-CN/context-window#what-survives-compaction)。Claude Code 在每次压缩后重新注入计划文件，所以计划在对话历史可能不会的地方幸存
 
 <h2 id="next-steps">
   后续步骤

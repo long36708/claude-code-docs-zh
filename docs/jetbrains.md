@@ -26,10 +26,10 @@ Claude Code 插件适用于大多数 JetBrains IDE，包括：
 </h2>
 
 * **快速启动**：使用 `Cmd+Esc`（Mac）或 `Ctrl+Esc`（Windows/Linux）直接从编辑器打开 Claude Code，或点击 UI 中的 Claude Code 按钮
-* **差异查看**：代码更改可以直接在 IDE 差异查看器中显示，而不是在终端中显示
+* **差异查看**：Claude Code 在 IDE 差异查看器中打开代码更改，而不是在终端中；使用 `/config` 中的 **Diff tool** 设置更改此行为
 * **选择上下文**：IDE 中的当前选择或标签页会自动与 Claude Code 共享。[`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)会阻止对匹配文件的此共享
 * **文件引用快捷方式**：使用 `Cmd+Option+K`（Mac）或 `Alt+Ctrl+K`（Linux/Windows）插入文件引用，例如 `@src/auth.ts#L1-99`
-* **诊断共享**：IDE 中的诊断错误（如 lint 和语法错误）在您工作时会自动与 Claude 共享
+* **诊断共享**：Claude 通过调用 [`getDiagnostics` 工具](#the-built-in-ide-mcp-server)读取 IDE 的检查诊断，例如 lint 和语法错误；Claude Code 在编辑后不会自行从插件请求诊断
 
 <h2 id="installation">
   安装
@@ -50,10 +50,6 @@ Claude Code 插件适用于大多数 JetBrains IDE，包括：
 如果 `claude` 安装在您的 IDE 找不到的位置，请在插件的 [Claude 命令设置](#general-settings)中设置完整路径。
 
 Claude Code 适用于任何付费 Claude 订阅（Pro、Max、Team 或 Enterprise）或 Claude Console 账户，无需 API 密钥。首次运行 `claude` 时，系统会提示您[登录](/docs/zh-CN/authentication#log-in-to-claude-code)。
-
-<Note>
-  安装插件后，您可能需要完全重启 IDE 才能使其生效。
-</Note>
 
 <h2 id="usage">
   使用
@@ -79,6 +75,8 @@ claude
 /ide
 ```
 
+当连接成功时，Claude Code 会确认一条消息，例如 `Connected to IntelliJ IDEA.`。如果 Claude Code 检测到正在运行的 IDE 没有该插件，`/ide` 将为您安装该插件并要求您重新启动 IDE。
+
 如果您希望 Claude 能够访问与 IDE 相同的文件，请从与 IDE 项目根目录相同的目录启动 Claude Code。
 
 <h2 id="configuration">
@@ -93,7 +91,9 @@ claude
 
 1. 运行 `claude`
 2. 输入 `/config` 命令
-3. 将差异工具设置为 `auto` 以在 IDE 中显示差异，或设置为 `terminal` 以在终端中保留它们
+3. 将**差异工具**设置为 `auto` 以在 IDE 中显示差异，或设置为 `terminal` 以在终端中保留它们
+
+**差异工具**条目仅在 Claude Code 连接到 IDE 时才会出现在 `/config` 中，因此请从 JetBrains 终端运行 `claude`，或先从外部终端运行 [`/ide`](/docs/zh-CN/commands)。有关底层设置，请参阅 [`diffTool`](/docs/zh-CN/settings-reference#difftool)。
 
 <h3 id="plugin-settings">
   插件设置
@@ -137,10 +137,8 @@ claude
 </h3>
 
 <Warning>
-  使用 JetBrains 远程开发时，您必须通过 **Settings → Plugin (Host)** 在远程主机上安装插件。
+  使用 JetBrains 远程开发时，您必须通过 **Settings → Plugin (Host)** 在远程主机上安装插件，而不是在您的本地客户端计算机上。
 </Warning>
-
-插件必须安装在远程主机上，而不是在您的本地客户端计算机上。
 
 <h3 id="wsl-configuration">
   WSL 配置
@@ -162,7 +160,7 @@ claude
     hostname -I
     ```
 
-    记下子网，例如 `172.21.123.45` 在 `172.21.0.0/16` 中。
+    记下您的子网：取地址的前两个段，然后跟上 `.0.0/16`。例如，如果地址是 `172.21.123.45`，您的子网是 `172.21.0.0/16`。
   </Step>
 
   <Step title="创建防火墙规则">
@@ -212,11 +210,11 @@ networkingMode=mirrored
   IDE 未检测到
 </h3>
 
-如果运行 `claude` 显示"未检测到可用的 IDE"：
+如果 `/ide` 命令显示"未检测到可用的 IDE"：
 
 * 验证插件已安装并启用
 * 完全重启 IDE
-* 检查您是否从集成终端运行 Claude Code
+* 如果您期望在不运行 `/ide` 的情况下自动连接，请检查您是否从 IDE 的集成终端启动了 `claude`
 * 对于 WSL 用户，请参阅上面的 [WSL 配置](#wsl-configuration)
 
 <h3 id="command-not-found">
@@ -237,7 +235,7 @@ networkingMode=mirrored
 
 在 JetBrains IDE 中运行时，请考虑：
 
-* 对编辑使用手动批准模式
+* 对编辑使用手动模式，因为 `acceptEdits` 和自动模式都会批准工作目录内的编辑，除了[受保护路径](/docs/zh-CN/permission-modes#protected-paths)
 * 特别小心确保 Claude 仅与受信任的提示一起使用
 * 了解 Claude Code 有权修改哪些文件
 
@@ -247,7 +245,7 @@ networkingMode=mirrored
   内置 IDE MCP 服务器
 </h3>
 
-当插件处于活动状态时，它运行一个本地 MCP 服务器，CLI 会自动连接到该服务器。这是 CLI 在 IDE 的原生 diff 查看器中打开 diff、读取您当前的 `@`-提及选择内容以及将检查诊断信息拉入对话的方式。
+当插件处于活动状态时，它运行一个本地 MCP 服务器，CLI 会自动连接到该服务器。这是 CLI 在 IDE 的原生 diff 查看器中打开 diff、读取您当前的 `@`-提及选择内容以及让 Claude 读取检查诊断信息的方式。
 
 服务器名为 `ide`，从 `/mcp` 中隐藏，因为没有任何内容需要配置。但是，如果您的组织使用 [`PreToolUse` hook](/docs/zh-CN/hooks#pretooluse) 来允许列表 MCP 工具，您需要知道它的存在。
 

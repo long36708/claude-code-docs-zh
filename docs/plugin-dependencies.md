@@ -8,9 +8,9 @@
 
 插件可以通过在 `plugin.json` 或其 marketplace 条目中列出其他插件来依赖它们。默认情况下，依赖会跟踪最新可用版本，因此上游发布可能会在没有警告的情况下更改你的插件下的依赖。版本约束让你可以将依赖保持在经过测试的版本范围内，直到你选择升级。
 
-当你安装声明了依赖的插件时，Claude Code 会自动解析并安装它们，并在安装输出的末尾列出添加了哪些依赖。如果依赖后来丢失，`/reload-plugins` 和后台插件自动更新会重新安装它，前提是其 marketplace 已在你配置的 marketplace 中。重新运行 `claude plugin install` 在依赖插件上，或使用 `claude plugin marketplace add` 添加 marketplace，也会解析任何未解决的缺失依赖。来自你尚未添加的 marketplace 的依赖将保持未解析状态。
+当你安装声明了依赖的插件时，Claude Code 会自动解析并安装它们，除了其 marketplace 条目具有 [`command` 源](/docs/zh-CN/plugin-marketplaces#how-users-accept-the-command) 或 [`headersHelper`](/docs/zh-CN/plugin-marketplaces#how-users-accept-a-headershelper-command) 的依赖，你需要先自己安装。之后，`/reload-plugins`、依赖插件 marketplace 的自动更新、在依赖插件上重新运行 `claude plugin install`，以及 `claude plugin marketplace add` 都会在相同规则下安装任何尚未安装的声明依赖；如果某个依赖保持未解决状态，请参阅[解决依赖错误](#resolve-dependency-errors)。
 
-本指南适用于在 `plugin.json` 中声明依赖的插件作者和标记发布的 marketplace 维护者。要安装具有依赖的插件，请参阅[发现和安装插件](/docs/zh-CN/discover-plugins)。有关完整的 manifest 架构，请参阅[插件参考](/docs/zh-CN/plugins-reference)。
+本指南适用于在 `plugin.json` 中声明依赖的插件作者和标记发布的 marketplace 维护者。这里的依赖是其他插件；对于插件本身使用的 npm 和 Bun 包，请参阅 [Node.js 包依赖](/docs/zh-CN/plugins-reference#node-js-package-dependencies)。要安装具有依赖的插件，请参阅[发现和安装插件](/docs/zh-CN/discover-plugins)。有关完整的 manifest 架构，请参阅[插件参考](/docs/zh-CN/plugins-reference)。
 
 <h2 id="why-constrain-dependency-versions">
   为什么要约束依赖版本
@@ -26,7 +26,7 @@
   声明具有版本约束的依赖
 </h2>
 
-在插件的 `.claude-plugin/plugin.json` 的 `dependencies` 数组中列出依赖。每个条目要么是插件名称，要么是具有版本约束的对象。
+在插件的 `.claude-plugin/plugin.json` 的 `dependencies` 数组中列出依赖。
 
 以下 manifest 声明了一个无版本依赖和一个受约束的依赖：
 
@@ -49,7 +49,7 @@
 | `version`     | string | 一个 [semver 范围](https://github.com/npm/node-semver#ranges)，例如 `~2.1.0`、`^2.0`、`>=1.4` 或 `=2.1.0`。依赖会在满足此范围的最高标记版本处获取。                                                                                   |
 | `marketplace` | string | 一个不同的 marketplace 来在其中解析 `name`。跨 marketplace 依赖被阻止，除非目标 marketplace 在根 marketplace 的 `marketplace.json` 中的 [`allowCrossMarketplaceDependenciesOn`](#depend-on-a-plugin-from-another-marketplace) 中列出。 |
 
-`version` 字段接受 Node 的 `semver` 包支持的任何表达式，包括 caret、tilde、hyphen 和 comparator 范围。预发布版本（如 `2.0.0-beta.1`）被排除，除非你的范围使用预发布后缀（如 `^2.0.0-0`）选择加入。
+预发布版本（如 `2.0.0-beta.1`）被排除，除非你的范围使用预发布后缀（如 `^2.0.0-0`）选择加入。
 
 <h2 id="bundle-plugins-for-a-team">
   为团队捆绑 plugins
@@ -80,7 +80,7 @@
 * 在 `/plugin` 中为 marketplace 启用自动更新。下一次自动更新会将捆绑包移至新版本并安装它添加的任何依赖项。
 * 运行 `claude plugin update backend-standard`，然后运行 `/reload-plugins` 以安装新添加的依赖项。
 
-要在整个组织中推出捆绑包，请将捆绑 plugin 添加到[托管设置](/docs/zh-CN/settings#enabledplugins)中的 `enabledPlugins`。
+要在整个组织中推出捆绑包，请将捆绑 plugin 添加到[托管设置](/docs/zh-CN/settings-reference#enabledplugins)中的 `enabledPlugins`。
 
 <h2 id="depend-on-a-plugin-from-another-marketplace">
   依赖来自另一个 marketplace 的插件
@@ -111,33 +111,61 @@
 
 如果字段缺失或不包含目标 marketplace，安装会失败并显示 `cross-marketplace` 错误，命名要设置的字段。用户仍然可以手动先安装依赖，这会满足约束而无需更改允许列表。
 
-<h2 id="tag-plugin-releases-for-version-resolution">
-  标记插件发布以进行版本解析
+<h2 id="test-a-plugin-and-its-dependency-locally">
+  在本地测试插件及其依赖项
 </h2>
 
-版本约束针对 marketplace 存储库上的 git 标签进行解析。为了让 Claude Code 找到依赖的可用版本，上游插件的发布必须使用特定的命名约定进行标记。
+如果你同时开发一个插件和它所依赖的插件，请使用 `--plugin-dir` 加载两者：
 
-将每个发布标记为 `{plugin-name}--v{version}`，其中 `{version}` 与该提交的 `plugin.json` 中的 `version` 字段匹配。从插件目录中，运行：
+```bash theme={null}
+claude --plugin-dir ./my-dependency --plugin-dir ./my-plugin
+```
+
+依赖项的本地副本满足你的插件的依赖项条目，即使该条目命名了一个marketplace，所以你不需要从其marketplace安装依赖项。Claude Code不会对本地副本检查[版本约束](#declare-a-dependency-with-a-version-constraint)，所以本地 `plugin.json` 不需要 `version`。在v2.1.242之前，命名marketplace的依赖项条目从不匹配本地副本，Claude Code会在加载时禁用你的插件。
+
+当两个插件位于同一个父文件夹中时，你可以将该文件夹传递给 `--plugin-dir` 一次。如果该文件夹本身不是插件，Claude Code会加载每个具有 `.claude-plugin/plugin.json` 的子文件夹。需要Claude Code v2.1.265或更高版本。
+
+如果你还没有从其marketplace安装依赖项，当本地副本消失时，你的插件会停止加载：
+
+* **你禁用了本地副本**：Claude Code会在下一次插件加载时禁用你的插件。对于命名marketplace的依赖项条目，Claude Code会报告 `Dependency "<name>@inline" is disabled — enable it or remove the dependency`；对于裸名条目，它会按其裸名报告依赖项。`<name>@inline` 是Claude Code识别每个 `--plugin-dir` 和 `--plugin-url` 插件的方式。
+* **你启动了一个没有依赖项的 `--plugin-dir` 标志的会话**：Claude Code会报告依赖项未安装。再次传递该标志，或从其marketplace安装依赖项。
+
+<h2 id="tag-plugin-releases-for-version-resolution">
+  用于版本解析的标签插件发布
+</h2>
+
+Claude Code 针对托管依赖项的存储库上的 git 标签解析版本约束：对于 `github`、`url` 和 `git-subdir` [插件源](/docs/zh-CN/plugin-marketplaces#plugin-sources)，使用插件自己的存储库；对于市场通过相对路径引用的插件，使用市场存储库。为了让 Claude Code 找到依赖项的可用版本，上游插件的发布必须使用特定的命名约定进行标记。
+
+将每个发布标记为 `{plugin-name}--v{version}`，其中 `{version}` 与该提交的 `plugin.json` 中的 `version` 字段匹配。从插件目录运行：
 
 ```bash theme={null}
 claude plugin tag --push
 ```
 
-`claude plugin tag` 命令从插件的清单和封闭的 marketplace 条目派生标签名称。在创建标签之前，它验证插件内容，检查 `plugin.json` 和 marketplace 条目是否在版本上一致，要求插件目录下的工作树干净，如果标签已存在则拒绝。添加 `--dry-run` 以查看将被标记的内容而不创建它。如果你自己保持 `plugin.json` 和 marketplace 条目同步，直接运行 `git tag secrets-vault--v2.1.0` 是等效的。
+`claude plugin tag` 命令从插件的清单和封闭的市场条目派生标签名称。在创建标签之前，它验证插件内容，检查 `plugin.json` 和市场条目是否在版本上一致，要求插件目录下的工作树干净，如果标签已存在则拒绝。
 
-插件名称前缀让一个 marketplace 存储库可以托管多个具有独立版本线的插件。`--v` 分隔符被解析为完整插件名称上的前缀匹配，因此包含连字符的插件名称会被正确处理。
+* `--push` 将标签推送到 `origin` 远程，因此存储库需要配置 `origin` 远程。传递 `--remote` 以推送到不同的远程。
+* 如果推送失败，标签仍会在本地创建，命令以错误退出。
+* 使用 `--push`，成功运行以 `Created tag secrets-vault--v2.1.0` 和 `Pushed to origin` 结束，其中最后一行命名推送到的远程。不使用 `--push`，命令改为打印要运行的 `git push` 命令。
+* `--dry-run` 打印将被标记的内容而不创建它。
 
-当你安装声明了 `{ "name": "secrets-vault", "version": "~2.1.0" }` 的插件时，Claude Code 会列出 marketplace 的标签，过滤到以 `secrets-vault--v` 开头的标签，并获取满足 `~2.1.0` 的最高版本。如果不存在匹配的标签，依赖插件会被禁用并显示错误，列出可用的版本。
+直接运行 `git tag secrets-vault--v2.1.0` 是等效的，如果你自己保持 `plugin.json` 和市场条目同步。
 
-作为本地文件夹路径添加的 marketplace 在该文件夹是 git 存储库时以相同的方式解析标签。这需要 Claude Code v2.1.196 或更高版本。在两种情况下，Claude Code 从文件夹的当前内容安装依赖：
+插件名称前缀允许一个市场存储库托管多个具有独立版本线的插件。`--v` 分隔符被解析为完整插件名称的前缀匹配，因此包含连字符的插件名称被正确处理。
 
-* 早期版本不从本地文件夹 marketplace 读取标签，因此受约束的依赖仅在该副本满足范围时才加载。
+当你安装声明 `{ "name": "secrets-vault", "version": "~2.1.0" }` 的插件时，Claude Code 列出托管 `secrets-vault` 的存储库上的标签，筛选以 `secrets-vault--v` 开头的标签，并获取满足 `~2.1.0` 的最高版本。如果插件自己的存储库上没有标签满足该范围，安装失败并显示 `Dependency "secrets-vault@acme-tools" has no git tag satisfying ~2.1.0`，这命名了依赖项及其市场。对于没有匹配标签的相对路径插件，Claude Code 改为安装市场的当前副本，并在插件加载时检查约束。
+
+对于市场通过相对路径引用的插件，添加为本地文件夹路径的市场在文件夹是 git 存储库时以相同方式解析标签。这需要 Claude Code v2.1.196 或更高版本。在两种情况下，Claude Code 改为从文件夹的当前内容安装依赖项：
+
+* 早期版本不从本地文件夹市场读取标签，因此受约束的依赖项仅在该副本满足范围时加载。
 * 不是 git 存储库的本地文件夹没有标签，无论版本如何。
 
-已解析标签的 semver 与 `plugin.json` 的 `version` 分开记录，因此约束检查使用实际获取的标签，即使该提交处的 `plugin.json` 有过时的值。标签解析安装的缓存目录名称包含 12 字符的 commit-SHA 后缀，因此如果维护者强制将标签移动到不同的提交，下次安装会获得一个新的缓存目录，而不是重用过时的内容。
+已解析标签的 semver 与 `plugin.json` 的 `version` 分开记录，因此约束检查使用实际获取的标签，即使该提交处的 `plugin.json` 有陈旧值。标签解析安装的缓存目录名称包括 12 字符的提交 SHA 后缀，因此如果维护者强制将标签移动到不同的提交，下次安装会获得新的缓存目录，而不是重用陈旧内容。
 
 <Note>
-  对于 `npm` marketplace 源，约束不控制获取哪个版本，因为基于标签的解析仅适用于 git 支持的源。约束仍在加载时被检查，如果安装的版本不满足它，依赖插件会被禁用并显示 `dependency-version-unsatisfied`。
+  对于具有 `npm`、`archive` 或 `command` [插件源](/docs/zh-CN/plugin-marketplaces#plugin-sources) 的依赖项，约束不控制获取哪个版本，因为基于标签的解析仅适用于 git 支持的源。约束仍在加载时检查，如果安装的版本不满足它，依赖插件将被禁用并显示 `dependency-version-unsatisfied`。对于 `command` 源，Claude Code 检查依赖项的 `plugin.json` 中的版本并忽略内容哈希后缀；其 `plugin.json` 未设置版本的依赖项不满足任何约束，因此在约束它之前设置一个。
+
+  Claude Code 从不自己安装具有 `command` 源的依赖项，因此用户 [首先安装它](/docs/zh-CN/plugin-marketplaces#how-users-accept-the-command)。Claude Code 也从不在依赖项的市场条目上运行 `headersHelper`，因此用户 [首先安装该插件](/docs/zh-CN/plugin-marketplaces#how-users-accept-a-headershelper-command)。
 </Note>
 
 <h2 id="how-constraints-interact">
@@ -160,7 +188,9 @@ claude plugin tag --push
   启用或禁用具有依赖的插件
 </h2>
 
-启用插件也会启用它依赖的插件，禁用插件会被阻止，如果另一个已启用的插件仍然需要它。这两种行为都需要 Claude Code v2.1.143 或更高版本。早期版本仅启用或禁用命名的插件，并在下次加载时显示 `dependency-unsatisfied` 错误。
+本部分涵盖从市场安装的插件。对于使用 `--plugin-dir` 加载的副本，请参阅[在本地测试插件及其依赖](#test-a-plugin-and-its-dependency-locally)。
+
+启用插件也会启用它依赖的插件，禁用插件会被阻止，如果另一个已启用的插件仍然需要它。
 
 当你启用插件时，Claude Code 也会在同一范围内启用其依赖。如果依赖有自己的依赖，Claude Code 也会启用那些。成功消息会列出与你命名的插件一起启用的其他内容。如果依赖无法启用，命令会拒绝并告诉你什么在阻止以及如何修复：
 
@@ -188,15 +218,23 @@ disable everything together: claude plugin disable deploy-kit@acme-tools && clau
   删除孤立的自动安装依赖
 </h2>
 
-自动安装的依赖在安装它们的插件被卸载后仍会保留在磁盘上，以防你重新安装依赖插件或想继续直接使用该依赖。要清理它们，运行 `claude plugin prune` 来列出不再有任何已安装插件需要的自动安装依赖，并在确认提示后删除它们。这需要 Claude Code v2.1.121 或更高版本。
+自动安装的依赖在安装它们的插件被卸载后仍会保留在磁盘上，以防你重新安装依赖插件或想继续直接使用该依赖。要清理它们，运行 `claude plugin prune` 来列出不再有任何已安装插件需要的自动安装依赖，并在确认提示后删除它们。
 
 ```bash theme={null}
 claude plugin prune
 ```
 
-默认情况下，prune 在用户范围内运行。使用 `--scope project` 或 `--scope local` 来针对不同的范围。传递 `--dry-run` 来列出将被删除的内容而不进行任何更改。传递 `-y` 来跳过确认提示。当 stdin 或 stdout 不是终端时，prune 会列出孤立项并退出，除非传递了 `-y`。
+如果没有任何内容符合删除条件，该命令会打印 `Nothing to prune` 并显示原因后退出。这是全新安装时的预期输出，不是错误。
+
+默认情况下，prune 在用户范围内运行，并在删除任何内容前要求确认：
+
+* `--scope project` 或 `--scope local` 针对不同的范围。
+* `--dry-run` 列出将被删除的内容而不进行任何更改。
+* `-y` 跳过确认提示。当 stdin 或 stdout 不是终端时，prune 会列出孤立项并退出，除非你传递 `-y`。
 
 要在卸载过程中进行 prune，请将 `--prune` 传递给 `claude plugin uninstall`。删除命名的插件后，Claude Code 会扫描并删除现在孤立的任何自动安装依赖。你自己安装的插件永远不会被 prune，只有通过另一个插件的 `dependencies` 数组自动安装的插件才会被 prune。
+
+相同的确认行为适用。当 stdin 或 stdout 不是终端时，卸载仍会完成，但 prune 步骤会列出孤立项，除非你传递 `-y`，否则不会删除任何内容。
 
 例如，要卸载 `deploy-kit` 并清理它留下的依赖：
 
@@ -208,7 +246,7 @@ claude plugin uninstall deploy-kit --prune
   解决依赖错误
 </h2>
 
-依赖问题会在 `claude plugin list` 和 `/plugin` 界面中显示。Claude Code 会禁用受影响的插件，直到你解决错误。下表列出了最常见的错误及其解决方法。
+依赖问题会在 `claude plugin list` 和 `/plugin` 界面中显示为描述性错误消息，而不是此表中的字面代码。Claude Code 会禁用受影响的插件，直到你解决错误。下表列出了最常见的错误及其解决方法。
 
 | 错误                               | 含义                                                               | 如何解决                                                                                                                                  |
 | :------------------------------- | :--------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
@@ -217,7 +255,7 @@ claude plugin uninstall deploy-kit --prune
 | `dependency-version-unsatisfied` | 已安装的依赖版本在此插件的声明范围之外。                                             | 运行 `claude plugin install <dependency>@<marketplace>` 以根据所有当前约束重新解析依赖。                                                                |
 | `no-matching-tag`                | 依赖的存储库没有满足范围的 `{name}--v*` 标签。                                   | 检查上游是否使用上述约定标记了发布，或放宽你的范围。                                                                                                            |
 
-要以编程方式检查这些错误，请运行 `claude plugin list --json` 并读取每个插件上的 `errors` 字段。
+要以编程方式检查这些错误，请运行 `claude plugin list --json`。有问题的插件包含一个 `errors` 字段列出这些错误。加载正常的插件会省略该字段。
 
 <h2 id="see-also">
   另请参阅

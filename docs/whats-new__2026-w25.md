@@ -24,8 +24,8 @@
 
   <p className="digest-feature-try">向 Claude 要求一个页面，然后批准发布提示：</p>
 
-  ```text Claude Code theme={null}
-  > Make an artifact that walks through this PR with the diff annotated inline.
+  ```text title="Claude Code" wrap theme={null}
+  Make an artifact that walks through this PR with the diff annotated inline.
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/artifacts#create-an-artifact">创建 Artifact</a>
@@ -62,8 +62,8 @@
 
   <p className="digest-feature-try">从提示中设置 <code>thinking</code> 设置：</p>
 
-  ```text Claude Code theme={null}
-  > /config thinking=false
+  ```text title="Claude Code" wrap theme={null}
+  /config thinking=false
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/commands#all-commands">命令参考</a>

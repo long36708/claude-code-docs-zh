@@ -12,7 +12,7 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 
 对于澄清问题，Claude 生成问题和选项。您的角色是向用户呈现这些问题，并返回他们的选择。您不能向此流程添加自己的问题；如果您需要自己询问用户某些内容，请在应用程序逻辑中单独进行。
 
-回调可以无限期地保持待处理状态。执行保持暂停状态，直到您的回调返回，SDK 仅在查询本身被取消时才取消等待。如果用户可能需要比您的进程能够合理保持运行的时间更长的时间来响应，请返回 [`defer` hook 决定](/docs/zh-CN/hooks#defer-a-tool-call-for-later)，它允许进程退出并稍后从持久化会话恢复。
+回调可以无限期地保持待处理状态。执行保持暂停状态，直到您的回调返回，SDK 仅在查询本身被取消时才取消等待。如果用户可能需要比您的进程能够合理保持运行的时间更长的时间来响应，请注册一个 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它返回 [`defer` 决定](/docs/zh-CN/hooks#defer-a-tool-call-for-later)，而不是在回调中等待，以便进程可以退出并稍后从持久化会话恢复。
 
 本指南向您展示如何检测每种类型的请求并做出适当的响应。
 
@@ -24,6 +24,9 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 
 <CodeGroup>
   ```python Python theme={null}
+  from claude_agent_sdk import ClaudeAgentOptions
+
+
   async def handle_tool_request(tool_name, input_data, context):
       # 提示用户并返回允许或拒绝
       ...
@@ -48,9 +51,9 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 2. **Claude 提出问题**：Claude 调用 `AskUserQuestion` 工具。检查 `tool_name == "AskUserQuestion"` 以不同方式处理它。如果您指定 `tools` 数组，请包含 `AskUserQuestion` 以使其工作。有关详细信息，请参阅[处理澄清问题](#handle-clarifying-questions)。
 
 <Warning>
-  **回调永远不会对自动批准的工具触发。** [权限评估流程](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)中任何较早的批准、允许规则或 `acceptEdits` 或 `bypassPermissions` 等模式会在咨询 `canUseTool` 之前解决调用。如果您在 `allowed_tools` 中列出一个工具，除非询问规则或 `plan` 模式将调用路由回提示，否则该工具的 `canUseTool` 检查永远不会运行。对于必须应用于每个工具调用的逻辑，请使用 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它在流程的其余部分之前执行，可以允许、拒绝或修改请求。
+  **回调永远不会对自动批准的工具触发。** [权限评估流程](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)中任何较早的批准、允许规则或 `acceptEdits` 或 `bypassPermissions` 等模式会在咨询 `canUseTool` 之前解决调用。如果您在 `allowed_tools` 中列出一个工具，仅当[评估流程](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)将调用路由回提示（例如询问规则或 `plan` 模式）时，该工具的 `canUseTool` 检查才会运行。对于必须应用于每个工具调用的逻辑，请使用 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它在流程的其余部分之前执行，可以允许、拒绝或修改请求。
 
-  `AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)即使在允许规则匹配时也会到达回调。在 `dontAsk` 模式下，这些调用会被拒绝，而不会调用回调。
+  允许规则不会预先批准[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)；有关其中哪些到达回调以及在 `dontAsk` 和 `auto` 模式下发生的情况，请参阅[权限如何评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)。
 </Warning>
 
 您还可以使用 [`PermissionRequest` hook](/docs/zh-CN/agent-sdk/hooks#available-hooks) 在 Claude 等待批准时发送外部通知（Slack、电子邮件、推送）。
@@ -59,7 +62,9 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
   处理工具批准请求
 </h2>
 
-一旦您在查询选项中传递了 `canUseTool` 回调，当 Claude 想要使用不被自动批准的工具时，它就会触发。您的回调接收三个参数：
+一旦您在查询选项中传递了 `canUseTool` 回调，当 Claude 想要使用不被权限流中较早步骤批准的工具时，它就会触发。在某些配置中，例如 `dontAsk` 模式，Claude Code 不会调用它；[权限如何被评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)的最后一步列出了它们并说明了调用会发生什么。
+
+您的回调接收三个参数：
 
 | 参数                                  | 描述                                                                                                                                                                                                                      |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -220,26 +225,6 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 
 拒绝时，提供说明原因的消息。Claude 会看到此消息并可能调整其方法。
 
-<CodeGroup>
-  ```python Python theme={null}
-  from claude_agent_sdk.types import PermissionResultAllow, PermissionResultDeny
-
-  # 允许工具执行
-  return PermissionResultAllow(updated_input=input_data)
-
-  # 阻止工具
-  return PermissionResultDeny(message="User rejected this action")
-  ```
-
-  ```typescript TypeScript theme={null}
-  // 允许工具执行
-  return { behavior: "allow", updatedInput: input };
-
-  // 阻止工具
-  return { behavior: "deny", message: "User rejected this action" };
-  ```
-</CodeGroup>
-
 除了允许或拒绝之外，您还可以修改工具的输入或提供帮助 Claude 调整其方法的上下文：
 
 * **批准**：让工具按 Claude 请求的方式执行
@@ -248,6 +233,8 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 * **拒绝**：阻止工具并告诉 Claude 原因
 * **建议替代方案**：阻止但指导 Claude 朝向用户想要的方向
 * **完全重定向**：使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)向 Claude 发送全新指令
+
+以下代码片段中的 `ask_user` 和 `askUser` 帮助程序代表您应用程序自己的提示 UI。
 
 <Tabs>
   <Tab title="批准">
@@ -653,7 +640,7 @@ for await (const message of query({
 
 对于多选问题，传递标签数组或用 `", "` 连接它们。对于按问题的自由文本，例如"其他"选项，将用户的文本放在 `answers[question]` 中，如[支持自由文本输入](#support-free-text-input)中所示。仅当您的 UI 让用户关闭问题卡并输入不是任何特定问题答案的一般回复时，才设置 `response`。当设置 `response` 时，Claude 会收到"用户回复：…"而不是按问题答案列表。
 
-```json theme={null}
+```jsonc theme={null}
 {
   "questions": [
     // ...

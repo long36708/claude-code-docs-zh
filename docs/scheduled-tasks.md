@@ -8,7 +8,7 @@
 
 计划任务让 Claude 按间隔自动重新运行提示词。使用它们来轮询部署、监督 PR、检查长时间运行的构建，或在会话中稍后提醒自己做某事。要对事件进行实时反应而不是轮询，请参阅 [Channels](/docs/zh-CN/channels)：您的 CI 可以直接将失败推送到会话中。要保持会话工作转向转向直到满足条件而不是按间隔，请参阅 [`/goal`](/docs/zh-CN/goal)。
 
-任务是会话范围的：它们存在于当前对话中，当您启动新对话时就会停止。使用 `--resume` 或 `--continue` 恢复会带回任何尚未[过期](#seven-day-expiry)的任务：在过去 7 天内创建的重复任务，或计划时间尚未到达的一次性任务。对于独立于任何会话而存在的调度，请使用 [Routines](/docs/zh-CN/routines) 在 Anthropic 管理的基础设施上创建例程、设置 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks)，或使用 [GitHub Actions](/docs/zh-CN/github-actions)。
+任务是会话范围的：它们存在于当前对话中，当您启动新对话时就会停止。使用 `--resume` 或 `--continue` 恢复会带回任何尚未[过期](#seven-day-expiry)的任务：在过去 7 天内创建的重复任务，或计划时间尚未到达的一次性任务。对于独立于任何会话而存在的调度，请使用 [Routines](/docs/zh-CN/routines) 在云上创建例程、设置 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks)，或使用 [GitHub Actions](/docs/zh-CN/github-actions)。
 
 <h2 id="compare-scheduling-options">
   比较调度选项
@@ -44,12 +44,12 @@ Claude Code offers three ways to schedule recurring or one-off work:
 | 仅提示词   | `/loop check the deploy`    | 您的提示词在 Claude 选择的[间隔](#let-claude-choose-the-interval)上运行，每次迭代        |
 | 仅间隔或无  | `/loop`                     | [内置维护提示词](#run-the-built-in-maintenance-prompt)运行，或您的 `loop.md`（如果存在） |
 
-您也可以将 skill 作为提示词传递，例如 `/loop 20m /review-pr 1234`，以在每次迭代时重新运行该 skill。从 v2.1.196 开始，计划的触发仅运行 Claude [允许自己调用](/docs/zh-CN/skills#control-who-invokes-a-skill)的 skill。以下内容作为纯文本到达 Claude，而不是执行：
+您也可以将 skill 作为提示词传递，例如 `/loop 20m /review-pr 1234`，以在每次迭代时重新运行该 skill。计划的触发仅运行 Claude [允许自己调用](/docs/zh-CN/skills#control-who-invokes-a-skill)的 skill。以下内容作为纯文本到达 Claude，而不是执行：
 
 * 内置命令，例如 `/permissions`、`/model` 或 `/clear`
-* 标记为 [`disable-model-invocation: true`](/docs/zh-CN/skills#frontmatter-reference) 的 skill
-* 由 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 设置或 `Skill` [deny rule](/docs/zh-CN/skills#restrict-claude’s-skill-access) 从 Claude 扣留的 skill
-* [MCP prompts](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)，例如 `/mcp__github__list_prs`；MCP 服务器公开的 skill 仍然运行
+* 标记为 [`disable-model-invocation: true`](/docs/zh-CN/skills#frontmatter-reference) 的 skill，包括 bundled `/verify` skill
+* 由 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 设置或 `Skill` [deny rule](/docs/zh-CN/skills#restrict-claude's-skill-access) 从 Claude 扣留的 skill
+* [MCP prompts](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)，例如 `/mcp__github__list_prs`
 
 <h3 id="run-on-a-fixed-interval">
   在固定间隔上运行
@@ -77,12 +77,14 @@ Claude Code offers three ways to schedule recurring or one-off work:
 /loop check whether CI passed and address any review comments
 ```
 
-当您要求动态 `/loop` 计划时，Claude 可能会直接使用 [Monitor tool](/docs/zh-CN/tools-reference#monitor-tool)。Monitor 运行后台脚本并流式传输每个输出行，这完全避免了轮询，通常比在间隔上重新运行提示词更节省令牌且响应更快。
+在[Monitor tool 可用](/docs/zh-CN/tools-reference#monitor-tool)的会话中，当您要求动态 `/loop` 计划时，Claude 可能会直接使用它。Monitor 运行后台脚本并流式传输每个输出行，这完全避免了轮询，通常比在间隔上重新运行提示词更节省令牌且响应更快。
 
-动态计划的循环出现在您的[计划任务列表](#manage-scheduled-tasks)中，就像任何其他任务一样，所以您可以以相同的方式列出或取消它。[抖动规则](#jitter)不适用于它，但[七天过期](#seven-day-expiry)适用：循环在您启动它七天后自动结束。
+动态计划的循环出现在您的[计划任务列表](#manage-scheduled-tasks)中，就像任何其他任务一样，所以您可以以相同的方式列出或取消它。[抖动规则](#jitter)不适用于它，但[七天过期](#seven-day-expiry)适用。
+
+<span id="loop-provider-differences" />
 
 <Note>
-  在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，没有间隔的提示词在固定的 10 分钟计划上运行。
+  动态选择的间隔和[内置维护提示词](#run-the-built-in-maintenance-prompt)在每个提供商上都有效，并且[特性标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)已关闭。在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，或关闭获取时，两者都需要 Claude Code v2.1.248 或更高版本。在这些情况下，在早期版本上，没有间隔的提示词在固定的 10 分钟计划上运行，没有提示词的 `/loop` 会打印使用消息。
 </Note>
 
 <h3 id="run-the-built-in-maintenance-prompt">
@@ -103,15 +105,11 @@ Claude 不会启动该范围之外的新举措，不可逆的操作（如推送�
 
 裸 `/loop` 在[动态选择的间隔](#let-claude-choose-the-interval)上运行此提示词。添加间隔，例如 `/loop 15m`，以在固定计划上运行它。要用您自己的默认值替换内置提示词，请参阅[使用 loop.md 自定义默认提示词](#customize-the-default-prompt-with-loop-md)。
 
-<Note>
-  在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，没有提示词的 `/loop` 会打印使用消息而不是运行维护提示词。
-</Note>
-
 <h3 id="customize-the-default-prompt-with-loop-md">
   使用 loop.md 自定义默认提示词
 </h3>
 
-`loop.md` 文件用您自己的说明替换内置维护提示词。它为裸 `/loop` 定义单个默认提示词，而不是单独计划任务的列表，并且在您在命令行上提供提示词时被忽略。要在其旁边计划其他提示词，请使用 `/loop <prompt>` 或[直接询问 Claude](#manage-scheduled-tasks)。
+创建 `loop.md` 文件以用您自己的说明替换[内置维护提示词](#run-the-built-in-maintenance-prompt)。它为裸 `/loop` 定义单个默认提示词，而不是单独计划任务的列表，并且在您在命令行上提供提示词时被忽略。要在其旁边计划其他提示词，请使用 `/loop <prompt>` 或[直接询问 Claude](#manage-scheduled-tasks)。
 
 Claude 在两个位置查找文件，并使用它找到的第一个。
 
@@ -131,19 +129,15 @@ quiet, say so in one line.
 
 对 `loop.md` 的编辑在下一次迭代时生效，所以您可以在循环运行时优化说明。当任一位置都不存在 `loop.md` 时，循环回退到内置维护提示词。保持文件简洁：超过 25,000 字节的内容会被截断。
 
-<Note>
-  在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，`loop.md` 不被读取，没有提示词的 `/loop` 会打印使用消息。
-</Note>
-
 <h3 id="stop-a-loop">
   停止循环
 </h3>
 
-要在 `/loop` 等待下一次迭代时停止它，请按 `Esc`。这会清除待处理的唤醒，所以循环不会再次触发。您通过[直接询问 Claude](#manage-scheduled-tasks)计划的任务不受 `Esc` 影响，会保留在原位，直到您删除它们。
+要在[自主进行 `/loop`](#let-claude-choose-the-interval) 等待下一次迭代时停止它，请按 `Esc`。这会清除待处理的唤醒，所以循环不会再次触发。您通过[直接询问 Claude](#manage-scheduled-tasks)计划的任务不受 `Esc` 影响，会保留在原位，直到您删除它们。
 
-在[自主进行模式](#let-claude-choose-the-interval)中，Claude 也可以在任务完成后通过调用 [`ScheduleWakeup` tool](/docs/zh-CN/tools-reference) 并设置 `stop: true` 来自己结束循环，这会立即取消待处理的唤醒。如果迭代结束时既没有重新计划也没有停止，Claude Code 会在大约 20 分钟后计划一个备用唤醒，并在该迭代也不重新计划时结束循环。在 v2.1.202 之前，不重新计划是 Claude 自己结束循环的唯一方式。
+在[自主进行模式](#let-claude-choose-the-interval)中，Claude 也可以在任务完成后通过调用 [`ScheduleWakeup` tool](/docs/zh-CN/tools-reference) 并设置 `stop: true` 来自己结束循环，这会立即取消待处理的唤醒。如果迭代结束时既没有重新计划也没有停止，Claude Code 会在大约 20 分钟后计划一个备用唤醒，并在该迭代也不重新计划时结束循环。
 
-固定间隔上的循环会一直运行，直到您停止它们或[七天过去](#seven-day-expiry)。
+固定间隔上的循环会一直运行，直到您[像任何其他计划任务一样取消它们](#manage-scheduled-tasks)或[七天过去](#seven-day-expiry)。
 
 <h2 id="set-a-one-time-reminder">
   设置一次性提醒
@@ -243,10 +237,11 @@ cancel the deploy check job
 
 * 任务仅在 Claude Code 运行且空闲时触发。关闭终端或让会话退出会停止它们触发。[将会话放在后台](/docs/zh-CN/agent-view#from-inside-a-session)会将 `/loop` 任务转移到后台会话，该会话继续运行而无需终端。
 * 没有错过触发的追赶。如果任务的计划时间在 Claude 忙于长时间运行的请求时经过，它会在 Claude 变为空闲时触发一次，而不是每个错过的间隔触发一次。
-* 启动新对话会清除所有会话范围的任务。使用 `claude --resume` 或 `claude --continue` 恢复会恢复尚未过期的任务：创建后七天内的重复任务，以及计划时间尚未到达的一次性任务。后台 Bash 和监视器任务在恢复时永远不会被恢复。
+* 启动新对话会清除所有会话范围的任务。使用 `claude --resume` 或 `claude --continue` 恢复会恢复尚未[过期](#seven-day-expiry)的重复任务和计划时间尚未到达的一次性任务。后台 Bash 和监视器任务在恢复时永远不会被恢复。
+* 当[功能标志获取关闭](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)时，Claude Code 会将您要求在会话间保留的任务存储在项目的 `.claude` 目录中。当该目录或其中的任务文件是符号链接时，Claude Code 会返回错误而不是调度任务。
 
 对于需要无人值守运行的 cron 驱动自动化：
 
-* [Routines](/docs/zh-CN/routines)：在 Anthropic 管理的基础设施上按计划运行、通过 API 调用或在 GitHub 事件上运行
+* [Routines](/docs/zh-CN/routines)：在云上按计划运行、通过 API 调用或在 GitHub 事件上运行
 * [GitHub Actions](/docs/zh-CN/github-actions)：在 CI 中使用 `schedule` 触发器
 * [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks)：在您的机器上本地运行

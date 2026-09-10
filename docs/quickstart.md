@@ -21,7 +21,7 @@
 * 打开的终端或命令提示符
   * 如果您之前从未使用过终端，请查看[终端指南](/docs/zh-CN/terminal-guide)
 * 一个可以使用的代码项目
-* 一个 [Claude 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_prereq)（Pro、Max、Team 或 Enterprise）、[Claude Console](https://console.anthropic.com/) 账户，或通过[支持的云提供商](/docs/zh-CN/third-party-integrations)的访问权限
+* 一个 [Claude 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_prereq)（Pro、Max、Team 或 Enterprise）、[Claude Console](https://platform.claude.com/) 账户，或通过[支持的云提供商](/docs/zh-CN/third-party-integrations)的访问权限
 
 <Note>
   本指南涵盖终端 CLI。Claude Code 也可在[网页](https://claude.ai/code)、[桌面应用](/docs/zh-CN/desktop)、[VS Code](/docs/zh-CN/vs-code) 和 [JetBrains IDE](/docs/zh-CN/jetbrains)、[Slack](/docs/zh-CN/slack) 中使用，以及通过 [GitHub Actions](/docs/zh-CN/github-actions) 和 [GitLab](/docs/zh-CN/gitlab-ci-cd) 进行 CI/CD。查看[所有界面](/docs/zh-CN/overview#use-claude-code-everywhere)。
@@ -37,19 +37,19 @@ To install Claude Code, use one of the following methods:
   <Tab title="Native Install (Recommended)">
     **macOS, Linux, WSL:**
 
-    ```bash theme={null}
+    ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
     curl -fsSL https://claude.ai/install.sh | bash
     ```
 
     **Windows PowerShell:**
 
-    ```powershell theme={null}
+    ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
     irm https://claude.ai/install.ps1 | iex
     ```
 
     **Windows CMD:**
 
-    ```batch theme={null}
+    ```batch theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
     ```
 
@@ -65,7 +65,7 @@ To install Claude Code, use one of the following methods:
   </Tab>
 
   <Tab title="Homebrew">
-    ```bash theme={null}
+    ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
     brew install --cask claude-code
     ```
 
@@ -77,7 +77,7 @@ To install Claude Code, use one of the following methods:
   </Tab>
 
   <Tab title="WinGet">
-    ```powershell theme={null}
+    ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
     winget install Anthropic.ClaudeCode
     ```
 
@@ -89,6 +89,14 @@ To install Claude Code, use one of the following methods:
 
 You can also install with [apt, dnf, or apk](/docs/en/setup#install-with-linux-package-managers) on Debian, Fedora, RHEL, and Alpine.
 
+要确认安装成功，请运行：
+
+```bash theme={null}
+claude --version
+```
+
+该命令会打印一个版本号，后面跟着 `(Claude Code)`。
+
 <h2 id="step-2-log-in-to-your-account">
   步骤 2：登录您的账户
 </h2>
@@ -99,20 +107,20 @@ Claude Code 需要账户才能使用。使用 `claude` 命令启动交互式会�
 claude
 ```
 
-对于 Claude 订阅或 Console 账户，请按照提示在浏览器中完成身份验证。要稍后切换账户或重新身份验证，请在运行的会话中输入 `/login`：
+对于 Claude 订阅或 Console 账户，请按照提示在浏览器中完成身份验证。如果您已设置 `ANTHROPIC_API_KEY` 环境变量，Claude Code 会跳过登录提示，改为要求您批准该密钥。要稍后切换账户或重新身份验证，请在运行的会话中输入 `/login`：
 
-```text theme={null}
+```text wrap theme={null}
 /login
 ```
 
 您可以使用以下任何账户类型登录：
 
 * [Claude Pro、Max、Team 或 Enterprise](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_login)（推荐）
-* [Claude Console](https://console.anthropic.com/)（具有预付费额度的 API 访问）。首次登录时，Console 中会自动为集中成本跟踪创建一个"Claude Code"工作区。
+* [Claude Console](https://platform.claude.com/)（具有预付费额度的 API 访问）。首次登录时，Console 中会自动为集中成本跟踪创建一个"Claude Code"工作区。
 * [Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry](/docs/zh-CN/third-party-integrations)（企业云提供商）
 * 自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway)（如果您的组织运行一个）：您的管理员会预先配置网关 URL，`/login` 会直接在 **Cloud gateway** 屏幕上打开，供您使用企业 SSO 登录
 
-登录后，您的凭证将被存储，您无需再次登录。
+登录后，您的凭证将被存储，您无需再次登录。详细了解 [凭证管理](/docs/zh-CN/authentication#credential-management)。
 
 <h2 id="step-3-start-your-first-session">
   步骤 3：启动您的第一个会话
@@ -125,11 +133,9 @@ cd /path/to/your/project
 claude
 ```
 
-您将看到 Claude Code 提示符，其中显示版本、当前模型和上方显示的工作目录。输入 `/help` 查看可用命令，或输入 `/resume` 继续之前的对话。
+将 `/path/to/your/project` 替换为您要处理的项目的路径。
 
-<Tip>
-  登录后（步骤 2），您的凭证将存储在您的系统上。在[凭证管理](/docs/zh-CN/authentication#credential-management)中了解更多信息。
-</Tip>
+您将看到 Claude Code 提示符，其中显示版本、当前模型和上方显示的工作目录。输入 `/help` 查看可用命令，或输入 `/resume` 继续之前的对话。
 
 <h2 id="step-4-ask-your-first-question">
   步骤 4：提出您的第一个问题
@@ -137,35 +143,35 @@ claude
 
 让我们从理解您的代码库开始。尝试以下命令之一：
 
-```text theme={null}
+```text wrap theme={null}
 what does this project do?
 ```
 
 Claude 将分析您的文件并提供摘要。您也可以提出更具体的问题：
 
-```text theme={null}
+```text wrap theme={null}
 what technologies does this project use?
 ```
 
-```text theme={null}
+```text wrap theme={null}
 where is the main entry point?
 ```
 
-```text theme={null}
+```text wrap theme={null}
 explain the folder structure
 ```
 
 您也可以询问 Claude 关于其自身功能的问题：
 
-```text theme={null}
+```text wrap theme={null}
 what can Claude Code do?
 ```
 
-```text theme={null}
+```text wrap theme={null}
 how do I create custom skills in Claude Code?
 ```
 
-```text theme={null}
+```text wrap theme={null}
 can Claude Code work with Docker?
 ```
 
@@ -179,19 +185,16 @@ can Claude Code work with Docker?
 
 现在让我们让 Claude Code 进行一些实际的编码。尝试一个简单的任务：
 
-```text theme={null}
+```text wrap theme={null}
 在主文件中添加一个 hello world 函数
 ```
 
-Claude Code 将：
+Claude Code 找到适当的文件并向您显示更改。如果它在进行更改前询问，请选择**是**以批准。
 
-1. 找到适当的文件
-2. 向您显示建议的更改
-3. 请求您的批准
-4. 进行编辑
+Auto 模式是 Pro、Max 和 Team 计划上交互式终端会话的[内置起始权限模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：分类器审查操作而不是您，Claude 在不询问的情况下编辑大多数文件并运行大多数命令。在其他计划上，Manual 模式是内置起始权限模式。对于安装后立即启动的会话，请参阅[安装或升级后的首个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)。
 
 <Note>
-  Claude Code 在修改文件前始终请求许可。您可以批准单个更改或为会话启用"全部接受"模式。
+  您的设置或您的组织可以设置不同的起始权限模式。[会话启动时的权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)列出了相关内容。随时按 `Shift+Tab` 切换您所在会话的权限模式。
 </Note>
 
 <h2 id="step-6-use-git-with-claude-code">
@@ -200,25 +203,25 @@ Claude Code 将：
 
 Claude Code 使 Git 操作变得对话式：
 
-```text theme={null}
+```text wrap theme={null}
 我更改了哪些文件？
 ```
 
-```text theme={null}
+```text wrap theme={null}
 用描述性消息提交我的更改
 ```
 
 您也可以提示更复杂的 Git 操作：
 
-```text theme={null}
+```text wrap theme={null}
 创建一个名为 feature/quickstart 的新分支
 ```
 
-```text theme={null}
+```text wrap theme={null}
 显示我最后的 5 次提交
 ```
 
-```text theme={null}
+```text wrap theme={null}
 帮我解决合并冲突
 ```
 
@@ -230,13 +233,13 @@ Claude 擅长调试和功能实现。
 
 用自然语言描述您想要的内容：
 
-```text theme={null}
+```text wrap theme={null}
 向用户注册表单添加输入验证
 ```
 
 或修复现有问题：
 
-```text theme={null}
+```text wrap theme={null}
 有一个错误，用户可以提交空表单 - 修复它
 ```
 
@@ -255,25 +258,25 @@ Claude Code 将：
 
 **重构代码**
 
-```text theme={null}
+```text wrap theme={null}
 refactor the authentication module to use async/await instead of callbacks
 ```
 
 **编写测试**
 
-```text theme={null}
+```text wrap theme={null}
 write unit tests for the calculator functions
 ```
 
 **更新文档**
 
-```text theme={null}
+```text wrap theme={null}
 update the README with installation instructions
 ```
 
 **代码审查**
 
-```text theme={null}
+```text wrap theme={null}
 review my changes and suggest improvements
 ```
 
@@ -292,18 +295,18 @@ review my changes and suggest improvements
 | 命令                  | 功能            | 示例                                  |
 | ------------------- | ------------- | ----------------------------------- |
 | `claude`            | 启动交互模式        | `claude`                            |
-| `claude "task"`     | 运行一次性任务       | `claude "fix the build error"`      |
+| `claude "task"`     | 使用初始提示启动交互模式  | `claude "fix the build error"`      |
 | `claude -p "query"` | 运行一次性查询，然后退出  | `claude -p "explain this function"` |
 | `claude -c`         | 在当前目录中继续最近的对话 | `claude -c`                         |
 | `claude -r`         | 恢复之前的对话       | `claude -r`                         |
 
 **会话命令**
 
-| 命令               | 功能             | 示例       |
-| ---------------- | -------------- | -------- |
-| `/clear`         | 清除对话历史         | `/clear` |
-| `/help`          | 显示可用命令         | `/help`  |
-| `/exit` 或 Ctrl+D | 退出 Claude Code | `/exit`  |
+| 命令                  | 功能             | 示例       |
+| ------------------- | -------------- | -------- |
+| `/clear`            | 清除对话历史         | `/clear` |
+| `/help`             | 显示可用命令         | `/help`  |
+| `/exit` 或 Ctrl+D 两次 | 退出 Claude Code | `/exit`  |
 
 有关完整的 shell 命令列表，请参阅 [CLI 参考](/docs/zh-CN/cli-reference)，有关完整的会话命令列表，请参阅 [命令参考](/docs/zh-CN/commands)。
 
@@ -323,7 +326,7 @@ review my changes and suggest improvements
   <Accordion title="使用分步说明">
     将复杂任务分解为步骤：
 
-    ```text theme={null}
+    ```text wrap theme={null}
     1. 为用户配置文件创建新的数据库表
     2. 创建 API 端点以获取和更新用户配置文件
     3. 构建允许用户查看和编辑其信息的网页
@@ -333,11 +336,11 @@ review my changes and suggest improvements
   <Accordion title="让 Claude 先探索">
     在进行更改之前，让 Claude 理解您的代码：
 
-    ```text theme={null}
+    ```text wrap theme={null}
     分析数据库架构
     ```
 
-    ```text theme={null}
+    ```text wrap theme={null}
     构建一个仪表板，显示英国客户最常退货的产品
     ```
   </Accordion>

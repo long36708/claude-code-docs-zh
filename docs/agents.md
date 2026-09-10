@@ -17,16 +17,17 @@
 
 在每种方法中，工作人员都是 Claude 会话。要涉及不同的工具，请将其作为 [MCP server](/docs/zh-CN/mcp) 公开给 Claude。
 
-还有两个工具支持这项工作，但它们本身不是运行代理的方式：
+三个更多的工具支持这项工作，但它们本身不是运行代理的方式：
 
 * [Worktrees](/docs/zh-CN/worktrees) 为每个会话提供单独的 git 检出，因此并行会话永远不会编辑相同的文件。将它们用于您自己运行的会话。代理视图会自动将每个分派的会话移到自己的 worktree 中，您生成的子代理也可以各自获得一个。
+* [跨会话消息传递](/docs/zh-CN/cross-session-messaging) 让 Claude 列出并消息传递您在这台机器上、另一台机器上或 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) 上的其他 Claude Code 会话，因此您自己运行的会话可以在彼此之间传递发现和状态。
 * [`/batch`](/docs/zh-CN/commands) 是一个 [skill](/docs/zh-CN/skills)，它让 Claude 将一个大型更改分成 5 到 30 个 worktree 隔离的子代理，每个都打开一个拉取请求。它是子代理和 worktrees 的打包使用，不是一个单独的协调风格。
 
 还有一些其他功能在没有您驱动每一步的情况下运行 Claude，但它们解决的问题与在代理之间分割工作不同：
 
 * [后台 bash 命令](/docs/zh-CN/interactive-mode#background-bash-commands) 运行一个 shell 命令而不阻止对话。它不会生成代理。
-* [分叉子代理](/docs/zh-CN/sub-agents#fork-the-current-conversation) 是一个继承您完整对话上下文而不是从头开始的子代理。它是生成子代理的一种方式，不是一个单独的界面。
-* [routine](/docs/zh-CN/routines) 在 Anthropic 的云中按计划运行会话，而不是在您的机器上并行运行。
+* [分叉子代理](/docs/zh-CN/sub-agents#fork-the-current-conversation) 是一个继承您完整对话上下文而不是从头开始的子代理。它是生成子代理的一种方式，不是一个单独的界面。使用 `/subtask` 启动一个。Claude 也会在 [fork mode](/docs/zh-CN/sub-agents#turn-fork-mode-on-or-off) 打开时自己生成一个。要将整个会话复制到一个新的 [后台会话](/docs/zh-CN/agent-view#from-inside-a-session) 中，该会话与其并行运行，请使用 `/fork`。当 [agent view 关闭](/docs/zh-CN/agent-view#turn-off-agent-view) 时，分叉子代理命令是 `/fork` 而不是 `/subtask` 不可用。
+* [routine](/docs/zh-CN/routines) 在云中按计划运行会话，而不是在您的机器上并行运行。
 
 <Note>
   同时运行多个会话或子代理会增加令牌使用量。有关使用情况和速率限制详情，请参阅 [Costs](/docs/zh-CN/costs)。
@@ -43,7 +44,7 @@
   * 您交付独立任务并稍后检查：[代理视图](/docs/zh-CN/agent-view)
   * Claude 计划、分配和监督一组工作人员：[代理团队](/docs/zh-CN/agent-teams)，实验性功能，默认禁用
   * 脚本而不是 Claude 的逐轮判断来保持协调：[动态工作流](/docs/zh-CN/workflows)。请参阅[工作流与子代理和 skills 的比较](/docs/zh-CN/workflows#when-to-use-a-workflow)
-* **工作人员需要相互交谈吗？** 子代理将结果报告回生成它们的对话，代理视图会话仅向您报告。代理团队中的队友共享任务列表并直接相互发送消息。
+* **工作人员需要相互交谈吗？** Claude 可以通过[跨会话消息传递](/docs/zh-CN/cross-session-messaging)在您自己运行的会话之间传递发现，包括您从代理视图分派的会话。子代理将结果报告回生成它们的对话，代理视图会话仅向您报告结果。代理团队中的队友直接相互发送消息，当他们[拥有 Task tools](/docs/zh-CN/tools-reference#task-tool-availability) 时，共享任务列表。
 * **任务是否接触相同的文件？** 使用 [worktrees](/docs/zh-CN/worktrees) 隔离工作。子代理和您自己运行的会话可以各自使用单独的 worktree。代理团队不会在 worktrees 中隔离队友，因此[分区工作](/docs/zh-CN/agent-teams#avoid-file-conflicts)，以便每个队友拥有不同的文件集。
 
 <h2 id="check-on-running-work">

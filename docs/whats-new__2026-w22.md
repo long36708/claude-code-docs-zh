@@ -25,8 +25,8 @@
 
   <p className="digest-feature-try">按名称切换到 Opus 4.8，或从模型选择器中选择它：</p>
 
-  ```text Claude Code theme={null}
-  > /model claude-opus-4-8
+  ```text title="Claude Code" wrap theme={null}
+  /model claude-opus-4-8
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/model-config#available-models">模型配置</a>
@@ -46,8 +46,8 @@
 
   <p className="digest-feature-try">描述任务并请求工作流：</p>
 
-  ```text Claude Code theme={null}
-  > create a workflow that migrates every internal fetch() call to the new HttpClient wrapper
+  ```text title="Claude Code" wrap theme={null}
+  create a workflow that migrates every internal fetch() call to the new HttpClient wrapper
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/workflows">Dynamic workflows</a>
@@ -67,14 +67,14 @@
 
   <p className="digest-feature-try">从官方 Anthropic 市场安装它：</p>
 
-  ```text Claude Code theme={null}
-  > /plugin install security-guidance@claude-plugins-official
+  ```text title="Claude Code" wrap theme={null}
+  /plugin install security-guidance@claude-plugins-official
   ```
 
   <p className="digest-feature-try">然后在当前会话中激活它：</p>
 
-  ```text Claude Code theme={null}
-  > /reload-plugins
+  ```text title="Claude Code" wrap theme={null}
+  /reload-plugins
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/security-guidance">Security guidance plugin</a>
@@ -90,8 +90,8 @@
 
   <p className="digest-feature-try">切换快速模式，现在在 Opus 4.8 上：</p>
 
-  ```text Claude Code theme={null}
-  > /fast
+  ```text title="Claude Code" wrap theme={null}
+  /fast
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/fast-mode#understand-the-cost-tradeoff">快速模式定价</a>

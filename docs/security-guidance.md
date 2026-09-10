@@ -10,31 +10,40 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 安装后，该插件会自动运行。无需调用任何内容，也无需记住单独的命令。
 
-该插件是 [Code Review](/docs/zh-CN/code-review) 的会话内伴侣，Code Review 在拉取请求上运行。该插件减少了进入 PR 的内容。Code Review 捕获遗漏的内容。有关该插件如何与按需审查和 CI 扫描配合使用的信息，请参阅 [此插件如何与其他安全工具配合](#how-this-fits-with-other-security-tools)。
+该插件是 [Code Review](/docs/zh-CN/code-review) 的会话内伴侣，Code Review 在拉取请求上运行。该插件减少了进入 PR 的内容。Code Review 捕获遗漏的内容。有关该插件如何与按需审查和 CI 扫描配合使用的信息，或者要扫描您已有的代码而不是 Claude 正在编写的更改，请参阅 [此插件如何与其他安全工具配合](#how-this-fits-with-other-security-tools)。
 
 <h2 id="prerequisites">
   前置条件
 </h2>
 
-* Claude Code CLI 版本 2.1.144 或更高版本
-* Python 3.8 或更高版本在您的 `PATH` 中。该插件按顺序尝试 `python3`、`python` 和 `py -3`
+* Python 3.7 或更高版本在您的 `PATH` 中。代理提交审查需要 Python 3.10 或更高版本，当 Claude Code 使用第三方提供商（如 Amazon Bedrock 或 Google Cloud 的 Agent Platform）时，所有模型支持的审查也需要 Python 3.10 或更高版本。该插件优先使用版本化解释器 `python3.13` 到 `python3.10`，然后回退到 `python3`、`python` 和 `py -3`
 * 您工作目录的 git 存储库。回合结束和提交审查针对 git 状态进行 diff，在存储库外会静默跳过。每次编辑模式检查在任何地方都有效
 
-首次运行时，该插件在 `~/.claude/security/` 下创建虚拟环境，并将 Claude Agent SDK 安装到其中，这需要 `pip` 和网络访问。如果该安装失败，提交审查会回退到单次审查而不是代理审查。在 Windows 上，虚拟环境步骤被跳过，因此代理提交审查仅在 `claude-agent-sdk` 已经可导入时运行，否则以相同方式回退。
+首次运行时，该插件在 `~/.claude/security/` 下创建虚拟环境，并将 Claude Agent SDK 安装到其中，这需要 `pip` 和网络访问。如果该安装失败，或可用的 Python 版本早于 3.10，则在第一方身份验证上的提交审查会回退到单次审查而不是代理审查；在第三方提供商（如 Amazon Bedrock 或 Google Cloud 的 Agent Platform）上，模型支持的审查需要 SDK 本身，因此会跳过。当较旧的 Python 是原因时，该插件会显示一次性通知。
 
 <h2 id="install-the-plugin">
   安装插件
 </h2>
 
-在 Claude Code 会话中，从 [官方 Anthropic 市场](/docs/zh-CN/discover-plugins#official-anthropic-marketplace) 安装：
+在终端 Claude Code 会话中，从 [官方 Anthropic 市场](/docs/zh-CN/discover-plugins#official-anthropic-marketplace) 安装：
 
 ```text theme={null}
 /plugin install security-guidance@claude-plugins-official
 ```
 
-安装会提示输入范围。选择用户范围以将插件写入您的用户设置，这样它会在您在此计算机上启动的每个新本地会话中加载。如果 Claude Code 报告找不到市场，请先运行 `/plugin marketplace add anthropics/claude-plugins-official`，然后重试安装。
+`/plugin` 打开一个交互式面板，仅在终端 CLI 中可用。如果 Claude 回复说 `/plugin` 在此环境中不可用，请以其他方式安装：
 
-然后在当前会话中使用 `/reload-plugins` 激活它，这会应用待处理的插件更改而无需重启：
+* **Claude 桌面应用、本地或 SSH 会话**：通过点击提示旁边的 **+** 按钮，然后点击 **Plugins**，再点击 **Add plugin** 来打开 [插件浏览器](/docs/zh-CN/desktop#install-plugins)
+* **网络上的 Claude Code 或桌面云会话**：在 `.claude/settings.json` 中声明插件，如 [在云会话中启用](#enable-in-cloud-sessions-and-shared-repositories) 下所示
+
+终端安装会提示输入范围。选择用户范围以将插件写入您的用户设置，这样它会在您在此计算机上启动的每个新本地会话中加载。
+
+如果安装失败，请匹配 Claude Code 报告的消息：
+
+* `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
+* 插件 [在市场中找不到](/docs/zh-CN/discover-plugins#install-plugins)：检查插件名称。
+
+检查安装摘要。如果它报告 `Run /reload-plugins to activate.`，应用待处理的更改而无需重启：
 
 ```text theme={null}
 /reload-plugins
@@ -44,7 +53,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
   在云会话和共享存储库中启用
 </h3>
 
-用户范围的插件不会进入 [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)，因为这些会话在 Anthropic 基础设施上运行，而不是在您的计算机上。要在那里启用该插件，或为克隆存储库的所有人打开它，请在项目的已检入设置中声明它：
+用户范围的插件不会进入 [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)，因为这些会话在云上运行，而不是在您的计算机上。要在那里启用该插件，或为克隆存储库的所有人打开它，请在项目的已检入设置中声明它：
 
 ```json .claude/settings.json theme={null}
 {
@@ -54,7 +63,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 }
 ```
 
-管理员可以通过在 [托管设置](/docs/zh-CN/admin-setup) 中设置 [`enabledPlugins`](/docs/zh-CN/settings#plugin-settings) 来在组织范围内启用该插件。
+管理员可以通过在 [托管设置](/docs/zh-CN/admin-setup) 中设置 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 来在组织范围内启用该插件。
 
 <h2 id="what-the-plugin-checks">
   插件检查的内容
@@ -175,11 +184,11 @@ patterns:
 
 该插件在相同位置查找 `claude-security-guidance.md` 和 `security-patterns.yaml`，与插件的启用方式无关：
 
-| 范围   | 路径                                          | 注释                |
-| :--- | :------------------------------------------ | :---------------- |
-| 用户   | `~/.claude/claude-security-guidance.md`     | 适用于您计算机上的每个项目     |
-| 项目   | `.claude/claude-security-guidance.md`       | 与存储库一起检入          |
-| 项目本地 | `.claude/claude-security-guidance.local.md` | Gitignored，用于个人覆盖 |
+| 范围   | 路径                                          | 注释                          |
+| :--- | :------------------------------------------ | :-------------------------- |
+| 用户   | `~/.claude/claude-security-guidance.md`     | 适用于您计算机上的每个项目               |
+| 项目   | `.claude/claude-security-guidance.md`       | 与存储库一起检入                    |
+| 项目本地 | `.claude/claude-security-guidance.local.md` | 用于个人覆盖；将其添加到您的 `.gitignore` |
 
 该插件加载所有存在的位置并连接它们，指导文件的组合上限为 8 KB。管理员可以通过设备管理将用户范围文件推送到 `~/.claude/` 来分发组织范围的规则。相同的路径适用于 `security-patterns.yaml`。
 
@@ -187,7 +196,7 @@ patterns:
   使用成本
 </h2>
 
-[每次编辑模式检查](#on-each-file-edit) 不进行模型调用，不增加成本。[回合结束](#at-the-end-of-each-turn) 和 [提交](#on-each-commit-or-push-claude-makes) 审查各自花费额外的模型使用，计入您的 [使用](/docs/zh-CN/costs)，就像任何其他 Claude 请求一样。提交审查是代理性的，每次提交可能需要多个模型回合，上限为每滚动小时 20 次审查。预期大约每个更改文件的回合有一次审查调用，每次提交有一次更深层审查，两者都受上述上限的约束。
+[每次编辑模式检查](#on-each-file-edit) 不进行模型调用，不增加成本。[回合结束](#at-the-end-of-each-turn) 和 [提交](#on-each-commit-or-push-claude-makes) 审查各自花费额外的模型使用，计入您的 [使用](/docs/zh-CN/costs)，就像任何其他 Claude 请求一样。提交审查是代理性的，每次提交可能需要多个模型回合。预期大约每个更改文件的回合有一次审查调用，每次提交有一次更深层审查，两者都受上述上限的约束。
 
 两个模型支持的审查默认使用 Claude Opus 4.7。设置 `SECURITY_REVIEW_MODEL` 为回合结束审查选择不同的模型，设置 `SG_AGENTIC_MODEL` 为提交审查。
 
@@ -219,7 +228,7 @@ patterns:
 /plugin uninstall security-guidance@claude-plugins-official
 ```
 
-如果插件通过项目的 `.claude/settings.json` 启用，从 `/plugin` 禁用它会将覆盖写入您的 `.claude/settings.local.json`，而不是编辑已检入的文件，因此该插件对您保持关闭，而不影响队友。同一对话框还提供了通过从共享的 `.claude/settings.json` 中删除插件来为所有人卸载该插件的选项；该选项需要 Claude Code v2.1.203 或更高版本。如果它通过 [托管设置](/docs/zh-CN/admin-setup) 启用，只有管理员可以禁用它。
+如果插件通过项目的 `.claude/settings.json` 启用，从 `/plugin` 卸载它会将覆盖写入您的 `.claude/settings.local.json`，而不是编辑已检入的文件，因此该插件对您保持关闭，而不影响队友。同一对话框还提供了通过从共享的 `.claude/settings.json` 中删除插件来为所有人卸载该插件的选项。如果它通过 [托管设置](/docs/zh-CN/admin-setup) 启用，只有管理员可以禁用它。
 
 <h2 id="how-the-plugin-integrates-with-claude-code">
   插件如何与 Claude Code 集成
@@ -243,14 +252,15 @@ patterns:
 
 该插件是深度防御方法中的一层。它最早捕获问题，当代码仍在编辑器中时，但它不是保证，也不能替代后来的检查。典型的堆栈：
 
-| 阶段     | 工具                                                     | 覆盖内容                        |
-| :----- | :----------------------------------------------------- | :-------------------------- |
-| 在会话中   | Security guidance 插件                                   | Claude 编写的代码中的常见漏洞，在同一会话中修复 |
-| 按需     | [`/security-review`](/docs/zh-CN/commands#all-commands)     | 对当前分支的一次性安全检查，在您要求时运行       |
-| 在拉取请求上 | [Code Review](/docs/zh-CN/code-review)，Team 和 Enterprise 计划 | 具有完整代码库上下文的多代理正确性和安全审查      |
-| 在 CI 中 | 您现有的静态分析和依赖扫描器                                         | 语言特定的规则、供应链检查和该插件不尝试的策略执行   |
+| 阶段      | 工具                                                     | 覆盖内容                         |
+| :------ | :----------------------------------------------------- | :--------------------------- |
+| 在会话中    | Security guidance 插件                                   | Claude 编写的代码中的常见漏洞，在同一会话中修复  |
+| 按需，单次扫描 | [`/security-review`](/docs/zh-CN/commands#all-commands)     | 对当前分支的一次性安全检查，在您要求时运行        |
+| 按需，深度扫描 | [Claude Security 插件](/docs/zh-CN/claude-security)           | 对存储库或差异的多代理漏洞扫描，具有独立审查的发现和补丁 |
+| 在拉取请求上  | [Code Review](/docs/zh-CN/code-review)，Team 和 Enterprise 计划 | 具有完整代码库上下文的多代理正确性和安全审查       |
+| 在 CI 中  | 您现有的静态分析和依赖扫描器                                         | 语言特定的规则、供应链检查和该插件不尝试的策略执行    |
 
-每个后来的阶段捕获早期阶段遗漏的内容。该插件的价值在于减少到达它们的数量，而不是消除对它们的需求。
+要查找您已有的代码中的安全问题，而不是 Claude 正在编写的更改中的问题，请在会话中要求 Claude 审查特定文件或目录以查找漏洞，或使用 [Claude Security 插件](/docs/zh-CN/claude-security) 对整个存储库进行更深入的多代理扫描；[`/security-review`](/docs/zh-CN/commands#all-commands) 仅覆盖当前分支上的更改。无论哪种方式，审查都会读取您检出中的源代码，而不是运行的站点或已部署的服务。
 
 <h2 id="troubleshooting">
   故障排除
@@ -261,7 +271,7 @@ patterns:
 审查层在对话中跳过而不显示消息的常见原因：
 
 * 目录不是 git 存储库：回合结束和提交审查需要 git 状态，在存储库外跳过
-* 会话没有 Anthropic 身份验证：模型支持的审查跳过，仅每次编辑模式检查运行
+* 会话没有 Anthropic 身份验证且没有配置第三方提供商：模型支持的审查跳过，仅每次编辑模式检查运行
 * `security-patterns.yaml` 文件存在但 PyYAML 不可导入：文件被忽略。改用 `security-patterns.json`
 
 <h2 id="related-resources">

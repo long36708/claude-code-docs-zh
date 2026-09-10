@@ -25,8 +25,8 @@
 
   <p className="digest-feature-try">需要 macOS 和 Pro 或 Max 计划；否则，<code>computer-use</code> 不会出现在 <code>/mcp</code> 中。运行 <code>/mcp</code>，找到 <code>computer-use</code>，然后将其打开。然后要求 Claude 端到端验证更改：</p>
 
-  ```text Claude Code theme={null}
-  > Open the iOS simulator, tap through onboarding, and screenshot each step
+  ```text title="Claude Code" wrap theme={null}
+  Open the iOS simulator, tap through onboarding, and screenshot each step
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/computer-use">计算机使用指南</a>
@@ -46,8 +46,8 @@
 
   <p className="digest-feature-try">运行它：</p>
 
-  ```text Claude Code theme={null}
-  > /powerup
+  ```text title="Claude Code" wrap theme={null}
+  /powerup
   ```
 
   <a className="digest-feature-link" href="/docs/zh-CN/commands">命令参考</a>

@@ -15,7 +15,7 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
 * **从错误中恢复**，当agent进行不正确的修改时
 
 <Warning>
-  只有通过Write、Edit和NotebookEdit工具进行的更改才会被跟踪。通过Bash命令进行的更改（如`echo > file.txt`或`sed -i`）不会被checkpoint系统捕获。
+  只有通过Write、Edit和NotebookEdit工具进行的更改才会被跟踪。通过Bash命令进行的更改（如`echo > file.txt`或`sed -i`）不会被checkpoint系统捕获，[subagent](/docs/zh-CN/agent-sdk/subagents)应用的编辑也不会被捕获，除了在前台运行的[具有`context: fork`的skill](/docs/zh-CN/skills#run-skills-in-a-subagent)。
 </Warning>
 
 <h2 id="how-checkpointing-works">
@@ -24,25 +24,11 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
 
 启用文件 checkpointing 时，SDK 会在通过 Write、Edit 或 NotebookEdit 工具修改文件之前创建文件备份。响应流中的用户消息包含一个 checkpoint UUID，您可以将其用作恢复点。
 
-Checkpoint 与 agent 用来修改文件的这些内置工具一起工作：
-
-| 工具           | 描述                                    |
-| ------------ | ------------------------------------- |
-| Write        | 创建新文件或用新内容覆盖现有文件                      |
-| Edit         | 对现有文件的特定部分进行有针对性的编辑                   |
-| NotebookEdit | 修改 Jupyter notebook（`.ipynb` 文件）中的单元格 |
-
 <Note>
   文件回滚将磁盘上的文件恢复到之前的状态。它不会回滚对话本身。调用 `rewindFiles()`（TypeScript）或 `rewind_files()`（Python）后，对话历史和上下文保持不变。
 </Note>
 
-Checkpoint 系统跟踪：
-
-* 会话期间创建的文件
-* 会话期间修改的文件
-* 修改文件的原始内容
-
-当您回滚到 checkpoint 时，创建的文件被删除，修改的文件被恢复到该点的内容。
+当您回滚到 checkpoint 时，Claude Code 删除它创建的文件并将它修改的文件恢复到该点的内容。Claude Code 跳过作为符号链接、硬链接或其他非常规文件的跟踪路径。它还跳过其父目录不再解析到其 checkpoint 时间位置的跟踪文件，或其备份无法安全读取的文件。[`RewindFilesResult`](/docs/zh-CN/agent-sdk/typescript#rewindfilesresult) 在其 `skippedLinks` 字段中计算每个跳过的路径。跳过需要 Claude Code v2.1.216 或更高版本；在 v2.1.216 之前，回滚会通过跟踪路径中的链接进行写入和删除。
 
 <h2 id="implement-checkpointing">
   实现checkpointing
@@ -122,13 +108,21 @@ Checkpoint 系统跟踪：
     let sessionId: string | undefined;
 
     // Step 2: Capture checkpoint UUID from the first user message
-    for await (const message of response) {
-      if (message.type === "user" && message.uuid && !checkpointId) {
-        checkpointId = message.uuid;
+    try {
+      for await (const message of response) {
+        if (message.type === "user" && message.uuid && !checkpointId) {
+          checkpointId = message.uuid;
+        }
+        if ("session_id" in message && !sessionId) {
+          sessionId = message.session_id;
+        }
       }
-      if ("session_id" in message && !sessionId) {
-        sessionId = message.session_id;
-      }
+    } catch (error) {
+      // A single-shot query() throws after yielding an error result. If the
+      // failure was an error result, sessionId and checkpointId were already
+      // captured by the loop above; connection or process failures yield no
+      // result message.
+      console.error(`Session ended with an error: ${error}`);
     }
 
     // Step 3: Later, rewind by resuming the session with an empty prompt
@@ -233,7 +227,8 @@ Checkpoint 系统跟踪：
       ) as client:
           await client.query("")  # Empty prompt to open the connection
           async for message in client.receive_response():
-              await client.rewind_files(checkpoint_id)
+              if checkpoint_id:
+                  await client.rewind_files(checkpoint_id)
               break
       ```
 
@@ -244,7 +239,9 @@ Checkpoint 系统跟踪：
       });
 
       for await (const msg of rewindQuery) {
-        await rewindQuery.rewindFiles(checkpointId);
+        if (checkpointId) {
+          await rewindQuery.rewindFiles(checkpointId);
+        }
         break;
       }
       ```
@@ -256,7 +253,7 @@ Checkpoint 系统跟踪：
     CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true claude -p --resume <session-id> --rewind-files <checkpoint-uuid>
     ```
 
-    `--rewind-files`标志不会出现在`claude --help`输出中，但CLI接受它如上所示。
+    `--rewind-files`标志不会出现在`claude --help`输出中，但CLI接受它如上所示。当回滚成功时，该命令打印`Files rewound to state at message <checkpoint-uuid>`并退出而不发送提示。
   </Step>
 </Steps>
 
@@ -440,17 +437,25 @@ Checkpoint 系统跟踪：
     const checkpoints: Checkpoint[] = [];
     let sessionId: string | undefined;
 
-    for await (const message of response) {
-      if (message.type === "user" && message.uuid) {
-        checkpoints.push({
-          id: message.uuid,
-          description: `After turn ${checkpoints.length + 1}`,
-          timestamp: new Date()
-        });
+    try {
+      for await (const message of response) {
+        if (message.type === "user" && message.uuid) {
+          checkpoints.push({
+            id: message.uuid,
+            description: `After turn ${checkpoints.length + 1}`,
+            timestamp: new Date()
+          });
+        }
+        if ("session_id" in message && !sessionId) {
+          sessionId = message.session_id;
+        }
       }
-      if ("session_id" in message && !sessionId) {
-        sessionId = message.session_id;
-      }
+    } catch (error) {
+      // A single-shot query() throws after yielding an error result. If the
+      // failure was an error result, sessionId and the checkpoints array were
+      // already populated by the loop above; connection or process failures
+      // yield no result message.
+      console.error(`Session ended with an error: ${error}`);
     }
 
     // Later: rewind to any checkpoint by resuming the session
@@ -624,15 +629,23 @@ Checkpoint 系统跟踪：
           options: opts
         });
 
-        for await (const message of response) {
-          // Capture the first user message UUID - this is our restore point
-          if (message.type === "user" && message.uuid && !checkpointId) {
-            checkpointId = message.uuid;
+        try {
+          for await (const message of response) {
+            // Capture the first user message UUID - this is our restore point
+            if (message.type === "user" && message.uuid && !checkpointId) {
+              checkpointId = message.uuid;
+            }
+            // Capture the session ID so we can resume later
+            if ("session_id" in message) {
+              sessionId = message.session_id;
+            }
           }
-          // Capture the session ID so we can resume later
-          if ("session_id" in message) {
-            sessionId = message.session_id;
-          }
+        } catch (error) {
+          // A single-shot query() throws after yielding an error result. If the
+          // failure was an error result, checkpointId and sessionId were already
+          // captured by the loop above; connection or process failures yield no
+          // result message.
+          console.error(`Session ended with an error: ${error}`);
         }
 
         console.log("Done! Open utils.ts to see the added doc comments.\n");
@@ -671,13 +684,6 @@ Checkpoint 系统跟踪：
       main();
       ```
     </CodeGroup>
-
-    此示例演示了完整的checkpointing工作流：
-
-    1. **启用checkpointing**：使用`enable_file_checkpointing=True`和`permission_mode="acceptEdits"`配置SDK以自动批准文件编辑
-    2. **捕获checkpoint数据**：当agent运行时，存储第一个用户消息UUID（您的恢复点）和会话ID
-    3. **提示回滚**：agent完成后，检查您的实用程序文件以查看doc注释，然后决定是否要撤销更改
-    4. **恢复和回滚**：如果是，使用空提示恢复会话并调用`rewind_files()`以恢复原始文件
   </Step>
 
   <Step title="运行示例">
@@ -711,12 +717,13 @@ Checkpoint 系统跟踪：
 
 文件checkpointing有以下限制：
 
-| 限制                         | 描述                    |
-| -------------------------- | --------------------- |
-| 仅Write/Edit/NotebookEdit工具 | 通过Bash命令进行的更改不被跟踪     |
-| 相同会话                       | Checkpoint与创建它们的会话相关联 |
-| 仅文件内容                      | 创建、移动或删除目录不会通过回滚撤销    |
-| 本地文件                       | 远程或网络文件不被跟踪           |
+| 限制                         | 描述                                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------------- |
+| 仅Write/Edit/NotebookEdit工具 | 通过Bash命令进行的更改不被跟踪                                                                                 |
+| Subagent编辑                 | [Subagent](/docs/zh-CN/agent-sdk/subagents)应用的编辑不被跟踪或恢复，除了在前台运行的具有`context: fork`的skill；使用git来恢复未跟踪的编辑 |
+| 相同会话                       | Checkpoint与创建它们的会话相关联                                                                             |
+| 仅文件内容                      | 创建、移动或删除目录不会通过回滚撤销                                                                                |
+| 本地文件                       | 远程或网络文件不被跟踪                                                                                       |
 
 <h2 id="troubleshooting">
   故障排除
@@ -743,8 +750,8 @@ Checkpoint 系统跟踪：
 
 **解决方案**：将`extra_args={"replay-user-messages": None}`（Python）或`extraArgs: { 'replay-user-messages': null }`（TypeScript）添加到您的选项中。
 
-<h3 id="no-file-checkpoint-found-for-message-error">
-  "No file checkpoint found for message"错误
+<h3 id="no-file-checkpoint-found-for-this-message-error">
+  "No file checkpoint found for this message"错误
 </h3>
 
 当指定的用户消息UUID的checkpoint数据不存在时，会发生此错误。
@@ -786,7 +793,8 @@ CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true claude -p --resume <session-id> -
   ) as client:
       await client.query("")
       async for message in client.receive_response():
-          await client.rewind_files(checkpoint_id)
+          if checkpoint_id:
+              await client.rewind_files(checkpoint_id)
           break
   ```
 
@@ -797,9 +805,17 @@ CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true claude -p --resume <session-id> -
     options: { ...opts, resume: sessionId }
   });
 
-  for await (const msg of rewindQuery) {
-    await rewindQuery.rewindFiles(checkpointId);
-    break;
+  try {
+    for await (const msg of rewindQuery) {
+      if (checkpointId) {
+        await rewindQuery.rewindFiles(checkpointId);
+      }
+      break;
+    }
+  } catch (error) {
+    // An error here means the rewind didn't complete, for example the checkpoint
+    // wasn't found or the session couldn't be resumed.
+    console.error(`Rewind session ended with an error: ${error}`);
   }
   ```
 </CodeGroup>

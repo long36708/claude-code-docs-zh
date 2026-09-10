@@ -6,7 +6,7 @@
 
 > 了解如何为 Claude Code 启用和配置 OpenTelemetry。
 
-通过 OpenTelemetry (OTel) 导出遥测数据，跨组织跟踪 Claude Code 使用情况、成本和工具活动。Claude Code 通过标准指标协议导出指标作为时间序列数据，通过日志/事件协议导出事件，以及可选地通过 [traces 协议](#traces-beta) 导出分布式跟踪。配置您的指标、日志和跟踪后端以满足您的监控要求。
+通过 OpenTelemetry (OTel) 导出遥测数据，跨组织跟踪 Claude Code 使用情况、成本和工具活动。Claude Code 通过标准指标协议导出指标作为时间序列数据，通过日志/事件协议导出事件，以及可选地通过 [traces 协议](#traces-beta) 导出分布式跟踪。
 
 <h2 id="quick-start">
   快速开始
@@ -29,7 +29,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 # 4. 设置身份验证（如果需要）
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer your-token"
 
-# 5. 用于调试：减少导出间隔
+# 5. 用于调试：减少导出间隔，并为生产使用重置它们
 export OTEL_METRIC_EXPORT_INTERVAL=10000  # 10 秒（默认：60000ms）
 export OTEL_LOGS_EXPORT_INTERVAL=5000     # 5 秒（默认：5000ms）
 
@@ -37,9 +37,9 @@ export OTEL_LOGS_EXPORT_INTERVAL=5000     # 5 秒（默认：5000ms）
 claude
 ```
 
-<Note>
-  默认导出间隔为指标 60 秒和日志 5 秒。在设置期间，您可能希望使用更短的间隔用于调试目的。请记住为生产使用重置这些值。
-</Note>
+要验证导出指标的设置，请检查您的后端是否有 `claude_code.session.count` 指标，Claude Code 在会话启动时会发出该指标。要验证仅日志的设置，请提交提示并检查 `claude_code.user_prompt` 事件。
+
+如果没有任何内容到达，请运行 `claude --debug` 并检查调试日志。Claude Code 将您配置的导出器的失败报告为 `[3P telemetry]` 错误，其中 3P 表示第三方。以 `[Anthropic telemetry]` 为前缀的行描述 [Anthropic 的单独操作遥测](/docs/zh-CN/data-usage#telemetry-services)，不表示您的设置存在问题。
 
 有关完整配置选项，请参阅 [OpenTelemetry 规范](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/protocol/exporter.md#configuration-options)。
 
@@ -47,7 +47,7 @@ claude
   管理员配置
 </h2>
 
-管理员可以通过 [托管设置文件](/docs/zh-CN/settings#settings-files) 为所有用户配置 OpenTelemetry 设置。这允许在整个组织中集中控制遥测设置。有关设置如何应用的更多信息，请参阅 [设置优先级](/docs/zh-CN/settings#settings-precedence)。
+管理员可以通过 [托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms) 为所有用户配置 OpenTelemetry 设置。有关设置如何应用的更多信息，请参阅 [设置优先级](/docs/zh-CN/settings#settings-precedence)。
 
 示例托管设置配置：
 
@@ -64,11 +64,34 @@ claude
 }
 ```
 
-<Note>
-  托管设置可以通过 MDM（移动设备管理）或其他设备管理解决方案分发。在托管设置文件中定义的环境变量具有高优先级，用户无法覆盖。
-</Note>
-
 Claude Code 不会将 `OTEL_*` 环境变量传递给它生成的子进程，包括 Bash 工具、hooks、MCP 服务器和语言服务器。通过 Bash 工具运行的已进行 OpenTelemetry 检测的应用程序不会继承 Claude Code 的导出器端点或标头，因此如果该应用程序需要导出自己的遥测，请直接在命令中设置这些变量。
+
+<h3 id="how-managed-settings-lock-the-otlp-destination">
+  托管设置如何锁定 OTLP 目标
+</h3>
+
+当您在托管设置中设置 `OTEL_EXPORTER_OTLP_*` 变量时，Claude Code 会在启动时删除冲突的开发者设置变量，并记录一条警告，您可以通过 `claude --debug` 查看。它删除的内容取决于您设置的变量：
+
+* **端点**：当您设置 `OTEL_EXPORTER_OTLP_ENDPOINT` 时，Claude Code 会删除每个开发者设置的每信号端点。开发者无法将一个信号指向不同的收集器，因此您不需要在托管设置中也设置每信号端点变量。
+* **协议**：当您设置 `OTEL_EXPORTER_OTLP_PROTOCOL` 时，Claude Code 会删除每个开发者设置的每信号协议。
+* **凭证**：当您设置 `OTEL_EXPORTER_OTLP_HEADERS`、`OTEL_EXPORTER_OTLP_CLIENT_KEY` 或 `OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE` 时，Claude Code 会删除开发者设置的该变量的每信号版本，以及每个开发者设置的端点变量（通用或每信号），因为这些凭证否则会到达托管设置未选择的收集器。
+* **导出器选择器**：`OTEL_METRICS_EXPORTER`、`OTEL_LOGS_EXPORTER` 和测试版 `OTEL_TRACES_EXPORTER` 遵循正常的每键优先级。开发者的设置仍然可以禁用信号或将其切换到控制台导出器，因此如果您需要锁定选择器，也请在托管设置中设置它们。在 [管理员源](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier) 中，`OTEL_LOGS_EXPORTER` 遵循 [遥测单元](/docs/zh-CN/server-managed-settings#per-key-exceptions-across-managed-sources)，而其他两个选择器按键合并。需要 Claude Code v2.1.223 或更高版本。
+* **测试版追踪端点**：当 [详细测试版追踪](#traces-beta) 处于活动状态时，Claude Code 将日志和追踪导出到 `BETA_TRACING_ENDPOINT` 而不是通过日志和追踪导出器。因此，当这些托管设置中的任何一个决定任一信号的目标时，Claude Code 会删除开发者设置的 `BETA_TRACING_ENDPOINT`：
+
+  * 通用或日志/追踪端点或凭证
+  * 一个 [`otelHeadersHelper`](/docs/zh-CN/settings-reference#otelheadershelper)
+  * 日志或追踪导出器选择器设置为 `none`、`console` 或空，这些值使信号远离收集器
+  * `CLAUDE_CODE_ENABLE_TELEMETRY` 关闭
+
+  仅限指标的端点或凭证不会删除它。在 v2.1.251 之前，开发者设置的 `BETA_TRACING_ENDPOINT` 会重定向详细测试版追踪导出的日志和追踪，即使托管设置固定了收集器。
+
+Claude Code 不会删除您在托管设置中自己设置的每信号变量，因此您可以通过在那里设置其变量来将一个信号路由到不同的收集器，如 [SIEM 示例](#send-events-to-a-siem) 所示。如果您在那里设置每信号凭证，Claude Code 会删除该信号的开发者设置端点。
+
+此删除行为改变了遥测的传递位置，而不是 Claude Code 收集的内容。
+
+在 v2.1.217 之前，每个变量独立遵循每键设置优先级，因此在用户设置或 shell 中设置的信号特定端点会将该信号重定向到离开托管收集器。
+
+当桌面应用或 [自托管环境](/docs/zh-CN/self-hosted-environments) 运行器启动 Claude Code 并在其提供的环境中命名 OTLP 端点时，Claude Code 以相同的方式固定目标：启动器的遥测变量删除开发者设置的变量，就像托管设置一样。Claude Code 不会删除启动器本身设置的变量。需要 Claude Code v2.1.251 或更高版本。
 
 <h2 id="configuration-details">
   配置详情
@@ -78,27 +101,34 @@ Claude Code 不会将 `OTEL_*` 环境变量传递给它生成的子进程，包�
   常见配置变量
 </h3>
 
-| 环境变量                                                | 描述                                                                                                                                                                                                        | 示例值                                                                   |
-| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `CLAUDE_CODE_ENABLE_TELEMETRY`                      | 启用遥测收集（必需）                                                                                                                                                                                                | `1`                                                                   |
-| `OTEL_METRICS_EXPORTER`                             | 指标导出器类型，逗号分隔。使用 `none` 禁用                                                                                                                                                                                 | `console`、`otlp`、`prometheus`、`none`                                  |
-| `OTEL_LOGS_EXPORTER`                                | 日志/事件导出器类型，逗号分隔。使用 `none` 禁用                                                                                                                                                                              | `console`、`otlp`、`none`                                               |
-| `OTEL_EXPORTER_OTLP_PROTOCOL`                       | OTLP 导出器的协议，适用于所有信号                                                                                                                                                                                       | `grpc`、`http/json`、`http/protobuf`                                    |
-| `OTEL_EXPORTER_OTLP_ENDPOINT`                       | 所有信号的 OTLP 收集器端点                                                                                                                                                                                          | `http://localhost:4317`                                               |
-| `OTEL_EXPORTER_OTLP_METRICS_PROTOCOL`               | 指标协议，覆盖常规设置                                                                                                                                                                                               | `grpc`、`http/json`、`http/protobuf`                                    |
-| `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`               | OTLP 指标端点，覆盖常规设置                                                                                                                                                                                          | `http://localhost:4318/v1/metrics`                                    |
-| `OTEL_EXPORTER_OTLP_LOGS_PROTOCOL`                  | 日志协议，覆盖常规设置                                                                                                                                                                                               | `grpc`、`http/json`、`http/protobuf`                                    |
-| `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`                  | OTLP 日志端点，覆盖常规设置                                                                                                                                                                                          | `http://localhost:4318/v1/logs`                                       |
-| `OTEL_EXPORTER_OTLP_HEADERS`                        | OTLP 的身份验证标头                                                                                                                                                                                              | `Authorization=Bearer token`                                          |
-| `OTEL_METRIC_EXPORT_INTERVAL`                       | 导出间隔（毫秒）（默认：60000）                                                                                                                                                                                        | `5000`、`60000`                                                        |
-| `OTEL_LOGS_EXPORT_INTERVAL`                         | 日志导出间隔（毫秒）（默认：5000）                                                                                                                                                                                       | `1000`、`10000`                                                        |
-| `OTEL_LOG_USER_PROMPTS`                             | 启用用户提示内容的日志记录（默认：禁用）                                                                                                                                                                                      | `1` 启用                                                                |
-| `OTEL_LOG_ASSISTANT_RESPONSES`                      | 启用在 `assistant_response` 事件上记录助手响应文本（默认：禁用）。未设置时，回退到 `OTEL_LOG_USER_PROMPTS` 的值。需要 Claude Code v2.1.193 或更高版本                                                                                             | `1` 启用，`0` 保持编辑                                                       |
-| `OTEL_LOG_TOOL_DETAILS`                             | 启用在工具事件和 trace span 属性中记录工具参数和输入参数：Bash 命令、MCP 服务器和工具名称、技能名称和工具输入。还在 `user_prompt` 事件上启用自定义、插件和 MCP 命令名称（默认：禁用）                                                                                           | `1` 启用                                                                |
-| `OTEL_LOG_TOOL_CONTENT`                             | 启用在 span 事件中记录工具输入和输出内容（默认：禁用）。需要 [tracing](#traces-beta)。内容在 60 KB 处截断                                                                                                                                   | `1` 启用                                                                |
-| `OTEL_LOG_RAW_API_BODIES`                           | 将完整的 Anthropic Messages API 请求和响应 JSON 作为 `api_request_body` / `api_response_body` 日志事件发出（默认：禁用）。主体包括整个对话历史。启用此选项意味着同意 `OTEL_LOG_USER_PROMPTS`、`OTEL_LOG_TOOL_DETAILS` 和 `OTEL_LOG_TOOL_CONTENT` 会揭示的所有内容 | `1` 用于在 60 KB 处截断的内联主体，或 `file:<dir>` 用于磁盘上的未截断主体，事件中带有 `body_ref` 指针 |
-| `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` | 指标时间性偏好（默认：`delta`）。如果您的后端期望累积时间性，请设置为 `cumulative`                                                                                                                                                       | `delta`、`cumulative`                                                  |
-| `CLAUDE_CODE_OTEL_HEADERS_HELPER_DEBOUNCE_MS`       | 刷新动态标头的间隔（默认：1740000ms / 29 分钟）                                                                                                                                                                           | `900000`                                                              |
+这些变量为所有部署配置导出器、端点和导出行为。如果您设置了每个信号的端点或协议变量，例如 `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`，Claude Code 会使用它而不是该信号的通用变量。如果您设置了每个信号的标头变量，例如 `OTEL_EXPORTER_OTLP_METRICS_HEADERS`，Claude Code 会将其与该信号的通用 `OTEL_EXPORTER_OTLP_HEADERS` 合并。在具有托管设置的机器上，请参阅 [托管设置如何锁定 OTLP 目标](#how-managed-settings-lock-the-otlp-destination) 以了解 Claude Code 删除的内容。
+
+| 环境变量                                                | 描述                                                                                                                                                                                                                                                                                                                       | 示例值                                                                          |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| `CLAUDE_CODE_ENABLE_TELEMETRY`                      | 启用遥测收集（必需）                                                                                                                                                                                                                                                                                                               | `1`                                                                          |
+| `OTEL_METRICS_EXPORTER`                             | 指标导出器类型，逗号分隔。使用 `none` 禁用                                                                                                                                                                                                                                                                                                | `console`、`otlp`、`prometheus`、`none`                                         |
+| `OTEL_LOGS_EXPORTER`                                | 日志/事件导出器类型，逗号分隔。使用 `none` 禁用                                                                                                                                                                                                                                                                                             | `console`、`otlp`、`none`                                                      |
+| `OTEL_EXPORTER_OTLP_PROTOCOL`                       | OTLP 导出器的协议，适用于所有信号。Claude Code 没有默认协议，因此为您启用的每个 `otlp` 导出器设置此变量或每个信号的协议变量                                                                                                                                                                                                                                               | `grpc`、`http/json`、`http/protobuf`                                           |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`                       | 所有信号的 OTLP 收集器端点                                                                                                                                                                                                                                                                                                         | `http://localhost:4317`                                                      |
+| `OTEL_EXPORTER_OTLP_METRICS_PROTOCOL`               | 指标协议，覆盖常规设置                                                                                                                                                                                                                                                                                                              | `grpc`、`http/json`、`http/protobuf`                                           |
+| `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`               | OTLP 指标端点，覆盖常规设置                                                                                                                                                                                                                                                                                                         | `http://localhost:4318/v1/metrics`                                           |
+| `OTEL_EXPORTER_OTLP_LOGS_PROTOCOL`                  | 日志协议，覆盖常规设置                                                                                                                                                                                                                                                                                                              | `grpc`、`http/json`、`http/protobuf`                                           |
+| `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`                  | OTLP 日志端点，覆盖常规设置                                                                                                                                                                                                                                                                                                         | `http://localhost:4318/v1/logs`                                              |
+| `OTEL_EXPORTER_OTLP_HEADERS`                        | OTLP 的身份验证标头                                                                                                                                                                                                                                                                                                             | `Authorization=Bearer token`                                                 |
+| `OTEL_EXPORTER_OTLP_METRICS_HEADERS`                | 指标的身份验证标头，与常规标头合并                                                                                                                                                                                                                                                                                                        | `Authorization=Bearer token`                                                 |
+| `OTEL_EXPORTER_OTLP_LOGS_HEADERS`                   | 日志的身份验证标头，与常规标头合并                                                                                                                                                                                                                                                                                                        | `Authorization=Bearer token`                                                 |
+| `OTEL_METRIC_EXPORT_INTERVAL`                       | 导出间隔（毫秒）（默认：60000）                                                                                                                                                                                                                                                                                                       | `5000`、`60000`                                                               |
+| `OTEL_LOGS_EXPORT_INTERVAL`                         | 日志导出间隔（毫秒）（默认：5000）                                                                                                                                                                                                                                                                                                      | `1000`、`10000`                                                               |
+| `OTEL_LOG_USER_PROMPTS`                             | 启用用户提示内容的日志记录（默认：禁用）                                                                                                                                                                                                                                                                                                     | `1` 启用                                                                       |
+| `OTEL_LOG_ASSISTANT_RESPONSES`                      | 启用在 `assistant_response` 事件上记录助手响应文本（默认：禁用）。未设置时，回退到 `OTEL_LOG_USER_PROMPTS` 的值。需要 Claude Code v2.1.193 或更高版本                                                                                                                                                                                                            | `1` 启用，`0` 保持编辑                                                              |
+| `OTEL_LOG_TOOL_DETAILS`                             | 启用在工具事件和 trace span 属性中记录工具参数和输入参数：Bash 命令、MCP 服务器和工具名称、技能名称、用户编写的工作流名称和工具输入。还在 `user_prompt` 事件上启用自定义、插件和 MCP 命令名称（默认：禁用）。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，即使关闭该标志，`mcp_server_name`/`mcp_tool_name` 也会在 `tool_decision`/`tool_result` 上发出。该异常需要 Claude Code v2.1.214 或更高版本                             | `1` 启用                                                                       |
+| `OTEL_LOG_TOOL_CONTENT`                             | 启用在 span 事件中记录工具输入和输出内容（默认：禁用）。需要 [tracing](#traces-beta)。内容在内容限制处截断（默认 60 KB）                                                                                                                                                                                                                                           | `1` 启用                                                                       |
+| `OTEL_LOG_RAW_API_BODIES`                           | 将完整的 Anthropic Messages API 请求和响应 JSON 作为 `api_request_body` / `api_response_body` 日志事件发出（默认：禁用）。主体包括整个对话历史。启用此选项意味着同意 `OTEL_LOG_USER_PROMPTS`、`OTEL_LOG_TOOL_DETAILS` 和 `OTEL_LOG_TOOL_CONTENT` 会揭示的所有内容                                                                                                                | `1` 用于在内容限制处截断的内联主体（默认 60 KB），或 `file:<dir>` 用于磁盘上的未截断主体，事件中带有 `body_ref` 指针 |
+| `CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH`               | 内容限制：内容承载属性的最大长度，例如模型响应、工具内容、系统提示和原始 API 主体，包括截断标记，以 UTF-16 代码单位计（默认：61440，即 60 KB）。默认值针对将属性值上限设为 64 KB 的后端进行了调整；仅当您的后端接受更大的值时才提高它，或降低它以减少遥测量。当设置了 OpenTelemetry SDK 属性限制 `OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT` 或其日志记录和 span 变体之一时，Claude Code 会在该较小的值处截断，以便 `[TRUNCATED ...]` 标记保持在 SDK 限制内。需要 Claude Code v2.1.214 或更高版本 | `262144`                                                                     |
+| `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` | 指标时间性偏好（默认：`delta`）。如果您的后端期望累积时间性，请设置为 `cumulative`                                                                                                                                                                                                                                                                      | `delta`、`cumulative`                                                         |
+| `CLAUDE_CODE_OTEL_HEADERS_HELPER_DEBOUNCE_MS`       | 刷新动态标头的间隔（默认：1740000ms / 29 分钟）                                                                                                                                                                                                                                                                                          | `900000`                                                                     |
+
+对于 `http/protobuf` 和 `http/json` 协议，Claude Code 使用 `Content-Length` 标头发送每个导出请求。在 v2.1.212 之前，从 v2.1.191 开始的 Claude Code 版本使用分块传输编码发送这些请求；Azure Monitor 和其他需要声明长度的端点以 `411 Length Required` 或 `400` 错误拒绝它们。
 
 <h3 id="mtls-authentication">
   mTLS 身份验证
@@ -111,7 +141,7 @@ Claude Code 不会将 `OTEL_*` 环境变量传递给它生成的子进程，包�
 | `http/protobuf`、`http/json` | `CLAUDE_CODE_CLIENT_CERT`、`CLAUDE_CODE_CLIENT_KEY` 和可选的 `CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`。请参阅 [网络配置](/docs/zh-CN/network-config#mtls-authentication) | `NODE_EXTRA_CA_CERTS`            |
 | `grpc`                      | `OTEL_EXPORTER_OTLP_CLIENT_KEY` 和 `OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE`，或每个信号的变体，例如 `OTEL_EXPORTER_OTLP_METRICS_CLIENT_KEY` 以为每个信号使用不同的证书       | `OTEL_EXPORTER_OTLP_CERTIFICATE` |
 
-对于 `grpc`，OpenTelemetry SDK 直接读取标准 OTLP 变量，因此设置每个信号指标变量的现有配置继续工作。
+对于 `grpc`，OpenTelemetry SDK 直接读取标准 OTLP 变量，因此设置每个信号指标变量的现有配置继续工作。在具有托管设置的机器上，Claude Code [可能在启动时删除开发者设置的每个信号凭证和端点](#how-managed-settings-lock-the-otlp-destination)。
 
 <h3 id="metrics-cardinality-control">
   指标基数控制
@@ -127,7 +157,7 @@ Claude Code 不会将 `OTEL_*` 环境变量传递给它生成的子进程，包�
 | `OTEL_METRICS_INCLUDE_ENTRYPOINT`          | 在指标中包含 app.entrypoint 属性                        | `false` | `true`  |
 | `OTEL_METRICS_INCLUDE_RESOURCE_ATTRIBUTES` | 将 `OTEL_RESOURCE_ATTRIBUTES` 中的键作为属性包含在指标数据点上   | `true`  | `false` |
 
-这些变量有助于控制指标的基数，这会影响指标后端中的存储要求和查询性能。较低的基数通常意味着更好的性能和更低的存储成本，但分析的数据粒度较低。
+较低的基数通常意味着更好的性能和更低的存储成本，但分析的数据粒度较低。
 
 <h3 id="traces-beta">
   Traces（测试版）
@@ -135,7 +165,7 @@ Claude Code 不会将 `OTEL_*` 环境变量传递给它生成的子进程，包�
 
 分布式跟踪导出 span，将每个用户提示链接到它触发的 API 请求和工具执行，因此您可以在跟踪后端中将完整请求视为单个 trace。
 
-跟踪默认关闭。要启用它，请同时设置 `CLAUDE_CODE_ENABLE_TELEMETRY=1` 和 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`，然后设置 `OTEL_TRACES_EXPORTER` 以选择 span 的发送位置。Traces 重用 [常见 OTLP 配置](#common-configuration-variables) 用于端点、协议、标头和 [mTLS](#mtls-authentication)。
+跟踪默认关闭。要启用它，请同时设置 `CLAUDE_CODE_ENABLE_TELEMETRY=1` 和 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`，然后设置 `OTEL_TRACES_EXPORTER` 以选择 span 的发送位置。Traces 重用 [常见 OTLP 配置](#common-configuration-variables) 用于端点、协议、标头和 [mTLS](#mtls-authentication)。在具有托管设置的机器上，Claude Code [可能在启动时删除开发者设置的每个信号凭证和端点](#how-managed-settings-lock-the-otlp-destination)。
 
 | 环境变量                                  | 描述                                                  | 示例值                                |
 | ------------------------------------- | --------------------------------------------------- | ---------------------------------- |
@@ -143,6 +173,7 @@ Claude Code 不会将 `OTEL_*` 环境变量传递给它生成的子进程，包�
 | `OTEL_TRACES_EXPORTER`                | Traces 导出器类型，逗号分隔。使用 `none` 禁用                      | `console`、`otlp`、`none`            |
 | `OTEL_EXPORTER_OTLP_TRACES_PROTOCOL`  | Traces 协议，覆盖 `OTEL_EXPORTER_OTLP_PROTOCOL`          | `grpc`、`http/json`、`http/protobuf` |
 | `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`  | OTLP traces 端点，覆盖 `OTEL_EXPORTER_OTLP_ENDPOINT`     | `http://localhost:4318/v1/traces`  |
+| `OTEL_EXPORTER_OTLP_TRACES_HEADERS`   | Traces 的身份验证标头，与 `OTEL_EXPORTER_OTLP_HEADERS` 合并    | `Authorization=Bearer token`       |
 | `OTEL_TRACES_EXPORT_INTERVAL`         | Span 批量导出间隔（毫秒）（默认：5000）                            | `1000`、`10000`                     |
 
 Spans 默认编辑用户提示文本、工具输入详情和工具内容。设置 `OTEL_LOG_USER_PROMPTS=1`、`OTEL_LOG_TOOL_DETAILS=1` 和 `OTEL_LOG_TOOL_CONTENT=1` 以包含它们。
@@ -154,6 +185,10 @@ Spans 默认编辑用户提示文本、工具输入详情和工具内容。设�
 默认情况下，模型和 HTTP MCP 请求上的 `traceparent` 标头仅在 `ANTHROPIC_BASE_URL` 未设置或指向 Anthropic API 时发送，因为某些代理会拒绝无法识别的标头。子进程 `TRACEPARENT` 变量由相同的开关控制以保持一致性。如果您通过自定义 `ANTHROPIC_BASE_URL` 代理运行 Claude Code 并希望传播 trace 上下文，请设置 `CLAUDE_CODE_PROPAGATE_TRACEPARENT=1`。
 
 在 Agent SDK 和使用 `-p` 启动的非交互式会话中，Claude Code 还在启动每个交互 span 时从其自己的环境中读取 `TRACEPARENT` 和 `TRACESTATE`。这让嵌入过程可以将其活动的 W3C trace 上下文传递到子进程中，以便 Claude Code 的 span 显示为调用者分布式跟踪的子级。交互式会话忽略入站 `TRACEPARENT` 以避免意外继承来自 CI 或容器环境的环境值。
+
+入站 trace 上下文也适用于 [事件](#events)。在具有 `TRACEPARENT` 设置的 Agent SDK 和 `-p` 会话中，每个 OTLP 事件日志记录都携带 `trace_id` 和 `span_id` 值，将其连接到您的应用程序的 trace，即使未配置 traces 导出器，您的日志后端也可以将事件与 trace 的其余部分关联。
+
+在交互处于活动状态时发出的记录携带交互 span 的 ID，即使 Claude Code 在 span 的异步上下文之外发出它，例如在权限提示回调中或对于在启动期间缓冲并稍后导出的记录。在没有活动交互 span 的情况下发出的记录直接携带入站 `TRACEPARENT` ID。在 v2.1.214 之前，在 span 的异步上下文之外发出的记录携带入站 `TRACEPARENT` ID 而不是 span 的 ID。在 v2.1.212 之前，在活动 span 之外发出的事件记录不携带 `trace_id` 或 `span_id`。
 
 <h4 id="span-hierarchy">
   Span 层次结构
@@ -172,6 +207,8 @@ claude_code.interaction
 ```
 
 在 Agent SDK 和 `claude -p` 会话中，当在环境中设置 `TRACEPARENT` 时，`claude_code.interaction` 本身成为调用者 span 的子级。
+
+当 `PreToolUse` hook [延迟工具调用](/docs/zh-CN/hooks#defer-a-tool-call-for-later) 时，Claude Code 保存延迟它的轮次的 trace 上下文。当您恢复会话并且工具重新运行时，工具的 span 作为轮次的 `claude_code.interaction` span 的子级加入该较早轮次的 trace。
 
 <h4 id="span-attributes">
   Span 属性
@@ -239,7 +276,7 @@ claude_code.interaction
 | `skill_name`          | Skill 工具的技能名称                                                                                                                                              | `OTEL_LOG_TOOL_DETAILS` |
 | `subagent_type`       | Agent 工具或旧版 Task 工具的子代理类型                                                                                                                                  | `OTEL_LOG_TOOL_DETAILS` |
 
-当 `OTEL_LOG_TOOL_CONTENT=1` 时，此 span 还记录一个 `tool.output` span 事件，其属性包含工具的输入和输出主体，在每个属性处截断为 60 KB。
+当 `OTEL_LOG_TOOL_CONTENT=1` 时，此 span 还记录一个 `tool.output` span 事件，其属性包含工具的输入和输出主体，在内容限制处截断（默认 60 KB）。
 
 **`claude_code.tool.blocked_on_user`**
 
@@ -261,7 +298,9 @@ claude_code.interaction
 
 **`claude_code.hook`**
 
-此 span 仅在详细的测试版跟踪处于活动状态时发出，这需要 `ENABLE_BETA_TRACING_DETAILED=1` 和 `BETA_TRACING_ENDPOINT` 以及上述跟踪导出器配置。在交互式 CLI 会话中，这还需要您的组织被列入该功能的白名单。Agent SDK 和非交互式 `-p` 会话不受限制。仅设置 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA` 时不会发出。
+此 span 仅在详细的测试版跟踪处于活动状态时发出，这需要 `ENABLE_BETA_TRACING_DETAILED=1` 和 `BETA_TRACING_ENDPOINT`，这对变量也 [改变您的日志和跟踪的去向](/docs/zh-CN/env-vars#variables)。在您的 shell、用户设置或托管设置中设置该对；两个变量都在 [项目和本地设置](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env) 中被忽略。仅设置 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA` 时不会发出。
+
+在交互式 CLI 会话中，详细的测试版跟踪还需要您的组织被列入该功能的白名单。Agent SDK 和非交互式 `-p` 会话不需要白名单。
 
 | 属性                       | 描述                               | 门控条件                    |
 | ------------------------ | -------------------------------- | ----------------------- |
@@ -276,24 +315,26 @@ claude_code.interaction
 | `num_cancelled`          | 在完成前取消的 hook 计数                  |                         |
 
 <Note>
-  其他内容承载属性，例如 `new_context`、`system_prompt_preview`、`user_system_prompt`、`tool_input` 和 `response.model_output`，仅在详细的测试版跟踪处于活动状态时发出。它们不是稳定 span 架构的一部分。`user_system_prompt` 还需要 `OTEL_LOG_USER_PROMPTS=1`。它仅包含您通过 `systemPrompt` SDK 选项或 `--system-prompt` 和 `--append-system-prompt` 标志提供的系统提示文本，在 60 KB 处截断，并且每个会话发出一次而不是每个请求发出一次。
+  其他内容承载属性，例如 `new_context`、`system_prompt_preview`、`user_system_prompt`、`tool_input` 和 `response.model_output`，仅在详细的测试版跟踪处于活动状态时发出。它们不是稳定 span 架构的一部分。
+
+  `user_system_prompt` 还需要 `OTEL_LOG_USER_PROMPTS=1`。它仅包含您通过 `systemPrompt` SDK 选项或 `--system-prompt` 和 `--append-system-prompt` 标志提供的系统提示文本，在内容限制处截断（默认 60 KB），并且每个会话发出一次而不是每个请求发出一次。
 </Note>
 
 <h3 id="dynamic-headers">
   动态标头
 </h3>
 
-对于需要动态身份验证的企业环境，您可以配置脚本来动态生成标头。动态标头仅适用于 `http/protobuf` 和 `http/json` 协议。`grpc` 导出器仅使用静态 `OTEL_EXPORTER_OTLP_HEADERS` 值。
+对于需要动态身份验证的企业环境，您可以配置脚本来动态生成标头。动态标头仅适用于 `http/protobuf` 和 `http/json` 协议。使用 `grpc` 协议，Claude Code 仅使用静态标头变量 `OTEL_EXPORTER_OTLP_HEADERS` 及其每个信号的变体。
 
 <h4 id="settings-configuration">
   设置配置
 </h4>
 
-添加到您的 `.claude/settings.json`：
+添加到您的 `.claude/settings.json`，将路径替换为您自己的脚本：
 
 ```json theme={null}
 {
-  "otelHeadersHelper": "/bin/generate_opentelemetry_headers.sh"
+  "otelHeadersHelper": "/path/to/generate-otel-headers.sh"
 }
 ```
 
@@ -373,30 +414,45 @@ Claude Code 将这些值作为属性附加到每个指标数据点和事件记�
   示例配置
 </h3>
 
-在运行 `claude` 之前设置这些环境变量。每个块显示不同导出器或部署场景的完整配置：
+在运行 `claude` 之前设置这些环境变量。下面的每个场景显示完整的配置，每个变量在 [常见配置变量](#common-configuration-variables) 下进行了描述。要确认配置生效，请在启动会话后检查您的后端中的 `claude_code.session.count` 指标；[快速入门](#quick-start) 涵盖仅日志验证以及当没有任何内容到达时要检查的内容。
+
+用于控制台调试，导出间隔为 1 秒：
 
 ```bash theme={null}
-# 控制台调试（1 秒间隔）
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_METRICS_EXPORTER=console
 export OTEL_METRIC_EXPORT_INTERVAL=1000
+```
 
-# OTLP/gRPC
+用于 OTLP over gRPC：
+
+```bash theme={null}
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_METRICS_EXPORTER=otlp
 export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
 export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+```
 
-# Prometheus
+用于 Prometheus，从 `http://localhost:9464/metrics` 抓取：
+
+```bash theme={null}
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_METRICS_EXPORTER=prometheus
+```
 
-# 多个导出器
+在 [自托管环境](/docs/zh-CN/self-hosted-environments-reference#pass-through-session-child-metrics) 上，会话仅在运行器的默认容量为 1 时绑定端口 9464。在更高的容量下，运行器改为在其自己的 `/metrics` 端点上重新公开会话计数器和仪表。
+
+要将指标发送到多个导出器：
+
+```bash theme={null}
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_METRICS_EXPORTER=console,otlp
 export OTEL_EXPORTER_OTLP_PROTOCOL=http/json
+```
 
-# 指标和日志的不同端点/后端
+要将指标和日志发送到不同的端点或后端：
+
+```bash theme={null}
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_METRICS_EXPORTER=otlp
 export OTEL_LOGS_EXPORTER=otlp
@@ -404,14 +460,20 @@ export OTEL_EXPORTER_OTLP_METRICS_PROTOCOL=http/protobuf
 export OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://metrics.example.com:4318
 export OTEL_EXPORTER_OTLP_LOGS_PROTOCOL=grpc
 export OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://logs.example.com:4317
+```
 
-# 仅指标（无事件/日志）
+要仅导出指标，不导出事件或日志：
+
+```bash theme={null}
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_METRICS_EXPORTER=otlp
 export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
 export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+```
 
-# 仅事件/日志（无指标）
+要仅导出事件和日志，不导出指标：
+
+```bash theme={null}
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_LOGS_EXPORTER=otlp
 export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
@@ -454,18 +516,20 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
   指标
 </h3>
 
-Claude Code 导出以下指标：
+Claude Code 导出以下指标。"单位"列显示附加到每个指标的 OpenTelemetry 单位字符串；计数指标不携带任何单位。
 
 | 指标名称                                  | 描述                | 单位     |
 | ------------------------------------- | ----------------- | ------ |
-| `claude_code.session.count`           | 启动的 CLI 会话计数      | count  |
-| `claude_code.lines_of_code.count`     | 修改的代码行数计数         | count  |
-| `claude_code.pull_request.count`      | 创建的拉取请求数          | count  |
-| `claude_code.commit.count`            | 创建的 git 提交数       | count  |
+| `claude_code.session.count`           | 启动的 CLI 会话计数      | none   |
+| `claude_code.lines_of_code.count`     | 修改的代码行数计数         | none   |
+| `claude_code.pull_request.count`      | 创建的拉取请求数          | none   |
+| `claude_code.commit.count`            | 创建的 git 提交数       | none   |
 | `claude_code.cost.usage`              | Claude Code 会话的成本 | USD    |
 | `claude_code.token.usage`             | 使用的令牌数            | tokens |
-| `claude_code.code_edit_tool.decision` | 代码编辑工具权限决策计数      | count  |
-| `claude_code.active_time.total`       | 总活跃时间（秒）          | s      |
+| `claude_code.code_edit_tool.decision` | 代码编辑工具权限决策计数      | none   |
+| `claude_code.active_time.total`       | 总活跃时间             | s      |
+
+当 `prometheus` 是 `OTEL_METRICS_EXPORTER` 中列出的唯一导出器时，Claude Code 会从导出的指标中省略 `USD`、`tokens` 和 `s` 单位，以便抓取保持有效的 Prometheus 文本格式。指标名称不会改变，组合导出器的配置（例如 `otlp,prometheus`）保留单位。在 v2.1.216 之前，Prometheus 抓取包含一些抓取器拒绝的仅 OpenMetrics `# UNIT` 行。
 
 <h3 id="metric-details">
   指标详情
@@ -533,8 +597,8 @@ Claude Code 导出以下指标：
 * `skill.name`：对请求活跃的技能，由 Skill 工具、`/` 命令设置或由生成的子代理继承。内置、捆绑、用户定义和官方市场插件技能名称按原样出现。第三方插件技能名称被替换为 `"third-party"`。当没有技能活跃时不存在。
 * `plugin.name`：当活跃技能或子代理由插件提供时的拥有插件。官方市场插件名称按原样出现。第三方插件名称被替换为 `"third-party"`。当技能和子代理都没有拥有插件时不存在。
 * `marketplace.name`：拥有插件安装来源的市场。仅为官方市场插件发出。否则不存在。
-* `mcp_server.name`：MCP 服务器，其工具在产生此请求的轮次中运行。内置、claude.ai 代理和官方注册表服务器名称按原样出现。用户配置的服务器名称被替换为 `"custom"`。当没有 MCP 工具运行时不存在。
-* `mcp_tool.name`：在产生此请求的轮次中运行的 MCP 工具，与 `mcp_server.name` 具有相同的编辑。当没有 MCP 工具运行时不存在。
+* `mcp_server.name`：MCP 服务器，其工具结果此请求消耗。内置、claude.ai 代理和官方注册表服务器名称按原样出现。用户配置的服务器名称被替换为 `"custom"`。当请求没有消耗 MCP 工具结果时不存在。在 v2.1.222 之前，Claude Code 在每个 MCP 工具调用后的请求上设置此属性，而不仅仅是消耗工具结果的请求，因此聚合它的仪表板在升级后显示下降。
+* `mcp_tool.name`：MCP 工具，其结果此请求消耗，与 `mcp_server.name` 具有相同的编辑和版本行为。当请求没有消耗 MCP 工具结果时不存在。
 
 <h4 id="token-counter">
   令牌计数器
@@ -589,15 +653,19 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
 当用户提交提示时，Claude Code 可能会进行多个 API 调用并运行多个工具。`prompt.id` 属性让您将所有这些事件与触发它们的单个提示联系起来。
 
-| 属性          | 描述                             |
-| ----------- | ------------------------------ |
-| `prompt.id` | UUID v4 标识符，链接处理单个用户提示时生成的所有事件 |
+| 属性                  | 描述                                                                                                                                                                                                                            |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prompt.id`         | UUID v4 标识符，链接处理单个用户提示时生成的所有事件                                                                                                                                                                                                |
+| `message.uuid`      | 消息的 UUID，如会话记录中保存的那样，`~/.claude/projects/*/*.jsonl` 文件。在 `assistant_response` 上存在，在 `user_prompt` 上存在，除了命令分派，它可以产生零个或多个消息。在 `assistant_response` 上，这是响应的最终记录条目，下一轮的 `parentUuid` 从其链接。需要 Claude Code v2.1.214 或更高版本           |
+| `client_request_id` | 客户端生成的 UUID，作为 `x-client-request-id` 请求标头发送。在第一方 API 连接上的 `api_request` 和 `api_error` 上存在；在第三方提供商后端上不存在，当请求通过非流式回退重试时。将请求与其响应配对，并对于从未产生服务器 `request_id` 的超时等失败保持可用。与 `llm_request` 跟踪跨度上的相同属性匹配。需要 Claude Code v2.1.214 或更高版本 |
 
 要跟踪由单个提示触发的所有活动，请按特定 `prompt.id` 值过滤您的事件。这会返回 user\_prompt 事件、任何 api\_request 事件以及处理该提示时发生的任何 tool\_result 事件。
 
-<Note>
-  `prompt.id` 有意从指标中排除，因为每个提示生成唯一的 ID，这会创建一个不断增长的时间序列数。仅将其用于事件级分析和审计跟踪。
-</Note>
+对于消息级别的重建，每个事件类都携带与会话记录中的字段匹配的键。记录条目格式是 [Claude Code 内部的](/docs/zh-CN/sessions#where-transcripts-are-stored)，在版本之间变化，因此在这些字段上联接的管道可能在任何版本上中断；将联接视为版本特定的而不是稳定的合同：
+
+* `message.uuid` 在 `user_prompt` 和 `assistant_response` 上
+* `request_id` 在 API 事件上，在记录的助手条目上保存为 `requestId`
+* `tool_use_id` 在 `tool_result` 和 `tool_decision` 事件上
 
 <h4 id="user-prompt-event">
   用户提示事件
@@ -615,6 +683,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.sequence`：单调递增的计数器，用于在会话内排序事件
 * `prompt_length`：提示的长度
 * `prompt`：提示内容。默认为已编辑。设置 `OTEL_LOG_USER_PROMPTS=1` 以包含它
+* `message.uuid`：生成的用户消息的 UUID，与保存的记录条目匹配。在命令分派上不存在，它可以产生零个或多个消息。需要 Claude Code v2.1.214 或更高版本
 * `command_name`：当提示调用命令时的命令名称。内置和捆绑的命令名称（例如 `compact` 或 `debug`）按原样发出；别名（例如 `reset`）按输入方式发出而不是规范名称。自定义、插件和 MCP 命令名称折叠为 `custom` 或 `mcp`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`
 * `command_source`：命令存在时的来源：`builtin`、`custom` 或 `mcp`。插件提供的命令报告为 `custom`
 
@@ -633,9 +702,10 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.timestamp`：ISO 8601 时间戳
 * `event.sequence`：单调递增的计数器，用于在会话内排序事件
 * `response_length`：响应文本的长度（字符数）
-* `response`：响应文本，在 60 KB 处截断。默认为 `<REDACTED>` 编辑。设置 `OTEL_LOG_ASSISTANT_RESPONSES=1` 以包含它。当 `OTEL_LOG_ASSISTANT_RESPONSES` 未设置时，`OTEL_LOG_USER_PROMPTS` 控制它，因此设置 `OTEL_LOG_ASSISTANT_RESPONSES=0` 以在启用提示日志记录时保持响应编辑
+* `response`：响应文本，在内容限制处截断（默认 60 KB）。默认为 `<REDACTED>` 编辑。设置 `OTEL_LOG_ASSISTANT_RESPONSES=1` 以包含它。当 `OTEL_LOG_ASSISTANT_RESPONSES` 未设置时，`OTEL_LOG_USER_PROMPTS` 控制它，因此设置 `OTEL_LOG_ASSISTANT_RESPONSES=0` 以在启用提示日志记录时保持响应编辑
 * `model`：模型标识符（例如，"claude-sonnet-5"）
 * `request_id`：来自响应的 `request-id` 标头的 Anthropic API 请求 ID。仅当 API 返回时存在
+* `message.uuid`：响应的最终记录条目的 UUID。API 响应被保存为每个内容块一个记录条目；这是最后一个，下一轮的 `parentUuid` 从其链接。需要 Claude Code v2.1.214 或更高版本
 * `query_source`：发出请求的子系统，例如 `"repl_main_thread"`、`"compact"` 或子代理名称
 
 <h4 id="tool-result-event">
@@ -663,9 +733,8 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `tool_input_size_bytes`：JSON 序列化工具输入的大小（字节）
 * `tool_result_size_bytes`：工具结果的大小（字节）
 * `mcp_server_scope`：MCP 服务器范围标识符（用于 MCP 工具）
-* `tool_parameters`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：包含工具特定参数的 JSON 字符串：
-  * 对于 Bash 工具：包括 `bash_command`、`full_command`、`timeout`、`description`、`dangerouslyDisableSandbox` 和 `git_commit_id`（git commit 命令成功时的提交 SHA）
-  * 对于 WorkspaceBash 工具：包括 `bash_command`、`full_command`、`timeout`
+* `tool_parameters`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：包含工具特定参数的 JSON 字符串。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，即使标志关闭，`mcp_server_name`/`mcp_tool_name` 对也包含在内，与 [工具决策事件](#tool-decision-event) 相同的主机创作异常，需要 Claude Code v2.1.214 或更高版本。参数因工具而异：
+  * 对于 Bash 工具：包括 `bash_command`、`full_command`、`timeout`、`description`、`dangerouslyDisableSandbox` 和 `git_commit_id`（git commit 命令成功时的提交 SHA）。桌面应用的工作区 bash 工具也将 `tool_name` 报告为 `Bash`，但仅包括 `bash_command`、`full_command` 和 `timeout`
   * 对于 MCP 工具：包括 `mcp_server_name`、`mcp_tool_name`
   * 对于 Skill 工具：包括 `skill_name`
   * 对于 Agent 工具或旧版 Task 工具：包括 `subagent_type`
@@ -687,12 +756,14 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.sequence`：单调递增的计数器，用于在会话内排序事件
 * `model`：使用的模型（例如，"claude-sonnet-5"）
 * `cost_usd`：USD 估计成本
+* `cost_usd_micros`：USD 百万分之一的估计成本，作为整数发出
 * `duration_ms`：请求持续时间（毫秒）
 * `input_tokens`：输入令牌数
 * `output_tokens`：输出令牌数
 * `cache_read_tokens`：从缓存读取的令牌数
 * `cache_creation_tokens`：用于缓存创建的令牌数
 * `request_id`：来自响应的 `request-id` 标头的 Anthropic API 请求 ID，例如 `"req_011..."`。仅当 API 返回时存在。
+* `client_request_id`：客户端生成的 UUID，作为 `x-client-request-id` 请求标头发送；请参阅 [事件关联属性](#event-correlation-attributes) 表了解何时存在。需要 Claude Code v2.1.214 或更高版本
 * `speed`：`"fast"` 或 `"normal"`，指示是否启用了快速模式
 * `query_source`：发出请求的子系统，例如 `"repl_main_thread"`、`"compact"` 或子代理名称
 * `effort`：应用于请求的 [努力级别](/docs/zh-CN/model-config#adjust-effort-level)：`"low"`、`"medium"`、`"high"`、`"xhigh"` 或 `"max"`。当模型不支持努力时不存在。
@@ -718,6 +789,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `duration_ms`：请求持续时间（毫秒）
 * `attempt`：进行的总尝试次数，包括初始请求（`1` 表示没有发生重试）
 * `request_id`：来自响应的 `request-id` 标头的 Anthropic API 请求 ID，例如 `"req_011..."`。仅当 API 返回时存在。
+* `client_request_id`：客户端生成的 UUID，作为 `x-client-request-id` 请求标头发送。即使失败（例如超时或连接错误）从未产生服务器 `request_id`，也可用；请参阅 [事件关联属性](#event-correlation-attributes) 表了解何时存在。需要 Claude Code v2.1.214 或更高版本
 * `speed`：`"fast"` 或 `"normal"`，指示是否启用了快速模式
 * `query_source`：发出请求的子系统，例如 `"repl_main_thread"`、`"compact"` 或子代理名称
 * `effort`：应用于请求的 [努力级别](/docs/zh-CN/model-config#adjust-effort-level)。当模型不支持努力时不存在。
@@ -763,7 +835,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.name`：`"api_request_body"`
 * `event.timestamp`：ISO 8601 时间戳
 * `event.sequence`：单调递增的计数器，用于在会话内排序事件
-* `body`：JSON 序列化的 Messages API 请求参数（系统提示、消息、工具等），在 60 KB 处截断。先前助手轮次中的扩展思考内容被编辑。仅在内联模式下发出（`OTEL_LOG_RAW_API_BODIES=1`）。
+* `body`：JSON 序列化的 Messages API 请求参数（系统提示、消息、工具等），在内容限制处截断（默认 60 KB）。先前助手轮次中的扩展思考内容被编辑。仅在内联模式下发出（`OTEL_LOG_RAW_API_BODIES=1`）。
 * `body_ref`：包含未截断主体的 `<dir>/<uuid>.request.json` 文件的绝对路径。仅在文件模式下发出（`OTEL_LOG_RAW_API_BODIES=file:<dir>`）。
 * `body_length`：未截断的主体长度。当 `OTEL_LOG_RAW_API_BODIES=file:<dir>` 时为 UTF-8 字节，或当 `=1` 时为 UTF-16 代码单位
 * `body_truncated`：当发生内联截断时为 `"true"`。在文件模式下和未发生截断时不存在。
@@ -784,7 +856,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.name`：`"api_response_body"`
 * `event.timestamp`：ISO 8601 时间戳
 * `event.sequence`：单调递增的计数器，用于在会话内排序事件
-* `body`：JSON 序列化的 Messages API 响应（id、内容块、使用情况、停止原因），在 60 KB 处截断。扩展思考内容被编辑。仅在内联模式下发出（`OTEL_LOG_RAW_API_BODIES=1`）。
+* `body`：JSON 序列化的 Messages API 响应（id、内容块、使用情况、停止原因），在内容限制处截断（默认 60 KB）。扩展思考内容被编辑。仅在内联模式下发出（`OTEL_LOG_RAW_API_BODIES=1`）。
 * `body_ref`：包含未截断主体的 `<dir>/<request_id>.response.json` 文件的绝对路径。仅在文件模式下发出（`OTEL_LOG_RAW_API_BODIES=file:<dir>`）。
 * `body_length`：未截断的主体长度。当 `OTEL_LOG_RAW_API_BODIES=file:<dir>` 时为 UTF-8 字节，或当 `=1` 时为 UTF-16 代码单位
 * `body_truncated`：当发生内联截断时为 `"true"`。在文件模式下和未发生截断时不存在。
@@ -809,16 +881,20 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `tool_name`：工具的名称（例如，"Read"、"Edit"、"Write"、"NotebookEdit"）
 * `tool_use_id`：此工具调用的唯一标识符。与传递给 hooks 的 `tool_use_id` 匹配，允许在 OTel 事件和 hook 捕获的数据之间进行关联。
 * `decision`：`"accept"` 或 `"reject"`
+* `tool_source`：始终存在。工具的来源，作为 CLI 创作值的闭集。需要 Claude Code v2.1.214 或更高版本
+  * `"builtin"`：CLI 自己的工具
+  * `"mcp"`：MCP 服务器通常
+  * `"sdk_host_builtin_mcp"`：内置于 Claude Desktop 本身的进程内服务器，在 Claude Desktop 拥有的会话中。Claude Desktop 拥有它从自己的入口点之一启动的会话，`claude-desktop`、`claude-desktop-3p` 或 `local-agent`，当该会话不是嵌套子会话时；嵌套会话（包括 Claude Code 本身生成的会话）将这些服务器报告为 `"mcp"`
 * `source`：决策来源：
-  * `"config"`：基于项目设置、用户个人设置中的允许规则、企业托管策略、`--allowedTools` 或 `--disallowedTools` 标志、活跃权限模式、来自同一交互式 CLI 会话中较早提示的会话范围授予或因为工具本身是安全的，自动决策而不提示。事件不指示这些来源中的哪一个匹配。
+  * `"config"`：基于项目设置、用户个人设置中的允许或拒绝规则、企业托管策略、`--allowedTools` 或 `--disallowedTools` 标志、活跃权限模式、来自同一交互式 CLI 会话中较早提示的会话范围授予或因为工具本身是安全的，自动决策而不提示。事件不指示这些来源中的哪一个匹配。Claude Code 也在权限提示请求本身失败时报告 `"config"`，例如当 Agent SDK 的 [`canUseTool`](/docs/zh-CN/agent-sdk/typescript#canusetool) 回调或 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 工具返回无效结果时，或当输入流在请求待处理时关闭时。在 v2.1.216 之前，Claude Code 将这些失败报告为 `"user_reject"`。
   * `"hook"`：`PreToolUse` 或 `PermissionRequest` hook 返回了决策。
   * `"user_permanent"`：当用户在权限提示时选择"是，并且不要再问..."时发出，将允许规则保存到其个人设置。在交互式 CLI 中，仅为该选择本身发出；与保存规则匹配的后续调用发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，初始选择和后续规则匹配都发出 `"user_permanent"`。视为接受。
-  * `"user_temporary"`：当用户在权限提示时选择"是"，或在文件编辑或读取提示上选择"...仅在此会话期间"选项时发出。在交互式 CLI 中，仅为该选择本身发出；与该会话范围允许匹配的后续调用发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，选择和后续匹配都发出 `"user_temporary"`。视为接受。
-  * `"user_abort"`：当用户关闭权限提示而不回答时发出。视为拒绝。
+  * `"user_temporary"`：当用户在权限提示时选择"是"，或在文件编辑或读取提示上选择授予会话其余部分访问权限的选项时发出。在交互式 CLI 中，仅为该选择本身发出；与该会话范围授予匹配的后续调用发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，选择和后续匹配都发出 `"user_temporary"`。视为接受。
+  * `"user_abort"`：当用户关闭权限提示而不回答时发出。在 Agent SDK 和非交互式 `-p` 会话中，这包括在 `canUseTool` 或 `--permission-prompt-tool` 权限请求待处理时中断轮次；在 v2.1.216 之前，Claude Code 将该中断报告为 `"user_reject"`。视为拒绝。
   * `"user_reject"`：当用户选择"否"时发出。在交互式 CLI 中，仅为该选择本身发出；与用户个人设置中的拒绝规则匹配的调用发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，与个人设置中的拒绝规则匹配的调用发出 `"user_reject"`。视为拒绝。
 * `tool_parameters`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：包含工具特定参数的 JSON 字符串。形状与 [工具结果事件](#tool-result-event) 相同，除了执行后字段（例如 `git_commit_id`）。对于接受的调用，如果权限决策通过 `updatedInput` 重写工具输入，值可能与 `tool_result` 不同。使用此属性查看当 `decision` 为 `"reject"` 时拒绝了哪个命令。
-  * 对于 Bash 工具：包括 `bash_command`、`full_command`、`timeout`、`description`、`dangerouslyDisableSandbox`
-  * 对于 WorkspaceBash 工具：包括 `bash_command`、`full_command`、`timeout`
+  * 对于 `"sdk_host_builtin_mcp"` 工具：即使 `OTEL_LOG_TOOL_DETAILS` 关闭，`mcp_server_name` 和 `mcp_tool_name` 也包含在内，因为主机应用定义这些名称；没有它们，对这些内置服务器之一的拒绝调用在默认流上将无法归属。对于用户配置的 MCP 服务器，事件的 `tool_name` 始终是字面 `"mcp_tool"`，服务器和工具名称仅在 `tool_parameters` 中出现，标志打开时；参数内容在任何地方都需要标志。需要 Claude Code v2.1.214 或更高版本
+  * 对于 Bash 工具：包括 `bash_command`、`full_command`、`timeout`、`description`、`dangerouslyDisableSandbox`。桌面应用的工作区 bash 工具也将 `tool_name` 报告为 `Bash`，但仅包括 `bash_command`、`full_command` 和 `timeout`
   * 对于 MCP 工具：包括 `mcp_server_name`、`mcp_tool_name`
   * 对于 Skill 工具：包括 `skill_name`
   * 对于 Agent 工具或旧版 Task 工具：包括 `subagent_type`
@@ -881,7 +957,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `duration_ms`：连接尝试持续时间（毫秒）
 * `error_code`：连接失败时的错误代码
 * `is_plugin`：当服务器由插件提供时为 `true`，否则为 `false`
-* `plugin_id_hash`（当 `is_plugin` 为 `true` 时）：插件名称和市场的稳定哈希，用于按插件分组事件而不暴露名称
+* `plugin_id_hash`（当 `is_plugin` 为 `true` 时）：插件名称和市场的稳定哈希，用于按插件分组事件而不暴露名称。Claude Code 按 [插件已加载事件](#plugin-loaded-event) 下所述计算它
 * `plugin.name`（当 `is_plugin` 为 `true` 时）：提供服务器的插件的名称。对于第三方插件，除非 `OTEL_LOG_TOOL_DETAILS=1`，否则这是字面字符串 `"third-party"`；这可以保护第三方插件名称默认不出现在日志中。来自官方 Anthropic 来源的插件始终按名称标识。`plugin_id_hash` 和 `plugin.name` 属性流向您自己的监控后端，不会发送给 Anthropic
 * `server_name`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：配置的服务器名称
 * `error`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：连接失败时的完整错误消息
@@ -940,9 +1016,9 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `plugin.name`：插件的名称。对于官方市场外和内置捆绑的插件，除非 `OTEL_LOG_TOOL_DETAILS=1`，否则值为 `"third-party"`
 * `marketplace.name`：插件安装来源的市场（已知时）。在与 `plugin.name` 相同的条件下编辑为 `"third-party"`
 * `plugin.version`：来自插件清单的版本。仅当名称未被编辑且清单声明版本时才包含
-* `plugin.scope`：插件的来源类别：`"official"`、`"org"`、`"user-local"` 或 `"default-bundle"`
-* `enabled_via`：插件如何被启用的方式：`"default-enable"`、`"org-policy"`、`"seed-mount"` 或 `"user-install"`
-* `plugin_id_hash`：插件名称和市场的确定性哈希，仅发送到您配置的导出器。让您计算整个队伍中加载了多少个不同的第三方插件，而无需记录其名称
+* `plugin.scope`：插件的来源类别：`"official"`、`"community"`、`"org"`、`"user-local"` 或 `"default-bundle"`
+* `enabled_via`：插件如何被启用的方式：`"default-enable"`、`"org-policy"`、`"admin-install"`、`"seed-mount"` 或 `"user-install"`。值 `"admin-install"` 表示插件在 [**组织设置 > 插件**](https://claude.ai/admin-settings/plugins) 中为您的组织设置为必需或自动安装。在 v2.1.246 之前，Claude Code 将这些插件报告为 `"user-install"` 或 `"seed-mount"`
+* `plugin_id_hash`：插件名称和市场的确定性哈希，仅发送到您配置的导出器。让您计算整个队伍中加载了多少个不同的第三方插件，而无需记录其名称。对于 [从 claude.ai 同步的插件](/docs/zh-CN/plugins-reference#synced-plugins)，Claude Code 使用插件名称与 claude.ai 为插件报告的市场名称进行哈希，或在其他情况下使用 `synced`。在 v2.1.246 之前，Claude Code 在哈希中没有使用 claude.ai 报告的市场名称
 * `has_hooks`：插件是否贡献 hooks
 * `has_mcp`：插件是否贡献 MCP 服务器
 * `host_owned_mcp`：当 SDK 主机管理此插件的 MCP 连接且 Claude Code 跳过读取插件的 MCP 服务器配置时为 `true`，否则为 `false`。需要 Claude Code v2.1.172 或更高版本
@@ -986,7 +1062,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.name`：`"at_mention"`
 * `event.timestamp`：ISO 8601 时间戳
 * `event.sequence`：单调递增的计数器，用于在会话内排序事件
-* `mention_type`：提及的类型（`"file"`、`"directory"`、`"agent"`、`"mcp_resource"`）
+* `mention_type`：提及的类型（`"file"`、`"directory"`、`"agent"`、`"mcp_resource"`、`"peer"`）。值 `"peer"` 表示您提及了 [您的其他 Claude Code 会话之一](/docs/zh-CN/cross-session-messaging)。需要 Claude Code v2.1.232 或更高版本
 * `success`：提及是否成功解析（`"true"` 或 `"false"`）
 
 <h4 id="api-retries-exhausted-event">
@@ -1030,7 +1106,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `safe_mode`：当会话使用 [`--safe-mode`](/docs/zh-CN/cli-reference) 启动时为 `"true"`，否则为 `"false"`。需要 Claude Code v2.1.169 或更高版本
 * `hook_matcher`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：hook 配置中的匹配器字符串（设置时）
 * `plugin.name`（当 `hook_source` 是 `"pluginHook"` 时）：贡献插件的名称。对于官方市场外和内置捆绑的插件，除非 `OTEL_LOG_TOOL_DETAILS=1`，否则值为 `"third-party"`
-* `plugin_id_hash`（当 `hook_source` 是 `"pluginHook"` 时）：插件名称和市场的确定性哈希，仅发送到您配置的导出器。让您计算不同的贡献插件数而无需记录其名称
+* `plugin_id_hash`（当 `hook_source` 是 `"pluginHook"` 时）：插件名称和市场的确定性哈希，仅发送到您配置的导出器。让您计算不同的贡献插件数而无需记录其名称。Claude Code 按 [插件已加载事件](#plugin-loaded-event) 下所述计算它
 
 <h4 id="hook-execution-start-event">
   Hook 执行开始事件
@@ -1121,6 +1197,32 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `error`：压缩失败时的错误消息
 * `precompute_reuse`：仅当 `trigger` 为 `"manual"` 时设置。自动压缩可以在上下文窗口填满之前在后台准备摘要，此属性记录 `/compact` 是否重用了该准备的摘要。`"hit"` 表示它被重用；`"miss_custom_instructions"`、`"miss_hook"` 和 `"miss_not_ready"` 给出了计算新摘要的原因。需要 Claude Code v2.1.153 或更高版本
 
+<h4 id="subagent-completed-event">
+  子代理完成事件
+</h4>
+
+当 [子代理](/docs/zh-CN/sub-agents) 完成并将其结果返回到启动它的对话时记录。使用它按子代理类型汇总工具使用和运行时间；对于令牌或成本汇总，使用 [令牌计数器](#token-counter) 和 [成本计数器](#cost-counter) 过滤到 `query_source` `"subagent"`，因为此事件的 `total_tokens` 仅涵盖最终请求。`"subagent"` 类别也计算来自代理 hooks 的请求，这些不发出子代理事件。
+
+**事件名称**：`claude_code.subagent_completed`
+
+**属性**：
+
+* 所有 [标准属性](#standard-attributes)
+* `event.name`：`"subagent_completed"`
+* `event.timestamp`：ISO 8601 时间戳
+* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `agent_type`：子代理类型。内置代理名称和来自官方市场插件的代理按原样出现；其他代理名称被替换为 `"custom"`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`
+* `agent.source`：代理定义来自的位置：`built-in`、`plugin` 或定义自定义代理的设置来源，例如 `userSettings` 或 `projectSettings`
+* `is_built_in`：子代理是否是内置代理类型
+* `is_async`：子代理是否在 [后台](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background) 运行
+* `total_tokens`：子代理最终 API 请求的令牌足迹：该单个请求的输入、缓存创建、缓存读取和输出令牌，大致是子代理在完成时的上下文大小。不是整个运行的总和
+* `total_tool_uses`：子代理在整个运行中进行的工具调用数
+* `duration_ms`：运行时间（毫秒）
+* `model`：子代理被解析为运行的模型
+* `final_model`：产生子代理最终响应的模型，在中途切换（例如回退）后与 `model` 不同。需要 Claude Code v2.1.212 或更高版本
+* `model_swapped`：是否有多个模型为子代理的请求提供服务。需要 Claude Code v2.1.212 或更高版本
+* `plugin_id_hash`、`plugin.name`：对于插件提供的代理存在。官方市场插件名称按原样出现；其他插件名称被替换为 `"third-party"`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`
+
 <h4 id="feedback-survey-event">
   反馈调查事件
 </h4>
@@ -1140,6 +1242,39 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `survey_type`：哪个调查产生了事件。`"session"` 是"Claude 做得怎么样？"评分提示
 * `response`：用户在 `responded` 事件上的选择
 * `enabled_via_override`：当设置了 [`CLAUDE_CODE_ENABLE_FEEDBACK_SURVEY_FOR_OTEL`](/docs/zh-CN/env-vars) 时为 `true`。作为布尔值而不是字符串发出。在 `session` 调查事件上存在。过滤此属性以确认覆盖在整个队伍中应用
+
+<h4 id="retention-sweep-event">
+  保留扫描事件
+</h4>
+
+在保留清理扫描的每次运行时记录一次，该扫描删除 [会话记录和其他应用数据](/docs/zh-CN/claude-directory#cleaned-up-automatically)，其年龄超过 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 设置。Claude Code 在后台最多每个会话运行一次扫描，删除任何内容的运行仍会发出事件。如果 Claude Code 在过去 24 小时内在同一台机器上的任何会话中运行了扫描，它会将此会话的扫描延迟至少 10 分钟，因此更早退出的会话不会发出任何内容。当您使用 `--bare` 运行 `claude -p` 时，Claude Code 不运行扫描且不发出任何内容。
+
+像此页面上的每个 OTel 事件一样，它仅发送到您配置的遥测后端。需要 Claude Code v2.1.227 或更高版本。
+
+当 Claude Code 无法安全确定保留期时，它会暂停扫描并发出事件，`result` 设置为 `"skipped"` 和 `skip_reason`。当 [托管设置](/docs/zh-CN/server-managed-settings) 设置 `cleanupPeriodDays` 时，托管值固定保留期，扫描即使在较低优先级范围内的设置文件损坏或无效时也会运行。当 `managed-settings.json` 本身无法读取时，Claude Code 仍会暂停扫描，除非 [托管层](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources) 从其他地方（例如服务器托管设置或损坏文件旁边的 `managed-settings.d/` 放置）提供 `cleanupPeriodDays`。删除计数器属性仅在 `result` 为 `"complete"` 时存在。
+
+**事件名称**：`claude_code.retention_sweep`
+
+**属性**：
+
+* 所有 [标准属性](#standard-attributes)
+* `event.name`：`"retention_sweep"`
+* `event.timestamp`：ISO 8601 时间戳
+* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `result`：当扫描运行时为 `"complete"`，当 Claude Code 暂停时为 `"skipped"`
+* `period_days`：来自合并设置的 `cleanupPeriodDays` 值（天数），或当没有来源设置时为 `30`。在跳过的事件上，扫描将使用的值，从 Claude Code 可以读取的设置来源计算
+* `used_default`：当没有可读的设置来源设置 `cleanupPeriodDays` 时为 `"true"`，否则为 `"false"`。在完成事件上，`"true"` 表示应用了 30 天默认值
+* `skip_reason`：Claude Code 暂停扫描的原因。仅当 `result` 为 `"skipped"` 时存在：
+  * `"user_source_disabled"`：用户设置被排除，例如通过 [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags) 标志或 SDK 的 [`settingSources`](/docs/zh-CN/agent-sdk/typescript#options) 选项，且没有启用的来源提供 `cleanupPeriodDays`
+  * `"settings_unknowable"`：设置文件无法读取或解析，因此 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 可能设置为 Claude Code 无法看到的值
+  * `"settings_invalid_key_set"`：设置有验证错误且 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 被显式设置，因此回退到默认值可能会删除或保留与该设置相反的文件
+* `transcripts_deleted`：扫描删除的会话记录数，顶级 `~/.claude/projects/*/*.jsonl` 文件
+* `transcripts_exempted_desktop`：超过保留期的记录数，扫描在 [Claude Desktop 和 Cowork 规则](/docs/zh-CN/claude-directory#cleaned-up-automatically) 下保留。这些不计入 `files_past_cutoff`。需要 Claude Code v2.1.248 或更高版本
+* `session_files_deleted`：会话文件扫描删除的项目数：记录加上每个会话的伴随文件，例如侧边栏、录音和工具结果
+* `artifacts_deleted`：扫描跨越其覆盖的数据目录删除的总项目数，包括会话文件。某些扫描将整个删除的目录树计为一项，少数清理通过不对计数器有贡献，因此将值视为下限而不是精确文件计数
+* `files_retained_fresh`：检查并保留在原位的文件，因为它们仍在保留期内。仅每个文件扫描计算这些，因此值是下限；非零值是正常的稳定状态
+* `files_past_cutoff`：超过保留期的文件，扫描未能删除，例如因为权限错误或文件被打开。值高于零表示文件超过了配置的保留期；零不是证明没有任何文件，因为整个目录删除失败计入 `error_count` 而不是
+* `error_count`：扫描在列出或删除文件时遇到的错误数
 
 <h2 id="interpret-metrics-and-events-data">
   解释指标和事件数据
@@ -1172,6 +1307,8 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   成本指标是近似值。有关官方计费数据，请参阅您的 API 提供商（Claude 控制台、Amazon Bedrock 或 Google Cloud 的 Agent Platform）。
 </Note>
 
+Claude Code 将每个流式响应计入成本和令牌指标，恰好一次，包括当网关或代理在 `ANTHROPIC_BASE_URL` 后面跨多个帧逐步流式传输使用情况时。在 v2.1.214 之前，在多个帧中携带使用情况的流会使 `claude_code.cost.usage` 和 `claude_code.token.usage` 膨胀，大约每个额外帧增加一个完整请求。
+
 <h3 id="alerting-and-segmentation">
   警报和分段
 </h3>
@@ -1182,7 +1319,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 异常的令牌消耗
 * 来自特定用户的高会话量
 
-所有指标都可以按[标准属性](#standard-attributes)进行分段。`model` 属性在 `claude_code.token.usage`、`claude_code.cost.usage` 上可用，以及从 v2.1.172 开始，`claude_code.lines_of_code.count` 上也可用。
+所有指标都可以按[标准属性](#standard-attributes)进行分段。`model` 属性在 `claude_code.token.usage`、`claude_code.cost.usage` 上可用，以及 从 v2.1.172 开始，`claude_code.lines_of_code.count` 上也可用。
 
 按模型的提交分解只能通过在 `session.id` 上与令牌或成本指标进行联接来近似，因为一个会话可以跨越多个模型。筛选令牌或成本端的行，使 `query_source` 为 `"main"`，以便辅助和子代理请求不会将会话的提交归属于未进行这些提交的模型。
 
@@ -1245,8 +1382,8 @@ export OTEL_RESOURCE_ATTRIBUTES="enduser.id=jdoe@example.com,enduser.directory_i
 
 没有 `OTEL_LOG_TOOL_DETAILS`，这些事件会丢弃识别详情：
 
-* `tool_result`：保留 `tool_name` 和 `mcp_server_scope`，省略 `mcp_server_name`、`mcp_tool_name` 和参数
-* `tool_decision`：保留 `tool_name`，省略 `tool_parameters`
+* `tool_result`：保留 `mcp_server_scope` 和一个对用户配置的服务器编辑为字面值 `"mcp_tool"` 的 `tool_name`，省略参数内容。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，它还保留 `tool_parameters` 内的 `mcp_server_name`/`mcp_tool_name` 对，与 `tool_decision` 相同的主机编写异常，需要 Claude Code v2.1.214 或更高版本
+* `tool_decision`：保留 `tool_source` 和一个对用户配置的服务器编辑为字面值 `"mcp_tool"` 的 `tool_name`，省略参数内容。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，它还保留 `tool_parameters` 内的 `mcp_server_name`/`mcp_tool_name` 对；`tool_source` 和名称对都需要 Claude Code v2.1.214 或更高版本
 * `mcp_server_connection`：省略 `server_name` 和错误消息，但保留 `is_plugin`、`plugin_id_hash` 和 `plugin.name`，非 Anthropic 插件名称被编辑为字面值 `"third-party"`，因此插件提供的服务器在没有详细日志的情况下仍然可以区分
 
 <h3 id="map-security-questions-to-events">
@@ -1286,6 +1423,8 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 }
 ```
 
+要确认事件到达，在运行此配置的会话中提交提示，并在您的 SIEM 中检查 `claude_code.user_prompt` 事件。如果没有任何内容到达，运行 `claude --debug` 并在调试日志中检查 `[3P telemetry]` 导出错误。
+
 <h2 id="backend-considerations">
   后端考虑事项
 </h2>
@@ -1296,17 +1435,17 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
   对于指标
 </h3>
 
-* **时间序列数据库（例如，Prometheus）**：速率计算、聚合指标
-* **列式存储（例如，ClickHouse）**：复杂查询、唯一用户分析
-* **全功能可观测性平台（例如，Honeycomb、Datadog、Grafana Cloud）**：高级查询、可视化、警报
+* **时间序列数据库**：速率计算、聚合指标
+* **列式存储**：复杂查询、唯一用户分析
+* **全功能可观测性平台**：高级查询、可视化、警报
 
 <h3 id="for-events/logs">
   对于事件/日志
 </h3>
 
-* **日志聚合系统（例如，Elasticsearch、Loki）**：全文搜索、日志分析
-* **列式存储（例如，ClickHouse）**：结构化事件分析
-* **全功能可观测性平台（例如，Honeycomb、Datadog、Grafana Cloud）**：指标和事件之间的关联
+* **日志聚合系统**：全文搜索、日志分析
+* **列式存储**：结构化事件分析
+* **全功能可观测性平台**：指标和事件之间的关联
 
 <h3 id="for-traces">
   对于跟踪
@@ -1314,8 +1453,8 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 
 选择支持分布式跟踪存储和 span 关联的后端：
 
-* **分布式跟踪系统（例如，Jaeger、Zipkin、Grafana Tempo）**：Span 可视化、请求瀑布、延迟分析
-* **全功能可观测性平台（例如，Honeycomb、Datadog、Grafana Cloud）**：跟踪搜索和与指标和日志的关联
+* **分布式跟踪系统**：Span 可视化、请求瀑布、延迟分析
+* **全功能可观测性平台**：跟踪搜索和与指标和日志的关联
 
 对于需要日活跃用户/周活跃用户/月活跃用户 (DAU/WAU/MAU) 指标的组织，请考虑支持高效唯一值查询的后端。
 
@@ -1325,13 +1464,15 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 
 所有指标和事件都使用以下资源属性导出：
 
-* `service.name`：`claude-code`
-* `service.version`：当前 Claude Code 版本
+* `service.name`：终端会话为 `claude-code`，从 [Claude Desktop 应用](/docs/zh-CN/desktop)中的代码选项卡启动的会话为 `claude-code-desktop`
+* `service.version`：当前 Claude Code 版本，或代码选项卡会话的 Desktop 应用版本
 * `os.type`：操作系统类型（例如，`linux`、`darwin`、`windows`）
 * `os.version`：操作系统版本字符串
 * `host.arch`：主机架构（例如，`amd64`、`arm64`）
 * `wsl.version`：WSL 版本号（仅在 Windows Subsystem for Linux 上运行时出现）
 * 仪表名称：`com.anthropic.claude_code`
+
+如果您的收集器管道或仪表板在 `service.name = claude-code` 上进行过滤，请将 `claude-code-desktop` 添加到过滤器中，以便也捕获来自代码选项卡会话的遥测数据。
 
 <h2 id="roi-measurement-resources">
   ROI 测量资源
@@ -1348,13 +1489,15 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 * 通过 OAuth 认证时，`user.email` 包含在遥测属性中。如果这对您的组织是一个问题，请与您的遥测后端合作以过滤或编辑此字段
 * 默认情况下不收集用户提示内容。仅记录提示长度。要包含提示内容，请设置 `OTEL_LOG_USER_PROMPTS=1`
 * 默认情况下不收集助手响应文本。仅记录响应长度。要包含响应文本，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=1`。与来自 Claude Code 的所有 OpenTelemetry 数据一样，响应文本仅发送到您配置的 OTel 端点，永远不会发送到 Anthropic。当此变量未设置时，`OTEL_LOG_USER_PROMPTS` 用作后备，因此如果您想要提示内容而不要响应内容，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=0`
-* 默认情况下不记录工具输入参数和参数。要包含它们，请设置 `OTEL_LOG_TOOL_DETAILS=1`。此数据仅发送到您配置的 OTEL 端点，永远不会发送到 Anthropic。参数仍可能包含敏感值，因此请根据需要配置您的遥测后端以过滤或编辑这些属性。启用后：
+* 默认情况下不记录工具输入参数和参数。要包含它们，请设置 `OTEL_LOG_TOOL_DETAILS=1`。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，`tool_decision` 和 `tool_result` 携带 `mcp_server_name`/`mcp_tool_name` 对，即主机编写的名称而非参数内容，即使关闭该标志也是如此。此异常需要 Claude Code v2.1.214 或更高版本。此数据仅发送到您配置的 OTEL 端点，永远不会发送到 Anthropic。参数仍可能包含敏感值，因此请根据需要配置您的遥测后端以过滤或编辑这些属性。启用后：
   * `tool_result` 和 `tool_decision` 事件包含 `tool_parameters` 属性，其中包含 Bash 命令、MCP 服务器和工具名称以及技能名称。`full_command` 等字段以未截断的形式发出
   * `tool_result` 事件另外包含 `tool_input` 属性，其中包含文件路径、URL、搜索模式和其他参数。超过 512 个字符的单个值被截断，总数限制为约 4 K 字符
   * `user_prompt` 事件包含自定义、插件和 MCP 命令的逐字 `command_name`
   * Trace spans 包含相同的 `tool_input` 属性和输入派生属性（如 `file_path`），与 `tool_input` 的截断方式相同
-* 默认情况下，trace spans 中不记录工具输入和输出内容。要包含它，请设置 `OTEL_LOG_TOOL_CONTENT=1`。启用后，span 事件包含完整的工具输入和输出内容，在每个 span 处截断为 60 KB。这可能包括 Read 工具结果中的原始文件内容和 Bash 命令输出。根据需要配置您的遥测后端以过滤或编辑这些属性
-* 默认情况下不记录原始 Anthropic Messages API 请求和响应主体。要包含它们，请设置 `OTEL_LOG_RAW_API_BODIES`。使用 `=1` 时，每个 API 调用发出 `api_request_body` 和 `api_response_body` 日志事件，其 `body` 属性是 JSON 序列化的有效负载，在 60 KB 处截断。使用 `=file:<dir>` 时，未截断的主体写入该目录下的 `.request.json` 和 `.response.json` 文件，事件携带 `body_ref` 路径而不是内联主体。使用日志收集器或 sidecar 而不是通过遥测流传输目录。在两种模式下，主体包含完整的对话历史（系统提示、每个先前的用户和助手轮次、工具结果），因此启用此选项意味着同意其他 `OTEL_LOG_*` 内容标志会揭示的所有内容。Claude 的扩展思考内容始终从这些主体中编辑，无论其他设置如何
+* 默认情况下，trace spans 中不记录工具输入和输出内容。要包含它，请设置 `OTEL_LOG_TOOL_CONTENT=1`。启用后，span 事件包含完整的工具输入和输出内容，在内容限制处截断（默认为 60 KB）每个属性。这可能包括 Read 工具结果中的原始文件内容和 Bash 命令输出。根据需要配置您的遥测后端以过滤或编辑这些属性
+* 默认情况下不记录原始 Anthropic Messages API 请求和响应主体。要包含它们，请在您的 shell、用户设置或托管设置中设置 `OTEL_LOG_RAW_API_BODIES`。在 [项目和本地设置](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env) 中被忽略。主体包含完整的对话历史，包括系统提示、每个先前的用户和助手轮次以及工具结果，因此启用此选项意味着同意其他 `OTEL_LOG_*` 内容标志会揭示的所有内容。Claude Code 始终从这些主体中编辑 Claude 的扩展思考内容，无论其他设置如何。您设置的值决定了 Claude Code 如何传递主体：
+  * 使用 `=1` 时，Claude Code 为每个 API 调用发出 `api_request_body` 和 `api_response_body` 日志事件。事件的 `body` 属性携带 JSON 序列化的有效负载，在内容限制处截断（默认为 60 KB）
+  * 使用 `=file:<dir>` 时，Claude Code 将未截断的主体写入该目录下的 `.request.json` 和 `.response.json` 文件，事件携带 `body_ref` 路径而不是内联主体。使用日志收集器或 sidecar 传输目录，而不是通过遥测流
 
 <h2 id="monitor-claude-code-on-amazon-bedrock">
   在 Amazon Bedrock 上监控 Claude Code
