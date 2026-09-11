@@ -17,7 +17,7 @@
 <Note>
   在 TypeScript Agent SDK 0.3.233 及更高版本或 Python Agent SDK 0.2.139 及更高版本上，以下限制适用。
 
-  The following tools aren't available on Opus 4.8, Sonnet 5, Fable 5, Mythos 5, or later versions of those families unless you opt in:
+  The following tools are available by default only on Claude 3.x models, Opus 4 through 4.7, Sonnet 4 through 4.6, and Haiku 4.5. On every other model, including model IDs Claude Code doesn't recognize, they aren't available unless you opt in:
 
   * `TodoWrite`
   * `TaskCreate`
@@ -25,7 +25,9 @@
   * `TaskUpdate`
   * `TaskList`
 
-  On other models, Claude Code provides the Task tools by default and `TodoWrite` only when you set `CLAUDE_CODE_ENABLE_TASKS=0`.
+  Wherever the tools are available, Claude Code provides the four Task tools, or `TodoWrite` instead when you set `CLAUDE_CODE_ENABLE_TASKS=0`.
+
+  This default set applies in Claude Code v2.1.268 and later, which the TypeScript Agent SDK bundles from v0.3.268.
 </Note>
 
 在列出的模型上，除非您选择加入会话，否则您在消息流中看不到这些工具的 `tool_use` 块。Agent SDK 通过它捆绑的 Claude Code 二进制文件应用这些默认值。如果您将 `pathToClaudeCodeExecutable`（TypeScript）或 `cli_path`（Python）指向您自己的 Claude Code 安装，您将获得该安装提供的任何工具，在其自己的默认值下。要查看运行中会话中的确切集合，请[检查哪些工具可用](/docs/zh-CN/tools-reference#check-which-tools-are-available)。要选择加入会话，请执行以下操作之一：

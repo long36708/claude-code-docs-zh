@@ -3166,7 +3166,7 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 <Note>
   在 Python Agent SDK 0.2.139 及更高版本上，以下限制适用。
 
-  The following tools aren't available on Opus 4.8, Sonnet 5, Fable 5, Mythos 5, or later versions of those families unless you opt in:
+  The following tools are available by default only on Claude 3.x models, Opus 4 through 4.7, Sonnet 4 through 4.6, and Haiku 4.5. On every other model, including model IDs Claude Code doesn't recognize, they aren't available unless you opt in:
 
   * `TodoWrite`
   * `TaskCreate`
@@ -3174,7 +3174,9 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
   * `TaskUpdate`
   * `TaskList`
 
-  On other models, Claude Code provides the Task tools by default and `TodoWrite` only when you set `CLAUDE_CODE_ENABLE_TASKS=0`.
+  Wherever the tools are available, Claude Code provides the four Task tools, or `TodoWrite` instead when you set `CLAUDE_CODE_ENABLE_TASKS=0`.
+
+  This default set applies in Claude Code v2.1.268 and later, which the TypeScript Agent SDK bundles from v0.3.268.
 
   见 [模型可用性](/docs/zh-CN/agent-sdk/todo-tracking#model-availability) 以选择加入。
 </Note>
