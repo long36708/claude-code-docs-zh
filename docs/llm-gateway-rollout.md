@@ -207,7 +207,7 @@ claude -p "Reply with one word: connected"
 
 将表中的条件变量添加到相同的 `env` 块。托管的 `ANTHROPIC_BASE_URL` 被强制执行，不能被开发者的 shell 导出覆盖，因为 Claude Code 在进程环境和较低优先级设置上应用它。
 
-不要在托管设置中与网关凭证一起包括 `forceLoginMethod` 或 `forceLoginOrgUUID`。任一密钥，具有任何值，在启动时阻止 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 和 `apiKeyHelper`，因此开发者看到 `This machine's managed settings require a first-party login` 并且无法继续。
+不要在托管设置中与网关凭证一起包括 `forceLoginMethod` 或 `forceLoginOrgUUID`。任一密钥，具有任何值，在启动时阻止 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 和 `apiKeyHelper`，开发者无法继续。他们看到 `This machine's managed settings require a first-party login`，或在 `"gateway"` 值下看到 [`Administrator policy requires a Cloud gateway sign-in`](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。
 
 [服务器管理的设置](/docs/zh-CN/server-managed-settings#platform-availability)交付需要直接连接到 `api.anthropic.com`，因此它不会到达网关路由的会话。网关部署使用这个基于文件的托管设置路径，它强制执行相同的密钥。
 

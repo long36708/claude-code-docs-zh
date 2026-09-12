@@ -11,38 +11,38 @@
 在 Pro、Max 和 Team 计划上，内置的起始权限模式是自动模式。[会话在哪个模式下启动](#which-mode-a-session-starts-in)涵盖了改变起始权限模式的表面和设置。您也可以随时更改正在运行的会话的权限模式。
 
 <h2 id="available-modes">
-  可用模式
+  可用的模式
 </h2>
 
-每种模式在便利性和监督之间做出不同的权衡。下表显示了在每种模式下 Claude 无需权限提示即可执行的操作。Manual 模式显示在其配置值 `default` 下。
+每种模式在便利性和监督之间做出不同的权衡。下表显示了在每种模式下 Claude 无需权限提示即可执行的操作。手动模式显示在其配置值 `default` 下。
 
-| 模式                                                                  | 无需询问即可运行                                                   | 最适合           |
-| :------------------------------------------------------------------ | :--------------------------------------------------------- | :------------ |
-| `default`                                                           | 仅读取                                                        | 自己审查每个操作，敏感工作 |
-| [`acceptEdits`](#auto-approve-file-edits-with-acceptedits-mode)     | 读取、文件编辑和常见文件系统命令（`mkdir`、`touch`、`mv`、`cp` 等）              | 迭代审查的代码       |
-| [`plan`](#analyze-before-you-edit-with-plan-mode)                   | 读取，加上当[自动模式](#eliminate-prompts-with-auto-mode)可用时分类器批准的命令 | 在更改前探索代码库     |
-| [`auto`](#eliminate-prompts-with-auto-mode)                         | 所有操作，带有后台安全检查                                              | 长任务、减少提示疲劳    |
-| [`dontAsk`](#allow-only-pre-approved-tools-with-dontask-mode)       | 仅预先批准的工具                                                   | 锁定的 CI 和脚本    |
-| [`bypassPermissions`](#skip-all-checks-with-bypasspermissions-mode) | 所有操作                                                       | 仅限隔离容器和虚拟机    |
+| 模式                                                                  | 无需询问即可运行的内容                                                     | 最适合           |
+| :------------------------------------------------------------------ | :-------------------------------------------------------------- | :------------ |
+| `default`                                                           | 仅读取                                                             | 自己审查每项操作，敏感工作 |
+| [`acceptEdits`](#auto-approve-file-edits-with-acceptedits-mode)     | 读取、文件编辑和常见文件系统命令（`mkdir`、`touch`、`mv`、`cp` 等）                   | 迭代您正在审查的代码    |
+| [`plan`](#analyze-before-you-edit-with-plan-mode)                   | 读取，加上当 [auto 模式](#eliminate-prompts-with-auto-mode) 可用时分类器批准的命令 | 在更改代码库之前探索它   |
+| [`auto`](#eliminate-prompts-with-auto-mode)                         | 一切，带有后台安全检查                                                     | 长任务，减少提示疲劳    |
+| [`dontAsk`](#allow-only-pre-approved-tools-with-dontask-mode)       | 读取和预批准的工具；任何会提示的内容都被拒绝                                          | 锁定的 CI 和脚本    |
+| [`bypassPermissions`](#skip-all-checks-with-bypasspermissions-mode) | 一切                                                              | 仅限隔离容器和虚拟机    |
 
-在 CLI 中、`claude --help` 中、VS Code 和 JetBrains 扩展中以及桌面应用中，审查每个操作的模式被命名为 **Manual**。其配置值为 `default`，这是 hooks 和 SDK 集成使用的值。CLI 在任何地方都接受 `manual` 作为别名，例如 `claude --permission-mode manual` 或 `"defaultMode": "manual"`。Manual 标签和 `manual` 别名需要 Claude Code v2.1.200 或更高版本。桌面应用的标签不依赖于您的 CLI 版本。
+审查每项操作的模式在 CLI 中名为 **Manual**，在 `claude --help` 中、在 VS Code 和 JetBrains 扩展中以及在桌面应用中也是如此。其配置值是 `default`，这是 hooks 和 SDK 集成使用的。CLI 在您输入值的任何地方接受 `manual` 作为别名，例如 `claude --permission-mode manual` 或 `"defaultMode": "manual"`。Manual 标签和 `manual` 别名需要 Claude Code v2.1.200 或更高版本。桌面应用的标签不依赖于您的 CLI 版本。
 
-对[受保护路径](#protected-paths)的写入永远不会自动批准，唯一的例外是 `bypassPermissions` 模式，以及可使用绕过权限的 plan 模式会话，也就是以[将 `bypassPermissions` 放入模式循环](#switch-permission-modes)的方式启动的会话。
+对 [受保护路径](#protected-paths) 的写入永远不会自动批准，除非在 `bypassPermissions` 模式下以及在 plan 模式会话中，其中绕过权限可用，意味着会话以 [将 `bypassPermissions` 放入模式循环](#switch-permission-modes) 的方式启动。
 
-模式设置基线。在顶部分层[权限规则](/docs/zh-CN/permissions#manage-permissions)以预先批准或阻止特定工具。拒绝规则在每种模式下都会阻止，包括 `bypassPermissions`。拒绝和询问规则不适用于 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)，只要 Claude 仍然有至少一个其他工具可以调用。允许规则在 `bypassPermissions` 中无效。
+模式设置基线。在顶部分层 [权限规则](/docs/zh-CN/permissions#manage-permissions) 以预批准或阻止特定工具。拒绝规则在每种模式下都会阻止，包括 `bypassPermissions`。拒绝和询问规则不适用于 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)，只要 Claude 仍然至少有一个其他工具可以调用。允许规则在 `bypassPermissions` 中无效。
 
 <h3 id="actions-no-mode-auto-approves">
   任何模式都不会自动批准的操作
 </h3>
 
-Claude Code 在任何模式下都不会自动批准以下操作，包括 `bypassPermissions`。每个项目链接到说明在每种模式下会发生什么的部分：
+Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypassPermissions`。每个项目符号链接到说明在每种模式下会发生什么的部分：
 
-* 与显式[询问规则](/docs/zh-CN/permissions#manage-permissions)匹配的工具
-* 您的组织[设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，在该设置到达 Claude Code 的会话中
-* 需要用户交互的工具：内置的 `AskUserQuestion` 工具和标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具
-* `rm` 和 `rmdir` 移除针对[关键路径](#critical-paths)的操作，没有允许规则或 `PreToolUse` hook `"allow"` 批准
-* [跨会话消息传递保障](#skip-all-checks-with-bypasspermissions-mode)
-* 当 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 打开时，在工作目录外读取：识别的文件读取 Bash 命令和任何[非沙箱化重试](/docs/zh-CN/sandboxing#the-unsandboxed-retry-escape-hatch)，即使在自动模式和 `bypassPermissions` 模式下也需要批准才能在沙箱外运行。需要 Claude Code v2.1.257 或更高版本
+* 与显式 [询问规则](/docs/zh-CN/permissions#manage-permissions) 匹配的工具
+* 您的组织 [设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，在该设置到达 Claude Code 的会话中
+* 需要用户交互的工具：内置 `AskUserQuestion` 工具和标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具
+* `rm` 和 `rmdir` 移除针对 [关键路径](#critical-paths)，没有允许规则或 `PreToolUse` hook `"allow"` 批准
+* [跨会话消息传递保护措施](#skip-all-checks-with-bypasspermissions-mode)
+* 在 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 打开时在工作目录外读取：识别的文件读取 Bash 命令和任何需要批准才能在沙箱外运行的 [未沙箱化重试](/docs/zh-CN/sandboxing#the-unsandboxed-retry-escape-hatch)，即使在 auto 模式和 `bypassPermissions` 模式下也会提示。需要 Claude Code v2.1.257 或更高版本
 
 <h2 id="common-setups">
   常见设置
@@ -473,8 +473,8 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
 
     1. 与您的[允许、询问或拒绝规则](/docs/zh-CN/permissions#manage-permissions)匹配的操作立即解决。写入[受保护路径](#protected-paths)的操作即使允许规则匹配也会路由到分类器，Claude Code v2.1.218 及更高版本中针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除也是如此。标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使允许规则匹配也会直接提示您，您的组织在会话中设置为 `ask` 的[连接器工具](/docs/zh-CN/mcp#organization-controls-on-connector-tools)也是如此，其中该设置到达 Claude Code。与命令内容匹配的询问规则，例如 `Bash(git push *)`，回退到权限提示
     2. 只读操作和工作目录中的文件编辑被自动批准，除了写入[受保护路径](#protected-paths)和[工作目录外的第一次读取](#first-read-outside-the-working-directories)，这会提示您
-    3. 其他所有内容都转到分类器。在步骤 1 中直接提示您的连接器工具和`requiresUserInteraction` MCP 工具永远不会到达分类器，因此组织要求的批准或同意步骤都不会被自动批准
-    4. 如果分类器阻止，Claude 接收原因并尝试替代方案。在大多数会话中，原因是固定文本 `Blocked by classifier` 而不是书面解释，在 Claude Code v2.1.208 及更高版本中；请参阅[审查拒绝](/docs/zh-CN/auto-mode-config#review-denials)
+    3. 其他所有内容都转到分类器。在步骤 1 中直接提示您的连接器工具和` requiresUserInteraction` MCP 工具永远不会到达分类器，因此组织要求的批准或同意步骤都不会被自动批准
+    4. 如果分类器阻止，Claude 接收原因并尝试替代方案。在大多数会话中，原因名称分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[审查拒绝](/docs/zh-CN/auto-mode-config#review-denials)
 
     进入自动模式时，授予任意代码执行的广泛允许规则被删除：
 
@@ -518,7 +518,7 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
   使用 dontAsk 模式仅允许预先批准的工具
 </h2>
 
-如果您设置 `dontAsk` 模式，Claude Code 会自动拒绝所有原本会提示的工具调用。Claude 仅运行与您的 `permissions.allow` 规则、[只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)匹配的操作，以及由 [PreToolUse hook](/docs/zh-CN/permissions#extend-permissions-with-hooks) 批准的调用。在 CI 管道或受限环境中使用此模式，您可以预先定义 Claude 可以执行的操作；会话永远不会等待输入。当此模式处于活动状态时，状态栏显示 `⏵⏵ don't ask on`。
+如果您设置 `dontAsk` 模式，Claude Code 会自动拒绝所有原本会提示的工具调用。Claude 仍然运行在 Manual 模式下不需要批准的操作，例如您工作目录内的文件读取和[只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)，以及与您的 `permissions.allow` 规则匹配的操作和由 [PreToolUse hook](/docs/zh-CN/permissions#extend-permissions-with-hooks) 批准的调用。在 CI 管道或受限环境中使用此模式，您可以预先定义 Claude 可以执行的操作；会话永远不会等待输入。当此模式处于活动状态时，状态栏显示 `⏵⏵ don't ask on`。
 
 Claude Code 拒绝与您的显式 [`ask` 规则](/docs/zh-CN/permissions#manage-permissions)匹配的调用，而不是提示。它还拒绝内置的 `AskUserQuestion` 工具，即使您的 allow 规则与其匹配，以及您的组织[设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具在该设置到达 Claude Code 的会话中。它以相同的方式拒绝标记为 [`_meta["anthropic/requiresUserInteraction"]`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具，因为其批准卡需要此模式永远不会收集的答案；这需要 Claude Code v2.1.199 或更高版本。
 

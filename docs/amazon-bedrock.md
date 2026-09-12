@@ -265,7 +265,7 @@ export ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION=us-west-2
 
 为 Claude Code 启用 Amazon Bedrock 时，请记住以下几点：
 
-* 从 v2.1.172 开始，您只需设置 `AWS_REGION` 来覆盖您的 AWS 配置文件的区域或当您的配置文件没有区域时。Claude Code 按以下顺序解析区域：
+* 您只需设置 `AWS_REGION` 来覆盖您的 AWS 配置文件的区域或当您的配置文件没有区域时。Claude Code 按以下顺序解析区域：
 
   * `AWS_REGION`
   * `AWS_DEFAULT_REGION`
@@ -276,7 +276,7 @@ export ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION=us-west-2
 
   活跃配置文件是 `AWS_PROFILE`（如果已设置），否则为 `default`。设置 `AWS_SHARED_CREDENTIALS_FILE` 或 `AWS_CONFIG_FILE` 以指向非默认文件路径。
 
-  运行 `/status` 以查看解析的区域。当区域来自您的 AWS 配置文件或默认回退时，Claude Code 也会在 `/status` 输出中注明源。在 v2.1.171 及更早版本上，Claude Code 不读取 AWS 配置文件，因此请显式设置 `AWS_REGION`。
+  运行 `/status` 以查看解析的区域。当区域来自您的 AWS 配置文件或默认回退时，Claude Code 也会在 `/status` 输出中注明源。
 * 使用 Amazon Bedrock 时，`/logout` 命令不可用，因为身份验证通过 AWS 凭证处理。
 * WebSearch 工具在 Amazon Bedrock 上不可用。请参阅 [WebSearch 工具行为](/docs/zh-CN/tools-reference#websearch-tool-behavior)。
 * 您可以对不想泄露给其他进程的环境变量（如 `AWS_PROFILE`）使用设置文件。有关更多信息，请参阅[设置](/docs/zh-CN/settings)。
@@ -531,7 +531,7 @@ export CLAUDE_CODE_USE_MANTLE=1
 export AWS_REGION=us-east-1
 ```
 
-Claude Code 从 AWS 区域构造端点 URL。从 v2.1.172 开始，区域的解析优先级与[上面的 Amazon Bedrock](#3-configure-claude-code) 相同；较早的版本仅使用 `AWS_REGION`。要为自定义端点或网关覆盖 URL，请设置 `ANTHROPIC_BEDROCK_MANTLE_BASE_URL`。
+Claude Code 从 AWS 区域构造端点 URL，使用与[上面的 Amazon Bedrock](#3-configure-claude-code) 相同的优先级解析。要为自定义端点或网关覆盖 URL，请设置 `ANTHROPIC_BEDROCK_MANTLE_BASE_URL`。
 
 在 Claude Code 内运行 `/status` 来确认。当 Mantle 处于活动状态时，提供者行显示 `Amazon Bedrock (Mantle)`。
 

@@ -52,6 +52,12 @@ Bash 沙箱让 Claude 可以运行大多数 shell 命令，而无需停下来请
 
 在面板中选择一个模式时，Claude Code 会将其保存到你的项目的本地设置 `.claude/settings.local.json`，这些设置适用于当前项目。Claude Code 在那里保存设置时会将该文件添加到你的全局 gitignore。要在所有项目中启用沙箱，请在 `~/.claude/settings.json` 的用户设置中将 [`sandbox.enabled`](/docs/zh-CN/settings-reference#sandbox-enabled) 设置为 `true`。要为组织中的每个开发者强制执行沙箱，请使用 [托管设置](#enforce-sandboxing-with-managed-settings)。
 
+要在一个会话中更改沙箱而不写入设置文件，请使用 [`--settings`](/docs/zh-CN/settings#change-a-setting-for-one-session) 启动 Claude Code。例如，此命令启动一个沙箱化会话，其中 Claude 无法在沙箱外重试被阻止的命令：
+
+```bash theme={null}
+claude --settings '{"sandbox": {"enabled": true, "allowUnsandboxedCommands": false}}'
+```
+
 <Warning>
   默认情况下，如果沙箱因缺少依赖项或不支持的平台而无法启动，Claude Code 会显示警告并在没有沙箱的情况下运行命令。要使其成为硬失败，请将 [`sandbox.failIfUnavailable`](/docs/zh-CN/settings-reference#sandbox-failifunavailable) 设置为 `true`。这适用于需要沙箱作为安全门的托管部署。
 </Warning>

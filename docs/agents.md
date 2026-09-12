@@ -19,7 +19,7 @@
 
 三个更多的工具支持这项工作，但它们本身不是运行代理的方式：
 
-* [Worktrees](/docs/zh-CN/worktrees) 为每个会话提供单独的 git 检出，因此并行会话永远不会编辑相同的文件。将它们用于您自己运行的会话。代理视图会自动将每个分派的会话移到自己的 worktree 中，您生成的子代理也可以各自获得一个。
+* [Worktrees](/docs/zh-CN/worktrees) 为每个会话提供单独的 git 检出，因此并行会话永远不会编辑相同的文件。将它们用于您自己运行的会话。代理视图会 [在编辑文件之前将分派的会话移到自己的 worktree 中](/docs/zh-CN/agent-view#how-file-edits-are-isolated)，您生成的子代理也可以各自获得一个。
 * [跨会话消息传递](/docs/zh-CN/cross-session-messaging) 让 Claude 列出并消息传递您在这台机器上、另一台机器上或 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) 上的其他 Claude Code 会话，因此您自己运行的会话可以在彼此之间传递发现和状态。
 * [`/batch`](/docs/zh-CN/commands) 是一个 [skill](/docs/zh-CN/skills)，它让 Claude 将一个大型更改分成 5 到 30 个 worktree 隔离的子代理，每个都打开一个拉取请求。它是子代理和 worktrees 的打包使用，不是一个单独的协调风格。
 

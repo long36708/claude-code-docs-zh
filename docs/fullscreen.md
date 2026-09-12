@@ -33,7 +33,7 @@ Claude Code 将这些内容保留到重新启动的会话中：
   * 如果您倒带到第一条消息之前，Claude Code 会以空对话重新启动
 * 您的[权限模式](/docs/zh-CN/permission-modes)和[努力级别](/docs/zh-CN/model-config#adjust-effort-level)
 * 您最后用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 选择的模型
-* 您用 [`--allowed-tools` 或 `--disallowed-tools`](/docs/zh-CN/cli-reference#cli-flags) 传递的规则，以及您的 `--agent`、`--agents` 和 `--append-system-prompt` 标志
+* 您用 [`--allowed-tools` 或 `--disallowed-tools`](/docs/zh-CN/cli-reference#cli-flags) 传递的规则，以及您的 `--agent`、`--agents`、`--append-system-prompt` 和 `--system-prompt-snapshot` 标志
 
 如果会话有一个限制条件无法传递到重新启动的进程，Claude Code 会拒绝重新启动。无法传递的限制条件包括：
 
@@ -149,6 +149,8 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 
 这些操作可重新绑定。有关完整的操作名称列表（包括没有默认绑定的半页和全页变体），请参阅[滚动操作](/docs/zh-CN/keybindings#scroll-actions)。
 
+当您向上滚动时，对话顶部的一个暗淡标题行显示已滚动到视图上方的最新提示。点击该行可跳转到该提示。
+
 <h3 id="auto-follow">
   自动跟随
 </h3>
@@ -179,7 +181,7 @@ export CLAUDE_CODE_SCROLL_SPEED=3
 
 值 `3` 与 `vim` 和类似应用程序中的默认值匹配。该设置接受任何正值，最高为 20，包括低于 1 的分数值，例如 `0.25` 以减慢已经放大滚轮事件的终端中的加速触控板和滚轮滚动。
 
-要交互式调整滚动速度，运行 `/scroll-speed`。对话框显示一个标尺，您可以在其打开时滚动以立即感受变化。按 `←` 和 `→` 调整速度，按 `r` 重置为自动检测的默认值，按 `Enter` 保存。对话框以整数步长增加到 10，在支持更精细控制的终端上，它还提供四分之一步长，最低为 0.25。四分之一步长需要 Claude Code v2.1.172 或更高版本。
+要交互式调整滚动速度，运行 `/scroll-speed`。对话框显示一个标尺，您可以在其打开时滚动以立即感受变化。按 `←` 和 `→` 调整速度，按 `r` 重置为自动检测的默认值，按 `Enter` 保存。对话框以整数步长增加到 10，在支持更精细控制的终端上，它还提供四分之一步长，最低为 0.25。
 
 该命令写入与 `CLAUDE_CODE_SCROLL_SPEED` 环境变量设置相同的值，持久化到 `~/.claude/settings.json`。对话框的最大值是 10：如果您通过环境变量设置更高的值，对话框显示 10，从对话框保存会持久化 10。该命令在 JetBrains IDE 终端中不可用。
 

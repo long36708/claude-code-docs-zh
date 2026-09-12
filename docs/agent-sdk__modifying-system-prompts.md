@@ -393,9 +393,9 @@ SDK 从数组中组装块如下：
 
 默认情况下，Claude Code 在会话的第一个请求时构建系统提示词一次，包括你的 `append` 文本或自定义提示词，并将其记录在会话中。在会话被压缩之前，每个后续请求都使用该记录的提示词，包括在你使用 `resume` 或 `continue` 返回会话后。如果你在该后续调用上传递不同的 `append` 或自定义提示词，它会在会话被压缩或在新会话中生效。
 
-记录适用于 [fetch feature flags](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话，因为使用 claude.ai 或 Console 账户的会话默认这样做。在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 以及其他不获取它们的会话中，Claude Code 在每个请求上重建提示词。如果你通过 `extraArgs` 传递 `--bare` 或设置 `CLAUDE_CODE_SIMPLE=1` 在 [bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 中启动 Claude Code，记录保持关闭，除非你在 `systemPrompt` 的对象形式上设置 `snapshot: true`。默认情况下记录 `append` 或自定义提示词需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑。
+如果你通过 `extraArgs` 传递 `--bare` 或设置 `CLAUDE_CODE_SIMPLE=1` 在 [bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 中启动 Claude Code，记录保持关闭，除非你在 `systemPrompt` 的对象形式上设置 `snapshot: true`。默认情况下记录 `append` 或自定义提示词需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑。在 Claude Code v2.1.268 之前，不 [fetch feature flags](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的会话，在每个请求上重建提示词，`snapshot` 无效。
 
-要改为在每个请求上重建提示词，请在 TypeScript SDK 中的 `systemPrompt` 的对象形式上设置 `snapshot: false`：`{ type: "preset", preset: "claude_code", append, snapshot: false }` 或 `{ type: "custom", prompt, snapshot: false }`。当你在迭代提示词措辞时或当你的应用程序在恢复相同会话的调用之间改变 `append` 时，使用此形式。`snapshot` 字段需要 `@anthropic-ai/claude-agent-sdk` v0.3.257 或更高版本，在不获取特性标志的会话中无效。
+要改为在每个请求上重建提示词，请在 TypeScript SDK 中的 `systemPrompt` 的对象形式上设置 `snapshot: false`：`{ type: "preset", preset: "claude_code", append, snapshot: false }` 或 `{ type: "custom", prompt, snapshot: false }`。当你在迭代提示词措辞时或当你的应用程序在恢复相同会话的调用之间改变 `append` 时，使用此形式。`snapshot` 字段需要 `@anthropic-ai/claude-agent-sdk` v0.3.257 或更高版本。
 
 <h2 id="compare-the-four-approaches">
   比较四种方法

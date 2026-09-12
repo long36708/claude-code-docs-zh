@@ -110,6 +110,19 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 
 要让管道命令直接到达剪贴板，请将 `pbcopy *`、`wl-copy *` 或 `xclip *` 添加到 [`excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands)，以便命令在沙箱外运行。
 
+<h3 id="copied-text-doesn’t-reach-your-local-clipboard-over-ssh">
+  复制的文本在 SSH 上无法到达您的本地剪贴板
+</h3>
+
+当 Claude Code 通过 SSH 在远程机器上运行时，它无法在您的本地机器上运行剪贴板工具。在 tmux 外，当您在[全屏渲染](/docs/zh-CN/fullscreen)中选择文本或运行 `/copy` 时，Claude Code 会将文本作为 OSC 52 转义序列发送到您的终端。您的终端决定是否将其放在您的剪贴板上。`/copy` 报告 `Copied to clipboard`，无论文本是否到达，在 tmux 外，选择通知读取 `sent N chars via OSC 52`。
+
+某些终端不对 OSC 52 进行操作。iTerm2 忽略它，直到您打开**Settings > General > Selection > Applications in terminal may access clipboard**，macOS Terminal.app 不支持它。
+
+要在没有 OSC 52 的情况下获取文本：
+
+* 按住您的终端的本机选择键同时拖动，然后使用您的终端的常用快捷方式复制，例如 `Cmd+C`。该键在 Terminal.app 中是 `Fn`，在 iTerm2 中是 `Option`。[保持本机文本选择](/docs/zh-CN/fullscreen#keep-native-text-selection)为其他终端列出了它。
+* 在远程机器上设置 [`CLAUDE_CODE_DISABLE_MOUSE=1`](/docs/zh-CN/env-vars)，以便您的终端为整个会话处理选择。
+
 <h3 id="search-and-discovery-issues">
   搜索和发现问题
 </h3>

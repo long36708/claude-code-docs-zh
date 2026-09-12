@@ -121,41 +121,41 @@ Claude Code 会加载插件代理，即使其 frontmatter 没有 `name` 或无�
 
 插件 hooks 响应与 [用户定义的 hooks](/docs/zh-CN/hooks) 相同的生命周期事件：
 
-| Event                 | When it fires                                                                                                                                                                                                                                         |
-| :-------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SessionStart`        | When a session begins or resumes                                                                                                                                                                                                                      |
-| `Setup`               | When you start Claude Code with `--init-only`, or with `--init` or `--maintenance` in `-p` mode. For one-time preparation in CI or scripts                                                                                                            |
-| `UserPromptSubmit`    | When you submit a prompt, before Claude processes it                                                                                                                                                                                                  |
-| `UserPromptExpansion` | When a user-typed command expands into a prompt, before it reaches Claude. Can block the expansion                                                                                                                                                    |
-| `PreToolUse`          | Before a tool call executes. Can block it                                                                                                                                                                                                             |
-| `PermissionRequest`   | When a tool call needs a permission decision                                                                                                                                                                                                          |
-| `PermissionDenied`    | When auto mode denies a tool call, including denials without a classifier verdict. Use JSON `hookSpecificOutput.retry: true` to tell the model it may retry the denied tool call. Claude Code ignores `retry` when the classifier produced no verdict |
-| `PostToolUse`         | After a tool call succeeds                                                                                                                                                                                                                            |
-| `PostToolUseFailure`  | After a tool call fails                                                                                                                                                                                                                               |
-| `PostToolBatch`       | After a full batch of parallel tool calls resolves, before the next model call                                                                                                                                                                        |
-| `Notification`        | When Claude Code sends a notification                                                                                                                                                                                                                 |
-| `MessageDisplay`      | While assistant message text is displayed                                                                                                                                                                                                             |
-| `SubagentStart`       | When a subagent is spawned                                                                                                                                                                                                                            |
-| `SubagentStop`        | When a subagent finishes                                                                                                                                                                                                                              |
-| `TaskCreated`         | When a task is being created via `TaskCreate`                                                                                                                                                                                                         |
-| `TaskCompleted`       | When a task is being marked as completed                                                                                                                                                                                                              |
-| `Stop`                | When Claude finishes responding                                                                                                                                                                                                                       |
-| `StopFailure`         | When the turn ends due to an API error                                                                                                                                                                                                                |
-| `TeammateIdle`        | When an [agent team](/docs/en/agent-teams) teammate is about to go idle                                                                                                                                                                                    |
-| `InstructionsLoaded`  | When a CLAUDE.md or `.claude/rules/*.md` file is loaded into context. Fires at session start and when files are lazily loaded during a session                                                                                                        |
-| `ConfigChange`        | When a configuration file changes during a session                                                                                                                                                                                                    |
-| `CwdChanged`          | When the working directory changes, for example when Claude executes a `cd` command. Useful for reactive environment management with tools like direnv                                                                                                |
-| `DirectoryAdded`      | When a working directory is added mid-session via `/add-dir` or the SDK `register_repo_root` control request                                                                                                                                          |
-| `FileChanged`         | When a watched file changes on disk. The `matcher` field specifies which filenames to watch                                                                                                                                                           |
-| `WorktreeCreate`      | When a worktree is being created via `--worktree`, `isolation: "worktree"`, or for a background session. Replaces default git behavior                                                                                                                |
-| `WorktreeRemove`      | When a worktree is being removed at session exit, when a subagent finishes, or when you delete a background session                                                                                                                                   |
-| `PreCompact`          | Before context compaction                                                                                                                                                                                                                             |
-| `PostCompact`         | After context compaction completes                                                                                                                                                                                                                    |
-| `PreModelSwitch`      | Before Claude Code applies a model switch that you or a client requested. Can block the switch                                                                                                                                                        |
-| `PostModelSwitch`     | After the session's model changes, including changes Claude Code makes on its own, such as restoring the model when you resume a session                                                                                                              |
-| `Elicitation`         | When an MCP server requests user input during a tool call                                                                                                                                                                                             |
-| `ElicitationResult`   | After a user responds to an MCP elicitation, before the response is sent back to the server                                                                                                                                                           |
-| `SessionEnd`          | When a session terminates                                                                                                                                                                                                                             |
+| 事件                    | 触发时机                                                                                                                   |
+| :-------------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `SessionStart`        | 当会话开始或恢复时                                                                                                              |
+| `Setup`               | 当你使用 `--init-only` 启动 Claude Code，或在 `-p` 模式下使用 `--init` 或 `--maintenance` 时。用于 CI 或脚本中的一次性准备                          |
+| `UserPromptSubmit`    | 当你提交提示词时，在 Claude 处理之前                                                                                                 |
+| `UserPromptExpansion` | 当用户输入的命令扩展为提示词时，在到达 Claude 之前。可以阻止扩展                                                                                   |
+| `PreToolUse`          | 在工具调用执行之前。可以阻止它                                                                                                        |
+| `PermissionRequest`   | 当工具调用需要权限决策时                                                                                                           |
+| `PermissionDenied`    | 当自动模式拒绝工具调用时，包括没有分类器判决的拒绝。使用 JSON `hookSpecificOutput.retry: true` 来告诉模型它可以重试被拒绝的工具调用。Claude Code 在分类器未产生判决时忽略 `retry` |
+| `PostToolUse`         | 在工具调用成功后                                                                                                               |
+| `PostToolUseFailure`  | 在工具调用失败后                                                                                                               |
+| `PostToolBatch`       | 在一整批并行工具调用解决后，在下一次模型调用之前                                                                                               |
+| `Notification`        | 当 Claude Code 发送通知时                                                                                                    |
+| `MessageDisplay`      | 当助手消息文本正在显示时                                                                                                           |
+| `SubagentStart`       | 当子代理被生成时                                                                                                               |
+| `SubagentStop`        | 当子代理完成时                                                                                                                |
+| `TaskCreated`         | 当通过 `TaskCreate` 创建任务时                                                                                                 |
+| `TaskCompleted`       | 当任务被标记为已完成时                                                                                                            |
+| `Stop`                | 当 Claude 完成响应时                                                                                                         |
+| `StopFailure`         | 当轮次因 API 错误而结束时                                                                                                        |
+| `TeammateIdle`        | 当[代理团队](/docs/zh-CN/agent-teams)队友即将空闲时                                                                                     |
+| `InstructionsLoaded`  | 当 CLAUDE.md 或 `.claude/rules/*.md` 文件被加载到上下文中时。在会话开始时和文件在会话期间被延迟加载时触发                                                  |
+| `ConfigChange`        | 当配置文件在会话期间更改时                                                                                                          |
+| `CwdChanged`          | 当工作目录更改时，例如当 Claude 执行 `cd` 命令时。对于使用 direnv 等工具的反应式环境管理很有用                                                             |
+| `DirectoryAdded`      | 当工作目录在会话中期通过 `/add-dir` 或 SDK `register_repo_root` 控制请求添加时                                                             |
+| `FileChanged`         | 当监视的文件在磁盘上更改时。`matcher` 字段指定要监视的文件名                                                                                    |
+| `WorktreeCreate`      | 当通过 `--worktree`、`isolation: "worktree"` 创建工作树时，或用于后台会话。替换默认的 git 行为                                                   |
+| `WorktreeRemove`      | 当在会话退出时、子代理完成时或删除后台会话时移除工作树                                                                                            |
+| `PreCompact`          | 在上下文压缩之前                                                                                                               |
+| `PostCompact`         | 在上下文压缩完成后                                                                                                              |
+| `PreModelSwitch`      | 在 Claude Code 应用你或客户端请求的模型切换之前。可以阻止切换                                                                                  |
+| `PostModelSwitch`     | 在会话的模型更改后，包括 Claude Code 自己进行的更改，例如在你恢复会话时恢复模型                                                                         |
+| `Elicitation`         | 当 MCP 服务器在工具调用期间请求用户输入时                                                                                                |
+| `ElicitationResult`   | 在用户响应 MCP 引出后，在响应发送回服务器之前                                                                                              |
+| `SessionEnd`          | 当会话终止时                                                                                                                 |
 
 **Hook 类型**：
 
@@ -488,7 +488,8 @@ manifest 是可选的。如果省略，Claude Code 会在[默认位置](#file-lo
   "lspServers": "./.lsp.json",
   "experimental": {
     "themes": "./themes/",
-    "monitors": "./monitors.json"
+    "monitors": "./monitors.json",
+    "evals": "quality/evals"
   },
   "dependencies": [
     "helper-lib",
@@ -563,21 +564,22 @@ claude plugin validate ./my-plugin --strict
   组件路径字段
 </h3>
 
-| 字段                      | 类型                    | 描述                                                                                                            | 示例                                                   |
-| :---------------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------ | :--------------------------------------------------- |
-| `skills`                | string\|array         | 包含 `<name>/SKILL.md` 的自定义 skill 目录。添加到默认 `skills/` 扫描。请参阅[路径行为规则](#path-behavior-rules)了解 marketplace-root 异常 | `"./custom/skills/"`                                 |
-| `commands`              | string\|array         | 自定义平面 `.md` skill 文件或目录（替换默认 `commands/`）                                                                     | `"./custom/cmd.md"` 或 `["./cmd1.md"]`                |
-| `agents`                | string\|array         | 自定义 agent 文件（替换默认 `agents/`）                                                                                  | `"./custom/agents/reviewer.md"`                      |
-| `workflows`             | string\|array         | 自定义[workflow](/docs/zh-CN/workflows) 脚本文件或目录（替换默认 `workflows/`）                                                    | `"./custom/workflows/"`                              |
-| `hooks`                 | string\|array\|object | Hook 配置路径或内联配置                                                                                                | `"./my-extra-hooks.json"`                            |
-| `mcpServers`            | string\|array\|object | MCP 配置路径或内联配置                                                                                                 | `"./my-extra-mcp-config.json"`                       |
-| `outputStyles`          | string\|array         | 自定义输出样式文件/目录（替换默认 `output-styles/`）                                                                           | `"./styles/"`                                        |
-| `lspServers`            | string\|array\|object | [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) 配置，用于代码智能（转到定义、查找引用等）       | `"./.lsp.json"`                                      |
-| `experimental.themes`   | string\|array         | 颜色主题文件/目录（替换默认 `themes/`）。请参阅[主题](#themes)                                                                    | `"./themes/"`                                        |
-| `experimental.monitors` | string\|array         | 后台[Monitor](/docs/zh-CN/tools-reference#monitor-tool) 配置，在 plugin 活跃时自动启动。请参阅[监视器](#monitors)                      | `"./monitors.json"`                                  |
-| `userConfig`            | object                | 在启用时提示的用户可配置值。请参阅[用户配置](#user-configuration)                                                                  | 见下文                                                  |
-| `channels`              | array                 | 消息注入的频道声明（Telegram、Slack、Discord 风格）。请参阅[频道](#channels)                                                       | 见下文                                                  |
-| `dependencies`          | array                 | 此 plugin 需要的其他 plugin，可选择带有 semver 版本约束。请参阅[约束 plugin 依赖项版本](/docs/zh-CN/plugin-dependencies)                      | `[{ "name": "secrets-vault", "version": "~2.1.0" }]` |
+| 字段                      | 类型                    | 描述                                                                                                                                               | 示例                                                   |
+| :---------------------- | :-------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------- |
+| `skills`                | string\|array         | 包含 `<name>/SKILL.md` 的自定义 skill 目录。添加到默认 `skills/` 扫描。请参阅[路径行为规则](#path-behavior-rules)了解 marketplace-root 异常                                    | `"./custom/skills/"`                                 |
+| `commands`              | string\|array         | 自定义平面 `.md` skill 文件或目录（替换默认 `commands/`）                                                                                                        | `"./custom/cmd.md"` 或 `["./cmd1.md"]`                |
+| `agents`                | string\|array         | 自定义 agent 文件（替换默认 `agents/`）                                                                                                                     | `"./custom/agents/reviewer.md"`                      |
+| `workflows`             | string\|array         | 自定义[workflow](/docs/zh-CN/workflows) 脚本文件或目录（替换默认 `workflows/`）                                                                                       | `"./custom/workflows/"`                              |
+| `hooks`                 | string\|array\|object | Hook 配置路径或内联配置                                                                                                                                   | `"./my-extra-hooks.json"`                            |
+| `mcpServers`            | string\|array\|object | MCP 配置路径或内联配置                                                                                                                                    | `"./my-extra-mcp-config.json"`                       |
+| `outputStyles`          | string\|array         | 自定义输出样式文件/目录（替换默认 `output-styles/`）                                                                                                              | `"./styles/"`                                        |
+| `lspServers`            | string\|array\|object | [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) 配置，用于代码智能（转到定义、查找引用等）                                          | `"./.lsp.json"`                                      |
+| `experimental.themes`   | string\|array         | 颜色主题文件/目录（替换默认 `themes/`）。请参阅[主题](#themes)                                                                                                       | `"./themes/"`                                        |
+| `experimental.monitors` | string\|array         | 后台[Monitor](/docs/zh-CN/tools-reference#monitor-tool) 配置，在 plugin 活跃时自动启动。请参阅[监视器](#monitors)                                                         | `"./monitors.json"`                                  |
+| `experimental.evals`    | string\|array         | plugin 根目录下的目录，当不是默认 `evals/` 时，保存 plugin 的[eval cases](/docs/zh-CN/plugin-evals#use-a-different-eval-directory)。`claude plugin eval --eval-dir` 会覆盖它 | `"quality/evals"`                                    |
+| `userConfig`            | object                | 在启用时提示的用户可配置值。请参阅[用户配置](#user-configuration)                                                                                                     | 见下文                                                  |
+| `channels`              | array                 | 消息注入的频道声明（Telegram、Slack、Discord 风格）。请参阅[频道](#channels)                                                                                          | 见下文                                                  |
+| `dependencies`          | array                 | 此 plugin 需要的其他 plugin，可选择带有 semver 版本约束。请参阅[约束 plugin 依赖项版本](/docs/zh-CN/plugin-dependencies)                                                         | `[{ "name": "secrets-vault", "version": "~2.1.0" }]` |
 
 <h3 id="experimental-components">
   实验性组件
@@ -998,11 +1000,11 @@ Claude Code 提供 CLI 命令用于非交互式插件管理，适用于脚本和
 claude plugin init <name> [options]
 ```
 
-**参数：**
+该命令接受这些参数：
 
 * `<name>`：插件名称。成为技能命名空间和 `~/.claude/skills/` 下的目录名称，因此不能包含空格或路径分隔符。
 
-**选项：**
+该命令接受这些选项：
 
 | 选项                       | 描述                                                                           | 默认值                     |
 | :----------------------- | :--------------------------------------------------------------------------- | :---------------------- |
@@ -1013,7 +1015,7 @@ claude plugin init <name> [options]
 | `-f, --force`            | 覆盖目标处现有的 `.claude-plugin/`                                                   |                         |
 | `-h, --help`             | 显示命令帮助                                                                       |                         |
 
-**别名：** `new`
+`claude plugin new` 是此命令的别名。
 
 每个 `--with` 值都会为该组件添加一个启动文件，准备好编辑：
 
@@ -1029,7 +1031,7 @@ claude plugin init <name> [options]
 
 搭建的插件使用 `@skills-dir` 源而不是市场。管理员可以通过 `strictKnownMarketplaces` 或在 [managed settings](/docs/zh-CN/plugin-marketplaces#managed-marketplace-restrictions) 中添加 `{"source": "skills-dir"}` 到 `blockedMarketplaces` 来阻止此源。当被阻止时，`plugin init` 在写入前失败。
 
-**示例：**
+这些示例显示常见的调用：
 
 ```bash theme={null}
 # 搭建最小插件
@@ -1052,22 +1054,31 @@ claude plugin init my-helper --force
 claude plugin install <plugin> [options]
 ```
 
-**参数：**
+该命令接受这些参数：
 
 * `<plugin>`：插件名称或 `plugin-name@marketplace-name` 用于特定市场
 
-**选项：**
+该命令接受这些选项：
 
 | 选项                     | 描述                                                                                                                                                                                                                                                                                                                      | 默认值    |
 | :--------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----- |
 | `-s, --scope <scope>`  | 安装范围：`user`、`project` 或 `local`                                                                                                                                                                                                                                                                                         | `user` |
 | `--config <key=value>` | 设置插件清单中声明的 [`userConfig`](#user-configuration) 选项。重复该标志以设置多个选项                                                                                                                                                                                                                                                          |        |
 | `-y, --yes`            | 接受插件市场声明的命令，无需确认提示：生成具有 [`command` source](/docs/zh-CN/plugin-marketplaces#command-sources) 的插件的命令，或验证存档下载的 [`headersHelper`](/docs/zh-CN/plugin-marketplaces#authenticate-archive-downloads)。接受 `headersHelper` 需要 Claude Code v2.1.238 或更高版本。Claude Code 仍会首先打印命令。当 stdin 或 stdout 不是 TTY 时需要。在 Claude Code 会话内无效，因此从您自己的终端运行命令 |        |
+| `--json`               | 将结果作为 stdout 最后一行的一个 JSON 对象打印，用于脚本。请参阅 [JSON result format](#plugin-json-result)。需要 Claude Code v2.1.268 或更高版本                                                                                                                                                                                                         |        |
 | `-h, --help`           | 显示命令帮助                                                                                                                                                                                                                                                                                                                  |        |
 
 范围决定了已安装插件添加到哪个设置文件。例如，`--scope project` 写入 .claude/settings.json 中的 `enabledPlugins`，使插件对克隆项目存储库的每个人都可用。
 
-**示例：**
+<span id="plugin-json-result" />使用 `--json`，stdout 的最后一行是一个 JSON 对象。仅解析该行，因为 Claude Code 会在其前面打印市场声明的任何命令。三个字段始终存在：
+
+* `command`：运行的子命令，例如 `install`
+* `outcome`：`ok` 或 `failed`
+* `message`：结果的人类可读描述
+
+其他字段，例如 `pluginId`、`scope` 和 `failureCode`，仅在适用时出现。`plugin uninstall`、`plugin update`、`plugin enable` 和 `plugin disable` 上的 `--json` 选项打印具有该子命令自己字段的相同对象。使用错误，例如无效的 `--scope`，不打印结果行并以 stderr 上的原因退出 1。
+
+这些示例显示常见的调用：
 
 ```bash theme={null}
 # 安装到用户范围（默认）
@@ -1090,21 +1101,22 @@ claude plugin install formatter@my-marketplace --scope local
 claude plugin uninstall <plugin> [options]
 ```
 
-**参数：**
+该命令接受这些参数：
 
 * `<plugin>`：插件名称或 `plugin-name@marketplace-name`
 
-**选项：**
+该命令接受这些选项：
 
-| 选项                    | 描述                                                            | 默认值    |
-| :-------------------- | :------------------------------------------------------------ | :----- |
-| `-s, --scope <scope>` | 从范围卸载：`user`、`project` 或 `local`                              | `user` |
-| `--keep-data`         | 保留插件的 [persistent data directory](#persistent-data-directory) |        |
-| `--prune`             | 同时删除没有其他插件需要的自动安装依赖项。请参阅 [plugin prune](#plugin-prune)        |        |
-| `-y, --yes`           | 跳过 `--prune` 确认提示。当 stdin 或 stdout 不是 TTY 时需要                 |        |
-| `-h, --help`          | 显示命令帮助                                                        |        |
+| 选项                    | 描述                                                                                                                                  | 默认值    |
+| :-------------------- | :---------------------------------------------------------------------------------------------------------------------------------- | :----- |
+| `-s, --scope <scope>` | 从范围卸载：`user`、`project` 或 `local`                                                                                                    | `user` |
+| `--keep-data`         | 保留插件的 [persistent data directory](#persistent-data-directory)                                                                       |        |
+| `--prune`             | 同时删除没有其他插件需要的自动安装依赖项。请参阅 [plugin prune](#plugin-prune)                                                                              |        |
+| `-y, --yes`           | 跳过 `--prune` 确认提示。当 stdin 或 stdout 不是 TTY 时需要                                                                                       |        |
+| `--json`              | 将结果作为 stdout 最后一行的一个 JSON 对象打印，格式与 [`plugin install --json`](#plugin-json-result) 相同。不能与 `--prune` 组合。需要 Claude Code v2.1.268 或更高版本 |        |
+| `-h, --help`          | 显示命令帮助                                                                                                                              |        |
 
-**别名：** `remove`、`rm`
+`claude plugin remove` 和 `claude plugin rm` 是此命令的别名。
 
 默认情况下，从最后剩余的范围卸载也会删除插件的 `${CLAUDE_PLUGIN_DATA}` 目录。使用 `--keep-data` 保留它，例如在测试新版本后重新安装时。
 
@@ -1122,7 +1134,7 @@ claude plugin uninstall <plugin> [options]
 claude plugin prune [options]
 ```
 
-**选项：**
+该命令接受这些选项：
 
 | 选项                    | 描述                                 | 默认值    |
 | :-------------------- | :--------------------------------- | :----- |
@@ -1131,7 +1143,7 @@ claude plugin prune [options]
 | `-y, --yes`           | 跳过确认提示。当 stdin 或 stdout 不是 TTY 时需要 |        |
 | `-h, --help`          | 显示命令帮助                             |        |
 
-**别名：** `autoremove`
+`claude plugin autoremove` 是此命令的别名。
 
 该命令列出孤立的依赖项并在删除前请求确认。要在一个步骤中删除插件并清理其依赖项，请运行 `claude plugin uninstall <plugin> --prune`。
 
@@ -1145,16 +1157,17 @@ claude plugin prune [options]
 claude plugin enable <plugin> [options]
 ```
 
-**参数：**
+该命令接受这些参数：
 
 * `<plugin>`：插件名称或 `plugin-name@marketplace-name`
 
-**选项：**
+该命令接受这些选项：
 
-| 选项                    | 描述                                                        | 默认值  |
-| :-------------------- | :-------------------------------------------------------- | :--- |
-| `-s, --scope <scope>` | 启用范围：`user`、`project` 或 `local`。省略时，Claude Code 检测安装插件的范围 | 自动检测 |
-| `-h, --help`          | 显示命令帮助                                                    |      |
+| 选项                    | 描述                                                                                                                 | 默认值  |
+| :-------------------- | :----------------------------------------------------------------------------------------------------------------- | :--- |
+| `-s, --scope <scope>` | 启用范围：`user`、`project` 或 `local`。省略时，Claude Code 检测安装插件的范围                                                          | 自动检测 |
+| `--json`              | 将结果作为 stdout 最后一行的一个 JSON 对象打印，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本 |      |
+| `-h, --help`          | 显示命令帮助                                                                                                             |      |
 
 <h3 id="plugin-disable">
   plugin disable
@@ -1166,17 +1179,18 @@ claude plugin enable <plugin> [options]
 claude plugin disable [plugin] [options]
 ```
 
-**参数：**
+该命令接受这些参数：
 
 * `[plugin]`：插件名称或 `plugin-name@marketplace-name`。使用 `--all` 时可选
 
-**选项：**
+该命令接受这些选项：
 
-| 选项                    | 描述                                                        | 默认值  |
-| :-------------------- | :-------------------------------------------------------- | :--- |
-| `-a, --all`           | 禁用所有启用的插件。不能与 `--scope` 组合                                |      |
-| `-s, --scope <scope>` | 禁用范围：`user`、`project` 或 `local`。省略时，Claude Code 检测安装插件的范围 | 自动检测 |
-| `-h, --help`          | 显示命令帮助                                                    |      |
+| 选项                    | 描述                                                                                                                 | 默认值  |
+| :-------------------- | :----------------------------------------------------------------------------------------------------------------- | :--- |
+| `-a, --all`           | 禁用所有启用的插件。不能与 `--scope` 组合                                                                                         |      |
+| `-s, --scope <scope>` | 禁用范围：`user`、`project` 或 `local`。省略时，Claude Code 检测安装插件的范围                                                          | 自动检测 |
+| `--json`              | 将结果作为 stdout 最后一行的一个 JSON 对象打印，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本 |      |
+| `-h, --help`          | 显示命令帮助                                                                                                             |      |
 
 <h3 id="plugin-update">
   plugin update
@@ -1188,16 +1202,17 @@ claude plugin disable [plugin] [options]
 claude plugin update <plugin> [options]
 ```
 
-**参数：**
+该命令接受这些参数：
 
 * `<plugin>`：插件名称或 `plugin-name@marketplace-name`
 
-**选项：**
+该命令接受这些选项：
 
 | 选项                    | 描述                                                                                                                                                                                                                                                                                                                      | 默认值    |
 | :-------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----- |
 | `-s, --scope <scope>` | 更新范围：`user`、`project`、`local` 或 `managed`                                                                                                                                                                                                                                                                               | `user` |
 | `-y, --yes`           | 接受插件市场声明的命令，无需确认提示：生成具有 [`command` source](/docs/zh-CN/plugin-marketplaces#command-sources) 的插件的命令，或验证存档下载的 [`headersHelper`](/docs/zh-CN/plugin-marketplaces#authenticate-archive-downloads)。接受 `headersHelper` 需要 Claude Code v2.1.238 或更高版本。Claude Code 仍会首先打印命令。当 stdin 或 stdout 不是 TTY 时需要。在 Claude Code 会话内无效，因此从您自己的终端运行命令 |        |
+| `--json`              | 将结果作为 stdout 最后一行的一个 JSON 对象打印，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本                                                                                                                                                                                                      |        |
 | `-h, --help`          | 显示命令帮助                                                                                                                                                                                                                                                                                                                  |        |
 
 <Note>
@@ -1216,13 +1231,13 @@ claude plugin update <plugin> [options]
 claude plugin list [options]
 ```
 
-**选项：**
+该命令接受这些选项：
 
-| 选项            | 描述                     | 默认值 |
-| :------------ | :--------------------- | :-- |
-| `--json`      | 输出为 JSON               |     |
-| `--available` | 包括市场中的可用插件。需要 `--json` |     |
-| `-h, --help`  | 显示命令帮助                 |     |
+| 选项            | 描述                                                                                                                                                            | 默认值 |
+| :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-- |
+| `--json`      | 输出为 JSON。具有加载问题或创作警告的插件行携带 `errors` 或 `notes` 字符串数组。在 Claude Code v2.1.268 或更高版本上，并行 `errorDetails` 和 `noteDetails` 数组为每个条目提供诊断 `type` 和它引用的名称，例如插件、市场、服务器或文件 |     |
+| `--available` | 包括市场中的可用插件。需要 `--json`                                                                                                                                        |     |
+| `-h, --help`  | 显示命令帮助                                                                                                                                                        |     |
 
 在交互式会话中，`/plugin list` 打印类似的列表内联，但仅涵盖市场安装的插件：
 
@@ -1242,11 +1257,11 @@ claude plugin list [options]
 claude plugin details <name>
 ```
 
-**参数：**
+该命令接受这些参数：
 
 * `<name>`：插件名称或 `plugin-name@marketplace-name`
 
-**选项：**
+该命令接受这些选项：
 
 | 选项           | 描述     | 默认值 |
 | :----------- | :----- | :-- |
@@ -1297,11 +1312,11 @@ always-on 总计通过您的活跃模型的 `count_tokens` API 计算。按组�
 claude plugin validate <path> [options]
 ```
 
-**参数：**
+该命令接受这些参数：
 
 * `<path>`：插件目录或市场目录的路径。请参阅 [Validate a plugin or a directory without a manifest](/docs/zh-CN/plugin-marketplaces#validate-a-plugin-or-a-directory-without-a-manifest) 了解插件运行涵盖的文件。
 
-**选项：**
+该命令接受这些选项：
 
 | 选项           | 描述                                                                                  | 默认值 |
 | :----------- | :---------------------------------------------------------------------------------- | :-- |
@@ -1321,6 +1336,59 @@ claude plugin validate <path> [options]
 
 在交互式会话中，`/plugin validate <path>` 内联运行相同的检查。
 
+<h3 id="plugin-eval">
+  plugin eval
+</h3>
+
+运行插件的 [eval cases](/docs/zh-CN/plugin-evals) 并报告评分结果。需要 Claude Code v2.1.269 或更高版本。每个案例都是一个提示加评分器；Claude Code 在隔离会话中运行它多次，仅加载目标插件，默认情况下也不加载插件，以便报告显示差异。请参阅 [Test plugins with evals](/docs/zh-CN/plugin-evals) 了解案例格式、评分器、结果和 CI 使用。
+
+```bash theme={null}
+claude plugin eval [target] [options]
+```
+
+可选的 `target` 是一个插件目录、单个 `prompt.md` 或 `case.yaml` 文件、已安装的插件作为 `name` 或 `name@marketplace`，或 `name@skills-dir`，默认为当前目录。将其放在 `--tag`、`--allow-tools` 和 `--json` 之前。
+
+此表列出大多数运行使用的选项。运行 `claude plugin eval --help` 以获取完整集合，包括 `--case`、`--tag`、`--output-dir`、`--report`、`--allow-real-servers`、`--keep-temp` 和 `--verbose`。
+
+| 选项                         | 描述                                                                                                                             | 默认值                                                          |
+| :------------------------- | :----------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------- |
+| `--runs <n>`               | 每个案例每个分支的运行次数                                                                                                                  | 每个案例的 `runs`，否则 3                                            |
+| `-j, --concurrency <n>`    | 一次运行的代理会话数，1 到 8。它们共享您的速率限制                                                                                                    | `1`                                                          |
+| `--model <model>`          | 被测试代理的模型                                                                                                                       | 每个案例的 `model`，否则 `ANTHROPIC_MODEL`（如果设置），否则 Claude Code 的默认值 |
+| `--judge-model <model>`    | `llm` 和 `baseline` 评分器的模型                                                                                                      | 一个小的快速模型                                                     |
+| `--ablation <mode>`        | `none` 或 `with-without`。请参阅 [Compare against a no-plugin baseline](/docs/zh-CN/plugin-evals#compare-against-a-no-plugin-baseline)   | 当插件解析时为 `with-without`，否则为 `none`                            |
+| `--threshold <0..1>`       | 如果任何案例评分低于此值则退出 1                                                                                                              | `1.0`                                                        |
+| `--max-cost-usd <usd>`     | 一旦支出达到此值就停止下一次运行，退出 2，并报告部分结果                                                                                                  | 无上限                                                          |
+| `--allow-tools <tools...>` | 授予超出只读集合的工具，例如 `Bash`、`Write`、`Edit` 或 `"mcp__plugin_<plugin>_<server>__*"`。请参阅 [Grant tools](/docs/zh-CN/plugin-evals#grant-tools) |                                                              |
+| `--scaffold`               | 运行每个案例的 [`scaffold_script`](/docs/zh-CN/plugin-evals#add-setup-or-history-with-case-yaml)                                           | 关闭                                                           |
+| `--trust-plugin`           | 跳过首次运行信任提示，用于 CI。请参阅 [What a run can access](/docs/zh-CN/plugin-evals#security)                                                     | 关闭                                                           |
+| `--mocks <mode>`           | `record` 或 `off`。请参阅 [Mock MCP servers](/docs/zh-CN/plugin-evals#mock-mcp-servers)                                                  | `record`                                                     |
+| `--eval-dir <dir>`         | 保存案例的插件下方的目录                                                                                                                   | 清单的 `experimental.evals`，否则 `evals`                          |
+| `--json [path]`            | 将 [result document](/docs/zh-CN/plugin-evals#json-result) 打印到 stdout，或将其写入 `.json` 路径                                               |                                                              |
+| `--no-publish`             | 保持 HTML 报告本地                                                                                                                   |                                                              |
+| `-h, --help`               | 显示命令帮助                                                                                                                         |                                                              |
+
+当每个案例都满足阈值时命令退出 0，在失败案例、加载错误或不受信任的插件目录时退出 1，在部分运行时退出 2，中断时退出 130，终止时退出 143。请参阅 [Run evals in CI](/docs/zh-CN/plugin-evals#run-evals-in-ci)。
+
+<h3 id="plugin-eval-init">
+  plugin eval init
+</h3>
+
+为当前目录中的插件创建一个 eval 套件。需要 Claude Code v2.1.269 或更高版本。在终端中，这会启动一个创作访谈，读取插件、提议案例和评分器、试验它们并写入文件。使用 `--bare`，或没有终端时，它会写入一个空白的单案例模板。从交互式 Claude Code 会话内运行，它会打印该会话要遵循的访谈说明，而不是写入模板。请参阅 [Create your first eval suite](/docs/zh-CN/plugin-evals#create-your-first-eval-suite)。
+
+```bash theme={null}
+claude plugin eval init [name] [options]
+```
+
+可选的 `name` 是一个案例名称：访谈不需要一个，而 `--bare` 和无终端模板路径需要一个。它接受这些选项：
+
+| 选项                  | 描述                                                             | 默认值                                 |
+| :------------------ | :------------------------------------------------------------- | :---------------------------------- |
+| `--bare`            | 为 `<name>` 写入一个空白的 `prompt.md` 和 `graders/criteria.md`，而不是运行访谈 |                                     |
+| `-i, --interactive` | 需要访谈。没有终端时失败，而不是写入模板                                           |                                     |
+| `--eval-dir <dir>`  | 当前目录下方写入案例的目录                                                  | 清单的 `experimental.evals`，否则 `evals` |
+| `-h, --help`        | 显示命令帮助                                                         |                                     |
+
 <h3 id="plugin-tag">
   plugin tag
 </h3>
@@ -1331,11 +1399,11 @@ claude plugin validate <path> [options]
 claude plugin tag [path] [options]
 ```
 
-**参数：**
+该命令接受这些参数：
 
 * `[path]`：插件目录的路径。默认为当前目录。
 
-**选项：**
+该命令接受这些选项：
 
 | 选项                    | 描述                      | 默认值      |
 | :-------------------- | :---------------------- | :------- |

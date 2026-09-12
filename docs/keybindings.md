@@ -542,7 +542,7 @@ ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
 
 这也适用于和弦绑定。取消绑定共享前缀的每个和弦会释放该前缀以用作单键绑定。任何活跃上下文中的和弦都会保留其前缀，因此您必须在定义该和弦的上下文中取消绑定每个和弦。
 
-Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl+x ctrl+k`、`ctrl+x ctrl+e` 和 `ctrl+x enter`，`Task` 中的 `ctrl+x ctrl+b`，以及 `DiffPanel` 中的 `ctrl+x b`。`ctrl+x enter` 和弦需要 v2.1.247 或更高版本，`ctrl+x b` 需要 v2.1.260 或更高版本。要将 `ctrl+x` 本身回收为单键绑定，请取消绑定所有这些：
+Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl+x ctrl+k`、`ctrl+x ctrl+e`、`ctrl+x enter`、`ctrl+x ctrl+a` 和 `ctrl+x tab`，`Task` 中的 `ctrl+x ctrl+b`，以及 `DiffPanel` 中的 `ctrl+x b`。`ctrl+x enter` 和弦需要 v2.1.247 或更高版本，`ctrl+x b`、`ctrl+x ctrl+a` 和 `ctrl+x tab` 需要 v2.1.260 或更高版本。要将 `ctrl+x` 本身回收为单键绑定，请取消绑定所有这些：
 
 ```json theme={null}
 {
@@ -565,6 +565,8 @@ Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl
         "ctrl+x ctrl+k": null,
         "ctrl+x ctrl+e": null,
         "ctrl+x enter": null,
+        "ctrl+x ctrl+a": null,
+        "ctrl+x tab": null,
         "ctrl+x": "chat:newline"
       }
     }

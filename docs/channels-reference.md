@@ -170,7 +170,7 @@ Channel 是一个在与 Claude Code 相同的机器上运行的 [MCP](https://mo
 
     如果事件没有到达，诊断取决于 `curl` 返回的内容：
 
-    * **`curl` 成功但没有任何内容到达 Claude**：在您的会话中运行 `/mcp` 以检查服务器的状态。`failed` 状态通常意味着您的服务器文件中存在依赖项或导入错误；检查 `~/.claude/debug/<session-id>.txt` 处的调试日志以获取 stderr 跟踪。
+    * **`curl` 成功但没有任何内容到达 Claude**：在您的会话中运行 `/mcp` 以检查服务器的状态。`failed` 状态通常意味着您的服务器文件中存在依赖项或导入错误。要查看 stderr 跟踪，请使用 `claude --debug --dangerously-load-development-channels server:webhook` 重新启动，并检查 `~/.claude/debug/<session-id>.txt` 处的调试日志。
     * **`curl` 失败，显示"connection refused"**：端口要么尚未绑定，要么来自较早运行的陈旧进程正在占用它。`lsof -i :<port>` 显示正在侦听的内容；在重新启动会话之前 `kill` 陈旧进程。
   </Step>
 </Steps>

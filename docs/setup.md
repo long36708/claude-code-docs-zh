@@ -41,36 +41,36 @@ Claude Code 在以下平台和配置上运行：
   初次使用终端？请参阅[终端指南](/docs/zh-CN/terminal-guide)获取分步说明。
 </Tip>
 
-To install Claude Code, use one of the following methods:
+要安装 Claude Code，请使用以下方法之一：
 
 <Tabs>
-  <Tab title="Native Install (Recommended)">
-    **macOS, Linux, WSL:**
+  <Tab title="原生安装（推荐）">
+    **macOS、Linux、WSL：**
 
     ```bash theme={null}
     curl -fsSL https://claude.ai/install.sh | bash
     ```
 
-    **Windows PowerShell:**
+    **Windows PowerShell：**
 
     ```powershell theme={null}
     irm https://claude.ai/install.ps1 | iex
     ```
 
-    **Windows CMD:**
+    **Windows CMD：**
 
     ```batch theme={null}
     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
     ```
 
-    If you see `The token '&&' is not a valid statement separator`, you're in PowerShell, not CMD. If you see `'irm' is not recognized as an internal or external command`, you're in CMD, not PowerShell. Your prompt shows `PS C:\` when you're in PowerShell and `C:\` without the `PS` when you're in CMD.
+    如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。当您在 PowerShell 中时，您的提示符显示 `PS C:\`，当您在 CMD 中时显示 `C:\`（没有 `PS`）。
 
-    If the install command fails with `syntax error near unexpected token '<'`, a `403`, or another curl error, see [Troubleshoot installation](/docs/en/troubleshoot-install#find-your-error) to match the error to a fix and for alternative install methods.
+    如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他 curl 错误，请参阅 [Troubleshoot installation](/docs/zh-CN/troubleshoot-install#find-your-error) 以匹配错误并获得修复方案和替代安装方法。
 
-    [Git for Windows](https://git-scm.com/downloads/win) is recommended on native Windows so Claude Code can use the Bash tool. If Git for Windows is not installed, Claude Code uses PowerShell as the shell tool instead. WSL setups do not need Git for Windows.
+    建议在原生 Windows 上安装 [Git for Windows](https://git-scm.com/downloads/win)，以便 Claude Code 可以使用 Bash 工具。如果未安装 Git for Windows，Claude Code 将使用 PowerShell 作为 shell 工具。WSL 设置不需要 Git for Windows。
 
     <Info>
-      Native installations automatically update in the background to keep you on the latest version.
+      原生安装会在后台自动更新，以保持您使用最新版本。
     </Info>
   </Tab>
 
@@ -79,10 +79,10 @@ To install Claude Code, use one of the following methods:
     brew install --cask claude-code
     ```
 
-    Homebrew offers two casks. `claude-code` tracks the stable release channel, which is typically about a week behind and skips releases with major regressions. `claude-code@latest` tracks the latest channel and receives new versions as soon as they ship.
+    Homebrew 提供两个 casks。`claude-code` 跟踪稳定发布渠道，通常比最新版本晚约一周，并跳过有重大回归的版本。`claude-code@latest` 跟踪最新渠道，在新版本发布时立即接收。
 
     <Info>
-      Homebrew installations do not auto-update. Run `brew upgrade claude-code` or `brew upgrade claude-code@latest`, depending on which cask you installed, to get the latest features and security fixes.
+      Homebrew 安装不会自动更新。运行 `brew upgrade claude-code` 或 `brew upgrade claude-code@latest`（取决于您安装的 cask）以获取最新功能和安全修复。
     </Info>
   </Tab>
 
@@ -92,12 +92,12 @@ To install Claude Code, use one of the following methods:
     ```
 
     <Info>
-      WinGet installations do not auto-update. Run `winget upgrade Anthropic.ClaudeCode` periodically to get the latest features and security fixes.
+      WinGet 安装不会自动更新。定期运行 `winget upgrade Anthropic.ClaudeCode` 以获取最新功能和安全修复。
     </Info>
   </Tab>
 </Tabs>
 
-You can also install with [apt, dnf, or apk](/docs/en/setup#install-with-linux-package-managers) on Debian, Fedora, RHEL, and Alpine.
+您也可以在 Debian、Fedora、RHEL 和 Alpine 上使用 [apt、dnf 或 apk](/docs/zh-CN/setup#install-with-linux-package-managers) 进行安装。
 
 安装完成后，在您要使用的项目中打开终端并启动 Claude Code：
 
@@ -295,6 +295,8 @@ Homebrew 安装通过 cask 名称而不是此设置来选择渠道：`claude-cod
   }
 }
 ```
+
+在原生或 npm 安装上，通过运行 `claude doctor` 并检查 `Auto-updates` 行是否显示 `disabled (set by env: DISABLE_AUTOUPDATER)` 而不是 `enabled` 来确认更改已生效。
 
 `DISABLE_AUTOUPDATER` 仅停止后台检查；`claude update` 和 `claude install` 仍然有效。要阻止所有更新路径（包括手动更新），请改为设置 [`DISABLE_UPDATES`](/docs/zh-CN/env-vars)。当您通过自己的渠道分发 Claude Code 并需要用户保持在您提供的版本上时，请使用此选项。
 

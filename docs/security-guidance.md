@@ -43,11 +43,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
 * 插件 [在市场中找不到](/docs/zh-CN/discover-plugins#install-plugins)：检查插件名称。
 
-检查安装摘要。如果它报告 `Run /reload-plugins to activate.`，应用待处理的更改而无需重启：
-
-```text theme={null}
-/reload-plugins
-```
+检查安装摘要。如果它报告 `Run /reload-plugins to activate.`，请参阅 [无需重启即可应用插件更改](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting) 以在当前会话中激活插件。
 
 <h3 id="enable-in-cloud-sessions-and-shared-repositories">
   在云会话和共享存储库中启用

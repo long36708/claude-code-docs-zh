@@ -81,14 +81,14 @@ Deny 规则的行为取决于它们是命名工具还是在工具内范围化模
 
 Claude Code 支持多种权限模式来控制工具调用的批准方式。请参阅[权限模式](/docs/zh-CN/permission-modes)了解何时使用每种模式。要更改会话启动时的模式，请在您的[设置文件](/docs/zh-CN/settings#where-settings-live)中设置 `defaultMode`。[会话启动时的模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)涵盖了每个计划的内置默认值以及 VS Code 扩展读取的内容。
 
-| 模式                  | 描述                                                                                                                                                                                                                                                          |
-| :------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `default`           | 在首次使用每个工具时提示权限。在 CLI、VS Code 和 JetBrains 扩展以及桌面应用中标记为 Manual，Claude Code 接受 `manual` 作为别名。标签和别名需要 Claude Code v2.1.200 或更高版本。桌面应用的标签不依赖于您的 CLI 版本                                                                                                           |
-| `acceptEdits`       | 自动接受工作目录或 `additionalDirectories` 中路径的文件编辑和常见文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp`                                                                                                                                                                          |
-| `plan`              | Claude 读取文件并运行只读 shell 命令来探索，但不编辑您的源文件；在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)可用的情况下，分类器批准的命令也会运行。在 CLI 和 VS Code 扩展中标记为 Plan                                                                                                     |
-| `auto`              | 自动批准工具调用，并进行后台安全检查以验证操作与您的请求一致                                                                                                                                                                                                                              |
-| `dontAsk`           | 自动拒绝工具，除非通过 `/permissions` 或 `permissions.allow` 规则预先批准。`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)即使您已允许它们也会被拒绝 |
-| `bypassPermissions` | 跳过权限提示，除了[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)                                                                                                                                                                            |
+| 模式                  | 描述                                                                                                                                                                                                                                                                                                                          |
+| :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default`           | 在首次使用每个工具时提示权限。在 CLI、VS Code 和 JetBrains 扩展以及桌面应用中标记为 Manual，Claude Code 接受 `manual` 作为别名。标签和别名需要 Claude Code v2.1.200 或更高版本。桌面应用的标签不依赖于您的 CLI 版本                                                                                                                                                                           |
+| `acceptEdits`       | 自动接受工作目录或 `additionalDirectories` 中路径的文件编辑和常见文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp`                                                                                                                                                                                                                                          |
+| `plan`              | Claude 读取文件并运行只读 shell 命令来探索，但不编辑您的源文件；在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)可用的情况下，分类器批准的命令也会运行。在 CLI 和 VS Code 扩展中标记为 Plan                                                                                                                                                                     |
+| `auto`              | 自动批准工具调用，并进行后台安全检查以验证操作与您的请求一致                                                                                                                                                                                                                                                                                              |
+| `dontAsk`           | 自动拒绝每个会导致提示的调用；您的工作目录中的文件读取和其他不需要批准的操作仍会运行，通过 `/permissions` 或 `permissions.allow` 规则预先批准的工具也会运行。`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)在该设置到达 Claude Code 的会话中即使您已允许它们也会被拒绝 |
+| `bypassPermissions` | 跳过权限提示，除了[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)                                                                                                                                                                                                                                            |
 
 <Warning>
   在 `bypassPermissions` 模式中，Claude Code 跳过权限提示，包括对[受保护路径](/docs/zh-CN/permission-modes#protected-paths)（例如 `.git` 和 `.claude`）的写入。[跨会话消息传递保护措施](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)仍然适用。仅在隔离环境（如容器或虚拟机）中使用此模式，其中 Claude Code 无法造成损害。
@@ -455,9 +455,9 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 当 Claude 访问符号链接时，权限规则检查两个路径：符号链接本身和它解析到的文件。Allow 和 deny 规则对该对的处理方式不同：allow 规则回退到提示您，而 deny 规则直接阻止。
 
 * **Allow 规则**：仅在符号链接路径及其目标都匹配时适用。允许目录内的符号链接指向其外部仍然会提示您。
-* **Deny 规则**：当符号链接路径或其目标匹配时适用。指向被拒绝文件的符号链接本身被拒绝。
+* **Deny 规则**：当符号链接路径或其目标匹配时适用。指向被拒绝文件的符号链接本身被拒绝。例如，使用 `Read(./project/**)` 允许和 `Read(~/.ssh/**)` 拒绝，`./project/key` 处的符号链接指向 `~/.ssh/id_rsa` 被阻止：目标未通过 allow 规则，并匹配 deny 规则。
 
-例如，使用 `Read(./project/**)` 允许和 `Read(~/.ssh/**)` 拒绝，`./project/key` 处的符号链接指向 `~/.ssh/id_rsa` 被阻止：目标未通过 allow 规则，并匹配 deny 规则。
+在 macOS 和 Linux 上，通过带有 `//`、`~/` 或 `/` 模式的符号链接目录编写的 deny 或 ask 规则也适用于该目录的真实位置。例如，在 macOS 上，其中 `/etc` 解析为 `/private/etc`，`Read(//etc/**)` 也阻止 `/private/etc/hosts`。在 v2.1.268 之前，通过符号链接目录编写的 deny 或 ask 规则不适用于其真实位置给出的路径。
 
 当工具打开已批准的文件时，Claude Code [确认路径仍然解析到权限检查批准的位置](/docs/zh-CN/errors#refusing-after-a-symlink-changed)。
 
@@ -489,6 +489,10 @@ WebFetch 规则中的通配符需要 Claude Code v2.1.172 或更高版本来匹�
 | :------------------- | :------------------------------- | :------------------------------------------------------------ |
 | `WebFetch`           | Claude 无需提示您即可获取。不改变沙箱命令可以到达的主机。 | Claude Code 移除 `WebFetch` 工具，因此 Claude 根本无法获取。不改变沙箱命令可以到达的主机。 |
 | `WebFetch(domain:*)` | Claude 无需提示您即可获取，沙箱命令可以到达任何主机。   | Claude Code 保留工具并拒绝每次获取，沙箱命令无法到达任何主机。                         |
+
+两种形式也在[工件](/docs/zh-CN/artifacts)的读取上有所不同，即 Artifact 工具在 claude.ai 上发布的页面。裸 `WebFetch` deny 或 ask 规则不适用于这些读取。覆盖 `claude.ai` 或 `*.claudeusercontent.com` 内容主机的 `domain:` 规则，如 `WebFetch(domain:claude.ai)` 或 `WebFetch(domain:*)`，拒绝每次读取或在读取前提示。[`Artifact` 规则](/docs/zh-CN/artifacts#disable-artifacts)也是如此。
+
+当规则阻止读取时，拒绝命名规则。在 v2.1.268 之前，裸 `WebFetch` deny 规则阻止每次工件读取，裸 ask 规则在每次读取前提示。
 
 要让 Claude 自由获取同时保持沙箱允许列表不变，请使用裸形式。此 `settings.json` 这样做：
 

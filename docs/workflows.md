@@ -173,7 +173,7 @@ Ultracode 是一个 Claude Code 设置，它结合了 `xhigh` [推理努力](/do
 
 启用 ultracode 后，Claude 决定任务何时值得工作流。单个请求可以变成一系列工作流：一个理解代码，一个进行更改，一个验证它。这适用于会话中的每个任务，所以每个请求使用更多令牌并花费比较低努力级别更长的时间。
 
-`/effort ultracode` 持续当前会话；要让每个会话都以它开始，设置 [`ultracode`](/docs/zh-CN/settings-reference#ultracode) 设置。当您返回日常工作时，使用 `/effort high` 下降。它在支持 `xhigh` [努力](/docs/zh-CN/model-config#adjust-effort-level)的模型上可用；在其他模型上，`/effort` 菜单不提供它。
+`/effort ultracode` 持续当前会话；要让每个会话都以它开始，设置 [`ultracode`](/docs/zh-CN/settings-reference#ultracode) 设置。当您返回日常工作时，使用 `/effort high` 下降。`/effort` 菜单仅在 [ultracode 可用时](/docs/zh-CN/model-config#when-ultracode-is-available)提供它。
 
 <h3 id="approve-the-plan-before-it-runs">
   在运行前批准计划
@@ -348,7 +348,7 @@ return audits.filter(Boolean)
 
 主体是带有顶级 `await` 的纯 JavaScript。`agent()` 生成一个子代理，`pipeline()` 为列表中的每个项目运行一个，`parallel()` 同时运行一组代理任务并等待所有任务完成。
 
-如果您在运行中途停止 `agent()` 调用或它遇到不可恢复的 API 错误，则 `agent()` 调用解析为 `null`。`pipeline()` 在结果数组中保留该 `null`，这就是为什么示例以 `.filter(Boolean)` 结尾以删除这些条目。
+如果您在运行中途停止 `agent()` 调用或它遇到不可恢复的 API 错误，则 `agent()` 调用解析为 `null`。在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，分类器可以在子代理启动之前阻止 `agent()` 调用。被阻止的调用解析为 `null` 并在运行的进度视图中显示原因。`pipeline()` 在结果数组中保留每个 `null`，这就是为什么示例以 `.filter(Boolean)` 结尾以删除这些条目。
 
 如果您在 `agent()` 调用上传递 `schema`，该子代理将返回与形状匹配的 JSON 而不是散文。Claude Code 在启动子代理之前检查架构：当它可以证明架构自相矛盾时，调用失败并显示一个错误，命名矛盾，子代理永远不会启动。它可以证明的一个矛盾是 `additionalProperties: false` 排除的 `required` 键。
 

@@ -49,7 +49,7 @@
   进程监视器中的辅助进程名称
 </h3>
 
-配置了启动器后，`ps` 和 Activity Monitor 显示后台辅助进程的版本化二进制名称，而不是 Claude Code 的 `claude bg-pty-host` 和 `claude bg-spare` 标签，因为启动器的 `exec` 重建了参数列表。重命名是副作用，不是隐瞒：进程在其他方面保持不变，Claude Code 通过二进制路径识别自己的进程，从不通过显示名称。
+配置了启动器后，`ps` 和 Activity Monitor 不再显示后台辅助进程的 Claude Code 的 `claude bg-pty-host` 和 `claude bg-spare` 标签，因为启动器的 `exec` 重建了参数列表。丢失标签是副作用，而不是隐瞒：进程在其他方面保持不变，Claude Code 通过二进制路径识别自己的进程，从不通过显示名称。
 
 <h2 id="set-up-the-launcher">
   设置启动器

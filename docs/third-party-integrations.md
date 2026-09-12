@@ -227,12 +227,7 @@ export const ContactSalesCard = ({surface}) => {
   投资文档和内存
 </h3>
 
-我们强烈建议投资文档，以便 Claude Code 理解您的代码库。组织可以在多个级别部署 CLAUDE.md 文件：
-
-* **组织范围**：部署到系统目录，如 `/Library/Application Support/ClaudeCode/CLAUDE.md`（macOS）、`/etc/claude-code/CLAUDE.md`（Linux 和 WSL）或 `C:\Program Files\ClaudeCode\CLAUDE.md`（Windows），用于公司范围的标准
-* **存储库级别**：在存储库根目录中创建 `CLAUDE.md` 文件，包含项目架构、构建命令和贡献指南。将这些检入源代码控制，以便所有用户受益
-
-在[内存和 CLAUDE.md 文件](/docs/zh-CN/memory)中了解更多。
+我们强烈建议投资文档，以便 Claude Code 理解您的代码库。组织可以在多个级别部署 CLAUDE.md 文件。请参阅[CLAUDE.md 文件可以存放的位置](/docs/zh-CN/memory#choose-where-to-put-claude-md-files)和[如何部署组织范围的 CLAUDE.md](/docs/zh-CN/memory#deploy-organization-wide-claude-md)。
 
 <h3 id="simplify-deployment">
   简化部署

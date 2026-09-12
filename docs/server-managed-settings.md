@@ -291,6 +291,8 @@ Claude Code 在您的配置目录 `~/.claude` 中记录您的批准，除非您�
 * 如果您登出并重新登录，或切换到另一个组织，稍后返回，当这些设置未更改时，Claude Code 不会再次显示对话框，除非另一个账户在同一配置目录中为该组织批准了它们。
 * 如果您使用不同的账户登录到同一组织，即使设置未更改，Claude Code 也会再次显示对话框。该账户的批准替换前一个，因此当您切换回来时，Claude Code 会再次显示对话框。
 
+对于 `sandbox.credentials` 或 `sandbox.network.tlsTerminate` 的批准也涵盖这些相同传递设置中的 [`sandbox.network.allowedDomains`](/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 条目，因为两个设置都作用于该允许列表。当您的管理员添加或移除其中一个条目时，对话框会再次出现，即使 `sandbox.network.allowedDomains` 本身不需要批准。
+
 Claude Code 无法始终显示对话框。下面的每种情况说明当它无法显示时哪些设置适用，以及您何时下次看到对话框：
 
 * **无法显示对话框的交互式会话**：Claude Code 不应用传递的设置，保留最后批准的设置。对话框在下一个可以显示它的会话中出现。需要 Claude Code v2.1.211 或更高版本。

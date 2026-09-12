@@ -41,7 +41,7 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
   </Step>
 
   <Step title="允许规则">
-    检查 `allow` 规则（来自 `allowed_tools` 和 settings.json）。如果规则匹配，工具被批准。针对 [关键路径](/docs/zh-CN/permission-modes#critical-paths) 的 `rm` 和 `rmdir` 删除永远不会被允许规则批准：它们在提示的模式下到达您的回调，在 Claude Code v2.1.218 或更高版本的 `auto` 模式下进入 [分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)，并在 `dontAsk` 模式下被拒绝。
+    检查 `allow` 规则（来自 `allowed_tools` 和 settings.json）。如果规则匹配，工具被批准。调用工具自身批准的是在此步骤解决的，无需规则：例如在您的工作目录内的文件读取或 [只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)。针对 [关键路径](/docs/zh-CN/permission-modes#critical-paths) 的 `rm` 和 `rmdir` 删除永远不会被允许规则批准：它们在提示的模式下到达您的回调，在 Claude Code v2.1.218 或更高版本的 `auto` 模式下进入 [分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)，并在 `dontAsk` 模式下被拒绝。
   </Step>
 
   <Step title="canUseTool 回调">
@@ -73,11 +73,11 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
   允许和拒绝规则
 </h2>
 
-`allowed_tools` 和 `disallowed_tools`（TypeScript：`allowedTools` / `disallowedTools`）向上面评估流程中的允许和拒绝规则列表添加条目。如果您在 `allowed_tools` 中命名[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)之一，Claude Code 也会选择加入会话。任何其他未在 `allowed_tools` 中列出的工具仍然可供 Claude 使用，并继续进行权限模式。拒绝规则的行为取决于它们是命名工具还是在工具内范围化模式。
+`allowed_tools` 和 `disallowed_tools`（TypeScript：`allowedTools` / `disallowedTools`）向上面评估流程中的允许和拒绝规则列表添加条目。如果您在 `allowed_tools` 中命名[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)之一，Claude Code 也会选择加入会话。任何其他未在 `allowed_tools` 中列出的工具仍然可供 Claude 使用，对其的调用如果需要批准，会继续进行权限模式。拒绝规则的行为取决于它们是命名工具还是在工具内范围化模式。
 
 | 选项                                | 效果                                                                                                                                           |
 | :-------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------- |
-| `allowed_tools=["Read", "Grep"]`  | `Read` 和 `Grep` 被自动批准。此处未列出的其他工具仍然存在并继续进行权限模式和 `canUseTool`。                                                                                 |
+| `allowed_tools=["Read", "Grep"]`  | `Read` 和 `Grep` 被自动批准。此处未列出的其他工具仍然存在，对其的调用如果需要批准，会继续进行权限模式和 `canUseTool`。                                                                    |
 | `disallowed_tools=["Bash"]`       | `Bash` 工具定义从请求中移除。Claude 看不到该工具，无法尝试它。                                                                                                       |
 | `disallowed_tools=["Bash(rm *)"]` | `Bash` 保持可用。与 `rm *` [如所写](/docs/zh-CN/permissions#bash-rule-limits) 匹配的调用在每个权限模式中都被拒绝，包括 `bypassPermissions`。其他 `Bash` 调用，包括 `/bin/rm`，继续进行权限模式。 |
 | `disallowed_tools=["*"]`          | 每个工具定义都从请求中移除。工具名称通配符在拒绝规则中受支持：`"*"` 匹配每个工具，`"mcp__*"` 匹配所有服务器中的每个 MCP 工具。                                                                   |
@@ -91,10 +91,10 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 <Warning>
   **自动批准的工具永远不会到达 `canUseTool`。** 在任何早期步骤中批准的工具调用，通过 `acceptEdits` 或 `bypassPermissions`，或通过允许规则，会跳过您的 `canUseTool` 回调，因此您在那里放置的权限检查对该工具被静默绕过。`AskUserQuestion`、标记有 [`_meta["anthropic/requiresUserInteraction"]`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 以及 `rm` 和 `rmdir` 移除针对[关键路径](/docs/zh-CN/permission-modes#critical-paths) 仍然到达回调，即使允许规则匹配。在 `auto` 模式中，关键路径移除转到[分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 而不是回调，而上面列出的其他调用仍然到达它；分类器路由需要 Claude Code v2.1.218 或更高版本。在 `dontAsk` 模式中，这些调用被拒绝，不调用回调。
 
-  覆盖范围取决于条目的形式：像 `Read` 或 `mcp__github__get_issue` 这样的裸名称自动批准对该工具的每个调用，除了上面异常之外，而像 `Bash(ls *)` 这样的范围化规则仅自动批准匹配的调用，其他 `Bash` 调用仍然继续进行回调。对于必须在每个工具调用上运行的检查，请使用 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)：hooks 在每个其他步骤之前运行，hook 拒绝甚至在 `bypassPermissions` 模式中也适用。
+  覆盖范围取决于条目的形式：像 `Read` 或 `mcp__github__get_issue` 这样的裸名称自动批准对该工具的每个调用，除了上面的异常之外，而像 `Bash(npm test *)` 这样的范围化规则仅自动批准匹配的调用，其他需要批准的 `Bash` 调用仍然会继续进行回调。对于必须在每个工具调用上运行的检查，请使用 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)：hooks 在每个其他步骤之前运行，hook 拒绝甚至在 `bypassPermissions` 模式中也适用。
 </Warning>
 
-对于锁定的代理，将 `allowedTools` 与 `permissionMode: "dontAsk"` 配对。列出的工具被批准，除了上面警告中的始终提示工具；其他任何内容都被直接拒绝，而不是提示：
+对于锁定的代理，将 `allowedTools` 与 `permissionMode: "dontAsk"` 配对：
 
 ```typescript theme={null}
 const options = {
@@ -102,6 +102,8 @@ const options = {
   permissionMode: "dontAsk"
 };
 ```
+
+列出的工具被批准，除了[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)，以及每个其他会提示的调用都被拒绝。在 `default` 模式中不需要批准的调用无论您是否列出它们都会运行，例如[只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)、不在运行前询问的工具如 `Agent`，以及您工作目录内的文件读取。要将工具完全置于 Claude 的范围之外，请将其裸名称添加到 `disallowedTools`。
 
 <Warning>
   **`allowed_tools` 不约束 `bypassPermissions`。** `allowed_tools` 仅预批准您列出的工具。未列出的工具不与任何允许规则匹配，并继续进行权限模式，其中 `bypassPermissions` 批准它们。设置 `allowed_tools=["Read"]` 与 `permission_mode="bypassPermissions"` 一起仍然批准每个工具，包括 `Bash`、`Write` 和 `Edit`。如果您需要 `bypassPermissions` 但想要阻止特定工具，请使用 `disallowed_tools`。
@@ -121,14 +123,14 @@ const options = {
 
 SDK 支持这些权限模式：
 
-| 模式                  | 描述       | 工具行为                                                                                                                                                                                                                           |
-| :------------------ | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `default`           | 标准权限行为   | 无自动批准；不匹配的工具触发您的 `canUseTool` 回调                                                                                                                                                                                               |
-| `dontAsk`           | 拒绝而不是提示  | 任何未被 `allowed_tools` 或规则预批准的内容都被拒绝；连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)和需要用户交互的工具即使您已预批准它们也被拒绝，`rm` 和 `rmdir` 移除针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)也被拒绝。`canUseTool` 永远不会被调用 |
-| `acceptEdits`       | 自动接受文件编辑 | 文件编辑和 [文件系统操作](#accept-edits-mode-acceptedits)（`mkdir`、`rm`、`mv` 等）被自动批准                                                                                                                                                       |
-| `bypassPermissions` | 绕过权限检查   | 工具运行而无需权限提示，除了[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)。谨慎使用                                                                                                                                      |
-| `plan`              | 规划模式     | Claude 在不编辑源文件的情况下探索和规划；文件编辑永远不会自动批准，并通过您的 `canUseTool` 回调提示                                                                                                                                                                   |
-| `auto`              | 模型分类批准   | 模型分类器批准或拒绝权限提示。请参阅[Auto 模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)了解可用性                                                                                                                                     |
+| 模式                  | 描述       | 工具行为                                                                                                                                                                                                                                                               |
+| :------------------ | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default`           | 标准权限行为   | 无基于模式的自动批准；需要批准且不匹配任何允许规则的调用会触发您的 `canUseTool` 回调                                                                                                                                                                                                                  |
+| `dontAsk`           | 拒绝而不是提示  | 任何会提示的调用都被拒绝。由 `allowed_tools` 或规则批准的调用会运行，在 `default` 模式下不需要批准的调用也会运行；连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)和需要用户交互的工具即使您已预批准它们也被拒绝，`rm` 和 `rmdir` 移除针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)也被拒绝。`canUseTool` 永远不会被调用 |
+| `acceptEdits`       | 自动接受文件编辑 | 文件编辑和 [文件系统操作](#accept-edits-mode-acceptedits)（`mkdir`、`rm`、`mv` 等）被自动批准                                                                                                                                                                                           |
+| `bypassPermissions` | 绕过权限检查   | 工具运行而无需权限提示，除了[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)。谨慎使用                                                                                                                                                                          |
+| `plan`              | 规划模式     | Claude 在不编辑源文件的情况下探索和规划；文件编辑永远不会自动批准，并通过您的 `canUseTool` 回调提示                                                                                                                                                                                                       |
+| `auto`              | 模型分类批准   | 模型分类器批准或拒绝权限提示。请参阅[Auto 模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)了解可用性                                                                                                                                                                         |
 
 <Warning>
   **子代理继承：** 子代理在父会话的权限模式下运行，除非您在其[`AgentDefinition`](/docs/zh-CN/agent-sdk/typescript#agentdefinition)上设置 `permissionMode`，且父会话处于 `default`、`dontAsk` 或 `plan` 模式。即使这样，Claude Code 也永远不会应用 `"bypassPermissions"` 值。子代理仅在父会话本身处于 `bypassPermissions` 模式时才在该模式下运行。`bypassPermissions` 异常需要 Claude Code v2.1.267 或更高版本。
@@ -271,7 +273,7 @@ SDK 支持这些权限模式：
   不询问模式（`dontAsk`）
 </h4>
 
-将任何权限提示转换为拒绝。由 `allowed_tools`、`settings.json` 允许规则或作为 hook 运行的工具正常运行。连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)、需要用户交互的工具，以及 `rm` 和 `rmdir` 移除针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)即使允许规则匹配也被拒绝。`PreToolUse` hook 允许也不会清除关键路径移除。其他所有内容都被拒绝，无需调用 `canUseTool`。
+将任何权限提示转换为拒绝，无需调用 `canUseTool`。由 `allowed_tools`、`settings.json` 允许规则或 hook 预批准的工具正常运行，在 `default` 模式下不需要批准的调用也会运行，例如在您的工作目录内的文件读取和对 `Agent` 的调用。连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)、需要用户交互的工具，以及 `rm` 和 `rmdir` 移除针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)即使允许规则匹配也被拒绝。`PreToolUse` hook 允许也不会清除关键路径移除。
 
 **使用时机：** 您想要为无头代理提供固定的、明确的工具表面，并且更喜欢硬拒绝而不是默默依赖 `canUseTool` 不存在。
 

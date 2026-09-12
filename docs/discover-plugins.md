@@ -207,7 +207,7 @@ Anthropic 还维护一个[演示插件市场](https://github.com/anthropics/clau
   </Step>
 
   <Step title="使用您的新插件">
-    检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，运行 `/reload-plugins`，如果它警告重新加载将重新读取对话，将其重新运行为 `/reload-plugins --force`。
+    如果安装摘要报告 `Run /reload-plugins to activate.`，Claude Code 随后会为您运行该重新加载。如果重新加载警告您的下一条消息会重新读取对话，请运行 `/reload-plugins --force` 来激活插件。
 
     插件 skills 由插件名称命名空间，因此 **commit-commands** 提供诸如 `/commit-commands:commit` 之类的 skills。
 
@@ -349,7 +349,7 @@ Claude Code 在其本地市场目录副本中查找插件。您命名插件的�
 当您从 `/plugin` 界面安装时，安装摘要告诉您插件在当前会话中是否处于活跃状态：
 
 * `Plugin is now active.`：Claude Code 在安装过程中激活了插件。
-* `Run /reload-plugins to activate.`：插件尚未处于活跃状态，因为激活它会[使提示缓存失效](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)或因为激活尝试失败。运行该命令以激活插件。
+* `Run /reload-plugins to activate.`：插件尚未处于活跃状态，因为激活它会[使提示缓存失效](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)或因为激活尝试失败。Claude Code 随后会为您运行 `/reload-plugins`。如果该重新加载警告提示缓存，请运行 `/reload-plugins --force` 以[在不重启的情况下应用插件更改](#apply-plugin-changes-without-restarting)。
 * 如果插件加载失败，摘要会报告失败，`/plugin` **错误**选项卡显示详情。
 
 在 v2.1.221 之前，在您运行 `/reload-plugins` 或重启之前，当前会话中没有安装生效。
@@ -393,7 +393,7 @@ Claude Code 还在**已安装**选项卡中的**最近未使用**标题下列出
 
 您也可以使用直接命令管理插件：
 
-* 当您运行 `/plugin disable`、`/plugin enable` 或 `/plugin uninstall` 时，Claude Code 会打开插件面板以应用更改并保持其打开。按 **Esc** 以在输入另一个命令之前关闭面板。
+* 当您运行 `/plugin disable`、`/plugin enable` 或 `/plugin uninstall` 时，Claude Code 会打开插件面板以应用更改并保持其打开。按 **Esc** 以在输入另一个命令之前关闭面板。[应用插件更改而不重启](#apply-plugin-changes-without-restarting)描述了更改在您的会话中何时生效。
 * 对于脚本编写，请改用 `claude plugin` shell 命令，这些命令不会打开面板。
 
 列出已安装的插件而不打开菜单：
@@ -437,13 +437,16 @@ claude plugin uninstall formatter@your-org --scope project
   应用插件更改而不重启
 </h3>
 
-当[安装摘要](#install-plugins)报告 `Plugin is now active.` 时，Claude Code 已经激活了插件，您可以跳过此步骤。对于其他所有情况，您在会话期间启用或禁用的插件以及安装摘要报告 `Run /reload-plugins to activate.` 的安装，应用所有更改而不重启：
+当您关闭 `/plugin` 菜单时，Claude Code 会为您运行 `/reload-plugins` 以应用您在其中所做的更改，例如安装、启用、禁用和卸载插件。如果重新加载会[使 prompt cache 失效](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)，它会发出警告并改为保留更改待处理；运行 `/reload-plugins --force` 以无论如何应用它们。如果 Claude 在您关闭菜单时仍在响应，重新加载会在响应完成后运行。
 
-```shell theme={null}
-/reload-plugins
-```
+对于在菜单外发生的插件更改，请自己运行 `/reload-plugins`。这些更改包括：
 
-当重新加载会使 prompt cache 失效时，该命令会发出警告并跳过，直到您使用 `--force` 重新运行它。
+* 您在另一个终端中运行的 `claude plugin` 命令
+* 编辑您使用 [`--plugin-dir`](/docs/zh-CN/plugins#test-your-plugins-locally) 加载的插件，同时您开发它
+* 插件[自动更新](#configure-auto-updates)，其通知要求您重新加载
+* [`--plugin-dir` 文件夹](/docs/zh-CN/plugins#test-your-plugins-locally)中的更改，Claude Code 保留了该更改，因为应用它会使 prompt cache 失效
+
+在 v2.1.268 之前，您在菜单中启用、禁用或卸载的插件，以及在安装期间未激活的安装，保持待处理状态，直到您运行 `/reload-plugins`。
 
 `/reload-plugins` 也在没有交互式终端的会话中运行，例如桌面应用、Agent SDK 和[非交互式模式](/docs/zh-CN/headless)与 `-p`。需要 Claude Code v2.1.260 或更高版本。这些会话中适用两个限制：
 

@@ -252,9 +252,9 @@ Ask the researcher teammate to shut down
   Claude 如何启动 agent teams
 </h3>
 
-要启动一个团队，请向 Claude 请求队友。当 Claude 在启用 agent teams 的情况下调用 [Agent tool](/docs/zh-CN/tools-reference) 并使用 [`name`](/docs/zh-CN/sub-agents#subagent-names) 时，Claude Code 不会要求你确认，Claude 就会启动一个队友。Claude 也会自动为普通 subagents 命名，以便稍后可以向它们发送消息，而当启用 agent teams 时，一个命名的 subagent 会作为队友启动，所以即使你没有请求，团队也可能形成。
+要启动一个团队，请向 Claude 请求队友。当 Claude 在启用 agent teams 的情况下调用 [Agent tool](/docs/zh-CN/tools-reference) 并使用 [`name`](/docs/zh-CN/sub-agents#subagent-names) 时，除非该调用是一个 [fork](/docs/zh-CN/sub-agents#fork-the-current-conversation) 或在调用本身上传递 `isolation`，否则 Claude 会启动一个队友。Claude Code 不会要求你确认启动。
 
-如果你想要 subagents 而不是 agent teams，请 [关闭 agent teams](#claude-spawns-teammates-instead-of-subagents)。
+Claude 也会自动为普通 subagents 命名，以便稍后可以向它们发送消息。这些调用遵循相同的规则，所以即使你没有请求，团队也可能形成。如果你想要 subagents 而不是 agent teams，请 [关闭 agent teams](#claude-spawns-teammates-instead-of-subagents)。
 
 <h3 id="architecture">
   架构
@@ -294,7 +294,7 @@ Claude Code 在会话启动时自动生成这两个，并在队友加入、空�
   为队友使用 subagent 定义
 </h3>
 
-当生成队友时，你可以引用来自任何 [subagent 范围](/docs/zh-CN/sub-agents#choose-the-subagent-scope) 的 [subagent](/docs/zh-CN/sub-agents) 类型：项目、用户、插件或 CLI 定义。这让你定义一个角色一次，例如安全审查员或测试运行器，并将其同时重用为委派的 subagent 和 agent team 队友。
+当在任一显示模式中生成队友时，你可以引用来自项目、用户或托管 [subagent 范围](/docs/zh-CN/sub-agents#choose-the-subagent-scope) 的 [subagent](/docs/zh-CN/sub-agents) 类型。这让你定义一个角色一次，例如安全审查员或测试运行器，并将其同时重用为委派的 subagent 和 agent team 队友。
 
 要使用 subagent 定义，在要求 Claude 生成队友时按名称提及它：
 
@@ -314,7 +314,7 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
   权限
 </h3>
 
-队友从负责人的权限设置开始。如果负责人使用 `--dangerously-skip-permissions` 运行，所有队友也会这样做。生成后，你可以更改个别队友模式，但在生成时无法设置每个队友的模式。
+队友从负责人的权限模式开始，除了 [`dontAsk` 模式](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)，他们不继承该模式。如果负责人使用 `--dangerously-skip-permissions` 运行，所有队友也会这样做。生成后，你可以更改个别队友的权限模式，但在生成时无法设置每个队友的权限模式。
 
 队友权限提示出现在负责人会话中，所以请在那里自己批准它们。[Plan approval](#have-teammates-plan-before-implementing) 是设计的例外：负责人会话授予队友计划批准，无需向你单独提示。
 
@@ -549,7 +549,7 @@ Agent teams 是实验性的。需要注意的当前限制：
 * **没有嵌套团队**：队友无法生成自己的队友。只有负责人可以管理团队。
 * **没有来自 in-process 队友的后台子代理**：in-process 队友自己的子代理在前台运行，因为队友的后台工作无法超越负责人的进程。Claude Code 在队友生成定义设置 `background: true` 的子代理时返回错误。队友的 `run_in_background: true` 请求也会失败，要么返回错误，要么如 [Claude Code 如何选择前台或后台](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background) 中所述在前台静默运行。从主对话启动的子代理遵循[后台默认值](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)。
 * **负责人是固定的**：主会话在其生命周期内是其团队的负责人。你无法将队友提升为负责人或转移领导权。
-* **权限在生成时设置**：所有队友从负责人的权限模式开始。你可以在生成后更改个别队友模式，但在生成时无法设置每个队友的模式。
+* **权限在生成时设置**：队友从 [权限](#permissions) 下描述的权限模式开始。你可以在生成后更改个别队友的权限模式，但在生成时无法设置每个队友的权限模式。
 * **分割窗格需要 tmux 或 iTerm2**：默认 in-process 模式在任何终端中工作。VS Code 的集成终端、Windows Terminal 或 Ghostty 不支持分割窗格模式。
 
 <h2 id="next-steps">

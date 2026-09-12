@@ -12,7 +12,7 @@ Claude Code 自动跟踪 Claude 在工作时所做的文件编辑，允许您快
   checkpointing 如何工作
 </h2>
 
-当您与 Claude 合作时，checkpointing 会自动捕获每次用户提示前代码的状态。
+当您与 Claude 合作时，checkpointing 会自动捕获每次您发送开始一个回合的提示前代码的状态。
 
 <h3 id="automatic-tracking">
   自动跟踪
@@ -20,7 +20,7 @@ Claude Code 自动跟踪 Claude 在工作时所做的文件编辑，允许您快
 
 Claude Code 跟踪其文件编辑工具所做的所有更改：
 
-* 每个用户提示都会创建一个新的 checkpoint
+* 每个您发送的开始一个回合的提示都会创建一个新的 checkpoint
 * Claude Code 在一个会话中保留最近 100 个 checkpoint 的文件快照。丢弃较旧的 checkpoint 会删除没有其他 checkpoint 引用的快照文件，除了每个文件的第一个快照，VS Code 扩展将其用作会话 diffs 的基线。
 * Claude Code 将 checkpoints 与对话一起保存，因此您可以在恢复会话后仍然运行 `/rewind`
 * Claude Code 在 [retention sweep](/docs/zh-CN/claude-directory#cleaned-up-automatically) 中删除会话的文件快照，默认情况下在会话最后一次保存后约 30 天。回溯到快照已消失的 checkpoint 可能会失败，出现 [`No files were restored`](/docs/zh-CN/errors#no-files-were-restored) 错误。要保留快照更长时间，请设置 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays)。
@@ -35,7 +35,7 @@ Claude Code 跟踪其文件编辑工具所做的所有更改：
   如果提示输入包含文本，双 `Esc` 会清除它而不是打开菜单。清除的文本会保存到您的输入历史记录中，因此在您完成回溯菜单后，按 `Up` 可以调用它。
 </Note>
 
-回溯菜单列出了您在会话期间发送的每个提示。选择您想要操作的点，然后选择一个操作：
+回溯菜单列出了您在会话期间发送的每个提示，除了 [在回合中途发送的消息](#messages-sent-mid-turn-not-checkpointed)。选择您想要操作的点，然后选择一个操作：
 
 * **恢复代码和对话**：将代码和对话都恢复到该点
 * **恢复对话**：回溯到该消息，同时保持当前代码
@@ -109,6 +109,14 @@ cp source.txt dest.txt
 </h3>
 
 Checkpointing 仅跟踪在当前会话中编辑过的文件。您在 Claude Code 外部对文件所做的手动更改以及来自其他并发会话的编辑通常不会被捕获，除非它们碰巧修改了与当前会话相同的文件。
+
+<h3 id="messages-sent-mid-turn-not-checkpointed">
+  中途发送的消息未检查点
+</h3>
+
+当您在 Claude 工作时[排队的消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)在运行的回合中到达 Claude 时，它会加入该回合而不是开始新的回合。该消息会出现在对话中，但 Claude Code 不会为其创建检查点，回溯菜单也不会列出它。Claude Code 作为其自己的回合发送的排队消息会照常获得检查点。
+
+要删除此类消息或撤销 Claude 在其后所做的编辑，请回溯到启动该回合的提示。这会回溯整个回合，包括 Claude 在您的消息到达之前所做的工作。
 
 <h3 id="symlinked-and-hard-linked-paths-not-restored">
   符号链接和硬链接路径未恢复

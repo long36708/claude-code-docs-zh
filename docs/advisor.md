@@ -97,16 +97,16 @@ Claude Code 在该会话中使用该标志而不是 `advisorModel` 设置。它�
 
 顾问的能力必须至少与主模型相同。每个主模型接受的顾问是：
 
-| 主模型                 | 接受的顾问                   | 注释                                                                                        |
-| ------------------- | ----------------------- | ----------------------------------------------------------------------------------------- |
-| Haiku 4.5           | Fable、Opus、Sonnet       | Haiku 可以调用顾问但不能充当顾问                                                                       |
-| Sonnet 4.6          | Fable、Opus、Sonnet       |                                                                                           |
-| Sonnet 5            | Fable、Opus、Sonnet 5     | Sonnet 4.6 顾问被拒绝                                                                          |
-| Opus 4.6            | Fable、Opus、Sonnet 5     | Sonnet 5 和 Opus 4.6 的能力排名相同，因此 Opus 4.6 主模型接受 Sonnet 5 顾问                                 |
-| Opus 4.7 或更高版本      | Fable、Opus 4.7 或更高版本    | Opus 4.7 和更高版本的 Opus 模型的能力排名相同，因此任何一个都可以接受另一个作为顾问。Opus 4.7 主模型与 Opus 4.6 或 Sonnet 5 顾问被拒绝 |
-| Fable 5.1 或 Fable 5 | Fable 5.1 或相同的 Fable 版本 | Opus 或 Sonnet 顾问被拒绝，Fable 5 顾问对于 Fable 5.1 主模型也被拒绝                                        |
+| 主模型                 | 接受的顾问                | 注释                                                                                        |
+| ------------------- | -------------------- | ----------------------------------------------------------------------------------------- |
+| Haiku 4.5           | Fable、Opus、Sonnet    | Haiku 可以调用顾问但不能充当顾问                                                                       |
+| Sonnet 4.6          | Fable、Opus、Sonnet    |                                                                                           |
+| Sonnet 5            | Fable、Opus、Sonnet 5  | Sonnet 4.6 顾问被拒绝                                                                          |
+| Opus 4.6            | Fable、Opus、Sonnet 5  | Sonnet 5 和 Opus 4.6 的能力排名相同，因此 Opus 4.6 主模型接受 Sonnet 5 顾问                                 |
+| Opus 4.7 或更高版本      | Fable、Opus 4.7 或更高版本 | Opus 4.7 和更高版本的 Opus 模型的能力排名相同，因此任何一个都可以接受另一个作为顾问。Opus 4.7 主模型与 Opus 4.6 或 Sonnet 5 顾问被拒绝 |
+| Fable 5.1 或 Fable 5 | Fable 5.1 或 Fable 5  | Opus 或 Sonnet 顾问被拒绝                                                                       |
 
-Fable 5.1 需要 Claude Code v2.1.257 或更高版本，Fable 5 需要 v2.1.170 或更高版本。两者都需要 [Fable 访问权限](/docs/zh-CN/model-config#work-with-fable)。
+Fable 5.1 需要 Claude Code v2.1.257 或更高版本。两个 Fable 模型都需要 [Fable 访问权限](/docs/zh-CN/model-config#work-with-fable)。
 
 将顾问设置为 `fable`、`opus` 或 `sonnet`。这些别名解析为 Claude Code 为每个模型系列内置的默认版本，该版本随新的 Claude Code 版本而推进。您也可以传递完整的模型 ID，例如 `claude-opus-5`。
 

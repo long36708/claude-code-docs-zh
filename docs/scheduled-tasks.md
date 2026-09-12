@@ -8,28 +8,28 @@
 
 计划任务让 Claude 按间隔自动重新运行提示词。使用它们来轮询部署、监督 PR、检查长时间运行的构建，或在会话中稍后提醒自己做某事。要对事件进行实时反应而不是轮询，请参阅 [Channels](/docs/zh-CN/channels)：您的 CI 可以直接将失败推送到会话中。要保持会话工作转向转向直到满足条件而不是按间隔，请参阅 [`/goal`](/docs/zh-CN/goal)。
 
-任务是会话范围的：它们存在于当前对话中，当您启动新对话时就会停止。使用 `--resume` 或 `--continue` 恢复会带回任何尚未[过期](#seven-day-expiry)的任务：在过去 7 天内创建的重复任务，或计划时间尚未到达的一次性任务。对于独立于任何会话而存在的调度，请使用 [Routines](/docs/zh-CN/routines) 在云上创建例程、设置 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks)，或使用 [GitHub Actions](/docs/zh-CN/github-actions)。
+任务是会话范围的：它们存在于当前对话中，当您启动新对话时就会停止。使用 `--resume` 或 `--continue` 恢复会带回任何尚未[过期](#seven-day-expiry)的任务，除了[限制](#limitations)下列出的任务。对于独立于任何会话而存在的调度，请使用 [Routines](/docs/zh-CN/routines) 在云上创建例程、设置 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks)，或使用 [GitHub Actions](/docs/zh-CN/github-actions)。
 
 <h2 id="compare-scheduling-options">
   比较调度选项
 </h2>
 
-Claude Code offers three ways to schedule recurring or one-off work:
+Claude Code 提供三种方式来安排定期或一次性工作：
 
-|                            | [Cloud](/docs/en/routines)               | [Desktop](/docs/en/desktop-scheduled-tasks) | [`/loop`](/docs/en/scheduled-tasks)                                             |
-| :------------------------- | :---------------------------------- | :------------------------------------- | :------------------------------------------------------------------------- |
-| Runs on                    | Cloud, Anthropic-managed by default | Your machine                           | Your machine                                                               |
-| Requires machine on        | No                                  | Yes                                    | Yes                                                                        |
-| Requires open session      | No                                  | No                                     | Yes                                                                        |
-| Persistent across restarts | Yes                                 | Yes                                    | Restored on `--resume`, with [exceptions](/docs/en/scheduled-tasks#limitations) |
-| Access to local files      | No (fresh clone)                    | Yes                                    | Yes                                                                        |
-| MCP servers                | Connectors configured per task      | [Config files](/docs/en/mcp) and connectors | Inherits from session                                                      |
-| Permission prompts         | No (runs autonomously)              | Configurable per task                  | Inherits from session                                                      |
-| Customizable schedule      | Via `/schedule` in the CLI          | Yes                                    | Yes                                                                        |
-| Minimum interval           | 1 hour                              | 1 minute                               | 1 minute                                                                   |
+|             | [Cloud](/docs/zh-CN/routines) | [Desktop](/docs/zh-CN/desktop-scheduled-tasks) | [`/loop`](/docs/zh-CN/scheduled-tasks)                          |
+| :---------- | :----------------------- | :---------------------------------------- | :--------------------------------------------------------- |
+| 运行位置        | Cloud，默认由 Anthropic 管理   | 您的机器                                      | 您的机器                                                       |
+| 需要机器开启      | 否                        | 是                                         | 是                                                          |
+| 需要打开会话      | 否                        | 否                                         | 是                                                          |
+| 重启后持久化      | 是                        | 是                                         | 在 `--resume` 上恢复，有[例外](/docs/zh-CN/scheduled-tasks#limitations) |
+| 访问本地文件      | 否（新克隆）                   | 是                                         | 是                                                          |
+| MCP servers | 每个任务配置的连接器               | [配置文件](/docs/zh-CN/mcp)和连接器                    | 从会话继承                                                      |
+| 权限提示        | 否（自主运行）                  | 每个任务可配置                                   | 从会话继承                                                      |
+| 可自定义的计划     | 通过 CLI 中的 `/schedule`    | 是                                         | 是                                                          |
+| 最小间隔        | 1 小时                     | 1 分钟                                      | 1 分钟                                                       |
 
 <Tip>
-  Use **cloud tasks** for work that should run reliably without your machine. Use **Desktop tasks** when you need access to local files and tools. Use **`/loop`** for quick polling during a session.
+  对于应该在没有您的机器的情况下可靠运行的工作，使用**云任务**。当您需要访问本地文件和工具时，使用**桌面任务**。对于会话期间的快速轮询，使用 **`/loop`**。
 </Tip>
 
 <h2 id="run-a-prompt-repeatedly-with-/loop">
@@ -237,7 +237,7 @@ cancel the deploy check job
 
 * 任务仅在 Claude Code 运行且空闲时触发。关闭终端或让会话退出会停止它们触发。[将会话放在后台](/docs/zh-CN/agent-view#from-inside-a-session)会将 `/loop` 任务转移到后台会话，该会话继续运行而无需终端。
 * 没有错过触发的追赶。如果任务的计划时间在 Claude 忙于长时间运行的请求时经过，它会在 Claude 变为空闲时触发一次，而不是每个错过的间隔触发一次。
-* 启动新对话会清除所有会话范围的任务。使用 `claude --resume` 或 `claude --continue` 恢复会恢复尚未[过期](#seven-day-expiry)的重复任务和计划时间尚未到达的一次性任务。后台 Bash 和监视器任务在恢复时永远不会被恢复。
+* 启动新对话会清除所有会话范围的任务。当您使用 `claude --resume` 或 `claude --continue` 恢复会话时，Claude Code 会恢复使用 `CronCreate` 调度的任务，除了已[过期](#seven-day-expiry)的重复任务和计划时间已经过去的一次性任务。[自定步调的 `/loop`](#let-claude-choose-the-interval)不会被恢复，因此请再次运行 `/loop` 以重新启动它。后台 Bash 和监视器任务在恢复时永远不会被恢复。
 * 当[功能标志获取关闭](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)时，Claude Code 会将您要求在会话间保留的任务存储在项目的 `.claude` 目录中。当该目录或其中的任务文件是符号链接时，Claude Code 会返回错误而不是调度任务。
 
 对于需要无人值守运行的 cron 驱动自动化：

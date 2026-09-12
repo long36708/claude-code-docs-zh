@@ -14,22 +14,22 @@ Desktop 应用的 **Routines** 页面让您可以创建本地定期任务和远�
   比较调度选项
 </h2>
 
-Claude Code offers three ways to schedule recurring or one-off work:
+Claude Code 提供三种方式来安排定期或一次性工作：
 
-|                            | [Cloud](/docs/en/routines)               | [Desktop](/docs/en/desktop-scheduled-tasks) | [`/loop`](/docs/en/scheduled-tasks)                                             |
-| :------------------------- | :---------------------------------- | :------------------------------------- | :------------------------------------------------------------------------- |
-| Runs on                    | Cloud, Anthropic-managed by default | Your machine                           | Your machine                                                               |
-| Requires machine on        | No                                  | Yes                                    | Yes                                                                        |
-| Requires open session      | No                                  | No                                     | Yes                                                                        |
-| Persistent across restarts | Yes                                 | Yes                                    | Restored on `--resume`, with [exceptions](/docs/en/scheduled-tasks#limitations) |
-| Access to local files      | No (fresh clone)                    | Yes                                    | Yes                                                                        |
-| MCP servers                | Connectors configured per task      | [Config files](/docs/en/mcp) and connectors | Inherits from session                                                      |
-| Permission prompts         | No (runs autonomously)              | Configurable per task                  | Inherits from session                                                      |
-| Customizable schedule      | Via `/schedule` in the CLI          | Yes                                    | Yes                                                                        |
-| Minimum interval           | 1 hour                              | 1 minute                               | 1 minute                                                                   |
+|             | [Cloud](/docs/zh-CN/routines) | [Desktop](/docs/zh-CN/desktop-scheduled-tasks) | [`/loop`](/docs/zh-CN/scheduled-tasks)                          |
+| :---------- | :----------------------- | :---------------------------------------- | :--------------------------------------------------------- |
+| 运行位置        | Cloud，默认由 Anthropic 管理   | 您的机器                                      | 您的机器                                                       |
+| 需要机器开启      | 否                        | 是                                         | 是                                                          |
+| 需要打开会话      | 否                        | 否                                         | 是                                                          |
+| 重启后持久化      | 是                        | 是                                         | 在 `--resume` 上恢复，有[例外](/docs/zh-CN/scheduled-tasks#limitations) |
+| 访问本地文件      | 否（新克隆）                   | 是                                         | 是                                                          |
+| MCP servers | 每个任务配置的连接器               | [配置文件](/docs/zh-CN/mcp)和连接器                    | 从会话继承                                                      |
+| 权限提示        | 否（自主运行）                  | 每个任务可配置                                   | 从会话继承                                                      |
+| 可自定义的计划     | 通过 CLI 中的 `/schedule`    | 是                                         | 是                                                          |
+| 最小间隔        | 1 小时                     | 1 分钟                                      | 1 分钟                                                       |
 
 <Tip>
-  Use **cloud tasks** for work that should run reliably without your machine. Use **Desktop tasks** when you need access to local files and tools. Use **`/loop`** for quick polling during a session.
+  对于应该在没有您的机器的情况下可靠运行的工作，使用**云任务**。当您需要访问本地文件和工具时，使用**桌面任务**。对于会话期间的快速轮询，使用 **`/loop`**。
 </Tip>
 
 <Note>

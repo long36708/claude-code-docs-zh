@@ -393,9 +393,9 @@ claude auto-mode reset
 
 要查看分类器阻止了什么，请在对话中找到工具调用。如果调用显示为缩短或折叠成摘要行（例如 `Ran 3 shell commands`），请按 `Ctrl+O` 打开[记录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)，它会展开它。
 
-屏幕上报告拒绝的另外两个位置省略了命令或 URL：输入框附近的通知，例如 `bash denied by auto mode · Blocked by classifier · /permissions`，给出工具和原因，**Recently denied** 选项卡按 Claude 为其编写的描述列出 shell 命令。要以编程方式捕获这些拒绝的确切输入，请添加一个 [`PermissionDenied` hook](/docs/zh-CN/hooks#permissiondenied)，它将其作为 `tool_input` 接收。
+屏幕上报告拒绝的另外两个位置省略了命令或 URL：输入框附近的通知，例如 `bash denied by auto mode · [Data Exfiltration] · /permissions`，给出工具和原因，**Recently denied** 选项卡按 Claude 为其编写的描述列出 shell 命令。要以编程方式捕获这些拒绝的确切输入，请添加一个 [`PermissionDenied` hook](/docs/zh-CN/hooks#permissiondenied)，它将其作为 `tool_input` 接收。
 
-调用下方的文本告诉您是否有任何需要修复的内容。报告分类器本身问题的文本，例如 `is temporarily unavailable` 的模型或分类器错误，意味着 Claude Code 在没有来自分类器的最终判决的情况下阻止了调用；请参阅 [Auto mode 无法确定操作的安全性](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)了解该怎么做。否则，一行显示 `Denied by auto mode classifier` 并带有 `Blocked by classifier` 等原因意味着分类器判断调用不安全，因此从调用试图到达或执行的内容中选择修复：
+调用下方的文本告诉您是否有任何需要修复的内容。报告分类器本身问题的文本，例如 `is temporarily unavailable` 的模型或分类器错误，意味着 Claude Code 在没有来自分类器的最终判决的情况下阻止了调用；请参阅 [Auto mode 无法确定操作的安全性](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)了解该怎么做。否则，一行显示 `Denied by auto mode classifier` 并带有 `[Production Deploy]` 或 `Blocked by classifier` 等原因意味着分类器判断调用不安全，因此从调用试图到达或执行的内容中选择修复：
 
 * Claude 在整个任务中需要的目标，例如包注册表、内部域或存储库主机：将其添加到 `autoMode.environment`。
 * 您想从现在开始运行而无需审查的命令：添加一个 `allow` 规则。
@@ -403,7 +403,7 @@ claude auto-mode reset
 
 您可以从 `/permissions` 对话框的 [**Auto mode** 选项卡](#edit-rules-from-permissions)添加环境条目或 `allow` 规则。
 
-在大多数会话中，与调用一起显示的原因是固定文本 `Blocked by classifier`，在 Claude Code v2.1.208 及更高版本中：分类器在内部严重程度量表上对每个操作进行评分，而不是写出解释。某些会话运行一个分类器模型，该模型在 v2.1.193 及更高版本中写出简短解释；当出现一个时，将其视为关于分类器缺少哪个目标或意图的提示。Claude Code 选择分类器模型，因此您看到的原因不是您可以配置的。
+在大多数会话中，原因名称分类器匹配的规则，在方括号中，例如 `[Data Exfiltration]` 或 `[Production Deploy]`，某些会话运行一个分类器模型，该模型添加简短解释。Claude Code 选择分类器模型，因此您看到的原因不是您可以配置的。
 
 <h3 id="fix-repeated-denials">
   修复重复拒绝

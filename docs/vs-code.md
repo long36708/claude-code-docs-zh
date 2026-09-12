@@ -56,7 +56,7 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 
     打开 Claude Code 的其他方式：
 
-    * **活动栏**：点击左侧边栏中的 Spark 图标以打开会话列表。点击任何会话以将其作为完整编辑器选项卡打开，或开始新的会话。此图标在活动栏中始终可见。
+    * **活动栏**：点击左侧边栏中的 Spark 图标以打开会话列表。点击任何会话以在您的[首选位置](#extension-settings)中打开它，或开始新的会话。此图标在活动栏中始终可见。
     * **命令面板**：`Cmd+Shift+P`（Mac）或 `Ctrl+Shift+P`（Windows/Linux），输入"Claude Code"，然后选择一个选项，如"在新选项卡中打开"
     * **状态栏**：如果您已将 [`preferredLocation`](#extension-settings) 设置为 `sidebar`，或使用**Claude Code: Open in Side Bar** 打开了 Claude，请点击窗口右下角的 **✱ Claude Code**。即使没有打开文件，这也有效。
 
@@ -110,7 +110,7 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
   * **Manual**：Claude 在文件编辑和大多数 shell 命令之前请求权限。
   * **Plan**：Claude 描述它将做什么，并在进行更改之前等待批准。VS Code 自动将计划作为完整的 Markdown 文档打开，您可以在其中添加内联注释以在 Claude 开始之前提供反馈。
   * **Edit automatically**：Claude 进行编辑而不询问。
-* **Model**：从命令菜单中选择 **Switch model…** 以在会话中途更改模型。您也可以点击提示框底部的模型名称来打开相同的选择器。当当前模型支持[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)时，选择器还会显示 **Effort** 行。模型名称按钮和 **Effort** 行需要 Claude Code v2.1.257 或更高版本。
+* **Model**：从命令菜单中选择 **Switch model…** 以在会话中途更改模型。您也可以点击提示框底部的模型名称来打开相同的选择器。当当前模型支持[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)时，选择器还会显示 **Effort** 行和模型名称按钮显示选定的级别。模型名称按钮和 **Effort** 行需要 Claude Code v2.1.257 或更高版本。
 * **Command menu**：点击 `/` 或输入 `/` 来打开命令菜单。选项包括附加文件、切换模型和切换扩展思考。Customize 部分提供对 MCP 服务器、slash commands、输出样式、hooks、memory、权限和插件的访问。带有终端图标的项目在集成终端中打开。
   * 要浏览 `/usage` 或 [`/remote-control`](/docs/zh-CN/remote-control) 等命令，请在 Customize 部分中选择 **Slash commands**。对话框会列出它们并带有过滤框。选择一个来运行它。在提示框中输入 `/` 仍会内联建议命令。需要 Claude Code v2.1.257 或更高版本。
   * 在 Customize 部分中选择 **Output styles** 来选择[输出样式](/docs/zh-CN/output-styles)，包括您的自定义样式。需要 Claude Code v2.1.257 或更高版本。
@@ -141,13 +141,15 @@ What's in @src/components/ (include a trailing slash for folders)
 
 当您在编辑器中选择文本时，Claude 可以自动看到您突出显示的代码。提示框页脚显示选择了多少行。按 `Option+K`（Mac）/ `Alt+K`（Windows/Linux）来插入带有文件路径和行号的 @-mention（例如 `@app.ts#5-10`）。点击选择指示器来切换 Claude 是否可以看到您突出显示的文本 - 眼睛斜线图标表示选择对 Claude 隐藏。
 
-您也可以在将文件拖入提示框时按住 `Shift` 来将它们添加为附件。点击任何附件上的 X 来从上下文中删除它。
+要附加图像，请从剪贴板将其粘贴到提示框中。您也可以在将文件拖入提示框时按住 `Shift` 来将它们添加为附件。点击任何附件上的 X 来从上下文中删除它。
 
 <h3 id="resume-past-conversations">
   恢复过去的对话
 </h3>
 
-点击 Claude Code 面板顶部的 **Session history** 按钮来访问您的对话历史。您可以按关键字搜索或按时间浏览。点击任何对话来恢复它，包含完整的消息历史。有关恢复会话的更多信息，请参阅[管理会话](/docs/zh-CN/sessions)。
+点击 Claude Code 面板顶部的 **Session history** 按钮来访问您的对话历史。您可以按关键字搜索或按时间浏览。
+
+点击任何对话来恢复它，包含完整的消息历史。如果对话已在当前窗口的另一个选项卡中打开，点击它会切换到该选项卡。有关恢复会话的更多信息，请参阅[管理会话](/docs/zh-CN/sessions)。
 
 * **Session titles**：新会话根据您的第一条消息接收 AI 生成的标题。
 * **Rename and archive**：将鼠标悬停在会话上以显示这些操作。重命名以给它一个描述性标题，或存档以将其移动到列表底部的 **Archived sessions** 组。
@@ -274,6 +276,30 @@ VS Code 扩展包含一个图形界面，用于安装和管理 [plugins](/docs/z
 * **为此项目安装**：与项目协作者共享（项目范围）
 * **本地安装**：仅供您使用，仅在此存储库中（本地范围）
 
+<h3 id="share-a-plugin-install-link">
+  分享插件安装链接
+</h3>
+
+要直接向某人发送特定插件的安装链接，请给他们扩展的 `install-plugin` URL。打开它会启动或聚焦 VS Code，打开 Claude Code 面板，并在该插件的范围选择上打开**管理插件**对话框。在该人选择范围之前，不会安装任何内容。如果该插件的市场在他们的 Claude Code 中尚未配置，对话框首先会要求他们添加它。
+
+```text theme={null}
+vscode://anthropic.claude-code/install-plugin?plugin=code-review&marketplace=anthropics/claude-plugins-official
+```
+
+该 URL 接受两个查询参数：
+
+| 参数            | 描述                                                                                                                                                                |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `plugin`      | 插件的名称，如其市场所列。必需。                                                                                                                                                  |
+| `marketplace` | 插件的来源，采用 [Marketplaces 选项卡](#manage-marketplaces) 接受的任何形式，例如 GitHub `owner/repo` 或 git URL。如果包含 `&` 等字符，请对其进行 URL 编码。省略时默认为 `anthropics/claude-plugins-official`。 |
+
+两种情况在对话框中以消息结束，而不是范围选择：
+
+* **市场中没有列出该名称的插件**：对话框报告未找到该插件。根据市场的列表检查 `plugin` 值。
+* **插件已安装**：对话框会说明这一点，不会发生任何更改。
+
+GitHub README、问题和某些其他 Markdown 主机会删除其方案不是 `http` 或 `https` 的链接，因此 `vscode://` 链接在那里呈现为纯文本。在这些主机上将 URL 放在代码块中，如 [链接呈现为纯文本而不是可点击的](/docs/zh-CN/deep-links#the-link-renders-as-plain-text-instead-of-being-clickable) 对 `claude-cli://` 链接所描述的那样。
+
 <h3 id="manage-marketplaces">
   管理市场
 </h3>
@@ -284,7 +310,7 @@ VS Code 扩展包含一个图形界面，用于安装和管理 [plugins](/docs/z
 * 点击刷新图标以更新市场的插件列表
 * 点击垃圾桶图标以删除市场
 
-进行更改后，横幅会提示您重启 Claude Code 以应用更改。
+您在对话框中所做的插件更改会立即应用到该 VS Code 窗口中打开的 Claude Code 会话。如果您打开对话框的会话无法重新加载其插件，对话框会提供重试或在该会话中重启 Claude 的选项。
 
 <Note>
   VS Code 中的插件管理在底层使用相同的 CLI 命令。您在扩展中配置的插件和市场也可在 CLI 中使用，反之亦然。
@@ -390,7 +416,7 @@ Claude 为浏览器任务打开新标签页并共享您浏览器的登录状态�
 vscode://anthropic.claude-code/open?prompt=review%20my%20changes
 ```
 
-要启动终端会话而不是 VS Code 选项卡，请使用 CLI 的 `claude-cli://` 处理程序。请参阅[从链接启动会话](/docs/zh-CN/deep-links)。
+该扩展还处理 `vscode://anthropic.claude-code/install-plugin`，它[在一个插件上打开插件对话框](#share-a-plugin-install-link)。要启动终端会话而不是 VS Code 选项卡，请使用 CLI 的 `claude-cli://` 处理程序。请参阅[从链接启动会话](/docs/zh-CN/deep-links)。
 
 <h2 id="configure-settings">
   配置设置

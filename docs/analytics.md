@@ -139,12 +139,6 @@ Team 和 Enterprise 仪表板包括：
 
 启用贡献指标后，Claude Code 会分析已合并的拉取请求，以确定哪些代码是使用 Claude Code 协助编写的。这是通过将 Claude Code 会话活动与每个 PR 中的代码进行匹配来完成的。
 
-<h4 id="tagging-criteria">
-  标记标准
-</h4>
-
-如果 PR 包含在 Claude Code 会话期间编写的至少一行代码，则将其标记为"带 Claude Code"。系统使用保守匹配：仅计算有高度信心涉及 Claude Code 的代码。
-
 <h4 id="attribution-process">
   归属过程
 </h4>

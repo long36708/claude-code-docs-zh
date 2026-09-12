@@ -3164,8 +3164,6 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 **工具名称：** `TodoWrite`
 
 <Note>
-  在 Python Agent SDK 0.2.139 及更高版本上，以下限制适用。
-
   The following tools are available by default only on Claude 3.x models, Opus 4 through 4.7, Sonnet 4 through 4.6, and Haiku 4.5. On every other model, including model IDs Claude Code doesn't recognize, they aren't available unless you opt in:
 
   * `TodoWrite`

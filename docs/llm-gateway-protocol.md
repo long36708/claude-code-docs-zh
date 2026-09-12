@@ -54,7 +54,12 @@ Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-o
   可选端点和启动流量
 </h3>
 
-令牌计数端点是唯一可选的：当它们不存在时，Claude Code 会回退到通过推理端点计算上下文使用情况。推理请求发送到 `/v1/messages?beta=true`，因此请匹配路径，而不是完整 URL。Google Cloud 的 Agent Platform 方法后缀附加到发布者模型路径，如 `/projects/{project}/locations/{location}/publishers/anthropic/models/{model}:streamRawPredict`。
+令牌计数端点是唯一可选的：当它们不存在时，Claude Code 会回退到基于字符的上下文使用情况估计。
+
+按路径匹配，而不是完整 URL：
+
+* 推理请求发送到 `/v1/messages?beta=true`
+* Google Cloud 的 Agent Platform 方法后缀附加到发布者模型路径，如 `/projects/{project}/locations/{location}/publishers/anthropic/models/{model}:streamRawPredict`
 
 gateway 还会看到尽力而为的启动流量，它可以拒绝而不会破坏任何东西。Anthropic Messages 格式的 gateway 会收到 `HEAD /api/hello` 连接预热探针，当配置了 HTTP 代理或客户端证书时，Claude Code 会跳过此探针。Amazon Bedrock 格式的 gateway 会收到 `GET /inference-profiles?type=SYSTEM_DEFINED` 请求，以及当配置的模型是推理配置文件时，`GET /inference-profiles/{profile}` 查询。
 
@@ -152,7 +157,7 @@ Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并
 | Beta [工具字段](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview)                                                                                                                               | 工具相关的 beta 请求头与工具架构字段（如 `strict` 和 `defer_loading`）配对                                                              | 当请求体通过而没有其请求头时，命名无法识别的工具架构字段的 `400`                                                                                 | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) |
 | [努力](https://platform.claude.com/docs/en/build-with-claude/effort)和[结构化输出](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)                                                              | `output_config` 请求体字段携带努力、结构化输出格式和任务预算设置；每个都与自己的 beta 请求头配对                                                        | 在 Amazon Bedrock 和 Google Cloud 的 Agent Platform 上游上命名 `output_config` 的 `400`，通常是 `Extra inputs are not permitted` | 一起转发字段及其请求头                                                                            |
 | [提示缓存](/docs/zh-CN/prompt-caching)                                                                                                                                                                                     | 无 beta 配对。Claude Code 将 `cache_control` 标记附加到 `system` 块和 `messages` 条目，包括在对话中途附加的 `role: "system"` 条目             | 无错误：对话在每个回合都作为未缓存的输入计费，在 `usage` 中可见为高 `input_tokens` 且缓存活动很少或没有                                                    | 在任何地方原封不动地转发 `cache_control`，并且不要将块形式的 `system` 或消息内容转换为纯字符串                           |
-| [令牌计数](https://platform.claude.com/docs/en/build-with-claude/token-counting)                                                                                                                                      | 无 beta 配对；使用 `count_tokens` 端点                                                                                     | Claude Code 回退到通过消息端点计数上下文使用情况                                                                                      | 公开该端点，以便令牌计数不会消耗推理请求                                                                   |
+| [令牌计数](https://platform.claude.com/docs/en/build-with-claude/token-counting)                                                                                                                                      | 无 beta 配对；使用 `count_tokens` 端点                                                                                     | 无错误：Claude Code 回退到基于字符的估计，因此 `/context` 显示近似计数                                                                     | 公开该端点以获得精确的令牌计数                                                                        |
 
 `ANTHROPIC_DEFAULT_*_MODEL_SUPPORTED_CAPABILITIES` [变量](/docs/zh-CN/model-config)仅在提供商配置中声明模型功能：`CLAUDE_CODE_USE_BEDROCK`、`CLAUDE_CODE_USE_VERTEX`、`CLAUDE_CODE_USE_FOUNDRY` 和 [`CLAUDE_CODE_USE_MANTLE`](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)。它们在 `ANTHROPIC_BASE_URL` gateway 后面没有效果。
 
@@ -160,7 +165,11 @@ Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并
   自动重试和错误转发
 </h3>
 
-当上游拒绝 `thinking` 字段、[思考签名](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)、中途对话系统消息或这些消息之一上的 `cache_control` 标记时，Claude Code 会重试请求并为对话的其余部分禁用被拒绝的功能。Claude Code 不重试上下文管理或工具架构字段拒绝；这些 `400` 错误到达开发者。
+Claude Code 在上游拒绝后的操作取决于被拒绝的内容：
+
+* 当上游拒绝 `thinking` 字段、中途对话系统消息或这些消息之一上的 `cache_control` 标记时，Claude Code 会重试请求并为对话的其余部分禁用被拒绝的功能
+* 当上游拒绝[思考签名](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)时，Claude Code 会重试请求而不包含对话的早期思考块，并将其排除在每个后续请求之外。新响应仍然包括思考
+* Claude Code 不重试上下文管理或工具架构字段拒绝，因此这些 `400` 错误到达开发者
 
 重试逻辑与上游的错误措辞匹配，因此原封不动地转发错误响应体。将上游错误包装在自己的信封中的 gateway 会破坏恢复路径，即使它保留了状态代码，除非信封的消息携带稳定的 `capability_rejected:` 令牌。[Claude apps gateway 为云提供商的错误措辞替换这些令牌](/docs/zh-CN/claude-apps-gateway-config#upstream-error-messages)，例如 `capability_rejected: prompt_too_long`。
 

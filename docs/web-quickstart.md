@@ -58,43 +58,49 @@ Claude Code 在任何地方的行为都相同。改变的是代码执行的位�
   连接 GitHub
 </h2>
 
-连接 GitHub 是一次性步骤。如果您已经使用 GitHub CLI，您可以[从您的终端执行此操作](#connect-from-your-terminal)而不是浏览器。
+连接 GitHub 是一次性步骤。如果您已经使用 GitHub CLI，可以[从终端执行此操作](#connect-from-your-terminal)，而不是使用浏览器。
 
 <Note>
-  在 Team 和 Enterprise 计划上，**Sign in with GitHub** 步骤仅在您的 Claude 组织的[所有者](/docs/zh-CN/server-managed-settings#access-control)在[**Admin settings > Connectors**](https://claude.ai/admin-settings/connectors)处打开 GitHub 连接器后才有效。在此之前，该步骤显示"GitHub access is required for Claude Code on the web"而不是登录按钮。连接器打开后，重新加载 [claude.ai/code](https://claude.ai/code) 并从第一步重新开始。第二个切换开关[Quick web setup](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)位于[**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code)，是可选的：打开它后，`/web-setup` 可以工作，入门流程会为成员创建环境。
+  在 Team 和 Enterprise 计划上，**Sign in with GitHub** 步骤仅在您的 Claude 组织的[所有者](/docs/zh-CN/server-managed-settings#access-control)在[**Admin settings > Connectors**](https://claude.ai/admin-settings/connectors)处打开 GitHub 连接器后才有效。在此之前，该步骤显示"GitHub access is required for Claude Code on the web"而不是登录按钮。连接器打开后，重新加载 [claude.ai/code](https://claude.ai/code)并从第一步重新开始。第二个切换开关[Quick web setup](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)位于[**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code)，是可选的：打开它后，`/web-setup` 可以工作，入门流程会为成员创建环境。
 </Note>
 
 <Steps>
   <Step title="访问 claude.ai/code">
-    转到 [claude.ai/code](https://claude.ai/code) 并使用您的 claude.ai 账户登录。在 macOS 或 Windows 上，第一个屏幕提供 Claude Code 桌面应用和其他安装 Claude Code 的方式。要留在浏览器中，请单击页面底部的**Continue on web**。
+    转到 [claude.ai/code](https://claude.ai/code)并使用您的 claude.ai 账户登录。在 macOS 或 Windows 上，第一个屏幕提供 Claude Code 桌面应用和其他安装 Claude Code 的方式。要留在浏览器中，请单击页面底部的**Continue on web**。
   </Step>
 
-  <Step title="Sign in with GitHub">
-    登录后，claude.ai/code 会提示您连接 GitHub。按照提示操作，claude.ai/code 会将您发送到 GitHub 的授权页面。批准授权请求，GitHub 会将您返回到 claude.ai/code。云会话适用于现有的 GitHub 仓库，可以访问您的 GitHub 账户可以看到的任何仓库。要启动新项目，请先[在 GitHub 上创建一个空仓库](https://github.com/new)。
+  <Step title="使用 GitHub 登录">
+    登录后，claude.ai/code 会提示您连接 GitHub。按照提示操作，claude.ai/code 会将您发送到 GitHub 的授权页面。批准授权请求，GitHub 会将您返回到 claude.ai/code。云会话可以与现有 GitHub 存储库配合使用。要启动新项目，请先[在 GitHub 上创建一个空存储库](https://github.com/new)。
 
-    当 Quick web setup 关闭时（在 Team 和 Enterprise 计划上默认关闭），claude.ai/code 会要求您在仓库上安装 Claude GitHub App，除非已经安装。如果您想要[Auto-fix](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)（允许 Claude 响应 CI 失败并审查这些仓库中的拉取请求注释），请安装它；否则单击**Skip**。无论哪种方式，会话都可以访问相同的仓库。
+    通过此连接，会话可以克隆任何公共存储库，但只有在 Claude GitHub App 安装在私有存储库上时，才能在私有存储库中工作。[安装应用](https://github.com/apps/claude/installations/new)到您想要使用其私有存储库的每个 GitHub 账户或组织。在 GitHub 组织上，组织所有者可能需要批准安装。安装应用还会启用[Auto-fix](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)，这让 Claude 能够响应这些存储库中拉取请求的 CI 失败和审查评论。
+
+    如果入门流程在此时提示您安装应用，而您想稍后再做，请单击**Skip**。
   </Step>
 
   <Step title="设置您的默认环境">
-    [云环境](/docs/zh-CN/cloud-environments)是保存的配置，控制 Claude 在会话期间可以访问的网络以及会话启动时运行的内容。连接 GitHub 后发生的情况取决于您的计划：
+    [云环境](/docs/zh-CN/cloud-environments)是保存的配置，控制会话期间 Claude 拥有的网络访问权限以及会话启动时运行的内容。连接 GitHub 后发生的情况取决于您的计划：
 
     * **Pro 和 Max**：入门流程为您创建一个名为**Default**的环境。
-    * **Team 和 Enterprise**：入门流程显示**Create your first cloud environment**表单。保持预填充的名称和网络访问不变，单击**Create & finish**以创建**Default**环境。如果所有者已打开[Quick web setup](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)，入门流程会为您创建**Default**。
+    * **Team 和 Enterprise**：入门流程显示**Create your first cloud environment**表单。保持预填充的名称和网络访问不变，然后单击**Create & finish**以创建**Default**环境。如果所有者已打开[Quick web setup](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)，入门流程会为您创建**Default**。
 
-    **Default** 使用[`Trusted` 网络访问](/docs/zh-CN/cloud-environments#access-levels)：会话可以访问[常见包注册表](/docs/zh-CN/cloud-environments#default-allowed-domains)和其他允许列表中的域，以及通过会话网络的其他任何内容。请参阅[已安装的工具](/docs/zh-CN/cloud-environments#installed-tools)了解无需任何配置即可使用的内容。
+    **Default** 使用[`Trusted` 网络访问](/docs/zh-CN/cloud-environments#access-levels)：会话可以访问[常见包注册表](/docs/zh-CN/cloud-environments#default-allowed-domains)和其他允许列表中的域，以及通过会话网络的其他任何内容都无法访问。有关无需任何配置即可使用的内容，请参阅[已安装的工具](/docs/zh-CN/cloud-environments#installed-tools)。
 
     对于第一个项目，**Default** 环境可以按原样使用。要更改其网络访问、添加环境变量或在会话启动前运行[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)，请[编辑它或创建其他环境](/docs/zh-CN/cloud-environments#configure-your-environment)。
   </Step>
 </Steps>
 
 <h3 id="connect-from-your-terminal">
-  从您的终端连接
+  从终端连接
 </h3>
 
-如果您已经使用 GitHub CLI (`gh`)，您可以在不打开浏览器的情况下设置 Claude Code on the web。这需要 [Claude Code CLI](/docs/zh-CN/quickstart)。当您运行 `/web-setup` 时，Claude Code 读取您的本地 `gh` 令牌，将其链接到您的 claude.ai 账户，如果您没有云环境，则创建**Default**云环境。在 Team 和 Enterprise 计划上，`/web-setup` 仅在所有者打开[Quick web setup](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)后才可用。
+如果您已经使用 GitHub CLI (`gh`)，可以在不打开浏览器的情况下在网络上设置 Claude Code。这需要[Claude Code CLI](/docs/zh-CN/quickstart)。在 Team 和 Enterprise 计划上，只有在所有者打开[Quick web setup](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)后，`/web-setup` 才可用。
+
+运行 `/web-setup` 时，Claude Code 读取 `gh auth token` 打印的令牌，要求您确认，并将令牌发送给 Anthropic。Anthropic 使用您的 claude.ai 账户加密存储它，您的云会话使用它进行 GitHub 访问，直到您[删除它](#remove-the-web-setup-token)。云会话随后可以访问该令牌可以访问的任何存储库，无需安装 Claude GitHub App。
+
+如果您已经在浏览器中连接了 GitHub，`/web-setup` 会警告您继续将替换您的云会话的该连接。
 
 <Note>
-  启用了[零数据保留](/docs/zh-CN/zero-data-retention)的组织无法使用 `/web-setup` 或其他云会话功能。如果未安装或验证 GitHub CLI，Claude Code 会打开浏览器入门流程。
+  启用了[零数据保留](/docs/zh-CN/zero-data-retention)的组织无法使用 `/web-setup` 或其他云会话功能。如果未安装 GitHub CLI 或未进行身份验证，Claude Code 会打开浏览器入门流程。
 </Note>
 
 <Steps>
@@ -107,7 +113,7 @@ Claude Code 在任何地方的行为都相同。改变的是代码执行的位�
   </Step>
 
   <Step title="登录到 Claude">
-    在 Claude Code CLI 中，运行 `/login` 以使用您的 claude.ai 账户登录。如果您已经登录，请跳过此步骤。使用 API 密钥进行身份验证不计数。要检查，请运行 `/status` 并确认**Login method**行显示 claude.ai 账户。
+    在 Claude Code CLI 中，运行 `/login` 以使用您的 claude.ai 账户登录。如果您已经使用 claude.ai 账户登录，请跳过此步骤。使用 API 密钥进行身份验证不计数。要检查，请运行 `/status` 并确认**Login method**行显示 claude.ai 账户。
   </Step>
 
   <Step title="运行 /web-setup">
@@ -117,9 +123,17 @@ Claude Code 在任何地方的行为都相同。改变的是代码执行的位�
     /web-setup
     ```
 
-    这会将您的 `gh` 令牌同步到您的 Claude 账户。成功后，Claude Code 会打印 `Connected as <your-github-username>` 并在您的浏览器中打开 [claude.ai/code](https://claude.ai/code)。如果您还没有云环境，`/web-setup` 会创建一个具有 Trusted 网络访问和无设置脚本的环境。您可以[稍后编辑环境或添加变量](/docs/zh-CN/cloud-environments#configure-your-environment)。一旦 `/web-setup` 完成，您可以从您的终端使用 [`--cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-web) 启动云会话，或使用 [`/schedule`](/docs/zh-CN/routines) 设置定期任务。
+    确认提示以将您的 `gh` 令牌发送到您的 Claude 账户。成功后，Claude Code 打印 `Connected as <your-github-username>` 并在您的浏览器中打开 [claude.ai/code](https://claude.ai/code)。如果您还没有云环境，`/web-setup` 会创建一个具有 Trusted 网络访问且没有设置脚本的环境。您可以[稍后编辑环境或添加变量](/docs/zh-CN/cloud-environments#configure-your-environment)。`/web-setup` 完成后，您可以使用 [`--cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-web) 从终端启动云会话，或使用 [`/schedule`](/docs/zh-CN/routines) 设置定期任务。
   </Step>
 </Steps>
+
+<h4 id="remove-the-web-setup-token">
+  删除 `/web-setup` 令牌
+</h4>
+
+要从您的 Claude 账户中删除令牌，请在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 处断开 GitHub 连接。断开连接会删除您的云会话使用的 GitHub 凭据，无论它们来自浏览器还是 `/web-setup`，因此云会话会失去 GitHub 访问权限，直到您再次连接。您的本地 `gh` 保持登录状态，令牌在 GitHub 上保持有效。
+
+要使令牌本身失效，请在 GitHub 上撤销它。如果您通过浏览器登录到 `gh`，令牌属于 GitHub 上[**Settings > Applications > Authorized OAuth Apps**](https://github.com/settings/applications)下的**GitHub CLI**条目，撤销该条目也会在您的机器上将 GitHub CLI 注销。云会话随后会失去 GitHub 访问权限，直到您再次运行 `gh auth login` 和 `/web-setup`。
 
 <h2 id="start-a-task">
   开始任务
@@ -204,7 +218,9 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
   连接 GitHub 后没有仓库出现
 </h3>
 
-云会话可以使用连接的 GitHub 账户可以看到的任何仓库，无论 Claude GitHub App 安装在哪些仓库上。如果仓库丢失，请验证连接的 GitHub 账户在 GitHub 上有权访问它。如果您还想为仓库启用[自动修复](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)，请在其上安装应用：在 github.com 上，打开**Settings → Applications → Claude → Configure** 并验证仓库是否列在**Repository access** 下。私有仓库需要与公共仓库相同的授权。
+如果您在浏览器中连接了 GitHub，会话可以克隆任何公共仓库，但私有仓库仅在 Claude GitHub App 安装在拥有该仓库的账户或组织上，且安装的仓库访问权限包括该仓库时才会出现。[安装 Claude GitHub App](https://github.com/apps/claude/installations/new)，或要求组织所有者安装或批准它。
+
+如果您使用 `/web-setup` 连接，会话可以访问您的 `gh` 令牌可以访问的每个仓库。在您的 shell 中运行 `gh repo view OWNER/REPO` 以检查您的 GitHub CLI 登录是否可以看到该仓库，如果您自连接以来已切换 `gh` 账户，请再次运行 `/web-setup`。
 
 <h3 id="the-page-only-shows-a-github-login-button">
   页面仅显示 GitHub 登录按钮

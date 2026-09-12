@@ -181,7 +181,7 @@ Claude Code 存储库发布了一个 [example dev container](/docs/zh-CN/devcont
 
 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) 在隔离的、由 Anthropic 管理的虚拟机中运行每个会话。网络代理强制执行默认允许列表，单独的代理在沙箱外保存您的 GitHub 令牌，同时在其内部为存储库访问发出作用域凭据。您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您配置的基础设施上运行，其中隔离、出站控制和 git 凭据是您部署的责任。
 
-当您想要完整的虚拟机隔离而无需自己配置基础设施，或当您从没有本地开发环境的设备委派任务时，使用此方法。它需要 Claude 订阅。当您从 Web 界面启动会话时，您还需要一个连接的 GitHub 账户，以便沙箱可以克隆您的存储库。当您使用 `--cloud` 从 CLI 启动时，如果未连接 GitHub，Claude Code 可以[捆绑并上传您的本地存储库](/docs/zh-CN/claude-code-on-the-web#send-local-repositories-without-github)。有关计划可用性和 GitHub 身份验证选项，请参阅 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web)。
+当您想要完整的虚拟机隔离而无需自己配置基础设施，或当您从没有本地开发环境的设备委派任务时，使用此方法。它需要 Claude 订阅。当您从 Web 界面启动会话时，您还需要一个连接的 GitHub 账户，以便沙箱可以克隆您的存储库。当您使用 `--cloud` 从 CLI 启动时，Claude Code 可以[捆绑并上传您的本地存储库](/docs/zh-CN/claude-code-on-the-web#send-local-repositories-without-github)。有关计划可用性和 GitHub 身份验证选项，请参阅 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web)。
 
 <h2 id="enforce-isolation-across-an-organization">
   在整个组织中强制实施隔离

@@ -35,7 +35,7 @@ Artifact 是一个实时交互式网页，Claude Code 从您的会话发布到 c
   artifact 不是什么
 </h3>
 
-artifact 是工作的捕获：一个自包含的页面，没有后端，因此无法存储表单输入或提供多个路由，其在有人查看时访问外部数据的唯一途径是[调用 MCP 连接器](#pull-live-data-with-mcp-connectors)。对于具有后端的托管内部工具，请改为在您自己的基础设施上部署它。有关完整的限制集，请参阅[页面约束](#page-constraints)。
+artifact 是工作的捕获：一个自包含的页面，没有后端，因此无法提供多个路由。对于具有后端的托管内部工具，请改为在您自己的基础设施上部署它。有关完整的限制集，请参阅[页面约束](#page-constraints)。
 
 <h2 id="create-an-artifact">
   创建工件
@@ -328,10 +328,10 @@ Claude 将您的设计系统视为比其自己的选择更高的优先级，您�
 | 约束    | 效果                                                                                                                                                                                                                                                                                                                                                                    |
 | :---- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 外部请求  | 页面可以从 Google Fonts 加载字体，以及从[四个公共 CDN 主机](#allowlist-the-viewer-domain)加载脚本：cdnjs、Tailwind 和 jQuery CDN，以及 jsDelivr 上的选定路径，例如 `/npm/`。CSP 阻止所有外部图像和所有其他外部脚本、样式表和字体，并让 `fetch`、XHR 和 WebSocket 调用仅到达页面自身的源和 Google Fonts 主机。因此，Claude 从这些 CDN 之一加载页面需要的任何库，内联所有其他 CSS 和 JavaScript，并将图像嵌入为数据 URI。[连接器调用](#pull-live-data-with-mcp-connectors)通过 claude.ai 进行，它自己进行网络调用。 |
-| 无后端   | 工件是一个静态页面。它无法存储通过表单提交的数据或自行对查看者进行身份验证。它在有人查看时获取数据的唯一方式是[调用 MCP 连接器](#pull-live-data-with-mcp-connectors)，而不是它自己的 API。                                                                                                                                                                                                                                                 |
+| 无后端   | 工件是一个静态页面。它无法自行对查看者进行身份验证。                                                                                                                                                                                                                                                                                                                                            |
 | 下载    | 页面无法自行启动下载。为了让查看者保存页面生成的文件，Claude 声明下载功能。请参阅[提供文件下载](#offer-a-file-download)。                                                                                                                                                                                                                                                                                         |
 | 单页面   | 相对链接无法解析，因为页面旁边没有部署任何内容。对于多部分内容，Claude 使用页面内锚点而不是单独的文件。                                                                                                                                                                                                                                                                                                               |
-| 源文件类型 | 发布的文件必须是 `.html`、`.htm` 或 `.md`。Markdown 文件呈现为样式化的 HTML。                                                                                                                                                                                                                                                                                                              |
+| 源文件类型 | 发布的文件必须是 `.html`、`.htm` 或 `.md`，并且必须解码为 UTF-8，或通过其字节顺序标记解码为小端 UTF-16。Markdown 文件呈现为样式化的 HTML。无法解码或包含替换字符 `U+FFFD` 的文件会被[拒绝并显示要修复的行和列](/docs/zh-CN/errors#the-source-file-is-not-valid-utf-8-text)。                                                                                                                                                                         |
 | 呈现大小  | 呈现的页面必须为 16 MiB 或更小。大型嵌入图像通常是发布因大小而失败的原因。                                                                                                                                                                                                                                                                                                                             |
 
 生成工件使用输出令牌，就像任何其他响应一样，样式化页面比相同内容作为终端文本更耗费令牌。内联 CSS、用于交互控制的 JavaScript，尤其是嵌入为数据 URI 的图像是主要贡献者。要减少工件的令牌成本：
@@ -358,18 +358,20 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
   禁用 artifacts
 </h2>
 
-要根据您组织的设置为您自己的会话关闭 artifacts，请使用以下任何一种：
+要为您自己的会话关闭 artifacts，无论您的组织设置如何，请使用以下任何一种方法：
 
-| 方法                           | 设置                                                                                                    |
-| :--------------------------- | :---------------------------------------------------------------------------------------------------- |
-| [`/config`](/docs/zh-CN/commands) | 关闭 **Artifacts** 行，这会将 [`"enableArtifact": false`](/docs/zh-CN/settings-reference#enableartifact) 写入您的用户设置 |
-| [设置文件](/docs/zh-CN/settings)      | 设置 `"enableArtifact": false`。已弃用的 `"disableArtifact": true` 也会关闭 artifacts                            |
-| [环境变量](/docs/zh-CN/env-vars)      | 设置 `CLAUDE_CODE_DISABLE_ARTIFACT=1`                                                                   |
-| [权限规则](/docs/zh-CN/permissions)   | 将 `Artifact` 添加到 `permissions.deny`                                                                   |
+| 位置                             | 操作                                                                                                    |
+| :----------------------------- | :---------------------------------------------------------------------------------------------------- |
+| [`/config`](/docs/zh-CN/commands)   | 关闭 **Artifacts** 行，这会将 [`"enableArtifact": false`](/docs/zh-CN/settings-reference#enableartifact) 写入您的用户设置 |
+| [Settings 文件](/docs/zh-CN/settings) | 设置 `"enableArtifact": false`。已弃用的 `"disableArtifact": true` 也会关闭 artifacts                            |
+| [环境变量](/docs/zh-CN/env-vars)        | 设置 `CLAUDE_CODE_DISABLE_ARTIFACT=1`                                                                   |
+| [权限规则](/docs/zh-CN/permissions)     | 将 `Artifact` 添加到 `permissions.deny`                                                                   |
 
-在 [`--settings`](/docs/zh-CN/cli-reference#cli-flags) 文件中或使用 `CLAUDE_CODE_DISABLE_ARTIFACT` 关闭 artifacts 后，或您的管理员在[托管设置](/docs/zh-CN/server-managed-settings)中关闭它们后，没有设置文件可以将其重新打开。在 v2.1.242 之前，[优先级堆栈](/docs/zh-CN/settings#settings-precedence)中较高位置的文件可以重新打开 artifacts，即使较低优先级的文件设置了 `"enableArtifact": false`。
+一旦您在 [`--settings`](/docs/zh-CN/cli-reference#cli-flags) 文件中或使用 `CLAUDE_CODE_DISABLE_ARTIFACT` 关闭 artifacts，或您的管理员在[托管设置](/docs/zh-CN/server-managed-settings)中关闭它们，任何设置文件都无法将其重新打开。在 v2.1.242 之前，[优先级堆栈](/docs/zh-CN/settings#settings-precedence)中较高位置的文件可能会重新打开 artifacts，即使较低优先级的文件设置了 `"enableArtifact": false`。
 
-您也可以在项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置 `"enableArtifact": false` 来为该项目中的会话关闭 artifacts。任何文件中的 `"enableArtifact": true` 都不会将其重新打开。在项目和本地设置中支持该键需要 Claude Code v2.1.242 或更高版本。
+您也可以在项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置 `"enableArtifact": false` 来为该项目中的会话关闭 artifacts。任何文件中的 `"enableArtifact": true` 都不会将其重新打开。在项目和本地设置中支持此键需要 Claude Code v2.1.242 或更高版本。
+
+如果您添加了没有 `domain:` 部分的 `WebFetch` deny 或 ask 规则，它不会关闭 artifacts 或阻止 artifact 读取。[`permissions` 中 `deny` 或 `ask` 中的 `WebFetch(domain:claude.ai)` 规则确实适用于 artifact 读取](/docs/zh-CN/permissions#allow-or-deny-every-fetch)。
 
 <h2 id="manage-artifacts-for-your-organization">
   为您的组织管理 artifacts

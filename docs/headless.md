@@ -298,7 +298,7 @@ claude -p "Run the test suite and fix any failures" \
 要为整个会话设置基线而不是列出单个工具，请传递 [权限模式](/docs/zh-CN/permission-modes)。对于 `-p`，[内置启动权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in) 在每个计划上都是 Manual，因此传递您想要的权限模式：
 
 * **`auto`**：传递 `--permission-mode auto` 以让分类器审查大多数操作而不是您
-* **`dontAsk`**：Claude Code 拒绝您的 `permissions.allow` 规则或 [只读命令集](/docs/zh-CN/permissions#read-only-commands) 中未包含的任何内容，这对于锁定的 CI 运行很有用。`AskUserQuestion`、连接器工具 [您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 和标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使当允许规则匹配时也被拒绝
+* **`dontAsk`**：Claude Code 拒绝任何会提示的内容，除非 `permissions.allow` 规则或 [只读命令集](/docs/zh-CN/permissions#read-only-commands) 中包含它，这对于锁定的 CI 运行很有用。`AskUserQuestion`、连接器工具 [您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 和标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使当允许规则匹配时也被拒绝
 * **`acceptEdits`**：Claude 写入文件而无需提示，Claude Code 自动批准常见的文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp`。[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) 仍然适用。除了只读命令集，其他 shell 命令和网络请求仍然需要 `--allowedTools` 条目或 `permissions.allow` 规则。有关 `acceptEdits` 自动批准的内容，请参阅 [使用 acceptEdits 模式自动批准文件编辑](/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)
 
 此示例使用 `acceptEdits` 作为基线应用 lint 修复：

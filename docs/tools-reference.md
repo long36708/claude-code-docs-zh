@@ -50,12 +50,12 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `SendUserFile`         | 从会话向您发送文件，带有可选标题，以便生成的报告、图表、屏幕截图或构建的工件到达您的设备，而不仅仅在成绩单中提及。从 v2.1.196 开始，可选的 `display` 输入控制呈现：`render` 在客户端中内联打开文件，`attach` 仅显示下载卡，未设置时客户端按文件类型决定。在连接[远程控制](/docs/zh-CN/remote-control)客户端或会话在托管云环境（例如[网络版 Claude Code](/docs/zh-CN/claude-code-on-the-web)）中运行时可用。传递通过 Anthropic 托管的基础设施运行，因此该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用                                                                                                                                                                                                                                           | 否    |
 | `ShareOnboardingGuide` | 上传 `ONBOARDING.md` 并返回队友可以在 Claude Code 中打开的共享链接。在编写指南后从 `/team-onboarding` 调用。适用于 Pro、Max、Team 和 Enterprise 计划上的 claude.ai 订阅者                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 是    |
 | `Skill`                | 在主对话中执行[skill](/docs/zh-CN/skills#control-who-invokes-a-skill)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 是    |
-| `TaskCreate`           | 在任务列表中创建新任务。Claude Code 在[任务工具可用性](#task-tool-availability)下列出的模型上将其排除，除非您选择加入                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 否    |
-| `TaskGet`              | 检索特定任务的完整详细信息。Claude Code 在[任务工具可用性](#task-tool-availability)下列出的模型上将其排除，除非您选择加入                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 否    |
-| `TaskList`             | 列出所有任务及其当前状态。Claude Code 在[任务工具可用性](#task-tool-availability)下列出的模型上将其排除，除非您选择加入                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 否    |
+| `TaskCreate`           | 在任务列表中创建新任务。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 否    |
+| `TaskGet`              | 检索特定任务的完整详细信息。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 否    |
+| `TaskList`             | 列出所有任务及其当前状态。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 否    |
 | `TaskOutput`           | 从后台任务检索输出。已弃用，改为在任务的输出文件路径上使用 `Read`。当没有任务与 ID 匹配时，错误按 ID 和描述列出运行的后台代理。在 v2.1.203 之前，错误仅命名缺失的 ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 否    |
 | `TaskStop`             | 按 ID 停止运行的后台任务。它还接受[代理团队队友](/docs/zh-CN/agent-teams)或按代理 ID 或名称命名的后台代理。在 v2.1.198 之前，它仅接受后台任务 ID。当没有任务与 ID 匹配时，错误按 ID 和描述列出运行的后台代理，包括另一个代理生成的代理。在 v2.1.203 之前，错误列出了运行的队友和命名的代理，但不是另一个代理生成的后台代理，因此无法从主对话中识别或停止这些代理                                                                                                                                                                                                                                                                                                                                                                                           | 否    |
-| `TaskUpdate`           | 更新任务状态、依赖项、详细信息或删除任务。Claude Code 在[任务工具可用性](#task-tool-availability)下列出的模型上将其排除，除非您选择加入                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | 否    |
+| `TaskUpdate`           | 更新任务状态、依赖项、详细信息或删除任务。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 否    |
 | `TodoWrite`            | 管理会话任务清单。默认禁用，改为使用 `TaskCreate`、`TaskGet`、`TaskList` 和 `TaskUpdate`。设置 `CLAUDE_CODE_ENABLE_TASKS=0` 以在[具有任务跟踪工具的会话](#task-tool-availability)中重新启用它                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 否    |
 | `ToolSearch`           | 当[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)启用时，搜索并加载延迟工具                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 否    |
 | `WaitForMcpServers`    | 等待一个或多个仍在后台连接的 [MCP 服务器](/docs/zh-CN/mcp)，以便请求可以使用它们的工具而无需重启会话。当所需的服务器尚未连接时，Claude 会调用它。仅在[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)禁用时出现，因为启用时 `ToolSearch` 处理等待                                                                                                                                                                                                                                                                                                                                                                                                                                        | 否    |
@@ -73,7 +73,6 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 * 在设置中的 [`permissions.allow`](/docs/zh-CN/settings-reference#permissions-allow) 和 [`permissions.deny`](/docs/zh-CN/settings-reference#permissions-deny)，以及 `/permissions` 界面
 * 在 [`--allowedTools` 和 `--disallowedTools`](/docs/zh-CN/cli-reference) CLI 标志中
 * 在 Agent SDK 的 [`allowedTools` 和 `disallowedTools`](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules) 选项中
-* 在 [subagent 的 `tools` 或 `disallowedTools`](/docs/zh-CN/sub-agents#supported-frontmatter-fields) frontmatter 中
 * 在 [skill 的 `allowed-tools`](/docs/zh-CN/skills#frontmatter-reference) frontmatter 中
 * 在 hook 的 [`if` 条件](/docs/zh-CN/hooks-guide#filter-by-tool-name-and-arguments-with-the-if-field)中
 
@@ -197,13 +196,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 
 [前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)启动的命令在该子代理给出最终响应时停止。主对话或后台子代理启动的命令在最终响应后继续运行。在使用 `-p` 标志的非交互模式下，[后台命令在运行的最终结果后不久结束](/docs/zh-CN/headless#background-tasks-at-exit)。
 
-当命令在完成前达到其超时时，Claude Code 会将其移到后台而不是停止它。Claude 在命令继续时继续工作。Claude Code 对移动的命令应用与任何其他后台命令相同的生命周期规则，因此它仍然在该子代理的最终响应时结束前台子代理的命令。设置 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](/docs/zh-CN/env-vars#variables) 禁用自动后台处理以及其余后台任务功能。
-
-Claude Code 永远不会自动后台处理三种命令。它在超时时停止它们：
-
-* 以 `sleep` 开头的命令。
-* 在其中任何地方运行 `git` 的命令。
-* Claude Code 无法完全解析为简单命令的复合命令。Claude Code 将参数扩展（例如 `${VAR}`）视为无法解析，因此它在超时时停止以 `; exit "${PIPESTATUS[0]}"` 结尾的命令，即使该命令的其余部分可以解析。
+当命令在完成前达到其超时时，Claude Code 会将其移到后台而不是停止它，除非命令以 `sleep` 开头。Claude 在命令继续时继续工作。Claude Code 对移动的命令应用与任何其他后台命令相同的生命周期规则，因此它仍然在该子代理的最终响应时结束前台子代理的命令。设置 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](/docs/zh-CN/env-vars#variables) 禁用自动后台处理以及其余后台任务功能。
 
 移到后台的命令的结果说明发生了什么：
 
@@ -292,7 +285,15 @@ Claude 结束交互式会话后，会话被锁定。新提示和大多数命令�
   Glob 工具行为
 </h2>
 
-Glob 工具通过名称模式查找文件。它支持标准 glob 语法，包括用于递归目录匹配的 `**`：
+Glob 工具通过名称模式查找文件。在 Windows 上，它是默认工具集的一部分。在 macOS、Linux 和 WSL 上，Claude Code 将 Glob 和 [Grep](#grep-tool-behavior) 排除在默认工具集之外，Claude 改为通过 Bash 工具使用 `find` 和 `grep` 进行搜索。在 Claude 的 shell 中，这两个命令运行 `bfs` 和 `ugrep` 的嵌入式版本，搜索通过 `Bash` 调用到达你的 hooks 和权限规则。
+
+在 macOS、Linux 和 WSL 上，你可以在以下情况下恢复 Glob 和 Grep 工具：
+
+* 你在启动会话时在 [`--tools` 或 `--allowedTools`](/docs/zh-CN/cli-reference#cli-flags) 中命名 `Glob` 或 `Grep`，或在等效的 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 选项中命名。使用 `--tools` 时，你会获得列出的工具，在 `--allowedTools` 中命名任一工具会恢复两者。设置文件中的允许规则没有这种效果。
+* 权限 [拒绝规则](/docs/zh-CN/permissions#match-all-uses-of-a-tool)、`--disallowedTools` 标志或 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) 从会话中移除 `Bash`。
+* [子代理](/docs/zh-CN/sub-agents#available-tools) 在其 `tools` 字段中列出 `Glob` 或 `Grep` 并排除 `Bash`。列出的工具仅对该子代理返回，或在通过 [`--agent`](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 或 `agent` 设置作为主会话代理运行时对整个会话返回。
+
+Glob 支持标准 glob 语法，包括用于递归目录匹配的 `**`：
 
 * `**/*.js` 匹配任何深度的所有 `.js` 文件
 * `src/**/*.ts` 匹配 `src/` 下的所有 `.ts` 文件
@@ -310,7 +311,7 @@ Claude Code 在检查搜索目录是否存在之前决定 Glob 调用的权限�
   Grep 工具行为
 </h2>
 
-Grep 工具在文件内容中搜索模式。[Glob](#glob-tool-behavior) 按名称查找文件，而 Grep 在文件内部查找行。
+Grep 工具在文件内容中搜索模式。[Glob](#glob-tool-behavior) 按名称查找文件，而 Grep 在文件内部查找行。在 macOS、Linux 和 WSL 上，Grep 在与 Glob 相同的条件下默认不可用。有关两个工具何时可用的信息，请参阅 [Glob 工具行为](#glob-tool-behavior)。
 
 Grep 基于 [ripgrep](https://github.com/BurntSushi/ripgrep) 构建，使用 ripgrep 的正则表达式语法，而不是 POSIX grep。包含正则表达式元字符的模式需要转义。例如，在 Go 代码中查找 `interface{}` 需要使用模式 `interface\{\}`。
 
@@ -581,9 +582,11 @@ Claude Code 在使用 Claude API 而不是云提供商的您自己机器上的�
   Task 工具可用性
 </h2>
 
-在 Claude Code v2.1.233 及更高版本中，除非您选择加入，否则以下工具在 Opus 4.8、Sonnet 5、Fable 5、Mythos 5 或这些系列的更高版本上不可用：`TodoWrite`、`TaskCreate`、`TaskGet`、`TaskUpdate` 和 `TaskList`。这些模型可以在没有书面清单的情况下跟踪多步骤工作，而这些工具的定义和提醒会占用上下文，因此 Claude Code 会将其排除。没有它们，Claude 在工作时不会向[任务列表](/docs/zh-CN/interactive-mode#task-list)添加任何内容。在任何其他模型上，例如 Opus 4.7，Claude Code 默认提供四个 Task 工具，仅当您设置 [`CLAUDE_CODE_ENABLE_TASKS=0`](/docs/zh-CN/env-vars) 时才提供 `TodoWrite`。
+Task 跟踪工具 `TaskCreate`、`TaskGet`、`TaskUpdate`、`TaskList` 和 `TodoWrite` 默认仅在 Claude 3.x 模型、Opus 4 至 4.7、Sonnet 4 至 4.6 和 Haiku 4.5 上可用。只要这些工具可用，您就会获得四个 Task 工具，或者当您设置 [`CLAUDE_CODE_ENABLE_TASKS=0`](/docs/zh-CN/env-vars) 时改为获得 `TodoWrite`。
 
-如果您仍想在列出的模型之一上使用这些工具，请执行以下操作之一：
+在所有其他模型上，Claude Code 会排除这些工具，除非您选择加入。这同样适用于 Claude Code 无法识别的模型 ID，例如通过 [LLM 网关](/docs/zh-CN/llm-gateway)提供的自定义模型名称。在较新的模型上，Claude 可以在没有书面清单的情况下跟踪多步骤工作，而这些工具的定义和提醒会占用上下文。没有这些工具，Claude 在工作时不会向[任务列表](/docs/zh-CN/interactive-mode#task-list)添加任何内容。
+
+如果您想在默认情况下没有这些工具的模型上使用它们，请执行以下操作之一：
 
 * 在启动 Claude Code 之前导出 [`CLAUDE_CODE_ENABLE_TODO_TOOLS=1`](/docs/zh-CN/env-vars)，例如 `CLAUDE_CODE_ENABLE_TODO_TOOLS=1 claude`。Claude Code 随后会在每个模型和每个提供商上提供相同的工具
 * 在 [`--allowedTools`](/docs/zh-CN/cli-reference#cli-flags) 中命名其中一个工具，例如 `claude --allowedTools TaskCreate`
@@ -593,6 +596,8 @@ Claude Code 在使用 Claude API 而不是云提供商的您自己机器上的�
 在[后台会话](/docs/zh-CN/agent-view)和[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) 中，Claude Code 在每个模型上提供相同的工具，无论是否列出。
 
 Claude Code 仅在您的会话拥有这些工具时才会将其提供给子代理，即使子代理运行不同的模型也是如此。进程内[代理团队](/docs/zh-CN/agent-teams)队友以相同的方式跟随您的会话，而在其自己的[分割窗格](/docs/zh-CN/agent-teams#choose-a-display-mode)中的队友作为单独的 Claude Code 进程运行，因此其自己的模型决定。没有 Task 工具，代理通过消息而不是[共享任务列表](/docs/zh-CN/agent-teams#assign-and-claim-tasks)与其团队协调。
+
+此处描述的默认集合适用于 Claude Code v2.1.268 及更高版本。
 
 <h2 id="webfetch-tool-behavior">
   WebFetch 工具行为
@@ -607,6 +612,7 @@ WebFetch 接收一个 URL 和一个描述要提取内容的提示。它获取页
 * HTTP URL 会自动升级到 HTTPS。
 * 大型页面在处理前会被截断到固定的字符限制。
 * WebFetch 默认缓存每个响应 15 分钟，所以重复获取同一 URL 会快速返回。在 Claude Code v2.1.233 或更高版本上，设置 [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](/docs/zh-CN/env-vars#variables) 以更改 WebFetch 保留每个响应的时长。
+* 一个页面如果在五分钟内未完成下载，包括 WebFetch 跟随的任何重定向，则会因截止期限错误而失败。在 Claude Code v2.1.268 或更高版本上，设置 [`CLAUDE_CODE_WEBFETCH_DEADLINE_MS`](/docs/zh-CN/env-vars#variables) 以更改限制，或设置为 `0` 以移除它。
 * 当 URL 重定向到不同的主机时，WebFetch 返回一个文本结果，命名原始 URL 和重定向目标，而不是跟随它。Claude 然后使用第二个 WebFetch 调用获取新 URL。
 * 当提取步骤遇到过载的 API 时，Claude Code 会使用退避重试它；仍然失败的获取会返回错误结果。在 v2.1.212 之前，API 错误文本可能会作为提取的页面内容到达 Claude。
 

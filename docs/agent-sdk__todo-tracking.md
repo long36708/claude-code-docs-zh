@@ -6,7 +6,7 @@
 
 > 在 Agent SDK 会话中跟踪待办事项，并从结构化工具调用中呈现 Claude 的进度
 
-在[模型可用性](#model-availability)下列出的模型上，Claude 无需书面待办事项列表即可跟踪多步骤工作，Claude Code 默认会从会话中排除[任务跟踪工具](/docs/zh-CN/tools-reference#task-tool-availability)。对于这些模型上的多步骤任务，您不需要本页面上的任何内容即可让 Claude 完成工作。
+Claude Code 默认仅在[模型可用性](#model-availability)下列出的模型上提供[任务跟踪工具](/docs/zh-CN/tools-reference#task-tool-availability)。较新的模型无需书面待办事项列表即可跟踪多步骤工作，因此在这些模型上，您不需要本页面上的任何内容即可让 Claude 完成多步骤任务。
 
 在具有任务跟踪工具的会话中，Claude 保持书面待办事项列表，在工作时更新每个项目的状态。您在消息流中看到每个更改作为结构化工具调用。仅当您的应用程序读取这些工具调用时才选择加入会话，无论是记录任务活动还是呈现自己的进度显示。
 
@@ -15,8 +15,6 @@
 </h2>
 
 <Note>
-  在 TypeScript Agent SDK 0.3.233 及更高版本或 Python Agent SDK 0.2.139 及更高版本上，以下限制适用。
-
   The following tools are available by default only on Claude 3.x models, Opus 4 through 4.7, Sonnet 4 through 4.6, and Haiku 4.5. On every other model, including model IDs Claude Code doesn't recognize, they aren't available unless you opt in:
 
   * `TodoWrite`
@@ -30,7 +28,7 @@
   This default set applies in Claude Code v2.1.268 and later, which the TypeScript Agent SDK bundles from v0.3.268.
 </Note>
 
-在列出的模型上，除非您选择加入会话，否则您在消息流中看不到这些工具的 `tool_use` 块。Agent SDK 通过它捆绑的 Claude Code 二进制文件应用这些默认值。如果您将 `pathToClaudeCodeExecutable`（TypeScript）或 `cli_path`（Python）指向您自己的 Claude Code 安装，您将获得该安装提供的任何工具，在其自己的默认值下。要查看运行中会话中的确切集合，请[检查哪些工具可用](/docs/zh-CN/tools-reference#check-which-tools-are-available)。要选择加入会话，请执行以下操作之一：
+在默认情况下没有这些工具的模型上，除非您选择加入会话，否则您在消息流中看不到这些工具的 `tool_use` 块。Agent SDK 通过它捆绑的 Claude Code 二进制文件应用这些默认值。如果您将 `pathToClaudeCodeExecutable`（TypeScript）或 `cli_path`（Python）指向您自己的 Claude Code 安装，您将获得该安装提供的任何工具，在其自己的默认值下。要查看运行中会话中的确切集合，请[检查哪些工具可用](/docs/zh-CN/tools-reference#check-which-tools-are-available)。要选择加入会话，请执行以下操作之一：
 
 * 在 [`allowedTools`](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules)（TypeScript）或 `allowed_tools`（Python）选项中命名其中一个工具
 * 在 `tools` 选项中列出工具，该选项将会话的内置工具限制为它命名的工具。将您想要的工具与您使用的其他内置工具一起包括

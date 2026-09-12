@@ -132,11 +132,15 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
   检查连接状态
 </h3>
 
-在交互式终端会话中，当连接处于活动状态时，`/rc active` 指示器位于输入框下方的页脚中，如果终端太窄无法容纳它，则隐藏。指示器文本是指向 claude.ai 上会话的链接。使用向下箭头键选择它并按 Enter，或再次运行 `/remote-control`，打开状态面板，其中包含会话 URL 和 QR 码，您可以使用它从[另一个设备连接](#connect-from-another-device)。状态面板还提供断开连接选项。选择它以关闭 Remote Control；您的本地会话继续在终端中运行。
+在交互式终端会话中，当连接处于活动状态时，`/rc active` 指示器显示，如果终端太窄无法容纳它，则隐藏。使用[全屏渲染](/docs/zh-CN/fullscreen)时，它位于启动标头中的工作目录行的末尾，没有它时，位于输入框下方的页脚中。
 
-如果连接失败，Claude Code 会显示一条通知，说明失败原因，并将指示器切换到保留在页脚中的失败状态。要再次读取原因，请使用向下箭头键选择指示器并按 Enter。要重新连接，请运行 `/remote-control`，除非[原因说会话在其他地方被接管或结束，或服务器找不到它](#session-ended-elsewhere)。
+指示器文本是指向 claude.ai 上会话的链接。再次运行 `/remote-control` 以打开状态面板，其中包含会话 URL 和 QR 码，用于[从另一个设备连接](#connect-from-another-device)。当指示器在页脚中时，您也可以使用向下箭头键选择指示器并按 Enter 来打开面板。面板还提供断开连接选项，该选项关闭 Remote Control，同时您的本地会话继续在终端中运行。
 
-在重新连接之前读取原因。<span id="session-ended-elsewhere" />当会话从另一个设备、应用或 Claude Code 会话被接管或结束，或服务器找不到它时，原因会说明是哪种情况，Claude Code 会省略其通常的建议来运行 `/remote-control`：
+如果连接失败，Claude Code 会显示一条通知，说明失败原因，向对话添加一条带有原因的警告行，并将指示器切换到保留在原位的失败状态。要重新连接，请运行 `/remote-control`，除非[原因说会话在其他地方被接管或结束，或服务器找不到它](#session-ended-elsewhere)。
+
+在重新连接之前读取原因。当会话从另一个设备、应用或 Claude Code 会话被接管或结束，或服务器找不到它时，原因会说明是哪种情况，Claude Code 会省略其通常的建议来运行 `/remote-control`：
+
+<span id="session-ended-elsewhere" />
 
 * **另一个设备或 Claude Code 会话接管了会话**：仅当您想从该设备收回它时才运行 `/remote-control`。
 * **您从另一个设备或应用结束或存档了会话**：仅当您想要它回来时才运行 `/remote-control`；Claude Code 会重新打开存档的会话。
@@ -241,7 +245,7 @@ Remote Control 仅在您显式运行 `claude remote-control`、`claude --remote-
 
 您的本地 Claude Code 会话仅发出出站 HTTPS 请求，从不在您的机器上打开入站端口。当您启动 Remote Control 时，它向 Anthropic API 注册并轮询工作。当您从另一个设备连接时，服务器通过流连接在网络或移动客户端和您的本地会话之间路由消息。
 
-所有流量都通过 Anthropic API 通过 TLS 传输，与任何 Claude Code 会话的传输安全相同。连接使用多个短期凭证，每个凭证的范围限定为单一目的并独立过期。
+所有流量都通过 Anthropic API 通过 TLS 传输，与任何 Claude Code 会话的传输安全相同。连接使用多个短期凭证，每个凭证的范围限定为单一目的并独立过期。当 `claude remote-control` 服务器的注册凭证过期时，服务器会再次向 Anthropic API 注册并继续为其会话提供服务。
 
 Remote Control 连接时，会话记录（包括您的消息、Claude 的响应和工具活动）存储在 Anthropic 服务器上。存储的记录保持您的设备之间的对话同步，并让会话在网络中断后重新连接。执行和文件系统访问保留在您的机器上，存储的记录根据[数据使用](/docs/zh-CN/data-usage)政策保留。
 
@@ -518,16 +522,16 @@ Remote Control 服务器接受了请求，但以此版本的 Claude Code 无法�
   选择正确的方法
 </h2>
 
-Claude Code offers several ways to work when you're not at your terminal. They differ in what triggers the work, where Claude runs, and how much you need to set up.
+Claude Code 提供了多种方式在您不在终端时进行工作。它们在触发工作的方式、Claude 运行的位置以及所需的设置量方面有所不同。
 
-|                                                          | Trigger                                                                                        | Claude runs on                                                                               | Setup                                                                                                                                | Best for                                                      |
-| :------------------------------------------------------- | :--------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------ |
-| [Dispatch](/docs/en/desktop#sessions-from-dispatch)           | Message a task from the Claude mobile app                                                      | Your machine (Desktop)                                                                       | [Pair the mobile app with Desktop](https://support.claude.com/en/articles/13947068)                                                  | Delegating work while you're away, minimal setup              |
-| [Remote Control](/docs/en/remote-control)                     | Drive a running session from [claude.ai/code](https://claude.ai/code) or the Claude mobile app | Your machine (CLI or VS Code)                                                                | Run `claude remote-control`                                                                                                          | Steering in-progress work from another device                 |
-| [Channels](/docs/en/channels)                                 | Push events from a chat app like Telegram or Discord, or your own server                       | Your machine (CLI)                                                                           | [Install a channel plugin](/docs/en/channels#quickstart) or [build your own](/docs/en/channels-reference)                                      | Reacting to external events like CI failures or chat messages |
-| [Slack](/docs/en/slack)                                       | Mention `@Claude` in a team channel                                                            | Anthropic cloud                                                                              | [Install the Slack app](/docs/en/slack#setting-up-claude-code-in-slack) with [Claude Code on the web](/docs/en/claude-code-on-the-web) enabled | PRs and reviews from team chat                                |
-| [Self-hosted environments](/docs/en/self-hosted-environments) | Start a [cloud session](/docs/en/claude-code-on-the-web) and pick your organization's environment   | Your organization's infrastructure                                                           | [Deploy runners](/docs/en/self-hosted-environments-quickstart), on Team and Enterprise plans                                              | Cloud sessions that must run inside your network              |
-| [Scheduled tasks](/docs/en/scheduled-tasks)                   | Set a schedule                                                                                 | [CLI](/docs/en/scheduled-tasks), [Desktop](/docs/en/desktop-scheduled-tasks), or [cloud](/docs/en/routines) | Pick a frequency                                                                                                                     | Recurring automation like daily reviews                       |
+|                                                             | 触发方式                                                              | Claude 运行位置                                                                                    | 设置                                                                                                                     | 最适合                     |
+| :---------------------------------------------------------- | :---------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- | :---------------------- |
+| [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch)           | 从 Claude 移动应用发送任务消息                                               | 您的机器（Desktop）                                                                                  | [将移动应用与 Desktop 配对](https://support.claude.com/en/articles/13947068)                                                   | 在您离开时委派工作，最少设置          |
+| [Remote Control](/docs/zh-CN/remote-control)                     | 从 [claude.ai/code](https://claude.ai/code) 或 Claude 移动应用驱动正在运行的会话 | 您的机器（CLI 或 VS Code）                                                                            | 运行 `claude remote-control`                                                                                             | 从另一台设备控制进行中的工作          |
+| [Channels](/docs/zh-CN/channels)                                 | 从聊天应用（如 Telegram 或 Discord）或您自己的服务器推送事件                           | 您的机器（CLI）                                                                                      | [安装频道插件](/docs/zh-CN/channels#quickstart) 或 [构建您自己的](/docs/zh-CN/channels-reference)                                             | 对外部事件（如 CI 失败或聊天消息）做出反应 |
+| [Slack](/docs/zh-CN/slack)                                       | 在团队频道中提及 `@Claude`                                                | Anthropic 云                                                                                    | [安装 Slack 应用](/docs/zh-CN/slack#setting-up-claude-code-in-slack)，启用 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) | 从团队聊天进行 PR 和审查          |
+| [Self-hosted environments](/docs/zh-CN/self-hosted-environments) | 启动 [云会话](/docs/zh-CN/claude-code-on-the-web)并选择您组织的环境                  | 您组织的基础设施                                                                                       | [部署运行器](/docs/zh-CN/self-hosted-environments-quickstart)，在 Team 和 Enterprise 计划上                                            | 必须在您的网络内运行的云会话          |
+| [Scheduled tasks](/docs/zh-CN/scheduled-tasks)                   | 设置计划                                                              | [CLI](/docs/zh-CN/scheduled-tasks)、[Desktop](/docs/zh-CN/desktop-scheduled-tasks) 或 [云](/docs/zh-CN/routines) | 选择频率                                                                                                                   | 定期自动化，如每日审查             |
 
 <h2 id="related-resources">
   相关资源

@@ -170,7 +170,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 
     网关是一个单一的 Linux 二进制文件，读取配置，连接到 Postgres 并应用其架构迁移，针对您的 IdP 运行 OIDC 发现，构建上游客户端，并开始侦听。启动对配置、Postgres 连接（5 秒超时）、OIDC 发现和上游客户端构造是失败关闭的。如果其中任何一个无法访问或配置错误，网关会以错误退出，而不是以降级状态提供流量。
 
-    成功启动不会验证推理路径，因为 Bedrock 和 Google Cloud 的 Agent Platform 实例凭证在第一个请求时解析，而不是在启动时。
+    成功启动不会验证推理路径，因为 Amazon Bedrock 和 Google Cloud 的 Agent Platform 实例凭证在第一个请求时解析，而不是在启动时。
 
     监视 stderr 以获取启动序列。日志行使用格式 `[gateway] <timestamp> <level> <message>`，审计事件是带有 `evt` 字段的单行 JSON，启动横幅（下面省略）在迁移和侦听行之间打印。新数据库每个架构迁移打印一行 `migration N applied`；已迁移的数据库不打印任何内容。您应该按顺序看到：
 
@@ -285,7 +285,7 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 }
 ```
 
-开发人员按 Enter 连接。[首次连接 TLS 指纹提示](#connect-developers)仍然出现。
+开发人员按 Enter 连接。[首次连接 TLS 指纹提示](#connect-developers)仍然出现。文件在机器上后，未完成网关登录的开发人员会看到[管理员策略需要 Cloud 网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)下描述的消息之一。通过环境变量（如 `CLAUDE_CODE_USE_BEDROCK`）选择云提供商的开发人员不需要网关登录。
 
 开发人员无法手动设置此项。登录选择器中没有网关选项，`forceLoginGatewayUrl` 在开发人员自己的设置文件中被忽略。单独的 `forceLoginMethod`，没有 URL，将开发人员留在"联系您的 IT 管理员"消息处。登录密钥属于您推送到机器的文件中，而不是网关的 `managed.policies[].cli` 块中，该块仅到达已连接的客户端。
 
@@ -295,7 +295,7 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 
 Claude Desktop 在嵌入式 Claude Code 会话上运行其 Cowork 和 Code 选项卡，以及启用时的 Chat 选项卡，并通过网关发送其模型请求。它将策略传递给每个会话，从网关在 `/user/bootstrap` 处提供的配置构建：模型允许列表、禁用的工具和从匹配策略的 `cli` 块派生的出口允许列表，加上[`desktop` 覆盖](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)。
 
-其他 `cli` 密钥，例如 hooks、`env` 和作用域权限规则（如 `Bash(npm *)`），仅到达通过 `/login` 登录的客户端。Claude Desktop 从其自己的托管配置读取网关 URL，并使用其自己的流程登录，与[设置网关 URL](#set-the-gateway-url) 中的 `forceLoginMethod` 和 `forceLoginGatewayUrl` 密钥分开。
+其他 `cli` 密钥，例如 hooks、`env` 和作用域权限规则（如 `Bash(npm *)`），仅到达通过 `/login` 登录的客户端。Claude Desktop 从其自己的托管配置读取网关 URL，并使用其自己的流程登录，与[设置网关 URL](#set-the-gateway-url)中的 `forceLoginMethod` 和 `forceLoginGatewayUrl` 密钥分开。
 
 由启动过程传递的设置是父设置。Claude Code 在任何具有管理员部署的托管源的机器上忽略父设置，除非[传递策略的源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)设置 `parentSettingsBehavior: "merge"`。
 
@@ -313,7 +313,7 @@ Claude Desktop 在嵌入式 Claude Code 会话上运行其 Cowork 和 Code 选�
   设置选择加入
 </h4>
 
-从[设置网关 URL](#set-the-gateway-url) 部署托管设置片段，将其镜像到任何优先于文件的客户端源，然后验证。
+从[设置网关 URL](#set-the-gateway-url)部署托管设置片段，将其镜像到任何优先于文件的客户端源，然后验证。
 
 <Steps>
   <Step title="在托管设置文件中部署选择加入">
@@ -421,8 +421,11 @@ Claude Desktop 通过网关的身份提供商使用相同的浏览器 SSO 步骤
 这些保证适用于每个通过 `/login` 登录的会话。Claude Desktop 启动的嵌入式会话按[将策略传递给 Claude Desktop 会话](#deliver-policy-to-claude-desktop-sessions)中所述获取其策略，遥测项目说明其导出的去向。
 
 * **模型访问**：对策略未授予的模型的请求返回 400，`/model` 选择器被过滤到策略的 `availableModels` 允许列表。在策略中设置 [`enforceAvailableModels: true`](/docs/zh-CN/model-config#default-model-behavior)，以便 Default 选项解析为 `availableModels` 内的模型，而不是 Claude Code 的内置默认值；没有它，Default 保持可选，如果该模型未被授予，则在请求时被拒绝。
-* **遥测目标**：在通过 `/login` 登录的会话中，CLI 将其 OTLP/HTTP 导出发送到网关，无论任何本地设置的 `OTEL_EXPORTER_OTLP_ENDPOINT`，网关将它们中继到 [`telemetry.forward_to`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 中的目标。在[Claude Desktop 启动](#connect-claude-desktop)的嵌入式会话中，CLI 将其导出发送到配置的 `OTEL_EXPORTER_OTLP_ENDPOINT`。CLI 仅当该端点指向网关本身时才将网关会话令牌附加到这些导出。没有为信号配置目标时，网关接受并丢弃它，因此如果您已直接收集 Claude Code 遥测，将您的收集器添加为 `forward_to` 目标。
-* **凭证**：网关令牌是会话的唯一凭证。`ANTHROPIC_AUTH_TOKEN`、`ANTHROPIC_API_KEY`、`apiKeyHelper`、[Anthropic 配置文件](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)和任何早期的 claude.ai 登录在登录时被忽略，因此开发人员不需要首先从 claude.ai 注销。
+* **遥测目标**：在通过 `/login` 登录的会话中，CLI 将其 OTLP/HTTP 导出发送到网关，而不是任何本地设置的 `OTEL_EXPORTER_OTLP_ENDPOINT`，除非策略[将您的收集器命名为端点](/docs/zh-CN/claude-apps-gateway-config#export-directly-to-your-collector)。网关将它接收的导出中继到 [`telemetry.forward_to`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 中的目标。
+  * 在[Claude Desktop 启动](#connect-claude-desktop)的嵌入式会话中，CLI 将其导出发送到配置的 `OTEL_EXPORTER_OTLP_ENDPOINT`。CLI 仅当该端点指向网关本身时才将网关会话令牌附加到这些导出。
+  * 没有为信号配置目标时，网关接受并丢弃它。
+  * 如果您已直接收集 Claude Code 遥测，将您的收集器添加为 `forward_to` 目标，或在策略中命名它以跳过中继。
+* **凭证**：网关令牌是会话的唯一凭证。[Anthropic 配置文件](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)和任何早期的 claude.ai 登录在登录时被忽略，因此开发人员不需要首先从 claude.ai 注销。对于配置的 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，请参阅[管理员策略需要 Cloud 网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。
 * **托管设置**：锁定的密钥无法在本地覆盖。CLI 在启动时应用策略，并在每个小时轮询时应用更改，除了[仅在下一次启动时应用的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)。
 * **启动时网关无法访问**：已登录的会话在启动时约 10 秒后以错误退出，而不是在没有其设置的情况下启动。
 * **启动后网关结束会话**：请参阅[强制执行故障关闭启动](/docs/zh-CN/server-managed-settings#enforce-fail-closed-startup)，了解哪些启动从网关登出打开，哪些在网关以 `401` 应答时退出。
@@ -452,7 +455,9 @@ Claude Desktop 通过网关的身份提供商使用相同的浏览器 SSO 步骤
 | 按用户和按组支出限制                                                                                             | 可用         | 请参阅[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)                                                                                                                                                                                                                                                       |
 | 服务器端网络搜索                                                                                               | 不可用        | CLI 无法看到网关路由到哪个上游提供商，因此无法验证网络搜索支持并在网关会话上禁用 WebSearch                                                                                                                                                                                                                                                     |
 | [Remote Control](/docs/zh-CN/remote-control)                                                                | 不可用        | CLI 显示[命名网关的错误](/docs/zh-CN/errors#remote-control-requires-the-anthropic-api)                                                                                                                                                                                                                                 |
-| 标准提示缓存                                                                                                 | 可用         | 网关将 `cache_control` 断点转发到每个上游，CLI 标记[系统上下文，它在对话中途追加](/docs/zh-CN/prompt-caching#where-the-cache-lives)以在网关会话上进行缓存，就像在其他每个提供商和连接上一样。                                                                                                                                                                           |
+| [`/design-sync`](/docs/zh-CN/commands#all-commands) 和 `/design-login`                                       | 不可用        | 两者都需要 claude.ai，CLI 在网关会话上不联系，因此两个命令都不会出现                                                                                                                                                                                                                                                                |
+| 需要功能标志获取的功能，例如 `/import` 和 `claude import`                                                             | 不可用        | CLI 在网关会话上跳过标志获取。[需要功能标志获取的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)列出了关闭的内容                                                                                                                                                                                                         |
+| 标准提示缓存                                                                                                 | 可用         | 网关将 `cache_control` 断点转发到每个上游。[缓存位置](/docs/zh-CN/prompt-caching#where-the-cache-lives)涵盖 CLI 标记的块，包括它在对话中途追加的系统上下文                                                                                                                                                                                            |
 | 1 小时缓存 TTL                                                                                             | 不可用        | CLI 在网关会话上省略扩展缓存 TTL beta，因为并非网关可以路由到的每个上游都支持 1 小时 TTL，因此通过网关的提示缓存使用 5 分钟 TTL；请参阅上面的 beta 标头注释                                                                                                                                                                                                           |
 | Auto 模式                                                                                                | 可用         | 遵循[第三方提供商规则](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry)：仅第三方提供商上符合条件的模型可以使用它。在 v2.1.207 之前，网关会话上的 auto 模式需要设置 `CLAUDE_CODE_ENABLE_AUTO_MODE=1`，可通过托管策略 `env` 块交付                                                                                                     |
 | 仅第一方优化，如全局缓存范围和令牌高效工具                                                                                  | 不可用        | CLI 在网关会话上不启用它们；请参阅上面的 beta 标头注释                                                                                                                                                                                                                                                                         |

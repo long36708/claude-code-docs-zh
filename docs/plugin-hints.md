@@ -36,7 +36,7 @@ Claude Code 永远不会自动安装插件。用户始终需要确认。
 在环境变量上进行门控以发出提示，使标记不太可能在人类直接运行您的 CLI 时出现，然后将标签写入 stderr，单独占一行。选择要检查的变量：
 
 * `CLAUDECODE`：在每个 Claude Code 版本上设置，因此可以到达最多的会话。它也在 tmux 会话和 Claude Code 启动的 stdio MCP 服务器子进程中设置，IDE 扩展在其集成终端中设置它，人类可能在那里直接运行您的 CLI。
-* `CLAUDE_CODE_CHILD_SESSION`：仅在 Claude Code 本身生成的子进程中设置，例如工具调用、hook 命令和[状态行](/docs/zh-CN/statusline)命令，因此标签通常不会到达人类终端。在会话内启动的长期进程（例如 tmux 服务器）会捕获该变量，因此从该进程启动的后续 shell 仍然显示原始标签。需要 Claude Code v2.1.172 或更高版本，因此较旧版本上的会话会错过提示。
+* `CLAUDE_CODE_CHILD_SESSION`：仅在 Claude Code 本身生成的子进程中设置，例如工具调用、hook 命令和[状态行](/docs/zh-CN/statusline)命令，因此标签通常不会到达人类终端。在会话内启动的长期进程（例如 tmux 服务器）会捕获该变量，因此从该进程启动的后续 shell 仍然显示原始标签。
 
 以下示例在 `CLAUDECODE` 上进行门控以获得最大覆盖范围，并为官方市场中名为 `example-cli` 的插件发出提示：
 

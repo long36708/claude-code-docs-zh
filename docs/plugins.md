@@ -234,7 +234,7 @@ When reviewing code, check for:
 4. Test coverage
 ```
 
-安装插件后，检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，运行该命令以加载 Skills。有关完整的 Skill 编写指南，包括渐进式披露和工具限制，请参阅 [Agent Skills](/docs/zh-CN/skills)。
+安装插件后，检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，请参阅 [Apply plugin changes without restarting](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting) 以在当前会话中加载 Skills。有关完整的 Skill 编写指南，包括渐进式披露和工具限制，请参阅 [Agent Skills](/docs/zh-CN/skills)。
 
 <h3 id="add-lsp-servers-to-your-plugin">
   向你的插件添加 LSP servers
@@ -339,6 +339,8 @@ claude --plugin-dir ./my-plugin.zip
 
   要测试一个插件及其依赖的插件，请参阅 [Test a plugin and its dependency locally](/docs/zh-CN/plugin-dependencies#test-a-plugin-and-its-dependency-locally)。
 </Tip>
+
+使用 `--plugin-dir` 尝试插件会告诉你它可以工作。要找出 Claude 实际上多久会使用它一次并获得正确的结果，请使用 [`claude plugin eval`](/docs/zh-CN/plugin-evals) 针对一组测试提示运行它。每个提示会在加载和不加载插件的情况下运行多次，因此你可以看到插件的贡献并在你更改它或新模型发布时捕获回归。
 
 要从一个地方加载多个插件，请传递一个包含它们的文件夹，例如 `--plugin-dir ./plugins`。加载一个插件文件夹需要 Claude Code v2.1.265 或更高版本。Claude Code 读取文件夹的顶级以决定哪些插件加载，在交互式会话中，它也会监视文件夹以查找后续更改：
 
@@ -515,6 +517,7 @@ claude.ai 表单需要 Team 或 Enterprise 组织和目录管理访问权限；�
   对于插件开发者
 </h3>
 
+* [使用 evals 测试插件](/docs/zh-CN/plugin-evals)：测量你的插件改变了什么并在 CI 中进行门控
 * [创建和分发市场](/docs/zh-CN/plugin-marketplaces)：打包和共享你的插件
 * [插件参考](/docs/zh-CN/plugins-reference)：完整的技术规范
 * 深入了解特定的插件组件：

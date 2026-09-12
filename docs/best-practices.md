@@ -392,75 +392,75 @@ Keep interviewing until we've covered everything, then write a complete spec to 
   管理你的会话
 </h2>
 
-对话是持久的和可逆的。利用这一点！
+对话是持久的且可逆的。充分利用这一点！
 
 <h3 id="course-correct-early-and-often">
-  尽早且经常改正方向
+  尽早且频繁地纠正方向
 </h3>
 
 <Tip>
-  一旦你注意到 Claude 偏离轨道，立即改正它。
+  一旦发现 Claude 偏离轨道，立即纠正它。
 </Tip>
 
-最好的结果来自紧密的反馈循环。虽然 Claude 有时会在第一次尝试时完美地解决问题，但快速改正它通常会更快地产生更好的解决方案。
+最好的结果来自紧密的反馈循环。虽然 Claude 有时能在第一次尝试时完美解决问题，但快速纠正通常能更快地产生更好的解决方案。
 
-* **`Esc`**：使用 `Esc` 键在中途停止 Claude。Context 被保留，所以你可以重定向。
-* **`Esc + Esc` 或 `/rewind`**：按 `Esc` 两次或运行 `/rewind` 来打开 rewind 菜单并恢复之前的对话和代码状态，或从选定的消息进行总结。
-* **`"撤销那个"`**：让 Claude 恢复其更改。
-* **`/clear`**：在不相关的任务之间重置 context。长会话与无关的 context 可能会降低性能。
+* **`Esc`**：使用 `Esc` 键在 Claude 执行过程中停止它。上下文会被保留，所以你可以重新引导。
+* **`Esc + Esc` 或 `/rewind`**：按两次 `Esc` 或运行 `/rewind` 来打开 rewind 菜单，恢复之前的对话和代码状态，或从选定的消息进行总结。
+* **`"Undo that"`**：让 Claude 撤销其更改。
+* **`/clear`**：在不相关的任务之间重置上下文。包含无关上下文的长会话可能会降低性能。
 
-如果你在一个会话中对同一问题改正了 Claude 两次以上，context 就充满了失败的方法。运行 `/clear` 并使用更具体的提示重新开始，该提示包含你学到的东西。干净的会话与更好的提示几乎总是优于长会话与累积的改正。
+如果你在一个会话中对同一问题纠正了 Claude 两次以上，上下文就会被失败的方法所污染。运行 `/clear` 并使用更具体的提示重新开始，该提示应该包含你学到的内容。一个干净的会话配合更好的提示几乎总是比一个积累了许多纠正的长会话表现更好。
 
 <h3 id="manage-context-aggressively">
-  积极管理 context
+  积极管理上下文
 </h3>
 
 <Tip>
-  在不相关的任务之间频繁运行 `/clear` 来重置 context。
+  在不相关的任务之间运行 `/clear` 来重置上下文。
 </Tip>
 
-Claude Code 在你接近 context 限制时自动压缩对话历史，这保留了重要的代码和决策，同时释放空间。
+当你接近上下文限制时，Claude Code 会自动压缩对话历史，这样可以保留重要的代码和决策，同时释放空间。
 
-在长会话中，Claude 的 context window 可能会充满无关的对话、文件内容和命令。这可能会降低性能，有时会分散 Claude 的注意力。
+在长会话期间，Claude 的上下文窗口可能会被无关的对话、文件内容和命令填满。这可能会降低性能，有时还会分散 Claude 的注意力。
 
-* 在任务之间频繁使用 `/clear` 来完全重置 context window
-* 当自动压缩触发时，Claude 总结最重要的东西，包括代码模式、文件状态和关键决策
-* 为了更多控制，运行 `/compact <instructions>`，如 `/compact Focus on the API changes`
-* 要仅压缩对话的一部分，使用 `Esc + Esc` 或 `/rewind`，选择消息检查点，并选择 **从这里总结** 或 **总结到这里**。第一个会压缩从该点开始的消息，同时保持早期 context 完整；第二个会压缩早期消息，同时保持最近的消息完整。请参阅 [rewind 菜单的总结选项](/docs/zh-CN/checkpointing#rewind-and-summarize)。
-* 在 CLAUDE.md 中使用像 `"When compacting, always preserve the full list of modified files and any test commands"` 这样的指令来自定义压缩行为，以确保关键 context 在总结中存活
-* 对于不需要留在 context 中的问题，使用 [`/btw`](/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw)。答案永远不会进入对话历史，所以你可以检查细节而不增加 context。
+* 在任务之间频繁使用 `/clear` 来完全重置上下文窗口
+* 当自动压缩触发时，Claude 会总结最重要的内容，包括代码模式、文件状态和关键决策
+* 为了获得更多控制，运行 `/compact <instructions>`，例如 `/compact Focus on the API changes`
+* 要仅压缩对话的一部分，使用 `Esc + Esc` 或 `/rewind`，选择一个消息检查点，然后选择**从这里总结**或**总结到这里**。第一个选项会压缩从该点开始的消息，同时保留较早的上下文；第二个选项会压缩较早的消息，同时保留最近的消息完整。参见 [rewind 菜单的总结选项](/docs/zh-CN/checkpointing#rewind-and-summarize)。
+* 在 CLAUDE.md 中自定义压缩行为，使用诸如 `"When compacting, always preserve the full list of modified files and any test commands"` 这样的指令，以确保关键上下文在总结中得以保留
+* 对于不需要保留在上下文中的问题，使用 [`/btw`](/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw)。答案永远不会进入对话历史，所以你可以检查细节而不会增加上下文。
 
 <h3 id="use-subagents-for-investigation">
-  使用 subagents 进行调查
+  使用子代理进行调查
 </h3>
 
 <Tip>
-  使用 `"use subagents to investigate X"` 委托研究。它们在单独的 context 中探索，为实现保持你的主对话干净。
+  使用 `"use subagents to investigate X"` 委派研究。它们在单独的上下文中探索，保持你的主对话干净以供实现。
 </Tip>
 
-由于 context 是你的基本约束，使用 subagents 来保持研究不进入它。当 Claude 研究代码库时，它读取许多文件，所有这些都消耗你的 context。Subagents 在单独的 context windows 中运行并报告摘要：
+由于上下文是你的基本约束，使用子代理来保持研究不进入上下文。当 Claude 研究代码库时，它会读取大量文件，所有这些都会消耗你的上下文。子代理在单独的上下文窗口中运行并报告回总结：
 
 ```text wrap theme={null}
 Use subagents to investigate how our authentication system handles token
 refresh, and whether we have any existing OAuth utilities I should reuse.
 ```
 
-你也可以在 Claude 实现某些东西后使用 subagents 进行验证。请参阅 [添加对抗性审查步骤](#add-an-adversarial-review-step)。
+你也可以在 Claude 实现某些东西后使用子代理进行验证。参见 [添加对抗性审查步骤](#add-an-adversarial-review-step)。
 
 <h3 id="rewind-with-checkpoints">
   使用检查点进行 Rewind
 </h3>
 
 <Tip>
-  Claude 进行的每个提示都会创建一个检查点。你可以将对话、代码或两者恢复到任何之前的检查点。
+  你发送的每个开始一个轮次的提示都会创建一个检查点。你可以将对话、代码或两者都恢复到任何之前的检查点。
 </Tip>
 
-Claude 在每次更改前自动对文件进行快照，以便检查点可以恢复它们。双击 `Escape` 或运行 `/rewind` 来打开 rewind 菜单。你可以仅恢复对话、仅恢复代码、恢复两者或从选定的消息进行总结。有关详细信息，请参阅 [Checkpointing](/docs/zh-CN/checkpointing)。
+Claude 在每次更改前自动为文件创建快照，所以检查点可以将它们恢复。双击 `Escape` 或运行 `/rewind` 来打开 rewind 菜单。你可以仅恢复对话、仅恢复代码、同时恢复两者，或从选定的消息进行总结。参见 [Checkpointing](/docs/zh-CN/checkpointing) 了解详情。
 
-与其仔细规划每一步，你可以告诉 Claude 尝试一些冒险的事情。如果不起作用，rewind 并尝试不同的方法。检查点在会话中持续，所以你可以关闭你的终端并稍后仍然 rewind。
+与其仔细规划每一步，你可以告诉 Claude 尝试一些冒险的事情。如果它不起作用，rewind 并尝试不同的方法。检查点与对话一起保存，所以你可以关闭终端，稍后恢复会话，并仍然可以 rewind。
 
 <Warning>
-  检查点仅跟踪 Claude 进行的更改，不跟踪外部进程。这不是 git 的替代品。
+  检查点仅跟踪通过 Claude 的文件编辑工具所做的更改。通过 Bash 命令或外部进程所做的更改不会被捕获。这不是 git 的替代品。
 </Warning>
 
 <h3 id="resume-conversations">
@@ -468,10 +468,10 @@ Claude 在每次更改前自动对文件进行快照，以便检查点可以恢�
 </h3>
 
 <Tip>
-  使用 `/rename` 给会话命名，并像对待分支一样对待它们：每个工作流都有自己的持久 context。
+  使用 `/rename` 命名会话，并将它们视为分支：每个工作流都有自己的持久上下文。
 </Tip>
 
-Claude Code 在本地保存对话，所以当任务跨越多个会话时，你不必重新解释 context。运行 [`claude --continue`](/docs/zh-CN/sessions#resume-a-session) 来继续最近的会话，或 `claude --resume` 来从列表中选择。给会话起描述性名称，如 `oauth-migration`，以便你稍后可以找到它们。请参阅 [管理会话](/docs/zh-CN/sessions) 了解完整的恢复、分支和命名控制集。
+Claude Code 在本地保存对话，所以当任务跨越多个会话时，你不必重新解释上下文。运行 [`claude --continue`](/docs/zh-CN/sessions#resume-a-session) 来从你停止的地方继续，或 `claude --resume` 来从列表中选择。给会话起描述性的名称，如 `oauth-migration`，这样你以后可以找到它们。参见 [管理会话](/docs/zh-CN/sessions) 了解完整的恢复、分支和命名控制。
 
 ***
 

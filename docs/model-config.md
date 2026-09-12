@@ -91,7 +91,7 @@ Fable 模型的安全分类器标记的请求，最常见于网络安全和生�
 * **规划更大的任务**：给它你通常会分成几部分的工作。它能够维持长时间的会话而不失去思路。
 
 <Note>
-  Fable 5.1 需要 Claude Code v2.1.257 或更高版本。如果来自较旧版本的请求失败，请参阅 [Claude Code does not support this model](/docs/zh-CN/errors#claude-code-does-not-support-this-model)。Fable 5 需要 v2.1.170 或更高版本。运行 `claude update` 进行升级。有关零数据保留下的可用性，请参阅 [Model availability under ZDR](/docs/zh-CN/zero-data-retention#model-availability-under-zdr)。
+  Fable 5.1 需要 Claude Code v2.1.257 或更高版本。如果来自较旧版本的请求失败，请参阅 [Claude Code does not support this model](/docs/zh-CN/errors#claude-code-does-not-support-this-model)。运行 `claude update` 进行升级。有关零数据保留下的可用性，请参阅 [Model availability under ZDR](/docs/zh-CN/zero-data-retention#model-availability-under-zdr)。
 </Note>
 
 在 Anthropic API 上，`/model` 选择器仅在服务器报告它对你的组织可用后才列出 Fable 模型。当你输入 `/model fable` 或 Fable 模型 ID 时，Claude Code 直接与服务器检查可用性，所以即使选择器未列出该条目，输入的选择也可以成功。
@@ -621,7 +621,15 @@ Claude Code 在用户设置中的 [`modelSettings`](/docs/zh-CN/settings-referen
 
 持久化的 `effortLevel` 设置和 `CLAUDE_CODE_EFFORT_LEVEL` 环境变量不接受 `ultracode`。当 `CLAUDE_CODE_EFFORT_LEVEL` 设置为 `xhigh` 以外的级别时，请求以该级别运行，ultracode 的工作流编排保持不活跃。选择 ultracode 然后显示警告，环境变量覆盖会话的努力。
 
-当 ultracode 不可用时，例如当[工作流被关闭](/docs/zh-CN/workflows#turn-workflows-off)时，`--effort ultracode` 仅设置 `xhigh` 努力。
+<span id="when-ultracode-is-available" />
+
+Ultracode 在以下情况下不可用：
+
+* [工作流被关闭](/docs/zh-CN/workflows#turn-workflows-off)
+* 模型不支持 `xhigh` 努力
+* [努力上限](#organization-effort-limits)低于 `xhigh` 适用于模型
+
+在这些情况下，`--effort ultracode` 启动会话时 ultracode 关闭，努力级别为模型和任何上限允许的最高级别，最高为 `xhigh`。
 
 <h4 id="choose-an-effort-level">
   选择努力级别
@@ -660,7 +668,9 @@ Claude Code 在用户设置中的 [`modelSettings`](/docs/zh-CN/settings-referen
 * **从连接的设备**：在[远程控制](/docs/zh-CN/remote-control#what-connected-devices-see)会话中，从您的手机或浏览器上的努力控制中选择级别。该级别仅适用于当前会话，尽管它也结束[对模型默认努力的保持](#adjust-effort-level)。需要 Claude Code v2.1.234 或更高版本
 * **Skill 和子代理 frontmatter**：在 [skill](/docs/zh-CN/skills#frontmatter-reference) 或[子代理](/docs/zh-CN/sub-agents#supported-frontmatter-fields) markdown 文件中设置 `effort` 以在该 skill 或子代理运行时覆盖努力级别
 
-Frontmatter 努力在该 skill 或子代理活跃时应用，覆盖会话级别但不覆盖环境变量。
+Frontmatter 努力在该 skill 或子代理活跃时应用，覆盖会话级别但不覆盖环境变量。一个 [`maxEffortLevel`](/docs/zh-CN/settings-reference#maxeffortlevel) 或[组织努力上限](#organization-effort-limits)仍然限制 skill 或子代理运行的级别。
+
+在 Fable 5、Opus 4.8 和 Opus 4.7 上，frontmatter 努力也在[对模型默认努力的保持](#adjust-effort-level)有效时应用。在 v2.1.267 之前，保持优先，Claude Code 在保持活跃时忽略 frontmatter 级别。
 
 如果您在[托管设置](/docs/zh-CN/managed-settings)中设置 `effortLevel`，Claude Code 在[努力解析顺序](#adjust-effort-level)的设置步骤处应用它，用户仍然可以使用 `/effort` 或 `--effort` 更改级别。要将用户保持在或低于某个级别，设置 [`maxEffortLevel`](/docs/zh-CN/settings-reference#maxeffortlevel)。
 

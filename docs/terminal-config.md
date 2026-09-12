@@ -225,12 +225,12 @@ Claude Code 监视 `~/.claude/themes/` 并在添加或更改文件时重新加�
 
   在消息和指示器中发出成功、失败和警告状态的信号。
 
-  | 令牌        | 控制             |
-  | :-------- | :------------- |
-  | `success` | 成功消息和通过的检查     |
-  | `error`   | 错误消息和失败        |
-  | `warning` | 警告、注意消息和自动模式边框 |
-  | `merged`  | 合并的拉取请求状态      |
+  | 令牌        | 控制              |
+  | :-------- | :-------------- |
+  | `success` | 成功消息和通过的检查      |
+  | `error`   | 错误消息和失败         |
+  | `warning` | 警告、注意消息和自动模式指示器 |
+  | `merged`  | 合并的拉取请求状态       |
 
   <h4 id="input-box-and-mode-indicators">
     输入框和模式指示器
@@ -240,9 +240,9 @@ Claude Code 监视 `~/.claude/themes/` 并在添加或更改文件时重新加�
 
   | 令牌             | 控制                                                                                                                     |
   | :------------- | :--------------------------------------------------------------------------------------------------------------------- |
-  | `promptBorder` | Manual mode 中的输入框边框                                                                                                    |
-  | `planMode`     | Plan Mode 强调和边框                                                                                                        |
-  | `autoAccept`   | Accept-edits mode 强调和边框                                                                                                |
+  | `promptBorder` | 输入框边框                                                                                                                  |
+  | `planMode`     | Plan Mode 强调、Plan Mode 消息和 Plan Mode 对话框                                                                               |
+  | `autoAccept`   | Accept-edits mode 强调                                                                                                   |
   | `bashBorder`   | 输入 `!` shell 命令时的输入框边框                                                                                                 |
   | `ide`          | IDE 连接指示器                                                                                                              |
   | `fastMode`     | Fast mode 指示器                                                                                                          |

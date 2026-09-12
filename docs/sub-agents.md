@@ -304,7 +304,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 | `name`            | 是  | 使用小写字母和连字符的唯一标识符。[Hooks](/docs/zh-CN/hooks#subagentstart) 将此值作为 `agent_type` 接收。文件名不必匹配。名称不能包含 `:`，这是为 [plugin-scoped identifiers](/docs/zh-CN/plugins) 保留的，例如 `my-plugin:reviewer`。Claude Code 不加载名称包含一个的文件，并向调试日志记录错误。在 v2.1.218 之前，这样的名称被接受                                                                                              |
 | `description`     | 是  | Claude 何时应该委托给此 subagent                                                                                                                                                                                                                                                                                                          |
 | `tools`           | 否  | [Tools](#available-tools) subagent 可以使用。如果省略，继承 subagents 可用的每个工具。如果列表中没有条目解析为工具，subagent 通常 [fails to launch](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools) 并出现错误，命名条目。要将 Skills 预加载到上下文中，请使用 `skills` 字段而不是在此处列出 `Skill`                                                                                                |
-| `disallowedTools` | 否  | 要拒绝的工具，从继承或指定的列表中删除                                                                                                                                                                                                                                                                                                               |
+| `disallowedTools` | 否  | 要拒绝的工具，从继承或指定的列表中删除。带有说明符的条目，例如 `Bash(git push *)`，仍然 [removes the whole tool](#available-tools)                                                                                                                                                                                                                                  |
 | `model`           | 否  | [Model](#choose-a-model) 使用：`sonnet`、`opus`、`haiku`、`fable`、完整模型 ID（例如，`claude-opus-5`）或 `inherit`。当您省略它时，Claude Code 在 [subagent model order](#choose-a-model) 中选择模型                                                                                                                                                             |
 | `permissionMode`  | 否  | [Permission mode](#permission-modes)：`default`、`acceptEdits`、`auto`、`dontAsk`、`bypassPermissions`、`plan` 或 `manual` 作为 `default` 的别名。`manual` 别名需要 Claude Code v2.1.200 或更高版本。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略                                                                                               |
 | `maxTurns`        | 否  | subagent 停止前的最大代理轮数。当 subagent 达到限制时，Claude Code 返回其输出标记为部分，Claude 可以 [resume it](#resume-subagents) 继续。部分标记需要 Claude Code v2.1.246 或更高版本                                                                                                                                                                                         |
@@ -427,7 +427,7 @@ Claude Code 根据您组织的 [`availableModels`](/docs/zh-CN/model-config#rest
   可用工具
 </h4>
 
-Subagents 继承主对话中可用的 [built-in tools](/docs/zh-CN/tools-reference) 和 MCP 工具，由两个过滤器缩小：第一个从每个 subagent 删除工具的短列表，第二个为在 [background](#run-subagents-in-foreground-or-background) 中运行的 subagents 减少内置工具集，这是默认值。[Forks](#fork-the-current-conversation) 跳过两个过滤器并接收主对话的确切工具池。第一个过滤器删除这些工具，即使在 `tools` 字段中列出：
+Subagents 继承主对话中可用的 [built-in tools](/docs/zh-CN/tools-reference) 和 MCP 工具，由两个过滤器缩小：第一个从每个 subagent 删除工具的短列表，第二个为在 [background](#run-subagents-in-foreground-or-background) 中运行的 subagents 减少内置工具集，这是默认值。在 macOS、Linux 和 WSL 上，当主对话没有 Glob 和 Grep 工具时，subagent 也可以接收它们，如 [Glob tool behavior](/docs/zh-CN/tools-reference#glob-tool-behavior) 下所述。[Forks](#fork-the-current-conversation) 跳过两个过滤器并接收主对话的确切工具池。第一个过滤器删除这些工具，即使在 `tools` 字段中列出：
 
 * `Agent`，当 subagent 在 [depth limit](#let-subagents-spawn-their-own-subagents)；在 [fork](#fork-the-current-conversation) 中工具保持列出但返回错误而不是生成
 * `AskUserQuestion`
@@ -480,6 +480,8 @@ description: Inherits every tool except those from the github MCP server
 disallowedTools: mcp__github
 ---
 ```
+
+一个 `disallowedTools` 条目带有说明符，例如 `Bash(git push *)`，仍然从 subagent 删除整个工具，而不仅仅是匹配的命令。要保留 Bash 并阻止特定命令，请在您的设置中向 `permissions.deny` 添加 [Bash deny rule](/docs/zh-CN/permissions#bash)，例如 `Bash(git push *)`。该规则适用于主对话和 subagents。
 
 <h4 id="restrict-which-subagents-can-be-spawned">
   限制可以生成哪些 subagents
@@ -572,7 +574,7 @@ Claude Code 加载两种服务器而不检查代理文件来自的文件夹的�
   权限模式
 </h4>
 
-设置 `permissionMode` 以选择 subagent 运行的权限模式。使用模式的配置值，因此手动模式是 `default`。如果您不设置它，subagent 继承主对话的模式；在 Pro、Max 和 Team 计划上，该模式一开始是 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)，除非您的设置或您的组织更改了它。
+设置 `permissionMode` 以选择 subagent 运行的权限模式。使用模式的配置值，因此手动模式是 `default`。如果您不设置它，subagent 继承主对话的模式，该模式在 Pro、Max 和 Team 计划上一开始是 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)，除非您的设置或您的组织更改了它。
 
 主对话的权限模式决定 Claude Code 是否使用您设置的值：
 

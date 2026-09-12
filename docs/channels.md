@@ -47,7 +47,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
         * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
         * 插件[在市场中找不到](/docs/zh-CN/discover-plugins#install-plugins)：检查插件名称。
 
-        当安装要求选择安装范围时，选择用户范围选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，运行该命令以激活插件的配置命令。
+        当安装要求选择安装范围时，选择用户范围选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting)以使插件的配置命令可用。
       </Step>
 
       <Step title="配置您的令牌">
@@ -125,7 +125,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
         * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
         * 插件[在市场中找不到](/docs/zh-CN/discover-plugins#install-plugins)：检查插件名称。
 
-        当安装要求选择安装范围时，选择用户范围选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，运行该命令以激活插件的配置命令。
+        当安装要求选择安装范围时，选择用户范围选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting)以使插件的配置命令可用。
       </Step>
 
       <Step title="配置您的令牌">

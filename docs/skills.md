@@ -28,7 +28,7 @@ Claude Code 包含一组捆绑技能，例如 `/doctor`、`/code-review`、`/bat
 
 大多数捆绑技能在每个会话中都可用。少数技能取决于特定功能：例如，`/workflow-authoring` 仅在[动态工作流](/docs/zh-CN/workflows)启用时可用。
 
-要关闭捆绑技能，请使用 [`disableBundledSkills`](/docs/zh-CN/settings-reference#disablebundledskills) 设置，该设置会禁用除 `/doctor` 外的所有捆绑技能。
+要关闭捆绑技能，请使用 [`disableBundledSkills`](/docs/zh-CN/settings-reference#disablebundledskills) 设置。
 
 <Note>
   在 Claude Code v2.1.205 及更高版本中，当 `disableBundledSkills` 打开时，[`/doctor`](/docs/zh-CN/commands#all-commands) 设置检查仍然可以输入。要隐藏它，请设置 `DISABLE_DOCTOR_COMMAND` 环境变量或 [`skillOverrides`](#override-skill-visibility-from-settings) 条目 `"doctor": "off"`。在 v2.1.205 之前，`/doctor` 是内置命令而不是捆绑技能。
@@ -136,7 +136,7 @@ Skill 文件夹还遵循以下规则：
 
 * **符号链接文件夹**：enterprise、personal 或 project 位置中的 `<skill-name>` 条目可以是指向磁盘上其他位置的目录的符号链接。Claude Code 从目标读取 `SKILL.md` 并加载 skill，即使多个位置指向同一目标也只加载一次。插件 skills [以不同方式处理符号链接](/docs/zh-CN/plugins-reference#share-files-within-a-marketplace-with-symlinks)。
 * **保留名称**：不要将 skill 文件夹命名为 `synced`，无论大小写如何。Claude Code 使用 `~/.claude/skills/synced/` 来[存储从 claude.ai 下载的 skills](#where-synced-skills-load)，并跳过在 enterprise、personal 和 project 位置中以该名称创建的 skill。
-* **命令文件**：`.claude/commands/` 中的 Markdown 文件是较旧的格式，仍然有效。它支持相同的[前置元数据](#frontmatter-reference)，除了 `name` 和 `paths`，并且通过其文件名调用它。对于新工作，优先使用 skill，因为 skills 还支持[支持文件](#add-supporting-files)。
+* **命令文件**：`.claude/commands/` 中的 Markdown 文件是较旧的格式，仍然有效。它支持相同的[前置元数据](#frontmatter-reference)，除了 `name` 和 `paths`。要找到您键入以调用它的名称，请参阅[skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)。对于新工作，优先使用 skill，因为 skills 还支持[支持文件](#add-supporting-files)。
 * **Skill 文件夹作为插件**：将 `.claude-plugin/plugin.json` 添加到 skill 文件夹，它将作为[插件](/docs/zh-CN/plugins-reference#skills-directory-plugins)加载，名称为 `<name>@skills-dir`，因此它可以捆绑代理、hooks 和 MCP 服务器。在项目的 `.claude/skills/` 中，这需要首先接受工作区信任对话框。
 
 <h3 id="discovery-from-parent-and-nested-directories">
@@ -234,7 +234,7 @@ Claude Code 跳过名称与任何其他命令匹配的同步 skill，并运行�
 
 Claude Code 标记同步 skills，以便您可以告诉它们来自何处。`/skills` 菜单和 `/context` 在 `claude.ai sync` 下分组同步 skills，`/` 命令菜单将它们标记为来自 claude.ai。
 
-比较名称时，Claude Code 忽略大小写、间距和不可见字符，并将兼容性形式（如全宽字母和破折号变体）视为其纯等效形式，因此同步的 `Commit` 无法与本地 `commit` 并排加载。仅因来自另一个字母表的相似字母而不同的名称计为不同的名称，`claude.ai sync` 标签是您区分两者的方式。
+比较名称时，Claude Code 忽略大小写、间距和不可见字符，并将兼容性形式（如全宽字母和破折号变体）视为其纯等效形式，因此同步的 `Commit` 无法与本地 `commit` 并排加载。仅因来自另一个字母表的相似字母而不同的名称计为不同的名称，`claude.ai sync` 标签是您区分两者的方式。这些检查和标签需要 Claude Code v2.1.228 或更高版本。
 
 <h4 id="how-claude-code-handles-the-frontmatter-of-a-synced-skill">
   Claude Code 如何处理同步 skill 的前置元数据
@@ -243,7 +243,7 @@ Claude Code 标记同步 skills，以便您可以告诉它们来自何处。`/sk
 Claude Code 对同步 skill 的前置元数据应用两个规则：
 
 * Claude Code 在每种会话中都遵守前置元数据，因此 `allowed-tools` 授予通过正常[权限流](/docs/zh-CN/permissions)。
-* Claude Code 清理 skill 提供的显示文本，例如其描述。它删除控制字符，在到达 Claude 的文本（如描述）中，它还转义角括号，以便文本无法模仿 Claude Code 的内部格式。
+* Claude Code 清理 skill 提供的显示文本，例如其描述。它删除控制字符，在到达 Claude 的文本（如描述）中，它还转义角括号，以便文本无法模仿 Claude Code 的内部格式。这种清理需要 Claude Code v2.1.228 或更高版本。
 
 <h4 id="how-claude-code-handles-the-body-of-a-synced-skill">
   Claude Code 如何处理同步 skill 的正文
@@ -253,7 +253,7 @@ Claude Code 对同步 skill 的正文的处理取决于会话运行的位置：
 
 * 在云会话中，正文保持本地 skill 具有的行为，因为会话在隔离容器中运行。
 * 在您桌面上的 Cowork 会话中，正文保持本地 skill 具有的行为，除了 Claude Code 将每个 `!` 命令行替换为[`disableSkillShellExecution` 占位符](#inject-dynamic-context)，就像它对您在那里提供的每个 skill 所做的那样。
-* 在您机器上的任何其他会话中，Claude Code 不运行[`!` 命令](#inject-dynamic-context)，不附加 `@` 引用命名的文件（就像它对本地 skill 所做的那样），不替换 `${CLAUDE_PROJECT_DIR}` 和 `${CLAUDE_SESSION_ID}` 占位符，因此 `@` 引用和两个占位符都作为文字文本到达 Claude。`!` 命令行也作为文字文本到达 Claude，或当 `disableSkillShellExecution` 打开时作为该占位符。
+* 在您机器上的任何其他会话中，Claude Code 不运行[`!` 命令](#inject-dynamic-context)，不附加 `@` 引用命名的文件（就像它对本地 skill 所做的那样），不替换 `${CLAUDE_PROJECT_DIR}` 和 `${CLAUDE_SESSION_ID}` 占位符，因此 `@` 引用和两个占位符都作为文字文本到达 Claude。`!` 命令行也作为文字文本到达 Claude，或当 `disableSkillShellExecution` 打开时作为该占位符。这种处理需要 Claude Code v2.1.228 或更高版本。
 
 <h3 id="live-change-detection">
   在会话期间编辑 skill
@@ -271,9 +271,9 @@ Claude Code 监视 skill 目录的文件更改，除了在[bare mode](/docs/zh-C
 
 * **Personal 或 project skill**：删除 skill 的目录，`~/.claude/skills/<skill-name>/` 或 `.claude/skills/<skill-name>/`。Claude Code [在当前会话中从 `/skills` 中删除它](#live-change-detection)；Claude Code 已从中加载的内容遵循[skill 内容生命周期](#skill-content-lifecycle)。
 * **Enterprise skill**：管理员从[托管设置目录](/docs/zh-CN/managed-settings#delivery-mechanisms)内的 `.claude/skills/` 删除 skill 的目录，例如 Linux 上的 `/etc/claude-code/.claude/skills/<skill-name>/`。
-* **Plugin skill**：从 `/plugin` 菜单禁用或卸载提供它的插件，或使用 `/plugin uninstall <plugin-name>@<marketplace-name>`。Claude Code 在您运行 `/reload-plugins` 或重新启动后卸载插件的 skills；请参阅[不重新启动应用插件更改](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting)。
+* **Plugin skill**：从 `/plugin` 菜单禁用或卸载提供它的插件，或使用 `/plugin uninstall <plugin-name>@<marketplace-name>`。Claude Code 在[更改应用](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting)时或重新启动后卸载插件的 skills。
 * **从 claude.ai 同步的 Skill**：在[启用它](#skills-in-cowork-and-cloud-sessions)的同一位置为您的 claude.ai 账户关闭该 skill。Claude Code 在下次[同步您的 skills](#where-synced-skills-load)时将其从 `~/.claude/skills/synced/` 中删除。如果您改为手动删除目录，下次同步会在 skill 在 claude.ai 上保持启用时再次下载它。
-* **捆绑 skill**：设置 [`disableBundledSkills`](#bundled-skills) 为 `true` 以关闭除 `/doctor` 外的每个捆绑 skill，或在 [`skillOverrides`](#override-skill-visibility-from-settings) 中将一个 skill 设置为 `"off"` 以隐藏它。
+* **捆绑 skill**：设置 [`disableBundledSkills`](#bundled-skills) 为 `true` 以关闭捆绑 skills，或在 [`skillOverrides`](#override-skill-visibility-from-settings) 中将一个 skill 设置为 `"off"` 以隐藏它。
 
 要保留 personal 或 project skill 但阻止 Claude 自动调用它，在其前置元数据中设置 [`disable-model-invocation: true`](#control-who-invokes-a-skill)，或在 [`skillOverrides`](#override-skill-visibility-from-settings) 中设置 `"user-invocable-only"`（当您不想编辑文件时）。
 
@@ -396,13 +396,14 @@ Unexpected key(s) in SKILL.md frontmatter: argument-hint. Allowed properties are
 
 下表显示了每个布局的命令名称来自何处：
 
-| Skill 位置                                                       | 命令名称来源                           | 示例                                                                                                                     |
-| :------------------------------------------------------------- | :------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
-| `~/.claude/skills/` 或 `.claude/skills/` 下的 Skill 目录            | 目录名称                             | `.claude/skills/deploy-staging/SKILL.md` → `/deploy-staging`                                                           |
-| [嵌套](#where-skills-live)`.claude/skills/` 目录，当名称与另一个 skill 冲突时 | 相对于工作目录的子目录路径，然后是 skill 目录名称     | `apps/web/.claude/skills/deploy/SKILL.md` → `/apps/web:deploy`                                                         |
-| `.claude/commands/` 下的文件                                       | 文件名（不含扩展名）                       | `.claude/commands/deploy.md` → `/deploy`                                                                               |
-| 插件 `skills/` 子目录                                               | Frontmatter `name` 或目录名称，由插件命名空间 | `my-plugin/skills/review/SKILL.md` → `/my-plugin:review`，或使用 `name: fancy` 时为 `/my-plugin:fancy`                       |
-| 插件根 `SKILL.md`                                                 | Frontmatter `name`，以插件目录名称作为后备   | `my-plugin/SKILL.md` 带有 `name: review` → `/my-plugin:review`。请参阅[路径行为规则](/docs/zh-CN/plugins-reference#path-behavior-rules) |
+| Skill 位置                                                       | 命令名称来源                                             | 示例                                                                                                                     |
+| :------------------------------------------------------------- | :------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `~/.claude/skills/` 或 `.claude/skills/` 下的 Skill 目录            | 目录名称                                               | `.claude/skills/deploy-staging/SKILL.md` → `/deploy-staging`                                                           |
+| [嵌套](#where-skills-live)`.claude/skills/` 目录，当名称与另一个 skill 冲突时 | 相对于工作目录的子目录路径，然后是 skill 目录名称                       | `apps/web/.claude/skills/deploy/SKILL.md` → `/apps/web:deploy`                                                         |
+| `.claude/commands/` 下的文件                                       | 文件名（不含扩展名）                                         | `.claude/commands/deploy.md` → `/deploy`                                                                               |
+| `.claude/commands/` 的子目录中的文件                                   | 相对于 `commands/` 的子目录路径，每个 `/` 替换为 `:`，然后是不含扩展名的文件名 | `.claude/commands/frontend/component.md` → `/frontend:component`                                                       |
+| 插件 `skills/` 子目录                                               | Frontmatter `name` 或目录名称，由插件命名空间                   | `my-plugin/skills/review/SKILL.md` → `/my-plugin:review`，或使用 `name: fancy` 时为 `/my-plugin:fancy`                       |
+| 插件根 `SKILL.md`                                                 | Frontmatter `name`，以插件目录名称作为后备                     | `my-plugin/SKILL.md` 带有 `name: review` → `/my-plugin:review`。请参阅[路径行为规则](/docs/zh-CN/plugins-reference#path-behavior-rules) |
 
 在插件 skill 中，frontmatter `name` 替换命令最后一段中的目录名称，因此 `my-plugin/skills/review/SKILL.md` 带有 `name: fancy` 变为 `/my-plugin:fancy`。裸 `/fancy` 也调用该 skill，除非另一个命令已使用该名称。如果你写的 `name` 已经以插件自己的前缀开头，Claude Code 在 v2.1.246 或更高版本上不会再次添加前缀。例如，`name: my-plugin:fancy` 仍然变为 `/my-plugin:fancy`。从 v2.1.216 到 v2.1.245，当 `name` 已经携带前缀时，Claude Code 会加倍前缀。
 
@@ -630,7 +631,7 @@ Preserve all existing behavior and tests.
   注入动态上下文
 </h3>
 
-`` !`<command>` `` 语法在技能内容发送给 Claude 之前运行 shell 命令。命令输出替换占位符，因此 Claude 接收实际数据，而不是命令本身。当技能从你的 claude.ai 账户[同步](#how-claude-code-handles-the-body-of-a-synced-skill)时，Claude Code 不会在你的机器上运行这些命令。
+`` !`<command>` `` 语法在技能内容发送给 Claude 之前运行 shell 命令。命令输出替换占位符，因此 Claude 接收实际数据，而不是命令本身。当技能从你的 claude.ai 账户[同步](#how-claude-code-handles-the-body-of-a-synced-skill)时，Claude Code 不会在你的机器上运行这些命令。这个限制需要 Claude Code v2.1.228 或更高版本。
 
 这个技能通过使用 GitHub CLI 获取实时 PR 数据来总结拉取请求。`` !`gh pr diff` `` 和其他命令首先运行，它们的输出被插入到提示中：
 
@@ -668,7 +669,7 @@ git status --short
 
 要为来自用户、项目、插件或[附加目录](#skills-from-additional-directories)源的技能和自定义命令禁用此行为，请在[设置](/docs/zh-CN/settings)中设置 `"disableSkillShellExecution": true`。每个命令都被替换为 `[shell command execution disabled by policy]` 而不是被运行。捆绑和托管技能不受影响。此设置在[托管设置](/docs/zh-CN/managed-settings)中最有用，用户无法覆盖它。
 
-当命令出现在从你的 claude.ai 账户[同步](#how-synced-skills-behave)的技能中时，Claude Code 永远不会在你的机器上运行这些命令，无论此设置如何。[Claude Code 如何处理同步技能的主体](#how-claude-code-handles-the-body-of-a-synced-skill)说明了在每种会话中 Claude 接收什么来代替命令。
+当命令出现在从你的 claude.ai 账户[同步](#how-synced-skills-behave)的技能中时，Claude Code 永远不会在你的机器上运行这些命令，无论此设置如何。这个限制需要 Claude Code v2.1.228 或更高版本。[Claude Code 如何处理同步技能的主体](#how-claude-code-handles-the-body-of-a-synced-skill)说明了在每种会话中 Claude 接收什么来代替命令。
 
 <Tip>
   要在技能运行时请求更深入的推理，请在技能内容中的任何地方包含 `ultrathink`。请参阅[使用 ultrathink 进行一次性深入推理](/docs/zh-CN/model-config#use-ultrathink-for-one-off-deep-reasoning)。
@@ -716,7 +717,11 @@ PowerShell 工具对它运行的命令应用相同的超时、后台化和输出
   在子代理中运行技能
 </h3>
 
-当你希望技能在隔离中运行时，将 `context: fork` 添加到你的 frontmatter。技能内容成为驱动子代理的提示。它将无法访问你的对话历史。
+当你希望技能在隔离中运行时，将 `context: fork` 添加到你的 frontmatter。Claude Code 启动 `agent` 字段中设置的类型的新子代理，并将技能内容作为其提示提供给它。子代理看不到你的对话历史，因此技能的说明必须独立存在。
+
+<Note>
+  尽管名称如此，具有 `context: fork` 的技能不会在[当前对话的分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)中运行，这会将你迄今为止讨论的所有内容交给子代理。当任务依赖于该历史时，分叉对话而不是使用 `context: fork`。
+</Note>
 
 分叉的子代理在[后台](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)运行：你继续工作，而它运行，其结果在完成时到达你的对话。在 frontmatter 中设置 `background: false` 以改为在调用技能的轮次中等待结果。在 v2.1.218 之前，分叉的技能总是阻止轮次直到它们完成。
 
@@ -866,6 +871,8 @@ Claude Code 仅针对技能自己的名称和 Claude 调用中的名称匹配 `a
 
 两者的检查都是基线比较。收集几个现实的提示，在启用技能的新会话中运行每个提示，然后在[禁用](#override-skill-visibility-from-settings)技能的情况下再运行一次，并比较结果。新会话很重要，因为编写技能时留下的上下文会掩盖书面说明中的差距。
 
+两个工具可以自动化该比较。对于在[插件](/docs/zh-CN/plugins)中发布的技能，[`claude plugin eval`](/docs/zh-CN/plugin-evals)在隔离会话中运行每个提示，既有插件也没有插件，使用你定义的或它为你编写的评分器对其进行评分，并在低于阈值时以非零状态退出，以便你可以在 CI 上对其进行门控。对于在 Claude Code 对话中迭代单个技能，下面的 skill-creator 插件使用其自己的 `evals/evals.json` 格式运行类似的循环。这两种格式不可互换。
+
 <h3 id="run-evals-with-skill-creator">
   使用 skill-creator 运行评估
 </h3>
@@ -881,7 +888,7 @@ Claude Code 仅针对技能自己的名称和 Claude 调用中的名称匹配 `a
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
 * [插件在市场中找不到](/docs/zh-CN/discover-plugins#install-plugins)：检查插件名称。
 
-如果安装摘要报告 `Run /reload-plugins to activate.`，运行该命令以在当前会话中激活插件的技能。然后要求 Claude 评估现有技能，例如 `evaluate my summarize-changes skill with skill-creator`。该插件会引导你编写测试用例并运行循环：
+如果安装摘要报告 `Run /reload-plugins to activate.`，Claude Code 随后会为你运行该重新加载。如果重新加载警告你的下一条消息会重新读取对话，请运行 `/reload-plugins --force` 以在当前会话中使插件的技能可用。然后要求 Claude 评估现有技能，例如 `evaluate my summarize-changes skill with skill-creator`。该插件会引导你编写测试用例并运行循环：
 
 * **测试用例**：在技能目录内的 `evals/evals.json` 中存储提示、输入文件和预期行为
 * **隔离运行**：为每个测试用例生成一个[子代理](/docs/zh-CN/sub-agents)，以便每次运行都从干净的上下文开始，并记录令牌计数和持续时间
@@ -1111,9 +1118,11 @@ if __name__ == '__main__':
 3. 尝试重新表述你的请求以更接近描述
 4. 如果 skill 是用户可调用的，使用 `/skill-name` 直接调用它
 
-如果 frontmatter YAML 格式不正确，Claude Code 会加载 skill 主体但元数据为空，所以 `/skill-name` 仍然有效，但 Claude 没有 `description` 来匹配。使用 `--debug` 运行以查看解析错误。
+如果 frontmatter YAML 格式不正确，Claude Code 会加载 skill 主体但元数据为空，所以 `/skill-name` 仍然有效，但 Claude 无法匹配你的 `description`。使用 `--debug` 运行以查看解析错误。
 
-要找到 frontmatter 无法解析的 `SKILL.md` 文件，请在 skills 目录上运行 [`claude plugin validate`](/docs/zh-CN/plugin-marketplaces#validate-a-plugin-or-a-directory-without-a-manifest)，例如对于项目 skills 运行 `claude plugin validate .claude/skills`，或对于个人 skills 运行 `claude plugin validate ~/.claude/skills`。需要 Claude Code v2.1.233 或更高版本。
+如果 skill 在 plugin 中，你可以在现实提示中测量它触发的频率，而不是逐个检查：使用 [`tool_used: Skill` grader](/docs/zh-CN/plugin-evals#create-your-first-eval-suite) 编写一个 eval case，并在每次描述更改后使用 `claude plugin eval` 运行它。
+
+要找到 frontmatter 无法解析的 `SKILL.md` 文件，在 skills 目录上运行 [`claude plugin validate`](/docs/zh-CN/plugin-marketplaces#validate-a-plugin-or-a-directory-without-a-manifest)，例如对于项目 skills 运行 `claude plugin validate .claude/skills`，或对于个人 skills 运行 `claude plugin validate ~/.claude/skills`。需要 Claude Code v2.1.233 或更高版本。
 
 <h3 id="skill-triggers-too-often">
   Skill 触发过于频繁
@@ -1128,13 +1137,13 @@ if __name__ == '__main__':
   Skill 描述被截断
 </h3>
 
-Claude Code 将 skill 名称和描述的列表加载到上下文中，以便 Claude 知道有哪些可用。列表始终包含每个 skill 名称，但如果你有很多 skills，Claude Code 会缩短描述以适应列表的字符预算，这可能会删除 Claude 需要匹配你的请求的关键词。预算按模型上下文窗口的 1% 进行缩放。当列表溢出时，Claude Code 会从你调用最少的 skills 开始删除描述，因此你使用最多的 skills 会保留其完整文本。
+Claude Code 将 skill 名称和描述的列表加载到上下文中，以便 Claude 知道有哪些可用。列表始终包含每个 skill 名称，但如果你有很多 skills，Claude Code 会缩短描述以适应列表的字符预算，这可能会删除 Claude 需要匹配你的请求的关键词。预算按模型上下文窗口的 1% 进行缩放。当列表溢出时，Claude Code 从你调用最少的 skills 开始删除描述，所以你使用最多的 skills 保持其完整文本。
 
-运行 `/doctor` 以估计列表的上下文成本及其最大贡献者。要找到值得关闭的 skills，请运行 [`/skill-doctor`](#find-unused-skills)。当列表超过其预算时，Claude Code 也会向调试日志写入警告，可通过 [`--debug`](/docs/zh-CN/cli-reference#cli-flags) 查看。
+运行 `/doctor` 以估计列表的上下文成本及其最大贡献者。要找到值得关闭的 skills，运行 [`/skill-doctor`](#find-unused-skills)。当列表超过其预算时，Claude Code 也会向调试日志写入警告，可通过 [`--debug`](/docs/zh-CN/cli-reference#cli-flags) 查看。
 
 `/context` 中的 Skills 行报告应用预算后列表的大小，因此它与模型接收的内容相匹配。在 v2.1.196 之前，该行计算每个描述的完整文本，可能显示的值比配置的预算大几倍。
 
-要提高预算，请设置 [`skillListingBudgetFraction`](/docs/zh-CN/settings-reference#skilllistingbudgetfraction) 设置（例如 `0.02` = 2%）或 `SLASH_COMMAND_TOOL_CHAR_BUDGET` 环境变量为固定字符数。要为其他 skills 释放预算，请在 [`skillOverrides`](#override-skill-visibility-from-settings) 中将低优先级条目设置为 `"name-only"`，以便它们在没有描述的情况下列出。你也可以在源处修剪 `description` 和 `when_to_use` 文本：将关键用例放在首位，因为每个条目的组合文本被限制在 1,536 个字符，无论预算如何。该上限可通过 [`skillListingMaxDescChars`](/docs/zh-CN/settings-reference#skilllistingmaxdescchars) 配置。
+要提高预算，设置 [`skillListingBudgetFraction`](/docs/zh-CN/settings-reference#skilllistingbudgetfraction) 设置（例如 `0.02` = 2%）或 `SLASH_COMMAND_TOOL_CHAR_BUDGET` 环境变量为固定字符数。要为其他 skills 释放预算，在 [`skillOverrides`](#override-skill-visibility-from-settings) 中将低优先级条目设置为 `"name-only"`，以便它们在没有描述的情况下列出。你也可以在源处修剪 `description` 和 `when_to_use` 文本：将关键用例放在首位，因为每个条目的组合文本被限制在 1,536 个字符，无论预算如何。该上限可通过 [`skillListingMaxDescChars`](/docs/zh-CN/settings-reference#skilllistingmaxdescchars) 配置。
 
 <h2 id="related-resources">
   相关资源

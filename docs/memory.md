@@ -53,7 +53,7 @@ CLAUDE.md 文件是 markdown 文件，为项目、你的个人工作流或整个
 * 你在聊天中输入的相同更正或澄清是你上个会话输入的
 * 新队友需要相同的上下文才能提高生产力
 
-将其保持为 Claude 应该在每个会话中保持的事实：构建命令、约定、项目布局、"总是做 X"规则。如果一个条目是多步骤过程或仅对代码库的一部分重要，将其移到 [skill](/docs/zh-CN/skills) 或 [路径范围规则](#organize-rules-with-claude/rules/) 中。[扩展概述](/docs/zh-CN/features-overview#build-your-setup-over-time)涵盖何时使用每种机制。
+将其保持为 Claude 应该在每个会话中保持的事实：构建命令、约定、项目布局、"总是做 X"规则。如果一个条目是多步骤过程或仅对代码库的一部分重要，将其移到 [skill](/docs/zh-CN/skills) 或 [路径范围规则](#path-specific-rules) 中。[扩展概述](/docs/zh-CN/features-overview#build-your-setup-over-time)涵盖何时使用每种机制。
 
 <h3 id="choose-where-to-put-claude-md-files">
   选择 CLAUDE.md 文件的位置
@@ -276,6 +276,8 @@ Glob 语法将 `[` 视为括号表达式的开始，例如 `[abc]`。一个包�
 </h4>
 
 `.claude/rules/` 目录支持符号链接，因此你可以维护一组共享规则并将它们链接到多个项目中。符号链接被解析并正常加载，循环符号链接被检测并优雅处理。
+
+Claude Code 将其目标在工作目录外的符号链接视为 [外部导入](#import-additional-files)。链接的规则在你批准项目的外部导入后才加载，之后仅没有 [`paths` 字段](#path-specific-rules) 的规则加载。Claude Code 仅在项目内存文件使用 `@path` 导入工作目录外的文件时要求该批准，而不是仅针对符号链接。要加载共享规则而不需要该批准，将它们保持在 [`~/.claude/rules/`](#user-level-rules) 中，它们适用于你机器上的每个项目。
 
 此示例链接共享目录和单个文件：
 

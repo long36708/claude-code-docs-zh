@@ -218,43 +218,47 @@ claude_code.interaction
 
 **`claude_code.interaction`**
 
-| 属性                        | 描述                               | 门控条件                    |
-| ------------------------- | -------------------------------- | ----------------------- |
-| `user_prompt`             | 提示文本。除非设置了门控条件，否则值为 `<REDACTED>` | `OTEL_LOG_USER_PROMPTS` |
-| `user_prompt_length`      | 提示长度（字符数）                        |                         |
-| `interaction.sequence`    | 此会话中交互的基于 1 的计数器                 |                         |
-| `interaction.duration_ms` | 轮次的实际时钟持续时间                      |                         |
+| 属性                        | 描述                                                                                                          | 门控条件                    |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------- |
+| `user_prompt`             | 提示文本。除非设置了门控条件，否则值为 `<REDACTED>`                                                                            | `OTEL_LOG_USER_PROMPTS` |
+| `user_prompt_length`      | 提示长度（字符数）                                                                                                   |                         |
+| `interaction.sequence`    | 此会话中交互的基于 1 的计数器                                                                                            |                         |
+| `parent.source`           | Span 如何获得其 trace 父级：当它在入站 `TRACEPARENT` 下作为父级时为 `env`，当它启动自己的 trace 时为 `none`。需要 Claude Code v2.1.268 或更高版本 |                         |
+| `interaction.duration_ms` | 轮次的实际时钟持续时间                                                                                                 |                         |
 
 **`claude_code.llm_request`**
 
-| 属性                               | 描述                                                                                                  | 门控条件                    |
-| -------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------- |
-| `model`                          | 模型标识符                                                                                               |                         |
-| `gen_ai.system`                  | 始终为 `anthropic`。OpenTelemetry GenAI 语义约定                                                            |                         |
-| `gen_ai.request.model`           | 与 `model` 相同的值。OpenTelemetry GenAI 语义约定                                                             |                         |
-| `query_source`                   | 发出请求的子系统，例如 `repl_main_thread` 或子代理名称                                                               |                         |
-| `agent_id`                       | 发出请求的子代理或队友的标识符。在主会话中不存在                                                                            |                         |
-| `parent_agent_id`                | 生成此代理的代理的标识符。对于主会话和直接从其生成的代理不存在                                                                     |                         |
-| `workflow.run_id`                | [Workflow](/docs/zh-CN/workflows) 工具运行的运行标识符，前缀为 `wf_`，生成此代理。对于不是由工作流生成的代理不存在                            |                         |
-| `workflow.name`                  | 生成此代理的工作流的名称。用户编写的名称被替换为 `custom`，除非设置了门控条件                                                         | `OTEL_LOG_TOOL_DETAILS` |
-| `speed`                          | `fast` 或 `normal`                                                                                   |                         |
-| `llm_request.context`            | `interaction`、`tool` 或 `standalone`，取决于父 span                                                       |                         |
-| `duration_ms`                    | 包括重试的实际时钟持续时间                                                                                       |                         |
-| `ttft_ms`                        | 首个令牌的时间（毫秒）                                                                                         |                         |
-| `input_tokens`                   | API 使用块中的输入令牌计数                                                                                     |                         |
-| `output_tokens`                  | 输出令牌计数                                                                                              |                         |
-| `cache_read_tokens`              | 从提示缓存读取的令牌                                                                                          |                         |
-| `cache_creation_tokens`          | 写入提示缓存的令牌                                                                                           |                         |
-| `request_id`                     | 来自 `request-id` 响应标头的 Anthropic API 请求 ID                                                           |                         |
-| `gen_ai.response.id`             | 与 `request_id` 相同的值。OpenTelemetry GenAI 语义约定                                                        |                         |
-| `client_request_id`              | 最后一次尝试的客户端生成的 `x-client-request-id`                                                                 |                         |
-| `attempt`                        | 为此请求进行的总尝试次数                                                                                        |                         |
-| `success`                        | `true` 或 `false`                                                                                    |                         |
-| `status_code`                    | 请求失败时的 HTTP 状态代码                                                                                    |                         |
-| `error`                          | 请求失败时的错误消息                                                                                          |                         |
-| `response.has_tool_call`         | 当响应包含工具使用块时为 `true`                                                                                 |                         |
-| `stop_reason`                    | API 响应 `stop_reason`，例如 `end_turn`、`tool_use`、`max_tokens`、`stop_sequence`、`pause_turn` 或 `refusal` |                         |
-| `gen_ai.response.finish_reasons` | 与 `stop_reason` 相同的值，包装在字符串数组中。OpenTelemetry GenAI 语义约定                                             |                         |
+| 属性                               | 描述                                                                                                                                                                        | 门控条件                           |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `model`                          | 模型标识符                                                                                                                                                                     |                                |
+| `gen_ai.system`                  | 始终为 `anthropic`。OpenTelemetry GenAI 语义约定                                                                                                                                  |                                |
+| `gen_ai.request.model`           | 与 `model` 相同的值。OpenTelemetry GenAI 语义约定                                                                                                                                   |                                |
+| `query_source`                   | 发出请求的子系统，例如 `repl_main_thread` 或子代理名称                                                                                                                                     | `ENABLE_BETA_TRACING_DETAILED` |
+| `query_source_safe`              | `query_source` 的有界形式，无论详细的测试版跟踪是否处于活动状态都会发出，具有 `repl_main_thread` 或 `agent.builtin.general-purpose` 等值。`:` 变为 `.`，用户命名的代理显示为 `agent.custom`。需要 Claude Code v2.1.268 或更高版本 |                                |
+| `agent_id`                       | 发出请求的子代理或队友的标识符。在主会话中不存在                                                                                                                                                  |                                |
+| `parent_agent_id`                | 生成此代理的代理的标识符。对于主会话和直接从其生成的代理不存在                                                                                                                                           |                                |
+| `workflow.run_id`                | [Workflow](/docs/zh-CN/workflows) 工具运行的运行标识符，前缀为 `wf_`，生成此代理。对于不是由工作流生成的代理不存在                                                                                                  |                                |
+| `workflow.name`                  | 生成此代理的工作流的名称。用户编写的名称被替换为 `custom`，除非设置了门控条件                                                                                                                               | `OTEL_LOG_TOOL_DETAILS`        |
+| `speed`                          | `fast` 或 `normal`                                                                                                                                                         |                                |
+| `llm_request.context`            | `interaction`、`tool` 或 `standalone`，取决于父 span                                                                                                                             |                                |
+| `duration_ms`                    | 包括重试的实际时钟持续时间                                                                                                                                                             |                                |
+| `ttft_ms`                        | 首个令牌的时间（毫秒）                                                                                                                                                               |                                |
+| `first_content_ms`               | 从请求开始到成功尝试的第一个内容块的时间（毫秒）。在回退到非流式传输路径的请求上不存在。需要 Claude Code v2.1.268 或更高版本                                                                                                 |                                |
+| `input_tokens`                   | API 使用块中的输入令牌计数                                                                                                                                                           |                                |
+| `output_tokens`                  | 输出令牌计数                                                                                                                                                                    |                                |
+| `cache_read_tokens`              | 从提示缓存读取的令牌                                                                                                                                                                |                                |
+| `cache_creation_tokens`          | 写入提示缓存的令牌                                                                                                                                                                 |                                |
+| `request_id`                     | 来自 `request-id` 响应标头的 Anthropic API 请求 ID                                                                                                                                 |                                |
+| `gen_ai.response.id`             | 与 `request_id` 相同的值。OpenTelemetry GenAI 语义约定                                                                                                                              |                                |
+| `client_request_id`              | 最后一次尝试的客户端生成的 `x-client-request-id`                                                                                                                                       |                                |
+| `attempt`                        | 为此请求进行的总尝试次数                                                                                                                                                              |                                |
+| `success`                        | `true` 或 `false`                                                                                                                                                          |                                |
+| `status_code`                    | 请求失败时的 HTTP 状态代码                                                                                                                                                          |                                |
+| `error`                          | 请求失败时的错误消息                                                                                                                                                                |                                |
+| `error_class`                    | 请求失败时的短错误类别令牌，例如 `api_timeout` 或 `server_overload`。需要 Claude Code v2.1.268 或更高版本                                                                                          |                                |
+| `response.has_tool_call`         | 当响应包含工具使用块时为 `true`                                                                                                                                                       |                                |
+| `stop_reason`                    | API 响应 `stop_reason`，例如 `end_turn`、`tool_use`、`max_tokens`、`stop_sequence`、`pause_turn` 或 `refusal`                                                                       |                                |
+| `gen_ai.response.finish_reasons` | 与 `stop_reason` 相同的值，包装在字符串数组中。OpenTelemetry GenAI 语义约定                                                                                                                   |                                |
 
 每次重试尝试也被记录为 `gen_ai.request.attempt` span 事件，具有 `attempt` 和 `client_request_id` 属性。
 
@@ -263,6 +267,9 @@ claude_code.interaction
 | 属性                    | 描述                                                                                                                                                         | 门控条件                    |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
 | `tool_name`           | 工具名称                                                                                                                                                       |                         |
+| `tool_name_safe`      | `tool_name` 的形式，不携带任何用户选择的名称。内置工具名称逐字通过。MCP 工具名称显示为 `mcp_other`，除了与几个固定形状匹配的工具名称，例如名为 `browser_*` 的 playwright 工具，这些工具逐字通过。需要 Claude Code v2.1.268 或更高版本   |                         |
+| `bash_command_class`  | 对于 Bash 工具：命令的第一个程序的类别，来自固定列表，例如 `vcs` 或 `package_manager`。`other` 用于列表外的程序，`unparsed` 当行无法解析时。需要 Claude Code v2.1.268 或更高版本                               |                         |
+| `bash_argv0`          | 对于 Bash 工具：当命令的第一个程序在同一固定列表上时，例如 `git` 或 `npm`。`other` 用于列表外的任何程序。需要 Claude Code v2.1.268 或更高版本                                                            |                         |
 | `duration_ms`         | 包括权限等待和执行的实际时钟持续时间                                                                                                                                         |                         |
 | `result_tokens`       | 工具结果的近似令牌大小                                                                                                                                                |                         |
 | `agent_id`            | 运行工具的子代理或队友的标识符。在主会话中不存在                                                                                                                                   |                         |
@@ -288,13 +295,14 @@ claude_code.interaction
 
 **`claude_code.tool.execution`**
 
-| 属性                    | 描述                                                               | 门控条件                    |
-| --------------------- | ---------------------------------------------------------------- | ----------------------- |
-| `duration_ms`         | 运行工具主体所花费的时间                                                     |                         |
-| `tool_use_id`         | 与父 `claude_code.tool` span 上的值相同                                 |                         |
-| `gen_ai.tool.call.id` | 与 `tool_use_id` 相同的值。OpenTelemetry GenAI 语义约定                    |                         |
-| `success`             | `true` 或 `false`                                                 |                         |
-| `error`               | 执行失败时的错误类别字符串，例如 `Error:ENOENT` 或 `ShellError`。当设置了门控条件时包含完整错误消息 | `OTEL_LOG_TOOL_DETAILS` |
+| 属性                    | 描述                                                                                                                          | 门控条件                    |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| `duration_ms`         | 运行工具主体所花费的时间                                                                                                                |                         |
+| `tool_use_id`         | 与父 `claude_code.tool` span 上的值相同                                                                                            |                         |
+| `gen_ai.tool.call.id` | 与 `tool_use_id` 相同的值。OpenTelemetry GenAI 语义约定                                                                               |                         |
+| `success`             | `true` 或 `false`                                                                                                            |                         |
+| `error`               | 执行失败时的错误类别字符串，例如 `Error:ENOENT` 或 `ShellError`。当设置了门控条件时包含完整错误消息                                                            | `OTEL_LOG_TOOL_DETAILS` |
+| `error_class`         | 标识符形式的错误类别，其中字母、数字和下划线之外的字符被替换为 `_`，例如 `Error_ENOENT` 或 `ShellError`。即使 `error` 携带完整消息，也会携带类别。需要 Claude Code v2.1.268 或更高版本 |                         |
 
 **`claude_code.hook`**
 
@@ -499,7 +507,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 | `user.account_uuid`            | 账户 UUID（已认证时）                                                                               | `OTEL_METRICS_INCLUDE_ACCOUNT_UUID`（默认：true）        |
 | `user.account_id`              | 账户 ID，采用与 Anthropic 管理 API 匹配的标记格式（已认证时），例如 `user_01BWBeN28...`                             | `OTEL_METRICS_INCLUDE_ACCOUNT_UUID`（默认：true）        |
 | `user.id`                      | 在首次运行时生成并保存在 `~/.claude.json` 中的随机匿名标识符。它不包含任何个人信息，也不是从您的 Claude 账户派生的。删除该文件会在下次运行时生成新的无关值。 | 始终包含                                                |
-| `user.email`                   | 用户电子邮件地址（通过 OAuth 认证时）                                                                      | 可用时始终包含                                             |
+| `user.email`                   | 用户电子邮件地址，来自您的登录或在 [云会话](/docs/zh-CN/claude-code-on-the-web) 中来自会话自己的凭证                           | 可用时始终包含                                             |
 | `terminal.type`                | 终端类型，例如 `iTerm.app`、`vscode`、`cursor` 或 `tmux`                                              | 检测到时始终包含                                            |
 | `OTEL_RESOURCE_ATTRIBUTES` 中的键 | 您设置的自定义属性，例如 `department` 或 `team.id`。请参阅 [多团队组织支持](#multi-team-organization-support)       | `OTEL_METRICS_INCLUDE_RESOURCE_ATTRIBUTES`（默认：true） |
 
@@ -1329,7 +1337,9 @@ Claude Code 将每个流式响应计入成本和令牌指标，恰好一次，�
 
 Claude Code 在内部重试失败的 API 请求，仅在放弃后才发出单个 `claude_code.api_error` 事件，因此事件本身是该请求的终端信号。中间重试尝试不会作为单独的事件记录。
 
-事件上的 `attempt` 属性记录进行的总尝试次数。`CLAUDE_CODE_MAX_RETRIES` 默认为 10，上限为 15；从 v2.1.199 开始，`CLAUDE_CODE_RETRY_WATCHDOG` 提高了默认值并移除了上限。当请求在瞬时错误上耗尽所有重试时，`attempt` 等于该有效限制加一：默认为 11，除非设置了看门狗，否则永远不超过 16。较低的值表示不可重试的错误，例如 `400` 响应。
+事件上的 `attempt` 属性记录进行的总尝试次数。`CLAUDE_CODE_MAX_RETRIES` 默认为 10，上限为 15。在 v2.1.199 或更高版本上，您可以设置 `CLAUDE_CODE_RETRY_WATCHDOG` 来提高默认值并移除上限。
+
+当请求在瞬时错误上耗尽所有重试时，`attempt` 等于该有效限制加一：默认为 11，除非设置了看门狗，否则永远不超过 16。较低的值表示不可重试的错误，例如 `400` 响应，或具有自己较小重试预算的原因。例如，Claude Code 最多重试两次加载 AWS 或 Google Cloud 凭证的失败。
 
 要区分从一个恢复的会话与停滞的会话，按 `session.id` 分组事件，并检查错误后是否存在更晚的 `api_request` 事件。
 
@@ -1358,7 +1368,7 @@ OpenTelemetry 事件是 Claude Code 活动的审计数据源。每个事件都�
   将属性操作归属于用户
 </h3>
 
-每个事件上的 [标准属性](#standard-attributes) 包括已认证用户的身份：`user.email`、`user.account_uuid`、`user.account_id` 和 `organization.id`（使用 Claude 账户登录时），加上 `user.id` 和每会话的 `session.id`。`user.id` 是安装范围的标识符，除了在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上，其中它是来自网关颁发的令牌的 IdP 主体。
+每个事件上的 [标准属性](#standard-attributes) 包括已认证用户的身份：`user.email`、`user.account_uuid`、`user.account_id` 和 `organization.id`（使用 Claude 账户登录时或在 [云会话](/docs/zh-CN/claude-code-on-the-web) 中，当会话自己的凭证携带它们时），加上 `user.id` 和每会话的 `session.id`。`user.id` 是安装范围的标识符，除了在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上，其中它是来自网关颁发的令牌的 IdP 主体。
 
 MCP 工具调用、Bash 命令和文件编辑因此归属于启动会话的开发人员。Claude Code 不在单独的服务账户下运行；每个事件上记录的身份是开发人员自己的 Claude 账户，或开发人员在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上的 IdP 身份。
 
@@ -1486,7 +1496,7 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 
 * OpenTelemetry 导出到您的后端是可选的，需要显式配置。有关 Anthropic 的单独操作遥测以及如何禁用它，请参阅 [数据使用](/docs/zh-CN/data-usage#telemetry-services)
 * 原始文件内容和代码片段不包含在指标或事件中。Trace spans 是一个单独的数据路径：请参阅下面的 `OTEL_LOG_TOOL_CONTENT` 项目符号
-* 通过 OAuth 认证时，`user.email` 包含在遥测属性中。如果这对您的组织是一个问题，请与您的遥测后端合作以过滤或编辑此字段
+* 通过 OAuth 认证时，`user.email` 包含在遥测属性中，仅发送到您配置的 OTel 端点，永远不会发送到 Anthropic。如果这对您的组织是一个问题，请与您的遥测后端合作以过滤或编辑此字段
 * 默认情况下不收集用户提示内容。仅记录提示长度。要包含提示内容，请设置 `OTEL_LOG_USER_PROMPTS=1`
 * 默认情况下不收集助手响应文本。仅记录响应长度。要包含响应文本，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=1`。与来自 Claude Code 的所有 OpenTelemetry 数据一样，响应文本仅发送到您配置的 OTel 端点，永远不会发送到 Anthropic。当此变量未设置时，`OTEL_LOG_USER_PROMPTS` 用作后备，因此如果您想要提示内容而不要响应内容，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=0`
 * 默认情况下不记录工具输入参数和参数。要包含它们，请设置 `OTEL_LOG_TOOL_DETAILS=1`。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，`tool_decision` 和 `tool_result` 携带 `mcp_server_name`/`mcp_tool_name` 对，即主机编写的名称而非参数内容，即使关闭该标志也是如此。此异常需要 Claude Code v2.1.214 或更高版本。此数据仅发送到您配置的 OTEL 端点，永远不会发送到 Anthropic。参数仍可能包含敏感值，因此请根据需要配置您的遥测后端以过滤或编辑这些属性。启用后：
