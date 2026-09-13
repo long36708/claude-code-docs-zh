@@ -1,31 +1,29 @@
-<!-- 本页官方暂未提供中文翻译，以下为英文原文 / This page is not yet translated upstream; English original below. -->
-
 ---
-title: Get started with Claude
-url: https://platform.claude.com/docs/en/get-started
-description: Make your first API call to Claude and build a simple web search assistant.
+title: Claude 快速入门
+url: https://platform.claude.com/docs/zh-CN/get-started
+description: 向 Claude 发起您的第一次 API 调用，并构建一个简单的网页搜索助手。
 ---
 
-## Prerequisites
+## 前提条件
 
-* A [Claude Console account](https://platform.claude.com)
-* An [API key](https://platform.claude.com/settings/keys)
+* 一个 [Claude Console 账户](https://platform.claude.com)
+* 一个 [API 密钥](https://platform.claude.com/settings/keys)
 
-## Call the API
+## 调用 API
 
 <Tabs>
   <Tab title="cURL">
     <Steps>
-      <Step title="Set your API key">
-        Export your API key as an environment variable. The cURL command below reads it from `$ANTHROPIC_API_KEY`.
+      <Step title="设置您的 API 密钥">
+        将您的 API 密钥导出为环境变量。下面的 cURL 命令会从 `$ANTHROPIC_API_KEY` 中读取它。
 
         ```bash
         export ANTHROPIC_API_KEY="your-api-key-here"
         ```
       </Step>
 
-      <Step title="Make your first API call">
-        Send a `POST` request to the Messages API:
+      <Step title="发起您的第一次 API 调用">
+        向 Messages API 发送一个 `POST` 请求：
 
         ```bash cURL
         curl https://api.anthropic.com/v1/messages \
@@ -44,7 +42,7 @@ description: Make your first API call to Claude and build a simple web search as
           }'
         ```
 
-        Claude returns a JSON response containing the assistant's message:
+        Claude 会返回一个包含助手消息的 JSON 响应：
 
         ```json Output
         {
@@ -73,34 +71,34 @@ description: Make your first API call to Claude and build a simple web search as
 
   <Tab title="CLI">
     <Steps>
-      <Step title="Install the CLI">
-        Install the Anthropic CLI with Homebrew:
+      <Step title="安装 CLI">
+        使用 Homebrew 安装 Anthropic CLI：
 
         ```bash
         brew install anthropics/tap/ant
         ```
 
-        For other installation methods, see [Installation](https://platform.claude.com/docs/en/cli-sdks-libraries/cli/quickstart#installation) in the CLI quickstart.
+        有关其他安装方法，请参阅 CLI 快速入门中的[安装](https://platform.claude.com/docs/zh-CN/cli-sdks-libraries/cli/quickstart#installation)。
       </Step>
 
-      <Step title="Authenticate">
-        Log in with your Anthropic account:
+      <Step title="身份验证">
+        使用您的 Anthropic 账户登录：
 
         ```bash
         ant auth login
         ```
 
-        This opens a browser-based OAuth flow. After authorizing, confirm your credential with:
+        这会打开一个基于浏览器的 OAuth 流程。授权后，使用以下命令确认您的凭据：
 
         ```bash
         ant auth status
         ```
 
-        On a remote host without a browser, pass `--no-browser` to get a URL you can open on another device, then paste the returned code back into the terminal. If `ANTHROPIC_API_KEY` is set in your environment, it takes precedence over the login credentials. For non-interactive environments such as CI, see [CLI authentication options](https://platform.claude.com/docs/en/cli-sdks-libraries/cli/authentication).
+        在没有浏览器的远程主机上，传入 `--no-browser` 以获取一个可在其他设备上打开的 URL，然后将返回的代码粘贴回终端。如果您的环境中设置了 `ANTHROPIC_API_KEY`，它将优先于登录凭据。对于 CI 等非交互式环境，请参阅 [CLI 身份验证选项](https://platform.claude.com/docs/zh-CN/cli-sdks-libraries/cli/authentication)。
       </Step>
 
-      <Step title="Make your first API call">
-        Run `ant messages create` from your terminal:
+      <Step title="发起您的第一次 API 调用">
+        在终端中运行 `ant messages create`：
 
         ```bash CLI
         ant messages create \
@@ -112,7 +110,7 @@ description: Make your first API call to Claude and build a simple web search as
           }'
         ```
 
-        The CLI prints the JSON response:
+        CLI 会打印 JSON 响应：
 
         ```json Output
         {
@@ -138,15 +136,15 @@ description: Make your first API call to Claude and build a simple web search as
 
   <Tab title="Python">
     <Steps>
-      <Step title="Set your API key">
-        Export your API key as an environment variable. The SDK reads `ANTHROPIC_API_KEY` automatically.
+      <Step title="设置您的 API 密钥">
+        将您的 API 密钥导出为环境变量。SDK 会自动读取 `ANTHROPIC_API_KEY`。
 
         ```bash
         export ANTHROPIC_API_KEY="your-api-key-here"
         ```
       </Step>
 
-      <Step title="Create a project and install the SDK">
+      <Step title="创建项目并安装 SDK">
         ```bash
         mkdir claude-quickstart && cd claude-quickstart
         python3 -m venv .venv && source .venv/bin/activate
@@ -154,8 +152,8 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Create your code">
-        Create a file called `quickstart.py`:
+      <Step title="编写代码">
+        创建一个名为 `quickstart.py` 的文件：
 
         ```python Python
         import anthropic
@@ -179,7 +177,7 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Run your code">
+      <Step title="运行代码">
         ```bash
         python quickstart.py
         ```
@@ -197,15 +195,15 @@ description: Make your first API call to Claude and build a simple web search as
 
   <Tab title="TypeScript">
     <Steps>
-      <Step title="Set your API key">
-        Export your API key as an environment variable. The SDK reads `ANTHROPIC_API_KEY` automatically.
+      <Step title="设置您的 API 密钥">
+        将您的 API 密钥导出为环境变量。SDK 会自动读取 `ANTHROPIC_API_KEY`。
 
         ```bash
         export ANTHROPIC_API_KEY="your-api-key-here"
         ```
       </Step>
 
-      <Step title="Create a project and install the SDK">
+      <Step title="创建项目并安装 SDK">
         ```bash
         mkdir claude-quickstart && cd claude-quickstart
         npm init -y
@@ -214,8 +212,8 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Create your code">
-        Create a file called `quickstart.ts`:
+      <Step title="编写代码">
+        创建一个名为 `quickstart.ts` 的文件：
 
         ```typescript TypeScript
         import Anthropic from "@anthropic-ai/sdk";
@@ -241,7 +239,7 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Run your code">
+      <Step title="运行代码">
         ```bash
         npx tsx quickstart.ts
         ```
@@ -259,16 +257,16 @@ description: Make your first API call to Claude and build a simple web search as
 
   <Tab title="C#">
     <Steps>
-      <Step title="Set your API key">
-        Export your API key as an environment variable. The SDK reads `ANTHROPIC_API_KEY` automatically.
+      <Step title="设置您的 API 密钥">
+        将您的 API 密钥导出为环境变量。SDK 会自动读取 `ANTHROPIC_API_KEY`。
 
         ```bash
         export ANTHROPIC_API_KEY="your-api-key-here"
         ```
       </Step>
 
-      <Step title="Create a project and install the SDK">
-        Create a new console project and add the Anthropic package:
+      <Step title="创建项目并安装 SDK">
+        创建一个新的控制台项目并添加 Anthropic 包：
 
         ```bash
         dotnet new console -n ClaudeQuickstart
@@ -277,8 +275,8 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Create your code">
-        Replace the contents of `Program.cs`:
+      <Step title="编写代码">
+        替换 `Program.cs` 的内容：
 
         ```csharp C#
         using Anthropic;
@@ -310,7 +308,7 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Run your code">
+      <Step title="运行代码">
         ```bash
         dotnet run
         ```
@@ -328,16 +326,16 @@ description: Make your first API call to Claude and build a simple web search as
 
   <Tab title="Go">
     <Steps>
-      <Step title="Set your API key">
-        Export your API key as an environment variable. The SDK reads `ANTHROPIC_API_KEY` automatically.
+      <Step title="设置您的 API 密钥">
+        将您的 API 密钥导出为环境变量。SDK 会自动读取 `ANTHROPIC_API_KEY`。
 
         ```bash
         export ANTHROPIC_API_KEY="your-api-key-here"
         ```
       </Step>
 
-      <Step title="Create a project and install the SDK">
-        Create a new module and add the Anthropic SDK:
+      <Step title="创建项目并安装 SDK">
+        创建一个新模块并添加 Anthropic SDK：
 
         ```bash
         mkdir claude-quickstart && cd claude-quickstart
@@ -346,8 +344,8 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Create your code">
-        Create a file called `main.go`:
+      <Step title="编写代码">
+        创建一个名为 `main.go` 的文件：
 
         ```go Go
         package main
@@ -383,7 +381,7 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Run your code">
+      <Step title="运行代码">
         ```bash
         go run .
         ```
@@ -401,26 +399,26 @@ description: Make your first API call to Claude and build a simple web search as
 
   <Tab title="Java">
     <Steps>
-      <Step title="Set your API key">
-        Export your API key as an environment variable. The SDK reads `ANTHROPIC_API_KEY` automatically.
+      <Step title="设置您的 API 密钥">
+        将您的 API 密钥导出为环境变量。SDK 会自动读取 `ANTHROPIC_API_KEY`。
 
         ```bash
         export ANTHROPIC_API_KEY="your-api-key-here"
         ```
       </Step>
 
-      <Step title="Set up your project">
-        You need a JDK (25 or later) and either [Gradle](https://gradle.org/install/) or [Maven](https://maven.apache.org/install.html) on your `PATH`. Create a directory for your project with a Java source directory inside it:
+      <Step title="设置项目">
+        您需要一个 JDK（25 或更高版本），并且 `PATH` 中需要有 [Gradle](https://gradle.org/install/) 或 [Maven](https://maven.apache.org/install.html)。为您的项目创建一个目录，并在其中创建一个 Java 源代码目录：
 
         ```bash
         mkdir -p claude-quickstart/src/main/java && cd claude-quickstart
         ```
 
-        Then add a build file. Find the current SDK version on [Maven Central](https://central.sonatype.com/artifact/com.anthropic/anthropic-java).
+        然后添加一个构建文件。请在 [Maven Central](https://central.sonatype.com/artifact/com.anthropic/anthropic-java) 上查找当前的 SDK 版本。
 
         <Tabs>
           <Tab title="Gradle">
-            Save this as `build.gradle.kts`:
+            将以下内容保存为 `build.gradle.kts`：
 
             ```kotlin
             plugins {
@@ -438,7 +436,7 @@ description: Make your first API call to Claude and build a simple web search as
             }
 
             dependencies {
-                implementation("com.anthropic:anthropic-java:2.60.0")
+                implementation("com.anthropic:anthropic-java:2.58.0")
             }
 
             application {
@@ -448,7 +446,7 @@ description: Make your first API call to Claude and build a simple web search as
           </Tab>
 
           <Tab title="Maven">
-            Save this as `pom.xml`:
+            将以下内容保存为 `pom.xml`：
 
             ```xml
             <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -464,7 +462,7 @@ description: Make your first API call to Claude and build a simple web search as
                 <dependency>
                   <groupId>com.anthropic</groupId>
                   <artifactId>anthropic-java</artifactId>
-                  <version>2.60.0</version>
+                  <version>2.58.0</version>
                 </dependency>
               </dependencies>
             </project>
@@ -473,8 +471,8 @@ description: Make your first API call to Claude and build a simple web search as
         </Tabs>
       </Step>
 
-      <Step title="Create your code">
-        Save this as `QuickStart.java` in your project's Java source directory (usually `src/main/java/`):
+      <Step title="编写代码">
+        将以下内容保存为 `QuickStart.java`，放在项目的 Java 源代码目录中（通常为 `src/main/java/`）：
 
         ```java Java
         import com.anthropic.client.okhttp.AnthropicOkHttpClient;
@@ -501,7 +499,7 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Run your code">
+      <Step title="运行代码">
         <Tabs>
           <Tab title="Gradle">
             ```bash
@@ -529,23 +527,23 @@ description: Make your first API call to Claude and build a simple web search as
 
   <Tab title="PHP">
     <Steps>
-      <Step title="Set your API key">
-        Export your API key as an environment variable. The SDK reads `ANTHROPIC_API_KEY` automatically.
+      <Step title="设置您的 API 密钥">
+        将您的 API 密钥导出为环境变量。SDK 会自动读取 `ANTHROPIC_API_KEY`。
 
         ```bash
         export ANTHROPIC_API_KEY="your-api-key-here"
         ```
       </Step>
 
-      <Step title="Create a project and install the SDK">
+      <Step title="创建项目并安装 SDK">
         ```bash
         mkdir claude-quickstart && cd claude-quickstart
         composer require "anthropic-ai/sdk" "guzzlehttp/guzzle:^7"
         ```
       </Step>
 
-      <Step title="Create your code">
-        Create a file called `quickstart.php`:
+      <Step title="编写代码">
+        创建一个名为 `quickstart.php` 的文件：
 
         ```php PHP
         <?php
@@ -576,7 +574,7 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Run your code">
+      <Step title="运行代码">
         ```bash
         php quickstart.php
         ```
@@ -594,15 +592,15 @@ description: Make your first API call to Claude and build a simple web search as
 
   <Tab title="Ruby">
     <Steps>
-      <Step title="Set your API key">
-        Export your API key as an environment variable. The SDK reads `ANTHROPIC_API_KEY` automatically.
+      <Step title="设置您的 API 密钥">
+        将您的 API 密钥导出为环境变量。SDK 会自动读取 `ANTHROPIC_API_KEY`。
 
         ```bash
         export ANTHROPIC_API_KEY="your-api-key-here"
         ```
       </Step>
 
-      <Step title="Create a project and install the SDK">
+      <Step title="创建项目并安装 SDK">
         ```bash
         mkdir claude-quickstart && cd claude-quickstart
         bundle init
@@ -610,8 +608,8 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Create your code">
-        Create a file called `quickstart.rb`:
+      <Step title="编写代码">
+        创建一个名为 `quickstart.rb` 的文件：
 
         ```ruby Ruby
         require "anthropic"
@@ -635,7 +633,7 @@ description: Make your first API call to Claude and build a simple web search as
         ```
       </Step>
 
-      <Step title="Run your code">
+      <Step title="运行代码">
         ```bash
         bundle exec ruby quickstart.rb
         ```
@@ -652,30 +650,30 @@ description: Make your first API call to Claude and build a simple web search as
   </Tab>
 </Tabs>
 
-## Next steps
+## 后续步骤
 
-You made your first API call. Next, learn the Messages API patterns you'll use in every Claude integration.
+您已经完成了第一次 API 调用。接下来，学习您将在每个 Claude 集成中使用的 Messages API 模式。
 
-<Card title="Working with the Messages API" icon="messages" href="https://platform.claude.com/docs/en/build-with-claude/working-with-messages">
-  Learn multi-turn conversations, system prompts, stop reasons, and other core patterns.
+<Card title="使用 Messages API" icon="messages" href="https://platform.claude.com/docs/zh-CN/build-with-claude/working-with-messages">
+  学习多轮对话、系统提示、停止原因以及其他核心模式。
 </Card>
 
-Once you're comfortable with the basics, explore further:
+熟悉基础知识后，可进一步探索：
 
 <CardGroup cols={2}>
-  <Card title="Models overview" icon="brain" href="https://platform.claude.com/docs/en/models/overview">
-    Compare Claude models by capability and cost.
+  <Card title="模型概览" icon="brain" href="https://platform.claude.com/docs/zh-CN/models/overview">
+    按能力和成本比较 Claude 模型。
   </Card>
 
-  <Card title="Features overview" icon="list" href="https://platform.claude.com/docs/en/build-with-claude/overview">
-    Browse all Claude capabilities: tools, context management, structured outputs, and more.
+  <Card title="功能概览" icon="list" href="https://platform.claude.com/docs/zh-CN/build-with-claude/overview">
+    浏览 Claude 的所有功能：工具、上下文管理、结构化输出等。
   </Card>
 
-  <Card title="Client SDKs" icon="code-brackets" href="https://platform.claude.com/docs/en/cli-sdks-libraries/overview">
-    Reference documentation for Python, TypeScript, C#, and other client libraries.
+  <Card title="客户端 SDK" icon="code-brackets" href="https://platform.claude.com/docs/zh-CN/cli-sdks-libraries/overview">
+    Python、TypeScript、C# 及其他客户端库的参考文档。
   </Card>
 
-  <Card title="Authentication" icon="lock" href="https://platform.claude.com/docs/en/manage-claude/authentication">
-    Compare API keys and Workload Identity Federation, and set key expiration.
+  <Card title="身份验证" icon="lock" href="https://platform.claude.com/docs/zh-CN/manage-claude/authentication">
+    比较 API 密钥与工作负载身份联合（Workload Identity Federation），并设置密钥过期时间。
   </Card>
 </CardGroup>

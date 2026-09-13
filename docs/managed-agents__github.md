@@ -1,0 +1,903 @@
+---
+title: 访问 GitHub
+url: https://platform.claude.com/docs/zh-CN/managed-agents/github
+description: 将您的智能体连接到 GitHub 仓库，以进行克隆、读取和创建拉取请求。
+---
+
+您可以将 GitHub 仓库挂载到会话沙箱中，并连接到 GitHub MCP 以创建拉取请求（pull request）。
+
+GitHub 仓库会被缓存，因此后续使用同一仓库的会话启动速度更快。
+
+<Note>
+  Managed Agents API 请求需要 `managed-agents-2026-04-01` beta 头，但记忆存储（memory store）端点除外，这些端点改用 `agent-memory-2026-07-22`。SDK 会自动设置正确的 beta 头。请参阅 [Beta 头](https://platform.claude.com/docs/zh-CN/api/beta-headers#endpoint-specific-headers)。
+</Note>
+
+## GitHub MCP 与会话资源
+
+首先，创建一个声明 GitHub MCP 服务器的智能体。智能体定义中包含服务器 URL，但不包含身份验证令牌：
+
+<CodeGroup defaultLanguage="CLI">
+  ```bash cURL
+  agent_id=$(curl -fsS https://api.anthropic.com/v1/agents \
+    -H "x-api-key: $ANTHROPIC_API_KEY" \
+    -H "anthropic-version: 2023-06-01" \
+    -H "anthropic-beta: managed-agents-2026-04-01" \
+    -H "content-type: application/json" \
+    --data @- <<JSON | jq -r '.id'
+  {
+    "name": "Code Reviewer",
+    "model": "claude-opus-5",
+    "system": "You are a code review assistant with access to GitHub.",
+    "mcp_servers": [
+      {
+        "type": "url",
+        "name": "github",
+        "url": "https://api.githubcopilot.com/mcp/"
+      }
+    ],
+    "tools": [
+      {"type": "agent_toolset_20260401"},
+      {
+        "type": "mcp_toolset",
+        "mcp_server_name": "github"
+      }
+    ]
+  }
+  JSON
+  )
+  ```
+
+  <MultiFileExample language="cli" label="CLI">
+    ```bash CLI
+    AGENT_ID=$(ant beta:agents create --transform id --raw-output < code-reviewer.agent.yaml)
+    ```
+
+    <File filename="code-reviewer.agent.yaml">
+      ```yaml
+      name: Code Reviewer
+      model:
+        id: claude-opus-5
+      system: You are a code review assistant with access to GitHub.
+      mcp_servers:
+        - type: url
+          name: github
+          url: https://api.githubcopilot.com/mcp/
+      tools:
+        - type: agent_toolset_20260401
+        - type: mcp_toolset
+          mcp_server_name: github
+      ```
+    </File>
+  </MultiFileExample>
+
+  ```python Python
+  agent = client.beta.agents.create(
+      name="Code Reviewer",
+      model="claude-opus-5",
+      system="You are a code review assistant with access to GitHub.",
+      mcp_servers=[
+          {
+              "type": "url",
+              "name": "github",
+              "url": "https://api.githubcopilot.com/mcp/",
+          },
+      ],
+      tools=[
+          {"type": "agent_toolset_20260401"},
+          {
+              "type": "mcp_toolset",
+              "mcp_server_name": "github",
+          },
+      ],
+  )
+  ```
+
+  ```typescript TypeScript
+  const agent = await client.beta.agents.create({
+    name: "Code Reviewer",
+    model: "claude-opus-5",
+    system: "You are a code review assistant with access to GitHub.",
+    mcp_servers: [
+      {
+        type: "url",
+        name: "github",
+        url: "https://api.githubcopilot.com/mcp/",
+      },
+    ],
+    tools: [
+      { type: "agent_toolset_20260401" },
+      {
+        type: "mcp_toolset",
+        mcp_server_name: "github",
+      },
+    ],
+  });
+  ```
+
+  ```csharp C#
+  var agent = await client.Beta.Agents.Create(new()
+  {
+      Name = "Code Reviewer",
+      Model = BetaManagedAgentsModel.ClaudeOpus5,
+      System = "You are a code review assistant with access to GitHub.",
+      McpServers =
+      [
+          new() { Type = "url", Name = "github", Url = "https://api.githubcopilot.com/mcp/" },
+      ],
+      Tools =
+      [
+          new BetaManagedAgentsAgentToolset20260401Params
+          {
+              Type = "agent_toolset_20260401",
+          },
+          new BetaManagedAgentsMcpToolsetParams
+          {
+              Type = "mcp_toolset",
+              McpServerName = "github",
+          },
+      ],
+  });
+  ```
+
+  ```go Go
+  agent, err := client.Beta.Agents.New(ctx, anthropic.BetaAgentNewParams{
+  	Name: "Code Reviewer",
+  	Model: anthropic.BetaManagedAgentsModelConfigParams{
+  		ID: anthropic.BetaManagedAgentsModelClaudeOpus5,
+  	},
+  	System: anthropic.String("You are a code review assistant with access to GitHub."),
+  	MCPServers: []anthropic.BetaManagedAgentsURLMCPServerParams{
+  		{
+  			Type: anthropic.BetaManagedAgentsURLMCPServerParamsTypeURL,
+  			Name: "github",
+  			URL:  "https://api.githubcopilot.com/mcp/",
+  		},
+  	},
+  	Tools: []anthropic.BetaAgentNewParamsToolUnion{
+  		{
+  			OfAgentToolset20260401: &anthropic.BetaManagedAgentsAgentToolset20260401Params{
+  				Type: anthropic.BetaManagedAgentsAgentToolset20260401ParamsTypeAgentToolset20260401,
+  			},
+  		},
+  		{
+  			OfMCPToolset: &anthropic.BetaManagedAgentsMCPToolsetParams{
+  				Type:          anthropic.BetaManagedAgentsMCPToolsetParamsTypeMCPToolset,
+  				MCPServerName: "github",
+  			},
+  		},
+  	},
+  })
+  if err != nil {
+  	panic(err)
+  }
+  ```
+
+  ```java Java
+  var agent = client.beta().agents().create(AgentCreateParams.builder()
+      .name("Code Reviewer")
+      .model(BetaManagedAgentsModel.CLAUDE_OPUS_5)
+      .system("You are a code review assistant with access to GitHub.")
+      .addMcpServer(BetaManagedAgentsUrlMcpServerParams.builder()
+          .type(BetaManagedAgentsUrlMcpServerParams.Type.URL)
+          .name("github")
+          .url("https://api.githubcopilot.com/mcp/")
+          .build())
+      .addTool(BetaManagedAgentsAgentToolset20260401Params.builder()
+          .type(BetaManagedAgentsAgentToolset20260401Params.Type.AGENT_TOOLSET_20260401)
+          .build())
+      .addTool(BetaManagedAgentsMcpToolsetParams.builder()
+          .type(BetaManagedAgentsMcpToolsetParams.Type.MCP_TOOLSET)
+          .mcpServerName("github")
+          .build())
+      .build());
+  ```
+
+  ```php PHP
+  $agent = $client->beta->agents->create(
+      name: 'Code Reviewer',
+      model: 'claude-opus-5',
+      system: 'You are a code review assistant with access to GitHub.',
+      mcpServers: [
+          [
+              'type' => 'url',
+              'name' => 'github',
+              'url' => 'https://api.githubcopilot.com/mcp/',
+          ],
+      ],
+      tools: [
+          ['type' => 'agent_toolset_20260401'],
+          [
+              'type' => 'mcp_toolset',
+              'mcpServerName' => 'github',
+          ],
+      ],
+  );
+  ```
+
+  ```ruby Ruby
+  agent = client.beta.agents.create(
+    name: "Code Reviewer",
+    model: "claude-opus-5",
+    system_: "You are a code review assistant with access to GitHub.",
+    mcp_servers: [
+      {
+        type: "url",
+        name: "github",
+        url: "https://api.githubcopilot.com/mcp/"
+      }
+    ],
+    tools: [
+      {type: "agent_toolset_20260401"},
+      {
+        type: "mcp_toolset",
+        mcp_server_name: "github"
+      }
+    ]
+  )
+  ```
+</CodeGroup>
+
+然后创建一个挂载该 GitHub 仓库的会话：
+
+<CodeGroup>
+  ```bash cURL
+  session_id=$(curl -fsS https://api.anthropic.com/v1/sessions \
+    -H "x-api-key: $ANTHROPIC_API_KEY" \
+    -H "anthropic-version: 2023-06-01" \
+    -H "anthropic-beta: managed-agents-2026-04-01" \
+    -H "content-type: application/json" \
+    --data @- <<JSON | jq -r '.id'
+  {
+    "agent": "$agent_id",
+    "environment_id": "$environment_id",
+    "resources": [
+      {
+        "type": "github_repository",
+        "url": "https://github.com/org/repo",
+        "mount_path": "/workspace/repo",
+        "authorization_token": "ghp_your_github_token"
+      }
+    ]
+  }
+  JSON
+  )
+  ```
+
+  ```bash CLI
+  SESSION_ID=$(ant beta:sessions create \
+    --agent "$AGENT_ID" \
+    --environment-id "$ENVIRONMENT_ID" \
+    --transform id --raw-output <<'EOF'
+  resources:
+    - type: github_repository
+      url: https://github.com/org/repo
+      mount_path: /workspace/repo
+      authorization_token: ghp_your_github_token
+  EOF
+  )
+  ```
+
+  ```python Python
+  session = client.beta.sessions.create(
+      agent=agent.id,
+      environment_id=environment.id,
+      resources=[
+          {
+              "type": "github_repository",
+              "url": "https://github.com/org/repo",
+              "mount_path": "/workspace/repo",
+              "authorization_token": "ghp_your_github_token",
+          },
+      ],
+  )
+  ```
+
+  ```typescript TypeScript
+  const session = await client.beta.sessions.create({
+    agent: agent.id,
+    environment_id: environment.id,
+    resources: [
+      {
+        type: "github_repository",
+        url: "https://github.com/org/repo",
+        mount_path: "/workspace/repo",
+        authorization_token: "ghp_your_github_token",
+      },
+    ],
+  });
+  ```
+
+  ```csharp C#
+  var session = await client.Beta.Sessions.Create(new()
+  {
+      Agent = agent.ID,
+      EnvironmentID = environment.ID,
+      Resources =
+      [
+          new BetaManagedAgentsGitHubRepositoryResourceParams
+          {
+              Type = "github_repository",
+              Url = "https://github.com/org/repo",
+              MountPath = "/workspace/repo",
+              AuthorizationToken = "ghp_your_github_token",
+          },
+      ],
+  });
+  ```
+
+  ```go Go
+  session, err := client.Beta.Sessions.New(ctx, anthropic.BetaSessionNewParams{
+  	Agent:         anthropic.BetaSessionNewParamsAgentUnion{OfString: anthropic.String(agent.ID)},
+  	EnvironmentID: environment.ID,
+  	Resources: []anthropic.BetaSessionNewParamsResourceUnion{
+  		{
+  			OfGitHubRepository: &anthropic.BetaManagedAgentsGitHubRepositoryResourceParams{
+  				Type:               anthropic.BetaManagedAgentsGitHubRepositoryResourceParamsTypeGitHubRepository,
+  				URL:                "https://github.com/org/repo",
+  				MountPath:          anthropic.String("/workspace/repo"),
+  				AuthorizationToken: "ghp_your_github_token",
+  			},
+  		},
+  	},
+  })
+  if err != nil {
+  	panic(err)
+  }
+  ```
+
+  ```java Java
+  var session = client.beta().sessions().create(SessionCreateParams.builder()
+      .agent(agent.id())
+      .environmentId(environment.id())
+      .addResource(BetaManagedAgentsGitHubRepositoryResourceParams.builder()
+          .type(BetaManagedAgentsGitHubRepositoryResourceParams.Type.GITHUB_REPOSITORY)
+          .url("https://github.com/org/repo")
+          .mountPath("/workspace/repo")
+          .authorizationToken("ghp_your_github_token")
+          .build())
+      .build());
+  ```
+
+  ```php PHP
+  $session = $client->beta->sessions->create(
+      agent: $agent->id,
+      environmentID: $environment->id,
+      resources: [
+          [
+              'type' => 'github_repository',
+              'url' => 'https://github.com/org/repo',
+              'mountPath' => '/workspace/repo',
+              'authorizationToken' => 'ghp_your_github_token',
+          ],
+      ],
+  );
+  ```
+
+  ```ruby Ruby
+  session = client.beta.sessions.create(
+    agent: agent.id,
+    environment_id: environment.id,
+    resources: [
+      {
+        type: "github_repository",
+        url: "https://github.com/org/repo",
+        mount_path: "/workspace/repo",
+        authorization_token: "ghp_your_github_token"
+      }
+    ]
+  )
+  ```
+</CodeGroup>
+
+`github_repository` 资源接受以下字段：
+
+| 字段                    | 描述                                                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `type`                | 必填。必须为 `"github_repository"`。                                                                                                  |
+| `url`                 | 必填。仓库的 HTTPS URL，格式为 `https://github.com/<owner>/<repo>`，不带 `.git` 后缀。其他格式（包括 SSH URL）将被拒绝并返回 `invalid_request_error`。         |
+| `authorization_token` | 必填。用于克隆仓库的 GitHub 令牌。它不会在 API 响应中回显。请参阅[令牌权限](https://platform.claude.com/docs/zh-CN/managed-agents/github#token-permissions)。 |
+| `mount_path`          | 可选。`/workspace` 下用于克隆仓库的目录。默认为 `/workspace/<repo-name>`。                                                                       |
+| `checkout`            | 可选。要检出的分支（`{"type": "branch", "name": "main"}`）或提交（`{"type": "commit", "sha": "..."}`）。默认为仓库的默认分支。                             |
+
+挂载仓库还会加载存储在其根目录 `.claude/skills` 中的所有技能（skills）。技能在每个会话中仅发现一次，基于会话启动时检出的仓库状态。请参阅[从 GitHub 仓库加载技能](https://platform.claude.com/docs/zh-CN/managed-agents/skills#load-skills-from-a-github-repository)。
+
+## 令牌权限
+
+提供 GitHub 令牌时，请使用所需的最小权限：
+
+| 操作       | 所需范围                      |
+| -------- | ------------------------- |
+| 克隆私有仓库   | `repo`                    |
+| 创建 PR    | `repo`                    |
+| 读取 issue | `repo`（私有）或 `public_repo` |
+| 创建 issue | `repo`（私有）或 `public_repo` |
+
+<Warning>
+  请使用具有所需最小权限的细粒度个人访问令牌（fine-grained personal access token）。避免使用对您的 GitHub 账户拥有广泛访问权限的令牌。
+</Warning>
+
+## 多个仓库
+
+通过向 `resources` 数组添加条目来挂载多个仓库：
+
+<CodeGroup>
+  ```bash cURL
+  resources='[
+    {
+      "type": "github_repository",
+      "url": "https://github.com/org/frontend",
+      "mount_path": "/workspace/frontend",
+      "authorization_token": "ghp_your_github_token"
+    },
+    {
+      "type": "github_repository",
+      "url": "https://github.com/org/backend",
+      "mount_path": "/workspace/backend",
+      "authorization_token": "ghp_your_github_token"
+    }
+  ]'
+  ```
+
+  ```bash CLI
+  RESOURCES_BODY=$(cat <<'EOF'
+  resources:
+    - type: github_repository
+      url: https://github.com/org/frontend
+      mount_path: /workspace/frontend
+      authorization_token: ghp_your_github_token
+    - type: github_repository
+      url: https://github.com/org/backend
+      mount_path: /workspace/backend
+      authorization_token: ghp_your_github_token
+  EOF
+  )
+  ```
+
+  ```python Python
+  resources = [
+      {
+          "type": "github_repository",
+          "url": "https://github.com/org/frontend",
+          "mount_path": "/workspace/frontend",
+          "authorization_token": "ghp_your_github_token",
+      },
+      {
+          "type": "github_repository",
+          "url": "https://github.com/org/backend",
+          "mount_path": "/workspace/backend",
+          "authorization_token": "ghp_your_github_token",
+      },
+  ]
+  ```
+
+  ```typescript TypeScript
+  const resources = [
+    {
+      type: "github_repository",
+      url: "https://github.com/org/frontend",
+      mount_path: "/workspace/frontend",
+      authorization_token: "ghp_your_github_token",
+    },
+    {
+      type: "github_repository",
+      url: "https://github.com/org/backend",
+      mount_path: "/workspace/backend",
+      authorization_token: "ghp_your_github_token",
+    },
+  ];
+  ```
+
+  ```csharp C#
+  BetaManagedAgentsGitHubRepositoryResourceParams[] resources =
+  [
+      new()
+      {
+          Type = "github_repository",
+          Url = "https://github.com/org/frontend",
+          MountPath = "/workspace/frontend",
+          AuthorizationToken = "ghp_your_github_token",
+      },
+      new()
+      {
+          Type = "github_repository",
+          Url = "https://github.com/org/backend",
+          MountPath = "/workspace/backend",
+          AuthorizationToken = "ghp_your_github_token",
+      },
+  ];
+  ```
+
+  ```go Go
+  resources := []anthropic.BetaSessionNewParamsResourceUnion{
+  	{
+  		OfGitHubRepository: &anthropic.BetaManagedAgentsGitHubRepositoryResourceParams{
+  			Type:               anthropic.BetaManagedAgentsGitHubRepositoryResourceParamsTypeGitHubRepository,
+  			URL:                "https://github.com/org/frontend",
+  			MountPath:          anthropic.String("/workspace/frontend"),
+  			AuthorizationToken: "ghp_your_github_token",
+  		},
+  	},
+  	{
+  		OfGitHubRepository: &anthropic.BetaManagedAgentsGitHubRepositoryResourceParams{
+  			Type:               anthropic.BetaManagedAgentsGitHubRepositoryResourceParamsTypeGitHubRepository,
+  			URL:                "https://github.com/org/backend",
+  			MountPath:          anthropic.String("/workspace/backend"),
+  			AuthorizationToken: "ghp_your_github_token",
+  		},
+  	},
+  }
+  ```
+
+  ```java Java
+  var resources = List.of(
+      BetaManagedAgentsGitHubRepositoryResourceParams.builder()
+          .type(BetaManagedAgentsGitHubRepositoryResourceParams.Type.GITHUB_REPOSITORY)
+          .url("https://github.com/org/frontend")
+          .mountPath("/workspace/frontend")
+          .authorizationToken("ghp_your_github_token")
+          .build(),
+      BetaManagedAgentsGitHubRepositoryResourceParams.builder()
+          .type(BetaManagedAgentsGitHubRepositoryResourceParams.Type.GITHUB_REPOSITORY)
+          .url("https://github.com/org/backend")
+          .mountPath("/workspace/backend")
+          .authorizationToken("ghp_your_github_token")
+          .build());
+  ```
+
+  ```php PHP
+  $resources = [
+      [
+          'type' => 'github_repository',
+          'url' => 'https://github.com/org/frontend',
+          'mountPath' => '/workspace/frontend',
+          'authorizationToken' => 'ghp_your_github_token',
+      ],
+      [
+          'type' => 'github_repository',
+          'url' => 'https://github.com/org/backend',
+          'mountPath' => '/workspace/backend',
+          'authorizationToken' => 'ghp_your_github_token',
+      ],
+  ];
+  ```
+
+  ```ruby Ruby
+  resources = [
+    {
+      type: "github_repository",
+      url: "https://github.com/org/frontend",
+      mount_path: "/workspace/frontend",
+      authorization_token: "ghp_your_github_token"
+    },
+    {
+      type: "github_repository",
+      url: "https://github.com/org/backend",
+      mount_path: "/workspace/backend",
+      authorization_token: "ghp_your_github_token"
+    }
+  ]
+  ```
+</CodeGroup>
+
+## 在运行中的会话上管理仓库
+
+会话创建后，您可以列出其仓库资源并轮换其授权令牌。每个资源都有一个在会话创建时返回（或通过 `resources.list` 获取）的 `id`，您可以使用它进行更新。仓库在会话的整个生命周期内保持挂载；若要更改挂载的仓库，请创建一个新会话。
+
+<CodeGroup>
+  ```bash cURL
+  # 列出会话上的资源
+  repo_resource_id=$(curl -fsS "https://api.anthropic.com/v1/sessions/$session_id/resources" \
+    -H "x-api-key: $ANTHROPIC_API_KEY" \
+    -H "anthropic-version: 2023-06-01" \
+    -H "anthropic-beta: managed-agents-2026-04-01" \
+    -H "content-type: application/json" | jq -r '.data[0].id')
+  echo "$repo_resource_id"  # "sesrsc_01ABC..."
+
+  # 轮换授权令牌
+  curl -fsS "https://api.anthropic.com/v1/sessions/$session_id/resources/$repo_resource_id" \
+  # ...
+    -o /dev/null \
+    --data @- <<JSON
+  {
+    "authorization_token": "ghp_your_new_github_token"
+  }
+  JSON
+  ```
+
+  ```bash CLI
+  # 列出会话上的资源
+  ant beta:sessions:resources list --session-id "$SESSION_ID"
+
+  # 轮换特定资源上的授权令牌
+  ant beta:sessions:resources update \
+    --session-id "$SESSION_ID" \
+    --resource-id "$RESOURCE_ID" \
+    --authorization-token "ghp_your_new_github_token"
+  ```
+
+  ```python Python
+  # 列出会话上的资源
+  listed = client.beta.sessions.resources.list(session.id)
+  repo_resource_id = listed.data[0].id
+  print(repo_resource_id)  # "sesrsc_01ABC..."
+
+  # 轮换授权令牌
+  client.beta.sessions.resources.update(
+      repo_resource_id,
+      session_id=session.id,
+      authorization_token="ghp_your_new_github_token",
+  )
+  ```
+
+  ```typescript TypeScript
+  // 列出会话上的资源
+  const listed = await client.beta.sessions.resources.list(session.id);
+  const repoResource = listed.data.find(
+    (entry) => entry.type === "github_repository",
+  );
+  if (!repoResource) {
+    throw new Error("No GitHub repository resource on the session");
+  }
+  const repoResourceId = repoResource.id;
+  console.log(repoResourceId); // "sesrsc_01ABC..."
+
+  // 轮换授权令牌
+  await client.beta.sessions.resources.update(repoResourceId, {
+    session_id: session.id,
+    authorization_token: "ghp_your_new_github_token",
+  });
+  ```
+
+  ```csharp C#
+  // 列出会话上的资源
+  var listed = await client.Beta.Sessions.Resources.List(session.ID);
+  var repoResourceId = (await listed.Paginate().FirstAsync()).ID;
+  Console.WriteLine(repoResourceId); // "sesrsc_01ABC..."
+
+  // 轮换授权令牌
+  await client.Beta.Sessions.Resources.Update(repoResourceId, new()
+  {
+      SessionID = session.ID,
+      AuthorizationToken = "ghp_your_new_github_token",
+  });
+  ```
+
+  ```go Go
+  // 列出会话上的资源
+  listed, err := client.Beta.Sessions.Resources.List(ctx, session.ID, anthropic.BetaSessionResourceListParams{})
+  if err != nil {
+  	panic(err)
+  }
+  repoResourceID := listed.Data[0].ID
+  fmt.Println(repoResourceID) // "sesrsc_01ABC..."
+
+  // 轮换授权令牌
+  _, err = client.Beta.Sessions.Resources.Update(ctx, repoResourceID, anthropic.BetaSessionResourceUpdateParams{
+  	SessionID:          session.ID,
+  	AuthorizationToken: "ghp_your_new_github_token",
+  })
+  if err != nil {
+  	panic(err)
+  }
+  ```
+
+  ```java Java
+  // 列出会话上的资源
+  var listed = client.beta().sessions().resources().list(session.id());
+  var repoResourceId = listed.data().getFirst().asGitHubRepository().id();
+  IO.println(repoResourceId);  // "sesrsc_01ABC..."
+
+  // 轮换授权令牌
+  client.beta().sessions().resources().update(repoResourceId, ResourceUpdateParams.builder()
+      .sessionId(session.id())
+      .authorizationToken("ghp_your_new_github_token")
+      .build());
+  ```
+
+  ```php PHP
+  // 列出会话上的资源
+  $listed = $client->beta->sessions->resources->list($session->id);
+  $repoResourceId = $listed->data[0]->id;
+  echo $repoResourceId, PHP_EOL; // "sesrsc_01ABC..."
+
+  // 轮换授权令牌
+  $client->beta->sessions->resources->update(
+      $repoResourceId,
+      sessionID: $session->id,
+      authorizationToken: 'ghp_your_new_github_token',
+  );
+  ```
+
+  ```ruby Ruby
+  # 列出会话上的资源
+  listed = client.beta.sessions.resources.list(session.id)
+  repo_resource_id = listed.data.first.id
+  puts repo_resource_id # "sesrsc_01ABC..."
+
+  # 轮换授权令牌
+  client.beta.sessions.resources.update(
+    repo_resource_id,
+    session_id: session.id,
+    authorization_token: "ghp_your_new_github_token"
+  )
+  ```
+</CodeGroup>
+
+## 创建拉取请求
+
+借助 GitHub MCP 服务器，智能体可以创建分支、提交更改并推送它们：
+
+<CodeGroup>
+  ```bash cURL
+  curl -fsS "https://api.anthropic.com/v1/sessions/$session_id/events" \
+    -H "x-api-key: $ANTHROPIC_API_KEY" \
+    -H "anthropic-version: 2023-06-01" \
+    -H "anthropic-beta: managed-agents-2026-04-01" \
+    -H "content-type: application/json" \
+    -o /dev/null \
+    --data @- <<JSON
+  {
+    "events": [
+      {
+        "type": "user.message",
+        "content": [
+          {
+            "type": "text",
+            "text": "Fix the type error in src/utils.ts, commit it to a new branch, and push it."
+          }
+        ]
+      }
+    ]
+  }
+  JSON
+  ```
+
+  ```bash CLI
+  ant beta:sessions:events send --session-id "$SESSION_ID" > /dev/null <<'EOF'
+  events:
+    - type: user.message
+      content:
+        - type: text
+          text: Fix the type error in src/utils.ts, commit it to a new branch, and push it.
+  EOF
+  ```
+
+  ```python Python
+  client.beta.sessions.events.send(
+      session.id,
+      events=[
+          {
+              "type": "user.message",
+              "content": [
+                  {
+                      "type": "text",
+                      "text": "Fix the type error in src/utils.ts, commit it to a new branch, and push it.",
+                  },
+              ],
+          },
+      ],
+  )
+  ```
+
+  ```typescript TypeScript
+  await client.beta.sessions.events.send(session.id, {
+    events: [
+      {
+        type: "user.message",
+        content: [
+          {
+            type: "text",
+            text: "Fix the type error in src/utils.ts, commit it to a new branch, and push it.",
+          },
+        ],
+      },
+    ],
+  });
+  ```
+
+  ```csharp C#
+  await client.Beta.Sessions.Events.Send(session.ID, new()
+  {
+      Events =
+      [
+          new BetaManagedAgentsUserMessageEventParams
+          {
+              Type = "user.message",
+              Content =
+              [
+                  new BetaManagedAgentsTextBlock
+                  {
+                      Type = "text",
+                      Text = "Fix the type error in src/utils.ts, commit it to a new branch, and push it.",
+                  },
+              ],
+          },
+      ],
+  });
+  ```
+
+  ```go Go
+  _, err = client.Beta.Sessions.Events.Send(ctx, session.ID, anthropic.BetaSessionEventSendParams{
+  	Events: []anthropic.BetaManagedAgentsEventParamsUnion{
+  		{
+  			OfUserMessage: &anthropic.BetaManagedAgentsUserMessageEventParams{
+  				Type: anthropic.BetaManagedAgentsUserMessageEventParamsTypeUserMessage,
+  				Content: []anthropic.BetaManagedAgentsUserMessageEventParamsContentUnion{
+  					{
+  						OfText: &anthropic.BetaManagedAgentsTextBlockParam{
+  							Type: anthropic.BetaManagedAgentsTextBlockTypeText,
+  							Text: "Fix the type error in src/utils.ts, commit it to a new branch, and push it.",
+  						},
+  					},
+  				},
+  			},
+  		},
+  	},
+  })
+  if err != nil {
+  	panic(err)
+  }
+  ```
+
+  ```java Java
+  client.beta().sessions().events().send(session.id(), EventSendParams.builder()
+      .addEvent(BetaManagedAgentsUserMessageEventParams.builder()
+          .type(BetaManagedAgentsUserMessageEventParams.Type.USER_MESSAGE)
+          .addContent(BetaManagedAgentsTextBlock.builder()
+              .type(BetaManagedAgentsTextBlock.Type.TEXT)
+              .text("Fix the type error in src/utils.ts, commit it to a new branch, and push it.")
+              .build())
+          .build())
+      .build());
+  ```
+
+  ```php PHP
+  $client->beta->sessions->events->send(
+      $session->id,
+      events: [
+          [
+              'type' => 'user.message',
+              'content' => [
+                  [
+                      'type' => 'text',
+                      'text' => 'Fix the type error in src/utils.ts, commit it to a new branch, and push it.',
+                  ],
+              ],
+          ],
+      ],
+  );
+  ```
+
+  ```ruby Ruby
+  client.beta.sessions.events.send_(
+    session.id,
+    events: [
+      {
+        type: "user.message",
+        content: [
+          {
+            type: "text",
+            text: "Fix the type error in src/utils.ts, commit it to a new branch, and push it."
+          }
+        ]
+      }
+    ]
+  )
+  ```
+</CodeGroup>
+
+## 后续步骤
+
+<CardGroup cols={2}>
+  <Card title="会话事件流" icon="lightning" href="https://platform.claude.com/docs/zh-CN/managed-agents/events-and-streaming">
+    在智能体创建拉取请求时流式传输事件并引导智能体
+  </Card>
+
+  <Card title="MCP 连接器" icon="link" href="https://platform.claude.com/docs/zh-CN/managed-agents/mcp-connector">
+    连接更多 MCP 服务器，为智能体提供额外的工具
+  </Card>
+
+  <Card title="添加文件" icon="file" href="https://platform.claude.com/docs/zh-CN/managed-agents/files">
+    在沙箱中与您的仓库一起挂载文件
+  </Card>
+</CardGroup>
