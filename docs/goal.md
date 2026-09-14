@@ -21,11 +21,11 @@
 
 三种方法可以在提示之间保持当前会话运行。根据应该启动下一个回合的内容进行选择：
 
-| 方法                                                                     | 下一个回合何时开始                                                                              | 停止条件                                                                                                          |
-| :--------------------------------------------------------------------- | :------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------ |
-| `/goal`                                                                | 前一个回合完成时，或当后台工作使目标处于等待状态时，[空闲检查](#background-work-defers-evaluation)到期，每个目标在你的提示之间最多三次 | 模型确认条件已满足或判断其不可能，或回合因[你必须修复的错误](#errors-you-have-to-fix-clear-the-goal)而失败，或你运行[`/goal clear`](#clear-a-goal) |
-| [`/loop`](/docs/zh-CN/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop) | 时间间隔过去时                                                                                | 你停止它，或 Claude 决定工作完成                                                                                          |
-| [Stop hook](/docs/zh-CN/hooks-guide#prompt-based-hooks)                     | 前一个回合完成时                                                                               | 你自己的脚本或提示决定                                                                                                   |
+| 方法                                                                     | 下一个回合何时开始                                                                                                     | 停止条件                                                                                                          |
+| :--------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------ |
+| `/goal`                                                                | 前一个回合完成时，或在交互式会话中，[空闲检查](#background-work-defers-evaluation)或[自动重试](#other-errors-retry-or-pause-the-goal)到期时 | 模型确认条件已满足或判断其不可能，或回合因[你必须修复的错误](#errors-you-have-to-fix-clear-the-goal)而失败，或你运行[`/goal clear`](#clear-a-goal) |
+| [`/loop`](/docs/zh-CN/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop) | 时间间隔过去时                                                                                                       | 你停止它，或 Claude 决定工作完成                                                                                          |
+| [Stop hook](/docs/zh-CN/hooks-guide#prompt-based-hooks)                     | 前一个回合完成时                                                                                                      | 你自己的脚本或提示决定                                                                                                   |
 
 `/goal` 和 Stop hook 都在每个回合后触发。`/goal` 是一个会话范围的快捷方式：你输入一个条件，它仅在当前会话中活跃。Stop hook 存在于你的设置文件中，适用于其范围内的每个会话，可以运行脚本进行确定性检查或运行提示进行模型评估的检查。
 
@@ -143,9 +143,15 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 
 如果 Claude 持续回答评估器而没有取得进展（连续多个回合没有工具使用），Claude Code 会停止循环，打印警告，并将控制权返回给你，目标仍然设置。评估在你的下一个提示后恢复。[hooks 指南](/docs/zh-CN/hooks-guide#stop-hook-hits-the-block-cap)解释了底层机制。
 
-<h3 id="errors-you-have-to-fix-clear-the-goal">
-  你必须修复的错误会清除目标
+<h3 id="when-a-turn-fails">
+  当一个回合失败时
 </h3>
+
+当一个回合失败时，如果错误是你必须修复的错误，Claude Code 会清除目标。在任何其他错误之后，目标保持设置。
+
+<h4 id="errors-you-have-to-fix-clear-the-goal">
+  你必须修复的错误会清除目标
+</h4>
 
 如果一个回合因为一个在你修复之前不会清除的错误而失败，Claude Code 会清除目标并打印一个警告，说明原因。警告以 `Goal cleared after an unrecoverable error` 开头，以 `Run /goal again to continue` 结尾。修复原因，然后使用 `/goal <condition>` [再次设置目标](#set-a-goal)。四种失败会清除目标：
 
@@ -154,7 +160,16 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 * 一个[自动压缩](/docs/zh-CN/model-config#set-the-auto-compact-window)无法清除的上下文溢出
 * 一个不可用的模型
 
-在任何其他失败之后，包括速率限制和服务器过载等瞬时错误，Claude Code 会保持目标活跃。
+<h4 id="other-errors-retry-or-pause-the-goal">
+  其他错误重试或暂停目标
+</h4>
+
+在任何其他失败之后，目标保持设置。在 Claude Code v2.1.269 或更高版本的交互式会话中，Claude Code 也会打印一行说明原因，并自动重试或等待你：
+
+* **重试**：在倾向于自行清除的失败之后，例如服务器过载或连接断开，一个以 `Goal still active` 开头的通知显示下一次尝试之前的等待时间。在三次自动重试之后，目标会暂停。
+* **暂停**：在重试只会重复的失败之后，例如 API 速率限制、claude.ai [使用限制](/docs/zh-CN/errors#youve-hit-your-session-limit)或结束回合的 hook，一个以 `Goal paused` 开头的通知说明原因。如果会话[在使用限制重置时等待自动继续](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)，Claude 会在那时恢复朝着目标的工作。
+
+随时发送消息以立即开始下一个回合。要关闭自动重试，请将 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](/docs/zh-CN/env-vars) 设置为 `0`，这也会关闭[检查](#background-work-defers-evaluation)。
 
 <h3 id="background-work-defers-evaluation">
   后台工作延迟评估
@@ -169,7 +184,9 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 
 在 v2.1.239 之前，只有空闲检查以这种方式退避；在回合结束时传递的检查在第一个间隔重复。
 
-要更改第一个间隔，请设置 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](/docs/zh-CN/env-vars)。Claude Code 使用你的值代替 30 分钟间隔，并相应地缩放后续间隔。将其设置为 `0` 以关闭检查。检查需要 Claude Code v2.1.234 或更高版本。
+要更改第一个间隔，请设置 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](/docs/zh-CN/env-vars)。Claude Code 使用你的值代替 30 分钟间隔，并相应地缩放后续间隔。将其设置为 `0` 以关闭检查和[自动重试](#other-errors-retry-or-pause-the-goal)。
+
+检查需要 Claude Code v2.1.234 或更高版本。
 
 <h3 id="evaluation-model-and-cost">
   评估模型和成本

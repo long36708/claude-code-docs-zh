@@ -83,7 +83,7 @@ Sandboxed Bash tool 内置于 Claude Code 中。它使用操作系统原语来�
 按命令沙箱不涵盖会话中运行的所有内容：
 
 * 其他 [built-in tools](/docs/zh-CN/tools-reference)（如 Read、Edit 和 WebFetch）在 Claude Code 进程内运行，不会生成任意代码。[Permission rules](/docs/zh-CN/permissions) 用于路径或域来控制它们。
-* [MCP](/docs/zh-CN/mcp) 服务器和 hooks 是在主机上无约束运行的单独进程。
+* [MCP](/docs/zh-CN/mcp) 服务器和 [command hooks](/docs/zh-CN/hooks#command-hook-fields) 是在主机上无约束运行的单独进程。
 
 要将内置工具、MCP 服务器和 hooks 都放在一个操作系统边界后面，请在 [sandbox runtime](#sandbox-runtime)、[dev container](#dev-containers) 或 [custom container](#custom-container) 内运行整个 Claude Code 进程。
 

@@ -141,83 +141,85 @@ Claude Code 首先合并 `managed-settings.json`，然后按字母顺序合并�
   Claude Code 如何组合托管源
 </h2>
 
-当您的组织向同一台机器交付多个托管源时，[`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 密钥决定 Claude Code 对其他源的处理：
+当您的组织向同一台机器交付多个托管源时，[`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 键决定 Claude Code 对其他源的处理方式：
 
-* **`"first-wins"`，默认值**：Claude Code 使用交付至少一个策略密钥的最高排名源，并忽略其余的，除了[从每个管理源读取的密钥](#keys-read-from-every-admin-source)中的少数几个。Claude Code 对跳过的源不显示警告；`/status`[命名它使用的源和跳过的源](#read-the-source-in-/status)。
-* **`"merge"`**：Claude Code 应用交付策略密钥的每个管理源，并按密钥类型组合它们：在大多数密钥上，最高排名源的值适用，列表联合，锁采用最严格的值。[组合每个托管源](#compose-every-managed-source)说明了在哪里设置密钥以及每种密钥类型如何组合。需要 Claude Code v2.1.242 或更高版本。
+* **`"first-wins"`，默认值**：Claude Code 使用提供至少一个策略键的最高排名源，并忽略其余源，而不是合并它们，除了 [从每个管理员源读取的键](#keys-read-from-every-admin-source) 中的键。Claude Code 不会对跳过的源显示警告；`/status` [命名它使用的源和跳过的源](#read-the-source-in-/status)。
+* **`"merge"`**：Claude Code 应用提供策略键的每个管理员源，并按键的类型组合它们：在大多数键上，较高排名源的值适用，列表合并，锁定采用最严格的值。[组合每个托管源](#compose-every-managed-source) 说明在哪里设置键以及每种键的组合方式。需要 Claude Code v2.1.242 或更高版本。
 
-两个设置以相同的方式排名源。本节中重复出现两个术语：
+两种设置以相同的方式对源进行排名。本节中重复出现两个术语：
 
-* **策略密钥**：除了两个控制密钥 [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 和 [`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 之外的任何设置密钥。仅包含这些的托管设置文件或 MDM 策略不计数，Claude Code 移动到下一个源。
-* **管理源**：下面前三个源之一。HKCU 注册表是用户可写的，不是一个。
+* **策略键**：除了两个控制键 [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 和 [`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 之外的任何设置键。仅包含这两个键的托管设置文件或 MDM 策略不计数，Claude Code 会继续查看下一个源。
+* **管理员源**：下面前三个源之一。HKCU 注册表是用户可写的，不是管理员源。
 
-Claude Code 按此顺序检查源，最高优先级优先：
+Claude Code 按此顺序检查源，优先级最高的在前：
 
-1. 远程设置，从 claude.ai 作为[服务器托管设置](/docs/zh-CN/server-managed-settings)或由[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)交付。Claude Code 仅在会话使用[符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability)直接向 Anthropic 的 API 进行身份验证，或使用 `/login` 登录网关时获取此源。在其他提供商上，或当 `ANTHROPIC_BASE_URL` 指向 Anthropic 的 API 以外的地方时，它从下一个源开始
-2. MDM 或操作系统级策略：macOS plist 或 HKLM 注册表密钥
+1. 远程设置，从 claude.ai 作为 [服务器管理的设置](/docs/zh-CN/server-managed-settings) 或通过 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 交付。Claude Code 仅在会话使用 [符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability) 直接向 Anthropic 的 API 进行身份验证，或使用 `/login` 登录网关时才获取此源。在其他提供商上，或当 `ANTHROPIC_BASE_URL` 指向 Anthropic API 以外的地方时，它从下一个源开始
+2. MDM 或操作系统级策略：macOS plist 或 HKLM 注册表键
 3. 托管设置文件，`managed-settings.d/*.json` 和 `managed-settings.json` 合并在一起
-4. HKCU 注册表，在 Windows 上，以及在 WSL 上一旦 HKLM 注册表或 Windows 托管设置文件打开 [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 并且 HKCU 值也设置它。Claude Code 仅在上面没有源交付策略密钥且没有[主机提供的父设置](#let-an-embedding-host-add-policy)提供限制性密钥时读取它
+4. HKCU 注册表，在 Windows 上，以及在 WSL 上一旦 HKLM 注册表或 Windows 托管设置文件打开 [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 并且 HKCU 值也设置它时。Claude Code 仅在上面的源都不提供策略键且没有 [主机提供的父设置](#let-an-embedding-host-add-policy) 提供限制性键时才读取它
 
-此图显示了排名，以及 Claude Code 在任一设置下从前三个源读取的跨源密钥示例：
+此图显示排名，以及 Claude Code 在任一设置下从前三个源读取的跨源键的示例：
 
-<img src="https://mintcdn.com/claude-code/zuWID2B-Rxm8DEC8/images/managed-source-precedence.svg?fit=max&auto=format&n=zuWID2B-Rxm8DEC8&q=85&s=53f6be49f06eff48e01422c8ae1bc2e6" className="dark:hidden" alt="显示四个托管设置源的图表，从顶部的远程设置排名到 MDM、托管设置文件和底部的 HKCU 注册表。默认情况下，具有策略密钥的第一个源提供策略，其余的被跳过；设置 managedSourcesBehavior 为 merge 时，具有策略密钥的每个管理源都有贡献，按密钥类型组合，HKCU 注册表保持不变。侧面板显示跨源密钥（如沙箱锁、forceRemoteSettingsRefresh 和每个变量 env 合并）从每个管理源读取，不包括 HKCU 注册表。" width="680" height="330" data-path="images/managed-source-precedence.svg" />
+<img src="https://mintcdn.com/claude-code/zuWID2B-Rxm8DEC8/images/managed-source-precedence.svg?fit=max&auto=format&n=zuWID2B-Rxm8DEC8&q=85&s=53f6be49f06eff48e01422c8ae1bc2e6" className="dark:hidden" alt="Diagram showing the four managed settings sources ranked from remote settings at the top through MDM, managed settings files, and the HKCU registry at the bottom. By default the first source with a policy key supplies the policy and the rest are skipped; with managedSourcesBehavior set to merge, every admin source with a policy key contributes, combined by kind of key, and the HKCU registry stays out. A side panel shows that cross-source keys such as the sandbox locks, forceRemoteSettingsRefresh, and the per-variable env merge are read from every admin source, which excludes the HKCU registry." width="680" height="330" data-path="images/managed-source-precedence.svg" />
 
-<img src="https://mintcdn.com/claude-code/zuWID2B-Rxm8DEC8/images/managed-source-precedence-dark.svg?fit=max&auto=format&n=zuWID2B-Rxm8DEC8&q=85&s=ae407a9a08a3d680e80cf1a2af845d71" className="hidden dark:block" alt="显示四个托管设置源的图表，从顶部的远程设置排名到 MDM、托管设置文件和底部的 HKCU 注册表。默认情况下，具有策略密钥的第一个源提供策略，其余的被跳过；设置 managedSourcesBehavior 为 merge 时，具有策略密钥的每个管理源都有贡献，按密钥类型组合，HKCU 注册表保持不变。侧面板显示跨源密钥（如沙箱锁、forceRemoteSettingsRefresh 和每个变量 env 合并）从每个管理源读取，不包括 HKCU 注册表。" width="680" height="330" data-path="images/managed-source-precedence-dark.svg" />
+<img src="https://mintcdn.com/claude-code/zuWID2B-Rxm8DEC8/images/managed-source-precedence-dark.svg?fit=max&auto=format&n=zuWID2B-Rxm8DEC8&q=85&s=ae407a9a08a3d680e80cf1a2af845d71" className="hidden dark:block" alt="Diagram showing the four managed settings sources ranked from remote settings at the top through MDM, managed settings files, and the HKCU registry at the bottom. By default the first source with a policy key supplies the policy and the rest are skipped; with managedSourcesBehavior set to merge, every admin source with a policy key contributes, combined by kind of key, and the HKCU registry stays out. A side panel shows that cross-source keys such as the sandbox locks, forceRemoteSettingsRefresh, and the per-variable env merge are read from every admin source, which excludes the HKCU registry." width="680" height="330" data-path="images/managed-source-precedence-dark.svg" />
 
 <h3 id="keys-read-from-every-admin-source">
-  从每个管理源读取的密钥
+  从每个管理员源读取的键
 </h3>
 
-在默认的 `"first-wins"` 设置下，Claude Code 仅从[它选择的源](#how-claude-code-combines-managed-sources)读取大多数密钥，并忽略较低排名源中的值，即使选定的源未设置该密钥。
+在默认的 `"first-wins"` 设置下，Claude Code 仅从 [它选择的源](#how-claude-code-combines-managed-sources) 读取大多数键，即使选定的源未设置该键，也会忽略较低排名源中的值。
 
-少数密钥的工作方式不同。Claude Code 从每个管理源读取它们，因此当选定的源不设置它们时，较低排名的 MDM 策略或托管设置文件仍然可以设置它们。Claude Code 将用户可写的 HKCU 注册表排除在该扫描之外；当 HKCU 是唯一的源且没有主机提供父设置时，HKCU 像任何选定的源一样应用。
+少数几个键的工作方式不同。Claude Code 从每个管理员源读取它们，因此当选定的源未设置它们时，较低排名的 MDM 策略或托管设置文件仍然可以设置它们。Claude Code 将用户可写的 HKCU 注册表排除在该扫描之外；当 HKCU 是唯一的源且没有主机提供父设置时，HKCU 的应用方式与任何选定的源相同。
 
-跨源密钥包括：
+跨源键包括：
 
-* `sandbox.network.allowManagedDomainsOnly` 和 `sandbox.filesystem.allowManagedReadPathsOnly`：任何管理源中的 `true` 打开锁。当锁打开时，Claude Code 联合它锁定的允许列表，`sandbox.network.allowedDomains` 与 `WebFetch(domain:...)` 允许规则，或 `sandbox.filesystem.allowRead`，跨每个管理源。没有锁，Claude Code 将允许列表视为任何其他密钥，因此在 `"first-wins"` 下，未选定的管理源的允许列表被忽略
+* `sandbox.network.allowManagedDomainsOnly` 和 `sandbox.filesystem.allowManagedReadPathsOnly`：任何管理员源中的 `true` 都会打开锁定。当锁定打开时，Claude Code 会合并它锁定的允许列表，`sandbox.network.allowedDomains` 与 `WebFetch(domain:...)` 允许规则，或 `sandbox.filesystem.allowRead`，跨越每个管理员源。没有锁定时，Claude Code 将允许列表视为任何其他键，因此在 `"first-wins"` 下，未选定的管理员源的允许列表被忽略
 * `allowAllClaudeAiMcps`
 * 沙箱二进制路径 `sandbox.bwrapPath` 和 `sandbox.socatPath`
-* 沙箱 `ripgrep` 二进制，[`sandbox.ripgrep`](/docs/zh-CN/settings-reference#sandbox-ripgrep)
+* 沙箱 `ripgrep` 二进制文件，[`sandbox.ripgrep`](/docs/zh-CN/settings-reference#sandbox-ripgrep)
 * `sandbox.filesystem.disabled` 和 `sandbox.network.strictAllowlist`
-* [`useAutoModeDuringPlan`](/docs/zh-CN/settings-reference#useautomodeduringplan) 和 [`syncClaudeAiSkills`](/docs/zh-CN/settings-reference#syncclaudeaiskills)，其中任何管理源的 `false` 关闭行为。开发者的用户或本地设置中的 `false` 也关闭它；每个密钥只能拒绝
-* [`enableArtifact`](/docs/zh-CN/settings-reference#enableartifact)，其中任何管理源的 `false` 关闭[Artifact 工具](/docs/zh-CN/artifacts)。开发者的用户、项目或本地设置中的 `false` 也关闭它，没有源打开它；请参阅[哪些较低级别的值仍然计数](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)。需要 Claude Code v2.1.242 或更高版本
-* [`maxEffortLevel`](/docs/zh-CN/settings-reference#maxeffortlevel)，其中任何管理源中的最低上限适用。如果开发者在自己的设置或 `--settings` 中设置了较低的上限，Claude Code 应用那个；没有源可以提高上限。需要 Claude Code v2.1.267 或更高版本
-* `attribution` 中的提交预告片选择退出，或在已弃用的 `includeCoAuthoredBy` 中，来自任何层
+* [`useAutoModeDuringPlan`](/docs/zh-CN/settings-reference#useautomodeduringplan) 和 [`syncClaudeAiSkills`](/docs/zh-CN/settings-reference#syncclaudeaiskills)，其中任何管理员源中的 `false` 都会关闭该行为。开发者的用户或本地设置中的 `false` 也会关闭它；每个键只能拒绝
+* [`enableArtifact`](/docs/zh-CN/settings-reference#enableartifact)，其中任何管理员源中的 `false` 都会关闭 [Artifact 工具](/docs/zh-CN/artifacts)。开发者的用户、项目或本地设置中的 `false` 也会关闭它，没有源可以将其打开；请参阅 [哪些较低级别的值仍然计数](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)。需要 Claude Code v2.1.242 或更高版本
+* [`maxEffortLevel`](/docs/zh-CN/settings-reference#maxeffortlevel)，其中任何管理员源中的最低上限适用。如果开发者在自己的设置或使用 `--settings` 中设置了更低的上限，Claude Code 会应用那个；没有源可以提高上限。需要 Claude Code v2.1.267 或更高版本
+* 来自任何层级的 `attribution` 中的提交预告片选择退出，或在已弃用的 `includeCoAuthoredBy` 中
 * [`forceRemoteSettingsRefresh`](/docs/zh-CN/server-managed-settings)
-* 跨管理源按变量合并的 `env`：每个变量来自定义它的最高优先级源，因此较低源填充较高源未设置的变量。少数变量遵循自己的规则；[跨托管源的每个密钥例外](/docs/zh-CN/server-managed-settings#per-key-exceptions-across-managed-sources)命名每一个。需要 Claude Code v2.1.223 或更高版本。在 v2.1.223 之前，Claude Code 仅应用选定源的整个 `env` 块
+* `env`，跨管理员源按变量合并：每个变量来自定义它的最高优先级源，因此较低源填充较高源未设置的变量。少数几个变量遵循自己的规则；[跨托管源的按键异常](/docs/zh-CN/server-managed-settings#per-key-exceptions-across-managed-sources) 命名每一个。需要 Claude Code v2.1.223 或更高版本。在 v2.1.223 之前，Claude Code 仅应用选定源的整个 `env` 块
+
+[网关登录键](#choose-a-delivery-mechanism)，[`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl) 和 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值，遵循单独的规则。Claude Code 从不从服务器管理的设置读取它们，因此当服务器管理的设置是选定的源时，机器上排名最高的包含策略键的管理员源仍然提供它们。排名低于该源的管理员源中的值，或 HKCU 注册表中的值，被忽略。
 
 <h3 id="compose-every-managed-source">
   组合每个托管源
 </h3>
 
-要让 Claude Code 应用您的组织交付的每个管理源，在您部署的最高排名源中设置 [`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 为 `"merge"`。Claude Code 仅从携带密钥或策略密钥的最高排名源读取密钥，因此较低源无法选择自己与上面的源合并，从不接收服务器托管设置的机器也需要在其 MDM 配置文件中有密钥。用户可写的 HKCU 注册表永远不会与另一个源合并。需要 Claude Code v2.1.242 或更高版本。
+要让 Claude Code 应用您的组织交付的每个管理员源，请在您部署的最高排名源中将 [`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 设置为 `"merge"`。Claude Code 仅从包含该键或策略键的最高排名源读取该键，因此较低源无法选择自己与上面的源合并，并且从不接收服务器管理设置的机器也需要在其 MDM 配置文件中有该键。用户可写的 HKCU 注册表从不与另一个源合并。需要 Claude Code v2.1.242 或更高版本。
 
-在 `"merge"` 下，Claude Code 添加较低源的列表条目，例如 `permissions.allow` 规则和钩子，到策略，因此仅在排名在最高源下面的每个源都在管理员的控制下时打开它。
+在 `"merge"` 下，Claude Code 添加较低源的列表条目，例如 `permissions.allow` 规则和 hooks，到策略中，因此仅在排名低于最高源的每个源都在管理员的控制下时才打开它。
 
-此表显示了 Claude Code 在 `"merge"` 下如何组合每种密钥。[`managedSourcesBehavior` 条目](/docs/zh-CN/settings-reference#managedsourcesbehavior)命名限制允许列表、值整体取用和仅最高源行中的每个密钥。
+此表显示 Claude Code 在 `"merge"` 下如何组合每种键。[`managedSourcesBehavior` 条目](/docs/zh-CN/settings-reference#managedsourcesbehavior) 在三行中命名每个键：限制允许列表、整体取值的值和仅从最高排名源读取的键。
 
-| 密钥类型         | Claude Code 如何组合它                                                    | 示例                                                                                                          |
-| :----------- | :------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
-| 列表           | 组合来自每个源的条目                                                           | `permissions.allow`、`hooks`、`sandbox.network.allowedDomains`、`deniedMcpServers`                             |
-| 锁            | 应用任何源设置的最严格值；较松散的值仅从最高排名源应用                                          | `allowManagedHooksOnly`、`permissions.disableBypassPermissionsMode`、`crossSessionInbound`                    |
-| 限制允许列表       | 从设置它的最高排名源整体取用列表，不添加来自较低源的条目                                         | `availableModels`、`allowedMcpServers`、`strictKnownMarketplaces`、`allowedChannelPlugins` 和 `fallbackModel` 链 |
-| 值整体取用        | 从设置它的最高排名源整体取用值，不组合来自较低源的条目或字段                                       | `sandbox.credentials.awsPairs`、`sandbox.ripgrep`                                                            |
-| 提供的 MCP 服务器  | 组合来自每个源的服务器名称；当两个源设置相同的名称时，应用最高排名源的整个条目                              | `managedMcpServers`                                                                                         |
-| 仅从最高排名源读取的密钥 | 忽略每个较低源中的密钥，即使最高排名源未设置它                                              | 凭证助手，如 `apiKeyHelper`、登录 pin，如 `forceLoginOrgUUID`、`modelPicker`、`permissions.defaultMode`                  |
-| `env`        | 在任一设置下按变量跨管理源合并，如[从每个管理源读取的密钥](#keys-read-from-every-admin-source)所述 |                                                                                                             |
-| 每个其他密钥       | 从设置它的最高排名源取用值                                                        | `model`、`cleanupPeriodDays`                                                                                 |
+| 键的类型        | Claude Code 如何组合它                                                       | 示例                                                                                                          |
+| :---------- | :---------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
+| 列表          | 组合来自每个源的条目                                                              | `permissions.allow`、`hooks`、`sandbox.network.allowedDomains`、`deniedMcpServers`                             |
+| 锁定          | 应用任何源设置的最严格值；较宽松的值仅从最高排名源适用                                             | `allowManagedHooksOnly`、`permissions.disableBypassPermissionsMode`、`crossSessionInbound`                    |
+| 限制允许列表      | 从设置它的最高排名源整体取值，不添加来自较低源的条目                                              | `availableModels`、`allowedMcpServers`、`strictKnownMarketplaces`、`allowedChannelPlugins` 和 `fallbackModel` 链 |
+| 整体取值的值      | 从设置它的最高排名源整体取值，不组合来自较低源的条目或字段                                           | `sandbox.credentials.awsPairs`、`sandbox.ripgrep`                                                            |
+| 提供的 MCP 服务器 | 组合来自每个源的服务器名称；当两个源设置相同的名称时，应用较高排名源的整个条目                                 | `managedMcpServers`                                                                                         |
+| 仅从最高排名源读取的键 | 忽略每个较低源中的键，即使最高排名源未设置它                                                  | 凭证助手，例如 `apiKeyHelper`、登录 PIN，例如 `forceLoginOrgUUID`、`modelPicker`、`permissions.defaultMode`                |
+| `env`       | 在任一设置下跨管理员源按变量合并，如 [从每个管理员源读取的键](#keys-read-from-every-admin-source) 所述 |                                                                                                             |
+| 所有其他键       | 从设置它的最高排名源取值                                                            | `model`、`cleanupPeriodDays`                                                                                 |
 
-要确认哪些源在机器上组合，[读取 `/status` 中的 `Setting sources` 行](#read-the-source-in-/status)；该部分说明了每个标签的含义。
+要确认机器上组合了哪些源，请 [读取 `/status` 中的 `Setting sources` 行](#read-the-source-in-/status)；该部分说明每个标签的含义。
 
 <h3 id="compute-the-policy-with-a-helper-program">
-  使用助手程序计算策略
+  使用辅助程序计算策略
 </h3>
 
-[`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 是您的 MDM 策略或托管设置文件命名的可执行文件，Claude Code 在启动时运行它来计算托管设置。当选定的源配置一个并且助手发出 `managedSettings` 对象时，该输出改变 Claude Code 读取的内容：
+[`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 是您的 MDM 策略或托管设置文件命名的可执行文件，Claude Code 在启动时运行它来计算托管设置。当选定的源配置一个并且辅助程序发出 `managedSettings` 对象时，该输出改变 Claude Code 读取的内容：
 
-* **发出的 `managedSettings` 对象是会话的唯一托管设置**，包括[它否则从每个管理源读取的密钥](#keys-read-from-every-admin-source)，除了[`forceRemoteSettingsRefresh`，它有自己的启动规则](/docs/zh-CN/settings-reference#forceremotesettingsrefresh)
+* **发出的 `managedSettings` 对象是会话的唯一托管设置**，包括对于 [它以其他方式从每个管理员源读取的键](#keys-read-from-every-admin-source)，除了 [`forceRemoteSettingsRefresh`，它有自己的启动规则](/docs/zh-CN/settings-reference#forceremotesettingsrefresh)
 
-有关哪些助手运行失败以及 Claude Code 在一个失败时的处理，请参阅[助手失败](/docs/zh-CN/settings-reference#helper-failures)。
+对于辅助程序运行失败的情况，以及当一个失败时 Claude Code 的处理方式，请参阅 [辅助程序失败](/docs/zh-CN/settings-reference#helper-failures)。
 
 <span id="parent-settings-from-embedding-hosts" />
 
@@ -231,27 +233,27 @@ Claude Code 按此顺序检查源，最高优先级优先：
 
 当另一个应用程序启动 Claude Code 时，例如 Claude Desktop、IDE 扩展或 Agent SDK 应用，该主机可以通过 SDK `managedSettings` 选项传递自己的托管设置。Claude Code 将这些称为父设置。
 
-默认情况下，只要存在管理源，Claude Code 就忽略父设置：服务器托管设置、MDM 或操作系统级策略或托管设置文件。
+默认情况下，当存在管理员源时，Claude Code 忽略父设置：服务器管理的设置、MDM 或操作系统级策略，或托管设置文件。
 
-要让 Claude Code 将父设置与管理源合并，在最高优先级托管源中设置 [`parentSettingsBehavior`](/docs/zh-CN/settings-reference#parentsettingsbehavior) 为 `"merge"`；Claude Code 仅从该源读取密钥。
+要让 Claude Code 将父设置与管理员源合并，请在最高优先级托管源中将 [`parentSettingsBehavior`](/docs/zh-CN/settings-reference#parentsettingsbehavior) 设置为 `"merge"`；Claude Code 仅从该源读取该键。
 
-Claude Code 然后仅保留主机的限制 Claude 可以做什么的值，有一个要了解的间隙：除非您也设置 `allowManaged*Only` 锁，主机的权限允许规则和沙箱允许列表仍然适用。请参阅[限制父设置](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings)以获取锁。
+Claude Code 然后仅保留主机的限制 Claude 可以做什么的值，有一个需要了解的间隙：除非您也设置 `allowManaged*Only` 锁定，主机的权限允许规则和沙箱允许列表仍然适用。请参阅 [限制父设置](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings) 以了解锁定。
 
-[`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 可以关闭父合并，无论此密钥如何；其条目说明了何时。
+[`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 可以独立于此键关闭父合并；其条目说明何时。
 
 Claude Code 也对父提供的值本身应用这些检查：
 
-* 当任何管理源设置 `allowManagedPermissionRulesOnly` 时，Claude Code 在读取时删除[父提供的](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings)权限允许规则和 `additionalDirectories`，即使较高优先级源未设置密钥。密钥对您自己的权限规则的影响来自 Claude Code 应用的托管设置，或来自您选择合并的父设置
-* Claude Code 强制执行它应用的托管设置中的 `forceLoginOrgUUID` 或 `allowedMcpServers` 值，并阻止父提供的值。较低管理源中的值，Claude Code 不应用既不应用也不阻止父的。[`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 条目说明了在 `"merge"` 下哪个源提供每个密钥。在 v2.1.223 之前，任何管理源中的值阻止了父的
+* 当任何管理员源设置 `allowManagedPermissionRulesOnly` 时，Claude Code 在读取时删除 [父提供的](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings) 权限允许规则和 `additionalDirectories`，即使较高优先级源未设置该键。该键对您自己的权限规则的影响来自 Claude Code 应用的托管设置，或来自您选择合并的父设置
+* Claude Code 强制执行它应用的托管设置中的 `forceLoginOrgUUID` 或 `allowedMcpServers` 值，并阻止父提供的值。Claude Code 不应用的较低管理员源中的值既不应用也不阻止父的值。[`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 条目说明在 `"merge"` 下哪个源提供每个键。在 v2.1.223 之前，任何管理员源中的值都会阻止父的值
 * `availableModels` 值遵循与 `allowedMcpServers` 相同的规则
 
 <h4 id="keep-cowork-folder-access-when-only-managed-rules-apply">
-  当仅应用托管规则时保持协作文件夹访问
+  当仅应用托管规则时保持 Cowork 文件夹访问
 </h4>
 
-Claude Desktop 应用中的[协作](https://claude.com/docs/cowork/overview)在 Claude Code 上运行其会话，并通过它在启动会话时作为父设置提供的允许规则授予每个会话对其工作文件夹（如用户连接的文件夹）的访问权限。当您的托管策略设置 [`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 时，Claude Code 仅保留托管策略中的允许规则：它删除主机作为父设置、`--allowedTools` 或设置文件中提供的允许规则，因此对这些文件夹的写入失去其预批准。在要求编辑前提示的协作会话中，协作无法显示提示，Claude 将每个写入报告为被阻止，因为路径解析为受保护位置或连接文件夹外的路径。
+Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 在 Claude Code 上运行其会话，并通过在启动会话时提供的允许规则授予每个会话对其工作文件夹（例如用户连接的文件夹）的访问权限。当您的托管策略设置 [`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 时，Claude Code 仅保留托管策略中的允许规则：它删除主机作为父设置、`--allowedTools` 或在设置文件中提供的允许规则，因此对这些文件夹的写入失去其预先批准。在要求编辑前提示的 Cowork 会话中，Cowork 无法显示提示，Claude 将每次写入报告为被阻止，因为路径解析为受保护的位置或连接文件夹外的路径。
 
-要恢复写入，为这些文件夹添加允许规则到 Claude Code [选择](#precedence-within-the-managed-tier)的托管源在这些机器上：在 MDM 托管的设备群上，那是 MDM 策略而不是单独的托管设置文件。此示例使用文件形式，MDM 策略采用相同的密钥。它保持 `allowManagedPermissionRulesOnly` 设置并允许在每个用户的主目录中的 `CoworkProjects` 文件夹下编辑；用您的用户连接的文件夹替换路径：
+要恢复写入，请为这些文件夹添加允许规则到 Claude Code [选择](#precedence-within-the-managed-tier) 的托管源在这些机器上：在 MDM 管理的队列上，那是 MDM 策略而不是单独的托管设置文件。此示例使用文件形式，MDM 策略采用相同的键。它保持 `allowManagedPermissionRulesOnly` 设置并允许在每个用户主目录中的 `CoworkProjects` 文件夹下编辑；将路径替换为您的用户连接的文件夹：
 
 ```json managed-settings.json theme={null}
 {
@@ -264,17 +266,17 @@ Claude Desktop 应用中的[协作](https://claude.com/docs/cowork/overview)在 
 }
 ```
 
-部署策略后，Claude 可以在新协作会话中保存该文件夹下的文件。[读和编辑规则](/docs/zh-CN/permissions#read-and-edit)涵盖路径语法，包括绝对路径的 `//` 形式。
+部署策略后，Claude 可以在新 Cowork 会话中的该文件夹下保存文件。[读取和编辑规则](/docs/zh-CN/permissions#read-and-edit) 涵盖路径语法，包括绝对路径的 `//` 形式。
 
 <h3 id="what-a-developer-can-change">
   开发者可以更改什么
 </h3>
 
-开发者自己的设置文件、`--settings` 值和项目文件永远不会覆盖托管值；[例外](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)仅让更严格的较低级别值计数。四件事在该规则之外：
+开发者自己的设置文件、`--settings` 值和项目文件从不覆盖托管值；[异常](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence) 仅允许更严格的较低级别值计数。四件事在该规则之外：
 
-* **会话的模型**：托管 `model` 是默认值，不是锁。`--model` 和 `ANTHROPIC_MODEL` 仍然为该会话选择模型，因此部署 [`availableModels`](/docs/zh-CN/settings-reference#availablemodels) 来限制选择。
-* **本地管理员权限**：作为机器上的管理员的开发者可以编辑托管源本身，这就是为什么 MDM 工具可以按计划重新部署配置文件或文件，以及为什么 HKLM 注册表和 macOS 托管首选项域存在。
-* **服务器托管缓存**：服务器托管设置来自 Anthropic 的服务器，对本地缓存的编辑[仅持续到下一次成功获取](/docs/zh-CN/server-managed-settings#security-considerations)。
+* **会话的模型**：托管的 `model` 是默认值，不是锁定。`--model` 和 `ANTHROPIC_MODEL` 仍然为该会话选择模型，因此部署 [`availableModels`](/docs/zh-CN/settings-reference#availablemodels) 来限制选择。
+* **本地管理员权限**：作为机器上管理员的开发者可以编辑托管源本身，这就是为什么 MDM 工具可以按计划重新部署配置文件或文件，以及为什么 HKLM 注册表和 macOS 托管首选项域存在。
+* **服务器管理的缓存**：服务器管理的设置来自 Anthropic 的服务器，对本地缓存的编辑 [仅持续到下一次成功获取](/docs/zh-CN/server-managed-settings#security-considerations)。
 * **其他工具**：托管设置仅绑定 Claude Code。从另一个工具调用 API 的开发者不在它们下。
 
 <span id="verify-enforcement" />

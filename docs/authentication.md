@@ -170,12 +170,7 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 * **`claude setup-token` 和 `/install-github-app`**：仅强制执行 `forceLoginMethod`，因此它们可以在不同的组织中铸造令牌
 * **[网关](/docs/zh-CN/claude-apps-gateway) 登录**：由 `forceLoginMethod: "gateway"` 选择而不是受其限制，并且不针对 Anthropic 组织进行身份验证，因此 `forceLoginOrgUUID` 不适用；使用您的网关身份提供商来限制访问
 
-通过您的设备管理工具部署密钥。[服务器托管设置](/docs/zh-CN/server-managed-settings) 仅到达已经通过您的组织身份验证的账户，因此它们无法重定向开发人员的首次登录。如果您的组织也分发服务器托管设置，请在两个地方设置密钥：托管设置源 [不合并](/docs/zh-CN/server-managed-settings#settings-precedence)，缓存的服务器托管设置替换设备托管文件，除了两种密钥仍然从失败的源填充：
-
-* **`env` 块**：在 Claude Code v2.1.223 或更高版本中 [按密钥合并](/docs/zh-CN/server-managed-settings#per-key-exceptions-across-managed-sources)
-* **[跨源锁定密钥](/docs/zh-CN/server-managed-settings#per-key-exceptions-across-managed-sources)**：从任何管理员源获得认可
-
-`forceLoginMethod` 和 `forceLoginOrgUUID` 都不是，所以在两个地方都保留它们。
+通过您的设备管理工具部署密钥。[服务器托管设置](/docs/zh-CN/server-managed-settings) 仅到达已经通过您的组织身份验证的账户，因此它们无法重定向开发人员的首次登录。如果您的组织也分发服务器托管设置，请在两个地方设置密钥：托管设置源 [不合并](/docs/zh-CN/server-managed-settings#settings-precedence)，缓存的服务器托管设置替换设备托管文件，除了几个 [按密钥例外](/docs/zh-CN/server-managed-settings#per-key-exceptions-across-managed-sources)。`forceLoginOrgUUID` 和 `forceLoginMethod` 的 `"claudeai"` 和 `"console"` 值不在这些例外中，因此在两个地方都保留它们。
 
 这些密钥还决定不使用登录凭证的会话是否可以启动。有关完整行为，请参阅设置参考中的 [`forceLoginOrgUUID`](/docs/zh-CN/settings-reference#forceloginorguuid)。
 

@@ -12,7 +12,7 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 
 对于澄清问题，Claude 生成问题和选项。您的角色是向用户呈现这些问题，并返回他们的选择。您不能向此流程添加自己的问题；如果您需要自己询问用户某些内容，请在应用程序逻辑中单独进行。
 
-回调可以无限期地保持待处理状态。执行保持暂停状态，直到您的回调返回，SDK 仅在查询本身被取消时才取消等待。如果用户可能需要比您的进程能够合理保持运行的时间更长的时间来响应，请注册一个 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它返回 [`defer` 决定](/docs/zh-CN/hooks#defer-a-tool-call-for-later)，而不是在回调中等待，以便进程可以退出并稍后从持久化会话恢复。
+回调可以无限期地保持待处理状态。执行保持暂停状态，直到您的回调返回。如果用户可能需要比您的进程能够合理保持运行的时间更长的时间来响应，请注册一个 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它返回 [`defer` 决定](/docs/zh-CN/hooks#defer-a-tool-call-for-later)，而不是在回调中等待，以便进程可以退出并稍后从持久化会话恢复。
 
 本指南向您展示如何检测每种类型的请求并做出适当的响应。
 
@@ -203,10 +203,6 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
   }
   ```
 </CodeGroup>
-
-<Note>
-  在 Python 中，`can_use_tool` 需要[流模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)。当您通过 `query(prompt=generator)` 或 `ClaudeSDKClient.connect(prompt=async_iterable)` 传递有限的消息流时，SDK 会在最后一条消息后关闭输入流，在权限回调被调用之前，除非已注册的 hook 或进程内 MCP 服务器保持其打开。上面的示例使用返回 `{"continue_": True}` 的 `PreToolUse` hook 保持其打开。不带提示连接并通过 `ClaudeSDKClient.query()` 发送消息会自动保持流打开，不需要 hook。
-</Note>
 
 此示例使用 y/n 流，其中除 `y` 之外的任何输入都被视为拒绝。在实践中，您可能会构建一个更丰富的 UI，让用户修改请求、提供反馈或完全重定向 Claude。有关所有响应方式，请参阅[响应工具请求](#respond-to-tool-requests)。
 

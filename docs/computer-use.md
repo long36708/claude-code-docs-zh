@@ -112,7 +112,7 @@ Claude 的控制级别也因应用类别而异：浏览器和交易平台是仅�
   一次一个会话
 </h3>
 
-一次只有一个会话可以使用您的计算机。会话在其第一个计算机使用操作时获取机器范围的锁，并在会话退出时释放它，而不是在任务完成时释放。第二个会话的计算机使用会失败并显示一条错误消息，说明哪个会话持有该锁。首先退出该会话。
+一次只有一个会话可以使用您的计算机。会话在其第一个计算机使用操作时获取锁，并在会话退出时释放它，而不是在任务完成时释放。第二个会话的计算机使用会失败并显示一条错误消息，说明哪个会话持有该锁。首先退出该会话。
 
 <h3 id="apps-are-hidden-while-claude-works">
   Claude 工作时应用被隐藏
@@ -134,7 +134,7 @@ Claude Code 在将每个屏幕截图发送到模型之前会缩小它。您不�
   随时停止
 </h3>
 
-当 Claude 获取锁时，会出现 macOS 通知："Claude is using your computer · press Esc to stop"。在任何地方按 `Esc` 立即中止当前操作，或在终端中按 `Ctrl+C`。无论哪种方式，Claude 都会停止、取消隐藏您的应用，并将控制权返回给您。会话保持 [computer use 锁](#one-session-at-a-time)，直到它退出。
+Claude 在每个轮次中首次使用您的计算机时，会出现 macOS 通知："Claude is using your computer · press Esc to stop"。在任何地方按 `Esc` 立即中止当前操作，或在终端中按 `Ctrl+C`。无论哪种方式，Claude 都会停止、取消隐藏您的应用，并将控制权返回给您。会话保持 [computer use 锁](#one-session-at-a-time)，直到它退出。
 
 当 Claude 完成时，会出现第二个通知。
 

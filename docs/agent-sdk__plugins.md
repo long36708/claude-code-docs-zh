@@ -69,7 +69,7 @@ Plugins 允许你使用可在项目间共享的自定义功能来扩展 Claude C
 
 Plugin 路径可以是：
 
-* **相对路径**：相对于你的当前工作目录解析（例如，`"./plugins/my-plugin"`）
+* **相对路径**：相对于 `cwd` 选项解析（例如，`"./plugins/my-plugin"`）
 * **绝对路径**：完整文件系统路径（例如，`"/home/user/plugins/my-plugin"`）
 
 <Note>

@@ -62,7 +62,7 @@ TypeScript 和 Python SDK 都捆绑了原生 Claude Code 二进制文件，因�
   * `"init"`：运行的会话元数据。当 `SessionStart` 或 `Setup` hook 在会话启动期间运行时，其 [hook 生命周期消息](/docs/zh-CN/agent-sdk/typescript#sdkhookstartedmessage) 在 `init` 消息之前到达
   * `"compact_boundary"`：在 [compaction](#automatic-compaction) 后触发
   * `"informational"`：来自循环的纯文本状态横幅
-  * `"worker_shutting_down"`：循环将在当前轮次后结束，因为主机正在退出或 Remote Control 已断开连接
+  * `"worker_shutting_down"`：主机正在退出或 Remote Control 已断开连接
 
   在 TypeScript 中，除了 `"init"` 之外的每个 subtype 在 [`SDKMessage` union](/docs/zh-CN/agent-sdk/typescript#sdkmessage) 中都是其自己的类型，而不是 `SDKSystemMessage` 的子类型。
 * **`AssistantMessage`：** 为 Claude 响应中的每个内容块发出，包括最终仅包含文本的块。每个块都包含单个内容块，例如文本或工具调用，来自一个响应的消息共享一个消息 ID。
@@ -238,7 +238,7 @@ Claude 根据任务确定调用哪些工具，但你控制这些调用是否被�
 | `"xhigh"`  | 扩展推理深度    | 编码和代理任务，在 [支持它的模型](/docs/zh-CN/model-config#adjust-effort-level) 上 |
 | `"max"`    | 最大推理深度    | 需要深度分析的多步骤问题                                                  |
 
-如果你不设置 `effort`，两个 SDK 都会将参数保留未设置，并遵从模型的默认行为。
+如果你不设置 `effort`，Claude Code 会自行解析努力级别，按照 [调整努力级别](/docs/zh-CN/model-config#adjust-effort-level) 所述的顺序。
 
 <Note>
   `effort` 在每个响应内交换延迟和令牌成本以获得推理深度。[扩展思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking) 是一个单独的功能，在输出中产生 `thinking` 块，[Python](/docs/zh-CN/agent-sdk/python#thinkingconfig) 或 [TypeScript](/docs/zh-CN/agent-sdk/typescript#thinkingconfig) 上 `ThinkingConfig` 的 `display` 字段控制你是否接收它们的文本。它们是独立的：你可以设置 `effort: "low"` 并启用扩展思考，或 `effort: "max"` 而不启用它。
@@ -357,7 +357,7 @@ Claude 根据任务确定调用哪些工具，但你控制这些调用是否被�
 | `success`                             | Claude 正常完成了任务                                         |        是       |
 | `error_max_turns`                     | 在完成前达到 `maxTurns` 限制                                   |        否       |
 | `error_max_budget_usd`                | 在完成前达到 `maxBudgetUsd` 限制                               |        否       |
-| `error_during_execution`              | 错误中断了循环（例如，API 失败或取消的请求）                               |        否       |
+| `error_during_execution`              | 错误中断了循环（例如，取消的请求）                                      |        否       |
 | `error_max_structured_output_retries` | 在配置的重试限制内没有生成有效的结构化输出：每次尝试都未通过验证，或者模型回退撤销了完成的输出且没有成功重试 |        否       |
 
 `result` 字段保存最终文本输出，仅在 `success` 变体上存在，因此在读取它之前始终检查子类型。

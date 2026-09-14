@@ -9,7 +9,7 @@
 [git worktree](https://git-scm.com/docs/git-worktree) 是一个单独的工作目录，具有自己的文件和分支，但与主检出共享相同的存储库历史和远程。在自己的 worktree 中运行每个 Claude Code 会话意味着一个会话中的编辑永远不会触及另一个会话中的文件，因此一个会话可以构建功能，而第二个会话可以修复错误。
 
 <Note>
-  Worktrees 需要 git 存储库；对于其他版本控制系统，请[配置 hooks 来替换 git 逻辑](#non-git-version-control)。在[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)中，每个新会话都会自动获得自己的 worktree。
+  Worktrees 需要 git 存储库；对于其他版本控制系统，请[配置 hooks 来替换 git 逻辑](#non-git-version-control)。在[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)中，启动会话时选择 **worktree** 选项，为其提供自己的 worktree。
 </Note>
 
 Worktrees 是运行 Claude 并行的几种方式之一。它们隔离文件编辑。[子代理](/docs/zh-CN/sub-agents)在一个会话内分割工作，[跨会话消息传递](/docs/zh-CN/cross-session-messaging)让 Claude 在您的 worktrees 中的会话之间传递发现。请参阅[并行运行代理](/docs/zh-CN/agents)来比较这些方法，或跳到[使用 worktrees 隔离子代理](#isolate-subagents-with-worktrees)以同时使用 worktrees 和子代理。

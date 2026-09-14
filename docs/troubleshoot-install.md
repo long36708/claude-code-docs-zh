@@ -417,35 +417,7 @@ curl: (22) The requested URL returned error: 403
 
 `curl ... | bash` 命令下载脚本并将其传送到 Bash 以执行。此错误以及相关的 `curl: (23) Failure writing output to destination` 意味着 Bash 没有收到完整的脚本。退出代码 56 表示下载本身被中断，退出代码 23 表示 curl 无法将其接收的内容写入管道，通常是因为 Bash 提前退出。
 
-**解决方案：**
-
-1. **检查网络稳定性**：Claude Code 二进制文件托管在 `downloads.claude.ai`。测试您是否可以访问它：
-
-   ```bash theme={null}
-   curl -sI https://downloads.claude.ai/claude-code-releases/latest
-   ```
-
-   `HTTP/2 200` 行表示您已到达服务器，原始故障可能是间歇性的；重试安装命令。其他结果指向原因：
-
-   * `403`：通常是代理或网络过滤器阻止主机，或 Claude Code [not available in your region](https://www.anthropic.com/supported-countries)
-   * `5xx`：通常是临时服务问题；等待几分钟并重试
-   * `Could not resolve host` 或连接超时：您的网络正在阻止下载
-
-2. **尝试替代安装方法**：
-
-   在 macOS 上：
-
-   ```bash theme={null}
-   brew install --cask claude-code
-   ```
-
-   在 Windows 上：
-
-   ```powershell theme={null}
-   winget install Anthropic.ClaudeCode
-   ```
-
-   然后运行 `claude --version` 以确认：该命令打印版本号，例如 `2.1.211 (Claude Code)`。如果 shell 报告找不到 `claude`，打开一个新的终端窗口并重试：您安装的会话保留其旧的 `PATH`。
+测试您是否可以使用 [Check network connectivity](#check-network-connectivity) 中的检查访问 `downloads.claude.ai`。如果您到达了服务器，原始故障可能是间歇性的；重试安装命令。您也可以 [try an alternative install method](/docs/zh-CN/setup#install-claude-code)。
 
 <h3 id="homebrew-cask-unavailable-or-outdated">
   Homebrew cask 不可用或过时

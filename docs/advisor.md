@@ -97,14 +97,16 @@ Claude Code 在该会话中使用该标志而不是 `advisorModel` 设置。它�
 
 顾问的能力必须至少与主模型相同。每个主模型接受的顾问是：
 
-| 主模型                 | 接受的顾问                | 注释                                                                                        |
-| ------------------- | -------------------- | ----------------------------------------------------------------------------------------- |
-| Haiku 4.5           | Fable、Opus、Sonnet    | Haiku 可以调用顾问但不能充当顾问                                                                       |
-| Sonnet 4.6          | Fable、Opus、Sonnet    |                                                                                           |
-| Sonnet 5            | Fable、Opus、Sonnet 5  | Sonnet 4.6 顾问被拒绝                                                                          |
-| Opus 4.6            | Fable、Opus、Sonnet 5  | Sonnet 5 和 Opus 4.6 的能力排名相同，因此 Opus 4.6 主模型接受 Sonnet 5 顾问                                 |
-| Opus 4.7 或更高版本      | Fable、Opus 4.7 或更高版本 | Opus 4.7 和更高版本的 Opus 模型的能力排名相同，因此任何一个都可以接受另一个作为顾问。Opus 4.7 主模型与 Opus 4.6 或 Sonnet 5 顾问被拒绝 |
-| Fable 5.1 或 Fable 5 | Fable 5.1 或 Fable 5  | Opus 或 Sonnet 顾问被拒绝                                                                       |
+| 主模型                 | 接受的顾问                         | 注释                                                                |
+| ------------------- | ----------------------------- | ----------------------------------------------------------------- |
+| Haiku 4.5           | Fable、Opus、Sonnet             | Haiku 可以调用顾问但不能充当顾问                                               |
+| Sonnet 4.6          | Fable、Opus、Sonnet             |                                                                   |
+| Sonnet 5            | Fable、Opus 4.7 或更高版本、Sonnet 5 | Sonnet 4.6 顾问被拒绝，使用 Opus 4.6 顾问的请求会失败并显示 API 错误                   |
+| Opus 4.6            | Fable、Opus、Sonnet 5           | Sonnet 4.6 顾问被拒绝                                                  |
+| Opus 4.7 或 Opus 4.8 | Fable 和 Opus 4.7 或更高版本        | Opus 4.6 或 Sonnet 顾问被拒绝                                           |
+| Opus 5              | Fable、Opus 5                  | Opus 4.6 或 Sonnet 顾问被拒绝，使用 Opus 4.7 或 Opus 4.8 顾问的请求会失败并显示 API 错误 |
+| Fable 5             | Fable 5.1 或 Fable 5           | Opus 或 Sonnet 顾问被拒绝                                               |
+| Fable 5.1           | Fable 5.1                     | Opus 或 Sonnet 顾问被拒绝，使用 Fable 5 顾问的请求会失败并显示 API 错误                 |
 
 Fable 5.1 需要 Claude Code v2.1.257 或更高版本。两个 Fable 模型都需要 [Fable 访问权限](/docs/zh-CN/model-config#work-with-fable)。
 
@@ -112,9 +114,10 @@ Fable 5.1 需要 Claude Code v2.1.257 或更高版本。两个 Fable 模型都�
 
 子代理继承配置的顾问，并对其自己的模型应用相同的配对检查。
 
-Claude Code 在发送请求之前验证配对：
+Claude Code 在发送请求之前验证配对，API 也会再次验证：
 
-* 如果顾问的能力低于主模型，顾问不会附加到主模型的请求中。`/advisor` 命令输出和通知会显示这一点。其自己的模型满足配对的子代理仍然可以使用顾问。
+* 对于表中列为被拒绝的顾问，Claude Code 不会将其附加到主模型的请求中。`/advisor` 命令输出和通知会显示这一点。其自己的模型满足配对的子代理仍然可以使用顾问。
+* 对于表中列为因 API 错误而失败的顾问，Claude Code 会附加它，API 会拒绝它。每个请求都会失败并显示 `'<advisor model>' cannot be used as an advisor when the request model is '<main model>'`，直到您使用 `/advisor` 更改顾问或将其关闭。
 * 如果主模型或顾问是 Claude Code 无法识别的模型，顾问不会附加。
 
 <h3 id="fable-advisor-and-usage-credits">

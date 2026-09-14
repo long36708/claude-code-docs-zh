@@ -160,7 +160,7 @@ For every code submission:
   const options = { settings: { outputStyle: "Explanatory" } };
   ```
 
-Python SDK 没有以编程方式选择输出样式的选项。对于无法写入 `.claude/settings.local.json` 的仅代码部署，请改用 `append` 或自定义提示词字符串。
+在 Python SDK 中，通过 `settings` 选项设置 `outputStyle`，该选项接受 JSON 字符串（如 `'{"outputStyle": "Explanatory"}'`）或设置它的设置文件的路径。
 
 **SDK 用户注意：** 当你在选项中包含 `settingSources: ['user']` 或 `settingSources: ['project']`（TypeScript）/ `setting_sources=["user"]` 或 `setting_sources=["project"]`（Python）时，输出样式会被加载。
 

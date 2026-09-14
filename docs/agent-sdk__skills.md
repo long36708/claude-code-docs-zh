@@ -105,7 +105,7 @@ Agent Skills 通过专业能力扩展 Claude，Claude 会在相关时自动调�
 
 在流的开始附近，SDK 产生一个子类型为 `init` 的系统消息。检查其 `skills` 数组以在 Claude 开始工作前确认你的 skills 已加载。该数组包括你定义的用户可调用 skills，以及 [Claude Code 包含的捆绑 skills](/docs/zh-CN/skills#bundled-skills)。
 
-该数组仅列出用户可调用的 skills。在其 frontmatter 中具有 [`user-invocable: false`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill 会加载并保持对 Claude 可用，但不会出现在数组中。该数组反映会话发现的内容，无论它们是否在你的 `skills` 列表中，都列出相同的 skills。
+该数组仅列出用户可调用的 skills。在其 frontmatter 中具有 [`user-invocable: false`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill 会加载并保持对 Claude 可用，但不会出现在数组中。该数组列出相同的 skills，无论它们是否在你的 `skills` 列表中。
 
 <h3 id="allow-only-specific-skills">
   仅允许特定 skills
@@ -173,7 +173,7 @@ Agent Skills 通过专业能力扩展 Claude，Claude 会在相关时自动调�
 Available commands: ["clear", "compact", "context", "usage", "code-review", "verify", "security-check", ...]
 ```
 
-你的用户可调用 skills 出现在此列表和 [确认 skills 已加载](#confirm-skills-loaded) 中的 `skills` 数组中。`slash_commands` 列表添加会话中可用的其余命令。在其 frontmatter 中具有 [`user-invocable: false`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill 不会出现在任一列表中。配置 [MCP servers](/docs/zh-CN/agent-sdk/mcp) 的会话也可以公开 [MCP prompts 作为命令](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)。
+在其 frontmatter 中具有 [`user-invocable: false`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill 不会出现在此列表或 [确认 skills 已加载](#confirm-skills-loaded) 中的 `skills` 数组中。配置 [MCP servers](/docs/zh-CN/agent-sdk/mcp) 的会话也可以公开 [MCP prompts 作为命令](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)。
 
 <h3 id="dispatch-commands-by-name">
   按名称分派命令

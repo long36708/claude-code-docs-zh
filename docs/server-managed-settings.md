@@ -163,12 +163,13 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
   跨托管源的每键例外
 </h3>
 
-两种类型的键是无合并规则的例外：
+三种类型的键是无合并规则的例外：
 
 * **跨源锁定键**：一小组键，例如沙箱允许列表锁，[列在托管设置页面上](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)。当任何管理员控制的托管源设置它们时，Claude Code 会遵守它们；用户可写的 HKCU 注册表层被排除。当 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 提供托管设置时，其输出是这些检查读取的唯一源，除了 [`forceRemoteSettingsRefresh`](/docs/zh-CN/settings-reference#forceremotesettingsrefresh)，Claude Code 在启动时直接从管理员源读取它。
 * **`env` 块**：除了与凭证键配对的遥测单元和路由变量（下面涵盖）外，它在管理员控制的源之间按键合并。对于每个环境变量，定义它的最高优先级源获胜，较低的管理员源填充较高源未设置的变量。因此，端点管理的 `env` 条目在服务器管理的配置未设置该变量时应用，或在该变量的缓存服务器值[等待服务器确认而被暂扣](#fetch-and-caching-behavior)期间应用。需要 Claude Code v2.1.223 或更高版本。在 v2.1.223 之前，Claude Code 仅应用选定源的整个 `env` 块。
   * **遥测单元**：`OTEL_EXPORTER_OTLP_*` 导出器键、`OTEL_LOG_*` 内容捕获切换、`OTEL_LOGS_EXPORTER` 以及测试版跟踪变量 `ENABLE_BETA_TRACING_DETAILED` 和 `BETA_TRACING_ENDPOINT` 遵循设置其中任何一个的最高源作为一个单元。传递 `otelHeadersHelper` 凭证键的源也声称该单元，但仅在它是选定源时才放置这些变量：未被选定但传递该键的源不贡献其中任何一个，仍然阻止较低源填充它们。无论哪种方式，来自一个源的导出器端点永远不能与来自另一个源的凭证配对。
   * **凭证配对的路由**：将路由变量与选定源专用凭证键（例如 `apiKeyHelper` 或 `otelHeadersHelper`）配对的源仅在它赢得该槽位时贡献这些路由变量。
+* **网关登录键**：Claude Code 永远不会从服务器管理的设置中读取 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl) 或 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值，因此选择服务器管理的设置既不提供网关登录也不隐藏在 MDM 策略或托管设置文件中设置的网关登录。[`managedSourcesBehavior` 条目](/docs/zh-CN/settings-reference#managedsourcesbehavior)说明机器上的哪个管理员源提供它们。
 
 <h3 id="fetch-and-caching-behavior">
   获取和缓存行为
@@ -286,12 +287,12 @@ Claude Code 在您的配置目录 `~/.claude` 中记录您的批准，除非您�
   Claude Code 不为通过纯 HTTP 到达的环回开发网关保存批准，因此对话框在每次登录后再次出现。
 * **任何其他凭证**，例如 API 密钥或 `CLAUDE_CODE_OAUTH_TOKEN`：一个批准用于传递的设置，与该配置目录中设置的缓存副本一起保留。当需要批准的设置更改时，Claude Code 会显示对话框，在您运行 `/logout` 或 `claude auth logout` 后，其中任何一个都会删除缓存副本。
 
+对于 `sandbox.credentials` 或 `sandbox.network.tlsTerminate` 的批准也涵盖这些相同传递设置中的 [`sandbox.network.allowedDomains`](/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 条目，因为两个设置都作用于该允许列表。当您的管理员添加或移除其中一个条目时，对话框会再次出现，即使 `sandbox.network.allowedDomains` 本身不需要批准。
+
 使用保存的 claude.ai 登录：
 
 * 如果您登出并重新登录，或切换到另一个组织，稍后返回，当这些设置未更改时，Claude Code 不会再次显示对话框，除非另一个账户在同一配置目录中为该组织批准了它们。
 * 如果您使用不同的账户登录到同一组织，即使设置未更改，Claude Code 也会再次显示对话框。该账户的批准替换前一个，因此当您切换回来时，Claude Code 会再次显示对话框。
-
-对于 `sandbox.credentials` 或 `sandbox.network.tlsTerminate` 的批准也涵盖这些相同传递设置中的 [`sandbox.network.allowedDomains`](/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 条目，因为两个设置都作用于该允许列表。当您的管理员添加或移除其中一个条目时，对话框会再次出现，即使 `sandbox.network.allowedDomains` 本身不需要批准。
 
 Claude Code 无法始终显示对话框。下面的每种情况说明当它无法显示时哪些设置适用，以及您何时下次看到对话框：
 

@@ -123,7 +123,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 快速模式需要以下所有条件：
 
 * **仅限 Anthropic API 或订阅**：快速模式可通过 Anthropic 控制台 API 和使用使用额度的 Claude 订阅计划获得。它在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 AWS 上的 Claude Platform 上不可用。控制台组织还必须[为您的组织配置快速模式访问权限](#enable-fast-mode-for-your-organization)。
-* **为订阅计划启用使用额度**：在 Pro、Max、Team 或 Enterprise 计划上，您的账户必须[启用使用额度](/docs/zh-CN/costs#add-usage-credits-to-your-subscription)，这允许在您的计划包含的使用量之外进行计费。在启用之前，`/fast` 显示"Fast mode requires usage credits · /usage-credits to turn them on"。您启用它们的方式取决于您的计划：
+* **为订阅计划启用使用额度**：在 Pro、Max、Team 或 Enterprise 计划上，您的账户必须[启用使用额度](/docs/zh-CN/costs#add-usage-credits-to-your-subscription)，这允许在您的计划包含的使用量之外进行计费。在启用之前，`/fast` 显示"Fast mode requires usage credits"。您启用它们的方式取决于您的计划：
   * 在 Pro 和 Max 上，在 claude.ai 上的[**Settings > Usage**](https://claude.ai/settings/usage)的**Usage credits**部分中启用它们，或运行 `/usage-credits` 来打开该页面。
   * 在 Team 和 Enterprise 上，具有计费访问权限的成员在[**Admin settings > Usage**](https://claude.ai/admin-settings/usage)处为组织启用它们，没有访问权限的成员运行 `/usage-credits` 向组织的管理员发送请求。
 

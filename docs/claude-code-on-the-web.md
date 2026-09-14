@@ -58,17 +58,17 @@ Claude Code on the web 在 [claude.ai/code](https://claude.ai/code) 的 Anthropi
 </Note>
 
 <h2 id="move-tasks-between-web-and-terminal">
-  在网络和终端之间移动任务
+  在网页和终端之间移动任务
 </h2>
 
-这些工作流需要[Claude Code CLI](/docs/zh-CN/quickstart)登录到相同的 claude.ai 账户。你可以从终端启动新的云会话，或将云会话拉入终端以在本地继续。云会话即使在关闭笔记本电脑后也会持续，你可以从任何地方（包括 Claude 移动应用）监控它们。
+这些工作流需要 [Claude Code CLI](/docs/zh-CN/quickstart) 登录到同一个 claude.ai 账户。您可以从终端启动新的云会话，或将云会话拉入终端以继续本地工作。云会话即使在您关闭笔记本电脑后也会持续存在，您可以从任何地方（包括 Claude 移动应用）监控它们。
 
 <Note>
-  从 CLI，会话切换是单向的：你可以使用 `--teleport` 将云会话拉入终端，但不能将现有的终端会话推送到网络。带有任务描述的 `--cloud` 标志为你的当前存储库创建一个新的云会话；带有 `-p` 和会话 ID 或 claude.ai/code URL 时，它改为[将消息排队到该现有会话](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli)。[Desktop 应用](/docs/zh-CN/desktop#continue-in-another-surface)提供了一个"在...中继续"菜单，可以将本地会话发送到网络。
+  从 CLI 来看，会话切换是单向的：您可以使用 `--teleport` 将云会话拉入终端，但无法将现有的终端会话推送到网页。带有任务描述的 `--cloud` 标志为您当前的存储库创建新的云会话；带有 `-p` 和会话 ID 或 claude.ai/code URL 时，它会改为 [将消息排队到该现有会话](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli)。[Desktop 应用](/docs/zh-CN/desktop#continue-in-another-surface) 提供了一个"继续在"菜单，可以将本地会话发送到网页。
 </Note>
 
 <h3 id="from-terminal-to-web">
-  从终端到网络
+  从终端到网页
 </h3>
 
 使用 `--cloud` 标志从命令行启动云会话：
@@ -77,37 +77,37 @@ Claude Code on the web 在 [claude.ai/code](https://claude.ai/code) 的 Anthropi
 claude --cloud "Fix the authentication bug in src/auth/login.ts"
 ```
 
-这在 claude.ai 上创建一个新的云会话。云 VM 在你的当前分支处克隆你当前目录的 GitHub 远程，而不是你的本地检出，所以如果你有本地提交，请先推送。有关 Claude Code 上传本地存储库而不是克隆的情况，请参阅[发送没有 GitHub 的本地存储库](#send-local-repositories-without-github)。
+这会在 claude.ai 上创建新的云会话。云 VM 会在您当前分支克隆您当前目录的 GitHub 远程，而不是您的本地检出，因此如果您有本地提交，请先推送。有关 Claude Code 上传本地存储库而不是克隆的情况，请参阅 [发送没有 GitHub 的本地存储库](#send-local-repositories-without-github)。
 
-`--cloud` 一次只能处理单个存储库。任务在云中运行，而你继续在本地工作。较旧的 `--remote` 拼写仍然作为 `--cloud` 的已弃用别名工作。
+`--cloud` 一次只能与单个存储库配合使用。任务在云中运行，而您继续在本地工作。较旧的 `--remote` 拼写仍然可以作为 `--cloud` 的已弃用别名使用。
 
-当云容器启动时，CLI 显示设置步骤的实时清单，例如克隆存储库和运行你的[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)。它排队你在配置期间输入的消息，并在会话准备好后发送它们。
+当云容器启动时，CLI 显示设置步骤的实时清单，例如克隆存储库和运行您的 [设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)。它会将您在配置期间键入的消息排队，并在会话准备好后发送它们。
 
 <Note>
-  `--cloud` 创建云会话。`--remote-control` 无关：它公开本地 CLI 会话以从网络进行监控。请参阅[Remote Control](/docs/zh-CN/remote-control)。
+  `--cloud` 创建云会话。`--remote-control` 无关：它公开本地 CLI 会话以便从网页进行监控。请参阅 [Remote Control](/docs/zh-CN/remote-control)。
 </Note>
 
-在 Claude Code CLI 中使用 `/tasks` 检查进度，或在 claude.ai 或 Claude 移动应用上打开会话以直接交互。从那里你可以引导 Claude、提供反馈或回答问题，就像任何其他对话一样。
+在 claude.ai 或 Claude 移动应用上打开会话以检查进度或直接交互。从那里您可以引导 Claude、提供反馈或像在任何其他对话中一样回答问题。
 
-如果 Claude 提出问题且会话处于空闲状态，你仍然可以在返回时回答，直到[环境过期](#environment-expired)，会话从你的答案继续。
+如果 Claude 提出问题且会话处于空闲状态，您仍然可以在返回时回答，直到 [环境过期](#environment-expired)，会话会从您的答案继续。
 
 <h4 id="tips-for-cloud-tasks">
-  云任务的提示
+  云任务提示
 </h4>
 
-**在本地规划，远程执行**：对于复杂的任务，在 plan mode 中启动 Claude 以协作制定方法，然后将工作发送到云：
+**在本地规划，远程执行**：对于复杂任务，启动 Claude 处于规划模式以协作制定方法，然后将工作发送到云：
 
 ```bash theme={null}
 claude --permission-mode plan
 ```
 
-在 plan mode 中，Claude 读取文件、运行命令来探索并提出计划，而不编辑源代码。一旦你满意，将计划保存到存储库、提交和推送，以便云 VM 可以克隆它。然后为自主执行启动云会话：
+在规划模式下，Claude 读取文件、运行命令进行探索，并提出计划而不编辑源代码。一旦您满意，将计划保存到存储库、提交并推送，以便云 VM 可以克隆它。然后启动云会话以进行自主执行：
 
 ```bash theme={null}
 claude --cloud "Execute the migration plan in docs/migration-plan.md"
 ```
 
-**并行运行任务**：每个 `--cloud` 命令创建自己的云会话，独立运行。你可以启动多个任务，它们都将在单独的会话中同时运行：
+**并行运行任务**：每个 `--cloud` 命令创建自己的云会话，独立运行。您可以启动多个任务，它们都会在单独的会话中同时运行：
 
 ```bash theme={null}
 claude --cloud "Fix the flaky test in auth.spec.ts"
@@ -115,17 +115,17 @@ claude --cloud "Update the API documentation"
 claude --cloud "Refactor the logger to use structured output"
 ```
 
-使用 Claude Code CLI 中的 `/tasks` 监控所有会话。当会话完成时，你可以从网络界面创建 PR 或[teleport](#from-web-to-terminal) 会话到终端以继续工作。
+当会话完成时，您可以从网页界面创建 PR，或 [teleport](#from-web-to-terminal) 会话到您的终端以继续工作。
 
 <h4 id="send-local-repositories-without-github">
   发送没有 GitHub 的本地存储库
 </h4>
 
-当你从未连接到 GitHub 的存储库运行 `claude --cloud` 时，或从 Claude GitHub App 未安装的 github.com 存储库运行时，Claude Code 会捆绑你的本地存储库并直接上传到云会话。即使你使用 `/web-setup` 连接了 GitHub，这也适用。捆绑包包括你的完整存储库历史，跨所有分支，加上对跟踪文件的任何未提交更改。
+当您从没有 git 远程的存储库运行 `claude --cloud` 时，或从 Claude GitHub App 未安装的 github.com 存储库运行时，Claude Code 会捆绑您的本地存储库并直接上传到云会话。即使您使用 `/web-setup` 连接了 GitHub，这也适用。该捆绑包包括您在所有分支上的完整存储库历史记录，加上对跟踪文件的未提交更改。
 
-在 macOS、Linux 和 WSL 上，Claude Code 会将名称类似于凭证或密钥的文件的未提交更改排除在上传之外，并列出它排除的文件的名称。这涵盖 `.env` 文件、Terraform `*.tfvars` 文件和密钥文件，如 `id_rsa` 和 `*.pem`。会话以每个的已提交版本开始，或如果没有提交则没有文件。在链接的 worktree、submodule 或类似布局中，Claude Code 将这些更改与其余部分一起上传，并列出它上传的文件的名称。
+在 macOS、Linux 和 WSL 上，Claude Code 将未提交的更改排除在上传之外，这些更改涉及名称类似于凭据或密钥的文件，并命名它排除的文件。这涵盖 `.env` 文件、Terraform `*.tfvars` 文件和密钥文件，例如 `id_rsa` 和 `*.pem`。会话以每个文件的已提交版本启动，或如果未提交任何内容，则不包含该文件。在链接的 worktree、子模块或类似布局中，Claude Code 会与其余部分一起上传这些更改并命名它上传的文件。
 
-要即使在 Claude Code 会克隆远程时也强制上传捆绑，请设置 `CCR_FORCE_BUNDLE=1`：
+要在 Claude Code 会克隆远程时上传捆绑包，请设置 `CCR_FORCE_BUNDLE=1`：
 
 ```bash theme={null}
 CCR_FORCE_BUNDLE=1 claude --cloud "Run the test suite and fix any failures"
@@ -134,15 +134,15 @@ CCR_FORCE_BUNDLE=1 claude --cloud "Run the test suite and fix any failures"
 捆绑的存储库必须满足这些限制：
 
 * 目录必须是具有至少一个提交的 git 存储库
-* 捆绑的存储库必须在 100 MB 以下。较大的存储库回退到仅捆绑当前分支，然后回退到工作树的单个压缩快照，仅在快照仍然太大时失败
-* 未跟踪的文件不包括；在你想要云会话看到的文件上运行 `git add`
-* 从捆绑创建的会话只有在你的[GitHub 连接](#github-authentication-options)对该存储库具有推送访问权限时，才能推送回 GitHub 远程
+* 捆绑的存储库必须小于 100 MB。较大的存储库会回退到仅捆绑当前分支，然后回退到工作树的单个压缩快照，如果快照仍然太大则失败
+* 未跟踪的文件不包括在内；对您希望云会话看到的文件运行 `git add`
+* 从捆绑创建的会话只有在您的 [GitHub 连接](#github-authentication-options) 对该存储库具有推送访问权限时，才能推送回 GitHub 远程
 
 <h3 id="send-follow-ups-from-the-cli">
   从 CLI 发送后续消息
 </h3>
 
-一旦云会话运行，无论它在哪里执行，从任何你使用 `claude auth login` 登录的机器上的 `claude` CLI 向它发送后续消息。CLI 使用你的 Anthropic 账户凭证进行身份验证，不发送本地会话状态，所以命令不需要从启动会话的机器运行，在每个 shell 中都是相同的，包括 PowerShell。
+一旦云会话运行，无论它在哪里执行，都可以从任何您使用 `claude auth login` 登录的机器上的 `claude` CLI 向它发送后续消息。CLI 使用您的 Anthropic 账户凭据进行身份验证，不发送任何本地会话状态，因此该命令不需要从启动会话的机器运行，并且在每个 shell 中都是相同的，包括 PowerShell。
 
 该命令发布一条消息并退出：
 
@@ -150,19 +150,19 @@ CCR_FORCE_BUNDLE=1 claude --cloud "Run the test suite and fix any failures"
 claude -p "your message" --cloud <session-id>
 ```
 
-CLI 将消息排队到会话中并退出，不等待回复。使用它来引导长时间运行的会话、在当前步骤仍在完成时排队下一步，或从[CI 脚本](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)发送后续消息。你也可以在 stdin 上管道消息，而不是作为参数传递：`echo "your message" | claude -p --cloud <session-id>`。
+CLI 将消息排队到会话中并退出，无需等待回复。使用它来引导长时间运行的会话、在当前步骤仍在完成时排队下一步，或从 [CI 脚本](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop) 发送后续消息。您也可以在 stdin 上管道消息，而不是将其作为参数传递：`echo "your message" | claude -p --cloud <session-id>`。
 
-对于 `<session-id>`，传递裸 ID，如 `session_...` 或 `cse_...`，或会话的 `claude.ai/code/<id>` URL，带或不带方案或查询字符串。在 claude.ai/code 的会话列表中找到 ID。
+对于 `<session-id>`，传递裸 ID，例如 `session_...` 或 `cse_...`，或会话的 `claude.ai/code/<id>` URL，带或不带方案或查询字符串。在 claude.ai/code 的会话列表中找到 ID。
 
 <Note>
-  `--cloud` 需要 Anthropic 账户。当 Claude Code 配置为 Amazon Bedrock、Google Cloud 的 Agent Platform 或其他第三方提供商时，它不可用。仅通过 `ANTHROPIC_BASE_URL` 配置的[LLM gateway](/docs/zh-CN/llm-gateway)不算作第三方提供商进行此检查，但你仍然需要使用 `claude auth login` 登录。你的组织的 `allow_remote_sessions` 策略也必须启用。所有者可以在 claude.ai/admin-settings/claude-code 处的 Claude Code 管理设置中打开它。
+  `--cloud` 需要 Anthropic 账户。当 Claude Code 为 Amazon Bedrock、Google Cloud 的 Agent Platform 或其他第三方提供商配置时，它不可用。仅通过 `ANTHROPIC_BASE_URL` 配置的 [LLM 网关](/docs/zh-CN/llm-gateway) 不算作此检查的第三方提供商，但您仍需要使用 `claude auth login` 登录。您组织的 `allow_remote_sessions` 策略也必须启用。所有者可以在 claude.ai/admin-settings/claude-code 的 Claude Code 管理设置中打开它。
 </Note>
 
 <h4 id="output-and-errors">
   输出和错误
 </h4>
 
-成功时，命令打印会话 ID 和查看会话的链接：
+成功时，该命令打印会话 ID 和查看会话的链接：
 
 ```
 Sent to cloud session.
@@ -170,53 +170,53 @@ Session ID: session_01DiUkqY2kzbUbDmW1w96rfi
 View: https://claude.ai/code/session_01DiUkqY2kzbUbDmW1w96rfi?from=cli&m=0
 ```
 
-传递 `--output-format json` 以获得机器可读的结果：成功时为 `{ok, session_id, url}`，或发送失败时为 `{ok: false, session_id, error}`，例如当会话丢失或已归档时。配置错误，如不支持的提供商或禁用的组织策略，打印到 stderr 而不是 JSON。`--output-format stream-json` 不支持 `--cloud <session-id>`。
+传递 `--output-format json` 以获得机器可读的结果：成功时为 `{ok, session_id, url}`，或发送失败时为 `{ok: false, session_id, error}`，例如当会话缺失或已存档时。配置错误（例如不支持的提供商或禁用的组织策略）打印到 stderr，不带 JSON。`--output-format stream-json` 不支持 `--cloud <session-id>`。
 
-CLI 使用 `Error: ` 前缀错误。失败的交付被包装为 `failed to send message to cloud session <id>: <reason>`。
+CLI 在错误前加上 `Error: ` 前缀。失败的传递被包装为 `failed to send message to cloud session <id>: <reason>`。
 
-| 消息                                                                                                                          | 含义                                                                                                                                                                     |
-| --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Cloud sessions aren't available with <provider>. They run on Anthropic's infrastructure and require an Anthropic account.` | Claude Code 配置为第三方提供商。消息使用你的配置使用的标签命名提供商，如 `Amazon Bedrock` 或 `Google Vertex AI`。删除该提供商的配置，例如通过取消设置 `CLAUDE_CODE_USE_BEDROCK`，并使用 Anthropic 账户登录（`claude auth login`）。 |
-| `Cloud sessions are disabled by your organization's policy. Contact your organization admin to enable them.`                | `allow_remote_sessions` 组织策略已关闭。                                                                                                                                       |
-| `Couldn't verify your organization's policy for cloud sessions. Check your network connection and try again.`               | Claude Code 无法获取你的组织的策略，所以它拒绝发送而不是假设云会话被允许。检查你的网络连接并重试。                                                                                                                |
-| `Attaching to an existing cloud session is not enabled for your account.`                                                   | 你运行了 `--cloud <session-id>` 而没有 `-p`。使用 `claude -p "your message" --cloud <session-id>` 发送消息。                                                                          |
-| `Session not found: <id>`                                                                                                   | ID 或 URL 与你可以访问的会话不匹配。根据会话的 claude.ai/code URL 检查它。                                                                                                                    |
-| `cloud session <id> is archived and cannot accept new messages`                                                             | 会话已被归档。改为启动新会话。                                                                                                                                                        |
+| 消息                                                                                                                          | 含义                                                                                                                                                                       |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Cloud sessions aren't available with <provider>. They run on Anthropic's infrastructure and require an Anthropic account.` | Claude Code 为第三方提供商配置。该消息使用您的配置使用的标签命名提供商，例如 `Amazon Bedrock` 或 `Google Vertex AI`。删除该提供商的配置，例如通过取消设置 `CLAUDE_CODE_USE_BEDROCK`，并使用 Anthropic 账户登录（`claude auth login`）。 |
+| `Cloud sessions are disabled by your organization's policy. Contact your organization admin to enable them.`                | `allow_remote_sessions` 组织策略已关闭。                                                                                                                                         |
+| `Couldn't verify your organization's policy for cloud sessions. Check your network connection and try again.`               | Claude Code 无法获取您的组织策略，因此它拒绝发送而不是假设云会话被允许。检查您的网络连接并重试。                                                                                                                   |
+| `Attaching to an existing cloud session is not enabled for your account.`                                                   | 您运行了 `--cloud <session-id>` 而没有 `-p`。使用 `claude -p "your message" --cloud <session-id>` 发送消息。                                                                            |
+| `Session not found: <id>`                                                                                                   | ID 或 URL 与您可以访问的会话不匹配。根据会话的 claude.ai/code URL 检查它。                                                                                                                      |
+| `cloud session <id> is archived and cannot accept new messages`                                                             | 会话已被存档。改为启动新会话。                                                                                                                                                          |
 
 <h3 id="from-web-to-terminal">
-  从网络到终端
+  从网页到终端
 </h3>
 
-使用以下任何方式将云会话拉入终端：
+使用以下任何方法将云会话拉入您的终端：
 
-* **使用 `--teleport`**：从命令行，运行 `claude --teleport` 以获得交互式会话选择器，或 `claude --teleport <session-id>` 以直接恢复特定会话。如果你有未提交的更改，系统会提示你先隐藏它们。
+* **使用 `--teleport`**：从命令行运行 `claude --teleport` 以获得交互式会话选择器，或 `claude --teleport <session-id>` 以直接恢复特定会话。如果您有未提交的更改，系统会提示您先隐藏它们。
 * **使用 `/teleport`**：在现有 CLI 会话内，运行 `/teleport` 或 `/tp` 以打开相同的会话选择器，无需重启 Claude Code。
-* **从 `/tasks`**：运行 `/tasks` 以查看你的后台会话，然后按 `t` teleport 到其中一个。
-* **从网络界面**：从会话菜单中选择**在终端中打开**以复制可以粘贴到终端中的命令。
-* **从云会话内部**：输入 `/teleport`，Claude Code 会回复确切的 `claude --teleport <session-id>` 命令用于该会话，准备从存储库的检出运行。需要会话环境中的 Claude Code v2.1.223 或更高版本。
+* **从 `/tasks`**：运行 `/tasks` 以查看您的后台会话，然后按 `t` 以 teleport 到其中一个。
+* **从网页界面**：从会话菜单中选择 **Open in > Terminal** 以复制可以粘贴到终端的命令。
+* **从云会话内部**：键入 `/teleport`，Claude Code 会回复该会话的确切 `claude --teleport <session-id>` 命令，准备从存储库的检出运行。需要会话环境中的 Claude Code v2.1.223 或更高版本。
 
-当你 teleport 一个会话时，Claude 验证你在正确的存储库中，从云会话获取并检出分支，并将完整的对话历史加载到终端中。终端获得会话的自己的副本：那里的新工作保持本地，不会出现在 claude.ai 上的云会话或 Claude 移动应用中。要在 teleport 后继续从你的手机引导，在本地会话中启动[`/remote-control`](/docs/zh-CN/remote-control)。
+当您 teleport 会话时，Claude 验证您在正确的存储库中，从云会话获取并检出分支，并将完整的对话历史记录加载到您的终端。终端获得会话的自己的副本：那里的新工作保持本地，不会出现在 claude.ai 上的云会话或 Claude 移动应用中。在 teleport 后继续从您的手机引导，在本地会话中启动 [`/remote-control`](/docs/zh-CN/remote-control)。
 
-`--teleport` 不同于 `--resume`。`--resume` 从此机器的本地历史重新打开对话，不列出云会话；`--teleport` 拉取云会话及其分支。
+`--teleport` 与 `--resume` 不同。`--resume` 从此机器的本地历史记录重新打开对话，不列出云会话；`--teleport` 拉取云会话及其分支。
 
 <h4 id="teleport-requirements">
   Teleport 要求
 </h4>
 
-Teleport 在恢复会话之前检查这些要求。如果任何要求未满足，你会看到错误或被提示解决问题。
+Teleport 在恢复会话前检查这些要求。如果任何要求未满足，您会看到错误或被提示解决问题。
 
-| 要求         | 详情                                                                                                                                                                                                |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 干净的 git 状态 | 你的工作目录必须没有未提交的更改。Teleport 会在需要时提示你隐藏更改。                                                                                                                                                           |
-| 正确的存储库     | 你必须从同一存储库的检出运行 `--teleport`，而不是从分叉运行。如果你从不同存储库的检出运行它，Claude Code 会显示一个错误，命名会话的存储库和你的检出的。如果 Claude Code 无法将你的远程解析为主机名，例如 SSH 主机别名如 `git@work:owner/repo.git`，它会要求你确认，并在远程的所有者和存储库名称与会话的存储库匹配时接受检出。 |
-| 分支可用       | 云会话中的分支必须已被推送到远程。Teleport 会自动获取并检出它。                                                                                                                                                              |
-| 相同账户       | 你必须认证到云会话中使用的相同 claude.ai 账户。                                                                                                                                                                     |
+| 要求         | 详情                                                                                                                                                                                                                                |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 干净的 git 状态 | 您的工作目录必须没有未提交的更改。如果需要，Teleport 会提示您隐藏更改。                                                                                                                                                                                          |
+| 正确的存储库     | 您必须从同一存储库的检出运行 `--teleport`，而不是 fork。如果您从不同存储库的检出运行它，Claude Code 会显示一个错误，命名会话的存储库和您的检出的存储库。在 v2.1.219 之前，错误没有命名您的检出的存储库。如果 Claude Code 无法将您的远程解析为主机名，例如 SSH 主机别名如 `git@work:owner/repo.git`，它会要求您确认，并在远程的所有者和存储库名称与会话的存储库匹配时接受检出。 |
+| 分支可用       | 来自云会话的分支必须已推送到远程。Teleport 会自动获取并检出它。                                                                                                                                                                                              |
+| 相同账户       | 您必须使用云会话中使用的相同 claude.ai 账户进行身份验证。                                                                                                                                                                                                |
 
 <h4 id="teleport-is-unavailable">
   `--teleport` 不可用
 </h4>
 
-Teleport 需要 claude.ai 订阅身份验证。如果你通过 API 密钥进行身份验证，运行 `/login` 以改为使用你的 claude.ai 账户登录。如果错误命名你的提供商，云会话不通过第三方提供商可用；请参阅[错误表](#output-and-errors)。如果你已通过 claude.ai 登录且 `--teleport` 仍不可用，你的组织可能已禁用云会话。
+Teleport 需要 claude.ai 订阅身份验证。如果您通过 API 密钥进行身份验证，请运行 `/login` 以改为使用您的 claude.ai 账户登录。如果错误命名您的提供商，云会话不可通过第三方提供商获得；请参阅 [错误表](#output-and-errors)。如果您已通过 claude.ai 登录且 `--teleport` 仍不可用，您的组织可能已禁用云会话。
 
 <h2 id="work-with-sessions">
   处理会话

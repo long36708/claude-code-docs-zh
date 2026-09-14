@@ -134,9 +134,11 @@ Fable 模型的安全分类器标记的请求，最常见于网络安全和生�
 `/model` 通过在你的用户设置中写入 `model` 字段来保存你的选择作为新会话的默认值。在选择器中：
 
 * `Enter`：切换模型并保存为你的默认值
-* `s`：仅为此会话切换模型
+* `s`：仅为此会话切换模型并保持你的默认值不变。要使用不同的键，重新绑定 [`modelPicker:thisSessionOnly`](/docs/zh-CN/keybindings#model-picker-actions)
 
-直接输入 `/model <name>` 的行为类似于 `Enter`。如果你在[非交互模式](/docs/zh-CN/headless)中使用 `-p` 标志设置带有 `/model` 的模型，你的选择仅适用于当前会话，不会保存为你的默认值；该模式中的 `/model` 需要 Claude Code v2.1.205 或更高版本。项目和托管设置仍然优先，并在下次启动时重新应用。你的管理员配置的[组织默认模型](#organization-default-model)也会在下次启动时重新应用。
+直接输入 `/model <name>` 的行为类似于 `Enter`。要仅为此会话切换，请使用 `/model` 打开选择器，并在模型的行上按 `s`。
+
+如果你在[非交互模式](/docs/zh-CN/headless)中使用 `-p` 标志设置带有 `/model` 的模型，你的选择仅适用于当前会话，不会保存为你的默认值；该模式中的 `/model` 需要 Claude Code v2.1.205 或更高版本。项目和托管设置仍然优先，并在下次启动时重新应用。你的管理员配置的[组织默认模型](#organization-default-model)也会在下次启动时重新应用。
 
 在 v2.1.144 到 v2.1.152 中，`/model` 仅适用于当前会话，选择器中的 `d` 保存默认值。
 

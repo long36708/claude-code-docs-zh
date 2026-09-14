@@ -589,9 +589,9 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
   从 hooks 发出 HTTP 请求
 </h3>
 
-Hooks 可以执行异步操作，如 HTTP 请求。在您的 hook 内捕获错误，而不是让它们传播，因为未处理的异常可能会中断代理。
+Hooks 可以执行异步操作，如 HTTP 请求。在您的 hook 内捕获错误，而不是让它们传播。
 
-此示例在每个工具完成后发送 webhook，记录哪个工具运行以及何时运行。hook 捕获错误，以便失败的 webhook 不会中断代理：
+此示例在每个工具完成后发送 webhook，记录哪个工具运行以及何时运行。hook 捕获来自失败 webhook 的错误：
 
 <CodeGroup>
   ```python Python theme={null}
@@ -627,7 +627,7 @@ Hooks 可以执行异步操作，如 HTTP 请求。在您的 hook 内捕获错�
           # 在线程中运行阻塞 HTTP 调用以避免阻塞事件循环
           await asyncio.to_thread(_send_webhook, input_data["tool_name"])
       except Exception as e:
-          # 记录错误但不抛出。失败的 webhook 不应停止代理
+          # 记录错误但不抛出
           print(f"Webhook request failed: {e}")
 
       return {}
@@ -656,7 +656,7 @@ Hooks 可以执行异步操作，如 HTTP 请求。在您的 hook 内捕获错�
       if (error instanceof Error && error.name === "AbortError") {
         console.log("Webhook request cancelled");
       }
-      // 不重新抛出。失败的 webhook 不应停止代理
+      // 不重新抛出
     }
 
     return {};
@@ -901,7 +901,6 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 
 生成子代理的 `UserPromptSubmit` hook 如果这些子代理触发相同的 hook，可能会创建无限循环。要防止这种情况：
 
-* 在生成子代理前检查 hook 输入中的子代理指示符
 * 使用共享变量或会话状态来跟踪您是否已在子代理内
 * 将 hooks 范围限制为仅对顶级代理会话运行
 

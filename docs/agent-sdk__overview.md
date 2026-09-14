@@ -16,7 +16,7 @@ Agent SDK、CLI、Client SDK 和 Managed Agents 各自满足不同的需求。�
 
 | 如果您...                        | 使用                                                                                | 原因                                               |
 | ----------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------ |
-| 构建代理而不自己实现工具循环                | **Agent SDK**                                                                     | 一个在您自己的进程中运行代理循环的库，支持 Python 或 TypeScript。       |
+| 构建代理而不自己实现工具循环                | **Agent SDK**                                                                     | 一个为您运行代理循环的 Python 或 TypeScript 库。               |
 | 进行交互式开发或从终端运行一次性任务            | [**Claude Code CLI**](/docs/zh-CN/overview)                                            | 终端界面，为日常交互使用而构建。                                 |
 | 直接调用 API 并自己实现工具循环            | [**Client SDK**](https://platform.claude.com/docs/en/api/client-sdks)             | 直接访问 Anthropic API 而不是 Claude Code。您自己实现工具循环。    |
 | 运行长期运行或异步代理，无需管理您自己的沙箱或会话基础设施 | [**Managed Agents**](https://platform.claude.com/docs/en/managed-agents/overview) | 托管 REST API，是 Agent SDK 的独立产品。Anthropic 运行代理和沙箱。 |

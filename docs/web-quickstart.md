@@ -93,7 +93,7 @@ Claude Code 在任何地方的行为都相同。改变的是代码执行的位�
   从终端连接
 </h3>
 
-如果您已经使用 GitHub CLI (`gh`)，可以在不打开浏览器的情况下在网络上设置 Claude Code。这需要[Claude Code CLI](/docs/zh-CN/quickstart)。在 Team 和 Enterprise 计划上，只有在所有者打开[Quick web setup](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)后，`/web-setup` 才可用。
+如果您已经使用 GitHub CLI (`gh`)，可以从终端设置 Claude Code on the web。这需要[Claude Code CLI](/docs/zh-CN/quickstart)。在 Team 和 Enterprise 计划上，只有在所有者打开[Quick web setup](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)后，`/web-setup` 才可用。
 
 运行 `/web-setup` 时，Claude Code 读取 `gh auth token` 打印的令牌，要求您确认，并将令牌发送给 Anthropic。Anthropic 使用您的 claude.ai 账户加密存储它，您的云会话使用它进行 GitHub 访问，直到您[删除它](#remove-the-web-setup-token)。云会话随后可以访问该令牌可以访问的任何存储库，无需安装 Claude GitHub App。
 

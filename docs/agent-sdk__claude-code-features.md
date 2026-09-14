@@ -196,8 +196,6 @@ SDK 支持两种定义 hooks 的方式，它们并行运行：
 * **文件系统 hooks：** 在 `settings.json` 中定义的 shell 命令，当 `settingSources` 包含相关源时加载。这些与您为 [交互式 Claude Code 会话](/docs/zh-CN/hooks-guide) 配置的 hooks 相同。
 * **编程 hooks：** 直接传递给 `query()` 的回调函数。这些在您的应用程序进程中运行，可以返回结构化决策。请参阅 [使用 hooks 控制执行](/docs/zh-CN/agent-sdk/hooks)。
 
-两种类型在相同的 hook 生命周期中执行。如果您已经在项目的 `.claude/settings.json` 中有 hooks，并且您设置 `settingSources: ["project"]`，那些 hooks 会在 SDK 中自动运行，无需额外配置。
-
 Hook 回调接收工具输入并返回决策字典。返回 `{}` 意味着允许工具继续。要阻止执行，返回一个 `hookSpecificOutput` 对象，其中包含 `permissionDecision: "deny"` 和 `permissionDecisionReason`。原因会作为工具结果发送给 Claude。请参阅 [hooks 指南](/docs/zh-CN/agent-sdk/hooks) 了解完整的回调签名和返回类型。
 
 <CodeGroup>

@@ -116,7 +116,7 @@ cd api-service
 claude --cloud "Add retry logic to the payment webhook handler"
 ```
 
-会话从 GHES 克隆您的存储库，并将更改推送回分支。使用 `/tasks` 或在 [claude.ai/code](https://claude.ai/code) 监控进度。有关完整的云会话工作流（包括差异审查、自动修复和例程），请参阅 [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)。
+会话从 GHES 克隆您的存储库，并将更改推送回分支。在 [claude.ai/code](https://claude.ai/code) 监控进度。有关完整的云会话工作流（包括差异审查、自动修复和例程），请参阅 [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)。
 
 <h3 id="teleport-sessions-to-your-terminal">
   将会话 Teleport 到您的终端

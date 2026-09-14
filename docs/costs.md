@@ -222,11 +222,12 @@ API 组织通过[工作区](https://platform.claude.com/docs/en/build-with-claud
   当开发者询问限制时
 </h3>
 
-开发者通常会向他们的管理员提出限制问题，因此了解他们遇到的上限会很有帮助。这四种情况意味着不同的事情：
+开发者通常会向他们的管理员提出限制问题，因此了解他们遇到的上限会很有帮助。这些情况意味着不同的事情：
 
 * **"您已达到会话限制"或"您已达到每周限制"**：订阅计划上基于座位的使用窗口，在所有模型中共享，因此开发者无法通过使用 `/model` 切换模型来恢复访问权限。该消息显示窗口何时重置。在模型特定的"您已达到 Opus 限制"或"您已达到 Sonnet 限制"消息之后，使用 `/model` 切换到该系列之外的模型确实会让开发者继续工作。请参阅[使用限制错误](/docs/zh-CN/errors#youve-hit-your-session-limit)。开发者在此期间可以做什么：
   * 运行 `/usage-credits` 以请求超过额度的使用情况，如果您已启用[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)。
   * 在 Claude Code v2.1.234 或更高版本上，[在重置后自动等待并继续中断的任务](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)；该部分列出了 Claude Code 何时自动启动等待以及开发者何时从 `/rate-limit-options` 中选择它。要控制您的车队 Claude Code 是否自动启动该等待，请在[托管设置](/docs/zh-CN/settings#settings-precedence)中设置 [`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit)。
+* **"您已达到个人支出限制"、"组织的月度支出限制"或"团队的共享预算"**：开发者的请求将被计费到使用额度，这些额度已达到您设置的支出限制。要让开发者继续，请转到[**管理员设置 > 使用**](https://claude.ai/admin-settings/usage)并增加消息命名的限制。当消息还命名计划重置时间时，开发者可以改为等待直到那时。请参阅[错误参考](/docs/zh-CN/errors#youve-hit-your-monthly-spend-limit)了解每个变体。
 * **来自 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 的支出限制消息**：开发者超过了您在自托管网关上设置的支出上限，网关会阻止他们的请求，直到该期间重置或您提高上限。请参阅[网关支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)以了解上限、重置计划和开发者看到的消息。
 * **上下文或自动压缩警告**：不是使用限制。对话已接近会话的[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)，这是 Claude Code 总结较早历史以释放空间的阈值。将开发者指向[减少令牌使用](#reduce-token-usage)。
 * **API 或云提供商计划上的意外高支出**：通常可以追溯到从未清除的长会话或将 Opus 作为默认模型。要分享的最高影响习惯是在不相关的任务之间清除和将模型与工作相匹配，两者都在[减少令牌使用](#reduce-token-usage)中涵盖。

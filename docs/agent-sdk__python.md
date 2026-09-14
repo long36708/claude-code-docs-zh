@@ -513,7 +513,7 @@ class ClaudeSDKClient:
     async def receive_messages(self) -> AsyncIterator[Message]
     async def receive_response(self) -> AsyncIterator[Message]
     async def interrupt(self) -> None
-    async def set_permission_mode(self, mode: str) -> None
+    async def set_permission_mode(self, mode: PermissionMode) -> None
     async def set_model(self, model: str | None = None) -> None
     async def rewind_files(self, user_message_id: str) -> None
     async def get_mcp_status(self) -> McpStatusResponse
@@ -543,7 +543,7 @@ class ClaudeSDKClient:
 | `reconnect_mcp_server(server_name)`       | 重试连接到失败或断开连接的 MCP 服务器                                                                               |
 | `toggle_mcp_server(server_name, enabled)` | 在会话中启用或禁用 MCP 服务器。禁用会移除其工具                                                                          |
 | `stop_task(task_id)`                      | 停止运行的后台任务。一个状态为 `"stopped"` 的 [`TaskNotificationMessage`](#tasknotificationmessage) 随后在消息流中出现       |
-| `get_server_info()`                       | 获取服务器信息，包括会话 ID 和功能                                                                                 |
+| `get_server_info()`                       | 获取服务器的初始化信息，包括可用命令和输出样式                                                                             |
 | `disconnect()`                            | 从 Claude 断开连接                                                                                       |
 
 <h4 id="context-manager-support">
@@ -2006,7 +2006,14 @@ class TaskNotificationMessage(SystemMessage):
 所有内容块的联合类型。
 
 ```python theme={null}
-ContentBlock = TextBlock | ThinkingBlock | ToolUseBlock | ToolResultBlock
+ContentBlock = (
+    TextBlock
+    | ThinkingBlock
+    | ToolUseBlock
+    | ToolResultBlock
+    | ServerToolUseBlock
+    | ServerToolResultBlock
+)
 ```
 
 <h3 id="textblock">
@@ -3677,7 +3684,7 @@ class SandboxNetworkConfig(TypedDict, total=False):
 | `allowedDomains`          | `list[str]` | `[]`    | 沙箱化进程可以访问的域名                                                                               |
 | `deniedDomains`           | `list[str]` | `[]`    | 沙箱化进程无法访问的域名。优先于 `allowedDomains`                                                          |
 | `allowManagedDomainsOnly` | `bool`      | `False` | 仅限托管设置：在托管设置中设置时，忽略 `allowedDomains` 和来自非托管设置源的 `WebFetch(domain:...)` 允许规则。通过 SDK 选项设置时无效 |
-| `allowUnixSockets`        | `list[str]` | `[]`    | 进程可以访问的 Unix socket 路径（例如 Docker socket）                                                   |
+| `allowUnixSockets`        | `list[str]` | `[]`    | 仅限 macOS：进程可以访问的 Unix socket 路径，例如 Docker socket。在 Linux 上被忽略                              |
 | `allowAllUnixSockets`     | `bool`      | `False` | 允许访问所有 Unix sockets                                                                        |
 | `allowLocalBinding`       | `bool`      | `False` | 允许进程绑定到本地端口（例如开发服务器）                                                                       |
 | `allowMachLookup`         | `list[str]` | `[]`    | 仅限 macOS：允许的 XPC/Mach 服务名称。支持尾部通配符                                                         |

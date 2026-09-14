@@ -26,13 +26,14 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 
 在大多数终端中，您也可以按 Shift+Enter，但支持因终端模拟器而异：
 
-| 终端                                                                | Shift+Enter 换行               |
-| :---------------------------------------------------------------- | :--------------------------- |
-| Ghostty、Kitty、iTerm2、WezTerm、Warp、Apple Terminal、Windows Terminal | 无需设置即可工作                     |
-| VS Code、Cursor、Devin Desktop、Alacritty、Zed                        | 运行一次 `/terminal-setup`       |
-| gnome-terminal、JetBrains IDE（如 PyCharm 和 Android Studio）          | 不可用；使用 Ctrl+J 或 `\` 然后 Enter |
+| 终端                                                                | Shift+Enter 换行                         |
+| :---------------------------------------------------------------- | :------------------------------------- |
+| Ghostty、Kitty、iTerm2、WezTerm、Warp、Apple Terminal、Windows Terminal | 无需设置即可工作                               |
+| 支持 kitty 键盘协议的其他终端，例如 foot 和 Alacritty 0.16 或更高版本                 | 无需设置即可工作。需要 Claude Code v2.1.269 或更高版本 |
+| VS Code、Cursor、Devin Desktop、Alacritty 0.16 之前版本、Zed              | 运行一次 `/terminal-setup`                 |
+| gnome-terminal、JetBrains IDE（如 PyCharm 和 Android Studio）          | 不可用；使用 Ctrl+J 或 `\` 然后 Enter           |
 
-对于 VS Code、Cursor、Devin Desktop、Alacritty 和 Zed，`/terminal-setup` 会将 Shift+Enter 快捷键写入终端的配置文件。在第一次运行时，您会看到确认消息，例如 `Installed VSCode terminal Shift+Enter key binding`。现有绑定保持不变；如果您看到类似 `VSCode terminal Shift+Enter key binding already configured` 的消息，则未进行任何更改。在主机终端中直接运行 `/terminal-setup`，而不是在 tmux 或 screen 内运行，因为它需要写入主机终端的配置。
+对于 VS Code、Cursor、Devin Desktop、Alacritty 0.16 之前版本和 Zed，`/terminal-setup` 会将 Shift+Enter 快捷键写入终端的配置文件。在第一次运行时，您会看到确认消息，例如 `Installed VSCode terminal Shift+Enter key binding`。现有绑定保持不变；如果您看到类似 `VSCode terminal Shift+Enter key binding already configured` 的消息，则未进行任何更改。在主机终端中直接运行 `/terminal-setup`，而不是在 tmux 或 screen 内运行，因为它需要写入主机终端的配置。
 
 在 VS Code、Cursor 和 Devin Desktop 中，`/terminal-setup` 还会更新两个编辑器设置：它将 `terminal.integrated.gpuAcceleration` 设置为 `"off"` 以防止集成终端中的文本乱码，并设置 `terminal.integrated.mouseWheelScrollSensitivity` 以在[全屏模式](/docs/zh-CN/fullscreen)中实现更平滑的滚动。要撤销 GPU 加速更改，请将其设置回 `"auto"` 并重新加载编辑器窗口。
 

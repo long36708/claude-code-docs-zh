@@ -18,24 +18,24 @@ Claude 应用网关部署由一个 YAML 文件配置，按惯例命名为 `gatew
   文件结构
 </h2>
 
-五个部分是[必需的](#required-sections)。所有其他部分都是[可选的](#optional-sections)，省略的部分采用其默认值。未知的键会导致启动失败，因此拼写错误会显示为命名错误，而不是被静默忽略的设置。
+五个部分是[必需的](#required-sections)。其他所有部分都是[可选的](#optional-sections)，省略的部分采用其默认值。未知的键会导致启动失败，因此拼写错误会显示为命名错误，而不是被静默忽略的设置。
 
 **必需部分：**
 
 * [`listen`](#listen)：绑定地址、公共 URL、TLS 终止
-* [`oidc`](#oidc)：你的身份提供者 (IdP)，包括发行者、客户端、声明映射和谁可以登录
+* [`oidc`](#oidc)：您的身份提供商 (IdP)，包括颁发者、客户端、声明映射以及谁可以登录
 * [`session`](#session)：网关铸造的持有者令牌，包括密钥和生命周期
 * [`store`](#store)：PostgreSQL，用于设备授权和速率限制计数器
-* [`upstreams`](#upstreams)：推理去往何处，无论是 Anthropic、Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 还是 Microsoft Foundry
+* [`upstreams`](#upstreams)：推理的去向，无论是 Anthropic、Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 还是 Microsoft Foundry
 
 **可选部分：**
 
 * [`admin`](#admin)：Admin API 身份验证和支出限制的保留
 * [`enforcement`](#enforcement)：支出限制故障开放或故障关闭行为
-* [`pricing`](#pricing)：合同费率和支出计量的折扣乘数
-* [`models`](#models) 和 `auto_include_builtin_models`：管理员策划的模型列表和每个上游的 ID
+* [`pricing`](#pricing)：合同费率和支出计量器的折扣乘数以及开发人员看到的成本数字的折扣乘数
+* [`models`](#models) 和 `auto_include_builtin_models`：管理员策划的模型列表和每个上游 ID
 * [`managed`](#managed)：按 IdP 组的托管设置策略
-* [`telemetry`](#telemetry)：OTLP 转发到你的可观测性堆栈
+* [`telemetry`](#telemetry)：OTLP 转发到您的可观测性堆栈
 * [`access_control`、`limits`、`timeouts`、`rate_limits`](#http-tuning)：IP 允许/拒绝、请求大小上限、上游首字节时间和每 IP 登录限制
 
 <h2 id="secret-expansion">
@@ -136,7 +136,11 @@ OpenID Connect (OIDC) 是网关与你的身份提供者一起使用的 SSO 协�
   `upstreams`
 </h3>
 
-`upstreams` 是一个有序列表。网关将推理转发到解析请求的模型的第一个上游。在 `5xx`、`429`、`401`、`403`、`404` 或超时时，它故障转移到下一个；其他 `4xx` 不会，因为这些错误归因于请求而不是上游。`401` 或 `403` 意味着网关自己的凭证对该上游失败，`404` 意味着该上游不服务请求的模型，因此列表中的后续上游仍然可以。
+`upstreams` 是一个有序列表。网关将推理转发到解析请求的模型的第一个上游。
+
+在 `5xx`、`429`、`401`、`403`、`404` 或超时时，网关故障转移到下一个上游；其他 `4xx` 不会，因为这些错误归因于请求而不是上游。`401` 或 `403` 意味着网关自己的凭证对该上游失败。`404` 意味着该上游不服务请求的模型，因此列表中的后续上游仍然可以。
+
+如果你在上游上设置 `forward_user_identity: true`，它返回给携带开发者电子邮件的请求的 `429` 不会故障转移。请参阅[如何每用户限制拒绝到达开发者](#per-user-identity-headers-for-a-proxy-you-run)。
 
 在 `404` 上故障转移需要网关 v2.1.198 或更高版本。早期版本即使列表中的后续上游服务该模型，也会将第一个 `404` 返回给客户端。
 
@@ -227,6 +231,8 @@ upstreams:
 | `x-claude-gateway-user-email` | 开发者的电子邮件，当 IdP 提供时。         |
 
 当 IdP 令牌不携带电子邮件时，网关仅发送 `x-claude-gateway-user-id` 并省略两个电子邮件头。如果你的 IdP 将电子邮件放在不同的声明中，将 [`oidc.email_claim`](#oidc) 设置为该声明。
+
+当你的代理答复 `429` 给携带开发者电子邮件的请求时，网关将该响应按原样返回给开发者，而不是故障转移到下一个上游，因此你的代理的每用户预算或速率限制保持。代理的其他响应遵循普通[故障转移规则](#upstreams)。如果开发者的 IdP 令牌不携带电子邮件，网关转发他们的请求而不带电子邮件头，因此对其中一个请求的 `429` 计为上游容量并故障转移。在网关服务器上的 v2.1.267 之前，每个 `429` 都故障转移。
 
 仅在 `base_url` 是你操作的代理的上游上设置 `forward_user_identity`。网关将开发者电子邮件发送到该 `base_url` 命名的任何服务器。如果 `base_url` 是 Anthropic API（这是默认值），网关拒绝启动。
 
@@ -367,7 +373,9 @@ upstreams:
 
 网关按顺序尝试上游。`5xx`、`429`、`401`、`403`、`404`、超时和缺失端点（`501`）故障转移；其他 `4xx` 不会。
 
-`429` 是每上游容量，因此预配吞吐量 (PT) 耗尽故障转移到按需。`404` 是每上游模型可用性，因此未启用模型的上游不会阻止服务它的后续上游。无法解析请求的模型的上游被跳过，无需网络往返。
+`429` 是每上游容量，因此预配吞吐量 (PT) 耗尽故障转移到按需。如果你在上游上设置 [`forward_user_identity: true`](#per-user-identity-headers-for-a-proxy-you-run)，对携带开发者电子邮件的请求的 `429` 是每用户拒绝而不是故障转移。
+
+`404` 是每上游模型可用性，因此未启用模型的上游不会阻止服务它的后续上游。无法解析请求的模型的上游被跳过，无需网络往返。
 
 此示例首先路由预配吞吐量 Bedrock 分配，溢出到按需和第二个帐户，最后回退到 Anthropic API：
 
@@ -473,7 +481,7 @@ admin:
 `pricing` 块告诉支出计量器要收费什么而不是美元列表价格，因此上限和 [`/effective`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Feffective) 反映你的合同费率。金额保持为美元并保持为估计值，而不是发票。两个先决条件：
 
 * 网关服务器上的 Claude Code v2.1.227 或更高版本。早期版本在启动时拒绝未知密钥。
-* [`admin:`](#admin) 块，因为只有支出计量器读取 `pricing`。网关拒绝在设置 `pricing` 且没有 `admin` 的情况下启动。
+* [`admin:`](#admin) 块或在 v2.1.268 或更高版本中，一个 [`managed:`](#managed) 块，至少有一个策略。网关拒绝在设置 `pricing` 且没有任何块的情况下启动，因为没有东西会读取它。
 
 ```yaml theme={null}
 pricing:
@@ -487,10 +495,10 @@ pricing:
       cache_write: 4.125
 ```
 
-| 字段           | 必需 | 描述                                                                                          |
-| ------------ | -- | ------------------------------------------------------------------------------------------- |
-| `multiplier` | 否  | 默认 `1`。计量器将每个计量金额乘以此值，无论是列表价格还是覆盖，因此 `0.85` 按价格的 85% 计费。必须大于 0 且最多为 1。                      |
-| `overrides`  | 否  | `{upstream, model, input, output, cache_read, cache_write}` 的行，单位为美元每百万令牌。所有四个费率都是必需的且必须为正。 |
+| 字段           | 必需 | 描述                                                                                                         |
+| ------------ | -- | ---------------------------------------------------------------------------------------------------------- |
+| `multiplier` | 否  | 默认 `1`。计量器将每个计量金额乘以此值，无论是列表价格还是覆盖，因此 `0.85` 按价格的 85% 计费。必须大于 0 且最多为 1。                                     |
+| `overrides`  | 否  | `{upstream, model, input, output, cache_read, cache_write}` 的行，单位为美元每百万令牌。所有四个费率都是必需的。每个必须大于 0 且最多为 10000。 |
 
 计量器如何匹配覆盖行：
 
@@ -501,6 +509,16 @@ pricing:
 * Web 搜索请求保持在 \$0.01 列表价格；乘数仍然适用于它们。
 
 对于按地区费率，为每个地区提供自己的命名上游和每个上游一行。
+
+<h4 id="send-the-rates-to-signed-in-clients">
+  将费率发送给已登录的客户端
+</h4>
+
+在网关服务器上使用 v2.1.268 或更高版本，网关还将 `pricing` 中的费率放入它提供的 [`managed`](#managed) 策略中，作为 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 托管设置。由策略匹配的开发者然后在 `/usage`、状态行和 OpenTelemetry 中看到第一个为每个模型 ID 提供服务的上游的 `pricing` 费率。与任何策略不匹配的开发者不接收托管设置，因此他们的数字保持在列表价格。客户端在 Claude Code v2.1.242 或更高版本中应用该设置。
+
+* 网关添加的内容：除非策略的 `cli` 块已经设置 `modelPricing`，网关添加 `multiplier` 和，对于客户端可以请求的每个模型 ID，第一个为该 ID 提供服务的上游的覆盖行。仅故障转移上游收费的费率保持在网关上。
+* 选择一个策略退出：在该策略的 `cli` 块中将 `modelPricing` 设置为 `{}`，其开发者保持在列表价格。
+* 保持策略自己的费率：其 `cli` 块使用自己的 `multiplier` 或 `overrides` 设置 `modelPricing` 的策略保持该 `modelPricing` 完整，网关不添加自己的费率到它。
 
 <h3 id="models">
   `models`
@@ -696,7 +714,7 @@ Claude Code 应用一些交付的 `env` 变量而不显示开发者批准对话�
 * 模型列表，来自 `availableModels`
 * 禁用的工具，来自裸工具名称 `permissions.deny` 条目。如果你在策略的 `desktop` 块中设置 `disabledBuiltinTools`，网关提供你的值和派生列表的并集，因此你可以通过这种方式禁用更多工具，但不能重新启用你通过 `permissions.deny` 禁用的工具
 * 出口允许列表，来自 `sandbox.network.allowedDomains`。如果你在策略的 `desktop` 块中设置 `coworkEgressAllowedHosts`，网关使用该值而不是派生列表
-* 指向网关本身的 OTLP 端点，它扇出到你的目标，在配置 [`telemetry`](#telemetry) 转发时包括。
+* 指向网关本身的 OTLP 端点，以及已登录用户的身份属性。网关将它在该端点接收的导出中继到你的 `forward_to` 目标。当你同时设置 [`telemetry.forward_to`](#telemetry) 和 `listen.public_url` 时，它包括端点和属性。
 
   Claude Desktop 以一种编码导出每个信号：`http/protobuf`，或当你在策略的 `env` 中设置 `OTEL_EXPORTER_OTLP_PROTOCOL` 或其每信号变体为 `http/json` 时为 `http/json`。在网关服务器上的 Claude Code v2.1.261 之前，响应设置 `http/json` 无论如何，因此仅接受 protobuf 的收集器拒绝 Claude Desktop 的导出
 
@@ -754,9 +772,17 @@ managed:
   `telemetry`
 </h3>
 
-CLI 通过 HTTP 指标、日志和（启用时）跟踪将 OpenTelemetry Protocol (OTLP) 发送到网关，网关逐字中继到每个配置的目标。有关 CLI 发出的指标和事件，请参阅[监控使用](/docs/zh-CN/monitoring-usage)。
+CLI 通过 HTTP 指标、日志和（启用时）跟踪将 OpenTelemetry Protocol (OTLP) 发送到网关，网关逐字中继到每个配置的目标。导出使用 OpenTelemetry Protocol (OTLP) over HTTP。要跳过中继并让会话直接导出到你的收集器，[在策略中命名收集器](#export-directly-to-your-collector)。有关 CLI 发出的指标和事件，请参阅[监控使用](/docs/zh-CN/monitoring-usage)。
 
 CLI 使用从网关发出的 JWT 读取的已认证用户的身份戳记每个导出：`user.id`、`user.email` 和 `user.groups` 属性。每开发者成本和使用归因因此在没有开发者端配置的情况下工作。
+
+[Claude Desktop](#claude-desktop-overlay) 和通过网关登录的 Cowork 会话使用 `user.email` 和 `user.groups` 以及 `enduser.id` 戳记其遥测，因此你可以使用一个关于 `user.email` 或 `user.groups` 的查询覆盖终端、Desktop 和 Cowork 使用。`user.groups` 是逗号分隔的 IdP 组列表。
+
+像来自 Claude Code 的所有 OpenTelemetry 数据一样，这些属性仅去往你的组织配置的目标，从不去往 Anthropic。
+
+如果用户的组列表在百分比编码后长于 255 个字符，或组名包含逗号或等号，网关从该用户的 Desktop 和 Cowork 遥测中省略 `user.groups`，而不是截断它。该用户的终端会话仍然携带完整列表。
+
+你需要网关服务器上的 Claude Code v2.1.265 或更高版本用于 Desktop 和 Cowork 遥测上的 `user.email` 和 `user.groups`，以及每个开发者机器上的 Claude Desktop 1.24012 或更高版本用于 `user.groups`。
 
 ```yaml theme={null}
 telemetry:
@@ -789,20 +815,66 @@ telemetry:
 
 对于集群内收集器，在其自己的内部地址上公开它通过 HTTPS，或将其作为设置变量的边车运行。
 
-遥测在 CLI 中默认关闭。将 `telemetry.forward_to` 与 `listen.public_url` 一起配置会打开它。网关通过 `/managed/settings` 推送六个环境变量到每个连接的客户端：
+遥测在 CLI 中默认关闭。当你同时设置 `telemetry.forward_to` 和 `listen.public_url` 时，网关通过 `/managed/settings` 为连接的客户端打开它，推送六个环境变量：
 
 * `CLAUDE_CODE_ENABLE_TELEMETRY=1`
-* `OTEL_METRICS_EXPORTER=otlp`
-* `OTEL_LOGS_EXPORTER=otlp`
-* `OTEL_TRACES_EXPORTER=otlp`
+* `OTEL_METRICS_EXPORTER`、`OTEL_LOGS_EXPORTER` 和 `OTEL_TRACES_EXPORTER`，如果至少一个 `forward_to` 目标启用该信号，每个设置为 `otlp`，否则设置为 `none`
 * `OTEL_EXPORTER_OTLP_ENDPOINT=<public_url>`
 * `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`
 
-推送的端点从公共 URL 构建，因此指标和日志不需要来自开发者或策略的 OTEL 配置。推送的配置在托管层应用，覆盖开发者在本地设置的 `OTEL_*` 变量。无论网关是否推送这些变量，通过 `/login` 登录的 CLI 启用了 OTLP/HTTP 导出会将其导出发送到网关而不是本地配置的端点，没有信号的 `forward_to` 目标网关接受并丢弃它；如果你已经直接收集 Claude Code 遥测，添加你的收集器作为 `forward_to` 目标。
+在网关服务器上的 Claude Code v2.1.265 之前，网关将所有三个导出器选择器推送为 `otlp`，包括对于没有目标选择加入的信号。
 
-[跟踪](/docs/zh-CN/monitoring-usage#traces-beta)另外需要每个客户端上的 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`。网关不推送该变量，因此通过托管策略的 `env` 块设置它。它不在 Claude Code 应用而不需要开发者批准的变量中，因此通过策略交付它由推送的 OTLP 端点已经触发的相同[安全批准对话](#managed)覆盖。
+推送的端点从公共 URL 构建，因此指标和日志不需要来自开发者或策略的 OTEL 配置。
+
+通过 `/login` 登录的开发者无法使用自己的 OTEL 配置重定向导出：
+
+* **本地设置的变量**：Claude Code 在托管层应用推送的变量，因此每个变量覆盖开发者为其本地设置的值。
+* **本地配置的端点**：启用了 OTLP/HTTP 导出，CLI 忽略任何本地配置的端点，无论网关是否推送遥测变量。其导出去往网关，除非策略[将你的收集器命名为端点](#export-directly-to-your-collector)。
+
+没有信号的 `forward_to` 目标，网关接受并丢弃它。如果开发者已经直接导出 Claude Code 遥测到你的一个收集器，将其添加为 `forward_to` 目标，如果他们导出那些，启用日志或跟踪，因此它在他们登录后继续接收他们的数据。要跳过中继，[在策略中命名收集器](#export-directly-to-your-collector)。
+
+[跟踪](/docs/zh-CN/monitoring-usage#traces-beta)另外需要每个客户端上的 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`。在托管策略的 `env` 块中设置它，因为网关不推送它。开发者在推送的端点已经触发的相同[安全批准对话](#managed)中批准它。
+
+仅在你想要跟踪的组的策略中将其设置为 `1`。不设置它的策略从你的 `match: {}` 捕获所有策略继承值，如果该策略设置一个，根据[合并规则](#managed)。要防止组的客户端发送跟踪，即使开发者在本地设置变量，在该组的策略中将其设置为 `0`。
 
 protobuf 和 JSON OTLP 编码都被中继，任何 OpenTelemetry 兼容的后端都可以作为目标。
+
+<h4 id="export-directly-to-your-collector">
+  直接导出到你的收集器
+</h4>
+
+要让通过 `/login` 登录的会话直接将遥测发送到你的收集器而不是通过中继，在[托管策略](#managed)的 `env` 块中将 `OTEL_EXPORTER_OTLP_ENDPOINT` 设置为收集器的 `https://` 基础 URL。Claude Code 将 `/v1/metrics`、`/v1/logs` 或 `/v1/traces` 附加到你设置的 URL，如 `https://otel-collector.example.com:4318`，并在那里通过 OTLP/HTTP 导出每个信号。需要每个开发者机器上的 Claude Code v2.1.265 或更高版本。早期客户端通过中继导出。
+
+要向收集器进行身份验证，在同一 `env` 块中设置 `OTEL_EXPORTER_OTLP_HEADERS`。会话从不将开发者的网关会话令牌发送到以这种方式命名的收集器。
+
+当你在策略中添加或更改此端点时，Claude Code 在[安全批准对话](#managed)中要求每个开发者批准它，然后在交互式会话中应用它。
+
+Claude Code 在直接导出信号之前检查端点，并在检查失败时将该信号保持在中继上。检查包括：
+
+* 端点来自网关本身。如果你在 MDM 配置文件或本地 `managed-settings.json` 中设置相同的变量，导出保持在中继上。
+* URL 使用 `https://`，或 `http://` 到环回地址
+* URL 解析为以 `/v1/<signal>` 结尾的路径，没有查询或片段。Claude Code 从通用变量本身构建该路径。它使用每信号变量如 `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` 如写的那样，因此在那里包括完整路径。
+* URL 不是网关自己的主机。寻址到网关的端点保持中继路径和其会话令牌。
+* 你和开发者都没有在任何设置来源中配置 [`otelHeadersHelper`](/docs/zh-CN/settings-reference#otelheadershelper)。配置了助手，每个信号保持在中继上。
+
+你命名的端点仅改变导出去往何处。你仍然使用 `OTEL_*_EXPORTER` 选择器选择哪些信号导出。
+
+端点单独不打开导出，因此也设置做的变量，除非网关已经推送它们：
+
+* 如果网关已经[推送遥测变量](#telemetry)，它们覆盖启用、选择器和协议，你的显式端点覆盖推送的 `<public_url>` 值。仅为没有 `forward_to` 目标启用的信号自己设置 `OTEL_*_EXPORTER` 选择器为 `otlp`。
+* 如果它没有，也设置 `CLAUDE_CODE_ENABLE_TELEMETRY=1`、`OTEL_*_EXPORTER` 选择器和 `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`。
+
+当开发者登出，或登入到不同的网关，导出到收集器停止，Claude Code 删除每个剩余批次而不是发送它。
+
+<h4 id="when-a-destination-fails">
+  当目标失败时
+</h4>
+
+网关不缓冲、重试或存储遥测，因此它删除不到达目标的导出而不是晚期交付它。每个目标独立成功或失败，导出客户端无论如何接收成功响应，因此失败的交付仅在网关的日志中出现。
+
+在五次连续失败交付到目标后，网关在 30 秒的拉伸中暂停转发到它，记录每个暂停，直到交付成功。任何错误响应、超时或连接错误计为失败的交付，除了 `400`、`413`、`415`、`422` 和 `431`，这意味着收集器拒绝该导出的有效负载为格式错误或太大。
+
+被拒绝的有效负载既不推进也不重置失败计数：网关继续转发到目标并记录警告，命名它和状态，在目标的第一次拒绝和之后每一百次。
 
 <h3 id="http-tuning">
   HTTP 调整
@@ -984,13 +1056,7 @@ telemetry:
 
 `parentSettingsBehavior: "merge"` 保持 Claude Desktop 向其嵌入式 Claude Code 会话传递出站允许列表的功能；[向 Claude Desktop 会话传递策略](/docs/zh-CN/claude-apps-gateway#deliver-policy-to-claude-desktop-sessions)解释了该机制以及选择加入必须位于的位置。
 
-将 `managed-settings.json` 文件部署到每个设备，通常通过你的 MDM 平台。文件路径因平台而异：
-
-| 平台          | 路径                                                                                                  |
-| ----------- | --------------------------------------------------------------------------------------------------- |
-| macOS       | `/Library/Application Support/ClaudeCode/managed-settings.json`，或 `com.anthropic.claudecode` 托管首选项域 |
-| Linux 和 WSL | `/etc/claude-code/managed-settings.json`                                                            |
-| Windows     | `C:\Program Files\ClaudeCode\managed-settings.json`，或通过 HKLM 注册表的组策略                                |
+将 `managed-settings.json` 文件部署到每个设备，通常通过你的 MDM 平台。文件路径因平台而异。请参阅[每个机制存储策略的位置](/docs/zh-CN/managed-settings#where-each-mechanism-stores-the-policy)。
 
 默认情况下，Windows 上的注册表策略或 macOS 上的托管首选项 plist 会替换 `managed-settings.json` 文件而不是与其合并，除了[上面的例外密钥和跨源检查](#precedence-with-other-managed-sources)。此代码片段中的所有三个密钥都遵循最高优先级源规则，因此通过组策略或配置文件传递策略的团队必须改为将所有三个密钥放在该机制中。
 

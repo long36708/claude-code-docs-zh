@@ -116,13 +116,20 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
   * 在 Customize 部分中选择 **Output styles** 来选择[输出样式](/docs/zh-CN/output-styles)，包括您的自定义样式。需要 Claude Code v2.1.257 或更高版本。
 
     要创建自定义样式，请从 **Output styles** 菜单中选择 **Build a custom style**。Claude Code 会在项目或用户级别为您编写[样式文件](/docs/zh-CN/output-styles#create-a-custom-output-style)。需要 Claude Code v2.1.261 或更高版本。
+  * 在 Customize 部分中选择 **Hooks** 来查看[hooks](/docs/zh-CN/hooks)在会话中加载，按事件分组。您可以添加、编辑或删除保存在您的用户、项目和本地设置文件中的 hooks。来自其他来源的 Hooks，例如托管设置或插件，是只读的。需要 Claude Code v2.1.269 或更高版本。
+  * 在 Customize 部分中选择 **Permissions** 来查看会话的[权限规则](/docs/zh-CN/permissions)，分组为 Allow、Ask 和 Deny。您可以向您的用户、项目或本地设置添加规则，并删除保存在那里的规则。来自其他来源的规则，例如托管设置或仅为此会话进行的批准，是只读的。需要 Claude Code v2.1.269 或更高版本。
   * Settings 部分包括 **Enable Remote Control for all sessions**，它设置 [`remoteControlAtStartup`](/docs/zh-CN/settings-reference#remotecontrolatstartup) 来控制[新的交互式会话是否自动连接到 Remote Control](/docs/zh-CN/remote-control#enable-remote-control-for-all-sessions)。需要 Claude Code v2.1.203 或更高版本。
 
     当您在 VS Code 窗口中打开或关闭切换开关时，更改适用于该 VS Code 窗口中已打开的会话，而不仅仅是您之后启动的会话。如果您关闭它，打开的会话将断开连接。使用 Claude Code v2.1.261 或更高版本，更改也会到达您其他 VS Code 窗口中打开的会话。
-  * Settings 部分还包括 **Focus view**，它隐藏工具调用、工具结果和思考在可展开的行后面，只留下您的提示和 Claude 的响应。Claude 的最新待办事项列表保持可见，Claude 提出的待处理问题的文本也保持可见；这需要 Claude Code v2.1.225 或更高版本。在那里切换它，使用 `Ctrl+Option+F`（Mac）/ `Ctrl+Alt+F`（Windows/Linux），或从命令面板使用 **Claude Code: Toggle Focus view**。更改适用于每个打开的会话并在会话之间持续。需要 Claude Code v2.1.221 或更高版本。
+  * Settings 部分还包括 **Focus view**，它隐藏工具调用、工具结果和思考在可展开的行后面，只留下您的提示和 Claude 的响应。在那里切换它，使用 `Ctrl+Option+F`（Mac）/ `Ctrl+Alt+F`（Windows/Linux），或从命令面板使用 **Claude Code: Toggle Focus view**。更改适用于每个打开的会话并在会话之间持续。需要 Claude Code v2.1.221 或更高版本。
+
+    Claude 的最新待办事项列表保持可见，Claude 提出的待处理问题的文本也保持可见；这需要 Claude Code v2.1.225 或更高版本。当 Claude 运行[子代理](/docs/zh-CN/sub-agents)时，带有其最新活动的实时进度行出现在启动它们的工具调用组下。这需要 Claude Code v2.1.269 或更高版本。
   * 要报告错误，请点击菜单底部的 **Report a problem**，或输入 `/bug` 或 `/feedback` 以及可选的描述来预填充报告。当您提交报告并且您在第一方连接上登录到 Anthropic 时，Claude Code 会将其发送给 Anthropic。在第三方提供商上，或没有 Anthropic 凭证的情况下，对话框仍会打开，但提交会显示错误并不发送任何内容：与 CLI 的 `/bug` 不同，扩展程序不会写入本地存档。需要 Claude Code v2.1.229 或更高版本。
 * **Side questions**：输入 `/btw` 后跟一个问题来提问您的会话[而不添加到对话](/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw)。答案在聊天旁边的面板中打开，您可以在其中提出后续问题。线程在窗口重新加载后仍然存在。Claude Code 保留最新的 20 个交换，并根据 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 计划过期存储的线程，只要 Claude Code 可以[安全地确定保留期](/docs/zh-CN/claude-directory#cleaned-up-automatically)。要清除线程，请点击面板中的垃圾箱图标。需要 Claude Code v2.1.227 或更高版本。
 * **Context indicator**：提示框显示您使用了多少 Claude 的上下文窗口。Claude 在需要时自动压缩，或者您可以手动运行 `/compact`。
+* **Agent map**：当对话包括[子代理](/docs/zh-CN/sub-agents)时，代理计数（例如 **2 agents**）出现在提示框的底部。其点显示任何子代理是否正在工作或等待您的权限。
+
+  点击代理计数来打开代理地图，它将对话的子代理绘制为主代理下的树，每个都有其状态、经过的时间和令牌计数。点击子代理来查看其提示和工具调用、打开其只读记录，或在其运行时停止它。需要 Claude Code v2.1.269 或更高版本。
 * **Extended thinking**：让 Claude 花更多时间推理复杂问题。通过命令菜单（`/`）打开它。Claude 的推理在对话中显示为折叠块：点击一个块来阅读它，或按 `Ctrl+O` 来展开或折叠会话中的每个思考块。有关详细信息，请参阅[Extended thinking](/docs/zh-CN/model-config#extended-thinking)。
 * **Multi-line input**：按 `Shift+Enter` 添加新行而不发送。这也适用于问题对话框的"Other"自由文本输入。
 
@@ -139,7 +146,7 @@ What's in @src/components/ (include a trailing slash for folders)
 
 对于大型 PDF，您可以要求 Claude 读取特定页面而不是整个文件：单个页面、范围如第 1-10 页，或开放式范围如第 3 页及以后。
 
-当您在编辑器中选择文本时，Claude 可以自动看到您突出显示的代码。提示框页脚显示选择了多少行。按 `Option+K`（Mac）/ `Alt+K`（Windows/Linux）来插入带有文件路径和行号的 @-mention（例如 `@app.ts#5-10`）。点击选择指示器来切换 Claude 是否可以看到您突出显示的文本 - 眼睛斜线图标表示选择对 Claude 隐藏。
+当您在编辑器中选择文本时，Claude 可以自动看到您突出显示的代码。提示框页脚显示选择了多少行。按 `Option+K`（Mac）/ `Alt+K`（Windows/Linux）来插入带有文件路径和行号的 @-mention（例如 `@app.ts#5-10`）。点击选择指示器上的 **X** 来删除它，这样 Claude 就不会收到选择。当您选择其他文本或切换到不同的文件时，指示器会重新出现。
 
 要附加图像，请从剪贴板将其粘贴到提示框中。您也可以在将文件拖入提示框时按住 `Shift` 来将它们添加为附件。点击任何附件上的 X 来从上下文中删除它。
 
@@ -238,7 +245,7 @@ What's in @src/components/ (include a trailing slash for folders)
 
 * **对会话进行分组或取消分组**：右键单击会话以从其创建组、将其移动到现有组或将其从其组中删除。每个会话一次只属于一个组，因此将其移动到另一个组会将其从第一个组中删除。
 * **一次移动多个会话**：`Cmd`-单击（Mac）/ `Ctrl`-单击（Windows/Linux）每个会话，或 `Shift`-单击以选择范围，然后右键单击选择。
-* **从其选项卡对会话进行分组**：从命令面板运行 **Claude Code: Add Session Tab to Group**，或右键单击会话的编辑器选项卡，然后选择或创建组。需要 Claude Code v2.1.257 或更高版本。
+* **从其选项卡对会话进行分组**：从命令面板运行 **Claude Code: Add Session Tab to Group**，然后选择或创建组。需要 Claude Code v2.1.257 或更高版本。
 * **重命名或删除组**：右键单击组标题。删除组仅删除组，其会话返回到未分组列表。
 
 该扩展按工作区文件夹保存组，因此它们在窗口重新加载后仍然存在，并在您打开相同文件夹的每个窗口中出现。当您搜索列表时，该扩展在所有组中的一个平面列表中显示匹配项。
@@ -359,9 +366,9 @@ Claude 为浏览器任务打开新标签页并共享您浏览器的登录状态�
 | Reopen Closed Session      | `Cmd+Shift+T` (Mac) / `Ctrl+Shift+T` (Windows/Linux)     | 重新打开最近关闭的 Claude 会话选项卡。当最后关闭的选项卡不是 Claude 会话时，会回退到 VS Code 的正常重新打开关闭编辑器功能。使用 `enableReopenClosedSessionShortcut` 禁用 |
 | Insert @-Mention Reference | `Option+K` (Mac) / `Alt+K` (Windows/Linux)               | 插入对当前文件和选择的引用（需要编辑器处于焦点状态）                                                                                          |
 | Toggle Focus view          | `Ctrl+Option+F` (Mac) / `Ctrl+Alt+F` (Windows/Linux)     | 隐藏或显示对话中的工具活动。在 Claude 面板或侧边栏可见时有效。需要 Claude Code v2.1.221 或更高版本                                                    |
-| Rename Session Tab         | -                                                        | 重命名活动 Claude 选项卡中的会话。该命令也出现在选项卡的右键菜单中。需要 Claude Code v2.1.257 或更高版本                                                 |
-| Add Session Tab to Group   | -                                                        | 将活动 Claude 选项卡中的会话添加到您选择或创建的[会话组](#organize-sessions-into-groups)。该命令也出现在选项卡的右键菜单中。需要 Claude Code v2.1.257 或更高版本    |
-| Mark Session as Unread     | -                                                        | 在会话列表中将活动 Claude 选项卡中的会话标记为未读。该命令也出现在选项卡的右键菜单中。需要 Claude Code v2.1.257 或更高版本                                        |
+| Rename Session Tab         | -                                                        | 重命名活动 Claude 选项卡中的会话。需要 Claude Code v2.1.257 或更高版本                                                                  |
+| Add Session Tab to Group   | -                                                        | 将活动 Claude 选项卡中的会话添加到您选择或创建的[会话组](#organize-sessions-into-groups)。需要 Claude Code v2.1.257 或更高版本                     |
+| Mark Session as Unread     | -                                                        | 在会话列表中将活动 Claude 选项卡中的会话标记为未读。需要 Claude Code v2.1.257 或更高版本                                                         |
 | Show Logs                  | -                                                        | 查看扩展调试日志                                                                                                            |
 | Logout                     | -                                                        | 登出您的 Anthropic 账户                                                                                                   |
 

@@ -83,9 +83,7 @@ Desktop 在每次 WSL 会话启动时读取策略，因此在部署后无需重�
 启用 WSL 会话后，将您的托管设置扩展到它们：
 
 * 通过 HKLM 注册表或 `C:\Program Files\ClaudeCode` 文件部署 `wslInheritsWindowsSettings: true`，以便 WSL 会话继承与主机会话相同的策略。
-* 通过在 WSL 会话内运行 `/status` 进行验证，并读取 `Setting sources` 行。Claude Code 仅命名[它选择的托管来源](/docs/zh-CN/server-managed-settings#settings-precedence)，因此该行告诉您的内容取决于会话：
-  * **在[获取 server-managed 设置](/docs/zh-CN/server-managed-settings#platform-availability)并接收任何键的会话中**：`Enterprise managed settings (remote)`，因为 Claude Code 在 Windows 来源之前选择它们，所以该行不显示标志是否到达。
-  * **在任何其他会话中**：`Enterprise managed settings (HKLM)` 确认注册表部署。`(file)` 命名 Windows 文件或发行版自己的 `/etc/claude-code/managed-settings.json`，因此仅当发行版没有自己的托管文件时才确认 Windows 文件部署。
+* 通过在 WSL 会话内运行 `/status` 进行验证，并读取 `Setting sources` 行。要解释它列出的内容，请参阅[在 /status 中读取来源](/docs/zh-CN/managed-settings#read-the-source-in-/status)。
 
 WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见。要观察发行版内的进程和文件活动，请查看您的端点检测供应商的 WSL 指南，了解您可以在发行版内运行的 Linux 传感器及其需要的排除项。Claude Code 的 [OpenTelemetry 工具执行遥测](/docs/zh-CN/monitoring-usage) 对 WSL 和本机会话的发出方式相同。
 
