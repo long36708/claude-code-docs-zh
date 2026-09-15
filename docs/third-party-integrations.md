@@ -150,7 +150,7 @@ If your organization has specific infrastructure requirements, compare the optio
 
     <tr>
       <td>Authentication</td>
-      <td>Claude.ai SSO or email</td>
+      <td>claude.ai SSO or email</td>
       <td>API key or a [Console sign-in without one](/docs/en/authentication#sign-in-without-an-api-key)</td>
       <td>API key or AWS credentials</td>
       <td>API key or AWS credentials</td>
