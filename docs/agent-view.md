@@ -925,7 +925,7 @@ For other ways to run Claude in parallel, and for passing findings between the s
 * [Run agents in parallel](/docs/en/agents): compare agent view with subagents, agent teams, and worktrees
 * [Cross-session messaging](/docs/en/cross-session-messaging): have your sessions pass findings to each other
 * [Agent teams](/docs/en/agent-teams): coordinate multiple sessions that message each other
-* [Claude Code on the web](/docs/en/claude-code-on-the-web): run sessions in a managed cloud environment instead of locally
+* [Use Claude Code in the cloud](/docs/en/claude-code-on-the-web): run sessions in a managed cloud environment instead of locally
 
 ## Version history
 
