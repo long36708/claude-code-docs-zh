@@ -399,8 +399,8 @@
     "context-window.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/context-window",
       "original_md_url": "https://code.claude.com/docs/zh-CN/context-window.md",
-      "hash": "6bf7204534448764c72c5d37ea87c0d36d44e02e373a28f2c487a8f27d553db0",
-      "last_updated": "2026-09-14T00:19:19.530984"
+      "hash": "de41eb2297dd164bb4a4f574f8310bf17c0ace1c8584987620ba5acc3e19311a",
+      "last_updated": "2026-09-15T22:24:09.964287"
     },
     "corporate-launcher.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/corporate-launcher",
@@ -1149,21 +1149,21 @@
     "ide-integrations.md": {
       "original_url": "https://code.claude.com/docs/en/ide-integrations",
       "original_md_url": "https://code.claude.com/docs/en/ide-integrations.md",
-      "hash": "faccbd4d665884fc8cf7903e881c4582ef088c4e38d98559c1ee463361e474b4",
-      "last_updated": "2026-09-15T06:24:38.295823",
+      "hash": "4fa321d39dedffb798c5497468b3e515df6cb48eaa1905fe61790a54ea7a06bd",
+      "last_updated": "2026-09-15T22:26:11.040453",
       "fallback_to_english": true
     },
     "changelog.md": {
       "original_url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
       "original_raw_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-      "hash": "9fddb1a00a91a93cc58c2e83c6ea9205c62b9b78e38a645e8ad2155f65d71477",
-      "last_updated": "2026-09-15T00:47:51.777262",
+      "hash": "e367109b3bbdd38a2cb768f1e70f70e831c43e6f2377cd45c402d10bec735980",
+      "last_updated": "2026-09-15T22:26:11.610599",
       "source": "claude-code-repository"
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-09-15T17:45:55.014549",
-    "fetch_duration_seconds": 188.752163,
+    "last_fetch_completed": "2026-09-15T22:26:11.610651",
+    "fetch_duration_seconds": 183.798694,
     "total_pages_discovered": 191,
     "pages_fetched_successfully": 193,
     "pages_failed": 0,
@@ -1173,7 +1173,7 @@
     "total_files": 193,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-09-15T17:45:55.014586",
+  "last_updated": "2026-09-15T22:26:11.610676",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
