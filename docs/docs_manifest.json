@@ -267,8 +267,8 @@
     "changelog.md": {
       "original_url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
       "original_raw_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-      "hash": "e863323a559fa9befe1ca49ce1cb82e0ba961630f7498becc3273e8e0f67da55",
-      "last_updated": "2026-09-12T21:09:37.486133",
+      "hash": "a4540b283ca457d3d66a5aa07af2ca66b097d5d89ee02041f9d59c37a7822253",
+      "last_updated": "2026-09-15T00:06:57.149326",
       "source": "claude-code-repository"
     },
     "channels.md": {
@@ -502,8 +502,8 @@
     "errors.md": {
       "original_url": "https://code.claude.com/docs/en/errors",
       "original_md_url": "https://code.claude.com/docs/en/errors.md",
-      "hash": "df7f5c975b9d60f2c0e5a52d1dfc78412aa56c1c3e15c194d4d5db8a07c494d2",
-      "last_updated": "2026-09-14T20:04:17.745487"
+      "hash": "70106dc8e0d4015b5f050cf26ee2d66557c27be526fd6021d0ddbd07caad198b",
+      "last_updated": "2026-09-15T00:05:48.896184"
     },
     "fast-mode.md": {
       "original_url": "https://code.claude.com/docs/en/fast-mode",
@@ -706,8 +706,8 @@
     "monitoring-usage.md": {
       "original_url": "https://code.claude.com/docs/en/monitoring-usage",
       "original_md_url": "https://code.claude.com/docs/en/monitoring-usage.md",
-      "hash": "5395c41a9653c1dc1cde4bf7f42f7ba7694bb43368f468592f173037d5c7234a",
-      "last_updated": "2026-09-12T05:17:46.356257"
+      "hash": "5d8983535f1d6d7dc4c4cc25f3d9c10cccd93efb677b5039860d404c94242bd6",
+      "last_updated": "2026-09-15T00:06:10.234361"
     },
     "network-config.md": {
       "original_url": "https://code.claude.com/docs/en/network-config",
@@ -736,8 +736,8 @@
     "permissions.md": {
       "original_url": "https://code.claude.com/docs/en/permissions",
       "original_md_url": "https://code.claude.com/docs/en/permissions.md",
-      "hash": "b02644297c473c1fd3ff5325b5a40d62279e8c8a3ec0f8402889eb0af8a94ca8",
-      "last_updated": "2026-09-11T23:43:21.029230"
+      "hash": "f3b48fa16a03be02aed3d21171cc5f85777d9823903d9c54ca584556d527b8a6",
+      "last_updated": "2026-09-15T00:06:13.350370"
     },
     "platforms.md": {
       "original_url": "https://code.claude.com/docs/en/platforms",
@@ -790,8 +790,8 @@
     "prompt-caching.md": {
       "original_url": "https://code.claude.com/docs/en/prompt-caching",
       "original_md_url": "https://code.claude.com/docs/en/prompt-caching.md",
-      "hash": "e71c2b52900c4e5b65bc535768bebc77d485c1f5b4f182b6a24e83eba692294f",
-      "last_updated": "2026-09-11T16:50:48.134322"
+      "hash": "4a51888c32c55718cc2e2c71685c48bb0c971bee9ac4e100f88eab840bec1f36",
+      "last_updated": "2026-09-15T00:06:19.000621"
     },
     "prompt-library.md": {
       "original_url": "https://code.claude.com/docs/en/prompt-library",
@@ -808,8 +808,8 @@
     "remote-control.md": {
       "original_url": "https://code.claude.com/docs/en/remote-control",
       "original_md_url": "https://code.claude.com/docs/en/remote-control.md",
-      "hash": "79a183d3f1375f3fc1d14c9c629a8bdce367d15e1917c35e0b648c0814220cc3",
-      "last_updated": "2026-09-14T20:04:57.236225"
+      "hash": "790c053a6ed47f4048471afa963ff1e581a37a1c32afd62955f48a3deebf17cf",
+      "last_updated": "2026-09-15T00:06:20.856569"
     },
     "routines.md": {
       "original_url": "https://code.claude.com/docs/en/routines",
@@ -1155,8 +1155,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-09-14T20:05:45.339793",
-    "fetch_duration_seconds": 145.409326,
+    "last_fetch_completed": "2026-09-15T00:06:57.149494",
+    "fetch_duration_seconds": 121.936977,
     "total_pages_discovered": 192,
     "pages_fetched_successfully": 193,
     "pages_failed": 0,
@@ -1166,7 +1166,7 @@
     "total_files": 192,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-09-14T20:05:45.339821",
+  "last_updated": "2026-09-15T00:06:57.149509",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
