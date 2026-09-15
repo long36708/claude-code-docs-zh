@@ -67,7 +67,9 @@ Claude Code 根据您的回答方式以不同的方式传递注释：
 
 一个宽泛的 deny 规则（如 `Bash(aws *)`）会阻止每个匹配的调用，包括也匹配更具体的 allow 规则（如 `Bash(aws s3 ls)`）的调用，因此 deny 规则不能包含允许列表例外。ask 和 allow 之间也适用相同的优先级：匹配的 ask 规则即使更具体的 allow 规则也匹配同一调用，也会提示。
 
-Deny 规则的行为取决于它们是命名工具还是在工具内范围化模式。像 `Bash` 这样的裸工具名称会将工具从 Claude 的上下文中完全移除，因此 Claude 永远看不到它。裸名称移除适用于除了 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 之外的每个工具：当任何其他工具仍然存在时，deny 规则无法移除它，ask 规则永远不会为其提示。像 `Bash(rm *)` 这样的范围化规则会保留工具的可用性，并在 Claude 尝试时阻止匹配的调用。
+Deny 规则的行为取决于它们是命名工具还是在工具内范围化模式。像 `Bash` 这样的裸工具名称会将工具从 Claude 的上下文中完全移除，因此 Claude 永远看不到它。如果您在会话中途添加此类规则，Claude 无法从其下一个工具调用开始调用该工具；[拒绝整个工具](/docs/zh-CN/prompt-caching#denying-an-entire-tool) 涵盖了 Claude 已经看到的定义会发生什么。像 `Bash(rm *)` 这样的范围化规则会保留工具的可用性，并在 Claude 尝试时阻止匹配的调用。
+
+裸名称移除适用于除了 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 之外的每个工具：当任何其他工具仍然存在时，deny 规则无法移除它，ask 规则永远不会为其提示。
 
 <Note>
   权限规则由 Claude Code 强制执行，而不是由模型强制执行。您的提示或 `CLAUDE.md` 中的说明会影响 Claude 尝试执行的操作，但它们不会改变 Claude Code 允许的操作。要授予或撤销访问权限，请使用 `/permissions`、此处描述的规则、[权限模式](/docs/zh-CN/permission-modes) 或 [PreToolUse hook](#extend-permissions-with-hooks)。

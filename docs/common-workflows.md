@@ -434,7 +434,7 @@ Claude Code 可以在任何目录中工作。在笔记库、文档文件夹或�
 | [Routines](/docs/zh-CN/routines)              | 云端，默认由 Anthropic 管理 | 即使您的计算机关闭也应该运行的任务。也可以在 API 调用或 GitHub 事件上触发，除了计划。在 [claude.ai/code/routines](https://claude.ai/code/routines) 配置。 |
 | [桌面计划任务](/docs/zh-CN/desktop-scheduled-tasks) | 您的机器，通过桌面应用         | 需要直接访问本地文件、工具或未提交更改的任务。                                                                                           |
 | [GitHub Actions](/docs/zh-CN/github-actions)  | 您的 CI 管道            | 与存储库事件（如打开的 PR）相关的任务，或应该与工作流配置一起存在的 cron 计划。                                                                      |
-| [`/loop`](/docs/zh-CN/scheduled-tasks)        | 当前 CLI 会话           | 会话打开时的快速轮询。任务在您开始新对话时停止；`--resume` 和 `--continue` 恢复未过期的任务。                                                       |
+| [`/loop`](/docs/zh-CN/scheduled-tasks)        | 当前 CLI 会话           | 会话打开时的快速轮询。`--resume` 和 `--continue` 恢复未过期的固定间隔循环。                                                                |
 
 <Tip>
   为计划任务编写提示时，明确说明成功是什么样的以及如何处理结果。任务自主运行，所以它不能提出澄清问题。例如："审查标记为 `needs-review` 的开放 PR，对任何问题留下内联评论，并在 `#eng-reviews` Slack 频道中发布摘要。"

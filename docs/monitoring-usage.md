@@ -219,13 +219,13 @@ claude_code.interaction
 
 **`claude_code.interaction`**
 
-| 属性                        | 描述                                                                                             | 由以下控制                   |
-| ------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------- |
-| `user_prompt`             | 提示文本。除非设置了门控，否则值为 `<REDACTED>`                                                                 | `OTEL_LOG_USER_PROMPTS` |
-| `user_prompt_length`      | 提示长度（字符数）                                                                                      |                         |
-| `interaction.sequence`    | 此会话中交互的基于 1 的计数器                                                                               |                         |
-| `parent.source`           | 跨度如何获得其跟踪父级：当它在入站 `TRACEPARENT` 下作为父级时为 `env`，当它启动自己的跟踪时为 `none`。需要 Claude Code v2.1.268 或更高版本 |                         |
-| `interaction.duration_ms` | 转向的挂钟持续时间                                                                                      |                         |
+| 属性                        | 描述                                                                                               | 由以下控制                   |
+| ------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------- |
+| `user_prompt`             | 提示文本。除非设置了门控，否则值为 `<REDACTED>`                                                                   | `OTEL_LOG_USER_PROMPTS` |
+| `user_prompt_length`      | 提示长度（字符数）                                                                                        |                         |
+| `interaction.sequence`    | 此会话中交互的基于 1 的计数器，按 Claude Code 进程而不是按会话计数，如 [`event.sequence`](#event-correlation-attributes) 所述 |                         |
+| `parent.source`           | 跨度如何获得其跟踪父级：当它在入站 `TRACEPARENT` 下作为父级时为 `env`，当它启动自己的跟踪时为 `none`。需要 Claude Code v2.1.268 或更高版本   |                         |
+| `interaction.duration_ms` | 转向的挂钟持续时间                                                                                        |                         |
 
 **`claude_code.llm_request`**
 
@@ -687,10 +687,13 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 | 属性                  | 描述                                                                                                                                                                                                                            |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `prompt.id`         | UUID v4 标识符，链接处理单个用户提示时生成的所有事件                                                                                                                                                                                                |
+| `event.sequence`    | 0 开始的计数器，用于排序事件，按 Claude Code 进程而不是按会话计数                                                                                                                                                                                      |
 | `message.uuid`      | 消息的 UUID，如会话记录中保存的那样，`~/.claude/projects/*/*.jsonl` 文件。在 `assistant_response` 上存在，在 `user_prompt` 上存在，除了命令分派，它可以产生零个或多个消息。在 `assistant_response` 上，这是响应的最终记录条目，下一轮的 `parentUuid` 从其链接。需要 Claude Code v2.1.214 或更高版本           |
 | `client_request_id` | 客户端生成的 UUID，作为 `x-client-request-id` 请求标头发送。在第一方 API 连接上的 `api_request` 和 `api_error` 上存在；在第三方提供商后端上不存在，当请求通过非流式回退重试时。将请求与其响应配对，并对于从未产生服务器 `request_id` 的超时等失败保持可用。与 `llm_request` 跟踪跨度上的相同属性匹配。需要 Claude Code v2.1.214 或更高版本 |
 
 要跟踪由单个提示触发的所有活动，请按特定 `prompt.id` 值过滤您的事件。这会返回 user\_prompt 事件、任何 api\_request 事件以及处理该提示时发生的任何 tool\_result 事件。
+
+`event.sequence` 在每次 Claude Code 进程启动时从 0 开始，并在该进程的生命周期内计数。它在 `/clear` 后继续计数，这会分配一个新的 `session.id`。如果您 [恢复会话而不分叉](/docs/zh-CN/how-claude-code-works#resume-or-fork-sessions)，会话保留其 `session.id` 但从恢复它的进程获取其 `event.sequence` 值，因此在一个会话内，后来的事件可以携带比早期事件更低的值，或重复一个。要排序会话的事件，按 `event.timestamp` 排序，使用 `event.sequence` 排序共享时间戳的事件。
 
 对于消息级别的重建，每个事件类都携带与会话记录中的字段匹配的键。记录条目格式是 [Claude Code 内部的](/docs/zh-CN/sessions#where-transcripts-are-stored)，在版本之间变化，因此在这些字段上联接的管道可能在任何版本上中断；将联接视为版本特定的而不是稳定的合同：
 
@@ -711,7 +714,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"user_prompt"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `prompt_length`：提示的长度
 * `prompt`：提示内容。默认为已编辑。设置 `OTEL_LOG_USER_PROMPTS=1` 以包含它
 * `message.uuid`：生成的用户消息的 UUID，与保存的记录条目匹配。在命令分派上不存在，它可以产生零个或多个消息。需要 Claude Code v2.1.214 或更高版本
@@ -731,7 +734,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"assistant_response"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `response_length`：响应文本的长度（字符数）
 * `response`：响应文本，在内容限制处截断（默认 60 KB）。默认为 `<REDACTED>` 编辑。设置 `OTEL_LOG_ASSISTANT_RESPONSES=1` 以包含它。当 `OTEL_LOG_ASSISTANT_RESPONSES` 未设置时，`OTEL_LOG_USER_PROMPTS` 控制它，因此设置 `OTEL_LOG_ASSISTANT_RESPONSES=0` 以在启用提示日志记录时保持响应编辑
 * `model`：模型标识符（例如，"claude-sonnet-5"）
@@ -752,7 +755,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"tool_result"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `tool_name`：工具的名称
 * `tool_use_id`：此工具调用的唯一标识符。与传递给 hooks 的 `tool_use_id` 匹配，允许在 OTel 事件和 hook 捕获的数据之间进行关联。
 * `success`：`"true"` 或 `"false"`
@@ -785,7 +788,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"api_request"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `model`：使用的模型（例如，"claude-sonnet-5"）
 * `cost_usd`：USD 估计成本
 * `cost_usd_micros`：USD 百万分之一的估计成本，作为整数发出
@@ -814,7 +817,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"api_error"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `model`：使用的模型（例如，"claude-sonnet-5"）
 * `error`：错误消息
 * `status_code`：HTTP 状态代码（数字形式）。对于非 HTTP 错误（例如连接失败）不存在。
@@ -840,7 +843,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"api_refusal"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `model`：来自请求的模型标识符
 * `request_id`：来自响应的 `request-id` 标头的 Anthropic API 请求 ID，例如 `"req_011..."`。仅当 API 返回时存在。
 * `query_source`：发出请求的子系统，例如 `"repl_main_thread"`、`"compact"` 或子代理名称。有关定义，请参阅 [`api_request`](#api-request-event)。
@@ -866,7 +869,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"api_request_body"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `body`：JSON 序列化的 Messages API 请求参数（系统提示、消息、工具等），在内容限制处截断（默认 60 KB）。先前助手轮次中的扩展思考内容被编辑。仅在内联模式下发出（`OTEL_LOG_RAW_API_BODIES=1`）。
 * `body_ref`：包含未截断主体的 `<dir>/<uuid>.request.json` 文件的绝对路径。仅在文件模式下发出（`OTEL_LOG_RAW_API_BODIES=file:<dir>`）。
 * `body_length`：未截断的主体长度。当 `OTEL_LOG_RAW_API_BODIES=file:<dir>` 时为 UTF-8 字节，或当 `=1` 时为 UTF-16 代码单位
@@ -887,7 +890,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"api_response_body"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `body`：JSON 序列化的 Messages API 响应（id、内容块、使用情况、停止原因），在内容限制处截断（默认 60 KB）。扩展思考内容被编辑。仅在内联模式下发出（`OTEL_LOG_RAW_API_BODIES=1`）。
 * `body_ref`：包含未截断主体的 `<dir>/<request_id>.response.json` 文件的绝对路径。仅在文件模式下发出（`OTEL_LOG_RAW_API_BODIES=file:<dir>`）。
 * `body_length`：未截断的主体长度。当 `OTEL_LOG_RAW_API_BODIES=file:<dir>` 时为 UTF-8 字节，或当 `=1` 时为 UTF-16 代码单位
@@ -909,7 +912,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"tool_decision"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `tool_name`：工具的名称（例如，"Read"、"Edit"、"Write"、"NotebookEdit"）
 * `tool_use_id`：此工具调用的唯一标识符。与传递给 hooks 的 `tool_use_id` 匹配，允许在 OTel 事件和 hook 捕获的数据之间进行关联。
 * `decision`：`"accept"` 或 `"reject"`
@@ -944,7 +947,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"permission_mode_changed"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `from_mode`：前一个权限模式，例如 `"default"`、`"plan"`、`"acceptEdits"`、`"auto"` 或 `"bypassPermissions"`
 * `to_mode`：新权限模式
 * `trigger`：导致更改的原因。`"shift_tab"`、`"exit_plan_mode"`、`"auto_gate_denied"` 或 `"auto_opt_in"` 之一。当转换来自 SDK 或桥接时不存在
@@ -962,7 +965,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"auth"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `action`：`"login"` 或 `"logout"`
 * `success`：`"true"` 或 `"false"`
 * `auth_method`：身份验证方法，例如 `"oauth"`
@@ -982,7 +985,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"mcp_server_connection"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `status`：`"connected"`、`"failed"` 或 `"disconnected"`
 * `transport_type`：服务器传输，例如 `"stdio"`、`"sse"` 或 `"http"`
 * `server_scope`：服务器配置的范围，例如 `"user"`、`"project"` 或 `"local"`
@@ -1007,7 +1010,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"internal_error"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `error_name`：错误类名，例如 `"TypeError"` 或 `"SyntaxError"`
 * `error_code`：Node.js errno 代码，例如错误上存在时的 `"ENOENT"`
 
@@ -1024,7 +1027,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"plugin_installed"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `marketplace.is_official`：如果市场是官方 Anthropic 市场，则为 `"true"`，否则为 `"false"`
 * `install.trigger`：`"cli"` 或 `"ui"`
 * `plugin.name`：已安装插件的名称。对于第三方市场，仅当 `OTEL_LOG_TOOL_DETAILS=1` 时才包含
@@ -1044,7 +1047,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"plugin_loaded"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `plugin.name`：插件的名称。对于官方市场外和内置捆绑的插件，除非 `OTEL_LOG_TOOL_DETAILS=1`，否则值为 `"third-party"`
 * `marketplace.name`：插件安装来源的市场（已知时）。在与 `plugin.name` 相同的条件下编辑为 `"third-party"`
 * `plugin.version`：来自插件清单的版本。仅当名称未被编辑且清单声明版本时才包含
@@ -1072,7 +1075,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"skill_activated"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `skill.name`：技能的名称。对于用户定义和第三方插件技能，除非 `OTEL_LOG_TOOL_DETAILS=1`，否则值为占位符 `"custom_skill"`
 * `invocation_trigger`：技能的触发方式（`"user-slash"`、`"claude-proactive"` 或 `"nested-skill"`）
 * `skill.source`：技能加载的位置（例如，`"bundled"`、`"userSettings"`、`"projectSettings"`、`"plugin"`）
@@ -1093,7 +1096,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"at_mention"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `mention_type`：提及的类型（`"file"`、`"directory"`、`"agent"`、`"mcp_resource"`、`"peer"`）。值 `"peer"` 表示您提及了 [您的其他 Claude Code 会话之一](/docs/zh-CN/cross-session-messaging)。需要 Claude Code v2.1.232 或更高版本
 * `success`：提及是否成功解析（`"true"` 或 `"false"`）
 
@@ -1110,7 +1113,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"api_retries_exhausted"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `model`：使用的模型
 * `error`：最终错误消息
 * `status_code`：HTTP 状态代码（数字形式）。对于非 HTTP 错误不存在。
@@ -1131,7 +1134,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"hook_registered"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `hook_event`：hook 事件类型，例如 `"PreToolUse"` 或 `"PostToolUse"`
 * `hook_type`：hook 实现类型：`"command"`、`"prompt"`、`"mcp_tool"`、`"http"` 或 `"agent"`
 * `hook_source`：hook 定义的位置：`"userSettings"`、`"projectSettings"`、`"localSettings"`、`"flagSettings"`、`"policySettings"` 或 `"pluginHook"`
@@ -1153,7 +1156,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"hook_execution_start"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `hook_event`：Hook 事件类型，例如 `"PreToolUse"` 或 `"PostToolUse"`
 * `hook_name`：完整 hook 名称，包括匹配器，例如 `"PreToolUse:Write"`
 * `num_hooks`：匹配 hook 命令的数量
@@ -1175,7 +1178,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"hook_execution_complete"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `hook_event`：Hook 事件类型
 * `hook_name`：完整 hook 名称，包括匹配器
 * `num_hooks`：匹配 hook 命令的数量
@@ -1202,7 +1205,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"hook_plugin_metrics"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `plugin_id`：`<name>@<marketplace>` 形式的插件标识符
 * `hook_event`：发出指标的 hook 事件类型
 * 最多 20 个插件发出的指标键。名称匹配 `^[a-z][a-z0-9_]{0,39}$`。值为布尔值或数字。
@@ -1220,7 +1223,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"compaction"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `trigger`：`"auto"` 或 `"manual"`
 * `success`：`"true"` 或 `"false"`
 * `duration_ms`：压缩持续时间
@@ -1242,7 +1245,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"subagent_completed"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `agent_type`：子代理类型。内置代理名称和来自官方市场插件的代理按原样出现；其他代理名称被替换为 `"custom"`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`
 * `agent.source`：代理定义来自的位置：`built-in`、`plugin` 或定义自定义代理的设置来源，例如 `userSettings` 或 `projectSettings`
 * `is_built_in`：子代理是否是内置代理类型
@@ -1268,7 +1271,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"feedback_survey"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `event_type`：调查生命周期事件，例如 `"appeared"`、`"responded"` 或 `"transcript_prompt_appeared"`
 * `appearance_id`：唯一 ID，链接为一个调查实例发出的事件
 * `survey_type`：哪个调查产生了事件。`"session"` 是"Claude 做得怎么样？"评分提示
@@ -1292,7 +1295,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 所有 [标准属性](#standard-attributes)
 * `event.name`：`"retention_sweep"`
 * `event.timestamp`：ISO 8601 时间戳
-* `event.sequence`：单调递增的计数器，用于在会话内排序事件
+* `event.sequence`：用于排序事件的单调递增计数器，在 [事件关联属性](#event-correlation-attributes) 下描述
 * `result`：当扫描运行时为 `"complete"`，当 Claude Code 暂停时为 `"skipped"`
 * `period_days`：来自合并设置的 `cleanupPeriodDays` 值（天数），或当没有来源设置时为 `30`。在跳过的事件上，扫描将使用的值，从 Claude Code 可以读取的设置来源计算
 * `used_default`：当没有可读的设置来源设置 `cleanupPeriodDays` 时为 `"true"`，否则为 `"false"`。在完成事件上，`"true"` 表示应用了 30 天默认值

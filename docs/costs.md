@@ -71,7 +71,7 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 
 按 `d` 或 `w` 在过去 24 小时和过去 7 天之间切换。这些数据是近似值，从此机器上的本地会话历史记录计算，因此不包括来自其他设备或 claude.ai 的使用情况。
 
-在 [VS Code 扩展](/docs/zh-CN/vs-code#check-account-and-usage)中，归属份额和行为标志显示在"账户和使用情况"对话框中，带有"日"和"周"切换，不包括"循环"行。需要 Claude Code v2.1.174 或更高版本。
+在 [VS Code 扩展](/docs/zh-CN/vs-code#check-account-and-usage)中，归属份额和行为标志显示在"账户和使用情况"对话框中，带有"日"和"周"切换，不包括"循环"行。
 
 <h4 id="check-your-usage-credits-spend">
   检查您的使用额度支出

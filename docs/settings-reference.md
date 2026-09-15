@@ -3308,7 +3308,7 @@ your-repo-file-index --query "$query" | head -20
   `footerLinksRegexes`
 </h3>
 
-当正则表达式匹配转向输出时在输入框下方的页脚中渲染额外的可点击徽章：工具结果，包括文件内容和获取的页面，以及 Claude 自己的响应。使用它将项目 CLI 打印的 ID（如审查工具和问题跟踪器）转换为会话链接。需要 Claude Code v2.1.176 或更高版本。
+当正则表达式匹配转向输出时在输入框下方的页脚中渲染额外的可点击徽章：工具结果，包括文件内容和获取的页面，以及 Claude 自己的响应。使用它将项目 CLI 打印的 ID（如审查工具和问题跟踪器）转换为会话链接。
 
 * **Scope**: [`User or managed`](#scopes)
 * **Type**: 对象数组，每个对象的 `type` 设置为 `"regex"`、`pattern` 正则表达式、`url` 模板和可选的 `label`；`url` 和 `label` 中的 `{name}` 占位符从 `pattern` 中的命名捕获组填充
@@ -3329,7 +3329,7 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-配置此项后，当 `PROJ-1234` 出现在工具结果或 Claude 的回复中时，页脚中会出现一个 `PROJ-1234` 徽章，链接到 `https://issues.example.com/browse/PROJ-1234`。需要 Claude Code v2.1.176 或更高版本。
+配置此项后，当 `PROJ-1234` 出现在工具结果或 Claude 的回复中时，页脚中会出现一个 `PROJ-1234` 徽章，链接到 `https://issues.example.com/browse/PROJ-1234`。
 
 <h4 id="badge-constraints">
   徽章约束
@@ -3916,7 +3916,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
   `wheelScrollAccelerationEnabled`
 </h3>
 
-在[全屏渲染](/docs/zh-CN/fullscreen#mouse-wheel-scrolling)中快速滚动期间加速鼠标滚轮滚动速度。将其设置为 `false` 以获得每个滚轮凹口的恒定滚动速率。需要 Claude Code v2.1.174 或更高版本。
+在[全屏渲染](/docs/zh-CN/fullscreen#mouse-wheel-scrolling)中快速滚动期间加速鼠标滚轮滚动速度。将其设置为 `false` 以获得每个滚轮凹口的恒定滚动速率。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: Boolean
@@ -3929,8 +3929,6 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
   "wheelScrollAccelerationEnabled": false
 }
 ```
-
-需要 Claude Code v2.1.174 或更高版本。
 
 <h2 id="git-and-attribution">
   Git 和归属

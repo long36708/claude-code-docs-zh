@@ -185,9 +185,11 @@ Claude Code 永远不会为插件的技能、命令、代理、hooks、监视器
   拒绝整个工具
 </h3>
 
-添加像 `Bash` 或 `WebFetch` 这样的裸工具名称作为[拒绝规则](/docs/zh-CN/permissions#manage-permissions)会将该工具从 Claude 的上下文中完全删除。Claude Code 将内置工具定义加载到系统提示层，因此在会话中途添加或删除这些规则之一会使缓存失效。Claude Code 在下一个请求时应用更改，无论您通过 `/permissions` 添加规则还是通过[直接编辑设置文件](/docs/zh-CN/settings#when-edits-take-effect)。这包括您在回合中途通过 `/permissions` 添加的规则。
+如果您添加像 `Bash` 或 `WebFetch` 这样的裸工具名称作为[拒绝规则](/docs/zh-CN/permissions#manage-permissions)，Claude 无法从您的下一个请求开始调用该工具，无论您是通过 `/permissions` 添加规则还是通过[直接编辑设置文件](/docs/zh-CN/settings#when-edits-take-effect)。这包括您通过 `/permissions` 在回合中途添加的规则。
 
-只有在工具名称位置匹配的拒绝规则才有此效果：裸工具名称、等效的 `Bash(*)` 形式或[工具名称 glob](/docs/zh-CN/permissions#tool-name-wildcards) 如 `"*"`。仅匹配 MCP 工具的 glob，例如 `"mcp__*"`，会以相同的方式删除这些工具，但当匹配的工具是[延迟](#connecting-or-disconnecting-an-mcp-server)时保持缓存完整，这是默认值，因为延迟定义从未在缓存的前缀中。作用域拒绝规则如 `Bash(rm *)`，以及所有允许和询问规则，不会改变 Claude 看到的工具。Claude Code 在 Claude 尝试调用时检查它们，保持前缀完整。
+当[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)处于活动状态时（在支持的模型上是默认值），请求的工具定义不会改变，缓存的前缀会保留。当工具搜索不可用或被禁用时，Claude Code 会从下一个请求中删除定义，这会使缓存失效，稍后删除规则也会这样做。
+
+只有在工具名称位置匹配的拒绝规则才会以这种方式阻止工具：裸工具名称、等效的 `Bash(*)` 形式或[工具名称 glob](/docs/zh-CN/permissions#tool-name-wildcards) 如 `"*"`。仅匹配 MCP 工具的 glob，例如 `"mcp__*"`，会以相同的方式阻止这些工具。作用域拒绝规则如 `Bash(rm *)`，以及所有允许和询问规则，不会改变 Claude 看到的工具。Claude Code 在 Claude 尝试调用时检查它们，保持前缀完整。
 
 <h3 id="compacting-the-conversation">
   压缩对话

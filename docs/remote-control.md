@@ -138,9 +138,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
 如果连接失败，Claude Code 会显示一条通知，说明失败原因，向对话添加一条带有原因的警告行，并将指示器切换到保留在原位的失败状态。要重新连接，请运行 `/remote-control`，除非[原因说会话在其他地方被接管或结束，或服务器找不到它](#session-ended-elsewhere)。
 
-在重新连接之前读取原因。当会话从另一个设备、应用或 Claude Code 会话被接管或结束，或服务器找不到它时，原因会说明是哪种情况，Claude Code 会省略其通常的建议来运行 `/remote-control`：
-
-<span id="session-ended-elsewhere" />
+<span id="session-ended-elsewhere" />在重新连接之前读取原因。当会话从另一个设备、应用或 Claude Code 会话被接管或结束，或服务器找不到它时，原因会说明是哪种情况，Claude Code 会省略其通常的建议来运行 `/remote-control`：
 
 * **另一个设备或 Claude Code 会话接管了会话**：仅当您想从该设备收回它时才运行 `/remote-control`。
 * **您从另一个设备或应用结束或存档了会话**：仅当您想要它回来时才运行 `/remote-control`；Claude Code 会重新打开存档的会话。
@@ -176,7 +174,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 3. 现有对话历史记录中的最后一条有意义的消息
 4. 自动生成的名称，如 `myhost-graceful-unicorn`，其中 `myhost` 是您的机器的主机名或您使用 `--remote-control-session-name-prefix` 设置的前缀
 
-如果您没有设置显式名称，一旦您发送提示，Claude Code 会更新标题以反映您的提示。Claude Code 将自动生成的标题与您的对话语言相匹配，或与配置的 [`language`](/docs/zh-CN/settings-reference#language) 设置相匹配；语言匹配需要 Claude Code v2.1.176 或更高版本。
+如果您没有设置显式名称，一旦您发送提示，Claude Code 会更新标题以反映您的提示。Claude Code 将自动生成的标题与您的对话语言相匹配，或与配置的 [`language`](/docs/zh-CN/settings-reference#language) 设置相匹配。
 
 当您从 claude.ai 或 Claude 应用重命名会话时，Claude Code 也会更新在 `claude --resume` 中显示的本地标题。Claude Code 将相同的重命名应用于提示栏上显示的会话名称，以及当会话[在后台运行](/docs/zh-CN/agent-view)时 `claude agents` 列表中显示的会话名称。在 v2.1.221 之前，从 claude.ai 或 Claude 应用中的会话列表重命名仅更新标题，CLI 保留其以前的会话名称；`/rename`（在 CLI 本身中运行）在任何版本上设置名称。
 

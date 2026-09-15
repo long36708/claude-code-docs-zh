@@ -568,8 +568,6 @@ claude -p "Analyze this log file" --output-format stream-json --verbose
 claude -p "<your prompt>" --output-format json | your_command
 ```
 
-在开发期间使用 `--verbose` 进行调试，在生产中关闭它。
-
 <h3 id="run-autonomously-with-auto-mode">
   使用 auto mode 自主运行
 </h3>

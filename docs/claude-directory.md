@@ -1450,11 +1450,11 @@ Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、�
 
 浏览器涵盖您创作和编辑的文件。一些相关文件位于其他位置：
 
-| 文件                      | 位置                  | 用途                                                                                                                                                                                                                                                                              |
-| ----------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `managed-settings.json` | 系统级别，因操作系统而异        | 企业强制执行的设置，您无法覆盖，除了[狭窄的例外](/docs/zh-CN/settings#security-keys-where-the-stricter-value-applies)。请参阅[保存文件的位置](/docs/zh-CN/managed-settings#deploy-a-managed-settings-file)和[Claude Code 使用的托管源](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)。                                |
-| `CLAUDE.local.md`       | 项目根目录               | 您对此项目的私人偏好，与 CLAUDE.md 一起加载。手动创建它并将其添加到 `.gitignore`。                                                                                                                                                                                                                           |
-| 已安装的 plugins            | `~/.claude/plugins` | 克隆的市场、已安装的 plugin 版本和每个 plugin 的数据，由 `claude plugin` 命令管理。对于从市场[`command` 源](/docs/zh-CN/plugin-marketplaces#command-sources)以链接模式安装的 plugin，Claude Code 在此处存储链接而不是副本，plugin 的文件保留在命令打印的目录中。请参阅 [plugin 缓存](/docs/zh-CN/plugins-reference#plugin-caching-and-file-resolution)了解孤立版本如何被清理。 |
+| 文件                      | 位置                  | 用途                                                                                                                                                                                                                                                                                                                       |
+| ----------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `managed-settings.json` | 系统级别，因操作系统而异        | 企业强制执行的设置，您无法覆盖，除了[狭窄的例外](/docs/zh-CN/settings#security-keys-where-the-stricter-value-applies)。请参阅[保存文件的位置](/docs/zh-CN/managed-settings#deploy-a-managed-settings-file)和[Claude Code 使用的托管源](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)。                                                                         |
+| `CLAUDE.local.md`       | 项目根目录               | 您对此项目的私人偏好，与 CLAUDE.md 一起加载。手动创建它并将其添加到 `.gitignore`。                                                                                                                                                                                                                                                                    |
+| 已安装的 plugins            | `~/.claude/plugins` | 克隆的市场、已安装的 plugin 版本和每个 plugin 的数据，由 `claude plugin` 命令管理。对于从市场[`command` 源](/docs/zh-CN/plugin-marketplaces#command-sources)以链接模式安装的 plugin，Claude Code 在此处存储链接而不是副本，plugin 的文件保留在命令打印的目录中。`command` 源需要 Claude Code v2.1.229 或更高版本。请参阅 [plugin 缓存](/docs/zh-CN/plugins-reference#plugin-caching-and-file-resolution)了解孤立版本如何被清理。 |
 
 `~/.claude` 还保存 Claude Code 在您工作时写入的数据：记录、提示历史、文件快照、缓存和日志。请参阅下面的[应用数据](#application-data)。
 
@@ -1559,7 +1559,7 @@ Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`clean
 * **自动内存**：扫描不删除项目 [自动内存](/docs/zh-CN/memory#auto-memory) 目录中的内存文件，`projects/<project>/memory/`。Claude Code 仅在整个保留期内该目录为空时才删除该目录。在 v2.1.228 之前，扫描将内存目录内的文件夹视为会话数据，可能删除其下的旧文件。
 * **Claude Desktop 和 Cowork 记录**：Claude Code 保留您在 Claude Desktop 或 Cowork 中启动或最近继续的会话的记录，无论其年龄如何。要给这些记录设置年龄限制，请设置 [`desktopSessionCleanupPeriodDays`](/docs/zh-CN/settings-reference#desktopsessioncleanupperioddays)。当 [managed settings](/docs/zh-CN/managed-settings) 设置 `cleanupPeriodDays` 时，Claude Code 改为在该期间后删除这些记录。需要 Claude Code v2.1.248 或更高版本；早期版本在 `cleanupPeriodDays` 后删除它们。
 
-Claude Code 在这些情况下跳过扫描：
+Claude Code 在这些情况下跳过基于年龄的扫描：
 
 * **Bare mode**：当您使用 [`--bare`](/docs/zh-CN/headless#start-faster-with-bare-mode) 运行 `claude -p` 时，Claude Code 不会在该会话中运行扫描。
 * **暂停扫描**：如果 Claude Code 无法安全地确定保留期，它会暂停保留清理扫描；[`retention_sweep` 事件](/docs/zh-CN/monitoring-usage#retention-sweep-event)列出每个暂停它的配置。当原因是无法读取或解析的设置文件，或 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 明确设置的设置错误时，Claude Code 也会在 `/status` 中显示警告，直到您修复设置错误。当 [managed settings](/docs/zh-CN/server-managed-settings) 提供 `cleanupPeriodDays` 时，Claude Code 在任何情况下都以 managed 值运行扫描。

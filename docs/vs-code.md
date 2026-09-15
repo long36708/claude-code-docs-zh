@@ -58,7 +58,7 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 
     * **活动栏**：点击左侧边栏中的 Spark 图标以打开会话列表。点击任何会话以在您的[首选位置](#extension-settings)中打开它，或开始新的会话。此图标在活动栏中始终可见。
     * **命令面板**：`Cmd+Shift+P`（Mac）或 `Ctrl+Shift+P`（Windows/Linux），输入"Claude Code"，然后选择一个选项，如"在新选项卡中打开"
-    * **状态栏**：如果您已将 [`preferredLocation`](#extension-settings) 设置为 `sidebar`，或使用**Claude Code: Open in Side Bar** 打开了 Claude，请点击窗口右下角的 **✱ Claude Code**。即使没有打开文件，这也有效。
+    * **状态栏**：如果您已将 [`preferredLocation`](#extension-settings) 设置为 `sidebar`，或使用**Claude Code: Open in Side Bar** 打开了 Claude，请点击窗口右下角的 **✻ Claude Code**。即使没有打开文件，这也有效。
 
     您可以拖动 Claude 面板以在 VS Code 中的任何位置重新定位它。有关详细信息，请参阅[自定义您的工作流](#customize-your-workflow)。
   </Step>
@@ -200,7 +200,7 @@ What's in @src/components/ (include a trailing slash for folders)
 
 运行 `/usage` 来打开 Account & usage 对话框。对话框需要 claude.ai 登录，因此在[第三方提供商](#use-third-party-providers)上不提供。它显示您登录的账户、您的计划以及您计划限制的使用条形图，例如当前会话和周。每个条形图显示距离其限制重置还有多长时间。
 
-对话框还分解了对您的计划限制有贡献的内容。它标记占最近使用量 10% 或更多的行为，例如缓存未命中、长上下文和子代理密集或高度并行的会话，每个都有减少它的提示。Attribution 表显示了每个 skill、subagent、plugin 和 MCP 服务器贡献了多少使用量。需要 Claude Code v2.1.174 或更高版本。
+对话框还分解了对您的计划限制有贡献的内容。它标记占最近使用量 10% 或更多的行为，例如缓存未命中、长上下文和子代理密集或高度并行的会话，每个都有减少它的提示。Attribution 表显示了每个 skill、subagent、plugin 和 MCP 服务器贡献了多少使用量。
 
 使用 Day 和 Week 切换来在过去 24 小时和过去 7 天之间切换。这些数字是近似的，并从此机器上的本地会话计算，因此不包括来自其他设备或 claude.ai 的使用情况。有关跟踪和减少使用情况的更多信息，请参阅[跟踪您的成本](/docs/zh-CN/costs#track-your-costs)。
 
@@ -431,7 +431,7 @@ vscode://anthropic.claude-code/open?prompt=review%20my%20changes
 
 该扩展有两种类型的设置：
 
-* **VS Code 中的扩展设置**：控制扩展在 VS Code 中的行为。使用 `Cmd+,`（Mac）或 `Ctrl+,`（Windows/Linux）打开，然后转到扩展 → Claude Code。您也可以输入 `/` 并选择 **General Config** 来打开设置。
+* **VS Code 中的扩展设置**：控制扩展在 VS Code 中的行为。使用 `Cmd+,`（Mac）或 `Ctrl+,`（Windows/Linux）打开，然后转到扩展 → Claude Code。您也可以输入 `/` 并选择 **General config…** 来打开设置。
 * **`~/.claude/settings.json` 中的 Claude Code 设置**：在扩展和 CLI 之间共享。用于允许的命令、环境变量、hooks 和 MCP 服务器。在 Pro、Max 和 Team 计划上，它也是权限模式对话开始时的一个输入。[切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)列出了顺序。有关详细信息，请参阅[设置](/docs/zh-CN/settings)。
 
 <Tip>
@@ -666,7 +666,7 @@ summarize the changes I've made to the auth module
 4. **禁用冲突的扩展程序**：临时禁用其他 AI 扩展程序（Cline、Continue 等）
 5. **检查工作区信任**：该扩展程序在受限模式下不起作用
 
-或者，如果您已将 [`preferredLocation`](#extension-settings) 设置为 `sidebar`，或使用**Claude Code: Open in Side Bar** 打开了 Claude，请点击**状态栏**（右下角）中的"✱ Claude Code"。即使没有打开文件，这也能工作。您也可以使用**命令面板**（`Cmd+Shift+P` / `Ctrl+Shift+P`）并输入"Claude Code"。
+或者，如果您已将 [`preferredLocation`](#extension-settings) 设置为 `sidebar`，或使用**Claude Code: Open in Side Bar** 打开了 Claude，请点击**状态栏**（右下角）中的"✻ Claude Code"。即使没有打开文件，这也能工作。您也可以使用**命令面板**（`Cmd+Shift+P` / `Ctrl+Shift+P`）并输入"Claude Code"。
 
 <h3 id="cmd-esc-does-nothing-on-macos">
   Cmd+Esc 在 macOS 上无效

@@ -385,7 +385,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
   保持 skills 可发现
 </h3>
 
-随着 skills 分散在许多目录中，Claude 选择的列表可能会增长很大。Claude 通过读取每个发现的 skill 的名称和描述来选择 skill，只有选定的 skill 的完整内容加载到上下文中。本部分涵盖如何保持该列表较小以及编写在缩短时幸存的描述。
+随着 skills 分散在许多目录中，Claude 选择的列表可能会增长很大。Claude 通过读取每个发现的 skill 的名称和描述来选择 skill，只有选定的 skill 的完整内容加载到上下文中。本部分涵盖如何保持该列表较小。
 
 哪些 skills 在范围内取决于你从哪里启动 Claude：
 
@@ -393,7 +393,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 * **从存储库根目录**：根 skills，加上来自 Claude 在会话期间接触的每个子目录的 skills，可能累积到数百个
 * **在使用 [`--add-dir`](#grant-access-across-packages-or-repositories) 添加同级后**：该同级的 skills 也加载。`additionalDirectories` 设置仅授予文件访问权限，不加载 skills
 
-名称始终加载，但[当有许多时描述被缩短](/docs/zh-CN/skills#skill-descriptions-are-cut-short)，这可能会剥离 Claude 用来决定 skill 是否适用的关键字。保持描述简短并以请求会包含的词开头，例如"在 `packages/api/` 中编写或修改测试"。
+名称始终加载，但[当有许多时，某些 skills 会完全失去其描述](/docs/zh-CN/skills#skill-descriptions-are-cut-short)，这可能会剥离 Claude 用来决定 skill 是否适用的关键字。保持描述简短并以请求会包含的词开头，例如"在 `packages/api/` 中编写或修改测试"。
 
 对于许多目录共享的 skills，例如 PR 约定或部署检查清单，将它们放在存储库根目录的 `.claude/skills/` 中，以便从任何启动目录加载。当共享 skills 需要自己的版本历史或必须跨存储库工作时，改为将它们打包为[插件](/docs/zh-CN/plugins)。插件 skills 使用 `plugin-name:skill-name` 命名空间，所以它们永远不会与按目录的 skills 冲突。平台团队可以在一个地方对它们进行版本化和更新。
 

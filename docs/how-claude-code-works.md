@@ -211,7 +211,7 @@ Claude Code 可以教您如何使用它。提出问题，如"我如何设置 hoo
 
 内置命令也会指导您完成设置：
 
-* `/init` 引导您为项目创建 CLAUDE.md
+* `/init` 为您的项目生成一个启动 CLAUDE.md
 * `/doctor` 运行设置检查，诊断安装和配置问题，并可以修复它们
 
 <h3 id="it’s-a-conversation">
