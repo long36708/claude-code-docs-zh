@@ -225,6 +225,8 @@ Anthropic 的某些技能，例如 `pdf` 和 `xlsx`，始终同步。对于其�
 
 要停止在机器上同步，请在您的用户设置中将 [`syncClaudeAiSkills`](/docs/zh-CN/settings-reference#syncclaudeaiskills) 设置为 `false`。Claude Code 停止下载，下次启动时，它将已同步的技能移动到 `~/.claude/skills/.trash/`，不再加载它们。您的组织可以通过关闭 claude.ai 上的 Skills 来为所有人关闭同步。要在保持 Skills 打开的情况下停止同步，它可以在 [托管设置](/docs/zh-CN/managed-settings) 中设置相同的密钥。
 
+如果您的组织关闭 claude.ai 上的 Skills，Claude Code 会删除下载的技能，它们停止加载。删除的技能移动到 `~/.claude/skills/.trash/`，您可以在 [保留扫描](/docs/zh-CN/claude-directory#cleaned-up-automatically) 删除它们之前恢复这些文件。一旦您的组织重新打开 Skills，Claude Code 会在下次同步时下载您启用的技能。
+
 <h4 id="when-a-synced-skill-name-matches-another-command">
   当同步的技能名称与另一个命令匹配时
 </h4>

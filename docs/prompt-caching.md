@@ -264,7 +264,7 @@ API 限制每个请求可以携带多少图像和 PDF。有关当前数字，请
   更改输出样式
 </h3>
 
-当您在会话中使用 `/config` 或 `outputStyle` 设置切换[输出样式](/docs/zh-CN/output-styles)时，Claude 从您的下一条消息开始使用新样式。Claude Code 将新样式的指令作为对话中的消息传递，所以该请求仍然从缓存中读取系统提示和早期对话。
+当您在会话中使用 [`/output-style`](/docs/zh-CN/output-styles#change-your-output-style)、`/config` 或 `outputStyle` 设置切换[输出样式](/docs/zh-CN/output-styles)时，Claude 从您的下一条消息开始使用新样式。Claude Code 将新样式的指令作为对话中的消息传递，所以该请求仍然从缓存中读取系统提示和早期对话。
 
 在 v2.1.251 之前，中途样式切换保持缓存但直到您运行 `/clear` 或启动新会话时才应用。
 

@@ -370,10 +370,11 @@ Claude Code 在您在连接的终端中输入或专注时会跳过移动推送�
   * 文本输出命令：`/compact`、`/clear`、`/context`、`/usage`、`/exit`、`/usage-credits`、`/recap` 和 `/reload-plugins`。`/usage-credits` 打印计费 URL 而不是打开浏览器。`/reload-plugins` 仅在会话在交互式终端中运行时工作；没有交互式终端的会话会拒绝它。
   * `/model`、`/effort`、`/fast`、`/color` 和 `/rename`：将值作为参数传递，例如 `/model sonnet` 或 `/effort high`。从移动和网络，`/model` 和 `/effort` 在终端选择器或滑块的位置接受参数。
   * `/mcp`：从移动应用，返回服务器状态的文本摘要而不是打开选择器。在网络上，`/mcp` 单独打开 [claude.ai 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai) 的目录而不是返回摘要。`reconnect`、`enable` 和 `disable` [子命令](/docs/zh-CN/commands#all-commands)可从两者工作。与本地 CLI 不同，不带服务器名称的 `/mcp reconnect` 会重新连接每个已失败或需要身份验证的服务器。
-  * `/config`，从 v2.1.181 开始：从移动应用，传递 `key=value` 以设置一个设置，或不带参数运行它以列出您可以设置的键。在网络上，`/config` 打开您设置的 Claude Code 部分，并忽略命令后的文本。
+  * `/config`：从移动应用，传递 `key=value` 以设置一个设置，或不带参数运行它以列出您可以设置的键。在网络上，`/config` 打开您设置的 Claude Code 部分，并忽略命令后的文本。
   * 在 Team 和 Enterprise 上，从移动或网络运行的 `/usage-credits` 不会向您的管理员发送[使用额度请求](/docs/zh-CN/costs#add-usage-credits-to-your-subscription)。发送需要仅在交互式 CLI 中出现的确认，因此命令告诉您改为在那里运行它。在 v2.1.211 之前，文本形式在没有确认的情况下发送请求。
   * `/autocompact`，从 v2.1.221 开始：将窗口大小作为参数传递，例如 `/autocompact 500k`。不带参数时，它将当前窗口大小打印为文本，而不是打开命令在终端会话中显示的对话框。
   * `/advisor`，从 v2.1.260 开始：将模型作为参数传递，例如 `/advisor opus`，或传递 `off` 以关闭顾问。两种形式都仅适用于当前会话，并保持您保存的默认值不变。不带参数时，它将当前顾问打印为文本，而不是打开选择器。
+  * `/output-style`，从 v2.1.269 开始：将样式名称作为参数传递，例如 `/output-style concise`，或不带参数运行它以列出样式。从移动和网络，您只能列出和选择[内置样式](/docs/zh-CN/output-styles#built-in-output-styles)。要使用[自定义样式](/docs/zh-CN/output-styles#create-a-custom-output-style)，请在会话本身中选择它。
 
 <h2 id="troubleshooting">
   故障排除

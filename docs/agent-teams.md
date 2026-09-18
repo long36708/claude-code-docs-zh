@@ -310,6 +310,10 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
 * **`skills`**：Claude Code 在任一显示模式中都不将定义的 `skills` 应用于队友。队友从你的项目和用户设置加载 skills。
 * **`mcpServers`**：对于分割窗格队友，Claude Code 在 [该字段的规则](/docs/zh-CN/sub-agents#scope-mcp-servers-to-a-subagent) 下应用定义的 `mcpServers`，这些规则涵盖使用 `--agent` 启动的会话。进程内队友忽略该字段，从你的项目和用户设置加载 MCP servers。
 
+当 Claude 向一个不再运行的进程内队友发送消息时，Claude Code 会在同一会话中将其恢复，恢复为其保存的任何对话，并将消息作为其下一个提示给予它。在你恢复一个会话后，队友不会以这种方式被恢复，根据 [恢复限制](#limitations)。
+
+对于它恢复的队友，Claude Code 重新应用来自项目的 `.claude/agents/` 目录或 `--add-dir` 目录的定义，仅当你 [信任了代理文件所在的文件夹](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 时。信任父文件夹不算数。在那之前，队友会恢复时不带定义的任何工具或指示，仅保留 Claude Code 添加到每个进程内队友的工具。请参阅 [the teammate's agent definition was not restored](/docs/zh-CN/errors#teammate-agent-definition-not-restored) 了解通知文本。
+
 <h3 id="permissions">
   权限
 </h3>

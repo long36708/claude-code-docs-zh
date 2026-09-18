@@ -181,6 +181,10 @@ Available commands: ["clear", "compact", "context", "usage", "code-review", "ver
 
 通过在提示字符串中包含命令来发送命令，就像发送常规文本一样。分派不依赖于 `skills` 选项。发送 `/<name>` 会运行用户可调用的 skill，即使你的 `skills` 列表省略了它。作用于对话历史的命令，例如 `/compact`，需要先前的消息才能工作。
 
+一个 `/<name>` 既不匹配会话中的命令也不匹配内置 Claude Code 命令不会导致查询失败。Claude Code 将提示作为普通消息发送给 Claude，并附注该命令未运行，因此查询花费一个模型轮次并返回 Claude 的回复。在 v2.1.274 之前，匹配不到任何内容的 `/<name>` 返回 `Unknown command: /<name>` 作为结果，不花费模型轮次。
+
+一个 `/<name>` 匹配在会话中不可用的内置 Claude Code 命令，例如 `/theme`，返回 `/theme isn't available in this environment.` 作为结果，不花费模型轮次。
+
 <Note>
   命令可以像任何其他提示一样触及 `maxTurns` / `max_turns` 限制，以错误结果而不是 `success` 结束查询。有关错误结果合约，请参阅 [处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。如果你的命令可能触及限制，请在 TypeScript 中用 `try`/`catch` 或在 Python 中用 `try`/`except` 包装循环，如 [单消息输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode#single-message-input) 中所示，或设置 `maxTurns` 足够高以完成工作。
 </Note>

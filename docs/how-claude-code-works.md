@@ -76,7 +76,7 @@ Claude 根据您的提示和沿途学到的内容选择使用哪些工具。当�
 * **您的项目。** 您目录和子目录中的文件，以及其他地方有您许可的文件。
 * **您的终端。** 您可以运行的任何命令：构建工具、git、包管理器、系统实用程序、脚本。如果您可以从命令行做到，Claude 也可以。
 * **您的 git 状态。** 当前分支、未提交的更改和最近的提交历史。
-* **您的 [CLAUDE.md](/docs/zh-CN/memory)。** 一个 markdown 文件，您可以在其中存储项目特定的说明、约定和 Claude 应该在每个会话中了解的上下文。
+* **您的 [CLAUDE.md](/docs/zh-CN/memory)。** 一个 markdown 文件，您可以在其中存储项目特定的说明、约定和 Claude 应该在每个会话中了解的上下文。如果您的存储库有用于其他编码代理的 AGENTS.md，Claude [可以自己读取](/docs/zh-CN/memory#agents-md)或与 CLAUDE.md 一起读取。
 * **[自动内存](/docs/zh-CN/memory#auto-memory)。** Claude 在您工作时自动保存的学习内容，如您的偏好。MEMORY.md 的前 200 行或 25KB（以先到者为准）在每个会话开始时加载。
 * **您配置的扩展。** 用于外部服务的 [MCP servers](/docs/zh-CN/mcp)、用于工作流的 [skills](/docs/zh-CN/skills)、用于委派工作的 [subagents](/docs/zh-CN/sub-agents) 和用于浏览器交互的 [Claude in Chrome](/docs/zh-CN/chrome)。
 

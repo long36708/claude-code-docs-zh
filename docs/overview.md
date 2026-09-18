@@ -173,7 +173,7 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
   </Accordion>
 
   <Accordion title="使用说明、skills 和 hooks 进行自定义" icon="sliders">
-    [`CLAUDE.md`](/docs/zh-CN/memory) 是一个 markdown 文件，你可以将其添加到项目根目录，Claude Code 会在每个会话开始时读取它。使用它来设置编码标准、架构决策、首选库和审查清单。Claude 还会在工作时构建[自动内存](/docs/zh-CN/memory#auto-memory)，保存学习内容，跨会话使用，无需你编写任何内容。
+    [`CLAUDE.md`](/docs/zh-CN/memory) 是一个 markdown 文件，你可以将其添加到项目根目录，Claude Code 会在每个会话开始时读取它。使用它来设置编码标准、架构决策、首选库和审查清单。如果你的存储库已经有一个用于其他编码代理的 `AGENTS.md`，Claude Code [可以自己读取它](/docs/zh-CN/memory#agents-md)或与 `CLAUDE.md` 一起读取。Claude 还会在工作时构建[自动内存](/docs/zh-CN/memory#auto-memory)，保存学习内容，跨会话使用，无需你编写任何内容。
 
     创建 [skills](/docs/zh-CN/skills) 来打包你的团队可以共享的可重复工作流，如 `/review-pr` 或 `/deploy-staging`。
 

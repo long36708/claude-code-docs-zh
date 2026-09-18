@@ -237,7 +237,7 @@ Claude Code 支持 AWS SSO 和企业身份提供程序的自动凭证刷新。�
 }
 ```
 
-从 Claude Code v2.1.181 开始，也接受来自 `aws configure export-credentials --format process` 的平面输出，在顶级而不是嵌套在 `Credentials` 下具有相同的密钥。
+来自 `aws configure export-credentials --format process` 的平面输出也被接受，在顶级而不是嵌套在 `Credentials` 下具有相同的密钥。
 
 `Expiration` 是可选的。当命令返回有效的 ISO 8601 `Expiration` 时，Claude Code 会缓存凭证直到该时间前五分钟。没有它，凭证被缓存一小时。
 

@@ -1586,7 +1586,7 @@ Claude Code 的上下文窗口包含 Claude 在您的会话中了解的所有内
 
 该会话通过具有代表性的令牌计数演示了一个现实的流程：
 
-* **在您输入任何内容之前**：CLAUDE.md、自动内存、MCP 工具名称和技能描述都加载到上下文中。您自己的设置可能会在此处添加更多内容，例如[输出样式](/docs/zh-CN/output-styles)或来自 [`--append-system-prompt`](/docs/zh-CN/cli-reference) 的文本。
+* **在您输入任何内容之前**：CLAUDE.md、自动内存、MCP 工具名称和技能描述都加载到上下文中。[AGENTS.md 文件](/docs/zh-CN/memory#agents-md)也可以加载，无论是单独加载还是与 CLAUDE.md 一起加载。您自己的设置可能会在此处添加更多内容，例如[输出样式](/docs/zh-CN/output-styles)或来自 [`--append-system-prompt`](/docs/zh-CN/cli-reference) 的文本。
 * **当 Claude 工作时**：每个文件读取都会添加到上下文中，[路径范围的规则](/docs/zh-CN/memory#path-specific-rules)会自动与匹配的文件一起加载，并且[PostToolUse hook](/docs/zh-CN/hooks-guide)在每次编辑后触发。
 * **后续提示**：[子代理](/docs/zh-CN/sub-agents)在其自己的单独上下文窗口中处理研究，因此大文件读取不会进入您的窗口。只有摘要和一个小的元数据预告片返回。
 * **最后**：`/compact` 用结构化摘要替换对话。大多数启动内容会自动重新加载；下表显示了每个机制会发生什么。

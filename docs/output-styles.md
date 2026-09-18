@@ -34,11 +34,12 @@ Claude Code 的**默认**输出样式是其标准指令集，旨在帮助你高�
 
 通过以下方式之一选择样式：
 
+* **`/output-style` 命令**：运行 `/output-style <style>` 来切换，例如 `/output-style concise`。不带参数时，该命令列出你可以选择的样式并标记当前样式。Claude Code 将你的选择保存到[本地项目级别](/docs/zh-CN/settings)的 `.claude/settings.local.json`。
+
+  该命令也适用于[非交互模式](/docs/zh-CN/headless)和 Agent SDK 会话，以及来自移动应用或网页的[远程控制](/docs/zh-CN/remote-control#limitations)，其中你只能列出和选择[内置样式](#built-in-output-styles)。需要 Claude Code v2.1.269 或更高版本。
 * **Terminal**：运行 `/config` 并选择**输出样式**从菜单中选择一种样式。Claude Code 将你的选择保存到[本地项目级别](/docs/zh-CN/settings)的 `.claude/settings.local.json`。
 * **VS Code extension**：使用 `/` 打开[命令菜单](/docs/zh-CN/vs-code#use-the-prompt-box)并选择**输出样式**来选择一种样式，包括你的自定义样式。Claude Code 将你的选择保存到 `.claude/settings.local.json`，这是终端菜单写入的同一个文件。需要 Claude Code v2.1.257 或更高版本。
 * **Desktop app**：在设置文件中设置 `outputStyle` 字段，例如 `.claude/settings.local.json`，这是终端菜单写入的文件。当你在那里运行 `/config` 时，Claude Code [打开**设置 > Claude Code**](/docs/zh-CN/desktop#what%E2%80%99s-not-available-in-desktop)而不是菜单。
-
-<Note>独立的 `/output-style` 命令在 v2.1.73 中已弃用，在 v2.1.91 中被移除。使用 `/config` 或直接编辑 `outputStyle` 设置。</Note>
 
 要在不使用菜单的情况下设置样式，直接编辑设置文件中的 `outputStyle` 字段：
 
@@ -90,7 +91,7 @@ Claude Code 的**默认**输出样式是其标准指令集，旨在帮助你高�
   </Step>
 
   <Step title="切换到你的样式">
-    在终端中运行 `/config` 并在**输出样式**下选择你的样式。Claude 从你的下一条消息开始使用新样式。在终端中，Claude Code 在启动时读取样式文件，所以如果你在运行会话期间创建或编辑一个样式文件，请重启 Claude Code 以获取更改。
+    在终端中运行 `/output-style <style>`，或运行 `/config` 并在**输出样式**下选择你的样式。Claude 从你的下一条消息开始使用新样式。在终端中，Claude Code 在启动时读取样式文件，所以如果你在运行会话期间创建或编辑一个样式文件，请重启 Claude Code 以获取更改。
   </Step>
 </Steps>
 

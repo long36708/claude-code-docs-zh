@@ -1633,7 +1633,7 @@ Claude Code 也会在此处写入 `true`，当您选择在[自动模式的提示
 }
 ```
 
-如果仅存储库的签入设置文件添加目录，该块仍然适用于那里的读取。Claude Code 本身需要的文件保持可读，如您的技能、插件、规则、代理、命令以及 `~/.claude/` 下的 `CLAUDE.md` 内存文件。
+如果仅存储库的签入设置文件添加目录，该块仍然适用于那里的读取。当 [`autoMemoryDirectory`](#automemorydirectory) 来自项目的 `.claude/settings.json`，或来自被[视为存储库提供的](/docs/zh-CN/permissions#when-your-local-settings-file-needs-trust) `.claude/settings.local.json` 时，Claude Code 不会从该目录加载任何[自动内存](/docs/zh-CN/memory#storage-location)，也不会保存任何到其中。Claude Code 本身需要的文件保持可读，如您的技能、插件、规则、代理、命令以及 `~/.claude/` 下的 `CLAUDE.md` 内存文件。
 
 当[沙箱](/docs/zh-CN/sandboxing)打开时，该块也会拒绝沙箱命令对工作目录之外的主目录和挂载卷根的读取访问。需要批准以[在沙箱外运行](/docs/zh-CN/sandboxing#the-unsandboxed-retry-escape-hatch)的重试会在 `bypassPermissions` 模式中提示您。工具从您的主目录读取的文件（如 `~/.gitconfig`）与其余文件一起被拒绝；当工具需要它时，使用 [`sandbox.filesystem.allowRead`](#sandbox-filesystem-allowread) 重新打开特定路径。
 
@@ -3147,7 +3147,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   `axScreenReader`
 </h3>
 
-渲染屏幕阅读器友好的输出：没有装饰性边框或动画的平面文本。屏幕阅读器模式使用经典渲染器，因此在它处于活动状态时 `tui` 设置无效；附加的[后台会话](/docs/zh-CN/agent-view)仍会全屏渲染。需要 Claude Code v2.1.181 或更高版本。
+渲染屏幕阅读器友好的输出：没有装饰性边框或动画的平面文本。屏幕阅读器模式使用经典渲染器，因此在它处于活动状态时 `tui` 设置无效；附加的[后台会话](/docs/zh-CN/agent-view)仍会全屏渲染。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: Boolean
@@ -3161,8 +3161,6 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   "axScreenReader": true
 }
 ```
-
-需要 Claude Code v2.1.181 或更高版本。
 
 <h3 id="basheditdiffenabled">
   `bashEditDiffEnabled`
@@ -4988,6 +4986,8 @@ Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该插
 }
 ```
 
+内置插件使用带有 `@builtin` 后缀的相同键存储其选项。例如，控制 Claude Code 是否读取 `AGENTS.md` 文件的 [**Project instructions**](/docs/zh-CN/memory#choose-which-instruction-files-load) 设置是 `pluginConfigs["agents-md@builtin"].options.instructionFiles`。
+
 Claude Code 忽略项目和本地条目，因为它将这些值替换到插件 hook、MCP 和 LSP 配置中，克隆的存储库不得能够提供它们。在 v2.1.207 之前，项目和本地设置也被读取。
 
 <h2 id="mcp">
@@ -5074,7 +5074,7 @@ Claude Code 忽略项目和本地条目，因为它将这些值替换到插件 h
 阻止特定的 MCP 服务器。Claude Code 拒绝加载匹配的服务器，无论在何处定义，包括插件服务器、使用 `--mcp-config` 传递的服务器、来自 `managed-mcp.json` 的服务器、来自 [`managedMcpServers`](#managedmcpservers) 的服务器，以及 [它自行获取](/docs/zh-CN/mcp#how-connectors-reach-claude-code)的 claude.ai 连接器。进程内 `type: "sdk"` 服务器不受限制；启动会话的应用会注册它们。
 
 * **作用域**: [`Any file`](#scopes)。来自每个文件的条目合并为一个拒绝列表，[`allowManagedMcpServersOnly`](#allowmanagedmcpserversonly) 不会改变这一点。在托管设置中部署它以强制执行。
-* **类型**: 对象数组，每个对象恰好有一个密钥：`serverName`，任何非空字符串，因此 claude.ai 连接器的显示名称（例如 `"claude.ai Slack"`）有效；`serverCommand`，一个与命令及其参数完全匹配的数组；或 `serverUrl`，一个带有 `*` 通配符的 URL 模式
+* **类型**: 对象数组，每个对象恰好有一个密钥：`serverName`，一个字符串，因此 claude.ai 连接器的显示名称（例如 `"claude.ai Slack"`）有效；`serverCommand`，一个与命令及其参数完全匹配的数组；或 `serverUrl`，一个带有 `*` 通配符的 URL 模式
 * **默认值**: 未设置，因此不阻止任何服务器；空数组也不阻止任何内容
 
 ```json settings.json theme={null}
@@ -5091,7 +5091,7 @@ Claude Code 忽略项目和本地条目，因为它将这些值替换到插件 h
   `disableClaudeAiConnectors`
 </h3>
 
-关闭 [claude.ai MCP 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai) [Claude Code 自行获取](/docs/zh-CN/mcp#how-connectors-reach-claude-code)，因此它既不获取也不连接它们。任何设置文件中的 `true` 都适用：签入的项目 `.claude/settings.json` 可以选择退出存储库中的这些连接器，但项目级别的 `false` 无法覆盖用户级别或托管级别的 `true`。需要 Claude Code v2.1.182 或更高版本。
+关闭 [claude.ai MCP 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai) [Claude Code 自行获取](/docs/zh-CN/mcp#how-connectors-reach-claude-code)，因此它既不获取也不连接它们。任何设置文件中的 `true` 都适用：签入的项目 `.claude/settings.json` 可以选择退出存储库中的这些连接器，但项目级别的 `false` 无法覆盖用户级别或托管级别的 `true`。
 
 * **作用域**: [`Any file`](#scopes)
 * **类型**: 布尔值
@@ -5106,7 +5106,7 @@ Claude Code 忽略项目和本地条目，因为它将这些值替换到插件 h
 }
 ```
 
-您使用 `--mcp-config` 显式传递的服务器不受影响。要阻止单个连接器而不是全部，请使用 [`deniedMcpServers`](#deniedmcpservers)。请参阅[禁用 claude.ai 连接器](/docs/zh-CN/mcp#disable-claude-ai-connectors)。需要 Claude Code v2.1.182 或更高版本。
+您使用 `--mcp-config` 显式传递的服务器不受影响。要阻止单个连接器而不是全部，请使用 [`deniedMcpServers`](#deniedmcpservers)。请参阅[禁用 claude.ai 连接器](/docs/zh-CN/mcp#disable-claude-ai-connectors)。
 
 <h3 id="disabledmcpjsonservers">
   `disabledMcpjsonServers`

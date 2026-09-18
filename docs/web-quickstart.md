@@ -67,7 +67,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 
 <Steps>
   <Step title="访问 claude.ai/code">
-    转到 [claude.ai/code](https://claude.ai/code)并使用您的 claude.ai 账户登录。在 macOS 或 Windows 上，第一个屏幕提供 Claude Code 桌面应用和其他安装 Claude Code 的方式。要留在浏览器中，请单击页面底部的**Continue on web**。
+    转到 [claude.ai/code](https://claude.ai/code)并使用您的 claude.ai 账户登录。
   </Step>
 
   <Step title="使用 GitHub 登录">

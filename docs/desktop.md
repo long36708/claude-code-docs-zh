@@ -242,15 +242,15 @@ Code 选项卡围绕你可以以任何布局排列的窗格构建：聊天、dif
   切换视图模式
 </h3>
 
-视图模式控制聊天记录中显示多少详细信息。从发送按钮旁的 **Transcript view** 下拉菜单切换模式，或在 macOS 或 Windows 上按 **Ctrl+O** 来循环浏览它们。
+视图模式控制聊天记录中显示多少详细信息。从发送按钮旁的 **Transcript view** 下拉菜单切换模式，或在 macOS 或 Windows 上按 **Ctrl+O** 来循环浏览它们。Thinking 模式仅在 Claude 在你正在查看的会话中产生思考后才出现在下拉菜单中。
 
-| 模式          | 显示内容                       |
-| ----------- | -------------------------- |
-| **Normal**  | 工具调用折叠成摘要，带有完整文本响应         |
-| **Verbose** | Claude 采取的每个工具调用、文件读取和中间步骤 |
-| **Summary** | 仅 Claude 的最终响应和它所做的更改      |
+| 模式           | 显示内容                                     |
+| ------------ | ---------------------------------------- |
+| **Normal**   | 工具调用折叠成摘要，带有完整文本响应                       |
+| **Thinking** | 工具调用折叠成摘要，加上 Claude 的思考                  |
+| **Verbose**  | Claude 采取的每个工具调用、文件读取和中间步骤，加上 Claude 的思考 |
 
-在调试 Claude 为什么采取特定操作时使用 Verbose。当你运行多个会话并想快速扫描结果时使用 Summary。
+使用 Thinking 来跟踪 Claude 的推理，工具调用仍然折叠。在调试 Claude 为什么采取特定操作时使用 Verbose。Claude Desktop 1.46388.1 之前的版本也列出了 Summary 模式，仍然设置为 Summary 的会话在你更新后会以 Normal 打开。
 
 <h3 id="keyboard-shortcuts">
   快捷键

@@ -10,7 +10,7 @@
   Projects 在 Pro 和 Max 计划上处于公开测试阶段，正在逐步推出，首先面向已使用[云会话](/docs/zh-CN/claude-code-on-the-web)且在 claude.ai 聊天或 Cowork 中没有现有项目的账户。它们在 Team 或 Enterprise 计划上还不可用。如果 **Projects** 没有出现在 [claude.ai/code](https://claude.ai/code) 的侧边栏中或[桌面应用](/docs/zh-CN/desktop)的代码选项卡中，说明推出还没有到达您的账户，您可以[加入等待列表](https://claude.com/form/projects)。[并行运行代理](/docs/zh-CN/agents)列出了您在此期间可以使用的内容。
 </Note>
 
-项目是一个持续进行的对话，Claude 在其中为您协调一系列相关工作。您告诉它需要做什么，它为每个任务启动一个线程。每个线程都是一个[云会话](/docs/zh-CN/claude-code-on-the-web)：Claude Code 在云中运行，而不是在您的机器上运行。线程并行运行，即使您关闭笔记本电脑后也会继续进行。
+项目是一个持续进行的对话，Claude 在其中为您协调一系列相关工作。您告诉它需要做什么，它为每个任务启动一个线程。每个线程都是一个[云会话](/docs/zh-CN/claude-code-on-the-web)：Claude Code 在云中运行，而不是在您的机器上运行。线程并行运行，即使您关闭笔记本电脑后也会继续进行，您可以从手机上检查它们并引导它们。
 
 没有项目的情况下，运行多个会话意味着您自己进行协调：您决定每个会话处理什么，在每个会话的开始重复相同的背景信息，并检查哪个已完成或需要您的回答。使用项目，您可以：
 
@@ -75,7 +75,7 @@
   创建项目
 </h2>
 
-您在 [claude.ai/code](https://claude.ai/code) 或桌面应用的 Code 标签页中创建和使用项目。有两种方式启动一个：
+您在 [claude.ai/code](https://claude.ai/code)、桌面应用的 Code 标签页或 Claude 移动应用中创建和使用项目，支持 [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和 [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude)。在浏览器和桌面应用中，有两种方式启动项目：
 
 * **从头开始**，当您知道希望 Claude 运行的工作流时：打开 **New project** 对话框并命名它。[从头开始启动新项目](#start-a-new-project-from-scratch)会逐步讲解对话框。
 * **从已经在进行工作的云会话**：从该会话的菜单中选择 **Continue as a project**，Claude 从会话正在做的事情中提议项目的设置。请参阅[从现有云会话启动](#start-from-an-existing-cloud-session)。
@@ -199,7 +199,11 @@ Claude 决定您在对话中发送的每条消息去哪里：
 * **拉取请求**：当您要求时打开一个，并可以为错误修复或其他具体更改自己打开一个。
 * **打开后**：使用[自动修复](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)打开监视拉取请求，无论自动修复是否对您的其他云会话打开。它在 CI 失败时推送修复，处理审查评论，并在检查通过且拉取请求准备好供您审查时在线程中回复。
 
-线程在对话中的卡片显示拉取请求下一步的按钮（当有一个时），例如 **Resolve conflicts**、**Fix CI**、**Address comments** 或 **Merge it**。点击它将该指令作为来自您的消息发送到线程，因此您可以自己提示线程而不是等待它对拉取请求做出反应。**Review PR** 在 GitHub 上打开拉取请求。
+当线程在对话中的卡片显示拉取请求下一步的按钮时：
+
+* **Resolve conflicts**、**Fix CI**、**Address comments** 和 **Merge it** 将该指令作为来自您的消息发送到线程，因此您可以自己提示线程而不是等待它对拉取请求做出反应。
+* **Review PR** 在 GitHub 上打开拉取请求。
+* **Create PR** 在空闲线程已推送分支但尚未打开拉取请求时出现。点击它直接从该分支创建拉取请求，而不是向线程发送打开拉取请求的指令。
 
 要更改线程何时打开拉取请求，例如仅在您要求时，或它们从哪个分支开始，请在任务中或在[项目说明](#write-project-instructions)中说出来。
 
@@ -446,7 +450,7 @@ Claude 自己将这些偏好保存到[项目记忆](#give-a-project-standing-con
   限制
 </h2>
 
-* Projects 在 claude.ai/code 和桌面应用中可用，不在终端 CLI 或通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 中。CLI 的 [`claude project`](/docs/zh-CN/cli-reference) 命令（它管理目录的本地 Claude Code 状态）是无关的。
+* Projects 在 claude.ai/code、桌面应用和 Claude 移动应用中可用，不在终端 CLI 或通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 中。CLI 的 [`claude project`](/docs/zh-CN/cli-reference) 命令（它管理目录的本地 Claude Code 状态）是无关的。
 * 项目线程是[云会话](/docs/zh-CN/claude-code-on-the-web)，Anthropic 作为模型提供者。[安全](/docs/zh-CN/security)和[数据使用](/docs/zh-CN/data-usage)涵盖了云会话如何隔离以及保留什么。
 * 本地会话不能是项目的一部分。
 * 线程的沙箱在轮之间暂停，并在线程继续时恢复。如果沙箱无法恢复，线程从新克隆继续，因此未提交的更改可能会丢失。在长任务上，要求 Claude 提交和推送进行中的工作。
@@ -473,7 +477,7 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 
 1. 在对话中要求 Claude："对于每个打开的线程，列出您要求它做什么、它假设或无法到达什么，以及它在等待什么。"Claude 读取每个线程并在对话中回答。
 2. 对于从错误假设开始的线程，从 **Overview** 打开线程并从其菜单标记为已解决，或在其消息框中告诉它做什么。其分支和任何拉取请求保留在 GitHub 上，直到您删除它们。
-3. 一次修复间隙，在[项目说明](#write-project-instructions)或[环境](#choose-an-environment-for-threads)中，然后在再次发送其余工作作为新线程之前发送一个线程。
+3. 一次修复间隙，在[项目说明](#give-a-project-standing-context)或[环境](#choose-an-environment-for-threads)中，然后在再次发送其余工作作为新线程之前发送一个线程。
 
 <h3 id="claude-hasnt-responded">
   Claude 没有响应
@@ -521,7 +525,7 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 | "The project's environment was removed"                                                     | 在 **Project settings > Environment** 中选择不同的环境；更改适用于新线程                                                    |
 | "Setup script failed"                                                                       | 点击错误上的 **Edit setup script**，在环境中修复脚本，然后发送另一条消息。[设置脚本失败](/docs/zh-CN/web-quickstart#setup-script-failed)列出常见原因 |
 | "Claude ran out of context on this turn"                                                    | 线程填满了其上下文窗口。如果消息说线程在新会话中继续，它自己继续；否则在项目对话中要求 Claude 为剩余工作启动新线程                                             |
-| "Reached the turn limit"                                                                    | 线程达到了一条消息的步骤上限。发送另一条消息，带有更小或更具体的请求，或要求 Claude 跨线程分割任务                                                     |
+| "Reached the turn limit"                                                                    | 线程达到了 [`CLAUDE_CODE_MAX_TURNS`](/docs/zh-CN/env-vars) 设置的代理轮次上限。发送另一条消息继续，或在设置它的地方提高或删除该变量                     |
 
 <h2 id="related-resources">
   相关资源

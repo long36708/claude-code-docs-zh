@@ -407,6 +407,8 @@ Claude Code 保留被拒绝的目录，因为它可能保留工作。将消息�
 
 拒绝结尾嵌入在每个错误中与交互式通知共享，因此它仍然匹配[Claude Code 拒绝使用 worktree](#claude-code-refuses-to-use-a-worktree) 下的其条目。
 
+在 stream-json 结果中，[`startup_failure_reason`](/docs/zh-CN/agent-sdk/typescript#startup_failure_reason) 对于 `could not verify worktree` 错误是 `worktree_unverified`，对于 `cannot resume into worktree` 和 `The worktree binding is kept` 错误是 `worktree_resume_refused`。应用程序可以基于它进行分支，而不是匹配错误文本。在 v2.1.274 之前，结果没有携带 `startup_failure_reason` 字段。
+
 <h2 id="see-also">
   另请参阅
 </h2>

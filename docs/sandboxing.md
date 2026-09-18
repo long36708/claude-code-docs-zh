@@ -540,7 +540,7 @@ AWS 请求在请求内容上携带 SigV4 签名，因此一起掩盖 `AWS_ACCESS
 
 * **在你的工作目录及其上方的目录中**：`.claude` 设置文件、`.claude/skills`、`.claude/agents`、`.claude/commands` 和 `.claude/hooks` 目录、`.mcp.json`，以及 Claude Code 自己运行的文件，例如 `.claude/workflows` 和 `.claude/scheduled_tasks.json`
 * **仅在你的工作目录中**：shell 启动文件，例如 `.bashrc` 和 `.zshrc`、`.gitconfig`、`.vscode` 和 `.idea` 目录，以及 `.git` 内的 `hooks` 和 `config`
-* **会将你的工作目录变成裸 git 存储库的文件**：顶级的 `HEAD`、`objects` 和 `refs`，加上 `config` 和 `hooks`（当它们已经存在时），即使 `config` 目录属于你的项目而不是 git。在 Linux 和 WSL2 上，沙箱删除在沙箱化命令运行时出现的顶级 `HEAD` 文件或 `objects` 或 `refs` 目录
+* **会将你的工作目录变成裸 git 存储库的文件**：顶级的 `HEAD`、`objects` 和 `refs`，加上 `config` 和 `hooks`（当它们已经存在时）。即使 `config` 文件没有 `HEAD` 也会被拒绝。在 Linux 和 WSL2 上，沙箱删除在沙箱化命令运行时出现的顶级 `HEAD` 文件或 `objects` 或 `refs` 目录
 * **在 `~/.claude` 中，或 `CLAUDE_CONFIG_DIR` 指向的目录中**：其大部分内容，加上 `~/.claude.json` 和 `.credentials.json` 凭证存储
 
 如果在会话期间受保护设置文件的路径处出现符号链接，沙箱也会拒绝对其指向的文件进行写入，从下一个命令开始。

@@ -1031,7 +1031,9 @@ URL 必须使用 `https://`。元数据 URL 的 `scopes_supported` 覆盖上游�
 
 如果授权服务器在 `scopes_supported` 中公开 `offline_access`，Claude Code 会将其附加到固定范围，以便可以在没有新浏览器登录的情况下刷新访问令牌。
 
-如果服务器稍后为工具调用返回 403 `insufficient_scope`，Claude Code 会使用相同的固定范围重新进行身份验证。当您需要的工具需要固定范围之外的范围时，扩展 `oauth.scopes`。
+如果服务器稍后为工具调用返回 403 `insufficient_scope`，调用会失败，并显示 [`需要额外权限`](/docs/zh-CN/errors#mcp-server-needs-you-to-sign-in-again) 消息，该消息命名服务器请求的范围。服务器在 `/mcp` 中显示为需要身份验证。
+
+如果该范围不在您的固定 `oauth.scopes` 中，请添加它，然后运行 `/mcp` 并再次对服务器进行身份验证。Claude Code 请求固定范围而不是服务器命名的范围，因此如果您在不添加它的情况下再次进行身份验证，您获得的令牌仍然缺少它。
 
 <h3 id="use-dynamic-headers-for-custom-authentication">
   使用动态标头进行自定义身份验证

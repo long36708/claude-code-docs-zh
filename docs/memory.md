@@ -2,21 +2,22 @@
 > Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
 > Use this file to discover all available pages before exploring further.
 
-# Claude 如何记住你的项目
+# Claude 如何记住您的项目
 
-> 使用 CLAUDE.md 文件为 Claude 提供持久指令，并让 Claude 通过自动记忆功能自动积累学习内容。
+> 使用 CLAUDE.md 或 AGENTS.md 文件为 Claude 提供持久指令，并让 Claude 通过自动记忆自动积累学习。
 
-每个 Claude Code 会话都从一个全新的上下文窗口开始。两种机制可以跨会话传递知识：
+每个 Claude Code 会话都以全新的上下文窗口开始。两种机制可以跨会话传递知识：
 
-* **CLAUDE.md 文件**：你编写的指令，为 Claude 提供持久上下文
-* **自动记忆**：Claude 根据你的更正和偏好自己编写的笔记
+* **CLAUDE.md 文件**：您编写的指令，为 Claude 提供持久上下文。Claude 也可以读取存储库的 [`AGENTS.md` 文件](#agents-md)，单独使用或与 CLAUDE.md 一起使用
+* **自动记忆**：Claude 根据您的更正和偏好自己编写的笔记
 
 本页面涵盖以下内容：
 
 * [编写和组织 CLAUDE.md 文件](#claude-md-files)
-* [使用 `.claude/rules/` 将规则范围限定到特定文件类型](#organize-rules-with-claude/rules/)
-* [配置自动记忆](#auto-memory)，使 Claude 自动记笔记
-* [故障排除](#troubleshoot-memory-issues)，当指令未被遵循时
+* [使用现有 AGENTS.md](#agents-md) 作为您的项目指令，单独使用或与 CLAUDE.md 一起使用
+* [使用 `.claude/rules/` 将规则范围限定为特定文件类型](#organize-rules-with-claude/rules/)
+* [配置自动记忆](#auto-memory)，以便 Claude 自动记笔记
+* [故障排除](#troubleshoot-memory-issues)当指令未被遵循时
 
 <h2 id="claude-md-vs-auto-memory">
   CLAUDE.md 与自动记忆
@@ -40,192 +41,164 @@ Subagents 也可以维护自己的自动记忆。有关详细信息，请参阅 
   CLAUDE.md 文件
 </h2>
 
-CLAUDE.md 文件是 markdown 文件，为项目、你的个人工作流或整个组织为 Claude 提供持久指令。你用纯文本编写这些文件；Claude 在每个会话开始时读取它们。
+CLAUDE.md 文件是 markdown 文件，为 Claude 提供项目、个人工作流或整个组织的持久指令。您用纯文本编写这些文件；Claude 在每个会话开始时读取它们。如果您的存储库改用 `AGENTS.md`，请参阅 [AGENTS.md](#agents-md)。
 
 <h3 id="when-to-add-to-claude-md">
   何时添加到 CLAUDE.md
 </h3>
 
-将 CLAUDE.md 视为你写下你本来会重新解释的内容的地方。在以下情况下添加到它：
+将 CLAUDE.md 视为您写下本来需要重新解释的内容的地方。在以下情况下添加到它：
 
 * Claude 第二次犯同样的错误
-* 代码审查发现 Claude 应该了解这个代码库的内容
-* 你在聊天中输入的相同更正或澄清是你上个会话输入的
+* 代码审查发现 Claude 应该了解的关于此代码库的内容
+* 您在聊天中输入的相同更正或澄清是您上一个会话中输入的
 * 新队友需要相同的上下文才能提高生产力
 
-将其保持为 Claude 应该在每个会话中保持的事实：构建命令、约定、项目布局、"总是做 X"规则。如果一个条目是多步骤过程或仅对代码库的一部分重要，将其移到 [skill](/docs/zh-CN/skills) 或 [路径范围规则](#path-specific-rules) 中。[扩展概述](/docs/zh-CN/features-overview#build-your-setup-over-time)涵盖何时使用每种机制。
+将其保持为 Claude 应该在每个会话中保留的事实：构建命令、约定、项目布局、"始终执行 X"规则。如果条目是多步骤过程或仅对代码库的一部分重要，请将其移至 [skill](/docs/zh-CN/skills) 或 [path-scoped rule](#organize-rules-with-claude/rules/) 代替。[扩展概述](/docs/zh-CN/features-overview#build-your-setup-over-time) 涵盖何时使用每种机制。
 
 <h3 id="choose-where-to-put-claude-md-files">
   选择 CLAUDE.md 文件的位置
 </h3>
 
-CLAUDE.md 文件可以位于多个位置，每个位置有不同的范围。下表按加载顺序列出它们，从最广泛的范围到最具体的范围，因此项目指令在用户指令之后出现在上下文中。
+CLAUDE.md 文件可以位于多个位置，每个位置具有不同的范围。下表按加载顺序列出它们，从最广泛的范围到最具体的范围，因此项目指令在用户指令之后出现在上下文中。
 
 | 范围       | 位置                                                                                                                                                                    | 目的                        | 用例示例             | 共享对象         |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ---------------- | ------------ |
 | **托管策略** | • macOS: `/Library/Application Support/ClaudeCode/CLAUDE.md`<br />• Linux 和 WSL: `/etc/claude-code/CLAUDE.md`<br />• Windows: `C:\Program Files\ClaudeCode\CLAUDE.md` | 由 IT/DevOps 管理的组织范围指令     | 公司编码标准、安全策略、合规要求 | 组织中的所有用户     |
-| **用户指令** | `~/.claude/CLAUDE.md`                                                                                                                                                 | 所有项目的个人偏好                 | 代码样式偏好、个人工具快捷方式  | 仅你（所有项目）     |
-| **项目指令** | `./CLAUDE.md` 或 `./.claude/CLAUDE.md`                                                                                                                                 | 项目的团队共享指令                 | 项目架构、编码标准、常见工作流  | 通过源代码控制的团队成员 |
-| **本地指令** | `./CLAUDE.local.md`                                                                                                                                                   | 个人项目特定偏好；添加到 `.gitignore` | 你的沙箱 URL、首选测试数据  | 仅你（当前项目）     |
+| **用户指令** | `~/.claude/CLAUDE.md`                                                                                                                                                 | 所有项目的个人偏好                 | 代码样式偏好、个人工具快捷方式  | 仅您（所有项目）     |
+| **项目指令** | `./CLAUDE.md` 或 `./.claude/CLAUDE.md`。有关何时加载 `./AGENTS.md` 而不是或与它们一起加载，请参阅 [AGENTS.md](#agents-md)                                                                    | 项目的团队共享指令                 | 项目架构、编码标准、常见工作流  | 通过源代码控制的团队成员 |
+| **本地指令** | `./CLAUDE.local.md`                                                                                                                                                   | 个人项目特定偏好；添加到 `.gitignore` | 您的沙箱 URL、首选测试数据  | 仅您（当前项目）     |
 
-工作目录上方目录层次结构中的 CLAUDE.md 和 CLAUDE.local.md 文件在启动时完整加载。子目录中的文件在 Claude 读取这些目录中的文件时按需加载。有关完整的解析顺序，请参阅 [CLAUDE.md 文件如何加载](#how-claude-md-files-load)。
+工作目录上方目录层次结构中的 CLAUDE.md 和 CLAUDE.local.md 文件在启动时加载。子目录中的文件在 Claude 读取这些目录中的文件时按需加载。有关完整的解析顺序，请参阅 [CLAUDE.md 文件如何加载](#how-claude-md-files-load)。
 
-对于大型项目，你可以使用 [项目规则](#organize-rules-with-claude/rules/) 将指令分解为特定主题的文件。规则让你将指令范围限定到特定文件类型或子目录。
+对于大型项目，您可以使用 [project rules](#organize-rules-with-claude/rules/) 将指令分解为特定主题的文件。规则允许您将指令范围限定为特定文件类型或子目录。
 
 <h3 id="set-up-a-project-claude-md">
   设置项目 CLAUDE.md
 </h3>
 
-项目 CLAUDE.md 可以存储在 `./CLAUDE.md` 或 `./.claude/CLAUDE.md` 中。创建此文件并添加适用于在项目上工作的任何人的指令：构建和测试命令、编码标准、架构决策、命名约定和常见工作流。这些指令通过版本控制与你的团队共享，因此请关注项目级标准而不是个人偏好。要确认文件已加载，在会话中运行 `/context` 并检查 **Memory files** 下的列表。
+项目 CLAUDE.md 可以存储在 `./CLAUDE.md` 或 `./.claude/CLAUDE.md` 中。创建此文件并添加适用于在项目上工作的任何人的指令：构建和测试命令、编码标准、架构决策、命名约定和常见工作流。这些指令通过版本控制与您的团队共享，因此请关注项目级标准而不是个人偏好。要确认文件已加载，请在会话中运行 `/context` 并检查 **Memory files** 下的列表。
 
 <Tip>
-  运行 `/init` 自动生成起始 CLAUDE.md。Claude 分析你的代码库并创建一个包含构建命令、测试指令和它发现的项目约定的文件。如果 CLAUDE.md 已存在，`/init` 会建议改进而不是覆盖它。从那里进行细化，添加 Claude 不会自己发现的指令。
+  运行 `/init` 自动生成起始 CLAUDE.md。Claude 分析您的代码库并创建一个包含构建命令、测试指令和它发现的项目约定的文件。如果 CLAUDE.md 已存在，`/init` 会建议改进而不是覆盖它。从那里进行细化，添加 Claude 不会自己发现的指令。
 
-  设置 `CLAUDE_CODE_NEW_INIT=1` 以启用交互式多阶段流程。`/init` 询问要设置哪些工件：CLAUDE.md 文件、skills 和 hooks。然后它使用 subagent 探索你的代码库，通过后续问题填补空白，并在写入任何文件之前呈现可审查的提案。
+  设置 `CLAUDE_CODE_NEW_INIT=1` 以启用交互式多阶段流程。`/init` 询问要设置哪些工件：CLAUDE.md 文件、skills 和 hooks。然后它使用子代理探索您的代码库，通过后续问题填补空白，并在写入任何文件之前呈现可审查的提案。
 </Tip>
 
 <h3 id="write-effective-instructions">
   编写有效的指令
 </h3>
 
-CLAUDE.md 文件在每个会话开始时加载到上下文窗口中，与你的对话一起消耗令牌。[上下文窗口可视化](/docs/zh-CN/context-window)显示 CLAUDE.md 相对于其余启动上下文的加载位置。因为它们是上下文而不是强制配置，你编写指令的方式会影响 Claude 遵循它们的可靠性。具体、简洁、结构良好的指令效果最好。
+CLAUDE.md 文件在每个会话开始时加载到上下文窗口中，与您的对话一起消耗令牌。[上下文窗口可视化](/docs/zh-CN/context-window) 显示 CLAUDE.md 相对于其余启动上下文的加载位置。因为它们是上下文而不是强制配置，您编写指令的方式会影响 Claude 遵循它们的可靠性。具体、简洁、结构良好的指令效果最好。
 
-**大小**：每个 CLAUDE.md 文件目标在 200 行以下。较长的文件消耗更多上下文并降低遵守度。如果你的指令变得很大，使用 [路径范围规则](#path-specific-rules) 以便指令仅在 Claude 处理匹配文件时加载。你也可以将内容分割成 [导入](#import-additional-files) 以便组织，尽管导入的文件仍然加载并在启动时进入上下文窗口。
+**大小**：每个 CLAUDE.md 文件目标在 200 行以下。较长的文件消耗更多上下文并降低遵守度。如果您的指令变得很大，请使用 [path-scoped rules](#path-specific-rules)，以便指令仅在 Claude 处理匹配文件时加载。您也可以将内容拆分为 [imports](#import-additional-files) 以便组织，尽管导入的文件仍然加载并在启动时进入上下文窗口。
 
 **结构**：使用 markdown 标题和项目符号来分组相关指令。Claude 扫描结构的方式与读者相同：有组织的部分比密集段落更容易遵循。
 
 **具体性**：编写具体到足以验证的指令。例如：
 
 * "使用 2 空格缩进"而不是"正确格式化代码"
-* "在提交前运行 `npm test`"而不是"测试你的更改"
+* "在提交前运行 `npm test`"而不是"测试您的更改"
 * "API 处理程序位于 `src/api/handlers/`"而不是"保持文件有组织"
 
-**一致性**：如果两条规则相互矛盾，Claude 可能会任意选择一条。定期审查你的 CLAUDE.md 文件、子目录中的嵌套 CLAUDE.md 文件和 [`.claude/rules/`](#organize-rules-with-claude/rules/) 以删除过时或冲突的指令。在 monorepos 中，使用 [`claudeMdExcludes`](#exclude-specific-claude-md-files) 跳过与你的工作无关的其他团队的 CLAUDE.md 文件。
+**一致性**：如果两条规则相互矛盾，Claude 可能会任意选择一条。定期审查您的 CLAUDE.md 文件、子目录中的嵌套 CLAUDE.md 文件和 [`.claude/rules/`](#organize-rules-with-claude/rules/)，以删除过时或冲突的指令。在 monorepos 中，使用 [`claudeMdExcludes`](#exclude-specific-claude-md-files) 跳过来自与您的工作无关的其他团队的 CLAUDE.md 文件。
 
 <h3 id="import-additional-files">
   导入其他文件
 </h3>
 
-CLAUDE.md 文件可以使用 `@path/to/import` 语法导入其他文件。导入的文件在启动时展开并加载到上下文中，与引用它们的 CLAUDE.md 一起。
+CLAUDE.md 文件可以使用 `@path/to/import` 语法导入其他文件。导入的文件被展开并在启动时加载到上下文中，与引用它们的 CLAUDE.md 一起。
 
 允许相对路径和绝对路径。相对路径相对于包含导入的文件解析，而不是工作目录。导入的文件可以递归导入其他文件，最大深度为四跳。
 
-导入解析跳过 Markdown 代码跨度和围栏代码块。要在你的 CLAUDE.md 中提及路径而不导入它，将其包装在反引号中：写 `` `@README` `` 保持文本字面，而 `@README` 在反引号外导入文件。
+导入解析跳过 Markdown 代码跨度和围栏代码块。要在您的 CLAUDE.md 中提及路径而不导入它，请将其包装在反引号中：编写 `` `@README` `` 保持文本字面，而 `@README` 在反引号外导入文件。
 
-要引入 README、package.json 和工作流指南，在你的 CLAUDE.md 中的任何地方使用 `@` 语法引用它们：
+要引入 README、package.json 和工作流指南，请在 CLAUDE.md 中的任何地方使用 `@` 语法引用它们：
 
 ```text theme={null}
-有关项目概述，请参阅 @README，有关此项目的可用 npm 命令，请参阅 @package.json。
+See @README for project overview and @package.json for available npm commands for this project.
 
-# 其他指令
-- git 工作流 @docs/git-instructions.md
+# Additional Instructions
+- git workflow @docs/git-instructions.md
 ```
 
-对于你不想签入版本控制的私人项目偏好，在项目根目录创建 `CLAUDE.local.md`。它与 `CLAUDE.md` 一起加载并以相同方式处理。将 `CLAUDE.local.md` 添加到你的 `.gitignore` 以便它不被提交。设置 `CLAUDE_CODE_NEW_INIT=1` 后，运行 `/init` 并选择个人选项会为你做这个。
+对于不应该检入版本控制的私人项目特定偏好，请在项目根目录创建 `CLAUDE.local.md`。它与 `CLAUDE.md` 一起加载并以相同方式处理。将 `CLAUDE.local.md` 添加到您的 `.gitignore` 以便不提交它。设置 `CLAUDE_CODE_NEW_INIT=1` 后，运行 `/init` 并选择个人选项会为您执行此操作。
 
-如果你在同一存储库的多个 git worktrees 中工作，一个被 gitignore 的 `CLAUDE.local.md` 仅存在于你创建它的 worktree 中。要在 worktrees 中共享个人指令，改为从你的主目录导入文件：
+如果您在同一存储库的多个 git worktrees 中工作，gitignored `CLAUDE.local.md` 仅存在于您创建它的 worktree 中。要在 worktrees 中共享个人指令，请改为从您的主目录导入文件：
 
 ```text theme={null}
-# 个人偏好
+# Individual Preferences
 - @~/.claude/my-project-instructions.md
 ```
 
 <Warning>
-  项目级内存文件中的导入是外部的，当其路径解析到工作目录外时，例如上面的主目录导入。Claude Code 第一次在项目中遇到外部导入时，它会显示一个批准对话框，列出这些文件。如果你拒绝，导入保持禁用状态，对话框不会再出现。
+  项目级内存文件中的导入是外部的，当其路径解析到工作目录外时，例如上面的主目录导入。Claude Code 首次在项目中遇到外部导入时，会显示一个批准对话框，列出文件。如果您拒绝，导入保持禁用状态，对话框不会再出现。
 
-  Claude Code 显示对话框是为了保护你免受其他人提交到共享项目的文件。用户范围内存文件，例如 `~/.claude/CLAUDE.md` 和 `~/.claude/rules/`，是你自己编写的文件。除了在你的桌面上的 [Cowork](https://claude.com/product/cowork) 会话中，Claude Code 加载它们的导入而不显示对话框，并像信任你的其余个人配置一样信任它们。
+  Claude Code 显示对话框以保护您免受其他人提交到共享项目的文件。用户范围内存文件，例如 `~/.claude/CLAUDE.md` 和 `~/.claude/rules/`，是您自己编写的文件。除了在您的桌面上的 [Cowork](https://claude.com/product/cowork) 会话中，Claude Code 加载它们的导入而不显示对话框，并像信任您的其余个人配置一样信任它们。
 
-  在你的桌面上的 Cowork 会话中，Claude Code 跳过用户范围文件中解析到会话工作目录外的路径的任何导入，并加载文件的其余部分。在这些会话中，它也跳过本身是符号链接或硬链接的 `~/.claude/CLAUDE.md`，以及指向工作目录外的符号链接 `~/.claude/rules/` 目录或规则文件。
+  在您的桌面上的 Cowork 会话中，Claude Code 跳过用户范围文件中解析到会话工作目录外的路径的任何导入，并加载文件的其余部分。在这些会话中，它也跳过本身是符号链接或硬链接的 `~/.claude/CLAUDE.md`，以及指向工作目录外的符号链接 `~/.claude/rules/` 目录或规则文件。
 </Warning>
-
-<h3 id="agents-md">
-  AGENTS.md
-</h3>
-
-Claude Code 读取 `CLAUDE.md`，而不是 `AGENTS.md`。如果你的存储库已经为其他编码代理使用 `AGENTS.md`，创建一个导入它的 `CLAUDE.md`，这样两个工具都可以读取相同的指令而无需重复。你也可以在导入下方添加 Claude 特定的指令。Claude 在会话开始时加载导入的文件，然后附加其余部分：
-
-```markdown CLAUDE.md theme={null}
-@AGENTS.md
-
-## Claude Code
-
-对 `src/billing/` 下的更改使用 Plan Mode。
-```
-
-一个符号链接也可以工作，如果你不需要添加 Claude 特定的内容：
-
-```bash theme={null}
-ln -s AGENTS.md CLAUDE.md
-```
-
-该命令在成功时不打印任何输出。在你的下一个会话中，运行 `/context` 并确认 `CLAUDE.md` 出现在 **Memory files** 下。
-
-在 Windows 上，创建符号链接需要管理员权限或开发者模式，所以改用 `@AGENTS.md` 导入。
-
-运行 [`/init`](/docs/zh-CN/commands) 读取 Cursor 规则，在 `.cursor/rules/` 或 `.cursorrules` 中，以及 Copilot 规则，在 `.github/copilot-instructions.md` 中，并将相关部分合并到生成的 `CLAUDE.md` 中。设置 `CLAUDE_CODE_NEW_INIT=1` 后，`/init` 也读取 `AGENTS.md`、`.devin/rules/`、`.windsurf/rules/` 或 `.windsurfrules`，以及 `.clinerules`。
-
-你也可以运行 [`/import`](/docs/zh-CN/commands) 将支持的编码代理的配置引入 Claude Code，它将指令文件（如 `AGENTS.md`）的一次性副本附加到匹配的 `CLAUDE.md`，并携带 MCP 服务器、命令、subagents 和 skills。需要 Claude Code v2.1.213 或更高版本。
 
 <h3 id="how-claude-md-files-load">
   CLAUDE.md 文件如何加载
 </h3>
 
-Claude Code 从你的当前工作目录和其上方的每个目录加载 `CLAUDE.md` 和 `CLAUDE.local.md`。在 `foo/bar/` 中运行 Claude Code，它会从 `foo/bar/CLAUDE.md`、`foo/CLAUDE.md` 和沿途的任何 `CLAUDE.local.md` 文件加载指令。
+Claude Code 从您的当前工作目录和其上方的每个目录加载 `CLAUDE.md` 和 `CLAUDE.local.md`。在 `foo/bar/` 中运行 Claude Code，它从 `foo/bar/CLAUDE.md`、`foo/CLAUDE.md` 和任何 `CLAUDE.local.md` 文件加载指令。
 
-所有发现的文件被连接到上下文中，而不是相互覆盖。在目录树中，内容从文件系统根目录向下排序到你的工作目录。对于 `foo/bar/` 示例，`foo/CLAUDE.md` 在上下文中出现在 `foo/bar/CLAUDE.md` 之前，因此更接近你启动 Claude 的位置的指令最后被读取。在每个目录中，`CLAUDE.local.md` 在 `CLAUDE.md` 之后附加，因此你的个人笔记是 Claude 在该级别读取的最后内容。
+所有发现的文件被连接到上下文中，而不是相互覆盖。在目录树中，内容从文件系统根目录向下排序到您的工作目录。对于 `foo/bar/` 示例，`foo/CLAUDE.md` 在上下文中出现在 `foo/bar/CLAUDE.md` 之前，因此更接近您启动 Claude 的位置的指令最后读取。在每个目录中，`CLAUDE.local.md` 附加在 `CLAUDE.md` 之后，因此您的个人笔记是 Claude 在该级别读取的最后一件事。
 
-Claude 还在当前工作目录下的子目录中发现 `CLAUDE.md` 和 `CLAUDE.local.md` 文件。它们不是在启动时加载，而是在 Claude 读取这些子目录中的文件时包含。
+Claude 还发现当前工作目录下子目录中的 `CLAUDE.md` 和 `CLAUDE.local.md` 文件。它们不是在启动时加载，而是在 Claude 读取这些子目录中的文件时包含。
 
-如果你在一个大型 monorepo 中工作，其他团队的 CLAUDE.md 文件被拾取，使用 [`claudeMdExcludes`](#exclude-specific-claude-md-files) 跳过它们。对于根目录和每个目录的 CLAUDE.md 文件和规则的完整布局，请参阅 [Monorepos 和大型存储库](/docs/zh-CN/large-codebases)。
+如果您在大型 monorepo 中工作，其中其他团队的 CLAUDE.md 文件被拾取，请使用 [`claudeMdExcludes`](#exclude-specific-claude-md-files) 跳过它们。有关根目录和每目录 CLAUDE.md 文件和规则的完整布局，请参阅 [Monorepos 和大型存储库](/docs/zh-CN/large-codebases)。
 
-块级 HTML 注释（`<!-- maintainer notes -->`）在 CLAUDE.md 文件中在内容注入到 Claude 的上下文之前被剥离。使用它们为人类维护者留下笔记，而不在它们上花费上下文令牌。代码块内的注释被保留。当你直接用 Read 工具打开 CLAUDE.md 文件时，注释保持可见。
+CLAUDE.md 文件中的块级 HTML 注释（`<!-- maintainer notes -->`）在内容注入到 Claude 的上下文之前被剥离。使用它们为人类维护者留下笔记，而不在注释上花费上下文令牌。代码块内的注释被保留。当您直接使用 Read 工具打开 CLAUDE.md 文件时，注释保持可见。
 
 <h4 id="load-from-additional-directories">
   从其他目录加载
 </h4>
 
-`--add-dir` 标志使 Claude 可以访问主工作目录外的其他目录。默认情况下，不加载这些目录中的 CLAUDE.md 文件。
+`--add-dir` 标志使 Claude 能够访问主工作目录外的其他目录。默认情况下，这些目录中的 CLAUDE.md 文件不加载。
 
-要也从其他目录加载内存文件，设置 `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD` 环境变量：
+要也从其他目录加载内存文件，请设置 `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD` 环境变量：
 
 ```bash theme={null}
 CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 claude --add-dir ../shared-config
 ```
 
-这会从其他目录加载 `CLAUDE.md`、`.claude/CLAUDE.md`、`.claude/rules/*.md` 和 `CLAUDE.local.md`。如果你从 [`--setting-sources`](/docs/zh-CN/cli-reference) 中排除 `local`，`CLAUDE.local.md` 会被跳过。
+这从其他目录加载 `CLAUDE.md`、`.claude/CLAUDE.md`、`.claude/rules/*.md` 和 `CLAUDE.local.md`。如果您从 [`--setting-sources`](/docs/zh-CN/cli-reference) 中排除 `local`，则跳过 `CLAUDE.local.md`。
 
 <h3 id="organize-rules-with-claude/rules/">
   使用 `.claude/rules/` 组织规则
 </h3>
 
-对于较大的项目，你可以使用 `.claude/rules/` 目录将指令组织到多个文件中。这使指令保持模块化并更容易让团队维护。规则也可以 [范围限定到特定文件路径](#path-specific-rules)，因此它们仅在 Claude 处理匹配文件时加载到上下文中，减少噪音并节省上下文空间。
+对于较大的项目，您可以使用 `.claude/rules/` 目录将指令组织到多个文件中。这使指令模块化并更容易让团队维护。规则也可以 [范围限定到特定文件路径](#path-specific-rules)，因此它们仅在 Claude 处理匹配文件时加载到上下文中，减少噪音并节省上下文空间。
 
 <Note>
-  规则在每个会话或打开匹配文件时加载到上下文中。对于不需要始终在上下文中的特定任务指令，改用 [skills](/docs/zh-CN/skills)，它仅在你调用它们或 Claude 确定它们与你的提示相关时加载。
+  规则在每个会话或打开匹配文件时加载到上下文中。对于不需要始终在上下文中的特定任务指令，请改用 [skills](/docs/zh-CN/skills)，它仅在您调用它们或 Claude 确定它们与您的提示相关时加载。
 </Note>
 
 <h4 id="set-up-rules">
   设置规则
 </h4>
 
-在你的项目的 `.claude/rules/` 目录中放置 markdown 文件。每个文件应涵盖一个主题，具有描述性文件名，如 `testing.md` 或 `api-design.md`。所有 `.md` 文件都被递归发现，因此你可以将规则组织到子目录中，如 `frontend/` 或 `backend/`：
+在项目的 `.claude/rules/` 目录中放置 markdown 文件。每个文件应涵盖一个主题，具有描述性文件名，如 `testing.md` 或 `api-design.md`。所有 `.md` 文件被递归发现，因此您可以将规则组织到子目录中，如 `frontend/` 或 `backend/`：
 
 ```text theme={null}
 your-project/
 ├── .claude/
-│   ├── CLAUDE.md           # 主项目指令
+│   ├── CLAUDE.md           # Main project instructions
 │   └── rules/
-│       ├── code-style.md   # 代码样式指南
-│       ├── testing.md      # 测试约定
-│       └── security.md     # 安全要求
+│       ├── code-style.md   # Code style guidelines
+│       ├── testing.md      # Testing conventions
+│       └── security.md     # Security requirements
 ```
 
 没有 [`paths` frontmatter](#path-specific-rules) 的规则在启动时加载，优先级与 `.claude/CLAUDE.md` 相同。
 
-项目规则如果你从 [`--setting-sources`](/docs/zh-CN/cli-reference) 中排除 `project`，则被跳过。在 v2.1.211 之前，加载按需的规则，包括路径范围规则和嵌套 `.claude/rules/` 目录中的规则，即使 `project` 被排除也会加载。
+如果您从 [`--setting-sources`](/docs/zh-CN/cli-reference) 中排除 `project`，项目规则被跳过。在 v2.1.211 之前，加载按需的规则，包括路径范围规则和嵌套 `.claude/rules/` 目录中的规则，即使 `project` 被排除也会加载。
 
 <h4 id="path-specific-rules">
-  特定路径的规则
+  路径特定规则
 </h4>
 
 规则可以使用带有 `paths` 字段的 YAML frontmatter 范围限定到特定文件。这些条件规则仅在 Claude 处理与指定模式匹配的文件时适用。
@@ -236,14 +209,14 @@ paths:
   - "src/api/**/*.ts"
 ---
 
-# API 开发规则
+# API Development Rules
 
-- 所有 API 端点必须包括输入验证
-- 使用标准错误响应格式
-- 包括 OpenAPI 文档注释
+- All API endpoints must include input validation
+- Use the standard error response format
+- Include OpenAPI documentation comments
 ```
 
-没有 `paths` 字段的规则无条件加载并适用于所有文件。路径范围规则在 Claude 读取与模式匹配的文件时触发，而不是在每次工具使用时。从 v2.1.198 起，匹配也适用于 Claude 通过项目目录的符号链接路径到达文件时，例如在符号链接的检出中。
+没有 `paths` 字段的规则无条件加载并适用于所有文件。路径范围规则在 Claude 读取与模式匹配的文件时触发，而不是在每个工具使用时。从 v2.1.198 开始，当 Claude 通过项目目录的符号链接路径到达文件时，匹配也有效，例如在符号链接检出中。
 
 在 `paths` 字段中使用 glob 模式按扩展名、目录或任何组合匹配文件：
 
@@ -254,7 +227,7 @@ paths:
 | `*.md`                 | 项目根目录中的 Markdown 文件    |
 | `src/components/*.tsx` | 特定目录中的 React 组件        |
 
-你可以指定多个模式并使用大括号扩展在一个模式中匹配多个扩展名：
+您可以指定多个模式并使用大括号扩展在一个模式中匹配多个扩展名：
 
 ```markdown theme={null}
 ---
@@ -265,19 +238,19 @@ paths:
 ---
 ```
 
-每个大括号组乘以扩展的模式数量：`src/*.{ts,tsx}` 扩展为两个模式，`{a,b}/{c,d}/*.{ts,tsx}` 扩展为八个。要保持扩展有界，规则的整个 `paths` 列表共享一个 1,000 个扩展模式和 4 MiB 的预算，没有大括号的模式不计入其中。
+每个大括号组将扩展的模式数量相乘：`src/*.{ts,tsx}` 扩展为两个模式，`{a,b}/{c,d}/*.{ts,tsx}` 扩展为八个。为了保持扩展有界，规则的整个 `paths` 列表共享一个 1,000 个扩展模式和 4 MiB 的预算，没有大括号的模式不计入其中。
 
-Claude Code 使用任何会超过预算的模式未展开，其字面大括号不匹配任何文件。在 v2.1.217 之前，具有许多大括号组的 `paths` 值在启动时导致 CLI 停滞或崩溃。
+Claude Code 使用任何会超过预算的未展开模式，其字面大括号不匹配任何文件。在 v2.1.217 之前，具有许多大括号组的 `paths` 值在启动时使 CLI 停滞或崩溃。
 
-Glob 语法将 `[` 视为括号表达式的开始，例如 `[abc]`。一个包含 `[` 的模式无法读作括号表达式，例如 `photos [2024/**`，是无效的：它不匹配任何内容，规则的其他模式继续工作。要匹配文件名中的字面 `[`，将其转义为 `photos \[2024/**`。在 v2.1.207 之前，一个无效模式会导致 Read 工具对规则被评估的每个文件失败，而不是不匹配任何内容。
+Glob 语法将 `[` 视为括号表达式的开始，例如 `[abc]`。具有无法读作括号表达式的 `[` 的模式，例如 `photos [2024/**`，是无效的：它不匹配任何内容，规则的其他模式继续工作。要匹配文件名中的字面 `[`，请将其转义为 `photos \[2024/**`。在 v2.1.207 之前，一个无效模式使 Read 工具对规则被评估的每个文件失败，而不是不匹配任何内容。
 
 <h4 id="share-rules-across-projects-with-symlinks">
-  使用符号链接跨项目共享规则
+  使用符号链接在项目间共享规则
 </h4>
 
-`.claude/rules/` 目录支持符号链接，因此你可以维护一组共享规则并将它们链接到多个项目中。符号链接被解析并正常加载，循环符号链接被检测并优雅处理。
+`.claude/rules/` 目录支持符号链接，因此您可以维护一组共享规则并将它们链接到多个项目中。循环符号链接被检测并妥善处理。
 
-Claude Code 将其目标在工作目录外的符号链接视为 [外部导入](#import-additional-files)。链接的规则在你批准项目的外部导入后才加载，之后仅没有 [`paths` 字段](#path-specific-rules) 的规则加载。Claude Code 仅在项目内存文件使用 `@path` 导入工作目录外的文件时要求该批准，而不是仅针对符号链接。要加载共享规则而不需要该批准，将它们保持在 [`~/.claude/rules/`](#user-level-rules) 中，它们适用于你机器上的每个项目。
+Claude Code 将其目标在工作目录外的符号链接视为 [external import](#import-additional-files)。链接的规则不加载，直到您批准项目的外部导入，之后仅加载没有 [`paths` 字段](#path-specific-rules) 的规则。Claude Code 仅当项目内存文件使用 `@path` 导入工作目录外的文件时才要求该批准，而不是仅针对符号链接。要加载共享规则而不需要该批准，请将它们保存在 [`~/.claude/rules/`](#user-level-rules) 中，它们适用于您机器上的每个项目。
 
 此示例链接共享目录和单个文件：
 
@@ -290,12 +263,12 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
   用户级规则
 </h4>
 
-`~/.claude/rules/` 中的个人规则适用于你机器上的每个项目。使用它们来处理不是项目特定的偏好：
+`~/.claude/rules/` 中的个人规则适用于您机器上的每个项目。使用它们来处理不是项目特定的偏好：
 
 ```text theme={null}
 ~/.claude/rules/
-├── preferences.md    # 你的个人编码偏好
-└── workflows.md      # 你的首选工作流
+├── preferences.md    # Your personal coding preferences
+└── workflows.md      # Your preferred workflows
 ```
 
 用户级规则在项目规则之前加载，给予项目规则更高的优先级。
@@ -304,13 +277,13 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
   为大型团队管理 CLAUDE.md
 </h3>
 
-对于在团队中部署 Claude Code 的组织，你可以集中指令并控制加载哪些 CLAUDE.md 文件。
+对于在团队中部署 Claude Code 的组织，您可以集中指令并控制加载哪些 CLAUDE.md 文件。
 
 <h4 id="deploy-organization-wide-claude-md">
   部署组织范围的 CLAUDE.md
 </h4>
 
-组织可以部署一个集中管理的 CLAUDE.md，适用于机器上的所有用户。此文件不能被个人设置排除。
+组织可以部署一个集中管理的 CLAUDE.md，适用于机器上的所有用户。此文件无法通过个人设置排除。
 
 <Steps>
   <Step title="在托管策略位置创建文件">
@@ -319,12 +292,12 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
     * Windows: `C:\Program Files\ClaudeCode\CLAUDE.md`
   </Step>
 
-  <Step title="使用你的配置管理系统部署">
-    使用 MDM、Group Policy、Ansible 或类似工具在开发者机器上分发文件。有关其他组织范围配置选项，请参阅 [托管设置](/docs/zh-CN/managed-settings)。
+  <Step title="使用您的配置管理系统部署">
+    使用 MDM、Group Policy、Ansible 或类似工具在开发者机器中分发文件。有关其他组织范围配置选项，请参阅 [managed settings](/docs/zh-CN/managed-settings)。
   </Step>
 </Steps>
 
-`claudeMd` 键让你将托管 CLAUDE.md 内容直接放入 `managed-settings.json` 中，而不是部署单独的文件。
+`claudeMd` 键允许您将托管 CLAUDE.md 内容直接放入 `managed-settings.json` 中，而不是部署单独的文件。
 
 **范围**：机器上的每个 Claude Code 会话，在每个存储库中。对于存储库特定的指导，改为提交项目 CLAUDE.md。
 
@@ -340,14 +313,14 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
 }
 ```
 
-托管 CLAUDE.md 和 [托管设置](/docs/zh-CN/managed-settings) 服务于不同的目的。使用设置进行技术强制，使用 CLAUDE.md 进行行为指导：
+托管 CLAUDE.md 和 [managed settings](/docs/zh-CN/managed-settings) 服务于不同的目的。使用设置进行技术强制，使用 CLAUDE.md 进行行为指导：
 
 | 关注点             | 配置在                                         |
 | :-------------- | :------------------------------------------ |
 | 阻止特定工具、命令或文件路径  | 托管设置：`permissions.deny`                     |
 | 强制沙箱隔离          | 托管设置：`sandbox.enabled`                      |
 | 环境变量和 API 提供商路由 | 托管设置：`env`                                  |
-| 身份验证方法和组织锁定     | 托管设置：`forceLoginMethod`、`forceLoginOrgUUID` |
+| 登录方法和组织限制       | 托管设置：`forceLoginMethod`、`forceLoginOrgUUID` |
 | 代码样式和质量指南       | 托管 CLAUDE.md                                |
 | 数据处理和合规提醒       | 托管 CLAUDE.md                                |
 | Claude 的行为指令    | 托管 CLAUDE.md                                |
@@ -358,9 +331,9 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
   排除特定的 CLAUDE.md 文件
 </h4>
 
-在大型 monorepos 中，祖先 CLAUDE.md 文件可能包含与你的工作无关的指令。`claudeMdExcludes` 设置让你按路径或 glob 模式跳过特定文件。
+在大型 monorepos 中，祖先 CLAUDE.md 文件可能包含与您的工作无关的指令。`claudeMdExcludes` 设置允许您按路径或 glob 模式跳过特定文件。
 
-此示例排除顶级 CLAUDE.md 和来自父文件夹的规则目录。将其添加到 `.claude/settings.local.json` 以使排除保持本地到你的机器：
+此示例排除顶级 CLAUDE.md 和来自父文件夹的规则目录。将其添加到 `.claude/settings.local.json` 以使排除保持本地到您的机器：
 
 ```json theme={null}
 {
@@ -371,11 +344,143 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
 }
 ```
 
-模式使用 glob 语法与绝对文件路径匹配。你可以在任何 [设置层](/docs/zh-CN/settings#where-settings-live) 配置 `claudeMdExcludes`：用户、项目、本地或托管策略。数组跨层合并。
+模式使用 glob 语法与绝对文件路径匹配。您可以在任何 [settings layer](/docs/zh-CN/settings#where-settings-live) 配置 `claudeMdExcludes`：用户、项目、本地或托管策略。数组跨层合并。
 
-要通过 [符号链接](#share-rules-across-projects-with-symlinks) 到达的规则文件排除它，无论文件还是其目录是链接，针对任一路径编写模式：文件在 `.claude/rules/` 下的路径或其链接目标。匹配任一路径的模式排除文件。在 v2.1.239 之前，仅匹配链接目标的模式排除文件。
+要排除您通过 [symlink](#share-rules-across-projects-with-symlinks) 到达的规则文件，无论文件还是其目录是链接，请针对任一路径编写模式：文件在 `.claude/rules/` 下的路径或其链接目标。匹配任一路径的模式排除文件。在 v2.1.239 之前，仅匹配链接目标的模式排除文件。
 
-托管策略 CLAUDE.md 文件不能被排除。这确保组织范围指令始终适用，无论个人设置如何。
+托管策略 CLAUDE.md 文件无法排除。这确保组织范围指令始终适用，无论个人设置如何。
+
+<h2 id="agents-md">
+  AGENTS.md
+</h2>
+
+如果您的存储库已有 `AGENTS.md` 且没有 `CLAUDE.md`，Claude 会将其作为您的项目说明读取，您无需添加 `CLAUDE.md`、导入或设置。`AGENTS.md` 是您为 AI 编码代理编写的项目说明的 markdown 文件。如果您在工作目录或其上方的目录中也有 `CLAUDE.md`，Claude 默认会读取该文件；要让 Claude 读取两个文件，请[更改**项目说明**设置](#choose-which-instruction-files-load)。如果您的 `CLAUDE.md` 已[导入 `AGENTS.md`](#share-one-file-with-other-coding-tools)，您无需更改任何内容。
+
+<Note>
+  直接读取 `AGENTS.md` 需要 Claude Code v2.1.277 或更高版本。在某些会话中，例如在 Amazon Bedrock 上或禁用遥测的会话中，Claude [无法读取 `AGENTS.md`](#when-agents-md-support-is-unavailable)，因此请[从 `CLAUDE.md` 中导入它](#share-one-file-with-other-coding-tools)。
+</Note>
+
+<h3 id="when-claude-code-reads-agents-md">
+  Claude Code 何时读取 AGENTS.md
+</h3>
+
+默认情况下，Claude 在决定读取什么之前会检查您的工作目录和其上方的每个目录，直到文件系统根目录：
+
+* **您在那里有 `CLAUDE.md`、`.claude/CLAUDE.md` 或 `CLAUDE.local.md`**：Claude 按照[CLAUDE.md 文件如何加载](#how-claude-md-files-load)中的说明读取您的 `CLAUDE.md` 文件，并忽略每个 `AGENTS.md`。
+* **您没有这些文件**：Claude 读取您的工作目录和其上方目录中的每个 `AGENTS.md` 和 `.claude/AGENTS.md`。在交互式会话中，您会看到一行，例如 `no CLAUDE.md found; AGENTS.md loaded: /home/you/repo/AGENTS.md`。当 Claude 稍后读取具有自己的 `AGENTS.md` 且没有 `CLAUDE.md` 的子目录中的文件时，它也会读取该 `AGENTS.md`。
+
+您的 `~/.claude/CLAUDE.md`、您组织的托管 `CLAUDE.md` 和您的 `.claude/rules/` 文件不会影响此检查，Claude 会继续与 `AGENTS.md` 一起读取它们。将适用于每个项目的个人说明保留在 `~/.claude/CLAUDE.md` 中。
+
+`CLAUDE.local.md` 会影响检查。如果您在依赖 `AGENTS.md` 的项目中添加一个用于私人笔记，Claude 会停止为您读取 `AGENTS.md`。要同时获得两者，请将**项目说明**设置为 [`claude-md-and-agents-md`](#choose-which-instruction-files-load)。
+
+Claude 读取您的 `AGENTS.md` 后，您可以像对待项目 `CLAUDE.md` 一样对待它：
+
+* 在其中使用 [`@path` 导入](#import-additional-files)
+* 使用 [`claudeMdExcludes`](#exclude-specific-claude-md-files) 排除它
+* 期望[跳过项目说明](/docs/zh-CN/sub-agents#what-loads-at-startup)的子代理也会跳过它
+
+<h3 id="choose-which-instruction-files-load">
+  选择加载哪些说明文件
+</h3>
+
+要更改 Claude 读取的文件，请在 Claude Code 会话中键入 `/config` 以打开设置面板，然后将**项目说明**设置为以下值之一：
+
+| 值                         | Claude 读取的内容                                                                                                         |
+| :------------------------ | :------------------------------------------------------------------------------------------------------------------- |
+| `claude-md-or-agents-md`  | 您的 `CLAUDE.md` 文件，或当您的工作目录或其上方没有 `CLAUDE.md` 时您的 `AGENTS.md` 文件。这是默认值                                                |
+| `claude-md-and-agents-md` | 您的 `CLAUDE.md` 和 `AGENTS.md` 文件一起，每个目录的 `AGENTS.md` 在其 `CLAUDE.md` 之后                                                |
+| `claude-md`               | 仅您的 `CLAUDE.md` 文件                                                                                                   |
+| `managed-only`            | 仅您组织的托管 `CLAUDE.md` 和启动时的[自动内存](#auto-memory)。您的项目、本地和用户 `CLAUDE.md` 文件、您的 `.claude/rules/` 文件和每个 `AGENTS.md` 都被排除在外 |
+
+这些值中有两个值在您选择之前值得了解的详细信息：
+
+* 使用 `claude-md-and-agents-md` 时，如果您的 `CLAUDE.md` 已导入或符号链接到其旁边的 `AGENTS.md`，您会获得该内容一次，而不是两次。
+* 使用 `managed-only` 时，当 Claude 读取该子目录中的文件时，它仍会读取子目录的 `CLAUDE.md` 和 `.claude/rules/` 文件，并仍会应用[路径范围规则](#path-specific-rules)。
+
+您也可以在设置文件中设置该值，而不是在 `/config` 中。在 [`pluginConfigs`](/docs/zh-CN/settings-reference#pluginconfigs) 中的内置 `agents-md` 插件的 ID 下添加它，在 `~/.claude/settings.json`、`--settings` 文件或[托管设置](/docs/zh-CN/managed-settings)中。Claude Code 在项目和本地设置文件中忽略它。此示例让 Claude 读取两个文件：
+
+```json settings.json theme={null}
+{
+  "pluginConfigs": {
+    "agents-md@builtin": {
+      "options": { "instructionFiles": "claude-md-and-agents-md" }
+    }
+  }
+}
+```
+
+您的更改从您发送的下一条消息和每个新会话中应用。
+
+<h3 id="when-agents-md-support-is-unavailable">
+  当 AGENTS.md 支持不可用时
+</h3>
+
+在这些会话中，Claude 仅读取 `CLAUDE.md` 文件，您不会在 `/config` 设置面板中看到**项目说明**：
+
+* 您使用的是 v2.1.277 之前的 Claude Code 版本
+* 您的会话不会[从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，例如因为您使用 Amazon Bedrock 或其他第三方提供商，或您禁用了遥测。链接的部分有完整列表
+* 这是您[安装或升级](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)到具有 `AGENTS.md` 支持的版本后的第一个会话。Claude 从您的下一个会话开始读取 `AGENTS.md`
+* 您或您的组织设置了 [`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks) 或 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly)，或您在 `/plugin` 中禁用了内置 `agents-md` 插件
+
+要在这些会话中向 Claude 提供您的 `AGENTS.md`，请[从 `CLAUDE.md` 中导入它](#share-one-file-with-other-coding-tools)。
+
+<h3 id="where-agents-md-differs-from-claude-md">
+  AGENTS.md 与 CLAUDE.md 的区别
+</h3>
+
+通过**项目说明**设置读取的 `AGENTS.md` 与 `CLAUDE.md` 在以下方面有所不同：
+
+* 您不会在 `/memory` 或 `/context` 中的**内存文件**列表中看到它。要确认 Claude 读取了它，请查找 [`AGENTS.md loaded` 行](#when-claude-code-reads-agents-md)或询问 Claude 其项目说明说了什么。使用 `claude-md-and-agents-md` 时没有这样的行，所以请询问 Claude
+* 当 Claude 直接读取它时，您的 [`InstructionsLoaded` hooks](/docs/zh-CN/hooks#instructionsloaded) 不会触发。当 `CLAUDE.md` 导入或符号链接到它时，它们会照常触发
+* 如果您设置了 [`CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`](#load-from-additional-directories)，Claude 会从您使用 `--add-dir` 添加的每个目录读取 `CLAUDE.md`，但不会读取其 `AGENTS.md`
+* 如果您的 `AGENTS.md` 使用 `@path` 导入工作目录外的文件，Claude 仅在您已为此项目批准[外部导入](#import-additional-files)时才读取该文件。系统不会提示您从 `AGENTS.md` 批准它
+
+<h3 id="remove-an-earlier-agents-md-workaround">
+  删除早期的 AGENTS.md 解决方案
+</h3>
+
+如果您在 Claude Code 自行读取 `AGENTS.md` 之前设置它来读取 `AGENTS.md`，以下是对每个常见设置的处理方法：
+
+* **包含 `@AGENTS.md` 的 `CLAUDE.md`**：无。它继续工作，如果您的某些会话[无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable)，它仍然是正确的设置。如果该文件不包含其他内容且您的所有会话都可以加载 `AGENTS.md`，您可以删除它。
+* **告诉 Claude 用词语读取 `AGENTS.md` 的 `CLAUDE.md`**：仅当 Claude 决定打开文件时，它才会看到 `AGENTS.md`。删除 `CLAUDE.md` 以便 Claude 直接读取 `AGENTS.md`，或用 `@AGENTS.md` 导入替换该句子。
+* **符号链接到 `AGENTS.md` 的 `CLAUDE.md`**：无，或删除符号链接。无论哪种方式，Claude 都会读取内容一次。
+* **打印 `AGENTS.md` 的 `SessionStart` hook**：删除它。一旦 Claude 直接读取 `AGENTS.md`，该 hook 会向上下文添加第二个副本。
+
+<h3 id="share-one-file-with-other-coding-tools">
+  与其他编码工具共享一个文件
+</h3>
+
+当 Claude 不直接读取您的 `AGENTS.md` 时，您仍然可以通过在其旁边的 `CLAUDE.md` 中放置 `@AGENTS.md` 导入来将其保留为每个工具共享的一个文件。当您的项目也有 `CLAUDE.md` 时、当您已将**项目说明**设置为 `claude-md` 时，或在[无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable)的会话中执行此操作。在导入下方添加任何 Claude 特定的说明，Claude 会先读取导入的文件，然后读取其余部分：
+
+```markdown CLAUDE.md theme={null}
+@AGENTS.md
+
+## Claude Code
+
+对 `src/billing/` 下的更改使用计划模式。
+```
+
+如果您不需要 Claude 特定的内容，符号链接也可以工作：
+
+```bash theme={null}
+ln -s AGENTS.md CLAUDE.md
+```
+
+该命令在成功时不打印任何输出。在 Windows 上，创建符号链接需要管理员权限或开发人员模式，因此请改用 `@AGENTS.md` 导入。
+
+使用任一方法，在您的下一个会话中运行 `/context` 并确认 `CLAUDE.md` 出现在**内存文件**下。
+
+<h3 id="migrate-instructions-from-other-tools">
+  从其他工具迁移说明
+</h3>
+
+运行 [`/init`](/docs/zh-CN/commands) 会读取其他工具的说明文件并将相关部分合并到生成的 `CLAUDE.md` 中：
+
+* `.cursor/rules/` 或 `.cursorrules` 中的 Cursor 规则
+* `.github/copilot-instructions.md` 中的 Copilot 规则
+* 设置 `CLAUDE_CODE_NEW_INIT=1` 时：`AGENTS.md`、`.devin/rules/`、`.windsurf/rules/` 或 `.windsurfrules`，以及 `.clinerules`
+
+您也可以运行 [`/import`](/docs/zh-CN/commands) 将支持的编码代理的配置引入 Claude Code，这会将 `AGENTS.md` 等说明文件的一次性副本追加到匹配的 `CLAUDE.md`，并携带 MCP 服务器、命令、子代理和 skills。需要 Claude Code v2.1.213 或更高版本。
 
 <h2 id="auto-memory">
   自动记忆
@@ -422,7 +527,9 @@ Claude 不会每个会话都保存内容。它根据信息在未来对话中是�
 }
 ```
 
-该值必须是绝对路径或以 `~/` 开头。当在项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置时，Claude Code 在与[设置文件中的 hooks 相同的工作区信任规则](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)下遵守它。
+该值必须是绝对路径或以 `~/` 开头。
+
+当在项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置时，Claude Code 在与[设置文件中的 hooks 相同的工作区信任规则](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)下遵守它。当 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 开启时，Claude Code 不从[存储库提供的设置文件](/docs/zh-CN/permissions#when-your-local-settings-file-needs-trust)选择的目录加载自动记忆，也不向其保存任何内容，无论该目录位于何处。
 
 目录包含一个 `MEMORY.md` 索引和每个记忆一个主题文件：
 
@@ -468,7 +575,7 @@ Claude 在你的会话中读取和写入记忆文件。当你在 Claude Code 界
   使用 `/memory` 查看和编辑
 </h2>
 
-`/memory` 命令列出你的 CLAUDE.md、CLAUDE.local.md 和其他内存文件在用户和项目范围内的位置，包括尚不存在的文件的用户和项目 CLAUDE.md 条目。它还让你切换自动记忆开或关，并提供打开自动记忆文件夹的选项。选择任何文件在你的编辑器中打开它；选择一个尚不存在的文件会先创建它。要检查哪些文件实际加载到当前会话中，请运行 `/context`。
+`/memory` 命令列出你的 CLAUDE.md、CLAUDE.local.md 和其他内存文件在用户和项目范围内的位置，包括尚不存在的文件的用户和项目 CLAUDE.md 条目。它还让你切换自动记忆开或关，并提供打开自动记忆文件夹的选项。选择任何文件在你的编辑器中打开它；选择一个尚不存在的文件会先创建它。要检查哪些 `CLAUDE.md` 和规则文件加载到当前会话中，请运行 `/context`。
 
 VS Code 等 GUI 编辑器在单独的窗口中打开文件，你可以在文件打开时继续使用会话。在 v2.1.216 之前，`/memory` 会等待你关闭文件后才响应。Vim 等终端编辑器会接管终端，直到你退出。
 
@@ -488,7 +595,7 @@ CLAUDE.md 内容作为用户消息在系统提示之后传递，而不是系统�
 
 要调试：
 
-* 运行 `/context` 并检查 **Memory files** 下的列表，以验证你的 CLAUDE.md 和 CLAUDE.local.md 文件已加载。如果文件未列出，Claude 看不到它。使用 `/memory` 打开和编辑文件。
+* 运行 `/context` 并检查 **Memory files** 下的列表，以验证你的 CLAUDE.md 和 CLAUDE.local.md 文件已加载。如果 `CLAUDE.md` 文件未列出，Claude 看不到它。`AGENTS.md` 仅在 `CLAUDE.md` 导入它时出现，而不是当 Claude [直接读取它](#where-agents-md-differs-from-claude-md) 时。使用 `/memory` 打开和编辑文件。
 * 检查相关 CLAUDE.md 是否在为你的会话加载的位置（参见 [选择 CLAUDE.md 文件的位置](#choose-where-to-put-claude-md-files)）。
 * 使指令更具体。"使用 2 空格缩进"比"格式化代码很好"效果更好。
 * 查找跨 CLAUDE.md 文件的冲突指令。如果两个文件为相同行为提供不同的指导，Claude 可能会任意选择一个。
@@ -498,8 +605,21 @@ CLAUDE.md 内容作为用户消息在系统提示之后传递，而不是系统�
 对于你想要在系统提示级别的指令，使用 [`--append-system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags)。你在启动时传递它，因此它更适合脚本和自动化而不是交互式使用。有关它在恢复对话时的行为，请参见 [System prompt flags in resumed conversations](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。
 
 <Tip>
-  使用 [`InstructionsLoaded` hook](/docs/zh-CN/hooks#instructionsloaded) 记录确切加载了哪些指令文件、何时加载以及为什么。这对于调试特定路径规则或子目录中的延迟加载文件很有用。
+  使用 [`InstructionsLoaded` hook](/docs/zh-CN/hooks#instructionsloaded) 记录确切加载了哪些 `CLAUDE.md` 和规则文件、何时加载以及为什么。这对于调试特定路径规则或子目录中的延迟加载文件很有用。
 </Tip>
+
+<h3 id="my-agents-md-isn’t-loading">
+  我的 AGENTS.md 未加载
+</h3>
+
+如果你的存储库有 `AGENTS.md` 而 Claude 似乎不知道它说什么，通常原因是项目路径上某处有 `CLAUDE.md`。默认情况下，Claude 仅在你的工作目录或其上方没有 `CLAUDE.md` 时读取 `AGENTS.md`。按顺序检查这些：
+
+1. 在你的工作目录或其上方的任何目录中查找 `CLAUDE.md`、`.claude/CLAUDE.md` 或 `CLAUDE.local.md`，除了你的 `~/.claude/CLAUDE.md`。如果你找到一个，Claude 会读取它而不是 `AGENTS.md`，除非你将 **Project instructions** 设置为 `claude-md-and-agents-md`。
+2. 运行 `claude --version` 并确认 v2.1.277 或更高版本。
+3. 检查你的会话是否是 [无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable) 的会话，例如第三方提供商上的会话或禁用遥测的会话。
+4. 在你的会话中输入 `/config` 以打开设置面板，并确认 **Project instructions** 未设置为 `claude-md` 或 `managed-only`。如果你根本看不到该设置，你的会话是 [无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable) 的会话。
+
+当 Claude 直接读取 `AGENTS.md` 时，你不会在 `/memory` 或 `/context` 中看到它，所以检查 `AGENTS.md loaded` 行或询问 Claude 其项目指令说什么。如果你想保留你找到的 `CLAUDE.md`，或你的会话无法加载 `AGENTS.md`，[添加一个 `CLAUDE.md` 在你的 `AGENTS.md` 旁边来导入它](#share-one-file-with-other-coding-tools)。
 
 <h3 id="i-don’t-know-what-auto-memory-saved">
   我不知道自动记忆保存了什么

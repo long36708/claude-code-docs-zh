@@ -426,15 +426,23 @@ Claude Code 以剥离形式转发父提供的 [`sandbox.credentials`](/docs/zh-C
   跨源的锁行为
 </h4>
 
-设置一个锁不会限制其他锁；每个密钥都在[设置参考](/docs/zh-CN/settings-reference#all-settings)中记录。从赢家下方的管理员源，两个沙箱锁仍然适用，`allowManagedPermissionRulesOnly` 仍然阻止父提供的允许规则和 `additionalDirectories`。hooks 和 MCP 服务器锁，以及 `allowManagedPermissionRulesOnly` 对开发人员自己规则的影响，默认需要赢家源；在[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)中的 `managedSourcesBehavior` 合并选择加入下，Claude Code 应用任何源为每个锁设置的最严格值。在 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 舰队上，锁仅从助手的输出读取。
+设置一个锁不会限制其他锁；每个密钥都在[设置参考](/docs/zh-CN/settings-reference#all-settings)中记录。
 
-每个锁使 Claude Code 忽略开发人员对该设置的自己条目，因此在锁旁边包含您组织的允许列表。使用空托管域列表锁定网络域会阻止所有沙箱出站流量，使用没有托管或父提供的 `allowedMcpServers` 的 MCP 服务器锁会加载 `deniedMcpServers` 不阻止的每个服务器。`allowRead` 条目仅重新允许 `denyRead` 区域内的路径，因此将它们与托管 `denyRead` 配对。
+从赢家下方的管理员源，两个沙箱锁仍然适用，`allowManagedPermissionRulesOnly` 仍然阻止父提供的允许规则和 `additionalDirectories`。在 Claude Code v2.1.273 或更高版本上，MCP 服务器锁也从赢家下方的源应用，当它打开时，托管 `allowedMcpServers` 列表来自设置一个的最高优先级管理员源。
+
+hooks 锁和 `allowManagedPermissionRulesOnly` 对开发人员自己规则的影响默认需要赢家源；在[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)中的 `managedSourcesBehavior` 合并选择加入下，Claude Code 应用任何源为每个锁设置的最严格值。在 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 舰队上，锁仅从助手的输出读取。
+
+每个锁使 Claude Code 忽略开发人员对该设置的自己条目，因此在锁旁边包含您组织的允许列表：
+
+* **网络域**：使用空托管域列表锁定会阻止所有沙箱出站流量。
+* **MCP 服务器**：使用任何管理员源或父提供的设置中都没有 `allowedMcpServers` 的锁会加载 `deniedMcpServers` 不阻止的每个服务器。
+* **读取路径**：`allowRead` 条目仅重新允许 `denyRead` 区域内的路径，因此将它们与托管 `denyRead` 配对。
 
 <h4 id="settings-the-locks-don’t-cover">
   锁不涵盖的设置
 </h4>
 
-即使设置了所有五个锁，四个父提供的设置也会通过过滤器。在默认的先赢设置下，阻止父设置的管理员值是最高优先级管理员源中的值。在 `managedSourcesBehavior` 合并选择加入下，[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明哪个源的值改为适用。
+即使设置了所有五个锁，四个父提供的设置也会通过过滤器。在默认的先赢设置下，阻止父设置的管理员值是最高优先级管理员源中的值，除了 `allowedMcpServers` 当[MCP 服务器锁](#lock-behavior-across-sources)打开时。在 `managedSourcesBehavior` 合并选择加入下，[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明哪个源的值改为适用。
 
 * **`forceLoginOrgUUID`**：当最高优先级管理员源未设置组织 UUID 时，Claude Code 尊重父提供的值。网关登录不检查此密钥，因此它仅对也使用第一方 Anthropic 登录的舰队重要。最高优先级管理员源中的组织 UUID 阻止父的值，是 Claude Code 强制执行的值，因此在那里设置 `forceLoginOrgUUID`。
 * **`allowedMcpServers`**：当最高优先级管理员源未设置允许列表时，Claude Code 尊重父提供的允许列表，`allowManagedMcpServersOnly` 不阻止它，因为锁强制执行任何赢家列表作为托管值，包括当最高优先级管理员源未设置时的父提供列表。最高优先级管理员源中的列表阻止父的并是 Claude Code 强制执行的列表，因此在那里设置 `allowedMcpServers`，在锁旁边。在 v2.1.223 之前，任何管理员源中任一密钥的值都阻止父的。

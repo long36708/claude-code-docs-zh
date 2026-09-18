@@ -36,8 +36,9 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 * [Checkpoints](/docs/zh-CN/checkpointing)、[sandboxing](/docs/zh-CN/sandboxing) 和 [Workflows](/docs/zh-CN/workflows)
 * [OpenTelemetry metrics](/docs/zh-CN/monitoring-usage) 和[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)
 
-这三个有提供商特定的差异：
+这些有提供商特定的差异：
 
+* **CLAUDE.md memory**：`CLAUDE.md` 文件在每个提供商上加载。将 [`AGENTS.md` 文件](/docs/zh-CN/memory#agents-md)作为项目说明读取也需要一个[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话
 * **MCP servers**：[来自 claude.ai 的连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)仅在您的 claude.ai 订阅是活跃身份验证方法时加载。[工具搜索](/docs/zh-CN/mcp#configure-tool-search)在 `ANTHROPIC_BASE_URL` 指向非第一方主机时默认关闭，在 Google Cloud's Agent Platform 上早于 Claude 4.5 代的模型或在 Microsoft Foundry [部署在 Azure 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)时不受支持
 * **Subagents**：内置的 [Explore subagent](/docs/zh-CN/sub-agents#built-in-subagents) 在 Claude API 上将其继承的模型限制为 Opus，在任何其他提供商（包括 Claude Platform on AWS）上直接继承主对话的模型
 * **[Commands](/docs/zh-CN/commands#all-commands)**：

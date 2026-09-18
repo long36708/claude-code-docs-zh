@@ -125,6 +125,8 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 
     Claude 的最新待办事项列表保持可见，Claude 提出的待处理问题的文本也保持可见；这需要 Claude Code v2.1.225 或更高版本。当 Claude 运行[子代理](/docs/zh-CN/sub-agents)时，带有其最新活动的实时进度行出现在启动它们的工具调用组下。这需要 Claude Code v2.1.269 或更高版本。
   * 要报告错误，请点击菜单底部的 **Report a problem**，或输入 `/bug` 或 `/feedback` 以及可选的描述来预填充报告。当您提交报告并且您在第一方连接上登录到 Anthropic 时，Claude Code 会将其发送给 Anthropic。在第三方提供商上，或没有 Anthropic 凭证的情况下，对话框仍会打开，但提交会显示错误并不发送任何内容：与 CLI 的 `/bug` 不同，扩展程序不会写入本地存档。需要 Claude Code v2.1.229 或更高版本。
+
+    如果您的组织的策略关闭了产品反馈，**Report a problem** 不会出现在菜单中，`/bug` 和 `/feedback` 会显示 `Feedback is turned off by your organization's policy or this environment's settings.` 通知，而不是打开报告。
 * **Side questions**：输入 `/btw` 后跟一个问题来提问您的会话[而不添加到对话](/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw)。答案在聊天旁边的面板中打开，您可以在其中提出后续问题。线程在窗口重新加载后仍然存在。Claude Code 保留最新的 20 个交换，并根据 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 计划过期存储的线程，只要 Claude Code 可以[安全地确定保留期](/docs/zh-CN/claude-directory#cleaned-up-automatically)。要清除线程，请点击面板中的垃圾箱图标。需要 Claude Code v2.1.227 或更高版本。
 * **Context indicator**：提示框显示您使用了多少 Claude 的上下文窗口。Claude 在需要时自动压缩，或者您可以手动运行 `/compact`。
 * **Prompt cache clock**：上下文指示器旁边的时钟图标估计对话的 [prompt cache](/docs/zh-CN/prompt-caching) 在过期前还剩多少时间。它从缓存的五分钟或一小时[生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)倒计时，每个使用缓存的响应都会重新启动倒计时。除了压缩外，[使缓存失效的操作](/docs/zh-CN/prompt-caching#actions-that-invalidate-the-cache)不会重置时钟，因此在您切换模型后它仍然可以显示剩余的分钟数。

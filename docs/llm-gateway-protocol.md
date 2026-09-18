@@ -213,6 +213,8 @@ Claude Code 发送的功能集随版本增长。有关当前 beta 请求头字�
 
 请求是 `GET /v1/models?limit=1000`，超时为 3 秒，任何重定向都被视为失败，因此凭证不会泄露到重定向目标。响应缓慢或重定向 `/v1/models` 的 gateway，即使是 `http` 到 `https`，也会无声地失败发现；在配置的基础 URL 处直接提供端点。
 
+要给缓慢的 gateway 更长的时间，请设置 [`CLAUDE_CODE_GATEWAY_MODEL_DISCOVERY_TIMEOUT_MS`](/docs/zh-CN/env-vars#variables)。该变量需要 Claude Code v2.1.269 或更高版本。
+
 Claude Code 使用下面两个凭证请求头发送发现请求，并省略其值无法解析的请求头。发送两个请求头需要 Claude Code v2.1.248 或更高版本。早期版本在设置了 `ANTHROPIC_AUTH_TOKEN` 时仅发送 `Authorization`，否则仅发送 `x-api-key`。
 
 * `Authorization`：`ANTHROPIC_AUTH_TOKEN` 作为承载令牌，否则 [`apiKeyHelper`](/docs/zh-CN/llm-gateway-connect#rotate-credentials-with-apikeyhelper) 值作为承载令牌。在这种情况下，Claude Code 在发送请求前等待助手返回。

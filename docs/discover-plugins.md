@@ -239,6 +239,7 @@ Anthropic 还维护一个[演示插件市场](https://github.com/anthropics/clau
 * **Git URL**：任何 git 存储库 URL，包括 GitLab、Bitbucket 和自托管服务器
 * **本地路径**：目录或 `marketplace.json` 文件的直接路径
 * **远程 URL**：托管 `marketplace.json` 文件的直接 URL
+* **claude.ai**：托管在 claude.ai 上的市场，用于您的账户，例如您组织的插件库，您可以[从 **Marketplaces** 标签页或您的 shell 按名称添加](#add-from-claude-ai)，而不是按来源添加
 
 <h3 id="add-from-github">
   从 GitHub 添加
@@ -316,11 +317,31 @@ Claude Code 克隆 SSH 地址，无论其是否以 `.git` 结尾。
   与基于 Git 的市场相比，基于 URL 的市场有一些限制。如果从基于 URL 的市场安装插件失败，请参阅[故障排除](/docs/zh-CN/plugin-marketplaces#plugins-with-relative-paths-fail-in-url-based-marketplaces)。
 </Note>
 
+<h3 id="add-from-claude-ai">
+  从 claude.ai 添加
+</h3>
+
+在[插件从您的 claude.ai 账户同步](/docs/zh-CN/plugins-reference#synced-plugins)的终端会话中，claude.ai 也可以为您列出市场，例如您组织的插件库和您自己的 claude.ai 上传。`claude plugin marketplace list` 在 `From claude.ai:` 部分中打印它们，`/plugin` **Marketplaces** 标签页也列出它们。在那里选择一个来添加它。从 claude.ai 添加市场需要 Claude Code v2.1.273 或更高版本。
+
+要从您的 shell 添加一个，请运行 `claude plugin marketplace add` 命令，使用 `--claudeai` 标志和列表中显示的名称：
+
+```bash theme={null}
+claude plugin marketplace add --claudeai claudeai-organization-library
+```
+
+Claude Code 在以 `claudeai-` 开头的本地名称下注册市场，该名称源自 claude.ai 列出的名称：列为"Organization library"的市场注册为 `claudeai-organization-library`。通过该名称安装其插件，例如使用 `claude plugin install <plugin>@claudeai-organization-library`。
+
+如果您注销或使用不同账户登录，市场保持配置但不显示任何插件，您已从中安装的插件继续加载。
+
+`From claude.ai:` 部分也可以列出通过 claude.ai 共享的基于 git 的市场。您可以使用普通的 `marketplace add` 命令添加这些，使用列表打印的来源。
+
 <h2 id="install-plugins">
   安装插件
 </h2>
 
-添加市场后，您可以按名称安装插件：
+添加市场后，您可以按名称安装插件。对于您尚未添加的市场，您可以改为[在一个命令中添加并安装](#add-a-marketplace-and-install-in-one-command)。
+
+要按名称安装：
 
 ```shell theme={null}
 /plugin install plugin-name@marketplace-name
@@ -361,6 +382,20 @@ Claude Code 在其本地市场目录副本中查找插件。您命名插件的�
 <Warning>
   在安装插件之前，请确保您信任该插件。Anthropic 不控制插件中包含的 MCP servers、文件或其他软件，也无法验证它们是否按预期工作。检查每个插件的主页以获取更多信息。
 </Warning>
+
+<h3 id="add-a-marketplace-and-install-in-one-command">
+  在一个命令中添加市场并安装
+</h3>
+
+要从您尚未添加的市场安装插件，请使用 `--marketplace` 命名市场源。需要 Claude Code v2.1.275 或更高版本。
+
+```shell theme={null}
+/plugin install quality-review-plugin --marketplace your-org/plugins
+```
+
+该源采用与 [`/plugin marketplace add`](#add-marketplaces) 相同的形式，例如 GitHub `owner/repo`、git URL 或本地路径，除了它不能包含空格。给出插件名称时不带 `@marketplace` 后缀。
+
+如果您尚未添加该市场，Claude Code 会显示它解析的源并要求您在添加前确认。拒绝会取消安装并且不添加任何内容。一旦添加了市场，插件的详情会打开，您可以选择[安装范围](/docs/zh-CN/settings#where-settings-live)。
 
 <h2 id="manage-installed-plugins">
   管理已安装的插件
@@ -526,7 +561,7 @@ Claude Code 更新具有[`command` 源](/docs/zh-CN/plugin-marketplaces#command-
 3. 从列表中选择市场
 4. 选择**启用自动更新**或**禁用自动更新**
 
-`claude-plugins-official` 和大多数其他官方 Anthropic 市场默认启用自动更新。第三方和本地开发市场默认禁用自动更新。
+`claude-plugins-official`、大多数其他官方 Anthropic 市场和[从 claude.ai 添加的市场](#add-from-claude-ai)默认启用自动更新。其他第三方市场和本地开发市场默认禁用自动更新。
 
 管理员还可以在托管设置中的每个 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 条目上设置 `"autoUpdate": true` 以为组织市场启用自动更新，而无需每个用户都切换它。
 

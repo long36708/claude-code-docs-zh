@@ -6,7 +6,7 @@
 
 > 从您的手机使用 Claude 应用程序启动、监控和指导 Claude Code 任务，支持 iOS 和 Android。
 
-Claude [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和 [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude) 应用是 Claude Code 会话的客户端，而不是代码运行的地方。从您的手机，您可以访问云中的[云会话](#start-and-monitor-cloud-sessions)、通过[远程控制](#continue-a-local-session-with-remote-control)运行在您自己机器上的会话，或通过 [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch) 访问桌面应用。
+Claude [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和 [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude) 应用是 Claude Code 会话的客户端，而不是代码运行的地方。从您的手机，您可以访问云中的[云会话](#start-and-monitor-cloud-sessions)和[项目](/docs/zh-CN/claude-projects)，通过[远程控制](#continue-a-local-session-with-remote-control)运行在您自己机器上的会话，或通过 [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch) 访问桌面应用。
 
 <Note>
   Claude Code 没有单独的移动应用：云会话和远程控制都位于 Claude 应用中的 **Code** 选项卡中，Dispatch 是您在应用中向其发送消息的任务。
@@ -38,15 +38,16 @@ Claude [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和
   从您的手机工作
 </h2>
 
-从应用程序中，您可以启动云会话、驱动在您的计算机上运行的 Claude Code 会话，或向 Dispatch 消息传递任务。应用程序对所有三者都是相同的；它们在工作发生的位置上有所不同。
+从应用程序中，您可以启动云会话、打开项目、驱动在您的计算机上运行的 Claude Code 会话，或向 Dispatch 消息传递任务。应用程序对所有这些都是相同的；它们在工作发生的位置上有所不同。
 
 | 功能                                                | 您连接到的内容                    | 何时使用                                                                  |
 | :------------------------------------------------ | :------------------------- | :-------------------------------------------------------------------- |
 | [云会话](/docs/zh-CN/claude-code-on-the-web)              | 云基础设施上的会话，默认由 Anthropic 托管 | 您的存储库在 GitHub 上，任务应在您放下手机后继续运行。请参阅[云快速入门](/docs/zh-CN/web-quickstart)进行设置。 |
+| [项目](/docs/zh-CN/claude-projects)                      | Claude 协调平行云会话作为线程的对话      | 您有一系列相关工作而不是一个任务，并且想要查看哪些线程已完成或需要您。                                   |
 | [远程控制](/docs/zh-CN/remote-control)                     | 在您的计算机上运行的 Claude Code 会话  | 工作需要您的本地文件系统、工具或 MCP 服务器。                                             |
 | [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch) | 您计算机上的桌面应用程序               | 您想消息传递一个任务，让 Dispatch 决定如何运行它。需要 Pro 或 Max 计划。                        |
 
-如果您的计算机将关闭，请使用云会话，它们在云中运行，并在您的笔记本电脑关闭后继续运行。远程控制和 Dispatch 驱动您自己的机器，因此它需要保持打开状态并运行 Claude Code 或桌面应用程序。如果您的机器在远程控制会话期间进入睡眠状态，Claude Code 会在机器重新上线时重新连接。
+如果您的计算机将关闭，请使用云会话或项目，它们在云中运行，并在您的笔记本电脑关闭后继续运行。远程控制和 Dispatch 驱动您自己的机器，因此它需要保持打开状态并运行 Claude Code 或桌面应用程序。如果您的机器在远程控制会话期间进入睡眠状态，Claude Code 会在机器重新上线时重新连接。
 
 有关更完整的比较，请参阅[当您远离终端时工作](/docs/zh-CN/platforms#work-when-you-are-away-from-your-terminal)。
 

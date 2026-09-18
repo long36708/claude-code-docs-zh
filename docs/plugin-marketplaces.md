@@ -176,6 +176,8 @@
   **保留名称**：以下 marketplace 名称为 Anthropic 官方使用保留，第三方 marketplaces 无法使用：`claude-code-marketplace`、`claude-code-plugins`、`claude-plugins-official`、`claude-plugins-community`、`claude-community`、`anthropic-marketplace`、`anthropic-plugins`、`agent-skills`、`anthropic-agent-skills`、`knowledge-work-plugins`、`life-sciences`、`claude-for-legal`、`claude-for-financial-services`、`financial-services-plugins`、`first-party-plugins`、`claude-tag-plugins`、`healthcare`。冒充官方 marketplaces 的名称（如 `official-claude-plugins` 或 `anthropic-plugins-v2`）也被阻止。保留这些名称可防止第三方 marketplace 将自己呈现为 Anthropic 发布的来源。
 
   Claude Code 每次加载 marketplace 时都会重新检查保留名称，而不仅仅是在添加时。在该名称成为保留名称之前以其中一个名称注册的 marketplace 停止加载，并报告它是[从不受信任的来源注册的](/docs/zh-CN/errors#marketplace-is-registered-from-an-untrusted-source)。移除该 marketplace 并从官方 Anthropic 来源重新添加它。受新保留名称影响的第三方 marketplace 在你以不同名称重新添加它后立即再次加载。在 v2.1.205 之前，`first-party-plugins` 和 `healthcare` 不是保留的，已在保留名称下注册的 marketplace 继续加载。在 v2.1.265 之前，`claude-tag-plugins` 不是保留的。
+
+  你也不能将 marketplace 命名为 `npm`、`pip`、`uv`、`cargo`、`github` 或 `gh`，无论大小写如何。此检查需要 Claude Code v2.1.275 或更高版本。
 </Note>
 
 <h3 id="owner-fields">
@@ -282,7 +284,7 @@ Claude Code 将每个已安装的 plugin 复制到本地版本化 plugin 缓存�
 | `github`     | object                       | `repo`、`ref?`、`sha?`             |                                                                                                                                                       |
 | `url`        | object                       | `url`、`ref?`、`sha?`              | Git URL 源                                                                                                                                             |
 | `git-subdir` | object                       | `url`、`path`、`ref?`、`sha?`       | git repo 中的子目录。稀疏克隆以最小化大型 monorepos 的带宽                                                                                                               |
-| `npm`        | object                       | `package`、`version?`、`registry?` | 通过 `npm install` 安装                                                                                                                                   |
+| `npm`        | object                       | `package`、`version?`、`registry?` | npm 包，通过你的 npm 客户端获取并解包，不运行安装脚本                                                                                                                       |
 | `archive`    | object                       | `url`、`sha256?`                  | 通过 HTTPS 下载的 Zip 存档。在用户机器上无需 git 或 npm 即可工作。需要 Claude Code v2.1.224 或更高版本                                                                             |
 | `command`    | object                       | `command`、`timeout?`、`mode?`     | 通过运行本地命令生成的 plugin 目录，每个会话重新运行一次以获取更改。需要 Claude Code v2.1.229 或更高版本                                                                                   |
 
@@ -437,7 +439,11 @@ Claude Code 将每个已安装的 plugin 复制到本地版本化 plugin 缓存�
   npm 包
 </h3>
 
-作为 npm 包分发的 Plugins 使用 `npm install` 安装。这适用于公共 npm registry 上的任何包或你的团队托管的私有 registry。
+npm 源可以命名公共 npm registry 上的任何包或你的团队托管的私有 registry 上的任何包。Claude Code 使用你的 npm 客户端解析包，下载 tarball，并将其解包到 plugin 缓存中。
+
+包的安装脚本（例如 `preinstall` 或 `postinstall`）永远不会运行，其依赖项在获取期间不会被安装。
+
+如果包在其 `package.json` 旁边附带支持的 lockfile，Claude Code 会在单独的步骤中安装那些[Node.js 包依赖项](/docs/zh-CN/plugins-reference#node-js-package-dependencies)，也禁用脚本。否则，发布已构建所需一切的 plugin。需要其他包的 MCP 服务器可以通过 `npx` 启动，它在首次运行时安装它们。
 
 ```json theme={null}
 {
@@ -1151,6 +1157,8 @@ Claude Code 下载[从 claude.ai 同步的](/docs/zh-CN/plugins-reference#synced
 
 允许列表的精确匹配将仅因尾部斜杠、`.git` 后缀或 `ssh://` 和 `https://` 方案不同的 URL 视为不同的值。如果你的组织的 marketplace 可以通过多个 URL 形式克隆，优先使用 `hostPattern` 条目而不是字面 URL，以便 `https://`、`ssh://` 和 `user@host:path` 形式都匹配。
 
+一个[托管在 claude.ai 上的 marketplace](/docs/zh-CN/discover-plugins#add-from-claude-ai) 通过主机匹配：一个与 `claude.ai` 匹配的 `hostPattern` 条目在 `strictKnownMarketplaces` 和 `blockedMarketplaces` 中管理它。在允许列表上，这样的条目不允许成员的个人 claude.ai 上传。需要 Claude Code v2.1.273 或更高版本。
+
 因为 `strictKnownMarketplaces` 在[托管设置](/docs/zh-CN/managed-settings)中设置，个别用户和项目配置无法覆盖这些限制。
 
 有关完整的配置详细信息，包括所有支持的源类型和与 `extraKnownMarketplaces` 的比较，请参阅 [strictKnownMarketplaces 参考](/docs/zh-CN/settings-reference#strictknownmarketplaces)。
@@ -1352,10 +1360,11 @@ URL 必须包含其方案。从 Claude Code v2.1.196 开始，没有方案的主
 
 **选项：**
 
-| 选项                    | 描述                                                                                                                 | 默认值    |
-| :-------------------- | :----------------------------------------------------------------------------------------------------------------- | :----- |
-| `--scope <scope>`     | 声明 marketplace 的位置：`user`、`project` 或 `local`。见 [Plugin 安装范围](/docs/zh-CN/plugins-reference#plugin-installation-scopes) | `user` |
-| `--sparse <paths...>` | 通过 git sparse-checkout 限制检出到特定目录。对 monorepos 有用                                                                    |        |
+| 选项                    | 描述                                                                                                                     | 默认值    |
+| :-------------------- | :--------------------------------------------------------------------------------------------------------------------- | :----- |
+| `--scope <scope>`     | 声明 marketplace 的位置：`user`、`project` 或 `local`。见 [Plugin 安装范围](/docs/zh-CN/plugins-reference#plugin-installation-scopes)     | `user` |
+| `--sparse <paths...>` | 通过 git sparse-checkout 限制检出到特定目录。对 monorepos 有用                                                                        |        |
+| `--claudeai`          | 将参数读取为 [claude.ai 上托管的 marketplace](/docs/zh-CN/discover-plugins#add-from-claude-ai) 的名称，而不是源。需要 Claude Code v2.1.273 或更高版本 |        |
 
 从 GitHub 使用 `owner/repo` 简写添加 marketplace：
 
@@ -1399,6 +1408,14 @@ claude plugin marketplace add acme-corp/claude-plugins --scope project
 claude plugin marketplace add acme-corp/monorepo --sparse .claude-plugin plugins
 ```
 
+添加 [claude.ai 上托管的 marketplace](/docs/zh-CN/discover-plugins#add-from-claude-ai)，使用 `claude plugin marketplace list` 的 `From claude.ai:` 部分中打印的名称：
+
+```bash theme={null}
+claude plugin marketplace add --claudeai claudeai-organization-library
+```
+
+使用 `--claudeai`，命令拒绝 `--scope` 和 `--sparse`。marketplace 为你的账户托管，不在设置文件中声明，所以你无法通过项目的 `.claude/settings.json` 共享它。
+
 <h3 id="plugin-marketplace-list">
   Plugin marketplace list
 </h3>
@@ -1416,6 +1433,10 @@ claude plugin marketplace list [options]
 | `--json` | 输出为 JSON |
 
 使用 `--json`，每个条目包括 `name`、`source`、一个包含 marketplace 存储的本地缓存路径的 `installLocation` 字段，以及源特定字段：GitHub 源的 `repo`、git 和 URL 源的 `url`，以及本地源的 `path`。当 marketplace 使用固定分支或标签添加时，GitHub 和 git 源也包括 `ref` 字段。
+
+添加的 [claude.ai marketplace](/docs/zh-CN/discover-plugins#add-from-claude-ai) 没有本地克隆，所以其条目使用其 claude.ai 标识符 `marketplaceId` 和 `organizationUuid` 代替 `installLocation`。
+
+在 [plugins 从你的 claude.ai 账户同步](/docs/zh-CN/plugins-reference#synced-plugins) 的终端会话中，文本列表以 `From claude.ai:` 部分结尾，命名 claude.ai 为你的账户列出的内容，超出你添加的 marketplaces。要添加其中之一，见 [从 claude.ai 添加](/docs/zh-CN/discover-plugins#add-from-claude-ai)。`--json` 输出仅涵盖配置的 marketplaces，并省略该部分。需要 Claude Code v2.1.273 或更高版本。
 
 <h3 id="plugin-marketplace-remove">
   Plugin marketplace remove

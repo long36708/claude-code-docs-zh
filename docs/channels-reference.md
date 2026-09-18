@@ -509,7 +509,7 @@ Claude Code v2.1.234 或更高版本的客户端也在 `description` 和 `input_
 
 掩盖不改变谁接收字段。无论什么保持未掩盖都仅进入您使用 `--channels` 或开发标志选择加入的服务器。除非您控制客户端队列，否则将两个字段视为不受信任。
 
-您的服务器发送回的判决是 `notifications/claude/channel/permission`，有两个字段：`request_id` 回显上面的 ID，`behavior` 设置为 `'allow'` 或 `'deny'`。允许让工具调用继续；拒绝拒绝它，与在本地对话中回答"否"相同。两个判决都不影响未来的调用。
+您的服务器发送回的判决是 `notifications/claude/channel/permission`，有两个字段：`request_id` 回显上面的 ID，`behavior` 设置为 `'allow'` 或 `'deny'`。允许让工具调用继续；拒绝拒绝它。两个判决都不影响未来的调用。
 
 <h3 id="add-relay-to-a-chat-bridge">
   向聊天桥接添加中继

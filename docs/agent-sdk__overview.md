@@ -78,7 +78,7 @@ Agent SDK、CLI、Client SDK 和 Managed Agents 各自满足不同的需求。�
 
 * "Claude Agent"，首选用于下拉菜单
 * "Claude"，当已在标记为"Agents"的菜单中时
-* "{YourAgentName} Powered by Claude"，如果您有现有的代理名称
+* "\{YourAgentName} Powered by Claude"，如果您有现有的代理名称
 
 **不允许：**
 

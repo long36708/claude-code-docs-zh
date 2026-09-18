@@ -75,7 +75,7 @@
 
 安装 `backend-standard` 会解析并安装所有四个依赖项。
 
-要稍后向标准集添加工具，请发布新的 `backend-standard` 版本并添加额外的依赖项。对于非 Anthropic marketplace，自动更新默认处于关闭状态，因此工程师可以通过以下两种方式之一获取新版本：
+要稍后向标准集添加工具，请发布新的 `backend-standard` 版本并添加额外的依赖项。除非 marketplace [自动更新](/docs/zh-CN/discover-plugins#configure-auto-updates)，工程师可以通过以下两种方式之一获取新版本：
 
 * 在 `/plugin` 中为 marketplace 启用自动更新。下一次自动更新会将捆绑包移至新版本并安装它添加的任何依赖项。
 * 运行 `claude plugin update backend-standard`，然后运行 `/reload-plugins` 以安装新添加的依赖项。

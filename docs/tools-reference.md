@@ -614,6 +614,7 @@ WebFetch 接收一个 URL 和一个描述要提取内容的提示。它获取页
 
 几个行为塑造了 Claude 接收的响应：
 
+* WebFetch 拒绝 `localhost` 和任何其他没有点的主机名，例如裸露的内网名称，在发出请求之前。它返回的[错误](/docs/zh-CN/errors#webfetch-cannot-fetch-localhost)告诉 Claude 通过 Bash 使用 `curl` 到达本地服务器。
 * HTTP URL 会自动升级到 HTTPS。
 * 大型页面在处理前会被截断到固定的字符限制。
 * WebFetch 默认缓存每个响应 15 分钟，所以重复获取同一 URL 会快速返回。在 Claude Code v2.1.233 或更高版本上，设置 [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](/docs/zh-CN/env-vars#variables) 以更改 WebFetch 保留每个响应的时长。

@@ -86,7 +86,9 @@ Claude Code永远不会自动安装插件。用户始终需要确认。
 | `filesRead`    | array of strings | 与Claude在此会话中读取的文件路径匹配的Glob模式，例如`["**/*.tf"]`。正斜杠规范化且不区分大小写。最多10个模式，每个256个字符。                                                                                                                                                                                                                                                                   |
 | `manifestDeps` | array of objects | Claude在此会话中读取的包清单中声明的依赖项。每个条目是`{ "file": "...", "pattern": "..." }`，其中`file`是与清单文件路径匹配的正则表达式（如会话状态中记录的，通常是绝对路径），`pattern`是与该文件内容匹配的正则表达式。在末尾锚定`file`，例如JSON转义形式中的`[/\\\\]package\\.json$`，因为起始锚定的模式永远不会匹配绝对路径。路径对于此信号不进行分隔符规范化，因此Windows路径使用反斜杠。大于512 KB的清单文件会被跳过。两个值都是最多256个字符的JavaScript `RegExp`源字符串。`file`不区分大小写匹配。`pattern`区分大小写。最多10个条目。 |
 
-`cli`、`hosts`、`filesRead`和`manifestDeps`信号需要会话历史记录，因此它们只能在spinner提示和Discover标签页上匹配。`filesRead`和`manifestDeps`信号测试会话的记录文件状态，其中还包括Claude已写入或编辑的文件以及自动加载的`CLAUDE.md`内存文件。
+`cli`、`hosts`、`filesRead`和`manifestDeps`信号需要会话历史记录，因此它们只能在spinner提示和Discover标签页上匹配。
+
+`filesRead`和`manifestDeps`信号测试会话的记录文件状态，其中还包括Claude已写入或编辑的文件以及自动加载的`CLAUDE.md`内存文件。对于这两个信号，Claude Code会跳过其自身[配置目录](/docs/zh-CN/claude-directory)及其临时目录下的路径。
 
 以下示例使用`manifestDeps`在Claude读取了依赖于`stripe`的`package.json`后建议Stripe插件。`file`模式使用`[/\\\\]`以匹配正斜杠和反斜杠路径分隔符，使用`\\.`以使点为字面。在JSON中，正则表达式中的每个反斜杠都写两次。
 

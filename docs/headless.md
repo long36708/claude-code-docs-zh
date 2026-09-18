@@ -343,7 +343,13 @@ claude -p "Look at my staged changes and create an appropriate commit" \
 `--allowedTools` 标志使用 [权限规则语法](/docs/zh-CN/settings-reference#permission-rule-syntax)。尾部的 ` *` 启用前缀匹配，因此 `Bash(git diff *)` 允许任何以 `git diff` 开头的命令。空格在 `*` 之前很重要：没有它，`Bash(git diff*)` 也会匹配 `git diff-index`。
 
 <Note>
-  用户调用的 [skills](/docs/zh-CN/skills) 和自定义命令在 `-p` 模式下工作：在提示字符串中包含 `/skill-name`，Claude Code 会在运行前展开它。仅在终端界面中运行的内置命令，例如 `/login`，在 `-p` 模式下不可用。`/model`、`/effort`、`/fast`、`/color` 和 `/rename` 接受该值作为参数，例如 `/model sonnet`，`/mcp` 不带参数打印服务器状态的文本摘要；这些形式需要 Claude Code v2.1.205 或更高版本，并遵循每个命令的 [可用性说明](/docs/zh-CN/commands#all-commands)。要从 `-p` 调用更改设置，请将 `key=value` 传递给 `/config`，例如 `/config thinking=false`。
+  命令支持在 `-p` 模式下有所不同：
+
+  * 用户调用的 [skills](/docs/zh-CN/skills) 和自定义命令工作。在提示字符串中包含 `/skill-name`，Claude Code 会在运行前展开它。
+  * 仅在终端界面中运行的内置命令，例如 `/login`，在 `-p` 模式下不可用。
+  * `/model`、`/effort`、`/fast`、`/color` 和 `/rename` 接受该值作为参数，例如 `/model sonnet`，`/mcp` 不带参数打印服务器状态的文本摘要。这些形式需要 Claude Code v2.1.205 或更高版本，并遵循每个命令的 [可用性说明](/docs/zh-CN/commands#all-commands)。
+  * 要从 `-p` 调用更改设置，请将 `key=value` 传递给 `/config`，例如 `/config thinking=false`。
+  * `/output-style <style>` 切换 [输出样式](/docs/zh-CN/output-styles)，`/output-style` 单独列出它们。需要 Claude Code v2.1.269 或更高版本。
 </Note>
 
 <h3 id="customize-the-system-prompt">
@@ -366,7 +372,7 @@ gh pr diff "$1" | claude -p \
   继续对话
 </h3>
 
-使用 `--continue` 继续最近的对话，或使用 `--resume` 与会话 ID 继续特定对话。在 Claude Code v2.1.257 或更高版本上，当您传递 `--continue` 时，Claude Code 会打开已完成的[后台会话](/docs/zh-CN/sessions#resume-a-session)，但不会打开仍在运行的后台会话。此示例运行审查，然后发送后续提示：
+使用 `--continue` 继续最近的对话，或使用 `--resume` 与会话 ID 继续特定对话。在 Claude Code v2.1.257 或更高版本上，当您传递 `--continue` 时，Claude Code 会打开已完成的 [后台会话](/docs/zh-CN/sessions#resume-a-session)，但不会打开仍在运行的后台会话。此示例运行审查，然后发送后续提示：
 
 ```bash theme={null}
 # First request

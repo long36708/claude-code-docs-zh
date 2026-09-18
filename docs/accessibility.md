@@ -10,8 +10,6 @@ Claude Code 具有屏幕阅读器模式，可将其视觉终端界面替换为�
 
 屏幕阅读器模式是可选的。如果您使用屏幕放大镜、减少动画或色盲友好主题而不是屏幕阅读器，请从[辅助功能设置](#accessibility-settings)表中设置 `CLAUDE_CODE_ACCESSIBILITY`、`prefersReducedMotion` 或 `theme`。屏幕阅读器模式仅调整终端界面，因此您不需要在 VS Code 扩展的聊天面板中使用它。在 Claude Code v2.1.236 或更高版本上，该扩展[在不需要任何设置的情况下向您的屏幕阅读器宣布对话活动](/docs/zh-CN/vs-code#use-a-screen-reader)。
 
-屏幕阅读器模式需要 Claude Code v2.1.181 或更高版本。早期版本会拒绝 `--ax-screen-reader` 标志，并显示 `error: unknown option '--ax-screen-reader'`。
-
 <h2 id="turn-on-screen-reader-mode">
   打开屏幕阅读器模式
 </h2>

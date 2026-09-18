@@ -174,7 +174,7 @@ API 触发器从 Web 添加到现有例程。CLI 目前无法创建或撤销令�
 
 <Steps>
   <Step title="打开例程进行编辑">
-    转到 [claude.ai/code/routines](https://claude.ai/code/routines)，单击您想通过 API 触发的例程，然后单击铅笔图标打开 **Edit routine**。
+    转到 [claude.ai/code/routines](https://claude.ai/code/routines)，单击您想通过 API 触发的例程，然后打开例程名称旁边的菜单并选择 **Edit**。
   </Step>
 
   <Step title="添加 API 触发器">
@@ -254,7 +254,7 @@ Claude GitHub App 必须安装在您想订阅的存储库上，无论您从哪�
 
 <Steps>
   <Step title="打开例程进行编辑">
-    转到 [claude.ai/code/routines](https://claude.ai/code/routines)，单击例程，然后单击铅笔图标打开 **Edit routine**。
+    转到 [claude.ai/code/routines](https://claude.ai/code/routines)，单击例程，然后打开例程名称旁边的菜单并选择 **Edit**。
   </Step>
 
   <Step title="添加 GitHub 事件触发器">
@@ -331,9 +331,9 @@ GitHub 触发器可以订阅以下事件类别之一。在每个类别中，您�
 从例程详细信息页面，您可以：
 
 * 单击 **Run now** 立即启动运行，而无需等待下一个计划时间。您可以选择提供特定于运行的文本，该文本以与 API 触发器的 `text` 字段相同的方式到达例程。
-* 使用 **Repeats** 部分中的切换来暂停或恢复计划。暂停的例程保持其配置但不运行，直到您重新启用它们。
-* 单击铅笔图标打开 **Edit routine** 并更改名称、提示、存储库、环境、connectors 或例程的任何触发器。**Select a trigger** 部分是您添加或删除计划、API 令牌和 GitHub 事件触发器的地方。
-* 单击删除图标以删除例程。例程创建的过去会话保留在您的会话列表中。
+* 使用页面顶部的开/关开关来暂停或恢复计划。暂停的例程保持其配置但不运行，直到您重新启用它们。
+* 打开例程名称旁边的菜单并选择 **Edit** 以更改名称、提示、存储库、环境、connectors 或例程的任何触发器。**Select a trigger** 部分是您添加或删除计划、API 令牌和 GitHub 事件触发器的地方。
+* 打开同一菜单并选择 **Delete** 以删除例程。
 
 <h3 id="manage-routines-from-the-cli">
   从 CLI 管理例程
@@ -381,7 +381,7 @@ Connectors 是您账户上的 [claude.ai integrations](/docs/zh-CN/mcp#use-mcp-s
 
 <Steps>
   <Step title="打开例程进行编辑">
-    在例程的详细信息页面上，单击铅笔图标以打开 **Edit routine**。
+    在例程的详细信息页面上，打开例程名称旁边的菜单并选择 **Edit**。
   </Step>
 
   <Step title="打开环境选择器">

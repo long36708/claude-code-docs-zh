@@ -291,7 +291,7 @@ Turn this migration plan into a checklist artifact. Check items off as you compl
   改进视觉设计
 </h2>
 
-Claude 在构建工件时应用内置设计技能，因此页面获得精心设计的调色板、排版和布局，无需额外提示。需要 Claude Code v2.1.182 或更高版本。该技能还会在选择自己的设计之前查找项目中是否存在现有设计系统。设计令牌是设计系统重复使用的命名颜色、排版和间距值。为了保持工件与产品品牌的一致性，请将它们记录在 Claude 可以找到的地方，例如项目的 [CLAUDE.md](/docs/zh-CN/memory) 或存储库中的主题文件：
+Claude 在构建工件时应用内置设计技能，因此页面获得精心设计的调色板、排版和布局，无需额外提示。该技能还会在选择自己的设计之前查找项目中是否存在现有设计系统。设计令牌是设计系统重复使用的命名颜色、排版和间距值。为了保持工件与产品品牌的一致性，请将它们记录在 Claude 可以找到的地方，例如项目的 [CLAUDE.md](/docs/zh-CN/memory) 或存储库中的主题文件：
 
 ```markdown theme={null}
 ## Design system

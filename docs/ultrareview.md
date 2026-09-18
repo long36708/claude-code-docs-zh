@@ -79,11 +79,15 @@ Claude Code 永远不会发布，除非您在该运行中选择，`--no-post` �
 * **交互式**：在启动对话框中，选择**运行并将发现作为我发布到 PR**。如果您将 `--post` 添加到命令中，如 `/code-review ultra 1234 --post`，Claude Code 会预选该选择，但仍会在启动前询问。
 * **非交互式**：使用 `--post` 运行 [`claude ultrareview` 子命令](#run-ultrareview-non-interactively)。通过使用该标志运行子命令，您同意发布，因此 Claude Code 会发布而不询问。在 `claude -p '/code-review ultra'` 运行中，Claude Code 在发现到达前退出，因此不会发布任何内容；改用子命令。
 
-Claude Code 不会从您的计算机发布。它将发现发送到 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) 上的会话，该会话通过您连接到 Claude 的 GitHub 账户发布评论。发布需要与审查本身相同的 claude.ai 登录。由于发布通过 Claude Code on the web 运行，它在第三方提供商上或当您设置 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars) 时不可用。
+Claude Code 不会从您的计算机发布。它将审查的会话 ID 发送到 Anthropic API，该 API 通过您连接到 Claude 的 GitHub 账户将审查的存储发现作为评论发布。发布需要与审查本身相同的 claude.ai 登录，并且在第三方提供商上或当您设置 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars) 时不可用。
 
 在交互式会话中，Claude Code 在发现到达时启动发布，因此请保持会话打开直到审查完成。Claude Code 仅在该会话中保留发布选择。如果会话在审查完成前结束，Claude Code 不会发布任何内容，即使您稍后恢复对话。
 
-当发布无法在您的会话打开时启动时，Claude 会告诉您没有任何内容发送到 PR 以及原因，发现会保留在您的终端中，以便您可以手动发布。
+当发布完成时，Claude 会告诉您结果：
+
+* **已发布**：Claude 为您提供评论的链接。
+* **已发布**：同一审查的早期发布已将评论放在 PR 上，因此 Claude 会链接您到拉取请求，而不是再次发布。
+* **失败**：Claude 会告诉您原因，发现会保留在您的终端中，以便您可以手动发布。
 
 <h3 id="pass-a-request-in-plain-words">
   用纯文本传递请求
@@ -185,7 +189,10 @@ claude ultrareview origin/main
 
 如果您中断子命令，远程审查会继续运行；按照打印到 stderr 的会话 URL 在浏览器中观看它。
 
-使用 `--post` 时，子命令在打印发现后立即开始发布。如果运行失败、超时或您中断它，子命令不发布任何内容。如果审查完成但发布无法启动，Claude Code 将原因打印到 stderr，发现保留在 stdout 上，以便您可以手动发布它们。
+使用 `--post` 时，子命令在打印发现后立即开始发布，并将链接打印到 stderr。
+
+* 如果运行失败、超时或您中断它，子命令不发布任何内容。
+* 如果审查完成但注释未发布，Claude Code 将原因打印到 stderr，发现保留在 stdout 上，以便您可以手动发布它们。
 
 对于 GitHub 拉取请求上的自动审查，[Code Review](/docs/zh-CN/code-review) 直接与您的存储库集成，并将发现作为内联 PR 注释发布，无需 CLI 步骤。
 

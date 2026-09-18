@@ -176,6 +176,12 @@ Claude Code 按此顺序检查源，优先级最高的优先：
 
 * `sandbox.network.allowManagedDomainsOnly` 和 `sandbox.filesystem.allowManagedReadPathsOnly`：任何管理员源中的 `true` 都会打开锁。当锁打开时，Claude Code 会合并它锁定的允许列表，`sandbox.network.allowedDomains` 与 `WebFetch(domain:...)` 允许规则，或 `sandbox.filesystem.allowRead`，跨每个管理员源。没有锁时，Claude Code 将允许列表视为任何其他键，因此在 `"first-wins"` 下，未选定的管理员源的允许列表被忽略
 * `allowAllClaudeAiMcps`
+* `allowManagedMcpServersOnly`：任何管理员源中的 `true` 都会打开 MCP 允许列表锁。当锁打开时，托管的 `allowedMcpServers` 列表来自设置一个的最高排名管理员源。服务器管理的列表替换较低源的列表，而不是与其组合。
+
+  如果没有管理员源设置列表，每个通过拒绝列表的服务器都会加载，除非 [父设置](#let-an-embedding-host-add-policy) 提供列表。
+
+  没有锁时，Claude Code 从它应用的托管源读取 `allowedMcpServers`，因此在 `"first-wins"` 下，未选定的管理员源的列表被忽略。需要 Claude Code v2.1.273 或更高版本
+* `deniedMcpServers` 和 [`disableClaudeAiConnectors`](/docs/zh-CN/settings-reference#disableclaudeaiconnectors)：任何管理员源中的条目或 `true` 都会应用。需要 Claude Code v2.1.273 或更高版本
 * 沙箱二进制路径 `sandbox.bwrapPath` 和 `sandbox.socatPath`
 * 沙箱 `ripgrep` 二进制文件，[`sandbox.ripgrep`](/docs/zh-CN/settings-reference#sandbox-ripgrep)
 * `sandbox.filesystem.disabled` 和 `sandbox.network.strictAllowlist`
@@ -187,6 +193,8 @@ Claude Code 按此顺序检查源，优先级最高的优先：
 * `env`，跨管理员源按变量合并：每个变量来自定义它的最高优先级源，因此较低源填充较高源未设置的变量。少数变量遵循自己的规则；[跨托管源的每个键异常](/docs/zh-CN/server-managed-settings#per-key-exceptions-across-managed-sources) 命名每一个。需要 Claude Code v2.1.223 或更高版本。在 v2.1.223 之前，Claude Code 仅应用选定源的整个 `env` 块
 
 [网关登录键](#choose-a-delivery-mechanism) 遵循单独的规则。Claude Code 从不从服务器管理的设置读取它们，因此当服务器管理的设置是选定的源时，机器上排名最高的具有策略键的管理员源仍然提供它们。排名低于该源的管理员源中的值，或 HKCU 注册表中的值，被忽略。
+
+当管理员源设置 `allowManagedMcpServersOnly` 或 `allowedMcpServers` 列表且该值不是生效的值时，`/status` 和 `claude doctor` 命名该源和键。
 
 <h3 id="compose-every-managed-source">
   组合每个托管源
@@ -244,8 +252,10 @@ Claude Code 然后仅保留主机的限制 Claude 可以做什么的值，有一
 Claude Code 也对父提供的值本身应用这些检查：
 
 * 当任何管理员源设置 `allowManagedPermissionRulesOnly` 时，Claude Code 会删除 [父提供的](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings) 权限允许规则和 `additionalDirectories`，即使较高优先级源未设置该键。该键对您自己的权限规则的影响来自 Claude Code 应用的托管设置，或来自您选择合并的父设置
-* Claude Code 强制执行它应用的托管设置中的 `forceLoginOrgUUID` 或 `allowedMcpServers` 值，并阻止父提供的值。Claude Code 不应用的较低管理员源中的值既不应用也不阻止父的值。[`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 条目说明在 `"merge"` 下哪个源提供每个键。在 v2.1.223 之前，任何管理员源中的值都会阻止父的值
-* `availableModels` 值遵循与 `allowedMcpServers` 相同的规则
+* Claude Code 强制执行它应用的托管设置中的 `forceLoginOrgUUID` 或 `allowedMcpServers` 值，并阻止父提供的值。Claude Code 不应用的较低管理员源中的值既不应用也不阻止父的值。在 MCP 允许列表锁之外，Claude Code 不应用的较低管理员源中的值既不应用也不阻止父的值。
+
+  在 Claude Code v2.1.273 或更高版本上，当 `allowManagedMcpServersOnly` 打开时，来自设置一个的最高排名管理员源的 `allowedMcpServers` 列表应用并阻止父的，作为 [跨源键](#keys-read-from-every-admin-source)。父的列表仅在没有管理员源设置一个时应用。[`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 条目说明在 `"merge"` 下哪个源提供每个键。在 v2.1.223 之前，任何管理员源中的值都会阻止父的值
+* 对于 `availableModels`，Claude Code 强制执行它应用的托管设置中的值并阻止父提供的列表
 
 <h4 id="keep-cowork-folder-access-when-only-managed-rules-apply">
   当仅应用托管规则时保持 Cowork 文件夹访问
@@ -390,7 +400,7 @@ Claude Code 仅从托管源读取以下密钥；将它们放在用户或项目�
 | [`allowAllClaudeAiMcps`](/docs/zh-CN/settings-reference#allowallclaudeaimcps)                                                 | 加载 Claude Code 自己获取的 claude.ai 连接器，与部署的 `managed-mcp.json` 一起，而不是抑制它们                                                                                                                                                                                                                          |
 | [`allowedChannelPlugins`](/docs/zh-CN/settings-reference#allowedchannelplugins)                                               | 可能推送消息的通道插件的允许列表。设置时替换默认 Anthropic 允许列表。需要 `channelsEnabled: true`。请参阅[限制哪些通道插件可以运行](/docs/zh-CN/channels#restrict-which-channel-plugins-can-run)                                                                                                                                                   |
 | [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly)                                               | 当 `true` 时，限制哪些 hooks 运行；请参阅[在 `allowManagedHooksOnly` 下运行什么](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)以获取完整效果列表                                                                                                                                                        |
-| [`allowManagedMcpServersOnly`](/docs/zh-CN/settings-reference#allowmanagedmcpserversonly)                                     | 当 `true` 时，仅尊重来自托管设置的 `allowedMcpServers`。`deniedMcpServers` 仍然从所有源合并。请参阅[托管 MCP 配置](/docs/zh-CN/managed-mcp)                                                                                                                                                                                       |
+| [`allowManagedMcpServersOnly`](/docs/zh-CN/settings-reference#allowmanagedmcpserversonly)                                     | 当 `true` 时，仅尊重来自托管设置的 `allowedMcpServers`。`deniedMcpServers` 仍然从所有源合并。请参阅[从每个管理源读取的密钥](#keys-read-from-every-admin-source)以了解哪些托管源可以设置它，以及[托管 MCP 配置](/docs/zh-CN/managed-mcp)                                                                                                                      |
 | [`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly)                           | 使托管设置成为权限规则的唯一设置源。条目列出它忽略的每个源                                                                                                                                                                                                                                                                  |
 | [`blockedMarketplaces`](/docs/zh-CN/settings-reference#blockedmarketplaces)                                                   | 市场源的阻止列表。被阻止的源在下载前被检查，因此它们永远不会接触文件系统。请参阅[托管市场限制](/docs/zh-CN/plugin-marketplaces#managed-marketplace-restrictions)                                                                                                                                                                                  |
 | [`channelsEnabled`](/docs/zh-CN/settings-reference#channelsenabled)                                                           | 允许组织的[通道](/docs/zh-CN/channels)。请参阅[企业控制](/docs/zh-CN/channels#enterprise-controls)以获取每个计划上的默认值                                                                                                                                                                                                          |

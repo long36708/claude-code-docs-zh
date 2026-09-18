@@ -40,7 +40,7 @@
 以下进程不通过启动器启动：
 
 * [已安装的后台服务](/docs/zh-CN/agent-view#the-supervisor-process)，其单元在配置启动器之前编写：`launchd` 或 `systemd` 从其单元文件启动该进程。当运行的服务和配置的启动器不匹配时，`/status` 和 `claude daemon status` 会发出警告，一旦服务使用设置中的变量重新启动，服务生成的会话仍会通过启动器启动。
-* 您自己在终端中启动的会话，它运行的方式取决于您如何调用它。要覆盖这些会话，在 `PATH` 上较早的目录中放置一个名为 `claude` 的脚本，该脚本使用真实二进制文件运行您的启动器；不要替换托管符号链接。自生成不查询 `PATH`，所以两个启动器永远不会堆叠。
+* 您自己在终端中启动的会话，它运行的方式取决于您如何调用它。要覆盖这些会话，在 `PATH` 上较早的目录中放置一个名为 `claude` 的脚本，该脚本使用真实二进制文件运行您的启动器；不要替换托管符号链接。后台服务及其会话启动时不进行 `PATH` 查询，所以两个启动器不会在那里堆叠。
 * `claude-cli://` 深层链接的第一个进程，操作系统的协议处理程序直接启动。该会话之后在后台启动的所有内容都通过启动器运行。要完全关闭此路径，请使用 `disableDeepLinkRegistration` 设置 [prevent handler registration](/docs/zh-CN/deep-links#registration-and-supported-platforms)。
 * `--worktree` 与 `--tmux` 结合执行的重新启动：终端多路复用器启动该窗格，而不是 Claude Code 的二进制文件。
 * [Claude in Chrome](/docs/zh-CN/chrome) 注册的本机消息主机：浏览器启动它，而不是 Claude Code 的二进制文件。

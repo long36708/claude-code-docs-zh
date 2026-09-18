@@ -201,7 +201,7 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
 要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。打开选择器的云图标出现在[Default 环境](#the-default-environment)下列出的应用界面上，以及[例程编辑器](/docs/zh-CN/routines#environments-and-network-access)中；个人环境在您的 claude.ai 账户设置中没有单独的页面。
 
 <Note>
-  您在会话或例程上启用的 MCP 连接器无需将其主机添加到 **Allowed domains**，因为连接器流量通过 Anthropic 的服务器而不是会话的网络传输。您可以按会话或按例程配置连接器；移除任何您不需要的连接器，以限制 Claude 可以访问的工具。这依赖于[安全性和隔离](/docs/zh-CN/claude-code-on-the-web#security-and-isolation)下提到的同一条通往 Anthropic 的通道。
+  您在会话或例程上启用的 MCP 连接器无需将其主机添加到 **Allowed domains**，因为连接器流量通过 Anthropic 的服务器而不是会话的网络传输。这依赖于[安全性和隔离](/docs/zh-CN/claude-code-on-the-web#security-and-isolation)下提到的同一条通往 Anthropic 的通道。关闭任何您不需要的连接器，以限制 Claude 可以访问的工具。
 </Note>
 
 <h3 id="access-levels">
@@ -243,7 +243,7 @@ registry.example.com
 * **此环境中的会话打开另一个组织的公开工件**：Claude Code 直接从主机获取这些工件，因此将其添加到此列表。
 * **您正在配置本地 CLI 或自托管运行器**：在该允许列表中保留主机。请参阅[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)和自托管[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)。
 
-每个环境都有自己的允许域列表；没有组织级别的允许列表可供管理员推送到每个成员的环境。[服务器管理的设置](/docs/zh-CN/server-managed-settings)在云会话内仍然适用，但其中没有任何设置会将域添加到环境的网络允许列表。
+每个环境都有自己的允许域列表；没有组织级别的允许列表可供管理员推送到每个成员的环境。[服务器管理的设置](/docs/zh-CN/server-managed-settings)在云会话内仍然适用，但其中没有任何设置会将域添加到环境的网络允许列表。要为团队提供一个标准列表，Owner 可以创建一个具有 **Custom** 网络访问和该列表的[组织共享环境](#organization-shared-environments)。
 
 <h3 id="github-proxy">
   GitHub 代理
@@ -358,7 +358,7 @@ GitHub 的 [`gh` CLI](https://cli.github.com) 已预安装。如果您需要内�
 
 每个云会话在 claude.ai 上都有一个转录 URL，会话可以从 `CLAUDE_CODE_REMOTE_SESSION_ID` 环境变量读取自己的 ID。使用它在 PR 正文、提交消息、Slack 帖子或生成的报告中放置可追溯的链接，以便审阅者可以打开生成它们的运行。
 
-Claude 在云会话中创建的提交包括 `Claude-Session: <url>` git 尾注，PR 正文在单独一行包括会话 URL。要省略尾注和 PR 正文链接，请将 [`attribution.sessionUrl`](/docs/zh-CN/settings-reference#attribution-sessionurl) 设置为 `false`。此设置需要 v2.1.182 或更新版本。
+Claude 在云会话中创建的提交包括 `Claude-Session: <url>` git 尾注，PR 正文在单独一行包括会话 URL。要省略尾注和 PR 正文链接，请将 [`attribution.sessionUrl`](/docs/zh-CN/settings-reference#attribution-sessionurl) 设置为 `false`。
 
 要在提交或 PR 以外的内容中包含会话链接，例如 Claude 发布的 Slack 消息或它编写的报告文件，请让 Claude 运行以下命令并使用其输出。该命令将环境变量值中的 `cse_` 前缀转换为转录 URL 预期的 `session_` 前缀：
 

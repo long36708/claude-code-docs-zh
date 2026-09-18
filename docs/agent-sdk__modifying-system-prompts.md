@@ -152,7 +152,7 @@ For every code submission:
 
 创建后，通过以下方式激活输出样式：
 
-* **CLI**：运行 `/config` 并选择输出样式
+* **CLI**：运行 `/output-style <style>`，例如 `/output-style concise`，或运行 `/config` 并选择一个。`/output-style` 命令需要 Claude Code v2.1.269 或更高版本。
 * **设置**：在 `.claude/settings.local.json` 中设置 `outputStyle`
 * **TypeScript SDK**：在传递给 `query()` 的内联 `settings` 对象内设置 `outputStyle`，或将 `settings` 指向设置它的设置文件。`outputStyle` 不是顶级 `Options` 字段：
 
