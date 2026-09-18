@@ -130,7 +130,7 @@ Agent Skills 通过专业能力扩展 Claude，Claude 会在相关时自动调�
 * **你的 skills**：你编写的提示工件，每个都是一个包含 `SKILL.md` 文件的目录。用户可调用 skill 的名称自动加入表面，因此分派你自己的 `/security-check` 和运行内置的工作方式相同
 * **自定义命令文件**：一种较旧的工件形式，具有相同的行为，`.claude/commands/` 中的平面 Markdown 文件，其文件名成为命令名称。Skills 是它们推荐的后继者
 
-默认情况下，你和 Claude 都可以调用任何 skill。你可以通过 skill 的 [frontmatter](/docs/zh-CN/skills#control-who-invokes-a-skill) 限制任一路径。有关这两个术语的定义，请参阅词汇表的 [Command](/docs/zh-CN/glossary#command) 和 [Skill](/docs/zh-CN/glossary#skill) 条目。请参阅 [Claude Code 中的命令](/docs/zh-CN/commands) 了解每个内置命令，以及 [使用 skills 扩展 Claude](/docs/zh-CN/skills) 了解两种工件形式的完整指南。
+默认情况下，你和 Claude 都可以调用任何 skill。你可以通过 skill 的 [frontmatter](/docs/zh-CN/skills#control-who-invokes-a-skill) 限制任一路径。有关命令和 skill 的定义，请参阅词汇表的 [Command](/docs/zh-CN/glossary#command) 和 [Skill](/docs/zh-CN/glossary#skill) 条目。请参阅 [Claude Code 中的命令](/docs/zh-CN/commands) 了解每个内置命令，以及 [使用 skills 扩展 Claude](/docs/zh-CN/skills) 了解两种工件形式的完整指南。
 
 <h3 id="discover-available-commands">
   发现可用命令

@@ -257,7 +257,7 @@ export ANTHROPIC_AWS_API_KEY=sk-ant-xxxxx
 像对待任何其他生产凭证一样对待工作区 API 密钥。[用户设置文件](/docs/zh-CN/settings) `env` 块是一种方便的方式，可以将密钥限定于您的机器，而无需全局导出。
 
 <Note>
-  `/login` 和 `/logout` 命令不会将您登录到 Claude Platform on AWS 的 Claude.ai 订阅。身份验证通过您的 AWS 凭证或工作区 API 密钥运行。
+  `/login` 和 `/logout` 命令不会将您登录到 Claude Platform on AWS 的 claude.ai 订阅。身份验证通过您的 AWS 凭证或工作区 API 密钥运行。
 </Note>
 
 <h3 id="2-configure-claude-code">

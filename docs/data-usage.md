@@ -14,40 +14,40 @@
   数据训练政策
 </h3>
 
-**消费者用户（Free、Pro 和 Max 计划）**：
-我们给您选择是否允许您的数据用于改进未来的 Claude 模型。当此设置打开时，我们将使用来自 Free、Pro 和 Max 账户的数据来训练新模型（包括当您从这些账户使用 Claude Code 时）。
+**消费者用户（免费、Pro 和 Max 计划）**：
+我们让您可以选择是否允许您的数据用于改进未来的 Claude 模型。当此设置打开时，我们将使用来自免费、Pro 和 Max 账户的数据来训练新模型（包括当您从这些账户使用 Claude Code 时）。
 
-**商业用户**：（Team 和 Enterprise 计划、API、第三方平台和 Claude Gov）维持现有政策：除非客户选择向我们提供数据以改进模型（例如，[开发者合作伙伴计划](https://support.claude.com/en/articles/11174108-about-the-development-partner-program)），否则 Anthropic 不会使用商业条款下发送到 Claude Code 的代码或提示来训练生成模型。
+**商业用户**：（Team 和 Enterprise 计划、API、第三方平台和 Claude Gov）维持现有政策：除非客户选择向我们提供数据以改进模型（例如，[开发者合作伙伴计划](https://support.claude.com/en/articles/11174108-about-the-development-partner-program)），否则 Anthropic 不会使用在商业条款下发送到 Claude Code 的代码或提示来训练生成模型。
 
 <h3 id="development-partner-program">
   开发者合作伙伴计划
 </h3>
 
-如果您明确选择加入通过[开发者合作伙伴计划](https://support.claude.com/en/articles/11174108-about-the-development-partner-program)等方式向我们提供训练材料的方法，我们可能会使用这些提供的材料来训练我们的模型。组织管理员可以明确选择为其组织加入开发者合作伙伴计划。请注意，此计划仅适用于 Anthropic 第一方 API，不适用于 Amazon Bedrock 或 Google Cloud 的 Agent Platform 用户。
+如果您明确选择加入向我们提供材料以进行训练的方法，例如通过[开发者合作伙伴计划](https://support.claude.com/en/articles/11174108-about-the-development-partner-program)，我们可能会使用这些提供的材料来训练我们的模型。组织管理员可以明确选择为其组织加入开发者合作伙伴计划。请注意，此计划仅适用于 Anthropic 第一方 API，不适用于 Amazon Bedrock 或 Google Cloud 的 Agent Platform 用户。
 
 <h3 id="feedback-using-the-/feedback-command">
   使用 `/feedback` 命令的反馈
 </h3>
 
-如果您选择使用 `/feedback` 命令向我们发送有关 Claude Code 的反馈，我们可能会使用您的反馈来改进我们的产品和服务。通过 `/feedback` 共享的记录保留 5 年。
+如果您选择使用 `/feedback` 命令向我们发送有关 Claude Code 的反馈，我们可能会使用您的反馈来改进我们的产品和服务。通过 `/feedback` 共享的文稿，或通过 `/bug` 和 `/share` 共享的文稿（这些命令通过相同的路径报告），将保留 5 年。
 
-通过[Claude 起草的反馈](/docs/zh-CN/tools-reference#sendfeedback-tool-behavior)，Claude 也可以起草反馈报告并在您的计算机上将其排队供您审查。Claude Code 在您选择发送草稿之前不会发送任何内容，发送的草稿会通过与其他 `/feedback` 报告相同的提交路径和保留期。
+使用[Claude 起草的反馈](/docs/zh-CN/tools-reference#sendfeedback-tool-behavior)，Claude 还可以起草反馈报告并在您的机器上将其排队供您审查。Claude Code 在您选择发送草稿之前不会发送任何内容，发送的草稿会通过与其他 `/feedback` 报告相同的提交路径和保留期。
 
 <h3 id="session-quality-surveys">
   会话质量调查
 </h3>
 
-当您在 Claude Code 中看到"Claude 在本次会话中表现如何？"提示时，对此调查的回应（包括选择"关闭"）仅记录您的评分。作为此评分提示本身的一部分，我们不收集或存储任何对话记录、输入、输出或其他会话数据。与竖起大拇指/竖起大拇指向下反馈或 `/feedback` 报告不同，此会话质量调查是一个简单的产品满意度指标。
+当您在 Claude Code 中看到"Claude 在此会话中表现如何？"提示时，对此调查的响应（包括选择"关闭"）仅记录您的评分。作为评分提示本身的一部分，我们不收集或存储任何对话文稿、输入、输出或其他会话数据。与竖起大拇指/竖起大拇指向下反馈或 `/feedback` 报告不同，此会话质量调查是一个简单的产品满意度指标。
 
-在评分提示之后，您可能会看到一个单独的后续问题，询问"Anthropic 可以查看您的会话记录以帮助我们改进 Claude Code 吗？"。这是一个与评分不同的可选第二步：
+在评分提示之后，您可能会看到一个单独的后续问题，询问"Anthropic 可以查看您的会话文稿以帮助我们改进 Claude Code 吗？"。这是与评分不同的可选第二步：
 
-* **是**：将您的对话记录、任何子代理记录和来自磁盘的原始会话日志文件上传到 Anthropic。已知的 API 密钥和令牌模式在上传前被编辑。源代码、文件内容和其他对话内容按原样上传。共享的记录保留最多 6 个月。在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和已登录的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上，"是"会将相同的有效负载写入 `~/.claude/feedback-bundles/` 下的本地存档，而不是上传；在您转发该文件之前，没有任何内容离开您的计算机。
+* **是**：将您的对话文稿、任何子代理文稿和来自磁盘的原始会话日志文件上传到 Anthropic。已知的 API 密钥和令牌模式在上传前被编辑。源代码、文件内容和其他对话内容按原样上传。共享的文稿保留最多 6 个月。在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和已登录的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上，"是"会将相同的有效负载写入 `~/.claude/feedback-bundles/` 下的本地存档，而不是上传；在您转发该文件之前，没有任何内容离开您的机器。
 * **否**：拒绝而不发送任何内容
 * **不再询问**：拒绝并停止此后续在未来会话中出现
 
-除非您明确选择**是**，否则不会上传任何内容。具有[零数据保留](/docs/zh-CN/zero-data-retention)的组织，或组织政策禁用产品反馈的组织，或设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 的组织，永远不会看到此后续。您对此调查的回应（包括评分提示后提交的会话记录）不会影响您的数据训练偏好，也不能用于训练我们的 AI 模型。
+除非您明确选择**是**，否则不会上传任何内容。具有[零数据保留](/docs/zh-CN/zero-data-retention)的组织，或组织政策禁用产品反馈的组织，或设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 的组织，永远不会看到此后续。您对此调查的响应（包括评分提示后提交的会话文稿）不会影响您的数据训练偏好，也不能用于训练我们的 AI 模型。
 
-要禁用这些调查，请设置 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1`。当设置 `DISABLE_TELEMETRY`、`DO_NOT_TRACK` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，调查也会被禁用。具有阻止非必要流量但通过其自己的 [OpenTelemetry 收集器](/docs/zh-CN/monitoring-usage)捕获调查响应的组织可以通过设置 `CLAUDE_CODE_ENABLE_FEEDBACK_SURVEY_FOR_OTEL=1` 来选择重新启用调查。然后调查仅将评分记录到配置的收集器。记录共享后续和所有其他 Anthropic 绑定的反馈流量保持禁用。要控制频率而不是禁用，请在您的设置文件中将 [`feedbackSurveyRate`](/docs/zh-CN/settings-reference#feedbacksurveyrate) 设置为 `0` 到 `1` 之间的概率。
+要禁用这些调查，请设置 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1`。当设置了 `DISABLE_TELEMETRY`、`DO_NOT_TRACK` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，调查也会被禁用。通过自己的 [OpenTelemetry 收集器](/docs/zh-CN/monitoring-usage)阻止非必要流量但捕获调查响应的组织可以通过设置 `CLAUDE_CODE_ENABLE_FEEDBACK_SURVEY_FOR_OTEL=1` 来选择重新启用调查。然后调查仅将评分记录到配置的收集器。文稿共享后续和所有其他 Anthropic 绑定的反馈流量保持禁用。要控制频率而不是禁用，请在您的设置文件中将 [`feedbackSurveyRate`](/docs/zh-CN/settings-reference#feedbacksurveyrate) 设置为 `0` 到 `1` 之间的概率。
 
 <h3 id="data-retention">
   数据保留
@@ -55,25 +55,25 @@
 
 Anthropic 根据您的账户类型和偏好保留 Claude Code 数据。
 
-**消费者用户（Free、Pro 和 Max 计划）**：
+**消费者用户（免费、Pro 和 Max 计划）**：
 
-* 允许数据用于模型改进的用户：5 年保留期，以支持模型开发和安全改进
+* 允许数据用于模型改进的用户：5 年保留期以支持模型开发和安全改进
 * 不允许数据用于模型改进的用户：30 天保留期
 * 隐私设置可以随时在 [claude.ai/settings/data-privacy-controls](https://claude.ai/settings/data-privacy-controls) 更改。
 
 **商业用户（Team、Enterprise 和 API）**：
 
 * 标准：30 天保留期
-* [零数据保留](/docs/zh-CN/zero-data-retention)：适用于 Claude for Enterprise 上的 Claude Code。ZDR 不包含在标准 Enterprise 计划中；在您的账户团队确认符合条件后，按组织启用
-* 本地缓存：Claude Code 客户端在 `~/.claude/projects/` 下以纯文本形式本地存储会话记录，默认保留 30 天以启用会话恢复。使用 `cleanupPeriodDays` 调整期限。请参阅[应用程序数据](/docs/zh-CN/claude-directory#application-data)了解存储的内容以及如何清除它。
+* [零数据保留](/docs/zh-CN/zero-data-retention)：适用于 Claude for Enterprise 上 Claude Code 的合格账户。ZDR 不包含在标准 Enterprise 计划中；它由您的账户团队在确认符合条件后按组织启用
+* 本地缓存：Claude Code 客户端默认在 `~/.claude/projects/` 下以纯文本形式本地存储会话文稿 30 天，以启用会话恢复。使用 `cleanupPeriodDays` 调整该期间。有关存储的内容以及如何清除的信息，请参阅[应用程序数据](/docs/zh-CN/claude-directory#application-data)。
 
-  在 Claude Desktop 或 Cowork 中启动或最近继续的会话的记录[默认情况下不受该限制](/docs/zh-CN/claude-directory#cleaned-up-automatically)。
+  在 Claude Desktop 或 Cowork 中启动或最近继续的会话的文稿[默认情况下不受该限制](/docs/zh-CN/claude-directory#cleaned-up-automatically)。
 
-您可以随时删除网络上的单个 Claude Code 会话。删除会话会永久删除该会话的事件数据。有关如何删除会话的说明，请参阅[删除会话](/docs/zh-CN/claude-code-on-the-web#delete-sessions)。
+您可以随时删除单个云会话。删除会话会永久删除该会话的事件数据。有关如何删除会话的说明，请参阅[删除会话](/docs/zh-CN/claude-code-on-the-web#delete-sessions)。
 
-在我们的[隐私中心](https://privacy.anthropic.com/)了解更多关于数据保留实践的信息。
+在我们的[隐私中心](https://privacy.anthropic.com/)了解有关数据保留实践的更多信息。
 
-有关完整详情，请查看我们的[商业服务条款](https://www.anthropic.com/legal/commercial-terms)（适用于 Team、Enterprise 和 API 用户）或[消费者条款](https://www.anthropic.com/legal/consumer-terms)（适用于 Free、Pro 和 Max 用户）和[隐私政策](https://www.anthropic.com/legal/privacy)。
+有关完整详情，请查看我们的[商业服务条款](https://www.anthropic.com/legal/commercial-terms)（适用于 Team、Enterprise 和 API 用户）或[消费者条款](https://www.anthropic.com/legal/consumer-terms)（适用于免费、Pro 和 Max 用户）和[隐私政策](https://www.anthropic.com/legal/privacy)。
 
 <h2 id="data-access">
   数据访问

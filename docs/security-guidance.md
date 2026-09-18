@@ -34,7 +34,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 `/plugin` 打开一个交互式面板，仅在终端 CLI 中可用。如果 Claude 回复说 `/plugin` 在此环境中不可用，请以其他方式安装：
 
 * **Claude 桌面应用、本地或 SSH 会话**：通过点击提示旁边的 **+** 按钮，然后点击 **Plugins**，再点击 **Add plugin** 来打开 [插件浏览器](/docs/zh-CN/desktop#install-plugins)
-* **网络上的 Claude Code 或桌面云会话**：在 `.claude/settings.json` 中声明插件，如 [在云会话中启用](#enable-in-cloud-sessions-and-shared-repositories) 下所示
+* **云会话**：在 `.claude/settings.json` 中声明插件，如 [在云会话和共享存储库中启用](#enable-in-cloud-sessions-and-shared-repositories) 下所示
 
 终端安装会提示输入范围。选择用户范围以将插件写入您的用户设置，这样它会在您在此计算机上启动的每个新本地会话中加载。
 
@@ -49,7 +49,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
   在云会话和共享存储库中启用
 </h3>
 
-用户范围的插件不会进入 [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)，因为这些会话在云上运行，而不是在您的计算机上。要在那里启用该插件，或为克隆存储库的所有人打开它，请在项目的已检入设置中声明它：
+用户范围的插件不会进入 [云会话](/docs/zh-CN/claude-code-on-the-web)，因为这些会话不在您的计算机上运行。要在那里启用该插件，或为克隆存储库的所有人打开它，请在项目的已检入设置中声明它：
 
 ```json .claude/settings.json theme={null}
 {

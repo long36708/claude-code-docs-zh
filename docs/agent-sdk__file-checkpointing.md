@@ -179,7 +179,7 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
   </Step>
 
   <Step title="捕获checkpoint UUID和会话ID">
-    设置`replay-user-messages`选项后（如上所示），响应流中的每个用户消息都有一个UUID，用作checkpoint。
+    设置`replay-user-messages`选项后，响应流中的每个用户消息都有一个UUID，用作checkpoint。
 
     对于大多数用例，捕获第一个用户消息UUID（`message.uuid`）；回滚到它会将所有文件恢复到原始状态。要存储多个checkpoint并回滚到中间状态，请参阅[多个恢复点](#multiple-restore-points)。
 

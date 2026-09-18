@@ -407,7 +407,9 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
   每个会话的配置如何组装
 </h3>
 
-运行器为每个会话提供自己的配置目录，从运行器在启动时捕获的主机 `~/.claude/` 的内存快照中播种：`settings.json`、`CLAUDE.md`、钩子、代理、命令和技能在您的运行器镜像中应用于每个会话作为用户级基线。因为快照在启动时获取，运行主机上的配置更改仅在运行器重启后生效。设置 `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` 以从不同路径播种，或将其指向空目录以禁用播种。
+运行器为每个会话提供自己的配置目录，从运行器在启动时捕获的主机 `~/.claude/` 的快照中播种：`settings.json`、`CLAUDE.md`、钩子、代理、命令和技能在您的运行器镜像中应用于每个会话作为用户级基线。如果您更改运行主机上的配置，更改仅在您重启运行器后生效。
+
+设置 `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` 以从不同路径播种，或将其指向空目录以禁用播种。
 
 存储库提交的 `.claude/settings.json` 作为项目设置分层。会话还从运行器镜像中的标准系统路径读取 [`managed-settings.json`](/docs/zh-CN/settings#where-settings-live)。其密钥是否与 [server-managed settings](/docs/zh-CN/server-managed-settings) 一起应用遵循 [how Claude Code combines managed sources](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)：默认情况下，当您的组织交付任何服务器管理的密钥时，会话忽略运行器镜像的文件，除了 [keys Claude Code reads from every admin source](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)，例如 `env` 块、沙箱锁、沙箱二进制路径和 `forceRemoteSettingsRefresh`。请参阅 [settings precedence](/docs/zh-CN/settings#settings-precedence)。
 

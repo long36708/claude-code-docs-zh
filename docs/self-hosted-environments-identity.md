@@ -10,7 +10,7 @@
   自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段；[所有者](/docs/zh-CN/cloud-environments#organization-shared-environments)可以通过在[**云环境**管理页面](https://claude.ai/admin-settings/cloud-environments)上打开**允许自托管环境**来启用它们。本页面涵盖会话身份验证；有关设置，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)，有关舰队配方，请参阅[部署到生产](/docs/zh-CN/self-hosted-environments-deploy)。
 </Note>
 
-[自托管环境](/docs/zh-CN/self-hosted-environments)让[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) 会话在您运营的基础设施上运行，而不是在 Anthropic 的基础设施上运行。由于会话在您的网络内运行，Claude 可以直接调用您的内部服务。这些服务需要一种方式来确认请求来自您环境中的 Claude Code 会话，并识别创建该会话的用户或服务身份。
+[自托管环境](/docs/zh-CN/self-hosted-environments)让 Claude Code [云会话](/docs/zh-CN/claude-code-on-the-web)在您运营的基础设施上运行，而不是在 Anthropic 的基础设施上运行。由于会话在您的网络内运行，Claude 可以直接调用您的内部服务。这些服务需要一种方式来确认请求来自您环境中的 Claude Code 会话，并识别创建该会话的用户或服务身份。
 
 自托管环境中的每个会话都会在 `CLAUDE_CODE_SESSION_ACCESS_TOKEN` 环境变量中收到一个签名的 JSON Web Token (JWT)。会话像任何持有者凭证一样呈现令牌；例如，Claude 运行的脚本可以使用 `curl -H "Authorization: Bearer $CLAUDE_CODE_SESSION_ACCESS_TOKEN"` 调用您的服务。Anthropic 对令牌进行签名，并在公开 JWKS 端点发布验证密钥。您的服务获取这些密钥，验证签名，并读取声明以决定授予什么访问权限。
 

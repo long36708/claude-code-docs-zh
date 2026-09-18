@@ -10,7 +10,7 @@
   Artifacts 在 Pro、Max、Team 和 Enterprise 计划中可用，需要使用 [`/login`](/docs/zh-CN/setup#authenticate) 登录的会话。有关完整的要求集，请参阅 [可用性](#availability)。
 </Note>
 
-Artifact 是一个实时交互式网页，Claude Code 从您的会话发布到 claude.ai 上的私密 URL。您在浏览器中打开它，随着会话的继续，它会实时更新。当您希望其他人也看到它时，可以从页面标题中共享它。
+[Artifact](https://claude.com/features/artifacts) 是一个实时交互式网页，Claude Code 从您的会话发布到 claude.ai 上的私密 URL。您在浏览器中打开它，随着会话的继续，它会实时更新。当您希望其他人也看到它时，可以从页面标题中共享它。
 
 <Frame>
   <img src="https://mintcdn.com/claude-code/kaHIYYMIYMYPxQg9/images/artifacts-viewer.png?fit=max&auto=format&n=kaHIYYMIYMYPxQg9&q=85&s=dbfd671cdb0d15f49f808b9e89778fe1" alt="一个 artifact 在浏览器中打开，位于 claude.ai/code/artifact。查看器标题显示 artifact 标题 acme-funnel-fix、一个共享按钮和作者头像。共享菜单已打开，显示&#x22;始终共享最新版本&#x22;切换、显示&#x22;共享版本 2&#x22;的版本选择器、&#x22;Acme 中的所有人&#x22;受众选择器和复制链接按钮。标题下方，artifact 页面显示两个并排的移动设备模型、一个漏斗图表和一行指标卡片。" width="2511" height="1890" data-path="images/artifacts-viewer.png" />
@@ -142,7 +142,7 @@ Claude 只能回复或解决已激活的线程。其他线程保持打开状态�
 读取 https://claude.ai/code/artifact/5fbea6f3-... 上的评论，并进行评论者要求的更改。
 ```
 
-如果 Claude 告诉您它无法读取评论，请检查三件事：
+如果 Claude 告诉您它无法读取评论，请确认您的版本、您的会话和您的功能标志设置：
 
 * 您运行的是 Claude Code v2.1.221 或更高版本。
 * 您不在安装 Claude Code 或从 v2.1.221 之前的版本升级后的第一个会话中。在[安装或升级后的第一个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)中，Claude 可能还无法读取评论；启动新会话并再次询问。
@@ -331,7 +331,7 @@ Claude 将您的设计系统视为比其自己的选择更高的优先级，您�
 | 无后端   | 工件是一个静态页面。它无法自行对查看者进行身份验证。                                                                                                                                                                                                                                                                                                                                            |
 | 下载    | 页面无法自行启动下载。为了让查看者保存页面生成的文件，Claude 声明下载功能。请参阅[提供文件下载](#offer-a-file-download)。                                                                                                                                                                                                                                                                                         |
 | 单页面   | 相对链接无法解析，因为页面旁边没有部署任何内容。对于多部分内容，Claude 使用页面内锚点而不是单独的文件。                                                                                                                                                                                                                                                                                                               |
-| 源文件类型 | 发布的文件必须是 `.html`、`.htm` 或 `.md`，并且必须解码为 UTF-8，或通过其字节顺序标记解码为小端 UTF-16。Markdown 文件呈现为样式化的 HTML。无法解码或包含替换字符 `U+FFFD` 的文件会被[拒绝并显示要修复的行和列](/docs/zh-CN/errors#the-source-file-is-not-valid-utf-8-text)。                                                                                                                                                                         |
+| 源文件类型 | 发布的文件必须是 `.html`、`.htm` 或 `.md`，并且必须解码为 UTF-8，或通过其字节顺序标记解码为小端 UTF-16。Markdown 文件呈现为样式化的文档页面，带有语法突出显示的代码。无法解码或包含替换字符 `U+FFFD` 的文件会被[拒绝并显示要修复的行和列](/docs/zh-CN/errors#the-source-file-is-not-valid-utf-8-text)。                                                                                                                                                              |
 | 呈现大小  | 呈现的页面必须为 16 MiB 或更小。大型嵌入图像通常是发布因大小而失败的原因。                                                                                                                                                                                                                                                                                                                             |
 
 生成工件使用输出令牌，就像任何其他响应一样，样式化页面比相同内容作为终端文本更耗费令牌。内联 CSS、用于交互控制的 JavaScript，尤其是嵌入为数据 URI 的图像是主要贡献者。要减少工件的令牌成本：

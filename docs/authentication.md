@@ -6,7 +6,7 @@
 
 > 登录 Claude Code 并为个人、团队和组织配置身份验证。
 
-Claude Code 支持多种身份验证方法，具体取决于您的设置。个人用户可以使用 Claude.ai 账户登录，而团队可以使用 Claude for Teams 或 Enterprise、Claude Console 或云提供商（如 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry）。
+Claude Code 支持多种身份验证方法，具体取决于您的设置。个人用户可以使用 claude.ai 账户登录，而团队可以使用 Claude for Teams 或 Enterprise、Claude Console 或云提供商（如 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry）。
 
 <h2 id="log-in-to-claude-code">
   登录 Claude Code
@@ -22,8 +22,8 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 
 您可以使用以下任何账户类型进行身份验证：
 
-* **Claude Pro 或 Max 订阅**：使用您的 Claude.ai 账户登录。在 [claude.com/pricing](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_pro_max) 订阅。
-* **Claude for Teams 或 Enterprise**：使用您的团队管理员邀请您的 Claude.ai 账户登录。
+* **Claude Pro 或 Max 订阅**：使用您的 claude.ai 账户登录。在 [claude.com/pricing](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_pro_max) 订阅。
+* **Claude for Teams 或 Enterprise**：使用您的团队管理员邀请您的 claude.ai 账户登录。
 * **Claude Console**：使用您的 Console 凭证登录。您的管理员必须先 [邀请您](#claude-console-authentication)。您可以在有或没有 [创建 API 密钥](#sign-in-without-an-api-key) 的情况下登录。
 * **云提供商**：如果您的组织使用 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)，请在运行 `claude` 之前设置所需的环境变量，或在登录提示符处选择 **3rd-party platform**，这将为 Bedrock 和 Vertex AI 启动交互式设置向导。不需要浏览器登录。
 * **云网关**：如果您的组织运行自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway)，请通过 `/login` 使用企业 SSO 登录。网关颁发的令牌是会话的唯一凭证。
@@ -66,7 +66,7 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
   </Step>
 
   <Step title="安装并登录">
-    团队成员安装 Claude Code 并使用其 Claude.ai 账户登录。
+    团队成员安装 Claude Code 并使用其 claude.ai 账户登录。
   </Step>
 </Steps>
 
@@ -190,7 +190,7 @@ Claude Code 安全地管理您的身份验证凭证：
   * 在 Windows 上，凭证存储在 `%USERPROFILE%\.claude\.credentials.json` 中，并继承您的用户配置文件目录的访问控制，默认情况下将文件限制为您的用户帐户。
   * 如果您设置了 `CLAUDE_CONFIG_DIR` 环境变量，Claude Code 会将 `.credentials.json` 文件保存在该目录下，包括 macOS 回退写入的文件，并且还会将 macOS Keychain 条目关键字设置为该目录，因此使用不同 `CLAUDE_CONFIG_DIR` 的会话会读取不同的条目。
   * Claude Code 通过 `/login` 和 `/logout` 管理 `.credentials.json`。要通过自定义 API 端点路由请求，请改为设置 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 环境变量。
-* **支持的身份验证类型**：Claude.ai 凭证、Claude API 凭证、Microsoft Foundry Auth、Bedrock Auth、Vertex Auth、Anthropic 配置文件和 [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 凭证，以及 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话令牌。
+* **支持的身份验证类型**：claude.ai 凭证、Claude API 凭证、Microsoft Foundry Auth、Bedrock Auth、Vertex Auth、Anthropic 配置文件和 [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 凭证，以及 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话令牌。
 * **自定义凭证脚本**：配置 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 设置以运行返回 API 密钥的 shell 脚本。
 * **刷新间隔**：Claude Code 默认在五分钟后重新运行 `apiKeyHelper`。设置 `CLAUDE_CODE_API_KEY_HELPER_TTL_MS` 环境变量以获得自定义刷新间隔。有关 Claude Code 重新运行助手的其他情况，请参阅 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper)。
 * **缓慢助手通知**：如果 `apiKeyHelper` 返回密钥需要超过 10 秒，Claude Code 会在提示栏中显示警告通知，显示经过的时间。如果您经常看到此通知，请检查您的凭证脚本是否可以优化。
@@ -236,7 +236,7 @@ Claude Code 安全地管理您的身份验证凭证：
 
 运行 `unset ANTHROPIC_API_KEY` 以回退到您的订阅，并检查 `/status` 以确认哪种方法处于活跃状态。当登录和 API 密钥都已配置时，`/status` 会标记未在使用的凭证。
 
-[Claude Code on the Web](/docs/zh-CN/claude-code-on-the-web) 始终使用您的订阅凭证。如果您在沙箱环境中设置 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，它不会覆盖您的订阅凭证。
+[Cloud sessions](/docs/zh-CN/claude-code-on-the-web) 始终使用您的订阅凭证。如果您在云环境中设置 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，它不会覆盖您的订阅凭证。
 
 <h4 id="anthropic-profiles-and-federation-credentials">
   Anthropic 配置文件和联合凭证

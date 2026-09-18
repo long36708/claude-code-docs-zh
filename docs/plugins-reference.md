@@ -71,7 +71,9 @@ disallowedTools: Write, Edit
 Detailed system prompt for the agent describing its role, expertise, and behavior.
 ```
 
-插件代理支持 `name`、`description`、`model`、`effort`、`maxTurns`、`tools`、`disallowedTools`、`skills`、`memory`、`background` 和 `isolation` frontmatter 字段。唯一有效的 `isolation` 值是 `"worktree"`。出于安全原因，插件提供的代理不支持 `hooks`、`mcpServers` 和 `permissionMode`。
+插件代理支持 `name`、`description`、`model`、`effort`、`maxTurns`、`tools`、`disallowedTools`、`skills`、`memory`、`background`、[`omitClaudeMd`](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 和 `isolation` frontmatter 字段。唯一有效的 `isolation` 值是 `"worktree"`。
+
+出于安全原因，插件提供的代理不支持 `hooks`、`mcpServers` 或 `permissionMode`。
 
 Claude Code 会加载插件代理，即使其 frontmatter 没有 `name` 或无法解析：
 
@@ -444,7 +446,8 @@ claude plugin disable my-tool@skills-dir
 
 通过 `claude plugin list` 打印的 `<name>@synced` ID 来管理同步的插件：
 
-* **关闭一个插件**：在同步会话中，运行 `claude plugin disable <name>@synced`，或要求 Claude 运行它。Claude Code 会将该选择保存为该环境的用户级 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 中的 `"<name>@synced": false`。要重新打开该插件，在同一会话中运行 `claude plugin enable <name>@synced`。要将插件排除在每个同步会话之外，[为你的 claude.ai 账户关闭它](/docs/zh-CN/desktop#extend-claude-code)。要将其排除在一个项目的每个环境中的同步会话之外，在该项目的已提交 `.claude/settings.json` 中的 `enabledPlugins` 下设置 `"<name>@synced": false`。
+* **关闭一个插件**：在同步会话中，运行 `claude plugin disable <name>@synced`，或要求 Claude 运行它。Claude Code 会将该选择保存为该环境的用户级 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 中的 `"<name>@synced": false`。你的组织要求的同步插件无法通过这种方式关闭。该命令会报告该插件是你的组织所需的，并且不会保存任何内容。要重新打开该插件，在同一会话中运行 `claude plugin enable <name>@synced`。
+* **将一个插件排除在同步会话之外**：要将一个插件排除在每个同步会话之外，[为你的 claude.ai 账户关闭它](/docs/zh-CN/desktop#extend-claude-code)。要将其排除在一个项目的每个环境中的同步会话之外，在该项目的已提交 `.claude/settings.json` 中的 `enabledPlugins` 下设置 `"<name>@synced": false`。
 * **在 claude.ai 上管理插件本身**：`claude plugin install`、`update` 和 `uninstall` 不适用于同步的插件。要删除一个，为你的 claude.ai 账户关闭该插件；下一个同步会话将在没有它的情况下启动。
 
 当来自任何其他来源的启用插件（例如 marketplace 安装、[skills-directory 插件](#skills-directory-plugins)或 `--plugin-dir` 插件）与同步插件的名称匹配时，Claude Code 会加载该插件并报告同步副本未加载。要改用 claude.ai 副本，请禁用你自己的副本。在 v2.1.239 之前，Claude Code 会加载同步副本而不是同名的 marketplace 安装。
@@ -553,7 +556,7 @@ claude plugin validate ./my-plugin --strict
 
 在 `plugin.json` 中设置 `defaultEnabled: false` 以发布已禁用安装的 plugin。用户使用 `claude plugin enable <plugin>` 或 `/plugin` 界面将其打开。对于添加成本或用户应该选择加入的范围的 plugin 使用此选项，例如连接到外部服务的 plugin。
 
-`defaultEnabled` 是当没有其他因素决定 plugin 状态时的后备。两件事优先于它：
+`defaultEnabled` 是当没有其他因素决定 plugin 状态时的后备。用户的设置和依赖项要求优先于它：
 
 * **用户的设置**：任何设置范围内 `enabledPlugins` 中的 plugin 条目。一旦写入，它会在 plugin 更新和重新安装中持续存在，因此在后续版本中更改 `defaultEnabled` 不会翻转现有用户。
 * **依赖项要求**：当 plugin 被另一个活跃的 plugin 需要时，Claude Code 在安装或启用时为其写入 `true`。这给了它一个显式设置，所以它自己的默认值不再适用。请参阅[启用或禁用具有依赖项的 plugin](/docs/zh-CN/plugin-dependencies#enable-or-disable-a-plugin-with-dependencies)。
@@ -577,8 +580,8 @@ claude plugin validate ./my-plugin --strict
 | `experimental.themes`   | string\|array         | 颜色主题文件/目录（替换默认 `themes/`）。请参阅[主题](#themes)                                                                                                       | `"./themes/"`                                        |
 | `experimental.monitors` | string\|array         | 后台[Monitor](/docs/zh-CN/tools-reference#monitor-tool) 配置，在 plugin 活跃时自动启动。请参阅[监视器](#monitors)                                                         | `"./monitors.json"`                                  |
 | `experimental.evals`    | string\|array         | plugin 根目录下的目录，当不是默认 `evals/` 时，保存 plugin 的[eval cases](/docs/zh-CN/plugin-evals#use-a-different-eval-directory)。`claude plugin eval --eval-dir` 会覆盖它 | `"quality/evals"`                                    |
-| `userConfig`            | object                | 在启用时提示的用户可配置值。请参阅[用户配置](#user-configuration)                                                                                                     | 见下文                                                  |
-| `channels`              | array                 | 消息注入的频道声明（Telegram、Slack、Discord 风格）。请参阅[频道](#channels)                                                                                          | 见下文                                                  |
+| `userConfig`            | object                | 在启用时提示的用户可配置值。请参阅[用户配置](#user-configuration)                                                                                                     |                                                      |
+| `channels`              | array                 | 消息注入的频道声明（Telegram、Slack、Discord 风格）。请参阅[频道](#channels)                                                                                          |                                                      |
 | `dependencies`          | array                 | 此 plugin 需要的其他 plugin，可选择带有 semver 版本约束。请参阅[约束 plugin 依赖项版本](/docs/zh-CN/plugin-dependencies)                                                         | `[{ "name": "secrets-vault", "version": "~2.1.0" }]` |
 
 <h3 id="experimental-components">
@@ -613,16 +616,19 @@ claude plugin validate ./my-plugin --strict
 
 键必须是有效的标识符。每个选项支持这些字段：
 
-| 字段            | 必需 | 描述                                                  |
-| :------------ | :- | :-------------------------------------------------- |
-| `type`        | 是  | `string`、`number`、`boolean`、`directory` 或 `file` 之一 |
-| `title`       | 是  | 在配置对话框中显示的标签                                        |
-| `description` | 是  | 在字段下方显示的帮助文本                                        |
-| `sensitive`   | 否  | 如果为 `true`，掩盖输入并将值存储在安全存储中而不是 `settings.json`       |
-| `required`    | 否  | 如果为 `true`，当字段为空时验证失败                               |
-| `default`     | 否  | 当用户未提供任何内容时使用的值                                     |
-| `multiple`    | 否  | 对于 `string` 类型，允许字符串数组                              |
-| `min` / `max` | 否  | `number` 类型的边界                                      |
+| 字段            | 必需 | 描述                                                                      |
+| :------------ | :- | :---------------------------------------------------------------------- |
+| `type`        | 是  | `string`、`number`、`boolean`、`directory` 或 `file` 之一                     |
+| `title`       | 是  | 在配置对话框中显示的标签                                                            |
+| `description` | 是  | 在字段下方显示的帮助文本                                                            |
+| `sensitive`   | 否  | 如果为 `true`，掩盖输入并将值存储在安全存储中而不是 `settings.json`                           |
+| `required`    | 否  | 如果为 `true`，当字段为空时验证失败                                                   |
+| `default`     | 否  | 当用户未提供任何内容时使用的值                                                         |
+| `options`     | 否  | 对于 `string` 类型，字段接受的值，在 `/config` 中显示为选择器。需要 Claude Code v2.1.271 或更高版本 |
+| `multiple`    | 否  | 对于 `string` 类型，允许字符串数组                                                  |
+| `min` / `max` | 否  | `number` 类型的边界                                                          |
+
+除了 `sensitive` 字段和 `multiple` 列表外，每个启用的 plugin 的每个字段也作为一行出现在 `/config` 面板中。这些行需要 Claude Code v2.1.269 或更高版本。
 
 每个值都可用于在 MCP 和 LSP 服务器配置以及 hook 命令中作为 `${user_config.KEY}` 进行替换。非敏感值也可以在 skill 和 agent 内容中替换。所有值都作为 `CLAUDE_PLUGIN_OPTION_<KEY>` 环境变量导出到 hook 进程，其中 `<KEY>` 是选项键的大写形式。
 
@@ -1060,13 +1066,14 @@ claude plugin install <plugin> [options]
 
 该命令接受这些选项：
 
-| 选项                     | 描述                                                                                                                                                                                                                                                                                                                      | 默认值    |
-| :--------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----- |
-| `-s, --scope <scope>`  | 安装范围：`user`、`project` 或 `local`                                                                                                                                                                                                                                                                                         | `user` |
-| `--config <key=value>` | 设置插件清单中声明的 [`userConfig`](#user-configuration) 选项。重复该标志以设置多个选项                                                                                                                                                                                                                                                          |        |
-| `-y, --yes`            | 接受插件市场声明的命令，无需确认提示：生成具有 [`command` source](/docs/zh-CN/plugin-marketplaces#command-sources) 的插件的命令，或验证存档下载的 [`headersHelper`](/docs/zh-CN/plugin-marketplaces#authenticate-archive-downloads)。接受 `headersHelper` 需要 Claude Code v2.1.238 或更高版本。Claude Code 仍会首先打印命令。当 stdin 或 stdout 不是 TTY 时需要。在 Claude Code 会话内无效，因此从您自己的终端运行命令 |        |
-| `--json`               | 将结果作为 stdout 最后一行的一个 JSON 对象打印，用于脚本。请参阅 [JSON result format](#plugin-json-result)。需要 Claude Code v2.1.268 或更高版本                                                                                                                                                                                                         |        |
-| `-h, --help`           | 显示命令帮助                                                                                                                                                                                                                                                                                                                  |        |
+| 选项                          | 描述                                                                                                                                                                                                                                                                                                                                               | 默认值    |
+| :-------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----- |
+| `-s, --scope <scope>`       | 安装范围：`user`、`project` 或 `local`                                                                                                                                                                                                                                                                                                                  | `user` |
+| `--config <key=value>`      | 设置插件清单中声明的 [`userConfig`](#user-configuration) 选项。重复该标志以设置多个选项                                                                                                                                                                                                                                                                                   |        |
+| `-y, --yes`                 | 接受插件市场声明的命令，无需确认提示：生成具有 [`command` source](/docs/zh-CN/plugin-marketplaces#command-sources) 的插件的命令，或验证存档下载的 [`headersHelper`](/docs/zh-CN/plugin-marketplaces#authenticate-archive-downloads)。接受 `headersHelper` 需要 Claude Code v2.1.238 或更高版本。Claude Code 仍会首先打印命令。当 stdin 或 stdout 不是 TTY 时需要，除非您传递 `--accept-command`。在 Claude Code 会话内无效，因此从您自己的终端运行命令 |        |
+| `--accept-command <sha256>` | 接受市场声明的命令，其 `sha256` 之前的 [`--json` 运行](#plugin-json-result) 在 `shownCommand` 中报告，代替 `-y`。接受计数仅适用于该特定命令、插件和市场目录。如果自命令显示以来其中任何一个已更改，包括通过运行自己的市场刷新，Claude Code 不接受摘要并再次显示命令。不能与 `-y` 组合。在 Claude Code 会话内无效，因此从您自己的终端运行命令。需要 Claude Code v2.1.271 或更高版本                                                                                             |        |
+| `--json`                    | 将结果作为 stdout 最后一行的一个 JSON 对象打印，用于脚本。请参阅 [JSON result format](#plugin-json-result)。需要 Claude Code v2.1.268 或更高版本                                                                                                                                                                                                                                  |        |
+| `-h, --help`                | 显示命令帮助                                                                                                                                                                                                                                                                                                                                           |        |
 
 范围决定了已安装插件添加到哪个设置文件。例如，`--scope project` 写入 .claude/settings.json 中的 `enabledPlugins`，使插件对克隆项目存储库的每个人都可用。
 
@@ -1077,6 +1084,10 @@ claude plugin install <plugin> [options]
 * `message`：结果的人类可读描述
 
 其他字段，例如 `pluginId`、`scope` 和 `failureCode`，仅在适用时出现。`plugin uninstall`、`plugin update`、`plugin enable` 和 `plugin disable` 上的 `--json` 选项打印具有该子命令自己字段的相同对象。使用错误，例如无效的 `--scope`，不打印结果行并以 stderr 上的原因退出 1。
+
+当运行显示市场声明的命令且不运行它时，`failed` 结果也会携带一个 `shownCommand` 对象，其字段包括显示的命令、它所属的插件和命令的 `sha256`。要接受完全相同的命令，使用该 `sha256` 作为 `--accept-command` 重新运行。需要 Claude Code v2.1.271 或更高版本。
+
+如果 `shownCommand.acceptCommandMatched` 是 `false`，您传递的摘要与现在显示的命令不匹配。在传递其 `sha256` 之前向某人显示该命令。
 
 这些示例显示常见的调用：
 
@@ -1173,7 +1184,11 @@ claude plugin enable <plugin> [options]
   plugin disable
 </h3>
 
-禁用插件而不卸载它。当目标从市场安装时，如果另一个启用的插件[依赖](/docs/zh-CN/plugin-dependencies#enable-or-disable-a-plugin-with-dependencies)它，该命令会失败。错误消息包含一个链式命令，首先禁用每个依赖它的插件。
+禁用插件而不卸载它。
+
+当目标从市场安装时，如果另一个启用的插件[依赖](/docs/zh-CN/plugin-dependencies#enable-or-disable-a-plugin-with-dependencies)它，该命令会失败。错误消息包含一个链式命令，首先禁用每个依赖它的插件。
+
+对于您的组织需要的[同步插件](#synced-plugins)，该命令会失败并且不保存任何内容。
 
 ```bash theme={null}
 claude plugin disable [plugin] [options]
@@ -1208,12 +1223,13 @@ claude plugin update <plugin> [options]
 
 该命令接受这些选项：
 
-| 选项                    | 描述                                                                                                                                                                                                                                                                                                                      | 默认值    |
-| :-------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----- |
-| `-s, --scope <scope>` | 更新范围：`user`、`project`、`local` 或 `managed`                                                                                                                                                                                                                                                                               | `user` |
-| `-y, --yes`           | 接受插件市场声明的命令，无需确认提示：生成具有 [`command` source](/docs/zh-CN/plugin-marketplaces#command-sources) 的插件的命令，或验证存档下载的 [`headersHelper`](/docs/zh-CN/plugin-marketplaces#authenticate-archive-downloads)。接受 `headersHelper` 需要 Claude Code v2.1.238 或更高版本。Claude Code 仍会首先打印命令。当 stdin 或 stdout 不是 TTY 时需要。在 Claude Code 会话内无效，因此从您自己的终端运行命令 |        |
-| `--json`              | 将结果作为 stdout 最后一行的一个 JSON 对象打印，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本                                                                                                                                                                                                      |        |
-| `-h, --help`          | 显示命令帮助                                                                                                                                                                                                                                                                                                                  |        |
+| 选项                          | 描述                                                                                                                                                                                                                                                                                                                                               | 默认值    |
+| :-------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----- |
+| `-s, --scope <scope>`       | 更新范围：`user`、`project`、`local` 或 `managed`                                                                                                                                                                                                                                                                                                        | `user` |
+| `-y, --yes`                 | 接受插件市场声明的命令，无需确认提示：生成具有 [`command` source](/docs/zh-CN/plugin-marketplaces#command-sources) 的插件的命令，或验证存档下载的 [`headersHelper`](/docs/zh-CN/plugin-marketplaces#authenticate-archive-downloads)。接受 `headersHelper` 需要 Claude Code v2.1.238 或更高版本。Claude Code 仍会首先打印命令。当 stdin 或 stdout 不是 TTY 时需要，除非您传递 `--accept-command`。在 Claude Code 会话内无效，因此从您自己的终端运行命令 |        |
+| `--accept-command <sha256>` | 接受市场声明的命令，其 `sha256` 之前的 [`--json` 运行](#plugin-json-result) 在 `shownCommand` 中报告，代替 `-y`。接受计数仅适用于该特定命令、插件和市场目录。如果自命令显示以来其中任何一个已更改，包括通过运行自己的市场刷新，Claude Code 不接受摘要并再次显示命令。不能与 `-y` 组合。在 Claude Code 会话内无效，因此从您自己的终端运行命令。需要 Claude Code v2.1.271 或更高版本                                                                                             |        |
+| `--json`                    | 将结果作为 stdout 最后一行的一个 JSON 对象打印，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本                                                                                                                                                                                                                               |        |
+| `-h, --help`                | 显示命令帮助                                                                                                                                                                                                                                                                                                                                           |        |
 
 <Note>
   Claude Code 根据您已安装的插件解析裸插件名称。当来自不同市场的已安装插件共享该名称时，Claude Code 拒绝更新并列出要运行的限定 `plugin-name@marketplace-name` 命令。在 v2.1.246 之前，Claude Code 仅接受限定形式并拒绝裸名称为未找到。

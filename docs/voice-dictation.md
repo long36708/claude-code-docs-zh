@@ -17,7 +17,7 @@
 语音听写将你录制的音频流传输到 Anthropic 的服务器进行转录。音频不在本地处理。它需要以下所有条件：
 
 * **一个 Claude.ai 账户**：语音转文本服务仅在你使用 Claude.ai 账户进行身份验证时可用，当 Claude Code 配置为直接使用 Anthropic API 密钥、Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 时不可用。
-* **一个本地麦克风**：语音听写在远程环境中不起作用，例如[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)或 SSH 会话。
+* **一个本地麦克风**：语音听写在[云会话](/docs/zh-CN/claude-code-on-the-web)或 SSH 会话中不起作用。
 * **如果你在 WSL 中运行 Claude Code，则需要 WSLg**：WSLg 包含在 Windows 10 或 11 上从 Microsoft Store 安装的 WSL2 中。如果 WSLg 不可用，例如在 WSL1 上，改为在本机 Windows 中运行 Claude Code。
 
 转录不消耗 Claude 消息或令牌，也不计入 `/usage` 中显示的限制。有关 Anthropic 如何处理你的数据，请参阅[数据使用](/docs/zh-CN/data-usage)。

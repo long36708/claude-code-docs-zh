@@ -333,6 +333,8 @@ Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下�
 
 没有文件在其后的目标不被检查：`/dev/null`、文件描述符形式如 `2>&1` 和 `<&3`，以及 here-docs 和 here-strings。
 
+Claude Code 也检查 `tee` 命令写入的文件，包括在管道中，如 `make | tee build.log`。检查涵盖您的 `Edit` allow 和 deny 规则、[受保护的路径](/docs/zh-CN/permission-modes#protected-paths)和[工作目录](#working-directories)。像 `Bash(tee *)` 这样的 allow 规则不涵盖工作目录外的目标。Claude Code 在 v2.1.269 及更高版本中检查 `tee` 目标。
+
 <h3 id="powershell">
   PowerShell
 </h3>
@@ -370,7 +372,7 @@ Claude Code 解析 PowerShell AST 并独立检查复合命令中的每个命令�
 Claude Code 仅根据 `Edit(path)` 和 `Read(path)` 规则检查文件权限。如果您为 `Write`、`NotebookEdit`、`Glob` 或旧版 `MultiEdit` 工具编写路径规则，Claude Code 接受该规则但从不查询它，并在启动时[警告](/docs/zh-CN/errors#is-not-matched-by-file-permission-checks)，除了在 `--allowedTools` 中传递的 `Glob` 规则。使用 `Edit(docs/**)` 代替 `Write(docs/**)`、`NotebookEdit(docs/**)` 或 `MultiEdit(docs/**)`，以及 `Read(docs/**)` 代替 `Glob(docs/**)`。Claude Code 不会警告没有路径的工具名称规则，如 `Write` 的 deny 规则；它在任何地方在工具级别匹配该规则。需要 Claude Code v2.1.210 或更高版本。
 
 <Warning>
-  Read 和 Edit deny 规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail` 和 `sed`）以及 Bash [重定向](#redirections)的目标（如 `> file` 和 `< file`）。它们不适用于读取文件而不命名它们的命令，如从保存文件的目录运行的 `grep -r pattern .`，或间接读取或写入文件的任意子进程，如打开文件本身的 Python 或 Node 脚本。对于阻止所有进程访问路径的 OS 级别强制执行，请[启用沙箱](/docs/zh-CN/sandboxing)。
+  Read 和 Edit deny 规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail`、`sed` 和 `tee`）以及 Bash [重定向](#redirections)的目标（如 `> file` 和 `< file`）。它们不适用于读取文件而不命名它们的命令，如从保存文件的目录运行的 `grep -r pattern .`，或间接读取或写入文件的任意子进程，如打开文件本身的 Python 或 Node 脚本。对于阻止所有进程访问路径的 OS 级别强制执行，请[启用沙箱](/docs/zh-CN/sandboxing)。
 </Warning>
 
 Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模式语法，具有四种不同的模式类型；对于单段目录模式，匹配深度也取决于规则类型，本节后面描述：
@@ -454,6 +456,15 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 
 其路径不可用作 gitignore 模式的 deny 或 ask 规则仍然保护该确切路径。其模式不可用的 allow 规则不批准任何内容。
 
+一个 deny 或 ask 模式，其路径以 `!` 开头是 gitignore 否定。它从其前面列出的 `path` 或 `./path` 规则中切割出它匹配的路径。在一个设置文件的 `deny` 列表中，`Read(*.env)` 后跟 `Read(!sample.env)` 阻止名称以 `.env` 结尾的每个文件在任何深度，除了名为 `sample.env` 的文件。首先列出的 `!` 规则切割不出任何内容。
+
+切割范围仅到达来自同一源的规则。项目设置或 `--disallowedTools` 中的 `Read(!.env)` 不会取消来自托管设置或任何其他设置文件的 `Read(./.env)` deny。
+
+两个限制缩小了 `!` 模式可以切割的内容：
+
+* Claude Code 读取 `!` 模式相对于当前目录，即使 `/`、`~/` 或 `//` 跟随 `!`，因此模式无法到达用其中一个前缀锚定的规则。`Read(!~/notes/public/**)` 从 `Read(~/notes/**)` 中切割不出任何内容。
+* 切割不能重新打开规则作为整体阻止的目录内的文件。使用 `Read(secrets/**)` 和 `Read(!secrets/public/**)`，Claude Code 仍然阻止 `secrets/public` 以及 `secrets` 的其余部分。
+
 当 Claude 访问符号链接时，权限规则检查两个路径：符号链接本身和它解析到的文件。Allow 和 deny 规则对该对的处理方式不同：allow 规则回退到提示您，而 deny 规则直接阻止。
 
 * **Allow 规则**：仅在符号链接路径及其目标都匹配时适用。允许目录内的符号链接指向其外部仍然会提示您。
@@ -506,7 +517,9 @@ WebFetch 规则中的通配符需要 Claude Code v2.1.172 或更高版本来匹�
 }
 ```
 
-当您要求 Claude 获取页面时，它无需提示即可获取。当您要求它对沙箱允许列表外的主机运行[沙箱](/docs/zh-CN/sandboxing) `curl` 时，Claude Code 仍然会提示您该主机，或在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中将请求发送到分类器，因为裸规则没有将主机添加到允许列表。
+当您要求 Claude 获取页面时，它无需提示即可获取。当您要求它对沙箱允许列表外的主机运行[沙箱](/docs/zh-CN/sandboxing) `curl` 时，Claude Code 仍然会提示您该主机，因为裸规则没有将主机添加到允许列表。
+
+在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，Claude 改为在命令的[每个命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)中命名主机以供分类器审查。
 
 <h3 id="mcp">
   MCP
@@ -646,7 +659,7 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 权限和[沙箱](/docs/zh-CN/sandboxing)是互补的安全层：
 
 * **权限**控制 Claude Code 可以使用哪些工具以及它可以访问哪些文件或域。它们适用于 Bash、Read、Edit、WebFetch、MCP 和其他所有工具，除了 deny 或 ask 规则无法阻止 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)，而任何其他工具仍然存在。
-* **沙箱**提供 OS 级别的强制执行，限制 Bash 工具的文件系统和网络访问。它仅适用于 Bash 命令及其子进程。
+* **沙箱**提供 OS 级别的强制执行，限制 shell 命令的文件系统和网络访问。它仅适用于 Bash、PowerShell 和 [Monitor](/docs/zh-CN/tools-reference#monitor-tool) 命令及其子进程。
 
 使用两者进行深度防御，因为即使提示注入绕过 Claude 的决策制定，沙箱限制仍然适用。来自沙箱设置和权限规则的路径和域被[合并到最终沙箱配置](/docs/zh-CN/sandboxing#permission-rules)中。
 

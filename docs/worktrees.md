@@ -139,7 +139,7 @@ Claude Code 运行定期扫描，删除 Claude 为子代理和[后台会话](/do
 当您[后台](/docs/zh-CN/agent-view#send-the-session-to-the-background)一个 `--worktree` 会话时，其 worktree 变成后台会话 worktree，扫描可以删除。扫描在这些情况下保留 worktree：
 
 * worktree 仍然保留工作：已更改或未跟踪的文件，或未推送的提交。
-* Claude Code 无法确定存储库配置定义的过滤驱动程序，在[三种也阻止 worktree 创建的情况](#git-lfs-content-is-missing-from-a-worktree-claude-code-created)中的任何一种。
+* Claude Code 无法确定存储库配置定义的过滤驱动程序，或在其中找到它无法关闭的设置，或[四种也阻止 worktree 创建的情况](#git-lfs-content-is-missing-from-a-worktree-claude-code-created)中的任何一种适用。
 * worktree 属于您未后台的 `--worktree` 会话，无论其年龄如何。
 * 您自己使用 `git worktree add` 创建了 worktree，即使您随后在其中运行了 `--worktree <name>` 会话并后台了该会话。
 
@@ -353,11 +353,12 @@ Claude Code 在创建 worktree 时跳过存储库自己的过滤驱动程序，�
 
 要获取真实文件，请在 worktree 内运行 `git lfs pull`。
 
-在三种罕见的情况下，Claude Code 无法判断存储库的配置定义的过滤驱动程序，并根本不创建 worktree。将错误与其修复匹配：
+在四种罕见的情况下，Claude Code 无法判断存储库的配置定义的过滤驱动程序，或找到一个它无法关闭的设置，因此根本不创建 worktree。将错误与其修复匹配：
 
 * **`Could not read the repository git config to neutralize filter drivers`**：Claude Code 无法读取存储库的 `.git/config`，例如因为其权限。修复它并重试。
 * **`The repository git config defines a filter driver whose name cannot be neutralized (contains "=" or a newline)`**：在 `.git/config` 中重命名或删除该过滤驱动程序并重试。
 * **`The repository git config has a conditional include (includeIf)`**：将 `includeIf` 在 `.git/config` 中拉入的设置直接移到该文件中，删除 `includeIf`，并重试。您全局 git 配置中的 `includeIf` 不会触发此问题。
+* **`Git was not run: the repository's own git config sets <key>`**：消息命名一个指向 Git LFS 运行程序的键，例如 `lfs.customtransfer.<name>.path` 或 `lfs.standalonetransferagent`。如果该设置是您的，将其移到您的全局 git 配置。如果您不认识它，从存储库的 git 配置中删除它，因为您不信任的工具或检出可能已写入它。一旦键从存储库的配置中消失，重试。
 
 <h3 id="claude-code-refuses-to-use-a-worktree">
   Claude Code 拒绝使用 worktree

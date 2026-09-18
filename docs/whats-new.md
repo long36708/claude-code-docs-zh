@@ -8,6 +8,30 @@
 
 每周开发摘要突出了最有可能改变您工作方式的功能。每个条目都包括可运行的代码、简短的演示和完整文档的链接。有关每个错误修复和次要改进，请参阅[更新日志](/docs/en/changelog)。
 
+<Update label="Week 37" description="September 7–11, 2026" tags={["v2.1.263–v2.1.269"]}>
+  **`claude plugin eval`**：针对一套测试用例运行您的插件，对结果进行评分，并与无插件基线进行比较。`claude plugin eval init` 为您起草用例和评分器。
+
+  本周还有：将任何 **Claude Code Desktop 窗格**弹出到其自己的窗口中，稍后将其停靠回来；**`maxEffortLevel`** 设置限制每个提供商的努力级别；以及 **WebFetch** 在五分钟内未完成下载的页面会失败而不是挂起。
+
+  [阅读 Week 37 摘要 →](/docs/zh-CN/whats-new/2026-w37)
+</Update>
+
+<Update label="Week 36" description="August 31 – September 4, 2026" tags={["v2.1.251–v2.1.261"]}>
+  **Claude Fable 5.1**：在 Claude Code 中可用，具有 1M 令牌上下文窗口。
+
+  本周还有：在 Pro 和 Max 计划上，**Desktop 应用中的计算机使用**在 macOS 上在后台工作，同时您继续工作；在全屏渲染中，**`/diff`** 在对话旁边打开一个实时面板，在 Claude 编辑时刷新；**`/skill-doctor`** 显示您每个技能在上下文中的成本以及它被使用的频率。
+
+  [阅读 Week 36 摘要 →](/docs/zh-CN/whats-new/2026-w36)
+</Update>
+
+<Update label="Week 35" description="August 24–28, 2026" tags={["v2.1.240–v2.1.250"]}>
+  **在 Desktop 应用中恢复终端会话**：在 Claude Code Desktop 提示框中键入 `/resume` 以继续您从 CLI 启动的任何会话，保持完整的对话和上下文。
+
+  本周还有：**Claude 起草的反馈**在会话中出现问题时让 Claude 编写反馈报告，您审查并从 `/feedback` 发送；**`--restricted`** 启动没有命令运行工具或您的用户和项目设置的会话，用于共享机器上的评估工具；**`modelPicker`** 设置控制 `/model` 选择器列出的模型。
+
+  [阅读 Week 35 摘要 →](/docs/zh-CN/whats-new/2026-w35)
+</Update>
+
 <Update label="Week 34" description="August 17–21, 2026" tags={["v2.1.234–v2.1.239"]}>
   **`/design`**：一个研究预览版，将 Claude Design 的画板工作流程引入 CLI 和 Claude Code Desktop，基于 artifacts 构建，因此 Claude 为您的 UI 草拟可编辑的画板并实现您选择的那个。
 

@@ -301,6 +301,8 @@ Claude 探索代码库并生成计划，而不编辑您的源文件。只读工�
 
 在规划模式下，文件编辑永远不会自动批准，即使允许规则匹配。它们会通过您的 `canUseTool` 回调提示。 在 Claude Code v2.1.212 或更高版本上，修改文件的 shell 命令（如 `touch` 和 `rm`）会以相同方式到达您的 `canUseTool` 回调。
 
+如果您在 `permissionMode: 'plan'` 旁边设置 `allowDangerouslySkipPermissions: true`，文件编辑和修改文件的 shell 命令仍然会到达您的 `canUseTool` 回调。该选项让您稍后可以使用 `setPermissionMode()` 切换到 `bypassPermissions`。
+
 Claude 可能会使用 `AskUserQuestion` 在最终确定计划之前澄清需求。有关处理这些提示的信息，请参阅[处理批准和用户输入](/docs/zh-CN/agent-sdk/user-input#handle-clarifying-questions)。
 
 **使用场景：** 您希望 Claude 提议更改而不执行它们，例如在代码审查期间或当您需要在进行更改之前批准更改时。

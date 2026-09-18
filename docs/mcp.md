@@ -151,7 +151,7 @@ claude mcp add --env AIRTABLE_API_KEY=YOUR_KEY --transport stdio airtable \
 
   没有 `--`，Claude Code 会尝试将服务器的标志（如上面的 `--port`）解析为自己的选项。
 
-  `--env` 接受多个 `KEY=value` 对。如果服务器名称直接跟在 `--env` 之后，CLI 会将名称读取为另一对并拒绝它，因此在 `--env` 和服务器名称之间至少放置一个其他选项，如上面的示例所示。
+  `--env` 接受多个 `KEY=value` 对。如果服务器名称直接跟在 `--env` 之后，CLI 会将名称读取为另一对并拒绝它，因此在 `--env` 和服务器名称之间至少放置一个其他选项，如 `--transport stdio`。
 </Note>
 
 <h3 id="option-4-add-a-remote-websocket-server">
@@ -323,7 +323,7 @@ Claude Code 警告以下配置问题。每个条目说明 Claude Code 检查什�
 * **隐藏的空格**：当 MCP 配置值携带隐藏的前导或尾随空格时，Claude Code 发出警告，这通常来自粘贴带有尾随换行符的令牌。Claude Code 检查 `command`、`url`、每个 `args` 条目以及 `env` 和 `headers` 下的值和键名。Claude Code 在 `claude mcp list` 输出和 `/mcp` 中显示警告，命名受影响的字段而不回显其值，例如 `Leading or trailing whitespace in: headers.Authorization`。Claude Code 不修剪空格并完全按照写入的方式使用值，因此编辑配置以删除它。
 * **在多个范围中具有相同名称**：如果您在多个 [范围](#mcp-installation-scopes) 中定义相同的服务器名称，具有不同的端点，Claude Code 在 `claude mcp list` 输出和 `/mcp` 中警告冲突。Claude Code 按端点存储 OAuth 登录，因此当您对在一个项目中加载的定义进行身份验证时，您仍然需要在另一个项目中单独登录，其中不同的定义加载。保留您想要的端点并使用 `claude mcp remove <name> --scope <scope>` 删除其他端点。在警告中，Claude Code 引用每个范围的端点，如您的配置中写入的那样，带有 [`${VAR}` 引用](#environment-variable-expansion-in-mcp-json) 未展开，因此它从不显示已解析的值，例如 API 密钥。
 * **保留名称**：Claude Code 保留其内置服务器的名称，包括 `workspace`、`claude-in-chrome`、`computer-use`、`Claude Preview` 和 `Claude Browser`。如果您的配置定义了具有保留名称的服务器，Claude Code 在加载时跳过它并显示警告，要求您重命名它。`claude mcp add` 拒绝带有错误的保留名称。`Claude Preview` 和 `Claude Browser` 都命名 [Claude Code 桌面应用的预览窗格](/docs/zh-CN/desktop#preview-your-app) 使用的内置服务器。在 v2.1.205 之前，`Claude Browser` 未被保留，因此用户配置的服务器可以在该名称下注册。
-* **缺少环境变量**：如果 [`${VAR}` 引用](#environment-variable-expansion-in-mcp-json) 在服务器的配置中命名一个未设置且没有 `:-default` 的变量，Claude Code 在 `claude mcp list` 输出和 `/mcp` 中警告，命名变量，并仍然加载服务器，`${VAR}` 文本未展开。设置变量或添加 `${VAR:-default}` 回退。
+* **缺少环境变量**：如果 [`${VAR}` 引用](#environment-variable-expansion-in-mcp-json) 在服务器的配置中命名一个未设置且没有 `:-default` 的变量，Claude Code 在 `claude mcp list` 输出和 `/mcp` 中警告，命名变量，并仍然加载服务器，`${VAR}` 文本未展开。设置变量或添加 `${VAR:-default}` 回退。在远程服务器的 `url` 和 `headers` 中，某些凭证变量 [读取为空](#credential-variables-that-read-as-empty) 而不是，没有警告。
 
 <h4 id="tool-availability">
   工具可用性
@@ -360,22 +360,24 @@ Claude Code 为每个服务器查询恰好两个列表之一，因此两个列�
 
 Claude Code 通过两个客户端运行时之一连接到 MCP 服务器。v1 运行时基于 MCP TypeScript SDK 1.x。v2 运行时是 [MCP TypeScript SDK 2.0](https://ts.sdk.modelcontextprotocol.io/v2/) 上的相同代码，它添加了 MCP 协议修订版 2026-07-28。本页的其余部分适用于两个运行时，除非某个部分命名 v2 运行时。
 
-在 Claude Code v2.1.232 或更高版本上，Claude Code 使用 v2 运行时。它在每次启动时选择一个运行时，并保持到您退出。当您运行它时，它使用 v1：
+Claude Code 在每次启动时选择一个运行时，并保持到您退出。在 Claude Code v2.1.232 或更高版本上，在 [获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话中，它使用 v2 运行时。
 
-* 在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上，除非嵌入 Claude Code 的主机平台设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars)
-* 通过 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 登录
-* 使用 [功能标志获取关闭](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)
+在不获取功能标志的会话中，Claude Code 在 Claude Code v2.1.274 或更高版本上默认使用 v2 运行时：
+
+* Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上的会话，除非嵌入 Claude Code 的主机平台设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars)
+* 通过 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 登录的会话
+* 您关闭遥测或功能标志获取的会话，例如使用 `DISABLE_TELEMETRY`
 
 在 v2 上，Claude Code 也：
 
-* 询问 HTTP 和 claude.ai 连接器服务器是否支持较新的修订版，并与支持的服务器一起使用。它仅在您设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto` 时询问 stdio 服务器，并像 v1 一样连接到每个其他服务器。
+* 询问 HTTP 服务器是否支持较新的修订版，并与支持的服务器一起使用它。它也询问在获取功能标志的会话中的 claude.ai 连接器服务器。要让它询问 stdio 服务器或在每个会话中询问连接器服务器，请设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto`。它像 v1 一样连接到每个其他服务器。
 * 从 [它保持打开的流](#notification-streams-on-the-v2-runtime) 上的较新修订版的服务器接收 `list_changed` 通知。
 * 不注册在较新修订版上连接的 [通道](#push-messages-with-channels) 服务器，因为该修订版无法携带通道消息。
 * 失败 [MCP OAuth 登录](#authenticate-with-remote-mcp-servers)，其授权响应命名意外的发行者。
 
 Anthropic 可以使用 Claude Code 获取的功能标志将特定服务器保持在较早的协议上，或将其从该流中移除。
 
-要自己选择运行时，请设置 [`MCP_SDK_GENERATION`](/docs/zh-CN/env-vars) 为 `v1` 或 `v2`。要决定 Claude Code 是否询问，请设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto` 或 `legacy`。在 Claude Code 默认使用 v1 的地方，固定 `v2` 不会使其询问，因此也设置 `auto`。
+要自己选择运行时，请设置 [`MCP_SDK_GENERATION`](/docs/zh-CN/env-vars) 为 `v1` 或 `v2`。要决定 Claude Code 是否询问，请设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto` 或 `legacy`。
 
 <h3 id="dynamic-tool-updates">
   动态工具更新
@@ -679,12 +681,17 @@ claude mcp add --transport http hubspot --scope user https://mcp.hubspot.com/ant
 
 Claude Code 支持 `.mcp.json` 文件中的环境变量扩展，允许团队共享配置，同时为特定于机器的路径和 API 密钥等敏感值保持灵活性。
 
-**支持的语法：**
+<h4 id="supported-syntax">
+  支持的语法
+</h4>
 
 * `${VAR}`：扩展为环境变量 `VAR` 的值
 * `${VAR:-default}`：如果设置了 `VAR`，则扩展为 `VAR`，否则使用 `default`
 
-**扩展位置：**
+<h4 id="expansion-locations">
+  扩展位置
+</h4>
+
 环境变量可以在以下位置扩展：
 
 * `command`：服务器可执行文件路径
@@ -693,7 +700,9 @@ Claude Code 支持 `.mcp.json` 文件中的环境变量扩展，允许团队共�
 * `url`：对于 HTTP 服务器类型
 * `headers`：对于 HTTP 服务器身份验证
 
-**带有变量扩展的示例：**
+<h4 id="example-with-variable-expansion">
+  带有变量扩展的示例
+</h4>
 
 ```json theme={null}
 {
@@ -709,7 +718,44 @@ Claude Code 支持 `.mcp.json` 文件中的环境变量扩展，允许团队共�
 }
 ```
 
-如果未设置所需的环境变量且没有默认值，配置仍然会加载：Claude Code 在 `claude mcp list` 输出中为该服务器报告缺失变量警告，并按原样使用未扩展的 `${VAR}` 文本。设置变量或添加 `:-default` 回退，以便服务器使用您想要的值启动。
+<h4 id="unset-variables-without-a-default">
+  未设置且无默认值的变量
+</h4>
+
+如果未设置所需的环境变量且没有默认值，配置仍然会加载：Claude Code 在 `claude mcp list` 输出中为该服务器报告缺失变量警告，并按原样使用未扩展的 `${VAR}` 文本。设置变量或添加 `:-default` 回退，以便服务器使用您想要的值启动。在远程服务器的 `url` 和 `headers` 中，某些凭据变量[读取为空](#credential-variables-that-read-as-empty)，没有警告。
+
+<h4 id="credential-variables-that-read-as-empty">
+  读取为空的凭据变量
+</h4>
+
+在远程服务器的 `url` 和 `headers` 中，Claude Code 从您的环境中读取凭据变量为空，而不是扩展它们。这可以防止项目的 `.mcp.json` 或插件将您的 Claude Code 或云提供商凭据发送到它命名的服务器。如果您写入 `Bearer ${ANTHROPIC_AUTH_TOKEN}`，服务器会收到 `Bearer ` 而没有凭据，并拒绝请求，通常返回 `401`。Claude Code 将其报告为连接失败。
+
+涵盖的名称包括：
+
+* Claude Code 自己的凭据，例如 `ANTHROPIC_API_KEY` 和 `ANTHROPIC_AUTH_TOKEN`
+* 您的云提供商的凭据，例如 `AWS_BEARER_TOKEN_BEDROCK`
+* 您的环境携带的其他凭据，例如 `HTTPS_PROXY` 和 `NPM_TOKEN`
+
+涵盖的名称读取为空，无论您是否设置了变量，其上的 `:-default` 回退被忽略。提供商基础 URL（例如 `ANTHROPIC_BASE_URL`）仍然会扩展，因此 `"url": "${ANTHROPIC_BASE_URL}/mcp"` 有效，除非 URL 的值本身嵌入凭据（例如用户名和密码）。
+
+此集合之外的名称（例如 `API_KEY`）按原样扩展。要向服务器提供涵盖的凭据之一，请将其复制到具有您自己的名称的变量中，并改为引用该名称。
+
+当远程服务器的 `url` 或 `headers` 引用您已设置的涵盖变量时，Claude Code 在调试日志行中命名它。要读取该行，请运行 `claude --debug-file /tmp/claude-debug.log` 并在该文件中搜索 `never expanded toward a remote server`。
+
+<h4 id="how-references-appear-in-/mcp-and-cli-output">
+  引用在 `/mcp` 和 CLI 输出中的显示方式
+</h4>
+
+对于本地、项目或用户[范围](#mcp-installation-scopes)中的服务器，以下界面按名称而不是按其解析值显示 `${VAR}` 引用：
+
+* 服务器的 `/mcp` 详细视图中的 URL 或命令行
+* `claude mcp list` 和 `claude mcp get` 输出
+
+`/mcp` 详细视图在 Claude Code v2.1.268 或更高版本中以这种方式显示引用。
+
+对于您的组织通过 `managedMcpServers` 设置提供的服务器，这些界面仅显示[URL 的主机](/docs/zh-CN/managed-mcp#what-users-can-see-and-change)。
+
+要检查当连接失败时 `claude mcp list`、`claude mcp get` 和 `/mcp` 显示的内容，请参阅[服务器状态详情](#server-status-detail)。
 
 <h2 id="practical-examples">
   实际示例
@@ -779,7 +825,7 @@ Claude Code 将远程服务器标记为需要身份验证，当服务器响应 `
 
 * 对于您尚未登录的服务器，任一状态代码都会在 `/mcp` 中标记它，以便您可以完成 OAuth 流程。
 * 对于 [claude.ai 连接器](#use-mcp-servers-from-claude-ai)，由 claude.ai 拒绝您的会话令牌导致的 `401` 不会标记连接器，因为重新授权连接器无法修复您的登录。Claude Code 改为显示 [会话令牌被拒绝状态](/docs/zh-CN/errors#claude-ai-rejected-the-session-token)。
-* 对于您在 `headers` 中配置了 `Authorization` 标头的服务器，或通过 [`headersHelper`](#use-dynamic-headers-for-custom-authentication) 配置的服务器，连接时的 `401` 或 `403` 不会标记服务器，因为要修复的凭据是您配置的凭据。Claude Code 改为报告连接失败。
+* 对于您在 `headers` 中配置了 `Authorization` 标头的服务器，或通过 [`headersHelper`](#use-dynamic-headers-for-custom-authentication) 配置的服务器，连接时的 `401` 或 `403` 不会标记服务器，因为要修复的凭据是您配置的凭据。Claude Code 改为报告连接失败。如果您从 `${VAR}` 引用设置该标头，请检查该变量是否是 Claude Code [读取为空](#credential-variables-that-read-as-empty) 的变量之一。
 * 对于 [传递到云会话的连接器](#how-connectors-reach-claude-code)，Claude Code 不运行登录流程，因为会话的代理使用您在 claude.ai 中授予的授权向连接器进行身份验证。当那里的连接器需要再次授权时，请在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 重新连接它，而不是从会话中重新连接。
 
 当对您已登录的 OAuth 服务器的请求返回 `401 Unauthorized` 时，Claude Code 会刷新存储的令牌、重新连接并重试请求一次。只有在该重试也失败时，它才会在 `/mcp` 中标记服务器。在 v2.1.206 之前，由于网络错误等暂时性原因导致的令牌刷新失败会将 OAuth 服务器标记为在会话的其余时间需要身份验证，即使其刷新令牌仍然有效。
@@ -789,6 +835,8 @@ Claude Code 将远程服务器标记为需要身份验证，当服务器响应 `
 返回指向其授权服务器的 `WWW-Authenticate` 标头的自定义服务器获得与任何其他远程服务器相同的自动发现。
 
 Claude Code 也会在启动时显示通知，当一个或多个配置的服务器需要身份验证时，这样您就不必打开 `/mcp` 来发现哪些服务器需要登录。该通知需要 Claude Code v2.1.193 或更高版本。它仅计算您可以从 Claude Code 登录的服务器。在 v2.1.218 之前，它还计算 [claude.ai 连接器](#use-mcp-servers-from-claude-ai)，这些连接器在 claude.ai 中未连接，您只能从 claude.ai 设置中连接。
+
+该通知每次启动时宣布每个服务器一次，并将其从计数中排除，直到该服务器已连接并再次需要登录。`/mcp` 仍然列出每个需要登录的服务器。
 
 在非交互模式下，没有 `/mcp` 面板，因此 Claude Code 无法为您运行 OAuth 流程。从 v2.1.196 开始，当配置的服务器在 `claude -p` 或启用了 [工具搜索](#scale-with-mcp-tool-search)（这是默认设置）的 Agent SDK 运行期间需要身份验证时，Claude Code 会告诉 Claude 该服务器的工具不可用，直到您授权它。Claude 可以命名需要登录的服务器，而不是响应就像服务器未配置一样。从与 `/mcp` 的交互式会话或 `claude mcp login <name>` 完成登录。
 

@@ -624,6 +624,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`awsAuthRefresh`](#awsauthrefresh)                                                                   | 使用您自己的命令刷新 `.aws` 中过期的 [Bedrock 凭证](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)                                                                             | 身份验证和提供商   | Any file                |
 | [`awsCredentialExport`](#awscredentialexport)                                                         | 从您自己的命令以 JSON 形式提供 [Bedrock 凭证](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)                                                                                 | 身份验证和提供商   | Any file                |
 | [`axScreenReader`](#axscreenreader)                                                                   | 渲染[屏幕阅读器友好的输出](/docs/zh-CN/accessibility)                                                                                                                                     | 界面和终端      | Any file                |
+| [`bashEditDiffEnabled`](#basheditdiffenabled)                                                         | 在每个权限模式中记录 [Bash 命令更改的文件](/docs/zh-CN/hooks#bash)                                                                                                                             | 界面和终端      | User or managed         |
 | [`bashOutputMaxChars`](#bashoutputmaxchars)                                                           | 设置成功命令的[输出](/docs/zh-CN/tools-reference#output-limits)有多少 Claude 内联接收                                                                                                         | 内存和上下文     | Any file                |
 | [`blockedMarketplaces`](#blockedmarketplaces)                                                         | 为您的组织阻止[插件市场](/docs/zh-CN/plugin-marketplaces)来源                                                                                                                              | 插件和技能      | Managed                 |
 | [`browserExternalPageTools`](#browserexternalpagetools)                                               | 在[桌面](/docs/zh-CN/desktop)浏览器窗格中的外部页面上关闭 Claude 的工具                                                                                                                           | 工具         | Managed                 |
@@ -679,6 +680,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`forceLoginMethod`](#forceloginmethod)                                                               | [限制登录](/docs/zh-CN/authentication#restrict-login-to-your-organization)到 claude.ai、Claude Console 或[云网关](/docs/zh-CN/claude-apps-gateway)                                           | 身份验证和提供商   | Any file                |
 | [`forceLoginOrgUUID`](#forceloginorguuid)                                                             | [将 claude.ai 登录固定到您的组织](/docs/zh-CN/authentication#restrict-login-to-your-organization)；仅托管源强制执行                                                                              | 身份验证和提供商   | Any file                |
 | [`forceRemoteSettingsRefresh`](#forceremotesettingsrefresh)                                           | 阻止启动，直到[服务器托管设置](/docs/zh-CN/server-managed-settings)被新鲜获取                                                                                                                    | 企业和托管设置    | Managed                 |
+| [`gatewayInternalNetworks`](#gatewayinternalnetworks)                                                 | 让 `/login` 到达您的组织在内部使用的公共 IPv4 空间上的[云网关](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)                                                     | 身份验证和提供商   | Managed                 |
 | [`gcpAuthRefresh`](#gcpauthrefresh)                                                                   | 使用您自己的命令刷新 [Google Cloud 凭证](/docs/zh-CN/google-vertex-ai#advanced-credential-configuration)                                                                                  | 身份验证和提供商   | Any file                |
 | [`hooks`](#hooks)                                                                                     | 在 Claude Code 生命周期中的点运行您自己的命令作为 [hooks](/docs/zh-CN/hooks)                                                                                                                    | Hooks 和自动化 | Any file                |
 | [`httpHookAllowedEnvVars`](#httphookallowedenvvars)                                                   | 限制[HTTP hooks](/docs/zh-CN/hooks)可以在标头中放入的环境变量                                                                                                                                | Hooks 和自动化 | Any file                |
@@ -792,7 +794,8 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`subagentPromptCacheTtl`](#subagentpromptcachettl)                                                   | 为子代理和主对话外的其他请求选择[提示缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)                                                                                                         | 模型和响应      | Any file                |
 | [`subagentStatusLine`](#subagentstatusline)                                                           | 使用您自己的命令重写[子代理](/docs/zh-CN/sub-agents)任务显示中的行                                                                                                                                | 界面和终端      | Any file                |
 | [`switchModelsOnFlag`](#switchmodelsonflag)                                                           | 当[安全分类器](/docs/zh-CN/model-config#ask-before-switching)标记请求时自动切换模型或暂停                                                                                                         | 模型和响应      | Any file                |
-| [`syncClaudeAiSkills`](#syncclaudeaiskills)                                                           | 停止下载[在您的 claude.ai 帐户上启用的技能](/docs/zh-CN/skills#how-synced-skills-behave)并隐藏已同步的技能                                                                                            | 插件和技能      | User, local, or managed |
+| [`syncClaudeAiPlugins`](#syncclaudeaiplugins)                                                         | 停止加载[在您的 claude.ai 帐户上启用的插件](/docs/zh-CN/plugins-reference#synced-plugins)并停止下载新的                                                                                             | 插件和技能      | User, local, or managed |
+| [`syncClaudeAiSkills`](#syncclaudeaiskills)                                                           | 停止加载[在您的 claude.ai 帐户上启用的技能](/docs/zh-CN/skills#how-synced-skills-behave)并停止下载新的                                                                                              | 插件和技能      | User, local, or managed |
 | [`syntaxHighlightingDisabled`](#syntaxhighlightingdisabled)                                           | 关闭 diffs 和代码块中的语法突出显示                                                                                                                                                    | 界面和终端      | Any file                |
 | [`taskOutputMaxChars`](#taskoutputmaxchars)                                                           | 设置[后台任务](/docs/zh-CN/tools-reference#background-commands)的输出有多少 Claude 内联接收                                                                                                   | 内存和上下文     | Any file                |
 | [`teammateDefaultModel`](#teammatedefaultmodel)                                                       | 在 v2.1.234 中删除；请参阅[指定队友和模型](/docs/zh-CN/agent-teams#specify-teammates-and-models)了解 Claude Code 如何选择队友的模型                                                                     | 全局配置设置     | Global config           |
@@ -1152,7 +1155,9 @@ Claude Code 删除它无法解析的行并保留其余的。请参阅[修复损�
 * **类型**: 具有可选 `multiplier` 和可选 `overrides` 映射的对象
 * **默认值**: 未设置，因此 Claude Code 报告列表价格，除非主机应用程序提供表
 
-此示例为 Sonnet 4.6 设置合同费率，然后将每个数字减少 15%，包括 Sonnet 行。单独设置 `multiplier` 以获得统一折扣，单独设置 `overrides` 以获得每模型费率，或两者：
+单独设置 `multiplier` 以获得统一折扣或加价，单独设置 `overrides` 以获得每模型费率，或两者。
+
+此示例为 Sonnet 4.6 设置合同费率，然后将每个数字减少 15%，包括 Sonnet 行：
 
 ```json managed-settings.json theme={null}
 {
@@ -1170,6 +1175,8 @@ Claude Code 删除它无法解析的行并保留其余的。请参阅[修复损�
 }
 ```
 
+将 `multiplier` 设置为 1 以上，最多 10，以标记每个数字。加价需要 Claude Code v2.1.271 或更高版本。早期版本忽略 `multiplier` 大于 1 的警告，并保留设置的其余部分。
+
 有关步骤，包括如何确认费率有效，请参阅[按您的合同费率报告支出](/docs/zh-CN/costs#report-spend-at-your-contracted-rates)。
 
 <span id="modelpricing-multiplier" />
@@ -1182,7 +1189,7 @@ Claude Code 删除它无法解析的行并保留其余的。请参阅[修复损�
 
 | 字段           | 类型                                                                          | 它做什么                                                                                                                      |
 | :----------- | :-------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
-| `multiplier` | 大于 0 且最多 1 的数字                                                              | 缩放 Claude Code 计算的每个成本，无论 `overrides` 行是否覆盖它                                                                              |
+| `multiplier` | 大于 0 且最多 10 的数字                                                             | 缩放 Claude Code 计算的每个成本，无论 `overrides` 行是否覆盖它。低于 1 是折扣，高于 1 是加价                                                            |
 | `overrides`  | 模型 ID 到具有 `input`、`output`、`cacheRead` 和 `cacheWrite` 的费率对象的映射，每个 0 到 10000 | 该模型的美元每百万令牌费率，全部四个必需。`cacheWrite` 涵盖五分钟和一小时缓存写入。请参阅[`modelPricing` 行适用于哪些模型](#which-models-a-modelpricing-row-applies-to) |
 
 Claude Code 完全按照您写入的方式使用行的费率，不添加快速模式附加费或[仅限美国推理费率](https://platform.claude.com/docs/en/about-claude/pricing)。如果您也设置 `multiplier`，Claude Code 在行的费率之上应用它。Claude Code 删除具有它无法解析的费率或无法解析的 `multiplier` 的行，并保留其余的；请参阅[修复损坏的设置文件](/docs/zh-CN/settings#fix-a-broken-settings-file)。
@@ -1369,9 +1376,11 @@ Ultracode 在 `xhigh` 努力处运行会话，优先于 `effortLevel` 和 [`mode
 
 使托管设置成为权限规则的唯一设置源。Claude Code 随后会忽略用户、项目、本地和 `--settings` 文件中的 `allow`、`ask` 和 `deny` 规则，忽略 `--allowedTools`，隐藏权限提示中的始终允许选项，并停止保存新规则。
 
-当[来自嵌入主机的父设置](/docs/zh-CN/managed-settings#let-an-embedding-host-add-policy)适用时，Claude Code 将其视为托管层的一部分：它保留其 `deny` 和 `ask` 规则，并删除其 `allow` 规则和 `additionalDirectories`。
+当[来自嵌入主机的父设置](/docs/zh-CN/managed-settings#let-an-embedding-host-add-policy)适用时，Claude Code 将其视为托管层的一部分。它删除其 `allow` 规则和 `additionalDirectories`，并保留其 `deny` 和 `ask` 规则，除了 `Read` 和 `Edit` 规则，其模式以 `!` 开头。主机无法使用 `!` 规则从托管规则中切割出路径，无论您是否设置此键。
 
 `--disallowedTools` 规则和当前会话的 `deny` 和 `ask` 规则仍然适用，包括在 Claude Code 在会话中途重新加载设置后。它们仅限制，因此无法扩展托管规则授予的权限。在 v2.1.257 之前，Claude Code 在第一次设置重新加载时删除了这些命令行和会话规则。
+
+有关 `!` 模式在 `--disallowedTools` 或会话规则中可以切割出什么，请参阅[Read 和 Edit 规则](/docs/zh-CN/permissions#read-and-edit)。
 
 * **作用域**: [`Managed`](#scopes)
 * **类型**: 布尔值
@@ -1413,12 +1422,12 @@ Ultracode 在 `xhigh` 努力处运行会话，优先于 `effortLevel` 和 [`mode
   `autoMode.classifyAllShell`
 </h3>
 
-在自动模式处于活动状态时，通过自动模式分类器发送每个 Bash 和 PowerShell 命令。默认情况下，自动模式仅暂停可能运行任意代码的允许规则：工具范围和通配符规则（如 `Bash(*)`）以及解释器或 shell 包装器前缀（如 `Bash(python *)`）。任何其他允许规则匹配的命令（如 `Bash(npm test)`）会跳过分类器，规则的前缀未预期的破坏性参数可能会被看不见地通过。设置此键会为会话暂停每个 shell 允许规则，以便分类器看到每个命令。需要 Claude Code v2.1.193 或更高版本。
+在自动模式处于活动状态时，通过自动模式分类器发送每个 Bash 和 PowerShell 命令。默认情况下，自动模式仅暂停可能运行任意代码的允许规则：工具范围和通配符规则（如 `Bash(*)`）以及解释器或 shell 包装器前缀（如 `Bash(python *)`）。任何其他允许规则匹配的命令（如 `Bash(npm test)`）会跳过分类器，除非它携带[每命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)，规则的前缀未预期的破坏性参数可能会被看不见地通过。设置此键会为会话暂停每个 shell 允许规则，以便分类器看到每个命令。需要 Claude Code v2.1.193 或更高版本。
 
 * **作用域**: [`User or managed`](#scopes)。在读取 [`autoMode`](#automode) 的任何地方读取。
 * **类型**: 布尔值
   * `true`：在自动模式处于活动状态时，Claude Code 通过分类器发送每个 Bash 和 PowerShell 命令，并暂停您的 shell 允许规则；在自动模式之外，规则仍然适用
-  * `false`：自动模式仅暂停可能运行任意代码的允许规则，如 `Bash(*)` 和 `Bash(python *)`；任何其他允许规则匹配的命令会跳过分类器，每个其他 shell 命令都会通过它
+  * `false`：自动模式仅暂停可能运行任意代码的允许规则，如 `Bash(*)` 和 `Bash(python *)`；任何其他允许规则匹配的命令会跳过分类器，除非它携带[每命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)，每个其他 shell 命令都会通过它
 * **默认值**: `false`
 
 ```json settings.json theme={null}
@@ -1554,7 +1563,7 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
   `permissions.deny`
 </h3>
 
-列出 Claude Code 阻止的工具使用。将其用于保存 API 密钥、机密或环境值的文件：Claude Code 从文件发现和搜索结果中排除匹配的文件，拒绝读取它们，并在匹配的路径上阻止[编辑和写入工具](/docs/zh-CN/permissions#read-and-edit)。读取和编辑拒绝规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail` 和 `sed`）以及 Bash[重定向](/docs/zh-CN/permissions#redirections)的目标（如 `> file` 和 `< file`）；它们不适用于读取文件而不命名它们的命令（如 `grep -r pattern .`）或任意子进程，因此对于操作系统级别的强制执行，请[启用沙箱](/docs/zh-CN/sandboxing)。
+列出 Claude Code 阻止的工具使用。将其用于保存 API 密钥、机密或环境值的文件：Claude Code 从文件发现和搜索结果中排除匹配的文件，拒绝读取它们，并在匹配的路径上阻止[编辑和写入工具](/docs/zh-CN/permissions#read-and-edit)。读取和编辑拒绝规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail`、`sed` 和 `tee`）以及 Bash[重定向](/docs/zh-CN/permissions#redirections)的目标（如 `> file` 和 `< file`）；它们不适用于读取文件而不命名它们的命令（如 `grep -r pattern .`）或任意子进程，因此对于操作系统级别的强制执行，请[启用沙箱](/docs/zh-CN/sandboxing)。
 
 * **作用域**: [`Any file`](#scopes)
 * **类型**: 权限规则字符串数组
@@ -1606,7 +1615,9 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
 
 阻止 Claude 在每个权限模式（包括 `bypassPermissions`）中使用 Read、Grep、Glob 和 LSP 工具读取会话[工作目录](/docs/zh-CN/permissions#working-directories)之外的路径。通过 Claude Code 识别的文件命令（如 `cat`）读取匹配路径的 Bash 命令会在自动模式和 `bypassPermissions` 模式中提示您。需要 Claude Code v2.1.257 或更高版本。
 
-当您选择在[自动模式的提示中阻止此类读取（在第一次读取工作目录之外之前）](/docs/zh-CN/permission-modes#first-read-outside-the-working-directories)时，Claude Code 也会在此处写入 `true`。
+shell 解析器无法追踪的 Bash 命令（如多次更改目录或运行子 shell 的命令）会在自动模式和 `bypassPermissions` 模式中提示您。即使命令未命名工作目录之外的任何路径，提示也会出现。当命令在[沙箱](/docs/zh-CN/sandboxing)中运行且沙箱强制执行该块时，此提示不适用。
+
+Claude Code 也会在此处写入 `true`，当您选择在[自动模式的提示中阻止此类读取（在第一次读取工作目录之外之前）](/docs/zh-CN/permission-modes#first-read-outside-the-working-directories)时。
 
 * **作用域**: [`Any file`](#scopes)。如果任何设置源设置 `true`，则应用该块，因此存储库的签入文件可以为项目打开该块，但无法解除您设置的块。
 * **类型**: 布尔值
@@ -1654,7 +1665,7 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
 }
 ```
 
-权限规则分层在每个模式之上：`deny` 规则在每个模式中阻止，包括 `bypassPermissions`。请参阅[权限模式](/docs/zh-CN/permission-modes)。`manual` 命名 CLI 和 VS Code 扩展中标记为"手动"的权限模式；别名需要 Claude Code v2.1.200 或更高版本。在网络上的 Claude Code 中，Claude Code 仅从此键中遵守 `acceptEdits`、`plan`、`default` 和 `auto`。对于 VS Code 扩展启动的对话，请参阅[扩展为启动权限模式读取的设置](/docs/zh-CN/permission-modes#switch-permission-modes)。
+权限规则分层在每个模式之上：`deny` 规则在每个模式中阻止，包括 `bypassPermissions`。请参阅[权限模式](/docs/zh-CN/permission-modes)。`manual` 命名 CLI 和 VS Code 扩展中标记为"手动"的权限模式；别名需要 Claude Code v2.1.200 或更高版本。在云会话中，Claude Code 仅从此键中遵守 `acceptEdits`、`plan`、`default` 和 `auto`。对于 VS Code 扩展启动的对话，请参阅[扩展为启动权限模式读取的设置](/docs/zh-CN/permission-modes#switch-permission-modes)。
 
 <h3 id="permissions-disablebypasspermissionsmode">
   `permissions.disableBypassPermissionsMode`
@@ -1917,7 +1928,7 @@ Claude Code 从目录路径中删除尾部斜杠，因此 `~/.aws` 和 `~/.aws/`
 Claude Code 也删除尾部 `/**`，因此 `~/build/**` 和 `~/build` 覆盖同一目录。通配符（如 `*` ）是否有效取决于条目所在的列表和平台：
 
 * **`allowWrite` 和 `denyWrite`**: 在 macOS 上，通配符有效。在 Linux 和 WSL2 上，沙箱挂载具体路径，因此 Claude Code 在删除尾部 `/**` 后跳过包含 `*`、`?` 或 `[` 的条目，该条目无效。Claude Code 将您的 `Edit` 权限规则中的路径添加到这些列表中，因此相同的限制适用于它们，`/sandbox` 的 **Config** 选项卡警告包含通配符的 `Edit` 和 `Read` 权限规则。
-* **`denyRead` 和 `allowRead`**: 通配符在每个平台上都有效。在 Linux 和WSL2 上，Claude Code 将读取条目扩展到它匹配的具体路径，对写入列表不执行此操作。
+* **`denyRead` 和 `allowRead`**: 通配符在每个平台上都有效。在 Linux 和 WSL2 上，Claude Code 将读取条目扩展到它匹配的具体路径，对写入列表不执行此操作。
 
 <h3 id="sandbox-filesystem-allowwrite">
   `sandbox.filesystem.allowWrite`
@@ -2670,7 +2681,7 @@ Claude Code 从会话加载的每个设置源合并此列表，即使设置了 `
 * **Scope**: [`User or managed`](#scopes)。存储库无法打开或关闭它。
 * **Type**: 布尔值
   * `true`: Claude Code 拒绝沙箱化命令访问允许列表外的主机
-  * `false`: 除非另一个受信任的设置文件设置 `true`，Claude Code 根据权限模式而不是直接拒绝来决定允许列表外的主机：它在自动模式下运行分类器，在 `dontAsk` 模式下拒绝，在 `bypassPermissions` 模式下允许，在计划模式下当绕过可用时允许，否则询问您
+  * `false`: 除非另一个受信任的设置文件设置 `true`，Claude Code 根据权限模式而不是直接拒绝来决定允许列表外的主机：它在自动模式下检查主机对命令的 [per-command allowed domains](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)，在 `dontAsk` 模式下拒绝，在 `bypassPermissions` 模式下允许，在交互式终端计划模式会话中当绕过可用时允许，否则询问您
 * **Default**: `false`
 
 ```json settings.json theme={null}
@@ -3152,6 +3163,25 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 ```
 
 需要 Claude Code v2.1.181 或更高版本。
+
+<h3 id="basheditdiffenabled">
+  `bashEditDiffEnabled`
+</h3>
+
+选择 Claude Code 是否记录 Bash 命令在 Git 存储库中更改的文件。当它记录它们时，您会在命令后在终端中看到它们的差异，您的 [PostToolUse Bash hooks](/docs/zh-CN/hooks#bash) 会接收更改的文件列表。
+
+将键设置为 `true` 以在每个权限模式中记录它们。需要 Claude Code v2.1.269 或更高版本。
+
+* **Scope**: [`User or managed`](#scopes)。`true` 仅从您的用户设置、使用 `--settings` 传递的 JSON 或[托管设置](/docs/zh-CN/managed-settings)计数，因此存储库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `true` 无法打开记录。存储库文件中的 `false` 仍会关闭它，除非[更高优先级](/docs/zh-CN/settings#settings-precedence)的文件设置 `true`。
+* **Type**: Boolean
+* **Default**: unset，所以当 Claude Code 指导 Claude 通过 Bash 编辑文件时，Claude Code 在自动模式和 `bypassPermissions` 模式中记录更改
+* **Per-session overrides**: [`CLAUDE_CODE_BASH_EDIT_DIFF`](/docs/zh-CN/env-vars) 在单个会话中优先于此键
+
+```json settings.json theme={null}
+{
+  "bashEditDiffEnabled": true
+}
+```
 
 <h3 id="companyannouncements">
   `companyAnnouncements`
@@ -4297,15 +4327,15 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `workflowSizeGuideline`
 </h3>
 
-设置 [Claude 在其编写的动态工作流中针对的代理计数](/docs/zh-CN/workflows#set-a-size-guideline)。Claude Code 将值作为建议而不是强制上限发送给 Claude：`"small"` 要求少于 5 个代理，`"medium"` 少于 15 个，`"large"` 少于 50 个。当您想限制工作流花费的内容时，选择 `"small"`。需要 Claude Code v2.1.219 或更高版本。
+设置 [Claude 在其编写的动态工作流中针对的代理计数](/docs/zh-CN/workflows#set-a-size-guideline)。Claude Code 将值作为建议而不是强制上限发送给 Claude：`"small"` 要求少于 5 个代理，`"medium"` 少于 10 个，`"large"` 少于 50 个。当您想限制工作流花费的内容时，选择 `"small"`。需要 Claude Code v2.1.219 或更高版本。
 
 * **作用域**: [`任何文件`](#scopes)。那里的值优先于 `/config` 中的 **动态工作流大小** 选择，Claude Code 将其存储在 `~/.claude.json` 中，当设置文件设置键时，Claude Code 隐藏该行。
 * **类型**: 字符串，以下之一：
   * `"unrestricted"`: 无指导，因此 Claude 根据任务调整工作流大小
   * `"small"`: Claude 针对少于 5 个代理
-  * `"medium"`: Claude 针对少于 15 个代理
+  * `"medium"`: Claude 针对少于 10 个代理
   * `"large"`: Claude 针对少于 50 个代理
-* **默认值**: `"medium"`
+* **默认值**: `"medium"`，或 当您在 Pro 计划上使用 Claude Code v2.1.271 或更高版本登录时为 `"small"`
 
 ```json settings.json theme={null}
 {
@@ -4401,19 +4431,41 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `syncClaudeAiSkills`
 </h3>
 
-关闭 [您在 claude.ai 上启用的技能](/docs/zh-CN/skills#how-synced-skills-behave) 的下载。当您使用 `-p` 标志在 [非交互模式](/docs/zh-CN/headless) 中运行它并设置 [`CLAUDE_CODE_SYNC_SKILLS`](/docs/zh-CN/env-vars#variables) 时，Claude Code 将它们下载到 `~/.claude/skills/synced/`。设置为 `false` 以停止该下载并隐藏已同步的技能。Claude Code 仅接受 `false`：`true` 与未设置相同，不会打开同步。
+关闭 [您在 claude.ai 上启用的技能](/docs/zh-CN/skills#how-synced-skills-behave) 的下载。Claude Code 在 [您使用 claude.ai 帐户登录的终端会话](/docs/zh-CN/skills#where-synced-skills-load)（交互式或非交互式）以及 Cowork 和云会话中将它们下载到 `~/.claude/skills/synced/`。设置为 `false` 以停止该下载并停止加载已同步的技能。Claude Code 仅接受 `false`：`true` 与未设置相同，不会打开同步。
 
-* **Scope**: [`User, local, or managed`](#scopes)。存储库无法为您关闭它。
+* **Scope**: [`User, local, or managed`](#scopes)，以及使用 `--settings` 传递的文件。存储库无法为您关闭它。
 * **Type**: Boolean
-  * `false`: Claude Code 停止下载同步的技能并隐藏 `~/.claude/skills/synced/` 中已有的技能。在用户或托管设置中，它还将它们移动到 `~/.claude/skills/.trash/`
+  * `false`: Claude Code 停止下载同步的技能并停止加载 `~/.claude/skills/synced/` 中已有的技能。在用户或托管设置中，它还将它们移动到 `~/.claude/skills/.trash/`
   * `true`: 与未设置相同
-* **Default**: 未设置，因此使用 `CLAUDE_CODE_SYNC_SKILLS` 设置的非交互运行会下载技能
+* **Default**: 未设置，因此使用 claude.ai 帐户登录的会话会同步您的技能
 
-此示例防止机器下载帐户的技能，无论会话在其环境中设置什么：
+此示例防止机器在任何会话中下载帐户的技能：
 
 ```json settings.json theme={null}
 {
   "syncClaudeAiSkills": false
+}
+```
+
+<h3 id="syncclaudeaiplugins">
+  `syncClaudeAiPlugins`
+</h3>
+
+关闭 [您在 claude.ai 上启用的插件](/docs/zh-CN/plugins-reference#synced-plugins) 的下载。Claude Code 在您使用 claude.ai 帐户登录的终端会话开始时将它们下载到 `~/.claude/plugins/synced/`，以及在 Cowork 和云会话中，并将每个加载为 `<name>@synced`。设置为 `false` 以停止该下载并停止加载已同步的插件。Claude Code 仅接受 `false`：`true` 与未设置相同，不会打开同步。需要 Claude Code v2.1.273 或更高版本。
+
+* **Scope**: [`User, local, or managed`](#scopes)，以及使用 `--settings` 传递的文件。存储库无法为您关闭它。
+* **Type**: Boolean
+  * `false`: Claude Code 停止下载同步的插件并停止加载 `~/.claude/plugins/synced/` 中已有的插件。在用户或托管设置中，它还将它们移动到 `~/.claude/plugins/.trash/`
+  * `true`: 与未设置相同
+* **Default**: 未设置，因此使用 claude.ai 帐户登录的会话会同步您的插件
+
+要关闭一个同步的插件而不是全部，请在 [`enabledPlugins`](#enabledplugins) 中设置 `"<name>@synced": false`。
+
+此示例防止机器在任何会话中下载帐户的插件：
+
+```json settings.json theme={null}
+{
+  "syncClaudeAiPlugins": false
 }
 ```
 
@@ -4858,7 +4910,9 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 `git` 来源类型适用于任何 git 托管服务，包括自托管 GitLab 和 Bitbucket。Claude Code 使用该机器上 `git clone` 会使用的相同身份验证克隆存储库：配置的凭证助手或 SSH 密钥。提供者令牌如 `GITHUB_TOKEN` 仅通过读取它的凭证助手生效。请参阅 [私有存储库](/docs/zh-CN/plugin-marketplaces#private-repositories) 了解设置详情。
 
-对于 `github` 和 `git` 来源，在 `source` 对象内部设置 `"skipLfs": true`，与 `repo` 或 `url` 一起，以在 Claude Code 克隆或更新市场存储库时跳过 Git LFS 下载。LFS 指针文件保持为指针而不是下载其内容。当存储库包含与插件内容无关的大型 LFS 对象时使用此功能。
+对于 `github` 和 `git` 来源，Claude Code 在克隆市场存储库以添加或更新时永远不会下载 [Git LFS](https://git-lfs.com) 内容。LFS 跟踪的文件被检出为指针文件，添加或更新输出报告有多少。
+
+`skipLfs` 字段在 `source` 对象内部被接受且没有效果。在 v2.1.274 之前，Claude Code 下载 LFS 内容，除非您设置 `"skipLfs": true`。
 
 对于 `url` 来源，当 `headers` 中的凭证过期且命令必须生成新凭证时，在 `source` 对象内部设置 `headersHelper`。需要 Claude Code v2.1.238 或更高版本。有关命令必须打印什么以及 Claude Code 在哪里运行它，请参阅 [编写 headersHelper 命令](/docs/zh-CN/plugin-marketplaces#write-the-headershelper-command)，以及 Claude Code 不运行它的情况，请参阅 [何时 Claude Code 跳过 headersHelper 命令或丢弃其输出](/docs/zh-CN/plugin-marketplaces#when-claude-code-skips-a-headershelper-command-or-drops-its-output)。在 `https://` 市场 URL 上设置 `headersHelper` 后，Claude Code 在两个点运行命令，重用一次运行的输出长达 60 秒：
 
@@ -5266,7 +5320,7 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 }
 ```
 
-在 v2.1.179 之前，默认值为 `auto`。`iterm2` 值需要 Claude Code v2.1.186 或更高版本。
+`iterm2` 值需要 Claude Code v2.1.186 或更高版本。
 
 <span id="worktree-settings" />
 
@@ -5791,6 +5845,28 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 请参阅[限制登录到您的组织](/docs/zh-CN/authentication#restrict-login-to-your-organization)，了解 Claude Code 如何处理 Claude Console 登录、其他登录路径和环境凭证。
 
+<h3 id="gatewayinternalnetworks">
+  `gatewayInternalNetworks`
+</h3>
+
+声明您的组织从其内部网络编号的公共 IPv4 块，以便 `/login` 在那里接受 [cloud gateway](/docs/zh-CN/claude-apps-gateway)。需要 Claude Code v2.1.268 或更高版本。
+
+没有此密钥，`/login` 连接到私有地址上的任何网关，仅此而已。有了它，`/login` 也接受列出的块内的网关，仅通过直接连接。该机器在该连接上的自身地址也必须在同一块内。
+
+* **Scope**: [`Managed`](#scopes)。仅从机器上的源读取：`managed-settings.json`、macOS plist 或 Windows HKLM 注册表或策略辅助程序。Claude Code 在 HKCU 和服务器托管设置中忽略它。
+* **Type**: 字符串数组，最多四个 IPv4 CIDR 块，每个 `/8` 到 `/32`，彼此不重叠，且都不与私有空间重叠。
+* **Default**: 未设置，因此 `/login` 仅接受私有地址上的网关
+
+```json managed-settings.json theme={null}
+{
+  "gatewayInternalNetworks": ["203.0.113.0/24"]
+}
+```
+
+将示例中的文档范围替换为您自己的块。Claude Code 拒绝文档范围、VPN 和 NAT64 客户端在本地使用的范围，以及保留空间（没有网络从其编号），例如多播。
+
+如果条目无效或值不是字符串列表，`/login` 会命名问题，并拒绝机器上的每个新网关登录，直到您修复该值。现有登录继续工作。请参阅[允许网关在您拥有的公共地址空间上](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)，了解完整规则和开发人员看到的内容。
+
 <h3 id="gcpauthrefresh">
   `gcpAuthRefresh`
 </h3>
@@ -6105,7 +6181,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--mcp-config`，因此 Agent SDK 和 VS Code 扩展继续工作。用户仍然可以使用 `claude mcp add` 或 `.mcp.json` 文件添加服务器；为了进行每个服务器的控制，也可以设置 [`allowedMcpServers`](/docs/zh-CN/managed-mcp)。需要 Claude Code v2.1.193 或更高版本。
 
-在云会话中，Claude Code 也会忽略服务器传递的中途 MCP 更新，这是云会话配置和远程工作者上 SDK `setMcpServers()` 背后的路径。进程内 `type: "sdk"` 条目在那里仍然豁免。在 v2.1.239 之前，服务器传递的 `--mcp-config` 会阻止云会话启动。
+在云会话中，Claude Code 也会忽略服务器传递的中途 MCP 更新，这是云会话配置和 SDK `setMcpServers()` 调用背后的路径，这些调用到达这些会话。进程内 `type: "sdk"` 条目在那里仍然豁免。在 v2.1.239 之前，服务器传递的 `--mcp-config` 会阻止云会话启动。
 
 <h3 id="forceremotesettingsrefresh">
   `forceRemoteSettingsRefresh`
@@ -6170,7 +6246,7 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 
 * **[`policyHelper`](#policyhelper)**: Claude Code 仅在携带策略密钥的最高源是 MDM 策略或托管设置文件时才接受它，因此在服务器管理的设置下它不适用。
 * **[`modelOverrides`](#modeloverrides)**: 与 `availableModels` 配对。Claude Code 从设置它的最高源取值 `modelOverrides`，除非较高源设置 `availableModels` 而不设置 `modelOverrides`。在这种情况下，它忽略来自每个源的 `modelOverrides`。
-* **[`forceLoginGatewayUrl`](#forcelogingatewayurl) 和 [`forceLoginMethod`](#forceloginmethod) 的 `"gateway"` 值**: Claude Code 从不从服务器管理的设置读取它们，因此那里的值既不适用也不隐藏在 MDM 策略或托管设置文件中设置的值。在机器上的管理员源中，仅携带策略密钥的最高排名源提供它们，无论服务器管理的设置是否也存在。
+* **[`forceLoginGatewayUrl`](#forcelogingatewayurl)、[`gatewayInternalNetworks`](#gatewayinternalnetworks) 和 [`forceLoginMethod`](#forceloginmethod) 的 `"gateway"` 值**: Claude Code 从不从服务器管理的设置读取它们，因此那里的值既不适用也不隐藏在 MDM 策略或托管设置文件中设置的值。在机器上的管理员源中，仅携带策略密钥的最高排名源提供它们，无论服务器管理的设置是否也存在。
 
 要确认机器上合并了哪些源，请运行 `/status` 并[读取 `Setting sources` 行](/docs/zh-CN/managed-settings#read-the-source-in-/status)。
 

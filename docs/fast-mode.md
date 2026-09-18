@@ -32,7 +32,9 @@ Claude Code 将 Opus 4.7 视为任何其他不支持快速模式的模型：切�
 * 输入 `/fast` 并按 Tab 键打开或关闭
 * 在您的[用户设置文件](/docs/zh-CN/settings)中设置 `"fastMode": true`
 
-默认情况下，在交互式会话中打开的快速模式在会话之间保持。在[非交互式模式](/docs/zh-CN/headless)中，使用 `-p` 标志，`/fast` 仅在使用快速模式在其 [`--settings`](/docs/zh-CN/cli-reference#cli-flags) 值中启动的会话中工作，例如 `claude -p --settings '{"fastMode": true}'`；切换然后仅适用于该会话，不会保存为您的默认值，在任何其他非交互式会话中，该命令报告快速模式不可用。您可以配置快速模式在每个会话时重置。有关详细信息，请参阅[要求每个会话选择加入](#require-per-session-opt-in)。
+默认情况下，在交互式会话中打开的快速模式在会话之间保持。您可以配置快速模式在每个会话时重置。有关详细信息，请参阅[要求每个会话选择加入](#require-per-session-opt-in)。
+
+在[云会话](#use-fast-mode-in-cloud-sessions)之外，在[非交互式模式](/docs/zh-CN/headless)中使用 `-p` 标志，`/fast` 仅在使用快速模式在其 [`--settings`](/docs/zh-CN/cli-reference#cli-flags) 值中启动的会话中工作，例如 `claude -p --settings '{"fastMode": true}'`；切换然后仅适用于该会话，不会保存为您的默认值。`-p` 形式需要 Claude Code v2.1.205 或更高版本。在非交互式模式的其他地方，该命令报告快速模式不可用。
 
 您可以在 Claude 工作时运行 `/fast`，Claude Code 会在不等待当前轮次结束的情况下切换快速模式。Claude Code 以其原始速度完成正在运行的轮次，因此速度变化从您的下一轮开始生效。如果您当前的模型不支持快速模式，打开它也会切换您的模型，Claude Code 会在该轮次的下一个请求中使用新模型。
 
@@ -61,6 +63,14 @@ Opus 5 是 Claude Code v2.1.219 及更高版本中的快速模式默认值。在
 每当模型切换打开或关闭快速模式时，Claude Code 都会显示 `Fast mode ON` 或 `Fast mode OFF` 确认，`↯` 图标在快速模式打开时出现。无论您使用 `/model`、[`/config model=<model>`](/docs/zh-CN/settings) 切换，还是从通过[远程控制](/docs/zh-CN/remote-control)连接的设备切换，这都适用。
 
 Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fast-mode-behind-proxies-and-llm-gateways)后，会将会话的快速模式状态重新发送到通过远程控制连接的设备。
+
+<h3 id="use-fast-mode-in-cloud-sessions">
+  在云会话中使用快速模式
+</h3>
+
+当快速模式在您的账户上可用时，快速模式在[云会话](/docs/zh-CN/claude-code-on-the-web)中工作，无论会话是在 Anthropic 管理的基础设施还是[自托管运行器](/docs/zh-CN/self-hosted-environments)上运行。需要会话环境中的 Claude Code v2.1.271 或更高版本。
+
+在会话中输入 `/fast on` 以打开快速模式。它仅对该会话保持打开，不会保存为您的默认值。[要求](#requirements)也适用于云会话。
 
 <h2 id="understand-the-cost-tradeoff">
   了解成本权衡
@@ -135,7 +145,10 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 * **团队和企业的所有者启用**：快速模式默认对团队和企业组织禁用。所有者必须明确[启用快速模式](#enable-fast-mode-for-your-organization)，用户才能访问它。
 
 <Note>
-  如果您的组织尚未启用快速模式，`/fast` 命令将显示"Fast mode has been disabled by your organization."。如果您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了快速模式 Opus 模型，`/fast` 将被拒绝，显示"is not in your organization's allowed models"。例外情况是已在支持快速模式的允许 Opus 模型上运行的会话：`/fast` 随后在您当前的模型上启用快速模式，而不是切换模型。
+  两个组织设置可以阻止使用 `/fast` 启用快速模式：
+
+  * **快速模式未启用**：如果您的组织尚未启用快速模式，使用 `/fast` 启用快速模式会显示"Fast mode has been disabled by your organization."。
+  * **快速模式模型不允许**：如果您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了快速模式 Opus 模型，启用它会被拒绝，显示"is not in your organization's allowed models"。在已在支持快速模式的允许 Opus 模型上运行的会话中，`/fast` 改为在您当前的模型上启用快速模式，而不是切换模型。
 </Note>
 
 <h3 id="enable-fast-mode-for-your-organization">
@@ -173,7 +186,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 在这两种情况下，设置 `CLAUDE_CODE_SKIP_FAST_MODE_ORG_CHECK=1` 来恢复快速模式。`CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS` 不适用于任何一种情况，因为它仅绕过失败的检查，而这两种情况都会产生禁用响应。允许列表对承载者令牌情况没有帮助，它从不发送请求。
 
-这些变量仅影响客户端检查。当您的组织禁用了快速模式时，API 会拒绝快速模式请求，无论是否设置了这些变量。
+这些变量仅影响客户端检查。当您的组织禁用了快速模式时，API 会拒绝快速模式请求，无论是否设置了这些变量。来自 API 的拒绝即使设置了跳过变量也会成立。Claude Code 会以标准速度重试被拒绝的请求，关闭快速模式，并且 `/fast` 报告您的组织已禁用快速模式。
 
 设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 也会抑制可用性检查。没有之前缓存的成功检查，`/fast` 报告"Fast mode is currently unavailable"；两个跳过变量在该配置中也会恢复快速模式。
 

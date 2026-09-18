@@ -6,7 +6,7 @@
 
 > 了解 Claude Code 的沙箱化 Bash 工具如何提供文件系统和网络隔离，以实现更安全、更自主的代理执行。
 
-Bash 沙箱让 Claude 可以运行大多数 shell 命令，而无需停下来请求权限。与其批准每个命令不同，你定义命令可以接触哪些文件和网络域，操作系统为每个 Bash 命令及其子进程强制执行该边界。
+Bash 沙箱让 Claude 可以运行大多数 shell 命令，而无需停下来请求权限。与其批准每个命令不同，你定义命令可以接触哪些文件和网络域，操作系统为每个 Bash、PowerShell 或 Monitor 命令及其子进程强制执行该边界。
 
 <Note>
   要比较其他隔离方法，如开发容器、自定义容器和虚拟机，请参阅 [Sandbox environments](/docs/zh-CN/sandbox-environments)。要减少 Bash 以外工具的权限提示，请参阅 [permission modes](/docs/zh-CN/permission-modes)。
@@ -42,7 +42,7 @@ Bash 沙箱让 Claude 可以运行大多数 shell 命令，而无需停下来请
   </Step>
 
   <Step title="运行 Bash 命令">
-    要求 Claude 运行一个命令，例如构建或测试套件。默认情况下，沙箱内的命令可以写入工作目录、会话临时目录以及任何你用 `--add-dir`、`/add-dir` 或 `permissions.additionalDirectories` [添加的目录](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。命令第一次需要新的网络域时，Claude Code 会提示批准，或在 [自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 中将请求发送给分类器。
+    要求 Claude 运行一个命令，例如构建或测试套件。默认情况下，沙箱内的命令可以写入工作目录、会话临时目录以及任何你用 `--add-dir`、`/add-dir` 或 `permissions.additionalDirectories` [添加的目录](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。命令第一次需要新的网络域时，Claude Code 会提示批准；在 [自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 中，Claude 改为在 [命令本身上命名](#per-command-allowed-domains-in-auto-mode) 命令需要的主机供分类器与其一起审查。
 
     无法沙箱化运行的命令会回退到常规权限流程。Claude Code 将其权限提示标题为"Bash 命令（非沙箱化）"而不是"Bash 命令"，这样你可以看出哪些命令在沙箱外运行。要扩大或缩小沙箱允许的范围，请参阅 [配置沙箱](#configure-sandboxing)。
 
@@ -145,7 +145,7 @@ Claude Code 提供两种沙箱模式。在两种模式中，沙箱都强制执�
 * 裸 `Bash` 询问规则，或等效的 `Bash(*)` 形式，对于运行沙箱化的命令会被跳过；它仍然适用于回退到常规权限流程的命令。在 [plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，该规则不会被跳过：它也会对沙箱化命令提示，包括只读命令。在 v2.1.212 之前，跳过也适用于 plan mode
 
 <Info>
-  自动允许模式独立于你的权限模式设置工作，有一个例外：[plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)。即使你不在"接受编辑"模式中，启用自动允许时沙箱化的 Bash 命令也会自动运行。这意味着在沙箱边界内修改文件的 Bash 命令将执行而不提示，即使在 Manual 模式下，文件编辑工具会提示。
+  自动允许模式独立于你的权限模式设置工作，除了在 [plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，以及在自动模式中，对于携带 [per-command allowed domains](#per-command-allowed-domains-in-auto-mode) 的命令。即使你不在"接受编辑"模式中，启用自动允许时沙箱化的 Bash 命令也会自动运行。这意味着在沙箱边界内修改文件的 Bash 命令将执行而不提示，即使在 Manual 模式下，文件编辑工具会提示。
 
   在 plan mode 中，自动允许不会扩大批准；请参阅 [plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 了解 Claude Code 如何在你计划时限制命令。在 v2.1.212 之前，自动允许在 plan mode 中也无需提示地运行沙箱化命令。
 </Info>
@@ -555,7 +555,9 @@ AWS 请求在请求内容上携带 SigV4 签名，因此一起掩盖 `AWS_ACCESS
 
 网络访问通过在沙箱外运行的代理服务器进行控制：
 
-* **域名限制**：Claude Code 默认不预先允许任何域名。命令第一次需要新的域名时，Claude Code 会提示批准，或在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中将请求发送给分类器。如果在提示时选择"是"，Claude Code 会在当前会话的其余时间内允许该主机，之后连接到同一主机时不会再次提示。如果选择"是，以后不再询问"，Claude Code 会将 `WebFetch(domain:...)` 允许规则保存到你的[本地设置](/docs/zh-CN/permissions#permission-system)，因此该主机在未来会话中保持允许。使用 [`allowedDomains`](/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 预先允许域名以完全避免提示。Claude Code 也预先允许来自 `WebFetch(domain:...)` 允许规则的域名，如[权限规则](#permission-rules)中所述。
+* **域名限制**：Claude Code 默认不预先允许任何域名。命令第一次需要新的域名时，Claude Code 会提示批准；在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，Claude 会根据[按命令允许的域名](#per-command-allowed-domains-in-auto-mode)在命令本身上命名命令需要的主机。
+* **批准选择**：如果在提示时选择"是"，Claude Code 会在当前会话的其余时间内允许该主机，之后连接到同一主机时不会再次提示。如果选择"是，以后不再询问"，Claude Code 会将 `WebFetch(domain:...)` 允许规则保存到你的[本地设置](/docs/zh-CN/permissions#permission-system)，因此该主机在未来会话中保持允许。
+* **预先允许的域名**：使用 [`allowedDomains`](/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 预先允许域名以完全避免提示。Claude Code 也预先允许来自 `WebFetch(domain:...)` 允许规则的域名，如[权限规则](#permission-rules)中所述。
 * **严格允许列表**：如果在用户、托管或 CLI `--settings` 设置中将 [`strictAllowlist`](/docs/zh-CN/settings-reference#sandbox-network-strictallowlist) 设置为 `true`，Claude Code 会拒绝沙箱化命令访问允许列表外的任何主机，而不是提示。允许列表与沙箱否则会提示的相同：`allowedDomains` 加上来自 `WebFetch(domain:...)` 允许规则的域名，或当设置了 `allowManagedDomainsOnly` 时仅限托管设置条目。Claude Code 仅对沙箱化命令强制执行此；进程内工具（例如 `WebFetch`）仍然遵循其[权限规则](#permission-rules)。在存储库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置它没有效果。需要 Claude Code v2.1.219 或更高版本。
 * **托管锁定**：如果在托管设置中设置了 [`allowManagedDomainsOnly`](/docs/zh-CN/settings-reference#sandbox-network-allowmanageddomainsonly)，非允许的域名会自动被阻止而不是提示，只有来自托管设置的 `allowedDomains` 和 `WebFetch(domain:...)` 允许规则被尊重。
 * **企业代理**：当你的网络要求出站流量通过企业代理时，按照[代理配置](/docs/zh-CN/network-config#proxy-configuration)的描述在你的设置的 `env` 块中设置 `HTTPS_PROXY`、`HTTP_PROXY` 和 `NO_PROXY`，以便[后台代理](/docs/zh-CN/network-config#set-network-variables-in-settings-not-the-shell)也能获得它们，或在你启动 Claude Code 的环境中设置。Claude Code 强制执行域名允许列表，然后通过该上游代理隧道允许的连接。
@@ -567,6 +569,20 @@ AWS 请求在请求内容上携带 SigV4 签名，因此一起掩盖 `AWS_ACCESS
 <Note>
   内置代理基于请求的主机名强制执行允许列表，默认情况下不会终止或检查 TLS 流量。实验性的 [`network.tlsTerminate`](/docs/zh-CN/settings-reference#sandbox-network-tlsterminate) 设置在 Claude Code v2.1.199 及更高版本中可用，使内置代理自行终止 TLS，这是 [`mask` 凭证条目](#mask-credentials)所需的。有关默认设置的含义，请参阅[安全限制](#security-limitations)，如果你的威胁模型需要 TLS 检查，请参阅[自定义代理配置](#custom-proxy-configuration)。
 </Note>
+
+<h4 id="per-command-allowed-domains-in-auto-mode">
+  自动模式中按命令允许的域名
+</h4>
+
+在启用沙箱的[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，Claude 会在命令本身上命名命令需要的主机，而不是为每个连接触发网络批准。在沙箱中运行的每个 Bash、PowerShell 或[监视器](/docs/zh-CN/tools-reference#monitor-tool)命令都可以携带超出沙箱允许列表的主机列表：一个域名，例如 `registry.npmjs.org`，一个通配符，例如 `*.pythonhosted.org`，或一个 IP 地址，每个都带有可选的 `:port`。分类器将主机与命令一起审查。需要 Claude Code v2.1.271 或更高版本。
+
+批准的列表仅为该一个命令打开这些主机，只要它运行。没有任何内容被添加到你的会话允许的主机或你的设置；下一个命令命名它自己的主机。
+
+携带主机的命令会进入分类器，而不是由权限规则或沙箱的[自动允许模式](#sandbox-modes)批准。如果[询问规则](/docs/zh-CN/permissions#manage-permissions)强制对命令进行提示，你的终端中的权限对话框会在其旁边列出主机，在那里批准会同时覆盖两者。
+
+按命令列表仅扩大沙箱默认拒绝的内容。[`deniedDomains`](/docs/zh-CN/settings-reference#sandbox-network-denieddomains) 条目仍然会阻止。当 [`strictAllowlist`](/docs/zh-CN/settings-reference#sandbox-network-strictallowlist) 或 [`allowManagedDomainsOnly`](/docs/zh-CN/settings-reference#sandbox-network-allowmanageddomainsonly) 锁定允许列表时，Claude Code 拒绝按命令列表。
+
+当按命令列表适用时，Claude Code 拒绝连接到没有批准命令列出的主机，没有提示或分类器检查。拒绝在命令的结果中命名主机，Claude 会重新运行添加了主机的命令。
 
 <h4 id="ipv6-addresses-in-domain-lists">
   域名列表中的 IPv6 地址
@@ -598,53 +614,53 @@ AWS 请求在请求内容上携带 SigV4 签名，因此一起掩盖 `AWS_ACCESS
 这些相同的原语作为独立的 [`@anthropic-ai/sandbox-runtime`](https://github.com/anthropic-experimental/sandbox-runtime) 包提供，[Sandbox environments](/docs/zh-CN/sandbox-environments#sandbox-runtime) 页面将其作为包装整个 Claude Code 进程的单独方法进行介绍。
 
 <h2 id="how-sandboxing-relates-to-permissions-and-permission-modes">
-  沙箱如何与权限和权限模式相关
+  沙箱隔离与权限和权限模式的关系
 </h2>
 
-沙箱、[permission rules](/docs/zh-CN/permissions) 和 [permission modes](/docs/zh-CN/permission-modes) 是互补的层。下面的部分介绍沙箱如何与每个交互。
+沙箱隔离、[权限规则](/docs/zh-CN/permissions)和[权限模式](/docs/zh-CN/permission-modes)是互补的层级。下面的部分涵盖了沙箱隔离如何与每一个交互。
 
 <h3 id="permission-rules">
   权限规则
 </h3>
 
-权限规则和沙箱控制不同的事物：
+权限规则和沙箱隔离控制不同的事项：
 
-* **权限规则**控制 Claude Code 可以使用哪些工具，在任何工具运行之前进行评估。它们适用于所有工具：Bash、Read、Edit、WebFetch、MCP 和其他工具，除了拒绝或询问规则无法阻止 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)，而任何其他工具仍然存在。
-* **沙箱**提供操作系统级强制执行，限制 Bash 命令在文件系统和网络级别可以访问的内容。它仅适用于 Bash 命令及其子进程。
+* **权限规则**控制 Claude Code 可以使用哪些工具，并在任何工具运行之前进行评估。它们适用于每个工具：Bash、Read、Edit、WebFetch、MCP 和其他工具，除了拒绝或询问规则无法阻止 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)，而任何其他工具仍然存在。
+* **沙箱隔离**提供操作系统级别的强制执行，限制 shell 命令在文件系统和网络级别可以访问的内容。它仅适用于 Bash、PowerShell 和 [Monitor](/docs/zh-CN/tools-reference#monitor-tool) 命令及其子进程。
 
-这两个层在强制执行方式上也有所不同。Claude Code 在命令运行之前根据命令字符串和（在自动模式下）单独分类器关于命令是否安全的判断来评估权限决定。操作系统在运行的进程上强制执行沙箱边界，因此无论模型选择运行什么，它都成立，即使允许的命令做的比其名称暗示的更多。
+这两个层级在强制执行方式上也有所不同。Claude Code 在命令运行之前根据命令字符串和在自动模式下单独分类器对命令是否安全的判断来评估权限决策。操作系统在运行的进程上强制执行沙箱边界，因此无论模型选择运行什么，即使允许的命令执行的操作超出其名称所示，它也会保持有效。
 
 文件系统和网络限制通过沙箱设置和权限规则进行配置：
 
-| 设置或规则                                                          | 它做什么                                                |
-| :------------------------------------------------------------- | :-------------------------------------------------- |
-| `sandbox.filesystem.allowWrite`                                | 向工作目录外的路径授予子进程写入访问权限                                |
-| `sandbox.filesystem.denyWrite` 和 `sandbox.filesystem.denyRead` | 阻止子进程访问特定路径                                         |
-| `sandbox.filesystem.allowRead`                                 | 重新允许读取 `denyRead` 区域内的特定路径                          |
-| [`sandbox.filesystem.disabled`](#disable-filesystem-isolation) | 完全关闭文件系统层，同时保持网络隔离                                  |
-| `Edit` 允许规则                                                    | 授予对特定路径的写入访问权限，与 `sandbox.filesystem.allowWrite` 相同 |
-| `Read` 和 `Edit` 拒绝规则                                           | 阻止访问特定文件或目录                                         |
-| `WebFetch(domain:...)` 允许和拒绝规则                                 | 控制域名访问                                              |
-| 沙箱 `allowedDomains`                                            | 控制 Bash 命令可以到达的域名                                   |
-| 沙箱 `deniedDomains`                                             | 阻止特定域名，即使更广泛的 `allowedDomains` 通配符会允许它们             |
+| 设置或规则                                                          | 作用                                                     |
+| :------------------------------------------------------------- | :----------------------------------------------------- |
+| `sandbox.filesystem.allowWrite`                                | 授予子进程对工作目录外路径的写入访问权限                                   |
+| `sandbox.filesystem.denyWrite` 和 `sandbox.filesystem.denyRead` | 阻止子进程访问特定路径                                            |
+| `sandbox.filesystem.allowRead`                                 | 重新允许读取 `denyRead` 区域内的特定路径                             |
+| [`sandbox.filesystem.disabled`](#disable-filesystem-isolation) | 完全关闭文件系统层，同时保持网络隔离                                     |
+| `Edit` 允许规则                                                    | 授予对特定路径的写入访问权限，与 `sandbox.filesystem.allowWrite` 的方式相同 |
+| `Read` 和 `Edit` 拒绝规则                                           | 阻止访问特定文件或目录                                            |
+| `WebFetch(domain:...)` 允许和拒绝规则                                 | 控制域访问                                                  |
+| 沙箱 `allowedDomains`                                            | 控制 Bash 命令可以访问哪些域                                      |
+| 沙箱 `deniedDomains`                                             | 阻止特定域，即使更广泛的 `allowedDomains` 通配符本来会允许它们               |
 
-来自沙箱设置和权限规则的路径和域名被合并到最终沙箱配置中。
+来自沙箱设置和权限规则的路径和域被合并到最终的沙箱配置中。
 
-[claude-code repository 的示例目录](https://github.com/anthropics/claude-code/tree/main/examples/settings)包括常见部署场景的启动设置配置，包括沙箱特定的示例。使用这些作为起点，并根据你的需求调整它们。
+[claude-code 存储库的示例目录](https://github.com/anthropics/claude-code/tree/main/examples/settings)包含常见部署场景的启动设置配置，包括沙箱特定的示例。使用这些作为起点，并根据您的需求进行调整。
 
 <h3 id="permission-modes">
   权限模式
 </h3>
 
-`/sandbox` 不是 [permission mode](/docs/zh-CN/permission-modes)。权限模式决定工具调用是否运行以及是否首先提示你，而沙箱限制 Bash 命令运行后可以访问的内容。它们在控制的内容和替换每个操作提示的内容上有所不同：
+`/sandbox` 不是[权限模式](/docs/zh-CN/permission-modes)。权限模式决定工具调用是否运行以及是否首先提示您，而沙箱限制 Bash 命令运行后可以访问的内容。它们在控制的内容和替代每个操作提示的内容上有所不同：
 
-|                                                                       | 它控制什么             | 替换提示的内容                                                                                                                              |
-| :-------------------------------------------------------------------- | :---------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
-| `/sandbox`                                                            | Bash 命令运行后可以访问的内容 | 沙箱边界本身，在 [auto-allow mode](#sandbox-modes) 中                                                                                         |
-| [Auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) | 每个工具调用是否运行        | 审查操作的分类器                                                                                                                             |
-| `--dangerously-skip-permissions`                                      | 每个工具调用是否运行        | 无。[受保护路径](/docs/zh-CN/permission-modes#protected-paths)检查也被跳过；[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)仍然适用 |
+|                                                                  | 控制的内容             | 替代提示的内容                                                                                                                         |
+| :--------------------------------------------------------------- | :---------------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| `/sandbox`                                                       | Bash 命令运行后可以访问的内容 | 沙箱边界本身，在[自动允许模式](#sandbox-modes)中                                                                                               |
+| [自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) | 每个工具调用是否运行        | 审查操作的分类器                                                                                                                        |
+| `--dangerously-skip-permissions`                                 | 每个工具调用是否运行        | 无。[受保护路径](/docs/zh-CN/permission-modes#protected-paths)检查也被跳过；[模式自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)仍然适用 |
 
-沙箱的 [auto-allow mode](#sandbox-modes) 与 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 分开：自动允许批准 Bash 命令，因为沙箱边界包含它们，而自动模式使用分类器审查操作。两者独立工作，可以结合。要为无人值守运行选择隔离边界，请参阅 [Sandbox environments](/docs/zh-CN/sandbox-environments#how-isolation-relates-to-permission-modes)。有关常见权限模式和沙箱配对及启动每个配对的标志的表格，请参阅 [Common setups](/docs/zh-CN/permission-modes#common-setups)。
+沙箱的[自动允许模式](#sandbox-modes)与[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分开：自动允许批准 Bash 命令是因为沙箱边界包含它们，而自动模式使用分类器来审查操作。这两者独立工作，可以组合，但[沙箱模式](#sandbox-modes)下列出的例外除外。要为无人值守运行选择隔离边界，请参阅[沙箱环境](/docs/zh-CN/sandbox-environments#how-isolation-relates-to-permission-modes)。有关常见权限模式和沙箱配对及启动每个配对的标志的表格，请参阅[常见设置](/docs/zh-CN/permission-modes#common-setups)。
 
 <h2 id="configure-the-sandbox-for-your-organization">
   为你的组织配置沙箱
@@ -656,7 +672,7 @@ AWS 请求在请求内容上携带 SigV4 签名，因此一起掩盖 `AWS_ACCESS
   使用托管设置强制执行沙箱
 </h3>
 
-要为每个开发者要求沙箱，通过 [managed settings](/docs/zh-CN/managed-settings#delivery-mechanisms) 提供 `sandbox` 密钥，可以是由你的 MDM 管理的文件，也可以是通过 Claude.ai 上的 [server-managed settings](/docs/zh-CN/server-managed-settings)。
+要为每个开发者要求沙箱，通过 [managed settings](/docs/zh-CN/managed-settings#delivery-mechanisms) 提供 `sandbox` 密钥，可以是由你的 MDM 管理的文件，也可以是通过 claude.ai 上的 [server-managed settings](/docs/zh-CN/server-managed-settings)。
 
 以下托管设置配置启用沙箱，如果沙箱无法初始化则拒绝启动 Claude Code，并防止模型在沙箱外重试命令：
 

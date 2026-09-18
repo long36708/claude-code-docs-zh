@@ -88,7 +88,7 @@ Claude Code 还在对话中途附加系统上下文，例如文件更改通知�
 
 每个模型都有自己的缓存。使用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 切换意味着下一个请求会读取整个对话历史记录而没有缓存命中，即使内容相同。
 
-当您在终端运行 `/model` 时，Claude Code 仅在缓存仍然温暖时要求您确认切换。缓存在 Claude Code 在此对话中最后一次发送请求或 Claude 最后一次响应后的一个[缓存 TTL](#cache-lifetime) 内保持温暖。一旦该时间过去，缓存就会过期，因此 Claude Code 会在不询问的情况下进行切换。
+当您在终端运行 `/model` 时，Claude Code 仅在缓存仍然温暖且新模型不是产生最后一个响应的模型时要求您确认切换。缓存在 Claude Code 在此对话中最后一次发送请求或 Claude 最后一次响应后的一个[缓存 TTL](#cache-lifetime) 内保持温暖。一旦该时间过去，缓存就会过期，因此 Claude Code 会在不询问的情况下进行切换。
 
 在 v2.1.238 之前，Claude Code 没有检查缓存 TTL，即使在缓存过期后也会询问。
 
@@ -294,7 +294,7 @@ API 限制每个请求可以携带多少图像和 PDF。有关当前数字，请
 
 当你[恢复会话](/docs/zh-CN/sessions#resume-a-session)时，Claude Code 会重新发送整个对话，请求会从缓存中读取其前缀中未更改且仍在[缓存生命周期](#cache-lifetime)内的任何部分。本页顶部的层表说明了每一层的变化。
 
-系统提示词会在[Claude Code 升级](#upgrading-claude-code)后或在恢复时使用不同的[`--append-system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags)文本时发生变化。默认情况下，恢复的对话会保持其启动时的系统提示词，因此其历史记录仍然位于相同的提示词后面，更改会在对话被压缩或在新对话中生效。[恢复的对话中的系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)涵盖了`--system-prompt-snapshot off`和裸模式，其中这不适用。
+系统提示词会在[Claude Code 升级](#upgrading-claude-code)后或在恢复时使用不同的[`--append-system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags)文本时发生变化。默认情况下，恢复的对话会保持其启动时的系统提示词，因此其历史记录仍然位于相同的提示词后面，更改会在对话被压缩或在新对话中生效。[恢复的对话中的系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)涵盖了系统提示词标志在恢复的对话中的情况。
 
 <h2 id="cache-lifetime">
   缓存生命周期

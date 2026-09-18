@@ -146,7 +146,7 @@ Claude Code 将最新报告写入 `~/.claude/usage-data/report.html`，并在同
   </Step>
 
   <Step title="编写设置">
-    为列表价格设置 `multiplier` 以获得固定百分比折扣，在 `overrides` 下列出每个模型的四个每令牌费率，或两者都做。[`modelPricing` 条目](/docs/zh-CN/settings-reference#modelpricing)具有形状和粘贴就用的示例。
+    为列表价格设置 `multiplier` 以获得固定折扣或高于 1 以获得加价，在 `overrides` 下列出每个模型的四个每令牌费率，或两者都做。加价需要 Claude Code v2.1.271 或更高版本。[`modelPricing` 条目](/docs/zh-CN/settings-reference#modelpricing)具有形状和粘贴就用的示例。
   </Step>
 
   <Step title="通过托管设置部署它">

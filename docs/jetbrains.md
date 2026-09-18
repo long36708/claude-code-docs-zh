@@ -231,7 +231,7 @@ networkingMode=mirrored
   安全考虑
 </h2>
 
-当 Claude Code 在 JetBrains IDE 中以 [`acceptEdits` 权限模式](/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)运行时，它可能能够修改 IDE 配置文件，这些文件可以由您的 IDE 自动执行。这可能会增加在 `acceptEdits` 模式下运行 Claude Code 的风险，并允许绕过 Claude Code 对 bash 执行的权限提示。
+当 Claude Code 在 JetBrains IDE 中以 [`acceptEdits` 权限模式](/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)运行时，它可能能够修改 IDE 配置文件，这些文件可以由您的 IDE 自动执行。这可能会增加在 `acceptEdits` 模式下运行 Claude Code 的风险，并允许绕过 Claude Code 对 Bash 执行的权限提示。
 
 在 JetBrains IDE 中运行时，请考虑：
 

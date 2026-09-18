@@ -41,14 +41,14 @@ Claude Code GitHub Action 支持三个提供商，下面的设置步骤仅在云
   设置集成
 </h2>
 
-除了前置条件外，您需要创建四样东西：Claude Code GitHub Action 的 GitHub 身份、云端信任配置、存储库密钥和工作流文件。下面的步骤将逐一介绍每一项。
+除了前置条件外，您需要为 Claude Code GitHub Action 创建 GitHub 身份、云端信任配置、存储库密钥和工作流文件。下面的步骤将逐一介绍每一项。
 
 <Steps>
   <Step title="选择 GitHub 身份">
     Claude Code GitHub Action 通过 GitHub 身份推送提交和发布评论。[快速设置](/docs/zh-CN/github-actions#quick-setup) 为此安装了官方 Claude GitHub App。使用云提供商时，您可以自己选择身份：
 
     * **官方 [Claude GitHub App](https://github.com/apps/claude)**: 在存储库上安装它，或如果已经安装，请跳到下一步
-    * **自定义 GitHub App**: 当您只想要 Claude Code GitHub Action 使用的三个权限而不是[官方应用的完整权限集](/docs/zh-CN/github-actions#github-app-permissions)时，创建您自己的应用，如下所述
+    * **自定义 GitHub App**: 当您只想要 Claude Code GitHub Action 使用的三个权限而不是[官方应用的完整权限集](/docs/zh-CN/github-actions#github-app-permissions)时，创建您自己的应用
     * **GitHub 的自动 `GITHUB_TOKEN`**: 无需创建或安装应用，但 GitHub 不会在使用它进行的提交上触发您的 CI 工作流
 
     第四步中的工作流示例使用自定义应用进行身份验证。该步骤还说明了如何为其他两个选项进行更改。

@@ -78,7 +78,7 @@ TypeScript 和 Python SDK 使用不同的字段名称公开相同的使用数据
 
 在 TypeScript 中，SDK 还在每次重置时发出 [`SDKConversationResetMessage`](/docs/zh-CN/agent-sdk/typescript#sdkconversationresetmessage)，因此您可以从流中检测重置。在 Python 中，SDK 同样发出 `ConversationResetMessage`。在 Python SDK v0.2.137 之前，Python 迭代器丢弃了该消息，因此在这些版本上，从应用发送的 `/clear` 轮次中自己计数重置。
 
-`maxBudgetUsd`，或 Python 中的 `max_budget_usd`，与相同的运行总计进行比较，因此 `/clear` 也会启动预算重新开始。
+`maxBudgetUsd`（TypeScript）或 `max_budget_usd`（Python）与相同的运行总计进行比较，因此 `/clear` 也会启动预算重新开始。
 
 <h2 id="get-the-total-cost-of-a-query">
   获取查询的总成本

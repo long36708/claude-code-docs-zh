@@ -10,15 +10,15 @@
   Ultrareview 是一个研究预览功能。该功能、定价和可用性可能会根据反馈而改变。该命令是 `/code-review ultra`。当 ultrareview 对您的账户可用时，`/ultrareview` 是一个别名。
 </Note>
 
-Ultrareview 是在 Claude Code 网络基础设施上运行的深度代码审查。当您运行 `/code-review ultra` 时，Claude Code 在远程沙箱中启动一队审查代理来查找您的分支或拉取请求中的错误。
+Ultrareview 是在 Anthropic 基础设施上运行的[云会话](/docs/zh-CN/claude-code-on-the-web)中进行的深度代码审查。当您运行 `/code-review ultra` 时，Claude Code 在云沙箱中启动一队审查代理来查找您的分支或拉取请求中的错误。
 
 与本地 `/code-review` 相比，ultrareview 提供：
 
 * **更高的信号质量**：每个报告的发现都经过独立复现和验证，因此结果专注于真实的错误而不是风格建议
 * **更广泛的覆盖范围**：许多审查代理并行探索更改，这会发现本地审查可能遗漏的问题
-* **无本地资源使用**：审查完全在远程沙箱中运行，因此您的终端在运行时保持空闲，可用于其他工作
+* **无本地资源使用**：审查完全在云沙箱中运行，因此您的终端在运行时保持空闲，可用于其他工作
 
-Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Claude Code 网络基础设施上运行。如果您仅使用 API 密钥登录，请先运行 `/login` 并使用 claude.ai 进行身份验证。当使用 Claude Code 与 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 时，Ultrareview 不可用，对于已启用零数据保留的组织也不可用。当 ultrareview 不可用时，`/code-review ultra` 会在您的会话中运行本地审查。
+Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthropic 基础设施上作为云会话运行。如果您仅使用 API 密钥登录，请先运行 `/login` 并使用 claude.ai 进行身份验证。当使用 Claude Code 与 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 时，Ultrareview 不可用，对于已启用零数据保留的组织也不可用。当 ultrareview 不可用时，`/code-review ultra` 会在您的会话中运行本地审查。
 
 <h2 id="run-ultrareview-from-the-cli">
   从 CLI 运行 ultrareview
@@ -32,7 +32,7 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Claud
 
 不带参数时，ultrareview 审查您当前分支与默认分支之间的差异，包括未提交和暂存的更改。对于名称类似凭证或密钥的文件（如 `.env` 和 `*.tfvars` 文件）中的未提交更改，Claude Code 遵循[将本地存储库上传到云会话](/docs/zh-CN/claude-code-on-the-web#send-local-repositories-without-github)的规则。
 
-对于分支审查，Claude Code 捆绑存储库状态并将其上传到远程沙箱；当您[审查拉取请求](#review-a-pull-request)时，Claude Code 不会从您的计算机上传任何内容。
+对于分支审查，Claude Code 捆绑存储库状态并将其上传到云沙箱；当您[审查拉取请求](#review-a-pull-request)时，Claude Code 不会从您的计算机上传任何内容。
 
 启动前，Claude Code 显示一个确认对话框，其中包含审查范围、您剩余的免费运行次数和估计成本；对于分支审查，范围包括文件和行数。确认后，审查在后台继续进行，您可以继续使用您的会话。
 
@@ -62,7 +62,7 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Claud
 
 该命令也接受 `#1234`、`PR 1234` 和粘贴的 PR URL；粘贴的 URL 必须指向您当前目录中的存储库。
 
-在 PR 模式下，远程沙箱直接从主机克隆拉取请求，而不是捆绑您的本地工作树。PR 模式适用于 `github.com` 上的存储库以及 Owner 已连接到 Claude Code 的 [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 实例。
+在 PR 模式下，云沙箱直接从主机克隆拉取请求，而不是捆绑您的本地工作树。PR 模式适用于 `github.com` 上的存储库以及 Owner 已连接到 Claude Code 的 [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 实例。
 
 对于 `github.com` 上的存储库，沙箱使用连接到您的 Claude 账户的 GitHub 账户进行克隆，因此该账户必须能够读取 PR 的存储库。Claude Code 在创建云会话之前检查这一点，除非您已设置 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars#variables)，并在[未连接账户](/docs/zh-CN/errors#no-github-account-is-connected-to-your-claude-account)或[账户无法看到存储库](/docs/zh-CN/errors#your-connected-github-account-cant-see-the-repository)时拒绝启动；拒绝会说明修复方法。在 v2.1.248 之前，Claude Code 在启动前不检查这一点。
 
@@ -198,7 +198,7 @@ claude ultrareview origin/main
 |      | `/code-review`            | `/code-review ultra`            |
 | ---- | ------------------------- | ------------------------------- |
 | 目标   | 您的工作差异、pull request、分支或路径 | 您的工作差异或 pull request            |
-| 运行位置 | 在您的会话中本地运行                | 在云沙箱中远程运行                       |
+| 运行位置 | 在您的会话中本地运行                | 在云沙箱中运行                         |
 | 深度   | 随着 effort 参数扩展            | 具有独立验证的多代理队列                    |
 | 持续时间 | 几秒到几分钟                    | 大约 5 到 10 分钟                    |
 | 成本   | 计入正常使用量                   | 免费运行，然后大约 \$5 到 \$25 每次审查作为使用额度 |
@@ -210,5 +210,5 @@ claude ultrareview origin/main
   相关资源
 </h2>
 
-* [Claude Code 网络版](/docs/zh-CN/claude-code-on-the-web)：了解远程会话和云沙箱如何工作
+* [在云端使用 Claude Code](/docs/zh-CN/claude-code-on-the-web)：了解云会话和云沙箱如何工作
 * [有效管理成本](/docs/zh-CN/costs)：跟踪使用情况并设置支出限制

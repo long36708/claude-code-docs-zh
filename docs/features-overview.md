@@ -294,7 +294,7 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
 
     * agent 的自己的系统提示，而不是 Claude Code 系统提示
     * agent 的 `skills:` 字段中列出的 skills 的完整内容
-    * CLAUDE.md 和 git 状态，除了内置的 Explore 和 Plan agents [省略两者](/docs/zh-CN/sub-agents#what-loads-at-startup)
+    * CLAUDE.md 和 git 状态，除了内置的 Explore 和 Plan agents [省略两者](/docs/zh-CN/sub-agents#what-loads-at-startup)，以及定义设置 [`omitClaudeMd`](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 的 agent 跳过用户、项目和本地 CLAUDE.md 文件
     * 主 agent 在提示中传递的任何上下文
 
     对于 [fork](/docs/zh-CN/sub-agents#fork-the-current-conversation)，Claude Code 加载父对话到目前为止、系统提示和工具。

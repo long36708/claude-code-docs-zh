@@ -421,20 +421,17 @@ Routines 以与交互式会话相同的方式消耗订阅使用量。除了标�
   `/schedule` 返回"Unknown command"
 </h3>
 
-当不满足其中一个要求时，CLI 会隐藏 `/schedule`：命令菜单在您输入时显示 `No commands match "/schedule"`，提交它会返回 `Unknown command: /schedule`。除了拥有 Console API 密钥或启用了功能标志获取的 Anthropic 配置文件外，在以下所有情况下都会返回 `Unknown command: /schedule`。原因通常是以下之一：
+当不满足其中一个要求时，CLI 会隐藏 `/schedule`：命令菜单在您输入时显示 `No commands match "/schedule"`，提交它会返回 `Unknown command: /schedule`，除了下面注明不同答案的情况外。
 
-* 您使用 Console API 密钥、[Anthropic 配置文件或联合凭证](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)或云提供商（如 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry）进行身份验证。`/schedule` 需要 claude.ai 订阅登录。使用 Console API 密钥或配置文件时，提交 `/schedule` 会显示 `/schedule is available with Claude for Enterprise — ask your admin about migrating from API-key access`。使用云提供商登录时，您仍然会看到 `Unknown command: /schedule`。如果在您的 shell 中设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，或在 `settings.json` 中设置了 `apiKeyHelper`，请先删除它，因为这些会优先于 claude.ai 登录。配置文件或联合凭证也会优先，所以也要关闭它
-* 您在 Claude Code 网页会话中。改为从 [web UI](https://claude.ai/code/routines) 管理例程
-* 您的组织的策略禁用了 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web)，例程在其上运行
+原因通常是以下之一：
+
+* 您使用 Console API 密钥、[Anthropic 配置文件或联合凭证](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)或云提供商（如 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry）进行身份验证。`/schedule` 需要 claude.ai 订阅登录。使用 Console API 密钥或配置文件时，如果启用了功能标志获取，提交 `/schedule` 会显示 `/schedule is available with Claude for Enterprise — ask your admin about migrating from API-key access`。使用云提供商登录时，您仍然会看到 `Unknown command: /schedule`。如果在您的 shell 中设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，或在 `settings.json` 中设置了 `apiKeyHelper`，请先删除它，因为这些会优先于 claude.ai 登录。配置文件或联合凭证也会优先，所以也要关闭它
+* 您完全登出，没有 API 密钥或其他凭证。如果启用了功能标志获取，提交 `/schedule` 会显示 `/schedule requires a claude.ai subscription. Run /login to sign in with your claude.ai account.` 在 v2.1.268 之前，登出的会话显示与 Console API 密钥相同的 Claude for Enterprise 消息
+* 您在云会话中。改为从 [web UI](https://claude.ai/code/routines) 管理例程
+* 您的组织的策略禁用了 [cloud sessions](/docs/zh-CN/claude-code-on-the-web)，例程需要这些。在这种情况下，提交 `/schedule` 会回答 [`Cloud sessions are disabled by your organization's policy`](/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。在 v2.1.268 之前，它返回 `Unknown command: /schedule`
 * Owner 为您的 Team 或 Enterprise 组织[关闭了例程](#routines-are-disabled-by-your-organizations-policy)。在 v2.1.227 之前，命令在这种情况下仍然出现，当 Claude 尝试创建或运行例程时，claude.ai 会拒绝该例程
 
-除非您的组织的策略禁用了例程或 Claude Code on the web，否则无论 CLI 如何配置，您都可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 处创建和管理例程。
-
-<h3 id="/schedule-asks-you-to-authenticate">
-  `/schedule` 要求您进行身份验证
-</h3>
-
-如果 `/schedule` 运行但 Claude 响应您需要先使用 claude.ai 账户进行身份验证，则 CLI 没有存储的 claude.ai 登录。API 账户不支持例程。运行 `/login`，使用您的 claude.ai 账户登录，然后再次运行 `/schedule`。
+除非您的组织的策略禁用了例程或 cloud sessions，否则无论 CLI 如何配置，您都可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 处创建和管理例程。
 
 <h3 id="routines-are-disabled-by-your-organizations-policy">
   "Routines 被您的组织的策略禁用"
@@ -449,5 +446,6 @@ Routines 以与交互式会话相同的方式消耗订阅使用量。除了标�
 * [`/loop` and in-session scheduling](/docs/zh-CN/scheduled-tasks)：在打开的 CLI 会话中计划本地任务
 * [Desktop scheduled tasks](/docs/zh-CN/desktop-scheduled-tasks)：在您的机器上运行的本地计划任务，可以访问本地文件
 * [Cloud environments](/docs/zh-CN/cloud-environments)：为云会话配置网络访问、环境变量和设置脚本
+* [Projects](/docs/zh-CN/claude-projects)：Claude 在并行云会话中协调的持续工作；从项目创建的例程会显示在其**例程**选项卡上
 * [MCP connectors](/docs/zh-CN/mcp)：连接外部服务，如 Slack、Linear 和 Google Drive
 * [GitHub Actions](/docs/zh-CN/github-actions)：在存储库事件的 CI 管道中运行 Claude

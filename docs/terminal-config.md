@@ -126,7 +126,7 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
   配置 tmux
 </h2>
 
-当 Claude Code 在 tmux 中运行时，默认情况下会出现两个问题：Shift+Enter 提交而不是插入换行符，桌面通知和[进度条](/docs/zh-CN/settings-reference#terminalprogressbarenabled)永远无法到达外部终端。将这些行添加到 `~/.tmux.conf`，然后运行 `tmux source-file ~/.tmux.conf` 将其应用到运行中的服务器：
+当 Claude Code 在 tmux 中运行时，默认情况下 Shift+Enter 提交而不是插入换行符，桌面通知和[进度条](/docs/zh-CN/settings-reference#terminalprogressbarenabled)永远无法到达外部终端。将这些行添加到 `~/.tmux.conf`，然后运行 `tmux source-file ~/.tmux.conf` 将其应用到运行中的服务器：
 
 ```bash ~/.tmux.conf theme={null}
 set -g allow-passthrough on

@@ -152,21 +152,22 @@
   AgentDefinition 配置
 </h3>
 
-| 字段                | 类型                                                          | 必需 | 描述                                                                                                                                                              |
-| :---------------- | :---------------------------------------------------------- | :- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `description`     | `string`                                                    | 是  | 何时使用此代理的自然语言描述                                                                                                                                                  |
-| `prompt`          | `string`                                                    | 是  | 代理的系统提示，定义其角色和行为                                                                                                                                                |
-| `tools`           | `string[]`                                                  | 否  | 允许的工具名称数组。如果省略，继承[子代理可用的每个工具](/docs/zh-CN/sub-agents#available-tools)                                                                                                |
-| `disallowedTools` | `string[]`                                                  | 否  | 要从代理工具集中移除的工具名称数组。也接受 MCP 服务器级别的模式：`mcp__server` 或 `mcp__server__*` 移除该服务器的每个工具，`mcp__*` 移除任何服务器的每个 MCP 工具                                                      |
-| `model`           | `string`                                                    | 否  | 此代理的模型覆盖。接受别名如 `'fable'`、`'opus'`、`'sonnet'`、`'haiku'`、`'inherit'` 或完整模型 ID。`'inherit'` 使用主模型。省略时，Claude Code 选择[子代理模型顺序](/docs/zh-CN/sub-agents#choose-a-model)中的模型 |
-| `skills`          | `string[]`                                                  | 否  | 启动时预加载到代理上下文中的技能名称列表。未列出的技能仍可通过 Skill 工具调用                                                                                                                      |
-| `memory`          | `'user' \| 'project' \| 'local'`                            | 否  | 此代理的内存源                                                                                                                                                         |
-| `mcpServers`      | `(string \| object)[]`                                      | 否  | 此代理可用的 MCP 服务器，按名称或内联配置                                                                                                                                         |
-| `initialPrompt`   | `string`                                                    | 否  | 当此代理作为主线程代理运行时自动提交为第一个用户轮次。当代理作为子代理调用时忽略                                                                                                                        |
-| `maxTurns`        | `number`                                                    | 否  | 代理停止前的最大代理轮次数。当代理达到限制时，Claude Code 返回其输出标记为部分，您可以[恢复代理](#resume-subagents)以继续。部分标记需要 Claude Code v2.1.246 或更高版本                                                 |
-| `background`      | `boolean`                                                   | 否  | 调用时将此代理作为非阻塞后台任务运行                                                                                                                                              |
-| `effort`          | `'low' \| 'medium' \| 'high' \| 'xhigh' \| 'max' \| number` | 否  | 此代理的推理工作量级别                                                                                                                                                     |
-| `permissionMode`  | `PermissionMode`                                            | 否  | 此代理内工具执行的权限模式。[子代理继承规则](/docs/zh-CN/agent-sdk/permissions#available-modes)决定何时应用                                                                                     |
+| 字段                | 类型                                                          | 必需 | 描述                                                                                                                                                                                                |
+| :---------------- | :---------------------------------------------------------- | :- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `description`     | `string`                                                    | 是  | 何时使用此代理的自然语言描述                                                                                                                                                                                    |
+| `prompt`          | `string`                                                    | 是  | 代理的系统提示，定义其角色和行为                                                                                                                                                                                  |
+| `tools`           | `string[]`                                                  | 否  | 允许的工具名称数组。如果省略，继承[子代理可用的每个工具](/docs/zh-CN/sub-agents#available-tools)                                                                                                                                  |
+| `disallowedTools` | `string[]`                                                  | 否  | 要从代理工具集中移除的工具名称数组。也接受 MCP 服务器级别的模式：`mcp__server` 或 `mcp__server__*` 移除该服务器的每个工具，`mcp__*` 移除任何服务器的每个 MCP 工具                                                                                        |
+| `model`           | `string`                                                    | 否  | 此代理的模型覆盖。接受别名如 `'fable'`、`'opus'`、`'sonnet'`、`'haiku'`、`'inherit'` 或完整模型 ID。`'inherit'` 使用主模型。省略时，Claude Code 选择[子代理模型顺序](/docs/zh-CN/sub-agents#choose-a-model)中的模型                                   |
+| `skills`          | `string[]`                                                  | 否  | 启动时预加载到代理上下文中的技能名称列表。未列出的技能仍可通过 Skill 工具调用                                                                                                                                                        |
+| `memory`          | `'user' \| 'project' \| 'local'`                            | 否  | 此代理的内存源                                                                                                                                                                                           |
+| `mcpServers`      | `(string \| object)[]`                                      | 否  | 此代理可用的 MCP 服务器，按名称或内联配置                                                                                                                                                                           |
+| `initialPrompt`   | `string`                                                    | 否  | 当此代理作为主线程代理运行时自动提交为第一个用户轮次。当代理作为子代理调用时忽略                                                                                                                                                          |
+| `maxTurns`        | `number`                                                    | 否  | 代理停止前的最大代理轮次数。当代理达到限制时，Claude Code 返回其输出标记为部分，您可以[恢复代理](#resume-subagents)以继续。部分标记需要 Claude Code v2.1.246 或更高版本                                                                                   |
+| `background`      | `boolean`                                                   | 否  | 调用时将此代理作为非阻塞后台任务运行                                                                                                                                                                                |
+| `omitClaudeMd`    | `boolean`                                                   | 否  | 当此代理作为子代理运行时，在不使用用户、项目和本地 CLAUDE.md 文件的情况下运行此代理；托管策略文件仍然加载。当代理作为主线程代理运行时忽略。需要 TypeScript Agent SDK v0.3.271 或更高版本。Python SDK 的 [`AgentDefinition`](/docs/zh-CN/agent-sdk/python#agentdefinition) 没有此字段 |
+| `effort`          | `'low' \| 'medium' \| 'high' \| 'xhigh' \| 'max' \| number` | 否  | 此代理的推理工作量级别                                                                                                                                                                                       |
+| `permissionMode`  | `PermissionMode`                                            | 否  | 此代理内工具执行的权限模式。[子代理继承规则](/docs/zh-CN/agent-sdk/permissions#available-modes)决定何时应用                                                                                                                       |
 
 在 Python SDK 中，多词字段名称如 `disallowedTools` 和 `mcpServers` 保持其 camelCase 拼写以匹配线路格式，而不是遵循 Python 的 snake\_case 约定。有关详细信息，请参阅[`AgentDefinition` 参考](/docs/zh-CN/agent-sdk/python#agentdefinition)。
 
@@ -196,11 +197,11 @@
 
 下表列出了非分叉子代理的上下文包含的内容以及它遗漏的内容。
 
-| 子代理接收                                                                                                                         | 子代理不接收                                    |
-| :---------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------- |
-| 其自身的系统提示（`AgentDefinition.prompt`）和 Agent 工具的提示                                                                               | 父代理的对话历史或工具结果                             |
-| 项目 CLAUDE.md（通过 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources) 加载） | 预加载的技能内容，除非在 `AgentDefinition.skills` 中列出 |
-| 工具定义（从父代理继承或 `tools` 中的子集，[为后台运行过滤](/docs/zh-CN/sub-agents#available-tools)）                                                       | 父代理的系统提示                                  |
+| 子代理接收                                                                                                                                                                                  | 子代理不接收                                    |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------- |
+| 其自身的系统提示（`AgentDefinition.prompt`）和 Agent 工具的提示                                                                                                                                        | 父代理的对话历史或工具结果                             |
+| 项目 CLAUDE.md（通过 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources) 加载），除非代理设置了 [`omitClaudeMd`](#agentdefinition-configuration) | 预加载的技能内容，除非在 `AgentDefinition.skills` 中列出 |
+| 工具定义（从父代理继承或 `tools` 中的子集，[为后台运行过滤](/docs/zh-CN/sub-agents#available-tools)）                                                                                                                | 父代理的系统提示                                  |
 
 <Note>
   父代理接收子代理的最终消息作为 Agent 工具结果，但可能在其自己的响应中对其进行总结。要在面向用户的响应中逐字保留子代理输出，请在传递给主 `query()` 调用的提示或 `systemPrompt` 选项中包含执行此操作的指令。

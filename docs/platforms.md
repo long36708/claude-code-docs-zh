@@ -73,7 +73,8 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 * [Desktop](/docs/zh-CN/desktop)：视觉 diff 审查、并行会话、计算机使用和 Dispatch
 * [VS Code](/docs/zh-CN/vs-code)：编辑器内的 Claude Code 扩展
 * [JetBrains](/docs/zh-CN/jetbrains)：IntelliJ、PyCharm 和其他 JetBrains IDE 的扩展
-* [Web 上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)：断开连接时继续运行的云会话
+* [Web](/docs/zh-CN/claude-code-on-the-web)：云会话，可从浏览器访问 claude.ai/code，断开连接时继续运行
+* [Projects](/docs/zh-CN/claude-projects)：一个对话，Claude 在其中协调许多云会话以完成一项工作并报告结果
 * [Mobile](/docs/zh-CN/mobile)：用于在远离计算机时启动和监控任务的 [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和 [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude) 版 Claude 应用
 
 <h3 id="integrations">

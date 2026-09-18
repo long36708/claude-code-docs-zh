@@ -85,7 +85,7 @@ Checkpoints 在以下情况下特别有用：
   Bash 命令更改未跟踪
 </h3>
 
-Checkpointing 不跟踪由 bash 命令修改的文件。例如，如果 Claude Code 运行：
+Checkpointing 不跟踪由 Bash 命令修改的文件。例如，如果 Claude Code 运行：
 
 ```bash theme={null}
 rm file.txt

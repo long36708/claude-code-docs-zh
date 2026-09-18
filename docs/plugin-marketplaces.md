@@ -71,7 +71,7 @@
     ```
 
     <Note>
-      设置 `version` 意味着用户仅在你更改此字段时才会收到更新，因此在每次发布时都要提升版本号。具有 command source 的 plugin 不会被此字段固定。如果你省略 `version`，版本来自 [版本管理](/docs/zh-CN/plugins-reference#version-management) 中的下一个来源。
+      设置 `version` 意味着用户仅在你更改此字段时才会收到更新，因此在每次发布时都要提升版本号。具有 [`command` source](#command-sources) 的 plugin 不会被此字段固定。从本地目录添加的 marketplace 中 [就地加载](/docs/zh-CN/plugins-reference#plugin-caching-and-file-resolution) 的 plugin 也不会被固定。如果你省略 `version`，版本来自 [版本管理](/docs/zh-CN/plugins-reference#version-management) 中的下一个来源。
     </Note>
   </Step>
 
@@ -116,7 +116,7 @@
 要了解更多关于 plugins 可以做什么的信息，包括 hooks、agents、MCP servers 和 LSP servers，请参阅 [Plugins](/docs/zh-CN/plugins)。
 
 <Note>
-  **plugins 如何安装**：当用户安装 plugin 时，Claude Code 将 plugin 目录复制到缓存位置，除了 link mode 中的 command source，它被就地使用。复制的 plugins 无法使用 `../shared-utils` 之类的路径引用其目录外的文件，因为这些文件不会被复制。
+  **plugins 如何安装**：当用户安装 plugin 时，Claude Code 将 plugin 目录复制到缓存位置，除非 plugin 就地加载。link mode 中的 [`command` source](#copy-mode-and-link-mode) 就地加载，从本地目录添加的 marketplace 中的 [相对路径 source](#relative-paths) 也是如此。复制的 plugins 无法使用 `../shared-utils` 之类的路径引用其目录外的文件，因为这些文件不会被复制。
 
   如果你需要在 plugins 之间共享文件，请使用符号链接。有关详细信息，请参阅 [Plugin 缓存和文件解析](/docs/zh-CN/plugins-reference#plugin-caching-and-file-resolution)。
 </Note>
@@ -166,11 +166,11 @@
   必需字段
 </h3>
 
-| 字段        | 类型     | 描述                                                                                                                                                                                                                                                                                                  | 示例             |
-| :-------- | :----- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------- |
-| `name`    | string | Marketplace 标识符，采用 kebab-case 格式，不包含空格、控制字符或双向格式化字符。这是面向公众的：用户在安装 plugins 时会看到它（例如，`/plugin install my-tool@your-marketplace`）。每个用户只能为每个名称注册一个 marketplace：添加第二个同名 marketplace 时，Claude Code 会替换第一个。要在一个 marketplace 名称下发布多个 plugins，请在[单个 `marketplace.json`](#create-the-marketplace-file) 中列出它们。 | `"acme-tools"` |
-| `owner`   | object | Marketplace 维护者信息（[见下面的字段](#owner-fields)）                                                                                                                                                                                                                                                          |                |
-| `plugins` | array  | 可用 plugins 列表                                                                                                                                                                                                                                                                                       | 见下文            |
+| 字段        | 类型     | 描述                                                                                                                                                                                                                                                                                                  | 示例                            |
+| :-------- | :----- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------- |
+| `name`    | string | Marketplace 标识符，采用 kebab-case 格式，不包含空格、控制字符或双向格式化字符。这是面向公众的：用户在安装 plugins 时会看到它（例如，`/plugin install my-tool@your-marketplace`）。每个用户只能为每个名称注册一个 marketplace：添加第二个同名 marketplace 时，Claude Code 会替换第一个。要在一个 marketplace 名称下发布多个 plugins，请在[单个 `marketplace.json`](#create-the-marketplace-file) 中列出它们。 | `"acme-tools"`                |
+| `owner`   | object | Marketplace 维护者信息。见[所有者字段](#owner-fields)                                                                                                                                                                                                                                                           |                               |
+| `plugins` | array  | 可用 plugins 列表                                                                                                                                                                                                                                                                                       | 见[Plugin 条目](#plugin-entries) |
 
 <Note>
   **保留名称**：以下 marketplace 名称为 Anthropic 官方使用保留，第三方 marketplaces 无法使用：`claude-code-marketplace`、`claude-code-plugins`、`claude-plugins-official`、`claude-plugins-community`、`claude-community`、`anthropic-marketplace`、`anthropic-plugins`、`agent-skills`、`anthropic-agent-skills`、`knowledge-work-plugins`、`life-sciences`、`claude-for-legal`、`claude-for-financial-services`、`financial-services-plugins`、`first-party-plugins`、`claude-tag-plugins`、`healthcare`。冒充官方 marketplaces 的名称（如 `official-claude-plugins` 或 `anthropic-plugins-v2`）也被阻止。保留这些名称可防止第三方 marketplace 将自己呈现为 Anthropic 发布的来源。
@@ -224,22 +224,22 @@
 
 **标准元数据字段：**
 
-| 字段               | 类型      | 描述                                                                                                                                                                                                    |
-| :--------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `displayName`    | string  | 在 UI 界面中显示的人类可读名称。当条目和 plugin 的 `plugin.json` 都未设置时，用户会看到 plugin 的 `name`。可以包含空格和任何大小写。不用于命名空间或查找。                                                                                                    |
-| `description`    | string  | 简短的 plugin 描述                                                                                                                                                                                         |
-| `version`        | string  | Plugin 版本。如果设置（在此处或在 `plugin.json` 中），plugin 将固定到此字符串，用户仅在其更改时才会收到更新。具有 [`command` 源](#command-sources)的 plugin 不会被任一字段固定。如果在两个地方都未设置，版本来自 [版本管理](/docs/zh-CN/plugins-reference#version-management)中的下一个源。 |
-| `author`         | object  | Plugin 作者信息（`name` 必需；`email` 和 `url` 可选）                                                                                                                                                             |
-| `homepage`       | string  | Plugin 主页或文档 URL                                                                                                                                                                                      |
-| `repository`     | string  | 源代码存储库 URL                                                                                                                                                                                            |
-| `license`        | string  | SPDX 许可证标识符（例如，MIT、Apache-2.0）                                                                                                                                                                        |
-| `keywords`       | array   | 用于 plugin 发现和分类的标签                                                                                                                                                                                    |
-| `metadata`       | object  | 自由格式对象，用于你自己的字段，如权利或目录数据。Claude Code 不读取它。在 v2.1.222 之前，`claude plugin validate` 将该键报告为无法识别的字段。                                                                                                       |
-| `category`       | string  | Plugin 类别以供组织                                                                                                                                                                                         |
-| `tags`           | array   | 用于可搜索性的标签                                                                                                                                                                                             |
-| `strict`         | boolean | 控制 `plugin.json` 是否是组件定义的权威（默认：true）。见下面的 [Strict 模式](#strict-mode)。                                                                                                                                  |
-| `relevance`      | object  | 告诉 Claude Code 何时向用户建议此 plugin 的信号。仅对管理员在托管设置中允许列表的 marketplace 生效。见 [为你的组织推荐 plugin](/docs/zh-CN/plugin-relevance)。                                                                                       |
-| `defaultEnabled` | boolean | Plugin 安装后是否启用（默认：true）。设置为 `false` 以安装禁用的 plugin，直到用户选择启用。优先于 plugin 的 `plugin.json` 中的同一字段。见 [默认启用](/docs/zh-CN/plugins-reference#default-enablement)。                                                   |
+| 字段               | 类型      | 描述                                                                                                                                                                                                                                                                                                          |
+| :--------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `displayName`    | string  | 在 UI 界面中显示的人类可读名称。当条目和 plugin 的 `plugin.json` 都未设置时，用户会看到 plugin 的 `name`。可以包含空格和任何大小写。不用于命名空间或查找。                                                                                                                                                                                                          |
+| `description`    | string  | 简短的 plugin 描述                                                                                                                                                                                                                                                                                               |
+| `version`        | string  | Plugin 版本。如果设置（在此处或在 `plugin.json` 中），plugin 将固定到此字符串，用户仅在其更改时才会收到更新。具有 [`command` 源](#command-sources)的 plugin 不会被任一字段固定。也不会从 marketplace 添加为本地目录的 [就地加载](/docs/zh-CN/plugins-reference#plugin-caching-and-file-resolution)的 plugin。如果在两个地方都未设置，版本来自 [版本管理](/docs/zh-CN/plugins-reference#version-management)中的下一个源。 |
+| `author`         | object  | Plugin 作者信息（`name` 必需；`email` 和 `url` 可选）                                                                                                                                                                                                                                                                   |
+| `homepage`       | string  | Plugin 主页或文档 URL                                                                                                                                                                                                                                                                                            |
+| `repository`     | string  | 源代码存储库 URL                                                                                                                                                                                                                                                                                                  |
+| `license`        | string  | SPDX 许可证标识符（例如，MIT、Apache-2.0）                                                                                                                                                                                                                                                                              |
+| `keywords`       | array   | 用于 plugin 发现和分类的标签                                                                                                                                                                                                                                                                                          |
+| `metadata`       | object  | 自由格式对象，用于你自己的字段，如权利或目录数据。Claude Code 不读取它。在 v2.1.222 之前，`claude plugin validate` 将该键报告为无法识别的字段。                                                                                                                                                                                                             |
+| `category`       | string  | Plugin 类别以供组织                                                                                                                                                                                                                                                                                               |
+| `tags`           | array   | 用于可搜索性的标签                                                                                                                                                                                                                                                                                                   |
+| `strict`         | boolean | 控制 `plugin.json` 是否是组件定义的权威（默认：true）。见下面的 [Strict 模式](#strict-mode)。                                                                                                                                                                                                                                        |
+| `relevance`      | object  | 告诉 Claude Code 何时向用户建议此 plugin 的信号。仅对管理员在托管设置中允许列表的 marketplace 生效。见 [为你的组织推荐 plugin](/docs/zh-CN/plugin-relevance)。                                                                                                                                                                                             |
+| `defaultEnabled` | boolean | Plugin 安装后是否启用（默认：true）。设置为 `false` 以安装禁用的 plugin，直到用户选择启用。优先于 plugin 的 `plugin.json` 中的同一字段。见 [默认启用](/docs/zh-CN/plugins-reference#default-enablement)。                                                                                                                                                         |
 
 条目和 plugin 自己的 `plugin.json` 都可以设置显示字段 `displayName`、`description`、`author`、`homepage`、`repository`、`license` 和 `keywords`。在 plugin 列表和详情中，安装前后：
 
@@ -274,17 +274,17 @@
 
 Plugin 源告诉 Claude Code 在你的 marketplace 中列出的每个单独 plugin 从哪里获取。这些在 `marketplace.json` 中每个 plugin 条目的 `source` 字段中设置。
 
-Claude Code 将每个已安装的 plugin 复制到本地版本化 plugin 缓存中，位置为 `~/.claude/plugins/cache`，除了[链接模式](#copy-mode-and-link-mode)中的 [`command` 源](#command-sources)，Claude Code 会就地使用。Claude Code 还会[将 plugin 的符合条件的 Node.js 包依赖项安装](/docs/zh-CN/plugins-reference#node-js-package-dependencies)到缓存副本中。
+Claude Code 将每个已安装的 plugin 复制到本地版本化 plugin 缓存中，位置为 `~/.claude/plugins/cache`，除非 plugin 就地加载。链接模式中的 [`command` 源](#copy-mode-and-link-mode)就地加载，[相对路径源](#relative-paths)从本地目录添加的 marketplace 也是如此。Claude Code 还会[将 plugin 的符合条件的 Node.js 包依赖项安装](/docs/zh-CN/plugins-reference#node-js-package-dependencies)到缓存副本中。见[Plugin 缓存和文件解析](/docs/zh-CN/plugins-reference#plugin-caching-and-file-resolution)了解从本地目录 marketplace 就地加载的 plugin 如何获取你的编辑。
 
-| 源            | 类型                           | 字段                               | 注释                                                                                                                                                                       |
-| ------------ | ---------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 相对路径         | `string`（例如 `"./my-plugin"`） | 无                                | marketplace repo 中的本地目录。必须以 `./` 开头，除非你在 [`metadata.pluginRoot`](#relative-paths) 下写一个[裸名](#relative-paths)。Claude Code 相对于 marketplace 根目录解析路径，而不是 `.claude-plugin/` 目录 |
-| `github`     | object                       | `repo`、`ref?`、`sha?`             |                                                                                                                                                                          |
-| `url`        | object                       | `url`、`ref?`、`sha?`              | Git URL 源                                                                                                                                                                |
-| `git-subdir` | object                       | `url`、`path`、`ref?`、`sha?`       | git repo 中的子目录。稀疏克隆以最小化大型 monorepos 的带宽                                                                                                                                  |
-| `npm`        | object                       | `package`、`version?`、`registry?` | 通过 `npm install` 安装                                                                                                                                                      |
-| `archive`    | object                       | `url`、`sha256?`                  | 通过 HTTPS 下载的 Zip 存档。在用户机器上无需 git 或 npm 即可工作。需要 Claude Code v2.1.224 或更高版本                                                                                                |
-| `command`    | object                       | `command`、`timeout?`、`mode?`     | 通过运行本地命令生成的 plugin 目录，每个会话重新运行一次以获取更改。需要 Claude Code v2.1.229 或更高版本                                                                                                      |
+| 源            | 类型                           | 字段                               | 注释                                                                                                                                                    |
+| ------------ | ---------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 相对路径         | `string`（例如 `"./my-plugin"`） | 无                                | marketplace repo 中的本地目录。必须以 `./` 开头，除非你在 [`metadata.pluginRoot`](#relative-paths) 下写一个裸名。Claude Code 相对于 marketplace 根目录解析路径，而不是 `.claude-plugin/` 目录 |
+| `github`     | object                       | `repo`、`ref?`、`sha?`             |                                                                                                                                                       |
+| `url`        | object                       | `url`、`ref?`、`sha?`              | Git URL 源                                                                                                                                             |
+| `git-subdir` | object                       | `url`、`path`、`ref?`、`sha?`       | git repo 中的子目录。稀疏克隆以最小化大型 monorepos 的带宽                                                                                                               |
+| `npm`        | object                       | `package`、`version?`、`registry?` | 通过 `npm install` 安装                                                                                                                                   |
+| `archive`    | object                       | `url`、`sha256?`                  | 通过 HTTPS 下载的 Zip 存档。在用户机器上无需 git 或 npm 即可工作。需要 Claude Code v2.1.224 或更高版本                                                                             |
+| `command`    | object                       | `command`、`timeout?`、`mode?`     | 通过运行本地命令生成的 plugin 目录，每个会话重新运行一次以获取更改。需要 Claude Code v2.1.229 或更高版本                                                                                   |
 
 <Note>
   **Marketplace 源与 plugin 源**：这些是控制不同事物的不同概念。
@@ -314,7 +314,7 @@ Claude Code 将每个已安装的 plugin 复制到本地版本化 plugin 缓存�
 }
 ```
 
-路径相对于 marketplace 根目录解析，即包含 `.claude-plugin/` 的目录。在上面的示例中，`./plugins/my-plugin` 指向 `<repo>/plugins/my-plugin`，即使 `marketplace.json` 位于 `<repo>/.claude-plugin/marketplace.json`。不要使用 `../` 来引用 marketplace 根目录外的路径。在 macOS 和 Linux 上，Claude Code 拒绝在前导 `./` 之后任何地方包含反斜杠的条目路径，所以在每个平台上将分隔符写为 `/`。
+路径相对于 marketplace 根目录解析，即包含 `.claude-plugin/` 的目录。源 `./plugins/my-plugin` 因此指向 `<repo>/plugins/my-plugin`，即使 `marketplace.json` 位于 `<repo>/.claude-plugin/marketplace.json`。不要使用 `../` 来引用 marketplace 根目录外的路径。在 macOS 和 Linux 上，Claude Code 拒绝在前导 `./` 之后任何地方包含反斜杠的条目路径，所以在每个平台上将分隔符写为 `/`。
 
 裸名是没有 `/` 的单个目录名，例如 `"formatter"`。要写裸名而不是 `./` 路径，请设置 [`metadata.pluginRoot`](#optional-fields) 为它们解析的目录。使用 `"pluginRoot": "./plugins"`，Claude Code 将 `"source": "formatter"` 解析为 `./plugins/formatter`。需要 Claude Code v2.1.239 或更高版本。
 
@@ -612,7 +612,9 @@ Claude Code 不运行 `headersHelper` 命令，或在这些情况下丢弃来自
   用户如何接受 headersHelper 命令
 </h4>
 
-用户每次从 plugin 的自己的视图在 `/plugin` 或使用 `claude plugin install` 或 `claude plugin update` 自己安装或更新该单个 plugin 时接受 plugin 条目的命令。Claude Code 显示命令和存档 URL，并仅在用户接受后运行命令。在非交互式 shell 中，传递 [`--yes`](/docs/zh-CN/plugins-reference#plugin-install) 以接受它。
+用户每次从 plugin 的自己的视图在 `/plugin` 或使用 `claude plugin install` 或 `claude plugin update` 自己安装或更新该单个 plugin 时接受 plugin 条目的命令。Claude Code 显示命令和存档 URL，并仅在用户接受后运行命令。
+
+在非交互式 shell 中，传递 [`--yes`](/docs/zh-CN/plugins-reference#plugin-install) 以接受命令。要接受仅前一个 `--json` 运行显示的命令，传递 [`--accept-command`](/docs/zh-CN/plugins-reference#plugin-install) 和运行报告的 `sha256`。
 
 Claude Code 仅运行它显示的命令，用于它显示的存档 URL。如果条目的命令或存档 URL 在此期间更改，Claude Code 拒绝安装或更新。仅查询字符串中的更改不计算。
 
@@ -693,7 +695,7 @@ Claude Code 不支持 Windows 上的链接模式，拒绝在那里安装链接�
 
 Claude Code 在用户的机器上运行你的命令，所以它将每次运行绑定到用户的明确接受：
 
-* 当用户从 `/plugin` 中的 plugin 详情屏幕安装 plugin，或在交互式终端中使用 `claude plugin install` 或 `claude plugin update` 安装或更新它时，Claude Code 首先向他们显示确切的命令字符串，并为该安装记录接受的命令。可以在接受相同命令的记录接受上进行的 `claude plugin update` 显示无。在非交互式 shell 中，例如配置脚本，传递 `--yes` 到 `claude plugin install` 或 `claude plugin update` 以接受它打印的命令。
+* 当用户从 `/plugin` 中的 plugin 详情屏幕安装 plugin，或在交互式终端中使用 `claude plugin install` 或 `claude plugin update` 安装或更新它时，Claude Code 首先向他们显示确切的命令字符串，并为该安装记录接受的命令。可以在接受相同命令的记录接受上进行的 `claude plugin update` 显示无。在非交互式 shell 中，例如配置脚本，传递 `--yes` 到 `claude plugin install` 或 `claude plugin update` 以接受它打印的命令。要接受仅前一个 `--json` 运行显示的命令，传递 [`--accept-command`](/docs/zh-CN/plugins-reference#plugin-install) 和运行报告的 `sha256`。
 * 每条其他路径仅运行用户已接受的命令。这包括从 `/plugin` 启动的更新和[何时 Claude Code 重新运行命令](#when-claude-code-re-runs-the-command)中描述的后台运行。当未接受任何内容时，Claude Code 拒绝运行命令并告诉用户如何查看它。Claude Code 从不将 command 源 plugin 安装为另一个 plugin 的依赖项，所以用户自己先安装它。
 * 如果你更改条目的 `command` 或切换其 `mode`，用户保留他们已有的版本，Claude Code 停止重新运行命令。在交互式会话中，`/plugin` 错误选项卡显示新命令，直到用户通过运行 `claude plugin update <plugin>@<marketplace>` 查看并接受它。
 
@@ -810,6 +812,8 @@ Claude Code 在用户的机器上运行你的命令，所以它将每次运行�
   托管和分发 marketplaces
 </h2>
 
+当用户添加托管在 git 存储库中的 marketplace，或安装其列出的基于 git 的 plugin 时，Claude Code 会将该 marketplace 或 plugin 存储库克隆到他们的机器上。克隆永远不会下载 [Git LFS](https://git-lfs.com) 内容，所以 LFS 跟踪的文件作为指针文件到达。将你的 plugins 需要的文件保留在 LFS 之外。
+
 <h3 id="host-on-github-recommended">
   在 GitHub 上托管（推荐）
 </h3>
@@ -836,7 +840,7 @@ GitHub 是托管和分发 marketplace 的推荐方式：
   私有存储库
 </h3>
 
-Claude Code 支持从私有存储库安装 plugins。如果你通过[**组织设置 > Plugins**](https://claude.ai/admin-settings/plugins)分发你的 marketplace，你的 git 凭证不涉及：组织同步通过 Claude GitHub App 或你的组织的 GitHub Enterprise App 读取 marketplace 存储库，plugin 源如果无法进行身份验证必须是公开的。有关完整规则，请参阅[通过组织设置分发](#distribute-through-organization-settings)。
+Claude Code 支持从私有存储库安装 plugins。如果你通过[**组织设置 > Plugins**](https://claude.ai/admin-settings/plugins)分发你的 marketplace，你的 git 凭证不涉及：组织同步通过你的组织的 GitHub 或 GitLab 连接在 claude.ai 上读取 marketplace 存储库。有关哪些 plugin 源可以是私有的，请参阅[通过组织设置分发](#distribute-through-organization-settings)。
 
 <h4 id="commands-you-run">
   你运行的命令
@@ -848,16 +852,18 @@ Claude Code 支持从私有存储库安装 plugins。如果你通过[**组织设
   后台自动更新
 </h4>
 
-默认情况下，后台刷新会为其 `git pull` 禁用 git 凭证助手，所以即使配置了助手，pull 也无法对 HTTPS 上的私有存储库进行身份验证。SSH 远程不受影响：加载到 `ssh-agent` 中的密钥以与你运行的命令相同的方式对后台 pulls 进行身份验证。当后台 pull 失败时，Claude Code 会回退到从头重新克隆 marketplace。重新克隆确实使用你存储的 git 凭证，但它可能在大型存储库上[超时](#git-operations-time-out)，所以私有 marketplace 自动更新可能会间歇性失败。
+默认情况下，后台刷新会在检查 marketplace 的远程以查找新提交时禁用 git 凭证助手，所以检查无法对 HTTPS 上的私有存储库进行身份验证，即使配置了助手。SSH 远程不受影响：加载到 `ssh-agent` 中的密钥以与你运行的命令相同的方式对后台检查进行身份验证。
+
+当检查找到新提交，或因为无法到达或对远程进行身份验证而失败时，Claude Code 会再次克隆 marketplace 并交换新克隆。如果该克隆失败，现有检出保持就位。重新克隆确实使用你存储的 git 凭证，但它可能在大型存储库上[超时](#git-operations-time-out)，所以私有 marketplace 自动更新可能会间歇性失败。
 
 两个设置使私有 marketplaces 的行为可预测：
 
-* 设置 `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` 以在后台 pull 失败时保留现有克隆，而不是删除并重新克隆。你的 plugins 继续从最后同步的状态工作，使用 `/plugin marketplace update` 的手动更新仍然使用你的凭证进行 pull。
-* 配置 git 凭证助手，例如使用 `gh auth setup-git` 用于 GitHub，以便重新克隆回退可以在不提示的情况下进行身份验证。
+* 设置 `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` 以在后台检查无法到达或对远程进行身份验证时保留现有检出，而不尝试重新克隆。你的 plugins 继续从最后同步的状态工作，使用 `/plugin marketplace update` 的手动更新仍然使用你的凭证进行身份验证。
+* 配置 git 凭证助手，例如使用 `gh auth setup-git` 用于 GitHub，以便重新克隆可以在不提示的情况下进行身份验证。
 
 在你的环境中设置提供商令牌（如 `GITHUB_TOKEN`）本身不会启用后台身份验证。令牌仅通过配置的凭证助手（例如 `gh` CLI 的助手，它读取 `GH_TOKEN` 和 `GITHUB_TOKEN`）生效。
 
-要使后台 pull 本身通过 HTTPS 进行身份验证，请配置全局 git URL 重写。重写在远程 URL 中嵌入令牌，所以即使后台 pull 禁用凭证助手，它也会生效，成功的 pull 会跳过重新克隆回退。以下示例重写 marketplace 存储库的 URL 以包含访问令牌：
+要使后台检查本身通过 HTTPS 进行身份验证，请配置全局 git URL 重写。重写在远程 URL 中嵌入令牌，所以即使后台检查禁用凭证助手，它也会生效。当检查发现检出是最新的时，Claude Code 会跳过重新克隆。以下示例重写 marketplace 存储库的 URL 以包含访问令牌：
 
 ```bash theme={null}
 git config --global url."https://x-access-token:YOUR_TOKEN@github.com/acme-corp/plugins".insteadOf "https://github.com/acme-corp/plugins"
@@ -876,7 +882,9 @@ git config --global url."https://x-access-token:YOUR_TOKEN@github.com/acme-corp/
 重写以纯文本形式在你的 gitconfig 中存储令牌，所以使用对 marketplace 存储库具有只读访问权限的令牌。
 
 <Note>
-  在 CI/CD 环境中，在从私有存储库安装 plugins 之前配置 git 凭证助手。在 GitHub Actions 上，导出对 marketplace 存储库具有读取访问权限的令牌作为 `GH_TOKEN`，然后运行 `gh auth setup-git`。默认工作流令牌只能访问工作流自己的存储库，所以另一个存储库中的私有 marketplace 需要个人访问令牌或应用令牌。在管道中配置的全局 URL 重写也直接对后台 pull 进行身份验证。
+  在 CI/CD 环境中，在从私有存储库安装 plugins 之前配置 git 凭证助手。在 GitHub Actions 上，导出对 marketplace 存储库具有读取访问权限的令牌作为 `GH_TOKEN`，然后运行 `gh auth setup-git`。默认工作流令牌只能访问工作流自己的存储库，所以另一个存储库中的私有 marketplace 需要个人访问令牌或应用令牌。
+
+  如果你在管道中配置全局 URL 重写，重写也直接对后台检查进行身份验证。
 </Note>
 
 <h3 id="distribute-through-organization-settings">
@@ -885,12 +893,16 @@ git config --global url."https://x-access-token:YOUR_TOKEN@github.com/acme-corp/
 
 如果你在 Team 或 Enterprise 计划上通过[**组织设置 > Plugins**](https://claude.ai/admin-settings/plugins)分发 plugins，这些源规则适用：
 
-* marketplace 存储库必须是私有或内部的。组织同步通过 Claude GitHub App 或你的组织的 GitHub Enterprise App 读取它。
+* 在 github.com 和 gitlab.com 上，marketplace 存储库必须是私有或内部的。组织同步通过与其主机匹配的连接读取存储库：
+  * **github.com**：Claude GitHub App
+  * **你的 GitHub Enterprise Server 主机**：你的组织的 [GitHub Enterprise App](/docs/zh-CN/github-enterprise-server#admin-setup)
+  * **gitlab.com 或你的自托管 GitLab 实例**：你的组织的 [GitLab 配置](#sync-a-gitlab-hosted-marketplace)中该主机的访问令牌
 * 每个 plugin 源必须是 `github`、`url` 或 `git-subdir` 类型，或[相对路径](#relative-paths)，以 `./` 开头。如果你在 `metadata.pluginRoot` 下按裸名称列出 plugin，组织同步会将其拒绝为不支持的源，所以写出路径，例如 `./plugins/deploy-tools`。
-* plugin 源可以在两种情况下是私有的：
+* plugin 源可以在三种情况下是私有的：
   * 与 marketplace 存储库的所有者共享的 github.com 源
   * 在你的组织的 GitHub Enterprise 主机上安装了 GHE App 的源
-* 组织同步在没有凭证的情况下获取所有其他源，所以不同所有者下的 github.com 存储库和其他主机上的存储库（例如 GitLab 或 Bitbucket）必须是公开的。
+  * 与 marketplace 存储库在同一 GitLab 主机上的 `url` 或 `git-subdir` 源。在 gitlab.com 上，源也必须在与 marketplace 存储库相同的顶级组或用户命名空间下。
+* 任何其他 plugin 源必须是 github.com、gitlab.com 或 bitbucket.org 上的公开存储库，组织同步在没有凭证的情况下获取。组织同步拒绝这些规则不涵盖的主机上的 plugin 源。
 
 有关管理员工作流，请参阅[为你的组织管理 plugins](https://support.claude.com/en/articles/13837433)。
 
@@ -904,6 +916,14 @@ git config --global url."https://x-access-token:YOUR_TOKEN@github.com/acme-corp/
   "source": "./plugins/deploy-tools"
 }
 ```
+
+<h4 id="sync-a-gitlab-hosted-marketplace">
+  同步 GitLab 托管的 marketplace
+</h4>
+
+要从 gitlab.com 或自托管 GitLab 实例同步 marketplace，[所有者](/docs/zh-CN/server-managed-settings#access-control)首先在[**组织设置 > Claude Code**](https://claude.ai/admin-settings/claude-code)为该主机添加 GitLab 配置。GitLab 配置处于公开测试版，仅适用于 plugin marketplace 同步。添加一个不会使 GitLab 存储库在[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web#limitations) 中可用。有关设置步骤，请参阅[为你的组织管理 plugins](https://support.claude.com/en/articles/13837433)。
+
+当你添加 marketplace 时，输入项目的 HTTPS URL，例如 `https://gitlab.example.com/platform/claude-plugins`。嵌套子组中的项目有效。组织同步读取项目的默认分支。如果你打开**自动同步**，只有对默认分支的 pushes 才会启动同步。
 
 <h4 id="keep-executables-out-of-the-top-level-bin-directory">
   将可执行文件保留在顶级 bin 目录之外
@@ -984,7 +1004,8 @@ CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin install my-tool@your
 
 行为详情：
 
-* **只读**：种子目录永远不会被写入。由于 git pull 会在只读文件系统上失败，种子 marketplaces 的自动更新被禁用。
+* **只读**：Claude Code 永远不会写入种子目录。
+* **自动更新禁用**：种子 marketplaces 不会自动更新。
 * **种子条目优先**：在每次启动时，种子中声明的 marketplaces 会覆盖用户配置中的任何匹配条目。要选择退出种子 plugin，请使用 `/plugin disable` 而不是删除 marketplace。
 * **路径解析**：Claude Code 通过在运行时探测 `$CLAUDE_CODE_PLUGIN_SEED_DIR/marketplaces/<name>/` 来定位 marketplace 内容，而不是信任存储在种子 JSON 内的路径。这意味着即使在与构建时不同的路径上挂载，种子也能正确工作。
 * **变更被阻止**：针对种子管理的 marketplace 运行 `/plugin marketplace remove` 或 `/plugin marketplace update` 会失败，并提示你要求管理员更新种子镜像。
@@ -1017,6 +1038,8 @@ CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin install my-tool@your
   "strictKnownMarketplaces": []
 }
 ```
+
+Claude Code 下载[从 claude.ai 同步的](/docs/zh-CN/plugins-reference#synced-plugins) plugins 来自你的账户而不是来自 marketplace，所以这个锁定不涵盖它们。要同时停止这些，请在托管设置中将 [`syncClaudeAiPlugins`](/docs/zh-CN/settings-reference#syncclaudeaiplugins) 设置为 `false`，或在 claude.ai 上为你的组织关闭 Skills。
 
 仅允许官方 Anthropic marketplace。单个存储库条目的匹配是精确的，所以此条目不涵盖同一存储库的 `ref` 或 `path` 变体：
 
@@ -1139,7 +1162,7 @@ CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin install my-tool@your
 Plugin 版本确定缓存路径和更新检测：如果解析的版本与用户已有的版本匹配，`/plugin update` 和自动更新会跳过该 plugin。对于 git 源，如果你省略 `version`，Claude Code 使用源的解析提交 SHA，所以用户在该提交更改时获得更新；这是内部或积极开发的 plugins 的最简单设置。有关完整的解析顺序（包括 `archive` 源），请参阅[版本管理](/docs/zh-CN/plugins-reference#version-management)。
 
 <Warning>
-  设置 `version` 为除了 [`command`](#command-sources) 之外的每个源类型固定 plugin，其版本始终包括命令生成内容的哈希。如果你在 `plugin.json` 中声明 `"version": "1.0.0"` 并推送新提交而不改变该字符串，这些源的现有用户保留缓存副本，因为 Claude Code 看到相同的版本。在每个发布时提升该字段，或省略它以回退到解析的版本。
+  设置 `version` 为除了 [`command`](#command-sources) 之外的每个源类型固定 plugin，其版本始终包括命令生成内容的哈希。一个[从 marketplace 加载的 plugin](/docs/zh-CN/plugins-reference#plugin-caching-and-file-resolution)添加为本地目录也不会被固定。如果你在 `plugin.json` 中声明 `"version": "1.0.0"` 并推送新提交而不改变该字符串，这些源的现有用户保留缓存副本，因为 Claude Code 看到相同的版本。在每个发布时提升该字段，或省略它以回退到解析的版本。
 
   避免在 `plugin.json` 和 marketplace 条目中都设置 `version`。Claude Code 总是无声地使用 `plugin.json` 值，所以陈旧的 manifest 版本可能会掩盖你在 `marketplace.json` 中设置的版本。
 </Warning>
@@ -1575,22 +1598,25 @@ Claude Code 从这些运行中报告的两个错误，以及每个错误的修�
 
 对于后台自动更新：
 
-* 默认情况下，后台刷新会为拉取禁用 git 凭证助手，因此拉取无法通过 HTTPS 进行身份验证。在 `ssh-agent` 中加载了密钥的 SSH 远程仍然可以进行身份验证。失败的拉取会触发从头重新克隆，这使用你存储的凭证，但在大型存储库上可能超时
-* 设置 `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` 以在后台拉取失败时保留现有克隆
-* 配置 git 凭证助手，例如 `gh auth setup-git`，以便重新克隆回退可以进行身份验证
+* 默认情况下，后台刷新会为检查远程禁用 git 凭证助手，因此检查无法通过 HTTPS 进行身份验证。在 `ssh-agent` 中加载了密钥的 SSH 远程仍然可以进行身份验证
+* 当检查无法进行身份验证时，Claude Code 使用你存储的凭证重新克隆 marketplace，但重新克隆可能在大型存储库上超时
+* 设置 `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` 以在后台检查无法到达或无法进行身份验证到远程时保留现有检出，而不尝试重新克隆
+* 配置 git 凭证助手，例如 `gh auth setup-git`，以便重新克隆可以进行身份验证
 * 如果重新克隆在大型存储库上超时，请使用 [`CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS`](#git-operations-time-out) 增加限制
-* 配置一个 [git URL 重写](#private-repositories) 作用于 marketplace 存储库，以便后台拉取直接进行身份验证
+* 配置一个 [git URL 重写](#private-repositories) 作用于 marketplace 存储库，以便后台检查直接进行身份验证
 * 或使用 `/plugin marketplace update <name>` 手动更新私有 marketplaces，这使用你的凭证
 
 <h3 id="marketplace-updates-fail-in-offline-environments">
   Marketplace 更新在离线环境中失败
 </h3>
 
-**症状**：Marketplace `git pull` 在后台失败，Claude Code 反复尝试无法成功的重新克隆。
+**症状**：在离线或隔离的环境中，后台 marketplace 刷新无法到达远程，Claude Code 反复尝试无法成功的重新克隆。
 
-**原因**：默认情况下，当 `git pull` 失败时，Claude Code 会尝试从头重新克隆。在离线或隔离的环境中，重新克隆以相同的方式失败，之后对先前缓存的恢复是尽力而为的。刷新在启动后在后台运行，因此不会延迟启动，但每个会话都会重复失败的尝试，每个 git 操作都可以等待 [120 秒超时](#git-operations-time-out)。
+**原因**：后台刷新检查 marketplace 的远程以查找新提交，当检查无法到达远程时，Claude Code 尝试再次克隆 marketplace。离线时，克隆以相同的方式失败，现有检出保持不变。在 v2.1.274 之前，刷新在现有检出中运行 `git pull`，当拉取失败时将检出移到一边以重新克隆，并在事后尽力恢复它。
 
-**解决方案**：设置 `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` 以在拉取失败时跳过重新克隆尝试并继续使用现有缓存：
+刷新在启动后在后台运行，因此不会延迟启动。每个会话仍然重复失败的尝试，每个 git 操作可以等待 [120 秒超时](#git-operations-time-out)。
+
+**解决方案**：设置 `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` 以在检查无法到达远程时跳过重新克隆尝试并继续使用现有检出：
 
 ```bash theme={null}
 export CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1
@@ -1602,9 +1628,9 @@ export CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1
   Git 操作超时
 </h3>
 
-**症状**：Plugin 安装或 marketplace 更新失败，出现超时错误，如"Git clone timed out after 120s"或"Git pull timed out after 120s"。
+**症状**：Plugin 安装或 marketplace 更新失败，出现超时错误，如 `Git clone timed out after 120s`。
 
-**原因**：Claude Code 对所有 git 操作使用 120 秒超时，包括克隆 plugin 存储库和拉取 marketplace 更新。大型存储库或缓慢的网络连接可能超过此限制。
+**原因**：Claude Code 对所有 git 操作使用 120 秒超时，包括克隆 plugin 存储库和重新克隆 marketplace 以更新它。大型存储库或缓慢的网络连接可能超过此限制。
 
 **解决方案**：使用 `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS` 环境变量增加超时。该值以毫秒为单位：
 
@@ -1634,7 +1660,7 @@ export CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=300000  # 5 minutes
 
 **症状**：Plugin 安装但对文件的引用失败，特别是 plugin 目录外的文件
 
-**原因**：Plugins 被复制到缓存目录而不是就地使用，除了[链接模式中的 `command` 源](#copy-mode-and-link-mode)。引用 plugin 目录外文件的路径（如 `../shared-utils`）不会工作，因为这些文件不会被复制。
+**原因**：Claude Code 将已安装的 plugins 复制到缓存目录，除非 plugin 就地加载。[链接模式中的 `command` 源](#copy-mode-and-link-mode)就地加载，[相对路径源](#relative-paths)在从本地目录添加的 marketplace 中也是如此。引用复制的 plugin 目录外文件的路径（如 `../shared-utils`）不会工作，因为这些文件不会被复制。
 
 **解决方案**：见 [Plugin 缓存和文件解析](/docs/zh-CN/plugins-reference#plugin-caching-and-file-resolution) 了解解决方法，包括符号链接和目录重组。
 

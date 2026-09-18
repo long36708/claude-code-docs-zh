@@ -48,7 +48,13 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
   使用 managed-mcp.json 进行独占控制
 </h2>
 
-如果你部署 `managed-mcp.json` 文件，Claude Code 仅加载该文件定义的服务器、你[通过 `managedMcpServers` 提供的服务器](#provide-servers-through-managed-settings)，以及启动会话的应用注册的任何进程内服务器，例如 VS Code 扩展自己的服务器或[桌面应用提供的连接器](/docs/zh-CN/mcp#how-connectors-reach-claude-code)。用户无法添加、修改或使用任何其他 MCP 服务器，包括插件提供的服务器和通过 [`--mcp-config` CLI 标志](/docs/zh-CN/cli-reference#cli-flags)传递的服务器。该文件还会抑制 Claude Code 自身获取的 claude.ai 连接器，除非你[允许它们与托管集合一起使用](#allow-claude-ai-connectors-alongside-the-managed-set)。
+当你部署 `managed-mcp.json` 文件时，Claude Code 仅加载以下 MCP 服务器：
+
+* 该文件定义的服务器
+* 你[通过 `managedMcpServers` 提供的服务器](#provide-servers-through-managed-settings)
+* 启动会话的应用注册的进程内服务器，例如 VS Code 扩展自己的服务器或[桌面应用提供的连接器](/docs/zh-CN/mcp#how-connectors-reach-claude-code)
+
+用户无法添加、修改或使用任何其他 MCP 服务器，包括插件提供的服务器和通过 [`--mcp-config` CLI 标志](/docs/zh-CN/cli-reference#cli-flags)传递的服务器。该文件还会抑制 Claude Code 自身获取的 claude.ai 连接器，除非你[允许它们与托管集合一起使用](#allow-claude-ai-connectors-alongside-the-managed-set)。
 
 <h3 id="deploy-managed-mcp-json">
   部署 managed-mcp.json
@@ -129,7 +135,9 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 
 要确认文件生效，请在托管机器上运行两项检查：
 
-1. `claude mcp list` 仅显示 `managed-mcp.json` 中的服务器，加上你通过 `managedMcpServers` 提供的任何服务器。如果用户自己的服务器仍然出现，则文件未被读取；检查路径和权限。
+1. `claude mcp list` 仅显示 `managed-mcp.json` 中的服务器，加上你通过 `managedMcpServers` 提供的任何服务器。两个其他结果意味着出现了问题：
+   * 如果用户自己的服务器仍然出现，Claude Code 未读取该文件，因此请检查其路径和父目录的权限。
+   * 如果文件的服务器未出现，且 `MCP config diagnostics` 部分将企业配置标记为无法解析，Claude Code 无法读取或解析该文件。修复该部分命名的错误，然后让用户重新启动 Claude Code。
 2. `claude mcp add --transport http test https://example.com/mcp` 失败，显示 `Cannot add MCP server: enterprise MCP configuration is active and has exclusive control over MCP servers`。URL 不需要是真实服务器，因为策略检查在联系任何内容之前拒绝该命令。
 
 <h3 id="disable-mcp-entirely">
@@ -503,7 +511,7 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 | 服务器在拒绝列表上且用户运行 `claude mcp add`                       | `Cannot add MCP server "<name>": server is explicitly blocked by enterprise policy`                                             |
 | 服务器不在允许列表上且用户运行 `claude mcp add`                      | `Cannot add MCP server "<name>": not allowed by enterprise policy`                                                              |
 | 用户在来自 `managedMcpServers` 的服务器上运行 `claude mcp remove` | `MCP server "<name>" is provided by your organization (managed settings) and cannot be removed locally.`                        |
-| 之前配置的服务器现在被策略阻止                                       | 服务器从 `/mcp` 和 `claude mcp list` 中无声地消失，没有警告                                                                                     |
+| 之前配置的服务器现在被策略阻止                                       | 服务器从 `/mcp` 和 `claude mcp list` 中消失                                                                                             |
 | 服务器在会话运行时被阻止，用户选择**重新连接**或在 `/mcp` 中将其重新打开            | [`MCP server <name> is blocked by enterprise managed policy`](/docs/zh-CN/errors#mcp-server-is-blocked-by-enterprise-managed-policy) |
 
 当服务器无声地消失时，用户无法获得策略是原因的信号，因此在推出新限制时，告诉受影响的用户哪些服务器被阻止。
@@ -536,6 +544,6 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 * [决定要强制执行的内容](/docs/zh-CN/admin-setup#decide-what-to-enforce)：MCP 限制以及权限规则、沙箱和其他管理控制
 * [通过 MCP 将 Claude Code 连接到工具](/docs/zh-CN/mcp)：完整的 MCP 参考，包括传输、范围和身份验证
 * [设置](/docs/zh-CN/settings)：设置层次结构以及托管设置如何优先
-* [服务器管理的设置](/docs/zh-CN/server-managed-settings)：从 Claude.ai 管理控制台交付 `allowedMcpServers` 和 `deniedMcpServers`
+* [服务器管理的设置](/docs/zh-CN/server-managed-settings)：从 claude.ai 管理控制台交付 `allowedMcpServers` 和 `deniedMcpServers`
 * [安全](/docs/zh-CN/security)：这些控制防御的威胁模型
 * [Claude 企业管理员指南](https://claude.com/resources/tutorials/claude-enterprise-administrator-guide)：SSO、SCIM、座位管理和推出剧本

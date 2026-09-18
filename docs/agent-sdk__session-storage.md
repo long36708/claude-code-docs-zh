@@ -4,14 +4,14 @@
 
 # 将会话持久化到外部存储
 
-> 将会话记录镜像到 S3、Redis 或您自己的后端，以便其他主机可以恢复您的会话。
+> 将 Agent SDK 会话记录镜像到您自己的对象存储、键值存储或数据库，以便其他主机可以恢复您的会话。
 
-默认情况下，SDK 将会话记录写入本地文件系统上 `~/.claude/projects/` 下的 JSONL 文件。`SessionStore` 适配器让您可以将这些记录镜像到您自己的后端，例如 S3、Redis 或数据库，这样在一个主机上创建的会话可以在另一个主机上恢复，只要工作目录相同。
+默认情况下，SDK 将会话记录写入本地文件系统上 `~/.claude/projects/` 下的 JSONL 文件。`SessionStore` 适配器让您可以将这些记录镜像到您自己的后端，例如对象存储、键值存储或数据库，这样在一个主机上创建的会话可以在另一个主机上恢复，只要工作目录相同。
 
 使用会话存储的常见原因：
 
 * **多主机部署。** 无服务器函数、自动扩展的工作进程和 CI 运行器不共享文件系统。共享存储让副本可以恢复彼此的会话。
-* **持久性。** 本地容器是临时的。由 S3 或数据库支持的存储可以在重启和重新部署后继续存在。
+* **持久性。** 本地容器是临时的。外部存储可以在重启和重新部署后继续存在。
 * **合规性和审计。** 将记录保存在您已经管理的存储中，使用您自己的保留规则、加密和访问控制。
 
 <h2 id="the-sessionstore-interface">
@@ -197,21 +197,21 @@ SDK 附带一个 `InMemorySessionStore` 用于开发和测试。下面的示例�
 
 针对您的后端实现 `append` 和 `load`。如果您希望 `listSessions()`、一次调用元数据读取、`deleteSession()` 和子代理恢复针对存储工作，请添加 `listSessions`、`listSessionSummaries`、`delete` 和 `listSubkeys`。
 
-传递给 `append` 的条目类型为 `SessionStoreEntry`（一个 `{ type: string; ... }` 对象）。将它们视为不透明的 JSON 安全值：按顺序持久化它们，并从 `load` 以相同的顺序返回它们。`load` 必须返回与追加的条目深度相等的条目；不需要字节相等的序列化，因此像 Postgres `jsonb` 这样重新排序对象键的后端是可以的。
+传递给 `append` 的条目类型为 `SessionStoreEntry`（一个 `{ type: string; ... }` 对象）。将它们视为不透明的 JSON 安全值：按顺序持久化它们，并从 `load` 以相同的顺序返回它们。`load` 必须返回与追加的条目深度相等的条目；不需要字节相等的序列化，因此像重新排序对象键的二进制 JSON 列类型这样的后端是可以的。
 
 <h2 id="reference-implementations">
   参考实现
 </h2>
 
-TypeScript SDK 存储库在 [`examples/session-stores/`](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores) 下包含 S3、Redis 和 Postgres 的可运行参考适配器。它们未发布到 npm；将您需要的 `src/` 文件复制到您的项目中并安装相应的后端客户端。
+两个 SDK 存储库在 TypeScript 的 [`examples/session-stores/`](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores) 和 Python 的 [`examples/session_stores/`](https://github.com/anthropics/claude-agent-sdk-python/tree/main/examples/session_stores) 下都包含可运行的参考适配器。每种存储类型都有一个适配器，每个都展示了 `append` 和 `load` 如何映射到该类型的后端。它们不作为包发布；将最接近您后端的类型的适配器复制到您的项目中，安装您后端的客户端，并进行调整。
 
-| 适配器                                                                                                                            | 后端客户端                | 存储模型                                           |
-| :----------------------------------------------------------------------------------------------------------------------------- | :------------------- | :--------------------------------------------- |
-| [`S3SessionStore`](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores/s3)             | `@aws-sdk/client-s3` | 每个 `append()` 一个 JSONL 部分文件；`load()` 列出、排序和连接。 |
-| [`RedisSessionStore`](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores/redis)       | `ioredis`            | 每个记录的 `RPUSH`/`LRANGE` 列表，加上排序集会话索引。           |
-| [`PostgresSessionStore`](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores/postgres) | `pg`                 | `jsonb` 表中每个条目一行，按 `BIGSERIAL` 排序。             |
+| 存储类型       | 存储模型                                                 | 示例适配器                                                                                                                                                                                                                                                      |
+| :--------- | :--------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 对象存储       | 每个 `append()` 一个部分文件；`load()` 列出部分、排序并连接。            | S3 ([TypeScript](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores/s3), [Python](https://github.com/anthropics/claude-agent-sdk-python/blob/main/examples/session_stores/s3_session_store.py))                   |
+| 键值存储       | 每个记录一个列表，`append()` 推送到该列表，`load()` 按范围读取，加上会话的排序索引。 | Redis ([TypeScript](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores/redis), [Python](https://github.com/anthropics/claude-agent-sdk-python/blob/main/examples/session_stores/redis_session_store.py))          |
+| 关系数据库或文档存储 | 每个条目一行或一个文档，存储为 JSON 并按插入时分配的键排序。                    | Postgres ([TypeScript](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores/postgres), [Python](https://github.com/anthropics/claude-agent-sdk-python/blob/main/examples/session_stores/postgres_session_store.py)) |
 
-每个适配器都采用预配置的客户端实例，因此您可以控制凭证、TLS、区域和池。例如，使用 S3：
+每个适配器都采用预配置的客户端实例，因此您可以控制凭证、TLS、区域和池。以下示例将对象存储适配器连接到 `query()` 中，然后在另一台主机上从中恢复：
 
 ```typescript TypeScript theme={null}
 import { query } from "@anthropic-ai/claude-agent-sdk";
@@ -371,4 +371,4 @@ SDK 永远不会自行从您的存储中删除。保留是适配器的责任：�
 * [使用会话](/docs/zh-CN/agent-sdk/sessions)：在没有自定义存储的情况下继续、恢复和分叉
 * [托管 SDK](/docs/zh-CN/agent-sdk/hosting)：多主机环境的部署模式
 * [TypeScript `Options`](/docs/zh-CN/agent-sdk/typescript#options)：完整的选项参考
-* [`examples/session-stores/`](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores)：可运行的 S3、Redis 和 Postgres 参考适配器
+* [参考实现](#reference-implementations)：对象存储、键值存储和数据库的可运行示例适配器，在两个 SDK 存储库中

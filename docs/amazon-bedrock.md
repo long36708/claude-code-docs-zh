@@ -518,7 +518,7 @@ Claude Code 在每个请求上将此作为 `X-Amzn-Bedrock-Service-Tier` 标头�
   使用 Mantle 端点
 </h2>
 
-Mantle 是一个 Amazon Bedrock 端点，通过原生 Anthropic API 形状而不是 Amazon Bedrock Invoke API 提供 Claude 模型。它使用相同的 AWS 凭证、IAM 权限和本页面前面描述的 `awsAuthRefresh` 配置。
+Mantle 是一个 Amazon Bedrock 端点，通过原生 Anthropic API 形状而不是 Amazon Bedrock Invoke API 提供 Claude 模型。它使用相同的 [AWS 凭证](#2-configure-aws-credentials)、[IAM 权限](#iam-configuration) 和 [`awsAuthRefresh` 配置](#advanced-credential-configuration)。
 
 <h3 id="enable-mantle">
   启用 Mantle

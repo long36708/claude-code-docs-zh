@@ -400,14 +400,14 @@ Claude Code 从 JSON 设置文件（如 `~/.claude/settings.json`）读取设置
   设置文件及其影响范围
 </h2>
 
-Claude Code 从四个文件读取设置，组织也可以从 claude.ai 控制台提供托管设置。每个来源都有一个范围：设置应用的人员和项目集合，可能是仅你、项目中的所有人或组织中的所有人。
+Claude Code 从四个文件读取设置，组织也可以从 claude.ai 控制台提供托管设置。每个来源都有一个作用域：设置应用的人员和项目范围，可能是仅限于你、项目中的所有人，或组织中的所有人。
 
-| 范围   | 文件                                                                             | 影响对象                                                                                 | 用途                          |
-| :--- | :----------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :-------------------------- |
-| 用户   | `~/.claude/settings.json`                                                      | 你，在这台机器上的每个项目中                                                                       | 个人偏好：主题、编辑器模式、默认模型、你自己的权限规则 |
-| 共享项目 | `.claude/settings.json`                                                        | 所有在包含该文件的文件夹中工作的人。在 git 仓库中，提交它以便队友获得它                                               | 团队权限、hooks、插件和项目需要的环境变量     |
-| 项目本地 | `.claude/settings.local.json`                                                  | 仅你，在这个项目中。Claude Code 在创建文件时将其排除在 git 之外；如果你手动创建它，自己将其添加到 `.gitignore`               | 一个项目的个人覆盖，以及在共享前的测试         |
-| 托管   | `managed-settings.json` 和其他[托管来源](/docs/zh-CN/managed-settings#delivery-mechanisms) | 你的组织部署到的所有人；你设置的任何内容都不会覆盖它，除了少数[安全敏感的例外](#exceptions-to-managed-settings-precedence) | 安全策略和合规要求                   |
+| 作用域  | 文件                                                                             | 影响范围                                                                                 | 用途                            |
+| :--- | :----------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :---------------------------- |
+| 用户   | `~/.claude/settings.json`                                                      | 你在这台机器上的每个项目中                                                                        | 个人偏好：主题、编辑器模式、默认模型、你自己的权限规则   |
+| 共享项目 | `.claude/settings.json`                                                        | 包含该文件的文件夹中的所有人。在 git 仓库中，提交它以便队友获得                                                   | 团队权限、hooks、plugins 和项目需要的环境变量 |
+| 项目本地 | `.claude/settings.local.json`                                                  | 仅在这个项目中的你。Claude Code 在创建文件时将其排除在 git 之外；如果你手动创建，请自己添加到 `.gitignore`                 | 单个项目的个人覆盖，以及在共享前的测试           |
+| 托管   | `managed-settings.json` 和其他[托管来源](/docs/zh-CN/managed-settings#delivery-mechanisms) | 你的组织部署到的所有人；你设置的任何内容都不会覆盖它，除了少数[安全敏感的例外](#exceptions-to-managed-settings-precedence) | 安全策略和合规要求                     |
 
 在"文件"列中，`~/.claude` 是你主目录中的 `.claude` 文件夹，而单独的 `.claude` 是项目内的 `.claude` 文件夹。
 
@@ -416,19 +416,19 @@ Claude Code 从四个文件读取设置，组织也可以从 claude.ai 控制台
 <span id="compare-what-each-file-reaches" />
 
 <h3 id="compare-the-scope-of-each-settings-file">
-  比较每个设置文件的范围
+  比较每个设置文件的作用域
 </h3>
 
-假设你的机器上有三个项目 `website/`、`api/` 和 `acme-app/`，一个队友有他们自己的 `acme-app/` 克隆，你在 `acme-app/` 上启动了一个[云会话](#settings-in-cloud-sessions)。
+假设你在机器上有三个项目：`website/`、`api/` 和 `acme-app/`，一个队友有他们自己的 `acme-app/` 克隆，你在 `acme-app/` 上启动了一个[云会话](#settings-in-cloud-sessions)。
 
-下面的图表显示当你从这些文件夹启动 Claude Code 时，设置应用在哪些文件夹中。点击一个设置文件以查看它到达的文件夹。
+下面的图表显示当你从这些文件夹启动 Claude Code 时，设置应用在哪些文件夹中。点击一个设置文件查看它到达的文件夹。
 
 <SettingsScope />
 
-* **`~/.claude/settings.json`**：你机器上的每个项目，以及队友或云会话中的任何内容都不会
-* **`acme-app/.claude/settings.json`**：你的 `acme-app/`。只有当你将文件提交到版本控制时，它才会到达你队友的克隆和云会话；在此之前，它就像任何其他文件一样在你的磁盘上，没有人有它
-* **`acme-app/.claude/settings.local.json`**：仅你的 `acme-app/`。Claude Code 第一次写入文件时将其添加到你的全局 git 排除项，所以它不会进入你的提交；如果你手动创建文件，[自己将其添加到 `.gitignore`](#keep-personal-settings-out-of-a-repository)
-* **托管设置**，无论是 `managed-settings.json` 文件、MDM 策略还是来自 claude.ai 控制台的[服务器托管设置](/docs/zh-CN/server-managed-settings)：你的组织部署到的每台机器上的每个项目，或你使用组织账户登录的地方。只有服务器托管设置才能到达云会话
+* **`~/.claude/settings.json`**：你机器上的每个项目，以及队友机器上或云会话中都没有
+* **`acme-app/.claude/settings.json`**：你的 `acme-app/`。只有当你将文件提交到版本控制时，它才会到达你队友的克隆和云会话；在此之前，它就像任何其他磁盘上的文件一样，其他人没有它
+* **`acme-app/.claude/settings.local.json`**：仅你的 `acme-app/`。Claude Code 第一次写入文件时将其添加到你的全局 git 排除项中，因此它不会进入你的提交；如果你手动创建文件，[自己添加到 `.gitignore`](#keep-personal-settings-out-of-a-repository)
+* **托管设置**，无论是 `managed-settings.json` 文件、MDM 策略，还是来自 claude.ai 控制台的[服务器托管设置](/docs/zh-CN/server-managed-settings)：你的组织部署到的每台机器上的每个项目，或你使用组织账户登录的地方。只有服务器托管设置到达云会话
 
 <span id="which-files-you-have" />
 
@@ -439,20 +439,20 @@ Claude Code 从四个文件读取设置，组织也可以从 claude.ai 控制台
 安装 Claude Code 不会创建任何设置文件。如果你的机器或项目已经有一个，它来自以下来源之一：
 
 * **托管**：你的组织部署它。你不创建或编辑它。
-* **共享项目**：已经使用 Claude Code 的项目可能有一个已提交。如果没有，在项目文件夹中的 `.claude/settings.json` 处创建它。
-* **用户**和**项目本地**：自己创建它们，或让 Claude Code 创建它们。当你在 `/config` 菜单中更改存储在用户设置中的选项（如主题）时，它会写入 `~/.claude/settings.json`，当你在权限提示上给予常设批准时（如对 Bash 命令的"是的，不要再问"），它会写入 `.claude/settings.local.json`。一些 `/config` 选项，包括**显示提示**，保存到 `.claude/settings.local.json` 而不是用户文件。
+* **共享项目**：已经使用 Claude Code 的项目可能已提交一个。如果没有，在项目文件夹中的 `.claude/settings.json` 创建一个。
+* **用户**和**项目本地**：自己创建它们，或让 Claude Code 创建它们。当你在 `/config` 菜单中更改存储在用户设置中的选项（如主题）时，它会写入 `~/.claude/settings.json`，当你在权限提示上给予常设批准（如对 Bash 命令的"是的，不要再问"）时，它会写入 `.claude/settings.local.json`。一些 `/config` 选项，包括**显示提示**，保存到 `.claude/settings.local.json` 而不是用户文件。
 
 <Info>
-  在 Windows 上，`~/.claude` 表示 `%USERPROFILE%\.claude`。要将主目录文件保存在其他地方，设置 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)；Claude Code 然后将你的设置、会话历史和插件存储在那里。
+  在 Windows 上，`~/.claude` 表示 `%USERPROFILE%\.claude`。要将主目录文件保存在其他地方，设置 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)；Claude Code 然后将你的设置、会话历史和 plugins 存储在那里。
 </Info>
 
-Claude Code 还保留第五个文件 [`~/.claude.json`](/docs/zh-CN/claude-directory#ce-claude-json)，它为自己写入；你不需要编辑它。它保存你的登录会话、[MCP 服务器](/docs/zh-CN/mcp)配置、每个项目的状态（如信任决定）和 `/config` 为你写入的[全局配置键](/docs/zh-CN/settings-reference#global-config-settings)。
+Claude Code 还保留第五个文件 [`~/.claude.json`](/docs/zh-CN/claude-directory#ce-claude-json)，它为自己写入；你不需要编辑它。它保存你的登录会话、[MCP server](/docs/zh-CN/mcp) 配置、每个项目的状态（如信任决定），以及 `/config` 为你写入的[全局配置键](/docs/zh-CN/settings-reference#global-config-settings)。
 
 <h3 id="share-settings-with-your-team">
   与你的团队共享设置
 </h3>
 
-提交 `.claude/settings.json` 以便克隆仓库的每个人都获得相同的权限、hooks、遥测和插件。每个队友仍然可以在他们自己的 `.claude/settings.local.json` 中为自己覆盖它，所以个人例外不需要提交。有关完整的团队文件，请参阅[团队的共享设置](/docs/zh-CN/settings-example#a-teams-shared-settings)。
+提交 `.claude/settings.json` 以便克隆仓库的每个人都获得相同的权限、hooks、遥测和 plugins。每个队友仍然可以在他们自己的 `.claude/settings.local.json` 中为自己覆盖它，因此个人例外不需要提交。有关完整的团队文件，请参阅[团队的共享设置](/docs/zh-CN/settings-example#a-teams-shared-settings)。
 
 你提交的一些内容等待每个队友[信任文件夹](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)，少数键永远不会从仓库文件生效；[排查不适用的设置](#common-cases)涵盖两者。
 
@@ -468,13 +468,13 @@ Claude Code 还保留第五个文件 [`~/.claude.json`](/docs/zh-CN/claude-direc
   将个人设置保留在仓库之外
 </h3>
 
-要在一个项目中为自己更改设置而不为队友更改它，将其保存在项目内的 `.claude/settings.local.json` 中。Claude Code 在提交的 `.claude/settings.json` 上应用该文件，所以如果你的团队文件设置 `"model": "claude-sonnet-5"` 而你想要 Opus，在你的本地文件中放入 `"model": "claude-opus-4-8"`，只有你的会话会改变。
+要在一个项目中为自己更改设置而不为队友更改，请在项目内的 `.claude/settings.local.json` 中保存它。Claude Code 在提交的 `.claude/settings.json` 上应用该文件，因此如果你的团队文件设置 `"model": "claude-sonnet-5"` 而你想要 Opus，在你的本地文件中放入 `"model": "claude-opus-4-8"`，只有你的会话会改变。
 
-关于本地文件有三件事要知道：
+Claude Code 也会写入此文件，将其保留在你的提交之外，并应用其允许规则而无需信任步骤：
 
-* **Claude Code 也写入它。** 当 Claude 要求权限运行 Bash 命令而你选择"是的，不要再问"时，Claude Code 将该[权限批准](/docs/zh-CN/permissions#permission-system)保存为 `allow` 规则。
-* **你不需要自己 gitignore 它，除非你手动创建了它。** Claude Code 第一次在不已经忽略它的 git 仓库中写入文件时，它将 `**/.claude/settings.local.json` 添加到你的全局 git 排除文件，所以该文件在每个仓库中都不会进入你的提交。该文件是 `core.excludesFile`，当你的全局 git 配置将其设置为绝对路径或 `~` 前缀路径时；否则它是 `$XDG_CONFIG_HOME/git/ignore`，或当 `XDG_CONFIG_HOME` 未设置时是 `~/.config/git/ignore`。如果你手动创建了文件而 Claude Code 还没有写入它，自己将其添加到 `.gitignore`。
-* **其 allow 规则在文件保持未跟踪时不等待信任。** 因为文件是你的而不是仓库的，Claude Code 应用其 `allow` 规则而不需要它对提交文件要求的[工作区信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)步骤。如果文件由 git 跟踪，信任步骤也适用于它；请参阅[当你的本地设置文件需要信任](/docs/zh-CN/permissions#when-your-local-settings-file-needs-trust)。
+* **Claude Code 也会写入它。** 当 Claude 要求运行 Bash 命令的权限，你选择"是的，不要再问"时，Claude Code 将该[权限批准](/docs/zh-CN/permissions#permission-system)保存为此处的 `allow` 规则。
+* **除非你手动创建，否则你不需要 gitignore 它。** Claude Code 第一次在不已忽略它的 git 仓库中写入文件时，它会将 `**/.claude/settings.local.json` 添加到你的全局 git 排除文件中，因此该文件在每个仓库中都不会进入你的提交。该文件是 `core.excludesFile`（当你的全局 git 配置将其设置为绝对路径或 `~` 前缀路径时）；否则是 `$XDG_CONFIG_HOME/git/ignore`，或当 `XDG_CONFIG_HOME` 未设置时是 `~/.config/git/ignore`。如果你手动创建了文件，Claude Code 还没有写入它，请自己添加到 `.gitignore`。
+* **当文件保持未跟踪时，其允许规则不等待信任。** 因为文件是你的而不是仓库的，Claude Code 应用其 `allow` 规则而无需它对提交文件要求的[工作区信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)步骤。如果文件被 git 跟踪，信任步骤也适用于它；请参阅[当你的本地设置文件需要信任](/docs/zh-CN/permissions#when-your-local-settings-file-needs-trust)。
 
 <span id="where-claude-code-looks-for-each-file" />
 
@@ -486,16 +486,16 @@ Claude Code 还保留第五个文件 [`~/.claude.json`](/docs/zh-CN/claude-direc
   Claude Code 在 git 仓库中保留本地文件的位置
 </h4>
 
-当 Claude 要求权限运行 Bash 命令而你选择"是的，不要再问"时，Claude Code 将该批准保存为 `.claude/settings.local.json` 中的 `allow` 规则。如果你在 git 仓库的子目录中启动 Claude Code，它在仓库根目录读取和写入该文件，并在整个仓库中应用批准。在[工作树](/docs/zh-CN/worktrees)中，它使用主检出根目录处的文件。
+当 Claude 要求运行 Bash 命令的权限，你选择"是的，不要再问"时，Claude Code 将该批准保存为 `.claude/settings.local.json` 中的 `allow` 规则。如果你在 git 仓库的子目录中启动 Claude Code，它会在仓库根目录读取和写入该文件，并在整个仓库中应用批准。在[worktree](/docs/zh-CN/worktrees) 中，它使用主检出根目录处的文件。
 
 两条规则限定根位置：
 
-* **当文件与 `.claude/settings.json` 保持在一起时**：在 git 仓库外，当仓库根是你的主目录时，在 Windows 上，或当仓库根或其 `.git` 或 `.claude` 条目不由你的用户拥有时。
+* **当文件与 `.claude/settings.json` 保持在一起时**：在 git 仓库之外，当仓库根是你的主目录时，在 Windows 上，或当仓库根或其 `.git` 或 `.claude` 条目不由你的用户拥有时。
 * **文件中的路径不在仓库根处锚定**：以 `/` 开头的权限规则或相对沙箱路径[在会话的主工作目录处锚定](/docs/zh-CN/permissions#read-and-edit)。
 
-在 v2.1.211 之前，Claude Code 在启动目录中保留文件。它仍然读取早期版本在根文件旁边留下的文件；当两者都设置相同的键时，根的值适用，两个文件的权限规则都适用。Agent SDK 的 [`resolveSettings()`](/docs/zh-CN/agent-sdk/typescript#resolvesettings) 助手总是从启动目录读取文件。
+在 v2.1.211 之前，Claude Code 将文件保留在启动目录中。它仍然读取早期版本在根文件旁边留下的文件；当两者设置相同的键时，根的值适用，两个文件的权限规则都适用。Agent SDK 的 [`resolveSettings()`](/docs/zh-CN/agent-sdk/typescript#resolvesettings) 助手始终从启动目录读取文件。
 
-Claude Code 从会话的[主工作目录](/docs/zh-CN/permissions#working-directories)读取共享的 `.claude/settings.json`，所以要使用在仓库根处提交的文件，在那里启动 Claude Code。在你[使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory)后，Claude Code 改为从新目录读取两个项目文件，按相同规则放置本地文件。从你移动到的目录读取它们需要 Claude Code v2.1.246 或更高版本。
+Claude Code 从会话的[主工作目录](/docs/zh-CN/permissions#working-directories)读取共享的 `.claude/settings.json`，因此要使用在仓库根处提交的文件，请从那里启动 Claude Code。在你[使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory)后，Claude Code 改为从新目录读取两个项目文件，按相同规则放置本地文件。从你移动到的目录读取它们需要 Claude Code v2.1.246 或更高版本。
 
 <span id="managed-settings-delivery" />
 
@@ -515,13 +515,13 @@ Claude Code 从会话的[主工作目录](/docs/zh-CN/permissions#working-direct
 
 托管设置通过托管设置页面上的[交付机制](/docs/zh-CN/managed-settings#delivery-mechanisms)到达你，最常见的是：
 
-* [服务器托管设置](/docs/zh-CN/server-managed-settings)，Claude Code 从 claude.ai 管理控制台或自托管的[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)获取
+* [服务器托管设置](/docs/zh-CN/server-managed-settings)，Claude Code 从 claude.ai 管理控制台或自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 获取
 * MDM 或操作系统级别的策略，以及系统目录中的 `managed-settings.json` 文件
 * 嵌入主机（如 Claude Desktop），通过 SDK `managedSettings` 选项；请参阅[从嵌入主机控制策略](/docs/zh-CN/managed-settings#parent-settings-from-embedding-hosts)
 
-在在 Claude Desktop 应用中在你的机器上运行的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，Claude Code 不从 claude.ai 管理控制台获取服务器托管设置，它读取部署到你的设备的策略，除非你的组织的 Claude Desktop 配置设置 `requireCoworkFullVmSandbox`。[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)涵盖 Cowork 和云会话。
+在在 Claude Desktop 应用中在你的机器上运行的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，Claude Code 不会从 claude.ai 管理控制台获取服务器托管设置，它读取部署到你的设备的策略，除非你的组织的 Claude Desktop 配置设置 `requireCoworkFullVmSandbox`。[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)涵盖 Cowork 和云会话。
 
-如果你是管理员，[为你的组织设置 Claude Code](/docs/zh-CN/admin-setup) 会指导你选择要强制执行的内容，[部署托管设置](/docs/zh-CN/managed-settings)涵盖交付以及如何确认策略生效。
+如果你是管理员，[为你的组织设置 Claude Code](/docs/zh-CN/admin-setup) 介绍了选择要强制执行的内容，[部署托管设置](/docs/zh-CN/managed-settings)涵盖交付以及如何确认策略生效。
 
 <h2 id="change-a-setting">
   更改设置
@@ -765,7 +765,7 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 
 两件事阻止 `.claude/settings.json` 中的键为克隆它的每个人应用：
 
-* **Claude Code 忽略存储库文件中的键。** 在[设置索引](/docs/zh-CN/settings-reference#settings-index)的作用域列中查找 `User, local, or managed`、`User or managed`、`Managed` 或 `Global config`；这些键永远不会从共享文件应用，除了 [`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit)，存储库文件仍然可以关闭：当文件设置键而没有用户、`--settings` 或托管值时，Claude Code 读取设置为关闭。`Global config` 键仅从 `~/.claude.json` 应用。
+* **Claude Code 忽略存储库文件中的键。** 在[设置索引](/docs/zh-CN/settings-reference#settings-index)的作用域列中查找 `User, local, or managed`、`User or managed`、`Managed` 或 `Global config`。这些键永远不会从共享文件应用，除了少数几个存储库文件仍然可以关闭的。每个这些条目在其作用域行上说明。`Global config` 键仅从 `~/.claude.json` 应用。
 * **键等待信任。** `permissions.allow` 规则、`permissions.additionalDirectories`、`extraKnownMarketplaces` 和大多数 [`env`](/docs/zh-CN/settings-reference#env) 值仅在每个队友[信任文件夹](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)后应用。在那之前他们仍然看到提示并不从文件声明的市场获得插件。`deny` 和 `ask` 规则立即应用。
 
 <h4 id="permission-rules-combine-differently-than-you-expected">
@@ -792,6 +792,7 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 | [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound)             | 来自 `.claude/settings.json` 或 `.claude/settings.local.json` 的更严格值，在 `accept` \< `hold` \< `refuse` 梯形上 | 在托管、`--settings` 和用户值上被尊重；不是更严格的项目或本地值被忽略                                                                  |
 | [`useAutoModeDuringPlan`](/docs/zh-CN/settings-reference#useautomodeduringplan)         | 来自任何托管来源、`--settings`、`~/.claude/settings.json` 或 `.claude/settings.local.json` 的 `false`             | 即使获胜的托管来源设置 `true` 也被尊重；`.claude/settings.json` 中的 `false` 被忽略                                             |
 | [`syncClaudeAiSkills`](/docs/zh-CN/settings-reference#syncclaudeaiskills)               | 来自任何托管来源、`--settings`、`~/.claude/settings.json` 或 `.claude/settings.local.json` 的 `false`             | 即使获胜的托管来源设置 `true` 也被尊重；`.claude/settings.json` 中的 `false` 被忽略                                             |
+| [`syncClaudeAiPlugins`](/docs/zh-CN/settings-reference#syncclaudeaiplugins)             | 来自任何托管来源、`--settings`、`~/.claude/settings.json` 或 `.claude/settings.local.json` 的 `false`             | 即使获胜的托管来源设置 `true` 也被尊重；`.claude/settings.json` 中的 `false` 被忽略                                             |
 | [`maxEffortLevel`](/docs/zh-CN/settings-reference#maxeffortlevel)                       | 来自任何作用域（包括 `--settings`）的较低上限                                                                         | 即使 Claude Code 应用的托管设置设置更高的上限也被尊重；最低的上限适用。需要 Claude Code v2.1.267 或更高版本                                    |
 
 运行 Claude Code 的应用并设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars) 也是例外。Claude Code 从该应用的模型配置优先于来自每个托管来源的 `model`、`fallbackModel`、`modelPicker` 和 `modelOverrides` 键，以及托管 `env` 块中的模型选择变量，如 `ANTHROPIC_MODEL` 和 `ANTHROPIC_DEFAULT_*_MODEL` 系列。Claude Code 保持托管 [`availableModels`](/docs/zh-CN/settings-reference#availablemodels) 允许列表生效，除非应用提供自己的。
@@ -800,14 +801,14 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
   云会话中的设置
 </h2>
 
-云会话，在 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) 或从 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-web)，在[云环境](/docs/zh-CN/cloud-environments)中运行在您的存储库的新克隆上，而不是在您的机器上。这改变了哪些设置到达它：
+[云会话](/docs/zh-CN/claude-code-on-the-web)在[云环境](/docs/zh-CN/cloud-environments)中运行在您的存储库的新克隆上，而不是在您的机器上。这改变了哪些设置到达它：
 
-* **共享项目设置** (`.claude/settings.json`)：读取，因为文件是克隆的一部分。在那里提交设置以在云会话中应用它。
+* **共享项目设置** (`.claude/settings.json`)：在一个存储库的会话中读取，因为该文件是克隆的一部分，会话在其中启动。在那里提交设置以在这些会话中应用它。具有多个存储库的会话在克隆上方启动，因此从每个存储库的 `.claude/settings.json` 它仅加载该文件声明的插件和市场，而不是权限规则、hooks、`env` 或其他键；请参阅[从您的设置中携带什么](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
 * **用户和项目本地设置** (`~/.claude/settings.json` 和 `.claude/settings.local.json`)：不读取。两者都保持在您的机器上，本地文件不在克隆中。
 * **托管设置**：仅[服务器管理设置](/docs/zh-CN/server-managed-settings)到达云会话；您设备上的 `managed-settings.json` 文件或 MDM 配置文件不会。[自托管环境](/docs/zh-CN/self-hosted-environments)也读取其运行器镜像中的托管设置文件。[Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说该文件何时适用。
-* **`/config`**：在网络上，打开您的 claude.ai 设置的 Claude Code 部分而不是更改值。要为云会话更改设置，在环境上设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)或将键提交到存储库的 `.claude/settings.json`。
+* **`/config`**：在您的浏览器中的 claude.ai/code，打开您的 claude.ai 设置的 Claude Code 部分而不是更改值。要为云会话更改设置，在环境上设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)，或在具有一个存储库的会话中，将键提交到该存储库的 `.claude/settings.json`。
 
-[从您的设置中携带什么](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)列出其余的：`CLAUDE.md`、skills、MCP 服务器、插件和凭证。
+[从您的设置中携带什么](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)列出其余的：`CLAUDE.md`、skills、MCP 服务器、plugins 和凭证。
 
 <h2 id="what’s-next">
   接下来是什么

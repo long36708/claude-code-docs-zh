@@ -434,6 +434,10 @@ secrets:
 
 * **任何克隆形状都可以工作**：路径处的完整、浅层或单分支克隆按原样使用。运行器在获取到现有克隆时永远不会传递 `--depth`，因此完整的预热保持其完整历史，浅层克隆保持浅层。`CLAUDE_RUNNER_FETCH_DEPTH`（`full`、`0` 或一个数字；默认 50）仅控制当尚不存在克隆时运行器进行的冷克隆。
 * **跟踪的更改重置，未跟踪的文件保留**：每个会话从硬重置开始，该重置会清除前一个会话的跟踪修改，但运行器永远不会运行 `git clean`，因此来自锁定所有者早期会话的未跟踪文件保留在树中。
+* **按会话目录也会保留**：在检出旁边，运行器在 `<base-dir>/_sessions/` 下为其运行的每个会话创建按会话条目。会话的 Claude 配置目录保存对话记录的本地副本。在其旁边是会话的上传文件，当会话有任何文件时。会话目录也在那里：它保存会话运行时的任何按会话工作树和 `checkout` hook 检出，以及 Claude 在其中写入的任何其他内容。
+
+  默认情况下，运行器在会话结束时将这些保留在原地，因此在持久化的磁盘上它们会累积。每个会话都以运行器自己的用户身份运行，因此该磁盘服务的任何后续会话都可以读取它们。如果保持持久的 `--base-dir`，请为该增长调整卷的大小。同样适用于在同一文件系统上重启运行器的任何设置，包括 [Docker Compose 配方](#docker-compose)。
+* **使用 `--remove-session-state` 时，按会话目录不会保留**：使用 [`--remove-session-state`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，以便在会话结束时删除每个会话的按会话目录。删除是尽力而为的：当运行器在清理运行前被杀死时，目录保留。规范克隆和会话在主机上其他地方写入的文件，例如临时目录，无论如何都会保留。
 * **使用 git 代理时，重置变成检出**：使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)，运行器在每个会话前清理克隆的 `.git/`，保留对象存储、引用和浅层状态，但删除索引，因此每个会话需要进行完整的工作树检出而不是近乎瞬间的重置；它仍然永远不会重新克隆。代理下不支持子模块预热。
 * **长克隆不需要解决方法**：运行器使用 120 秒无进度监视器和 30 分钟硬上限来限制每个 git 操作，而不是平面超时，因此保持报告进度的缓慢冷克隆会完成。
 
@@ -512,7 +516,7 @@ Anthropic 从其自己的基础设施而不是从您的运行器调用连接器�
   故障排除
 </h2>
 
-为了获得引导诊断，在运行器主机上运行 doctor 子命令。doctor 子命令启动交互式 Claude Code 会话，附加运行器的日志和状态。首先在该主机上使用 `claude auth login` 登录，以便会话可以查询您的环境、其运行器和其排队的会话。没有该登录，例如当主机使用 API 密钥进行身份验证时，它仅限于本地健康端点、指标和运行器的日志，并且仅在您使用 `--log-file` 启动运行器时读取日志。
+如需引导式诊断，请在运行器主机上运行 doctor 子命令。doctor 子命令启动一个交互式 Claude Code 会话，并附加运行器的日志和状态。首先在该主机上使用 `claude auth login` 登录，以便会话可以查询您的环境、其运行器和排队的会话。如果没有该登录（例如当主机使用 API 密钥进行身份验证时），它仅限于本地健康端点、指标和运行器日志，并且仅当您使用 `--log-file` 启动运行器时才读取日志。
 
 ```bash theme={null}
 claude self-hosted-runner doctor
@@ -520,17 +524,19 @@ claude self-hosted-runner doctor
 
 常见问题：
 
-* **运行器不出现在环境中**：确认主机可以通过 HTTPS 到达 `api.anthropic.com`，环境密钥是最新的，主机时钟在真实时间的五分钟内；更大的偏差导致身份验证失败。运行器在身份验证失败时使用拒绝原因记录 `[runner:fatal]`。
-* **运行器在启动时以 `cannot create or write to base directory` 退出**：运行器无法创建或写入 `--base-dir`，默认为 `/workspace`。修复目录的所有权或将 `--base-dir` 指向可写路径，如[在运行器之间保持基目录和容量相同](#keep-the-base-directory-and-capacity-identical-across-runners)所述。如果运行器改为记录 `[runner:fatal]` 说基目录检查超时，目录在挂起的 NFS 或 CSI 挂载上。检查挂载健康而不是权限。运行器在打开 `--log-file` 之前将这两个启动失败打印到 stderr，所以在终端或您的平台的容器日志中查找它们，而不是日志文件。在 v2.1.225 之前，运行器在启动时不检查基目录，此错误配置在获取后失败会话。
-* **会话保持排队**：每个在线运行器可能被锁定到不同的所有者。检查每个运行器的 `claude_code_self_hosted_runner_locked_account` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics)或其 `[runner:health]` 日志行的 `locked_account` 字段以查看谁持有它。两者仅在运行器被发出携带 `act.email` 声明的会话令牌后显示所有者的电子邮件，Claude Tag 代理的会话永远不会这样做。没有声明，运行器发出没有 `locked_account` 系列并记录 `locked_account=yes`，这告诉您运行器被锁定但不是对哪个所有者。添加副本，或等待现有运行器 drain 并重启。如果环境使用按需运行器，改为检查编排器；请参阅[按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)。
-* **会话在获取后立即失败**：在 claude.ai/code 中打开会话以查看错误。最常见的原因是运行器镜像中缺少 [git 凭证](#configure-git)和未安装的构建工具。不可写的基目录在启动时停止运行器，而不是失败会话。请参阅此列表中的**运行器在启动时以 `cannot create or write to base directory` 退出**条目。
-* **会话无法通过身份验证的出站代理到达网络**：当您使用 [`--proxy-authorization-command` 或 `--proxy-authorization-file`](#authenticate-to-an-egress-proxy) 设置的源失败、在 30 秒后超时或产生空值时，运行器以 `502 Bad Gateway` 应答该连接并记录原因。运行器在该日志中编辑命令的 stderr，从不记录标头值。使用 `--proxy-authorization-command`，在主机上自己运行命令以确认它在 stdout 上打印整个标头值。如果运行器改为在启动时以 `could not start the proxy-authorization listener` 退出，它无法打开其环回侦听器。
-* **运行器记录 `Poll failed` 行包含 `rejecting the malformed poll response`**：运行器接收工作轮询响应，其主体不是队列的预期 JSON，最常见的是因为运行器和 `api.anthropic.com` 之间的某些东西（例如拦截代理或强制门户）用其自己的页面应答。运行器拒绝响应，在 `claude_code_self_hosted_runner_poll_errors_total` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics)的 `transport` 类型下计数，并在[会话生命周期](/docs/zh-CN/self-hosted-environments#session-lifecycle)中描述的失败轮询计划上重试。运行器继续为其活跃会话服务。配置代理以从 `api.anthropic.com` 通过未更改的响应。在 v2.1.246 之前，运行器将此类响应读取为空工作队列，这可能会结束其活跃会话或使其退出。
-* **会话的分支不再存在于远程**：对于会话仅从中读取的 git 源，运行器跳过该源并继续其余的。对于会话推送结果的源，删除的分支（通常因为它被合并和自动删除）使会话失败，错误命名存储库和分支，并要求您恢复分支并重试。当跳过会使其没有存储库时，运行器使用相同的错误使会话失败。在 v2.1.228 之前，此类会话在空目录中启动。
-* **会话需要数分钟才能启动**：初始克隆通常主导。观看 `claude_code_self_hosted_runner_session_init_duration_seconds` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics)以确认，并使用[预热检出](#reuse-a-pre-warmed-checkout)或较小的 `CLAUDE_RUNNER_FETCH_DEPTH` 切割克隆。
-* **Pod 在 drain 中途被杀死**：将 `terminationGracePeriodSeconds` 提高到至少运行器在启动时记录的值。请参阅[关闭时序](#shutdown-timing)。
+* **运行器未出现在环境中**：确认主机可以通过 HTTPS 到达 `api.anthropic.com`，环境密钥是最新的，并且主机时钟与实际时间相差在五分钟以内；更大的时间偏差会导致身份验证失败。运行器在身份验证失败时会记录 `[runner:fatal]` 和拒绝原因。
+* **运行器在启动时退出，显示 `cannot create or write to base directory`**：运行器无法创建或写入 `--base-dir`，其默认值为 `/workspace`。修复目录的所有权或将 `--base-dir` 指向可写路径，如 [保持基础目录和容量在运行器之间相同](#keep-the-base-directory-and-capacity-identical-across-runners) 中所述。如果运行器改为记录 `[runner:fatal]` 说基础目录检查超时，则该目录位于挂起的 NFS 或 CSI 挂载上。检查挂载健康状况而不是权限。运行器在打开 `--log-file` 之前将这两个启动失败打印到 stderr，因此请在终端或您的平台的容器日志中查找它们，而不是日志文件。在 v2.1.225 之前，运行器在启动时不检查基础目录，此错误配置在拾取后失败会话。
+* **会话保持排队**：每个在线运行器可能被锁定到不同的所有者。检查每个运行器的 `claude_code_self_hosted_runner_locked_account` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 或其 `[runner:health]` 日志行的 `locked_account` 字段，以查看谁持有它。两者仅在运行器被颁发携带 `act.email` 声明的会话令牌后才显示所有者的电子邮件，Claude Tag 代理的会话永远不会这样做。没有该声明，运行器不发出 `locked_account` 系列，并记录 `locked_account=yes`，这告诉您运行器被锁定但不知道是哪个所有者。添加副本，或等待现有运行器耗尽并重新启动。如果环境使用按需运行器，请改为检查编排器；请参阅 [按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)。
+* **会话在拾取后立即失败**：在 claude.ai/code 中打开会话以查看错误。最常见的原因是运行器镜像中缺少 [git 凭证](#configure-git) 和未安装的构建工具。不可写的基础目录会在启动时停止运行器，而不是失败会话。请参阅此列表中的 **运行器在启动时退出，显示 `cannot create or write to base directory`** 条目。
+* **会话无法通过身份验证出口代理到达网络**：当您使用 [`--proxy-authorization-command` 或 `--proxy-authorization-file`](#authenticate-to-an-egress-proxy) 设置的源失败、在 30 秒后超时或产生空值时，运行器以 `502 Bad Gateway` 应答该连接并记录原因。运行器在该日志中编辑命令的 stderr，并且永远不会记录标头值。使用 `--proxy-authorization-command` 时，在主机上自己运行该命令以确认它在 stdout 上打印整个标头值。如果运行器改为在启动时退出，显示 `could not start the proxy-authorization listener`，则它无法打开其环回监听器。
+* **运行器记录包含 `rejecting the malformed poll response` 的 `Poll failed` 行**：运行器收到的工作轮询响应的正文不是队列的预期 JSON，最常见的原因是运行器和 `api.anthropic.com` 之间的某些内容（例如拦截代理或强制门户）用自己的页面进行了应答。运行器拒绝响应，在 `claude_code_self_hosted_runner_poll_errors_total` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 的 `transport` 类型下计数，并按 [会话生命周期](/docs/zh-CN/self-hosted-environments#session-lifecycle) 中描述的失败轮询计划重试。运行器继续为其实时会话提供服务。配置代理以将来自 `api.anthropic.com` 的响应原封不动地传递。在 v2.1.246 之前，运行器将这样的响应读取为空工作队列，这可能会结束其实时会话或使其退出。
+* **会话的分支在远程上不再存在**：对于会话仅从中读取的 git 源，运行器跳过该源并继续处理其余源。对于会话推送结果的源，删除的分支（通常是因为它被合并并自动删除）会导致会话失败，并显示一个错误，命名存储库和分支，并要求您恢复分支并重试。当跳过会导致它完全没有存储库时，运行器会以相同的错误失败会话。在 v2.1.228 之前，这样的会话在空目录中启动。
+* **会话需要数分钟才能启动**：初始克隆通常占主导地位。观察 `claude_code_self_hosted_runner_session_init_duration_seconds` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 以确认，并使用 [预热检出](#reuse-a-pre-warmed-checkout) 或更小的 `CLAUDE_RUNNER_FETCH_DEPTH` 减少克隆。
+* **Pod 在耗尽中途被杀死**：将 `terminationGracePeriodSeconds` 提高到至少运行器在启动时记录的值。请参阅 [关闭时序](#shutdown-timing)。
 
-日志初始化后，运行器将其生命周期日志（包括 `[runner:fatal]` 行）写入 stdout，调试输出写入 stderr，都作为纯文本行而不是 JSON。上面故障排除条目中描述的启动失败在该点之前打印到 stderr。使用 `--log-file` 捕获两个流，这也让 `self-hosted-runner doctor` 尾随它们，或使用您的平台的日志收集。每个会话的子进程写入单独的调试日志。失败时运行器保留日志，在运行器日志中打印日志的路径，并在 claude.ai/code 中的会话旁边显示日志的尾部。
+初始化日志后，运行器将其生命周期日志（包括 `[runner:fatal]` 行）写入 stdout，将调试输出写入 stderr，全部作为纯文本行而不是 JSON。上述故障排除条目中描述的启动失败在该点之前打印到 stderr。使用 `--log-file` 捕获两个流，这也让 `self-hosted-runner doctor` 能够跟踪它们，或使用您的平台的日志收集。
+
+每个会话的子进程写入单独的调试日志。失败时，运行器在 claude.ai/code 中将日志的尾部与会话一起显示。除非您使用 [`--remove-session-state`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动了运行器，否则它也会在磁盘上保留失败会话的日志，并在运行器日志中打印其路径。
 
 <h2 id="what’s-next">
   接下来

@@ -169,7 +169,7 @@ what scheduled tasks do I have?
 cancel the deploy check job
 ```
 
-在幕后，Claude 使用这些工具：
+这些是 Claude 使用的底层工具：
 
 | 工具           | 目的                                          |
 | :----------- | :------------------------------------------ |

@@ -138,7 +138,7 @@
 
 通过 `mcpServers` 选项将您创建的 MCP 服务器传递给 `query`。`mcpServers` 中的键成为每个工具的完全限定名称中的 `{server_name}` 段：`mcp__{server_name}__{tool_name}`。在 `allowedTools` 中列出该名称，以便工具运行而无需权限提示。
 
-这些代码片段重用了[上面示例](#weather-tool-example)中的 `weatherServer`，以询问 Claude 特定位置的天气。
+这些代码片段重用了[天气工具示例](#weather-tool-example)中的 `weatherServer`，以询问 Claude 特定位置的天气。
 
 <CodeGroup>
   ```python Python theme={null}

@@ -121,7 +121,7 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
   </Tab>
 
   <Tab title="Web">
-    在浏览器中运行 Claude Code，无需本地设置。启动长时间运行的任务，完成后再检查，处理你本地没有的仓库，或并行运行多个任务。可在桌面浏览器和 [Claude iOS 和 Android 应用](/docs/zh-CN/mobile)中使用。
+    在浏览器中运行 Claude Code，无需本地设置。启动长时间运行的任务，完成后再检查，处理你本地没有的仓库，或并行运行多个任务。对于较长的工作，创建一个[项目](/docs/zh-CN/claude-projects)，让 Claude 为你协调并行会话。可在桌面浏览器和 [Claude iOS 和 Android 应用](/docs/zh-CN/mobile)中使用。
 
     在 [claude.ai/code](https://claude.ai/code) 开始编码。
 
@@ -230,17 +230,17 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
 
 除了上面的[终端](/docs/zh-CN/quickstart)、[VS Code](/docs/zh-CN/vs-code)、[JetBrains](/docs/zh-CN/jetbrains)、[桌面](/docs/zh-CN/desktop)和[网络](/docs/zh-CN/claude-code-on-the-web)界面外，Claude Code 还与 CI/CD、聊天和浏览器工作流集成：
 
-| 我想要...                                             | 最佳选项                                                                                                     |
-| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| 从我的手机或另一台设备继续本地会话                                  | [远程控制](/docs/zh-CN/remote-control)                                                                            |
-| 从 Telegram、Discord、iMessage 或我自己的 webhook 推送事件到会话中 | [Channels](/docs/zh-CN/channels)                                                                              |
-| 在本地启动任务，在移动设备上继续                                   | [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-web)，然后使用 [Claude 移动应用](/docs/zh-CN/mobile) |
-| 按定期计划运行 Claude                                     | [Routines](/docs/zh-CN/routines) 或[桌面计划任务](/docs/zh-CN/desktop-scheduled-tasks)                                    |
-| 自动化 PR 审查和问题分类                                     | [GitHub Actions](/docs/zh-CN/github-actions) 或 [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd)                            |
-| 在每个 PR 上获得自动代码审查                                   | [GitHub Code Review](/docs/zh-CN/code-review)                                                                 |
-| 将 Slack 中的错误报告路由到拉取请求                              | [Slack](/docs/zh-CN/slack)                                                                                    |
-| 调试实时网络应用                                           | [Chrome](/docs/zh-CN/chrome)                                                                                  |
-| 为你自己的工作流构建自定义代理                                    | [Agent SDK](/docs/zh-CN/agent-sdk/overview)                                                                   |
+| 我想要...                                             | 最佳选项                                                                                                       |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 从我的手机或另一台设备继续本地会话                                  | [远程控制](/docs/zh-CN/remote-control)                                                                              |
+| 从 Telegram、Discord、iMessage 或我自己的 webhook 推送事件到会话中 | [Channels](/docs/zh-CN/channels)                                                                                |
+| 在本地启动任务，在移动设备上继续                                   | [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)，然后使用 [Claude 移动应用](/docs/zh-CN/mobile) |
+| 按定期计划运行 Claude                                     | [Routines](/docs/zh-CN/routines) 或[桌面计划任务](/docs/zh-CN/desktop-scheduled-tasks)                                      |
+| 自动化 PR 审查和问题分类                                     | [GitHub Actions](/docs/zh-CN/github-actions) 或 [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd)                              |
+| 在每个 PR 上获得自动代码审查                                   | [GitHub Code Review](/docs/zh-CN/code-review)                                                                   |
+| 将 Slack 中的错误报告路由到拉取请求                              | [Slack](/docs/zh-CN/slack)                                                                                      |
+| 调试实时网络应用                                           | [Chrome](/docs/zh-CN/chrome)                                                                                    |
+| 为你自己的工作流构建自定义代理                                    | [Agent SDK](/docs/zh-CN/agent-sdk/overview)                                                                     |
 
 <h2 id="next-steps">
   后续步骤

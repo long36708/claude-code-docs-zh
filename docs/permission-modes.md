@@ -247,9 +247,9 @@ claude --permission-mode acceptEdits
   使用 plan mode 在编辑前进行分析
 </h2>
 
-Plan mode 告诉 Claude 研究并提议更改而不进行编辑。Claude 读取文件、运行 shell 命令进行探索并编写计划，但不编辑您的源代码。除了在[绕过权限可用](#skip-all-checks-with-bypasspermissions-mode)的会话中，编辑保持阻止状态，直到您批准计划。
+Plan mode 告诉 Claude 研究并提议更改而不进行编辑。Claude 读取文件、运行 shell 命令进行探索并编写计划，但不编辑您的源代码。除了在[绕过权限可用](#skip-all-checks-with-bypasspermissions-mode)的交互式终端会话中，编辑保持阻止状态，直到您批准计划。
 
-当[自动模式](/docs/zh-CN/auto-mode-config)可用且 `useAutoModeDuringPlan` 设置打开（默认情况下是这样）时，分类器在规划期间审查 shell 命令而不是提示您。批准的命令运行，拒绝的命令被阻止。否则，[内置只读集合](/docs/zh-CN/permissions#read-only-commands)外的命令会提示批准，包括当沙箱的[自动允许模式](/docs/zh-CN/sandboxing#sandbox-modes)启用时。在绕过权限可用的会话中，分类器和提示都不适用于规划命令；[使用 bypassPermissions 模式跳过所有检查](#skip-all-checks-with-bypasspermissions-mode)涵盖仍会在那里提示的少数事项。在 v2.1.212 到 v2.1.217 中，没有绕过权限的会话为只读集合外的每个命令提示，无论自动模式是否可用。
+当[自动模式](/docs/zh-CN/auto-mode-config)可用且 `useAutoModeDuringPlan` 设置打开（默认情况下是这样）时，分类器在规划期间审查 shell 命令而不是提示您。批准的命令运行，拒绝的命令被阻止。否则，[内置只读集合](/docs/zh-CN/permissions#read-only-commands)外的命令会提示批准，包括当沙箱的[自动允许模式](/docs/zh-CN/sandboxing#sandbox-modes)启用时。在绕过权限可用的交互式终端会话中，分类器和提示都不适用于规划命令；[使用 bypassPermissions 模式跳过所有检查](#skip-all-checks-with-bypasspermissions-mode)涵盖仍会在那里提示的少数事项。在 v2.1.212 到 v2.1.217 中，没有绕过权限的会话为只读集合外的每个命令提示，无论自动模式是否可用。
 
 通过按 `Shift+Tab` 或在单个提示前加上 `/plan` 进入 plan mode。您也可以从 CLI 启动 plan mode：
 
@@ -545,7 +545,9 @@ claude --permission-mode dontAsk
 * [`isolatePeerMachines`](/docs/zh-CN/settings-reference#isolatepeermachines)批准提示用于发送到超出此机器的会话的消息仍然出现。
 * 当没有[`crossSessionInbound`](/docs/zh-CN/cross-session-messaging#control-inbound-messages)值适用时，Claude Code 会从您的另一个会话中的入站消息保留以供您批准，仅当发送会话将自己标识为也绕过权限提示时才无需询问即可传递。如果您在保留消息时离开权限模式，Claude Code 会重新应用入站规则，并传递任何现在接受的保留消息。
 
-在具有可用绕过权限的会话中，Claude Code 也不强制执行[计划模式的](#analyze-before-you-edit-with-plan-mode)块。Claude 仍然被指示在不编辑的情况下进行计划，但它在计划期间尝试的文件编辑或 shell 命令无需提示即可运行。显式[询问规则](/docs/zh-CN/permissions#manage-permissions)和针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除仍会提示。
+在具有可用绕过权限的交互式终端会话中，Claude Code 也不强制执行[计划模式的](#analyze-before-you-edit-with-plan-mode)块。Claude 仍然被指示在不编辑的情况下进行计划，但它在计划期间尝试的文件编辑或 shell 命令无需提示即可运行。显式[询问规则](/docs/zh-CN/permissions#manage-permissions)和针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除仍会提示。
+
+计划模式在 Claude Code 运行时没有交互式终端的任何地方都保持其块，包括[非交互式运行](/docs/zh-CN/headless)（带 `-p`）、[Agent SDK](/docs/zh-CN/agent-sdk/permissions#plan-mode-plan) 会话和 [VS Code 扩展](/docs/zh-CN/vs-code)的聊天面板中的对话。在那里，`--allow-dangerously-skip-permissions` 使 `bypassPermissions` 稍后可选。
 
 <Warning>
   仅在隔离环境（如容器、虚拟机或没有互联网访问的开发容器）中使用此模式，其中 Claude Code 无法损害您的主机系统。
@@ -581,15 +583,15 @@ Claude Code 在您使用[`--restricted`](/docs/zh-CN/cli-reference#cli-flags)启
   受保护的路径
 </h2>
 
-对一小组路径的写入永远不会自动批准，唯一的例外是 `bypassPermissions` 模式，以及可使用[绕过权限](#skip-all-checks-with-bypasspermissions-mode)的 plan 模式会话。这可以防止意外损坏存储库状态和 Claude 自己的配置。
+对一小组路径的写入永远不会自动批准，唯一的例外是 `bypassPermissions` 模式，以及可使用[绕过权限](#skip-all-checks-with-bypasspermissions-mode)的 plan 模式交互式终端会话。这可以防止意外损坏存储库状态和 Claude 自己的配置。
 
-| 模式                      | 受保护路径写入                                                                                                                            |
-| :---------------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
-| `default`、`acceptEdits` | 提示                                                                                                                                 |
-| `plan`                  | 在[绕过权限](#skip-all-checks-with-bypasspermissions-mode)可用的会话中允许。否则，当[自动模式](#eliminate-prompts-with-auto-mode)在规划期间可用时路由到分类器，当它不可用时提示 |
-| `auto`                  | 路由到分类器                                                                                                                             |
-| `dontAsk`               | 拒绝                                                                                                                                 |
-| `bypassPermissions`     | 允许                                                                                                                                 |
+| 模式                      | 受保护路径写入                                                                                                                                 |
+| :---------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| `default`、`acceptEdits` | 提示                                                                                                                                      |
+| `plan`                  | 在[绕过权限](#skip-all-checks-with-bypasspermissions-mode)可用的交互式终端会话中允许。否则，当[自动模式](#eliminate-prompts-with-auto-mode)在规划期间可用时路由到分类器，当它不可用时提示 |
+| `auto`                  | 路由到分类器                                                                                                                                  |
+| `dontAsk`               | 拒绝                                                                                                                                      |
+| `bypassPermissions`     | 允许                                                                                                                                      |
 
 在使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) 启动的会话中，需要 Claude Code v2.1.248 或更高版本，分类器无法批准受保护路径的写入。
 

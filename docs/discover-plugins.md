@@ -8,6 +8,8 @@
 
 插件通过 skills、agents、hooks 和 MCP servers 扩展 Claude Code。插件市场是帮助您发现和安装这些扩展的目录，无需自己构建。
 
+您也可以在 claude.ai 上启用插件，供自己或通过您的组织使用。Claude Code 会将这些插件同步到您的会话中，无需市场安装，如[从 claude.ai 同步的插件](/docs/zh-CN/plugins-reference#synced-plugins)所述。
+
 想要创建和分发自己的市场？请参阅[创建和分发插件市场](/docs/zh-CN/plugin-marketplaces)。
 
 <h2 id="how-marketplaces-work">
@@ -78,7 +80,7 @@ Claude Code 在您首次以交互方式启动它时会自动添加官方 Anthrop
 您也可以[为其他语言创建自己的 LSP 插件](/docs/zh-CN/plugins-reference#lsp-servers)。
 
 <Note>
-  如果在安装插件后在 `/plugin` 错误选项卡中看到 `Executable not found in $PATH`，请从上表安装所需的二进制文件。
+  如果在安装插件后在 `/plugin` 错误选项卡中看到 `Executable not found in $PATH`，请从[代码智能](#code-intelligence)表中安装该插件所需的二进制文件。
 </Note>
 
 <h4 id="what-claude-gains-from-code-intelligence-plugins">
@@ -372,6 +374,8 @@ Claude Code 在其本地市场目录副本中查找插件。您命名插件的�
 * 输入以按插件名称或描述筛选
 * 按 Enter 打开插件的详细视图并启用、禁用或卸载它
 
+Claude Code 还在**已安装**选项卡中列出[从您的 claude.ai 账户同步的插件](/docs/zh-CN/plugins-reference#synced-plugins)，其源为 `synced`。您可以在那里启用或禁用一个，除非您的组织将其标记为必需。要删除一个，请在 claude.ai 上将其关闭。同步的插件出现在 Claude Code v2.1.273 或更高版本的终端会话中。
+
 卸载项目的 `.claude/settings.json` 启用的插件时，Claude Code 会询问您指的是哪个范围：仅为您禁用它，这会将覆盖写入您的 `.claude/settings.local.json` 并为项目保留已安装的插件，或为所有人卸载它，这会将其从共享的 `.claude/settings.json` 中删除。
 
 详细视图显示插件贡献的组件：commands、skills、agents、hooks、MCP servers 和 LSP servers。相同的清单也可以从命令行通过 `claude plugin details` 获得。
@@ -444,6 +448,7 @@ claude plugin uninstall formatter@your-org --scope project
 * 您在另一个终端中运行的 `claude plugin` 命令
 * 编辑您使用 [`--plugin-dir`](/docs/zh-CN/plugins#test-your-plugins-locally) 加载的插件，同时您开发它
 * 插件[自动更新](#configure-auto-updates)，其通知要求您重新加载
+* [从您的 claude.ai 账户同步](/docs/zh-CN/plugins-reference#synced-plugins)添加、更新或删除插件并显示要求您重新加载的通知
 * [`--plugin-dir` 文件夹](/docs/zh-CN/plugins#test-your-plugins-locally)中的更改，Claude Code 保留了该更改，因为应用它会使 prompt cache 失效
 
 在 v2.1.268 之前，您在菜单中启用、禁用或卸载的插件，以及在安装期间未激活的安装，保持待处理状态，直到您运行 `/reload-plugins`。

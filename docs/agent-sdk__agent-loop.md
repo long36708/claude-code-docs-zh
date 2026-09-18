@@ -222,7 +222,7 @@ Claude 根据任务确定调用哪些工具，但你控制这些调用是否被�
 
 预算上限涵盖 [子代理](/docs/zh-CN/agent-sdk/subagents)：它们的支出计入总额。一旦支出达到上限，生成另一个子代理会失败并显示 `Budget limit reached`，Claude Code 会停止任何仍在运行的后台子代理。上限执行行为需要 Claude Code v2.1.217 或更高版本。
 
-使用 [流式输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)，当轮次在最大轮次限制处结束时，仍在队列中的消息保持排队。Claude Code 不会将其添加到该轮次的最后一次模型调用中。它为该消息启动新轮次，该轮次的最大轮次计数重新开始。
+使用 [流式输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)，当轮次在最大轮次限制处结束时，仍在队列中的消息保持排队。Claude Code 不会将其添加到该轮次的最后一次模型调用中。它为该消息启动新轮次，该轮次的最大轮次计数重新开始。预算总额继续在消息间累积，一旦支出达到 `maxBudgetUsd`，同一对话中的后续消息以 `error_max_budget_usd` 结果结束。[`/clear`](/docs/zh-CN/agent-sdk/cost-tracking) 会重新开始预算。
 
 <h3 id="effort-level">
   努力级别
@@ -267,7 +267,7 @@ Claude 根据任务确定调用哪些工具，但你控制这些调用是否被�
   模型
 </h3>
 
-如果你不设置 `model`，SDK 使用 Claude Code 的默认值，这取决于你的身份验证方法和订阅。显式设置它（例如，`model="claude-sonnet-5"`）以固定特定模型或使用较小的模型以获得更快、更便宜的代理。有关可用 ID，请参阅 [models](https://platform.claude.com/docs/en/about-claude/models)。
+设置 `model` 选项以选择哪个模型运行会话。有关更多信息，请参阅 [选择模型](/docs/zh-CN/agent-sdk/configuration#choose-a-model)。
 
 <h2 id="the-context-window">
   上下文窗口

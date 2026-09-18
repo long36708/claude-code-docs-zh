@@ -826,14 +826,17 @@ const myHook: HookCallback = async (input, toolUseID, { signal }) => {
 
 Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatcher` 上使用 `timeout` 字段（以秒为单位）设置。当您未设置时，Claude Code 使用事件的默认值：大多数事件为 600 秒，`UserPromptSubmit`、`PreModelSwitch` 和 `PostModelSwitch` 为 30 秒，`MessageDisplay` 为 10 秒。Claude Code 在关闭期间运行 `SessionEnd` 回调时使用较短的 [SessionEnd 超时预算](/docs/zh-CN/hooks#sessionend-input)，默认为 1.5 秒。
 
-当回调超过其超时时间时，Claude Code 会取消它并将其视为失败的 hook：它丢弃回调的输出，会话继续而不是挂起。接下来发生的情况取决于事件：
+当回调超过其超时时间时，Claude Code 会取消它并丢弃其输出，会话继续而不是挂起。接下来发生的情况取决于事件：
 
 * `PreToolUse`: Claude Code 不运行工具调用，Claude 收到一个工具结果，说明 hook 未在超时前响应，转轮继续。如果另一个 `PreToolUse` hook 返回了明确的拒绝，Claude 会收到该拒绝而不是超时错误。在 v2.1.210 之前，Claude Code 将超时报告给 Claude 作为用户拒绝，这使得无人值守会话停止并等待输入。
 * `PostToolUse` 和 `PostToolUseFailure`：Claude Code 保留工具结果，转轮继续。
 * `UserPromptSubmit` 和 [`UserPromptExpansion`](/docs/zh-CN/hooks#userpromptexpansion)：Claude Code 使用命名 hook 和超时的消息阻止提示，会话继续。因为这些事件上的回调可以充当策略门，Claude Code 永远不会让超时的提示通过未筛选。在 v2.1.208 之前，当这些事件上的回调超时时，Claude Code 以 `error_during_execution` 结束查询。
-* `Stop` 和 `SubagentStop`：Claude Code 显示警告，代理正常停止。
+* `Stop` 和 `SubagentStop`：超时的回调计为不返回任何决定。代理或子代理停止，就像该回调已允许它一样，您在该事件上的其他 hooks 的决定仍然适用。在 Claude Code v2.1.273 之前，超时的 `Stop` 或 `SubagentStop` 回调计为失败的 hook 运行，Claude Code 丢弃了您在该事件上的其他 hooks 的决定。
+* `SessionStart`：超时的回调计为不返回任何输出，会话继续使用您的其他 `SessionStart` hooks 的输出。
 * `PreModelSwitch`：Claude Code 阻止模型切换。未回答的 hook 尚未批准切换。
 * 其他事件，如 `Notification`、`PreCompact` 和 `PostModelSwitch`：Claude Code 记录失败并继续。
+
+主会话中 `Stop` 或 `SessionStart` 回调第一次超时时，Claude Code 还会向消息流添加一个 [`SDKInformationalMessage`](/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage)，说明驱动会话的应用未响应。当您的应用保持无响应时，后续超时不会重复该消息。
 
 如果您在回调待处理时中断查询，Claude Code 会取消待处理的工具调用。在 v2.1.208 之前，如果您在待处理的 `PreToolUse` 回调期间中断，工具调用仍可能继续。
 

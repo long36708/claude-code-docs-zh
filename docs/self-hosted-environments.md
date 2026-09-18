@@ -10,7 +10,7 @@
   自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段，默认关闭。请参阅[可用性和限制](#availability-and-limitations)了解启用路径和排除的内容。
 </Note>
 
-自托管环境在您的组织运营的基础设施上执行 Claude Code 云会话。[云会话](/docs/zh-CN/claude-code-on-the-web)是指在开发者机器以外的任何地方运行的会话：开发者可以从 claude.ai、移动和桌面应用、带有 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-web) 的终端以及[计划例程](/docs/zh-CN/routines)启动这些会话，默认情况下它们在 Anthropic 的基础设施上执行。在自托管环境中，这些相同的会话在您的网络内执行，开发者体验基本相同，除了[可用性和限制](#availability-and-limitations)中的差异以及部署页面的[已知问题](/docs/zh-CN/self-hosted-environments-deploy#known-issues-and-limitations)。
+自托管环境在您的组织运营的基础设施上执行 Claude Code 云会话。[云会话](/docs/zh-CN/claude-code-on-the-web)是指在开发者机器以外的任何地方运行的会话：开发者可以从 claude.ai、移动和桌面应用、带有 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud) 的终端以及[计划例程](/docs/zh-CN/routines)启动这些会话，默认情况下它们在 Anthropic 的基础设施上执行。在自托管环境中，这些相同的会话在您的网络内执行，开发者体验基本相同，除了[可用性和限制](#availability-and-limitations)中的差异以及部署页面的[已知问题](/docs/zh-CN/self-hosted-environments-deploy#known-issues-and-limitations)。
 
 如果您的团队不使用云会话，这里没有什么需要配置的：终端或 IDE 中的会话始终在开发者自己的机器上运行。如果您想在自己的常开机器上运行 Claude Code 并从其他设备驱动它，请使用[远程控制](/docs/zh-CN/remote-control)，它也可在 Pro 和 Max 计划上使用。当您准备好设置时，直接转到[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)；如果您想先审查安全态势，请从[部署到生产](/docs/zh-CN/self-hosted-environments-deploy)开始。本页的其余部分解释自托管的工作原理以及何时选择它。
 
@@ -44,10 +44,10 @@
 
 在规划推出之前检查这些：
 
-* **计划**：Team 和 Enterprise 组织的公开测试版。自托管环境默认关闭；[所有者](/docs/zh-CN/cloud-environments#organization-shared-environments)在[**云环境**管理页面](https://claude.ai/admin-settings/cloud-environments)上打开**允许自托管环境**，这需要为组织启用 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web)。
+* **计划**：Team 和 Enterprise 组织的公开测试版。自托管环境默认关闭；[所有者](/docs/zh-CN/cloud-environments#organization-shared-environments)在[**云环境**管理页面](https://claude.ai/admin-settings/cloud-environments)上打开**允许自托管环境**，这需要为组织启用 [cloud sessions](/docs/zh-CN/claude-code-on-the-web)。
 * **零数据保留**：对于启用了[零数据保留](/docs/zh-CN/zero-data-retention)的组织不可用。
 * **模型推理**：会话使用 Anthropic API，推理不能通过 [Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry](/docs/zh-CN/third-party-integrations) 或 [LLM 网关](/docs/zh-CN/llm-gateway)路由。
-* **表面**：从 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web)、移动和桌面应用、[计划例程](/docs/zh-CN/routines)以及终端启动的会话，带有 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-web) 或 [`--environment` 调度](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)，可以在自托管环境中运行。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话也可以在其中运行，但 Claude 还不能在这些会话中使用[访问包](https://claude.com/docs/claude-tag/concepts/glossary#access-bundle)。[Claude Security](/docs/zh-CN/claude-security) 和[代码审查](/docs/zh-CN/code-review)会话还不能路由到它们。对这两个表面的支持将单独跟进。
+* **表面**：从 [claude.ai/code](https://claude.ai/code)、移动和桌面应用、[计划例程](/docs/zh-CN/routines)以及终端启动的会话，带有 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud) 或 [`--environment` 调度](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)，可以在自托管环境中运行。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话也可以在其中运行，但 Claude 还不能在这些会话中使用[访问包](https://claude.com/docs/claude-tag/concepts/glossary#access-bundle)。[Claude Security](/docs/zh-CN/claude-security) 和[代码审查](/docs/zh-CN/code-review)会话还不能路由到它们。对这两个表面的支持将单独跟进。
 * **存储库**：会话从 GitHub 检出存储库；请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)。
 * **计费**：自托管环境中的会话消耗您的组织的 Claude Code 使用情况，与 Anthropic 托管环境中的会话相同。
 

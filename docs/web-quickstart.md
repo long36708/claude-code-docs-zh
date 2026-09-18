@@ -2,19 +2,19 @@
 > Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
 > Use this file to discover all available pages before exploring further.
 
-# 在网络上开始使用 Claude Code
+# 在云中开始使用 Claude Code
 
 > 从浏览器或手机在云中运行 Claude Code。连接 GitHub 仓库、提交任务，并在无需本地设置的情况下审查 PR。
 
 <Note>
-  Claude Code on the web 处于研究预览阶段，适用于 Pro、Max 和 Team 用户，以及拥有高级席位或 Chat + Claude Code 席位的企业用户。
+  云会话处于研究预览阶段，适用于 Pro、Max 和 Team 用户，以及拥有高级席位或 Chat + Claude Code 席位的企业用户。
 </Note>
 
-Claude Code on the web 在 Anthropic 管理的云基础设施上运行，而不是在您的机器上。从浏览器中的 [claude.ai/code](https://claude.ai/code) 或 Claude 移动应用提交任务。
+云会话在云基础设施上运行 Claude Code，而不是在您的机器上，默认由 Anthropic 管理。此快速入门从浏览器中的 [claude.ai/code](https://claude.ai/code) 启动一个会话。您也可以从 Claude 移动应用、Desktop 应用或终端使用 `claude --cloud` 启动一个会话。
 
 您需要一个 GitHub 仓库来[开始使用](#connect-github)。Claude 将其克隆到隔离的虚拟机中，进行更改，并为您推送一个分支以供审查。会话在设备间持久化，因此您在笔记本电脑上开始的任务稍后可以从手机上审查。
 
-Claude Code on the web 适用于：
+云会话适用于：
 
 * **并行任务**：同时运行多个独立任务，每个任务在自己的会话和分支中，无需管理多个 worktrees
 * **您本地没有的仓库**：Claude 在每个会话中新鲜克隆仓库，因此您无需检出它
@@ -40,19 +40,20 @@ Claude Code on the web 适用于：
   比较运行 Claude Code 的方式
 </h2>
 
-Claude Code 在任何地方的行为都相同。改变的是代码执行的位置以及您的本地配置是否可用。Desktop 应用提供本地和云会话，因此其下面的答案取决于您选择的是哪一个：
+Claude Code 在任何地方的行为都相同。改变的是会话运行的位置以及您的本地配置是否可用：
 
-|                                     | On the web                                                                                     | Remote Control  | Terminal CLI | Desktop app    |
-| :---------------------------------- | :--------------------------------------------------------------------------------------------- | :-------------- | :----------- | :------------- |
-| **代码运行在**                           | Cloud VM，默认由 Anthropic 管理                                                                      | 您的机器            | 您的机器         | 您的机器或 cloud VM |
-| **您从以下位置聊天**                        | claude.ai 或移动应用                                                                                | claude.ai 或移动应用 | 您的终端         | Desktop UI     |
-| **使用您的本地配置**                        | 否，仅限仓库                                                                                         | 是               | 是            | 本地为是，云为否       |
-| **需要 GitHub**                       | 是，或通过 `--cloud` [捆绑本地仓库](/docs/zh-CN/claude-code-on-the-web#send-local-repositories-without-github) | 否               | 否            | 仅限云会话          |
-| **断开连接时继续运行**                       | 是                                                                                              | 当终端保持打开时        | 否            | 取决于会话类型        |
-| **[权限模式](/docs/zh-CN/permission-modes)** | 接受编辑、Plan、自动                                                                                   | 询问、自动接受编辑、Plan  | 所有模式         | 取决于会话类型        |
-| **网络访问**                            | 每个环境可配置                                                                                        | 您的机器网络          | 您的机器网络       | 取决于会话类型        |
+|                                     | Cloud session                                                                                  | Local session                                                                              | Local session with [Remote Control](/docs/zh-CN/remote-control) |
+| :---------------------------------- | :--------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------- | :--------------------------------------------------------- |
+| **代码运行在**                           | Cloud VM，默认由 Anthropic 管理                                                                      | 您的机器                                                                                       | 您的机器                                                       |
+| **您从以下位置启动它**                       | claude.ai/code、Claude 移动应用、选择了 **Cloud** 的 Desktop 应用，或 `claude --cloud`                       | 您的终端、您的 IDE，或选择了 **Local** 的 Desktop 应用                                                    | 您的终端、VS Code 扩展，或 Desktop 应用                               |
+| **您从以下位置聊天**                        | claude.ai、移动应用，或 Desktop 应用                                                                    | 您启动它的位置                                                                                    | claude.ai 或移动应用，以及您启动它的位置                                  |
+| **使用您的本地配置**                        | 否，仅限仓库                                                                                         | 是                                                                                          | 是                                                          |
+| **需要 GitHub**                       | 是，或通过 `--cloud` [捆绑本地仓库](/docs/zh-CN/claude-code-on-the-web#send-local-repositories-without-github) | 否                                                                                          | 否                                                          |
+| **断开连接时继续运行**                       | 是                                                                                              | 否                                                                                          | 当会话在您的机器上保持打开时                                             |
+| **[权限模式](/docs/zh-CN/permission-modes)** | 接受编辑、Plan、自动                                                                                   | 终端中的所有模式；请参阅 [切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes) 了解 IDE 和 Desktop 应用 | 从 claude.ai 和移动应用中的手动、接受编辑或 Plan                           |
+| **网络访问**                            | 每个环境可配置                                                                                        | 您的机器网络                                                                                     | 您的机器网络                                                     |
 
-请参阅[终端快速入门](/docs/zh-CN/quickstart)、[Desktop 应用](/docs/zh-CN/desktop)或 [Remote Control](/docs/zh-CN/remote-control) 文档来设置这些。
+请参阅[终端快速入门](/docs/zh-CN/quickstart)、[Desktop 应用](/docs/zh-CN/desktop)或 [Remote Control](/docs/zh-CN/remote-control) 文档来设置本地会话。
 
 <h2 id="connect-github">
   连接 GitHub
@@ -72,9 +73,9 @@ Claude Code 在任何地方的行为都相同。改变的是代码执行的位�
   <Step title="使用 GitHub 登录">
     登录后，claude.ai/code 会提示您连接 GitHub。按照提示操作，claude.ai/code 会将您发送到 GitHub 的授权页面。批准授权请求，GitHub 会将您返回到 claude.ai/code。云会话可以与现有 GitHub 存储库配合使用。要启动新项目，请先[在 GitHub 上创建一个空存储库](https://github.com/new)。
 
-    通过此连接，会话可以克隆任何公共存储库，但只有在 Claude GitHub App 安装在私有存储库上时，才能在私有存储库中工作。[安装应用](https://github.com/apps/claude/installations/new)到您想要使用其私有存储库的每个 GitHub 账户或组织。在 GitHub 组织上，组织所有者可能需要批准安装。安装应用还会启用[Auto-fix](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)，这让 Claude 能够响应这些存储库中拉取请求的 CI 失败和审查评论。
+    通过此连接，会话可以克隆任何公共存储库，但只有在 Claude GitHub App 安装在私有存储库上时，才能在私有存储库中工作。[安装 Claude GitHub App](https://github.com/apps/claude/installations/new) 到您想要使用其私有存储库的每个 GitHub 账户或组织。在 GitHub 组织上，组织所有者可能需要批准安装。安装应用还会启用[Auto-fix](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)，这让 Claude 能够响应这些存储库中拉取请求的 CI 失败和审查评论。
 
-    如果入门流程在此时提示您安装应用，而您想稍后再做，请单击**Skip**。
+    如果入门流程在此时提示您安装 Claude GitHub App，而您想稍后再做，请单击**Skip**。
   </Step>
 
   <Step title="设置您的默认环境">
@@ -93,9 +94,9 @@ Claude Code 在任何地方的行为都相同。改变的是代码执行的位�
   从终端连接
 </h3>
 
-如果您已经使用 GitHub CLI (`gh`)，可以从终端设置 Claude Code on the web。这需要[Claude Code CLI](/docs/zh-CN/quickstart)。在 Team 和 Enterprise 计划上，只有在所有者打开[Quick web setup](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)后，`/web-setup` 才可用。
+如果您已经使用 GitHub CLI (`gh`)，可以从终端为云会话连接 GitHub。这需要[Claude Code CLI](/docs/zh-CN/quickstart)。在 Team 和 Enterprise 计划上，只有在所有者打开[Quick web setup](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)后，`/web-setup` 才可用。
 
-运行 `/web-setup` 时，Claude Code 读取 `gh auth token` 打印的令牌，要求您确认，并将令牌发送给 Anthropic。Anthropic 使用您的 claude.ai 账户加密存储它，您的云会话使用它进行 GitHub 访问，直到您[删除它](#remove-the-web-setup-token)。云会话随后可以访问该令牌可以访问的任何存储库，无需安装 Claude GitHub App。
+运行 `/web-setup` 时，Claude Code 读取 `gh auth token` 打印的令牌，要求您确认，并将令牌发送给 Anthropic。Anthropic 使用您的 claude.ai 账户加密存储它，您的云会话使用它进行 GitHub 访问，直到您[删除它](#remove-the-web-setup-token)。您自己启动的云会话随后可以访问该令牌可以访问的任何存储库，无需安装 Claude GitHub App。[项目](/docs/zh-CN/claude-projects#set-up-github-access)中的线程仍然需要该应用。
 
 如果您已经在浏览器中连接了 GitHub，`/web-setup` 会警告您继续将替换您的云会话的该连接。
 
@@ -123,7 +124,7 @@ Claude Code 在任何地方的行为都相同。改变的是代码执行的位�
     /web-setup
     ```
 
-    确认提示以将您的 `gh` 令牌发送到您的 Claude 账户。成功后，Claude Code 打印 `Connected as <your-github-username>` 并在您的浏览器中打开 [claude.ai/code](https://claude.ai/code)。如果您还没有云环境，`/web-setup` 会创建一个具有 Trusted 网络访问且没有设置脚本的环境。您可以[稍后编辑环境或添加变量](/docs/zh-CN/cloud-environments#configure-your-environment)。`/web-setup` 完成后，您可以使用 [`--cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-web) 从终端启动云会话，或使用 [`/schedule`](/docs/zh-CN/routines) 设置定期任务。
+    确认提示以将您的 `gh` 令牌发送到您的 Claude 账户。成功后，Claude Code 打印 `Connected as <your-github-username>` 并在您的浏览器中打开 [claude.ai/code](https://claude.ai/code)。如果您还没有云环境，`/web-setup` 会创建一个具有 Trusted 网络访问且没有设置脚本的环境。您可以[稍后编辑环境或添加变量](/docs/zh-CN/cloud-environments#configure-your-environment)。`/web-setup` 完成后，您可以使用 [`--cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud) 从终端启动云会话，或使用 [`/schedule`](/docs/zh-CN/routines) 设置定期任务。
   </Step>
 </Steps>
 
@@ -226,13 +227,13 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
   页面仅显示 GitHub 登录按钮
 </h3>
 
-云会话需要连接的 GitHub 账户。通过上面的浏览器流程连接，或如果您使用 GitHub CLI，从您的终端运行 `/web-setup`。如果您根本不想连接 GitHub，请参阅 [Remote Control](/docs/zh-CN/remote-control) 以在您自己的机器上运行 Claude Code 并从网络监控它。
+云会话需要连接的 GitHub 账户。通过上面的浏览器流程连接，或如果您使用 GitHub CLI，从您的终端运行 `/web-setup`。如果您根本不想连接 GitHub，请参阅 [Remote Control](/docs/zh-CN/remote-control) 以在您自己的机器上运行 Claude Code 并从浏览器或手机监控它。
 
 <h3 id="not-available-for-the-selected-organization">
   "Not available for the selected organization"
 </h3>
 
-企业组织可能需要管理员启用 Claude Code on the web。联系您的 Anthropic 账户团队。
+企业组织可能需要所有者启用云会话。联系您的 Anthropic 账户团队。
 
 <h3 id="/web-setup-says-not-signed-in-to-claude">
   `/web-setup` 说 "Not signed in to Claude"
@@ -254,13 +255,18 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
 
 如果您在 Claude Code 内输入它，命令菜单显示 `No commands match "/web-setup"`，或提交它返回 `Unknown command: /web-setup`，该命令被隐藏是因为未满足要求。原因通常是您使用 API 密钥或第三方提供商而不是 claude.ai 订阅进行身份验证。运行 `/login` 以使用您的 claude.ai 账户登录。
 
-在 Team 和 Enterprise 计划上，该命令默认被隐藏：[快速网络设置切换](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)关闭，直到所有者打开它。当它关闭时，[从浏览器连接 GitHub](#connect-github) 代替。当管理员为您的组织禁用 Claude Code on the web 时，或当您的 Enterprise 组织启用了[零数据保留](/docs/zh-CN/zero-data-retention)（这使 Claude Code on the web 不可用）时，该命令也被隐藏。
+在 Team 和 Enterprise 计划上，该命令默认被隐藏：[快速网络设置切换](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)关闭，直到所有者打开它。当它关闭时，[从浏览器连接 GitHub](#connect-github) 代替。
+
+该命令在另外两种情况下也被隐藏：
+
+* 管理员为您的组织禁用了云会话。在这种情况下，提交 `/web-setup` 返回 [`Cloud sessions are disabled by your organization's policy`](/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。在 v2.1.268 之前，这种情况也返回 `Unknown command: /web-setup`。
+* 您的 Enterprise 组织启用了[零数据保留](/docs/zh-CN/zero-data-retention)，这使云会话不可用。
 
 <h3 id="could-not-create-a-cloud-environment-or-no-cloud-environment-available-when-using-cloud">
   使用 `--cloud` 时出现 "Could not create a cloud environment" 或 "No cloud environment available"
 </h3>
 
-远程会话功能如果您没有云环境，会自动创建一个默认的云环境。如果您看到 "Could not create a cloud environment"，自动创建失败。如果您看到 "No cloud environment available"，您的 CLI 早于自动创建。在任何一种情况下，在 Claude Code CLI 中运行 `/web-setup`，或从 [claude.ai/code](https://claude.ai/code) 的[环境选择器](/docs/zh-CN/cloud-environments#configure-your-environment)添加环境。
+云会话功能如果您没有云环境，会自动创建一个默认的云环境。如果您看到 "Could not create a cloud environment"，自动创建失败。如果您看到 "No cloud environment available"，您的 CLI 早于自动创建。在任何一种情况下，在 Claude Code CLI 中运行 `/web-setup`，或从 [claude.ai/code](https://claude.ai/code) 的[环境选择器](/docs/zh-CN/cloud-environments#configure-your-environment)添加环境。
 
 <h3 id="setup-script-failed">
   设置脚本失败
@@ -302,4 +308,4 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
 * [配置云环境](/docs/zh-CN/cloud-environments)：网络访问级别、环境变量和云会话的设置脚本
 * [Routines](/docs/zh-CN/routines)：按计划、通过 API 调用或响应 GitHub 事件自动化工作
 * [CLAUDE.md](/docs/zh-CN/memory)：给 Claude 持久指令和上下文，在每个会话开始时加载
-* 为 [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 或 [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude) 安装 Claude 移动应用以从您的手机监控会话。从 Claude Code CLI，`/mobile` 显示 QR 码。
+* 为 [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 或 [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude) 安装 Claude 移动应用以从您的手机监控会话。从 Claude Code CLI，`/mobile` 显示 QR 码，用于 [claude.ai/mobile](https://claude.ai/mobile)，该码会为您的手机打开正确的应用商店。

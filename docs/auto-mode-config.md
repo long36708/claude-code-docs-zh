@@ -91,7 +91,7 @@
   定义受信基础设施
 </h2>
 
-对于大多数组织，`autoMode.environment` 是唯一需要设置的字段。它告诉分类器哪些仓库、存储桶和域名是受信的：分类器使用它来决定"外部"的含义，因此任何未列出的目标都是潜在的数据泄露目标。
+对于大多数组织，`autoMode.environment` 是您唯一需要设置的字段。它告诉分类器哪些仓库、存储桶和域是受信的：分类器使用它来决定"外部"的含义，因此任何未列出的目标都是潜在的数据泄露目标。
 
 从 Claude Code v2.1.198 开始，`claude auto-mode defaults` 打印三种环境条目。v2.1.195 之前的版本仅打印前五个信任槽。
 
@@ -99,23 +99,25 @@
   * **Organization**
   * **Claude Code 的主要用途**：默认为软件开发
   * **云提供商**
-  * **Repository visibility**：除非其远程主机和名称另有说明，或分类器读取的对话中较早的可见性检查显示它是公开的，否则假定仓库是私有的。分类器读取您的消息和 Claude 运行的命令，而不是它们的输出，因此证据必须是它能读取的内容，例如您自己的消息将仓库命名为公开；单独运行 `gh repo view` 的输出无法到达它。转录证据检查需要 Claude Code v2.1.200 或更高版本
-  * **Internal sharing / snippet hosting**：公开粘贴和 gist 服务被视为信任边界外，直到您命名其中一个
+  * **Repository visibility**：除非其远程主机和名称另有说明，或分类器在对话中较早读取了显示其为公开的可见性检查，否则假定仓库为私有。
+
+    在 Claude Code 本身发送的分类器请求中，分类器读取您的消息和 Claude 运行的命令，而不是它们的输出。证据必须是分类器能够读取的内容，例如您自己的消息将仓库命名为公开；`gh repo view` 的输出本身无法到达它。转录证据检查需要 Claude Code v2.1.200 或更高版本
+  * **Internal sharing / snippet hosting**：公开粘贴和 gist 服务被视为在信任边界之外，直到您命名其中一个
   * **Org-specific CLIs**
   * **Secrets management**
   * **CI/CD deploy targets**
   * **Network posture**
-  * **Host containment**：默认为具有开放互联网的普通开发者机器或 CI 运行器。如果 Claude Code 在具有出站允许列表或不能接触的邻居的容器、VM 或 pod 中运行，请命名允许的主机、云元数据端点是否应该可达，以及任务使用的云项目、集群或注册表以及使用什么身份。在此条目命名该身份之前，分类器[阻止](/docs/zh-CN/permission-modes#what-the-classifier-blocks-by-default)对主机自身凭证的请求。需要 Claude Code v2.1.257 或更高版本
-  * **Protected deployment namespaces / environments**：回退到敏感远程目标启发式，直到您命名它们
+  * **Host containment**：默认为具有开放互联网的普通开发者机器或 CI 运行器。如果 Claude Code 在具有出口允许列表或不能接触的邻居的容器、VM 或 pod 中运行，请命名允许的主机、云元数据端点是否应该可达，以及任务使用的云项目、集群或注册表以及使用什么身份。在此条目命名该身份之前，分类器[阻止](/docs/zh-CN/permission-modes#what-the-classifier-blocks-by-default)对主机自身凭证的请求。需要 Claude Code v2.1.257 或更高版本
+  * **Protected deployment namespaces / environments**：回退到 Sensitive remote targets 启发式方法，直到您命名它们
   * **Data retention / declassification**
-* **Trust slots**：命名分类器视为在您边界内的内容。槽位为 Trusted repo、Source control、Trusted internal domains、Trusted cloud buckets、Key internal services 和 Internal package registry。repo 和 source-control 条目默认为工作仓库及其配置的远程。所有其他信任槽默认为 `None configured`，因此在您添加之前没有其他内容是受信的。仓库的可见性仅限于机密材料：私有仓库是机密材料的可接受目标，但将仓库设为私有永远不会清除秘密、个人或受信数据，分类器将从工作仓库外部移植、重新指向或首次读取的内容视为不是该仓库自己的工作。此范围界定需要 Claude Code v2.1.203 或更高版本。
-* **Sensitivity slots**：命名保护规则视为高风险的内容。槽位为 Sensitive data locations & audiences、Sensitive remote targets 和 Protected IaC scopes。每个默认为广泛的启发式，例如将任何名称中包含 `prod` 或 `production` 的主机或命名空间视为敏感远程目标，因此保护规则在您配置任何内容之前就处于活动状态。在敏感槽中命名具体目标会使这些规则应用于命名的目标而不是启发式。
+* **Trust slots**：命名分类器视为在您边界内的内容。槽位为 Trusted repo、Source control、Trusted internal domains、Trusted cloud buckets、Key internal services 和 Internal package registry。repo 和 source-control 条目默认为工作仓库及其配置的远程。所有其他信任槽默认为 `None configured`，因此在您添加之前没有其他内容是受信的。仓库的可见性仅限于机密材料：私有仓库是机密材料的可接受目标，但将仓库设为私有永远不会将秘密或个人或受信数据清除到其中，分类器将从工作仓库外部移植、重新指向或首次读取的内容视为不是该仓库自己的工作。此范围界定需要 Claude Code v2.1.203 或更高版本。
+* **Sensitivity slots**：命名保护规则视为高风险的内容。槽位为 Sensitive data locations & audiences、Sensitive remote targets 和 Protected IaC scopes。每个默认为广泛的启发式方法，例如将任何名称中包含 `prod` 或 `production` 的主机或命名空间视为敏感远程目标，因此保护规则在您配置任何内容之前就处于活动状态。在敏感性槽中命名具体目标会使这些规则应用于命名的目标而不是启发式方法。
 
-<Info>在 v2.1.211 之前，context slots 还包括一个 Default / protected branches 条目，该条目将 `main` 和 `master` 视为受保护的，直到您命名其他分支。v2.1.211 移除了它：[推送到您正在处理的仓库的任何分支](#common-boundaries)默认是允许的，因此没有受保护分支默认值需要配置。</Info>
+<Info>在 v2.1.211 之前，context slots 还包括一个 Default / protected branches 条目，该条目将 `main` 和 `master` 视为受保护，直到您命名其他分支。v2.1.211 删除了它：[推送到您正在处理的仓库的任何分支](#common-boundaries)默认是允许的，因此没有受保护分支默认值需要配置。</Info>
 
 要在默认值旁边添加您自己的条目，请在数组中包含字面字符串 `"$defaults"`。默认条目在该位置被拼接，因此您的自定义条目可以在它们之前或之后。
 
-以下示例保留默认条目并添加组织的仓库、存储桶、域名和服务。
+以下示例保留默认条目并添加组织的仓库、存储桶、域和服务。
 
 ```json theme={null}
 {
@@ -133,15 +135,15 @@
 
 保存设置后，运行 `claude auto-mode config` 以[确认有效规则](#inspect-the-defaults-and-your-effective-config)包括您的条目。
 
-条目是散文，不是正则表达式或工具模式。分类器将它们读取为自然语言规则。按照您向新工程师描述基础设施的方式编写它们。一个全面的环境部分涵盖：
+条目是散文，不是正则表达式或工具模式。分类器将它们读取为自然语言规则。按照您向新工程师描述基础设施的方式编写它们。彻底的环境部分涵盖：
 
-* **Organization**：您的公司名称以及 Claude Code 主要用于什么，如软件开发、基础设施自动化或数据工程
+* **Organization**：您的公司名称以及 Claude Code 主要用于什么，例如软件开发、基础设施自动化或数据工程
 * **Source control**：您的开发人员推送到的每个 GitHub、GitLab 或 Bitbucket 组织
 * **Cloud providers and trusted buckets**：Claude 应该能够读取和写入的存储桶名称或前缀
-* **Trusted internal domains**：网络内 API、仪表板和服务的主机名，如 `*.internal.example.com`
+* **Trusted internal domains**：网络内 API、仪表板和服务的主机名，例如 `*.internal.example.com`
 * **Key internal services**：CI、工件注册表、内部包索引、事件工具
-* **Internal package registry**：安装应该通过的私有 npm、PyPI 或其他注册表，因此绕过它安装公开注册表的安装会被阻止
-* **Sensitive data locations & audiences**：保存个人数据、机密业务数据、凭证、受管制数据或类似敏感材料的存储桶、数据库或路径，以及每个位置中的数据可能与之共享的受众，以便分类器保护这些位置而不是从内容猜测。Claude Code v2.1.195 至 v2.1.197 将此条目命名为 PII / regulated-data locations，仅涵盖保存个人或受管制数据的位置，不包括受众维度
+* **Internal package registry**：安装应该通过的私有 npm、PyPI 或其他注册表，因此绕过它安装到公开注册表的安装会被阻止
+* **Sensitive data locations & audiences**：保存个人数据、机密业务数据、凭证、受管制数据或类似敏感材料的存储桶、数据库或路径，以及每个位置中的数据可能与之共享的受众，以便分类器保护这些位置而不是从内容猜测。Claude Code v2.1.195 到 v2.1.197 将此条目命名为 PII / regulated-data locations，仅涵盖保存个人或受管制数据的位置，不包括受众维度
 * **Sensitive remote targets**：计为生产的命名空间、主机或容器，因此远程 shell 和端口转发到它们需要您的明确批准
 * **Protected IaC scopes**：应用或销毁应始终需要您命名更改的基础设施资源
 * **Additional context**：受管制行业约束、多租户基础设施或影响分类器应视为风险的合规要求
@@ -169,7 +171,7 @@ Internal package registry、Sensitive data locations & audiences、Sensitive rem
 
 您提供的上下文越具体，分类器就越能区分常规内部操作和数据泄露尝试。
 
-您不需要一次性填写所有内容。合理的推出：从默认值开始，添加您的源代码控制组织和关键内部服务，这解决了最常见的误报，如推送到您自己的仓库。接下来添加受信域和云存储桶。当出现阻止时填写其余部分。
+您不需要一次性填写所有内容。合理的推出方式：从默认值开始，添加您的源代码控制组织和关键内部服务，这解决了最常见的误报，例如推送到您自己的仓库。接下来添加受信域和云存储桶。当出现阻止时填写其余部分。
 
 <h2 id="generate-environment-entries">
   使用 `/auto-mode-setup` 生成环境条目
@@ -301,7 +303,7 @@ Claude Code 在后台扫描，然后向你显示草稿。你可以整体接受�
   通过分类器路由所有 shell 命令
 </h2>
 
-默认情况下，narrow Bash 和 PowerShell 允许规则（如 `Bash(npm test)`）在自动模式下保持有效，Claude Code 在分类器运行之前解析它们。Claude Code 仅暂停授予任意代码执行权限的广泛规则，例如 `Bash(*)` 或通配符解释器，以及每个命名 [`Monitor`](/docs/zh-CN/tools-reference#monitor-tool) 的规则，因为 Monitor 命令通过 shell 运行。这意味着 narrow 规则仍然可以让分类器看不到的破坏性参数通过，例如规则前缀未预期的脚本路径或标志。
+默认情况下，narrow Bash 和 PowerShell 允许规则（如 `Bash(npm test)`）在自动模式下保持有效。Claude Code 在分类器运行之前解析它们，除非命令携带[按命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)。Claude Code 仅暂停授予任意代码执行权限的广泛规则，例如 `Bash(*)` 或通配符解释器，以及每个命名 [`Monitor`](/docs/zh-CN/tools-reference#monitor-tool) 的规则，因为 Monitor 命令通过 shell 运行。这意味着 narrow 规则仍然可以让分类器看不到的破坏性参数通过，例如规则前缀未预期的脚本路径或标志。
 
 将 `autoMode.classifyAllShell` 设置为 `true`，以在自动模式处于活动状态时暂停每个 Bash 和 PowerShell 允许规则，使分类器评估每个 shell 命令，无论您的允许列表如何。
 

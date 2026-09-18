@@ -141,7 +141,7 @@ export const ContactSalesCard = ({surface}) => {
     </tr>
 
     <tr>
-      <td>prompt caching</td>
+      <td>Prompt caching</td>
       <td>默认启用</td>
       <td>默认启用</td>
       <td>默认启用</td>
@@ -152,7 +152,7 @@ export const ContactSalesCard = ({surface}) => {
 
     <tr>
       <td>身份验证</td>
-      <td>Claude.ai SSO 或电子邮件</td>
+      <td>claude.ai SSO 或电子邮件</td>
       <td>API 密钥或 [Console 无密钥登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)</td>
       <td>API 密钥或 AWS 凭证</td>
       <td>API 密钥或 AWS 凭证</td>

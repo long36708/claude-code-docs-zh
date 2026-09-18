@@ -63,14 +63,13 @@ ZDR 不适用于以下内容，即使对于启用了 ZDR 的组织也是如此�
 
 当为 Claude for Enterprise 上的 Claude Code 组织启用 ZDR 时，某些需要存储提示或完成的功能会在后端级别自动禁用：
 
-| 功能                                                 | 原因                                |
-| -------------------------------------------------- | --------------------------------- |
-| [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)  | 需要服务器端存储对话历史。                     |
-| 来自 Desktop 应用的[云会话](/docs/zh-CN/desktop#cloud-sessions) | 需要包含提示和完成的持久会话数据。                 |
-| [Claude Tag](/docs/zh-CN/claude-tag)                    | 保留频道内存和会话记录。                      |
-| [Artifacts](/docs/zh-CN/artifacts)                      | 需要在 Anthropic 运营的基础设施上存储已发布的页面内容。 |
-| 反馈提交（`/feedback`、`/bug`、`/share`）                  | 提交反馈会将对话数据发送给 Anthropic。          |
-| [Remote Control](/docs/zh-CN/remote-control)            | 在 Anthropic 服务器上存储会话记录以跨设备同步对话。   |
+| 功能                                                                                                     | 原因                                |
+| ------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)，包括从 [Desktop 应用](/docs/zh-CN/desktop#cloud-sessions)启动的应用 | 需要服务器端存储会话数据，包括包含提示和完成的对话历史。      |
+| [Claude Tag](/docs/zh-CN/claude-tag)                                                                        | 保留频道内存和会话记录。                      |
+| [Artifacts](/docs/zh-CN/artifacts)                                                                          | 需要在 Anthropic 运营的基础设施上存储已发布的页面内容。 |
+| 反馈提交（`/feedback`、`/bug`、`/share`）                                                                      | 提交反馈会将对话数据发送给 Anthropic。          |
+| [Remote Control](/docs/zh-CN/remote-control)                                                                | 在 Anthropic 服务器上存储会话记录以跨设备同步对话。   |
 
 这些功能在后端被阻止，无论客户端显示如何。如果您在启动期间在 Claude Code 终端中看到禁用的功能，尝试使用它会返回一个错误，指示组织的政策不允许该操作。
 

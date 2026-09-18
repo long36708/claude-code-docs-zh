@@ -60,7 +60,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 本快速入门演示最小路径：在您的 IdP 中注册 OAuth 客户端，编写 `gateway.yaml`，使用 Docker Compose 运行网关和 Postgres，并端到端验证登录。它使用 Amazon Bedrock 上游；Claude Platform on AWS、Google Cloud 的 Agent Platform、Microsoft Foundry 和 Anthropic API 同样受支持，只需交换[配置参考](/docs/zh-CN/claude-apps-gateway-config#upstreams)中所示的 `upstreams` 块。最后，您有一个开发人员可以 `/login` 的网关。
 
 <Note>
-  **在您的私有网络上部署。** Claude Code 仅连接到地址为私有的网关。这是一个安全防护，因为受信任的网关可以推送在开发人员机器上运行命令的设置。将网关放在内部负载均衡器或 VPN 后面，并给它一个仅解析为私有 IP 的主机名。
+  **在您的私有网络上部署。** Claude Code 仅连接到地址为私有的网关。这是一个安全防护，因为受信任的网关可以推送在开发人员机器上运行命令的设置。将网关放在内部负载均衡器或 VPN 后面，并给它一个仅解析为私有 IP 的主机名。如果您的内部网络使用您的组织拥有的公共 IPv4 空间编号，请参阅[允许网关在您拥有的公共地址空间上](#allow-a-gateway-on-public-address-space-you-own)。
 </Note>
 
 <h3 id="prerequisites">
@@ -69,15 +69,15 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 
 在开始之前，请准备好以下内容：
 
-| 您需要                         | 详情                                                                                                                                                                                                                                                                                                                                          |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Claude Code v2.1.195 或更高版本  | `claude gateway` 子命令和网关登录流在 v2.1.195 中发布。早期的公开版本不包含它们。运行网关服务器的机器和每个开发人员的机器都必须是 v2.1.195 或更高版本；运行 `claude update` 获取最新版本。[Claude Platform on AWS 上游](/docs/zh-CN/claude-apps-gateway-config#claude-platform-on-aws)在网关服务器上需要 Claude Code v2.1.198 或更高版本。                                                                                          |
-| OpenID Connect (OIDC) 身份提供商 | Okta、Microsoft Entra ID、Google Workspace、Keycloak 或 Dex，或任何其他符合 OIDC 的 IdP，如 PingFederate。网关针对它运行标准 OIDC 发现和授权代码流。不支持 SAML 和 LDAP。                                                                                                                                                                                                          |
-| PostgreSQL 14 或更高版本         | 支持设备登录流，其中浏览器回调写入，轮询 CLI 读取，加上速率限制计数器。任何托管 Postgres 都可以，包括最小层级。在没有配置支出限制的情况下，网关存储几 KB 的短期身份验证状态；使用[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)，它还保存应备份的持久支出、审计和身份表。建议通过 `?sslmode=require` 使用 TLS。                                                                                                                                       |
-| 模型上游                        | Amazon Bedrock 凭证、Claude Platform on AWS 凭证、Google Cloud 凭证、Microsoft Foundry 资源或 Anthropic API 密钥。支持多个上游和故障转移。                                                                                                                                                                                                                             |
-| HTTPS                       | 网关必须可从开发人员笔记本电脑和用于登录的任何浏览器通过 `https://` 访问；网关在同一侦听器上提供设备验证页面。通过 `listen.tls` 提供 TLS 证书，或在 TLS 终止入口后运行并设置 `listen.public_url` 为外部源，两种情况都是如此。纯 `http://` 源仅在网关主机是环回时接受：`localhost`、`127.0.0.1` 或 `::1`。                                                                                                                                       |
-| 私有网络地址                      | 在 `/login` 处，Claude Code 要求网关的主机名或 IP 地址仅解析为私有地址：RFC 1918、链路本地、CGNAT `100.64.0.0/10`、IPv6 ULA `fc00::/7` 或环回。对于您托管的网关，任何公共地址都被拒绝；请参阅部署指南中的[威胁模型](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)。检查在每个解析的 IP 上运行，因此如果名称解析到的任何地址是公共的，`/login` 会拒绝该 URL。如果开发人员机器通过公司代理路由 HTTPS，登录还要求代理主机解析为私有地址；如果不是，将网关主机添加到 `NO_PROXY`，以便 CLI 直接连接。 |
-| Linux 运行时                   | 网关服务器仅在本机 Linux 二进制文件上运行。macOS 适用于本地开发。Windows 不支持作为服务器平台。                                                                                                                                                                                                                                                                                  |
+| 您需要                         | 详情                                                                                                                                                                                                                                                                                                                                                                                                 |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Code v2.1.195 或更高版本  | `claude gateway` 子命令和网关登录流在 v2.1.195 中发布。早期的公开版本不包含它们。运行网关服务器的机器和每个开发人员的机器都必须是 v2.1.195 或更高版本；运行 `claude update` 获取最新版本。[Claude Platform on AWS 上游](/docs/zh-CN/claude-apps-gateway-config#claude-platform-on-aws)在网关服务器上需要 Claude Code v2.1.198 或更高版本。                                                                                                                                                 |
+| OpenID Connect (OIDC) 身份提供商 | Okta、Microsoft Entra ID、Google Workspace、Keycloak 或 Dex，或任何其他符合 OIDC 的 IdP，如 PingFederate。网关针对它运行标准 OIDC 发现和授权代码流。不支持 SAML 和 LDAP。                                                                                                                                                                                                                                                                 |
+| PostgreSQL 14 或更高版本         | 支持设备登录流，其中浏览器回调写入，轮询 CLI 读取，加上速率限制计数器。任何托管 Postgres 都可以，包括最小层级。在没有配置支出限制的情况下，网关存储几 KB 的短期身份验证状态；使用[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)，它还保存应备份的持久支出、审计和身份表。建议通过 `?sslmode=require` 使用 TLS。                                                                                                                                                                                              |
+| 模型上游                        | Amazon Bedrock 凭证、Claude Platform on AWS 凭证、Google Cloud 凭证、Microsoft Foundry 资源或 Anthropic API 密钥。支持多个上游和故障转移。                                                                                                                                                                                                                                                                                    |
+| HTTPS                       | 网关必须可从开发人员笔记本电脑和用于登录的任何浏览器通过 `https://` 访问；网关在同一侦听器上提供设备验证页面。通过 `listen.tls` 提供 TLS 证书，或在 TLS 终止入口后运行并设置 `listen.public_url` 为外部源，两种情况都是如此。纯 `http://` 源仅在网关主机是环回时接受：`localhost`、`127.0.0.1` 或 `::1`。                                                                                                                                                                                              |
+| 私有网络地址                      | 在 `/login` 处，Claude Code 要求网关的主机名或 IP 地址仅解析为私有地址：RFC 1918、链路本地、CGNAT `100.64.0.0/10`、IPv6 ULA `fc00::/7` 或环回。对于您托管的网关，任何公共地址都被拒绝；请参阅部署指南中的[威胁模型](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)。如果开发人员机器通过公司代理路由 HTTPS，登录还要求代理主机解析为私有地址；如果不是，将网关主机添加到 `NO_PROXY`，以便 CLI 直接连接。如果您的内部网络使用您的组织拥有的公共 IPv4 空间编号，[声明这些块](#allow-a-gateway-on-public-address-space-you-own)，以便 `/login` 接受那里的网关。 |
+| Linux 运行时                   | 网关服务器仅在本机 Linux 二进制文件上运行。macOS 适用于本地开发。Windows 不支持作为服务器平台。                                                                                                                                                                                                                                                                                                                                         |
 
 <h3 id="steps">
   步骤
@@ -182,6 +182,8 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
     [gateway] 2026-06-10T17:03:21.431Z info migration 6 applied
     [gateway] 2026-06-10T17:03:21.512Z info claude gateway listening on http://0.0.0.0:8080
     ```
+
+    网关还会记录一个警告，`access_control.allow_cidrs` 为空。这在这里是预期的，因为在您设置允许列表之前，没有任何东西限制网关提供的客户端地址。[`access_control` 参考](/docs/zh-CN/claude-apps-gateway-config#http-tuning)有推荐的范围。
 
     如果启动在 `claude gateway listening on` 行之前退出，stderr 的最后一行命名问题：
 
@@ -288,6 +290,51 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 开发人员按 Enter 连接。[首次连接 TLS 指纹提示](#connect-developers)仍然出现。文件在机器上后，未完成网关登录的开发人员会看到[管理员策略需要 Cloud 网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)下描述的消息之一。通过环境变量（如 `CLAUDE_CODE_USE_BEDROCK`）选择云提供商的开发人员不需要网关登录。
 
 开发人员无法手动设置此项。登录选择器中没有网关选项，`forceLoginGatewayUrl` 在开发人员自己的设置文件中被忽略。单独的 `forceLoginMethod`，没有 URL，将开发人员留在"联系您的 IT 管理员"消息处。登录密钥属于您推送到机器的文件中，而不是网关的 `managed.policies[].cli` 块中，该块仅到达已连接的客户端。
+
+<h3 id="allow-a-gateway-on-public-address-space-you-own">
+  在您拥有的公共地址空间上允许网关
+</h3>
+
+某些组织从他们拥有的公共 IPv4 块对其内部网络进行编号，例如运营商自己的地址空间或遗留的 `/8`，因此他们的网关不能有私有地址。在 `gatewayInternalNetworks` 托管设置中列出这些块。当开发人员的机器从同一块内的地址连接到它时，`/login` 然后接受列出块内的网关。这需要开发人员机器上的 Claude Code v2.1.268 或更高版本；早期版本忽略该密钥并应用私有地址规则。
+
+<Warning>
+  `gatewayInternalNetworks` 用于恰好从公共地址空间编号的内部网络。它不会使将网关暴露到互联网变得安全：受信任的网关可以推送在开发人员机器上运行命令的设置。
+
+  使用您的防火墙或负载均衡器规则将网关保持在网络外部无法访问。将网关的 [`access_control.allow_cidrs`](/docs/zh-CN/claude-apps-gateway-config#http-tuning) 设置为您在此处声明的相同块，以便网关本身拒绝来自其他任何地方的客户端。在负载均衡器或入口后面，也将 `listen.trusted_proxies` 设置为该前端，因为网关否则会针对前端自己的地址而不是开发人员的地址匹配 `allow_cidrs`。
+</Warning>
+
+将密钥添加到与登录密钥相同的托管设置源：托管设置文件、MDM 配置文件或注册表策略。Claude Code 在用户、项目和服务器托管设置中忽略它。
+
+此示例声明一个块。将 `203.0.113.0/24` 替换为您自己的块。它是文档范围，Claude Code 拒绝这些。
+
+```json theme={null}
+{
+  "gatewayInternalNetworks": ["203.0.113.0/24"]
+}
+```
+
+Claude Code 在 `/login` 处验证列表，然后再联系任何网关：
+
+* 每个条目是一个 IPv4 块，写成其第一个地址和从 `/8` 到 `/32` 的前缀。
+* 列表最多包含四个块，没有两个重叠。
+* 没有块与私有地址空间重叠：`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`、`127.0.0.0/8`、`169.254.0.0/16` 和 `100.64.0.0/10`。`/login` 已经在没有此密钥的情况下接受那里的网关。
+* 没有块与从不是组织网络的空间重叠：`198.18.0.0/15` 和 `192.0.0.0/24`，VPN 和 NAT64 客户端将其作为本地地址；文档范围 `192.0.2.0/24`、`198.51.100.0/24` 和 `203.0.113.0/24`；以及保留范围 `0.0.0.0/8`、`192.88.99.0/24` 和多播 `224.0.0.0/4`。您可以声明 `240.0.0.0/4` 内的块，某些大型网络将其用作内部单播空间。
+
+来自 `managed-settings.json` 及其 `managed-settings.d/` 插入文件的块合并为一个列表，这些限制适用于合并列表。要缩小块，请替换其条目而不是在插入中添加第二个重叠的；`/login` 拒绝重叠。
+
+如果条目违反规则，或值不是字符串列表，Claude Code 拒绝该机器上的每个新网关登录并在消息中命名问题。登录到私有地址上的网关也失败，现有登录继续工作。在部署前在一台机器上尝试该值。Claude Code 还在[它报告的无效托管设置](/docs/zh-CN/managed-settings#keys-that-fail-closed)中列出错误类型的值。
+
+使用有效列表，`/login` 对地址在列出块内的网关应用三个检查：
+
+* 网关主机名解析到的每个地址都在该块内。Claude Code 拒绝也在块外有记录的名称，包括私有和 IPv6 地址。
+* 开发人员的机器从同一块内连接。Claude Code 拒绝 NAT 后面、容器或 WSL2 内或 VPN 上的机器，其地址池位于块外，并命名机器连接的地址。
+* 连接是直接的。如果 `HTTPS_PROXY` 适用于网关主机，`/login` 拒绝并命名要添加的 `NO_PROXY` 条目。
+
+当所有三个通过时，[信任提示](#connect-developers)添加一行命名机器的地址、网关的地址和包含两者的声明块。
+
+该密钥对其他网关不改变任何内容：登录到私有地址上的网关像以前一样工作，登录到每个列出块外的公共地址上的网关像以前一样被拒绝。
+
+声明的块缩小了谁可以登录但不证明机器在哪里，因此仅声明您的组织控制的地址空间。与其他租户共享的块，例如云提供商的公共范围，让其中的任何人通过相同的检查。
 
 <h3 id="deliver-policy-to-claude-desktop-sessions">
   将策略传递给 Claude Desktop 会话

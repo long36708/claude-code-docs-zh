@@ -122,7 +122,7 @@ Claude Code 允许用户配置 Model Context Protocol (MCP) servers。允许的 
   云执行安全性
 </h2>
 
-使用 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) 时，会实施额外的安全控制。您的组织路由到 [自托管环境](/docs/zh-CN/self-hosted-environments) 的会话在您自己的基础设施上运行，其中隔离、网络出口和 git 凭证是您部署的责任。在 Anthropic 托管的环境中：
+使用 [cloud sessions](/docs/zh-CN/claude-code-on-the-web) 时，会实施额外的安全控制。您的组织路由到 [自托管环境](/docs/zh-CN/self-hosted-environments) 的会话在您自己的基础设施上运行，其中隔离、网络出口和 git 凭证是您部署的责任。在 Anthropic 托管的环境中：
 
 * **隔离的虚拟机**：每个云会话在隔离的、由 Anthropic 管理的 VM 中运行
 * **网络访问控制**：网络访问默认受限，可以配置为禁用或仅允许特定域
@@ -131,7 +131,7 @@ Claude Code 允许用户配置 Model Context Protocol (MCP) servers。允许的 
 * **审计日志**：云会话中的所有操作都被记录以用于合规和审计目的
 * **自动清理**：会话 VM 在一段时间不活动后被回收
 
-有关云执行的更多详情，请参阅 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web)；要为云会话配置网络访问，请参阅 [Configure cloud environments](/docs/zh-CN/cloud-environments#network-access)。
+有关云执行的更多详情，请参阅 [Use Claude Code in the cloud](/docs/zh-CN/claude-code-on-the-web)；要为云会话配置网络访问，请参阅 [Configure cloud environments](/docs/zh-CN/cloud-environments#network-access)。
 
 [Remote Control](/docs/zh-CN/remote-control) 会话的工作方式不同：Web 界面连接到在您本地机器上运行的 Claude Code 进程。所有代码执行和文件访问都保持本地，会话流量通过 TLS 上的 Anthropic API 传输；连接时，会话记录存储在 Anthropic 服务器上以跨设备同步对话，如 [Connection and security](/docs/zh-CN/remote-control#connection-and-security) 中所述。不涉及云 VM 或沙箱。连接使用多个短期的、范围狭窄的凭证，每个凭证限制于特定目的并独立过期，以限制任何单个受损凭证的影响范围。
 

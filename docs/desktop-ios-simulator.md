@@ -29,7 +29,7 @@ iOS Simulator 窗格在 Claude Code Desktop 中的对话旁边显示你的应用
   在本页上，"设备"指的是模拟的 iPhone 或 iPad，是你在 Xcode 中的**Window → Devices and Simulators** 下管理的相同模拟器设备之一，而不是物理硬件。
 </Note>
 
-模拟器窗格仅在本地会话中可用。在[云](/docs/zh-CN/desktop#run-long-running-tasks-remotely)和 [SSH](/docs/zh-CN/desktop#ssh-sessions) 会话中，Claude 在无法访问 Mac 上模拟器的机器上运行。
+模拟器窗格仅在本地会话中可用。在[云](/docs/zh-CN/desktop#run-long-running-tasks-in-the-cloud)和 [SSH](/docs/zh-CN/desktop#ssh-sessions) 会话中，Claude 在无法访问 Mac 上模拟器的机器上运行。
 
 <h2 id="run-your-app-in-the-simulator">
   在模拟器中运行你的应用

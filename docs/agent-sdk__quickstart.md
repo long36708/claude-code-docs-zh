@@ -62,7 +62,7 @@
       </Tab>
 
       <Tab title="Python（uv）">
-        [uv](https://docs.astral.sh/uv/) 是一个快速的 Python 包管理器，可以自动处理虚拟环境：
+        [安装 uv](https://docs.astral.sh/uv/)，一个快速的 Python 包管理器，可以自动处理虚拟环境。然后初始化一个项目并添加 SDK：
 
         ```bash theme={null}
         uv init
@@ -356,6 +356,8 @@ def get_user_name(user):
 
 启用 `Bash` 后，尝试：`"Write unit tests for utils.py, run them, and fix any failures"`
 
+这些代码片段中的每一个都在同一个选项对象上设置字段。有关更多信息，请参阅[配置你的代理](/docs/zh-CN/agent-sdk/configuration)。
+
 <h2 id="key-concepts">
   关键概念
 </h2>
@@ -376,6 +378,7 @@ def get_user_name(user):
 
 现在你已经创建了你的第一个代理，学习如何扩展其功能并将其定制到你的用例：
 
+* **[配置你的代理](/docs/zh-CN/agent-sdk/configuration)**：组合选项对象并找到涵盖每个设置的页面
 * **[权限](/docs/zh-CN/agent-sdk/permissions)**：控制你的代理可以做什么以及何时需要批准
 * **[Hooks](/docs/zh-CN/agent-sdk/hooks)**：在工具调用之前或之后运行自定义代码
 * **[会话](/docs/zh-CN/agent-sdk/sessions)**：构建维护上下文的多轮代理

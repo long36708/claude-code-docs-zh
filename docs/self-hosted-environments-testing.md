@@ -74,7 +74,7 @@ exit 0
   启动运行器之前
 </h3>
 
-hook 依赖的两件事：
+hook 有以下要求：
 
 * 在启动运行器之前安装它。运行器在启动时对 `~/.claude/` 进行快照，因此添加到运行中的运行器的 hook 仅在重新启动后才生效。
 * 将 `E2E_REPLY_DIR` 导出到运行器进程。当变量未设置或目录不存在时，hook 是无操作的，因此在启动运行器的任何地方设置它，例如 systemd 单元、pod 规范或 CI 步骤。下面的测试脚本也需要它。
@@ -214,7 +214,7 @@ CLI 在每次调用时自动刷新短期访问令牌，但基础刷新令牌授�
   临时 CI 运行器
 </h3>
 
-目前没有针对此的长期 CI 令牌。授予远程会话控制的范围 `user:sessions:claude_code` 在服务器端限制为 30 天，因此 `claude setup-token`（它铸造一年推理令牌）不涵盖它。[环境秘密](/docs/zh-CN/self-hosted-environments-quickstart#set-up-an-environment-and-runner)也不被接受，因为它仅授权运行器向环境注册，而不是创建会话。
+目前没有针对此的长期 CI 令牌。授予云会话控制的范围 `user:sessions:claude_code` 在服务器端限制为 30 天，因此 `claude setup-token`（它铸造一年推理令牌）不涵盖它。[环境秘密](/docs/zh-CN/self-hosted-environments-quickstart#set-up-an-environment-and-runner)也不被接受，因为它仅授权运行器向环境注册，而不是创建会话。
 
 要在临时运行器上配置存储的登录，请设置 [`CLAUDE_CODE_OAUTH_REFRESH_TOKEN` 和 `CLAUDE_CODE_OAUTH_SCOPES`](/docs/zh-CN/env-vars#variables)，以便 `claude auth login` 交换令牌而不需要浏览器；相同的 30 天上限适用于刷新授予。如果您需要不受人类帐户约束的机器身份路径，请联系您的 Anthropic 帐户团队。
 

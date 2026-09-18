@@ -107,7 +107,7 @@ Agent SDK 建立在与 Claude Code 相同的基础之上，这意味着您的 SD
   项目说明（CLAUDE.md 和规则）
 </h2>
 
-`CLAUDE.md` 文件和 `.claude/rules/*.md` 文件为您的代理提供关于您的项目的持久上下文：编码约定、构建命令、架构决策和说明。当 `settingSources` 包含 `"project"`（如上面的示例）时，SDK 在会话开始时将这些文件加载到上下文中。然后代理遵循您的项目约定，而无需在每个提示中重复它们。
+`CLAUDE.md` 文件和 `.claude/rules/*.md` 文件为您的代理提供关于您的项目的持久上下文：编码约定、构建命令、架构决策和说明。当 `settingSources` 包含 `"project"`（如 [`settingSources` 示例](#control-filesystem-settings-with-settingsources)中所示）时，SDK 在会话开始时将这些文件加载到上下文中。然后代理遵循您的项目约定，而无需在每个提示中重复它们。
 
 <h3 id="claude-md-load-locations">
   CLAUDE.md 加载位置

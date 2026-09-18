@@ -21,7 +21,7 @@ Claude [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和
     为 [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 或 [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude) 安装 Claude 应用程序。在 iPad 上，安装相同的 iOS 应用程序。
 
     <Tip>
-      在 Claude Code 会话中运行 `/mobile` 以显示您可以扫描的下载二维码。`/ios` 和 `/android` 执行相同的操作。
+      在 Claude Code 会话中运行 `/mobile` 以显示 [claude.ai/mobile](https://claude.ai/mobile) 的二维码，该二维码会打开适合您手机的应用商店。`/ios` 和 `/android` 执行相同的操作。
     </Tip>
   </Step>
 
@@ -40,11 +40,11 @@ Claude [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和
 
 从应用程序中，您可以启动云会话、驱动在您的计算机上运行的 Claude Code 会话，或向 Dispatch 消息传递任务。应用程序对所有三者都是相同的；它们在工作发生的位置上有所不同。
 
-| 功能                                                | 您连接到的内容                     | 何时使用                                                                   |
-| :------------------------------------------------ | :-------------------------- | :--------------------------------------------------------------------- |
-| [Claude Code 网页版](/docs/zh-CN/claude-code-on-the-web)  | 云基础设施上的云会话，默认由 Anthropic 托管 | 您的存储库在 GitHub 上，任务应在您放下手机后继续运行。请参阅[网页快速入门](/docs/zh-CN/web-quickstart)进行设置。 |
-| [远程控制](/docs/zh-CN/remote-control)                     | 在您的计算机上运行的 Claude Code 会话   | 工作需要您的本地文件系统、工具或 MCP 服务器。                                              |
-| [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch) | 您计算机上的桌面应用程序                | 您想消息传递一个任务，让 Dispatch 决定如何运行它。需要 Pro 或 Max 计划。                         |
+| 功能                                                | 您连接到的内容                    | 何时使用                                                                  |
+| :------------------------------------------------ | :------------------------- | :-------------------------------------------------------------------- |
+| [云会话](/docs/zh-CN/claude-code-on-the-web)              | 云基础设施上的会话，默认由 Anthropic 托管 | 您的存储库在 GitHub 上，任务应在您放下手机后继续运行。请参阅[云快速入门](/docs/zh-CN/web-quickstart)进行设置。 |
+| [远程控制](/docs/zh-CN/remote-control)                     | 在您的计算机上运行的 Claude Code 会话  | 工作需要您的本地文件系统、工具或 MCP 服务器。                                             |
+| [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch) | 您计算机上的桌面应用程序               | 您想消息传递一个任务，让 Dispatch 决定如何运行它。需要 Pro 或 Max 计划。                        |
 
 如果您的计算机将关闭，请使用云会话，它们在云中运行，并在您的笔记本电脑关闭后继续运行。远程控制和 Dispatch 驱动您自己的机器，因此它需要保持打开状态并运行 Claude Code 或桌面应用程序。如果您的机器在远程控制会话期间进入睡眠状态，Claude Code 会在机器重新上线时重新连接。
 
@@ -56,9 +56,9 @@ Claude [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和
   启动和监控云会话
 </h3>
 
-Claude Code 网页版在云基础设施上运行任务，默认由 Anthropic 托管，因此会话在您放下手机后继续进行。从 Code 选项卡中，选择一个存储库和分支，描述任务，然后提交。会话在设备之间持久化：您在笔记本电脑上启动的任务已准备好从您的手机进行审查，您从手机启动的任务在您回到办公桌时正在等待。
+云会话在云基础设施上运行任务，默认由 Anthropic 托管，因此会话在您放下手机后继续进行。从 Code 选项卡中，选择一个存储库和分支，描述任务，然后提交。会话在设备之间持久化：您在笔记本电脑上启动的任务已准备好从您的手机进行审查，您从手机启动的任务在您回到办公桌时正在等待。
 
-在应用程序中打开会话以检查进度、回答 Claude 的问题或将其引导到新的方向。您也可以告诉 Claude [监视拉取请求](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)并在 CI 失败或审查评论到达时修复它们。要连接 GitHub 并设置您的环境，请按照[网页快速入门](/docs/zh-CN/web-quickstart)进行操作，并查看[Claude Code 网页版](/docs/zh-CN/claude-code-on-the-web)了解云会话可以执行的所有操作。
+在应用程序中打开会话以检查进度、回答 Claude 的问题或将其引导到新的方向。您也可以告诉 Claude [监视拉取请求](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)并在 CI 失败或审查评论到达时修复它们。要连接 GitHub 并设置您的环境，请按照[云快速入门](/docs/zh-CN/web-quickstart)进行操作，并查看[在云中使用 Claude Code](/docs/zh-CN/claude-code-on-the-web) 了解云会话可以执行的所有操作。
 
 <h3 id="continue-a-local-session-with-remote-control">
   使用远程控制继续本地会话

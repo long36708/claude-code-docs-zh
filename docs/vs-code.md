@@ -127,6 +127,10 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
   * 要报告错误，请点击菜单底部的 **Report a problem**，或输入 `/bug` 或 `/feedback` 以及可选的描述来预填充报告。当您提交报告并且您在第一方连接上登录到 Anthropic 时，Claude Code 会将其发送给 Anthropic。在第三方提供商上，或没有 Anthropic 凭证的情况下，对话框仍会打开，但提交会显示错误并不发送任何内容：与 CLI 的 `/bug` 不同，扩展程序不会写入本地存档。需要 Claude Code v2.1.229 或更高版本。
 * **Side questions**：输入 `/btw` 后跟一个问题来提问您的会话[而不添加到对话](/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw)。答案在聊天旁边的面板中打开，您可以在其中提出后续问题。线程在窗口重新加载后仍然存在。Claude Code 保留最新的 20 个交换，并根据 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 计划过期存储的线程，只要 Claude Code 可以[安全地确定保留期](/docs/zh-CN/claude-directory#cleaned-up-automatically)。要清除线程，请点击面板中的垃圾箱图标。需要 Claude Code v2.1.227 或更高版本。
 * **Context indicator**：提示框显示您使用了多少 Claude 的上下文窗口。Claude 在需要时自动压缩，或者您可以手动运行 `/compact`。
+* **Prompt cache clock**：上下文指示器旁边的时钟图标估计对话的 [prompt cache](/docs/zh-CN/prompt-caching) 在过期前还剩多少时间。它从缓存的五分钟或一小时[生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)倒计时，每个使用缓存的响应都会重新启动倒计时。除了压缩外，[使缓存失效的操作](/docs/zh-CN/prompt-caching#actions-that-invalidate-the-cache)不会重置时钟，因此在您切换模型后它仍然可以显示剩余的分钟数。
+  * 在倒计时结束之前，图标显示剩余的分钟数，例如 **12m**。
+  * 当倒计时结束时，分钟消失，图标变为红色，或您主题的错误颜色，直到下一个响应。缓存可能已过期，因此在缓存重建时，您对下一条消息的响应可能会更慢、更昂贵。如果五分钟的生命周期在您的消息之间不断耗尽，请参阅[自己选择 TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)。
+  * 在对话[压缩](/docs/zh-CN/prompt-caching#compacting-the-conversation)后，图标也会变为红色，没有分钟直到下一个响应，因为缓存还不覆盖压缩的对话。
 * **Agent map**：当对话包括[子代理](/docs/zh-CN/sub-agents)时，代理计数（例如 **2 agents**）出现在提示框的底部。其点显示任何子代理是否正在工作或等待您的权限。
 
   点击代理计数来打开代理地图，它将对话的子代理绘制为主代理下的树，每个都有其状态、经过的时间和令牌计数。点击子代理来查看其提示和工具调用、打开其只读记录，或在其运行时停止它。需要 Claude Code v2.1.269 或更高版本。
@@ -146,7 +150,9 @@ What's in @src/components/ (include a trailing slash for folders)
 
 对于大型 PDF，您可以要求 Claude 读取特定页面而不是整个文件：单个页面、范围如第 1-10 页，或开放式范围如第 3 页及以后。
 
-当您在编辑器中选择文本时，Claude 可以自动看到您突出显示的代码。提示框页脚显示选择了多少行。按 `Option+K`（Mac）/ `Alt+K`（Windows/Linux）来插入带有文件路径和行号的 @-mention（例如 `@app.ts#5-10`）。点击选择指示器上的 **X** 来删除它，这样 Claude 就不会收到选择。当您选择其他文本或切换到不同的文件时，指示器会重新出现。
+当您在编辑器中选择文本时，Claude 可以自动看到您突出显示的代码。提示框页脚显示选择了多少行。按 `Option+K`（Mac）/ `Alt+K`（Windows/Linux）来插入带有文件路径和行号的 @-mention（例如 `@app.ts#5-10`）。点击选择指示器上的 **X** 来删除它，这样 Claude 就不会收到选择。当您选择其他文本时，指示器会重新出现。
+
+Claude 也会看到您在编辑器中打开的文件，即使没有选择任何内容，提示框也会显示其名称。要仅添加您选择的文本，请关闭[附加打开文件设置](vscode://settings/claudeCode.attachOpenFile)。该设置需要 Claude Code v2.1.271 或更高版本。
 
 要附加图像，请从剪贴板将其粘贴到提示框中。您也可以在将文件拖入提示框时按住 `Shift` 来将它们添加为附件。点击任何附件上的 X 来从上下文中删除它。
 
@@ -165,7 +171,7 @@ What's in @src/components/ (include a trailing slash for folders)
 
 要恢复存档的会话，请展开 **Archived sessions** 并点击 **Unarchive session**。在 v2.1.257 之前，该操作是 **Delete session**，它隐藏了一个会话而无法恢复。您之前删除的会话在升级后会出现在 **Archived sessions** 下。
 
-当您恢复的对话以计划模式结束时，Claude Code 会恢复计划模式。需要 Claude Code v2.1.246 或更高版本。Claude Code 在两种情况下不会恢复它：
+当您恢复的对话以 Plan 模式结束时，Claude Code 会恢复 Plan 模式。需要 Claude Code v2.1.246 或更高版本。Claude Code 在两种情况下不会恢复它：
 
 * 扩展程序从 `claudeCode.initialPermissionMode` 或从较早对话中继承的选择[选择起始权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)
 * 您配置了 `claudeCode.claudeProcessWrapper`
@@ -174,7 +180,7 @@ What's in @src/components/ (include a trailing slash for folders)
   从 Claude.ai 恢复云会话
 </h3>
 
-如果您使用[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)，您可以直接在 VS Code 中恢复这些云会话。这需要使用 **Claude.ai Subscription** 登录，而不是 Anthropic Console。
+如果您运行[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)，您可以直接在 VS Code 中恢复这些云会话。这需要使用 **Claude.ai Subscription** 登录，而不是 Anthropic Console。
 
 <Steps>
   <Step title="打开会话历史">
@@ -450,6 +456,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `initialPermissionMode`             | -       | 控制新对话的批准提示：`default`、`plan`、`acceptEdits` 或 `bypassPermissions`。`manual` 是 `default` 的别名，选择模式指示器中标记为 **Manual** 的模式。当您将其留空时，扩展会选择起始权限模式，如[切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)中所述。                                                                                                                                                                       |
 | `preferredLocation`                 | `panel` | Claude 打开的位置：`sidebar`（右侧）或 `panel`（新标签页）                                                                                                                                                                                                                                                                                                                                    |
 | `autosave`                          | `true`  | Claude 读取或写入文件前自动保存文件                                                                                                                                                                                                                                                                                                                                                        |
+| `attachOpenFile`                    | `true`  | 将编辑器中打开的文件添加到您的消息中，并在提示框中显示它。关闭时，仅添加您选择的文本。需要 Claude Code v2.1.271 或更高版本                                                                                                                                                                                                                                                                                                     |
 | `useCtrlEnterToSend`                | `false` | 使用 Ctrl/Cmd+Enter 而不是 Enter 来发送提示                                                                                                                                                                                                                                                                                                                                            |
 | `enableNewConversationShortcut`     | `false` | 启用 Cmd/Ctrl+N 来开始新对话                                                                                                                                                                                                                                                                                                                                                         |
 | `enableReopenClosedSessionShortcut` | `true`  | 使用 Cmd/Ctrl+Shift+T 重新打开最近关闭的 Claude 会话标签页。当最后关闭的标签页不是 Claude 会话时，快捷键会运行 VS Code 的正常重新打开关闭编辑器命令。                                                                                                                                                                                                                                                                             |
@@ -493,7 +500,7 @@ Claude Code 既可作为 VS Code extension（图形面板）使用，也可作�
 | Commands and skills | [全部](/docs/zh-CN/commands) | 子集（输入 `/` 查看可用项）                                                   |
 | MCP server config   | 是                     | 是（在聊天面板中使用 `/mcp` [添加和管理服务器](#connect-to-external-tools-with-mcp)） |
 | Checkpoints         | 是                     | 是                                                                  |
-| `!` bash shortcut   | 是                     | 否                                                                  |
+| `!` Bash shortcut   | 是                     | 否                                                                  |
 | Tab completion      | 是                     | 否                                                                  |
 
 <h3 id="rewind-with-checkpoints">
@@ -624,6 +631,8 @@ summarize the changes I've made to the auth module
 服务器名为 `ide`，从 `/mcp` 中隐藏，因为没有什么需要配置的。但是，如果您的组织使用 `PreToolUse` hook 来允许列表 MCP 工具，您需要知道它的存在。
 
 **选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，记录会显示一行 `⧉ Selected N lines from <file>`。要排除敏感文件（如 `.env`），请为其路径添加 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)。匹配的拒绝规则可防止该文件的选定文本和打开文件通知到达 Claude。
+
+如果您关闭[附加打开文件设置](#extension-settings)，CLI 仅在您在该文件中选择文本时接收活动文件的路径。
 
 **传输和身份验证。** 服务器绑定到 `127.0.0.1` 上的随机端口，范围在 10000–65535，端口不可配置。传输是未加密的 `ws://`；因为套接字仅限于本地回环，任何可以捕获流量的进程也可以从锁文件中读取令牌，所以 TLS 不会增加保护。每次扩展激活都会生成一个新的随机身份验证令牌，将其写入 `~/.claude/ide/<port>.lock` 处的锁文件，CLI 必须将其作为 `X-Claude-Code-Ide-Authorization` 标头呈现才能连接。锁文件在 `0700` 目录中具有 `0600` 权限，因此只有运行 VS Code 的用户才能读取它。如果设置了 `CLAUDE_CONFIG_DIR`，锁文件将写入 `$CLAUDE_CONFIG_DIR/ide/` 目录。
 

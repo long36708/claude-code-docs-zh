@@ -292,12 +292,12 @@ Claude Code 代表您进行的模型更改以相同的方式进行检查：
 | 来自管理控制台的[服务器管理设置](/docs/zh-CN/server-managed-settings)          | 强制执行      | 强制执行   | 强制执行                                                                                                                                                                | 强制执行            | 未交付        |
 | [MDM 或托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms) | 强制执行      | 强制执行   | 在 Anthropic 托管环境中未交付；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，根据[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)从运行器镜像强制执行 | 强制执行            | 在部署的地方强制执行 |
 
-* 云会话在[Web 上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) 或桌面应用中默认在 Anthropic 管理的 VM 上运行：部署到您的设备的设置不会到达它们，因此通过服务器管理设置交付允许列表。您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您自己的计算上运行，也读取运行器镜像中的托管设置文件。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明了该文件何时适用。云会话中的中途模型切换在请求的模型被允许列表排除时被拒绝。会话创建时的服务器端拒绝适用于[组织模型限制](#organization-model-restrictions)，而不是 `availableModels` 设置密钥。
+* 云会话在[Web 上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) 或桌面应用中默认在 Anthropic 管理的 VM 上运行：部署到您的设备的设置不会到达它们，因此通过服务器管理设置交付允许列表。您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您自己的计算上运行，也读取运行器镜像中的托管设置文件。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明了该文件何时适用。云会话中的中途模型切换在请求的模型被允许列表排除时被拒绝。当您的服务器管理设置中的 `availableModels` 列表非空时，服务器拒绝用户启动云会话的请求，该请求在列表排除的模型上。
 * Cowork 是 Claude 桌面应用中的代理工作选项卡，在 Claude Code 上运行其会话，但根据设计，不从 claude.ai 管理控制台接收服务器管理设置。托管设置文件在会话运行的地方存在时适用于 Cowork 会话；远程 Cowork 会话在 Anthropic 管理的 VM 上运行，其中不存在设备部署的文件。
 * [第三方提供商](/docs/zh-CN/server-managed-settings#platform-availability)上的会话，如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)，不接收服务器管理设置，因此在那里通过 MDM 或托管设置文件交付允许列表。
 * 服务器管理交付还需要会话使用[符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability)进行身份验证。仅通过 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 脚本生成密钥的舰队应通过 MDM 或托管设置文件交付允许列表。
 * 桌面 Code 选项卡也托管[SSH 会话](/docs/zh-CN/desktop#ssh-sessions)，它们从运行的远程主机读取托管设置文件。请参阅[桌面托管设置](/docs/zh-CN/desktop#managed-settings)。
-* claude.ai 和桌面应用中的模型选择器隐藏或灰显您的组织的允许列表排除的模型。选择器状态是用户的便利；强制执行发生在会话中。
+* claude.ai 和桌面应用中的模型选择器隐藏或灰显您的组织的允许列表排除的模型。选择器状态是用户的便利；它不强制执行允许列表。
 
 <h3 id="default-model-behavior">
   默认模型行为
@@ -376,7 +376,7 @@ Claude Enterprise 计划上的组织管理员通过在 claude.ai 管理控制台
 
 当成员登录或使用自己的 API 密钥时，限制适用。组织范围的凭证，如组织服务密钥，不与用户绑定，因此限制不适用于它们。
 
-Claude Console 没有模型限制控制。没有 Claude Enterprise 计划的组织，包括其成员通过 Anthropic API 进行身份验证的组织，使用[托管设置](/docs/zh-CN/managed-settings)中的 [`availableModels`](#restrict-model-selection) 限制模型，添加 [`enforceAvailableModels`](#enforce-the-allowlist-for-the-default-model) 以覆盖默认选项。这些设置由 Claude Code 本身强制执行，而不是由服务器强制执行。
+Claude Console 没有模型限制控制。没有 Claude Enterprise 计划的组织，包括其成员通过 Anthropic API 进行身份验证的组织，使用[托管设置](/docs/zh-CN/managed-settings)中的 [`availableModels`](#restrict-model-selection) 限制模型，添加 [`enforceAvailableModels`](#enforce-the-allowlist-for-the-default-model) 以覆盖默认选项。[表面覆盖](#surface-coverage)说明了每个表面如何接收和强制执行这些设置。
 
 受限模型从 `/model` 选择器中隐藏。使用 `--model`、`ANTHROPIC_MODEL` 环境变量或 `model` 设置按名称选择它显示通知 `Model "<name>" is restricted by your organization's settings. Using <model> instead.` 并且会话在允许的模型上启动。为受限模型键入 `/model <name>` 被拒绝，显示 `Model '<name>' is restricted by your organization's settings. Run /model to choose a different model.` 并且会话保持其当前模型。
 
@@ -545,7 +545,7 @@ Fable 模型和 Opus 5 运行安全分类器，最常标记网络安全和生物
 
 * 当标记的类别没有回退模型时，例如 Opus 5 上的生物学标记，Claude Code 不显示提示，请求以拒绝结束。
 * 如果两个模型都标记相同的请求，您可以编辑提示并重试，或启动新会话。
-* 在移动[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) 会话上，不支持编辑和重试。切换模型，或从桌面浏览器或桌面应用继续会话。
+* 在移动[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)会话上，不支持编辑和重试。切换模型，或从桌面浏览器或桌面应用继续会话。
 * 在[非交互模式](/docs/zh-CN/cli-reference#cli-flags)和无法显示提示的 SDK 集成中，标记的请求以拒绝结束轮次。
 * 当回退目标被 [`availableModels`](#restrict-model-selection) 阻止时，Claude Code 不显示提示。标记的请求以拒绝结束，与目标被阻止时的自动回退相同。
 

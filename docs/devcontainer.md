@@ -138,7 +138,7 @@ COPY managed-settings.json /etc/claude-code/managed-settings.json
 
 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 也禁用了[远程控制](/docs/zh-CN/remote-control#requirements)和其他[需要功能标志获取的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)所依赖的功能标志评估，因此容器中的会话无法使用它们。
 
-Dev Container Feature 始终安装最新的 Claude Code 版本。要为可重现的构建固定特定的 Claude Code 版本，请从您的 Dockerfile 使用 `npm install -g @anthropic-ai/claude-code@X.Y.Z` 安装它，而不是使用该功能，并设置 `DISABLE_AUTOUPDATER`，如上所示。
+Dev Container Feature 始终安装最新的 Claude Code 版本。要为可重现的构建固定特定的 Claude Code 版本，请从您的 Dockerfile 使用 `npm install -g @anthropic-ai/claude-code@X.Y.Z` 安装它，而不是使用该功能，并在 `containerEnv` 中将 `DISABLE_AUTOUPDATER` 设置为 `1`。
 
 有关完整的策略控制列表，包括权限规则、工具限制和 MCP 服务器允许列表，请参阅[为您的组织设置 Claude Code](/docs/zh-CN/admin-setup)。
 
@@ -203,7 +203,7 @@ Dev Container Feature 始终安装最新的 Claude Code 版本。要为可重现
 Claude Code 在您的开发容器中运行后，下面的页面涵盖了组织推出的其余部分：选择身份验证路径、在存储库外交付托管策略、监控使用情况以及了解 Claude Code 存储和发送的内容。
 
 * [为您的组织设置 Claude Code](/docs/zh-CN/admin-setup)：选择身份验证提供商、决定策略如何到达设备以及规划推出
-* [服务器管理的设置](/docs/zh-CN/server-managed-settings)：从 Claude.ai 管理控制台交付托管策略，以便工程师无法通过编辑存储库文件来绕过它
+* [服务器管理的设置](/docs/zh-CN/server-managed-settings)：从 claude.ai 管理控制台交付托管策略，以便工程师无法通过编辑存储库文件来绕过它
 * [监控使用情况和审计活动](/docs/zh-CN/monitoring-usage)：导出 OpenTelemetry 指标并查看您的团队正在运行的内容
 * [网络访问要求](/docs/zh-CN/network-config#network-access-requirements)：代理和防火墙的完整域允许列表
 * [遥测服务和选择退出](/docs/zh-CN/data-usage#telemetry-services)：Claude Code 默认发送的内容以及禁用它的环境变量

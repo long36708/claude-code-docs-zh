@@ -126,6 +126,14 @@ Claude Code 读取项目范围配置的目录：settings、hooks、skills、suba
 
 了解更多：[CLAUDE.md files](/docs/zh-CN/memory#claude-md-files)
 
+<h3 id="cloud-session">
+  Cloud session
+</h3>
+
+一个 Claude Code 会话，在您关闭笔记本电脑后继续运行，因为它在云基础设施上运行而不是在您的机器上：默认由 Anthropic 管理，或由您的组织运营的[自托管环境](/docs/zh-CN/self-hosted-environments)。您可以从 claude.ai/code、Claude 移动应用、选择了**Cloud**的 Desktop 应用、`claude --cloud` 或[例程](/docs/zh-CN/routines)启动一个。在您的终端、IDE 或选择了**Local**的 Desktop 应用中的会话是本地会话；要从另一台设备访问本地会话，请使用[远程控制](#remote-control)。
+
+了解更多：[Use Claude Code in the cloud](/docs/zh-CN/claude-code-on-the-web)
+
 <h3 id="command">
   Command
 </h3>
@@ -332,7 +340,7 @@ Hook 配置有三个级别：
   Remote Control
 </h3>
 
-一种通过 claude.ai 从您的手机或浏览器继续本地 Claude Code 会话的方式。您的代码执行和文件保留在您的机器上；界面是远程的。与在 web 上运行的 Claude Code 不同，后者在云沙箱中运行。
+一种通过 claude.ai 从您的手机或浏览器继续本地 Claude Code 会话的方式。您的代码执行和文件保留在您的机器上；界面是远程的。与[云会话](/docs/zh-CN/claude-code-on-the-web)不同，后者在云沙箱中运行。
 
 了解更多：[Remote Control](/docs/zh-CN/remote-control)
 
@@ -408,9 +416,9 @@ Skills 是自定义命令的推荐后继。`.claude/commands/deploy.md` 处的�
   Teleport
 </h3>
 
-一个命令 `/teleport`，将云 Claude Code 会话拉入您的本地终端。Claude 获取分支、加载对话历史并从 web 会话的最后状态恢复。反向方向是 `--cloud`，它将本地任务发送到 web 上运行。
+一个命令 `/teleport`，将云 Claude Code 会话拉入您的本地终端。Claude 获取分支、加载对话历史并从云会话的最后状态恢复。反向方向是 `--cloud`，它将本地任务发送到云上运行。
 
-了解更多：[从 web 到终端](/docs/zh-CN/claude-code-on-the-web#from-web-to-terminal)
+了解更多：[从云到终端](/docs/zh-CN/claude-code-on-the-web#from-cloud-to-terminal)
 
 <h3 id="tool">
   Tool
@@ -460,8 +468,9 @@ Claude 在一个 [session](#session) 中的一个完整响应。一个 turn 从�
 
 这些术语出现在较旧的文档、博客文章和社区内容中。搜索此网站时使用当前名称。
 
-| 旧术语             | 现在称为                                          | 注释                         |
-| --------------- | --------------------------------------------- | -------------------------- |
-| Headless mode   | [Non-interactive mode](#non-interactive-mode) | 相同的 `-p` 标志，相同的行为          |
-| Custom commands | [Skills](#skill)                              | `.claude/commands/` 文件仍然有效 |
-| Slash commands  | Commands                                      | "Slash"从产品副本中删除            |
+| 旧术语                                                                     | 现在称为                                          | 注释                                                    |
+| ----------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------- |
+| Headless mode                                                           | [Non-interactive mode](#non-interactive-mode) | 相同的 `-p` 标志，相同的行为                                     |
+| Web session; "Claude Code on the web" as the name for any cloud session | [Cloud session](#cloud-session)               | "Claude Code on the web" 现在仅命名 claude.ai/code 处的浏览器界面 |
+| Custom commands                                                         | [Skills](#skill)                              | `.claude/commands/` 文件仍然有效                            |
+| Slash commands                                                          | Commands                                      | "Slash"从产品副本中删除                                       |

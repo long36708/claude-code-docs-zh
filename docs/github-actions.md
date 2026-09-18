@@ -11,7 +11,7 @@
 多个产品共享 Claude Code 名称。本页涵盖 `claude-code-action` 工作流集成，您可以使用仓库中的工作流文件进行配置。对于相关产品，请参阅：
 
 * [Code Review](/docs/zh-CN/code-review)：在每个拉取请求上自动审查，无需编写工作流
-* [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web)：从您的浏览器或手机进行 Claude Code 会话
+* [Claude Code in the cloud](/docs/zh-CN/claude-code-on-the-web)：在云基础设施上运行的 Claude Code 会话，而不是在您的机器上
 * [Claude Agent SDK](/docs/zh-CN/agent-sdk/overview)：GitHub Actions 之外的自定义自动化。Claude Code GitHub Action 建立在 SDK 之上
 * [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server)：带有自托管 GitHub 的 Claude Code
 

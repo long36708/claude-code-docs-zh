@@ -86,7 +86,7 @@
   逐步构建状态行
 </h2>
 
-本演练展示了通过手动创建显示当前模型、工作目录和上下文窗口使用百分比的状态行来了解幕后发生的情况。
+本演练展示了 `/statusline` 为你设置的内容，通过手动创建显示当前模型、工作目录和上下文窗口使用百分比的状态行。
 
 <Note>使用[`/statusline`](#use-the-%2Fstatusline-command)和你想要的内容的描述会自动为你配置所有这些。</Note>
 
@@ -189,7 +189,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `cwd`, `workspace.current_dir`                                                   | 当前工作目录。两个字段包含相同的值；为了与 `workspace.project_dir` 保持一致，首选 `workspace.current_dir`。                                                                                                                                                                                                  |
 | `workspace.project_dir`                                                          | 启动 Claude Code 的目录，如果在会话期间工作目录更改，可能与 `cwd` 不同                                                                                                                                                                                                                                   |
 | `workspace.added_dirs`                                                           | 通过 `/add-dir` 或 `--add-dir` 添加的其他目录。如果未添加任何目录，则为空数组                                                                                                                                                                                                                             |
-| `workspace.git_worktree`                                                         | 当前目录在使用 `git worktree add` 创建的链接 worktree 内时的 Git worktree 名称。在主工作树中不存在。对于任何 git worktree 都会填充，不同于仅在[worktree 会话](/docs/zh-CN/worktrees)期间出现的 `worktree.*`                                                                                                                           |
+| `workspace.git_worktree`                                                         | 当前目录在使用 `git worktree add` 创建的链接 worktree 内时的 Git worktree 名称。在主工作树中不存在。对于任何 git worktree 都会填充，不同于仅在 [worktree 会话](/docs/zh-CN/worktrees) 期间出现的 `worktree.*`                                                                                                                         |
 | `workspace.repo.host`, `workspace.repo.owner`, `workspace.repo.name`             | 从 `origin` 远程解析的存储库标识，例如 `"github.com"`、`"anthropics"`、`"claude-code"`。在 git 存储库外或未配置 `origin` 远程时不存在。对于嵌套在子组中的 gitlab.com 项目，`owner` 是带有斜杠的完整命名空间路径，例如 `"group/subgroup"`。在 v2.1.260 之前，这些项目的 `workspace.repo` 不存在                                                             |
 | `cost.total_cost_usd`                                                            | 以美元计的估计会话成本，在客户端按列表价格计算，除非有 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 表生效。可能与你的实际账单不同。当 `/clear` 启动新会话时重置为 \$0。在 v2.1.211 之前，总计在 `/clear` 后继续累积                                                                                                                  |
 | `cost.total_duration_ms`                                                         | 自会话开始以来的总挂钟时间（毫秒）                                                                                                                                                                                                                                                               |
@@ -199,9 +199,9 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `context_window.context_window_size`                                             | 最大上下文窗口大小（令牌）。默认为 200000，或对于具有扩展上下文的模型为 1000000。                                                                                                                                                                                                                                |
 | `context_window.used_percentage`                                                 | 预计算的已使用上下文窗口百分比                                                                                                                                                                                                                                                                 |
 | `context_window.remaining_percentage`                                            | 预计算的剩余上下文窗口百分比                                                                                                                                                                                                                                                                  |
-| `context_window.current_usage`                                                   | 来自最后一次 API 调用的令牌计数，在[上下文窗口字段](#context-window-fields)中描述                                                                                                                                                                                                                        |
+| `context_window.current_usage`                                                   | 来自最后一次 API 调用的令牌计数，在 [上下文窗口字段](#context-window-fields) 中描述                                                                                                                                                                                                                      |
 | `exceeds_200k_tokens`                                                            | 最近一次 API 响应中的总令牌计数（输入、缓存和输出令牌合并）是否超过 200k。这是一个固定阈值，与实际上下文窗口大小无关。                                                                                                                                                                                                                |
-| `fast_mode`                                                                      | 是否为会话启用了[快速模式](/docs/zh-CN/fast-mode)                                                                                                                                                                                                                                                |
+| `fast_mode`                                                                      | 是否为会话启用了 [快速模式](/docs/zh-CN/fast-mode)                                                                                                                                                                                                                                               |
 | `effort.level`                                                                   | 当前推理工作量（`low`、`medium`、`high`、`xhigh` 或 `max`）。反映实时会话值，包括中途 `/effort` 更改。Ultracode 不是一个独立的级别，报告为 `xhigh`。当当前模型不支持工作量参数时不存在                                                                                                                                                      |
 | `thinking.enabled`                                                               | 是否为会话启用了扩展思考                                                                                                                                                                                                                                                                    |
 | `rate_limits.five_hour.used_percentage`, `rate_limits.seven_day.used_percentage` | 消耗的 5 小时或 7 天速率限制的百分比，从 0 到 100                                                                                                                                                                                                                                                 |
@@ -210,7 +210,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `prompt_cache`                                                                   | 会话的主对话的 [prompt cache](/docs/zh-CN/prompt-caching) 统计信息：命中率、未命中次数以及缓存是否预热。有关每个字段，请参阅 [prompt cache 字段](#prompt-cache-fields)。在主对话的第一次 API 响应之前不存在。需要 Claude Code v2.1.251 或更高版本                                                                                                      |
 | `session_id`                                                                     | 唯一的会话标识符                                                                                                                                                                                                                                                                        |
 | `session_name`                                                                   | 会话名称。使用使用 `--name` 标志或 `/rename` 设置的自定义名称（如果存在），否则使用 AI 生成的会话标题。[默认显示名称](/docs/zh-CN/sessions#name-your-sessions)（例如 `my-app-3f`）不会填充此字段。当会话既没有自定义名称也没有 AI 生成的标题时不存在                                                                                                                 |
-| `prompt_id`                                                                      | 标识当前正在处理的用户提示的 UUID。与 OpenTelemetry 事件上的 [`prompt.id` 属性](/docs/zh-CN/monitoring-usage#event-correlation-attributes)匹配。在第一次用户输入之前不存在。需要 Claude Code v2.1.196 或更高版本                                                                                                                   |
+| `prompt_id`                                                                      | 标识当前正在处理的用户提示的 UUID。与 OpenTelemetry 事件上的 [`prompt.id` 属性](/docs/zh-CN/monitoring-usage#event-correlation-attributes) 匹配。在第一次用户输入之前不存在。需要 Claude Code v2.1.196 或更高版本                                                                                                                  |
 | `transcript_path`                                                                | 对话记录文件的路径                                                                                                                                                                                                                                                                       |
 | `version`                                                                        | Claude Code 版本                                                                                                                                                                                                                                                                  |
 | `output_style.name`                                                              | 当前输出样式的名称                                                                                                                                                                                                                                                                       |
@@ -219,7 +219,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `pr.number`, `pr.url`                                                            | 当前分支的开放拉取请求。镜像底部状态栏中的 PR 徽章。在具有 GitLab 远程的存储库中，Claude Code 从分支的开放 [merge request](/docs/zh-CN/interactive-mode#gitlab-merge-requests) 填充这些字段，因此 `pr.number` 是 merge request 编号。Merge request 数据需要 Claude Code v2.1.234 或更高版本。当不在 git 存储库中、找到拉取请求或 merge request 之前，或一旦它合并或关闭后不存在     |
 | `pr.review_state`                                                                | 开放 PR 的审查状态：`approved`、`pending`、`changes_requested` 或 `draft`。即使 `pr` 存在，也可能独立不存在                                                                                                                                                                                              |
 | `pr.kind`                                                                        | 当 `pr` 描述 [GitLab merge request](/docs/zh-CN/interactive-mode#gitlab-merge-requests) 时为 `mr`。对于 GitHub 拉取请求不存在，因此在此字段之前编写的脚本继续工作。对于 merge request，当 GitLab 报告它可合并时，Claude Code 将 `review_state` 设置为 `approved`，对于任何其他开放状态设置为 `pending`，对于草稿设置为 `draft`。需要 Claude Code v2.1.234 或更高版本 |
-| `worktree.name`                                                                  | 活跃 worktree 的名称。仅在[worktree 会话](/docs/zh-CN/worktrees)期间出现                                                                                                                                                                                                                           |
+| `worktree.name`                                                                  | 活跃 worktree 的名称。仅在 [worktree 会话](/docs/zh-CN/worktrees) 期间出现                                                                                                                                                                                                                         |
 | `worktree.path`                                                                  | worktree 目录的绝对路径                                                                                                                                                                                                                                                                |
 | `worktree.branch`                                                                | worktree 的 Git 分支名称（例如，`"worktree-my-feature"`）。对于基于钩子的 worktree 不存在                                                                                                                                                                                                            |
 | `worktree.original_cwd`                                                          | Claude 进入 worktree 之前所在的目录                                                                                                                                                                                                                                                      |
@@ -349,7 +349,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
   * `vim`：仅在启用 vim 模式时出现
   * `agent`：仅在使用 `--agent` 标志或配置的代理设置运行时出现
   * `pr`：仅在为当前分支找到开放 PR 或 GitLab merge request 时出现，一旦它合并或关闭就会被移除。`pr.review_state` 和 `pr.kind` 可能独立不存在
-  * `worktree`：仅在[worktree 会话](/docs/zh-CN/worktrees)期间出现。当存在时，对于基于钩子的 worktree，`branch` 和 `original_branch` 也可能不存在
+  * `worktree`：仅在 [worktree 会话](/docs/zh-CN/worktrees) 期间出现。当存在时，对于基于钩子的 worktree，`branch` 和 `original_branch` 也可能不存在
   * `rate_limits`：仅对 Claude.ai Pro 和 Max 订阅者，或在为你设置支出限制的 Claude apps gateway 后面，以及仅在会话中第一次 API 响应后出现。每个窗口（`five_hour`、`seven_day`、`spend_limit`）可能独立不存在，Claude Code 在其 `resets_at` 时间过去后删除一个窗口。使用 `jq -r '.rate_limits.five_hour.used_percentage // empty'` 来优雅地处理缺失。
   * `prompt_cache`：在主对话的第一次 API 响应后出现。请参阅 [prompt cache 字段](#prompt-cache-fields)
 
@@ -377,7 +377,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 * `cache_creation_input_tokens`：写入缓存的令牌
 * `cache_read_input_tokens`：从缓存读取的令牌
 
-有关缓存字段的含义以及它们如何计费的信息，请参阅[检查缓存性能](/docs/zh-CN/prompt-caching#check-cache-performance)。
+有关缓存字段的含义以及它们如何计费的信息，请参阅 [检查缓存性能](/docs/zh-CN/prompt-caching#check-cache-performance)。
 
 `used_percentage` 字段仅从输入令牌计算：`input_tokens + cache_creation_input_tokens + cache_read_input_tokens`。它不包括 `output_tokens`。
 
@@ -395,24 +395,24 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 
 该表列出了每个字段及其含义。时间戳是 Unix 纪元秒，与 `rate_limits.*.resets_at` 相同的单位。短状态行通常显示其中一个或两个；`warm` 和 `hit_ratio` 最直接地总结缓存状态。
 
-| 字段                       | 描述                                                                                            |
-| ------------------------ | --------------------------------------------------------------------------------------------- |
-| `warm`                   | 缓存的前缀是否仍在其 TTL 内。当最后一次响应未报告缓存令牌时为 `false`，即使 `caching_observed` 为 `true`                      |
-| `caching_observed`       | 此会话的任何响应是否报告了缓存令牌。`false` 意味着 prompt caching 已关闭，或你的提供商或网关不报告它                                |
-| `ttl`                    | 当前缓存前缀的[缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)：`"5m"` 或 `"1h"`                         |
-| `expires_at`             | 缓存的前缀离开其 TTL 并变冷时，以纪元秒为单位。当最后一次响应未报告缓存令牌时为 `null`                                             |
-| `requests`               | 为此会话的主对话记录的 API 请求                                                                            |
-| `misses`                 | 重新处理缓存已持有的内容的请求：超过 5% 且至少 2,000 个令牌的请求可以从缓存读取，没有压缩或清除旧工具结果来解释缓存读取的不足                          |
-| `expected_rebuilds`      | 在压缩或清除旧工具结果后进行的缓存重建                                                                           |
-| `hit_ratio`              | 缓存读取令牌作为此会话所有输入令牌的分数，从 0 到 1。分母计算缓存读取、缓存写入和未缓存输入。当这些计数都为零时为 `null`                            |
-| `cache_write_tokens`     | 此会话中写入缓存的所有令牌，包括第一个请求的初始写入                                                                    |
-| `miss_recache_tokens`    | 由计为未命中的请求写入缓存的令牌                                                                              |
-| `last_miss_at`           | 最后一次未命中发生时，以纪元秒为单位。当会话没有未命中时为 `null`                                                          |
-| `last_miss_cause`        | Claude Code 识别为最后一次未命中可能原因的内容，在[最后一次未命中原因](#last-miss-cause)下描述。需要 Claude Code v2.1.260 或更高版本 |
-| `miss_causes`            | 此会话的诊断未命中中有多少具有每个原因，由与 `last_miss_cause` 相同的原因名称键入。需要 Claude Code v2.1.260 或更高版本              |
-| `recache_tokens_if_cold` | 如果缓存到那时已变冷，下一个请求重新缓存的令牌。在压缩或清除旧工具结果后为 `null`，直到下一个请求记录重写对话的大小                                 |
+| 字段                       | 描述                                                                                              |
+| ------------------------ | ----------------------------------------------------------------------------------------------- |
+| `warm`                   | 缓存的前缀是否仍在其 TTL 内。当最后一次响应未报告缓存令牌时为 `false`，即使 `caching_observed` 为 `true`                        |
+| `caching_observed`       | 此会话的任何响应是否报告了缓存令牌。`false` 意味着 prompt caching 已关闭，或你的提供商或网关不报告它                                  |
+| `ttl`                    | 当前缓存前缀的 [缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)：`"5m"` 或 `"1h"`                          |
+| `expires_at`             | 缓存的前缀离开其 TTL 并变冷时，以纪元秒为单位。当最后一次响应未报告缓存令牌时为 `null`                                               |
+| `requests`               | 为此会话的主对话记录的 API 请求                                                                              |
+| `misses`                 | 重新处理缓存已持有的内容的请求：超过 5% 且至少 2,000 个令牌的请求可以从缓存读取，没有压缩或清除旧工具结果来解释缓存读取的不足                            |
+| `expected_rebuilds`      | 在压缩或清除旧工具结果后进行的缓存重建                                                                             |
+| `hit_ratio`              | 缓存读取令牌作为此会话所有输入令牌的分数，从 0 到 1。分母计算缓存读取、缓存写入和未缓存输入。当这些计数都为零时为 `null`                              |
+| `cache_write_tokens`     | 此会话中写入缓存的所有令牌，包括第一个请求的初始写入                                                                      |
+| `miss_recache_tokens`    | 由计为未命中的请求写入缓存的令牌                                                                                |
+| `last_miss_at`           | 最后一次未命中发生时，以纪元秒为单位。当会话没有未命中时为 `null`                                                            |
+| `last_miss_cause`        | Claude Code 识别为最后一次未命中可能原因的内容，在 [最后一次未命中原因](#last-miss-cause) 下描述。需要 Claude Code v2.1.260 或更高版本 |
+| `miss_causes`            | 此会话的诊断未命中中有多少具有每个原因，由与 `last_miss_cause` 相同的原因名称键入。需要 Claude Code v2.1.260 或更高版本                |
+| `recache_tokens_if_cold` | 如果缓存到那时已变冷，下一个请求重新缓存的令牌。在压缩或清除旧工具结果后为 `null`，直到下一个请求记录重写对话的大小                                   |
 
-Claude Code 在终端上显示相同的统计信息，在 [`/usage` 命令的 `Prompt cache (main)` 行](/docs/zh-CN/costs#prompt-cache-statistics)上。
+Claude Code 在终端上显示相同的统计信息，在 [`/usage` 命令的 `Prompt cache (main)` 行](/docs/zh-CN/costs#prompt-cache-statistics) 上。
 
 <h4 id="last-miss-cause">
   最后一次未命中原因
@@ -860,11 +860,11 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
   速率限制使用情况
 </h3>
 
-在状态行中显示 Claude.ai 订阅速率限制使用情况。`rate_limits` 对象包含一个滚动的 `five_hour` 窗口和一个每周的 `seven_day` 窗口。每个窗口提供 `used_percentage`（从 0 到 100）和 `resets_at`（Unix 纪元秒，当窗口重置时）。
+在状态行中显示 claude.ai 订阅速率限制使用情况。`rate_limits` 对象包含一个滚动的 `five_hour` 窗口和一个每周的 `seven_day` 窗口。每个窗口提供 `used_percentage`（从 0 到 100）和 `resets_at`（Unix 纪元秒，当窗口重置时）。
 
 在具有支出限制的 Claude 应用网关后面，`rate_limits` 携带 `spend_limit`，其中包含适用于你的支出限制的相同两个字段，除了其 `used_percentage` 一旦超过限制可能会超过 100。需要 Claude Code v2.1.251 或更高版本。
 
-`rate_limits` 对象仅对 Claude.ai Pro 和 Max 订阅者或具有支出限制的 Claude 应用网关后面的用户出现，并且仅在第一次 API 响应后出现。每个脚本优雅地处理缺失字段：
+`rate_limits` 对象仅对 claude.ai Pro 和 Max 订阅者或具有支出限制的 Claude 应用网关后面的用户出现，并且仅在第一次 API 响应后出现。每个脚本优雅地处理缺失字段：
 
 <CodeGroup>
   ```bash Bash theme={null}

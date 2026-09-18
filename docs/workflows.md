@@ -375,23 +375,23 @@ Claude Code 在加载和运行脚本时对文件的每个部分应用这些规�
   工作流如何运行
 </h2>
 
-工作流运行时在隔离环境中执行脚本，与您的对话分开。中间结果保留在脚本变量中，而不是进入 Claude 的上下文。
+工作流运行时在隔离的环境中执行脚本，与您的对话分离。中间结果保留在脚本变量中，而不是进入 Claude 的上下文。
 
-每次运行都会将其脚本写入您会话目录下 `~/.claude/projects/` 中的文件。运行开始时 Claude 会收到该路径，因此您可以要求它提供。您可以打开该文件来读取 Claude 编写的编排脚本，将其与之前运行的脚本进行对比，或编辑它并要求 Claude 从编辑后的版本重新启动。
+每次运行都会将其脚本写入您会话目录下 `~/.claude/projects/` 中的文件。Claude 在运行开始时接收路径，因此您可以要求它提供路径。您可以打开该文件来读取 Claude 编写的编排，将其与之前运行的脚本进行对比，或编辑它并要求 Claude 从编辑后的版本重新启动。
 
-Claude 只能从会话已允许读取的脚本文件启动工作流。要运行保存在工作目录外的脚本，请先使用 [`/add-dir`](/docs/zh-CN/permissions#working-directories) 或 [Read 允许规则](/docs/zh-CN/permissions#read-and-edit) 添加其目录。
+Claude 只能从会话已允许读取的脚本文件启动工作流。要运行保存在工作目录外的脚本，请先使用 [`/add-dir`](/docs/zh-CN/permissions#working-directories) 或 [Read allow rule](/docs/zh-CN/permissions#read-and-edit) 添加其目录。
 
-运行时在运行进行时跟踪每个代理的结果，这是使运行在同一会话中[可恢复](#resume-after-a-pause)的原因。
+运行时在运行进行时跟踪每个代理的结果，这正是使运行在同一会话内 [可恢复](#resume-after-a-pause) 的原因。
 
 <h3 id="prompt-caching-in-a-fan-out">
   扇出中的 prompt caching
 </h3>
 
-同一运行中的代理可以读取彼此的 [prompt cache](/docs/zh-CN/prompt-caching#subagents-and-the-cache)。使用相同模型、努力级别、代理类型、工具、输出架构和工作目录运行的两个代理会构建相同的工具和系统提示前缀，因此在匹配的兄弟代理响应开始后启动的代理会在其第一个请求中读取该兄弟代理的缓存。
+同一运行中的代理可以读取彼此的 [prompt cache](/docs/zh-CN/prompt-caching#subagents-and-the-cache)。两个使用相同模型、努力级别、代理类型、工具、输出架构和工作目录运行的代理会构建相同的工具和系统提示前缀，因此在匹配的兄弟代理响应开始后启动的代理会在其第一个请求中读取该兄弟代理的缓存。
 
-工作流代理的请求不在主对话的 [cache TTL bucket](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets) 之外，因此其缓存默认保持五分钟，包括在 Claude 订阅上。要将其保持一小时，请将 [`subagentPromptCacheTtl`](/docs/zh-CN/settings-reference#subagentpromptcachettl) 设置为 `1h`。API 以更高的速率计费 1 小时缓存写入。
+工作流代理的请求落在主对话的 [cache TTL bucket](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets) 之外，因此其缓存默认保持五分钟，包括在 Claude 订阅上。要将其保持一小时，请将 [`subagentPromptCacheTtl`](/docs/zh-CN/settings-reference#subagentpromptcachettl) 设置为 `1h`。API 以更高的费率计费 1 小时缓存写入。
 
-当扇出同时启动多个匹配的代理时，Claude Code 会保留除第一个之外的所有代理，直到第一个代理的响应开始，然后一起释放保留的代理，以便它们的第一个请求读取共享前缀，而不是每个都未缓存地处理它。Claude Code 将保留时间限制在 [`CLAUDE_CODE_WORKFLOW_PREFIX_STAGGER_MS`](/docs/zh-CN/env-vars) 毫秒，默认为 `5000`。将其设置为 `0` 以禁用保留。
+当扇出同时启动多个匹配的代理时，Claude Code 会保留除第一个之外的所有代理，直到第一个代理的响应开始，然后一起释放保留的代理，以便它们的第一个请求读取共享前缀，而不是每个都未缓存地处理它。Claude Code 将保留限制在 [`CLAUDE_CODE_WORKFLOW_PREFIX_STAGGER_MS`](/docs/zh-CN/env-vars) 毫秒，默认为 `5000`。将其设置为 `0` 以禁用保留。
 
 <h3 id="behavior-and-limits">
   行为和限制
@@ -399,15 +399,15 @@ Claude 只能从会话已允许读取的脚本文件启动工作流。要运行�
 
 运行时应用以下约束：
 
-| 约束                                                             | 为什么                                                                   |
-| :------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| 无中途用户输入                                                        | 仅代理权限提示可以暂停运行。对于阶段之间的签署，将每个阶段作为其自己的工作流运行                              |
-| 无来自工作流本身的直接文件系统或 shell 访问                                      | 代理读取、写入和运行命令。脚本协调代理                                                   |
-| 无模块加载：包含 `import()` 的脚本在运行开始前失败                                | 脚本主体是纯 JavaScript。将需要库的工作放在代理的任务中                                     |
-| 最多 16 个并发代理，在 Claude Code 可用 CPU 较少时更少，包括在 CPU 受限的容器内          | 限制本地资源使用                                                              |
-| 在扇出中，共享第一个代理的 prompt-cache 前缀的代理默认在其后最多启动 5 秒                  | 除第一个外的所有代理都读取[第一个代理缓存的前缀](#prompt-caching-in-a-fan-out)，而不是每个都未缓存地处理它 |
-| 单个 `parallel()` 或 `pipeline()` 调用中最多 4,096 个项目：运行时拒绝更长的列表并显示错误 | 无声的上限会在不告知脚本的情况下丢弃部分工作负载                                              |
-| 每次运行总共 1,000 个代理                                               | 防止失控循环                                                                |
+| 约束                                                           | 原因                                                                                     |
+| :----------------------------------------------------------- | :------------------------------------------------------------------------------------- |
+| 无中途用户输入                                                      | 运行仅在代理权限提示和 [使用限制等待](#when-a-run-hits-your-usage-limit) 时暂停。对于阶段之间的签署，将每个阶段作为其自己的工作流运行 |
+| 工作流本身无直接文件系统或 shell 访问                                       | 代理读取、写入和运行命令。脚本协调代理                                                                    |
+| 无模块加载：包含 `import()` 的脚本在运行开始前失败                              | 脚本体是纯 JavaScript。将需要库的工作放在代理的任务中                                                       |
+| 最多 16 个并发代理，当 Claude Code 可用的 CPU 较少时更少，包括在 CPU 受限的容器内       | 限制本地资源使用                                                                               |
+| 在扇出中，共享第一个代理的 prompt-cache 前缀的代理最多在其后 5 秒启动，默认情况下            | 除第一个外的所有代理都读取 [第一个代理缓存的前缀](#prompt-caching-in-a-fan-out)，而不是每个都未缓存地处理它                 |
+| 单个 `parallel()` 或 `pipeline()` 调用中最多 4,096 个项目：运行时以错误拒绝更长的列表 | 无声上限会在不告知脚本的情况下丢弃部分工作负载                                                                |
+| 每次运行总共 1,000 个代理                                             | 防止失控循环                                                                                 |
 
 <h2 id="manage-runs">
   管理运行
@@ -440,11 +440,26 @@ Claude Code 按代理启动的顺序重放运行，每个代理要么返回其�
 
 在本地和云会话中，当 Claude 重新启动较早的运行并且 Claude Code 根本找不到该运行的保存结果时，重新启动会失败并显示 `nothing to resume` 错误，而不是自动启动运行。要求 Claude 将工作流作为新运行启动。
 
+<h3 id="when-a-run-hits-your-usage-limit">
+  当运行达到您的使用限制时
+</h3>
+
+当代理达到您的 claude.ai [使用限制](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)时，运行会暂停而不是该代理失败：达到限制的代理会等待重置，并且不会启动新代理。限制重置后不久，等待的代理会再次运行，运行会自动继续。需要 Claude Code v2.1.271 或更高版本；在较早的版本上，受影响的代理会失败。
+
+当运行等待时，其在任务面板中的进度行和 [`/workflows`](#watch-the-run) 标题显示限制何时重置。
+
+运行仅在以下所有条件都成立时暂停；当其中一个不成立时，受影响的代理会失败：
+
+* 会话是交互式的并使用 claude.ai 订阅登录。运行不会在[非交互模式](/docs/zh-CN/headless)中使用 `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 暂停，在[后台会话](/docs/zh-CN/agent-view)中，或在 [Remote Control](/docs/zh-CN/remote-control) 或[代理团队](/docs/zh-CN/agent-teams)队友会话中。
+* [`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit) 已打开，这是让会话本身[等待使用限制重置](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)的相同设置。如果您在等待期间关闭它，等待会结束，等待的代理会失败。
+* 限制在 24 小时内重置。每周限制可能重置得更远。
+* 运行还没有等待过两次。当它第三次达到限制时，代理会失败。
+
 <h3 id="cost">
   成本
 </h3>
 
-工作流生成许多代理，所以单次运行可以使用比在对话中处理相同任务更多的令牌。运行计入您的计划使用和速率限制，如任何其他会话。
+工作流生成许多代理，所以单次运行可以使用比在对话中处理相同任务更多的令牌。运行计入您的计划使用和速率限制。
 
 要在提交大型任务前评估支出，请先在小范围上运行工作流：一个目录而不是整个仓库，或一个狭窄的问题而不是一个宽泛的问题。`/workflows` 视图显示每个代理的令牌使用情况，随着运行进行，您可以随时在那里停止运行，通常不会丢失已完成的工作。[暂停后恢复](#resume-after-a-pause)涵盖了停止的运行保留的内容。运行时的[代理上限](#behavior-and-limits)限制单次运行可以生成多少个代理，这限制了失控脚本的成本。要保持运行的代理数量较少，选择 `small` [大小指南](#set-a-size-guideline)。
 
@@ -476,10 +491,10 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
 | :------------- | :--------------------- |
 | `unrestricted` | 无指南：Claude 根据任务调整工作流大小 |
 | `small`        | 少于 5 个代理               |
-| `medium`       | 少于 15 个代理              |
+| `medium`       | 少于 10 个代理              |
 | `large`        | 少于 50 个代理              |
 
-默认值是 `medium`。在您选择值之前，`/config` 行显示 `medium (default)`，工作流的 `Running in background` 行显示 `medium size (/config)`。需要 Claude Code v2.1.219 或更高版本；较早的版本默认为 `unrestricted`。
+默认值是 `medium`，或当您在使用 Claude Code v2.1.271 或更高版本的 Pro 计划上登录时为 `small`。在您选择值之前，`/config` 行将值标记为默认值，工作流的 `Running in background` 行命名生效的大小。需要 Claude Code v2.1.219 或更高版本；较早的版本默认为 `unrestricted`。
 
 要更改指南，在 `/config` 中为 Dynamic workflow size 设置选择一个值，或运行 `/config workflowSizeGuideline=small`。在 v2.1.219 及更高版本上，您也可以在任何设置文件中设置 [`workflowSizeGuideline` 键](/docs/zh-CN/settings-reference#workflowsizeguideline)；该值优先于 `/config`，当设置文件提供一个时，Claude Code 会隐藏 `/config` 行。
 

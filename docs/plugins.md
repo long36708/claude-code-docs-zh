@@ -74,12 +74,12 @@ Claude Code 支持两种方式来添加自定义 skills、agents 和 hooks：
     }
     ```
 
-    | 字段            | 目的                                                                                                                                                                                                              |
-    | :------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-    | `name`        | 唯一标识符和 skill 命名空间。Skills 以此为前缀（例如 `/my-first-plugin:hello`）。                                                                                                                                                    |
-    | `description` | 在浏览或安装插件时在插件管理器中显示。                                                                                                                                                                                             |
-    | `version`     | 可选。如果设置，用户仅在你更新此字段时接收更新，除了 [`command` 源](/docs/zh-CN/plugin-marketplaces#command-sources)；请参阅[版本管理](/docs/zh-CN/plugins-reference#version-management)。如果省略，版本来自[版本管理](/docs/zh-CN/plugins-reference#version-management)中的下一个源。 |
-    | `author`      | 可选。有助于归属。                                                                                                                                                                                                       |
+    | 字段            | 目的                                                                                                                                                                                                                                                                                     |
+    | :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `name`        | 唯一标识符和 skill 命名空间。Skills 以此为前缀（例如 `/my-first-plugin:hello`）。                                                                                                                                                                                                                           |
+    | `description` | 在浏览或安装插件时在插件管理器中显示。                                                                                                                                                                                                                                                                    |
+    | `version`     | 可选。如果设置，用户仅在你更新此字段时接收更新，除了 [`command` 源](/docs/zh-CN/plugin-marketplaces#command-sources)或[就地加载](/docs/zh-CN/plugins-reference#plugin-caching-and-file-resolution)的插件；请参阅[版本管理](/docs/zh-CN/plugins-reference#version-management)。如果省略，版本来自[版本管理](/docs/zh-CN/plugins-reference#version-management)中的下一个源。 |
+    | `author`      | 可选。有助于归属。                                                                                                                                                                                                                                                                              |
 
     有关 `homepage`、`repository` 和 `license` 等其他字段，请参阅[完整清单架构](/docs/zh-CN/plugins-reference#plugin-manifest-schema)。
   </Step>

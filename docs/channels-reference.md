@@ -66,7 +66,7 @@ Channel 是一个在与 Claude Code 相同的机器上运行的 [MCP](https://mo
 
 <Steps>
   <Step title="创建项目">
-    后面此页面上的权限中继示例直接导入 `zod`，因此它与 MCP SDK 一起安装。创建一个新目录并安装两者：
+    [permission relay](#relay-permission-prompts) 示例直接导入 `zod`，因此它与 MCP SDK 一起安装。创建一个新目录并安装两者：
 
     ```bash theme={null}
     mkdir webhook-channel && cd webhook-channel
@@ -116,7 +116,7 @@ Channel 是一个在与 Claude Code 相同的机器上运行的 [MCP](https://mo
     })
     ```
 
-    该文件按顺序执行三项操作：
+    该文件按顺序配置服务器、连接和启动 HTTP 侦听器：
 
     * **服务器配置**：使用 `claude/channel` 在其能力中创建 MCP 服务器，这是告诉 Claude Code 这是一个频道的原因。Claude Code 在服务器连接时将 [`instructions`](#server-options) 字符串传递给 Claude 作为上下文：告诉 Claude 期望什么事件、是否回复以及如果应该回复，如何路由回复。
     * **Stdio 连接**：通过 stdin/stdout 连接到 Claude Code。这对任何 [MCP 服务器](https://modelcontextprotocol.io/docs/concepts/transports#standard-io) 都是标准的。

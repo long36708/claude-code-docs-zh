@@ -32,7 +32,7 @@ Claude 使用每个 subagent 的描述来决定何时委托任务。创建 subag
 
 Claude Code 包括内置 subagents，Claude 在适当时自动使用。每个都继承父对话的权限；大多数运行时工具集受限。
 
-Explore 和 Plan 会跳过您的 CLAUDE.md 文件和父会话的 git 状态，以保持研究快速且成本低廉。所有其他内置和[自定义 subagent](#configure-subagents) 都会加载两者。有关到达 subagent 的内容的完整分解，请参阅[启动时加载的内容](#what-loads-at-startup)。
+Explore 和 Plan 会跳过您的 CLAUDE.md 文件和父会话的 git 状态，以保持研究快速且成本低廉。所有其他内置和[自定义 subagent](#configure-subagents) 都会加载两者，除非其定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 字段以跳过用户、项目和本地 CLAUDE.md 文件。有关到达 subagent 的内容的完整分解，请参阅[启动时加载的内容](#what-loads-at-startup)。
 
 <Tabs>
   <Tab title="Explore">
@@ -230,7 +230,9 @@ Plugin `agents/` 目录也会被递归扫描。与项目和用户范围不同，
   </Tab>
 </Tabs>
 
-`--agents` 标志接受 JSON，具有 `prompt` 字段加上这些 [frontmatter](#supported-frontmatter-fields) 字段：`description`、`tools`、`disallowedTools`、`model`、`permissionMode`、`mcpServers`、`hooks`、`maxTurns`、`skills`、`initialPrompt`、`memory`、`effort`、`background` 和 `isolation`。对系统提示使用 `prompt`，等同于基于文件的 subagents 中的 markdown 正文。JSON 中的每个顶级键是代理的名称。不要以 `-` 开头的名称。
+`--agents` 标志接受 JSON，具有 `prompt` 字段加上这些 [frontmatter](#supported-frontmatter-fields) 字段：`description`、`tools`、`disallowedTools`、`model`、`permissionMode`、`mcpServers`、`hooks`、`maxTurns`、`skills`、`initialPrompt`、`memory`、`effort`、`background`、`omitClaudeMd` 和 `isolation`。对系统提示使用 `prompt`，等同于基于文件的 subagents 中的 markdown 正文。
+
+JSON 中的每个顶级键是代理的名称。不要以 `-` 开头的名称。
 
 有关 Claude Code 对无法加载的值的处理，以及跳过该检查的标志和环境变量，请参阅 [`Invalid --agents configuration`](/docs/zh-CN/errors#invalid-agents-configuration)。
 
@@ -313,6 +315,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 | `hooks`           | 否  | [Lifecycle hooks](#define-hooks-for-subagents) 限定于此 subagent。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略                                                                                                                                                                                                                |
 | `memory`          | 否  | [Persistent memory scope](#enable-persistent-memory)：`user`、`project` 或 `local`。启用跨会话学习                                                                                                                                                                                                                                           |
 | `background`      | 否  | 设置为 `true` 以即使 Claude 要求在前台运行也保持此 subagent 在后台。其中 [fork mode](#turn-fork-mode-on-or-off) 打开时，Claude Code 已经在 [background](#run-subagents-in-foreground-or-background) 中运行 Claude 生成的 subagents                                                                                                                                    |
+| `omitClaudeMd`    | 否  | 设置为 `true` 以启动此 subagent 而不使用用户、项目和本地 CLAUDE.md 文件；[managed policy files](/docs/zh-CN/memory#how-claude-md-files-load) 仍然加载，除了 [managed subagents](#choose-the-subagent-scope)。对于从 [delegation prompt](#what-loads-at-startup) 获取所需一切的 subagents 使用它。当代理通过 `--agent` 或 `agent` 设置作为主会话代理运行时被忽略。需要 Claude Code v2.1.271 或更高版本           |
 | `effort`          | 否  | 此 subagent 活跃时的努力级别。覆盖会话努力级别。默认：从会话继承。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型                                                                                                                                                                                                                                            |
 | `isolation`       | 否  | 设置为 `worktree` 以在临时 [git worktree](/docs/zh-CN/worktrees) 中运行 subagent，为其提供存储库的隔离副本，默认从您的 [default branch](/docs/zh-CN/worktrees#choose-the-base-branch) 分支，而不是父会话的 `HEAD`。如果 subagent 不进行任何更改，worktree 会自动清理                                                                                                                               |
 | `color`           | 否  | Subagent 在任务列表和转录中的显示颜色。接受 `red`、`blue`、`green`、`yellow`、`purple`、`orange`、`pink` 或 `cyan`                                                                                                                                                                                                                                        |
@@ -439,7 +442,7 @@ Subagents 继承主对话中可用的 [built-in tools](/docs/zh-CN/tools-referen
 * `WaitForMcpServers`
 * `Workflow`
 
-第二个过滤器适用于在后台运行的 subagents。除了 `Agent` 和 `ExitPlanMode`，它们遵循第一个过滤器的条件，无论 subagent 在哪里运行，后台 subagent 保留每个 MCP 工具但仅这些内置工具：`Read`、`Grep`、`Glob`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage` 和 `Artifact`。Claude Code 从后台 subagent 删除每个其他内置工具，无论继承还是在 `tools` 字段中列出，因此相同的定义可以在前台和后台解析为不同的工具。删除报告没有错误，除非它使 `tools` 列表 [resolving to nothing](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools)。
+第二个过滤器适用于在后台运行的 subagents。除了 `Agent` 和 `ExitPlanMode`，它们遵循第一个过滤器的条件，无论 subagent 在哪里运行，后台 subagent 保留每个 MCP 工具但仅这些内置工具：`Read`、`Grep`、`Glob`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage` 和 `Artifact`，加上 [`SubagentHandback`](/docs/zh-CN/tools-reference) 用于通过它报告的 subagent。Claude Code 从后台 subagent 删除每个其他内置工具，无论继承还是在 `tools` 字段中列出，因此相同的定义可以在前台和后台解析为不同的工具。删除报告没有错误，除非它使 `tools` 列表 [resolving to nothing](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools)。
 
 [`ListAgents`](/docs/zh-CN/cross-session-messaging) 遵循这些过滤器，如任何内置工具：前台 subagent 在启用跨会话消息的会话中继承它，后台 subagent 不保留它。
 
@@ -578,7 +581,7 @@ Claude Code 加载两种服务器而不检查代理文件来自的文件夹的�
 
 主对话的权限模式决定 Claude Code 是否使用您设置的值：
 
-* 当主对话在 `bypassPermissions`、`acceptEdits` 或 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 时，subagent 在该相同模式中运行，Claude Code 忽略您设置的 `permissionMode`。在自动模式下，分类器使用主对话的块和允许规则评估 subagent 的工具调用。
+* 当主对话在 `bypassPermissions`、`acceptEdits` 或 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 时，subagent 在该相同模式中运行，Claude Code 忽略您设置的 `permissionMode`。在自动模式下，分类器使用主对话的块和允许规则评估 subagent 的工具调用。当 subagent 完成时，分类器也会在报告被传递之前审查其工作和最终报告，如 [How auto mode handles subagents](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 所述。
 * 当主对话在 `default`、`dontAsk` 或 `plan` 模式时，subagent 在您设置的权限模式中运行，除了 `bypassPermissions`。声明 `bypassPermissions` 的 subagent 改为保持主对话的模式。`bypassPermissions` 例外需要 Claude Code v2.1.267 或更高版本。
 
 `permissionMode` 接受这些值，以及 `manual` 作为 `default` 的别名：
@@ -884,7 +887,7 @@ Have the code-reviewer subagent look at my recent changes
 claude --agent code-reviewer
 ```
 
-Subagent 的系统提示完全替换默认 Claude Code 系统提示，就像 [`--system-prompt`](/docs/zh-CN/cli-reference) 一样。`CLAUDE.md` 文件和项目内存仍然通过正常消息流加载。代理名称在启动标题中显示为 `@<name>`，以便您可以确认它是活跃的。
+Subagent 的系统提示完全替换默认 Claude Code 系统提示，就像 [`--system-prompt`](/docs/zh-CN/cli-reference) 一样。`CLAUDE.md` 文件和项目内存仍然通过正常消息流加载，即使代理的定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields)。代理名称在启动标题中显示为 `@<name>`，以便您可以确认它是活跃的。
 
 这适用于内置和自定义 subagents，当您恢复会话时选择会持续：Claude Code 恢复代理的工具限制和模型以及对话。如果代理在您恢复时不再存在，会话继续使用默认工具并显示 [警告命名代理](/docs/zh-CN/errors#session-agent-no-longer-available)。对于任一情况下的系统提示，请参阅 [已恢复对话中的系统提示标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。
 
@@ -1057,7 +1060,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 
 默认情况下，subagent 可以生成自己的 subagents，最多在主对话下方三层。在深度限制处，Claude Code 从除 [fork](#fork-the-current-conversation) 外的每个 subagent 中扣留 `Agent` 工具，所以限制处的 subagent 自己进行委托工作并返回一个摘要。限制处的 fork 在其继承的工具列表中保持 `Agent`，但工具返回错误而不是生成。
 
-嵌套 subagents 适合委托任务本身分裂成并行子任务，例如审查者 subagent 为每个发现分派验证者，所以中间输出永远不会到达您的主对话。只有顶级 subagent 的摘要返回给您。
+嵌套 subagents 适合委托任务本身分裂成并行子任务，例如审查者 subagent 为每个发现分派验证者。在交互式会话中，只有顶级 subagent 的摘要返回给您，中间输出保留在 subagent 的上下文中：生成后台 subagents 的 subagent 在完成之前等待其结果。在 [非交互模式](/docs/zh-CN/headless) 和 Agent SDK 中，启动 subagent 不等待，所以在其启动器已结束后完成的嵌套后台 subagent 报告给您的主对话。
 
 要改变限制，将 [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](/docs/zh-CN/env-vars) 设置为您想要在主对话下方的 subagent 层数。例如，此条目在 [`settings.json`](/docs/zh-CN/settings) 中将嵌套限制为两层：
 
@@ -1111,14 +1114,16 @@ Claude Code 在提示输入下方的 subagent 面板中将嵌套 subagents 显�
 
 * **系统提示**：代理自己的提示加上 Claude Code 附加的环境详情，而不是 Claude Code 系统提示。自定义 subagents 在 [markdown 正文](#write-subagent-files) 或 `prompt` 字段中定义它们。内置代理有预定义的提示。
 * **任务消息**：Claude 在移交工作时编写的委托提示。
-* **CLAUDE.md 文件**：主对话加载的 [CLAUDE.md 层次结构](/docs/zh-CN/memory#how-claude-md-files-load) 的每个级别，包括 `~/.claude/CLAUDE.md`、项目规则、`CLAUDE.local.md` 和托管策略文件。内置的 Explore 和 Plan 代理跳过这个。
+* **CLAUDE.md 文件**：主对话加载的 [CLAUDE.md 层次结构](/docs/zh-CN/memory#how-claude-md-files-load) 的每个级别，包括 `~/.claude/CLAUDE.md`、项目规则、`CLAUDE.local.md` 和托管策略文件。内置的 Explore 和 Plan 代理跳过这个。Subagent 的定义设置 [`omitClaudeMd`](#supported-frontmatter-fields) 时仅加载托管策略文件，或当定义来自 [托管设置](#choose-the-subagent-scope) 时不加载任何文件。
 * **Git 状态**：在父会话开始时拍摄的快照。当工作目录不是 Git 存储库或 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 为 `false` 时不存在。Explore 和 Plan 无论如何都跳过它。
 * **预加载的技能**：代理的 [`skills` 字段](#preload-skills-into-subagents) 中命名的任何技能的完整内容。内置代理不预加载技能。
 * **兄弟名单**：系统提醒，列出 `main` 和会话中的每个其他命名代理，每个都是 [`SendMessage`](#resume-subagents) 的有效 `to` 值。需要 Claude Code v2.1.206 或更高版本。名单仅在 subagent 的工具包括 `SendMessage` 且至少有一个其他代理有名称时出现，无论 Claude 在生成时命名它还是它作为 [agent team](/docs/zh-CN/agent-teams) 队友运行。它是 subagent 启动时拍摄的快照，所以稍后命名的代理不会出现。
 
-Explore 和 Plan 是仅有的省略 CLAUDE.md 和 git 状态的 subagents。没有 frontmatter 字段或按代理设置来改变哪些代理跳过它们。
+要启动您自己的 subagents 而不使用用户、项目和本地 CLAUDE.md 文件，在其 frontmatter 中设置 [`omitClaudeMd: true`](#supported-frontmatter-fields) 或 `--agents` JSON。
 
-主对话使用完整的 CLAUDE.md 上下文读取 Explore 和 Plan 结果，所以大多数规则不需要到达 subagent 本身。如果规则必须，例如"忽略 `vendor/` 目录"，在您给 Claude 委托时的提示中重新陈述它。
+主对话仍然有您的完整 CLAUDE.md 当它读取这些 subagents 的结果时，所以大多数规则不需要到达 subagent 本身。如果规则必须，例如"忽略 `vendor/` 目录"，在您给 Claude 委托时的提示中重新陈述它。
+
+您无法改变哪些 subagents 接收 git 状态。只有 Explore 和 Plan 跳过它。
 
 某些主对话状态永远不会到达非 fork subagent：
 

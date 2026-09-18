@@ -147,7 +147,7 @@ Agent SDK 生成并监督一个 `claude` CLI 子进程，该子进程拥有一�
 
   declare const userInput: string;
   declare const sessionId: string;          // looked up from your database by user
-  declare const sessionStore: SessionStore; // S3, Redis, Postgres, or your own adapter
+  declare const sessionStore: SessionStore; // an object store, key-value store, database, or your own adapter
 
   for await (const message of query({
     prompt: userInput,
@@ -163,7 +163,7 @@ Agent SDK 生成并监督一个 `claude` CLI 子进程，该子进程拥有一�
 
   user_input: str = ...
   session_id: str = ...              # looked up from your database by user
-  session_store: SessionStore = ...  # S3, Redis, Postgres, or your own adapter
+  session_store: SessionStore = ...  # an object store, key-value store, database, or your own adapter
 
 
   async def main():
@@ -244,7 +244,7 @@ SDK 需要对 `api.anthropic.com` 的出站 HTTPS，或在 Amazon Bedrock 或 Go
   会话和状态持久化
 </h3>
 
-默认本地磁盘在重启、缩减或移动到不同节点时会丢失。对于用户期望恢复的任何会话，使用 [`SessionStore` 适配器](/docs/zh-CN/agent-sdk/session-storage)将记录副本镜像到持久存储。查看[参考实现](/docs/zh-CN/agent-sdk/session-storage#reference-implementations)了解 S3、Redis 和 Postgres 适配器，以及用于您自己实现的一致性测试套件。
+默认本地磁盘在重启、缩减或移动到不同节点时会丢失。对于用户期望恢复的任何会话，使用 [`SessionStore` 适配器](/docs/zh-CN/agent-sdk/session-storage)将记录副本镜像到持久存储。查看[参考实现](/docs/zh-CN/agent-sdk/session-storage#reference-implementations)了解对象存储、键值存储和数据库的示例适配器，以及用于您自己实现的一致性测试套件。
 
 关于 `SessionStore` 行为的三个要点：
 

@@ -352,7 +352,7 @@ For every code submission:
   缓存自定义提示词的静态部分
 </h4>
 
-在 TypeScript SDK 中，你可以将自定义提示词作为字符串数组而不是一个字符串传递，在静态部分和其余部分之间使用 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 标记。当你的提示词结合每个请求都相同的指令与每个请求都改变的上下文（例如 agent 处理的客户或工单）时，使用此方法。当你将两个部分作为一个字符串传递时，对每个请求部分的更改会改变整个系统提示词，因此静态指令也会错过缓存。此形式在 Python SDK 中不可用，其 `system_prompt` 选项接受字符串、预设或 [file](/docs/zh-CN/agent-sdk/python#systempromptfile)。
+在 TypeScript SDK 中，你可以将自定义提示词作为字符串数组而不是一个字符串传递，在静态部分和其余部分之间使用 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 标记。当你的提示词结合每个请求都相同的指令与每个请求都改变的上下文（例如 agent 处理的客户或工单）时，使用此方法。当你将两个部分作为一个字符串传递时，对每个请求部分的更改会改变整个系统提示词，因此静态指令也会错过缓存。此形式在 Python SDK 中不可用；[`ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 列出了 `system_prompt` 接受的形式。
 
 <Note>
   SDK 仅在直接调用 Claude API 或在 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上运行时拆分提示词。在所有其他配置中，例如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [LLM gateway](/docs/zh-CN/llm-gateway-connect)，以及每当你设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 时，SDK 会将整个提示词作为一个块发送，与传递一个字符串相同。
@@ -391,11 +391,28 @@ SDK 从数组中组装块如下：
   改变现有会话的提示词
 </h3>
 
-默认情况下，Claude Code 在会话的第一个请求时构建系统提示词一次，包括你的 `append` 文本或自定义提示词，并将其记录在会话中。在会话被压缩之前，每个后续请求都使用该记录的提示词，包括在你使用 `resume` 或 `continue` 返回会话后。如果你在该后续调用上传递不同的 `append` 或自定义提示词，它会在会话被压缩或在新会话中生效。
+默认情况下，如果你在使用 `resume` 或 `continue` 返回会话时传递不同的 `append` 或自定义提示词，Claude 在下一个转折点不会看到它。Claude Code 在会话的第一个请求时记录系统提示词，并在会话被压缩之前重复使用该记录。新文本在压缩后或在新会话中生效。
 
-如果你通过 `extraArgs` 传递 `--bare` 或设置 `CLAUDE_CODE_SIMPLE=1` 在 [bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 中启动 Claude Code，记录保持关闭，除非你在 `systemPrompt` 的对象形式上设置 `snapshot: true`。默认情况下记录 `append` 或自定义提示词需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑。在 Claude Code v2.1.268 之前，不 [fetch feature flags](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的会话，在每个请求上重建提示词，`snapshot` 无效。
+<h4 id="update-claude’s-instructions-mid-session">
+  在会话中期更新 Claude 的指令
+</h4>
 
-要改为在每个请求上重建提示词，请在 TypeScript SDK 中的 `systemPrompt` 的对象形式上设置 `snapshot: false`：`{ type: "preset", preset: "claude_code", append, snapshot: false }` 或 `{ type: "custom", prompt, snapshot: false }`。当你在迭代提示词措辞时或当你的应用程序在恢复相同会话的调用之间改变 `append` 时，使用此形式。`snapshot` 字段需要 `@anthropic-ai/claude-agent-sdk` v0.3.257 或更高版本。
+如果你在系统提示词中放置的指令需要在会话运行时改变，例如因为你的用户将 agent 切换到只读模式或在你的应用中编辑其配置，请在对话中发送新指令，而不是改变 `systemPrompt`：
+
+* **在你的下一条消息中**：在你发送的下一条用户消息中包含新指令。
+* **从 hook 中**：从 `UserPromptSubmit` 或 `PostToolUse` [hook 回调](/docs/zh-CN/agent-sdk/hooks#outputs) 返回 [`additionalContext`](/docs/zh-CN/hooks#add-context-for-claude)，写成事实陈述，例如"工作区现在是只读的"。SDK 在 hook 触发的点将文本插入到对话中，因此记录的提示词保持不变。
+
+<h4 id="turn-recording-off-while-you-iterate-on-wording">
+  在迭代措辞时关闭记录
+</h4>
+
+当你迭代提示词措辞并希望每次编辑都到达你恢复的会话时，在系统提示词的对象形式上设置 `snapshot` 为 false。Claude Code 然后在每个请求上重建提示词。该字段在 TypeScript 中的 [`systemPrompt`](/docs/zh-CN/agent-sdk/typescript#options) 的预设和自定义形式上可用，在 Python 中的 [`system_prompt`](/docs/zh-CN/agent-sdk/python#systempromptpreset) 上可用，并需要 `@anthropic-ai/claude-agent-sdk` v0.3.257 或更高版本，或 `claude-agent-sdk` v0.2.153 或更高版本。
+
+在生产中保持记录打开。关闭记录时，恢复的会话上的不同 `append` 或自定义提示词在下一个转折点到达 Claude，该请求无法重复使用会话的 [prompt cache](/docs/zh-CN/prompt-caching#how-the-cache-is-organized)。在 API 强制执行 [preserved thinking](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking) 的地方，Claude 也会失去其早期转折点的思考。
+
+在 [cloud sessions](/docs/zh-CN/cloud-environments) 之外，如果你通过 `extraArgs` 传递 `--bare` 或设置 `CLAUDE_CODE_SIMPLE=1` 在 [bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 中启动 Claude Code，记录保持关闭，除非你设置 `snapshot: true`。
+
+默认情况下记录 `append` 或自定义提示词需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑，Python Agent SDK 从 v0.2.153 捆绑。在 Claude Code v2.1.268 之前，不 [fetch feature flags](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的会话，在每个请求上重建提示词，`snapshot` 无效。
 
 <h2 id="compare-the-four-approaches">
   比较四种方法

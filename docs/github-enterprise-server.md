@@ -4,15 +4,15 @@
 
 # Claude Code 与 GitHub Enterprise Server
 
-> 将 Claude Code 连接到自托管的 GitHub Enterprise Server 实例，用于网络会话、代码审查和插件市场。
+> 将 Claude Code 连接到自托管的 GitHub Enterprise Server 实例，用于云会话、代码审查和插件市场。
 
 <Note>
   GitHub Enterprise Server 支持适用于 Team 和 Enterprise 计划。
 </Note>
 
-GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理托管在自管理 GitHub 实例上的存储库，而不是 github.com。一旦所有者连接您的 GHES 实例，开发人员可以运行网络会话和获得自动化代码审查，无需任何按存储库的配置。您实例上托管的插件市场也受支持；凭证要求因表面而异，如 [GHES 上的插件市场](#plugin-marketplaces-on-ghes) 中所述。
+GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理托管在自管理 GitHub 实例上的存储库，而不是 github.com。一旦所有者连接您的 GHES 实例，开发人员可以运行云会话和获得自动化代码审查，无需任何按存储库的配置。您实例上托管的插件市场也受支持；凭证要求因表面而异，如 [GHES 上的插件市场](#plugin-marketplaces-on-ghes) 中所述。
 
-对于 github.com 上的存储库，请参阅 [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) 和 [代码审查](/docs/zh-CN/code-review)。要在您自己的 CI 基础设施中运行 Claude，请参阅 [GitHub Actions](/docs/zh-CN/github-actions)。
+对于 github.com 上的存储库，请参阅 [云上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) 和 [代码审查](/docs/zh-CN/code-review)。要在您自己的 CI 基础设施中运行 Claude，请参阅 [GitHub Actions](/docs/zh-CN/github-actions)。
 
 <h2 id="what-works-with-github-enterprise-server">
   GitHub Enterprise Server 支持的功能
@@ -22,10 +22,10 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
 
 | 功能                | GHES 支持 | 备注                                                                                      |
 | :---------------- | :------ | :-------------------------------------------------------------------------------------- |
-| 网络上的 Claude Code  | ✅ 支持    | 所有者连接 GHES 实例一次；开发人员像往常一样使用 `claude --cloud` 或 [claude.ai/code](https://claude.ai/code) |
+| 云会话               | ✅ 支持    | 所有者连接 GHES 实例一次；开发人员像往常一样使用 `claude --cloud` 或 [claude.ai/code](https://claude.ai/code) |
 | 代码审查              | ✅ 支持    | 与 github.com 相同的自动化 PR 审查                                                               |
 | Claude Security   | ✅ 支持    | 在 [claude.ai/security](https://claude.ai/security) 为 Enterprise 计划提供公开测试版               |
-| Teleport 会话       | ✅ 支持    | 使用 `--teleport` 在网络和终端之间移动会话                                                            |
+| Teleport 会话       | ✅ 支持    | 使用 `--teleport` 在云和终端之间移动会话                                                             |
 | 插件市场              | ✅ 支持    | 凭证要求因表面而异。请参阅 [GHES 上的插件市场](#plugin-marketplaces-on-ghes)                               |
 | 贡献指标              | ✅ 支持    | 通过 webhook 传递到 [分析仪表板](/docs/zh-CN/analytics)                                                |
 | GitHub Actions    | ✅ 支持    | 需要手动工作流设置；`/install-github-app` 仅适用于 github.com                                         |
@@ -110,7 +110,7 @@ git clone git@github.example.com:platform/api-service.git
 cd api-service
 ```
 
-然后启动网络会话。Claude 从您的 git 远程检测 GHES 主机，并通过您组织的配置实例路由会话：
+然后启动云会话。Claude 从您的 git 远程检测 GHES 主机，并通过您组织的配置实例路由会话：
 
 ```bash theme={null}
 claude --cloud "Add retry logic to the payment webhook handler"
@@ -122,7 +122,7 @@ claude --cloud "Add retry logic to the payment webhook handler"
   将会话 Teleport 到您的终端
 </h3>
 
-使用 `claude --teleport` 将网络会话拉入您的本地终端。Teleport 在获取分支和加载会话历史之前验证您在同一 GHES 存储库的检出中。有关详细信息，请参阅 [teleport 要求](/docs/zh-CN/claude-code-on-the-web#teleport-requirements)。
+使用 `claude --teleport` 将云会话拉入您的本地终端。Teleport 在获取分支和加载会话历史之前验证您在同一 GHES 存储库的检出中。有关详细信息，请参阅 [teleport 要求](/docs/zh-CN/claude-code-on-the-web#teleport-requirements)。
 
 <h2 id="plugin-marketplaces-on-ghes">
   GHES 上的插件市场
@@ -136,7 +136,7 @@ claude --cloud "Add retry logic to the payment webhook handler"
 | 托管设置（`extraKnownMarketplaces`） | Claude Code 注册条目并使用机器现有的 git 凭证克隆存储库                                                 | 从其机器对您的 GHES 主机的 Git 访问权限                                                         |
 | claude.ai 组织插件设置               | 所有者选择 GHES 实例作为源；Anthropic 的后端使用来自 [admin setup](#admin-setup) 的 GitHub App 获取并同步存储库 | 添加后每个用户无需任何操作。添加它的所有者需要连接自己的 GitHub Enterprise 账户作为访问检查，并且 GitHub App 必须安装在市场存储库上 |
 | claude.ai 用户设置                 | Anthropic 的后端使用提交用户的 GitHub Enterprise 连接获取存储库                                       | 连接到 Claude 的自己的 GitHub Enterprise 账户                                              |
-| Claude Code 网页版                | 云会话在会话沙箱内克隆市场。沙箱只有在会话的存储库位于同一实例上时才能访问您的 GHES 实例，其 git 凭证的范围限于会话的存储库                  | 对于 GHES 托管的市场不可靠：与会话存储库不同的主机无法访问，即使是同一实例的安装也可能失败。改用 CLI、托管设置或 claude.ai           |
+| Cloud sessions                 | Cloud sessions 在会话沙箱内克隆市场。沙箱只有在会话的存储库位于同一实例上时才能访问您的 GHES 实例，其 git 凭证的范围限于会话的存储库      | 对于 GHES 托管的市场不可靠：与会话存储库不同的主机无法访问，即使是同一实例的安装也可能失败。改用 CLI、托管设置或 claude.ai           |
 
 <Warning>
   当从用户设置添加市场时，claude.ai 上的 GitHub Enterprise 连接是按用户的。[admin setup](#admin-setup) 将您的 GHES 实例连接到您的组织，但它不连接单个用户账户：每个从自己的设置添加 GHES 市场的用户必须首先连接自己的 GitHub Enterprise 账户，一个用户的连接（包括所有者的）不会覆盖任何其他人。由所有者在组织插件设置中添加的市场不会对用户施加此要求，因为持续的获取使用组织的 GitHub App。添加市场的所有者仍然需要在添加时连接自己的 GitHub Enterprise 账户。
@@ -220,8 +220,8 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
   故障排除
 </h2>
 
-<h3 id="web-session-fails-to-clone-repository">
-  网络会话无法克隆存储库
+<h3 id="cloud-session-fails-to-clone-repository">
+  云会话无法克隆存储库
 </h3>
 
 如果 `claude --cloud` 因克隆错误而失败，请验证 Owner 已完成您的 GHES 实例的设置，并且 GitHub App 已安装在您正在处理的存储库上。与连接该实例的 Owner 确认在 Claude 设置中注册的主机名与您的 git 远程中的主机名匹配。
@@ -246,13 +246,13 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
   GHES 实例无法访问
 </h3>
 
-如果审查或 Anthropic 托管的网络会话超时，您的 GHES 实例可能无法从 Anthropic 基础设施访问。确认您的防火墙允许来自 Anthropic 的 [出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses) 的入站连接。[自托管环境](/docs/zh-CN/self-hosted-environments) 中的会话从您的网络内部访问 GHES，因此对于它们，请检查运行器自己的网络路径和 [SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags) 代替。
+如果审查或 Anthropic 托管的云会话超时，您的 GHES 实例可能无法从 Anthropic 基础设施访问。确认您的防火墙允许来自 Anthropic 的 [出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses) 的入站连接。[自托管环境](/docs/zh-CN/self-hosted-environments) 中的会话从您的网络内部访问 GHES，因此对于它们，请检查运行器自己的网络路径和 [SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags) 代替。
 
 <h3 id="session-start-fails-with-unable-to-get-organization-uuid">
   会话启动失败，显示 `Unable to get organization UUID`
 </h3>
 
-网络会话需要 Team 或 Enterprise 组织。使用 `/login` 和您的组织账户登录。如果您改用 API 密钥进行身份验证，网络会话会更早失败，并显示一条消息要求您运行 `/login`。
+云会话需要 Team 或 Enterprise 组织。使用 `/login` 和您的组织账户登录。如果您改用 API 密钥进行身份验证，云会话会更早失败，并显示一条消息要求您运行 `/login`。
 
 <h2 id="related-resources">
   相关资源

@@ -305,10 +305,10 @@ Claude Code 第一次看到项目范围的服务器时，它会要求您批准�
 
 本指南使用 `claude mcp` CLI 命令，但每个 Claude Code 界面都可以连接到 MCP 服务器：
 
-* **Claude Code 桌面应用**：通过 [连接器 UI](/docs/zh-CN/desktop#connect-external-tools) 添加服务器。
+* **Claude Code 桌面应用**：通过[连接器 UI](/docs/zh-CN/desktop#connect-external-tools)添加服务器。
 * **Claude 桌面聊天应用**：与 Claude Code 不同的应用。要将其 `claude_desktop_config.json` 中的服务器复制到 CLI，请在 macOS 或 WSL 上运行 `claude mcp add-from-claude-desktop`。
 * **VS Code**：请参阅[使用 MCP 连接到外部工具](/docs/zh-CN/vs-code#connect-to-external-tools-with-mcp)。
-* **网络上的 Claude Code**：从您的存储库读取 `.mcp.json`。请参阅[直接编辑 .mcp.json](#edit-mcp-json-directly)。
+* **云会话**：将 `.mcp.json` 提交到您的存储库；一个包含一个存储库的会话会加载它。请参阅[直接编辑 .mcp.json](#edit-mcp-json-directly) 和[您的设置中保留的内容](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
 * **Claude.ai**：您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 添加的连接器在您使用该帐户登录 CLI 时自动加载。请参阅[从 Claude.ai 使用 MCP 服务器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。
 
 <h2 id="troubleshooting">
