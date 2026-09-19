@@ -354,7 +354,15 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
   AGENTS.md
 </h2>
 
-如果您的存储库已有 `AGENTS.md` 且没有 `CLAUDE.md`，Claude 会将其作为您的项目说明读取，您无需添加 `CLAUDE.md`、导入或设置。`AGENTS.md` 是您为 AI 编码代理编写的项目说明的 markdown 文件。如果您在工作目录或其上方的目录中也有 `CLAUDE.md`，Claude 默认会读取该文件；要让 Claude 读取两个文件，请[更改**项目说明**设置](#choose-which-instruction-files-load)。如果您的 `CLAUDE.md` 已[导入 `AGENTS.md`](#share-one-file-with-other-coding-tools)，您无需更改任何内容。
+Claude Code 可以将 [`AGENTS.md`](/docs/zh-CN/glossary#agents-md) 作为您的项目说明读取，因此已为其他编码代理设置的存储库无需添加 `CLAUDE.md`、导入或设置即可工作。此表显示了存储库中指令文件的每种组合下 Claude 默认读取的内容：
+
+| 您的存储库有                                                                    | Claude 读取                         |
+| :------------------------------------------------------------------------ | :-------------------------------- |
+| 一个 `AGENTS.md`，且在您的工作目录或其上方没有 `CLAUDE.md` 或 `CLAUDE.local.md`             | 您的 `AGENTS.md`                    |
+| 一个 `AGENTS.md` 和一个 `CLAUDE.md` 或 `CLAUDE.local.md` 在您的工作目录或其上方            | 仅您的 `CLAUDE.md` 文件                |
+| 一个已[导入 `AGENTS.md`](#share-one-file-with-other-coding-tools)的 `CLAUDE.md` | 您的 `CLAUDE.md`，通过导入包含 `AGENTS.md` |
+
+要更改默认值，例如让 Claude 始终读取两个文件、仅读取 `CLAUDE.md` 或仅读取您组织的托管说明，请[更改**项目说明**设置](#choose-which-instruction-files-load)。
 
 <Note>
   直接读取 `AGENTS.md` 需要 Claude Code v2.1.277 或更高版本。在某些会话中，例如在 Amazon Bedrock 上或禁用遥测的会话中，Claude [无法读取 `AGENTS.md`](#when-agents-md-support-is-unavailable)，因此请[从 `CLAUDE.md` 中导入它](#share-one-file-with-other-coding-tools)。
@@ -364,20 +372,21 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
   Claude Code 何时读取 AGENTS.md
 </h3>
 
-默认情况下，Claude 在决定读取什么之前会检查您的工作目录和其上方的每个目录，直到文件系统根目录：
+默认情况下，Claude 仅在您的工作目录或其上方没有 `CLAUDE.md` 时才读取 `AGENTS.md`。以下是此检查中计数的文件：
 
-* **您在那里有 `CLAUDE.md`、`.claude/CLAUDE.md` 或 `CLAUDE.local.md`**：Claude 按照[CLAUDE.md 文件如何加载](#how-claude-md-files-load)中的说明读取您的 `CLAUDE.md` 文件，并忽略每个 `AGENTS.md`。
-* **您没有这些文件**：Claude 读取您的工作目录和其上方目录中的每个 `AGENTS.md` 和 `.claude/AGENTS.md`。在交互式会话中，您会看到一行，例如 `no CLAUDE.md found; AGENTS.md loaded: /home/you/repo/AGENTS.md`。当 Claude 稍后读取具有自己的 `AGENTS.md` 且没有 `CLAUDE.md` 的子目录中的文件时，它也会读取该 `AGENTS.md`。
+* **计数，因此 Claude 读取它们而不是 `AGENTS.md`**：您的工作目录或其上方任何目录中的 `CLAUDE.md`、`.claude/CLAUDE.md` 或 `CLAUDE.local.md`
+* **不计数，并继续与 `AGENTS.md` 一起加载**：您的 `~/.claude/CLAUDE.md`、您组织的托管 `CLAUDE.md` 和 `.claude/rules/` 文件
 
-您的 `~/.claude/CLAUDE.md`、您组织的托管 `CLAUDE.md` 和您的 `.claude/rules/` 文件不会影响此检查，Claude 会继续与 `AGENTS.md` 一起读取它们。将适用于每个项目的个人说明保留在 `~/.claude/CLAUDE.md` 中。
+当没有计数时，以下是 Claude 读取的内容以及您如何判断：
 
-`CLAUDE.local.md` 会影响检查。如果您在依赖 `AGENTS.md` 的项目中添加一个用于私人笔记，Claude 会停止为您读取 `AGENTS.md`。要同时获得两者，请将**项目说明**设置为 [`claude-md-and-agents-md`](#choose-which-instruction-files-load)。
+* **在会话开始时**：您的工作目录和其上方目录中的每个 `AGENTS.md` 和 `.claude/AGENTS.md`。在交互式会话中，您会看到一行，例如 `no CLAUDE.md found; AGENTS.md loaded: /home/you/repo/AGENTS.md` 在对话中
+* **当 Claude 在子目录中工作时**：当 Claude 使用 Read 工具打开该处的文件且该子目录没有三个 `CLAUDE.md` 文件中的任何一个时，子目录的 `AGENTS.md`
+* **在每个 `AGENTS.md` 内**：[`@path` 导入](#import-additional-files)被展开，[`claudeMdExcludes`](#exclude-specific-claude-md-files) 模式适用，[跳过项目说明](/docs/zh-CN/sub-agents#what-loads-at-startup)的子代理也会跳过这些文件
+* **不读取**：`AGENTS.local.md`、`AGENTS.override.md` 或 `.agents/` 目录下的任何内容
 
-Claude 读取您的 `AGENTS.md` 后，您可以像对待项目 `CLAUDE.md` 一样对待它：
-
-* 在其中使用 [`@path` 导入](#import-additional-files)
-* 使用 [`claudeMdExcludes`](#exclude-specific-claude-md-files) 排除它
-* 期望[跳过项目说明](/docs/zh-CN/sub-agents#what-loads-at-startup)的子代理也会跳过它
+<Note>
+  因为 `CLAUDE.local.md` 计数，在依赖 `AGENTS.md` 的项目中添加一个来保留您自己的未提交说明会停止 Claude 为您读取 `AGENTS.md`。要保留您的 `CLAUDE.local.md` 并仍然让 Claude 读取 `AGENTS.md`，请将**项目说明**设置为 [`claude-md-and-agents-md`](#choose-which-instruction-files-load)。
+</Note>
 
 <h3 id="choose-which-instruction-files-load">
   选择加载哪些说明文件
@@ -385,17 +394,12 @@ Claude 读取您的 `AGENTS.md` 后，您可以像对待项目 `CLAUDE.md` 一�
 
 要更改 Claude 读取的文件，请在 Claude Code 会话中键入 `/config` 以打开设置面板，然后将**项目说明**设置为以下值之一：
 
-| 值                         | Claude 读取的内容                                                                                                         |
-| :------------------------ | :------------------------------------------------------------------------------------------------------------------- |
-| `claude-md-or-agents-md`  | 您的 `CLAUDE.md` 文件，或当您的工作目录或其上方没有 `CLAUDE.md` 时您的 `AGENTS.md` 文件。这是默认值                                                |
-| `claude-md-and-agents-md` | 您的 `CLAUDE.md` 和 `AGENTS.md` 文件一起，每个目录的 `AGENTS.md` 在其 `CLAUDE.md` 之后                                                |
-| `claude-md`               | 仅您的 `CLAUDE.md` 文件                                                                                                   |
-| `managed-only`            | 仅您组织的托管 `CLAUDE.md` 和启动时的[自动内存](#auto-memory)。您的项目、本地和用户 `CLAUDE.md` 文件、您的 `.claude/rules/` 文件和每个 `AGENTS.md` 都被排除在外 |
-
-这些值中有两个值在您选择之前值得了解的详细信息：
-
-* 使用 `claude-md-and-agents-md` 时，如果您的 `CLAUDE.md` 已导入或符号链接到其旁边的 `AGENTS.md`，您会获得该内容一次，而不是两次。
-* 使用 `managed-only` 时，当 Claude 读取该子目录中的文件时，它仍会读取子目录的 `CLAUDE.md` 和 `.claude/rules/` 文件，并仍会应用[路径范围规则](#path-specific-rules)。
+| 值                         | Claude 读取的内容                                                                                                                                                                                                         |
+| :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `claude-md-or-agents-md`  | 您的 `CLAUDE.md` 文件，或当您的工作目录或其上方没有 `CLAUDE.md` 或 `CLAUDE.local.md` 时您的 `AGENTS.md` 文件。这是默认值                                                                                                                            |
+| `claude-md-and-agents-md` | 您的 `CLAUDE.md` 和 `AGENTS.md` 文件一起，每个目录的 `CLAUDE.md` 文件首先，其 `AGENTS.md` 在之后。Claude Code 跳过已加载的 `AGENTS.md`，因此您的 `CLAUDE.md` 导入或符号链接到的 `AGENTS.md` 不会被读取两次                                                             |
+| `claude-md`               | 仅您的 `CLAUDE.md` 文件                                                                                                                                                                                                   |
+| `managed-only`            | 仅您组织的托管 `CLAUDE.md` 和启动时的[自动内存](#auto-memory)。您的项目、本地和用户 `CLAUDE.md` 文件、您的 `.claude/rules/` 文件和每个 `AGENTS.md` 都被排除在外。当 Claude 读取该处的文件时，子目录的 `CLAUDE.md` 和 `.claude/rules/` 文件仍会加载，[路径范围规则](#path-specific-rules)仍会应用 |
 
 您也可以在设置文件中设置该值，而不是在 `/config` 中。在 [`pluginConfigs`](/docs/zh-CN/settings-reference#pluginconfigs) 中的内置 `agents-md` 插件的 ID 下添加它，在 `~/.claude/settings.json`、`--settings` 文件或[托管设置](/docs/zh-CN/managed-settings)中。Claude Code 在项目和本地设置文件中忽略它。此示例让 Claude 读取两个文件：
 
@@ -415,7 +419,7 @@ Claude 读取您的 `AGENTS.md` 后，您可以像对待项目 `CLAUDE.md` 一�
   当 AGENTS.md 支持不可用时
 </h3>
 
-在这些会话中，Claude 仅读取 `CLAUDE.md` 文件，您不会在 `/config` 设置面板中看到**项目说明**：
+在这些会话中，Claude 仅读取 `CLAUDE.md` 文件，**项目说明**不会出现在 `/config` 设置面板中：
 
 * 您使用的是 v2.1.277 之前的 Claude Code 版本
 * 您的会话不会[从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，例如因为您使用 Amazon Bedrock 或其他第三方提供商，或您禁用了遥测。链接的部分有完整列表
@@ -430,10 +434,12 @@ Claude 读取您的 `AGENTS.md` 后，您可以像对待项目 `CLAUDE.md` 一�
 
 通过**项目说明**设置读取的 `AGENTS.md` 与 `CLAUDE.md` 在以下方面有所不同：
 
-* 您不会在 `/memory` 或 `/context` 中的**内存文件**列表中看到它。要确认 Claude 读取了它，请查找 [`AGENTS.md loaded` 行](#when-claude-code-reads-agents-md)或询问 Claude 其项目说明说了什么。使用 `claude-md-and-agents-md` 时没有这样的行，所以请询问 Claude
-* 当 Claude 直接读取它时，您的 [`InstructionsLoaded` hooks](/docs/zh-CN/hooks#instructionsloaded) 不会触发。当 `CLAUDE.md` 导入或符号链接到它时，它们会照常触发
-* 如果您设置了 [`CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`](#load-from-additional-directories)，Claude 会从您使用 `--add-dir` 添加的每个目录读取 `CLAUDE.md`，但不会读取其 `AGENTS.md`
-* 如果您的 `AGENTS.md` 使用 `@path` 导入工作目录外的文件，Claude 仅在您已为此项目批准[外部导入](#import-additional-files)时才读取该文件。系统不会提示您从 `AGENTS.md` 批准它
+|                                                                                                                  | `CLAUDE.md`                                       | 通过设置读取的 `AGENTS.md`                                                                                         |
+| :--------------------------------------------------------------------------------------------------------------- | :------------------------------------------------ | :---------------------------------------------------------------------------------------------------------- |
+| `/memory` 和 `/context` 中的**内存文件**列表                                                                              | 已列出                                               | 未列出。要确认 Claude 读取了它，请查找默认值下的 [`AGENTS.md loaded` 行](#when-claude-code-reads-agents-md)，或询问 Claude 其项目说明说了什么 |
+| [`InstructionsLoaded` hooks](/docs/zh-CN/hooks#instructionsloaded)                                                    | 触发                                                | 不触发。它们照常为 `CLAUDE.md` 导入或符号链接到的 `AGENTS.md` 触发                                                              |
+| 当设置了 [`CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`](#load-from-additional-directories) 时，您使用 `--add-dir` 添加的目录 | 它们的 `CLAUDE.md` 加载                                | 它们的 `AGENTS.md` 不加载                                                                                         |
+| `@path` 导入工作目录外的文件                                                                                               | Claude Code 要求您批准[外部导入](#import-additional-files) | 仅在您已为此项目批准外部导入时加载，无提示                                                                                       |
 
 <h3 id="remove-an-earlier-agents-md-workaround">
   删除早期的 AGENTS.md 解决方案
@@ -441,7 +447,7 @@ Claude 读取您的 `AGENTS.md` 后，您可以像对待项目 `CLAUDE.md` 一�
 
 如果您在 Claude Code 自行读取 `AGENTS.md` 之前设置它来读取 `AGENTS.md`，以下是对每个常见设置的处理方法：
 
-* **包含 `@AGENTS.md` 的 `CLAUDE.md`**：无。它继续工作，如果您的某些会话[无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable)，它仍然是正确的设置。如果该文件不包含其他内容且您的所有会话都可以加载 `AGENTS.md`，您可以删除它。
+* **包含 `@AGENTS.md` 的 `CLAUDE.md`**：您可以保留它。保留导入永远不会让 Claude 读取 `AGENTS.md` 两次，无论您使用哪个**项目说明**值。如果 `CLAUDE.md` 不包含其他内容，请删除它，或如果您的某些会话[无法直接加载 `AGENTS.md`](#when-agents-md-support-is-unavailable)，请保留它。
 * **告诉 Claude 用词语读取 `AGENTS.md` 的 `CLAUDE.md`**：仅当 Claude 决定打开文件时，它才会看到 `AGENTS.md`。删除 `CLAUDE.md` 以便 Claude 直接读取 `AGENTS.md`，或用 `@AGENTS.md` 导入替换该句子。
 * **符号链接到 `AGENTS.md` 的 `CLAUDE.md`**：无，或删除符号链接。无论哪种方式，Claude 都会读取内容一次。
 * **打印 `AGENTS.md` 的 `SessionStart` hook**：删除它。一旦 Claude 直接读取 `AGENTS.md`，该 hook 会向上下文添加第二个副本。
@@ -466,7 +472,10 @@ Claude 读取您的 `AGENTS.md` 后，您可以像对待项目 `CLAUDE.md` 一�
 ln -s AGENTS.md CLAUDE.md
 ```
 
-该命令在成功时不打印任何输出。在 Windows 上，创建符号链接需要管理员权限或开发人员模式，因此请改用 `@AGENTS.md` 导入。
+该命令在成功时不打印任何输出。在选择符号链接而不是导入之前，请检查这些约束：
+
+* **编辑**：Claude 通过链接读取 `CLAUDE.md`，但 Edit 和 Write 工具[拒绝通过符号链接写入](/docs/zh-CN/errors#refusing-after-a-symlink-changed)，拒绝指示 Claude 编辑链接的目标 `AGENTS.md`
+* **Windows**：如果您或克隆存储库的任何人在 Windows 上工作，请改用 `@AGENTS.md` 导入。在那里创建符号链接需要管理员权限或开发人员模式，Git 会将提交的符号链接检出为纯文本文件，除非启用了 `core.symlinks`，这会使该克隆具有一行 `CLAUDE.md` 代替您的说明
 
 使用任一方法，在您的下一个会话中运行 `/context` 并确认 `CLAUDE.md` 出现在**内存文件**下。
 
@@ -612,7 +621,7 @@ CLAUDE.md 内容作为用户消息在系统提示之后传递，而不是系统�
   我的 AGENTS.md 未加载
 </h3>
 
-如果你的存储库有 `AGENTS.md` 而 Claude 似乎不知道它说什么，通常原因是项目路径上某处有 `CLAUDE.md`。默认情况下，Claude 仅在你的工作目录或其上方没有 `CLAUDE.md` 时读取 `AGENTS.md`。按顺序检查这些：
+如果你的存储库有 `AGENTS.md` 而 Claude 似乎不知道它说什么，通常原因是项目路径上某处有 `CLAUDE.md`。默认情况下，Claude 仅在你的工作目录或其上方没有 `CLAUDE.md` 或 `CLAUDE.local.md` 时读取 `AGENTS.md`。按顺序检查这些：
 
 1. 在你的工作目录或其上方的任何目录中查找 `CLAUDE.md`、`.claude/CLAUDE.md` 或 `CLAUDE.local.md`，除了你的 `~/.claude/CLAUDE.md`。如果你找到一个，Claude 会读取它而不是 `AGENTS.md`，除非你将 **Project instructions** 设置为 `claude-md-and-agents-md`。
 2. 运行 `claude --version` 并确认 v2.1.277 或更高版本。

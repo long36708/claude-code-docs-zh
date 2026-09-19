@@ -283,11 +283,25 @@ claude -p "Reply with one word: connected"
 
 | 变化                                            | 当网关没有跟上时的症状                                                                                       | 行动                                                                                                                                  |
 | :-------------------------------------------- | :------------------------------------------------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------- |
-| 新的 Claude Code 版本添加 `anthropic-beta` 值和请求正文字段 | 开发者在更新 Claude Code 后报告 `400` 错误，命名新字段；请参阅[功能传递](/docs/zh-CN/llm-gateway-protocol#feature-pass-through) | 逐字转发 `anthropic-*` 标头和请求正文，而不是允许列表；在新 Claude Code 版本到达开发者之前针对网关测试它们                                                                 |
+| 新的 Claude Code 版本添加 `anthropic-beta` 值和请求正文字段 | 开发者在更新 Claude Code 后报告 `400` 错误，命名新字段；请参阅[功能传递](/docs/zh-CN/llm-gateway-protocol#feature-pass-through) | 逐字转发 `anthropic-*` 标头和请求正文，而不是允许列表；在新 Claude Code 版本到达开发者之前针对网关测试它们，检查[规划 Claude Code 版本升级](#plan-claude-code-version-upgrades)中的区域 |
 | 新的 Claude 模型变得可用                              | 开发者选择新模型名称得到 `404`；`/model` 选择器不列出它                                                               | 将模型名称添加到网关的路由配置，然后重新运行[路由检查](#confirm-the-gateway-routes-your-models)。如果您分发 `ANTHROPIC_MODEL` 或默认模型变量，更新托管设置                        |
 | 凭证过期或需要轮换                                     | 所有开发者请求开始从上游失败，出现 `401`                                                                           | 按照自己的计划轮换网关的提供商凭证；开发者密钥在网关处轮换，[`apiKeyHelper`](/docs/zh-CN/llm-gateway-connect#rotate-credentials-with-apikeyhelper) 处理每个开发者的轮换，无需重新分发设置 |
 
 在调整每个密钥的速率限制时，考虑客户端[重试瞬时故障](/docs/zh-CN/errors#automatic-retries)，包括 `429` 响应，最多 10 次，带有退避，遵守 `Retry-After`。将[兼容性指南](/docs/zh-CN/llm-gateway-protocol)作为每个 Claude Code 版本发送的内容的参考。
+
+<h3 id="plan-claude-code-version-upgrades">
+  规划 Claude Code 版本升级
+</h3>
+
+某些 Claude Code 行为内置于已安装的版本中，而不是在您的网关处设置，因此将开发者移至新版本可以改变整个部署中的行为，即使网关配置没有改变。要控制何时发生这种情况，请使用 [`requiredMaximumVersion`](/docs/zh-CN/settings-reference#requiredmaximumversion) 将开发者固定到已测试的版本，或者如果您通过自己的渠道分发 Claude Code，请使用 [`DISABLE_UPDATES`](/docs/zh-CN/setup#disable-auto-updates)。在提高固定版本之前，请阅读新版本的[更新日志](/docs/en/changelog)条目并[针对网关测试它](#test-claude-code-against-the-gateway)。
+
+当您测试一个版本时，网关拒绝的新标头或请求字段显示为[维护网关](#maintain-the-gateway)中描述的 `400` 错误。下表涵盖不产生错误的版本相关变化，以及保持每个变化在升级中保持不变的设置。
+
+| 区域      | 开发者升级时可能改变的内容                                                                                                                                                                                                                | 保持其不变的设置                                                                                                                                                                                                                                                                               |
+| :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 功能标志默认值 | [不从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话，例如云提供商上的会话或关闭遥测的会话，使用内置于已安装版本中的标志默认值。当版本改变其中一个默认值时，这些开发者的行为在他们升级后立即改变                                                                     | 版本固定本身，`requiredMaximumVersion` 或 `DISABLE_UPDATES`                                                                                                                                                                                                                                    |
+| 模型能力假设  | 已安装版本不识别的模型 ID，例如网关别名 `prod-opus`，对[自适应推理](/docs/zh-CN/model-config#adaptive-reasoning-and-fixed-thinking-budgets)、努力参数和[上下文窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id)运行默认假设，直到更高版本识别该 ID 或您映射它 | 在网关处路由 Anthropic 模型 ID，或添加[`modelOverrides`](/docs/zh-CN/model-config#override-model-ids-per-version)条目，将 Anthropic 模型 ID 映射到您的别名。在云提供商连接上，您可以改为[声明固定模型的能力](/docs/zh-CN/model-config#customize-pinned-model-display-and-capabilities)                                                            |
+| 默认模型和别名 | 新会话默认启动的模型，以及别名（如 `opus` 和 `sonnet`）解析到的模型，[内置于每个版本](/docs/zh-CN/model-config#pin-models-for-third-party-deployments)中，开发者升级时可能改变                                                                                                 | [`ANTHROPIC_DEFAULT_MODEL`](/docs/zh-CN/model-config#set-a-default-model-for-new-sessions) 用于新会话启动的模型，以及 [`ANTHROPIC_DEFAULT_*_MODEL` 变量](/docs/zh-CN/model-config#environment-variables)，例如 `ANTHROPIC_DEFAULT_OPUS_MODEL`，用于每个别名解析到的内容。`ANTHROPIC_DEFAULT_MODEL` 需要 Claude Code v2.1.236 或更高版本 |
 
 <h2 id="related-resources">
   相关资源

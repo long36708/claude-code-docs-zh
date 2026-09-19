@@ -42,7 +42,9 @@ Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypass
 * 需要用户交互的工具：内置 `AskUserQuestion` 工具和标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具
 * `rm` 和 `rmdir` 移除针对 [关键路径](#critical-paths)，没有允许规则或 `PreToolUse` hook `"allow"` 批准
 * [跨会话消息传递保护措施](#skip-all-checks-with-bypasspermissions-mode)
-* 在 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 打开时在工作目录外读取：识别的文件读取 Bash 命令和任何需要批准才能在沙箱外运行的 [未沙箱化重试](/docs/zh-CN/sandboxing#the-unsandboxed-retry-escape-hatch)，即使在 auto 模式和 `bypassPermissions` 模式下也会提示。需要 Claude Code v2.1.257 或更高版本
+* 在 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 打开时在工作目录外读取：识别的文件读取 Bash 命令和任何需要批准才能在沙箱外运行的 [未沙箱化重试](/docs/zh-CN/sandboxing#the-unsandboxed-retry-escape-hatch)，即使在 auto 模式和 `bypassPermissions` 模式下也会提示。需要 Claude Code v2.1.257 或更高版本。
+
+  shell 解析器无法追踪的命令，例如更改目录多次或运行子 shell 的命令，即使在未命名任何外部路径时也会以相同方式提示。当命令在 [沙箱](/docs/zh-CN/sandboxing) 中运行且沙箱强制执行该块时，此提示不适用。
 
 <h2 id="common-setups">
   常见设置
@@ -59,7 +61,7 @@ Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypass
 | 在 CI 中使用精确允许列表运行 | `claude -p "run the test suite" --permission-mode dontAsk --allowedTools "Bash(npm test)" "Read"`                        | 无，超出您的 CI 运行器提供的                                                                                                                                | [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) 忽略设置文件中的 `dontAsk`                                                                   |
 | 在容器内完全无人值守运行     | `claude -p "<prompt>" --dangerously-skip-permissions`                                                                    | 必需：容器、虚拟机或[沙箱运行时](/docs/zh-CN/sandbox-environments#sandbox-runtime)；在 Linux 和 macOS 上，以[非 root 用户](#skip-all-checks-with-bypasspermissions-mode)身份运行 | 网络上的 Claude Code 忽略设置文件中的此模式。在此 `-p` 运行中，[仍会提示的少数调用](#skip-all-checks-with-bypasspermissions-mode)被拒绝                                  |
 
-Bash 沙箱和自动模式独立工作并结合，除了在 plan 模式下，其中[自动允许不会扩大批准](/docs/zh-CN/sandboxing#sandbox-modes)。有关完整交互，请参阅[沙箱化如何与权限和权限模式相关](/docs/zh-CN/sandboxing#how-sandboxing-relates-to-permissions-and-permission-modes)和[隔离如何与权限模式相关](/docs/zh-CN/sandbox-environments#how-isolation-relates-to-permission-modes)。
+Bash 沙箱和自动模式独立工作并结合，除了在[沙箱模式](/docs/zh-CN/sandboxing#sandbox-modes)下列出的例外。有关完整交互，请参阅[沙箱化如何与权限和权限模式相关](/docs/zh-CN/sandboxing#how-sandboxing-relates-to-permissions-and-permission-modes)和[隔离如何与权限模式相关](/docs/zh-CN/sandbox-environments#how-isolation-relates-to-permission-modes)。
 
 <h2 id="which-mode-a-session-starts-in">
   会话在哪个模式下启动
@@ -326,6 +328,14 @@ claude --permission-mode plan
 
 在 v2.1.158 到 v2.1.206 中，这些提供商上的自动模式处于关闭状态，直到您设置 `CLAUDE_CODE_ENABLE_AUTO_MODE=1`，并且 Claude Code 在这些提供商上忽略 `defaultMode: "auto"`，除非也设置了该变量。该变量仍然被接受以保持兼容性，从 v2.1.207 开始无效。
 
+<h3 id="server-side-classifier-review">
+  服务器端分类器审查
+</h3>
+
+在 Anthropic API、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，以及每当您将 `ANTHROPIC_BASE_URL` 指向[LLM 网关或代理](/docs/zh-CN/llm-gateway)时，自动模式下的 Claude Code 会要求服务器审查[转到分类器的操作](#how-the-classifier-evaluates-actions)作为会话模型请求的一部分。服务器审查它们的地方，其判决决定这些操作。它不审查的地方，通常是因为网关或代理干扰了流量，Claude Code 会回退到自己的分类器请求，一旦该回退在会话的其余部分保持，它会在这些请求被计费的账户上显示[关于分类器请求费用的一次性对话](/docs/zh-CN/auto-mode-classifier-billing)。要跳过询问服务器并始终使用 Claude Code 自己的分类器请求，请设置 [`CLAUDE_CODE_AUTO_MODE_SERVER=0`](/docs/zh-CN/env-vars)。该变量在直接连接到 Anthropic API 时不被读取。如果您设置 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 并保持 `CLAUDE_CODE_AUTO_MODE_SERVER` 未设置，Claude Code 也会停止询问服务器。
+
+默认询问服务器需要 Claude Code v2.1.278 或更高版本。
+
 <h3 id="what-the-classifier-blocks-by-default">
   分类器默认阻止的内容
 </h3>
@@ -419,12 +429,7 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
 * 向您在 [`environment`](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure) 中列出的受信任域、存储桶和服务发送数据。这仅涵盖数据流，不涵盖同一基础设施上的破坏性或凭证操作
 * [Chrome 中的 Claude](/docs/zh-CN/chrome)导航到受信任的内部域、localhost 或您命名的 URL
 
-沙箱网络访问请求通过分类器路由，而不是默认允许。从 v2.1.198 开始，分类器重用其对网络主机和端口的判决，而不是在每次连接时重新运行：
-
-* 允许被重用直到新内容进入对话，此时该主机再次被检查
-* Claude Code v2.1.234 及更高版本重用由对话超出分类器上下文窗口引起的拒绝，直到新内容进入对话或直到[压缩](/docs/zh-CN/costs#reduce-token-usage)缩小分类器读取的内容。Claude Code 然后再次检查主机
-* 分类器通过评估请求达到的拒绝在交互式 CLI 中持续一个回合。在[非交互模式](/docs/zh-CN/headless)和 Agent SDK 会话中，Claude Code 为其余运行重用该拒绝，因为这些会话没有回合边界
-* 更改您的权限模式或规则会删除所有缓存的判决
+沙箱网络访问请求通过分类器路由，而不是默认允许。Claude 命名命令需要的主机，分类器与命令一起审查它们，批准的列表仅为该一个命令打开这些主机。[每个命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)涵盖列表可以和不能打开什么以及当命令到达未列出的主机时会发生什么。
 
 运行 `claude auto-mode defaults` 以将完整规则列表打印为 JSON。如果常规操作被阻止，管理员可以通过 `autoMode.environment` 设置添加受信任的仓库、存储桶和服务：请参阅[配置自动模式](/docs/zh-CN/auto-mode-config)。
 
@@ -471,7 +476,11 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
   <Accordion title="分类器如何评估操作">
     每个操作都经过固定的决策顺序。第一个匹配的步骤获胜：
 
-    1. 与您的[允许、询问或拒绝规则](/docs/zh-CN/permissions#manage-permissions)匹配的操作立即解决。写入[受保护路径](#protected-paths)的操作即使允许规则匹配也会路由到分类器，Claude Code v2.1.218 及更高版本中针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除也是如此。标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使允许规则匹配也会直接提示您，您的组织在会话中设置为 `ask` 的[连接器工具](/docs/zh-CN/mcp#organization-controls-on-connector-tools)也是如此，其中该设置到达 Claude Code。与命令内容匹配的询问规则，例如 `Bash(git push *)`，回退到权限提示
+    1. 与您的[允许、询问或拒绝规则](/docs/zh-CN/permissions#manage-permissions)匹配的操作立即解决，但有以下例外：
+       * 写入[受保护路径](#protected-paths)的操作即使允许规则匹配也会路由到分类器，Claude Code v2.1.218 及更高版本中针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除也是如此
+       * 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使允许规则匹配也会直接提示您，您的组织在会话中设置为 `ask` 的[连接器工具](/docs/zh-CN/mcp#organization-controls-on-connector-tools)也是如此，其中该设置到达 Claude Code
+       * 携带[每个命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)的 shell 命令也会路由到分类器，即使允许规则匹配，因为规则批准命令，而不是其主机
+       * 与命令内容匹配的询问规则，例如 `Bash(git push *)`，回退到权限提示
     2. 只读操作和工作目录中的文件编辑被自动批准，除了写入[受保护路径](#protected-paths)和[工作目录外的第一次读取](#first-read-outside-the-working-directories)，这会提示您
     3. 其他所有内容都转到分类器。在步骤 1 中直接提示您的连接器工具和` requiresUserInteraction` MCP 工具永远不会到达分类器，因此组织要求的批准或同意步骤都不会被自动批准
     4. 如果分类器阻止，Claude 接收原因并尝试替代方案。在大多数会话中，原因名称分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[审查拒绝](/docs/zh-CN/auto-mode-config#review-denials)
@@ -488,7 +497,7 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
 
     Claude Code 还在会丢弃未提交工作的命令之前运行 `git status`，例如 `git reset --hard` 或 `rm -rf`，并向分类器显示是否存在暂存、修改或未跟踪的工作。Claude Code 在该检查中报告未跟踪的文件，即使仓库的 git 配置设置了 `status.showUntrackedFiles=no`。
 
-    分类器看到用户消息、除了只读查找（如文件读取和搜索）之外的工具调用，以及您的 CLAUDE.md 内容。工具结果被剥离，因此文件或网页中的恶意内容无法直接操纵它。您可以使用 [PostToolUse hook 的 `classifierContext` 字段](/docs/zh-CN/hooks#annotate-a-result-for-the-auto-mode-classifier)注释调用的结果，分类器将其读取为应用程序提供的上下文。
+    分类器看到用户消息、除了只读查找（如文件读取和搜索）之外的工具调用，以及您的 CLAUDE.md 内容。工具结果被剥离，因此文件或网页中的恶意内容无法直接操纵它。您可以使用 [PostToolUse hook 的 `classifierContext` 字段](/docs/zh-CN/hooks#annotate-a-result-for-the-auto-mode-classifier)注释调用的结果，分类器将其读取为应用程序提供的上下文。该字段需要 Claude Code v2.1.236 或更高版本。
 
     单独的服务器端探针扫描传入的工具结果并在 Claude 读取之前标记可疑内容。有关这些层如何协同工作的更多信息，请参阅[自动模式公告](https://claude.com/blog/auto-mode)和[工程深度潜水](https://www.anthropic.com/engineering/claude-code-auto-mode)。
   </Accordion>
@@ -498,7 +507,7 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
 
     1. 在子代理启动之前，委托的任务描述被评估，因此危险看起来的任务在生成时被阻止。
     2. 当子代理运行时，其每个操作都通过分类器，使用与父会话相同的规则，子代理 frontmatter 中的任何 `permissionMode` 都被忽略。
-    3. 当子代理完成时，分类器审查其完整的操作历史；如果该返回检查标记了一个问题，安全警告被添加到子代理的结果前面。当单独的 API 安全检查拒绝审查请求本身时，Claude Code 仍然返回子代理的结果，前面加上警告，说工作未审查，应被视为不受信任。
+    3. 当子代理完成时，分类器审查其工作和最终报告，然后父会话读取报告。当分类器标记子代理的工作或报告时，或单独的 API 安全检查拒绝审查时，报告仍然被交付，前面加上安全警告。当分类器不可用于审查时，报告到达时带有说明在对其采取行动之前验证子代理工作的说明。
 
     步骤 1 需要 Claude Code v2.1.178 或更高版本。较早的版本在步骤 2 和 3 应用分类器，但在子代理启动之前没有评估任务描述。
   </Accordion>
@@ -508,9 +517,9 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
 
     会话的第一个自动模式请求验证 Sonnet 5 默认值：如果请求成功，Sonnet 5 保持会话的分类器模型，如果它因模型不可用而失败，会话改为使用回退。在该验证解决后，分类器的模型在会话中不会改变。
 
-    在 Enterprise 计划和使用 Claude API、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 的账户上，分类器调用计入您的令牌使用。每次检查发送记录的一部分加上待处理操作，在执行前添加往返。在受保护路径外的读取和工作目录编辑跳过分类器，因此开销主要来自 shell 命令和网络操作。
+    在 Enterprise 计划和使用 Claude API、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 的账户上，分类器调用计入您的令牌使用。每次检查发送记录的一部分加上待处理操作，在执行前添加往返。在受保护路径外的读取和工作目录编辑跳过分类器，因此开销主要来自 shell 命令和网络操作。服务器审查操作的地方，没有单独的分类器调用要计数；请参阅[服务器端分类器审查](#server-side-classifier-review)。
 
-    分类器重用沙箱网络判决用于主机和端口，因此重复连接到同一主机不会各自添加检查。[分类器默认阻止的内容](#what-the-classifier-blocks-by-default)描述允许和拒绝持续多长时间。
+    沙箱网络访问不添加每个连接分类器请求。分类器与命令一起判断[命令命名的主机](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)在一次审查中，Claude Code 检查每个连接对照批准的列表而不再次调用分类器。
   </Accordion>
 </AccordionGroup>
 
@@ -651,7 +660,7 @@ Claude Code 将 `rm` 或 `rmdir` 目标视为关键路径，当它是以下任�
 
 Claude Code 也将直接在 shell 变量下的 glob 或尾部斜杠视为关键路径移除，如 `rm -rf "$DIR"/*`，因为当变量为空时命令变成从文件系统根目录的移除。
 
-使用 `$(...)` 或反引号隐藏命令替换中的移除，或使用 `<(...)` 的进程替换，不会跳过检查。Claude Code 找到关键路径移除，无论它位于替换内部（如 `echo "$(rm -rf ~)"`），还是位于同一命令中的其他地方。
+使用 `(...)` 中的子 shell、`{ ...; }` 中的大括号组、`$(...)` 或反引号中的命令替换，或 `<(...)` 中的进程替换隐藏移除，不会跳过检查。Claude Code 找到关键路径移除，无论它位于嵌套形式内部（如 `(rm -rf ~)` 或 `echo "$(rm -rf ~)"`），还是位于同一命令中的其他地方。
 
 <h3 id="remove-item-in-powershell">
   PowerShell 中的 Remove-Item

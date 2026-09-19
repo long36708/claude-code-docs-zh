@@ -519,8 +519,8 @@
     "feature-availability.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/feature-availability",
       "original_md_url": "https://code.claude.com/docs/zh-CN/feature-availability.md",
-      "hash": "1c3a772136922bc3571797f3e0eb7fec93d7609bdbf72fc7b963b97712f3f771",
-      "last_updated": "2026-09-18T21:47:14.980934"
+      "hash": "d8922763fc236e4023482778ab0ecadac0b198916dd7abf87ae253bab9f077fb",
+      "last_updated": "2026-09-19T00:29:01.184898"
     },
     "features-overview.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/features-overview",
@@ -639,8 +639,8 @@
     "llm-gateway.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/llm-gateway",
       "original_md_url": "https://code.claude.com/docs/zh-CN/llm-gateway.md",
-      "hash": "5509440cb6fb586a63bc3596b317e5723bc4d56e2f099e1fe91dd67265cca8bb",
-      "last_updated": "2026-09-14T00:19:43.167540"
+      "hash": "328509d1c5135b0fa18ff779888ad82d08a753c505ab9fe8124a50ad8ed1f128",
+      "last_updated": "2026-09-19T00:29:20.260299"
     },
     "llm-gateway-connect.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/llm-gateway-connect",
@@ -651,14 +651,14 @@
     "llm-gateway-protocol.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/llm-gateway-protocol",
       "original_md_url": "https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md",
-      "hash": "bc3476ced9ee3777c6e45e98f4e28d7c79076b9659f98dff702e8e8a5e366d7e",
-      "last_updated": "2026-09-18T21:47:37.271441"
+      "hash": "e35686b2876644ab48c9122ad299e69d82d500052f4c6964ff6248243f11af36",
+      "last_updated": "2026-09-19T00:29:21.941068"
     },
     "llm-gateway-rollout.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/llm-gateway-rollout",
       "original_md_url": "https://code.claude.com/docs/zh-CN/llm-gateway-rollout.md",
-      "hash": "5f794e92797a638a00be6e7473980a5f834881edfc2b176e13de43b47ca7cecc",
-      "last_updated": "2026-09-14T00:19:45.021530"
+      "hash": "d16ec8c21cc758396df5e392832e7b993a674d2c757c56fd4ca9a698e3bed4e9",
+      "last_updated": "2026-09-19T00:29:22.670233"
     },
     "managed-mcp.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/managed-mcp",
@@ -687,8 +687,8 @@
     "memory.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/memory",
       "original_md_url": "https://code.claude.com/docs/zh-CN/memory.md",
-      "hash": "7daa20202fc8306b5334290b59735f850336949bd99eb83aeb28927860d41e7c",
-      "last_updated": "2026-09-18T21:47:46.105107"
+      "hash": "2d55985d1054a8bfb70923004f42b03ddb76d99fb876fb83e67e644d8765c0af",
+      "last_updated": "2026-09-19T00:29:26.695535"
     },
     "microsoft-foundry.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/microsoft-foundry",
@@ -735,8 +735,8 @@
     "permission-modes.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/permission-modes",
       "original_md_url": "https://code.claude.com/docs/zh-CN/permission-modes.md",
-      "hash": "9180bafdc4c988757150f97b2ab42d7d8527514acfc7ac9d7c1c4ce8ef250426",
-      "last_updated": "2026-09-18T00:35:06.259824"
+      "hash": "77a3c787ad13291655ecb75179288e06943df3beedbf21059da90b5862599dbe",
+      "last_updated": "2026-09-19T00:29:33.307099"
     },
     "permissions.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/permissions",
@@ -1192,8 +1192,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-09-18T21:49:14.596480",
-    "fetch_duration_seconds": 224.221702,
+    "last_fetch_completed": "2026-09-19T00:30:48.261950",
+    "fetch_duration_seconds": 190.248863,
     "total_pages_discovered": 196,
     "pages_fetched_successfully": 198,
     "pages_failed": 0,
@@ -1203,7 +1203,7 @@
     "total_files": 198,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-09-18T21:49:14.596500",
+  "last_updated": "2026-09-19T00:30:48.261978",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

@@ -28,7 +28,7 @@
 * **审计日志**：记录每个模型请求以实现合规性
 * **提供商切换**：在网关配置中更改提供商，无需接触开发人员机器
 
-除了提供商切换外，所有这些都适用于上游是 Anthropic 的 API 还是[云提供商](/docs/zh-CN/third-party-integrations)。提供商切换而无需重新配置开发人员机器也取决于网关公开单个[Anthropic 格式端点](/docs/zh-CN/llm-gateway-protocol#api-formats)，无论上游如何；公开提供商自己格式的网关将客户端配置与该提供商绑定。
+除了提供商切换外，所有这些都适用于上游是 Anthropic 的 API 还是[云提供商](/docs/zh-CN/third-party-integrations)。提供商切换而无需重新配置开发人员机器也取决于网关公开单个[Anthropic 格式端点](/docs/zh-CN/llm-gateway-protocol#api-formats)，无论上游如何；公开提供商自己格式的网关将客户端配置与该提供商绑定，并改变[Claude Code 发送的内容以及它应用的默认值](/docs/zh-CN/llm-gateway-protocol#how-the-connection-method-changes-client-behavior)。
 
 权衡是网关成为您的组织运营的基础设施。Claude Code 在每个版本中添加功能，不转发这些功能的网关会破坏相应的功能，因此网关产品需要随着 Claude Code 的发展而保持更新。[网关兼容性指南](/docs/zh-CN/llm-gateway-protocol)涵盖要转发的内容。
 
