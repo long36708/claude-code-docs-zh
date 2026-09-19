@@ -164,7 +164,7 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
   归档环境
 </h3>
 
-要归档环境，请打开它进行编辑并选择**Archive**。你不能删除环境，只能归档它。
+要归档你自己的环境之一，请打开它进行编辑并选择**Archive**。所有者从管理设置中的**Cloud environments**页面归档[共享环境](#organization-shared-environments)。你不能删除环境，只能归档它。
 
 归档影响新会话，不影响运行中的会话：
 
@@ -177,9 +177,16 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
   组织共享环境
 </h3>
 
-在Team和Enterprise计划上，所有者可以创建与组织的每个成员共享的云环境。同一角色管理**Cloud environments**管理页面上的其他所有内容，包括[自托管环境](/docs/zh-CN/self-hosted-environments)；管理员角色无法打开该页面。可以打开它的完整角色列表是[管理服务器管理的设置](/docs/zh-CN/server-managed-settings#access-control)的角色列表。共享环境出现在每个成员的环境选择器中，与他们的个人环境并排，所以团队可以标准化一个配置，而不是每个成员重新创建它。
+在Team和Enterprise计划上，所有者可以创建与组织的每个成员共享的云环境。同一角色管理**Cloud environments**管理页面上的其他所有内容，包括[自托管环境](/docs/zh-CN/self-hosted-environments)；管理员角色无法打开该页面。可以打开它的完整角色列表是[管理服务器管理的设置](/docs/zh-CN/server-managed-settings#access-control)的角色列表。
 
-从[admin settings](https://claude.ai/admin-settings)中的**Cloud environments**页面创建、编辑和归档共享环境。共享环境也可以从[claude.ai/code](https://claude.ai/code)的[环境选择器](#configure-your-environment)打开：所有者可以在那里编辑它。其他成员以只读方式看到它。每个共享环境都有一个名称、一个[网络访问级别](#access-levels)、`.env`格式的[环境变量](#set-environment-variables)和一个[setup script](#setup-scripts)。所有者在[claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)单独选择组织的[默认环境](#the-default-environment)。
+共享环境出现在每个成员的[环境选择器](#configure-your-environment)中，在**Organization**标题下，位于成员自己的环境之后（在**Personal**下），所以团队可以标准化一个配置，而不是每个成员重新创建它。在那里选择共享环境的设置图标会为每个成员（包括所有者）打开其配置的只读摘要。
+
+所有者通过以下两种方式之一使环境对组织可用：
+
+* **创建共享环境**：使用[admin settings](https://claude.ai/admin-settings)中的**Cloud environments**页面，这也是所有者编辑和归档共享环境的地方。每个都有一个名称、一个[网络访问级别](#access-levels)、`.env`格式的[环境变量](#set-environment-variables)和一个[setup script](#setup-scripts)。
+* **共享个人环境**：在环境选择器中打开你自己的环境之一进行编辑，然后从**Who can use it**行共享它。环境保持其ID，所以已经使用它的会话和routine不受影响，每个成员都可以看到它并在其中启动会话。
+
+所有者在[claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)单独选择组织的[默认环境](#the-default-environment)。
 
 每个成员在共享环境中的会话都读取其变量，所以不要在其中包含秘密。[API凭证](#add-api-credentials)给予会话一个它们无法读取的密钥，在Team或Enterprise计划上还不可用。
 
@@ -198,7 +205,7 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
 
 每个环境都设置一个网络访问级别，控制其会话可以进行的出站连接。默认级别 **Trusted** 允许包注册表和其他[允许列表中的域](#default-allowed-domains)；**Custom** 采用您自己的域列表。
 
-要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。打开选择器的云图标出现在[Default 环境](#the-default-environment)下列出的应用界面上，以及[例程编辑器](/docs/zh-CN/routines#environments-and-network-access)中；个人环境在您的 claude.ai 账户设置中没有单独的页面。
+要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的云图标出现在[Default 环境](#the-default-environment)下列出的应用界面上，以及[例程编辑器](/docs/zh-CN/routines#environments-and-network-access)中；个人环境在您的 claude.ai 账户设置中没有单独的页面。
 
 <Note>
   您在会话或例程上启用的 MCP 连接器无需将其主机添加到 **Allowed domains**，因为连接器流量通过 Anthropic 的服务器而不是会话的网络传输。这依赖于[安全性和隔离](/docs/zh-CN/claude-code-on-the-web#security-and-isolation)下提到的同一条通往 Anthropic 的通道。关闭任何您不需要的连接器，以限制 Claude 可以访问的工具。
@@ -208,7 +215,7 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
   访问级别
 </h3>
 
-[环境对话框](#configure-your-environment)中的 **Network access** 字段采用以下四个级别之一：
+**Network access** 字段在[环境对话框](#configure-your-environment)中采用以下四个级别之一：
 
 | 级别          | 出站连接                                                    |
 | :---------- | :------------------------------------------------------ |

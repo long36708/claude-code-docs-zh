@@ -196,6 +196,8 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
 <Steps>
   <Step title="打开差异视图">
     差异指示器显示整个会话中添加和删除的行，例如 `+42 -18`。选择它以打开差异视图，左侧是文件列表，右侧是更改。
+
+    差异默认将会话的更改与其基础分支进行比较。要与不同的分支进行比较，选择**Compare against**并选择一个。
   </Step>
 
   <Step title="留下内联注释">
@@ -207,7 +209,7 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
   </Step>
 
   <Step title="在 PR 后继续迭代">
-    创建 PR 后会话保持活跃。将 CI 失败输出或审查者注释粘贴到聊天中，并要求 Claude 解决它们。要让 Claude 自动监控 PR，请参阅[自动修复拉取请求](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)。
+    会话在创建 PR 后保持活跃。将 CI 失败输出或审查者注释粘贴到聊天中，并要求 Claude 解决它们。要让 Claude 自动监控 PR，请参阅[自动修复拉取请求](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)。
   </Step>
 </Steps>
 

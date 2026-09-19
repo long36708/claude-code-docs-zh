@@ -231,7 +231,9 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
 
 此条目适用于使用 [Claude Tag](https://claude.com/docs/claude-tag/overview) 的工作区，其中 Claude 在频道中作为您组织的共享身份工作，而不是作为任何成员的账户。如果您在 [claude.ai/code](https://claude.ai/code) 创建了频道的云环境，它属于您的个人账户，Claude 无法在个人环境中启动频道会话。Claude Code 会立即使会话失败，重试也无法帮助。
 
-如果您是所有者，请从[管理设置](https://claude.ai/admin-settings)中的**云环境**页面将环境重新创建为[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)。您可以通过两种方式应用它：
+如果您是所有者且环境是您自己的，请从环境选择器中[与组织共享](/docs/zh-CN/cloud-environments#organization-shared-environments)。否则，所有者可从[管理设置](https://claude.ai/admin-settings)中的**云环境**页面将其重新创建为组织共享环境。
+
+您可以通过两种方式应用它：
 
 * 在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 将其设置为组织默认值。
 * [在 Claude Tag 管理设置中的频道上设置它](https://claude.com/docs/claude-tag/admins/troubleshooting#channel-sessions-use-the-wrong-environment-or-can%E2%80%99t-find-one)。

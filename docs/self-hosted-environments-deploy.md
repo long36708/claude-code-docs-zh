@@ -168,7 +168,7 @@ RUN git config --system user.name "Claude" && \
 * 运行器设置 `GCM_INTERACTIVE=never`，所以 Git Credential Manager 不打开登录对话框。
 * 运行器清除 `core.askPass`，所以如果您使用 askpass 助手，改为通过 `GIT_ASKPASS` 环境变量设置它。
 
-如果您的 git 主机拒绝凭证，或您没有配置凭证，运行器重试几次然后失败存储库准备。运行器不会将这些设置传递到会话的环境中。
+如果您的 git 主机拒绝凭证，或您没有配置凭证，运行器重试几次然后失败存储库准备（当存储库是会话推送结果的存储库时）。对于会话仅从中读取的存储库，[故障排除](#troubleshooting)涵盖运行器何时改为跳过它。运行器不会将这些设置传递到会话的环境中。
 
 如果检出目录由与运行器进程不同的 uid 拥有，git 拒绝对其进行操作；添加 `safe.directory`：
 
@@ -531,7 +531,19 @@ claude self-hosted-runner doctor
 * **会话无法通过身份验证出口代理到达网络**：当您使用 [`--proxy-authorization-command` 或 `--proxy-authorization-file`](#authenticate-to-an-egress-proxy) 设置的源失败、在 30 秒后超时或产生空值时，运行器以 `502 Bad Gateway` 应答该连接并记录原因。运行器在该日志中编辑命令的 stderr，并且永远不会记录标头值。使用 `--proxy-authorization-command` 时，在主机上自己运行该命令以确认它在 stdout 上打印整个标头值。如果运行器改为在启动时退出，显示 `could not start the proxy-authorization listener`，则它无法打开其环回监听器。
 * **运行器记录包含 `rejecting the malformed poll response` 的 `Poll failed` 行**：运行器收到的工作轮询响应的正文不是队列的预期 JSON，最常见的原因是运行器和 `api.anthropic.com` 之间的某些内容（例如拦截代理或强制门户）用自己的页面进行了应答。运行器拒绝响应，在 `claude_code_self_hosted_runner_poll_errors_total` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 的 `transport` 类型下计数，并按 [会话生命周期](/docs/zh-CN/self-hosted-environments#session-lifecycle) 中描述的失败轮询计划重试。运行器继续为其实时会话提供服务。配置代理以将来自 `api.anthropic.com` 的响应原封不动地传递。在 v2.1.246 之前，运行器将这样的响应读取为空工作队列，这可能会结束其实时会话或使其退出。
 * **会话的分支在远程上不再存在**：对于会话仅从中读取的 git 源，运行器跳过该源并继续处理其余源。对于会话推送结果的源，删除的分支（通常是因为它被合并并自动删除）会导致会话失败，并显示一个错误，命名存储库和分支，并要求您恢复分支并重试。当跳过会导致它完全没有存储库时，运行器会以相同的错误失败会话。在 v2.1.228 之前，这样的会话在空目录中启动。
+* **会话启动时缺少其中一个存储库**：在没有 [`checkout` hook](/docs/zh-CN/self-hosted-environments-configuration#checkout) 的运行器上，git 主机可能会拒绝运行器对会话仅从中读取的存储库的访问检查。运行器随后跳过该存储库，记录一条 `[runner:warn] could not access context source` 行，命名拒绝，并在其余存储库上启动会话。
+
+  运行器仅跳过明确的拒绝：主机回答存储库未找到，git 找不到主机的凭证，或身份验证失败。网络故障、超时或 HTTP `403` 仍会导致会话启动失败，对于会话推送结果的存储库的拒绝也是如此。运行器仍会失败一个会话，跳过会导致它完全没有存储库。使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)，运行器仅跳过 git 代理本身拒绝的存储库。
+
+  访问检查在每次会话在运行器上启动时再次运行，因此一旦运行器的 git 身份具有读取访问权限，下一次启动就会克隆存储库。在 v2.1.274 之前，这些拒绝中的每一个都导致会话启动失败。
 * **会话需要数分钟才能启动**：初始克隆通常占主导地位。观察 `claude_code_self_hosted_runner_session_init_duration_seconds` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 以确认，并使用 [预热检出](#reuse-a-pre-warmed-checkout) 或更小的 `CLAUDE_RUNNER_FETCH_DEPTH` 减少克隆。
+* **轮次以 401 失败**：每个会话使用运行器从 Anthropic 获取并通过会话的 stdin 轮换的短期 [`CLAUDE_CODE_OAUTH_TOKEN`](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts) 对模型调用进行身份验证。当轮次以来自模型 API 的 401 或 403 结束时，运行器获取新令牌并将其传递给会话。失败的轮次不会重试。
+
+  当获取失败时，运行器记录一条 `inference_token refresh failed` 行，说明何时重试，并在会话运行期间继续重试。
+
+  如果每个调用在会话大约 30 分钟后开始失败，包装脚本可能已断开会话的 stdin，因此令牌轮换无法到达它；请参阅 [保持 stdin 和文件描述符 3 附加](/docs/zh-CN/self-hosted-environments-configuration#keep-stdin-and-file-descriptor-3-attached)。
+
+  在 v2.1.274 之前，运行器在几次尝试后停止重试失败的获取，并等待下一个计划的获取。失败的轮次不会触发获取，因此每个轮次都会失败，显示 401，直到下一个计划的获取。
 * **Pod 在耗尽中途被杀死**：将 `terminationGracePeriodSeconds` 提高到至少运行器在启动时记录的值。请参阅 [关闭时序](#shutdown-timing)。
 
 初始化日志后，运行器将其生命周期日志（包括 `[runner:fatal]` 行）写入 stdout，将调试输出写入 stderr，全部作为纯文本行而不是 JSON。上述故障排除条目中描述的启动失败在该点之前打印到 stderr。使用 `--log-file` 捕获两个流，这也让 `self-hosted-runner doctor` 能够跟踪它们，或使用您的平台的日志收集。

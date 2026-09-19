@@ -332,7 +332,7 @@ claude --permission-mode plan
   服务器端分类器审查
 </h3>
 
-在 Anthropic API、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，以及每当您将 `ANTHROPIC_BASE_URL` 指向[LLM 网关或代理](/docs/zh-CN/llm-gateway)时，自动模式下的 Claude Code 会要求服务器审查[转到分类器的操作](#how-the-classifier-evaluates-actions)作为会话模型请求的一部分。服务器审查它们的地方，其判决决定这些操作。它不审查的地方，通常是因为网关或代理干扰了流量，Claude Code 会回退到自己的分类器请求，一旦该回退在会话的其余部分保持，它会在这些请求被计费的账户上显示[关于分类器请求费用的一次性对话](/docs/zh-CN/auto-mode-classifier-billing)。要跳过询问服务器并始终使用 Claude Code 自己的分类器请求，请设置 [`CLAUDE_CODE_AUTO_MODE_SERVER=0`](/docs/zh-CN/env-vars)。该变量在直接连接到 Anthropic API 时不被读取。如果您设置 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 并保持 `CLAUDE_CODE_AUTO_MODE_SERVER` 未设置，Claude Code 也会停止询问服务器。
+在 Enterprise 计划和使用 Claude API 的账户上，在 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，以及每当您将 `ANTHROPIC_BASE_URL` 指向[LLM 网关或代理](/docs/zh-CN/llm-gateway)时，自动模式下的 Claude Code 会要求服务器审查[转到分类器的操作](#how-the-classifier-evaluates-actions)作为会话模型请求的一部分。服务器审查它们的地方，其判决决定这些操作。它不审查的地方，通常是因为网关或代理干扰了流量，或因为平台、区域或凭证还没有服务器端检查，Claude Code 会回退到自己的分类器请求，一旦该回退在会话的其余部分保持，它会在这些请求被计费的账户上显示[关于分类器请求费用的通知](/docs/zh-CN/auto-mode-classifier-billing)。要跳过询问服务器并始终使用 Claude Code 自己的分类器请求，请设置 [`CLAUDE_CODE_AUTO_MODE_SERVER=0`](/docs/zh-CN/env-vars)。该变量在直接连接到 Anthropic API 时不被读取。如果您设置 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 并保持 `CLAUDE_CODE_AUTO_MODE_SERVER` 未设置，Claude Code 也会停止询问服务器。
 
 默认询问服务器需要 Claude Code v2.1.278 或更高版本。
 

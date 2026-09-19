@@ -52,7 +52,18 @@ Team 和 Enterprise 所有者可以在 [claude.ai/admin-settings/claude-code](ht
 
 创建表单设置例程的提示、存储库、环境、connectors 和触发器。
 
-Routines 作为完整的 Claude Code 云会话自主运行：没有权限模式选择器，运行期间也没有批准提示。会话可以运行 shell 命令、使用 [skills](/docs/zh-CN/skills) 提交到克隆的存储库，并调用您包含的任何 connectors。例程可以到达的内容由您选择的存储库、[environment](/docs/zh-CN/cloud-environments) 的网络访问和变量以及您包含的 connectors 决定。将每个范围限制在例程实际需要的范围内。
+Routines 作为完整的 Claude Code 云会话自主运行：没有权限模式选择器，会话运行 shell 命令、使用 [skills](/docs/zh-CN/skills) 提交到克隆的存储库，并调用您包含的任何 connectors，所有这些都无需停止以获得批准，除了某些 [artifact](/docs/zh-CN/artifacts) 操作。
+
+例程可以到达的内容由您选择的存储库、[environment](/docs/zh-CN/cloud-environments) 的网络访问和变量以及您包含的 connectors 决定。将每个范围限制在例程实际需要的范围内。
+
+当例程的计划或 **Run now** 启动运行时，Claude 仅在以下所有条件都成立时才会重新发布现有 artifact，无需询问：
+
+* 您可以编辑 artifact，它属于您自己的组织
+* artifact 不是公开共享的，也不是与特定人员或您的组织共享的，最新版本被选为查看者看到的版本
+* 发布仅包含页面，没有支持文件或任何其他添加的内容，并且不会强制覆盖较新版本
+* 页面不包含超出页面范围的授权，例如 [connector calls](/docs/zh-CN/artifacts#pull-live-data-with-mcp-connectors)
+
+在所有其他情况下，包括发布新 artifact，Claude 会先询问。当例程的工作是保持页面最新时，请给它一个您已经发布的 artifact。
 
 Routines 属于您的个人 claude.ai 账户。它们不与队友共享，并且计入您账户的每日运行配额。例程通过您连接的 GitHub 身份或 connectors 所做的任何事情都显示为您：提交和拉取请求携带您的 GitHub 用户，Slack 消息、Linear 票证或其他 connector 操作使用您为这些服务链接的账户。
 
@@ -349,6 +360,8 @@ CLI 支持管理现有例程。运行 `/schedule list` 查看所有例程，运�
 
 Routines 需要 GitHub 访问权限来克隆存储库。当您使用 `/schedule` 从 CLI 创建例程时，Claude 检查您的账户是否具有您运行它的存储库的 GitHub 访问权限，如果没有，会添加一个设置说明，说明如何授予它。有关授予访问权限的两种方式，请参阅 [GitHub authentication options](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)。
 
+如果您的 GitHub 连接在运行到期时缺失或已过期，例程将跳过运行，最多 72 小时。在该时间窗口内重新连接 GitHub，例程将自动恢复。72 小时后仍未连接，例程将关闭，您需要在重新连接 GitHub 后将其打开。
+
 您添加的每个存储库在每次运行时都会被克隆。Claude 从存储库的默认分支开始，除非您的提示另有指定。
 
 Claude 将其工作推送到以 `claude/` 为前缀的分支，这些分支始终被接受。当您的提示指示 Claude 推送到另一个分支时，Claude Code 会先检查推送，如果以下任何情况为真，则拒绝它：
@@ -377,7 +390,7 @@ Connectors 是您账户上的 [claude.ai integrations](/docs/zh-CN/mcp#use-mcp-s
 
 **Default** 环境使用 **Trusted** 网络访问，它仅允许 [默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains) 通过会话的网络。对该路径之外的主机的请求失败，返回 `403` 和 `x-deny-reason: host_not_allowed`。MCP connector 流量通过 Anthropic 的服务器路由，而不是该路径，因此您添加到例程的 connectors 无需将其主机添加到 **Allowed domains** 即可工作。删除您在 [Connectors](#connectors) 下不需要的任何 connectors。
 
-要允许其他域：
+要允许其他域上的一个您自己的环境，请按照以下步骤操作。[organization-shared environment](/docs/zh-CN/cloud-environments#organization-shared-environments) 在此处打开为只读，因此所有者从 [admin settings](https://claude.ai/admin-settings) 中的 **Cloud environments** 页面更改其网络访问。
 
 <Steps>
   <Step title="打开例程进行编辑">
@@ -413,6 +426,8 @@ Routines 以与交互式会话相同的方式消耗订阅使用量。除了标�
 
 一次性运行不计入每日 routine 运行上限。它们像任何其他会话一样消耗您的常规订阅使用量。
 
+当您的订阅暂停时，您的 routines 会被暂停并且不会运行。一旦您的订阅再次激活，请将它们重新打开。
+
 <h2 id="troubleshooting">
   故障排除
 </h2>
@@ -427,7 +442,7 @@ Routines 以与交互式会话相同的方式消耗订阅使用量。除了标�
 
 * 您使用 Console API 密钥、[Anthropic 配置文件或联合凭证](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)或云提供商（如 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry）进行身份验证。`/schedule` 需要 claude.ai 订阅登录。使用 Console API 密钥或配置文件时，如果启用了功能标志获取，提交 `/schedule` 会显示 `/schedule is available with Claude for Enterprise — ask your admin about migrating from API-key access`。使用云提供商登录时，您仍然会看到 `Unknown command: /schedule`。如果在您的 shell 中设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，或在 `settings.json` 中设置了 `apiKeyHelper`，请先删除它，因为这些会优先于 claude.ai 登录。配置文件或联合凭证也会优先，所以也要关闭它
 * 您完全登出，没有 API 密钥或其他凭证。如果启用了功能标志获取，提交 `/schedule` 会显示 `/schedule requires a claude.ai subscription. Run /login to sign in with your claude.ai account.` 在 v2.1.268 之前，登出的会话显示与 Console API 密钥相同的 Claude for Enterprise 消息
-* 您在云会话中。改为从 [web UI](https://claude.ai/code/routines) 管理例程
+* 您在云会话中，提交 `/schedule` 会回答该命令在该环境中不可用。改为从 [web UI](https://claude.ai/code/routines) 管理例程
 * 您的组织的策略禁用了 [cloud sessions](/docs/zh-CN/claude-code-on-the-web)，例程需要这些。在这种情况下，提交 `/schedule` 会回答 [`Cloud sessions are disabled by your organization's policy`](/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。在 v2.1.268 之前，它返回 `Unknown command: /schedule`
 * Owner 为您的 Team 或 Enterprise 组织[关闭了例程](#routines-are-disabled-by-your-organizations-policy)。在 v2.1.227 之前，命令在这种情况下仍然出现，当 Claude 尝试创建或运行例程时，claude.ai 会拒绝该例程
 
