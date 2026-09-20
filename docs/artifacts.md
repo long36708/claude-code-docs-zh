@@ -309,15 +309,15 @@ Claude 将您的设计系统视为比其自己的选择更高的优先级，您�
   草拟设计画布
 </h2>
 
-要模拟 UI、屏幕流、登陆页面或海报，而不是构建页面，请运行 `/design` 并提供简要说明。Claude 将设计作为一个画布上的画板草拟，并将画布发布为一个工件，该工件运行 Claude Design 编辑器的研究预览。简要说明命名您想要绘制的内容：
+要模拟 UI、屏幕流、登陆页面或海报，而不是构建页面，请运行 `/design` 并提供简要说明。Claude 将设计作为一个画布上的画板草拟，并将画布发布为一个设计工件。简要说明命名您想要绘制的内容：
 
 ```text wrap theme={null}
 /design a settings screen for a mobile banking app
 ```
 
-打开已发布的工件以查看画板。如果您的账户启用了保存功能，请在画板上选择一个元素，更改它，然后保存以发布新版本；否则您可以查看草稿并将其导出为 PNG 或 PDF。
+在桌面浏览器中打开已发布的工件以查看画板。在画板上选择一个元素并更改它，您的编辑会自动保存。您可以将每个画板导出为 PNG 或 PDF。
 
-`/design` 需要一个会话，其中 [artifacts 可用](#availability)，且 Claude Code 版本为 v2.1.234 或更高版本。
+`/design` 需要一个会话，其中 [artifacts 可用](#availability)，且 Claude Code v2.1.265 或更高版本。
 
 <h2 id="page-constraints">
   页面约束

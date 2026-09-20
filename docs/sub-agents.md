@@ -1114,7 +1114,7 @@ Claude Code 在提示输入下方的 subagent 面板中将嵌套 subagents 显�
 
 * **系统提示**：代理自己的提示加上 Claude Code 附加的环境详情，而不是 Claude Code 系统提示。自定义 subagents 在 [markdown 正文](#write-subagent-files) 或 `prompt` 字段中定义它们。内置代理有预定义的提示。
 * **任务消息**：Claude 在移交工作时编写的委托提示。
-* **CLAUDE.md 文件**：主对话加载的 [CLAUDE.md 层次结构](/docs/zh-CN/memory#how-claude-md-files-load) 的每个级别，包括 `~/.claude/CLAUDE.md`、项目规则、`CLAUDE.local.md` 和托管策略文件。内置的 Explore 和 Plan 代理跳过这个。Subagent 的定义设置 [`omitClaudeMd`](#supported-frontmatter-fields) 时仅加载托管策略文件，或当定义来自 [托管设置](#choose-the-subagent-scope) 时不加载任何文件。
+* **CLAUDE.md 文件**：主对话加载的 [CLAUDE.md 层次结构](/docs/zh-CN/memory#how-claude-md-files-load) 的每个级别，包括 `~/.claude/CLAUDE.md`、项目规则、`CLAUDE.local.md` 和托管策略文件。内置的 Explore 和 Plan 代理跳过这个。Subagent 的定义设置 [`omitClaudeMd`](#supported-frontmatter-fields) 时仅加载托管策略文件，或当定义来自 [托管设置](#choose-the-subagent-scope) 时不加载任何文件。还包括任何 [`AGENTS.md` 文件](/docs/zh-CN/memory#agents-md) 作为项目指令加载。
 * **Git 状态**：在父会话开始时拍摄的快照。当工作目录不是 Git 存储库或 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 为 `false` 时不存在。Explore 和 Plan 无论如何都跳过它。
 * **预加载的技能**：代理的 [`skills` 字段](#preload-skills-into-subagents) 中命名的任何技能的完整内容。内置代理不预加载技能。
 * **兄弟名单**：系统提醒，列出 `main` 和会话中的每个其他命名代理，每个都是 [`SendMessage`](#resume-subagents) 的有效 `to` 值。需要 Claude Code v2.1.206 或更高版本。名单仅在 subagent 的工具包括 `SendMessage` 且至少有一个其他代理有名称时出现，无论 Claude 在生成时命名它还是它作为 [agent team](/docs/zh-CN/agent-teams) 队友运行。它是 subagent 启动时拍摄的快照，所以稍后命名的代理不会出现。

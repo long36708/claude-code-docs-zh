@@ -243,8 +243,8 @@
     "artifacts.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/artifacts",
       "original_md_url": "https://code.claude.com/docs/zh-CN/artifacts.md",
-      "hash": "e47e8a2770e6c76628937e74de70846875850a6e39620e267d0e58dea442ec5a",
-      "last_updated": "2026-09-18T21:46:17.589338"
+      "hash": "f95f06ce3f871acf95e59c1a2b17891ec0d26cbfda954435155317cbeb38742c",
+      "last_updated": "2026-09-20T21:44:20.631045"
     },
     "authentication.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/authentication",
@@ -387,8 +387,8 @@
     "commands.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/commands",
       "original_md_url": "https://code.claude.com/docs/zh-CN/commands.md",
-      "hash": "b0b33e5d7b81b1a8816b312f2166ffbeeb6fc7d94c47680bca0c43b5db482f3d",
-      "last_updated": "2026-09-18T21:46:49.519183"
+      "hash": "6627b594614fcec22f356617a541c5a788b1bbc8d212857895c3febe64e86402",
+      "last_updated": "2026-09-20T21:44:41.363117"
     },
     "common-workflows.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/common-workflows",
@@ -951,8 +951,8 @@
     "sub-agents.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/sub-agents",
       "original_md_url": "https://code.claude.com/docs/zh-CN/sub-agents.md",
-      "hash": "7f1b2ebe12a56a6375d61236a70bd740a015c2e3ab12293ec38fbd2312df758d",
-      "last_updated": "2026-09-18T00:35:29.818620"
+      "hash": "6a33deb1d1b053178662e622d19def7b87aab8c7e3162baad09a9e53d9693285",
+      "last_updated": "2026-09-20T21:46:09.401004"
     },
     "terminal-config.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/terminal-config",
@@ -1192,8 +1192,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-09-20T16:57:04.979151",
-    "fetch_duration_seconds": 129.314368,
+    "last_fetch_completed": "2026-09-20T21:46:41.065254",
+    "fetch_duration_seconds": 179.472207,
     "total_pages_discovered": 196,
     "pages_fetched_successfully": 198,
     "pages_failed": 0,
@@ -1203,7 +1203,7 @@
     "total_files": 198,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-09-20T16:57:04.979179",
+  "last_updated": "2026-09-20T21:46:41.065284",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
