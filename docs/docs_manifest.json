@@ -705,8 +705,8 @@
     "model-config.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/model-config",
       "original_md_url": "https://code.claude.com/docs/zh-CN/model-config.md",
-      "hash": "cc97f0f6fce38a6a03abac67d14eb9a4600dab8c4be5734b025a1ddb2b1ef5ec",
-      "last_updated": "2026-09-18T00:35:02.946402"
+      "hash": "b33e864150e58465d1fe28f74bb21f627c46a4dcbf23958825123a9d283fe8f3",
+      "last_updated": "2026-09-21T20:30:26.657157"
     },
     "monitoring-usage.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/monitoring-usage",
@@ -921,8 +921,8 @@
     "settings-reference.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/settings-reference",
       "original_md_url": "https://code.claude.com/docs/zh-CN/settings-reference.md",
-      "hash": "2fd0cba8af6bda559309ae186291a9920652ca0e1f65799e4ba25c1fa1652bae",
-      "last_updated": "2026-09-18T21:48:29.119009"
+      "hash": "6528e056bd4e157cf1b9b3d86119efe0562b2e4426cdacc15363097036fb3489",
+      "last_updated": "2026-09-21T20:30:52.716381"
     },
     "setup.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/setup",
@@ -1192,8 +1192,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-09-21T14:27:04.361511",
-    "fetch_duration_seconds": 150.398983,
+    "last_fetch_completed": "2026-09-21T20:31:23.551050",
+    "fetch_duration_seconds": 141.205483,
     "total_pages_discovered": 196,
     "pages_fetched_successfully": 198,
     "pages_failed": 0,
@@ -1203,7 +1203,7 @@
     "total_files": 198,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-09-21T14:27:04.361528",
+  "last_updated": "2026-09-21T20:31:23.551080",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

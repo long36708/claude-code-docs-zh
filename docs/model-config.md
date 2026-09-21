@@ -467,7 +467,7 @@ Fable 模型在任何计划或提供商上都不是账户类型默认值。使�
 
 这将 Opus 的推理能力与 Sonnet 的执行效率相结合。
 
-计划模式 Opus 阶段使用与 `opus` 模型设置相同的上下文窗口。在 Opus [自动升级到 1M 上下文](#extended-context)的订阅层上，`opusplan` 在计划模式下也会获得升级。要在您不在自动升级层上时为两个阶段强制使用 1M 上下文，[设置模型](#setting-your-model)为 `opusplan[1m]`，例如使用 `/model opusplan[1m]`。使用 `/model` 设置它需要 Claude Code v2.1.265 或更高版本；在早期版本上，使用 `--model` 标志或 `model` 设置。
+计划模式 Opus 阶段使用与 `opus` 模型设置相同的上下文窗口，执行阶段使用与 `sonnet` 相同的窗口。当 `opus` 和 `sonnet` 解析为默认运行[1M 上下文窗口](#extended-context)的模型时，如当前模型在 Anthropic API 上所做的那样，两个阶段都使用它运行。要在它们不这样做的地方为两个阶段请求 1M 上下文，[设置模型](#setting-your-model)为 `opusplan[1m]`，例如使用 `/model opusplan[1m]`。使用 `/model` 设置它需要 Claude Code v2.1.265 或更高版本；在早期版本上，使用 `--model` 标志或 `model` 设置。
 
 当 [`availableModels`](#restrict-model-selection) 排除最新的 Opus 但允许较旧版本时，例如 `["sonnet", "claude-opus-4-6"]`，`opusplan` 使用最新的允许的 Opus 进行规划，仅当每个 Opus 都被排除时才保持在 Sonnet 上。在计划模式下通常会升级到 Sonnet 的 Haiku 会话同样使用最新的允许的 Sonnet，仅当每个 Sonnet 都被排除时才保持在 Haiku 上。在 v2.1.205 之前，当升级系列的最新版本被排除时，计划模式会保持在会话的模型上，即使允许列表允许较旧的版本。
 
@@ -710,11 +710,11 @@ Claude Code 默认折叠思考输出。按 `Ctrl+O` 切换详细模式并将推�
 
 Fable 5.1、Fable 5、Sonnet 5、Opus 4.6 及更高版本和 Sonnet 4.6 支持[100 万令牌上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)，用于具有大型代码库的长会话。
 
-可用性因模型和计划而异。在 Anthropic API 上，Fable 5.1、Fable 5、Sonnet 5 和 Opus 4.7 及更高版本默认运行 1M 窗口。
+在 Anthropic API 上，Fable 5.1、Fable 5、Sonnet 5 和 Opus 4.7 及更高版本在每个计划上运行 1M 窗口，包括 Pro。您不需要为这些模型上的 1M 窗口选择 `[1m]` 变体或打开使用额度。Fable 使用本身可以在某些计划上计费到使用额度；请参阅[Fable 和使用额度](#fable-and-usage-credits)。
 
-在 Max、Team 和 Enterprise 计划上，包括 Team Standard 和 Team Premium 席位，Opus 自动升级到 1M 上下文，无需额外配置。Sonnet 4.6 与 1M 上下文不是自动升级的一部分，在包括 Max 的每个订阅计划上都需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)。
+Opus 4.6 和 Sonnet 4.6 仅通过其 `[1m]` 变体达到 1M，对该变体的访问取决于您的计划。在 Max、Team 和 Enterprise 计划上，包括 Team Standard 和 Team Premium 席位，Opus 4.6 与 1M 上下文包含在您的订阅中。Sonnet 4.6 与 1M 上下文在每个订阅计划上都需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，包括 Max。
 
-| 计划                    | Opus 与 1M 上下文                                                                               | Sonnet 4.6 与 1M 上下文                                                                         |
+| 计划                    | Opus 4.6 与 1M 上下文                                                                           | Sonnet 4.6 与 1M 上下文                                                                         |
 | --------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | Max、Team 和 Enterprise | 包含在订阅中                                                                                      | 需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) |
 | Pro                   | 需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) | 需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) |

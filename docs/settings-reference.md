@@ -3168,6 +3168,8 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 选择 Claude Code 是否记录 Bash 命令在 Git 存储库中更改的文件。当它记录它们时，您会在命令后在终端中看到它们的差异，您的 [PostToolUse Bash hooks](/docs/zh-CN/hooks#bash) 会接收更改的文件列表。
 
+列出的文件并不总是命令更改的文件。命令运行时另一个程序或另一个 Bash 调用所做的更改也可能出现在那里。
+
 将键设置为 `true` 以在每个权限模式中记录它们。需要 Claude Code v2.1.269 或更高版本。
 
 * **Scope**: [`User or managed`](#scopes)。`true` 仅从您的用户设置、使用 `--settings` 传递的 JSON 或[托管设置](/docs/zh-CN/managed-settings)计数，因此存储库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `true` 无法打开记录。存储库文件中的 `false` 仍会关闭它，除非[更高优先级](/docs/zh-CN/settings#settings-precedence)的文件设置 `true`。
