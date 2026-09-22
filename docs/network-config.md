@@ -286,7 +286,7 @@ Anthropic 托管环境中的 [Web 上的 Claude Code](/docs/zh-CN/claude-code-on
 
 从 [Google Fonts](/docs/zh-CN/artifacts#improve-the-visual-design) 加载字体的 [Artifact](/docs/zh-CN/artifacts) 也会请求 `fonts.googleapis.com` 和 `fonts.gstatic.com`。两个主机都是可选的。如果您阻止它们，Artifact 会以备用字体呈现。使用快速拒绝而不是静默丢弃来阻止，以便字体请求立即失败，而不是延迟页面的首次呈现。
 
-Artifact 还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwindcss.com` 和 `code.jquery.com` 加载 JavaScript 库（如 React 或图表包），而不能从其他外部主机加载。如果您阻止这些主机，Artifact 中依赖库的部分将无法工作，与阻止的字体不同，阻止的库没有备用。也在这里使用快速拒绝，以便阻止的库请求立即失败，而不是挂起直到超时。
+Artifact 还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwindcss.com`、`code.jquery.com` 和 `unpkg.com` 加载 JavaScript 库（如 React 或图表包），而不能从其他外部主机加载。如果您阻止这些主机，Artifact 中依赖库的部分将无法工作，与阻止的字体不同，阻止的库没有备用。也在这里使用快速拒绝，以便阻止的库请求立即失败，而不是挂起直到超时。
 
 <h2 id="additional-resources">
   其他资源

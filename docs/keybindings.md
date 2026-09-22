@@ -111,23 +111,24 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 在 `Chat` 上下文中可用的操作：
 
-| 操作                    | 默认                             | 描述                                                                                                                                                                            |
-| :-------------------- | :----------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `chat:cancel`         | Escape                         | 取消当前输入                                                                                                                                                                        |
-| `chat:clearInput`     | Ctrl+L                         | 强制全屏重绘，保留输入和对话。在[全屏渲染](/docs/zh-CN/fullscreen#clear-the-conversation)中，也清除屏幕                                                                                                       |
-| `chat:clearScreen`    | Cmd+K                          | 与 `chat:clearInput` 相同。请参阅[清除对话](/docs/zh-CN/fullscreen#clear-the-conversation)了解 Cmd+K 在 iTerm2 和 Terminal.app 上的行为                                                               |
-| `chat:killAgents`     | Ctrl+X Ctrl+K                  | 停止此会话中所有运行中的[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)并关闭[工件自动回复](/docs/zh-CN/artifacts#let-claude-reply-to-comments-on-its-own)                         |
-| `chat:cycleMode`      | Shift+Tab\*                    | 循环权限模式                                                                                                                                                                        |
-| `chat:modelPicker`    | Meta+P                         | 打开模型选择器                                                                                                                                                                       |
-| `chat:fastMode`       | Meta+O                         | 切换快速模式                                                                                                                                                                        |
-| `chat:thinkingToggle` | Meta+T                         | 切换扩展思考                                                                                                                                                                        |
-| `chat:submit`         | Enter                          | 提交消息                                                                                                                                                                          |
-| `chat:queueSubmit`    | Ctrl+X Enter                   | 提交消息，标记为等待其轮次：当 Claude 工作时，Claude Code [将其排队](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)并且永远不会中断轮次。与 `chat:submit` 不同，即使自动完成建议被突出显示，它也会提交草稿。需要 v2.1.247 或更高版本 |
-| `chat:newline`        | Ctrl+J                         | 插入换行符而不提交                                                                                                                                                                     |
-| `chat:undo`           | Ctrl+\_, Ctrl+Shift+-          | 撤销上一个操作                                                                                                                                                                       |
-| `chat:externalEditor` | Ctrl+G, Ctrl+X Ctrl+E          | 在外部编辑器中打开。[代理视图调度输入](/docs/zh-CN/agent-view#keyboard-shortcuts)也遵循此操作的单键击绑定                                                                                                        |
-| `chat:stash`          | Ctrl+S                         | 隐藏当前提示                                                                                                                                                                        |
-| `chat:imagePaste`     | Ctrl+V（Windows 和 WSL 上为 Alt+V） | 从剪贴板粘贴图像。在 WSL 上，默认情况下两个快捷键都已绑定                                                                                                                                               |
+| 操作                    | 默认                             | 描述                                                                                                                                                                                                                                                                      |
+| :-------------------- | :----------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `chat:cancel`         | Escape                         | 取消当前输入                                                                                                                                                                                                                                                                  |
+| `chat:clearInput`     | Ctrl+L                         | 强制全屏重绘，保留输入和对话。在[全屏渲染](/docs/zh-CN/fullscreen#clear-the-conversation)中，也清除屏幕                                                                                                                                                                                                 |
+| `chat:clearScreen`    | Cmd+K                          | 与 `chat:clearInput` 相同。请参阅[清除对话](/docs/zh-CN/fullscreen#clear-the-conversation)了解 Cmd+K 在 iTerm2 和 Terminal.app 上的行为                                                                                                                                                         |
+| `chat:killAgents`     | Ctrl+X Ctrl+K                  | 停止此会话中所有运行中的[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)并关闭[工件自动回复](/docs/zh-CN/artifacts#let-claude-reply-to-comments-on-its-own)                                                                                                                   |
+| `chat:cycleMode`      | Shift+Tab\*                    | 循环权限模式                                                                                                                                                                                                                                                                  |
+| `chat:modelPicker`    | Meta+P                         | 打开模型选择器                                                                                                                                                                                                                                                                 |
+| `chat:fastMode`       | Meta+O                         | 切换快速模式                                                                                                                                                                                                                                                                  |
+| `chat:thinkingToggle` | Meta+T                         | 切换扩展思考                                                                                                                                                                                                                                                                  |
+| `chat:submit`         | Enter                          | 提交消息                                                                                                                                                                                                                                                                    |
+| `chat:queueSubmit`    | Ctrl+X Enter                   | 提交消息，标记为等待其轮次：当 Claude 工作时，Claude Code [将其排队](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)并且永远不会中断轮次。与 `chat:submit` 不同，即使自动完成建议被突出显示，它也会提交草稿。需要 v2.1.247 或更高版本                                                                                           |
+| `chat:sendNow`        | Ctrl+Enter, Ctrl+X Ctrl+S      | 中断运行中的轮次，以便您的[排队消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)及其草稿立即发出。当没有任何内容运行时，它会提交草稿，在[shell 模式](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)中它会排队命令而不中断。不报告扩展键的终端将 `Ctrl+Enter` 传递为纯 `Enter`，因此 `Ctrl+X Ctrl+S` 是在任何终端中都有效的绑定。需要 v2.1.275 或更高版本 |
+| `chat:newline`        | Ctrl+J                         | 插入换行符而不提交                                                                                                                                                                                                                                                               |
+| `chat:undo`           | Ctrl+\_, Ctrl+Shift+-          | 撤销上一个操作                                                                                                                                                                                                                                                                 |
+| `chat:externalEditor` | Ctrl+G, Ctrl+X Ctrl+E          | 在外部编辑器中打开。[代理视图调度输入](/docs/zh-CN/agent-view#keyboard-shortcuts)也遵循此操作的单键击绑定                                                                                                                                                                                                  |
+| `chat:stash`          | Ctrl+S                         | 隐藏当前提示                                                                                                                                                                                                                                                                  |
+| `chat:imagePaste`     | Ctrl+V（Windows 和 WSL 上为 Alt+V） | 从剪贴板粘贴图像。在 WSL 上，默认情况下两个快捷键都已绑定                                                                                                                                                                                                                                         |
 
 \*在没有 VT 模式的 Windows 上（Node \<24.2.0/\<22.17.0，Bun \<1.2.23），默认为 Meta+M。
 
@@ -542,7 +543,9 @@ ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
 
 这也适用于和弦绑定。取消绑定共享前缀的每个和弦会释放该前缀以用作单键绑定。任何活跃上下文中的和弦都会保留其前缀，因此您必须在定义该和弦的上下文中取消绑定每个和弦。
 
-Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl+x ctrl+k`、`ctrl+x ctrl+e`、`ctrl+x enter`、`ctrl+x ctrl+a` 和 `ctrl+x tab`，`Task` 中的 `ctrl+x ctrl+b`，以及 `DiffPanel` 中的 `ctrl+x b`。`ctrl+x enter` 和弦需要 v2.1.247 或更高版本，`ctrl+x b`、`ctrl+x ctrl+a` 和 `ctrl+x tab` 需要 v2.1.260 或更高版本。要将 `ctrl+x` 本身回收为单键绑定，请取消绑定所有这些：
+Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl+x ctrl+k`、`ctrl+x ctrl+e`、`ctrl+x enter`、`ctrl+x ctrl+a`、`ctrl+x ctrl+s` 和 `ctrl+x tab`，`Task` 中的 `ctrl+x ctrl+b`，以及 `DiffPanel` 中的 `ctrl+x b`。`ctrl+x enter` 和弦需要 v2.1.247 或更高版本，`ctrl+x b`、`ctrl+x ctrl+a` 和 `ctrl+x tab` 需要 v2.1.260 或更高版本，以及 `ctrl+x ctrl+s` 需要 v2.1.275 或更高版本。
+
+要将 `ctrl+x` 本身回收为单键绑定，请取消绑定所有这些：
 
 ```json theme={null}
 {
@@ -566,6 +569,7 @@ Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl
         "ctrl+x ctrl+e": null,
         "ctrl+x enter": null,
         "ctrl+x ctrl+a": null,
+        "ctrl+x ctrl+s": null,
         "ctrl+x tab": null,
         "ctrl+x": "chat:newline"
       }

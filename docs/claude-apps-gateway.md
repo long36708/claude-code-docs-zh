@@ -168,7 +168,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
     volumes: { pgdata: }
     ```
 
-    网关是一个单一的 Linux 二进制文件，读取配置，连接到 Postgres 并应用其架构迁移，针对您的 IdP 运行 OIDC 发现，构建上游客户端，并开始侦听。启动对配置、Postgres 连接（5 秒超时）、OIDC 发现和上游客户端构造是失败关闭的。如果其中任何一个无法访问或配置错误，网关会以错误退出，而不是以降级状态提供流量。
+    网关是一个单一的 Linux 二进制文件，读取配置，连接到 Postgres 并应用其架构迁移，针对您的 IdP 运行 OIDC 发现，构建上游客户端，并开始侦听。启动对配置、Postgres 连接、OIDC 发现和上游客户端构造是失败关闭的。如果其中任何一个无法访问或配置错误，网关会以错误退出，而不是以降级状态提供流量。
 
     成功启动不会验证推理路径，因为 Amazon Bedrock 和 Google Cloud 的 Agent Platform 实例凭证在第一个请求时解析，而不是在启动时。
 
@@ -268,6 +268,10 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 ```
 
 当证书轮换时，每个开发人员都会再次看到信任提示，因此将轮换视为计划事件并重新发布指纹。如果您的网关策略包含[需要批准的设置](/docs/zh-CN/server-managed-settings#security-approval-dialogs)，开发人员在接受新证书后也会再次看到该批准对话框，因为 Claude Code 将[批准记忆](/docs/zh-CN/server-managed-settings#approval-memory)关键到固定的证书。
+
+网关可以在其令牌响应中返回可选的 `email` 字段，以命名登录使用的账户。当它这样做时，开发人员在 Claude Code 保存凭证之前确认账户。确认登录后，`/status` 显示账户。
+
+确认需要开发人员机器上的 Claude Code v2.1.275 或更高版本；低于该版本的客户端忽略该字段。`claude` 二进制文件中的网关服务器不返回该字段，因此其登录完成时没有确认。
 
 开发人员登录后，[模型选择器](/docs/zh-CN/model-config)显示其 `availableModels` 允许列表中的模型。托管设置在启动时应用并每小时刷新一次，遥测路由到您的收集器。
 
@@ -485,6 +489,9 @@ Claude Desktop 通过网关的身份提供商使用相同的浏览器 SSO 步骤
 * **启动时网关无法访问**：已登录的会话在启动时约 10 秒后以错误退出，而不是在没有其设置的情况下启动。
 * **启动后网关结束会话**：请参阅[强制执行故障关闭启动](/docs/zh-CN/server-managed-settings#enforce-fail-closed-startup)，了解哪些启动从网关登出打开，哪些在网关以 `401` 应答时退出。
 * **取消配置**：用户在 IdP 中被禁用的会话在下一次刷新失败时在 `ttl_hours` 内过期。
+* **登出**：`/logout` 从开发人员的机器删除网关凭证。
+  * 当网关的发现文档在网关 URL 自己的方案、主机和端口上宣传 `revocation_endpoint` 时，`/logout` 也将存储的令牌发送到该端点，以便网关可以在其端结束会话。请求是尽力而为的，因此登出在开发人员的机器上完成，无论端点是否应答。撤销需要开发人员机器上的 Claude Code v2.1.275 或更高版本。
+  * `claude` 二进制文件中的网关服务器不宣传任何，因此从它登出仅在开发人员的机器上结束会话。要强制会话从服务器端退出，请参阅 [JWT 密钥轮换](/docs/zh-CN/claude-apps-gateway-deploy#jwt-secret-rotation)。
 
 <h3 id="what-the-organization-can-see">
   组织可以看到什么
