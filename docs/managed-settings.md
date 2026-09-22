@@ -366,18 +366,23 @@ Claude Code 对 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) �
 | `allowedHttpHookUrls`         | Claude Code 强制执行空的[允许列表](/docs/zh-CN/settings-reference#allowedhttphookurls)，直到您修复该值，因此 HTTP hook 仅在另一个设置文件列出其 URL 时运行。如果只有单个条目无效，Claude Code 会剥离该条目并强制执行其余的。                                                                            |
 | `httpHookAllowedEnvVars`      | Claude Code 强制执行空的[允许列表](/docs/zh-CN/settings-reference#httphookallowedenvvars)，直到您修复该值，因此仅当另一个设置文件命名标头变量时才会插值。如果只有单个条目无效，Claude Code 会剥离该条目并强制执行其余的。                                                                                    |
 | `allowedChannelPlugins`       | Claude Code 强制执行空的允许列表，直到您修复该值，因此传递给 `--channels` 的任何通道插件都不被允许。如果只有单个条目无效，它会剥离该条目并强制执行其余的。                                                                                                                                          |
+| `strictKnownMarketplaces`     | 强制执行为空的允许列表，直到修复该值，因此不允许任何[市场源](/docs/zh-CN/plugin-marketplaces#managed-marketplace-restrictions)。无效或无法强制执行的单个条目（例如无法编译的 `hostPattern` 正则表达式）被剥离，有效子集被强制执行。                                                                              |
 | `allowManagedHooksOnly`       | 视为 `true`，直到修复：[hook 限制](/docs/zh-CN/settings-reference#allowmanagedhooksonly)适用，除非 `disableCommandPluginSources` 明确为 `false`，否则命令源插件被禁用。                                                                                                |
 | `allowManagedMcpServersOnly`  | 视为 `true`。                                                                                                                                                                                                                          |
 | `disableCommandPluginSources` | 视为 `true`，因此命令源插件保持禁用，直到修复该值。                                                                                                                                                                                                       |
+| `disableSideloadFlags`        | 视为 `true`，直到修复该值，具有为 [`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags) 列出的效果。                                                                                                                                |
 | `availableModels`             | 强制执行为空的允许列表，直到修复，因此只有默认模型可用；非字符串条目被剥离，有效子集被强制执行。                                                                                                                                                                                    |
 | `enforceAvailableModels`      | 视为 `true`。                                                                                                                                                                                                                          |
 | `forceLoginOrgUUID`           | 在修复该值之前，不允许任何组织登录。                                                                                                                                                                                                                  |
 | `gatewayInternalNetworks`     | 当无效值来自机器上最高的托管源时，`/login` 拒绝该机器上的每个新[云网关](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)登录，直到修复该值。                                                                                                     |
 | `crossSessionInbound`         | 视为 `refuse`，最严格的值，因此入站[跨会话消息](/docs/zh-CN/cross-session-messaging#control-inbound-messages)被拒绝，直到修复该值。开发人员看到[警告](/docs/zh-CN/errors#crosssessioninbound-must-be-one-of-accept-hold-refuse)。                                                   |
 | `deniedMcpServers`            | 单个无效条目被剥离，有效子集被强制执行。完全无效的值被丢弃并带有警告，因为拒绝每个服务器会阻止策略从未命名的服务器。                                                                                                                                                                          |
+| `blockedMarketplaces`         | 单个无效条目被剥离，有效子集被强制执行。解析但永远无法匹配的条目（例如无法编译的 `hostPattern` 正则表达式）被保留并带有警告。在修复之前它不会阻止任何内容，但[市场限制](/docs/zh-CN/plugin-marketplaces#managed-marketplace-restrictions)保持活跃。完全无效的值被丢弃并带有警告，因为阻止每个市场会阻止策略从未命名的源。                                   |
 | `sandbox.credentials`         | 可恢复的无效条目降级为 `mode: "deny"` 并带有警告；不可恢复的条目被剥离；有效条目保持强制执行。请参阅[托管设置中的无效凭据条目](/docs/zh-CN/settings-reference#invalid-credential-entries-in-managed-settings)                                                                                  |
 
-`allowedHttpHookUrls` 和 `httpHookAllowedEnvVars` 跨设置文件合并，因此您的用户、项目或本地设置中的条目在托管列表为空时仍然适用。这两个密钥和 `allowedChannelPlugins` 的回退需要 Claude Code v2.1.267 或更高版本；早期版本在其值或任何条目无效时整体丢弃该密钥。
+`allowedHttpHookUrls` 和 `httpHookAllowedEnvVars` 跨设置文件合并，因此您的用户、项目或本地设置中的条目在托管列表为空时仍然适用。
+
+这两个密钥和 `allowedChannelPlugins` 的回退需要 Claude Code v2.1.267 或更高版本；早期版本在其值或任何条目无效时整体丢弃该密钥。`strictKnownMarketplaces`、`blockedMarketplaces` 和 `disableSideloadFlags` 的回退需要 Claude Code v2.1.277 或更高版本；早期版本在其值或任何条目无效时整体丢弃该密钥。
 
 `requiredMinimumVersion` 和 `requiredMaximumVersion` 按设计失败开放：无效值被丢弃而不是强制执行。
 

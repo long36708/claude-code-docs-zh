@@ -42,7 +42,11 @@ Claude Code 在您首次以交互方式启动它时会自动添加官方 Anthrop
 /plugin install github@claude-plugins-official
 ```
 
-`/plugin` 在终端 CLI 中打开一个交互式面板。如果 Claude 回复说 `/plugin` 在此环境中不可用，请使用 Claude 桌面应用中的[插件浏览器](/docs/zh-CN/desktop#install-plugins)，或在 `.claude/settings.json` 中的 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 下声明插件以用于云会话。
+`/plugin` 在终端 CLI 中打开一个交互式面板。如果 Claude 回复说 `/plugin` 在此环境中不可用，请使用另一种方式安装插件：
+
+* **Claude 桌面应用**：使用[插件浏览器](/docs/zh-CN/desktop#install-plugins)。
+* **VS Code 扩展**：从[**管理插件**对话框](/docs/zh-CN/vs-code#manage-plugins)安装。
+* **云会话**：在 `.claude/settings.json` 中的 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 下声明插件。
 
 如果安装失败，请匹配 Claude Code 报告的消息：
 

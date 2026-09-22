@@ -12,16 +12,16 @@
   将 Agent SDK 与其他 Claude 工具进行比较
 </h2>
 
-Agent SDK、CLI、Client SDK 和 Managed Agents 各自满足不同的需求。使用该表格找到与您正在构建的内容相匹配的工具。
+Agent SDK、CLI、Client SDK 和 Managed Agents 在谁运行代理、内置功能以及如何访问方面有所不同。找到与您想要构建和运行的方式相匹配的行。
 
-| 如果您...                        | 使用                                                                                | 原因                                               |
-| ----------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------ |
-| 构建代理而不自己实现工具循环                | **Agent SDK**                                                                     | 一个为您运行代理循环的 Python 或 TypeScript 库。               |
-| 进行交互式开发或从终端运行一次性任务            | [**Claude Code CLI**](/docs/zh-CN/overview)                                            | 终端界面，为日常交互使用而构建。                                 |
-| 直接调用 API 并自己实现工具循环            | [**Client SDK**](https://platform.claude.com/docs/en/api/client-sdks)             | 直接访问 Anthropic API 而不是 Claude Code。您自己实现工具循环。    |
-| 运行长期运行或异步代理，无需管理您自己的沙箱或会话基础设施 | [**Managed Agents**](https://platform.claude.com/docs/en/managed-agents/overview) | 托管 REST API，是 Agent SDK 的独立产品。Anthropic 运行代理和沙箱。 |
+| 您想要                                                 | 使用                                                                                | 您获得                                                                                                                                                                                                                                                    |
+| --------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 在您自己操作的 Python 或 TypeScript 应用程序中嵌入 Claude Code 的代理 | **Agent SDK**                                                                     | 一个运行 Claude Code 二进制文件的库，具有 Claude Code 的[功能](#capabilities)，例如内置工具、权限、会话和 hooks。                                                                                                                                                                      |
+| 进行交互式开发或从终端运行一次性任务                                  | [**Claude Code CLI**](/docs/zh-CN/overview)                                            | 终端界面，为日常交互使用而构建。                                                                                                                                                                                                                                       |
+| 直接从您自己的代码调用 Claude API                              | [**Client SDK**](https://platform.claude.com/docs/en/cli-sdks-libraries/overview) | 从任何客户端 SDK 语言直接访问 Claude API。您自己编写工具循环，或让客户端 SDK 的测试版[工具运行器](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner)驱动它。                                                                                                            |
+| 让 Anthropic 托管代理，通过 Claude API 配置                   | [**Managed Agents**](https://platform.claude.com/docs/en/managed-agents/overview) | 一个托管代理工具，运行代理循环，会话在 Anthropic 管理的云沙箱或您自己的基础设施上的[自托管沙箱](https://platform.claude.com/docs/en/managed-agents/self-hosted-sandboxes)中。从您语言的 [SDK](https://platform.claude.com/docs/en/managed-agents/quickstart#install-the-sdk)、`ant` CLI 或 REST API 使用它。 |
 
-该 SDK 仅作为 Python 和 TypeScript 的库提供。要从另一种语言驱动相同的代理循环，请[以子进程的形式运行 CLI](/docs/zh-CN/headless)，使用 `-p` 标志和 `--output-format json`。
+要从 Python 或 TypeScript 以外的语言驱动相同的代理循环，请[以子进程的形式运行 CLI](/docs/zh-CN/headless)，使用 `-p` 标志和 `--output-format json`。
 
 <h2 id="capabilities">
   功能

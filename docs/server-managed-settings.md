@@ -171,7 +171,7 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
 * **`env` 块**：除了与凭证键配对的遥测单元和路由变量（下面涵盖）外，它在管理员控制的源之间按键合并。对于每个环境变量，定义它的最高优先级源获胜，较低的管理员源填充较高源未设置的变量。因此，端点管理的 `env` 条目在服务器管理的配置未设置该变量时应用，或在该变量的缓存服务器值[等待服务器确认而被暂扣](#fetch-and-caching-behavior)期间应用。需要 Claude Code v2.1.223 或更高版本。在 v2.1.223 之前，Claude Code 仅应用选定源的整个 `env` 块。
   * **遥测单元**：`OTEL_EXPORTER_OTLP_*` 导出器键、`OTEL_LOG_*` 内容捕获切换、`OTEL_LOGS_EXPORTER` 以及测试版跟踪变量 `ENABLE_BETA_TRACING_DETAILED` 和 `BETA_TRACING_ENDPOINT` 遵循设置其中任何一个的最高源作为一个单元。传递 `otelHeadersHelper` 凭证键的源也声称该单元，但仅在它是选定源时才放置这些变量：未被选定但传递该键的源不贡献其中任何一个，仍然阻止较低源填充它们。无论哪种方式，来自一个源的导出器端点永远不能与来自另一个源的凭证配对。
   * **凭证配对的路由**：将路由变量与选定源专用凭证键（例如 `apiKeyHelper` 或 `otelHeadersHelper`）配对的源仅在它赢得该槽位时贡献这些路由变量。
-* **网关登录键**：Claude Code 永远不会从服务器管理的设置中读取 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl) 或 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值，因此选择服务器管理的设置既不提供网关登录也不隐藏在 MDM 策略或托管设置文件中设置的网关登录。[`managedSourcesBehavior` 条目](/docs/zh-CN/settings-reference#managedsourcesbehavior)说明机器上的哪个管理员源提供它们。
+* **网关登录键**：Claude Code 永远不会从服务器管理的设置中读取 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl)、[`gatewayInternalNetworks`](/docs/zh-CN/settings-reference#gatewayinternalnetworks) 或 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值，因此服务器管理的设置中的值既不适用也不隐藏在 MDM 策略或托管设置文件中设置的值。[`managedSourcesBehavior` 条目](/docs/zh-CN/settings-reference#managedsourcesbehavior)说明机器上的哪个管理员源提供它们。
 
 <h3 id="fetch-and-caching-behavior">
   获取和缓存行为

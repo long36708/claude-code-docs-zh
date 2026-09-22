@@ -14,11 +14,11 @@
 
 快速模式不是一个不同的模型。它使用 Claude Opus，但采用不同的 API 配置，优先考虑速度而不是成本效率。您获得相同的质量和功能，只是响应速度更快。快速模式在 Opus 5 和 Opus 4.8 上受支持。它在 Sonnet、Haiku 或其他模型上不可用。
 
-Claude Code 将 Opus 4.7 视为任何其他不支持快速模式的模型：切换到它会关闭快速模式。Opus 4.7 的快速模式已于 2026 年 6 月 25 日弃用，并于 2026 年 7 月 24 日移除。
+Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 4.7 的快速模式已于 2026 年 6 月 25 日弃用，并于 2026 年 7 月 24 日移除。
 
 需要了解的内容：
 
-* 使用 `/fast` 在 Claude Code CLI 中切换快速模式。VS Code 扩展遵循您的 [`fastMode` 设置](#toggle-fast-mode)，并在选定的模型支持快速模式时提供**切换快速模式**命令。
+* 使用 `/fast` 在 Claude Code CLI 中切换快速模式。[VS Code 扩展](/docs/zh-CN/vs-code)在选定的模型支持快速模式时提供**切换快速模式**命令。Claude Code 将该切换保存到您的 [`fastMode` 设置](#toggle-fast-mode)。
 * 快速模式定价在 Opus 5 和 Opus 4.8 上为 $10/$50 MTok 输入/输出。
 * 可供订阅计划（Pro/Max/Team/Enterprise）上的 Claude Code 用户和 Claude 控制台使用。Team 和 Enterprise 组织需要所有者先启用它，Console 组织需要先配置访问权限，两者都在[要求](#requirements)下描述。
 * 对于订阅计划（Pro/Max/Team/Enterprise）上的 Claude Code 用户，快速模式仅通过使用额度提供，不包含在订阅速率限制中。
@@ -145,9 +145,11 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 * **团队和企业的所有者启用**：快速模式默认对团队和企业组织禁用。所有者必须明确[启用快速模式](#enable-fast-mode-for-your-organization)，用户才能访问它。
 
 <Note>
-  两个组织设置可以阻止使用 `/fast` 启用快速模式：
+  四个组织设置可以阻止使用 `/fast` 启用快速模式：
 
   * **快速模式未启用**：如果您的组织尚未启用快速模式，使用 `/fast` 启用快速模式会显示"Fast mode has been disabled by your organization."。
+  * **快速模式被托管设置关闭**：如果您的组织部署[托管设置](/docs/zh-CN/managed-settings)，设置 [`fastMode: false`](/docs/zh-CN/settings-reference#fastmode)，使用 `/fast` 启用快速模式会显示相同的"Fast mode has been disabled by your organization"消息。
+  * **需要每个会话选择加入**：托管设置设置 [`fastModePerSessionOptIn: true`](#require-per-session-opt-in) 在除交互式终端会话外的任何地方都拒绝 `/fast on`，显示相同的消息。
   * **快速模式模型不允许**：如果您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了快速模式 Opus 模型，启用它会被拒绝，显示"is not in your organization's allowed models"。在已在支持快速模式的允许 Opus 模型上运行的会话中，`/fast` 改为在您当前的模型上启用快速模式，而不是切换模型。
 </Note>
 
@@ -203,6 +205,8 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 ```
 
 这对于在用户运行多个并发会话的组织中控制成本很有用。用户的快速模式偏好仍然被保存，因此删除此设置会恢复默认的持久行为。
+
+当托管设置设置该密钥时，`/fast on` 仅在交互式终端会话中有效。在其他任何地方，包括[非交互式模式](/docs/zh-CN/headless)、[VS Code 扩展](/docs/zh-CN/vs-code)和[云会话](#use-fast-mode-in-cloud-sessions)，它会被拒绝，显示您的组织已禁用快速模式的消息。
 
 <h2 id="handle-rate-limits">
   处理速率限制

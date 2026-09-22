@@ -110,7 +110,9 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
   * **Manual**：Claude 在文件编辑和大多数 shell 命令之前请求权限。
   * **Plan**：Claude 描述它将做什么，并在进行更改之前等待批准。VS Code 自动将计划作为完整的 Markdown 文档打开，您可以在其中添加内联注释以在 Claude 开始之前提供反馈。
   * **Edit automatically**：Claude 进行编辑而不询问。
-* **Model**：从命令菜单中选择 **Switch model…** 以在会话中途更改模型。您也可以点击提示框底部的模型名称来打开相同的选择器。当当前模型支持[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)时，选择器还会显示 **Effort** 行和模型名称按钮显示选定的级别。模型名称按钮和 **Effort** 行需要 Claude Code v2.1.257 或更高版本。
+* **Model**：从命令菜单中选择 **Switch model…** 以在会话中途更改模型。您也可以点击提示框底部的模型名称来打开相同的选择器。
+
+  当当前模型支持[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)时，选择器还会显示 **Effort** 行和模型名称按钮显示选定的级别。当您选择除 `max` 之外的级别时，Claude Code 会在 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 下的用户设置中将其保存为当前模型的默认值；`max` 仅适用于当前会话。模型名称按钮和 **Effort** 行需要 Claude Code v2.1.257 或更高版本。
 * **Command menu**：点击 `/` 或输入 `/` 来打开命令菜单。选项包括附加文件、切换模型和切换扩展思考。Customize 部分提供对 MCP 服务器、slash commands、输出样式、hooks、memory、权限和插件的访问。带有终端图标的项目在集成终端中打开。
   * 要浏览 `/usage` 或 [`/remote-control`](/docs/zh-CN/remote-control) 等命令，请在 Customize 部分中选择 **Slash commands**。对话框会列出它们并带有过滤框。选择一个来运行它。在提示框中输入 `/` 仍会内联建议命令。需要 Claude Code v2.1.257 或更高版本。
   * 在 Customize 部分中选择 **Output styles** 来选择[输出样式](/docs/zh-CN/output-styles)，包括您的自定义样式。需要 Claude Code v2.1.257 或更高版本。
@@ -124,10 +126,12 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
   * Settings 部分还包括 **Focus view**，它隐藏工具调用、工具结果和思考在可展开的行后面，只留下您的提示和 Claude 的响应。在那里切换它，使用 `Ctrl+Option+F`（Mac）/ `Ctrl+Alt+F`（Windows/Linux），或从命令面板使用 **Claude Code: Toggle Focus view**。更改适用于每个打开的会话并在会话之间持续。需要 Claude Code v2.1.221 或更高版本。
 
     Claude 的最新待办事项列表保持可见，Claude 提出的待处理问题的文本也保持可见；这需要 Claude Code v2.1.225 或更高版本。当 Claude 运行[子代理](/docs/zh-CN/sub-agents)时，带有其最新活动的实时进度行出现在启动它们的工具调用组下。这需要 Claude Code v2.1.269 或更高版本。
+  * 要登出您的 Anthropic 账户，请在 Settings 部分中选择 **Sign out**，或输入 `/logout`。在[第三方提供商](#use-third-party-providers)上，菜单不提供任何一个。需要 Claude Code v2.1.277 或更高版本。
   * 要报告错误，请点击菜单底部的 **Report a problem**，或输入 `/bug` 或 `/feedback` 以及可选的描述来预填充报告。当您提交报告并且您在第一方连接上登录到 Anthropic 时，Claude Code 会将其发送给 Anthropic。在第三方提供商上，或没有 Anthropic 凭证的情况下，对话框仍会打开，但提交会显示错误并不发送任何内容：与 CLI 的 `/bug` 不同，扩展程序不会写入本地存档。需要 Claude Code v2.1.229 或更高版本。
 
     如果您的组织的策略关闭了产品反馈，**Report a problem** 不会出现在菜单中，`/bug` 和 `/feedback` 会显示 `Feedback is turned off by your organization's policy or this environment's settings.` 通知，而不是打开报告。
 * **Side questions**：输入 `/btw` 后跟一个问题来提问您的会话[而不添加到对话](/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw)。答案在聊天旁边的面板中打开，您可以在其中提出后续问题。线程在窗口重新加载后仍然存在。Claude Code 保留最新的 20 个交换，并根据 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 计划过期存储的线程，只要 Claude Code 可以[安全地确定保留期](/docs/zh-CN/claude-directory#cleaned-up-automatically)。要清除线程，请点击面板中的垃圾箱图标。需要 Claude Code v2.1.227 或更高版本。
+* **Copy a response**：将鼠标悬停在响应上并点击 **Copy response** 来将其复制到您的剪贴板，或输入 `/copy` 来复制最新的响应。`/copy 2` 复制倒数第二个。需要 Claude Code v2.1.277 或更高版本。
 * **Context indicator**：提示框显示您使用了多少 Claude 的上下文窗口。Claude 在需要时自动压缩，或者您可以手动运行 `/compact`。
 * **Prompt cache clock**：上下文指示器旁边的时钟图标估计对话的 [prompt cache](/docs/zh-CN/prompt-caching) 在过期前还剩多少时间。它从缓存的五分钟或一小时[生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)倒计时，每个使用缓存的响应都会重新启动倒计时。除了压缩外，[使缓存失效的操作](/docs/zh-CN/prompt-caching#actions-that-invalidate-the-cache)不会重置时钟，因此在您切换模型后它仍然可以显示剩余的分钟数。
   * 在倒计时结束之前，图标显示剩余的分钟数，例如 **12m**。
@@ -136,6 +140,10 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 * **Agent map**：当对话包括[子代理](/docs/zh-CN/sub-agents)时，代理计数（例如 **2 agents**）出现在提示框的底部。其点显示任何子代理是否正在工作或等待您的权限。
 
   点击代理计数来打开代理地图，它将对话的子代理绘制为主代理下的树，每个都有其状态、经过的时间和令牌计数。点击子代理来查看其提示和工具调用、打开其只读记录，或在其运行时停止它。需要 Claude Code v2.1.269 或更高版本。
+
+  地图还列出了会话的其他[后台任务](/docs/zh-CN/tools-reference#background-commands)，例如后台 shell 命令和[监视器](/docs/zh-CN/tools-reference#monitor-tool)，在代理下方。点击一行来打开任务的卡片并在那里停止它。
+
+  要在没有显示代理计数时打开地图，例如当 Claude 已启动后台 shell 但没有子代理时，请在提示框中输入 `/tasks`。地图中的后台任务和输入的 `/tasks` 需要 Claude Code v2.1.277 或更高版本。
 * **Extended thinking**：让 Claude 花更多时间推理复杂问题。通过命令菜单（`/`）打开它。Claude 的推理在对话中显示为折叠块：点击一个块来阅读它，或按 `Ctrl+O` 来展开或折叠会话中的每个思考块。有关详细信息，请参阅[Extended thinking](/docs/zh-CN/model-config#extended-thinking)。
 * **Multi-line input**：按 `Shift+Enter` 添加新行而不发送。这也适用于问题对话框的"Other"自由文本输入。
 
@@ -171,7 +179,7 @@ Claude 也会看到您在编辑器中打开的文件，即使没有选择任何�
 
 默认情况下，14 天内没有活动的会话会自动移动到 **Archived sessions**，除非它是打开的、未读的或在[组](#organize-sessions-into-groups)中。自动存档需要 Claude Code v2.1.265 或更高版本。要更改期间或关闭它，请打开[存档非活动会话设置](vscode://settings/claudeCode.archiveInactiveSessions)并选择天数或 **Never**。
 
-要恢复存档的会话，请展开 **Archived sessions** 并点击 **Unarchive session**。在 v2.1.257 之前，该操作是 **Delete session**，它隐藏了一个会话而无法恢复。您之前删除的会话在升级后会出现在 **Archived sessions** 下。
+要恢复存档的会话，请展开 **Archived sessions** 并点击 **Unarchive session**。要一次恢复每个存档的会话，请将鼠标悬停在活动栏中会话列表中的 **Archived sessions** 标题上，并点击其取消存档图标，这需要 Claude Code v2.1.277 或更高版本。在 v2.1.257 之前，该操作是 **Delete session**，它隐藏了一个会话而无法恢复。您之前删除的会话在升级后会出现在 **Archived sessions** 下。
 
 当您恢复的对话以 Plan 模式结束时，Claude Code 会恢复 Plan 模式。需要 Claude Code v2.1.246 或更高版本。Claude Code 在两种情况下不会恢复它：
 
@@ -206,11 +214,17 @@ Claude 也会看到您在编辑器中打开的文件，即使没有选择任何�
   检查账户和使用情况
 </h3>
 
-运行 `/usage` 来打开 Account & usage 对话框。对话框需要 claude.ai 登录，因此在[第三方提供商](#use-third-party-providers)上不提供。它显示您登录的账户、您的计划以及您计划限制的使用条形图，例如当前会话和周。每个条形图显示距离其限制重置还有多长时间。
+运行 `/usage` 来打开 Account & usage 对话框。它显示您登录的账户，使用情况报告因登录而异：
+
+* **claude.ai plan**：您的计划限制的使用条形图，例如当前会话和周。每个条形图显示距离其限制重置还有多长时间。
 
 对话框还分解了对您的计划限制有贡献的内容。它标记占最近使用量 10% 或更多的行为，例如缓存未命中、长上下文和子代理密集或高度并行的会话，每个都有减少它的提示。Attribution 表显示了每个 skill、subagent、plugin 和 MCP 服务器贡献了多少使用量。
 
-使用 Day 和 Week 切换来在过去 24 小时和过去 7 天之间切换。这些数字是近似的，并从此机器上的本地会话计算，因此不包括来自其他设备或 claude.ai 的使用情况。有关跟踪和减少使用情况的更多信息，请参阅[跟踪您的成本](/docs/zh-CN/costs#track-your-costs)。
+使用 Day 和 Week 切换来在过去 24 小时和过去 7 天之间切换。这些数字是近似的，并从此机器上的本地会话计算，因此不包括来自其他设备或 claude.ai 的使用情况。
+
+* **Other sign-ins**：当计划限制不适用于您的登录时，例如在[第三方提供商](#use-third-party-providers)上或使用 API 密钥时，Usage 部分显示会话自己的成本和令牌使用情况。CLI 的 `/usage` 在其[会话块](/docs/zh-CN/costs#track-your-costs)中显示相同的总计。活动栏中的会话列表也在其 **Account & usage** 标题下显示活跃会话的总计。需要 Claude Code v2.1.277 或更高版本。
+
+有关跟踪和减少使用情况的更多信息，请参阅[跟踪您的成本](/docs/zh-CN/costs#track-your-costs)。
 
 <h2 id="customize-your-workflow">
   自定义您的工作流
@@ -363,22 +377,23 @@ Claude 为浏览器任务打开新标签页并共享您浏览器的登录状态�
   这些是用于控制扩展的 VS Code 命令。并非所有内置 Claude Code 命令都在扩展中可用。有关详细信息，请参阅 [VS Code 扩展与 Claude Code CLI](#vs-code-extension-vs-claude-code-cli)。
 </Note>
 
-| 命令                         | 快捷键                                                      | 描述                                                                                                                  |
-| -------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Focus Input                | `Cmd+Esc` (Mac) / `Ctrl+Esc` (Windows/Linux)             | 在编辑器和 Claude 之间切换焦点                                                                                                 |
-| Open in Side Bar           | -                                                        | 在侧边栏中打开 Claude                                                                                                      |
-| Open in Terminal           | -                                                        | 在终端模式下打开 Claude                                                                                                     |
-| Open in New Tab            | `Cmd+Shift+Esc` (Mac) / `Ctrl+Shift+Esc` (Windows/Linux) | 以编辑器选项卡形式打开新对话                                                                                                      |
-| Open in New Window         | -                                                        | 在单独的窗口中打开新对话                                                                                                        |
-| New Conversation           | `Cmd+N` (Mac) / `Ctrl+N` (Windows/Linux)                 | 开始新对话。需要 Claude 处于焦点状态且 `enableNewConversationShortcut` 设置为 `true`                                                  |
-| Reopen Closed Session      | `Cmd+Shift+T` (Mac) / `Ctrl+Shift+T` (Windows/Linux)     | 重新打开最近关闭的 Claude 会话选项卡。当最后关闭的选项卡不是 Claude 会话时，会回退到 VS Code 的正常重新打开关闭编辑器功能。使用 `enableReopenClosedSessionShortcut` 禁用 |
-| Insert @-Mention Reference | `Option+K` (Mac) / `Alt+K` (Windows/Linux)               | 插入对当前文件和选择的引用（需要编辑器处于焦点状态）                                                                                          |
-| Toggle Focus view          | `Ctrl+Option+F` (Mac) / `Ctrl+Alt+F` (Windows/Linux)     | 隐藏或显示对话中的工具活动。在 Claude 面板或侧边栏可见时有效。需要 Claude Code v2.1.221 或更高版本                                                    |
-| Rename Session Tab         | -                                                        | 重命名活动 Claude 选项卡中的会话。需要 Claude Code v2.1.257 或更高版本                                                                  |
-| Add Session Tab to Group   | -                                                        | 将活动 Claude 选项卡中的会话添加到您选择或创建的[会话组](#organize-sessions-into-groups)。需要 Claude Code v2.1.257 或更高版本                     |
-| Mark Session as Unread     | -                                                        | 在会话列表中将活动 Claude 选项卡中的会话标记为未读。需要 Claude Code v2.1.257 或更高版本                                                         |
-| Show Logs                  | -                                                        | 查看扩展调试日志                                                                                                            |
-| Logout                     | -                                                        | 登出您的 Anthropic 账户                                                                                                   |
+| 命令                         | 快捷键                                                      | 描述                                                                                                                   |
+| -------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Focus Input                | `Cmd+Esc` (Mac) / `Ctrl+Esc` (Windows/Linux)             | 在编辑器和 Claude 之间切换焦点                                                                                                  |
+| Focus last message         | -                                                        | 将键盘焦点移动到对话中的最新消息，或移动到等待权限提示，以便您可以使用键盘或屏幕阅读器从那里读取。在[终端模式](#switch-to-terminal-mode)中不可用。需要 Claude Code v2.1.268 或更高版本 |
+| Open in Side Bar           | -                                                        | 在侧边栏中打开 Claude                                                                                                       |
+| Open in Terminal           | -                                                        | 在终端模式下打开 Claude                                                                                                      |
+| Open in New Tab            | `Cmd+Shift+Esc` (Mac) / `Ctrl+Shift+Esc` (Windows/Linux) | 以编辑器选项卡形式打开新对话                                                                                                       |
+| Open in New Window         | -                                                        | 在单独的窗口中打开新对话                                                                                                         |
+| New Conversation           | `Cmd+N` (Mac) / `Ctrl+N` (Windows/Linux)                 | 开始新对话。需要 Claude 处于焦点状态且 `enableNewConversationShortcut` 设置为 `true`                                                   |
+| Reopen Closed Session      | `Cmd+Shift+T` (Mac) / `Ctrl+Shift+T` (Windows/Linux)     | 重新打开最近关闭的 Claude 会话选项卡。当最后关闭的选项卡不是 Claude 会话时，会回退到 VS Code 的正常重新打开关闭编辑器功能。使用 `enableReopenClosedSessionShortcut` 禁用  |
+| Insert @-Mention Reference | `Option+K` (Mac) / `Alt+K` (Windows/Linux)               | 插入对当前文件和选择的引用（需要编辑器处于焦点状态）                                                                                           |
+| Toggle Focus view          | `Ctrl+Option+F` (Mac) / `Ctrl+Alt+F` (Windows/Linux)     | 隐藏或显示对话中的工具活动。在 Claude 面板或侧边栏可见时有效。需要 Claude Code v2.1.221 或更高版本                                                     |
+| Rename Session Tab         | -                                                        | 重命名活动 Claude 选项卡中的会话。需要 Claude Code v2.1.257 或更高版本                                                                   |
+| Add Session Tab to Group   | -                                                        | 将活动 Claude 选项卡中的会话添加到您选择或创建的[会话组](#organize-sessions-into-groups)。需要 Claude Code v2.1.257 或更高版本                      |
+| Mark Session as Unread     | -                                                        | 在会话列表中将活动 Claude 选项卡中的会话标记为未读。需要 Claude Code v2.1.257 或更高版本                                                          |
+| Show Logs                  | -                                                        | 查看扩展调试日志                                                                                                             |
+| Logout                     | -                                                        | 登出您的 Anthropic 账户                                                                                                    |
 
 <h3 id="launch-a-vs-code-tab-from-other-tools">
   从其他工具启动 VS Code 选项卡
@@ -487,7 +502,14 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 * **状态更改**：当 Claude 开始工作、Claude 准备好接收您的输入以及 Claude Code 开始压缩对话时，该扩展会宣布。
 * **错误和模型提示**：该扩展宣布对话中的错误，并在 [使用额度同意提示](/docs/zh-CN/model-config#fable-and-usage-credits) 或 [标记请求提示](/docs/zh-CN/model-config#ask-before-switching) 出现时宣布。
 
-记录中的每个回合都以视觉隐藏的标题开头，标题标记为启动该回合的提示，因此您可以使用屏幕阅读器的标题导航在回合之间跳转。您也可以使用 `Tab` 将焦点移动到记录本身，因为该扩展将其公开为标记的区域，并按您自己的速度读取。当 Claude 工作时，您的屏幕阅读器会读取一个文本标签来代替进度旋转器的动画。
+记录中的每个回合都以视觉隐藏的标题开头，标题标记为启动该回合的提示，因此您可以使用屏幕阅读器的标题导航在回合之间跳转。因为该扩展将记录公开为标记的区域，您也可以使用 `Tab` 将焦点移动到记录本身，并按您自己的速度读取。
+
+键盘上还有两个操作可用：
+
+* **跳转到最新消息**：从 [命令面板](#vs-code-commands-and-shortcuts) 运行 **Claude Code: Focus last message**，将焦点直接移动到最新消息或等待的权限提示。
+* **更改批准的保存位置**：当权限提示上的选项保存权限规则或目录访问时，其标签末尾会命名批准的保存位置，例如"所有项目"或"此会话"。单击这些词以更改目标。当选项获得焦点时，您也可以按 `Left` 或 `Right` 箭头键；当您移动到每个目标时，该扩展会宣布。箭头键需要 Claude Code v2.1.268 或更高版本。
+
+当 Claude 工作时，您的屏幕阅读器会读取一个文本标签来代替进度旋转器的动画。
 
 当您重新打开会话或切换到另一个会话时，该扩展不会宣布任何内容：恢复的历史记录、待处理的权限提示和进行中的状态保持沉默，直到发生新的事情。
 
@@ -543,7 +565,7 @@ extension 和 CLI 共享相同的对话历史记录。要在 CLI 中继续 exten
   Monitor background processes
 </h3>
 
-与 CLI 相比，extension 中后台任务的可见性受限。为了获得更好的可见性，让 Claude 输出命令，以便您可以在 VS Code 的集成终端中运行它。
+在提示框中输入 `/tasks` 以打开[代理地图](#use-the-prompt-box)，它列出会话的后台任务，例如 Claude 作为后台 shell 命令留下运行的开发服务器。单击任务以打开其卡片并在那里停止它。需要 Claude Code v2.1.277 或更高版本。
 
 <h3 id="connect-to-external-tools-with-mcp">
   Connect to external tools with MCP
@@ -610,7 +632,9 @@ summarize the changes I've made to the auth module
   </Step>
 </Steps>
 
-在第三方提供商上，扩展不提供需要 claude.ai 账户的功能，例如使用情况跟踪、[语音听写](/docs/zh-CN/voice-dictation)和用于[从 Claude.ai 恢复云会话](#resume-cloud-sessions-from-claude-ai)的 Web 标签页。来自早期 `/login` 的 claude.ai 登录会保留下来但未被使用：扩展不会在任何请求中发送它。
+在第三方提供商上，扩展不提供需要 claude.ai 账户的功能，例如计划使用情况栏、[语音听写](/docs/zh-CN/voice-dictation)和用于[从 Claude.ai 恢复云会话](#resume-cloud-sessions-from-claude-ai)的 Web 标签页。有关这些登录时"账户和使用情况"对话框显示的内容，请参阅[检查账户和使用情况](#check-account-and-usage)。
+
+来自早期 `/login` 的 claude.ai 登录会保留下来但未被使用：扩展不会在任何请求中发送它。
 
 <h2 id="security-and-privacy">
   安全和隐私

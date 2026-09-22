@@ -34,6 +34,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 `/plugin` 打开一个交互式面板，仅在终端 CLI 中可用。如果 Claude 回复说 `/plugin` 在此环境中不可用，请以其他方式安装：
 
 * **Claude 桌面应用、本地或 SSH 会话**：通过点击提示旁边的 **+** 按钮，然后点击 **Plugins**，再点击 **Add plugin** 来打开 [插件浏览器](/docs/zh-CN/desktop#install-plugins)
+* **VS Code 扩展**：从 [**管理插件** 对话框](/docs/zh-CN/vs-code#manage-plugins) 安装
 * **云会话**：在 `.claude/settings.json` 中声明插件，如 [在云会话和共享存储库中启用](#enable-in-cloud-sessions-and-shared-repositories) 下所示
 
 终端安装会提示输入范围。选择用户范围以将插件写入您的用户设置，这样它会在您在此计算机上启动的每个新本地会话中加载。

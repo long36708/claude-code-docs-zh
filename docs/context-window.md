@@ -35,7 +35,7 @@ export const ContextWindow = () => {
     tokens: 280,
     color: '#6B6964',
     vis: 'hidden',
-    desc: 'Working directory, platform, shell, OS version, and whether this is a git repo. Git branch, status, and recent commits load as a separate block at the very end of the system prompt.',
+    desc: 'Working directory, platform, shell, OS version, and whether this is a git repo. Git branch, status, and recent commits load as a separate block.',
     link: null
   }, {
     t: 0.08,

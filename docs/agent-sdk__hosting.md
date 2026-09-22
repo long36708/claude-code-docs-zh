@@ -10,7 +10,7 @@ Agent SDK 生成并监督一个 `claude` CLI 子进程，该子进程拥有一�
 
 本页面涵盖在你自己的基础设施上自托管。有关可部署的 Dockerfile 和 Kubernetes 清单，请参阅[托管指南](https://github.com/anthropics/claude-cookbooks/tree/main/claude_agent_sdk/hosting)。
 
-如果你不需要基础设施控制、自定义隔离或自己的数据平面，请考虑改用[托管代理](https://platform.claude.com/docs/en/managed-agents/overview)：这是一个托管的 REST API，其中 Anthropic 运行代理和沙箱，因此你的应用程序发送事件并流回结果，无需操作任何托管基础设施。
+如果你不需要在自己的基础设施上运行代理循环本身，请考虑改用[托管代理](https://platform.claude.com/docs/en/managed-agents/overview)。Anthropic 托管代理循环，你的应用程序通过客户端 SDK 或 REST API 发送事件并接收流式结果。工具执行在 Anthropic 托管的云沙箱或你自己的基础设施上的[自托管沙箱](https://platform.claude.com/docs/en/managed-agents/self-hosted-sandboxes)中运行。
 
 <h2 id="the-subprocess-model">
   子进程模型

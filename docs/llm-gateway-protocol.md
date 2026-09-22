@@ -144,6 +144,39 @@ Claude Code 在 API 请求上包含这些请求头。请求头名称在网络上
 
 如果您的开发者设置了 `ANTHROPIC_CUSTOM_HEADERS`，这些请求头也会出现在请求上。
 
+<h3 id="gateway-hint-headers">
+  Gateway 提示请求头
+</h3>
+
+Claude Code 还可以发送路由提示：gateway 或路由器可以用来调度、缓存或归属请求的每个请求事实。需要 Claude Code v2.1.273 或更高版本。
+
+请求是否携带它们取决于 Claude Code 将其发送到何处：
+
+* 直接连接到 Anthropic API：默认发送
+* 自定义基础 URL：默认关闭，因为拒绝未知请求头的代理会导致请求失败。要接收它们，请为您的开发者设置 [`CLAUDE_CODE_GATEWAY_HINT_HEADERS=1`](/docs/zh-CN/env-vars)，例如在[托管设置](/docs/zh-CN/managed-settings)的 `env` 块中
+* 任何其他后端，包括 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和 AWS 上的 Claude Platform：仅当设置 `CLAUDE_CODE_GATEWAY_HINT_HEADERS=1` 时发送
+
+将 `CLAUDE_CODE_GATEWAY_HINT_HEADERS` 设置为 `0` 会在每个连接上停止这些请求头。
+
+这些请求头仅携带下面行列出的内容：固定词汇、工具名称和持续时间，从不包含提示文本或文件内容。每个值都是可打印的 ASCII。
+
+| 请求头                                 | 描述                                                                                                                                                                                                                                                             |
+| :---------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `x-claude-code-request-class`       | 这是什么类型的请求：`main` 表示主对话的一个回合，`subagent` 表示[子代理](/docs/zh-CN/sub-agents)的一个回合，`workflow` 表示在工作流内运行的代理，`compaction` 表示压缩对话的总结请求，或 `auxiliary` 表示会话标题、分类器和摘要等辅助请求。在每个请求上发送                                                                                              |
+| `x-claude-code-agent-type`          | 发出请求的子代理的类型：内置代理类型名称，如 `Explore`、`Plan` 或 `general-purpose`，或 `custom` 表示用户定义的代理，`teammate` 表示在主导的进程中运行的[代理团队](/docs/zh-CN/agent-teams)成员，或 `fork` 表示[分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)。仅在子代理自己的回合上存在；子代理的压缩或辅助请求保留代理 ID 但不携带类型。用户选择的代理名称永远不会被发送 |
+| `x-claude-code-compaction`          | 在[压缩](/docs/zh-CN/prompt-caching#compacting-the-conversation)期间总结对话的请求上存在。该值说明触发了什么：`auto` 表示上下文窗口接近容量，`manual` 表示 `/compact`，或 `reactive` 表示 API 拒绝请求过长。在所有其他请求上不存在                                                                                                |
+| `x-claude-code-context-compacted`   | 在压缩后的第一个主对话请求上出现一次，值与 `x-claude-code-compaction` 相同。此请求之前的对话前缀不再使用，因此可以删除以其为键的缓存                                                                                                                                                                               |
+| `x-claude-code-prev-tool-durations` | 此请求携带的结果的工具调用的测量运行时间，格式为 `<name>=<ms>;<name>=<ms>`，例如 `Bash=742;Read=9`。在同一对话的下一个请求中发送，来自主会话或子代理，在一批工具调用之后                                                                                                                                                     |
+
+在解析 `x-claude-code-prev-tool-durations` 之前，检查 Claude Code 如何构建该值以及它遗漏了什么：
+
+* 条目：每个运行的工具调用一个，按其结果被收集的顺序，以整毫秒为单位
+* 上限：Claude Code 最多发送 32 个条目和 4 KB，保留第一个条目
+* 编码：工具名称是百分比编码的，涵盖 `%`、`;`、`=`、逗号、空格和任何可打印 ASCII 之外的字符
+* 解析：在 `;` 上分割，然后在 `=` 上分割，并解码每个名称
+* 缺失：压缩调用、辅助请求和新提示的第一个请求不携带它。不要将缺失的请求头读作运行无工具的回合
+* 时间：每个时间都排除权限提示和 hooks，并行工具调用各自报告自己的时间，因此条目不会加起来等于请求之间的间隔
+
 <h3 id="forward-as-open-lists">
   作为开放列表转发
 </h3>
