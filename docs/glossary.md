@@ -16,7 +16,7 @@
   AGENTS.md
 </h3>
 
-您为 AI 编码代理编写的项目说明的 markdown 文件。如果您的存储库有一个且没有 [CLAUDE.md](#claude-md)，Claude 会将其作为您的项目说明读取，而无需添加第二个文件。您可以在 `/config` 中更改**项目说明**设置，以让 Claude 同时读取两个文件或仅读取 `CLAUDE.md`。直接读取 `AGENTS.md` 需要会话中的 Claude Code v2.1.277 或更高版本，该会话会获取功能标志；在其他版本上，从 CLAUDE.md 导入它。
+您为 AI 编码代理编写的项目说明的 markdown 文件。如果您的存储库有一个且没有 [CLAUDE.md](#claude-md)，Claude 会将其作为您的项目说明读取，而无需添加第二个文件。您可以在 `/config` 中更改**项目说明**设置，以让 Claude 同时读取两个文件或仅读取 `CLAUDE.md`。直接读取 `AGENTS.md` 需要 Claude Code v2.1.277 或更高版本。在某些会话中 Claude [无法读取 `AGENTS.md`](/docs/zh-CN/memory#when-agents-md-support-is-unavailable)，因此请改为[从 `CLAUDE.md` 中导入它](/docs/zh-CN/memory#share-one-file-with-other-coding-tools)。
 
 了解更多：[AGENTS.md](/docs/zh-CN/memory#agents-md)
 

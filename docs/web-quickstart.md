@@ -7,7 +7,7 @@
 > 从浏览器或手机在云中运行 Claude Code。连接 GitHub 仓库、提交任务，并在无需本地设置的情况下审查 PR。
 
 <Note>
-  云会话处于研究预览阶段，适用于 Pro、Max 和 Team 用户，以及拥有高级席位或 Chat + Claude Code 席位的企业用户。
+  云会话可在 Pro、Max 和 Team 计划上使用，以及拥有高级席位或 Chat + Claude Code 席位的企业用户。
 </Note>
 
 云会话在云基础设施上运行 Claude Code，而不是在您的机器上，默认由 Anthropic 管理。此快速入门从浏览器中的 [claude.ai/code](https://claude.ai/code) 启动一个会话。您也可以从 Claude 移动应用、Desktop 应用或终端使用 `claude --cloud` 启动一个会话。

@@ -113,6 +113,12 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
   * **Auto**：分类器审查大多数操作，而不是询问您。请参阅 [auto 模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)了解它审查和阻止的内容。
   * **Manual**：Claude 在文件编辑和大多数 shell 命令之前请求权限。
   * **Plan**：Claude 描述它将做什么，并在进行更改之前等待批准。VS Code 自动将计划作为完整的 Markdown 文档打开，您可以在其中添加内联注释以在 Claude 开始之前提供反馈。
+
+    您也可以在提示框中输入 `/plan`。需要 Claude Code v2.1.280 或更高版本。
+
+    * `/plan`：切换到 Plan 模式。如果您已经在 Plan 模式中，则显示当前计划。
+    * `/plan` 加上任务，例如 `/plan fix the auth bug`：切换到 Plan 模式并开始规划该任务。
+    * `/plan open`：当您已经在 Plan 模式中时，在编辑器中打开计划文件。
   * **Edit automatically**：Claude 进行编辑而不询问。
 * **Model**：从命令菜单中选择 **Switch model…** 以在会话中途更改模型。您也可以点击提示框底部的模型名称来打开相同的选择器。
 
@@ -122,6 +128,8 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
   Customize 部分提供对 MCP 服务器、slash commands、输出样式、hooks、memory、instructions、permissions 和 plugins 的访问。带有终端图标的项目在集成终端中打开。
 
   * 要浏览 `/usage` 或 [`/remote-control`](/docs/zh-CN/remote-control) 等命令，请在 Customize 部分中选择 **Slash commands**。对话框会列出它们并带有过滤框。选择一个来运行它。在提示框中输入 `/` 仍会内联建议命令。需要 Claude Code v2.1.257 或更高版本。
+
+    输入 `/skills` 也会打开此对话框。每个 [skill](/docs/zh-CN/skills) 行显示其[可见性](/docs/zh-CN/skills#override-skill-visibility-from-settings)，例如 **On** 或 **Name only**。点击可见性来更改它，除了标记为 **locked** 的行，例如 plugin skills。`/skills` 快捷方式和可见性控件需要 Claude Code v2.1.280 或更高版本。
   * 在 Customize 部分中选择 **Output styles** 来选择[输出样式](/docs/zh-CN/output-styles)，包括您的自定义样式。需要 Claude Code v2.1.257 或更高版本。
 
     要创建自定义样式，请从 **Output styles** 菜单中选择 **Build a custom style**。Claude Code 会在项目或用户级别为您编写[样式文件](/docs/zh-CN/output-styles#create-a-custom-output-style)。需要 Claude Code v2.1.261 或更高版本。
@@ -131,6 +139,10 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 
     点击保存的 memory 来在对话框中读取它，您可以在其中编辑文本、删除 memory 或在编辑器中打开其文件。在对话框中查看、编辑和删除 memory 需要 Claude Code v2.1.275 或更高版本。
   * 在 Customize 部分中选择 **Instructions** 来编辑 Claude 读取的 [CLAUDE.md 文件](/docs/zh-CN/memory#claude-md-files)。选择一个文件来在编辑器中打开它。如果文件还不存在，Claude Code 会先创建它。需要 Claude Code v2.1.274 或更高版本。
+  * 在 Customize 部分中选择 **Status**，或输入 `/status`，来检查会话的 Claude Code 版本、账户、模型和 MCP 服务器详情。需要 Claude Code v2.1.280 或更高版本。
+  * 在 Customize 部分中选择 **Sandbox**，或输入 `/sandbox`，来查看 Claude 的 Bash 命令是否运行在[沙箱中](/docs/zh-CN/sandboxing)。您可以在那里切换沙箱模式并添加[排除的命令](/docs/zh-CN/settings-reference#sandbox-excludedcommands)。需要 Claude Code v2.1.280 或更高版本。
+  * 在 Customize 部分中选择 **Claude in Chrome**，或输入 `/chrome`，来检查和管理 [Claude in Chrome](/docs/zh-CN/chrome) 连接。两者都需要使用 claude.ai 账户登录。需要 Claude Code v2.1.280 或更高版本。
+  * 在 Context 部分中选择 **Export conversation**，或输入 `/export`，来将对话复制为纯文本或保存到文件。添加文件名，例如 `/export notes.txt`，来跳过对话框并选择保存文件的位置。需要 Claude Code v2.1.280 或更高版本。
   * Settings 部分包括 **Enable Remote Control for all sessions**，它设置 [`remoteControlAtStartup`](/docs/zh-CN/settings-reference#remotecontrolatstartup) 来控制[新的交互式会话是否自动连接到 Remote Control](/docs/zh-CN/remote-control#enable-remote-control-for-all-sessions)。需要 Claude Code v2.1.203 或更高版本。
 
     当您在 VS Code 窗口中打开或关闭切换开关时，更改适用于该 VS Code 窗口中已打开的会话，而不仅仅是您之后启动的会话。如果您关闭它，打开的会话将断开连接。使用 Claude Code v2.1.261 或更高版本，更改也会到达您其他 VS Code 窗口中打开的会话。
@@ -182,6 +194,17 @@ Claude 也会看到您在编辑器中打开的文件，即使没有选择任何�
 * 要附加图像，请从剪贴板将其粘贴到提示框中。
 * 要附加文件，请在将它们拖入提示框时按住 `Shift`。
 * 要从上下文中删除附件，请点击它上面的 X。
+
+<h3 id="paste-text">
+  粘贴文本
+</h3>
+
+您粘贴的文本在提示框中保持可见，而不是像在[终端](/docs/zh-CN/terminal-config#paste-large-content)中那样折叠到占位符。在 Claude Code [标记粘贴文本](/docs/zh-CN/terminal-config#how-claude-treats-pasted-text)的会话中，Claude 仍然会看到大型粘贴作为您粘贴而不是输入的文本。
+
+Claude Code 还从您粘贴到提示框中的文本和您发送的任何其他内容中删除[不可见的 Unicode 字符](/docs/zh-CN/interactive-mode#invisible-characters-in-prompts)：
+
+* 如果在粘贴时出现诸如 `Removed 3 invisible characters from the pasted text` 的通知，文本进入时没有这些字符。
+* 如果在发送时出现关于删除字符的通知，则没有发送任何内容。清理后的文本回到提示框中。再次发送以发送显示的文本。
 
 <h3 id="resume-past-conversations">
   恢复过去的对话

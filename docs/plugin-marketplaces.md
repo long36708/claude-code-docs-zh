@@ -858,39 +858,22 @@ Claude Code 支持从私有存储库安装 plugins。如果你通过[**组织设
   后台自动更新
 </h4>
 
-默认情况下，后台刷新会在检查 marketplace 的远程以查找新提交时禁用 git 凭证助手，所以检查无法对 HTTPS 上的私有存储库进行身份验证，即使配置了助手。SSH 远程不受影响：加载到 `ssh-agent` 中的密钥以与你运行的命令相同的方式对后台检查进行身份验证。
+后台刷新会使用你配置的 git 凭证助手检查 marketplace 的远程以查找新提交，与你运行的命令相同。对于 SSH 远程，加载到 `ssh-agent` 中的密钥对检查进行身份验证。Claude Code 以非交互方式运行检查：它关闭 git 的终端提示和 askpass 程序，并告诉凭证助手不要提示。检查是否可以通过 HTTPS 对私有存储库进行身份验证取决于你的助手：
 
-当检查找到新提交，或因为无法到达或对远程进行身份验证而失败时，Claude Code 会再次克隆 marketplace 并交换新克隆。如果该克隆失败，现有检出保持就位。重新克隆确实使用你存储的 git 凭证，但它可能在大型存储库上[超时](#git-operations-time-out)，所以私有 marketplace 自动更新可能会间歇性失败。
+* 可以在不提示的情况下提供存储凭证的助手对检查进行身份验证。Git Credential Manager、macOS Keychain 助手和 `git-credential-store` 一旦为主机保存凭证就以这种方式工作。
+* 需要提示你的助手无法在后台回答。更新会静默失败，现有检出保持就位，所以你的 plugins 继续从最后同步的状态工作。运行 `/plugin marketplace update <name>` 以使用你的凭证刷新 marketplace。
+
+当检查发现检出是最新的时，Claude Code 会保持原样。当检查发现新提交，或因为无法到达或对远程进行身份验证而失败时，Claude Code 会再次克隆 marketplace 并交换新克隆。如果该克隆失败，现有检出保持就位。重新克隆可能在大型存储库上[超时](#git-operations-time-out)。
 
 两个设置使私有 marketplaces 的行为可预测：
 
 * 设置 `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` 以在后台检查无法到达或对远程进行身份验证时保留现有检出，而不尝试重新克隆。你的 plugins 继续从最后同步的状态工作，使用 `/plugin marketplace update` 的手动更新仍然使用你的凭证进行身份验证。
-* 配置 git 凭证助手，例如使用 `gh auth setup-git` 用于 GitHub，以便重新克隆可以在不提示的情况下进行身份验证。
+* 配置 git 凭证助手，例如使用 `gh auth setup-git` 用于 GitHub，以便后台检查和重新克隆可以在不提示的情况下进行身份验证。
 
 在你的环境中设置提供商令牌（如 `GITHUB_TOKEN`）本身不会启用后台身份验证。令牌仅通过配置的凭证助手（例如 `gh` CLI 的助手，它读取 `GH_TOKEN` 和 `GITHUB_TOKEN`）生效。
 
-要使后台检查本身通过 HTTPS 进行身份验证，请配置全局 git URL 重写。重写在远程 URL 中嵌入令牌，所以即使后台检查禁用凭证助手，它也会生效。当检查发现检出是最新的时，Claude Code 会跳过重新克隆。以下示例重写 marketplace 存储库的 URL 以包含访问令牌：
-
-```bash theme={null}
-git config --global url."https://x-access-token:YOUR_TOKEN@github.com/acme-corp/plugins".insteadOf "https://github.com/acme-corp/plugins"
-```
-
-将重写范围限制在 marketplace 存储库或组织路径。仅以主机为基础的重写适用于机器上对该主机的每个 fetch 和 push，并覆盖你的正常凭证，包括对你自己的存储库的 pushes。
-
-每个提供商在重写的 URL 中期望不同的用户名，相同的路径范围适用于每个提供商。对于自托管服务器，请将主机名替换为你的服务器的主机名：
-
-| 提供商       | 重写的 URL 形式                                                        |
-| :-------- | :---------------------------------------------------------------- |
-| GitHub    | `https://x-access-token:YOUR_TOKEN@github.com/acme-corp/plugins`  |
-| GitLab    | `https://oauth2:YOUR_TOKEN@gitlab.com/acme-corp/plugins`          |
-| Bitbucket | `https://x-token-auth:YOUR_TOKEN@bitbucket.org/acme-corp/plugins` |
-
-重写以纯文本形式在你的 gitconfig 中存储令牌，所以使用对 marketplace 存储库具有只读访问权限的令牌。
-
 <Note>
   在 CI/CD 环境中，在从私有存储库安装 plugins 之前配置 git 凭证助手。在 GitHub Actions 上，导出对 marketplace 存储库具有读取访问权限的令牌作为 `GH_TOKEN`，然后运行 `gh auth setup-git`。默认工作流令牌只能访问工作流自己的存储库，所以另一个存储库中的私有 marketplace 需要个人访问令牌或应用令牌。
-
-  如果你在管道中配置全局 URL 重写，重写也直接对后台检查进行身份验证。
 </Note>
 
 <h3 id="distribute-through-organization-settings">
@@ -1619,13 +1602,14 @@ Claude Code 从这些运行中报告的两个错误，以及每个错误的修�
 
 对于后台自动更新：
 
-* 默认情况下，后台刷新会为检查远程禁用 git 凭证助手，因此检查无法通过 HTTPS 进行身份验证。在 `ssh-agent` 中加载了密钥的 SSH 远程仍然可以进行身份验证
-* 当检查无法进行身份验证时，Claude Code 使用你存储的凭证重新克隆 marketplace，但重新克隆可能在大型存储库上超时
+* 后台检查使用你配置的 git 凭证助手，但从不提示，因此你的助手必须能够使用存储的凭证进行应答。在 `ssh-agent` 中加载了密钥的 SSH 远程也可以进行身份验证
+* 如果你的助手需要提示你，后台更新会静默失败，现有检出保持不变。首先登录你的助手，以便它为主机保存凭证。对于 GitHub，运行 `gh auth login`，然后 `gh auth setup-git`
+* 当检查找到新提交，或无法到达或无法进行身份验证到远程时，Claude Code 使用相同的凭证重新克隆 marketplace。重新克隆可能在大型存储库上超时
 * 设置 `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` 以在后台检查无法到达或无法进行身份验证到远程时保留现有检出，而不尝试重新克隆
-* 配置 git 凭证助手，例如 `gh auth setup-git`，以便重新克隆可以进行身份验证
 * 如果重新克隆在大型存储库上超时，请使用 [`CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS`](#git-operations-time-out) 增加限制
-* 配置一个 [git URL 重写](#private-repositories) 作用于 marketplace 存储库，以便后台检查直接进行身份验证
 * 或使用 `/plugin marketplace update <name>` 手动更新私有 marketplaces，这使用你的凭证
+
+在 v2.1.280 之前，后台检查在没有你的凭证助手的情况下运行，无法进行身份验证到 HTTPS 上的私有存储库。
 
 <h3 id="marketplace-updates-fail-in-offline-environments">
   Marketplace 更新在离线环境中失败

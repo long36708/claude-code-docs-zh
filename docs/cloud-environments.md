@@ -7,7 +7,7 @@
 > 为 Claude Code 云会话配置云环境：网络访问级别、环境变量、设置脚本和环境缓存。
 
 <Note>
-  云环境适用于[云会话](/docs/zh-CN/claude-code-on-the-web)，该功能目前处于研究预览阶段，适用于 Pro、Max 和 Team 用户，以及具有[高级席位或 Chat + Claude Code 席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)的 Enterprise 用户。
+  云环境适用于[云会话](/docs/zh-CN/claude-code-on-the-web)，这些会话在 Pro、Max 和 Team 计划上可用，以及具有[高级席位或 Chat + Claude Code 席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)的 Enterprise 用户。
 </Note>
 
 每个[云会话](/docs/zh-CN/claude-code-on-the-web)都在云环境中运行。您可以配置环境以允许或拒绝[网络访问](#access-levels)、为会话[设置环境变量](#set-environment-variables)、在 Pro 和 Max 计划上存储会话使用的[API 凭证](#add-api-credentials)而不会看到它们，以及在 Claude 开始工作前运行[设置脚本](#setup-scripts)。

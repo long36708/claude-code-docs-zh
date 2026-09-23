@@ -7,7 +7,7 @@
 > 从浏览器、手机、桌面应用或终端在云端运行 Claude Code 会话，使用 --cloud 和 --teleport 移动会话，以及自动修复拉取请求。
 
 <Note>
-  云会话处于研究预览阶段，适用于 Pro、Max 和 Team 用户，以及拥有高级席位或 Chat + Claude Code 席位的 Enterprise 用户。
+  云会话在 Pro、Max 和 Team 计划上可用，以及拥有高级席位或 Chat + Claude Code 席位的 Enterprise 用户。
 </Note>
 
 云会话是在云基础设施上运行的 Claude Code 会话，而不是在你的机器上运行。默认情况下，它在 Anthropic 管理的基础设施上运行，或在路由到你的组织的[自托管环境](/docs/zh-CN/self-hosted-environments)时在那里运行。即使关闭笔记本电脑后，会话也会继续运行，你可以从任何设备检查或控制它。

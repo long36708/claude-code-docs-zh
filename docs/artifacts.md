@@ -354,6 +354,10 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
 | 组织策略  | 客户管理的加密密钥 (CMEK)、HIPAA 和 [零数据保留](/docs/zh-CN/zero-data-retention) 未为组织启用。                                                                                                                                                                                                                                             |
 | 表面    | Claude Code CLI，或 Claude 桌面应用版本 1.13576.0 或更高版本。当 Claude Tag 和 artifacts 都为组织启用时，[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话也可以发布 artifacts。在 [Agent SDK](/docs/zh-CN/agent-sdk/overview)、GitHub Action 和 MCP-server 上下文中默认关闭，以及当设置 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars) 时。 |
 
+您的组织是否允许 artifacts 来自您的组织策略，Claude Code 从 `api.anthropic.com` 加载。当 Claude Code 无法加载策略时，artifacts 不可用。当您请求一个时，Claude 会说明原因。
+
+如果涉及代理、VPN 或网络过滤器，请要求您的 IT 管理员允许 `api.anthropic.com` 通过。Claude Code 会在后台继续重试，一旦策略加载并允许，artifacts 就会变得可用。
+
 <h2 id="disable-artifacts">
   禁用 artifacts
 </h2>

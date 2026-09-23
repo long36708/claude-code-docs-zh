@@ -1166,6 +1166,16 @@ Claude Code 将 skill 名称和描述的列表加载到上下文中，以便 Cla
 
 要提高预算，设置 [`skillListingBudgetFraction`](/docs/zh-CN/settings-reference#skilllistingbudgetfraction) 设置（例如 `0.02` = 2%）或 `SLASH_COMMAND_TOOL_CHAR_BUDGET` 环境变量为固定字符数。要为其他 skills 释放预算，在 [`skillOverrides`](#override-skill-visibility-from-settings) 中将低优先级条目设置为 `"name-only"`，以便它们在没有描述的情况下列出。你也可以在源处修剪 `description` 和 `when_to_use` 文本：将关键用例放在首位，因为每个条目的组合文本被限制在 1,536 个字符，无论预算如何。该上限可通过 [`skillListingMaxDescChars`](/docs/zh-CN/settings-reference#skilllistingmaxdescchars) 配置。
 
+<h3 id="personal-skills-disappeared">
+  个人 skills 消失了
+</h3>
+
+如果你在 `~/.claude/skills/` 中创建的 skill 文件夹消失了，请查看 `~/.claude/skills/.trash/`。当 Claude Code [从 claude.ai 同步 skills](#how-synced-skills-behave) 时，它会将它们下载到单独的 `synced` 子文件夹中，不会移动或删除你创建的文件夹。
+
+在 v2.1.280 之前，`~/.claude/skills/` 中名为 `manifest.json` 的文件会导致 Claude Code 将该文件列出的 skill 文件夹移动到 `~/.claude/skills/.trash/` 下的带时间戳的文件夹中，这些 skills 停止加载。
+
+要恢复一个 skill，将其文件夹从带时间戳的文件夹移回 `~/.claude/skills/`。在 [保留扫描](/docs/zh-CN/claude-directory#cleaned-up-automatically) 删除垃圾条目之前执行此操作，默认情况下在移动到垃圾箱后 30 天。
+
 <h2 id="related-resources">
   相关资源
 </h2>

@@ -340,6 +340,8 @@ claude --plugin-dir ./my-plugin.zip
   要测试一个插件及其依赖的插件，请参阅 [Test a plugin and its dependency locally](/docs/zh-CN/plugin-dependencies#test-a-plugin-and-its-dependency-locally)。
 </Tip>
 
+要在无法添加标志的会话中加载插件，请改为在 [`CLAUDE_CODE_PLUGIN_DIRS`](/docs/zh-CN/env-vars#variables) 环境变量中列出它们的绝对路径。Claude Code 加载每个路径的方式与加载 `--plugin-dir` 路径的方式相同。这些插件除了你使用 `--plugin-dir` 传递的任何插件外，还会加载。[项目和本地设置无法设置此变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)。`CLAUDE_CODE_PLUGIN_DIRS` 需要 Claude Code v2.1.280 或更高版本。
+
 使用 `--plugin-dir` 尝试插件会告诉你它可以工作。要找出 Claude 实际上多久会使用它一次并获得正确的结果，请使用 [`claude plugin eval`](/docs/zh-CN/plugin-evals) 针对一组测试提示运行它。每个提示会在加载和不加载插件的情况下运行多次，因此你可以看到插件的贡献并在你更改它或新模型发布时捕获回归。
 
 要从一个地方加载多个插件，请传递一个包含它们的文件夹，例如 `--plugin-dir ./plugins`。加载一个插件文件夹需要 Claude Code v2.1.265 或更高版本。Claude Code 读取文件夹的顶级以决定哪些插件加载，在交互式会话中，它也会监视文件夹以查找后续更改：

@@ -1562,7 +1562,9 @@ MCP 服务器可以公开资源，您可以使用 @ 提及来引用这些资源�
 * Claude 应该何时搜索您的工具
 * 您的服务器提供的关键功能
 
-Claude Code 将工具描述和服务器说明各截断为 2KB。保持它们简洁以避免截断，并将关键细节放在开头。
+Claude Code 将每个工具描述和每个服务器的说明截断为默认 2,048 个字符。保持它们简洁，并将关键细节放在开头。
+
+要更改会话中每个 MCP 服务器的限制，请将 [`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH`](/docs/zh-CN/env-vars#variables) 设置为字符数。此变量需要 Claude Code v2.1.280 或更高版本。
 
 <h3 id="configure-tool-search">
   配置工具搜索

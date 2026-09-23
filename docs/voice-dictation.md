@@ -71,6 +71,8 @@ Voice mode enabled (hold). Hold space to record. Dictation language: en (/config
 
 前几个按键重复字符在预热期间输入到输入中，当录制激活时会自动删除。单个 `Space` 点击仍然会输入一个空格，因为按住检测仅在快速重复时触发。
 
+按住或点击 `Space` 仅在按键会输入到提示词的地方开始听写。在[转录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)中，`Space` 翻页浏览对话，在[vim 模式](/docs/zh-CN/interactive-mode#vim-editor-mode)的非 INSERT 状态下它是一个命令。[重新绑定的修饰符组合](#rebind-the-dictation-key)（如 `meta+k`）永远不会输入文本，所以它也可以从这些地方开始听写。
+
 <Tip>
   要跳过预热，使用 `/voice tap` 切换到[点击模式](#tap-to-record-and-send)，或[重新绑定到修饰符组合](#rebind-the-dictation-key)，如 `meta+k`。修饰符组合在第一次按键时开始录制。
 </Tip>
@@ -98,6 +100,16 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 三个单词的阈值计算不使用空格书写的语言中的单词。日语、中文和泰语转录计算单个单词，所以它们在点击模式和带有 `autoSubmit` 的保持模式下自动提交。
 
 第一次点击仅在提示词输入为空时开始录制，所以你仍然可以在撰写消息时正常输入空格。第二次点击停止录制，无论输入内容如何。录制也会在 15 秒无声或总共两分钟后自动停止。
+
+<h2 id="cancel-a-recording">
+  取消录音
+</h2>
+
+按 `Esc` 或 `Ctrl+C` 可以取消听写，而不是完成它。Claude Code 会停止麦克风，丢弃转录文本，并将提示恢复到录音开始前的状态。
+
+这两个键也可以在完成的录音的转录文本仍在处理时取消。在处理期间编辑或提交的提示会保持您留下的状态。
+
+这两个键在取消的按键中不执行任何其他操作：`Esc` 不会中断 Claude 的响应，`Ctrl+C` 不会清除提示或计为 [退出 Claude Code 的两次按键中的第一次](/docs/zh-CN/interactive-mode#general-controls)。
 
 <h2 id="change-the-dictation-language">
   更改听写语言

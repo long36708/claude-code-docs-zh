@@ -1220,6 +1220,11 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `num_non_blocking_error`：失败但未阻止的计数
 * `num_cancelled`：在完成前取消的计数
 * `total_duration_ms`：所有匹配 hooks 的实际时钟持续时间
+* `stdout_chars`：成功的匹配 hooks 的 stdout 总字符数。需要 Claude Code v2.1.280 或更高版本
+* `additional_context_chars`：匹配 hooks 返回的 `additionalContext` 的总字符数。需要 Claude Code v2.1.280 或更高版本
+* `system_message_chars`：匹配 hooks 返回的 `systemMessage` 的总字符数。需要 Claude Code v2.1.280 或更高版本
+* `initial_user_message_chars`：匹配 hooks 返回的 `initialUserMessage` 的总字符数。需要 Claude Code v2.1.280 或更高版本
+* `num_outputs_persisted`：超过 [10,000 字符上限](/docs/zh-CN/hooks#json-output) 的 hook 输出数，Claude Code 保存到文件。需要 Claude Code v2.1.280 或更高版本
 * `managed_only`：当仅允许托管策略 hooks 时为 `"true"`
 * `hook_source`：`"policySettings"` 或 `"merged"`
 * `safe_mode`：当会话使用 [`--safe-mode`](/docs/zh-CN/cli-reference) 启动时为 `"true"`，否则为 `"false"`。需要 Claude Code v2.1.169 或更高版本

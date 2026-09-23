@@ -157,6 +157,12 @@ Claude Code 在每次对话中要求您确认一次使用额度计费：例如�
 
 使用 `/tasks` 查看正在运行和已完成的审查、打开审查的详细视图或停止正在进行的审查。如果您停止审查，Claude Code 会存档云会话，不会返回部分发现。
 
+Claude 还可以告诉您审查已停止或其会话未找到：
+
+* 如果审查的云会话在审查完成前在 claude.ai 上停止或[存档](/docs/zh-CN/claude-code-on-the-web#archive-sessions)，Claude 会告诉您它已停止。
+* 如果审查的云会话被删除，或者您自启动它以来已登录到不同的 Claude 账户或组织，Claude 会告诉您会话未找到。
+* 如果您切换了账户，审查可能仍会在启动它的账户下完成。如果审查仍在运行，请以该账户重新登录，并使用 `claude --resume` 恢复对话以重新附加它。
+
 审查完成后，Claude Code 会在您的会话中将验证的发现显示为通知。每个发现都包括文件位置和问题的解释，因此您可以要求 Claude 直接修复它。
 
 <h2 id="run-ultrareview-non-interactively">
@@ -198,7 +204,7 @@ claude ultrareview origin/main
 
 使用 `--post` 时，子命令在打印发现后立即开始发布，并将链接打印到 stderr。
 
-* 如果运行失败、超时或您中断它，子命令不发布任何内容。
+* 如果运行失败、停止或超时，或者您中断它，子命令不发布任何内容。
 * 如果审查完成但注释未发布，Claude Code 将原因打印到 stderr，发现保留在 stdout 上，以便您可以手动发布它们。
 
 对于 GitHub 拉取请求上的自动审查，[Code Review](/docs/zh-CN/code-review) 直接与您的存储库集成，并将发现作为内联 PR 注释发布，无需 CLI 步骤。

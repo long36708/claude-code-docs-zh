@@ -379,7 +379,7 @@ Claude Code 可以将 [`AGENTS.md`](/docs/zh-CN/glossary#agents-md) 作为您的
 要更改默认值，例如让 Claude 始终读取两个文件、仅读取 `CLAUDE.md` 或仅读取您组织的托管说明，请[更改**项目说明**设置](#choose-which-instruction-files-load)。
 
 <Note>
-  直接读取 `AGENTS.md` 需要 Claude Code v2.1.277 或更高版本。在某些会话中，例如在 Amazon Bedrock 上或禁用遥测的会话中，Claude [无法读取 `AGENTS.md`](#when-agents-md-support-is-unavailable)，因此请[从 `CLAUDE.md` 中导入它](#share-one-file-with-other-coding-tools)。
+  直接读取 `AGENTS.md` 需要 Claude Code v2.1.277 或更高版本。在某些会话中 Claude [无法读取 `AGENTS.md`](#when-agents-md-support-is-unavailable)，因此请[从 `CLAUDE.md` 中导入它](#share-one-file-with-other-coding-tools)。
 </Note>
 
 <h3 id="when-claude-code-reads-agents-md">
@@ -436,11 +436,10 @@ Claude Code 可以将 [`AGENTS.md`](/docs/zh-CN/glossary#agents-md) 作为您的
 在这些会话中，Claude 仅读取 `CLAUDE.md` 文件，**项目说明**不会出现在 `/config` 设置面板中：
 
 * 您使用的是 v2.1.277 之前的 Claude Code 版本
-* 您的会话不会[从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，例如因为您使用 Amazon Bedrock 或其他第三方提供商，或您禁用了遥测。链接的部分有完整列表
-* 这是您[安装或升级](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)到具有 `AGENTS.md` 支持的版本后的第一个会话。Claude 从您的下一个会话开始读取 `AGENTS.md`
 * 您在 `/plugin` 中禁用了内置 `agents-md` 插件
+* 在某些情况下，这是您[从 v2.1.276 或更早版本升级](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)后的第一个会话。Claude 从您的下一个会话开始读取 `AGENTS.md`
 
-要在这些会话中向 Claude 提供您的 `AGENTS.md`，请[从 `CLAUDE.md` 中导入它](#share-one-file-with-other-coding-tools)。
+在 v2.1.281 之前，某些会话，例如在 Amazon Bedrock 上或禁用遥测的会话，仅读取 `CLAUDE.md` 文件。在这些版本上，更新 Claude Code。要在这些会话中向 Claude 提供您的 `AGENTS.md`，请[从 `CLAUDE.md` 中导入它](#share-one-file-with-other-coding-tools)。
 
 <h3 id="where-agents-md-differs-from-claude-md">
   AGENTS.md 与 CLAUDE.md 的区别
@@ -637,9 +636,8 @@ CLAUDE.md 内容作为用户消息在系统提示之后传递，而不是系统�
 如果你的存储库有 `AGENTS.md` 而 Claude 似乎不知道它说什么，通常原因是项目路径上某处有 `CLAUDE.md`。默认情况下，Claude 仅在你的工作目录或其上方没有 `CLAUDE.md` 或 `CLAUDE.local.md` 时读取 `AGENTS.md`。按顺序检查这些：
 
 1. 在你的工作目录或其上方的任何目录中查找 `CLAUDE.md`、`.claude/CLAUDE.md` 或 `CLAUDE.local.md`，除了你的 `~/.claude/CLAUDE.md`。如果你找到一个，Claude 会读取它而不是 `AGENTS.md`，除非你将 **Project instructions** 设置为 `claude-md-and-agents-md`。
-2. 运行 `claude --version` 并确认 v2.1.277 或更高版本。
-3. 检查你的会话是否是 [无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable) 的会话，例如第三方提供商上的会话或禁用遥测的会话。
-4. 在你的会话中输入 `/config` 以打开设置面板，并确认 **Project instructions** 未设置为 `claude-md` 或 `managed-only`。如果你根本看不到该设置，你的会话是 [无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable) 的会话。
+2. 运行 `claude --version` 并确认 v2.1.277 或更高版本。在 v2.1.281 之前，某些会话，例如 Amazon Bedrock 上的会话或禁用遥测的会话，[无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable)，因此在这些版本上更新到 v2.1.281 或更高版本。
+3. 在你的会话中输入 `/config` 以打开设置面板，并确认 **Project instructions** 未设置为 `claude-md` 或 `managed-only`。如果你根本看不到该设置，你的会话是 [无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable) 的会话。
 
 要检查 Claude 是否读取了你的 `AGENTS.md`，运行 `/memory` 并在列表中查找其路径。
 
