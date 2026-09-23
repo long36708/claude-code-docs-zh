@@ -905,7 +905,7 @@ class ClaudeAgentOptions:
 | `resume`                      | `str \| None`                                                                            | `None`              | 要恢复的会话 ID                                                                                                                                                                                                                                                                                                                                                   |
 | `session_id`                  | `str \| None`                                                                            | `None`              | 使用特定的会话 ID 而不是自动生成的。必须是有效的 UUID。不能与 `continue_conversation` 或 `resume` 结合使用，除非也设置了 `fork_session`                                                                                                                                                                                                                                                           |
 | `max_turns`                   | `int \| None`                                                                            | `None`              | 最大代理轮次（工具使用往返）                                                                                                                                                                                                                                                                                                                                              |
-| `max_budget_usd`              | `float \| None`                                                                          | `None`              | 当客户端成本估计达到此 USD 值时停止查询。与 `total_cost_usd` 的相同估计进行比较。有关准确性注意事项和重置行为，见 [跟踪成本和使用](/docs/zh-CN/agent-sdk/cost-tracking)                                                                                                                                                                                                                                              |
+| `max_budget_usd`              | `float \| None`                                                                          | `None`              | 当客户端成本估计达到此 USD 值时停止查询。仅计算调用自身的支出；从恢复的会话恢复的总数不计算。有关准确性注意事项和重置行为，见 [跟踪成本和使用](/docs/zh-CN/agent-sdk/cost-tracking)                                                                                                                                                                                                                                                 |
 | `disallowed_tools`            | `list[str]`                                                                              | `[]`                | 要拒绝的工具。裸名称如 `"Bash"` 从 Claude 的上下文中移除工具。作用域规则如 `"Bash(rm *)"` 保持工具可用，并在每个权限模式（包括 `bypassPermissions`）中拒绝匹配的调用，对于[按照书写方式](/docs/zh-CN/permissions#bash-rule-limits)的命令。见 [权限](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules)                                                                                                                                  |
 | `enable_file_checkpointing`   | `bool`                                                                                   | `False`             | 启用文件更改跟踪以进行回滚。见 [文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing)                                                                                                                                                                                                                                                                                                |
 | `model`                       | `str \| None`                                                                            | `None`              | Claude 模型别名或完整模型名称。见 [接受的值和特定于提供商的 ID](/docs/zh-CN/model-config#available-models)                                                                                                                                                                                                                                                                                |
@@ -1487,7 +1487,7 @@ SdkBeta = Literal["context-1m-2025-08-07"]
 与 `ClaudeAgentOptions` 中的 `betas` 字段一起使用以启用测试功能。
 
 <Warning>
-  `context-1m-2025-08-07` 测试版自 2026 年 4 月 30 日起已停用。使用 Claude Sonnet 4.5 或 Sonnet 4 传递此标头无效，超过标准 200k 令牌上下文窗口的请求返回错误。要使用 1M 令牌上下文窗口，请迁移到 [Claude Opus 5、Claude Sonnet 5、Claude Sonnet 4.6、Claude Opus 4.6、Claude Opus 4.7 或 Claude Opus 4.8](https://platform.claude.com/docs/en/about-claude/models/overview)，它们以标准定价包括 1M 上下文，无需测试版标头。
+  `context-1m-2025-08-07` 测试版自 2026 年 4 月 30 日起已停用。使用 Claude Sonnet 4.5 或 Sonnet 4 传递此标头无效，超过标准 200k 令牌上下文窗口的请求返回错误。要使用 1M 令牌上下文窗口，请迁移到 [Claude Opus 5.5、Claude Opus 5、Claude Sonnet 5、Claude Sonnet 4.6、Claude Opus 4.6、Claude Opus 4.7 或 Claude Opus 4.8](https://platform.claude.com/docs/en/about-claude/models/overview)，它们以标准定价包括 1M 上下文，无需测试版标头。
 </Warning>
 
 <h3 id="mcpsdkserverconfig">
@@ -1799,7 +1799,7 @@ class ResultMessage:
 
 `model_usage` 字典将模型名称映射到每个模型的使用情况。它涵盖通过查询管道进行的每个模型调用：主循环、子代理和内部调用（如压缩和 Workflow 代理）。该管道外的辅助调用（如权限分类器和令牌计数请求）从 `model_usage` 中排除。将 `model_usage` 视为估计值，而不是计费声明。
 
-在[流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)中，`model_usage` 和 `total_cost_usd` 在轮次间是累积的，因此读取最新结果而不是跨结果求和。有关重置，请参阅[在流式输入模式中跟踪成本](/docs/zh-CN/agent-sdk/cost-tracking#track-costs-in-streaming-input-mode)，有关清零结果，请参阅[在会话崩溃后恢复总计](/docs/zh-CN/agent-sdk/cost-tracking#recover-totals-after-a-session-crash)。
+在[流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)中，`model_usage` 和 `total_cost_usd` 在轮次间是累积的，因此读取最新结果而不是跨结果求和。调用恢复会话时，也会计算[从会话早期调用恢复的总计](/docs/zh-CN/agent-sdk/cost-tracking#accumulate-costs-across-multiple-calls)。有关重置，请参阅[在流式输入模式中跟踪成本](/docs/zh-CN/agent-sdk/cost-tracking#track-costs-in-streaming-input-mode)，有关清零结果，请参阅[在会话崩溃后恢复总计](/docs/zh-CN/agent-sdk/cost-tracking#recover-totals-after-a-session-crash)。
 
 `model_usage` 中的每个值都是 `ModelUsage` TypedDict，通过 `from claude_agent_sdk.types import ModelUsage` 导入。其键使用 camelCase，因为 SDK 从底层 CLI 进程未修改地传递该值，匹配 TypeScript [`ModelUsage`](/docs/zh-CN/agent-sdk/typescript#modelusage) 类型：
 
@@ -1811,7 +1811,7 @@ class ResultMessage:
 | `cacheCreationInputTokens` | `int`   | 此模型的缓存创建令牌。                                                                                                                                        |
 | `webSearchRequests`        | `int`   | 此模型进行的网络搜索请求。                                                                                                                                      |
 | `thinkingTokens`           | `int`   | 此模型生成的思考令牌，已计入 `outputTokens`。在轮次在记录它的 Claude Code 版本上运行之前不存在，并且未在 TypedDict 上声明，因此使用 `.get()` 读取它。需要 Python Agent SDK 0.2.150 或更高版本，其附带的 CLI 记录它。 |
-| `costUSD`                  | `float` | 此模型的估计成本（美元），客户端计算。见 [跟踪成本和使用](/docs/zh-CN/agent-sdk/cost-tracking) 了解计费注意事项。                                                                           |
+| `costUSD`                  | `float` | 此模型的估计成本（美元），客户端计算。见[跟踪成本和使用](/docs/zh-CN/agent-sdk/cost-tracking)了解计费注意事项。                                                                             |
 | `contextWindow`            | `int`   | 此模型的上下文窗口大小。                                                                                                                                       |
 | `maxOutputTokens`          | `int`   | 此模型的最大输出令牌限制。                                                                                                                                      |
 | `canonicalModel`           | `str`   | 用于定价查询的规范模型 ID。可能与条目键入的原始模型字符串不同，例如特定于提供商的 ID 或别名。并非总是存在。                                                                                          |
@@ -2923,8 +2923,7 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
     "command": str | None,  # Shell 脚本；每个 stdout 行是一个事件，退出结束监视
     "ws": dict | None,  # WebSocket 源：{"url": str, "protocols": list[str] | None}；每个文本帧是一个事件
     "description": str,  # 在通知中显示的简短描述
-    "timeout_ms": int | None,  # 在此截止时间后杀死（默认 300000，最大 3600000）
-    "persistent": bool | None,  # 在会话的生命周期内运行；使用 TaskStop 停止
+    "timeout_ms": int | None,  # 截止时间（毫秒）（默认 300000，最大 3600000；有效截止时间最多为 1800000）
 }
 ```
 
@@ -2933,8 +2932,8 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 ```python theme={null}
 {
     "taskId": str,  # 后台监视任务的 ID
-    "timeoutMs": int,  # 超时截止时间（毫秒）（持久时为 0）
-    "persistent": bool | None,  # 当运行到 TaskStop 或会话结束时为 True
+    "timeoutMs": int,  # 监视的有效截止时间（毫秒）
+    "persistent": bool | None,  # False：每个监视都有一个截止时间
 }
 ```
 
@@ -3350,28 +3349,9 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
   TaskOutput
 </h3>
 
-**工具名称：** `TaskOutput`。之前的名称 `BashOutput` 仍然被接受作为别名。
+在 Claude Code v2.1.277 中移除。之前检索来自运行中或已完成的后台任务的输出，`BashOutput` 被接受作为别名；Claude 改用 `Read` 在后台任务的输出文件上读取。
 
-<Note>`TaskOutput` 已弃用；优先使用 `Read` 在任务的输出文件路径上。下面的模式对于遇到该工具的 hooks 和权限处理程序仍然有效。</Note>
-
-**输入：**
-
-```python theme={null}
-{
-    "task_id": str,  # 要从中获取输出的任务 ID
-    "block": bool,  # 是否等待完成（默认 True）
-    "timeout": int,  # 最大等待时间（毫秒）（默认 30000）
-}
-```
-
-**输出：**
-
-```python theme={null}
-{
-    "retrieval_status": "success" | "timeout" | "not_ready",  # 是否检索到输出
-    "task": dict | None,  # 任务详情：task_id、task_type、status、description、output，加上类型特定字段如 exitCode
-}
-```
+`disallowed_tools` 条目或仍然命名任一名称的拒绝规则被忽略而不发出警告。
 
 <h3 id="taskstop">
   TaskStop
@@ -3628,15 +3608,15 @@ class SandboxSettings(TypedDict, total=False):
     enableWeakerNestedSandbox: bool
 ```
 
-| 属性                          | 类型                                                    | 默认值     | 描述                                                                                                                               |
-| :-------------------------- | :---------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`                   | `bool`                                                | `False` | 为命令执行启用沙箱模式                                                                                                                      |
-| `autoAllowBashIfSandboxed`  | `bool`                                                | `True`  | 启用沙箱时自动批准 bash 命令                                                                                                                |
-| `excludedCommands`          | `list[str]`                                           | `[]`    | 始终绕过沙箱限制的命令（例如 `["docker"]`）。这些自动运行沙箱外，无需模型参与                                                                                    |
-| `allowUnsandboxedCommands`  | `bool`                                                | `True`  | 允许模型请求在沙箱外运行命令。当为 `True` 时，模型可以在工具输入中设置 `dangerouslyDisableSandbox`，这会回退到 [权限系统](#permissions-fallback-for-unsandboxed-commands) |
-| `network`                   | [`SandboxNetworkConfig`](#sandboxnetworkconfig)       | `None`  | 网络特定的沙箱配置                                                                                                                        |
-| `ignoreViolations`          | [`SandboxIgnoreViolations`](#sandboxignoreviolations) | `None`  | 配置要忽略的沙箱违规                                                                                                                       |
-| `enableWeakerNestedSandbox` | `bool`                                                | `False` | 启用较弱的嵌套沙箱以实现兼容性                                                                                                                  |
+| 属性                          | 类型                                                    | 默认值     | 描述                                                                                                                                     |
+| :-------------------------- | :---------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`                   | `bool`                                                | `False` | 为命令执行启用沙箱模式                                                                                                                            |
+| `autoAllowBashIfSandboxed`  | `bool`                                                | `True`  | 启用沙箱时自动批准 bash 命令                                                                                                                      |
+| `excludedCommands`          | `list[str]`                                           | `[]`    | 绕过沙箱限制的命令，例如 `["docker *"]`。这些自动运行沙箱外，无需模型参与；[`sandbox.excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands) 涵盖何时应用条目 |
+| `allowUnsandboxedCommands`  | `bool`                                                | `True`  | 允许模型请求在沙箱外运行命令。当为 `True` 时，模型可以在工具输入中设置 `dangerouslyDisableSandbox`，这会回退到 [权限系统](#permissions-fallback-for-unsandboxed-commands)       |
+| `network`                   | [`SandboxNetworkConfig`](#sandboxnetworkconfig)       | `None`  | 网络特定的沙箱配置                                                                                                                              |
+| `ignoreViolations`          | [`SandboxIgnoreViolations`](#sandboxignoreviolations) | `None`  | 配置要忽略的沙箱违规                                                                                                                             |
+| `enableWeakerNestedSandbox` | `bool`                                                | `False` | 启用较弱的嵌套沙箱以实现兼容性                                                                                                                        |
 
 <Note>
   沙箱取决于平台支持，在 Linux 上，需要 `bubblewrap` 和 `socat` 等工具。默认情况下，当 `enabled` 为 `True` 但沙箱无法启动时，命令在沙箱外运行，并在 stderr 上显示警告。此默认值与 TypeScript SDK 不同，后者中 `failIfUnavailable` 默认为 `true`。
@@ -3737,7 +3717,9 @@ class SandboxIgnoreViolations(TypedDict, total=False):
   沙箱外命令的权限回退
 </h3>
 
-当 `allowUnsandboxedCommands` 启用时，模型可以通过在工具输入中设置 `dangerouslyDisableSandbox: True` 来请求在沙箱外运行命令。这些请求回退到现有权限系统，意味着你的 `can_use_tool` 处理程序将被调用，允许你实现自定义授权逻辑。列在 `excludedCommands` 中的命令改为自动绕过沙箱，无需模型参与；请参阅 [`SandboxSettings`](#sandboxsettings)。
+当 `allowUnsandboxedCommands` 启用时，模型可以通过在工具输入中设置 `dangerouslyDisableSandbox: True` 来请求在沙箱外运行命令。这些请求回退到现有权限系统，意味着你的 `can_use_tool` 处理程序将被调用，允许你实现自定义授权逻辑。
+
+你的 `excludedCommands` 条目改为自动绕过沙箱，无需模型参与；[`sandbox.excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands) 涵盖何时应用条目。
 
 以下示例记录每个沙箱外请求并拒绝它，除非你自己的授权逻辑允许它：
 

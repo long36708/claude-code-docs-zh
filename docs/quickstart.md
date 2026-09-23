@@ -383,4 +383,5 @@ review my changes and suggest improvements
 
 * **在 Claude Code 中**：输入 `/help` 或询问"我如何..."
 * **文档**：您在这里！浏览其他指南
+* **课程**：参加 [Claude Code 101](https://academy.claude.com/courses/claude-code-101) 和 [Claude Academy](https://academy.claude.com/) 上的其他免费自学课程
 * **社区**：加入我们的 [Discord](https://www.anthropic.com/discord) 获取提示和支持

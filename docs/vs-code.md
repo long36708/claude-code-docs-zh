@@ -90,6 +90,10 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
     * 在手动模式下，当 Claude 想要编辑文件时，它会显示原始内容和建议更改的并排比较，然后要求权限。您可以接受、拒绝或告诉 Claude 改为做什么。如果您在接受之前直接在差异视图中编辑建议的内容，Claude 会被告知您修改了它，因此它不会假设文件与其原始建议相匹配。
 
           <img src="https://mintcdn.com/claude-code/FVYz38sRY-VuoGHA/images/vs-code-edits.png?fit=max&auto=format&n=FVYz38sRY-VuoGHA&q=85&s=e005f9b41c541c5c7c59c082f7c4841c" alt="VS Code 显示 Claude 建议更改的差异，以及询问是否进行编辑的权限提示" width="3292" height="1876" data-path="images/vs-code-edits.png" />
+
+    要逐个审查建议的编辑，请使用差异中每个更改下的**接受此更改**和**拒绝此更改**按钮。拒绝更改会在建议的内容中还原它；接受会将其标记为已审查。接受或拒绝整个文件仍会完成审查。具有超过 100 个更改的差异会在没有按更改按钮的情况下打开，因此请将其作为整个文件进行审查。按更改审查需要 Claude Code v2.1.275 或更高版本。
+
+    相同的操作可从编辑器的上下文菜单和命令面板中获得，分别为**Claude Code: Accept Change at Cursor** 和**Claude Code: Reject Change at Cursor**。
   </Step>
 </Steps>
 
@@ -113,13 +117,20 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 * **Model**：从命令菜单中选择 **Switch model…** 以在会话中途更改模型。您也可以点击提示框底部的模型名称来打开相同的选择器。
 
   当当前模型支持[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)时，选择器还会显示 **Effort** 行和模型名称按钮显示选定的级别。当您选择除 `max` 之外的级别时，Claude Code 会在 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 下的用户设置中将其保存为当前模型的默认值；`max` 仅适用于当前会话。模型名称按钮和 **Effort** 行需要 Claude Code v2.1.257 或更高版本。
-* **Command menu**：点击 `/` 或输入 `/` 来打开命令菜单。选项包括附加文件、切换模型和切换扩展思考。Customize 部分提供对 MCP 服务器、slash commands、输出样式、hooks、memory、权限和插件的访问。带有终端图标的项目在集成终端中打开。
+* **Command menu**：点击 `/` 或输入 `/` 来打开命令菜单。选项包括附加文件、切换模型和切换扩展思考。
+
+  Customize 部分提供对 MCP 服务器、slash commands、输出样式、hooks、memory、instructions、permissions 和 plugins 的访问。带有终端图标的项目在集成终端中打开。
+
   * 要浏览 `/usage` 或 [`/remote-control`](/docs/zh-CN/remote-control) 等命令，请在 Customize 部分中选择 **Slash commands**。对话框会列出它们并带有过滤框。选择一个来运行它。在提示框中输入 `/` 仍会内联建议命令。需要 Claude Code v2.1.257 或更高版本。
   * 在 Customize 部分中选择 **Output styles** 来选择[输出样式](/docs/zh-CN/output-styles)，包括您的自定义样式。需要 Claude Code v2.1.257 或更高版本。
 
     要创建自定义样式，请从 **Output styles** 菜单中选择 **Build a custom style**。Claude Code 会在项目或用户级别为您编写[样式文件](/docs/zh-CN/output-styles#create-a-custom-output-style)。需要 Claude Code v2.1.261 或更高版本。
-  * 在 Customize 部分中选择 **Hooks** 来查看[hooks](/docs/zh-CN/hooks)在会话中加载，按事件分组。您可以添加、编辑或删除保存在您的用户、项目和本地设置文件中的 hooks。来自其他来源的 Hooks，例如托管设置或插件，是只读的。需要 Claude Code v2.1.269 或更高版本。
+  * 在 Customize 部分中选择 **Hooks** 来查看在会话中加载的 [hooks](/docs/zh-CN/hooks)，按事件分组。您可以添加、编辑或删除保存在您的用户、项目和本地设置文件中的 hooks。来自其他来源的 Hooks，例如托管设置或插件，是只读的。需要 Claude Code v2.1.269 或更高版本。
   * 在 Customize 部分中选择 **Permissions** 来查看会话的[权限规则](/docs/zh-CN/permissions)，分组为 Allow、Ask 和 Deny。您可以向您的用户、项目或本地设置添加规则，并删除保存在那里的规则。来自其他来源的规则，例如托管设置或仅为此会话进行的批准，是只读的。需要 Claude Code v2.1.269 或更高版本。
+  * 在 Customize 部分中选择 **Memory** 来打开或关闭[自动 memory](/docs/zh-CN/memory#auto-memory)。当它打开时，您也可以浏览 Claude 保存的 memories 并在您的文件管理器中显示存储它们的文件夹。需要 Claude Code v2.1.274 或更高版本。
+
+    点击保存的 memory 来在对话框中读取它，您可以在其中编辑文本、删除 memory 或在编辑器中打开其文件。在对话框中查看、编辑和删除 memory 需要 Claude Code v2.1.275 或更高版本。
+  * 在 Customize 部分中选择 **Instructions** 来编辑 Claude 读取的 [CLAUDE.md 文件](/docs/zh-CN/memory#claude-md-files)。选择一个文件来在编辑器中打开它。如果文件还不存在，Claude Code 会先创建它。需要 Claude Code v2.1.274 或更高版本。
   * Settings 部分包括 **Enable Remote Control for all sessions**，它设置 [`remoteControlAtStartup`](/docs/zh-CN/settings-reference#remotecontrolatstartup) 来控制[新的交互式会话是否自动连接到 Remote Control](/docs/zh-CN/remote-control#enable-remote-control-for-all-sessions)。需要 Claude Code v2.1.203 或更高版本。
 
     当您在 VS Code 窗口中打开或关闭切换开关时，更改适用于该 VS Code 窗口中已打开的会话，而不仅仅是您之后启动的会话。如果您关闭它，打开的会话将断开连接。使用 Claude Code v2.1.261 或更高版本，更改也会到达您其他 VS Code 窗口中打开的会话。
@@ -162,9 +173,15 @@ What's in @src/components/ (include a trailing slash for folders)
 
 当您在编辑器中选择文本时，Claude 可以自动看到您突出显示的代码。提示框页脚显示选择了多少行。按 `Option+K`（Mac）/ `Alt+K`（Windows/Linux）来插入带有文件路径和行号的 @-mention（例如 `@app.ts#5-10`）。点击选择指示器上的 **X** 来删除它，这样 Claude 就不会收到选择。当您选择其他文本时，指示器会重新出现。
 
+扩展程序从某些文件中隐瞒选定的文本。当文件在您的工作区内并匹配您的 `files.exclude` 或 `search.exclude` 设置时，Claude 最多接收文件的路径而不是您选择的文本。同样适用于 git 忽略的文件，只要 VS Code 的 `search.useIgnoreFiles` 设置和扩展程序的 [`respectGitIgnore` 设置](#extension-settings)都打开，这是默认值。此过滤器仅覆盖聊天面板：当 Claude Code 在集成终端中运行时，CLI 会发送您选择的文本，无论文件如何，因此添加 [`Read` deny 规则](#the-built-in-ide-mcp-server)来防止文件的内容从 Claude 那里被发送。
+
 Claude 也会看到您在编辑器中打开的文件，即使没有选择任何内容，提示框也会显示其名称。要仅添加您选择的文本，请关闭[附加打开文件设置](vscode://settings/claudeCode.attachOpenFile)。该设置需要 Claude Code v2.1.271 或更高版本。
 
-要附加图像，请从剪贴板将其粘贴到提示框中。您也可以在将文件拖入提示框时按住 `Shift` 来将它们添加为附件。点击任何附件上的 X 来从上下文中删除它。
+您也可以将图像和文件附加到您的消息：
+
+* 要附加图像，请从剪贴板将其粘贴到提示框中。
+* 要附加文件，请在将它们拖入提示框时按住 `Shift`。
+* 要从上下文中删除附件，请点击它上面的 X。
 
 <h3 id="resume-past-conversations">
   恢复过去的对话
@@ -218,10 +235,9 @@ Claude 也会看到您在编辑器中打开的文件，即使没有选择任何�
 
 * **claude.ai plan**：您的计划限制的使用条形图，例如当前会话和周。每个条形图显示距离其限制重置还有多长时间。
 
-对话框还分解了对您的计划限制有贡献的内容。它标记占最近使用量 10% 或更多的行为，例如缓存未命中、长上下文和子代理密集或高度并行的会话，每个都有减少它的提示。Attribution 表显示了每个 skill、subagent、plugin 和 MCP 服务器贡献了多少使用量。
+  对话框还分解了对您的计划限制有贡献的内容。它标记占最近使用量 10% 或更多的行为，例如缓存未命中、长上下文和子代理密集或高度并行的会话，每个都有减少它的提示。Attribution 表显示了每个 skill、subagent、plugin 和 MCP 服务器贡献了多少使用量。
 
-使用 Day 和 Week 切换来在过去 24 小时和过去 7 天之间切换。这些数字是近似的，并从此机器上的本地会话计算，因此不包括来自其他设备或 claude.ai 的使用情况。
-
+  使用 Day 和 Week 切换来在过去 24 小时和过去 7 天之间切换。这些数字是近似的，并从此机器上的本地会话计算，因此不包括来自其他设备或 claude.ai 的使用情况。
 * **Other sign-ins**：当计划限制不适用于您的登录时，例如在[第三方提供商](#use-third-party-providers)上或使用 API 密钥时，Usage 部分显示会话自己的成本和令牌使用情况。CLI 的 `/usage` 在其[会话块](/docs/zh-CN/costs#track-your-costs)中显示相同的总计。活动栏中的会话列表也在其 **Account & usage** 标题下显示活跃会话的总计。需要 Claude Code v2.1.277 或更高版本。
 
 有关跟踪和减少使用情况的更多信息，请参阅[跟踪您的成本](/docs/zh-CN/costs#track-your-costs)。
@@ -242,6 +258,10 @@ Claude 也会看到您在编辑器中打开的文件，即使没有选择任何�
 * **主侧边栏**：左侧边栏，带有 Explorer、Search 等图标。
 * **编辑器区域**：将 Claude 作为选项卡打开，与您的文件并排显示。适用于辅助任务。
 
+当 Claude 在新编辑器组中打开选项卡时，该扩展会锁定该组，因此当 Claude 选项卡处于焦点时打开的文件会转到另一个组，而不是在其旁边。
+
+要停止扩展锁定组，请关闭 [Lock Editor Groups setting](vscode://settings/claudeCode.lockEditorGroups)。已锁定的组将保持锁定状态，直到您解锁它们。该设置需要 Claude Code v2.1.274 或更高版本。
+
 <Tip>
   将侧边栏用于您的主要 Claude 会话，并为辅助任务打开其他选项卡。Claude 会记住您首选的位置。Activity Bar 会话列表图标与 Claude 面板分开：会话列表始终在 Activity Bar 中可见，而 Claude 面板图标仅在面板停靠到左侧边栏时才出现在那里。
 </Tip>
@@ -250,6 +270,10 @@ Claude 也会看到您在编辑器中打开的文件，即使没有选择任何�
 
 * **编辑器选项卡**：对话会随其选项卡返回。
 * **侧边栏**：如果您在过去 10 分钟内发送了消息或 Claude 在其中做出了响应，对话会返回。如果它没有返回，请从 [Session history](#resume-past-conversations) 恢复对话。
+
+如果重新加载中断了 Claude 的中间步骤，当对话返回时 Claude 会继续该步骤，聊天中的通知会标记该继续。需要 Claude Code v2.1.274 或更高版本。如果步骤在一小时前被中断或会话在其他地方打开，对话会返回为空闲状态。
+
+要关闭继续功能，请打开 [Continue After Reload setting](vscode://settings/claudeCode.continueAfterReload) 并取消勾选它。
 
 <h3 id="run-multiple-conversations">
   运行多个对话
@@ -317,10 +341,12 @@ vscode://anthropic.claude-code/install-plugin?plugin=code-review&marketplace=ant
 
 该 URL 接受两个查询参数：
 
-| 参数            | 描述                                                                                                                                                                |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `plugin`      | 插件的名称，如其市场所列。必需。                                                                                                                                                  |
-| `marketplace` | 插件的来源，采用 [Marketplaces 选项卡](#manage-marketplaces) 接受的任何形式，例如 GitHub `owner/repo` 或 git URL。如果包含 `&` 等字符，请对其进行 URL 编码。省略时默认为 `anthropics/claude-plugins-official`。 |
+| 参数            | 描述                                                                                                                                     |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `plugin`      | 插件的名称，如其市场所列。必需。                                                                                                                       |
+| `marketplace` | 插件的来源：GitHub `owner/repo`、`https://` URL 或 git SSH URL，例如 `git@github.com:owner/repo.git`。省略时默认为 `anthropics/claude-plugins-official`。 |
+
+[Marketplaces 选项卡](#manage-marketplaces)接受的某些值在链接中不起作用，例如本地路径或 `http://` 地址。对于这些，VS Code 会显示错误消息，对话框不会打开。
 
 两种情况在对话框中以消息结束，而不是范围选择：
 
@@ -388,6 +414,8 @@ Claude 为浏览器任务打开新标签页并共享您浏览器的登录状态�
 | New Conversation           | `Cmd+N` (Mac) / `Ctrl+N` (Windows/Linux)                 | 开始新对话。需要 Claude 处于焦点状态且 `enableNewConversationShortcut` 设置为 `true`                                                   |
 | Reopen Closed Session      | `Cmd+Shift+T` (Mac) / `Ctrl+Shift+T` (Windows/Linux)     | 重新打开最近关闭的 Claude 会话选项卡。当最后关闭的选项卡不是 Claude 会话时，会回退到 VS Code 的正常重新打开关闭编辑器功能。使用 `enableReopenClosedSessionShortcut` 禁用  |
 | Insert @-Mention Reference | `Option+K` (Mac) / `Alt+K` (Windows/Linux)               | 插入对当前文件和选择的引用（需要编辑器处于焦点状态）                                                                                           |
+| Accept Change at Cursor    | -                                                        | 在[审查建议编辑](#get-started)时，一次接受光标处的更改。需要 Claude Code v2.1.275 或更高版本                                                    |
+| Reject Change at Cursor    | -                                                        | 在审查建议编辑时，一次拒绝光标处的更改。需要 Claude Code v2.1.275 或更高版本                                                                    |
 | Toggle Focus view          | `Ctrl+Option+F` (Mac) / `Ctrl+Alt+F` (Windows/Linux)     | 隐藏或显示对话中的工具活动。在 Claude 面板或侧边栏可见时有效。需要 Claude Code v2.1.221 或更高版本                                                     |
 | Rename Session Tab         | -                                                        | 重命名活动 Claude 选项卡中的会话。需要 Claude Code v2.1.257 或更高版本                                                                   |
 | Add Session Tab to Group   | -                                                        | 将活动 Claude 选项卡中的会话添加到您选择或创建的[会话组](#organize-sessions-into-groups)。需要 Claude Code v2.1.257 或更高版本                      |
@@ -472,15 +500,18 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `useTerminal`                       | `false` | 在终端模式而不是图形面板中启动 Claude                                                                                                                                                                                                                                                                                                                                                       |
 | `initialPermissionMode`             | -       | 控制新对话的批准提示：`default`、`plan`、`acceptEdits` 或 `bypassPermissions`。`manual` 是 `default` 的别名，选择模式指示器中标记为 **Manual** 的模式。当您将其留空时，扩展会选择起始权限模式，如[切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)中所述。                                                                                                                                                                       |
 | `preferredLocation`                 | `panel` | Claude 打开的位置：`sidebar`（右侧）或 `panel`（新标签页）                                                                                                                                                                                                                                                                                                                                    |
+| `lockEditorGroups`                  | `true`  | [锁定 Claude 为其标签页启动的编辑器组](#choose-where-claude-lives)，以便您在 Claude 标签页获得焦点时打开的文件转到另一个组。关闭时，扩展永远不会锁定编辑器组。需要 Claude Code v2.1.274 或更高版本                                                                                                                                                                                                                                          |
 | `autosave`                          | `true`  | Claude 读取或写入文件前自动保存文件                                                                                                                                                                                                                                                                                                                                                        |
 | `attachOpenFile`                    | `true`  | 将编辑器中打开的文件添加到您的消息中，并在提示框中显示它。关闭时，仅添加您选择的文本。需要 Claude Code v2.1.271 或更高版本                                                                                                                                                                                                                                                                                                     |
 | `useCtrlEnterToSend`                | `false` | 使用 Ctrl/Cmd+Enter 而不是 Enter 来发送提示                                                                                                                                                                                                                                                                                                                                            |
+| `scrollToBottomOnSend`              | `true`  | 当您发送消息时，将对话滚动到底部。关闭时，对话保持在您离开的位置。需要 Claude Code v2.1.275 或更高版本                                                                                                                                                                                                                                                                                                               |
 | `enableNewConversationShortcut`     | `false` | 启用 Cmd/Ctrl+N 来开始新对话                                                                                                                                                                                                                                                                                                                                                         |
 | `enableReopenClosedSessionShortcut` | `true`  | 使用 Cmd/Ctrl+Shift+T 重新打开最近关闭的 Claude 会话标签页。当最后关闭的标签页不是 Claude 会话时，快捷键会运行 VS Code 的正常重新打开关闭编辑器命令。                                                                                                                                                                                                                                                                             |
 | `archiveInactiveSessions`           | `14`    | 在无活动的这么多天后[自动存档会话](#resume-past-conversations)：`1`、`2`、`7` 或 `14`。设置为 `0` 以关闭。需要 Claude Code v2.1.265 或更高版本                                                                                                                                                                                                                                                                  |
+| `continueAfterReload`               | `true`  | 窗口重新加载后，Claude [继续在恢复的会话中被中断的步骤](#choose-where-claude-lives)。需要 Claude Code v2.1.274 或更高版本                                                                                                                                                                                                                                                                                   |
 | `hideOnboarding`                    | `false` | 隐藏入门清单（毕业帽图标）                                                                                                                                                                                                                                                                                                                                                                |
 | `focusView`                         | `false` | 将工具调用、工具结果和思考隐藏在可展开的行后面，只留下您的提示和 Claude 的响应。Claude 的最新待办事项列表保持可见；这需要 Claude Code v2.1.225 或更高版本。您也可以从命令菜单切换焦点视图。需要 Claude Code v2.1.221 或更高版本                                                                                                                                                                                                                                |
-| `respectGitIgnore`                  | `true`  | 从文件搜索中排除 .gitignore 模式                                                                                                                                                                                                                                                                                                                                                       |
+| `respectGitIgnore`                  | `true`  | 从文件搜索和[选择上下文](#reference-files-and-folders)中排除 .gitignore 模式                                                                                                                                                                                                                                                                                                                 |
 | `usePythonEnvironment`              | `true`  | 运行 Claude 时激活工作区的 Python 环境。需要 Python 扩展。                                                                                                                                                                                                                                                                                                                                    |
 | `environmentVariables`              | `[]`    | 为 Claude 进程设置环境变量。对于共享配置，请改用 Claude Code 设置。                                                                                                                                                                                                                                                                                                                                 |
 | `disableLoginPrompt`                | `false` | 跳过身份验证提示（用于第三方提供商设置）                                                                                                                                                                                                                                                                                                                                                         |
@@ -502,16 +533,26 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 * **状态更改**：当 Claude 开始工作、Claude 准备好接收您的输入以及 Claude Code 开始压缩对话时，该扩展会宣布。
 * **错误和模型提示**：该扩展宣布对话中的错误，并在 [使用额度同意提示](/docs/zh-CN/model-config#fable-and-usage-credits) 或 [标记请求提示](/docs/zh-CN/model-config#ask-before-switching) 出现时宣布。
 
-记录中的每个回合都以视觉隐藏的标题开头，标题标记为启动该回合的提示，因此您可以使用屏幕阅读器的标题导航在回合之间跳转。因为该扩展将记录公开为标记的区域，您也可以使用 `Tab` 将焦点移动到记录本身，并按您自己的速度读取。
-
-键盘上还有两个操作可用：
-
-* **跳转到最新消息**：从 [命令面板](#vs-code-commands-and-shortcuts) 运行 **Claude Code: Focus last message**，将焦点直接移动到最新消息或等待的权限提示。
-* **更改批准的保存位置**：当权限提示上的选项保存权限规则或目录访问时，其标签末尾会命名批准的保存位置，例如"所有项目"或"此会话"。单击这些词以更改目标。当选项获得焦点时，您也可以按 `Left` 或 `Right` 箭头键；当您移动到每个目标时，该扩展会宣布。箭头键需要 Claude Code v2.1.268 或更高版本。
-
 当 Claude 工作时，您的屏幕阅读器会读取一个文本标签来代替进度旋转器的动画。
 
 当您重新打开会话或切换到另一个会话时，该扩展不会宣布任何内容：恢复的历史记录、待处理的权限提示和进行中的状态保持沉默，直到发生新的事情。
+
+<h3 id="use-the-chat-panel-from-the-keyboard">
+  从键盘使用聊天面板
+</h3>
+
+记录中的每个回合都以视觉隐藏的标题开头，标题标记为启动该回合的提示，因此您可以使用屏幕阅读器的标题导航在回合之间跳转。
+
+在回合内，当您在其中移动时，您的屏幕阅读器会宣布您所在的消息来自谁：
+
+* **您的消息**："您"
+* **Claude 的消息**："Claude"
+* **工具步骤**："Claude"加上工具名称，例如"Claude，Bash"
+* **思考块**："Claude，思考"
+
+因为该扩展将记录公开为标记的区域，您也可以使用 `Tab` 将焦点移动到记录本身，并按您自己的速度读取。要将焦点移动到最新消息或等待的权限提示，请从 [命令面板](#vs-code-commands-and-shortcuts) 运行 **Claude Code: Focus last message**。
+
+当权限提示上的选项保存权限规则或目录访问时，其标签末尾会命名批准的保存位置，例如"所有项目"或"此会话"。当该选项获得焦点时，按 `Left` 或 `Right` 箭头键以更改目标，该扩展会在您移动到每个目标时宣布。您也可以单击标签中的目标。箭头键需要 Claude Code v2.1.268 或更高版本。
 
 <h2 id="vs-code-extension-vs-claude-code-cli">
   VS Code extension vs. Claude Code CLI

@@ -142,12 +142,12 @@ Claude Code 提供两种沙箱模式。在两种模式中，沙箱都强制执�
 * 显式 [拒绝规则](/docs/zh-CN/permissions) 始终被尊重
 * 针对 [关键路径](/docs/zh-CN/permission-modes#critical-paths) 的 `rm` 或 `rmdir` 命令仍会通过常规权限流程
 * 内容范围的 [询问规则](/docs/zh-CN/permissions)（如 `Bash(git push *)`）仍会强制提示，即使对于沙箱化命令
-* 裸 `Bash` 询问规则，或等效的 `Bash(*)` 形式，对于运行沙箱化的命令会被跳过；它仍然适用于回退到常规权限流程的命令。在 [plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，该规则不会被跳过：它也会对沙箱化命令提示，包括只读命令。在 v2.1.212 之前，跳过也适用于 plan mode
+* 裸 `Bash` 询问规则，或等效的 `Bash(*)` 形式，对于运行沙箱化的命令会被跳过；它仍然适用于回退到常规权限流程的命令。在 [Plan Mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，该规则不会被跳过：它也会对沙箱化命令提示，包括只读命令。在 v2.1.212 之前，跳过也适用于 Plan Mode
 
 <Info>
-  自动允许模式独立于你的权限模式设置工作，除了在 [plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，以及在自动模式中，对于携带 [per-command allowed domains](#per-command-allowed-domains-in-auto-mode) 的命令。即使你不在"接受编辑"模式中，启用自动允许时沙箱化的 Bash 命令也会自动运行。这意味着在沙箱边界内修改文件的 Bash 命令将执行而不提示，即使在 Manual 模式下，文件编辑工具会提示。
+  自动允许模式独立于你的权限模式设置工作，除了在 [Plan Mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，以及在自动模式中，对于携带 [per-command allowed domains](#per-command-allowed-domains-in-auto-mode) 的命令。即使你不在"接受编辑"模式中，启用自动允许时沙箱化的 Bash 命令也会自动运行。这意味着在沙箱边界内修改文件的 Bash 命令将执行而不提示，即使在 Manual 模式下，文件编辑工具会提示。
 
-  在 plan mode 中，自动允许不会扩大批准；请参阅 [plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 了解 Claude Code 如何在你计划时限制命令。在 v2.1.212 之前，自动允许在 plan mode 中也无需提示地运行沙箱化命令。
+  在 Plan Mode 中，自动允许不会扩大批准；请参阅 [Plan Mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 了解 Claude Code 如何在你计划时限制命令。在 v2.1.212 之前，自动允许在 Plan Mode 中也无需提示地运行沙箱化命令。
 </Info>
 
 <h4 id="regular-permissions-mode">
@@ -177,7 +177,7 @@ Claude Code 提供两种沙箱模式。在两种模式中，沙箱都强制执�
   临时目录
 </h4>
 
-会话临时目录在沙箱内默认可写，与工作目录一起。除非你 [禁用文件系统隔离](#disable-filesystem-isolation)，Claude Code 为沙箱化命令设置 `$TMPDIR` 为此目录，因此写入临时文件的工具无需额外配置即可工作。非沙箱化命令继承你的 shell 的 `$TMPDIR` 不变，因此当文件系统隔离打开时，沙箱化和非沙箱化命令将 `$TMPDIR` 解析为不同的目录。要在两者之间传递临时文件，请改为在工作目录下写入它们。
+会话临时目录在沙箱内默认可写，与工作目录一起。除非你 [禁用文件系统隔离](#disable-filesystem-isolation)，Claude Code 为沙箱化命令设置 `$TMPDIR` 为此目录，因此写入临时文件的工具无需额外配置即可工作。非沙箱化命令继承你的 shell 的 `$TMPDIR` 不变，因此当文件系统隔离打开时，沙箱化和非沙箱化命令将 `$TMPDIR` 解析为不同的目录。如果你的 shell 将 `$TMPDIR` 留空或未设置，引用 `$TMPDIR` 的非沙箱化命令会接收你的 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars) 覆盖，或当你未设置覆盖或覆盖是长路径时接收操作系统的临时目录，因此变量不会展开为空字符串。要在两者之间传递临时文件，请改为在工作目录下写入它们。
 
 <h2 id="configure-sandboxing">
   配置沙箱
@@ -307,7 +307,7 @@ Claude Code 提供两种沙箱模式。在两种模式中，沙箱都强制执�
 
 * 沙箱化命令继承你的 shell 的 `$TMPDIR`，而不是会话临时目录，因为每个临时目录都是可写的，Claude Code 不再将命令重定向到会话临时目录。
 
-  在 Linux 上，该变量通常在父 shell 中未设置，因此它可能在沙箱化命令内展开为空；Claude Code 通过其 Bash 工具指导告诉 Claude 使用 `mktemp -d` 创建临时目录，而不是依赖 `$TMPDIR`。
+  在 Linux 上，该变量通常在父 shell 中未设置。Bash 工具指导告诉 Claude 使用 `mktemp -d` 创建临时目录，而不是依赖 `$TMPDIR`。
 * [`autoAllowBashIfSandboxed`](/docs/zh-CN/settings-reference#sandbox-autoallowbashifsandboxed) 仍默认为 `true`，因此沙箱化命令继续运行而无需提示。设置为 `false` 以提示沙箱化命令。
 
 <h3 id="protect-credentials">
@@ -741,10 +741,14 @@ AWS 请求在请求内容上携带 SigV4 签名，因此一起掩盖 `AWS_ACCESS
 
 * **命令因主机不允许错误而失败**：许多 CLI 工具需要到达特定的主机。在提示时授予权限会将主机添加到你的允许列表，以便该工具在将来在沙箱内运行。
 * **`jest` 挂起或失败**：`watchman` 与沙箱不兼容。改为运行 `jest --no-watchman`。
-* **Go 基础 CLI 在 macOS 上 TLS 验证失败**：`gh`、`gcloud` 和 `terraform` 等工具在 Seatbelt 下可能无法进行 TLS 验证。在 `excludedCommands` 中列出这些工具以在沙箱外运行它们。如果你使用 `httpProxyPort` 与 MITM 代理和自定义 CA，请改为将 [`enableWeakerNetworkIsolation`](/docs/zh-CN/settings-reference#sandbox-enableweakernetworkisolation) 设置为 `true`。
-* **`open`、`osascript` 或基于浏览器的身份验证流在 macOS 上因错误 `-600` 失败**：沙箱默认阻止 Apple Events。在你的用户、托管或 CLI 设置中将 [`allowAppleEvents`](/docs/zh-CN/settings-reference#sandbox-allowappleevents) 设置为 `true` 以允许它们。项目设置对此密钥被忽略。启用它会移除代码执行隔离，因为沙箱化命令随后可以在没有用户提示的情况下启动其他未沙箱化的应用程序，并向运行的应用程序发送 AppleScript 命令，受 macOS 自动化同意提示 (TCC) 的约束。或者，将命令添加到 `excludedCommands` 以在沙箱外运行它。
-* **`docker` 命令失败**：`docker` 与沙箱不兼容。将 `docker *` 添加到 `excludedCommands` 以在沙箱外运行它。
-* **`pbcopy`、`xclip` 或 `wl-copy` 不更新剪贴板**：这些剪贴板实用程序可能无法从沙箱内到达系统剪贴板，在这种情况下，管道传输到它们的文本不会到达。要将 Claude 的输出放在你的剪贴板上，请要求 Claude 在其响应中打印它，然后运行 [`/copy`](/docs/zh-CN/commands)，它从 Claude Code 进程而不是从沙箱化命令写入剪贴板。或者，将 `pbcopy *`、`wl-copy *` 或 `xclip *` 添加到 `excludedCommands` 以在沙箱外运行该命令。
+* **Go 基础 CLI 在 macOS 上 TLS 验证失败**：`gh`、`gcloud` 和 `terraform` 等工具在 Seatbelt 下可能无法进行 TLS 验证。在 [`excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands) 中列出这些工具。如果你使用 `httpProxyPort` 与 MITM 代理和自定义 CA，请改为将 [`enableWeakerNetworkIsolation`](/docs/zh-CN/settings-reference#sandbox-enableweakernetworkisolation) 设置为 `true`。
+* **`open`、`osascript` 或基于浏览器的身份验证流在 macOS 上因错误 `-600` 失败**：沙箱默认阻止 Apple Events。在你的用户、托管或 CLI 设置中将 [`allowAppleEvents`](/docs/zh-CN/settings-reference#sandbox-allowappleevents) 设置为 `true` 以允许它们。项目设置对此密钥被忽略。启用它会移除代码执行隔离，因为沙箱化命令随后可以在没有用户提示的情况下启动其他未沙箱化的应用程序，并向运行的应用程序发送 AppleScript 命令，受 macOS 自动化同意提示 (TCC) 的约束。或者，将命令添加到 [`excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands)。
+* **`docker` 命令失败**：`docker` 与沙箱不兼容。将 `docker *` 添加到 [`excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands)。
+* **`pbcopy`、`xclip` 或 `wl-copy` 不更新剪贴板**：这些剪贴板实用程序可能无法从沙箱内到达系统剪贴板，在这种情况下，管道传输到它们的文本不会到达。
+
+  要将 Claude 的输出放在你的剪贴板上，请要求 Claude 在其响应中打印它，然后运行 [`/copy`](/docs/zh-CN/commands)。`/copy` 从 Claude Code 进程而不是从沙箱化命令写入剪贴板。
+
+  当 Claude 将文本管道传输到这些工具之一时，将该工具添加到 [`excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands) 本身不会将该调用从沙箱中取出。
 * **git 命令因 `unable to unlink old` 失败**：`git merge`、`git checkout` 和类似命令在需要替换沙箱拒绝写入的文件时以这种方式失败，无论该文件是在 [protected path](#protected-paths) 下（如 `.claude/skills`），在你的 `denyWrite` 条目之一下，还是在沙箱允许命令写入的目录之外。在 Linux 和 WSL2 上，错误以 `Read-only file system` 结尾。
 
   失败后，Claude 可能会 [提供在沙箱外重新运行命令](#the-unsandboxed-retry-escape-hatch)；批准该重试，或在另一个终端中自己运行 git 命令。如果你已将 `allowUnsandboxedCommands` 设置为 `false`，Claude 无法提供重试，所以自己运行该命令。如果相同的 git 命令经常失败，将其添加到 [`excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands)。

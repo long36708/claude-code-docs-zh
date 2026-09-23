@@ -93,7 +93,7 @@
     📚 快速入门 · VS Code · 免费 1 小时课程
        https://code.claude.com/docs/en/quickstart
        https://code.claude.com/docs/en/vs-code
-       https://anthropic.skilljar.com/claude-code-in-action
+       https://academy.claude.com/courses/claude-code-in-action
 
     问题 → 此线程。[所有者] 在处理。
     ```
@@ -196,7 +196,7 @@
 使用 Opus 修复打字错误会浪费计算。使用 Haiku 进行 12 文件重构
 是在要求重做。
 
-Claude Code 在与 Claude 应用相同的模型上运行，您可以在会话中间切换。*Sonnet* 是日常功能工作、错误、测试和审查的主力默认值。在大型重构、复杂调试或任何高风险的事情上使用 *Opus*。对于快速问题、格式化和速度获胜的机械编辑，降低到 *Haiku*。*Fable* 是您最困难、最长时间运行任务的最强大模型；它不是默认值，所以使用 `/model fable` 选择它，请注意网络安全和生物学内容会自动回退到 Opus。Opus 5 运行自己的检查，所以标记的网络安全内容会切换模型，标记的生物学内容被拒绝。
+Claude Code 在与 Claude 应用相同的模型上运行，您可以在会话中间切换。*Sonnet* 是日常功能工作、错误、测试和审查的主力默认值。在大型重构、复杂调试或任何高风险的事情上使用 *Opus*。对于快速问题、格式化和速度获胜的机械编辑，降低到 *Haiku*。*Fable* 是您最困难、最长时间运行任务的最强大模型；它不是默认值，所以使用 `/model fable` 选择它，请注意网络安全和生物学内容会自动回退到 Opus。Opus 5.5 和 Opus 5 运行自己的检查：标记的内容会切换到较早的 Opus，除了 Opus 5 上标记的生物学内容被拒绝。
 
 *现在尝试：* 输入 `/model` 并选择 Sonnet（如果您还没有的话）。它是大多数任务的正确默认值。
 
@@ -206,7 +206,7 @@ Claude Code 在与 Claude 应用相同的模型上运行，您可以在会话中
 | 模型     | 最适合                                                                                                                |
 | ------ | ------------------------------------------------------------------------------------------------------------------ |
 | Fable  | 最困难、最长时间运行的任务。仅选择加入：使用 `/model fable` 选择它。网络安全或生物学内容触发[自动模型回退到 Opus](/docs/zh-CN/model-config#automatic-model-fallback) |
-| Opus   | 大规模重构、复杂调试、架构决策、高风险更改。在 Opus 5 上，网络安全或生物学内容触发[自动模型回退或拒绝](/docs/zh-CN/model-config#automatic-model-fallback)             |
+| Opus   | 大规模重构、复杂调试、架构决策、高风险更改。在 Opus 5.5 和 Opus 5 上，网络安全或生物学内容触发[自动模型回退或拒绝](/docs/zh-CN/model-config#automatic-model-fallback)  |
 | Sonnet | 日常功能工作、错误修复、测试、文档、代码审查。推荐默认值。                                                                                      |
 | Haiku  | 快速问题、格式化、机械编辑、快速迭代                                                                                                 |
 

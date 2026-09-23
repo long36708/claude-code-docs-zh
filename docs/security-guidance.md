@@ -35,7 +35,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 * **Claude 桌面应用、本地或 SSH 会话**：通过点击提示旁边的 **+** 按钮，然后点击 **Plugins**，再点击 **Add plugin** 来打开 [插件浏览器](/docs/zh-CN/desktop#install-plugins)
 * **VS Code 扩展**：从 [**管理插件** 对话框](/docs/zh-CN/vs-code#manage-plugins) 安装
-* **云会话**：在 `.claude/settings.json` 中声明插件，如 [在云会话和共享存储库中启用](#enable-in-cloud-sessions-and-shared-repositories) 下所示
+* **云会话**：为您的 claude.ai 账户启用该插件，以便 Claude Code 将其作为 [同步插件](/docs/zh-CN/plugins-reference#synced-plugins) 加载。云会话不会从您的用户设置或存储库的 `.claude/settings.json` 加载插件，如 [从您的设置中继承的内容](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup) 所解释的那样
 
 终端安装会提示输入范围。选择用户范围以将插件写入您的用户设置，这样它会在您在此计算机上启动的每个新本地会话中加载。
 
@@ -46,11 +46,11 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 检查安装摘要。如果它报告 `Run /reload-plugins to activate.`，请参阅 [无需重启即可应用插件更改](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting) 以在当前会话中激活插件。
 
-<h3 id="enable-in-cloud-sessions-and-shared-repositories">
-  在云会话和共享存储库中启用
+<h3 id="enable-for-your-team-in-local-sessions">
+  在本地会话中为您的团队启用
 </h3>
 
-用户范围的插件不会进入 [云会话](/docs/zh-CN/claude-code-on-the-web)，因为这些会话不在您的计算机上运行。要在那里启用该插件，或为克隆存储库的所有人打开它，请在项目的已检入设置中声明它：
+要在您的团队在存储库中启动的本地会话中打开该插件，请在项目的已检入设置中声明它：
 
 ```json .claude/settings.json theme={null}
 {

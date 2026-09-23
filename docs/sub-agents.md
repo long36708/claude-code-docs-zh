@@ -32,7 +32,7 @@ Claude 使用每个 subagent 的描述来决定何时委托任务。创建 subag
 
 Claude Code 包括内置 subagents，Claude 在适当时自动使用。每个都继承父对话的权限；大多数运行时工具集受限。
 
-Explore 和 Plan 会跳过您的 CLAUDE.md 文件和父会话的 git 状态，以保持研究快速且成本低廉。所有其他内置和[自定义 subagent](#configure-subagents) 都会加载两者，除非其定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 字段以跳过用户、项目和本地 CLAUDE.md 文件。有关到达 subagent 的内容的完整分解，请参阅[启动时加载的内容](#what-loads-at-startup)。
+Explore 和 Plan 会跳过您的 CLAUDE.md 文件和 git 状态快照，以保持研究快速且成本低廉。所有其他内置和[自定义 subagent](#configure-subagents) 都会加载两者，除非其定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 字段以跳过用户、项目和本地 CLAUDE.md 文件。有关到达 subagent 的内容的完整分解，请参阅[启动时加载的内容](#what-loads-at-startup)。
 
 <Tabs>
   <Tab title="Explore">
@@ -230,7 +230,7 @@ Plugin `agents/` 目录也会被递归扫描。与项目和用户范围不同，
   </Tab>
 </Tabs>
 
-`--agents` 标志接受 JSON，具有 `prompt` 字段加上这些 [frontmatter](#supported-frontmatter-fields) 字段：`description`、`tools`、`disallowedTools`、`model`、`permissionMode`、`mcpServers`、`hooks`、`maxTurns`、`skills`、`initialPrompt`、`memory`、`effort`、`background`、`omitClaudeMd` 和 `isolation`。对系统提示使用 `prompt`，等同于基于文件的 subagents 中的 markdown 正文。
+`--agents` 标志接受 JSON，具有 `prompt` 字段加上这些 [frontmatter](#supported-frontmatter-fields) 字段：`description`、`tools`、`disallowedTools`、`model`、`permissionMode`、`mcpServers`、`hooks`、`maxTurns`、`skills`、`initialPrompt`、`memory`、`effort`、`background`、`omitClaudeMd` 和 `isolation`。对系统提示使用 `prompt`，等同于基于文件的 subagents 中的 markdown 正文。`color` 和 `experimental` 在此处不被接受，被忽略而不是拒绝。
 
 JSON 中的每个顶级键是代理的名称。不要以 `-` 开头的名称。
 
@@ -295,19 +295,21 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 
 当主对话本身在 worktree 中隔离运行时，Claude Code 对会话和它生成的每个 subagent 应用相同的检查，包括没有 `isolation: worktree` 的 subagents；请参阅 [How Claude Code enforces isolation](/docs/zh-CN/worktrees#how-claude-code-enforces-isolation)。
 
-<h4 id="supported-frontmatter-fields">
-  支持的 frontmatter 字段
-</h4>
+<h3 id="supported-frontmatter-fields">
+  Frontmatter 参考
+</h3>
 
-以下字段可以在 YAML frontmatter 中使用。只有 `name` 和 `description` 是必需的。
+使用 YAML [frontmatter](/docs/zh-CN/glossary#frontmatter) 在其文件顶部的 `---` 标记之间配置 subagent，并在关闭 `---` 后将其系统提示写为 Markdown。只有 `name` 和 `description` 是必需的。
+
+多字段名称使用 camelCase，例如 `maxTurns` 和 `disallowedTools`，必须与表格完全匹配：Claude Code 忽略它不识别的字段而不报告错误。要找出为什么 subagent 文件没有加载，请参阅 [Subagent files Claude Code skips](#subagent-files-claude-code-skips)。
 
 | Field             | 必需 | Description                                                                                                                                                                                                                                                                                                                       |
 | :---------------- | :- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`            | 是  | 使用小写字母和连字符的唯一标识符。[Hooks](/docs/zh-CN/hooks#subagentstart) 将此值作为 `agent_type` 接收。文件名不必匹配。名称不能包含 `:`，这是为 [plugin-scoped identifiers](/docs/zh-CN/plugins) 保留的，例如 `my-plugin:reviewer`。Claude Code 不加载名称包含一个的文件，并向调试日志记录错误。在 v2.1.218 之前，这样的名称被接受                                                                                              |
+| `name`            | 是  | 唯一标识符，例如 `code-reviewer` 或 `reviewer-v2`。[Hooks](/docs/zh-CN/hooks#subagentstart) 将此值作为 `agent_type` 接收。文件名不必匹配。名称不能包含 `:`，这是为 [plugin-scoped identifiers](/docs/zh-CN/plugins) 保留的，例如 `my-plugin:reviewer`。Claude Code 不加载名称包含一个的文件，并向调试日志记录错误。在 v2.1.218 之前，这样的名称被接受                                                                      |
 | `description`     | 是  | Claude 何时应该委托给此 subagent                                                                                                                                                                                                                                                                                                          |
-| `tools`           | 否  | [Tools](#available-tools) subagent 可以使用。如果省略，继承 subagents 可用的每个工具。如果列表中没有条目解析为工具，subagent 通常 [fails to launch](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools) 并出现错误，命名条目。要将 Skills 预加载到上下文中，请使用 `skills` 字段而不是在此处列出 `Skill`                                                                                                |
-| `disallowedTools` | 否  | 要拒绝的工具，从继承或指定的列表中删除。带有说明符的条目，例如 `Bash(git push *)`，仍然 [removes the whole tool](#available-tools)                                                                                                                                                                                                                                  |
-| `model`           | 否  | [Model](#choose-a-model) 使用：`sonnet`、`opus`、`haiku`、`fable`、完整模型 ID（例如，`claude-opus-5`）或 `inherit`。当您省略它时，Claude Code 在 [subagent model order](#choose-a-model) 中选择模型                                                                                                                                                             |
+| `tools`           | 否  | [Tools](#available-tools) subagent 可以使用，作为逗号分隔的字符串，例如 `Read, Grep, Bash` 或 YAML 列表。如果省略，继承 subagents 可用的每个工具。如果列表中没有条目解析为工具，subagent 通常 [fails to launch](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools) 并出现错误，命名条目。要将 Skills 预加载到上下文中，请使用 `skills` 字段而不是在此处列出 `Skill`                                                     |
+| `disallowedTools` | 否  | 要拒绝的工具，从继承或指定的列表中删除。格式与 `tools` 相同。带有说明符的条目，例如 `Bash(git push *)`，仍然 [removes the whole tool](#available-tools)                                                                                                                                                                                                                   |
+| `model`           | 否  | [Model](#choose-a-model) 使用：`sonnet`、`opus`、`haiku`、`fable`、完整模型 ID（例如，`claude-opus-5-5`）或 `inherit`。当您省略它时，Claude Code 在 [subagent model order](#choose-a-model) 中选择模型                                                                                                                                                           |
 | `permissionMode`  | 否  | [Permission mode](#permission-modes)：`default`、`acceptEdits`、`auto`、`dontAsk`、`bypassPermissions`、`plan` 或 `manual` 作为 `default` 的别名。`manual` 别名需要 Claude Code v2.1.200 或更高版本。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略                                                                                               |
 | `maxTurns`        | 否  | subagent 停止前的最大代理轮数。当 subagent 达到限制时，Claude Code 返回其输出标记为部分，Claude 可以 [resume it](#resume-subagents) 继续。部分标记需要 Claude Code v2.1.246 或更高版本                                                                                                                                                                                         |
 | `skills`          | 否  | [Skills](/docs/zh-CN/skills) 在启动时预加载到 subagent 的上下文中。注入完整的技能内容，而不仅仅是描述。Subagents 仍然可以通过 Skill 工具调用未列出的项目、用户和 plugin 技能                                                                                                                                                                                                                 |
@@ -319,7 +321,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 | `effort`          | 否  | 此 subagent 活跃时的努力级别。覆盖会话努力级别。默认：从会话继承。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型                                                                                                                                                                                                                                            |
 | `isolation`       | 否  | 设置为 `worktree` 以在临时 [git worktree](/docs/zh-CN/worktrees) 中运行 subagent，为其提供存储库的隔离副本，默认从您的 [default branch](/docs/zh-CN/worktrees#choose-the-base-branch) 分支，而不是父会话的 `HEAD`。如果 subagent 不进行任何更改，worktree 会自动清理                                                                                                                               |
 | `color`           | 否  | Subagent 在任务列表和转录中的显示颜色。接受 `red`、`blue`、`green`、`yellow`、`purple`、`orange`、`pink` 或 `cyan`                                                                                                                                                                                                                                        |
-| `initialPrompt`   | 否  | 当此代理作为主会话代理运行时（通过 `--agent` 或 `agent` 设置），自动提交为第一个用户轮次。[Commands](/docs/zh-CN/commands) 和 [skills](/docs/zh-CN/skills) 被处理。前置于任何用户提供的提示                                                                                                                                                                                                     |
+| `initialPrompt`   | 否  | 当此代理作为主会话代理运行时（通过 `--agent` 或 `agent` 设置），自动提交为第一个用户轮次。[Commands](/docs/zh-CN/commands) 和 [skills](/docs/zh-CN/skills) 被处理。前置于任何用户提供的提示。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略                                                                                                                                               |
 | `experimental`    | 否  | 实验选项的映射。将其 `cacheTtl` 键设置为 `5m` 或 `1h` 以选择此 subagent 请求的 [prompt cache lifetime](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)，在 frontmatter 的 [cache lifetime precedence](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself) 中的位置。Claude Code 忽略任何其他值，在您的 Claude 订阅使用使用额度时忽略 `1h`，并仅从 subagent 文件读取字段。需要 Claude Code v2.1.248 或更高版本 |
 
 在 `experimental` 映射内写入 `cacheTtl`，而不是在 frontmatter 的顶级。
@@ -362,7 +364,7 @@ Claude Code 跳过项目、用户或托管 `agents` 目录中的文件，或在�
 `model` 字段控制 subagent 使用的模型：
 
 * **Model alias**：使用可用的别名之一：`sonnet`、`opus`、`haiku` 或 `fable`
-* **Full model ID**：使用完整的模型 ID，例如 `claude-opus-5` 或 `claude-sonnet-5`。接受与 `--model` 标志相同的值
+* **Full model ID**：使用完整的模型 ID，例如 `claude-opus-5-5` 或 `claude-sonnet-5`。接受与 `--model` 标志相同的值
 * **inherit**：使用与主对话相同的模型
 
 当 Claude 调用 subagent 时，它也可以为该特定调用传递 `model` 参数。Claude Code 按以下顺序解析 subagent 的模型：
@@ -371,6 +373,13 @@ Claude Code 跳过项目、用户或托管 `agents` 目录中的文件，或在�
 2. Subagent 定义的 `model` frontmatter，其中 `inherit` 选择主对话的模型
 3. [`CLAUDE_CODE_SUBAGENT_MODEL`](/docs/zh-CN/model-config#environment-variables) 环境变量，当您将其设置为模型别名或模型 ID 时
 4. 主对话的模型
+
+在两种情况下，家族别名（例如 frontmatter 或每次调用的参数中的 `opus`）解析到主对话的模型，而不是 [alias points to](/docs/zh-CN/model-config#model-aliases) 的版本：
+
+* **主对话的模型属于该家族**：subagent 在主对话的确切模型上运行，包括任何 `[1m]` 后缀，因此它获得与主对话相同的 [extended context](/docs/zh-CN/model-config#extended-context) 窗口。
+* **Claude Code 无法告诉主对话的模型家族，在 [a provider other than the Anthropic API](/docs/zh-CN/third-party-integrations) 上**：这可能发生在 Amazon Bedrock 上的 [application inference profile ARN](/docs/zh-CN/amazon-bedrock#iam-configuration)，Claude Code 尚未解析为支持模型。这种情况仅涵盖 `opus` 别名，当您设置 [`ANTHROPIC_DEFAULT_OPUS_MODEL`](/docs/zh-CN/model-config#environment-variables) 时不适用，因为 `opus` 然后解析到您设置的模型。
+
+`CLAUDE_CODE_SUBAGENT_MODEL` 中的别名始终解析到别名指向的版本，即使它命名主对话的家族。
 
 设置 `CLAUDE_CODE_SUBAGENT_MODEL` 本身不会改变内置 Explore 和 Plan subagents 运行的模型。要改变它，请参阅 [Run every subagent on one model](#run-every-subagent-on-one-model)。
 
@@ -438,11 +447,12 @@ Subagents 继承主对话中可用的 [built-in tools](/docs/zh-CN/tools-referen
 * `EnterPlanMode`
 * `ExitPlanMode`，除非 subagent 的 [`permissionMode`](#permission-modes) 是 `plan`
 * `ScheduleWakeup`
-* `TaskOutput`
 * `WaitForMcpServers`
 * `Workflow`
 
-第二个过滤器适用于在后台运行的 subagents。除了 `Agent` 和 `ExitPlanMode`，它们遵循第一个过滤器的条件，无论 subagent 在哪里运行，后台 subagent 保留每个 MCP 工具但仅这些内置工具：`Read`、`Grep`、`Glob`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage` 和 `Artifact`，加上 [`SubagentHandback`](/docs/zh-CN/tools-reference) 用于通过它报告的 subagent。Claude Code 从后台 subagent 删除每个其他内置工具，无论继承还是在 `tools` 字段中列出，因此相同的定义可以在前台和后台解析为不同的工具。删除报告没有错误，除非它使 `tools` 列表 [resolving to nothing](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools)。
+第二个过滤器适用于在后台运行的 subagents。除了 `Agent` 和 `ExitPlanMode`，它们遵循第一个过滤器的条件，无论 subagent 在哪里运行，后台 subagent 保留每个 MCP 工具但仅这些内置工具：`Read`、`Grep`、`Glob`、`LSP`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage` 和 `Artifact`，加上 [`SubagentHandback`](/docs/zh-CN/tools-reference) 用于通过它报告的 subagent。Claude Code 从后台 subagent 删除每个其他内置工具，无论继承还是在 `tools` 字段中列出，因此相同的定义可以在前台和后台解析为不同的工具。删除报告没有错误，除非它使 `tools` 列表 [resolving to nothing](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools)。
+
+在 v2.1.280 之前，后台 subagents 无法使用 `LSP`。
 
 [`ListAgents`](/docs/zh-CN/cross-session-messaging) 遵循这些过滤器，如任何内置工具：前台 subagent 在启用跨会话消息的会话中继承它，后台 subagent 不保留它。
 
@@ -987,6 +997,10 @@ Claude Code 在 Claude 读取 subagent 的最终报告之前扫描它。Subagent
 
 扫描不判断内容是否恶意，它不改变报告中的指令能做什么：报告导致 Claude 进行的工具调用仍然通过会话的 [权限检查](/docs/zh-CN/permissions) 和 [沙箱](/docs/zh-CN/sandboxing)。它不是 [限制 subagent 可以到达的内容](#control-subagent-capabilities) 的替代品。
 
+返回给 Claude 的报告作为 subagent 的结果也在标题下到达，标记为 subagent 输出。标题说明报告中的指令或批准声明是 subagent 的话语，不从您那里获得任何权限。
+
+[后台 subagent 的报告](#run-subagents-in-foreground-or-background) 在完成通知内到达，标记为自动化事件而不是来自您的消息。
+
 <Note>
   Subagent 输出扫描需要 Claude Code v2.1.210 或更高版本。
 </Note>
@@ -1114,8 +1128,8 @@ Claude Code 在提示输入下方的 subagent 面板中将嵌套 subagents 显�
 
 * **系统提示**：代理自己的提示加上 Claude Code 附加的环境详情，而不是 Claude Code 系统提示。自定义 subagents 在 [markdown 正文](#write-subagent-files) 或 `prompt` 字段中定义它们。内置代理有预定义的提示。
 * **任务消息**：Claude 在移交工作时编写的委托提示。
-* **CLAUDE.md 文件**：主对话加载的 [CLAUDE.md 层次结构](/docs/zh-CN/memory#how-claude-md-files-load) 的每个级别，包括 `~/.claude/CLAUDE.md`、项目规则、`CLAUDE.local.md` 和托管策略文件。内置的 Explore 和 Plan 代理跳过这个。Subagent 的定义设置 [`omitClaudeMd`](#supported-frontmatter-fields) 时仅加载托管策略文件，或当定义来自 [托管设置](#choose-the-subagent-scope) 时不加载任何文件。还包括任何 [`AGENTS.md` 文件](/docs/zh-CN/memory#agents-md) 作为项目指令加载。
-* **Git 状态**：在父会话开始时拍摄的快照。当工作目录不是 Git 存储库或 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 为 `false` 时不存在。Explore 和 Plan 无论如何都跳过它。
+* **CLAUDE.md 文件**：主对话加载的 [CLAUDE.md 层次结构](/docs/zh-CN/memory#how-claude-md-files-load) 的每个级别，包括 `~/.claude/CLAUDE.md`、项目规则、`CLAUDE.local.md`、托管策略文件和任何 [`AGENTS.md` 文件](/docs/zh-CN/memory#agents-md) 作为项目指令加载。内置的 Explore 和 Plan 代理跳过这个。Subagent 的定义设置 [`omitClaudeMd`](#supported-frontmatter-fields) 时仅加载托管策略文件，或当定义来自 [托管设置](#choose-the-subagent-scope) 时不加载任何文件。
+* **Git 状态**：在 subagent 启动时从您的存储库读取的快照。在 Git 存储库外或每当快照关闭时不存在；请参阅 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions)。Explore 和 Plan 无论如何都跳过它。
 * **预加载的技能**：代理的 [`skills` 字段](#preload-skills-into-subagents) 中命名的任何技能的完整内容。内置代理不预加载技能。
 * **兄弟名单**：系统提醒，列出 `main` 和会话中的每个其他命名代理，每个都是 [`SendMessage`](#resume-subagents) 的有效 `to` 值。需要 Claude Code v2.1.206 或更高版本。名单仅在 subagent 的工具包括 `SendMessage` 且至少有一个其他代理有名称时出现，无论 Claude 在生成时命名它还是它作为 [agent team](/docs/zh-CN/agent-teams) 队友运行。它是 subagent 启动时拍摄的快照，所以稍后命名的代理不会出现。
 

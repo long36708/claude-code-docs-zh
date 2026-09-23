@@ -29,7 +29,9 @@
     ```json ~/.claude/settings.json theme={null}
     {
       "model": "claude-sonnet-5",
-      "effortLevel": "xhigh",
+      "modelSettings": {
+        "claude-sonnet-5": { "effortLevel": "xhigh" }
+      },
       "editorMode": "vim",
       "theme": "light-daltonized",
       "statusLine": {
@@ -58,8 +60,10 @@
     {
       // 在 Sonnet 5 上启动每个会话
       "model": "claude-sonnet-5",
-      // 在没有保存级别的模型上比默认高级别进行更深入的推理；/effort 为每个模型保存一个级别，--effort 为单个会话设置一个级别
-      "effortLevel": "xhigh",
+      // 在 Sonnet 5 上运行高于其默认高级别；/effort 为每个模型保存一个级别，--effort 为单个会话设置一个级别
+      "modelSettings": {
+        "claude-sonnet-5": { "effortLevel": "xhigh" }
+      },
       // 提示中的 Vim 快捷键
       "editorMode": "vim",
       // 色盲友好的浅色主题

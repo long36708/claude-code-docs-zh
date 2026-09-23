@@ -24,7 +24,7 @@ Claude Code 是一个在您的终端中运行的代理助手。虽然它在编�
 
 您也是这个循环的一部分。您可以在任何时刻中断以引导 Claude 朝不同的方向发展、提供额外的上下文或要求它尝试不同的方法。Claude 自主工作但对您的输入保持响应。
 
-代理循环由两个组件驱动：[模型](#models)进行推理和[工具](#tools)采取行动。Claude Code 充当 Claude 周围的**代理框架**：它提供工具、上下文管理和执行环境，将语言模型转变为能够进行编码的代理。
+代理循环由两个组件驱动：[模型](#models)进行推理和[工具](#tools)采取行动。Claude Code 是围绕模型的层，提供工具并管理模型看到的上下文。这个周围层就是术语代理框架所指的。
 
 <h3 id="models">
   模型
@@ -238,10 +238,10 @@ Claude Code 是对话式的。您不需要完美的提示。从您想要的开�
   中断和引导
 </h4>
 
-您可以在任何时刻重定向 Claude，无需等待轮次完成或重新开始：
+您可以在任何时刻重定向 Claude，无需重新开始。执行以下任一操作：
 
 * **按 `Esc`** 立即停止 Claude。正在运行的工具调用被取消，Claude 等待您的下一条指令。如果您有排队的消息，Claude Code [会接下来发送它们](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)。
-* **输入更正并按 `Enter`** 在不停止正在运行的工具的情况下发送。Claude 在当前操作完成后立即读取它，并在决定下一步之前进行调整。
+* **输入更正并按 `Enter`** 在不停止 Claude 的情况下。消息显示为在输入框上方排队。如果 Claude 正在运行工具调用，它会在这些调用完成后立即读取消息，在同一轮内，并在下一步之前进行调整。[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)涵盖何时发送其他排队条目。
 
 <h3 id="delegate-don’t-dictate">
   委派，不要指示

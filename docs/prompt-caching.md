@@ -37,7 +37,7 @@ API 通过将每个请求的开始部分（称为前缀）与最近处理的内�
 两个设置不在层表中出现，但仍然影响缓存的内容：
 
 * **Model**：每个模型都有自己的缓存。切换模型会重新计算整个请求，即使内容相同。请参阅下面的 [Switching models](#switching-models)。
-* **Effort level**：在大多数模型上，每个努力级别都有自己的缓存，因此在会话中途更改努力级别会重新计算整个请求。在具有 API 密钥或 Claude 订阅的 Fable 5.1 上，缓存默认保持完整。请参阅下面的 [Changing effort level](#changing-effort-level)。
+* **Effort level**：在大多数模型上，每个努力级别都有自己的缓存，因此在会话中途更改努力级别会重新计算整个请求。在具有 API 密钥或 Claude 订阅的 Opus 5.5 和 Fable 5.1 上，缓存默认保持完整。请参阅下面的 [Changing effort level](#changing-effort-level)。
 
 <Tip>
   在会话顶部选择你的模型和努力级别，然后在任务之间的自然中断处保存 `/compact`。你在任务中途进行的更改越少，缓存命中率就越高。
@@ -96,7 +96,7 @@ Claude Code 还在对话中途附加系统上下文，例如文件更改通知�
 
 [`opusplan` 模型设置](/docs/zh-CN/model-config#opusplan-model-setting)在计划模式下解析为 Opus，在执行期间解析为 Sonnet，因此每个计划模式切换都是一个模型切换并启动新的缓存。
 
-[自动模型回退](/docs/zh-CN/model-config#automatic-model-fallback)在 Fable 模型和 Opus 5 上也是一个模型切换。当安全分类器在具有回退模型的类别中标记请求时，Claude Code 会在该模型上重新运行请求，会话会在那里继续。
+[自动模型回退](/docs/zh-CN/model-config#automatic-model-fallback)在 Fable 模型、Opus 5.5 和 Opus 5 上也是一个模型切换。当安全分类器在具有回退模型的类别中标记请求时，Claude Code 会在该模型上重新运行请求，会话会在那里继续。
 
 当技能或命令的 frontmatter 命名一个[`model`](/docs/zh-CN/skills#frontmatter-reference)不同于会话当前模型的模型时，该回合也是一个模型切换：下一个请求会读取整个对话历史记录而没有缓存命中。会话模型在您的下一个提示时恢复。`context: fork` 技能会设置[分叉子代理的模型](/docs/zh-CN/skills#run-skills-in-a-subagent)。
 
@@ -106,7 +106,7 @@ Claude Code 还在对话中途附加系统上下文，例如文件更改通知�
 
 在大多数模型上，在会话中途更改[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)意味着下一个请求会读取整个对话历史记录而没有缓存命中。当缓存仍然温暖时，Claude Code 会要求您先确认更改。
 
-在具有 API 密钥或 Claude 订阅的 Fable 5.1 上，更改工作量会保持缓存，Claude Code 会在不询问的情况下应用新级别。这不适用于 Amazon Bedrock、Google Cloud 的 Agent Platform 或 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway)，或当您设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 或您的组织具有 HIPAA 配置时。
+在具有 API 密钥或 Claude 订阅的 Opus 5.5 和 Fable 5.1 上，更改工作量会保持缓存，Claude Code 会在不询问的情况下应用新级别。这不适用于 Amazon Bedrock、Google Cloud 的 Agent Platform 或 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway)，或当您设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 或您的组织具有 HIPAA 配置时。
 
 在 v2.1.260 之前，在具有 API 密钥或 Claude 订阅的 Fable 5.1 上更改工作量也会使缓存失效。
 
@@ -366,10 +366,10 @@ Claude Code 按请求决定 TTL，每个请求都属于以下两个固定桶之�
 
 缓存性能显示为 API 在每个响应上报告的两个令牌计数。实时观看它们的最直接方式是读取 `current_usage` 对象的[状态行脚本](/docs/zh-CN/statusline)：
 
-| 字段                            | 含义                             |
-| ----------------------------- | ------------------------------ |
-| `cache_creation_input_tokens` | 在此回合写入缓存的令牌，按缓存写入速率计费          |
-| `cache_read_input_tokens`     | 在此回合从缓存提供的令牌，按标准输入速率的大约 10% 计费 |
+| 字段                            | 含义                                                                                             |
+| ----------------------------- | ---------------------------------------------------------------------------------------------- |
+| `cache_creation_input_tokens` | 在此回合写入缓存的令牌，按缓存写入速率计费                                                                          |
+| `cache_read_input_tokens`     | 在此回合从缓存提供的令牌，按模型的[缓存令牌速率](https://platform.claude.com/docs/en/about-claude/pricing)计费，低于标准输入速率 |
 
 高读取与创建比率意味着缓存工作良好。如果创建在回合之间保持高位，您的前缀中有什么在改变。[使缓存失效的操作](#actions-that-invalidate-the-cache)部分列出了常见原因。
 

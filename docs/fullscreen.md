@@ -234,9 +234,9 @@ export CLAUDE_CODE_SCROLL_SPEED=3
 
 运行 `/clear` 来开始新的对话。
 
-要清除屏幕并保留对话，请按 `Ctrl+L`。之前的消息会向上滚出视图，你可以用 `PgUp` 或鼠标滚轮向上滚动来重新阅读它们。在 v2.1.260 之前，`Ctrl+L` 会重绘屏幕而不清除它。在 v2.1.238 之前，在两秒内按两次会运行 `/clear`。
+如果显示看起来混乱或部分空白，按 `Ctrl+L` 来重绘屏幕。重绘会保持对话和你的输入原位。
 
-当你的终端将 `Cmd+K` 传递给 Claude Code 时，它的作用与 `Ctrl+L` 相同。iTerm2 和 Terminal.app 自己处理 `Cmd+K`，Claude Code 会重绘对话而不是清除它，所以在这些终端上请按 `Ctrl+L`。
+`Cmd+K` 在你的终端将其传递给 Claude Code 时的作用与 `Ctrl+L` 相同。iTerm2 和 Terminal.app 自己处理 `Cmd+K` 并清除自己的屏幕，Claude Code 检测到清除的屏幕并重新绘制对话。在 v2.1.280 之前，从 v2.1.260 开始，按 `Ctrl+L` 或 `Cmd+K`（到达 Claude Code 的地方）会在全屏渲染中清除屏幕。在 v2.1.238 之前，在两秒内按两次 `Ctrl+L` 会运行 `/clear`。
 
 <h2 id="use-with-tmux">
   与 tmux 一起使用

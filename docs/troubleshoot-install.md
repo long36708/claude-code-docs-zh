@@ -24,7 +24,7 @@
 | 安装期间 `Raw mode is not supported`                                                           | [重新运行安装程序](#raw-mode-is-not-supported-during-install)                                                                             |
 | `TLS connect error` 或 `SSL/TLS secure channel`                                             | [更新 CA 证书](#tls-or-ssl-connection-errors)                                                                                         |
 | `Failed to fetch version` 或无法访问下载服务器                                                       | [检查网络和代理设置](#check-network-connectivity)                                                                                          |
-| `irm is not recognized` 或 `&& is not valid`                                                | [对您的 shell 使用正确的命令](#wrong-install-command-on-windows)                                                                            |
+| `irm is not recognized` 或 `The token '&&' is not a valid statement separator`              | [对您的 shell 使用正确的命令](#wrong-install-command-on-windows)                                                                            |
 | `Cask 'claude-code' is unavailable: No Cask with this name exists`                         | [更新 Homebrew](#homebrew-cask-unavailable-or-outdated)                                                                             |
 | `'bash' is not recognized as the name of a cmdlet`                                         | [使用 Windows 安装程序命令](#wrong-install-command-on-windows)                                                                            |
 | `A parameter cannot be found that matches parameter name 'fsSL'`                           | [使用 Windows 安装程序命令](#wrong-install-command-on-windows)                                                                            |
@@ -353,7 +353,7 @@ bash: line 1: syntax error near unexpected token `<'
 bash: line 1: `<!DOCTYPE html>'
 ```
 
-在 PowerShell 上，同样的问题显示为解析错误，指向返回的页面，`iex` 尝试将 HTML 和 CSS 作为 PowerShell 运行：
+在 PowerShell 上，同样的问题表现为指向返回页面的解析错误，`iex` 尝试将 HTML 和 CSS 作为 PowerShell 运行：
 
 ```text theme={null}
 iex : At line:1 char:2310
@@ -362,7 +362,7 @@ Missing argument in parameter list.
 ...
 ```
 
-措辞因 PowerShell 版本和系统语言而异：您可能会看到 `Missing expression after unary operator '--'` 或带有 `ParseException` 的 `ParserError`。引用文本中的 HTML 标签或 CSS 标识此故障。如果您改用 `-OutFile install.ps1` 下载，保存的文件是相同的网页，所以这也无法帮助。
+措辞因 PowerShell 版本和系统语言而异：您可能会看到 `Missing expression after unary operator '--'` 或带有 `ParseException` 的 `ParserError`。引用文本中的 HTML 标签或 CSS 标识此失败。如果您改用 `-OutFile install.ps1` 下载，保存的文件是同一网页，所以这也无法帮助。
 
 根据请求的路由方式，您可能会看到 403 错误且没有 HTML 正文：
 
@@ -370,11 +370,11 @@ Missing argument in parameter list.
 curl: (22) The requested URL returned error: 403
 ```
 
-这些都意味着安装 URL 返回了 HTML 页面或错误状态而不是安装脚本。如果 HTML 页面显示"App unavailable in region"，Claude Code 在您的国家/地区不可用。请参阅 [supported countries](https://www.anthropic.com/supported-countries)。
+这些都意味着安装 URL 返回了 HTML 页面或错误状态，而不是安装脚本。如果 HTML 页面显示"应用在该地区不可用"，则 Claude Code 在您的国家/地区不可用。请参阅[支持的国家/地区](https://www.anthropic.com/supported-countries)。
 
-没有正文的 403 错误通常有相同的原因，但也可能来自企业代理或防火墙阻止下载。如果您在受支持的国家/地区但仍然看到 403，在尝试下面的替代安装程序之前，请先完成 [Check network connectivity](#check-network-connectivity)，因为这些安装程序访问相同的主机。
+没有正文的单纯 403 通常有相同的原因，但也可能来自公司代理或防火墙阻止下载。如果您在支持的国家/地区但仍然看到 403，请在尝试下面的替代安装程序之前完成[检查网络连接](#check-network-connectivity)，因为这些安装程序访问相同的主机。
 
-否则，这可能由于网络问题、区域路由或临时服务中断而发生。
+否则，这可能由网络问题、区域路由或临时服务中断引起。
 
 **解决方案：**
 
@@ -392,9 +392,9 @@ curl: (22) The requested URL returned error: 403
    winget install Anthropic.ClaudeCode
    ```
 
-   然后运行 `claude --version` 以确认：该命令打印版本号，例如 `2.1.211 (Claude Code)`。如果 shell 报告找不到 `claude`，打开一个新的终端窗口并重试：您安装的会话保留其旧的 `PATH`。
+   然后运行 `claude --version` 确认：该命令打印版本号，例如 `2.1.211 (Claude Code)`。如果 shell 报告找不到 `claude`，请打开新的终端窗口并重试：您安装的会话保留其旧的 `PATH`。
 
-2. **几分钟后重试**：问题通常是暂时的。等待并再次尝试原始命令。
+2. **几分钟后重试**：该问题通常是临时的。等待并重新尝试原始命令。
 
 <h3 id="command-not-found-claude-after-installation">
   安装后 `command not found: claude`
@@ -409,28 +409,28 @@ curl: (22) The requested URL returned error: 403
 | Windows CMD | `'claude' is not recognized as an internal or external command`        |
 | PowerShell  | `claude : The term 'claude' is not recognized as the name of a cmdlet` |
 
-这意味着安装目录不在您的 shell 搜索路径中。请参阅 [Verify your PATH](#verify-your-path) 以获取每个平台上的修复。
+这意味着安装目录不在您的 shell 搜索路径中。请参阅[验证您的 PATH](#verify-your-path) 了解每个平台上的修复。
 
 <h3 id="curl-56-failure-writing-output-to-destination">
   `curl: (56) Failure writing output to destination`
 </h3>
 
-`curl ... | bash` 命令下载脚本并将其传送到 Bash 以执行。此错误以及相关的 `curl: (23) Failure writing output to destination` 意味着 Bash 没有收到完整的脚本。退出代码 56 表示下载本身被中断，退出代码 23 表示 curl 无法将其接收的内容写入管道，通常是因为 Bash 提前退出。
+`curl ... | bash` 命令下载脚本并将其管道传输到 Bash 以执行。此错误以及相关的 `curl: (23) Failure writing output to destination` 意味着 Bash 没有收到完整的脚本。退出代码 56 表示下载本身被中断，退出代码 23 表示 curl 无法将其接收的内容写入管道，通常是因为 Bash 提前退出。
 
-测试您是否可以使用 [Check network connectivity](#check-network-connectivity) 中的检查访问 `downloads.claude.ai`。如果您到达了服务器，原始故障可能是间歇性的；重试安装命令。您也可以 [try an alternative install method](/docs/zh-CN/setup#install-claude-code)。
+使用[检查网络连接](#check-network-connectivity)中的检查来测试您是否可以访问 `downloads.claude.ai`。如果您访问了服务器，原始失败可能是间歇性的；重试安装命令。您也可以[尝试替代安装方法](/docs/zh-CN/setup#install-claude-code)。
 
 <h3 id="homebrew-cask-unavailable-or-outdated">
   Homebrew cask 不可用或过时
 </h3>
 
-Homebrew 报告 `Error: Cask 'claude-code' is unavailable: No Cask with this name exists` 当您的 Homebrew cask 索引本地副本早于 cask 的发布时间。刷新索引并重试：
+当您的 Homebrew cask 索引本地副本早于 cask 发布时，Homebrew 报告 `Error: Cask 'claude-code' is unavailable: No Cask with this name exists`。刷新索引并重试：
 
 ```bash theme={null}
 brew update
 brew install --cask claude-code
 ```
 
-如果 Homebrew 安装的 Claude Code 版本比您预期的要旧，通常是相同的过时索引导致的。`claude-code` cask 跟踪稳定频道，通常比最新版本晚约一周；对于最新版本，请改为运行 `brew install --cask claude-code@latest`。请参阅 [Configure release channel](/docs/zh-CN/setup#configure-release-channel) 了解两个 cask 之间的区别。
+如果 Homebrew 安装的 Claude Code 版本比您预期的要旧，通常是相同的过时索引导致的。`claude-code` cask 跟踪稳定频道，通常比最新版本晚约一周；对于最新版本，请改为运行 `brew install --cask claude-code@latest`。请参阅[配置发布频道](/docs/zh-CN/setup#configure-release-channel)了解两个 cask 之间的区别。
 
 <h3 id="tls-or-ssl-connection-errors">
   TLS 或 SSL 连接错误
@@ -450,13 +450,13 @@ brew install --cask claude-code
 
    在 macOS 上，系统 curl 使用 Keychain 信任存储；更新 macOS 本身会更新根证书。
 
-2. **在 Windows 上，在运行安装程序前在 PowerShell 中启用 TLS 1.2**：
+2. **在 Windows 上，在运行安装程序之前在 PowerShell 中启用 TLS 1.2**：
    ```powershell theme={null}
    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
    irm https://claude.ai/install.ps1 | iex
    ```
 
-3. **检查代理或防火墙干扰**：执行 TLS 检查的企业代理可能导致这些错误，包括 `unable to get local issuer certificate` 和 `SELF_SIGNED_CERT_IN_CHAIN`。对于安装步骤，使安装下载信任您的企业代理的 CA：
+3. **检查代理或防火墙干扰**：执行 TLS 检查的公司代理可能会导致这些错误，包括 `unable to get local issuer certificate` 和 `SELF_SIGNED_CERT_IN_CHAIN`。对于安装步骤，使安装下载信任您的公司代理的 CA：
 
    <Tabs>
      <Tab title="macOS/Linux">
@@ -466,7 +466,7 @@ brew install --cask claude-code
      </Tab>
 
      <Tab title="Windows PowerShell">
-       PowerShell 安装程序通过 .NET 下载，该 .NET 针对 Windows 证书存储验证 TLS。如果代理的 CA 证书还不在 Windows 存储中，请要求您的 IT 团队将其添加到 Windows 存储中，然后运行安装程序：
+       PowerShell 安装程序通过 .NET 下载，该 .NET 针对 Windows 证书存储验证 TLS。如果代理的 CA 证书尚未在 Windows 存储中，请要求您的 IT 团队添加它，然后运行安装程序：
 
        ```powershell theme={null}
        irm https://claude.ai/install.ps1 | iex
@@ -490,13 +490,13 @@ brew install --cask claude-code
      </Tab>
    </Tabs>
 
-   如果您没有证书文件，请向您的 IT 团队询问。您也可以尝试直接连接以确认代理是原因。
+   如果您没有证书文件，请向您的 IT 团队索取。您也可以尝试直接连接来确认代理是原因。
 
-4. **在 Windows 上，解决被阻止的撤销检查**。错误 `CRYPT_E_NO_REVOCATION_CHECK (0x80092012)` 和 `CRYPT_E_REVOCATION_OFFLINE (0x80092013)` 意味着 curl 到达了服务器，但您的网络阻止了证书撤销查询，这在企业防火墙后很常见。如果失败的命令是下载 `install.cmd` 的 `curl`，从命令提示符重新运行它，添加 `--ssl-revoke-best-effort`：
+4. **在 Windows 上，解决被阻止的撤销检查**。错误 `CRYPT_E_NO_REVOCATION_CHECK (0x80092012)` 和 `CRYPT_E_REVOCATION_OFFLINE (0x80092013)` 意味着 curl 到达了服务器，但您的网络阻止了证书撤销查询，这在公司防火墙后很常见。如果失败的命令是下载 `install.cmd` 的 `curl`，请从命令提示符重新运行它，添加 `--ssl-revoke-best-effort`：
    ```batch theme={null}
    curl --ssl-revoke-best-effort -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
    ```
-   当脚本自己的下载遇到相同的错误时，它会自动使用最佳努力撤销检查重试它们，因此该标志仅在您自己运行的命令上需要。最佳努力检查容许无法访问的撤销服务器，但仍然拒绝已知被撤销的证书，与浏览器处理撤销的方式相匹配。您也可以通过从 PowerShell 运行 PowerShell 安装程序来完全避免 curl 的撤销检查，该安装程序通过 .NET 下载，当撤销服务器无法访问时不会失败：
+   当脚本自己的下载遇到相同的错误时，它会自动使用最佳努力撤销检查重试它们，因此该标志仅在您自己运行的命令上需要。最佳努力检查容忍无法访问的撤销服务器，但仍然拒绝已知被撤销的证书，与浏览器处理撤销的方式相匹配。您也可以通过从 PowerShell 运行 PowerShell 安装程序来完全避免 curl 的撤销检查，该安装程序通过 .NET 下载，当撤销服务器无法访问时不会失败：
    ```powershell theme={null}
    irm https://claude.ai/install.ps1 | iex
    ```
@@ -506,17 +506,17 @@ brew install --cask claude-code
   `Failed to fetch version from downloads.claude.ai`
 </h3>
 
-安装程序无法访问下载服务器。这通常意味着 `downloads.claude.ai` 在您的网络上被阻止。请参阅 [Check network connectivity](#check-network-connectivity)。
+安装程序无法访问下载服务器。这通常意味着 `downloads.claude.ai` 在您的网络上被阻止。请参阅[检查网络连接](#check-network-connectivity)。
 
 <h3 id="wrong-install-command-on-windows">
   Windows 上的错误安装命令
 </h3>
 
-如果您看到 `'irm' is not recognized`、`The token '&&' is not valid`、`A parameter cannot be found that matches parameter name 'fsSL'` 或 `'bash' is not recognized as the name of a cmdlet`，您复制了不同 shell 或操作系统的安装命令。如果该命令打印脚本的文本而不是安装任何内容，您只运行了其中的一部分。
+如果您看到 `'irm' is not recognized`、`The token '&&' is not a valid statement separator`、`A parameter cannot be found that matches parameter name 'fsSL'` 或 `'bash' is not recognized as the name of a cmdlet`，您复制了不同 shell 或操作系统的安装命令。如果该命令打印脚本的文本而不是安装任何内容，您只运行了其中的一部分。
 
-* **`irm` 未识别**：您在 CMD 中，而不是 PowerShell。您有两个选项：
+* **`irm` 无法识别**：您在 CMD 中，而不是 PowerShell。您有两个选项：
 
-  通过在开始菜单中搜索"PowerShell"打开 PowerShell，然后运行原始安装命令：
+  通过在"开始"菜单中搜索"PowerShell"打开 PowerShell，然后运行原始安装命令：
 
   ```powershell theme={null}
   irm https://claude.ai/install.ps1 | iex
@@ -528,22 +528,22 @@ brew install --cask claude-code
   curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
   ```
 
-* **`&&` 无效**：您在 PowerShell 中但运行了 CMD 安装程序命令。使用 PowerShell 安装程序：
+* **`&&` 不是有效的语句分隔符**：您在 PowerShell 中但运行了 CMD 安装程序命令。使用 PowerShell 安装程序：
   ```powershell theme={null}
   irm https://claude.ai/install.ps1 | iex
   ```
 
-* **`A parameter cannot be found that matches parameter name 'fsSL'`**：您在 Windows PowerShell 中运行了 macOS/Linux `curl -fsSL ... | bash` 安装程序，其中 `curl` 是 `Invoke-WebRequest` 的别名并拒绝 `-fsSL` 标志。改用 PowerShell 安装程序：
+* **`A parameter cannot be found that matches parameter name 'fsSL'`**：您在 Windows PowerShell 中运行了 macOS/Linux `curl -fsSL ... | bash` 安装程序，其中 `curl` 是 `Invoke-WebRequest` 的别名，拒绝 `-fsSL` 标志。改用 PowerShell 安装程序：
   ```powershell theme={null}
   irm https://claude.ai/install.ps1 | iex
   ```
 
-* **`bash` 未识别**：您在 Windows 上运行了 macOS/Linux 安装程序。改用 PowerShell 安装程序：
+* **`bash` 无法识别**：您在 Windows 上运行了 macOS/Linux 安装程序。改用 PowerShell 安装程序：
   ```powershell theme={null}
   irm https://claude.ai/install.ps1 | iex
   ```
 
-* **该命令打印脚本文本而不是安装**：您运行了命令的下载部分，而没有运行执行它的部分。`irm https://claude.ai/install.ps1` 单独会将下载的脚本打印到终端。将其传送到 `iex` 以运行它：
+* **该命令打印脚本文本而不是安装**：您运行了命令的下载部分，而没有运行执行它的部分。`irm https://claude.ai/install.ps1` 单独会将下载的脚本打印到终端。将其管道传输到 `iex` 以运行它：
 
   ```powershell theme={null}
   irm https://claude.ai/install.ps1 | iex
@@ -555,7 +555,7 @@ brew install --cask claude-code
   curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
   ```
 
-无论您使用哪个安装程序，都要确认它有效：打开一个新终端并运行 `claude --version`，它打印版本号，例如 `2.1.211 (Claude Code)`。
+无论您使用哪个安装程序，请确认它有效：打开新终端并运行 `claude --version`，它打印版本号，例如 `2.1.211 (Claude Code)`。
 
 <h3 id="running-scripts-is-disabled-on-this-system">
   `running scripts is disabled on this system`
@@ -569,7 +569,7 @@ npm : File C:\Program Files\nodejs\npm.ps1 cannot be loaded because running scri
     + CategoryInfo          : SecurityError: (:) [], PSSecurityException
 ```
 
-当您在 npm 安装后运行 `claude` 时，同样的错误名称 `claude.ps1`。PowerShell 的执行策略正在阻止 npm 为其命令创建的 `.ps1` 启动程序脚本。该策略适用于脚本文件，因此它不影响 PowerShell 安装程序 `irm https://claude.ai/install.ps1 | iex`，它直接运行下载的文本。
+当您在 npm 安装后运行 `claude` 时，同样的错误会命名 `claude.ps1`。PowerShell 的执行策略阻止了 npm 为其命令创建的 `.ps1` 启动程序脚本。该策略适用于脚本文件，因此不会影响 PowerShell 安装程序 `irm https://claude.ai/install.ps1 | iex`，它直接运行下载的文本。
 
 **解决方案：**
 
@@ -578,13 +578,13 @@ npm : File C:\Program Files\nodejs\npm.ps1 cannot be loaded because running scri
    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
    ```
 2. **改为调用 `.cmd` 启动程序**：`npm.cmd` 和 `claude.cmd` 做同样的工作，该策略不涵盖它们。
-3. **改用 [PowerShell installer](/docs/zh-CN/setup#install-claude-code)**，而不是 npm。它安装二进制文件而不是 `.ps1` 脚本。
+3. **改用 [PowerShell 安装程序](/docs/zh-CN/setup#install-claude-code)** 而不是 npm。它安装二进制文件而不是 `.ps1` 脚本。
 
 <h3 id="the-process-cannot-access-the-file-during-windows-install">
   Windows 安装期间 `The process cannot access the file`
 </h3>
 
-如果 PowerShell 安装程序失败，显示 `Failed to download binary: The process cannot access the file ... because it is being used by another process`，安装程序无法写入 `%USERPROFILE%\.claude\downloads`。这通常意味着之前的安装尝试仍在运行，或防病毒软件正在扫描该文件夹中部分下载的二进制文件。
+如果 PowerShell 安装程序失败，出现 `Failed to download binary: The process cannot access the file ... because it is being used by another process`，安装程序无法写入 `%USERPROFILE%\.claude\downloads`。这通常意味着之前的安装尝试仍在运行，或防病毒软件正在扫描该文件夹中部分下载的二进制文件。
 
 关闭任何其他运行安装程序的 PowerShell 窗口，并等待防病毒扫描释放该文件。然后删除下载文件夹并再次运行安装程序：
 
@@ -594,10 +594,10 @@ irm https://claude.ai/install.ps1 | iex
 ```
 
 <h3 id="install-killed-on-low-memory-linux-servers">
-  低内存 Linux 服务器上安装被杀死
+  在低内存 Linux 服务器上安装被杀死
 </h3>
 
-在安装期间看到 `Killed` 消息通常意味着 Linux 内存不足 (OOM) 杀手终止了 `claude install` 步骤，因为系统内存不足。这在小型 VPS 和云实例上很常见。安装脚本报告原因并以代码 137 退出。在此示例中，行号和进程 ID 因版本和运行而异：
+安装期间的 `Killed` 消息通常意味着 Linux 内存不足 (OOM) 杀手终止了 `claude install` 步骤，因为系统内存不足。这在小型 VPS 和云实例上很常见。安装脚本报告原因并以代码 137 退出。在此示例中，行号和进程 ID 因版本和运行而异：
 
 ```text theme={null}
 Setting up Claude Code...
@@ -606,11 +606,11 @@ Installation was killed before it could finish (exit code 137). This usually mea
 Claude Code needs roughly 512MB of free memory to install. Free up memory, then run this script again.
 ```
 
-安装需要大约 512 MB 的可用内存，运行 Claude Code 需要更多。请参阅 [system requirements](/docs/zh-CN/setup#system-requirements)。
+安装需要大约 512 MB 的可用内存，运行 Claude Code 需要更多。请参阅[系统要求](/docs/zh-CN/setup#system-requirements)。
 
 **解决方案：**
 
-1. **添加交换空间**（如果您的服务器 RAM 有限）。交换使用磁盘空间作为溢出内存，让安装即使在低物理 RAM 的情况下也能完成。
+1. **添加交换空间**，如果您的服务器 RAM 有限。交换使用磁盘空间作为溢出内存，即使物理 RAM 较低也能让安装完成。
 
    创建 2 GB 交换文件并启用它：
 
@@ -629,31 +629,31 @@ Claude Code needs roughly 512MB of free memory to install. Free up memory, then 
 
 2. **关闭其他进程**以在安装前释放内存。
 
-3. **如果可能，使用更大的实例**。Claude Code 需要至少 4 GB 的 RAM。
+3. **使用更大的实例**，如果可能的话。Claude Code 需要至少 4 GB 的 RAM。
 
 <h3 id="install-hangs-in-docker">
-  Docker 中安装挂起
+  在 Docker 中安装挂起
 </h3>
 
-在 Docker 容器中安装 Claude Code 时，以 root 身份安装到 `/` 可能导致挂起。
+在 Docker 容器中安装 Claude Code 时，以 root 身份安装到 `/` 可能会导致挂起。
 
 **解决方案：**
 
-1. **在运行安装程序前设置工作目录**。从 `/` 运行时，安装程序扫描整个文件系统，这导致过度的内存使用。设置 `WORKDIR` 将扫描限制在小目录：
+1. **在运行安装程序之前设置工作目录**。从 `/` 运行时，安装程序扫描整个文件系统，这会导致过度的内存使用。设置 `WORKDIR` 将扫描限制在小目录：
    ```dockerfile theme={null}
    WORKDIR /tmp
    RUN curl -fsSL https://claude.ai/install.sh | bash
    ```
 
-2. **给 Docker 更多内存**（如果使用 Docker Desktop）。构建容器共享分配给 Docker Desktop 虚拟机的内存，因此打开 Docker Desktop 中的 **Settings > Resources**，提高内存限制，然后重新运行构建。
+2. **给 Docker 更多内存**，如果使用 Docker Desktop。构建容器共享分配给 Docker Desktop 虚拟机的内存，因此打开 Docker Desktop 中的 **Settings > Resources**，提高内存限制，然后重新运行构建。
 
 <h3 id="raw-mode-is-not-supported-during-install">
   安装期间 `Raw mode is not supported`
 </h3>
 
-当您的组织的 [server-managed settings](/docs/zh-CN/server-managed-settings) 包括需要 [security approval](/docs/zh-CN/server-managed-settings#security-approval-dialogs) 的更改时，Claude Code 2.1.246 之前的版本尝试在 `claude install` 期间显示批准对话框。该对话框需要 stdin 上的终端。当安装程序从管道运行 `claude install` 时，如 `curl -fsSL https://claude.ai/install.sh | bash` 所做的那样，stdin 是管道而不是终端，因此安装失败，错误包含 `Raw mode is not supported`。
+当您的组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings)包括需要[安全批准](/docs/zh-CN/server-managed-settings#security-approval-dialogs)的更改时，2.1.246 之前的 Claude Code 版本尝试在 `claude install` 期间显示批准对话框。对话框需要 stdin 上的终端。当安装程序从管道运行 `claude install` 时，如 `curl -fsSL https://claude.ai/install.sh | bash` 所做的那样，stdin 是管道而不是终端，因此安装失败，错误包含 `Raw mode is not supported`。
 
-Claude Code v2.1.246 及更高版本在 `claude install` 或 `claude update` 期间不显示对话框。该命令使用您上次批准的设置运行，Claude Code 在您的下一个交互式会话中显示对话框。如果您的组织的启动配置 [waits for the settings fetch](/docs/zh-CN/server-managed-settings#enforce-fail-closed-startup)，例如当它设置 `forceRemoteSettingsRefresh` 时，对话框仍然在这些命令期间出现，从管道运行的安装仍然会失败。
+Claude Code v2.1.246 及更高版本在 `claude install` 或 `claude update` 期间不显示对话框。该命令使用您上次批准的设置运行，Claude Code 在您的下一个交互式会话中显示对话框。如果您的组织的启动配置[等待设置获取](/docs/zh-CN/server-managed-settings#enforce-fail-closed-startup)，例如当它设置 `forceRemoteSettingsRefresh` 时，对话框仍会在这些命令期间出现，从管道运行的安装仍会失败。
 
 在所有其他配置中，重新运行安装程序会绕过此错误，因为即使您要求它安装较旧版本，脚本也会运行最新版本的 `install` 命令。为您的平台重新运行命令：
 
@@ -685,13 +685,13 @@ Claude Code v2.1.246 及更高版本在 `claude install` 或 `claude update` 期
 ls -ld ~/.zshrc ~/.bashrc ~/.bash_profile ~/.bash_login ~/.profile ~/.config/fish/config.fish
 ```
 
-将目录移到一边，或更新到 v2.1.214 或更高版本。由于 `claude update` 在受影响的版本上挂起，请改为重新运行 [install script](/docs/zh-CN/setup#install-claude-code) 来更新。
+将目录移到一边，或更新到 v2.1.214 或更高版本。由于 `claude update` 在受影响的版本上挂起，请改为通过重新运行[安装脚本](/docs/zh-CN/setup#install-claude-code)来更新。
 
 <h3 id="claude-desktop-overrides-the-claude-command-on-windows">
   Claude Desktop 在 Windows 上覆盖 `claude` 命令
 </h3>
 
-如果您安装了较旧版本的 Claude Desktop，它可能在 `WindowsApps` 目录中注册 `Claude.exe`，其 PATH 优先级高于 Claude Code CLI。运行 `claude` 会打开 Desktop 应用而不是 CLI。
+如果您安装了较旧版本的 Claude Desktop，它可能会在 `WindowsApps` 目录中注册一个 `Claude.exe`，该目录在 PATH 中优先于 Claude Code CLI。运行 `claude` 会打开 Desktop 应用而不是 CLI。
 
 更新 Claude Desktop 到最新版本以修复此问题。
 
@@ -699,20 +699,20 @@ ls -ld ~/.zshrc ~/.bashrc ~/.bash_profile ~/.bash_login ~/.profile ~/.config/fis
   Windows 上的 Claude Code 需要 Git for Windows（用于 bash）或 PowerShell
 </h3>
 
-Git for Windows 是可选的。Claude Code 在缺少 Git Bash 时使用 [PowerShell tool](/docs/zh-CN/tools-reference#powershell-tool)，因此此错误意味着两个 shell 都未找到。
+Git for Windows 是可选的。Claude Code 在没有 Git Bash 时使用 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)，因此此错误意味着找不到任何 shell。
 
-**如果 PowerShell 从您的 PATH 中缺失**，其默认位置是 `C:\Windows\System32\WindowsPowerShell\v1.0\`。将该目录添加到您的 `PATH`，或安装 [PowerShell 7](https://aka.ms/powershell)，它提供 `pwsh`。
+**如果 PowerShell 不在您的 PATH 中**，其默认位置是 `C:\Windows\System32\WindowsPowerShell\v1.0\`。将该目录添加到您的 `PATH`，或安装 [PowerShell 7](https://aka.ms/powershell)，它提供 `pwsh`。
 
-**要改为安装 Git for Windows**，从 [git-scm.com/downloads/win](https://git-scm.com/downloads/win) 下载它。在设置期间，选择"Add to PATH"。安装后重启您的终端。安装它启用了 Bash 工具，在使用基于 Bash 的脚本和工具时很有用。
+**要改为安装 Git for Windows**，请从 [git-scm.com/downloads/win](https://git-scm.com/downloads/win) 下载它。在设置期间，选择"Add to PATH"。安装后重启您的终端。安装它启用了 Bash 工具，在使用基于 Bash 的脚本和工具时很有用。
 
-**如果 Git 已安装**但 Claude Code 找不到它，请比较其位置与 Claude Code 检查的位置。当 `CLAUDE_CODE_GIT_BASH_PATH` 未设置时，Claude Code 按此顺序查找 `bash.exe`：
+**如果 Git 已安装**但 Claude Code 找不到它，请将其位置与 Claude Code 检查的位置进行比较。当未设置 `CLAUDE_CODE_GIT_BASH_PATH` 时，Claude Code 按此顺序查找 `bash.exe`：
 
 1. 默认安装位置 `C:\Program Files\Git` 和 `C:\Program Files (x86)\Git`。
 2. 您的 `PATH` 上的 `git`，使用该 Git 安装中的 `bin\bash.exe`。
 
-在第 2 步中，Claude Code 跳过位于您启动 Claude Code 的文件夹中或其下方的 `git`，其路径包含 `node_modules` 或虚拟环境文件夹（如 `.venv` 或 `env`），例如当您从 `C:\dev\env\myproject` 启动时的 `C:\dev\env\myproject\Git`。这防止 Claude Code 运行项目放在那里的可执行文件。如果您的 Git 在这样的位置，请将 `CLAUDE_CODE_GIT_BASH_PATH` 指向它。
+在第 2 步中，Claude Code 跳过位于您启动 Claude Code 的文件夹中的 `git`，或在包含 `node_modules` 或虚拟环境文件夹（如 `.venv` 或 `env`）的路径下方的 `git`，例如当您从 `C:\dev\env\myproject` 启动时的 `C:\dev\env\myproject\Git`。这防止 Claude Code 运行项目放在那里的可执行文件。如果您的 Git 在这样的位置，请将 `CLAUDE_CODE_GIT_BASH_PATH` 指向它。
 
-**要将 Claude Code 指向特定的 Git 安装**，通过在 PowerShell 中运行 `where.exe git` 找到它，然后在您的 [settings.json file](/docs/zh-CN/settings) 中将该安装中的 `bin\bash.exe` 路径设置为 `CLAUDE_CODE_GIT_BASH_PATH`：
+**要将 Claude Code 指向特定的 Git 安装**，通过在 PowerShell 中运行 `where.exe git` 找到它，然后将该安装中的 `bin\bash.exe` 路径设置为您的[settings.json 文件](/docs/zh-CN/settings)中的 `CLAUDE_CODE_GIT_BASH_PATH`：
 
 ```json theme={null}
 {
@@ -722,15 +722,15 @@ Git for Windows 是可选的。Claude Code 在缺少 Git Bash 时使用 [PowerSh
 }
 ```
 
-**如果 `CLAUDE_CODE_GIT_BASH_PATH` 设置为正确的路径且文件存在**但 Claude Code 仍然不使用它，请首先检查文件的名称。Claude Code 仅接受名为 `bash.exe`、`sh.exe`、`bash` 或 `sh` 的文件；使用任何其他名称（如 Git for Windows 的 `git-bash.exe` 启动程序），它会忽略该变量并自动检测 Git Bash，就像它未设置一样，记录 `--debug` 可见的警告。不存在的路径会获得相同的回退和警告。在 v2.1.219 之前，Claude Code 使用任何现有文件作为 shell，而不检查其名称，当路径不存在时在启动时以 `Claude Code was unable to find CLAUDE_CODE_GIT_BASH_PATH path` 退出。
+**如果 `CLAUDE_CODE_GIT_BASH_PATH` 设置为正确的路径且文件存在**但 Claude Code 仍然不使用它，请首先检查文件的名称。Claude Code 仅接受名为 `bash.exe`、`sh.exe`、`bash` 或 `sh` 的文件；对于任何其他名称，例如 Git for Windows 的 `git-bash.exe` 启动程序，它会忽略该变量并自动检测 Git Bash，就像它未设置一样，记录 `--debug` 可见的警告。不存在的路径会获得相同的回退和警告。在 v2.1.219 之前，Claude Code 使用任何现有文件作为 shell，而不检查其名称，当路径不存在时在启动时以 `Claude Code was unable to find CLAUDE_CODE_GIT_BASH_PATH path` 退出。
 
-如果文件的名称正确，端点安全软件（如 AppLocker、Group Policy 软件限制策略或 EDR 代理）可能会干扰。要求您的 IT 团队在您的端点保护策略中将 `claude.exe` 及其生成的进程（包括 `cmd.exe` 和 `bash.exe`）列入白名单。
+如果文件的名称正确，端点安全软件（如 AppLocker、组策略软件限制策略或 EDR 代理）可能会干扰。要求您的 IT 团队在您的端点保护策略中将 `claude.exe` 和它生成的进程（包括 `cmd.exe` 和 `bash.exe`）列入白名单。
 
 <h3 id="claude-code-does-not-support-32-bit-windows">
   Claude Code 不支持 32 位 Windows
 </h3>
 
-Windows 在开始菜单中包含两个 PowerShell 条目：`Windows PowerShell` 和 `Windows PowerShell (x86)`。x86 条目以 32 位进程运行，即使在 64 位机器上也会触发此错误。要检查您处于哪种情况，请在产生错误的同一窗口中运行此命令：
+Windows 在"开始"菜单中包括两个 PowerShell 条目：`Windows PowerShell` 和 `Windows PowerShell (x86)`。x86 条目作为 32 位进程运行，即使在 64 位机器上也会触发此错误。要检查您处于哪种情况，请在产生错误的同一窗口中运行此命令：
 
 ```powershell theme={null}
 [Environment]::Is64BitOperatingSystem
@@ -738,13 +738,13 @@ Windows 在开始菜单中包含两个 PowerShell 条目：`Windows PowerShell` 
 
 如果这打印 `True`，您的操作系统没问题。关闭窗口，打开不带 x86 后缀的 `Windows PowerShell`，然后再次运行安装命令。
 
-如果这打印 `False`，您在 32 位版本的 Windows 上。Claude Code 需要 64 位操作系统。请参阅 [system requirements](/docs/zh-CN/setup#system-requirements)。
+如果这打印 `False`，您在 32 位版本的 Windows 上。Claude Code 需要 64 位操作系统。请参阅[系统要求](/docs/zh-CN/setup#system-requirements)。
 
 <h3 id="linux-musl-or-glibc-binary-mismatch">
-  Linux musl 或 glibc 二进制文件不匹配
+  Linux musl 或 glibc 二进制不匹配
 </h3>
 
-如果在安装后看到关于缺失共享库（如 `libstdc++.so.6` 或 `libgcc_s.so.1`）的错误，安装程序可能为您的系统下载了错误的二进制变体。
+如果在安装后看到有关缺失共享库的错误，例如 `libstdc++.so.6` 或 `libgcc_s.so.1`，安装程序可能为您的系统下载了错误的二进制变体。
 
 ```text theme={null}
 Error loading shared library libstdc++.so.6: No such file or directory
@@ -758,15 +758,15 @@ Error loading shared library libstdc++.so.6: No such file or directory
    ```bash theme={null}
    ldd --version 2>&1 | head -1
    ```
-   提及 `GNU libc` 或 `GLIBC` 的输出表示 glibc。提及 `musl` 的输出表示 musl。
+   提及 `GNU libc` 或 `GLIBC` 的输出意味着 glibc。提及 `musl` 的输出意味着 musl。
 
-2. **如果您在 glibc 上但获得了 musl 二进制文件**，删除安装并重新安装。您也可以使用 `https://downloads.claude.ai/claude-code-releases/{VERSION}/manifest.json` 处的清单手动下载正确的二进制文件。使用 `ldd --version` 和 `ls /lib/libc.musl*` 的输出提交 [GitHub issue](https://github.com/anthropics/claude-code/issues)。
+2. **如果您在 glibc 上但获得了 musl 二进制文件**，删除安装并重新安装。您也可以使用 `https://downloads.claude.ai/claude-code-releases/{VERSION}/manifest.json` 处的清单手动下载正确的二进制文件。使用 `ldd --version` 和 `ls /lib/libc.musl*` 的输出提交 [GitHub 问题](https://github.com/anthropics/claude-code/issues)。
 
 3. **如果您实际上在 musl 上**，例如 Alpine Linux，请安装所需的包：
    ```bash theme={null}
    apk add libgcc libstdc++ ripgrep
    ```
-   在 Alpine 上，`ripgrep` 在社区存储库中。如果 `apk` 报告包缺失，请参阅 [Alpine Linux setup](/docs/zh-CN/setup#alpine-linux-and-musl-based-distributions)。
+   在 Alpine 上，`ripgrep` 在社区存储库中。如果 `apk` 报告包丢失，请参阅 [Alpine Linux 设置](/docs/zh-CN/setup#alpine-linux-and-musl-based-distributions)。
 
 <h3 id="illegal-instruction">
   `Illegal instruction`
@@ -774,15 +774,15 @@ Error loading shared library libstdc++.so.6: No such file or directory
 
 如果运行 `claude` 或安装程序打印 `Illegal instruction`，本机二进制文件使用您的处理器不支持的 CPU 指令。有两个不同的原因。
 
-**架构不匹配。** 安装程序下载了错误的二进制文件，例如在 ARM 服务器上的 x86。在 macOS 或 Linux 上使用 `uname -m` 检查，或在 PowerShell 中使用 `$env:PROCESSOR_ARCHITECTURE`。如果结果与您收到的二进制文件不匹配，请 [file a GitHub issue](https://github.com/anthropics/claude-code/issues) 并提供输出。
+**架构不匹配。** 安装程序下载了错误的二进制文件，例如在 ARM 服务器上的 x86。在 macOS 或 Linux 上使用 `uname -m` 检查，或在 PowerShell 中使用 `$env:PROCESSOR_ARCHITECTURE`。如果结果与您收到的二进制文件不匹配，请[提交 GitHub 问题](https://github.com/anthropics/claude-code/issues)并附上输出。
 
-**缺失 AVX 指令集。** 如果您的架构正确但仍然看到 `Illegal instruction`，您的 CPU 可能缺少二进制文件需要的 AVX 或其他指令。这影响大约 2013 年之前的英特尔和 AMD 处理器，以及虚拟机（其中虚拟机管理程序不将 AVX 传递给客户机）。
+**缺少 AVX 指令集。** 如果您的架构正确但仍然看到 `Illegal instruction`，您的 CPU 可能缺少 AVX 或二进制文件需要的其他指令。这影响大约 2013 年之前的英特尔和 AMD 处理器，以及超级管理程序不将 AVX 传递给来宾的虚拟机。
 
-在 VPS 或 VM 上，运行 `grep -m1 -ow avx /proc/cpuinfo`；空结果意味着 AVX 对客户机不可用。
+在 VPS 或 VM 上，运行 `grep -m1 -ow avx /proc/cpuinfo`；空结果意味着 AVX 对来宾不可用。
 
-没有本机二进制文件解决方法；跟踪 [issue #50384](https://github.com/anthropics/claude-code/issues/50384) 以获取状态，并在报告时包括您的 CPU 型号（来自 Linux 上的 `grep -m1 "model name" /proc/cpuinfo` 或 macOS 上的 `sysctl -n machdep.cpu.brand_string`）。
+没有本机二进制文件解决方法；跟踪 [issue #50384](https://github.com/anthropics/claude-code/issues/50384) 了解状态，并在报告时包括来自 Linux 上 `grep -m1 "model name" /proc/cpuinfo` 或 macOS 上 `sysctl -n machdep.cpu.brand_string` 的您的 CPU 型号。
 
-替代安装方法下载相同的本机二进制文件，不会解决任一原因。
+替代安装方法下载相同的本机二进制文件，不会解决任何一个原因。
 
 <h3 id="dyld-cannot-load-on-macos">
   macOS 上的 `dyld: cannot load`
@@ -790,7 +790,7 @@ Error loading shared library libstdc++.so.6: No such file or directory
 
 如果在安装期间看到 `dyld: Symbol not found`、`dyld: cannot load` 或 `Abort trap: 6`，二进制文件与您的 macOS 版本或硬件不兼容。
 
-引用 `libicucore` 的 `Symbol not found` 错误意味着您的 macOS 版本比二进制文件支持的版本更旧：
+引用 `libicucore` 的 `Symbol not found` 错误意味着您的 macOS 版本比二进制文件支持的要旧：
 
 ```text theme={null}
 dyld: Symbol not found: _ubrk_clone
@@ -809,13 +809,13 @@ Abort trap: 6
 
 1. **检查您的 macOS 版本**：Claude Code 需要 macOS 13.0 或更高版本。打开 Apple 菜单并选择"About This Mac"以检查您的版本。
 
-2. **更新 macOS**（如果您在较旧版本上）。二进制文件使用较旧 macOS 版本不支持的加载命令和系统库。Homebrew 等替代安装方法下载相同的二进制文件，不会解决此错误。
+2. **更新 macOS**，如果您在较旧版本上。二进制文件使用较旧 macOS 版本不支持的加载命令和系统库。Homebrew 等替代安装方法下载相同的二进制文件，不会解决此错误。
 
 <h3 id="exec-format-error-on-wsl1">
   WSL1 上的 `Exec format error`
 </h3>
 
-如果在 WSL 中运行 `claude` 打印 `cannot execute binary file: Exec format error`，您在 WSL1 上并遇到了在 [issue #38788](https://github.com/anthropics/claude-code/issues/38788) 中跟踪的已知本机二进制文件回归。二进制文件的程序头以 WSL1 的加载程序无法处理的方式改变。
+如果在 WSL 中运行 `claude` 打印 `cannot execute binary file: Exec format error`，您在 WSL1 上，遇到了在 [issue #38788](https://github.com/anthropics/claude-code/issues/38788) 中跟踪的已知本机二进制文件回归。二进制文件的程序头以 WSL1 的加载程序无法处理的方式改变。
 
 最干净的修复是从 PowerShell 将您的发行版转换为 WSL2：
 
@@ -823,7 +823,7 @@ Abort trap: 6
 wsl --set-version <DistroName> 2
 ```
 
-如果您需要留在 WSL1 上，通过动态链接器调用二进制文件。将此函数添加到 WSL 内的 `~/.bashrc`，如果您的主目录不同，请替换路径：
+如果您需要留在 WSL1 上，请通过动态链接器调用二进制文件。将此函数添加到 WSL 内的 `~/.bashrc`，如果您的主目录不同，请替换路径：
 
 ```bash theme={null}
 claude() {
@@ -837,11 +837,11 @@ claude() {
   WSL 中的 npm 安装错误
 </h3>
 
-如果您在 WSL 内使用 `npm install -g` 安装了 Claude Code，这些问题适用。如果您使用了 [native installer](/docs/zh-CN/setup)，请跳过此部分。
+如果您在 WSL 内使用 `npm install -g` 安装了 Claude Code，这些问题适用。如果您使用了[本机安装程序](/docs/zh-CN/setup)，请跳过本部分。
 
 **OS 或平台检测问题。** 如果 npm 在安装期间报告平台不匹配，WSL 可能正在选择 Windows `npm`。首先运行 `npm config set os linux`，然后使用 `npm install -g @anthropic-ai/claude-code --force` 安装。不要使用 `sudo`。
 
-**运行 `claude` 时 `exec: node: not found`。** 您的 WSL 环境可能使用 Node.js 的 Windows 安装。使用 `which npm` 和 `which node` 确认：以 `/mnt/c/` 开头的路径是 Windows 二进制文件，而 Linux 路径以 `/usr/` 开头。要修复此问题，通过您的 Linux 发行版的包管理器或通过 [`nvm`](https://github.com/nvm-sh/nvm) 安装 Node。
+**运行 `claude` 时 `exec: node: not found`。** 您的 WSL 环境可能使用 Node.js 的 Windows 安装。使用 `which npm` 和 `which node` 确认：以 `/mnt/c/` 开头的路径是 Windows 二进制文件，而 Linux 路径以 `/usr/` 开头。要修复此问题，请通过您的 Linux 发行版的包管理器或通过 [`nvm`](https://github.com/nvm-sh/nvm) 安装 Node。
 
 **nvm 版本冲突。** 如果您在 WSL 和 Windows 中都安装了 nvm，在 WSL 中切换 Node 版本可能会中断，因为 WSL 默认导入 Windows PATH，Windows nvm 优先。最常见的原因是 nvm 未在您的 shell 中加载。将 nvm 加载程序添加到 `~/.bashrc` 或 `~/.zshrc`：
 
@@ -857,7 +857,7 @@ export NVM_DIR="$HOME/.nvm"
 source ~/.nvm/nvm.sh
 ```
 
-如果 nvm 已加载但 Windows 路径仍然优先，显式预置您的 Linux Node 路径：
+如果 nvm 已加载但 Windows 路径仍然优先，请显式预置您的 Linux Node 路径：
 
 ```bash theme={null}
 export PATH="$HOME/.nvm/versions/node/$(node -v)/bin:$PATH"
@@ -871,7 +871,7 @@ export PATH="$HOME/.nvm/versions/node/$(node -v)/bin:$PATH"
   安装期间的权限错误
 </h3>
 
-如果本机安装程序因权限错误而失败，目标目录可能不可写。请参阅 [Check directory permissions](#check-directory-permissions)。
+如果本机安装程序因权限错误失败，目标目录可能不可写。请参阅[检查目录权限](#check-directory-permissions)。
 
 如果您之前使用 npm 安装并遇到 npm 特定的权限错误，请切换到本机安装程序：
 
@@ -880,10 +880,10 @@ curl -fsSL https://claude.ai/install.sh | bash
 ```
 
 <h3 id="native-binary-not-found-after-npm-install">
-  npm 安装后未找到本机二进制文件
+  npm 安装后找不到本机二进制文件
 </h3>
 
-`@anthropic-ai/claude-code` npm 包通过每个平台的可选依赖项（如 `@anthropic-ai/claude-code-darwin-arm64`）下载本机二进制文件。然后 npm 运行包的 postinstall 脚本，该脚本将该二进制文件复制到位作为 `claude` 命令；在它运行之前，`claude` 是一个占位符脚本。如果下载或 postinstall 步骤被跳过，占位符会保留，在 macOS 和 Linux 上运行 `claude` 会打印：
+`@anthropic-ai/claude-code` npm 包下载本机二进制文件作为每个平台的可选依赖项，例如 `@anthropic-ai/claude-code-darwin-arm64`。npm 然后运行包的 postinstall 脚本，将该二进制文件复制到位作为 `claude` 命令；在它运行之前，`claude` 是一个占位符脚本。如果下载或 postinstall 步骤被跳过，占位符保留在位，在 macOS 和 Linux 上运行 `claude` 打印：
 
 ```text theme={null}
 Error: claude native binary not installed.
@@ -902,13 +902,13 @@ Or reinstall without --ignore-scripts / --omit=optional.
 
 检查以下原因：
 
-* **可选依赖项被禁用。** 从您的 npm install 命令中删除 `--omit=optional`，从 pnpm 中删除 `--no-optional`，或从 yarn 中删除 `--ignore-optional`，并检查 `.npmrc` 是否未设置 `optional=false`。然后重新安装。本机二进制文件仅作为可选依赖项提供，因此如果跳过它，就没有 JavaScript 回退，重新运行 `install.cjs` 无法放置从未下载的二进制文件。
-* **安装脚本被禁用。** `--ignore-scripts` 和某些 pnpm 配置跳过 postinstall 步骤，但仍然下载平台包。按照消息的建议运行 `node node_modules/@anthropic-ai/claude-code/install.cjs`，或不使用该标志重新安装。如果 postinstall 在您的环境中根本无法运行，`node node_modules/@anthropic-ai/claude-code/cli-wrapper.cjs` 会找到下载的包并启动它，代价是每次启动时额外的 Node 进程。如果包装器改为打印 `Could not find native binary package`，平台包从未被下载，因此首先修复上面的可选依赖项原因。
-* **不支持的平台。** 预构建的二进制文件为 `darwin-arm64`、`darwin-x64`、`linux-x64`、`linux-arm64`、`linux-x64-musl`、`linux-arm64-musl`、`win32-x64` 和 `win32-arm64` 发布。Claude Code 不为其他平台提供二进制文件；请参阅 [system requirements](/docs/zh-CN/setup#system-requirements)。在 FreeBSD 上，安装程序报告平台不受支持。在 v2.1.205 之前，它将 FreeBSD 视为 Linux 并下载了无法运行的二进制文件。
-* **企业 npm 镜像缺少平台包。** 确保您的注册表除了元包外还镜像所有八个 `@anthropic-ai/claude-code-*` 平台包。
+* **可选依赖项被禁用。** 从您的 npm install 命令中删除 `--omit=optional`，从 pnpm 中删除 `--no-optional`，或从 yarn 中删除 `--ignore-optional`，并检查 `.npmrc` 不设置 `optional=false`。然后重新安装。本机二进制文件仅作为可选依赖项交付，因此如果跳过它，没有 JavaScript 回退，再次运行 `install.cjs` 无法放置从未下载的二进制文件。
+* **安装脚本被禁用。** `--ignore-scripts` 和某些 pnpm 配置跳过 postinstall 步骤但仍然下载平台包。运行 `node node_modules/@anthropic-ai/claude-code/install.cjs`，如消息所示，或不使用该标志重新安装。如果 postinstall 在您的环境中根本无法运行，`node node_modules/@anthropic-ai/claude-code/cli-wrapper.cjs` 找到下载的包并启动它，代价是每次启动时额外的 Node 进程。如果包装器改为打印 `Could not find native binary package`，平台包从未被下载，因此首先修复上面的可选依赖项原因。
+* **不支持的平台。** 为 `darwin-arm64`、`darwin-x64`、`linux-x64`、`linux-arm64`、`linux-x64-musl`、`linux-arm64-musl`、`win32-x64` 和 `win32-arm64` 发布预构建二进制文件。Claude Code 不为其他平台提供二进制文件；请参阅[系统要求](/docs/zh-CN/setup#system-requirements)。在 FreeBSD 上，安装程序将平台报告为不支持。在 v2.1.205 之前，它将 FreeBSD 视为 Linux 并下载了无法运行的二进制文件。
+* **公司 npm 镜像缺少平台包。** 确保您的注册表除了元包外还镜像所有八个 `@anthropic-ai/claude-code-*` 平台包。
 
 <h3 id="npm-enotempty-during-update-or-reinstall">
-  npm `ENOTEMPTY` 错误在更新或重新安装期间
+  npm `ENOTEMPTY` 更新或重新安装期间的错误
 </h3>
 
 当您在现有安装上运行 `npm install -g @anthropic-ai/claude-code` 时，npm 在移动旧包目录时可能会失败：
@@ -922,7 +922,7 @@ npm error errno -39
 npm error ENOTEMPTY: directory not empty, rename '...'
 ```
 
-`npm error path` 行命名 npm 无法移动的目录。删除该目录和其旁边的任何剩余 `.claude-code-*` 目录，这些目录早期中断的运行可能会留下。下面的命令使用 `npm root -g` 找到您的全局包目录；如果 `npm error path` 行命名的目录不在 `npm root -g` 打印的目录下，例如因为您使用 nvm 切换了 Node 版本，请删除错误命名的目录：
+`npm error path` 行命名 npm 无法移动的目录。删除该目录和其旁边的任何剩余 `.claude-code-*` 目录，这些目录可能由较早的中断运行留下。以下命令使用 `npm root -g` 找到您的全局包目录；如果 `npm error path` 行命名的目录不在 `npm root -g` 打印的目录下，例如因为您使用 nvm 切换了 Node 版本，请改为删除错误命名的目录：
 
 <Tabs>
   <Tab title="macOS/Linux">
@@ -930,7 +930,7 @@ npm error ENOTEMPTY: directory not empty, rename '...'
     rm -rf "$(npm root -g)/@anthropic-ai/claude-code"
     ```
 
-    然后删除任何剩余的临时目录。如果 zsh 打印 `no matches found`，则没有要删除的目录：
+    然后删除任何剩余的临时目录。如果 Zsh 打印 `no matches found`，则没有要删除的目录：
 
     ```bash theme={null}
     rm -rf "$(npm root -g)/@anthropic-ai/.claude-code-"*

@@ -343,18 +343,32 @@ Claude Code 监视 `~/.claude/themes/` 并在添加或更改文件时重新加�
   粘贴大型内容
 </h2>
 
-当您粘贴超过 800 个字符或超过三行的内容到提示框时，Claude Code 会将输入折叠为占位符，例如 `[Pasted text #1 +120 lines]`，以保持输入框的可用性。在短于 12 行的终端窗口中，行限制会降低，因此 Claude Code 在 11 行时会折叠三行粘贴，在 10 行或更少行时会折叠任何多行粘贴。Claude Code 在您提交时仍会发送完整内容。
+当您粘贴超过 800 个字符或超过三行的内容到提示框时，Claude Code 会将输入折叠为占位符，例如 `[Pasted text #1 +120 lines]`，以保持输入框的可用性，并在您提交时仍会发送完整内容。对于非常大的输入（如整个文件或长日志），将内容写入文件并要求 Claude 读取它，而不是粘贴。对话记录保持可读性，Claude 可以在后续轮次中按路径引用文件。VS Code 集成终端也可能在非常大的粘贴到达 Claude Code 之前丢弃字符，因此在那里使用文件。
 
-当您使用单词或行快捷键（如 `Ctrl+W` 或 `Ctrl+K`）删除，或通过 vim 删除（如 `df]` 这样的 `f`/`t` 动作），且删除范围到达占位符内部时，Claude Code 会完全移除占位符。您可以粘贴删除的内容来恢复它，在单词或行快捷键后使用 [`Ctrl+Y`](/docs/zh-CN/interactive-mode#text-editing)，或在 vim 删除后使用 [`p` 在 NORMAL 模式下](/docs/zh-CN/interactive-mode#editing-normal-mode)。
+如果粘贴包含[不可见的 Unicode 字符](/docs/zh-CN/interactive-mode#invisible-characters-in-prompts)，Claude Code 会在您按 Enter 时移除它们，并将清理后的提示放回输入框供您再次按 Enter 发送。
 
-Claude Code 将折叠的内容保存在 `~/.claude/paste-cache/` 下，因此当您从[命令历史](/docs/zh-CN/interactive-mode#command-history)中调用提示并重新提交时，Claude Code 会再次发送完整的粘贴内容，包括在后续会话中，直到保留扫描移除缓存文件。
+<h3 id="how-claude-treats-pasted-text">
+  Claude 如何处理粘贴的文本
+</h3>
 
-Claude Code 删除早于 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 的缓存文件，遵循[保留扫描规则](/docs/zh-CN/claude-directory#cleaned-up-automatically)，因此调用的提示可能引用不再存在的粘贴文本。当您提交这样的提示时，Claude Code 永远不会发送字面上的 `[Pasted text #N]` 字符串，而是显示一个通知，命名缺失的粘贴：
+当您提交时，Claude 会看到每个 `[Pasted text #N]` 占位符后面的内容，标记为您从其他地方粘贴而不是输入的文本。Claude 被告知粘贴可能包含您没有写的指令，并且仅在您输入的消息要求时才遵循其中的指令。在不[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中，粘贴不会被标记。
+
+<h3 id="delete-and-restore-a-collapsed-paste">
+  删除和恢复折叠的粘贴
+</h3>
+
+当您使用单词或行快捷键（如 `Ctrl+W` 或 `Ctrl+K`）删除，或通过 vim 删除（如 `df]` 这样的 `f`/`t` 动作），且删除范围到达 `[Pasted text #N]` 占位符内部时，Claude Code 会完全移除占位符。要恢复它，在单词或行快捷键后使用 [`Ctrl+Y`](/docs/zh-CN/interactive-mode#text-editing) 粘贴删除的内容，或在 vim 删除后使用 [`p` 在 NORMAL 模式下](/docs/zh-CN/interactive-mode#editing-normal-mode)。
+
+<h3 id="recall-a-prompt-that-had-pasted-text">
+  调用包含粘贴文本的提示
+</h3>
+
+Claude Code 将每个 `[Pasted text #N]` 占位符后面的内容保存在 `~/.claude/paste-cache/` 下，因此当您从[命令历史](/docs/zh-CN/interactive-mode#command-history)中调用提示并重新提交时，完整的粘贴内容会再次发送，包括在后续会话中。
+
+早于 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 的缓存文件会根据[保留扫描规则](/docs/zh-CN/claude-directory#cleaned-up-automatically)被删除，因此调用的提示可能引用不再存在的粘贴文本。当您提交这样的提示时，Claude Code 永远不会发送字面上的 `[Pasted text #N]` 字符串，而是显示一个通知，命名缺失的粘贴：
 
 * 在包含剩余文本的纯提示中，Claude Code 移除占位符并发送剩余文本。
 * 在[shell 模式](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)命令或 `/` 命令中，其中移除会改变运行内容，以及在任何移除会留下空白的提示中，Claude Code 取消提交并在输入中保留原始文本，占位符仍在其中。删除占位符或编辑命令，然后重新提交。
-
-VS Code 集成终端可能会在非常大的粘贴到达 Claude Code 之前丢弃字符，因此在那里更倾向于基于文件的工作流。对于非常大的输入（如整个文件或长日志），将内容写入文件并要求 Claude 读取它，而不是粘贴。这样可以保持对话记录的可读性，并让 Claude 在后续轮次中按路径引用文件。
 
 <h2 id="edit-prompts-with-vim-keybindings">
   使用 Vim 快捷键编辑提示词

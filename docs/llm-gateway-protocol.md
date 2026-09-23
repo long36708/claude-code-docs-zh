@@ -254,6 +254,7 @@ Claude Code 在上游拒绝后的操作取决于被拒绝的内容：
 
 * 当上游拒绝 `thinking` 字段、中途对话系统消息或这些消息之一上的 `cache_control` 标记时，Claude Code 会重试请求并为对话的其余部分禁用被拒绝的功能
 * 当上游拒绝[思考签名](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)时，包括带有 `400` 的拒绝，其消息说该块被 `bound to a different conversation`，Claude Code 会从请求中删除早期思考块，重试，并将其排除在每个后续请求之外。新响应仍然包括思考
+* 当 gateway 或其上游将[顾问工具](/docs/zh-CN/advisor)条目在 `tools` 中拒绝为无法识别的工具类型时，Claude Code 会重试一次请求，不包含该条目及其 `anthropic-beta` 值。对该基础 URL 的后续请求会将顾问排除在外，直到 Claude Code 退出，在该时间内 `/advisor` 对开发者不可用。Claude Code 通过 `400` 或 `422` 响应识别此拒绝，其消息在 `Input tag` 之后命名工具类型，例如 `Input tag 'advisor_20260301'`。在 v2.1.280 之前，Claude Code 没有重试此拒绝
 * Claude Code 不重试上下文管理或工具架构字段拒绝，因此这些 `400` 错误到达开发者
 
 `bound to a different conversation` 拒绝来自 API 的[保留思考](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking)检查，当 `system`、`tools` 或早期 `messages` 内容与产生思考的请求不同时，该检查失败。重写任何该内容的 gateway 可能会导致拒绝本身；[库、代理和网关](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking#libraries-proxies-gateways)涵盖了要原封不动地传递的内容。

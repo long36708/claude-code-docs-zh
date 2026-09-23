@@ -82,7 +82,7 @@ CLAUDE.md 文件可以位于多个位置，每个位置具有不同的范围。�
 <Tip>
   运行 `/init` 自动生成起始 CLAUDE.md。Claude 分析您的代码库并创建一个包含构建命令、测试指令和它发现的项目约定的文件。如果 CLAUDE.md 已存在，`/init` 会建议改进而不是覆盖它。从那里进行细化，添加 Claude 不会自己发现的指令。
 
-  设置 `CLAUDE_CODE_NEW_INIT=1` 以启用交互式多阶段流程。`/init` 询问要设置哪些工件：CLAUDE.md 文件、skills 和 hooks。然后它使用子代理探索您的代码库，通过后续问题填补空白，并在写入任何文件之前呈现可审查的提案。
+  为了启用交互式多阶段流程，请在运行 `/init` 之前将 `CLAUDE_CODE_NEW_INIT` 环境变量设置为 `1`。在您的 shell 中或在设置文件的 `env` 块中设置它，如 [设置环境变量](/docs/zh-CN/env-vars#set-environment-variables) 中所示。设置后，`/init` 会询问要设置哪些工件：CLAUDE.md 文件、skills 和 hooks。然后它使用子代理探索您的代码库，通过后续问题填补空白，并在写入任何文件之前呈现可审查的提案。该变量仅改变 `/init` 的运行方式，因此您可以保持它的设置。
 </Tip>
 
 <h3 id="write-effective-instructions">
@@ -165,6 +165,8 @@ CLAUDE.md 文件中的块级 HTML 注释（`<!-- maintainer notes -->`）在内�
 CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 claude --add-dir ../shared-config
 ```
 
+内联形式为该单次启动在 Bash 或 Zsh 中设置变量。要为每个会话保持它，请将其添加到 `~/.claude/settings.json` 中的 `env` 块，如 [设置环境变量](/docs/zh-CN/env-vars#set-environment-variables) 中所示。
+
 这从其他目录加载 `CLAUDE.md`、`.claude/CLAUDE.md`、`.claude/rules/*.md` 和 `CLAUDE.local.md`。如果您从 [`--setting-sources`](/docs/zh-CN/cli-reference) 中排除 `local`，则跳过 `CLAUDE.local.md`。
 
 <h3 id="organize-rules-with-claude/rules/">
@@ -244,6 +246,18 @@ Claude Code 使用任何会超过预算的未展开模式，其字面大括号�
 
 Glob 语法将 `[` 视为括号表达式的开始，例如 `[abc]`。具有无法读作括号表达式的 `[` 的模式，例如 `photos [2024/**`，是无效的：它不匹配任何内容，规则的其他模式继续工作。要匹配文件名中的字面 `[`，请将其转义为 `photos \[2024/**`。在 v2.1.207 之前，一个无效模式使 Read 工具对规则被评估的每个文件失败，而不是不匹配任何内容。
 
+<h4 id="rules-frontmatter-reference">
+  规则 frontmatter 参考
+</h4>
+
+使用 YAML [frontmatter](/docs/zh-CN/glossary#frontmatter) 在文件顶部的 `---` 标记之间配置规则。`paths` 是 Claude Code 从规则中读取的唯一字段；任何其他字段都被忽略而不出现错误。Claude Code 在将规则加载到上下文之前删除 frontmatter。
+
+| 字段      | 必需 | 描述                                                               |
+| :------ | :- | :--------------------------------------------------------------- |
+| `paths` | 否  | Glob 模式，[将规则范围限定到匹配文件](#path-specific-rules)。接受 YAML 列表或逗号分隔的字符串 |
+
+如果标记之间的 YAML 不解析，Claude Code 忽略 frontmatter 并加载规则，就像它没有 `paths` 一样。运行 `claude --debug` 查看解析错误。
+
 <h4 id="share-rules-across-projects-with-symlinks">
   使用符号链接在项目间共享规则
 </h4>
@@ -271,7 +285,7 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
 └── workflows.md      # Your preferred workflows
 ```
 
-用户级规则在项目规则之前加载，给予项目规则更高的优先级。
+Claude Code 在项目规则之前加载用户级规则，因此项目规则在 Claude 的上下文中出现在用户规则之后。两个集合都不会覆盖另一个：如果用户规则和项目规则冲突，Claude 可能会遵循任一个，因此保持两者一致。
 
 <h3 id="manage-claude-md-for-large-teams">
   为大型团队管理 CLAUDE.md
@@ -424,7 +438,7 @@ Claude Code 可以将 [`AGENTS.md`](/docs/zh-CN/glossary#agents-md) 作为您的
 * 您使用的是 v2.1.277 之前的 Claude Code 版本
 * 您的会话不会[从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，例如因为您使用 Amazon Bedrock 或其他第三方提供商，或您禁用了遥测。链接的部分有完整列表
 * 这是您[安装或升级](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)到具有 `AGENTS.md` 支持的版本后的第一个会话。Claude 从您的下一个会话开始读取 `AGENTS.md`
-* 您或您的组织设置了 [`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks) 或 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly)，或您在 `/plugin` 中禁用了内置 `agents-md` 插件
+* 您在 `/plugin` 中禁用了内置 `agents-md` 插件
 
 要在这些会话中向 Claude 提供您的 `AGENTS.md`，请[从 `CLAUDE.md` 中导入它](#share-one-file-with-other-coding-tools)。
 
@@ -434,12 +448,11 @@ Claude Code 可以将 [`AGENTS.md`](/docs/zh-CN/glossary#agents-md) 作为您的
 
 通过**项目说明**设置读取的 `AGENTS.md` 与 `CLAUDE.md` 在以下方面有所不同：
 
-|                                                                                                                  | `CLAUDE.md`                                       | 通过设置读取的 `AGENTS.md`                                                                                         |
-| :--------------------------------------------------------------------------------------------------------------- | :------------------------------------------------ | :---------------------------------------------------------------------------------------------------------- |
-| `/memory` 和 `/context` 中的**内存文件**列表                                                                              | 已列出                                               | 未列出。要确认 Claude 读取了它，请查找默认值下的 [`AGENTS.md loaded` 行](#when-claude-code-reads-agents-md)，或询问 Claude 其项目说明说了什么 |
-| [`InstructionsLoaded` hooks](/docs/zh-CN/hooks#instructionsloaded)                                                    | 触发                                                | 不触发。它们照常为 `CLAUDE.md` 导入或符号链接到的 `AGENTS.md` 触发                                                              |
-| 当设置了 [`CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`](#load-from-additional-directories) 时，您使用 `--add-dir` 添加的目录 | 它们的 `CLAUDE.md` 加载                                | 它们的 `AGENTS.md` 不加载                                                                                         |
-| `@path` 导入工作目录外的文件                                                                                               | Claude Code 要求您批准[外部导入](#import-additional-files) | 仅在您已为此项目批准外部导入时加载，无提示                                                                                       |
+|                                                                                                                  | `CLAUDE.md`                                       | 通过设置读取的 `AGENTS.md`                            |
+| :--------------------------------------------------------------------------------------------------------------- | :------------------------------------------------ | :--------------------------------------------- |
+| [`InstructionsLoaded` hooks](/docs/zh-CN/hooks#instructionsloaded)                                                    | 触发                                                | 不触发。它们照常为 `CLAUDE.md` 导入或符号链接到的 `AGENTS.md` 触发 |
+| 当设置了 [`CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`](#load-from-additional-directories) 时，您使用 `--add-dir` 添加的目录 | 它们的 `CLAUDE.md` 加载                                | 它们的 `AGENTS.md` 不加载                            |
+| `@path` 导入工作目录外的文件                                                                                               | Claude Code 要求您批准[外部导入](#import-additional-files) | 仅在您已为此项目批准外部导入时加载，无提示                          |
 
 <h3 id="remove-an-earlier-agents-md-workaround">
   删除早期的 AGENTS.md 解决方案
@@ -604,7 +617,7 @@ CLAUDE.md 内容作为用户消息在系统提示之后传递，而不是系统�
 
 要调试：
 
-* 运行 `/context` 并检查 **Memory files** 下的列表，以验证你的 CLAUDE.md 和 CLAUDE.local.md 文件已加载。如果 `CLAUDE.md` 文件未列出，Claude 看不到它。`AGENTS.md` 仅在 `CLAUDE.md` 导入它时出现，而不是当 Claude [直接读取它](#where-agents-md-differs-from-claude-md) 时。使用 `/memory` 打开和编辑文件。
+* 运行 `/context` 并检查 **Memory files** 下的列表，以验证你的 CLAUDE.md 和 CLAUDE.local.md 文件已加载。如果 `CLAUDE.md` 文件未列出，Claude 看不到它。使用 `/memory` 打开和编辑文件。
 * 检查相关 CLAUDE.md 是否在为你的会话加载的位置（参见 [选择 CLAUDE.md 文件的位置](#choose-where-to-put-claude-md-files)）。
 * 使指令更具体。"使用 2 空格缩进"比"格式化代码很好"效果更好。
 * 查找跨 CLAUDE.md 文件的冲突指令。如果两个文件为相同行为提供不同的指导，Claude 可能会任意选择一个。
@@ -628,7 +641,11 @@ CLAUDE.md 内容作为用户消息在系统提示之后传递，而不是系统�
 3. 检查你的会话是否是 [无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable) 的会话，例如第三方提供商上的会话或禁用遥测的会话。
 4. 在你的会话中输入 `/config` 以打开设置面板，并确认 **Project instructions** 未设置为 `claude-md` 或 `managed-only`。如果你根本看不到该设置，你的会话是 [无法加载 `AGENTS.md`](#when-agents-md-support-is-unavailable) 的会话。
 
-当 Claude 直接读取 `AGENTS.md` 时，你不会在 `/memory` 或 `/context` 中看到它，所以检查 `AGENTS.md loaded` 行或询问 Claude 其项目指令说什么。如果你想保留你找到的 `CLAUDE.md`，或你的会话无法加载 `AGENTS.md`，[添加一个 `CLAUDE.md` 在你的 `AGENTS.md` 旁边来导入它](#share-one-file-with-other-coding-tools)。
+要检查 Claude 是否读取了你的 `AGENTS.md`，运行 `/memory` 并在列表中查找其路径。
+
+在 v2.1.280 之前，`/memory` 和 `/context` 没有列出 Claude 直接读取的 `AGENTS.md`。在这些版本上，改为询问 Claude 其项目指令说什么。
+
+如果你想保留你找到的 `CLAUDE.md`，或你的会话无法加载 `AGENTS.md`，[添加一个 `CLAUDE.md` 在你的 `AGENTS.md` 旁边来导入它](#share-one-file-with-other-coding-tools)。
 
 <h3 id="i-don’t-know-what-auto-memory-saved">
   我不知道自动记忆保存了什么

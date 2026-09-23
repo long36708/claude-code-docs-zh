@@ -41,6 +41,10 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 3. 考虑将大型构建目录添加到您的 `.gitignore` 文件
 4. 使用 [`claude --safe-mode`](/docs/zh-CN/cli-reference#cli-flags) 重启以检查插件、MCP 服务器或 hook 是否是源头。它禁用会话的所有自定义；如果使用量下降，请参阅[调试您的配置](/docs/zh-CN/debug-your-config#test-against-a-clean-configuration)以找出是哪一个
 
+如果会话的堆内存超过 2.5GB，会出现严重内存使用警告。要释放内存，请重启 Claude Code 并运行 [`claude --continue`](/docs/zh-CN/cli-reference#cli-flags) 以在新进程中恢复对话。
+
+在[全屏渲染](/docs/zh-CN/fullscreen)之外，运行 `/compact` 也会释放内存。一旦内存使用量降至 2.5GB 以下，警告就会消失。
+
 如果内存使用在这些步骤后仍然很高，请运行 `/heapdump` 以将两个文件写入 `~/Desktop`：一个名为 `<session-id>.heapsnapshot` 的 JavaScript 堆快照和一个名为 `<session-id>-diagnostics.json` 的内存分解。Claude Code [从命令菜单中隐藏该命令](/docs/zh-CN/commands#how-the-command-menu-matches-what-you-type)；请完整输入它。在没有 Desktop 文件夹的 Linux 上，文件被写入您的主目录。
 
 <Warning>
@@ -108,7 +112,7 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 
 要将 Claude 的输出放在您的剪贴板上，请要求 Claude 在其响应中打印内容，然后运行 [`/copy`](/docs/zh-CN/commands)。`/copy` 从 Claude Code 进程本身而不是从沙箱化命令写入剪贴板，因此沙箱不会阻止它。它可以复制单个代码块而不是整个响应，它还将复制的内容写入文件并打印路径，这在剪贴板写入无法到达您的终端时提供回退，例如通过 SSH。
 
-要让管道命令直接到达剪贴板，请将 `pbcopy *`、`wl-copy *` 或 `xclip *` 添加到 [`excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands)，以便命令在沙箱外运行。
+当 Claude 将文本管道到这些工具之一时，将 `pbcopy *`、`wl-copy *` 或 `xclip *` 添加到 [`excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands) 本身不会将该调用从沙箱中取出。
 
 <h3 id="copied-text-doesn’t-reach-your-local-clipboard-over-ssh">
   复制的文本在 SSH 上无法到达您的本地剪贴板

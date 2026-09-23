@@ -187,7 +187,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 * **使用 `/teleport` 拉取会话**：当您使用 `/teleport` 将[云会话](/docs/zh-CN/claude-code-on-the-web#from-cloud-to-terminal)拉入您的终端时，连接的设备不会接收拉取的对话的早期历史记录。双向的新消息会进出拉取的对话，这现在是您的终端中打开的对话。
 * **来自您其他会话的消息**：使用[跨会话消息传递](/docs/zh-CN/cross-session-messaging)，相同的连接在您不同机器上的自己的会话之间以及来自您的[云会话](/docs/zh-CN/claude-code-on-the-web)的消息，通过 Anthropic 服务器，就像其余 Remote Control 流量一样。[在其他机器上的消息会话](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)涵盖传递规则，[控制入站消息](/docs/zh-CN/cross-session-messaging#control-inbound-messages)涵盖入站控制。需要 Claude Code v2.1.224 或更高版本。
 * **您在回合中途发送的提示**：当您在当前回合结束之前从连接的设备发送提示时，Claude Code 会将其排队并在该回合完成后将其保留在设备的记录中。
-* **您的更改的差异**：当会话的目录在 git 存储库中时，连接的设备的差异窗格显示您未提交更改的差异。设备通过连接请求差异，Claude Code 在您的机器上计算它。当您的工作树是干净的时，Claude Code 改为提供您的分支自从它从默认分支分叉以来的更改。在 v2.1.247 之前，Claude Code 仅向由 `claude remote-control` 提供的会话中的连接设备报告差异。
+* **您的更改的差异**：当会话的目录在 git 存储库中时，连接的设备的差异窗格显示您的更改。设备通过连接请求差异，Claude Code 在您的机器上计算它。在分支上有提交领先于存储库的默认分支时，窗格显示自分支从它分叉以来的更改，包括您未提交的编辑。在默认分支本身上，或在不领先于它的分支上，窗格仅显示您未提交的更改。在 v2.1.247 之前，Claude Code 仅向由 `claude remote-control` 提供的会话中的连接设备报告差异。
 * **模型**：当您从连接的设备选择[模型](/docs/zh-CN/model-config)时，Claude Code 在该模型上运行会话。终端的 `/model` 选择器、`/status` 和 `/config` 显示该模型。需要 Claude Code v2.1.238 或更高版本。
   * 您从设备的模型控制中选择的模型仅适用于当前会话。当您从设备向交互式会话发送 `/model <name>` 时，Claude Code 也会为新会话设置您的默认值。
   * 如果您发送 Claude Code 无法识别的名称，例如预期模型 ID 的显示名称，Claude Code [拒绝选择](/docs/zh-CN/errors#model-is-not-a-recognized-model-id)，会话保留其当前模型。在 v2.1.260 之前，Claude Code 从设备的模型控制中保存无法识别的选择，您的下一条消息失败。

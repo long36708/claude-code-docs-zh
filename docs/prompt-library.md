@@ -1384,7 +1384,7 @@ explain how the payment retry logic works as an HTML page with a diagram, then o
 * [Anthropic 团队如何使用 Claude Code](https://claude.com/blog/how-anthropic-teams-use-claude-code)：来自工程、产品、设计和数据团队的真实工作流，深入探讨[法律](https://claude.com/blog/how-anthropic-uses-claude-legal)、[营销](https://claude.com/blog/how-anthropic-uses-claude-marketing)和[网络安全](https://claude.com/blog/how-anthropic-uses-claude-cybersecurity)
 * [扩展代理编码指南](https://resources.anthropic.com/hubfs/Scaling%20agentic%20coding%20across%20your%20organization.pdf)：企业采用指南
 
-有关这些模式的视频演练，请参阅 Anthropic Academy 上的免费 [Claude Code in Action](https://anthropic.skilljar.com/claude-code-in-action) 课程。
+有关这些模式的视频演练，请参阅 [Claude Academy](https://academy.claude.com/) 上的免费 [Claude Code in Action](https://academy.claude.com/courses/claude-code-in-action) 课程。
 
 <h2 id="related-resources">
   相关资源

@@ -251,6 +251,7 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
 * [快速入门](/docs/zh-CN/quickstart)：通过你的第一个真实任务，从探索代码库到提交修复
 * [存储说明和内存](/docs/zh-CN/memory)：使用 CLAUDE.md 文件和自动内存为 Claude 提供持久说明
 * [常见工作流](/docs/zh-CN/common-workflows)和[最佳实践](/docs/zh-CN/best-practices)：充分利用 Claude Code 的模式
+* [Claude Academy](https://academy.claude.com/)：免费自主学习课程，包括 [Claude Code 101](https://academy.claude.com/courses/claude-code-101) 和 [Claude Code in Action](https://academy.claude.com/courses/claude-code-in-action)
 * [每项任务的框架](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code)：Claude Code 团队如何使用[动态工作流](/docs/zh-CN/workflows)大规模编排子代理
 * [设置](/docs/zh-CN/settings)：为你的工作流自定义 Claude Code
 * [故障排除](/docs/zh-CN/troubleshooting)：常见问题的解决方案

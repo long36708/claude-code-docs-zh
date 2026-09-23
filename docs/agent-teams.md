@@ -14,10 +14,6 @@ Agent teams 让你协调多个 Claude Code 实例一起工作。一个会话充�
 
 在设置团队之前，请检查是否有更轻量级的选项可以完成工作。[Subagents](/docs/zh-CN/sub-agents) 在单个会话中工作，通过 [跨会话消息传递](/docs/zh-CN/cross-session-messaging)，Claude 可以在你自己运行的会话之间传递发现。
 
-<Note>
-  本页描述的是 v2.1.178 版本的 agent teams。设置 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` 后，生成队友不再需要设置步骤，会话退出时会自动清理。在 v2.1.178 之前，你需要要求 Claude 先创建并命名一个团队，Claude 使用 `TeamCreate` 和 `TeamDelete` 工具来设置和删除它。这两个工具已不再存在。Agent 工具上的 `team_name` 输入被接受但被忽略，`TaskCreated`、`TaskCompleted` 和 `TeammateIdle` [hook payloads](/docs/zh-CN/hooks#taskcreated) 中的 `team_name` 字段携带会话派生的名称，已被弃用。
-</Note>
-
 <h2 id="when-to-use-agent-teams">
   何时使用 agent teams
 </h2>

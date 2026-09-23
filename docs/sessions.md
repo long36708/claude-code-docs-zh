@@ -134,7 +134,7 @@ Claude Code 按项目目录存储会话。默认情况下，会话选择器显�
 | 从 claude.ai 或 Claude 应用 | 重命名 [Remote Control 会话](/docs/zh-CN/remote-control#connect-from-another-device)；Claude Code 在 CLI 中应用相同的名称。需要 Claude Code v2.1.221 或更高版本 |
 | 从桌面应用                   | 在 [桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 中重命名会话                                                                      |
 
-会话命名后，使用 `claude --resume <name>` 或 `/resume <name>` 返回到它；桌面应用会话在应用中恢复，该应用保持自己的会话历史记录。有关名称解析如何跨 worktrees 工作的信息，请参阅[恢复会话](#resume-a-session)。
+通过 CLI 路由或从 claude.ai 命名会话后，使用 `claude --resume <name>` 或 `/resume <name>` 返回到它；桌面应用会话在应用中恢复，该应用保持自己的会话历史记录。有关名称解析如何跨 worktrees 工作的信息，请参阅[恢复会话](#resume-a-session)。
 
 当您使用此计算机上另一个活跃会话已经使用的名称启动或恢复交互式会话，或将会话重命名为这样的名称时，Claude Code 会将该名称保留给已经拥有它的会话，将您的会话重命名为带有两个单词后缀的变体，例如 `auth-refactor-graceful-unicorn`，并告知您。如果您想自己选择一个名称，请使用新名称运行 `/rename`。在 v2.1.232 之前，两个会话都保留该名称。
 
@@ -147,7 +147,13 @@ Claude Code 按项目目录存储会话。默认情况下，会话选择器显�
 您未命名的会话仍会获得 Claude Code 分配的两个标签。只有生成的标题可用作恢复句柄：
 
 * 默认显示名称：您从未命名的交互式会话在启动时仍会获得默认显示名称。需要 Claude Code v2.1.196 或更高版本。默认名称将工作目录的名称与两个字符的后缀组合在一起，例如 `my-app-3f`，并在运行会话的列表中标识会话，例如 [agent view](/docs/zh-CN/agent-view) 和 `claude agents --json` 输出。默认名称不是恢复句柄。如果您将其传递给 `claude --resume` 或 `/resume`，Claude Code 不会找到该会话。命名会话会替换这些列表中的默认名称，接受计划也会这样做。
-* 生成的标题：如果您不命名会话，Claude Code 会为其生成会话标题。该标题是您第一个提示的简短摘要，由对小型/快速模型（通常是 Haiku 级别的模型）的后台请求编写。接受计划会将其替换为基于计划的标题。命名会话会替换生成的标题。您可以在 [会话选择器](#use-the-session-picker) 中和未设置名称时的状态行 [`session_name`](/docs/zh-CN/statusline) 字段中看到第一个提示标题。计划标题显示在相同的两个位置，也显示在运行会话的列表中，其中它取代了默认显示名称。您可以将任一标题传递给 `claude --resume` 或 `/resume`，Claude Code 会以与您设置的名称相同的方式解析它。
+* 生成的标题：如果您不命名会话，Claude Code 会为其生成会话标题。该标题是您第一个提示的简短摘要，由对小型/快速模型（通常是 Haiku 级别的模型）的后台请求编写。您直接从 shell 或脚本启动的 `claude -p` 运行不会获得一个。
+
+  接受计划会将生成的标题替换为基于计划的标题。命名会话也会替换它。
+
+  您可以在 [会话选择器](#use-the-session-picker) 中和未设置名称时的状态行 [`session_name`](/docs/zh-CN/statusline) 字段中看到第一个提示标题。计划标题显示在相同的两个位置，也显示在运行会话的列表中，其中它取代了默认显示名称。
+
+  您可以将任一标题传递给 `claude --resume` 或 `/resume`，Claude Code 会以与您设置的名称相同的方式解析它。
 
 <h2 id="use-the-session-picker">
   使用会话选择器

@@ -238,7 +238,7 @@ Claude Code 在 [MCP tool search](/docs/zh-CN/mcp#scale-with-mcp-tool-search) �
 
 将这些环境变量设置为特定的 Google Cloud 的 Agent Platform 模型 ID。
 
-如果没有 `ANTHROPIC_DEFAULT_OPUS_MODEL`，Google Cloud 的 Agent Platform 上的 `opus` 别名会解析为 Opus 5，如果没有 `ANTHROPIC_DEFAULT_SONNET_MODEL`，`sonnet` 别名会解析为 Sonnet 4.5。此示例将每个别名固定到特定版本：
+如果没有 `ANTHROPIC_DEFAULT_OPUS_MODEL`，Google Cloud 的 Agent Platform 上的 `opus` 别名会解析为 Opus 5.5，如果没有 `ANTHROPIC_DEFAULT_SONNET_MODEL`，`sonnet` 别名会解析为 Sonnet 4.5。此示例将每个别名固定到特定版本：
 
 ```bash theme={null}
 export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8'
@@ -252,7 +252,7 @@ Claude Code 在未设置固定变量时使用这些默认模型：
 
 | 模型类型    | 默认值                          |
 | :------ | :--------------------------- |
-| 主模型     | `claude-opus-5`              |
+| 主模型     | `claude-opus-5-5`            |
 | 小型/快速模型 | `claude-sonnet-4-5@20250929` |
 
 后台任务（如会话标题生成）使用小型/快速模型，通常是 Haiku 级别的模型。在 Google Cloud 的 Agent Platform 上，Claude Code 为后台任务使用默认的 Sonnet 模型，因为 Haiku 可能不会在每个项目或区域中启用。两个选择会改变哪个模型执行这些任务：
@@ -264,7 +264,7 @@ Claude Code 在未设置固定变量时使用这些默认模型：
   Opus 模型的每个令牌价格高于 Sonnet 模型，因此不固定主模型的部署在更新到 v2.1.207 或更高版本后将按 Opus 费率计费。要将 Sonnet 4.5 保持为主模型，请将 `ANTHROPIC_MODEL` 设置为其完整模型 ID。使用 `ANTHROPIC_DEFAULT_SONNET_MODEL` 引导默认值且不设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 的部署会保持其引导的 Sonnet 模型作为默认值。
 </Warning>
 
-在 v2.1.207 到 v2.1.218 上，Google Cloud 的 Agent Platform 上的主模型默认为 Opus 4.8，`opus` 别名解析为 Opus 4.8。在 v2.1.207 之前，主模型默认为 Sonnet 4.5，`opus` 别名解析为 Opus 4.6，后台任务始终使用主模型。
+在 v2.1.280 之前，Google Cloud 的 Agent Platform 上的主模型默认为 Opus 5，`opus` 别名从 v2.1.219 解析为 Opus 5。在 v2.1.207 到 v2.1.218 上，Google Cloud 的 Agent Platform 上的主模型默认为 Opus 4.8，`opus` 别名解析为 Opus 4.8。在 v2.1.207 之前，主模型默认为 Sonnet 4.5，`opus` 别名解析为 Opus 4.6，后台任务始终使用主模型。
 
 要进一步自定义模型：
 

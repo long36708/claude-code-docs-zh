@@ -184,7 +184,7 @@ RUN git config --system --add safe.directory '*'
 
 代理需要 `--capacity 1`，因为代理 URL 是按会话的，以及 git 2.32 或更高版本，因为较旧的 git 忽略代理用来隔离会话的配置机制。如果任一要求未满足，运行器拒绝启动。因为代理从 Anthropic 端获取，您的 git 主机必须可从 Anthropic 基础设施到达，与 Anthropic 托管会话相同的要求；对于仅在您的网络内可路由的 git 主机，改用 [`checkout` 生命周期钩子](/docs/zh-CN/self-hosted-environments-configuration#checkout)。每个运行器进程一次处理一个会话，因此运行更多副本以获得并行性。启用代理后，`--git-host-rewrite` 和 `--git-ssh-rewrite` 无效：代理 URL 指向 `api.anthropic.com`，而不是您的 git 主机。
 
-运行器还在注册时向 Anthropic 报告选择加入，在启动时打印 `Registering as opted in to Anthropic-managed git (--use-anthropic-git-proxy)`。选择加入运行器上的每个会话然后使用 Anthropic 管理的 git 或按会话代理 URL。当会话使用按会话代理 URL 时，运行器记录一行 `[runner:warn]` 说明这一点。
+运行器还在注册时向 Anthropic 报告选择加入，在启动时打印 `Registering as opted in to Anthropic-managed git (--use-anthropic-git-proxy)`。报告选择加入需要 Claude Code v2.1.267 或更高版本，较早的版本接受该标志而不报告它或打印该行。选择加入运行器上的每个会话然后使用 Anthropic 管理的 git 或按会话代理 URL。当会话使用按会话代理 URL 时，运行器记录一行 `[runner:warn]` 说明这一点。
 
 <h3 id="rewrite-git-urls-for-private-networks">
   为专用网络重写 git URL
@@ -223,7 +223,7 @@ ENTRYPOINT ["claude"]
 如果您的节点是 ARM，将 `linux-x64` 交换为 `linux-arm64`，或在 Alpine 等 musl 基础镜像上交换为 `linux-x64-musl` 或 `linux-arm64-musl`；请参阅 [Alpine Linux 设置](/docs/zh-CN/setup#alpine-linux-and-musl-based-distributions)了解 musl 镜像需要的额外包。URL 是标准 Claude Code 发布位置，因此您可以根据[二进制完整性和代码签名](/docs/zh-CN/setup#binary-integrity-and-code-signing)中描述的发布的已签名清单验证下载的二进制文件。使用 Claude Code 版本 2.1.224 或更高版本构建镜像，然后将其推送到您的注册表并在下面的配方中引用它：
 
 ```bash theme={null}
-docker build --build-arg CLAUDE_CODE_VERSION=2.1.224 -t <your-registry>/claude-runner:latest .
+docker build --build-arg CLAUDE_CODE_VERSION=2.1.267 -t <your-registry>/claude-runner:latest .
 ```
 
 <h2 id="size-cpu-and-memory-for-sessions">

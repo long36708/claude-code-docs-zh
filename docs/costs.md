@@ -275,7 +275,7 @@ When you are using compact, please focus on test output and code changes
   选择正确的模型
 </h3>
 
-Sonnet 处理大多数编码任务效果很好，成本低于 Opus。为复杂的架构决策或多步推理保留 Opus。使用 `/model` 在会话中途切换模型，或在 `/config` 中设置默认值。对于简单的 subagent 任务，在您的 [subagent 配置](/docs/zh-CN/sub-agents#choose-a-model)中指定 `model: haiku`。
+Sonnet 处理大多数编码任务效果很好，成本低于 Opus。为复杂的架构决策或多步推理保留 Opus。使用 `/model` 在会话中途切换模型，或在 `/config` 中设置默认值。对 Opus 的切换也适用于[继承您会话模型的 subagents](/docs/zh-CN/model-config#setting-your-model)。对于简单的 subagent 任务，在您的 [subagent 配置](/docs/zh-CN/sub-agents#choose-a-model)中指定 `model: haiku`。
 
 <h3 id="reduce-mcp-server-overhead">
   减少 MCP server 开销
@@ -359,7 +359,7 @@ MCP 工具定义[默认被延迟](/docs/zh-CN/mcp#scale-with-mcp-tool-search)，
 
 扩展思考默认启用，因为它显著改进了复杂规划和推理任务的性能。思考令牌作为输出令牌计费，默认预算可能是每个请求数万个令牌，具体取决于模型。
 
-对于不需要深度推理的更简单任务，您可以通过在 `/effort` 中或在 `/model` 中降低 [effort level](/docs/zh-CN/model-config#adjust-effort-level)、或在 `/config` 中禁用思考来降低成本。您无法在 Fable 模型上关闭思考，它们始终使用扩展思考。
+对于不需要深度推理的更简单任务，您可以通过在 `/effort` 中或在 `/model` 中降低 [effort level](/docs/zh-CN/model-config#adjust-effort-level)、或在 `/config` 中禁用思考来降低成本。您无法在 Opus 5.5 或 Fable 模型上关闭思考，它们始终使用扩展思考。
 
 在具有[固定思考预算](/docs/zh-CN/model-config#adaptive-reasoning-and-fixed-thinking-budgets)的模型上，您也可以通过设置 `MAX_THINKING_TOKENS` [环境变量](/docs/zh-CN/env-vars)（例如 `MAX_THINKING_TOKENS=8000`）来降低预算。自适应推理模型忽略非零预算，因此请改用 effort levels。
 

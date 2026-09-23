@@ -648,7 +648,7 @@ Claude 会自行决定何时生成子代理以及生成多少个子代理。每�
 | :- | :-------------------------------------------------------- | :----------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 深度 | [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](/docs/zh-CN/env-vars) | 主代理下方的`3`层子代理。`1`会阻止您的子代理生成任何自己的子代理        | 使底层的子代理无法生成，因此它会自己完成委派的工作。请参阅[嵌套子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)                                                                                            |
 | 并发 | [`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`](/docs/zh-CN/env-vars) | `20`个子代理同时运行，计算 Claude 使用 Agent 工具生成的每个子代理 | 拒绝生成另一个子代理，返回 `Concurrent subagent limit reached`，直到运行计数降至限制以下。启用了[ultracode](/docs/zh-CN/model-config#adjust-effort-level)的会话永远不会被拒绝。请参阅[并发子代理限制](/docs/zh-CN/sub-agents#concurrent-subagent-limit) |
-| 支出 | TypeScript 中的 `maxBudgetUsd`，Python 中的 `max_budget_usd`   | 无限制。与 `total_cost_usd` 进行比较，因此子代理请求计入      | 通过三种方式强制执行上限：拒绝生成更多子代理，返回 `Budget limit reached`，停止仍在运行的后台子代理，并以 `error_max_budget_usd` 结果子类型结束查询。请参阅[轮次和预算](/docs/zh-CN/agent-sdk/agent-loop#turns-and-budget)                                 |
+| 支出 | TypeScript 中的 `maxBudgetUsd`，Python 中的 `max_budget_usd`   | 无限制。计算调用自身的支出，包括子代理请求                      | 通过三种方式强制执行上限：拒绝生成更多子代理，返回 `Budget limit reached`，停止仍在运行的后台子代理，并以 `error_max_budget_usd` 结果子类型结束查询。关于上限在会话中的行为方式，请参阅[轮次和预算](/docs/zh-CN/agent-sdk/agent-loop#turns-and-budget)                   |
 
 两个 SDK 对 `env` 选项的处理方式不同：TypeScript SDK 用它替换子进程环境，因此将 `process.env` 展开到其中以保留 `PATH` 等变量，而 Python SDK 将其合并到继承的环境中。此示例关闭嵌套，最多允许五个子代理同时运行，并在估计支出达到 \$5 时停止查询：
 
@@ -747,7 +747,7 @@ Claude Opus 5 比早期模型更容易委派给子代理，因此[深度、并�
 
 如果 Claude 直接完成任务而不是委派给您的子代理：
 
-* **使用显式提示**：在您的提示词中按名称提及子代理，例如"使用代码审查员代理来..."
+* **使用显式提示**：在您的提示词中按名称提及子代理，例如"使用代码审查员代理来检查身份验证模块"
 * **编写清晰的描述**：准确解释何时应使用子代理，以便 Claude 可以适当地匹配任务
 
 <h3 id="filesystem-based-agents-not-loading">

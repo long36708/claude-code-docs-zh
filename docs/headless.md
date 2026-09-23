@@ -109,7 +109,7 @@ claude --bare -p "Summarize README.md" --allowedTools "Read"
 cat build-error.txt | claude -p 'concisely explain the root cause of this build error' > output.txt
 ```
 
-使用 `--output-format json`，响应有效负载包括 `total_cost_usd` 和按模型的成本分解，因此脚本调用者可以跟踪每次调用的支出，而无需查询 [使用情况仪表板](/docs/zh-CN/costs)。两个数字都是 [客户端估计](/docs/zh-CN/agent-sdk/cost-tracking)，可能与您的实际账单不同。
+使用 `--output-format json`，响应有效负载包括 `total_cost_usd` 和按模型的成本分解，因此脚本调用者可以跟踪支出而无需查询 [使用情况仪表板](/docs/zh-CN/costs)。当您使用 `--continue` 或 `--resume` 继续较早的对话时，运行报告对话的整体总计，[包括较早运行的支出](/docs/zh-CN/agent-sdk/cost-tracking#accumulate-costs-across-multiple-calls)。两个数字都是 [客户端估计](/docs/zh-CN/agent-sdk/cost-tracking)，可能与您的实际账单不同。
 
 <Note>
   管道 stdin 的上限为 10MB。如果超过上限，Claude Code 会以清晰的错误和非零状态退出。要处理更大的输入，请将内容写入文件并在提示中引用文件路径，而不是管道传输它。
@@ -212,7 +212,7 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
 * **默认情况下**：subagent 的 `tool_use` 和 `tool_result` 块。
 * **使用 [`--forward-subagent-text`](/docs/zh-CN/cli-reference#cli-flags) 或 [`CLAUDE_CODE_FORWARD_SUBAGENT_TEXT`](/docs/zh-CN/env-vars)**：subagent 的文本和思考块也是如此，因此您可以重建每个 subagent 的记录。这需要 Claude Code v2.1.211 或更高版本。
 
-当您启用任一选项时，Claude Code 从 [每个嵌套深度的 subagents](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents) 转发消息：当 subagent 生成其自己的 subagent 时，嵌套 subagent 的消息在 `parent_tool_use_id` 中携带生成它的 Agent 工具调用的 ID，因此您可以通过跟踪这些 ID 来重建完整的嵌套树。在 v2.1.219 之前，来自嵌套 subagents 的消息不会出现在流中。
+当您启用任一选项时，Claude Code 从 [每个嵌套深度的 subagents](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents) 转发消息，无论每个 subagent 是使用 Agent 工具生成的还是作为 [forked skill](/docs/zh-CN/skills#run-skills-in-a-subagent) 启动的。forked skill 生成的 subagents 的消息，以及在 subagent 或另一个 forked skill 内启动的 forked skills，需要 Claude Code v2.1.275 或更高版本。在 `parent_tool_use_id` 中，嵌套 subagent 的消息携带启动它的 Agent 或 Skill 工具调用的 ID，因此您可以通过跟踪这些 ID 来重建完整的嵌套树。在 v2.1.219 之前，来自嵌套 subagents 的消息不会出现在流中。
 
 [在 subagent 中运行](/docs/zh-CN/skills#run-skills-in-a-subagent) 的 Skills 在流中以相同的方式出现：forked skill 的第一条消息是携带驱动运行的 skill 内容的 `user` 消息。如果您启用任一选项，流也会携带 forked skill 的文本和思考块。在 v2.1.265 之前，只有 forked skill 的 `tool_use` 和 `tool_result` 块出现在流中。
 

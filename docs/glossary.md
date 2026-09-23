@@ -208,6 +208,18 @@ Claude Code 读取项目范围配置的目录：settings、hooks、skills、suba
 
 了解更多：[使用 extended thinking](/docs/zh-CN/model-config#extended-thinking)
 
+<h2 id="f">
+  F
+</h2>
+
+<h3 id="frontmatter">
+  Frontmatter
+</h3>
+
+Markdown 文件最顶部的一个 YAML 设置块，位于开头的 `---` 行和结尾的 `---` 行之间。Skills、subagents、output styles 和 rules 各自从 frontmatter 读取其配置，例如 skill 的 `description` 或 subagent 的 `tools`，并将结尾 `---` 之后的所有内容视为说明。开头的 `---` 必须是文件的第一行。每种文件类型都接受其自己的一组字段。
+
+了解更多：[Skill frontmatter](/docs/zh-CN/skills#frontmatter-reference)、[Subagent frontmatter](/docs/zh-CN/sub-agents#supported-frontmatter-fields)、[Output style frontmatter](/docs/zh-CN/output-styles#frontmatter)、[Rule frontmatter](/docs/zh-CN/memory#rules-frontmatter-reference)
+
 <h2 id="h">
   H
 </h2>

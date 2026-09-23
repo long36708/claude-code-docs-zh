@@ -37,7 +37,7 @@ TypeScript 和 Python SDK 使用不同的字段名称公开相同的使用数据
 
 * **`query()` 调用：** SDK 的 `query()` 函数的一次调用。单个调用可以涉及多个步骤：Claude 响应、使用工具、获取结果并再次响应。每个调用在末尾产生一个 [`result`](/docs/zh-CN/agent-sdk/typescript#sdkresultmessage) 消息，除了在 [流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode) 中，其中一个 `query()` 调用承载多个用户轮次，每个轮次发出自己的 `result` 消息。
 * **步骤：** `query()` 调用中的单个请求/响应周期。每个步骤产生具有令牌使用情况的助手消息。
-* **会话：** 由会话 ID 链接的一系列 `query()` 调用（使用 `resume` 选项）。会话中的每个 `query()` 调用独立报告其自己的成本。
+* **会话：** 由会话 ID 链接的一系列 `query()` 调用（通过 `resume` 选项）。已恢复调用的结果报告会话的整体支出，而不仅仅是该调用自己的支出。有关总计如何结转的信息，请参阅 [跨多个调用累积成本](#accumulate-costs-across-multiple-calls)。
 
 下图显示了单个 `query()` 调用的消息流，在每个步骤报告令牌使用情况，在末尾报告累积估计：
 
@@ -51,7 +51,9 @@ TypeScript 和 Python SDK 使用不同的字段名称公开相同的使用数据
   </Step>
 
   <Step title="结果消息提供累积估计">
-    当 `query()` 调用完成时，SDK 发出一个结果消息，其中包含 `total_cost_usd` 和累积 `usage`，在 TypeScript 中类型为 [`SDKResultMessage`](/docs/zh-CN/agent-sdk/typescript#sdkresultmessage)，在 Python 中类型为 [`ResultMessage`](/docs/zh-CN/agent-sdk/python#resultmessage)。如果您进行多个 `query()` 调用，例如在多轮会话中，每个结果仅反映该单个调用的成本。如果您只需要估计的总计，您可以忽略按步骤的使用情况并读取此单个值。
+    当 `query()` 调用完成时，SDK 发出一个结果消息，其中包含 `total_cost_usd` 和累积 `usage`，在 TypeScript 中类型为 [`SDKResultMessage`](/docs/zh-CN/agent-sdk/typescript#sdkresultmessage)，在 Python 中类型为 [`ResultMessage`](/docs/zh-CN/agent-sdk/python#resultmessage)。如果您只需要估计的总计，您可以忽略按步骤的使用情况并读取此单个值。
+
+    如果您进行多个独立的 `query()` 调用，每个结果仅反映该单个调用的成本。恢复会话的调用也计算会话的早期支出。
 
     在流式输入模式中，每个轮次发出自己的结果消息。有关如何在该模式中读取调用总计的信息，请参阅 [在流式输入模式中跟踪成本](#track-costs-in-streaming-input-mode)。
   </Step>
@@ -64,7 +66,7 @@ TypeScript 和 Python SDK 使用不同的字段名称公开相同的使用数据
 在[流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)中，一个 `query()` 调用包含多个用户轮次，每个轮次都会发出自己的结果消息。结果字段的范围不同：
 
 * **`usage`**：仅覆盖该轮次，在该轮次内仅覆盖主代理循环，不包括它运行的任何子代理。
-* **`total_cost_usd` 和 `modelUsage`，或 Python 中的 `model_usage`**：为整个调用到目前为止的运行总计。
+* **`total_cost_usd` 和 `modelUsage`，或 Python 中的 `model_usage`**：为整个调用到目前为止的运行总计，加上调用恢复会话时恢复的任何支出。
 
 在应用从不发送 `/clear`、`/reset` 或 `/new` 的调用中，读取最新结果以获取调用总计，而不是对结果求和。
 
@@ -78,15 +80,18 @@ TypeScript 和 Python SDK 使用不同的字段名称公开相同的使用数据
 
 在 TypeScript 中，SDK 还在每次重置时发出 [`SDKConversationResetMessage`](/docs/zh-CN/agent-sdk/typescript#sdkconversationresetmessage)，因此您可以从流中检测重置。在 Python 中，SDK 同样发出 `ConversationResetMessage`。在 Python SDK v0.2.137 之前，Python 迭代器丢弃了该消息，因此在这些版本上，从应用发送的 `/clear` 轮次中自己计数重置。
 
-`maxBudgetUsd`（TypeScript）或 `max_budget_usd`（Python）与相同的运行总计进行比较，因此 `/clear` 也会启动预算重新开始。
+`maxBudgetUsd`（TypeScript）或 `max_budget_usd`（Python）仅计算调用自身的支出：从恢复的会话恢复的总计不计入其中，`/clear` 启动预算重新开始。
 
 <h2 id="get-the-total-cost-of-a-query">
   获取查询的总成本
 </h2>
 
-结果消息在 TypeScript 中被类型化为 [`SDKResultMessage`](/docs/zh-CN/agent-sdk/typescript#sdkresultmessage)，在 Python 中被类型化为 [`ResultMessage`](/docs/zh-CN/agent-sdk/python#resultmessage)，标记了 `query()` 调用的代理循环的结束。它包含 `total_cost_usd`，即该调用中所有步骤的累积估计成本。在 Python 中，该字段被类型化为可选的，因此在读取之前请检查它不是 `None`。成功和错误结果都包含它，尽管 [会话崩溃](#recover-totals-after-a-session-crash) 的最终结果可能会将其设为零。
+结果消息在 TypeScript 中被类型化为 [`SDKResultMessage`](/docs/zh-CN/agent-sdk/typescript#sdkresultmessage)，在 Python 中被类型化为 [`ResultMessage`](/docs/zh-CN/agent-sdk/python#resultmessage)，标记了 `query()` 调用的代理循环的结束。它包含 `total_cost_usd`，即该调用中所有步骤的累积估计成本。恢复会话的调用也会计算会话的早期支出。读取该值时适用两个注意事项：
 
-如果您使用会话进行多个 `query()` 调用，每个结果仅反映该单个调用的成本。在流式输入模式下，按照 [在流式输入模式下跟踪成本](#track-costs-in-streaming-input-mode) 中的描述读取调用总计。
+* 在 Python 中，该字段被类型化为可选的，因此在读取之前请检查它不是 `None`。
+* 成功和错误结果都包含它，尽管 [会话崩溃](#recover-totals-after-a-session-crash) 的最终结果可能会将其设为零。
+
+在流式输入模式下，按照 [在流式输入模式下跟踪成本](#track-costs-in-streaming-input-mode) 中的描述读取调用总计。
 
 当代理生成 [子代理](/docs/zh-CN/agent-sdk/subagents) 时，三个结果级字段在计数内容上有所不同。使用 `modelUsage`，或在 Python 中使用 `model_usage`，进行整树令牌计数；`usage` 字段一旦发生嵌套就会低估。
 
@@ -232,7 +237,12 @@ try {
   累积多个调用的成本
 </h2>
 
-每个 `query()` 调用都会返回其自己的 `total_cost_usd`。SDK 不提供会话级别的总计，因此如果您的应用程序进行多个 `query()` 调用，例如在多轮会话中或跨不同用户，您需要自己累积总计。在流式输入模式下，按照[在流式输入模式下跟踪成本](#track-costs-in-streaming-input-mode)中的说明读取每个调用的总计。对于以崩溃结束的调用，请参阅[在会话崩溃后恢复总计](#recover-totals-after-a-session-crash)。
+每个 `query()` 调用都会在其结果中返回 `total_cost_usd`。如何组合这些值取决于调用是否共享一个会话：
+
+* **独立调用，没有 `resume` 或 `continue` 选项**：每个结果仅涵盖其自己的调用，因此您需要自己添加总计，如下面的示例所做的那样。
+* **恢复同一会话的调用**：Claude Code 在进程正常退出时将会话的总计保存到其[记录](/docs/zh-CN/sessions#where-transcripts-are-stored)，并在稍后的调用恢复或分叉会话时恢复它们。每个结果已经包括会话的早期支出。读取会话的最新结果以获得会话总计；对结果求和会重复计算恢复的支出。在 v2.1.277 之前，通过 SDK 或 `claude -p` 恢复的会话将其总计从零开始，因此每个调用的结果仅涵盖该调用。
+
+在流式输入模式下，按照[在流式输入模式下跟踪成本](#track-costs-in-streaming-input-mode)中的说明读取每个调用的总计。对于以崩溃结束的调用，请参阅[在会话崩溃后恢复总计](#recover-totals-after-a-session-crash)。
 
 以下示例按顺序运行两个 `query()` 调用，将每个调用的 `total_cost_usd` 添加到运行总计中，并打印每个调用和合并的成本：
 
@@ -307,17 +317,17 @@ try {
   处理错误、缓存和输出令牌计数
 </h2>
 
-为了准确跟踪成本，需要考虑助手消息上的占位符输出计数、失败的对话消耗的令牌以及缓存令牌定价。
+为了准确跟踪成本，需要考虑助手消息上的占位符输出计数、失败对话消耗的令牌以及缓存令牌定价。
 
 <h3 id="read-output-tokens-from-the-result-message">
   从结果消息中读取输出令牌
 </h3>
 
-Claude Code 从 API 在响应开始时报告的使用情况构建每个助手消息，因此消息的 `output_tokens` 仅是 API 在 `message_start` 时报告的计数，在生成响应之前。一个 API 响应可以产生多个助手消息，每个消息都携带相同的占位符。
+Claude Code 从 API 在响应开始时报告的使用情况构建每条助手消息，因此消息的 `output_tokens` 仅是 API 在 `message_start` 时报告的计数，在生成响应之前。一个 API 响应可以产生多条助手消息，每条消息都携带相同的占位符。
 
 API 在响应结束时报告真实输出计数，Claude Code 将其添加到结果消息中。从结果的 `usage` 中读取输出令牌，或从 `modelUsage` 中读取以获得按模型的细分。
 
-要在流式传输时观察响应的输出计数增长，请设置 `includePartialMessages`，或在 Python 中设置 `include_partial_messages`，并从每个 `message_delta` 流事件中读取 `usage`，在 TypeScript 中类型为 [`SDKPartialAssistantMessage`](/docs/zh-CN/agent-sdk/typescript#sdkpartialassistantmessage)，在 Python 中为 [`StreamEvent`](/docs/zh-CN/agent-sdk/python#streamevent)。
+要在流式传输响应时观察输出计数的增长，请设置 `includePartialMessages`，或在 Python 中设置 `include_partial_messages`，并从每个 `message_delta` 流事件中读取 `usage`，在 TypeScript 中类型为 [`SDKPartialAssistantMessage`](/docs/zh-CN/agent-sdk/typescript#sdkpartialassistantmessage)，在 Python 中为 [`StreamEvent`](/docs/zh-CN/agent-sdk/python#streamevent)。
 
 <h3 id="track-costs-on-failed-conversations">
   跟踪失败对话的成本
@@ -325,24 +335,24 @@ API 在响应结束时报告真实输出计数，Claude Code 将其添加到结�
 
 成功和错误结果消息都包括 `usage` 和 `total_cost_usd`；在 Python 中两个字段都是可选类型，因此在读取之前检查它们不是 `None`。
 
-如果对话中途失败，您仍然消耗了到失败点为止的令牌。从每个结果消息中读取成本数据，无论其 `subtype` 是 `success` 还是错误子类型之一。在某些错误结果上，`usage` 报告的值少于调用花费的值：
+如果对话中途失败，您仍然消耗了到失败点为止的令牌。从每条结果消息中读取成本数据，无论其 `subtype` 是 `success` 还是错误子类型之一。在某些错误结果上，`usage` 报告的值少于调用花费的值：
 
-* **`error_during_execution` 在 [会话崩溃](#recover-totals-after-a-session-crash) 之后**：每个成本字段可能被清零。
+* **`error_during_execution` 在 [会话崩溃后](#recover-totals-after-a-session-crash)**：每个成本字段可能都被清零。
 * **`error_max_budget_usd`**：`usage` 省略了超出预算的响应，而 `total_cost_usd` 和 `modelUsage` 包括它。
 
 如果有选择，从 `total_cost_usd` 或 `modelUsage` 而不是 `usage` 进行计算。
 
 <h3 id="recover-totals-after-a-session-crash">
-  在会话崩溃后恢复总计
+  会话崩溃后恢复总计
 </h3>
 
-当 Claude Code 进程崩溃时，它会发出最终的 `error_during_execution` 结果并退出，在单次和流式输入模式中都是如此。该结果可能携带清零的 `usage`、`total_cost_usd` 和 `modelUsage`，因此从之前到达的内容恢复调用的总计。步骤 1 在存在较早结果时恢复完整总计；步骤 2 中的回退仅恢复主循环的输入和缓存令牌。
+当 Claude Code 进程崩溃时，它会发出最终的 `error_during_execution` 结果并退出，在单次和流式输入模式中都是如此。该结果可能携带清零的 `usage`、`total_cost_usd` 和 `modelUsage`，因此从崩溃前到达的内容恢复调用的总计。步骤 1 在存在较早结果时恢复完整总计；步骤 2 中的回退仅恢复主循环的输入和缓存令牌。
 
-1. 使用崩溃前的转换结果。在流式输入模式中，它保存自调用开始或自上次 [`/clear`](#track-costs-in-streaming-input-mode) 以来的运行总计。当该结果无法帮助您时，请改为转到步骤 2：
+1. 使用崩溃前的转换结果。在流式输入模式中，它保存 [在流式输入模式下跟踪成本](#track-costs-in-streaming-input-mode) 中描述的运行总计。当该结果无法帮助您时，改为转到步骤 2：
    * 调用是单次的，因此不存在较早的结果。
    * 崩溃发生在第一个转换上。
    * 崩溃前的转换是 `/clear` 本身，因此其结果仅涵盖重置。
-2. 改为对助手消息上的 `usage` 求和，计算每个 API 响应一次，如 [跟踪每步使用情况](#track-per-step-usage) 示例所示。在单次模式中，对所有消息求和；在流式输入模式中，对最后一个结果之后到达的消息求和。这为您提供主循环的输入和缓存令牌。子代理使用情况无法通过这种方式恢复，输出令牌或美元成本也无法恢复，因为 [每步 `output_tokens` 是占位符](#read-output-tokens-from-the-result-message)。
+2. 改为对助手消息上的 `usage` 求和，每个 API 响应计数一次，如 [跟踪每步使用情况](#track-per-step-usage) 示例所示。在单次模式中，对所有消息求和；在流式输入模式中，对最后一个结果之后到达的消息求和。这给您主循环的输入和缓存令牌。子代理使用情况无法通过这种方式恢复，输出令牌或美元成本也无法恢复，因为 [每步 `output_tokens` 是占位符](#read-output-tokens-from-the-result-message)。
 
 <h3 id="track-cache-tokens">
   跟踪缓存令牌
@@ -359,13 +369,13 @@ Agent SDK 自动使用 [prompt caching](https://platform.claude.com/docs/en/buil
   将 prompt cache TTL 扩展到一小时
 </h3>
 
-您自己的转换落在 [主对话 TTL 桶](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets) 中，与 Claude Code 与它们内联运行的助手一起。Claude Code 在该对话之外进行的请求，例如 [子代理](/docs/zh-CN/agent-sdk/subagents)，有 [单独的 TTL 控制](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)。
+您自己的转换落在 [主对话 TTL 存储桶](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets) 中，与 Claude Code 与它们内联运行的助手一起。Claude Code 在该对话之外进行的请求，例如 [子代理](/docs/zh-CN/agent-sdk/subagents)，有 [单独的 TTL 控制](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)。
 
 当您使用 API 密钥进行身份验证或在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 上运行时，您自己的转换的缓存条目默认使用 5 分钟 TTL。如果您的工作负载针对相同的系统提示和上下文运行许多短会话，且会话之间的间隔超过 5 分钟，缓存会在会话之间过期，每个新会话都需要支付完整的输入价格。
 
 要请求缓存写入的 1 小时 TTL，请设置 [`ENABLE_PROMPT_CACHING_1H`](/docs/zh-CN/env-vars) 环境变量。您可以在 shell 或容器环境中导出它，或通过 `options.env` 传递它。
 
-以下示例为在 Amazon Bedrock 上运行的代理启用 1 小时 TTL。因为它设置了 `CLAUDE_CODE_USE_BEDROCK`，它需要为 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 工作的 AWS 凭证；没有它们查询会失败。
+以下示例为在 Amazon Bedrock 上运行的代理启用 1 小时 TTL。因为它设置了 `CLAUDE_CODE_USE_BEDROCK`，它需要 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 的有效 AWS 凭证；没有它们查询会失败。
 
 <CodeGroup>
   ```python Python theme={null}
@@ -405,14 +415,14 @@ Agent SDK 自动使用 [prompt caching](https://platform.claude.com/docs/en/buil
   ```
 </CodeGroup>
 
-具有 1 小时 TTL 的缓存写入按比 5 分钟写入更高的费率计费，因此启用此功能会用更高的写入成本换取更多缓存读取。有关详细信息，请参阅 [prompt caching 定价](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)。在您计划包含的使用范围内的 Claude 订阅上，您可以在自己的转换上获得 1 小时 TTL，以及在 Claude Code 在其旁边进行的某些助手请求上，无需设置此变量，一旦您开始使用 [使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，Claude Code 会将这些转换降低到 5 分钟 TTL。
+具有 1 小时 TTL 的缓存写入按比 5 分钟写入更高的费率计费，因此启用此功能会用更高的写入成本换取更多缓存读取。有关详细信息，请参阅 [prompt caching 定价](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)。在您计划内包含的使用范围内的 Claude 订阅上，您可以在自己的转换上获得 1 小时 TTL，以及在 Claude Code 在其旁边进行的某些助手请求上，无需设置此变量，一旦您开始使用 [使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，Claude Code 会将这些转换降低到 5 分钟 TTL。
 
-`ENABLE_PROMPT_CACHING_1H` 要求在两个桶中的每个请求上使用 1 小时 TTL。要为每个桶分别选择 TTL，请改用这些控制。每个都采用 `5m` 或 `1h` 并优先于 `ENABLE_PROMPT_CACHING_1H`：
+`ENABLE_PROMPT_CACHING_1H` 要求在两个存储桶中的每个请求上使用 1 小时 TTL。要为每个存储桶分别选择 TTL，请改用这些控制。每个接受 `5m` 或 `1h` 并优先于 `ENABLE_PROMPT_CACHING_1H`：
 
 * 主对话：`CLAUDE_CODE_PROMPT_CACHE_TTL` [环境变量](/docs/zh-CN/env-vars)，或 [`promptCacheTtl`](/docs/zh-CN/settings-reference#promptcachettl) 设置
 * 其他所有内容：`CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL` 环境变量，或 [`subagentPromptCacheTtl`](/docs/zh-CN/settings-reference#subagentpromptcachettl) 设置
 
-将 `promptCacheTtl` 设置为 `1h` 会在您使用使用额度时保持主对话上的 1 小时缓存。有关完整的优先级顺序，请参阅 [选择 TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)。
+将 `promptCacheTtl` 设置为 `1h` 会在您使用使用额度时保持主对话上的 1 小时缓存。有关完整的优先级顺序，请参阅 [自己选择 TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)。
 
 <h2 id="related-documentation">
   相关文档

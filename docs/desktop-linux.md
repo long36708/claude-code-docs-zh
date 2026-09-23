@@ -16,7 +16,7 @@ Linux 上的桌面应用提供与 macOS 和 Windows 相同的 Chat、Cowork 和 
   要求
 </h2>
 
-* Ubuntu 22.04 或更高版本，或 Debian 12 或更高版本
+* 基于 Debian 的发行版：Ubuntu 22.04 或更高版本，或 Debian 12 或更高版本
 * x86\_64 或 arm64
 
 其他满足这些要求的基于 Debian 的发行版可能可以工作，但未经过官方测试。在非基于 Debian 的发行版上，例如 Fedora 或 Arch，请改为运行 [CLI](/docs/zh-CN/setup#system-requirements)。如果您在 WSL 2 上使用 Windows，请安装 Windows 桌面应用程序并在您的发行版内运行会话；请参阅 [Claude Code Desktop in WSL](/docs/zh-CN/desktop-wsl)。

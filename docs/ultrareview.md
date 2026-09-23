@@ -50,6 +50,8 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthr
 
 基础分支不需要存在于您的本地克隆中；Claude Code 从 `origin` 获取它。如果名称有拼写错误，Claude Code 会在错误中建议最接近的分支名称。
 
+提交 id 或标签也可以作为基础，审查将涵盖您的分支自该提交以来的更改。
+
 <h3 id="review-a-pull-request">
   审查拉取请求
 </h3>
@@ -114,8 +116,13 @@ Claude Code 不会从您的计算机发布。它将审查的会话 ID 发送到 
 Ultrareview 在任何审查工作运行之前检查差异，并在无法按原样审查时告诉您：
 
 * **差异过大**：分支审查默认最多可包括 500 个更改的文件和 8,000 个更改的行。确切的值可能会改变，[拒绝](/docs/zh-CN/errors#diff-is-too-large-for-ultrareview)会说明生效的值、您的差异大小以及更改行数最多的文件。Claude Code 以相同的方式拒绝过大的拉取请求，说明其文件和行数，但不说明每个文件的细分
-* **没有要审查的内容**：当针对基础的差异为空时，Claude Code 会说明这一点，并建议暂存或提交本地编辑，或传递不同的基础
-* **没有合并基础**：当您的分支与基础分支没有共享历史时，Claude Code 回退到审查存储库中的每个跟踪文件；回退需要完整克隆并应用相同的大小限制。在没有分支或其他引用的检出上，如通过在获取 URL 后检出 `FETCH_HEAD` 创建的分离 HEAD，Claude Code [拒绝审查](/docs/zh-CN/errors#your-checkout-has-no-branches)并建议首先创建分支
+* **没有要审查的内容**：当针对基础的差异为空时，ultrareview 拒绝并说明它比较的分支或提交以及您所处的情况，例如在基础分支本身上且没有未提交的内容，或一个分支的所有提交都已是基础的一部分。它还为该情况建议解决方法，例如切换到您的工作分支、暂存或提交本地编辑，或传递不同的基础
+* **首次提交**：存储库的首次提交没有更早的内容可比较，因此 ultrareview 在您在启动对话框中确认后审查其中的每个文件。如果您有未跟踪的文件，它会拒绝并告诉您 `git add` 您想审查的文件。相同的大小限制适用。
+
+  首次提交仅在该确认后才被整体审查，因此 `claude ultrareview` 子命令和 `claude -p` 拒绝它并指向您使用交互式会话。需要 Claude Code v2.1.277 或更高版本
+* **没有合并基础**：当您的分支与基础分支没有共享历史时，或存储库没有基础分支可比较时，ultrareview 审查存储库中的每个跟踪文件。回退需要完整克隆并应用相同的大小限制。它仅在您在启动对话框中确认或自己运行 `claude ultrareview` 子命令时启动。在 `claude -p` 和任何其他两者都不发生的地方，ultrareview 拒绝，说审查将涵盖每个文件，并指向您使用交互式会话。
+
+  在没有分支或其他引用的检出上，例如通过在获取 URL 后检出 `FETCH_HEAD` 创建的分离 HEAD，Claude Code [拒绝审查](/docs/zh-CN/errors#your-checkout-has-no-branches)并建议首先创建分支
 
 <h2 id="pricing-and-free-runs">
   定价和免费运行
@@ -166,7 +173,7 @@ claude ultrareview origin/main
 
 不带参数时，该子命令审查您当前分支与默认分支之间的差异，当不存在合并基础时具有与 `/code-review ultra` 相同的[整个存储库回退](#diff-limits-and-fallbacks)。传递 PR 编号来审查拉取请求，或传递基础分支来审查与该分支的差异；[基础分支处理](#review-against-a-different-base)与交互式命令匹配。
 
-运行该子命令时，您同意整个存储库回退以及计费和条款提示，因此运行开始时无需等待输入。
+运行该子命令时，您同意整个存储库回退以及计费和条款提示，因此运行开始时无需等待输入。运行它本身就是您的同意。当 Claude 代替您运行该子命令时，例如通过 Bash 工具，Claude Code 会拒绝整个存储库审查。
 
 在 Claude Code v2.1.218 或更高版本上，您也可以通过在非交互式会话中运行 `/code-review ultra` 来启动云审查，例如 `claude -p '/code-review ultra'`。Claude Code 启动审查并打印跟踪链接，无需等待发现，与 `claude ultrareview` 不同，后者会阻止直到发现到达。当审查会计费使用额度时，Claude Code 在启动前停止并指向 `claude ultrareview`，因为计费确认需要交互式会话。在 v2.1.218 之前，非交互式会话中的 `/code-review ultra` 运行本地审查。
 

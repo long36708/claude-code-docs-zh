@@ -333,16 +333,16 @@ Claude 自己将这些偏好保存到[项目记忆](#give-a-project-standing-con
   线程从您的代码库中获取什么
 </h3>
 
-每个线程克隆项目中的每个代码库并从所有代码库加载 `CLAUDE.md`、skills 和 plugins。权限规则、hooks 和 `env` 仅来自线程启动的目录中的 `.claude/settings.json`：在有一个代码库时在代码库内，在有多个时在克隆上方，其中没有代码库的文件被读取。
+每个线程克隆项目中的每个代码库并从所有代码库加载 `CLAUDE.md` 和 skills。权限规则、hooks 和 `env` 仅来自线程启动的目录中的 `.claude/settings.json`：在有一个代码库时在代码库内，在有多个时在克隆上方，其中没有代码库的文件被读取。
 
-| 在每个代码库中                                          | 一个代码库                                                                                   | 多个代码库                                                                   |
-| :----------------------------------------------- | :-------------------------------------------------------------------------------------- | :---------------------------------------------------------------------- |
-| `CLAUDE.md`                                      | 在线程启动时加载                                                                                | 在线程启动时从每个代码库加载                                                          |
-| `.claude/` 下的 Skills、agents 和 commands           | 加载                                                                                      | 从每个代码库加载                                                                |
-| 在 `.claude/settings.json` 中启用的 Plugins           | 加载                                                                                      | 从每个代码库加载。如果两个代码库对 plugin 不同意，请在 **Project settings > Plugins** 中设置它，这优先 |
-| 在 `.claude/settings.json` 中定义的权限规则、hooks 和 `env` | 适用于线程，除了[没有云会话遵守](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)的 `env` 键 | 不适用                                                                     |
+| 在每个代码库中                                          | 一个代码库                                                                                   | 多个代码库                                             |
+| :----------------------------------------------- | :-------------------------------------------------------------------------------------- | :------------------------------------------------ |
+| `CLAUDE.md`                                      | 在线程启动时加载                                                                                | 在线程启动时从每个代码库加载                                    |
+| `.claude/` 下的 Skills、agents 和 commands           | 加载                                                                                      | 从每个代码库加载                                          |
+| 在 `.claude/settings.json` 中启用的 Plugins           | 不加载。改为在 **Project settings > Plugins** 中添加 plugin                                       | 不加载。改为在 **Project settings > Plugins** 中添加 plugin |
+| 在 `.claude/settings.json` 中定义的权限规则、hooks 和 `env` | 适用于线程，除了[没有云会话遵守](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)的 `env` 键 | 不适用                                               |
 
-在有多个代码库的项目中，每个克隆作为[附加目录](/docs/zh-CN/memory#load-from-additional-directories)附加到线程，`CLAUDE.md` 加载打开，这就是为什么每个代码库的 `CLAUDE.md` 和 skills 在启动时加载，即使线程在它们上方启动。在任何情况下，启用的 plugin 提供的 hooks 仍然运行，因为 plugins 从每个代码库加载。在有多个代码库的项目中，将常规规则放在项目说明中，并通过[云环境](#choose-an-environment-for-threads)为线程提供环境变量。
+在有多个代码库的项目中，每个克隆作为[附加目录](/docs/zh-CN/memory#load-from-additional-directories)附加到线程，`CLAUDE.md` 加载打开，这就是为什么每个代码库的 `CLAUDE.md` 和 skills 在启动时加载，即使线程在它们上方启动。在这样的项目中，将常规规则放在项目说明中，并通过[云环境](#choose-an-environment-for-threads)为线程提供环境变量。
 
 <h3 id="choose-an-environment-for-threads">
   为线程选择环境
@@ -359,11 +359,11 @@ Claude 自己将这些偏好保存到[项目记忆](#give-a-project-standing-con
 线程是云会话，因此它们没有仅在您机器上安装的 skills、MCP 服务器、plugins 和工具。要使这些中的每一个对线程可用：
 
 * Skills、subagents 和 commands：将它们提交到您添加到项目的代码库，例如 `.claude/skills/<skill-name>/SKILL.md` 处的 skill。每个线程克隆项目中的每个代码库并从每个代码库加载 `.claude/skills/`、`.claude/agents/` 和 `.claude/commands/`，因此提交到一个代码库的 skill 在每个新线程中可用。线程也加载您为 claude.ai 账户启用的 skills。
-* Plugins：在 **Project settings > Plugins** 中添加它们；它们加载到每个新线程中。代码库在其 `.claude/settings.json` 中声明的 Plugins 也加载；请参阅[什么从您的设置中进行](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
+* Plugins：在 **Project settings > Plugins** 中添加它们；它们加载到每个新线程中。代码库在其 `.claude/settings.json` 中声明的 Plugins [不在线程中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)，因为线程是云会话。
 * MCP 服务器：线程从您 claude.ai 账户上的连接器获取其 MCP 工具，这些是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 一次连接的 MCP 服务器，或通过 **Project settings > Environment** 中的 **Manage connectors** 链接。每个线程可以使用所有这些而无需每个项目的设置。项目对话本身没有连接器，因此将需要一个的工作作为线程的任务发送。在有一个代码库的项目中，线程也从该代码库的[`.mcp.json`](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)加载 MCP 服务器。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code)列出了云会话的规则和关闭连接器的设置。
 * 命令行工具和包：在环境的[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)中安装它们。
 
-要查看运行线程在 claude.ai/code 有哪些连接器，请打开线程并从其消息框旁的 **+** 菜单中选择 **Connectors**。在那里关闭连接器会将其从该线程中移除，并且在您重新打开它之前，它对之后启动的线程保持关闭。线程在您向其发送下一条消息后获取您添加或重新连接的连接器。
+要查看运行线程在 claude.ai/code 有哪些连接器，请打开线程并从其消息框旁的 **+** 菜单中选择 **Connectors**。在那里关闭连接器会将其从该线程中移除，并且将其保存为您的账户默认值，因此新线程和 claude.ai 聊天在您重新打开它之前启动时没有它。线程在您向其发送下一条消息后获取您添加或重新连接的连接器。
 
 <h2 id="project-settings-reference">
   项目设置参考

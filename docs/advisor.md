@@ -56,7 +56,7 @@
 * 运行带有模型的 `/advisor`，例如 `/advisor opus`，以设置它。
 * 运行 `/advisor off` 以关闭它。
 
-Claude Code 不会调用您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除的已保存顾问。要使用顾问，请使用 `/advisor` 选择允许的模型。Claude Code 仍然会保存您当前主模型不支持的顾问。该顾问在您使用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 切换到[兼容的主模型](#choose-an-advisor-model)后激活。
+Claude Code 不会调用您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除的已保存顾问。要使用顾问，请使用 `/advisor` 选择允许的模型。Claude Code 仍然会保存您当前主模型不支持的顾问。该顾问在您使用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 切换到[兼容的主模型](#choose-an-advisor-model)后激活。如果 API 已在当前对话中拒绝了已保存的顾问，它将保持关闭状态，直到 `/clear` 或 `/compact`，即使在您切换模型之后。
 
 在某些计划中，使用 Fable 作为顾问还需要您一次性[同意将 Fable 使用费用计入使用额度](/docs/zh-CN/model-config#fable-and-usage-credits)。有关您给予该同意之前 `/advisor fable` 会做什么，请参阅 [Fable 顾问和使用额度](#fable-advisor-and-usage-credits)。
 
@@ -97,27 +97,27 @@ Claude Code 在该会话中使用该标志而不是 `advisorModel` 设置。它�
 
 顾问的能力必须至少与主模型相同。每个主模型接受的顾问是：
 
-| 主模型                 | 接受的顾问                         | 注释                                                                |
-| ------------------- | ----------------------------- | ----------------------------------------------------------------- |
-| Haiku 4.5           | Fable、Opus、Sonnet             | Haiku 可以调用顾问但不能充当顾问                                               |
-| Sonnet 4.6          | Fable、Opus、Sonnet             |                                                                   |
-| Sonnet 5            | Fable、Opus 4.7 或更高版本、Sonnet 5 | Sonnet 4.6 顾问被拒绝，使用 Opus 4.6 顾问的请求会失败并显示 API 错误                   |
-| Opus 4.6            | Fable、Opus、Sonnet 5           | Sonnet 4.6 顾问被拒绝                                                  |
-| Opus 4.7 或 Opus 4.8 | Fable 和 Opus 4.7 或更高版本        | Opus 4.6 或 Sonnet 顾问被拒绝                                           |
-| Opus 5              | Fable、Opus 5                  | Opus 4.6 或 Sonnet 顾问被拒绝，使用 Opus 4.7 或 Opus 4.8 顾问的请求会失败并显示 API 错误 |
-| Fable 5             | Fable 5.1 或 Fable 5           | Opus 或 Sonnet 顾问被拒绝                                               |
-| Fable 5.1           | Fable 5.1                     | Opus 或 Sonnet 顾问被拒绝，使用 Fable 5 顾问的请求会失败并显示 API 错误                 |
+| 主模型                 | 接受的顾问                         | 注释                                                    |
+| ------------------- | ----------------------------- | ----------------------------------------------------- |
+| Haiku 4.5           | Fable、Opus、Sonnet             | Haiku 可以调用顾问但不能充当顾问                                   |
+| Sonnet 4.6          | Fable、Opus、Sonnet             |                                                       |
+| Sonnet 5            | Fable、Opus 4.7 或更高版本、Sonnet 5 | Sonnet 4.6 顾问被拒绝，API 拒绝 Opus 4.6 顾问                   |
+| Opus 4.6            | Fable、Opus、Sonnet 5           | Sonnet 4.6 顾问被拒绝                                      |
+| Opus 4.7 或 Opus 4.8 | Fable 和 Opus 4.7 或更高版本        | Opus 4.6 或 Sonnet 顾问被拒绝                               |
+| Opus 5.5 或 Opus 5   | Fable 和 Opus 5 或更高版本          | Opus 4.6 或 Sonnet 顾问被拒绝，API 拒绝 Opus 4.7 或 Opus 4.8 顾问 |
+| Fable 5             | Fable 5.1 或 Fable 5           | Opus 或 Sonnet 顾问被拒绝                                   |
+| Fable 5.1           | Fable 5.1                     | Opus 或 Sonnet 顾问被拒绝，API 拒绝 Fable 5 顾问                 |
 
 Fable 5.1 需要 Claude Code v2.1.257 或更高版本。两个 Fable 模型都需要 [Fable 访问权限](/docs/zh-CN/model-config#work-with-fable)。
 
-将顾问设置为 `fable`、`opus` 或 `sonnet`。这些别名解析为 Claude Code 为每个模型系列内置的默认版本，该版本随新的 Claude Code 版本而推进。您也可以传递完整的模型 ID，例如 `claude-opus-5`。
+将顾问设置为 `fable`、`opus` 或 `sonnet`。这些别名解析为 Claude Code 为每个模型系列内置的默认版本，该版本随新的 Claude Code 版本而推进。您也可以传递完整的模型 ID，例如 `claude-opus-5-5`。
 
 子代理继承配置的顾问，并对其自己的模型应用相同的配对检查。
 
 Claude Code 在发送请求之前验证配对，API 也会再次验证：
 
 * 对于表中列为被拒绝的顾问，Claude Code 不会将其附加到主模型的请求中。`/advisor` 命令输出和通知会显示这一点。其自己的模型满足配对的子代理仍然可以使用顾问。
-* 对于表中列为因 API 错误而失败的顾问，Claude Code 会附加它，API 会拒绝它。每个请求都会失败并显示 `'<advisor model>' cannot be used as an advisor when the request model is '<main model>'`，直到您使用 `/advisor` 更改顾问或将其关闭。
+* 对于表中列为 API 拒绝的顾问，Claude Code 会附加它，API 会拒绝它。Claude Code 随后会在没有顾问的情况下重新发送该请求，对话的其余部分会在没有顾问的情况下运行，因此您看不到错误，也不会获得顾问调用。使用 `/advisor` 选择接受的顾问；更改在 `/clear` 或 `/compact` 之后以及新会话中生效。
 * 如果主模型或顾问是 Claude Code 无法识别的模型，顾问不会附加。
 
 <h3 id="fable-advisor-and-usage-credits">
@@ -195,7 +195,7 @@ Claude 在决策点而不是每一轮都调用顾问，因此将更快的主模�
 
 顾问工具需要以下所有条件：
 
-* **仅 Anthropic API**：顾问是服务器执行的工具。它在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。通过配置了 `ANTHROPIC_BASE_URL` 的 [LLM 网关](/docs/zh-CN/llm-gateway)，可用性取决于网关是否将请求完整转发到 Anthropic API。
+* **仅 Anthropic API**：顾问是服务器执行的工具。它在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。通过配置了 `ANTHROPIC_BASE_URL` 的 [LLM 网关](/docs/zh-CN/llm-gateway)，可用性取决于网关是否将请求完整转发到 Anthropic API。如果网关或其上游不识别顾问工具，请参阅[自动重试和错误转发](/docs/zh-CN/llm-gateway-protocol#automatic-retry-and-error-forwarding)了解 Claude Code 如何响应。
 * **支持的主模型**：Fable、Opus 4.6 或更高版本、Sonnet 4.6 或更高版本，或 Haiku 4.5。请参阅[选择顾问模型](#choose-an-advisor-model)了解每个顾问接受的模型。
 * **功能标志获取**：Claude Code 通过从 Anthropic 获取的功能标志来启用顾问。在设置了关闭标志获取的变量（例如 `DISABLE_TELEMETRY`）的会话中，顾问保持关闭状态。请参阅[需要功能标志获取的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)。
 

@@ -46,7 +46,7 @@ Claude Code 在您首次以交互方式启动它时会自动添加官方 Anthrop
 
 * **Claude 桌面应用**：使用[插件浏览器](/docs/zh-CN/desktop#install-plugins)。
 * **VS Code 扩展**：从[**管理插件**对话框](/docs/zh-CN/vs-code#manage-plugins)安装。
-* **云会话**：在 `.claude/settings.json` 中的 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 下声明插件。
+* **云会话**：为您的 claude.ai 账户启用插件，以便 Claude Code 将其作为[同步插件](/docs/zh-CN/plugins-reference#synced-plugins)加载。
 
 如果安装失败，请匹配 Claude Code 报告的消息：
 
@@ -364,7 +364,7 @@ Claude Code 在以 `claudeai-` 开头的本地名称下注册市场，该名称�
 Claude Code 在其本地市场目录副本中查找插件。您命名插件的方式控制 Claude Code 是否首先刷新该副本：
 
 * **带有市场名称**：当您安装 `plugin-name@marketplace-name` 时，在会话中或使用 `claude plugin install`，Claude Code 在查找前刷新该市场。即使您关闭了市场的[自动更新](#configure-auto-updates)或设置了 `DISABLE_AUTOUPDATER`，Claude Code 也会运行刷新。在 v2.1.232 之前，Claude Code 在查找前不刷新市场。Claude Code 在以下情况下跳过此刷新：
-  * 市场未[从 GitHub、其他 Git 主机或远程 URL 添加](#add-marketplaces)。
+  * 市场未[从 GitHub、其他 Git 主机、远程 URL](#add-marketplaces)或 [claude.ai](#add-from-claude-ai) 添加。
   * [种子目录](/docs/zh-CN/plugin-marketplaces#pre-populate-plugins-for-containers)提供市场。
   * Claude Code 在过去 30 秒内刷新了市场。
   * 您设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars)。
@@ -399,7 +399,7 @@ Claude Code 在其本地市场目录副本中查找插件。您命名插件的�
 
 该源采用与 [`/plugin marketplace add`](#add-marketplaces) 相同的形式，例如 GitHub `owner/repo`、git URL 或本地路径，除了它不能包含空格。给出插件名称时不带 `@marketplace` 后缀。
 
-如果您尚未添加该市场，Claude Code 会显示它解析的源并要求您在添加前确认。拒绝会取消安装并且不添加任何内容。一旦添加了市场，插件的详情会打开，您可以选择[安装范围](/docs/zh-CN/settings#where-settings-live)。
+Claude Code 显示它解析的源并要求您在添加市场前确认。拒绝会取消安装并且不添加任何内容。一旦添加了市场，插件的详情会打开，您可以选择[安装范围](/docs/zh-CN/settings#where-settings-live)。如果源与您已添加的市场匹配，Claude Code 会跳过确认并在该市场中打开插件的详情。
 
 <h2 id="manage-installed-plugins">
   管理已安装的插件

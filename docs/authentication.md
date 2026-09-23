@@ -53,8 +53,8 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 
 [Claude for Teams](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_teams#team-&-enterprise) 和 [Claude for Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_enterprise) 为使用 Claude Code 的组织提供最佳体验。团队成员可以访问 Claude Code 和网络版 Claude，具有集中式计费和团队管理。
 
-* **Claude for Teams**：自助服务计划，具有协作功能、管理工具和计费管理。最适合较小的团队。
-* **Claude for Enterprise**：添加 SSO、域名捕获、基于角色的权限、合规性 API 和托管策略设置，用于组织范围的 Claude Code 配置。最适合具有安全和合规性要求的大型组织。
+* **Claude for Teams**：自助服务计划，具有协作功能、管理工具、SSO、计费管理和 [服务器托管设置](/docs/zh-CN/server-managed-settings)，用于组织范围的 Claude Code 配置。最适合较小的团队。
+* **Claude for Enterprise**：添加域名捕获、基于角色的权限和合规性 API。最适合具有安全和合规性要求的大型组织。
 
 <Steps>
   <Step title="订阅">

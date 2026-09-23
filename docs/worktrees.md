@@ -59,10 +59,11 @@ Worktree 是一个新的检出，因此请在那里初始化您的开发环境�
   清理 worktrees
 </h2>
 
-当您退出交互式 worktree 会话时，Claude 会检查 worktree 中的工作，删除会丢失这些工作：已更改或未跟踪的文件，以及新提交。
+当您退出交互式 worktree 会话时，Claude 会检查 worktree 中的工作，删除会丢失这些工作：已更改或未跟踪的文件、已检出子模块内的未提交工作以及新提交。
 
 * **worktree 是干净的**：对于未命名的会话，Claude 会自动删除 worktree 及其分支。[命名](/docs/zh-CN/sessions#name-your-sessions)的会话会提示您，以便您可以稍后保留 worktree
 * **worktree 中有工作**：Claude 提示您保留或删除 worktree。保留会保留目录和分支，以便您稍后可以返回。删除会删除 worktree 目录及其分支，以及其中的所有工作
+* **worktree 的状态无法验证**：当 Claude Code 无法计算 worktree 的更改或无法检查其子模块检出时，它会提示您而不是自动删除 worktree。提示会说明它无法检查的内容
 
 使用 `-p` 的非交互式运行没有退出提示，因此 Claude 不会清理它们的 worktrees，Claude Code 会保留它在创建时对每个 worktree 所取的锁，直到稍后会话的[陈旧锁扫描](#clean-up-subagent-and-background-session-worktrees)释放它。要删除一个，请运行 `git worktree remove`；如果 git 拒绝因为 worktree 被锁定，请先在其上运行 `git worktree unlock`。
 
@@ -101,11 +102,11 @@ Claude Code 应用四个检查：
 * **文件编辑**：Claude Code 阻止针对主检出中的路径的 `Edit`、`Write` 或 `NotebookEdit`。
 * **命令工作目录**：Claude Code 阻止其工作目录解析为主检出的 Bash、PowerShell 或 Monitor 命令，或其工作目录它无法验证保持在其外的命令。
 * **Git 重定向**：Claude Code 阻止将 git 重定向到主检出的 Bash 或 Monitor 命令。重定向可以通过 `git -C`、`--git-dir`、`GIT_DIR` 或 `GIT_WORK_TREE` 变量，或在运行 git 之前 `cd` 到主检出来进行。
-* **命令形状**：当 Claude Code 无法从命令文本验证命令运行的任何 git 保持在 worktree 内时，它会阻止 Bash 或 Monitor 命令，例如当命令名称在运行时计算或语法无法解析时。Claude Code 告诉 Claude 如何重写被拒绝的命令，例如将其分割成普通的单独命令。您无法关闭此检查。
+* **命令形状**：当 Claude Code 无法从命令文本验证命令运行的任何 git 保持在 worktree 内时，它会阻止 Bash 或 Monitor 命令。例如，当命令名称在运行时计算、语法无法解析，或当诸如 `${!name}` 或 `${ command; }` 之类的扩展可能运行文本中未明确说明的命令时，就会发生这种情况。Claude Code 告诉 Claude 如何重写被拒绝的命令，例如将其分割成普通的单独命令。您无法关闭此检查。
 
 检查适用于您启动 Claude Code 的存储库。它们也涵盖链接的 worktree 链接自的主检出。对于 PowerShell 命令，Claude Code 仅应用工作目录检查。
 
-Claude 将每个拒绝视为命名 worktree 并说明如何继续的工具错误。
+Claude 将每个拒绝视为命名 worktree 并说明如何继续的工具错误。有关被拒绝的命令，请参阅[拒绝消息的含义以及如何清除它](/docs/zh-CN/errors#command-blocked-by-the-worktree-isolation-checks)。
 
 <h2 id="isolate-subagents-with-worktrees">
   使用 worktrees 隔离子代理
@@ -139,6 +140,7 @@ Claude Code 运行定期扫描，删除 Claude 为子代理和[后台会话](/do
 当您[后台](/docs/zh-CN/agent-view#send-the-session-to-the-background)一个 `--worktree` 会话时，其 worktree 变成后台会话 worktree，扫描可以删除。扫描在这些情况下保留 worktree：
 
 * worktree 仍然保留工作：已更改或未跟踪的文件，或未推送的提交。
+* worktree 中已检出的子模块保留已更改或未跟踪的文件，或 Claude Code 无法检查 worktree 的子模块。此检查需要 Claude Code v2.1.274 或更高版本。
 * Claude Code 无法确定存储库配置定义的过滤驱动程序，或在其中找到它无法关闭的设置，或[四种也阻止 worktree 创建的情况](#git-lfs-content-is-missing-from-a-worktree-claude-code-created)中的任何一种适用。
 * worktree 属于您未后台的 `--worktree` 会话，无论其年龄如何。
 * 您自己使用 `git worktree add` 创建了 worktree，即使您随后在其中运行了 `--worktree <name>` 会话并后台了该会话。
@@ -251,13 +253,16 @@ Claude Code 仅从 git 状态检测合并的情况：worktree 推送到的远程
   Worktrees 与主检出共享的内容
 </h2>
 
-Worktree 获得自己的文件和分支，但它与存储库的 `.git` 目录、项目范围的插件和保存的权限批准与主检出共享：
+Worktree 获得自己的文件和分支，但它与主检出共享以下内容：
 
 * **存储库的 `.git` 目录**：worktree 中的 git 命令写入主存储库的共享 `.git` 目录，[沙箱](/docs/zh-CN/sandboxing#filesystem-isolation)允许这些写入，因此 `git commit` 等命令可以从启用沙箱的 worktree 内部工作。
 * **插件**：从主检出在[项目范围](/docs/zh-CN/plugins-reference#plugin-installation-scopes)安装的插件也会在同一存储库的 worktrees 中加载，因此您无需为每个 worktree 重新安装它们。需要 Claude Code v2.1.200 或更高版本。
 * **权限批准**：在 worktree 会话中为 Bash 命令选择"是，不再询问"会将规则保存到主检出的 `.claude/settings.local.json`，因此它适用于主检出和存储库的每个其他 worktree，并在 worktree 的删除后存活。在 Windows 和 Claude Code [不使用存储库根](/docs/zh-CN/settings#where-claude-code-looks-for-each-file)的其他情况下，规则与该 worktree 保持一致。在 v2.1.211 之前，在 worktree 中授予的批准被保存在该 worktree 内，不适用于其他地方，并在 worktree 被删除时丢失。请参阅[批准保存的位置](/docs/zh-CN/permissions#permission-system)。
+* **未跟踪的 skills、agents 和 commands**：当 worktree 检出在其根目录没有 `.claude/skills` 目录时（例如因为您的 `.claude/skills` 被 gitignored），Claude Code 会在 worktree 会话中加载主检出的[项目 skills](/docs/zh-CN/skills#where-skills-live)。在具有自己的 `.claude/skills` 目录的 worktree 中，只加载该副本。
 
-所有三个都适用于您是使用 `--worktree`、使用 `git worktree add` 还是通过[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)创建 worktree。
+  相同的读取覆盖也适用于 `.claude/agents` 和 `.claude/commands`。对于 skills，读取覆盖需要 Claude Code v2.1.277 或更高版本。
+
+无论您是使用 `--worktree`、使用 `git worktree add` 还是通过[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)创建 worktree，所有这些都适用。
 
 <h2 id="manage-worktrees-manually">
   手动管理 worktrees

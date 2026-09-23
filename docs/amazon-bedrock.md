@@ -291,7 +291,7 @@ export ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION=us-west-2
 
 将这些环境变量设置为特定的 Amazon Bedrock 模型 ID。
 
-没有 `ANTHROPIC_DEFAULT_OPUS_MODEL` 时，Amazon Bedrock 上的 `opus` 别名解析为 Opus 5，没有 `ANTHROPIC_DEFAULT_SONNET_MODEL` 时，`sonnet` 别名解析为 Sonnet 4.5。此示例将每个别名固定到特定版本：
+没有 `ANTHROPIC_DEFAULT_OPUS_MODEL` 时，Amazon Bedrock 上的 `opus` 别名解析为 Opus 5.5，没有 `ANTHROPIC_DEFAULT_SONNET_MODEL` 时，`sonnet` 别名解析为 Sonnet 4.5。此示例将每个别名固定到特定版本：
 
 ```bash theme={null}
 export ANTHROPIC_DEFAULT_OPUS_MODEL='us.anthropic.claude-opus-4-8'
@@ -303,10 +303,10 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:
 
 要保留内置默认模型并仅更改其首选前缀，请改为设置 [`ANTHROPIC_BEDROCK_REGION_PREFIX`](#cross-region-inference-profile-prefixes)。差异显示在 `opus` 别名解析为什么：
 
-| 您设置                                                           | `opus` 别名解析为                               |
-| :------------------------------------------------------------ | :----------------------------------------- |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL='us.anthropic.claude-opus-4-8'` | `us.anthropic.claude-opus-4-8`，您固定的确切 ID   |
-| `ANTHROPIC_BEDROCK_REGION_PREFIX=eu`                          | `eu.anthropic.claude-opus-5`，具有您首选前缀的内置默认值 |
+| 您设置                                                           | `opus` 别名解析为                                 |
+| :------------------------------------------------------------ | :------------------------------------------- |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL='us.anthropic.claude-opus-4-8'` | `us.anthropic.claude-opus-4-8`，您固定的确切 ID     |
+| `ANTHROPIC_BEDROCK_REGION_PREFIX=eu`                          | `eu.anthropic.claude-opus-5-5`，具有您首选前缀的内置默认值 |
 
 有关当前和旧版模型 ID，请参阅[模型概览](https://platform.claude.com/docs/en/about-claude/models/overview)。有关完整的固定环境变量列表，请参阅[模型配置](/docs/zh-CN/model-config#pin-models-for-third-party-deployments)。
 
@@ -314,7 +314,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:
 
 | 模型类型    | 默认模型                                                                     |
 | :------ | :----------------------------------------------------------------------- |
-| 主要模型    | Opus 5，例如 `us-*` 区域中的 `us.anthropic.claude-opus-5`                       |
+| 主要模型    | Opus 5.5，例如 `us-*` 区域中的 `us.anthropic.claude-opus-5-5`                   |
 | 小型/快速模型 | Sonnet 4.5，例如 `us-*` 区域中的 `us.anthropic.claude-sonnet-4-5-20250929-v1:0` |
 
 后台任务（如会话标题生成）使用小型/快速模型，通常是 Haiku 级别的模型。在 Amazon Bedrock 上，Claude Code 为后台任务使用默认 Sonnet 模型，因为 Haiku 可能不会在每个账户或区域中启用。两个选择改变哪个模型执行它们：
@@ -326,7 +326,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:
   Opus 模型的每令牌价格高于 Sonnet 模型，因此不固定主要模型的部署在更新到 v2.1.207 或更高版本后将按 Opus 费率计费。要将 Sonnet 4.5 保留为主要模型，请将 `ANTHROPIC_MODEL` 设置为其完整模型 ID。使用 `ANTHROPIC_DEFAULT_SONNET_MODEL` 引导默认值且不设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 的部署保留其引导的 Sonnet 模型作为默认值。
 </Warning>
 
-在 v2.1.207 到 v2.1.218 上，Amazon Bedrock 上的主要模型默认为 Opus 4.8，`opus` 别名解析为 Opus 4.8。在 v2.1.207 之前，主要模型默认为 Sonnet 4.5，`opus` 别名解析为 Opus 4.6，后台任务始终使用主要模型。
+在 v2.1.280 之前，Amazon Bedrock 上的主要模型默认为 Opus 5，`opus` 别名从 v2.1.219 解析为 Opus 5。在 v2.1.207 到 v2.1.218 上，Amazon Bedrock 上的主要模型默认为 Opus 4.8，`opus` 别名解析为 Opus 4.8。在 v2.1.207 之前，主要模型默认为 Sonnet 4.5，`opus` 别名解析为 Opus 4.6，后台任务始终使用主要模型。
 
 要进一步自定义模型，请使用以下方法之一：
 
@@ -405,7 +405,7 @@ export ANTHROPIC_MODEL='arn:aws:bedrock:us-east-2:your-account-id:application-in
 ```bash theme={null}
 export ANTHROPIC_BEDROCK_REGION_PREFIX=global
 # 在 us-* 区域中，主模型现在解析为
-# global.anthropic.claude-opus-5 而不是 us.anthropic.claude-opus-5
+# global.anthropic.claude-opus-5-5 而不是 us.anthropic.claude-opus-5-5
 ```
 
 首选前缀是一个偏好，而不是保证，无论它来自您的区域还是来自变量。Claude Code 如何应用它取决于它是否可以检查您账户中的配置文件可用性：

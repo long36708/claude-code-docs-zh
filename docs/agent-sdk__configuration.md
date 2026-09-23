@@ -189,7 +189,9 @@ Claude Code 读取工作目录以确定：
 TypeScript 还有 `applyFlagSettings()` 和 `updateSettings()`：
 
 * **`applyFlagSettings()`**：在运行时应用设置，如 `await session.applyFlagSettings({ effortLevel: "high" })`。该方法采用设置文件键而不是选项字段，因此检查[`applyFlagSettings()` 参考](/docs/zh-CN/agent-sdk/typescript#applyflagsettings)以了解架构以及哪些键在会话中途生效。
-* **`updateSettings()`**：将允许列表中的一组键写入项目的本地设置文件，如 `await session.updateSettings("localSettings", { outputStyle: "Explanatory" })`。写入的键在会话的下一个请求时生效，并为加载 `local` 设置的后续会话持久化。该方法在[方法表](/docs/zh-CN/agent-sdk/typescript#methods)中的行命名允许列表中的键和版本下限。
+* **`updateSettings()`**：将一个允许列表中的键写入设置文件。[`updateSettings()` 参考](/docs/zh-CN/agent-sdk/typescript#updatesettings)命名每个源接受的键和版本下限。
+  * 传递 `"localSettings"` 以写入项目的本地设置文件，如 `await session.updateSettings("localSettings", { outputStyle: "Explanatory" })`。写入的键在会话的下一个请求时生效，并为加载 `local` 设置的后续会话持久化。
+  * 传递 `"userSettings"` 以写入 `effortLevel`，这是该源接受的唯一键。Claude Code 将其保存为会话当前模型的默认努力级别，运行中的会话的努力不会改变。
 
 下面的示例运行一个两轮会话，在轮次之间更改配置，并打印回答每轮的模型。在 TypeScript 中，提示流保持第二条消息，直到设置器运行，第二轮在新模型上运行。
 

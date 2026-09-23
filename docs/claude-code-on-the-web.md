@@ -250,7 +250,7 @@ Teleport 需要 claude.ai 订阅身份验证。如果您通过 API 密钥进行�
 
 云会话支持产生文本输出的[内置命令](/docs/zh-CN/commands)。仅在终端界面中运行的命令，如 `/plugin` 或 `/resume`，不可用。在云会话中打开选择器或面板的命令表现不同：
 
-* **`/model`、`/effort`、`/color` 和 `/rename`**：将值作为参数传递，例如 `/model sonnet`，而不是打开终端选择器或滑块。参数形式需要会话环境中的 Claude Code v2.1.205 或更高版本，并遵循每个命令的[可用性说明](/docs/zh-CN/commands#all-commands)：`/effort` 在模型的[启动默认工作量保持](/docs/zh-CN/model-config#adjust-effort-level)生效时报告 `Not applied`。
+* **`/model`、`/effort`、`/color` 和 `/rename`**：将值作为参数传递，例如 `/model sonnet`，而不是打开终端选择器或滑块。参数形式需要会话环境中的 Claude Code v2.1.205 或更高版本，并遵循每个命令的[可用性说明](/docs/zh-CN/commands#all-commands)。
 * **`/fast`**：当快速模式在[你的账户上可用](/docs/zh-CN/fast-mode#requirements)时，为会话切换[快速模式](/docs/zh-CN/fast-mode#use-fast-mode-in-cloud-sessions)。需要会话环境中的 Claude Code v2.1.271 或更高版本。
 * **`/config`**：在你的浏览器中的 claude.ai/code 上，打开你的设置的 Claude Code 部分，而不是设置值，命令后的文本（包括 `key=value`）被忽略。要更改云会话的设置，请设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)，或在具有一个存储库的会话中，将密钥提交到该存储库的 `.claude/settings.json`。[云会话中的设置](/docs/zh-CN/settings#settings-in-cloud-sessions)列出了每个会话读取的内容。
 

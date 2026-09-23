@@ -167,7 +167,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 
 * [快速入门](/docs/zh-CN/quickstart)：从安装到使用项目的首次会话演练
 * [常见工作流](/docs/zh-CN/common-workflows)：代码审查、重构和调试等日常任务的模式
-* [Claude 101](https://anthropic.skilljar.com/claude-101) 和 [Claude Code in Action](https://anthropic.skilljar.com/claude-code-in-action)：自定进度的 Anthropic Academy 课程
+* [Claude Code 101](https://academy.claude.com/courses/claude-code-101) 和 [Claude Code in Action](https://academy.claude.com/courses/claude-code-in-action)：[Claude Academy](https://academy.claude.com/) 上的免费自定进度课程
 
 对于登录问题，请将开发人员指向 [身份验证故障排除](/docs/zh-CN/troubleshoot-install#login-and-authentication)。最常见的修复是：
 

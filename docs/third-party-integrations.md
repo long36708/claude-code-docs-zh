@@ -86,9 +86,9 @@ export const ContactSalesCard = ({surface}) => {
 
 对于大多数组织，Claude for Teams 或 Claude for Enterprise 提供最佳体验。团队成员可以通过单一订阅访问 Claude Code 和网页版 Claude，具有集中计费和无需基础设施设置的优势。
 
-**Claude for Teams** 是自助服务，包括协作功能、管理工具和计费管理。最适合需要快速启动的小型团队。
+**Claude for Teams** 是自助服务，包括协作功能、管理工具、SSO、计费管理和[服务器管理的设置](/docs/zh-CN/server-managed-settings)，用于组织范围内的 Claude Code 配置。最适合需要快速启动的小型团队。
 
-**Claude for Enterprise** 增加了 SSO 和域名捕获、基于角色的权限、合规性 API 访问以及用于部署组织范围内 Claude Code 配置的托管策略设置。最适合具有安全和合规性要求的大型组织。
+**Claude for Enterprise** 增加了域名捕获、基于角色的权限和合规性 API 访问。最适合具有安全和合规性要求的大型组织。
 
 了解更多关于 [Team 计划](https://support.claude.com/en/articles/9266767-what-is-the-team-plan) 和 [Enterprise 计划](https://support.claude.com/en/articles/9797531-what-is-the-enterprise-plan)。
 

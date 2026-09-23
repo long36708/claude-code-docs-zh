@@ -40,7 +40,7 @@ skills/
 
 安装插件时会自动发现 Skills 和 commands。
 
-如果插件没有 `skills/` 目录且没有 `skills` manifest 字段，则插件根目录中的 `SKILL.md` 会作为单个 skill 加载。设置 frontmatter `name` 字段来控制 skill 的调用名称。如果没有设置，Claude Code 会回退到安装目录名称，对于从市场安装的插件，这是一个在每次更新时都会改变的版本字符串。对于包含多个 skill 的插件，请使用上面所示的 `skills/` 目录布局。
+如果插件没有 `skills/` 目录且没有 `skills` manifest 字段，则插件根目录中的 `SKILL.md` 会作为单个 skill 加载。设置 frontmatter `name` 字段来控制 skill 的调用名称。如果没有设置，Claude Code 会回退到安装目录名称。对于 [复制到缓存中](#plugin-caching-and-file-resolution) 的插件，该名称是一个在每次更新时都会改变的版本字符串。对于包含多个 skill 的插件，请使用上面所示的 `skills/` 目录布局。
 
 在插件 skills 和 commands 中，Boolean frontmatter 字段（如 `disable-model-invocation`）接受 `yes`、`no`、`on`、`off`、`1` 和 `0`（任何字母大小写），以及 `true` 和 `false`。在 v2.1.218 之前，Claude Code 仅识别 `true` 和 `false`。
 
@@ -71,13 +71,24 @@ disallowedTools: Write, Edit
 Detailed system prompt for the agent describing its role, expertise, and behavior.
 ```
 
-插件代理支持 `name`、`description`、`model`、`effort`、`maxTurns`、`tools`、`disallowedTools`、`skills`、`memory`、`background`、[`omitClaudeMd`](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 和 `isolation` frontmatter 字段。唯一有效的 `isolation` 值是 `"worktree"`。
+<h4 id="plugin-agent-frontmatter">
+  插件代理 frontmatter
+</h4>
 
-出于安全原因，插件提供的代理不支持 `hooks`、`mcpServers` 或 `permissionMode`。
+插件代理文件使用与 [子代理文件相同的 frontmatter 字段](/docs/zh-CN/sub-agents#supported-frontmatter-fields)，但当代理来自插件时，Claude Code 仅支持其中的某些字段：
 
-Claude Code 会加载插件代理，即使其 frontmatter 没有 `name` 或无法解析：
+* **支持**：`name`、`description`、`model`、`effort`、`maxTurns`、`tools`、`disallowedTools`、`skills`、`memory`、`background`、`omitClaudeMd`、`isolation`、`color` 和 `experimental`。唯一有效的 `isolation` 值是 `"worktree"`。
+* **出于安全原因不支持**：`hooks`、`mcpServers` 和 `permissionMode`。Claude Code 在从插件加载代理时会忽略这些。要使用它们，请将代理文件复制到 `.claude/agents/` 或 `~/.claude/agents/`。
+* **不支持**：`initialPrompt`。
 
-* 没有 `name`：Claude Code 根据文件名命名代理，因此名为 `my-plugin` 的插件中的 `agents/reviewer.md` 会加载为 `my-plugin:reviewer`
+您可以将插件代理文件放在 `agents/` 的子文件夹中。Claude Code [递归加载它们](/docs/zh-CN/sub-agents#choose-the-subagent-scope)，并使用冒号连接插件名称、每个子文件夹名称和文件名来形成代理的作用域名称。例如，名为 `my-plugin` 的插件中的 `agents/review/security.md` 加载为 `my-plugin:review:security`。两个设置会改变该名称：
+
+* Frontmatter `name`：它仅替换文件名，因此 `agents/review/security.md` 中的 `name: audit` 加载为 `my-plugin:review:audit`
+* Manifest [`agents`](#component-path-fields) 字段：您在其中列出的文件加载时不带子文件夹名称，因此 `"agents": "./custom/review/security.md"` 加载为 `my-plugin:security`
+
+Claude Code 加载插件代理，即使其 frontmatter 没有 `name` 或无法解析：
+
+* 没有 `name`：Claude Code 根据文件名命名代理，因此名为 `my-plugin` 的插件中的 `agents/reviewer.md` 加载为 `my-plugin:reviewer`
 * Frontmatter 无法解析：Claude Code 根据文件名命名代理，使用 `Agent from my-plugin plugin` 作为其描述，并忽略文件中的每个字段
 
 相比之下，Claude Code 会跳过其 frontmatter 没有 `name` 或无法解析的项目、用户或托管代理文件。
@@ -100,6 +111,8 @@ Claude Code 会加载插件代理，即使其 frontmatter 没有 `name` 或无�
 **位置**：插件根目录中的 `hooks/hooks.json`，或在 plugin.json 中内联
 
 **格式**：具有事件匹配器和操作的 JSON 配置
+
+`hooks/hooks.json` 可以包含一个顶级 `$schema` 键，该键命名一个 JSON Schema URL 以用于编辑器自动完成和验证。Claude Code 在加载时忽略该键。
 
 **Hook 配置**：
 
@@ -442,15 +455,29 @@ claude plugin disable my-tool@skills-dir
   从 claude.ai 同步的插件
 </h2>
 
-在 [Cowork](https://claude.com/product/cowork) 和[云会话](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)中，Claude Code 会将为你的 claude.ai 账户启用的插件下载到会话自身环境中的 `~/.claude/plugins/synced/` 目录，并将每个插件加载为 `<name>@synced`，没有 marketplace 和没有安装记录。Claude Code 不会在你在自己的终端中启动的会话中加载它们。在该 Cowork 或云环境中，`claude plugin list` 会在 `Synced from claude.ai` 标题下显示下载的副本。在 v2.1.239 之前，Claude Code 将这些插件加载为 `<name>@inline`，这是 `--plugin-dir` 插件使用的身份。
+Claude Code 加载为你的 claude.ai 账户启用的插件，包括你的组织为其成员启用的插件，以及你从 marketplace 安装的插件。它将每个插件下载到 `~/.claude/plugins/synced/` 中，并将其加载为 `<name>@synced`，没有 marketplace 和没有安装记录。同步的插件运行时具有与你安装的 marketplace 插件相同的信任级别：其 skills、agents、hooks、MCP servers 和 LSP servers 都会加载。
 
-通过 `claude plugin list` 打印的 `<name>@synced` ID 来管理同步的插件：
+Claude Code 同步这些插件的位置取决于会话类型：
 
-* **关闭一个插件**：在同步会话中，运行 `claude plugin disable <name>@synced`，或要求 Claude 运行它。Claude Code 会将该选择保存为该环境的用户级 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 中的 `"<name>@synced": false`。你的组织要求的同步插件无法通过这种方式关闭。该命令会报告该插件是你的组织所需的，并且不会保存任何内容。要重新打开该插件，在同一会话中运行 `claude plugin enable <name>@synced`。
-* **将一个插件排除在同步会话之外**：要将一个插件排除在每个同步会话之外，[为你的 claude.ai 账户关闭它](/docs/zh-CN/desktop#extend-claude-code)。要将其排除在一个项目的每个环境中的同步会话之外，在该项目的已提交 `.claude/settings.json` 中的 `enabledPlugins` 下设置 `"<name>@synced": false`。
-* **在 claude.ai 上管理插件本身**：`claude plugin install`、`update` 和 `uninstall` 不适用于同步的插件。要删除一个，为你的 claude.ai 账户关闭该插件；下一个同步会话将在没有它的情况下启动。
+* 在 [Cowork](https://claude.com/product/cowork) 和[云会话](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)中，Claude Code 在会话启动时将它们下载到会话自身的环境中。在 v2.1.239 之前，Claude Code 将这些插件加载为 `<name>@inline`，这是 `--plugin-dir` 插件使用的身份。
+* 在你使用 claude.ai 账户登录的终端会话中，Claude Code 每次启动时检查你的账户一次，然后在后台下载新的和更新的插件，并删除你或你的组织关闭的插件。在终端会话中同步需要 Claude Code v2.1.273 或更高版本。
 
-当来自任何其他来源的启用插件（例如 marketplace 安装、[skills-directory 插件](#skills-directory-plugins)或 `--plugin-dir` 插件）与同步插件的名称匹配时，Claude Code 会加载该插件并报告同步副本未加载。要改用 claude.ai 副本，请禁用你自己的副本。在 v2.1.239 之前，Claude Code 会加载同步副本而不是同名的 marketplace 安装。
+启动检查在后台运行，因此可以在你的会话启动后完成。当它在交互式会话中添加、更新或删除同步插件时，Claude Code 会显示 `Plugins changed. Run /reload-plugins to activate.` 运行 [`/reload-plugins`](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting) 以在该会话中加载更改，或者等待下次启动 Claude Code 时加载。如果你在会话运行时在 claude.ai 上启用插件，Claude Code 会在下次启动时下载它。
+
+终端会话中的插件同步在与[从 claude.ai 同步的 skills](/docs/zh-CN/skills#where-synced-skills-load)相同的登录条件下运行。它还需要一个授予 Claude Code 访问你账户插件权限的登录。
+
+来自早期版本 Claude Code 的登录会在 Claude Code 在后台更新该登录时（通常在几小时内）或如果你再次运行 `/login` 时立即获取插件访问权限。在此之后，下次启动 Claude Code 时插件同步就会开始。
+
+`claude plugin list` 在 `Synced from claude.ai` 标题下显示同步的插件，`/plugin` **Installed** 标签页将它们列出，其来源为 `synced`。通过 `claude plugin list` 打印的 `<name>@synced` ID 来管理同步的插件：
+
+* **关闭一个插件**：运行 `claude plugin disable <name>@synced`，或从 `/plugin` **Installed** 标签页禁用它。Claude Code 会将该选择保存为你用户级 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 中的 `"<name>@synced": false`。要重新打开该插件，运行 `claude plugin enable <name>@synced`。
+* **在任何地方都排除一个插件**：[为你的 claude.ai 账户关闭该插件](/docs/zh-CN/desktop#extend-claude-code)。要在每个环境中将其排除在一个项目之外，在该项目的已提交 `.claude/settings.json` 中的 `enabledPlugins` 下设置 `"<name>@synced": false`。
+* **在 claude.ai 上管理插件本身**：`claude plugin install`、`update` 和 `uninstall` 不适用于同步的插件。Claude Code 在下次同步时下载插件的更新。要删除一个，为你的 claude.ai 账户关闭该插件，Claude Code 会在下次同步时删除它。
+* **停止在一台机器上同步**：在你的用户设置中将 [`syncClaudeAiPlugins`](/docs/zh-CN/settings-reference#syncclaudeaiplugins) 设置为 `false`。Claude Code 停止下载，下次启动时会将它已同步的插件移动到 `~/.claude/plugins/.trash/` 并不再加载它们。你的组织可以在[托管设置](/docs/zh-CN/managed-settings)中设置相同的键，或关闭 claude.ai 上的 Skills，这也会停止插件同步。
+
+你无法关闭你的组织在 claude.ai 上标记为必需的插件。Claude Code 会加载它，即使你之前禁用了它，`claude plugin disable` 会拒绝并显示 `Plugin "<name>@synced" is required by your organization and can't be disabled here. Contact your admin to change it.` 在 `claude plugin list` 中，这些插件被标记为 `required by your org`。
+
+当来自任何其他来源的启用插件与同步插件的名称匹配时，Claude Code 会加载该插件并报告同步副本未加载。其他来源包括 marketplace 安装、[skills-directory 插件](#skills-directory-plugins)、`--plugin-dir` 插件和 Claude Code 内置的插件。要改用 claude.ai 副本，请禁用你自己的副本。在 v2.1.239 之前，Claude Code 会加载同步副本而不是同名的 marketplace 安装。
 
 ***
 
@@ -458,9 +485,9 @@ claude plugin disable my-tool@skills-dir
   Plugin manifest schema
 </h2>
 
-`.claude-plugin/plugin.json` 文件定义了你的 plugin 的元数据和配置。
+`.claude-plugin/plugin.json` 文件定义了你的插件的元数据和配置。
 
-manifest 是可选的。如果省略，Claude Code 会在[默认位置](#file-locations-reference)自动发现组件，并从目录名称派生 plugin 名称。当你需要提供元数据或自定义组件路径时，使用 manifest。
+manifest 是可选的。如果省略，Claude Code 会在[默认位置](#file-locations-reference)自动发现组件，并从目录名称派生插件名称。当你需要提供元数据或自定义组件路径时，使用 manifest。
 
 <h3 id="complete-schema">
   Complete schema
@@ -507,26 +534,26 @@ manifest 是可选的。如果省略，Claude Code 会在[默认位置](#file-lo
 
 如果你包含 manifest，`name` 是唯一必需的字段。
 
-| 字段     | 类型     | 描述                                                                                                                                                                         | 示例                   |
-| :----- | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------- |
-| `name` | string | 唯一标识符，采用 kebab-case，不包含空格、控制字符或双向格式化字符。当[marketplace 条目](/docs/zh-CN/plugin-marketplaces#plugin-entries)以不同的名称列出 plugin 时，marketplace 条目名称是 `enabledPlugins` 键和 `/plugin` 使用的名称 | `"deployment-tools"` |
+| 字段     | 类型     | 描述                                                                                                                                                                   | 示例                   |
+| :----- | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------- |
+| `name` | string | 唯一标识符，采用 kebab-case，不包含空格、控制字符或双向格式化字符。当[marketplace 条目](/docs/zh-CN/plugin-marketplaces#plugin-entries)以不同的名称列出插件时，marketplace 条目名称是 `enabledPlugins` 键和 `/plugin` 使用的名称 | `"deployment-tools"` |
 
-此名称用于命名空间组件。例如，在 UI 中，名为 `plugin-dev` 的 plugin 的 agent `agent-creator` 将显示为 `plugin-dev:agent-creator`。
+此名称用于命名空间组件。例如，在 UI 中，名称为 `plugin-dev` 的插件的代理 `agent-creator` 将显示为 `plugin-dev:agent-creator`。
 
 <h3 id="unrecognized-fields">
   无法识别的字段
 </h3>
 
-Claude Code 忽略它不识别的顶级字段。你可以在 `plugin.json` 中保留来自另一个生态系统的元数据，plugin 仍然会加载。这使得维护一个 manifest 作为 VS Code 或 Cursor 扩展 manifest、npm `package.json` 或 MCPB/DXT bundle manifest 变得实用。
+Claude Code 忽略它不识别的顶级字段。你可以在 `plugin.json` 中保留来自另一个生态系统的元数据，插件仍然会加载。这使得维护一个 manifest 作为 VS Code 或 Cursor 扩展 manifest、npm `package.json` 或 MCPB/DXT bundle manifest 变得实用。
 
-`claude plugin validate` 将无法识别的字段报告为警告，而不是错误。如果一个字段与识别的字段相差一两个字符，警告会建议可能的预期名称。仅具有无法识别字段警告的 plugin 仍然通过验证并在运行时加载。
+`claude plugin validate` 将无法识别的字段报告为警告，而不是错误。如果一个字段与识别的字段相差一两个字符，警告会建议可能的预期名称。仅具有无法识别字段警告的插件仍然通过验证并在运行时加载。
 
 Claude Code 如何处理值类型错误的识别字段取决于该字段：
 
-* **大多数字段**：plugin 无法加载。例如，`keywords` 值是字符串而不是数组是加载错误，`claude plugin validate` 会将其报告为错误。
+* **大多数字段**：插件无法加载。例如，`keywords` 值是字符串而不是数组是加载错误，`claude plugin validate` 会将其报告为错误。
 * **`experimental` 和 `metadata`**：Claude Code 忽略非对象值，`claude plugin validate` 报告警告。
 
-传递 `--strict` 以将警告视为错误。在 CI 中使用它来捕获拼写错误的字段名称或来自另一个工具的 manifest 中遗留的字段，然后再发布，即使 plugin 在运行时会加载。
+传递 `--strict` 以将警告视为错误。在 CI 中使用它来捕获拼写错误的字段名称或在发布前留下的来自另一个工具的 manifest 的字段，即使插件在运行时会加载。
 
 ```bash theme={null}
 claude plugin validate ./my-plugin --strict
@@ -536,65 +563,65 @@ claude plugin validate ./my-plugin --strict
   元数据字段
 </h3>
 
-| 字段               | 类型      | 描述                                                                                                                                                                                                                                 | 示例                                                                |
-| :--------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------- |
-| `$schema`        | string  | JSON Schema URL，用于编辑器自动完成和验证。Claude Code 在加载时忽略此字段。                                                                                                                                                                                | `"https://json.schemastore.org/claude-code-plugin-manifest.json"` |
-| `displayName`    | string  | 在 `/plugin` 选择器和其他 UI 表面中显示的人类可读名称。对于 marketplace 安装的 plugin，[marketplace 条目](/docs/zh-CN/plugin-marketplaces#optional-plugin-fields)上的 `displayName` 优先于此值。当两个地方都未设置显示名称时，用户会看到 `name`。与 `name` 不同，可以包含空格和任何大小写。不用于命名空间或查找。            | `"Deployment Tools"`                                              |
-| `version`        | string  | 可选。语义版本。设置此项会将 plugin 固定到该版本字符串，因此用户仅在你提升版本时才会收到更新，除了[`command` 源](/docs/zh-CN/plugin-marketplaces#command-sources)外；请参阅[版本管理](#version-management)。如果也在 marketplace 条目中设置，`plugin.json` 优先。如果省略，版本来自[版本管理](#version-management)中的下一个源。 | `"2.1.0"`                                                         |
-| `description`    | string  | plugin 用途的简要说明                                                                                                                                                                                                                     | `"Deployment automation tools"`                                   |
-| `author`         | object  | 作者信息                                                                                                                                                                                                                               | `{"name": "Dev Team", "email": "dev@company.com"}`                |
-| `homepage`       | string  | 文档 URL                                                                                                                                                                                                                             | `"https://docs.example.com"`                                      |
-| `repository`     | string  | 源代码 URL                                                                                                                                                                                                                            | `"https://github.com/user/plugin"`                                |
-| `license`        | string  | 许可证标识符                                                                                                                                                                                                                             | `"MIT"`、`"Apache-2.0"`                                            |
-| `keywords`       | array   | 发现标签                                                                                                                                                                                                                               | `["deployment", "ci-cd"]`                                         |
-| `metadata`       | object  | 自由格式对象，用于你自己的数据，例如权利或目录字段。Claude Code 不读取它，因此值永远不会影响 plugin 行为。Claude Code 忽略非对象值，`claude plugin validate` 将其报告为警告。在 v2.1.222 之前，Claude Code 将该键视为[无法识别的字段](#unrecognized-fields)。                                                 | `{"catalogId": "cat-123"}`                                        |
-| `defaultEnabled` | boolean | 当用户未设置 plugin 状态时，plugin 是否以启用状态启动。默认为 `true`。请参阅[默认启用](#default-enablement)。                                                                                                                                                      | `false`                                                           |
+| 字段               | 类型      | 描述                                                                                                                                                                                                                                                                         | 示例                                                                |
+| :--------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------- |
+| `$schema`        | string  | JSON Schema URL，用于编辑器自动完成和验证。Claude Code 在加载时忽略此字段。                                                                                                                                                                                                                        | `"https://json.schemastore.org/claude-code-plugin-manifest.json"` |
+| `displayName`    | string  | 在 `/plugin` 选择器和其他 UI 表面中显示的人类可读名称。对于 marketplace 安装的插件，[marketplace 条目](/docs/zh-CN/plugin-marketplaces#optional-plugin-fields)上的 `displayName` 优先于此值。当两个地方都未设置显示名称时，用户会看到 `name`。与 `name` 不同，可以包含空格和任何大小写。不用于命名空间或查找。                                                         | `"Deployment Tools"`                                              |
+| `version`        | string  | 可选。语义版本。设置此项会将插件固定到该版本字符串，因此用户仅在你提升版本时才会收到更新，除了[`command` 源](/docs/zh-CN/plugin-marketplaces#command-sources)或[加载到位](#plugin-caching-and-file-resolution)的插件；请参阅[版本管理](#version-management)。如果也在 marketplace 条目中设置，`plugin.json` 优先。如果省略，版本来自[版本管理](#version-management)中的下一个源。 | `"2.1.0"`                                                         |
+| `description`    | string  | 插件用途的简要说明                                                                                                                                                                                                                                                                  | `"Deployment automation tools"`                                   |
+| `author`         | object  | 作者信息                                                                                                                                                                                                                                                                       | `{"name": "Dev Team", "email": "dev@company.com"}`                |
+| `homepage`       | string  | 文档 URL                                                                                                                                                                                                                                                                     | `"https://docs.example.com"`                                      |
+| `repository`     | string  | 源代码 URL                                                                                                                                                                                                                                                                    | `"https://github.com/user/plugin"`                                |
+| `license`        | string  | 许可证标识符                                                                                                                                                                                                                                                                     | `"MIT"`、`"Apache-2.0"`                                            |
+| `keywords`       | array   | 发现标签                                                                                                                                                                                                                                                                       | `["deployment", "ci-cd"]`                                         |
+| `metadata`       | object  | 自由格式对象，用于你自己的数据，例如权利或目录字段。Claude Code 不读取它，因此值永远不会影响插件行为。Claude Code 忽略非对象值，`claude plugin validate` 报告警告。在 v2.1.222 之前，Claude Code 将该键视为[无法识别的字段](#unrecognized-fields)。                                                                                                  | `{"catalogId": "cat-123"}`                                        |
+| `defaultEnabled` | boolean | 当用户未设置插件状态时，插件是否以启用状态启动。默认为 `true`。请参阅[默认启用](#default-enablement)。                                                                                                                                                                                                         | `false`                                                           |
 
 <h3 id="default-enablement">
   默认启用
 </h3>
 
-在 `plugin.json` 中设置 `defaultEnabled: false` 以发布已禁用安装的 plugin。用户使用 `claude plugin enable <plugin>` 或 `/plugin` 界面将其打开。对于添加成本或用户应该选择加入的范围的 plugin 使用此选项，例如连接到外部服务的 plugin。
+在 `plugin.json` 中设置 `defaultEnabled: false` 以发布禁用状态下安装的插件。用户使用 `claude plugin enable <plugin>` 或 `/plugin` 界面将其打开。对于添加成本或用户应该选择加入的范围的插件（例如连接到外部服务的插件），使用此选项。
 
-`defaultEnabled` 是当没有其他因素决定 plugin 状态时的后备。用户的设置和依赖项要求优先于它：
+`defaultEnabled` 是当没有其他因素决定插件状态时的后备。用户的设置和依赖项要求优先于它：
 
-* **用户的设置**：任何设置范围内 `enabledPlugins` 中的 plugin 条目。一旦写入，它会在 plugin 更新和重新安装中持续存在，因此在后续版本中更改 `defaultEnabled` 不会翻转现有用户。
-* **依赖项要求**：当 plugin 被另一个活跃的 plugin 需要时，Claude Code 在安装或启用时为其写入 `true`。这给了它一个显式设置，所以它自己的默认值不再适用。请参阅[启用或禁用具有依赖项的 plugin](/docs/zh-CN/plugin-dependencies#enable-or-disable-a-plugin-with-dependencies)。
+* **用户的设置**：任何设置范围内 `enabledPlugins` 中的插件条目。一旦写入，它会在插件更新和重新安装中持续存在，因此在后续版本中更改 `defaultEnabled` 不会翻转现有用户。
+* **依赖项要求**：当插件被活跃的另一个插件所需时，Claude Code 在安装或启用时为其写入 `true`。这给了它一个显式设置，所以它自己的默认值不再适用。请参阅[启用或禁用具有依赖项的插件](/docs/zh-CN/plugin-dependencies#enable-or-disable-a-plugin-with-dependencies)。
 
-同一字段可以出现在 plugin 的 marketplace 条目中，其中它优先于 `plugin.json` 中的值。请参阅[可选 plugin 字段](/docs/zh-CN/plugin-marketplaces#optional-plugin-fields)。
+同一字段也可以出现在插件的 marketplace 条目中，其中它优先于 `plugin.json` 中的值。请参阅[可选插件字段](/docs/zh-CN/plugin-marketplaces#optional-plugin-fields)。
 
 <h3 id="component-path-fields">
   组件路径字段
 </h3>
 
-| 字段                      | 类型                    | 描述                                                                                                                                               | 示例                                                   |
-| :---------------------- | :-------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------- |
-| `skills`                | string\|array         | 包含 `<name>/SKILL.md` 的自定义 skill 目录。添加到默认 `skills/` 扫描。请参阅[路径行为规则](#path-behavior-rules)了解 marketplace-root 异常                                    | `"./custom/skills/"`                                 |
-| `commands`              | string\|array         | 自定义平面 `.md` skill 文件或目录（替换默认 `commands/`）                                                                                                        | `"./custom/cmd.md"` 或 `["./cmd1.md"]`                |
-| `agents`                | string\|array         | 自定义 agent 文件（替换默认 `agents/`）                                                                                                                     | `"./custom/agents/reviewer.md"`                      |
-| `workflows`             | string\|array         | 自定义[workflow](/docs/zh-CN/workflows) 脚本文件或目录（替换默认 `workflows/`）                                                                                       | `"./custom/workflows/"`                              |
-| `hooks`                 | string\|array\|object | Hook 配置路径或内联配置                                                                                                                                   | `"./my-extra-hooks.json"`                            |
-| `mcpServers`            | string\|array\|object | MCP 配置路径或内联配置                                                                                                                                    | `"./my-extra-mcp-config.json"`                       |
-| `outputStyles`          | string\|array         | 自定义输出样式文件/目录（替换默认 `output-styles/`）                                                                                                              | `"./styles/"`                                        |
-| `lspServers`            | string\|array\|object | [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) 配置，用于代码智能（转到定义、查找引用等）                                          | `"./.lsp.json"`                                      |
-| `experimental.themes`   | string\|array         | 颜色主题文件/目录（替换默认 `themes/`）。请参阅[主题](#themes)                                                                                                       | `"./themes/"`                                        |
-| `experimental.monitors` | string\|array         | 后台[Monitor](/docs/zh-CN/tools-reference#monitor-tool) 配置，在 plugin 活跃时自动启动。请参阅[监视器](#monitors)                                                         | `"./monitors.json"`                                  |
-| `experimental.evals`    | string\|array         | plugin 根目录下的目录，当不是默认 `evals/` 时，保存 plugin 的[eval cases](/docs/zh-CN/plugin-evals#use-a-different-eval-directory)。`claude plugin eval --eval-dir` 会覆盖它 | `"quality/evals"`                                    |
-| `userConfig`            | object                | 在启用时提示的用户可配置值。请参阅[用户配置](#user-configuration)                                                                                                     |                                                      |
-| `channels`              | array                 | 消息注入的频道声明（Telegram、Slack、Discord 风格）。请参阅[频道](#channels)                                                                                          |                                                      |
-| `dependencies`          | array                 | 此 plugin 需要的其他 plugin，可选择带有 semver 版本约束。请参阅[约束 plugin 依赖项版本](/docs/zh-CN/plugin-dependencies)                                                         | `[{ "name": "secrets-vault", "version": "~2.1.0" }]` |
+| 字段                      | 类型                    | 描述                                                                                                                              | 示例                                                   |
+| :---------------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------------- |
+| `skills`                | string\|array         | 包含 `<name>/SKILL.md` 的自定义 skill 目录。添加到默认 `skills/` 扫描。请参阅[路径行为规则](#path-behavior-rules)了解 marketplace-root 异常                   | `"./custom/skills/"`                                 |
+| `commands`              | string\|array         | 自定义平面 `.md` skill 文件或目录（替换默认 `commands/`）                                                                                       | `"./custom/cmd.md"` 或 `["./cmd1.md"]`                |
+| `agents`                | string\|array         | 自定义代理文件（替换默认 `agents/`）                                                                                                         | `"./custom/agents/reviewer.md"`                      |
+| `workflows`             | string\|array         | 自定义[工作流](/docs/zh-CN/workflows)脚本文件或目录（替换默认 `workflows/`）                                                                            | `"./custom/workflows/"`                              |
+| `hooks`                 | string\|array\|object | Hook 配置路径或内联配置                                                                                                                  | `"./my-extra-hooks.json"`                            |
+| `mcpServers`            | string\|array\|object | MCP 配置路径或内联配置                                                                                                                   | `"./my-extra-mcp-config.json"`                       |
+| `outputStyles`          | string\|array         | 自定义输出样式文件/目录（替换默认 `output-styles/`）                                                                                             | `"./styles/"`                                        |
+| `lspServers`            | string\|array\|object | [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) 配置，用于代码智能（转到定义、查找引用等）                         | `"./.lsp.json"`                                      |
+| `experimental.themes`   | string\|array         | 颜色主题文件/目录（替换默认 `themes/`）。请参阅[主题](#themes)                                                                                      | `"./themes/"`                                        |
+| `experimental.monitors` | string\|array         | 后台[Monitor](/docs/zh-CN/tools-reference#monitor-tool)配置，在插件活跃时自动启动。请参阅[监视器](#monitors)                                               | `"./monitors.json"`                                  |
+| `experimental.evals`    | string\|array         | 插件根目录下的目录，保存插件的[评估案例](/docs/zh-CN/plugin-evals#use-a-different-eval-directory)，当它不是默认 `evals/` 时。`claude plugin eval --eval-dir` 覆盖它 | `"quality/evals"`                                    |
+| `userConfig`            | object                | 在启用时提示的用户可配置值。请参阅[用户配置](#user-configuration)                                                                                    |                                                      |
+| `channels`              | array                 | 消息注入的频道声明（Telegram、Slack、Discord 风格）。请参阅[频道](#channels)                                                                         |                                                      |
+| `dependencies`          | array                 | 此插件需要的其他插件，可选择带有 semver 版本约束。请参阅[约束插件依赖项版本](/docs/zh-CN/plugin-dependencies)                                                         | `[{ "name": "secrets-vault", "version": "~2.1.0" }]` |
 
 <h3 id="experimental-components">
   实验性组件
 </h3>
 
-`experimental` 键下的组件 `themes` 和 `monitors` 具有在版本之间可能会改变的 manifest schema，同时它们稳定下来。你声明它们的位置是一个单独的迁移：顶级仍然有效，`claude plugin validate` 发出警告，未来版本将需要 `experimental.*`。
+`experimental` 键下的组件、`themes` 和 `monitors` 具有在稳定期间可能在版本之间更改的 manifest schema。你声明它们的位置是一个单独的迁移：顶级仍然有效，`claude plugin validate` 警告，未来版本将需要 `experimental.*`。
 
 <h3 id="user-configuration">
   用户配置
 </h3>
 
-`userConfig` 字段声明当 plugin 启用时 Claude Code 提示用户的值。使用此选项而不是要求用户手动编辑 `settings.json`。
+`userConfig` 字段声明当插件启用时 Claude Code 提示用户的值。使用此选项而不是要求用户手动编辑 `settings.json`。
 
 ```json theme={null}
 {
@@ -616,21 +643,21 @@ claude plugin validate ./my-plugin --strict
 
 键必须是有效的标识符。每个选项支持这些字段：
 
-| 字段            | 必需 | 描述                                                                      |
-| :------------ | :- | :---------------------------------------------------------------------- |
-| `type`        | 是  | `string`、`number`、`boolean`、`directory` 或 `file` 之一                     |
-| `title`       | 是  | 在配置对话框中显示的标签                                                            |
-| `description` | 是  | 在字段下方显示的帮助文本                                                            |
-| `sensitive`   | 否  | 如果为 `true`，掩盖输入并将值存储在安全存储中而不是 `settings.json`                           |
-| `required`    | 否  | 如果为 `true`，当字段为空时验证失败                                                   |
-| `default`     | 否  | 当用户未提供任何内容时使用的值                                                         |
-| `options`     | 否  | 对于 `string` 类型，字段接受的值，在 `/config` 中显示为选择器。需要 Claude Code v2.1.271 或更高版本 |
-| `multiple`    | 否  | 对于 `string` 类型，允许字符串数组                                                  |
-| `min` / `max` | 否  | `number` 类型的边界                                                          |
+| 字段            | 必需 | 描述                                                                                                                          |
+| :------------ | :- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `type`        | 是  | `string`、`number`、`boolean`、`directory` 或 `file` 之一                                                                         |
+| `title`       | 是  | 在配置对话框中显示的标签                                                                                                                |
+| `description` | 是  | 显示在字段下方的帮助文本                                                                                                                |
+| `sensitive`   | 否  | 如果为 `true`，掩盖输入并将值存储在安全存储中而不是 `settings.json`                                                                               |
+| `required`    | 否  | 如果为 `true`，当字段为空时验证失败                                                                                                       |
+| `default`     | 否  | 当用户未提供任何内容时使用的值                                                                                                             |
+| `options`     | 否  | 对于 `string` 类型，字段接受的值，在 `/config` 中显示为它们的选择器。请参阅[将字段限制为固定选项](#limit-a-field-to-fixed-options)。需要 Claude Code v2.1.271 或更高版本 |
+| `multiple`    | 否  | 对于 `string` 类型，允许字符串数组                                                                                                      |
+| `min` / `max` | 否  | `number` 类型的边界                                                                                                              |
 
-除了 `sensitive` 字段和 `multiple` 列表外，每个启用的 plugin 的每个字段也作为一行出现在 `/config` 面板中。这些行需要 Claude Code v2.1.269 或更高版本。
+除了 `sensitive` 字段和 `multiple` 列表，每个启用插件的每个字段也显示为 `/config` 面板中的一行。这些行需要 Claude Code v2.1.269 或更高版本。
 
-每个值都可用于在 MCP 和 LSP 服务器配置以及 hook 命令中作为 `${user_config.KEY}` 进行替换。非敏感值也可以在 skill 和 agent 内容中替换。所有值都作为 `CLAUDE_PLUGIN_OPTION_<KEY>` 环境变量导出到 hook 进程，其中 `<KEY>` 是选项键的大写形式。
+每个值都可用于在 MCP 和 LSP 服务器配置以及 hook 命令中作为 `${user_config.KEY}` 进行替换。非敏感值也可以在 skill 和代理内容中替换。所有值都导出到 hook 进程作为 `CLAUDE_PLUGIN_OPTION_<KEY>` 环境变量，其中 `<KEY>` 是选项键的大写形式。
 
 在 shell 中运行的字段拒绝 `${user_config.*}`：将配置的值替换到 shell 命令中会让 shell 运行该值包含的任何内容，因此组件失败并出现[错误](/docs/zh-CN/errors#plugin-command-references-user-config)。每个被拒绝的字段都有一种替代方式来传递值：
 
@@ -640,9 +667,9 @@ claude plugin validate ./my-plugin --strict
 | [Monitor](#monitors) 命令                                                         | 从脚本中的配置文件读取值                                                                                               |
 | MCP [`headersHelper`](/docs/zh-CN/mcp#use-dynamic-headers-for-custom-authentication) | 从脚本中的配置文件读取值                                                                                               |
 
-在 v2.1.207 之前，这些字段替换了 `${user_config.KEY}` 值；更新依赖此功能的 plugin。
+在 v2.1.207 之前，这些字段替换了 `${user_config.KEY}` 值；更新依赖此的插件。
 
-非敏感值存储在用户 `settings.json` 中 [`pluginConfigs`](/docs/zh-CN/settings-reference#pluginconfigs) 键下，作为 `pluginConfigs[<plugin-id>].options`。
+非敏感值存储在用户 `settings.json` 中的 [`pluginConfigs`](/docs/zh-CN/settings-reference#pluginconfigs) 键下，作为 `pluginConfigs[<plugin-id>].options`。
 
 在 macOS 上，Claude Code 将敏感值存储在 macOS Keychain 中，当 Keychain 拒绝写入时回退到 `~/.claude/.credentials.json`。在没有支持的 keychain 的平台上，它将它们存储在 `~/.claude/.credentials.json` 中。Keychain 存储与 OAuth 令牌共享，总限制约为 2 KB，因此保持敏感值较小。
 
@@ -652,15 +679,52 @@ Claude Code 仅从三个设置源读取所有 `pluginConfigs` 值：
 * **`--settings`**：CLI 标志或 SDK 内联设置
 * **托管设置**：[组织控制的策略](/docs/zh-CN/permissions#managed-settings)
 
-当多个源设置相同的键时，托管设置优先，然后是 `--settings`，然后是用户设置。你可以从此列表中删除的唯一源是用户设置：传递不包含 `user` 的 [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags)，Claude Code 会跳过它们。托管设置和 `--settings` 保持你传递的任何内容。SDK 的 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features#what-settingsources-does-not-control) 选项设置相同的列表。
+当多个源设置相同的键时，托管设置优先，然后是 `--settings`，然后是用户设置。你可以从此列表中删除的唯一源是用户设置：传递不带 `user` 的 [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags)，Claude Code 会跳过它们。托管设置和 `--settings` 保持你传递的任何内容。SDK 的 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features#what-settingsources-does-not-control) 选项设置相同的列表。
 
-项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目被忽略。两个文件都位于工作区中，因此克隆的存储库可以在那里提供值，这些值会流入 plugin hook 命令、MCP 服务器配置、LSP 命令和监视器命令。在 v2.1.207 之前，这些条目被读取。限制特定于 `pluginConfigs`：[`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 仍然遵守项目和本地设置。
+项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目被忽略。两个文件都位于工作区中，因此克隆的存储库可以在那里提供值，这些值会流入插件 hook 命令、MCP 服务器配置、LSP 命令和监视器命令。在 v2.1.207 之前，这些条目被读取。限制特定于 `pluginConfigs`：[`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 仍然遵守项目和本地设置。
+
+<h4 id="limit-a-field-to-fixed-options">
+  将字段限制为固定选项
+</h4>
+
+在 `userConfig` 字段上设置 `options` 以使用户从固定列表中选择其值。
+
+要将 `tone` 字段限制为三个选项，在 `options` 中列出它们并将 `default` 设置为其中之一：
+
+```json theme={null}
+{
+  "userConfig": {
+    "tone": {
+      "type": "string",
+      "title": "Tone",
+      "description": "Voice for generated replies",
+      "options": ["neutral", "warm", "formal"],
+      "default": "neutral"
+    }
+  }
+}
+```
+
+如果你在任何字段上声明 `options`，Claude Code v2.1.271 之前版本的用户无法加载插件。
+
+当你在字段上设置 `options` 时，遵循这些规则：
+
+* 将 `type` 设置为 `string`
+* 不要将 `multiple` 或 `sensitive` 设置为 `true`
+* 将 `default` 设置为其中一个选项
+* 如果你不设置 `default`，将 `required` 设置为 `true`
+* 列出至少一个选项，每个 1 到 64 个字符长
+* 不要以空格开始或结束选项
+* 不要在选项中使用控制字符、不可见字符、改变文本方向的字符或除常规空格外的空格
+* 不要列出相同的选项两次，即使是不同的字母大小写
+
+如果你违反任何这些规则，插件无法加载。运行 `claude plugin validate` 以查看哪个字段违反了哪个规则。
 
 <h3 id="channels">
   频道
 </h3>
 
-`channels` 字段让 plugin 声明一个或多个消息频道，将内容注入到对话中。每个频道绑定到 plugin 提供的 MCP 服务器。
+`channels` 字段让插件声明一个或多个消息频道，将内容注入到对话中。每个频道绑定到插件提供的 MCP 服务器。
 
 ```json theme={null}
 {
@@ -685,32 +749,32 @@ Claude Code 仅从三个设置源读取所有 `pluginConfigs` 值：
 }
 ```
 
-`server` 字段是必需的，必须与 plugin 的 `mcpServers` 中的键匹配。可选的每个频道 `userConfig` 使用与顶级字段相同的 schema，让 plugin 在启用时提示输入机器人令牌或所有者 ID。
+`server` 字段是必需的，必须与插件的 `mcpServers` 中的键匹配。可选的每个频道 `userConfig` 使用与顶级字段相同的 schema，让插件在启用插件时提示输入机器人令牌或所有者 ID。
 
 <h3 id="path-behavior-rules">
   路径行为规则
 </h3>
 
-自定义路径是替换还是扩展 plugin 的默认目录取决于该字段：
+自定义路径是替换还是扩展插件的默认目录取决于该字段：
 
-* **替换默认值**：`commands`、`agents`、`workflows`、`outputStyles`、`experimental.themes`、`experimental.monitors`。例如，当 manifest 指定 `commands` 时，不会扫描默认 `commands/` 目录。要保留默认值并添加更多，请明确列出：`"commands": ["./commands/", "./extras/"]`
-* **添加到默认值**：`skills`。默认 `skills/` 目录始终被扫描，`skills` 中列出的目录与其一起加载。异常：对于[源解析为 marketplace 根的 marketplace 条目](/docs/zh-CN/plugin-marketplaces#advanced-plugin-entries)，声明特定子目录会替换默认 `skills/` 扫描
+* **替换默认值**：`commands`、`agents`、`workflows`、`outputStyles`、`experimental.themes`、`experimental.monitors`。例如，当 manifest 指定 `commands` 时，默认 `commands/` 目录不被扫描。要保留默认值并添加更多，明确列出它：`"commands": ["./commands/", "./extras/"]`
+* **添加到默认值**：`skills`。默认 `skills/` 目录始终被扫描，`skills` 中列出的目录与它一起加载。异常：对于[其 `source` 解析为 marketplace 根的 marketplace 条目](/docs/zh-CN/plugin-marketplaces#advanced-plugin-entries)，声明特定子目录替换默认 `skills/` 扫描
 * **自己的合并规则**：[hooks](#hooks)、[MCP 服务器](#mcp-servers) 和 [LSP 服务器](#lsp-servers)。请参阅每个部分了解多个源如何组合
 
-当 plugin 同时具有默认文件夹和匹配的 manifest 键时，Claude Code 在 `claude plugin list` 和 `/plugin` 详细视图中警告被忽略的文件夹。plugin 仍然使用 manifest 路径加载。当 manifest 键指向默认文件夹时，Claude Code 不会发出警告，例如 `"commands": ["./commands/deploy.md"]`，因为该路径明确命名了文件夹。
+当插件同时具有默认文件夹和匹配的 manifest 键时，Claude Code 在 `claude plugin list` 和 `/plugin` 详细视图中警告被忽略的文件夹。插件仍然使用 manifest 路径加载。当 manifest 键指向默认文件夹时，Claude Code 不会警告，例如 `"commands": ["./commands/deploy.md"]`，因为该路径明确命名了文件夹。
 
 对于所有路径字段：
 
-* 所有路径必须相对于 plugin 根目录并以 `./` 开头，除了 `skills` 字段也接受 `"."`
-  * `"."` 和 `"./"` 都表示 plugin 根目录本身
-  * 在 v2.1.221 之前，`"."` 无法通过 manifest 验证，plugin 无法加载，因此使用 `"./"` 来支持早期版本
-* 来自自定义路径的组件使用相同的命名和命名空间规则
-* 可以将多个路径指定为数组
-* skill 路径可以指向直接包含 `SKILL.md` 的目录，例如 `"skills": ["."]` 用于 plugin 根目录
+* 所有路径必须相对于插件根目录并以 `./` 开头，除了 `skills` 字段也接受 `"."`
+  * `"."` 和 `"./"` 都表示插件根目录本身
+  * 在 v2.1.221 之前，`"."` 无法通过 manifest 验证，插件无法加载，因此使用 `"./"` 以支持早期版本
+* 来自自定义路径的组件使用相同的命名和命名空间规则，除了代理文件。请参阅[代理](#agents)了解代理名称如何工作
+* 多个路径可以指定为数组
+* skill 路径可以指向直接包含 `SKILL.md` 的目录，例如 `"skills": ["."]` 用于插件根目录
   * Claude Code 从 `SKILL.md` 中的 frontmatter `name` 字段获取 skill 的调用名称，因此无论安装目录的名称如何，名称都保持稳定
-  * 如果 frontmatter 中未设置 `name`，Claude Code 会回退到目录基名
+  * 如果 frontmatter 中未设置 `name`，Claude Code 回退到目录基名
 
-具有根目录中的 `SKILL.md`、没有 `skills/` 子目录且没有 `skills` manifest 字段的 plugin 会自动作为单 skill plugin 加载。对于此布局，你不需要在 `plugin.json` 中设置 `"skills": ["./"]`。
+具有根目录中的 `SKILL.md`、没有 `skills/` 子目录且没有 `skills` manifest 字段的插件会自动作为单一 skill 插件加载。你不需要为此布局在 `plugin.json` 中设置 `"skills": ["./"]`。
 
 **路径示例**：
 
@@ -733,23 +797,23 @@ Claude Code 仅从三个设置源读取所有 `pluginConfigs` 值：
 
 Claude Code 提供三个变量用于引用路径：
 
-| 变量                      | 解析为                                                        | 用途                                               |
-| :---------------------- | :--------------------------------------------------------- | :----------------------------------------------- |
-| `${CLAUDE_PLUGIN_ROOT}` | plugin 安装目录的绝对路径                                           | 与 plugin 捆绑的脚本、二进制文件和配置文件                        |
-| `${CLAUDE_PLUGIN_DATA}` | [持久目录](#persistent-data-directory)，在首次引用时创建，在 plugin 更新中存活 | 已安装的依赖项，例如 `node_modules` 或 Python 虚拟环境、生成的代码和缓存 |
-| `${CLAUDE_PROJECT_DIR}` | 项目根目录                                                      | 项目本地脚本和配置文件                                      |
+| 变量                      | 解析为                                                  | 用途                                               |
+| :---------------------- | :--------------------------------------------------- | :----------------------------------------------- |
+| `${CLAUDE_PLUGIN_ROOT}` | 插件安装目录的绝对路径                                          | 与插件捆绑的脚本、二进制文件和配置文件                              |
+| `${CLAUDE_PLUGIN_DATA}` | [持久目录](#persistent-data-directory)，在首次引用时创建，在插件更新中存活 | 已安装的依赖项，例如 `node_modules` 或 Python 虚拟环境、生成的代码和缓存 |
+| `${CLAUDE_PROJECT_DIR}` | 项目根目录                                                | 项目本地脚本和配置文件                                      |
 
-所有三个都作为环境变量导出到 hook 进程以及 MCP 和 LSP 服务器子进程。哪些字段内联替换它们取决于 plugin 组件：
+所有三个都导出为环境变量到 hook 进程以及 MCP 和 LSP 服务器子进程。它们不存在于 Claude 通过 Bash 工具运行的命令的环境中，无论是在主会话还是在子代理中。在插件内容中，写入占位符，Claude Code 在加载内容时内联替换路径。哪些字段内联替换它们取决于插件组件：
 
-| Plugin 组件                 | 占位符解析的字段                                 |
+| 插件组件                      | 占位符解析的字段                                 |
 | :------------------------ | :--------------------------------------- |
-| Skill 和 agent 内容          | 占位符出现的任何地方                               |
-| Hook 和 monitor 命令         | 占位符出现的任何地方                               |
+| Skill 和代理内容               | 占位符出现的任何地方                               |
+| Hook 和监视器命令               | 占位符出现的任何地方                               |
 | MCP `stdio` 服务器           | `command`、`args`、`env`                   |
 | MCP `http`、`sse`、`ws` 服务器 | `url`、`headers`、`headersHelper`          |
 | LSP 服务器                   | `command`、`args`、`env`、`workspaceFolder` |
 
-在 hook 命令中，使用带有 `args` 的 [exec 形式](/docs/zh-CN/hooks#exec-form-and-shell-form)，以便每个路径作为一个参数传递，无需引用。在 shell 形式的 hooks 和 monitor 命令中，用双引号包装变量，如 `"${CLAUDE_PROJECT_DIR}/scripts/server.sh"`。此 shell 形式的 hook 运行与 plugin 捆绑的脚本：
+在 hook 命令中，使用带有 `args` 的 [exec 形式](/docs/zh-CN/hooks#exec-form-and-shell-form)，以便每个路径作为一个参数传递，无需引用。在 shell 形式的 hooks 和监视器命令中，用双引号包装变量，如 `"${CLAUDE_PROJECT_DIR}/scripts/server.sh"`。此 shell 形式的 hook 运行与插件捆绑的脚本：
 
 ```json theme={null}
 {
@@ -768,25 +832,25 @@ Claude Code 提供三个变量用于引用路径：
 }
 ```
 
-`${CLAUDE_PLUGIN_ROOT}` 在 plugin 更新时改变。前一个版本的目录在更新后的宽限期内保留在磁盘上，但将其视为临时的，不要在那里写入状态。请参阅 [plugin 缓存](#plugin-caching-and-file-resolution)了解清理语义。
+对于复制的插件，`${CLAUDE_PLUGIN_ROOT}` 在插件更新时更改。前一个版本的目录在更新后的宽限期内保留在磁盘上，但将其视为临时的，不要在那里写入状态。对于从本地目录 marketplace 加载到位的插件，变量指向稳定的源目录。请参阅[插件缓存](#plugin-caching-and-file-resolution)了解哪些插件被复制以及清理语义。
 
-当 plugin 在会话中期更新时，hook 命令、monitors、MCP 服务器和 LSP 服务器继续使用前一个版本的路径。运行 `/reload-plugins` 将 hooks、MCP 服务器和 LSP 服务器切换到新路径；monitors 需要会话重启。在没有交互式终端的会话中，重新加载会将 plugin MCP 服务器保留在旧路径上，直到下一个会话。
+当复制的插件在会话中期更新时，hook 命令、监视器、MCP 服务器和 LSP 服务器继续使用前一个版本的路径。运行 `/reload-plugins` 以将 hooks、MCP 服务器和 LSP 服务器切换到新路径；监视器需要会话重启。在没有交互式终端的会话中，重新加载会将插件 MCP 服务器保留在旧路径上，直到下一个会话。
 
-对于具有 `command` 源的 plugin，Claude Code [可以重新加载 plugin 本身](/docs/zh-CN/plugin-marketplaces#when-claude-code-re-runs-the-command)。
+对于具有 `command` 源的插件，Claude Code [可以重新加载插件本身](/docs/zh-CN/plugin-marketplaces#when-claude-code-re-runs-the-command)。
 
-MCP 服务器也可以调用 `roots/list` 请求在运行时读取会话的工作目录。请参阅[`roots/list` 返回的内容以及 Claude Code 何时通知服务器更改](/docs/zh-CN/mcp#option-3-add-a-local-stdio-server)。
+MCP 服务器也可以调用 `roots/list` 请求以在运行时读取会话的工作目录。请参阅[`roots/list` 返回的内容以及 Claude Code 何时通知服务器更改](/docs/zh-CN/mcp#option-3-add-a-local-stdio-server)。
 
 <h4 id="persistent-data-directory">
   持久数据目录
 </h4>
 
-`${CLAUDE_PLUGIN_DATA}` 目录解析为 `~/.claude/plugins/data/{id}/`，其中 `{id}` 是 plugin 标识符，其中 `a-z`、`A-Z`、`0-9`、`_` 和 `-` 之外的字符被替换为 `-`。对于作为 `formatter@my-marketplace` 安装的 plugin，目录是 `~/.claude/plugins/data/formatter-my-marketplace/`。
+`${CLAUDE_PLUGIN_DATA}` 目录解析为 `~/.claude/plugins/data/{id}/`，其中 `{id}` 是插件标识符，其中 `a-z`、`A-Z`、`0-9`、`_` 和 `-` 之外的字符被替换为 `-`。对于作为 `formatter@my-marketplace` 安装的插件，目录是 `~/.claude/plugins/data/formatter-my-marketplace/`。
 
-常见用途是一次安装语言依赖项并在会话和 plugin 更新中重复使用它们。将其用于 Python 依赖项、使用 Yarn 或 pnpm 锁定的依赖项以及生命周期脚本必须运行的包。对于 marketplace 安装的 plugin，你可能根本不需要它：Claude Code 在缓存 plugin 时自动安装符合条件的 [Node.js 包依赖项](#node-js-package-dependencies)。
+常见用途是一次安装语言依赖项并在会话和插件更新中重用它们。将其用于 Python 依赖项、使用 Yarn 或 pnpm 锁定的依赖项以及其生命周期脚本必须运行的包。对于 marketplace 安装的插件，你可能根本不需要它：Claude Code 在缓存插件时自动安装符合条件的 [Node.js 包依赖项](#node-js-package-dependencies)。
 
-因为数据目录的生命周期超过任何单个 plugin 版本，仅检查目录存在性无法检测到更新何时更改 plugin 的依赖项 manifest。推荐的模式是将捆绑的 manifest 与数据目录中的副本进行比较，并在它们不同时重新安装。
+因为数据目录比任何单个插件版本更长寿，仅检查目录存在无法检测更新何时更改插件的依赖项 manifest。推荐的模式是将捆绑的 manifest 与数据目录中的副本进行比较，并在它们不同时重新安装。
 
-此 `SessionStart` hook 在首次运行时安装 `node_modules`，并在 plugin 更新包含更改的 `package.json` 时再次安装：
+此 `SessionStart` hook 在第一次运行时安装 `node_modules`，并在插件更新包含更改的 `package.json` 时再次安装：
 
 ```json theme={null}
 {
@@ -805,7 +869,7 @@ MCP 服务器也可以调用 `roots/list` 请求在运行时读取会话的工�
 }
 ```
 
-当存储的副本缺失或与捆绑的副本不同时，`diff` 退出非零，涵盖首次运行和依赖项更改更新。如果 `npm install` 失败，尾部 `rm` 会删除复制的 manifest，以便下一个会话重试。
+当存储的副本丢失或与捆绑的副本不同时，`diff` 退出非零，涵盖首次运行和依赖项更改更新。如果 `npm install` 失败，尾部 `rm` 删除复制的 manifest，以便下一个会话重试。
 
 捆绑在 `${CLAUDE_PLUGIN_ROOT}` 中的脚本可以针对持久化的 `node_modules` 运行：
 
@@ -823,7 +887,7 @@ MCP 服务器也可以调用 `roots/list` 请求在运行时读取会话的工�
 }
 ```
 
-当你从最后一个安装 plugin 的范围卸载 plugin 时，数据目录会自动删除。`/plugin` 界面显示目录大小并在删除前提示。CLI 默认删除；传递 [`--keep-data`](#plugin-uninstall) 以保留它。
+当你从最后一个安装它的范围卸载插件时，数据目录会自动删除。`/plugin` 界面显示目录大小并在删除前提示。CLI 默认删除；传递 [`--keep-data`](#plugin-uninstall) 以保留它。
 
 ***
 
@@ -831,14 +895,17 @@ MCP 服务器也可以调用 `roots/list` 请求在运行时读取会话的工�
   Plugin 缓存和文件解析
 </h2>
 
-Plugin 可以通过以下两种方式指定：
+Plugin 可以通过以下三种方式指定：
 
 * 通过 `claude --plugin-dir` 或 `claude --plugin-url`，在会话期间使用。
 * 通过 marketplace，为未来的会话安装。
+* 通过你的 claude.ai 账户，[同步](#synced-plugins)到 `~/.claude/plugins/synced/`。
 
-出于安全和验证目的，Claude Code 将 *marketplace* plugin 复制到用户的本地 **plugin 缓存**（`~/.claude/plugins/cache`）中，而不是就地使用它们，除了 [link 模式下的 `command` 源](/docs/zh-CN/plugin-marketplaces#copy-mode-and-link-mode)，Claude Code 通过缓存条目中的链接就地使用这些源。
+出于安全和验证目的，Claude Code 将 *marketplace* plugin 复制到用户的本地 **plugin 缓存**（`~/.claude/plugins/cache`），除非 plugin 就地加载。[link 模式下的 `command` 源](/docs/zh-CN/plugin-marketplaces#copy-mode-and-link-mode)通过缓存条目中的链接就地加载。来自本地目录添加的 marketplace 的[相对路径源](/docs/zh-CN/plugin-marketplaces#relative-paths)从 marketplace 文件夹就地加载。
 
-对于复制的 plugin，每个已安装的版本都是缓存中的一个单独目录，按 marketplace 和 plugin 分组，并以解析的版本命名，包含 plugin 文件和 [Node.js 包依赖](#node-js-package-dependencies) 的自己的副本。从 [release tag](/docs/zh-CN/plugin-dependencies#tag-plugin-releases-for-version-resolution) 解析的依赖会获得一个带有 commit-SHA 后缀的目录名。
+对于从本地目录 marketplace 就地加载的 plugin，你对源目录的编辑在下一个会话启动或 `/reload-plugins` 时生效。你不需要版本号提升。plugin 的 hook 进程和 MCP 和 LSP 服务器接收指向源目录的 `CLAUDE_PLUGIN_ROOT`。Claude Code 不会将 plugin 的 [Node.js 包依赖](#node-js-package-dependencies)安装到源目录中。自己在那里安装它们，或从 hook 安装到[持久数据目录](#persistent-data-directory)。
+
+对于复制的 plugin，每个已安装的版本都是缓存中的一个单独目录，按 marketplace 和 plugin 分组，并以解析的版本命名，包含 plugin 文件和 [Node.js 包依赖](#node-js-package-dependencies)的自己的副本。从[release tag](/docs/zh-CN/plugin-dependencies#tag-plugin-releases-for-version-resolution)解析的依赖会获得一个带有 commit-SHA 后缀的目录名。
 
 当你更新或卸载 plugin 时，Claude Code 会将之前的版本目录标记为孤立，并在大约 14 天后的后台扫描中将其删除。宽限期允许已加载旧版本的并发 Claude Code 会话继续运行而不出错。Claude Code 仅在至少安装了一个 plugin 时才运行扫描；在卸载最后一个 plugin 后，孤立目录会保留在磁盘上，直到你再次安装 plugin。
 
@@ -850,7 +917,7 @@ Claude 的 Glob 和 Grep 工具在搜索期间跳过孤立的版本目录，因�
   Node.js 包依赖
 </h3>
 
-当 Claude Code 将 plugin 复制到缓存中时，它也会在那里安装 plugin 的 Node.js 包依赖，以便 plugin 的 hooks 和 MCP 服务器可以加载它们。本节涵盖 plugin 在其自己的 `package.json` 中声明的 npm 和 Bun 包。对于依赖其他 plugin 的 plugin，请参阅 [plugin 依赖版本](/docs/zh-CN/plugin-dependencies)。
+当 Claude Code 将 plugin 复制到缓存中时，它也会在那里安装 plugin 的 Node.js 包依赖，以便 plugin 的 hooks 和 MCP 服务器可以加载它们。本节涵盖 plugin 在其自己的 `package.json` 中声明的 npm 和 Bun 包。对于依赖其他 plugin 的 plugin，请参阅[plugin 依赖版本](/docs/zh-CN/plugin-dependencies)。
 
 Claude Code 在每次创建复制的版本目录时在其中运行安装：当你安装 plugin 时、当 Claude Code 将 plugin 更新到新版本时，以及在会话启动时当启用的 plugin 尚未缓存时（例如在新机器上）。仅当 plugin 的根目录同时包含 `package.json` 和受支持的 lockfile 时，安装才会运行：
 
@@ -859,7 +926,12 @@ Claude Code 在每次创建复制的版本目录时在其中运行安装：当�
 | `bun.lock` 或 `bun.lockb`                    | `bun install --frozen-lockfile --ignore-scripts` |
 | `npm-shrinkwrap.json` 或 `package-lock.json` | `npm ci --ignore-scripts`                        |
 
-如果 plugin 包含多个这些 lockfile，Claude Code 使用第一个匹配项，按顺序检查：`bun.lock`、`bun.lockb`、`npm-shrinkwrap.json`、`package-lock.json`。Claude Code 跳过 `yarn.lock` 和 `pnpm-lock.yaml`，因为 Yarn 和 pnpm 支持绕过 `--ignore-scripts` 的分辨率时间配置钩子。
+如果 plugin 包含多个这些 lockfile，Claude Code 使用第一个匹配项，按顺序检查：`bun.lock`、`bun.lockb`、`npm-shrinkwrap.json`、`package-lock.json`。
+
+Claude Code 在两种情况下跳过安装，每种情况都有自己的修复方法：
+
+* 如果你的 plugin 仅提供 `yarn.lock` 或 `pnpm-lock.yaml`，请将其替换为 npm lockfile。
+* 如果 `bunfig.toml` 位于 bun lockfile 旁边，请删除 `bunfig.toml`，或将 bun lockfile 替换为 npm lockfile。
 
 为了获得最广泛的覆盖范围，请提供 npm lockfile。Claude Code 从用户的 PATH 运行匹配的 lockfile 的包管理器，如果缺少其他 lockfile，不会回退到它。对于通过 npm 源分发的 plugin，使用 `npm-shrinkwrap.json`；npm 从已发布的包中排除 `package-lock.json`。
 
@@ -869,19 +941,19 @@ Claude Code 对此依赖安装进行了约束，以便 plugin 或其包中的任
 * **无生命周期脚本：** `--ignore-scripts` 防止 `preinstall`、`install` 和 `postinstall` 脚本运行，因此在这些脚本中构建本机模块的依赖会下载但在此安装期间不会编译。
 * **60 秒超时：** Claude Code 停止运行时间较长的安装并将其视为失败。
 
-获取 npm 源 plugin 本身会在此依赖安装运行之前运行启用了生命周期脚本的 `npm install`。
+Claude Code 在此依赖安装之前获取 npm 源 plugin，并且包自己的任何安装脚本在获取期间都不会运行。请参阅 [npm 包](/docs/zh-CN/plugin-marketplaces#npm-packages)。
 
-失败或跳过的安装永远不会阻止 plugin。当安装失败或 Claude Code 跳过 yarn 或 pnpm lockfile 时，它会在 [debug 输出](#debugging-commands) 中将原因记录为警告。具有 `package.json` 但没有 lockfile 的 plugin 会被跳过而不记录日志条目。超时的安装可能会在缓存副本中留下部分 `node_modules` 树。
+失败或跳过的安装永远不会阻止 plugin。当安装失败或 Claude Code 跳过它因为 yarn 或 pnpm lockfile 或 `bunfig.toml` 时，它会在[调试输出](#debugging-commands)中将原因记录为警告。具有 `package.json` 但没有 lockfile 的 plugin 会被跳过而不记录日志条目。超时的安装可能会在缓存副本中留下部分 `node_modules` 树。
 
-你无法关闭自动安装；没有设置或环境变量可以禁用它。在受限网络中，请参阅 [网络访问要求](/docs/zh-CN/network-config#network-access-requirements) 以了解要允许的主机。
+你无法关闭自动安装；没有设置或环境变量可以禁用它。在受限网络中，请参阅[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)以了解要允许的主机。
 
-对于自动安装无法提供的依赖，例如需要其生命周期脚本来构建的包、Python 依赖或使用 Yarn 或 pnpm 锁定的 plugin，请从 hook 将它们安装到 [持久数据目录](#persistent-data-directory)。
+对于自动安装无法提供的依赖，例如需要其生命周期脚本来构建的包、Python 依赖或使用 Yarn 或 pnpm 锁定的 plugin，请从 hook 将它们安装到[持久数据目录](#persistent-data-directory)。
 
 <h3 id="path-traversal-limitations">
   路径遍历限制
 </h3>
 
-Claude Code 不允许 plugin 引用其自己目录之外的文件。它拒绝解析到 plugin 根目录之外的组件路径，无论该路径是在 `plugin.json` 中声明还是在 [marketplace 条目](/docs/zh-CN/plugin-marketplaces#plugin-entries) 中声明。这涵盖指向 plugin 外部的路径（如 `../shared-utils`）和导向 plugin 外部的符号链接，除了 [一个 marketplace 内的链接](#share-files-within-a-marketplace-with-symlinks)。
+Claude Code 不允许 plugin 引用其自己目录之外的文件。它拒绝解析到 plugin 根目录之外的组件路径，无论该路径是在 `plugin.json` 中声明还是在[marketplace 条目](/docs/zh-CN/plugin-marketplaces#plugin-entries)中声明。这涵盖指向 plugin 外部的路径（如 `../shared-utils`）和导向 plugin 外部的符号链接，除了[一个 marketplace 内的链接](#share-files-within-a-marketplace-with-symlinks)。
 
 在 macOS 和 Linux 上，Claude Code 也拒绝包含反斜杠的组件路径，即使该路径保留在 plugin 内。因此，使用反斜杠路径声明的组件仅在 Windows 上加载。使用正斜杠编写组件路径，例如 `./commands/deploy.md`。
 
@@ -899,7 +971,7 @@ Claude Code 在安装 plugin 时也不会将 plugin 目录之外的文件复制�
 * **在同一 marketplace 内的其他位置：** 符号链接被解引用。目标的内容被复制到缓存中以代替它。这允许元 plugin 的 `skills/` 目录链接到 marketplace 中其他 plugin 定义的技能。
 * **在 marketplace 外：** 符号链接出于安全原因被跳过。这防止 plugin 将任意主机文件（如系统路径）拉入缓存。
 
-对于使用 `--plugin-dir` 安装的 plugin、来自本地路径的 plugin 或 来自 [copy 模式下的 `command` 源](/docs/zh-CN/plugin-marketplaces#copy-mode-and-link-mode) 的 plugin，仅保留解析到 plugin 自己目录内的符号链接。所有其他的都被跳过。
+对于使用 `--plugin-dir` 安装的 plugin、来自本地路径的 plugin 或 来自 [copy 模式下的 `command` 源](/docs/zh-CN/plugin-marketplaces#copy-mode-and-link-mode)的 plugin，仅保留解析到 plugin 自己目录内的符号链接。所有其他的都被跳过。
 
 以下命令创建从 marketplace plugin 内部到由兄弟 plugin 定义的共享技能的链接。在 Windows 上，从提升的命令提示符使用 `mklink /D` 或启用开发者模式：
 
@@ -935,7 +1007,9 @@ enterprise-plugin/
 ├── agents/                   # Subagent 定义
 │   ├── security-reviewer.md
 │   ├── performance-tester.md
-│   └── compliance-checker.md
+│   ├── compliance-checker.md
+│   └── review/               # 此处的 Agents 加载为 enterprise-plugin:review:<name>
+│       └── accessibility.md
 ├── workflows/                # Workflow 脚本
 │   └── release-audit.js
 ├── output-styles/            # 输出样式定义
@@ -975,7 +1049,7 @@ plugin 根目录中的 `CLAUDE.md` 文件不会作为项目上下文加载。Plu
 | **清单**        | `.claude-plugin/plugin.json` | Plugin 元数据和配置（可选）                                                                                                                                                                |
 | **Skills**    | `skills/`                    | 具有 `<name>/SKILL.md` 结构的 Skills                                                                                                                                                  |
 | **Commands**  | `commands/`                  | 作为平面 Markdown 文件的 Skills。新 plugins 请使用 `skills/`                                                                                                                                 |
-| **Agents**    | `agents/`                    | Subagent Markdown 文件                                                                                                                                                             |
+| **Agents**    | `agents/`                    | Subagent Markdown 文件。子文件夹是 [agent 名称](#agents) 的一部分                                                                                                                              |
 | **Workflows** | `workflows/`                 | [Workflow](/docs/zh-CN/workflows) 脚本文件                                                                                                                                                |
 | **输出样式**      | `output-styles/`             | 输出样式定义                                                                                                                                                                           |
 | **主题**        | `themes/`                    | 颜色主题定义                                                                                                                                                                           |
@@ -1170,7 +1244,7 @@ claude plugin enable <plugin> [options]
 
 该命令接受这些参数：
 
-* `<plugin>`：插件名称或 `plugin-name@marketplace-name`
+* `<plugin>`：插件名称、`plugin-name@marketplace-name` 或 `plugin-name@synced` 用于 [plugin synced from claude.ai](#synced-plugins)
 
 该命令接受这些选项：
 
@@ -1196,7 +1270,7 @@ claude plugin disable [plugin] [options]
 
 该命令接受这些参数：
 
-* `[plugin]`：插件名称或 `plugin-name@marketplace-name`。使用 `--all` 时可选
+* `[plugin]`：插件名称、`plugin-name@marketplace-name` 或 `plugin-name@synced` 用于 [plugin synced from claude.ai](#synced-plugins)。使用 `--all` 时可选
 
 该命令接受这些选项：
 
@@ -1258,7 +1332,7 @@ claude plugin list [options]
 在交互式会话中，`/plugin list` 打印类似的列表内联，但仅涵盖市场安装的插件：
 
 * 从技能目录加载的插件出现在 `/plugin` 界面和 `claude plugin list` 中，但不出现在内联 `/plugin list` 输出中。
-* 在 Claude Code v2.1.239 或更高版本上，[从 claude.ai 同步的插件](#synced-plugins) 在您在同步会话下载它们的环境中运行 `claude plugin list` 时出现。它们不出现在内联 `/plugin list` 输出中。
+* [从 claude.ai 同步的插件](#synced-plugins) 在 Claude Code v2.1.239 或更高版本上出现在 `claude plugin list` 中，并在 `/plugin` 界面中出现，但不出现在内联 `/plugin list` 输出中。
 * 使用 `--plugin-dir` 或 `--plugin-url` 为会话加载的插件出现在 `/plugin` 界面中，仅当相同标志在子命令前时才出现在 `claude plugin list` 中，如 `claude --plugin-dir <dir> plugin list`。仅标志名称标识其位置，因此裸 `claude plugin list` 无法找到它们，不同于同步插件和技能目录插件，其固定目录 Claude Code 扫描。
 
 交互式形式接受 `--enabled` 或 `--disabled` 以仅显示该状态中的插件，以及 `ls` 作为 `list` 的简写。
@@ -1536,7 +1610,7 @@ claude plugin tag [path] [options]
   版本管理
 </h3>
 
-Claude Code 使用插件的版本作为缓存键，以确定是否有可用的更新。当你运行 `/plugin update` 或自动更新触发时，Claude Code 会计算当前版本，如果与已安装的版本匹配，则跳过更新。
+Claude Code 使用插件的版本作为缓存键，以确定是否有可用的更新。当你运行 `/plugin update` 或自动更新触发时，Claude Code 会计算当前版本，如果与已安装的版本匹配，则跳过更新。从[本地目录市场](#plugin-caching-and-file-resolution)加载的插件会在每个会话开始时加载其当前源文件，无论其版本字符串如何。
 
 对于除 `command` 之外的每种源类型，Claude Code 从以下第一个设置的项中解析版本：
 
@@ -1544,17 +1618,17 @@ Claude Code 使用插件的版本作为缓存键，以确定是否有可用的�
 2. 插件在 `marketplace.json` 中的市场条目中的 `version` 字段
 3. 插件源的 git 提交 SHA，适用于 git 托管市场中的 `github`、`url`、`git-subdir` 和相对路径源
 4. SHA-256 摘要，适用于 [`archive` 源](/docs/zh-CN/plugin-marketplaces#zip-archives)：市场条目中的 `sha256` 固定值，或当你未设置固定值时下载文件的摘要。Claude Code 将其缩短为前 12 个字符
-5. `unknown`，适用于 `npm` 源或不在 git 仓库内的本地目录
+5. `unknown`，适用于 `npm` 源或不在 git 仓库内的本地目录。Claude Code 不会从包含安装路径的仓库（例如 git 管理的 `~/.claude`）中获取版本
 
 对于 [`command` 源](/docs/zh-CN/plugin-marketplaces#command-sources)，Claude Code 始终从命令生成的内容中派生版本：单独的 12 字符内容哈希，或在设置了版本时附加到 `plugin.json` 版本作为 `<version>-<hash>`。Claude Code 忽略命令源的市场条目中的 `version` 字段。因此，命令的哈希输出发生变化会产生新版本，即使编写的版本字符串保持不变。在 [link mode](/docs/zh-CN/plugin-marketplaces#copy-mode-and-link-mode) 中，哈希覆盖打印目录的真实路径及其顶级条目，而不是文件内容。
 
 对于这些源类型，这为你提供了三种版本控制插件的方式：
 
-| 方法            | 如何操作                                                                                           | 更新行为                                                             | 最适合                       |
-| :------------ | :--------------------------------------------------------------------------------------------- | :--------------------------------------------------------------- | :------------------------ |
-| **显式版本**      | 在 `plugin.json` 中设置 `"version": "2.1.0"`                                                       | 用户仅在你更新此字段时获得更新。推送新提交而不更新它没有效果，`/plugin update` 报告"已是最新版本"。      | 具有稳定发布周期的已发布插件            |
-| **提交 SHA 版本** | 从 `plugin.json` 和市场条目中都省略 `version`                                                            | 每当源的已解析提交发生变化时，用户获得更新                                            | 正在积极开发的内部或团队插件            |
-| **摘要版本**      | 使用 [`archive` 源](/docs/zh-CN/plugin-marketplaces#zip-archives) 并从 `plugin.json` 和市场条目中都省略 `version` | 使用 `sha256` 固定值时，当你更改固定值时用户获得更新。没有固定值时，每当托管 zip 文件的字节发生变化时用户获得更新 | 作为 zip 文件发布到静态服务器或工件仓库的插件 |
+| 方法            | 如何操作                                                                                           | 更新行为                                                                                                                  | 最适合                       |
+| :------------ | :--------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------- | :------------------------ |
+| **显式版本**      | 在 `plugin.json` 中设置 `"version": "2.1.0"`                                                       | 用户仅在你更新此字段时获得更新。推送新提交而不更新它没有效果，`/plugin update` 报告"已是最新版本"。对于[从本地加载](#plugin-caching-and-file-resolution)的插件，新内容仍会加载。 | 具有稳定发布周期的已发布插件            |
+| **提交 SHA 版本** | 从 `plugin.json` 和市场条目中都省略 `version`                                                            | 每当源的已解析提交发生变化时，用户获得更新                                                                                                 | 正在积极开发的内部或团队插件            |
+| **摘要版本**      | 使用 [`archive` 源](/docs/zh-CN/plugin-marketplaces#zip-archives) 并从 `plugin.json` 和市场条目中都省略 `version` | 使用 `sha256` 固定值时，当你更改固定值时用户获得更新。没有固定值时，每当托管 zip 文件的字节发生变化时用户获得更新                                                      | 作为 zip 文件发布到静态服务器或工件仓库的插件 |
 
 如果你使用显式版本，请遵循 [semantic versioning](https://semver.org)（`MAJOR.MINOR.PATCH`）：对于破坏性更改，增加 MAJOR；对于新功能，增加 MINOR；对于错误修复，增加 PATCH。在 `CHANGELOG.md` 中记录更改。
 

@@ -41,24 +41,24 @@
 [比较表](#compare-the-four-approaches)显示了每种自定义方法保留的内容。
 
 <h2 id="customize-agent-behavior">
-  自定义 agent 行为
+  自定义代理行为
 </h2>
 
-`append` 和自定义提示词字符串各自直接改变系统提示词，输出样式改变 Claude Code 给 Claude 的每个响应的指令。CLAUDE.md 采用不同的方式：SDK 读取它并将其内容作为项目上下文注入到对话中，因此它与你选择的任何系统提示词一起塑造行为。[Skills](/docs/zh-CN/agent-sdk/skills)、[hooks](/docs/zh-CN/agent-sdk/hooks) 和 [permissions](/docs/zh-CN/agent-sdk/permissions) 也在系统提示词之外塑造行为，并在各自的页面上介绍。
+`append` 和自定义提示字符串各自直接改变系统提示，输出样式改变 Claude Code 为每个响应给 Claude 的指令。CLAUDE.md 采用不同的路径：SDK 读取它并将其内容注入到对话中作为项目上下文，因此它与你选择的任何系统提示一起塑造行为。[Skills](/docs/zh-CN/agent-sdk/skills)、[hooks](/docs/zh-CN/agent-sdk/hooks) 和 [permissions](/docs/zh-CN/agent-sdk/permissions) 也在系统提示之外塑造行为，并在各自的页面上介绍。
 
 <h3 id="claude-md-files-for-project-level-instructions">
-  CLAUDE.md 文件用于项目级指令
+  用于项目级指令的 CLAUDE.md 文件
 </h3>
 
-CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其内容注入到对话中，不改变系统提示词，因此它们可以与任何系统提示词配置一起工作。关于在 CLAUDE.md 中放什么、在哪里放置它以及如何编写有效的指令，请参阅 [When to add to CLAUDE.md](/docs/zh-CN/memory#when-to-add-to-claude-md) 和 [How Claude remembers your project](/docs/zh-CN/memory) 的其余部分。本节涵盖 SDK 特定的内容：CLAUDE.md 如何加载。
+CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其内容注入到对话中并保持系统提示不变，因此它们与任何系统提示配置一起工作。关于在 CLAUDE.md 中放什么、放在哪里以及如何编写有效的指令，请参阅 [When to add to CLAUDE.md](/docs/zh-CN/memory#when-to-add-to-claude-md) 和 [How Claude remembers your project](/docs/zh-CN/memory) 的其余部分。本节涵盖 SDK 特定的内容：CLAUDE.md 如何加载。
 
-当匹配的设置源被启用时，SDK 读取 CLAUDE.md：`'project'` 从工作目录加载 `CLAUDE.md` 或 `.claude/CLAUDE.md`，`'user'` 加载 `~/.claude/CLAUDE.md`。默认 `query()` 选项启用两个源，因此 CLAUDE.md 会自动加载。如果你在 TypeScript 中显式设置 `settingSources` 或在 Python 中设置 `setting_sources`，请包含你需要的源。CLAUDE.md 加载由设置源控制，而不是由 `claude_code` 预设控制。
+SDK 在匹配的设置源启用时读取 CLAUDE.md：`'project'` 从工作目录加载 `CLAUDE.md` 或 `.claude/CLAUDE.md`，`'user'` 加载 `~/.claude/CLAUDE.md`。默认 `query()` 选项启用两个源，因此 CLAUDE.md 自动加载。如果你在 TypeScript 中显式设置 `settingSources` 或在 Python 中设置 `setting_sources`，请包含你需要的源。CLAUDE.md 加载由设置源控制，而不是由 `claude_code` 预设控制。
 
 <h4 id="load-claude-md-with-the-sdk">
   使用 SDK 加载 CLAUDE.md
 </h4>
 
-要加载 CLAUDE.md，请设置 `settingSources` 以包含你的 CLAUDE.md 所在的级别。下面的示例加载项目级 CLAUDE.md 以及 `claude_code` 预设，因此 Claude 既有完整的编码 agent 提示词，也有你的项目约定：
+要加载 CLAUDE.md，请设置 `settingSources` 以包含你保存 CLAUDE.md 的级别。下面的示例加载项目级 CLAUDE.md 以及 `claude_code` 预设，因此 Claude 既有编码代理提示，也有你的项目约定：
 
 <CodeGroup>
   ```typescript TypeScript theme={null}
@@ -71,15 +71,15 @@ CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其�
     options: {
       systemPrompt: {
         type: "preset",
-        preset: "claude_code" // 使用 Claude Code 的系统提示词
+        preset: "claude_code" // Use Claude Code's system prompt
       },
-      settingSources: ["project"] // 从项目加载 CLAUDE.md
+      settingSources: ["project"] // Loads CLAUDE.md from project
     }
   })) {
     messages.push(message);
   }
 
-  // 现在 Claude 可以访问来自 CLAUDE.md 的项目指南
+  // Now Claude has access to your project guidelines from CLAUDE.md
   ```
 
   ```python Python theme={null}
@@ -96,9 +96,9 @@ CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其�
           options=ClaudeAgentOptions(
               system_prompt={
                   "type": "preset",
-                  "preset": "claude_code",  # 使用 Claude Code 的系统提示词
+                  "preset": "claude_code",  # Use Claude Code's system prompt
               },
-              setting_sources=["project"],  # 从项目加载 CLAUDE.md
+              setting_sources=["project"],  # Loads CLAUDE.md from project
           ),
       ):
           messages.append(message)
@@ -106,29 +106,29 @@ CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其�
 
   asyncio.run(main())
 
-  # 现在 Claude 可以访问来自 CLAUDE.md 的项目指南
+  # Now Claude has access to your project guidelines from CLAUDE.md
   ```
 </CodeGroup>
 
-当你运行任一示例时，SDK 会在 Claude 工作时流式传输消息：系统初始化消息、助手消息、携带工具结果的用户消息，以及包含会话结果的最终结果消息。
+当你运行任一示例时，SDK 在 Claude 工作时流式传输消息：系统初始化消息、助手消息、携带工具结果的用户消息，以及包含会话结果的最终结果消息。
 
-CLAUDE.md 在项目的所有会话中持久存在，通过 git 与你的团队共享，并自动发现而无需代码更改。如果你传递空的 `settingSources` 数组，则不会加载。
+CLAUDE.md 在项目中的所有会话中持久存在，通过 git 与你的团队共享，并自动发现而无需代码更改。如果你传递空的 `settingSources` 数组，它不会被加载。
 
 <h3 id="output-styles-for-persistent-configurations">
-  输出样式用于持久配置
+  用于持久配置的输出样式
 </h3>
 
-输出样式是保存的指令集，可以改变 Claude 的角色、语气和输出格式。它们存储为 markdown 文件，可以在会话和项目中重复使用。
+输出样式是改变 Claude 的角色、语气和输出格式的已保存指令集。它们存储为 markdown 文件，可以在会话和项目中重复使用。
 
 <h4 id="create-an-output-style">
   创建输出样式
 </h4>
 
-输出样式是一个 markdown 文件，其 [frontmatter](/docs/zh-CN/output-styles#frontmatter) 中有元数据，后面是提示词内容。将其保存到 `~/.claude/output-styles/` 以获得在每个项目中可用的用户级样式，或保存到你的存储库中的 `.claude/output-styles/` 以获得可以提交和与你的团队共享的项目级样式。
+输出样式是一个 markdown 文件，包含用于元数据的 [frontmatter](/docs/zh-CN/output-styles#frontmatter)，后跟提示内容。将其保存到 `~/.claude/output-styles/` 以获得在每个项目中可用的用户级样式，或保存到你的存储库中的 `.claude/output-styles/` 以获得可以提交并与你的团队共享的项目级样式。
 
-自定义输出样式会省略 `claude_code` 预设的软件工程指令，并使用你自己的。要保留它们并在其基础上分层你的指令，请在 frontmatter 中设置 `keep-coding-instructions: true`。这些指令仅在 Claude Code 的完整系统提示词中，因此该设置在较短系统提示词的会话中无效，你可以通过 [`CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT`](/docs/zh-CN/env-vars#variables) 打开或关闭该提示词。当你的 agent 仍在进行软件工程工作时保留它们。当你完全替换角色时省略它们。
+自定义输出样式会排除 `claude_code` 预设的软件工程指令，并使用你自己的。要保留它们并在其上分层你的指令，请在 frontmatter 中设置 `keep-coding-instructions: true`。这些指令仅在 Claude Code 的完整系统提示中，因此该设置在较短系统提示的会话中无效，你可以使用 [`CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT`](/docs/zh-CN/env-vars#variables) 固定打开或关闭。当你的代理仍在进行软件工程工作时保留它们。当你完全替换角色时排除它们。
 
-下面的示例定义了一个代码审查角色，它保留了编码指令，因为审查代码仍然受益于 Claude Code 的安全性和代码质量指导。将其保存为 `~/.claude/output-styles/code-reviewer.md` 以在项目中可用：
+下面的示例定义了一个代码审查角色，它保留编码指令，因为审查代码仍然受益于 Claude Code 的安全和代码质量指导。将其保存为 `~/.claude/output-styles/code-reviewer.md` 以使其在项目中可用：
 
 ```markdown ~/.claude/output-styles/code-reviewer.md theme={null}
 ---
@@ -154,7 +154,7 @@ For every code submission:
 
 * **CLI**：运行 `/output-style <style>`，例如 `/output-style concise`，或运行 `/config` 并选择一个。`/output-style` 命令需要 Claude Code v2.1.269 或更高版本。
 * **设置**：在 `.claude/settings.local.json` 中设置 `outputStyle`
-* **TypeScript SDK**：在传递给 `query()` 的内联 `settings` 对象内设置 `outputStyle`，或将 `settings` 指向设置它的设置文件。`outputStyle` 不是顶级 `Options` 字段：
+* **TypeScript SDK**：在传递给 `query()` 的内联 `settings` 对象中设置 `outputStyle`，或指向设置它的设置文件。`outputStyle` 不是顶级 `Options` 字段：
 
   ```typescript theme={null}
   const options = { settings: { outputStyle: "Explanatory" } };
@@ -162,13 +162,13 @@ For every code submission:
 
 在 Python SDK 中，通过 `settings` 选项设置 `outputStyle`，该选项接受 JSON 字符串（如 `'{"outputStyle": "Explanatory"}'`）或设置它的设置文件的路径。
 
-**SDK 用户注意：** 当你在选项中包含 `settingSources: ['user']` 或 `settingSources: ['project']`（TypeScript）/ `setting_sources=["user"]` 或 `setting_sources=["project"]`（Python）时，输出样式会被加载。
+**SDK 用户注意：** 当你包含 `settingSources: ['user']` 或 `settingSources: ['project']`（TypeScript）/ `setting_sources=["user"]` 或 `setting_sources=["project"]`（Python）在你的选项中时，输出样式会被加载。
 
 <h3 id="append-to-the-claude_code-preset">
   追加到 `claude_code` 预设
 </h3>
 
-你可以使用带有 `append` 属性的 Claude Code 预设来添加自定义指令，同时保留所有内置功能。
+你可以使用带有 `append` 属性的 Claude Code 预设来添加你的自定义指令，同时保留所有内置功能。
 
 <CodeGroup>
   ```typescript TypeScript theme={null}
@@ -222,18 +222,18 @@ For every code submission:
 </CodeGroup>
 
 <h4 id="improve-prompt-caching-across-users-and-machines">
-  改进跨用户和机器的提示词缓存
+  改进跨用户和机器的提示缓存
 </h4>
 
-默认情况下，两个使用相同 `claude_code` 预设和 `append` 文本的会话，如果从不同的工作目录运行，仍然无法共享提示词缓存条目。这是因为预设在你的 `append` 文本之前在系统提示词中嵌入了每个会话的上下文：工作目录、它是否是 git 存储库、平台、活跃的 shell、操作系统版本和自动记忆路径。该上下文中的任何差异都会产生不同的系统提示词和缓存未命中。CLAUDE.md 内容不会影响系统提示词缓存，因为 SDK 将其注入到对话中，而不是系统提示词。
+默认情况下，两个使用相同 `claude_code` 预设和 `append` 文本的会话，如果从不同的工作目录运行，仍然无法共享提示缓存条目。这是因为预设在你的 `append` 文本之前在系统提示中嵌入了每个会话的上下文：工作目录、它是否是 git 存储库、平台、活跃的 shell、OS 版本和自动内存路径。该上下文中的任何差异都会产生不同的系统提示和缓存未命中。CLAUDE.md 内容不影响系统提示缓存，因为 SDK 将其注入到对话中，而不是系统提示。
 
-要使系统提示词在会话中相同，请在 TypeScript 中设置 `excludeDynamicSections: true`，或在 Python 中设置 `"exclude_dynamic_sections": True`。每个会话的上下文移动到第一条用户消息中，只在系统提示词中保留静态预设和你的 `append` 文本，以便相同的配置在用户和机器之间共享缓存条目。
+要使系统提示在会话中相同，请在 TypeScript 中设置 `excludeDynamicSections: true` 或在 Python 中设置 `"exclude_dynamic_sections": True`。每个会话的上下文移动到第一条用户消息中，仅在系统提示中保留静态预设和你的 `append` 文本，因此相同的配置在用户和机器之间共享缓存条目。
 
 <Note>
-  `excludeDynamicSections` 需要 `@anthropic-ai/claude-agent-sdk` v0.2.98 或更高版本，或 Python 的 `claude-agent-sdk` v0.1.58 或更高版本。仅在预设对象形式上设置它。当你传递自定义提示词而不是预设时，SDK 会忽略它；要在 TypeScript SDK 中保持自定义提示词的指令缓存，请参阅 [Cache the static part of a custom prompt](#cache-the-static-part-of-a-custom-prompt)。
+  `excludeDynamicSections` 需要 `@anthropic-ai/claude-agent-sdk` v0.2.98 或更高版本，或 Python 的 `claude-agent-sdk` v0.1.58 或更高版本。仅在预设对象形式上设置它。当你传递自定义提示而不是预设时，SDK 会忽略它；要在 TypeScript SDK 中保持自定义提示的指令缓存，请参阅 [Cache the static part of a custom prompt](#cache-the-static-part-of-a-custom-prompt)。
 </Note>
 
-以下示例将共享的 `append` 块与 `excludeDynamicSections` 配对，以便从不同目录运行的 agent 群可以重复使用相同的缓存系统提示词：
+以下示例将共享的 `append` 块与 `excludeDynamicSections` 配对，以便从不同目录运行的代理队列可以重复使用相同的缓存系统提示：
 
 <CodeGroup>
   ```typescript TypeScript theme={null}
@@ -279,15 +279,15 @@ For every code submission:
   ```
 </CodeGroup>
 
-**权衡：** 工作目录、git 存储库标志、平台、活跃的 shell、操作系统版本和自动记忆路径仍然会到达 Claude，但作为第一条用户消息的一部分，而不是系统提示词。用户消息中的指令比系统提示词中的相同文本的权重略低，因此在推理当前目录或自动记忆路径时，Claude 可能会更少地依赖它们。当跨会话缓存重复使用比最大化权威环境上下文更重要时，启用此选项。
+**权衡：** 工作目录、git 存储库标志、平台、活跃的 shell、OS 版本和自动内存路径仍然到达 Claude，但作为第一条用户消息的一部分，而不是系统提示。用户消息中的指令比系统提示中的相同文本的权重略低，因此 Claude 在推理当前目录或自动内存路径时可能会更少依赖它们。当跨会话缓存重复使用比最大化权威环境上下文更重要时，启用此选项。
 
 对于非交互式 CLI 模式中的等效标志，请参阅 [`--exclude-dynamic-system-prompt-sections`](/docs/zh-CN/cli-reference)。
 
 <h3 id="custom-system-prompts">
-  自定义系统提示词
+  自定义系统提示
 </h3>
 
-你可以提供自定义字符串作为 `systemPrompt` 以完全用你自己的指令替换默认值。
+你可以提供自定义字符串作为 `systemPrompt` 以完全替换默认值为你自己的指令。
 
 <CodeGroup>
   ```typescript TypeScript theme={null}
@@ -346,27 +346,27 @@ For every code submission:
   ```
 </CodeGroup>
 
-在 Python 中，使用 `system_prompt={"type": "file", "path": "..."}` 从文件加载大型自定义提示词，而不是将其作为字符串传递。Python SDK 将字符串提示词作为一个命令行参数传递给 CLI 子进程，因此超过操作系统参数长度限制的提示词在任何 API 请求发送之前在进程生成时失败。在 Linux 上，错误是 `Argument list too long`。请参阅 [`SystemPromptFile`](/docs/zh-CN/agent-sdk/python#systempromptfile) 了解平台阈值和 Windows 行为。
+在 Python 中，使用 `system_prompt={"type": "file", "path": "..."}` 从文件加载大型自定义提示，而不是将其作为字符串传递。Python SDK 将字符串提示作为一个命令行参数传递给 CLI 子进程，因此超过 OS 参数长度限制的提示在任何 API 请求发送之前在进程生成时失败。在 Linux 上，错误是 `Argument list too long`。请参阅 [`SystemPromptFile`](/docs/zh-CN/agent-sdk/python#systempromptfile) 了解平台阈值和 Windows 行为。
 
 <h4 id="cache-the-static-part-of-a-custom-prompt">
-  缓存自定义提示词的静态部分
+  缓存自定义提示的静态部分
 </h4>
 
-在 TypeScript SDK 中，你可以将自定义提示词作为字符串数组而不是一个字符串传递，在静态部分和其余部分之间使用 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 标记。当你的提示词结合每个请求都相同的指令与每个请求都改变的上下文（例如 agent 处理的客户或工单）时，使用此方法。当你将两个部分作为一个字符串传递时，对每个请求部分的更改会改变整个系统提示词，因此静态指令也会错过缓存。此形式在 Python SDK 中不可用；[`ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 列出了 `system_prompt` 接受的形式。
+在 TypeScript SDK 中，你可以将自定义提示作为字符串数组而不是一个字符串传递，在静态部分和其余部分之间使用 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 标记。当你的提示结合在每个请求上相同的指令与每个请求变化的上下文（如代理处理的客户或工单）时，使用此方法。当你将两部分作为一个字符串传递时，对每个请求部分的更改会改变整个系统提示，因此静态指令也会错过缓存。数组形式在 Python SDK 中不可用；[`ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 列出 `system_prompt` 接受的形式。
 
 <Note>
-  SDK 仅在直接调用 Claude API 或在 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上运行时拆分提示词。在所有其他配置中，例如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [LLM gateway](/docs/zh-CN/llm-gateway-connect)，以及每当你设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 时，SDK 会将整个提示词作为一个块发送，与传递一个字符串相同。
+  Claude Code 仅在直接调用 Claude API 或在 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上运行时拆分提示。在所有其他配置中，例如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [LLM gateway](/docs/zh-CN/llm-gateway-connect)，它将整个提示作为一个块发送，与传递一个字符串相同。每当你设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 时也会发生这种情况。
 </Note>
 
-要拆分提示词，从 `@anthropic-ai/claude-agent-sdk` 导入 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 并将其作为自己的数组元素在两个部分之间传递。SDK 将标记之前的字符串作为一个文本块发送，将标记之后的字符串作为第二个块发送，每个块都有自己的缓存断点。在下面的示例中，支持 agent 从文件加载其分类指令，并在每个请求上接收一个工单的详细信息，因此指令保持缓存而工单详细信息改变：
+要拆分提示，从 `@anthropic-ai/claude-agent-sdk` 导入 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 并将其作为自己的数组元素在两部分之间传递。SDK 将标记之前的字符串作为一个文本块发送，将标记之后的字符串作为第二个块发送，每个都有自己的缓存断点。在下面的示例中，支持代理从文件加载其分类指令，并在每个请求上接收有关一个工单的详细信息，因此指令保持缓存，而工单详细信息改变：
 
 ```typescript TypeScript theme={null}
 import { readFile } from "node:fs/promises";
 import { query, SYSTEM_PROMPT_DYNAMIC_BOUNDARY } from "@anthropic-ai/claude-agent-sdk";
 
-// 在每个请求上相同
+// Identical on every request
 const instructions = await readFile("triage-instructions.md", "utf8");
-// 在每个请求上不同
+// Different on every request
 const ticketContext = "Customer plan: Enterprise. Other open tickets from this customer: 3.";
 
 for await (const message of query({
@@ -383,36 +383,40 @@ for await (const message of query({
 
 SDK 从数组中组装块如下：
 
-* SDK 将标记两侧的字符串与它们之间的空行连接，并删除标记本身，因此标记文本不会到达 Claude。
+* SDK 将标记每一侧的字符串与它们之间的空行连接，并删除标记本身，因此标记文本不会到达 Claude。
 * 如果你多次包含标记，第一个是拆分，SDK 删除其他的。
 * 如果你省略标记，SDK 将所有字符串连接到一个块中，与传递一个字符串相同。
 
+使用 CLI 的 [`--system-prompt` 或 `--system-prompt-file` 标志](/docs/zh-CN/cli-reference#system-prompt-flags)，提示是一个字符串，因此没有数组来携带标记。在静态和每个请求部分之间包含仅包含 `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__` 的行。Claude Code 在第一个这样的行处拆分提示为相同的两个块并删除该行。需要 Claude Code v2.1.275 或更高版本。
+
+在 SDK 中，更喜欢数组形式，它不带标记行地携带边界。
+
 <h3 id="change-the-prompt-of-an-existing-session">
-  改变现有会话的提示词
+  更改现有会话的提示
 </h3>
 
-默认情况下，如果你在使用 `resume` 或 `continue` 返回会话时传递不同的 `append` 或自定义提示词，Claude 在下一个转折点不会看到它。Claude Code 在会话的第一个请求时记录系统提示词，并在会话被压缩之前重复使用该记录。新文本在压缩后或在新会话中生效。
+默认情况下，如果你在使用 `resume` 或 `continue` 返回会话时传递不同的 `append` 或自定义提示，Claude 在下一轮不会看到它。Claude Code 在会话的第一个请求上记录系统提示，并重复使用该记录直到会话被压缩。新文本在该压缩之后或在新会话中生效。
 
 <h4 id="update-claude’s-instructions-mid-session">
-  在会话中期更新 Claude 的指令
+  在会话中更新 Claude 的指令
 </h4>
 
-如果你在系统提示词中放置的指令需要在会话运行时改变，例如因为你的用户将 agent 切换到只读模式或在你的应用中编辑其配置，请在对话中发送新指令，而不是改变 `systemPrompt`：
+如果你在系统提示中放置的指令需要在会话运行时改变，例如因为你的用户将代理切换到只读模式或在你的应用中编辑其配置，请在对话中发送新指令，而不是改变 `systemPrompt`：
 
 * **在你的下一条消息中**：在你发送的下一条用户消息中包含新指令。
-* **从 hook 中**：从 `UserPromptSubmit` 或 `PostToolUse` [hook 回调](/docs/zh-CN/agent-sdk/hooks#outputs) 返回 [`additionalContext`](/docs/zh-CN/hooks#add-context-for-claude)，写成事实陈述，例如"工作区现在是只读的"。SDK 在 hook 触发的点将文本插入到对话中，因此记录的提示词保持不变。
+* **从 hook 中**：从 `UserPromptSubmit` 或 `PostToolUse` [hook 回调](/docs/zh-CN/agent-sdk/hooks#outputs) 返回 [`additionalContext`](/docs/zh-CN/hooks#add-context-for-claude)，写成事实陈述，如"工作区现在是只读的"。SDK 在 hook 触发的点将文本插入到对话中，因此记录的提示保持不变。
 
 <h4 id="turn-recording-off-while-you-iterate-on-wording">
   在迭代措辞时关闭记录
 </h4>
 
-当你迭代提示词措辞并希望每次编辑都到达你恢复的会话时，在系统提示词的对象形式上设置 `snapshot` 为 false。Claude Code 然后在每个请求上重建提示词。该字段在 TypeScript 中的 [`systemPrompt`](/docs/zh-CN/agent-sdk/typescript#options) 的预设和自定义形式上可用，在 Python 中的 [`system_prompt`](/docs/zh-CN/agent-sdk/python#systempromptpreset) 上可用，并需要 `@anthropic-ai/claude-agent-sdk` v0.3.257 或更高版本，或 `claude-agent-sdk` v0.2.153 或更高版本。
+当你迭代提示措辞并希望每个编辑到达你恢复的会话时，在系统提示的对象形式上设置 `snapshot` 为 false。Claude Code 然后在每个请求上重建提示。该字段在 TypeScript 中的 [`systemPrompt`](/docs/zh-CN/agent-sdk/typescript#options) 的预设和自定义形式上可用，在 Python 中的 [`system_prompt`](/docs/zh-CN/agent-sdk/python#systempromptpreset) 上可用，并需要 `@anthropic-ai/claude-agent-sdk` v0.3.257 或更高版本，或 `claude-agent-sdk` v0.2.153 或更高版本。
 
-在生产中保持记录打开。关闭记录时，恢复的会话上的不同 `append` 或自定义提示词在下一个转折点到达 Claude，该请求无法重复使用会话的 [prompt cache](/docs/zh-CN/prompt-caching#how-the-cache-is-organized)。在 API 强制执行 [preserved thinking](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking) 的地方，Claude 也会失去其早期转折点的思考。
+在生产中保持记录打开。关闭记录时，恢复的会话上的不同 `append` 或自定义提示在下一轮到达 Claude，该请求无法重复使用会话的 [prompt cache](/docs/zh-CN/prompt-caching#how-the-cache-is-organized)。在 API 强制 [preserved thinking](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking) 的地方，Claude 也会失去其早期轮次的思考。
 
 在 [cloud sessions](/docs/zh-CN/cloud-environments) 之外，如果你通过 `extraArgs` 传递 `--bare` 或设置 `CLAUDE_CODE_SIMPLE=1` 在 [bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 中启动 Claude Code，记录保持关闭，除非你设置 `snapshot: true`。
 
-默认情况下记录 `append` 或自定义提示词需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑，Python Agent SDK 从 v0.2.153 捆绑。在 Claude Code v2.1.268 之前，不 [fetch feature flags](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的会话，在每个请求上重建提示词，`snapshot` 无效。
+默认记录 `append` 或自定义提示需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑，Python Agent SDK 从 v0.2.153 捆绑。在 Claude Code v2.1.268 之前，不 [fetch feature flags](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的会话，在每个请求上重建提示，`snapshot` 无效。
 
 <h2 id="compare-the-four-approaches">
   比较四种方法
