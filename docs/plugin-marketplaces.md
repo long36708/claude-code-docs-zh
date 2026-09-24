@@ -1127,6 +1127,11 @@ Claude Code 下载[从 claude.ai 同步的](/docs/zh-CN/plugins-reference#synced
 
 限制在任何网络或文件系统操作之前进行检查。检查在 marketplace 添加以及 plugin 安装、更新、刷新和自动更新时运行。如果 marketplace 在配置策略之前被添加，其源不再与允许列表匹配，Claude Code 会拒绝从中安装或更新 plugins。相同的强制执行也适用于 `blockedMarketplaces`。
 
+两个列表的强制执行位置取决于你在哪里设置它们：
+
+* **claude.ai 管理控制台**：Claude Code 在[读取服务器管理设置](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)的会话中强制执行两个列表。claude.ai 还在你的组织中的任何人从 git 存储库在 claude.ai 上添加新 marketplace，或从 Claude Desktop 应用外部其 Code 选项卡的**自定义**添加新 marketplace 时检查它们。这涵盖成员为自己的账户添加的 marketplace 和在[**组织设置 > Plugins**](https://claude.ai/admin-settings/plugins)下为整个组织添加的 marketplace。claude.ai 拒绝允许列表不允许的存储库或阻止列表命名的存储库。它不重新检查在你设置列表之前在任一位置添加的 marketplace，也不检查上传的 plugins。
+* **托管设置文件、OS 级别策略或其他托管源**：Claude Code 在读取该源的地方强制执行两个列表。claude.ai 不读取它。
+
 要阻止 GitHub 所有者下的每个 marketplace 存储库，请在 `blockedMarketplaces` 条目中使用所有者通配符形式：`{ "source": "github", "repo": "untrusted-org/*" }`。需要 Claude Code v2.1.223 或更高版本。有关匹配规则（在阻止列表和允许列表之间不同），请参阅[所有者通配符](/docs/zh-CN/settings-reference#owner-wildcards)。
 
 当用户添加 Claude Code [克隆而不是获取](/docs/zh-CN/discover-plugins#add-from-other-git-hosts)的 `https://` 存储库 URL（例如裸 `github.com` 或 `gitlab.com` 存储库 URL）时，Claude Code 也会根据 `blockedMarketplaces` 中的 `url` 条目检查它。如果条目命名相同的 URL，Claude Code 会阻止添加。在该比较中，Claude Code 忽略 `.git` 后缀和用户在 `#` 后附加的任何 ref。需要 Claude Code v2.1.232 或更高版本。在 v2.1.232 之前，Claude Code 仅针对它作为托管 `marketplace.json` 文件获取的 URL 匹配 `url` 条目。

@@ -4512,6 +4512,8 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 为您的组织阻止插件市场来源。Claude Code 在市场添加以及插件安装、更新、刷新和自动更新时检查阻止列表，因此在您设置策略之前添加的市场无法用于获取插件。在下载前检查被阻止的来源，因此它们永远不会接触文件系统。
 
+如果您在 [claude.ai 管理控制台](/docs/zh-CN/server-managed-settings) 中设置此键，claude.ai 也会在您组织中的任何人从 claude.ai 上的 git 存储库添加市场时应用它，如 [限制如何工作](/docs/zh-CN/plugin-marketplaces#how-restrictions-work) 所述。
+
 * **Scope**: [`Managed`](#scopes)
 * **Type**: 市场来源对象数组，形式与 [`strictKnownMarketplaces`](#allowed-source-types) 相同
 * **Default**: 未设置，因此没有市场被阻止
@@ -4607,6 +4609,8 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 </h3>
 
 限制您组织中的人员可以添加和安装插件的插件市场来源。Claude Code 在市场添加以及插件安装、更新、刷新和自动更新时强制执行允许列表，在任何网络或文件系统操作之前，因此在您设置策略之前添加的市场一旦其来源不再匹配就无法用于获取插件。被阻止的用户会看到一个错误，命名托管策略。
+
+如果您在 [claude.ai 管理控制台](/docs/zh-CN/server-managed-settings) 中设置此键，claude.ai 也会在您组织中的任何人从 claude.ai 上的 git 存储库添加市场时应用它，如 [限制如何工作](/docs/zh-CN/plugin-marketplaces#how-restrictions-work) 所述。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: 市场来源对象数组；请参阅 [允许的来源类型](#allowed-source-types)

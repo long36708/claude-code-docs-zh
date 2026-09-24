@@ -403,6 +403,8 @@ Claude Code 即使在空闲时也会为某些后台功能使用令牌：
 
 这些后台进程即使没有活跃交互也会消耗少量令牌（通常每个会话不到 \$0.04）。
 
+启用提示建议时，Claude Code 在 Claude 响应后还会向您的会话使用的模型发送一个简短请求，以[建议您的下一个提示](/docs/zh-CN/interactive-mode#prompt-suggestions)。该请求重用对话的提示缓存，因此主要是缓存读取加上少量输出令牌。当您的账户接近或达到使用限制时，Claude Code [会跳过这些请求](/docs/zh-CN/interactive-mode#when-claude-code-skips-suggestions)。要停止这些请求，[关闭提示建议](/docs/zh-CN/interactive-mode#turn-prompt-suggestions-off)。
+
 <h2 id="why-usage-climbs-in-a-long-session">
   为什么长时间会话中使用量会增加
 </h2>

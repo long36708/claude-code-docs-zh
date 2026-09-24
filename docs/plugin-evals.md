@@ -459,7 +459,7 @@ Claude Code 会话启动的运行，例如当你要求 Claude 为你运行套件
   一次运行可以访问什么
 </h2>
 
-`claude plugin eval` 加载目标插件的 skills 和 hooks，并在你的机器上以你的身份运行其 eval 套件。指向一个插件与 `claude --plugin-dir` 的信任决定相同，所以只评估你信任的插件。本节描述的隔离限制了被测试的代理可以到达的内容；它不是针对插件自己代码的保护，通过的套件对插件是否安全没有任何说明。
+`claude plugin eval` 加载目标插件的 skills、hooks 和 agents，并在你的机器上以你的身份运行其 eval 套件。指向一个插件与 `claude --plugin-dir` 的信任决定相同，所以只评估你信任的插件。本节描述的隔离限制了被测试的代理可以到达的内容；它不是针对插件自己代码的保护，通过的套件对插件是否安全没有任何说明。
 
 <h3 id="trust-the-plugin-directory">
   信任插件目录
@@ -645,6 +645,16 @@ eval 目录下没有 `<case>/prompt.md` 或 `<case>/case.yaml` 存在，或你�
 如果摘要没有 `W/OUT` 列，或用例失败，显示"ablation requested but no plugin resolved"，没有为用例找到插件。将 `plugins: ["../.."]` 添加到用例，给出从用例目录到插件目录的路径。
 
 如果插件确实加载，`Δ` 仍然接近零，你的 `tool_used: Skill` 评分器失败，这通常是真实发现，意味着技能的 `description` 不会在提示的措辞上触发。调整描述并重新运行相同的套件。
+
+<h3 id="agent-type-’-’-not-found-for-one-of-your-plugin’s-agents">
+  "Agent type '...' not found" for one of your plugin's agents
+</h3>
+
+默认情况下，每个用例都同时运行你的插件和不运行它，不运行它的运行是[无插件基线](#the-no-plugin-baseline)。当 Claude 在基线运行中调度你的插件的一个代理时，Agent 工具调用失败，显示 `Agent type '<plugin>:<agent-name>' not found. Available agents: ...`。列表仅命名不存在插件的代理，例如[内置子代理](/docs/zh-CN/sub-agents#built-in-subagents)。
+
+该错误是预期的，因为 `Δ` 将你的插件的运行与基线进行比较。在 JSON 结果中，基线运行在 `cases[].arms.without` 下。
+
+在加载你的插件的运行中，在 `allowed_tools` 中列出 `Agent` 的用例可以通过其命名空间名称调度你的插件的一个代理，例如 `my-plugin:code-reviewer` 用于名为 `my-plugin` 的插件中的 `code-reviewer` 代理。要跳过基线运行，传递 `--ablation none`。
 
 <h3 id="everything-scores-zero-although-the-right-files-were-produced">
   尽管生成了正确的文件，但一切都得分为零

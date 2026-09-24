@@ -338,7 +338,7 @@ Claude Code 也根据传递的值决定 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/e
 
 由 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 脚本返回的密钥和 [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 凭证都不会触发设置获取。
 
-在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，即使用户使用 Team 或 Enterprise 账户登录，Claude Code 也不会从 claude.ai 管理控制台获取服务器管理的设置。[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies) 涵盖了哪些策略到达用户机器上的 Cowork 会话和远程 Cowork 会话。
+在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，即使用户使用 Team 或 Enterprise 账户登录，Claude Code 也不会从 claude.ai 管理控制台获取服务器管理的设置。[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies) 涵盖了哪些策略到达用户机器上的 Cowork 会话和远程 Cowork 会话。claude.ai 在 Cowork 用户从 git 存储库或从 Cowork 标签中的**自定义**添加市场时，仍然会应用您的 [`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces) 和 [`blockedMarketplaces`](/docs/zh-CN/settings-reference#blockedmarketplaces) 列表。[限制如何工作](/docs/zh-CN/plugin-marketplaces#how-restrictions-work) 描述了该检查。
 
 如果您在 shell 中导出 `CLAUDE_CODE_USE_*` 提供商变量或非默认的 `ANTHROPIC_BASE_URL`，Claude Code 将跳过您的会话的设置获取。[`claude doctor` 和 `/status` 报告跳过的获取及其原因](#verify-settings-delivery)。
 

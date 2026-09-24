@@ -95,7 +95,7 @@ Jamf、Iru、Intune 和组策略的入门模板在[MDM 示例存储库](https://
   * **在完整 VM 沙箱中**：当您的 Claude Desktop 托管配置设置 [`requireCoworkFullVmSandbox`](https://claude.com/docs/third-party/claude-desktop/configuration#requirecoworkfullvmsandbox) 时，Claude Code 在虚拟机内运行，其中设备的 MDM 策略和托管设置文件不存在。
   * **远程协作会话**：这些在 Anthropic 托管的虚拟机上运行，其中 Claude Code 没有设备策略可读。
 
-  [表面覆盖](/docs/zh-CN/model-config#surface-coverage)表比较了协作与其他表面。
+  无论会话在何处运行，claude.ai 在任何人从 claude.ai 上的 git 存储库或从协作选项卡中的**自定义**添加市场时，都会自行应用管理控制台的 [`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces) 和 [`blockedMarketplaces`](/docs/zh-CN/settings-reference#blockedmarketplaces) 列表。[限制如何工作](/docs/zh-CN/plugin-marketplaces#how-restrictions-work)描述了该检查。[表面覆盖](/docs/zh-CN/model-config#surface-coverage)表比较了协作与其他表面。
 * **运行会话**：大多数更改在[交付机制表](#choose-a-delivery-mechanism)中的计划上到达运行会话，无需重启。
   * 对 [`forceRemoteSettingsRefresh`](/docs/zh-CN/settings-reference#forceremotesettingsrefresh)、[`requiredMinimumVersion`](/docs/zh-CN/settings-reference#requiredminimumversion) 和[某些用户可编辑密钥](/docs/zh-CN/settings#when-edits-take-effect)的更改在下一个会话启动时生效。
   * 新的或更改的 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 条目在下一次启动时生效。如果服务器托管设置在该启动时遮蔽了助手，助手会在获取报告这些设置被删除时立即运行。
