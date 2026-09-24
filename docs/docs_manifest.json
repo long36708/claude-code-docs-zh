@@ -501,8 +501,8 @@
     "env-vars.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/env-vars",
       "original_md_url": "https://code.claude.com/docs/zh-CN/env-vars.md",
-      "hash": "00a79383e6992691a7f8c0e5a41a1f828358bc24fcd99942cd8e96712fb1983f",
-      "last_updated": "2026-09-23T22:25:32.599574"
+      "hash": "3750b32f554e5437b1b9bc9ec6f33a3ea6b8b8532783b114b68e1c8937012f08",
+      "last_updated": "2026-09-24T17:54:52.941922"
     },
     "errors.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/errors",
@@ -1192,8 +1192,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-09-24T12:50:09.457175",
-    "fetch_duration_seconds": 115.01544,
+    "last_fetch_completed": "2026-09-24T17:56:36.042337",
+    "fetch_duration_seconds": 177.048856,
     "total_pages_discovered": 196,
     "pages_fetched_successfully": 198,
     "pages_failed": 0,
@@ -1203,7 +1203,7 @@
     "total_files": 198,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-09-24T12:50:09.457205",
+  "last_updated": "2026-09-24T17:56:36.042365",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
