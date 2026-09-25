@@ -256,6 +256,8 @@ Claude Code 也对父提供的值本身应用这些检查：
 
   在 Claude Code v2.1.273 或更高版本上，当 `allowManagedMcpServersOnly` 打开时，来自设置一个的最高排名管理员源的 `allowedMcpServers` 列表应用并阻止父的，作为 [跨源键](#keys-read-from-every-admin-source)。父的列表仅在没有管理员源设置一个时应用。[`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 条目说明在 `"merge"` 下哪个源提供每个键。在 v2.1.223 之前，任何管理员源中的值都会阻止父的值
 * 对于 `availableModels`，Claude Code 强制执行它应用的托管设置中的值并阻止父提供的列表
+* 对于 `strictKnownMarketplaces`，Claude Code 同样强制执行它应用的托管设置中的列表并阻止父提供的列表。父的列表仅在没有应用的托管源设置一个时应用。需要 Claude Code v2.1.282 或更高版本
+* 父提供的 `blockedMarketplaces` 除了托管源设置的任何阻止列表外还适用。需要 Claude Code v2.1.282 或更高版本
 
 <h4 id="keep-cowork-folder-access-when-only-managed-rules-apply">
   当仅应用托管规则时保持 Cowork 文件夹访问

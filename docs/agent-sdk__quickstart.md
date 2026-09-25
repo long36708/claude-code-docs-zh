@@ -275,7 +275,9 @@ def get_user_name(user):
 这就是 Agent SDK 的与众不同之处：Claude 直接执行工具，而不是要求你实现它们。
 
 <Note>
-  如果你看到身份验证错误，例如 `Not logged in` 或 `Invalid API key`，请确保你已在运行代理的 shell 中设置了 `ANTHROPIC_API_KEY` 环境变量。SDK 不会自动加载 `.env` 文件。有关更多帮助，请参阅[完整故障排除指南](/docs/zh-CN/troubleshooting)。
+  如果你看到身份验证错误，例如 `Not logged in` 或 `Invalid API key`，请确保你已在运行代理的 shell 中设置了 `ANTHROPIC_API_KEY` 环境变量。SDK 不会自动加载 `.env` 文件。
+
+  有关这些和其他身份验证错误的原因和修复，请参阅错误参考中的[身份验证错误](/docs/zh-CN/errors#authentication-errors)。
 </Note>
 
 <h3 id="try-other-prompts">
@@ -385,4 +387,4 @@ def get_user_name(user):
 * **[MCP 服务器](/docs/zh-CN/agent-sdk/mcp)**：连接到数据库、浏览器、API 和其他外部系统
 * **[托管](/docs/zh-CN/agent-sdk/hosting)**：将代理部署到 Docker、云和 CI/CD
 * **[示例代理](https://github.com/anthropics/claude-agent-sdk-demos)**：查看完整示例：电子邮件助手、研究代理等
-* **[故障排除](/docs/zh-CN/agent-sdk/troubleshooting)**：通过你看到的确切消息修复 Agent SDK 错误
+* **[故障排除](/docs/zh-CN/agent-sdk/troubleshooting)**：修复 CLI 无法启动或退出时的错误，或结果到达时没有结构化输出

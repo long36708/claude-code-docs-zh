@@ -4,9 +4,23 @@
 
 # Agent SDK 故障排除
 
-> 通过您看到的确切错误消息修复 Agent SDK 错误，包括 TypeScript 和 Python SDK 中每个错误的原因和修复方法。
+> 当 Claude Code CLI 无法启动、CLI 进程退出或成功结果到达但没有结构化输出时，修复 Agent SDK 错误。
 
-本页面的条目按您看到的错误进行分类。每个条目都说明了原因和解决方法。
+本页面涵盖 CLI 启动、CLI 进程退出和结构化输出中的 Agent SDK 错误。本页面上的条目按您看到的错误进行分类。每个条目说明了原因和解决方法。
+
+与特定功能相关的症状，例如 hook 未触发或 skill 未被使用，在该功能的页面上有故障排除部分。该表列出了涵盖每个症状的部分或页面：
+
+| 症状                                                                                                                                                                  | 转到                                                                                        |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------------------------------------------------------------------- |
+| 找不到 Skills、skill 未被使用、`Invalid skill name` 错误                                                                                                                       | [Skills 故障排除](/docs/zh-CN/agent-sdk/skills#troubleshooting)                                    |
+| MCP 服务器显示 `failed` 状态、工具未被调用、连接超时、工具输出超过最大允许令牌数                                                                                                                     | [MCP 故障排除](/docs/zh-CN/agent-sdk/mcp#troubleshooting)                                          |
+| Plugin 未加载、plugin skills 未出现                                                                                                                                        | [Plugins 故障排除](/docs/zh-CN/agent-sdk/plugins#troubleshooting)                                  |
+| Claude 未委派给子代理、基于文件系统的代理未加载                                                                                                                                         | [Subagents 故障排除](/docs/zh-CN/agent-sdk/subagents#troubleshooting)                              |
+| Checkpointing 选项未被识别、没有 UUID 的用户消息、`No file checkpoint found`、`File rewinding is not enabled`、`ProcessTransport is not ready for writing`                           | [文件 checkpointing 故障排除](/docs/zh-CN/agent-sdk/file-checkpointing#troubleshooting)              |
+| Hook 未触发、matcher 未按预期过滤、hook 超时、工具被意外阻止、修改的输入未应用、Python 中不可用的会话 hooks、子代理权限提示倍增、与子代理的递归 hook 循环、`systemMessage` 未出现在输出中                                             | [修复常见问题](/docs/zh-CN/agent-sdk/hooks#fix-common-issues)（在 hooks 页面上）                           |
+| 在您的机器上工作的代理在已部署的服务或容器中失败                                                                                                                                            | [故障排除部署失败](/docs/zh-CN/agent-sdk/hosting#troubleshoot-deployment-failures)                     |
+| `Not logged in`、`Invalid API key`、`API Error`、`429`、`There's an issue with the selected model`                                                                      | [错误参考](/docs/zh-CN/errors#find-your-error)                                                     |
+| `CLINotFoundError`、`CLIConnectionError`、`ProcessError`、`Claude Code process exited with code N`、`Claude Code returned an error result`、`structured_output` 为 `None` | 本页面上的 [CLI 启动](#cli-startup)、[CLI 进程退出](#cli-process-exit) 和 [结构化输出](#structured-outputs) |
 
 <h2 id="cli-startup">
   CLI 启动

@@ -446,11 +446,13 @@ hooks 锁和 `allowManagedPermissionRulesOnly` 对开发人员自己规则的影
   锁不涵盖的设置
 </h4>
 
-即使设置了所有五个锁，四个父提供的设置也会通过过滤器。在默认的先赢设置下，阻止父设置的管理员值是最高优先级管理员源中的值，除了 `allowedMcpServers` 当[MCP 服务器锁](#lock-behavior-across-sources)打开时。在 `managedSourcesBehavior` 合并选择加入下，[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明哪个源的值改为适用。
+即使设置了所有五个锁，六个父提供的设置也会通过过滤器。在默认的先赢设置下，阻止父设置的管理员值是最高优先级管理员源中的值，除了 `allowedMcpServers` 当[MCP 服务器锁](#lock-behavior-across-sources)打开时。在 `managedSourcesBehavior` 合并选择加入下，[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明哪个源的值改为适用。
 
 * **`forceLoginOrgUUID`**：当最高优先级管理员源未设置组织 UUID 时，Claude Code 尊重父提供的值。网关登录不检查此密钥，因此它仅对也使用第一方 Anthropic 登录的舰队重要。最高优先级管理员源中的组织 UUID 阻止父的值，是 Claude Code 强制执行的值，因此在那里设置 `forceLoginOrgUUID`。
 * **`allowedMcpServers`**：当最高优先级管理员源未设置允许列表时，Claude Code 尊重父提供的允许列表，`allowManagedMcpServersOnly` 不阻止它，因为锁强制执行任何赢家列表作为托管值，包括当最高优先级管理员源未设置时的父提供列表。最高优先级管理员源中的列表阻止父的并是 Claude Code 强制执行的列表，因此在那里设置 `allowedMcpServers`，在锁旁边。在 v2.1.223 之前，任何管理员源中任一密钥的值都阻止父的。
 * **`availableModels`**：当赢家托管源未设置模型列表时，Claude Code 尊重父提供的模型列表。如果您的舰队限制模型，在赢家源中设置 `availableModels`。
+* **`strictKnownMarketplaces`**：当赢家托管源未设置一个时，Claude Code 尊重父提供的插件市场允许列表。如果您的舰队限制市场，在赢家源中设置 `strictKnownMarketplaces`。需要 Claude Code v2.1.282 或更高版本。
+* **`blockedMarketplaces`**：父提供的市场阻止列表通过并添加到任何托管源设置的阻止列表，因为阻止列表只能进一步限制。需要 Claude Code v2.1.282 或更高版本。
 * **`strictPluginOnlyCustomization`**：此密钥无论任何锁都通过过滤器，它使 Claude Code 忽略开发人员的自己定制，包括保护性 hooks。没有锁阻止它。
 
 <h3 id="connect-claude-desktop">

@@ -94,7 +94,7 @@ OpenID Connect (OIDC) 是网关与你的身份提供者一起使用的 SSO 协�
 | `id_token_signed_response_alg`  | 否  | 预期的 id\_token 签名算法。默认 `RS256`。为使用 ES256、PS256 或 EdDSA 签名的 IdP 设置。                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `additional_authorized_parties` | 否  | 除 `client_id` 外要接受的额外 `azp` 值，用于 Keycloak 代理和令牌交换流                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `discovery_url`                 | 否  | 从此 URL 而不是从 `issuer` 派生发现文档，用于代理后面重写发行者主机的 IdP。路径必须包含 `/.well-known/`。                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `use_proxy`                     | 否  | 通过 `HTTPS_PROXY` 或 `HTTP_PROXY` 中的转发代理发送网关自己的 IdP 请求，尊重 `NO_PROXY`。未设置或 `false`，这些请求直接进行。需要 v2.1.227 或更高版本；请参阅下面的[通过转发代理的 IdP 请求](#idp-requests-through-a-forward-proxy)。                                                                                                                                                                                                                                                                                                    |
+| `use_proxy`                     | 否  | 通过 `HTTPS_PROXY` 或 `HTTP_PROXY` 中的转发代理发送网关自己的 IdP 请求，尊重 `NO_PROXY`。`false` 保持这些请求直接。需要 v2.1.227 或更高版本；请参阅下面的[通过转发代理的 IdP 请求](#idp-requests-through-a-forward-proxy)。                                                                                                                                                                                                                                                                                                         |
 | `form_action_origins`           | 否  | `/device` 页面的 `Content-Security-Policy: form-action` 指令的其他源。网关已允许 `'self'` 和发现的 `authorization_endpoint` 源，但 Chrome 对整个重定向链强制执行 `form-action`。如果你的 IdP 通过第二个主机重定向，如 Azure AD 联合到 ADFS、中心辐射 Okta 或公司 SSO 拦截器，列出授权请求可能重定向通过的每个源。                                                                                                                                                                                                                                               |
 | `ca_cert_pem`                   | 否  | PEM 编码的 CA 证书本身，而不是文件的路径。它替换 IdP 请求的系统信任存储。要加载挂载的文件，写 `${file:/etc/gateway/idp-ca.pem}`。用于公司 PKI 后面的 Keycloak 或 Dex。                                                                                                                                                                                                                                                                                                                                                         |
 
@@ -105,6 +105,45 @@ OpenID Connect (OIDC) 是网关与你的身份提供者一起使用的 SSO 协�
 推理上游在每个版本上都尊重 `HTTPS_PROXY` 和 `HTTP_PROXY`。网关自己对 IdP、发现、JWKS、令牌和 userinfo 的请求直接进行，除非你设置 `oidc.use_proxy: true`，这需要 v2.1.227 或更高版本。当代理变量被设置、`use_proxy` 未设置且发行者不被 `NO_PROXY` 覆盖时，网关保持这些请求直接并在启动时记录通知，要求你选择；`use_proxy: false` 保持它们直接并沉默通知。
 
 使用 `use_proxy: true`，pod 自己解析每个 IdP 端点的主机名，并要求代理 `CONNECT` 到解析的 IP 地址，因此代理必须接受 `CONNECT` 到发现文档命名的每个主机的 IP 地址，而不仅仅是发行者。使用 `http://` 代理 URL。`ca_cert_pem` 和[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)也适用于代理路径。
+
+[仅代理出口](#proxy-only-egress)改变这两者：当它活跃时，IdP 请求遵循代理，除非你设置 `use_proxy: false`，网关将每个 IdP 主机名交给代理，而不首先解析它。
+
+<h4 id="proxy-only-egress">
+  仅代理出口
+</h4>
+
+在网关的环境中设置 `CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1`，在 `HTTPS_PROXY` 旁边，当 pod 仅通过该转发代理到达其他主机且无法自己解析公共 DNS 名称时，或当代理拒绝 `CONNECT` 到 IP 地址时。需要 v2.1.277 或更高版本。它是一个环境变量而不是 `gateway.yaml` 键，因此配置文件中的任何内容都无法放松网关的地址检查。
+
+```bash theme={null}
+export HTTPS_PROXY=http://proxy.corp.example.com:3128
+export NO_PROXY=
+export no_proxy=
+export CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1
+```
+
+当仅代理出口活跃时，网关在启动时记录一条 `network:` 行。
+
+下面的每一行是具有 `HTTPS_PROXY` 设置的网关上的一类出站请求，默认情况下和仅代理出口活跃时。
+
+| 出站请求                                                                                                  | 默认                                                                                            | 仅代理出口活跃                                        |
+| ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `provider: anthropic` 上游、工作负载身份联合令牌交换、`telemetry.forward_to` 导出                                       | 在本地解析和检查，然后通过代理 `CONNECT` 到检查的 IP 地址。`NO_PROXY` 中列出的遥测收集器改为直接到达                               | 主机名交给代理                                        |
+| IdP 发现、JWKS、令牌和 userinfo                                                                              | 直接，除非 [`oidc.use_proxy: true`](#idp-requests-through-a-forward-proxy)，然后 `CONNECT` 到检查的 IP 地址 | 主机名交给代理，除非 `oidc.use_proxy: false` 保持内部 IdP 直接 |
+| Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上游；Google 组查找 | 主机名交给代理                                                                                       | 不变                                             |
+
+仅代理出口保持关闭，除非网关的环境满足所有这三个条件：
+
+* `HTTPS_PROXY` 或 `HTTP_PROXY` 被设置。
+* `NO_PROXY` 和 `no_proxy` 为空。如果你的平台将任一个注入到 pod 中，在网关容器上将两者设置为空值。在 `NO_PROXY` 中列出遥测收集器保持仅代理出口关闭。
+* `CLAUDE_GATEWAY_ALLOW_LOOPBACK` 未打开。pod 自己环回上的收集器或 IdP 无法与仅代理出口结合，因为交给代理的环回地址将是代理主机自己的，因此给这些服务一个代理可以到达的地址。出于同样的原因，当仅代理出口活跃时，网关完全拒绝 `localhost` 风格的名称。
+
+当这些条件之一未满足时，网关在启动时记录警告，命名停止它的变量，并保持默认行为。
+
+一旦仅代理出口活跃，允许代理中的每个目的地，包括内部收集器和任何由 IP 地址配置的主机。你仍然可以使用 [`oidc.use_proxy: false`](#idp-requests-through-a-forward-proxy) 保持内部 IdP 直接。
+
+<Warning>
+  仅在代理的允许列表至少与网关自己的检查一样严格时打开这个。代理必须拒绝云元数据端点，如 `169.254.169.254` 和 `metadata.google.internal`、链路本地地址和代理主机自己的环回，并且它必须按名称解析到的地址拒绝它们，而不仅仅是按名称，因为网关不再捕获解析到其中之一的主机名。连接到任何被要求的地方的代理移除网关的[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)用于这些请求。
+</Warning>
 
 <h3 id="session">
   `session`
@@ -123,12 +162,13 @@ OpenID Connect (OIDC) 是网关与你的身份提供者一起使用的 SSO 协�
 
 `store` 块指向网关的 PostgreSQL 数据库，该数据库保存设备授权和速率限制计数器。
 
-| 字段                | 必需 | 描述                                                                                                                                                                                                                            |
-| ----------------- | -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `postgres_url`    | 是  | `postgres://` 或 `postgresql://` URL。必需：设备授权会合点，浏览器回调写入，轮询 CLI 读取，需要跨副本状态。网关在启动时运行自己的模式迁移，因此角色需要在目标模式上具有创建和修改表的权限。请参阅[升级](/docs/zh-CN/claude-apps-gateway-deploy#upgrades)和 [Postgres](/docs/zh-CN/claude-apps-gateway-deploy#postgres)。 |
-| `username`        | 否  | 覆盖 `postgres_url` 中的用户                                                                                                                                                                                                        |
-| `password`        | 否  | 数据库凭证。在此处设置而不是在 `postgres_url` 中，以便凭证保持在 URL 之外。接受任何字符并优先于 URL 凭证。                                                                                                                                                            |
-| `max_connections` | 否  | 每个副本的 Postgres 连接池大小。默认 `5`，这是保守的，对共享数据库友好。启用[支出限制](#admin)后，热路径在每个推理请求中执行几个操作，因此在负载下为专用数据库提高它，并保持副本 × 这个值低于数据库的 `max_connections`。                                                                                           |
+| 字段                        | 必需 | 描述                                                                                                                                                                                                                            |
+| ------------------------- | -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `postgres_url`            | 是  | `postgres://` 或 `postgresql://` URL。必需：设备授权会合点，浏览器回调写入，轮询 CLI 读取，需要跨副本状态。网关在启动时运行自己的模式迁移，因此角色需要在目标模式上具有创建和修改表的权限。请参阅[升级](/docs/zh-CN/claude-apps-gateway-deploy#upgrades)和 [Postgres](/docs/zh-CN/claude-apps-gateway-deploy#postgres)。 |
+| `username`                | 否  | 覆盖 `postgres_url` 中的用户                                                                                                                                                                                                        |
+| `password`                | 否  | 数据库凭证。在此处设置而不是在 `postgres_url` 中，以便凭证保持在 URL 之外。接受任何字符并优先于 URL 凭证。                                                                                                                                                            |
+| `max_connections`         | 否  | 每个副本的 Postgres 连接池大小。默认 `5`，这是保守的，对共享数据库友好。启用[支出限制](#admin)后，热路径在每个推理请求中执行几个操作，因此在负载下为专用数据库提高它，并保持副本 × 这个值低于数据库的 `max_connections`。                                                                                           |
+| `connect_timeout_seconds` | 否  | 网关打开 Postgres 连接时等待的秒数。从 `1` 到 `60` 的整数，默认 `5`。如果当新网关实例启动时连接尝试超时，请提高它。需要网关服务器上的 Claude Code v2.1.274 或更高版本。早期版本在设置该键时拒绝启动。                                                                                                    |
 
 对于本地开发，将 `postgres_url` 指向一个一次性 Postgres 容器，例如 `docker run --rm -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres`。
 
@@ -365,6 +405,53 @@ upstreams:
 | ACI / App Service | 在资源上启用系统分配或用户分配的托管身份。`use_azure_ad: true` 拾取它。                                                    |
 | 其他任何地方            | `auth: { api_key: "${FOUNDRY_API_KEY}" }`。在 `{ }` 内引用 `${…}`。                                     |
 
+<h4 id="static-headers-on-upstream-requests">
+  上游请求上的静态头
+</h4>
+
+要将固定头添加到网关发送到一个上游的请求，在该上游上设置 `headers:`。当你运行的代理通过头路由或属性流量时使用它。
+
+`headers:` 需要网关服务器上的 Claude Code v2.1.277 或更高版本。早期网关在找到该键时拒绝启动。在添加该键之前升级每个副本，并在回滚到早期版本之前删除该键。
+
+头转到 `base_url` 命名的服务器，或当 `base_url` 未设置时转到提供者自己的端点。提供者也接收它们，除非你的代理删除它们。
+
+此示例通过 `upstream-proxy.internal.example.com` 上的代理到达 `provider: vertex` 上游。它设置代理读取的 `x-source` 头，并从 `PROXY_TOKEN` 环境变量发送令牌作为 `x-proxy-token`：
+
+```yaml theme={null}
+upstreams:
+  - provider: vertex
+    region: us-east5
+    project_id: example-prod
+    base_url: https://upstream-proxy.internal.example.com
+    auth: {}
+    headers:
+      x-source: claude-apps-gateway
+      x-proxy-token: ${PROXY_TOKEN}
+```
+
+值是可打印的 ASCII 文本，两端没有空格。引用数字、`true` 或 `false`，以便 YAML 将其读取为文本。
+
+要将密钥保持在配置文件之外，使用[密钥扩展](#secret-expansion)从环境变量使用 `${VAR}` 或从文件使用 `${file:/path}` 加载值。解析为空值的 `${VAR}` 停止网关启动。
+
+`headers:` 适用于每个提供者，每个上游仅发送自己的。
+
+并非网关发送到上游的每个请求都携带它们：
+
+| 网关发送到此上游的请求                                         | 携带 `headers:`      |
+| --------------------------------------------------- | ------------------ |
+| `/v1/messages`、流式或非流式，和 `/v1/messages/count_tokens` | 是                  |
+| 从另一个上游故障转移的请求                                       | 是，仅此上游的 `headers:` |
+| 客户端放弃的请求的 Amazon Bedrock 的 `CountTokens` 调用         | 否                  |
+| 工作负载身份联合令牌交换                                        | 否                  |
+
+在使用 AWS SigV4 签署请求的 Amazon Bedrock 或 Claude Platform on AWS 上游上，这些头是签名的一部分，因此你的代理必须原样传递它们。
+
+如果你使用网关保留的名称，它拒绝启动，启动错误命名该头。保留名称包括：
+
+* `authorization` 和 `x-api-key`
+* `host`、`content-type` 和 `user-agent`
+* 任何以 `anthropic-`、`x-goog-`、`x-amz-` 或 `x-amzn-` 开头的名称
+
 <h4 id="multiple-upstreams">
   多个上游
 </h4>
@@ -374,6 +461,12 @@ upstreams:
 网关按顺序尝试上游。`5xx`、`429`、`401`、`403`、`404`、超时和缺失端点（`501`）故障转移；其他 `4xx` 不会。
 
 `429` 是每上游容量，因此预配吞吐量 (PT) 耗尽故障转移到按需。如果你在上游上设置 [`forward_user_identity: true`](#per-user-identity-headers-for-a-proxy-you-run)，对携带开发者电子邮件的请求的 `429` 是每用户拒绝而不是故障转移。
+
+每个请求从第一个上游开始。请求仅在每个前面的上游都失败或不服务请求的模型时才到达后续上游。
+
+网关不保留失败上游的记录，因此当上游关闭时，到达它的每个请求仍然尝试它并等待它失败后再继续。
+
+对于 Anthropic API 上游，[`timeouts.upstream_ttfb_ms`](#http-tuning)限制在关闭上游上的等待。该设置不适用于其他提供者，网关在那里等待最多一小时以便上游开始响应。
 
 `404` 是每上游模型可用性，因此未启用模型的上游不会阻止服务它的后续上游。无法解析请求的模型的上游被跳过，无需网络往返。
 
@@ -439,30 +532,30 @@ CLI 对网关应用相同的功能门控，无论哪个上游服务给定请求�
 
 ```yaml theme={null}
 admin:
-  # Named static API keys for the admin endpoints, sent as x-api-key.
-  # The id appears in the audit log as admin-key:<id> so each key is
-  # attributable. Array for rotation: add the new key, roll clients,
-  # remove the old.
+  # 用于管理员端点的命名静态 API 密钥，作为 x-api-key 发送。
+  # id 在审计日志中显示为 admin-key:<id>，因此每个密钥都是
+  # 可追踪的。数组用于轮换：添加新密钥，滚动客户端，
+  # 删除旧密钥。
   write_keys:
     - { id: terraform, key: "${GATEWAY_ADMIN_WRITE_KEY_TF}" }
     - { id: ci,        key: "${GATEWAY_ADMIN_WRITE_KEY_CI}" }
   read_keys:
     - { id: reporting, key: "${GATEWAY_ADMIN_READ_KEY}" }
-  # IdP groups granted full admin via the normal gateway JWT (no API key).
+  # 通过普通网关 JWT（无 API 密钥）授予完全管理员权限的 IdP 组。
   admin_groups: [platform-finops]
   blocked_message: request an increase at https://go.example.com/claude-limits
 ```
 
-| 字段                        | 必需 | 描述                                                                                                                                                                                        |
-| ------------------------- | -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `write_keys`              | 否  | `{id, key}` 的数组。与其中一个匹配的 `x-api-key` 可以列出、设置和删除支出限制。键值必须至少 32 个字符；`id` 在 `read_keys` 和 `write_keys` 中必须唯一。                                                                                |
-| `read_keys`               | 否  | `{id, key}` 的数组。只读：每个 `GET` 端点，包括列出上限、按 ID 获取一个，以及读取 [`/effective`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Feffective) 和 [`/audit`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Faudit)。 |
-| `admin_groups`            | 否  | IdP 组名称。网关 JWT 的 `groups` 声明包含其中之一的具有完全管理员访问权限（读和写），并审计为 `oidc:<sub>`。将此用于人类管理员；将 API 密钥用于机器。此列表中的空条目在启动时停止网关。请参阅[在启动时停止网关的匹配器值](#matcher-values-that-stop-the-gateway-at-boot)。          |
-| `blocked_message`         | 否  | 逐字附加到被阻止的开发者看到的 `429 billing_error`。写出完整的说明，例如 URL 或 Slack 频道。未设置时，网关仅发送默认消息。请参阅[强制执行如何工作](/docs/zh-CN/claude-apps-gateway-spend-limits#how-enforcement-works)。                                |
-| `audit_retention_days`    | 否  | 默认 `365`。较旧的 `admin_audit` 行被清除。                                                                                                                                                          |
-| `spend_retention_months`  | 否  | 默认 `13`。早于此的 `spend` 计数器行被清除。默认值保留整整一年加当前部分月份以进行年度对比报告。                                                                                                                                   |
-| `identity_retention_days` | 否  | 默认 `90`。`principal_emails` 行的最后一次看到 TTL，其中包含每个开发者的电子邮件、显示名称和组（PII）。故意比支出保留期短，以便已取消配置的身份在其匿名支出计数器保留时过期。                                                                                    |
-| `group_limit_mode`        | 否  | `min`（默认）或 `max`。当开发者在多个具有上限的组中时，`min` 强制执行最严格的，`max` 强制执行最宽松的。由强制执行和 `/effective` 使用。                                                                                                    |
+| 字段                        | 必需 | 描述                                                                                                                                                                                       |
+| ------------------------- | -- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `write_keys`              | 否  | `{id, key}` 数组。与其中一个匹配的 `x-api-key` 可以列出、设置和删除支出限制。密钥值必须至少 32 个字符；`id` 必须在 `read_keys` 和 `write_keys` 中唯一。                                                                               |
+| `read_keys`               | 否  | `{id, key}` 数组。只读：每个 `GET` 端点，包括列出上限、按 ID 获取一个，以及读取 [`/effective`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Feffective) 和 [`/audit`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Faudit)。 |
+| `admin_groups`            | 否  | IdP 组名称。网关 JWT 的 `groups` 声明包含其中一个的具有完全管理员访问权限（读和写），并审计为 `oidc:<sub>`。将此用于人类管理员；为机器使用 API 密钥。此列表中的空条目会在启动时停止网关。请参阅[在启动时停止网关的匹配器值](#matcher-values-that-stop-the-gateway-at-boot)。        |
+| `blocked_message`         | 否  | 逐字附加到被阻止的开发者看到的 `429 billing_error`。编写完整的说明，例如 URL 或 Slack 频道。未设置时，网关仅发送默认消息。请参阅[强制执行如何工作](/docs/zh-CN/claude-apps-gateway-spend-limits#how-enforcement-works)。                               |
+| `audit_retention_days`    | 否  | 默认 `365`。较旧的 `admin_audit` 行被清除。                                                                                                                                                         |
+| `spend_retention_months`  | 否  | 默认 `13`。早于此的 `spend` 计数器行被清除。默认值保留整整一年加当前部分月份，用于年度对比报告。                                                                                                                                  |
+| `identity_retention_days` | 否  | 默认 `90`。`principal_emails` 行的最后一次看到 TTL，其中包含每个开发者的电子邮件、显示名称和组（PII）。故意比支出保留期短，以便已取消配置的身份在其匿名支出计数器保留时过期。                                                                                   |
+| `group_limit_mode`        | 否  | `min`（默认）或 `max`。当开发者在多个具有上限的组中时，`min` 强制执行最严格的，`max` 强制执行最宽松的。由强制执行和 `/effective` 使用。                                                                                                   |
 
 <h3 id="enforcement">
   `enforcement`
@@ -472,15 +565,15 @@ admin:
 
 | 字段                     | 必需 | 描述                                                                                                                                                                              |
 | ---------------------- | -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fail_closed_on_error` | 否  | 默认 `false`。支出强制执行在 Postgres 中断时失败打开，因此推理保持运行。设置 `true` 以失败关闭：超出上限的开发者被阻止，但如果存储无法访问，所有人也被阻止。需要 [`admin:`](#admin) 块：支出强制执行仅在配置 `admin` 时运行，如果在没有 `admin` 块的情况下设置此 `true`，网关拒绝启动。 |
+| `fail_closed_on_error` | 否  | 默认 `false`。支出强制执行在 Postgres 中断时失败开放，因此推理保持运行。设置 `true` 以失败关闭：超出上限的开发者被阻止，但如果存储无法访问，所有人都被阻止。需要 [`admin:`](#admin) 块：支出强制执行仅在配置 `admin` 时运行，如果在没有 `admin` 块的情况下设置此 `true`，网关拒绝启动。 |
 
 <h3 id="pricing">
   `pricing`
 </h3>
 
-`pricing` 块告诉支出计量器收费而不是美元列表价格，因此上限和 [`/effective`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Feffective) 反映您的合同费率。金额保持为美元并保持为估计值，而不是发票。两个先决条件：
+`pricing` 块告诉支出计量器收费而不是美元列表价格，因此上限和 [`/effective`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Feffective) 反映您的合同费率。金额保持为美元，并保持为估计值，而不是发票。两个先决条件：
 
-* 网关服务器上的 Claude Code v2.1.227 或更高版本。早期版本在启动时拒绝未知键。
+* 网关服务器上的 Claude Code v2.1.227 或更高版本。早期版本在启动时拒绝未知密钥。
 * [`admin:`](#admin) 块或在 v2.1.268 或更高版本中，至少有一个策略的 [`managed:`](#managed) 块。网关拒绝在设置 `pricing` 且没有任何块的情况下启动，因为没有任何东西会读取它。
 
 ```yaml theme={null}
@@ -495,37 +588,37 @@ pricing:
       cache_write: 4.125
 ```
 
-| 字段           | 必需 | 描述                                                                                                        |
-| ------------ | -- | --------------------------------------------------------------------------------------------------------- |
-| `multiplier` | 否  | 默认 `1`。计量器将每个计量金额乘以此值，无论是列表价格还是覆盖，因此 `0.85` 按价格的 85% 计费。必须大于 0 且最多 10，值大于 1 是[标记价格上升](#mark-prices-up)。   |
-| `overrides`  | 否  | `{upstream, model, input, output, cache_read, cache_write}` 的行，单位为美元每百万令牌。所有四个费率都是必需的。每个必须大于 0 且最多 10000。 |
+| 字段           | 必需 | 描述                                                                                                       |
+| ------------ | -- | -------------------------------------------------------------------------------------------------------- |
+| `multiplier` | 否  | 默认 `1`。计量器将每个计量金额乘以此值，无论是列表价格还是覆盖，因此 `0.85` 按价格的 85% 计费。必须大于 0 且最多 10，值大于 1 是[标记价格上升](#mark-prices-up)。  |
+| `overrides`  | 否  | `{upstream, model, input, output, cache_read, cache_write}` 行，单位为美元/百万令牌。所有四个费率都是必需的。每个必须大于 0 且最多 10000。 |
 
 计量器如何匹配覆盖行：
 
-* 一行替换 `upstream`（一个 [`upstreams[].name`](#upstreams)）为 `model` 提供的请求的列表价格。这包括更高的[快速模式](/docs/zh-CN/fast-mode#understand-the-cost-tradeoff)费率，因此快速和标准请求以相同的四个费率计量。
-* 内置 ID（如 `claude-sonnet-4-6`）（匹配方式如 [`models[].id`](#models)）涵盖计量器定价为该模型的每个日期形式、区域 Amazon Bedrock 形式或 Google Cloud 的 Agent Platform 形式。任何其他字符串（如别名或推理配置文件 ARN）匹配客户端发送的 ID 或上游发送的字符串，不区分大小写。
-* 其中行重叠时，计量器选择最具体的行而不是第一行：一行其 `model` 是上游发送的确切模型字符串，然后是匹配客户端发送的确切 ID 的行，然后是命名内置模型的行。
-* 未知的上游名称导致启动失败，一个上游的两行命名相同模型也是如此，包括一个内置模型的两个拼写。网关在启动时警告没有可请求模型可以使用的行。
+* 一行替换列表价格，用于 `upstream`（一个 [`upstreams[].name`](#upstreams)）为 `model` 提供的请求。这包括更高的[快速模式](/docs/zh-CN/fast-mode#understand-the-cost-tradeoff)费率，因此快速和标准请求以相同的四个费率计量。
+* 内置 ID（如 `claude-sonnet-4-6`）匹配 [`models[].id`](#models)，涵盖计量器定价为该模型的每个日期形式、区域 Amazon Bedrock 形式或 Google Cloud 的 Agent Platform 形式。任何其他字符串（如别名或推理配置文件 ARN）匹配客户端发送的 ID 或上游发送的字符串，不区分大小写。
+* 当行重叠时，计量器选择最具体的行而不是第一行：一行其 `model` 是上游发送的确切模型字符串，然后是匹配客户端发送的确切 ID 的行，然后是命名内置模型的行。
+* 未知的上游名称会导致启动失败，两行用于一个上游命名相同的模型也会导致启动失败，包括一个内置模型的两个拼写。网关在启动时警告没有可请求模型可以使用的行。
 * Web 搜索请求保持在 \$0.01 列表价格；乘数仍然适用于它们。
 
-对于按地区费率，为每个地区提供自己的命名上游和每个上游一行。
+对于按地区的费率，为每个地区提供自己的命名上游和每个上游一行。
 
 <h4 id="mark-prices-up">
   标记价格上升
 </h4>
 
-使用网关服务器上的 v2.1.271 或更高版本，您可以将 `multiplier` 设置为 1 以上，最多 10，以计量超过提供商收费的金额，例如内部退款费率。此示例以价格的 120% 计量每个请求：
+使用网关服务器上的 v2.1.271 或更高版本，您可以将 `multiplier` 设置为大于 1，最多 10，以计量超过提供商收费的金额，例如内部退款费率。此示例以价格的 120% 计量每个请求：
 
 ```yaml theme={null}
 pricing:
   multiplier: 1.2
 ```
 
-使用 [`admin:`](#admin) 块，标记也适用于支出限制。计量器计算价格的 120%，因此开发者更快达到其上限。网关在启动时记录警告，说明这一点。
+使用 [`admin:`](#admin) 块，标记也适用于支出限制。计量器计数价格的 120%，因此开发者更快达到其上限。网关在启动时记录警告，说明这一点。
 
-乘数不改变上游提供商对请求的收费。
+乘数不会改变上游提供商对请求的收费。
 
-如果网关也[将费率发送给已登录的客户端](#send-the-rates-to-signed-in-clients)，开发者需要 Claude Code v2.1.271 或更高版本才能看到标记。早期客户端忽略 `multiplier` 大于 1 并显示不带它的成本。
+如果网关还[将费率发送给已登录的客户端](#send-the-rates-to-signed-in-clients)，开发者需要 Claude Code v2.1.271 或更高版本才能看到标记。早期客户端忽略大于 1 的 `multiplier` 并显示不带它的成本。
 
 早于 v2.1.271 的网关服务器拒绝在设置 `multiplier` 大于 1 时启动。
 
@@ -533,9 +626,9 @@ pricing:
   将费率发送给已登录的客户端
 </h4>
 
-使用网关服务器上的 v2.1.268 或更高版本，网关也将 `pricing` 中的费率放入它提供的 [`managed`](#managed) 策略中，作为 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 托管设置。由策略匹配的开发者然后在 `/usage`、状态行和 OpenTelemetry 中看到每个模型 ID 的第一个上游的 `pricing` 费率。与任何策略不匹配的开发者不接收托管设置，因此他们的数字保持在列表价格。客户端在 Claude Code v2.1.242 或更高版本中应用设置。
+使用网关服务器上的 v2.1.268 或更高版本，网关还将 `pricing` 中的费率放入它提供的 [`managed`](#managed) 策略中，作为 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 托管设置。与策略匹配的开发者随后在 `/usage`、状态行和 OpenTelemetry 中看到第一个为每个模型 ID 提供服务的上游的 `pricing` 费率。与任何策略不匹配的开发者不会收到托管设置，因此他们的数字保持在列表价格。客户端在 Claude Code v2.1.242 或更高版本中应用该设置。
 
-* 网关添加的内容：除非策略的 `cli` 块已经设置 `modelPricing`，网关添加 `multiplier` 和，对于客户端可以请求的每个模型 ID，提供该 ID 的第一个上游的覆盖行。仅故障转移上游收费的费率保留在网关上。
+* 网关添加的内容：除非策略的 `cli` 块已经设置 `modelPricing`，网关添加 `multiplier` 和，对于客户端可以请求的每个模型 ID，为该 ID 提供服务的第一个上游的覆盖行。仅故障转移上游收费的费率保留在网关上。
 * 选择一个策略退出：在该策略的 `cli` 块中将 `modelPricing` 设置为 `{}`，其开发者保持在列表价格。
 * 保留策略自己的费率：其 `cli` 块使用自己的 `multiplier` 或 `overrides` 设置 `modelPricing` 的策略保留该 `modelPricing` 完整，网关不向其添加自己的费率。
 
@@ -543,47 +636,47 @@ pricing:
   `models`
 </h3>
 
-`models` 块是可选的管理员策划的模型列表，在 `/v1/models` 提供并用于按上游翻译模型 ID。它对于非美国 Amazon Bedrock 地区、Amazon Bedrock 预配置吞吐量 ARN 和 Microsoft Foundry 部署名称是必需的。
+`models` 块是可选的管理员策划的模型列表，在 `/v1/models` 提供，用于按上游翻译模型 ID。它对于非美国 Amazon Bedrock 地区、Amazon Bedrock 预配置吞吐量 ARN 和 Microsoft Foundry 部署名称是必需的。
 
 ```yaml theme={null}
-auto_include_builtin_models: true   # false: expose only the list below
+auto_include_builtin_models: true   # false: 仅公开下面的列表
 models:
   - id: claude-opus-4-8
     label: Claude Opus 4.8
-    # description: optional text shown in clients that surface it
+    # description: 可选文本显示在表面它的客户端中
     upstream_model:
       anthropic: claude-opus-4-8
-      bedrock: us.anthropic.claude-opus-4-8   # or an inference-profile ARN
+      bedrock: us.anthropic.claude-opus-4-8   # 或推理配置文件 ARN
       foundry: your-opus-deployment-name
 ```
 
-`upstream_model` 下的每个键必须匹配配置的上游的 `name`，默认为提供商名称。与任何上游不匹配的键导致启动失败，因此省略您不使用的提供商的行。
+`upstream_model` 下的每个键必须匹配配置的上游的 `name`，默认为提供商名称。与任何上游不匹配的键会导致启动失败，因此省略您不使用的提供商的行。
 
 <h3 id="managed">
   `managed`
 </h3>
 
-`managed` 块定义基于 IdP 组或电子邮件域的基于角色的访问策略。策略按顺序评估；选择第一个匹配，然后合并到 `match: {}` 捕获所有基础。它们按用户在 `GET /managed/settings` 提供，带有 ETag/304 缓存。
+`managed` 块定义基于 IdP 组或电子邮件域的基于角色的访问策略。策略按顺序评估；选择第一个匹配，然后合并到 `match: {}` 全部捕获基础。它们按用户在 `GET /managed/settings` 提供，带有 ETag/304 缓存。
 
 ```yaml theme={null}
 managed:
   policies:
-    # Specific groups first.
+    # 首先是特定组。
     - match: { groups: [eng-contractors] }
       cli:
         availableModels: [claude-sonnet-4-6]
         permissions: { deny: ["WebFetch", "WebSearch"] }
-    # Default catch-all last: matches everyone who authenticated.
+    # 默认全部捕获最后：匹配每个已认证的用户。
     - match: {}
       cli:
         availableModels: [claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5]
 ```
 
-`match: {}` 捕获所有，按惯例列在最后，被视为基础层。每个其他策略从捕获所有继承它不设置的任何键，因此每个角色条目只需列出与组织默认值不同的内容。合并规则取决于键类型：
+`match: {}` 全部捕获，按惯例列在最后，被视为基础层。每个其他策略从全部捕获继承它不设置的任何键，因此每个角色条目只需列出与组织默认值不同的内容。合并规则取决于键类型：
 
 * **允许列表**：`availableModels` 和 `permissions.allow`。特定策略的列表完全替换基础的。
-* **拒绝列表和钩子数组**：`permissions.deny`、`permissions.ask`、`disabledMcpjsonServers`、`deniedMcpServers`、`blockedMarketplaces` 和每个 `hooks` 事件类型数组。这些取基础和策略的并集，因此组织范围的拒绝或审计钩子不能被每个角色覆盖意外删除。
-* **记录类型键**：`env`、`modelOverrides` 和 `skillOverrides`。这些浅合并，因此每个角色 `env` 块覆盖它设置的键并从基础继承其余的。
+* **拒绝列表和钩子数组**：`permissions.deny`、`permissions.ask`、`disabledMcpjsonServers`、`deniedMcpServers`、`blockedMarketplaces` 和每个 `hooks` 事件类型数组。这些取基础和策略的并集，因此组织范围的拒绝或审计钩子不会被每个角色覆盖意外删除。
+* **记录类型的键**：`env`、`modelOverrides` 和 `skillOverrides`。这些浅合并，因此每个角色 `env` 块覆盖它设置的键并从基础继承其余的。
 
 `availableModels` 也在 `/v1/messages` 服务器端强制执行，因此被拒绝的模型返回 `400`，无论客户端发送什么。
 
@@ -599,74 +692,74 @@ managed:
 | `match: { email_domain: example.com }`              | 匹配 JWT 的 `email` 声明中最后一个 `@` 之后的部分，不区分大小写。每个策略接受一个域。     |
 | `match: { groups: [a], email_domain: example.com }` | 两个条件都必须匹配                                                |
 
-与任何策略不匹配的已认证用户获得网关的默认值，这意味着目录中的每个模型和没有托管设置。如果您想要保证的默认策略，请在最后添加 `match: {}` 捕获所有。
+与任何策略不匹配的已认证用户获得网关的默认值，这意味着目录中的每个模型和没有托管设置。如果您想要保证的默认策略，请在最后添加 `match: {}` 全部捕获。
 
 <Note>
   网关不保留自己的用户目录。它从用户的 IdP 令牌授权每个请求，从令牌的 `groups` 声明读取组成员身份，并根据它评估策略。没有名册可以枚举，没有账户需要预先创建，因此没有 SCIM 端点，因为没有东西可以让 SCIM 同步到。
 
-  在真实来源（您的 IdP 的本地 SCIM 配置或专用身份治理平台）运行用户和组生命周期管理。那里管理的成员身份和取消配置通过令牌自动流入网关。如果您想要 Claude 账户本身的 SCIM 配置，那是一个[Claude for Enterprise](/docs/zh-CN/admin-setup) 功能。
+  在真实来源（您的 IdP 的本地 SCIM 配置或专用身份治理平台）运行用户和组生命周期管理。那里管理的成员身份和取消配置通过令牌自动流入网关。如果您想要 Claude 账户本身的 SCIM 配置，那是[Claude for Enterprise](/docs/zh-CN/admin-setup) 功能。
 
   两个传播时钟适用：
 
-  * **策略内容**：编辑策略并重新部署在连接的客户端的下一个托管设置轮询时到达，在一小时内，除了[仅在下一次启动时应用的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)
-  * **组成员身份**：更改用户的组成员身份改变哪个策略匹配他们。这在下一个会话重新铸造时生效，意味着下一个静默刷新，由 `session.ttl_hours` 限制。
+  * **策略内容**：编辑策略并重新部署在连接的客户端的下一个托管设置轮询中到达，在一小时内，除了[仅在下一次启动时应用的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)
+  * **组成员身份**：更改用户的组成员身份更改哪个策略与他们匹配。这在下一个会话重新铸造时生效，意味着下一个静默刷新，受 `session.ttl_hours` 限制。
 </Note>
 
 <h4 id="matcher-values-that-stop-the-gateway-at-boot">
   在启动时停止网关的匹配器值
 </h4>
 
-在启动时，网关检查每个策略的 `match` 块和 [`admin_groups`](#admin) 列表。这些值中的任何一个都以命名该字段的错误停止网关：
+在启动时，网关检查每个策略的 `match` 块和 [`admin_groups`](#admin) 列表。这些值中的任何一个都会停止网关，出现命名该字段的错误：
 
 * 空 `groups` 列表
 * `groups` 或 `admin_groups` 中的空条目
 * 空 `email_domain`
-* 包含 `@`、空格或逗号的 `email_domain`。网关修剪值并在此检查之前删除一个前导 `@`。写一个裸域，如 `example.com`。
+* 包含 `@`、空格或逗号的 `email_domain`。网关修剪值并在此检查之前删除一个前导 `@`。编写一个裸域，例如 `example.com`。
 
 在 v2.1.232 之前，网关以这些值启动。每个值有这个效果：
 
 * 空 `email_domain`：网关跳过域检查，因此具有空 `email_domain` 和没有 `groups` 列表的策略匹配每个已认证的用户
 * 空 `groups` 列表：策略与任何人都不匹配
 * 包含 `@`、空格或逗号的 `email_domain`：策略与任何人都不匹配
-* `groups` 或 `admin_groups` 中的空条目：条目仅当该用户的 IdP `groups` 声明也包含空条目时才匹配用户。在 `admin_groups` 中，该匹配授予管理员访问权限。如果您的 `admin_groups` 列表从不包含空条目，没有人以这种方式获得管理员访问权限。
+* `groups` 或 `admin_groups` 中的空条目：条目仅当该用户的 IdP `groups` 声明也包含空条目时才与用户匹配。在 `admin_groups` 中，该匹配授予管理员访问权限。如果您的 `admin_groups` 列表从不包含空条目，没有人以这种方式获得管理员访问权限。
 
 <h4 id="what-goes-in-cli">
   `cli` 中的内容
 </h4>
 
-每个 `cli` 值是一个完整的 Claude Code `managed-settings.json` 文档，与您通过 MDM 或 `/etc/claude-code/managed-settings.json` 部署的相同架构，在这里表示为 YAML。CLI 在托管层应用交付的文档，在用户和项目设置之上，代替服务器托管的设置。因此它忽略[限制为操作系统级策略源的设置](/docs/zh-CN/server-managed-settings#current-limitations)，如 `policyHelper` 和 `wslInheritsWindowsSettings`。
+每个 `cli` 值是完整的 Claude Code `managed-settings.json` 文档，与您通过 MDM 或 `/etc/claude-code/managed-settings.json` 部署的相同架构，在此表示为 YAML。CLI 在托管层应用交付的文档，在用户和项目设置之上，代替服务器托管的设置。因此它忽略[限制为操作系统级策略来源的设置](/docs/zh-CN/server-managed-settings#current-limitations)，例如 `policyHelper` 和 `wslInheritsWindowsSettings`。
 
-网关在启动时根据 CLI 的设置架构验证每个文档，因此无法识别的顶级键导致启动失败，错误命名每个违规键。架构的故意开放部分仍然接受任意值，因为较新的客户端可能识别网关的架构不识别的条目。这些开放键包括 `env`、`pluginConfigs` 和 `permissions` 下嵌套的键。
+网关在启动时根据 CLI 的设置架构验证每个文档，因此无法识别的顶级键会导致启动失败，出现命名每个违规键的错误。架构的故意开放部分仍然接受任意值，因为较新的客户端可能识别网关架构不识别的条目。这些开放键包括 `env`、`pluginConfigs` 和 `permissions` 下嵌套的键。
 
-因为验证使用与网关的已安装版本捆绑的架构，将由较新 Claude Code 版本引入的顶级设置键放入托管配置需要首先升级网关。在将新策略推出到一个客户端之前对其进行烟雾测试。
+因为验证使用与网关安装版本捆绑的架构，将由较新 Claude Code 版本引入的顶级设置键放入托管配置需要首先升级网关。在将新策略推出到一个客户端之前进行烟雾测试。
 
-完整的键参考在[Claude Code 设置](/docs/zh-CN/settings-reference#all-settings)中。操作员首先寻求的最常见键：
+完整的键参考在[Claude Code 设置](/docs/zh-CN/settings-reference#all-settings)中。操作员首先寻求的键：
 
 ```yaml theme={null}
 managed:
   policies:
     - match: {}
       cli:
-        # Model access (also enforced server-side at /v1/messages)
+        # 模型访问（也在 /v1/messages 服务器端强制执行）
         availableModels: [claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5]
 
-        # Permission policy
+        # 权限策略
         permissions:
           deny:
             - "WebFetch"
             - "Read(./.env)"
             - "Read(./secrets/**)"
-          disableBypassPermissionsMode: disable   # blocks --dangerously-skip-permissions
-        allowManagedPermissionRulesOnly: true     # ignore user/project permission rules
+          disableBypassPermissionsMode: disable   # 阻止 --dangerously-skip-permissions
+        allowManagedPermissionRulesOnly: true     # 忽略用户/项目权限规则
 
-        # Environment pushed into the CLI process. DISABLE_UPDATES blocks
-        # background and manual updates; DISABLE_AUTOUPDATER stops only
-        # background updates.
+        # 推送到 CLI 进程的环境。DISABLE_UPDATES 阻止
+        # 后台和手动更新；DISABLE_AUTOUPDATER 仅停止
+        # 后台更新。
         env:
-          DISABLE_UPDATES: "1"                    # pin versions via your own distribution
+          DISABLE_UPDATES: "1"                    # 通过您自己的分发固定版本
 
-        # Org-wide hooks. Hook commands run on developer machines, not the
-        # gateway, so the path must exist on every client OS in the policy.
+        # 组织范围的钩子。钩子命令在开发者机器上运行，不是
+        # 网关，因此路径必须存在于策略中每个客户端操作系统上。
         hooks:
           PostToolUse:
             - matcher: "Edit|Write"
@@ -679,7 +772,7 @@ managed:
 | `availableModels`                          | 网关 + CLI | 模型允许列表。也在 `/v1/messages` 检查，因此修补的客户端无法绕过它。                                                                                                                                                                        |
 | `permissions.allow` / `.deny`              | CLI      | 工具和命令规则。请参阅[权限](/docs/zh-CN/permissions)。                                                                                                                                                                              |
 | `permissions.disableBypassPermissionsMode` | CLI      | 设置为 `disable` 以阻止 [`bypassPermissions`](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)，跳过权限提示的模式，以及 `--dangerously-skip-permissions` 标志                                                     |
-| `allowManagedPermissionRulesOnly`          | CLI      | 当 `true` 时，托管设置成为权限规则的唯一设置源。[`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 条目列出 Claude Code 然后忽略的每个源。                                                             |
+| `allowManagedPermissionRulesOnly`          | CLI      | 当 `true` 时，托管设置成为权限规则的唯一设置来源。[`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 条目列出 Claude Code 随后忽略的每个来源。                                                           |
 | `env`                                      | CLI      | 合并到 CLI 进程的环境变量。用于遥测、自动更新和模型名称覆盖。                                                                                                                                                                                 |
 | `hooks`                                    | CLI      | 组织范围的[钩子](/docs/zh-CN/hooks)                                                                                                                                                                                           |
 | `managedMcpServers`                        | CLI      | 远程 MCP 服务器[提供给每个匹配的开发者](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)以及他们自己添加的服务器，仅 `http` 和 `sse`。请参阅[策略中的 MCP 服务器](#mcp-servers-in-a-policy)。需要网关服务器和客户端上的 Claude Code v2.1.259 或更高版本。早期客户端忽略该键。 |
@@ -687,22 +780,22 @@ managed:
 因为这些设置通过网络到达，CLI 在应用下面列出的设置之前向每个开发者显示安全批准对话框：
 
 * `hooks`
-* 需要开发者批准的 `env` 变量，如代理和基础 URL 变量
-* shell 执行设置，如 `apiKeyHelper` 和 `statusLine`
+* 需要开发者批准的 `env` 变量，例如代理和基础 URL 变量
+* shell 执行设置，例如 `apiKeyHelper` 和 `statusLine`
 * 沙箱二进制设置 `sandbox.bwrapPath`、`sandbox.socatPath` 和 `sandbox.ripgrep`
-* 拦截流量、注入凭证或削弱隔离的沙箱设置，如 `sandbox.network.tlsTerminate` 和代理端口设置。[安全批准对话框](/docs/zh-CN/server-managed-settings#security-approval-dialogs)列出所有这些。
+* 拦截流量、注入凭证或削弱隔离的沙箱设置，例如 `sandbox.network.tlsTerminate` 和代理端口设置。[安全批准对话框](/docs/zh-CN/server-managed-settings#security-approval-dialogs)列出所有这些。
 
 [批准记忆](/docs/zh-CN/server-managed-settings#approval-memory)涵盖批准持续多长时间以及对话框何时再次出现。
 
-Claude Code 应用一些交付的 `env` 变量而不向开发者显示批准对话框，如模型选择设置和数值限制。其他交付的变量可能需要开发者的批准才能生效；非空代理、基础 URL 或 `OTEL_EXPORTER_OTLP_ENDPOINT` 值总是这样。当交付的变量需要批准时，对话框命名它。
+Claude Code 应用一些交付的 `env` 变量而不向开发者显示批准对话框，例如模型选择设置和数值限制。其他交付的变量可能需要开发者的批准才能生效；非空代理、基础 URL 或 `OTEL_EXPORTER_OTLP_ENDPOINT` 值总是这样。当交付的变量需要批准时，对话框命名它。
 
-[环境变量和批准对话框](/docs/zh-CN/server-managed-settings#environment-variables-and-the-approval-dialog)有详细信息，包括四个隐私切换，其交付值决定它们是否需要批准。在 v2.1.218 之前，Claude Code 应用更少的变量而不询问开发者，因此更多交付的变量触发对话框。
+[环境变量和批准对话框](/docs/zh-CN/server-managed-settings#environment-variables-and-the-approval-dialog)有详细信息，包括四个隐私切换，其交付值决定是否需要批准。在 v2.1.218 之前，Claude Code 应用更少的变量而不询问开发者，因此更多交付的变量触发对话框。
 
 网关的[遥测](#telemetry)配置推送 `OTEL_EXPORTER_OTLP_ENDPOINT`，因此设置 `telemetry.forward_to` 在每个交互式客户端上触发对话框。对话框保护开发者的机器免受受损或敌对网关的影响，而不是保护组织免受开发者的影响。
 
 带有 `-p` 标志的非交互式运行无法显示对话框。它仅为该运行应用推送的设置，不将其记录为已批准，因此开发者的下一个交互式会话仍然显示对话框。在 v2.1.207 之前，非交互式运行将设置保存为已批准，没有后来的交互式会话为它们显示对话框。
 
-如果开发者拒绝，Claude Code 退出该会话而不是应用策略。当您推送新钩子或任何触发对话框的 env 变量到广泛策略时，Claude Code 因此向每个匹配的开发者显示对话框。它在运行会话中的下一个小时轮询时显示对话框，否则在开发者的下一个启动时显示。
+如果开发者拒绝，Claude Code 退出该会话而不是应用策略。当您推送新钩子或任何触发对话框的 env 变量到广泛策略时，Claude Code 因此向每个匹配的开发者显示对话框。它在运行会话中的下一个小时轮询显示对话框，否则在开发者的下一个启动时显示。
 
 `cli` 键在早期版本中被命名为 `settings`。该拼写仍然被接受为别名，但新部署应该使用 `cli`。
 
@@ -714,7 +807,7 @@ Claude Code 应用一些交付的 `env` 变量而不向开发者显示批准对�
 
 网关在启动时使用[Claude Code 在客户端应用的相同规则](/docs/zh-CN/managed-mcp#what-an-entry-can-contain)检查每个条目，如果条目失败检查，网关拒绝启动并命名该条目。
 
-如果您在 `gateway.yaml` 中写入 `${VAR}` 引用，网关在启动时通过[秘密扩展](#secret-expansion)从其环境解析它，然后运行条目检查，因此每个匹配的客户端接收文字值并可以读取它。[为提供的服务器的标头指导](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)适用于扩展值。
+如果您在 `gateway.yaml` 中编写 `${VAR}` 引用，网关在启动时通过[秘密扩展](#secret-expansion)从其环境解析它，然后运行条目检查，因此每个匹配的客户端接收文字值并可以读取它。[为提供的服务器的标头指导](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)适用于扩展值。
 
 网关拒绝 `cli` 块中的 `.mcp.json` 拼写 `mcpServers`，其启动错误命名 `managedMcpServers` 作为要使用的键。在 v2.1.259 之前，网关拒绝 `cli` 块中的任何 MCP 服务器定义。
 
@@ -722,7 +815,7 @@ Claude Code 应用一些交付的 `env` 变量而不向开发者显示批准对�
   Claude Desktop 覆盖
 </h4>
 
-如果您的组织也部署[Claude Desktop](/docs/zh-CN/desktop)，同一网关为两个客户端提供服务。在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中指向 `bootstrapUrl` 到 `<listen.public_url>/user/bootstrap`。Claude Desktop 从该 URL 派生 OAuth 发行者，针对此网关运行相同的设备代码登录，并从响应中获取其配置。
+如果您的组织也部署[Claude Desktop](/docs/zh-CN/desktop)，同一网关为两个客户端提供服务。在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中指向 `bootstrapUrl` 到 `<listen.public_url>/user/bootstrap`。Claude Desktop 从该 URL 派生 OAuth 发行者，针对此网关运行相同的设备代码登录，并从响应获取其配置。
 
 <Note>
   需要网关服务器上的 Claude Code v2.1.203 或更高版本，以及显式选择加入：除非与用户匹配的策略携带 `desktop` 键，否则 `/user/bootstrap` 返回 404。空 `desktop: {}` 选择策略加入，`match: {}` 基础层上的 `desktop` 键选择继承它的每个策略加入。审计日志将每个请求记录为 `desktop_bootstrap.serve` 或 `desktop_bootstrap.denied`。
@@ -735,13 +828,13 @@ Claude Code 应用一些交付的 `env` 变量而不向开发者显示批准对�
 * 出口允许列表，来自 `sandbox.network.allowedDomains`。如果您在策略的 `desktop` 块中设置 `coworkEgressAllowedHosts`，网关使用该值而不是派生列表
 * 指向网关本身的 OTLP 端点，以及已登录用户的身份属性。网关将它在该端点接收的导出中继到您的 `forward_to` 目的地。当您同时设置 [`telemetry.forward_to`](#telemetry) 和 `listen.public_url` 时，它包括端点和属性。
 
-  Claude Desktop 以一种编码导出每个信号：`http/protobuf`，或当您在策略的 `env` 中设置 `OTEL_EXPORTER_OTLP_PROTOCOL` 或其每个信号变体为 `http/json` 时为 `http/json`。在网关服务器上的 Claude Code v2.1.261 之前，响应设置 `http/json` 无论如何，因此仅接受 protobuf 的收集器拒绝了 Claude Desktop 的导出
+  Claude Desktop 以一种编码导出每个信号：`http/protobuf`，或当您在策略的 `env` 中将 `OTEL_EXPORTER_OTLP_PROTOCOL` 或其每个信号变体设置为 `http/json` 时为 `http/json`。在网关服务器上的 Claude Code v2.1.261 之前，响应设置 `http/json` 无论如何，因此仅接受 protobuf 的收集器拒绝了 Claude Desktop 的导出
 
 要在策略的 `desktop` 块中设置 `disabledBuiltinTools`、`coworkEgressAllowedHosts` 或 Claude Desktop 自己的 `managedMcpServers` 设置，您需要网关服务器上的 Claude Code v2.1.232 或更高版本。Claude Desktop 的 `managedMcpServers` 采用数组值而不是对象。
 
-网关省略没有 Claude Desktop 等效项的键，如 `hooks` 和范围权限规则如 `Bash(npm *)`，来自引导响应。
+网关省略没有 Claude Desktop 等效项的键，例如 `hooks` 和范围权限规则如 `Bash(npm *)`，来自引导响应。
 
-在 `cli` 旁边添加可选的 `desktop` 块以直接设置 Claude Desktop 设置。从 Claude Desktop 的[托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)写入设置为平面键名。省略 Claude Desktop 仅从 MDM 或本地文件读取的键，如 `bootstrapUrl`；网关在启动时拒绝它们。在 v2.1.232 之前，网关接受 11 个固定的功能门键的列表，如 `chatTabEnabled` 和 `disableAutoUpdates`，并在启动时拒绝每个其他键。在 v2.1.227 之前，网关也在启动时拒绝 `chatTabEnabled` 和 `chatAdvancedFileAnalysisEnabled`。
+添加可选的 `desktop` 块与 `cli` 一起直接设置 Claude Desktop 设置。从 Claude Desktop 的[托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)编写设置为平面键名。省略 Claude Desktop 仅从 MDM 或本地文件读取的键，例如 `bootstrapUrl`；网关在启动时拒绝它们。在 v2.1.232 之前，网关接受固定的 11 个功能门键列表，例如 `chatTabEnabled` 和 `disableAutoUpdates`，并在启动时拒绝每个其他键。在 v2.1.227 之前，网关也在启动时拒绝 `chatTabEnabled` 和 `chatAdvancedFileAnalysisEnabled`。
 
 ```yaml theme={null}
 managed:
@@ -755,37 +848,37 @@ managed:
         banner: { text: "Contractor build: internal use only" }
 ```
 
-每个键都是可选的；Claude Desktop 为您省略的任何键应用自己的默认值。网关在启动时根据 Claude Desktop 本身使用的配置架构验证每个 `desktop` 块，因此错误在网关启动时显示为命名该键的错误，而不是到达每个连接的桌面。网关在块包含以下内容时在启动时失败：
+每个键都是可选的；Claude Desktop 为您省略的任何键应用自己的默认值。网关在启动时根据 Claude Desktop 本身使用的配置架构验证每个 `desktop` 块，因此错误会在网关启动时显示为命名该键的错误，而不是到达每个连接的桌面。网关在块包含以下内容时在启动时失败：
 
 * 未知键
-* 识别的键，其值 Claude Desktop 会拒绝或静默删除，如空值或嵌套条目内的拼写错误的子键。在 v2.1.260 之前，网关静默删除 `managedMcpServers` 或 `orgPluginSettings` 条目内嵌套对象中的拼写错误字段，而不是在启动时失败。
+* 识别的键，其值 Claude Desktop 会拒绝或静默删除，例如空值或嵌套条目内的拼写错误的子键。在 v2.1.260 之前，网关静默删除 `managedMcpServers` 或 `orgPluginSettings` 条目的嵌套对象内的拼写错误字段，而不是在启动时失败。
 * 网关自己计算的键：推理连接、模型列表和 OTLP 中继。通过 [`upstreams`](#upstreams)、[`models`](#models) 和 [`telemetry`](#telemetry) 部分的 `forward_to` 配置这些。
-* 当前键的遗留别名。在启动错误中，网关命名规范键来写。
+* 当前键的遗留别名。在启动错误中，网关命名规范键来编写。
 
-如果您使用已弃用的值或条目形状，如没有 `transport` 的 `managedMcpServers` 条目，网关启动并记录命名替换的警告。
+如果您使用已弃用的值或条目形状，例如没有 `transport` 的 `managedMcpServers` 条目，网关启动并记录命名替换的警告。
 
-网关根据与其已安装版本捆绑的架构验证 `desktop` 块，就像它对 `cli` 块所做的那样。要交付由较新 Claude Desktop 版本引入的设置，首先升级网关。例如，`userPluginMarketplacesEnabled` 和 `userPluginUploadsEnabled` 需要网关服务器上的 Claude Code v2.1.260 或更高版本以及成员机器上的 Claude Desktop 1.37937.0 或更高版本。
+网关根据与其安装版本捆绑的架构验证 `desktop` 块，就像它对 `cli` 块所做的那样。要交付由较新 Claude Desktop 版本引入的设置，首先升级网关。例如，`userPluginMarketplacesEnabled` 和 `userPluginUploadsEnabled` 需要网关服务器上的 Claude Code v2.1.260 或更高版本以及成员机器上的 Claude Desktop 1.37937.0 或更高版本。
 
 如果您在策略的 `desktop` 块中设置 `orgPluginSettings`，网关以 Claude Desktop 1.15200.0 及更高版本读取的数组形式提供它。较旧的桌面忽略数组并强制执行无插件工具策略，因此在依赖它之前将成员更新到 1.15200.0 或更高版本。
 
-网关从 `match: {}` 捕获所有的 `desktop` 块填充策略的 `desktop` 块不设置的键，与它填充策略的 `cli` 块的方式相同。如果您在基础和角色策略中都设置 `disabledBuiltinTools` 或 `builtinToolPolicy`，网关保留基础的限制：
+网关从策略的 `desktop` 块不设置的 `match: {}` 全部捕获的 `desktop` 块填充键，与它填充策略的 `cli` 块的方式相同。如果您在基础和角色策略中都设置 `disabledBuiltinTools` 或 `builtinToolPolicy`，网关保留基础的限制：
 
 * `disabledBuiltinTools`：网关使用基础列表和策略列表的并集
 * `builtinToolPolicy`：如果您在基础中为工具设置除 `allow` 之外的值，网关保留该值，即使您在角色策略中为同一工具设置 `allow`
 
-对于每个其他键，如果您在角色策略中设置它，网关使用角色策略的值。网关完整替换数组或嵌套对象如 `banner`，因此如果您在角色策略中设置 `banner.text`，网关删除基础的 `banner.backgroundColor`。
+对于每个其他键，如果您在角色策略中设置它，网关使用角色策略的值。网关整体替换数组或嵌套对象（如 `banner`），因此如果您在角色策略中设置 `banner.text`，网关删除基础的 `banner.backgroundColor`。
 
-如果您不部署 Claude Desktop，完全从您的策略中省略 `desktop`；网关然后从 `/user/bootstrap` 为每个用户返回 404。
+如果您不部署 Claude Desktop，完全从您的策略中省略 `desktop`；网关随后为每个用户从 `/user/bootstrap` 返回 404。
 
 <h4 id="precedence-with-other-managed-sources">
-  与其他托管源的优先级
+  与其他托管来源的优先级
 </h4>
 
-如果设备也有 MDM 交付的策略或本地 `managed-settings.json`，网关交付的设置排名第一。[托管层内的优先级](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)在托管设置页面上说明本地源何时应用，并有[Claude Code 从每个管理源读取的键](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)，无论它选择哪个源，如沙箱锁键、`forceRemoteSettingsRefresh` 和每个变量 `env` 合并。在 MDM 配置文件或托管设置文件中配置的 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 仅在网关不交付设置时运行；条目说明其输出替换什么。
+如果设备也有 MDM 交付的策略或本地 `managed-settings.json`，网关交付的设置排名第一。[托管层内的优先级](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)在托管设置页面上说明本地来源何时应用，并具有[Claude Code 从每个管理来源读取的键](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)，无论它选择哪个来源，例如沙箱锁键、`forceRemoteSettingsRefresh` 和每个变量 `env` 合并。在 MDM 配置文件或托管设置文件中配置的 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 仅在网关不交付设置时运行；条目说明其输出替换什么。
 
-嵌入主机如[Claude Desktop](/docs/zh-CN/desktop)可以通过 SDK `managedSettings` 选项提供策略。[来自嵌入主机的父设置](/docs/zh-CN/managed-settings#parent-settings-from-embedding-hosts)说明 Claude Code 何时应用它，[限制父设置](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings)列出哪些允许方向设置仍然适用而不需要 `allowManaged*Only` 锁。
+嵌入主机（如[Claude Desktop](/docs/zh-CN/desktop)）可以通过 SDK `managedSettings` 选项提供策略。[来自嵌入主机的父设置](/docs/zh-CN/managed-settings#parent-settings-from-embedding-hosts)说明 Claude Code 何时应用它，[限制父设置](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings)列出哪些允许方向设置仍然适用而不需要 `allowManaged*Only` 锁。
 
-网关策略适用于机器上的每个 Claude Code 调用，包括非交互式 `claude -p` 运行和由 Agent SDK 生成的会话。如果网关在启动时无法访问，已登录的会话以错误退出，而不是在没有其策略的情况下运行。
+网关策略适用于机器上的每个 Claude Code 调用，包括非交互式 `claude -p` 运行和由 Agent SDK 生成的会话。如果网关在启动时无法访问，已登录的会话退出并出现错误，而不是在没有其策略的情况下运行。
 
 <h3 id="telemetry">
   `telemetry`
@@ -793,15 +886,21 @@ managed:
 
 CLI 将指标、日志和（启用时）跟踪发送到网关，网关将它们逐字中继到每个配置的目的地。导出使用 OpenTelemetry Protocol (OTLP) over HTTP。要跳过中继并让会话直接导出到您的收集器，[在策略中命名收集器](#export-directly-to-your-collector)。请参阅[监控使用](/docs/zh-CN/monitoring-usage)了解 CLI 发出的指标和事件。
 
-CLI 使用从网关颁发的 JWT 读取的已认证用户的身份为每个导出加盖时间戳：`user.id`、`user.email` 和 `user.groups` 属性。每个开发者的成本和使用归属因此无需开发者端配置即可工作。
+CLI 使用从网关颁发的 JWT 读取的已认证用户的身份为每个导出加盖时间戳：`user.id`、`user.email` 和 `user.groups` 属性。因此，每个开发者的成本和使用归属无需开发者端配置即可工作。
 
 [Claude Desktop](#claude-desktop-overlay) 和通过网关登录的 Cowork 会话使用 `user.email` 和 `user.groups` 以及 `enduser.id` 为其遥测加盖时间戳，因此您可以使用一个关于 `user.email` 或 `user.groups` 的查询覆盖终端、Desktop 和 Cowork 使用。`user.groups` 是逗号分隔的 IdP 组列表。
 
-与来自 Claude Code 的所有 OpenTelemetry 数据一样，这些属性仅转到您的组织配置的目的地，从不转到 Anthropic。
+Desktop 和 Cowork 遥测也携带 `enduser.sub`，您的身份提供商为用户颁发的 `sub` 声明，当用户的电子邮件更改时保持不变。终端会话在 `user.id` 下加盖相同的值，因此与终端 `user.id` 匹配 `enduser.sub` 的查询涵盖一个用户的终端、Desktop 和 Cowork 使用。在 Desktop 和 Cowork 导出上，`user.id` 是匿名标识符，而不是主体。
 
-如果用户的组列表在百分比编码后长于 255 个字符，或组名包含逗号或等号，网关从该用户的 Desktop 和 Cowork 遥测中省略 `user.groups`，而不是截断它。该用户的终端会话仍然携带完整列表。
+像来自 Claude Code 的所有 OpenTelemetry 数据一样，这些属性仅转到您的组织配置的目的地，从不转到 Anthropic。
+
+如果用户的组列表在百分比编码后长于 255 个字符，或组名包含逗号或等号，网关会从该用户的 Desktop 和 Cowork 遥测中省略 `user.groups`，而不是截断它。该用户的终端会话仍然携带完整列表。
+
+当主体在百分比编码后长于 255 个字符，或包含空格、可打印 ASCII 外的字符或 `,` `;` `=` `\` `"` `%` 之一时，网关会省略 `enduser.sub`。该用户的 Desktop 和 Cowork 遥测保留其他属性。
 
 您需要网关服务器上的 Claude Code v2.1.265 或更高版本才能在 Desktop 和 Cowork 遥测上获得 `user.email` 和 `user.groups`，以及每个开发者机器上的 Claude Desktop 1.24012 或更高版本才能获得 `user.groups`。
+
+您需要网关服务器上的 Claude Code v2.1.274 或更高版本才能获得 `enduser.sub`。
 
 ```yaml theme={null}
 telemetry:
@@ -809,7 +908,7 @@ telemetry:
     - url: https://otel-collector.internal.example.com
       headers:
         Authorization: ${OTLP_TOKEN}
-      # Per-signal opt-in. Default: metrics only.
+      # 每个信号选择加入。默认：仅指标。
       metrics: true
       logs: false
       traces: false
@@ -821,7 +920,7 @@ telemetry:
 <Warning>
   每个目的地独立选择加入 `metrics`、`logs` 和 `traces`，默认仅为指标。信号的敏感性不同：
 
-  * **指标**：聚合计数器，如令牌计数、请求计数和延迟
+  * **指标**：聚合计数器，例如令牌计数、请求计数和延迟
   * **日志和跟踪**：可以携带完整的 Bash 命令、工具输入和文件路径，涵盖 Claude Code 在开发者机器上所做的任何事情
 
   仅在具有该数据保证的访问控制和保留策略的目的地启用日志和跟踪。
@@ -829,10 +928,16 @@ telemetry:
 
 每个 `forward_to` URL 必须使用 `https://`，有一个例外是网关自己的环回接口上的收集器：
 
-* `http://localhost:<port>` 通过配置验证，但[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)阻止每个导出带有 `ECONNREFUSED_SSRF`，除非您在网关的环境中设置 `CLAUDE_GATEWAY_ALLOW_LOOPBACK=1`
-* `http://127.0.0.1:<port>` 或 `http://[::1]:<port>` 在启动时失败，除非设置了该变量
+* `http://localhost:<port>` 通过配置验证，但[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)除非您在网关的环境中设置 `CLAUDE_GATEWAY_ALLOW_LOOPBACK=1`，否则阻止每个导出为 `ECONNREFUSED_SSRF`
+* `http://127.0.0.1:<port>` 或 `http://[::1]:<port>` 除非设置该变量，否则启动失败
 
-对于集群内收集器，在其自己的内部地址上通过 HTTPS 公开它，或将其作为侧车运行并设置变量。
+对于集群内收集器，在其自己的内部地址上通过 HTTPS 公开它，或将其作为设置了变量的 sidecar 运行。
+
+当设置 `HTTPS_PROXY` 时，网关通过该代理发送导出。
+
+要直接到达内部收集器，通过主机名或带有前导点的域（如 `.internal.example.com`）将其添加到 `NO_PROXY`，这需要网关服务器上的 Claude Code v2.1.277 或更高版本。确保网关可以在没有代理的情况下到达收集器。没有前导点的条目仅匹配该确切名称，不匹配其下的名称。CIDR 范围不匹配。
+
+启用[仅代理出口](#proxy-only-egress)后，改为在代理中允许收集器，因为任何 `NO_PROXY` 条目都会关闭仅代理出口。
 
 遥测在 CLI 中默认关闭。当您同时设置 `telemetry.forward_to` 和 `listen.public_url` 时，网关通过 `/managed/settings` 推送六个环境变量为连接的客户端打开它：
 
@@ -850,11 +955,11 @@ telemetry:
 * **本地设置的变量**：Claude Code 在托管层应用推送的变量，因此每个变量覆盖开发者为其本地设置的值。
 * **本地配置的端点**：启用 OTLP/HTTP 导出后，CLI 忽略任何本地配置的端点，无论网关是否推送了遥测变量。其导出转到网关，除非策略[将您的收集器命名为端点](#export-directly-to-your-collector)。
 
-没有信号的 `forward_to` 目的地，网关接受并丢弃它。如果开发者已经将 Claude Code 遥测导出到您的一个收集器，将其添加为 `forward_to` 目的地，如果他们导出这些，启用日志或跟踪，以便在他们登录后继续接收他们的数据。要跳过中继，[在策略中命名收集器](#export-directly-to-your-collector)。
+没有信号的 `forward_to` 目的地，网关接受并丢弃它。如果开发者已经将 Claude Code 遥测导出到您的一个收集器，将其添加为 `forward_to` 目的地，如果他们导出这些，则启用日志或跟踪，以便在他们登录后继续接收其数据。要跳过中继，改为[在策略中命名收集器](#export-directly-to-your-collector)。
 
 [跟踪](/docs/zh-CN/monitoring-usage#traces-beta)也需要每个客户端上的 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`。在托管策略的 `env` 块中设置它，因为网关不推送它。开发者在推送端点已经触发的相同[安全批准对话框](#managed)中批准它。
 
-仅在您想要跟踪的组的策略中将其设置为 `1`。不设置它的策略从您的 `match: {}` 捕获所有策略继承值（如果该策略设置一个），根据[合并规则](#managed)。要防止组的客户端发送跟踪，即使开发者在本地设置变量，在该组的策略中将其设置为 `0`。
+仅在您想要跟踪的组的策略中将其设置为 `1`。不设置它的策略从您的 `match: {}` 全部捕获策略继承值（如果该策略设置一个），根据[合并规则](#managed)。要防止组的客户端发送跟踪，即使开发者在本地设置变量，在该组的策略中将其设置为 `0`。
 
 Protobuf 和 JSON OTLP 编码都被中继，任何 OpenTelemetry 兼容的后端都可以作为目的地。
 
@@ -862,25 +967,25 @@ Protobuf 和 JSON OTLP 编码都被中继，任何 OpenTelemetry 兼容的后端
   直接导出到您的收集器
 </h4>
 
-要让通过 `/login` 登录的会话直接将遥测发送到您的收集器而不是通过中继，在[托管策略](#managed)的 `env` 块中将 `OTEL_EXPORTER_OTLP_ENDPOINT` 设置为收集器的 `https://` 基础 URL。Claude Code 将 `/v1/metrics`、`/v1/logs` 或 `/v1/traces` 附加到您设置的 URL，如 `https://otel-collector.example.com:4318`，并通过 OTLP/HTTP 在那里导出每个信号。需要每个开发者机器上的 Claude Code v2.1.265 或更高版本。早期客户端通过中继导出。
+要让通过 `/login` 登录的会话直接将遥测发送到您的收集器而不是通过中继，在[托管策略](#managed)的 `env` 块中将 `OTEL_EXPORTER_OTLP_ENDPOINT` 设置为收集器的 `https://` 基础 URL。Claude Code 将 `/v1/metrics`、`/v1/logs` 或 `/v1/traces` 附加到您设置的 URL，例如 `https://otel-collector.example.com:4318`，并通过 OTLP/HTTP 在那里导出每个信号。需要每个开发者机器上的 Claude Code v2.1.265 或更高版本。早期客户端通过中继导出。
 
 要向收集器进行身份验证，在同一 `env` 块中设置 `OTEL_EXPORTER_OTLP_HEADERS`。会话从不将开发者的网关会话令牌发送到以这种方式命名的收集器。
 
-当您在策略中添加或更改此端点时，Claude Code 在[安全批准对话框](#managed)中要求每个开发者批准它，然后在交互式会话中应用它。
+当您在策略中添加或更改此端点时，Claude Code 在应用它于交互式会话之前要求每个开发者在[安全批准对话框](#managed)中批准它。
 
-Claude Code 在导出信号之前检查端点，并在检查失败时将该信号保留在中继上。检查包括：
+Claude Code 在直接导出信号之前检查端点，当检查失败时将该信号保留在中继上。检查包括：
 
 * 端点来自网关本身。如果您在 MDM 配置文件或本地 `managed-settings.json` 中设置相同的变量，导出保留在中继上。
 * URL 使用 `https://`，或 `http://` 到环回地址
-* URL 解析为以 `/v1/<signal>` 结尾的路径，没有查询或片段。Claude Code 从通用变量本身构建该路径。它使用每个信号变量如 `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` 的写法，因此在那里包括完整路径。
+* URL 解析为以 `/v1/<signal>` 结尾的路径，没有查询或片段。Claude Code 自己从通用变量构建该路径。它使用每个信号变量（如 `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`）按原样编写，因此在那里包括完整路径。
 * URL 不是网关自己的主机。寻址到网关的端点保留中继路径及其会话令牌。
-* 您和开发者都没有在任何设置源中配置 [`otelHeadersHelper`](/docs/zh-CN/settings-reference#otelheadershelper)。配置了助手，每个信号保留在中继上。
+* 您和开发者都没有在任何设置来源中配置 [`otelHeadersHelper`](/docs/zh-CN/settings-reference#otelheadershelper)。配置了助手，每个信号保留在中继上。
 
 您命名的端点仅改变导出的去向。您仍然使用 `OTEL_*_EXPORTER` 选择器选择哪些信号导出。
 
-端点本身不打开导出，因此也设置执行此操作的变量，除非网关已经推送它们：
+端点单独不打开导出，因此也设置执行此操作的变量，除非网关已经推送它们：
 
-* 如果网关已经[推送遥测变量](#telemetry)，它们涵盖启用、选择器和协议，您的显式端点覆盖推送的 `<public_url>` 值。仅对于没有 `forward_to` 目的地启用的信号，自己设置 `OTEL_*_EXPORTER` 选择器为 `otlp`。
+* 如果网关已经[推送遥测变量](#telemetry)，它们涵盖启用、选择器和协议，您的显式端点覆盖推送的 `<public_url>` 值。仅为网关不推送的信号自己设置 `OTEL_*_EXPORTER` 选择器为 `otlp`。
 * 如果它没有，也设置 `CLAUDE_CODE_ENABLE_TELEMETRY=1`、`OTEL_*_EXPORTER` 选择器和 `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`。
 
 当开发者登出或登入不同的网关时，对收集器的导出停止，Claude Code 删除每个剩余批次而不是发送它。
@@ -889,38 +994,38 @@ Claude Code 在导出信号之前检查端点，并在检查失败时将该信�
   当目的地失败时
 </h4>
 
-网关不缓冲、重试或存储遥测，因此它删除未到达目的地的导出而不是晚期交付它。每个目的地独立成功或失败，导出客户端无论如何都收到成功响应，因此失败的交付仅在网关的日志中出现。
+网关不缓冲、重试或存储遥测，因此它删除未到达目的地的导出而不是晚期交付它。每个目的地独立成功或失败，导出客户端无论如何都收到成功响应，因此失败的交付仅出现在网关的日志中。
 
-在对目的地的五次连续失败交付后，网关在 30 秒的拉伸中暂停转发到它，记录每个暂停，直到交付成功。任何错误响应、超时或连接错误都计为失败的交付，除了 `400`、`413`、`415`、`422` 和 `431`，这意味着收集器拒绝了该导出的有效负载为格式错误或太大。
+在五次连续失败交付到目的地后，网关在 30 秒拉伸中暂停转发到它，记录每个暂停，直到交付成功。任何错误响应、超时或连接错误都计为失败交付，除了 `400`、`413`、`415`、`422` 和 `431`，这意味着收集器拒绝该导出的有效负载为格式错误或太大。
 
-被拒绝的有效负载既不推进也不重置失败计数：网关继续转发到目的地并记录命名它和状态的警告，在目的地的第一次拒绝和之后每一百次。
+拒绝的有效负载既不推进也不重置失败计数：网关继续转发到目的地并记录警告，命名它和状态，在目的地的第一次拒绝和之后每一百次。
 
 <h3 id="http-tuning">
   HTTP 调整
 </h3>
 
-四个可选的顶级块，`access_control`、`limits`、`timeouts` 和 `rate_limits`，调整 HTTP 表面。默认值适合大多数部署。
+四个可选的顶级块 `access_control`、`limits`、`timeouts` 和 `rate_limits` 调整 HTTP 表面。默认值适合大多数部署。
 
-| 块                | 键                                              | 默认       | 描述                                                                                                                                                                                                                                                                                                                                      |
-| ---------------- | ---------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `access_control` | `allow_cidrs` / `deny_cidrs`                   | 空        | 入站 IP 允许/拒绝按客户端地址，在 `trusted_proxies` 解析后。`deny_cidrs` 首先检查；与它匹配的客户端被拒绝，即使 `allow_cidrs` 也匹配。如果 `allow_cidrs` 非空，网关是默认拒绝。`/healthz` 和 `/readyz` 免除 `allow_cidrs`。当受信任的代理发送不是 IP 地址的 `X-Forwarded-For` 条目时，真实客户端未知，网关记录一次警告，命名要检查的内容。其中任一列表适用于请求的地方，它以 `403` 和审计原因 `xff_unparseable` 拒绝它。其中都不适用的地方，它提供请求并使用代理自己的地址作为每 IP 速率限制和审计的客户端 IP。 |
-| `limits`         | `max_request_bytes`                            | 32 MiB   | 最大入站请求体；超大请求在缓冲体之前获得 `413`。为大文件或图像请求提高。                                                                                                                                                                                                                                                                                                 |
-| `limits`         | `max_request_header_bytes`                     | 未设置      | 设置时，超大标头返回 `431`                                                                                                                                                                                                                                                                                                                        |
-| `limits`         | `max_url_length`                               | 未设置      | 设置时，过长 URL 返回 `414`                                                                                                                                                                                                                                                                                                                     |
-| `timeouts`       | `upstream_ttfb_ms`                             | 120000   | 等待上游响应标头的最大时间（首字节时间）。响应体然后流式传输，没有墙钟上限。适用于直接 Anthropic 上游路径；每个其他提供商由其提供商 SDK 自己的超时限制。                                                                                                                                                                                                                                                    |
-| `rate_limits`    | `device_authorization.max` / `.window_seconds` | 30 / 600 | 未认证设备授权端点上的每 IP 速率限制。为共享出口 IP 或 NAT 后面的大型组织提高。这些限制仅适用于设备授权登录流，不适用于 `/v1/messages` 推理。请参阅[用户代码暴力破解抵抗](/docs/zh-CN/claude-apps-gateway-deploy#user-code-brute-force-resistance)。                                                                                                                                                               |
-| `rate_limits`    | `device_verify.max` / `.window_seconds`        | 10 / 600 | `/device` 上 `user_code` 提交的每 IP 速率限制                                                                                                                                                                                                                                                                                                    |
+| 块                | 键                                              | 默认       | 描述                                                                                                                                                                                                                                                                                                                                 |
+| ---------------- | ---------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `access_control` | `allow_cidrs` / `deny_cidrs`                   | 空        | 入站 IP 允许/拒绝按客户端地址，在 `trusted_proxies` 解析后。`deny_cidrs` 首先检查；与它匹配的客户端被拒绝，即使 `allow_cidrs` 也匹配。如果 `allow_cidrs` 非空，网关是默认拒绝。`/healthz` 和 `/readyz` 免除 `allow_cidrs`。当受信任的代理发送不是 IP 地址的 `X-Forwarded-For` 条目时，真实客户端未知，网关记录一次警告，命名要检查的内容。其中任一列表适用于请求，它以 `403` 和审计原因 `xff_unparseable` 拒绝它。其中都不适用，它提供请求并使代理自己的地址用作客户端 IP，用于每 IP 速率限制和审计。 |
+| `limits`         | `max_request_bytes`                            | 32 MiB   | 最大入站请求体；超大请求在缓冲体之前获得 `413`。为大文件或图像请求提高。                                                                                                                                                                                                                                                                                            |
+| `limits`         | `max_request_header_bytes`                     | 未设置      | 设置时，超大标头返回 `431`                                                                                                                                                                                                                                                                                                                   |
+| `limits`         | `max_url_length`                               | 未设置      | 设置时，过长 URL 返回 `414`                                                                                                                                                                                                                                                                                                                |
+| `timeouts`       | `upstream_ttfb_ms`                             | 120000   | 等待上游响应标头（首字节时间）的最大时间。响应体随后以无墙钟上限流式传输。适用于直接 Anthropic 上游路径；在每个其他提供商上，网关等待最多一小时以使响应开始。                                                                                                                                                                                                                                               |
+| `rate_limits`    | `device_authorization.max` / `.window_seconds` | 30 / 600 | 未认证设备授权端点上的每 IP 速率限制。为共享出口 IP 或 NAT 后面的大型组织提高。[大型推出](/docs/zh-CN/claude-apps-gateway-deploy#large-rollouts)显示如何调整大小。这些限制仅适用于设备授予登录流，不适用于 `/v1/messages` 推理。请参阅[用户代码暴力破解抵抗](/docs/zh-CN/claude-apps-gateway-deploy#user-code-brute-force-resistance)。                                                                                         |
+| `rate_limits`    | `device_verify.max` / `.window_seconds`        | 10 / 600 | `/device` 上 `user_code` 提交的每 IP 速率限制。这是阻止某人猜测另一个开发者代码的原因。[大型推出](/docs/zh-CN/claude-apps-gateway-deploy#large-rollouts)显示提高多远。                                                                                                                                                                                                           |
 
-如果您将两个 `access_control` 列表都留空，这是默认值，网关为任何客户端地址提供服务，因此只有您的网络限制谁可以到达它。这很重要，因为网关可以推送[托管设置](#managed)，在开发者机器上运行命令。
+如果您将两个 `access_control` 列表都留空，这是默认值，网关为任何客户端地址提供服务，因此仅您的网络限制谁可以到达它。这很重要，因为网关可以推送[托管设置](#managed)，在开发者机器上运行命令。
 
 虽然 `allow_cidrs` 为空，网关在两个地方警告，不改变它如何回答任何请求：
 
 * **在启动时**：操作日志中的警告建议仅允许私有范围 `10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`、`100.64.0.0/10`、`127.0.0.0/8`、`::1/128` 和 `fc00::/7`，加上您的开发者连接的任何其他内部范围。如果您将网关绑定到环回地址并既不设置 `trusted_proxies` 也不设置 `public_url`，如在本地开发中，警告不出现。
-* **在运行时**：第一次请求从这些私有范围之外的地址到达时，网关记录警告并发出携带客户端 IP 的 [`access.public_client` 审计事件](/docs/zh-CN/claude-apps-gateway-deploy#logs)。两者每个进程触发一次。链接本地地址，`169.254.0.0/16` 和 `fe80::/10`，不计为公共。网关在此检查运行之前回答 `/healthz` 和 `/readyz`，因此来自公共范围的健康探针不触发它。
+* **在运行时**：第一次请求从私有范围外的地址到达时，网关记录警告并发出 [`access.public_client` 审计事件](/docs/zh-CN/claude-apps-gateway-deploy#logs)，携带客户端 IP。两者每个进程触发一次。链接本地地址 `169.254.0.0/16` 和 `fe80::/10` 不计为公共。网关在此检查运行之前回答 `/healthz` 和 `/readyz`，因此来自公共范围的健康探针不触发它。
 
-两个信号都使用网关解析的客户端地址。如果负载均衡器、端口转发或隧道中继流量且未列在 `listen.trusted_proxies` 中，网关看到中继的地址，通常是私有的，因此既不是运行时警告也不是私有允许列表捕获通过它中继的流量。
+两个信号都使用网关解析的客户端地址。如果负载均衡器、端口转发或隧道中继流量且未在 `listen.trusted_proxies` 中列出，网关看到中继的地址，通常是私有的，因此既不是运行时警告也不是私有允许列表捕获通过它中继的流量。
 
-在这样的前端后面，首先设置 [`listen.trusted_proxies`](#listen)，以便网关看到真实的客户端地址，并保持网关和它前面的所有东西从公共互联网无法访问，无论如何。
+在这样的前端后面，首先设置 [`listen.trusted_proxies`](#listen)，以便网关看到真实客户端地址，并保持网关和其前面的所有东西从公共互联网无法访问，无论如何。
 
 <h2 id="complete-example">
   完整示例
@@ -973,6 +1078,7 @@ session:
 store:
   postgres_url: ${GATEWAY_POSTGRES_URL}
   # max_connections: 5
+  # connect_timeout_seconds: 5
 
 # 启用 /v1/organizations/spend_limits（镜像 Anthropic Admin API）
 # 和 /v1/messages 上的每开发者支出强制。省略以禁用。

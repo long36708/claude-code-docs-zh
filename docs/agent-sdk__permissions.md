@@ -281,7 +281,7 @@ SDK 支持以下权限模式：
   绕过权限模式（`bypassPermissions`）
 </h4>
 
-自动批准工具使用而无需提示，除了下面警告中列出的情况。钩子仍会执行，如果需要可以阻止操作。
+自动批准工具使用而无需提示，除了下面警告中列出的情况。钩子仍会执行，如果需要可以阻止操作。在 Linux 和 macOS 上，Claude Code 拒绝在此模式下以 root 身份或在[已识别的沙箱](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)外的 `sudo` 下启动，查询在第一轮之前失败。
 
 <Warning>
   请极其谨慎使用。Claude 在此模式下具有完整的系统访问权限。仅在您信任所有可能操作的受控环境中使用。
