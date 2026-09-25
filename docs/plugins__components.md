@@ -13,6 +13,7 @@ export const PluginExplorer = ({children}) => {
     id: 'manifest',
     name: 'Manifest',
     path: '.claude-plugin/plugin.json',
+    required: "Required by Anthropic's directory",
     lines: [{
       depth: 0,
       kind: 'folder',
