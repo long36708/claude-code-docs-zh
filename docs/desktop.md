@@ -472,7 +472,7 @@ Dispatch 是远离终端时与 Claude 合作的几种方式之一。有关与其
 
 连接外部服务、添加可重用工作流、自定义 Claude 的行为并配置预览服务器。要在一个地方管理连接器、skills 和插件，请点击侧边栏中的**自定义**。[Cowork](https://claude.com/product/cowork) 标签页在桌面应用中从此自定义配置获取其 skills、插件和连接器，该配置通过你的 claude.ai 账户同步，而不是从 CLI 的 `~/.claude` 目录。
 
-Claude Code 还会在你使用同一账户登录的终端会话中加载为你的 claude.ai 账户启用的 skills 和插件。请参阅[从 claude.ai 同步的 Skills](/docs/zh-CN/skills#how-synced-skills-behave) 和[从 claude.ai 同步的插件](/docs/zh-CN/plugins-reference#synced-plugins)。
+Claude Code 还会在你使用同一账户登录的终端会话中加载为你的 claude.ai 账户启用的 skills 和插件。请参阅[从 claude.ai 同步的 Skills](/docs/zh-CN/skills#how-synced-skills-behave) 和[从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)。
 
 <h3 id="connect-external-tools">
   连接外部工具
@@ -490,7 +490,7 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
   使用 skills
 </h3>
 
-[Skills](/docs/zh-CN/skills)扩展 Claude 可以做的事情。Claude 在相关时自动加载它们，或者你可以直接调用一个：在提示框中输入 `/` 或点击 **+** 按钮并选择 **Slash commands** 来浏览可用的内容。这包括[内置命令](/docs/zh-CN/commands)、你的[自定义 skills](/docs/zh-CN/skills#create-your-first-skill)、来自你的代码库的项目 skills 以及来自任何[已安装插件](/docs/zh-CN/plugins)的 skills。选择一个，它会在输入字段中突出显示。在它之后输入你的任务并照常发送。
+[Skills](/docs/zh-CN/skills)扩展 Claude 可以做的事情。Claude 在相关时自动加载它们，或者你可以直接调用一个：在提示框中输入 `/` 或点击 **+** 按钮并选择 **Slash commands** 来浏览可用的内容。这包括[内置命令](/docs/zh-CN/commands)、你的[自定义 skills](/docs/zh-CN/skills#create-your-first-skill)、来自你的代码库的项目 skills 以及来自任何[已安装插件](/docs/zh-CN/plugins/install)的 skills。选择一个，它会在输入字段中突出显示。在它之后输入你的任务并照常发送。
 
 你可以在 Claude 工作时发送命令，就像任何其他消息一样，会话在轮次完成后返回空闲状态。在 v2.1.206 之前，在轮次中间发送的命令可能会导致会话显示为运行状态，你之后发送的消息未被传递。
 
@@ -502,13 +502,13 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
   安装插件
 </h3>
 
-[Plugins](/docs/zh-CN/plugins)是可重用的包，为 Claude Code 添加 skills、agents、hooks、MCP servers 和 LSP 配置。你可以从桌面应用安装插件，而无需使用终端。
+[Plugins](/docs/zh-CN/plugins/overview)是可重用的包，为 Claude Code 添加 skills、agents、hooks、MCP servers 和 LSP 配置。你可以从桌面应用安装插件，而无需使用终端。
 
-对于本地和 [SSH](#ssh-sessions) 会话，点击提示框旁的 **+** 按钮并选择 **Plugins** 来查看你已安装的插件及其 skills。要添加插件，从子菜单中选择 **Add plugin** 来打开插件浏览器，它显示来自你配置的[市场](/docs/zh-CN/plugin-marketplaces)的可用插件，包括官方 Anthropic 市场。选择 **Manage plugins** 来启用、禁用或卸载插件。
+对于本地和 [SSH](#ssh-sessions) 会话，点击提示框旁的 **+** 按钮并选择 **Plugins** 来查看你已安装的插件及其 skills。要添加插件，从子菜单中选择 **Add plugin** 来打开插件浏览器，它显示来自你配置的[市场](/docs/zh-CN/plugins/overview)的可用插件，包括官方 Anthropic 市场。选择 **Manage plugins** 来启用、禁用或卸载插件。
 
 你可以将插件限定到你的用户账户、特定项目或仅本地。如果你的组织集中管理插件，这些插件在桌面会话中的可用方式与在 CLI 中相同。
 
-插件浏览器在云会话中不可用，从桌面应用安装的插件不可用于云会话。云会话也不会安装存储库的 `.claude/settings.json` 声明的插件，如[从你的设置中继承的内容](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)所述。要在云会话中使用插件，为你的 claude.ai 账户启用它，以便 Claude Code 将其作为[同步插件](/docs/zh-CN/plugins-reference#synced-plugins)加载。插件在 WSL 会话中不可用。有关完整的插件参考，包括创建你自己的插件，请参阅 [plugins](/docs/zh-CN/plugins)。
+插件浏览器在云会话中不可用，从桌面应用安装的插件不可用于云会话。云会话也不会安装存储库的 `.claude/settings.json` 声明的插件，如[从你的设置中继承的内容](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)所述。插件在 WSL 会话中不可用。有关完整的插件参考，包括创建你自己的插件，请参阅 [plugins](/docs/zh-CN/plugins/overview)。
 
 <h3 id="configure-preview-servers">
   配置预览服务器
@@ -1023,7 +1023,7 @@ Desktop 应用从 `claude_desktop_config.json` 将 MCP servers 加载到本地 C
 | 权限模式                                      | 所有模式，包括 `dontAsk`                                              | Manual、Accept edits、Plan 和 Auto。绕过权限在模式选择器中出现一次启用：通过 Pro 和 Max 计划上的设置切换，或通过 Team 和 Enterprise 计划上的组织策略                                                                                                                                                               |
 | [第三方提供商](/docs/zh-CN/third-party-integrations) | Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry | Anthropic 的 API 默认。对于网关路由，请参阅[将桌面应用连接到网关](/docs/zh-CN/llm-gateway-connect#desktop-app)。要在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或自托管 LLM 网关上运行 Code 选项卡，请参阅 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)。 |
 | [MCP servers](/docs/zh-CN/mcp)                 | 在设置文件中配置                                                       | 本地和 SSH 会话的连接器 UI，或设置文件                                                                                                                                                                                                                                              |
-| [Plugins](/docs/zh-CN/plugins)                 | `/plugin` 命令                                                   | 插件管理器 UI                                                                                                                                                                                                                                                             |
+| [Plugins](/docs/zh-CN/plugins/overview)        | `/plugin` 命令                                                   | 插件管理器 UI                                                                                                                                                                                                                                                             |
 | @mention 文件                               | 基于文本                                                           | 带自动完成；仅本地和 SSH 会话                                                                                                                                                                                                                                                    |
 | 文件附件                                      | 不可用                                                            | 图像、PDF                                                                                                                                                                                                                                                               |
 | 会话隔离                                      | [`--worktree`](/docs/zh-CN/cli-reference) 标志                        | **worktree** 选项在启动会话时                                                                                                                                                                                                                                                |

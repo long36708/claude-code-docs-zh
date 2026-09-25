@@ -178,10 +178,10 @@ Bash 工具在单独的进程中运行每个命令。
 
 Claude Code 在命令运行时将命令的输出流式传输到工作文件；输出超过 5 GB 的命令会被杀死。命令完成后，Claude Code 从该文件读取输出，最多读取下面描述的读回窗口。输出中有多少到达 Claude 取决于 Claude Code 是否将结果视为失败：
 
-| 结果 | Claude 获得的内容                                                                           |
-| :- | :------------------------------------------------------------------------------------- |
-| 有效 | 内联最多约 30,000 个字符（默认）；超过该值，保存到会话目录的文件路径并在 64 MiB 后截断，加上来自开始的简短预览，Claude 在需要其余部分时读取或搜索文件 |
-| 失败 | 内联最多约 10,000 个字符；超过该值，从读回窗口中切割的该大小的头尾摘录，没有文件路径                                         |
+| 结果 | Claude 获得的内容                                                                                             |
+| :- | :------------------------------------------------------------------------------------------------------- |
+| 有效 | 内联最多约 30,000 个字符（默认）；超过该值，为保存到会话目录的文件的路径（文件超过 64 MiB 的部分会被截断），加上最多前 2,000 个字符的预览，Claude 在需要其余部分时读取或搜索该文件 |
+| 失败 | 内联最多约 10,000 个字符；超过该值，从读回窗口中切割的该大小的头尾摘录，没有文件路径                                                           |
 
 退出代码为 1 的命令仅当 Claude Code 识别退出代码 1 为该命令的良性结果时，才计为 Bash 工具的有效结果：`grep`、`rg`、`egrep`、`fgrep`、`find`、`diff`、`test` 和 `[`，加上 `git diff` 和 `git grep`。退出代码为 1 的所有其他命令都计为失败，即使退出 1 是良性信息结果：`pgrep` 和 `jq -e` 没有匹配项，`cmp` 的文件不同。
 
@@ -221,7 +221,7 @@ Claude Code 也可以将它启动的其他类型的进程计入同一限制。�
 * `mcp`: 本地 [MCP servers](/docs/zh-CN/mcp)
 * `lsp`: [language servers](#lsp-tool-behavior)
 * `hooks`: [hook](/docs/zh-CN/hooks) 命令
-* `plugin`: [plugins](/docs/zh-CN/plugins) 运行的命令
+* `plugin`: [plugins](/docs/zh-CN/plugins/overview) 运行的命令
 * `helper`: Claude Code 自己的辅助命令，例如 `git`
 * `agent`: 子 Claude Code 进程，例如 [agent teammates](/docs/zh-CN/agent-teams)
 
@@ -344,7 +344,7 @@ LSP tool 从运行的语言服务器为 Claude 提供代码智能。在每次文
 * 查找接口的实现
 * 追踪调用层次结构
 
-Claude Code 会保持该工具处于非活动状态，直到您为您的语言安装 [code intelligence plugin](/docs/zh-CN/discover-plugins#code-intelligence)。在 [cloud sessions](/docs/zh-CN/claude-code-on-the-web) 中，Claude Code 不会启动 plugin 语言服务器，因此 LSP tool 在那里保持非活动状态。Claude Code 从 plugin 获取语言服务器的配置，您需要自己安装服务器二进制文件。
+Claude Code 会保持该工具处于非活动状态，直到您为您的语言安装 [code intelligence plugin](/docs/zh-CN/plugins/code-intelligence)。在 [cloud sessions](/docs/zh-CN/claude-code-on-the-web) 中，Claude Code 不会启动 plugin 语言服务器，因此 LSP tool 在那里保持非活动状态。Claude Code 从 plugin 获取语言服务器的配置，您需要自己安装服务器二进制文件。
 
 Claude Code 对于无法启动其语言服务器的文件上的每个 LSP 调用都会返回错误结果。
 
@@ -376,7 +376,7 @@ Monitor 工具让 Claude 在后台监视某些内容，并在其发生变化时�
 
 该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。当设置了 `DISABLE_TELEMETRY` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，它也不可用。
 
-插件可以声明在插件处于活动状态时自动启动的监视，而不是要求 Claude 启动它们。请参阅 [plugin monitors](/docs/zh-CN/plugins-reference#monitors)。
+插件可以声明在插件处于活动状态时自动启动的监视，而不是要求 Claude 启动它们。请参阅 [plugin monitors](/docs/zh-CN/plugins/components#monitors)。
 
 <h3 id="websocket-source">
   WebSocket 源

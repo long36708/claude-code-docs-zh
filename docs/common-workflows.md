@@ -110,7 +110,7 @@
 
   * 明确说明您要查找的内容
   * 使用项目中的领域语言
-  * 为您的语言安装[代码智能插件](/docs/zh-CN/discover-plugins#code-intelligence)，以便 Claude 能够精确地进行"转到定义"和"查找引用"导航
+  * 为您的语言安装 [code intelligence plugin](/docs/zh-CN/plugins/code-intelligence)，以便 Claude 能够精确地进行"转到定义"和"查找引用"导航
 </Tip>
 
 ***
@@ -157,7 +157,7 @@
 
 假设您需要更新旧代码以使用现代模式和实践。
 
-有关将整个代码库迁移到新语言的信息，请参阅博客上的[Anthropic 如何使用 Claude Code 运行大规模代码迁移](https://claude.com/blog/ai-code-migration)。
+有关将整个代码库迁移到新语言的信息，请参阅博客上的 [Anthropic 如何使用 Claude Code 运行大规模代码迁移](https://claude.com/blog/ai-code-migration)。
 
 <Steps>
   <Step title="识别用于重构的遗留代码">
@@ -259,7 +259,7 @@ Claude 可以生成遵循您项目现有模式和约定的测试。请求测试�
   </Step>
 </Steps>
 
-要稍后找到会话，请运行 `claude --from-pr 1234`，将 1234 替换为您自己的 PR 编号，这会打开会话选择器，筛选链接到该 PR 的会话，或将 PR URL 粘贴到 [`/resume` 选择器](/docs/zh-CN/sessions#use-the-session-picker)搜索中。当 Claude 使用 `gh pr create` 或 `glab mr create` 创建拉取请求时，Claude Code 会将会话链接到 PR，以及当 Claude [处理现有 PR](/docs/zh-CN/agent-view#pull-request-status) 时。
+要稍后找到会话，请运行 `claude --from-pr 1234`，将 1234 替换为您自己的 PR 编号，这会打开会话选择器，筛选链接到该 PR 的会话，或将 PR URL 粘贴到 [`/resume` 选择器](/docs/zh-CN/sessions#use-the-session-picker) 搜索中。当 Claude 使用 `gh pr create` 或 `glab mr create` 创建拉取请求时，Claude Code 会将会话链接到 PR，以及当 Claude [处理现有 PR](/docs/zh-CN/agent-view#pull-request-status) 时。
 
 <Tip>
   在提交前审查 Claude 生成的 PR，并要求 Claude 突出显示潜在的风险或注意事项。
@@ -329,7 +329,7 @@ Claude Code 可以在任何目录中工作。在笔记库、文档文件夹或�
 
     1. 将图像拖放到 Claude Code 窗口中
     2. 复制图像并使用 `Ctrl+V` 将其粘贴到 CLI 中，或在 [Windows 和 WSL 上使用 `Alt+V`](/docs/zh-CN/interactive-mode#general-controls)
-    3. 向 Claude 提供图像路径。例如，"Analyze this image: /path/to/your/image.png"
+    3. 向 Claude 提供图像路径，例如"Analyze this image: /path/to/your/image.png"
   </Step>
 
   <Step title="要求 Claude 分析图像">

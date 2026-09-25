@@ -3058,7 +3058,7 @@ Claude Code 建议此会话中菜单列出的最接近的命令名称或别名�
 
 * 打字错误，例如 `/hepl` 代替 `/help`。[命令菜单如何匹配您键入的内容](/docs/zh-CN/commands#how-the-command-menu-matches-what-you-type)涵盖在提交前选择接近匹配
 * 存在但在此会话中不可用的命令，因为不满足要求，例如您的平台、计划或身份验证方法。[`/web-setup`](/docs/zh-CN/web-quickstart#web-setup-shows-no-commands-match-or-unknown-command) 和 [`/schedule`](/docs/zh-CN/routines#schedule-returns-unknown-command) 的故障排除条目演示了两个常见情况。某些命令在您的组织的策略禁用它们时用自己的消息回答，例如[`Cloud sessions are disabled by your organization's policy`](#cloud-sessions-are-disabled-by-your-organizations-policy)
-* 来自此会话中未安装或未连接的[插件](/docs/zh-CN/plugins)或 [MCP 服务器](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)的命令
+* 来自此会话中未安装或未连接的[插件](/docs/zh-CN/plugins/overview)或 [MCP 服务器](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)的命令
 
 Claude Code 仅在交互式终端会话中以这种方式回答不匹配的 `/` 名称。在所有其他会话中，它将提示作为普通消息发送给 Claude，并注意命令未运行以及 Claude 可以在会话中运行的命令列表。这些会话包括：
 
@@ -3385,10 +3385,10 @@ Output styles are saved to local settings (.claude/settings.local.json), which t
 * 在会话确实加载的设置文件中设置 [`outputStyle`](/docs/zh-CN/settings-reference#outputstyle) 键，例如项目中的 `.claude/settings.json` 或 `~/.claude/settings.json`。在 TypeScript SDK 中，改为在内联 `settings` 对象内设置 `outputStyle`；请参阅[激活输出样式](/docs/zh-CN/agent-sdk/modifying-system-prompts#activate-an-output-style)
 
 <h2 id="plugin-errors">
-  插件错误
+  Plugin 错误
 </h2>
 
-这些错误来自[插件](/docs/zh-CN/plugins)和[市场](/docs/zh-CN/plugin-marketplaces)配置。对于不会产生本页面上述消息之一的插件问题，例如无法加载的市场 URL 或已安装但不显示的插件，请参阅[插件故障排除](/docs/zh-CN/discover-plugins#troubleshooting)。
+这些错误来自 [plugin](/docs/zh-CN/plugins/overview) 和 [marketplace](/docs/zh-CN/plugins/overview) 配置。对于不产生此页面上任何消息的 plugin 问题，例如无法加载的 marketplace URL 或已安装但不显示的 plugin，请参阅 [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting)。
 
 <h3 id="plugin-eval-is-currently-in-early-access">
   plugin eval 目前处于早期访问阶段
@@ -3408,38 +3408,38 @@ Output styles are saved to local settings (.claude/settings.local.json), which t
 
 **要做什么：**
 
-* 运行 `claude --version`，然后运行 `claude update`，并在新会话中再次运行该命令。请参阅[插件 eval 的要求](/docs/zh-CN/plugin-evals#requirements)
-* 如果您在当前构建版本上看到第二条消息，请在另一次 `claude update` 后稍后重试
+* 运行 `claude --version`，然后运行 `claude update`，并在新会话中再次运行该命令。请参阅 [plugin evals 的要求](/docs/zh-CN/plugin-evals#requirements)
+* 如果您在当前构建上看到第二条消息，请在另一次 `claude update` 后稍后重试
 
 <h3 id="marketplace-is-registered-from-an-untrusted-source">
-  市场从不受信任的来源注册
+  Marketplace 从不受信任的源注册
 </h3>
 
-市场以[为官方 Anthropic 市场保留](/docs/zh-CN/plugin-marketplaces#marketplace-schema)的名称注册，但其注册来源不是 `anthropics` GitHub 存储库。Claude Code 每次加载或刷新市场时都会重新检查保留名称，因此市场和从中安装的插件停止加载。在 v2.1.205 之前，仅在添加市场时检查名称，因此在其名称被保留之前注册的条目继续加载。
+marketplace 注册的名称是 [为官方 Anthropic marketplaces 保留的](/docs/zh-CN/plugins/marketplace-reference#marketplace-file)，但其注册源不是 `anthropics` GitHub 存储库。Claude Code 每次加载或刷新 marketplace 时都会重新检查保留的名称，因此 marketplace 和从中安装的 plugin 停止加载。在 v2.1.205 之前，仅在添加 marketplace 时检查名称，因此在其名称被保留之前注册的条目继续加载。
 
 ```text theme={null}
 Marketplace "claude-community" is registered from an untrusted source: The name 'claude-community' is reserved for official Anthropic marketplaces. Only repositories from 'github.com/anthropics/' can use this name. To fix it, remove the marketplace and re-add it from the official source.
 ```
 
-对于来源不是 GitHub 存储库或 Git URL 的市场（例如本地目录），中间句子改为 `can only be used with GitHub sources from the 'anthropics' organization`。`claude plugin marketplace add` 运行相同的检查，并以 `Failed to add marketplace:` 后跟相同的保留名称句子拒绝保留名称。
+对于源不是 GitHub 存储库或 Git URL（例如本地目录）的 marketplace，中间句子改为 `can only be used with GitHub sources from the 'anthropics' organization`。`claude plugin marketplace add` 运行相同的检查，并以 `Failed to add marketplace:` 后跟相同的保留名称句子拒绝保留的名称。
 
 **要做什么：**
 
-* 如果市场已注册，运行 `claude plugin marketplace remove <name>`，然后从官方 `github.com/anthropics` 存储库重新添加它
-* 如果您发布了在名称被保留之前使用该名称的第三方市场，请重命名它并要求用户从您的来源重新添加它
-* 请参阅[市场架构](/docs/zh-CN/plugin-marketplaces#marketplace-schema)下的保留名称列表
+* 如果 marketplace 已注册，运行 `claude plugin marketplace remove <name>`，然后从官方 `github.com/anthropics` 存储库重新添加它
+* 如果您发布了在名称被保留之前使用该名称的第三方 marketplace，请重命名它并要求用户从您的源重新添加它
+* 请参阅 [Marketplace schema](/docs/zh-CN/plugins/marketplace-reference#marketplace-file) 下的保留名称列表
 
 <h3 id="marketplace-name-is-another-spelling-of-a-reserved-name">
-  市场名称是保留名称的另一种拼写
+  Marketplace 名称是保留名称的另一种拼写
 </h3>
 
-市场的名称本身不是保留名称，但 Claude Code 将其视为保留名称的另一种拼写。[保留市场名称](/docs/zh-CN/plugin-marketplaces#reserved-name-spellings)列出了哪些拼写算作保留名称。当您添加市场时，Claude Code 拒绝这样的名称：
+marketplace 的名称本身不是保留名称，但 Claude Code 将其视为另一种拼写。[保留的 marketplace 名称](/docs/zh-CN/plugins/marketplace-reference#reserved-name-spellings) 列出了哪些拼写算作保留名称。Claude Code 在您添加 marketplace 时拒绝这样的名称：
 
 ```text theme={null}
 Failed to add marketplace: "claude.code.plugins" is another spelling of "claude-code-plugins", a reserved marketplace name.
 ```
 
-当市场已在这样的名称下注册时，其条目停止加载，`/plugin`、`claude plugin install` 和 `claude plugin update` 警告：
+当 marketplace 已在这样的名称下注册时，其条目停止加载，`/plugin`、`claude plugin install` 和 `claude plugin update` 警告：
 
 ```text wrap theme={null}
 known_marketplaces.json has an entry named "claude.code.plugins", another spelling of the reserved marketplace name "claude-code-plugins", so it is ignored. Remove it with: claude plugin marketplace remove claude.code.plugins
@@ -3449,14 +3449,14 @@ known_marketplaces.json has an entry named "claude.code.plugins", another spelli
 
 **要做什么：**
 
-* 将市场重命名为不拼写保留名称的名称并重新添加它
-* 对于忽略的条目警告，运行它给出的 `claude plugin marketplace remove` 命令，或从 `~/.claude/plugins/known_marketplaces.json` 中删除该条目
+* 将 marketplace 重命名为不拼写保留名称的名称并重新添加它
+* 对于被忽略的条目警告，运行它给出的 `claude plugin marketplace remove` 命令，或从 `~/.claude/plugins/known_marketplaces.json` 中删除该条目
 
 <h3 id="marketplace-is-already-added-from-a-different-source">
-  市场已从不同的来源添加
+  Marketplace 已从不同的源添加
 </h3>
 
-您通过 [`/plugin install <plugin> --marketplace <source>`](/docs/zh-CN/discover-plugins#add-a-marketplace-and-install-in-one-command) 确认添加了市场，Claude Code 从该来源获取的目录将自己命名为与您已从不同来源添加的市场相同。Claude Code 保留现有市场而不是替换它，插件未被安装。
+您通过 [`/plugin install <plugin> --marketplace <source>`](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command) 确认添加了 marketplace，而 Claude Code 从该源获取的目录将自身命名为与您已从不同源添加的 marketplace 相同的名称。Claude Code 保留现有的 marketplace 而不是替换它，plugin 未被安装。
 
 ```text theme={null}
 Marketplace "acme-tools" is already added from a different source (github:acme/plugins). To use this source instead, remove that marketplace first with /plugin marketplace remove acme-tools.
@@ -3464,14 +3464,14 @@ Marketplace "acme-tools" is already added from a different source (github:acme/p
 
 **要做什么：**
 
-* 如果您已添加的市场是您想要的，请按名称从中安装：`/plugin install <plugin>@<name>`
-* 要切换到新来源，运行 `/plugin marketplace remove <name>`，然后重试安装
+* 如果您已添加的 marketplace 是您想要的，请按名称从中安装：`/plugin install <plugin>@<name>`
+* 要切换到新源，运行 `/plugin marketplace remove <name>`，然后重试安装
 
 <h3 id="plugin-command-references-user-config">
-  插件命令在 shell 命令中引用 user\_config
+  Plugin 命令在 shell 命令中引用 user\_config
 </h3>
 
-插件 hook、[monitor](/docs/zh-CN/plugins-reference#monitors) 或 MCP [`headersHelper`](/docs/zh-CN/mcp#use-dynamic-headers-for-custom-authentication) 命令引用 `${user_config.KEY}` [插件选项](/docs/zh-CN/plugins-reference#user-configuration)，替换后的字符串将被传递到 shell。配置的值包含 `$(...)` 、反引号或 `;` 会在那里作为代码运行，因此 Claude Code 拒绝启动该组件而不是替换该值。检查在命令模板上运行，因此即使尚未配置任何值，错误也会出现。在 v2.1.207 之前，该值被替换到 shell 命令中。
+一个 plugin hook、[monitor](/docs/zh-CN/plugins/components#monitors) 或 MCP [`headersHelper`](/docs/zh-CN/mcp#use-dynamic-headers-for-custom-authentication) 命令引用了 `${user_config.KEY}` [plugin 选项](/docs/zh-CN/plugins/manifest-reference#user-configuration)，而替换后的字符串将被传递到 shell。配置的值包含 `$(...)` 、反引号或 `;` 会在那里作为代码运行，因此 Claude Code 拒绝启动该组件而不是替换该值。检查在命令模板上运行，因此即使尚未配置任何值，错误也会出现。在 v2.1.207 之前，该值被替换到 shell 命令中。
 
 措辞取决于哪个表面引用了该选项。shell 形式的 hook 报告：
 
@@ -3493,19 +3493,19 @@ headersHelper for MCP server 'internal-api' references ${user_config.*}. The sub
 
 **要做什么：**
 
-* 对于 hook，添加 `args` 数组以便它在[执行形式](/docs/zh-CN/hooks#exec-form-and-shell-form)中运行，其中每个 `${user_config.KEY}` 成为一个参数，中间没有 shell。或删除引用并读取脚本内的 `$CLAUDE_PLUGIN_OPTION_<KEY>` 环境变量
+* 对于 hook，添加 `args` 数组以便它在 [exec 形式](/docs/zh-CN/hooks#exec-form-and-shell-form) 中运行，其中每个 `${user_config.KEY}` 成为一个参数，中间没有 shell。或删除引用并读取脚本内的 `$CLAUDE_PLUGIN_OPTION_<KEY>` 环境变量
 * 对于 monitor，删除引用并让 monitor 脚本从配置文件读取该值
 * 对于 `headersHelper`，将 `${user_config.KEY}` 移到服务器的 `headers` 字段中，该字段不会被 shell 解析，或在 helper 脚本内读取该值
 
 <h3 id="plugin-archive-integrity-check-failed">
-  插件存档完整性检查失败
+  Plugin 存档完整性检查失败
 </h3>
 
-插件的市场条目使用带有 `sha256` 固定的[`archive` 来源](/docs/zh-CN/plugin-marketplaces#zip-archives)，下载文件的摘要与固定值不匹配。Claude Code 拒绝安装，因此插件缓存中没有任何更改。不匹配有三个可能的原因：
+plugin 的 marketplace 条目使用带有 `sha256` pin 的 [`archive` 源](/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source)，而下载文件的摘要与 pin 不匹配。Claude Code 拒绝安装，因此 plugin 缓存中没有任何更改。不匹配有三个可能的原因：
 
-* 作者计算固定值后，URL 处的文件已更改
-* 作者在市场条目中输入了错误的摘要
-* URL 提供的文件与作者固定的文件不同
+* 作者计算 pin 后，URL 处的文件已更改
+* 作者在 marketplace 条目中输入了错误的摘要
+* URL 提供的文件与作者 pin 的文件不同
 
 ```text theme={null}
 Plugin archive integrity check failed for https://artifacts.example.com/claude-plugins/my-plugin.zip: expected sha256 6bfa50e3d2e00c052b46abe51fff89346ac803e45771f76dcf6df1ab74cca5e1, got ac52220c0914ef8ca6a602e4a7362f88d30fb021110f72a6d15b68c3fe7df2b7. The archive was not installed. Verify the sha256 in the marketplace entry, or that the URL serves the intended file.
@@ -3513,15 +3513,15 @@ Plugin archive integrity check failed for https://artifacts.example.com/claude-p
 
 **要做什么：**
 
-* 如果您发布插件，使用 `shasum -a 256 my-plugin.zip` 或 PowerShell 中的 `Get-FileHash -Algorithm SHA256 my-plugin.zip` 重新计算 URL 提供的确切文件的摘要，并更新市场条目中的 `sha256`
-* 如果您安装插件，运行 `/plugin marketplace update <name>` 以刷新目录以防条目已更正，然后重试安装
-* 如果刷新后摘要仍然不一致，请在安装前询问市场所有者他们固定了哪个文件
+* 如果您发布 plugin，使用 `shasum -a 256 my-plugin.zip` 或 PowerShell 中的 `Get-FileHash -Algorithm SHA256 my-plugin.zip` 重新计算 URL 提供的确切文件的摘要，并更新 marketplace 条目中的 `sha256`
+* 如果您安装 plugin，运行 `/plugin marketplace update <name>` 以刷新目录以防条目已更正，然后重试安装
+* 如果刷新后摘要仍然不一致，请在安装前询问 marketplace 所有者他们 pin 了哪个文件
 
 <h3 id="path-escapes-plugin-directory">
-  路径逃逸插件目录
+  路径逃逸 plugin 目录
 </h3>
 
-插件组件路径在插件的 `plugin.json` 或其[市场条目](/docs/zh-CN/plugin-marketplaces#plugin-entries)中声明，解析到插件自己目录之外。Claude Code 删除该路径并加载插件的其余部分。消息中的组件名称（例如 `commands` 或 `hooks`）命名声明路径的字段。
+plugin 组件路径在 plugin 的 `plugin.json` 或其 [marketplace 条目](/docs/zh-CN/plugins/marketplace-reference#plugin-entries) 中声明，解析到 plugin 自己的目录之外。Claude Code 删除该路径并加载 plugin 的其余部分。消息中的组件名称（例如 `commands` 或 `hooks`）命名声明路径的字段。
 
 ```text theme={null}
 commands path escapes plugin directory: ./../shared.md
@@ -3529,39 +3529,39 @@ commands path escapes plugin directory: ./../shared.md
 
 在 `claude plugin` 命令输出中，相同的错误读作 `Path escapes plugin directory: ./../shared.md (commands)`。
 
-Claude Code 拒绝指向插件外部的路径（如 `../shared-utils`）和导致插件外部的符号链接，[市场符号链接规则](/docs/zh-CN/plugins-reference#share-files-within-a-marketplace-with-symlinks)不允许的符号链接。对于符号链接，消息还说明路径解析的位置：
+Claude Code 拒绝指向 plugin 外部的路径（如 `../shared-utils`）和导致 plugin 外部的符号链接，以及 [marketplace 符号链接规则](/docs/zh-CN/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks) 不允许的符号链接。对于符号链接，消息还说明路径解析的位置：
 
 ```text theme={null}
 commands path escapes plugin directory: ./commands/deploy.md — it resolves to /home/user/shared/deploy.md, outside the plugin directory
 ```
 
-在 macOS 和 Linux 上，Claude Code 还拒绝包含反斜杠的组件路径，即使路径保留在插件内。使用 Windows 风格分隔符的组件路径的插件在 Windows 上加载并在其他平台上触发此拒绝：
+在 macOS 和 Linux 上，Claude Code 还拒绝包含反斜杠的组件路径，即使路径保留在 plugin 内。其组件路径使用 Windows 风格分隔符的 plugin 在 Windows 上加载，并在其他平台上触发此拒绝：
 
 ```text theme={null}
 commands path escapes plugin directory: ./commands\deploy.md — its path contains a backslash, which is not resolved reliably on this platform
 ```
 
-在 v2.1.251 之前，Claude Code 加载在市场条目中声明的 `commands` 路径，即使它指向插件目录之外。Claude Code 已拒绝在 `plugin.json` 中声明的路径和市场条目中的其他组件路径。
+在 v2.1.251 之前，Claude Code 加载在 marketplace 条目中声明的 `commands` 路径，即使它指向 plugin 目录之外。Claude Code 已经拒绝在 `plugin.json` 中声明的路径和 marketplace 条目中的其他组件路径。
 
-在 v2.1.257 之前，检查仅查看路径的拼写，而不查看符号链接导向的位置。
+在 v2.1.257 之前，检查仅查看路径的拼写，而不是符号链接导向的位置。
 
 **要做什么：**
 
-* 将引用的文件移到插件目录内，并使用 `./` 相对路径指向它
-* 如果路径是指向插件外部文件的符号链接，请用文件副本替换符号链接
+* 将引用的文件移到 plugin 目录内，并使用 `./` 相对路径指向它
+* 如果路径是指向 plugin 外部文件的符号链接，请用文件副本替换符号链接
 * 如果消息说路径包含反斜杠，请使用正斜杠写入路径，例如 `./commands/deploy.md`
-* 要与同一市场中的其他插件共享文件，请使用插件目录内的符号链接链接它们，遵循[符号链接规则](/docs/zh-CN/plugins-reference#share-files-within-a-marketplace-with-symlinks)
+* 要与同一 marketplace 中的其他 plugin 共享文件，请使用 plugin 目录内的符号链接链接它们，遵循 [符号链接规则](/docs/zh-CN/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks)
 
 <h3 id="path-could-not-be-checked">
   路径无法检查
 </h3>
 
-Claude Code 询问操作系统插件路径是否存在，并收到"未找到"以外的错误，因此它不加载路径命名的内容。插件加载多少取决于哪个路径失败：
+Claude Code 询问操作系统 plugin 路径是否存在，并收到除"未找到"之外的错误，因此它不加载路径命名的内容。plugin 的加载量取决于哪个路径失败：
 
-* 插件的[默认组件位置](/docs/zh-CN/plugins-reference#file-locations-reference)之一，例如 `skills/` 文件夹、`monitors/monitors.json` 文件或[插件根目录的 `SKILL.md`](/docs/zh-CN/plugins-reference#skills)：插件的其他组件仍然加载
-* 插件自己的目录：该插件中没有任何内容加载
+* plugin 的 [默认组件位置](/docs/zh-CN/plugins/manifest-reference#standard-layout) 之一，例如 `skills/` 文件夹、`monitors/monitors.json` 文件或 [plugin 根目录的 `SKILL.md`](/docs/zh-CN/plugins/components#skills)：plugin 的其他组件仍然加载
+* plugin 自己的目录：该 plugin 中没有任何内容加载
 
-对于根本不存在的路径，您看不到此错误。在 `/plugin` 中，错误出现在插件下方，并命名路径和操作系统返回的代码：
+对于根本不存在的路径，您看不到此错误。在 `/plugin` 中，错误出现在 plugin 下方，并命名路径和操作系统返回的代码：
 
 ```text theme={null}
 skills path could not be checked: /home/user/my-plugin/skills (ELOOP)
@@ -3571,29 +3571,29 @@ skills path could not be checked: /home/user/my-plugin/skills (ELOOP)
 
 产生此错误的原因包括：
 
-* `ELOOP`：路径中的符号链接指向自己或形成循环
+* `ELOOP`：路径中的符号链接指向自身或形成循环
 * `EIO` 或 `ESTALE`：路径在损坏或陈旧的网络挂载上
 * `EACCES`：路径上方的目录之一拒绝您遍历它的权限
 
 **要做什么：**
 
-* 用真实文件夹替换指向自己的符号链接，或删除它
+* 用真实文件夹替换指向自身的符号链接，或删除它
 * 如果路径在网络挂载上，重新挂载共享
 * 如果代码是 `EACCES`，恢复您对路径上方目录的执行权限
-* 修复路径后运行 `/reload-plugins`，或重启 Claude Code，以加载插件或组件
+* 修复路径后运行 `/reload-plugins`，或重启 Claude Code，以加载 plugin 或组件
 
-在 v2.1.265 之前，Claude Code 将无法检查的默认组件文件夹视为不存在，并加载没有该组件的插件，没有错误。
+在 v2.1.265 之前，Claude Code 将无法检查的默认组件文件夹视为不存在，并加载 plugin 而不使用该组件，没有错误。
 
 <h3 id="marketplace-entry-path-does-not-stay-inside-the-marketplace-directory">
-  市场条目路径不保留在市场目录内
+  Marketplace 条目路径不保留在 marketplace 目录内
 </h3>
 
-插件的[市场条目](/docs/zh-CN/plugin-marketplaces#plugin-entries)声明了一个源路径，Claude Code 无法将其解析到市场自己目录内的位置，因此插件不会安装或加载。拒绝涵盖：
+plugin 的 [marketplace 条目](/docs/zh-CN/plugins/marketplace-reference#plugin-entries) 声明了一个源路径，Claude Code 无法将其解析到 marketplace 自己的目录内的位置，因此 plugin 不会安装或加载。拒绝涵盖：
 
-* 绝对的条目路径、使用 `..` 爬出市场的路径或拼写为网络路径的路径
+* 绝对的条目路径、使用 `..` 爬出 marketplace 的路径或拼写为网络路径的路径
 * 在 macOS 和 Linux 上，在前导 `./` 之后的任何地方包含反斜杠的条目路径
-* 从远程来源（例如 git 或 URL）获取的市场中的条目，通过解析到市场目录外的符号链接到达其目标
-* 从直接 URL 添加到其 `marketplace.json` 的市场中的相对条目：Claude Code 仅下载该文件，因此不存在本地插件文件供路径命名。请参阅[相对路径插件在基于 URL 的市场中失败](/docs/zh-CN/plugin-marketplaces#plugins-with-relative-paths-fail-in-url-based-marketplaces)
+* 从远程源（例如 git 或 URL）获取的 marketplace 中的条目，通过解析到 marketplace 目录外的符号链接到达其目标
+* 从直接 URL 添加到其 `marketplace.json` 的 marketplace 中的相对条目：Claude Code 仅下载该文件，因此不存在本地 plugin 文件供路径命名。请参阅 [相对路径的 Plugins 在基于 URL 的 marketplaces 中失败](/docs/zh-CN/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces)
 
 `claude plugin install` 报告拒绝如下：
 
@@ -3601,7 +3601,7 @@ skills path could not be checked: /home/user/my-plugin/skills (ELOOP)
 Cannot install my-plugin@my-marketplace: its marketplace entry path does not stay inside the marketplace directory (an absolute, climbing, network-shaped, backslash-containing or link-traversing entry, an entry of a fetched marketplace that resolves or opens outside its tree — or a relative entry in a url-catalog marketplace, which has no local directory)
 ```
 
-当已安装的插件的条目失败相同的检查时，`claude plugin list` 显示插件为 `failed to load`，带有：
+当已安装的 plugin 的条目失败相同的检查时，`claude plugin list` 显示 plugin 为 `failed to load`，带有：
 
 ```text theme={null}
 Plugin source path refused: ./my-plugin does not stay inside its marketplace directory. Check that the marketplace entry has a plain relative path.
@@ -3609,19 +3609,19 @@ Plugin source path refused: ./my-plugin does not stay inside its marketplace dir
 
 **要做什么：**
 
-* 如果您维护市场，将条目的 `source` 写为带有正斜杠的纯相对路径，例如 `./plugins/my-plugin`，并保持它穿过的任何符号链接指向市场目录内
-* 如果您从直接 URL 添加了市场，相对条目无法解析。要求市场作者使用[另一个插件来源](/docs/zh-CN/plugin-marketplaces#plugin-sources)，或从其 git 存储库添加市场
+* 如果您维护 marketplace，将条目的 `source` 写为带有正斜杠的纯相对路径，例如 `./plugins/my-plugin`，并保持它穿过的任何符号链接指向 marketplace 目录内
+* 如果您从直接 URL 添加了 marketplace，相对条目无法解析。要求 marketplace 作者使用 [另一个 plugin 源](/docs/zh-CN/plugins/marketplace-reference#plugin-sources)，或改为从其 git 存储库添加 marketplace
 
 <h3 id="failed-to-load-marketplace-configuration">
-  无法加载市场配置
+  无法加载 marketplace 配置
 </h3>
 
-Claude Code 将您添加的插件市场保存在 `~/.claude/plugins/known_marketplaces.json` 的注册表文件中。当 Claude Code 无法使用该文件时，需要注册表的插件命令（例如 `claude plugin install`）失败，并显示以下两条消息之一：
+Claude Code 将您添加的 plugin marketplaces 保存在 `~/.claude/plugins/known_marketplaces.json` 的注册表文件中。当 Claude Code 无法使用该文件时，需要注册表的 plugin 命令（例如 `claude plugin install`）会失败，并显示以下两条消息之一：
 
 * `Failed to load marketplace configuration`：文件不是有效的 JSON，或无法读取。空文件也会以这种方式失败。
 * `Marketplace configuration file is corrupted`：文件是有效的 JSON，但其内容与注册表架构不匹配。
 
-缺少的文件不是失败：Claude Code 将其视为没有市场的注册表。
+缺少的文件不是失败：Claude Code 将其视为没有 marketplaces 的注册表。
 
 对于空文件，`claude plugin install` 报告：
 
@@ -3634,25 +3634,25 @@ Claude Code 将您添加的插件市场保存在 `~/.claude/plugins/known_market
 **要做什么：**
 
 * 打开 `~/.claude/plugins/known_marketplaces.json` 并修复 JSON，或修复消息命名为与注册表架构不匹配的条目
-* 如果您无法修复它，删除文件或用 `{}` 替换其内容，然后使用 `claude plugin marketplace add <source>` 重新添加每个市场。Claude Code 在您下次在已信任的文件夹中启动它时重新注册您的用户或托管设置在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 中声明的市场。
+* 如果您无法修复它，删除文件或用 `{}` 替换其内容，然后使用 `claude plugin marketplace add <source>` 重新添加每个 marketplace。Claude Code 在您下次在您信任的文件夹中启动它时重新注册您的用户或托管设置在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 中声明的 marketplaces。
 
 <h3 id="plugin-is-required-by-your-organization">
-  插件由您的组织要求
+  Plugin 由您的组织要求
 </h3>
 
-您运行了 `claude plugin disable`，或使用 `/plugin` **已安装**选项卡关闭了从 claude.ai 同步的[插件](/docs/zh-CN/plugins-reference#synced-plugins)，您的组织将其标记为必需：
+您运行了 `claude plugin disable`，或使用 `/plugin` **Installed** 选项卡关闭了从 claude.ai 同步的 [plugin](/docs/zh-CN/plugins/loading#synced-plugins)，您的组织将其标记为必需：
 
 ```text theme={null}
 Plugin "<name>@synced" is required by your organization and can't be disabled here. Contact your admin to change it.
 ```
 
-Claude Code 不保存任何内容，插件保持启用。
+Claude Code 不保存任何内容，plugin 保持启用。
 
-当您尝试禁用必需插件依赖的插件时，Claude Code 以相同的方式拒绝，消息命名需要它的必需插件。
+当您尝试禁用必需 plugin 依赖的 plugin 时，Claude Code 以相同的方式拒绝，消息命名需要它的必需 plugin。
 
 **要做什么：**
 
-* 要求您的 claude.ai 组织的管理员在 claude.ai 上更改插件的必需状态
+* 要求您的 claude.ai 组织的管理员在 claude.ai 上更改 plugin 的必需状态
 
 <h2 id="tool-errors">
   工具错误

@@ -135,7 +135,7 @@ Claude Code 还在对话中途附加系统上下文，例如文件更改通知�
   启用或禁用插件
 </h3>
 
-当您启用或禁用[插件](/docs/zh-CN/plugins)时，更改的成本取决于插件提供的组件类型。下面的情况涵盖每个组件类型、Claude Code 何时应用更改以及在同一会话中再次禁用插件时会发生什么。
+当您启用或禁用[插件](/docs/zh-CN/plugins/overview)时，更改的成本取决于插件提供的组件类型。下面的情况涵盖每个组件类型、Claude Code 何时应用更改以及在同一会话中再次禁用插件时会发生什么。
 
 <h4 id="plugin-components-that-keep-the-cache">
   保持缓存的插件组件
@@ -147,7 +147,7 @@ Claude Code 永远不会为插件的技能、命令、代理、hooks、监视器
   提供 MCP 服务器的插件
 </h4>
 
-当您启用或禁用提供 [MCP 服务器](/docs/zh-CN/plugins-reference#mcp-servers) 的插件时，Claude Code 遵循与[连接或断开 MCP 服务器](#connecting-or-disconnecting-an-mcp-server)相同的规则：
+当您启用或禁用提供 [MCP 服务器](/docs/zh-CN/plugins/components#mcp-servers) 的插件时，Claude Code 遵循与[连接或断开 MCP 服务器](#connecting-or-disconnecting-an-mcp-server)相同的规则：
 
 * 如果 Claude Code 延迟服务器的工具，它会保持缓存。
 * 如果 Claude Code 将它们加载到前缀中，下一个请求会重新读取整个对话。
@@ -156,24 +156,24 @@ Claude Code 永远不会为插件的技能、命令、代理、hooks、监视器
   代码智能插件
 </h4>
 
-当您启用[代码智能插件](/docs/zh-CN/discover-plugins#code-intelligence)时，Claude 会获得 [LSP 工具](/docs/zh-CN/tools-reference#lsp-tool-behavior)。
+当您启用[代码智能插件](/docs/zh-CN/plugins/code-intelligence)时，Claude 会获得 [LSP 工具](/docs/zh-CN/tools-reference#lsp-tool-behavior)。
 
 <h4 id="when-plugin-changes-apply">
   插件更改何时应用
 </h4>
 
-您在 `/plugin` 菜单中所做的更改会通过 [`/reload-plugins`](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting) 进行，Claude Code 在您关闭菜单时为您运行。您需要支付成本，无论是追加公告还是完整重新读取，都在更改应用后的第一个回合。Claude Code 也可以自行应用更改：
+您在 `/plugin` 菜单中所做的更改会通过 [`/reload-plugins`](/docs/zh-CN/plugins/cli-reference#reload-plugins) 进行，Claude Code 在您关闭菜单时为您运行。您需要支付成本，无论是追加公告还是完整重新读取，都在更改应用后的第一个回合。Claude Code 也可以自行应用更改：
 
-* 对于具有 `command` 源的插件，Claude Code [可以自行重新加载插件](/docs/zh-CN/plugin-marketplaces#when-claude-code-re-runs-the-command)。
-* 当您[从 `/plugin` 界面安装插件](/docs/zh-CN/discover-plugins#install-plugins)时，Claude Code 可以在安装期间激活它。安装摘要会告诉您它是否这样做了。
+* 对于具有 `command` 源的插件，Claude Code [可以自行重新加载插件](/docs/zh-CN/plugins/loading#when-a-command-source-re-runs)。
+* 当您[从 `/plugin` 界面安装插件](/docs/zh-CN/plugins/install#install-a-plugin)时，Claude Code 可以在安装期间激活它。安装摘要会告诉您它是否这样做了。
 * 当您在 v2.1.246 或更高版本上使用 `/cd` [移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory)时，Claude Code 会在移动过程中应用新目录的设置启用的插件，而不会出现保持 `/reload-plugins` 的完整重新读取警告。
-* 在交互式会话中，当您在使用 `--plugin-dir` 传递的[插件文件夹](/docs/zh-CN/plugins#test-your-plugins-locally)中添加或删除插件时，更改会立即应用。如果应用它会触发完整重新读取，Claude Code 会保持更改并显示运行 `/reload-plugins` 的通知。需要 Claude Code v2.1.265 或更高版本。
+* 在交互式会话中，当您在使用 `--plugin-dir` 传递的[插件文件夹](/docs/zh-CN/plugins/create#load-a-directory-or-archive-for-one-session)中添加或删除插件时，更改会立即应用。如果应用它会触发完整重新读取，Claude Code 会保持更改并显示运行 `/reload-plugins` 的通知。需要 Claude Code v2.1.265 或更高版本。
 
 当 `/reload-plugins` 运行且重新加载会触发完整重新读取时，Claude Code 会显示警告并不应用重新加载。运行 `/reload-plugins --force` 以无论如何应用它。
 
 `/reload-plugins` 也在没有交互式终端的会话中运行，例如桌面应用、Agent SDK 和[非交互式模式](/docs/zh-CN/headless)与 `-p`，当您直接将其输入到会话中时。需要 Claude Code v2.1.260 或更高版本。
 
-在这些会话中，重新加载应用除了插件 MCP 服务器更改之外的所有内容，这些[在您的下一个会话中生效](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting)，因此在会话中途永远不会成本完整重新读取。
+在这些会话中，重新加载应用除了插件 MCP 服务器更改之外的所有内容，这些[在您的下一个会话中生效](/docs/zh-CN/plugins/cli-reference#reload-plugins)，因此在会话中途永远不会成本完整重新读取。
 
 <h4 id="plugins-you-enable-and-then-disable-in-one-session">
   您在一个会话中启用然后禁用的插件

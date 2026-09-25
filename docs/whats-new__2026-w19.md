@@ -24,7 +24,7 @@
   claude --plugin-url https://example.com/my-plugin.zip
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/plugins">Plugins指南</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/plugins/overview">Plugins指南</a>
 </div>
 
 <div className="digest-feature">

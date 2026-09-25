@@ -202,7 +202,7 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
   使用代码智能减少文件读取
 </h3>
 
-在大型代码库中，查找符号的定义或使用位置可能需要许多文件读取和 grep 调用。[代码智能插件](/docs/zh-CN/discover-plugins#code-intelligence)将 Claude 连接到语言服务器，以便它可以跳转到定义、查找引用和直接显示类型错误，而不是扫描树。
+在大型代码库中，查找符号的定义或使用位置可能需要许多文件读取和 grep 调用。[代码智能插件](/docs/zh-CN/plugins/code-intelligence)将 Claude 连接到语言服务器，以便它可以跳转到定义、查找引用和直接显示类型错误，而不是扫描树。
 
 官方市场有 TypeScript、Python、Go、Rust 和其他常见语言的插件。在 Claude Code 会话内运行下面的命令来安装 TypeScript 插件：
 
@@ -213,11 +213,11 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
 如果安装失败，请匹配 Claude Code 报告的消息：
 
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* 插件[在市场中找不到](/docs/zh-CN/discover-plugins#install-plugins)：检查插件名称。
+* 插件[在市场中找不到](/docs/zh-CN/plugins/install#install-a-plugin)：检查插件名称。
 
 要为存储库中的每个人启用插件而不是自己安装，请将其添加到 [`enabledPlugins` 项目设置](/docs/zh-CN/settings-reference#plugin-settings)。
 
-代码智能插件需要每个开发者机器上的语言的语言服务器二进制文件。查看[每种语言需要哪个二进制文件](/docs/zh-CN/discover-plugins#code-intelligence)。从官方市场安装需要网络访问 GitHub，市场在那里托管。在受限网络上，[从内部 Git 主机或本地路径添加市场](/docs/zh-CN/discover-plugins#add-from-other-git-hosts)。
+代码智能插件需要每个开发者机器上的语言的语言服务器二进制文件。查看[每种语言需要哪个二进制文件](/docs/zh-CN/plugins/code-intelligence)。从官方市场安装需要网络访问 GitHub，市场在那里托管。在受限网络上，[从内部 Git 主机或本地路径添加市场](/docs/zh-CN/plugins/install#add-a-marketplace)。
 
 这与上面的 `claudeMdExcludes` 和 `Read` 拒绝规则配对良好。那些保持不相关的内容不进入上下文，代码智能保持 Claude 不读取剩余的内容来定位定义。
 
@@ -395,7 +395,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 
 名称始终加载，但[当有许多时，某些 skills 会完全失去其描述](/docs/zh-CN/skills#skill-descriptions-are-cut-short)，这可能会剥离 Claude 用来决定 skill 是否适用的关键字。保持描述简短并以请求会包含的词开头，例如"在 `packages/api/` 中编写或修改测试"。
 
-对于许多目录共享的 skills，例如 PR 约定或部署检查清单，将它们放在存储库根目录的 `.claude/skills/` 中，以便从任何启动目录加载。当共享 skills 需要自己的版本历史或必须跨存储库工作时，改为将它们打包为[插件](/docs/zh-CN/plugins)。插件 skills 使用 `plugin-name:skill-name` 命名空间，所以它们永远不会与按目录的 skills 冲突。平台团队可以在一个地方对它们进行版本化和更新。
+对于许多目录共享的 skills，例如 PR 约定或部署检查清单，将它们放在存储库根目录的 `.claude/skills/` 中，以便从任何启动目录加载。当共享 skills 需要自己的版本历史或必须跨存储库工作时，改为将它们打包为[插件](/docs/zh-CN/plugins/overview)。插件 skills 使用 `plugin-name:skill-name` 命名空间，所以它们永远不会与按目录的 skills 冲突。平台团队可以在一个地方对它们进行版本化和更新。
 
 要查找哪些 skills 未被使用，启用 OpenTelemetry [日志导出器](/docs/zh-CN/monitoring-usage)并设置 `OTEL_LOG_TOOL_DETAILS=1` 以便 skill 名称被逐字记录而不是被编辑。[`skill_activated` 事件](/docs/zh-CN/monitoring-usage#skill-activated-event)在其 `skill.name` 属性中记录每个调用，`invocation_trigger` 记录命令、Claude 或嵌套 skill 是否调用它，这告诉你要合并或停用什么。
 
@@ -408,7 +408,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 将约定和参考内容从始终加载的 CLAUDE.md 移出到按需加载的机制中：
 
 * [Skills](/docs/zh-CN/skills)：Claude 仅在与任务相关时加载的参考材料
-* [Plugins](/docs/zh-CN/plugins)：平台团队集中拥有的 skills、hooks 和命令的版本化包
+* [Plugins](/docs/zh-CN/plugins/overview)：平台团队集中拥有的 skills、hooks 和命令的版本化包
 * [MCP servers](/docs/zh-CN/mcp)：如果你的组织已经在存储库上运行代码搜索或 RAG 索引，将其公开为 MCP 工具，以便 Claude 查询它而不是直接读取文件
 
 有关平台团队如何集中强制这些的信息，请参阅[服务器管理或端点管理的设置](/docs/zh-CN/server-managed-settings#choose-between-server-managed-and-endpoint-managed-settings)。

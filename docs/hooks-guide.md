@@ -10,7 +10,7 @@ Hooks 是用户定义的 shell 命令。Claude Code 在其生命周期中的特�
 
 对于需要判断而不是确定性规则的决策，你也可以使用 [基于提示的 hooks](#prompt-based-hooks) 或 [基于代理的 hooks](#agent-based-hooks)，它们使用 Claude 模型来评估条件。
 
-有关扩展 Claude Code 的其他方式，请参阅 [skills](/docs/zh-CN/skills) 用于为 Claude 提供额外的指令和可执行命令，[subagents](/docs/zh-CN/sub-agents) 用于在隔离的上下文中运行任务，以及 [plugins](/docs/zh-CN/plugins) 用于打包要在项目间共享的扩展。
+有关扩展 Claude Code 的其他方式，请参阅 [skills](/docs/zh-CN/skills) 用于为 Claude 提供额外的指令和可执行命令，[subagents](/docs/zh-CN/sub-agents) 用于在隔离的上下文中运行任务，以及 [plugins](/docs/zh-CN/plugins/overview) 用于打包要在项目间共享的扩展。
 
 <Tip>
   本指南涵盖常见用例和入门方法。有关完整的事件架构、JSON 输入/输出格式和异步 hooks 和 MCP 工具 hooks 等高级功能，请参阅 [Hooks 参考](/docs/zh-CN/hooks)。
@@ -710,7 +710,7 @@ exit 0  # exit 0 = 没有决策；正常权限流程适用
 }
 ```
 
-`"Edit|Write"` 匹配器仅在 Claude 使用 `Edit` 或 `Write` 工具时触发，而不是在它使用 `Bash`、`Read` 或任何其他工具时触发。在 Claude Code v2.1.191 或更高版本上，逗号以相同的方式分隔替代项，所以 `"Edit, Write"` 是等效的。请参阅 [匹配器模式](/docs/zh-CN/hooks#matcher-patterns) 了解纯名称和正则表达式如何被评估。
+`"Edit|Write"` 匹配器仅在 Claude 使用 `Edit` 或 `Write` 工具时触发，而不是在它使用 `Bash`、`Read` 或任何其他工具时触发。逗号以相同的方式分隔替代项，所以 `"Edit, Write"` 是等效的。请参阅 [匹配器模式](/docs/zh-CN/hooks#matcher-patterns) 了解纯名称和正则表达式如何被评估。
 
 <Note>
   Claude 也可以通过运行 shell 命令来创建或修改文件。如果你的 hook 必须看到每个文件更改（例如用于合规性扫描或审计日志），添加一个 [`Stop`](/docs/zh-CN/hooks#stop) hook，它每轮扫描一次工作树。为了获得每次调用的覆盖，也匹配 `Bash|PowerShell` 并让你的脚本使用 `git status --porcelain` 列出修改和未跟踪的文件。[PowerShell hook 输入部分](/docs/zh-CN/hooks#powershell) 解释了为什么仅匹配 `Bash` 是不够的。要在特定文件在磁盘上更改时运行 hook（无论是什么写入它），使用 [FileChanged](/docs/zh-CN/hooks#filechanged) hook。
@@ -860,15 +860,15 @@ exit 0  # exit 0 = 没有决策；正常权限流程适用
 
 你添加 hook 的位置决定了其范围：
 
-| 位置                                          | 范围                                                                                         | 可共享                                |
-| :------------------------------------------ | :----------------------------------------------------------------------------------------- | :--------------------------------- |
-| `~/.claude/settings.json`                   | 所有你的项目                                                                                     | 否，本地到你的机器                          |
-| `.claude/settings.json`                     | 单个项目                                                                                       | 是，可以提交到仓库                          |
-| `.claude/settings.local.json`               | 单个项目                                                                                       | 否，gitignored 当 Claude Code 保存设置到它时 |
-| 托管策略设置                                      | 组织范围                                                                                       | 是，管理员控制                            |
-| [Plugin](/docs/zh-CN/plugins) `hooks/hooks.json` | 启用插件时                                                                                      | 是，与插件捆绑                            |
-| [Skill](/docs/zh-CN/skills) frontmatter          | 调用 skill 后的会话的其余部分。请参阅 [Skills 和 agents 中的 Hooks](/docs/zh-CN/hooks#hooks-in-skills-and-agents) | 是，在 skill 文件中定义                    |
-| [Subagent](/docs/zh-CN/sub-agents) frontmatter   | 该 subagent 运行时                                                                             | 是，在 subagent 文件中定义                 |
+| 位置                                                   | 范围                                                                                         | 可共享                                |
+| :--------------------------------------------------- | :----------------------------------------------------------------------------------------- | :--------------------------------- |
+| `~/.claude/settings.json`                            | 所有你的项目                                                                                     | 否，本地到你的机器                          |
+| `.claude/settings.json`                              | 单个项目                                                                                       | 是，可以提交到仓库                          |
+| `.claude/settings.local.json`                        | 单个项目                                                                                       | 否，gitignored 当 Claude Code 保存设置到它时 |
+| 托管策略设置                                               | 组织范围                                                                                       | 是，管理员控制                            |
+| [Plugin](/docs/zh-CN/plugins/overview) `hooks/hooks.json` | 启用插件时                                                                                      | 是，与插件捆绑                            |
+| [Skill](/docs/zh-CN/skills) frontmatter                   | 调用 skill 后的会话的其余部分。请参阅 [Skills 和 agents 中的 Hooks](/docs/zh-CN/hooks#hooks-in-skills-and-agents) | 是，在 skill 文件中定义                    |
+| [Subagent](/docs/zh-CN/sub-agents) frontmatter            | 该 subagent 运行时                                                                             | 是，在 subagent 文件中定义                 |
 
 在 Claude Code 中运行 [`/hooks`](/docs/zh-CN/hooks#the-%2Fhooks-menu) 以浏览所有按事件分组的配置 hooks。
 

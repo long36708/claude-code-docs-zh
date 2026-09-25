@@ -171,7 +171,7 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
   </Step>
 </Steps>
 
-[Plugins](/docs/zh-CN/plugins-reference) 也可以在 `output-styles/` 目录中提供输出样式。
+[Plugins](/docs/zh-CN/plugins/manifest-reference) 也可以在 `output-styles/` 目录中提供输出样式。
 
 <h3 id="frontmatter">
   Frontmatter 参考
@@ -228,5 +228,5 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
 
 * [Settings](/docs/zh-CN/settings)：`outputStyle` 字段所在的位置以及设置优先级的工作原理
 * [Permission modes](/docs/zh-CN/permission-modes)：Proactive 样式与自动模式的比较方式
-* [Plugins](/docs/zh-CN/plugins)：打包和分发输出样式以及 skills、hooks 和 agents
+* [Plugins](/docs/zh-CN/plugins/overview)：打包和分发输出样式以及 skills、hooks 和 agents
 * [Debug your configuration](/docs/zh-CN/debug-your-config)：诊断为什么输出样式没有生效

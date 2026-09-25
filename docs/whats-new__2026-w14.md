@@ -116,7 +116,7 @@
       └── my-tool
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/plugins-reference#file-locations-reference">插件参考</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/plugins/manifest-reference#standard-layout">插件参考</a>
 </div>
 
 <div className="digest-wins">

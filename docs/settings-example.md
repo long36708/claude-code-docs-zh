@@ -98,9 +98,10 @@
   团队的共享设置
 </h2>
 
-一个团队的共享设置，提交到仓库，以便克隆它的每个人都获得相同的权限、hooks、遥测和插件市场。在仓库顶部的 `.claude/settings.json` 处保存这样的文件。在提交之前需要了解的内容：
+一个团队的共享设置，提交到仓库，以便克隆它的每个人都获得相同的权限、hooks 和插件市场。在仓库顶部的 `.claude/settings.json` 处保存这样的文件。在提交之前需要了解的内容：
 
 * **云会话也会读取它。** Claude Code 网页版上的 [cloud session](/docs/zh-CN/settings#settings-in-cloud-sessions) 从仓库的克隆开始，因此提交的文件也适用于那里。
+* **遥测数据放在托管或个人设置中。** Claude Code 忽略仓库设置文件中的 [OpenTelemetry 导出器变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)，除了一些关闭遥测的值。在 [托管设置](/docs/zh-CN/monitoring-usage#administrator-configuration) 中为你的组织设置它们，或在每个人的 `~/.claude/settings.json` 中设置。
 * **Allow 规则等待信任。** Allow 规则和 `extraKnownMarketplaces` 条目在每个人 [信任此文件夹本身](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust) 后生效，而不仅仅是父文件夹；deny 和 ask 规则在每个会话中应用，无论是否受信任。
 * **hook 是仓库中的脚本。** 此文件的 hook 运行 `.claude/hooks/block-rm.sh`；[How a hook resolves](/docs/zh-CN/hooks#how-a-hook-resolves) 介绍了如何编写它。
 * **规则匹配按写入的命令和路径。** `Bash(git push *)` 不匹配 [`git -C . push`](/docs/zh-CN/permissions#bash-rule-limits)。`Read(./.env)` 单独停止文件工具和命名文件的命令，例如 `cat .env`，但不停止 [`grep -r` 在目录上运行](/docs/zh-CN/permissions#read-and-edit)；此文件中的 `sandbox` 块关闭了该间隙，因为 sandbox [添加你的 `Read` deny 路径](/docs/zh-CN/settings-reference#sandbox-filesystem-denyread) 到每个沙箱命令无法读取的内容。
@@ -123,12 +124,6 @@
           "Read(./.env.*)",
           "Read(./secrets/**)"
         ]
-      },
-      "env": {
-        "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
-        "OTEL_METRICS_EXPORTER": "otlp",
-        "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
-        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://collector.example.com:4317"
       },
       "hooks": {
         "PreToolUse": [
@@ -193,13 +188,6 @@
           "Read(./.env.*)",
           "Read(./secrets/**)"
         ]
-      },
-      // 通过 gRPC 将 OpenTelemetry 指标发送到团队的收集器；将端点替换为你的收集器的 URL
-      "env": {
-        "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
-        "OTEL_METRICS_EXPORTER": "otlp",
-        "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
-        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://collector.example.com:4317"
       },
       // 在每个 Bash 命令之前，运行仓库中可以阻止它的脚本
       "hooks": {

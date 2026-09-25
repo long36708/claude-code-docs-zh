@@ -282,6 +282,8 @@ Teleport 需要 claude.ai 订阅身份验证。如果您通过 API 密钥进行�
 
 每个会话显示一个 diff 指示器，显示添加和删除的行数，如 `+42 -18`。选择它以打开 diff 视图，在特定行上留下内联评论，并使用你的下一条消息将它们发送给 Claude。
 
+diff 视图默认将会话的更改与其基础分支进行比较。要与存储库中的任何其他分支进行比较，请选择 **Compare against** 并选择一个分支。
+
 Claude Code 从原始 git blob 内容计算这些 diffs，包括 Claude 编辑时显示的每个文件 diffs，所以存储库中配置的 diff 驱动程序和 `textconv` 过滤器不适用。对于不是会话自己的检出之一的存储库中的文件，如在会话期间克隆到工作区内的文件，每个文件 diff 显示 Claude 的编辑本身，而不是 git 比较。
 
 有关完整演练（包括 PR 创建），请参阅[审查和迭代](/docs/zh-CN/web-quickstart#review-and-iterate)。要让 Claude 自动监控 PR 以查找 CI 失败和审查评论，请参阅[自动修复拉取请求](#auto-fix-pull-requests)。

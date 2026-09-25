@@ -38,7 +38,7 @@ Claude Code 在成功时以代码 0 退出，在运行失败时以非零代码�
   使用裸模式更快启动
 </h3>
 
-添加 `--bare` 以通过跳过 hooks、skills、自定义命令、[subagents](/docs/zh-CN/sub-agents)、plugins、MCP 服务器、自动内存和 CLAUDE.md 的自动发现来减少启动时间。没有它，`claude -p` 会加载交互式会话相同的 [上下文](/docs/zh-CN/how-claude-code-works#the-context-window)，包括在工作目录或 `~/.claude` 中配置的任何内容。
+添加 `--bare` 以通过跳过 hooks、skills、自定义命令、[subagents](/docs/zh-CN/sub-agents)、installed plugins、MCP 服务器、auto memory 和 CLAUDE.md 的自动发现来减少启动时间。没有它，`claude -p` 会加载交互式会话相同的 [上下文](/docs/zh-CN/how-claude-code-works#the-context-window)，包括在工作目录或 `~/.claude` 中配置的任何内容。
 
 裸模式对于 CI 和脚本很有用，您需要在每台机器上获得相同的结果。队友的 `~/.claude` 中的 hook 或项目的 `.mcp.json` 中的 MCP 服务器不会运行，因为裸模式从不读取它们。您使用 `--add-dir` 命名的目录是部分例外：裸模式从其 `.claude/skills/` 文件夹加载 skills，但仍然跳过其 `.claude/commands/` 和 `.claude/agents/` 文件夹。[来自其他目录的 Skills](/docs/zh-CN/skills#skills-from-additional-directories) 涵盖了加载和不加载的内容。
 

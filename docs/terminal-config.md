@@ -156,7 +156,7 @@ set -as terminal-features 'xterm*:extkeys'
   创建自定义主题
 </h3>
 
-除了内置预设外，`/theme` 还列出您定义的任何自定义主题以及由已安装的[插件](/docs/zh-CN/plugins-reference#themes)贡献的任何主题。选择列表末尾的\*\*新建自定义主题…\*\*以交互方式创建一个：您命名主题，然后选择要覆盖的各个颜色令牌。当自定义主题突出显示时，按 `Ctrl+E` 可编辑它。
+除了内置预设外，`/theme` 还列出您定义的任何自定义主题以及由已安装的[插件](/docs/zh-CN/plugins/components#themes-and-output-styles)贡献的任何主题。选择列表末尾的\*\*新建自定义主题…\*\*以交互方式创建一个：您命名主题，然后选择要覆盖的各个颜色令牌。当自定义主题突出显示时，按 `Ctrl+E` 可编辑它。
 
 每个自定义主题都是 `~/.claude/themes/` 中的一个 JSON 文件。不带 `.json` 扩展名的文件名是主题的 slug，选择主题会将 `custom:<slug>` 存储为您的主题偏好设置。该文件有三个可选字段：
 

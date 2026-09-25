@@ -32,7 +32,7 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 * [CLI](/docs/zh-CN/quickstart) 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview)
 * [VS Code](/docs/zh-CN/vs-code) 和 [JetBrains](/docs/zh-CN/jetbrains) 扩展
 * [Subagents](/docs/zh-CN/sub-agents)、[hooks](/docs/zh-CN/hooks-guide)、[commands](/docs/zh-CN/commands) 和 [skills](/docs/zh-CN/skills)
-* [CLAUDE.md memory](/docs/zh-CN/memory)、[plugins](/docs/zh-CN/plugins) 和 [MCP servers](/docs/zh-CN/mcp)
+* [CLAUDE.md memory](/docs/zh-CN/memory)、[plugins](/docs/zh-CN/plugins/overview) 和 [MCP servers](/docs/zh-CN/mcp)
 * [Checkpoints](/docs/zh-CN/checkpointing)、[sandboxing](/docs/zh-CN/sandboxing) 和 [Workflows](/docs/zh-CN/workflows)
 * [OpenTelemetry metrics](/docs/zh-CN/monitoring-usage) 和[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)
 

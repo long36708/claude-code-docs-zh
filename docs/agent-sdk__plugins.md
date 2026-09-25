@@ -13,7 +13,7 @@ Plugins 允许你使用可在项目间共享的自定义功能来扩展 Claude C
 * **Hooks**：响应工具使用和其他事件的事件处理程序
 * **MCP servers**：通过 Model Context Protocol 的外部工具集成
 
-有关 plugin 结构和如何创建 plugins 的完整信息，请参阅 [Plugins](/docs/zh-CN/plugins)。
+有关 plugin 结构和如何创建 plugins 的完整信息，请参阅 [Plugins](/docs/zh-CN/plugins/overview)。
 
 <h2 id="loading-plugins">
   加载 plugins
@@ -21,7 +21,7 @@ Plugins 允许你使用可在项目间共享的自定义功能来扩展 Claude C
 
 通过在选项配置中提供本地文件系统路径来加载 plugins。`type` 字段必须是 `"local"`，这是 SDK 接受的唯一值。SDK 支持从不同位置加载多个 plugins。
 
-要使用通过 [marketplace](/docs/zh-CN/plugin-marketplaces) 或远程存储库分发的 plugin，请先下载它并提供本地目录路径。有关 plugin 需要的目录布局，请参阅下面的 [Plugin 结构参考](#plugin-structure-reference)。
+要使用通过 [marketplace](/docs/zh-CN/plugins/overview) 或远程存储库分发的 plugin，请先下载它并提供本地目录路径。有关 plugin 需要的目录布局，请参阅下面的 [Plugin 结构参考](#plugin-structure-reference)。
 
 <CodeGroup>
   ```typescript TypeScript theme={null}
@@ -138,7 +138,7 @@ Plugin 路径可以是：
   ```
 </CodeGroup>
 
-<h2 id="using-plugin-skills">
+<h2 id="use-plugin-skills">
   使用 plugin skills
 </h2>
 
@@ -352,8 +352,8 @@ plugins: [
   另请参阅
 </h2>
 
-* [Plugins](/docs/zh-CN/plugins) - 完整的 plugin 开发指南
-* [Plugins reference](/docs/zh-CN/plugins-reference) - 技术规范
+* [Plugins](/docs/zh-CN/plugins/overview) - 完整的 plugin 开发指南
+* [Plugins reference](/docs/zh-CN/plugins/manifest-reference) - 技术规范
 * [Commands](/docs/zh-CN/agent-sdk/skills#dispatch-commands-by-name) - 在 SDK 中调度命令
 * [Subagents](/docs/zh-CN/agent-sdk/subagents) - 使用专门的 agents
 * [Skills](/docs/zh-CN/agent-sdk/skills) - 使用 Agent Skills

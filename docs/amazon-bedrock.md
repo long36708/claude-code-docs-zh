@@ -518,7 +518,9 @@ Claude Code 在每个请求上将此作为 `X-Amzn-Bedrock-Service-Tier` 标头�
   使用 Mantle 端点
 </h2>
 
-Mantle 是一个 Amazon Bedrock 端点，通过原生 Anthropic API 形状而不是 Amazon Bedrock Invoke API 提供 Claude 模型。它使用相同的 [AWS 凭证](#2-configure-aws-credentials)、[IAM 权限](#iam-configuration) 和 [`awsAuthRefresh` 配置](#advanced-credential-configuration)。
+Mantle 是一个 Amazon Bedrock 端点，通过原生 Anthropic API 形状而不是 Amazon Bedrock Invoke API 提供 Claude 模型。它使用相同的 [AWS 凭证](#2-configure-aws-credentials) 和 [`awsAuthRefresh` 配置](#advanced-credential-configuration)。
+
+Mantle 在 `bedrock-mantle:` 前缀下有自己的 IAM 操作，因此 [IAM 配置](#iam-configuration) 中的 `bedrock:` 操作不涵盖它。为推理授予您的 IAM 身份 `bedrock-mantle:CreateInference`，为令牌计数授予 `bedrock-mantle:CountTokens`。请参阅 AWS 文档中的[进行推理请求](https://docs.aws.amazon.com/bedrock/latest/userguide/inference.html)和[计数令牌](https://docs.aws.amazon.com/bedrock/latest/userguide/count-tokens.html)，以及[服务授权参考](https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonbedrockpoweredbyawsmantle.html)了解每个 Mantle 操作。
 
 <h3 id="enable-mantle">
   启用 Mantle
@@ -670,7 +672,10 @@ Amazon Bedrock 以二进制事件流格式流式传输 `InvokeModelWithResponseS
 
 如果在设置 `CLAUDE_CODE_USE_MANTLE` 后 `/status` 没有显示 `Amazon Bedrock (Mantle)`，则该变量没有到达进程。确认它在您启动 `claude` 的 shell 中被导出，或在您的[设置文件](/docs/zh-CN/settings)的 `env` 块中设置它。
 
-来自 Mantle 端点的 `403`（具有有效凭证）意味着您的 AWS 账户没有被授予访问您请求的模型的权限。联系您的 AWS 账户团队以请求访问。
+来自 Mantle 端点的 `403` 的含义取决于错误是否命名了 IAM 操作：
+
+* 如果错误命名了 `bedrock-mantle:` 操作，请为您的 IAM 身份授予该操作。
+* 如果错误没有命名任何操作且您的凭证有效，您的 AWS 账户没有被授予访问您请求的模型的权限。联系您的 AWS 账户团队以请求访问。
 
 命名模型 ID 的 `400` 意味着该模型不在 Mantle 上提供。Mantle 有其自己的模型阵容，与标准 Amazon Bedrock 目录分开，因此推理配置文件 ID（如 `us.anthropic.claude-sonnet-4-6`）将不起作用。使用 Mantle 格式的 ID，或启用[两个端点](#run-mantle-alongside-the-invoke-api)，以便 Claude Code 将每个请求路由到模型可用的端点。
 

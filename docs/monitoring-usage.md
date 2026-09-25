@@ -64,6 +64,8 @@ claude
 }
 ```
 
+Claude Code 忽略存储库的 `.claude/settings.json` 和 `.claude/settings.local.json` 中的 [OpenTelemetry 导出器变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)，因此存储库无法使用它们来打开遥测、选择其去向或捕获内容。在托管设置中设置它们，或让每个开发者在其 shell 或 `~/.claude/settings.json` 中设置它们。存储库仍然可以通过将其导出器选择器（如 `OTEL_LOGS_EXPORTER`）设置为 `none` 来关闭信号，除非托管设置、`--settings` 文件或启动 Claude Code 的环境设置了该变量。
+
 Claude Code 不会将 `OTEL_*` 环境变量传递给它生成的子进程，包括 Bash 工具、hooks、MCP 服务器和语言服务器。通过 Bash 工具运行的已进行 OpenTelemetry 检测的应用程序不会继承 Claude Code 的导出器端点或标头，因此如果该应用程序需要导出自己的遥测，请直接在命令中设置这些变量。
 
 <h3 id="how-managed-settings-lock-the-otlp-destination">
@@ -651,11 +653,11 @@ Claude Code 导出以下指标。"单位"列显示附加到每个指标的 OpenT
 * `query_source`：发出请求的子系统的类别。`"main"`、`"subagent"` 或 `"auxiliary"` 之一
 * `speed`：当请求使用快速模式时为 `"fast"`。否则不存在
 * `effort`：应用于请求的 [努力级别](/docs/zh-CN/model-config#adjust-effort-level)：`"low"`、`"medium"`、`"high"`、`"xhigh"` 或 `"max"`。当模型不支持努力时不存在。
-* `agent.name`：发出请求的子代理类型。内置代理名称和来自官方市场插件的代理按原样出现。其他用户定义的代理名称被替换为 `"custom"`。当请求不是由命名子代理类型发出时不存在。
-* `skill.name`：对请求活跃的技能，由 Skill 工具、`/` 命令设置或由生成的子代理继承。内置、捆绑、用户定义和官方市场插件技能名称按原样出现。第三方插件技能名称被替换为 `"third-party"`。当没有技能活跃时不存在。
-* `plugin.name`：当活跃技能或子代理由插件提供时的拥有插件。官方市场插件名称按原样出现。第三方插件名称被替换为 `"third-party"`。当技能和子代理都没有拥有插件时不存在。
+* `agent.name`：发出请求的子代理类型。内置代理名称和来自官方市场插件的代理按原样出现。其他用户定义的代理名称被替换为 `"custom"`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`。当请求不是由命名子代理类型发出时不存在。
+* `skill.name`：对请求活跃的技能，由 Skill 工具、`/` 命令设置或由生成的子代理继承。内置、捆绑、用户定义和官方市场插件技能名称按原样出现。第三方插件技能名称被替换为 `"third-party"`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`。当没有技能活跃时不存在。
+* `plugin.name`：当活跃技能或子代理由插件提供时的拥有插件。官方市场插件名称按原样出现。第三方插件名称被替换为 `"third-party"`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`。当技能和子代理都没有拥有插件时不存在。
 * `marketplace.name`：拥有插件安装来源的市场。仅为官方市场插件发出。否则不存在。
-* `mcp_server.name`：MCP 服务器，其工具结果此请求消耗。内置、claude.ai 代理和官方注册表服务器名称按原样出现。用户配置的服务器名称被替换为 `"custom"`。当请求没有消耗 MCP 工具结果时不存在。在 v2.1.222 之前，Claude Code 在每个 MCP 工具调用后的请求上设置此属性，而不仅仅是消耗工具结果的请求，因此聚合它的仪表板在升级后显示下降。
+* `mcp_server.name`：MCP 服务器，其工具结果此请求消耗。内置、claude.ai 代理和官方注册表服务器名称按原样出现。用户配置的服务器名称被替换为 `"custom"`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`。当请求没有消耗 MCP 工具结果时不存在。在 v2.1.222 之前，Claude Code 在每个 MCP 工具调用后的请求上设置此属性，而不仅仅是消耗工具结果的请求，因此聚合它的仪表板在升级后显示下降。
 * `mcp_tool.name`：MCP 工具，其结果此请求消耗，与 `mcp_server.name` 具有相同的编辑和版本行为。当请求没有消耗 MCP 工具结果时不存在。
 
 <h4 id="token-counter">
@@ -1085,8 +1087,8 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `marketplace.name`：插件安装来源的市场（已知时）。在与 `plugin.name` 相同的条件下编辑为 `"third-party"`
 * `plugin.version`：来自插件清单的版本。仅当名称未被编辑且清单声明版本时才包含
 * `plugin.scope`：插件的来源类别：`"official"`、`"community"`、`"org"`、`"user-local"` 或 `"default-bundle"`
-* `enabled_via`：插件如何被启用的方式：`"default-enable"`、`"org-policy"`、`"admin-install"`、`"seed-mount"` 或 `"user-install"`。值 `"admin-install"` 表示插件在 [**组织设置 > 插件**](https://claude.ai/admin-settings/plugins) 中为您的组织设置为必需或自动安装。在 v2.1.246 之前，Claude Code 将这些插件报告为 `"user-install"` 或 `"seed-mount"`
-* `plugin_id_hash`：插件名称和市场的确定性哈希，仅发送到您配置的导出器。让您计算整个队伍中加载了多少个不同的第三方插件，而无需记录其名称。对于 [从 claude.ai 同步的插件](/docs/zh-CN/plugins-reference#synced-plugins)，Claude Code 使用插件名称与 claude.ai 为插件报告的市场名称进行哈希，或在其他情况下使用 `synced`。在 v2.1.246 之前，Claude Code 在哈希中没有使用 claude.ai 报告的市场名称
+* `enabled_via`：插件如何被启用的方式：`"default-enable"`、`"org-policy"`、`"admin-install"`、`"seed-mount"` 或 `"user-install"`。值 `"admin-install"` 表示插件在 [**组织设置 > 插件和技能**](https://claude.ai/admin-settings/skills?tab=inventory) 中为您的组织设置为必需或自动安装。在 v2.1.246 之前，Claude Code 将这些插件报告为 `"user-install"` 或 `"seed-mount"`
+* `plugin_id_hash`：插件名称和市场的确定性哈希，仅发送到您配置的导出器。让您计算整个队伍中加载了多少个不同的第三方插件，而无需记录其名称。对于 [从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)，Claude Code 使用插件名称与 claude.ai 为插件报告的市场名称进行哈希，或在其他情况下使用 `synced`。在 v2.1.246 之前，Claude Code 在哈希中没有使用 claude.ai 报告的市场名称
 * `has_hooks`：插件是否贡献 hooks
 * `has_mcp`：插件是否贡献 MCP 服务器
 * `host_owned_mcp`：当 SDK 主机管理此插件的 MCP 连接且 Claude Code 跳过读取插件的 MCP 服务器配置时为 `true`，否则为 `false`。需要 Claude Code v2.1.172 或更高版本
@@ -1362,7 +1364,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * 在托管设置、用户设置或 `--settings` 的 `env` 块中设置它，或在启动 Claude Code 的环境中。项目或本地设置中的值不会打开它，因为克隆的存储库可以写入它们。
 * 服务器托管设置可以在不显示 [安全批准对话](/docs/zh-CN/server-managed-settings#security-approval-dialogs) 的情况下设置它，因为变量仅将您组织自己的编辑策略添加到您的组织已接收的事件。
 
-在您尚未 [信任](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 的文件夹中的交互式会话中，Claude Code 不会导出拒绝事件，因为项目和本地设置可能会在信任前将导出指向不同的收集器。
+在您尚未 [信任](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 的文件夹中的交互式会话中，Claude Code 不会导出拒绝事件。
 
 **事件名称**：`claude_code.managed_settings_resolved`
 

@@ -29,7 +29,7 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
 * **[动态工作流](/docs/zh-CN/workflows)** 从 Claude 编写的脚本运行许多 subagents，返回一个结果
 * **[跨会话消息传递](/docs/zh-CN/cross-session-messaging)** 让 Claude 将消息从您的一个会话传递到另一个会话
 * **[Hooks](/docs/zh-CN/hooks-guide)** 在 Claude Code 到达生命周期事件时运行您的脚本、HTTP 请求、MCP 工具调用、提示或 subagent
-* **[Plugins](/docs/zh-CN/plugins)** 和 **[marketplaces](/docs/zh-CN/plugin-marketplaces)** 打包和分发这些功能
+* **[Plugins](/docs/zh-CN/plugins/overview)** 和 **[marketplaces](/docs/zh-CN/plugins/overview)** 打包和分发这些功能
 
 [Skills](/docs/zh-CN/skills) 是最灵活的扩展。Skill 是一个包含知识、工作流或说明的 markdown 文件。您可以使用 `/deploy` 之类的命令调用 skills，或者 Claude 可以在相关时自动加载它们。Skills 可以在您当前的对话中运行，也可以通过 subagents 在隔离的上下文中运行。
 
@@ -52,7 +52,7 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
 | **Hook**                                                          | 由事件触发的脚本、HTTP 请求、MCP 工具调用、提示或 subagent | 必须在每个匹配事件上运行的自动化                            | 每次文件编辑后运行 ESLint                         |
 | **[Artifact](/docs/zh-CN/artifacts)**                                  | 将会话输出发布为私有、交互式网页                       | 您想以视觉方式查看或共享的输出，而不是作为终端文本                   | 一个在 Claude 调查时更新的事件时间线                   |
 
-**[Plugins](/docs/zh-CN/plugins)** 是打包层。Plugin 将 skills、hooks、subagents 和 MCP servers 捆绑到单个可安装单元中。Plugin skills 是命名空间的（如 `/my-plugin:review`），因此多个 plugins 可以共存。当您想在多个存储库中重用相同的设置或通过 **[marketplace](/docs/zh-CN/plugin-marketplaces)** 分发给他人时，使用 plugins。
+**[Plugins](/docs/zh-CN/plugins/overview)** 是打包层。Plugin 将 skills、hooks、subagents 和 MCP servers 捆绑到单个可安装单元中。Plugin skills 是命名空间的（如 `/my-plugin:review`），因此多个 plugins 可以共存。当您想在多个存储库中重用相同的设置或通过 **[marketplace](/docs/zh-CN/plugins/overview)** 分发给他人时，使用 plugins。
 
 <h3 id="build-your-setup-over-time">
   随时间推移构建您的设置
@@ -60,17 +60,17 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
 
 您不需要提前配置所有内容。每个功能都有一个可识别的触发器，大多数团队大致按以下顺序添加它们：
 
-| 触发器                            | 添加                                                                            |
-| :----------------------------- | :---------------------------------------------------------------------------- |
-| Claude 两次出错约定或命令               | 将其添加到 [CLAUDE.md](/docs/zh-CN/memory)                                              |
-| 您一直在要求 Claude 更简洁、解释更多或以相同格式回答 | 设置 [output style](/docs/zh-CN/output-styles)                                       |
-| 您一直在输入相同的提示来启动任务               | 将其保存为用户可调用的 [skill](/docs/zh-CN/skills)                                            |
-| 您第三次将相同的剧本或多步骤过程粘贴到聊天中         | 将其捕获为 [skill](/docs/zh-CN/skills)                                                  |
-| 您一直在从 Claude 看不到的浏览器标签页复制数据    | 将该系统连接为 [MCP server](/docs/zh-CN/mcp)                                              |
-| Claude 读取许多文件以查找符号的定义或使用位置     | 为您的语言安装 [code intelligence plugin](/docs/zh-CN/discover-plugins#code-intelligence) |
-| 一个辅助任务用您不会再次引用的输出淹没您的对话        | 通过 [subagent](/docs/zh-CN/sub-agents) 路由它                                          |
-| 您希望每次都发生某事而无需询问                | 编写 [hook](/docs/zh-CN/hooks-guide)                                                 |
-| 第二个存储库需要相同的设置                  | 将其打包为 [plugin](/docs/zh-CN/plugins)                                                |
+| 触发器                            | 添加                                                                   |
+| :----------------------------- | :------------------------------------------------------------------- |
+| Claude 两次出错约定或命令               | 将其添加到 [CLAUDE.md](/docs/zh-CN/memory)                                     |
+| 您一直在要求 Claude 更简洁、解释更多或以相同格式回答 | 设置 [output style](/docs/zh-CN/output-styles)                              |
+| 您一直在输入相同的提示来启动任务               | 将其保存为用户可调用的 [skill](/docs/zh-CN/skills)                                   |
+| 您第三次将相同的剧本或多步骤过程粘贴到聊天中         | 将其捕获为 [skill](/docs/zh-CN/skills)                                         |
+| 您一直在从 Claude 看不到的浏览器标签页复制数据    | 将该系统连接为 [MCP server](/docs/zh-CN/mcp)                                     |
+| Claude 读取许多文件以查找符号的定义或使用位置     | 为您的语言安装 [code intelligence plugin](/docs/zh-CN/plugins/code-intelligence) |
+| 一个辅助任务用您不会再次引用的输出淹没您的对话        | 通过 [subagent](/docs/zh-CN/sub-agents) 路由它                                 |
+| 您希望每次都发生某事而无需询问                | 编写 [hook](/docs/zh-CN/hooks-guide)                                        |
+| 第二个存储库需要相同的设置                  | 将其打包为 [plugin](/docs/zh-CN/plugins/overview)                              |
 
 相同的触发器告诉您何时更新您已有的内容。重复的错误或反复出现的审查评论是 CLAUDE.md 编辑，而不是聊天中的一次性更正。您一直手动调整的工作流是需要另一次修订的 skill。
 
@@ -207,7 +207,7 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
 功能可以在多个级别定义：用户范围、每个项目、通过 plugins 或通过托管策略。您还可以在子目录中嵌套 CLAUDE.md 文件或在 monorepo 的特定包中放置 skills。当相同的功能存在于多个级别时，以下是它们的分层方式：
 
 * **CLAUDE.md 文件** 是累加的：所有级别同时向 Claude 的上下文贡献内容。来自您的工作目录及以上的文件在启动时加载；子目录在您在其中工作时加载。当说明冲突时，Claude 使用判断来协调它们。有关详细信息，请参阅 [CLAUDE.md 文件如何加载](/docs/zh-CN/memory#how-claude-md-files-load)。
-* **Skills 和 subagents** 按名称覆盖：当相同的名称存在于多个级别时，一个定义根据优先级获胜（对于 skills 为托管 > 用户 > 项目；对于 subagents 为托管 > CLI 标志 > 项目 > 用户 > plugin）。Plugin skills 是 [命名空间的](/docs/zh-CN/plugins#add-skills-to-your-plugin) 以避免冲突。有关详细信息，请参阅 [skill 发现](/docs/zh-CN/skills#resolve-skills-that-share-a-name) 和 [subagent 范围](/docs/zh-CN/sub-agents#choose-the-subagent-scope)。
+* **Skills 和 subagents** 按名称覆盖：当相同的名称存在于多个级别时，一个定义根据优先级获胜（对于 skills 为托管 > 用户 > 项目；对于 subagents 为托管 > CLI 标志 > 项目 > 用户 > plugin）。Plugin skills 是 [命名空间的](/docs/zh-CN/plugins/components#skills) 以避免冲突。有关详细信息，请参阅 [skill 发现](/docs/zh-CN/skills#resolve-skills-that-share-a-name) 和 [subagent 范围](/docs/zh-CN/sub-agents#choose-the-subagent-scope)。
 * **MCP 服务器** 按名称覆盖：本地 > 项目 > 用户。有关详细信息，请参阅 [MCP 范围](/docs/zh-CN/mcp#scope-hierarchy-and-precedence)。
 * **Hooks** 合并：所有注册的 hooks 为其匹配的事件触发，无论来源如何。有关详细信息，请参阅 [hooks](/docs/zh-CN/hooks)。
 
@@ -304,7 +304,7 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
 
     **上下文成本：** 低。符号查找通常替代广泛的文件读取，因此净上下文使用可能会下降。
 
-    <Tip>LSP 工具在您为您的语言安装 [code intelligence 插件](/docs/zh-CN/discover-plugins#code-intelligence) 之前处于非活动状态。</Tip>
+    <Tip>LSP 工具在您为您的语言安装 [code intelligence 插件](/docs/zh-CN/plugins/code-intelligence) 之前处于非活动状态。</Tip>
   </Tab>
 
   <Tab title="Subagents">
@@ -370,11 +370,11 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
     使用 hooks 自动化操作
   </Card>
 
-  <Card title="Plugins" icon="puzzle-piece" href="/docs/zh-CN/plugins">
+  <Card title="Plugins" icon="puzzle-piece" href="/docs/zh-CN/plugins/overview">
     捆绑和共享功能集
   </Card>
 
-  <Card title="Marketplaces" icon="store" href="/docs/zh-CN/plugin-marketplaces">
+  <Card title="Marketplaces" icon="store" href="/docs/zh-CN/plugins/create-marketplace">
     托管和分发 plugin 集合
   </Card>
 </CardGroup>

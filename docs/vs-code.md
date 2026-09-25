@@ -331,7 +331,7 @@ Claude Code 还从您粘贴到提示框中的文本和您发送的任何其他�
   管理插件
 </h2>
 
-VS Code 扩展包含一个图形界面，用于安装和管理 [plugins](/docs/zh-CN/plugins)。在提示框中输入 `/plugins` 以打开**管理插件**界面。
+VS Code 扩展包含一个图形界面，用于安装和管理 [plugins](/docs/zh-CN/plugins/overview)。在提示框中输入 `/plugins` 以打开**管理插件**界面。
 
 <h3 id="install-plugins">
   安装插件
@@ -394,7 +394,7 @@ GitHub README、问题和某些其他 Markdown 主机会删除其方案不是 `h
   VS Code 中的插件管理在底层使用相同的 CLI 命令。您在扩展中配置的插件和市场也可在 CLI 中使用，反之亦然。
 </Note>
 
-有关插件系统的更多信息，请参阅 [Plugins](/docs/zh-CN/plugins) 和 [Plugin marketplaces](/docs/zh-CN/plugin-marketplaces)。
+有关插件系统的更多信息，请参阅 [Plugins](/docs/zh-CN/plugins/overview) 和 [Plugin marketplaces](/docs/zh-CN/plugins/overview)。
 
 <h2 id="automate-browser-tasks-with-chrome">
   使用 Chrome 自动化浏览器任务

@@ -41,7 +41,7 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 | **无限制**    | 用户添加任何内容                                                                                                                                                | 不部署任何托管 MCP 配置                                                                                         |
 
 <Note>
-  Claude Code 没有内置的 MCP 服务器注册表供用户浏览和安装。对于批准的目录模式，在用户会找到的地方（例如内部 wiki）共享批准的列表及其 `claude mcp add` 命令，或通过[托管插件市场](/docs/zh-CN/plugin-marketplaces#managed-marketplace-restrictions)将服务器作为插件分发，以便用户可以从 `/plugin` 浏览和安装它们。
+  Claude Code 没有内置的 MCP 服务器注册表供用户浏览和安装。对于批准的目录模式，在用户会找到的地方（例如内部 wiki）共享批准的列表及其 `claude mcp add` 命令，或通过[托管插件市场](/docs/zh-CN/plugins/org#restrict-what-users-can-install)将服务器作为插件分发，以便用户可以从 `/plugin` 浏览和安装它们。
 </Note>
 
 <h2 id="exclusive-control-with-managed-mcp-json">

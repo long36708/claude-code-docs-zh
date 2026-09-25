@@ -22,7 +22,7 @@ Claude Code 有五种方式可以同时处理多个任务：[子代理](/docs/zh
 
 * [Worktrees](/docs/zh-CN/worktrees) 为每个会话提供单独的 git 检出，因此并行会话永远不会编辑相同的文件。将它们用于您自己运行的会话。代理视图会 [在编辑文件之前将分派的会话移到自己的 worktree 中](/docs/zh-CN/agent-view#how-file-edits-are-isolated)，您生成的子代理也可以各自获得一个。
 * [跨会话消息传递](/docs/zh-CN/cross-session-messaging) 让 Claude 列出并消息传递您在这台机器上、另一台机器上或 [云中](/docs/zh-CN/claude-code-on-the-web) 的其他 Claude Code 会话，因此您自己运行的会话可以在彼此之间传递发现和状态。
-* [`/batch`](/docs/zh-CN/commands) 是一个 [skill](/docs/zh-CN/skills)，它让 Claude 将一个大型更改分成 5 到 30 个 worktree 隔离的子代理，每个都打开一个拉取请求。它是子代理和 worktrees 的打包使用，不是一个单独的协调风格。
+* [`/batch`](/docs/zh-CN/commands) 是一个 [skill](/docs/zh-CN/skills)，它让 Claude 将一个大型更改分成 5 到 30 个 worktree 隔离的子代理。它是子代理和 worktrees 的打包使用，不是一个单独的协调风格。
 
 还有一些其他功能在没有您驱动每一步的情况下运行 Claude，但它们解决的问题与在代理之间分割工作不同：
 

@@ -332,9 +332,18 @@ claude --permission-mode plan
   服务器端分类器审查
 </h3>
 
-在 Enterprise 计划和使用 Claude API 的账户上，在 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，以及每当您将 `ANTHROPIC_BASE_URL` 指向[LLM 网关或代理](/docs/zh-CN/llm-gateway)时，自动模式下的 Claude Code 会要求服务器审查[转到分类器的操作](#how-the-classifier-evaluates-actions)作为会话模型请求的一部分。服务器审查它们的地方，其判决决定这些操作。它不审查的地方，通常是因为网关或代理干扰了流量，或因为平台、区域或凭证还没有服务器端检查，Claude Code 会回退到自己的分类器请求，一旦该回退在会话的其余部分保持，它会在这些请求被计费的账户上显示[关于分类器请求费用的通知](/docs/zh-CN/auto-mode-classifier-billing)。要跳过询问服务器并始终使用 Claude Code 自己的分类器请求，请设置 [`CLAUDE_CODE_AUTO_MODE_SERVER=0`](/docs/zh-CN/env-vars)。该变量在直接连接到 Anthropic API 时不被读取。如果您设置 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 并保持 `CLAUDE_CODE_AUTO_MODE_SERVER` 未设置，Claude Code 也会停止询问服务器。
+在自动模式中，Claude Code 可以要求服务器检查[决策顺序](#how-the-classifier-evaluates-actions)发送的操作以供审查，作为会话模型请求的一部分，而不是发送自己的分类器请求。这些会话要求：
 
-默认询问服务器需要 Claude Code v2.1.278 或更高版本。
+* **直接连接到 Anthropic API**：在交互式终端会话中，在每个 claude.ai 计划和使用 Claude API 的账户上，随着 Anthropic 推出。在 Pro、Max 和 Team 计划上需要 Claude Code v2.1.271 或更高版本，在 Enterprise 计划和 Claude API 账户上需要 v2.1.278 或更高版本。从 v2.1.282 开始，[不获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话，例如因为您关闭了遥测，在任何类型的会话中默认询问服务器。
+* **云提供商、LLM 网关或代理**：在 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，以及每当您将 `ANTHROPIC_BASE_URL` 指向[LLM 网关或代理](/docs/zh-CN/llm-gateway)时，无论您的计划如何。默认询问需要 Claude Code v2.1.278 或更高版本。
+* **已登录的[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)会话**：需要 Claude Code v2.1.280 或更高版本
+
+服务器审查操作的地方，其判决决定这些操作。另外两种结果是可能的：
+
+* **服务器不审查会话**：响应完成时没有审查结果，或服务器回答它不审查此会话。最常见的原因是 LLM 网关或代理丢弃了审查请求或结果，以及平台、区域或凭证还没有服务器端检查。Claude Code 回退到自己的分类器请求。一旦该回退在会话的其余部分保持，它会在这些请求被计费的账户上显示[关于分类器请求费用的通知](/docs/zh-CN/auto-mode-classifier-billing)。
+* **服务器对操作没有判决**：Claude Code 拒绝该操作而不是运行它未审查。在任何连接上，当响应在审查结果到达之前结束或结果以 Claude Code 无法读取的形式到达时，会发生这种情况。LLM 网关或代理可能会导致响应被截断或结果被重写。在直接连接到 Anthropic API 时，当服务器对操作的检查失败时也会发生，例如超时。[服务器返回了没有安全判决](/docs/zh-CN/errors#the-server-returned-no-safety-verdict)涵盖拒绝消息、拒绝重复时会发生什么以及处理方法。
+
+要跳过询问服务器并始终使用 Claude Code 自己的分类器请求，请设置 [`CLAUDE_CODE_AUTO_MODE_SERVER=0`](/docs/zh-CN/env-vars)。在直接连接到 Anthropic API 时，该变量需要 Claude Code v2.1.281 或更高版本。将其设置为 `1` 会在没有服务器审查的会话中打开服务器审查，例如 `-p` 或 Agent SDK 会话，除非您也设置了 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`。如果您设置了 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 并保持 `CLAUDE_CODE_AUTO_MODE_SERVER` 未设置，Claude Code 也会停止询问服务器。
 
 <h3 id="what-the-classifier-blocks-by-default">
   分类器默认阻止的内容
@@ -476,6 +485,7 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
 * **被阻止的操作**：Claude Code 显示通知并在 `/permissions` 下的**最近拒绝**选项卡中列出操作，您可以按 `r` 使用手动批准重试它。当分类器对操作[没有判决](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)时，因为分类器自己的请求的单独安全检查拒绝了它或其响应未解析，Claude Code 拒绝该操作而不显示通知或**最近拒绝**条目。
 * **重复阻止**：如果分类器连续阻止操作 3 次或总共 20 次，自动模式暂停，Claude Code 恢复提示。批准提示的操作会恢复自动模式。这些阈值不可配置。任何允许的操作重置连续计数器，而总计数器在会话中持续，仅在其自己的限制触发回退时重置。当[分类器自己的请求的单独安全检查拒绝](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)时，Claude Code 不计算拒绝到任一阈值；链接的条目涵盖 Claude Code 如何处理这些拒绝。
 * **无法提示的会话**：[非交互式](/docs/zh-CN/headless) `-p` 运行没有 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 没有回退提示。当重复阻止达到阈值时，操作不运行，Claude 继续工作。当[分类器自己的请求的单独安全检查拒绝](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)时也适用相同情况。Claude Code 在任一情况下都不停止运行。
+* **服务器没有判决**：在[服务器端分类器审查](#server-side-classifier-review)下，Claude Code 拒绝服务器没有判决的操作，并在连续十个响应没有判决后停止该轮。请参阅[服务器返回了没有安全判决](/docs/zh-CN/errors#the-server-returned-no-safety-verdict)。
 * **检查期间的模式切换**：如果您在分类器检查待处理时切换权限模式，Claude Code 会丢弃新模式不会请求的判决，而不是应用它：您改为被提示批准，或在 [`dontAsk` 模式](#allow-only-pre-approved-tools-with-dontask-mode)中操作被自动拒绝。
 
 重复阻止通常意味着分类器缺少关于您的基础设施的上下文。使用 `/feedback` 报告误报，或让管理员[配置受信任的基础设施](/docs/zh-CN/auto-mode-config)。
@@ -492,6 +502,7 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
        * 携带[每个命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)的 shell 命令也会路由到分类器，即使允许规则匹配，因为规则批准命令，而不是其主机
        * 与命令内容匹配的询问规则，例如 `Bash(git push *)`，回退到权限提示
     2. 只读操作和工作目录中的文件编辑被自动批准，除了写入[受保护路径](#protected-paths)和[工作目录外的第一次读取](#first-read-outside-the-working-directories)，这会提示您
+       * 在具有[服务器端分类器审查](#server-side-classifier-review)的会话中，只读和[沙箱](/docs/zh-CN/sandboxing#sandbox-modes) shell 命令等待该审查，如果它标记它们则被阻止
     3. 其他所有内容都转到分类器。在步骤 1 中直接提示您的连接器工具和` requiresUserInteraction` MCP 工具永远不会到达分类器，因此组织要求的批准或同意步骤都不会被自动批准
     4. 如果分类器阻止，Claude 接收原因并尝试替代方案。在大多数会话中，原因名称分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[审查拒绝](/docs/zh-CN/auto-mode-config#review-denials)
 

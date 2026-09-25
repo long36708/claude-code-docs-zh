@@ -252,10 +252,10 @@ Remote Control 连接时，会话记录（包括您的消息、Claude 的响应�
 <Note>
   受信任的设备目前处于测试阶段。功能和特性可能会随着体验的完善而演变。
 
-  受信任的设备在 Team 和 Enterprise 计划中可用。在所有者启用它之前，它默认处于关闭状态。
+  受信任的设备在 Pro、Max、Team 和 Enterprise 计划中可用，默认处于关闭状态。在 Team 和 Enterprise 计划中，所有者为组织启用它。在 Pro 和 Max 计划中，您可以在设置中的 Cowork 或 Account 页面上自行启用**需要受信任的设备**。
 </Note>
 
-受信任的设备是一个组织范围的设置，要求成员在从 claude.ai、Claude 移动应用或 Claude Desktop 查看或控制 Remote Control 会话之前验证其设备。它将 Remote Control 访问权限与已知设备和最近的身份验证绑定，而不仅仅是已登录的账户。
+受信任的设备要求您的组织的每个成员，或在 Pro 或 Max 计划上仅您自己，在从 claude.ai、Claude 移动应用或 Claude Desktop 查看或控制 Remote Control 会话之前验证其设备。它将 Remote Control 访问权限与已知设备和最近的身份验证绑定，而不仅仅是已登录的账户。
 
 当设置打开时，与 Remote Control 会话交互需要以下两项：
 
@@ -267,14 +267,14 @@ Remote Control 连接时，会话记录（包括您的消息、Claude 的响应�
 该设置仅适用于 Remote Control。常规 Claude 聊天、终端中的 Claude Code 和 API 使用不受影响。
 
 <h3 id="enable-trusted-devices-for-your-organization">
-  为您的组织启用受信任的设备
+  为 Team 或 Enterprise 组织启用受信任的设备
 </h3>
 
-所有者从 Claude Code 管理员控制台启用该设置。
+所有者从 claude.ai 组织设置启用该设置。
 
 <Steps>
-  <Step title="打开 Claude Code 管理员设置">
-    转到 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)。**需要受信任的设备**切换出现在 Remote Control 设置下方。
+  <Step title="转到 Capabilities 页面">
+    转到 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities)。**需要受信任的设备**切换出现在该部分。
   </Step>
 
   <Step title="打开需要受信任的设备">

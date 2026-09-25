@@ -25,32 +25,32 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
   安装插件
 </h2>
 
-在终端 Claude Code 会话中，从 [官方 Anthropic 市场](/docs/zh-CN/discover-plugins#official-anthropic-marketplace) 安装：
+在终端 Claude Code 会话中，从[官方 Anthropic 市场](/docs/zh-CN/plugins/anthropic-marketplaces)安装：
 
 ```text theme={null}
 /plugin install security-guidance@claude-plugins-official
 ```
 
-`/plugin` 打开一个交互式面板，仅在终端 CLI 中可用。如果 Claude 回复说 `/plugin` 在此环境中不可用，请以其他方式安装：
+`/plugin` 在终端 CLI 中打开一个交互式面板。如果 Claude 回复说 `/plugin` 在此环境中不可用，请以其他方式安装：
 
-* **Claude 桌面应用、本地或 SSH 会话**：通过点击提示旁边的 **+** 按钮，然后点击 **Plugins**，再点击 **Add plugin** 来打开 [插件浏览器](/docs/zh-CN/desktop#install-plugins)
-* **VS Code 扩展**：从 [**管理插件** 对话框](/docs/zh-CN/vs-code#manage-plugins) 安装
-* **云会话**：为您的 claude.ai 账户启用该插件，以便 Claude Code 将其作为 [同步插件](/docs/zh-CN/plugins-reference#synced-plugins) 加载。云会话不会从您的用户设置或存储库的 `.claude/settings.json` 加载插件，如 [从您的设置中继承的内容](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup) 所解释的那样
+* **Claude 桌面应用、本地或 SSH 会话**：点击提示旁边的 **+** 按钮，然后点击 **Plugins**，再点击 **Add plugin**，打开[插件浏览器](/docs/zh-CN/desktop#install-plugins)
+* **VS Code 扩展**：从[**Manage plugins** 对话框](/docs/zh-CN/vs-code#manage-plugins)安装
+* **云会话**：云会话不会从您的用户设置或存储库的 `.claude/settings.json` 加载插件，如[您的设置中哪些内容会保留](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)所解释。对于您的组织通过托管设置分发的插件，请参阅[为您的组织管理插件](/docs/zh-CN/plugins/org)
 
-终端安装会提示输入范围。选择用户范围以将插件写入您的用户设置，这样它会在您在此计算机上启动的每个新本地会话中加载。
+终端安装会提示输入范围。选择用户范围将插件写入您的用户设置，这样它会在您在此机器上启动的每个新本地会话中加载。
 
 如果安装失败，请匹配 Claude Code 报告的消息：
 
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* 插件 [在市场中找不到](/docs/zh-CN/discover-plugins#install-plugins)：检查插件名称。
+* 插件[在市场中未找到](/docs/zh-CN/plugins/install#install-a-plugin)：检查插件名称。
 
-检查安装摘要。如果它报告 `Run /reload-plugins to activate.`，请参阅 [无需重启即可应用插件更改](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting) 以在当前会话中激活插件。
+检查安装摘要。如果它报告 `Run /reload-plugins to activate.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference#reload-plugins)以在当前会话中激活插件。
 
 <h3 id="enable-for-your-team-in-local-sessions">
   在本地会话中为您的团队启用
 </h3>
 
-要在您的团队在存储库中启动的本地会话中打开该插件，请在项目的已检入设置中声明它：
+要在您的团队成员在存储库中启动的本地会话中打开插件，请在项目的已检入设置中声明它：
 
 ```json .claude/settings.json theme={null}
 {
@@ -60,7 +60,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 }
 ```
 
-管理员可以通过在 [托管设置](/docs/zh-CN/admin-setup) 中设置 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 来在组织范围内启用该插件。
+管理员可以通过在[托管设置](/docs/zh-CN/admin-setup)中设置 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 来在整个组织范围内启用插件。
 
 <h2 id="what-the-plugin-checks">
   插件检查的内容
@@ -279,4 +279,4 @@ patterns:
 
 * [Code Review](/docs/zh-CN/code-review)：设置 PR 时间多代理审查
 * [使用 hooks 自动化工作流](/docs/zh-CN/hooks-guide)：在相同的生命周期点构建您自己的检查
-* [发现和安装插件](/docs/zh-CN/discover-plugins#official-anthropic-marketplace)：浏览其他官方插件
+* [在官方市场中查找插件](/docs/zh-CN/plugins/anthropic-marketplaces#find-plugins-in-the-official-marketplace)：浏览其他官方插件

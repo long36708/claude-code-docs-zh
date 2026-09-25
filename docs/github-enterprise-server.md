@@ -67,17 +67,17 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
 
 清单使用以下权限和 webhook 事件配置 GitHub App，这些权限和事件共同涵盖网络会话、代码审查、Claude Security、插件市场和贡献指标：
 
-| 权限                   | 访问 | 用途                                                                                            |
-| :------------------- | :- | :-------------------------------------------------------------------------------------------- |
-| Contents             | 读写 | 克隆存储库和推送分支                                                                                    |
-| Pull requests        | 读写 | 创建 PR 和发布审查评论                                                                                 |
-| Issues               | 读写 | 响应问题提及                                                                                        |
-| Checks               | 读写 | 发布代码审查检查运行                                                                                    |
-| Actions              | 读  | 读取 CI 状态以进行自动修复                                                                               |
-| Commit statuses      | 读  | 从报告提交状态而不是检查运行的提供商读取 CI 状态                                                                    |
-| Repository hooks     | 读写 | 当 [组织设置 > 插件](https://claude.ai/admin-settings/plugins) 中的市场启用 **自动同步** 时，在插件市场存储库上创建 webhook |
-| Metadata             | 读  | GitHub 对所有应用的要求                                                                               |
-| Organization members | 读  | 匹配 github.com 上的 Claude GitHub App，用于在链接安装时检查连接用户的组织角色                                        |
+| 权限                   | 访问 | 用途                                                                                                                   |
+| :------------------- | :- | :------------------------------------------------------------------------------------------------------------------- |
+| Contents             | 读写 | 克隆存储库和推送分支                                                                                                           |
+| Pull requests        | 读写 | 创建 PR 和发布审查评论                                                                                                        |
+| Issues               | 读写 | 响应问题提及                                                                                                               |
+| Checks               | 读写 | 发布代码审查检查运行                                                                                                           |
+| Actions              | 读  | 读取 CI 状态以进行自动修复                                                                                                      |
+| Commit statuses      | 读  | 从报告提交状态而不是检查运行的提供商读取 CI 状态                                                                                           |
+| Repository hooks     | 读写 | 当 [**组织设置 > 插件和技能**](https://claude.ai/admin-settings/skills?tab=marketplaces) 中的市场启用 **自动同步** 时，在插件市场存储库上创建 webhook |
+| Metadata             | 读  | GitHub 对所有应用的要求                                                                                                      |
+| Organization members | 读  | 匹配 github.com 上的 Claude GitHub App，用于在链接安装时检查连接用户的组织角色                                                               |
 
 应用订阅 `pull_request`、`issue_comment`、`pull_request_review_comment`、`pull_request_review`、`check_run` 和 `status` 事件。
 
@@ -160,7 +160,7 @@ claude --cloud "Add retry logic to the payment webhook handler"
 
 Claude Code 以非交互方式运行 git，并拒绝连接到不在机器 `known_hosts` 文件中的主机的 SSH 连接。带有 git 凭证助手的 HTTPS URL 避免了 `known_hosts` 要求。
 
-有关构建市场的完整指南，请参阅 [创建和分发插件市场](/docs/zh-CN/plugin-marketplaces)。
+有关构建市场的完整指南，请参阅 [创建和分发插件市场](/docs/zh-CN/plugins/create-marketplace)。
 
 <h3 id="pre-register-ghes-marketplaces-with-managed-settings">
   使用托管设置预注册 GHES 市场
@@ -262,7 +262,7 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
 
 * [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)：在云基础设施上运行 Claude Code 会话
 * [代码审查](/docs/zh-CN/code-review)：自动化 PR 审查
-* [插件市场](/docs/zh-CN/plugin-marketplaces)：构建和分发插件目录
+* [插件市场](/docs/zh-CN/plugins/host-marketplace)：构建和分发插件目录
 * [分析](/docs/zh-CN/analytics)：跟踪使用情况和贡献指标
 * [托管设置](/docs/zh-CN/settings)：组织范围的策略配置
 * [网络配置](/docs/zh-CN/network-config)：防火墙和 IP 白名单要求

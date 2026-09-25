@@ -50,7 +50,7 @@ Claude Code 然后推送一个包含您选择的工作流文件的分支，已�
 * 再次运行 `/install-github-app`。当仓库已经有 `claude.yml` 时，选择**使用最新版本更新工作流文件**。Claude Code 将新的工作流文件副本推送到新分支并打开拉取请求，与首次安装相同。
 * 自己将 `--comment` 参数和 `claude_args` 行从[审查工作流示例](#run-a-skill)添加到已检入的文件，这会保留您对其所做的任何其他编辑。
 
-安装 GitHub App 后，Claude Code 会询问是否继续进行 GitHub Actions 设置。选择**暂时跳过**以仅安装 GitHub App。稍后再次运行 `/install-github-app` 以完成工作流和密钥步骤。在 v2.1.187 之前，Claude Code 直接进行工作流选择。
+安装 GitHub App 后，Claude Code 会询问是否继续进行 GitHub Actions 设置。选择**暂时跳过**以仅安装 GitHub App。稍后再次运行 `/install-github-app` 以完成工作流和密钥步骤。
 
 <Note>
   * 安装 GitHub App 时，您授予它多个权限。有关完整集合，请参阅 [GitHub App 权限](#github-app-permissions)
@@ -237,7 +237,7 @@ Claude 在同一 issue 或 PR 上的评论中回复并在工作时更新它。
 `prompt` 输入接受 [skill](/docs/zh-CN/skills) 调用以及纯文本：
 
 * 对于仓库的 `.claude/skills/` 目录中的 skill，在 `anthropics/claude-code-action` 步骤之前运行 `actions/checkout`，以便 skill 文件在运行器上可用，然后将 `/skill-name` 作为 `prompt` 传递。
-* 对于打包在[插件](/docs/zh-CN/plugins)中的 skill，使用 `plugin_marketplaces` 和 `plugins` 输入安装插件，然后将命名空间的 `/plugin-name:skill-name` 作为 `prompt` 传递。`plugins` 输入采用 `plugin-name@marketplace-name`，其中市场名称来自市场自己的清单而不是其仓库 URL。
+* 对于打包在[插件](/docs/zh-CN/plugins/overview)中的 skill，使用 `plugin_marketplaces` 和 `plugins` 输入安装插件，然后将命名空间的 `/plugin-name:skill-name` 作为 `prompt` 传递。`plugins` 输入采用 `plugin-name@marketplace-name`，其中市场名称来自市场自己的清单而不是其仓库 URL。
 
 以下工作流安装 `code-review` 插件并在拉取请求打开、更新、重新打开或标记为准备审查时运行其 skill。它运行与快速设置中的审查工作流相同的插件。当您想自己控制提示、模型和触发器时，请使用这样的工作流。对于无需维护工作流文件的自动审查，请参阅 [Code Review](/docs/zh-CN/code-review)。在公共仓库上，GitHub 从 fork 拉取请求触发的运行中扣留密钥，因此审查仅在来自同一仓库中分支的拉取请求上运行。
 

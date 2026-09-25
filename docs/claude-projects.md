@@ -10,12 +10,14 @@
   Projects 在 Pro 和 Max 计划上处于公开测试阶段，正在逐步推出，首先面向已使用[云会话](/docs/zh-CN/claude-code-on-the-web)且在 claude.ai 聊天或 Cowork 中没有现有项目的账户。它们在 Team 或 Enterprise 计划上还不可用。如果 **Projects** 没有出现在 [claude.ai/code](https://claude.ai/code) 的侧边栏中或[桌面应用](/docs/zh-CN/desktop)的代码选项卡中，说明推出还没有到达您的账户，您可以[加入等待列表](https://claude.com/form/projects)。[并行运行代理](/docs/zh-CN/agents)列出了您在此期间可以使用的内容。
 </Note>
 
-项目是一个持续进行的对话，Claude 在其中为您协调一系列相关工作。您告诉它需要做什么，它为每个任务启动一个线程。每个线程都是一个[云会话](/docs/zh-CN/claude-code-on-the-web)：Claude Code 在云中运行，而不是在您的机器上运行。线程并行运行，即使您关闭笔记本电脑后也会继续进行，您可以从手机上检查它们并引导它们。
+项目是一个持续进行的对话，Claude 在其中为您协调一系列相关工作。您告诉它需要做什么，它为每个任务启动一个线程。
+
+每个线程通常是一个[云会话](/docs/zh-CN/claude-code-on-the-web)：Claude Code 在云中运行，而不是在您的机器上运行。当任务需要只有您的计算机才有的东西时，您可以要求 Claude 通过[远程控制](/docs/zh-CN/remote-control)在您的计算机上运行该线程。线程并行运行，您可以从手机上检查它们并引导它们。云线程在您关闭笔记本电脑后会继续进行。
 
 没有项目的情况下，运行多个会话意味着您自己进行协调：您决定每个会话处理什么，在每个会话的开始重复相同的背景信息，并检查哪个已完成或需要您的回答。使用项目，您可以：
 
 * **将工作发送到一个地方**：每当出现问题时，将错误报告、堆栈跟踪或任务列表粘贴到对话中。Claude 为每项工作启动一个线程，或将其传递给已在该区域工作的线程，并就地回答快速问题。
-* **设置一次上下文**：每个新线程都以项目的存储库、说明和内存开始，因此您陈述一次的规则（例如要针对哪个分支）会到达所有线程。
+* **设置一次上下文**：每个新线程都以项目的说明开始，因此您陈述一次的规则（例如要针对哪个分支）会到达所有线程。
 * **离开并返回查看完成的工作**：当您一小时后或第二天早上回来时，**Overview** 窗格显示哪些线程已完成、哪些拉取请求已准备好供审查，以及哪个线程正在等待您的回答。
 
 如果您已经知道希望项目运行的工作，请直接转到[创建项目](#create-a-project)。
@@ -37,10 +39,10 @@
   何时其他方式更合适
 </h3>
 
-线程在 GitHub 代码库以及您上传到项目的文件、文件夹和 Google Drive 文件夹上工作，而不是仅存在于您机器上的文件或工具。在这些情况下，其他方式更合适：
+Cloud 线程在 GitHub 代码库以及您上传到项目的文件、文件夹和 Google Drive 文件夹上工作，而不是仅存在于您机器上的文件或工具。如果任务需要您的机器，请通过 [Remote Control](/docs/zh-CN/remote-control) 要求 Claude 在那里运行其线程。[限制](#limitations)列出了这需要什么。在这些情况下，其他方式更合适：
 
 * **一个适合在一个会话中完成的任务**："修复不稳定的登录测试。"自己启动一个[云会话](/docs/zh-CN/claude-code-on-the-web)。
-* **需要仅您的机器可以访问的工具或服务的工作**：本地数据库、设备模拟器、VPN 后面的 API。使用本地会话，或[代理视图](/docs/zh-CN/agent-view)同时运行多个。如果工作只需要本地文件，请将它们上传到项目。
+* **每个任务都需要您的机器的工作**：本地数据库、设备模拟器或 VPN 后面的 API。使用本地会话，或[代理视图](/docs/zh-CN/agent-view)同时运行多个。如果工作只需要本地文件，请将它们上传到项目。
 * **一个按时间表重复的任务，周围没有对话**："每周一发布依赖报告。"在其自身上创建一个[例程](/docs/zh-CN/routines)。
 * **多个人在 Slack 频道中给 Claude 工作并一起引导它**：请参阅 [Claude Tag](https://claude.com/docs/claude-tag/overview)。
 
@@ -53,22 +55,22 @@
 项目是一个与 Claude 的协调对话加上它启动的线程来完成工作。这些是它的部分：
 
 * **项目对话**：一个长期运行的会话，Claude 充当协调员。它接收您发送的内容，决定什么成为线程，并跟踪它启动的每个线程。它看到线程报告回来的内容，而不是它们采取的每一步。
-* **线程**：工作者。每个都是一个单独的[云会话](/docs/zh-CN/claude-code-on-the-web)，有自己的上下文窗口，在自己的分支上完成一项工作，在工作需要时打开拉取请求，并在完成时报告回对话。
-* **每个线程开始时的内容**：
+* **线程**：工作者。每个都是一个单独的会话，有自己的上下文窗口，完成一项工作并在完成时报告回对话。云线程在自己的分支上工作，当工作需要时打开拉取请求。
+* **每个云线程开始时的内容**：
   * 项目的代码库和文件，加上其[说明和记忆](#give-a-project-standing-context)
-  * `CLAUDE.md`、skills 和[项目每个代码库](#what-threads-pick-up-from-your-repositories)中的 plugins，以及在有一个代码库的项目中，该代码库的权限规则和 hooks
+  * `CLAUDE.md` 和[项目每个代码库](#what-threads-pick-up-from-your-repositories)中的 skills，以及在有一个代码库的项目中，该代码库的权限规则和 hooks
   * 您 claude.ai 账户上的[连接器](#get-skills-plugins-connectors-and-tools-into-threads)
   * 一个[云环境](#choose-an-environment-for-threads)，设置其网络访问、环境变量、API 凭证和已安装的工具
 * **Overview 窗格**：您在其中[一次看到所有线程](#see-what-needs-you-in-overview)以及哪些需要您。其他标签页是 **Library**（用于您添加的文件和线程生成的文件）、**Pull requests**（用于线程打开的文件）和 **Routines**（用于项目中的计划工作）。
 
-线程不会从您自己机器上的 Claude Code 设置中获取任何内容。[将 skills、plugins、连接器和工具放入线程](#get-skills-plugins-connectors-and-tools-into-threads)涵盖了如何为它们提供它们可能缺少的内容。
+云线程不会从您自己机器上的 Claude Code 设置中获取任何内容。[将 skills、plugins、连接器和工具放入线程](#get-skills-plugins-connectors-and-tools-into-threads)涵盖了如何为它们提供它们可能缺少的内容。
 
 以下是这些部分如何连接的方式，从您通过对话到执行工作的线程，**Overview** 跟踪它们的状态：
 
 <Frame>
-  <img src="https://mintcdn.com/claude-code/e8CLbxM17eD7cAiv/images/claude-projects-overview.svg?fit=max&auto=format&n=e8CLbxM17eD7cAiv&q=85&s=dbf446f69f0bbdb9961d21af207cb93b" className="dark:hidden" alt="项目的图表。您在项目对话中写入，Claude 回答或启动线程。每个线程是一个在自己的分支和拉取请求上工作的云会话。Overview 窗格按状态列出线程，例如准备好审查、等待您和工作中。" width="600" height="250" data-path="images/claude-projects-overview.svg" />
+  <img src="https://mintcdn.com/claude-code/e8CLbxM17eD7cAiv/images/claude-projects-overview.svg?fit=max&auto=format&n=e8CLbxM17eD7cAiv&q=85&s=dbf446f69f0bbdb9961d21af207cb93b" className="dark:hidden" alt="项目的图表。您在项目对话中写入，Claude 回答或启动线程。每个云线程在自己的分支和拉取请求上工作。Overview 窗格按状态列出线程，例如准备好审查、等待您和工作中。" width="600" height="250" data-path="images/claude-projects-overview.svg" />
 
-  <img src="https://mintcdn.com/claude-code/e8CLbxM17eD7cAiv/images/claude-projects-overview-dark.svg?fit=max&auto=format&n=e8CLbxM17eD7cAiv&q=85&s=549a5ba9fea8433729babc37a1f6e9c8" className="hidden dark:block" alt="项目的图表。您在项目对话中写入，Claude 回答或启动线程。每个线程是一个在自己的分支和拉取请求上工作的云会话。Overview 窗格按状态列出线程，例如准备好审查、等待您和工作中。" width="600" height="250" data-path="images/claude-projects-overview-dark.svg" />
+  <img src="https://mintcdn.com/claude-code/e8CLbxM17eD7cAiv/images/claude-projects-overview-dark.svg?fit=max&auto=format&n=e8CLbxM17eD7cAiv&q=85&s=549a5ba9fea8433729babc37a1f6e9c8" className="hidden dark:block" alt="项目的图表。您在项目对话中写入，Claude 回答或启动线程。每个云线程在自己的分支和拉取请求上工作。Overview 窗格按状态列出线程，例如准备好审查、等待您和工作中。" width="600" height="250" data-path="images/claude-projects-overview-dark.svg" />
 </Frame>
 
 <h2 id="create-a-project">
@@ -160,134 +162,134 @@
   在项目中工作
 </h2>
 
-通过项目对话给 Claude 工作：一次一个任务或一次多个，加上更新和零散的想法。Claude 路由每条消息，线程完成工作并报告回来。
+通过项目对话向 Claude 分配工作：一次一个任务或同时多个任务，加上随时出现的更新和零散想法。Claude 会路由每条消息，线程执行工作并报告结果。
 
 <h3 id="your-first-batch">
-  您的第一批
+  你的第一批工作
 </h3>
 
-在您向新项目发送一批工作之前，设置它以便第一批线程以您想要的方式回来：
+在向新项目发送一批工作之前，请设置它，使第一批线程以你想要的方式返回：
 
-1. [编写项目说明](#write-project-instructions)：每个线程开始的简报，例如要针对哪个分支、线程如何检查其工作以及什么需要您的批准。
-2. 发送一个真实工作的小部分，或启动 Claude 建议的线程之一（如果它提供了任何），并在它完成时打开线程以查看它如何报告回来以及它在分支上做了什么。如果它假设了错误的东西或无法到达它需要的东西，[线程猜测或停滞而不是询问](#threads-guessed-or-stalled-instead-of-asking)涵盖了在哪里修复。
-3. 检查 **Project settings > General** 中的 **Thread model** 和 **Thread effort**。新项目在高努力下在 Opus 上运行每个线程，这最快地使用您的计划；[选择模型并让 Claude 管理上下文](#choose-models-and-let-claude-manage-context)涵盖了替代方案。
-4. 要求 Claude [在启动线程之前提议线程并一次运行几个](#tune-how-claude-runs-a-project)，一旦几个线程以您想要的方式回来，就放弃这些限制。
+1. [编写项目说明](#write-project-instructions)：每个线程开始的简要说明，例如要针对哪个分支、线程如何检查其工作，以及什么需要你的批准。
+2. 发送一小段真实工作，或启动 Claude 建议的某个线程（如果它提供了任何建议），并在线程完成时打开它，查看它如何报告以及它在其分支上做了什么。如果它假设了错误的内容或无法到达所需的内容，[线程猜测或停滞而不是询问](#threads-guessed-or-stalled-instead-of-asking)涵盖了在哪里修复这个问题。
+3. 检查**项目设置 > 常规**中的**线程模型**和**线程工作量**。新项目在 Opus 上以高工作量运行每个线程，这会最快地消耗你的计划；[选择模型并让 Claude 管理上下文](#choose-models-and-let-claude-manage-context)涵盖了替代方案。
+4. 要求 Claude [在启动线程之前提议线程并一次运行几个](#tune-how-claude-runs-a-project)，一旦几个线程以你想要的方式返回，就取消这些限制。
 
 <h3 id="send-work-and-read-results">
   发送工作并读取结果
 </h3>
 
-Claude 决定您在对话中发送的每条消息去哪里：
+Claude 决定你在对话中发送的每条消息的去向：
 
-* 快速问题通常在对话中得到答案。
-* 新工作进入新线程或已在该领域工作的线程，Claude 告诉您哪个。每个新线程显示为您消息下的卡片：一个带有线程标题和状态的框，您点击打开线程。
-* 一条消息中的多个不相关的任务成为单独的线程。
+* 快速问题通常会在对话中得到答案。
+* 新工作会进入新线程或已在该区域工作的线程，Claude 会告诉你是哪一个。每个新线程在你的消息下显示为一张卡片：一个包含线程标题和状态的框，你点击它来打开线程。
+* 一条消息中的多个不相关的任务会变成单独的线程。
 
-如果 Claude 路由的方式与您想要的不同，请说出来。[调整 Claude 如何运行项目](#tune-how-claude-runs-a-project)列出了您可以告诉它的事情，例如为后续工作重用现有线程或就地回答而不是启动线程。
+如果 Claude 路由的方式与你想要的不同，请说出来。[调整 Claude 如何运行项目](#tune-how-claude-runs-a-project)列出了你可以告诉它的事情，例如为后续工作重用现有线程或就地回答而不是启动线程。
 
-线程的完整结果保留在线程中，您从对话中打开其卡片来读取它们。线程生成的文件也在 **Overview** 中的 **Library** 标签页上。
+线程的完整结果保留在线程中，你打开对话中的其卡片来读取它们。线程生成的文件也在**概览**中的**库**选项卡上。
 
-有时 Claude 在 **Suggested threads** 列表中提议线程而不是启动它们。点击建议上的箭头启动该线程。当列出多个时，列表下的按钮启动所有这些。
+有时 Claude 会在**建议的线程**列表中提议线程而不是启动它们。点击建议上的箭头来启动该线程。当列出多个时，列表下的按钮会启动所有这些线程。
 
 <h3 id="review-a-thread’s-pull-request">
   审查线程的拉取请求
 </h3>
 
-当线程更改代码时，除非您另外告诉它，否则它会执行以下操作：
+当云线程更改代码时，除非你另外告诉它，否则它会执行以下操作：
 
-* **分支**：在新分支上工作，从代码库的默认分支开始。
-* **拉取请求**：当您要求时打开一个，并可以为错误修复或其他具体更改自己打开一个。
-* **打开后**：使用[自动修复](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)打开监视拉取请求，无论自动修复是否对您的其他云会话打开。它在 CI 失败时推送修复，处理审查评论，并在检查通过且拉取请求准备好供您审查时在线程中回复。
+* **分支**：在新分支上工作，从存储库的默认分支开始。
+* **拉取请求**：当你要求时打开一个，并且可以为错误修复或其他具体更改自动打开一个。
+* **打开后**：使用[自动修复](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)打开的情况下监视拉取请求，无论你的其他云会话是否打开了自动修复。当 CI 失败时它会推送修复，处理审查评论，并在检查通过且拉取请求准备好供你使用时在线程中回复。
 
-当线程在对话中的卡片显示拉取请求下一步的按钮时：
+当线程推送了分支或打开了拉取请求时，其在对话中的卡片可以显示下一步的按钮：
 
-* **Resolve conflicts**、**Fix CI**、**Address comments** 和 **Merge it** 将该指令作为来自您的消息发送到线程，因此您可以自己提示线程而不是等待它对拉取请求做出反应。
-* **Review PR** 在 GitHub 上打开拉取请求。
-* **Create PR** 在空闲线程已推送分支但尚未打开拉取请求时出现。点击它直接从该分支创建拉取请求，而不是向线程发送打开拉取请求的指令。
+* **解决冲突**、**修复 CI**、**处理评论**和**合并它**将该指令作为来自你的消息发送给线程，因此你可以自己提示线程，而不是等待它对拉取请求做出反应。
+* **审查 PR** 在 GitHub 上打开拉取请求。
+* **创建 PR** 在空闲线程推送了分支但尚未打开拉取请求时出现。点击它会直接从该分支创建拉取请求，而不是向线程发送打开拉取请求的指令。
 
-要更改线程何时打开拉取请求，例如仅在您要求时，或它们从哪个分支开始，请在任务中或在[项目说明](#write-project-instructions)中说出来。
+要更改线程何时打开拉取请求（例如仅在你要求时）或它们从哪个分支开始，请在任务中或在[项目说明](#write-project-instructions)中说明。
 
 <h3 id="see-what-needs-you-in-overview">
-  在 Overview 中查看需要您的内容
+  在概览中查看需要你的内容
 </h3>
 
-**Overview** 窗格在对话旁边跟踪项目的线程。它在您第一次打开新项目时已经打开。项目标题中的 **Overview** 按钮关闭并重新打开它，并在线程等待您时显示一个点。
+对话旁边的**概览**窗格跟踪项目的线程。当你第一次打开新项目时，它已经打开。项目标题中的**概览**按钮关闭并重新打开它，并在线程等待你时显示一个点。
 
-在桌面应用中，当 Claude 在对话中发布、线程遇到错误或线程需要您的输入时，您还会收到桌面通知，因此您不必保持项目打开来找出。要在每次线程完成一轮时也获得一个，或为项目关闭它们，请在项目的侧边栏菜单中选择 **Notifications**。这些通知仅限桌面：在浏览器中，检查 **Overview** 按钮上的点。
+在桌面应用中，当 Claude 在对话中发布、线程遇到错误或线程需要你的输入时，你还会收到桌面通知，因此你不必保持项目打开来了解情况。要在每次线程完成一轮时也获得一个通知，或为项目关闭通知，请在项目的侧边栏菜单中选择**通知**。这些通知仅限桌面：在浏览器中，检查**概览**按钮上的点。
 
-窗格的 **Threads** 标签页按状态对线程进行分组：
+窗格的**线程**选项卡按状态对线程进行分组：
 
-| 组                    | 其中的内容                                                                            |
-| :------------------- | :------------------------------------------------------------------------------- |
-| **Ready for review** | 其拉取请求已打开并等待审查的线程                                                                 |
-| **Waiting on you**   | 需要您的回复或批准的线程，或失败的线程                                                              |
-| **Working**          | 仍在运行的线程                                                                          |
-| **Landing**          | 其拉取请求已批准或排队合并的线程                                                                 |
-| **Idle**             | 完成且不等待任何东西的线程                                                                    |
-| **Resolved**         | 标记为完成的线程：由您从线程的菜单中标记，由 Claude 在您采取最后一步（例如合并其拉取请求）后标记，或在一周无活动后自动标记。您可以从同一菜单重新打开一个 |
+| 组        | 其中的内容                                                                           |
+| :------- | :------------------------------------------------------------------------------ |
+| **准备审查** | 拉取请求打开并等待审查的线程                                                                  |
+| **等待你**  | 需要你的回复或批准的线程，或已失败的线程                                                            |
+| **工作中**  | 仍在运行的线程                                                                         |
+| **登陆**   | 拉取请求已批准或排队合并的线程                                                                 |
+| **空闲**   | 已完成且不等待任何内容的线程                                                                  |
+| **已解决**  | 标记为完成的线程：由你从线程的菜单标记，由 Claude 在你采取最后一步（例如合并其拉取请求）后标记，或在一周无活动后自动标记。你可以从同一菜单重新打开一个 |
 
-窗格的其他标签页是 **Library**（用于您添加的文件和文件夹以及线程生成的文件）、**Pull requests**（一旦线程打开任何）和 **Routines**（用于此项目的[例程](/docs/zh-CN/routines)）。
+窗格的其他选项卡是**库**（用于你添加的文件和文件夹以及线程生成的文件）、**拉取请求**（一旦线程打开任何）和**例程**（用于 Claude 从此项目设置的[例程](/docs/zh-CN/routines)）。
 
 <h3 id="open-a-thread-when-you-need-control">
-  当您需要控制时打开线程
+  当你需要控制时打开线程
 </h3>
 
-点击对话中线程的卡片或 **Overview** 中的其行以在 Overview 窗格中打开其记录。从那里您可以：
+点击对话中线程的卡片或**概览**中的其行来在概览窗格中打开其记录。从那里你可以：
 
-* 逐步阅读 Claude 做了什么。
-* 通过在线程自己的消息框中写入来引导任务。那里的消息直接进入该线程，而项目对话中的后续只有在 Claude 将后续匹配到该线程时才会到达它。
-* 回答线程等待的权限提示。
-* 使用 **Stop** 中断线程，它在线程工作时替换发送按钮，或按 Esc。
+* 逐步阅读 Claude 所做的事情。
+* 通过在线程自己的消息框中写入来引导任务。那里的消息直接进入该线程，而项目对话中的后续消息仅在 Claude 将后续消息与该线程匹配时才到达它。
+* 回答线程正在等待的权限提示。
+* 使用**停止**中断线程，它在线程工作时替换发送按钮，或按 Esc。
 
 <h3 id="choose-models-and-let-claude-manage-context">
   选择模型并让 Claude 管理上下文
 </h3>
 
-在 **Project settings > General** 中设置模型和努力。新项目在高[努力](/docs/zh-CN/model-config#adjust-effort-level)下在 Opus 上运行所有地方，对话的努力较低：
+在**项目设置 > 常规**中设置模型和工作量。新项目在所有地方运行 Opus，线程的[工作量](/docs/zh-CN/model-config#adjust-effort-level)为高，对话的工作量为低：
 
-* **Thread model** 和 **Thread effort** 适用于线程。要为一个任务使用不同的模型，请在任务中要求它；对于已经运行的线程，使用该线程的模型选择器。
-* **Coordinator model** 和 **Coordinator effort** 适用于项目对话中的 Claude。
+* **线程模型**和**线程工作量**适用于线程。要为一个任务使用不同的模型，请在任务中要求它；对于已在运行的线程，使用该线程的模型选择器。
+* **协调器模型**和**协调器工作量**适用于项目对话中的 Claude。
 
-您不在项目中管理上下文窗口。线程自动压缩，对话从最近的消息、最近的线程和项目记忆而不是其完整历史工作，因此它可以运行项目运行的时间。将任何必须永远不被丢弃的东西放在[项目记忆](#give-a-project-standing-context)中。如果一个线程超出其上下文，它显示[Claude 在此轮用完了上下文](#context-limit)。
+你不在项目中管理上下文窗口。线程自动压缩，对话从最近的消息、最近的线程和项目内存而不是其完整历史记录工作，因此只要项目运行，它就会继续进行。将任何必须永远不被丢弃的内容放在[项目内存](#give-a-project-standing-context)中。如果一个线程超出其上下文，它会显示[Claude 在此轮中用尽了上下文](#context-limit)。
 
 <h3 id="tune-how-claude-runs-a-project">
   调整 Claude 如何运行项目
 </h3>
 
-在对话中告诉 Claude 一次运行多少个线程、何时发布更新以及何时打开拉取请求。如果 Claude 以您不想要的方式协调，请说出来。例如，您可以说：
+在对话中告诉 Claude 一次运行多少个线程、何时发布更新以及何时打开拉取请求。如果 Claude 以你不想要的方式进行协调，请说出来。例如，你可以说：
 
-* "提议线程并等待我的批准后再启动它们"或"现在启动这些而不要求我确认"
-* "一次最多运行两个线程"或"为同一领域的后续工作重用现有线程"
-* "发布更短的更新"或"仅在某些完成或被阻止时发布"
+* "提议线程并在启动之前等待我的批准"或"现在启动这些而不要求我确认"
+* "一次最多运行两个线程"或"为同一区域中的后续工作重用现有线程"
+* "发布更短的更新"或"仅在某些内容完成或被阻止时发布"
 * "给我每个线程的状态更新"
-* "用更小的模型做这个任务"
+* "用较小的模型执行此任务"
 * "在我看到计划之前不要打开拉取请求"
-* "告诉我这些代码库中有什么问题，不要修复任何东西"，当您想在任何东西成为线程之前查看发现时
-* "在这里回答那个而不是启动线程"，当 Claude 为您打算作为快速问题的东西启动线程时
+* "告诉我这些存储库中有什么问题，暂时不要修复任何内容"，当你想在任何内容变成线程之前查看发现时
+* "在这里回答，而不是启动线程"，当 Claude 为你打算作为快速问题的内容启动线程时
 
-Claude 自己将这些偏好保存到[项目记忆](#give-a-project-standing-context)并在后续线程中遵循它们。它们是 Claude 遵守的说明，而不是强制设置，因此您以这种方式给出的线程限制不是硬上限。当您想要它精确措辞并从一开始应用到每个线程时，将一个添加到项目说明。
+Claude 会自动将这些偏好保存到[项目内存](#give-a-project-standing-context)，并在后续线程中遵循它们。它们是 Claude 遵守的指令，而不是强制执行的设置，因此你以这种方式给出的线程限制不是硬上限。当你想要它精确措辞并从一开始应用于每个线程时，将其添加到项目说明中。
 
 <h3 id="unblock-a-thread-waiting-on-approval">
   解除等待批准的线程
 </h3>
 
-当线程的模型支持时，线程在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中运行，因此大多数工具调用无需询问您即可运行。当线程需要您的批准时，提示在该线程内，线程等待直到您在那里回答。在项目对话中告诉 Claude 继续不会到达它。
+当线程的模型支持时，线程在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中运行，因此大多数工具调用无需询问你即可运行。当线程需要你的批准时，提示在该线程内，线程等待你在那里回答。在项目对话中告诉 Claude 继续不会到达它。
 
-每个批准涵盖该提示，或如果您选择更广泛的选项，则涵盖该线程的其余部分。要让每个线程运行某些命令而不询问，或阻止某些，请将[权限规则](/docs/zh-CN/permissions)添加到代码库的 `.claude/settings.json`。线程仅在有一个代码库的项目中应用它们；请参阅[线程从您的代码库中获取什么](#what-threads-pick-up-from-your-repositories)。
+每个批准涵盖该提示，或如果你选择更广泛的选项，则涵盖该线程的其余部分。要让每个线程运行某些命令而不询问，或阻止某些命令，请将[权限规则](/docs/zh-CN/permissions)添加到存储库的`.claude/settings.json`。云线程仅在具有一个存储库的项目中应用它们；请参阅[线程从你的存储库中获取什么](#what-threads-pick-up-from-your-repositories)。
 
 <h2 id="give-a-project-standing-context">
   给项目提供常规上下文
 </h2>
 
-项目记忆、项目说明和项目的代码库、文件和环境跨线程携带上下文。您设置每个一次，它适用于每个新线程。
+项目记忆、项目说明和项目的代码库、文件和环境跨线程携带上下文。您设置每个一次。
 
 | 上下文       | 它携带什么                                                                                    | 您如何设置它                                                                                                                  |
 | :-------- | :--------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------- |
-| 项目记忆      | Claude 关于项目的笔记，例如要求、决定和陷阱，存储为文件。每个线程在启动时读取索引文件 `MEMORY.md`，并在需要时打开其他文件                   | 在项目对话或任何线程中要求 Claude 记住要求、决定或陷阱，或忘记一个。在 **Project settings > Memory** 中读取、编辑和删除文件                                       |
+| 项目记忆      | Claude 关于项目的笔记，例如要求、决定和陷阱，存储为文件。每个云线程在启动时读取索引文件 `MEMORY.md`，并在需要时打开其他文件                  | 在项目对话或任何云线程中要求 Claude 记住要求、决定或陷阱，或忘记一个。在 **Project settings > Memory** 中读取、编辑和删除文件                                      |
 | 项目说明      | 发送到每个新线程和项目对话中 Claude 的文本，最多 16,000 个字符。[编写项目说明](#write-project-instructions)涵盖了要放入其中的内容 | **Project settings > Memory > Project instructions**，或要求 Claude 更改说明                                                    |
-| 代码库、文件和环境 | 每个线程克隆的代码库、每个线程可以在 `/mnt/project-files` 下读取的文件夹和文件，以及线程运行的云环境                            | 代码库和环境在 **Project settings > Environment** 中，或在对话中要求 Claude 将代码库添加到项目。文件和文件夹来自 **Overview** 中 **Library** 标签页上的 **Add** |
+| 代码库、文件和环境 | 每个云线程克隆的代码库、每个线程可以在 `/mnt/project-files` 下读取的文件夹和文件，以及线程运行的云环境                           | 代码库和环境在 **Project settings > Environment** 中，或在对话中要求 Claude 将代码库添加到项目。文件和文件夹来自 **Overview** 中 **Library** 标签页上的 **Add** |
 
-**Project settings > Memory** 在 **Auto memory** 下列出这些文件，因为 Claude 在项目中工作时自己写入它们。它们与 Claude Code 在您机器上保留的[自动记忆](/docs/zh-CN/memory)分开，即使两者都使用 `MEMORY.md` 索引。项目记忆也与项目代码库中的 `CLAUDE.md` 文件分开。每个线程在启动时仍然从其克隆中读取那些 `CLAUDE.md` 文件，因此将关于代码库的说明放在其 `CLAUDE.md` 中，将关于项目的笔记放在项目记忆中。
+**Project settings > Memory** 在 **Auto memory** 下列出这些文件，因为 Claude 在项目中工作时自己写入它们。它们与 Claude Code 在您机器上保留的[自动记忆](/docs/zh-CN/memory)分开，即使两者都使用 `MEMORY.md` 索引。项目记忆也与项目代码库中的 `CLAUDE.md` 文件分开。每个云线程在启动时仍然从其克隆中读取那些 `CLAUDE.md` 文件，因此将关于代码库的说明放在其 `CLAUDE.md` 中，将关于项目的笔记放在项目记忆中。
 
 <h3 id="write-project-instructions">
   编写项目说明
@@ -312,28 +314,28 @@ Claude 自己将这些偏好保存到[项目记忆](#give-a-project-standing-con
 - 不要在没有在线程中询问我的情况下合并、强制推送或更改 CI 配置。
 ```
 
-关于一个代码库的规则，例如其构建命令，属于该代码库的 `CLAUDE.md`，每个线程在代码库是项目的一部分时启动时读取。一旦工作进行中，当您纠正线程时，也告诉 Claude 记住纠正：它进入[项目记忆](#give-a-project-standing-context)，后续线程从它开始。
+关于一个代码库的规则，例如其构建命令，属于该代码库的 `CLAUDE.md`，每个云线程在代码库是项目的一部分时启动时读取。一旦工作进行中，当您纠正线程时，也告诉 Claude 记住纠正：它进入[项目记忆](#give-a-project-standing-context)，后续云线程从它开始。
 
 <h3 id="decide-which-repositories-to-add">
   决定要添加哪些代码库
 </h3>
 
-您添加到项目的代码库在每个线程中都带有其中的所有内容、其代码、`CLAUDE.md` 和 skills。您不添加的代码库仍在范围内：当其任务需要时，线程可以将一个添加到自己。大多数项目同时使用两者：
+您添加到项目的代码库在每个云线程中都带有其中的所有内容、其代码、`CLAUDE.md` 和 skills。您不添加的代码库仍在范围内：当其任务需要时，云线程可以将一个添加到自己。大多数项目同时使用两者：
 
-* **将其添加到项目**，在 **New project** 对话框中、**Project settings > Environment** 中，或通过在对话中要求 Claude 将其添加到项目。从那时起，每个线程克隆它并从其 `CLAUDE.md` 和 skills 加载开始，无论任务是否涉及它。从一个代码库转到多个也改变了线程从每个代码库的 `.claude/settings.json` 中获取什么；请参阅[线程从您的代码库中获取什么](#what-threads-pick-up-from-your-repositories)。
-* **将其留下，让线程在需要时添加它。** 其任务需要项目没有的代码库的线程可以将其添加到自己，线程中的注释说它仅被添加到此线程。克隆发生在任务的中途，因此该代码库的 `CLAUDE.md` 和 skills 在线程启动时不存在。下一个线程再次启动时没有它。线程添加的代码库需要与项目代码库相同的[先决条件](#check-the-prerequisites)：Claude GitHub App 安装在其上并从您的 GitHub 账户推送访问。
+* **将其添加到项目**，在 **New project** 对话框中、**Project settings > Environment** 中，或通过在对话中要求 Claude 将其添加到项目。从那时起，每个云线程克隆它并从其 `CLAUDE.md` 和 skills 加载开始，无论任务是否涉及它。从一个代码库转到多个也改变了线程从每个代码库的 `.claude/settings.json` 中获取什么；请参阅[线程从您的代码库中获取什么](#what-threads-pick-up-from-your-repositories)。
+* **将其留下，让线程在需要时添加它。** 其任务需要项目没有的代码库的云线程可以将其添加到自己，线程中的注释说它仅被添加到此线程。克隆发生在任务的中途，因此该代码库的 `CLAUDE.md` 和 skills 在线程启动时不存在。下一个线程再次启动时没有它。线程添加的代码库需要与项目代码库相同的[先决条件](#check-the-prerequisites)：Claude GitHub App 安装在其上并从您的 GitHub 账户推送访问。
 
-项目根本不需要代码库。其线程仍然可以研究、编写文档和在自己的沙箱中编写和运行代码，并将文件提交到 **Library** 标签页。那里的线程也可以在任务需要时将代码库添加到自己。
+项目根本不需要代码库。其云线程仍然可以研究、编写文档和在自己的沙箱中编写和运行代码，并将文件提交到 **Library** 标签页。那里的任何云线程也可以在任务需要时将代码库添加到自己。
 
 一旦项目有了代码库，Claude 只能从项目已经使用的 GitHub 所有者添加代码库，无论它是将一个添加到项目还是线程将一个添加到自己。要引入来自不同所有者的代码库，请自己在 **Project settings > Environment** 中将其添加到项目。
 
-对于跨越许多代码库的项目，例如一个具有服务器、网络、移动和桌面代码的功能，添加几乎每个任务涉及的一个或两个代码库，并在[项目说明](#write-project-instructions)中命名其他代码库，以便 Claude 知道其余代码在哪里。线程然后启动小，仅为需要它们的任务拉入其他代码库。
+对于跨越许多代码库的项目，例如一个具有服务器、网络、移动和桌面代码的功能，添加几乎每个任务涉及的一个或两个代码库，并在[项目说明](#write-project-instructions)中命名其他代码库，以便 Claude 知道其余代码在哪里。云线程然后启动小，仅为需要它们的任务拉入其他代码库。
 
 <h3 id="what-threads-pick-up-from-your-repositories">
   线程从您的代码库中获取什么
 </h3>
 
-每个线程克隆项目中的每个代码库并从所有代码库加载 `CLAUDE.md` 和 skills。权限规则、hooks 和 `env` 仅来自线程启动的目录中的 `.claude/settings.json`：在有一个代码库时在代码库内，在有多个时在克隆上方，其中没有代码库的文件被读取。
+每个云线程克隆项目中的每个代码库并从所有代码库加载 `CLAUDE.md` 和 skills。权限规则、hooks 和 `env` 仅来自线程启动的目录中的 `.claude/settings.json`：在有一个代码库时在代码库内，在有多个时在克隆上方，其中没有代码库的文件被读取。
 
 | 在每个代码库中                                          | 一个代码库                                                                                   | 多个代码库                                             |
 | :----------------------------------------------- | :-------------------------------------------------------------------------------------- | :------------------------------------------------ |
@@ -348,22 +350,22 @@ Claude 自己将这些偏好保存到[项目记忆](#give-a-project-standing-con
   为线程选择环境
 </h3>
 
-每个新线程在项目的[云环境](/docs/zh-CN/cloud-environments)中启动。环境设置线程可以到达哪些域、它们有哪些环境变量、哪些 API 凭证被添加到它们的请求中，以及设置脚本在 Claude 启动之前安装什么。线程使用默认的 Anthropic 托管环境，直到您在 **Project settings > Environment** 中选择一个。
+每个新云线程在项目的[云环境](/docs/zh-CN/cloud-environments)中启动。环境设置线程可以到达哪些域、它们有哪些环境变量、哪些 API 凭证被添加到它们的请求中，以及设置脚本在 Claude 启动之前安装什么。云线程使用默认的 Anthropic 托管环境，直到您在 **Project settings > Environment** 中选择一个。
 
-如果线程需要到达内部 API 或私有包注册表，或需要您的机器通常持有的令牌，请更改环境而不是项目：请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)、[添加 API 凭证](/docs/zh-CN/cloud-environments#add-api-credentials)和[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)。
+如果云线程需要到达内部 API 或私有包注册表，或需要您的机器通常持有的令牌，请更改环境而不是项目：请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)、[添加 API 凭证](/docs/zh-CN/cloud-environments#add-api-credentials)和[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)。
 
 <h3 id="get-skills-plugins-connectors-and-tools-into-threads">
   将 skills、plugins、connectors 和工具放入线程
 </h3>
 
-线程是云会话，因此它们没有仅在您机器上安装的 skills、MCP 服务器、plugins 和工具。要使这些中的每一个对线程可用：
+云线程没有仅在您机器上安装的 skills、MCP 服务器、plugins 和工具。线程通过[远程控制](/docs/zh-CN/remote-control)在您的机器上运行 Claude 使用那里安装的内容。要使这些中的每一个对云线程可用：
 
-* Skills、subagents 和 commands：将它们提交到您添加到项目的代码库，例如 `.claude/skills/<skill-name>/SKILL.md` 处的 skill。每个线程克隆项目中的每个代码库并从每个代码库加载 `.claude/skills/`、`.claude/agents/` 和 `.claude/commands/`，因此提交到一个代码库的 skill 在每个新线程中可用。线程也加载您为 claude.ai 账户启用的 skills。
-* Plugins：在 **Project settings > Plugins** 中添加它们；它们加载到每个新线程中。代码库在其 `.claude/settings.json` 中声明的 Plugins [不在线程中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)，因为线程是云会话。
-* MCP 服务器：线程从您 claude.ai 账户上的连接器获取其 MCP 工具，这些是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 一次连接的 MCP 服务器，或通过 **Project settings > Environment** 中的 **Manage connectors** 链接。每个线程可以使用所有这些而无需每个项目的设置。项目对话本身没有连接器，因此将需要一个的工作作为线程的任务发送。在有一个代码库的项目中，线程也从该代码库的[`.mcp.json`](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)加载 MCP 服务器。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code)列出了云会话的规则和关闭连接器的设置。
+* Skills、subagents 和 commands：将它们提交到您添加到项目的代码库，例如 `.claude/skills/<skill-name>/SKILL.md` 处的 skill。每个云线程克隆项目中的每个代码库并从每个代码库加载 `.claude/skills/`、`.claude/agents/` 和 `.claude/commands/`，因此提交到一个代码库的 skill 在每个云线程中可用。云线程也加载您为 claude.ai 账户启用的 skills。
+* Plugins：在 **Project settings > Plugins** 中添加它们；它们加载到每个新云线程中。代码库在其 `.claude/settings.json` 中声明的 Plugins [不在云线程中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
+* MCP 服务器：云线程从您 claude.ai 账户上的连接器获取其 MCP 工具，这些是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 一次连接的 MCP 服务器，或通过 **Project settings > Environment** 中的 **Manage connectors** 链接。每个云线程可以使用所有这些而无需每个项目的设置。项目对话本身没有连接器，因此将需要一个的工作作为云线程的任务发送。在有一个代码库的项目中，云线程也从该代码库的[`.mcp.json`](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)加载 MCP 服务器。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code)列出了云会话的规则和关闭连接器的设置。
 * 命令行工具和包：在环境的[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)中安装它们。
 
-要查看运行线程在 claude.ai/code 有哪些连接器，请打开线程并从其消息框旁的 **+** 菜单中选择 **Connectors**。在那里关闭连接器会将其从该线程中移除，并且将其保存为您的账户默认值，因此新线程和 claude.ai 聊天在您重新打开它之前启动时没有它。线程在您向其发送下一条消息后获取您添加或重新连接的连接器。
+要查看运行云线程在 claude.ai/code 有哪些连接器，请打开线程并从其消息框旁的 **+** 菜单中选择 **Connectors**。在那里关闭连接器会将其从该线程中移除，并且将其保存为您的账户默认值，因此新线程和 claude.ai 聊天在您重新打开它之前启动时没有它。云线程在您向其发送下一条消息后获取您添加或重新连接的连接器。
 
 <h2 id="project-settings-reference">
   项目设置参考
@@ -434,13 +436,13 @@ Claude 自己将这些偏好保存到[项目记忆](#give-a-project-standing-con
   项目与其他 Claude Code 功能的关系
 </h2>
 
-几个 Claude Code 功能让多个会话同时工作，因此并行运行工作本身不是项目的目的。在项目中，Claude 启动和跟踪会话而不是您，每个都从相同的代码库、说明和记忆开始，工作在云中生活，只要它持续。这是每个相邻功能如何连接到项目的方式：
+几个 Claude Code 功能让多个会话同时工作，因此并行运行工作本身不是项目的目的。在项目中，Claude 启动和跟踪会话而不是您，每个都从相同的说明开始。这是每个相邻功能如何连接到项目的方式：
 
 * **Claude Tag**：[Claude Tag](https://claude.com/docs/claude-tag/overview) 是您团队 Slack 频道中的 Claude，在 Team 和 Enterprise 计划上。频道中的任何人都可以给它工作，频道中的每个人都看到并引导它，它使用管理员为该频道设置的连接。项目是您的：您是唯一给它工作或看到其线程的人，它使用您自己的 GitHub 访问和连接器，它在 Pro 和 Max 上。[Claude Tag 与 Cowork 和 Claude Code 的不同之处](https://claude.com/docs/claude-tag/concepts/how-it-works#how-claude-tag-differs-from-cowork-and-claude-code)有并排比较。
-* **云会话**：每个线程都是一个[云会话](/docs/zh-CN/claude-code-on-the-web)，由 Claude 而不是您启动和跟踪。您自己启动的云会话可以通过[**Continue as a project** 或 **Move to project**](#start-from-an-existing-cloud-session)成为项目或提供一个。
+* **云会话**：每个线程都是一个[云会话](/docs/zh-CN/claude-code-on-the-web)，除非您要求 Claude 在您的机器上运行它。无论哪种方式，Claude 启动和跟踪它而不是您。您自己启动的云会话可以通过[**Continue as a project** 或 **Move to project**](#start-from-an-existing-cloud-session)成为项目或提供一个。
 * **例程**：当您在项目中要求计划工作时，Claude 创建一个[例程](/docs/zh-CN/routines)，作为该项目中的线程运行，并出现在其 **Routines** 标签页上。您在项目外创建的例程继续自己工作。
-* **本地会话和代理视图**：您的终端、IDE 或桌面应用的本地环境中的会话在您的机器上运行，不能是项目的一部分。[代理视图](/docs/zh-CN/agent-view)是用于跟踪多个这些本地会话的屏幕；它没有协调员。
-* **Worktrees**：一个[worktree](/docs/zh-CN/worktrees)为每个本地会话提供其自己的代码库工作副本，因此您机器上的并行会话不会相互覆盖。线程不需要它们：每个线程将其代码库克隆到其自己的云沙箱中，并在其自己的分支上工作。
+* **本地会话和代理视图**：您在终端、IDE 或桌面应用的本地环境中启动的会话不能添加到项目中。项目通过[Remote Control](/docs/zh-CN/remote-control)运行线程到达您的机器。[代理视图](/docs/zh-CN/agent-view)是用于跟踪您自己启动的多个本地会话的屏幕；它没有协调员。
+* **Worktrees**：一个[worktree](/docs/zh-CN/worktrees)为每个本地会话提供其自己的代码库工作副本，因此您机器上的并行会话不会相互覆盖。云线程不需要它们：每个线程将其代码库克隆到其自己的云沙箱中，并在其自己的分支上工作。
 * **代理团队**：一个[代理团队](/docs/zh-CN/agent-teams)是一个会话，为单个任务启动队友会话，在您的机器上或在云会话内，并以该任务结束。
 * **claude.ai 聊天和 Cowork 中的 Projects**：[早期的 Projects 体验](https://support.claude.com/en/articles/9517075-what-are-projects)，对对话和参考文件进行分组，没有线程或协调员。这些项目继续按照今天的方式工作，直到重新设计的体验到达它们。
 
@@ -451,9 +453,9 @@ Claude 自己将这些偏好保存到[项目记忆](#give-a-project-standing-con
 </h2>
 
 * Projects 在 claude.ai/code、桌面应用和 Claude 移动应用中可用，不在终端 CLI 或通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 中。CLI 的 [`claude project`](/docs/zh-CN/cli-reference) 命令（它管理目录的本地 Claude Code 状态）是无关的。
-* 项目线程是[云会话](/docs/zh-CN/claude-code-on-the-web)，Anthropic 作为模型提供者。[安全](/docs/zh-CN/security)和[数据使用](/docs/zh-CN/data-usage)涵盖了云会话如何隔离以及保留什么。
-* 本地会话不能是项目的一部分。
-* 线程的沙箱在轮之间暂停，并在线程继续时恢复。如果沙箱无法恢复，线程从新克隆继续，因此未提交的更改可能会丢失。在长任务上，要求 Claude 提交和推送进行中的工作。
+* 项目线程是[云会话](/docs/zh-CN/claude-code-on-the-web)，或通过[远程控制](/docs/zh-CN/remote-control)在您自己的机器上的会话，两种情况下 Anthropic 都是模型提供者。[安全](/docs/zh-CN/security)和[数据使用](/docs/zh-CN/data-usage)涵盖了云会话如何隔离以及保留什么，[连接和安全](/docs/zh-CN/remote-control#connection-and-security)涵盖了您机器上的线程如何连接以及存储什么。
+* 您不能将自己在机器上启动的会话添加到项目中。要让项目在您的机器上运行线程，请通过[远程控制](/docs/zh-CN/remote-control#requirements)连接它应该工作的文件夹：在 Claude 桌面应用中的 **Settings > Claude Code** 下打开远程控制，或在文件夹中运行 `claude remote-control` 并让其保持运行。该机器需要 Claude Code v2.1.280 或更高版本。当您的 claude.ai 设置中的 **Require trusted devices** 打开时，项目也不能在您的机器上运行线程。
+* 云线程的沙箱在轮之间暂停，并在线程继续时恢复。如果沙箱无法恢复，线程从新克隆继续，因此未提交的更改可能会丢失。在长任务上，要求 Claude 提交和推送进行中的工作。
 * 项目属于一个用户。您不能与另一个用户共享项目或其线程，线程记录没有其他云会话具有的共享选项。在测试版期间没有项目的组织级控制。
 * 线程属于启动它的一个项目。您不能将线程移动或复制到另一个项目，或将其移出以独立存在。[**Move to project**](#start-from-an-existing-cloud-session)仅以另一种方式进行：它将云会话的工作带入项目。
 
@@ -467,7 +469,7 @@ Claude 自己将这些偏好保存到[项目记忆](#give-a-project-standing-con
   线程看起来卡住了
 </h3>
 
-Claude 不发布线程采取的每一步，因此显示为运行且项目对话中没有新消息的线程通常仍在工作。新线程也在 Claude 开始之前配置其[云环境](/docs/zh-CN/cloud-environments)，因此其第一次更新需要一会儿。打开线程读取其记录。如果线程等待权限提示，请在那里回答。
+Claude 不发布线程采取的每一步，因此显示为运行且项目对话中没有新消息的线程通常仍在工作。新云线程也在 Claude 开始之前配置其[云环境](/docs/zh-CN/cloud-environments)，因此其第一次更新需要一会儿。打开线程读取其记录。如果线程等待权限提示，请在那里回答。
 
 <h3 id="threads-guessed-or-stalled-instead-of-asking">
   线程猜测或停滞而不是询问
@@ -489,7 +491,7 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
   代码库访问错误
 </h3>
 
-三条消息意味着线程或项目无法到达其代码库之一。项目线程需要[GitHub 先决条件](#check-the-prerequisites)，即使您的其他云会话无故障地克隆相同的代码库。
+三条消息意味着线程或项目无法到达其代码库之一。项目的云线程需要[GitHub 先决条件](#check-the-prerequisites)，即使您的其他云会话无故障地克隆相同的代码库。
 
 * **"Couldn't start the session — Claude doesn't have GitHub access to this project's repository"**，在线程启动之前报告，当 Claude GitHub App 未安装在该代码库上、已暂停或未链接到您连接的 GitHub 账户时。
 * **"Unable to access your repository"**，由线程报告，当其克隆失败时：GitHub 拒绝了克隆、在项目拥有的名称下找不到代码库，或线程被要求启动的分支不存在。
@@ -531,8 +533,8 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
   相关资源
 </h2>
 
-* [在云中使用 Claude Code](/docs/zh-CN/claude-code-on-the-web)：每个线程背后的云会话如何工作，包括 GitHub 访问选项和拉取请求上的自动修复
-* [配置云环境](/docs/zh-CN/cloud-environments)：更改线程可以在网络上到达什么，为它们提供环境变量和 API 凭证，并使用设置脚本安装工具
+* [在云中使用 Claude Code](/docs/zh-CN/claude-code-on-the-web)：每个云线程背后的云会话如何工作，包括 GitHub 访问选项和拉取请求上的自动修复
+* [配置云环境](/docs/zh-CN/cloud-environments)：更改云线程可以在网络上到达什么，为它们提供环境变量和 API 凭证，并使用设置脚本安装工具
 * [使用例程自动化工作](/docs/zh-CN/routines)：例程的时间表、触发器和管理，包括 Claude 从项目创建的那些
 * [使用代理视图管理多个代理](/docs/zh-CN/agent-view)：当工作需要仅您的机器可以到达的工具或服务时，在您自己的机器上运行和跟踪多个会话
 * [Projects redesigned: from folder to conversation](https://claude.com/blog/projects-redesigned)：发布公告，带有使项目成为与 Claude 对话的思考

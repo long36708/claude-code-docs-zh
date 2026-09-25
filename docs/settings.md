@@ -452,7 +452,7 @@ Claude Code 还保留第五个文件 [`~/.claude.json`](/docs/zh-CN/claude-direc
   与你的团队共享设置
 </h3>
 
-提交 `.claude/settings.json` 以便克隆仓库的每个人都获得相同的权限、hooks、遥测和 plugins。每个队友仍然可以在他们自己的 `.claude/settings.local.json` 中为自己覆盖它，因此个人例外不需要提交。有关完整的团队文件，请参阅[团队的共享设置](/docs/zh-CN/settings-example#a-teams-shared-settings)。
+提交 `.claude/settings.json` 以便克隆仓库的每个人都获得相同的权限、hooks 和 plugins。每个队友仍然可以在他们自己的 `.claude/settings.local.json` 中为自己覆盖它，因此个人例外不需要提交。有关完整的团队文件，请参阅[团队的共享设置](/docs/zh-CN/settings-example#a-teams-shared-settings)。
 
 你提交的一些内容等待每个队友[信任文件夹](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)，少数键永远不会从仓库文件生效；[排查不适用的设置](#common-cases)涵盖两者。
 
@@ -743,6 +743,8 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 * **更高级别设置它。** 另一个设置文件、`--settings` 标志或托管来源在您的上方设置键；[堆栈](#settings-precedence)说哪个。标志或环境变量也可以自己覆盖键，按键决定；[设置参考](/docs/zh-CN/settings-reference)上的键条目说 Claude Code 使用哪个，[`env` 条目](/docs/zh-CN/settings-reference#env)涵盖托管 `env` 值与 shell 导出。
 * **安全键保持其严格值。** 对于少数几个键 Claude Code 尊重任何文件的限制值，因此项目 `true` 用于 [`disableClaudeAiConnectors`](/docs/zh-CN/settings-reference#disableclaudeaiconnectors) 保持开启；请参阅[托管设置优先级的例外](#exceptions-to-managed-settings-precedence)。
 * **文件无法设置该值。** [`permissions.defaultMode`](/docs/zh-CN/settings-reference#permissions-defaultmode) 值 `auto` 和 `bypassPermissions` 不从项目或本地设置生效；改为在用户或托管设置中设置它们，或为一个会话传递 `--permission-mode`。在 v2.1.257 之前，`bypassPermissions` 从任何文件生效。
+
+  [`env`](/docs/zh-CN/settings-reference#env) 块中的遥测导出变量也不从项目或本地设置生效，除了少数关闭值。[Claude Code 在 `env` 中忽略的变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)列出变量和这些值。
 * **文件损坏。** 无效的 JSON 或拒绝的值使 Claude Code 跳过文件或条目；请参阅[修复损坏的设置文件](#fix-a-broken-settings-file)。
 
 <h4 id="a-change-you-made-in-claude-code-is-lost-in-new-sessions">
@@ -766,6 +768,8 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 两件事阻止 `.claude/settings.json` 中的键为克隆它的每个人应用：
 
 * **Claude Code 忽略存储库文件中的键。** 在[设置索引](/docs/zh-CN/settings-reference#settings-index)的作用域列中查找 `User, local, or managed`、`User or managed`、`Managed` 或 `Global config`。这些键永远不会从共享文件应用，除了少数几个存储库文件仍然可以关闭的。每个这些条目在其作用域行上说明。`Global config` 键仅从 `~/.claude.json` 应用。
+
+  在 `env` 键内，遥测导出变量也永远不会从共享文件应用，除了少数关闭值；请参阅[Claude Code 在 `env` 中忽略的变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)。
 * **键等待信任。** `permissions.allow` 规则、`permissions.additionalDirectories`、`extraKnownMarketplaces` 和大多数 [`env`](/docs/zh-CN/settings-reference#env) 值仅在每个队友[信任文件夹](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)后应用。在那之前他们仍然看到提示并不从文件声明的市场获得插件。`deny` 和 `ask` 规则立即应用。
 
 <h4 id="permission-rules-combine-differently-than-you-expected">

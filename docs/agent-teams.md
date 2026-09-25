@@ -118,7 +118,7 @@ Agent teams 支持两种显示模式：
 
 默认值是 `"in-process"`。设置 `"auto"` 以在你已经在 tmux 会话中运行，或你的终端是安装了 `it2` CLI 的 iTerm2 时启用分割窗格，否则回退到 in-process。`"tmux"` 设置启用分割窗格模式，并根据你的终端自动检测是使用 tmux 还是 iTerm2。
 
-从 v2.1.186 开始，设置 `"iterm2"` 以显式使用 iTerm2 原生分割窗格。此模式需要 [`it2` CLI](https://github.com/mkusaka/it2)，如果 `it2` 缺失，会显示带有安装命令的错误。当你的终端是 iTerm2 且 tmux 可用作备选方案时，在 `"auto"` 或 `"tmux"` 下会出现提供安装 `it2` 或切换到 tmux 的设置提示。
+设置 `"iterm2"` 以显式使用 iTerm2 原生分割窗格。此模式需要 [`it2` CLI](https://github.com/mkusaka/it2)，如果 `it2` 缺失，会显示带有安装命令的错误。当你的终端是 iTerm2 且 tmux 可用作备选方案时，在 `"auto"` 或 `"tmux"` 下会出现提供安装 `it2` 或切换到 tmux 的设置提示。
 
 要覆盖默认值，在 `~/.claude/settings.json` 中设置 [`teammateMode`](/docs/zh-CN/settings-reference#teammatemode)：
 

@@ -191,7 +191,7 @@ claude --dangerously-load-development-channels plugin:yourplugin@yourmarketplace
 claude --dangerously-load-development-channels server:webhook
 ```
 
-绕过是按条目的。将此标志与 `--channels` 结合不会将绕过扩展到 `--channels` 条目。在研究预览期间，批准的允许列表由 Anthropic 策划，因此您的频道在您构建和测试时保持在开发标志上。
+绕过是按条目的。将此标志与 `--channels` 结合不会将绕过扩展到 `--channels` 条目。在研究预览期间，您的频道不在批准的允许列表上，因此在您构建和测试时它保持在开发标志上。
 
 <Note>
   此标志仅跳过允许列表。`channelsEnabled` 组织政策仍然适用。不要使用它来运行来自不受信任来源的频道。
@@ -801,9 +801,9 @@ curl -d "yes <id>" -H "X-Sender: dev" localhost:8788
   打包为插件
 </h2>
 
-要使您的频道可安装和可共享，请将其包装在[插件](/docs/zh-CN/plugins)中并将其发布到[市场](/docs/zh-CN/plugin-marketplaces)。用户使用 `/plugin install` 安装它，然后使用 `--channels plugin:<name>@<marketplace>` 按会话启用它。
+要使您的频道可安装和可共享，请将其包装在[插件](/docs/zh-CN/plugins/overview)中并将其发布到[市场](/docs/zh-CN/plugins/overview)。用户使用 `/plugin install` 安装它，然后使用 `--channels plugin:<name>@<marketplace>` 按会话启用它。
 
-发布到您自己的市场的频道仍然需要 `--dangerously-load-development-channels` 来运行，因为它不在[批准的允许列表](/docs/zh-CN/channels#supported-channels)上。默认允许列表是 `claude-plugins-official` 中的频道插件，由 Anthropic 自行策划。[应用内提交表单](/docs/zh-CN/plugins#submit-your-plugin-to-the-community-marketplace)将插件添加到社区市场，该市场不在频道允许列表上。
+发布到您自己的市场的频道仍然需要 `--dangerously-load-development-channels` 来运行，因为它不在[批准的允许列表](/docs/zh-CN/channels#supported-channels)上。默认允许列表是 `claude-plugins-official` 中的频道插件。[应用内提交表单](/docs/zh-CN/plugins/publish#submit-to-the-community-marketplace)将插件添加到社区市场，该市场不在频道允许列表上。
 
 如果您正在与 Anthropic 合作伙伴联系合作，请与他们联系以协调官方市场列表。在 Team 和 Enterprise 计划上，管理员可以改为将您的插件包含在组织自己的 [`allowedChannelPlugins`](/docs/zh-CN/channels#restrict-which-channel-plugins-can-run) 列表中，该列表替换默认的 Anthropic 允许列表。
 
@@ -814,4 +814,4 @@ curl -d "yes <id>" -H "X-Sender: dev" localhost:8788
 * [Channels](/docs/zh-CN/channels) 安装和使用 Telegram、Discord、iMessage 或 fakechat 演示，以及为 Team 或 Enterprise 组织启用频道
 * [工作频道实现](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins)用于具有配对流、回复工具和文件附件的完整服务器代码
 * [MCP](/docs/zh-CN/mcp) 用于频道服务器实现的基础协议
-* [Plugins](/docs/zh-CN/plugins) 打包您的频道，以便用户可以使用 `/plugin install` 安装它
+* [Plugins](/docs/zh-CN/plugins/overview) 打包您的频道，以便用户可以使用 `/plugin install` 安装它

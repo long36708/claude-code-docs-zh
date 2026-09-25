@@ -256,7 +256,7 @@ Claude Code 仅从 git 状态检测合并的情况：worktree 推送到的远程
 Worktree 获得自己的文件和分支，但它与主检出共享以下内容：
 
 * **存储库的 `.git` 目录**：worktree 中的 git 命令写入主存储库的共享 `.git` 目录，[沙箱](/docs/zh-CN/sandboxing#filesystem-isolation)允许这些写入，因此 `git commit` 等命令可以从启用沙箱的 worktree 内部工作。
-* **插件**：从主检出在[项目范围](/docs/zh-CN/plugins-reference#plugin-installation-scopes)安装的插件也会在同一存储库的 worktrees 中加载，因此您无需为每个 worktree 重新安装它们。需要 Claude Code v2.1.200 或更高版本。
+* **插件**：从主检出在[项目范围](/docs/zh-CN/plugins/loading#find-where-a-plugin-is-enabled)安装的插件也会在同一存储库的 worktrees 中加载，因此您无需为每个 worktree 重新安装它们。需要 Claude Code v2.1.200 或更高版本。
 * **权限批准**：在 worktree 会话中为 Bash 命令选择"是，不再询问"会将规则保存到主检出的 `.claude/settings.local.json`，因此它适用于主检出和存储库的每个其他 worktree，并在 worktree 的删除后存活。在 Windows 和 Claude Code [不使用存储库根](/docs/zh-CN/settings#where-claude-code-looks-for-each-file)的其他情况下，规则与该 worktree 保持一致。在 v2.1.211 之前，在 worktree 中授予的批准被保存在该 worktree 内，不适用于其他地方，并在 worktree 被删除时丢失。请参阅[批准保存的位置](/docs/zh-CN/permissions#permission-system)。
 * **未跟踪的 skills、agents 和 commands**：当 worktree 检出在其根目录没有 `.claude/skills` 目录时（例如因为您的 `.claude/skills` 被 gitignored），Claude Code 会在 worktree 会话中加载主检出的[项目 skills](/docs/zh-CN/skills#where-skills-live)。在具有自己的 `.claude/skills` 目录的 worktree 中，只加载该副本。
 
@@ -329,6 +329,8 @@ Worktree 隔离默认使用 git。对于 SVN、Perforce、Mercurial 或其他系
 ```
 
 将其与 `WorktreeRemove` hook 配对以在会话结束时进行清理。有关输入架构和删除示例，请参阅 [hooks 参考](/docs/zh-CN/hooks#worktreecreate)。
+
+`WorktreeCreate` hook 还允许您在 git 存储库外运行 [`/batch`](/docs/zh-CN/commands#all-commands)。每个 `/batch` 子代理随后使用您项目的版本控制命令发布其更改，当它无法打开拉取请求时，报告它发布的内容。在 git 存储库外运行 `/batch` 需要 Claude Code v2.1.281 或更高版本。
 
 <h2 id="troubleshooting">
   故障排除

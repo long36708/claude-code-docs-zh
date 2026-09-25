@@ -6,13 +6,17 @@
 
 > 为您的 Claude Code 插件编写 eval 用例，使用 claude plugin eval 运行它们，对结果进行评分，与无插件基线进行比较，并在 CI 中基于分数进行门控。
 
-`claude plugin eval` 针对一套测试用例运行您的[插件](/docs/zh-CN/plugins)并对结果进行评分。每个用例都是一个现实的提示加上一个或多个评分器。评分器是对 Claude 生成的内容的通过/失败检查，例如对回复的正则表达式、是否调用了特定工具，或者由第二个模型判断回复的评分标准。
+`claude plugin eval` 针对一套测试用例运行您的[插件](/docs/zh-CN/plugins/overview)并对结果进行评分。每个用例都是一个现实的提示加上一个或多个评分器。评分器是对 Claude 生成的内容的通过/失败检查，例如对回复的正则表达式、是否调用了特定工具，或者由第二个模型判断回复的评分标准。
 
 您不必手动编写该套件；`claude plugin eval init` 会询问您关于您的插件的问题，提议用例和评分器，尝试它们，并编写文件。您也可以要求 Claude 从您已经打开的会话中执行相同操作。
 
-使用 evals 来衡量您的插件可靠地引导 Claude 达到正确结果的程度，在您更改插件或发布新模型时捕捉回归，以及查看与无插件相比插件的贡献。
+使用 evals 来：
 
-本页面适用于拥有可工作插件并想要测试其行为的插件和技能作者，以及在 CI 中对插件更改进行门控的团队。其用例格式与[技能创建者插件](/docs/zh-CN/skills#run-evals-with-skill-creator)使用的 `evals/evals.json` 文件分开。要创建插件，请参阅[创建插件](/docs/zh-CN/plugins)；要检查插件文件的语法和架构错误而不是其行为，请使用 [`claude plugin validate`](/docs/zh-CN/plugins-reference#plugin-validate)。
+* 衡量您的插件可靠地引导 Claude 达到正确结果的程度
+* 在您更改插件或发布新模型时捕捉回归
+* 查看与无插件相比插件的贡献
+
+本页面适用于拥有可工作插件并想要测试其行为的插件和技能作者，以及在 CI 中对插件更改进行门控的团队。其用例格式与[技能创建者插件](/docs/zh-CN/skills#run-evals-with-skill-creator)使用的 `evals/evals.json` 文件分开。要创建插件，请参阅[创建插件](/docs/zh-CN/plugins/create)；要检查插件文件的语法和架构错误而不是其行为，请使用 [`claude plugin validate`](/docs/zh-CN/plugins/cli-reference#plugin-validate)。
 
 <Note>
   每次 eval 运行和每个评分器都是对您账户的真实模型调用，计入您计划的使用量或您的 API 账单，因此请先检查[要求](#requirements)。然后[创建您的第一个 eval 套件](#create-your-first-eval-suite)，或者如果您已经有一个，请转到[在 CI 中运行 evals](#run-evals-in-ci)。
@@ -25,7 +29,7 @@
 要运行插件 evals，你需要：
 
 * Claude Code v2.1.269 或更高版本。运行 `claude --version` 检查，运行 `claude update` 升级。
-* 一个包含 `plugin.json` 或 `.claude-plugin/plugin.json` 清单的插件目录，或一个[技能目录插件](/docs/zh-CN/plugins-reference#skills-directory-plugins)。
+* 一个包含 `plugin.json` 或 `.claude-plugin/plugin.json` 清单的插件目录，或一个[技能目录插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)。
 * 与你的常规 Claude Code 会话相同的身份验证和模型提供商。Eval 运行、评判评分器和 `claude plugin eval init` 使用你的凭证调用模型，因此它们计入你的计划使用限制或 API 账单。当命令报告成本时，该数字是这些调用的[列表价格估计](/docs/zh-CN/costs)。
 
 <h2 id="how-an-eval-run-works">
@@ -50,7 +54,9 @@
   无插件基线
 </h3>
 
-仅凭高分不能告诉你插件是否有帮助，因为 Claude 可能在没有插件的情况下也能做得很好。为了区分两者，默认情况下每个用例的运行会重复进行，不加载任何插件，你会得到两个分数，`WITH` 和 `W/OUT`。它们的差异 `Δ` 是插件贡献的内容。如果一个用例在有插件和没有插件的情况下都得分 1.0，那么插件不是使其通过的原因。这两组运行称为 with-arm 和 without-arm；[与无插件基线比较](#compare-against-a-no-plugin-baseline)涵盖了评分器如何在它们之间评分以及如何关闭基线。
+仅凭高分不能告诉你插件是否有帮助，因为 Claude 可能在没有插件的情况下也能做得很好。为了区分两者，默认情况下每个用例的运行会重复进行，不加载任何插件，你会得到两个分数，`WITH` 和 `W/OUT`。它们的差异 `Δ` 是插件贡献的内容。如果一个用例在有插件和没有插件的情况下都得分 1.0，那么插件不是使其通过的原因。
+
+这两组运行称为 with-arm 和 without-arm；[与无插件基线比较](#compare-against-a-no-plugin-baseline)涵盖了评分器如何在它们之间评分以及如何关闭基线。
 
 <h2 id="create-your-first-eval-suite">
   创建你的第一个 eval 套件
@@ -184,7 +190,7 @@ PASS if <what a correct response contains>.
 FAIL if <what a wrong or missing response looks like>.
 ```
 
-然后添加第二个评分器来检查你的技能是否是产生答案的原因。创建 `evals/first-case/graders/skill-fired.md`，将 `your-skill-name` 替换为你的技能 `SKILL.md` 中的 `name`：
+然后添加第二个评分器来检查你的技能是否是产生答案的原因。创建 `evals/first-case/graders/skill-fired.md`，将 `your-skill-name` 替换为技能在 `skills/` 下的目录名称，这是 Claude 调用它的名称：
 
 ```markdown theme={null}
 ---
@@ -234,9 +240,14 @@ input_match: '"skill"\s*:\s*"(?:[\w-]+:)?your-skill-name"'
 在两个 arm 运行中，某些评分器报告为 `scored: false`。像"技能被调用"这样的检查在没有插件的情况下永远无法通过，所以计数会将 without-arm 推向零并夸大 `Δ`。为了保持两个 arm 可比较，Claude Code 在两个 arm 中排除此类评分器的分数，并在 with-arm 中仅将其报告为通过/失败指示器。这包括：
 
 * 每个 `tool_used` 评分器，其 `tool` 是 `Skill`
+* 每个 `regex` 评分器，其 `target: mock_calls` 和每个 `llm` 评分器，其 `focus: mock_calls`，当每个[模拟服务器](#mock-mcp-servers)在用例中是你的插件声明的
 * 任何你标记为 `arm: with-only` 的评分器
 
-如果用例中的每个评分器都是其中之一，它们会被正常评分，因为没有什么可评分的。在评分器上设置 `arm: both` 以在两个 arm 中评分它，无论如何，这是你想要的"不得调用技能"检查，带有 `min: 0` 和 `max: 0`。在 `--ablation none` 下，没有任何内容被排除，所以相同的套件在两种模式中可能产生不同的绝对分数。
+三个设置改变了该排除：
+
+* **每个评分器都被排除**：如果用例中的每个评分器都在排除集中，它们会被正常评分，因为没有什么可评分的。
+* **`arm: both`**：在评分器上设置 `arm: both` 以在两个 arm 中评分它，无论如何，这是你想要的"不得调用技能"检查，带有 `min: 0` 和 `max: 0`。
+* **`--ablation none`**：在 `--ablation none` 下，没有任何内容被排除，所以相同的套件在两种模式中可能产生不同的绝对分数。
 
 <h3 id="use-a-different-eval-directory">
   使用不同的 eval 目录
@@ -259,9 +270,11 @@ input_match: '"skill"\s*:\s*"(?:[\w-]+:)?your-skill-name"'
   播种工作区或对话
 </h3>
 
-每次运行都在空工作目录中开始。当用例需要的不仅仅是提示时，在 `prompt.md` 旁边添加一个 `case.yaml`，带有 `context` 块。
+每次运行都在空工作区中开始。当用例需要的不仅仅是提示时，在 `prompt.md` 旁边添加一个 `case.yaml`，带有 `context` 块：
 
-要首先创建 fixture 文件或 git 存储库，在用例目录中编写 Bash 脚本并在 `context.scaffold_script` 中命名它。脚本作为你在代理沙箱外运行，仅当你传递 `--scaffold` 时，所以仅对你或你的组织编写的套件传递该标志。要继续早期对话，将记录保存为 `.jsonl` 文件并在 `context.history_file` 中命名它，用例的提示成为下一个用户轮次。要让 Claude 在运行期间读取用例中的 fixture 目录，在 `context.add_dirs` 中列出它们。
+* **Fixture 文件或 git 存储库**：在用例目录中编写 Bash 脚本并在 `context.scaffold_script` 中命名它。脚本作为你在代理沙箱外运行，仅当你传递 `--scaffold` 时，所以仅对你或你的组织编写的套件传递该标志。
+* **要继续的早期对话**：将记录保存为 `.jsonl` 文件并在 `context.history_file` 中命名它，用例的提示成为下一个用户轮次。
+* **Claude 在运行期间可以读取的 Fixture 目录**：在 `context.add_dirs` 中列出它们。
 
 `case.yaml` 也需要 `schema_version: "1.1"` 和 `name`；[case.yaml 字段](#case-yaml-fields)参考有完整列表。
 
@@ -280,9 +293,9 @@ context:
   Mock MCP 服务器
 </h3>
 
-你可以评估一个插件，其技能调用 MCP 工具，而不需要它们后面的真实服务。在 `evals/mocks/<server>/<tool>.md` 下为整个套件放置一个 Markdown 文件，或在用例自己的 `mocks/` 目录下为一个用例，其中 `<server>` 是你的插件[MCP 配置](/docs/zh-CN/plugins-reference#mcp-servers)中服务器的名称。
+你可以评估一个插件，其 skills 调用 MCP 工具，而不需要它们后面的真实服务。在 `evals/mocks/<server>/<tool>.md` 下为整个套件放置一个 Markdown 文件，或在用例自己的 `mocks/` 目录下为一个用例，其中 `<server>` 是你的插件的 [MCP 配置](/docs/zh-CN/plugins/components#mcp-servers)中服务器的名称。
 
-运行永远不会启动你的插件的真实 MCP 服务器，除非你要求。Claude Code 在每个服务器自己的名称下注册一个替代品。带有 mock 文件的工具从它回答，并且无需 `--allow-tools` 授予即可允许，没有 mock 文件的工具对 Claude 不可用。完全没有 mocks 的服务器在用例的 `mocked:` 进度线中显示为 `plugin_<plugin>_<server>[not started: no mock]`。
+运行永远不会启动你的插件的真实 MCP 服务器，除非你要求。Claude Code 在每个服务器自己的名称下注册一个替代服务器。带有 mock 文件的工具从它回答，并且无需 `--allow-tools` 授予即可允许，没有 mock 文件的工具对 Claude 不可用。完全没有 mocks 的服务器在用例的 `mocked:` 进度行中显示为 `plugin_<plugin>_<server>[not started: no mock]`。
 
 文件的正文是工具返回给 Claude 的内容。这个 mock 代替了名为 `tracker` 的服务器上的 `create_issue` 工具，检查 Claude 发送的输入，并回显标题。将其保存为 `evals/mocks/tracker/create_issue.md`：
 
@@ -296,7 +309,14 @@ expect:
 Created issue #4821: {{input.title}}
 ```
 
-使用 `{{input.<field>}}` 从调用的输入插入字段，使用 `{{file:fixtures/{input.<field>}.json}}` 插入 mock 旁边的 fixture 文件的内容。`expect:` 块保护输入。如果调用违反它，运行以分数 0 中止并记录原因，以便用例可以断言你的插件要求服务器执行的操作。设置 `error: true` 以将正文作为工具错误返回，或 `type: agent` 以让小型模型从正文中的指令作为服务器回答。[mock 文件参考](#mock-files)列出了每个键和 `_server.md` 和 `_tools.json` 文件。
+mock 文件的正文和 frontmatter 接受这些选项：
+
+* **替换**：使用 `{{input.<field>}}` 从调用的输入插入字段，使用 `{{file:fixtures/{input.<field>}.json}}` 插入 mock 旁边的 fixture 文件的内容。
+* **`expect:`**：`expect:` 块保护输入。如果调用违反它，运行以分数 0 中止并记录原因，以便用例可以断言你的插件要求服务器执行的操作。
+* **`error: true`**：设置 `error: true` 以将正文作为工具错误返回。
+* **`type: agent`**：设置 `type: agent` 以让小型模型从正文中的指令作为服务器回答。
+
+[mock 文件参考](#mock-files)列出了每个键和 `_server.md` 和 `_tools.json` 文件。
 
 要评分调用本身，将评分器指向 `target: mock_calls`。
 
@@ -330,7 +350,7 @@ Created issue #4821: {{input.title}}
 | 插件的根目录，例如 `.`                           | 其 eval 目录下的每个用例，加载该插件                                                                             |
 | 单个 `prompt.md` 或 `case.yaml` 文件         | 该用例，加载其所在的插件                                                                                      |
 | 已安装的插件（按名称），`name` 或 `name@marketplace` | 已安装副本的 eval 目录中的用例，加载已安装的副本。结果写入当前目录下的 `./evals/results/`，或使用 `--eval-dir` 时写入 `./<dir>/results/` |
-| `name@skills-dir`                       | 相同，用于 [skills-directory 插件](/docs/zh-CN/plugins-reference#skills-directory-plugins)                    |
+| `name@skills-dir`                       | 相同，用于 [skills-directory 插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)           |
 | 省略                                      | 当前目录作为路径                                                                                          |
 
 添加 `--case <glob>` 按用例名称过滤，添加 `--tag <tag>` 保留具有任何给定标签的用例。将 target 放在 `--tag`、`--allow-tools` 和 `--json` 之前。前两个接受列表，`--json` 接受可选路径，所以它们每个都读取后面的 target 作为自己的值。
@@ -339,13 +359,15 @@ Created issue #4821: {{input.title}}
   授予工具
 </h3>
 
-运行永远不会停下来请求权限。需要授予但你没有授予的内置工具，例如 `Bash`、`Write`、`Edit`、`WebFetch` 和 `WebSearch`，会从会话中移除，所以 Claude 根本无法调用它们。允许列表是用例在 `allowed_tools` 中列出的只读工具，来自 `Read`、`Glob`、`Grep`、`NotebookRead`、`Skill`、`Agent`、`TodoWrite` 和任务工具 `TaskCreate`、`TaskGet`、`TaskList`、`TaskUpdate` 和 `TaskStop`，加上你使用 `--allow-tools` 授予的任何工具。该授予适用于运行中的每个用例。要让用例使用 `Bash`、`Write`、`Edit`、`WebFetch` 或 `WebSearch`，请自己授予它们：
+运行永远不会停下来请求权限。需要授予但你没有授予的内置工具，例如 `Bash`、`Write`、`Edit`、`WebFetch` 和 `WebSearch`，会从会话中移除，所以 Claude 根本无法调用它们。
+
+运行仅允许用例在 `allowed_tools` 中列出的只读工具，来自 `Read`、`Glob`、`Grep`、`NotebookRead`、`Skill`、`AskUserQuestion`、`Agent`、`TodoWrite` 和任务工具 `TaskCreate`、`TaskGet`、`TaskList`、`TaskUpdate` 和 `TaskStop`，加上你使用 `--allow-tools` 授予的任何工具。该授予适用于运行中的每个用例。要让用例使用 `Bash`、`Write`、`Edit`、`WebFetch` 或 `WebSearch`，请自己授予它们：
 
 ```bash theme={null}
 claude plugin eval . --allow-tools Write Edit "Bash(npm test *)"
 ```
 
-当用例请求你没有授予的工具时，运行会在 stderr 上将其列为 `not granted`。[模拟](#mock-mcp-servers) MCP 服务器上的工具不需要授予。真实插件 MCP 服务器上的工具需要服务器启动（使用 `--allow-real-servers` 或 `--mocks off`）和按名称授予，例如 `--allow-tools "mcp__plugin_my-plugin_github__*"`；插件的 MCP 工具命名为 `mcp__plugin_<plugin>_<server>__<tool>`。
+当用例请求你没有授予的工具时，进度输出会将其列为 `not granted`。[模拟](#mock-mcp-servers) MCP 服务器上的工具不需要授予。真实插件 MCP 服务器上的工具需要服务器启动（使用 `--allow-real-servers` 或 `--mocks off`）和按名称授予，例如 `--allow-tools "mcp__plugin_my-plugin_github__*"`；插件的 MCP 工具命名为 `mcp__plugin_<plugin>_<server>__<tool>`。
 
 当你以任何形式授予 `Bash` 时，每个命令都在 Claude Code 的 [OS 级沙箱](/docs/zh-CN/sandboxing) 下运行。写入被限制在运行的工作区，你的主目录和 Claude Code 配置不可读，网络访问限制为你使用 `--allow-tools "WebFetch(domain:example.com)"` 授予的域。如果你在没有沙箱后端的机器上授予 Bash 或 PowerShell，Claude Code 会拒绝每次运行而不是无限制地运行它，用例会显示运行错误，通常得分为 0。原生 Windows 没有后端，所以在 WSL2 下运行授予 shell 的套件；在 Linux 上，首先安装 `bubblewrap` 和 `socat`。请参阅 [沙箱先决条件](/docs/zh-CN/sandboxing)。
 
@@ -402,9 +424,15 @@ claude plugin eval . \
 | 130  | 中断。部分结果已写入                                                                                 |
 | 143  | 已终止，例如由 CI 超时                                                                              |
 
-写入或发布 HTML 报告的问题永远不会改变退出代码。要查看用例得分低的原因，请在本地运行它而不使用 `--json` 以便打印每次运行的进度和评分器行。
+写入或发布 HTML 报告的问题永远不会改变退出代码。
 
-CI 运行程序需要 Claude Code 安装和 [环境中的凭证](/docs/zh-CN/authentication)，例如 `ANTHROPIC_API_KEY`。没有 `--trust-plugin`，其检出目录 Claude Code 还不信任的作业在没有终端时被拒绝，退出 1，或在运行程序分配一个时在提示处等待。`claude plugin eval init` 需要终端来提出问题；在 CI 中，运行 `claude plugin eval init --bare <name>` 以获取空白模板。
+要查看用例得分低的原因，请在本地运行它而不使用 `--json` 以便打印每次运行的进度和评分器行。
+
+CI 运行程序还需要以下内容：
+
+* **安装和凭证**：CI 运行程序需要 Claude Code 安装和 [环境中的凭证](/docs/zh-CN/authentication)，例如 `ANTHROPIC_API_KEY`。
+* **信任**：没有 `--trust-plugin`，其检出目录 Claude Code 还不信任的作业需要 [首次运行信任提示](#trust-the-plugin-directory)，无法询问的运行会被拒绝，退出 1。
+* **CI 中的 `init`**：`claude plugin eval init` 需要终端来提出问题；在 CI 中，运行 `claude plugin eval init --bare <name>` 以获取空白模板。
 
 要保持成本可预测，给快速的每次更改套件仅使用不调用评判者的评分器，在你不需要 `Δ` 的地方使用 `--ablation none`，并将 `partial: true` 文档和具有 `skippedPaidGraders` 的运行排除在你绘制的任何趋势之外。
 
@@ -465,9 +493,15 @@ Claude Code 会话启动的运行，例如当你要求 Claude 为你运行套件
   信任插件目录
 </h3>
 
-第一次针对一个目录运行 `claude plugin eval` 时，Claude Code 会在加载任何内容之前询问 `Trust this plugin directory?`，除非你已经在交互式 `claude` 会话中接受了那里的信任提示。在 git 仓库内，回答是会信任整个仓库，对交互式会话也是如此。当 stdin 或 stdout 不是终端时，或在 `--json` 下，运行无法询问并被拒绝，退出代码为 1；传递 `--trust-plugin` 来自己声明信任，仅限于你会在自己机器上运行的插件。你命名而不是作为路径给出的目标，即已安装的插件或 skills 目录插件，会跳过提示。
+第一次针对一个目录运行 `claude plugin eval` 时，Claude Code 会在加载任何内容之前询问 `Trust this plugin directory?`，除非你已经在交互式 `claude` 会话中接受了那里的信任提示。在 git 仓库内，回答是会信任整个仓库，对交互式会话也是如此。当 stdin 或 stdout 不是终端时，在 `--json` 下，或当 `CI` 环境变量设置为真值（如 `true`）时，运行无法询问并被拒绝，退出代码为 1；传递 `--trust-plugin` 来自己声明信任，仅限于你会在自己机器上运行的插件。你命名而不是作为路径给出的目标，即已安装的插件或 skills 目录插件，会跳过提示。
 
-插件和套件的某些部分仅在你为该运行传递其标志时才运行：一个案例的 [`scaffold_script`](#add-setup-or-history-with-case-yaml) 带有 `--scaffold`、[超出只读集合的工具](#grant-tools) 带有 `--allow-tools`，以及插件的[真实 MCP 服务器](#mock-mcp-servers) 带有 `--allow-real-servers` 或 `--mocks off`。一个案例的 `allowed_tools` 和一个 skill 自己的 `allowed-tools` frontmatter 无法扩展其中任何一个。当插件附带你没有编写的 hooks，或你启动其真实 MCP 服务器时，除非你在隔离环境（如容器或 CI 运行器）中运行它，否则将其分数视为建议性的，因为 hooks 和服务器在代理的沙箱外运行，可能会接触评分器读取的文件。
+插件和套件的某些部分仅在你为该运行传递其标志时才运行：
+
+* 一个案例的 [`scaffold_script`](#add-setup-or-history-with-case-yaml) 带有 `--scaffold`
+* [超出只读集合的工具](#grant-tools) 带有 `--allow-tools`
+* 插件的[真实 MCP 服务器](#mock-mcp-servers) 带有 `--allow-real-servers` 或 `--mocks off`
+
+一个案例的 `allowed_tools` 和一个 skill 自己的 `allowed-tools` frontmatter 无法扩展其中任何一个。当插件附带你没有编写的 hooks，或你启动其真实 MCP 服务器时，除非你在隔离环境（如容器或 CI 运行器）中运行它，否则将其分数视为建议性的，因为 hooks 和服务器在代理的沙箱外运行，可能会修改评分器读取的文件。
 
 <h3 id="how-runs-are-isolated">
   运行如何被隔离
@@ -535,7 +569,7 @@ evals/
   case.yaml 字段
 </h3>
 
-`case.yaml` 在 YAML 中描述相同的用例并添加指向其他文件的字段。它需要 `schema_version: "1.1"` 和 `name`。`prompt.md` 字段 `description`、`tags`、`plugins`、`runs` 和 `expected_outcome` 在顶级；`model`、`max_turns`、`timeout_seconds`、`allowed_tools`、`append_system_prompt` 和 `env` 在 `execution:` 下。当两个文件都存在时，`prompt.md` frontmatter 覆盖匹配的 `case.yaml` 字段，`prompt.md` 正文是提示，`graders/*.md` 在 `case.yaml` 中列出的任何评分器之后添加。
+`case.yaml` 是 `prompt.md` 的替代或伴侣：它在 YAML 中描述用例并添加指向其他文件的字段。它需要 `schema_version: "1.1"` 和 `name`。`prompt.md` 字段 `description`、`tags`、`plugins`、`runs` 和 `expected_outcome` 在顶级；`model`、`max_turns`、`timeout_seconds`、`allowed_tools`、`append_system_prompt` 和 `env` 在 `execution:` 下。当两个文件都存在时，`prompt.md` frontmatter 覆盖匹配的 `case.yaml` 字段，`prompt.md` 正文是提示，`graders/*.md` 在 `case.yaml` 中列出的任何评分器之后添加。
 
 这些字段仅存在于 `case.yaml` 中：
 
@@ -553,11 +587,11 @@ evals/
 
 `graders/` 下的每个评分器文件在 frontmatter 中采用这些键，加上其类型的选项。评分器的名称是不带 `.md` 的文件名：
 
-| 键        | 默认  | 目的                                                                                                                   |
-| :------- | :-- | :------------------------------------------------------------------------------------------------------------------- |
-| `type`   | 必需  | [评分器类型](#grader-types)之一                                                                                             |
-| `weight` | `1` | 运行分数中的相对权重。任何正数                                                                                                      |
-| `arm`    | 未设置 | `with-only` 在[两个 arm 运行](#compare-against-a-no-plugin-baseline)中排除评分器的评分；`both` 强制 `tool_used: Skill` 评分器在两个 arm 中评分 |
+| 键        | 默认  | 目的                                                                                                                  |
+| :------- | :-- | :------------------------------------------------------------------------------------------------------------------ |
+| `type`   | 必需  | [评分器类型](#grader-types)之一                                                                                            |
+| `weight` | `1` | 运行分数中的相对权重。任何正数                                                                                                     |
+| `arm`    | 未设置 | `with-only` 在[两个 arm 运行](#compare-against-a-no-plugin-baseline)中排除评分器的评分；`both` 强制 Claude Code 否则会排除的评分器在两个 arm 中评分 |
 
 <h4 id="what-a-grader-can-look-at">
   评分器可以查看什么
@@ -612,104 +646,109 @@ evals/
   故障排除
 </h2>
 
-这些是作者最常遇到的问题，按你看到的内容键入。
+这些是作者最常遇到的问题，按照你看到的内容进行分类。
 
 <h3 id="plugin-eval-is-currently-in-early-access">
   "plugin eval is currently in early access"
 </h3>
 
-你的构建早于命令的普遍可用性。运行 `claude update`，然后在新会话中再次运行命令。
+你的构建版本早于该命令的正式发布。运行 `claude update`，然后在新的会话中再次运行该命令。
 
 <h3 id="plugin-eval-is-currently-unavailable">
   "plugin eval is currently unavailable"
 </h3>
 
-Anthropic 已在服务器端关闭命令。你的机器上没有任何内容将其打开；运行 `claude update` 并稍后在新会话中重试。
+Anthropic 已在服务器端关闭了该命令。你的机器上没有任何东西可以将其重新打开；运行 `claude update`，稍后在新的会话中重试。
 
 <h3 id="is-not-a-trusted-plugin-directory-and-this-run-cannot-stop-to-ask-you-about-it">
   "is not a trusted plugin directory, and this run cannot stop to ask you about it"
 </h3>
 
-这是针对 Claude Code 还不信任的目录的第一次运行，它无法询问因为 stdin 或 stdout 不是终端或你传递了 `--json`。在终端中运行 `claude plugin eval <dir>` 一次并回答提示，或如果你信任插件的代码和套件，传递 `--trust-plugin`。参见[运行可以访问什么](#security)。
+这是针对 Claude Code 尚未信任的目录的首次运行，由于 stdin 或 stdout 不是终端、你传递了 `--json`，或 `CI` 环境变量设置为 `true` 等真值，它无法询问你。在终端中运行一次 `claude plugin eval <dir>` 并回答提示，或者如果你信任插件的代码和套件，传递 `--trust-plugin`。请参阅[运行可以访问的内容](#security)。
 
 <h3 id="no-eval-cases-found">
   "No eval cases found"
 </h3>
 
-eval 目录下没有 `<case>/prompt.md` 或 `<case>/case.yaml` 存在，或你的 `--case` 和 `--tag` 过滤器没有匹配任何用例。从插件根目录运行，或运行 `claude plugin eval init` 以创建套件。
+eval 目录下不存在 `<case>/prompt.md` 或 `<case>/case.yaml`，或你的 `--case` 和 `--tag` 过滤器没有匹配到任何案例。从插件根目录运行，或运行 `claude plugin eval init` 来创建一个套件。
 
 <h3 id="the-baseline-arm-shows-no-plugin-or-delta-is-zero">
-  基线 arm 显示无插件，或 delta 为零
+  基线臂显示没有插件，或 delta 为零
 </h3>
 
-如果摘要没有 `W/OUT` 列，或用例失败，显示"ablation requested but no plugin resolved"，没有为用例找到插件。将 `plugins: ["../.."]` 添加到用例，给出从用例目录到插件目录的路径。
+如果摘要没有 `W/OUT` 列，或案例失败并显示"ablation requested but no plugin resolved"，则没有为该案例找到插件。将 `plugins: ["../.."]` 添加到案例中，给出从案例目录到插件目录的路径。
 
-如果插件确实加载，`Δ` 仍然接近零，你的 `tool_used: Skill` 评分器失败，这通常是真实发现，意味着技能的 `description` 不会在提示的措辞上触发。调整描述并重新运行相同的套件。
+如果插件确实加载了，而 `Δ` 仍然接近零，且你的 `tool_used: Skill` grader 失败，这通常是一个真实的发现，意味着该 skill 的 `description` 不会在提示的措辞上触发。调整描述并重新运行相同的套件。
 
 <h3 id="agent-type-’-’-not-found-for-one-of-your-plugin’s-agents">
-  "Agent type '...' not found" for one of your plugin's agents
+  "Agent type '...' not found" 对于你的插件的某个代理
 </h3>
 
-默认情况下，每个用例都同时运行你的插件和不运行它，不运行它的运行是[无插件基线](#the-no-plugin-baseline)。当 Claude 在基线运行中调度你的插件的一个代理时，Agent 工具调用失败，显示 `Agent type '<plugin>:<agent-name>' not found. Available agents: ...`。列表仅命名不存在插件的代理，例如[内置子代理](/docs/zh-CN/sub-agents#built-in-subagents)。
+默认情况下，每个案例都会同时运行你的插件和不运行它，不运行它的运行是[无插件基线](#the-no-plugin-baseline)。当 Claude 在基线运行中调度你的插件的某个代理时，Agent 工具调用失败，显示 `Agent type '<plugin>:<agent-name>' not found. Available agents: ...`。该列表仅列出不存在插件时存在的代理，例如[内置子代理](/docs/zh-CN/sub-agents#built-in-subagents)。
 
-该错误是预期的，因为 `Δ` 将你的插件的运行与基线进行比较。在 JSON 结果中，基线运行在 `cases[].arms.without` 下。
+该错误是预期的，因为 `Δ` 将你的插件运行与基线进行比较。在 JSON 结果中，基线运行位于 `cases[].arms.without` 下。
 
-在加载你的插件的运行中，在 `allowed_tools` 中列出 `Agent` 的用例可以通过其命名空间名称调度你的插件的一个代理，例如 `my-plugin:code-reviewer` 用于名为 `my-plugin` 的插件中的 `code-reviewer` 代理。要跳过基线运行，传递 `--ablation none`。
+在加载了你的插件的运行中，在 `allowed_tools` 中列出 `Agent` 的案例可以通过其命名空间名称调度你的插件的某个代理，例如 `my-plugin:code-reviewer` 表示名为 `my-plugin` 的插件中的 `code-reviewer` 代理。要跳过基线运行，传递 `--ablation none`。
 
 <h3 id="everything-scores-zero-although-the-right-files-were-produced">
-  尽管生成了正确的文件，但一切都得分为零
+  尽管生成了正确的文件，但所有内容的评分都为零
 </h3>
 
-你的评分器目标 `files`（创建的路径列表），当你意思是文件的内容时。使用 `{ source: file, path: <path> }` 作为 `target` 或 `focus`。另外，`file_exists` 仅计数在运行期间创建的文件，所以 scaffold 创建或 Claude 仅编辑的文件对它不可见；评分其内容，或在 `Edit` 上使用 `tool_used`。
+你的 graders 针对 `files`（创建的路径列表），而你的意思是文件的内容。使用 `{ source: file, path: <path> }` 作为 `target` 或 `focus`。
+
+另外，`file_exists` 仅计算在运行期间创建的文件，所以脚手架创建的文件或 Claude 仅编辑的文件对它是不可见的；对其内容进行评分，或在 `Edit` 上使用 `tool_used`。
 
 <h3 id="a-regex-over-the-trace-doesn’t-match-text-i-can-see">
-  对记录的正则表达式不匹配我能看到的文本
+  对跟踪的正则表达式与我能看到的文本不匹配
 </h3>
 
-默认 `target` 是 `last_message`，不是记录。当你确实目标 `trace` 时，它是每行 JSON，所以引号显示为 `\"`。正则表达式使用 JavaScript 语法，所以在 `flags` 中放置 `i` 而不是写 `(?i)`。
+* **错误的目标**：默认 `target` 是 `last_message`，而不是跟踪。
+* **JSON 转义**：当你针对 `trace` 时，它是每行 JSON，所以引号显示为 `\"`。
+* **正则表达式语法**：正则表达式使用 JavaScript 语法，所以在 `flags` 中放置 `i` 而不是写 `(?i)`。
 
 <h3 id="tools-are-denied-mcp-tools-are-missing-or-bash-won’t-run">
-  工具被拒绝，MCP 工具丢失，或 Bash 不会运行
+  工具被拒绝、MCP 工具缺失或 Bash 无法运行
 </h3>
 
-超过只读集的任何内容都需要你的授予，例如 `--allow-tools Bash Write`。你的个人 MCP 服务器永远不会在运行中加载。插件自己的服务器不启动，除非你[选择加入](#mock-mcp-servers)，它们的工具然后也需要 `--allow-tools "mcp__plugin_<plugin>_<server>__*"` 授予；mocked 工具两者都不需要。
+超出只读集合的任何内容都需要你的授权，例如 `--allow-tools Bash Write`。你的个人 MCP 服务器永远不会在运行中加载。插件自己的服务器不会启动，除非你[选择加入](#mock-mcp-servers)，它们的工具也需要 `--allow-tools "mcp__plugin_<plugin>_<server>__*"` 授权；模拟工具两者都不需要。
 
 <h3 id="the-run-exits-1-but-the-results-look-fine">
-  运行退出 1 但结果看起来很好
+  运行退出代码为 1，但结果看起来很好
 </h3>
 
-默认 `--threshold` 是 1.0，所以当任何用例分数低于完美时命令退出 1。设置与你的标准匹配的阈值。退出 1 也涵盖加载失败的用例文件，在表上方的 stderr 上报告。
+默认 `--threshold` 是 1.0，所以当任何案例的评分低于完美时，命令退出代码为 1。设置与你需要的评分相匹配的阈值。退出代码 1 也涵盖了无法加载的案例文件，该文件在表格上方的 stderr 上报告。
 
 <h3 id="json-output-path-must-end-in-json">
   "--json output path must end in .json"
 </h3>
 
-你在 `--json` 后放置了目标，所以它被读作输出路径。首先放置目标，如 `claude plugin eval . --json`，或给 `--json` 一个显式的 `.json` 路径。
+你把目标放在 `--json` 之后，所以它被读作输出路径。把目标放在前面，如 `claude plugin eval . --json`，或给 `--json` 一个显式的 `.json` 路径。
 
 <h3 id="a-grader-shows-passed-false-under-a-run-that-scored-1-0">
-  评分器在得分 1.0 的运行下显示 passed: false
+  一个 grader 在评分为 1.0 的运行下显示 passed: false
 </h3>
 
-该评分器在两个 arm 运行中按设计从分数中排除，其 `scored` 字段是 `false`。参见[与无插件基线比较](#compare-against-a-no-plugin-baseline)。
+该 grader 在设计上被排除在两臂运行的评分之外，其 `scored` 字段为 `false`。请参阅[针对无插件基线进行评分](#compare-against-a-no-plugin-baseline)。
 
 <h3 id="runs-fail-with-a-usage-limit-or-rate-limit-error-partway-through">
   运行在中途失败，出现使用限制或速率限制错误
 </h3>
 
-如果你的账户在套件运行时达到其计划的使用限制或 API 速率限制，每个后续运行以该错误结束，在它生成的内容上评分，通常分数为 0。套件仍然完成，不标记为 `partial`，所以结果可能看起来像回归。在信任分数之前检查 `NOTES` 列或 JSON 中的 `cases[].arms.with[].error` 以获取限制消息，然后在限制重置后重新运行，如果你需要保持在它下面，使用 `--runs 1` 或 `--case` 过滤器。
+如果你的账户在套件运行时达到了计划的使用限制或 API 速率限制，每个后续运行都会以该错误结束，根据它生成的内容进行评分，通常评分为 0。套件仍然完成，不会标记为 `partial`，所以结果看起来像是一个回归。在信任评分之前，检查 `NOTES` 列或 JSON 中的 `cases[].arms.with[].error` 中的限制消息，然后在限制重置后重新运行，如果你需要保持在限制内，使用 `--runs 1` 或 `--case` 过滤器。
 
 <h3 id="runs-time-out-or-hit-the-turn-cap">
   运行超时或达到轮次上限
 </h3>
 
-默认值是 10 轮和 300 秒。为需要更多的任务在用例中提高 `max_turns` 和 `timeout_seconds`，并使用 `--max-cost-usd` 作为成本上限而不是紧的每次运行限制。
+默认值是 10 轮和 300 秒。对于需要更多的任务，在案例中提高 `max_turns` 和 `timeout_seconds`，并使用 `--max-cost-usd` 作为成本上限，而不是紧密的每次运行限制。
 
 <h2 id="see-also">
   另见
 </h2>
 
-* [创建插件](/docs/zh-CN/plugins)：构建你正在测试的插件，并在开发期间使用 `--plugin-dir` 加载它
-* [插件参考](/docs/zh-CN/plugins-reference#plugin-eval)：`plugin eval` 和 `plugin eval init` 命令条目以及清单的 `experimental.evals` 键
+* [创建插件](/docs/zh-CN/plugins/create)：构建你正在测试的插件，并在开发期间使用 `--plugin-dir` 加载它
+* [插件命令参考](/docs/zh-CN/plugins/cli-reference#plugin-eval)：`plugin eval` 和 `plugin eval init` 命令条目。清单的 [`experimental.evals`](/docs/zh-CN/plugins/manifest-reference#fields) 键在清单参考中
 * [技能](/docs/zh-CN/skills)：技能的描述如何决定 Claude 何时调用它，这是检查技能是否触发的用例测量的内容
 * [沙箱](/docs/zh-CN/sandboxing)：当你授予 Bash 给运行时应用的操作系统级沙箱
-* [创建和分发插件市场](/docs/zh-CN/plugin-marketplaces)：一旦其套件通过，发布插件
+* [发布插件](/docs/zh-CN/plugins/publish)：一旦其套件通过，发布插件
+* [测量插件成本和使用情况](/docs/zh-CN/plugins/measure)：插件添加到每个会话上下文的内容以及人们是否仍在使用它

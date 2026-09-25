@@ -37,7 +37,7 @@ Claude Code 将使用 [`claude -p`](/docs/zh-CN/headless) 或 [Agent SDK](/docs/
 
 恢复的会话会恢复对话以及保存在其中的状态：
 
-* 对话历史：完整历史，包括工具调用和结果。如果工具在上一个进程结束时仍在运行（例如在崩溃中），当您恢复时它不会完成或再次运行；Claude 会继续而不使用其输出。
+* 对话历史：完整历史，包括工具调用和结果。如果工具在上一个进程结束时仍在运行（例如在崩溃中），当您恢复时它不会完成或再次运行。Claude 会看到该调用被标记为在记录其结果之前被切断，并被告知在再次运行之前检查它是否生效，除非设置了 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars#variables)。在 v2.1.281 之前，Claude Code 会从对话中删除切断的调用或将其显示为您中断的调用。
 * 模型：会话继续使用它正在使用的模型。当模型已被停用或不被 `availableModels` 允许时，模型不会被恢复；当在启动时通过 `--model` 标志或 `ANTHROPIC_MODEL` 系列环境变量选择模型时；或在使用特定于提供商的部署 ID 的提供商上，例如 [Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry](/docs/zh-CN/third-party-integrations)；请参阅[模型配置](/docs/zh-CN/model-config#setting-your-model)了解解析顺序。
 * Agent：使用 [`--agent`](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 或 `agent` 设置启动的会话继续作为该 agent，保持其工具限制和模型。在恢复时传递 `--agent` 以选择不同的；对于任一情况下的系统提示，请参阅[恢复对话中的系统提示标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。Claude Code 在两个地方查找 agent：会话的原始目录（前提是您已[信任该工作区](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)）和您恢复的目录，因此项目范围的 agent 在您从另一个目录恢复时仍会加载。如果 Claude Code 在任一位置都找不到 agent，会话会以默认工具恢复并显示[警告，命名该 agent](/docs/zh-CN/errors#session-agent-no-longer-available)。
 * 权限模式：如果您从终端使用 `claude --continue`、`claude --resume <session-id>` 或 `claude --resume <name>`（当名称与一个会话匹配时）恢复，不带 `-p`，Claude Code 会恢复会话所在的权限模式，除了[恢复时的权限模式](#permission-mode-on-resume)中的情况，这也涵盖会话选择器、`/resume` 和使用 `claude -p` 恢复。传递 `--permission-mode` 或 `--dangerously-skip-permissions` 以覆盖恢复的模式。

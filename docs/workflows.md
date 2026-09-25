@@ -239,7 +239,7 @@ Claude Code 在写入前检查保存位置是否有符号链接，并显示错�
   在插件中分发工作流
 </h3>
 
-要在团队或仓库中共享工作流，将其包含在[插件](/docs/zh-CN/plugins)中。将脚本放在插件根目录的 `workflows/` 目录中，或使用 [`workflows` 清单字段](/docs/zh-CN/plugins-reference#component-path-fields)指向不同的位置。
+要在团队或仓库中共享工作流，将其包含在[插件](/docs/zh-CN/plugins/overview)中。将脚本放在插件根目录的 `workflows/` 目录中，或使用 [`workflows` 清单字段](/docs/zh-CN/plugins/manifest-reference#fields)指向不同的位置。
 
 插件工作流由插件名称命名空间。一个名为 `acme-tools` 的插件，其 `meta.name` 为 `release-audit` 的脚本作为 `/acme-tools:release-audit` 运行。
 

@@ -249,7 +249,7 @@ Claude Code 将大多数设置更新应用于运行的会话而无需重新启�
 }
 ```
 
-您也可以在[端点管理的](/docs/zh-CN/managed-settings#delivery-mechanisms) MDM 配置文件或系统 `managed-settings.json` 文件中设置此键，以在首次启动时强制执行故障关闭行为，在任何服务器有效负载被传递之前。在 Claude Code v2.1.191 或更高版本中，此标志是上述[优先级规则](#settings-precedence)的例外：当任何管理员控制的托管源设置它时，Claude Code 会遵守它，即使也存在缓存的服务器管理有效负载，因此当服务器管理的设置存在时，MDM 传递的值不会被忽略。
+您也可以在[端点管理的](/docs/zh-CN/managed-settings#delivery-mechanisms) MDM 配置文件或系统 `managed-settings.json` 文件中设置此键，以在首次启动时强制执行故障关闭行为，在任何服务器有效负载被传递之前。此标志是上述[优先级规则](#settings-precedence)的例外：当任何管理员控制的托管源设置它时，Claude Code 会遵守它，即使也存在缓存的服务器管理有效负载，因此当服务器管理的设置存在时，MDM 传递的值不会被忽略。
 
 当 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 提供托管设置时，其输出替换 Claude Code 在启动后读取的键的所有其他托管源。有关 Claude Code 从哪些源读取此键的信息，请参阅[其设置条目](/docs/zh-CN/settings-reference#forceremotesettingsrefresh)。`policyHelper` 条目说明 Claude Code 从哪些源读取助手以及何时运行它。
 
@@ -338,7 +338,7 @@ Claude Code 也根据传递的值决定 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/e
 
 由 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 脚本返回的密钥和 [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 凭证都不会触发设置获取。
 
-在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，即使用户使用 Team 或 Enterprise 账户登录，Claude Code 也不会从 claude.ai 管理控制台获取服务器管理的设置。[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies) 涵盖了哪些策略到达用户机器上的 Cowork 会话和远程 Cowork 会话。claude.ai 在 Cowork 用户从 git 存储库或从 Cowork 标签中的**自定义**添加市场时，仍然会应用您的 [`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces) 和 [`blockedMarketplaces`](/docs/zh-CN/settings-reference#blockedmarketplaces) 列表。[限制如何工作](/docs/zh-CN/plugin-marketplaces#how-restrictions-work) 描述了该检查。
+在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，即使用户使用 Team 或 Enterprise 账户登录，Claude Code 也不会从 claude.ai 管理控制台获取服务器管理的设置。[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies) 涵盖了哪些策略到达用户机器上的 Cowork 会话和远程 Cowork 会话。claude.ai 在 Cowork 用户从 git 存储库或从 Cowork 标签中的**自定义**添加市场时，仍然会应用您的 [`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces) 和 [`blockedMarketplaces`](/docs/zh-CN/settings-reference#blockedmarketplaces) 列表。[限制如何工作](/docs/zh-CN/plugins/org#restrict-what-users-can-install) 描述了该检查。
 
 如果您在 shell 中导出 `CLAUDE_CODE_USE_*` 提供商变量或非默认的 `ANTHROPIC_BASE_URL`，Claude Code 将跳过您的会话的设置获取。[`claude doctor` 和 `/status` 报告跳过的获取及其原因](#verify-settings-delivery)。
 

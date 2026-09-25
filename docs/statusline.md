@@ -1142,7 +1142,7 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 
 将一个 JSON 行写入 stdout，用于你想覆盖的每一行，形式为 `{"id": "<task id>", "content": "<row body>"}` 。`content` 字符串按原样呈现，包括 ANSI 颜色和 OSC 8 超链接。省略任务的 `id` 以保持该行的默认呈现；发出空 `content` 字符串以隐藏它。
 
-适用于 `statusLine` 的相同信任、`disableAllHooks` 和 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly) 门控也适用于此处。插件可以在其[`settings.json`](/docs/zh-CN/plugins-reference#standard-plugin-layout)中提供默认的 `subagentStatusLine`，但与钩子不同，即使插件在托管设置 `enabledPlugins` 中被强制启用，插件值也不会在 `allowManagedHooksOnly` 下运行。
+适用于 `statusLine` 的相同信任、`disableAllHooks` 和 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly) 门控也适用于此处。插件可以在其[`settings.json`](/docs/zh-CN/plugins/manifest-reference#standard-layout)中提供默认的 `subagentStatusLine`，但与钩子不同，即使插件在托管设置 `enabledPlugins` 中被强制启用，插件值也不会在 `allowManagedHooksOnly` 下运行。
 
 <h2 id="tips">
   提示

@@ -27,20 +27,20 @@ Claude Security 插件在 Claude Code 会话中运行代码库的多代理漏洞
   安装插件
 </h2>
 
-在 Claude Code 会话中，从[官方 Anthropic 市场](/docs/zh-CN/discover-plugins#official-anthropic-marketplace)安装：
+在 Claude Code 会话中，从[官方 Anthropic 市场](/docs/zh-CN/plugins/anthropic-marketplaces)安装：
 
 ```text theme={null}
 /plugin install claude-security@claude-plugins-official
 ```
 
-该命令打开插件的详细信息，您可以在其中选择[安装范围](/docs/zh-CN/discover-plugins#install-plugins)来开始安装。
+该命令打开插件的详细信息，您可以在其中选择[安装范围](/docs/zh-CN/plugins/install#install-a-plugin)来开始安装。
 
 如果安装失败，修复方法取决于 Claude Code 报告的消息：
 
 * 如果它报告 `Marketplace "claude-plugins-official" not found`，使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* 如果它报告[在市场中找不到该插件](/docs/zh-CN/discover-plugins#install-plugins)，检查插件名称是否有拼写错误。
+* 如果它报告[在市场中找不到该插件](/docs/zh-CN/plugins/install#install-a-plugin)，检查插件名称是否有拼写错误。
 
-检查安装摘要。如果它报告 `Run /reload-plugins to activate.`，请参阅[应用插件更改而无需重启](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting)以在当前会话中激活插件。
+检查安装摘要。如果它报告 `Run /reload-plugins to activate.`，请参阅[应用插件更改而无需重启](/docs/zh-CN/plugins/cli-reference#reload-plugins)以在当前会话中激活插件。
 
 一旦插件处于活跃状态，您已准备好[扫描和修复您的代码库](#scan-and-fix-your-codebase)。
 
@@ -168,4 +168,4 @@ Claude Security 插件是深度扫描层，在纵深防御堆栈中，与[securi
 * [Code Review](/docs/zh-CN/code-review)：设置 PR 时间多代理审查
 * [Claude Security](https://claude.com/product/claude-security)：监控连接存储库的托管服务
 * [Claude Code 安全](/docs/zh-CN/security)：Claude Code 如何处理信任、权限和保护措施
-* [发现和安装插件](/docs/zh-CN/discover-plugins#official-anthropic-marketplace)：浏览其他官方插件
+* [安装和管理插件](/docs/zh-CN/plugins/install)：从官方市场查找和安装其他插件

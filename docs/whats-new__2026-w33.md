@@ -72,11 +72,11 @@
   <div className="digest-wins-grid">
     <div>在提示中键入 <code>@</code> 以<a href="/docs/zh-CN/cross-session-messaging#message-another-session">提及另一个 Claude 会话</a>的名称，Claude 使用 <code>SendMessage</code> 直接向其发送消息；与恰好一个活跃会话完全匹配的裸名称现在无需确认步骤即可传递</div>
     <div>一台机器上的交互式会话保持<a href="/docs/zh-CN/cross-session-messaging#see-which-sessions-claude-can-reach">唯一名称</a>：如果您启动或重命名会话时使用另一个活跃会话已在使用的名称，Claude Code 会为您的会话提供 <code>name-word-word</code> 变体并告知您</div>
-    <div>插件市场接受<a href="/docs/zh-CN/plugin-marketplaces#command-sources"><code>command</code> 源</a>：本地命令打印插件目录，Claude Code 在每个会话中重新解析并应用，无需重启</div>
+    <div>插件市场接受<a href="/docs/zh-CN/plugins/marketplace-reference#command-plugin-source"><code>command</code> 源</a>：本地命令打印插件目录，Claude Code 在每个会话中重新解析并应用，无需重启</div>
     <div>在 Linux 和 WSL 上，设置<a href="/docs/zh-CN/tools-reference#memory-limit-on-linux-and-wsl"><code>CLAUDE\_CODE\_TOOL\_MEMORY\_LIMIT</code></a> 为大小（如 <code>4G</code>）以限制 Bash 和 PowerShell 工具命令可以使用的内存</div>
     <div>任务跟踪工具，如 <code>TaskCreate</code>、<code>TaskUpdate</code> 和 <code>TodoWrite</code>，<a href="/docs/zh-CN/tools-reference#task-tool-availability">在 Opus 4.8、Sonnet 5、Fable 5、Mythos 5 及这些系列中的更高版本上不再可用</a>；设置 <code>CLAUDE\_CODE\_ENABLE\_TODO\_TOOLS=1</code> 以重新启用它们</div>
     <div><a href="/docs/zh-CN/code-review#review-a-diff-locally"><code>/code-review</code></a> 在高、超高和最大努力级别现在像其他级别一样在后台代理中运行</div>
-    <div><a href="/docs/zh-CN/discover-plugins#install-plugins"><code>/plugin install plugin\@marketplace</code></a> 首先刷新市场，因此新发布的插件无需手动市场更新即可安装</div>
+    <div><a href="/docs/zh-CN/plugins/install#install-a-plugin"><code>/plugin install plugin\@marketplace</code></a> 首先刷新市场，因此新发布的插件无需手动市场更新即可安装</div>
     <div>设置接受<a href="/docs/zh-CN/settings-reference#marketplace-key-aliases"><code>additionalMarketplaces</code> 和 <code>allowedMarketplaces</code></a> 作为 <code>extraKnownMarketplaces</code> 和 <code>strictKnownMarketplaces</code> 的别名</div>
     <div>在较新的模型上，Claude 可以<a href="/docs/zh-CN/tools-reference#write-tool-behavior">使用 Write 工具覆盖现有文件</a>而无需在此会话中首先读取它，与 Edit 工具的规则匹配；较旧的模型需要读取</div>
     <div>VS Code 扩展可以<a href="/docs/zh-CN/vs-code#organize-sessions-into-groups">将会话列表组织成组</a>：右键单击以创建、重命名或删除组，使用 Cmd/Ctrl- 或 Shift-单击一次移动多个会话</div>

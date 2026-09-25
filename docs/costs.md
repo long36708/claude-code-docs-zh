@@ -290,7 +290,7 @@ MCP 工具定义[默认被延迟](/docs/zh-CN/mcp#scale-with-mcp-tool-search)，
   为类型化语言安装代码智能插件
 </h3>
 
-[代码智能插件](/docs/zh-CN/discover-plugins#code-intelligence)为 Claude 提供精确的符号导航，而不是基于文本的搜索，减少在探索不熟悉的代码时不必要的文件读取。单个"转到定义"调用替代了可能需要的 grep 后跟读取多个候选文件。已安装的语言服务器还会在编辑后自动报告类型错误，因此 Claude 无需运行编译器即可捕获错误。
+[代码智能插件](/docs/zh-CN/plugins/code-intelligence)为 Claude 提供精确的符号导航，而不是基于文本的搜索，减少在探索不熟悉的代码时不必要的文件读取。单个"转到定义"调用替代了可能需要的 grep 后跟读取多个候选文件。已安装的语言服务器还会在编辑后自动报告类型错误，因此 Claude 无需运行编译器即可捕获错误。
 
 <h3 id="offload-processing-to-hooks-and-skills">
   将处理卸载到 hooks 和 skills

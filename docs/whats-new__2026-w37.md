@@ -54,9 +54,9 @@
 
   <div className="digest-wins-grid">
     <div>在顶级或 <code>modelSettings</code> 下按模型设置 <a href="/docs/zh-CN/settings-reference#maxeffortlevel"><code>maxEffortLevel</code></a> 以限制每个提供商（包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry）上的努力级别；任何更高的级别都以上限运行</div>
-    <div>将 `--plugin-dir` 指向一个插件文件夹，以 <a href="/docs/zh-CN/plugins#test-your-plugins-locally">加载每个具有清单的直接子文件夹</a></div>
+    <div>将 `--plugin-dir` 指向一个插件文件夹，以 <a href="/docs/zh-CN/plugins/create#load-a-directory-or-archive-for-one-session">加载每个具有清单的直接子文件夹</a></div>
     <div>如果 WebFetch 在五分钟内未完成下载页面，<a href="/docs/zh-CN/tools-reference#webfetch-tool-behavior">获取失败并显示截止时间错误</a>，而不是挂起；设置 <code>CLAUDE\_CODE\_WEBFETCH\_DEADLINE\_MS</code> 以更改截止时间，或设置为 <code>0</code> 以移除限制</div>
-    <div>将 `--json` 传递给 <code>claude plugin install</code>、<code>uninstall</code>、<code>update</code>、<code>enable</code> 或 <code>disable</code> 以将结果打印为 <a href="/docs/zh-CN/plugins-reference#plugin-json-result">stdout 最后一行的一个 JSON 对象</a></div>
+    <div>将 `--json` 传递给 <code>claude plugin install</code>、<code>uninstall</code>、<code>update</code>、<code>enable</code> 或 <code>disable</code> 以将结果打印为 <a href="/docs/zh-CN/plugins/cli-reference#plugin-json-result">stdout 最后一行的一个 JSON 对象</a></div>
     <div>当自动模式分类器阻止一个操作时，Claude 收到的原因 <a href="/docs/zh-CN/auto-mode-config#fix-a-denial-with-an-allow-rule-an-environment-entry-or-a-retry">通常会命名匹配的规则</a>，例如 <code>\[Data Exfiltration]</code></div>
     <div>当您在提示中途键入 <code>/</code> 时，您现在可以从 <a href="/docs/zh-CN/interactive-mode#complete-a-command-mid-prompt">匹配命令的列表</a>中选择，而不是单个建议。该列表在全屏渲染中键入时打开。插件技能也可以按其名称（不带插件前缀）进行匹配</div>
     <div>在 VS Code 扩展中，单击提示框底部的代理计数以打开 <a href="/docs/zh-CN/vs-code#use-the-prompt-box">代理地图</a>，您可以在其中打开子代理的只读记录或停止它</div>

@@ -54,7 +54,7 @@ Claude Code 跟踪其文件编辑工具所做的所有更改：
   回溯过去已清除的对话
 </h4>
 
-如果您在同一 Claude Code 进程中较早运行了 `/clear`，回溯菜单会在列表顶部显示一个额外的条目，标记为 `/resume <session-id> (previous session)`。选择它可以恢复在 `/clear` 运行前活跃的对话。该条目在您退出 Claude Code 或恢复不同会话之前可用，并且需要 Claude Code v2.1.191 或更高版本。在较早的版本上，运行 `/resume` 并从列表中选择上一个会话。
+如果您在同一 Claude Code 进程中较早运行了 `/clear`，回溯菜单会在列表顶部显示一个额外的条目，标记为 `/resume <session-id> (previous session)`。选择它可以恢复在 `/clear` 运行前活跃的对话。该条目在您退出 Claude Code 或恢复不同会话之前可用。
 
 <h4 id="guide-a-summary">
   指导总结

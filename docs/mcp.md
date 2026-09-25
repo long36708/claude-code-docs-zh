@@ -50,7 +50,7 @@ Claude Code 可以通过 [Model Context Protocol (MCP)](https://modelcontextprot
     如果安装失败，请匹配 Claude Code 报告的消息：
 
     * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加 marketplace，然后重试安装。
-    * plugin [在 marketplace 中找不到](/docs/zh-CN/discover-plugins#install-plugins)：检查 plugin 名称。
+    * plugin [在 marketplace 中找不到](/docs/zh-CN/plugins/install#install-a-plugin)：检查 plugin 名称。
 
     如果安装摘要报告 `Run /reload-plugins to activate.`，Claude Code 会为您运行该重新加载。如果重新加载警告您的下一条消息会重新读取对话，请运行 `/reload-plugins --force`。
   </Step>
@@ -293,7 +293,7 @@ Claude Code 也应用来自未跟踪的 `.claude/settings.local.json` 的批准�
   服务器状态详情
 </h4>
 
-在 `/mcp` 中（包括服务器的菜单）和 [`/plugin`](/docs/zh-CN/plugins) 管理器中，您之前使用过的远程 HTTP 或 SSE 服务器可以显示 `cached` 状态，例如 `cached 2h ago · connects on first use · 5 tools`。Claude Code 从发现缓存（保存在上一个会话中）加载了服务器的工具列表，而不是在启动时连接，Claude Code 在 Claude 首次调用服务器的工具之一时连接服务器。工具从您的第一条消息开始可用，因此您无需执行任何操作。发现缓存及其 `cached` 状态需要 Claude Code v2.1.221 或更高版本。
+在 `/mcp` 中（包括服务器的菜单）和 [`/plugin`](/docs/zh-CN/plugins/install) 管理器中，您之前使用过的远程 HTTP 或 SSE 服务器可以显示 `cached` 状态，例如 `cached 2h ago · connects on first use · 5 tools`。Claude Code 从发现缓存（保存在上一个会话中）加载了服务器的工具列表，而不是在启动时连接，Claude Code 在 Claude 首次调用服务器的工具之一时连接服务器。工具从您的第一条消息开始可用，因此您无需执行任何操作。发现缓存及其 `cached` 状态需要 Claude Code v2.1.221 或更高版本。
 
 发现缓存默认关闭，除非逐步推出已为您的帐户启用它。设置 [`MCP_DISCOVERY_CACHE=1`](/docs/zh-CN/env-vars) 以打开它，或设置为 `0` 以在推出启用它时保持关闭。在 v2.1.238 之前，缓存默认打开。
 
@@ -312,7 +312,7 @@ Claude Code 也应用来自未跟踪的 `.claude/settings.local.json` 的批准�
 * 对于本地、项目、用户 [范围](#mcp-installation-scopes) 中的服务器或托管 MCP 配置中的服务器，来源显示该配置中写入的主机，因此主机中的 `${VAR}` 引用在消息中不会展开。
 * 对于没有状态或错误代码的失败，Claude Code 显示错误文本而不显示来源。
 
-配置为空 `url` 的远程服务器在 `/mcp`、`claude mcp list` 和 [`/plugin`](/docs/zh-CN/plugins) 管理器中显示为 `not configured`，Claude Code 不尝试连接到它。插件可以包含这样的占位符条目，用于您稍后配置的连接器，因此 Claude Code 不将其报告为错误或设置问题。`/mcp` 中服务器的详情视图读取 `No URL configured for this server`；设置条目的 `url` 以连接它。在 v2.1.208 之前，Claude Code 将空 `url` 报告为配置问题，并提示重新连接。
+配置为空 `url` 的远程服务器在 `/mcp`、`claude mcp list` 和 [`/plugin`](/docs/zh-CN/plugins/install) 管理器中显示为 `not configured`，Claude Code 不尝试连接到它。插件可以包含这样的占位符条目，用于您稍后配置的连接器，因此 Claude Code 不将其报告为错误或设置问题。`/mcp` 中服务器的详情视图读取 `No URL configured for this server`；设置条目的 `url` 以连接它。在 v2.1.208 之前，Claude Code 将空 `url` 报告为配置问题，并提示重新连接。
 
 <h4 id="configuration-warnings">
   配置警告
@@ -494,7 +494,7 @@ MCP 服务器也可以直接将消息推送到您的会话中，以便 Claude �
   插件提供的 MCP 服务器
 </h3>
 
-[插件](/docs/zh-CN/plugins) 可以捆绑 MCP 服务器，在您启用插件时提供工具和集成。插件 MCP 服务器的工作方式与用户配置的服务器相同。
+[插件](/docs/zh-CN/plugins/overview) 可以捆绑 MCP 服务器，在您启用插件时提供工具和集成。插件 MCP 服务器的工作方式与用户配置的服务器相同。
 
 **插件 MCP 服务器如何工作**：
 
@@ -539,11 +539,11 @@ MCP 服务器也可以直接将消息推送到您的会话中，以便 Claude �
 
 * **自动生命周期**：服务器在这些点连接和断开连接：
   * 在会话启动时，Claude Code 自动连接启用的插件的服务器。在 `/mcp` 中，您之前使用过的远程（HTTP 或 SSE）插件服务器可以显示 [`cached` 状态](#server-status-detail) 而不是；Claude Code 在 Claude 首次调用其工具之一时连接它
-  * 如果您在会话期间启用或禁用插件，Claude Code 在更改应用时连接或断开其 MCP 服务器。[在不重新启动的情况下应用插件更改](/docs/zh-CN/discover-plugins#apply-plugin-changes-without-restarting) 描述何时应用。在没有交互式终端的会话中，`/reload-plugins` 不连接或断开插件 MCP 服务器；这些更改在您的下一个会话中生效
+  * 如果您在会话期间启用或禁用插件，Claude Code 在更改应用时连接或断开其 MCP 服务器。[在不重新启动的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference#reload-plugins) 描述何时应用。在没有交互式终端的会话中，`/reload-plugins` 不连接或断开插件 MCP 服务器；这些更改在您的下一个会话中生效
   * 当您重新加载时，Claude Code 保留配置未更改的插件服务器的实时连接，并在您从 Agent SDK 中 [替换会话的 MCP 服务器列表](/docs/zh-CN/agent-sdk/typescript#mcpsetserversresult) 而不命名它们时执行相同操作
   * 当您在 v2.1.246 或更高版本上使用 `/cd` [移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory) 时，Claude Code 连接新目录的设置启用的插件的服务器，并断开不再启用的插件的服务器，因此您不需要在移动后运行 `/reload-plugins`
   * 在 [网络会话](/docs/zh-CN/claude-code-on-the-web) 中，对尚未连接的插件服务器的 MCP 调用（例如在空闲会话唤醒后）按需启动服务器并等待其连接
-* **路径占位符**：`${CLAUDE_PLUGIN_ROOT}` 解析为插件的安装目录，`${CLAUDE_PLUGIN_DATA}` 解析为其 [持久状态](/docs/zh-CN/plugins-reference#persistent-data-directory) 目录，`${CLAUDE_PROJECT_DIR}` 解析为稳定的项目根目录。替换适用于：
+* **路径占位符**：`${CLAUDE_PLUGIN_ROOT}` 解析为插件的安装目录，`${CLAUDE_PLUGIN_DATA}` 解析为其 [持久状态](/docs/zh-CN/plugins/components#path-variables-and-persistent-data) 目录，`${CLAUDE_PROJECT_DIR}` 解析为稳定的项目根目录。替换适用于：
   * `stdio` 服务器：`command`、`args`、`env`
   * `http`、`sse` 和 `ws` 服务器：`url`、`headers` 和 `headersHelper`。在 v2.1.195 之前，`headersHelper` 将占位符作为文字字符串传递
 * **用户环境访问**：访问与手动配置的服务器相同的环境变量
@@ -563,7 +563,7 @@ mcp__plugin_my-plugin_database-tools__query
 
 服务器本身在作用域名称 `plugin:<plugin-name>:<server-name>` 下注册，例如 `plugin:my-plugin:database-tools`。在需要配置的服务器名称的地方使用该名称，例如 [`mcp_tool` hook 的 `server` 字段](/docs/zh-CN/hooks#mcp-tool-hook-fields)。
 
-有关使用插件捆绑 MCP 服务器的详细信息，请参阅 [插件组件参考](/docs/zh-CN/plugins-reference#mcp-servers)。
+有关使用插件捆绑 MCP 服务器的详细信息，请参阅 [插件组件参考](/docs/zh-CN/plugins/components#mcp-servers)。
 
 <h2 id="mcp-installation-scopes">
   MCP 安装范围
@@ -666,7 +666,7 @@ claude mcp add --transport http hubspot --scope user https://mcp.hubspot.com/ant
 1. 本地范围
 2. 项目范围
 3. 用户范围
-4. [插件提供的服务器](/docs/zh-CN/plugins)
+4. [插件提供的服务器](/docs/zh-CN/plugins/components#mcp-servers)
 5. [claude.ai 连接器](#use-mcp-servers-from-claude-ai)
 
 三个范围按名称匹配重复项。插件和连接器按端点匹配，因此指向与上述服务器相同的 URL 或命令的连接器被视为重复项。
@@ -1084,15 +1084,15 @@ Claude Code 在每次连接时运行助手，在会话启动和重新连接时�
 
 Claude Code 在执行助手时设置这些环境变量：
 
-| 变量                            | 值                                                             |
-| :---------------------------- | :------------------------------------------------------------ |
-| `CLAUDE_CODE_MCP_SERVER_NAME` | MCP 服务器的名称                                                    |
-| `CLAUDE_CODE_MCP_SERVER_URL`  | MCP 服务器的 URL                                                  |
-| `CLAUDE_PLUGIN_ROOT`          | 插件的根目录。仅当 [插件](/docs/zh-CN/plugins-reference#mcp-servers) 提供服务器时设置 |
+| 变量                            | 值                                                              |
+| :---------------------------- | :------------------------------------------------------------- |
+| `CLAUDE_CODE_MCP_SERVER_NAME` | MCP 服务器的名称                                                     |
+| `CLAUDE_CODE_MCP_SERVER_URL`  | MCP 服务器的 URL                                                   |
+| `CLAUDE_PLUGIN_ROOT`          | 插件的根目录。仅当 [插件](/docs/zh-CN/plugins/components#mcp-servers) 提供服务器时设置 |
 
 使用这些来编写一个为多个 MCP 服务器服务的单个助手脚本。
 
-插件提供的 `headersHelper` 无法引用插件的 [`${user_config.*}`](/docs/zh-CN/plugins-reference#user-configuration) 值，因为命令通过 shell 运行。Claude Code 报告服务器配置错误，并显示 [错误](/docs/zh-CN/errors#plugin-command-references-user-config)，不替换该值。将 `${user_config.KEY}` 放在服务器的 `headers` 字段中，该字段不会被 shell 解析，或让助手脚本从配置文件中读取该值。在 v2.1.207 之前，`headersHelper` 替换了 `${user_config.*}` 值。
+插件提供的 `headersHelper` 无法引用插件的 [`${user_config.*}`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 值，因为命令通过 shell 运行。Claude Code 报告服务器配置错误，并显示 [错误](/docs/zh-CN/errors#plugin-command-references-user-config)，不替换该值。将 `${user_config.KEY}` 放在服务器的 `headers` 字段中，该字段不会被 shell 解析，或让助手脚本从配置文件中读取该值。在 v2.1.207 之前，`headersHelper` 替换了 `${user_config.*}` 值。
 
 <h4 id="where-the-helper-runs">
   助手运行的位置
@@ -1102,7 +1102,7 @@ Claude Code 根据声明服务器的配置选择 `headersHelper` 命令的工作
 
 | 您配置服务器的位置                                                                                                                            | 工作目录                                                             |
 | :----------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------- |
-| [插件](/docs/zh-CN/plugins-reference#mcp-servers)                                                                                           | 插件的根目录。需要 Claude Code v2.1.195 或更高版本                             |
+| [插件](/docs/zh-CN/plugins/components#mcp-servers)                                                                                          | 插件的根目录。需要 Claude Code v2.1.195 或更高版本                             |
 | 项目 `.mcp.json` 或 [本地范围](#local-scope) 服务器                                                                                            | 声明服务器的项目目录                                                       |
 | 项目中的代理文件、来自 SDK 的 `mcpServers` 选项或 `setMcpServers()` 方法的服务器，或 [`--mcp-config`](/docs/zh-CN/cli-reference)                                 | 会话的 [主工作目录](/docs/zh-CN/permissions#working-directories)              |
 | [用户范围](#user-scope)、[托管 MCP](/docs/zh-CN/managed-mcp)、[claude.ai 连接器](#use-mcp-servers-from-claude-ai)，或项目外的代理文件，包括来自 `--add-dir` 目录的代理文件 | 您的配置目录，`~/.claude` 除非您设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) |
@@ -1235,7 +1235,7 @@ Claude Code 对在 [代理文件](/docs/zh-CN/sub-agents#scope-mcp-servers-to-a-
   </Step>
 </Steps>
 
-当您的组织在 claude.ai 中管理其身份验证时，Claude Code 在 `/mcp` 和 [`/plugin`](/docs/zh-CN/plugins) 管理器中将连接器标记为 `managed`。托管状态不会改变 Claude Code 连接到连接器的方式或应用您的组织的 [工具控制](#organization-controls-on-connector-tools)。
+当您的组织在 claude.ai 中管理其身份验证时，Claude Code 在 `/mcp` 和 [`/plugin`](/docs/zh-CN/plugins/install) 管理器中将连接器标记为 `managed`。托管状态不会改变 Claude Code 连接到连接器的方式或应用您的组织的 [工具控制](#organization-controls-on-connector-tools)。
 
 您从未登录过的连接器会在 claude.ai 部分末尾的 `Show unused connectors` 行后面折叠，因此组织预配的列表不会填满面板。选择该行以展开它们。您之前登录过的连接器即使当前需要重新身份验证，也会保持可见。
 

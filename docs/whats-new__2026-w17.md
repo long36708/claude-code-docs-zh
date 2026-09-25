@@ -104,7 +104,7 @@
     <div>原生 macOS 和 Linux 构建用嵌入式 <code>bfs</code> 和 <code>ugrep</code>（通过 Bash 可用）替换了 <code>Glob</code> 和 <code>Grep</code> 工具，可实现更快的搜索，无需单独的工具往返</div>
     <div><code>--from-pr</code> 现在除了接受 github.com 外，还接受 GitLab 合并请求、Bitbucket 拉取请求和 GitHub Enterprise PR URL</div>
     <div>自动模式：在 <a href="/docs/zh-CN/auto-mode-config"><code>autoMode.allow</code>、<code>soft\_deny</code> 或 <code>environment</code></a> 中包含 <code>"\$defaults"</code>，以在内置列表旁边添加自定义规则，而不是替换它</div>
-    <div>新的 <a href="/docs/zh-CN/plugin-dependencies#tag-plugin-releases-for-version-resolution"><code>claude plugin tag</code></a> 命令为具有版本验证的插件创建发布 git 标签</div>
+    <div>新的 <a href="/docs/zh-CN/plugins/dependencies#tag-plugin-releases-for-version-resolution"><code>claude plugin tag</code></a> 命令为具有版本验证的插件创建发布 git 标签</div>
     <div>Opus 4.7 会话现在针对模型的原生 1M 上下文窗口进行计算，修复了膨胀的 <code>/context</code> 百分比和过早的自动压缩</div>
     <div><code>/resume</code> 在大型会话上的速度提高了 67%，现在在重新读取之前提供总结陈旧的大型会话的选项</div>
   </div>

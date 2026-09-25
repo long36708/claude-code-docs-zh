@@ -1202,7 +1202,7 @@ export const text = {
   },
   "migrate-a-pattern-across": {
     title: "在代码库中迁移模式",
-    teaches: "描述旧模式和新模式。要求 Claude 首先识别每个地方意味着调用站点在响应中列出，所以你可以检查没有遗漏。对于跨许多文件的迁移，运行 [/batch](/docs/zh-CN/commands)。Claude 将工作分成单位供你批准，然后后台子代理进行更改并为每个单位打开一个拉取请求。"
+    teaches: "描述旧模式和新模式。要求 Claude 首先识别每个地方意味着调用站点在响应中列出，所以你可以检查没有遗漏。对于跨许多文件的迁移，运行 [/batch](/docs/zh-CN/commands)。Claude 将工作分成单位供你批准，然后后台子代理进行更改。"
   },
   "optimize-against-a-measurable": {
     title: "针对可测量目标进行优化",

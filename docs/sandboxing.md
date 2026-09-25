@@ -42,7 +42,9 @@ Bash 沙箱让 Claude 可以运行大多数 shell 命令，而无需停下来请
   </Step>
 
   <Step title="运行 Bash 命令">
-    要求 Claude 运行一个命令，例如构建或测试套件。默认情况下，沙箱内的命令可以写入工作目录、会话临时目录以及任何你用 `--add-dir`、`/add-dir` 或 `permissions.additionalDirectories` [添加的目录](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。命令第一次需要新的网络域时，Claude Code 会提示批准；在 [自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 中，Claude 改为在 [命令本身上命名](#per-command-allowed-domains-in-auto-mode) 命令需要的主机供分类器与其一起审查。
+    要求 Claude 运行一个命令，例如构建或测试套件。默认情况下，沙箱内的命令可以写入工作目录、会话临时目录以及任何你用 `--add-dir`、`/add-dir` 或 `permissions.additionalDirectories` [添加的目录](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。
+
+    命令第一次需要新的网络域时，Claude Code 会提示批准；在 [自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 中，Claude 改为在 [命令本身上命名](#per-command-allowed-domains-in-auto-mode) 命令需要的主机供分类器与其一起审查。
 
     无法沙箱化运行的命令会回退到常规权限流程。Claude Code 将其权限提示标题为"Bash 命令（非沙箱化）"而不是"Bash 命令"，这样你可以看出哪些命令在沙箱外运行。要扩大或缩小沙箱允许的范围，请参阅 [配置沙箱](#configure-sandboxing)。
 
@@ -145,7 +147,7 @@ Claude Code 提供两种沙箱模式。在两种模式中，沙箱都强制执�
 * 裸 `Bash` 询问规则，或等效的 `Bash(*)` 形式，对于运行沙箱化的命令会被跳过；它仍然适用于回退到常规权限流程的命令。在 [Plan Mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，该规则不会被跳过：它也会对沙箱化命令提示，包括只读命令。在 v2.1.212 之前，跳过也适用于 Plan Mode
 
 <Info>
-  自动允许模式独立于你的权限模式设置工作，除了在 [Plan Mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，以及在自动模式中，对于携带 [per-command allowed domains](#per-command-allowed-domains-in-auto-mode) 的命令。即使你不在"接受编辑"模式中，启用自动允许时沙箱化的 Bash 命令也会自动运行。这意味着在沙箱边界内修改文件的 Bash 命令将执行而不提示，即使在 Manual 模式下，文件编辑工具会提示。
+  自动允许模式独立于你的权限模式设置工作，除了在 [Plan Mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，以及在自动模式中，对于携带 [per-command allowed domains](#per-command-allowed-domains-in-auto-mode) 的命令，以及 [服务器端分类器审查](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions) 自动模式中的沙箱化命令。即使你不在"接受编辑"模式中，启用自动允许时沙箱化的 Bash 命令也会自动运行。这意味着在沙箱边界内修改文件的 Bash 命令将执行而不提示，即使在 Manual 模式下，文件编辑工具会提示。
 
   在 Plan Mode 中，自动允许不会扩大批准；请参阅 [Plan Mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 了解 Claude Code 如何在你计划时限制命令。在 v2.1.212 之前，自动允许在 Plan Mode 中也无需提示地运行沙箱化命令。
 </Info>
@@ -314,7 +316,7 @@ Claude Code 提供两种沙箱模式。在两种模式中，沙箱都强制执�
   保护凭证
 </h3>
 
-`sandbox.credentials` 设置声明凭证文件和环境变量，以保护其免受沙箱化命令的访问。每个条目命名一个文件路径或环境变量以及一个 `mode`。专用的 `credentials` 块将凭证规则分组在一起，并与常规文件系统规则分开。需要 Claude Code v2.1.187 或更高版本。
+`sandbox.credentials` 设置声明凭证文件和环境变量，以保护其免受沙箱化命令的访问。每个条目命名一个文件路径或环境变量以及一个 `mode`。专用的 `credentials` 块将凭证规则分组在一起，并与常规文件系统规则分开。
 
 对于 `"mode": "deny"` 的条目，文件路径在沙箱内被拒绝读取，与 `filesystem.denyRead` 应用的限制相同，环境变量在每个沙箱化命令运行前被取消设置。文件保护是文件系统层的一部分，因此如果你[禁用文件系统隔离](#disable-filesystem-isolation)，它不适用；环境变量保护仍然适用。
 

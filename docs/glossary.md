@@ -84,7 +84,7 @@ Claude 根据您的更正和偏好为自己编写的笔记，按 git 存储库�
   Bare mode
 </h3>
 
-使用 `--bare`，Claude Code 启动时不加载 hooks、skills、custom commands、subagents、plugins、MCP servers、auto memory 或 CLAUDE.md，除了您通过 `--add-dir` 传递的目录中的 skills。建议用于 CI 和脚本调用，其中您需要在每台机器上获得相同的结果。
+使用 `--bare`，Claude Code 启动时不加载 hooks、skills、custom commands、subagents、installed plugins、MCP servers、auto memory 或 CLAUDE.md，除了您通过 `--add-dir` 传递的目录中的 skills。建议用于 CI 和脚本调用，其中您需要在每台机器上获得相同的结果。
 
 了解更多：[使用 bare mode 更快启动](/docs/zh-CN/headless#start-faster-with-bare-mode)
 
@@ -332,9 +332,9 @@ Hook 配置有三个级别：
   Plugin
 </h3>
 
-一个 skills、hooks、subagents 和 MCP servers 的包，打包为单个可安装单元。Plugin skills 命名为 `plugin-name:skill-name`，以便多个 plugins 共存。通过[市场](/docs/zh-CN/plugin-marketplaces)跨团队分发 plugins。
+一个 skills、hooks、subagents 和 MCP servers 的包，打包为单个可安装单元。Plugin skills 命名为 `plugin-name:skill-name`，以便多个 plugins 共存。通过[市场](/docs/zh-CN/plugins/overview)跨团队分发 plugins。
 
-了解更多：[Plugins](/docs/zh-CN/plugins)
+了解更多：[Plugins](/docs/zh-CN/plugins/overview)
 
 <h3 id="project-trust">
   Project trust

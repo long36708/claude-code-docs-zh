@@ -174,13 +174,13 @@ Subagents 是带有 YAML frontmatter 的 Markdown 文件。要创建一个，请
 | `--agents` CLI 标志     | 当前会话          | 2        | 启动 Claude Code 时传递 JSON                   |
 | `.claude/agents/`     | 当前项目          | 3        | 询问 Claude，或手动创建文件                         |
 | `~/.claude/agents/`   | 所有您的项目        | 4        | 询问 Claude，或手动创建文件                         |
-| Plugin 的 `agents/` 目录 | 启用 plugin 的位置 | 5（最低）    | 与 [plugins](/docs/zh-CN/plugins) 一起安装          |
+| Plugin 的 `agents/` 目录 | 启用 plugin 的位置 | 5（最低）    | 与 [plugins](/docs/zh-CN/plugins/overview) 一起安装 |
 
 **项目 subagents**（`.claude/agents/`）非常适合特定于代码库的 subagents。将它们检入版本控制，以便您的团队可以协作使用和改进它们。
 
-项目 subagents 通过从当前工作目录向上遍历来发现，因此会扫描那里和存储库根目录之间的每个 `.claude/agents/`。从 v2.1.178 开始，当这些嵌套目录中的多个目录定义相同的 `name` 时，Claude Code 使用最接近工作目录的定义。
+项目 subagents 通过从当前工作目录向上遍历来发现，因此会扫描那里和存储库根目录之间的每个 `.claude/agents/`。当这些嵌套目录中的多个目录定义相同的 `name` 时，Claude Code 使用最接近工作目录的定义。
 
-使用 `--add-dir` 或 `/add-dir` 添加目录时，Claude Code 也会加载其 `.claude/agents/` 文件夹，与您的项目 subagents 一起。有关哪些其他配置类型从 `--add-dir` 加载，请参阅 [Additional directories](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。要在没有 `--add-dir` 的情况下跨项目共享 subagents，请使用 `~/.claude/agents/` 或 [plugin](/docs/zh-CN/plugins)。
+使用 `--add-dir` 或 `/add-dir` 添加目录时，Claude Code 也会加载其 `.claude/agents/` 文件夹，与您的项目 subagents 一起。有关哪些其他配置类型从 `--add-dir` 加载，请参阅 [Additional directories](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。要在没有 `--add-dir` 的情况下跨项目共享 subagents，请使用 `~/.claude/agents/` 或 [plugin](/docs/zh-CN/plugins/overview)。
 
 **用户 subagents**（`~/.claude/agents/`）是在所有项目中可用的个人 subagents。
 
@@ -238,7 +238,7 @@ JSON 中的每个顶级键是代理的名称。不要以 `-` 开头的名称。
 
 **托管 subagents** 由组织管理员部署。在 [managed settings directory](/docs/zh-CN/managed-settings#delivery-mechanisms) 内的 `.claude/agents/` 中放置 markdown 文件，使用与项目和用户 subagents 相同的 frontmatter 格式。托管定义优先于具有相同名称的项目和用户 subagents。
 
-**Plugin subagents** 来自您已安装的 [plugins](/docs/zh-CN/plugins)。它们与您的自定义 subagents 一起自动加载，并在 @-mention 类型提前中以其范围名称出现。有关创建 plugin subagents 的详细信息，请参阅 [plugin 组件参考](/docs/zh-CN/plugins-reference#agents)。
+**Plugin subagents** 来自您已安装的 [plugins](/docs/zh-CN/plugins/overview)。它们与您的自定义 subagents 一起自动加载，并在 @-mention 类型提前中以其范围名称出现。有关创建 plugin subagents 的详细信息，请参阅 [plugin 组件参考](/docs/zh-CN/plugins/components#agents)。
 
 <Note>
   出于安全原因，plugin subagents 不支持 `hooks`、`mcpServers` 或 `permissionMode` frontmatter 字段。加载来自 plugin 的代理时，这些字段被忽略。如果您需要它们，请将代理文件复制到 `.claude/agents/` 或 `~/.claude/agents/`。您也可以在 `settings.json` 或 `settings.local.json` 中向 [`permissions.allow`](/docs/zh-CN/settings-reference#permissions-allow) 添加规则，但这些规则适用于整个会话，而不仅仅是 plugin subagent。
@@ -299,13 +299,13 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
   Frontmatter 参考
 </h3>
 
-使用 YAML [frontmatter](/docs/zh-CN/glossary#frontmatter) 在其文件顶部的 `---` 标记之间配置 subagent，并在关闭 `---` 后将其系统提示写为 Markdown。只有 `name` 和 `description` 是必需的。
+配置一个 subagent 时，使用 YAML [frontmatter](/docs/zh-CN/glossary#frontmatter) 在其文件顶部的 `---` 标记之间，并在关闭 `---` 后将其系统提示写为 Markdown。只有 `name` 和 `description` 是必需的。
 
 多字段名称使用 camelCase，例如 `maxTurns` 和 `disallowedTools`，必须与表格完全匹配：Claude Code 忽略它不识别的字段而不报告错误。要找出为什么 subagent 文件没有加载，请参阅 [Subagent files Claude Code skips](#subagent-files-claude-code-skips)。
 
 | Field             | 必需 | Description                                                                                                                                                                                                                                                                                                                       |
 | :---------------- | :- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`            | 是  | 唯一标识符，例如 `code-reviewer` 或 `reviewer-v2`。[Hooks](/docs/zh-CN/hooks#subagentstart) 将此值作为 `agent_type` 接收。文件名不必匹配。名称不能包含 `:`，这是为 [plugin-scoped identifiers](/docs/zh-CN/plugins) 保留的，例如 `my-plugin:reviewer`。Claude Code 不加载名称包含一个的文件，并向调试日志记录错误。在 v2.1.218 之前，这样的名称被接受                                                                      |
+| `name`            | 是  | 唯一标识符，例如 `code-reviewer` 或 `reviewer-v2`。[Hooks](/docs/zh-CN/hooks#subagentstart) 将此值作为 `agent_type` 接收。文件名不必匹配。名称不能包含 `:`，这是为 [plugin-scoped identifiers](/docs/zh-CN/plugins/overview) 保留的，例如 `my-plugin:reviewer`。Claude Code 不加载名称包含一个的文件，并向调试日志记录错误。在 v2.1.218 之前，这样的名称被接受                                                             |
 | `description`     | 是  | Claude 何时应该委托给此 subagent                                                                                                                                                                                                                                                                                                          |
 | `tools`           | 否  | [Tools](#available-tools) subagent 可以使用，作为逗号分隔的字符串，例如 `Read, Grep, Bash` 或 YAML 列表。如果省略，继承 subagents 可用的每个工具。如果列表中没有条目解析为工具，subagent 通常 [fails to launch](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools) 并出现错误，命名条目。要将 Skills 预加载到上下文中，请使用 `skills` 字段而不是在此处列出 `Skill`                                                     |
 | `disallowedTools` | 否  | 要拒绝的工具，从继承或指定的列表中删除。格式与 `tools` 相同。带有说明符的条目，例如 `Bash(git push *)`，仍然 [removes the whole tool](#available-tools)                                                                                                                                                                                                                   |
@@ -349,13 +349,13 @@ Claude Code 跳过项目、用户或托管 `agents` 目录中的文件，或在�
 
 要查看调试日志，使用 `--debug` 运行 Claude Code。
 
-一个 [plugin subagent](/docs/zh-CN/plugins-reference#agents)，其 frontmatter 没有 `name` 或不解析，仍然加载，在其文件名下。
+一个 [plugin subagent](/docs/zh-CN/plugins/components#agents)，其 frontmatter 没有 `name` 或不解析，仍然加载，在其文件名下。
 
 <h5 id="check-an-agents-directory-before-a-session">
   在会话前检查 `agents` 目录
 </h5>
 
-要查找 `agents` 目录中 frontmatter 不解析的文件，针对目录运行 `claude plugin validate`，例如 `.claude/agents` 或 `~/.claude/agents`。Claude Code 仅检查 [您命名的目录](/docs/zh-CN/plugin-marketplaces#validate-a-plugin-or-a-directory-without-a-manifest)，并不标记 frontmatter 解析但没有 `name` 的文件。需要 Claude Code v2.1.233 或更高版本。
+要查找 `agents` 目录中 frontmatter 不解析的文件，针对目录运行 `claude plugin validate`，例如 `.claude/agents` 或 `~/.claude/agents`。Claude Code 仅检查 [您命名的目录](/docs/zh-CN/plugins/cli-reference#validate-a-directory)，并不标记 frontmatter 解析但没有 `name` 的文件。需要 Claude Code v2.1.233 或更高版本。
 
 <h3 id="choose-a-model">
   选择模型
@@ -573,7 +573,7 @@ Claude Code 加载两种服务器而不检查代理文件来自的文件夹的�
 * 一个引用您已配置的服务器的名称
 * 一个代理文件中的内联服务器，来自 `~/.claude/agents/`，在您使用 `--agents` 或 SDK `agents` 选项传递的一个中，或托管设置提供的一个中
 
-从 v2.1.153 开始，适用于主会话的 MCP 限制也涵盖在 subagent frontmatter 中声明的服务器：
+适用于主会话的 MCP 限制也涵盖在 subagent frontmatter 中声明的服务器：
 
 * [`--strict-mcp-config`](/docs/zh-CN/cli-reference) 和 [`--bare`](/docs/zh-CN/cli-reference)
 * [Enterprise managed MCP configuration](/docs/zh-CN/managed-mcp)
@@ -820,7 +820,7 @@ hooks:
 | `SubagentStart` | Agent type name | 当 subagent 开始执行时 |
 | `SubagentStop`  | Agent type name | 当 subagent 完成时   |
 
-两个事件都支持匹配器以按名称针对特定代理类型。匹配器值是项目级和用户级 subagents 的代理 frontmatter `name`，或 [plugin subagents](/docs/zh-CN/plugins) 的 plugin 范围标识符，例如 `my-plugin:db-agent`。范围名称包含冒号，因此它被评估为 [unanchored regular expression](/docs/zh-CN/hooks#matcher-patterns)；使用 `^` 和 `$` 锚定它，如 `^my-plugin:db-agent$`，以仅匹配该代理。
+两个事件都支持匹配器以按名称针对特定代理类型。匹配器值是项目级和用户级 subagents 的代理 frontmatter `name`，或 [plugin subagents](/docs/zh-CN/plugins/components#agents) 的 plugin 范围标识符，例如 `my-plugin:db-agent`。范围名称包含冒号，因此它被评估为 [unanchored regular expression](/docs/zh-CN/hooks#matcher-patterns)；使用 `^` 和 `$` 锚定它，如 `^my-plugin:db-agent$`，以仅匹配该代理。
 
 此示例仅在 `db-agent` subagent 启动时运行设置脚本，并在任何 subagent 停止时运行清理脚本：
 
@@ -862,6 +862,8 @@ Claude 根据您请求中的任务描述、subagent 配置中的 `description` �
 
 保持描述简洁：当您的 subagents 的组合描述超过 [15,000 令牌限制](/docs/zh-CN/errors#agent-descriptions-are-over-the-15000-token-limit) 时，Claude Code 会显示启动警告，但仍然加载每个 subagent。
 
+如果 subagent 在 [plugin](/docs/zh-CN/plugins/overview) 中提供，您可以衡量 Claude 在现实提示中对其委托的可靠性，而不是一次检查一个：[`claude plugin eval`](/docs/zh-CN/plugin-evals) 使用和不使用 plugin 运行每个提示，并对结果进行评分。
+
 <h3 id="invoke-subagents-explicitly">
   显式调用 subagents
 </h3>
@@ -887,7 +889,7 @@ Have the code-reviewer subagent look at my recent changes
 
 您的完整消息仍然发送给 Claude，它根据您的要求为 subagent 编写任务提示。@-mention 控制调用哪个 subagent，而不是它接收什么提示。
 
-由启用的 [plugin](/docs/zh-CN/plugins) 提供的 Subagents 在类型提前中显示为其作用域名称，例如 `my-plugin:code-reviewer` 或 `my-plugin:review:security`，当 plugin [将 agents 组织到子文件夹中](#choose-the-subagent-scope)。命名背景 subagents 当前在会话中运行也出现在类型提前中，在名称旁边显示其状态。
+由启用的 [plugin](/docs/zh-CN/plugins/overview) 提供的 Subagents 在类型提前中显示为其作用域名称，例如 `my-plugin:code-reviewer` 或 `my-plugin:review:security`，当 plugin [将 agents 组织到子文件夹中](#choose-the-subagent-scope)。命名背景 subagents 当前在会话中运行也出现在类型提前中，在名称旁边显示其状态。
 
 您也可以手动输入提及而不使用选择器：`@agent-<name>` 用于本地 subagents，或 `@agent-` 后跟 plugin subagents 的作用域名称，例如 `@agent-my-plugin:code-reviewer`。当您输入这种形式时，类型提前显示文件匹配而不是 agents。当您提交时，agent 提及仍然会解析。
 
@@ -932,7 +934,7 @@ claude --agent my-plugin:security-reviewer
 Subagents 可以在前台或后台运行：
 
 * **前台 subagents** 阻塞主对话直到完成。权限提示会在出现时传递给您。
-* **后台 subagents** 在您继续工作时并发运行。当后台 subagent 到达需要权限的工具调用时，Claude Code 在您的主会话中显示提示，并命名正在请求的 subagent。批准以让 subagent 继续，或按 Esc 拒绝该单个工具调用而不停止 subagent。在 v2.1.186 之前，后台 subagents 自动拒绝任何会提示的工具调用。
+* **后台 subagents** 在您继续工作时并发运行。当后台 subagent 到达需要权限的工具调用时，Claude Code 在您的主会话中显示提示，并命名正在请求的 subagent。批准以让 subagent 继续，或按 Esc 拒绝该单个工具调用而不停止 subagent。
 
 对于每个 Claude 使用 Agent 工具生成的 subagent，Claude Code 从适用的第一种情况中选择前台或后台：
 
@@ -1175,7 +1177,7 @@ Continue that code review and now analyze the authorization logic
 
 您自己停止的 subagent，使用 `/tasks` 中的 `x` 或 SDK `stop_task` 请求，不会自动恢复。如果 Claude 向它发送消息，消息被拒绝，Claude 被告知代理已被取消。
 
-当 [该 subagent 的行仍在 subagent 面板中](#run-subagents-in-foreground-or-background) 时，输入到其转录以自己恢复它。之后，来自 Claude 的消息可以再次自动恢复它。需要 Claude Code v2.1.191 或更高版本。
+当 [该 subagent 的行仍在 subagent 面板中](#run-subagents-in-foreground-or-background) 时，输入到其转录以自己恢复它。之后，来自 Claude 的消息可以再次自动恢复它。
 
 恢复在相同 ID 下启动代理的新运行，所以已经失败或完成的 subagent 在任务列表和 Agent SDK 的任务事件中再次显示为运行。在 v2.1.205 之前，它在恢复的运行工作时保持显示其早期的失败或完成状态。
 
@@ -1493,6 +1495,6 @@ Hook 通过 stdin 接收 JSON，Bash 命令在 `tool_input.command` 中。退出
 
 现在您了解了 subagents，探索这些相关功能：
 
-* [使用 plugins 分发 subagents](/docs/zh-CN/plugins) 以在团队或项目中共享 subagents
+* [使用 plugins 分发 subagents](/docs/zh-CN/plugins/components#agents) 以在团队或项目中共享 subagents
 * [以编程方式运行 Claude Code](/docs/zh-CN/headless)，使用 Agent SDK 进行 CI/CD 和自动化
 * [使用 MCP 服务器](/docs/zh-CN/mcp) 为 subagents 提供对外部工具和数据的访问

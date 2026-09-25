@@ -33,14 +33,14 @@ CLI 是终端原生工作的最完整界面：脚本编写和 Agent SDK 仅限 C
 
 集成让 Claude 与代码库外的服务协作。
 
-| 集成                                      | 功能                                 | 用途                                            |
-| :-------------------------------------- | :--------------------------------- | :-------------------------------------------- |
-| [Chrome](/docs/zh-CN/chrome)                 | 使用您登录的会话控制浏览器                      | 测试 Web 应用、填充表单、自动化没有 API 的网站                  |
-| [GitHub Actions](/docs/zh-CN/github-actions) | 在 CI 管道中运行 Claude                  | 自动化 PR 审查、问题分类、计划维护                           |
-| [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd)     | 与 GitHub Actions 相同，但用于 GitLab     | GitLab 上的 CI 驱动自动化                            |
-| [Code Review](/docs/zh-CN/code-review)       | 自动审查每个 PR                          | 在人工审查前捕获错误                                    |
-| [Slack](/docs/zh-CN/slack)                   | 响应频道中的 `@Claude` 提及                | 将错误报告转换为团队聊天中的拉取请求                            |
-| [Claude Tag](/docs/zh-CN/claude-tag)         | 以您组织的共享身份运行 `@Claude`，具有管理员配置的访问权限 | Team 和 Enterprise 计划上的共享团队访问，而不是按用户的 Slack 会话 |
+| 集成                                               | 功能                                 | 用途                                            |
+| :----------------------------------------------- | :--------------------------------- | :-------------------------------------------- |
+| [Chrome](/docs/zh-CN/chrome)                          | 使用您登录的会话控制浏览器                      | 测试 Web 应用、填充表单、自动化没有 API 的网站                  |
+| [GitHub Actions](/docs/zh-CN/github-actions)          | 在 CI 管道中运行 Claude                  | 自动化 PR 审查、问题分类、计划维护                           |
+| [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd)              | 与 GitHub Actions 相同，但用于 GitLab     | GitLab 上的 CI 驱动自动化                            |
+| [Code Review](/docs/zh-CN/code-review)                | 自动审查每个 PR                          | 在人工审查前捕获错误                                    |
+| [Slack](/docs/zh-CN/slack)                            | 响应频道中的 `@Claude` 提及                | 将错误报告转换为团队聊天中的拉取请求                            |
+| [Claude Tag](https://claude.com/docs/claude-tag) | 以您组织的共享身份运行 `@Claude`，具有管理员配置的访问权限 | Team 和 Enterprise 计划上的共享团队访问，而不是按用户的 Slack 会话 |
 
 对于此处未列出的集成，[MCP 服务器](/docs/zh-CN/mcp)和[连接器](/docs/zh-CN/desktop#connect-external-tools)让您连接几乎任何东西：Linear、Notion、Google Drive 或您自己的内部 API。
 
@@ -87,7 +87,7 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 * [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd)：GitLab 的相同功能
 * [Code Review](/docs/zh-CN/code-review)：每个拉取请求上的自动审查
 * [Slack](/docs/zh-CN/slack)：从团队聊天发送任务，获取 PR 返回
-* [Claude Tag](/docs/zh-CN/claude-tag)：在 Team 和 Enterprise 计划上以您组织的共享身份运行 `@Claude`
+* [Claude Tag](https://claude.com/docs/claude-tag)：在 Team 和 Enterprise 计划上以您组织的共享身份运行 `@Claude`
 
 <h3 id="remote-access">
   远程访问

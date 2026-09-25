@@ -334,7 +334,7 @@ Provide specific line references and suggested fixes.
   运行 `/plugin` 来浏览市场。Plugins 添加 skills、工具和集成，无需配置。
 </Tip>
 
-[Plugins](/docs/zh-CN/plugins) 将 skills、hooks、subagents 和 MCP 服务器捆绑到来自社区和 Anthropic 的单个可安装单元中。如果你使用类型化语言，安装 [代码智能 plugin](/docs/zh-CN/discover-plugins#code-intelligence) 来为 Claude 提供精确的符号导航和编辑后的自动错误检测。
+[Plugins](/docs/zh-CN/plugins/overview) 将 skills、hooks、subagents 和 MCP 服务器捆绑到来自社区和 Anthropic 的单个可安装单元中。如果你使用类型化语言，安装 [代码智能 plugin](/docs/zh-CN/plugins/code-intelligence) 来为 Claude 提供精确的符号导航和编辑后的自动错误检测。
 
 有关在 skills、subagents、hooks 和 MCP 之间选择的指导，请参阅 [扩展 Claude Code](/docs/zh-CN/features-overview#match-features-to-your-goal)。
 
@@ -541,7 +541,7 @@ claude -p "Analyze this log file" --output-format stream-json --verbose
   循环遍历任务，为每个调用 `claude -p`。使用 `--allowedTools` 来限定批量操作的权限。
 </Tip>
 
-对于大型迁移或分析，你可以跨许多并行 Claude 调用分配工作。在 git 仓库中，运行 [`/batch <instruction>`](/docs/zh-CN/commands#all-commands) 让 Claude 将更改分割到 5 到 30 个子代理中。每个子代理在自己的 worktree 中工作并打开一个拉取请求。要从你自己的脚本驱动扇出，请循环遍历 `claude -p`：
+对于大型迁移或分析，你可以跨许多并行 Claude 调用分配工作。运行 [`/batch <instruction>`](/docs/zh-CN/commands#all-commands) 让 Claude 将更改分割到 5 到 30 个子代理中。每个子代理在自己的 worktree 中工作。要从你自己的脚本驱动扇出，请循环遍历 `claude -p`：
 
 <Steps>
   <Step title="生成任务列表">

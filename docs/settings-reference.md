@@ -626,7 +626,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`axScreenReader`](#axscreenreader)                                                                   | 渲染[屏幕阅读器友好的输出](/docs/zh-CN/accessibility)                                                                                                                                     | 界面和终端      | Any file                |
 | [`bashEditDiffEnabled`](#basheditdiffenabled)                                                         | 在每个权限模式中记录 [Bash 命令更改的文件](/docs/zh-CN/hooks#bash)                                                                                                                             | 界面和终端      | User or managed         |
 | [`bashOutputMaxChars`](#bashoutputmaxchars)                                                           | 设置成功命令的[输出](/docs/zh-CN/tools-reference#output-limits)有多少 Claude 内联接收                                                                                                         | 内存和上下文     | Any file                |
-| [`blockedMarketplaces`](#blockedmarketplaces)                                                         | 为您的组织阻止[插件市场](/docs/zh-CN/plugin-marketplaces)来源                                                                                                                              | 插件和技能      | Managed                 |
+| [`blockedMarketplaces`](#blockedmarketplaces)                                                         | 为您的组织阻止[插件市场](/docs/zh-CN/plugins/overview)来源                                                                                                                                 | 插件和技能      | Managed                 |
 | [`browserExternalPageTools`](#browserexternalpagetools)                                               | 在[桌面](/docs/zh-CN/desktop)浏览器窗格中的外部页面上关闭 Claude 的工具                                                                                                                           | 工具         | Managed                 |
 | [`channelsEnabled`](#channelsenabled)                                                                 | 为您的组织允许[频道](/docs/zh-CN/channels#enable-channels-for-your-organization)                                                                                                       | 插件和技能      | Managed                 |
 | [`claudeMd`](#claudemd)                                                                               | 从托管设置注入组织范围的 [CLAUDE.md](/docs/zh-CN/memory#deploy-organization-wide-claude-md) 指令                                                                                            | 内存和上下文     | Managed                 |
@@ -647,13 +647,13 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`disableBrowserExternalNavigation`](#disablebrowserexternalnavigation)                               | 将[桌面](/docs/zh-CN/desktop)浏览器窗格限制为 localhost，供人员和 Claude 使用                                                                                                                   | 工具         | Managed                 |
 | [`disableBundledSkills`](#disablebundledskills)                                                       | 关闭 Claude Code 附带的[技能](/docs/zh-CN/skills#bundled-skills)和[工作流](/docs/zh-CN/workflows)                                                                                             | 插件和技能      | Any file                |
 | [`disableClaudeAiConnectors`](#disableclaudeaiconnectors)                                             | 关闭 [claude.ai 连接器](/docs/zh-CN/mcp#disable-claude-ai-connectors)，以便 Claude Code 不会获取它们                                                                                        | MCP        | Any file                |
-| [`disableCommandPluginSources`](#disablecommandpluginsources)                                         | 阻止通过运行市场声明的命令安装的[插件](/docs/zh-CN/plugins)                                                                                                                                     | 插件和技能      | Managed                 |
+| [`disableCommandPluginSources`](#disablecommandpluginsources)                                         | 阻止通过运行市场声明的命令安装的[插件](/docs/zh-CN/plugins/overview)                                                                                                                            | 插件和技能      | Managed                 |
 | [`disableDeepLinkRegistration`](#disabledeeplinkregistration)                                         | 停止 Claude Code 注册 [`claude-cli://` 处理程序](/docs/zh-CN/deep-links)                                                                                                              | 远程、桌面和通知   | Any file                |
 | [`disableDesktopLocalSessions`](#disabledesktoplocalsessions)                                         | 关闭在设备上运行的[桌面代码会话](/docs/zh-CN/desktop#local-sessions-on-managed-devices)，仅保留 SSH 到其他主机和云                                                                                      | 远程、桌面和通知   | Managed                 |
 | [`disabledMcpjsonServers`](#disabledmcpjsonservers)                                                   | 拒绝项目的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 中的特定服务器                                                                                                                    | MCP        | Any file                |
 | [`disableMobileSimulatorTools`](#disablemobilesimulatortools)                                         | 在[桌面](/docs/zh-CN/desktop) iOS 模拟器窗格中阻止 Claude 的工具                                                                                                                            | 工具         | Managed                 |
 | [`disableRemoteControl`](#disableremotecontrol)                                                       | 在可以启动的任何地方关闭[远程控制](/docs/zh-CN/remote-control)                                                                                                                                | 远程、桌面和通知   | Any file                |
-| [`disableSideloadFlags`](#disablesideloadflags)                                                       | 拒绝侧加载[插件](/docs/zh-CN/plugins)、[子代理](/docs/zh-CN/sub-agents)和 [MCP 服务器](/docs/zh-CN/mcp)的 CLI 标志                                                                                        | 企业和托管设置    | Managed                 |
+| [`disableSideloadFlags`](#disablesideloadflags)                                                       | 拒绝侧加载[插件](/docs/zh-CN/plugins/overview)、[子代理](/docs/zh-CN/sub-agents)和 [MCP 服务器](/docs/zh-CN/mcp)的 CLI 标志                                                                               | 企业和托管设置    | Managed                 |
 | [`disableSkillShellExecution`](#disableskillshellexecution)                                           | 停止[技能](/docs/zh-CN/skills)和自定义命令运行内联 shell                                                                                                                                    | 插件和技能      | Any file                |
 | [`disableWorkflows`](#disableworkflows)                                                               | 为所有人关闭[动态工作流](/docs/zh-CN/workflows)；为自己使用 `enableWorkflows`                                                                                                                  | Hooks 和自动化 | Any file                |
 | [`editorMode`](#editormode)                                                                           | 在输入提示中使用 [vim 快捷键](/docs/zh-CN/interactive-mode#vim-editor-mode)                                                                                                              | 界面和终端      | Any file                |
@@ -662,12 +662,12 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`enableAllProjectMcpServers`](#enableallprojectmcpservers)                                           | 批准项目 [`.mcp.json`](/docs/zh-CN/mcp#project-server-approvals-and-workspace-trust) 文件中的每个服务器，无需提示                                                                               | MCP        | Any file                |
 | [`enableArtifact`](#enableartifact)                                                                   | 使用任何文件中的 `false` 关闭[工件工具](/docs/zh-CN/artifacts)；没有文件可以将其打开                                                                                                                   | 远程、桌面和通知   | Any file                |
 | [`enabledMcpjsonServers`](#enabledmcpjsonservers)                                                     | 批准项目的 [`.mcp.json`](/docs/zh-CN/mcp#project-server-approvals-and-workspace-trust) 中的特定服务器                                                                                     | MCP        | Any file                |
-| [`enabledPlugins`](#enabledplugins)                                                                   | 按范围打开或关闭单个[插件](/docs/zh-CN/plugins)                                                                                                                                           | 插件和技能      | Any file                |
+| [`enabledPlugins`](#enabledplugins)                                                                   | 按范围打开或关闭单个[插件](/docs/zh-CN/plugins/overview)                                                                                                                                  | 插件和技能      | Any file                |
 | [`enableWorkflows`](#enableworkflows)                                                                 | 根据您的计划默认值打开或关闭[动态工作流](/docs/zh-CN/workflows)                                                                                                                                  | Hooks 和自动化 | Any file                |
 | [`enforceAvailableModels`](#enforceavailablemodels)                                                   | 保持 [`/model` 默认选择](/docs/zh-CN/model-config#enforce-the-allowlist-for-the-default-model)在您的 `availableModels` 允许列表内                                                           | 模型和响应      | Any file                |
 | [`env`](#env)                                                                                         | 为每个会话及其子进程设置[环境变量](/docs/zh-CN/env-vars#in-settings-files)                                                                                                                    | 内存和上下文     | Any file                |
 | [`externalEditorContext`](#externaleditorcontext)                                                     | 当您按 [Ctrl+G](/docs/zh-CN/interactive-mode#general-controls) 编辑时，将 Claude 的最后响应显示为注释                                                                                           | 全局配置设置     | Global config           |
-| [`extraKnownMarketplaces`](#extraknownmarketplaces)                                                   | 为存储库或组织注册[市场](/docs/zh-CN/plugin-marketplaces)                                                                                                                                | 插件和技能      | Any file                |
+| [`extraKnownMarketplaces`](#extraknownmarketplaces)                                                   | 为存储库或组织注册[市场](/docs/zh-CN/plugins/overview)                                                                                                                                   | 插件和技能      | Any file                |
 | [`fallbackModel`](#fallbackmodel)                                                                     | 为主模型过载时命名[备份模型](/docs/zh-CN/model-config#fallback-model-chains)                                                                                                               | 模型和响应      | Any file                |
 | [`fastMode`](#fastmode)                                                                               | 为可用的会话打开[快速模式](/docs/zh-CN/fast-mode)                                                                                                                                         | 模型和响应      | Any file                |
 | [`fastModePerSessionOptIn`](#fastmodepersessionoptin)                                                 | 要求人们在每个会话中打开[快速模式](/docs/zh-CN/fast-mode)                                                                                                                                     | 模型和响应      | Any file                |
@@ -712,9 +712,9 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`permissions.deny`](#permissions-deny)                                                               | 阻止列出的[工具使用](/docs/zh-CN/permissions#permission-rule-syntax)，包括保存秘密的文件的读取                                                                                                      | 权限设置       | Any file                |
 | [`permissions.disableBypassPermissionsMode`](#permissions-disablebypasspermissionsmode)               | 防止任何人进入 [bypassPermissions 模式](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)                                                                      | 权限设置       | Any file                |
 | [`plansDirectory`](#plansdirectory)                                                                   | 选择[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)写入计划文件的位置                                                                                        | 内存和上下文     | Any file                |
-| [`pluginConfigs`](#pluginconfigs)                                                                     | 存储您给[插件](/docs/zh-CN/plugins)的配置对话框的答案                                                                                                                                        | 插件和技能      | User or managed         |
-| [`pluginSuggestionMarketplaces`](#pluginsuggestionmarketplaces)                                       | 选择哪些[市场](/docs/zh-CN/plugin-marketplaces#managed-marketplace-restrictions)可以在 `/plugin` 中显示插件安装建议                                                                             | 插件和技能      | Managed                 |
-| [`pluginTrustMessage`](#plugintrustmessage)                                                           | 向[插件](/docs/zh-CN/plugins)信任警告添加您自己的文本                                                                                                                                        | 插件和技能      | Managed                 |
+| [`pluginConfigs`](#pluginconfigs)                                                                     | 存储您给[插件](/docs/zh-CN/plugins/overview)的配置对话框的答案                                                                                                                               | 插件和技能      | User or managed         |
+| [`pluginSuggestionMarketplaces`](#pluginsuggestionmarketplaces)                                       | 选择哪些[市场](/docs/zh-CN/plugins/overview)可以在 `/plugin` 中显示插件安装建议                                                                                                                 | 插件和技能      | Managed                 |
+| [`pluginTrustMessage`](#plugintrustmessage)                                                           | 向[插件](/docs/zh-CN/plugins/overview)信任警告添加您自己的文本                                                                                                                               | 插件和技能      | Managed                 |
 | [`policyHelper`](#policyhelper)                                                                       | 运行在启动时计算[托管设置](/docs/zh-CN/managed-settings#compute-the-policy-with-a-helper-program)的可执行文件                                                                                   | 企业和托管设置    | Managed                 |
 | [`policyHelper.path`](#policyhelper-path)                                                             | 命名 Claude Code 运行的[辅助可执行文件](/docs/zh-CN/managed-settings#compute-the-policy-with-a-helper-program)                                                                            | 企业和托管设置    | Managed                 |
 | [`policyHelper.refreshIntervalMs`](#policyhelper-refreshintervalms)                                   | 在后台按间隔重新运行[辅助程序](/docs/zh-CN/managed-settings#compute-the-policy-with-a-helper-program)                                                                                       | 企业和托管设置    | Managed                 |
@@ -785,7 +785,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`sshConfigs`](#sshconfigs)                                                                           | 将 [SSH 连接](/docs/zh-CN/desktop#pre-configure-ssh-connections-for-your-team)添加到桌面环境下拉列表                                                                                        | 远程、桌面和通知   | User or managed         |
 | [`sshHostAllowlist`](#sshhostallowlist)                                                               | 限制[桌面 SSH 会话](/docs/zh-CN/desktop#restrict-which-ssh-hosts-users-can-connect-to)可以到达的主机                                                                                       | 远程、桌面和通知   | Managed                 |
 | [`statusLine`](#statusline)                                                                           | 运行您自己的命令来呈现提示下方的[状态行](/docs/zh-CN/statusline)                                                                                                                                 | 界面和终端      | Any file                |
-| [`strictKnownMarketplaces`](#strictknownmarketplaces)                                                 | 允许列表用户可以添加和安装的[市场](/docs/zh-CN/plugin-marketplaces)来源                                                                                                                         | 插件和技能      | Managed                 |
+| [`strictKnownMarketplaces`](#strictknownmarketplaces)                                                 | 允许列表用户可以添加和安装的[市场](/docs/zh-CN/plugins/overview)来源                                                                                                                            | 插件和技能      | Managed                 |
 | [`strictPluginOnlyCustomization`](#strictpluginonlycustomization)                                     | 阻止[技能](/docs/zh-CN/skills)、[代理](/docs/zh-CN/sub-agents)、[hooks](/docs/zh-CN/hooks) 和 [MCP 服务器](/docs/zh-CN/mcp)来自用户和项目来源                                                                     | 插件和技能      | Managed                 |
 | [`strictPluginOnlyCustomization.agents`](#strictpluginonlycustomization-agents)                       | 将[代理](/docs/zh-CN/sub-agents)锁定到插件和托管来源                                                                                                                                       | 插件和技能      | Managed                 |
 | [`strictPluginOnlyCustomization.hooks`](#strictpluginonlycustomization-hooks)                         | 将[hooks](/docs/zh-CN/hooks)锁定到插件和托管来源                                                                                                                                         | 插件和技能      | Managed                 |
@@ -794,7 +794,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`subagentPromptCacheTtl`](#subagentpromptcachettl)                                                   | 为子代理和主对话外的其他请求选择[提示缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)                                                                                                         | 模型和响应      | Any file                |
 | [`subagentStatusLine`](#subagentstatusline)                                                           | 使用您自己的命令重写[子代理](/docs/zh-CN/sub-agents)任务显示中的行                                                                                                                                | 界面和终端      | Any file                |
 | [`switchModelsOnFlag`](#switchmodelsonflag)                                                           | 当[安全分类器](/docs/zh-CN/model-config#ask-before-switching)标记请求时自动切换模型或暂停                                                                                                         | 模型和响应      | Any file                |
-| [`syncClaudeAiPlugins`](#syncclaudeaiplugins)                                                         | 停止加载[在您的 claude.ai 帐户上启用的插件](/docs/zh-CN/plugins-reference#synced-plugins)并停止下载新的                                                                                             | 插件和技能      | User, local, or managed |
+| [`syncClaudeAiPlugins`](#syncclaudeaiplugins)                                                         | 停止加载[在您的 claude.ai 帐户上启用的插件](/docs/zh-CN/plugins/loading#synced-plugins)并停止下载新的                                                                                               | 插件和技能      | User, local, or managed |
 | [`syncClaudeAiSkills`](#syncclaudeaiskills)                                                           | 停止加载[在您的 claude.ai 帐户上启用的技能](/docs/zh-CN/skills#how-synced-skills-behave)并停止下载新的                                                                                              | 插件和技能      | User, local, or managed |
 | [`syntaxHighlightingDisabled`](#syntaxhighlightingdisabled)                                           | 关闭 diffs 和代码块中的语法突出显示                                                                                                                                                    | 界面和终端      | Any file                |
 | [`taskOutputMaxChars`](#taskoutputmaxchars)                                                           | 在 v2.1.277 中删除，以及它调整大小的 `TaskOutput` 工具                                                                                                                                  | 内存和上下文     | Any file                |
@@ -2952,7 +2952,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   `env`
 </h3>
 
-为每个会话和 Claude Code 从中启动的子进程设置环境变量。[环境变量参考](/docs/zh-CN/env-vars)中的任何变量都可以放在这里，这是如何将其应用于每个会话或向您的团队推出的方式。
+为每个会话和 Claude Code 从中启动的子进程设置环境变量。[环境变量参考](/docs/zh-CN/env-vars)中的大多数变量都可以放在这里，这是如何将其应用于每个会话或向您的团队推出的方式。项目和本地设置无法设置[其中一些](#variables-claude-code-ignores-in-env)。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: 将变量名映射到字符串值的对象
@@ -2973,7 +2973,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   `env` 值如何与您的 shell 交互
 </h4>
 
-* 此处的值覆盖在您的 shell 中导出的相同变量，当多个设置文件设置一个变量时，[最高优先级](/docs/zh-CN/settings#settings-precedence)的值适用。
+* 此处的值覆盖在您的 shell 中导出的相同变量，当多个设置文件设置一个变量时，[最高优先级](/docs/zh-CN/settings#settings-precedence)的值适用。[Claude Code 在 `env` 中忽略的变量](#variables-claude-code-ignores-in-env)列出了项目和本地设置的例外。
 * 要取消 shell 导出，将变量设置为 `""`。Claude Code 将空值视为提供程序选择的未设置，子进程继承空值。
 * `NO_COLOR` 和 `FORCE_COLOR` 在此处设置仅到达子进程。要更改 Claude Code 自己的界面颜色，请在启动 `claude` 之前在您的 shell 中设置它们。
 * 此处的值是设置文件中的纯文本，到达 Claude Code 启动的每个子进程。对于轮换的 OTLP 承载令牌，使用 [`otelHeadersHelper`](#otelheadershelper)；对于 API 凭证，使用 [`apiKeyHelper`](#apikeyhelper)。
@@ -2984,7 +2984,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 * 从用户设置、`--settings` 和托管设置：在启动时，以及在运行会话中当保存的更改改变合并的 `env` 时。
 * 从项目和本地设置：在您信任工作区后，或在 `-p` 模式下启动时（从不显示信任对话），以及当保存的更改改变合并的 `env` 时。
-* Claude Code 分类为安全的变量，例如模型选择、超时和限制、功能切换和遥测设置：在启动时从每个设置文件，除了[项目和本地设置无法设置的变量](#variables-claude-code-ignores-in-env)。
+* Claude Code 分类为安全的变量，例如模型选择、超时和限制、功能切换：在启动时从每个设置文件，除了[项目和本地设置无法设置的变量](#variables-claude-code-ignores-in-env)。
 * 在 v2.1.246 或更高版本上使用 `/cd` [移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory)后：新目录的项目和本地 `env` 值，在前一个目录的基础上。
 
 <h4 id="variables-claude-code-ignores-in-env">
@@ -2995,9 +2995,22 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
   * 选择 Claude Code 存储或写入其自己文件的位置的变量：`CLAUDE_CONFIG_DIR`、`CLAUDE_CODE_TMPDIR` 和操作系统目录变量，例如 `HOME`、`TMPDIR`、`TMP`、`TEMP` 和 `XDG_*` 系列。
   * 导出会话内容的变量：[`OTEL_LOG_RAW_API_BODIES`](/docs/zh-CN/env-vars#variables) 和详细的 beta 跟踪对 `ENABLE_BETA_TRACING_DETAILED` 和 `BETA_TRACING_ENDPOINT`。
+  * [OpenTelemetry 导出器](/docs/zh-CN/monitoring-usage)变量，打开遥测、选择它的去向或选择它捕获的内容：
+
+    * `CLAUDE_CODE_ENABLE_TELEMETRY`，加上增强的遥测 beta 对 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA` 和 `ENABLE_ENHANCED_TELEMETRY_BETA`
+    * 导出器选择器 `OTEL_LOGS_EXPORTER`、`OTEL_METRICS_EXPORTER` 和 `OTEL_TRACES_EXPORTER`
+    * 内容变量 `OTEL_LOG_USER_PROMPTS`、`OTEL_LOG_ASSISTANT_RESPONSES`、`OTEL_LOG_TOOL_CONTENT` 和 `OTEL_LOG_TOOL_DETAILS`
+    * `OTEL_EXPORTER_OTLP_*` 变量，其名称以 `_ENDPOINT`、`_HEADERS`、`_PROTOCOL`、`_CERTIFICATE`、`_CLIENT_KEY` 或 `_INSECURE` 结尾，采用通用和按信号形式，例如 `OTEL_EXPORTER_OTLP_ENDPOINT` 和 `OTEL_EXPORTER_OTLP_METRICS_HEADERS`
+    * `OTEL_EXPORTER_PROMETHEUS_HOST` 和 `OTEL_EXPORTER_PROMETHEUS_PORT`
+
+    只有这些值仍然适用于项目和本地设置，因为它们关闭某些内容：三个导出器选择器的 `none`，以及 `OTEL_LOG_USER_PROMPTS`、`OTEL_LOG_TOOL_CONTENT` 和 `OTEL_LOG_TOOL_DETAILS` 的关闭值，例如 `0`。这样的值覆盖您的用户设置中的相同变量，但不覆盖您启动 Claude Code 的环境、`--settings` 文件或托管设置设置的变量。
+
+    当项目或本地设置文件设置此组中的变量时，本地交互式会话在启动时显示通知。运行 `/status` 或 `claude doctor` 以查看 Claude Code 忽略了哪些变量以及哪些关闭了遥测；两者都列出名称，从不列出值。非交互式运行（使用 `-p` 或 Agent SDK 会话）不显示通知，因此在升级后检查您的收集器是否仍然接收数据。如果没有，请在您的用户设置、托管设置、作业的环境或您使用 `--settings` 传递的文件中设置变量。
+
+    在项目和本地设置中忽略此组需要 Claude Code v2.1.282 或更高版本。
   * 改变 Claude Code 如何启动或同步的变量，例如 `CLAUDE_CODE_PROCESS_WRAPPER`、`CLAUDE_CODE_SYNC_SKILLS`、`CLAUDE_CODE_SYNC_PLUGINS`、`CLAUDE_CODE_PLUGIN_CACHE_DIR` 和 `CLAUDE_CODE_PLUGIN_SEED_DIR`。
 
-  在 v2.1.251 之前，项目和本地设置可以设置此列表命名的每个变量，除了 `HOME`、`XDG_CONFIG_HOME` 和改变 Claude Code 如何启动或同步的变量。
+  在 v2.1.251 之前，项目和本地设置也可以设置此列表中选择 Claude Code 写入其文件位置或导出会话内容的变量，除了 `HOME` 和 `XDG_CONFIG_HOME`。
 * Claude Code 的托管环境拥有的身份变量，例如 `CLAUDE_CODE_REMOTE` 和 `CLAUDE_CODE_ACCOUNT_UUID`，从每个文件中被忽略。
 * [`CLAUDE_CODE_MESSAGING_SOCKET` 和 `CLAUDE_CODE_MESSAGING_TOKEN`](/docs/zh-CN/env-vars#variables)，Claude Code 自己导出的，从每个文件中被忽略。忽略套接字变量需要 Claude Code v2.1.224 或更高版本，忽略令牌需要 v2.1.228 或更高版本。
 * [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/sessions#name-the-project-directory-yourself)，Claude Code 仅从启动环境读取，从每个文件中被忽略；需要 v2.1.234 或更高版本。
@@ -3983,8 +3996,10 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 自定义 Claude Code 添加到 git 提交和拉取请求的归属。提交默认获得 [git trailer](https://git-scm.com/docs/git-interpret-trailers)，例如 `Co-Authored-By`；拉取请求描述获得纯文本。使用下面的子键分别设置每个部分。
 
 * **Scope**: [`Any file`](#scopes)
-* **Type**: 包含 `commit` 和 `pr` 字符串以及 `sessionUrl` 布尔值的对象
+* **Type**: 包含 `commit` 和 `pr` 字符串以及 `sessionUrl` 布尔值的对象，或 `false` 以隐藏所有归属。`false` 值需要 Claude Code v2.1.281 或更高版本；更早的版本会拒绝它并[跳过整个用户、项目或本地设置文件](/docs/zh-CN/settings#fix-a-broken-settings-file)
 * **Default**: 未设置，因此 Claude Code 使用每个子键下显示的标准归属
+
+要隐藏所有归属，请将 `attribution` 设置为 `false`。在早期版本也读取的设置文件中，将 [`commit`](#attribution-commit) 和 [`pr`](#attribution-pr) 设置为空字符串，并将 [`sessionUrl`](#attribution-sessionurl) 设置为 `false`。
 
 此示例替换提交归属，删除拉取请求归属，并删除会话链接：
 
@@ -3998,7 +4013,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-要隐藏所有归属，请将 [`commit`](#attribution-commit) 和 [`pr`](#attribution-pr) 设置为空字符串，并将 [`sessionUrl`](#attribution-sessionurl) 设置为 `false`。一旦设置 `commit` 或 `pr`，Claude Code 将忽略已弃用的 `includeCoAuthoredBy` 设置，并对未设置的两个中的任何一个使用其默认文本。
+一旦设置 `commit` 或 `pr`，Claude Code 将忽略已弃用的 `includeCoAuthoredBy` 设置，并对未设置的两个中的任何一个使用其默认文本。
 
 Claude Code 告诉 Claude，您自己关于归属的说明（例如 CLAUDE.md 或 [memory](/docs/zh-CN/memory) 规则）优先于这些提交和 PR 行，除非该行在 [managed settings](/docs/zh-CN/managed-settings) 中设置。
 
@@ -4024,7 +4039,7 @@ Claude Code 告诉 Claude，您自己关于归属的说明（例如 CLAUDE.md �
 }
 ```
 
-要立即隐藏所有归属，请将 [`attribution.commit`](#attribution-commit) 和 [`attribution.pr`](#attribution-pr) 设置为空字符串，并将 [`attribution.sessionUrl`](#attribution-sessionurl) 设置为 `false`。
+要隐藏所有归属，请参阅 [`attribution`](#attribution)。
 
 <h3 id="includegitinstructions">
   `includeGitInstructions`
@@ -4182,8 +4197,8 @@ Claude Code 仅将模板应用于它自己呈现的链接；Claude 在消息中�
 * **托管和 SDK hooks 运行**: 来自托管设置的 hooks 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 在进程中注册的 hooks
 * **强制启用的插件 hooks 运行**: 来自您的托管设置通过 [`enabledPlugins`](#enabledplugins) 强制启用的插件的 hooks。Claude Code 与完整的 `plugin@marketplace` ID 匹配，因此来自不同市场的同名插件保持被阻止。这使您可以通过组织市场分发经过审查的 hooks，同时阻止其他所有内容
 * **其他所有内容都被阻止**: 用户、项目和本地 hooks，来自其他插件的 hooks，以及在代理 frontmatter 中声明的 hooks
-* **禁用命令源插件**: Claude Code 还禁用具有 [`command` 源](/docs/zh-CN/plugin-marketplaces#command-sources) 的插件，包括在托管 `enabledPlugins` 中强制启用的插件，除非您明确将 [`disableCommandPluginSources`](#disablecommandpluginsources) 设置为 `false`
-* **市场 `headersHelper` 命令被阻止**: Claude Code 还会阻止市场 [`headersHelper` 命令](/docs/zh-CN/plugin-marketplaces#authenticate-archive-downloads)，除非 [`disableCommandPluginSources`](#disablecommandpluginsources) 明确设置为 `false`，托管设置本身声明的市场除外。需要 Claude Code v2.1.238 或更高版本
+* **禁用命令源插件**: Claude Code 还禁用具有 [`command` 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source) 的插件，包括在托管 `enabledPlugins` 中强制启用的插件，除非您明确将 [`disableCommandPluginSources`](#disablecommandpluginsources) 设置为 `false`
+* **市场 `headersHelper` 命令被阻止**: Claude Code 还会阻止市场 [`headersHelper` 命令](/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads)，除非 [`disableCommandPluginSources`](#disablecommandpluginsources) 明确设置为 `false`，托管设置本身声明的市场除外。需要 Claude Code v2.1.238 或更高版本
 * **状态行和文件建议缩小到托管设置**: Claude Code 仅从托管设置读取 [`statusLine`](/docs/zh-CN/statusline)、[`fileSuggestion`](#filesuggestion) 和 [`subagentStatusLine`](/docs/zh-CN/statusline#subagent-status-lines)，遵循 [状态行和文件建议门](#status-line-and-file-suggestion-gates)
 
 设置此键时，[`/goal`](/docs/zh-CN/goal) 命令无法运行，因为它依赖于 hooks。
@@ -4364,23 +4379,23 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 <span id="plugin-settings" />
 
 <h2 id="plugins-and-skills">
-  插件和技能
+  Plugins 和 skills
 </h2>
 
-启用插件、注册市场、限制组织允许的插件来源，以及控制加载哪些技能。有关安装和构建插件，请参阅 [Plugins](/docs/zh-CN/plugins)。
+启用 plugins，注册 marketplaces，限制组织允许的 plugin 源，并控制哪些 skills 加载。有关安装和构建 plugins，请参阅 [Plugins](/docs/zh-CN/plugins/overview)。
 
 <h3 id="disablebundledskills">
   `disableBundledSkills`
 </h3>
 
-关闭 Claude Code 附带的 [skills](/docs/zh-CN/skills) 和工作流。Claude Code 完全删除捆绑的技能和工作流，而内置命令（如 `/init`）仍可输入但对模型隐藏。
+关闭 Claude Code 附带的 [skills](/docs/zh-CN/skills) 和工作流。Claude Code 完全删除捆绑的 skills 和工作流，而内置命令（如 `/init`）仍可输入但对模型隐藏。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: Boolean
-  * `true`: Claude Code 删除捆绑的技能和工作流，并对模型隐藏内置命令（如 `/init`）
-  * `false`: 捆绑的技能加载
-* **Default**: 未设置，因此捆绑的技能加载
-* **Per-session overrides**: [`CLAUDE_CODE_DISABLE_BUNDLED_SKILLS`](/docs/zh-CN/env-vars) 设置为 `1` 会关闭一个会话的捆绑技能；两者中任何一个关闭它们，另一个就无法将其打开
+  * `true`: Claude Code 删除捆绑的 skills 和工作流，并对模型隐藏内置命令（如 `/init`）
+  * `false`: 捆绑的 skills 加载
+* **Default**: 未设置，因此捆绑的 skills 加载
+* **Per-session overrides**: [`CLAUDE_CODE_DISABLE_BUNDLED_SKILLS`](/docs/zh-CN/env-vars) 设置为 `1` 会在一个会话中关闭捆绑的 skills；两者中任何一个关闭它们，另一个就无法将其打开
 
 ```json settings.json theme={null}
 {
@@ -4388,13 +4403,13 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-来自插件、`.claude/skills/` 和 `.claude/commands/` 的技能不受影响。`/doctor` 与内置命令一样可输入；要隐藏它，请改为设置 [`DISABLE_DOCTOR_COMMAND`](/docs/zh-CN/env-vars)。
+来自 plugins、`.claude/skills/` 和 `.claude/commands/` 的 skills 不受影响。`/doctor` 与内置命令一样仍可输入；要隐藏它，请改为设置 [`DISABLE_DOCTOR_COMMAND`](/docs/zh-CN/env-vars)。
 
 <h3 id="disableskillshellexecution">
   `disableSkillShellExecution`
 </h3>
 
-关闭 [skills](/docs/zh-CN/skills) 和来自用户、项目、插件或附加目录来源的自定义命令中 `` !`...` `` 和 ` ```! ` 块的内联 shell 执行。Claude Code 用 `[shell command execution disabled by policy]` 替换每个命令，而不是运行它。
+关闭 [skills](/docs/zh-CN/skills) 和来自用户、项目、plugin 或附加目录源的自定义命令中 `` !`...` `` 和 ` ```! ` 块的内联 shell 执行。Claude Code 用 `[shell command execution disabled by policy]` 替换每个命令，而不是运行它。
 
 * **Scope**: [`Any file`](#scopes)。托管设置中的 `true` 无法被其他地方的 `false` 覆盖。
 * **Type**: Boolean
@@ -4408,21 +4423,21 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-捆绑的技能和通过托管设置部署的技能不受影响。
+捆绑的 skills 和通过托管设置部署的 skills 不受影响。
 
 <h3 id="skilloverrides">
   `skillOverrides`
 </h3>
 
-隐藏或折叠 [skill](/docs/zh-CN/skills#override-skill-visibility-from-settings)，无需编辑其 `SKILL.md`。Claude Code 将每个技能名称下的值应用于 Claude 看到的技能列表和您的 `/` 自动完成。
+隐藏或折叠 [skill](/docs/zh-CN/skills#override-skill-visibility-from-settings)，无需编辑其 `SKILL.md`。Claude Code 将每个 skill 名称下的值应用于 Claude 看到的 skill 列表和您的 `/` 自动完成。
 
 * **Scope**: [`Any file`](#scopes)。`/skills` 菜单写入 `.claude/settings.local.json`。
-* **Type**: 对象，将技能名称映射到以下之一：
-  * `"on"`: Claude 看到该技能，您可以输入 `/name`
-  * `"name-only"`: Claude 按名称看到该技能，但不显示其描述
-  * `"user-invocable-only"`: Claude 看不到该技能，但您仍可以输入 `/name`
-  * `"off"`: Claude 看不到该技能，`/name` 从自动完成中隐藏
-* **Default**: 未设置，因此每个技能都是 `"on"`
+* **Type**: 对象，将 skill 名称映射到以下之一：
+  * `"on"`: Claude 看到该 skill，您可以输入 `/name`
+  * `"name-only"`: Claude 按名称看到该 skill，但不显示其描述
+  * `"user-invocable-only"`: Claude 看不到该 skill，但您仍可输入 `/name`
+  * `"off"`: Claude 看不到该 skill，`/name` 从自动完成中隐藏
+* **Default**: 未设置，因此每个 skill 都是 `"on"`
 
 此示例仅按名称向 Claude 列出 `legacy-context`，并从 Claude 和 `/` 自动完成中隐藏 `deploy`：
 
@@ -4435,23 +4450,23 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-覆盖不适用于插件技能，您可以通过 `/plugin` 管理这些技能。
+覆盖不适用于 plugin skills，您可以通过 `/plugin` 管理这些。
 
-在托管设置和使用 `--settings` 传递的文件中，捆绑技能别名上的键（如 `/doctor` 的 `checkup`）也适用于该技能；请参阅 [别名键如何与技能自身名称上的键结合](/docs/zh-CN/skills#override-skill-visibility-from-settings)。
+在托管设置和使用 `--settings` 传递的文件中，捆绑 skill 的别名上的键（如 `/doctor` 的 `checkup`）也适用于该 skill；请参阅 [别名键如何与 skill 自身名称上的键结合](/docs/zh-CN/skills#override-skill-visibility-from-settings)。
 
 <h3 id="syncclaudeaiskills">
   `syncClaudeAiSkills`
 </h3>
 
-关闭 [您在 claude.ai 上启用的技能](/docs/zh-CN/skills#how-synced-skills-behave) 的下载。Claude Code 在 [您使用 claude.ai 帐户登录的终端会话](/docs/zh-CN/skills#where-synced-skills-load)（交互式或非交互式）以及 Cowork 和云会话中将它们下载到 `~/.claude/skills/synced/`。设置为 `false` 以停止该下载并停止加载已同步的技能。Claude Code 仅接受 `false`：`true` 与未设置相同，不会打开同步。
+关闭 [为您的 claude.ai 账户启用的 skills](/docs/zh-CN/skills#how-synced-skills-behave) 的下载。Claude Code 在 [您使用 claude.ai 账户登录的终端会话](/docs/zh-CN/skills#where-synced-skills-load)（交互式或非交互式）以及 Cowork 和云会话中将它们下载到 `~/.claude/skills/synced/`。设置 `false` 以停止该下载并停止加载已同步的 skills。Claude Code 仅接受 `false`：`true` 与未设置相同，不会在其他情况下关闭的地方打开同步。
 
 * **Scope**: [`User, local, or managed`](#scopes)，以及使用 `--settings` 传递的文件。存储库无法为您关闭它。
 * **Type**: Boolean
-  * `false`: Claude Code 停止下载同步的技能并停止加载 `~/.claude/skills/synced/` 中已有的技能。在用户或托管设置中，它还将它们移动到 `~/.claude/skills/.trash/`
+  * `false`: Claude Code 停止下载同步的 skills，停止加载 `~/.claude/skills/synced/` 中已有的 skills。在用户或托管设置中，它还将它们移动到 `~/.claude/skills/.trash/`
   * `true`: 与未设置相同
-* **Default**: 未设置，因此使用 claude.ai 帐户登录的会话会同步您的技能
+* **Default**: 未设置，因此使用 claude.ai 账户登录的会话同步您的 skills
 
-此示例防止机器在任何会话中下载帐户的技能：
+此示例防止机器在任何会话中下载账户的 skills：
 
 ```json settings.json theme={null}
 {
@@ -4463,17 +4478,17 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `syncClaudeAiPlugins`
 </h3>
 
-关闭 [您在 claude.ai 上启用的插件](/docs/zh-CN/plugins-reference#synced-plugins) 的下载。Claude Code 在您使用 claude.ai 帐户登录的终端会话开始时将它们下载到 `~/.claude/plugins/synced/`，以及在 Cowork 和云会话中，并将每个加载为 `<name>@synced`。设置为 `false` 以停止该下载并停止加载已同步的插件。Claude Code 仅接受 `false`：`true` 与未设置相同，不会打开同步。需要 Claude Code v2.1.273 或更高版本。
+关闭 [为您的 claude.ai 账户启用的 plugins](/docs/zh-CN/plugins/loading#synced-plugins) 的下载。Claude Code 在您使用 claude.ai 账户登录的终端会话开始时和 Cowork 会话中将它们下载到 `~/.claude/plugins/synced/`，并将每个加载为 `<name>@synced`。设置 `false` 以停止该下载并停止加载已同步的 plugins。Claude Code 仅接受 `false`：`true` 与未设置相同，不会在其他情况下关闭的地方打开同步。需要 Claude Code v2.1.273 或更高版本。
 
 * **Scope**: [`User, local, or managed`](#scopes)，以及使用 `--settings` 传递的文件。存储库无法为您关闭它。
 * **Type**: Boolean
-  * `false`: Claude Code 停止下载同步的插件并停止加载 `~/.claude/plugins/synced/` 中已有的插件。在用户或托管设置中，它还将它们移动到 `~/.claude/plugins/.trash/`
+  * `false`: Claude Code 停止下载同步的 plugins，停止加载 `~/.claude/plugins/synced/` 中已有的 plugins。在用户或托管设置中，它还将它们移动到 `~/.claude/plugins/.trash/`
   * `true`: 与未设置相同
-* **Default**: 未设置，因此使用 claude.ai 帐户登录的会话会同步您的插件
+* **Default**: 未设置，因此使用 claude.ai 账户登录的会话同步您的 plugins
 
-要关闭一个同步的插件而不是全部，请在 [`enabledPlugins`](#enabledplugins) 中设置 `"<name>@synced": false`。
+要关闭一个同步的 plugin 而不是全部，请在 [`enabledPlugins`](#enabledplugins) 中设置 `"<name>@synced": false`。
 
-此示例防止机器在任何会话中下载帐户的插件：
+此示例防止机器在任何会话中下载账户的 plugins：
 
 ```json settings.json theme={null}
 {
@@ -4485,13 +4500,13 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `allowedChannelPlugins`
 </h3>
 
-选择哪些 [channel](/docs/zh-CN/channels) 插件可以将消息推送到您组织中的会话。设置后，Claude Code 使用您的列表代替默认的 Anthropic 允许列表；每个条目命名一个插件及其来自的市场。
+选择哪些 [channel](/docs/zh-CN/channels) plugins 可以将消息推送到您组织中的会话。设置后，Claude Code 使用您的列表代替默认的 Anthropic 允许列表；每个条目命名一个 plugin 和它来自的 marketplace。
 
 * **Scope**: [`Managed`](#scopes)
-* **Type**: 对象数组，每个对象都有 `marketplace` 和 `plugin` 字符串。条目也可以是 `"plugin@marketplace"` 字符串，如 `"telegram@claude-plugins-official"`，Claude Code 将其视为等效对象。字符串形式需要 Claude Code v2.1.267 或更高版本；较早版本在包含一个时拒绝整个 `allowedChannelPlugins` 值
+* **Type**: 对象数组，每个都有 `marketplace` 和 `plugin` 字符串。条目也可以是 `"plugin@marketplace"` 字符串，如 `"telegram@claude-plugins-official"`，Claude Code 将其视为等效对象。字符串形式需要 Claude Code v2.1.267 或更高版本；更早的版本在 `allowedChannelPlugins` 包含一个时拒绝整个值
 * **Default**: 未设置，因此 Claude Code 使用默认的 Anthropic 允许列表
 
-此示例打开频道并仅允许来自官方 Anthropic 市场的 Telegram 插件：
+此示例打开 channels 并仅允许来自官方 Anthropic marketplace 的 Telegram plugin：
 
 ```json managed-settings.json theme={null}
 {
@@ -4502,23 +4517,23 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-空数组阻止每个频道插件。
+空数组阻止每个 channel plugin。
 
-此键在频道通过帐户的 [`channelsEnabled`](#channelsenabled) 门控后生效：在 Team 和 Enterprise 计划上，以及在具有托管设置的 Console 帐户上，这意味着 `channelsEnabled: true`。请参阅 [限制哪些频道插件可以运行](/docs/zh-CN/channels#restrict-which-channel-plugins-can-run)。
+此键在 channels 通过账户的 [`channelsEnabled`](#channelsenabled) 门控后生效：在 Team 和 Enterprise 计划上，以及在具有托管设置的 Console 账户上，这意味着 `channelsEnabled: true`。请参阅 [限制哪些 channel plugins 可以运行](/docs/zh-CN/channels#restrict-which-channel-plugins-can-run)。
 
 <h3 id="blockedmarketplaces">
   `blockedMarketplaces`
 </h3>
 
-为您的组织阻止插件市场来源。Claude Code 在市场添加以及插件安装、更新、刷新和自动更新时检查阻止列表，因此在您设置策略之前添加的市场无法用于获取插件。在下载前检查被阻止的来源，因此它们永远不会接触文件系统。
+阻止您组织的 plugin marketplace 源。Claude Code 在 marketplace 添加以及 plugin 安装、更新、刷新和自动更新时检查阻止列表，因此在您设置策略之前添加的 marketplace 也无法用于获取 plugins。阻止的源在下载前被检查，因此它们永远不会接触文件系统。
 
-如果您在 [claude.ai 管理控制台](/docs/zh-CN/server-managed-settings) 中设置此键，claude.ai 也会在您组织中的任何人从 claude.ai 上的 git 存储库添加市场时应用它，如 [限制如何工作](/docs/zh-CN/plugin-marketplaces#how-restrictions-work) 所述。
+如果您在 [claude.ai 管理控制台](/docs/zh-CN/server-managed-settings) 中设置此键，claude.ai 也会在您组织中的任何人从 claude.ai 上的 git 存储库添加 marketplace 时应用它，如 [限制如何工作](/docs/zh-CN/plugins/org#restrict-what-users-can-install) 所述。
 
 * **Scope**: [`Managed`](#scopes)
-* **Type**: 市场来源对象数组，形式与 [`strictKnownMarketplaces`](#allowed-source-types) 相同
-* **Default**: 未设置，因此没有市场被阻止
+* **Type**: marketplace 源对象数组，形式与 [`strictKnownMarketplaces`](#allowed-source-types) 相同
+* **Default**: 未设置，因此没有 marketplace 被阻止
 
-此示例阻止一个 GitHub 存储库作为市场来源：
+此示例阻止一个 GitHub 存储库作为 marketplace 源：
 
 ```json managed-settings.json theme={null}
 {
@@ -4528,19 +4543,19 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-一个 `github` 条目可能使用 [owner-wildcard 形式](#owner-wildcards) `"owner/*"` 来阻止该 GitHub 所有者下的每个存储库，这需要 Claude Code v2.1.223 或更高版本。添加 `{ "source": "skills-dir" }` 以停止 Claude Code 从 `~/.claude/skills/` 加载 [`@skills-dir` 插件](/docs/zh-CN/plugins-reference#skills-directory-plugins)，而不限制任何市场。请参阅 [托管市场限制](/docs/zh-CN/plugin-marketplaces#managed-marketplace-restrictions)。
+一个 `github` 条目可能使用 [owner-wildcard 形式](#owner-wildcards) `"owner/*"` 来阻止该 GitHub owner 下的每个存储库，这需要 Claude Code v2.1.223 或更高版本。添加 `{ "source": "skills-dir" }` 以停止 Claude Code 从 `~/.claude/skills/` 加载 [`@skills-dir` plugins](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)，而不限制任何 marketplace。请参阅 [托管 marketplace 限制](/docs/zh-CN/plugins/org#restrict-what-users-can-install)。
 
 <h3 id="channelsenabled">
   `channelsEnabled`
 </h3>
 
-为您的组织允许 [channels](/docs/zh-CN/channels)。在 claude.ai Team 和 Enterprise 计划上，Claude Code 阻止频道，直到您将其设置为 `true`。对于使用 API 密钥进行身份验证的 [Anthropic Console](/docs/zh-CN/authentication#claude-console-authentication) 帐户，默认允许频道。如果您的组织部署托管设置，Claude Code 也会在这些帐户上阻止频道，直到您将此键设置为 `true`。
+为您的组织允许 [channels](/docs/zh-CN/channels)。在 claude.ai Team 和 Enterprise 计划上，Claude Code 阻止 channels 直到您将其设置为 `true`。对于使用 API 密钥进行身份验证的 [Anthropic Console](/docs/zh-CN/authentication#claude-console-authentication) 账户，channels 默认被允许。如果您的组织部署托管设置，Claude Code 也会在这些账户上阻止 channels，直到您将此键设置为 `true`。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: Boolean
-  * `true`: Claude Code 为您的组织允许频道
-  * `false`: 与未设置相同；频道是否被阻止取决于您的计划，如默认值所述
-* **Default**: 未设置；频道在 Team 和 Enterprise 计划以及具有托管设置的 Console 帐户上被阻止，在 Pro 和 Max 计划以及没有托管设置的 Console 帐户上被允许
+  * `true`: Claude Code 为您的组织允许 channels
+  * `false`: 与未设置相同；channels 是否被阻止取决于您的计划，如默认值所述
+* **Default**: 未设置；channels 在 Team 和 Enterprise 计划上以及在具有托管设置的 Console 账户上被阻止，在 Pro 和 Max 计划上以及在没有托管设置的 Console 账户上被允许
 
 ```json managed-settings.json theme={null}
 {
@@ -4548,19 +4563,19 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-要限制启用后哪些插件可以注册为频道，请设置 [`allowedChannelPlugins`](#allowedchannelplugins)。请参阅 [Enterprise controls](/docs/zh-CN/channels#enterprise-controls)。
+要限制哪些 plugins 可以在启用后注册为 channels，请设置 [`allowedChannelPlugins`](#allowedchannelplugins)。请参阅 [企业控制](/docs/zh-CN/channels#enterprise-controls)。
 
 <h3 id="disablecommandpluginsources">
   `disableCommandPluginSources`
 </h3>
 
-阻止 [`command` 插件来源](/docs/zh-CN/plugin-marketplaces#command-sources)，它通过在用户机器上运行市场声明的命令来安装插件。当您将其设置为 `true` 时，Claude Code 永远不会运行该命令，不会安装或更新命令来源的插件，并停止加载已安装的插件。设置为 `false` 以明确允许它们。每当它阻止命令来源时，无论您将其设置为 `true` 还是在 [`allowManagedHooksOnly`](#allowmanagedhooksonly) 下保持未设置，它也会阻止市场 [`headersHelper` 命令](/docs/zh-CN/plugin-marketplaces#authenticate-archive-downloads)，除了托管设置本身声明的市场。需要 Claude Code v2.1.229 或更高版本，`headersHelper` 阻止需要 v2.1.238 或更高版本。
+阻止 [`command` plugin 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)，它通过在用户的机器上运行 marketplace 声明的命令来安装 plugin。当您将其设置为 `true` 时，Claude Code 永远不会运行该命令，不会安装或更新命令源的 plugins，并停止加载已安装的 plugins。设置为 `false` 以明确允许它们。每当它阻止命令源时，无论您将其设置为 `true` 还是在 [`allowManagedHooksOnly`](#allowmanagedhooksonly) 下保持未设置，它也会阻止 marketplace [`headersHelper` 命令](/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads)，除了托管设置本身声明的 marketplace。需要 Claude Code v2.1.229 或更高版本，`headersHelper` 阻止需要 v2.1.238 或更高版本。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: Boolean
-  * `true`: Claude Code 永远不会运行市场声明的命令，不会安装或更新命令来源的插件，并停止加载已安装的插件
-  * `false`: Claude Code 明确允许命令来源的插件
-* **Default**: 未设置，因此 Claude Code 遵循 [`allowManagedHooksOnly`](#allowmanagedhooksonly)：限制 hook 执行到托管设置的组织也会禁用命令来源
+  * `true`: Claude Code 永远不会运行 marketplace 声明的命令，不会安装或更新命令源的 plugins，并停止加载已安装的 plugins
+  * `false`: Claude Code 明确允许命令源的 plugins
+* **Default**: 未设置，因此 Claude Code 遵循 [`allowManagedHooksOnly`](#allowmanagedhooksonly)：限制 hook 执行到托管设置的组织也会禁用命令源
 
 ```json managed-settings.json theme={null}
 {
@@ -4574,11 +4589,11 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `pluginSuggestionMarketplaces`
 </h3>
 
-命名其插件可以显示为上下文安装建议的市场，在微调提示和固定在 `/plugin` **Discover** 选项卡顶部。内置的第一方前端设计提示不受影响。建议来自每个插件在其市场条目中的 `relevance` 声明。
+命名其 plugins 可以作为上下文安装建议出现的 marketplaces，在 spinner 提示和 `/plugin` **Discover** 标签顶部固定。内置的第一方前端设计提示不受影响。建议来自每个 plugin 在其 marketplace 条目中的 `relevance` 声明。
 
 * **Scope**: [`Managed`](#scopes)
-* **Type**: 市场名称数组
-* **Default**: 未设置，因此没有市场声明的建议出现
+* **Type**: marketplace 名称数组
+* **Default**: 未设置，因此没有 marketplace 声明的建议出现
 
 ```json managed-settings.json theme={null}
 {
@@ -4586,13 +4601,13 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-名称仅在市场在机器上注册且其注册来源也在同一托管设置中声明时生效，要么作为该名称的 [`extraKnownMarketplaces`](#extraknownmarketplaces) 条目，要么作为 [`strictKnownMarketplaces`](#strictknownmarketplaces) 的条目。Claude Code 忽略从不同来源注册的市场，即使在允许列表名称下也是如此。官方市场不受来源要求的限制：仅允许列表其名称就足够了，因为该名称只能从官方 Anthropic 来源注册。请参阅 [按上下文建议插件](/docs/zh-CN/plugin-relevance)。
+一个名称仅在 marketplace 在机器上注册且其注册源也在同一托管设置中声明时生效，要么作为该名称的 [`extraKnownMarketplaces`](#extraknownmarketplaces) 条目，要么作为 [`strictKnownMarketplaces`](#strictknownmarketplaces) 的条目。Claude Code 忽略从不同源注册的 marketplace，即使在允许列表名称下。官方 marketplace 豁免源要求：仅允许列表其名称就足够了，因为该名称只能从官方 Anthropic 源注册。请参阅 [按上下文建议 plugins](/docs/zh-CN/plugins/relevance)。
 
 <h3 id="plugintrustmessage">
   `pluginTrustMessage`
 </h3>
 
-将您组织自己的文本添加到 Claude Code 在安装前显示的插件信任警告中，例如确认来自您内部市场的插件已被审查。
+在安装前向 Claude Code 显示的 plugin 信任警告中添加您组织自己的文本，例如确认来自您内部 marketplace 的 plugins 已被审查。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: 字符串
@@ -4608,13 +4623,13 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `strictKnownMarketplaces`
 </h3>
 
-限制您组织中的人员可以添加和安装插件的插件市场来源。Claude Code 在市场添加以及插件安装、更新、刷新和自动更新时强制执行允许列表，在任何网络或文件系统操作之前，因此在您设置策略之前添加的市场一旦其来源不再匹配就无法用于获取插件。被阻止的用户会看到一个错误，命名托管策略。
+限制您组织中的人员可以添加和安装 plugins 的 plugin marketplace 源。Claude Code 在 marketplace 添加以及 plugin 安装、更新、刷新和自动更新时强制执行允许列表，在任何网络或文件系统操作之前，因此在您设置策略之前添加的 marketplace 一旦其源不再匹配就无法用于获取 plugins。被阻止的用户会看到一个错误，命名托管策略。
 
-如果您在 [claude.ai 管理控制台](/docs/zh-CN/server-managed-settings) 中设置此键，claude.ai 也会在您组织中的任何人从 claude.ai 上的 git 存储库添加市场时应用它，如 [限制如何工作](/docs/zh-CN/plugin-marketplaces#how-restrictions-work) 所述。
+如果您在 [claude.ai 管理控制台](/docs/zh-CN/server-managed-settings) 中设置此键，claude.ai 也会在您组织中的任何人从 claude.ai 上的 git 存储库添加 marketplace 时应用它，如 [限制如何工作](/docs/zh-CN/plugins/org#restrict-what-users-can-install) 所述。
 
 * **Scope**: [`Managed`](#scopes)
-* **Type**: 市场来源对象数组；请参阅 [允许的来源类型](#allowed-source-types)
-* **Default**: 未设置，因此用户可以添加任何市场。空数组是完全锁定，阻止每个市场来源，包括官方 Anthropic 市场
+* **Type**: marketplace 源对象数组；请参阅 [允许的源类型](#allowed-source-types)
+* **Default**: 未设置，因此用户可以添加任何 marketplace。空数组是完全锁定，阻止每个 marketplace 源，包括官方 Anthropic marketplace
 
 此示例允许两个 GitHub 存储库，一个固定到 `v2.0` ref，一个托管的 `marketplace.json` URL：
 
@@ -4628,46 +4643,46 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-您也可以将此键写为 `allowedMarketplaces`；[市场键别名](#marketplace-key-aliases) 描述 Claude Code 如何处理别名以及哪个版本接受它。此键是策略门控：它控制用户可能添加什么但不注册任何内容。要在一个文件中限制和预注册，请参阅 [与 `extraKnownMarketplaces` 结合](#combine-with-extraknownmarketplaces)。对于用户面向的视图，请参阅 [托管市场限制](/docs/zh-CN/plugin-marketplaces#managed-marketplace-restrictions)。
+您也可以将此键写为 `allowedMarketplaces`；[Marketplace 键别名](#marketplace-key-aliases) 描述 Claude Code 如何处理别名以及哪个版本接受它。此键是一个策略门控：它控制用户可能添加什么，但不注册任何内容。要在一个文件中限制和预注册，请参阅 [与 `extraKnownMarketplaces` 结合](#combine-with-extraknownmarketplaces)。对于用户面向的视图，请参阅 [托管 marketplace 限制](/docs/zh-CN/plugins/org#restrict-what-users-can-install)。
 
 <h4 id="allowed-source-types">
-  允许的来源类型
+  允许的源类型
 </h4>
 
-下面每个条目显示每个来源类型的一个允许列表条目及其接受的字段。大多数类型完全匹配；`hostPattern` 和 `pathPattern` 按正则表达式匹配，`github` 条目可以使用 [owner 通配符](#owner-wildcards)。
+下面每个条目显示每个源类型的一个允许列表条目及其接受的字段。大多数类型精确匹配；`hostPattern` 和 `pathPattern` 按正则表达式匹配，`github` 条目可以使用 [owner 通配符](#owner-wildcards)。
 
-| Source        | Example entry                                                                                                                   | Fields                                                       |
-| :------------ | :------------------------------------------------------------------------------------------------------------------------------ | :----------------------------------------------------------- |
-| `github`      | `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main", "path": "marketplace" }`                                     | `repo` 必需；`ref` 是分支或标签；`path` 是子目录                           |
-| `git`         | `{ "source": "git", "url": "https://gitlab.example.com/tools/plugins.git", "ref": "production" }`                               | `url` 必需；`ref` 和 `path` 与 `github` 相同                        |
-| `url`         | `{ "source": "url", "url": "https://plugins.example.com/marketplace.json", "headers": { "Authorization": "Bearer ${TOKEN}" } }` | `url` 必需；`headers` 为经过身份验证的访问添加 HTTP 标头                      |
-| `file`        | `{ "source": "file", "path": "/opt/acme-corp/plugins/marketplace.json" }`                                                       | `path` 必需，`marketplace.json` 文件的绝对路径                         |
-| `directory`   | `{ "source": "directory", "path": "/opt/acme-corp/approved-marketplaces" }`                                                     | `path` 必需，包含 `.claude-plugin/marketplace.json` 的目录的绝对路径      |
-| `hostPattern` | `{ "source": "hostPattern", "hostPattern": "^github\\.example\\.com$" }`                                                        | `hostPattern` 必需，针对市场主机匹配的正则表达式                              |
-| `pathPattern` | `{ "source": "pathPattern", "pathPattern": "^/opt/approved/" }`                                                                 | `pathPattern` 必需，针对 `file` 和 `directory` 来源的 `path` 匹配的正则表达式 |
-| `skills-dir`  | `{ "source": "skills-dir" }`                                                                                                    | 无字段。选择加入 `~/.claude/skills/` 插件扫描                            |
+| Source        | Example entry                                                                                                                   | Fields                                                                         |
+| :------------ | :------------------------------------------------------------------------------------------------------------------------------ | :----------------------------------------------------------------------------- |
+| `github`      | `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main", "path": "marketplace" }`                                     | `repo` 必需；`ref` 是分支或标签；`path` 是子目录                                             |
+| `git`         | `{ "source": "git", "url": "https://gitlab.example.com/tools/plugins.git", "ref": "production" }`                               | `url` 必需；`ref` 和 `path` 与 `github` 相同                                          |
+| `url`         | `{ "source": "url", "url": "https://plugins.example.com/marketplace.json", "headers": { "Authorization": "Bearer ${TOKEN}" } }` | `url` 必需；`headers` 为经过身份验证的访问添加 HTTP 标头                                        |
+| `file`        | `{ "source": "file", "path": "/opt/acme-corp/plugins/marketplace.json" }`                                                       | `path` 必需，`marketplace.json` 文件的绝对路径                                           |
+| `directory`   | `{ "source": "directory", "path": "/opt/acme-corp/approved-marketplaces" }`                                                     | `path` 必需，包含 `.claude-plugin/marketplace.json` 的目录的绝对路径                        |
+| `hostPattern` | `{ "source": "hostPattern", "hostPattern": "^github\\.example\\.com$" }`                                                        | `hostPattern` 必需，在 marketplace 主机中任何地方匹配的正则表达式；用 `^` 和 `$` 锚定它以匹配整个主机          |
+| `pathPattern` | `{ "source": "pathPattern", "pathPattern": "^/opt/approved/" }`                                                                 | `pathPattern` 必需，在 `file` 和 `directory` 源的 `path` 中任何地方匹配的正则表达式；用 `^` 开始它以固定前缀 |
+| `skills-dir`  | `{ "source": "skills-dir" }`                                                                                                    | 无字段。选择 `~/.claude/skills/` plugin 扫描回入                                         |
 
-三个来源类型有超出表格的规则：
+三个源类型有超出表格的规则：
 
-* **`url`**: URL 市场仅下载 `marketplace.json` 文件，Claude Code 不会从该服务器按相对路径获取插件文件，因此其插件必须使用 [插件来源](/docs/zh-CN/plugin-marketplaces#plugin-sources)，而不是相对路径，如存档 URL，可以在同一主机上。对于具有相对路径的插件，请改用基于 Git 的市场。请参阅 [URL 基市场中的相对路径插件失败](/docs/zh-CN/plugin-marketplaces#plugins-with-relative-paths-fail-in-url-based-marketplaces)。
-* **`hostPattern`**: 使用它来允许内部 GitHub Enterprise 或 GitLab 服务器上的每个市场，而无需列出每个存储库。Claude Code 针对 `github.com` 匹配 `github` 来源，从 `url` 来源获取主机名，并根据 [git URL](https://git-scm.com/docs/git-clone#_git_urls) 的形式从 `git` 来源获取：
+* **`url`**: URL marketplace 仅下载 `marketplace.json` 文件，Claude Code 不从该服务器按相对路径获取 plugin 文件，因此其 plugins 必须使用 [plugin 源](/docs/zh-CN/plugins/marketplace-reference#plugin-sources)，而不是相对路径，如存档 URL，可以在同一主机上。对于具有相对路径的 plugins，请改用基于 Git 的 marketplace。请参阅 [URL 基础 marketplaces 中的相对路径 plugins 失败](/docs/zh-CN/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces)。
+* **`hostPattern`**: 使用它来允许内部 GitHub Enterprise 或 GitLab 服务器上的每个 marketplace，而无需列出每个存储库。Claude Code 针对 `github.com` 匹配 `github` 源，从 `url` 源获取主机名，从 `git` 源获取它，取决于 [git URL](https://git-scm.com/docs/git-clone#_git_urls) 的形式：
 
   * 具有方案的 URL，如 `https://` 或 `ssh://`：URL 中的主机名。
   * 没有方案的 SSH 地址，采用 git 的 `user@host:path` 形式，如 `git@git.example.com:tools/plugins.git`：`@` 和 `:` 之间的主机，这是 git 连接到的主机。
-  * 任何其他没有方案的形式：没有主机，因此没有 `strictKnownMarketplaces` `hostPattern` 条目匹配它。对于 `blockedMarketplaces` `hostPattern`，Claude Code 从更广泛的形式集中获取主机，因此阻止列表条目仍可以匹配这样的形式。在 v2.1.234 之前，`strictKnownMarketplaces` `hostPattern` 也匹配 git 不视为 SSH 地址的某些形式。
+  * 任何其他没有方案的形式：没有主机，因此没有 `strictKnownMarketplaces` `hostPattern` 条目匹配它。对于 `blockedMarketplaces` `hostPattern`，Claude Code 从更广泛的形式集合中获取主机，因此阻止列表条目仍可以匹配这样的形式。在 v2.1.234 之前，`strictKnownMarketplaces` `hostPattern` 也匹配 git 不视为 SSH 地址的某些形式。
 
-  `file` 和 `directory` 来源没有主机，永远不会匹配 `hostPattern` 条目。
-* **`pathPattern`**: 使用它来允许文件系统市场以及网络来源的 `hostPattern` 条目。`".*"` 允许每个本地路径；更窄的模式如 `"^/opt/approved/"` 限制到目录。
+  `file` 和 `directory` 源没有主机，永远不会匹配 `hostPattern` 条目。
+* **`pathPattern`**: 使用它来允许文件系统 marketplaces 与网络源的 `hostPattern` 条目一起。`".*"` 允许每个本地路径；更窄的模式如 `"^/opt/approved/"` 限制到一个目录。
 
-任何允许列表，即使是空的，也会停止 Claude Code 从 `~/.claude/skills/` 加载 [`@skills-dir` 插件](/docs/zh-CN/plugins-reference#skills-directory-plugins)。添加 `{ "source": "skills-dir" }` 条目以继续加载它们；该条目在此键和 `blockedMarketplaces` 之外没有意义。
+任何允许列表，即使是空的，也会停止 Claude Code 从 `~/.claude/skills/` 加载 [`@skills-dir` plugins](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)。添加 `{ "source": "skills-dir" }` 条目以继续加载它们；该条目在此键和 `blockedMarketplaces` 之外没有意义。
 
 <h4 id="owner-wildcards">
   Owner 通配符
 </h4>
 
-一个 `github` 条目，其 `repo` 值为 `"<owner>/*"`，匹配该 GitHub 所有者下的每个存储库。Owner 通配符需要 Claude Code v2.1.223 或更高版本，仅在 `strictKnownMarketplaces` 和 `blockedMarketplaces` 中工作。在 `github` 来源出现的其他地方，如 `extraKnownMarketplaces` 或 `/plugin marketplace add`，`repo` 值必须命名单个存储库。在 v2.1.223 之前，Claude Code 按字面比较条目，因此允许列表条目不匹配任何存储库，阻止列表条目不阻止任何内容；单存储库条目在每个版本上强制执行。
+一个 `github` 条目，其 `repo` 值为 `"<owner>/*"`，匹配该 GitHub owner 下的每个存储库。Owner 通配符需要 Claude Code v2.1.223 或更高版本，仅在 `strictKnownMarketplaces` 和 `blockedMarketplaces` 中工作。在 `github` 源出现的其他地方，如 `extraKnownMarketplaces` 或 `/plugin marketplace add`，`repo` 值必须命名单个存储库。在 v2.1.223 之前，Claude Code 按字面比较条目，因此允许列表条目不匹配任何存储库，阻止列表条目不阻止任何内容；单存储库条目在每个版本上强制执行。
 
-此条目允许 `acme-corp` 组织中的任何市场存储库：
+此条目允许 `acme-corp` 组织下的任何 marketplace 存储库：
 
 ```json managed-settings.json theme={null}
 {
@@ -4677,37 +4692,37 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-只有整个存储库名称位置可以是通配符。Claude Code 按字面比较条目如 `*`、`*/plugins` 或 `acme-corp/tools-*`，因此它们不匹配任何存储库。
+只有整个存储库名称位置可以是通配符。Claude Code 忽略条目如 `*`、`*/plugins` 或 `acme-corp/tools-*` 作为无效，因此它们不匹配任何存储库。
 
 两个设置之间的匹配规则不同：
 
-| Rule      | `strictKnownMarketplaces`                                   | `blockedMarketplaces`                |
-| --------- | ----------------------------------------------------------- | ------------------------------------ |
-| 匹配来源拼写    | 仅 `owner/repo` 形式。克隆同一存储库的 git URL 不匹配                      | 任何拼写，包括解析为同一 github.com 存储库的 git URL |
-| Owner 大小写 | 区分大小写，如精确条目匹配                                               | 不区分大小写                               |
-| `ref`     | 遵循精确条目规则：带有 `ref` 的条目仅匹配具有该精确 ref 的来源，没有条目的条目仅匹配不指定 ref 的来源 | 没有 `ref` 的条目阻止它匹配的存储库的所有 ref         |
-| `path`    | 比精确条目规则更宽松：带有 `path` 的条目需要该精确值，而没有条目的条目匹配存储库内的任何路径          | 没有 `path` 的条目阻止它匹配的存储库的所有路径          |
+| Rule      | `strictKnownMarketplaces`                              | `blockedMarketplaces`                |
+| --------- | ------------------------------------------------------ | ------------------------------------ |
+| 匹配源拼写     | 仅 `owner/repo` 形式。克隆同一存储库的 git URL 不匹配                 | 任何拼写，包括解析为同一 github.com 存储库的 git URL |
+| Owner 大小写 | 区分大小写，如精确条目匹配                                          | 不区分大小写                               |
+| `ref`     | 遵循精确条目规则：带 `ref` 的条目仅匹配具有该精确 ref 的源，没有的条目仅匹配不指定 ref 的源 | 没有 `ref` 的条目阻止它匹配的存储库的所有 refs        |
+| `path`    | 比精确条目规则更宽松：带 `path` 的条目需要该精确值，而没有的条目匹配存储库内的任何路径        | 没有 `path` 的条目阻止它匹配的存储库的所有路径          |
 
 <h4 id="exact-matching">
   精确匹配
 </h4>
 
-对于除 owner-wildcard `github` 条目和正则表达式匹配的 `hostPattern` 和 `pathPattern` 条目之外的每个来源类型，Claude Code 仅在市场来源与条目完全匹配时允许用户添加。对于基于 git 的来源 `github` 和 `git`，精确匹配包括可选字段：
+对于除 owner-wildcard `github` 条目和正则表达式匹配的 `hostPattern` 和 `pathPattern` 条目之外的每个源类型，Claude Code 仅在 marketplace 源与条目精确匹配时允许用户的添加。对于基于 git 的源 `github` 和 `git`，精确匹配包括可选字段：
 
-* `repo` 或 `url` 必须完全匹配
-* `ref` 字段必须完全匹配，或两者都未定义
-* `path` 字段必须完全匹配，或两者都未定义
+* `repo` 或 `url` 必须精确匹配
+* `ref` 字段必须精确匹配，或两者都未定义
+* `path` 字段必须精确匹配，或两者都未定义
 
-例如，Claude Code 将下面的每一对视为两个不同的来源：
+例如，Claude Code 将下面的每对视为两个不同的源：
 
 * `{ "source": "github", "repo": "acme-corp/plugins" }` 和 `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main" }`
 * `{ "source": "github", "repo": "acme-corp/plugins", "path": "marketplace" }` 和 `{ "source": "github", "repo": "acme-corp/plugins" }`
 
 <h4 id="allow-only-the-official-marketplace">
-  仅允许官方市场
+  仅允许官方 marketplace
 </h4>
 
-要仅允许官方 Anthropic 市场，列出其存储库：
+要仅允许官方 Anthropic marketplace，列出其存储库：
 
 ```json managed-settings.json theme={null}
 {
@@ -4717,12 +4732,13 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-使用此条目，Claude Code 保持已注册的官方市场可用，在新机器上，在您首次以交互方式启动 Claude Code 时自动注册市场。自动注册最常遗漏：
+使用此条目，Claude Code 保持已注册的官方 marketplace 可用，在新机器上，在您第一次启动交互式终端会话时自动注册 marketplace。自动注册最常遗漏：
 
-* 在机器首次交互启动之前运行的非交互环境。
-* Claude Code 已在阻止市场的策略下以交互方式运行的机器，如空数组锁定。Claude Code 记录被阻止的尝试，不会在策略更改后重试。
+* 在机器的第一个交互式终端会话之前运行的非交互式环境。
+* Claude Code 仅通过 VS Code 扩展运行过的机器。
+* Claude Code 已在阻止 marketplace 的策略下运行过交互式终端会话的机器，如空数组锁定。Claude Code 记录被阻止的尝试，在策略更改后不重试。
 
-在这些机器上，将市场添加到同一 `managed-settings.json` 中的 [`extraKnownMarketplaces`](#extraknownmarketplaces)，以便 Claude Code 自动注册它，或运行 `claude plugin marketplace add anthropics/claude-plugins-official`。
+在这些机器上，将 marketplace 添加到同一 `managed-settings.json` 中的 [`extraKnownMarketplaces`](#extraknownmarketplaces)，以便 Claude Code 自动注册它，或运行 `claude plugin marketplace add anthropics/claude-plugins-official`。
 
 <h4 id="combine-with-extraknownmarketplaces">
   与 `extraKnownMarketplaces` 结合
@@ -4730,16 +4746,16 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 两个键做不同的工作。此表比较它们：
 
-| Aspect | `strictKnownMarketplaces` | `extraKnownMarketplaces`     |
-| ------ | ------------------------- | ---------------------------- |
-| 目的     | 组织策略执行                    | 团队便利                         |
-| 设置文件   | 仅托管设置                     | 任何设置文件                       |
-| 行为     | 阻止非允许列表添加                 | 注册缺失的市场                      |
-| 何时强制执行 | 在网络和文件系统操作之前              | 立即从用户或托管设置；在接受存储库文件的工作区信任对话后 |
-| 可以被覆盖  | 否，最高优先级                   | 是，由更高优先级设置                   |
-| 来源格式   | 直接来源对象                    | 具有嵌套 `source` 对象的命名市场        |
+| Aspect            | `strictKnownMarketplaces` | `extraKnownMarketplaces`        |
+| ----------------- | ------------------------- | ------------------------------- |
+| Purpose           | 组织策略执行                    | 团队便利                            |
+| Settings file     | 仅托管设置                     | 任何设置文件                          |
+| Behavior          | 阻止非允许列表的添加                | 注册缺失的 marketplaces              |
+| When enforced     | 在网络和文件系统操作之前              | 立即从用户或托管设置；在存储库文件的工作区信任对话框之后    |
+| Can be overridden | 否，最高优先级                   | 是，由更高优先级的设置                     |
+| Source format     | 直接源对象                     | 具有嵌套 `source` 对象的命名 marketplace |
 
-要为所有用户限制和预注册市场，请在 `managed-settings.json` 中设置两者：
+要为所有用户限制和预注册 marketplace，请在 `managed-settings.json` 中同时设置两者：
 
 ```json managed-settings.json theme={null}
 {
@@ -4754,19 +4770,19 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-仅设置 `strictKnownMarketplaces` 时，用户仍可以使用 `/plugin marketplace add` 自己添加允许的市场。官方 Anthropic 市场是 Claude Code 自动注册的唯一市场，仅当允许列表允许时。[仅允许官方市场](#allow-only-the-official-marketplace) 列出它遗漏的机器。
+仅设置 `strictKnownMarketplaces` 时，用户仍可以使用 `/plugin marketplace add` 自己添加允许的 marketplace。官方 Anthropic marketplace 是唯一 Claude Code 自动注册的，仅当允许列表允许时。[仅允许官方 marketplace](#allow-only-the-official-marketplace) 列出它遗漏的机器。
 
 <h3 id="strictpluginonlycustomization">
   `strictPluginOnlyCustomization`
 </h3>
 
-阻止来自用户和项目来源的技能、代理、hooks 和 MCP 服务器，因此它们只能来自插件或托管设置。将其与 [`strictKnownMarketplaces`](#strictknownmarketplaces) 结合以控制完整的自定义供应链：市场允许列表控制用户可以安装哪些插件。
+阻止 skills、agents、hooks 和 MCP 服务器来自用户和项目源，因此它们只能来自 plugins 或托管设置。将其与 [`strictKnownMarketplaces`](#strictknownmarketplaces) 结合以控制完整的自定义供应链：marketplace 允许列表控制用户可以安装哪些 plugins。
 
 * **Scope**: [`Managed`](#scopes)
-* **Type**: `true` 以锁定所有四种自定义，或命名要锁定的种类的数组，来自 `"skills"`、`"agents"`、`"hooks"` 和 `"mcp"`
-* **Default**: 未设置，因此没有锁定
+* **Type**: `true` 以锁定所有四种自定义，或一个数组命名要锁定的种类，来自 `"skills"`、`"agents"`、`"hooks"` 和 `"mcp"`
+* **Default**: 未设置，因此没有被锁定
 
-此示例锁定技能和 hooks，并保持代理和 MCP 服务器解锁：
+此示例锁定 skills 和 hooks，保留 agents 和 MCP 服务器解锁：
 
 ```json managed-settings.json theme={null}
 {
@@ -4780,7 +4796,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `strictPluginOnlyCustomization.skills`
 </h3>
 
-锁定 `skills` 表面。Claude Code 停止从 `~/.claude/skills/` 和 `.claude/skills/`、`~/.claude/commands/` 和 `.claude/commands/` 中的自定义命令、`--add-dir` 目录下的技能以及从您的 claude.ai 帐户同步的技能加载技能，并继续加载插件技能、捆绑技能和托管策略目录中的技能。
+锁定 `skills` 表面。Claude Code 停止从 `~/.claude/skills/` 和 `.claude/skills/` 加载 skills，从 `~/.claude/commands/` 和 `.claude/commands/` 加载自定义命令，从 `--add-dir` 目录加载 skills，从您的 claude.ai 账户同步的 skills，并继续加载 plugin skills、捆绑的 skills 和托管策略目录中的 skills。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: [`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 数组中的字符串 `"skills"`
@@ -4796,7 +4812,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `strictPluginOnlyCustomization.agents`
 </h3>
 
-锁定 `agents` 表面。Claude Code 停止从 `~/.claude/agents/` 和 `.claude/agents/` 加载代理，并继续加载插件代理、内置代理和托管策略目录中的代理。
+锁定 `agents` 表面。Claude Code 停止从 `~/.claude/agents/` 和 `.claude/agents/` 加载 agents，并继续加载 plugin agents、内置 agents 和托管策略目录中的 agents。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: [`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 数组中的字符串 `"agents"`
@@ -4812,7 +4828,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `strictPluginOnlyCustomization.hooks`
 </h3>
 
-锁定 `hooks` 表面。Claude Code 停止运行来自用户、项目和本地 `settings.json` 的 hooks，并继续运行插件 hooks 和托管设置中的 hooks。
+锁定 `hooks` 表面。Claude Code 停止运行来自用户、项目和本地 `settings.json` 的 hooks，并继续运行 plugin hooks 和托管设置中的 hooks。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: [`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 数组中的字符串 `"hooks"`
@@ -4828,7 +4844,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `strictPluginOnlyCustomization.mcp`
 </h3>
 
-锁定 `mcp` 表面。Claude Code 停止从 `~/.claude.json` 和 `.mcp.json` 加载 MCP 服务器，并继续加载插件 MCP 服务器、[`managed-mcp.json`](/docs/zh-CN/managed-mcp) 服务器和来自 [`managedMcpServers`](#managedmcpservers) 的服务器。
+锁定 `mcp` 表面。Claude Code 停止从 `~/.claude.json` 和 `.mcp.json` 加载 MCP 服务器，并继续加载 plugin MCP 服务器、[`managed-mcp.json`](/docs/zh-CN/managed-mcp) 服务器和来自 [`managedMcpServers`](#managedmcpservers) 的服务器。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: [`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 数组中的字符串 `"mcp"`
@@ -4844,13 +4860,13 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `enabledPlugins`
 </h3>
 
-打开或关闭单个 [plugins](/docs/zh-CN/plugins)，由 `plugin-name@marketplace-name` 键控。在任何范围内没有条目的插件回退到其 [`defaultEnabled`](/docs/zh-CN/plugins-reference#default-enablement) 值。当您使用 `/plugin` 或 `claude plugin enable` 启用或禁用插件时，Claude Code 为您写入此键。
+打开或关闭单个 [plugins](/docs/zh-CN/plugins/overview)，由 `plugin-name@marketplace-name` 键控。在任何范围内没有条目的 plugin 回退到其 [`defaultEnabled`](/docs/zh-CN/plugins/manifest-reference#fields) 值。当您使用 `/plugin` 或 `claude plugin enable` 启用或禁用 plugin 时，Claude Code 为您写入此键。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: 对象，将 `plugin-name@marketplace-name` 映射到 Boolean
-* **Default**: 未设置，因此每个插件遵循其 `defaultEnabled` 值
+* **Default**: 未设置，因此每个 plugin 遵循其 `defaultEnabled` 值
 
-此示例启用来自 `team-tools` 市场的两个插件并禁用来自 `personal` 的一个：
+此示例启用来自 `team-tools` marketplace 的两个 plugins，禁用来自 `personal` 的一个：
 
 ```json settings.json theme={null}
 {
@@ -4862,28 +4878,28 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-每个范围服务于不同的目的：
+每个范围服务不同的目的：
 
-* **用户设置**: 您的个人插件偏好
-* **项目设置**: 与存储库中的每个人共享的插件
-* **本地设置**: 每台机器的覆盖，当 Claude Code 在那里保存设置时被 gitignored
-* **托管设置**: 组织范围的策略。设置为 `false` 的插件在每个范围内被阻止安装并从市场隐藏
+* **User settings**: 您的个人 plugin 偏好
+* **Project settings**: 与存储库中的每个人共享的 plugins
+* **Local settings**: 每台机器的覆盖，当 Claude Code 在那里保存设置时被 gitignored
+* **Managed settings**: 组织范围的策略。设置为 `false` 的 plugin 在每个范围都被阻止安装，并从 marketplace 隐藏
 
-项目设置优先于用户设置，因此在 `~/.claude/settings.json` 中将插件设置为 `false` 不会禁用项目的 `.claude/settings.json` 启用的插件。要在您的机器上选择退出项目启用的插件，请改为在 `.claude/settings.local.json` 中将其设置为 `false`。由托管设置强制启用的插件无法以这种方式禁用，因为托管设置覆盖本地设置。
+项目设置优先于用户设置，因此在 `~/.claude/settings.json` 中将 plugin 设置为 `false` 不会禁用项目的 `.claude/settings.json` 启用的 plugin。要在您的机器上选择退出项目启用的 plugin，请改为在 `.claude/settings.local.json` 中将其设置为 `false`。由托管设置强制启用的 Plugins 无法以这种方式禁用，因为托管设置覆盖本地设置。
 
-在项目的 `.claude/settings.json` 中启用来自外部来源（如 GitHub 存储库或 npm 包）的插件不会为其他人安装它。在加载插件的每条路径上，Claude Code 报告插件未安装，直到每个用户 [自己安装它](/docs/zh-CN/discover-plugins#configure-team-marketplaces)。
+在项目的 `.claude/settings.json` 中启用来自外部源（如 GitHub 存储库或 npm 包）的 plugin 不会为其他人安装它。在加载 plugins 的每条路径上，Claude Code 报告 plugin 未安装，直到每个用户 [自己安装它](/docs/zh-CN/plugins/org#require-plugins-per-repository)。
 
 <h3 id="extraknownmarketplaces">
   `extraKnownMarketplaces`
 </h3>
 
-按名称注册其他插件市场，以便打开存储库的人或托管设置到达的每个人都获得市场，而无需自己添加。Claude Code 注册它还不知道的每个市场。[`enabledPlugins`](#enabledplugins) 从中命名的插件是否安装取决于插件的来源和哪个文件启用它；该条目有规则。
+按名称注册其他 plugin marketplaces，以便打开存储库的人或您的托管设置到达的每个人都获得 marketplace，而无需自己添加它。Claude Code 注册它还不知道的每个 marketplace。[`enabledPlugins`](#enabledplugins) 从它命名的 plugin 是否安装取决于 plugin 的源和哪个文件启用它；该条目有规则。
 
-* **Scope**: [`Any file`](#scopes)。Claude Code 仅在您接受该文件夹的工作区信任对话后才接受存储库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目；在您未信任的文件夹中，包括 `-p` 运行，它会忽略它们而不显示消息。
-* **Type**: 对象，将市场名称映射到具有 `source` 对象和可选 `autoUpdate` Boolean 的对象
+* **Scope**: [`Any file`](#scopes)。Claude Code 仅在您接受该文件夹的工作区信任对话框后才接受存储库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目；在您未信任的文件夹中，包括 `-p` 运行，它在没有消息的情况下忽略它们。
+* **Type**: 对象，将 marketplace 名称映射到具有 `source` 对象和可选 `autoUpdate` Boolean 的对象
 * **Default**: 未设置
 
-此示例注册 GitHub 市场和来自自托管 git URL 的市场：
+此示例注册一个 GitHub marketplace 和来自自托管 git URL 的 marketplace：
 
 ```json settings.json theme={null}
 {
@@ -4904,39 +4920,39 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-[在您信任文件夹之前运行什么](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 将信任门与存储库可以提供的其他内容进行比较。您也可以将此键写为 `additionalMarketplaces`；请参阅 [市场键别名](#marketplace-key-aliases)。
+[在您信任文件夹之前运行什么](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 将信任门与存储库可以提供的其他内容进行比较。您也可以将此键写为 `additionalMarketplaces`；请参阅 [Marketplace 键别名](#marketplace-key-aliases)。
 
-在 `source` 旁边设置 `"autoUpdate": true` 以使 Claude Code 在启动后在后台刷新该市场并更新其已安装的插件。省略时，`claude-plugins-official` 和大多数其他官方 Anthropic 市场默认为 `true`，第三方市场默认为 `false`。请参阅 [配置自动更新](/docs/zh-CN/discover-plugins#configure-auto-updates)。
+设置 `"autoUpdate": true` 与 `source` 一起，使 Claude Code 在启动后在后台刷新该 marketplace 并更新其已安装的 plugins。省略时，`claude-plugins-official` 和大多数其他官方 Anthropic marketplaces 默认为 `true`，第三方 marketplaces 默认为 `false`。请参阅 [配置自动更新](/docs/zh-CN/plugins/install#keep-plugins-updated)。
 
-当多个设置文件在同一名称下定义市场条目时，Claude Code 使用来自 [最高优先级文件](/docs/zh-CN/settings#settings-precedence) 的条目。该条目替换较低优先级条目，不继承其任何字段，因此重新定义无法将一个文件的 `source.headers` 凭证与另一个文件控制的 URL 结合。在 v2.1.228 之前，Claude Code 逐字段合并同名条目，因此较高优先级文件中的条目可以继承它未设置的字段，包括另一个文件的 `headers`。
+当多个设置文件在同一名称下定义 marketplace 条目时，Claude Code 使用来自 [最高优先级文件](/docs/zh-CN/settings#settings-precedence) 的条目。该条目替换较低优先级的条目，不继承其任何字段，因此重新定义无法将一个文件的 `source.headers` 凭证与另一个文件控制的 URL 结合。在 v2.1.228 之前，Claude Code 逐字段合并同名条目，因此较高优先级文件中的条目可以继承它未设置的字段，包括另一个文件的 `headers`。
 
 <h4 id="marketplace-source-types">
-  市场来源类型
+  Marketplace 源类型
 </h4>
 
 `source` 对象采用以下形式之一：
 
-* **`github`**: GitHub 存储库，带有 `repo`
-* **`git`**: 任何 git URL，带有 `url`
-* **`url`**: 直接 URL 到 `marketplace.json` 文件，带有 `url` 和可选 `headers` 和 `headersHelper` 用于经过身份验证的访问。`headersHelper` 命名一个打印标头的命令，其值太短暂而无法在 `headers` 中列出，需要 Claude Code v2.1.238 或更高版本
-* **`file`**: 到 `marketplace.json` 文件的本地路径，带有 `path`
-* **`directory`**: 本地文件系统路径，带有 `path`，仅用于开发
-* **`settings`**: 直接在设置文件中声明的内联市场，无需托管存储库，带有 `name` 和 `plugins`
+* **`github`**: GitHub 存储库，带 `repo`
+* **`git`**: 任何 git URL，带 `url`
+* **`url`**: 直接 URL 到 `marketplace.json` 文件，带 `url` 和可选 `headers` 和 `headersHelper` 用于经过身份验证的访问。`headersHelper` 命名一个打印标头的命令，其值太短暂而无法在 `headers` 中列出，需要 Claude Code v2.1.238 或更高版本
+* **`file`**: 到 `marketplace.json` 文件的本地路径，带 `path`
+* **`directory`**: 本地文件系统路径，带 `path`，仅用于开发
+* **`settings`**: 直接在设置文件中声明的内联 marketplace，不带托管存储库，带 `name` 和 `plugins`
 
-`git` 来源类型适用于任何 git 托管服务，包括自托管 GitLab 和 Bitbucket。Claude Code 使用该机器上 `git clone` 会使用的相同身份验证克隆存储库：配置的凭证助手或 SSH 密钥。提供者令牌如 `GITHUB_TOKEN` 仅通过读取它的凭证助手生效。请参阅 [私有存储库](/docs/zh-CN/plugin-marketplaces#private-repositories) 了解设置详情。
+`git` 源类型适用于任何 git 托管服务，包括自托管 GitLab 和 Bitbucket。Claude Code 使用 `git clone` 在该机器上使用的相同身份验证克隆存储库：配置的凭证助手或 SSH 密钥。提供者令牌如 `GITHUB_TOKEN` 通过读取它的凭证助手生效。请参阅 [私有存储库](/docs/zh-CN/plugins/host-marketplace#grant-access-to-a-private-marketplace) 了解设置详情。
 
-对于 `github` 和 `git` 来源，Claude Code 在克隆市场存储库以添加或更新时永远不会下载 [Git LFS](https://git-lfs.com) 内容。LFS 跟踪的文件被检出为指针文件，添加或更新输出报告有多少。
+对于 `github` 和 `git` 源，Claude Code 在克隆 marketplace 存储库以添加或更新它时永远不会下载 [Git LFS](https://git-lfs.com) 内容。LFS 跟踪的文件被检出为指针文件，添加或更新输出报告有多少。
 
-`skipLfs` 字段在 `source` 对象内部被接受且没有效果。在 v2.1.274 之前，Claude Code 下载 LFS 内容，除非您设置 `"skipLfs": true`。
+`source` 对象内的 `skipLfs` 字段被接受且没有效果。在 v2.1.274 之前，Claude Code 下载 LFS 内容，除非您设置 `"skipLfs": true`。
 
-对于 `url` 来源，当 `headers` 中的凭证过期且命令必须生成新凭证时，在 `source` 对象内部设置 `headersHelper`。需要 Claude Code v2.1.238 或更高版本。有关命令必须打印什么以及 Claude Code 在哪里运行它，请参阅 [编写 headersHelper 命令](/docs/zh-CN/plugin-marketplaces#write-the-headershelper-command)，以及 Claude Code 不运行它的情况，请参阅 [何时 Claude Code 跳过 headersHelper 命令或丢弃其输出](/docs/zh-CN/plugin-marketplaces#when-claude-code-skips-a-headershelper-command-or-drops-its-output)。在 `https://` 市场 URL 上设置 `headersHelper` 后，Claude Code 在两个点运行命令，重用一次运行的输出长达 60 秒：
+对于 `url` 源，当 `headers` 中的凭证过期且命令必须生成新凭证时，在 `source` 对象内设置 `headersHelper`。需要 Claude Code v2.1.238 或更高版本。对于命令必须打印的内容以及 Claude Code 运行它的位置，请参阅 [编写 headersHelper 命令](/docs/zh-CN/plugins/host-marketplace#write-the-headershelper-command)，对于 Claude Code 不运行它的情况，请参阅 [当 Claude Code 跳过 headersHelper 命令或丢弃其输出时](/docs/zh-CN/plugins/host-marketplace#when-claude-code-skips-a-headershelper-command-or-drops-its-output)。一旦您在 `https://` marketplace URL 上设置 `headersHelper`，Claude Code 在两个点运行命令，重用一次运行的输出长达 60 秒：
 
-* 在该市场 `marketplace.json` 的每次获取之前，包括稍后刷新。Claude Code 使用该获取发送打印的标头。
-* 在市场 URL 来源上的每个插件存档下载之前，意味着相同的方案、主机和端口。Claude Code 使用该下载发送输出，没有其他下载获得标头。
+* 在该 marketplace 的 `marketplace.json` 的每次获取之前，包括稍后的刷新。Claude Code 使用该获取发送打印的标头。
+* 在 marketplace URL 的源上的每个 plugin 存档下载之前，意味着相同的方案、主机和端口。Claude Code 使用该下载发送输出，没有其他下载获得标头。
 
-Claude Code 忽略在您使用 [`--add-dir`](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 添加的目录的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置的任何 `headersHelper`，在 `url` 来源和内联插件条目上，仅发送在该文件中设置的固定 `headers`。[用户如何接受 headersHelper 命令](/docs/zh-CN/plugin-marketplaces#how-users-accept-a-headershelper-command) 涵盖其他设置文件。
+Claude Code 忽略在您使用 [`--add-dir`](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 添加的目录的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置的任何 `headersHelper`，在 `url` 源和内联 plugin 条目上，仅发送在该文件中设置的固定 `headers`。[用户如何接受 headersHelper 命令](/docs/zh-CN/plugins/host-marketplace#how-users-accept-a-headershelper-command) 涵盖其他设置文件。
 
-`settings` 来源中列出的插件必须引用外部来源如 GitHub 或 npm，`name` 必须匹配市场键。您仍然在 `enabledPlugins` 中单独启用每个插件。此示例声明一个内联插件：
+在 `settings` 源中列出的 Plugins 必须引用外部源如 GitHub 或 npm，`name` 必须与 marketplace 键匹配。您仍然在 `enabledPlugins` 中单独启用每个 plugin。此示例声明一个 plugin 内联：
 
 ```json settings.json theme={null}
 {
@@ -4960,36 +4976,36 @@ Claude Code 忽略在您使用 [`--add-dir`](/docs/zh-CN/permissions#what-runs-b
 }
 ```
 
-在 `source: 'settings'` 下的插件条目，其自身 `source` 是 [`archive`](/docs/zh-CN/plugin-marketplaces#zip-archives)，可以为存档下载设置 `headers`。如果您要放在 `headers` 中的值是短暂的，如您的注册表按请求铸造的令牌，请改为设置 `headersHelper` 命令。条目可以设置两者。两个字段都需要 Claude Code v2.1.238 或更高版本。
+在 `source: 'settings'` 下的 plugin 条目，其自身 `source` 是 [`archive`](/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source) 的，可以为存档下载设置 `headers`。如果您想放在 `headers` 中的值是短暂的，如您的注册表按请求铸造的令牌，请改为设置 `headersHelper` 命令。条目可以同时设置两者。两个字段都需要 Claude Code v2.1.238 或更高版本。
 
-Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该插件的存档下载一起，没有其他下载。Claude Code 仅在用户 [自己安装或更新该一个插件](/docs/zh-CN/plugin-marketplaces#how-users-accept-a-headershelper-command) 时运行命令。三个进一步的规则取决于哪个文件持有条目：
+Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该 plugin 的存档下载一起，没有其他下载。Claude Code 仅在用户 [自己安装或更新该一个 plugin](/docs/zh-CN/plugins/host-marketplace#how-users-accept-a-headershelper-command) 时运行命令。三个进一步的规则取决于哪个文件持有条目：
 
-* **`strict`**: 与市场 `marketplace.json` 中的条目不同，设置文件中的条目不需要 `"strict": false`，因为设置文件不携带要内联的清单字段。请参阅 [严格模式](/docs/zh-CN/plugin-marketplaces#strict-mode)。
-* **文件夹信任**: 对于项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目，Claude Code 仅在用户也 [信任该文件夹](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 后运行命令。
-* **标头过滤**: Claude Code 从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目删除 [请求路由和客户端身份标头名称](/docs/zh-CN/plugin-marketplaces#when-claude-code-skips-a-headershelper-command-or-drops-its-output)，因为存储库可以提供这些文件。Claude Code 对目录条目和 `--add-dir` 目录的设置中的条目应用相同的过滤，对您的用户设置、`--settings` 文件或托管设置中的条目不应用过滤。
+* **`strict`**: 与 marketplace 的 `marketplace.json` 中的条目不同，设置文件中的条目不需要 `"strict": false`，因为设置文件不携带要内联的清单字段。请参阅 [严格模式](/docs/zh-CN/plugins/marketplace-reference#strict-mode)。
+* **Folder trust**: 对于项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目，Claude Code 仅在用户也 [信任该文件夹](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 后运行命令。
+* **Header filter**: Claude Code 从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目删除 [请求路由和客户端身份标头名称](/docs/zh-CN/plugins/host-marketplace#when-claude-code-skips-a-headershelper-command-or-drops-its-output)，因为存储库可以提供这些文件。Claude Code 对目录条目和 `--add-dir` 目录的设置中的条目应用相同的过滤器，对您的用户设置、`--settings` 文件或托管设置中的条目不应用过滤器。
 
 <h4 id="marketplace-key-aliases">
-  市场键别名
+  Marketplace 键别名
 </h4>
 
 在 Claude Code v2.1.232 或更高版本上，您可以将 `extraKnownMarketplaces` 写为 `additionalMarketplaces`，将 `strictKnownMarketplaces` 写为 `allowedMarketplaces`。Claude Code 按如下方式处理每个别名：
 
-* 较早的版本忽略别名，因此在较旧版本也读取的文件中保持规范拼写，如具有混合 Claude Code 版本的队伍的托管设置文件。
+* 更早的版本忽略别名，因此在较旧版本也读取的文件中保持规范拼写，如具有混合 Claude Code 版本的队伍的托管设置文件。
 * 在接受规范键的任何设置文件中，Claude Code 完全按照读取规范键的方式读取别名。
-* Claude Code 在更新文件时可能会将 `additionalMarketplaces` 重写为 `extraKnownMarketplaces`。
-* 如果您在一个文件中设置两个拼写，Claude Code 使用规范值并忽略别名。
+* Claude Code 可能在更新文件时将 `additionalMarketplaces` 重写为 `extraKnownMarketplaces`。
+* 如果您在一个文件中同时设置两个拼写，Claude Code 使用规范值并忽略别名。
 
 <h3 id="pluginconfigs">
   `pluginConfigs`
 </h3>
 
-存储您给插件的 [`userConfig`](/docs/zh-CN/plugins-reference#user-configuration) 配置对话的非敏感答案，由插件 ID 键控。当您填写对话时，Claude Code 将此键写入您的用户设置，因此您无需手动编辑它。Claude Code 将敏感选项存储在 macOS Keychain 中，当 Keychain 拒绝写入时回退到 `~/.claude/.credentials.json`；在没有支持的 keychain 的平台上，它将它们存储在 `~/.claude/.credentials.json`。
+存储您给 plugin 的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 配置对话框的非敏感答案，由 plugin ID 键控。当您填写对话框时，Claude Code 将此键写入您的用户设置，因此您无需手动编辑它。Claude Code 将敏感选项存储在 macOS Keychain 中，当 Keychain 拒绝写入时回退到 `~/.claude/.credentials.json`；在没有支持的 keychain 的平台上，它将它们存储在 `~/.claude/.credentials.json` 中。
 
 * **Scope**: [`User or managed`](#scopes)
-* **Type**: 对象，将插件 ID 映射到具有 `options` 字段的对象，将每个选项名称映射到字符串、数字、Boolean 或字符串数组，以及可选的 `mcpServers` 字段，以相同形状保存每个服务器的用户配置值
+* **Type**: 对象，将 plugin ID 映射到具有 `options` 字段的对象，将每个选项名称映射到字符串、数字、Boolean 或字符串数组，以及可选的 `mcpServers` 字段，以相同形状保存每个服务器的用户配置值
 * **Default**: 未设置
 
-此示例存储来自 `acme-tools` 的 `deployer` 插件的 `api_endpoint` 选项：
+此示例为来自 `acme-tools` 的 `deployer` plugin 存储 `api_endpoint` 选项：
 
 ```json settings.json theme={null}
 {
@@ -5003,9 +5019,9 @@ Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该插
 }
 ```
 
-内置插件使用带有 `@builtin` 后缀的相同键存储其选项。例如，控制 Claude Code 是否读取 `AGENTS.md` 文件的 [**Project instructions**](/docs/zh-CN/memory#choose-which-instruction-files-load) 设置是 `pluginConfigs["agents-md@builtin"].options.instructionFiles`。
+内置 plugins 在同一键下存储其选项，带 `@builtin` 后缀。例如，控制 Claude Code 是否读取 `AGENTS.md` 文件的 [**Project instructions**](/docs/zh-CN/memory#choose-which-instruction-files-load) 设置是 `pluginConfigs["agents-md@builtin"].options.instructionFiles`。
 
-Claude Code 忽略项目和本地条目，因为它将这些值替换到插件 hook、MCP 和 LSP 配置中，克隆的存储库不得能够提供它们。在 v2.1.207 之前，项目和本地设置也被读取。
+Claude Code 忽略项目和本地条目，因为它将这些值替换到 plugin hook、MCP 和 LSP 配置中，克隆的存储库不得能够提供它们。在 v2.1.207 之前，项目和本地设置也被读取。
 
 <h2 id="mcp">
   MCP
@@ -5231,7 +5247,7 @@ Claude Code 忽略项目和本地条目，因为它将这些值替换到插件 h
 }
 ```
 
-插件自己的 `settings.json` 也可以提供此密钥；请参阅 [Ship default settings with your plugin](/docs/zh-CN/plugins#ship-default-settings-with-your-plugin)。
+插件自己的 `settings.json` 也可以提供此密钥；请参阅 [Ship default settings with your plugin](/docs/zh-CN/plugins/components#default-settings)。
 
 <h3 id="crosssessioninbound">
   `crossSessionInbound`
@@ -6197,6 +6213,8 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 ```
 
 Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--mcp-config`，因此 Agent SDK 和 VS Code 扩展继续工作。用户仍然可以使用 `claude mcp add` 或 `.mcp.json` 文件添加服务器；为了进行每个服务器的控制，也可以设置 [`allowedMcpServers`](/docs/zh-CN/managed-mcp)。需要 Claude Code v2.1.193 或更高版本。
+
+相同的检查涵盖在 [`CLAUDE_CODE_PLUGIN_DIRS`](/docs/zh-CN/env-vars#variables) 环境变量中命名的插件文件夹，这需要 Claude Code v2.1.280 或更高版本。当变量命名一个文件夹时，Claude Code 以相同的错误退出，错误说要取消设置该变量。
 
 在云会话中，Claude Code 也会忽略服务器传递的中途 MCP 更新，这是云会话配置和 SDK `setMcpServers()` 调用背后的路径，这些调用到达这些会话。进程内 `type: "sdk"` 条目在那里仍然豁免。在 v2.1.239 之前，服务器传递的 `--mcp-config` 会阻止云会话启动。
 

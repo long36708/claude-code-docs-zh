@@ -242,50 +242,50 @@ Claude Code 在会话期间的特定点运行 hooks。当事件触发且匹配�
 
 Hooks 在 JSON 设置文件中定义。配置有三个嵌套级别：
 
-1. 选择要响应的[hook 事件](#hook-events)，如 `PreToolUse` 或 `Stop`
-2. 添加[匹配器组](#matcher-patterns)以过滤何时触发，如"仅针对 Bash 工具"
-3. 定义一个或多个[hook 处理程序](#hook-handler-fields)以在匹配时运行
+1. 选择一个 [hook 事件](#hook-events) 来响应，如 `PreToolUse` 或 `Stop`
+2. 添加一个 [匹配器组](#matcher-patterns) 来过滤何时触发，如"仅针对 Bash 工具"
+3. 定义一个或多个 [hook 处理程序](#hook-handler-fields) 在匹配时运行
 
-有关完整的演练和带注释的示例，请参阅上面的[Hook 如何解析](#how-a-hook-resolves)。
+有关完整的演练和带注释的示例，请参阅上面的 [Hook 如何解析](#how-a-hook-resolves)。
 
 <Note>
-  此页面为每个级别使用特定术语：**hook 事件**表示生命周期点，**匹配器组**表示过滤器，**hook 处理程序**表示运行的 shell 命令、HTTP 端点、MCP 工具、提示或代理。"Hook"本身指的是一般功能。
+  本页对每个级别使用特定术语：**hook 事件**表示生命周期点，**匹配器组**表示过滤器，**hook 处理程序**表示运行的 shell 命令、HTTP 端点、MCP 工具、提示或代理。"Hook"本身指的是一般功能。
 </Note>
 
 <h3 id="hook-locations">
   Hook 位置
 </h3>
 
-您定义 hook 的位置决定了其范围：
+定义 hook 的位置决定了其范围：
 
-| 位置                                          | 范围                                                                     | 可共享                                 |
-| :------------------------------------------ | :--------------------------------------------------------------------- | :---------------------------------- |
-| `~/.claude/settings.json`                   | 您的所有项目                                                                 | 否，本地于您的计算机                          |
-| `.claude/settings.json`                     | 单个项目                                                                   | 是，可以提交到仓库                           |
-| `.claude/settings.local.json`               | 单个项目                                                                   | 否，gitignored 当 Claude Code 保存设置到其中时 |
-| 托管策略设置                                      | 组织范围                                                                   | 是，管理员控制                             |
-| [Plugin](/docs/zh-CN/plugins) `hooks/hooks.json` | 启用插件时                                                                  | 是，与插件捆绑                             |
-| [Skill](/docs/zh-CN/skills) frontmatter          | 调用 skill 后的会话其余部分。请参阅[Skills 和代理中的 Hooks](#hooks-in-skills-and-agents) | 是，在 skill 文件中定义                     |
-| [Subagent](/docs/zh-CN/sub-agents) frontmatter   | 该 subagent 运行时                                                         | 是，在 subagent 文件中定义                  |
+| 位置                                                   | 范围                                                                         | 可共享                               |
+| :--------------------------------------------------- | :------------------------------------------------------------------------- | :-------------------------------- |
+| `~/.claude/settings.json`                            | 所有项目                                                                       | 否，仅限本地计算机                         |
+| `.claude/settings.json`                              | 单个项目                                                                       | 是，可以提交到仓库                         |
+| `.claude/settings.local.json`                        | 单个项目                                                                       | 否，当 Claude Code 保存设置时被 gitignored |
+| 托管策略设置                                               | 组织范围                                                                       | 是，由管理员控制                          |
+| [Plugin](/docs/zh-CN/plugins/overview) `hooks/hooks.json` | 启用插件时                                                                      | 是，与插件捆绑                           |
+| [Skill](/docs/zh-CN/skills) frontmatter                   | 调用技能后的会话其余部分。请参阅 [Hooks in skills and agents](#hooks-in-skills-and-agents) | 是，在技能文件中定义                        |
+| [Subagent](/docs/zh-CN/sub-agents) frontmatter            | 该子代理运行时                                                                    | 是，在子代理文件中定义                       |
 
-[Cloud sessions](/docs/zh-CN/claude-code-on-the-web)不读取您的本地 `~/.claude/settings.json`；那里的 hooks 来自仓库的 `.claude/settings.json` 在具有一个仓库的会话中，来自[从您的 claude.ai 账户同步的插件](/docs/zh-CN/plugins-reference#synced-plugins)，以及来自您组织的服务器管理的设置。在[自托管环境](/docs/zh-CN/self-hosted-environments-configuration#permissions-and-tool-approval)中，Claude Code 也运行操作员从运行程序主机的 `~/.claude/` 中播种的 hooks，并且当该文件在[Claude Code 应用的托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)中时，它运行运行程序镜像的托管设置文件中的 hooks，默认情况下仅当服务器管理的设置和 MDM 交付的 Claude Code 策略都不提供托管层时。有关哪些文件到达云会话，请参阅[您的设置中携带的内容](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
+[云会话](/docs/zh-CN/claude-code-on-the-web) 不读取本地 `~/.claude/settings.json`。在 [自托管环境](/docs/zh-CN/self-hosted-environments-configuration#permissions-and-tool-approval) 中，Claude Code 还运行操作员从运行程序主机的 `~/.claude/` 中植入的 hooks，并在该文件属于 [Claude Code 应用的托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources) 时运行运行程序镜像的托管设置文件中的 hooks，这默认意味着仅当服务器托管设置和 MDM 交付的 Claude Code 策略都不提供托管层时。有关哪些设置文件和插件（以及因此哪些 hooks）到达云会话的信息，请参阅 [从设置中携带的内容](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
 
-有关设置文件解析的详细信息，请参阅[设置](/docs/zh-CN/settings)。
+有关设置文件解析的详细信息，请参阅 [settings](/docs/zh-CN/settings)。
 
-来自设置文件、托管策略设置和插件的 Hooks 也在[subagents](/docs/zh-CN/sub-agents)内运行。当 subagent 调用工具时，工具事件（如 `PreToolUse` 和 `PostToolUse`）触发与主对话中配置的相同 hooks，输入携带 `agent_id` 和 `agent_type`[通用输入字段](#common-input-fields)，用于标识 subagent。
+来自设置文件、托管策略设置和插件的 Hooks 也在 [subagents](/docs/zh-CN/sub-agents) 内运行。当子代理调用工具时，工具事件（如 `PreToolUse` 和 `PostToolUse`）触发与主对话中相同的配置 hooks，输入包含标识子代理的 `agent_id` 和 `agent_type` [通用输入字段](#common-input-fields)。
 
 企业管理员可以使用 `allowManagedHooksOnly` 来限制哪些 hooks 运行：
 
-* 您的用户、项目、本地和插件 hooks 被阻止。托管设置 `enabledPlugins` 中强制启用的插件中的 Hooks 是豁免的
-* Claude Code 也将您的[`statusLine`](/docs/zh-CN/statusline)、[`fileSuggestion`](/docs/zh-CN/settings-reference#filesuggestion)和[`subagentStatusLine`](/docs/zh-CN/statusline#subagent-status-lines)设置缩小到托管设置
-* Claude Code 也禁用具有[`command` 源](/docs/zh-CN/plugin-marketplaces#command-sources)的插件，包括托管设置 `enabledPlugins` 中强制启用的插件，除非[`disableCommandPluginSources`](/docs/zh-CN/settings-reference#disablecommandpluginsources)明确设置为 `false`。`command` 源需要 Claude Code v2.1.229 或更高版本
-* Claude Code 也阻止市场[`headersHelper` 命令](/docs/zh-CN/plugin-marketplaces#authenticate-archive-downloads)，除非[`disableCommandPluginSources`](/docs/zh-CN/settings-reference#disablecommandpluginsources)明确设置为 `false`，除了托管设置本身声明的市场
+* 用户、项目、本地和插件 hooks 被阻止。托管设置 `enabledPlugins` 中强制启用的插件中的 Hooks 除外
+* Claude Code 还将 [`statusLine`](/docs/zh-CN/statusline)、[`fileSuggestion`](/docs/zh-CN/settings-reference#filesuggestion) 和 [`subagentStatusLine`](/docs/zh-CN/statusline#subagent-status-lines) 设置限制为托管设置
+* Claude Code 还禁用具有 [`command` 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source) 的插件，包括托管设置 `enabledPlugins` 中强制启用的插件，除非 [`disableCommandPluginSources`](/docs/zh-CN/settings-reference#disablecommandpluginsources) 明确设置为 `false`。`command` 源需要 Claude Code v2.1.229 或更高版本
+* Claude Code 还阻止市场 [`headersHelper` 命令](/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads)，除非 [`disableCommandPluginSources`](/docs/zh-CN/settings-reference#disablecommandpluginsources) 明确设置为 `false`，托管设置本身声明的市场除外
 
-请参阅[在 `allowManagedHooksOnly` 下运行的内容](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)。
+请参阅 [在 `allowManagedHooksOnly` 下运行的内容](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)。
 
-Hook 条目在设置级别之间合并而不是相互替换：用户、项目和本地设置添加它们自己的 hooks 而不移除托管的，[`disableAllHooks`](#disable-or-remove-hooks)设置无法从托管设置外部禁用托管 hooks。
+Hook 条目在设置级别之间合并而不是相互替换：用户、项目和本地设置添加自己的 hooks 而不删除托管的 hooks，[`disableAllHooks`](#disable-or-remove-hooks) 设置无法禁用来自托管设置外部的托管 hooks。
 
-[HTTP hook 允许列表](/docs/zh-CN/settings-reference#hook-and-skill-settings)适用于来自每个源的 hooks，包括托管策略设置：
+[HTTP hook 允许列表](/docs/zh-CN/settings-reference#hook-and-skill-settings) 适用于来自每个源的 hooks，包括托管策略设置：
 
 * `allowedHttpHookUrls`：在任何设置级别定义时，Claude Code 仅在其 URL 与合并的允许列表匹配时运行 HTTP hook 处理程序
 * `httpHookAllowedEnvVars`：定义时，Claude Code 仅将该列表上的环境变量插值到 hook 标头中
@@ -294,51 +294,49 @@ Hook 条目在设置级别之间合并而不是相互替换：用户、项目和
   匹配器模式
 </h3>
 
-`matcher` 字段过滤 hooks 何时触发。匹配器的评估方式取决于它包含的字符：
+`matcher` 字段过滤何时触发 hooks。匹配器的评估方式取决于它包含的字符：
 
-| 匹配器值                         | 评估为                                  | 示例                                                                                   |
-| :--------------------------- | :----------------------------------- | :----------------------------------------------------------------------------------- |
-| `"*"`、`""` 或省略               | 匹配所有                                 | 在事件的每次出现时触发                                                                          |
-| 仅字母、数字、`_`、`-`、空格、`,` 和 `\|` | 精确字符串或由 `\|` 或 `,` 分隔的精确字符串列表，可选周围空格 | `Bash` 仅匹配 Bash 工具；`Edit\|Write` 和 `Edit, Write` 各自精确匹配任一工具；`code-reviewer` 仅匹配该代理类型 |
-| 包含任何其他字符                     | JavaScript 正则表达式，未锚定                 | `^Notebook` 匹配任何以 Notebook 开头的工具；`mcp__memory__.*` 匹配来自 `memory` 服务器的每个工具            |
+| 匹配器值                         | 评估为                                  | 示例                                                                                |
+| :--------------------------- | :----------------------------------- | :-------------------------------------------------------------------------------- |
+| `"*"`、`""` 或省略               | 匹配所有                                 | 在事件的每次出现时触发                                                                       |
+| 仅字母、数字、`_`、`-`、空格、`,` 和 `\|` | 精确字符串或由 `\|` 或 `,` 分隔的精确字符串列表，可选周围空格 | `Bash` 仅匹配 Bash 工具；`Edit\|Write` 和 `Edit, Write` 各匹配任一工具；`code-reviewer` 仅匹配该代理类型 |
+| 包含任何其他字符                     | JavaScript 正则表达式，未锚定                 | `^Notebook` 匹配任何名称以 `Notebook` 开头的工具；`mcp__memory__.*` 匹配来自 `memory` 服务器的每个工具     |
 
-在正则表达式路径上的匹配器使用 JavaScript 的 `RegExp.prototype.test` 进行测试，该测试在值中任何位置的匹配时成功。`Edit.*` 匹配 `Edit` 和 `NotebookEdit`；当您需要整个字符串匹配时，用 `^` 和 `$` 包装模式，如 `^Edit$`。
+在正则表达式路径上的匹配器使用 JavaScript 的 `RegExp.prototype.test` 进行测试，该测试在值中任何位置的匹配时成功。`Edit.*` 匹配 `Edit` 和 `NotebookEdit`；当需要整个字符串匹配时，用 `^` 和 `$` 包装模式，如 `^Edit$`。
 
-逗号分隔符和周围空格容差需要 Claude Code v2.1.191 或更高版本。
+精确匹配集中的连字符需要 Claude Code v2.1.195 或更高版本。在早期版本中，带连字符的名称如 `code-reviewer` 被评估为未锚定的正则表达式，因此它也对 `senior-code-reviewer` 触发；在这些版本上将其锚定为 `^code-reviewer$` 以仅匹配该名称。
 
-精确匹配集中的连字符需要 Claude Code v2.1.195 或更高版本。在早期版本中，像 `code-reviewer` 这样的连字符名称被评估为未锚定的正则表达式，因此它也会对 `senior-code-reviewer` 触发；在这些版本上将其锚定为 `^code-reviewer$` 以仅匹配该名称。
-
-`FileChanged` 和 `StopFailure` 使用更窄的精确匹配集，仅包含字母、数字、`_` 和 `|`。这两个事件的匹配器中的连字符、空格或逗号将其保留在正则表达式路径上，仅 `|` 分隔替代项。下表中列出的支持匹配器的所有其他事件接受 `|` 或 `,`。
+`FileChanged` 和 `StopFailure` 使用更窄的精确匹配集，仅包含字母、数字、`_` 和 `|`。这两个事件的匹配器中的连字符、空格或逗号将其保留在正则表达式路径上，仅 `|` 分隔替代项。下表中支持匹配器的其他每个事件接受 `|` 或 `,`。
 
 `FileChanged` 事件在构建其监视列表时不遵循这些规则。请参阅 [FileChanged](#filechanged)。
 
 每个事件类型在不同的字段上匹配：
 
-| 事件                                                                                                                                        | 匹配器过滤的内容                                            | 示例匹配器值                                                                                                                                                                                                                                                              |
-| :---------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest`、`PermissionDenied`                                                    | 工具名称                                                | `Bash`、`Edit\|Write`、`mcp__.*`                                                                                                                                                                                                                                      |
-| `SessionStart`                                                                                                                            | 会话如何启动                                              | `startup`、`resume`、`clear`、`compact`、`fork`                                                                                                                                                                                                                         |
-| `Setup`                                                                                                                                   | 哪个 CLI 标志触发了设置                                      | `init`、`maintenance`                                                                                                                                                                                                                                                |
-| `SessionEnd`                                                                                                                              | 会话为何结束                                              | `clear`、`resume`、`logout`、`prompt_input_exit`、`other`                                                                                                                                                                                                               |
-| `Notification`                                                                                                                            | 通知类型                                                | `permission_prompt`、`idle_prompt`、`auth_success`、`elicitation_dialog`、`elicitation_url_dialog`、`elicitation_complete`、`elicitation_response`、`agent_needs_input`、`agent_completed`、`quota_auto_resume_fired`、`quota_auto_resume_stale`、`quota_auto_resume_disabled` |
-| `SubagentStart`                                                                                                                           | 代理类型                                                | `general-purpose`、`Explore`、`Plan`、自定义代理名称或插件范围的名称如 `^my-plugin:reviewer$`                                                                                                                                                                                          |
-| `PreCompact`、`PostCompact`                                                                                                                | 触发压缩的原因                                             | `manual`、`auto`                                                                                                                                                                                                                                                     |
-| `PreModelSwitch`、`PostModelSwitch`                                                                                                        | 会话切换到的模型的规范名称，如[PreModelSwitch](#premodelswitch)下所述 | `claude-opus-5`、`claude-opus-4-6\|claude-opus-5`、`.*opus.*`                                                                                                                                                                                                         |
-| `SubagentStop`                                                                                                                            | 代理类型                                                | 与 `SubagentStart` 相同的值                                                                                                                                                                                                                                              |
-| `ConfigChange`                                                                                                                            | 配置源                                                 | `user_settings`、`project_settings`、`local_settings`、`policy_settings`、`skills`                                                                                                                                                                                      |
-| `CwdChanged`                                                                                                                              | 不支持匹配器                                              | 总是在每次出现时触发                                                                                                                                                                                                                                                          |
-| `DirectoryAdded`                                                                                                                          | 目录如何被添加                                             | `slash_command`、`register_repo_root`                                                                                                                                                                                                                                |
-| `FileChanged`                                                                                                                             | 文字文件名以监视（请参阅 [FileChanged](#filechanged)）           | `.envrc\|.env`                                                                                                                                                                                                                                                      |
-| `StopFailure`                                                                                                                             | 错误类型                                                | `rate_limit`、`overloaded`、`authentication_failed`、`oauth_org_not_allowed`、`account_on_hold`、`billing_error`、`invalid_request`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error`、`unknown`                                               |
-| `InstructionsLoaded`                                                                                                                      | 加载原因                                                | `session_start`、`nested_traversal`、`path_glob_match`、`include`、`compact`                                                                                                                                                                                            |
-| `UserPromptExpansion`                                                                                                                     | 命令名称                                                | 您的 skill 或命令名称                                                                                                                                                                                                                                                      |
-| `Elicitation`                                                                                                                             | MCP 服务器名称                                           | 您配置的 MCP 服务器名称                                                                                                                                                                                                                                                      |
-| `ElicitationResult`                                                                                                                       | MCP 服务器名称                                           | 与 `Elicitation` 相同的值                                                                                                                                                                                                                                                |
-| `UserPromptSubmit`、`PostToolBatch`、`Stop`、`TeammateIdle`、`TaskCreated`、`TaskCompleted`、`WorktreeCreate`、`WorktreeRemove`、`MessageDisplay` | 不支持匹配器                                              | 总是在每次出现时触发                                                                                                                                                                                                                                                          |
+| 事件                                                                                                                                        | 匹配器过滤的内容                                              | 示例匹配器值                                                                                                                                                                                                                                                              |
+| :---------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest`、`PermissionDenied`                                                    | 工具名称                                                  | `Bash`、`Edit\|Write`、`mcp__.*`                                                                                                                                                                                                                                      |
+| `SessionStart`                                                                                                                            | 会话如何启动                                                | `startup`、`resume`、`clear`、`compact`、`fork`                                                                                                                                                                                                                         |
+| `Setup`                                                                                                                                   | 哪个 CLI 标志触发了设置                                        | `init`、`maintenance`                                                                                                                                                                                                                                                |
+| `SessionEnd`                                                                                                                              | 会话为什么结束                                               | `clear`、`resume`、`logout`、`prompt_input_exit`、`other`                                                                                                                                                                                                               |
+| `Notification`                                                                                                                            | 通知类型                                                  | `permission_prompt`、`idle_prompt`、`auth_success`、`elicitation_dialog`、`elicitation_url_dialog`、`elicitation_complete`、`elicitation_response`、`agent_needs_input`、`agent_completed`、`quota_auto_resume_fired`、`quota_auto_resume_stale`、`quota_auto_resume_disabled` |
+| `SubagentStart`                                                                                                                           | 代理类型                                                  | `general-purpose`、`Explore`、`Plan`、自定义代理名称或插件范围的名称如 `^my-plugin:reviewer$`                                                                                                                                                                                          |
+| `PreCompact`、`PostCompact`                                                                                                                | 什么触发了压缩                                               | `manual`、`auto`                                                                                                                                                                                                                                                     |
+| `PreModelSwitch`、`PostModelSwitch`                                                                                                        | 会话切换到的模型的规范名称，如 [PreModelSwitch](#premodelswitch) 下所述 | `claude-opus-5`、`claude-opus-4-6\|claude-opus-5`、`.*opus.*`                                                                                                                                                                                                         |
+| `SubagentStop`                                                                                                                            | 代理类型                                                  | 与 `SubagentStart` 相同的值                                                                                                                                                                                                                                              |
+| `ConfigChange`                                                                                                                            | 配置源                                                   | `user_settings`、`project_settings`、`local_settings`、`policy_settings`、`skills`                                                                                                                                                                                      |
+| `CwdChanged`                                                                                                                              | 无匹配器支持                                                | 总是在每次出现时触发                                                                                                                                                                                                                                                          |
+| `DirectoryAdded`                                                                                                                          | 目录如何添加                                                | `slash_command`、`register_repo_root`                                                                                                                                                                                                                                |
+| `FileChanged`                                                                                                                             | 要监视的文字文件名（请参阅 [FileChanged](#filechanged)）            | `.envrc\|.env`                                                                                                                                                                                                                                                      |
+| `StopFailure`                                                                                                                             | 错误类型                                                  | `rate_limit`、`overloaded`、`authentication_failed`、`oauth_org_not_allowed`、`account_on_hold`、`billing_error`、`invalid_request`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error`、`unknown`                                               |
+| `InstructionsLoaded`                                                                                                                      | 加载原因                                                  | `session_start`、`nested_traversal`、`path_glob_match`、`include`、`compact`                                                                                                                                                                                            |
+| `UserPromptExpansion`                                                                                                                     | 命令名称                                                  | 你的技能或命令名称                                                                                                                                                                                                                                                           |
+| `Elicitation`                                                                                                                             | MCP 服务器名称                                             | 你配置的 MCP 服务器名称                                                                                                                                                                                                                                                      |
+| `ElicitationResult`                                                                                                                       | MCP 服务器名称                                             | 与 `Elicitation` 相同的值                                                                                                                                                                                                                                                |
+| `UserPromptSubmit`、`PostToolBatch`、`Stop`、`TeammateIdle`、`TaskCreated`、`TaskCompleted`、`WorktreeCreate`、`WorktreeRemove`、`MessageDisplay` | 无匹配器支持                                                | 总是在每次出现时触发                                                                                                                                                                                                                                                          |
 
 在 `cloud_credential_error` 上匹配 `StopFailure` 需要 Claude Code v2.1.267 或更高版本，这是第一个在该值下报告凭证加载失败而不是 `server_error` 或 `unknown` 的版本。
 
-对于大多数事件，Claude Code 针对它在 stdin 上发送给您的 hook 的[JSON 输入](#hook-input-and-output)中的字段评估匹配器。对于工具事件，该字段是 `tool_name`。对于 `PreModelSwitch` 和 `PostModelSwitch`，Claude Code 针对它从 `to_model` 派生的规范名称评估匹配器，如[PreModelSwitch](#premodelswitch)下所述。每个[hook 事件](#hook-events)部分列出了完整的匹配器值集和该事件的输入架构。
+对于大多数事件，Claude Code 根据它在 stdin 上发送给 hook 的 [JSON 输入](#hook-input-and-output) 中的字段评估匹配器。对于工具事件，该字段是 `tool_name`。对于 `PreModelSwitch` 和 `PostModelSwitch`，Claude Code 根据它从 `to_model` 派生的规范名称评估匹配器，如 [PreModelSwitch](#premodelswitch) 下所述。每个 [hook 事件](#hook-events) 部分列出了完整的匹配器值集和该事件的输入架构。
 
 此示例仅在 Claude 写入或编辑文件时运行 linting 脚本：
 
@@ -360,15 +358,15 @@ Hook 条目在设置级别之间合并而不是相互替换：用户、项目和
 }
 ```
 
-如果您向不支持匹配器的事件添加 `matcher` 字段，它会被静默忽略。
+如果向不支持匹配器的事件添加 `matcher` 字段，它会被静默忽略。
 
-对于工具事件，您可以通过在单个 hook 处理程序上设置[`if` 字段](#common-fields)来更狭隘地过滤。`if` 使用[权限规则语法](/docs/zh-CN/permissions)来匹配工具名称和参数，因此 `"Bash(git *)"` 仅在任何 Bash 输入的子命令与 `git *` 匹配时运行，`"Edit(*.ts)"` 仅对 TypeScript 文件运行。
+对于工具事件，可以通过在单个 hook 处理程序上设置 [`if` 字段](#common-fields) 来更狭隘地过滤。`if` 使用 [权限规则语法](/docs/zh-CN/permissions) 来匹配工具名称和参数，因此 `"Bash(git *)"` 在任何 Bash 输入的子命令匹配 `git *` 时运行，`"Edit(*.ts)"` 仅对 TypeScript 文件运行。
 
 <h4 id="match-mcp-tools">
   匹配 MCP 工具
 </h4>
 
-[MCP](/docs/zh-CN/mcp) 服务器工具在工具事件中显示为常规工具（`PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest`、`PermissionDenied`），因此您可以像匹配任何其他工具名称一样匹配它们。
+[MCP](/docs/zh-CN/mcp) 服务器工具在工具事件中显示为常规工具（`PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest`、`PermissionDenied`），因此可以像匹配任何其他工具名称一样匹配它们。
 
 MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 
@@ -376,15 +374,15 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 * `mcp__filesystem__read_file`：Filesystem 服务器的读取文件工具
 * `mcp__github__search_repositories`：GitHub 服务器的搜索工具
 
-要匹配来自服务器的每个工具，请在服务器前缀后追加 `.*`。`.*` 是必需的：像 `mcp__memory` 或 `mcp__brave-search` 这样的匹配器仅包含精确匹配字符，因此它作为精确字符串进行比较，不匹配任何工具。
+要匹配来自服务器的每个工具，请将 `.*` 附加到服务器前缀。`.*` 是必需的：像 `mcp__memory` 或 `mcp__brave-search` 这样的匹配器仅包含精确匹配字符，因此它被比较为精确字符串，不匹配任何工具。
 
 * `mcp__memory__.*` 匹配来自 `memory` 服务器的所有工具
 * `mcp__brave-search__.*` 匹配来自名称包含连字符的服务器的所有工具
-* `mcp__.*__write.*` 匹配来自任何服务器的任何名称以 `write` 开头的工具
+* `mcp__.*__write.*` 匹配来自任何服务器的名称以 `write` 开头的任何工具
 
-精确匹配集中的连字符需要 Claude Code v2.1.195 或更高版本。在早期版本中，像 `mcp__brave-search` 这样的裸连字符前缀被评估为未锚定的正则表达式，并匹配来自该服务器的每个工具。`mcp__brave-search__.*` 形式在每个版本上都有效。
+精确匹配集中的连字符需要 Claude Code v2.1.195 或更高版本。在早期版本中，裸连字符前缀如 `mcp__brave-search` 被评估为未锚定的正则表达式，并匹配来自该服务器的每个工具。`mcp__brave-search__.*` 形式在每个版本上都有效。
 
-来自[插件捆绑的 MCP 服务器](/docs/zh-CN/mcp#plugin-provided-mcp-servers)的工具使用包含插件名称的作用域服务器段：`mcp__plugin_<plugin-name>_<server-name>__<tool>`。针对裸服务器密钥编写的匹配器永远不会对这些工具触发。对于在密钥 `db` 下捆绑服务器的名为 `my-plugin` 的插件，`query` 工具显示为 `mcp__plugin_my-plugin_db__query`，因此来自该服务器的每个工具的匹配器是 `mcp__plugin_my-plugin_db__.*`。在处理程序的[`if` 字段](#common-fields)中使用相同的作用域工具名称。有关如何构建作用域名称的信息，请参阅[插件提供的 MCP 服务器](/docs/zh-CN/mcp#plugin-provided-mcp-servers)。
+来自 [插件捆绑的 MCP 服务器](/docs/zh-CN/mcp#plugin-provided-mcp-servers) 的工具使用包含插件名称的范围服务器段：`mcp__plugin_<plugin-name>_<server-name>__<tool>`。针对裸服务器密钥编写的匹配器永远不会对这些工具触发。对于名为 `my-plugin` 的插件，在密钥 `db` 下捆绑服务器，`query` 工具显示为 `mcp__plugin_my-plugin_db__query`，因此来自该服务器的每个工具的匹配器是 `mcp__plugin_my-plugin_db__.*`。在处理程序的 [`if` 字段](#common-fields) 中使用相同的范围工具名称。有关如何构建范围名称的信息，请参阅 [插件提供的 MCP 服务器](/docs/zh-CN/mcp#plugin-provided-mcp-servers)。
 
 此示例记录所有内存服务器操作并验证来自任何 MCP 服务器的写入操作：
 
@@ -421,17 +419,17 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 
 内部 `hooks` 数组中的每个对象都是一个 hook 处理程序：当匹配器匹配时运行的 shell 命令、HTTP 端点、MCP 工具、LLM 提示或代理。有五种类型：
 
-* **[命令 hooks](#command-hook-fields)**（`type: "command"`）：运行 shell 命令。您的脚本在 stdin 上接收事件的[JSON 输入](#hook-input-and-output)，并通过退出代码和 stdout 传回结果。
-* **[HTTP hooks](#http-hook-fields)**（`type: "http"`）：将事件的 JSON 输入作为 HTTP POST 请求发送到 URL。端点通过使用与命令 hooks 相同的[JSON 输出格式](#json-output)的响应体传回结果。
-* **[MCP 工具 hooks](#mcp-tool-hook-fields)**（`type: "mcp_tool"`）：在已连接的[MCP 服务器](/docs/zh-CN/mcp)上调用工具。工具的文本输出被视为命令 hook stdout。
-* **[提示 hooks](#prompt-and-agent-hook-fields)**（`type: "prompt"`）：向 Claude 模型发送提示以进行单轮评估。模型返回其决定作为 JSON。请参阅[基于提示的 hooks](#prompt-based-hooks)。
-* **[代理 hooks](#prompt-and-agent-hook-fields)**（`type: "agent"`）：生成一个可以使用 Read、Grep 和 Glob 等工具来验证条件的 subagent，然后返回决定。代理 hooks 是实验性的，可能会改变。请参阅[基于代理的 hooks](#agent-based-hooks)。
+* **[命令 hooks](#command-hook-fields)**（`type: "command"`）：运行 shell 命令。脚本在 stdin 上接收事件的 [JSON 输入](#hook-input-and-output)，并通过退出代码和 stdout 传回结果。
+* **[HTTP hooks](#http-hook-fields)**（`type: "http"`）：将事件的 JSON 输入作为 HTTP POST 请求发送到 URL。端点通过响应体使用与命令 hooks 相同的 [JSON 输出格式](#json-output) 传回结果。
+* **[MCP 工具 hooks](#mcp-tool-hook-fields)**（`type: "mcp_tool"`）：在已连接的 [MCP 服务器](/docs/zh-CN/mcp) 上调用工具。工具的文本输出被视为命令 hook stdout。
+* **[提示 hooks](#prompt-and-agent-hook-fields)**（`type: "prompt"`）：向 Claude 模型发送提示以进行单轮评估。模型以 JSON 形式返回其决定。请参阅 [基于提示的 hooks](#prompt-based-hooks)。
+* **[代理 hooks](#prompt-and-agent-hook-fields)**（`type: "agent"`）：生成一个子代理，可以使用 Read、Grep 和 Glob 等工具来验证条件，然后返回决定。代理 hooks 是实验性的，可能会改变。请参阅 [基于代理的 hooks](#agent-based-hooks)。
 
-所有匹配的 hooks 并行运行。如果您在多个设置文件中定义相同的处理程序，它运行一次。插件或 skill 的相同处理程序副本保持分离。
+所有匹配的 hooks 并行运行。如果在多个设置文件中定义相同的处理程序，它运行一次。插件或技能的相同处理程序副本保持分离。
 
-处理程序在当前目录中运行，使用 Claude Code 的环境。如果当前目录不再存在，例如另一个 shell 在会话中途删除的 worktree 或临时目录，Claude Code 从以下第一个仍然存在的目录运行命令 hooks：会话启动的目录、项目根目录、您的主目录或系统临时目录。Claude Code 在[调试日志](#debug-hooks)中记录一条警告，命名回退目录。
+处理程序在当前目录中使用 Claude Code 的环境运行。如果当前目录不再存在，例如另一个 shell 在会话中途删除的 worktree 或临时目录，Claude Code 从以下第一个仍然存在的目录运行命令 hooks：会话启动的目录、项目根目录、主目录或系统临时目录。Claude Code 在 [调试日志](#debug-hooks) 中记录一条警告，命名回退目录。
 
-`$CLAUDE_CODE_REMOTE` 环境变量在远程 web 环境中为 `"true"`，在本地 CLI 中未设置。Claude Code v2.1.199 及更高版本在本地会话具有活跃的远程控制连接时将[`$CLAUDE_CODE_BRIDGE_SESSION_ID`](/docs/zh-CN/env-vars)设置为[远程控制](/docs/zh-CN/remote-control)会话 ID。
+`$CLAUDE_CODE_REMOTE` 环境变量在远程 web 环境中为 `"true"`，在本地 CLI 中未设置。Claude Code v2.1.199 及更高版本在本地会话具有活跃的 Remote Control 连接时将 [`$CLAUDE_CODE_BRIDGE_SESSION_ID`](/docs/zh-CN/env-vars) 设置为 [Remote Control](/docs/zh-CN/remote-control) 会话 ID。
 
 <h4 id="common-fields">
   通用字段
@@ -439,44 +437,44 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 
 这些字段适用于所有 hook 类型：
 
-| 字段              | 必需 | 描述                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| :-------------- | :- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `type`          | 是  | `"command"`、`"http"`、`"mcp_tool"`、`"prompt"` 或 `"agent"`                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `if`            | 否  | 权限规则语法以过滤此 hook 何时运行，例如 `"Bash(git *)"` 或 `"Edit(*.ts)"`。hook 命令仅在工具调用与模式匹配时运行。请参阅下面的[Bash 匹配表](#bash-if-matching)了解 Bash 模式如何针对子命令、`$()` 和反引号进行评估。仅在工具事件上评估：`PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest` 和 `PermissionDenied`。在其他事件上，设置了 `if` 的 hook 永远不会运行。使用与[权限规则](/docs/zh-CN/permissions)相同的语法                                                                                                                                                                    |
-| `timeout`       | 否  | 取消前的秒数。Claude Code 不在您使用 [`async: true`](#run-hooks-in-the-background)运行的命令 hook 上强制执行它。默认值：`command`、`http` 和 `mcp_tool` 为 600；`prompt` 为 30；`agent` 为 60。Claude Code 在[`UserPromptSubmit`](#userpromptsubmit)、[`PreModelSwitch`](#premodelswitch)和[`PostModelSwitch`](#postmodelswitch)上将 `command`、`http` 和 `mcp_tool` 的默认值降低到 30，在[`MessageDisplay`](#messagedisplay)上降低到 10。[`SessionEnd`](#sessionend) hooks 共享 1.5 秒的预算；如果您的设置设置了更长的每个 hook `timeout`，Claude Code 会提高预算以匹配，最多 60 秒 |
-| `statusMessage` | 否  | hook 运行时显示的自定义加载程序消息                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `once`          | 否  | 如果为 `true`，Claude Code 在其第一次成功运行后移除 hook。失败、以退出代码 2 阻止或超时的运行会将 hook 保留在原位，因此它在下一个匹配事件上再次运行。仅在[skill frontmatter](#hooks-in-skills-and-agents)中声明的 hooks 中受尊重；在设置文件和代理 frontmatter 中被忽略                                                                                                                                                                                                                                                                                                    |
+| 字段              | 必需 | 描述                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| :-------------- | :- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `type`          | 是  | `"command"`、`"http"`、`"mcp_tool"`、`"prompt"` 或 `"agent"`                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `if`            | 否  | 权限规则语法来过滤此 hook 何时运行，如 `"Bash(git *)"` 或 `"Edit(*.ts)"`。hook 命令仅在工具调用与模式匹配时运行。有关 Bash 模式如何针对子命令、`$()` 和反引号评估的信息，请参阅下面的 [Bash 匹配表](#bash-if-matching)。仅在工具事件上评估：`PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest` 和 `PermissionDenied`。在其他事件上，设置了 `if` 的 hook 永远不会运行。使用与 [权限规则](/docs/zh-CN/permissions) 相同的语法                                                                                                                                                                  |
+| `timeout`       | 否  | 取消前的秒数。Claude Code 不在使用 [`async: true`](#run-hooks-in-the-background) 运行的命令 hook 上强制执行。默认值：`command`、`http` 和 `mcp_tool` 为 600；`prompt` 为 30；`agent` 为 60。Claude Code 在 [`UserPromptSubmit`](#userpromptsubmit)、[`PreModelSwitch`](#premodelswitch) 和 [`PostModelSwitch`](#postmodelswitch) 上将 `command`、`http` 和 `mcp_tool` 默认值降低到 30，在 [`MessageDisplay`](#messagedisplay) 上降低到 10。[`SessionEnd`](#sessionend) hooks 共享 1.5 秒的预算；如果设置设置了更长的每个 hook `timeout`，Claude Code 将预算提高到匹配，最多 60 秒 |
+| `statusMessage` | 否  | hook 运行时显示的自定义微调器消息                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `once`          | 否  | 如果为 `true`，Claude Code 在第一次成功运行后删除 hook。失败、以退出代码 2 阻止或超时的运行将 hook 保留在原位，因此它在下一个匹配事件上再次运行。仅对在 [技能 frontmatter](#hooks-in-skills-and-agents) 中声明的 hooks 有效；在设置文件和代理 frontmatter 中被忽略                                                                                                                                                                                                                                                                                                          |
 
-`if` 字段恰好包含一个权限规则。没有 `&&`、`||` 或列表语法来组合规则；要应用多个条件，请为每个条件定义一个单独的 hook 处理程序。
+`if` 字段恰好包含一个权限规则。没有 `&&`、`||` 或列表语法来组合规则；要应用多个条件，为每个定义一个单独的 hook 处理程序。
 
-在文件工具的 `if` 条件中，单段目录模式如 `"Edit(src/**)"` 仅匹配工作目录中的 `src` 目录及其下的文件。要匹配任何深度的名为 `src` 的目录，请写 `"Edit(**/src/**)"`。在 v2.1.214 之前，`"Edit(src/**)"` 匹配工作目录下任何深度的名为 `src` 的目录。
+在文件工具的 `if` 条件中，单段目录模式如 `"Edit(src/**)"` 仅匹配工作目录中的 `src` 目录及其下的文件。要匹配工作目录下任何深度的名为 `src` 的目录，请写 `"Edit(**/src/**)"`。在 v2.1.214 之前，`"Edit(src/**)"` 匹配工作目录下任何深度的名为 `src` 的目录。
 
-<span id="bash-if-matching" />对于 Bash 模式，您的 hook 命令是否运行取决于模式的形状和 Claude 调用的 Bash 命令。前导 `VAR=value` 赋值在匹配前被剥离。
+<span id="bash-if-matching" />对于 Bash 模式，hook 命令是否运行取决于模式的形状和 Claude 调用的 Bash 命令。在匹配前剥离前导 `VAR=value` 赋值。
 
-| `if` 模式            | Bash 命令                     | Hook 运行？ | 原因                                         |
-| :----------------- | :-------------------------- | :------- | :----------------------------------------- |
-| `Bash(git *)`      | `FOO=bar git push`          | 是        | 前导赋值被剥离；`git push` 匹配                      |
-| `Bash(git *)`      | `npm test && git push`      | 是        | 每个子命令都被检查；`git push` 匹配                    |
-| `Bash(rm *)`       | `echo $(rm -rf /)`          | 是        | `$()` 和反引号内的命令被检查；`rm -rf /` 匹配            |
-| `Bash(rm *)`       | `echo $(date)`              | 否        | 没有子命令匹配 `rm *`                             |
-| `Bash(cat *)`      | `echo before $(date) after` | 否        | 替换可以位于任何参数位置，因此检查完整命令和 `date`；都不匹配 `cat *` |
-| `Bash(git *)`      | `$TOOL git push`            | 是        | Claude Code 无法判断命令名称展开为什么，因此它运行 hook       |
-| `Bash(git push *)` | `echo $(date)`              | 是        | 指定超过命令名称的模式在 `$()`、反引号或 `$VAR` 上运行 hook    |
+| `if` 模式            | Bash 命令                     | Hook 运行？ | 为什么                                          |
+| :----------------- | :-------------------------- | :------- | :------------------------------------------- |
+| `Bash(git *)`      | `FOO=bar git push`          | 是        | 前导赋值被剥离；`git push` 匹配                        |
+| `Bash(git *)`      | `npm test && git push`      | 是        | 每个子命令被检查；`git push` 匹配                       |
+| `Bash(rm *)`       | `echo $(rm -rf /)`          | 是        | `$()` 和反引号内的命令被检查；`rm -rf /` 匹配              |
+| `Bash(rm *)`       | `echo $(date)`              | 否        | 没有子命令匹配 `rm *`                               |
+| `Bash(cat *)`      | `echo before $(date) after` | 否        | 替换可以位于任何参数位置，因此检查完整命令和 `date`；都不匹配 `cat *`   |
+| `Bash(git *)`      | `$TOOL git push`            | 是        | Claude Code 无法判断命令名称扩展到什么，因此它运行 hook         |
+| `Bash(git push *)` | `echo $(date)`              | 是        | 指定超过命令名称的模式在 `$()`、反引号或 `$VAR` 上无论如何都运行 hook |
 
-当 Claude Code 无法确定 Bash 输入运行哪些命令时，它无论如何都会运行您的 hook。因为 `if` 过滤器是尽力而为的，使用[权限系统](/docs/zh-CN/permissions)而不是 hook 来强制执行硬允许或拒绝。
+当 Claude Code 无法确定 Bash 输入运行哪些命令时，它无论模式如何都运行 hook。因为 `if` 过滤是尽力而为的，使用 [权限系统](/docs/zh-CN/permissions) 而不是 hook 来强制执行硬允许或拒绝。
 
 <h4 id="command-hook-fields">
   命令 hook 字段
 </h4>
 
-除了[通用字段](#common-fields)外，命令 hooks 还接受这些字段：
+除了 [通用字段](#common-fields)，命令 hooks 接受这些字段：
 
 | 字段            | 必需 | 描述                                                                                                                                                                                                                                     |
 | :------------ | :- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `command`     | 是  | 要执行的 shell 命令。与 `args` 一起，要直接生成的可执行文件。请参阅[Exec 形式和 shell 形式](#exec-form-and-shell-form)                                                                                                                                                |
-| `args`        | 否  | 参数列表。存在时，`command` 被解析为可执行文件并直接使用 `args` 作为参数向量生成，不涉及 shell。请参阅[Exec 形式和 shell 形式](#exec-form-and-shell-form)                                                                                                                          |
-| `async`       | 否  | 如果为 `true`，在后台运行而不阻止。请参阅[在后台运行 hooks](#run-hooks-in-the-background)                                                                                                                                                                    |
-| `asyncRewake` | 否  | 如果为 `true`，在后台运行并在退出代码 2 时唤醒 Claude。hook 的 stderr，或 stdout（如果 stderr 为空），作为系统提醒显示给 Claude，以便它可以对长时间运行的后台失败做出反应                                                                                                                         |
+| `command`     | 是  | 要执行的 shell 命令。使用 `args` 时，直接生成的可执行文件。请参阅 [Exec 形式和 shell 形式](#exec-form-and-shell-form)                                                                                                                                                |
+| `args`        | 否  | 参数列表。存在时，`command` 被解析为可执行文件并直接使用 `args` 作为参数向量生成，不涉及 shell。请参阅 [Exec 形式和 shell 形式](#exec-form-and-shell-form)                                                                                                                         |
+| `async`       | 否  | 如果为 `true`，在后台运行而不阻止。请参阅 [在后台运行 hooks](#run-hooks-in-the-background)                                                                                                                                                                   |
+| `asyncRewake` | 否  | 如果为 `true`，在后台运行并在退出代码 2 时唤醒 Claude。hook 的 stderr 或 stdout（如果 stderr 为空）显示给 Claude 作为系统提醒，以便它可以对长时间运行的后台失败做出反应                                                                                                                         |
 | `shell`       | 否  | 用于此 hook 的 shell。接受 `"bash"` 或 `"powershell"`。默认为 `"bash"`，或在未安装 Git Bash 时在 Windows 上默认为 `"powershell"`。设置 `"powershell"` 在 Windows 上通过 PowerShell 运行命令。不需要 `CLAUDE_CODE_USE_POWERSHELL_TOOL`，因为 hooks 直接生成 PowerShell。设置 `args` 时被忽略 |
 
 <a id="exec-form-and-shell-form" />
@@ -485,14 +483,14 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
   Exec 形式和 shell 形式
 </h5>
 
-当设置 `args` 时，命令 hook 以 exec 形式运行，当省略 `args` 时以 shell 形式运行。每当 hook 引用[路径占位符](#reference-scripts-by-path)时设置 `args`，因为每个元素作为一个参数传递，不带引号。当您需要 shell 功能（如管道或 `&&`）时，或当两个问题都不适用时，省略 `args`。
+当设置 `args` 时，命令 hook 以 exec 形式运行，当省略 `args` 时以 shell 形式运行。每当 hook 引用 [路径占位符](#reference-scripts-by-path) 时设置 `args`，因为每个元素作为一个参数传递，不带引号。当需要 shell 功能如管道或 `&&` 时省略 `args`，或当两个问题都不适用时。
 
-**Exec 形式**在存在 `args` 时运行。Claude Code 在 `PATH` 上解析 `command` 作为可执行文件，并直接使用 `args` 作为参数向量生成它。没有 shell，因此每个 `args` 元素恰好是一个参数，完全按照编写的方式，路径占位符如 `${CLAUDE_PLUGIN_ROOT}` 被替换为 `command` 和每个 `args` 元素中的纯字符串。特殊字符如撇号、`$` 和反引号逐字通过，因为没有 shell 来解释它们。在任何平台上都不会发生 shell 标记化。
+**Exec 形式**在设置 `args` 时运行。Claude Code 在 `PATH` 上解析 `command` 作为可执行文件，并直接使用 `args` 作为参数向量生成它。没有 shell，因此每个 `args` 元素恰好是一个参数，完全按照编写的方式，路径占位符如 `${CLAUDE_PLUGIN_ROOT}` 被替换为 `command` 和每个 `args` 元素中的纯字符串。特殊字符如撇号、`$` 和反引号逐字传递，因为没有 shell 来解释它们。在任何平台上都不会发生 shell 标记化。
 
-**Shell 形式**在省略 `args` 时运行。`command` 字符串被传递给 shell：在 macOS 和 Linux 上为 `sh -c`，在 Windows 上为 Git Bash，或在未安装 Git Bash 时为 PowerShell。设置 `shell` 字段以显式选择。shell 标记化字符串，展开变量，并解释管道、`&&`、重定向和 glob。
+**Shell 形式**在省略 `args` 时运行。`command` 字符串被传递到 shell：在 macOS 和 Linux 上为 `sh -c`，在 Windows 上为 Git Bash，或在未安装 Git Bash 时为 PowerShell。设置 `shell` 字段来明确选择。shell 标记化字符串、扩展变量并解释管道、`&&`、重定向和 globs。
 
 <Note>
-  在 Windows 上，exec 形式需要 `command` 解析为真实可执行文件，如 `.exe`。npm、npx、eslint 和其他工具在 `node_modules/.bin` 中安装的 `.cmd` 和 `.bat` 垫片不是可执行文件，不能在没有 shell 的情况下生成。要在 exec 形式中运行它们，直接使用 `node` 调用底层脚本，例如 `"command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/node_modules/eslint/bin/eslint.js"]`。`node` 加脚本路径模式在每个平台上都有效，因为 `node.exe` 是真实二进制文件。要按名称运行 `.cmd` 或 `.bat` 垫片，请使用 shell 形式。
+  在 Windows 上，exec 形式需要 `command` 解析为真实可执行文件如 `.exe`。npm、npx、eslint 和其他工具在 `node_modules/.bin` 中安装的 `.cmd` 和 `.bat` 垫片不是可执行文件，不能在没有 shell 的情况下生成。要在 exec 形式中运行它们，直接使用 `node` 调用底层脚本，例如 `"command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/node_modules/eslint/bin/eslint.js"]`。`node` 加脚本路径模式在每个平台上都有效，因为 `node.exe` 是真实二进制文件。要按名称运行 `.cmd` 或 `.bat` 垫片，使用 shell 形式。
 </Note>
 
 此示例运行与插件捆绑的 Node 脚本。Exec 形式将解析的脚本路径作为一个参数传递，不带引号：
@@ -505,7 +503,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 }
 ```
 
-等效的 shell 形式需要引号来处理包含空格或特殊字符的路径：
+等效的 shell 形式需要引号来处理带空格或特殊字符的路径：
 
 ```json theme={null}
 {
@@ -514,31 +512,31 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 }
 ```
 
-两种形式都支持相同的[路径占位符](#reference-scripts-by-path)，并且都将它们作为环境变量 `CLAUDE_PROJECT_DIR`、`CLAUDE_PLUGIN_ROOT` 和 `CLAUDE_PLUGIN_DATA` 导出到生成的进程上，因此脚本可以读取 `process.env.CLAUDE_PLUGIN_ROOT`，无论它是如何启动的。
+两种形式都支持相同的 [路径占位符](#reference-scripts-by-path)，并且都将它们导出为生成过程上的环境变量 `CLAUDE_PROJECT_DIR`、`CLAUDE_PLUGIN_ROOT` 和 `CLAUDE_PLUGIN_DATA`，因此脚本可以读取 `process.env.CLAUDE_PLUGIN_ROOT` 无论如何启动。
 
-插件 hooks 另外替换 [`${user_config.*}`](/docs/zh-CN/plugins-reference#user-configuration) 值，仅在 exec 形式中：该值被替换为 `command` 和每个 `args` 元素中的纯字符串，因此没有 shell 重新解析它。
+插件 hooks 另外替换 [`${user_config.*}`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 值，仅在 exec 形式中：值被替换为 `command` 和每个 `args` 元素中的纯字符串，因此没有 shell 重新解析它。
 
-一个 shell 形式的插件 hook，其 `command` 引用 `${user_config.*}` 会失败并出现[错误](/docs/zh-CN/errors#plugin-command-references-user-config)，而不是运行。要从 shell 形式的 hook 使用选项值，请读取 `$CLAUDE_PLUGIN_OPTION_<KEY>` 环境变量，例如 `webhook_url` 选项的 `$CLAUDE_PLUGIN_OPTION_WEBHOOK_URL`，或设置 `args` 以将 hook 切换到 exec 形式。在 v2.1.207 之前，shell 形式的插件 hook 命令也替换了 `${user_config.*}`。
+shell 形式的插件 hook，其 `command` 引用 `${user_config.*}` 失败并出现 [错误](/docs/zh-CN/errors#plugin-command-references-user-config) 而不是运行。要从 shell 形式的 hook 使用选项值，读取 `$CLAUDE_PLUGIN_OPTION_<KEY>` 环境变量，如 `webhook_url` 选项的 `$CLAUDE_PLUGIN_OPTION_WEBHOOK_URL`，或设置 `args` 来将 hook 切换到 exec 形式。在 v2.1.207 之前，shell 形式的插件 hook 命令也替换 `${user_config.*}`。
 
 <Note>
-  在 exec 形式中，`command` 仅是可执行文件名或路径。如果 `command` 是没有路径分隔符的裸名称，并且与 `args` 一起包含空格，Claude Code 会记录警告，因为生成会失败：没有名为 `node script.js` 的可执行文件。将额外的令牌移到 `args` 中。包含空格的绝对路径，如 `C:\Program Files\nodejs\node.exe`，是单个有效的可执行文件，不会触发警告。
+  在 exec 形式中，`command` 仅是可执行文件名或路径。如果 `command` 是没有路径分隔符的裸名称，并且与 `args` 一起包含空格，Claude Code 记录一条警告，因为生成将失败：没有名为 `node script.js` 的可执行文件。将额外的标记移到 `args` 中。带空格的绝对路径，如 `C:\Program Files\nodejs\node.exe`，是单个有效的可执行文件，不会触发警告。
 </Note>
 
 <h4 id="http-hook-fields">
   HTTP hook 字段
 </h4>
 
-除了[通用字段](#common-fields)外，HTTP hooks 还接受这些字段：
+除了 [通用字段](#common-fields)，HTTP hooks 接受这些字段：
 
 | 字段               | 必需 | 描述                                                                                      |
 | :--------------- | :- | :-------------------------------------------------------------------------------------- |
 | `url`            | 是  | 发送 POST 请求的 URL                                                                         |
 | `headers`        | 否  | 其他 HTTP 标头作为键值对。值支持使用 `$VAR_NAME` 或 `${VAR_NAME}` 语法的环境变量插值。仅解析 `allowedEnvVars` 中列出的变量 |
-| `allowedEnvVars` | 否  | 可能被插值到标头值中的环境变量名称列表。对未列出变量的引用被替换为空字符串。任何环境变量插值都需要此项                                     |
+| `allowedEnvVars` | 否  | 可能被插值到标头值中的环境变量名称列表。对未列出变量的引用被替换为空字符串。任何环境变量插值都需要                                       |
 
-Claude Code 使用 `Content-Type: application/json` 将 hook 的[JSON 输入](#hook-input-and-output)作为 POST 请求体发送。响应体使用与命令 hooks 相同的[JSON 输出格式](#json-output)。
+Claude Code 将 hook 的 [JSON 输入](#hook-input-and-output) 作为 POST 请求体发送，`Content-Type: application/json`。响应体使用与命令 hooks 相同的 [JSON 输出格式](#json-output)。
 
-错误处理与命令 hooks 不同；请参阅[HTTP 响应处理](#http-response-handling)。
+错误处理与命令 hooks 不同；请参阅 [HTTP 响应处理](#http-response-handling)。
 
 此示例将 `PreToolUse` 事件发送到本地验证服务，使用来自 `MY_TOKEN` 环境变量的令牌进行身份验证：
 
@@ -569,15 +567,15 @@ Claude Code 使用 `Content-Type: application/json` 将 hook 的[JSON 输入](#h
   MCP 工具 hook 字段
 </h4>
 
-除了[通用字段](#common-fields)外，MCP 工具 hooks 还接受这些字段：
+除了 [通用字段](#common-fields)，MCP 工具 hooks 接受这些字段：
 
-| 字段       | 必需 | 描述                                                                                                                                                                                   |
-| :------- | :- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `server` | 是  | 已配置的 MCP 服务器的名称。对于[插件捆绑的服务器](/docs/zh-CN/mcp#plugin-provided-mcp-servers)，这是作用域名称 `plugin:<plugin-name>:<server-name>`，例如 `plugin:my-plugin:db`，而不是裸服务器密钥。服务器必须已连接；hook 永远不会触发 OAuth 或连接流 |
-| `tool`   | 是  | 该服务器上要调用的工具的名称                                                                                                                                                                       |
-| `input`  | 否  | 传递给工具的参数。字符串值支持从 hook 的[JSON 输入](#hook-input-and-output)进行 `${path}` 替换，例如 `"${tool_input.file_path}"`                                                                               |
+| 字段       | 必需 | 描述                                                                                                                                                                                |
+| :------- | :- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `server` | 是  | 配置的 MCP 服务器的名称。对于 [插件捆绑的服务器](/docs/zh-CN/mcp#plugin-provided-mcp-servers)，这是范围名称 `plugin:<plugin-name>:<server-name>`，如 `plugin:my-plugin:db`，不是裸服务器密钥。服务器必须已连接；hook 永远不会触发 OAuth 或连接流 |
+| `tool`   | 是  | 在该服务器上调用的工具的名称                                                                                                                                                                    |
+| `input`  | 否  | 传递给工具的参数。字符串值支持来自 hook 的 [JSON 输入](#hook-input-and-output) 的 `${path}` 替换，如 `"${tool_input.file_path}"`                                                                           |
 
-Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 相同，遵循[退出代码 0 下的解析规则](#exit-code-0)。如果命名的服务器未连接，或工具返回 `isError: true`，hook 会产生非阻止错误，执行继续。
+Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 相同，遵循 [退出代码 0 下的解析规则](#exit-code-0)。如果命名的服务器未连接，或工具返回 `isError: true`，hook 产生非阻止错误，执行继续。
 
 此示例在每个 `Write` 或 `Edit` 后在 `my_server` MCP 服务器上调用 `security_scan` 工具，传递编辑文件的路径：
 
@@ -601,13 +599,13 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 相�
 }
 ```
 
-`mcp_tool` hook 仅在 Claude Code 使会话的 MCP 服务器对 hooks 可用后才能在每个 hook 事件上运行。`SessionStart` 和 `Setup` 可能在该点之前触发：
+`mcp_tool` hook 仅在 Claude Code 使会话的 MCP 服务器对 hooks 可用后才能运行。`SessionStart` 和 `Setup` 可能在该点之前触发：
 
-* **在启动时**：`SessionStart` 在服务器可用之前触发，包括当您使用 `--continue` 或 `--resume` 启动时。Claude Code 跳过事件的 `mcp_tool` hooks 而不调用它们的工具，[调试日志](#debug-hooks)记录 `mcp_tool hooks are not available for the 'SessionStart' hook event (no MCP client context)`。
-* **稍后在运行的会话中**：在 `/clear` 或压缩后，`SessionStart` 再次触发，服务器已可用，其 `mcp_tool` hooks 运行。
+* **在启动时**：`SessionStart` 在服务器可用之前触发，包括当使用 `--continue` 或 `--resume` 启动时。Claude Code 跳过事件的 `mcp_tool` hooks 而不调用其工具，[调试日志](#debug-hooks) 记录 `mcp_tool hooks are not available for the 'SessionStart' hook event (no MCP client context)`。
+* **稍后在运行会话中**：在 `/clear` 或压缩后，`SessionStart` 再次触发，服务器已可用，其 `mcp_tool` hooks 运行。
 * **在 `Setup` 上**：`Setup` 总是在服务器可用之前触发，因此 Claude Code 每次都跳过其 `mcp_tool` hooks 并记录相同的消息，命名 `Setup`。
 
-例如，此配置从没有匹配器的 `SessionStart` hook 在 `my_server` MCP 服务器上调用 `load_context` 工具，因此它适用于每个 `SessionStart` 源：
+例如，此配置从 `SessionStart` hook 在 `my_server` MCP 服务器上调用 `load_context` 工具，没有匹配器，因此它适用于每个 `SessionStart` 源：
 
 ```json theme={null}
 {
@@ -627,37 +625,37 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 相�
 }
 ```
 
-当您运行 `claude` 时，Claude Code 跳过此 hook，永远不调用 `load_context`，并将 `no MCP client context` 消息写入调试日志。在该同一会话中运行 `/clear`，hook 运行并调用 `load_context`。`type: "command"` hook 在 `SessionStart` 上运行，因此对会话从其第一个转向需要的任何东西使用一个。
+当运行 `claude` 时，Claude Code 跳过此 hook，永远不调用 `load_context`，并将 `no MCP client context` 消息写入调试日志。在同一会话中运行 `/clear`，hook 运行并调用 `load_context`。`type: "command"` hook 在 `SessionStart` 上运行，因此对会话从第一轮需要的任何东西使用一个。
 
 <h4 id="prompt-and-agent-hook-fields">
   提示和代理 hook 字段
 </h4>
 
-除了[通用字段](#common-fields)外，提示和代理 hooks 还接受这些字段：
+除了 [通用字段](#common-fields)，提示和代理 hooks 接受这些字段：
 
-| 字段       | 必需 | 描述                                                                                   |
-| :------- | :- | :----------------------------------------------------------------------------------- |
-| `prompt` | 是  | 要发送给模型的提示文本。使用 `$ARGUMENTS` 作为 hook 输入 JSON 的占位符。使用反斜杠转义以包含文字文本：`\$1.00` 呈现为 `$1.00` |
-| `model`  | 否  | 用于评估的模型。默认为快速模型                                                                      |
+| 字段       | 必需 | 描述                                                                                 |
+| :------- | :- | :--------------------------------------------------------------------------------- |
+| `prompt` | 是  | 发送给模型的提示文本。使用 `$ARGUMENTS` 作为 hook 输入 JSON 的占位符。用反斜杠转义以包含文字文本：`\$1.00` 呈现为 `$1.00` |
+| `model`  | 否  | 用于评估的模型。默认为快速模型                                                                    |
 
 <h3 id="reference-scripts-by-path">
   按路径引用脚本
 </h3>
 
-使用这些占位符按项目或插件根目录引用 hook 脚本，无论 hook 运行时的工作目录如何：
+使用这些占位符来相对于项目或插件根目录引用 hook 脚本，无论 hook 运行时的工作目录如何：
 
-* `${CLAUDE_PROJECT_DIR}`：项目根目录，会话启动的位置。Claude Code 也在[stdio MCP 服务器](/docs/zh-CN/mcp#option-3-add-a-local-stdio-server)和插件 LSP 服务器的环境中设置此变量。
-* `${CLAUDE_PLUGIN_ROOT}`：插件的安装目录，用于与[插件](/docs/zh-CN/plugins)捆绑的脚本。请参阅[插件环境变量](/docs/zh-CN/plugins-reference#environment-variables)了解路径在更新中的行为。
-* `${CLAUDE_PLUGIN_DATA}`：插件的[持久数据目录](/docs/zh-CN/plugins-reference#persistent-data-directory)，用于应该在插件更新后保留的依赖项和状态。
+* `${CLAUDE_PROJECT_DIR}`：会话启动的项目根目录。Claude Code 还在 [stdio MCP 服务器](/docs/zh-CN/mcp#option-3-add-a-local-stdio-server) 和插件 LSP 服务器的环境中设置此变量。
+* `${CLAUDE_PLUGIN_ROOT}`：插件的安装目录，用于与 [插件](/docs/zh-CN/plugins/overview) 捆绑的脚本。有关路径在更新中的行为方式，请参阅 [插件环境变量](/docs/zh-CN/plugins/manifest-reference#environment-variables)。
+* `${CLAUDE_PLUGIN_DATA}`：插件的 [持久数据目录](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)，用于应该在插件更新中存活的依赖项和状态。
 
 <Note>
-  **Worktrees 是不同的。** 如果 Claude 在会话期间进入[worktree](/docs/zh-CN/worktrees)，Claude Code 保持 `${CLAUDE_PROJECT_DIR}` 在其原位，并以不同的方式将 worktree 路径传递给您的 hooks：
+  **Worktrees 是不同的。** 如果 Claude 在会话期间进入 [worktree](/docs/zh-CN/worktrees)，Claude Code 将 `${CLAUDE_PROJECT_DIR}` 保持在原位，并以不同的方式将 worktree 路径传递给 hooks：
 
   * **`${CLAUDE_PROJECT_DIR}` 保持不变**：它仍然指向会话启动的项目根目录，因此像 `${CLAUDE_PROJECT_DIR}/.claude/hooks/check-style.sh` 这样的命令仍然在主检出中运行脚本。
-  * **`cwd` 跟随 Claude**：hook 的[输入 JSON](#common-input-fields)中的 `cwd` 字段在 Claude 进入 worktree 后是 worktree 根目录，在 Claude 运行 `cd` 后是新目录。当 hook 需要知道 Claude 正在哪个目录中工作时读取它。
+  * **`cwd` 跟随 Claude**：hook 的 [输入 JSON](#common-input-fields) 中的 `cwd` 字段在 Claude 进入 worktree 后是 worktree 根目录，在 Claude 运行 `cd` 后是新目录。当 hook 需要知道 Claude 正在处理哪个目录时读取它。
 </Note>
 
-对于任何引用路径占位符的 hook，优先使用[exec 形式](#exec-form-and-shell-form)。在 shell 形式中，用双引号包装每个占位符。
+对于任何引用路径占位符的 hook，优先使用 [exec 形式](#exec-form-and-shell-form)。在 shell 形式中，用双引号包装每个占位符。
 
 <Tabs>
   <Tab title="项目脚本">
@@ -684,13 +682,13 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 相�
   </Tab>
 
   <Tab title="插件脚本">
-    在 `hooks/hooks.json` 中定义插件 hooks，带有可选的顶级 `description` 字段。启用插件时，其 hooks 与您的用户和项目 hooks 合并。
+    在 `hooks/hooks.json` 中定义插件 hooks，带有可选的顶级 `description` 字段。启用插件时，其 hooks 与用户和项目 hooks 合并。
 
     此示例运行与插件捆绑的格式化脚本：
 
     ```json theme={null}
     {
-      "description": "Automatic code formatting",
+      "description": "自动代码格式化",
       "hooks": {
         "PostToolUse": [
           {
@@ -709,25 +707,25 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 相�
     }
     ```
 
-    有关创建插件 hooks 的详细信息，请参阅[插件组件参考](/docs/zh-CN/plugins-reference#hooks)。
+    有关创建插件 hooks 的详细信息，请参阅 [插件组件参考](/docs/zh-CN/plugins/components#hooks)。
   </Tab>
 </Tabs>
 
 <h3 id="hooks-in-skills-and-agents">
-  Skills 和代理中的 Hooks
+  Hooks in skills and agents
 </h3>
 
-除了设置文件和插件外，hooks 还可以使用 frontmatter 直接在[skills](/docs/zh-CN/skills)和[subagents](/docs/zh-CN/sub-agents)中定义，使用与基于设置的 hooks 相同的配置格式。Claude Code 保持它们注册多长时间取决于组件：
+除了设置文件和插件，hooks 可以直接在 [skills](/docs/zh-CN/skills) 和 [subagents](/docs/zh-CN/sub-agents) 中使用 frontmatter 定义，采用与基于设置的 hooks 相同的配置格式。Claude Code 保持它们注册多长时间取决于组件：
 
-* **Subagent hooks**：Claude Code 仅在该 subagent 运行时运行它们，并在其完成时移除它们。Claude Code 在此处将 `Stop` hook 转换为 `SubagentStop`，这是 subagent 完成时触发的事件。
-* **Skill hooks**：Claude Code 在您或 Claude 调用 skill 时注册它们，并在会话的其余部分保持运行它们，在 skill 自己的转向之后的转向上也是如此。要让 Claude Code 在第一次成功运行后移除 hook，请在其上设置[`once: true`](#common-fields)。
+* **Subagent hooks**：Claude Code 仅在该子代理运行时运行它们，并在完成时删除它们。Claude Code 在此处将 `Stop` hook 转换为 `SubagentStop`，这是它在子代理完成时触发的事件。
+* **Skill hooks**：Claude Code 在调用技能时注册它们，并在会话的其余部分保持运行它们，在技能自己的轮次之后的轮次上也是如此。要让 Claude Code 在第一次成功运行后删除 hook，请在其上设置 [`once: true`](#common-fields)。
 
-此 skill 定义了一个 `PreToolUse` hook，在每个 `Bash` 命令之前运行安全验证脚本：
+此技能定义了一个 `PreToolUse` hook，在每个 `Bash` 命令之前运行安全验证脚本：
 
 ```yaml theme={null}
 ---
 name: secure-operations
-description: Perform operations with security checks
+description: 执行具有安全检查的操作
 hooks:
   PreToolUse:
     - matcher: "Bash"
@@ -739,15 +737,15 @@ hooks:
 
 Subagents 在其 YAML frontmatter 中使用相同的格式。
 
-项目 skill 中的 Frontmatter hooks 遵循与设置文件中的 hooks 相同的[工作区信任规则](#workspace-trust)。Claude Code 在您或 Claude 调用 skill 时注册它们，包括在您未信任的文件夹中的 `-p` 运行。
+项目技能中的 Frontmatter hooks 遵循与设置文件中的 hooks 相同的 [工作区信任规则](#workspace-trust)。Claude Code 在调用技能时注册它们，包括在未信任的文件夹中的 `-p` 运行。
 
-项目 subagent 中的 Frontmatter hooks 仅在您接受 agent 文件来自的文件夹的[工作区信任对话](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)后运行。`-p` 会话不计为接受它。[在您信任文件夹之前运行的内容](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)将此与设置文件规则进行比较，subagents 页面列出[哪些范围是豁免的](/docs/zh-CN/sub-agents#hooks-in-subagent-frontmatter)。在 v2.1.218 之前，这些 hooks 可以从您未信任的文件夹运行。
+项目子代理中的 Frontmatter hooks 仅在接受代理文件来自的文件夹的 [工作区信任对话](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust) 后运行。`-p` 会话不计为接受它。[在信任文件夹之前运行的内容](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 将此与设置文件规则进行比较，subagents 页面列出 [哪些范围被豁免](/docs/zh-CN/sub-agents#hooks-in-subagent-frontmatter)。在 v2.1.218 之前，这些 hooks 可以从未信任的文件夹运行。
 
 <h3 id="the-/hooks-menu">
   `/hooks` 菜单
 </h3>
 
-在 Claude Code 中键入 `/hooks` 以打开您配置的 hooks 的只读浏览器。菜单显示每个 hook 事件及其配置的 hooks 计数，让您深入了解匹配器，并显示每个 hook 处理程序的完整详细信息。使用它来验证配置、检查 hook 来自哪个设置文件，或检查 hook 的命令、提示或 URL。
+在 Claude Code 中键入 `/hooks` 以打开配置的 hooks 的只读浏览器。菜单显示每个 hook 事件及其配置的 hooks 计数，让你深入了解匹配器，并显示每个 hook 处理程序的完整详细信息。使用它来验证配置、检查 hook 来自哪个设置文件或检查 hook 的命令、提示或 URL。
 
 菜单显示所有五种 hook 类型：`command`、`prompt`、`agent`、`http` 和 `mcp_tool`。每个 hook 都标有 `[type]` 前缀和指示其定义位置的源：
 
@@ -755,21 +753,21 @@ Subagents 在其 YAML frontmatter 中使用相同的格式。
 * `Project Settings`：来自 `.claude/settings.json`
 * `Local Settings`：来自 `.claude/settings.local.json`
 * `Plugin Hooks`：来自插件的 `hooks/hooks.json`
-* `Session Hooks`：在当前会话中在内存中注册
+* `Session Hooks`：为当前会话在内存中注册
 
-选择 hook 会打开详细视图，显示其事件、匹配器、类型、源文件以及完整的命令、提示或 URL。菜单是只读的：要添加、修改或移除 hooks，请直接编辑设置 JSON 或要求 Claude 进行更改。
+选择 hook 打开详细视图，显示其事件、匹配器、类型、源文件和完整命令、提示或 URL。菜单是只读的：要添加、修改或删除 hooks，直接编辑设置 JSON 或要求 Claude 进行更改。
 
 <h3 id="disable-or-remove-hooks">
-  禁用或移除 hooks
+  禁用或删除 hooks
 </h3>
 
-要移除 hook，请从设置 JSON 文件中删除其条目。
+要删除 hook，从设置 JSON 文件中删除其条目。
 
-要临时禁用所有 hooks 而不移除它们，请在设置文件中设置 `"disableAllHooks": true`。Claude Code 读取[设置优先级](/docs/zh-CN/settings#settings-precedence)应用后留下的值，因此项目的 `.claude/settings.json` 中的 `"disableAllHooks": false` 覆盖您的用户设置中的 `true`。要关闭一次运行，无论项目的设置说什么，请传递 `--settings '{"disableAllHooks": true}'`，这优先于项目和本地设置。没有办法在保持 hook 在配置中的同时禁用单个 hook。
+要临时禁用所有 hooks 而不删除它们，在设置文件中设置 `"disableAllHooks": true`。Claude Code 读取 [设置优先级](/docs/zh-CN/settings#settings-precedence) 应用后留下的值，因此项目的 `.claude/settings.json` 中的 `"disableAllHooks": false` 覆盖用户设置中的 `true`。要关闭一次运行，无论项目的设置如何，传递 `--settings '{"disableAllHooks": true}'`，这优先于项目和本地设置。没有办法禁用单个 hook 同时将其保留在配置中。
 
-`disableAllHooks` 设置遵守托管设置层次结构。如果管理员通过托管策略设置配置了 hooks，则在用户、项目或本地设置中设置的 `disableAllHooks` 无法禁用这些托管 hooks。仅在托管设置级别设置的 `disableAllHooks` 可以禁用托管 hooks。对于每个级别的完整范围，请参阅[`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks)。
+`disableAllHooks` 设置尊重托管设置层次结构。如果管理员通过托管策略设置配置了 hooks，在用户、项目或本地设置中设置的 `disableAllHooks` 无法禁用这些托管 hooks。仅在托管设置级别设置的 `disableAllHooks` 可以禁用托管 hooks。有关每个级别的完整范围，请参阅 [`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks)。
 
-对设置文件中 hooks 的直接编辑通常由文件监视程序自动拾取。
+设置文件中对 hooks 的直接编辑通常由文件监视程序自动拾取。
 
 <h2 id="hook-input-and-output">
   Hook 输入和输出
@@ -1351,7 +1349,7 @@ exit 0
 
 成功时，`--init-only` 不向终端打印任何内容。要确认 hooks 运行，请使用 `claude --debug-file <path> --init-only` 启动，将 `<path>` 替换为日志文件位置，并检查日志中的 Setup 和 SessionStart hook 条目。
 
-由于 Setup 不会在每次启动时触发，需要安装依赖的插件不能仅依赖 Setup。实际的模式是在首次使用时检查依赖，如果缺失则安装，例如测试 `${CLAUDE_PLUGIN_DATA}/node_modules` 的 hook 或 skill，如果不存在则运行 `npm install`。有关在何处存储已安装的依赖，请参阅 [持久数据目录](/docs/zh-CN/plugins-reference#persistent-data-directory)。如果您通过市场分发插件，您可能不需要此模式：Claude Code [在缓存插件时自动安装符合条件的 Node.js 包依赖](/docs/zh-CN/plugins-reference#node-js-package-dependencies)。
+由于 Setup 不会在每次启动时触发，需要安装依赖的插件不能仅依赖 Setup。实际的模式是在首次使用时检查依赖，如果缺失则安装，例如测试 `${CLAUDE_PLUGIN_DATA}/node_modules` 的 hook 或 skill，如果不存在则运行 `npm install`。有关在何处存储已安装的依赖，请参阅 [持久数据目录](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。如果您通过市场分发插件，您可能不需要此模式：Claude Code [在缓存插件时自动安装符合条件的 Node.js 包依赖](/docs/zh-CN/plugins/loading#node-js-package-dependencies)。
 
 <h4 id="setup-input">
   Setup 输入

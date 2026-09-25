@@ -59,7 +59,7 @@
   > /plugin list --enabled
   ```
 
-  <a className="digest-feature-link" href="/docs/zh-CN/plugins-reference#plugin-list">插件命令</a>
+  <a className="digest-feature-link" href="/docs/zh-CN/plugins/cli-reference#plugin-list">插件命令</a>
 </div>
 
 <div className="digest-feature">

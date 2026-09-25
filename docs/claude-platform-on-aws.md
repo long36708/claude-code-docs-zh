@@ -242,7 +242,7 @@ export AWS_PROFILE=my-profile
 
 Claude Code 在启动时如果无法验证您现有的 AWS 凭证，也会运行此命令，并在 `Authentication` 面板中显示命令的输出，直到登录完成。
 
-配置了 `awsAuthRefresh` 后，运行 `/login`，选择 **3rd-party platform**，然后在 **Using 3rd-party platforms** 下选择 **Claude Platform on AWS · refresh credentials**。Claude Code 运行配置的命令并重新读取您的 AWS 凭证，无需重启。此选项需要 Claude Code v2.1.186 或更高版本。
+配置了 `awsAuthRefresh` 后，运行 `/login`，选择 **3rd-party platform**，然后在 **Using 3rd-party platforms** 下选择 **Claude Platform on AWS · refresh credentials**。Claude Code 运行配置的命令并重新读取您的 AWS 凭证，无需重启。
 
 **选项 B：工作区 API 密钥**
 
