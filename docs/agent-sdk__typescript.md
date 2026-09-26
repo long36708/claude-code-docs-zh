@@ -527,6 +527,7 @@ Configuration object for the `query()` function.
 | `toolAliases`                     | `Record<string, string>`                                                                                                                                                                                       | `undefined`                                 | Map built-in tool names to MCP tool names so Claude calls your MCP implementation in place of the built-in. For example, `{ Bash: 'mcp__workspace__bash' }`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `toolConfig`                      | [`ToolConfig`](#toolconfig)                                                                                                                                                                                    | `undefined`                                 | Configuration for built-in tool behavior. See [`ToolConfig`](#toolconfig) for details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `tools`                           | `string[] \| { type: 'preset'; preset: 'claude_code' }`                                                                                                                                                        | `undefined`                                 | Tool configuration. Pass an array of tool names or use the preset to get Claude Code's default tools                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `verbatimPrompts`                 | `boolean`                                                                                                                                                                                                      | `false`                                     | Deliver every prompt as written. The SDK sends each user message with `client_composed: true`. See [`client_composed`](#sdkusermessage) for what Claude Code skips on those messages. Use this option when your prompt text includes content the end user didn't type. For per-turn control, leave it off and set `client_composed` on individual streamed messages instead. Requires TypeScript Agent SDK v0.3.280 or later and Claude Code v2.1.248 or later; the Claude Code version bundled with those SDK versions satisfies the Claude Code requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
 #### Handle slow or stalled API responses
 
@@ -1359,6 +1360,7 @@ type SDKUserMessage = {
   parent_tool_use_id: string | null;
   isSynthetic?: boolean;
   shouldQuery?: boolean;
+  client_composed?: true;
   tool_use_result?: unknown;
   origin?: SDKMessageOrigin;
   inline_pastes?: string[];
@@ -1367,7 +1369,10 @@ type SDKUserMessage = {
 
 Set `pasted_content` to send content the user pasted into your prompt UI rather than typed, one entry per paste, each a string or an array of content blocks. Claude Code appends each entry's text after the typed text, in order, and may wrap each paste in `<pasted_content>` tags. Blocks other than text are ignored, so send images and documents in `message.content`. Requires Agent SDK v0.3.277 or later.
 
-Set `shouldQuery` to `false` to append the message to the transcript without triggering an assistant turn. The message is held and merged into the next user message that does trigger a turn. Use this to inject context, such as the output of a command you ran out of band, without spending a model call on it.
+Set `shouldQuery` or `client_composed` to change how Claude Code handles a message you send:
+
+* `shouldQuery`: set it to `false` to append the message to the transcript without triggering an assistant turn. The message is held and merged into the next user message that does trigger a turn. Use this to inject context, such as the output of a command you ran out of band, without spending a model call on it.
+* `client_composed`: set it to `true` to have Claude Code deliver the message text as written. Claude Code then doesn't expand `@path` or [`@server:resource`](/docs/en/mcp#use-mcp-resources) mentions, and doesn't run text that starts with `/` as a command. While the [`verbatimPrompts`](#options) option is on, the SDK sets the field on every message. Requires TypeScript Agent SDK v0.3.280 or later and Claude Code v2.1.248 or later.
 
 On a message that carries a `tool_result` block, `tool_use_result` is the tool's structured output object rather than the text sent to the model. Its shape depends on the tool named by the matching `tool_use` block, so the field is typed `unknown`; the built-in shapes are listed under [Tool Output Types](#tool-output-types).
 
@@ -1389,6 +1394,7 @@ type SDKUserMessageReplay = {
   message: MessageParam;
   parent_tool_use_id: string | null;
   isSynthetic?: boolean;
+  client_composed?: true;
   tool_use_result?: unknown;
   origin?: SDKMessageOrigin;
   isReplay: true;
@@ -1537,7 +1543,7 @@ Claude Code omits the field in these cases:
 
 The `uuid`s of every message you sent that Claude Code answered in this turn. When you send several messages close together, Claude Code can merge them into one turn, and `user_message_uuid` then names only the last of them. To match the reply to any of the merged messages, look for that message's `uuid` anywhere in this list. Requires Agent SDK v0.3.259 or later.
 
-Claude Code sets the list together with `user_message_uuid` on each reply frame that carries that field and on the result. For the full set of frames that carry `user_message_uuid`, and the version each requires, see [`user_message_uuid`](#user_message_uuid). The list always contains `user_message_uuid` and holds at most 64 entries.
+Claude Code sets the list together with `user_message_uuid` on each reply frame that carries that field and on the result. For the full set of turn frames that echo the answered message's `uuid`, and the version each requires, see [`user_message_uuid`](#user_message_uuid). The list always contains `user_message_uuid` and holds at most 64 entries.
 
 When Claude Code picks up a regular message you sent while a turn was running, it adds that message's `uuid` to the result's list.
 
@@ -1583,24 +1589,24 @@ type SDKStartupFailureReason =
 
 Each value names one refusal:
 
-| Value                                  | What stopped the session                                                                                                                                                                                 |
-| :------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `org_pin_api_key_conflict`             | Managed settings [require a first-party or Cloud gateway sign-in](/docs/en/authentication#restrict-login-to-your-organization), and an Anthropic API key, auth token, or `apiKeyHelper` is configured instead |
-| `org_verify_failed`                    | The sign-in's organization couldn't be verified against the pin, for example because of a network failure or a revoked token                                                                             |
-| `org_pin_mismatch`                     | The sign-in belongs to an organization the pin doesn't allow                                                                                                                                             |
-| `managed_settings_invalid`             | Managed policy settings couldn't be read, or the pin names no organization                                                                                                                               |
-| `remote_settings_required_unavailable` | Managed settings that the organization requires couldn't be loaded                                                                                                                                       |
-| `gateway_signin_required`              | The [Cloud gateway](/docs/en/claude-apps-gateway) ended this sign-in                                                                                                                                          |
-| `gateway_access_denied`                | The managed settings request to the Cloud gateway came back with a 403, which the gateway's [troubleshooting table](/docs/en/claude-apps-gateway-deploy#troubleshooting) covers                               |
-| `proxy_invalid`                        | A proxy setting isn't a complete URL                                                                                                                                                                     |
-| `temp_dir_unusable`                    | The per-user temporary directory is unsafe or couldn't be created                                                                                                                                        |
-| `cwd_unavailable`                      | The working directory was deleted, moved, or can't be read                                                                                                                                               |
-| `shell_tool_missing`                   | On Windows, no shell tool is available: Git Bash is missing, and PowerShell is missing or turned off with `CLAUDE_CODE_USE_POWERSHELL_TOOL`                                                              |
-| `session_held_by_background`           | The conversation to resume or continue is running as a [background session](/docs/en/agent-view)                                                                                                              |
-| `worktree_resume_refused`              | The session's worktree failed its safety checks, or the resume was launched from inside it. `errors` says whether running the same resume again continues without the worktree                           |
-| `worktree_unverified`                  | The session's worktree couldn't be verified right now, and retrying may succeed                                                                                                                          |
-| `cli_version_too_old`                  | This Claude Code version is below the minimum Anthropic requires                                                                                                                                         |
-| `bypass_root`                          | Bypass permissions mode was requested while running as root                                                                                                                                              |
+| Value                                  | What stopped the session                                                                                                                                                                                      |
+| :------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `org_pin_api_key_conflict`             | Managed settings [require a first-party or Cloud gateway sign-in](/docs/en/authentication#restrict-login-to-your-organization), and an Anthropic API key, auth token, or `apiKeyHelper` is configured instead      |
+| `org_verify_failed`                    | The sign-in's organization couldn't be verified against the pin, for example because of a network failure or a revoked token                                                                                  |
+| `org_pin_mismatch`                     | The sign-in belongs to an organization the pin doesn't allow                                                                                                                                                  |
+| `managed_settings_invalid`             | Managed policy settings couldn't be read, the pin names no organization, or [managed model restrictions](/docs/en/errors#managed-settings-block-the-default-model) leave no permitted model for the Default option |
+| `remote_settings_required_unavailable` | Managed settings that the organization requires couldn't be loaded                                                                                                                                            |
+| `gateway_signin_required`              | The [Cloud gateway](/docs/en/claude-apps-gateway) ended this sign-in                                                                                                                                               |
+| `gateway_access_denied`                | The managed settings request to the Cloud gateway came back with a 403, which the gateway's [troubleshooting table](/docs/en/claude-apps-gateway-deploy#troubleshooting) covers                                    |
+| `proxy_invalid`                        | A proxy setting isn't a complete URL                                                                                                                                                                          |
+| `temp_dir_unusable`                    | The per-user temporary directory is unsafe or couldn't be created                                                                                                                                             |
+| `cwd_unavailable`                      | The working directory was deleted, moved, or can't be read                                                                                                                                                    |
+| `shell_tool_missing`                   | On Windows, no shell tool is available: Git Bash is missing, and PowerShell is missing or turned off with `CLAUDE_CODE_USE_POWERSHELL_TOOL`                                                                   |
+| `session_held_by_background`           | The conversation to resume or continue is running as a [background session](/docs/en/agent-view)                                                                                                                   |
+| `worktree_resume_refused`              | The session's worktree failed its safety checks, or the resume was launched from inside it. `errors` says whether running the same resume again continues without the worktree                                |
+| `worktree_unverified`                  | The session's worktree couldn't be verified right now, and retrying may succeed                                                                                                                               |
+| `cli_version_too_old`                  | This Claude Code version is below the minimum Anthropic requires                                                                                                                                              |
+| `bypass_root`                          | Bypass permissions mode was requested while running as root                                                                                                                                                   |
 
 ### `SDKSystemMessage`
 
@@ -1630,6 +1636,12 @@ type SDKSystemMessage = {
   output_style: string;
   skills: string[];
   plugins: { name: string; path: string }[];
+  plugin_errors?: {
+    plugin: string;
+    type: string;
+    message: string;
+    path?: string;
+  }[];
   fast_mode_state?: FastModeState;
   fast_mode_disabled_reason?: FastModeDisabledReason;
   effort?: "low" | "medium" | "high" | "xhigh" | "max" | null;
@@ -1650,6 +1662,19 @@ The `capabilities` array names the protocol behaviors this CLI implements, so yo
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `interrupt_receipt_v1`       | [`interrupt()`](#query-object) resolves with an [`SDKControlInterruptResponse`](#sdkcontrolinterruptresponse) receipt listing the messages that were pending when the interrupt arrived                                                                                                           |
 | `interrupt_cancel_queued_v1` | The `interrupt` control request honors `cancel_queued: true`, cancelling the messages the receipt would otherwise list under `still_queued` and listing them under `cancelled` instead. See [`SDKControlInterruptResponse`](#sdkcontrolinterruptresponse). Requires Claude Code v2.1.219 or later |
+
+The `plugin_errors` array lists plugin load failures. An entry describes either a plugin that didn't load and is absent from `plugins`, or a plugin that loaded without one of its parts, such as its hooks file. The key is omitted when nothing failed. `SDKSystemMessage` declares `plugin_errors` in Agent SDK v0.3.283 or later.
+
+When a directory or archive from your [`plugins` option](#options) itself fails to load, the entry's `plugin` field holds a positional tag such as `inline[0]` instead of a plugin name. This happens, for example, when the path doesn't exist or the manifest is invalid. Match such an entry to your option by its `path` field.
+
+The table below lists the fields of each `plugin_errors` entry.
+
+| Field     | Type     | Description                                                                                                                                                                               |
+| --------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `plugin`  | `string` | The failing plugin's ID, or a positional tag such as `inline[0]` when the plugin directory or archive itself failed to load                                                               |
+| `type`    | `string` | Error category from an open set, such as `path-not-found` or `manifest-validation-error`. Treat a value you don't recognize as a generic failure                                          |
+| `message` | `string` | Display text describing the failure                                                                                                                                                       |
+| `path`    | `string` | Present only when the plugin directory or archive itself failed to load. Its absolute path, with a relative path from your `plugins` option resolved against the [`cwd`](#options) option |
 
 ### `SDKPartialAssistantMessage`
 
@@ -5244,6 +5269,8 @@ type SDKLocalCommandOutputMessage = {
 
 Emitted when the set of available commands changes mid-session, such as when Claude Code discovers skills as the agent enters a subdirectory. The `commands` array is the full updated list, so replace any cached command list with this payload. Calling [`supportedCommands()`](#query-object) after this message returns the same updated list, because the method tracks the latest push; this requires Agent SDK v0.3.216 or later. In earlier SDK versions, `supportedCommands()` returns the snapshot captured at initialization and never reflects mid-session changes.
 
+Claude Code also emits this message when an MCP server's [prompts](/docs/en/mcp#use-mcp-prompts-as-commands) join or leave the list, for example when a server finishes connecting after the session starts. This requires Claude Code v2.1.281 or later.
+
 ```typescript theme={null}
 type SDKCommandsChangedMessage = {
   type: "system";
@@ -5277,8 +5304,19 @@ type SDKConversationResetMessage = {
   new_conversation_id: UUID;
   uuid: UUID;
   session_id: string;
+  trigger?: "clear" | "plan_mode_exit" | "fresh_session" | "onboarding";
+  user_message_uuid?: string;
+  timestamp?: string;
 };
 ```
+
+The optional fields describe the reset:
+
+* `trigger`: what discarded the conversation. Reset your transcript on every `conversation_reset` message, including one where this field is absent or carries a value you don't recognize.
+* `user_message_uuid`: the `uuid` of the user message that carried the `/clear`. Use it to match the reset to that message.
+* `timestamp`: when the reset happened, as an ISO 8601 string in UTC. Use it for display, not for ordering messages.
+
+The `trigger`, `user_message_uuid`, and `timestamp` fields require Claude Code v2.1.281 or later.
 
 The SDK's published typings declare `SDKConversationResetMessage` in Claude Code v2.1.203 and later. Before v2.1.203, `SDKMessage` referenced the type without declaring it, so narrowing on `type === "conversation_reset"` failed to typecheck when `skipLibCheck` was disabled.
 

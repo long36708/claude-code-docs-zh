@@ -145,6 +145,7 @@ Match the message you see to a section below.
 | `Claude Code ... does not support this model; version ... or newer is required`                                                                                                                                                                                      | [Request errors](#claude-code-does-not-support-this-model)                                                                    |
 | `Claude Code ... is older than the minimum version required by your organization's policy`                                                                                                                                                                           | [Request errors](#claude-code-does-not-support-this-model)                                                                    |
 | `Model ... is restricted by your organization's settings`                                                                                                                                                                                                            | [Request errors](#model-is-restricted-by-your-organizations-settings)                                                         |
+| `Model ... is not available. Your organization restricts model selection.`                                                                                                                                                                                           | [Request errors](#model-is-restricted-by-your-organizations-settings)                                                         |
 | `Model switch ... blocked by a PreModelSwitch hook`                                                                                                                                                                                                                  | [Request errors](#model-switch-was-blocked-by-a-premodelswitch-hook)                                                          |
 | `couldn't save it as your default` / `couldn't confirm it was saved as your default`                                                                                                                                                                                 | [Request errors](#couldnt-save-it-as-your-default)                                                                            |
 | `thinking.type.enabled is not supported for this model`                                                                                                                                                                                                              | [Request errors](#thinking-type-enabled-is-not-supported-for-this-model)                                                      |
@@ -281,6 +282,7 @@ Match the message you see to a section below.
 | `EACCES: permission denied, posix_spawn`                                                                                                                                                                                                                             | [Background session errors](#eacces-when-starting-a-background-session)                                                       |
 | `exited before it became reachable`                                                                                                                                                                                                                                  | [Background session errors](#background-service-exited-before-it-became-reachable)                                            |
 | `Couldn't start a background session (working directory no longer exists or is not accessible: ...)`                                                                                                                                                                 | [Background session errors](#working-directory-no-longer-exists-when-starting-a-background-session)                           |
+| `Workspace not trusted.` when starting or restarting a background session                                                                                                                                                                                            | [Background session errors](#workspace-not-trusted-when-dispatching-a-background-session)                                     |
 | `Claude Code is being updated by npm on this machine (still not runnable after 2 min, ...)`                                                                                                                                                                          | [Background session errors](#eacces-when-starting-a-background-session)                                                       |
 | `Claude Code process exited with code N`                                                                                                                                                                                                                             | [Wrapper and IDE errors](#claude-code-process-exited-with-code-n)                                                             |
 | `The connection to Claude Code ended before this message completed`                                                                                                                                                                                                  | [Wrapper and IDE errors](#the-connection-to-claude-code-ended-before-this-message-completed)                                  |
@@ -298,6 +300,7 @@ Match the message you see to a section below.
 | `is a network path, which cannot be added as a working directory`                                                                                                                                                                                                    | [Configuration warnings](#working-directory-is-a-network-path)                                                                |
 | `Remote managed settings failed to load (<cause>)`                                                                                                                                                                                                                   | [Configuration warnings](#remote-managed-settings-failed-to-load)                                                             |
 | `Managed settings were not approved; exiting without applying them.`                                                                                                                                                                                                 | [Configuration warnings](#managed-settings-were-not-approved)                                                                 |
+| `Claude Code can't start: your organization's managed settings block the default model` / `Claude Code can't start: your organization allows only the models listed in "availableModels"`                                                                            | [Configuration warnings](#managed-settings-block-the-default-model)                                                           |
 | `MCP server <name> is blocked by enterprise managed policy`                                                                                                                                                                                                          | [Configuration warnings](#mcp-server-is-blocked-by-enterprise-managed-policy)                                                 |
 | `Managed settings document could not be parsed as a JSON object; none of its settings are in effect. Fix or remove it.`                                                                                                                                              | [Configuration warnings](#managed-settings-document-could-not-be-parsed)                                                      |
 | `Managed settings drop-in directory could not be read`                                                                                                                                                                                                               | [Configuration warnings](#managed-settings-document-could-not-be-parsed)                                                      |
@@ -1576,6 +1579,7 @@ Common causes include no internet access, a VPN that blocks `api.anthropic.com`,
 
 If `curl` succeeds but Claude Code still fails, the cause is usually something between the runtime and the network rather than the network itself:
 
+* Check whether `ANTHROPIC_BASE_URL` is set by running `echo $ANTHROPIC_BASE_URL`, or `echo $env:ANTHROPIC_BASE_URL` in PowerShell, and look for it in the `env` block of your [settings files](/docs/en/settings). When it's set, Claude Code sends model requests to that address instead of `api.anthropic.com`, so a leftover value pointing at a local proxy or gateway that's no longer running produces `Connection refused` even though `curl` reaches the API. Remove it from your shell profile or settings and start Claude Code from a new terminal.
 * On Linux and WSL, check `/etc/resolv.conf` for an unreachable nameserver. WSL in particular can inherit a broken resolver from the host.
 * On macOS, a VPN client that was disconnected or uninstalled can leave a tunnel interface or routing rule behind. Check `ifconfig` for stale `utun` interfaces and remove the VPN's network extension in System Settings.
 * Docker Desktop and similar container runtimes can intercept outbound traffic. Quit them and retry to rule this out.
@@ -2144,15 +2148,17 @@ API Error: 400 Claude Code 2.1.240 is older than the minimum version required by
   Model is restricted by your organization's settings
 </h3>
 
-Your organization admin has disabled this model in the claude.ai admin console, or it is excluded by an [`availableModels`](/docs/en/model-config#restrict-model-selection) allowlist in managed settings. When the restricted model was set with `--model`, `ANTHROPIC_MODEL`, or the `model` setting, Claude Code substitutes an allowed model and continues. Typing `/model <name>` for a restricted model is rejected with `Run /model to choose a different model.` and the session keeps its current model. The substitution notice can also appear mid-session after an admin disables the model a session is running on in the claude.ai admin console.
+Your organization admin has disabled this model in the claude.ai admin console, or managed settings exclude it through an [`availableModels`](/docs/en/model-config#restrict-model-selection) allowlist or a [`deniedModels`](/docs/en/model-config#block-specific-models-or-versions) list. The notice appears at startup when `--model`, `ANTHROPIC_MODEL`, or the `model` setting named the restricted model, and it names the model the session uses instead. If managed settings leave no permitted model for the session to use, see [Managed settings block the default model](#managed-settings-block-the-default-model). The substitution notice can also appear mid-session after an admin disables the model a session is running on in the claude.ai admin console.
 
 ```text theme={null}
 Model "claude-opus-4-8" is restricted by your organization's settings. Using claude-sonnet-4-6 instead.
 ```
 
+Typing `/model <name>` for a restricted model is rejected and the session keeps its current model. For a model disabled in the admin console, the rejection reads `Model '<name>' is restricted by your organization's settings. Run /model to choose a different model.` For a model that managed settings exclude, it reads `Model '<name>' is not available. Your organization restricts model selection.`
+
 A notice prefixed with an agent, skill, or command name means the restriction applied to that [subagent's requested model](/docs/en/sub-agents#choose-a-model): the subagent runs on the substituted model and your session's model is unchanged. Before v2.1.223, Claude Code showed the notice only for subagents launched with the Agent tool.
 
-Claude Code treats a model family alias, one of `opus`, `sonnet`, `haiku`, or `fable`, as a request for that family rather than for its newest version. On the Anthropic API and on [Claude Platform on AWS](/docs/en/claude-platform-on-aws), a restricted family alias resolves to the newest version of the family that your organization and the `availableModels` allowlist permit, and the substitution notice names that version. Claude Code rejects `/model <alias>` only when every version of the family is restricted. Before v2.1.205, a family alias was substituted or rejected based on its newest version alone, even when an older version of the same family was allowed.
+Claude Code treats a model family alias, one of `opus`, `sonnet`, `haiku`, or `fable`, as a request for that family rather than for its newest version. On the Anthropic API and on [Claude Platform on AWS](/docs/en/claude-platform-on-aws), a restricted family alias resolves to the newest version of the family that your organization's settings permit, and the substitution notice names that version. Claude Code rejects `/model <alias>` only when every version of the family is restricted. Before v2.1.205, a family alias was substituted or rejected based on its newest version alone, even when an older version of the same family was allowed.
 
 **What to do:**
 
@@ -4098,7 +4104,7 @@ Two quoted reasons have known causes:
 
 ### Working directory no longer exists when starting a background session
 
-You tried to start a [background session](/docs/en/agent-view) in a directory that doesn't exist anymore. This happens when you dispatch from agent view or run `/background` after the directory you're working in was deleted or moved. It also happens when you attach to or restart a session whose process has exited and whose directory is gone, because the new process would start in that same directory. Claude Code doesn't start the session, and the message names the missing directory:
+You tried to start a [background session](/docs/en/agent-view) in a directory that doesn't exist anymore. Claude Code doesn't start the session, and the message names the missing directory:
 
 ```text theme={null}
 Couldn't start a background session (working directory no longer exists or is not accessible: /tmp/demo)
@@ -4109,6 +4115,27 @@ Before v2.1.257, the session appeared to start and then showed in agent view as 
 **What to do:**
 
 * Recreate the directory the message names, or dispatch from a directory that exists, then try again
+
+### Workspace not trusted when dispatching a background session
+
+You started or restarted a [background session](/docs/en/agent-view) in a directory you haven't [trusted](/docs/en/permissions#project-allow-rules-and-workspace-trust), and the workspace trust dialog couldn't appear to ask you. Claude Code doesn't start the session:
+
+```text theme={null}
+Workspace not trusted. Run `claude` in /path/to/project once and accept the trust prompt, then retry.
+```
+
+From a terminal in the session's own directory, the same command shows the trust dialog instead and starts the session once you accept. This message appears where no dialog can, such as in a script, or when you restart a session from a directory other than its own.
+
+Two variants name a different cause:
+
+* **`The home directory is trusted one session at a time`**: the session's directory is your home directory. Claude Code never saves trust for the home directory, so accepting the dialog there in an earlier session doesn't count.
+* **`<path> could not be resolved on disk`**: Claude Code couldn't find the session's directory on disk.
+
+**What to do:**
+
+* Run `claude` in the directory the message names and accept the trust dialog, then run the command again
+* For the home-directory message, run the command from a terminal in your home directory so the dialog can appear, or start the session from a project directory instead
+* For the `could not be resolved on disk` message, recreate the directory, or start a new session from a directory that exists
 
 ## Wrapper and IDE errors
 
@@ -4392,7 +4419,11 @@ Before v2.1.257, Claude Code accepted a reachable network path as a working dire
   Remote managed settings failed to load
 </h3>
 
-Your session is eligible for [server-managed settings](/docs/en/server-managed-settings), but Claude Code couldn't fetch them, so it shows this warning in interactive sessions. The parenthesized cause names what failed, such as `network error`, `request timed out`, or `authentication rejected (401)`, and the rest of the line says which policy the session runs on:
+Your session is eligible for [server-managed settings](/docs/en/server-managed-settings), but Claude Code couldn't fetch them or couldn't apply what the server returned, so it shows this warning in interactive sessions.
+
+The parenthesized cause names what failed, such as `network error`, `request timed out`, or `authentication rejected (401)`. The cause `no setting in the server response could be applied as written` means the server answered but none of the settings it returned passed [validation](/docs/en/server-managed-settings#invalid-entries-in-delivered-settings). Before v2.1.282, this cause read `server returned invalid settings`.
+
+The rest of the line says which policy the session runs on:
 
 * **Settings cached from an earlier successful fetch**: Claude Code runs the session on that cached policy, except the [withheld environment variables](/docs/en/server-managed-settings#fetch-and-caching-behavior), and the line reads `using cached policy`.
 * **No cache**: Claude Code runs the session without server-managed settings, and the line reads `no remote policy applied`.
@@ -4400,6 +4431,7 @@ Your session is eligible for [server-managed settings](/docs/en/server-managed-s
 **What to do:**
 
 * Act on the cause the message names: for a network cause, check that this machine can reach `api.anthropic.com`; for an authentication cause, check your sign-in with `/status`
+* For `no setting in the server response could be applied as written`, ask your administrator to correct the settings on the server
 * Run `/status` or `claude doctor` for the full diagnostic
 
 Before v2.1.248, Claude Code reported a failed settings fetch only in the debug log.
@@ -4418,6 +4450,27 @@ Managed settings were not approved; exiting without applying them.
 
 * Start Claude Code again and approve the dialog to continue under your organization's settings. A declined dialog isn't remembered, so it appears again at the next start.
 * If you're unsure about a setting the dialog lists, ask whoever maintains your organization's managed settings before approving
+
+<h3 id="managed-settings-block-the-default-model">
+  Managed settings block the default model
+</h3>
+
+Your organization's [managed settings](/docs/en/managed-settings) block the model the Default option resolves to and every model it could step down to. A session that would start on the Default option exits at startup instead of running a blocked model. Which message you see depends on the setting that blocks it. When a [`deniedModels`](/docs/en/model-config#block-specific-models-or-versions) list blocks it, the message reads:
+
+```text theme={null}
+Claude Code can't start: your organization's managed settings block the default model (claude-opus-5-5) in "deniedModels", and none of the models they allow can be used as the default instead. Ask your administrator to update "deniedModels" or "availableModels".
+```
+
+When an `availableModels` list with [`availableModelsMatch`](/docs/en/settings-reference#availablemodelsmatch) set to `"exact"` omits it, the message reads:
+
+```text theme={null}
+Claude Code can't start: your organization allows only the models listed in "availableModels", and none of them can be used as the default model (claude-opus-5-5 isn't listed). Ask your administrator to update "availableModels".
+```
+
+**What to do:**
+
+* If you administer the settings, add a model your users can run to `availableModels`, or narrow the `deniedModels` entries that block every fallback. [Block specific models or versions](/docs/en/model-config#block-specific-models-or-versions) describes how the Default option steps down
+* If you don't administer them, send the message to your administrator. Your own settings files can't widen a managed `availableModels` or `deniedModels` list
 
 <h3 id="mcp-server-is-blocked-by-enterprise-managed-policy">
   MCP server is blocked by enterprise managed policy
