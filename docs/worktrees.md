@@ -59,7 +59,7 @@ Worktree 是一个新的检出，因此请在那里初始化您的开发环境�
   清理 worktrees
 </h2>
 
-当你退出交互式 worktree 会话时，Claude 会检查 worktree 中是否有删除会丢失的工作：已更改或未跟踪的文件、已检出子模块内的未提交工作，以及新提交。
+当你退出交互式 worktree 会话时，Claude 会检查 worktree 中是否有删除会丢失的工作：已更改或未跟踪的文件、已检出子模块内的未提交工作，以及新提交。这些规则适用于 Claude 使用 git 创建的 worktrees。对于你的 [WorktreeCreate hook](/docs/zh-CN/hooks#worktreecreate) 创建的 worktree，请改为参阅 [WorktreeRemove](/docs/zh-CN/hooks#worktreeremove)。
 
 * **worktree 是干净的**：对于未命名的会话，Claude 会自动删除 worktree 及其分支。[已命名](/docs/zh-CN/sessions#name-your-sessions)的会话会先提示你，以便你可以保留 worktree 供以后使用
 * **worktree 中有工作**：Claude 会提示你保留或删除 worktree。保留会保留目录和分支。要稍后返回，请运行 Claude Code 在退出时打印的 `claude --worktree <name> --resume` 命令。删除会删除 worktree 目录及其分支，以及其中的所有工作

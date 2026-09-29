@@ -231,11 +231,11 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
 
 云会话需要连接的 GitHub 账户。通过上面的浏览器流程连接，或如果您使用 GitHub CLI，从您的终端运行 `/web-setup`。如果您根本不想连接 GitHub，请参阅 [Remote Control](/docs/zh-CN/remote-control) 以在您自己的机器上运行 Claude Code 并从浏览器或手机监控它。
 
-<h3 id="not-available-for-the-selected-organization">
-  "Not available for the selected organization"
+<h3 id="claude-code-isn’t-available-on-your-account">
+  "Claude Code isn't available on your account"
 </h3>
 
-企业组织可能需要所有者启用云会话。联系您的 Anthropic 账户团队。
+您在所选组织中的席位不包括 Claude Code。如果您属于另一个组织，请点击该页面上的**切换组织**。否则，请要求组织的所有者为您分配一个[包括 Claude Code 的席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)。
 
 <h3 id="/web-setup-says-not-signed-in-to-claude">
   `/web-setup` 说 "Not signed in to Claude"

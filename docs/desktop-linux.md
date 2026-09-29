@@ -158,7 +158,7 @@ sudo rm /etc/apt/sources.list.d/claude-desktop.list
 * 所有缺失的依赖关系都显示 `not installable`，带有 `:amd64` 或 `:arm64` 后缀：您下载的 `.deb` 与您的机器架构不同。运行 `dpkg --print-architecture` 并下载匹配的 `.deb`，或[从 apt 存储库安装](#install)，它会为您的架构选择软件包。
 
 <h3 id="running-as-root-without-no-sandbox-is-not-supported">
-  以 root 身份运行而不使用 --no-sandbox 不受支持
+  以 root 身份运行而不使用 `--no-sandbox` 不受支持
 </h3>
 
 如果 `claude-desktop` 以此消息退出，说明您以 root 身份启动了它。以普通用户身份登录并从那里启动它。

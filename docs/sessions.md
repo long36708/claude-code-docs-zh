@@ -8,7 +8,7 @@
 
 会话是与项目目录关联的已保存对话。Claude Code 在您工作时将其本地存储，因此您可以从中断处恢复、分支以尝试不同的方法，或在任务之间切换。
 
-[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)、[网页版 Claude Code](/docs/zh-CN/claude-code-on-the-web) 和 [VS Code 扩展](/docs/zh-CN/vs-code#resume-past-conversations)各自维护自己的会话历史记录。本页涵盖 CLI。
+[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)、[claude.ai/code](/docs/zh-CN/claude-code-on-the-web) 和 [VS Code 扩展](/docs/zh-CN/vs-code#resume-past-conversations)各自维护自己的会话列表，桌面应用还可以[恢复 CLI 会话](/docs/zh-CN/desktop#coming-from-the-cli)。本页涵盖 CLI。
 
 <h2 id="resume-a-session">
   恢复会话
@@ -135,7 +135,7 @@ Claude Code 按项目目录存储会话。默认情况下，会话选择器显�
 | 从 claude.ai 或 Claude 应用 | 重命名 [Remote Control 会话](/docs/zh-CN/remote-control#connect-from-another-device)；Claude Code 在 CLI 中应用相同的名称。需要 Claude Code v2.1.221 或更高版本 |
 | 从桌面应用 | 在 [桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 中重命名会话 |
 
-通过 CLI 路由或从 claude.ai 命名会话后，使用 `claude --resume <name>` 或 `/resume <name>` 返回到它；桌面应用会话在应用中恢复，该应用保持自己的会话历史记录。有关名称解析如何跨 worktrees 工作的信息，请参阅[恢复会话](#resume-a-session)。
+通过 CLI 路由或从 claude.ai 命名会话后，使用 `claude --resume <name>` 或 `/resume <name>` 返回到它；桌面应用会话在 [桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 中恢复。有关名称解析如何跨 worktrees 工作的信息，请参阅[恢复会话](#resume-a-session)。
 
 当您使用此计算机上另一个活跃会话已经使用的名称启动或恢复交互式会话，或将会话重命名为这样的名称时，Claude Code 会将该名称保留给已经拥有它的会话，将您的会话重命名为带有两个单词后缀的变体，例如 `auth-refactor-graceful-unicorn`，并告知您。如果您想自己选择一个名称，请使用新名称运行 `/rename`。在 v2.1.232 之前，两个会话都保留该名称。
 

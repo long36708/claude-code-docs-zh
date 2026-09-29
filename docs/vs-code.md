@@ -185,7 +185,7 @@ Explain the logic in @auth (fuzzy matches auth.js, AuthService.ts, etc.)
 What's in @src/components/ (include a trailing slash for folders)
 ```
 
-对于大型 PDF，您可以要求 Claude 读取特定页面而不是整个文件：单个页面、范围如第 1-10 页，或开放式范围如第 3 页及以后。
+对于大型 PDF，您可以要求 Claude 读取特定页面而不是整个文件：单个页面、范围如第 1-10 页，或开放式范围如第 3 页及以后。读取特定页面需要在 Claude Code 运行的机器上安装 [poppler-utils](/docs/zh-CN/tools-reference#read-tool-behavior)。
 
 当您在编辑器中选择文本时，Claude 可以自动看到您突出显示的代码。提示框页脚显示选择了多少行。按 `Option+K`（Mac）/ `Alt+K`（Windows/Linux）来插入带有文件路径和行号的 @-mention（例如 `@app.ts#5-10`）。点击选择指示器上的 **X** 来删除它，这样 Claude 就不会收到选择。当您选择其他文本时，指示器会重新出现。
 

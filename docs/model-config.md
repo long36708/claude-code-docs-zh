@@ -297,10 +297,11 @@ Claude Code 代表您进行的模型更改以相同的方式检查：
 
 | 交付机制 | CLI 和 IDE | 桌面本地会话 | Web、移动和云会话 | Agent SDK 和非交互式 | Cowork |
 | :- | :- | :- | :- | :- | :- |
-| 来自管理控制台的[服务器管理设置](/docs/zh-CN/server-managed-settings) | 强制执行 | 强制执行 | 强制执行 | 强制执行 | 未交付 |
+| 来自管理控制台的[服务器管理设置](/docs/zh-CN/server-managed-settings) | 强制执行 | 强制执行 | 强制执行，除了[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话 | 强制执行 | 未交付 |
 | [MDM 或托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms) | 强制执行 | 强制执行 | 在 Anthropic 托管环境中未交付；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，根据[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)从运行器镜像强制执行 | 强制执行 | 在部署的地方强制执行 |
 
 * [云会话](/docs/zh-CN/claude-code-on-the-web)（包括您从桌面应用启动的会话）默认在 Anthropic 管理的 VM 上运行：部署到您的设备的设置不会到达它们，因此通过服务器管理设置交付允许列表。您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您自己的计算上运行，也读取运行器镜像中的托管设置文件。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明了该文件何时适用。云会话中的中途模型切换在请求的模型被允许列表排除时被拒绝。当您的服务器管理设置中的 `availableModels` 列表非空时，服务器拒绝用户在列表排除的模型上启动云会话的请求。
+* [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话在云环境中运行，但不接收服务器管理设置；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，它们仍然读取运行器镜像中的托管设置文件。要为这些会话设置模型，请参阅 Claude Tag 管理员指南中的[为范围选择模型](https://claude.com/docs/claude-tag/admins/customize#choose-the-model-for-a-scope)。
 * Cowork（Claude 桌面应用中的代理工作选项卡）在 Claude Code 上运行其会话，但按设计不从 claude.ai 管理控制台接收服务器管理设置。当托管设置文件存在于会话运行的地方时，它适用于 Cowork 会话；远程 Cowork 会话在 Anthropic 管理的 VM 上运行，其中不存在设备部署的文件。
 * [第三方提供商](/docs/zh-CN/server-managed-settings#platform-availability)（如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)）上的会话不接收服务器管理设置，因此通过 MDM 或托管设置文件在那里交付允许列表。
 * 服务器管理交付还需要会话使用[符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability)进行身份验证。仅通过 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 脚本生成密钥的舰队应通过 MDM 或托管设置文件交付允许列表。
@@ -753,6 +754,8 @@ Fable 模型、Sonnet 5 及更高版本和 Opus 4.7 及更高版本始终使用�
 您不能在 Opus 5.5、Sonnet 5.5 或 Fable 模型上关闭思考。会话切换、`alwaysThinkingEnabled` 和 `MAX_THINKING_TOKENS=0` 在那里没有效果，模型根据努力级别按步骤决定思考多少。
 
 Claude Code 默认折叠思考输出。按 `Ctrl+O` 切换详细模式并将推理视为灰色斜体文本。Anthropic API 上的交互式会话默认接收编辑的思考块，因此如果您想要完整摘要在展开时可用，在[设置](/docs/zh-CN/settings)中设置 `showThinkingSummaries: true`。您需要为所有生成的思考令牌付费，即使折叠或编辑。
+
+<a id="extended-context-with-1m" />
 
 <h3 id="extended-context">
   扩展上下文

@@ -1483,7 +1483,7 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
   `autoMode.classifyAllShell`
 </h3>
 
-在自动模式处于活动状态时，通过自动模式分类器发送每个 Bash 和 PowerShell 命令。默认情况下，自动模式仅暂停可能运行任意代码的允许规则：工具范围和通配符规则（如 `Bash(*)`）以及解释器或 shell 包装器前缀（如 `Bash(python *)`）。任何其他允许规则匹配的命令（如 `Bash(npm test)`）会跳过分类器，除非它携带[每命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)，规则的前缀未预期的破坏性参数可能会被看不见地通过。设置此键会为会话暂停每个 shell 允许规则，以便分类器看到每个命令。需要 Claude Code v2.1.193 或更高版本。
+在自动模式处于活动状态时，通过自动模式分类器发送每个 Bash 和 PowerShell 命令。默认情况下，自动模式仅暂停可能运行任意代码的允许规则：工具范围和通配符规则（如 `Bash(*)`）以及解释器或 shell 包装器前缀（如 `Bash(python *)`）。任何其他允许规则匹配的命令（如 `Bash(npm test)`）会跳过分类器，除非它携带[每命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)。当它跳过时，规则的前缀未预期的破坏性参数可能会被看不见地通过。设置此键会为会话暂停每个 shell 允许规则，以便分类器看到每个命令。需要 Claude Code v2.1.193 或更高版本。
 
 * **作用域**: [`User or managed`](#scopes)。在读取 [`autoMode`](#automode) 的任何地方读取。
 * **类型**: 布尔值
@@ -1674,17 +1674,22 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
   `permissions.blockReadsOutsideWorkingDirectories`
 </h3>
 
-阻止 Claude 在每个权限模式（包括 `bypassPermissions`）中使用 Read、Grep、Glob 和 LSP 工具读取会话[工作目录](/docs/zh-CN/permissions#working-directories)之外的路径。通过 Claude Code 识别的文件命令（如 `cat`）读取匹配路径的 Bash 命令会在自动模式和 `bypassPermissions` 模式中提示您。需要 Claude Code v2.1.257 或更高版本。
+在每个权限模式（包括 `bypassPermissions`）中，使 Claude 的文件工具拒绝在您的[工作目录](/docs/zh-CN/permissions#working-directories)之外的读取。Claude Code 拒绝这些路径上的 `Read`、`Grep`、`Glob` 和 `LSP` 调用，并告诉 Claude 要求您使用 `/add-dir` 添加目录。Claude Code 本身需要的文件保持可读，如您的技能、插件、规则、代理、命令以及 `~/.claude/` 下的 `CLAUDE.md` 内存文件。需要 Claude Code v2.1.257 或更高版本。
+
+Claude Code 不会以相同的方式拒绝 shell 命令：
+
+* [没有模式自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)涵盖了读取此类路径的 shell 命令何时提示您
+* [块下的沙箱命令](#sandboxed-commands-under-the-block)涵盖了沙箱命令可以读取的内容
 
 shell 解析器无法追踪的 Bash 命令（如多次更改目录或运行子 shell 的命令）会在自动模式和 `bypassPermissions` 模式中提示您。即使命令未命名工作目录之外的任何路径，提示也会出现。当命令在[沙箱](/docs/zh-CN/sandboxing)中运行且沙箱强制执行该块时，此提示不适用。
 
 Claude Code 也会在此处写入 `true`，当您选择在[自动模式的提示中阻止此类读取（在第一次读取工作目录之外之前）](/docs/zh-CN/permission-modes#first-read-outside-the-working-directories)时。
 
-* **作用域**: [`Any file`](#scopes)。如果任何设置源设置 `true`，则应用该块，因此存储库的签入文件可以为项目打开该块，但无法解除您设置的块。
+* **作用域**: [`Any file`](#scopes)。任何文件中的 `true` 都会应用，因此存储库可以为自己打开该块，但无法解除您设置的块。
 * **类型**: 布尔值
-  * `true`：阻止工作目录之外的文件读取
-  * `false`：与未设置相同；任何其他设置文件中的 `true` 仍然会阻止
-* **默认值**: 未设置，因此工作目录之外的读取遵循您的权限模式和规则
+  * `true`：Claude 的文件工具拒绝在工作目录之外的读取
+  * `false`：与未设置相同；另一个文件中的块仍然适用如果它设置 `true`
+* **默认值**: 未设置，因此工作目录之外的读取遵循您的[权限模式](/docs/zh-CN/permission-modes)
 
 ```json settings.json theme={null}
 {
@@ -1694,17 +1699,43 @@ Claude Code 也会在此处写入 `true`，当您选择在[自动模式的提示
 }
 ```
 
-如果仅存储库的签入设置文件添加目录，该块仍然适用于那里的读取。当 [`autoMemoryDirectory`](#automemorydirectory) 来自项目的 `.claude/settings.json`，或来自被[视为存储库提供的](/docs/zh-CN/permissions#when-your-local-settings-file-needs-trust) `.claude/settings.local.json` 时，Claude Code 不会从该目录加载任何[自动内存](/docs/zh-CN/memory#storage-location)，也不会保存任何到其中。Claude Code 本身需要的文件保持可读，如您的技能、插件、规则、代理、命令以及 `~/.claude/` 下的 `CLAUDE.md` 内存文件。
+您使用 `--add-dir`、`/add-dir` 或用户或托管设置中的 `additionalDirectories` 添加的目录计为该块的工作目录。仅在存储库设置中添加的目录不计：那些在 `.claude/settings.json` 中的，以及在 `.claude/settings.local.json` 中的，除非 git 报告该文件为未跟踪。在不是 git 存储库的目录中，或当 git 跟踪该文件时，Claude Code 将 `.claude/settings.local.json` 视为存储库设置，因此改为在用户设置中放置您想保持可读的目录。
 
-当[沙箱](/docs/zh-CN/sandboxing)打开时，该块也会拒绝沙箱命令对工作目录之外的主目录和挂载卷根的读取访问。需要批准以[在沙箱外运行](/docs/zh-CN/sandboxing#the-unsandboxed-retry-escape-hatch)的重试会在 `bypassPermissions` 模式中提示您。工具从您的主目录读取的文件（如 `~/.gitconfig`）与其余文件一起被拒绝；当工具需要它时，使用 [`sandbox.filesystem.allowRead`](#sandbox-filesystem-allowread) 重新打开特定路径。
+当 [`autoMemoryDirectory`](#automemorydirectory) 来自项目的 `.claude/settings.json`，或来自被[视为存储库提供的](/docs/zh-CN/permissions#when-your-local-settings-file-needs-trust) `.claude/settings.local.json` 时，Claude Code 不会从该目录加载任何[自动内存](/docs/zh-CN/memory#storage-location)，也不会保存任何到其中。
+
+要解除该块，从设置它的每个设置文件中删除该键，然后启动新会话。
+
+<h4 id="sandboxed-commands-under-the-block">
+  块下的沙箱命令
+</h4>
+
+当[沙箱](/docs/zh-CN/sandboxing)打开时，该块也涵盖沙箱命令。Claude Code 拒绝它们对您的主目录和保存用户文件的其他根的读取访问：`/Users`、`/home`、`/root`、`/Volumes`、`/mnt`、`/media`、`/run/media` 和 `/srv`。然后它重新打开工作目录、[worktrees](/docs/zh-CN/worktrees) Claude Code 在会话中创建的、会话临时目录以及 `~/.claude` 的命令需要的部分，如技能和插件。当该块生效时，来自存储库设置的 `allowRead` 和 `allowWrite` 条目不计。
 
 当会话的工作目录是链接的 [git worktree](/docs/zh-CN/worktrees)（包括 Claude Code 在会话中途进入的）时，存储库的公共 `.git` 目录对沙箱命令保持可读和可写，因此 git 在那里继续工作。
+
+在这些情况下，该块不会到达沙箱命令，而 Claude 的文件工具继续强制执行它：
+
+* 文件系统隔离通过 [`sandbox.filesystem.disabled`](#sandbox-filesystem-disabled) 关闭
+* [`allowManagedReadPathsOnly`](#sandbox-filesystem-allowmanagedreadpathsonly) 已设置
+* 您启动 Claude Code 的目录的路径包含 glob 字符，如 `*`、`?` 或 `[`
+
+在该块下，Claude Code 重新打开您的全局 git 配置文件到沙箱命令，以便 `git` 保持您的身份和设置：
+
+* `~/.gitconfig`
+* `$XDG_CONFIG_HOME/git` 下的 `config`、`ignore` 和 `attributes` 文件，默认为 `~/.config/git`
+* 您的全局 git 配置通过 `[include]`、`[includeIf]`、`core.excludesFile` 或 `core.attributesFile` 命名的文件
+
+Claude Code 单独判断每个文件。当文件位于沙箱命令可以写入的地方（直接或通过符号链接）时，Claude Code 不会重新打开它命名的文件。
+
+在 Linux 和 WSL2 上，作为符号链接的配置文件可以在其自己的路径处保持不可读，然后 `git` 在没有它的情况下运行。`~/.git-credentials` 和 `$XDG_CONFIG_HOME/git/credentials` 保持被阻止。
+
+如果重新打开的文件保存机密，如 `http.extraHeader` 令牌，将其路径添加到 [`sandbox.filesystem.denyRead`](#sandbox-filesystem-denyread)。覆盖此重新打开的 `denyRead` 条目始终优先。
 
 <h3 id="permissions-defaultmode">
   `permissions.defaultMode`
 </h3>
 
-设置新会话启动的[权限模式](/docs/zh-CN/permission-modes)。当您将其留空时，会话会以您的计划和表面的[内置默认值](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)启动。
+设置新会话启动的[权限模式](/docs/zh-CN/permission-modes)。当您将其留空时，会话会以您的表面的[内置默认值](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)启动。
 
 * **作用域**: [`Any file`](#scopes)。`auto` 和 `bypassPermissions` 不会从项目或本地设置生效，因此改为在 `~/.claude/settings.json` 中设置它们。在 v2.1.257 之前，`bypassPermissions` 从任何文件生效。对于 VS Code 扩展启动的对话，Claude Code 仅读取用户、托管和 `--settings` 值。
 * **类型**: 字符串，以下之一：
@@ -2025,7 +2056,7 @@ Claude Code 也删除尾部 `/**`，因此 `~/build/**` 和 `~/build` 覆盖同�
 }
 ```
 
-Claude Code 在会话加载的每个设置范围中合并条目：用户、项目、本地和托管路径组合而不是替换彼此，Claude Code 添加您的 `Edit(...)` 允许权限规则中的路径。`allowWrite` 条目不能提升 [protected path](/docs/zh-CN/sandboxing#protected-paths)。
+Claude Code 在会话加载的每个设置范围中合并 `allowWrite` 条目和您的 `Edit(...)` 允许权限规则中的路径，在 [`permissions.blockReadsOutsideWorkingDirectories`](#sandboxed-commands-under-the-block) 打开时留出存储库设置中的条目。`allowWrite` 条目不能提升 [protected path](/docs/zh-CN/sandboxing#protected-paths)。
 
 <h3 id="sandbox-filesystem-denywrite">
   `sandbox.filesystem.denyWrite`
@@ -2096,7 +2127,7 @@ Claude Code 在会话加载的每个设置范围中合并条目，并添加您�
 }
 ```
 
-Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户设置中解析为 `~/.claude`。Claude Code 在会话加载的每个设置文件中合并条目，除非设置了 [`allowManagedReadPathsOnly`](#sandbox-filesystem-allowmanagedreadpathsonly)。
+Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户设置中解析为 `~/.claude`。Claude Code 在会话加载的每个设置文件中合并条目，除非设置了 [`allowManagedReadPathsOnly`](#sandbox-filesystem-allowmanagedreadpathsonly)，并在 [`permissions.blockReadsOutsideWorkingDirectories`](#sandboxed-commands-under-the-block) 打开时留出存储库设置中的条目。
 
 <h3 id="sandbox-filesystem-allowmanagedreadpathsonly">
   `sandbox.filesystem.allowManagedReadPathsOnly`
@@ -4871,7 +4902,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `strictPluginOnlyCustomization.skills`
 </h3>
 
-锁定 `skills` 表面。Claude Code 停止从 `~/.claude/skills/` 和 `.claude/skills/` 加载 skills，从 `~/.claude/commands/` 和 `.claude/commands/` 加载自定义命令，从 `--add-dir` 目录加载 skills，从您的 claude.ai 账户同步的 skills，并继续加载 plugin skills、捆绑的 skills 和托管策略目录中的 skills。
+锁定 `skills` 表面。Claude Code 停止从 `~/.claude/skills/` 和 `.claude/skills/` 加载 skills，从 `~/.claude/commands/` 和 `.claude/commands/` 加载自定义命令，从 `--add-dir` 目录加载 skills 和命令，从您的 claude.ai 账户同步的 skills。它继续加载 plugin skills、捆绑的 skills 和托管策略目录中的 skills。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: [`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 数组中的字符串 `"skills"`
@@ -4887,7 +4918,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `strictPluginOnlyCustomization.agents`
 </h3>
 
-锁定 `agents` 表面。Claude Code 停止从 `~/.claude/agents/` 和 `.claude/agents/` 加载 agents，并继续加载 plugin agents、内置 agents 和托管策略目录中的 agents。
+锁定 `agents` 表面。Claude Code 停止从 `~/.claude/agents/`、`.claude/agents/` 和 `--add-dir` 目录加载 agents。它继续加载 plugin agents、内置 agents 和托管策略目录中的 agents。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: [`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 数组中的字符串 `"agents"`

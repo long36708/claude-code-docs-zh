@@ -6,13 +6,7 @@
 
 > 在agent会话期间跟踪文件更改，并将文件恢复到任何之前的状态
 
-File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工具进行的文件修改，允许您将文件回滚到任何之前的状态。想要尝试一下？跳转到[交互式示例](#try-it-out)。
-
-使用checkpointing，您可以：
-
-* **撤销不需要的更改**，通过将文件恢复到已知的良好状态
-* **探索替代方案**，通过恢复到checkpoint并尝试不同的方法
-* **从错误中恢复**，当agent进行不正确的修改时
+File checkpointing跟踪在agent会话期间通过[Write](/docs/zh-CN/tools-reference#write-tool-behavior)、[Edit](/docs/zh-CN/tools-reference#edit-tool-behavior)和[NotebookEdit](/docs/zh-CN/tools-reference#notebookedit-tool-behavior)工具进行的文件修改，允许您将文件回滚到任何之前的状态。想要观看回滚恢复文件的过程，请跳转到[交互式示例](#try-it-out)。
 
 <Warning>
   只有通过Write、Edit和NotebookEdit工具进行的更改才会被跟踪。通过Bash命令进行的更改（如`echo > file.txt`或`sed -i`）不会被checkpoint系统捕获，[subagent](/docs/zh-CN/agent-sdk/subagents)应用的编辑也不会被捕获，除了在前台运行的[具有`context: fork`的skill](/docs/zh-CN/skills#run-skills-in-a-subagent)。
@@ -36,7 +30,9 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
 
 要使用文件checkpointing，在您的选项中启用它，从响应流中捕获checkpoint UUID，然后在需要恢复时调用`rewindFiles()`（TypeScript）或`rewind_files()`（Python）。
 
-以下示例显示完整流程：启用checkpointing，从响应流中捕获checkpoint UUID和会话ID，然后稍后恢复会话以回滚文件。下面详细解释了每个步骤。本部分中的示例使用提示"重构身份验证模块"。在包含身份验证模块的项目中运行它们，或更改提示以命名项目中存在的文件，以便您可以观看文件更改并查看回滚如何恢复它们。
+本部分中的示例使用提示"重构身份验证模块"。在包含身份验证模块的项目中运行它们，或更改提示以命名项目中存在的文件，以便您可以观看文件更改并查看回滚如何恢复它们。
+
+此示例启用checkpointing，从响应流中捕获checkpoint UUID和会话ID，然后稍后恢复会话以回滚文件。示例中的编号注释与以下步骤相对应。
 
 <CodeGroup>
   ```python Python theme={null}
@@ -153,29 +149,7 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
     | 启用checkpointing | `enable_file_checkpointing=True` | `enableFileCheckpointing: true` | 跟踪文件更改以便回滚 |
     | 接收checkpoint UUID | `extra_args={"replay-user-messages": None}` | `extraArgs: { 'replay-user-messages': null }` | 需要在流中获取用户消息UUID |
 
-    <CodeGroup>
-      ```python Python theme={null}
-      options = ClaudeAgentOptions(
-          enable_file_checkpointing=True,
-          permission_mode="acceptEdits",
-          extra_args={"replay-user-messages": None},
-      )
-
-      async with ClaudeSDKClient(options) as client:
-          await client.query("Refactor the authentication module")
-      ```
-
-      ```typescript TypeScript theme={null}
-      const response = query({
-        prompt: "Refactor the authentication module",
-        options: {
-          enableFileCheckpointing: true,
-          permissionMode: "acceptEdits" as const,
-          extraArgs: { "replay-user-messages": null }
-        }
-      });
-      ```
-    </CodeGroup>
+    [实现checkpointing](#implement-checkpointing)下的主要示例还将权限模式设置为`acceptEdits`，这会在没有提示的情况下批准代理的文件编辑。有关更多信息，请参阅[权限模式](/docs/zh-CN/agent-sdk/permissions#permission-modes)。
   </Step>
 
   <Step title="捕获checkpoint UUID和会话ID">
@@ -184,68 +158,10 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
     对于大多数用例，捕获第一个用户消息UUID（`message.uuid`）；回滚到它会将所有文件恢复到原始状态。要存储多个checkpoint并回滚到中间状态，请参阅[多个恢复点](#multiple-restore-points)。
 
     捕获会话ID（`message.session_id`）是可选的；只有在您想在流完成后回滚时才需要它。如果您在处理消息时立即调用`rewindFiles()`（如[在危险操作之前创建checkpoint](#checkpoint-before-risky-operations)中的示例所做的那样），您可以跳过捕获会话ID。
-
-    <CodeGroup>
-      ```python Python theme={null}
-      checkpoint_id = None
-      session_id = None
-
-      async for message in client.receive_response():
-          # Capture the first user message UUID as the checkpoint
-          if isinstance(message, UserMessage) and message.uuid and checkpoint_id is None:
-              checkpoint_id = message.uuid
-          # Capture session ID from the result message
-          if isinstance(message, ResultMessage):
-              session_id = message.session_id
-      ```
-
-      ```typescript TypeScript theme={null}
-      let checkpointId: string | undefined;
-      let sessionId: string | undefined;
-
-      for await (const message of response) {
-        // Capture the first user message UUID as the checkpoint
-        if (message.type === "user" && message.uuid && !checkpointId) {
-          checkpointId = message.uuid;
-        }
-        // Capture session ID from any message that has it
-        if ("session_id" in message) {
-          sessionId = message.session_id;
-        }
-      }
-      ```
-    </CodeGroup>
   </Step>
 
   <Step title="回滚文件">
-    要在流完成后回滚，使用空提示恢复会话，并使用您的checkpoint UUID调用`rewind_files()`（Python）或`rewindFiles()`（TypeScript）。您也可以在流期间回滚；有关该模式，请参阅[在危险操作之前创建checkpoint](#checkpoint-before-risky-operations)。
-
-    <CodeGroup>
-      ```python Python theme={null}
-      async with ClaudeSDKClient(
-          ClaudeAgentOptions(enable_file_checkpointing=True, resume=session_id)
-      ) as client:
-          await client.query("")  # Empty prompt to open the connection
-          async for message in client.receive_response():
-              if checkpoint_id:
-                  await client.rewind_files(checkpoint_id)
-              break
-      ```
-
-      ```typescript TypeScript theme={null}
-      const rewindQuery = query({
-        prompt: "", // Empty prompt to open the connection
-        options: { ...opts, resume: sessionId }
-      });
-
-      for await (const msg of rewindQuery) {
-        if (checkpointId) {
-          await rewindQuery.rewindFiles(checkpointId);
-        }
-        break;
-      }
-      ```
-    </CodeGroup>
+    要在流完成后回滚，使用空提示恢复会话，并使用您的checkpoint UUID调用`rewind_files()`（Python）或`rewindFiles()`（TypeScript）。在恢复会话的选项上也启用checkpointing，并从响应循环内调用rewind。您也可以在流期间回滚。有关该模式，请参阅[在危险操作之前创建checkpoint](#checkpoint-before-risky-operations)。
 
     如果您捕获了会话ID和checkpoint ID，您也可以从CLI回滚。此命令需要`claude`可执行文件，该文件来自[安装Claude Code](/docs/zh-CN/setup)。SDK为您启用checkpointing，但当您直接运行`claude -p`时，您必须设置`CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING`环境变量：
 
@@ -783,42 +699,7 @@ CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true claude -p --resume <session-id> -
 
 当您在完成响应迭代后调用`rewindFiles()`或`rewind_files()`时，会发生此错误。当循环完成时，与CLI进程的连接关闭。
 
-**解决方案**：使用空提示恢复会话，然后在新查询上调用rewind：
-
-<CodeGroup>
-  ```python Python theme={null}
-  # Resume session with empty prompt, then rewind
-  async with ClaudeSDKClient(
-      ClaudeAgentOptions(enable_file_checkpointing=True, resume=session_id)
-  ) as client:
-      await client.query("")
-      async for message in client.receive_response():
-          if checkpoint_id:
-              await client.rewind_files(checkpoint_id)
-          break
-  ```
-
-  ```typescript TypeScript theme={null}
-  // Resume session with empty prompt, then rewind
-  const rewindQuery = query({
-    prompt: "",
-    options: { ...opts, resume: sessionId }
-  });
-
-  try {
-    for await (const msg of rewindQuery) {
-      if (checkpointId) {
-        await rewindQuery.rewindFiles(checkpointId);
-      }
-      break;
-    }
-  } catch (error) {
-    // An error here means the rewind didn't complete, for example the checkpoint
-    // wasn't found or the session couldn't be resumed.
-    console.error(`Rewind session ended with an error: ${error}`);
-  }
-  ```
-</CodeGroup>
+**解决方案**：使用空提示恢复会话，然后在新查询上调用rewind。[Implement checkpointing](#implement-checkpointing)下的主要示例在标记为Step 3的注释处显示了两种语言的resume-and-rewind调用。
 
 <h2 id="next-steps">
   后续步骤

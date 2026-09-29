@@ -213,7 +213,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 
     * **[Cloud sessions](/docs/zh-CN/claude-code-on-the-web)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。Auto 模式仅在您的组织允许且所选模型支持时出现。Bypass permissions 不可用。
     * **[Remote Control](/docs/zh-CN/remote-control) sessions** 在您的本地机器上：Manual、Accept edits 和 Plan（对于您自己启动的会话），您无法从应用中选择 Auto 或 Bypass permissions。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](/docs/zh-CN/claude-projects#run-a-thread-on-your-own-computer)。
-      * 除了 Bypass permissions，下拉菜单显示本地会话所在的权限模式，包括从终端设置的模式。它在应用或终端中权限模式更改时更新。会话永远不会向 claude.ai 报告 Bypass permissions，因此从终端切换到它不会改变下拉菜单显示的内容。
+      * 除了 Bypass permissions，下拉菜单显示本地会话所在的权限模式，包括从终端设置的模式。它在应用或终端中权限模式更改时更新。
       * 由[桌面应用](/docs/zh-CN/desktop)或 [VS Code 扩展](/docs/zh-CN/vs-code)托管的会话在权限模式更改时向 claude.ai 报告，与在终端中托管的会话相同。
       * 在 v2.1.202 之前，使用 `/remote-control` 或 `claude --remote-control` 连接的会话根本不报告其权限模式，因此 claude.ai 和移动应用可能显示会话不在的权限模式。不匹配仅影响标签。Claude Code 从会话的实际权限模式生成权限提示，它们仍然出现在应用中以供批准。
 
@@ -487,13 +487,27 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
 
 当自动模式无法批准您的会话操作时，发生的情况取决于情况：
 
-* **被阻止的操作**：Claude Code 显示通知并在 `/permissions` 下的**最近拒绝**选项卡中列出操作，您可以按 `r` 使用手动批准重试它。当分类器对操作[没有给出判决](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)时，因为自动模式之外的安全检查拒绝了分类器自己的请求或其响应未解析，Claude Code 拒绝该操作而不显示通知或**最近拒绝**条目。
-* **重复阻止**：如果分类器连续 3 次或总共 20 次阻止操作，自动模式暂停，Claude Code 恢复提示。批准提示的操作恢复自动模式。这些阈值不可配置。任何允许的操作重置连续计数器，而总计数器对会话持续并仅在其自己的限制触发回退时重置。当[自动模式之外的安全检查拒绝分类器的请求](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)时，Claude Code 不计算拒绝向任一阈值；链接的条目涵盖 Claude Code 如何处理这些拒绝。
-* **无法提示的会话**：[非交互式](/docs/zh-CN/headless) `-p` 运行没有 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 没有回退提示。当重复阻止达到阈值时，操作不运行，Claude 继续工作。当[自动模式之外的安全检查拒绝分类器的请求](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)时也适用相同情况。Claude Code 在任一情况下都不停止运行。
+* **被阻止的操作**：Claude Code 显示通知并在 `/permissions` 下的**最近拒绝**选项卡中列出操作，您可以按 `r` 使用手动批准重试它。
+* **重复阻止**：如果分类器连续 3 次或总共 20 次阻止操作，自动模式暂停，Claude Code 恢复提示。批准提示的操作恢复自动模式。请参阅[重复阻止阈值](#repeated-block-thresholds)了解如何计算阻止。
+* **来自分类器的无判决**：当自动模式之外的安全检查拒绝分类器自己的请求，或分类器的响应未解析时，Claude Code 拒绝该操作而不显示通知或**最近拒绝**条目。请参阅[自动模式无法确定操作的安全性](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)了解每种情况显示的消息以及处理方法。
 * **来自服务器的无判决**：在[服务器端分类器审查](#server-side-classifier-review)下，Claude Code 拒绝服务器给不出判决的操作，并在连续 10 个响应没有判决后停止轮次。请参阅[服务器未返回安全判决](/docs/zh-CN/errors#the-server-returned-no-safety-verdict)。
-* **检查期间的模式切换**：如果您在分类器检查待处理时切换权限模式，Claude Code 丢弃新模式不会请求的判决，而不是应用它：您改为被提示批准，或在 [`dontAsk` 模式](#allow-only-pre-approved-tools-with-dontask-mode)中操作被自动拒绝。
+* **检查期间的模式切换**：如果您在分类器检查待处理时切换权限模式，Claude Code 丢弃新模式不会请求的判决。您改为被提示批准，或在 [`dontAsk` 模式](#allow-only-pre-approved-tools-with-dontask-mode)中操作被自动拒绝。
+
+<h4 id="repeated-block-thresholds">
+  重复阻止阈值
+</h4>
+
+连续 3 次阻止和总共 20 次阻止的阈值不可配置。总计数器对会话持续并仅在其自己的限制触发回退时重置。当自动模式之外的安全检查拒绝分类器自己的请求时，Claude Code 不计算拒绝向任一阈值。
+
+[非交互式](/docs/zh-CN/headless) `-p` 运行没有 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 没有回退提示。当重复阻止达到阈值时，操作不运行，Claude 继续工作。Claude Code 不停止运行。
 
 重复阻止通常意味着分类器缺少关于您的基础设施的上下文。使用 `/feedback` 报告假阳性，或让管理员[配置受信任的基础设施](/docs/zh-CN/auto-mode-config)。
+
+<h3 id="how-auto-mode-evaluates-actions">
+  分类器如何评估操作
+</h3>
+
+以下部分涵盖 Claude Code 评估操作的顺序、分类器如何审查子代理工作，以及分类器调用在成本和延迟中添加的内容。
 
 <span id="how-the-classifier-evaluates-actions" />
 
@@ -578,14 +592,14 @@ claude --permission-mode dontAsk
 
 [任何模式都不会自动批准的操作](#actions-no-mode-auto-approves)在此模式下仍会提示。[PowerShell 中的 Remove-Item](#remove-item-in-powershell) 拒绝也适用于此模式。
 
-两个[跨会话消息传递](/docs/zh-CN/cross-session-messaging)保护措施在此模式下仍然适用，以及在具有可用绕过权限的交互式终端计划模式会话中：
+两个[跨会话消息传递](/docs/zh-CN/cross-session-messaging)保护措施在此模式下仍然适用，以及在具有可用绕过权限的交互式终端 Plan Mode 会话中：
 
 * [`isolatePeerMachines`](/docs/zh-CN/settings-reference#isolatepeermachines)批准提示用于发送到超出此机器的会话的消息仍然出现。
 * 当没有[`crossSessionInbound`](/docs/zh-CN/cross-session-messaging#control-inbound-messages)值适用时，Claude Code 会从您的另一个会话中的入站消息保留以供您批准，仅当发送会话将自己标识为也绕过权限提示时才无需询问即可传递。如果您在保留消息时离开权限模式，Claude Code 会重新应用入站规则，并传递任何现在接受的保留消息。
 
-在具有可用绕过权限的交互式终端会话中，Claude Code 也不强制执行[计划模式的](#analyze-before-you-edit-with-plan-mode)块。Claude 仍然被指示在不编辑的情况下进行计划，但它在计划期间尝试的文件编辑或 shell 命令无需提示即可运行。显式[询问规则](/docs/zh-CN/permissions#manage-permissions)和针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除仍会提示。
+在具有可用绕过权限的交互式终端会话中，Claude Code 也不强制执行 [Plan Mode 的](#analyze-before-you-edit-with-plan-mode)块。Claude 仍然被指示在不编辑的情况下进行计划，但它在计划期间尝试的文件编辑或 shell 命令无需提示即可运行。显式[询问规则](/docs/zh-CN/permissions#manage-permissions)和针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除仍会提示。
 
-计划模式在 Claude Code 运行时没有交互式终端的任何地方都保持其块，包括[非交互式运行](/docs/zh-CN/headless)（带 `-p`）、[Agent SDK](/docs/zh-CN/agent-sdk/permissions#plan-mode-plan) 会话和 [VS Code 扩展](/docs/zh-CN/vs-code)的聊天面板中的对话。在那里，`--allow-dangerously-skip-permissions` 使 `bypassPermissions` 稍后可选。
+Plan Mode 在 Claude Code 运行时没有交互式终端的任何地方都保持其块，包括[非交互式运行](/docs/zh-CN/headless)（带 `-p`）、[Agent SDK](/docs/zh-CN/agent-sdk/permissions#plan-mode-plan) 会话和 [VS Code 扩展](/docs/zh-CN/vs-code)的聊天面板中的对话。在那里，`--allow-dangerously-skip-permissions` 使 `bypassPermissions` 稍后可选。
 
 <Warning>
   仅在隔离环境（如容器、虚拟机或没有互联网访问的开发容器）中使用此模式，其中 Claude Code 无法损害您的主机系统。
@@ -601,7 +615,12 @@ claude --permission-mode bypassPermissions
 
 Claude Code 在您使用[`--restricted`](/docs/zh-CN/cli-reference#cli-flags)启动的会话中拒绝 `bypassPermissions`。`--restricted` 需要 Claude Code v2.1.248 或更高版本。
 
-第一次使用此模式启动交互式会话时，Claude Code 会显示一个警告对话框，要求您接受对在没有权限检查的情况下执行的操作的责任。Claude Code 将您的接受保存到用户设置，因此该对话框仅出现一次。如果您拒绝，Claude Code 会退出。在[非交互模式](/docs/zh-CN/headless)中不显示对话框，使用 `--bg` 启动的[后台会话](/docs/zh-CN/agent-view)会被拒绝，直到您在交互式会话中接受对话框。
+第一次使用此模式启动交互式会话时，Claude Code 会显示一个警告对话框，要求您接受对在没有权限检查的情况下执行的操作的责任：
+
+* **如果您接受**：Claude Code 在 `~/.claude/settings.json` 中将 `skipDangerousModePermissionPrompt` 设置为 `true`，因此后续会话会跳过对话框。要再次看到对话框，请从该文件中删除该键或将其设置为 `false`。[`skipDangerousModePermissionPrompt` 参考](/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)列出了您或您的组织可以设置它的其他设置文件。
+* **如果您拒绝**：Claude Code 退出。
+
+在[非交互模式](/docs/zh-CN/headless)中不显示对话框，使用 `--bg` 启动的[后台会话](/docs/zh-CN/agent-view)会被拒绝，直到您在交互式会话中接受对话框。
 
 在 Linux 和 macOS 上，当以 root 身份或在 `sudo` 下运行时，Claude Code 拒绝以此模式启动：
 
@@ -669,29 +688,15 @@ Claude Code 在您使用[`--restricted`](/docs/zh-CN/cli-reference#cli-flags)启
   关键路径
 </h2>
 
+关键路径是 Claude Code 保护的目录，防止 `rm` 和 `rmdir` 命令，例如文件系统根目录、您的主目录和您的工作目录。
+
 Claude Code 永远不会让 [`permissions.allow`](/docs/zh-CN/permissions#manage-permissions) 规则或返回 `"allow"` 的 [`PreToolUse` hook](/docs/zh-CN/permissions#extend-permissions-with-hooks) 批准针对关键路径的 `rm` 或 `rmdir` 命令，即使在跳过其他提示的模式下。此断路器防止模型错误。匹配的拒绝规则仍然完全阻止命令。
 
-会发生什么取决于您的权限模式：
+会发生什么取决于您的权限模式（[见下文](#critical-path-removals-in-each-permission-mode)）。`Remove-Item` 和 `cmd` 移除内置命令有自己的检查，详见 [PowerShell 中的 Remove-Item](#remove-item-in-powershell)。
 
-| 模式 | Claude Code 对关键路径移除的处理 |
-| :- | :- |
-| `default`、`acceptEdits` | 要求您批准它 |
-| `plan` | 要求您批准它。当[分类器在规划期间审查命令](#analyze-before-you-edit-with-plan-mode)且没有可用的绕过权限时，按 `auto` 模式处理 |
-| `auto` | 在终端中要求您批准它，有时间限制。在其他地方，拒绝它 |
-| `dontAsk` | 拒绝它 |
-| `bypassPermissions` | 要求您批准它，在终端中有时间限制 |
-
-如果显式[询问规则](/docs/zh-CN/permissions#manage-permissions)与命令匹配，Claude Code 即使在 `auto` 模式下也会询问您，且没有时间限制。在询问的模式中，[`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest) 可以回答提示。
-
-`auto` 和 `bypassPermissions` 处理需要 Claude Code v2.1.281 或更高版本。要关闭它，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT=1`](/docs/zh-CN/env-vars#variables)。在 `auto` 模式下，关键路径移除随后转到分类器，在 `bypassPermissions` 模式下提示没有时间限制。
-
-在 `auto` 和 `bypassPermissions` 模式下，终端提示显示两分钟倒计时：
-
-* 如果倒计时在您回答之前用完，Claude Code 拒绝命令并告诉 Claude 改为做什么，以便无人值守的会话继续工作。
-* 在提示打开时按任何键停止倒计时并保持提示等待您的回答。
-* 在一个会话中这样的提示运行完三次后无人回答，Claude Code 停止显示它们并立即拒绝进一步的关键路径移除。发送新消息会重新开始计数。
-
-在 `auto` 模式下，无论 Claude Code 无法向您显示终端提示的地方，它都立即拒绝命令，例如在[非交互式运行](/docs/zh-CN/headless)中使用 `-p`、在 [Agent SDK](/docs/zh-CN/agent-sdk/permissions) 会话中，以及在 VS Code 扩展的聊天面板和桌面应用中。拒绝告诉 Claude 报告它想删除的内容并将移除留给您。
+<h3 id="which-paths-are-critical">
+  哪些路径是关键路径
+</h3>
 
 Claude Code 将 `rm` 或 `rmdir` 目标视为关键路径，当它是以下任何一个时：
 
@@ -702,25 +707,77 @@ Claude Code 将 `rm` 或 `rmdir` 目标视为关键路径，当它是以下任�
 * 您的工作目录及其父目录
 * 您的额外工作目录及其父目录，但仅当移除是其下的 glob 时，如 `rm -rf <dir>/*`。`rm -rf <dir>` 在目录本身上不会触发此检查
 
-Claude Code 也将直接在 shell 变量下的 glob 或尾部斜杠视为关键路径移除，如 `rm -rf "$DIR"/*`，因为当变量为空时命令变成从文件系统根目录的移除。
+<h3 id="other-targets-that-count-as-critical-paths">
+  计为关键路径的其他目标
+</h3>
 
-此变量情况的提示命名被标记的 `rm` 并说明如何重写它以便检查通过：
+Claude Code 也将以下 `rm` 和 `rmdir` 目标视为关键路径。最后一列说明每个目标为什么计为关键路径。
 
-* 对于诸如 `$DIR` 之类的变量，保护每个扩展，以便当变量未设置或为空时 shell 停止出错，如 `rm -rf "${DIR:?}"/*`，或使用文字路径
-* 对于通常设置的变量，如 `$HOME`，使用文字路径
+| 目标 | 示例 | 为什么计为关键路径 |
+| :- | :- | :- |
+| shell 变量下的 glob 或尾部斜杠 | `rm -rf "$DIR"/*` | 当变量为空时，命令变成从文件系统根目录的移除 |
+| 位置参数下的相同形式，如 `$1` 或 `$@`，当命令中没有任何内容给它赋值时 | `rm -rf "$1"/*` | 命令扩展为从根目录的移除 |
+| shell 变量后跟一个常见的顶级目录名称，如 `mnt`、`tmp`、`usr` 或 `Users` | `rm -rf "$TMPDIR/mnt"` | 当变量扩展为空时，命令移除 `/mnt` |
+| 变量由同一命令从目录打印替换分配，如 `$(pwd)` 或 `$(git rev-parse --show-toplevel)` | `D=$(pwd); rm -rf "$D"` | 该值可以命名您的工作目录或存储库根目录 |
+| 仅命令替换的输出的目标，当 `rm` 是递归的时 | `rm -rf "$(pwd)"` | Claude Code 无法在命令运行前检查目标 |
+| 关键路径后的尾部命令替换 | `rm -rf ~/$(cmd)` | Claude Code 检查如果替换扩展为空将保留的路径，此处为您的主目录 |
+| 仅反斜杠的目标 | `rm -rf "\\"` | Windows 上的 Git Bash 将单个反斜杠读取为当前驱动器的根目录，因此检查适用于每个平台 |
 
-其扩展都以这种方式保护的移除通过此检查，因此在 `bypassPermissions` 模式下它运行而不提示，除非本节中的另一个检查标记它。
+要关闭仅命令替换输出的目标上的检查，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT=1`](/docs/zh-CN/env-vars#variables)。
 
-Claude Code 也将这些目标视为关键路径：
+<h3 id="removals-inside-nested-commands-and-inline-scripts">
+  嵌套命令和内联脚本中的移除
+</h3>
 
-* **shell 变量后跟一个顶级目录名称**，如 `rm -rf "$TMPDIR/mnt"`：当变量扩展为空时，命令移除 `/mnt`。这涵盖常见的顶级名称，如 `mnt`、`tmp`、`usr` 和 `Users`。
-* **变量由同一命令从目录打印替换分配**，如 `D=$(pwd); rm -rf "$D"` 或来自 `$(git rev-parse --show-toplevel)` 的分配：该值可以命名您的工作目录或存储库根目录。`"${D:?}"` 保护不会清除此检查，因为变量不为空；改为使用文字路径。
-* **仅反斜杠目标**，如 `rm -rf "\\"`：Windows 上的 Git Bash 将单个反斜杠读取为当前驱动器的根目录，因此检查适用于每个平台。
-* **仅命令替换的输出**，如 `rm -rf "$(pwd)"`，当 `rm` 是递归的时：Claude Code 无法在命令运行前检查目标，因此提示告诉 Claude 首先自己运行替换，然后移除它打印的文字路径。要关闭此检查，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT=1`](/docs/zh-CN/env-vars#variables)。
+Claude Code 也查看这些构造内部：
 
-当尾部命令替换可以扩展为空时，如 `rm -rf ~/$(cmd)`，Claude Code 检查将保留的路径，在此示例中为您的主目录。
+* **嵌套命令**：带有 `(...)` 的子 shell、带有 `{ ...; }` 的大括号组、带有 `$(...)` 或反引号的命令替换，或带有 `<(...)` 的进程替换。Claude Code 找到关键路径移除，无论它位于嵌套形式内部（如 `(rm -rf ~)` 或 `echo "$(rm -rf ~)"`），还是位于同一命令中的其他地方。
+* **内联脚本**：Claude Code 检查传递给 shell 的脚本（如 `sh -c` 或 `bash -c`）中的 shell 变量和位置参数[目标](#other-targets-that-count-as-critical-paths)。
+  * 当脚本是双引号时，调用 shell 在内部 shell 接收脚本之前扩展其变量。在 `find . -name '*.tmp' -exec sh -c "rm -rf \"$1\"/*" _ {} \;` 中，命令对每个匹配扩展为从文件系统根目录的移除，Claude Code 将其视为关键路径移除。
+  * 绑定 `$1` 到真实值的单引号脚本（如 `sh -c 'rm -rf "$1"/*' _ {}` 所做的）不被标记。
 
-使用 `(...)` 中的子 shell、`{ ...; }` 中的大括号组、`$(...)` 或反引号中的命令替换，或 `<(...)` 中的进程替换隐藏移除，不会跳过检查。Claude Code 找到关键路径移除，无论它位于嵌套形式内部（如 `(rm -rf ~)` 或 `echo "$(rm -rf ~)"`），还是位于同一命令中的其他地方。
+<h3 id="rewrite-a-flagged-command">
+  重写被标记的命令
+</h3>
+
+如何重写命令以通过检查取决于它使用的[其他目标](#other-targets-that-count-as-critical-paths)：
+
+* **变量下的 glob 或尾部斜杠，如 `$DIR`**：保护每个扩展，以便当变量未设置或为空时 shell 停止出错，如 `rm -rf "${DIR:?}"/*`，或使用文字路径。其扩展都以这种方式保护的移除通过此检查，因此在 `bypassPermissions` 模式下它运行而不提示，除非另一个[关键路径](#critical-paths)检查标记它。
+* **通常设置的变量下的 glob 或尾部斜杠，如 `$HOME`**：使用文字路径。
+* **从目录打印替换分配的变量**：使用文字路径。`"${D:?}"` 保护不会清除此检查，因为变量不为空。
+* **仅命令替换输出的目标**：首先自己运行替换，然后移除它打印的文字路径。提示告诉 Claude 做同样的事情。
+
+对于变量下的 glob 或尾部斜杠，提示命名被标记的 `rm` 并说明如何重写它以便检查通过。
+
+<h3 id="critical-path-removals-in-each-permission-mode">
+  每个权限模式中的关键路径移除
+</h3>
+
+Claude Code 对关键路径移除的处理取决于您的权限模式：
+
+| 模式 | 结果 |
+| :- | :- |
+| `default`、`acceptEdits` | 要求您批准它 |
+| `plan` | 要求您批准它。当[分类器在规划期间审查命令](#analyze-before-you-edit-with-plan-mode)且没有可用的绕过权限时，按 `auto` 模式处理 |
+| `auto` | 在终端中要求您批准它，有[时间限制](#time-limits-and-denials-in-auto-and-bypasspermissions-modes)。在其他地方，拒绝它 |
+| `dontAsk` | 拒绝它 |
+| `bypassPermissions` | 要求您批准它，在终端中有时间限制 |
+
+如果显式[询问规则](/docs/zh-CN/permissions#manage-permissions)与命令匹配，Claude Code 即使在 `auto` 模式下也会询问您，且没有时间限制。在询问的模式中，[`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest) 可以回答提示。
+
+<h3 id="time-limits-and-denials-in-auto-and-bypasspermissions-modes">
+  auto 和 bypassPermissions 模式中的时间限制和拒绝
+</h3>
+
+在 `auto` 和 `bypassPermissions` 模式下，关键路径移除的终端提示显示两分钟倒计时：
+
+* 如果倒计时在您回答之前用完，Claude Code 拒绝命令并告诉 Claude 改为做什么，以便无人值守的会话继续工作。
+* 在提示打开时按任何键停止倒计时并保持提示等待您的回答。
+* 在一个会话中这样的提示运行完三次后无人回答，Claude Code 停止显示它们并立即拒绝进一步的关键路径移除。发送新消息会重新开始计数。
+
+在 `auto` 模式下，无论 Claude Code 无法向您显示终端提示的地方，它都立即拒绝命令，例如在[非交互式运行](/docs/zh-CN/headless)中使用 `-p`、在 [Agent SDK](/docs/zh-CN/agent-sdk/permissions) 会话中，以及在 VS Code 扩展的聊天面板和桌面应用中。拒绝告诉 Claude 报告它想删除的内容并将移除留给您。
+
+`auto` 和 `bypassPermissions` 处理需要 Claude Code v2.1.281 或更高版本。要关闭它，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT=1`](/docs/zh-CN/env-vars#variables)。在 `auto` 模式下，关键路径移除随后转到分类器，在 `bypassPermissions` 模式下提示没有时间限制。
 
 <h3 id="remove-item-in-powershell">
   PowerShell 中的 Remove-Item

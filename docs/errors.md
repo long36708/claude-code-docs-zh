@@ -78,6 +78,7 @@
 | `OAuth token revoked` / `OAuth token has expired` | [身份验证](#oauth-token-revoked-or-expired) |
 | `API Error: 401 Invalid authentication credentials` | [身份验证](#api-error-401-invalid-authentication-credentials) |
 | `Login expired · Please run /login` | [身份验证](#login-expired) |
+| `Failed to start OAuth callback server` | [身份验证](#failed-to-start-oauth-callback-server) |
 | `Claude login not accepted · Run /login, then try again` | [身份验证](#claude-login-not-accepted) |
 | `Artifacts need a claude.ai login` | [身份验证](#artifacts-need-a-claude-ai-login) |
 | `Not signed in to the Cloud gateway — run /login.` | [身份验证](#administrator-policy-requires-a-cloud-gateway-sign-in) |
@@ -140,12 +141,11 @@
 | `all upstreams failed (N attempted)` on a Claude apps gateway session | [上游错误消息](/docs/zh-CN/claude-apps-gateway-config#upstream-error-messages) |
 | `Claude Code may not be enabled for your organization` after a Claude apps gateway sign-in | [Claude apps gateway 故障排除](/docs/zh-CN/claude-apps-gateway-deploy#troubleshooting) |
 | `Context exceeds the ...-token limit by ... tokens` in `/context` output | [请求错误](#context-exceeds-the-token-limit) |
-| `Error during compaction: Conversation too long` | [请求错误](#error-during-compaction-conversation-too-long) |
 | `Request too large` | [请求错误](#request-too-large) |
 | `Request too large for the API's 32MB request limit` | [请求错误](#request-too-large) |
 | `Image was too large` | [请求错误](#image-was-too-large) |
 | `Unable to resize image` | [请求错误](#unable-to-resize-image) |
-| `PDF too large` / `PDF is password protected` | [请求错误](#pdf-errors) |
+| `PDF too large` / `PDF is password protected` / `pdftoppm is not installed` | [请求错误](#pdf-errors) |
 | `Extra inputs are not permitted` | [请求错误](#extra-inputs-are-not-permitted) |
 | `API Error: 400 ... tools.N.custom.input_schema: JSON schema is invalid` / `Property keys should match pattern` | [请求错误](#tool-input-schema-is-invalid) |
 | `tool_use.name: String should have at most 200 characters` | [请求错误](#tool-use-name-over-200-characters) |
@@ -181,11 +181,11 @@
 | `Installation was killed before it could finish (exit code 137)` | [安装错误](#installation-was-killed-before-it-could-finish) |
 | `The connection dropped while downloading the update` | [安装错误](#the-connection-dropped-while-downloading-the-update) |
 | `Download timed out: exceeded the total deadline` | [安装错误](#the-connection-dropped-while-downloading-the-update) |
-| `--bg and --print conflict` | [命令行错误](#command-line-errors) |
+| `--bg and --print conflict` | [命令行错误](#conflict-between-bg-and-print) |
 | `Cloud sessions cannot be created from a --restricted session` | [命令行错误](#cloud-sessions-cannot-be-created-from-a-restricted-session) |
 | `Cloud sessions are disabled by your organization's policy` | [命令行错误](#cloud-sessions-are-disabled-by-your-organizations-policy) |
 | `Couldn't verify your organization's policy for cloud sessions` | [命令行错误](#cloud-sessions-are-disabled-by-your-organizations-policy) |
-| `Error: --json-schema is not a valid JSON Schema` | [命令行错误](#command-line-errors) |
+| `Error: --json-schema is not a valid JSON Schema` | [命令行错误](#the-json-schema-value-is-not-a-valid-json-schema) |
 | `Error: Invalid --agents configuration:` | [命令行错误](#invalid-agents-configuration) |
 | `Error: --agents takes a JSON object, or a file path only with --print (-p)` | [命令行错误](#invalid-agents-configuration) |
 | `Error: --agents file not found` | [命令行错误](#invalid-agents-configuration) |
@@ -264,10 +264,8 @@
 | `Its agent definition was not restored: the folder its definition file came from is not trusted` | [工具错误](#teammate-agent-definition-not-restored) |
 | `Message too large for cross-session delivery` | [工具错误](#message-too-large-for-cross-session-delivery) |
 | `Too many messages to this session just now` | [工具错误](#too-many-messages-to-this-session-just-now) |
+| `Cross-session message was dropped at the recipient session's inbox` | [工具错误](#cross-session-message-dropped-at-the-inbox) |
 | `Refusing to send: reply target is a symlink` / `Refusing to send: cannot vet reply target` | [工具错误](#refusing-to-send-a-cross-session-message) |
-| `Refusing to send: connected endpoint is not the expected process` / `Refusing to send: connected endpoint identity could not be read` | [工具错误](#refusing-to-send-a-cross-session-message) |
-| `Refusing to send: connected endpoint is not owned by this user` / `Refusing to send: connected endpoint owner could not be read` | [工具错误](#refusing-to-send-a-cross-session-message) |
-| `Refusing to send: connected endpoint is a different process with the expected pid` | [工具错误](#refusing-to-send-a-cross-session-message) |
 | `Refusing to read <path>: its symlink resolution changed after permission was checked (<reason>)` / `Refusing to search <path>: its symlink resolution changed after permission was checked` | [工具错误](#refusing-after-a-symlink-changed) |
 | `Refusing to write <path>: its parent-directory symlink resolution changed after permission was checked` / `Refusing to write <path>: it is a symbolic link. Write to the link's target path instead` | [工具错误](#refusing-after-a-symlink-changed) |
 | `Refusing to write through symlink: <path>` / `Refusing to write into symlinked directory: <path>` | [工具错误](#refusing-after-a-symlink-changed) |
@@ -343,7 +341,7 @@
   自动重试
 </h2>
 
-Claude Code 在显示错误之前，会以指数退避方式重试瞬时故障最多 10 次。它并不总是重试在 Claude 响应过程中途出现的故障。当您看到本页面上的错误之一时，Claude Code 已经对该故障进行了适用的重试；下面的列表说明哪些故障获得完整预算、哪些获得较小预算，以及哪些不获得预算。
+Claude Code 在显示错误之前，会以指数退避方式重试瞬时故障最多 10 次。它并不总是重试在 Claude 响应过程中途出现的故障。当您看到本页面上的错误之一时，Claude Code 已经对该故障进行了适用的重试。
 
 Claude Code 重试这些故障：
 
@@ -467,7 +465,6 @@ Request timed out
 **应该做什么：**
 
 * 重试请求
-* 对于长时间运行的任务，将工作分解为较小的提示
 * 如果是缓慢的网络或代理导致，请按照[自动重试](#automatic-retries)中的说明提高 `API_TIMEOUT_MS`
 * 如果超时频繁且您的网络状况良好，请参阅下面的[网络和连接错误](#network-and-connection-errors)
 
@@ -491,7 +488,7 @@ Claude Code 分别为第一次尝试的等待响应头和重试的等待设置�
 **应该做什么：**
 
 * 再次发送您的消息。您的原始消息仍在对话中，因此对于较长的提示，您可以输入 `try again` 而不是粘贴整个内容。
-* 如果重复出现，将其视为[网络或代理问题](#unable-to-connect-to-api)。接受连接但从不转发请求的代理会在每次尝试时产生此错误。
+* 如果重复出现，将其视为[网络或代理问题](#unable-to-connect-to-api)。
 * 如果您网络上的代理或网关保持响应直到完成，请提高 `API_TIMEOUT_MS` 以便重试等待更长时间。在 Amazon Bedrock 上，也提高 `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`。
 * 如果第一次尝试持续超时，然后重试成功，请提高 `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` 以便第一次尝试也等待足够长的时间。
 
@@ -555,7 +552,7 @@ API Error: The response stream was malformed. The response above may be incomple
 <model> is temporarily unavailable, so auto mode cannot determine the safety of <tool> right now. Wait a moment and then try this action again.
 ```
 
-当 Claude Code 可以确定故障类别时，它在 `temporarily unavailable` 后的括号中指出该类别，例如 `<model> is temporarily unavailable (rate-limited), so auto mode cannot determine the safety of <tool> right now`。类别为 `(rate-limited)`、`(overloaded)`、`(server error)`、`(timed out)` 和 `(connection failed)`。速率限制、过载和服务器错误是暂时的，重试有效。如果 `(timed out)` 或 `(connection failed)` 重复出现，请检查您的连接；请参阅[无法连接到 API](#unable-to-connect-to-api)。在 v2.1.229 之前，消息从不指出类别，读作 `Wait briefly and then try this action again`。
+当 Claude Code 可以确定故障类别时，它在 `temporarily unavailable` 后的括号中指出该类别，例如 `<model> is temporarily unavailable (rate-limited), so auto mode cannot determine the safety of <tool> right now`。类别为 `(rate-limited)`、`(overloaded)`、`(server error)`、`(timed out)` 和 `(connection failed)`。如果 `(timed out)` 或 `(connection failed)` 重复出现，请检查您的连接；请参阅[无法连接到 API](#unable-to-connect-to-api)。在 v2.1.229 之前，消息从不指出类别，读作 `Wait briefly and then try this action again`。
 
 当没有类别适用时，消息出现时括号中没有类别；多个故障会产生该形式。在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 上，包括 [Mantle 端点](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)，当您的 AWS 账户无法调用消息中指出的模型时，它也会出现，该故障在每次重试时重复，直到您的账户被授予访问该模型的权限。
 
@@ -576,7 +573,7 @@ Auto mode could not evaluate this action and is blocking it for safety — run w
 **应该做什么：**
 
 * 重试该操作；这通常在下一次尝试时成功
-* 运行 `claude --debug` 并重复该操作以在调试日志中查看底层分类器响应
+* 运行 `claude --debug` 并重复该操作以在调试日志中查看详情
 
 当单独的 API 安全检查因早期对话内容而阻止分类器请求时：
 
@@ -713,7 +710,7 @@ API Error: Usage credits required for 1M context · run /usage-credits to turn t
 
 在 Claude Desktop app 运行的会话中，提示不命名任何命令：它指向 claude.ai 使用设置页面，或在 Team 和 Enterprise 计划上说在 claude.ai/admin-settings/usage 启用使用额度或向您的管理员请求。
 
-这是权限检查，而非配额耗尽。即使您的会话和周额度有剩余容量，它也会触发。有关哪些计划直接包含 1M 上下文以及哪些需要使用额度的信息，请参阅 [Extended context](/docs/zh-CN/model-config#extended-context)。Claude Code 在您使用 `/model` 选择模型时运行此检查，仅在直接连接到 Anthropic API 时；如果您将 `ANTHROPIC_BASE_URL` 指向 [LLM gateway](/docs/zh-CN/llm-gateway)，`/model` 允许 `[1m]` 选择，网关决定请求是否成功。
+这是权限检查，而非配额耗尽。即使您的会话和周额度有剩余容量，它也会触发。有关哪些计划直接包含 1M 上下文以及哪些需要使用额度的信息，请参阅 [Extended context](/docs/zh-CN/model-config#extended-context)。
 
 当此错误在对话中期出现，因为上下文增长超过 200K 令牌时，Claude Code 会自动将对话压缩回标准上下文限制以下，并之后将会话保持在该限制，因此无需采取任何操作。在 v2.1.172 之前的版本中，错误会在每个后续请求（包括 `/compact`）上重复；在这些版本上运行 `/clear` 以恢复。以下步骤适用于您明确选择 `[1m]` 模型的情况。
 
@@ -1021,7 +1018,7 @@ API Error: 400 ... This organization has been disabled.
 * 在当前 shell 中取消设置 `ANTHROPIC_API_KEY` 并从您的 shell 配置文件中删除它，然后重新启动 `claude`
 * 如果消息说 `Update or unset`，您没有保存的登录可以回退。取消设置密钥并运行 `/login`，或将密钥替换为来自活跃 Console 组织的密钥。
 * 之后运行 `/status` 以确认活跃凭证是您的订阅
-* 如果未设置环境变量且错误仍然存在，则禁用的组织是与您的 `/login` 关联的组织。联系支持或使用不同账户登录。
+* 如果未设置环境变量且错误仍然存在，请联系支持或使用不同账户登录。
 
 <h3 id="your-organization-has-disabled-api-key-authentication">
   您的组织已禁用 API 密钥身份验证
@@ -1073,7 +1070,7 @@ Agent SDK 和 `-p` 非交互式模式将此显示为 `oauth_org_not_allowed` 错
   例程被您的组织的策略禁用
 </h3>
 
-An Owner in your Team or Enterprise organization has turned off routines at the organization level. The error appears when you try to create or run a routine, for example from the [Routines](/docs/zh-CN/routines) UI on claude.ai/code. On Claude Code v2.1.227 or later, the same setting also [hides `/schedule`](/docs/zh-CN/routines#troubleshooting) in the CLI.
+您的 Team 或 Enterprise 组织中的所有者已在组织级别关闭例程。当您尝试创建或运行例程时会出现错误，例如从 [Routines](/docs/zh-CN/routines) UI on claude.ai/code。在 Claude Code v2.1.227 或更高版本上，相同的设置也 [隐藏 `/schedule`](/docs/zh-CN/routines#troubleshooting) 在 CLI 中。
 
 ```text theme={null}
 Routines are disabled by your organization's policy.
@@ -1090,7 +1087,7 @@ Routines are disabled by your organization's policy.
   Remote Control 需要 Anthropic API
 </h3>
 
-会话不是直接与 Anthropic API 通信，因此没有 claude.ai 后端供 [Remote Control](/docs/zh-CN/remote-control) 配对。
+会话不是直接与 Anthropic API 通信，因此 [Remote Control](/docs/zh-CN/remote-control) 需要。
 
 ```text theme={null}
 Remote Control is only available when using Claude via api.anthropic.com. CLAUDE_CODE_USE_BEDROCK is set, so this session is using Amazon Bedrock — unset it (or run in a shell without it) to use Remote Control.
@@ -1203,7 +1200,6 @@ Please run /login · API Error: 401 OAuth token has expired ...
 **应该做什么：**
 
 * 运行 `/login` 再次登录
-* 如果重新身份验证后错误在同一会话中返回，首先运行 `/logout` 以完全清除存储的令牌，然后运行 `/login`
 * 如果您使用 `CLAUDE_CODE_OAUTH_TOKEN` 环境变量进行身份验证，Claude Code 在请求失败并显示 401 后会继续发送您设置的值，而不是切换到保存的登录的令牌。[`/status`](/docs/zh-CN/commands) 将此凭证显示为读取 `CLAUDE_CODE_OAUTH_TOKEN` 的 `Auth token` 行。使用 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 生成新令牌并使用它重新启动，或取消设置变量并运行 `/login`。在 v2.1.225 之前，Claude Code 可以在会话中用保存的登录的短期访问令牌替换变量的值，一旦该令牌过期，会话再次失败并显示 401 错误。
 * 对于跨启动的重复登录提示，请参阅 [故障排除](/docs/zh-CN/troubleshoot-install#not-logged-in-or-token-expired) 中的系统时钟检查和 macOS 凭证存储恢复步骤
 * 对于其他故障，包括 `403 Forbidden` 和 OAuth 浏览器问题，请参阅 [登录和身份验证](/docs/zh-CN/troubleshoot-install#login-and-authentication)
@@ -1229,7 +1225,7 @@ Please run /login · API Error: 401 Invalid authentication credentials
   登录过期
 </h3>
 
-Claude Code 尝试更新您保存的 claude.ai 或 Claude Console 登录，OAuth 服务拒绝了存储的刷新令牌，因此 Claude Code 清除了保存的凭证。之后，每个模型请求在到达 API 之前都会在本地停止，显示此消息，因为只有 `/login` 可以创建新凭证。
+Claude Code 尝试更新您保存的 claude.ai 登录，OAuth 服务拒绝了存储的刷新令牌，因此 Claude Code 清除了保存的凭证。之后，每个模型请求在到达 API 之前都会在本地停止，显示此消息，因为只有 `/login` 可以创建新凭证。
 
 在 v2.1.206 之前，Claude Code 无论如何都会发送模型请求，使用环境中剩余的任何凭证，每个模型都会失败，显示 [所选模型有问题](#theres-an-issue-with-the-selected-model) 或 401，而不是登录提示。
 
@@ -1298,8 +1294,25 @@ Couldn't save your login. Try logging in again.
 * 在其他平台上，再次运行 `/login`
 * 如果登录仍然不保存，请参阅 [未登录或令牌过期](/docs/zh-CN/troubleshoot-install#not-logged-in-or-token-expired) 了解钥匙链解锁命令和其他凭证存储恢复步骤
 
+<h3 id="failed-to-start-oauth-callback-server">
+  Failed to start OAuth callback server
+</h3>
+
+当 `/login`、`claude auth login` 或 `claude setup-token` 通过浏览器登录您时，Claude Code 在 `127.0.0.1` 上打开一个监听端口，以便您的浏览器可以将登录结果返回给它。此消息意味着 Claude Code 无法打开该端口，登录在浏览器窗口或登录 URL 出现之前停止：
+
+```text theme={null}
+Failed to start OAuth callback server: Failed to start server. Is port 0 in use?
+```
+
+如果您的消息以 `Is port 0 in use?` 结尾，尝试在 IPv4 环回地址 `127.0.0.1` 上监听的尝试完全失败。因为故障发生在登录 URL 存在之前，`Paste code here if prompted` 流不可用作解决方法。
+
+**应该做什么：**
+
+* 要立即登录而不需要本地监听器：如果您使用 claude.ai 订阅，在登录有效的机器上运行 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 并将其打印的令牌设置为此机器上的 `CLAUDE_CODE_OAUTH_TOKEN`。否则将 `ANTHROPIC_API_KEY` 设置为来自 [Claude Console](https://platform.claude.com/settings/keys) 的密钥。[身份验证优先级](/docs/zh-CN/authentication#authentication-precedence) 解释了 Claude Code 在存在多个凭证时如何选择。
+* 要在此机器上改用浏览器登录，Claude Code 必须能够在 `127.0.0.1` 上监听。如果它在沙箱内运行，检查沙箱的策略是否允许在本地端口上监听，然后再次运行 `/login`。如果它应该能够但仍然失败，运行 `/feedback` 以便报告包含您的环境详细信息。
+
 <h3 id="claude-login-not-accepted">
-  Claude 登录未被接受
+  Claude login not accepted
 </h3>
 
 您尝试启动 [云会话](/docs/zh-CN/claude-code-on-the-web)，服务器拒绝使用 401 创建它：它不接受此机器发送的 Claude 登录，通常是因为登录过期或被撤销。
@@ -1346,7 +1359,7 @@ Not signed in to the Cloud gateway — run /login.
 
 当会话没有网关登录时，模型请求失败，显示此消息，例如因为您自策略到达机器后未运行 `/login`。
 
-如果您还配置了 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，且托管设置设置了 `forceLoginMethod`，Claude Code 在启动时改为以以下消息退出：
+如果机器还持有 Anthropic 颁发的凭证且托管设置设置了 `forceLoginMethod` 或 `forceLoginOrgUUID`，Claude Code 在启动时改为以此消息退出：
 
 ```text theme={null}
 Administrator policy requires a Cloud gateway sign-in on this machine; the
@@ -1357,7 +1370,7 @@ ANTHROPIC_AUTH_TOKEN, or apiKeyHelper) is not used.
 **应该做什么：**
 
 * 运行 `/login` 并在 **Cloud gateway** 屏幕上完成登录
-* 对于启动消息，删除您配置的 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 设置，然后启动 `claude` 并运行 `/login`
+* 对于启动消息，删除您配置的 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 设置。要删除保存的 Console API 密钥，运行 `claude auth logout`，这也会删除保存的 claude.ai 登录。如果您使用 `CLAUDE_CODE_USE_*` 选择云提供商，会话然后以无登录启动。否则启动 `claude` 并运行 `/login`
 * 如果您认为机器不应该需要网关，请要求管理该机器的管理员从其托管设置中删除 `forceLoginMethod` 和 `forceLoginGatewayUrl`
 
 在 v2.1.265 上，回归也在某些 LLM 网关和代理配置中显示第一条消息，这些配置使用 API 密钥、`apiKeyHelper` 或自定义标头进行身份验证，即使机器上没有管理员要求。更新到 v2.1.266 或更高版本。您不需要更改您的配置。
@@ -1411,7 +1424,7 @@ Anthropic profile login expired · Run /login to use your claude.ai account inst
   OAuth 范围要求
 </h3>
 
-存储的令牌早于较新功能需要的权限范围。您最常从 `/usage` 和状态行使用指示器看到这种情况：
+存储的令牌早于较新功能需要的权限范围：
 
 ```text theme={null}
 OAuth token does not meet scope requirement: user:profile
@@ -1425,7 +1438,7 @@ OAuth token does not meet scope requirement: user:profile
   claude.ai 拒绝了会话令牌
 </h3>
 
-[claude.ai 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai) 请求失败，因为 claude.ai 拒绝了您的 Claude Code 登录中的令牌，通常是已过期且无法刷新的登录。被拒绝的令牌是您的登录，而不是连接器在 claude.ai 中的自己的授权，因此再次授权连接器不会解决它。在 `/mcp` 中，连接器显示为 `connected · session token rejected`，其详细视图读作：
+[claude.ai 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai) 请求失败，因为 claude.ai 拒绝了您的 Claude Code 登录中的令牌。被拒绝的令牌是您的登录，而不是连接器在 claude.ai 中的自己的授权，因此再次授权连接器不会解决它。在 `/mcp` 中，连接器显示为 `session token rejected`，其详细视图读作：
 
 ```text theme={null}
 claude.ai rejected the session token. Run /login, then reconnect.
@@ -1550,7 +1563,7 @@ AWS authentication failed · run /login and select "Claude Platform on AWS · re
 * 如果提示说凭证由此环境管理，启动 Claude Code 的应用拥有凭证，此处的其他步骤不适用：重试或联系您的管理员
 * 刷新您的 AWS 凭证以防过期凭证是原因：运行消息中命名的 [`awsAuthRefresh`](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration) 命令（当设置时），或自己刷新您的 SSO 登录、访问密钥、API 密钥或代理令牌
 * 如果您的凭证是最新的，确认 [IAM 配置](/docs/zh-CN/amazon-bedrock#iam-configuration) 中的 IAM 权限已附加到您使用的身份，并且所选模型已为您的账户和区域启用
-* 运行 `aws sts get-caller-identity` 以确认您的请求使用哪个身份；过时的 `AWS_PROFILE` 或默认配置文件是权限不匹配的常见原因
+* 运行 `aws sts get-caller-identity` 以确认您的请求使用哪个身份
 
 <h3 id="google-cloud-credentials-expired-or-invalid">
   Google Cloud 凭证已过期或无效
@@ -1752,7 +1765,6 @@ Can't reach the API server — check your internet or DNS (ENOTFOUND)
 No internet route — check your connection or VPN (EHOSTUNREACH)
 Couldn't connect through your proxy (ERR_PROXY_TUNNEL) — the proxy refused the tunnel: check its credentials and that it allows this host
 Connection dropped (ECONNRESET)
-fetch failed
 Request timed out. Check your internet connection and proxy settings
 ```
 
@@ -1798,7 +1810,6 @@ Claude Code 通过与 API 请求相同的[代理配置](/docs/zh-CN/network-conf
 
 * 如果消息名称代理变量，检查其值是否指向正确的代理，并要求您的网络团队允许通过它进行 HTTPS 连接到消息中的主机。请参阅[网络配置](/docs/zh-CN/network-config)。
 * 完成[无法连接到 API](#unable-to-connect-to-api) 中的检查。那里的 `curl` 测试和防火墙指导也适用于此检查。
-* 如果您的组织通过[云网关](/docs/zh-CN/claude-apps-gateway)登录，并且此错误出现在首次运行时，请更新到 Claude Code v2.1.247 或更高版本。
 * 如果您的网络是开放的，故障仍然存在，Claude Code 可能在您的国家[不可用](https://www.anthropic.com/supported-countries)
 
 <h3 id="socket-is-closed">
@@ -1840,7 +1851,7 @@ API returned an empty or malformed response (HTTP 200) — check for a proxy or 
 * 阅读 `Response:` 子句以查看哪个系统回答。HTML 正文、没有 Anthropic 请求 id 或名称服务器（例如 `nginx` 或 `cloudflare`）意味着 Claude Code 和 API 之间的某些东西代替回答
 * 如果您通过[LLM 网关](/docs/zh-CN/llm-gateway-connect#troubleshoot-gateway-errors)路由，使用直接请求测试路由，并修复返回非 API 响应的跳跃
 * 在具有登录页面的网络上（例如访客 Wi-Fi），在浏览器中完成登录，然后重试
-* 如果只有通过您的网关的非流式路由被破坏，设置 [`CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK=1`](/docs/zh-CN/env-vars#variables) 以便在流中失败的请求转到正常重试路径而不是此回退，除非流式端点本身返回 `404`，Claude Code 仍然会回退
+* 如果只有通过您的网关的非流式路由被破坏，设置 [`CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK=1`](/docs/zh-CN/env-vars#variables) 以关闭此回退，除非流式端点本身返回 `404`，Claude Code 仍然会回退
 
 <h3 id="streaming-response-ended-before-any-complete-data-was-received">
   流式响应在接收任何完整数据之前结束
@@ -2052,12 +2063,6 @@ Couldn't send feedback (couldn't reach the service). If it keeps failing, you ca
 
 在 v2.1.281 之前，每次发送在 Remote Control **Stop** 或紧急跨会话消息在对话框打开时到达后都失败并显示此消息。在这些版本上，关闭对话框，重新打开它，然后再次发送。
 
-***
-
-title: "请求错误"
-description: "与您的请求内容相关的错误，包括提示词过长、上下文超限、压缩失败等问题的诊断和解决方案。"
-----------------------------------------------------------
-
 <h2 id="request-errors">
   请求错误
 </h2>
@@ -2135,7 +2140,6 @@ Prompt is too long · the request is ~<request tokens> tokens (limit <limit>) bu
 * 运行 `/context` 以查看窗口消耗内容的分解：系统提示、工具、内存文件和消息
 * 使用 `/mcp disable <name>` 禁用您未使用的 MCP 服务器，以从上下文中删除其工具定义
 * 修剪大型 `CLAUDE.md` 内存文件，或将说明移到仅在相关时加载的[路径范围规则](/docs/zh-CN/memory#path-specific-rules)中
-* 子代理从父会话继承每个 MCP 工具定义，这可能在第一轮之前填满其上下文窗口。在生成子代理之前，禁用您未使用的 MCP 服务器。
 * 自动压缩默认开启，通常可防止此错误。如果您在 `/config` 中或使用 [`DISABLE_AUTO_COMPACT`](/docs/zh-CN/env-vars) 关闭了它，请将其重新打开。如果您保持关闭，请在窗口填满之前自己运行 `/compact`。
 
 有关上下文如何填满的交互式视图，请参阅[探索上下文窗口](/docs/zh-CN/context-window)。
@@ -2164,25 +2168,6 @@ Context is 94k tokens past the 200k-token compaction window — run /compact to 
 * 有关减少使用的更多方法，请参阅 [Prompt is too long](#prompt-is-too-long)
 
 在 v2.1.216 之前，`/context` 显示超过 100% 的使用情况，没有警告行解释这意味着什么或如何恢复。
-
-<h3 id="error-during-compaction-conversation-too-long">
-  压缩期间出错：对话过长
-</h3>
-
-`/compact` 本身失败，因为没有足够的可用上下文来保存它生成的摘要。
-
-```text theme={null}
-Error during compaction: Conversation too long. Press esc twice to go up a few messages and try again.
-```
-
-当窗口在自动压缩触发时已满，或当您在看到 [`Prompt is too long`](#prompt-is-too-long) 后运行 `/compact` 时，可能会发生这种情况。在交互式会话中，该错误是 `Context limit reached` 行。
-
-**要做什么：**
-
-* 按 Esc 两次打开消息列表并回退几轮。这会从上下文中删除最近的消息。然后再次运行 `/compact`。
-* 如果回退没有释放足够的空间，运行 `/clear` 以启动新的会话。您之前的对话被保留，可以使用 `/resume` 重新打开。
-
-此消息和其他 `/compact` 失败以错误样式显示。在 v2.1.216 之前，它们以与成功命令输出相同的暗淡样式呈现，因此您可能会将失败的压缩读取为成功。
 
 <h3 id="request-too-large">
   请求过大
@@ -2267,6 +2252,14 @@ The PDF file was not valid. Try converting it to text first (e.g., pdftotext).
 * 对于超大 PDF，要求 Claude 使用 Read 工具读取页面范围，而不是附加整个文件，或使用 `pdftotext` 等工具提取文本并按路径引用输出文件
 * 对于受保护或无效的 PDF，删除密码或从其源应用程序重新导出文件，然后重试
 
+当 Claude 使用 Read 工具从 PDF 读取页面范围时，读取可能失败，显示不同的消息：
+
+```text theme={null}
+pdftoppm is not installed. Install poppler-utils (e.g. `brew install poppler` or `apt-get install poppler-utils`) to enable PDF page rendering.
+```
+
+页面范围读取使用 `pdftoppm` 呈现页面。使用消息提供的命令安装 poppler-utils，或在其他平台上安装将 `pdftoppm` 放在您的 `PATH` 上的 poppler 构建。请参阅[Read 工具行为](/docs/zh-CN/tools-reference#read-tool-behavior)以了解哪些 PDF 按页面范围读取。
+
 <h3 id="extra-inputs-are-not-permitted">
   不允许额外输入
 </h3>
@@ -2275,7 +2268,6 @@ Claude Code 和 API 之间的代理或 LLM 网关删除了 `anthropic-beta` 请�
 
 ```text theme={null}
 API Error: 400 ... Extra inputs are not permitted ... context_management
-API Error: 400 ... Unexpected value(s) for the `anthropic-beta` header
 ```
 
 Claude Code 发送 `context_management` 和 `effort` 等仅限测试版的字段，以及启用它们的 `anthropic-beta` 头。当网关转发正文但删除头时，API 会看到它不识别的字段。
@@ -2347,7 +2339,6 @@ There's an issue with the selected model (claude-...). It may not exist or you m
 * **Agent SDK**：错误文本省略提示，因为模型是以编程方式设置的。在 TypeScript 中的 [`Options` 上设置 `model`](/docs/zh-CN/agent-sdk/typescript#options)，或在 Python 中设置 [`ClaudeAgentOptions(model=...)`](/docs/zh-CN/agent-sdk/python#claudeagentoptions)，并处理结构化的 `model_not_found` 错误以显示您自己的重试或模型选择器。
 * 使用别名（如 `sonnet` 或 `opus`）而不是完整的版本化 ID。别名解析为维护的默认值，因此它们不会过时。请参阅[模型配置](/docs/zh-CN/model-config)。
 * 如果错误的模型在 CLI 中不断返回，则某处设置了过时的 ID。按[优先级顺序](/docs/zh-CN/model-config#setting-your-model)检查您可以设置模型的位置，并删除过时的值。
-* 新推出的模型可能在 Anthropic API 上可用，但在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上可用之前。如果您在这些提供商之一上固定了新模型 ID 并看到此错误，请检查您提供商的模型目录以了解您所在地区的可用性，并保持固定前一个版本，直到新版本出现。
 * Claude Code 将过期的 claude.ai 登录报告为[登录过期](#login-expired)，而不是此错误。在 v2.1.206 之前，无法再刷新的过期登录对每个模型都失败，显示此错误；如果您在较旧版本上看到这种情况，请运行 `/login`。
 * 对于 Google Cloud 的 Agent Platform 部署，请参阅 [Google Cloud 的 Agent Platform 故障排除](/docs/zh-CN/google-vertex-ai#troubleshooting)。
 
@@ -2541,7 +2532,7 @@ API Error: Effort 'xhigh' isn't available with thinking turned off on this model
 * [降低努力级别](/docs/zh-CN/model-config#set-the-effort-level)到 `high` 或以下。
 * 打开思考，例如通过取消设置 [`MAX_THINKING_TOKENS`](/docs/zh-CN/env-vars) 或从您的设置中删除 [`"alwaysThinkingEnabled": false`](/docs/zh-CN/settings-reference#alwaysthinkingenabled)。
 
-在 v2.1.242 之前，Claude Code 显示了 API 自己的消息：`API Error: 400 output_config.effort 'xhigh' is not supported when thinking is disabled on this model. Use effort 'high' or below, or enable thinking.` 在 v2.1.251 之前，Claude Code 以您设置的努力级别发送请求，因此 Opus 5 拒绝了关闭思考时高于 `high` 的每个请求。Claude Code 现在向它知道拒绝该组合的模型（如 Opus 5）发送努力 `high`，因此在 v2.1.251 或更高版本上，此错误仅从 Claude Code 不知道拒绝它的模型到达您。
+在 v2.1.242 之前，Claude Code 显示了 API 自己的消息：`API Error: 400 output_config.effort 'xhigh' is not supported when thinking is disabled on this model. Use effort 'high' or below, or enable thinking.` 在 v2.1.251 之前，Claude Code 以您设置的努力级别发送请求，因此 Opus 5 拒绝了关闭思考时高于 `high` 的每个请求。Claude Code 现在向它知道拒绝该组合的模型（如 Opus 5）发送努力 `high`。
 
 <h3 id="thinking-budget-exceeds-output-limit">
   思考预算超过输出限制
@@ -2553,18 +2544,16 @@ API Error: Effort 'xhigh' isn't available with thinking turned off on this model
 API Error: 400 ... max_tokens must be greater than thinking.budget_tokens
 ```
 
-Claude Code 在 Anthropic API 上自动调整这些值。当 [`MAX_THINKING_TOKENS`](/docs/zh-CN/env-vars) 设置高于提供商的输出限制时，或当计划模式提高思考预算时，您通常在 Amazon Bedrock 或 Google Cloud 的 Agent Platform 上看到此错误。
-
 **要做什么：**
 
-* 降低 `MAX_THINKING_TOKENS`，或提高 [`CLAUDE_CODE_MAX_OUTPUT_TOKENS`](/docs/zh-CN/env-vars) 高于思考预算
+* 提高 [`CLAUDE_CODE_MAX_OUTPUT_TOKENS`](/docs/zh-CN/env-vars) 高于思考预算
 * 请参阅[扩展思考](/docs/zh-CN/model-config#extended-thinking)以了解预算如何与输出长度交互
 
 <h3 id="tool-use-or-thinking-block-mismatch">
   工具使用或思考块不匹配
 </h3>
 
-对话历史以不一致的状态到达 API，通常在工具调用被中断或轮次在流中期被编辑后。
+对话历史以不一致的状态到达 API。
 
 ```text theme={null}
 API Error: 400 due to tool use concurrency issues. Run /rewind to recover the conversation.
@@ -2631,8 +2620,8 @@ Claude Code 将其一些提醒和附件文本作为系统消息发送到对话�
 
 **要做什么：**
 
-* 运行 `/clear` 以启动新对话。如果错误也在那里返回，原因在请求路径上，而不在保存的对话中。
 * 如果错误在通过 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 配置的代理或网关后的每一轮上重复，连接而不使用代理以确认源，并向操作它的人报告错误
+* 运行 `/clear` 以启动新对话。如果错误也在那里返回，原因在请求路径上，而不在保存的对话中。
 
 在 v2.1.280 之前，Claude Code 不识别此措辞，因此当被拒绝的系统消息是 Claude Code 本身发送的时，错误也出现，对话的每个后来轮次都以相同方式失败。
 
@@ -2739,7 +2728,7 @@ Claude Code needs roughly 512MB of free memory to install. Free up memory, then 
   下载更新时连接断开
 </h3>
 
-在 `claude install`、`claude update` 或 [自动更新程序](/docs/zh-CN/setup#auto-updates) 获取 Claude Code 二进制文件时，与下载服务器的连接关闭，重试也没有恢复。当连接断开、传输停滞或下载的文件校验和失败时，Claude Code 会重试下载，总共最多尝试三次。已完成的 HTTP 错误（例如 404）不会重试，因为服务器已经响应。在 v2.1.202 之前，单个断开的连接会立即导致下载失败，并显示裸错误 `aborted`，而不是重试。
+与下载服务器的连接在 `claude install` 或 `claude update` 获取 Claude Code 二进制文件时关闭，重试也没有恢复。当连接断开、传输停滞或下载的文件校验和失败时，Claude Code 会重试下载，总共最多尝试三次。已完成的 HTTP 错误（例如 404）不会重试，因为服务器已经响应。在 v2.1.202 之前，单个断开的连接会立即导致下载失败，并显示裸错误 `aborted`，而不是重试。
 
 ```text theme={null}
 The connection dropped while downloading the update (attempt 3/3: aborted). Check your network — proxies sometimes cut off large downloads.
@@ -2749,7 +2738,7 @@ The connection dropped while downloading the update (attempt 3/3: aborted). Chec
 
 保持连接但在 10 分钟内未完成的下载失败，显示 `Download timed out: exceeded the total deadline`。Claude Code 不会重试超时的下载，因为连接速度太慢而无法在截止时间内完成，在立即重试时也不会完成。以下步骤适用于两条消息。
 
-通常的原因是代理或网关在长传输完成前关闭它。Claude Code 二进制文件是一个大型下载，因此永远不会影响正常 API 流量的代理连接限制仍然可能中断它。
+代理或网关可以在长传输完成前关闭它，而 Claude Code 二进制文件是一个大型下载。
 
 **应该做什么：**
 
@@ -2783,7 +2772,7 @@ The connection dropped while downloading the update (attempt 3/3: aborted). Chec
   无效的 --agents 配置
 </h3>
 
-您传递给 `--agents` 的值无效，因此 `claude` 以代码 1 退出，而不是启动会话。当您传递 `--safe-mode` 或设置 [`CLAUDE_CODE_SAFE_MODE`](/docs/zh-CN/env-vars#variables) 时，Claude Code 忽略 `--agents` 完全。使用 `--resume` 或 `--continue` 时，内联 JSON 值不被检查，会话启动；从文件读取的值在每次启动时被检查。在 v2.1.242 之前，Claude Code 无论如何都会启动会话，并遗漏它无法加载的定义。
+您传递给 `--agents` 的值无效，因此 `claude` 以代码 1 退出，而不是启动会话。当您传递 `--safe-mode` 或设置 [`CLAUDE_CODE_SAFE_MODE`](/docs/zh-CN/env-vars#variables) 时，Claude Code 忽略 `--agents` 完全。使用 `--resume` 或 `--continue` 时，内联 JSON 值不被检查，会话启动；从文件读取的值在每次启动时被检查。在 v2.1.242 之前，Claude Code 无论如何都会启动会话。
 
 ```text theme={null}
 Error: Invalid --agents configuration:
@@ -2862,14 +2851,13 @@ Claude Code 在架构编译之前运行两个检查：它拒绝不可解析的 J
 **要做什么：**
 
 * 修复诊断命名的架构部分，然后重新运行命令
-* 如果诊断是 `schema too large`，请减少架构的嵌套和 `$ref` 重用
 * 请参阅[获取结构化输出](/docs/zh-CN/headless#get-structured-output)以获取工作架构和命令
 
 <h3 id="settings-file-exceeds-the-2mib-limit">
   设置文件超过 2MiB 限制
 </h3>
 
-您传递给 [`--settings`](/docs/zh-CN/cli-reference#cli-flags) 的文件大于 2 MiB，因此 `claude` 在启动时以代码 1 退出，而不是加载它。设置文件是一个小的 JSON 文档，所以这么大的文件通常意味着路径指向错误的文件。在 v2.1.214 之前，Claude Code 读取文件时没有大小检查，多 GB 的文件或诸如 `/dev/zero` 之类的设备文件会无限增长内存。
+您传递给 [`--settings`](/docs/zh-CN/cli-reference#cli-flags) 的文件大于 2 MiB，因此 `claude` 在启动时以代码 1 退出，而不是加载它。在 v2.1.214 之前，Claude Code 读取文件时没有大小检查，多 GB 的文件或诸如 `/dev/zero` 之类的设备文件会无限增长内存。
 
 ```text theme={null}
 Error: Settings file exceeds the 2MiB limit: /path/to/settings.json
@@ -3034,7 +3022,7 @@ Could not read Claude Code config — run `claude` with no arguments to recover 
   无法从 Claude Desktop 导入服务器
 </h3>
 
-Claude Code 无法添加您在 `claude mcp add-from-claude-desktop` 中选择的其中一个服务器。该命令仍然导入其他选定的服务器，并为每个无法添加的服务器打印一行。在 v2.1.205 之前，第一个失败的服务器会停止导入，所有选定的服务器都不会被添加。
+Claude Code 无法添加您在 `claude mcp add-from-claude-desktop` 中选择的其中一个服务器。该命令仍然导入其他选定的服务器，并为每个无法添加的服务器打印一行。在 v2.1.205 之前，第一个失败的服务器会停止导入。
 
 ```text theme={null}
 Could not import my server: Invalid name my server. Names can only contain letters, numbers, hyphens, and underscores.
@@ -3282,6 +3270,8 @@ Claude Code 不将每个以 `/` 开头的提示视为命令。当 `/` 后的第�
 <h3 id="diff-is-too-large-for-ultrareview">
   Diff 对于 ultrareview 来说太大
 </h3>
+
+Diff 对于 ultrareview 来说太大：812 个文件，96,410 行更改（限制：500 个文件，8,000 行）。最大的文件：package-lock.json（41,904 行），dist/bundle.js（18,210 行），src/generated/api.ts（9,876 行）。传递更接近的基础分支（`/code-review ultra <branch>`）以缩小范围，或拆分更改。
 
 您的分支与基础分支之间的差异，包括未提交和暂存的更改，超过了 [ultrareview](/docs/zh-CN/ultrareview) 的大小限制，因此 `/code-review ultra` 和 `claude ultrareview` 子命令在云会话启动前拒绝审查。被拒绝的审查不使用免费运行，也不计费使用信用。消息命名生效的限制、您的差异大小以及贡献最多更改行的文件。在 v2.1.216 之前，消息仅显示原始差异统计。
 
@@ -4124,6 +4114,33 @@ Failed to send to api-worker: Too many messages to this session just now: 30 wer
 
 在 v2.1.236 之前，Claude Code 报告这些发送已发送。接收会话未读地丢弃了它们。
 
+<h3 id="cross-session-message-dropped-at-the-inbox">
+  跨会话消息在收件人会话的收件箱处被丢弃
+</h3>
+
+Claude 发送了[跨会话消息](/docs/zh-CN/cross-session-messaging)到此机器上你的另一个会话，该会话的收件箱在 Claude 在该会话中读取之前丢弃了它。该行命名收件人的地址，当收件人给出原因时，在破折号后添加原因：
+
+```text wrap theme={null}
+Cross-session message was dropped at the recipient session's inbox (recipient: uds:/tmp/cc-socks/13605.sock) and not delivered — its queue of undelivered peer messages was full. Claude was told not to resend right away.
+```
+
+一行可以覆盖多条丢弃的消息。然后它以复数形式开始，例如 `Cross-session messages (12) were dropped`。要找到地址属于哪个会话，请将其与 `/status` 在每个会话中显示的 [`Peer address` 行](/docs/zh-CN/cross-session-messaging#the-sessions-inbox-socket)进行比较。
+
+在破折号后，该行给出以下一个或多个原因：
+
+* `its queue of undelivered peer messages was full`：收件人已经持有尽可能多的来自其他会话的未送达消息，其队列允许
+* `you sent faster than that session accepts`：发送会话的消息到达速度比收件人从一个发送者接受的速度快
+* `it repeated your previous message`：该消息与发送会话不久前发送给该收件人的消息相同
+* `a relay loop between sessions was cut`：该消息继续了会话相互发送消息的链，链已通过收件人太多次或增长太长
+
+**应该做什么：**
+
+* 假设收件人从未看到丢弃的消息。Claude Code 告诉 Claude 相同的内容，并告诉它改为在一条稍后的消息中包含仍然重要的任何内容，而不是立即重新发送
+* 如果你的会话相互发送频繁更新，要求 Claude 发送更少、更大的消息，例如会话完成其工作时的一份报告
+* 对于 `a relay loop between sessions was cut`，在其中一个会话中自己输入下一条指令。Claude 发送以响应你自己的提示的消息开始一条新链
+
+在 v2.1.238 之前，当收件人的收件箱丢弃消息时，发送会话没有收到报告。
+
 <h3 id="refusing-to-send-a-cross-session-message">
   拒绝发送跨会话消息
 </h3>
@@ -4138,21 +4155,11 @@ Failed to send to api-worker: Refusing to send: reply target is a symlink
 
 * `reply target is a symlink`：符号链接位于目标会话的套接字路径。Claude Code 不通过它传递，因为那里的链接可能会将消息重定向到目标会话未创建的端点。
 * `cannot vet reply target`：Claude Code 根本无法检查目标路径，例如因为读取失败并出现权限错误。
-* `connected endpoint is not the expected process`：持有套接字的进程不是消息寻址到的会话，因此地址已过时或另一个进程替换了套接字。
-* `connected endpoint identity could not be read`：Claude Code 已连接但无法读取哪个进程持有另一端，因此无法确认目标。这可能是暂时的。
-* `connected endpoint is not owned by this user`：持有套接字的进程以不同的用户帐户运行，因此它不是你的会话之一。
-* `connected endpoint owner could not be read`：Claude Code 已连接但无法读取哪个用户帐户拥有另一端，因此无法确认端点是你的。
-* `connected endpoint is a different process with the expected pid`：进程 id 与消息寻址到的进程 id 匹配，但 Claude Code 无法确认它是同一进程。通常该会话已退出，操作系统重用了其进程 id，因此地址已过时。
 
 **应该做什么：**
 
 * 通常不需要做任何事：检查防止消息到达除了它寻址到的会话之外的端点，什么都没有发送
-* 要求 Claude 再次列出你的会话并重新发送；由过时地址引起的拒绝在 Claude 发送到当前会话后清除
 * 如果 `reply target is a symlink` 对一个会话重复，检查在该会话的套接字路径处创建了什么链接，显示在其 `/status` 下的 `Peer address`
-* 对于 `connected endpoint identity could not be read`，重新发送；该条件可能是暂时的
-* 如果 `connected endpoint is not owned by this user` 出现在共享机器上，该地址处的会话以另一个用户的帐户运行，因此 Claude 无法从你的帐户给它发消息
-
-在 v2.1.248 之前，Claude Code 没有检查端点的拥有用户或进程启动时间，因此命名这些检查的拒绝不会出现在早期版本上。
 
 <h3 id="refusing-after-a-symlink-changed">
   拒绝读取、写入或搜索路径
@@ -4303,9 +4310,9 @@ WebFetch cannot fetch localhost or other hostnames without a dot. To reach a loc
   后台会话中拒绝的命令
 </h3>
 
-打开交互式对话框的命令在没有终端附加到后台会话时无法执行。`/install-github-app`、`/mcp` 设置列表和 MCP 服务器菜单中的身份验证操作会响应一条消息，该会话在[代理视图](/docs/zh-CN/agent-view)中的**需要输入**下显示，以便您可以找到它、附加并再次运行该命令。附加终端时，这些命令正常工作。
+打开交互式对话框的命令在没有终端附加到后台会话时无法执行。`/install-github-app`、`/mcp` 设置列表和 MCP 服务器菜单中的身份验证操作会响应一条消息。对于 `/install-github-app` 和 `/mcp` 设置列表，该会话也在[代理视图](/docs/zh-CN/agent-view)中的**需要输入**下显示，以便您可以找到它、附加并再次运行该命令。附加终端时，这些命令正常工作。
 
-在 v2.1.216 之前，会话在其中一次拒绝后不会在**需要输入**下显示。在 v2.1.213 到 v2.1.215 中，附加终端时命令仍然有效，拒绝消息告诉您附加并再次运行该命令。从 v2.1.208 到 v2.1.212，Claude Code 即使附加了终端也拒绝了它们，消息如 `Can't open MCP settings in a background session`；在这些版本上，从常规 `claude` 会话运行该命令，或升级。在 v2.1.208 之前，它们在后台会话内打开了对话框。在仅 v2.1.208 中，Claude Code 也拒绝了后台会话中的 `/model` 选择器，`/upgrade` 打印了升级 URL 而不是打开浏览器。
+在 v2.1.216 之前，会话在拒绝 `/install-github-app` 或 `/mcp` 设置列表后不会在**需要输入**下显示。在 v2.1.213 到 v2.1.215 中，附加终端时命令仍然有效，拒绝消息告诉您附加并再次运行该命令。从 v2.1.208 到 v2.1.212，Claude Code 即使附加了终端也拒绝了它们，消息如 `Can't open MCP settings in a background session`；在这些版本上，从常规 `claude` 会话运行该命令，或升级。在 v2.1.208 之前，它们在后台会话内打开了对话框。在仅 v2.1.208 中，Claude Code 也拒绝了后台会话中的 `/model` 选择器，`/upgrade` 打印了升级 URL 而不是打开浏览器。
 
 措辞命名该命令。`/mcp` 设置列表报告：
 
@@ -4315,7 +4322,7 @@ Can't open MCP settings while no terminal is attached to this background session
 
 **要做什么：**
 
-* 从代理视图附加到会话，其中它在**需要输入**下列出，然后再次运行该命令
+* 从代理视图附加到会话并再次运行该命令
 * 或使用消息命名的形式，例如 `/mcp reconnect <server>`、`/mcp enable` 或 `/mcp disable`，这些不需要附加即可工作
 
 <h3 id="write-or-command-blocked-because-the-path-cannot-be-safely-resolved">
@@ -4350,7 +4357,6 @@ This write was blocked because the path is network-shaped (a UNC share or /net a
 **要做什么：**
 
 * 通常什么都不做：Claude 使用消息要求的本地拼写重试
-* 如果文件在网络共享上而不是用网络路径拼写的本地文件，它在会话的本地工作区之外；改为从常规交互式会话编辑它
 
 <h3 id="command-blocked-by-the-worktree-isolation-checks">
   命令被 worktree 隔离检查阻止
@@ -4587,7 +4593,7 @@ Couldn't reach the background service (spawn background service: EUNKNOWN: unkno
 
 在 npm 安装上，在 `npm install -g @anthropic-ai/claude-code` 替换二进制文件时出现的 `EUNKNOWN` 与[重新安装期间的 `EACCES`](#eacces-when-starting-a-background-session) 有相同的原因，并在您在安装完成后重试时清除。
 
-Claude Code 通过 PowerShell 启动后台服务，以便服务在关闭终端后存活，在安装时使用 PowerShell 7，否则使用 Windows PowerShell 5.1。当两个 PowerShell 都无法运行时，Claude Code 直接启动服务，因此仅阻止 PowerShell 的策略不会导致此错误。如果您在没有 npm 安装运行时看到它，策略正在阻止 Claude Code 可执行文件本身。
+Claude Code 通过 PowerShell 启动后台服务，以便服务在关闭终端后存活，在安装时使用 PowerShell 7，否则使用 Windows PowerShell 5.1。当两个 PowerShell 都无法运行时，Claude Code 直接启动服务，因此仅阻止 PowerShell 的策略不会导致此错误。
 
 在 v2.1.212 之前，Claude Code 仅使用 Windows PowerShell 5.1 启动服务，因此任何组策略阻止 PowerShell 5.1 的机器失败，出现 `Couldn't start the session — EUNKNOWN: unknown error, uv_spawn`，即使安装了 PowerShell 7。
 
@@ -4658,6 +4664,8 @@ Couldn't start a background session (working directory no longer exists or is no
 ```
 
 在 v2.1.257 之前，会话似乎启动，然后在代理视图中显示为具有相同原因的失败行。
+
+在 v2.1.281 之前，当您启动会话之前目录已经消失时，此消息也出现。该情况报告[`could not be resolved on disk`](#workspace-not-trusted-when-dispatching-a-background-session)。
 
 **要做什么：**
 
@@ -4770,7 +4778,7 @@ Restored the code, but skipped 2 files: the tracked path is (or became) a link o
 
 * 确定哪些文件被跳过，以便您可以使用下面的步骤处理每个文件。该消息仅给出计数；`~/.claude/debug/<session-id>.txt` 中的调试日志在恢复运行时命名每个跳过的路径，因此在下次恢复之前使用 `/debug` 打开调试日志。在 macOS 或 Linux 上，您可以直接找到链接：`find . -type l` 用于符号链接，`find . -type f -links +1` 用于硬链接文件。
 * 如果跳过的文件是您有意创建的链接，例如由点文件管理器管理的配置文件或由 pnpm 等工具硬链接的文件，rewind 保持其内容不变。要撤销会话对其所做的更改，请要求 Claude 反转编辑或自己编辑文件
-* 如果您没有创建该链接，请在信任其内容之前检查该路径：某些内容在检查点后替换了该文件
+* 如果您没有创建该链接，请在信任其内容之前检查该路径
 
 <h3 id="no-files-were-restored">
   No files were restored

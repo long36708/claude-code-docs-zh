@@ -1251,7 +1251,7 @@ Anthropic 还自己提供一些连接器，无需您或管理员添加它们。�
 
 如果临时网络问题导致连接器列表在会话启动时无法加载，Claude Code 会在后台重试最多三次，连接器会在重试成功后出现。如果它们仍未出现，请重启 Claude Code 以再次获取列表。
 
-如果 `/mcp` 显示连接器为 `connected · session token rejected`，或其详细视图显示 [`claude.ai rejected the session token`](/docs/zh-CN/errors#claude-ai-rejected-the-session-token)，则 claude.ai 拒绝了来自您的 Claude Code 登录的令牌，通常是因为登录已过期且无法刷新。再次授权连接器不会清除此状态，因为被拒绝的不是连接器在 claude.ai 中的自身授权。要清除它：
+如果 `/mcp` 显示连接器为 `session token rejected`，或其详细视图显示 [`claude.ai rejected the session token`](/docs/zh-CN/errors#claude-ai-rejected-the-session-token)，则 claude.ai 拒绝了来自您的 Claude Code 登录的令牌。再次授权连接器不会清除此状态，因为被拒绝的不是连接器在 claude.ai 中的自身授权。要清除它：
 
 1. 运行 `/login` 以重新登录。
 2. 从 `/mcp` 重新连接连接器。

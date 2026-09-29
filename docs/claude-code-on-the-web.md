@@ -4,7 +4,7 @@
 
 # 在云端使用 Claude Code
 
-> 从浏览器、手机、桌面应用或终端在云端运行 Claude Code 会话，使用 --cloud 和 --teleport 移动会话，以及自动修复拉取请求。
+> 从浏览器、手机、桌面应用或终端在云端运行 Claude Code 会话，使用 `--cloud` 和 `--teleport` 移动会话，以及自动修复拉取请求。
 
 <Note>
   云会话在 Pro、Max 和 Team 计划上可用，以及拥有高级席位或 Chat + Claude Code 席位的 Enterprise 用户。

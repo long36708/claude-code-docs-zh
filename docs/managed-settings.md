@@ -89,6 +89,7 @@ Jamf、Iru、Intune 和组策略的入门模板在[MDM 示例存储库](https://
 
 * **表面**：在开发者的机器上，终端、VS Code 和 JetBrains 扩展、桌面应用的 Code 选项卡和[Agent SDK](/docs/zh-CN/agent-sdk/typescript)会话读取所有这些源。Agent SDK 会话即使在 `settingSources` 排除用户、项目和本地文件时也加载托管设置。
 * **云会话**：Anthropic 托管环境中的会话不读取设备的 MDM 配置文件或文件，因此其策略必须来自服务器托管设置。[自托管环境](/docs/zh-CN/self-hosted-environments)中的会话也读取其运行器镜像中的托管设置文件，默认情况下仅当服务器托管设置不交付策略密钥时，除了[Claude Code 从每个管理源读取的密钥](#keys-read-from-every-admin-source)。[Claude Code 如何组合托管源](#how-claude-code-combines-managed-sources)涵盖了适用于两者的选择加入。
+* **Claude Tag 会话**：[Claude Tag](https://claude.com/docs/claude-tag/overview)会话在云环境中运行，但不接收服务器托管设置。在[自托管环境](/docs/zh-CN/self-hosted-environments)中，它们仍然读取运行器镜像中的托管设置文件。在[Claude Tag 管理员设置](https://claude.com/docs/claude-tag/admins/customize)中配置 Claude Tag 本身。
 * **协作会话**：Claude Desktop 应用中的[协作](https://claude.com/docs/cowork/overview)在 Claude Code 上运行其会话。在协作会话中，Claude Code 永远不会从 claude.ai 管理控制台获取服务器托管设置，即使用户使用 Team 或 Enterprise 帐户登录，因此应用的策略取决于会话运行的位置：
 
   * **在用户的机器上**：默认情况下，协作会话中的 Claude Code 读取该设备上的 MDM 或操作系统级策略和托管设置文件，因此在那里部署策略。

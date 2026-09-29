@@ -932,7 +932,7 @@ Anthropic 根据它们到达的地址检查与该主机的连接是否符合你�
   身份验证和 SSO
 </h3>
 
-企业组织可以要求所有用户使用 SSO。有关计划级别的详细信息，请参阅[身份验证](/docs/zh-CN/authentication)，有关 SAML 配置，请参阅[设置 SSO](https://support.claude.com/en/articles/13132885-setting-up-single-sign-on-sso)；OIDC 设置在 [Claude Enterprise Administrator Guide](https://claude.com/resources/tutorials/claude-enterprise-administrator-guide) 中介绍。
+Team 和 Enterprise 组织可以要求所有用户使用 SSO。有关计划级别的详细信息，请参阅[身份验证](/docs/zh-CN/authentication)，有关 SAML 配置，请参阅[设置 SSO](https://support.claude.com/en/articles/13132885-setting-up-single-sign-on-sso)；OIDC 设置在 [Claude Enterprise Administrator Guide](https://claude.com/resources/tutorials/claude-enterprise-administrator-guide) 中介绍。
 
 <h3 id="data-handling">
   数据处理
@@ -961,7 +961,15 @@ Desktop 可以通过企业部署工具分发：
 
 要将 CLI 会话移动到 Desktop，在终端中运行 `/desktop`。Claude 保存你的会话并在桌面应用中打开它，然后退出 CLI。此命令在 macOS 和 x64 Windows 上可用，当你使用 Claude 订阅登录时。它不适用于 API 密钥身份验证或 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry。
 
-要从 Desktop 内部选择 CLI 会话，在提示框中输入 `/resume`。Desktop 列出你从 CLI 启动的会话，你可以按标题、文件夹或分支搜索它们，并预览每个会话的停止位置。选择一个会话，它将在应用中继续，具有完整的对话和上下文。
+你也可以从 Desktop 内部使用 `/resume` 选择 CLI 会话。此命令在本地会话中可用，不在 SSH、WSL 或云会话中可用。
+
+要在 Desktop 中继续终端会话：
+
+1. 在终端中关闭会话。
+2. 在 Desktop 提示框中，输入 `/resume`。Desktop 列出你从 CLI 在此计算机上启动的会话。按标题、文件夹或分支搜索，并预览每个会话的停止位置。
+3. 选择会话。它在应用中继续，具有完整的对话和上下文。
+
+Desktop 继续相同的会话而不是副本，所以之后在终端中 `claude --resume` 仍然可以找到它。
 
 <Tip>
   何时使用 Desktop vs CLI：当你想要管理一个窗口中的并行会话、并排排列窗格或可视化审查更改时，使用 Desktop。当你需要脚本、自动化或更喜欢终端工作流时，使用 CLI。

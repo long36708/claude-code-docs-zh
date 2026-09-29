@@ -41,7 +41,7 @@ artifact 是工作的捕获：一个自包含的页面，没有后端，因此�
   创建工件
 </h2>
 
-Claude 可能会在输出适合作为页面时自动发布工件，或者你可以直接请求创建一个。要请求创建，请命名该功能或用简洁的语言描述你想要的视觉输出。任何比以文本形式阅读更容易看到的内容都是很好的候选，例如带注释的 diff、图表或一组选项进行比较。下面的提示是两个示例；有关更多模式，请参阅[你可以构建的内容](#what-you-can-build)。
+Claude 可能会在输出适合作为页面时自动发布工件，或者你可以直接请求创建一个。要请求创建，请用简洁的语言命名该功能或描述你想要的视觉输出。任何比以文本形式阅读更容易看到的内容都是很好的候选，例如带有内联注释的 diff、图表或一组选项的比较。下面的提示是两个示例；有关更多模式，请参阅[你可以构建的内容](#what-you-can-build)。
 
 ```text wrap theme={null}
 Make an artifact that walks through this PR with the diff annotated inline.
@@ -51,24 +51,19 @@ Make an artifact that walks through this PR with the diff annotated inline.
 Build a dashboard artifact of last week's deploy failures by service and keep it updated as you investigate.
 ```
 
-除非你指定位置，否则 Claude 会将页面写入项目外的临时目录中的 HTML 或 Markdown 文件，然后发布它。发布新工件会通过你的会话的[权限模式](/docs/zh-CN/permission-modes)进行：
+除非你指定位置，否则 Claude 会将页面写入项目外的临时目录中的 HTML 或 Markdown 文件，然后发布它。在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)之外，Claude 发布的响应你输入的提示的新工件会直接通过，无需权限提示或分类器审查，除非该发布声明了页面的运行时功能，例如[连接器调用](#pull-live-data-with-mcp-connectors)或[文件下载](#offer-a-file-download)。在计划模式下，Claude Code 会在每个工件的首次发布前询问你。
 
-* **自动模式**：分类器审查发布而不是提示你，因此 Claude 可以在你看不到提示的情况下发布页面。你的会话启动时所处的模式取决于你的计划；请参阅[起始权限模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。
-* **手动和接受编辑模式**：Claude Code 会请求权限；它可能会说类似 `Claude wants to publish deploy-failures.html, uploading it to claude.ai (Anthropic's servers) to host as the page "Deploy failures by service", private to you until you share it` 的内容。选择**是**以发布。
+工件对你保持私密，直到你[共享它](#share-an-artifact)。在你公开共享后，Claude Code 会在每次对话中要求你的批准一次后再更改它，或在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下让分类器审查更改。
 
-在你批准工件一次后，Claude Code 会重新发布它而不再询问，并在某些情况下再次询问，包括：
+如果你关闭了[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，Claude Code 会在每个工件的首次发布前询问，或在自动模式下让分类器审查它。
 
-* Claude 为页面声明运行时功能，例如[连接器调用](#pull-live-data-with-mcp-connectors)或[文件下载](#offer-a-file-download)
-* 你之后[公开共享了它](#share-an-artifact)
-* 你之后与特定人员或你的组织共享了它，最新版本被选为查看者看到的版本
+首次发布后，Claude 会打印 URL，你的浏览器会打开到新页面。如果你通过[远程控制](/docs/zh-CN/remote-control)从 claude.ai、Claude Desktop 或 Claude 移动应用发送提示，运行会话的机器上不会打开标签页。下次 Claude 从你在终端输入的提示发布工件时，浏览器会在那里打开。随时按 `Ctrl+]` 可以重新打开会话的最近工件。
 
-在首次发布后，Claude 会打印 URL，你的浏览器会打开到新页面。如果你从 claude.ai、Claude Desktop 或 Claude 移动应用通过[远程控制](/docs/zh-CN/remote-control)发送了提示，运行会话的机器上不会打开任何标签页。下次你在终端输入提示时 Claude 从该提示发布工件时，浏览器会在那里打开。随时按 `Ctrl+]` 可重新打开会话的最近工件。
+Claude 会选择工件的标题和一个表情符号，两者都会出现在你在 claude.ai 上的[工件库](#share-an-artifact)和共享链接中。Claude 还可以选择与页面内容相匹配的浏览器标签页图标，例如图表或日历。如果你想要特定的标题、表情符号或标签页图标，请告诉 Claude。
 
-Claude 为工件的标题和浏览器标签图标选择一个表情符号。两者都会出现在你在 claude.ai 上的[工件库](#share-an-artifact)和共享链接中，因此如果你想要特定的标题或图标，请要求 Claude 使用它。
+要停止在发布新工件时自动打开浏览器，请在你的环境中设置 `CLAUDE_CODE_ARTIFACT_AUTO_OPEN=0`。
 
-要停止浏览器在发布新工件时自动打开，请在你的环境中设置 `CLAUDE_CODE_ARTIFACT_AUTO_OPEN=0`。
-
-如果 Claude 回应说它无法发布，或写入本地 HTML 文件而没有链接，则该工具未为你的会话启用。检查[可用性](#availability)要求。
+如果 Claude 回复说无法发布，或写入本地 HTML 文件而没有链接，则该工具未为你的会话启用。检查[可用性](#availability)要求。
 
 <h2 id="update-an-artifact">
   更新一个 artifact

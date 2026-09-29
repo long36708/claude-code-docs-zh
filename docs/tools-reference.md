@@ -506,7 +506,7 @@ Read 工具接收文件路径并返回带有行号的文件内容。Claude 被�
 Read 处理多种文件类型，不仅仅是纯文本：
 
 * **图像**：PNG、JPG 和其他图像格式作为 Claude 可以看到的视觉内容返回，而不是原始字节。Claude Code 在发送大型图像之前会调整大小并重新压缩，以适应模型的图像大小限制，因此 Claude 可能会看到大型屏幕截图的缩小版本。从 v2.1.196 开始，在调整大小后仍然大于 500KB 的图像会被重新编码为质量降低的 JPEG，其像素尺寸保持不变。如果 Claude 在大型图像中遗漏了细微的像素级细节，请要求它先裁剪感兴趣的区域，例如通过 Bash 使用 ImageMagick。
-* **PDF**：Claude 完整读取短 `.pdf` 文件。对于超过 10 页的 PDF，它使用 `pages` 参数按范围读取，例如 `"1-5"`，一次最多 20 页。
+* **PDF**：Claude 完整读取短 `.pdf` 文件。对于超过 10 页的 PDF，它使用 `pages` 参数按范围读取，例如 `"1-5"`，一次最多 20 页。页面范围读取使用 poppler-utils 中的 `pdftoppm` 呈现页面，因此在 macOS 上使用 `brew install poppler` 安装，在 Debian 和 Ubuntu 上使用 `apt-get install poppler-utils` 安装。在 Windows 和其他平台上，安装一个将 `pdftoppm` 放在 `PATH` 上的 poppler 构建。没有它，页面范围读取会失败并显示 `pdftoppm is not installed`。
 * **Jupyter 笔记本**：`.ipynb` 文件返回所有单元格及其输出，包括代码、markdown 和可视化。Claude Code 拒绝读取超过 100 MB 的笔记本文件；错误会告诉 Claude 如何改为读取笔记本的一部分，例如使用 shell 命令读取单元格的一个切片。
 
 Read 仅读取文件，不读取目录。Claude 使用 shell 命令（如 `ls`）列出目录内容。

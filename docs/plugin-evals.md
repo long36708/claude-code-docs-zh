@@ -734,7 +734,7 @@ eval 目录下不存在 `<case>/prompt.md` 或 `<case>/case.yaml`，或你的 `-
 默认 `--threshold` 是 1.0，所以当任何案例的评分低于完美时，命令退出代码为 1。设置与你需要的评分相匹配的阈值。退出代码 1 也涵盖了无法加载的案例文件，该文件在表格上方的 stderr 上报告。
 
 <h3 id="json-output-path-must-end-in-json">
-  "--json output path must end in .json"
+  `--json output path must end in .json`
 </h3>
 
 你把目标放在 `--json` 之后，所以它被读作输出路径。把目标放在前面，如 `claude plugin eval . --json`，或给 `--json` 一个显式的 `.json` 路径。

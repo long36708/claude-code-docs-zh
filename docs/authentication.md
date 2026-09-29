@@ -220,9 +220,9 @@ Claude Code 安全地管理您的身份验证凭证：
 
 一旦存储的登录过期且无法刷新，每个模型请求都会失败，显示 [`Login expired · Please run /login`](/docs/zh-CN/errors#login-expired)，直到您再次登录。
 
-您可以在请求失败之前检查此状态：[`/status`](/docs/zh-CN/commands) 显示 `Login` 行，读取 `Expired — log in again`，加上它为过期登录保存的组织和电子邮件。该行仅在保存的 claude.ai 或 Claude Console 登录是活跃凭证时出现。该行需要 Claude Code v2.1.210 或更高版本。
+您可以在请求失败之前检查此状态：[`/status`](/docs/zh-CN/commands) 显示 `Login` 行，读取 `Expired — log in again`，加上它为过期登录保存的组织和电子邮件。该行仅在保存的 claude.ai 登录是活跃凭证时出现。该行需要 Claude Code v2.1.210 或更高版本。
 
-该警告仅在 claude.ai 或 Claude Console 登录是活跃凭证时出现，而不是在云提供商、`ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 提供凭证时出现。
+该警告仅在 claude.ai 登录是活跃凭证时出现，而不是在云提供商、`ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 提供凭证时出现。
 
 对于运行无人值守的会话，提前续期最为重要。在 [agent view 中的后台会话](/docs/zh-CN/agent-view)或 [Remote Control](/docs/zh-CN/remote-control) 会话一旦凭证过期，就会停止进行，并且在您再次登录之前无法恢复。
 

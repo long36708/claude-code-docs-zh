@@ -252,7 +252,7 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
   会话启动失败，显示 `Unable to get organization UUID`
 </h3>
 
-使用 `/login` 和您的组织账户登录。如果您改用 API 密钥进行身份验证，云会话会更早失败，并显示一条消息要求您运行 `/login`。
+Claude Code 无法从您的凭据中读取 claude.ai 组织。使用 `/login` 登录，使用您的 Team 或 Enterprise 组织中的账户，因为 GitHub Enterprise Server 支持仅限于这些计划。有关原因和此状态产生的其他消息，请参阅 [Unable to get organization UUID](/docs/zh-CN/claude-code-on-the-web#unable-to-get-organization-uuid)。
 
 <h2 id="related-resources">
   相关资源

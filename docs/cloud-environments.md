@@ -78,7 +78,7 @@ LOG_LEVEL=debug
 DATABASE_URL=postgres://localhost:5432/myapp
 ```
 
-每个会话在启动时将环境的值复制一次到普通环境变量中，Claude运行的任何命令都可以读取这些变量。因为运行中的会话不会重新读取配置，编辑或添加变量会影响你之后启动的会话；已经运行的会话保持它们启动时的值。
+每个会话在启动时将环境的值复制一次到普通环境变量中，Claude运行的任何命令都可以读取这些变量，除了`OTEL_*`变量。Claude Code使用这些变量进行自己的[遥测导出](/docs/zh-CN/monitoring-usage#telemetry-from-cloud-sessions-and-claude-tag)，不会将它们传递给它运行的命令。因为运行中的会话不会重新读取配置，编辑或添加变量会影响你之后启动的会话；已经运行的会话保持它们启动时的值。
 
 云会话在启动时也会自己设置一些变量。对于[`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`](/docs/zh-CN/claude-code-on-the-web#manage-context)，会话设置的值会覆盖你在这里添加的值，所以在这里添加该键没有效果。
 
@@ -149,6 +149,7 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
 * **GitHub**：[GitHub代理](#github-proxy)改为对GitHub的请求进行身份验证，所以你不需要为它提供API凭证
 * **Anthropic API和公共包注册表**：`api.anthropic.com`、`registry.npmjs.org`、`jsr.io`、`npm.jsr.io`、`pypi.org`、`files.pythonhosted.org`、`index.crates.io`和`proxy.golang.org`
 * **Setup script请求**：Claude Code在启动时连接到代理，在[setup script](#setup-scripts)运行后
+* **Claude Code的遥测导出**：Claude Code自己发送其[遥测导出](/docs/zh-CN/monitoring-usage#telemetry-from-cloud-sessions-and-claude-tag)，而不是通过它运行的命令，该请求不会通过代理
 
 <h3 id="select-an-environment-from-the-cli">
   从CLI选择环境
@@ -250,7 +251,7 @@ registry.example.com
 * **此环境中的会话打开另一个组织的公开工件**：Claude Code 直接从主机获取这些工件，因此将其添加到此列表。
 * **您正在配置本地 CLI 或自托管运行器**：在该允许列表中保留主机。请参阅[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)和自托管[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)。
 
-每个环境都有自己的允许域列表；没有组织级别的允许列表可供管理员推送到每个成员的环境。[服务器管理的设置](/docs/zh-CN/server-managed-settings)在云会话内仍然适用，但其中没有任何设置会将域添加到环境的网络允许列表。要为团队提供一个标准列表，Owner 可以创建一个具有 **Custom** 网络访问和该列表的[组织共享环境](#organization-shared-environments)。
+每个环境都有自己的允许域列表；没有组织级别的允许列表可供管理员推送到每个成员的环境。[服务器管理的设置](/docs/zh-CN/server-managed-settings)也不会将域添加到环境的网络允许列表。要为团队提供一个标准列表，Owner 可以创建一个具有 **Custom** 网络访问和该列表的[组织共享环境](#organization-shared-environments)。
 
 <h3 id="github-proxy">
   GitHub 代理
@@ -301,7 +302,7 @@ Anthropic 托管环境中的云会话在 HTTP/HTTPS 网络代理后面运行，�
 | 您的存储库的 `.claude/rules/` | 是 | 克隆的一部分 |
 | 您的存储库的 `.claude/skills/`、`.claude/agents/`、`.claude/commands/` | 是 | 克隆的一部分 |
 | 在您的存储库的 `.claude/settings.json` 中声明的 plugins 和 marketplaces | 否 | 云会话不会安装存储库在 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 下启用的 plugins，包括来自它在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 下列出的 marketplaces 的 plugins |
-| 您组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings) | 是 | 在会话启动时从 Anthropic 的服务器获取。请参阅 [Surface coverage](/docs/zh-CN/model-config#surface-coverage) 了解 `availableModels` 在云会话中如何强制执行。通过 MDM 或管理配置文件部署到您设备的设置不适用，因为会话在 Anthropic 管理的 VM 上运行；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，会话也会读取运行器镜像中的管理设置文件，根据 [Claude Code 如何组合管理来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources) |
+| 您组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings) | 是，除了在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话中 | 在会话启动时从 Anthropic 的服务器获取。请参阅 [Surface coverage](/docs/zh-CN/model-config#surface-coverage) 了解 `availableModels` 在云会话中如何强制执行。通过 MDM 或管理配置文件部署到您设备的设置不适用，因为会话在 Anthropic 管理的 VM 上运行；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，会话也会读取运行器镜像中的管理设置文件，根据 [Claude Code 如何组合管理来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources) |
 | 您的用户 `~/.claude/CLAUDE.md` | 否 | 位于您的机器上，不在存储库中 |
 | 您的用户 `~/.claude/skills/`、`~/.claude/agents/`、`~/.claude/commands/` | 否 | 位于您的机器上，不在存储库中。请改为将它们提交到存储库的 `.claude/` 目录。云会话会自动加载您在 claude.ai 上启用的技能 |
 | 仅在您的用户设置中启用的 plugins | 否 | 用户范围的 `enabledPlugins` 位于您机器上的 `~/.claude/settings.json` |
@@ -489,7 +490,7 @@ apt update && apt install -y shellcheck
 
 如果您在用户级 `~/.claude/settings.json` 中有 SessionStart hooks，不要期望它们在云端生效。用户级设置保留在您的机器上。其他 hooks 运行的位置取决于会话运行的位置：
 
-* **Anthropic 托管环境**：Claude Code 运行来自存储库和您组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings)的 hooks。
+* **Anthropic 托管环境**：Claude Code 运行来自存储库和您组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings)的 hooks。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话不会接收服务器管理的设置，因此来自服务器管理的设置的 hooks 不会在那里运行。
 * **[自托管环境](/docs/zh-CN/self-hosted-environments-configuration#permissions-and-tool-approval)**：Claude Code 还运行运行程序主机的 `~/.claude/` 中的运行程序操作员播种的 hooks，以及运行程序镜像的托管设置文件中的 hooks，当该文件是 [Claude Code 应用的托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)之一时。
 
 <h3 id="install-dependencies-with-a-sessionstart-hook">
@@ -821,4 +822,4 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 * [Remote Control](/docs/zh-CN/remote-control)：改为在您自己的机器的网络和文件上运行会话
 * [Self-hosted environments](/docs/zh-CN/self-hosted-environments)：在您的组织自己的基础设施上运行云会话
 * [SessionStart hooks](/docs/zh-CN/hooks#sessionstart)：存储库提交的设置，在本地和云会话中运行
-* [Server-managed settings](/docs/zh-CN/server-managed-settings)：到达云会话的组织策略
+* [Server-managed settings](/docs/zh-CN/server-managed-settings)：从管理控制台交付的组织策略

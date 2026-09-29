@@ -406,7 +406,7 @@ Skills 被捆绑并作为插件共享。`/plugin` 浏览可用的内容并在一
 您团队中的某个人会问"等等，我的代码去哪里了？"
 这是您可以粘贴的简短版本。
 
-权限优先设计。每个文件编辑、shell 命令和外部调用都由您的批准门控。CLI 在您的终端中运行，直接与 Anthropic 的 API 通信，没有第三方服务器，并支持 shell 命令的可选操作系统级沙箱。根据我们的企业计划，Anthropic 不使用您的代码或提示来训练其模型。
+权限优先设计。每个文件编辑、shell 命令和外部调用都由您的批准门控。CLI 在您的终端中运行，直接与 Anthropic 的 API 通信，没有第三方服务器，并支持 shell 命令的可选操作系统级沙箱。在 Team 或 Enterprise 计划上，Anthropic 不使用您的代码或提示来训练其模型。
 
 *现在尝试：* 保存这两个链接以备下次问题出现。它们回答了大多数安全审查问题。
 
@@ -445,7 +445,7 @@ Skills 被捆绑并作为插件共享。`/plugin` 浏览可用的内容并在一
 | - | - |
 | "它在 VS Code 中工作吗？" | 是的。有一个 VS Code 扩展和一个 JetBrains 插件，具有相同的功能，嵌入在您的编辑器中。[VS Code →](/docs/zh-CN/vs-code) |
 | "我必须先配置什么吗？" | 不。安装，然后在任何仓库中运行 `claude`。运行一次 `/init`，您就设置好了。[快速入门 →](/docs/zh-CN/quickstart) |
-| "我的代码去哪里了？" | CLI 在您的终端中运行，并将上下文发送到 Anthropic 的 API 进行推理，没有第三方服务器。根据您的企业计划，您的代码和提示不用于训练模型。[数据使用 →](/docs/zh-CN/data-usage) |
+| "我的代码去哪里了？" | CLI 在您的终端中运行，并将上下文发送到 Anthropic 的 API 进行推理，没有第三方服务器。在 Team 或 Enterprise 计划上，您的代码和提示不用于训练模型。[数据使用 →](/docs/zh-CN/data-usage) |
 | "它能看到我的整个仓库吗？" | 它读取您给它访问权限的内容。您工作目录内的文件读取不提示；权限提示门控编辑、非只读 shell 命令和该目录外的文件工具读取。一组内置的只读 shell 命令（如 `ls` 和 `cat`）无需提示即可运行；使用[沙箱 `denyRead` 规则](/docs/zh-CN/sandboxing#filesystem-isolation)限制它。[权限 →](/docs/zh-CN/permissions) |
 | "这与 Copilot 有什么不同？" | Copilot 自动完成行。Claude Code 是一个读取文件、运行命令和进行多文件编辑的代理。[概述 →](/docs/zh-CN/overview) |
 | "我应该首先尝试什么？" | 您一直在推迟的错误，因为它很乏味。"文件 \[file] 中的测试不稳定，找出原因。" [快速入门 →](/docs/zh-CN/quickstart) |

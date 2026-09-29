@@ -809,7 +809,7 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 
 * **共享项目设置** (`.claude/settings.json`)：在一个存储库的会话中读取，因为该文件是克隆的一部分，会话在其中启动。在那里提交设置以在这些会话中应用它。具有多个存储库的会话在克隆上方启动，因此从每个存储库的 `.claude/settings.json` 仅读取 `enabledPlugins` 和 `extraKnownMarketplaces` 键，而不是权限规则、hooks、`env` 或其他键。这些两个键声明的市场和插件仍然[不在云会话中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
 * **用户和项目本地设置** (`~/.claude/settings.json` 和 `.claude/settings.local.json`)：不读取。两者都保持在您的机器上，本地文件不在克隆中。
-* **托管设置**：仅[服务器管理设置](/docs/zh-CN/server-managed-settings)到达云会话；您设备上的 `managed-settings.json` 文件或 MDM 配置文件不会。[自托管环境](/docs/zh-CN/self-hosted-environments)也读取其运行器镜像中的托管设置文件。[Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说该文件何时适用。
+* **托管设置**：您设备上的 `managed-settings.json` 文件或 MDM 配置文件不会到达云会话。您组织的[服务器管理设置](/docs/zh-CN/server-managed-settings)会；[表面覆盖](/docs/zh-CN/model-config#surface-coverage)列出哪些云会话接收它们。[自托管环境](/docs/zh-CN/self-hosted-environments)也读取其运行器镜像中的托管设置文件。[Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说该文件何时适用。
 * **`/config`**：在您的浏览器中的 claude.ai/code，打开您的 claude.ai 设置的 Claude Code 部分而不是更改值。要为云会话更改设置，在环境上设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)，或在具有一个存储库的会话中，将键提交到该存储库的 `.claude/settings.json`。
 
 [从您的设置中携带什么](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)列出其余的：`CLAUDE.md`、skills、MCP 服务器、plugins 和凭证。

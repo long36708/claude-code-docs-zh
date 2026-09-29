@@ -70,7 +70,7 @@ Claude Code 在以下情况下拒绝消息：
 
 * 消息 [超过大小限制](#limitations)。Claude Code 在发送会话中拒绝它，在它离开之前。
 * 对这台机器上的会话的快速突发已达到 [该会话的收件箱接受的内容](#limitations)。Claude Code 拒绝向该会话发送进一步的消息。
-* 这台机器上的回复目标未通过安全检查，例如符号链接目标或不是预期进程的端点。[拒绝发送跨会话消息](/docs/zh-CN/errors#refusing-to-send-a-cross-session-message) 列出了这些检查。
+* 这台机器上的回复目标未通过安全检查，例如符号链接目标。[拒绝发送跨会话消息](/docs/zh-CN/errors#refusing-to-send-a-cross-session-message) 列出了这些检查。
 
 接收会话根据其自己的 [入站控制](#control-inbound-messages) 检查每条到达的消息，检查以三种结果之一结束：
 

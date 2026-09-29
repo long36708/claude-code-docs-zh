@@ -64,7 +64,8 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
     | `--capacity <N>` | 最大并发会话数。默认为 32。不能与 `--spawn=session` 一起使用。 |
     | `--[no-]create-session-in-dir` | 在服务器启动时在当前目录中预创建一个会话，以便您有地方立即输入。在 `worktree` 模式下，此会话保留在当前目录中，而按需会话获得隔离的 worktree。默认启用。如果您传递 `--no-create-session-in-dir` 以不启动任何会话，Claude Code 会在您停止服务器时存档服务器的会话，因此没有任何内容可[恢复](#resume-sessions-after-stopping-the-server)。 |
     | `--permission-mode <mode>` | 为服务器的会话设置起始[权限模式](/docs/zh-CN/permission-modes)，例如 `acceptEdits`。接受 `manual` 作为 `default` 的别名；无法识别的模式会在启动时停止服务器并列出有效模式。 |
-    | `-d`, `--debug[=<filter>]` | 为服务器打开调试日志记录，可选择按类别过滤。仅以 `=` 形式传递过滤器，例如 `--debug=api,hooks`。需要 Claude Code v2.1.282 或更高版本；早期版本将该标志拒绝为未知参数。 |
+    | `--chrome` / `--no-chrome` | 在服务器创建的会话中打开或关闭 [Chrome 集成](/docs/zh-CN/chrome)，以便 Claude 可以在您从另一台设备工作时在您的机器上使用 Chrome。没有任何标志，服务器预创建的会话和您从 claude.ai/code 或 Claude 应用启动的任何会话都以 Chrome 关闭开始，即使您[默认启用了 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default)。服务器为您的[项目](/docs/zh-CN/claude-projects)线程之一启动的会话改为遵循该设置，除非在 `bypassPermissions` 模式下。需要 Claude Code v2.1.273 或更高版本。 |
+    | `-d`, `--debug[=<filter>]` | 为服务器打开调试日志记录，可选择按类别过滤。仅以 `=` 形式传递过滤器，例如 `--debug=api,hooks`。需要 Claude Code v2.1.282 或更高版本。 |
     | `--debug-file <path>` | 将调试日志写入给定文件。 |
     | `--verbose` | 显示详细的连接和会话日志。 |
     | `--sandbox` / `--no-sandbox` | 启用或禁用[沙箱](/docs/zh-CN/sandboxing)以进行文件系统和网络隔离。默认关闭。 |
@@ -438,7 +439,7 @@ Claude Code 无法访问功能标志服务来检查是否为您的账户启用�
   "Remote Control is only available when using Claude via api.anthropic.com"
 </h3>
 
-会话不是直接与 Anthropic API 通信，因此没有 claude.ai 后端可配对。这发生在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上。当 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 指向 `api.anthropic.com` 以外的主机时，例如 [LLM 网关](/docs/zh-CN/llm-gateway)或代理，即使您使用 claude.ai 登录，也会发生这种情况。有关完整原因列表，请参阅[错误参考](/docs/zh-CN/errors#remote-control-requires-the-anthropic-api)。
+会话不是直接与 Anthropic API 通信，Remote Control 需要这样做。这发生在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上。当 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 指向 `api.anthropic.com` 以外的主机时，例如 [LLM 网关](/docs/zh-CN/llm-gateway)或代理，即使您使用 claude.ai 登录，也会发生这种情况。有关完整原因列表，请参阅[错误参考](/docs/zh-CN/errors#remote-control-requires-the-anthropic-api)。
 
 消息命名了将会话路由离开 Anthropic API 的内容，例如 `CLAUDE_CODE_USE_BEDROCK` 或自定义 `ANTHROPIC_BASE_URL`。如果您有符合条件的 claude.ai 登录，请取消设置命名的变量，如果您在[设置](/docs/zh-CN/settings)中设置了它，请从 `env` 密钥中删除它，然后重新启动会话。
 

@@ -22,18 +22,18 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `$docs` | 可选的文档 URL |
 | `bindings` | 按上下文分组的绑定块数组 |
 
-此示例将 `Ctrl+E` 绑定到在聊天上下文中打开外部编辑器，并取消绑定 `Ctrl+U`：
+此示例将 `Ctrl+E` 绑定到在聊天上下文中打开外部编辑器，并取消绑定 `Ctrl+S`：
 
 ```json theme={null}
 {
   "$schema": "https://www.schemastore.org/claude-code-keybindings.json",
-  "$docs": "https://code.claude.com/docs/zh-CN/keybindings",
+  "$docs": "https://code.claude.com/docs/en/keybindings",
   "bindings": [
     {
       "context": "Chat",
       "bindings": {
         "ctrl+e": "chat:externalEditor",
-        "ctrl+u": null
+        "ctrl+s": null
       }
     }
   ]
@@ -50,24 +50,24 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | :- | :- |
 | `Global` | 在应用程序的任何地方应用 |
 | `Chat` | 主聊天输入区域 |
-| `Autocomplete` | 自动完成菜单已打开 |
+| `Autocomplete` | 自动完成菜单打开 |
 | `Settings` | 设置菜单 |
 | `Confirmation` | 权限和确认对话框 |
 | `Tabs` | 选项卡导航组件 |
 | `Help` | 帮助菜单可见 |
 | `Transcript` | 记录查看器 |
-| `HistorySearch` | 历史搜索模式（Ctrl+R） |
-| `Task` | 后台任务正在运行 |
+| `HistorySearch` | 历史记录搜索模式 (Ctrl+R) |
+| `Task` | 任务在前台运行 |
 | `ThemePicker` | 主题选择器对话框 |
-| `Attachments` | 图像附件在选择对话框中的导航 |
+| `Attachments` | 选择对话框中的图像附件导航 |
 | `Footer` | 页脚指示器导航（任务、团队、差异、工件） |
-| `MessageSelector` | 回溯和总结对话框消息选择 |
+| `MessageSelector` | 回退和总结对话框消息选择 |
 | `DiffDialog` | 差异查看器导航 |
-| `DiffPanel` | [差异面板](/docs/zh-CN/interactive-mode#diff-panel)已打开 |
+| `DiffPanel` | [差异面板](/docs/zh-CN/interactive-mode#diff-panel)打开 |
 | `ModelPicker` | 模型选择器工作量级别 |
 | `EffortSlider` | 由 `/effort` 打开的工作量滑块 |
 | `Select` | 通用选择/列表组件 |
-| `Plugin` | 插件对话框（浏览、发现、管理） |
+| `Plugin` | Plugin 对话框（浏览、发现、管理） |
 | `Agents` | [Agent 视图](/docs/zh-CN/agent-view)（`claude agents`） |
 | `Scroll` | 对话滚动和全屏模式下的文本选择 |
 
@@ -689,7 +689,7 @@ Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl
   验证
 </h2>
 
-Claude Code 验证您的快捷键并显示以下警告：
+Claude Code 验证您的快捷键并向调试日志写入以下警告：
 
 * 解析错误（无效的 JSON 或结构）
 * 无效的上下文名称
@@ -698,4 +698,4 @@ Claude Code 验证您的快捷键并显示以下警告：
 * 保留快捷键冲突
 * 同一上下文中的重复绑定
 
-Claude Code 在文件加载时报告警告，并将每个警告写入调试日志。使用 [`--debug`](/docs/zh-CN/cli-reference#cli-flags) 启动 Claude Code 以查看详细信息。
+使用 [`--debug`](/docs/zh-CN/cli-reference#cli-flags) 启动 Claude Code 以查看详细信息。
