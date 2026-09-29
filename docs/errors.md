@@ -24,11 +24,14 @@
 | :- | :- |
 | `API Error: 500 Internal server error` | [服务器错误](#api-error-500-internal-server-error) |
 | `API Error: Repeated 529 Overloaded errors` | [服务器错误](#api-error-repeated-529-overloaded-errors) |
+| `Opus is experiencing high load` / `Fable is experiencing high load` | [服务器错误](#api-error-repeated-529-overloaded-errors) |
 | `Request timed out` | [服务器错误](#request-timed-out)，或如果消息提到您的互联网连接，则为[网络](#unable-to-connect-to-api) |
 | `API Error: No response from API` | [服务器错误](#no-response-from-api) |
 | `Server error mid-response. The response above may be incomplete.` | [服务器错误](#the-response-above-may-be-incomplete) |
 | `Connection lost mid-response` / `Your computer went to sleep mid-response` / `The response stopped arriving` | [服务器错误](#the-response-above-may-be-incomplete) |
 | `Connection closed mid-response` / `Response stalled mid-stream` | [服务器错误](#the-response-above-may-be-incomplete) |
+| `Part of the response never arrived` / `The response stream was malformed` | [服务器错误](#the-response-above-may-be-incomplete) |
+| `API Error: Content block not found` / `API Error: Content block already closed` / `API Error: Stream event unreadable` | [服务器错误](#the-response-above-may-be-incomplete) |
 | `Connection lost before a response was produced` / `Your computer went to sleep before a response was produced` / `The response stalled before a response was produced` | [自动重试](#automatic-retries) |
 | `Connection closed while thinking` / `Response stalled while thinking` | [自动重试](#automatic-retries) |
 | `Connection lost while your computer was asleep` | [自动重试](#automatic-retries) |
@@ -49,6 +52,8 @@
 | `Could not update your spend limit` | [使用限制](#could-not-update-your-spend-limit) |
 | `spend limit reached` / `spend limit unavailable` | [使用限制](#spend-limit-reached) |
 | `Not logged in · Please run /login` | [身份验证](#not-logged-in) |
+| `Couldn't save your login` | [身份验证](#couldnt-save-your-login) |
+| `Authentication required · Sign in again to continue` | [身份验证](#not-logged-in) |
 | `Could not resolve authentication method` | [身份验证](#could-not-resolve-authentication-method) |
 | `Invalid API key` | [身份验证](#invalid-api-key) |
 | `Your apiKeyHelper script is failing` | [身份验证](#your-apikeyhelper-script-is-failing) |
@@ -69,6 +74,7 @@
 | `signed-in claude.ai account or organization changed on this machine` | [身份验证](#remote-control-stopped-because-the-signed-in-account-changed) |
 | `Remote Control stopped — the app running this session is now signed in to a different Claude account` | [身份验证](#remote-control-stopped-because-the-app-running-the-session-signed-out-or-switched-accounts) |
 | `Remote Control stopped — the app running this session is signed out of Claude` | [身份验证](#remote-control-stopped-because-the-app-running-the-session-signed-out-or-switched-accounts) |
+| `Couldn't verify your organization's policy for remote control` | [Troubleshoot Remote Control](/docs/zh-CN/remote-control#couldnt-verify-your-organizations-policy-for-remote-control) |
 | `OAuth token revoked` / `OAuth token has expired` | [身份验证](#oauth-token-revoked-or-expired) |
 | `API Error: 401 Invalid authentication credentials` | [身份验证](#api-error-401-invalid-authentication-credentials) |
 | `Login expired · Please run /login` | [身份验证](#login-expired) |
@@ -77,6 +83,8 @@
 | `Not signed in to the Cloud gateway — run /login.` | [身份验证](#administrator-policy-requires-a-cloud-gateway-sign-in) |
 | `Administrator policy requires a Cloud gateway sign-in on this machine` | [身份验证](#administrator-policy-requires-a-cloud-gateway-sign-in) |
 | `Failed to authenticate: OAuth session expired and could not be refreshed` | [身份验证](#login-expired) |
+| `Could not refresh your login because another Claude Code process is refreshing it` | [身份验证](#could-not-refresh-your-login) |
+| `Failed to refresh OAuth token: another Claude Code process is refreshing it or exited mid-refresh` | [身份验证](#could-not-refresh-your-login) |
 | `Your account is on hold and can't use Claude Code. View details or appeal: https://claude.ai/restricted` | [身份验证](#your-account-is-on-hold) |
 | `Your account is on hold and can't sign in to Claude Code. View details or appeal: https://claude.ai/restricted` | [身份验证](#your-account-is-on-hold) |
 | `Anthropic profile login expired · Re-authenticate your Anthropic profile` | [身份验证](#anthropic-profile-login-expired) |
@@ -120,6 +128,7 @@
 | `Couldn't reconnect to your Remote Control session` | [网络](#couldnt-reconnect-to-your-remote-control-session) |
 | `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.` | [网络](#sessions-ended-while-this-machine-was-offline) |
 | `Couldn't share the transcript.` | [网络](#couldnt-share-the-transcript) |
+| `Couldn't send feedback` | [网络](#couldnt-send-feedback) |
 | `Prompt is too long` / `Input is too long for requested model` | [请求错误](#prompt-is-too-long) |
 | `Prompt is too long · automatic compaction failed:` | [请求错误](#prompt-is-too-long) |
 | `Prompt is too long · this conversation is a single exchange` / `A single-exchange conversation cannot be compacted` | [请求错误](#prompt-is-too-long) |
@@ -139,13 +148,16 @@
 | `PDF too large` / `PDF is password protected` | [请求错误](#pdf-errors) |
 | `Extra inputs are not permitted` | [请求错误](#extra-inputs-are-not-permitted) |
 | `API Error: 400 ... tools.N.custom.input_schema: JSON schema is invalid` / `Property keys should match pattern` | [请求错误](#tool-input-schema-is-invalid) |
+| `tool_use.name: String should have at most 200 characters` | [请求错误](#tool-use-name-over-200-characters) |
 | `There's an issue with the selected model` | [请求错误](#theres-an-issue-with-the-selected-model) |
 | `Model ... is not a recognized model id` | [请求错误](#model-is-not-a-recognized-model-id) |
 | `Model ... not found` | [请求错误](#model-not-found) |
+| `API error: ... · model not changed` | [请求错误](#api-error-model-not-changed) |
 | `Claude Opus is not available with the Claude Pro plan` | [请求错误](#claude-opus-is-not-available-with-the-claude-pro-plan) |
 | `Claude Code ... does not support this model; version ... or newer is required` | [请求错误](#claude-code-does-not-support-this-model) |
 | `Claude Code ... is older than the minimum version required by your organization's policy` | [请求错误](#claude-code-does-not-support-this-model) |
 | `Model ... is restricted by your organization's settings` | [请求错误](#model-is-restricted-by-your-organizations-settings) |
+| `Model ... is not available. Your organization restricts model selection.` | [请求错误](#model-is-restricted-by-your-organizations-settings) |
 | `Model switch ... blocked by a PreModelSwitch hook` | [请求错误](#model-switch-was-blocked-by-a-premodelswitch-hook) |
 | `couldn't save it as your default` / `couldn't confirm it was saved as your default` | [请求错误](#couldnt-save-it-as-your-default) |
 | `thinking.type.enabled is not supported for this model` | [请求错误](#thinking-type-enabled-is-not-supported-for-this-model) |
@@ -155,14 +167,16 @@
 | `API Error: 400 due to tool use concurrency issues` | [请求错误](#tool-use-or-thinking-block-mismatch) |
 | `API Error: 400 orphaned tool_result in conversation history` | [请求错误](#tool-use-or-thinking-block-mismatch) |
 | `API Error: 400 duplicate tool_use ID in conversation history` | [请求错误](#tool-use-or-thinking-block-mismatch) |
+| `Invalid data in redacted_thinking block` | [请求错误](#invalid-data-in-redacted-thinking-block) |
 | `[Unsupported tool content removed]` | [请求错误](#unsupported-tool-content-removed) |
 | `role 'system' must precede an 'assistant' message` | [请求错误](#role-system-must-precede-an-assistant-message) |
 | `Invalid encrypted_content in search_result block` / `Invalid encrypted_index in text block` / `Failed to decrypt web search result content` | [请求错误](#invalid-encrypted-content-in-search-result-block) |
+| `Invalid encrypted_stdout in encrypted_code_execution_result block` | [请求错误](#invalid-encrypted-content-in-search-result-block) |
 | `server_tool_use.name: Input should be` on every turn of a resumed session | [请求错误](#unsupported-tool-content-removed) |
 | `<model> can't help with this. Start a new session to continue` | [请求错误](#usage-policy-refusal) |
 | `Claude Code is unable to respond to this request, which appears to violate our Usage Policy` | [请求错误](#usage-policy-refusal) |
 | `<model>'s safeguards flagged this message` | [请求错误](#safety-measures-flagged-a-cybersecurity-topic) |
-| `Opus 5.5's safeguards flagged this session` | [请求错误](#safety-measures-flagged-a-cybersecurity-topic) |
+| `<model>'s safeguards flagged this session` | [请求错误](#safety-measures-flagged-a-cybersecurity-topic) |
 | `<model> has safety measures that flagged this message for a cybersecurity topic` | [请求错误](#safety-measures-flagged-a-cybersecurity-topic) |
 | `Installation was killed before it could finish (exit code 137)` | [安装错误](#installation-was-killed-before-it-could-finish) |
 | `The connection dropped while downloading the update` | [安装错误](#the-connection-dropped-while-downloading-the-update) |
@@ -173,6 +187,8 @@
 | `Couldn't verify your organization's policy for cloud sessions` | [命令行错误](#cloud-sessions-are-disabled-by-your-organizations-policy) |
 | `Error: --json-schema is not a valid JSON Schema` | [命令行错误](#command-line-errors) |
 | `Error: Invalid --agents configuration:` | [命令行错误](#invalid-agents-configuration) |
+| `Error: --agents takes a JSON object, or a file path only with --print (-p)` | [命令行错误](#invalid-agents-configuration) |
+| `Error: --agents file not found` | [命令行错误](#invalid-agents-configuration) |
 | `Error: Settings file exceeds the 2MiB limit` | [命令行错误](#settings-file-exceeds-the-2mib-limit) |
 | `The current directory no longer exists (it was deleted or moved)` / `Can't read the current directory` | [命令行错误](#the-current-directory-no-longer-exists) |
 | `Temp directory <dir> ... Refusing to use it` / `ENOSPC: no space left on device, mkdir '<dir>'` | [命令行错误](#temp-directory-refused-or-cannot-be-created) |
@@ -207,6 +223,7 @@
 | `Single sign-on authorization needed` | [命令行错误](#single-sign-on-authorization-needed) |
 | `Failed to resume the conversation` | [命令行错误](#failed-to-resume-the-conversation) |
 | `No conversation found with session ID: <session-id>` | [命令行错误](#no-conversation-found-with-the-session-id) |
+| `Windows reported an error (EBADF) when Claude Code read this session's transcript file` | [命令行错误](#windows-reported-an-error-ebadf) |
 | `Cannot switch renderers in this session` | [命令行错误](#cannot-switch-renderers-in-this-session) |
 | `Cannot switch renderers while work is running in the background` | [命令行错误](#cannot-switch-renderers-in-this-session) |
 | `Couldn't open Claude Desktop` | [命令行错误](#couldnt-open-claude-desktop) |
@@ -218,6 +235,8 @@
 | `Output styles are saved to local settings (.claude/settings.local.json), which this session doesn't load` | [命令行错误](#output-styles-are-saved-to-local-settings-which-this-session-doesnt-load) |
 | `` `plugin eval` is currently in early access `` / `` `plugin eval` is currently unavailable `` | [Plugin 错误](#plugin-eval-is-currently-in-early-access) |
 | `Marketplace "<name>" is registered from an untrusted source` | [Plugin 错误](#marketplace-is-registered-from-an-untrusted-source) |
+| `Claude Code refuses the marketplace name "<name>"` | [Plugin 错误](#claude-code-refuses-the-marketplace-name) |
+| `Marketplace name impersonates an official Anthropic/Claude marketplace` | [Plugin 错误](#claude-code-refuses-the-marketplace-name) |
 | `Marketplace "<name>" is already added from a different source` | [Plugin 错误](#marketplace-is-already-added-from-a-different-source) |
 | `"<name>" is another spelling of "<reserved>", a reserved marketplace name` | [Plugin 错误](#marketplace-name-is-another-spelling-of-a-reserved-name) |
 | `references ${user_config.*} in a shell-form command` | [Plugin 错误](#plugin-command-references-user-config) |
@@ -231,8 +250,12 @@
 | `Failed to load marketplace configuration` | [Plugin 错误](#failed-to-load-marketplace-configuration) |
 | `Marketplace configuration file is corrupted` | [Plugin 错误](#failed-to-load-marketplace-configuration) |
 | `Plugin "<name>@synced" is required by your organization and can't be disabled here` | [Plugin 错误](#plugin-is-required-by-your-organization) |
+| `"<plugin>" was not uninstalled: it is still switched on in <file>` | [Plugin 错误](#plugin-was-not-uninstalled) |
+| `"<plugin>" was not uninstalled: <file> is there and could not be read` | [Plugin 错误](#plugin-was-not-uninstalled) |
 | `would be spawned with zero tools — refusing` | [工具错误](#agent-would-be-spawned-with-zero-tools) |
 | `File is covered by a Read deny rule in your permission settings` | [工具错误](#file-is-covered-by-a-read-deny-rule) |
+| `cannot contain null bytes (\0)` | [工具错误](#path-cannot-contain-null-bytes) |
+| `Path contains null bytes` | [工具错误](#path-cannot-contain-null-bytes) |
 | `subagent_type is required: the general-purpose agent is not available in this session` | [工具错误](#subagent-type-is-required) |
 | `Error: this write left the memory index at MEMORY.md at ..., over its ... read limit` | [工具错误](#memory-index-is-over-its-read-limit) |
 | `pkill: refusing to run` | [工具错误](#pkill-pattern-matches-the-claude-code-process) |
@@ -248,10 +271,14 @@
 | `Refusing to read <path>: its symlink resolution changed after permission was checked (<reason>)` / `Refusing to search <path>: its symlink resolution changed after permission was checked` | [工具错误](#refusing-after-a-symlink-changed) |
 | `Refusing to write <path>: its parent-directory symlink resolution changed after permission was checked` / `Refusing to write <path>: it is a symbolic link. Write to the link's target path instead` | [工具错误](#refusing-after-a-symlink-changed) |
 | `Refusing to write through symlink: <path>` / `Refusing to write into symlinked directory: <path>` | [工具错误](#refusing-after-a-symlink-changed) |
+| `Refusing to write <path>: where it leads on disk could not be determined` / `Refusing to read <path>: where it leads on disk could not be determined` | [工具错误](#refusing-after-a-symlink-changed) |
 | `Refusing to search <path>: a path one of its Read deny rules is written through changed while the search was being prepared` / `Refusing to search <path>: it could not be opened` | [工具错误](#refusing-after-a-symlink-changed) |
 | `its permission check expired before it ran (too many concurrent file operations)` / `ripgrep was found only by name on PATH` | [工具错误](#refusing-after-a-symlink-changed) |
 | `task output swap refused (tasks dir moved or linked)` | [工具错误](#task-output-swap-refused) |
 | `Command killed: its output file was replaced or could no longer be verified` | [工具错误](#task-output-swap-refused) |
+| `Your disk quota is full on the filesystem with Claude Code's temp directory <dir> (EDQUOT)` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
+| `The filesystem with Claude Code's temp directory <dir>, or your disk quota on it, is full (ENOSPC)` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
+| `Command output was lost: the temp filesystem at <dir> is full` / `is out of inodes` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `the source file has the replacement character U+FFFD` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `Reading a local file from outside this session's connected folders, or through a link, needs the approval card` | [工具错误](#reading-a-local-file-from-outside-the-connected-folders) |
@@ -279,6 +306,7 @@
 | `EACCES: permission denied, posix_spawn` | [后台会话错误](#eacces-when-starting-a-background-session) |
 | `exited before it became reachable` | [后台会话错误](#background-service-exited-before-it-became-reachable) |
 | `Couldn't start a background session (working directory no longer exists or is not accessible: ...)` | [后台会话错误](#working-directory-no-longer-exists-when-starting-a-background-session) |
+| `Workspace not trusted.` when starting or restarting a background session | [后台会话错误](#workspace-not-trusted-when-dispatching-a-background-session) |
 | `Claude Code is being updated by npm on this machine (still not runnable after 2 min, ...)` | [后台会话错误](#eacces-when-starting-a-background-session) |
 | `Claude Code process exited with code N` | [包装器和 IDE 错误](#claude-code-process-exited-with-code-n) |
 | `The connection to Claude Code ended before this message completed` | [包装器和 IDE 错误](#the-connection-to-claude-code-ended-before-this-message-completed) |
@@ -291,10 +319,12 @@
 | `Claude Code's fullscreen renderer didn't finish starting last time on this machine` / `Claude Code's fullscreen renderer has repeatedly failed to start on this machine` | [配置警告](#fullscreen-failed-start-notice) |
 | `Claude Code exited after an unrecoverable interface error (...)` | [配置警告](#exited-after-an-unrecoverable-interface-error) |
 | `Agent descriptions are over the 15.0k-token limit` | [配置警告](#agent-descriptions-are-over-the-15000-token-limit) |
+| `Not loaded: rename <path>, then restart — its name uses "<name>", a name reserved for the skills synced from your claude.ai account` | [配置警告](#a-skill-command-or-workflow-wasnt-loaded-because-its-name-is-reserved) |
 | `Ignoring N permissions.allow entries from ... this workspace has not been trusted` | [配置警告](#workspace-has-not-been-trusted) |
 | `is a network path, which cannot be added as a working directory` | [配置警告](#working-directory-is-a-network-path) |
 | `Remote managed settings failed to load (<cause>)` | [配置警告](#remote-managed-settings-failed-to-load) |
 | `Managed settings were not approved; exiting without applying them.` | [配置警告](#managed-settings-were-not-approved) |
+| `Claude Code can't start: your organization's managed settings block the default model` / `Claude Code can't start: your organization allows only the models listed in "availableModels"` | [配置警告](#managed-settings-block-the-default-model) |
 | `MCP server <name> is blocked by enterprise managed policy` | [配置警告](#mcp-server-is-blocked-by-enterprise-managed-policy) |
 | `Managed settings document could not be parsed as a JSON object; none of its settings are in effect. Fix or remove it.` | [配置警告](#managed-settings-document-could-not-be-parsed) |
 | `Managed settings drop-in directory could not be read` | [配置警告](#managed-settings-document-could-not-be-parsed) |
@@ -390,7 +420,9 @@ API Error: 500 Internal server error. This is a server-side issue, usually tempo
 
 尾部句子指出了检查服务健康状况的位置，因提供商而异。Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 配置会指出该提供商的服务状态。自定义 `ANTHROPIC_BASE_URL` 会指出网关主机。
 
-这表示 API 内部出现了意外故障。它不是由您的提示、设置或账户引起的。
+API 本身的 5xx 表示 API 内部出现了意外故障。它不是由您的提示、设置或账户引起的。
+
+当代理、负载均衡器或网关用 HTML 错误页面回复时，消息显示状态代码和页面的标题，例如 `API Error: 502 Bad Gateway`。对于没有标题的页面，消息显示状态代码及其标准名称。在 v2.1.281 之前，当页面有标题时状态代码被丢弃，当页面没有标题时打印页面的原始标记。
 
 **应该做什么：**
 
@@ -416,7 +448,9 @@ API Error: Repeated 529 Overloaded errors. The API is at capacity — this is us
 
 * 检查 [status.claude.com](https://status.claude.com) 或消息中指出的提供商状态页面，查看容量通知
 * 几分钟后重试
-* 运行 `/model` 并切换到不同的模型以继续工作，因为容量是按模型跟踪的。当一个模型处于特别高的负载下时，Claude Code 会提示您这样做，例如 `Opus is experiencing high load, please use /model to switch to Sonnet`。
+* 运行 `/model` 并切换到不同的模型以继续工作，因为容量是按模型跟踪的。当一个模型处于特别高的负载下时，Claude Code 会提示您这样做，例如 `Opus is experiencing high load, please use /model to switch to Sonnet`。在 Fable 模型上，消息指出 Fable。
+
+  在 Claude Desktop 应用运行的会话中，例如 Code 标签页或 Cowork，消息读作 `Opus is experiencing high load. Switch to Sonnet.`，您可以使用应用的模型选择器切换模型。
 
 <h3 id="request-timed-out">
   Request timed out
@@ -474,14 +508,23 @@ API Error: Server error mid-response. The response above may be incomplete.
 API Error: Connection lost mid-response. The response above may be incomplete.
 API Error: Your computer went to sleep mid-response. The response above may be incomplete.
 API Error: The response stopped arriving. The response above may be incomplete.
+API Error: Part of the response never arrived. The response above may be incomplete.
+API Error: The response stream was malformed. The response above may be incomplete.
 ```
 
 * `Server error mid-response`：中流过载或 5xx 服务器错误。此变体需要 Claude Code v2.1.199 或更高版本；在此之前，该情况会丢弃部分输出并将整个轮次报告为错误。
-* `Connection lost mid-response`：连接断开。
+* `Connection lost mid-response`：连接断开。您也会在代理或网关在响应完成之前干净地结束响应体时看到此变体。
 * `Your computer went to sleep mid-response`：Claude Code 检测到您的计算机在响应流式传输时进入睡眠状态。一旦您的计算机唤醒，Claude Code 会将连接视为断开并停止从中读取。
+* `Part of the response never arrived`：流事件在 API 和 Claude Code 之间被丢弃，因此后来的事件引用了从未到达的内容。在 v2.1.281 之前，此情况以 `API Error: Content block not found` 结束轮次。
+* `The response stream was malformed`：为已完成的内容块到达了事件，或事件到达时已损坏。损坏的事件是指其数据不是有效 JSON、其内容缺失或其内容与事件类型不匹配的事件。在 v2.1.284 之前，当具有无效 JSON 的事件在 Claude 完成其思考、文本块或工具调用后到达时，解析器的原始错误（例如以 `API Error: JSON Parse error` 开头的错误）出现。
 * `The response stopped arriving`：连接保持打开但停止传递数据，因此流式空闲监视程序中止了它。在 v2.1.222 之前，Claude Code 也可能在通过 `ANTHROPIC_BASE_URL` 或 `ANTHROPIC_AWS_BASE_URL` 到达的[网关](/docs/zh-CN/gateways)连接上报告此故障，同时服务器的保活 ping 仍在到达，因为它只在那里计算已解析的响应事件；升级会停止这些虚假超时。通过提供商基础 URL（如 `ANTHROPIC_BEDROCK_BASE_URL`）到达的网关不被字节监视程序包装；请参阅[流式空闲监视程序](/docs/zh-CN/network-config#streaming-idle-watchdogs)。
 
 在 v2.1.227 之前，`Connection lost mid-response` 读作 `Connection closed mid-response`，`The response stopped arriving` 读作 `Response stalled mid-stream`。
+
+当丢弃、重复或损坏的流事件在 Claude 开始任何文本或工具调用之前到达时，您看不到此通知：
+
+* 如果 Claude 仅完成了其思考，Claude Code 会重新发出请求。当重新发出的流以相同方式中断时，轮次以 `Part of the response never arrived and no response was produced. Try again.` 或 `The response stream was malformed and no response was produced. Try again.` 结束。
+* 如果没有完成任何内容，Claude Code 会改为重新发送请求而不流式传输。如果您使用 [`CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK`](/docs/zh-CN/env-vars) 关闭了该回退，轮次以 `API Error: Content block not found`（对于丢弃的事件）或 `API Error: Content block already closed`（对于重复的事件）结束。对于损坏的事件且回退关闭，轮次以 `API Error: Stream event unreadable` 或解析器的原始错误结束。
 
 在四种情况下，Claude Code 处理故障而不立即显示此通知：
 
@@ -668,6 +711,8 @@ Claude Code 会阻止进一步的请求，直到消息中显示的重置时间�
 API Error: Usage credits required for 1M context · run /usage-credits to turn them on (they take effect after you restart Claude Code), or /model to switch to standard context
 ```
 
+在 Claude Desktop app 运行的会话中，提示不命名任何命令：它指向 claude.ai 使用设置页面，或在 Team 和 Enterprise 计划上说在 claude.ai/admin-settings/usage 启用使用额度或向您的管理员请求。
+
 这是权限检查，而非配额耗尽。即使您的会话和周额度有剩余容量，它也会触发。有关哪些计划直接包含 1M 上下文以及哪些需要使用额度的信息，请参阅 [Extended context](/docs/zh-CN/model-config#extended-context)。Claude Code 在您使用 `/model` 选择模型时运行此检查，仅在直接连接到 Anthropic API 时；如果您将 `ANTHROPIC_BASE_URL` 指向 [LLM gateway](/docs/zh-CN/llm-gateway)，`/model` 允许 `[1m]` 选择，网关决定请求是否成功。
 
 当此错误在对话中期出现，因为上下文增长超过 200K 令牌时，Claude Code 会自动将对话压缩回标准上下文限制以下，并之后将会话保持在该限制，因此无需采取任何操作。在 v2.1.172 之前的版本中，错误会在每个后续请求（包括 `/compact`）上重复；在这些版本上运行 `/clear` 以恢复。以下步骤适用于您明确选择 `[1m]` 模型的情况。
@@ -732,6 +777,8 @@ API Error: Request rejected (429) · this may be a temporary capacity issue. If 
 ```
 
 尾部句子命名检查服务健康的位置，并因提供商而异。Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 配置命名该提供商的服务状态，而不是 Anthropic 状态页面。自定义 `ANTHROPIC_BASE_URL` 命名网关主机。
+
+当代理、负载均衡器或 Claude Code 和 API 之间的网关用其自己的 HTML 429 页面回答时，`·` 后的文本是该页面的标题（如果有的话），例如 `Too Many Requests`。在 v2.1.281 之前，整个页面的标记被打印在 `·` 后。
 
 **要做什么：**
 
@@ -838,6 +885,8 @@ Could not update your spend limit: <reason from the server>
 ```text theme={null}
 Not logged in · Please run /login
 ```
+
+在 Claude Desktop 应用运行的会话中，例如 Code 标签页或 Cowork，消息读作 `Authentication required · Sign in again to continue`，您从应用中再次登录。
 
 **应该做什么：**
 
@@ -985,7 +1034,10 @@ Your organization has disabled API key authentication · Run /login to sign in w
 Your organization has disabled API key authentication · Unset ANTHROPIC_API_KEY to use your claude.ai account instead
 Your organization has disabled API key authentication · Unset ANTHROPIC_API_KEY and run /login to sign in with your claude.ai account
 Your organization has disabled API key authentication · Unset the apiKeyHelper setting and run /login to sign in with your claude.ai account
+Your organization has disabled API key authentication · Sign in again with your claude.ai account
 ```
+
+最后一种形式出现在 Claude Desktop 应用运行的会话中，例如 Code 标签页或 Cowork，您从应用中再次登录。
 
 环境变量和 `apiKeyHelper` 优先于 `/login`，因此仅运行 `/login` 在任一仍在提供密钥时没有帮助。请参阅 [身份验证优先级](/docs/zh-CN/authentication#authentication-precedence)。
 
@@ -1021,7 +1073,7 @@ Agent SDK 和 `-p` 非交互式模式将此显示为 `oauth_org_not_allowed` 错
   例程被您的组织的策略禁用
 </h3>
 
-您的 Team 或 Enterprise 组织中的所有者已在组织级别关闭例程。当您尝试创建或运行例程时会出现错误，例如从 claude.ai/code 上的 [例程](/docs/zh-CN/routines) UI。在 Claude Code v2.1.227 或更高版本上，相同的设置也 [隐藏 CLI 中的 `/schedule`](/docs/zh-CN/routines#troubleshooting)。
+An Owner in your Team or Enterprise organization has turned off routines at the organization level. The error appears when you try to create or run a routine, for example from the [Routines](/docs/zh-CN/routines) UI on claude.ai/code. On Claude Code v2.1.227 or later, the same setting also [hides `/schedule`](/docs/zh-CN/routines#troubleshooting) in the CLI.
 
 ```text theme={null}
 Routines are disabled by your organization's policy.
@@ -1202,6 +1254,49 @@ Failed to authenticate: OAuth session expired and could not be refreshed
 * 运行 `/login` 再次登录。在不登录的情况下重试会在每个请求上显示相同的消息。
 * 在非交互式模式中，在同一环境中运行 `claude`，完成 `/login`，然后重新运行您的命令。对于无法交互式登录的自动化，使用 `ANTHROPIC_API_KEY` 进行身份验证或 [使用 `claude setup-token` 生成长期令牌](/docs/zh-CN/authentication#generate-a-long-lived-token)。
 * 如果登录持续失败，请参阅 [登录和身份验证](/docs/zh-CN/troubleshoot-install#login-and-authentication)
+
+<h3 id="could-not-refresh-your-login">
+  无法刷新您的登录，因为另一个 Claude Code 进程正在刷新它
+</h3>
+
+此消息不意味着您的登录被拒绝。您保存的 claude.ai 登录已过期，需要更新。另一个 Claude Code 进程在同一机器上持有共享刷新锁，或退出并留下它，刷新在此会话等待时没有进展。Claude Code 在发送前停止请求：
+
+```text theme={null}
+Could not refresh your login because another Claude Code process is refreshing it (or exited mid-refresh) · Try again in a minute; if it keeps happening, close other Claude Code windows or sign in again with /login
+```
+
+在 [非交互式模式](/docs/zh-CN/headless) (`-p`) 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 中，消息如下所示，结构化错误代码为 `server_error`：
+
+```text theme={null}
+Failed to refresh OAuth token: another Claude Code process is refreshing it or exited mid-refresh. This is usually transient; retry in a minute, and if it persists close other Claude Code processes or sign in again
+```
+
+使用 API 密钥、[`CLAUDE_CODE_OAUTH_TOKEN`](/docs/zh-CN/env-vars) 或第三方提供商进行身份验证的会话不使用保存的登录，永远不会看到此消息。
+
+**应该做什么：**
+
+* 一分钟后重试。如果另一个进程首先完成刷新，此会话使用更新的登录。
+* 如果消息持续返回，关闭其他 Claude Code 窗口和进程，然后重试。
+* 如果在没有其他 Claude Code 进程运行的情况下返回，运行 `/login`。再次登录不会等待刷新锁。
+
+<h3 id="couldnt-save-your-login">
+  无法保存您的登录
+</h3>
+
+您使用 claude.ai 登录，但 Claude Code 无法将登录保存到其凭证存储，因此登录未完成。在 macOS 上，当登录钥匙链锁定时（例如在睡眠或空闲时），在 Claude Code 已在同一会话中读取或保存凭证之后，可能会发生这种情况。
+
+```text theme={null}
+Couldn't save your login. If your Mac's keychain is locked, unlock it and log in again.
+Couldn't save your login. Try logging in again.
+```
+
+第一种形式出现在 macOS 上，第二种形式出现在其他地方。临时凭证存储故障（例如超时或不可读的存储）会产生相同的消息。
+
+**应该做什么：**
+
+* 在 macOS 上，解锁登录钥匙链，然后再次运行 `/login`
+* 在其他平台上，再次运行 `/login`
+* 如果登录仍然不保存，请参阅 [未登录或令牌过期](/docs/zh-CN/troubleshoot-install#not-logged-in-or-token-expired) 了解钥匙链解锁命令和其他凭证存储恢复步骤
 
 <h3 id="claude-login-not-accepted">
   Claude 登录未被接受
@@ -1677,6 +1772,7 @@ Claude Code 不识别的代码显示为 `Unable to connect to API` 后跟括号�
 
 如果 `curl` 成功但 Claude Code 仍然失败，原因通常是运行时和网络之间的某些东西，而不是网络本身：
 
+* 通过运行 `echo $ANTHROPIC_BASE_URL` 检查 `ANTHROPIC_BASE_URL` 是否已设置，或在 PowerShell 中运行 `echo $env:ANTHROPIC_BASE_URL`，并在您的[设置文件](/docs/zh-CN/settings)的 `env` 块中查找它。当它被设置时，Claude Code 将模型请求发送到该地址而不是 `api.anthropic.com`，因此指向不再运行的本地代理或网关的遗留值会产生 `Connection refused`，即使 `curl` 到达 API。从您的 shell 配置文件或设置中删除它，并从新终端启动 Claude Code。
 * 在 Linux 和 WSL 上，检查 `/etc/resolv.conf` 是否有无法到达的名称服务器。WSL 特别可以从主机继承损坏的解析器。
 * 在 macOS 上，已断开连接或卸载的 VPN 客户端可能会留下隧道接口或路由规则。检查 `ifconfig` 是否有陈旧的 `utun` 接口，并在系统设置中删除 VPN 的网络扩展。
 * Docker Desktop 和类似的容器运行时可以拦截出站流量。退出它们并重试以排除这种可能性。
@@ -1897,7 +1993,7 @@ Couldn't reconnect to your Remote Control session. Retry, or start a fresh sessi
 * 使用 `claude --remote-control` 启动新会话以创建新的 Remote Control 会话
 * 对于其他 Remote Control 启动消息，请参阅[Remote Control 故障排除](/docs/zh-CN/remote-control#troubleshooting)
 
-如果服务器报告之前的会话已消失，您不会看到此消息。Claude Code 在其位置启动新会话或显示 [`Previous session is unavailable — run /remote-control to start a new one`](/docs/zh-CN/remote-control#previous-session-is-unavailable)，取决于[对话的重新连接记录](/docs/zh-CN/remote-control#resume-outcomes)。从 v2.1.227 到 v2.1.231，Claude Code 显示了以 `Remote Control could not resume the previous session under the current login` 开头的消息，[早期版本的行为也不同](/docs/zh-CN/remote-control#reconnect-history)。
+如果服务器报告之前的会话已消失，您不会看到此消息。Claude Code 在其位置启动新会话或显示 [`Previous session is unavailable — run /remote-control to start a new one`](/docs/zh-CN/remote-control#previous-session-is-unavailable)。
 
 <h3 id="sessions-ended-while-this-machine-was-offline">
   此机器离线时会话已结束
@@ -1930,6 +2026,37 @@ Couldn't share the transcript.
 
 * 运行 `/feedback` 发送成绩单并描述发生了什么。如果 `/feedback` 在您的环境中不可用，请参阅[报告错误](#report-an-error)
 * 如果其他请求也失败，检查您的网络连接并查看[无法连接到 API](#unable-to-connect-to-api)
+
+<h3 id="couldnt-send-feedback">
+  无法发送反馈
+</h3>
+
+您从 [`/feedback`、`/bug` 或 `/share` 对话框](/docs/zh-CN/commands#all-commands)发送了报告，上传到 Anthropic 失败。对话框保留您的文本，以便您可以重试。
+
+```text theme={null}
+Couldn't send feedback (couldn't reach the service). If it keeps failing, you can file at https://github.com/anthropics/claude-code/issues instead.
+```
+
+前缀后的文本名称失败的内容：
+
+* **`: not signed in. Run /login, then retry.`**：对话框仅在 Claude Code 打开时找到 Anthropic 凭证且到您发送时没有可用的凭证时上传。例如，您在此期间在此机器上注销，或您的登录不再可以刷新。
+* **括号内容**：`(server returned <status>)` 是服务的响应代码；`(request timed out)` 和 `(couldn't reach the service)` 是网络故障。当 Claude Code 无法命名原因时，括号内容不存在。
+
+在[反馈草稿队列](/docs/zh-CN/tools-reference#sendfeedback-tool-behavior)中，相同的故障以 `The draft is still queued. Try again later.` 结束，草稿保留在队列中以供另一次尝试。
+
+**要做什么：**
+
+* 对于未登录的措辞，运行 `/login` 并再次发送
+* 否则，再次发送；如果其他请求也失败，检查您的网络连接并查看[无法连接到 API](#unable-to-connect-to-api)
+* 如果它继续失败，在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交报告，如消息所说
+
+在 v2.1.281 之前，每次发送在 Remote Control **Stop** 或紧急跨会话消息在对话框打开时到达后都失败并显示此消息。在这些版本上，关闭对话框，重新打开它，然后再次发送。
+
+***
+
+title: "请求错误"
+description: "与您的请求内容相关的错误，包括提示词过长、上下文超限、压缩失败等问题的诊断和解决方案。"
+----------------------------------------------------------
 
 <h2 id="request-errors">
   请求错误
@@ -2017,7 +2144,7 @@ Prompt is too long · the request is ~<request tokens> tokens (limit <limit>) bu
   上下文超过令牌限制
 </h3>
 
-当对话超过模型的上下文窗口时，`/context` 在其输出顶部显示此警告。请求失败，显示 [`Prompt is too long`](#prompt-is-too-long)，直到您释放空间。交互式会话将该错误显示为 `Context limit reached` 行。
+`/context` 在其输出顶部显示此警告，当对话超过模型的上下文窗口时。请求失败，显示 [`Prompt is too long`](#prompt-is-too-long)，直到您释放空间。交互式会话将该错误显示为 `Context limit reached` 行。
 
 ```text theme={null}
 Context exceeds the 200k-token limit by 94k tokens — run /compact or /clear to continue.
@@ -2185,6 +2312,24 @@ Claude Code [在加载服务器的工具时排除其输入架构会失败此验�
 * 删除或[禁用](/docs/zh-CN/mcp#disable-a-server-without-removing-it)声明无效架构的 MCP 服务器。该错误仅按位置命名工具。在 v2.1.216 或更高版本上，检查每个服务器的日志，查找命名其输入架构会被拒绝的工具的行。如果没有日志命名一个，一次禁用一个服务器。
 * 如果您维护服务器，请修复工具的 `input_schema`。架构必须是有效的 JSON Schema，顶级属性名称必须为 1 到 64 个字符长，并仅使用 ASCII 字母和数字、`_`、`.` 和 `-`。请参阅[具有无效输入架构的工具](/docs/zh-CN/mcp#tools-with-invalid-input-schemas)。
 
+<h3 id="tool-use-name-over-200-characters">
+  tool\_use.name 超过 200 个字符
+</h3>
+
+对话历史中的工具调用携带的名称长度超过 API 在请求中接受的 200 个字符：
+
+```text theme={null}
+API Error: 400 ... tool_use.name: String should have at most 200 characters
+```
+
+Claude Code 在响应到达时以及加载保存的对话时将这样的名称切割为 200 个字符，因此调用失败，显示普通的 `No such tool available` 工具错误，对话继续而不显示此 API 错误。
+
+**要做什么：**
+
+* 运行 `claude update`，然后恢复对话。更新的版本在加载记录时修复过长的名称，因此卡住的对话再次工作。
+
+在 v2.1.281 之前，过长的名称保留在历史中，API 拒绝了重新发送对话的每个请求，包括 `/compact` 和 `--resume`，因此此错误重复，对话被卡住。
+
 <h3 id="theres-an-issue-with-the-selected-model">
   所选模型存在问题
 </h3>
@@ -2216,7 +2361,7 @@ There's an issue with the selected model (claude-...). It may not exist or you m
 Model "claud-sonnet-5" is not a recognized model id. Did you mean 'claude-sonnet-5'?
 ```
 
-尾部提示命名最接近的匹配别名或模型 ID。当没有足够接近的内容时，它读取 `Run /model to see available models.`。
+尾部提示命名最接近的匹配别名或模型 ID。当没有足够接近的内容时，它读取 `Run /model to see available models.`。在 [Desktop app](/docs/zh-CN/desktop) 启动的会话中，无匹配提示读取 `Switch to a different model.`
 
 Claude Code 在请求切换时在本地生成此错误，在发送任何 API 请求之前。它适用于通过 [Agent SDK](/docs/zh-CN/agent-sdk/typescript) `setModel()` 方法设置模型的情况，通过运行 Claude Code CLI 的应用程序（如 [Desktop app](/docs/zh-CN/desktop)），或当您从通过 [Remote Control](/docs/zh-CN/remote-control) 连接的设备选择模型时。在 v2.1.260 之前，检查不涵盖 Remote Control 选择，因此 Claude Code 应用了选择，下一个请求失败，显示[所选模型存在问题](#theres-an-issue-with-the-selected-model)。
 
@@ -2245,6 +2390,23 @@ Model 'claude-opus-9' not found
 * 如果您输入了完整 ID，请根据您提供商的模型目录检查它。新推出的模型可能在 Anthropic API 上可用，但您的提供商或地区尚未提供。
 * 在 v2.1.265 之前，`/model` 也以此错误拒绝了 `opusplan[1m]` 别名拼写。在这些版本上，更新 Claude Code，或在[设置](/docs/zh-CN/model-config#setting-your-model)中或使用 `--model` 设置模型。
 
+<h3 id="api-error-model-not-changed">
+  检查选择的模型时出现 API 错误
+</h3>
+
+您使用 `/model <name>` 选择了模型，或连接到会话的应用程序请求了切换。API 拒绝了 Claude Code 发送以验证模型的最小请求，原因没有自己的条目，例如速率限制或服务器错误。会话保持其当前模型，消息以说明这一点结尾：
+
+```text theme={null}
+API error: 429 <the server's explanation> · model not changed
+```
+
+消息的中间是 HTTP 状态和服务器自己的解释。
+
+**要做什么：**
+
+* 根据服务器的解释采取行动；对于速率限制或 5xx 状态，等待并再次选择模型
+* 具有自己措辞的拒绝由周围条目涵盖，例如[模型未找到](#model-not-found)和[模型受您的组织设置限制](#model-is-restricted-by-your-organizations-settings)
+
 <h3 id="claude-opus-is-not-available-with-the-claude-pro-plan">
   Claude Opus 在 Claude Pro 计划中不可用
 </h3>
@@ -2254,6 +2416,8 @@ Model 'claude-opus-9' not found
 ```text theme={null}
 Claude Opus is not available with the Claude Pro plan. If you have updated your subscription plan recently, run /logout and /login for the plan to take effect.
 ```
+
+在 Claude Desktop app 运行的会话中，消息说改为`登出并登入`而不是命名命令。
 
 **要做什么：**
 
@@ -2287,15 +2451,17 @@ API Error: 400 Claude Code 2.1.240 is older than the minimum version required by
   模型受您的组织设置限制
 </h3>
 
-您的组织管理员在 claude.ai 管理控制台中禁用了此模型，或它被托管设置中的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除。当受限制的模型使用 `--model`、`ANTHROPIC_MODEL` 或 `model` 设置设置时，Claude Code 替换允许的模型并继续。为受限制的模型键入 `/model <name>` 被拒绝，显示 `Run /model to choose a different model.`，会话保持其当前模型。替换通知也可能在会话中期出现，在组织管理员在 claude.ai 管理控制台中禁用会话正在运行的模型之后。
+您的组织管理员在 claude.ai 管理控制台中禁用了此模型，或托管设置中的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表或 [`deniedModels`](/docs/zh-CN/model-config#block-specific-models-or-versions) 列表排除了它。当受限制的模型使用 `--model`、`ANTHROPIC_MODEL` 或 `model` 设置设置时，通知在启动时出现，并命名会话使用的模型。如果托管设置没有为会话留下允许的模型，请参阅[托管设置阻止默认模型](#managed-settings-block-the-default-model)。替换通知也可能在会话中期出现，在组织管理员在 claude.ai 管理控制台中禁用会话正在运行的模型之后。
 
 ```text theme={null}
 Model "claude-opus-4-8" is restricted by your organization's settings. Using claude-sonnet-4-6 instead.
 ```
 
+为受限制的模型键入 `/model <name>` 被拒绝，会话保持其当前模型。对于在管理控制台中禁用的模型，拒绝读取 `Model '<name>' is restricted by your organization's settings. Run /model to choose a different model.`。对于托管设置排除的模型，它读取 `Model '<name>' is not available. Your organization restricts model selection.`
+
 以代理、技能或命令名称为前缀的通知意味着限制适用于该[子代理的请求模型](/docs/zh-CN/sub-agents#choose-a-model)：子代理在替换模型上运行，您的会话模型保持不变。在 v2.1.223 之前，Claude Code 仅为使用 Agent 工具启动的子代理显示通知。
 
-Claude Code 将模型族别名（`opus`、`sonnet`、`haiku` 或 `fable` 之一）视为对该族的请求，而不是对其最新版本的请求。在 Anthropic API 和 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上，受限制的族别名解析为您的组织和 `availableModels` 允许列表允许的族的最新版本，替换通知命名该版本。Claude Code 仅当族的每个版本都受限制时才拒绝 `/model <alias>`。在 v2.1.205 之前，族别名基于其最新版本单独被替换或拒绝，即使同一族的较旧版本被允许。
+Claude Code 将模型族别名（`opus`、`sonnet`、`haiku` 或 `fable` 之一）视为对该族的请求，而不是对其最新版本的请求。在 Anthropic API 和 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上，受限制的族别名解析为您的组织的设置允许的族的最新版本，替换通知命名该版本。Claude Code 仅当族的每个版本都受限制时才拒绝 `/model <alias>`。在 v2.1.205 之前，族别名基于其最新版本单独被替换或拒绝，即使同一族的较旧版本被允许。
 
 **要做什么：**
 
@@ -2354,9 +2520,9 @@ API Error: 400 ... "thinking.type.enabled" is not supported for this model. Use 
 
 **要做什么：**
 
-* 运行 `claude update` 并重启 Claude Code。Opus 4.7 需要 v2.1.111 或更高版本。Opus 4.8 需要 v2.1.154 或更高版本。Sonnet 5 需要 v2.1.197 或更高版本。Opus 5 需要 v2.1.219 或更高版本。Opus 5.5 需要 v2.1.280 或更高版本
+* 运行 `claude update` 并重启 Claude Code。Opus 4.7 需要 v2.1.111 或更高版本。Opus 4.8 需要 v2.1.154 或更高版本。Sonnet 5 需要 v2.1.197 或更高版本。Opus 5 需要 v2.1.219 或更高版本。Opus 5.5 需要 v2.1.280 或更高版本。Sonnet 5.5 需要 v2.1.284 或更高版本
 * 如果您无法升级，运行 `/model` 并选择 Opus 4.6 或 Sonnet 4.6
-* 如果您在 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 中遇到这个，升级 SDK 包。Opus 4.8 需要 TypeScript SDK v0.3.154 或更高版本和 Python SDK v0.2.88 或更高版本。Sonnet 5 需要 TypeScript SDK v0.3.197 或更高版本。Opus 5 需要 TypeScript SDK v0.3.219 或更高版本。Opus 5.5 需要 TypeScript SDK v0.3.280 或更高版本
+* 如果您在 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 中遇到这个，升级 SDK 包。Opus 4.8 需要 TypeScript SDK v0.3.154 或更高版本和 Python SDK v0.2.88 或更高版本。Sonnet 5 需要 TypeScript SDK v0.3.197 或更高版本。Opus 5 需要 TypeScript SDK v0.3.219 或更高版本。Opus 5.5 需要 TypeScript SDK v0.3.280 或更高版本。Sonnet 5.5 需要 TypeScript SDK v0.3.284 或更高版本
 
 <h3 id="effort-isnt-available-with-thinking-turned-off">
   关闭思考时努力不可用
@@ -2367,6 +2533,8 @@ API Error: 400 ... "thinking.type.enabled" is not supported for this model. Use 
 ```text theme={null}
 API Error: Effort 'xhigh' isn't available with thinking turned off on this model · run /effort high to continue, or turn thinking back on (unset MAX_THINKING_TOKENS=0)
 ```
+
+`·` 后的提示因会话而异：在非交互式会话中，它读取 `use --effort high (or the effortLevel setting)`，在 Claude Desktop app 运行的会话中，它读取 `you can lower effort to High`。
 
 **要做什么：**
 
@@ -2413,6 +2581,23 @@ API Error: 400 ... thinking blocks ... cannot be modified
 * 如果您使用 Opus 4.7 或 Opus 4.8，首先运行 `claude update`。v2.1.156 之前的版本可以在正常工具使用期间触发此错误，`/rewind` 不会清除它。
 * 运行 `/rewind`，或按 Esc 两次，回退到损坏轮次之前的检查点并从那里继续。请参阅[检查点](/docs/zh-CN/checkpointing)以了解如何创建和恢复检查点。
 
+<h3 id="invalid-data-in-redacted-thinking-block">
+  redacted\_thinking 块中的数据无效
+</h3>
+
+API 拒绝了请求，返回 400，因为它无法接受对话历史中较早轮次携带的 `redacted_thinking` 块。
+
+```text theme={null}
+API Error: 400 ... Invalid `data` in `redacted_thinking` block
+```
+
+Claude Code 将对话的较早思考排除在请求之外并重试一次，因此会话继续而不显示错误。在 v2.1.282 之前，Claude Code 保留被拒绝的块，每个后来的轮次都以相同错误失败。
+
+**要做什么：**
+
+* 如果您在 v2.1.281 或更早版本上，每一轮都失败，显示此错误，运行 `claude update` 并恢复会话
+* 如果错误持续，运行 `/clear` 以启动不携带该块的对话
+
 <h3 id="unsupported-tool-content-removed">
   删除了不支持的工具内容
 </h3>
@@ -2458,27 +2643,31 @@ Claude Code 将其一些提醒和附件文本作为系统消息发送到对话�
 API 拒绝了请求，返回 400，因为对话历史包含它无法解密的托管网络搜索内容。措辞命名它无法读取的字段：
 
 ```text theme={null}
-API Error: 400 messages.21.content.0: Invalid `encrypted_content` in `search_result` block
-API Error: 400 messages.21.content.3.citations.0: Invalid `encrypted_index` in `text` block
-API Error: 400 Failed to decrypt web search result content
+API Error: 400 ... Invalid `encrypted_content` in `search_result` block
+API Error: 400 ... Invalid `encrypted_index` in `text` block
+API Error: 400 ... Failed to decrypt web search result content
+API Error: 400 ... Invalid `encrypted_stdout` in `encrypted_code_execution_result` block
 ```
 
-来自 API 的托管[网络搜索工具](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool)的结果携带只有 API 可以读取的加密字段。API 拒绝重放它无法解密的内容的请求，如为不同组织生成的内容。
+来自 API 的托管[网络搜索工具](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool)的结果携带只有 API 可以读取的加密字段。`encrypted_stdout` 措辞命名读取这样的结果的托管代码执行程序的输出，API 也加密。API 拒绝重放它无法解密的内容的请求，如为不同组织生成的内容。
 
 Claude Code 自己的 [WebSearch 工具](/docs/zh-CN/tools-reference#websearch-tool-behavior)将搜索结果记录为纯文本，因此这些块通常通过代理或 [LLM gateway](/docs/zh-CN/llm-gateway) 到达对话，该网关自己运行了托管网络搜索。
 
-被拒绝的块保留在对话历史中，因此每个后来的轮次和 `/compact` 都以相同方式失败。
+对于三个网络搜索措辞，Claude Code 将搜索调用、结果和引用排除在它发送的内容之外并重试请求一次，因此会话继续而不显示错误。`encrypted_stdout` 措辞没有这样的恢复，因此该消息仍然到达您。在 v2.1.282 之前，Claude Code 也保留了被拒绝的网络搜索块，每个后来的轮次和 `/compact` 都以相同方式失败。
 
 **要做什么：**
 
-* 运行 `/clear` 或启动新会话；新对话不携带被拒绝的块
+* 如果您在 v2.1.281 或更早版本上，每一轮都失败，显示网络搜索措辞之一，运行 `claude update` 并恢复会话
+* 如果错误持续，或消息命名 `encrypted_stdout`，运行 `/rewind` 回退到添加内容的轮次之前的检查点，或运行 `/clear` 启动不携带它的对话
 * 如果您在代理或网关后运行 Claude Code，向操作它的人报告错误
 
 <h3 id="usage-policy-refusal">
   使用政策拒绝
 </h3>
 
-API 拒绝了响应，因为对话中的内容触发了[使用政策](https://www.anthropic.com/legal/aup)检查。消息包括您可以引用给支持的请求 ID，如果您认为拒绝不正确。
+API 拒绝了响应，因为对话中的内容触发了[使用政策](https://www.anthropic.com/legal/aup)检查。
+
+消息包括请求 ID 和消息 ID，您可以引用给支持，如果您认为拒绝不正确。
 
 ```text theme={null}
 API Error: Opus 4.6 can't help with this. Start a new session to continue.
@@ -2508,7 +2697,7 @@ Send feedback with /feedback or learn more: https://www.anthropic.com/legal/aup
 API Error: Opus 4.8's safeguards flagged this message. Our intentionally broad safeguards allow us to deliver more capabilities faster, but can sometimes flag legitimate cybersecurity work. Apply to the Cyber Verification Program to reduce these interruptions. Send feedback with /feedback or learn more: https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude
 ```
 
-消息链接到[网络安全验证计划](https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude)，该计划为合法网络安全工作授予访问权限。在 Opus 5.5 上（需要 v2.1.280 或更高版本），消息以 `Opus 5.5's safeguards flagged this session` 开头。当标记的类别有可用的后备模型时，Claude Code [切换模型](/docs/zh-CN/model-config#automatic-model-fallback) 而不是显示此错误。
+消息链接到[网络安全验证计划](https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude)，该计划为合法网络安全工作授予访问权限。在 Opus 5.5 和 Sonnet 5.5 上，消息以 `<model>'s safeguards flagged this session` 开头。当标记的类别有可用的后备模型时，Claude Code [切换模型](/docs/zh-CN/model-config#automatic-model-fallback) 而不是显示此错误。
 
 在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 和 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 上，网络安全标记会产生[使用政策拒绝](#usage-policy-refusal)消息。
 
@@ -2594,7 +2783,7 @@ The connection dropped while downloading the update (attempt 3/3: aborted). Chec
   无效的 --agents 配置
 </h3>
 
-您传递给 `--agents` 的值无效，因此 `claude` 以代码 1 退出，而不是启动会话。当您传递 `--safe-mode`、`--resume` 或 `--continue`，或设置 [`CLAUDE_CODE_SAFE_MODE`](/docs/zh-CN/env-vars#variables) 时，Claude Code 不会检查该值并启动会话。在 v2.1.242 之前，Claude Code 无论如何都会启动会话，并遗漏它无法加载的定义。
+您传递给 `--agents` 的值无效，因此 `claude` 以代码 1 退出，而不是启动会话。当您传递 `--safe-mode` 或设置 [`CLAUDE_CODE_SAFE_MODE`](/docs/zh-CN/env-vars#variables) 时，Claude Code 忽略 `--agents` 完全。使用 `--resume` 或 `--continue` 时，内联 JSON 值不被检查，会话启动；从文件读取的值在每次启动时被检查。在 v2.1.242 之前，Claude Code 无论如何都会启动会话，并遗漏它无法加载的定义。
 
 ```text theme={null}
 Error: Invalid --agents configuration:
@@ -2603,11 +2792,16 @@ Error: Invalid --agents configuration:
 
 第一行之后的内容取决于值如何失败。Claude Code 按顺序运行这些检查，并在第一个失败的检查处停止。如果您的值有两种问题，您只有在修复第一个问题后才会看到第二个问题：
 
-1. 当值不能解析为 JSON 时，Claude Code 打印一行 `invalid JSON:` 行，其中包含 JSON 解析器自己的消息
+1. 当值以 `{` 开头但不能解析为 JSON 时，或 `--agents` 文件的内容不能解析时，Claude Code 打印一行 `invalid JSON:` 行，其中包含 JSON 解析器自己的消息
 2. 当它解析但代理定义与 [CLI 定义的子代理](/docs/zh-CN/sub-agents#choose-the-subagent-scope) 的架构不匹配时，Claude Code 为每个问题打印一行
 3. 当代理名称以 `-` 开头时，Claude Code 打印 `<name>: agent names must not start with '-'`
 
 当有超过 20 个问题行时，Claude Code 打印前 20 个，并用 `…and N more` 替换其余的。
+
+使用 `--print` 时，`--agents` 也接受[JSON 文件的路径](/docs/zh-CN/sub-agents#choose-the-subagent-scope)代替内联对象。在 v2.1.281 之前，`--agents` 仅接受内联 JSON，并将文件路径视为无效 JSON。文件形式有其自己的拒绝，打印在此消息的位置，包括这些：
+
+* **`Error: --agents takes a JSON object, or a file path only with --print (-p)`**：Claude Code 在交互式会话中将值读取为文件路径。将定义作为内联 JSON 传递，或添加 `-p` 从文件读取它们。
+* **`Error: --agents file not found: <path>`**：该路径处不存在文件。不以 `{` 开头且不是有效 JSON 的值被读取为路径，因此您的 shell 损坏的内联 JSON 也可能以这种方式失败。检查路径或引用，然后再次运行命令。
 
 **要做什么：**
 
@@ -2756,11 +2950,13 @@ packages/app couldn't be resolved to a real location, so its skills, commands, a
   启动远程控制时工作区不受信任
 </h3>
 
-您在未信任的目录中使用 `claude remote-control` 或其 `claude rc` 别名启动了[远程控制](/docs/zh-CN/remote-control)服务器模式。该命令本身不显示工作区信任对话框，因此它以代码 1 退出并命名修复：
+您在未信任的目录中使用 `claude remote-control` 或其 `claude rc` 别名启动了[远程控制](/docs/zh-CN/remote-control)服务器模式，命令无法询问您是否信任它。当命令的标准输入或标准输出不是终端时，此消息会出现，例如因为其中之一被重定向或管道化。命令以代码 1 退出：
 
 ```text theme={null}
 Error: Workspace not trusted. Please run `claude` in /Users/you/project first to review and accept the workspace trust dialog.
 ```
+
+两个也以 `Error: Workspace not trusted.` 开头的变体也出现在足够小的终端中，无法显示信任目录打开的内容，或一个没有报告其大小的终端。扩大窗口或切换到正常终端窗口，然后再次运行 `claude rc`。
 
 在您的主目录中，消息是不同的，因为工作区信任对话框永远不会保存主目录的信任，因此在那里接受它无法满足此检查。在 v2.1.214 之前，主目录显示上述消息，其建议无法在那里成功。
 
@@ -2768,10 +2964,14 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 Error: Workspace not trusted. /Users/you is your home directory, and for security home-directory trust is never saved, so running `claude` here first won't help. Run `claude rc` from a project directory instead (run `claude` there once to accept the trust dialog).
 ```
 
+如果您在 [`Trust <directory>?` 问题](/docs/zh-CN/remote-control#requirements)处回答 `n` 或按 Enter，命令会打印一条 `Remote Control did not start` 消息，命名目录并以代码 1 退出。再次运行 `claude rc` 以回答 `y`。
+
 **要做什么：**
 
-* 在目录中运行 `claude`，接受[工作区信任对话框](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)，然后再次运行 `claude remote-control`
+* 首先从终端信任目录：在那里运行 `claude rc` 并回答 `y`，或运行 `claude` 并接受[工作区信任对话框](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)，然后再次运行您的原始命令
 * 在您的主目录中，更改为项目目录并在那里启动远程控制
+
+在 v2.1.284 之前，命令从不询问，即使在终端中。
 
 <h3 id="not-carried-over-to-the-sessions-remote-control-starts">
   未被远程控制启动的会话继承
@@ -3269,6 +3469,26 @@ Claude Code 在显示消息后以代码 1 退出。Claude Code [首先搜索当�
 * 对于交互式会话，使用 `claude --resume` 打开[会话选择器](/docs/zh-CN/sessions#use-the-session-picker)，按 `Ctrl+A` 将其扩展到此机器上的每个项目，然后选择会话
 * 使用 `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 创建的会话不会出现在选择器中，因此重新检查 ID 与您的原始运行打印的 `session_id`
 
+<h3 id="windows-reported-an-error-ebadf">
+  Windows 报告了读取此会话的成绩单文件时的错误 (EBADF)
+</h3>
+
+您在 Windows 上恢复了一个会话，其保存的[成绩单文件](/docs/zh-CN/sessions#where-transcripts-are-stored)正常打开，读取它然后失败，错误为 EBADF。系统错误没有说为什么读取失败，因此消息建议可能的原因和要尝试的内容：
+
+```text theme={null}
+Windows reported an error (EBADF) when Claude Code read this session's transcript file, although the file had opened normally. This can happen when other software intercepts file reads — security, encryption or endpoint-management tools, for example. If it keeps happening for this conversation, try excluding the folder that holds Claude Code's session transcripts from such software (the .claude folder in your user profile, unless the app or CLAUDE_CONFIG_DIR points Claude Code elsewhere), or adding Claude Code to its allowed applications, then resume again.
+```
+
+消息遵循命令自己的失败行，例如 `Failed to resume session <session-id>`。`claude --resume` 或 [`claude -p`](/docs/zh-CN/headless) 命令在显示它后以代码 1 退出。在会话内的 `/resume` 后，您当前的会话保持运行。
+
+**要做什么：**
+
+* 从扫描或拦截文件读取的软件（如安全、加密或端点管理工具）中排除保存会话成绩单的文件夹。成绩单默认位于 `%USERPROFILE%\.claude\projects` 下，或位于 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 命名的目录下
+* 如果您无法添加排除项，改为将 Claude Code 添加到该软件的允许应用程序中
+* 再次恢复会话
+
+在 v2.1.282 之前，失败没有解释：`claude --resume <session-id>` 在 `Failed to resume session <session-id>` 处结束，`-p` 运行仅打印系统错误文本，例如 `Failed to resume session: EBADF: bad file descriptor, read`。
+
 <h3 id="cannot-switch-renderers-in-this-session">
   无法在此会话中切换渲染器
 </h3>
@@ -3451,6 +3671,28 @@ known_marketplaces.json has an entry named "claude.code.plugins", another spelli
 
 * 将 marketplace 重命名为不拼写保留名称的名称并重新添加它
 * 对于被忽略的条目警告，运行它给出的 `claude plugin marketplace remove` 命令，或从 `~/.claude/plugins/known_marketplaces.json` 中删除该条目
+
+<h3 id="claude-code-refuses-the-marketplace-name">
+  Claude Code 拒绝 marketplace 名称
+</h3>
+
+已注册的 marketplace 的名称 [冒充官方 Anthropic marketplace](/docs/zh-CN/plugins/marketplace-reference#reserved-names)，根据该部分列出的规则。
+
+如果 marketplace 在这样的名称下注册时检查阻止了它，marketplace 和从中安装的 plugin 停止加载，因为 Claude Code 每次读取 marketplace 的目录时都会检查名称。当名称模仿官方名称时，`claude plugin list` 和 `/plugin` **Errors** 选项卡报告每个受影响的 plugin，消息开头为：
+
+```text theme={null}
+Claude Code refuses the marketplace name "anthropic-plugins-v2"
+```
+
+对于模仿名称，marketplace 自己的错误读作 `Claude Code refuses this marketplace's name: it looks like one of Anthropic's own`。`claude plugin marketplace add` 拒绝任何冒充名称，消息为 `Marketplace name impersonates an official Anthropic/Claude marketplace`。
+
+在 v2.1.282 之前，`claude plugin list` 和 `/plugin` 报告模仿名称的 plugin 也加载失败，没有将 marketplace 的名称命名为原因。
+
+**要做什么：**
+
+* 运行 `claude plugin marketplace remove <name>`。这也会卸载从 marketplace 安装的 plugin 并删除其保存的数据
+* 要保留 marketplace，请等待其维护者重命名它，然后运行 `claude plugin marketplace update <name>`
+* 如果您发布 marketplace，在您的 `marketplace.json` 中重命名它；用户随后更新 marketplace 而不是删除它
 
 <h3 id="marketplace-is-already-added-from-a-different-source">
   Marketplace 已从不同的源添加
@@ -3654,6 +3896,31 @@ Claude Code 不保存任何内容，plugin 保持启用。
 
 * 要求您的 claude.ai 组织的管理员在 claude.ai 上更改 plugin 的必需状态
 
+<h3 id="plugin-was-not-uninstalled">
+  Plugin 未被卸载
+</h3>
+
+您运行了 [`claude plugin uninstall`](/docs/zh-CN/plugins/cli-reference#plugin-uninstall)，或在 `/plugin` **Installed** 选项卡中选择了 **Uninstall**，卸载停止，消息开头为 `"<plugin>" was not uninstalled:`。
+
+当 Claude Code 从 `enabledPlugins` 中删除 plugin 的条目并读回该范围的设置文件时，要么 plugin 仍在那里被打开，要么可以打开它的文件无法读取或检查。在设置条目可以将其重新打开时删除 plugin 的保存选项、机密和数据会丢失它们，因此卸载停止：plugin 保持安装，它保存的任何内容都不会被删除。
+
+```text theme={null}
+✘ Failed to uninstall plugin "formatter": "formatter" was not uninstalled: it is still switched on in /home/user/project/.claude/settings.local.json, although the settings change reported no error. It is still installed. Take it out of "enabledPlugins" in that file yourself, then uninstall it again.
+```
+
+消息的中间部分命名文件和原因：
+
+* `it is still switched on in <file>, although the settings change reported no error`：设置写入报告成功但条目在读回文件时仍然存在
+* `it is still switched on in <file>, and the settings change failed (<error>)`：文件无法保存，原因在括号中
+* `<file> is there and could not be read`：文件存在但无法作为设置读取，例如因为它不是有效的 JSON，所以它可能仍然启用 plugin
+* `<file> (not read: it is on a network path or is a link to one, or could not be checked)`：Claude Code 没有读取项目或本地设置文件，因为文件或保存它的 `.claude` 文件夹是指向网络位置的链接，或因为它无法检查该路径
+
+`claude plugin uninstall` 退出 1，使用 `--json` 时结果包含 `failureCode: "settings_still_on"`。`/plugin` 显示相同的消息。
+
+**要做什么：**
+
+* 遵循消息的最后一句：修复或替换它命名的设置文件，或自己从该文件中的 `enabledPlugins` 中删除 plugin 的条目，然后再次运行卸载
+
 <h2 id="tool-errors">
   工具错误
 </h2>
@@ -3702,6 +3969,24 @@ File is covered by a Read deny rule in your permission settings and cannot be ed
 
 * 如果 Claude 应该能够更改文件，请在 `/permissions` 或[设置](/docs/zh-CN/settings-reference#permission-settings)中删除或缩小 `Read` 拒绝规则
 * 如果文件必须保持不变，请保留该规则并为相同路径添加 `Edit` 拒绝规则以同时阻止 NotebookEdit 工具
+
+<h3 id="path-cannot-contain-null-bytes">
+  路径不能包含空字节
+</h3>
+
+文件工具调用的路径或模式参数包含空字节，文件系统和搜索工具无法接受。Read、Write、Edit、NotebookEdit、Glob 和 Grep 检查此项，消息命名工具和参数：
+
+```text theme={null}
+Read file_path cannot contain null bytes (\0). Remove the null byte and try again.
+```
+
+工具调用失败，Claude 看到错误，轮次继续。
+
+**应该做什么：**
+
+* 你这边不需要做任何事：错误作为工具的结果返回给 Claude，消息本身告诉 Claude 删除空字节并重试
+
+在 v2.1.281 之前，Read、Write、Edit 或 NotebookEdit 路径中的空字节会以命名 `Path contains null bytes` 的错误结束整个轮次，工具从不运行。
 
 <h3 id="subagent-type-is-required">
   subagent\_type 是必需的
@@ -3883,6 +4168,7 @@ Refusing to read /path/to/file: its symlink resolution changed after permission 
 
 * `its symlink resolution changed after permission was checked`：路径上的符号链接或 Grep 或 Glob 搜索根在权限检查和操作之间被替换。在读取拒绝中，括号中的短语命名哪个比较失败。
 * `its parent-directory symlink resolution changed after permission was checked`：写入路径通过的目录不再解析到批准的位置
+* `where it leads on disk could not be determined (a link on the way could not be examined, or the links do not resolve)`：Claude Code 无法跟随路径到磁盘上的最终位置，例如因为其上的符号链接形成循环
 * `it is a symbolic link. Write to the link's target path instead`：符号链接位于批准的写入位置本身，例如 `CLAUDE.md` 是 `AGENTS.md` 的符号链接；消息指导 Claude 到链接的目标
 * `Refusing to write through symlink: <path>. Resolve the symlink and pass the real target path explicitly.`：当另一个写入器打开文件时捕获的相同条件，例如写入符号链接的 `.mcp.json`
 * `Refusing to write into symlinked directory: <path>`：持有文件的目录本身是符号链接，例如项目的 `.claude/` 目录链接到另一个位置
@@ -3900,6 +4186,8 @@ Refusing to read /path/to/file: its symlink resolution changed after permission 
 * 对于 ripgrep 拒绝，使用你的包管理器安装 ripgrep，以便 `rg` 在 `PATH` 上解析为绝对路径，或将搜索保持在工作目录下
 
 在 v2.1.251 之前，Claude Code 仅对文件写入重新检查路径的解析，因此在权限检查后替换的链接可能会将读取或搜索重定向到不同的位置而没有消息。其中，仅父目录、通过符号链接和符号链接目录写入拒绝出现在早期版本上。
+
+在 v2.1.280 之前，`where it leads on disk could not be determined` 拒绝没有出现。
 
 <h3 id="task-output-swap-refused">
   任务输出交换被拒绝
@@ -3925,6 +4213,28 @@ Command killed: its output file was replaced or could no longer be verified
 * 使用设置为新目录的 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars)重启 Claude Code
 * 或检查你的项目在 Claude Code 临时目录下的目录，示例消息中的 `/private/tmp/claude-501/-Users-you-my-project`。如果该路径是符号链接或不应该存在的目录，删除链接或目录本身而不是链接的目标，然后重启 Claude Code
 * 如果拒绝重复，进程在会话运行时替换、链接或删除 Claude Code 临时目录下的条目。将 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars) 设置为没有其他东西管理的目录并重启
+
+<h3 id="disk-quota-or-temp-filesystem-is-full">
+  磁盘配额或临时文件系统已满
+</h3>
+
+Claude Code 将每个 Bash 和 PowerShell 命令的输出保存到其临时目录下的文件。当命令以非零代码退出且完全没有输出时，Claude Code 检查持有该文件的文件系统是否空间不足或 inode 不足，或你在其上的磁盘配额是否已用完。如果是这样，诊断出现在命令的结果中，代替空输出：
+
+```text wrap theme={null}
+Your disk quota is full on the filesystem with Claude Code's temp directory /private/tmp/claude-501/-Users-you-my-project/1f0e62dc-4b0a-4f5e-9c2d-8a7b6c5d4e3f/tasks (EDQUOT), so any output this command printed was lost, and it may have failed because it could not write. Delete files you no longer need there, or restart Claude Code with CLAUDE_CODE_TMPDIR set to a directory on another filesystem.
+```
+
+该消息命名什么用完了：
+
+* `Your disk quota is full ... (EDQUOT)`：你在该文件系统上的配额已用完。配额可以在文件系统仍显示可用空间时已满
+* `The filesystem with Claude Code's temp directory ..., or your disk quota on it, is full (ENOSPC)`：文件系统或你在其上的配额没有剩余空间
+* `Command output was lost: the temp filesystem at ... is full` 或 `... is out of inodes`：文件系统几乎没有剩余空间，或 inode 即将用完
+
+**应该做什么：**
+
+* 删除你在持有 Claude Code 临时目录的文件系统上不再需要的文件。对于 `EDQUOT`，删除计入你自己配额的文件。对于 `out of inodes`，删除许多文件而不是几个大文件，因为每个文件占用一个 inode，无论其大小如何
+* 或使用设置为具有空间的文件系统上的目录的 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars)重启 Claude Code
+* 然后让 Claude 再次运行该命令。它打印的输出已丢失，未被截断
 
 <h3 id="the-source-file-is-not-valid-utf-8-text">
   源文件不是有效的 UTF-8 文本
@@ -4341,7 +4651,7 @@ Claude Code 使用服务的错误行报告失败。在 v2.1.246 之前，失败�
   启动后台会话时工作目录不再存在
 </h3>
 
-您尝试在不再存在的目录中启动[后台会话](/docs/zh-CN/agent-view)。当您从代理视图分派或在删除或移动您正在工作的目录后运行 `/background` 时，会发生这种情况。当您附加到或重启一个进程已退出且目录已消失的会话时，也会发生这种情况，因为新进程会在相同的目录中启动。Claude Code 不启动会话，消息命名缺失的目录：
+您尝试在不再存在的目录中启动[后台会话](/docs/zh-CN/agent-view)。Claude Code 不启动会话，消息命名缺失的目录：
 
 ```text theme={null}
 Couldn't start a background session (working directory no longer exists or is not accessible: /tmp/demo)
@@ -4352,6 +4662,29 @@ Couldn't start a background session (working directory no longer exists or is no
 **要做什么：**
 
 * 重新创建消息命名的目录，或从存在的目录分派，然后重试
+
+<h3 id="workspace-not-trusted-when-dispatching-a-background-session">
+  分派后台会话时工作区不受信任
+</h3>
+
+您在未[信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)的目录中启动或重启[后台会话](/docs/zh-CN/agent-view)，工作区信任对话无法出现以询问您。Claude Code 不启动会话：
+
+```text theme={null}
+Workspace not trusted. Run `claude` in /path/to/project once and accept the trust prompt, then retry.
+```
+
+从会话自己的目录中的终端，相同的命令显示信任对话，并在您接受后启动会话。此消息出现在无法显示对话的地方，例如在脚本中，或当您从不同于其自己的目录重启会话时。
+
+两个变体命名不同的原因：
+
+* **`The home directory is trusted one session at a time`**：会话的目录是您的主目录。Claude Code 从不保存主目录的信任，因此在早期会话中接受那里的对话不计数。
+* **`<path> could not be resolved on disk`**：Claude Code 无法在磁盘上找到会话的目录。
+
+**要做什么：**
+
+* 在消息命名的目录中运行 `claude` 并接受信任对话，然后再次运行该命令
+* 对于主目录消息，从您的主目录中的终端运行该命令，以便对话可以出现，或改为从项目目录启动会话
+* 对于 `could not be resolved on disk` 消息，重新创建目录，或从存在的目录启动新会话
 
 <h2 id="wrapper-and-ide-errors">
   包装器和 IDE 错误
@@ -4528,6 +4861,12 @@ Transcript saving is off — inherited CLAUDE_CODE_CHILD_SESSION marker · resta
 * 如果这是顶级会话，请退出并使用设置的 [`CLAUDE_CODE_FORCE_SESSION_PERSISTENCE=1`](/docs/zh-CN/env-vars) 重新启动。保存从重新启动时开始应用，因此在此之前发送的消息不会被保存。
 * 要修复从同一终端或启动器的未来启动，请从其环境中删除 `CLAUDE_CODE_CHILD_SESSION`
 
+***
+
+title: "配置警告"
+description: "了解 Claude Code 配置警告、其含义以及如何解决它们。"
+-----------------------------------------------
+
 <h2 id="configuration-warnings">
   配置警告
 </h2>
@@ -4548,16 +4887,16 @@ Claude Code's fullscreen renderer has repeatedly failed to start on this machine
 
 **要做什么：**
 
-* 按照[全屏渲染](/docs/zh-CN/fullscreen#fullscreen-renderer-didnt-finish-starting)进行操作。它说明您获得哪个通知、Claude Code 在后续会话中执行的操作，以及如何再次尝试全屏或保持经典渲染器。
-* 如果已退出的会话打印了退出消息，请参阅 [Claude Code 在无法恢复的界面错误后退出](#exited-after-an-unrecoverable-interface-error)了解其名称。
+* 按照[全屏渲染](/docs/zh-CN/fullscreen#fullscreen-renderer-didnt-finish-starting)进行操作。它说明您获得哪个通知、Claude Code 在后续会话中的操作，以及如何再次尝试全屏或保持经典渲染器。
+* 如果已死亡的会话打印了退出消息，请参阅[Claude Code 因无法恢复的界面错误而退出](#exited-after-an-unrecoverable-interface-error)了解其名称。
 
-在 v2.1.236 之前，Claude Code 在启动失败后不打印通知，并继续在全屏渲染中启动会话。
+在 v2.1.236 之前，Claude Code 未打印通知，并在失败启动后继续在全屏渲染中启动会话。
 
 <h3 id="exited-after-an-unrecoverable-interface-error">
-  Claude Code 在无法恢复的界面错误后退出
+  Claude Code 因无法恢复的界面错误而退出
 </h3>
 
-当 Claude Code 退出时会打印此消息，因为其终端界面遇到了无法恢复的错误，在任一渲染器中都可能发生。第二句仅在[全屏](/docs/zh-CN/fullscreen)渲染器启动时发生错误时出现：
+当 Claude Code 退出时，它会打印此消息，因为其终端界面在任一渲染器中遇到了无法恢复的错误。第二句仅在[全屏](/docs/zh-CN/fullscreen)渲染器启动时发生错误时出现：
 
 ```text theme={null}
 Claude Code exited after an unrecoverable interface error (<error>). It happened while the fullscreen renderer was starting, so the next launch will use the classic renderer (CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1 forces that any time).
@@ -4566,15 +4905,15 @@ Claude Code exited after an unrecoverable interface error (<error>). It happened
 **要做什么：**
 
 * 再次启动 Claude Code。要继续该对话，请在同一目录中运行 `claude --resume`。
-* 如果消息提到全屏渲染器，[全屏渲染](/docs/zh-CN/fullscreen#fullscreen-renderer-didnt-finish-starting)说明下一次启动执行的操作，这取决于您如何打开全屏，以及如何再次尝试全屏或保持经典渲染器。
+* 如果消息命名全屏渲染器，[全屏渲染](/docs/zh-CN/fullscreen#fullscreen-renderer-didnt-finish-starting)说明下一次启动的操作，这取决于您如何打开全屏，以及如何再次尝试全屏或保持经典渲染器。
 
 在 v2.1.236 之前，Claude Code 在此类错误后退出而不打印消息。
 
 <h3 id="agent-descriptions-are-over-the-15000-token-limit">
-  Agent 描述超过 15.0k 令牌限制
+  代理描述超过 15.0k 令牌限制
 </h3>
 
-Claude Code 将此警告显示为对话视图中的启动通知，而不是在 stderr 上。您的[子代理](/docs/zh-CN/sub-agents)（除了内置代理）的组合描述超过 15,000 个令牌，按 Claude Code 的估计。每个代理计算其名称加上其 `description` frontmatter。Claude Code 加载每个代理，无论总数是否超过限制，因此警告不会改变加载的内容。
+Claude Code 将此警告显示为对话视图中的启动通知，而不是在 stderr 上。您的[子代理](/docs/zh-CN/sub-agents)（除了内置代理）的组合描述超过 Claude Code 估计的 15,000 个令牌。每个代理计算其名称加上其 `description` frontmatter。Claude Code 加载每个代理，无论总数是否超过限制，因此警告不会改变加载的内容。
 
 ```text theme={null}
 Agent descriptions are over the 15.0k-token limit (~16.2k tokens) · ask Claude to trim agent descriptions in .claude/agents/
@@ -4585,11 +4924,31 @@ Agent descriptions are over the 15.0k-token limit (~16.2k tokens) · ask Claude 
 * 缩短您的代理文件的 `description` frontmatter，或要求 Claude 为您修剪它们。
 * 删除您不再使用的代理文件。
 
+<h3 id="a-skill-command-or-workflow-wasnt-loaded-because-its-name-is-reserved">
+  技能、命令或工作流未被加载，因为其名称是保留的
+</h3>
+
+技能文件夹、frontmatter `name`、`.claude/commands/` 中的文件或子文件夹，或[保存的工作流](/docs/zh-CN/workflows#save-the-workflow-for-reuse)使用名称 `anthropic-skills` 或以 `anthropic-skills:` 开头的名称。Claude Code [为从 claude.ai 同步的技能保留该名称](/docs/zh-CN/skills#names-reserved-for-synced-skills)，不加载该项。
+
+Claude Code 将此警告显示为对话视图中的启动通知，而不是在 stderr 上：
+
+```text theme={null}
+Not loaded: rename .claude/skills/anthropic-skills, then restart — its name uses "anthropic-skills", a name reserved for the skills synced from your claude.ai account
+```
+
+通知命名它拒绝的第一项：要重命名的文件夹或文件、要编辑的 `name:` 行，或要重命名的工作流。当拒绝多个项时，通知以计数结尾，例如 `· 2 more`，[调试日志](/docs/zh-CN/debug-your-config)命名每一个。
+
+**要做什么：**
+
+* 重命名通知命名的项，或编辑它指向的 `name:` 行，然后重启会话。
+
+在 v2.1.282 之前，Claude Code 加载具有这些名称的技能和命令。
+
 <h3 id="workspace-has-not-been-trusted">
   工作区尚未被信任
 </h3>
 
-Claude Code 在项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中找到了 `permissions.allow` 规则或 `permissions.additionalDirectories` 条目，但没有应用它们，因为[项目设置中的允许规则需要工作区信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)。计数、设置名称和消息中命名的文件因您的配置而异。`deny` 和 `ask` 规则不受影响。
+Claude Code 在项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中找到了 `permissions.allow` 规则或 `permissions.additionalDirectories` 条目，但未应用它们，因为[来自项目设置的允许规则需要工作区信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)。计数、设置名称和消息中命名的文件因您的配置而异。`deny` 和 `ask` 规则不受影响。
 
 ```text theme={null}
 Ignoring 2 permissions.allow entries from .claude/settings.local.json: this workspace has not been trusted. Run Claude Code interactively here once and accept the trust dialog, or set projects["/Users/you/project"].hasTrustDialogAccepted: true in /Users/you/.claude.json.
@@ -4597,15 +4956,15 @@ Ignoring 2 permissions.allow entries from .claude/settings.local.json: this work
 
 **要做什么：**
 
-* 在目录中运行 `claude` 并接受信任对话框。[项目允许规则和工作区信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)说明该接受涵盖哪个文件夹。
-* 在[非交互模式](/docs/zh-CN/headless)中使用 `-p` 时不显示对话框。使用消息打印的确切 `projects` 键在 `~/.claude.json` 中设置 `hasTrustDialogAccepted` 条目。
-* 如果消息提到 `.claude/settings.local.json` 并且您在 git 存储库外或主目录中启动了 Claude Code，请更新到 v2.1.200 或更高版本。版本 2.1.196 到 2.1.199 在这些工作区中将您自己的 `.claude/settings.local.json` 视为存储库提供的。在 v2.1.207 及更高版本上，如果您尚未信任该文件夹，在 git 存储库外更新是不够的：确定文件夹不在存储库内会运行 git，Claude Code 仅在您接受信任对话框后才运行该检查，因此请使用第一步。您的主目录和任何其他[配置主目录](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)是豁免的，不需要等待对话框。请参阅[项目允许规则和工作区信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)。
+* 在目录中运行 `claude` 并接受信任对话框。[项目允许规则和工作区信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)说明该接受涵盖的文件夹。
+* 在[非交互模式](/docs/zh-CN/headless)中使用 `-p` 不显示对话框。使用消息打印的确切 `projects` 键在 `~/.claude.json` 中设置 `hasTrustDialogAccepted` 条目。
+* 如果消息命名 `.claude/settings.local.json` 并且您在 git 存储库外或主目录中启动了 Claude Code，请更新到 v2.1.200 或更高版本。版本 2.1.196 至 2.1.199 在这些工作区中将您自己的 `.claude/settings.local.json` 视为存储库提供的。在 v2.1.207 及更高版本上，如果您尚未信任该文件夹，在 git 存储库外更新是不够的：确定文件夹不在存储库内会运行 git，Claude Code 仅在您接受信任对话框后才运行该检查，因此请使用第一步。您的主目录和任何其他[配置主目录](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)是豁免的，不等待对话框。请参阅[项目允许规则和工作区信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)。
 
 <h3 id="working-directory-is-a-network-path">
   工作目录是网络路径
 </h3>
 
-Claude Code 不会将网络路径添加为工作目录。查找网络路径可能会联系它命名的主机，在 Windows 上该联系可能会向主机发送您的凭据，因此 Claude Code 拒绝该路径而不查找它。当您使用此类路径运行 `/add-dir` 时，或作为启动时的警告，您会看到此消息。当它在启动时出现时，Claude Code 启动时不包含该目录。
+Claude Code 不将网络路径添加为工作目录。查找网络路径可以联系它命名的主机，在 Windows 上该联系可以向主机发送您的凭据，因此 Claude Code 拒绝该路径而不查找它。当您使用此类路径运行 `/add-dir` 时，或作为启动时的警告，您会看到此消息。当它在启动时出现时，Claude Code 启动时不包含该目录。
 
 ```text theme={null}
 \\server\share is a network path, which cannot be added as a working directory. On Windows, map the share to a drive letter and pass it at launch with --add-dir (a drive letter added mid-session does not yet carry remote-read trust).
@@ -4631,14 +4990,19 @@ Claude Code 以这种方式拒绝的路径包括：
   远程托管设置加载失败
 </h3>
 
-您的会话符合[服务器托管设置](/docs/zh-CN/server-managed-settings)的条件，但 Claude Code 无法获取它们，因此在交互式会话中显示此警告。括号中的原因命名失败的内容，例如 `network error`、`request timed out` 或 `authentication rejected (401)`，行的其余部分说明会话运行的策略：
+您的会话符合[服务器托管设置](/docs/zh-CN/server-managed-settings)的条件，但 Claude Code 无法获取它们或无法应用服务器返回的内容，因此在交互式会话中显示此警告。
 
-* **从较早的成功获取缓存的设置**：Claude Code 在该缓存策略上运行会话，除了[扣留的环境变量](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)，该行读作 `using cached policy`。
-* **无缓存**：Claude Code 在没有服务器托管设置的情况下运行会话，该行读作 `no remote policy applied`。
+括号中的原因命名失败的内容，例如 `network error`、`request timed out` 或 `authentication rejected (401)`。原因 `no setting in the server response could be applied as written` 意味着服务器已应答，但它返回的设置都没有通过[验证](/docs/zh-CN/server-managed-settings#invalid-entries-in-delivered-settings)。在 v2.1.282 之前，此原因读取 `server returned invalid settings`。
+
+该行的其余部分说明会话运行的策略：
+
+* **从较早的成功获取缓存的设置**：Claude Code 在该缓存策略上运行会话，除了[扣留的环境变量](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)，行读取 `using cached policy`。
+* **无缓存**：Claude Code 在没有服务器托管设置的情况下运行会话，行读取 `no remote policy applied`。
 
 **要做什么：**
 
 * 对消息命名的原因采取行动：对于网络原因，检查此计算机是否可以到达 `api.anthropic.com`；对于身份验证原因，使用 `/status` 检查您的登录
+* 对于 `no setting in the server response could be applied as written`，要求您的管理员更正服务器上的设置
 * 运行 `/status` 或 `claude doctor` 以获取完整诊断
 
 在 v2.1.248 之前，Claude Code 仅在调试日志中报告失败的设置获取。
@@ -4647,7 +5011,7 @@ Claude Code 以这种方式拒绝的路径包括：
   托管设置未被批准
 </h3>
 
-您的组织的[服务器托管设置](/docs/zh-CN/server-managed-settings)包括需要您批准的设置，而您拒绝了[安全批准对话框](/docs/zh-CN/server-managed-settings#security-approval-dialogs)，因此 Claude Code 退出而不应用它们：
+您的组织的[服务器托管设置](/docs/zh-CN/server-managed-settings)包括需要您批准的设置，您拒绝了[安全批准对话框](/docs/zh-CN/server-managed-settings#security-approval-dialogs)，因此 Claude Code 退出而不应用它们：
 
 ```text theme={null}
 Managed settings were not approved; exiting without applying them.
@@ -4656,37 +5020,58 @@ Managed settings were not approved; exiting without applying them.
 **要做什么：**
 
 * 再次启动 Claude Code 并批准对话框以在您的组织设置下继续。拒绝的对话框不被记住，因此在下一次启动时再次出现。
-* 如果您对对话框列出的设置不确定，在批准前询问维护您的组织托管设置的人
+* 如果您对对话框列出的设置不确定，请在批准前询问维护您的组织托管设置的人
+
+<h3 id="managed-settings-block-the-default-model">
+  托管设置阻止默认模型
+</h3>
+
+您的组织的[托管设置](/docs/zh-CN/managed-settings)阻止默认选项解析到的模型以及它可以降级到的每个模型。将在默认选项上启动的会话在启动时退出，而不是运行被阻止的模型。您看到的消息取决于阻止它的设置。当 [`deniedModels`](/docs/zh-CN/model-config#block-specific-models-or-versions) 列表阻止它时，消息读取：
+
+```text theme={null}
+Claude Code can't start: your organization's managed settings block the default model (claude-opus-5-5) in "deniedModels", and none of the models they allow can be used as the default instead. Ask your administrator to update "deniedModels" or "availableModels".
+```
+
+当 `availableModels` 列表与 [`availableModelsMatch`](/docs/zh-CN/settings-reference#availablemodelsmatch) 设置为 `"exact"` 省略它时，消息读取：
+
+```text theme={null}
+Claude Code can't start: your organization allows only the models listed in "availableModels", and none of them can be used as the default model (claude-opus-5-5 isn't listed). Ask your administrator to update "availableModels".
+```
+
+**要做什么：**
+
+* 如果您管理设置，请将您的用户可以运行的模型添加到 `availableModels`，或缩小阻止每个回退的 `deniedModels` 条目。[阻止特定模型或版本](/docs/zh-CN/model-config#block-specific-models-or-versions)描述默认选项如何降级
+* 如果您不管理它们，请将消息发送给您的管理员。您自己的设置文件无法扩大托管的 `availableModels` 或 `deniedModels` 列表
 
 <h3 id="mcp-server-is-blocked-by-enterprise-managed-policy">
   MCP 服务器被企业托管策略阻止
 </h3>
 
-您在 `/mcp` 中的服务器上选择了**重新连接**，或在那里重新打开了禁用的服务器，而[限制 MCP 服务器](/docs/zh-CN/managed-mcp)的设置阻止了该服务器。Claude Code 拒绝连接它并显示：
+您在 `/mcp` 中的服务器上选择了**重新连接**，或在那里重新打开了禁用的服务器，[限制 MCP 服务器](/docs/zh-CN/managed-mcp)的设置阻止了该服务器。Claude Code 拒绝连接它并显示：
 
 ```text theme={null}
 MCP server <name> is blocked by enterprise managed policy
 ```
 
-以下任何设置都可能产生该消息：
+这些设置中的任何一个都可以产生消息：
 
 * 与服务器匹配的 [`deniedMcpServers`](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists) 条目，包括您自己的 `~/.claude/settings.json` 或项目的 `.claude/settings.json` 中的条目
 * 服务器不匹配的 [`allowedMcpServers`](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists) 列表
-* [`strictPluginOnlyCustomization`](/docs/zh-CN/settings-reference#strictpluginonlycustomization) 且 `mcp` 被锁定，这阻止了在 `~/.claude.json` 和 `.mcp.json` 中配置的服务器
+* [`strictPluginOnlyCustomization`](/docs/zh-CN/settings-reference#strictpluginonlycustomization) 与 `mcp` 锁定，这阻止在 `~/.claude.json` 和 `.mcp.json` 中配置的服务器
 * [`disableClaudeAiConnectors`](/docs/zh-CN/mcp#disable-claude-ai-connectors)，当服务器是 claude.ai 连接器时
 
 **要做什么：**
 
 * 检查您自己的用户和项目设置文件中的这些设置之一，并更改或删除它
-* 如果您自己的设置都不能解释该阻止，请询问您的管理员哪个托管设置阻止了该服务器
+* 如果您自己的设置都不能解释该阻止，请询问您的管理员哪个托管设置阻止了服务器
 
-在 v2.1.257 之前，`/mcp` 中的**重新连接**和重新启用可能会连接一个中途策略更新阻止的服务器。
+在 v2.1.257 之前，`/mcp` 中的**重新连接**和重新启用可以连接中途策略更新阻止的服务器。
 
 <h3 id="managed-settings-document-could-not-be-parsed">
   托管设置文档无法解析
 </h3>
 
-您的组织部署了[托管设置](/docs/zh-CN/managed-settings)，其中一个部署的文档存在但无法解析为 JSON 对象，因此 Claude Code 在启动时以代码 1 退出，而不是在没有文档携带的策略的情况下运行。该行在消息前命名失败的源：
+您的组织部署[托管设置](/docs/zh-CN/managed-settings)，其中一个部署的文档存在但无法解析为 JSON 对象，因此 Claude Code 在启动时以代码 1 退出，而不是在没有文档携带的策略的情况下运行。该行在消息前命名失败的源：
 
 ```text theme={null}
 /Library/Application Support/ClaudeCode/managed-settings.json: Managed settings document could not be parsed as a JSON object; none of its settings are in effect. Fix or remove it.
@@ -4700,11 +5085,11 @@ MCP server <name> is blocked by enterprise managed policy
 
 [查找 Claude Code 删除的条目](/docs/zh-CN/managed-settings#find-entries-claude-code-dropped)列出了使每个源无法解析的原因。
 
-Claude Code 拒绝启动，即使另一个管理员源提供了有效的策略。您在交互式会话、`claude -p`、Agent SDK 会话、[后台会话](/docs/zh-CN/agent-view)和大多数子命令（包括 `claude doctor`）中看到此错误。拒绝故意失败关闭：Claude Code 无法解析的文档中的设置无法被强制执行，启动时不应用组织的控制会运行会话。
+Claude Code 拒绝启动，即使另一个管理员源提供有效策略。您在交互式会话、`claude -p`、Agent SDK 会话、[后台会话](/docs/zh-CN/agent-view)和大多数子命令（包括 `claude doctor`）中看到此错误。拒绝故意失败关闭：Claude Code 无法解析的文档中的设置无法被强制执行，启动时不运行会话会在没有组织控制的情况下运行。
 
 可解析文档中的架构问题不会产生此错误。[查找 Claude Code 删除的条目](/docs/zh-CN/managed-settings#find-entries-claude-code-dropped)涵盖 Claude Code 对其所做的操作。
 
-当 `managed-settings.d/` 目录存在但无法列出时，Claude Code 报告 `Managed settings drop-in directory could not be read:` 后跟基础错误。[查找 Claude Code 删除的条目](/docs/zh-CN/managed-settings#find-entries-claude-code-dropped)涵盖读取失败在启动时退出的情况。
+当 `managed-settings.d/` 目录存在但无法列出时，Claude Code 报告 `Managed settings drop-in directory could not be read:` 后跟基础错误。[查找 Claude Code 删除的条目](/docs/zh-CN/managed-settings#find-entries-claude-code-dropped)涵盖读取失败在启动时退出的时间。
 
 **要做什么：**
 
@@ -4715,7 +5100,7 @@ Claude Code 拒绝启动，即使另一个管理员源提供了有效的策略�
   otelHeadersHelper 失败
 </h3>
 
-当 [`otelHeadersHelper`](/docs/zh-CN/settings-reference#otelheadershelper) 脚本失败或打印不符合[脚本要求](/docs/zh-CN/monitoring-usage#script-requirements)的输出时，Claude Code 在交互式会话中显示此警告作为终端界面中的通知，每个会话一次。
+当 [`otelHeadersHelper`](/docs/zh-CN/settings-reference#otelheadershelper) 脚本失败或打印不符合[脚本要求](/docs/zh-CN/monitoring-usage#script-requirements)的输出时，Claude Code 将此警告显示为终端界面中的通知，每个交互式会话一次。
 
 当脚本继续失败时，导出失败，您的遥测后端从会话中接收不到任何内容。
 
@@ -4731,7 +5116,7 @@ otelHeadersHelper failed; telemetry is not being exported. See /status: exited 1
 * 修复脚本使其在 30 秒内退出 0 并在 stdout 上打印字符串标头值的 JSON 对象。请参阅[脚本要求](/docs/zh-CN/monitoring-usage#script-requirements)。
 * 如果您的组织通过[托管设置](/docs/zh-CN/managed-settings)部署脚本，请要求维护它们的人修复它。
 
-在[非交互模式](/docs/zh-CN/headless)中使用 `-p` 时，相同的失败在 stderr 上显示为 `otelHeadersHelper failed (OpenTelemetry export headers unavailable): <error>`。
+在[非交互模式](/docs/zh-CN/headless)中使用 `-p`，相同的失败在 stderr 上显示为 `otelHeadersHelper failed (OpenTelemetry export headers unavailable): <error>`。
 
 <h3 id="headershelper-not-run">
   headersHelper 未运行
@@ -4750,14 +5135,14 @@ MCP server 'internal-api': headersHelper not run — this workspace has no persi
 **要做什么：**
 
 * 在消息命名的文件夹中运行 `claude`，接受信任对话框，然后再次运行您的 `-p` 或 SDK 命令
-* 自己在 `~/.claude.json` 中设置 `hasTrustDialogAccepted` 条目，使用消息打印的确切 `projects` 键
+* 在 `~/.claude.json` 中自己设置 `hasTrustDialogAccepted` 条目，使用消息打印的确切 `projects` 键
 * 如果您在主目录中启动了会话，请从您已信任的项目目录工作。当您在主目录中接受信任对话框时，Claude Code 仅为当前会话保持该信任。
 
 <h3 id="malformed-tool-content-rule">
   格式错误的 Tool(content) 规则
 </h3>
 
-您的一个设置文件中的[权限规则](/docs/zh-CN/permissions#permission-rule-syntax)没有 `Tool` 或 `Tool(content)` 的形状，例如因为文本跟在右括号后或其中一个括号缺失。Claude Code 跳过该规则，并在交互式会话启动时在无效设置对话框中列出它，以及在 [`claude doctor`](/docs/zh-CN/debug-your-config#check-resolved-settings) 输出中：
+您的一个设置文件中的[权限规则](/docs/zh-CN/permissions#permission-rule-syntax)没有 `Tool` 或 `Tool(content)` 的形状，例如因为文本跟在右括号后或其中一个括号缺失。Claude Code 跳过规则，当交互式会话启动时在无效设置对话框中列出它，以及在 [`claude doctor`](/docs/zh-CN/debug-your-config#check-resolved-settings) 输出中：
 
 ```text theme={null}
 Invalid permission rule "Bash(ls) x" was skipped: Malformed Tool(content) rule. Rules take the form Tool or Tool(content) and must end at the closing ")"; parentheses inside the content are literal
@@ -4766,15 +5151,15 @@ Invalid permission rule "Bash(ls) x" was skipped: Malformed Tool(content) rule. 
 **要做什么：**
 
 * 在消息列出的设置文件中，重写规则使其在其右括号处结束，例如用 `Bash(ls *)` 代替 `Bash(ls) x`
-* 将内容内的括号保留原样。它们是字面的，因此诸如 `Edit(./Finance (2024)/**)` 之类的规则在不转义的情况下是有效的
+* 将内容内的括号保留原样。它们是字面的，因此诸如 `Edit(./Finance (2024)/**)` 的规则在没有转义的情况下是有效的
 
 在 v2.1.260 之前，Claude Code 将具有不匹配括号的规则报告为 `Mismatched parentheses`。
 
 <h3 id="is-not-matched-by-file-permission-checks">
-  不被文件权限检查匹配
+  不匹配文件权限检查
 </h3>
 
-Claude Code 在您的[设置文件](/docs/zh-CN/settings#where-settings-live)、[托管设置](/docs/zh-CN/managed-settings)或 `--allowedTools`、`--disallowedTools` 或 `--settings` 标志值中找到了带有路径的 `Write`、`NotebookEdit`、`MultiEdit` 或 `Glob`[权限规则](/docs/zh-CN/permissions#read-and-edit)。它仅针对 `Edit` 和 `Read` 规则检查文件权限，因此它从不查询命名其他文件工具之一的路径规则。它保留规则并不改变其他任何内容；警告命名规则、其在括号中的源和要写入的替换：
+Claude Code 在您的[设置文件](/docs/zh-CN/settings#where-settings-live)、[托管设置](/docs/zh-CN/managed-settings)或 `--allowedTools`、`--disallowedTools` 或 `--settings` 标志值中找到了 `Write`、`NotebookEdit`、`MultiEdit` 或 `Glob` [权限规则](/docs/zh-CN/permissions#read-and-edit)，其中包含路径。它仅针对 `Edit` 和 `Read` 规则检查文件权限，因此它从不查询命名其他文件工具之一的路径规则。它保留规则并不改变其他任何内容；警告命名规则、其括号中的源和要写入的替换：
 
 ```text theme={null}
 Permission deny rule (.claude/settings.json): Write(docs/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(docs/**) instead (Edit rules cover all file-editing tools).
@@ -4784,19 +5169,19 @@ Permission deny rule (.claude/settings.json): Write(docs/**) is not matched by f
 
 * 将 `Write(path)`、`NotebookEdit(path)` 和旧版 `MultiEdit(path)` 规则替换为 `Edit(path)`。`Edit` 规则涵盖所有文件编辑工具。
 * 除了在 `--allowedTools` 中，Claude Code 接受 `Glob` 规则而不警告，将 `Glob(path)` 规则替换为 `Read(path)`。
-* 在警告在括号中命名的源处修复规则：设置文件路径，或 `--allowed-tools` 和 `--disallowed-tools` 的标志本身。不存在于磁盘上的 `claude-settings-<hash>.json` 路径代表内联 `--settings` 值。修复您传递给该标志的 JSON。
-* 将裸工具名称规则（例如 `Write` 或 `Glob`）保留原样。Claude Code 在[工具级别](/docs/zh-CN/permissions#match-all-uses-of-a-tool)匹配它们，不对它们警告。
-* 如果源读作 `managed policy settings`，将警告转发给维护您的托管设置的人，因为您无法自己清除它。
+* 在警告括号中命名的源处修复规则：设置文件路径，或 `--allowed-tools` 和 `--disallowed-tools` 的标志本身。不存在于磁盘上的 `claude-settings-<hash>.json` 路径代表内联 `--settings` 值。修复您传递给该标志的 JSON。
+* 将诸如 `Write` 或 `Glob` 的裸工具名称规则保留原样。Claude Code 在[工具级别](/docs/zh-CN/permissions#match-all-uses-of-a-tool)匹配它们，不对它们发出警告。
+* 如果源读取 `managed policy settings`，将警告转发给维护您的托管设置的人，因为您无法自己清除它。
 
-在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，Claude Code 将警告写入调试日志而不是 stderr，因此机器读取的输出保持干净。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。在 v2.1.210 之前，Claude Code 接受这些规则而不警告。
+在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json`，Claude Code 将警告写入调试日志而不是 stderr，因此机器读取输出保持干净。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。在 v2.1.210 之前，Claude Code 接受这些规则而不警告。
 
 <h3 id="has-a-wildcard-before-the-rest-of-the-command">
   在命令的其余部分之前有通配符
 </h3>
 
-Claude Code 在您的[设置文件](/docs/zh-CN/settings#where-settings-live)、[托管设置](/docs/zh-CN/managed-settings)或 `--allowedTools` 或 `--settings` 标志值中找到了一个 `Bash` 允许规则，其 `*` 在确定它是哪个命令的后续单词之前，例如 `Bash(git * main)` 或 `Bash(git -C * status *)`。`*` 匹配任何文本，包括在该位置插入的选项：`Bash(git * main)` 也批准 `git -c core.fsmonitor=<script> diff main`，其中 `-c` 使 git 运行命令命名的程序。[通配符模式](/docs/zh-CN/permissions#wildcard-patterns)显示匹配规则。
+Claude Code 找到了一个 `Bash` 允许规则，其 `*` 在后来的单词之前，该单词确定它是哪个命令，例如 `Bash(git * main)` 或 `Bash(git -C * status *)`，在您的[设置文件](/docs/zh-CN/settings#where-settings-live)、[托管设置](/docs/zh-CN/managed-settings)或 `--allowedTools` 或 `--settings` 标志值中。`*` 匹配任何文本，包括在该位置插入的选项：`Bash(git * main)` 也批准 `git -c core.fsmonitor=<script> diff main`，其中 `-c` 使 git 运行命令命名的程序。[通配符模式](/docs/zh-CN/permissions#wildcard-patterns)显示匹配规则。
 
-警告存在是为了让您可以缩小通配符比您打算的更宽的规则。Claude Code 保留规则并不改变它的匹配方式；警告命名规则及其在括号中的源：
+警告存在是为了让您缩小通配符比您打算的更宽的规则。Claude Code 保留规则并不改变它如何匹配；警告命名规则及其括号中的源：
 
 ```text theme={null}
 Permission allow rule (.claude/settings.json): Bash(git -C * status *) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. For git, options such as -c and --exec-path can run arbitrary commands. Replace that * with the exact value you mean, or only use * after the subcommand (for example Bash(git status *)).
@@ -4806,18 +5191,18 @@ Permission allow rule (.claude/settings.json): Bash(git -C * status *) has a wil
 
 * 将子命令前的 `*` 替换为您的确切值：用 `Bash(git checkout main)` 代替 `Bash(git * main)`。
 * 将每个 `*` 移到子命令后：用 `Bash(git status *)` 代替 `Bash(git -C * status *)`。为您想允许的每个子命令写一个规则。
-* 在警告在括号中命名的源处修复规则：设置文件路径或 `--allowed-tools` 标志本身。不存在于磁盘上的 `claude-settings-<hash>.json` 路径代表内联 `--settings` 值。修复您传递给该标志的 JSON。
-* 如果源读作 `managed policy settings`，将警告转发给维护您的托管设置的人，因为您无法自己清除它。
+* 在警告括号中命名的源处修复规则：设置文件路径，或 `--allowed-tools` 标志本身。不存在于磁盘上的 `claude-settings-<hash>.json` 路径代表内联 `--settings` 值。修复您传递给该标志的 JSON。
+* 如果源读取 `managed policy settings`，将警告转发给维护您的托管设置的人，因为您无法自己清除它。
 
-Claude Code 不对具有相同形状的拒绝和询问规则警告：它拒绝或提示它们匹配的额外命令，而不是批准它们。它也不对子命令在第一个 `*` 之前的规则警告，例如 `Bash(git commit *)`，或规则中除了选项外没有其他单词跟在 `*` 后的规则，例如 `Bash(git *)`，或关于 `:*` 前缀规则，例如 `Bash(git:*)`。
+Claude Code 不对具有相同形状的拒绝和询问规则发出警告：它拒绝或提示它们匹配的额外命令，而不是批准它们。它也不对子命令在第一个 `*` 之前的规则发出警告，例如 `Bash(git commit *)`，或规则中除了选项之外没有其他单词跟在 `*` 后的规则，例如 `Bash(git *)`，或关于 `:*` 前缀规则的规则，例如 `Bash(git:*)`。
 
-在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，Claude Code 将警告写入调试日志而不是 stderr，因此机器读取的输出保持干净。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。在 v2.1.246 之前，Claude Code 接受这些规则而不警告。
+在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json`，Claude Code 将警告写入调试日志而不是 stderr，因此机器读取输出保持干净。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。在 v2.1.246 之前，Claude Code 接受这些规则而不警告。
 
 <h3 id="crosssessioninbound-must-be-one-of-accept-hold-refuse">
-  crossSessionInbound 必须是 accept、hold、refuse 之一
+  crossSessionInbound 必须是 accept、hold 或 refuse 之一
 </h3>
 
-设置文件将 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 Claude Code 不识别的值，例如拼写错误 `"reject"`。警告的第二句取决于哪个文件保存该值；在用户、项目、本地或 `--settings` 文件中，它读作：
+设置文件将 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 Claude Code 不识别的值，例如拼写错误 `"reject"`。警告的第二句取决于哪个文件保存该值；在用户、项目、本地或 `--settings` 文件中，它读取：
 
 ```text theme={null}
 "crossSessionInbound" must be one of "accept", "hold", "refuse"; received "reject". This value was ignored; while it is present, cross-session messages are held for your approval instead of being delivered. Set it to one of the values above.
@@ -4842,18 +5227,18 @@ Claude Code 不对具有相同形状的拒绝和询问规则警告：它拒绝�
 CLAUDE_CODE_DISABLE_1M_CONTEXT is set, but the 200K limit isn't enforced for <model>, so this session can grow past it. To enforce it, set CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000 (or the autoCompactWindow setting).
 ```
 
-Claude Code 为它识别为具有本地 1M 窗口的每个模型自己强制执行 200K 限制，对于它不识别的模型 ID，它在它假设的窗口处压缩。当其他配置击败该强制执行时出现警告：
+Claude Code 为它识别为具有本机 1M 窗口的每个模型自己强制执行 200K 限制，对于它不识别的模型 ID，它在它假设的窗口处压缩。当其他配置击败该强制执行时出现警告：
 
 * 模型 ID 不是 Claude Code 识别的，例如[LLM 网关](/docs/zh-CN/llm-gateway)别名，并且您设置了 [`CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1`](/docs/zh-CN/env-vars) 或使用 [`CLAUDE_CODE_MAX_CONTEXT_TOKENS`](/docs/zh-CN/env-vars) 将假设的窗口提高到 200K 以上。在这种情况下，消息也提供 `or update to a Claude Code version that recognizes <model>` 作为补救。
-* 通过 [`ANTHROPIC_BETAS`](/docs/zh-CN/env-vars) 或 [`--betas`](/docs/zh-CN/cli-reference#cli-flags) 标志请求的 `context-1m` 测试版仍然在接受该测试版的模型上向 API 请求 1M 窗口，而没有任何东西在 200K 处压缩会话
+* 通过 [`ANTHROPIC_BETAS`](/docs/zh-CN/env-vars) 或 [`--betas`](/docs/zh-CN/cli-reference#cli-flags) 标志请求的 `context-1m` 测试版仍然要求 API 在接受该测试版的模型上使用 1M 窗口，而没有任何东西在 200K 处压缩会话
 
 **要做什么：**
 
-* 设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000`](/docs/zh-CN/env-vars) 或 [`autoCompactWindow`](/docs/zh-CN/settings-reference#autocompactwindow) 设置为 `200000`，以便自动压缩在 200K 边界处压缩
+* 设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000`](/docs/zh-CN/env-vars)，或 [`autoCompactWindow`](/docs/zh-CN/settings-reference#autocompactwindow) 设置为 `200000`，以便自动压缩在 200K 边界处压缩
 * 如果消息命名此版本不识别的模型 ID，运行 `claude update`。识别 ID 为 1M 上下文模型的版本在没有进一步配置的情况下强制执行限制。
 * 如果您希望会话使用模型的完整窗口，请取消设置 `CLAUDE_CODE_DISABLE_1M_CONTEXT`；警告仅报告 200K 限制未被强制执行
 
-在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，Claude Code 将警告写入调试日志而不是 stderr。
+在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json`，Claude Code 将警告写入调试日志而不是 stderr。
 
 <h3 id="unrecognized-model-id-on-a-request">
   请求上无法识别的模型 ID
@@ -4865,14 +5250,14 @@ Claude Code 为您的 Claude Code 版本不识别的模型 ID 发送了请求，
 [claude-code:unrecognized_model] {"model":"my-proxy-model","query_source":"sdk"}
 ```
 
-在读取 stderr 的脚本或工具中，匹配 `[claude-code:unrecognized_model]` 前缀。在前缀和一个空格之后，Claude Code 写入一行 JSON 对象。Claude Code 可能在后续版本中向其添加字段，因此忽略您不期望的任何字段。它至少写入这两个：
+在读取 stderr 的脚本或工具中，匹配 `[claude-code:unrecognized_model]` 前缀。在前缀和一个空格之后，Claude Code 写入一行 JSON 对象。Claude Code 可以在更高版本中向其添加字段，因此忽略您不期望的任何字段。它至少写入这两个：
 
 * `model`：您配置的模型字符串
-* `query_source`：使用模型的请求路径。Claude Code 为 `-p` 运行报告 `sdk`，为子代理报告以 `agent:` 开头的值。
+* `query_source`：使用模型的请求路径。Claude Code 为 `-p` 运行报告 `sdk`，为以 `agent:` 开头的值报告子代理。
 
 Claude Code 根据您运行它的方式将行写入两个位置之一：
 
-* 在[非交互模式](/docs/zh-CN/headless)中使用 `-p` 时，Claude Code 在每个 `--output-format` 下将其写入 stderr，因此您可以解析 stdout 而不过滤该行
+* 在[非交互模式](/docs/zh-CN/headless)中使用 `-p`，Claude Code 在每个 `--output-format` 下将其写入 stderr，因此您可以解析 stdout 而不过滤该行
 * 在交互式会话或[后台会话](/docs/zh-CN/agent-view)中，Claude Code 将其写入调试日志；使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它
 
 Claude Code 每个模型字符串每个进程写入该行一次。它为每个进一步的无法识别的 ID 写入单独的行，例如[子代理](/docs/zh-CN/sub-agents#choose-a-model)或[后台功能](/docs/zh-CN/costs#background-token-usage)使用的 ID。
@@ -4881,7 +5266,7 @@ Claude Code 不为它解析为它识别的模型的提供商 ID 写入该行，�
 
 **要做什么：**
 
-* 如果您故意设置了 ID，例如[LLM 网关](/docs/zh-CN/llm-gateway)别名，请向您的[设置文件](/docs/zh-CN/settings#where-settings-live)添加 [`modelOverrides`](/docs/zh-CN/model-config#override-model-ids-per-version) 条目，以 ID 作为其值。使用 Anthropic 模型 ID 作为键，而不是家族别名，例如 `opus`。对于示例行中的 `my-proxy-model`，添加此条目：
+* 如果您故意设置了 ID，例如[LLM 网关](/docs/zh-CN/llm-gateway)别名，请在您的[设置文件](/docs/zh-CN/settings#where-settings-live)中添加 [`modelOverrides`](/docs/zh-CN/model-config#override-model-ids-per-version) 条目，其中 ID 作为其值。使用 Anthropic 模型 ID 作为键，而不是系列别名，例如 `opus`。对于示例行中的 `my-proxy-model`，添加此条目：
 
   ```json theme={null}
   {
@@ -4895,7 +5280,7 @@ Claude Code 不为它解析为它识别的模型的提供商 ID 写入该行，�
 
 * 如果 ID 命名比您的 Claude Code 版本更新的模型，运行 `claude update`
 
-* 如果 ID 是拼写错误，在您可以[设置模型](/docs/zh-CN/model-config#setting-your-model)或[别名变量](/docs/zh-CN/model-config#environment-variables)的地方之一修复它。如果 `query_source` 以 `agent:` 开头，改为在您设置[子代理模型](/docs/zh-CN/sub-agents#choose-a-model)的地方修复它。
+* 如果 ID 是拼写错误，在您可以设置模型的[位置](/docs/zh-CN/model-config#setting-your-model)或[别名变量](/docs/zh-CN/model-config#environment-variables)中修复它。如果 `query_source` 以 `agent:` 开头，改为在您设置[子代理模型](/docs/zh-CN/sub-agents#choose-a-model)的地方修复它。
 
 在 v2.1.233 之前，Claude Code 在为它不识别的模型 ID 发送请求时不写入行。
 
@@ -4905,7 +5290,7 @@ Claude Code 不为它解析为它识别的模型的提供商 ID 写入该行，�
 
 `claude doctor` 在其诊断中打印此警告，`/status` 列出相同的行。当[沙箱](/docs/zh-CN/sandboxing)在文件系统隔离打开的情况下启用时，它在 Linux 和 WSL2 上出现。
 
-当沙箱命令运行时，沙箱通过在那里创建 0 字节只读占位符来保持对尚不存在的文件的写入拒绝，并在之后删除它。在该清理运行前被杀死的会话（例如通过 SIGKILL）留下占位符。后续会话在每次启动时再次只读绑定它们，因此设置写入（例如保存"是，不要再问"）在其中一个所在的地方失败。
+当沙箱命令运行时，沙箱通过在那里创建 0 字节只读占位符来保持对尚不存在的文件的写入拒绝，并在之后删除它。在该清理运行前被杀死的会话，例如通过 SIGKILL，会留下占位符。后来的会话在每次启动时再次只读绑定它们，因此诸如保存"是，不要再问"之类的设置写入失败。
 
 ```text theme={null}
 - Stale sandbox mask files left by a killed session: /home/you/project/.claude/settings.local.json
@@ -4915,9 +5300,9 @@ Claude Code 不为它解析为它识别的模型的提供商 ID 写入该行，�
 **要做什么：**
 
 * 退出在该项目中运行的任何其他 Claude Code 会话，然后使用 `rm` 删除每个列出的文件。警告列出最多三个文件并计数其余的，因此在删除后重新运行 `claude doctor` 直到警告不再出现。另一个会话的沙箱仍在使用的占位符是该会话写入保护的活跃部分
-* 如果您使用"是，不要再问"保存的权限选择没有坚持，在删除占位符后再次保存它
+* 如果您使用"是，不要再问"保存的权限选择没有坚持，请在删除占位符后再次保存
 
-在 v2.1.257 之前，`claude doctor` 没有标记这些文件；早期版本在会话被杀死时留下相同的占位符。
+在 v2.1.257 之前，`claude doctor` 没有标记这些文件；较早的版本在会话被杀死时留下相同的占位符。
 
 <h2 id="responses-seem-lower-quality-than-usual">
   回复质量似乎低于预期
@@ -4927,7 +5312,7 @@ Claude Code 不为它解析为它识别的模型的提供商 ID 写入该行，�
 
 * 配置的 [`--fallback-model`](/docs/zh-CN/cli-reference#cli-flags) 在可用性错误后接管该轮，并在记录中显示通知
 * Amazon Bedrock 或 Google Cloud 的 Agent Platform 启动检查发现你的默认模型不可用
-* [自动模型备用](/docs/zh-CN/model-config#automatic-model-fallback) 在 Fable 5.1、Fable 5、Opus 5.5 和 Opus 5 上，当该类别有备用模型时，将会话移动到标记类别的备用模型，并在记录中显示通知
+* [自动模型备用](/docs/zh-CN/model-config#automatic-model-fallback) 在 Fable 5.1、Fable 5、Opus 5.5、Sonnet 5.5 和 Opus 5 上，当该类别有备用模型时，将会话移动到标记类别的备用模型，并在记录中显示通知
 
 下面的模型选择检查捕获第二和第三种情况；第一种情况显示为记录通知而不是 `/model` 更改。[模型配置](/docs/zh-CN/model-config) 解释了每个备用何时适用。
 

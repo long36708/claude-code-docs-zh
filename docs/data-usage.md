@@ -110,8 +110,8 @@ Claude Code 基于 Anthropic 的 API 构建。有关 API 安全控制的详情�
 
 使用[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)时，会话默认在 Anthropic 管理的虚拟机中运行，而不是在本地运行。您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您控制的基础设施上运行；有关哪些内容保留在您的机器上以及哪些内容仍然流向 Anthropic，请参阅[哪些内容保留在您的基础设施上](/docs/zh-CN/self-hosted-environments#what-stays-on-your-infrastructure)。在 Anthropic 托管的云会话中：
 
-* \*\*代码和数据存储：\*\*您的存储库被克隆到隔离的 VM。代码和会话数据受您的账户类型的保留和使用政策约束（请参阅上面的数据保留部分）
-* \*\*凭证：\*\*GitHub 身份验证通过安全代理处理；您的 GitHub 凭证永远不会进入沙箱
+* \*\*代码和数据存储：\*\*您的存储库被克隆到隔离的 VM。Anthropic 存储会话记录，以便您稍后可以返回该会话。代码和会话数据受您的账户类型的[数据保留](#data-retention)和使用政策约束
+* \*\*凭证：\*\*GitHub 凭证在 Anthropic 的服务器上加密存储，永远不会进入 VM。来自 VM 的 GitHub 流量通过 Anthropic 代理，该代理在服务器端附加凭证
 * \*\*网络流量：\*\*所有出站流量都通过安全代理进行审计日志记录和滥用防止
 * \*\*会话数据：\*\*提示、代码更改和输出遵循与本地 Claude Code 使用相同的数据政策
 

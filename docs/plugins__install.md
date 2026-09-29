@@ -143,7 +143,7 @@
 插件的安装范围决定了谁获得该插件以及哪个设置文件将其记录为已启用：
 
 * **User scope**：该插件在此机器上的每个项目中为您启用。条目进入 `~/.claude/settings.json` 中的 `enabledPlugins`。
-* **Project scope**：该插件为在此存储库中工作的每个人启用。条目进入 `.claude/settings.json`，您提交它。
+* **Project scope**：该插件为在此存储库中工作的每个人启用。条目进入 `.claude/settings.json`，您提交它。提交该条目会为您的协作者打开插件，但不会将其下载到他们的机器上，因此每个协作者也需要运行一次 `claude plugin install <name>@<marketplace> --scope project`；请参阅 [在项目设置中启用但未安装](/docs/zh-CN/plugins/loading#enabled-in-project-settings-but-not-installed)。
 * **Local scope**：该插件仅在此存储库中为您启用。条目进入 `.claude/settings.local.json`。
 
 某些插件由其作者通过 [`defaultEnabled`](/docs/zh-CN/plugins/manifest-reference#defaultenabled) 字段设置为默认关闭。这样的插件已安装但保持关闭，直到您在 shell 中使用 `claude plugin enable <name>` 或从会话中 `/plugin` 的 **Installed** 选项卡打开它。

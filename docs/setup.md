@@ -37,11 +37,9 @@ Claude Code 在以下平台和配置上运行：
 
 <Tip>
   更喜欢图形界面？[桌面应用](/docs/zh-CN/desktop-quickstart)让您无需使用终端即可使用 Claude Code。下载适用于 [macOS](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)、[Windows](https://claude.com/download?utm_source=claude_code\&utm_medium=docs) 或 [Linux](/docs/zh-CN/desktop-linux) 的版本。
-
-  初次使用终端？请参阅[终端指南](/docs/zh-CN/terminal-guide)获取分步说明。
 </Tip>
 
-要安装 Claude Code，请使用以下方法之一：
+要安装 Claude Code，请打开终端并运行适用于您的系统的命令。如果您之前没有使用过终端，[终端指南](/docs/zh-CN/terminal-guide)会展示如何打开终端并粘贴命令。
 
 <Tabs>
   <Tab title="原生安装（推荐）">
@@ -62,6 +60,8 @@ Claude Code 在以下平台和配置上运行：
     ```batch theme={null}
     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
     ```
+
+    安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
 
     如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。当您在 PowerShell 中时，您的提示符显示 `PS C:\`，当您在 CMD 中时显示 `C:\`（没有 `PS`）。
 

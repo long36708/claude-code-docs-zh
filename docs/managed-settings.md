@@ -75,7 +75,7 @@ MDM 和文件行一起称为端点托管设置，因为策略存储在开发者�
 | [服务器托管设置](/docs/zh-CN/server-managed-settings) | 在 claude.ai 管理控制台中，或在自托管[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)上 | 在启动时获取并每小时轮询一次；请参阅[需要批准的更改](#where-and-when-a-policy-applies) | 您想要一个地方为 claude.ai 组织更改策略，而无需接触每台机器 |
 | MDM 或操作系统级策略 | 作为 macOS 配置文件或 Windows `HKLM` 注册表值，通过 Jamf、Intune、组策略或类似工具；请参阅[每个机制存储策略的位置](#where-each-mechanism-stores-the-policy) | 在启动时读取并每 30 分钟检查一次更改 | 您已经使用 MDM 或组策略管理设备 |
 | 基于文件 | 作为每台机器上系统目录中的 `managed-settings.json`；请参阅[每个机制存储策略的位置](#where-each-mechanism-stores-the-policy) | 在启动时读取并在文件更改时重新加载 | 没有 MDM 的机器、Linux 主机或您自己构建的镜像 |
-| HKCU 注册表，Windows 和 WSL | 作为 Windows `HKCU` 注册表值；请参阅[每个机制存储策略的位置](#where-each-mechanism-stores-the-policy) | 在启动时读取并每 30 分钟检查一次更改；Claude Code 仅在没有其他托管源交付策略密钥且没有[主机提供的父设置](#let-an-embedding-host-add-policy)提供限制性密钥时使用它 | 您无法写入机器级 `HKLM` 密钥 |
+| HKCU 注册表，Windows 和 WSL | 作为 Windows `HKCU` 注册表值；请参阅[每个机制存储策略的位置](#where-each-mechanism-stores-the-policy) | 在启动时读取并每 30 分钟检查一次更改；Claude Code 仅在没有[上面存在的管理文档](#present-admin-documents)且没有[主机提供的父设置](#let-an-embedding-host-add-policy)提供限制性密钥时使用它 | 您无法写入机器级 `HKLM` 密钥 |
 
 Jamf、Iru、Intune 和组策略的入门模板在[MDM 示例存储库](https://github.com/anthropics/claude-code/tree/main/examples/mdm)中。
 
@@ -156,7 +156,11 @@ Claude Code 按此顺序检查源，优先级最高的优先：
 1. 远程设置，从 claude.ai 作为 [服务器管理的设置](/docs/zh-CN/server-managed-settings) 或通过 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 交付。Claude Code 仅在会话使用 [符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability) 直接向 Anthropic 的 API 进行身份验证，或使用 `/login` 登录网关时才获取此源。在其他提供商上，或当 `ANTHROPIC_BASE_URL` 指向 Anthropic 的 API 以外的地方时，它从下一个源开始
 2. MDM 或操作系统级策略：macOS plist 或 HKLM 注册表键
 3. 托管设置文件，`managed-settings.d/*.json` 和 `managed-settings.json` 合并在一起
-4. HKCU 注册表，在 Windows 上，以及在 WSL 上一旦 HKLM 注册表或 Windows 托管设置文件打开 [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 并且 HKCU 值也设置它时。Claude Code 仅在上面没有源提供策略键且没有 [主机提供的父设置](#let-an-embedding-host-add-policy) 提供限制性键时才读取它
+4. HKCU 注册表，在 Windows 上，以及在 WSL 上一旦 HKLM 注册表或 Windows 托管设置文件打开 [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 并且 HKCU 值也设置它时。Claude Code 仅在上面没有管理员源存在且没有 [主机提供的父设置](#let-an-embedding-host-add-policy) 提供限制性键时才读取它
+
+<span id="present-admin-documents" />
+
+Claude Code 永远不会在存在的管理员源下应用用户可写的 HKCU 注册表。当源设置任何策略键为非 `null` 值时，该源是存在的，即使是 Claude Code 无法读取的值。无法读取的 HKLM 值、托管设置文件或 `managed-settings.d` 目录也是存在的。在 WSL 上，`/etc/claude-code` 也是用户可写的，[`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 条目说明 Windows 源何时位于其上方。
 
 此图显示排名，以及 Claude Code 在任一设置下从前三个源读取的跨源键的示例：
 
@@ -208,8 +212,8 @@ Claude Code 按此顺序检查源，优先级最高的优先：
 
 | 键的类型 | Claude Code 如何组合它 | 示例 |
 | :- | :- | :- |
-| 列表 | 组合来自每个源的条目 | `permissions.allow`、`hooks`、`sandbox.network.allowedDomains`、`deniedMcpServers` |
-| 锁 | 应用任何源设置的最严格值；较宽松的值仅从最高排名源适用 | `allowManagedHooksOnly`、`permissions.disableBypassPermissionsMode`、`crossSessionInbound` |
+| 列表 | 组合来自每个源的条目 | `permissions.allow`、`hooks`、`sandbox.network.allowedDomains`、`deniedMcpServers`、`deniedModels` |
+| 锁 | 应用任何源设置的最严格值；较宽松的值仅从最高排名源适用 | `allowManagedHooksOnly`、`permissions.disableBypassPermissionsMode`、`crossSessionInbound`、`availableModelsMatch` |
 | 限制允许列表 | 从设置它的最高排名源整体取值，不添加来自较低源的条目 | `availableModels`、`allowedMcpServers`、`strictKnownMarketplaces`、`allowedChannelPlugins` 和 `fallbackModel` 链 |
 | 整体取值 | 从设置它的最高排名源整体取值，不组合来自较低源的条目或字段 | `sandbox.credentials.awsPairs`、`sandbox.ripgrep` |
 | 提供的 MCP 服务器 | 组合来自每个源的服务器名称；当两个源设置相同的名称时，应用较高排名源的整个条目 | `managedMcpServers` |
@@ -332,7 +336,7 @@ Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) �
   查找 Claude Code 丢弃的条目
 </h3>
 
-当托管设置文件、MDM 配置文件、注册表值或服务器管理的有效负载未通过架构验证时，Claude Code 首先跳过它可以修复的单个条目（例如一个无效的权限规则），每个都带有警告，然后丢弃其值仍然失败的任何顶级密钥，并继续强制执行每个剩余的有效密钥。
+当托管设置文件、MDM 配置文件、注册表值或服务器管理的有效负载未通过架构验证时，Claude Code 首先跳过它可以修复的单个条目（例如一个无效的权限规则），每个都带有警告，然后丢弃其值仍然失败的任何值，除非该值属于[失败关闭](#keys-that-fail-closed)的密钥之一。
 
 Claude Code 对 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 发出的 `managedSettings` 更严格：它进行相同的条目修复，但任何幸存的架构违规都会导致整个 helper 运行失败，在启动时 Claude Code 拒绝启动，与 helper 以非零状态退出相同。
 
@@ -360,36 +364,67 @@ Claude Code 对 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) �
   失败关闭的密钥
 </h4>
 
-少数强制密钥在无效时不会被丢弃。Claude Code 强制执行更严格的回退，直到修复该值；该表显示了对每个密钥强制执行的内容：
+当托管源设置具有单个限制性值的顶级密钥（例如 `allowManagedPermissionRulesOnly`、`disableAutoMode` 或 `skipDangerousModePermissionPrompt`）为 Claude Code 无法读取的内容时，该密钥读取为该值，直到您修复它。报告说该密钥 `was present but invalid`，并命名 Claude Code 将其视为的值。对于 `sandbox` 内的密钥，请参阅[`sandbox` 内的无效值](#invalid-values-inside-sandbox)。
+
+这些情况不会失败关闭：
+
+* `null` 删除该密钥。
+* 无效的 `disableAllHooks`，即使是带引号的布尔值，也会被丢弃并带有警告，因为强制执行 `true` 也会卸载您自己的托管设置部署的 hooks。
+* 对于规则涵盖的每个其他布尔密钥，字符串 `"true"` 或 `"false"` 读取为该布尔值，在 `/status` 中带有通知，要求您删除引号。
+
+Claude Code 按字段而不是整体修复 `permissions`、`autoMode`、`worktree` 和 `attribution` 块：
+
+* 其中的锁（例如 `permissions.disableBypassPermissionsMode`）读取为其限制性值。
+* 无效的 `permissions.defaultMode` 读取为 `default`。
+* 当 `permissions` 中的 `deny` 或 `ask` 列表根本无法读取时，Claude Code 扣留 `allow` 和 `additionalDirectories`，因此授予永远不会应用而没有写在旁边的限制。报告命名每个扣留的授予和无法读取的列表。
+* 在 `autoMode` 中，无法读取的 `soft_deny` 或 `hard_deny` 列表，或丢失无效条目的列表，以相同方式扣留 `allow` 和 `environment`。
+
+具有单个限制性值的密钥的失败关闭规则和按字段修复需要 Claude Code v2.1.282 或更高版本。
+
+这些密钥有自己的回退：
 
 | 字段 | 存在但无效时的行为 |
 | :- | :- |
 | `allowedMcpServers` | 强制执行为空的允许列表，直到修复该值，因此用户添加的 MCP 服务器都不被允许。您的组织通过 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 传递的服务器仍然加载，`managed-mcp.json` 服务器根据[如何评估服务器](/docs/zh-CN/managed-mcp#how-a-server-is-evaluated)加载。单个无效条目被剥离，有效子集被强制执行。 |
-| `allowedHttpHookUrls` | Claude Code 强制执行空的[允许列表](/docs/zh-CN/settings-reference#allowedhttphookurls)，直到您修复该值，因此 HTTP hook 仅在另一个设置文件列出其 URL 时运行。如果只有单个条目无效，Claude Code 会剥离该条目并强制执行其余的。 |
-| `httpHookAllowedEnvVars` | Claude Code 强制执行空的[允许列表](/docs/zh-CN/settings-reference#httphookallowedenvvars)，直到您修复该值，因此仅当另一个设置文件命名标头变量时才会插值。如果只有单个条目无效，Claude Code 会剥离该条目并强制执行其余的。 |
+| `allowedHttpHookUrls` | Claude Code 强制执行空的托管[允许列表](/docs/zh-CN/settings-reference#allowedhttphookurls)，直到您修复该值，因此 HTTP hook 仅在另一个设置文件列出其 URL 时运行。如果只有单个条目无效，Claude Code 会剥离该条目并强制执行其余的。 |
+| `httpHookAllowedEnvVars` | Claude Code 强制执行空的托管[允许列表](/docs/zh-CN/settings-reference#httphookallowedenvvars)，直到您修复该值，因此仅当另一个设置文件命名标头变量时才会插值。如果只有单个条目无效，Claude Code 会剥离该条目并强制执行其余的。 |
 | `allowedChannelPlugins` | Claude Code 强制执行空的允许列表，直到您修复该值，因此传递给 `--channels` 的任何通道插件都不被允许。如果只有单个条目无效，它会剥离该条目并强制执行其余的。 |
 | `strictKnownMarketplaces` | 强制执行为空的允许列表，直到修复该值，因此不允许任何[市场源](/docs/zh-CN/plugins/org#restrict-what-users-can-install)。无效或无法强制执行的单个条目（例如无法编译的 `hostPattern` 正则表达式）被剥离，有效子集被强制执行。 |
-| `allowManagedHooksOnly` | 视为 `true`，直到修复：[hook 限制](/docs/zh-CN/settings-reference#allowmanagedhooksonly)适用，除非 `disableCommandPluginSources` 明确为 `false`，否则命令源插件被禁用。 |
-| `allowManagedMcpServersOnly` | 视为 `true`。 |
-| `disableCommandPluginSources` | 视为 `true`，因此命令源插件保持禁用，直到修复该值。 |
-| `disableSideloadFlags` | 视为 `true`，直到修复该值，具有为 [`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags) 列出的效果。 |
 | `availableModels` | 强制执行为空的允许列表，直到修复，因此只有默认模型可用；非字符串条目被剥离，有效子集被强制执行。 |
-| `enforceAvailableModels` | 视为 `true`。 |
-| `syncClaudeAiPlugins` | 视为 `false`，因此[claude.ai 插件](/docs/zh-CN/settings-reference#syncclaudeaiplugins)的同步关闭，直到修复该值。 |
+| [`availableModelsMatch`](/docs/zh-CN/settings-reference#availablemodelsmatch) | 视为 `exact`，直到修复该值。 |
 | `forceLoginOrgUUID` | 在修复该值之前，不允许任何组织登录。 |
 | `gatewayInternalNetworks` | 当无效值来自机器上最高的托管源时，`/login` 拒绝该机器上的每个新[云网关](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)登录，直到修复该值。 |
 | `crossSessionInbound` | 视为 `refuse`，最严格的值，因此入站[跨会话消息](/docs/zh-CN/cross-session-messaging#control-inbound-messages)被拒绝，直到修复该值。开发人员看到[警告](/docs/zh-CN/errors#crosssessioninbound-must-be-one-of-accept-hold-refuse)。 |
 | `deniedMcpServers` | 单个无效条目被剥离，有效子集被强制执行。完全无效的值被丢弃并带有警告，因为拒绝每个服务器会阻止策略从未命名的服务器。 |
+| [`deniedModels`](/docs/zh-CN/settings-reference#deniedmodels) | 非字符串条目被剥离，列表的其余部分被强制执行。完全无效的值被丢弃并带有警告，在修复之前不会阻止任何模型。 |
 | `blockedMarketplaces` | 单个无效条目被剥离，有效子集被强制执行。解析但永远无法匹配的条目（例如无法编译的 `hostPattern` 正则表达式）被保留并带有警告。在修复之前它不会阻止任何内容，但[市场限制](/docs/zh-CN/plugins/org#restrict-what-users-can-install)保持活跃。完全无效的值被丢弃并带有警告，因为阻止每个市场会阻止策略从未命名的源。 |
-| `sandbox.credentials` | 可恢复的无效条目降级为 `mode: "deny"` 并带有警告；不可恢复的条目被剥离；有效条目保持强制执行。请参阅[托管设置中的无效凭据条目](/docs/zh-CN/settings-reference#invalid-credential-entries-in-managed-settings) |
+| `sandbox` | 当块内的一个值无效时，Claude Code 不会丢弃整个块。对于每种无效字段发生的情况，请参阅[`sandbox` 内的无效值](#invalid-values-inside-sandbox)。 |
+| `sandbox.credentials` | 可恢复的无效条目降级为 `mode: "deny"` 并带有警告；不可恢复的条目被剥离；有效条目保持强制执行。请参阅[托管设置中的无效凭据条目](/docs/zh-CN/settings-reference#invalid-credential-entries-in-managed-settings)。 |
+| `strictPluginOnlyCustomization` | 视为 `true`，锁定所有四个表面，当该值既不是布尔值也不是数组时。此版本不识别为表面的数组条目不锁定任何内容；状态注释计算此类条目，以便您可以检查它们是否有拼写错误。 |
+| `enabledPlugins` | 无效条目被丢弃并带有警告，其他条目保持强制执行。不是插件 ID 映射的值，或其每个条目都无效的值，被整体丢弃并带有警告。 |
 
 `allowedHttpHookUrls` 和 `httpHookAllowedEnvVars` 跨设置文件合并，因此您的用户、项目或本地设置中的条目在托管列表为空时仍然适用。
 
-这两个密钥和 `allowedChannelPlugins` 的回退需要 Claude Code v2.1.267 或更高版本；早期版本在其值或任何条目无效时整体丢弃该密钥。`strictKnownMarketplaces`、`blockedMarketplaces` 和 `disableSideloadFlags` 的回退需要 Claude Code v2.1.277 或更高版本；早期版本在其值或任何条目无效时整体丢弃该密钥。
+这两个密钥和 `allowedChannelPlugins` 的回退需要 Claude Code v2.1.267 或更高版本；早期版本在其值或任何条目无效时整体丢弃该密钥。`strictKnownMarketplaces` 和 `blockedMarketplaces` 的回退需要 Claude Code v2.1.277 或更高版本；早期版本在其值或任何条目无效时整体丢弃该密钥。`strictPluginOnlyCustomization` 和 `enabledPlugins` 的回退需要 Claude Code v2.1.282 或更高版本。
 
 `requiredMinimumVersion` 和 `requiredMaximumVersion` 按设计失败开放：无效值被丢弃而不是强制执行。
 
 此容限仅适用于托管设置。用户、项目和本地设置文件保持严格：JSON 或顶级形状验证失败的文件被整体拒绝并报告，失败的单个条目（例如格式错误的权限规则）被跳过并带有警告，而文件的其余部分适用。
+
+<h4 id="invalid-values-inside-sandbox">
+  `sandbox` 内的无效值
+</h4>
+
+当托管 `sandbox` 块中的一个值无效时，Claude Code 不会丢弃整个块，因为它独立验证每个字段。这种按字段处理需要 Claude Code v2.1.283 或更高版本。在 v2.1.283 之前的版本上，当 `credentials` 外的值无效时，Claude Code 会丢弃除 [`credentials`](/docs/zh-CN/settings-reference#invalid-credential-entries-in-managed-settings) 外的每个 `sandbox` 字段。
+
+您为无效字段获得的警告会命名该字段并告诉您它发生了什么。发生的情况取决于该字段控制的内容：
+
+* 如果您将布尔密钥设置为带引号的 `"true"` 或 `"false"`，该值计为该布尔值。而不是警告，`/status` 显示一个通知，要求您删除引号。
+* 如果 `failIfUnavailable` 无效，Claude Code 会丢弃该值而不是将其视为 `true`，因此无法读取的值永远不会停止整个设备群中的会话启动。
+* Claude Code 将每个其他无效布尔值视为保持沙箱最严格的值，直到您修复它。打开沙箱或其限制之一的密钥（例如 `enabled` 或 `network.allowManagedDomainsOnly`）计为 `true`。放松它的密钥（例如 `allowUnsandboxedCommands`）计为 `false`。
+* 在 `credentials` 外的列表中，例如 `excludedCommands` 或 `network.allowedDomains`，Claude Code 会丢弃无效条目并保留列表的其余部分。不是数组的列表或没有有效条目的列表根本不适用。
+* 当 `network.deniedDomains` 或其中任何条目无效时，Claude Code 也会扣留 `network.allowedDomains`，因此托管允许列表在您修复拒绝列表之前不会授予任何内容。
+* 当 `filesystem.denyRead`、`filesystem.denyWrite` 或其中任何条目无效时，Claude Code 也会扣留 `filesystem.allowRead` 和 `filesystem.allowWrite`，直到您修复拒绝列表。
 
 <span id="managed-only-settings" />
 
@@ -401,7 +436,7 @@ Claude Code 仅从托管源读取以下密钥；将它们放在用户或项目�
 
 大多数是锁：锁管理的值，例如权限规则或 `sandbox.network.allowedDomains`，是任何级别都可以设置的普通密钥，锁告诉 Claude Code 仅尊重托管值。
 
-表涵盖权限、插件和交付控制。对于此处未列出的任何密钥，[设置参考](/docs/zh-CN/settings-reference#all-settings)索引的 Scope 列说明它是否仅托管；那里的剩余仅托管密钥包括网关登录 URL、版本、浏览器、移动模拟器、SSH 主机、Desktop 本地会话、沙箱二进制路径、模型定价和 CLAUDE.md 控制。
+表涵盖权限、插件和交付控制。对于此处未列出的任何密钥，[设置参考](/docs/zh-CN/settings-reference#all-settings)索引的 Scope 列说明它是否仅托管；那里的剩余仅托管密钥包括网关登录 URL、版本、浏览器、移动模拟器、SSH 主机、Desktop 本地会话、沙箱二进制路径、模型定价、模型限制和 CLAUDE.md 控制。
 
 | 设置 | 描述 |
 | :- | :- |
@@ -425,7 +460,7 @@ Claude Code 仅从托管源读取以下密钥；将它们放在用户或项目�
 | [`sandbox.network.allowManagedDomainsOnly`](/docs/zh-CN/settings-reference#sandbox-network-allowmanageddomainsonly) | 仅尊重托管 `allowedDomains` 和 `WebFetch(domain:...)` 允许规则；阻止其他域而不提示 |
 | [`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces) | 控制用户可以添加和安装插件的插件市场源。请参阅[托管市场限制](/docs/zh-CN/plugins/org#restrict-what-users-can-install) |
 | [`strictPluginOnlyCustomization`](/docs/zh-CN/settings-reference#strictpluginonlycustomization) | 阻止来自用户和项目源的 skills、agents、hooks 和 MCP 服务器；`true` 锁定所有四个，数组命名哪些 |
-| [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) | 当在 HKLM 注册表或 `C:\Program Files\ClaudeCode` 下的文件中设置时，让 WSL 读取 Windows 策略链，仅当该目录下的托管设置文件或 drop-in 都不交付[策略密钥](#how-claude-code-combines-managed-sources)时读取 `/etc/claude-code`；条目给出顺序 |
+| [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) | 当在 HKLM 注册表或 `C:\Program Files\ClaudeCode` 下的文件中设置时，让 WSL 读取 Windows 策略链，仅当[没有 Windows 管理文档存在](#present-admin-documents)时读取 `/etc/claude-code`；条目给出顺序 |
 
 <Note>
   在 Team 和 Enterprise 计划上，Owner 在[Claude Code 管理设置](https://claude.ai/admin-settings/claude-code)中为组织启用或禁用[远程控制](/docs/zh-CN/remote-control)和[云会话](/docs/zh-CN/claude-code-on-the-web)。远程控制可以另外通过 [`disableRemoteControl`](/docs/zh-CN/settings-reference#disableremotecontrol) 设置按设备禁用。云会话没有按设备托管设置密钥。
@@ -449,7 +484,7 @@ Claude Code 默认在使用 Anthropic API 的会话上发送 Anthropic 操作[�
 
 Claude Code 应用 `1` 的值而不向用户显示[批准对话](/docs/zh-CN/server-managed-settings#environment-variables-and-the-approval-dialog)。
 
-如果您关闭遥测，Claude Code 停止发送为您的组织[分析仪表板](/docs/zh-CN/analytics)提供的使用数据，用于策略到达的开发者。变量也关闭功能标志获取，这使得远程控制、默认自动模式和其他[需要功能标志获取的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)对这些开发者不可用。
+如果您关闭遥测，Claude Code 停止发送为您的组织[分析仪表板](/docs/zh-CN/analytics)提供的使用数据，用于策略到达的开发者。该变量也关闭[需要功能标志获取的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的功能标志获取。对于远程控制，请参阅[远程控制要求](/docs/zh-CN/remote-control#requirements)。
 
 [策略应用的位置和时间](#where-and-when-a-policy-applies)说明哪个交付机制到达每个表面，[平台可用性](/docs/zh-CN/server-managed-settings#platform-availability)说明哪些会话跳过服务器托管设置获取。
 

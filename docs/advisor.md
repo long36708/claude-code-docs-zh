@@ -101,8 +101,8 @@ Claude Code 在该会话中使用该标志而不是 `advisorModel` 设置。它�
 | - | - | - |
 | Haiku 4.5 | Fable、Opus、Sonnet | Haiku 可以调用顾问但不能充当顾问 |
 | Sonnet 4.6 | Fable、Opus、Sonnet | |
-| Sonnet 5 | Fable、Opus 4.7 或更高版本、Sonnet 5 | Sonnet 4.6 顾问被拒绝，API 拒绝 Opus 4.6 顾问 |
-| Opus 4.6 | Fable、Opus、Sonnet 5 | Sonnet 4.6 顾问被拒绝 |
+| Sonnet 5.5 或 Sonnet 5 | Fable、Opus 4.7 或更高版本、Sonnet 5 或更高版本 | Sonnet 4.6 顾问被拒绝，API 拒绝 Opus 4.6 顾问 |
+| Opus 4.6 | Fable、Opus、Sonnet 5 或更高版本 | Sonnet 4.6 顾问被拒绝 |
 | Opus 4.7 或 Opus 4.8 | Fable 和 Opus 4.7 或更高版本 | Opus 4.6 或 Sonnet 顾问被拒绝 |
 | Opus 5.5 或 Opus 5 | Fable 和 Opus 5 或更高版本 | Opus 4.6 或 Sonnet 顾问被拒绝，API 拒绝 Opus 4.7 或 Opus 4.8 顾问 |
 | Fable 5 | Fable 5.1 或 Fable 5 | Opus 或 Sonnet 顾问被拒绝 |
@@ -161,6 +161,7 @@ Claude 决定何时调用顾问。它倾向于在提交方法之前、错误不�
 
 * **Reviewed**：该行确认顾问已审查对话。当顾问返回可读的指导时，按 `Ctrl+O` 阅读。
 * **Declined**：该行显示 `Advisor declined to advise on this request`。如果顾问给出了原因，按 `Ctrl+O` 阅读。
+* **Unavailable**：顾问调用失败，该行读取 `Advisor unavailable (<error_code>)`，其中 `<error_code>` 是调用返回的代码。
 
 Claude 通常遵循顾问的指导，但在其自己的证据与特定声明相矛盾时进行调整：如果推荐的步骤在尝试时失败，或文件内容与建议相矛盾，Claude 会显示冲突而不是无条件地遵循指导。
 

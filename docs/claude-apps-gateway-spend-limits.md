@@ -86,6 +86,8 @@ curl -sS https://claude-gateway.internal.example.com/v1/organizations/spend_limi
 
 预检查使用两秒超时查询 Postgres。如果存储无法访问或超时，执行默认情况下失败打开：请求继续，网关记录警告，响应不包含 `anthropic-ratelimit-unified-*` 标头。设置 [`enforcement.fail_closed_on_error: true`](/docs/zh-CN/claude-apps-gateway-config#enforcement) 改为失败关闭，它返回相同的 `429 billing_error`，但消息为 `spend limit unavailable`，没有期间、重置时间或 `retry-after` 标头。失败打开防止存储中断成为推理中断；失败关闭保证没有无计量支出。
 
+失败打开仅在你的负载均衡器或编排器仍然将流量路由到网关时有帮助。有关 `store.readiness_grace_seconds` 的信息，请参阅 [Outage behavior](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)，它使副本在短暂中断期间通过其就绪检查。
+
 <h3 id="usage-warnings-in-claude-code">
   Claude Code 中的使用警告
 </h3>

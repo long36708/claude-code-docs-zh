@@ -144,6 +144,19 @@ Claude 的上下文窗口保存您的对话历史、文件内容、命令输出�
 
 有关交互式演练，了解什么加载以及何时加载，请参阅[探索上下文窗口](/docs/zh-CN/context-window)。
 
+<h4 id="context-claude-code-adds-on-its-own">
+  Claude Code 自己添加的上下文
+</h4>
+
+如果 Claude 遵循您没有编写的规则，例如向提交添加 `Co-Authored-By` 预告片，该规则可能来自[系统提醒](/docs/zh-CN/glossary#system-reminder)。当您工作时，Claude Code 会在您的消息旁边向对话添加自己的上下文：
+
+* 您的 CLAUDE.md 文件
+* 您的[输出样式](/docs/zh-CN/output-styles)的说明
+* 当 Claude 之前读取的文件在磁盘上更改时的注记
+* 提交和拉取请求的归属行
+
+要更改或删除归属行，请设置 [`attribution`](/docs/zh-CN/settings-reference#attribution)。要删除 Claude Code 的内置提交和拉取请求说明，请将 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 设置为 `false`。有关其他开关，请参阅[关闭您的代理替换的上下文](/docs/zh-CN/agent-sdk/modifying-system-prompts#turn-off-the-context-your-agent-replaces)。
+
 <h4 id="when-context-fills-up">
   当上下文填满时
 </h4>
@@ -188,7 +201,7 @@ Checkpoints 独立于 git，在您恢复对话时仍然可用。它们仅涵盖�
 
 选择一个权限模式来设置 Claude 可以在不询问您的情况下做什么。按 `Shift+Tab` 循环通过权限模式：
 
-* **Auto**：分类器在后台审查大多数操作，并阻止风险操作而不是询问您。在 Pro、Max 和 Team 计划上，它是[交互式终端和 VS Code 会话的内置起始权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)
+* **Auto**：分类器在后台审查大多数操作，并阻止风险操作而不是询问您。在 Claude Code v2.1.283 或更高版本中，它是[交互式终端和 VS Code 会话的内置起始权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)，在早期版本中仅在 Pro、Max 和 Team 计划上可用
 * **Manual**：Claude 在文件编辑和 shell 命令之前询问
 * **Accept edits**：Claude 编辑文件并运行常见的文件系统命令（如 `mkdir` 和 `mv`）而不询问，仍然询问其他命令
 * **Plan**：Claude 探索并提出计划而不编辑您的源文件
@@ -241,7 +254,7 @@ Claude Code 是对话式的。您不需要完美的提示。从您想要的开�
 您可以在任何时刻重定向 Claude，无需重新开始。执行以下任一操作：
 
 * **按 `Esc`** 立即停止 Claude。正在运行的工具调用被取消，Claude 等待您的下一条指令。如果您有排队的消息，Claude Code [会接下来发送它们](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)。
-* **输入更正并按 `Enter`** 在不停止 Claude 的情况下。消息显示为在输入框上方排队。如果 Claude 正在运行工具调用，它会在这些调用完成后立即读取消息，在同一轮内，并在下一步之前进行调整。[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)涵盖何时发送其他排队条目。
+* **输入更正并按 `Enter`** 在不停止 Claude 的情况下。消息显示为在对话中排队。如果 Claude 正在运行工具调用，它会在这些调用完成后立即读取消息，在同一轮内，并在下一步之前进行调整。[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)涵盖何时发送其他排队条目。
 
 <h3 id="delegate-don’t-dictate">
   委派，不要指示

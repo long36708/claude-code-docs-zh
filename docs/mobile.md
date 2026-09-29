@@ -43,7 +43,7 @@ Claude [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和
 | 功能 | 您连接到的内容 | 何时使用 |
 | :- | :- | :- |
 | [云会话](/docs/zh-CN/claude-code-on-the-web) | 云基础设施上的会话，默认由 Anthropic 托管 | 您的存储库在 GitHub 上，任务应在您放下手机后继续运行。请参阅[云快速入门](/docs/zh-CN/web-quickstart)进行设置。 |
-| [项目](/docs/zh-CN/claude-projects) | Claude 协调平行云会话作为线程的对话 | 您有一系列相关工作而不是一个任务，并且想要查看哪些线程已完成或需要您。 |
+| [项目](/docs/zh-CN/claude-projects) | Claude 协调平行工作线程并报告回复的对话 | 您有一系列相关工作而不是一个任务，并且想要查看哪些线程已完成或需要您。 |
 | [远程控制](/docs/zh-CN/remote-control) | 在您的计算机上运行的 Claude Code 会话 | 工作需要您的本地文件系统、工具或 MCP 服务器。 |
 | [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch) | 您计算机上的桌面应用程序 | 您想消息传递一个任务，让 Dispatch 决定如何运行它。需要 Pro 或 Max 计划。 |
 

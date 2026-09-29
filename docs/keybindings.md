@@ -168,6 +168,8 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 对话框使用 `confirm:yes` 和 `confirm:no` 来接受和取消，即使它们不提出是或否的问题。如果您在此上下文中绑定裸字母（例如 `y` 或 `n`），该字母也会作用于从不将其显示为键的对话框。显示 `y` 和 `n` 作为其键的对话框会自己读取这些字母，不需要绑定。
 
+在大多数对话框中，按 `Ctrl+C` 或 `Ctrl+D` 两次会关闭对话框而不是退出 Claude Code。第一次按下后的提示会说明第二次按下是关闭对话框还是退出。两个键都是 [保留的](#reserved-shortcuts)，无法重新绑定。
+
 此示例将 `y` 绑定到 `confirm:yes`，将 `n` 绑定到 `confirm:no`：
 
 ```json theme={null}
@@ -268,6 +270,10 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `tabs:next` | Tab, Right | 下一个标签页 |
 | `tabs:previous` | Shift+Tab, Left | 上一个标签页 |
 
+在选项卡式对话框中，当选项卡行有焦点时，`tabs:next` 和 `tabs:previous` 会切换选项卡。在某些对话框中，例如 `/help` 和 `/sandbox`，选项卡切换键也可以从选项卡的内容中工作。
+
+`Up` 和 `Down` 在选项卡行和选项卡的内容之间移动焦点，内容中的列表仅在有焦点时才响应键。
+
 <h3 id="attachments-actions">
   Attachments 操作
 </h3>
@@ -295,7 +301,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `footer:down` | Down | 在页脚中向下导航 |
 | `footer:openSelected` | Enter | 打开选定的页脚项 |
 | `footer:clearSelection` | Escape | 清除页脚选择 |
-| `footer:dismiss` | Backspace, Delete | 从页脚中关闭选定的 [artifact](/docs/zh-CN/artifacts) 链接；已发布的 artifact 本身不受影响。在其他页脚行上，这些键无效。需要 v2.1.217 或更高版本 |
+| `footer:dismiss` | (未绑定) | 在 v2.1.281 中移除。仍然命名该操作的 `keybindings.json` 保持有效，绑定不执行任何操作。在 v2.1.281 之前，Backspace 和 Delete 从页脚中关闭选定的 artifact 链接 |
 
 选定页脚项时（例如提示下方的代理面板中的一行），即使您在 `Chat` 上下文中将 `Enter` 重新绑定到 `chat:queueSubmit` 或 `chat:newline`，`Enter` 也会打开它。
 
@@ -305,15 +311,24 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
   Message selector 操作
 </h3>
 
-在 `MessageSelector` 上下文中可用的操作：
+在 [rewind 菜单](/docs/zh-CN/checkpointing) 的消息列表中，您可以通过 [Select 操作](#select-actions) 及其默认键在消息中移动并选择一条。您的 `Select` 绑定对这些操作也适用于那里。`MessageSelector` 上下文没有自己的操作或默认绑定。使用它通过在 `MessageSelector` 块中绑定 Select 操作（例如 `select:accept`）来仅为此列表更改键。
 
-| 操作 | 默认 | 描述 |
-| :- | :- | :- |
-| `messageSelector:up` | Up, K, Ctrl+P | 在列表中向上移动 |
-| `messageSelector:down` | Down, J, Ctrl+N | 在列表中向下移动 |
-| `messageSelector:top` | Ctrl+Up, Shift+Up, Meta+Up, Shift+K | 跳到顶部 |
-| `messageSelector:bottom` | Ctrl+Down, Shift+Down, Meta+Down, Shift+J | 跳到底部 |
-| `messageSelector:select` | Enter | 选择消息 |
+此示例将 `o` 绑定到在 rewind 菜单中选择突出显示的消息，而不更改任何其他列表：
+
+```json theme={null}
+{
+  "bindings": [
+    {
+      "context": "MessageSelector",
+      "bindings": {
+        "o": "select:accept"
+      }
+    }
+  ]
+}
+```
+
+在 v2.1.283 之前，此列表忽略 `Select` 绑定，并有自己的操作：`messageSelector:up`、`messageSelector:down`、`messageSelector:top`、`messageSelector:bottom` 和 `messageSelector:select`。如果您的 `keybindings.json` 绑定了其中一个名称，绑定在此列表中继续工作作为执行相同操作的 Select 操作。`Home` 和 `End` 跳到列表的任一端；在 v2.1.283 之前，`Shift+K` 和 `Shift+J` 等键默认执行此操作。
 
 <h3 id="diff-actions">
   Diff 操作
@@ -328,10 +343,13 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `diff:nextSource` | Right | 下一个 diff 源 |
 | `diff:previousFile` | Up, K | 文件列表中的上一个文件；在详细视图中向上滚动一行 |
 | `diff:nextFile` | Down, J | 文件列表中的下一个文件；在详细视图中向下滚动一行 |
-| `diff:viewDetails` | Enter | 查看 diff 详情 |
 | `diff:back` | (未绑定) | 在 diff 查看器中返回。Escape 通过 `diff:dismiss` 执行返回操作。之前在详细视图中的 Left 默认值在 v2.1.203 中被移除 |
 
-diff 详细视图还将寻呼机样式的键绑定到标准 [滚动操作](#scroll-actions)。这些绑定是 `DiffDialog` 上下文的一部分，仅在详细视图中应用；[滚动操作](#scroll-actions) 下列出的 `Scroll` 上下文默认值保持不变。
+文件列表也响应 [Select 操作](#select-actions)，通过它们的默认键和您的 `Select` 绑定。`select:previous` 和 `select:next` 移动到上一个和下一个文件，`Enter` 通过 `select:accept` 打开选定文件的 diff。要仅为文件列表更改其中一个键，在 `DiffDialog` 块中绑定 Select 操作。
+
+在 v2.1.283 之前，文件列表忽略 `Select` 绑定，`Enter` 通过单独的 `diff:viewDetails` 操作打开选定文件的 diff。如果您的 `keybindings.json` 绑定了 `diff:viewDetails`，绑定在文件列表中继续工作作为 `select:accept`。
+
+diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scroll-actions)。这些绑定是 `DiffDialog` 上下文的一部分，仅在详细视图中应用；[滚动操作](#scroll-actions) 下列出的 `Scroll` 上下文默认值保持不变。
 
 | 操作 | 默认 | 描述 |
 | :- | :- | :- |
@@ -373,10 +391,13 @@ diff 详细视图还将寻呼机样式的键绑定到标准 [滚动操作](#scro
   Effort slider 操作
 </h3>
 
-在 `EffortSlider` 上下文中可用的操作，当您运行不带参数的 `/effort` 时打开的滑块。滑块的 Left、Right、Enter 和 Escape 键无法重新绑定。
+在 `EffortSlider` 上下文中可用的操作，当您运行不带参数的 `/effort` 时打开的滑块。滑块的 Enter 和 Escape 键无法重新绑定。
 
 | 操作 | 默认 | 描述 |
 | :- | :- | :- |
+| `effortSlider:decreaseEffort` | Left | 将滑块移动到下一个较低的努力级别。需要 v2.1.284 或更高版本 |
+| `effortSlider:increaseEffort` | Right | 将滑块移动到下一个较高的努力级别。需要 v2.1.284 或更高版本 |
+| `effortSlider:toggleUltracode` | Tab | 为此会话打开或关闭 [ultracode](/docs/zh-CN/workflows#let-claude-decide-with-ultracode)，当滑块 [提供它](/docs/zh-CN/model-config#when-ultracode-is-available) 时。需要 v2.1.284 或更高版本 |
 | `effortSlider:thisSessionOnly` | s | 仅将焦点 [努力级别](/docs/zh-CN/model-config#adjust-effort-level) 应用于此会话。需要 v2.1.257 或更高版本 |
 
 <h3 id="select-actions">
@@ -396,7 +417,7 @@ diff 详细视图还将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `select:accept` | Enter | 接受选择 |
 | `select:cancel` | Escape | 取消选择 |
 
-Claude Code 在 `/skills` 菜单中应用您的 `select:pageUp`、`select:pageDown`、`select:first` 和 `select:last` 绑定。在大多数其他列表中，例如 `/model` 选择器，您的 `select:first` 和 `select:last` 绑定适用。PageUp 和 PageDown 在这些列表中进行分页，无论您的绑定如何。
+在列表面板中，例如 `/skills` 和 `/mcp`，Claude Code 应用您的 `select:pageUp`、`select:pageDown`、`select:first` 和 `select:last` 绑定。在大多数其他列表中，例如 `/model` 选择器，您的 `select:first` 和 `select:last` 绑定适用。PageUp 和 PageDown 在这些列表中进行分页，无论您的绑定如何。
 
 在 v2.1.280 之前，这些其他列表忽略 Home、End 和您的 `select:first` 和 `select:last` 绑定。
 

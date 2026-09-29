@@ -330,7 +330,7 @@ ResultMessage - final result
   已知限制
 </h2>
 
-* **结构化输出**：JSON 结果仅出现在最终 `ResultMessage.structured_output` 中，而不是作为流式增量。有关详细信息，请参阅[结构化输出](/docs/zh-CN/agent-sdk/structured-outputs)。
+* **结构化输出**：启用部分消息时，JSON 作为工具调用的未验证 `input_json_delta` 块进行流式传输，只有验证后的结果才会到达最终的 `ResultMessage.structured_output`。有关详细信息，请参阅[结构化输出](/docs/zh-CN/agent-sdk/structured-outputs)。
 
 <h2 id="next-steps">
   后续步骤

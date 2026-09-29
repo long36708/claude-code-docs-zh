@@ -333,7 +333,9 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
   Context 和通信
 </h3>
 
-每个队友都有自己的 context window。生成时，队友加载与常规会话相同的项目 context：CLAUDE.md、MCP servers 和 skills。它还接收来自负责人的生成提示。负责人的对话历史不会继承。
+每个队友都有自己的 context window。生成时，队友加载与常规会话相同的项目 context：CLAUDE.md、MCP servers 和 skills。如果你使用 [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags) 启动负责人，队友会从相同的受限源列表加载。在 v2.1.281 之前，[split-pane](#choose-a-display-mode) 队友加载每个设置源。
+
+队友也接收来自负责人的生成提示。负责人的对话历史不会继承。
 
 **队友如何共享信息：**
 

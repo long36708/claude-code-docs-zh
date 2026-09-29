@@ -46,7 +46,7 @@ Claude 的 context window 保存你的整个对话，包括每条消息、Claude
 
 * **在一个提示中**：要求 Claude 运行检查并在同一消息中迭代，如上表所示。
 * **在整个会话中**：将检查设置为 [`/goal` 条件](/docs/zh-CN/goal)。单独的评估器在每次转换后重新检查它，Claude 继续工作直到目标解决。如果 Claude 停滞，Claude Code 最终会在目标仍然设置的情况下停止运行 — 请参阅 [/goal 评估如何工作](/docs/zh-CN/goal#how-evaluation-works)。
-* **作为确定性门**：[Stop hook](/docs/zh-CN/hooks#stop) 作为脚本运行你的检查，并阻止转换结束直到它通过。Claude Code 覆盖 hook 并在 8 次连续阻止后结束转换。
+* **作为确定性门**：[Stop hook](/docs/zh-CN/hooks#stop) 作为脚本运行你的检查，并阻止转换结束直到它通过。[Stop input](/docs/zh-CN/hooks#stop-input) 涵盖连续阻止的上限。
 * **通过第二意见**：[验证子代理](/docs/zh-CN/sub-agents)或[动态工作流](/docs/zh-CN/workflows)检查自己的发现，有一个新鲜的模型尝试反驳结果，所以做工作的代理不是给它评分的。
 
 每一步都用设置换取关注。提示版本适用于今天的任何任务。`/goal` 和 Stop hook 版本是让无人值守运行正确完成而无需你的东西。
@@ -209,9 +209,9 @@ CLAUDE.md 文件可以使用 `@path/to/import` 语法导入其他文件。有关
   要获得更少的提示而不放弃控制，使用 `/permissions` 预先批准你信任的工具，并使用 `/sandbox` 让沙箱命令无需询问即可运行。当你想自己批准编辑和命令时，切换到手动模式。
 </Tip>
 
-在 Pro、Max 和 Team 计划上，auto mode 是交互式终端和 VS Code 会话的 [内置起始权限模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：一个单独的分类器模型审查大多数操作，而不是你，仅阻止看起来有风险的东西，如范围升级、未知基础设施或由敌对内容驱动的操作。
+在 Claude Code v2.1.283 或更高版本中，auto mode 是交互式终端和 VS Code 会话的 [内置起始权限模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：一个单独的分类器模型审查大多数操作，而不是你，仅阻止看起来有风险的东西，如范围升级、未知基础设施或由敌对内容驱动的操作。在早期版本中，auto mode 仅在 Pro、Max 和 Team 计划上是交互式终端和 VS Code 会话的内置起始权限模式。
 
-在手动模式中，其他计划上的内置起始权限模式，Claude Code 在可能修改你的系统的操作之前询问：文件写入、Bash 命令、MCP 工具。这是安全的但繁琐。在第十次批准后，你在点击通过而不是审查。两个工具在手动模式中减少这些中断，也适用于 auto mode：
+在手动模式中，Claude Code 在可能修改你的系统的操作之前询问：文件写入、Bash 命令、MCP 工具。这是安全的但繁琐。在第十次批准后，你在点击通过而不是审查。两个工具在手动模式中减少这些中断，也适用于 auto mode：
 
 * **权限允许列表**：允许你知道是安全的特定工具，如 `npm run lint` 或 `git commit`
 * **沙箱**：启用操作系统级隔离，限制文件系统和网络访问，允许 Claude 在定义的边界内更自由地工作

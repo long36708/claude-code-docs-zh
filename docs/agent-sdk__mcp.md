@@ -162,7 +162,7 @@ Claude Code 在启动时注册你在 `options.mcpServers` 中传递的服务器�
 | :- | :- | :- |
 | stdio 服务器，或没有缓存工具列表的 HTTP/SSE 服务器 | 是，直到连接 | [`MCP_TIMEOUT`](/docs/zh-CN/env-vars)，默认 30 秒；连接在该截止时间失败 |
 | 具有缓存工具列表的远程服务器，由 Claude Code 从之前的连接保存 | 否；缓存的工具从第一轮开始可用 | 无；在其第一次工具调用时连接，该延迟连接有其自己的超时 |
-| 进程内 [SDK 服务器](#sdk-mcp-servers) | 是，直到连接并列出其工具 | 无；连接和工具列表请求各有其自己的超时 |
+| 进程内 [SDK 服务器](#sdk-mcp-servers) | 是，直到连接并列出其工具 | [`MCP_TIMEOUT`](/docs/zh-CN/env-vars)，默认 30 秒，每次连接尝试；连接在该截止时间失败 |
 
 从 [settings 文件](#from-a-config-file)（如 `.mcp.json`）或从插件加载的服务器通常在 init 消息中显示 `pending`。当 `options.mcpServers` 包含 stdio、HTTP 或 SSE 服务器时，第一轮等待这些待处理的服务器，最多等待 `MCP_TIMEOUT`。当 `options.mcpServers` 为空或仅包含 SDK 服务器时，第一轮改为最多等待 2 秒：
 

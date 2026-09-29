@@ -140,7 +140,7 @@ Shell 导出仅适用于该终端会话和从它启动的程序。从 dock 或�
 <Tabs>
   <Tab title="Bash or Zsh">
     ```bash theme={null}
-    curl -X POST "$ANTHROPIC_BASE_URL/v1/messages" \
+    curl -sS -w '\n%{http_code}\n' -X POST "$ANTHROPIC_BASE_URL/v1/messages" \
       -H "Authorization: Bearer $ANTHROPIC_AUTH_TOKEN" \
       -H "anthropic-version: 2023-06-01" \
       -H "content-type: application/json" \
@@ -594,7 +594,7 @@ AWS auth skipped
 | `/fast` 在使用 `ANTHROPIC_AUTH_TOKEN` 进行身份验证的会话中报告 `Fast mode has been disabled by your organization`，即使组织已启用快速模式 | 可用性检查需要 claude.ai 登录或 Anthropic API 密钥；仅使用持有者令牌，Claude Code 会将快速模式视为已禁用，而不发送检查 | 设置 `CLAUDE_CODE_SKIP_FAST_MODE_ORG_CHECK=1`；请参阅[在代理和 LLM 网关后面使用快速模式](/docs/zh-CN/fast-mode#use-fast-mode-behind-proxies-and-llm-gateways) |
 | Claude Code 要求您登录，即使 [curl 测试](#verify-the-connection)成功 | CLI 没有自己的凭证：可达的基础 URL 不是一个，在交互会话中，项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `env` 块仅在首次运行向导和[信任提示](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)之后应用 | 在 Claude Code 在首次运行设置之前读取的某处设置 `ANTHROPIC_AUTH_TOKEN`：shell 导出、`~/.claude/settings.json` 中的 `env` 块或托管设置 |
 | `ANTHROPIC_API_KEY` 已设置但被忽略，没有提示 | 密钥需要在交互会话中进行一次性批准，之前拒绝的密钥被忽略而不再询问 | 在 `/config` 下使用 `Use custom API key` 选项启用它 |
-| `This machine's managed settings require a first-party login` | 托管设置包括 `forceLoginMethod` 或 `forceLoginOrgUUID`，不能与 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 共存 | 您的管理员必须从托管设置中删除 `forceLoginMethod` 和 `forceLoginOrgUUID` 以使用网关凭证，或删除网关凭证以使用第一方登录。两者不能组合 |
+| `This machine's managed settings require a first-party login`，或当托管设置将 `forceLoginMethod` 设置为 `"gateway"` 或也设置 `forceLoginGatewayUrl` 时 [`Administrator policy requires a Cloud gateway sign-in`](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in) | 托管设置包括 `forceLoginMethod` 或 `forceLoginOrgUUID`，不能与 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 共存 | 您的管理员必须从托管设置中删除 `forceLoginMethod`、`forceLoginOrgUUID` 和 `forceLoginGatewayUrl` 以使用网关凭证，或删除网关凭证以使用托管设置要求的登录。两者不能组合 |
 | `403` 带有 HTML 正文，例如 `403 Forbidden`，当网关自己的日志显示没有收到请求时 | 网关前面的 Web 应用防火墙或反向代理在请求到达网关之前阻止了请求正文。Claude Code 提示包括 XML 样式标签和与跨站脚本正文规则匹配的源代码，因此短 curl 测试通过而实际会话不通过 | 从请求正文检查中豁免网关的 `/v1/messages` 路径。在 AWS WAF 上这是 `CrossSiteScripting_Body` 托管规则；在带有 ModSecurity 的 nginx 上它是等效的 OWASP CRS 正文规则 |
 | 证书或 TLS 错误，例如 `SSL certificate verification failed` 或 `Self-signed certificate detected`，当 [curl 测试](#verify-the-connection)成功时 | Claude Code 的运行时不信任 `curl` 使用的相同证书颁发机构。常见于企业 TLS 检查代理后面 | 将 `NODE_EXTRA_CA_CERTS` 设置为 CA 包路径；请参阅 [CA 证书存储](/docs/zh-CN/network-config#ca-certificate-store) |
 

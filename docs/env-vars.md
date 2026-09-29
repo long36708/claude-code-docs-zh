@@ -237,7 +237,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_CONNECT_TIMEOUT_MS` | 在 v2.1.186 中删除，现在是无操作。以前为流式 API 请求的连接、TLS 和响应标头阶段设置单独的超时。使用 `API_TIMEOUT_MS` 获取每个请求的超时。对于流式请求的响应标头阶段，请参阅 `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` |
 | `CLAUDE_CODE_DEBUG_LOGS_DIR` | 覆盖调试日志文件路径。尽管名称如此，这是文件路径，而不是目录。需要通过 `--debug`、`/debug` 或 `DEBUG` 环境变量单独启用调试模式：仅设置此变量不会启用日志记录。[`--debug-file`](/docs/zh-CN/cli-reference#cli-flags) 标志同时执行两者。默认为 `~/.claude/debug/<session-id>.txt` |
 | `CLAUDE_CODE_DEBUG_LOG_LEVEL` | 写入调试日志文件的最小日志级别。值：`verbose`、`debug`（默认）、`info`、`warn`、`error`。设置为 `verbose` 以包含高容量诊断（如完整状态行命令输出），或提高到 `error` 以减少噪音 |
-| `CLAUDE_CODE_DISABLE_1M_CONTEXT` | 设置为 `1` 以禁用 [1M 上下文窗口](/docs/zh-CN/model-config#extended-context) 支持。设置时，1M 模型变体在模型选择器中不可用，Claude Code 将具有本机 1M 窗口的模型上的会话保持在 200K 窗口，例如 [Sonnet 5](/docs/zh-CN/model-config#sonnet-5-context-window) 和 Fable 模型；请参阅 [扩展上下文](/docs/zh-CN/model-config#extended-context) 了解如何强制执行保持。对于具有合规要求的企业环境很有用。对于其在为无法识别的 `[1m]` 模型 ID 纠正窗口中的作用，请参阅 [为网关或自定义模型 ID 纠正窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id) |
+| `CLAUDE_CODE_DISABLE_1M_CONTEXT` | 设置为 `1` 以禁用 [1M 上下文窗口](/docs/zh-CN/model-config#extended-context) 支持。设置时，1M 模型变体在模型选择器中不可用，Claude Code 将具有本机 1M 窗口的模型上的会话保持在 200K 窗口，例如 [Sonnet 5.5](/docs/zh-CN/model-config#sonnet-5-5-and-sonnet-5-context-window) 和 Fable 模型；请参阅 [扩展上下文](/docs/zh-CN/model-config#extended-context) 了解如何强制执行保持。对于具有合规要求的企业环境很有用。对于其在为无法识别的 `[1m]` 模型 ID 纠正窗口中的作用，请参阅 [为网关或自定义模型 ID 纠正窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id) |
 | `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` | 设置为 `1` 以在 Opus 4.6 和 Sonnet 4.6 上禁用 [自适应推理](/docs/zh-CN/model-config#adjust-effort-level)，并回退到由 `MAX_THINKING_TOKENS` 控制的固定思考预算。对 [Fable 模型](/docs/zh-CN/model-config#extended-thinking)、Sonnet 5 或 Opus 4.7 及更高版本无效，它们始终使用自适应推理 |
 | `CLAUDE_CODE_DISABLE_ADMIN_ENV_UNION` | 设置为 `1` 以停止 Claude Code 在管理员源之间按键合并 [托管设置](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier) `env` 块，因此仅应用最高优先级源的整个 `env` 块，如 v2.1.223 之前的情况。在启动 Claude Code 的环境中设置它，因为 Claude Code 忽略通过设置 `env` 块传递的副本。需要 Claude Code v2.1.223 或更高版本 |
 | `CLAUDE_CODE_DISABLE_ADVISOR_TOOL` | 设置为 `1` 以禁用 [advisor 工具](/docs/zh-CN/advisor)。`/advisor` 命令变为不可用，任何配置的 `advisorModel` 被忽略，`--advisor` 标志被接受但无效，因此传递它的现有脚本继续工作而不出错 |
@@ -255,6 +255,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_DISABLE_CFC_PROMPT` | 设置为 `1` 以保持 [Claude in Chrome](/docs/zh-CN/chrome) 浏览器工具可用，同时省略系统提示的 Chrome 部分和 `/claude-in-chrome` [捆绑 skill](/docs/zh-CN/skills#bundled-skills)。对于嵌入 Claude Code 并提供自己的浏览器指导的主机。需要 Claude Code v2.1.257 或更高版本 |
 | `CLAUDE_CODE_DISABLE_CLAUDE_MDS` | 设置为 `1` 以防止将任何 CLAUDE.md 内存文件加载到上下文中，包括用户、项目和自动内存文件 |
 | `CLAUDE_CODE_DISABLE_CRON` | 设置为 `1` 以禁用 [计划任务](/docs/zh-CN/scheduled-tasks)。`/loop` skill 和 cron 工具变为不可用，任何已计划的任务停止触发，包括已在运行的任务 |
+| `CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT` | 设置为 `1` 以关闭 [关键路径删除](/docs/zh-CN/permission-modes#critical-paths) 提示上的时间限制。在 `auto` 模式中 Claude Code 随后将这些删除发送到分类器，在 `bypassPermissions` 模式中提示等待您的答案。在启动 Claude Code 的环境中设置它，因为 Claude Code 忽略通过设置 `env` 块传递的副本。需要 Claude Code v2.1.281 或更高版本 |
 | `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | 设置为 `1` 以从 API 请求中删除 Anthropic 特定的 `anthropic-beta` 请求标头和测试版工具模式字段（如 `defer_loading` 和 `eager_input_streaming`）。当代理网关拒绝带有错误的请求时使用，例如"Unexpected value(s) for the `anthropic-beta` header"或"Extra inputs are not permitted"。标准字段（`name`、`description`、`input_schema`、`cache_control`）被保留。[MCP 工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search) 被禁用，所有 MCP 工具预先加载，即使您设置 `ENABLE_TOOL_SEARCH`。在 Claude Code v2.1.227 或更高版本上，[托管设置](/docs/zh-CN/managed-settings) 可以保持工具搜索打开。[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 涵盖覆盖应用的位置 |
 | `CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS` | 设置为 `1` 以禁用内置 [Explore 和 Plan 子代理](/docs/zh-CN/sub-agents#built-in-subagents)。Claude 使用其搜索工具或通用子代理进行探索，[plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 直接读取文件而不是启动 Explore 和 Plan 代理。名为 `Explore` 或 `Plan` 的自定义子代理不受影响。要在 Agent SDK 或非交互模式中删除每个内置子代理类型，请改用 `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS`。需要 Claude Code v2.1.198 或更高版本 |
 | `CLAUDE_CODE_DISABLE_FAST_MODE` | 设置为 `1` 以禁用 [快速模式](/docs/zh-CN/fast-mode) |
@@ -271,8 +272,10 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL` | 设置为 `1` 以禁用官方插件市场的自动注册。Claude Code 在即将注册市场时读取变量，通常在机器的第一次交互启动期间。如果变量在该点设置，Claude Code 永久跳过注册。稍后取消设置变量不会撤销跳过。随时运行 `claude plugin marketplace add anthropics/claude-plugins-official` 以注册市场 |
 | `CLAUDE_CODE_DISABLE_PERMISSION_PROMPT_NOTIFY_HOOKS` | 设置为 `1` 以停止 Claude Code 在 Claude Code 将它们发送到 Agent SDK 的 `canUseTool` 回调的会话中运行您的 [`Notification` 未回答权限请求的 hooks](/docs/zh-CN/hooks#notification)，这是 Claude Desktop 和 VS Code 扩展如何托管 Claude Code 的方式。在终端会话中无效。需要 Claude Code v2.1.233 或更高版本 |
 | `CLAUDE_CODE_DISABLE_POLICY_SKILLS` | 设置为 `1` 以跳过从系统范围的托管 skills 目录加载 skills。对于不应加载操作员配置的 skills 的容器或 CI 会话很有用 |
+| `CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY` | 设置为 `1` 以关闭 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool) 检查，该检查在 [系统路径](/docs/zh-CN/permission-modes#remove-item-in-powershell)（如驱动器根目录或您的主目录）上拒绝 `cmd` 内置命令 `rd`、`rmdir`、`del` 和 `erase`。Claude Code 在设置文件的 `env` 块中忽略此变量。需要 Claude Code v2.1.283 或更高版本 |
+| `CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT` | 设置为 `1` 以关闭 [关键路径](/docs/zh-CN/permission-modes#critical-paths) 检查，用于递归 `rm`，其目标完全是命令替换的输出，例如 `rm -rf "$(pwd)"`。其他关键路径检查保持运行。在启动 Claude Code 的环境中设置它，因为 Claude Code 忽略通过设置 `env` 块传递的副本。需要 Claude Code v2.1.281 或更高版本 |
 | `CLAUDE_CODE_DISABLE_TERMINAL_TITLE` | 设置为 `1` 以禁用基于对话上下文的自动终端标题更新。这也跳过生成 [会话标题](/docs/zh-CN/sessions#name-your-sessions) 的后台小/快速模型请求 |
-| `CLAUDE_CODE_DISABLE_THINKING` | 设置为 `1` 以从 API 请求中完全省略 `thinking` 参数。这是代理和网关拒绝该参数的兼容性选项。在默认思考的模型上，省略参数意味着模型仍可能思考。要在 Anthropic API 上明确禁用 [扩展思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)，请改用 `MAX_THINKING_TOKENS=0`。两个变量都不会在 Opus 5.5 或 Fable 模型上关闭思考，这些模型无法关闭思考。在 [第三方提供商](/docs/zh-CN/third-party-integrations) 上，`MAX_THINKING_TOKENS=0` 同样省略参数，因此两个变量在那里的行为相同 |
+| `CLAUDE_CODE_DISABLE_THINKING` | 设置为 `1` 以从 API 请求中完全省略 `thinking` 参数。这是代理和网关拒绝该参数的兼容性选项。在默认思考的模型上，省略参数意味着模型仍可能思考。要在 Anthropic API 上明确禁用 [扩展思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)，请改用 `MAX_THINKING_TOKENS=0`。两个变量都不会在 Opus 5.5、Sonnet 5.5 或 Fable 模型上关闭思考，这些模型无法关闭思考。在 [第三方提供商](/docs/zh-CN/third-party-integrations) 上，`MAX_THINKING_TOKENS=0` 同样省略参数，因此两个变量在那里的行为相同 |
 | `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT` | 设置为 `1` 以在 Claude Code 不识别模型 ID 时跳过主动 [自动压缩](/docs/zh-CN/costs#reduce-token-usage)，例如 [LLM 网关](/docs/zh-CN/llm-gateway) 别名。没有此变量，Claude Code 在它为 ID 假设的上下文窗口处压缩。`CLAUDE_CODE_MAX_CONTEXT_TOKENS` 可以改为纠正假设的窗口；请参阅 [为网关或自定义模型 ID 纠正窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id) 了解何时应用每个变量。需要 Claude Code v2.1.223 或更高版本 |
 | `CLAUDE_CODE_DISABLE_VIRTUAL_SCROLL` | 设置为 `1` 以在 [全屏呈现](/docs/zh-CN/fullscreen) 中禁用虚拟滚动并呈现转录中的每条消息。如果全屏模式中的滚动显示应显示消息的空白区域，请使用此选项 |
 | `CLAUDE_CODE_DISABLE_WINDOWS_SHELL_LAUNCHER` | 设置为 `1` 以在 Windows 上直接启动 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool) 命令，而不是通过 `cmd.exe` 启动器。默认情况下，启动器让在后台 [运行的 PowerShell 命令](/docs/zh-CN/tools-reference#background-commands) [转移到会话的下一个进程](/docs/zh-CN/agent-view#the-supervisor-process)，例如当您 [后台处理会话](/docs/zh-CN/agent-view#from-inside-a-session) 时。如果您设置变量，后台处理的 PowerShell 命令在会话的进程退出时停止。Bash 命令不受影响。需要 Claude Code v2.1.269 或更高版本 |
@@ -412,7 +415,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_WORKFLOW_PREFIX_STAGGER_MS` | [工作流](/docs/zh-CN/workflows) 代理等待相同前缀兄弟的第一个响应开始的上限（以毫秒为单位），然后发送自己的第一个请求。当扇出启动共享 [提示缓存前缀](/docs/zh-CN/workflows#prompt-caching-in-a-fan-out) 的多个代理时，Claude Code 将除第一个代理外的所有代理保持最多这么长时间，以便其余代理读取缓存的前缀而不是每个未缓存处理它。默认 `5000`。设置为 `0` 以禁用等待。当设置 `DISABLE_PROMPT_CACHING` 时，代理从不等待。需要 Claude Code v2.1.229 或更高版本 |
 | `CLAUDE_CONFIG_DIR` | 覆盖配置目录（默认值：`~/.claude`）。所有设置、会话历史和插件存储在此路径下。对于凭证，请参阅 [Claude Code 存储凭证的位置](/docs/zh-CN/authentication#credential-management)。对于并排运行多个帐户很有用：例如，`alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'`。在您的 shell、用户设置或托管设置中设置它。在 [项目和本地设置](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env) 中被忽略 |
 | `CLAUDE_DISABLE_ADOPT` | 设置为 `1` 以在通过按 `←` 或使用 [`/background`](/docs/zh-CN/agent-view#from-inside-a-session) 后台处理会话时停止进行中的后台工作，而不是进行中的工作。Claude Code 要求您在后台处理前确认，然后停止否则会进行的任务。需要 Claude Code v2.1.195 或更高版本 |
-| `CLAUDE_EFFORT` | 在 Bash 工具子进程和 hook 命令中自动设置为启动子进程时生效的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)：`low`、`medium`、`high`、`xhigh` 或 `max`。Ultracode 不是不同的级别，报告为 `xhigh`。与传递给 [hooks](/docs/zh-CN/hooks) 的 `effort.level` 字段匹配。仅在当前模型支持 effort 参数时设置 |
+| `CLAUDE_EFFORT` | 在 Bash 工具子进程和 hook 命令中自动设置为启动子进程时生效的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)：`low`、`medium`、`high`、`xhigh` 或 `max`。与传递给 [hooks](/docs/zh-CN/hooks) 的 `effort.level` 字段匹配。仅在当前模型支持 effort 参数时设置 |
 | `CLAUDE_ENABLE_BYTE_WATCHDOG` | 设置为 `1` 以强制启用字节级流式空闲监视程序，或设置为 `0` 以强制禁用它。`0` 也关闭运行该截止时间的连接上的 [第一字节截止时间](/docs/zh-CN/network-config#streaming-idle-watchdogs)。未设置时，监视程序在直接 Anthropic API 和 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 连接上默认启用，以及通过 `ANTHROPIC_BASE_URL` 或 `ANTHROPIC_AWS_BASE_URL` 到达的 [网关](/docs/zh-CN/gateways) 连接上的流式响应；在 v2.1.222 之前，它在这些网关连接上不运行，因此事件级监视程序可能在那里报告停滞，即使保活 ping 正在到达。对于超时以及计时器如何交互，请参阅 [流式空闲监视程序](/docs/zh-CN/network-config#streaming-idle-watchdogs) |
 | `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK` | 设置为 `1` 以在 Amazon Bedrock `vnd.amazon.eventstream` 响应上启用字节级流式空闲监视程序，这也启用 [第一字节截止时间](/docs/zh-CN/network-config#streaming-idle-watchdogs) 在 Bedrock 流式请求上。默认关闭。使用 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 配置超时 |
 | `CLAUDE_ENABLE_STREAM_WATCHDOG` | 设置为 `0` 以强制禁用事件级流式空闲监视程序，或设置为 `1` 以强制启用它。未设置时，监视程序在所有提供商上默认打开。在 v2.1.196 之前，未设置默认值在直接 Anthropic API 上由服务器控制，在其他提供商上关闭。使用 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 配置超时；对于与此一起运行的其他停滞计时器，请参阅 [流式空闲监视程序](/docs/zh-CN/network-config#streaming-idle-watchdogs) |
@@ -443,7 +446,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `DISABLE_PROMPT_CACHING_HAIKU` | 设置为 `1` 以为 Haiku 模型禁用提示缓存 |
 | `DISABLE_PROMPT_CACHING_OPUS` | 设置为 `1` 以为 Opus 模型禁用提示缓存 |
 | `DISABLE_PROMPT_CACHING_SONNET` | 设置为 `1` 以为 Sonnet 模型禁用提示缓存 |
-| `DISABLE_TELEMETRY` | 设置为任何非空值（如 `1`）以选择退出遥测。**将其设置为 `0` 或 `false` 仍会选择退出**，与大多数打开/关闭变量不同；取消设置变量以重新打开遥测。遥测事件不包括用户数据，如代码、文件路径或 bash 命令。也禁用功能标志获取，效果与 `DISABLE_GROWTHBOOK` 相同，这使 [Remote Control](/docs/zh-CN/remote-control#requirements) 和其他 [需要功能标志获取的功能](#features-that-need-feature-flag-fetching) 不可用。请参阅 [为您的组织关闭遥测](/docs/zh-CN/managed-settings#turn-telemetry-off-for-your-organization) |
+| `DISABLE_TELEMETRY` | 设置为任何非空值（如 `1`）以选择退出遥测。**将其设置为 `0` 或 `false` 仍会选择退出**，与大多数打开/关闭变量不同；取消设置变量以重新打开遥测。遥测事件不包括用户数据，如代码、文件路径或 bash 命令。也禁用功能标志获取，这使 [Remote Control](/docs/zh-CN/remote-control#requirements) 和其他 [需要功能标志获取的功能](#features-that-need-feature-flag-fetching) 不可用。请参阅 [为您的组织关闭遥测](/docs/zh-CN/managed-settings#turn-telemetry-off-for-your-organization) |
 | `DISABLE_UPDATES` | 设置为 `1` 以阻止所有更新，包括手动 `claude update` 和 `claude install`。比 `DISABLE_AUTOUPDATER` 更严格。在通过您自己的渠道分发 Claude Code 且用户不应自我更新时使用 |
 | `DISABLE_UPGRADE_COMMAND` | 设置为 `1` 以隐藏 `/upgrade` 命令 |
 | `DO_NOT_TRACK` | 设置为 `1` 以选择退出遥测，效果与 `DISABLE_TELEMETRY` 相同，包括使 [Remote Control](/docs/zh-CN/remote-control#requirements) 和其他 [需要功能标志获取的功能](#features-that-need-feature-flag-fetching) 不可用。Claude Code 将此变量读作标准布尔值，因此 `0` 保持遥测打开，并将其视为许多开发者 CLI 识别的跨工具约定 |
@@ -461,7 +464,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `IS_DEMO` | 设置为任何非空值（如 `1`）以启用演示模式：从标头和 `/status` 输出隐藏您的电子邮件和组织名称，并跳过入职。**将其设置为 `0` 或 `false` 仍会启用演示模式**，与大多数打开/关闭变量不同；取消设置变量以关闭它。在流式传输或录制会话时很有用 |
 | `MAX_MCP_OUTPUT_TOKENS` | MCP 工具响应中允许的最大令牌数。Claude Code 在输出超过 10,000 令牌时显示警告。声明 [`anthropic/maxResultSizeChars`](/docs/zh-CN/mcp#raise-the-limit-for-a-specific-tool) 的工具对文本内容使用该字符限制，但来自这些工具的图像内容仍受此变量约束（默认值：25000） |
 | `MAX_STRUCTURED_OUTPUT_RETRIES` | 当模型的响应在非交互模式下使用 `-p` 标志的 [`--json-schema`](/docs/zh-CN/cli-reference#cli-flags) 验证失败时，Claude Code 允许的尝试次数；在那么多失败的尝试后没有有效输出，运行失败。当 [工作流](/docs/zh-CN/workflows) 子代理的结构化输出验证失败时，相同的上限适用。默认为 5，第一次尝试加四次重试 |
-| `MAX_THINKING_TOKENS` | [扩展思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking) 的固定令牌预算。Claude Code 将其上限设置为请求的最大输出令牌下方一个令牌，从不低于 1,024。请参阅 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 了解如何设置该限制。未设置且启用思考时，具有 [自适应推理](/docs/zh-CN/model-config#adjust-effort-level) 的模型选择自己的思考深度，其他模型使用上限。设置为 `0` 以在 Anthropic API 上禁用思考，但 Opus 5.5 和 Fable 模型除外，这些模型无法关闭思考。在 [第三方提供商](/docs/zh-CN/third-party-integrations) 上，`0` 改为省略 `thinking` 参数。在 Anthropic API 上关闭思考时，Claude Code 向它知道 [不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off) 的模型（如 Opus 5）发送 effort `high` 而不是更高级别。Claude Code 忽略自适应推理模型上的非零值，除了 Claude Code 关闭自适应推理的模型（使用 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING`） |
+| `MAX_THINKING_TOKENS` | [扩展思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking) 的固定令牌预算。Claude Code 将其上限设置为请求的最大输出令牌下方一个令牌，从不低于 1,024。请参阅 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 了解如何设置该限制。未设置且启用思考时，具有 [自适应推理](/docs/zh-CN/model-config#adjust-effort-level) 的模型选择自己的思考深度，其他模型使用上限。设置为 `0` 以在 Anthropic API 上禁用思考，但 Opus 5.5、Sonnet 5.5 和 Fable 模型除外，这些模型无法关闭思考。在 [第三方提供商](/docs/zh-CN/third-party-integrations) 上，`0` 改为省略 `thinking` 参数。在 Anthropic API 上关闭思考时，Claude Code 向它知道 [不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off) 的模型（如 Opus 5）发送 effort `high` 而不是更高级别。Claude Code 忽略自适应推理模型上的非零值，除了 Claude Code 关闭自适应推理的模型（使用 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING`） |
 | `MCP_CLIENT_SECRET` | 需要 [预配置凭证](/docs/zh-CN/mcp#use-pre-configured-oauth-credentials) 的 MCP 服务器的 OAuth 客户端密钥。在使用 `--client-secret` 添加服务器时避免交互式提示 |
 | `MCP_CONNECTION_NONBLOCKING` | 控制启动是否在第一个查询之前等待 MCP 服务器连接。MCP 启动默认非阻塞：服务器在后台连接，它们的工具在完成时变为可用。设置为 `0` 以使 Claude Code 在第一个查询之前等待服务器连接。配置为 [`alwaysLoad: true`](/docs/zh-CN/mcp#exempt-a-server-from-deferral) 的服务器仍然使启动等待，除非从 [发现缓存](/docs/zh-CN/mcp#server-status-detail) 提供，因为它们的工具必须在构建第一个提示时存在。在非交互模式（`-p`）中没有 `--input-format stream-json`，Claude Code 也在第一个转弯之前等待仍然待处理的服务器，无论此变量如何。当您明确传递 [`--mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 时，等待有更长的截止时间；请参阅该标志的条目了解缓存服务器异常 |
 | `MCP_CONNECT_TIMEOUT_MS` | 阻塞 MCP 启动在快照工具列表之前等待连接批次的时间（以毫秒为单位）（默认值：5000）。当 `MCP_CONNECTION_NONBLOCKING=0` 或对于标记为 [`alwaysLoad: true`](/docs/zh-CN/mcp#exempt-a-server-from-deferral) 的服务器时应用。仍然待处理的服务器在截止时间处继续在后台连接。与 `MCP_TIMEOUT` 不同，后者界限单个服务器的连接尝试 |
@@ -506,6 +509,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `VERTEX_REGION_CLAUDE_4_7_OPUS` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Opus 4.7 的区域 |
 | `VERTEX_REGION_CLAUDE_4_8_OPUS` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Opus 4.8 的区域 |
 | `VERTEX_REGION_CLAUDE_5_5_OPUS` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Opus 5.5 的区域。在 v2.1.280 中添加 |
+| `VERTEX_REGION_CLAUDE_5_5_SONNET` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Sonnet 5.5 的区域。在 v2.1.284 中添加 |
 | `VERTEX_REGION_CLAUDE_5_OPUS` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Opus 5 的区域。在 v2.1.219 中添加 |
 | `VERTEX_REGION_CLAUDE_5_SONNET` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Sonnet 5 的区域。在 v2.1.197 中添加 |
 | `VERTEX_REGION_CLAUDE_FABLE_5` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Fable 5 的区域。在 v2.1.170 中添加 |
@@ -528,11 +532,9 @@ Claude Code 通过从 Anthropic 获取的特性标志来启用某些功能。Cla
 
 关闭获取后，你无法：
 
-* [在 Pro、Max 和 Team 计划上默认以自动模式启动会话](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)
-* 让 VS Code 扩展[读取设置文件以获取起始权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)
 * 运行 [`/auto-mode-setup`](/docs/zh-CN/auto-mode-config#generate-environment-entries) 来草拟 `autoMode.environment` 条目
-* 使用 [Remote Control](/docs/zh-CN/remote-control#requirements)
-* [消息会话超出此机器](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)；此机器上会话之间的消息传递在关闭获取的情况下也能工作
+* 使用 [Remote Control](/docs/zh-CN/remote-control)，其中设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 或 `DISABLE_GROWTHBOOK`。对于 `DISABLE_TELEMETRY` 和 `DO_NOT_TRACK`，请参阅 [Remote Control 要求](/docs/zh-CN/remote-control#requirements)
+* [消息会话超出此机器](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)，当 [Remote Control](/docs/zh-CN/remote-control#requirements) 不可用时。此机器上会话之间的消息传递在关闭获取的情况下也能工作
 * 运行 [`claude import` 或 `/import` 命令](/docs/zh-CN/cli-reference#cli-commands)
 * 运行 [`/skill-doctor`](/docs/zh-CN/skills#find-unused-skills) 或在 `/plugin` **Stats** 标签中打开其报告
 * 同步为你的 claude.ai 账户启用的[技能](/docs/zh-CN/skills#where-synced-skills-load)和[插件](/docs/zh-CN/plugins/loading#synced-plugins)到你的终端会话中
@@ -548,7 +550,7 @@ Claude Code 通过从 Anthropic 获取的特性标志来启用某些功能。Cla
   安装或升级后的第一个会话
 </h3>
 
-在你安装 Claude Code 后的第一个会话中，或升级到添加功能的版本后，[特性标志门控功能](#features-that-need-feature-flag-fetching)可能会丢失，会话可能在原本会以自动模式启动的计划上以手动模式启动。Claude Code 在该会话期间获取标志，所以两者都会在你的下一个会话中出现。
+在你安装 Claude Code 后的第一个会话中，或升级到添加功能的版本后，[特性标志门控功能](#features-that-need-feature-flag-fetching)可能会丢失。该会话也可能以不同的[权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)启动，而不是你后来的会话所做的那样。Claude Code 在该会话期间获取标志，所以你的下一个会话具有该功能和通常的起始权限模式。
 
 在全新安装后，在非交互式会话中（例如 `claude -p`、Agent SDK 或 VS Code 扩展），Claude Code 仍然可以在[选择起始权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)之前获取标志。
 

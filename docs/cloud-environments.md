@@ -281,7 +281,7 @@ Anthropic 托管环境中的云会话在 HTTP/HTTPS 网络代理后面运行，�
   云会话中可用的内容
 </h2>
 
-在 Anthropic 托管的环境中，每个会话都会获得一台运行 Ubuntu 24.04 的全新虚拟机 (VM)（x86\_64 架构），无论您自己的操作系统和 CPU 架构是什么，您的存储库已克隆，常见的工具链已预安装。当依赖项提供预编译的二进制文件（例如具有本机扩展的 Ruby gem 或预构建的 Python wheel）时，请使用其 x86\_64 Linux 构建以匹配 VM。本节涵盖 Anthropic 托管的默认值、内置 GitHub 工具、如何[运行测试和服务](#run-tests-start-services-and-add-packages)，以及每台 VM 获得的[资源限制](#resource-limits)。
+在 Anthropic 托管的环境中，每个会话都会获得一台运行 Ubuntu 24.04 的全新虚拟机 (VM)（x86\_64 架构），无论您自己的操作系统和 CPU 架构是什么，您的存储库已克隆，常见的工具链已预安装。当依赖项提供预编译的二进制文件（例如具有本机扩展的 Ruby gem 或预构建的 Python wheel）时，请使用其 x86\_64 Linux 构建以匹配 VM。本节涵盖 Anthropic 托管的默认值、内置 GitHub 工具、如何[运行测试和服务](#run-tests-start-services-and-add-packages)、每台 VM 获得的[资源限制](#resource-limits)，以及[时间限制](#time-limits)对长时间运行的工作的限制。
 
 <Note>
   您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您自己的运行器上运行，使用您的运行器镜像提供的工具。
@@ -421,6 +421,19 @@ Anthropic 托管环境中的云会话运行时具有可能随时间变化的近�
 
 VM 可能会停止需要明显更多内存的工作，例如大型构建工作或内存密集型测试。对于超出这些限制的工作负载，请使用 [Remote Control](/docs/zh-CN/remote-control) 在您自己的硬件上运行 Claude Code，或在[自托管环境](/docs/zh-CN/self-hosted-environments)中运行云会话，该环境在您的组织运营的计算上。
 
+<h3 id="time-limits">
+  时间限制
+</h3>
+
+在 Anthropic 托管的环境中，这些时间限制适用于云会话中的长时间运行的工作，例如构建、安装或测试运行。每个条目链接到定义该限制的部分。
+
+* **Claude 运行的命令**：云环境不设置自己的命令超时，因此 Bash 工具的默认值适用。Claude 默认等待 2 分钟的命令，最多可以要求 10 分钟。当命令达到其[超时](/docs/zh-CN/tools-reference#timeout-and-output-limits)时，Claude Code [将其移到后台](/docs/zh-CN/tools-reference#background-commands)，而不是停止它，除非命令以 `sleep` 开头。
+* **SessionStart hooks**：Claude Code 在 600 秒后取消 `command` hook，除非您在 hook 条目上设置 [`timeout`](/docs/zh-CN/hooks#common-fields)（以秒为单位）。Claude Code 不会对您使用 [`async: true`](/docs/zh-CN/hooks#run-hooks-in-the-background) 运行的 hook 强制执行超时。
+* **设置脚本**：花费超过大约五分钟的脚本不会被缓存。[脚本要求](#script-requirements)涵盖如何保持在该时间以下。
+* **空闲会话**：会话在一段时间不活动后停止，其 VM 被回收。[环境已过期](/docs/zh-CN/claude-code-on-the-web#environment-expired)涵盖什么算作不活动以及如何重新打开会话。
+
+要为环境的会话提高命令超时，请将 [`BASH_DEFAULT_TIMEOUT_MS` 和 `BASH_MAX_TIMEOUT_MS`](/docs/zh-CN/env-vars#variables) 添加到其[环境变量](#set-environment-variables)。两者都采用毫秒。例如，`BASH_DEFAULT_TIMEOUT_MS=600000` 使 10 分钟成为默认值。
+
 <h2 id="setup-scripts">
   设置脚本
 </h2>
@@ -445,14 +458,14 @@ apt update && apt install -y shellcheck
 设置脚本有三个需要考虑的约束：
 
 * **以零退出**：如果脚本以非零状态结束，会话将无法启动。在非关键命令后附加 `|| true`，以便间歇性安装失败不会阻止会话。
-* **在五分钟内完成**：将脚本的总运行时间保持在大约五分钟以内，以便[环境缓存](#environment-caching)可以建立。使用 `&` 和 `wait` 并行运行独立的安装，并将任何无法容纳的单个下载移至 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks)，在后台启动它。
+* **在五分钟内完成**：将脚本的总运行时间保持在大约五分钟以内，以便[环境缓存](#environment-caching)可以建立。当设置耗时超过五分钟时，环境不会被缓存。使用 `&` 和 `wait` 并行运行独立的安装，并将任何无法容纳的单个下载移至 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks)，在后台启动它。如果新会话在设置期间停滞或失败，请参阅[新会话在设置期间挂起或超时](/docs/zh-CN/web-quickstart#new-sessions-hang-or-time-out-during-setup)。
 * **安装需要网络访问**：包安装需要连接到注册表。默认的 **Trusted** 级别涵盖[常见包注册表](#default-allowed-domains)，包括 npm、PyPI、RubyGems 和 crates.io；使用 **None** 网络访问时，安装会失败。
 
 <h3 id="environment-caching">
   环境缓存
 </h3>
 
-设置脚本在您第一次在环境中启动会话时运行。完成后，Anthropic 会对文件系统进行快照，并将该快照重用作后续会话的起点。新会话以您的依赖项、工具和 Docker 镜像已在磁盘上的状态开始，并跳过设置脚本步骤。即使脚本安装大型工具链或拉取容器镜像，这也能保持启动速度快。
+设置脚本在您第一次在环境中启动会话时运行。当设置在[大约五分钟](#script-requirements)内完成时，Anthropic 会对文件系统进行快照，并将该快照重用作后续会话的起点。新会话以您的依赖项、工具和 Docker 镜像已在磁盘上的状态开始，并跳过设置脚本步骤。即使脚本安装大型工具链或拉取容器镜像，这也能保持启动速度快。如果设置耗时超过大约五分钟，环境不会被缓存。
 
 缓存是文件系统快照，因此它会保留设置脚本写入磁盘的内容，并丢失任何仅在运行中的内容。您安装的包、您拉取的 Docker 镜像和您写入的文件都会保留。脚本启动的数据库、`docker compose up` 堆栈或任何其他后台进程不会保留；请通过询问 Claude 或使用 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks) 在每个会话中启动这些。
 

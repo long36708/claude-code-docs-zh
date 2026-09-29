@@ -14,8 +14,6 @@
 
 消息是一个 Claude 写给另一个 Claude 的文本片段，永远不包括发送者的对话历史或文件。要移动整个对话或其上下文，请[恢复会话](/docs/zh-CN/sessions#resume-a-session)。
 
-Claude 为此使用两个工具：`ListAgents` 用于发现它可以到达的代理，`SendMessage` 用于按名称将消息传递给其中一个。使用相同的 `SendMessage` 工具，Claude 也可以在单个会话或团队内消息传递到[子代理](/docs/zh-CN/sub-agents#resume-subagents)和[代理团队](/docs/zh-CN/agent-teams)队友。本页涵盖您独立会话之间的消息。
-
 <h2 id="when-to-use-cross-session-messaging">
   何时使用跨会话消息传递
 </h2>
@@ -27,14 +25,6 @@ Claude 为此使用两个工具：`ListAgents` 用于发现它可以到达的代
 * **获取长期运行工作的状态**：让迁移或测试运行报告回您正在观看的会话，或从那里自己询问。如果该会话在此机器上，Claude 还可以[在它下次空闲或退出时要求一条通知](#get-a-notice-when-another-session-goes-idle)。
 * **跨机器发送消息**：到达您在另一台机器或网络上的一个会话。
 
-在您自己启动和指导的独立会话之间使用消息传递。Claude Code 为运行或到达多个会话的其他每种方式都有专门的功能，因此请使用为您正在做的事情构建的功能：
-
-* 要在另一个终端继续一个对话，或与新会话共享其上下文，请[恢复会话](/docs/zh-CN/sessions#resume-a-session)
-* 对于 Claude 生成和监督的协调团队会话，使用[代理团队](/docs/zh-CN/agent-teams)
-* 要从一个地方观看和指导许多会话，使用[代理视图](/docs/zh-CN/agent-view)
-* 要从您的手机或另一台设备自己指导会话，而不是让会话相互发送消息，使用[远程控制](/docs/zh-CN/remote-control)
-* 要将外部事件（如 CI 结果或聊天消息）推送到会话中，使用[频道](/docs/zh-CN/channels)
-
 <h2 id="message-another-session">
   向另一个会话发送消息
 </h2>
@@ -44,60 +34,59 @@ Claude 为此使用两个工具：`ListAgents` 用于发现它可以到达的代
 要自己提示一条消息，告诉 Claude 你想让另一个会话知道或做什么。这个例子是你输入的提示，而不是 Claude 发送的消息：
 
 ```text wrap theme={null}
-Ask the session running in my other terminal whether the migration finished
+询问在我的另一个终端中运行的会话迁移是否完成
 ```
 
-Claude 会自己写出实际的消息，所以你的提示可以将内容留给 Claude。这个提示要求一个摘要而不指定其措辞，Claude 发送的内容会有所不同：
+Claude 会自己编写实际的消息，所以你的提示可以将内容留给 Claude。这个提示要求一个摘要而不指定其措辞，Claude 发送的内容会有所不同：
 
 ```text wrap theme={null}
-Explain what we just did to the session working on the payments API
+向处理支付 API 的会话解释我们刚刚做了什么
 ```
 
-要自己命名目标，在你的提示中提及会话：输入 `@` 后跟会话名称的首字母，然后从类型提示中选择会话，就像你 [@-提及一个子代理](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 一样。需要 Claude Code v2.1.232 或更高版本。Claude Code 会插入提及，例如 `@api-worker`，并告诉 Claude 它命名的是哪个会话，所以 Claude 可以向该会话发送消息而无需先列出你的会话。这个提示用提及来命名目标：
+要自己命名目标，在你的提示中提及会话：输入 `@` 后跟会话名称的首字母，然后从类型提示中选择会话，方式与 [@-提及子代理](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 相同。需要 Claude Code v2.1.232 或更高版本。Claude Code 会插入提及，例如 `@api-worker`，并告诉 Claude 它命名的是哪个会话，这样 Claude 可以向该会话发送消息而无需先列出你的会话。这个提示用提及命名目标：
 
 ```text wrap theme={null}
-Let @api-worker know the schema migration finished
+让 @api-worker 知道架构迁移已完成
 ```
 
-类型提示列出了你在这台机器上的其他活跃会话。两种情况需要超过名称的首字母：
+类型提示列出你在这台机器上的其他活跃会话。两种情况需要超过名称的首字母：
 
-* **这台机器之外的会话**：云会话或远程控制会话仅在 Claude 列出或向你这台机器之外的会话发送消息后才会出现在类型提示中，所以先要求 Claude 列出它们。
-* **名称中有空格或字母、数字、连字符和下划线之外的其他字符**：在双引号中输入，例如 `@"release notes"`。当你从类型提示中选择会话时，Claude Code 会为你插入引号。
+* **这台机器之外的会话**：云会话或远程控制会话仅在 Claude 列出或向你这台机器之外的会话发送消息后才会出现在类型提示中，所以请先要求 Claude 列出它们。
+* **包含空格或字母、数字、连字符和下划线以外字符的名称**：用双引号输入，例如 `@"release notes"`。当你从类型提示中选择会话时，Claude Code 会为你插入引号。
 
-你也可以在没有选择器的情况下输入提及。当多个活跃会话响应提及的名称时，Claude 会在发送前询问你指的是哪一个。
+你也可以不使用选择器直接输入提及。当多个活跃会话响应提及的名称时，Claude 会在发送前询问你指的是哪一个。
 
-关于 Claude 写的消息到达时的样子，包括一个例子，请参见 [消息看起来像什么](#what-a-message-looks-like)。
+关于 Claude 编写的消息到达时的样子，包括一个例子，请参见 [消息看起来像什么](#what-a-message-looks-like)。
 
 <h3 id="message-delivery">
   消息传递
 </h3>
 
-接收 Claude 在活跃轮次中的工具调用之间读取消息，所以运行的工具永远不会被中断。当接收会话处于空闲状态时，Claude Code 会用消息启动一个新轮次。
+接收 Claude 在活跃轮次中的工具调用之间读取消息，所以运行中的工具永远不会被中断。当接收会话处于空闲状态时，Claude Code 会用消息启动新的轮次。
 
-来自另一个会话的消息以纯文本形式到达。如果它用 `@` 提及文件或 [MCP 资源](/docs/zh-CN/mcp#use-mcp-resources)，Claude 会看到如写入的提及，Claude Code 不会附加任何内容，无论消息是启动新轮次还是在轮次中到达。Claude 仍然可以用自己的工具在接收机器上打开提及的路径，受该会话的权限限制。在 v2.1.251 之前，启动新轮次的消息中的 `@` 提及会在接收端附加文件或 MCP 资源。
+来自另一个会话的消息以纯文本形式到达。如果它用 `@` 提及文件或 [MCP 资源](/docs/zh-CN/mcp#use-mcp-resources)，Claude 会看到按原样写的提及，Claude Code 不会附加任何内容，无论消息是启动新轮次还是在现有轮次中到达。Claude 仍然可以用自己的工具在接收机器上打开提及的路径，受该会话的权限限制。
 
 Claude Code 在以下情况下拒绝消息：
 
 * 消息 [超过大小限制](#limitations)。Claude Code 在发送会话中拒绝它，在它离开之前。
 * 对这台机器上的会话的快速突发已达到 [该会话的收件箱接受的内容](#limitations)。Claude Code 拒绝向该会话发送进一步的消息。
 * 这台机器上的回复目标未通过安全检查，例如符号链接目标或不是预期进程的端点。[拒绝发送跨会话消息](/docs/zh-CN/errors#refusing-to-send-a-cross-session-message) 列出了这些检查。
-* Claude 将消息寻址到此会话自己的名称，如 [查看 Claude 可以到达的会话](#see-which-sessions-claude-can-reach) 下所述。
 
-接收会话根据自己的 [入站控制](#control-inbound-messages) 检查每条到达的消息，检查以三种结果之一结束：
+接收会话根据其自己的 [入站控制](#control-inbound-messages) 检查每条到达的消息，检查以三种结果之一结束：
 
 * **已传递**：Claude Code 将消息传递给接收 Claude。
 * **已保留**：Claude Code 将消息搁置未传递。保留的消息仅在你批准它或稍后的模式或设置更改允许它时才到达 Claude。
-* **已拒绝**：Claude Code 在不传递的情况下丢弃消息。
+* **已拒绝**：Claude Code 丢弃消息而不传递它。
 
-一旦传递，消息就像你输入的提示一样计入 [使用情况](/docs/zh-CN/costs)，接收 Claude 可以以相同的方式回复发送者，除了 [单向跨机器情况](#message-sessions-on-other-machines)。
+一旦传递，消息计入 [使用情况](/docs/zh-CN/costs)，就像你输入的提示一样，接收 Claude 可以以相同的方式回复发送者，除了 [单向跨机器情况](#message-sessions-on-other-machines)。
 
-权限边界保持每个会话。Claude 被指示永远不要要求另一个会话执行在其自己的会话中被拒绝或阻止的操作，或其自己的权限设置会阻止的操作，而是将该工作路由回你。在接收端，[接收会话自己的权限提示和规则仍然适用](#how-a-session-treats-an-incoming-message) 于消息要求的任何内容。
+权限边界保持按会话。Claude 被指示永远不要要求另一个会话执行在其自己的会话中被拒绝或阻止的操作，或其自己的权限设置会阻止的操作，而是将该工作路由回你。在接收端，[接收会话自己的权限提示和规则仍然适用](#how-a-session-treats-an-incoming-message) 于消息要求的任何内容。
 
 <h3 id="get-a-notice-when-another-session-goes-idle">
   当另一个会话变为空闲时获得通知
 </h3>
 
-Claude 可以要求你在这台机器上的一个会话在该会话下一次变为空闲或退出时发回一个通知。空闲在这里意味着会话完成了一个轮次，没有任何排队。当你在另一个会话中等待长任务并想听到它完成时而不是检查时使用它。需要两个会话中的 Claude Code v2.1.236 或更高版本。
+Claude 可以要求你在这台机器上的一个会话在该会话下一次变为空闲或退出时发回一条通知。这里的空闲意味着会话完成了一个轮次，没有任何排队的内容。当你在另一个会话中等待长任务并想听到它完成时而不是检查时使用它。需要两个会话中都有 Claude Code v2.1.236 或更高版本。
 
 <h4 id="ask-for-a-notice">
   请求通知
@@ -106,64 +95,56 @@ Claude 可以要求你在这台机器上的一个会话在该会话下一次变�
 告诉 Claude 你在等什么。这个提示要求来自迁移会话的通知：
 
 ```text wrap theme={null}
-Tell me when the migration session finishes what it's working on
+告诉我迁移会话何时完成它正在处理的工作
 ```
 
-Claude 使用 `SendMessage` 工具的 `notify_when_idle` 输入进行订阅，要么附加到它正在发送的消息，要么单独进行。单独进行时，Claude Code 订阅而不在被监视的会话中启动轮次或花费令牌，如果该会话已经空闲，则立即发送通知。附加到消息时，Claude Code 首先传递消息，然后稍后发送通知。
+Claude 使用 `SendMessage` 工具的 `notify_when_idle` 输入订阅，要么附加到它正在发送的消息，要么单独订阅。单独订阅时，Claude Code 订阅而不在被监视的会话中启动轮次或花费令牌，如果该会话已经空闲，会立即发送通知。附加到消息时，Claude Code 先传递消息，然后稍后发送通知。
 
 <h4 id="what-each-session-shows">
   每个会话显示什么
 </h4>
 
-被监视的会话显示一行，说另一个进程要求在会话下一次空闲时被告知。要求的会话将通知显示为命名被监视会话的一行。该行可以包括该会话轮次完成的时间和该轮次的单行状态。如果要求的会话处于空闲状态，Claude Code 会用通知启动一个新轮次。
+被监视的会话显示一行说另一个进程要求在会话下一次空闲时被告知。要求会话显示通知为一行命名被监视的会话。该行可以包括该会话轮次完成的时间和该轮次的单行状态。如果要求会话处于空闲状态，Claude Code 会用通知启动新的轮次。
 
 <h4 id="limits">
   限制
 </h4>
 
-通知是一次性的：Claude Code 从被监视的会话发送一次，两个会话都不会相互轮询。如果在 12 小时内没有通知到达，Claude Code 会删除订阅并告诉 Claude，所以它不会继续等待。
+如果在 12 小时内没有通知到达，Claude Code 会删除订阅并告诉 Claude，所以它不会继续等待。
 
 每一方的 [入站控制](#control-inbound-messages) 适用于像消息一样的通知：
 
-* **任一方的 `refuse`**：什么都不会到达。被监视的会话在不记录或回答的情况下删除请求，所以订阅在 12 小时后无答复过期，具有 `refuse` 的要求会话永远不会订阅。
-* **任一方的 `hold`**：通知到达时内容较少。被监视的会话省略单行状态，要求的会话在你的记录中显示通知而不将其传递给 Claude。
+* **任一方的 `refuse`**：什么都不会到达。被监视的会话删除请求而不记录或回答它，所以订阅在 12 小时后无答复过期，具有 `refuse` 的要求会话永远不会订阅。
+* **任一方的 `hold`**：通知到达时内容较少。被监视的会话省略单行状态，要求会话在你的记录中显示通知而不将其传递给 Claude。
 
-只有你主要对话中的 Claude 可以订阅，并且仅限于你在这台机器上的会话。当子代理或代理团队队友设置 `notify_when_idle` 时，Claude Code 不会进行订阅并告诉它这样做。当 Claude 要求来自任何其他代理的通知时，例如队友、子代理或这台机器之外的会话，Claude Code 拒绝整个调用，包括附加到它的任何消息，并向 Claude 报告拒绝，以便它可以在没有请求的情况下重新发送消息。
+只有你主要对话中的 Claude 可以订阅，并且仅订阅你在这台机器上的会话。当 Claude 要求来自任何其他目标的通知时，例如队友、子代理或这台机器之外的会话，Claude Code 拒绝整个调用，包括附加到它的任何消息。
 
 <h3 id="see-which-sessions-claude-can-reach">
   查看 Claude 可以到达的会话
 </h3>
 
-Claude 自己找到消息的目标，所以你不需要在要求它发送之前运行任何东西。要自己查看 Claude 可以到达的会话，运行 `/list-agents` 命令。第一行（如果存在）是此会话自己的名称，你的其他会话用来向它发送消息的名称。下面的行是 Claude 可以到达的会话：
+Claude 自己找到消息的目标，所以你不需要在要求它发送之前运行任何东西。要自己查看 Claude 可以到达的会话，运行 `/list-agents` 命令。第一行（如果存在）是这个会话自己的名称，你的其他会话用来向它发送消息的名称。下面的行是 Claude 可以到达的会话：
 
 * **子代理**：在当前会话内运行的代理。
-* **队友**：此会话自己的 [代理团队](/docs/zh-CN/agent-teams) 队友。在 v2.1.239 之前，队友没有出现在列表中，尽管 Claude 已经可以按名称向他们发送消息。
+* **队友**：这个会话自己的 [代理团队](/docs/zh-CN/agent-teams) 队友。
 * **你的其他本地会话**：在同一台机器上运行的 Claude Code 会话，包括 [后台会话](/docs/zh-CN/agent-view)。会话仅在绑定 [收件箱套接字](#the-sessions-inbox-socket) 时出现。
-* **你的 [云会话](/docs/zh-CN/claude-code-on-the-web)**：在此会话连接到 [远程控制](/docs/zh-CN/remote-control) 时显示。Claude Code 在列表中将它们标记为 `cloud`。
+* **你的 [云会话](/docs/zh-CN/claude-code-on-the-web)**：在此会话连接到 [远程控制](/docs/zh-CN/remote-control) 时显示。
 * **你在其他机器上的远程控制会话**：在此会话连接到 [远程控制](/docs/zh-CN/remote-control) 时显示，并标记为 `Remote Control`。Claude Code 显示 `offline` 作为远程控制连接已断开的会话的状态。
 
-此会话不是行之一。如果 Claude 将消息寻址到此会话自己的名称，Claude Code 会拒绝它并告诉 Claude 目标是当前会话。在 v2.1.239 之前，列表没有显示此会话的名称，Claude Code 报告发送给它的消息为它找不到的代理。
+当此会话连接到 [远程控制](/docs/zh-CN/remote-control) 时，Claude Code 从 `/list-agents` 输出中隐瞒你的本地会话的一些详细信息，而不改变 Claude 本身在寻找要向其发送消息的会话时看到的内容：
 
-当此会话连接到 [远程控制](/docs/zh-CN/remote-control) 时，Claude Code 从 `/list-agents` 输出中隐瞒你的本地会话的一些详细信息，而不改变 Claude 本身在寻找会话发送消息时看到的内容：
+* **工作目录**：它省略每个本地会话的工作目录。
+* **会话名称**：它省略任何它不能归属于某个人的会话名称，所以没有名称的行读作 `(unnamed session)`。
+* **第一行**：它省略包含此会话自己名称的行，除非你在此终端用 `--name` 或 `/rename` 和名称输入了该名称，自从你启动或最后恢复会话以来。
 
-* **工作目录**：它省略了每个本地会话的工作目录。
-* **会话名称**：它省略了任何它无法归因于某个人的会话名称，所以没有名称的行读作 `(unnamed session)`。
-* **第一行**：它省略了此会话自己的名称行，除非你在此终端输入了该名称，使用 `--name` 或使用 `/rename` 和名称，因为你启动或最后恢复了会话。
+当输出列出任何内容时，它以一条说明详细信息被隐瞒的注释结束。在会话自己的键盘上运行 `/rename` 后跟未使用的名称会给该会话一个出现在输出中的名称。
 
-当输出列出任何内容时，它以一个说明详细信息被隐瞒的注释结束。在会话自己的键盘上运行 `/rename` 后跟未使用的名称会给该会话一个出现在输出中的名称。
+会话响应你用 [`/rename`](/docs/zh-CN/commands) 命令或 [`--name`](/docs/zh-CN/cli-reference#cli-flags) 标志设置的名称。当你不设置一个时，Claude Code 自己命名会话。对于交互式会话，这是在 [运行会话的列表](/docs/zh-CN/sessions#name-your-sessions) 中显示的名称。
 
-Claude Code 首先读取你的云和远程控制会话列表最新的，并在每个会话后停止有限数量的页面。如果你的账户有超过适合的那些会话，Claude Code 不会列出较旧的会话，Claude 无法按名称向它们发送消息。当这种情况发生时，Claude Code 在列表中说明这一点，Claude 在发送消息时看到相同的注释。
-
-Claude 按名称寻址这台机器之外的会话，就像本地会话一样。有关这些消息如何传播，请参见 [向其他机器上的会话发送消息](#message-sessions-on-other-machines)。
-
-会话响应你使用 [`/rename`](/docs/zh-CN/commands) 命令或 [`--name`](/docs/zh-CN/cli-reference#cli-flags) 标志设置的名称。当你不设置一个时，Claude Code 自己命名会话。对于交互式会话，这是 [运行会话的列表](/docs/zh-CN/sessions#name-your-sessions) 中显示的名称。
-
-当你重命名会话时，Claude Code 也会更新你的其他会话用来查找会话名称的共享记录。如果它无法更新该记录，它会在 `/rename` 输出中警告你其他会话可能仍然显示旧名称。使用 [`--debug`](/docs/zh-CN/cli-reference#cli-flags) 运行会话，Claude Code 会记录失败更新的原因。
-
-当你重命名会话或启动或恢复交互式会话时，使用这台机器上另一个活跃会话已经使用的名称，Claude Code 将名称留给已经拥有它的会话，并 [将你的重命名为变体](/docs/zh-CN/sessions#name-your-sessions)。会话仍然可以共享名称，例如当其中一个运行早期版本的 Claude Code 或共享名称是 Claude Code 生成的名称时。除非此会话连接到远程控制，Claude Code 在 `/list-agents` 输出中显示每个本地会话的工作目录，所以当它们在不同目录中运行时，你可以区分同名会话。Claude 以两种方式之一寻址消息，取决于有多少活跃会话响应该名称：
+当你重命名会话，或用另一个活跃会话在这台机器上已经使用的名称启动或恢复交互式会话时，Claude Code 将名称留给已经拥有它的会话，并 [将你的重命名为变体](/docs/zh-CN/sessions#name-your-sessions)。会话仍然可以共享名称，例如当其中一个运行早期版本的 Claude Code 或共享名称是 Claude Code 生成的名称时。除非此会话连接到远程控制，Claude Code 在 `/list-agents` 输出中显示每个本地会话的工作目录，所以当它们在不同目录中运行时，你可以区分同名会话。Claude 根据有多少活跃会话响应该名称，以两种方式之一寻址消息：
 
 * **一个会话响应该名称**：Claude Code 仅在名称上传递消息。
-* **多个会话共享该名称，或 Claude Code 无法检查你的会话运行的所有地方**：Claude 为其列表的每一行添加一个短标识符，并在地址中使用标识符。
+* **多个会话共享该名称，或 Claude Code 无法检查你的会话运行的所有地方**：Claude 为其列表的每一行添加一个短标识符，并在地址中使用该标识符。
 
 <h3 id="message-sessions-on-other-machines">
   向其他机器上的会话发送消息
@@ -175,21 +156,17 @@ Claude 按名称寻址这台机器之外的会话，就像本地会话一样。�
 | :- | :- |
 | 在这台机器上 | 在 macOS 和 Linux 上通过每个会话的套接字，或在本机 Windows 上通过每个会话的命名管道，永远不通过 Anthropic 服务器 |
 | 在你的另一台机器上 | 通过 Anthropic 服务器，通过该机器的 [远程控制](/docs/zh-CN/remote-control) 连接到达 |
-| 在 [云](/docs/zh-CN/claude-code-on-the-web) 中 | 通过 Anthropic 服务器，直接到云会话 |
+| 在 [云中](/docs/zh-CN/claude-code-on-the-web) | 通过 Anthropic 服务器，直接到云会话 |
 
-与你另一台机器上的会话开始对话需要 Claude Code v2.1.225 或更高版本和一个 [出现在列表中](#see-which-sessions-claude-can-reach) 的目标。在 v2.1.225 之前，Claude 只能回复从一个到达的消息。
+启动与你另一台机器上的会话的对话需要 Claude Code v2.1.225 或更高版本和一个 [出现在列表中](#see-which-sessions-claude-can-reach) 的目标。
 
-你可以向显示为 [列表](#see-which-sessions-claude-can-reach) 中 `offline` 的会话发送消息，其远程控制连接已断开的会话。发送通过，但消息仅在该会话的机器重新连接后到达。Claude 在发送时被告知这一点。
+你可以向显示为 [列表](#see-which-sessions-claude-can-reach) 中 `offline` 的会话发送消息，其远程控制连接已断开的会话。发送通过，但消息仅在该会话的机器重新连接后到达。
 
-同机器传递在启用该功能的任何地方都有效。每个会话在磁盘上的文件中注册自己。当 Claude 列出或向你的本地会话发送消息时，Claude Code 读取这些文件以找到会话，所以两个会话只有在能看到相同文件时才能相互到达。
+容器内的会话和主机上的会话无法相互到达。同一容器内的两个会话仍然可以相互发送消息，包括在 [自托管运行器](/docs/zh-CN/self-hosted-environments) 上。WSL 2 内的会话和同一计算机上的本机 Windows 会话也无法相互到达。
 
-容器有自己的文件系统，所以容器内的会话和主机上的会话无法相互到达。同一容器内的两个会话仍然可以相互发送消息，包括在 [自托管运行器](/docs/zh-CN/self-hosted-environments) 上。WSL 2 内的会话和同一计算机上的本机 Windows 会话也无法相互到达，因为它们在不同的主目录下注册并在不同的套接字类型上侦听。
+如果此会话在 Claude 发送到这台机器之外的会话时未连接到远程控制，消息仍然通过，但没有 [回复地址](#what-a-message-looks-like)，所以接收 Claude 无法回答它。
 
-当此会话连接到远程控制时，当你向你另一台机器上的会话发送消息时，Claude Code 在该会话的对话中显示消息，使用此会话的远程控制名称。该机器上的 Claude 可以回复该名称。例如，当此会话作为 `laptop-graceful-unicorn` 连接到远程控制并且你向你的桌面发送消息时，你在桌面会话中看到消息在 `laptop-graceful-unicorn` 下。
-
-如果此会话在 Claude 发送到这台机器之外的会话时未连接到远程控制，消息仍然通过，但没有 [回复地址](#what-a-message-looks-like)，所以接收 Claude 无法回答它。Claude 在发送时被告知这一点。
-
-要在任何消息超出此机器之前要求你的批准，设置 [`isolatePeerMachines`](#require-approval-for-cross-machine-messages)。
+要在任何消息超出这台机器之前要求你的批准，设置 [`isolatePeerMachines`](#require-approval-for-cross-machine-messages)。
 
 <h2 id="how-a-session-treats-an-incoming-message">
   会话如何处理传入消息
@@ -206,7 +183,7 @@ Claude 按名称寻址这台机器之外的会话，就像本地会话一样。�
   消息的样子
 </h3>
 
-当消息到达时，Claude Code 在对话中将其显示为暗淡的单行预览，预览行之后保留在对话中。预览包含发送者的名称和消息的第一行，当它很长时用 `…` 切割，如 `› Message from @api-worker: Schema migration finished (ctrl+o to expand)`。在 v2.1.247 之前，Claude Code 显示到达的消息的完整内容而不是预览。
+当消息到达时，Claude Code 在对话中将其显示为暗淡的单行预览，预览行之后保留在对话中。预览包含发送者的名称和消息的第一行，当它很长时用 `…` 切割，如 `› Message from @api-worker: Schema migration finished (ctrl+o to expand)`。
 
 这两个中的任何一个都显示您完整的文本：
 
@@ -215,9 +192,7 @@ Claude 按名称寻址这台机器之外的会话，就像本地会话一样。�
 
 预览仅缩短您看到的内容。无论您是否展开它，Claude 都读取完整消息。
 
-Claude 接收消息时带有发送者的名称和回复地址，除了[单向跨机器消息](#message-sessions-on-other-machines)，它不携带回复地址。除了名称和回复地址，接收 Claude 获得消息的文本，永远不是发送者的对话历史或文件。[消息传递](#message-delivery)涵盖文本中的 `@` 提及。
-
-[子代理](/docs/zh-CN/sub-agents)编写的消息在发送会话的名称下到达，消息文本中标识了子代理。对它的回复到达该会话的主要对话，而不是子代理。
+Claude 接收消息时带有发送者的名称和回复地址，除了[单向跨机器消息](#message-sessions-on-other-machines)，它不携带回复地址。
 
 这个例子是一个 Claude 写给另一个的消息，当您展开它时其完整文本读作：
 
@@ -252,15 +227,8 @@ Claude 接收消息时带有发送者的名称和回复地址，除了[单向跨
 * 当对话在 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止日期后保持无答案时，Claude Code 关闭它并删除消息。截止日期默认为五分钟。
 * 当没有终端附加到[后台会话](/docs/zh-CN/agent-view)时，Claude Code 将对话保留在截止日期之后。在您附加后，如果对话在完整截止日期期间保持无答案，Claude Code 关闭它并删除消息。
 * 如果此会话的权限模式类在消息被保留时改变，Claude Code 重新应用入站规则，传递它们现在接受的消息，并显示通知。
-* 如果设置更改在消息被保留时使 `refuse` 适用，Claude Code 删除每条保留的消息并向它可以到达的每个发送者报告拒绝。
 
-当发送者是同一机器上的会话时，Claude Code 在接收者保留消息时向它发送通知，以及当接收者稍后传递、拒绝或过期它时的后续通知。通知到达发送 Claude，因此它知道不要继续等待另一个会话尚未读取的消息。
-
-在交互式发送会话中，通知出现在成绩单中。[`claude -p`](/docs/zh-CN/headless) 发送者在[流式输出](/docs/zh-CN/headless#stream-responses)中作为[信息性 `system` 消息](/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage)接收它。发送给 `claude -p` 发送者的通知需要 Claude Code v2.1.271 或更高版本。
-
-如果接收者拒绝消息，发送者的通知说接收者不接受跨会话消息，并告诉发送者的 Claude 不要等待或重新发送。
-
-Claude Code 最多保留 100 条消息，与传递队列分开，超过那个删除最旧的。
+Claude Code 最多保留 100 条消息，超过那个删除最旧的。
 
 <h3 id="non-interactive-sessions">
   非交互式会话
@@ -274,8 +242,6 @@ Claude Code 为 [`claude -p`](/docs/zh-CN/headless) 会话绑定收件箱套接�
 * **在截止日期之后**：Claude Code 删除消息并向它可以到达的发送者报告它已过期。
 
 设置 `dialogExpiry` 为 `"never"` 以保留默认保留的消息直到会话结束。由显式 `hold` 设置保留的消息不过期；Claude Code 仅当稍后应用 `accept` 时才传递它。
-
-当会话以仍然保留的消息结束时，Claude Code 向它可以到达的每个发送者报告它们已过期。在 v2.1.225 之前，`-p` 会话中没有截止日期适用：保留的消息保持保留，除非运行期间的权限模式更改传递它，以及以保留的消息结束的会话不向其发送者报告任何内容。
 
 要让 `-p` 工作者无人值守地接收消息，使用 `crossSessionInbound` 设置为 `accept` 在其 `--settings` 值中启动它。您的用户设置中的 `accept` 也有效，但适用于您运行的每个会话。
 
@@ -292,7 +258,6 @@ Claude Code 为启用跨会话消息传递的每个会话绑定收件箱套接�
 * `/status` 在 `Peer address` 行中显示它。路径以 `uds:` 为前缀。
 * Claude Code 将其导出到[钩子](/docs/zh-CN/hooks)和 Bash 命令作为 [`CLAUDE_CODE_MESSAGING_SOCKET`](/docs/zh-CN/env-vars#variables) 环境变量：
   * 在以消息传递启动的会话中，Claude Code 在任何钩子运行之前导出变量，包括 `SessionStart`。
-  * 每个会话导出自己的套接字，永远不是从父会话继承的。
 
 在 macOS 和 Linux 上，Claude Code 将套接字限制为您的操作系统用户。在原生 Windows 上，它改为要求每个连接首先使用只有您的操作系统用户可以读取的密钥进行身份验证。无论哪种方式，在共享机器上，另一个用户的会话无法传递给它。
 
@@ -304,8 +269,6 @@ Claude Code 为启用跨会话消息传递的每个会话绑定收件箱套接�
 * **原生 Windows**：该行是必需的。Claude Code 关闭任何第一行不是有效身份验证行的连接，不从该连接传递任何内容。
 
 仅在您发布的消息准备好时打开连接。Claude Code 关闭在 30 秒内未发送完整行的连接，因此首先捕获慢速命令的输出，然后打开连接以发送它。
-
-下面的[自己的子消息规则](#own-child-messages)说明 Claude Code 何时查询令牌以及它如何处理它无法验证的消息。
 
 <span id="own-child-messages" />Claude Code 通过套接字上到达的消息运行与任何其他对等消息相同的[入站控制](#control-inbound-messages)，有一个例外和一个先决条件：
 
@@ -380,8 +343,7 @@ Claude Code 为启用跨会话消息传递的每个会话绑定收件箱套接�
   * **云会话缺失**：云会话仅在此会话连接到[远程控制](/docs/zh-CN/remote-control)时出现。
   * **其他机器会话缺失**：您另一台机器上的会话仅在它使用[远程控制](/docs/zh-CN/remote-control)运行且此会话也连接时出现。
   * **其他机器会话 `offline`**：向列为 `offline` 的会话发送消息通过，但[仅在该会话的机器重新连接后到达](#message-sessions-on-other-machines)。
-  * **较旧的云或其他机器会话缺失**：Claude Code [首先读取这些会话列表最新的并在有限数量的页面后停止](#see-which-sessions-claude-can-reach)，因此 Claude 无法按名称向超过它们的会话发送消息。
-  * **启动对话**：[向其他机器上的会话发送消息](#message-sessions-on-other-machines)涵盖与超出此机器的会话启动对话。
+  * **较旧的云或其他机器会话缺失**：Claude Code 首先读取这些会话列表最新的并在有限数量的页面后停止，因此 Claude 无法按名称向超过它们的会话发送消息。
 
 在具有消息传递的会话中，`/status` 也显示 `Peer address` 行，带有会话自己的收件箱地址，或 `unavailable` 和原因，当 Claude Code [无法设置收件箱](#the-sessions-inbox-socket)时。
 
@@ -393,8 +355,8 @@ Claude Code 为启用跨会话消息传递的每个会话绑定收件箱套接�
 
 * **仅纯文本**：Claude 仅在会话之间发送纯文本。结构化[代理团队](/docs/zh-CN/agent-teams)协议消息保留在团队内。
 * **同机器消息大小有上限**：Claude Code 拒绝到此机器上的会话的消息，一旦其序列化形式超过约一百万个字符。拒绝[命名确切大小](/docs/zh-CN/errors#message-too-large-for-cross-session-delivery)。什么都不到达接收会话。
-* **对一个会话的快速突发在发送者处被拒绝**：一旦对此机器上的会话的快速突发消息达到该会话的收件箱接受的内容，Claude Code 拒绝发送会话中的进一步发送。[拒绝命名突发](/docs/zh-CN/errors#too-many-messages-to-this-session-just-now)并告诉 Claude 将其余的批处理为一条消息或等待。在 v2.1.236 之前，Claude Code 报告这些发送为已发送，而接收会话删除它们。
-* **消息循环被限制**：在接收会话中，Claude Code 对每个发送者的重复消息进行速率限制，删除在短窗口内到达的相同重复，并最多为 Claude 读取排队 50 条接受的消息。因此两个会话之间的消息循环自己停止。当速率限制、重复检查或队列上限从此机器上的交互式会话删除消息时，Claude Code 告诉该会话哪个删除了它，并告诉其 Claude 不要立即重新发送。
+* **对一个会话的快速突发在发送者处被拒绝**：一旦对此机器上的会话的快速突发消息达到该会话的收件箱接受的内容，Claude Code 拒绝发送会话中的进一步发送。[拒绝命名突发](/docs/zh-CN/errors#too-many-messages-to-this-session-just-now)并告诉 Claude 将其余的批处理为一条消息或等待。
+* **消息循环被限制**：在接收会话中，Claude Code 对每个发送者的重复消息进行速率限制，删除在短窗口内到达的相同重复，并最多为 Claude 读取排队 50 条接受的消息。因此两个会话之间的消息循环自己停止。
 
 <h2 id="related-resources">
   相关资源
@@ -403,6 +365,7 @@ Claude Code 为启用跨会话消息传递的每个会话绑定收件箱套接�
 * [子代理](/docs/zh-CN/sub-agents#resume-subagents)和[代理团队](/docs/zh-CN/agent-teams#messages-between-agents)：单个会话或团队内的消息传递
 * [后台代理](/docs/zh-CN/agent-view)：分派和监控您可能向其发送消息的并行会话
 * [远程控制](/docs/zh-CN/remote-control)：连接此会话以到达您在其他机器上的会话
+* [频道](/docs/zh-CN/channels)：将外部事件（如 CI 结果或聊天消息）推送到会话中
 * [设置](/docs/zh-CN/settings-reference#all-settings)：`crossSessionInbound`、`isolatePeerMachines` 和 `dialogExpiry`
 * [权限模式](/docs/zh-CN/permission-modes)：入站默认的两个类背后的模式
 * [工具参考](/docs/zh-CN/tools-reference)：工具表中的 `ListAgents` 和 `SendMessage` 行

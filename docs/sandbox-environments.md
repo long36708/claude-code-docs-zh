@@ -117,7 +117,7 @@ Sandboxed Bash tool 内置于 Claude Code 中。它使用操作系统原语来�
 在 Linux 和 WSL2 上，运行时仅对已存在的路径应用写入授权。在全新环境中，在首次启动前创建 Claude Code 的配置路径：
 
 ```bash theme={null}
-mkdir -p ~/.claude && echo '{}' > ~/.claude.json
+mkdir -p ~/.claude && { [ -f ~/.claude.json ] || echo '{}' > ~/.claude.json; }
 ```
 
 配置文件就位后，使用 `npx` 启动 Claude Code 并传递 `claude` 作为要包装的命令：

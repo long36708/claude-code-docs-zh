@@ -448,7 +448,7 @@ hooks 锁和 `allowManagedPermissionRulesOnly` 对开发人员自己规则的影
 
 即使设置了所有五个锁，六个父提供的设置也会通过过滤器。在默认的先赢设置下，阻止父设置的管理员值是最高优先级管理员源中的值，除了 `allowedMcpServers` 当[MCP 服务器锁](#lock-behavior-across-sources)打开时。在 `managedSourcesBehavior` 合并选择加入下，[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明哪个源的值改为适用。
 
-* **`forceLoginOrgUUID`**：当最高优先级管理员源未设置组织 UUID 时，Claude Code 尊重父提供的值。网关登录不检查此密钥，因此它仅对也使用第一方 Anthropic 登录的舰队重要。最高优先级管理员源中的组织 UUID 阻止父的值，是 Claude Code 强制执行的值，因此在那里设置 `forceLoginOrgUUID`。
+* **`forceLoginOrgUUID`**：当最高优先级管理员源未设置组织 UUID 时，Claude Code 尊重父提供的值。网关登录不检查此密钥。最高优先级管理员源中的组织 UUID 阻止父的值，是 Claude Code 强制执行的值。
 * **`allowedMcpServers`**：当最高优先级管理员源未设置允许列表时，Claude Code 尊重父提供的允许列表，`allowManagedMcpServersOnly` 不阻止它，因为锁强制执行任何赢家列表作为托管值，包括当最高优先级管理员源未设置时的父提供列表。最高优先级管理员源中的列表阻止父的并是 Claude Code 强制执行的列表，因此在那里设置 `allowedMcpServers`，在锁旁边。在 v2.1.223 之前，任何管理员源中任一密钥的值都阻止父的。
 * **`availableModels`**：当赢家托管源未设置模型列表时，Claude Code 尊重父提供的模型列表。如果您的舰队限制模型，在赢家源中设置 `availableModels`。
 * **`strictKnownMarketplaces`**：当赢家托管源未设置一个时，Claude Code 尊重父提供的插件市场允许列表。如果您的舰队限制市场，在赢家源中设置 `strictKnownMarketplaces`。需要 Claude Code v2.1.282 或更高版本。
@@ -486,7 +486,7 @@ Claude Desktop 通过网关的身份提供商使用相同的浏览器 SSO 步骤
   * 在[Claude Desktop 启动](#connect-claude-desktop)的嵌入式会话中，CLI 将其导出发送到配置的 `OTEL_EXPORTER_OTLP_ENDPOINT`。CLI 仅当该端点指向网关本身时才将网关会话令牌附加到这些导出。
   * 没有为信号配置目标时，网关接受并丢弃它。
   * 如果您已直接收集 Claude Code 遥测，将您的收集器添加为 `forward_to` 目标，或在策略中命名它以跳过中继。
-* **凭证**：网关令牌是会话的唯一凭证。[Anthropic 配置文件](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)和任何早期的 claude.ai 登录在登录时被忽略，因此开发人员不需要首先从 claude.ai 注销。对于配置的 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，请参阅[管理员策略需要 Cloud 网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。
+* **凭证**：网关令牌是会话的唯一凭证。[Anthropic 配置文件](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)和任何早期的 claude.ai 登录在登录时被忽略，因此开发人员不需要首先从 claude.ai 注销。对于配置的 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，或早期 Claude Console 登录保存的 API 密钥，请参阅[管理员策略需要 Cloud 网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。
 * **托管设置**：锁定的密钥无法在本地覆盖。CLI 在启动时应用策略，并在每个小时轮询时应用更改，除了[仅在下一次启动时应用的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)。
 * **启动时网关无法访问**：已登录的会话在启动时约 10 秒后以错误退出，而不是在没有其设置的情况下启动。
 * **启动后网关结束会话**：请参阅[强制执行故障关闭启动](/docs/zh-CN/server-managed-settings#enforce-fail-closed-startup)，了解哪些启动从网关登出打开，哪些在网关以 `401` 应答时退出。

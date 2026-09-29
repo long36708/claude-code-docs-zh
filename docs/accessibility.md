@@ -111,7 +111,7 @@ macOS Terminal 不对标记进行操作，Claude Code 在 WezTerm 中不发出�
   回答菜单和提示
 </h2>
 
-在屏幕阅读器模式中，您通常使用箭头键导航的菜单（包括权限提示）会变成编号列表。Claude Code 将每个选项宣布为编号行，然后是一个 `Enter selection` 提示，该提示命名有效范围。输入您想要的选项的编号，然后按 Enter。
+在屏幕阅读器模式中，您通常使用箭头键导航的菜单（包括权限提示）会变成编号列表。Claude Code 将每个选项宣布为编号行，然后是一个 `Select with numbers` 提示，该提示命名有效范围。输入您想要的选项的编号，然后按 Enter。
 
 * 按 Escape 键取消提示以 `or Escape to cancel` 结尾的菜单。
 * 如果您输入的数字不在列表中，Claude Code 会宣布有效范围，让您重试。

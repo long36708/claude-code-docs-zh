@@ -30,7 +30,7 @@ Claude Code [VS Code 扩展](/docs/zh-CN/vs-code)也支持语音听写，具有�
   启用语音听写
 </h2>
 
-运行 `/voice` 启用听写。第一次启用时，Claude Code 会运行麦克风检查。在 macOS 上，这会触发系统麦克风权限提示，如果之前从未授予过权限。
+运行 `/voice` 启用听写。启用时，Claude Code 会运行麦克风检查。在 macOS 上，如果之前从未授予过权限，这会触发终端的系统麦克风权限提示。
 
 ```
 /voice
@@ -190,7 +190,7 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 * **`Voice mode requires SoX for audio recording` on Linux**：本机音频模块无法加载，没有安装回退。使用错误消息中显示的命令安装 SoX，例如 `sudo apt-get install sox`。
 * **`Voice mode requires a microphone, but SoX could not open an audio capture device`**：SoX 已安装，但主机没有音频捕获设备，例如无头服务器或容器。在有麦克风的机器上运行 Claude Code。从 v2.1.195 开始，Linux 上的 Claude Code 在这种情况下报告此消息；早期版本即使已安装 SoX 也会要求你安装 SoX。
 * **`Voice mode could not find a working audio recorder in WSL`**：WSLg 通过 PulseAudio 而不是 ALSA 设备路由音频，因此 SoX 需要显式安装其 PulseAudio 后端。运行 `sudo apt install sox libsox-fmt-pulse`。单独安装 `sox` 会拉入 ALSA 后端，它无法在 WSL 上录制，因为没有 `/dev/snd` 设备。
-* **`Voice input is failing repeatedly and has been paused`**：语音听写在 10 秒内遇到三次捕获失败。Claude Code 暂停听写，直到自第一次失败以来已经过了 10 秒。无论麦克风无法启动还是录音机启动然后停止而不产生任何音频，失败都会被计数。这通常意味着此主机上的麦克风或音频堆栈无法捕获音频，例如无头服务器、没有音频直通的远程 shell 或被拒绝的麦克风权限。确认工作输入设备，从上面的条目中修复根本原因，然后再次触发语音。在 v2.1.202 之前，只有启动失败计入暂停。
+* **`Voice input is failing repeatedly and has been paused`**：语音听写在 10 秒内遇到三次失败。Claude Code 暂停听写，直到自第一次失败以来已经过了 10 秒。这通常意味着此主机上的麦克风或音频堆栈无法捕获音频，例如无头服务器、没有音频直通的远程 shell 或被拒绝的麦克风权限。确认工作输入设备，从上面的条目中修复根本原因，然后再次触发语音。在 v2.1.202 之前，只有启动失败计入暂停。
 * **在按住模式中按住 `Space` 时没有任何反应**：在按住时观察提示词输入。如果空格不断累积，语音听写可能已关闭；运行 `/voice hold` 启用它。如果只出现一两个空格然后没有任何反应，语音听写已打开但按住检测未触发。按住检测需要你的终端发送按键重复事件，所以如果在操作系统级别禁用了按键重复，它无法检测按住的键。使用 `/voice tap` 切换到点击模式以避免按键重复要求。
 * **在点击模式中点击 `Space` 输入空格而不是录制**：第一次点击仅在提示词输入为空时开始录制。先清除输入，或通过运行 `/voice tap` 检查你是否处于点击模式。
 * **`No audio detected from microphone`**：录制开始但捕获了静音。确认正确的输入设备设置为系统默认值，其输入级别未静音或接近零。在 Windows 上，打开设置 → 系统 → 声音 → 输入并选择你的麦克风。在 macOS 上，打开系统设置 → 声音 → 输入。

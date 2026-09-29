@@ -735,9 +735,9 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 要在任何平台上为本地会话和开发服务器设置环境变量，在提示框中打开环境下拉菜单，将鼠标悬停在 **Local** 上，然后点击齿轮图标来打开本地环境编辑器。你在此处保存的变量在你的机器上加密存储，并适用于你启动的每个本地会话和预览服务器。你也可以将变量添加到你的 `~/.claude/settings.json` 文件中的 `env` 键，尽管这些仅到达 Claude 会话而不是开发服务器。有关支持的变量的完整列表，请参阅[环境变量](/docs/zh-CN/env-vars)。
 
-[Extended thinking](/docs/zh-CN/model-config#extended-thinking)默认启用，这改进了复杂推理任务的性能，但使用额外的令牌。在 Anthropic API 上，在本地环境编辑器中将 `MAX_THINKING_TOKENS` 设置为 `0` 来关闭思考；这对 Opus 5.5 或 Fable 模型没有影响，它们始终使用 extended thinking。在 Anthropic API 上关闭思考后，Claude Code 发送努力级别 `high` 而不是更高级别给它知道的[不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off)的模型，例如 Opus 5。
+[Extended thinking](/docs/zh-CN/model-config#extended-thinking)默认启用，这改进了复杂推理任务的性能，但使用额外的令牌。在 Anthropic API 上，在本地环境编辑器中将 `MAX_THINKING_TOKENS` 设置为 `0` 来关闭思考；这对 Opus 5.5、Sonnet 5.5 或 Fable 模型没有影响，它们始终使用 extended thinking。在 Anthropic API 上关闭思考后，Claude Code 发送努力级别 `high` 而不是更高级别给它知道的[不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off)的模型，例如 Opus 5。
 
-在具有[自适应推理](/docs/zh-CN/model-config#adjust-effort-level)的模型上，除 `0` 外的 `MAX_THINKING_TOKENS` 值被忽略，因为自适应推理控制思考深度。在 Opus 4.6 和 Sonnet 4.6 上，设置 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` 为 `1` 来使用固定思考预算；Fable 模型、Sonnet 5 和 Opus 4.7 及更高版本始终使用自适应推理，没有固定预算模式。
+在具有[自适应推理](/docs/zh-CN/model-config#adjust-effort-level)的模型上，除 `0` 外的 `MAX_THINKING_TOKENS` 值被忽略，因为自适应推理控制思考深度。在 Opus 4.6 和 Sonnet 4.6 上，设置 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` 为 `1` 来使用固定思考预算；Fable 模型、Sonnet 5 及更高版本和 Opus 4.7 及更高版本始终使用自适应推理，没有固定预算模式。
 
 <h4 id="local-sessions-on-managed-devices">
   托管设备上的本地会话

@@ -37,7 +37,7 @@ Anthropic 为 Claude Code 发布了三个通用插件市场：[官方](https://g
 | 其中包含的内容 | Anthropic 维护的插件，加上来自合作伙伴和其他作者的插件 | 第三方插件，由其作者提交给 Anthropic | 一小组示例插件，展示插件可以包含的内容 |
 | 获取方式 | Claude Code 在你首次启动交互式终端会话时添加它，除非[托管策略](/docs/zh-CN/plugins/org#allow-the-official-marketplace-and-your-own)或 `CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL` 阻止它。如果缺少，请参阅[市场 `claude-plugins-official` 未找到](/docs/zh-CN/plugins/troubleshooting#marketplace-claude-plugins-official-not-found) | 你在 Claude Code 会话中使用 `/plugin marketplace add anthropics/claude-plugins-community` 添加它 | 你在 Claude Code 会话中使用 `/plugin marketplace add anthropics/claude-code` 添加它 |
 
-如果你编写了插件并希望其他人安装它，请参阅[发布插件](/docs/zh-CN/plugins/publish)，其中涵盖了你自己的市场和提交到社区市场。
+如果你编写了插件并希望其他人安装它，请参阅[发布插件](/docs/zh-CN/plugins/publish)，其中涵盖了你自己的市场和提交到 Anthropic 的目录。
 
 <h3 id="the-demo-marketplace-in-anthropics/claude-code">
   `anthropics/claude-code` 中的演示市场
@@ -65,6 +65,8 @@ Anthropic 为 Claude Code 发布了三个通用插件市场：[官方](https://g
 * **在 Claude Code 中，按名称**：在会话中运行 `/plugin install <name>`，它会在你添加的市场中查找该名称。如果插件在其中一个中，其详细信息会在 `/plugin` 面板中打开，在你选择[安装范围](/docs/zh-CN/plugins/install#install-a-plugin)并在那里确认之前，不会安装任何内容。如果不在，你会看到 `Plugin "<name>" not found in any marketplace`。
 * **在网络上**：在 [Claude Marketplace](https://claude.com/marketplace/plugins) 上搜索完整目录，它显示安装计数并标记一些插件为 **Anthropic verified**。
 * **在 GitHub 上**：打开市场存储库中的 `.claude-plugin/marketplace.json`，例如 [`anthropics/claude-plugins-official`](https://github.com/anthropics/claude-plugins-official)。该文件就是目录本身。
+
+Anthropic 的目录与这些市场分开。该目录是 claude.ai 上的目录，`/plugin` 不会列出它。你从 claude.ai 上的目录添加的插件通过[账户同步](/docs/zh-CN/plugins/loading#synced-plugins)到达 Claude Code。要在那里列出你自己的插件，请参阅[提交到 Anthropic 的目录](/docs/zh-CN/plugins/publish#submit-to-anthropics-directory)。
 
 要从桌面应用或脚本安装，或查看云会话加载的内容，请参阅[安装插件](/docs/zh-CN/plugins/install)。
 

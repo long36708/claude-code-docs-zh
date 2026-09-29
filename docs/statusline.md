@@ -175,7 +175,7 @@ Claude Code 在 300ms 处对更新进行防抖，因此快速更改会批处理�
 
 Claude Code 捕获你的脚本输出而不是直接将其连接到终端，因此 `tput cols` 和语言级宽度检测无法从脚本内部读取终端大小。改为读取 `COLUMNS` 和 `LINES` 环境变量。Claude Code 在运行你的脚本之前将这些设置为当前终端尺寸。
 
-<Note>状态行在本地运行，不消耗 API 令牌。在某些 UI 交互期间，它会临时隐藏，包括自动完成建议、帮助菜单和权限提示。</Note>
+<Note>状态行在本地运行，不消耗 API 令牌。在某些 UI 交互期间，它会临时隐藏，包括帮助菜单和权限提示。</Note>
 
 <h2 id="available-data">
   可用数据
@@ -202,7 +202,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `context_window.current_usage` | 来自最后一次 API 调用的令牌计数，在 [上下文窗口字段](#context-window-fields) 中描述 |
 | `exceeds_200k_tokens` | 最近一次 API 响应中的总令牌计数（输入、缓存和输出令牌合并）是否超过 200k。这是一个固定阈值，与实际上下文窗口大小无关。 |
 | `fast_mode` | 是否为会话启用了 [快速模式](/docs/zh-CN/fast-mode) |
-| `effort.level` | 当前推理工作量（`low`、`medium`、`high`、`xhigh` 或 `max`）。反映实时会话值，包括中途 `/effort` 更改。Ultracode 不是一个独立的级别，报告为 `xhigh`。当当前模型不支持工作量参数时不存在 |
+| `effort.level` | 当前推理工作量（`low`、`medium`、`high`、`xhigh` 或 `max`）。反映实时会话值，包括中途 `/effort` 更改。当当前模型不支持工作量参数时不存在 |
 | `thinking.enabled` | 是否为会话启用了扩展思考 |
 | `rate_limits.five_hour.used_percentage`, `rate_limits.seven_day.used_percentage` | 消耗的 5 小时或 7 天速率限制的百分比，从 0 到 100 |
 | `rate_limits.five_hour.resets_at`, `rate_limits.seven_day.resets_at` | Unix 纪元秒，当 5 小时或 7 天速率限制窗口重置时 |
@@ -1166,7 +1166,7 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 * 在安装了 Git Bash 的 Windows 上，`command` 路径中的反斜杠可能在脚本运行前被当作转义字符消耗。在路径中使用正斜杠。参见 [Windows 配置](#windows-configuration)。
 * 如果在应用 [设置优先级](/docs/zh-CN/hooks#disable-or-remove-hooks) 后 `disableAllHooks` 在托管设置之外为 `true`，Claude Code 仅运行来自托管设置的 `statusLine`，如果没有托管 `statusLine`，状态行将被禁用。删除该设置，或在设置它的文件中将其设置为 `false` 以重新启用。参见 [`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks)。
 * 如果你的组织在托管设置中设置了 `allowManagedHooksOnly`，你的自定义状态行会无警告地消失：你只能从那些托管设置中的 `statusLine` 值获得状态行。参见 [在 `allowManagedHooksOnly` 下运行的内容](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly) 了解完整行为，并询问你的管理员此设置是否适用于你。
-* 运行 `claude --debug` 以记录会话中第一次状态行调用的退出代码和 stderr
+* 运行 `claude --debug` 以在每次状态行调用时记录你的脚本的 stderr，以及在会话中第一次调用时的退出代码
 * 要求 Claude 读取你的设置文件并直接执行 `statusLine` 命令以显示错误
 
 **状态行显示 `--` 或空值**

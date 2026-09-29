@@ -249,7 +249,9 @@ networkingMode=mirrored
 
 服务器名为 `ide`，从 `/mcp` 中隐藏，因为没有什么需要配置。但是，如果您的组织使用 [`PreToolUse` hook](/docs/zh-CN/hooks#pretooluse) 来允许列表 MCP 工具，您需要知道它的存在。
 
-**选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，记录会显示一行 `⧉ Selected N lines from <file>`。要排除敏感文件（如 `.env`），请为其路径添加 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)。匹配的拒绝规则可防止该文件的选定文本和打开文件通知都到达 Claude。
+**选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，记录会显示一行 `⧉ Selected N lines from <file>`。如果您[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)，它会保留您按下 `Enter` 时的选择，无论您之后选择什么。
+
+要排除敏感文件（如 `.env`），请为其路径添加 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)。匹配的拒绝规则可防止该文件的选定文本和打开文件通知都到达 Claude。
 
 **传输和身份验证。** 服务器侦听 OS 分配的临时端口，该端口不可配置。传输是未加密的 `ws://`；在环回上，任何可以捕获流量的进程也可以从锁文件中读取令牌，因此 TLS 不会对本地攻击者增加保护。每次 IDE 启动都会生成一个新的随机身份验证令牌，将其写入 `~/.claude/ide/<port>.lock` 处的锁文件，CLI 必须将其作为 `X-Claude-Code-Ide-Authorization` 标头呈现才能连接。如果设置了 `CLAUDE_CONFIG_DIR`，锁文件将改为写入 `$CLAUDE_CONFIG_DIR/ide/`。
 

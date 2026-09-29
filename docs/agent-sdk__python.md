@@ -44,13 +44,13 @@ Python SDK 提供了两种与 Claude Code 交互的方式：
   函数
 </h2>
 
-<Note>此页面上的签名块和裸 `async for` / `async with` 片段仅供说明。要运行它们，请将主体包装在 `async def main(): ...` 中并调用 `asyncio.run(main())`。</Note>
+<Note>此页面上的签名块和裸 `async for` / `async with` 片段仅供说明之用。要运行它们，请将主体包装在 `async def main(): ...` 中并调用 `asyncio.run(main())`。</Note>
 
 <h3 id="query">
   `query()`
 </h3>
 
-为每次与 Claude Code 的交互创建一个新会话。默认情况下返回一个异步迭代器，当消息到达时产生消息。每次调用 `query()` 都会重新开始，不记得之前的交互，除非你传递 `continue_conversation=True` 或在 [`ClaudeAgentOptions`](#claudeagentoptions) 中传递 `resume`。参见 [Sessions](/docs/zh-CN/agent-sdk/sessions)。
+默认情况下，为与 Claude Code 的每次交互创建一个新会话。返回一个异步迭代器，在消息到达时产生消息。每次调用 `query()` 都会重新开始，除非您在 [`ClaudeAgentOptions`](#claudeagentoptions) 中传递 `continue_conversation=True` 或 `resume`，否则不会记住之前的交互。请参阅 [Sessions](/docs/zh-CN/agent-sdk/sessions)。
 
 ```python theme={null}
 async def query(
@@ -72,7 +72,7 @@ async def query(
 | `transport` | `Transport \| None` | 用于与 CLI 进程通信的可选自定义传输 |
 
 <h4 id="returns">
-  返回
+  返回值
 </h4>
 
 返回一个 `AsyncIterator[Message]`，从对话中产生消息。
@@ -122,11 +122,11 @@ def tool(
 | :- | :- | :- |
 | `name` | `str` | 工具的唯一标识符 |
 | `description` | `str` | 工具功能的人类可读描述 |
-| `input_schema` | `type \| dict[str, Any]` | 定义工具输入参数的模式。参见 [输入模式选项](#input-schema-options) |
+| `input_schema` | `type \| dict[str, Any]` | 定义工具输入参数的架构。请参阅 [输入架构选项](#input-schema-options) |
 | `annotations` | [`ToolAnnotations`](#toolannotations)` \| None` | 可选的 MCP 工具注解，为客户端提供行为提示 |
 
 <h4 id="input-schema-options">
-  输入模式选项
+  输入架构选项
 </h4>
 
 1. **简单类型映射**（推荐）：
@@ -148,7 +148,7 @@ def tool(
    ```
 
 <h4 id="returns-2">
-  返回
+  返回值
 </h4>
 
 一个装饰器函数，包装工具实现并返回一个 `SdkMcpTool` 实例。
@@ -171,20 +171,20 @@ async def greet(args: dict[str, Any]) -> dict[str, Any]:
   `ToolAnnotations`
 </h4>
 
-工具的行为提示，作为 [`tool()`](#tool) 的 `annotations` 参数传递。`ToolAnnotations` 扩展了 MCP SDK 的 `mcp.types.ToolAnnotations`，添加了 `maxResultSizeChars` 字段，你可以用 camelCase 或 snake\_case 编写每个提示：`ToolAnnotations(readOnlyHint=True)` 和 `ToolAnnotations(read_only_hint=True)` 是等价的。你也可以在 SDK 接受注解的任何地方传递普通的 `mcp.types.ToolAnnotations`。
+工具的行为提示，作为 [`tool()`](#tool) 的 `annotations` 参数传递。`ToolAnnotations` 扩展了 MCP SDK 的 `mcp.types.ToolAnnotations`，添加了 `maxResultSizeChars` 字段，您可以用 camelCase 或 snake\_case 编写每个提示：`ToolAnnotations(readOnlyHint=True)` 和 `ToolAnnotations(read_only_hint=True)` 是等效的。您也可以在 SDK 接受注解的任何地方传递普通的 `mcp.types.ToolAnnotations`。
 
-snake\_case 名称和类型化的 `maxResultSizeChars` 字段需要 Python Agent SDK 0.2.140 或更高版本。版本 0.1.31 到 0.2.139 重新导出 `mcp.types.ToolAnnotations` 不变。在版本 0.1.55 到 0.2.139 上，你仍然可以将 `maxResultSizeChars` 作为关键字参数传递：MCP 类接受额外字段，SDK 将值转发给 Claude Code。
+snake\_case 名称和类型化的 `maxResultSizeChars` 字段需要 Python Agent SDK 0.2.140 或更高版本。版本 0.1.31 到 0.2.139 重新导出 `mcp.types.ToolAnnotations` 不变。在版本 0.1.55 到 0.2.139 上，您仍然可以将 `maxResultSizeChars` 作为关键字参数传递：MCP 类接受额外字段，SDK 将值转发给 Claude Code。
 
-所有字段都是可选的。客户端不应依赖这些提示做出安全决策。
+所有字段都是可选的。客户端不应依赖这些提示来做出安全决策。
 
 | 字段 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
 | `title` | `str \| None` | `None` | 工具的人类可读标题 |
-| `readOnlyHint` | `bool \| None` | `False` | 如果为 `True`，工具不修改其环境 |
+| `readOnlyHint` | `bool \| None` | `False` | 如果为 `True`，工具不会修改其环境 |
 | `destructiveHint` | `bool \| None` | `True` | 如果为 `True`，工具可能执行破坏性更新（仅当 `readOnlyHint` 为 `False` 时有意义） |
 | `idempotentHint` | `bool \| None` | `False` | 如果为 `True`，使用相同参数的重复调用没有额外效果（仅当 `readOnlyHint` 为 `False` 时有意义） |
-| `openWorldHint` | `bool \| None` | `True` | 如果为 `True`，工具与外部实体交互（例如网络搜索）。如果为 `False`，工具的域是封闭的（例如内存工具） |
-| `maxResultSizeChars` | `int \| None` | `None` | Claude Code 将此工具的文本结果保持内联在对话中而不是保存到文件的字符数，最多 500,000。包含图像的结果不受影响。Claude Code 设置而不是 MCP 提示：SDK 在工具的 `_meta` 中以 `anthropic/maxResultSizeChars` 形式发送它。参见 [为特定工具提高限制](/docs/zh-CN/mcp#raise-the-limit-for-a-specific-tool) |
+| `openWorldHint` | `bool \| None` | `True` | 如果为 `True`，工具与外部实体交互（例如，网络搜索）。如果为 `False`，工具的域是封闭的（例如，内存工具） |
+| `maxResultSizeChars` | `int \| None` | `None` | Claude Code 将此工具的文本结果保持内联在对话中而不是保存到文件的字符数，最多 500,000。包含图像的结果不受影响。Claude Code 设置而不是 MCP 提示：SDK 在工具的 `_meta` 中以 `anthropic/maxResultSizeChars` 的形式发送它。请参阅 [提高特定工具的限制](/docs/zh-CN/mcp#raise-the-limit-for-a-specific-tool) |
 
 ```python theme={null}
 from claude_agent_sdk import tool, ToolAnnotations
@@ -226,7 +226,7 @@ def create_sdk_mcp_server(
 | `tools` | `list[SdkMcpTool[Any]] \| None` | `None` | 使用 `@tool` 装饰器创建的工具函数列表 |
 
 <h4 id="returns-3">
-  返回
+  返回值
 </h4>
 
 返回一个 `McpSdkServerConfig` 对象，可以传递给 `ClaudeAgentOptions.mcp_servers`。
@@ -266,7 +266,7 @@ options = ClaudeAgentOptions(
   `list_sessions()`
 </h3>
 
-列出带有元数据的过去会话。按项目目录过滤或列出所有项目中的会话。同步；立即返回。
+列出过去的会话及其元数据。按项目目录筛选或列出所有项目中的会话。同步；立即返回。
 
 ```python theme={null}
 def list_sessions(
@@ -283,10 +283,10 @@ def list_sessions(
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
-| `directory` | `str \| None` | `None` | 列出会话的目录。省略时，返回所有项目中的会话 |
-| `limit` | `int \| None` | `None` | 返回的最大会话数 |
+| `directory` | `str \| None` | `None` | 要列出会话的目录。省略时，返回所有项目中的会话 |
+| `limit` | `int \| None` | `None` | 要返回的最大会话数 |
 | `offset` | `int` | `0` | 从排序结果开始跳过的会话数。与 `limit` 一起用于分页 |
-| `include_worktrees` | `bool` | `True` | 当 `directory` 在 git 仓库内时，包括所有 worktrees 路径中的会话 |
+| `include_worktrees` | `bool` | `True` | 当 `directory` 在 git 存储库内时，包括所有 worktree 路径中的会话 |
 
 <h4 id="return-type-sdksessioninfo">
   返回类型：`SDKSessionInfo`
@@ -295,21 +295,21 @@ def list_sessions(
 | 属性 | 类型 | 描述 |
 | :- | :- | :- |
 | `session_id` | `str` | 唯一会话标识符 |
-| `summary` | `str` | 显示标题：自定义标题、自动生成的摘要或第一个提示 |
-| `last_modified` | `int` | 上次修改时间（自纪元以来的毫秒数） |
-| `file_size` | `int \| None` | 会话文件大小（字节）（远程存储后端为 `None`） |
-| `custom_title` | `str \| None` | 用户设置的会话标题 |
-| `first_prompt` | `str \| None` | 会话中的第一个有意义的用户提示 |
+| `summary` | `str` | 显示标题：自定义标题、最近的提示、自动生成的摘要或第一个提示 |
+| `last_modified` | `int` | 上次修改时间，以自纪元以来的毫秒为单位 |
+| `file_size` | `int \| None` | 会话文件大小（以字节为单位）（远程存储后端为 `None`） |
+| `custom_title` | `str \| None` | 会话标题：用户设置的标题，或未设置时的自动生成标题 |
+| `first_prompt` | `str \| None` | 会话中第一个有意义的用户提示 |
 | `git_branch` | `str \| None` | 会话结束时的 Git 分支 |
 | `cwd` | `str \| None` | 会话的工作目录 |
-| `tag` | `str \| None` | 用户设置的会话标签（见 [`tag_session()`](#tag_session)） |
-| `created_at` | `int \| None` | 会话创建时间（自纪元以来的毫秒数） |
+| `tag` | `str \| None` | 用户设置的会话标签（请参阅 [`tag_session()`](#tag_session)） |
+| `created_at` | `int \| None` | 会话创建时间，以自纪元以来的毫秒为单位 |
 
 <h4 id="example-3">
   示例
 </h4>
 
-打印项目的 10 个最近会话。结果按 `last_modified` 降序排序，所以第一项是最新的。省略 `directory` 以搜索所有项目。
+打印项目的 10 个最近会话。结果按 `last_modified` 降序排序，因此第一项是最新的。省略 `directory` 以搜索所有项目。
 
 ```python theme={null}
 from claude_agent_sdk import list_sessions
@@ -340,8 +340,8 @@ def get_session_messages(
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
 | `session_id` | `str` | 必需 | 要检索消息的会话 ID |
-| `directory` | `str \| None` | `None` | 要查看的项目目录。省略时，搜索所有项目 |
-| `limit` | `int \| None` | `None` | 返回的最大消息数 |
+| `directory` | `str \| None` | `None` | 要查找的项目目录。省略时，搜索所有项目 |
+| `limit` | `int \| None` | `None` | 要返回的最大消息数 |
 | `offset` | `int` | `0` | 从开始跳过的消息数 |
 
 <h4 id="return-type-sessionmessage">
@@ -355,7 +355,7 @@ def get_session_messages(
 | `session_id` | `str` | 会话标识符 |
 | `message` | `Any` | 原始消息内容 |
 | `parent_tool_use_id` | `str \| None` | 对于子代理消息，生成 `Agent` 工具使用块的 id。对于主会话消息和较旧的会话为 `None` |
-| `parent_agent_id` | `str \| None` | 对于来自[嵌套子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)的消息，父子代理的代理 id。对于主会话消息、顶级子代理消息和较旧的会话为 `None`。需要 Python Agent SDK 0.2.140 或更高版本 |
+| `parent_agent_id` | `str \| None` | 对于来自 [嵌套子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents) 的消息，父子代理的代理 id。对于主会话消息、顶级子代理消息和较旧的会话为 `None`。需要 Python Agent SDK 0.2.140 或更高版本 |
 
 <h4 id="example-4">
   示例
@@ -399,7 +399,7 @@ def get_session_info(
   示例
 </h4>
 
-查找单个会话的元数据，无需扫描项目目录。当你已经从之前的运行中获得会话 ID 时很有用。
+查找单个会话的元数据，无需扫描项目目录。当您已经从之前的运行中获得会话 ID 时很有用。
 
 ```python theme={null}
 from claude_agent_sdk import get_session_info
@@ -413,7 +413,7 @@ if info:
   `rename_session()`
 </h3>
 
-通过追加自定义标题条目来重命名会话。重复调用是安全的；最新的标题获胜。同步。
+通过附加自定义标题条目来重命名会话。重复调用是安全的；最新的标题获胜。同步。
 
 ```python theme={null}
 def rename_session(
@@ -439,7 +439,7 @@ def rename_session(
   示例
 </h4>
 
-重命名最近的会话，使其更容易找到。新标题在后续读取时出现在 [`SDKSessionInfo.custom_title`](#return-type-sdksessioninfo) 中。
+重命名最近的会话，以便稍后更容易找到。新标题在后续读取时出现在 [`SDKSessionInfo.custom_title`](#return-type-sdksessioninfo) 中。
 
 ```python theme={null}
 from claude_agent_sdk import list_sessions, rename_session
@@ -479,7 +479,7 @@ def tag_session(
   示例
 </h4>
 
-标记会话，然后在稍后的读取中按该标签过滤。传递 `None` 以清除现有标签。
+标记会话，然后在稍后的读取中按该标签筛选。传递 `None` 以清除现有标签。
 
 ```python theme={null}
 from claude_agent_sdk import list_sessions, tag_session
@@ -875,6 +875,7 @@ class ClaudeAgentOptions:
     include_partial_messages: bool = False
     include_hook_events: bool = False
     forward_subagent_text: bool = False
+    verbatim_prompts: bool = False
     fork_session: bool = False
     resume_session_at: str | None = None
     resume_drops_turn: str | None = None
@@ -928,6 +929,7 @@ class ClaudeAgentOptions:
 | `include_partial_messages` | `bool` | `False` | 包括部分消息流式事件。启用时，会产生 [`StreamEvent`](#streamevent) 消息 |
 | `include_hook_events` | `bool` | `False` | 在消息流中包括 hooks 生命周期事件作为 `HookEventMessage` 对象 |
 | `forward_subagent_text` | `bool` | `False` | 在消息流中转发子代理文本和思考块。没有此选项，Claude Code 会发出子代理 `tool_use` 和 `tool_result` 块，但不会发出文本或思考。需要 Python Agent SDK 0.2.140 或更高版本 |
+| `verbatim_prompts` | `bool` | `False` | 按照书写方式传递每个提示。SDK 使用 `client_composed` 设置为 `True` 发送每条用户消息。见 [`client_composed`](/docs/zh-CN/agent-sdk/typescript#sdkusermessage) 了解 Claude Code 在这些消息上跳过的内容。当你的提示文本包含最终用户未输入的内容时使用此选项。对于每轮控制，将其关闭并改为在单个流式消息上设置 `"client_composed": True`。启用此选项时，SDK 会覆盖你设置的任何 `client_composed` 值。需要 Python Agent SDK 0.2.158 或更高版本以及 Claude Code v2.1.248 或更高版本；这些 SDK 版本附带的 CLI 满足 Claude Code 要求 |
 | `fork_session` | `bool` | `False` | 使用 `resume` 恢复时，分叉到新会话 ID 而不是继续原始会话 |
 | `resume_session_at` | `str \| None` | `None` | 恢复时，仅加载对话直到并包括具有此 UUID 的消息。与 `resume` 一起使用，通常还要使用 `fork_session`，以从较早的点分支。需要 Python Agent SDK 0.2.137 或更高版本 |
 | `resume_drops_turn` | `str \| None` | `None` | 其轮次被 `resume_session_at` 截断丢弃的用户提示的 UUID。设置时，如果丢弃的范围包含不可归因于该轮次的条目，CLI 会拒绝恢复。需要 Python Agent SDK 0.2.137 或更高版本以及 Claude Code v2.1.223 或更高版本；这些 SDK 版本附带的 CLI 满足 Claude Code 要求 |
@@ -1010,7 +1012,7 @@ class SystemPromptPreset(TypedDict):
 | `type` | 是 | 必须是 `"preset"` 以使用预设系统提示 |
 | `preset` | 是 | 必须是 `"claude_code"` 以使用 Claude Code 的系统提示 |
 | `append` | 否 | 要追加到预设系统提示的其他说明 |
-| `exclude_dynamic_sections` | 否 | 将每个会话的上下文（如工作目录、git 状态和自动内存路径）从系统提示移到第一条用户消息。改进跨用户和机器的提示缓存重用。见 [修改系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines) |
+| `exclude_dynamic_sections` | 否 | 将每个会话的上下文（如自动内存位置）从系统提示移到第一条用户消息。改进跨用户和机器的提示缓存重用。见 [修改系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines) |
 | `snapshot` | 否 | 设置为 `False` 以在每个请求上重建系统提示，而不是[重用会话在其第一个请求上记录的提示](/docs/zh-CN/agent-sdk/modifying-system-prompts#change-the-prompt-of-an-existing-session)。需要 `claude-agent-sdk` v0.2.153 或更高版本 |
 
 <h3 id="systempromptcustom">
@@ -1221,7 +1223,7 @@ PermissionMode = Literal[
     "plan",  # Planning mode - explore without editing
     "dontAsk",  # Deny anything not pre-approved instead of prompting
     "bypassPermissions",  # Bypass permission checks; explicit ask rules still prompt (use with caution)
-    "auto",  # Model classifier approves or denies permission prompts
+    "auto",  # A model classifier reviews actions such as shell commands and network requests
 ]
 ```
 
@@ -3791,7 +3793,7 @@ asyncio.run(main())
 <Warning>
   使用 `dangerouslyDisableSandbox: True` 运行的命令具有完整的系统访问权限。确保你的 `can_use_tool` 处理程序仔细验证这些请求。
 
-  如果 `permission_mode` 设置为 `bypassPermissions` 且 `allow_unsandboxed_commands` 启用，模型可以自主执行沙箱外的命令，无需批准提示，除了 [操作无模式自动批准](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) 之外。此组合实际上允许模型无声地逃离沙箱隔离。
+  如果 `permission_mode` 设置为 `bypassPermissions` 且 `allowUnsandboxedCommands` 启用，模型可以自主执行沙箱外的命令，无需批准提示，除了 [操作无模式自动批准](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) 之外。此组合实际上允许模型无声地逃离沙箱隔离。
 </Warning>
 
 <h2 id="see-also">

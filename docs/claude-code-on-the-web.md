@@ -61,6 +61,8 @@
 
 [项目](/docs/zh-CN/claude-projects)中的线程需要在每个克隆的存储库上安装 Claude GitHub App，无论你使用哪种连接方法。请参阅[设置 GitHub 访问权限](/docs/zh-CN/claude-projects#set-up-github-access)。
 
+在 Anthropic 托管的环境中，你的 GitHub 凭证在 Anthropic 的服务器上保持加密状态，永远不会进入会话的虚拟机。来自虚拟机的 GitHub 操作通过 [GitHub 代理](/docs/zh-CN/cloud-environments#github-proxy)进行，它在服务器端附加凭证。
+
 有关 `/schedule` 如何在创建 routine 之前检查存储库访问权限，请参阅[存储库和分支权限](/docs/zh-CN/routines#repositories-and-branch-permissions)。有关 `/web-setup` 演练（包括 `/web-setup` 存储的内容以及如何删除它），请参阅[从终端连接](/docs/zh-CN/web-quickstart#connect-from-your-terminal)。
 
 快速网络设置是一个组织设置，允许成员使用 `/web-setup` 连接 GitHub，在浏览器入门期间跳过 Claude GitHub App 安装提示，并让浏览器入门为他们创建[**默认**环境](/docs/zh-CN/cloud-environments#the-default-environment)，而不是显示环境表单。在 Team 和 Enterprise 计划上，默认情况下它是关闭的，这会隐藏 `/web-setup`。[所有者](/docs/zh-CN/server-managed-settings#access-control)可以在 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code) 处使用**快速网络设置**切换来打开它。
@@ -135,7 +137,7 @@ claude --cloud "Refactor the logger to use structured output"
 
 当您从没有 git 远程的存储库运行 `claude --cloud` 时，或从 Claude GitHub App 未安装的 github.com 存储库运行时，Claude Code 会捆绑您的本地存储库并直接上传到云会话。即使您使用 `/web-setup` 连接了 GitHub，这也适用。该捆绑包包括您在所有分支上的完整存储库历史记录，加上对跟踪文件的未提交更改。
 
-在 macOS、Linux 和 WSL 上，Claude Code 将未提交的更改排除在上传之外，这些更改涉及名称类似于凭据或密钥的文件，并命名它排除的文件。这涵盖 `.env` 文件、Terraform `*.tfvars` 文件和密钥文件，例如 `id_rsa` 和 `*.pem`。会话以每个文件的已提交版本启动，或如果未提交任何内容，则不包含该文件。在链接的 worktree、子模块或类似布局中，Claude Code 会与其余部分一起上传这些更改并命名它上传的文件。
+在 macOS、Linux 和 WSL 上，Claude Code 将未提交的更改排除在上传之外，这些更改涉及名称类似于凭据或密钥的文件，并命名它排除的文件。这涵盖 `.env` 文件、Terraform `*.tfvars` 文件和密钥文件，例如 `id_rsa` 和 `*.pem`。会话以每个文件的已提交版本启动，或如果未提交任何内容，则不包含该文件。
 
 要在 Claude Code 会克隆远程时上传捆绑包，请设置 `CCR_FORCE_BUNDLE=1`：
 
@@ -429,6 +431,7 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 在依赖云会话进行工作流之前，请考虑这些约束：
 
 * **速率限制**：云会话与你账户内所有其他 Claude 和 Claude Code 使用共享速率限制。并行运行多个任务会按比例消耗更多速率限制。云 VM 没有单独的计算费用。
+* **时间限制**：Claude 运行的命令和 SessionStart hooks 有你可以更改的默认超时，设置脚本仅在大约五分钟内完成时才被缓存。请参阅[时间限制](/docs/zh-CN/cloud-environments#time-limits)
 * **存储库身份验证**：你只能在认证到相同账户时将云会话拉入你的终端
 * **平台限制**：存储库克隆和拉取请求创建需要 GitHub。自托管[GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 实例支持 Team 和 Enterprise 计划。你可以通过设置 `CCR_FORCE_BUNDLE=1` 将 GitLab、Bitbucket 或其他非 GitHub 存储库作为[本地捆绑](#send-local-repositories-without-github)发送到云会话，但会话无法将结果推送回该远程
 * **组织 IP 允许列表**：云会话从 Anthropic 管理的基础设施而不是你的网络调用 Anthropic API，而[自托管环境](/docs/zh-CN/self-hosted-environments)中的会话从你自己的网络调用它。如果你的组织启用了 [IP 允许列表](https://support.claude.com/en/articles/13200993-restrict-access-to-claude-with-ip-allowlisting)，每个 Anthropic 托管的云会话都会失败，显示身份验证错误。这同样适用于[代码审查](/docs/zh-CN/code-review)和在 Anthropic 托管的环境中运行的[routines](/docs/zh-CN/routines)；路由到自托管环境的 routine 从你自己的网络调用 API。联系 [Anthropic 支持](https://support.claude.com/)以从你的组织的 IP 允许列表中豁免 Anthropic 托管的服务。

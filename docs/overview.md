@@ -22,7 +22,7 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
   <Tab title="Terminal">
     功能完整的 CLI，用于直接在终端中使用 Claude Code。编辑文件、运行命令，并从命令行管理整个项目。
 
-    要安装 Claude Code，请使用以下方法之一：
+    要安装 Claude Code，请打开终端并运行适用于您的系统的命令。如果您之前没有使用过终端，[终端指南](/docs/zh-CN/terminal-guide)会展示如何打开终端并粘贴命令。
 
     <Tabs>
       <Tab title="原生安装（推荐）">
@@ -43,6 +43,8 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
         ```batch theme={null}
         curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
         ```
+
+        安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
 
         如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。当您在 PowerShell 中时，您的提示符显示 `PS C:\`，当您在 CMD 中时显示 `C:\`（没有 `PS`）。
 

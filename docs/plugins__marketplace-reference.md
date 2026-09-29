@@ -47,11 +47,13 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 * **官方 marketplace 名称**：`claude-code-marketplace`、`claude-code-plugins`、`claude-plugins-official`、`anthropic-marketplace`、`anthropic-plugins`、`agent-skills`、`anthropic-agent-skills`、`life-sciences`、`knowledge-work-plugins`、`claude-for-legal`、`claude-for-financial-services`、`financial-services-plugins`、`first-party-plugins` 和 `claude-tag-plugins`。除非 marketplace 来自 `github.com/anthropics/` 下的 `github` 或 `git` [marketplace 源](#marketplace-sources)，否则保留。
 * **社区 marketplace 名称**：`claude-community`、`claude-plugins-community` 和 `healthcare`。保留规则与官方名称相同。
 * **插件目录名称**：`anthropic-plugin-directory` 和 `claude-plugin-directory`。保留规则与官方名称相同。
-* **冒充官方 marketplace 的名称**：名称如 `official-claude-plugins` 或 `claude-plugins-v2`，以及任何包含非 ASCII 字符的名称。错误是 `Marketplace name impersonates an official Anthropic/Claude marketplace`。名称中的控制或双向格式化字符也会报告 `Marketplace name cannot contain control or bidirectional-formatting characters`。
+* **冒充官方 marketplace 的名称**：名称如 `official-claude-plugins` 或 `claude-plugins-v2`，以及任何包含非 ASCII 字符的名称。错误是 `Marketplace name impersonates an official Anthropic/Claude marketplace`。名称中的控制或双向格式化字符也会报告 `Marketplace name cannot contain control or bidirectional-formatting characters`。已在这样的名称下注册的 marketplace 停止加载，连同其插件。
 * <span id="reserved-name-spellings" />**保留名称的另一种拼写**：与保留名称仅在尾部点或用除下划线以外的符号代替连字符的名称，因此 `claude.code.plugins` 计为 `claude-code-plugins`。`claude plugin validate` 接受这样的名称；添加 marketplace 失败，错误为 [`is another spelling of "<reserved>", a reserved marketplace name`](/docs/zh-CN/errors#marketplace-name-is-another-spelling-of-a-reserved-name)，已在一个下注册的 marketplace 停止加载。此检查需要 Claude Code v2.1.280 或更高版本。
 * **Claude Code 用于不来自 marketplace 的插件的名称**：`inline` 用于使用 [`--plugin-dir`](/docs/zh-CN/cli-reference) 加载的插件，`builtin` 用于内置插件，`skills-dir` 用于从 [`.claude/skills/`](/docs/zh-CN/skills) 自动加载的插件，`synced` 用于从你的 claude.ai 账户同步的插件。`claude-plugin-test` 也被保留。`skills-dir` 也显示为 `{"source": "skills-dir"}`，在 `strictKnownMarketplaces` 和 `blockedMarketplaces` 中，如 [仅在策略列表中有效的源值](#source-values-valid-only-in-policy-lists) 下所述。
 * **`npm`、`pip`、`uv`、`cargo`、`github` 和 `gh`**：以任何大小写保留。此检查需要 Claude Code v2.1.275 或更高版本。
 * **以 `claudeai-` 开头的名称**：为托管在 claude.ai 上的 marketplace 保留。`claude plugin marketplace add` 拒绝任何其他使用一个的 marketplace，错误为 `Cannot add marketplace "<name>": names starting with "claudeai-" are reserved for marketplaces hosted on claude.ai`。
+
+当已注册的 marketplace 因其名称模仿官方名称而停止加载时，`claude plugin list` 和 `/plugin` 报告 `Claude Code refuses the marketplace name "<name>"`。该消息告诉你删除该 marketplace。删除它也会卸载其插件并删除其保存的数据。此命名拒绝消息需要 Claude Code v2.1.282 或更高版本。
 
 <h2 id="top-level-fields">
   顶级字段

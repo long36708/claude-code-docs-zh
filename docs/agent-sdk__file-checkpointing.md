@@ -247,7 +247,7 @@ File checkpointing跟踪在agent会话期间通过Write、Edit和NotebookEdit工
       ```
     </CodeGroup>
 
-    如果您捕获了会话ID和checkpoint ID，您也可以从CLI回滚。此命令需要`claude`可执行文件，该文件来自[安装Claude Code](/docs/zh-CN/setup)，不由SDK包安装。SDK为您启用checkpointing，但当您直接运行`claude -p`时，您必须设置`CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING`环境变量：
+    如果您捕获了会话ID和checkpoint ID，您也可以从CLI回滚。此命令需要`claude`可执行文件，该文件来自[安装Claude Code](/docs/zh-CN/setup)。SDK为您启用checkpointing，但当您直接运行`claude -p`时，您必须设置`CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING`环境变量：
 
     ```bash theme={null}
     CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true claude -p --resume <session-id> --rewind-files <checkpoint-uuid>

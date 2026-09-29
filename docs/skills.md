@@ -76,7 +76,7 @@ Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命�
   </Step>
 
   <Step title="编写 SKILL.md">
-    每个 skill 都需要一个 `SKILL.md` 文件，包含两部分：`---` 标记之间的 YAML frontmatter，告诉 Claude 何时使用该 skill，以及包含 Claude 在 skill 运行时遵循的说明的 markdown 内容。目录名称成为你输入的命令，`description` 帮助 Claude 决定何时自动加载该 skill。
+    每个 skill 都需要一个 `SKILL.md` 文件，包含两部分：`---` 标记之间的 YAML frontmatter，告诉 Claude 何时使用该 skill，以及包含 Claude 在 skill 运行时遵循的说明的 markdown 内容。目录名称或你设置的 frontmatter `name` 会成为你输入的命令，`description` 帮助 Claude 决定何时自动加载该 skill。
 
     将其保存到 `~/.claude/skills/summarize-changes/SKILL.md`：
 
@@ -120,38 +120,39 @@ Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命�
   选择 skills 的加载位置
 </h2>
 
-保存 skill 的位置决定了哪些会话会加载它。将其保存在主目录下可以在每个项目中使用，将其提交到存储库可以与在那里工作的所有人共享，或通过 plugin 或托管设置分发以覆盖整个团队。
+skills 的保存位置决定了哪些会话会加载它。将其保存在主目录下可在每个项目中使用，将其提交到存储库可与该处的所有人共享，或通过插件或托管设置分发以覆盖整个团队。
 
 | 位置 | 路径 | 加载位置 |
 | :- | :- | :- |
-| Enterprise | `.claude/skills/<skill-name>/SKILL.md` 在 [托管设置目录](/docs/zh-CN/managed-settings#delivery-mechanisms) 中 | 您的组织部署它的所有机器上的所有用户 |
+| Enterprise | `.claude/skills/<skill-name>/SKILL.md` 在 [托管设置目录](/docs/zh-CN/managed-settings#delivery-mechanisms) | 您的组织部署它的所有机器上的所有用户 |
 | Personal | `~/.claude/skills/<skill-name>/SKILL.md` | 此机器上的所有项目，但不包括 [Cowork 或云会话](#skills-in-cowork-and-cloud-sessions) |
 | Project | `.claude/skills/<skill-name>/SKILL.md` | 此存储库中的会话。提交它以便您的团队也能获得它 |
-| Nested | `<subdir>/.claude/skills/<skill-name>/SKILL.md` | 在 `<subdir>` 中或其下方启动的会话。在其上方启动的会话在 Claude 处理那里的文件时加载该 skill。请参阅 [monorepos 和子目录](#discovery-from-parent-and-nested-directories) |
-| Additional directory | `.claude/skills/<skill-name>/SKILL.md` 在您使用 `--add-dir` 传递的目录中 | 该会话。请参阅 [项目外的目录](#skills-from-additional-directories) |
-| Plugin | `<plugin>/skills/<skill-name>/SKILL.md` | 启用 [plugin](/docs/zh-CN/plugins/overview) 的任何地方，作为 `/plugin-name:skill-name` |
-| claude.ai account | 为您的 claude.ai 账户启用的 Skills | Cowork 会话、云会话和您使用该账户登录的终端会话。请参阅 [从 claude.ai 同步的 Skills](#how-synced-skills-behave) |
+| Nested | `<subdir>/.claude/skills/<skill-name>/SKILL.md` | 在 `<subdir>` 中或其下方启动的会话。在其上方启动的会话在 Claude 处理该处的文件时加载该 skill。请参阅 [monorepos 和子目录](#discovery-from-parent-and-nested-directories) |
+| Additional directory | `.claude/skills/<skill-name>/SKILL.md` 在使用 `--add-dir` 传递的目录中 | 该会话。请参阅 [项目外的目录](#skills-from-additional-directories) |
+| Plugin | `<plugin>/skills/<skill-name>/SKILL.md` | 在 [插件](/docs/zh-CN/plugins/overview) 启用的任何位置，作为 `/plugin-name:skill-name` |
+| claude.ai account | 为您的 claude.ai 账户启用的 skills | Cowork 会话、云会话和使用该账户登录的终端会话。请参阅 [从 claude.ai 同步的 Skills](#how-synced-skills-behave) |
 
 Skill 文件夹还遵循以下规则：
 
-* **符号链接文件夹**：enterprise、personal 或 project 位置中的 `<skill-name>` 条目可以是指向磁盘上其他位置的目录的符号链接。Claude Code 从目标读取 `SKILL.md` 并加载 skill，即使多个位置指向同一目标也只加载一次。Plugin skills [以不同方式处理符号链接](/docs/zh-CN/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks)。
-* **保留名称**：不要将 skill 文件夹命名为 `synced`，无论大小写如何。Claude Code 使用 `~/.claude/skills/synced/` 来存放 [从 claude.ai 下载的 skills](#where-synced-skills-load)，并跳过您在 enterprise、personal 和 project 位置中以该名称创建的 skill。
-* **命令文件**：`.claude/commands/` 中的 Markdown 文件是较旧的格式，仍然有效。它支持相同的 [frontmatter](#frontmatter-reference)，除了 `name` 和 `paths`。要找到您输入以调用它的名称，请参阅 [Skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)。对于新工作，更倾向于使用 skill，因为 skills 还支持 [支持文件](#add-supporting-files)。
-* **Skill 文件夹作为 plugin**：将 `.claude-plugin/plugin.json` 添加到 skill 文件夹，它将作为 [plugin](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository) 加载，名称为 `<name>@skills-dir`，因此它可以捆绑 agents、hooks 和 MCP 服务器。在项目的 `.claude/skills/` 中，这需要首先接受工作区信任对话框。
+* **符号链接文件夹**：enterprise、personal 或 project 位置中的 `<skill-name>` 条目可以是指向磁盘上其他位置的目录的符号链接。Claude Code 从目标读取 `SKILL.md` 并加载 skill，即使多个位置指向同一目标也只加载一次。插件 skills [以不同方式处理符号链接](/docs/zh-CN/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks)。
+* **保留名称 `synced`**：不要将 skill 文件夹命名为 `synced`，无论大小写如何。Claude Code 使用 `~/.claude/skills/synced/` 来存放 [从 claude.ai 下载的 skills](#where-synced-skills-load)，并跳过您在 enterprise、personal 和 project 位置中以该名称创作的 skill。
+* **保留名称 `anthropic-skills`**：在插件外，名称为 `anthropic-skills` 或以 `anthropic-skills:` 开头的 skill 文件夹或命令文件不会加载。请参阅 [为同步 skills 保留的名称](#names-reserved-for-synced-skills)。
+* **命令文件**：`.claude/commands/` 中的 Markdown 文件是较旧的格式，仍然有效。它支持相同的 [frontmatter](#frontmatter-reference)，除了 `name` 和 `paths`。要找到您输入以调用它的名称，请参阅 [skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)。对于新工作，更倾向于使用 skill，因为 skills 还支持 [支持文件](#add-supporting-files)。
+* **Skill 文件夹作为插件**：将 `.claude-plugin/plugin.json` 添加到 skill 文件夹，它将作为 [插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository) 加载，名称为 `<name>@skills-dir`，因此它可以捆绑代理、hooks 和 MCP 服务器。在项目的 `.claude/skills/` 中，这需要首先接受工作区信任对话框。
 
 <h3 id="discovery-from-parent-and-nested-directories">
   在 monorepos 和子目录中加载 skills
 </h3>
 
-Claude Code 从启动它的目录中的 `.claude/skills/` 以及直到存储库根目录的每个父目录中加载项目 skills，因此在 `packages/frontend/` 中启动仍然会获取在根目录中定义的 skills。当您在 v2.1.246 或更高版本上 [使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory) 时，Claude Code 会添加新目录的项目 skills。
+Claude Code 从启动它的目录和每个父目录（直到存储库根目录）中的 `.claude/skills/` 加载项目 skills，因此在 `packages/frontend/` 中启动仍会获取在根目录定义的 skills。当您在 v2.1.246 或更高版本上 [使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory) 时，Claude Code 会添加新目录的项目 skills。
 
-在链接的 [git worktree](/docs/zh-CN/worktrees) 中运行的会话中，Claude Code 仅在 worktree 根目录之前搜索父目录。在 Claude Code v2.1.277 或更高版本上，当 worktree 检出在其根目录处没有 `.claude/skills` 目录时，Claude Code 会改为加载主检出的项目 skills。请参阅 [Worktrees 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
+在链接的 [git worktree](/docs/zh-CN/worktrees) 中运行的会话中，Claude Code 仅在 worktree 根目录之前搜索父目录。在 Claude Code v2.1.277 或更高版本上，当 worktree 检出在其根目录没有 `.claude/skills` 目录时，Claude Code 会改为加载主检出的项目 skills。请参阅 [worktrees 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
 
-`.claude/skills/` 目录中启动位置下方的 Skills 在启动时不会加载。它们在 Claude 首次读取或编辑该子目录中的文件时加载，并在会话的其余时间保持可用。在此之前，它们不会出现在 `/` 菜单中，您也无法按名称调用它们。要更早加载它们，请使用子目录的路径运行 `/add-dir`，这需要 Claude Code v2.1.257 或更高版本。
+`.claude/skills/` 目录中启动位置下方的 skills 在启动时不会加载。它们在 Claude 首次读取或编辑该子目录中的文件时加载，并在会话的其余时间保持可用。在此之前，它们不会出现在 `/` 菜单中，您也无法按名称调用它们。要更早加载它们，请使用子目录的路径运行 `/add-dir`，这需要 Claude Code v2.1.257 或更高版本。
 
-当嵌套 skill 与另一个 skill 共享名称时，两者都保持可用。在存储库根目录和 `apps/web/.claude/skills/` 中都有一个 `deploy` skill 的情况下：
+当嵌套 skill 的目录名称与另一个 skill 的名称匹配时，两者都保持可用。在存储库根目录有一个 `deploy` skill，在 `apps/web/.claude/skills/` 中有另一个：
 
-* `/deploy` 运行根 skill。Claude Code 还为 Claude 列出目录限定的变体，并提供说明以调用其目录包含它正在处理的文件的那个，因此嵌套 skill 仍然适用于 `apps/web/` 中的工作。
+* `/deploy` 运行根 skill。Claude Code 还为 Claude 列出目录限定的变体，并指示调用其目录包含它正在处理的文件的那个，因此嵌套 skill 仍然适用于 `apps/web/` 中的工作。
 * `/apps/web:deploy` 单独运行嵌套 skill。其描述命名了它适用的目录。
 
 <h3 id="skills-from-additional-directories">
@@ -160,35 +161,35 @@ Claude Code 从启动它的目录中的 `.claude/skills/` 以及直到存储库�
 
 当您使用 `--add-dir` 或 `/add-dir` 添加目录时，Claude Code 会加载该目录的 `.claude/skills/` 中的 skills，以及其 `.claude/commands/` 和 `.claude/agents/`。Agent SDK 通过 TypeScript 中的 [`additionalDirectories`](/docs/zh-CN/agent-sdk/typescript#options) 或 Python 中的 [`add_dirs`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 添加的目录以相同方式加载，因为 SDK 将它们作为 `--add-dir` 传递。`settings.json` 中的 `permissions.additionalDirectories` 设置仅授予文件访问权限，不加载这些中的任何一个。
 
-Claude Code 监视您在启动时使用 `--add-dir` 传递的目录中的 `.claude/skills/`，如 [在会话期间编辑 skill](#live-change-detection) 所述。它不监视添加目录的 `.claude/commands/` 或 `.claude/agents/`，因此在更改那里的文件后重新启动会话。
+Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/skills/`，如 [在会话期间编辑 skill](#live-change-detection) 所述。它不监视添加目录的 `.claude/commands/` 或 `.claude/agents/`，因此在更改该处的文件后重新启动会话。
 
-这些加载取决于 `project` [设置源](/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources)，默认情况下处于启用状态。[`strictPluginOnlyCustomization`](/docs/zh-CN/settings-reference#strictpluginonlycustomization) 策略、[bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 和 [`--safe-mode`](/docs/zh-CN/cli-reference#cli-flags) 各自进一步限制它们，如这些页面所述。请参阅 [额外目录授予文件访问权限，而不是配置](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration) 以获取添加目录加载的完整表格，包括 `CLAUDE.md` 和 plugin 设置。
+这些加载取决于 `project` [设置源](/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources)，默认情况下处于启用状态。[`strictPluginOnlyCustomization`](/docs/zh-CN/settings-reference#strictpluginonlycustomization) 策略、[bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 和 [`--safe-mode`](/docs/zh-CN/cli-reference#cli-flags) 各自进一步限制它们，如这些页面所述。请参阅 [其他目录授予文件访问权限，而不是配置](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration) 以获取添加目录加载的完整表格，包括 `CLAUDE.md` 和插件设置。
 
 <h3 id="resolve-skills-that-share-a-name">
   解决共享名称的 skills
 </h3>
 
-当两个 skills 共享名称时，每个来自的位置决定了 `/name` 运行哪一个。该表涵盖 enterprise、personal、project、nested、plugin 和 claude.ai 位置、捆绑的 skills 和命令文件：
+当两个 skills 共享目录或文件名称时，每个来自的位置决定了 `/name` 运行哪一个。对于由 frontmatter `name` 字段设置的名称，请参阅 [skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)。该表涵盖 enterprise、personal、project、nested、plugin 和 claude.ai 位置、捆绑 skills 和命令文件：
 
 | 相同名称在 | 运行哪一个 |
 | :- | :- |
-| Enterprise、personal 和 project 中的两个 | Enterprise 优于 personal，personal 优于 project。在 `~/.claude/skills/` 和项目的 `.claude/skills/` 中都有 `deploy` 时，`/deploy` 运行 personal 的 |
-| 这些位置中的任何一个和 [捆绑 skill](#bundled-skills) | 您的 skill 替换捆绑的命令，但不替换其别名。项目 `code-review` skill 替换 `/code-review`，捆绑的别名 `/review` 永远不会运行您的 skill |
+| Enterprise、personal 和 project 中的两个 | Enterprise 优先于 personal，personal 优先于 project。在 `~/.claude/skills/` 和项目的 `.claude/skills/` 中都有 `deploy` 时，`/deploy` 运行 personal 的 |
+| 这些位置中的任何一个和 [捆绑 skill](#bundled-skills) | 您的 skill 替换捆绑命令，但不替换其别名。项目 `code-review` skill 替换 `/code-review`，捆绑别名 `/review` 永远不会运行您的 skill |
 | Skill 和 `.claude/commands/` 中的文件 | Skill |
 | 项目根 skill 和嵌套 skill | 两者都加载。请参阅 [monorepos 和子目录](#discovery-from-parent-and-nested-directories) |
-| Plugin skill 和上述位置中的 skill | 两者都加载，因为 plugin skills 被命名为 `/plugin-name:skill-name` |
-| 上述任何一个和 [从您的 claude.ai 账户同步的 skill](#how-synced-skills-behave) | 另一个 skill 或命令。同步的 skill 仍然作为 `/anthropic-skills:<name>` 运行。请参阅 [当同步的 skill 名称与另一个命令匹配时](#when-a-synced-skill-name-matches-another-command) |
+| 插件 skill 和上述任何位置的 skill | 两者都加载，因为插件 skills 被命名为 `/plugin-name:skill-name` |
+| 上述任何一个和 [从您的 claude.ai 账户同步的 skill](#how-synced-skills-behave) 的短名称 | 其他 skill 或命令。同步 skill 随后被列出并仅在其完整名称下运行。请参阅 [当同步 skill 名称与另一个命令匹配时](#when-a-synced-skill-name-matches-another-command) |
 
 <h3 id="skills-in-cowork-and-cloud-sessions">
   在 Cowork 和云会话中使用 skills
 </h3>
 
-[Cowork](https://claude.com/product/cowork) 会话和 [云会话](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)，包括 [routines](/docs/zh-CN/routines)，不会读取您机器上的 `~/.claude/skills/`。交互式和计划的 Cowork 会话都加载为您的 claude.ai 账户启用的 skills，在会话启动时同步；从 Desktop 应用侧边栏中的 **Customize** 或从 claude.ai 上的 skills 设置管理它们。云会话还加载提交到克隆存储库的 `.claude/skills/` 的项目 skills。
+[Cowork](https://claude.com/product/cowork) 会话和 [云会话](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)（包括 [routines](/docs/zh-CN/routines)）不会读取您机器上的 `~/.claude/skills/`。交互式和计划的 Cowork 会话都加载为您的 claude.ai 账户启用的 skills，在会话启动时同步；从 Desktop 应用侧边栏中的 **Customize** 或从 claude.ai 上的 skills 设置管理它们。云会话另外加载提交到克隆存储库的 `.claude/skills/` 的项目 skills。
 
 如果 skill 仅存在于您机器上的 `~/.claude/skills/` 中，当 [routine](/docs/zh-CN/routines) 调用它时，Claude Code 会报告找不到该 skill，因为每个 routine 运行都作为新的云会话启动。要在这些会话中使用个人 skill：
 
 * 对于 Cowork 和云会话，为您的 claude.ai 账户启用该 skill。
-* 对于云会话，您可以改为将 skill 提交到存储库的 `.claude/skills/`。在存储库的 `.claude/settings.json` 中声明的 plugins 和仅在您的用户设置中启用的 plugins [不会在云会话中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
+* 对于云会话，您可以改为将 skill 提交到存储库的 `.claude/skills/`。在存储库的 `.claude/settings.json` 中声明的插件和仅在您的用户设置中启用的插件 [不会在云会话中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
 
 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks) 在您的机器上本地运行，因此它们确实加载 `~/.claude/skills/`。
 
@@ -196,59 +197,73 @@ Claude Code 监视您在启动时使用 `--add-dir` 传递的目录中的 `.clau
   从 claude.ai 同步的 Skills
 </h3>
 
-如果您使用 Cowork 或云会话，或在终端中使用 claude.ai 账户登录 Claude Code，本部分适用于您。在这些会话中，Claude Code 加载为您的 claude.ai 账户启用的 skills，无需您进行任何设置，如 [同步的 skills 加载位置](#where-synced-skills-load) 所述。这些 skills 包括您在 claude.ai 设置中创建或打开的 skills、您的组织在那里提供的 skills 以及 Anthropic 的内置 skills，如 `pdf` 和 `xlsx`。
+如果您使用 Cowork 或云会话，或使用 claude.ai 账户在终端中登录 Claude Code，本部分适用于您。在这些会话中，Claude Code 加载为您的 claude.ai 账户启用的 skills，无需您进行任何设置，如 [同步 skills 加载的位置](#where-synced-skills-load) 所述。这些 skills 包括您在 claude.ai 设置中创建或打开的 skills、您的组织在那里提供的 skills 以及 Anthropic 的内置 skills，例如 `pdf` 和 `xlsx`。
 
-Claude Code 从您的账户下载同步的 skill，而不是读取您在会话运行的机器上编写的文件，因此它对同步的 skills 应用不适用于您存储在 [skills 位置](#where-skills-live) 中的 skills 的规则。
+Claude Code 从您的账户下载同步 skill，而不是读取您在会话运行的机器上编写的文件，因此它对同步 skills 应用不适用于您存储在 [skills 位置](#where-skills-live) 中的 skills 的规则。
 
 <h4 id="where-synced-skills-load">
-  同步的 skills 加载位置
+  同步 skills 加载的位置
 </h4>
 
 在 Cowork 或云会话中，Claude Code 加载为您的 claude.ai 账户启用的 skills，[Cowork 和云会话中的 Skills](#skills-in-cowork-and-cloud-sessions) 说明了如何选择这些会话获得哪些 skills。
 
-在您的终端中，Claude Code 在您使用 claude.ai 账户登录的会话中同步这些 skills。当会话启动时，Claude Code 在后台将您账户的 skills 下载到 `~/.claude/skills/synced/` 中，然后在会话运行时大约每 10 分钟检查一次 claude.ai 的更改。当检查发现 skill 在 claude.ai 上被添加、编辑或关闭时，Claude Code 在运行的会话中添加、更新或删除它，无需重新启动。终端会话中的同步需要 Claude Code v2.1.273 或更高版本。
+在您的终端中，Claude Code 在您使用 claude.ai 账户登录的会话中同步这些 skills。会话启动时，Claude Code 在后台将您账户的 skills 下载到 `~/.claude/skills/synced/` 中，然后在会话运行时大约每 10 分钟检查一次 claude.ai 是否有更改。当检查发现 skill 在 claude.ai 上被添加、编辑或关闭时，Claude Code 在运行的会话中添加、更新或删除它，无需重新启动。终端会话中的同步需要 Claude Code v2.1.273 或更高版本。
 
-同步永远不会延迟启动，因为 Claude 仅在调用 skill 时等待其下载。因此，短的 [非交互式](/docs/zh-CN/headless) 运行可以在新添加的 skill 下载之前完成，在这种情况下，稍后的会话会下载它。要使非交互式运行下载您的 skills 并在回答提示之前等待列表，请将 [`CLAUDE_CODE_SYNC_SKILLS`](/docs/zh-CN/env-vars#variables) 设置为 `1`。
+同步永远不会延迟启动，因为 Claude 仅在调用 skill 时等待其下载。因此，短 [非交互式](/docs/zh-CN/headless) 运行可能在新添加的 skill 下载之前完成，在这种情况下，稍后的会话会下载它。要使非交互式运行下载您的 skills 并在回答提示之前等待列表，请将 [`CLAUDE_CODE_SYNC_SKILLS`](/docs/zh-CN/env-vars#variables) 设置为 `1`。
 
-Claude Code 仅在使用您的 claude.ai 账户登录并 [从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话中同步。它不在这些会话中同步：
+Claude Code 仅在使用您的 claude.ai 账户登录的会话中同步，并 [从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)。它不在这些会话中同步：
 
-* 不使用 `/login` 存储的登录的会话，例如使用 API 密钥进行身份验证的会话，或 `ANTHROPIC_AUTH_TOKEN`、`CLAUDE_CODE_OAUTH_TOKEN` 或 `apiKeyHelper` 脚本提供凭证的会话
+* 不使用由 `/login` 存储的登录的会话，例如使用 API 密钥进行身份验证的会话，或 `ANTHROPIC_AUTH_TOKEN`、`CLAUDE_CODE_OAUTH_TOKEN` 或 `apiKeyHelper` 脚本提供凭证的会话
 * 不获取功能标志的会话，例如 Amazon Bedrock 上的会话或您设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 的会话
 * [bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 中的会话或您使用 `--safe-mode` 启动的会话
-* 您的组织的托管设置 [将 skills 锁定到 plugin 源](/docs/zh-CN/settings-reference#strictpluginonlycustomization-skills) 的会话，或您使用 [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags) 列表启动的会话，该列表省略了 `user`
+* 您的组织的托管设置 [将 skills 锁定到插件源](/docs/zh-CN/settings-reference#strictpluginonlycustomization-skills) 的会话，或您使用 [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags) 列表启动的会话，该列表省略了 `user`
 
-如果您在会话期间使用 `/login` 登录，重新启动 Claude Code 以开始同步。
+如果您在会话期间使用 `/login` 登录，请重新启动 Claude Code 以开始同步。
 
-较早会话同步的 Skills 保留在磁盘上。Claude Code 在登录到同一账户的后续会话中加载它们，即使它无法到达 claude.ai。
+较早会话同步的 skills 保留在磁盘上。Claude Code 在稍后登录到同一账户的会话中加载它们，即使它无法到达 claude.ai。
 
-Claude Code 下载同步的 skills，从不上传它们。如果您或 Claude 编辑 `~/.claude/skills/synced/` 下的文件，更改不会保存到您的 claude.ai 账户，稍后的同步可能会覆盖或删除它。要更改同步的 skill，在 claude.ai 上更新它；下一次同步会下载新版本。
+Claude Code 下载同步 skills，从不上传它们。如果您或 Claude 编辑 `~/.claude/skills/synced/` 下的文件，更改不会保存到您的 claude.ai 账户，稍后的同步可能会覆盖或删除它。要更改同步 skill，请在 claude.ai 上更新它；下一次同步会下载新版本。
 
 要查看哪些 skills 已同步，请运行 `/skills`。菜单在 `claude.ai sync` 下列出它们。
 
-Anthropic 的某些 skills，如 `pdf` 和 `xlsx`，总是同步。对于其余的，在 claude.ai 上的 skills 设置中打开或关闭 skill 以更改它是否同步。
+Anthropic 的某些 skills，例如 `pdf` 和 `xlsx`，总是同步。对于其余的，在 claude.ai 上的 skills 设置中打开或关闭 skill 以更改是否同步。
 
 要停止在机器上同步，请在您的用户设置中将 [`syncClaudeAiSkills`](/docs/zh-CN/settings-reference#syncclaudeaiskills) 设置为 `false`。Claude Code 停止下载，下次启动时它会将已同步的 skills 移动到 `~/.claude/skills/.trash/`，不再加载它们。您的组织可以通过在 claude.ai 上关闭 Skills 来为所有人关闭同步。要在保持 Skills 打开的情况下停止同步，它可以在 [托管设置](/docs/zh-CN/managed-settings) 中设置相同的密钥。
 
 如果您的组织在 claude.ai 上关闭 Skills，Claude Code 会删除下载的 skills，它们停止加载。删除的 skills 移动到 `~/.claude/skills/.trash/`，您可以在 [保留扫描](/docs/zh-CN/claude-directory#cleaned-up-automatically) 删除它们之前恢复文件。一旦您的组织重新打开 Skills，Claude Code 会在下一次同步时下载您启用的 skills。
 
 <h4 id="when-a-synced-skill-name-matches-another-command">
-  当同步的 skill 名称与另一个命令匹配时
+  当同步 skill 名称与另一个命令匹配时
 </h4>
 
-您可以通过其完整名称 `/anthropic-skills:<name>` 或其短名称 `/<name>` 调用同步的 skill。当另一个命令使用该短名称时，`/<name>` 运行另一个命令，同步的 skill 仅作为 `/anthropic-skills:<name>` 运行。使用本地 `deploy` skill 和同步的 `deploy` 时，`/deploy` 运行本地 skill，`/anthropic-skills:deploy` 运行同步的。在 v2.1.269 之前，同步的 skill 仅有其短名称。
+您可以通过其短名称 `/<name>` 或完整名称 `/anthropic-skills:<name>` 调用同步 skill。当另一个命令使用短名称时，`/<name>` 运行另一个命令，同步 skill 仅作为 `/anthropic-skills:<name>` 运行。使用本地 `deploy` skill 和同步 `deploy` 时，`/deploy` 运行本地 skill，`/anthropic-skills:deploy` 运行同步的。在 v2.1.269 之前，同步 skill 仅有其短名称。
 
-另一个命令可以是以下任何一个：
+在 `/` 菜单、`/skills` 和 `/context` 中，同步 skill 出现在其短名称下，或在另一个命令使用短名称时出现在其完整名称下。在您的会话中运行 `/skills`。列表下的注释解释了每个失去其短名称的同步 skill。如果您在 `~/.claude/` 中的个人 skills 或命令文件之一使用该名称，注释还会说明要重命名或删除什么以释放它。
+
+从 v2.1.269 到 v2.1.280，这些列表在其完整名称下显示每个同步 skill，`/skills` 没有这样的注释；两者都在 v2.1.281 中更改。
+
+使用短名称的命令可以是以下任何一个：
 
 * 内置命令或 [捆绑 skill](#bundled-skills)，包括在您的会话中不可用的，例如在您关闭捆绑 skills 后
 * 任何 [本地级别](#where-skills-live) 的 skill 或 `.claude/commands/` 中的文件
-* Plugin skill
-* [MCP prompt](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)
+* 插件 skill
+* [MCP 提示](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)
 
-Claude Code 标记同步的 skills，以便您可以看出它们来自何处。`/skills` 菜单和 `/context` 在 `claude.ai sync` 下分组同步的 skills，`/` 命令菜单将它们标记为来自 claude.ai。
+Claude Code 标记同步 skills，以便您可以看出它们来自何处。`/skills` 菜单和 `/context` 在 `claude.ai sync` 下分组同步 skills，`/` 命令菜单将它们标记为来自 claude.ai。
 
 比较名称时，Claude Code 忽略大小写、间距和不可见字符，并将兼容性形式（如全宽字母和破折号变体）视为其纯等效形式。例如，名为 `Commit` 的同步 skill 和名为 `commit` 的本地 skill 计为相同名称，因此 `/commit` 继续运行您的本地 skill。
 
-仅因来自另一个字母表的相似字母而不同的名称计为不同名称，`claude.ai sync` 标签是您区分两者的方式。这些检查和标签需要 Claude Code v2.1.228 或更高版本。
+仅因另一个字母表中的相似字母而不同的名称计为不同名称，`claude.ai sync` 标签是您区分两者的方式。这些检查和标签需要 Claude Code v2.1.228 或更高版本。
+
+<h4 id="names-reserved-for-synced-skills">
+  为同步 skills 保留的名称
+</h4>
+
+Claude Code 保留名称 `anthropic-skills` 和该命名空间内的每个名称（例如 `anthropic-skills:pdf`）用于从 claude.ai 同步的 skills，因此同步 skill 的完整名称永远不会运行其他任何东西。该名称在每个会话中保留，无论您是否使用 claude.ai 账户登录。
+
+* **Skill 文件夹、frontmatter `name`、`.claude/commands/` 中的文件或子文件夹，或 [保存的工作流](/docs/zh-CN/workflows#save-the-workflow-for-reuse)**：它不加载。[启动通知](/docs/zh-CN/errors#a-skill-command-or-workflow-wasnt-loaded-because-its-name-is-reserved) 命名要重命名或编辑的第一项。
+* **名为 `anthropic-skills` 的插件**：它加载。当其 skills 之一和同步 skill 都命名为 `<name>` 时，`/anthropic-skills:<name>` 运行同步 skill。
+* **名为 `anthropic-skills` 的 MCP 服务器**：它连接并且其工具有效，但 [其提示不显示为命令](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)。在您的 MCP 配置中重命名服务器以列出它们。
 
 <h4 id="how-claude-code-handles-the-frontmatter-of-a-synced-skill">
   Claude Code 如何处理同步 skill 的 frontmatter
@@ -256,8 +271,8 @@ Claude Code 标记同步的 skills，以便您可以看出它们来自何处。`
 
 Claude Code 对同步 skill 的 frontmatter 应用两条规则：
 
-* Claude Code 在每种会话中都遵守 frontmatter，因此 `allowed-tools` 授权通过正常的 [权限流](/docs/zh-CN/permissions) 进行。
-* Claude Code 清理 skill 提供的显示文本，如其描述。它删除控制字符，在到达 Claude 的文本（如描述）中，它还转义尖括号，以便文本无法模仿 Claude Code 的内部格式。此清理需要 Claude Code v2.1.228 或更高版本。
+* Claude Code 在每种会话中都遵守 frontmatter，因此 `allowed-tools` 授予通过正常 [权限流](/docs/zh-CN/permissions) 进行。
+* Claude Code 清理 skill 提供的显示文本，例如其描述。它删除控制字符，在到达 Claude 的文本（例如描述）中，它还转义尖括号，以便文本无法模仿 Claude Code 的内部格式。此清理需要 Claude Code v2.1.228 或更高版本。
 
 <h4 id="how-claude-code-handles-the-body-of-a-synced-skill">
   Claude Code 如何处理同步 skill 的正文
@@ -265,7 +280,7 @@ Claude Code 对同步 skill 的 frontmatter 应用两条规则：
 
 Claude Code 对同步 skill 的正文的处理取决于会话运行的位置：
 
-* 在云会话中，正文保持本地 skill 具有的行为，因为会话在隔离的容器中运行。
+* 在云会话中，正文保持本地 skill 具有的行为，因为会话在隔离容器中运行。
 * 在您桌面上的 Cowork 会话中，正文保持本地 skill 具有的行为，除了 Claude Code 将每个 `!` 命令行替换为 [`disableSkillShellExecution` 占位符](#inject-dynamic-context)，就像它对您在那里提供的每个 skill 所做的那样。
 * 在您机器上的任何其他会话中，Claude Code 不运行 [`!` 命令](#inject-dynamic-context)，不附加 `@` 引用命名的文件（就像它对本地 skill 所做的那样），不替换 `${CLAUDE_PROJECT_DIR}` 和 `${CLAUDE_SESSION_ID}` 占位符，因此 `@` 引用和两个占位符都作为文字文本到达 Claude。`!` 命令行也作为文字文本到达 Claude，或当 `disableSkillShellExecution` 打开时作为该占位符。此处理需要 Claude Code v2.1.228 或更高版本。
 
@@ -273,9 +288,11 @@ Claude Code 对同步 skill 的正文的处理取决于会话运行的位置：
   在会话期间编辑 skill
 </h3>
 
-Claude Code 监视 skill 目录的文件更改，除了在 [bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 中。当您在 `~/.claude/skills/`、项目 `.claude/skills/` 或 `--add-dir` 目录内的 `.claude/skills/` 中添加、编辑或删除 skill 时，Claude Code 在当前会话中获取更改，无需重新启动。如果您创建会话启动时不存在的顶级 skills 目录，重新启动 Claude Code 以便它可以监视新目录。
+Claude Code 监视 skill 目录的文件更改，除了在 [bare mode](/docs/zh-CN/headless#start-faster-with-bare-mode) 中。当您在 `~/.claude/skills/`、项目 `.claude/skills/` 或 `--add-dir` 目录内的 `.claude/skills/` 中添加、编辑或删除 skill 时，Claude Code 在当前会话中获取更改，无需重新启动。
 
-实时更改检测仅涵盖 `SKILL.md` 文本。对于也是 [plugin](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository) 的 skill 文件夹，对 `hooks/`、`.mcp.json`、`agents/` 和 `output-styles/` 的更改需要 `/reload-plugins` 才能生效。
+如果您创建了会话启动时不存在的顶级 skills 目录，请运行 [`/reload-skills`](/docs/zh-CN/commands#all-commands) 以获取您放在那里的 skills。Claude Code 还没有监视该目录，因此在稍后每次更改后再次运行 `/reload-skills`。
+
+实时更改检测仅涵盖 `SKILL.md` 文本。对于也是 [插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository) 的 skill 文件夹，对 `hooks/`、`.mcp.json`、`agents/` 和 `output-styles/` 的更改需要 `/reload-plugins` 才能生效。
 
 <h3 id="remove-a-skill">
   删除 skill
@@ -284,12 +301,12 @@ Claude Code 监视 skill 目录的文件更改，除了在 [bare mode](/docs/zh-
 删除 skill 的方式取决于它来自何处：
 
 * **Personal 或 project skill**：删除 skill 的目录，`~/.claude/skills/<skill-name>/` 或 `.claude/skills/<skill-name>/`。Claude Code [在当前会话中从 `/skills` 中删除它](#live-change-detection)；Claude Code 已从中加载的内容遵循 [skill 内容生命周期](#skill-content-lifecycle)。
-* **Enterprise skill**：管理员从 [托管设置目录](/docs/zh-CN/managed-settings#delivery-mechanisms) 内的 `.claude/skills/` 中删除 skill 的目录，例如 Linux 上的 `/etc/claude-code/.claude/skills/<skill-name>/`。
-* **Plugin skill**：从 `/plugin` 菜单禁用或卸载提供它的 plugin，或使用 `/plugin uninstall <plugin-name>@<marketplace-name>`。Claude Code 在 [更改应用](/docs/zh-CN/plugins/cli-reference#reload-plugins) 时或重新启动时卸载 plugin 的 skills。
-* **从 claude.ai 同步的 Skill**：在您 [启用它](#skills-in-cowork-and-cloud-sessions) 的同一位置为您的 claude.ai 账户关闭该 skill。Claude Code 在下一次 [同步您的 skills](#where-synced-skills-load) 时从 `~/.claude/skills/synced/` 中删除它。如果您改为手动删除目录，下一次同步会在 skill 在 claude.ai 上保持启用的情况下再次下载它。
-* **捆绑 skill**：将 [`disableBundledSkills`](#bundled-skills) 设置为 `true` 以关闭捆绑 skills，或在 [`skillOverrides`](#override-skill-visibility-from-settings) 中将一个 skill 设置为 `"off"` 以隐藏它。
+* **Enterprise skill**：管理员从 [托管设置目录](/docs/zh-CN/managed-settings#delivery-mechanisms) 内的 `.claude/skills/` 删除 skill 的目录，例如 Linux 上的 `/etc/claude-code/.claude/skills/<skill-name>/`。
+* **Plugin skill**：从 `/plugin` 菜单禁用或卸载提供它的插件，或使用 `/plugin uninstall <plugin-name>@<marketplace-name>`。Claude Code 在 [更改应用](/docs/zh-CN/plugins/cli-reference#reload-plugins) 时或重新启动时卸载插件的 skills。
+* **从 claude.ai 同步的 Skill**：在您 [启用它](#skills-in-cowork-and-cloud-sessions) 的同一位置为您的 claude.ai 账户关闭该 skill。Claude Code 在下一次 [同步您的 skills](#where-synced-skills-load) 时从 `~/.claude/skills/synced/` 中删除它。如果您改为手动删除目录，下一次同步会在 skill 在 claude.ai 上保持启用时再次下载它。
+* **Bundled skill**：将 [`disableBundledSkills`](#bundled-skills) 设置为 `true` 以关闭捆绑 skills，或在 [`skillOverrides`](#override-skill-visibility-from-settings) 中将一个 skill 设置为 `"off"` 以隐藏它。
 
-要保留 personal 或 project skill 但阻止 Claude 自动调用它，请在其 frontmatter 中设置 [`disable-model-invocation: true`](#control-who-invokes-a-skill)，或在 [`skillOverrides`](#override-skill-visibility-from-settings) 中设置 `"user-invocable-only"`（当您不想编辑文件时）。
+要保留 personal 或 project skill 但阻止 Claude 自动调用它，请在其 frontmatter 中设置 [`disable-model-invocation: true`](#control-who-invokes-a-skill)，或在不想编辑文件时在 [`skillOverrides`](#override-skill-visibility-from-settings) 中设置 `"user-invocable-only"`。
 
 <h2 id="configure-skills">
   配置 skills
@@ -360,7 +377,7 @@ Claude Code 仅在开始 `---` 是文件的第一行时读取 frontmatter。否�
 
 | 字段 | 必需 | 描述 |
 | :- | :- | :- |
-| `name` | 否 | 在 skill 列表中显示的显示名称。默认为目录名称。请参阅[skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)以了解该字段如何与你键入以调用 skill 的名称交互。 |
+| `name` | 否 | 在 `/` 菜单中显示的命令名称。默认为目录名称。请参阅[skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)以了解该字段如何与你键入以调用 skill 的名称交互。 |
 | `description` | 推荐 | skill 的功能以及何时使用它。Claude 使用此信息来决定何时应用该 skill。如果省略，则使用 markdown 内容的第一个非空行。首先放置关键用例：组合的 `description` 和 `when_to_use` 文本在 skill 列表中被截断为 1,536 个字符以减少上下文使用。 |
 | `when_to_use` | 否 | 关于 Claude 何时应调用该 skill 的其他上下文，例如触发短语或示例请求。附加到 skill 列表中的 `description`，并计入 1,536 字符的上限。 |
 | `argument-hint` | 否 | 在自动完成期间显示的提示，以指示预期的参数。示例：`[issue-number]` 或 `[filename] [format]`。 |
@@ -406,14 +423,14 @@ Unexpected key(s) in SKILL.md frontmatter: argument-hint. Allowed properties are
   skill 如何获得其命令名称
 </h4>
 
-你键入以调用 skill 的命令来自 skill 文件的位置，对于插件 skills，还来自 frontmatter `name` 字段。在个人或项目 skill 中，`name` 仅设置在 skill 列表中显示的显示标签，命令仍来自目录名称。在插件 skill 中，`name` 设置命令的最后一段，插件前缀保持不变。
+你键入以调用 skill 的命令来自 skill 文件的位置，对于 skill 目录和插件 skills，还来自 frontmatter `name` 字段。在个人或项目 skill 目录中，`name` 设置 `/` 菜单显示的命令以及你键入的命令，除非另一个命令已使用该名称。目录名称也调用该 skill。在插件 skill 中，`name` 设置命令的最后一段，插件前缀保持不变。
 
 下表显示了每个布局的命令名称来自何处：
 
 | Skill 位置 | 命令名称来源 | 示例 |
 | :- | :- | :- |
-| `~/.claude/skills/` 或 `.claude/skills/` 下的 Skill 目录 | 目录名称 | `.claude/skills/deploy-staging/SKILL.md` → `/deploy-staging` |
-| [嵌套](#where-skills-live)`.claude/skills/` 目录，当名称与另一个 skill 冲突时 | 相对于工作目录的子目录路径，然后是 skill 目录名称 | `apps/web/.claude/skills/deploy/SKILL.md` → `/apps/web:deploy` |
+| `~/.claude/skills/` 或 `.claude/skills/` 下的 Skill 目录 | Frontmatter `name` 或目录名称 | `.claude/skills/deploy-staging/SKILL.md` → `/deploy-staging`，或使用 `name: deploy` 时为 `/deploy` |
+| [嵌套](#where-skills-live)`.claude/skills/` 目录，当目录名称与另一个 skill 冲突时 | 相对于工作目录的子目录路径，然后是 skill 目录名称 | `apps/web/.claude/skills/deploy/SKILL.md` → `/apps/web:deploy` |
 | `.claude/commands/` 下的文件 | 文件名（不含扩展名） | `.claude/commands/deploy.md` → `/deploy` |
 | `.claude/commands/` 的子目录中的文件 | 相对于 `commands/` 的子目录路径，每个 `/` 替换为 `:`，然后是不含扩展名的文件名 | `.claude/commands/frontend/component.md` → `/frontend:component` |
 | 插件 `skills/` 子目录 | Frontmatter `name` 或目录名称，由插件命名空间 | `my-plugin/skills/review/SKILL.md` → `/my-plugin:review`，或使用 `name: fancy` 时为 `/my-plugin:fancy` |
@@ -439,7 +456,7 @@ Skills 支持 skill 内容中动态值的字符串替换：
 | `$N` | `$ARGUMENTS[N]` 的简写，例如 `$0` 表示第一个参数或 `$1` 表示第二个参数。 |
 | `$name` | 在[`arguments`](#frontmatter-reference) frontmatter 列表中声明的命名参数。名称按顺序映射到位置，因此使用 `arguments: [issue, branch]`，占位符 `$issue` 扩展到第一个参数，`$branch` 扩展到第二个参数。 |
 | `${CLAUDE_SESSION_ID}` | 当前会话 ID。用于日志记录、创建会话特定文件或将 skill 输出与会话关联。 |
-| `${CLAUDE_EFFORT}` | 当前工作量级别：`low`、`medium`、`high`、`xhigh` 或 `max`。Ultracode 不是一个不同的级别，报告为 `xhigh`。使用此来根据活动工作量设置调整 skill 说明。 |
+| `${CLAUDE_EFFORT}` | 当前工作量级别：`low`、`medium`、`high`、`xhigh` 或 `max`。使用此来根据活动工作量设置调整 skill 说明。 |
 | `${CLAUDE_SKILL_DIR}` | 包含 skill 的 `SKILL.md` 文件的目录。对于插件 skills，这是插件内 skill 的子目录，而不是插件根。在 bash 注入命令中使用此来引用与 skill 捆绑的脚本或文件，无论当前工作目录如何。 |
 | `${CLAUDE_PROJECT_DIR}` | 项目根目录。这是与[hooks](/docs/zh-CN/hooks#reference-scripts-by-path)和 MCP 服务器相同的路径，作为 `CLAUDE_PROJECT_DIR` 接收。使用此来引用项目本地脚本或文件，例如 `${CLAUDE_PROJECT_DIR}/.claude/hooks/helper.sh`，独立于 skill 的安装位置。 |
 | `${CLAUDE_PLUGIN_ROOT}` | 插件的安装目录。仅在插件 skills 中替换。使用此来引用插件中任何位置的脚本或文件，包括插件 skills 之间共享的资源。请参阅[插件环境变量](/docs/zh-CN/plugins/manifest-reference#environment-variables)。 |
@@ -826,11 +843,13 @@ Skill(review-pr *)
 Skill(deploy *)
 ```
 
-权限语法：`Skill(name)` 用于精确匹配，`Skill(name *)` 用于带任何参数的前缀匹配。
+权限语法：`Skill(name)` 用于精确匹配，`Skill(name *)` 用于带任何参数的前缀匹配。在 `allow` 规则中，[为同步技能保留的命名空间](#names-reserved-for-synced-skills)之外的前缀不匹配其中的名称：`Skill(anthropic *)` 不涵盖 `anthropic-skills:pdf`。
 
 如果你的 `deny` 规则命名别名或不合格的名称而不是技能自己的名称，Claude Code 仍然会阻止该技能：使用 `Skill(review)` 它通过其 `/review` 别名阻止捆绑的 `/code-review`，使用 `Skill(deploy)` 它通过其不合格的名称阻止列为 `apps/web:deploy` 的[嵌套技能](#where-skills-live)。在 v2.1.260 之前，当拒绝规则仅命名不合格的名称时，Claude Code 不会阻止列在其合格名称下的嵌套技能。
 
 Claude Code 仅针对技能自己的名称和 Claude 调用中的名称匹配 `allow` 规则。
+
+要在不提示的情况下批准[同步技能](#how-synced-skills-behave)，请在其[保留命名空间](#names-reserved-for-synced-skills)内命名它：`Skill(anthropic-skills:pdf)` 批准同步的 `pdf` 技能，`Skill(anthropic-skills *)` 批准每个同步的技能。
 
 **通过向其 frontmatter 添加 `disable-model-invocation: true` 来隐藏单个技能**。这将技能从 Claude 的上下文中完全删除。
 

@@ -331,7 +331,7 @@ plugins: [
   Plugin 未加载
 </h3>
 
-如果你的 plugin 未出现在初始化消息中：
+如果你的 plugin 未出现在初始化消息的 `plugins` 列表中，请检查其 [`plugin_errors`](/docs/zh-CN/agent-sdk/typescript#sdksystemmessage) 字段以了解原因，然后按照以下检查步骤进行：
 
 1. **检查路径**：确保路径指向 plugin 根目录，即 `skills/`、`agents/`、`hooks/`、`commands/` 或 `.claude-plugin/` 的父目录
 2. **验证 plugin.json**：如果你的 plugin 包含清单文件，确保它具有有效的 JSON 语法

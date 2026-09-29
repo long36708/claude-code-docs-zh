@@ -526,7 +526,7 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
   监控 MCP 使用情况
 </h2>
 
-当[配置 OpenTelemetry 导出](/docs/zh-CN/monitoring-usage)时，Claude Code 可以记录用户调用的 MCP 服务器和工具。设置 `OTEL_LOG_TOOL_DETAILS=1` 以在工具事件中包含 MCP 服务器和工具名称，然后在您的收集器中聚合它们以查看用户实际连接的服务器。请参阅[监控](/docs/zh-CN/monitoring-usage)以设置导出器和完整的事件架构。
+当[配置 OpenTelemetry 导出](/docs/zh-CN/monitoring-usage)时，Claude Code 可以记录用户调用的 MCP 服务器和工具。设置 `OTEL_LOG_TOOL_DETAILS=1` 以在工具事件和[成本和令牌计数器](/docs/zh-CN/monitoring-usage#cost-counter)中包含 MCP 服务器和工具名称，然后在您的收集器中聚合它们以查看用户实际连接的服务器。请参阅[监控](/docs/zh-CN/monitoring-usage)以设置导出器和完整的事件架构。
 
 <h2 id="configuration-summary">
   配置摘要

@@ -538,7 +538,7 @@ Claude Code 在其生命周期中的特定点触发 hook 事件。当事件触�
 每个 hook 都有一个 `type` 来确定它如何运行。大多数 hooks 使用 `"type": "command"`，它运行 shell 命令。还有四种其他类型可用：
 
 * `"type": "http"`：将事件数据 POST 到 URL。请参阅 [HTTP hooks](#http-hooks)。
-* `"type": "mcp_tool"`：在已连接的 MCP 服务器上调用工具。请参阅 [MCP tool hooks](/docs/zh-CN/hooks#mcp-tool-hook-fields)。
+* `"type": "mcp_tool"`：在已配置的 MCP 服务器上调用工具。请参阅 [MCP tool hooks](/docs/zh-CN/hooks#mcp-tool-hook-fields)。
 * `"type": "prompt"`：单轮 LLM 评估。请参阅 [Prompt-based hooks](#prompt-based-hooks)。
 * `"type": "agent"`：具有工具访问权限的多轮验证。Agent hooks 是实验性的，可能会改变。请参阅 [Agent-based hooks](#agent-based-hooks)。
 
@@ -880,7 +880,7 @@ exit 0  # exit 0 = 没有决策；正常权限流程适用
   基于提示的 hooks
 </h2>
 
-对于需要判断而不是确定性规则的决策，使用 `type: "prompt"` hooks。Claude Code 不运行 shell 命令，而是将你的提示和 hook 的输入数据发送到 Claude 模型（默认为 Haiku）来做出决策。如果你需要更多功能，可以使用 `model` 字段指定不同的模型。
+对于需要判断而不是确定性规则的决策，使用 `type: "prompt"` hooks。Claude Code 不运行 shell 命令，而是将你的提示和 hook 的输入数据发送到 Claude 模型来做出决策。如果你需要更多功能，可以使用 `model` 字段指定不同的模型。
 
 模型的唯一工作是返回其决策作为 JSON：
 
@@ -995,7 +995,7 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
 
 设计 hooks 时请记住这些约束：
 
-* 命令 hooks 仅通过 stdout、stderr 和退出代码通信。它们无法触发 `/` 命令或工具调用。通过 `additionalContext` 返回的文本被注入为 Claude 作为纯文本读取的系统提醒。HTTP hooks 改为通过响应体通信。
+* 命令 hooks 仅通过 stdout、stderr 和退出代码通信。它们无法触发 `/` 命令或工具调用。通过 `additionalContext` 返回的文本被注入为 Claude 作为纯文本读取的[系统提醒](/docs/zh-CN/glossary#system-reminder)。HTTP hooks 改为通过响应体通信。
 * Hook 超时因类型而异。通过 `timeout` 字段（以秒为单位）按 hook 覆盖。
   * `command`、`http`、`mcp_tool`：10 分钟。Claude Code 对 `UserPromptSubmit`、`PreModelSwitch` 和 `PostModelSwitch` hooks 将此默认值降低到 30 秒，对 `MessageDisplay` 降低到 10 秒。
   * `prompt`：30 秒。

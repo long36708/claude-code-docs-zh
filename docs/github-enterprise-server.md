@@ -252,7 +252,7 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
   会话启动失败，显示 `Unable to get organization UUID`
 </h3>
 
-云会话需要 Team 或 Enterprise 组织。使用 `/login` 和您的组织账户登录。如果您改用 API 密钥进行身份验证，云会话会更早失败，并显示一条消息要求您运行 `/login`。
+使用 `/login` 和您的组织账户登录。如果您改用 API 密钥进行身份验证，云会话会更早失败，并显示一条消息要求您运行 `/login`。
 
 <h2 id="related-resources">
   相关资源

@@ -118,7 +118,7 @@ Claude Code 的[权限规则](/docs/zh-CN/permissions)和[沙箱](/docs/zh-CN/sa
 
 在您的 shell 中，使用您安装它的 `--scope` 运行 [`claude plugin uninstall <plugin>`](/docs/zh-CN/plugins/cli-reference#plugin-uninstall)。然后检查卸载删除了什么以及留下了什么：
 
-* **持久数据**：当这是插件安装的最后一个范围时，卸载也会删除插件的持久数据目录，除非您传递 `--keep-data`。
+* **持久数据**：默认情况下，当这是插件安装的最后一个范围时，卸载也会删除插件的持久数据目录。对于 `--keep-data` 和其他保留数据的情况，请参阅 [plugin uninstall](/docs/zh-CN/plugins/cli-reference#plugin-uninstall)。
 * **缓存文件**：插件的文件在 `~/.claude/plugins/cache/` 下保留在磁盘上 14 天，然后[后台扫描将其删除](/docs/zh-CN/plugins/loading#cleanup-of-previous-versions)。卸载最后一个插件后，孤立目录保留到您安装另一个。要立即删除文件，请自己删除 `~/.claude/plugins/cache/<marketplace>/<plugin>/` 下的插件目录。
 * **市场**：如果您也不信任市场的所有者，[也删除市场](/docs/zh-CN/plugins/install#manage-marketplaces)，这会卸载您从它安装的每个插件。
 

@@ -59,27 +59,27 @@ Worktree 是一个新的检出，因此请在那里初始化您的开发环境�
   清理 worktrees
 </h2>
 
-当您退出交互式 worktree 会话时，Claude 会检查 worktree 中的工作，删除会丢失这些工作：已更改或未跟踪的文件、已检出子模块内的未提交工作以及新提交。
+当你退出交互式 worktree 会话时，Claude 会检查 worktree 中是否有删除会丢失的工作：已更改或未跟踪的文件、已检出子模块内的未提交工作，以及新提交。
 
-* **worktree 是干净的**：对于未命名的会话，Claude 会自动删除 worktree 及其分支。[命名](/docs/zh-CN/sessions#name-your-sessions)的会话会提示您，以便您可以稍后保留 worktree
-* **worktree 中有工作**：Claude 提示您保留或删除 worktree。保留会保留目录和分支，以便您稍后可以返回。删除会删除 worktree 目录及其分支，以及其中的所有工作
-* **worktree 的状态无法验证**：当 Claude Code 无法计算 worktree 的更改或无法检查其子模块检出时，它会提示您而不是自动删除 worktree。提示会说明它无法检查的内容
+* **worktree 是干净的**：对于未命名的会话，Claude 会自动删除 worktree 及其分支。[已命名](/docs/zh-CN/sessions#name-your-sessions)的会话会先提示你，以便你可以保留 worktree 供以后使用
+* **worktree 中有工作**：Claude 会提示你保留或删除 worktree。保留会保留目录和分支。要稍后返回，请运行 Claude Code 在退出时打印的 `claude --worktree <name> --resume` 命令。删除会删除 worktree 目录及其分支，以及其中的所有工作
+* **无法验证 worktree 的状态**：当 Claude Code 无法计算 worktree 的更改或无法检查其子模块检出时，它会提示你而不是自动删除 worktree。提示会说明它无法检查的内容
 
 使用 `-p` 的非交互式运行没有退出提示，因此 Claude 不会清理它们的 worktrees，Claude Code 会保留它在创建时对每个 worktree 所取的锁，直到稍后会话的[陈旧锁扫描](#clean-up-subagent-and-background-session-worktrees)释放它。要删除一个，请运行 `git worktree remove`；如果 git 拒绝因为 worktree 被锁定，请先在其上运行 `git worktree unlock`。
 
-在 Windows 上，删除 worktree 不会删除其外部的文件。如果 worktree 内的文件夹是指向其他地方的链接，例如 NTFS 接合点或目录符号链接，Claude Code 只删除链接并保留它指向的文件夹。在 v2.1.205 之前，删除包含嵌套在子目录中的链接的 worktree 可能会删除它指向的文件夹。
+在 Windows 上，删除 worktree 不会删除其外部的文件。如果 worktree 内的文件夹是指向其他地方的链接，例如 NTFS 接合点或目录符号链接，Claude Code 只删除链接并保留它指向的文件夹。在 v2.1.205 之前，删除嵌套在子目录中的链接的 worktree 可能会删除它指向的文件夹。
 
 <h2 id="resume-a-worktree-session">
   恢复 worktree 会话
 </h2>
 
-当您恢复在 worktree 内的会话时，Claude Code 会将会话返回到该 worktree。这适用于交互式恢复、[非交互式模式](/docs/zh-CN/headless)中带有 `-p` 的 `--continue` 和 `--resume`，以及 Agent SDK。回到 worktree 内，Claude 仍然可以使用 [`ExitWorktree`](/docs/zh-CN/tools-reference) 工具退出它。
+当您恢复在 worktree 内结束的会话而未[退出它](#clean-up-worktrees)时，Claude Code 会将会话返回到该 worktree。这适用于交互式恢复、[非交互式模式](/docs/zh-CN/headless)中带有 `-p` 的 `--continue` 和 `--resume`，以及 Agent SDK。`--continue` 会选择从您启动的目录下记录的最近会话。回到 worktree 内，Claude 仍然可以使用 [`ExitWorktree`](/docs/zh-CN/tools-reference) 工具退出它。
 
 在将会话返回到其 worktree 之前，Claude Code 会验证 worktree 仍然是与主检出分开的检出，并拒绝重新进入未通过检查的 worktree。对于 git worktree，检查会读取其 git 元数据。没有 git 元数据的 worktree（例如 [`WorktreeCreate` hook](#non-git-version-control) 创建的）可以通过检查；Claude Code 仍然拒绝的情况列在[Claude Code 拒绝使用 worktree](#claude-code-refuses-to-use-a-worktree) 下及其恢复。有关消息和如何从每个消息恢复，请参阅[会话在其 worktree 外恢复](#the-session-resumes-outside-its-worktree)。
 
 您从哪里启动以及如何恢复会改变 Claude Code 重新进入的内容：
 
-* **启动目录**：从主检出或存储库的另一个目录恢复。Claude Code 会重新进入它使用 git 在 `.claude/worktrees/` 下创建的 worktree，即使您从其内部启动。当您从任何其他 worktree 内启动时，Claude Code 只有在能够从那里为其担保时才会重新进入它：一个是其自己的存储库的 worktree、一个没有 git 元数据的 worktree，或从您使用 `git worktree add` 创建的 worktree 的子目录启动会拒绝，因此从主检出启动这些。
+* **启动目录**：从主检出或存储库的另一个目录使用 `--resume` 恢复。Claude Code 会重新进入它使用 git 在 `.claude/worktrees/` 下创建的 worktree，即使您从其内部启动。当您从任何其他 worktree 内启动时，Claude Code 只有在能够从那里为其担保时才会重新进入它：一个是其自己的存储库的 worktree、一个没有 git 元数据的 worktree，或从您使用 `git worktree add` 创建的 worktree 的子目录启动会拒绝，因此从主检出启动这些。
 * **`--fork-session`**：分叉的会话在您启动 Claude 的目录中启动，Claude Code 会保持原始会话的 worktree 不变。
 * **已删除的 worktree**：如果 worktree 目录不再存在，Claude Code 会在您启动 Claude 的目录中恢复会话。它告诉您 worktree 已消失并清除会话的 worktree 绑定。
 

@@ -100,7 +100,7 @@
 
 在终端会话中，同步插件的技能、代理、hooks、MCP 服务器和 LSP 服务器都加载，具有与您安装的市场插件相同的信任。
 
-有关 Cowork 加载的组件，请参阅 claude.com 上的[claude.ai 和 Cowork 中的插件](https://claude.com/docs/plugins/overview)。
+有关 Cowork 加载的组件，请参阅 claude.com 上的[组件支持表](https://claude.com/docs/plugins/platform-support#compare-component-support-by-app)。
 
 同步插件在 Cowork 会话和您使用 claude.ai 账户登录的终端会话中加载：
 
@@ -184,7 +184,7 @@ Claude Code 在一个插件根目录下保存插件文件和状态记录，该�
 | 路径 | 它保存什么 |
 | :- | :- |
 | `cache/<marketplace>/<plugin>/<version>/` | 市场插件的每个已安装版本一个目录。`<plugin>` 是市场条目名称，`<version>` 是[已解析版本](#versions-and-updates)。`${CLAUDE_PLUGIN_ROOT}` 指向此目录 |
-| `data/<plugin-id>/` | 插件的持久目录，公开为 `${CLAUDE_PLUGIN_DATA}`。有关如何形成 `<plugin-id>`，请参阅[路径变量和持久数据](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。Claude Code 在插件组件首次使用它时创建它，并在更新中保留它。当您从其最后一个范围卸载插件时，Claude Code 删除它，除非您传递 `--keep-data` |
+| `data/<plugin-id>/` | 插件的持久目录，公开为 `${CLAUDE_PLUGIN_DATA}`。有关如何形成 `<plugin-id>`，请参阅[路径变量和持久数据](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。Claude Code 在插件组件首次使用它时创建它，并在更新中保留它。默认情况下，当您从其最后一个范围卸载插件时，Claude Code 会删除它。有关 `--keep-data` 和它保留的其他情况，请参阅[插件卸载](/docs/zh-CN/plugins/cli-reference#plugin-uninstall) |
 | `marketplaces/<name>/` | 从 GitHub、另一个 Git 主机或 URL 添加的市场的克隆或下载。从本地 `file` 或 `directory` 源添加的市场在此处没有副本，其 `installLocation` 在 `known_marketplaces.json` 中是您给定的路径 |
 | `synced/` | Claude Code [从您的 claude.ai 账户同步的](#synced-plugins)插件 |
 | `.trash/` | claude.ai 同步删除的插件，例如在您在 claude.ai 上关闭一个或停止同步后 |

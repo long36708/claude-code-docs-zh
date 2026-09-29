@@ -129,7 +129,7 @@
 有关完整的参数详细信息，包括 JSON Schema 输入格式和返回值结构，请参阅 [`tool()`](/docs/zh-CN/agent-sdk/typescript#tool) TypeScript 参考或 [`@tool`](/docs/zh-CN/agent-sdk/python#tool) Python 参考。
 
 <Tip>
-  要使参数可选：在 TypeScript 中，向 Zod 字段添加 `.default()`。在 Python 中，字典模式将每个键视为必需的，因此将参数从模式中省略，在描述字符串中提及它，并在处理程序中使用 `args.get()` 读取它。下面的 [`get_precipitation_chance` 工具](#add-more-tools)展示了两种模式。
+  要使参数可选：在 TypeScript 中，向 Zod 字段添加 `.optional()`，并在处理程序中应用默认值。在 Python 中，字典模式将每个键视为必需的，因此将参数从模式中省略，在描述字符串中提及它，并在处理程序中使用 `args.get()` 读取它。下面的 [`get_precipitation_chance` 工具](#add-more-tools)展示了两种模式。
 </Tip>
 
 <h3 id="call-a-custom-tool">
@@ -248,18 +248,19 @@
         .int()
         .min(1)
         .max(24)
-        .default(12) // .default() makes the parameter optional
+        .optional() // .optional() lets Claude omit the parameter
         .describe("How many hours of forecast to return")
     },
     async (args) => {
+      const hours = args.hours ?? 12; // Apply the default in the handler
       const response = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${args.latitude}&longitude=${args.longitude}&hourly=precipitation_probability&forecast_days=1`
       );
       const data: any = await response.json();
-      const chances = data.hourly.precipitation_probability.slice(0, args.hours);
+      const chances = data.hourly.precipitation_probability.slice(0, hours);
 
       return {
-        content: [{ type: "text", text: `Next ${args.hours} hours: ${chances.join("%, ")}%` }]
+        content: [{ type: "text", text: `Next ${hours} hours: ${chances.join("%, ")}%` }]
       };
     }
   );
@@ -469,7 +470,7 @@ Claude 将每个资源链接块作为包含链接名称、URI 和描述的文本
   图像
 </h3>
 
-图像块以 base64 编码的方式内联携带图像字节。没有 URL 字段。要返回位于 URL 的图像，请在处理程序中获取它，读取响应字节，并在返回之前对其进行 base64 编码。结果被处理为视觉输入。
+图像块以 base64 编码的方式内联携带图像字节。没有 URL 字段。要返回位于 URL 的图像，请在处理程序中获取它，读取响应字节，并在返回之前对其进行 base64 编码。PNG、JPEG、GIF 或 WebP 图像作为视觉输入到达 Claude；任何其他类型的图像都被保存到磁盘，Claude 接收其文件路径作为文本。
 
 | 字段 | 类型 | 说明 |
 | :- | :- | :- |
@@ -538,7 +539,7 @@ Claude 将每个资源链接块作为包含链接名称、URI 和描述的文本
   资源
 </h3>
 
-资源块嵌入由 URI 标识的内容片段。URI 是 Claude 引用的标签；实际内容位于块的 `text` 或 `blob` 字段中。当您的工具生成稍后按名称引用有意义的内容时，请使用此方法，例如生成的文件或来自外部系统的记录。
+资源块嵌入由 URI 标识的内容片段。实际内容位于块的 `text` 或 `blob` 字段中。当您的工具生成文件或来自外部系统的记录时，请使用此方法。
 
 | 字段 | 类型 | 说明 |
 | :- | :- | :- |
@@ -548,7 +549,7 @@ Claude 将每个资源链接块作为包含链接名称、URI 和描述的文本
 | `resource.blob` | `string` | 内容 base64 编码（如果是二进制）。仅 TypeScript：Python SDK 从工具结果中删除二进制资源并记录警告 |
 | `resource.mimeType` | `string` | 可选 |
 
-此示例显示从工具处理程序内部返回的资源块。URI `file:///tmp/report.md` 是 Claude 稍后可以引用的标签；SDK 不会从该路径读取。
+此示例显示从工具处理程序内部返回的资源块。SDK 不会从示例的 URI `file:///tmp/report.md` 读取。
 
 <CodeGroup>
   ```typescript TypeScript theme={null}
@@ -572,7 +573,7 @@ Claude 将每个资源链接块作为包含链接名称、URI 和描述的文本
           {
               "type": "resource",
               "resource": {
-                  "uri": "file:///tmp/report.md",  # Label for Claude to reference, not a path the SDK reads
+                  "uri": "file:///tmp/report.md",  # Not a path the SDK reads
                   "mimeType": "text/markdown",
                   "text": "# Report\n...",  # The actual content, inline
               },

@@ -292,13 +292,13 @@ Code Review 根据令牌使用情况计费。每次审查平均花费 \$15-25，
   故障排除
 </h2>
 
-审查运行是尽力而为的。失败的运行永远不会阻止您的 PR，但它也不会自动重试。本部分介绍如何从失败的运行中恢复，以及当检查运行报告您找不到的问题时在哪里查看。
+审查运行是尽力而为的，失败的运行永远不会阻止您的 PR。Code Review 会自动重试一些中断的审查。本部分介绍如何自己再次运行审查，以及当检查运行报告您找不到的问题时在哪里查看。
 
 <h3 id="retrigger-a-failed-or-timed-out-review">
   重新触发失败或超时的审查
 </h3>
 
-当审查基础设施遇到内部错误或超过时间限制时，检查运行完成，标题为 **Code review encountered an error** 或 **Code review timed out**。结论仍然是中立的，因此没有任何东西阻止您的合并，但没有发现被发布。
+当审查失败或超过时间限制时，检查运行完成，标题为 **Code review failed** 或 **Code review timed out**。结论仍然是中立的，因此没有任何东西阻止您的合并。除非检查运行的摘要说新的提交审查已自动排队，否则请自己再次运行审查。
 
 要再次运行审查，在 PR 上注释 `@claude review`。这启动一个新的审查，不订阅 PR 到未来推送。如果 PR 不是[来自 fork](#review-pull-requests-from-forks)，您可以改为在 GitHub 的 Checks 选项卡中的 **Claude Code Review** 检查上点击 **Re-run**。重新运行也会启动一个新的审查，不订阅 PR。
 

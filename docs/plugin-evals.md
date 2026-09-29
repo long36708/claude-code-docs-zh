@@ -16,7 +16,7 @@
 * 在您更改插件或发布新模型时捕捉回归
 * 查看与无插件相比插件的贡献
 
-本页面适用于拥有可工作插件并想要测试其行为的插件和技能作者，以及在 CI 中对插件更改进行门控的团队。其用例格式与[技能创建者插件](/docs/zh-CN/skills#run-evals-with-skill-creator)使用的 `evals/evals.json` 文件分开。要创建插件，请参阅[创建插件](/docs/zh-CN/plugins/create)；要检查插件文件的语法和架构错误而不是其行为，请使用 [`claude plugin validate`](/docs/zh-CN/plugins/cli-reference#plugin-validate)。
+本页面适用于拥有可工作插件并想要测试其行为的插件和技能作者，以及在 CI 中对插件更改进行门控的团队。对于在 Claude Code 对话中迭代单个技能，[技能创建者插件](/docs/zh-CN/skills#run-evals-with-skill-creator)使用其自己的 `evals/evals.json` 格式运行类似的比较，两个工具都不读取另一个的用例文件。要创建插件，请参阅[创建插件](/docs/zh-CN/plugins/create)；要检查插件文件的语法和架构错误而不是其行为，请使用 [`claude plugin validate`](/docs/zh-CN/plugins/cli-reference#plugin-validate)。
 
 <Note>
   每次 eval 运行和每个评分器都是对您账户的真实模型调用，计入您计划的使用量或您的 API 账单，因此请先检查[要求](#requirements)。然后[创建您的第一个 eval 套件](#create-your-first-eval-suite)，或者如果您已经有一个，请转到[在 CI 中运行 evals](#run-evals-in-ci)。
@@ -29,6 +29,7 @@
 要运行插件 evals，你需要：
 
 * Claude Code v2.1.269 或更高版本。运行 `claude --version` 检查，运行 `claude update` 升级。
+* Git 2.31 或更高版本（如果已安装 git）。运行 `git --version` 检查。使用较旧的 git，`claude plugin eval` [在运行任何案例之前停止](#git-is-too-old-for-claude-plugin-eval)。没有 git，它正常运行。
 * 一个包含 `plugin.json` 或 `.claude-plugin/plugin.json` 清单的插件目录，或一个[技能目录插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)。
 * 与你的常规 Claude Code 会话相同的身份验证和模型提供商。Eval 运行、评判评分器和 `claude plugin eval init` 使用你的凭证调用模型，因此它们计入你的计划使用限制或 API 账单。当命令报告成本时，该数字是这些调用的[列表价格估计](/docs/zh-CN/costs)。
 
@@ -665,6 +666,20 @@ Anthropic 已在服务器端关闭了该命令。你的机器上没有任何东�
 </h3>
 
 这是针对 Claude Code 尚未信任的目录的首次运行，由于 stdin 或 stdout 不是终端、你传递了 `--json`，或 `CI` 环境变量设置为 `true` 等真值，它无法询问你。在终端中运行一次 `claude plugin eval <dir>` 并回答提示，或者如果你信任插件的代码和套件，传递 `--trust-plugin`。请参阅[运行可以访问的内容](#security)。
+
+<h3 id="git-is-too-old-for-claude-plugin-eval">
+  "is too old for claude plugin eval"
+</h3>
+
+你的 `PATH` 上的 `git` 版本早于 2.31，所以 `claude plugin eval` 在运行任何案例之前停止，并以命名你的版本的消息退出代码 1：
+
+```text theme={null}
+git 2.30 is too old for claude plugin eval: it ignores the environment configuration (GIT_CONFIG_COUNT, added in git 2.31) that switches off the repository's git hooks and helper programs for the run. Install git 2.31 or newer.
+```
+
+对于每次运行，Claude Code 会关闭 git hooks、凭证助手和其他程序，这些程序是存储库的 git 配置可以启动的。它通过 git 仅从版本 2.31 读取的环境配置来实现。较旧的 git 会忽略该配置，所以套件会停止，而不是对那些程序可能执行的运行进行评分。安装 git 2.31 或更高版本，然后再次运行套件。
+
+在 v2.1.283 之前，`claude plugin eval` 没有检查 git 版本，在较旧的 git 上，套件运行时这些程序保持打开状态。
 
 <h3 id="no-eval-cases-found">
   "No eval cases found"

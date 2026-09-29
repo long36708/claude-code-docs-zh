@@ -4,9 +4,9 @@
 
 # 发布和分发插件
 
-> 通过您自己的市场或 Anthropic 的社区市场发布 Claude Code 插件，包括发布前检查清单以及用户如何获取更新。
+> 通过您自己的市场或 Anthropic 的目录发布 Claude Code 插件，包括发布前检查清单以及用户如何获取更新。
 
-发布 Claude Code 插件意味着在市场中列出它，市场是一个 JSON 目录，列出插件及其获取位置，这样其他人可以按名称安装它并接收您的更新。您可以运行自己的市场或将您的插件提交到 Anthropic 的社区市场。要在不发布的情况下共享插件，请将插件的目录或其 `.zip` 发送给人们以供他们自己加载。
+发布 Claude Code 插件意味着在市场中列出它，市场是一个 JSON 目录，列出插件及其获取位置，这样其他人可以按名称安装它并接收您的更新。您可以运行自己的市场或将您的插件提交到 Anthropic 的目录。要在不发布的情况下共享插件，请将插件的目录或其 `.zip` 发送给人们以供他们自己加载。
 
 本页面适用于已准备好共享的工作插件的作者。
 
@@ -29,7 +29,7 @@
 | :- | :- | :- | :- |
 | [无市场](#share-a-plugin-without-a-marketplace) | 您发送插件文件夹或其 `.zip` 的人 | 插件的文件夹 | 无。他们加载您发送的副本 |
 | [您自己的市场](#publish-through-your-own-marketplace) | 任何可以访问存储库的人，可以是您的团队可以克隆的私有存储库 | 一个 git 存储库或其他具有列出您的插件的 `.claude-plugin/marketplace.json` 的主机 | 关闭 |
-| [Anthropic 的社区市场](#submit-to-the-community-marketplace) | 任何添加 `anthropics/claude-plugins-community` 的人 | 通过插件目录提交表单的提交 | 关闭 |
+| [Anthropic 的目录](#submit-to-anthropics-directory) | 在 claude.ai 或 Cowork 中添加它的人。它也通过[账户同步](/docs/zh-CN/plugins/loading#synced-plugins)在他们的 Claude Code 会话中加载 | 一个包含插件的 GitHub 存储库和一个付费的 claude.ai 计划以从中提交 | 是，在您推送的版本发布后 |
 
 自动更新是用户端的每个市场设置，在后台获取新版本。
 
@@ -141,30 +141,33 @@
 
 [安装插件](/docs/zh-CN/plugins/install)涵盖用户端命令，[自动更新何时运行](/docs/zh-CN/plugins/loading#when-auto-update-runs)涵盖时间。
 
-<h2 id="submit-to-the-community-marketplace">
-  提交到社区市场
+<h2 id="submit-to-anthropics-directory">
+  提交到 Anthropic 的目录
 </h2>
 
-Anthropic 的社区市场 `claude-community` 是列出通过插件目录提交表单提交的插件的公共市场。
+Anthropic 的目录是人们在 claude.ai 和 Cowork 中浏览以添加插件和连接器的目录。在那里的一个列表可以覆盖 claude.ai、Cowork 和 Claude Code 上的用户。您可以从开发者门户 [claude.ai/directory/manage](https://claude.ai/directory/manage) 提交；claude.com 上的 [Prepare for review](https://claude.com/docs/directory/publish#prepare-for-review) 描述了每个版本在发布前会发生什么。
 
-用户在 Claude Code 会话中使用 `/plugin marketplace add anthropics/claude-plugins-community` 添加社区市场，并从中安装为 `@claude-community`。
+提交需要付费的 claude.ai 计划。在 Pro 和 Max 上，您可以从自己的账户提交。在 Team 和 Enterprise 上，Owner 可以提交，在 Enterprise 上，Owner 还可以通过 **Organization settings > Roles** 下的自定义角色向其他成员授予 **Directory** 权限。请参阅 [Confirm you can submit to the directory](https://claude.com/docs/directory/publish#confirm-you-can-submit-to-the-directory)。
 
-关于社区市场与官方市场的区别，请参阅 [Anthropic 的市场](/docs/zh-CN/plugins/anthropic-marketplaces)。
+提交步骤、每个版本必须通过的检查以及发布后会发生什么都记录在 claude.com 上，因为无论您的用户在哪个平台上，这些都是相同的：
 
-要将您的插件提交到社区市场，请使用以下应用内表单之一：
+* [Publish to the directory](https://claude.com/docs/directory/publish#before-you-submit-to-the-directory)：您可以提交什么以及谁可以提交
+* [Submit a plugin](https://claude.com/docs/plugins/submit#submit-a-plugin)：门户步骤和 [updating a published plugin](https://claude.com/docs/plugins/submit#update-a-published-plugin)
+* [Plugin pre-submission checklist](https://claude.com/docs/plugins/pre-submission-checklist#run-the-checks-before-you-submit)：提交前要运行和修复的检查
+* [Move an earlier submission to the developer portal](https://claude.com/docs/directory/publish#move-an-earlier-submission-to-the-developer-portal)：如果您通过早期提交表单之一提交了插件（在门户存在之前），该怎么办
 
-* **claude.ai**：[claude.ai/admin-settings/directory/submissions/plugins/new](https://claude.ai/admin-settings/directory/submissions/plugins/new)
-* **Console**：[platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit)
+在打开门户之前，在本地验证并检查您的哪些组件在 Claude Code 之外加载：
 
-claude.ai 表单需要 Team 或 Enterprise 组织以及目录权限，Owners 默认持有该权限。不属于 Team 或 Enterprise 组织的个人作者可以改用 Console 表单。
+* **在您的 shell 中运行 `claude plugin validate ./your-plugin --strict`**：用您的插件目录的路径替换 `./your-plugin`。该命令在本地捕获清单错误；[plugin validate](/docs/zh-CN/plugins/cli-reference#plugin-validate) 列出了每次运行读取的文件。门户应用了 CLI 不检查的额外目录规则，因此本地运行清晰并不保证门户验证清晰。
+* **检查在哪里加载**：某些插件组件仅限 Claude Code，不在 claude.ai 或 Cowork 中加载。[component support table](https://claude.com/docs/plugins/platform-support#compare-component-support-by-app) 按应用列出了每个组件，因此您知道 Claude Code 之外的用户会获得什么。
 
-在您的 shell 中，在提交前本地运行 `claude plugin validate ./your-plugin`，用您的插件目录的路径替换 `./your-plugin`。当验证通过时，Claude Code 打印 `✔ Validation passed`，或如果有警告则打印 `✔ Validation passed with warnings`。警告不会使验证失败；添加 `--strict` 以将它们视为错误。
+Anthropic 的官方市场 `claude-plugins-official` 不通过目录门户接受提交。如果您与 Anthropic 合作伙伴联系合作，请询问他们关于官方市场列表的信息。
 
-列出的插件出现在 [`anthropics/claude-plugins-community`](https://github.com/anthropics/claude-plugins-community) 目录中，在几乎所有情况下都固定到特定的提交 SHA。
+<h3 id="how-a-listed-plugin-reaches-claude-code-users">
+  列出的插件如何到达 Claude Code 用户
+</h3>
 
-提交和您的插件出现在 `marketplace.json` 中之间可能会有延迟。要检查您的插件是否可安装，请在[社区目录](https://github.com/anthropics/claude-plugins-community/blob/main/.claude-plugin/marketplace.json)中搜索其名称。
-
-官方市场 `claude-plugins-official` 不通过这些表单接受提交。如果您与 Anthropic 合作伙伴联系合作，请询问他们关于官方市场列表的信息。
+在 claude.ai 上从目录安装您的插件的人在他们的账户上拥有它，Claude Code 将其加载为 `<name>@synced`。[Plugins synced from claude.ai](/docs/zh-CN/plugins/loading#synced-plugins) 涵盖了他们看到的内容以及他们如何关闭它。
 
 <h2 id="ship-updates-renames-and-removals">
   发布更新、重命名和删除
@@ -174,7 +177,7 @@ claude.ai 表单需要 Team 或 Enterprise 组织以及目录权限，Owners 默
   发布新版本
 </h3>
 
-如果您通过您自己的市场发布，并且您的 `plugin.json` 设置了 `version`，请增加它并推送。运行 `claude plugin update` 或启用自动更新的用户然后接收新版本，如[向用户发布更新](#ship-updates-to-users)下所述。
+如果您通过您自己的市场发布，并且您的 `plugin.json` 设置了 `version`，请增加它并推送。运行 `claude plugin update` 或启用自动更新的用户然后接收新版本，如[向用户发布更新](#ship-updates-to-users)下所述。对于目录列表，请参阅[更新已发布的插件](https://claude.com/docs/plugins/submit#update-a-published-plugin)。
 
 <h3 id="tag-a-release">
   标记发布

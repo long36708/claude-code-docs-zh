@@ -170,6 +170,7 @@ export CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1
 | `password` | 否 | 数据库凭证。在此处设置而不是在 `postgres_url` 中，以便凭证保持在 URL 之外。接受任何字符并优先于 URL 凭证。 |
 | `max_connections` | 否 | 每个副本的 Postgres 连接池大小。默认 `5`，这是保守的，对共享数据库友好。启用[支出限制](#admin)后，热路径在每个推理请求中执行几个操作，因此在负载下为专用数据库提高它，并保持副本 × 这个值低于数据库的 `max_connections`。 |
 | `connect_timeout_seconds` | 否 | 网关打开 Postgres 连接时等待的秒数。从 `1` 到 `60` 的整数，默认 `5`。如果当新网关实例启动时连接尝试超时，请提高它。需要网关服务器上的 Claude Code v2.1.274 或更高版本。早期版本在设置该键时拒绝启动。 |
+| `readiness_grace_seconds` | 否 | 在 Postgres 停止应答后 `/readyz` 继续报告就绪的秒数。从 `0` 到 `3600` 的整数，默认 `0`。请参阅[中断行为](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)以了解如何选择值。需要网关服务器上的 Claude Code v2.1.282 或更高版本。早期版本在设置该键时拒绝启动。 |
 
 对于本地开发，将 `postgres_url` 指向一个一次性 Postgres 容器，例如 `docker run --rm -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres`。
 
@@ -947,6 +948,8 @@ telemetry:
 * `OTEL_EXPORTER_OTLP_ENDPOINT=<public_url>`
 * `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`
 
+当您[添加您自己的标签](#add-your-own-labels)时，网关也推送 `OTEL_RESOURCE_ATTRIBUTES`。
+
 在网关服务器上的 Claude Code v2.1.265 之前，网关将所有三个导出器选择器推送为 `otlp`，包括没有目的地选择加入的信号。
 
 推送的端点是从公共 URL 构建的，因此指标和日志不需要来自开发者或策略的 OTEL 配置。
@@ -963,6 +966,37 @@ telemetry:
 仅在您想要跟踪的组的策略中将其设置为 `1`。不设置它的策略从您的 `match: {}` 全部捕获策略继承值（如果该策略设置一个），根据[合并规则](#managed)。要防止组的客户端发送跟踪，即使开发者在本地设置变量，在该组的策略中将其设置为 `0`。
 
 Protobuf 和 JSON OTLP 编码都被中继，任何 OpenTelemetry 兼容的后端都可以作为目的地。
+
+<h4 id="add-your-own-labels">
+  添加您自己的标签
+</h4>
+
+要在通过网关登录的会话的遥测上放置固定标签（如 `service.namespace` 或 `deployment.environment.name`），设置 `telemetry.resource_attributes`。每个标签是一个 OpenTelemetry 资源属性，每个目的地接收相同的标签。
+
+会话仅在您也设置 `telemetry.forward_to` 和 `listen.public_url` 时获得标签。此示例添加两个标签：
+
+```yaml theme={null}
+telemetry:
+  forward_to:
+    - url: https://otel-collector.internal.example.com
+  resource_attributes:
+    service.namespace: claude
+    deployment.environment.name: prod
+```
+
+当标签违反这些规则之一时，网关拒绝启动，启动错误命名标签：
+
+* 名称仅使用字母、数字、`.`、`_` 和 `-`
+* 名称不是保留的。以任何字母大小写比较，保留名称是以 `user.`、`enduser.` 或 `identity.` 开头的所有内容，加上 `service.name`、`service.version`、`claude.deployment_mode`、`host.arch`、`os.type`、`os.version` 和 `wsl.version`
+* 值是非空可打印 ASCII，没有空格和 `, ; = \ " %` 中的任何一个
+* 值最多 255 个字符，网关在百分比编码后计数，因此 `/`、`:` 和 `@` 各计为三个
+* 值是文本，因此引用数字、`true` 或 `false`
+
+您需要网关服务器上的 Claude Code v2.1.281 或更高版本才能设置 `telemetry.resource_attributes`。早期网关在找到该键时拒绝启动。在添加该键之前升级每个副本，并在回滚到早期版本之前删除该键。
+
+通过 `/login` 登录的终端会话接收标签作为 `OTEL_RESOURCE_ATTRIBUTES`，与其他[遥测变量](#telemetry)一起推送。如果您在策略的 `env` 块中设置 `OTEL_RESOURCE_ATTRIBUTES`，与该策略匹配的终端会话获得该值而不是标签。Claude Desktop 从网关接收标签以及 `user.email` 和其他身份属性。
+
+Claude Code 也将每个标签复制到每个指标数据点，因此您可以在不索引资源属性的后端中按它过滤指标。要关闭该复制，请参阅[指标基数控制](/docs/zh-CN/monitoring-usage#metrics-cardinality-control)。
 
 <h4 id="export-directly-to-your-collector">
   直接导出到您的收集器
@@ -1034,9 +1068,9 @@ Claude Code 在直接导出信号之前检查端点，当检查失败时将该�
 
 `load_test_mode` 块让您在不调用模型提供商的情况下对网关进行负载测试。启用它时，网关像往常一样构建和签署每个提供商请求，丢弃它而不是发送它，并通过其正常响应路径流式传输罐装回复。回复是填充文本，以说明它是罐装的句子开头。
 
-需要 v2.1.283 或更高版本。早期版本在设置键时拒绝启动，因此在添加块之前升级每个副本，并在回滚之前删除它。
+需要网关服务器上的 Claude Code v2.1.282 或更高版本。早期版本在找到该键时拒绝启动。在添加块之前升级每个副本，并在回滚之前删除块。
 
-下面的示例以默认值打开模式，回复为 750 个输出令牌，在大约 10 秒内流式传输：
+下面的示例以默认值打开模式，回复为大约 750 个令牌的文本，在大约 10 秒内流式传输：
 
 ```yaml theme={null}
 load_test_mode:
@@ -1053,7 +1087,11 @@ load_test_mode:
 
 此模式下的负载测试涵盖网关、您的 Postgres 和网关前面的所有内容。它不涵盖提供商的限制、速度或网络路径。
 
-启用模式时，请求可以携带 `x-load-test-user` 标头，保存最多七位数的整数，网关将每个数字计为具有请求附带的令牌的开发者的电子邮件和组的单独开发者。为负载测试部署提供自己的空数据库，因为网关拒绝在任何开发者已经花费任何东西的数据库中启动模式。
+没有模型请求发送到提供商，因此副本的每个请求的 CPU 是估计值，读取低于生产，生产也加密其到提供商的流量。使用小试点对真实提供商确认副本计数。在 v2.1.283 之前，估计读取低得多。
+
+启用模式时，请求可以携带 `x-load-test-user` 标头，保存最多七位数的整数。网关将每个数字计为具有请求附带的令牌的开发者的电子邮件和组的单独开发者。
+
+为负载测试部署提供自己的空数据库，因为网关拒绝在任何开发者已经花费任何东西的数据库中启动模式。
 
 <Warning>
   永远不要为开发者使用的网关打开此功能。每个请求都获得罐装回复，没有模型被调用。网关在启动时记录 `load_test_mode is on` 警告，并在模式启用时使用 `load_test: true` 标记每个 `inference` [审计事件](/docs/zh-CN/claude-apps-gateway-deploy#logs)。
@@ -1111,6 +1149,7 @@ store:
   postgres_url: ${GATEWAY_POSTGRES_URL}
   # max_connections: 5
   # connect_timeout_seconds: 5
+  # readiness_grace_seconds: 300   # 在数据库故障转移期间保持通过就绪检查
 
 # 启用 /v1/organizations/spend_limits（镜像 Anthropic Admin API）
 # 和 /v1/messages 上的每开发者支出强制。省略以禁用。
@@ -1129,6 +1168,13 @@ store:
 
 # enforcement:
 #   fail_closed_on_error: false
+
+# 在不调用模型提供商的情况下对此部署进行负载测试。永远不要在
+# 开发人员使用的网关上：每个请求都会获得一个预设回复。
+# load_test_mode:
+#   enabled: true
+#   # reply_tokens: 750
+#   # reply_seconds: 9.5
 
 # 按合同费率而不是美元列表价格计费。需要 admin: 或
 # managed: 策略。使用 managed:，相同的费率也会发送到已登录的客户端。
@@ -1231,7 +1277,9 @@ telemetry:
 
 对于 Claude Desktop，在 Claude Desktop 自己的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中设置 `bootstrapUrl` 密钥为 `<listen.public_url>/user/bootstrap`。登录流程和每组策略随后与 CLI 的匹配，一旦策略通过 `desktop` 密钥在服务器端选择加入；没有选择加入，`/user/bootstrap` 返回 404。有关服务器端部分，请参阅 [Claude Desktop 覆盖层](#claude-desktop-overlay)。
 
-Claude Code 仅从机器上的托管源尊重 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl)、[`gatewayInternalNetworks`](/docs/zh-CN/settings-reference#gatewayinternalnetworks) 和 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值：`managed-settings.json`、macOS plist 或 Windows HKLM 注册表，或策略助手。开发者在自己的 `~/.claude/settings.json` 中设置它们无效，在网关有效负载中设置它们也无效。
+Claude Code 仅从机器上的托管源尊重 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl)、[`gatewayInternalNetworks`](/docs/zh-CN/settings-reference#gatewayinternalnetworks) 和 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值：`managed-settings.json`、macOS plist 或 Windows HKLM 注册表，或策略助手。在开发者自己的 `~/.claude/settings.json` 中设置它们或在网关有效负载中设置它们不会配置网关登录。
+
+不要在有效负载中包含 `forceLoginMethod` 和 `forceLoginOrgUUID`。Claude Code 仍然从有效负载中读取这两个密钥以进行启动凭证检查，因此在机器上保留 Anthropic 颁发的凭证的开发者会获得[管理员策略需要云网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)下描述的启动退出，即使他们已经登录。
 
 <h2 id="related">
   相关

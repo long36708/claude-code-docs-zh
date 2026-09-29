@@ -155,7 +155,7 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 
 如果一个回合因为一个在你修复之前不会清除的错误而失败，Claude Code 会清除目标并打印一个警告，说明原因。警告以 `Goal cleared after an unrecoverable error` 开头，以 `Run /goal again to continue` 结尾。修复原因，然后使用 `/goal <condition>` [再次设置目标](#set-a-goal)。四种失败会清除目标：
 
-* 身份验证失败，当 Claude Code 管理自己的凭证时。当主机为你管理凭证时，例如桌面应用、VS Code 扩展或[云会话](/docs/zh-CN/claude-code-on-the-web)，Claude Code 会保持目标活跃，因为主机会自动恢复访问权限。
+* 身份验证失败，当 Claude Code 管理自己的凭证时。当主机为你管理凭证时，例如桌面应用或[云会话](/docs/zh-CN/claude-code-on-the-web)，Claude Code 会保持目标活跃，因为主机会自动恢复访问权限。
 * 信用余额耗尽
 * 一个[自动压缩](/docs/zh-CN/model-config#set-the-auto-compact-window)无法清除的上下文溢出
 * 一个不可用的模型

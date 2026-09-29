@@ -161,19 +161,25 @@ Claude Code 在您的输入中突出显示该关键字，Claude 为任务编写�
   让 Claude 使用 ultracode 决定
 </h3>
 
-Ultracode 是一个 Claude Code 设置，它结合了 `xhigh` [推理努力](/docs/zh-CN/model-config#adjust-effort-level)与自动工作流编排。启用它后，Claude 为每个实质性任务规划工作流，而不是等待您要求。
+Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排，在会话运行的任何[努力级别](/docs/zh-CN/model-config#adjust-effort-level)。启用它后，Claude 为每个实质性任务规划工作流，而不是等待您要求。在 Claude Code 提示处启用它：
 
 ```text wrap theme={null}
 /effort ultracode
 ```
 
-要启动已启用 ultracode 的会话，请使用 `claude --effort ultracode` 启动。需要 Claude Code v2.1.203 或更高版本。
+要启动已启用 ultracode 的会话，请使用 `claude --effort ultracode` 启动，这也会将努力级别设置为 `xhigh`。需要 Claude Code v2.1.203 或更高版本。
 
-要在您选择模型时启用它，将 `/model` 选择器的努力滑块移动到 `ultracode`，使用箭头键。[调整努力级别](/docs/zh-CN/model-config#adjust-effort-level)列出启用 ultracode 的路由。
+要从 `/effort` 滑块启用它，按 `Tab` 翻转 **Ultracode** 切换，然后按 `Enter` 应用它。[调整努力级别](/docs/zh-CN/model-config#adjust-effort-level)列出启用 ultracode 的路由。
 
-启用 ultracode 后，Claude 决定任务何时值得工作流。单个请求可以变成一系列工作流：一个理解代码，一个进行更改，一个验证它。这适用于会话中的每个任务，所以每个请求使用更多令牌并花费比较低努力级别更长的时间。
+启用 ultracode 后，Claude 决定任务何时值得工作流。单个请求可以变成一系列工作流：一个理解代码，一个进行更改，一个验证它。这适用于会话中的每个任务，所以每个请求使用更多令牌并花费比没有工作流的相同请求更长的时间。在订阅计划上，这些令牌会计入您的使用限制，所以启用 ultracode 的会话比关闭时进行相同工作更快达到会话或每周限制。
 
-`/effort ultracode` 持续当前会话；要让每个会话都以它开始，设置 [`ultracode`](/docs/zh-CN/settings-reference#ultracode) 设置。当您返回日常工作时，使用 `/effort high` 下降。`/effort` 菜单仅在 [ultracode 可用时](/docs/zh-CN/model-config#when-ultracode-is-available)提供它。
+启用 ultracode 已经选择加入大型运行，所以启用它时这些检查不适用：
+
+* 工作流运行时不会出现 [`Large workflow` 警告](#cost)
+* 会话的[并发子代理限制](/docs/zh-CN/sub-agents#concurrent-subagent-limit)对 Claude 使用 Agent 工具生成的子代理不强制执行
+* 在自动权限模式下，您不会被要求[批准第一个工作流启动](#approve-the-plan-before-it-runs)
+
+`/effort ultracode` 持续当前会话；要让每个会话都以它开始，设置 [`ultracode`](/docs/zh-CN/settings-reference#ultracode) 设置。当您返回日常工作时，使用 `/effort ultracode off` 关闭它。`/effort` 滑块仅在 [ultracode 可用时](/docs/zh-CN/model-config#when-ultracode-is-available)提供切换。
 
 <h3 id="approve-the-plan-before-it-runs">
   在运行前批准计划
@@ -516,7 +522,9 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
 
 要为整个组织关闭工作流，在[托管设置](/docs/zh-CN/server-managed-settings)中设置 `"disableWorkflows": true`，或使用[Claude Code 管理员设置](https://claude.ai/admin-settings/claude-code)页面上的切换。
 
-当工作流被禁用时，捆绑工作流命令和 `/workflow-authoring` skill 不可用，`ultracode` 关键字不再触发运行，`ultracode` 从 `/effort` 菜单中移除。
+当工作流被禁用时，捆绑工作流命令和 `/workflow-authoring` skill 不可用，`ultracode` 关键字不再触发运行，**Ultracode** 切换从 `/effort` 中移除。一个已在进行中的运行会继续进行。
+
+关闭工作流也会使[ultracode](#let-claude-decide-with-ultracode)不可用。没有托管设置单独排除 ultracode：无论它在哪里[可用](/docs/zh-CN/model-config#when-ultracode-is-available)，用户可以使用 `/effort ultracode` 打开它。[努力上限](/docs/zh-CN/model-config#organization-effort-limits)降低了启用 ultracode 的会话运行的努力级别，但不会关闭 ultracode。
 
 <h2 id="related-resources">
   相关资源

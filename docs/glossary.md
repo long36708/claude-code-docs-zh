@@ -72,7 +72,7 @@ Claude 根据您的更正和偏好为自己编写的笔记，按 git 存储库�
   Auto mode
 </h3>
 
-一种[权限模式](#permission-mode)，其中单独的分类器模型审查操作而不是您，因此 Claude Code 可以在不询问您的情况下运行大多数操作。Claude Code 仍然会在您的显式 ask 规则匹配的操作之前询问您。在 Pro、Max 和 Team 计划上，auto mode 是交互式终端和 VS Code 会话的[内置起始权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)。分类器阻止范围升级、不受信任的基础设施和[提示注入](#prompt-injection)。工具结果从它看到的内容中被剥离，因此文件或网页中的恶意内容无法直接操纵它。
+一种[权限模式](#permission-mode)，其中单独的分类器模型审查操作而不是您，因此 Claude Code 可以在不询问您的情况下运行大多数操作。Claude Code 仍然会在您的显式 ask 规则匹配的操作之前询问您。在 Claude Code v2.1.283 或更高版本中，auto mode 是交互式终端和 VS Code 会话的[内置起始权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)，在早期版本中仅在 Pro、Max 和 Team 计划上可用。分类器阻止范围升级、不受信任的基础设施和[提示注入](#prompt-injection)。工具结果从它看到的内容中被剥离，因此文件或网页中的恶意内容无法直接操纵它。
 
 了解更多：[使用 auto mode 消除提示](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)
 
@@ -427,6 +427,33 @@ Skills 是自定义命令的推荐后继。`.claude/commands/deploy.md` 处的�
 您访问 Claude Code 的任何地方：CLI、VS Code、JetBrains、Desktop 或 claude.ai。所有 surfaces 共享相同的引擎。您机器上的会话读取您的本地 CLAUDE.md、settings 和 skills；[cloud sessions](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup) 从您的存储库的新克隆开始，不读取您机器上的 `~/.claude/`。Slack 和 Chrome 扩展是连接到 surface 的集成，而不是 surfaces 本身。
 
 了解更多：[平台和集成](/docs/zh-CN/platforms)
+
+<h3 id="system-prompt">
+  System prompt
+</h3>
+
+Claude Code 在每个请求之前发送给您的对话的指令，涵盖 Claude 如何使用工具、安全行为和格式化响应。您可以使用 `--append-system-prompt` 添加到系统提示或使用 `--system-prompt` 替换它。系统提示是 [prompt cache](/docs/zh-CN/prompt-caching#how-the-cache-is-organized) 的第一层。
+
+您的 [CLAUDE.md](#claude-md) 文件和您的 [output style](#output-style) 的指令不是系统提示的一部分。Claude Code 在对话中将它们作为 [system reminders](#system-reminder) 传递。
+
+了解更多：[System prompt flags](/docs/zh-CN/cli-reference#system-prompt-flags)
+
+<h3 id="system-reminder">
+  System reminder
+</h3>
+
+Claude Code 作为 [harness](#agentic-harness) 添加到对话中的消息，为 Claude 提供上下文。您不会自己发送系统提醒。Claude Code 在会话运行时插入它们，例如当会话启动时、当 hook 返回文本时或当文件在磁盘上更改时。Claude 与您的消息一起读取它们。以下所有内容都作为系统提醒到达 Claude：
+
+* 您的 [CLAUDE.md](#claude-md) 文件
+* 您的 [output style](#output-style) 的指令
+* [hook](#hook) 作为 `additionalContext` 返回的文本
+* 可用 [skills](#skill) 的列表
+* Claude 之前读取的文件已在磁盘上更改的注记
+* 提交和拉取请求的归属行
+
+在记录的 API 请求中，系统提醒出现在用户消息内的 `<system-reminder>` 标签中，或在某些模型上作为具有 `system` 角色的单独消息。
+
+了解更多：[Claude Code 在系统提示之外添加的上下文](/docs/zh-CN/agent-sdk/modifying-system-prompts#context-claude-code-adds-outside-the-system-prompt)
 
 <h2 id="t">
   T

@@ -6,10 +6,13 @@
 
 > 了解什么是 Claude Code 插件，何时需要使用插件而不是独立的 skill 或 MCP 服务器，以及应该阅读哪个页面来安装或创建插件。
 
-Claude Code 插件是一个目录，包含 skills、agents、hooks、MCP 服务器或其他组件，Claude Code 将其作为一个单元安装和加载。大多数插件来自市场，市场是一个列出插件及其获取位置的目录。您也可以从某人提供给您的文件夹加载插件，或者[构建您自己的插件](/docs/zh-CN/plugins/create)。
+Claude Code 插件是一个目录，包含 skills、agents、hooks、MCP 服务器或其他组件，Claude Code 将其作为一个单元进行安装和加载。大多数插件来自市场，市场是一个目录，列出了插件及其获取位置。您也可以从某人提供给您的文件夹中加载插件，或者[构建您自己的插件](/docs/zh-CN/plugins/create)。
 
 <Note>
-  如果您使用 claude.ai 聊天或 Cowork 而不是 Claude Code，请参阅 [claude.ai 和 Cowork 中的插件](https://claude.com/docs/plugins/overview)。
+  如果以下任一情况适用于您，请改为在 claude.com 上开始：
+
+  * **您使用 claude.ai 聊天或 Cowork，而不是 Claude Code**：请参阅 [claude.ai 和 Cowork 中的插件](https://claude.com/docs/plugins/overview)
+  * **您构建了 MCP 服务器并希望将其添加到 Anthropic 的目录中**：请参阅[发布到目录](https://claude.com/docs/directory/publish)
 </Note>
 
 要立即尝试插件，请在 Claude Code 终端会话中运行 `/plugin`，并从**发现**选项卡安装一个插件，该选项卡列出了来自 Anthropic 官方市场和您添加的任何市场的插件。从那里：
@@ -122,7 +125,7 @@ Claude Code 在您第一次启动交互式终端会话时添加 Anthropic 的官
 云会话（包括浏览器中 claude.ai/code 中的会话）不加载本地设置中的插件。有关终端、VS Code 和桌面应用中的安装步骤，以及云会话加载的内容，请参阅[安装插件](/docs/zh-CN/plugins/install#install-a-plugin)。
 
 <Note>
-  相同的插件格式也在 claude.ai 和 Cowork 上安装，其中加载了不同的组件集。对于这些界面，请参阅 claude.com 上的 [claude.ai 和 Cowork 中的插件](https://claude.com/docs/plugins/overview)。
+  相同的插件格式也在 claude.ai 和 Cowork 上安装，其中加载了不同的组件集。对于这些界面，请参阅 claude.com 上的 [claude.ai 和 Cowork 中的插件](https://claude.com/docs/plugins/overview) 及其[按应用比较组件支持表](https://claude.com/docs/plugins/platform-support#compare-component-support-by-app)。
 </Note>
 
 <h2 id="next-steps">
@@ -135,7 +138,7 @@ Claude Code 在您第一次启动交互式终端会话时添加 Anthropic 的官
 
 安装或构建插件后，这些页面涵盖接下来的内容：
 
-* **分享您构建的内容**：[发布和分发插件](/docs/zh-CN/plugins/publish)
+* **分享您构建的内容**：[发布和分发插件](/docs/zh-CN/plugins/publish)，通过您自己的市场或 [Anthropic 的目录](/docs/zh-CN/plugins/publish#submit-to-anthropics-directory)
 * **检查它是否有效和被使用**：[使用 evals 测试插件](/docs/zh-CN/plugin-evals)和[测量插件成本和使用情况](/docs/zh-CN/plugins/measure)
 * **为您的团队运行市场**：[创建市场](/docs/zh-CN/plugins/create-marketplace)，然后[托管和维护市场](/docs/zh-CN/plugins/host-marketplace)
 * **为组织设置插件策略**：[为您的组织管理插件](/docs/zh-CN/plugins/org)

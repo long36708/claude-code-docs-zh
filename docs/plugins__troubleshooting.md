@@ -676,7 +676,7 @@ claude plugin install <name>@<marketplace> --scope project
   `Failed to load hooks from <path>` 和不触发的 hooks
 </h3>
 
-插件的 hooks 不运行。要么 **Errors** 选项卡显示它们的加载失败，hooks 加载且您在成绩单中看到 `<Event> hook error` 通知，要么 hook 加载无错误且永远不触发。
+插件的 hooks 不运行，或一个阻止了一个操作。要么 **Errors** 选项卡显示它们的加载失败，hooks 加载且您在成绩单中看到 `<Event> hook error` 通知或阻止错误，要么 hook 加载无错误且永远不触发。
 
 <h4 id="hooks-fail-to-load">
   Hooks 无法加载
@@ -693,7 +693,17 @@ claude plugin install <name>@<marketplace> --scope project
 
 形式为 `... hook error: Failed with non-blocking status code: <stderr>` 的通知意味着 hook 运行且其命令失败。例如，`Stop hook error: Failed with non-blocking status code: /bin/sh: node: command not found` 意味着 Claude Code 生成的 shell 找不到 `node`。安装它，或确保它在您启动 `claude` 的终端的 `PATH` 上。
 
+如果 stderr 显示插件的路径在空格处被截断，hook 的 shell 形式命令在引号外使用 `${CLAUDE_PLUGIN_ROOT}`，安装路径包含空格。将变量用双引号包装或使用 [exec 形式](/docs/zh-CN/hooks#exec-form-and-shell-form)。要找到未引用的变量，请在插件的目录上运行 `claude plugin validate` 并查找其 [引用警告](/docs/zh-CN/plugins/manifest-reference#quoting-and-path-separators)。
+
 对于任何其他错误，从插件目录自己运行 hook 的命令以查看完整输出，或使用 [调试日志](/docs/zh-CN/hooks#debug-hooks) 捕获完整 stderr。
+
+<h4 id="a-plugin-hook-blocks-a-tool-call-or-prompt">
+  插件 hook 阻止工具调用或提示
+</h4>
+
+退出代码为 2 的 hook [阻止它运行的操作](/docs/zh-CN/hooks#exit-code-2)。当插件的 hook 以这种方式阻止且其 stderr 是阻止消息时，错误以 `This hook comes from the <plugin> plugin.` 结尾，以便您知道要禁用或修复哪个插件。在 v2.1.281 之前，错误没有命名插件。
+
+如果该消息显示插件的路径在空格处被截断，应用 [未引用的 `${CLAUDE_PLUGIN_ROOT}` 修复](#hook-error-notices-in-the-transcript)。
 
 <h4 id="hook-loads-but-never-fires">
   Hook 加载但永远不触发

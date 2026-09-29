@@ -53,7 +53,7 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 | | 触发方式 | Claude 运行位置 | 设置 | 最适合 |
 | :- | :- | :- | :- | :- |
 | [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch) | 从 Claude 移动应用发送任务消息 | 您的机器（Desktop） | [将移动应用与 Desktop 配对](https://support.claude.com/en/articles/13947068) | 在您离开时委派工作，最少设置 |
-| [Remote Control](/docs/zh-CN/remote-control) | 从 [claude.ai/code](https://claude.ai/code) 或 Claude 移动应用驱动正在运行的会话 | 您的机器（CLI 或 VS Code） | 运行 `claude remote-control` | 从另一台设备控制进行中的工作 |
+| [Remote Control](/docs/zh-CN/remote-control) | 从 [claude.ai/code](https://claude.ai/code) 或 Claude 移动应用驱动正在运行的会话 | 您的机器（CLI、Desktop 或 VS Code） | 运行 [`claude remote-control` 或 `/remote-control`](/docs/zh-CN/remote-control#start-a-remote-control-session) | 从另一台设备控制进行中的工作 |
 | [Channels](/docs/zh-CN/channels) | 从聊天应用（如 Telegram 或 Discord）或您自己的服务器推送事件 | 您的机器（CLI） | [安装频道插件](/docs/zh-CN/channels#quickstart) 或 [构建您自己的](/docs/zh-CN/channels-reference) | 对外部事件（如 CI 失败或聊天消息）做出反应 |
 | [Slack](/docs/zh-CN/slack) | 在团队频道中提及 `@Claude` | Anthropic 云 | [安装 Slack 应用](/docs/zh-CN/slack#setting-up-claude-code-in-slack)，启用 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) | 从团队聊天进行 PR 和审查 |
 | [Self-hosted environments](/docs/zh-CN/self-hosted-environments) | 启动 [云会话](/docs/zh-CN/claude-code-on-the-web)并选择您组织的环境 | 您组织的基础设施 | [部署运行器](/docs/zh-CN/self-hosted-environments-quickstart)，在 Team 和 Enterprise 计划上 | 必须在您的网络内运行的云会话 |

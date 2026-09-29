@@ -181,7 +181,9 @@ rate_limits:
   健康
 </h3>
 
-网关提供 `GET /healthz` 作为活跃探针，`GET /readyz` 作为就绪探针；`/readyz` 验证存储是否可达。两者都免除 `access_control.allow_cidrs`，因此探针在锁定的监听器上继续工作。
+网关提供 `GET /healthz` 作为活跃探针和 `GET /readyz` 作为就绪探针。`/readyz` 验证存储是否可达。如果您设置了 [`store.readiness_grace_seconds`](/docs/zh-CN/claude-apps-gateway-config#store)，`/readyz` 在存储停止应答后最多继续报告就绪达到那么多秒。
+
+两个端点都免除 `access_control.allow_cidrs`，因此探针在锁定的监听器上继续工作。
 
 `/.well-known/oauth-authorization-server` 处的 OAuth 发现文档也仅在配置加载、OIDC 发现、上游客户端构造和 Postgres 迁移全部成功后才返回 `200`，因此它也充当端到端启动检查。
 
@@ -217,9 +219,19 @@ rate_limits:
 * **现有会话**：持有者令牌使用 JWT 密钥在本地验证，会话刷新不接触存储，网关进程仍然可以提供推理
 * **新登录**：失败直到 Postgres 恢复，因为设备流及其速率限制计数器存在于 Postgres 中
 * **[支出限制执行](/docs/zh-CN/claude-apps-gateway-spend-limits#postgres-availability)**：在中断期间默认失败开放，因此推理仍然流动；如果您宁愿阻止而不是无计量运行，将其翻转为失败关闭
-* **就绪**：`/readyz` 在中断期间报告未就绪，因此在就绪上门控流量的编排器一次从轮换中移除每个副本。在该拓扑中，所有流量，包括网关仍然可以提供的推理，在负载均衡器处失败，直到 Postgres 恢复。`/healthz` 上的活跃探针继续通过，因此副本不会重新启动。如果您宁愿已登录的开发者在存储中断期间继续工作，将就绪探针指向 `/healthz`；成本是新登录失败，反对仍然报告就绪的副本。
+* **就绪**：默认情况下，`/readyz` 在 Postgres 无法访问时立即报告未就绪，因此每个副本一次失败其就绪检查。在流量仅到达通过检查的副本的地方，所有流量，包括网关仍然可以提供的推理，在 Postgres 恢复前失败。`/healthz` 上的活跃探针在整个过程中继续通过。
 
-如果您的 IdP 宕机，现有会话工作直到 `ttl_hours`，新登录失败，会话刷新获得重试答案并在 IdP 恢复后进行一次。如果您的 IdP 有频繁的维护窗口，设置更长的 `ttl_hours`。
+如果您的 IdP 宕机，现有会话工作直到 `ttl_hours`，新登录失败。会话刷新获得重试答案并在 IdP 恢复后成功。如果您的 IdP 有频繁的维护窗口，设置更长的 `ttl_hours`。
+
+<h4 id="readiness-grace-period">
+  就绪宽限期
+</h4>
+
+要让已登录的开发者在短 Postgres 中断（如数据库故障转移）期间继续工作，将 [`store.readiness_grace_seconds`](/docs/zh-CN/claude-apps-gateway-config#store) 设置为比故障转移花费的时间更长，例如 `300`。启用支出限制并使用默认失败开放行为，通过保持就绪的副本的请求在 Postgres 恢复前无计量，因此将值保持为低至覆盖您的故障转移。如果您设置了 [`enforcement.fail_closed_on_error: true`](/docs/zh-CN/claude-apps-gateway-config#enforcement)，网关拒绝已登录开发者的推理，带有 `429` `spend limit unavailable` 消息，直到 Postgres 恢复，即使副本仍然通过其就绪检查。
+
+该设置需要网关服务器上的 Claude Code v2.1.282 或更高版本。较早的网关在找到密钥时拒绝启动，因此在添加它之前升级每个副本。[升级](#upgrades) 涵盖回滚。
+
+如果您将就绪探针指向 `/healthz` 而不是，副本也在中断期间继续通过它，但 `/healthz` 永远不报告未就绪，因此 Postgres 连接未恢复的副本继续通过。
 
 <h3 id="jwt-secret-rotation">
   JWT 密钥轮换

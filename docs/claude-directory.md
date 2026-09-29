@@ -1554,7 +1554,7 @@ Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`clean
 | `projects/<project>/<session>.jsonl` | 完整的对话记录：每条消息、工具调用和工具结果 |
 | `projects/<project>/<session>.orphaned-<timestamp>-<suffix>.jsonl`、`projects/<project>/<session>.jsonl.superseded-<timestamp>` | 会话的先前记录，Claude Code 将其搁置而不是覆盖或删除它。它不会出现在会话选择器中 |
 | `projects/<project>/<session>/subagents/` | [Subagent](/docs/zh-CN/sub-agents) 对话记录，当父会话记录过期时被删除 |
-| `projects/<project>/<session>/tool-results/` | 大型工具输出溢出到单独的文件 |
+| `projects/<project>/<session>/tool-results/` | 大型工具输出溢出到单独的文件，以及 [MCP 工具返回的图像](/docs/zh-CN/mcp#images-in-tool-results) 的完整大小副本 |
 | `file-history/<session>/` | Claude 更改的文件的编辑前快照，用于 [checkpoint 恢复](/docs/zh-CN/checkpointing)。保存最近 100 个 checkpoint 的快照；没有保留 checkpoint 引用的快照文件被删除，除了每个文件的第一个快照 |
 | `plans/` | 在 [Plan Mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 期间写入的计划文件 |
 | `debug/` | 每个会话的调试日志，在启用调试日志时写入，例如当您使用 [`--debug`](/docs/zh-CN/cli-reference#cli-flags) 启动或运行 `/debug` 时 |
@@ -1581,6 +1581,28 @@ Claude Code 在这些情况下跳过基于年龄的扫描：
 
 * **Bare mode**：当您使用 [`--bare`](/docs/zh-CN/headless#start-faster-with-bare-mode) 运行 `claude -p` 时，Claude Code 不会在该会话中运行扫描。
 * **暂停扫描**：如果 Claude Code 无法安全地确定保留期，它会暂停保留清理扫描；[`retention_sweep` 事件](/docs/zh-CN/monitoring-usage#retention-sweep-event)列出每个暂停它的配置。当原因是无法读取或解析的设置文件，或 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 明确设置的设置错误时，Claude Code 也会在 `/status` 中显示警告，直到您修复设置错误。当 [managed settings](/docs/zh-CN/server-managed-settings) 提供 `cleanupPeriodDays` 时，Claude Code 在任何情况下都以 managed 值运行扫描。
+
+<h3 id="session-scratchpad-directory">
+  会话暂存目录
+</h3>
+
+暂存是 Claude Code 为 Claude 提供的每个会话目录，用于临时文件：中间结果、辅助脚本和不属于您的项目的草稿。当 Claude 说它将某些内容保存"到暂存"时，该文件就在那里。Claude 使用它而不是 `/tmp`，可以在其中创建、编辑和读取文件而无需权限提示。
+
+暂存位于 Claude Code 的临时目录下，而不是 `~/.claude`。找到您的平台的当前会话路径：
+
+* **macOS**：`/private/tmp/claude-<uid>/<project>/<session-id>/scratchpad/`
+* **Linux**：`/tmp/claude-<uid>/<project>/<session-id>/scratchpad/`，或当您的系统设置 `$TMPDIR` 时在其下的相同形状
+* **Windows**：`%TEMP%\claude\<project>\<session-id>\scratchpad\`
+
+`<project>` 是您的工作目录路径，其中除字母和数字外的每个字符都被替换为 `-`，例如 `-Users-you-my-project`。如果您设置了 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars)，树会改为移动到该目录下。Hooks 接收当前会话的路径作为 [`scratchpad_dir`](/docs/zh-CN/hooks#common-input-fields)。
+
+暂存文件的生命周期与会话的记录相同：[保留扫描](#cleaned-up-automatically)在删除记录时删除目录，[`claude project purge`](#clear-local-data) 不会触及临时目录。因为目录位于系统临时位置下，您的操作系统也可以清除它，例如在重启时。要保留 Claude 在那里写入的内容，请要求 Claude 将其移动到您的项目中。
+
+会话仅在以下所有条件成立时才有暂存：
+
+* 您使用 claude.ai 账户而不是 API 密钥登录
+* 会话使用 Anthropic API，而不是 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry
+* [`enableArtifact`](/docs/zh-CN/settings-reference#enableartifact) 未设置为 `false`
 
 <h3 id="kept-until-you-delete-them">
   保留直到您删除它们
@@ -1626,7 +1648,7 @@ Claude Code 在这些情况下跳过基于年龄的扫描：
 * `history.jsonl` 中的匹配提示行
 * `~/.claude.json` 中的项目条目
 
-您在项目会话中粘贴或附加的图像存储在 Claude Code 的临时目录下，而不是 `~/.claude`，因此清除不会删除它们。[保留扫描](#cleaned-up-automatically)会在它们的年龄超过 `cleanupPeriodDays` 时删除它们。
+您在项目会话中粘贴或附加的图像以及每个会话的 [暂存](#session-scratchpad-directory) 存储在 Claude Code 的临时目录下，而不是 `~/.claude`，因此清除不会删除它们。[保留扫描](#cleaned-up-automatically) 仍会在它们的年龄超过 `cleanupPeriodDays` 时删除图像；清除的会话的暂存会保留，直到您删除它或您的操作系统清除临时目录。
 
 该命令打印完整的删除计划，并在删除任何内容之前要求确认。
 

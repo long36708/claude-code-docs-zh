@@ -32,6 +32,14 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 
 要登出并重新身份验证，请在 Claude Code 提示符处输入 `/logout`。登出还会重置您的首次启动设置状态，因此下次运行 `claude` 时，它会再次引导您完成登录和设置。
 
+要同时保持登录多个账户（例如工作和个人账户），请为每个账户提供自己的配置目录。启动 `claude` 时，将 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars#variables) 环境变量设置为您要使用的账户的目录。每个目录都有自己的设置、会话历史记录和 claude.ai 登录或 API 密钥。例如，在 Bash 或 Zsh 中，将此别名添加到 `~/.bashrc` 或 `~/.zshrc`，以便 `claude-work` 使用您的工作账户，而 `claude` 保持您的个人账户：
+
+```bash theme={null}
+alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
+```
+
+首次打开新终端并运行 `claude-work` 后，Claude Code 会引导您完成新目录的登录和设置。单独的目录不会将两个 Claude Console 登录 [不带 API 密钥](#sign-in-without-an-api-key) 分开，因为 Claude Code 将这种类型的登录存储在配置目录之外。
+
 如果您在登录时遇到问题，请参阅 [身份验证故障排除](/docs/zh-CN/troubleshoot-install#login-and-authentication)。
 
 <h2 id="set-up-team-authentication">
@@ -122,7 +130,7 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 * 任何设置文件设置 [`forceLoginOrgUUID`](#restrict-login-to-your-organization)，或将 `forceLoginMethod` 设置为 `"claudeai"` 或 `"console"`
 * 您机器上存在托管设置源（例如托管设置文件、MDM 配置文件或缓存的服务器托管设置），但 Claude Code [无法读取它](/docs/zh-CN/managed-settings#invalid-entries-in-managed-settings)，且没有其他托管源提供策略
 
-在无密钥登录之前取消设置 `ANTHROPIC_API_KEY`。由 Claude Code 自己的 Console 登录或由 Claude Platform CLI 的 `ant auth login` 编写的配置文件是相同类型的凭证，因此再次登录会替换它。
+在无密钥登录之前取消设置 `ANTHROPIC_API_KEY`。
 
 无密钥登录后，您拥有配置文件而不是存储的 API 密钥：
 
@@ -160,23 +168,27 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 
 要求开发人员的 claude.ai 登录属于特定的 Anthropic 组织，请在 [托管设置](/docs/zh-CN/managed-settings) 中设置 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 和 [`forceLoginOrgUUID`](/docs/zh-CN/settings-reference#forceloginorguuid)。将 `forceLoginOrgUUID` 设置为您的组织 ID，该 ID 显示在 [claude.ai 管理员设置](https://claude.ai/admin-settings/organization) 中，适用于 Claude for Teams 或 Enterprise 组织。Claude Code 会为任何其他组织的 claude.ai 登录报告错误，如果使用中的 claude.ai 凭证属于未列出的组织，则在启动时退出。
 
-对于 Claude Console 登录，当您将其设置为单个 Console 组织 ID（显示在 [platform.claude.com/settings/organization](https://platform.claude.com/settings/organization)）时，Claude Code 使用 `forceLoginOrgUUID` 在 Console 登录页面上预选组织。它不检查生成的 Console 凭证属于哪个组织，无论是在登录时还是在启动时，在您部署密钥之前使用 Console 账户登录的开发人员会保持登录状态。
+对于 Claude Console 登录，当您将其设置为单个 Console 组织 ID（显示在 [platform.claude.com/settings/organization](https://platform.claude.com/settings/organization)）时，Claude Code 使用 `forceLoginOrgUUID` 在 Console 登录页面上预选组织。它不检查生成的 Console 凭证属于哪个组织，无论是在登录时还是在启动时。在您部署密钥之前使用 Console 账户登录的开发人员会保持登录状态，该保存的密钥在同时需要 [网关](/docs/zh-CN/claude-apps-gateway) 登录的机器上被阻止，或在选择云提供商的会话中被阻止。
 
 如果您在任何设置文件中设置 `forceLoginOrgUUID`，Claude Code 会停止在该文件适用的会话中提供 [无密钥 Console 登录](#sign-in-without-an-api-key)，而是创建 API 密钥。要将开发人员定向到 claude.ai 登录，请将 `forceLoginMethod` 设置为 `"claudeai"`。
 
-开发人员可以从多个路径登录：终端 `/login` 流程、[VS Code 扩展](/docs/zh-CN/vs-code)、Agent SDK、`claude setup-token`、`/install-github-app` 和 [网关](/docs/zh-CN/claude-apps-gateway) 登录，适用于通过云网关路由的组织。在 Claude Code v2.1.212 或更高版本上，每个路径都应用 `forceLoginMethod`；在 v2.1.212 之前，只有终端登录应用任一密钥。在终端的交互式登录屏幕上，通过 `/login` 或首次运行入门到达，Claude Code 预选 `claudeai` 或 `console` 方法而不强制执行，因此即使设置了 `forceLoginMethod` 为 `"claudeai"`，开发人员仍然可以在那里完成 Console 登录。这些路径在 `forceLoginOrgUUID` 上有所不同：
+在 Claude Code v2.1.212 或更高版本上，此处列出的每个登录路径都应用 `forceLoginMethod`。在终端的交互式登录屏幕上，通过 `/login` 或首次运行入门到达，Claude Code 预选 `claudeai` 或 `console` 方法而不强制执行，因此即使设置了 `forceLoginMethod` 为 `"claudeai"`，开发人员仍然可以在那里完成 Console 登录。
 
-* **终端、VS Code 扩展和 Agent SDK 登录**：验证 claude.ai 账户登录的 `forceLoginOrgUUID`
+这些路径在 `forceLoginOrgUUID` 上有所不同：
+
+* **终端、[VS Code 扩展](/docs/zh-CN/vs-code) 和 Agent SDK 登录**：验证 claude.ai 账户登录的 `forceLoginOrgUUID`
 * **`claude setup-token` 和 `/install-github-app`**：仅强制执行 `forceLoginMethod`，因此它们可以在不同的组织中铸造令牌
 * **[网关](/docs/zh-CN/claude-apps-gateway) 登录**：由 `forceLoginMethod: "gateway"` 选择而不是受其限制，并且不针对 Anthropic 组织进行身份验证，因此 `forceLoginOrgUUID` 不适用；使用您的网关身份提供商来限制访问
 
 通过您的设备管理工具部署密钥。[服务器托管设置](/docs/zh-CN/server-managed-settings) 仅到达已经通过您的组织身份验证的账户，因此它们无法重定向开发人员的首次登录。如果您的组织也分发服务器托管设置，请在两个地方设置密钥：托管设置源 [不合并](/docs/zh-CN/server-managed-settings#settings-precedence)，缓存的服务器托管设置替换设备托管文件，除了几个 [按密钥例外](/docs/zh-CN/server-managed-settings#per-key-exceptions-across-managed-sources)。`forceLoginOrgUUID` 和 `forceLoginMethod` 的 `"claudeai"` 和 `"console"` 值不在这些例外中，因此在两个地方都保留它们。
 
+在 [网关](/docs/zh-CN/claude-apps-gateway) 部署中，也要将 `forceLoginMethod` 和 `forceLoginOrgUUID` 保留在 [网关提供的设置](/docs/zh-CN/claude-apps-gateway-config#managed) 之外。
+
 这些密钥还决定不使用登录凭证的会话是否可以启动。有关完整行为，请参阅设置参考中的 [`forceLoginOrgUUID`](/docs/zh-CN/settings-reference#forceloginorguuid)。
 
-* **`ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper`**：在启动时被阻止，因为无法验证环境凭证的组织成员身份
-* **云提供商会话，例如 Amazon Bedrock**：不被阻止，因为它们针对您的云提供商进行身份验证。通过您的云 IAM 策略限制这些
-* **[Anthropic 配置文件或联合凭证](#anthropic-profiles-and-federation-credentials)**：不被阻止，密钥不检查配置文件属于哪个组织
+* **`ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper`**：在启动时被阻止。在 `forceLoginOrgUUID` 下，无法验证环境凭证的组织成员身份，在 `forceLoginMethod` 下，凭证会代替所需的登录。当托管设置也需要 [网关](/docs/zh-CN/claude-apps-gateway) 登录时，Claude Code 以相同方式阻止由早期 Claude Console 登录保存的 API 密钥。请参阅 [管理员策略需要云网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)
+* **云提供商会话，例如 Amazon Bedrock**：仅在 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，或由早期 Claude Console 登录保存的 API 密钥仍然存在于机器上时被阻止。删除它，会话就会启动。这些会话针对您的云提供商进行身份验证，其访问策略管理它们
+* **[Anthropic 配置文件或联合凭证](#anthropic-profiles-and-federation-credentials)**：不被阻止，除非 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，或由早期 Claude Console 登录保存的 API 密钥也存在于机器上。这些密钥不检查配置文件属于哪个组织
 
 <h2 id="credential-management">
   凭证管理
@@ -192,9 +204,9 @@ Claude Code 安全地管理您的身份验证凭证：
   * Claude Code 通过 `/login` 和 `/logout` 管理 `.credentials.json`。要通过自定义 API 端点路由请求，请改为设置 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 环境变量。
 * **支持的身份验证类型**：claude.ai 凭证、Claude API 凭证、Microsoft Foundry Auth、Bedrock Auth、Vertex Auth、Anthropic 配置文件和 [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 凭证，以及 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话令牌。
 * **自定义凭证脚本**：配置 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 设置以运行返回 API 密钥的 shell 脚本。
-* **刷新间隔**：Claude Code 默认在五分钟后重新运行 `apiKeyHelper`。设置 `CLAUDE_CODE_API_KEY_HELPER_TTL_MS` 环境变量以获得自定义刷新间隔。有关 Claude Code 重新运行助手的其他情况，请参阅 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper)。
+* **刷新间隔**：请参阅 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 了解 Claude Code 重新运行助手的情况。
 * **缓慢助手通知**：如果 `apiKeyHelper` 返回密钥需要超过 10 秒，Claude Code 会在提示栏中显示警告通知，显示经过的时间。如果您经常看到此通知，请检查您的凭证脚本是否可以优化。
-* **助手失败**：当脚本以错误退出、超时或不输出任何内容时，请求在三次尝试内失败，显示 [`Your apiKeyHelper script is failing`](/docs/zh-CN/errors#your-apikeyhelper-script-is-failing)。在 v2.1.208 之前，助手失败显示为通用 401，经过大约十次无声重试。
+* **助手失败**：当脚本以错误退出、超时或不输出任何内容时，请求在三次尝试内失败，显示 [`Your apiKeyHelper script is failing`](/docs/zh-CN/errors#your-apikeyhelper-script-is-failing)。
 
 `apiKeyHelper`、`ANTHROPIC_API_KEY` 和 `ANTHROPIC_AUTH_TOKEN` 适用于 CLI 和包装它的表面，包括 VS Code 扩展、Agent SDK 和 GitHub Actions。Claude Desktop 和云会话不会调用 `apiKeyHelper` 或读取这些环境变量：它们使用 OAuth，除了运行[第三方推理配置](/docs/zh-CN/llm-gateway-connect#desktop-app)的桌面会话外，这些会话使用该配置的凭证进行身份验证。
 
@@ -202,11 +214,11 @@ Claude Code 安全地管理您的身份验证凭证：
   续期即将过期的登录
 </h3>
 
-当您使用 `/login` 创建的登录在过期前三天内时，Claude Code 会在启动时显示警告：`Your login expires in 3 days · run /login to renew`。需要 Claude Code v2.1.203 或更高版本。在 v2.1.217 之前，警告在五天前出现。
+当您使用 `/login` 创建的登录在过期前三天内时，Claude Code 会在启动时显示警告：`Your login expires in 3 days · run /login to renew`。
 
-运行 `/login` 以续期。该警告仅供参考，永远不会阻止请求：身份验证将继续工作，直到登录实际过期。登录生命周期本身不变；提前警告是 v2.1.203 添加的功能。
+运行 `/login` 以续期。该警告仅供参考，永远不会阻止请求：身份验证将继续工作，直到登录实际过期。
 
-一旦存储的登录过期且无法刷新，每个模型请求都会失败，显示 [`Login expired · Please run /login`](/docs/zh-CN/errors#login-expired)，直到您再次登录。在 v2.1.206 之前，Claude Code 将过期的登录报告为模型错误。
+一旦存储的登录过期且无法刷新，每个模型请求都会失败，显示 [`Login expired · Please run /login`](/docs/zh-CN/errors#login-expired)，直到您再次登录。
 
 您可以在请求失败之前检查此状态：[`/status`](/docs/zh-CN/commands) 显示 `Login` 行，读取 `Expired — log in again`，加上它为过期登录保存的组织和电子邮件。该行仅在保存的 claude.ai 或 Claude Console 登录是活跃凭证时出现。该行需要 Claude Code v2.1.210 或更高版本。
 
@@ -230,7 +242,7 @@ Claude Code 安全地管理您的身份验证凭证：
 
 一个已签名的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话位于此列表之外：它是一个提供商选择，如 Amazon Bedrock 或 Google Cloud 的 Agent Platform，并且它优先于它们。当网关会话存在时，即使设置了 `CLAUDE_CODE_USE_BEDROCK`、`CLAUDE_CODE_USE_VERTEX` 或 `CLAUDE_CODE_USE_FOUNDRY`，CLI 也会使用网关令牌进行身份验证，上面的持有者令牌、API 密钥、`apiKeyHelper` 和配置文件等凭证源不会被使用。
 
-如果您的机器的[托管设置](/docs/zh-CN/managed-settings)将 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 设置为 `"gateway"` 或设置 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl)，并且您没有通过 `CLAUDE_CODE_USE_BEDROCK` 或 `CLAUDE_CODE_USE_VERTEX` 等变量选择云提供商，您的会话仅使用网关登录。Claude Code 跳过其他凭证源并要求您使用 `/login` 登录。有关每个剩余凭证的情况，请参阅[管理员策略需要云网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。在 v2.1.261 之前，或在仅设置 `forceLoginGatewayUrl` 的机器上在 v2.1.265 之前，Claude Code 在这些机器上使用剩余的保存登录，直到您登录到网关。
+如果您的机器的[托管设置](/docs/zh-CN/managed-settings)将 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 设置为 `"gateway"` 或设置 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl)，并且您没有通过 `CLAUDE_CODE_USE_BEDROCK` 或 `CLAUDE_CODE_USE_VERTEX` 等变量选择云提供商，您的会话仅使用网关登录。Claude Code 跳过其他凭证源并要求您使用 `/login` 登录。有关每个剩余凭证的情况，请参阅[管理员策略需要云网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。需要 Claude Code v2.1.261 或更高版本，或在仅设置 `forceLoginGatewayUrl` 的机器上需要 v2.1.265 或更高版本。
 
 如果您有活跃的 Claude 订阅，但环境中也设置了 `ANTHROPIC_API_KEY`，Claude Code 会在您批准后使用 API 密钥。如果密钥属于已禁用或过期的组织，这可能会导致身份验证失败。
 
@@ -254,11 +266,9 @@ Claude Code 按此顺序检查三个源，并在第一个设置的源处停止�
 | 联合变量 | `ANTHROPIC_FEDERATION_RULE_ID` 和 `ANTHROPIC_ORGANIZATION_ID`，两者都设置 | 上方 |
 | 活跃配置文件 | 您的配置目录中的 [`active_config` 文件](https://platform.claude.com/docs/en/manage-claude/wif-reference#active-profile)，或名为 `default` 的配置文件 | 当其身份验证模式为 `oidc_federation` 时上方；当其身份验证模式为 `user_oauth` 时在工作的 `/login` 凭证下方 |
 
-`user_oauth` 规则防止剩余的 `ant auth login` 配置文件将您的请求移出您使用 `/login` 登录的帐户。对于联合变量，Claude Code 还会在交换您的身份令牌时读取 [WIF 参考](https://platform.claude.com/docs/en/manage-claude/wif-reference#environment-variables)中的其他变量，例如 `ANTHROPIC_IDENTITY_TOKEN_FILE`。对于配置文件格式，请参阅 [WIF 参考](https://platform.claude.com/docs/en/manage-claude/wif-reference#profile-configuration-file)。
+对于联合变量，Claude Code 还会在交换您的身份令牌时读取 [WIF 参考](https://platform.claude.com/docs/en/manage-claude/wif-reference#environment-variables)中的其他变量，例如 `ANTHROPIC_IDENTITY_TOKEN_FILE`。对于配置文件格式，请参阅 [WIF 参考](https://platform.claude.com/docs/en/manage-claude/wif-reference#profile-configuration-file)。
 
 要确认 Claude Code 选择了哪个源，请运行 `/status`。`Profile` 行用源名称代替 `Login method` 行。当配置文件是正在使用的凭证时，`Organization` 和 `Email` 行显示其帐户。
-
-如果您使用 `--debug` 启动 Claude Code，它还会在 `~/.claude/debug/<session-id>.txt` 的调试日志中写入 `Using Anthropic profile auth` 行，其中包含源名称。当 Claude Code 因为您有工作的 `/login` 凭证而跳过 `user_oauth` 活跃配置文件时，它会向调试日志写入警告，说它改为使用 claude.ai 登录。
 
 当 `user_oauth` 配置文件的登录已过期且 Claude Code 无法续期时，请求会失败，显示 [Anthropic 配置文件登录已过期](/docs/zh-CN/errors#anthropic-profile-login-expired)。
 
@@ -279,9 +289,25 @@ claude setup-token
 
 该命令会打开与 `/login` 相同的浏览器授权流程，在您在浏览器中批准访问后，令牌会打印到终端。它不会将令牌保存在任何地方；复制它并将其设置为 `CLAUDE_CODE_OAUTH_TOKEN` 环境变量，无论您想在何处进行身份验证：
 
-```bash theme={null}
-export CLAUDE_CODE_OAUTH_TOKEN=your-token
-```
+<Tabs>
+  <Tab title="macOS, Linux, WSL">
+    ```bash theme={null}
+    export CLAUDE_CODE_OAUTH_TOKEN=your-token
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell theme={null}
+    $env:CLAUDE_CODE_OAUTH_TOKEN = "your-token"
+    ```
+  </Tab>
+
+  <Tab title="Windows CMD">
+    ```batch theme={null}
+    set CLAUDE_CODE_OAUTH_TOKEN=your-token
+    ```
+  </Tab>
+</Tabs>
 
 此令牌使用您的 Claude 订阅进行身份验证，需要 Pro、Max、Team 或 Enterprise 计划。它只能进行模型请求，因此无法建立 [Remote Control](/docs/zh-CN/remote-control) 会话或获取 [claude.ai 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。您在本地配置的 MCP 服务器仍然有效。
 

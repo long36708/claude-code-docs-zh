@@ -89,10 +89,10 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 组织同步对仓库的要求比 `/plugin marketplace add` 更严格：
 
 * **Marketplace 仓库**：在 github.com 和 gitlab.com 上，它必须是私有或内部的
-* **插件源**：每个插件源必须是 `github`、`url` 或 `git-subdir` 类型，或以 `./` 开头的 [相对路径](/docs/zh-CN/plugins/marketplace-reference#relative-path-plugin-source)
+* **插件源**：组织同步仅接受某些 [源类型](/docs/zh-CN/plugins/marketplace-reference#plugin-sources)
 * **顶级 `bin/` 目录**：claude.ai 拒绝具有一个的插件并同步 marketplace 的其余部分。错误消息以 `Plugin contains a top-level bin/ directory` 开头。将可执行文件保留在另一个目录中，如 `scripts/`，并从你的 hooks 或 MCP 服务器配置中将它们引用为 `${CLAUDE_PLUGIN_ROOT}/scripts/<name>`
 
-有关管理员工作流程，请参阅 [为你的组织管理插件](https://support.claude.com/en/articles/13837433)。
+[从仓库同步你的组织的插件](https://claude.com/docs/plugins/org-sync) 在 claude.com 上列出了接受的源、GitLab 设置和 `bin/` 错误，[为你的组织管理插件](https://claude.com/docs/plugins/admin) 涵盖了管理员工作流程。
 
 <h2 id="grant-access-to-a-private-marketplace">
   授予对私有 marketplace 的访问权限
@@ -113,7 +113,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 对于 GitHub Enterprise Server 主机，用户需要从他们的机器访问该主机的 git 访问权限。有关每个 Claude Code 表面需要到达 GHES 托管的 marketplace 的内容，请参阅 [GHES 上的插件 marketplace](/docs/zh-CN/github-enterprise-server#plugin-marketplaces-on-ghes)。
 
-如果你改为通过 claude.ai 上的 **组织设置 > 插件和技能** 分发，你的用户的 git 凭证不涉及。有关哪些插件源可以在那里是私有的，请参阅 [通过组织设置分发](#distribute-through-organization-settings)。
+如果你改为通过 claude.ai 上的 **组织设置 > 插件和技能** 分发，你的用户的 git 凭证不涉及。请参阅 [通过组织设置分发](#distribute-through-organization-settings)。
 
 <h3 id="serve-users-who-have-no-git-host-account">
   为没有 git 主机账户的用户提供服务

@@ -126,10 +126,11 @@ Claude Code 允许用户配置 Model Context Protocol (MCP) servers。允许的 
 
 * **隔离的虚拟机**：每个云会话在隔离的、由 Anthropic 管理的 VM 中运行
 * **网络访问控制**：网络访问默认受限，可以配置为禁用或仅允许特定域
-* **凭证保护**：身份验证通过安全代理处理，该代理在沙箱内使用作用域凭证，然后转换为您的实际 GitHub 身份验证令牌
+* **凭证保护**：GitHub 凭证在 Anthropic 的服务器上以加密方式存储，永远不会进入会话 VM。VM 持有一个作用域限制于该会话的短期凭证，GitHub 流量通过 [Anthropic proxy](/docs/zh-CN/cloud-environments#github-proxy) 进行，该代理在服务器端附加 GitHub 凭证。有关如何授予访问权限，请参阅 [GitHub authentication options](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)
 * **分支限制**：Git push 操作限制在当前工作分支
 * **审计日志**：云会话中的所有操作都被记录以用于合规和审计目的
 * **自动清理**：会话 VM 在一段时间不活动后被回收
+* **删除**：您可以随时 [delete a session](/docs/zh-CN/claude-code-on-the-web#delete-sessions)。有关 Anthropic 为云会话存储的内容，请参阅 [Cloud execution data flow](/docs/zh-CN/data-usage#cloud-execution-data-flow-and-dependencies)
 
 有关云执行的更多详情，请参阅 [Use Claude Code in the cloud](/docs/zh-CN/claude-code-on-the-web)；要为云会话配置网络访问，请参阅 [Configure cloud environments](/docs/zh-CN/cloud-environments#network-access)。
 

@@ -255,6 +255,7 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
 
     store:
       postgres_url: ${GATEWAY_POSTGRES_URL}          # EKS: ${file:/secrets/postgres-url}
+      # readiness_grace_seconds: 300                 # 通过 RDS 故障转移保持通过健康检查
 
     upstreams:
       - provider: bedrock
@@ -423,7 +424,7 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
           --load-balancers "targetGroupArn=$TG_ARN,containerName=gateway,containerPort=8080"
         ```
 
-        60 秒的宽限期给冷任务时间拉取镜像、连接到存储并在 ECS 开始计算针对部署的失败之前回答其第一个健康检查。目标组对 `GET /readyz` 的健康检查验证存储是否可达，因此无法到达 Postgres 的任务永远不会进入轮换；有关权衡和 `/healthz` 替代方案，请参阅[中断行为](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)。
+        60 秒的宽限期给冷任务时间拉取镜像、连接到存储并在 ECS 开始计算针对部署的失败之前回答其第一个健康检查。目标组对 `GET /readyz` 的健康检查验证存储是否可达，因此无法到达 Postgres 的任务永远不会进入轮换。要通过短数据库中断（例如 RDS 故障转移）保持任务通过检查，请按照[中断行为](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)中所述设置 `store.readiness_grace_seconds`，其中也涵盖了 `/healthz` 替代方案。
 
         任务在私有子网中运行，没有公共 IP，因此所有出站（到 Bedrock、您的 IdP、Secrets Manager、ECR 和 CloudWatch Logs）都通过 NAT 网关。要将 Bedrock 流量保持在公共路径之外，创建一个 `bedrock-runtime` 接口 VPC 端点并将上游的 `base_url` 指向它，如 [Bedrock 上游参考](/docs/zh-CN/claude-apps-gateway-config#amazon-bedrock)所示；IdP 仍然需要互联网出站。
 

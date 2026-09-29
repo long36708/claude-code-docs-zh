@@ -220,8 +220,17 @@ Claude Code 将大多数设置更新应用于运行的会话而无需重新启�
 
 服务器管理的传递添加了这些行为：
 
-* 位于 `~/.claude/remote-settings.json` 的缓存存储已删除无效条目的已保存有效负载，除了无效的 `cleanupPeriodDays` 和 `desktopSessionCleanupPeriodDays` 值，它们保留在缓存副本中，永远不会被应用。
-* 当有效负载中没有字段可以被保存，且有效负载不仅仅是那些保留键时，Claude Code 拒绝有效负载，保留最后接受的缓存设置，并将 `Remote settings: Settings validation failed - no fields could be salvaged` 写入调试日志。设置了 `forceRemoteSettingsRefresh` 时，CLI 会退出。
+* 位于 `~/.claude/remote-settings.json` 的缓存上的启动会按照写入缓存的获取处理无效条目的方式处理它们：
+  * 未通过验证的条目保持被删除。
+  * [故障关闭的键](/docs/zh-CN/managed-settings#keys-that-fail-closed)保持其更严格的值。
+  * 无效的 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 值保留在缓存副本中，永远不会被应用。
+* 当以下三个条件都为真时，Claude Code 不应用有效负载中的任何内容，并保持缓存不变：
+
+  * 有效负载中的每个设置都未通过验证。
+  * 它们都不回退到更严格的值。
+  * 有效负载包含除这两个保留键之外的键。
+
+  启动通知、`/status` 和 `claude doctor` 然后报告[失败的加载](/docs/zh-CN/errors#remote-managed-settings-failed-to-load)，原因为 `no setting in the server response could be applied as written`，该条目说明会话运行的策略。[强制执行故障关闭启动](#enforce-fail-closed-startup)的客户端在启动时退出。
 * [安全批准对话框](#security-approval-dialogs)评估已保存的有效负载，因此被删除的无效条目永远不会被呈现以供批准，也永远不会执行。
 
 要调试传递问题，请运行 `claude --debug-file <path>` 并在日志中搜索 `Remote settings`。在向组织推出有效负载更改之前，使用 `claude doctor` 在测试机器上验证有效负载更改。

@@ -305,11 +305,35 @@ Claude 将您的设计系统视为比其自己的选择更高的优先级，您�
 
 对于排版，Claude 可以从 Google Fonts 加载字体，这是工件页面可以加载的唯一外部字体源。Claude 将任何其他字体内联为 `@font-face` 数据 URI，并为每个字体提供后备堆栈，因此即使字体未加载，页面仍会呈现。要使用特定字体，请在提示或设计系统中命名它。
 
-<h2 id="draft-a-design-canvas">
-  草拟设计画布
+<h2 id="start-from-a-slides-design-or-docs-template">
+  从幻灯片、设计或文档模板开始
 </h2>
 
-要模拟 UI、屏幕流、登陆页面或海报，而不是构建页面，请运行 `/design` 并提供简要说明。Claude 将设计作为一个画布上的画板草拟，并将画布发布为一个设计工件。简要说明命名您想要绘制的内容：
+Claude 可以从您的 claude.ai 账户上的模板开始创建工件，而不是从头开始构建页面：[Claude Slides](https://support.claude.com/en/articles/17153992-what-are-artifacts-and-how-do-i-use-them#h_11d5a9a5fa) 用于演示文稿，[Claude Design](https://support.claude.com/en/articles/14604416-get-started-with-claude-design) 用于视觉设计，或 [Claude Docs](https://support.claude.com/en/articles/16923645-get-started-with-claude-docs) 用于其他人将阅读和编辑的文档。每个都在 claude.ai 上的自己的编辑器中打开，您和您的团队成员可以直接更改它或要求 Claude 更改，并将其导出为 PowerPoint、PDF 或 Word 等格式。
+
+要从模板开始，请描述您想要的内容，例如"将迁移说明转换为周四审查的演示文稿"或"将此计划作为文档写给团队"。Claude 选择匹配的模板，从您的请求和会话已有的内容填充它，并给您链接。对于演示文稿或设计，您也可以运行 `/slides` 或 `/design` 并提供简要说明。
+
+<Note>
+  模板处于测试阶段。它们在 Pro、Max 和 Team 计划上默认启用。在 Enterprise 计划上，所有者在**组织设置 > 工件**下[启用每个模板](https://support.claude.com/en/articles/16994751-artifacts-admin-guide-for-team-and-enterprise-plans)。如果您的组织关闭了 Slides 模板，`/slides` 不会出现；如果关闭了 Design 模板，`/design` 不会草拟设计。两个命令都需要 Claude Code v2.1.265 或更高版本以及一个[工件可用](#availability)的会话。
+</Note>
+
+<h3 id="make-a-slide-deck">
+  制作幻灯片演示文稿
+</h3>
+
+运行 `/slides` 并提供简要说明，说明演示文稿涵盖的内容以及针对的对象：
+
+```text wrap theme={null}
+/slides a quarterly review of the platform team's reliability work, for the engineering all-hands
+```
+
+Claude 创建一个 Claude Slides 工件并给您链接。在桌面浏览器中打开它以编辑或演示演示文稿。如果您运行 `/slides` 而不提供简要说明，Claude 会在创建任何内容之前询问演示文稿应该是关于什么的。
+
+<h3 id="draft-a-design-canvas">
+  草拟设计画布
+</h3>
+
+要模拟 UI、屏幕流、登陆页面或海报，而不是构建页面，请运行 `/design` 并提供简要说明。Claude 将设计作为一个画布上的画板草拟，并将画布发布为一个 Claude Design 工件。简要说明命名您想要绘制的内容：
 
 ```text wrap theme={null}
 /design a settings screen for a mobile banking app
@@ -317,7 +341,15 @@ Claude 将您的设计系统视为比其自己的选择更高的优先级，您�
 
 在桌面浏览器中打开已发布的工件以查看画板。在画板上选择一个元素并更改它，您的编辑会自动保存。您可以将每个画板导出为 PNG 或 PDF。
 
-`/design` 需要一个会话，其中 [artifacts 可用](#availability)，且 Claude Code v2.1.265 或更高版本。
+<h3 id="write-a-document-with-claude-docs">
+  使用 Claude Docs 编写文档
+</h3>
+
+Claude Docs 作为 claude.ai [连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)而不是命令到达 Claude Code。连接后，`/mcp` 将其列为 `claude.ai Claude Docs`。针对供其他人使用的文档的请求随后转到 Claude Docs 而不是工件页面：规范、提案或您在会话中完成的计划的写入。Claude 在草拟文档时给您文档的链接。
+
+属于代码库的文档（例如 README）保持为文件。要为 Claude 否则会放在 Claude Docs 中的内容获取文件，请命名格式，例如 `.docx` 或存储库中的 Markdown 文件。
+
+要关闭连接器，请将 `claude.ai Claude Docs` 添加到 `deniedMcpServers` 或使用 `/mcp` 切换，两者都在[禁用 claude.ai 连接器](/docs/zh-CN/mcp#disable-claude-ai-connectors)中描述。
 
 <h2 id="page-constraints">
   页面约束

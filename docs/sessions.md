@@ -43,6 +43,7 @@ Claude Code 将使用 [`claude -p`](/docs/zh-CN/headless) 或 [Agent SDK](/docs/
 * 权限模式：如果您从终端使用 `claude --continue`、`claude --resume <session-id>` 或 `claude --resume <name>`（当名称与一个会话匹配时）恢复，不带 `-p`，Claude Code 会恢复会话所在的权限模式，除了[恢复时的权限模式](#permission-mode-on-resume)中的情况，这也涵盖会话选择器、`/resume` 和使用 `claude -p` 恢复。传递 `--permission-mode` 或 `--dangerously-skip-permissions` 以覆盖恢复的模式。
 * 活跃目标：会话结束时仍然活跃的[目标](/docs/zh-CN/goal#resume-with-an-active-goal)会继续；其轮次计数、计时器和令牌支出基线重置。
 * 计划任务：[未过期的任务](/docs/zh-CN/scheduled-tasks#limitations)会被恢复。后台 Bash 和监视任务不会。
+* 后台工作：[后台子 agent](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)、后台 Bash 命令或[工作流](/docs/zh-CN/workflows)在上一个进程结束时未完成，会在恢复的文本记录中显示为未完成的注记。Claude Code 不会从这些注记启动轮次；Claude 会在您的下一个提示中读取它们。
 
 并非原始启动的每个配置标志都会被恢复。如果会话依赖于 `--mcp-config`、`--settings`、`--plugin-dir`、`--fallback-model` 或使用 `--add-dir` 添加的目录，在恢复时再次传递它们；使用 `/add-dir` 在会话中期添加的目录也不会被恢复，尽管会话选择器仍然使用它们来定位会话。标准设置文件（如 `settings.json` 和 `settings.local.json`）在启动时重新读取，因此驻留在其中的配置不需要再次传递。对于 `--system-prompt` 和 `--append-system-prompt`，请参阅[恢复对话中的系统提示标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。
 
@@ -74,9 +75,9 @@ Claude Code 启动恢复会话的权限模式取决于您如何恢复：
   使用 `-p` 在计划模式中恢复
 </h5>
 
-`claude -p --resume` 或 `claude -p --continue` 运行仅在所有四个条件都成立时才在计划模式中恢复：
+`claude -p --resume` 或 `claude -p --continue` 运行仅在所有这些条件都成立时才在计划模式中恢复：
 
-* 您传递 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)，以便 Claude Code 可以呈现计划以供批准
+* 您传递 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)，不传递 [`--permission-prompts none`](/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs)，以便 Claude Code 可以呈现计划以供批准
 * 您不传递 `--permission-mode` 或 `--dangerously-skip-permissions`
 * 您不传递 `--fork-session`
 * 运行不是通过[频道](/docs/zh-CN/channels)启动的

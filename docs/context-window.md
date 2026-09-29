@@ -1632,9 +1632,9 @@ Claude Code 在您接近限制时自动压缩，因此完整的上下文窗口�
 * **在任务之间清除**：切换到不相关的工作时运行 `/clear`。旧对话会挤出您接下来需要的文件，并在每条消息上花费令牌。
 * **委托大型读取**：将研究发送给[子代理](/docs/zh-CN/sub-agents)，以便文件内容保留在其上下文窗口中，而不是您的。
 
-如果您需要更大的窗口而不是更小的对话，Fable 模型、Sonnet 5、Opus 4.6 及更高版本以及 Sonnet 4.6 支持 100 万令牌的上下文窗口。有关按计划的可用性以及如何选择 `[1m]` 模型变体，请参阅[扩展上下文](/docs/zh-CN/model-config#extended-context)。压缩在更大的限制下以相同的方式工作。
+如果您需要更大的窗口而不是更小的对话，Fable 模型、Sonnet 5 及更高版本、Opus 4.6 及更高版本以及 Sonnet 4.6 支持 100 万令牌的上下文窗口。有关按计划的可用性以及如何选择 `[1m]` 模型变体，请参阅[扩展上下文](/docs/zh-CN/model-config#extended-context)。压缩在更大的限制下以相同的方式工作。
 
-Sonnet 5 以 1M 上下文窗口运行，没有 `[1m]` 变体可选择。有关其自动压缩阈值和 LLM 网关异常，请参阅[Sonnet 5 上下文窗口](/docs/zh-CN/model-config#sonnet-5-context-window)。
+Sonnet 5.5 和 Sonnet 5 以 1M 上下文窗口运行，没有 `[1m]` 变体可选择。有关其自动压缩阈值和 LLM 网关异常，请参阅[Sonnet 5.5 和 Sonnet 5 上下文窗口](/docs/zh-CN/model-config#sonnet-5-5-and-sonnet-5-context-window)。
 
 自动压缩运行的位置取决于您的模型和配置。有关每个模型的边界，请参阅[默认自动压缩阈值](/docs/zh-CN/model-config#default-auto-compact-thresholds)，如果 Claude Code 为您的模型 ID（例如 [LLM 网关](/docs/zh-CN/llm-gateway)别名）假设了错误的窗口，请参阅[更正网关或自定义模型 ID 的窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id)。
 

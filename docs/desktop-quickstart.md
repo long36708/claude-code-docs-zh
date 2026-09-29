@@ -4,9 +4,9 @@
 
 # 开始使用桌面应用
 
-> 在桌面上安装 Claude Code 并开始您的第一个编码会话
+> 安装 Claude 桌面应用，打开 Code 选项卡，并在您计算机上的项目文件夹中开始您的第一个 Claude Code 会话。
 
-桌面应用为您提供具有图形界面的 Claude Code，专为并行运行多个会话而构建：用于管理并行工作的侧边栏、带有集成终端和文件编辑器的拖放布局、可视化差异审查、实时应用预览、GitHub PR 监控和自动合并以及计划任务。无需终端。
+桌面应用为您提供具有图形界面的 Claude Code，因此您可以要求 Claude 处理计算机上文件夹中的代码，并查看其更改，而无需使用终端。本页面将指导您安装应用并在 **Code** 选项卡中开始您的第一个会话。Claude Code 需要 [Pro、Max、Team 或 Enterprise 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_pricing)。
 
 <CardGroup cols={3}>
   <Card title="下载 macOS 版本" icon="apple" href="https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs">
@@ -25,15 +25,16 @@
 对于 Windows ARM64，请下载 [ARM64 安装程序](https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)。在 Linux 上，使用 apt 安装；请参阅 [Claude Desktop on Linux](/docs/zh-CN/desktop-linux)。
 
 <Note>
-  Claude Code 需要 [Pro、Max、Team 或 Enterprise 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_pricing)。
-</Note>
+  这些情况在其他页面中有介绍：
 
-本页面将指导您安装应用并开始您的第一个会话。如果您已经设置完成，请参阅[使用 Claude Code Desktop](/docs/zh-CN/desktop)了解完整参考。
+  * **已经设置完成**：请参阅[使用 Claude Code Desktop](/docs/zh-CN/desktop)了解 Code 选项卡可以执行的所有操作
+  * **想在您的终端中使用 `claude`**：[单独安装 CLI](/docs/zh-CN/quickstart)
+</Note>
 
 桌面应用有三个选项卡：
 
 * **Chat**：无文件访问权限的常规对话，类似于 claude.ai。
-* **Cowork**：一个自主后台代理，在沙箱虚拟机中处理任务，拥有自己的环境，可以独立运行，而您可以进行其他工作。本地 Cowork 会话在您的计算机上运行虚拟机；远程 Cowork 会话改为在 Anthropic 管理的虚拟机上运行。
+* **Cowork**：一个自主后台代理，在您进行其他工作时独立处理任务。
 * **Code**：一个交互式编码助手，可直接访问您的本地文件。根据权限模式，您可以在 Claude 提出更改时批准每项更改，或在 Claude 进行更改后审查这些更改。
 
 Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介绍；安装和部署桌面应用在 [Claude Desktop 支持文章](https://support.claude.com/en/collections/16163169-claude-desktop)中有介绍。本页面重点关注 **Code** 选项卡。
@@ -52,7 +53,7 @@ Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介�
   </Step>
 </Steps>
 
-桌面应用包含 Claude Code。您无需单独安装 Node.js 或 CLI。要从终端使用 `claude`，请单独安装 CLI。请参阅[开始使用 CLI](/docs/zh-CN/quickstart)。
+桌面应用包含 Claude Code，因此您无需安装 Node.js 或 CLI 即可使用 Code 选项卡。
 
 <h2 id="start-your-first-session">
   开始您的第一个会话

@@ -220,11 +220,15 @@ RUN git config --system user.name "Claude" \
 ENTRYPOINT ["claude"]
 ```
 
-如果您的节点是 ARM，将 `linux-x64` 交换为 `linux-arm64`，或在 Alpine 等 musl 基础镜像上交换为 `linux-x64-musl` 或 `linux-arm64-musl`；请参阅 [Alpine Linux 设置](/docs/zh-CN/setup#alpine-linux-and-musl-based-distributions)了解 musl 镜像需要的额外包。URL 是标准 Claude Code 发布位置，因此您可以根据[二进制完整性和代码签名](/docs/zh-CN/setup#binary-integrity-and-code-signing)中描述的发布的已签名清单验证下载的二进制文件。使用 Claude Code 版本 2.1.224 或更高版本构建镜像，然后将其推送到您的注册表并在下面的配方中引用它：
+如果您的节点是 ARM，将 `linux-x64` 交换为 `linux-arm64`，或在 Alpine 等 musl 基础镜像上交换为 `linux-x64-musl` 或 `linux-arm64-musl`；请参阅 [Alpine Linux 设置](/docs/zh-CN/setup#alpine-linux-and-musl-based-distributions)了解 musl 镜像需要的额外包。URL 是标准 Claude Code 发布位置，因此您可以根据[二进制完整性和代码签名](/docs/zh-CN/setup#binary-integrity-and-code-signing)中描述的发布的已签名清单验证下载的二进制文件。运行器需要 Claude Code 版本 2.1.224 或更高版本。构建镜像，然后将其推送到您的注册表并在下面的配方中引用它：
 
 ```bash theme={null}
-docker build --build-arg CLAUDE_CODE_VERSION=2.1.267 -t <your-registry>/claude-runner:latest .
+docker build \
+  --build-arg CLAUDE_CODE_VERSION="$(curl -fsSL https://downloads.claude.ai/claude-code-releases/stable)" \
+  -t <your-registry>/claude-runner:latest .
 ```
+
+命令替换查找当前 `stable` 发布号并将其作为构建参数传递，因此在新的稳定版本发布后运行相同的命令会使用较新的二进制文件重建下载层。要为可重现的构建固定特定版本，请直接将版本号作为 `CLAUDE_CODE_VERSION` 传递。当您需要比稳定通道更新的版本（例如[新推出的模型所需的版本](/docs/zh-CN/model-config)）时，在查找 URL 中将 `stable` 替换为 `latest`。
 
 <h2 id="size-cpu-and-memory-for-sessions">
   为会话调整 CPU 和内存大小

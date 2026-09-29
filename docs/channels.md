@@ -359,7 +359,7 @@ Channels 是一个研究预览功能。可用性正在逐步推出，`--channels
 
 在预览期间，`--channels` 仅接受来自 Anthropic 维护的允许列表的插件，或来自您组织的允许列表（如果管理员已设置 [`allowedChannelPlugins`](#restrict-which-channel-plugins-can-run)）。[claude-plugins-official](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins) 中的 channel 插件是默认批准的集合。如果您传递不在有效允许列表中的内容，Claude Code 会正常启动，但 channel 不会注册，启动通知会告诉您原因。
 
-要测试您正在构建的 channel，请使用 `--dangerously-load-development-channels`。有关测试您构建的自定义 channels 的信息，请参阅[在研究预览期间测试](/docs/zh-CN/channels-reference#test-during-the-research-preview)。
+要测试您正在构建的 channel，请将其以 `plugin:<name>@<marketplace>` 或 `server:<name>` 的形式传递给 `--dangerously-load-development-channels`。有关测试您构建的自定义 channels 的信息，请参阅[在研究预览期间测试](/docs/zh-CN/channels-reference#test-during-the-research-preview)。
 
 在 [Claude Code GitHub 存储库](https://github.com/anthropics/claude-code/issues)上报告问题或反馈。
 

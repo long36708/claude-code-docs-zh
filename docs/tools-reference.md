@@ -13,7 +13,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 要添加自定义工具，请连接一个 [MCP 服务器](/docs/zh-CN/mcp)。要使用可重用的基于提示的工作流扩展 Claude，请编写一个[skill](/docs/zh-CN/skills)，它通过现有的 `Skill` 工具运行，而不是添加新的工具条目。
 
 <Info>
-  在 Pro、Max 和 Team 计划上，Claude Code 在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中启动会话，其中分类器决定大多数这些提示，而不是您。`Permission required` 列显示工具是否在[手动模式](/docs/zh-CN/permission-modes)中为工作目录内的路径提示。标记为"否"的文件访问工具，包括 `Read`、`Grep` 和 `Glob`，仍然会为[工作目录和其他目录](/docs/zh-CN/permissions#working-directories)之外的路径提示。`Bash` 标记为"是"，但运行内置的[只读命令](/docs/zh-CN/permissions#read-only-commands)而不提示。
+  在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，分类器决定大多数权限提示，而不是您。`Permission required` 列显示工具是否在[手动模式](/docs/zh-CN/permission-modes)中为工作目录内的路径提示。标记为"否"的文件访问工具，包括 `Read`、`Grep` 和 `Glob`，仍然会为[工作目录和其他目录](/docs/zh-CN/permissions#working-directories)之外的路径提示。`Bash` 标记为"是"，但运行内置的[只读命令](/docs/zh-CN/permissions#read-only-commands)而不提示。
 </Info>
 
 | 工具 | 描述 | 需要权限 |
@@ -34,7 +34,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `Glob` | 基于模式匹配查找文件。在 macOS、Linux 和 WSL 上默认不存在。请参阅 [Glob 工具行为](#glob-tool-behavior) | 否 |
 | `Grep` | 在文件内容中搜索模式。在 macOS、Linux 和 WSL 上默认不存在。请参阅 [Grep 工具行为](#grep-tool-behavior) | 否 |
 | `ListAgents` | 列出 Claude 可以使用 `SendMessage` 消息的代理：会话中的子代理、[代理团队](/docs/zh-CN/agent-teams)队友、您的其他本地 Claude Code 会话，以及当此会话连接到[远程控制](/docs/zh-CN/remote-control)时，您的[网络版 Claude Code](/docs/zh-CN/claude-code-on-the-web) 会话和您在其他机器上的远程控制会话。支持 `/list-agents` 命令。请参阅[跨会话消息传递](/docs/zh-CN/cross-session-messaging)。需要 Claude Code v2.1.224 或更高版本，仅在[启用跨会话消息传递](/docs/zh-CN/cross-session-messaging#availability)的会话中出现。队友行和显示此会话自己名称的第一行需要 v2.1.239 或更高版本 | 否 |
-| `ListMcpResourcesTool` | 列出连接的 [MCP 服务器](/docs/zh-CN/mcp)公开的资源 | 否 |
+| `ListMcpResourcesTool` | 列出连接的 [MCP 服务器](/docs/zh-CN/mcp)公开的资源，不包括 [MCP Apps UI 资源](/docs/zh-CN/mcp#reference-mcp-resources)，这些是主机应用程序要呈现的页面 | 否 |
 | `LSP` | 通过语言服务器的代码智能：跳转到定义、查找引用、报告类型错误和警告。请参阅 [LSP 工具行为](#lsp-tool-behavior) | 否 |
 | `Monitor` | 在后台运行命令并将每个输出行反馈给 Claude，以便它可以对日志条目、文件更改或轮询状态做出反应。还可以打开 WebSocket 并将每条传入消息视为事件。请参阅 [Monitor 工具](#monitor-tool) | 是 |
 | `NotebookEdit` | 修改 Jupyter notebook 单元格。请参阅 [NotebookEdit 工具行为](#notebookedit-tool-behavior) | 是 |

@@ -31,7 +31,7 @@
   步骤 1：安装 Claude Code
 </h2>
 
-要安装 Claude Code，请使用以下方法之一：
+要安装 Claude Code，请打开终端并运行适用于您的系统的命令。如果您之前没有使用过终端，[终端指南](/docs/zh-CN/terminal-guide)会展示如何打开终端并粘贴命令。
 
 <Tabs>
   <Tab title="原生安装（推荐）">
@@ -52,6 +52,8 @@
     ```batch theme={null}
     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
     ```
+
+    安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
 
     如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。当您在 PowerShell 中时，您的提示符显示 `PS C:\`，当您在 CMD 中时显示 `C:\`（没有 `PS`）。
 
@@ -191,7 +193,7 @@ can Claude Code work with Docker?
 
 Claude Code 找到适当的文件并向您显示更改。如果它在进行更改前询问，请选择**是**以批准。
 
-Auto 模式是 Pro、Max 和 Team 计划上交互式终端会话的[内置起始权限模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：分类器审查操作而不是您，Claude 在不询问的情况下编辑大多数文件并运行大多数命令。在其他计划上，Manual 模式是内置起始权限模式。对于安装后立即启动的会话，请参阅[安装或升级后的首个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)。
+使用 Claude Code v2.1.283 或更高版本，auto 模式是交互式终端会话的[内置起始权限模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：分类器审查操作而不是您，Claude 在不询问的情况下编辑大多数文件并运行大多数命令。在早期版本上，auto 模式仅在 Pro、Max 和 Team 计划上是内置起始权限模式。对于安装后立即启动的会话，请参阅[安装或升级后的首个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)。
 
 <Note>
   您的设置或您的组织可以设置不同的起始权限模式。[会话启动时的权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)列出了相关内容。随时按 `Shift+Tab` 切换您所在会话的权限模式。

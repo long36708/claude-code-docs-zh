@@ -109,7 +109,7 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 
 提示框支持多项功能：
 
-* **权限模式**：点击提示框底部的模式指示器来切换权限模式。在 Pro、Max 和 Team 计划上，Auto 是内置的起始权限模式。请参阅[扩展程序如何选择起始权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)了解会改变这一点的因素，以及指示器提供的每种权限模式。
+* **权限模式**：点击提示框底部的模式指示器来切换权限模式。在 Claude Code v2.1.283 或更高版本中，Auto 是内置的起始权限模式，在较早版本中仅在 Pro、Max 和 Team 计划上可用。请参阅[扩展程序如何选择起始权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)了解会改变这一点的因素，以及指示器提供的每种权限模式。
   * **Auto**：分类器审查大多数操作，而不是询问您。请参阅 [auto 模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)了解它审查和阻止的内容。
   * **Manual**：Claude 在文件编辑和大多数 shell 命令之前请求权限。
   * **Plan**：Claude 描述它将做什么，并在进行更改之前等待批准。VS Code 自动将计划作为完整的 Markdown 文档打开，您可以在其中添加内联注释以在 Claude 开始之前提供反馈。
@@ -123,6 +123,8 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 * **Model**：从命令菜单中选择 **Switch model…** 以在会话中途更改模型。您也可以点击提示框底部的模型名称来打开相同的选择器。
 
   当当前模型支持[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)时，选择器还会显示 **Effort** 行和模型名称按钮显示选定的级别。当您选择除 `max` 之外的级别时，Claude Code 会在 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 下的用户设置中将其保存为当前模型的默认值；`max` 仅适用于当前会话。模型名称按钮和 **Effort** 行需要 Claude Code v2.1.257 或更高版本。
+
+  当[动态工作流](/docs/zh-CN/workflows)启用且当前模型支持时，**Effort** 行下会出现 **Ultracode** 开关。打开它以让 Claude 为此会话中的每个实质性任务规划[工作流](/docs/zh-CN/workflows#let-claude-decide-with-ultracode)，在选定的工作量级别。当它打开时，模型名称按钮在级别后显示 `· Ultracode`。该开关需要 Claude Code v2.1.284 或更高版本。
 * **Command menu**：点击 `/` 或输入 `/` 来打开命令菜单。选项包括附加文件、切换模型和切换扩展思考。
 
   Customize 部分提供对 MCP 服务器、slash commands、输出样式、hooks、memory、instructions、permissions 和 plugins 的访问。带有终端图标的项目在集成终端中打开。
@@ -150,9 +152,11 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 
     Claude 的最新待办事项列表保持可见，Claude 提出的待处理问题的文本也保持可见；这需要 Claude Code v2.1.225 或更高版本。当 Claude 运行[子代理](/docs/zh-CN/sub-agents)时，带有其最新活动的实时进度行出现在启动它们的工具调用组下。这需要 Claude Code v2.1.269 或更高版本。
   * 要登出您的 Anthropic 账户，请在 Settings 部分中选择 **Sign out**，或输入 `/logout`。在[第三方提供商](#use-third-party-providers)上，菜单不提供任何一个。需要 Claude Code v2.1.277 或更高版本。
-  * 要报告错误，请点击菜单底部的 **Report a problem**，或输入 `/bug` 或 `/feedback` 以及可选的描述来预填充报告。当您提交报告并且您在第一方连接上登录到 Anthropic 时，Claude Code 会将其发送给 Anthropic。在第三方提供商上，或没有 Anthropic 凭证的情况下，对话框仍会打开，但提交会显示错误并不发送任何内容：与 CLI 的 `/bug` 不同，扩展程序不会写入本地存档。需要 Claude Code v2.1.229 或更高版本。
+  * 要报告错误，请点击菜单底部的 **Report a problem**，或输入 `/bug` 或 `/feedback` 以及可选的描述来预填充报告。当您提交报告并且您在第一方连接上登录到 Anthropic 时，Claude Code 会将其发送给 Anthropic。需要 Claude Code v2.1.229 或更高版本。
 
-    如果您的组织的策略关闭了产品反馈，**Report a problem** 不会出现在菜单中，`/bug` 和 `/feedback` 会显示 `Feedback is turned off by your organization's policy or this environment's settings.` 通知，而不是打开报告。
+    在第三方提供商上，或没有 Anthropic 凭证的情况下，不会发送任何内容。对话框在您写入之前会说明这一点。提交会将报告保存为[本地存档在 `~/.claude/feedback-bundles/`](/docs/zh-CN/data-usage#telemetry-services)，其中已知的 API 密钥和令牌模式被编辑。将该文件发送给您的 Anthropic 账户代表或将其附加到支持请求。确认会命名该文件并包括一个 **Show folder** 按钮。在您的计算机上保存报告需要 Claude Code v2.1.284 或更高版本。
+
+    如果您的组织的策略关闭了产品反馈，**Report a problem** 不会出现在菜单中，`/bug` 和 `/feedback` 会显示 `Feedback is turned off by your organization's policy or this environment's settings.` 通知，而不是打开报告。使用 Claude Code v2.1.284 或更高版本，如果您设置了 `DISABLE_FEEDBACK_COMMAND` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 环境变量，反馈也会被关闭，打开报告会显示该通知。
 * **Side questions**：输入 `/btw` 后跟一个问题来提问您的会话[而不添加到对话](/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw)。答案在聊天旁边的面板中打开，您可以在其中提出后续问题。线程在窗口重新加载后仍然存在。Claude Code 保留最新的 20 个交换，并根据 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 计划过期存储的线程，只要 Claude Code 可以[安全地确定保留期](/docs/zh-CN/claude-directory#cleaned-up-automatically)。要清除线程，请点击面板中的垃圾箱图标。需要 Claude Code v2.1.227 或更高版本。
 * **Copy a response**：将鼠标悬停在响应上并点击 **Copy response** 来将其复制到您的剪贴板，或输入 `/copy` 来复制最新的响应。`/copy 2` 复制倒数第二个。需要 Claude Code v2.1.277 或更高版本。
 * **Context indicator**：提示框显示您使用了多少 Claude 的上下文窗口。Claude 在需要时自动压缩，或者您可以手动运行 `/compact`。
@@ -242,13 +246,19 @@ Claude Code 还从您粘贴到提示框中的文本和您发送的任何其他�
   </Step>
 
   <Step title="选择要恢复的会话">
-    浏览或搜索您的云会话。点击任何会话来下载它并在本地继续对话。
+    浏览或搜索会话。点击一个来继续本地对话。
   </Step>
 </Steps>
 
 <Note>
-  只有使用 GitHub 存储库启动的网络会话才会出现在 Web 选项卡中。恢复会在本地加载对话历史；更改不会同步回 claude.ai。
+  当您打开的文件夹是 GitHub 存储库时，Web 选项卡仅显示来自该存储库的会话。
+
+  当您恢复云会话时，扩展程序会下载对话历史的副本；更改不会同步回 claude.ai。
 </Note>
+
+Web 选项卡还列出您的 [Remote Control](/docs/zh-CN/remote-control) 会话。如果您点击在您打开的文件夹中运行的会话，扩展程序会打开该本地对话，而不是下载副本，如果有的话，会聚焦已显示它的选项卡。如果扩展程序无法排除另一个 Claude 进程已打开对话，您会获得下载的副本。
+
+如果对话的任何部分下载失败，会出现错误，不会保存副本。再次选择会话以重试。如果您选择还没有对话可下载的会话，错误会告诉您在哪里继续它。
 
 <h3 id="check-account-and-usage">
   检查账户和使用情况
@@ -269,7 +279,7 @@ Claude Code 还从您粘贴到提示框中的文本和您发送的任何其他�
   自定义您的工作流
 </h2>
 
-您可以重新定位 Claude 面板、运行多个对话、将会话列表组织成组，或切换到终端模式。
+您可以重新定位 Claude 面板、运行多个对话、将会话列表组织成组或筛选会话列表，或切换到终端模式。
 
 <h3 id="choose-where-claude-lives">
   选择 Claude 的位置
@@ -318,6 +328,17 @@ Claude Code 还从您粘贴到提示框中的文本和您发送的任何其他�
 * **重命名或删除组**：右键单击组标题。删除组仅删除组，其会话返回到未分组列表。
 
 该扩展按工作区文件夹保存组，因此它们在窗口重新加载后仍然存在，并在您打开相同文件夹的每个窗口中出现。当您搜索列表时，该扩展在所有组中的一个平面列表中显示匹配项。
+
+<h3 id="filter-the-sessions-list">
+  筛选会话列表
+</h3>
+
+要缩小 Activity Bar 中的长会话列表，请使用列表顶部的两个筛选控件。需要 Claude Code v2.1.271 或更高版本。启用任一筛选器时，已归档的会话不会显示。
+
+* **Active**：打开此切换开关以仅显示需要您输入、正在工作或未读的会话，以及您最后关注的 Claude 选项卡中的会话。
+* **按状态筛选**：单击漏斗图标，然后勾选 **Needs input**、**Working** 或 **Completed** 以显示处于任何这些状态的会话。勾选 **Open** 或 **Closed** 以按会话是否打开来缩小范围。当会话在此窗口中有选项卡或在此计算机上的另一个 Claude Code 进程中运行（例如在终端中）时，会话计为打开。
+
+当 **Active** 打开且您勾选状态、**Open** 或 **Closed** 时，列表还会显示与您的检查匹配的每个会话。您设置的筛选器在窗口重新加载后保持不变。
 
 <h3 id="switch-to-terminal-mode">
   切换到终端模式
@@ -506,7 +527,7 @@ vscode://anthropic.claude-code/open?prompt=review%20my%20changes
 该扩展有两种类型的设置：
 
 * **VS Code 中的扩展设置**：控制扩展在 VS Code 中的行为。使用 `Cmd+,`（Mac）或 `Ctrl+,`（Windows/Linux）打开，然后转到扩展 → Claude Code。您也可以输入 `/` 并选择 **General config…** 来打开设置。
-* **`~/.claude/settings.json` 中的 Claude Code 设置**：在扩展和 CLI 之间共享。用于允许的命令、环境变量、hooks 和 MCP 服务器。在 Pro、Max 和 Team 计划上，它也是权限模式对话开始时的一个输入。[切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)列出了顺序。有关详细信息，请参阅[设置](/docs/zh-CN/settings)。
+* **`~/.claude/settings.json` 中的 Claude Code 设置**：在扩展和 CLI 之间共享。用于允许的命令、环境变量、hooks 和 MCP 服务器。在 Claude Code v2.1.283 或更高版本中，它也是权限模式对话开始时的一个输入，在早期版本中仅在 Pro、Max 和 Team 计划上。[切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)列出了顺序。有关详细信息，请参阅[设置](/docs/zh-CN/settings)。
 
 <Tip>
   将 `"$schema": "https://json.schemastore.org/claude-code-settings.json"` 添加到您的 `settings.json` 中，以在 VS Code 中直接获得所有可用设置的自动完成和内联验证。
@@ -720,7 +741,11 @@ summarize the changes I've made to the auth module
 
 服务器名为 `ide`，从 `/mcp` 中隐藏，因为没有什么需要配置的。但是，如果您的组织使用 `PreToolUse` hook 来允许列表 MCP 工具，您需要知道它的存在。
 
-**选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，记录会显示一行 `⧉ Selected N lines from <file>`。要排除敏感文件（如 `.env`），请为其路径添加 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)。匹配的拒绝规则可防止该文件的选定文本和打开文件通知到达 Claude。
+**选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，记录会显示一行 `⧉ Selected N lines from <file>`。
+
+如果您[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)，它会保留您按下 `Enter` 时的选择，无论您之后选择什么。
+
+要排除敏感文件（如 `.env`），请为其路径添加 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)。匹配的拒绝规则可防止该文件的选定文本和打开文件通知到达 Claude。
 
 如果您关闭[附加打开文件设置](#extension-settings)，CLI 仅在您在该文件中选择文本时接收活动文件的路径。
 

@@ -116,6 +116,11 @@ claude plugin validate ./my-plugin
 * **`Validation passed with warnings`**：manifest 加载，但验证器发现需要修复的内容，例如 Claude Code 剥离的未知顶级字段、不是 kebab-case 的 `name`，或缺少 `version`、`description` 或 `author`。传递 `--strict` 以在 CI 中将警告转换为失败
 * **`Validation failed`**：manifest 有类型不匹配、缺失或逃逸 plugin 根目录的路径，或 `userConfig` 选项、`channels` 条目、`lspServers` 配置或 `monitors` 条目内的未知键。Claude Code 在加载 plugin 时报告相同的问题
 
+该命令还检查 plugin 在 `.mcp.json` 中声明的每个 MCP 服务器条目、在 [`mcpServers`](#mcpservers) 命名的 `.json` 文件中，或在 `plugin.json` 中内联声明的条目。这些 MCP 检查需要 Claude Code v2.1.281 或更高版本，包括：
+
+* **错误**：Claude Code 在加载 plugin 时会丢弃的条目、对 manifest 未声明的选项的 `${user_config.KEY}` 引用，以及不是有效绝对 URL 的远程 `url`
+* **警告**：到非环回主机的 `http://` 或 `ws://` URL，以及看起来像字面凭证的标头值
+
 <h2 id="fields">
   字段
 </h2>
@@ -387,10 +392,12 @@ manifest 中的每个组件路径相对于 plugin 根目录，必须以 `./` 开
   包含和存在
 </h3>
 
-每个组件路径必须在 plugin 根目录内解析并且必须存在。`claude plugin validate` 不检查 `outputStyles`、`lspServers`、`monitors` 或 `themes` 路径，因此这些字段中的坏路径仅在 plugin 加载时失败：
+每个组件路径必须在 plugin 根目录内解析并且必须存在。`claude plugin validate` 检查每个组件键下的路径：
 
 * **包含**：在 plugin 根目录外解析的路径不加载，`/plugin` **Errors** 选项卡显示 `<component> path escapes plugin directory: <path>`。包含 `..` 的路径是常见情况，`claude plugin validate` 将其报告为 `Path contains ".." which could be a path traversal attempt`
 * **存在**：不存在的路径不加载，`/plugin` **Errors** 选项卡显示 `<component> path not found: <path>`。`claude plugin validate` 将其报告为 `Path not found`
+
+对于 `outputStyles`、`lspServers`、`monitors` 和 `themes` 路径，`claude plugin validate` 检查需要 Claude Code v2.1.283 或更高版本。
 
 <h3 id="how-each-key-combines-with-its-default-location">
   每个键如何与其默认位置结合
@@ -561,7 +568,7 @@ Claude Code 为 plugin 组件提供三个路径变量。在[每个变量解析�
 
 `${CLAUDE_PLUGIN_ROOT}` 在 plugin 更新时改变，因此不要在那里写入状态。有关根目录移动的位置和旧目录何时被清理，参见[加载页面](/docs/zh-CN/plugins/loading)。
 
-当您从最后一个安装它的地方卸载 plugin 时，`${CLAUDE_PLUGIN_DATA}` 目录被删除，除非您传递 [`--keep-data`](/docs/zh-CN/plugins/cli-reference)。
+默认情况下，当您从最后一个安装它的地方卸载 plugin 时，Claude Code 会删除 `${CLAUDE_PLUGIN_DATA}` 目录。有关 `--keep-data` 和其他保留它的情况，参见 [plugin 卸载](/docs/zh-CN/plugins/cli-reference#plugin-uninstall)。
 
 <h3 id="where-each-variable-resolves">
   每个变量解析的位置
@@ -588,6 +595,8 @@ Claude Code 为 plugin 组件提供三个路径变量。在[每个变量解析�
 
 * **Hook 命令**：使用[exec 形式](/docs/zh-CN/hooks#exec-form-and-shell-form)与 `args` 以便每个路径是一个没有引用的参数
 * **Shell 形式 hooks 和 monitor 命令**：用双引号包装变量，以便带空格的路径保持为一个单词
+
+如果您在 hooks 文件中的 shell 形式命令中将这些变量之一留在引号外，`claude plugin validate` 会发出警告，除非 hook 将 [`shell`](/docs/zh-CN/hooks#command-hook-fields) 设置为 `"powershell"`。
 
 此 shell 形式 hook 运行与 plugin 捆绑的脚本：
 
@@ -629,7 +638,7 @@ Claude Code 为 plugin 组件提供三个路径变量。在[每个变量解析�
 | Workflows | `workflows/` | Workflow `.js` 文件 |
 | 主题 | `themes/` | 主题 JSON 文件 |
 | Monitors | `monitors/monitors.json` | monitors 数组 |
-| 可执行文件 | `bin/` | 此处的文件在 plugin 启用时位于 Bash 工具的 `PATH` 上，因此 Claude 将它们作为裸命令运行。claude.ai 和 Cowork 不安装具有此目录的 plugin，包括您[通过 claude.ai 组织设置分发](/docs/zh-CN/plugins/host-marketplace#distribute-through-organization-settings)的 plugin |
+| 可执行文件 | `bin/` | 此处的文件在 plugin 启用时位于 Bash 工具的 `PATH` 上，因此 Claude 将它们作为裸命令运行。claude.ai 和 Cowork 不安装具有此目录的 plugin，包括您[通过 claude.ai 组织设置分发](https://claude.com/docs/plugins/org-sync#keep-executables-out-of-the-top-level-bin-directory)的 plugin |
 | 设置 | `settings.json` | 在 plugin 启用时应用的 `agent` 和 `subagentStatusLine` 默认值 |
 
 使用每个默认位置的 plugin，加上其 hooks 调用的 `scripts/` 文件夹，布局如下：

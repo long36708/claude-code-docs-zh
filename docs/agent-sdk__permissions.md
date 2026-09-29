@@ -41,7 +41,9 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
   </Step>
 
   <Step title="允许规则">
-    检查 `allow` 规则（来自 `allowed_tools` 和 settings.json）。如果规则匹配，工具被批准。工具自己批准的调用也在此步骤被解决，无需规则：例如在您的工作目录内的文件读取或 [只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)。针对 [关键路径](/docs/zh-CN/permission-modes#critical-paths) 的 `rm` 和 `rmdir` 删除永远不会被允许规则批准：它们在提示的模式下到达您的回调，在 Claude Code v2.1.218 或更高版本的 `auto` 模式下转到 [分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)，并在 `dontAsk` 模式下被拒绝。
+    检查 `allow` 规则（来自 `allowed_tools` 和 settings.json）。如果规则匹配，工具被批准。工具自己批准的调用也在此步骤被解决，无需规则：例如在您的工作目录内的文件读取或 [只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)。
+
+    针对 [关键路径](/docs/zh-CN/permission-modes#critical-paths) 的 `rm` 和 `rmdir` 删除永远不会被允许规则批准。它们是否随后到达您的回调取决于权限模式：例如在 `auto` 模式的 Agent SDK 会话中，Claude Code 默认拒绝它们而不调用它。[关键路径](/docs/zh-CN/permission-modes#critical-paths) 模式表列出了每种模式对它们的处理方式。
   </Step>
 
   <Step title="canUseTool 回调">
@@ -89,7 +91,9 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 使用 `//path` 表示绝对文件系统路径：`Edit(//secrets/**)` 的拒绝规则会阻止在磁盘上 `/secrets` 下任何位置的写入。使用单个前导斜杠时，`Edit(/secrets/**)` 在规则的源处锚定。对于通过 `allowed_tools` 或 `disallowed_tools` 传递的规则，这意味着会话的工作目录，因此规则不会阻止磁盘上的 `/secrets`。请参阅 [Read 和 Edit 规则](/docs/zh-CN/permissions#read-and-edit) 了解四种锚定形式以及来自设置文件的规则如何解析。
 
 <Warning>
-  **自动批准的工具永远不会到达 `canUseTool`。** 在任何早期步骤中被批准的工具调用，通过 `acceptEdits` 或 `bypassPermissions`，或通过允许规则，会跳过你的 `canUseTool` 回调，因此你在那里放置的权限检查会被该工具无声地绕过。`AskUserQuestion`、标记为 [`_meta["anthropic/requiresUserInteraction"]`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、连接器工具[你的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)，以及针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)的 `rm` 和 `rmdir` 移除仍然会到达回调，即使允许规则匹配。在 `auto` 模式中，关键路径移除会进入[分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)而不是回调，而上面列出的其他调用仍然会到达它；分类器路由需要 Claude Code v2.1.218 或更高版本。在 `dontAsk` 模式中，这些调用会被拒绝，不会调用回调。
+  **自动批准的工具永远不会到达 `canUseTool`。** 在任何早期步骤中被批准的工具调用，通过 `acceptEdits` 或 `bypassPermissions`，或通过允许规则，会跳过你的 `canUseTool` 回调，因此你在那里放置的权限检查会被该工具无声地绕过。
+
+  允许规则永远不会自动批准 `AskUserQuestion`、标记为 [`_meta["anthropic/requiresUserInteraction"]`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、连接器工具[你的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)，或针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)的 `rm` 和 `rmdir` 移除。在 `dontAsk` 模式中，Claude Code 拒绝这些调用而不调用回调。在其他模式中，前三个会到达回调。根据[权限模式](/docs/zh-CN/permission-modes#critical-paths)，关键路径移除要么到达回调，要么 Claude Code 拒绝它而不调用它，就像它在 `auto` 模式中对 Agent SDK 会话默认做的那样。
 
   覆盖范围取决于条目的形式：像 `Read` 或 `mcp__github__get_issue` 这样的裸名称会自动批准对该工具的每个调用，除了上面列出的例外，而像 `Bash(npm test *)` 这样的限定规则仅自动批准匹配的调用，其他需要批准的 `Bash` 调用仍然会进入回调。对于必须在每个工具调用上运行的检查，使用 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)：hooks 在每个其他步骤之前运行，hook 拒绝即使在 `bypassPermissions` 模式中也适用。
 </Warning>
@@ -301,7 +305,7 @@ Claude 探索代码库并生成计划，而不编辑您的源文件。只读工�
 
 在规划模式下，文件编辑永远不会自动批准，即使允许规则匹配。它们会通过您的 `canUseTool` 回调提示。 在 Claude Code v2.1.212 或更高版本上，修改文件的 shell 命令（如 `touch` 和 `rm`）会以相同方式到达您的 `canUseTool` 回调。
 
-如果您在 `permissionMode: 'plan'` 旁边设置 `allowDangerouslySkipPermissions: true`，文件编辑和修改文件的 shell 命令仍然会到达您的 `canUseTool` 回调。该选项让您稍后可以使用 `setPermissionMode()` 切换到 `bypassPermissions`。
+在 TypeScript SDK 中，如果您在 `permissionMode: 'plan'` 旁边设置 `allowDangerouslySkipPermissions: true`，文件编辑和修改文件的 shell 命令仍然会到达您的 `canUseTool` 回调。该选项让您稍后可以使用 `setPermissionMode()` 切换到 `bypassPermissions`。
 
 Claude 可能会使用 `AskUserQuestion` 在最终确定计划之前澄清需求。有关处理这些提示的信息，请参阅[处理批准和用户输入](/docs/zh-CN/agent-sdk/user-input#handle-clarifying-questions)。
 

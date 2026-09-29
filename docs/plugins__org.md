@@ -14,7 +14,8 @@
   这些情况在其他页面上有介绍：
 
   * **为自己安装 plugins**：从[安装 plugins](/docs/zh-CN/plugins/install)开始
-  * **控制成员在 claude.ai 和 Cowork 中可以使用的 plugins**：请参阅帮助中心中的[为您的组织管理 plugins](https://support.claude.com/en/articles/13837433)
+  * **控制成员在 claude.ai 和 Cowork 中可以使用的 plugins**：请参阅 claude.com 上的[为您的组织管理 plugins](https://claude.com/docs/plugins/admin)
+  * **将一个 plugin 同时推出到 claude.ai、Cowork 和 Claude Code**：请参阅 claude.com 上的[选择推出路线](https://claude.com/docs/plugins/org-rollout#choose-a-rollout-route)
   * **claude.ai 管理员设置中的 plugins 页面**：[**组织设置 > Plugins & skills**](https://claude.ai/admin-settings/skills?tab=inventory)为成员的 claude.ai 账户启用 plugins，这些会作为[同步的 plugins](/docs/zh-CN/plugins/loading#synced-plugins)到达 Claude Code。它不设置此页面上的任何键
 </Note>
 

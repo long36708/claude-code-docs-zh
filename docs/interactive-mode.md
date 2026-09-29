@@ -34,15 +34,15 @@
 | `Ctrl+T` | 切换 Claude 的任务清单 | 在状态区域中显示或隐藏 [Claude 的待办事项清单](#task-list)。这不是后台任务视图；使用 [`/tasks`](/docs/zh-CN/commands) 查看运行的 shell 和子代理 |
 | `Ctrl+S` | 隐藏或恢复提示 | 输入中有文本时，隐藏它并清除提示。在空提示上再次按下时，恢复隐藏的文本、光标位置、粘贴的内容和输入模式，因此隐藏的 `!` [shell 命令](#shell-mode-with-prefix)会以 shell 模式返回 |
 | `Ctrl+Z` | 暂停 Claude Code | 仅限 Unix。将进程暂停到您的 shell；运行 `fg` 以恢复 |
-| `Left/Right arrows` | 在对话框选项卡之间循环 | 在权限对话框和菜单中的选项卡之间导航 |
+| `Left/Right arrows` | 在对话框选项卡之间循环 | 在权限对话框和菜单中的选项卡之间导航。在选项卡式对话框中，当选项卡行获得焦点时，这些键会切换选项卡。请参阅[选项卡操作](/docs/zh-CN/keybindings#tabs-actions)了解焦点如何移动 |
 | `Tab` | 接受自动完成建议，或向权限答案添加注释 | 当自动完成建议在提示输入中显示时，接受选定的建议。在大多数权限提示上，当**是**或**否**获得焦点时，在该选项上打开注释字段，再次按下会关闭该字段。请参阅[在回答权限提示时添加注释](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt) |
 | `Up/Down arrows` 或 `Ctrl+P`/`Ctrl+N` | 移动光标或导航命令历史 | 当输入跨越多个可视行时，无论是换行还是多行，首先在提示中移动光标。一旦光标在第一行或最后一行，再次按下会导航命令历史。当您有排队的消息时，从第一行按 `Up` 会[取回它们](#take-back-what-you-queued) |
-| `Esc` | 中断 Claude 或关闭对话框 | 停止当前响应或工具调用中途，以便您可以重定向。Claude 保留迄今为止所做的工作。如果您有[排队的消息](#queue-messages-while-claude-works)，Claude Code 会在下一步发送它们。当对话框打开时，`Esc` 会关闭对话框。在权限提示上，`Esc` 会拒绝该操作，与[**否**不带注释](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)相同 |
+| `Esc` | 中断 Claude 或关闭对话框 | 停止当前响应或工具调用中途，以便您可以重定向。Claude 保留迄今为止所做的工作。如果您有[排队的消息](#queue-messages-while-claude-works)，Claude Code 会在下一步发送它们。当对话框打开时，`Esc` 会关闭对话框。当选中页脚项目时，例如提示下方的[子代理面板](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)中的一行，`Esc` 会[取消选择它](/docs/zh-CN/keybindings#footer-actions)而不是中断。在权限提示上，`Esc` 会拒绝该操作，与[**否**不带注释](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)相同 |
 | `Esc` + `Esc` | 清除输入草稿或回退 | 当提示输入包含文本时，双 `Esc` 会清除它并将草稿保存到历史记录，以便 `Up` 可以调用它。当输入为空时，双 `Esc` 会打开[回退菜单](/docs/zh-CN/checkpointing)以从之前的某个点恢复或总结代码和对话 |
 | `Ctrl+Enter` 或 `Ctrl+X Ctrl+S` | 立即发送排队的消息 | 发送您的[排队的消息](#queue-messages-while-claude-works)和您的草稿与它们一起立即发出。[Claude Code 何时发送您排队的内容](#when-claude-code-sends-what-you-queued)涵盖了 Claude 正在处理的轮次会发生什么。在[shell 模式](#shell-mode-with-prefix)中，该键仅排队您的命令。在不报告扩展键的终端中，`Ctrl+Enter` 作为普通 `Enter` 到达；`Ctrl+X Ctrl+S` 在任何终端中都有效。需要 Claude Code v2.1.275 或更高版本 |
 | `Shift+Tab` 或在 Node 或 Bun 运行时不启用 VT 输入模式时在 Windows 上使用 `Alt+M` | 循环权限模式 | 循环通过 `default`（在模式指示器中标记为 Manual）、`acceptEdits`、`plan` 和（如果可用）`bypassPermissions` 然后 `auto`。从 `auto`，第一次按下切换到 `default`。请参阅[权限模式](/docs/zh-CN/permission-modes)。在文件权限提示上，相同的键会关闭打开的[注释字段](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)。如果没有字段打开，它会选择允许该操作在会话其余部分的选项，当提示提供该选项时 |
 | `Option+P`（macOS）或 `Alt+P`（Windows/Linux） | 切换模型 | 在不清除提示的情况下切换模型 |
-| `Option+T`（macOS）或 `Alt+T`（Windows/Linux） | 切换扩展思考 | 启用或禁用扩展思考模式。对 Opus 5.5 或 Fable 模型无效，它们始终使用扩展思考。在 macOS 上无需配置 Option 为 Meta 即可工作 |
+| `Option+T`（macOS）或 `Alt+T`（Windows/Linux） | 切换扩展思考 | 启用或禁用扩展思考模式。对 Opus 5.5、Sonnet 5.5 或 Fable 模型无效，它们始终使用扩展思考。在 macOS 上无需配置 Option 为 Meta 即可工作 |
 | `Option+O`（macOS）或 `Alt+O`（Windows/Linux） | 切换快速模式 | 启用或禁用[快速模式](/docs/zh-CN/fast-mode) |
 
 <h3 id="text-editing">
@@ -235,10 +235,14 @@ Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](/
 | 命令 | 操作 |
 | :- | :- |
 | `x` | 删除字符 |
+| `r{char}` | 用 `{char}` 替换光标下的字符 |
 | `dd` | 删除行 |
 | `D` | 删除到行尾 |
 | `dw`/`de`/`db` | 删除单词/到末尾/向后 |
 | `df{char}`/`dt{char}` | 删除到并包括，或删除到下一个字符出现位置 |
+| `dj`/`dk` | 删除当前行和下方或上方的行 |
+| `dgg`/`dG` | 从当前行删除到第一行或最后一行 |
+| `d0`/`c0`/`y0` | 从光标删除、更改或复制回行首。需要 Claude Code v2.1.281 或更高版本 |
 | `cc` | 更改行 |
 | `C` | 更改到行尾 |
 | `cw`/`ce`/`cb` | 更改单词/到末尾/向后 |
@@ -342,6 +346,8 @@ Claude Code 支持在后台运行 Bash 命令，允许你在长时间运行的�
 * 提示 Claude Code 在后台运行命令
 * 按 `Ctrl+B` 将常规 Bash 工具调用移到后台。Tmux 用户必须按两次 `Ctrl+B`，因为 tmux 有前缀键。
 
+当命令在完成前达到超时时，Claude Code 会自动[将其移到后台](/docs/zh-CN/tools-reference#background-commands)而不是停止它，除非命令以 `sleep` 开头。要更改命令在此之前运行多长时间，请设置 [Bash 超时环境变量](/docs/zh-CN/tools-reference#timeout-and-output-limits)。
+
 **主要功能：**
 
 * 输出被写入文件，Claude 可以使用 Read 工具检索它
@@ -395,9 +401,11 @@ Shell 模式：
   在 Claude 工作时排队消息
 </h2>
 
-在 Claude 工作时输入消息并按 `Enter`。Claude Code 会将消息排队而不是中断当前轮次，并在输入框上方列出排队的条目，直到发送它们。您可以以相同的方式排队 `!` [shell 命令](#shell-mode-with-prefix)和大多数[命令](/docs/zh-CN/commands)，除了 `/status` 等 Claude Code 在您发送时立即运行的命令。
+在 Claude 工作时输入消息并按 `Enter`。Claude Code 会将消息排队而不是中断当前轮次，并在对话中列出排队的条目，直到发送它们。您可以以相同的方式排队 `!` [shell 命令](#shell-mode-with-prefix)和大多数[命令](/docs/zh-CN/commands)，除了 `/status` 等 Claude Code 在您发送时立即运行的命令。
 
 已发送和排队的消息在 Claude 开始响应之前以灰色显示，因此您可以看出 Claude 还没有开始处理哪些消息。
+
+如果您从[连接的 IDE](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server)或[差异面板](#diff-panel)排队带有选择的消息，它会保留您按 `Enter` 时的选择，无论您之后选择什么。
 
 <h3 id="when-claude-code-sends-what-you-queued">
   Claude Code 何时发送您排队的内容

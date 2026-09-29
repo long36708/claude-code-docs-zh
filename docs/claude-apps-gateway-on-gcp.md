@@ -179,6 +179,8 @@ gcloud config set project "$PROJECT_ID"
 
     store:
       postgres_url: ${GATEWAY_POSTGRES_URL}          # GKE: ${file:/secrets/postgres-url}
+      # readiness_grace_seconds: 300                 # 在 Cloud SQL 故障转移期间
+    # 保持通过就绪探针
 
     upstreams:
       - provider: vertex

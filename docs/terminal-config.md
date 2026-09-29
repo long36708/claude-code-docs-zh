@@ -339,6 +339,12 @@ Claude Code 监视 `~/.claude/themes/` 并在添加或更改文件时重新加�
   ```
 </CodeGroup>
 
+<h2 id="cap-response-width-in-wide-terminals">
+  在宽终端中限制响应宽度
+</h2>
+
+在宽终端中，Claude 响应中的每一行文本都会占据窗口的全部宽度。要改为在设定的列数处换行，请在您的设置中设置 [`maxProseWidth`](/docs/zh-CN/settings-reference#maxprosewidth)。
+
 <h2 id="paste-large-content">
   粘贴大型内容
 </h2>

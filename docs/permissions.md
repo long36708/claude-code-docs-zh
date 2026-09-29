@@ -457,16 +457,43 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 * Claude Code 读取 `!` 模式相对于当前目录，即使 `/`、`~/` 或 `//` 跟随 `!`，因此模式无法到达用其中一个前缀锚定的规则。`Read(!~/notes/public/**)` 从 `Read(~/notes/**)` 中切割不出任何内容。
 * 切割不能重新打开规则作为整体阻止的目录内的文件。使用 `Read(secrets/**)` 和 `Read(!secrets/public/**)`，Claude Code 仍然阻止 `secrets/public` 以及 `secrets` 的其余部分。
 
-当 Claude 访问符号链接时，权限规则检查两个路径：符号链接本身和它解析到的文件。Allow 和 deny 规则对该对的处理方式不同：allow 规则回退到提示您，而 deny 规则直接阻止。
+<h4 id="symlinks">
+  符号链接
+</h4>
 
-* **Allow 规则**：仅在符号链接路径及其目标都匹配时适用。允许目录内的符号链接指向其外部仍然会提示您。
-* **Deny 规则**：当符号链接路径或其目标匹配时适用。指向被拒绝文件的符号链接本身被拒绝。例如，使用 `Read(./project/**)` 允许和 `Read(~/.ssh/**)` 拒绝，`./project/key` 处的符号链接指向 `~/.ssh/id_rsa` 被阻止：目标未通过 allow 规则，并匹配 deny 规则。
+当 Claude 访问的文件路径通过符号链接时，权限检查涵盖两个路径：Claude 请求的路径和它解析到的文件。这适用于 macOS、Linux 和 Windows 上的符号链接，以及 Windows 上的目录连接。
+
+<h5 id="how-rules-match-a-symlinked-path">
+  规则如何匹配符号链接路径
+</h5>
+
+Allow 和 deny 规则对请求的路径和它解析到的文件的处理方式不同：
+
+* **Allow 规则**：仅在请求的路径和它解析到的文件都匹配时适用。允许目录内的符号链接指向其外部仍然会提示您。
+* **Deny 规则**：当请求的路径或它解析到的文件匹配时适用。指向被拒绝文件的符号链接本身被拒绝。例如，使用 `Read(./project/**)` 允许和 `Read(~/.ssh/**)` 拒绝，`./project/key` 处的符号链接指向 `~/.ssh/id_rsa` 被阻止：目标未通过 allow 规则，并匹配 deny 规则。
 
 在 macOS 和 Linux 上，通过带有 `//`、`~/` 或 `/` 模式的符号链接目录编写的 deny 或 ask 规则也适用于该目录的真实位置。例如，在 macOS 上，其中 `/etc` 解析为 `/private/etc`，`Read(//etc/**)` 也阻止 `/private/etc/hosts`。在 v2.1.268 之前，通过符号链接目录编写的 deny 或 ask 规则不适用于其真实位置给出的路径。
 
-当工具打开已批准的文件时，Claude Code [确认路径仍然解析到权限检查批准的位置](/docs/zh-CN/errors#refusing-after-a-symlink-changed)。
-
 Grep 和 Glob 搜索 `path` 参数解析到的目录。Claude Code 将 `Read` deny 规则应用于该目录。
+
+<h5 id="writes-through-a-symlink">
+  通过符号链接的写入
+</h5>
+
+如果 Claude 要求编辑或写入的路径本身是符号链接，Edit 和 Write 工具[拒绝写入并指导 Claude 到链接的目标](/docs/zh-CN/errors#refusing-after-a-symlink-changed)。
+
+当目录在文件路径上是符号链接，或当 Bash 或 PowerShell 命令进行写入时，写入仍然可以通过符号链接进行。对于这些写入，发生的情况取决于写入解析到的文件相对于您的[工作目录](#working-directories)和[受保护的路径](/docs/zh-CN/permission-modes#protected-paths)的位置：
+
+* **解析到工作目录外**：当请求的路径在您的工作目录内，而它解析到的文件不在时，在[`acceptEdits` 模式](/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)中写入不会自动批准。在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，除非 allow 规则批准写入，否则您会被提示而不是分类器决定。提示命名写入解析到的路径。
+* **解析到请求的路径不命名的受保护路径**：[受保护的路径表](/docs/zh-CN/permission-modes#protected-paths)给出每个权限模式的结果，除了表将写入路由到分类器的地方，此写入改为提示您。
+
+<h5 id="paths-that-can’t-be-resolved-or-that-change">
+  无法解析或改变的路径
+</h5>
+
+当 Claude Code 无法确定路径在磁盘上的位置时，例如因为路径上的符号链接形成循环，Read、Edit 和 Write 工具[拒绝操作](/docs/zh-CN/errors#refusing-after-a-symlink-changed)。
+
+当工具随后打开已批准的文件时，它[确认路径仍然解析到权限检查批准的位置](/docs/zh-CN/errors#refusing-after-a-symlink-changed)。
 
 <h3 id="webfetch">
   WebFetch
@@ -704,6 +731,8 @@ Claude Code 根据您启动它的位置来保存和存储您接受的信任：
 * 当您从主目录启动时，Claude Code 仅在当前会话期间保持信任，不会将其写入磁盘；请参阅[其他保护措施](/docs/zh-CN/security#additional-safeguards)说明。
 
 Claude Code 仅在交互式会话中显示信任对话框。`claude -p` 运行或 SDK 会话永远不会显示它，信任父文件夹不计入这些规则，因此[在您信任文件夹之前运行什么](#what-runs-before-you-trust-a-folder)说明了在这两种情况下 Claude Code 仍然使用哪些存储库内容。
+
+在启动或重启[后台会话](/docs/zh-CN/agent-view)之前，Claude Code 还会检查会话运行所在目录的工作区信任。如果您从您尚未信任的目录中的终端运行 `claude --bg`，信任对话框会首先出现，一旦您接受它，会话就会启动。在无法出现对话框的地方（如脚本中），命令会改为以[`Workspace not trusted`](/docs/zh-CN/errors#workspace-not-trusted-when-dispatching-a-background-session)错误退出。
 
 <h3 id="when-your-local-settings-file-needs-trust">
   当您的本地设置文件需要信任时

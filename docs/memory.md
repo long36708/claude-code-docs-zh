@@ -103,6 +103,10 @@ CLAUDE.md 文件在每个会话开始时加载到上下文窗口中，与您的�
 
 **一致性**：如果两条规则相互矛盾，Claude 可能会任意选择一条。定期审查您的 CLAUDE.md 文件、子目录中的嵌套 CLAUDE.md 文件和 [`.claude/rules/`](#organize-rules-with-claude/rules/)，以删除过时或冲突的指令。在 monorepos 中，使用 [`claudeMdExcludes`](#exclude-specific-claude-md-files) 跳过来自与您的工作无关的其他团队的 CLAUDE.md 文件。
 
+要让 Claude 检查这些文件是否有过时或冲突的指令，请在会话中运行 `/doctor prompt-audit`。Claude 读取您的 CLAUDE.md、CLAUDE.local.md 和 AGENTS.md 文件，以及 `.claude/` 和 `~/.claude/` 下的规则、skills、命令、子代理和输出样式。它查找问题，例如为旧模型编写的指令、对不存在的文件或命令的引用，以及相互矛盾的文件。您会获得一份发现报告和一组建议的编辑，在您要求 Claude 应用它们之前，您的文件中不会有任何更改。
+
+要审计一个文件或目录，请改为传递其路径，例如 `/doctor prompt-audit .claude/skills/deploy`。审计通过捆绑的 `/claude-api` skill 运行，因此在该 skill 在 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 中关闭或使用 [`disableBundledSkills`](/docs/zh-CN/settings-reference#disablebundledskills) 时不可用。`/doctor prompt-audit` 需要 Claude Code v2.1.283 或更高版本。
+
 <h3 id="import-additional-files">
   导入其他文件
 </h3>
@@ -272,6 +276,8 @@ Claude Code 将其目标在工作目录外的符号链接视为 [external import
 ln -s ~/shared-claude-rules .claude/rules/shared
 ln -s ~/company-standards/security.md .claude/rules/security.md
 ```
+
+如果您指向网络路径（如 UNC 共享 `\\server\share` 或 `/net` 或 `/Network` 下的路径）的 `.claude/rules/` 或 `CLAUDE.md` 符号链接，链接的指令不加载。Claude Code 不跟随链接，因为查找此类路径可能会联系它命名的主机。`\\wsl$` 路径不计为网络路径。
 
 <h4 id="user-level-rules">
   用户级规则
@@ -620,10 +626,11 @@ CLAUDE.md 内容作为用户消息在系统提示之后传递，而不是系统�
 * 检查相关 CLAUDE.md 是否在为你的会话加载的位置（参见 [选择 CLAUDE.md 文件的位置](#choose-where-to-put-claude-md-files)）。
 * 使指令更具体。"使用 2 空格缩进"比"格式化代码很好"效果更好。
 * 查找跨 CLAUDE.md 文件的冲突指令。如果两个文件为相同行为提供不同的指导，Claude 可能会任意选择一个。
+* 检查你的指令是否与 Claude Code 自身添加的指导相竞争。如果你的 CLAUDE.md 设置了提交或拉取请求规则，请使用 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 关闭内置规则，并使用 [`attribution`](/docs/zh-CN/settings-reference#attribution) 设置归属文本。
 
 如果指令是必须在特定点运行的内容，例如在每次提交之前或每次文件编辑之后，请将其写成 [hook](/docs/zh-CN/hooks-guide) 代替。Hooks 在固定的生命周期事件处作为 shell 命令执行，并且无论 Claude 决定做什么都适用。
 
-对于你想要在系统提示级别的指令，使用 [`--append-system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags)。你在启动时传递它，因此它更适合脚本和自动化而不是交互式使用。有关它在恢复对话时的行为，请参见 [System prompt flags in resumed conversations](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。
+对于你想要在系统提示级别的指令，使用 [`--append-system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags)。你在启动时传递它，因此它更适合脚本和自动化而不是交互式使用。有关它在恢复对话时的行为，请参见 [恢复对话中的系统提示标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。
 
 <Tip>
   使用 [`InstructionsLoaded` hook](/docs/zh-CN/hooks#instructionsloaded) 记录确切加载了哪些 `CLAUDE.md` 和规则文件、何时加载以及为什么。这对于调试特定路径规则或子目录中的延迟加载文件很有用。
@@ -657,6 +664,8 @@ CLAUDE.md 内容作为用户消息在系统提示之后传递，而不是系统�
 
 超过 200 行的文件消耗更多上下文并可能降低遵守度。Claude Code 跳过超过 4 MiB 的文件。使用 [path-scoped rules](#path-specific-rules) 仅在 Claude 处理匹配文件时加载指令，或修剪不是每个会话都需要的内容。分割到 [`@path` imports](#import-additional-files) 有助于组织，但不会减少上下文，因为导入的文件在启动时加载。
 
+如果你的一个指令文件超过推荐长度，你会在启动时和运行 `/status` 时看到警告。当每个都在该长度内的文件在会话开始时加起来超过组合限制时，你也会看到警告。每个 CLAUDE.md、规则文件和 `@path` 导入都计为单独的文件。
+
 [`/doctor`](/docs/zh-CN/commands#all-commands) 检查为已检入的 CLAUDE.md 提议修剪：它删除 Claude 可以从代码库派生的内容，例如目录布局、依赖项列表和架构概览，并保留与工具默认值不同的陷阱、基本原理和约定。修剪检查需要 Claude Code v2.1.206 或更高版本。
 
 <h3 id="instructions-seem-lost-after-/compact">
@@ -665,9 +674,9 @@ CLAUDE.md 内容作为用户消息在系统提示之后传递，而不是系统�
 
 项目根 CLAUDE.md 在压缩中存活：在 `/compact` 之后，Claude 从磁盘重新读取它并将其重新注入到会话中。子目录中的嵌套 CLAUDE.md 文件和具有 [`paths:` frontmatter](#path-specific-rules) 的规则在 Claude 读取它们适用的文件时重新加载。
 
-如果指令在压缩后消失，它要么仅在对话中给出，要么位于尚未重新加载的嵌套 CLAUDE.md 中，或者是尚未匹配文件的路径范围规则。将仅对话的指令添加到 CLAUDE.md 以使其持久化。有关完整的细分，请参阅 [What survives compaction](/docs/zh-CN/context-window#what-survives-compaction)。
+如果指令在压缩后消失，它要么仅在对话中给出，要么位于尚未重新加载的嵌套 CLAUDE.md 中，或者是尚未匹配文件的路径范围规则。将仅对话的指令添加到 CLAUDE.md 以使其持久化。有关完整的细分，请参阅 [压缩后存活的内容](/docs/zh-CN/context-window#what-survives-compaction)。
 
-有关大小、结构和具体性的指导，请参阅 [Write effective instructions](#write-effective-instructions)。
+有关大小、结构和具体性的指导，请参阅 [编写有效的指令](#write-effective-instructions)。
 
 <h2 id="related-resources">
   相关资源

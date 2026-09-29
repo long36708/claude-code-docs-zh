@@ -162,7 +162,7 @@ Claude Code returned an error result: <the CLI's own error report>
   structured\_output is None but the result says success
 </h3>
 
-结果消息可以以 `subtype: "success"` 结尾，而在 Python 中 `structured_output` 是 `None` 或在 TypeScript 中是 `undefined`。运行完成，但不存在经过验证的输出。一种方式是模式无法满足任何输出，例如冲突的长度约束。运行结束时没有验证错误，唯一的信号是缺失的 `structured_output`。
+结果消息可以以 `subtype: "success"` 结尾，而在 Python 中 `structured_output` 是 `None` 或在 TypeScript 中是 `undefined`。运行完成，但不存在经过验证的输出。一种方式是模式无法满足任何输出，例如冲突的长度约束。
 
 在应用程序代码中将此结果视为失败。在使用 `structured_output` 之前，检查 `subtype` 是否为 `success` 以及 `structured_output` 是否存在。[错误处理](/docs/zh-CN/agent-sdk/structured-outputs#error-handling) 部分为两个 SDK 显示了此模式。
 

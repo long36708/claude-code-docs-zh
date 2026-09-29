@@ -15,7 +15,7 @@
 
   * **安装他人的插件**：请参阅[安装插件](/docs/zh-CN/plugins/install)
   * **不确定是否需要插件**：请参阅概述中的[决定是否需要插件](/docs/zh-CN/plugins/overview#decide-whether-you-need-a-plugin)
-  * **您的插件用户在 claude.ai 或 Cowork 中**：同一文件夹在那里安装，但组件子集不同。请参阅[claude.ai 和 Cowork 中的插件](https://claude.com/docs/plugins/overview)
+  * **您的插件用户在 claude.ai 或 Cowork 中**：同一文件夹在那里安装，但组件子集不同。请参阅[插件结构和测试](https://claude.com/docs/plugins/build)和[组件支持表](https://claude.com/docs/plugins/platform-support#compare-component-support-by-app)
 </Note>
 
 从与您已有内容相匹配的部分开始：
@@ -132,6 +132,8 @@
 
 插件仅在您使用 `--plugin-dir` 启动的会话中加载。要继续处理它而不使用该标志，或测试 `.zip` 构建，请参阅[在没有市场的情况下开发](#develop-without-a-marketplace)。
 
+要让 Claude 为您搭建和检查更大的插件，请从 `claude-plugins-official` 市场[安装](/docs/zh-CN/plugins/install#install-a-plugin) Anthropic 的 `plugin-dev` 插件，它添加了用于编写技能、hooks 和 MCP 服务器等组件的技能和代理，以及用于验证完成的插件的技能和代理。安装后，运行 `/plugin-dev:create-plugin` 后跟您想要的插件的描述，Claude 将引导您完成设计、创建和验证。
+
 <h3 id="share-the-plugin">
   共享您的插件
 </h3>
@@ -140,7 +142,7 @@
 
 * **直接发送给少数人**：给他们插件的目录或其 `.zip`，无需发布任何内容。请参阅[在没有市场的情况下共享插件](/docs/zh-CN/plugins/publish#share-a-plugin-without-a-marketplace)。
 * **在您自己的市场中列出它**：团队成员添加您的市场一次并按名称安装插件，他们会收到您的更新。请参阅[通过您自己的市场发布](/docs/zh-CN/plugins/publish#publish-through-your-own-marketplace)。
-* **提交到 Anthropic 的社区市场**：一旦列出，任何添加该市场的人都可以安装它。请参阅[提交到社区市场](/docs/zh-CN/plugins/publish#submit-to-the-community-marketplace)。
+* **提交到 Anthropic 的目录**：通过审查后，人们可以在 claude.ai 和 Cowork 中添加它，它通过他们的账户到达 Claude Code。请参阅[提交到 Anthropic 的目录](/docs/zh-CN/plugins/publish#submit-to-anthropics-directory)。
 
 <h3 id="plugin-layout">
   插件布局
@@ -200,6 +202,8 @@ claude --plugin-dir ./my-first-plugin --plugin-dir ./other-plugin.zip
 要从一个地方加载多个插件，请传递一个包含它们的文件夹，例如 `--plugin-dir ./plugins`。加载插件文件夹需要 Claude Code v2.1.265 或更高版本。
 
 如果文件夹没有 `.claude-plugin/` 目录且其顶级没有插件组件，Claude Code 会将其视为插件文件夹。然后，每个具有 `.claude-plugin/plugin.json` 清单的直接子文件夹都作为单独的插件加载。文件夹中的所有其他内容都被跳过而不出错，包括没有清单的子文件夹。如果文件夹中的插件不加载，请检查其子文件夹是否具有 `.claude-plugin/plugin.json`。
+
+您还可以传递一个在其插件文件夹旁边保留 `.claude-plugin/marketplace.json` 的文件夹。只要该 `.claude-plugin/` 目录不包含 `plugin.json`，插件文件夹仍然会加载。不会从市场文件安装或启用任何内容，因为 Claude Code 不读取它。从这样的文件夹加载插件需要 Claude Code v2.1.281 或更高版本。
 
 在交互式会话中，您还可以在启动后在文件夹中添加和删除插件：
 
@@ -417,8 +421,8 @@ claude plugin init my-tool
 
 * [插件组件](/docs/zh-CN/plugins/components)：向您的插件添加代理、hooks、MCP 服务器、LSP 服务器和用户配置
 * [使用 evals 测试插件](/docs/zh-CN/plugin-evals)：编写 eval 用例并使用 `claude plugin eval` 运行它们以检查插件引导 Claude 行为的可靠性
-* [发布插件](/docs/zh-CN/plugins/publish)：对其进行版本控制，将其放在市场中，并提交到社区市场
-* [claude.ai 和 Cowork 中的插件](https://claude.com/docs/plugins/overview)：同一插件文件夹在 claude.ai 和 Cowork 中安装。某些组件仅限 Claude Code
+* [发布插件](/docs/zh-CN/plugins/publish)：对其进行版本控制，将其放在市场中，并提交以供审查
+* [插件结构和测试](https://claude.com/docs/plugins/build)：同一插件文件夹在 claude.ai 和 Cowork 中安装。某些组件仅限 Claude Code，[组件支持表](https://claude.com/docs/plugins/platform-support#compare-component-support-by-app)列出了在每个平台上加载的组件
 * [插件清单参考](/docs/zh-CN/plugins/manifest-reference)：每个 `plugin.json` 字段、路径规则和目录
 * [技能](/docs/zh-CN/skills)：编写您的插件提供的技能
 * [Anthropic 在 claude-code 存储库中的插件](https://github.com/anthropics/claude-code/tree/main/plugins)：本页面布局的完整工作示例，例如 `feature-dev` 和 `code-review`

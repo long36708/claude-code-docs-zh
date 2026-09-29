@@ -127,7 +127,12 @@ Agent SDK 生成并监督一个 `claude` CLI 子进程，该子进程拥有一�
 
 示例工作负载包括对传入邮件进行分类和响应的电子邮件代理、通过容器端口托管每个用户可编辑站点的站点构建器，以及处理来自 Slack 等平台的连续流量的聊天机器人。
 
-容器公开 HTTP 或 WebSocket 端点，并将每个活跃会话映射到一个长期查询及其后面的子进程。在 TypeScript 中，使用 [`streamInput()`](/docs/zh-CN/agent-sdk/typescript#query-object) 向活跃会话添加轮次，使用 [`startup()`](/docs/zh-CN/agent-sdk/typescript#startup) 在传入流量前预热子进程。在 Python 中，使用 [`ClaudeSDKClient`](/docs/zh-CN/agent-sdk/python#claudesdkclient) 在轮次间保持会话打开。调整容器大小，使其能够在内存中容纳最大并发会话数。
+容器公开 HTTP 或 WebSocket 端点，并将每个活跃会话映射到一个长期查询及其后面的子进程。保持会话打开和预热的调用在 SDK 之间有所不同：
+
+* **TypeScript**：使用 [`streamInput()`](/docs/zh-CN/agent-sdk/typescript#query-object) 向活跃会话添加轮次。调用 [`startup()`](/docs/zh-CN/agent-sdk/typescript#startup) 在传入流量前预热子进程。如果您在第一个请求到达之前不知道会话的工作目录，请改用 [`prewarm()`](/docs/zh-CN/agent-sdk/typescript#prewarm) 进行预热。
+* **Python**：使用 [`ClaudeSDKClient`](/docs/zh-CN/agent-sdk/python#claudesdkclient) 在轮次间保持会话打开。
+
+调整容器大小，使其能够在内存中容纳最大并发会话数。
 
 <h3 id="hybrid-sessions">
   Hybrid sessions

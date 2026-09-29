@@ -96,6 +96,8 @@ Claude Code 不会向其作者报告插件的使用情况。使用情况记录�
 * **他们是你可以询问的队友**：每个用户自己的 Claude Code 在四个地方向他们显示他们是否仍在使用插件：[`/plugin` 面板](#not-used-recently-in-/plugin)、[`/skill-doctor`](#find-skills-that-never-run)、[`/doctor`](#unused-plugins-in-/doctor)和[`/usage`](#usage-share-in-/usage)。所有四个都是用户在自己机器上的会话中在 Claude Code 提示符处运行的命令。
 * **都不是**：你没有来自 Claude Code 的该插件的使用信号。
 
+有关 Anthropic 目录中列出的插件的使用情况，请参阅 claude.com 上的[跟踪已发布的插件使用情况](https://claude.com/docs/connectors/building/after-publishing#track-published-plugin-usage)。
+
 <h3 id="not-used-recently-in-/plugin">
   `/plugin` 中最近未使用
 </h3>

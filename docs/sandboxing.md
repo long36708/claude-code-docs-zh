@@ -42,7 +42,7 @@ Bash 沙箱让 Claude 可以运行大多数 shell 命令，而无需停下来请
   </Step>
 
   <Step title="运行 Bash 命令">
-    要求 Claude 运行一个命令，例如构建或测试套件。默认情况下，沙箱内的命令可以写入工作目录、会话临时目录以及任何你用 `--add-dir`、`/add-dir` 或 `permissions.additionalDirectories` [添加的目录](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。
+    要求 Claude 运行一个命令，例如构建或测试套件。默认情况下，沙箱内的命令可以写入工作目录、[每用户临时目录](/docs/zh-CN/env-vars) 以及任何你用 `--add-dir`、`/add-dir` 或 `permissions.additionalDirectories` [添加的目录](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。
 
     命令第一次需要新的网络域时，Claude Code 会提示批准；在 [自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 中，Claude 改为在 [命令本身上命名](#per-command-allowed-domains-in-auto-mode) 命令需要的主机供分类器与其一起审查。
 

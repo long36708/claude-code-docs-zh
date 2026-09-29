@@ -359,7 +359,7 @@ MCP 工具定义[默认被延迟](/docs/zh-CN/mcp#scale-with-mcp-tool-search)，
 
 扩展思考默认启用，因为它显著改进了复杂规划和推理任务的性能。思考令牌作为输出令牌计费，默认预算可能是每个请求数万个令牌，具体取决于模型。
 
-对于不需要深度推理的更简单任务，您可以通过在 `/effort` 中或在 `/model` 中降低 [effort level](/docs/zh-CN/model-config#adjust-effort-level)、或在 `/config` 中禁用思考来降低成本。您无法在 Opus 5.5 或 Fable 模型上关闭思考，它们始终使用扩展思考。
+对于不需要深度推理的更简单任务，您可以通过在 `/effort` 中或在 `/model` 中降低 [effort level](/docs/zh-CN/model-config#adjust-effort-level)、或在 `/config` 中禁用思考来降低成本。您无法在 Opus 5.5、Sonnet 5.5 或 Fable 模型上关闭思考，它们始终使用扩展思考。
 
 在具有[固定思考预算](/docs/zh-CN/model-config#adaptive-reasoning-and-fixed-thinking-budgets)的模型上，您也可以通过设置 `MAX_THINKING_TOKENS` [环境变量](/docs/zh-CN/env-vars)（例如 `MAX_THINKING_TOKENS=8000`）来降低预算。自适应推理模型忽略非零预算，因此请改用 effort levels。
 
@@ -368,6 +368,8 @@ MCP 工具定义[默认被延迟](/docs/zh-CN/mcp#scale-with-mcp-tool-search)，
 </h3>
 
 运行测试、获取文档或处理日志文件可能会消耗大量上下文。将这些委托给 [subagents](/docs/zh-CN/sub-agents#isolate-high-volume-operations)，以便冗长的输出保留在 subagent 的上下文中，而只有摘要返回到您的主对话。
+
+subagent 自己的请求仍然会消耗您的使用量。为了在这些请求上花费更少，[为 subagent 选择更小的模型](/docs/zh-CN/sub-agents#choose-a-model)或[在一个模型上运行每个 subagent](/docs/zh-CN/sub-agents#run-every-subagent-on-one-model)。
 
 <h3 id="manage-agent-team-costs">
   管理 agent 团队成本
@@ -416,6 +418,7 @@ Claude Code 即使在空闲时也会为某些后台功能使用令牌：
 * **计划任务**：[计划任务](/docs/zh-CN/scheduled-tasks) 按其间隔触发，即使会话处于空闲状态，每次都发送你的完整上下文
 * **跨会话消息**：当此会话处于空闲状态时，Claude Code 将 [来自你另一个会话的消息](/docs/zh-CN/cross-session-messaging) 作为新轮次传递，每次都发送你的完整上下文。要保留入站消息而不是传递它们，请将 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 `hold`
 * **目标检查**：当后台工作使活跃的 [目标](/docs/zh-CN/goal) 保持等待时，Claude Code [要求 Claude 检查该工作](/docs/zh-CN/goal#background-work-defers-evaluation)，即使会话处于空闲状态，启动发送你完整上下文的新轮次。Claude Code 在你的提示之间每个目标最多启动三个空闲检查。在 v2.1.246 之前，空闲检查是无限制的。要关闭检查，请将 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](/docs/zh-CN/env-vars) 设置为 `0`。空闲检查需要 Claude Code v2.1.236 或更高版本
+* **子代理和工作流**：每个子代理，以及每个 [动态工作流](/docs/zh-CN/workflows#cost) 生成的代理，都会在主对话的基础上发送自己的请求。[属性分解](#plan-usage-breakdown) 显示子代理份额
 * **代理队友**：每个活跃的 [队友](#agent-team-token-costs) 会继续消耗令牌，直到它退出
 * **压缩**：`/compact` 读取它总结的对话，因此 [压缩大型上下文](/docs/zh-CN/prompt-caching#compacting-the-conversation) 本身就是一个大型请求。当你想要全新开始而不是连续性时，`/clear` 不消耗任何成本
 

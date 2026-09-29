@@ -14,8 +14,8 @@
 
 系统提示词是初始指令集，它塑造了 Claude 在整个对话中的行为方式。Agent SDK 有三个起点：
 
-* **最小默认值**：当你在 TypeScript 中不设置 `systemPrompt` 或在 Python 中不设置 `system_prompt` 时，SDK 使用最小提示词，涵盖工具调用但省略了 `claude_code` 预设的其余内容，包括其安全和安全指令以及关于工作目录和环境的上下文。这与 `claude -p` 不同，后者默认使用 Claude Code 系统提示词。如果你从 CLI 迁移并想要匹配的行为，请设置 `claude_code` 预设。
-* **`claude_code` 预设**：Claude Code CLI 使用的系统提示词，包含工具使用说明、安全和安全指令，以及关于工作目录和环境的上下文。在 TypeScript 中设置 `systemPrompt: { type: "preset", preset: "claude_code" }`，或在 Python 中设置 `system_prompt={"type": "preset", "preset": "claude_code"}`，可选择使用 `append` 在末尾添加你自己的指令。
+* **最小默认值**：当你在 TypeScript 中不设置 `systemPrompt` 或在 Python 中不设置 `system_prompt` 时，SDK 使用最小提示词，涵盖工具调用但省略了 `claude_code` 预设的其余内容，包括其安全和安全指令。这与 `claude -p` 不同，后者默认使用 Claude Code 系统提示词。如果你从 CLI 迁移并想要匹配的行为，请设置 `claude_code` 预设。
+* **`claude_code` 预设**：Claude Code CLI 使用的系统提示词，包含工具使用说明和安全和安全指令。在 TypeScript 中设置 `systemPrompt: { type: "preset", preset: "claude_code" }`，或在 Python 中设置 `system_prompt={"type": "preset", "preset": "claude_code"}`，可选择使用 `append` 在末尾添加你自己的指令。
 * **自定义字符串**：你自己编写的提示词。SDK 仅发送你提供的内容。
 
 <h3 id="decide-on-a-starting-point">
@@ -26,7 +26,7 @@
 
 | 你正在构建 | 使用 | 你获得的内容 |
 | :- | :- | :- |
-| 一个 CLI 或类似 IDE 的编码工具，其中人类观看和指导，Claude Code 的默认值是你想要的 | `claude_code` 预设 | Claude Code 提示词，包括工具指导、安全规则和环境上下文 |
+| 一个 CLI 或类似 IDE 的编码工具，其中人类观看和指导，Claude Code 的默认值是你想要的 | `claude_code` 预设 | Claude Code 提示词，包括工具指导和安全规则 |
 | 相同类型的工具，加上产品特定的规则，如编码标准、输出格式或域上下文 | `claude_code` 预设加 `append` | 上述所有内容，加上你的指令添加在预设之后。没有任何内容被删除，所以这是风险最低的自定义 |
 | 具有不同表面、身份或权限模型的代理，或非编码代理 | 自定义提示词字符串 | 仅你编写的内容。你负责替换你的代理仍然需要的工具指导和安全指令 |
 | 一个薄工具调用循环，没有代理角色，你在用户提示词中提供所有行为 | 无 `systemPrompt` 选项 | 最小默认值：工具调用支持，仅此而已 |
@@ -225,15 +225,17 @@ For every code submission:
   改进跨用户和机器的提示缓存
 </h4>
 
-默认情况下，两个使用相同 `claude_code` 预设和 `append` 文本的会话，如果从不同的工作目录运行，仍然无法共享提示缓存条目。这是因为预设在你的 `append` 文本之前在系统提示中嵌入了每个会话的上下文：工作目录、它是否是 git 存储库、平台、活跃的 shell、OS 版本和自动内存路径。该上下文中的任何差异都会产生不同的系统提示和缓存未命中。CLAUDE.md 内容不影响系统提示缓存，因为 SDK 将其注入到对话中，而不是系统提示。
+默认情况下，两个使用相同 `claude_code` 预设和 `append` 文本的会话仍然无法共享提示缓存条目，当它们的自动内存位置不同时。预设在你的 `append` 文本之前在系统提示中嵌入了该位置。该位置默认为 `~/.claude/projects/` 下的绝对路径，以存储库在磁盘上的路径命名，因此在用户、机器和检出之间不同。
 
-要使系统提示在会话中相同，请在 TypeScript 中设置 `excludeDynamicSections: true` 或在 Python 中设置 `"exclude_dynamic_sections": True`。每个会话的上下文移动到第一条用户消息中，仅在系统提示中保留静态预设和你的 `append` 文本，因此相同的配置在用户和机器之间共享缓存条目。
+CLAUDE.md 内容和环境详情（如工作目录、平台、shell 和 OS 版本）不影响系统提示缓存，因为 Claude Code 在对话中而不是系统提示中传递它们。
+
+要使系统提示在会话中相同，请在 TypeScript 中设置 `excludeDynamicSections: true` 或在 Python 中设置 `"exclude_dynamic_sections": True`。每个用户的上下文移动到第一条用户消息中，仅在系统提示中保留静态预设和你的 `append` 文本，因此相同的配置在用户和机器之间共享缓存条目。
 
 <Note>
   `excludeDynamicSections` 需要 `@anthropic-ai/claude-agent-sdk` v0.2.98 或更高版本，或 Python 的 `claude-agent-sdk` v0.1.58 或更高版本。仅在预设对象形式上设置它。当你传递自定义提示而不是预设时，SDK 会忽略它；要在 TypeScript SDK 中保持自定义提示的指令缓存，请参阅 [Cache the static part of a custom prompt](#cache-the-static-part-of-a-custom-prompt)。
 </Note>
 
-以下示例将共享的 `append` 块与 `excludeDynamicSections` 配对，以便从不同目录运行的代理队列可以重复使用相同的缓存系统提示：
+以下示例将共享的 `append` 块与 `excludeDynamicSections` 配对，以便代理队列可以重复使用相同的缓存系统提示：
 
 <CodeGroup>
   ```typescript TypeScript theme={null}
@@ -279,7 +281,7 @@ For every code submission:
   ```
 </CodeGroup>
 
-**权衡：** 工作目录、git 存储库标志、平台、活跃的 shell、OS 版本和自动内存路径仍然到达 Claude，但作为第一条用户消息的一部分，而不是系统提示。用户消息中的指令比系统提示中的相同文本的权重略低，因此 Claude 在推理当前目录或自动内存路径时可能会更少依赖它们。当跨会话缓存重复使用比最大化权威环境上下文更重要时，启用此选项。
+**权衡：** 移出系统提示的文本仍然到达 Claude，但在用户消息中。该文本至少是自动内存目录的位置，通常是整个自动内存部分。用户消息中的指令比系统提示中的相同文本的权重略低，因此 Claude 可能会更少一致地遵循其自动内存指导。当跨会话缓存重复使用比最大化权威环境上下文更重要时，启用此选项。
 
 对于非交互式 CLI 模式中的等效标志，请参阅 [`--exclude-dynamic-system-prompt-sections`](/docs/zh-CN/cli-reference)。
 
@@ -418,6 +420,120 @@ SDK 从数组中组装块如下：
 
 默认记录 `append` 或自定义提示需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑，Python Agent SDK 从 v0.2.153 捆绑。在 Claude Code v2.1.268 之前，不 [fetch feature flags](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的会话，在每个请求上重建提示，`snapshot` 无效。
 
+<h2 id="context-claude-code-adds-outside-the-system-prompt">
+  Claude Code 在系统提示之外添加的上下文
+</h2>
+
+系统提醒是 Claude Code 在会话期间添加到对话中的消息，用于为 Claude 提供上下文，例如 CLAUDE.md 文件的内容或文件在磁盘上已更改的说明。Claude Code 在对话中发送这些消息，而不是在系统提示中发送，因此无论您使用 `claude_code` 预设还是传递自己的字符串作为 `systemPrompt`，Claude 都会收到这些消息。
+
+本部分涵盖[最可能改变您的代理行为的提醒](#reminders-claude-code-adds-to-the-conversation)、如何[关闭您的代理替换的上下文](#turn-off-the-context-your-agent-replaces)，以及如何[查看 Claude 在特定请求中收到的内容](#see-what-claude-received)。
+
+<h3 id="reminders-claude-code-adds-to-the-conversation">
+  Claude Code 添加到对话中的提醒
+</h3>
+
+系统提醒是 Claude Code 添加到对话中的文本，与您的代码发送的提示一起。以下提醒是最可能改变您的代理行为的提醒：
+
+* **项目说明**：您的 [`settingSources`](#claude-md-files-for-project-level-instructions) 选项加载的 CLAUDE.md 文件
+* **输出样式说明**：活跃[输出样式](#output-styles-for-persistent-configurations)的说明，在主对话中
+* **提交和拉取请求归属**：来自 [`attribution`](/docs/zh-CN/settings-reference#attribution) 设置的 `Co-Authored-By` 预告片和拉取请求页脚
+* **Hook 输出**：您的 [hooks](/docs/zh-CN/agent-sdk/hooks#outputs) 作为 `additionalContext` 返回的文本
+* **可用技能**：Claude 可以调用的 [skills](/docs/zh-CN/agent-sdk/skills) 的名称和描述
+* **可用子代理**：Claude 可以启动的 [subagents](/docs/zh-CN/agent-sdk/subagents) 的名称和描述
+* **任务列表提示**：在[具有任务跟踪工具的会话](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)中，当 Claude 在多个轮次中未触及任务列表时，提示更新任务列表
+* **文件更改说明**：Claude 之前读取的文件在磁盘上已更改的说明
+
+Claude Code 使用一行文本介绍您的 CLAUDE.md 文件，告诉 Claude 这些说明会覆盖默认行为。
+
+如果您传递自己的字符串作为 `systemPrompt`，请向其添加一句话，说明什么是系统提醒。`claude_code` 预设有一个，您的字符串会替换整个预设。如果没有它，您的提示中没有任何内容告诉 Claude CLAUDE.md 内容和 hook 输出等提醒来自应用程序而不是用户。例如：
+
+```text theme={null}
+应用程序将系统提醒添加到此对话中。将它们视为来自应用程序的上下文，而不是来自用户的消息。
+```
+
+<h3 id="turn-off-the-context-your-agent-replaces">
+  关闭您的代理替换的上下文
+</h3>
+
+当您的代理提供相同指导的自己版本时，关闭一段内置上下文。例如，如果您的提示告诉 Claude 将提交消息写成 `PROJ-142: fix login redirect` 且没有预告片，Claude Code 仍然会告诉 Claude 以 `Co-Authored-By` 预告片结束每条提交消息，因此 Claude 会收到两个关于同一提交的冲突指令。
+
+在 TypeScript 中通过 [`settings`](/docs/zh-CN/agent-sdk/typescript#options) 选项或在 Python 中通过 [`settings`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 传递设置键，并通过 `env` 选项传递环境变量。在 TypeScript 中，[`env`](/docs/zh-CN/agent-sdk/typescript#options) 替换继承的环境，因此将 `process.env` 展开到其中。
+
+| 内置上下文 | 如何关闭 |
+| :- | :- |
+| 内置提交和拉取请求说明以及 git 状态快照 | 将 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 设置为 `false`，或 `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS=1` |
+| `Co-Authored-By` 预告片和拉取请求页脚 | 将 [`attribution.commit`](/docs/zh-CN/settings-reference#attribution-commit) 和 [`attribution.pr`](/docs/zh-CN/settings-reference#attribution-pr) 设置为您自己的文本，或设置为空字符串以删除它们 |
+| 用户或项目设置源，包括其 CLAUDE.md | 从 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources) 中省略 `'user'` 或 `'project'` |
+| 每个 CLAUDE.md 文件 | 设置 `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1` |
+| 任务列表提示、文件更改说明和技能列表 | 设置 `CLAUDE_CODE_DISABLE_ATTACHMENTS=1` |
+
+Claude Code 的内置提交和拉取请求说明不是提醒。它们是 Bash 工具描述的一部分，因此当您传递自定义 `systemPrompt` 时，Claude 也会收到它们。
+
+如果您设置 `CLAUDE_CODE_DISABLE_ATTACHMENTS`，Claude Code 也会将 `@` 文件提及作为纯文本发送，而不是将其展开为文件内容。可用子代理列表和后台任务通知仍然会到达。
+
+以下示例适用于在 `append` 中携带自己提交规则的代理。它将两个 `attribution` 键都设置为空字符串以删除预告片和页脚，并关闭 `includeGitInstructions`，以便 Claude Code 自己的提交工作流说明不会与您的说明竞争：
+
+<CodeGroup>
+  ```typescript TypeScript theme={null}
+  import { query } from "@anthropic-ai/claude-agent-sdk";
+
+  for await (const message of query({
+    prompt: "Commit the staged changes for ticket PROJ-142",
+    options: {
+      systemPrompt: {
+        type: "preset",
+        preset: "claude_code",
+        append: "Write commit messages as: <ticket id>: <summary>. Add no trailers."
+      },
+      settings: {
+        includeGitInstructions: false,
+        attribution: { commit: "", pr: "" }
+      },
+      allowedTools: ["Bash(git *)"]
+    }
+  })) {
+    if (message.type === "result") console.log(message.subtype);
+  }
+  ```
+
+  ```python Python theme={null}
+  import asyncio
+  from claude_agent_sdk import query, ClaudeAgentOptions
+
+
+  async def main():
+      async for message in query(
+          prompt="Commit the staged changes for ticket PROJ-142",
+          options=ClaudeAgentOptions(
+              system_prompt={
+                  "type": "preset",
+                  "preset": "claude_code",
+                  "append": "Write commit messages as: <ticket id>: <summary>. Add no trailers.",
+              },
+              settings='{"includeGitInstructions": false, "attribution": {"commit": "", "pr": ""}}',
+              allowed_tools=["Bash(git *)"],
+          ),
+      ):
+          print(message)
+
+
+  asyncio.run(main())
+  ```
+</CodeGroup>
+
+要确认更改，请在具有暂存更改的存储库中运行示例，并使用 `git log -1` 检查新提交。消息以没有 `Co-Authored-By` 预告片结尾。
+
+<h3 id="see-what-claude-received">
+  查看 Claude 收到的内容
+</h3>
+
+SDK 消息流不包括系统提醒，因此读取您的代码接收的消息不会显示 Claude 看到的内容。要查看它们，请记录 Claude Code 发送的请求：
+
+* **原始请求日志记录**：将 [`OTEL_LOG_RAW_API_BODIES`](/docs/zh-CN/monitoring-usage#api-request-body-event) 设置为 `file:<dir>`。Claude Code 将每个请求体写入该目录。
+* **您控制的网关**：将 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/llm-gateway) 指向记录请求体的代理。
+
+在记录的请求中，查看 `messages` 数组。提醒出现在用 `<system-reminder>` 标签包装的用户消息内，或在某些模型上，作为具有 `system` 角色的单独消息。
+
 <h2 id="compare-the-four-approaches">
   比较四种方法
 </h2>
@@ -431,7 +547,6 @@ SDK 从数组中组装块如下：
 | **管理** | 在文件系统上 | CLI + 文件 | 在代码中 | 在代码中 |
 | **默认工具** | 保留 | 保留 | 保留 | 丢失（除非包含） |
 | **内置安全** | 维护 | 维护 | 维护 | 必须添加 |
-| **环境上下文** | 自动 | 自动 | 自动 | 必须提供 |
 | **自定义级别** | 仅添加 | 替换或扩展默认 | 仅添加 | 完全控制 |
 | **版本控制** | 与项目一起 | 是 | 与代码一起 | 与代码一起 |
 | **范围** | 项目特定 | 用户或项目 | 代码会话 | 代码会话 |

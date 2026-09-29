@@ -41,11 +41,13 @@
 | `running scripts is disabled on this system` 或 `PSSecurityException` | [允许 npm shims 运行](#running-scripts-is-disabled-on-this-system) |
 | `Error: claude native binary not installed` | [完成 npm 安装](#native-binary-not-found-after-npm-install) |
 | 更新或重新安装期间 `npm error code ENOTEMPTY` | [删除剩余的包目录](#npm-enotempty-during-update-or-reinstall) |
+| 在 Windows 上更新后 `'claude' is not recognized` | [从其备份恢复 `claude.exe`](#claude-exe-missing-after-an-update-on-windows) |
 | 在 Windows 上，安装命令打印脚本文本，但没有任何内容安装 | [运行完整的安装命令](#wrong-install-command-on-windows) |
 | `App unavailable in region` | Claude Code 在您的国家/地区不可用。请参阅[支持的国家/地区](https://www.anthropic.com/supported-countries)。 |
 | `unable to get local issuer certificate` | [配置企业 CA 证书](#tls-or-ssl-connection-errors) |
 | `OAuth error` 或 `403 Forbidden` | [修复身份验证](#login-and-authentication) |
-| 设置期间 `Unable to connect to Anthropic services` | 请参阅错误参考中的 [Unable to connect to Anthropic services](/docs/zh-CN/errors#unable-to-connect-to-anthropic-services) |
+| `Claude Code access has not been granted for this account` | [获取包含 Claude Code 的角色](#claude-code-access-has-not-been-granted-for-this-account) |
+| 设置期间 `Unable to connect to Anthropic services` | 请参阅[错误参考](/docs/zh-CN/errors#unable-to-connect-to-anthropic-services)中的 Unable to connect to Anthropic services |
 | `Could not load the default credentials` 或 `Could not load credentials from any providers` | [Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 凭证](#bedrock-agent-platform-or-foundry-credentials-not-loading) |
 | `ChainedTokenCredential authentication failed` 或 `CredentialUnavailableError` | [Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 凭证](#bedrock-agent-platform-or-foundry-credentials-not-loading) |
 | `API Error: 500`、`529 Overloaded`、`429` 或上面未列出的其他 4xx 和 5xx 错误 | 请参阅[错误参考](/docs/zh-CN/errors) |
@@ -147,6 +149,13 @@
     ```bash theme={null}
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
     source ~/.bashrc
+    ```
+
+    对于 macOS 上的 Bash，请改为将该行添加到 `~/.bash_profile`。macOS 上的终端将 Bash 作为登录 shell 启动，它忽略 `~/.bashrc` 并仅读取存在的 `~/.bash_profile`、`~/.bash_login` 或 `~/.profile` 中的第一个。如果您已经有 `~/.bash_login` 或 `~/.profile` 且没有 `~/.bash_profile`，请将该行放在该文件中，而不是创建 `~/.bash_profile`：
+
+    ```bash theme={null}
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bash_profile
+    source ~/.bash_profile
     ```
 
     或者，关闭并重新打开您的终端。
@@ -593,6 +602,28 @@ Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\downloads"
 irm https://claude.ai/install.ps1 | iex
 ```
 
+<h3 id="claude-exe-missing-after-an-update-on-windows">
+  `claude.exe` 在 Windows 更新后丢失
+</h3>
+
+如果您的终端在 Claude Code 在 Windows 上更新后报告 `'claude' is not recognized`，请检查 `%USERPROFILE%\.local\bin` 是否仍然包含 `claude.exe`。如果该目录根本不在您的 PATH 上，请改为参阅[修复您的 PATH](#command-not-found-claude-after-installation)。要在 Windows 上更新，Claude Code 将现有的 `claude.exe` 重命名为备份，并将新版本移动到其位置。如果将新版本移动到位失败，Claude Code 也无法重命名备份，则该目录保留备份但没有 `claude.exe`。
+
+备份是同一目录中的一个文件，其名称以 `claude.exe.old.` 开头，后跟数字时间戳。在 PowerShell 中运行以下命令以将最新的备份重命名回 `claude.exe`：
+
+```powershell theme={null}
+Get-ChildItem "$env:USERPROFILE\.local\bin\claude.exe.old.*" | Sort-Object Name | Select-Object -Last 1 | Rename-Item -NewName claude.exe
+```
+
+然后运行 `claude --version` 确认修复。恢复的 `claude.exe` 打印版本号。
+
+如果没有 `claude.exe.old.*` 文件，或重命名后 `claude` 仍然失败，请改为重新安装：
+
+```powershell theme={null}
+irm https://claude.ai/install.ps1 | iex
+```
+
+在 v2.1.281 之前，Claude Code 可能在 `claude.exe` 仍然丢失时删除备份。
+
 <h3 id="install-killed-on-low-memory-linux-servers">
   在低内存 Linux 服务器上安装被杀死
 </h3>
@@ -991,6 +1022,17 @@ npm install -g @anthropic-ai/claude-code
 * **Claude Pro/Max 用户**：在 [claude.ai/settings](https://claude.ai/settings) 验证您的订阅是否有效
 * **Anthropic Console 用户**：确认您的账户具有"Claude Code"或"Developer"角色。管理员在 Anthropic Console 的"Settings → Members"中分配此角色。
 * **在代理后面**：企业代理可能干扰 API 请求。有关代理设置，请参阅 [network configuration](/docs/zh-CN/network-config)。
+
+<h3 id="claude-code-access-has-not-been-granted-for-this-account">
+  Claude Code 访问权限尚未为此账户授予
+</h3>
+
+如果登录页面显示 `Authorization failed`，并显示消息 `Claude Code access has not been granted for this account. Contact your administrator.`，在您从 Claude Code 登录后，您的 Claude Enterprise 组织已将您的角色设置为"Custom"，并且分配给您的组的任何[自定义角色](https://support.claude.com/en/articles/13930452)都不授予 Claude Code 访问权限。在"Custom"角色上，您只能从这些自定义角色获得访问权限，因此您在 Claude Code 中所做的任何更改都无法解决此错误。
+
+要获得访问权限：
+
+1. 请您的 Claude 组织的所有者将授予 Claude Code 访问权限的自定义角色分配给您的某个组，或将您的角色从"Custom"更改为标准角色（如"User"）。所有者在组织的[角色设置](https://claude.ai/admin-settings/roles)中管理角色。
+2. 所有者进行更改后，运行 `claude` 并再次登录。
 
 <h3 id="this-organization-has-been-disabled-with-an-active-subscription">
   此组织已被禁用，但有活跃订阅

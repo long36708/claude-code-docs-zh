@@ -20,39 +20,39 @@ claude -p "Find and fix the bug in auth.py" --allowedTools "Read,Edit,Bash"
   基本用法
 </h2>
 
-将 `-p`（或 `--print`）标志添加到任何 `claude` 命令以非交互方式运行它。并非所有 [CLI 选项](/docs/zh-CN/cli-reference) 都与 `-p` 结合使用。Claude Code 拒绝 `--bg`，并在有任务描述时拒绝 `--cloud`，会出现命名冲突的错误；`--cloud` 与会话 ID 和 `-p` 结合时，会 [将消息排队到该云会话](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli) 并退出。您经常会与 `-p` 结合使用的选项包括：
+在任何 `claude` 命令中添加 `-p`（或 `--print`）标志以非交互方式运行它。并非每个 [CLI 选项](/docs/zh-CN/cli-reference) 都与 `-p` 兼容。Claude Code 拒绝 `--bg`，并在任务描述中拒绝 `--cloud`，会报错说明冲突；`--cloud` 与会话 ID 和 `-p` 一起使用时，会 [将消息排队到该云会话](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli) 并退出。你通常会与 `-p` 结合使用的选项包括：
 
 * `--continue` 用于 [继续对话](#continue-conversations)
 * `--allowedTools` 用于 [自动批准工具](#auto-approve-tools)
 * `--output-format` 用于 [获取结构化输出](#get-structured-output)
 
-此示例询问 Claude 关于您的代码库的问题并打印响应：
+此示例向 Claude 询问有关你的代码库的问题并打印响应：
 
 ```bash theme={null}
 claude -p "What does the auth module do?"
 ```
 
-Claude Code 在成功时以代码 0 退出，在运行失败时以非零代码退出，因此您的脚本可以根据退出状态进行分支。如果您传递无效标志，Claude Code 会在运行开始前向 stderr 报告错误。当运行内部发生故障时，例如缺少身份验证，Claude Code 会将故障作为结果打印到 stdout。
+Claude Code 在成功时以代码 0 退出，在运行失败时以非零代码退出，因此你的脚本可以根据退出状态进行分支。如果你传递无效标志，Claude Code 会在运行开始前向 stderr 报告错误。当运行内部发生故障（例如缺少身份验证）时，Claude Code 会将故障作为结果打印到 stdout。
 
 <h3 id="start-faster-with-bare-mode">
   使用裸模式更快启动
 </h3>
 
-添加 `--bare` 以通过跳过 hooks、skills、自定义命令、[subagents](/docs/zh-CN/sub-agents)、installed plugins、MCP 服务器、auto memory 和 CLAUDE.md 的自动发现来减少启动时间。没有它，`claude -p` 会加载交互式会话相同的 [上下文](/docs/zh-CN/how-claude-code-works#the-context-window)，包括在工作目录或 `~/.claude` 中配置的任何内容。
+添加 `--bare` 以通过跳过 hooks、skills、自定义命令、[subagents](/docs/zh-CN/sub-agents)、已安装的插件、MCP 服务器、自动内存和 CLAUDE.md 的自动发现来减少启动时间。没有它，`claude -p` 会加载交互式会话相同的 [context](/docs/zh-CN/how-claude-code-works#the-context-window)，包括在工作目录或 `~/.claude` 中配置的任何内容。
 
-裸模式对于 CI 和脚本很有用，您需要在每台机器上获得相同的结果。队友的 `~/.claude` 中的 hook 或项目的 `.mcp.json` 中的 MCP 服务器不会运行，因为裸模式从不读取它们。您使用 `--add-dir` 命名的目录是部分例外：裸模式从其 `.claude/skills/` 文件夹加载 skills，但仍然跳过其 `.claude/commands/` 和 `.claude/agents/` 文件夹。[来自其他目录的 Skills](/docs/zh-CN/skills#skills-from-additional-directories) 涵盖了加载和不加载的内容。
+裸模式对于 CI 和脚本很有用，你需要在每台机器上获得相同的结果。队友的 `~/.claude` 中的 hook 或项目的 `.mcp.json` 中的 MCP 服务器不会运行，因为裸模式永远不会读取它们。你用 `--add-dir` 命名的目录是一个部分例外：裸模式从其 `.claude/skills/` 文件夹加载 skills，但仍然跳过其 `.claude/commands/` 和 `.claude/agents/` 文件夹。[来自其他目录的 Skills](/docs/zh-CN/skills#skills-from-additional-directories) 涵盖了加载和不加载的内容。
 
-没有 `--bare`，`-p` 会话会运行项目的 `.claude/settings.json` 中的 hooks 并连接其 `.mcp.json` 中的服务器，即使在您从未信任的文件夹中也是如此。`-p` 会话不显示工作区信任对话框和每个服务器的批准提示。[在您信任文件夹之前运行的内容](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 涵盖了 `-p` 下每种存储库内容以及如何将其排除在外。
+没有 `--bare`，`-p` 会话会运行项目的 `.claude/settings.json` 中的 hooks 并连接其 `.mcp.json` 中的服务器，即使在你从未信任的文件夹中也是如此。`-p` 会话不显示工作区信任对话框和每个服务器的批准提示。[在你信任文件夹之前运行的内容](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 涵盖了 `-p` 下每种类型的存储库内容以及如何将其排除在外。
 
-此示例在裸模式下运行一次性摘要任务，并预先批准 Read 工具，以便调用完成而无需权限提示。在运行之前设置 `ANTHROPIC_API_KEY`，因为裸模式不使用您的订阅登录：
+此示例在裸模式下运行一次性摘要任务，并预先批准 Read 工具，以便调用完成而无需权限提示。运行前设置 `ANTHROPIC_API_KEY`，因为裸模式不使用你的订阅登录：
 
 ```bash theme={null}
 claude --bare -p "Summarize README.md" --allowedTools "Read"
 ```
 
-在裸模式下，Claude Code 从不读取 OAuth 凭证或系统钥匙链。对于 Anthropic API，在环境中设置 `ANTHROPIC_API_KEY`，使用在 [Claude Console](https://platform.claude.com) 中创建的密钥，或在 `--settings` JSON 中提供 `apiKeyHelper`。Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 继续照常读取其自己的提供商凭证。
+在裸模式下，Claude Code 永远不会读取 OAuth 凭证或系统密钥链。对于 Anthropic API，在环境中设置 `ANTHROPIC_API_KEY`，使用在 [Claude Console](https://platform.claude.com) 中创建的密钥，或在 `--settings` JSON 中提供 `apiKeyHelper`。Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 继续照常读取它们自己的提供商凭证。
 
-在裸模式下，Claude 可以访问 Bash、文件读取和文件编辑工具。使用标志传递您需要的任何上下文：
+在裸模式下，Claude 可以访问 Bash、文件读取和文件编辑工具。使用标志传递你需要的任何 context：
 
 | 要加载 | 使用 |
 | - | - |
@@ -60,7 +60,7 @@ claude --bare -p "Summarize README.md" --allowedTools "Read"
 | 设置 | `--settings <file-or-json>` |
 | MCP 服务器 | `--mcp-config <file-or-json>` |
 | 自定义 agents | `--agents <json>` |
-| 插件 | `--plugin-dir <path>`, `--plugin-url <url>` |
+| 一个插件 | `--plugin-dir <path>`, `--plugin-url <url>` |
 
 <Note>
   `--bare` 是脚本和 SDK 调用的推荐模式，将在未来版本中成为 `-p` 的默认值。
@@ -70,26 +70,32 @@ claude --bare -p "Summarize README.md" --allowedTools "Read"
   退出时的后台任务
 </h3>
 
-如果 Claude 在 `claude -p` 运行期间启动 [后台 Bash 任务](/docs/zh-CN/tools-reference#bash-tool-behavior)，例如开发服务器或监视构建，该 shell 会在 Claude 返回其最终结果并关闭 stdin 后约五秒钟被终止。宽限期允许在结果之后立即完成的任务仍然能够传递其输出。
+如果 Claude 在 `claude -p` 运行期间启动 [后台 Bash 任务](/docs/zh-CN/tools-reference#bash-tool-behavior)（例如开发服务器或监视构建），该 shell 将在 Claude 返回其最终结果并关闭 stdin 后约五秒钟被终止。宽限期允许在结果之后立即完成的任务仍然传递其输出。
 
 如果 Claude 启动后台 [subagent](/docs/zh-CN/sub-agents) 或工作流，`claude -p` 会改为保持打开状态，直到该工作完成，因为其结果是最终输出的一部分。
 
-默认情况下，等待在连续空闲等待 10 分钟后结束，因此卡住的 subagent 或工作流无法无限期地保持进程打开。此时，Claude Code 停止仍在运行的任何内容并丢弃其部分结果。要更改限制，请设置 [`CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS`](/docs/zh-CN/env-vars)，或将其设置为 `0` 以无限制地等待。
+默认情况下，等待在连续空闲等待 10 分钟后结束，因此卡住的 subagent 或工作流无法无限期地保持进程打开。此时 Claude Code 停止仍在运行的任何内容并丢弃其部分结果。要更改限制，请设置 [`CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS`](/docs/zh-CN/env-vars)，或将其设置为 `0` 以无限期等待。
 
-如果 Claude 在 `claude -p` 运行期间启动 [Monitor](/docs/zh-CN/tools-reference#monitor-tool) 监视，Claude Code 会等待该监视，直到它超时或十分钟上限结束等待，以先发生者为准。在等待期间，Claude 继续响应监视报告的内容。默认情况下，监视在 Claude 启动它后五分钟超时。
+如果 Claude 在 `claude -p` 运行期间启动 [Monitor](/docs/zh-CN/tools-reference#monitor-tool) 监视，Claude Code 会等待监视直到它超时或十分钟的上限结束等待，以先发生者为准。在等待期间，Claude 继续响应监视报告的内容。默认情况下，监视在 Claude 启动后五分钟超时。
 
 <h3 id="stop-a-run-with-sigterm">
   使用 SIGTERM 停止运行
 </h3>
 
-如果您使用 SIGTERM 停止 `claude -p` 运行，例如使用 `kill` 或从进程监督程序，Claude Code 以代码 143 退出。Claude Code 将正在进行的转向保持未完成状态，并为其记录无结果。要改为结束转向，请发送 SIGINT，或在停止进程之前调用 Agent SDK 的 `interrupt()`。
+如果你使用 SIGTERM 停止 `claude -p` 运行，例如使用 `kill` 或从进程监督程序，Claude Code 以代码 143 退出。Claude Code 将正在进行的转向保持未完成状态，并且不为其记录任何结果。要改为结束转向，请发送 SIGINT，或在停止进程之前调用 Agent SDK 的 `interrupt()`。
 
-在 SIGTERM 上，Claude Code 终止仍在运行的任何 Bash 命令的进程树。Claude Code 然后运行 [`SessionEnd` hooks](/docs/zh-CN/hooks#sessionend) 并退出。在退出时，Claude Code 不启动新的工具调用，不发送新的模型请求，也不运行除 `SessionEnd` 之外的任何 hook。如果运行在信号到达时处于命令中间或等待权限提示的答案，Claude Code 按如下方式处理该步骤：
+在 SIGTERM 上，Claude Code 终止仍在运行的任何 Bash 命令的进程树。Claude Code 然后运行 [`SessionEnd` hooks](/docs/zh-CN/hooks#sessionend) 并退出。退出时，Claude Code 不启动新的工具调用，不发送新的模型请求，也不运行除 `SessionEnd` 之外的任何 hook。如果运行在信号到达时处于命令中间或等待权限提示的答案，Claude Code 按如下方式处理该步骤：
 
 * **运行命令**：Claude Code 在会话中将命令记录为已杀死。
-* **等待权限提示的答案**：如果您向进程发送 SIGTERM，Claude Code 会将提示保持未回答状态。如果您的程序通过 Agent SDK 关闭会话，SDK 会在发送任何信号之前结束 Claude Code 的输入，Claude Code 会在输入结束后立即取消提示。
+* **等待权限提示的答案**：如果你向进程发送 SIGTERM，Claude Code 会将提示保持未回答状态。如果你的程序通过 Agent SDK 关闭会话，SDK 会在发送任何信号之前结束 Claude Code 的输入，Claude Code 会在输入结束后立即取消提示。
 
-当您 [恢复会话](#continue-conversations) 时，Claude Code 继续 SIGTERM 留下的未完成转向。
+当你 [恢复会话](#continue-conversations) 时，Claude Code 将中断的转向保持原样，你的下一个提示驱动对话。要让 Claude Code 在恢复时继续中断的转向，请设置 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN=1`](/docs/zh-CN/env-vars)。
+
+<h3 id="if-the-working-directory-is-deleted">
+  如果工作目录被删除
+</h3>
+
+如果 `claude -p` 或 Agent SDK 会话的工作目录在会话中间被删除，会话继续运行。当转向在目录缺失时启动时，Claude Code 在 `stream-json` 输出中发出 [警告消息](/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage)，shell 命令失败，直到目录再次存在。
 
 <h2 id="examples">
   示例
@@ -255,7 +261,9 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
 | 字段 | 类型 | 描述 |
 | - | - | - |
 | `plugins` | 数组 | 成功加载的 plugins，每个都有 `name` 和 `path` |
-| `plugin_errors` | 数组 | plugin 加载时错误，每个都有 `plugin`、`type` 和 `message`。包括不满足的依赖版本和 `--plugin-dir` 加载失败，例如缺失路径或无效存档。受影响的 plugins 被降级并从 `plugins` 中缺失。当没有错误时，该键被省略 |
+| `plugin_errors` | 数组 | plugin 加载时错误，每个都有 `plugin`、`type` 和 `message`。包括不满足的依赖版本和 `--plugin-dir` 加载失败，例如缺失路径或无效存档。未加载的 plugin 从 `plugins` 中缺失。当没有错误时，该键被省略 |
+
+当 `--plugin-dir` 目录或存档本身加载失败时，其 `plugin_errors` 条目包括解析的绝对路径作为 `path`。使用它来判断哪个 `--plugin-dir` 值失败。`path` 字段需要 Claude Code v2.1.283 或更高版本。
 
 以相同的方式使用 MCP 服务器字段。当您使用 `-p` 传递 [`--mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 时，Claude Code 在运行第一轮之前等待仍然待处理的服务器，最多等待 [`MCP_TIMEOUT`](/docs/zh-CN/env-vars) 启动超时，默认为 30 秒。具有 [缓存工具列表](/docs/zh-CN/agent-sdk/mcp#connection-timing) 的远程服务器跳过等待，在 `system/init` 中显示 `pending`，并在其第一次工具调用时连接。等待需要 Claude Code v2.1.221 或更高版本。
 

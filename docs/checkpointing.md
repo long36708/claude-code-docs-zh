@@ -114,7 +114,7 @@ Checkpointing 仅跟踪在当前会话中编辑过的文件。您在 Claude Code
   中途发送的消息未检查点
 </h3>
 
-当您在 Claude 工作时[排队的消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)在运行的回合中到达 Claude 时，它会加入该回合而不是开始新的回合。该消息会出现在对话中，但 Claude Code 不会为其创建检查点，回溯菜单也不会列出它。Claude Code 作为其自己的回合发送的排队消息会照常获得检查点。
+当您在 Claude 工作时[排队的消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)在运行的回合中到达 Claude 时，它会加入该回合而不是开始新的回合。该消息会出现在对话中，但 Claude Code 不会为其创建检查点，回溯菜单也不会列出它。Claude Code 作为其自己的回合发送的排队消息会照常获得检查点，包括当多个排队消息[共享该回合](/docs/zh-CN/interactive-mode#when-claude-code-sends-what-you-queued)时。
 
 要删除此类消息或撤销 Claude 在其后所做的编辑，请回溯到启动该回合的提示。这会回溯整个回合，包括 Claude 在您的消息到达之前所做的工作。
 

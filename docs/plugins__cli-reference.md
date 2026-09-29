@@ -165,6 +165,20 @@ claude plugin uninstall formatter@my-marketplace --scope project
 
 Claude Code 打印 `Successfully uninstalled plugin: formatter (scope: project)`。当 plugin 未在该作用域安装时，命令打印以 `Failed to uninstall plugin "formatter@my-marketplace":` 开头的行，退出 `1`。
 
+如果失败行继续显示 `"formatter" was not uninstalled:`，Claude Code 无法确认该作用域的设置不再打开 plugin，因此 plugin 保持安装状态，并保留其保存的所有内容。使用 `--json`，结果带有 `failureCode: "settings_still_on"`。此设置检查需要 Claude Code v2.1.282 或更高版本。
+
+<h4 id="what-an-uninstall-deletes-and-keeps">
+  卸载删除和保留的内容
+</h4>
+
+当您从最后一个安装 plugin 的作用域卸载它时，Claude Code 也删除 plugin 的存储 [options 和 secrets](/docs/zh-CN/plugins/manifest-reference#user-configuration) 及其数据目录 `~/.claude/plugins/data/<id>/`。有三个例外：
+
+* 使用 `--keep-data`，数据目录保留
+* 当另一个已安装的 plugin 使用相同的文件夹时，例如其 ID 仅在字母大小写上与此不同的 plugin，数据目录保留
+* 当 Claude Code 无法在从该作用域删除 plugin 后读回已安装 plugins 的列表时，options、secrets 和数据目录都保留，因为 plugin 可能仍在另一个作用域安装。卸载仍然成功。消息列出保留的内容及如何删除它，使用 `--json` 结果带有 `savedKept: "install_records_unreadable"`
+
+使用 `--json`，`keptData` 报告目录是否保留，`/plugin` 在保留时显示 `· data preserved`。对于在没有 `--keep-data` 的情况下保留的目录，此报告需要 Claude Code v2.1.281 或更高版本。`savedKept` 字段需要 Claude Code v2.1.282 或更高版本。
+
 <h3 id="plugin-enable">
   plugin enable
 </h3>
@@ -248,10 +262,14 @@ claude plugin update <plugin> [options]
 
 | 标志 | 描述 |
 | :- | :- |
-| `-s, --scope <scope>` | 更新的作用域：`user`、`project`、`local` 或 `managed`。默认为 plugin 安装的作用域 |
+| `-s, --scope <scope>` | 更新的作用域：`user`、`project`、`local` 或 `managed`。省略时自动检测 |
 | `-y, --yes` | 接受来自 [command-source](/docs/zh-CN/plugins/host-marketplace) plugin 的更改的安装命令，无需提示。当 stdin 或 stdout 不是 TTY 时需要，除非您传递 `--accept-command`。需要 Claude Code v2.1.229 或更高版本 |
 | `--accept-command <sha256>` | 接受市场声明的命令，其 `sha256` 之前的 [`--json` 运行](#plugin-json-result) 在 `shownCommand` 中报告，代替 `-y`。不能与 `-y` 组合。需要 Claude Code v2.1.271 或更高版本 |
 | `--json` | 将结果作为一个 JSON 对象打印在 stdout 的最后一行，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本 |
+
+如果您省略 `--scope`，命令在您当前项目安装的最具体作用域处更新 plugin，检查本地、项目、用户，然后托管。
+
+在 v2.1.281 之前，当您省略 `--scope` 时命令使用 `user`，因此更新仅在项目或本地作用域安装的 plugin 失败，显示 `Plugin "<name>" is not installed at scope user`。在这些版本上，传递 `--scope`。
 
 `managed` 是您可以更新但不能安装的唯一作用域。对于管理员安装的 plugins，请参阅 [为您的组织管理 plugins](/docs/zh-CN/plugins/org)。
 

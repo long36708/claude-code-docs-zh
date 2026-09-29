@@ -6,7 +6,7 @@
 
 > 查找完整的、可运行的 Agent SDK 项目或 Claude Cookbook 中的指导食谱，以匹配您想要构建的内容。
 
-本页面为您提供完整的、可运行的 Agent SDK 项目和指导性的 Claude Cookbook 食谱。TypeScript 应用程序位于 [`claude-agent-sdk-demos`](https://github.com/anthropics/claude-agent-sdk-demos) 仓库中，Python 食谱位于 [Claude Cookbook](https://platform.claude.com/cookbook) 中。
+本页面为您提供完整的、可运行的 Agent SDK 项目和指导性的 Claude Cookbook 食谱。这些应用程序位于 [`claude-agent-sdk-demos`](https://github.com/anthropics/claude-agent-sdk-demos) 仓库中，Python 食谱位于 [Claude Cookbook](https://platform.claude.com/cookbook) 中。
 
 <h2 id="run-a-minimal-agent-first">
   首先运行一个最小化的 agent
@@ -18,11 +18,11 @@
 
 * [Hello World](https://github.com/anthropics/claude-agent-sdk-demos/tree/main/hello-world)：当您想从仓库代码开始时要克隆的最小 TypeScript 项目
 
-<h2 id="explore-a-typescript-application">
-  探索 TypeScript 应用程序
+<h2 id="explore-a-demo-application">
+  探索演示应用程序
 </h2>
 
-[`claude-agent-sdk-demos`](https://github.com/anthropics/claude-agent-sdk-demos) 中的 TypeScript 应用程序是本地开发的演示，从电子邮件客户端到多 agent 研究系统。克隆其形状与您正在构建的内容相匹配的演示。
+[`claude-agent-sdk-demos`](https://github.com/anthropics/claude-agent-sdk-demos) 中的应用程序是本地开发的演示，从电子邮件客户端到多 agent 研究系统。克隆其形状与您正在构建的内容相匹配的演示。
 
 <h2 id="work-through-a-python-recipe">
   完成 Python 食谱

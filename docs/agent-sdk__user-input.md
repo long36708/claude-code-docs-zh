@@ -296,6 +296,8 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
   <Tab title="批准并记住">
     用户批准并且不想再被询问此类调用。第三个回调参数携带 `suggestions`，一个现成的 [`PermissionUpdate`](/docs/zh-CN/agent-sdk/typescript#permissionupdate) 条目数组。在 `updatedPermissions` 中回显其中一个以应用它。带有 `localSettings` 目标的建议会将规则写入 `.claude/settings.local.json`，以便将来的会话跳过匹配调用的提示。
 
+    在 TypeScript 中，跳过选项携带 [`suppressAlwaysAllowRule: true`](/docs/zh-CN/agent-sdk/typescript#canusetool) 的请求的始终允许选择。该提示需要 Agent SDK v0.3.268 或更高版本，Python `context` 不携带它。
+
     Python 示例需要 `claude-agent-sdk` 0.1.80 或更高版本。
 
     <CodeGroup>
