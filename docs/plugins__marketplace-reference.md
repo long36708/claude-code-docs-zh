@@ -151,7 +151,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 | 类型 | 字段 | 说明 |
 | :- | :- | :- |
-| 相对路径 | 字符串本身 | marketplace 内的一个目录，从 marketplace 根目录解析。必须以 `./` 开头，除非你在 [`metadata.pluginRoot`](#bare-names-under-pluginroot) 下写一个[裸名](#bare-names-under-pluginroot)。`"."` 本身表示根目录 |
+| 相对路径 | 字符串本身 | marketplace 内的一个目录，从 marketplace 根目录解析。必须以 `./` 开头，除非你在 [`metadata.pluginRoot` 下写一个裸名](#relative-path-plugin-source)。`"."` 本身表示根目录 |
 | `github` | `repo`, `ref`, `sha` | GitHub 仓库，格式为 `owner/repo` |
 | `url` | `url`, `ref`, `sha` | 任何 git 仓库的 URL |
 | `git-subdir` | `url`, `path`, `ref`, `sha` | git 仓库的一个子目录，使用稀疏部分克隆获取 |
@@ -512,7 +512,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 
 `source` 上的 `Invalid input` 意味着该对象与任何源类型都不匹配。检查这些原因：
 
-* 不以 `./` 开头的相对路径，除了 `"."` 或 `metadata.pluginRoot` 下的裸名称
+* 不以 `./` 开头的相对路径，除了 `"."` 或 [`metadata.pluginRoot` 下的裸名称](#relative-path-plugin-source)
 * 包含 `..` 的 `npm` `package`
 * 不是 [plugin sources](#plugin-sources) 之一的 `source` 类型
 * 已知类型缺少必需字段或字段类型错误，例如没有 `repo` 的 `github`

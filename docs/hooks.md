@@ -2216,7 +2216,7 @@ hook 可以回显它接收的 `permission_suggestions` 之一作为其自己的 
 分类器给予说明的权重取决于您配置 hook 的位置：
 
 * **在 Claude Code 中配置的 Hooks**：对于来自设置文件、插件、skills 和 agent frontmatter 的 hooks，分类器将说明视为未验证的、应用程序提供的上下文。说明永远不会建立用户意图，如果它声称您批准或请求了什么，分类器会根据您在对话中的自己的消息检查该声明
-* **进程内 Agent SDK 回调**：当应用程序嵌入 Claude Code 将 hook 注册为 [TypeScript SDK 回调](/docs/zh-CN/agent-sdk/typescript#query-object) 并在实时会话期间返回说明时，分类器可能会将用户语句作为用户意图的权重。这样的语句可以满足分类器会接受来自您发送的消息的同意要求，但它永远不会解除您自己的消息也无法解除的阻止。会话恢复后，Claude Code 将恢复的说明视为未验证的上下文。当两个组的 hooks 注释同一调用时，分类器将组合说明视为未验证
+* **进程内 Agent SDK 回调**：当应用程序嵌入 Claude Code 将 hook 注册为 [TypeScript SDK 回调](/docs/zh-CN/agent-sdk/hooks) 并在实时会话期间返回说明时，分类器可能会将用户语句作为用户意图的权重。这样的语句可以满足分类器会接受来自您发送的消息的同意要求，但它永远不会解除您自己的消息也无法解除的阻止。会话恢复后，Claude Code 将恢复的说明视为未验证的上下文。当两个组的 hooks 注释同一调用时，分类器将组合说明视为未验证
 
 Claude Code 在传递说明时应用这些限制：
 

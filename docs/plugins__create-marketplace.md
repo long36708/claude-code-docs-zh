@@ -14,7 +14,7 @@ plugin marketplace 是一个目录或仓库，包含一个 `.claude-plugin/marke
   这些情况在其他页面上有介绍：
 
   * **与少数人共享一个 plugin**：将 plugin 的目录或其 `.zip` 文件发送给他们。请参阅[不使用 marketplace 共享 plugin](/docs/zh-CN/plugins/publish#share-a-plugin-without-a-marketplace)。
-  * **向所有人提供一个 plugin**：将其提交到 Anthropic 的社区 marketplace。请参阅[提交到社区 marketplace](/docs/zh-CN/plugins/publish#submit-to-the-community-marketplace)。
+  * **向所有人提供一个 plugin**：将其提交到 Anthropic 的社区 marketplace。请参阅[提交到社区 marketplace](/docs/zh-CN/plugins/publish#submit-to-anthropics-directory)。
   * **自己使用一个 plugin**：使用 `--plugin-dir` 加载它或将其保存在你的 skills 目录中。请参阅[不使用 marketplace 开发](/docs/zh-CN/plugins/create#develop-without-a-marketplace)。
 </Note>
 
