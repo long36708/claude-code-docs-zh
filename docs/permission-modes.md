@@ -526,7 +526,7 @@ Claude Code v2.1.195 及更高版本也默认允许这些：
        * 在具有[服务器端分类器审查](#server-side-classifier-review)的会话中，只读和[沙箱](/docs/zh-CN/sandboxing#sandbox-modes) shell 命令等待该审查并在其标记时被阻止
        * 工作目录内的写入，[符号链接检查](/docs/zh-CN/permissions#symlinks)解决为其外的位置，提示您
     3. 其他所有内容都进入分类器，除了[关键路径删除](#critical-paths)在其默认处理下。在步骤 1 中直接提示您的连接器工具和`requiresUserInteraction` MCP 工具永远不会到达分类器，因此既不是组织要求的批准也不是同意步骤被自动批准
-    4. 如果分类器阻止，Claude 收到原因并尝试替代方案。在大多数会话中，原因命名分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[审查拒绝](/docs/zh-CN/auto-mode-config#review-denials)
+    4. 如果分类器阻止，Claude 收到原因。在大多数会话中，原因命名分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[审查拒绝](/docs/zh-CN/auto-mode-config#review-denials)
 
     进入自动模式时，授予任意代码执行的广泛允许规则被丢弃：
 

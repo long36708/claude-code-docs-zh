@@ -1569,6 +1569,7 @@ Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`clean
 | `feedback/drafts/` | 排队的 [Claude 起草的反馈](/docs/zh-CN/tools-reference#sendfeedback-tool-behavior)，等待您在 `/feedback` 中审查。在 `cleanupPeriodDays` 或 30 天后扫除，以较短者为准。当队列达到其 10 个草稿的限制时，Claude Code 删除最旧的草稿以腾出空间。 |
 | `usage-data/` | `report.html` 和由 [`/insights`](/docs/zh-CN/costs#analyze-your-usage-patterns) 写入的时间戳报告副本，加上用于构建它们的缓存的每个会话分析数据 |
 | `skills/.trash/`、`plugins/.trash/` | [Skills](/docs/zh-CN/skills#how-synced-skills-behave) 和 [plugins](/docs/zh-CN/plugins/loading#synced-plugins)，从 claude.ai 同步中删除，例如在您在 claude.ai 上关闭其中一个或停止同步后。文件保留在此处，以便您可以恢复它们，直到扫描删除它们 |
+| `plugins/installed_plugins.set-aside.<date>.<hash>.json`、`plugins/installed_plugins.unreadable.<date>.<hash>.kept` | Claude Code 在重写 [`installed_plugins.json`](/docs/zh-CN/plugins/loading#find-plugins-on-disk) 之前制作的日期副本：它删除的安装记录，以及它无法读取的文件的内容。 |
 | `todos/`、`statsig/`、`logs/` | 来自旧版本的旧版目录。不再写入。扫描删除其内容，然后删除空目录。 |
 
 `sessions/` 中的会话文件、自动内存以及 Claude Desktop 和 Cowork 记录各自遵循自己的保留规则：
@@ -1715,6 +1716,7 @@ claude project purge ~/work/my-repo --yes
 | `~/.claude/policy-limits.json` | 无。自动刷新。 |
 | `~/.claude/tasks/` | 恢复的会话会拾取的任务列表 |
 | `~/.claude/skills/.trash/`、`~/.claude/plugins/.trash/` | 恢复 [synced skills](/docs/zh-CN/skills#how-synced-skills-behave) 和 [synced plugins](/docs/zh-CN/plugins/loading#synced-plugins) 的机会，Claude Code 已删除 |
+| `~/.claude/plugins/installed_plugins.set-aside.<date>.<hash>.json`、`~/.claude/plugins/installed_plugins.unreadable.<date>.<hash>.kept` | Claude Code 删除的 plugin 安装记录副本或无法读取的文件副本。没有任何内容读取它们 |
 | `~/.claude/debug/`、`~/.claude/plans/`、`~/.claude/session-env/`、`~/.claude/shell-snapshots/`、`~/.claude/backups/` | 没有面向用户的内容 |
 | `~/.claude/todos/`、`~/.claude/statsig/`、`~/.claude/logs/`、`~/.claude/image-cache/` | 无。旧版目录不由当前版本写入。 |
 

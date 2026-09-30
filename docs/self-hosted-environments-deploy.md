@@ -170,6 +170,8 @@ RUN git config --system user.name "Claude" && \
 
 如果您的 git 主机拒绝凭证，或您没有配置凭证，运行器重试几次然后失败存储库准备（当存储库是会话推送结果的存储库时）。对于会话仅从中读取的存储库，[故障排除](#troubleshooting)涵盖运行器何时改为跳过它。运行器不会将这些设置传递到会话的环境中。
 
+保持您在 `GIT_SSH_COMMAND` 或 `GIT_ASKPASS` 中命名的任何程序，会话无法写入它，就像[加固清单](#harden-your-deployment)要求钩子目录和包装脚本的方式一样。该程序命令行上的任何密钥或文件也是如此。运行器自己的 git 在克隆或获取时运行该程序。
+
 如果检出目录由与运行器进程不同的 uid 拥有，git 拒绝对其进行操作；添加 `safe.directory`：
 
 ```dockerfile theme={null}
@@ -184,7 +186,38 @@ RUN git config --system --add safe.directory '*'
 
 代理需要 `--capacity 1`，因为代理 URL 是按会话的，以及 git 2.32 或更高版本，因为较旧的 git 忽略代理用来隔离会话的配置机制。如果任一要求未满足，运行器拒绝启动。因为代理从 Anthropic 端获取，您的 git 主机必须可从 Anthropic 基础设施到达，与 Anthropic 托管会话相同的要求；对于仅在您的网络内可路由的 git 主机，改用 [`checkout` 生命周期钩子](/docs/zh-CN/self-hosted-environments-configuration#checkout)。每个运行器进程一次处理一个会话，因此运行更多副本以获得并行性。启用代理后，`--git-host-rewrite` 和 `--git-ssh-rewrite` 无效：代理 URL 指向 `api.anthropic.com`，而不是您的 git 主机。
 
+<Warning>
+  本页上的 [Kubernetes](#kubernetes) 和 [Docker Compose](#docker-compose) 配方使用 `--capacity 4`。如果您在不将容量更改为 `1` 的情况下向其中一个添加 `--use-anthropic-git-proxy` 或 `CLAUDE_RUNNER_USE_GIT_PROXY=1`，每次您的编排器重新启动它时，运行器都会在启动时退出。设置 `--capacity 1` 并运行更多副本以获得并行性。[当运行器退出](#when-the-runner-exits)显示运行器打印的行。
+</Warning>
+
 运行器还在注册时向 Anthropic 报告选择加入，在启动时打印 `Registering as opted in to Anthropic-managed git (--use-anthropic-git-proxy)`。报告选择加入需要 Claude Code v2.1.267 或更高版本，较早的版本接受该标志而不报告它或打印该行。选择加入运行器上的每个会话然后使用 Anthropic 管理的 git 或按会话代理 URL。当会话使用按会话代理 URL 时，运行器记录一行 `[runner:warn]` 说明这一点。
+
+<h4 id="trust-a-private-certificate-authority-with-anthropic-managed-git">
+  使用 Anthropic 管理的 git 信任专用证书颁发机构
+</h4>
+
+如果您在运行器的环境中设置 `GIT_SSL_CAINFO` 或 `GIT_SSL_NO_VERIFY`，其会话使用 Anthropic 管理的 git，本部分适用。它描述的处理需要运行器运行 Claude Code v2.1.283 或更高版本。
+
+当运行器上的 git 必须信任专用证书颁发机构 (CA)（例如 TLS 检查代理签署的证书颁发机构）时，通常的方法如下所示：
+
+* **系统证书存储**：在运行器主机的系统证书存储中安装您的 CA，git 无需任何变量即可信任它。
+* **`GIT_SSL_CAINFO`**：将其设置为您的 CA 的 PEM 文件，例如 `GIT_SSL_CAINFO=/etc/ssl/corp-ca.pem`。
+* **`GIT_SSL_NO_VERIFY`**：在重新签名代理后面没有帮助。运行器自己通过 Anthropic 管理的 git 克隆检查证书，即使设置了变量，所以克隆失败，直到 git 通过其他两种方法之一信任您的 CA。
+
+对于将会话令牌传送到 Anthropic 管理的 git 的 git 连接，运行器应用这两个变量如下。[`command` 钩子](/docs/zh-CN/self-hosted-environments-configuration#command)以会话的环境开始，所以它获得 git 在会话内获得的内容：
+
+* **`GIT_SSL_CAINFO`**：git 检查 Anthropic 管理的 git 的内容取决于 git 运行的位置：
+  * **运行器自己的克隆和获取**：运行时不使用变量，并根据运行器写入的按会话证书文件检查 Anthropic 管理的 git。该文件保存运行器主机的系统 CA 包加上您的文件中的证书。
+  * **会话内的 Git**：获得 `http.sslCAInfo` 配置，命名您的文件代替变量，加上 `http.<url>.sslCAInfo` 条目，根据按会话文件检查 Anthropic 管理的 git。
+  * **`checkout` 和 `post-session` 钩子**：继承变量不变。
+* **`GIT_SSL_NO_VERIFY`**：哪些证书检查保持关闭取决于 git 运行的位置：
+  * **运行器自己的克隆和获取**：运行时不使用变量，并检查它们呈现的证书。
+  * **会话内的 Git**：获得 `http.sslVerify=false` 配置代替变量，所以检查对其他主机保持关闭。它还获得 `http.<url>.sslVerify=true` 条目，为 Anthropic 管理的 git 保持检查打开。
+  * **`checkout` 和 `post-session` 钩子**：当会话在 Anthropic 管理的 git 上有存储库时，获得 `http.sslVerify=false` 配置代替变量。它们还获得 `http.<url>.sslVerify=true` 条目，为 Anthropic 管理的 git 保持检查打开。
+
+按会话证书文件需要在运行器主机上的 `/etc/ssl/certs/ca-certificates.crt` 或 `/etc/pki/tls/certs/ca-bundle.crt` 处的系统 CA 包。它还需要一个 `GIT_SSL_CAINFO` 文件，运行器的用户可以读取，保存 PEM `CERTIFICATE` 块，最多 1 MiB。当运行器无法构建按会话文件时，它记录一行 `[runner:warn]` 包含 `did not build the certificate file` 和原因。Git 然后按原样为 Anthropic 管理的 git 使用您的文件。修复该行命名的内容。
+
+对于使用 Anthropic 管理的 git 的每个会话，运行器还记录一行 `[runner:warn]` 开始于 `governed git: GIT_SSL_CAINFO is set` 或 `governed git: GIT_SSL_NO_VERIFY is set`。该行说明运行器对其自己的 git、会话内的 git 和您的生命周期钩子对该变量所做的操作。它以您是否需要更改任何内容结束。
 
 <h3 id="rewrite-git-urls-for-private-networks">
   为专用网络重写 git URL
@@ -203,7 +236,7 @@ RUN git config --system --add safe.directory '*'
 
 Anthropic 不发布预构建的运行器镜像。围绕 `claude` 二进制文件构建您自己的，分层您的存储库需要的任何工具链：语言运行时、编译器、包管理器和 [MCP](/docs/zh-CN/mcp) 边车。
 
-下面的配方使用 `--capacity 4`，所以一个容器为来自同一锁定所有者的最多四个并发会话服务。这不提供[加固部分](#harden-your-deployment)中的按会话容器隔离：在将环境连接到生产系统之前，要么以 `--capacity 1` 运行配方，每个会话一个容器，要么使用[按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)，它也将环境密钥保持在会话运行主机之外。
+下面的配方使用 `--capacity 4`，所以一个容器为来自同一锁定所有者的最多四个并发会话服务。这不提供[加固部分](#harden-your-deployment)中的按会话容器隔离：在将环境连接到生产系统之前，要么以 `--capacity 1` 运行配方，每个会话一个容器，要么使用[按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)，它也将环境密钥保持在会话运行主机之外。如果您将[Anthropic git 代理](#use-the-anthropic-git-proxy)添加到这些配方之一，也要将 `--capacity` 更改为 `1`。
 
 这个 Dockerfile 是一个最小的起点：
 
@@ -338,6 +371,8 @@ kubectl create secret generic claude-runner-environment-secret -n claude-runners
 
 下面的 Compose 服务在运行器退出时重启它，这涵盖崩溃和正常退出后的 drain。Docker 重启策略重启同一容器及其可写层完整，所以运行器以重用的文件系统而不是[加固态势](#harden-your-deployment)推荐的新文件系统回来；为评估使用此配方，对于生产要么每次运行重新创建容器，要么使用执行此操作的编排器。
 
+Docker 在容器不断退出时会在每次重启前等待更长时间，直到达到上限，所以在此配方下无法启动的运行器不会在紧密循环中不断重启。[当运行器退出时](#when-the-runner-exits)描述了发生这种情况时要检查的内容。
+
 ```yaml theme={null}
 services:
   claude-runner:
@@ -451,6 +486,8 @@ secrets:
 
 每个会话的子 Claude Code 进程运行运行器自己的二进制文件，运行器在它生成的会话内关闭自动更新，所以每个会话运行您在主机上安装或构建到镜像中的版本。主机级更新在运行器下次启动时生效。
 
+您的会话使用的模型可能需要比它们运行的 Claude Code 版本更新的版本。服务器随后会以 [Claude Code does not support this model](/docs/zh-CN/errors#claude-code-does-not-support-this-model) 拒绝对该模型的请求。在您固定版本之前，请检查[模型需要的 Claude Code 版本](/docs/zh-CN/model-config#available-models)，以了解您的会话使用的每个模型。
+
 * **将队列保持在一个版本上**：使用固定版本构建镜像，或在裸主机上安装特定版本并[禁用自动更新](/docs/zh-CN/setup#disable-auto-updates)
 * **升级**：安装较新版本或重建镜像，然后重启运行器
 * **插件**：插件市场也不自动更新；在运行器的环境中设置 `FORCE_AUTOUPDATE_PLUGINS=1` 以让插件自动更新，同时二进制保持固定
@@ -553,6 +590,76 @@ claude self-hosted-runner doctor
 初始化日志后，运行器将其生命周期日志（包括 `[runner:fatal]` 行）写入 stdout，将调试输出写入 stderr，全部作为纯文本行而不是 JSON。上述故障排除条目中描述的启动失败在该点之前打印到 stderr。使用 `--log-file` 捕获两个流，这也让 `self-hosted-runner doctor` 能够跟踪它们，或使用您的平台的日志收集。
 
 每个会话的子进程写入单独的调试日志。失败时，运行器在 claude.ai/code 中将日志的尾部与会话一起显示。除非您使用 [`--remove-session-state`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动了运行器，否则它也会在磁盘上保留失败会话的日志，并在运行器日志中打印其路径。
+
+<h3 id="when-the-runner-exits">
+  当运行器退出时
+</h3>
+
+不要重新启动 [按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)，因为其工作订单是一次性的。在启动后立即退出的运行器需要与因任何其他原因退出的运行器不同的处理方式。
+
+* **正常退出**：运行器完成了其会话并耗尽，达到了其退休时间，或被告知停止。重新启动它以便环境再次具有容量。[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle) 描述了这些退出。
+* **启动失败**：运行器无法使用给定的配置或主机启动，因此它在启动后几秒钟退出，并且每次重新启动时都以相同的方式退出。更快地重新启动它没有帮助。有人需要阅读其输出并修复原因。
+
+配置您的监督程序在运行器退出时重新启动它，当运行器在启动后立即保持退出时等待更长时间，并在这种情况持续发生时告知某人。
+
+<h4 id="recognize-a-failed-start">
+  识别启动失败
+</h4>
+
+当运行器无法启动时，它会打印一行说明原因，然后退出。对于大多数原因，该行包含 `[runner:fatal]`。对于某些原因，该行以 `error:` 开头，包括当运行器无法解析其标志、无法读取环境密钥或无法创建或写入基础目录时。下一行然后指向 `--help`。
+
+大多数日志行以时间戳和 `[self-hosted-runner]` 开头，下面的示例省略了这些。例如，使用 Anthropic git 代理和容量大于 1 启动的运行器会打印如下一行：
+
+```text theme={null}
+[runner:fatal] --use-anthropic-git-proxy requires --capacity 1 (the proxy URL is per-session and linked worktrees share origin). Omit --use-anthropic-git-proxy or set --capacity 1.
+```
+
+在运行器的标准输出和标准错误、您的平台的容器日志或您使用 [`--log-file`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 设置的文件中查找该行。运行器在打开日志文件之前打印 `error:` 行，因此请在终端或您的容器日志中查找它，如 [故障排除](#troubleshooting) 所述。
+
+当您阅读启动失败时，这些也有帮助：
+
+* **根本没有行**：主机杀死的运行器不会打印任何内容。如果输出以没有 `[runner:fatal]` 行和没有 `error:` 行结束，请检查主机或您的编排器是否停止了该进程，例如因为超过了内存限制。
+* **退出代码**：运行器不会为在每次启动时重复的错误预留退出代码。它对配置错误（例如不支持的标志组合）和可以自行清除的失败（例如 API 通过运行器自己的重试保持不可达）退出相同的代码。根据运行器退出的速度快慢来决定是否等待更长时间，并阅读运行器的输出以了解原因。
+* **看起来健康的环境**：某些启动步骤在运行器向您的环境注册后运行，例如 [`--configure-git`](#let-the-runner-configure-git) 和 Anthropic git 代理的凭证设置。如果其中一个步骤失败，环境可以在该进程退出后的几分钟内继续列出该运行器，并且 **Cloud environments** 页面可以读取 **Healthy**，而没有运行器拾取工作。如果会话在看起来健康的环境中保持排队，请检查您的监督程序是否在重新启动运行器。
+
+<h4 id="restart-with-a-wait-that-grows">
+  使用增长的等待时间重新启动
+</h4>
+
+如何获得增长的等待时间取决于您的监督程序。
+
+* **Kubernetes**：此页面上的 [Deployment](#kubernetes) 不需要更改。容器退出后，kubelet 默认在重新启动容器之前等待，并且等待时间在每次重新启动时增长到一个上限。一旦容器运行了一段时间而没有退出，等待就会重新开始。
+
+  当容器仅运行很短时间时，kubelet 在正常退出后应用相同的等待。经常耗尽的运行器因此也可以显示 `CrashLoopBackOff` 状态，所以在得出运行器无法启动的结论之前请阅读输出。下面的命令从 Deployment 的一个 pod 读取最后一次运行的输出：
+
+  ```bash theme={null}
+  kubectl logs --previous -n claude-runners deploy/claude-runner
+  ```
+
+  当最后一次运行是启动失败时，`[runner:fatal]` 或 `error:` 行在输出的最后几行中。要读取另一个 pod 的最后一次运行，请在 `deploy/claude-runner` 的位置命名该 pod。
+* **Docker 和 Docker Compose**：此页面上的 [Compose recipe](#docker-compose) 不需要更改。使用 `restart: always`，Docker 在保持退出的容器的每次重新启动之前等待更长时间，直到一个上限。在下面的命令中用容器的名称替换 `<container>`，该命令读取 Docker 重新启动容器的次数：
+
+  ```bash theme={null}
+  docker inspect --format '{{.RestartCount}}' <container>
+  ```
+
+  该命令打印一个数字。不断增加的数字意味着 Docker 不断重新启动运行器。
+* **systemd 单元**：默认情况下，systemd 在每次重新启动之前等待相同的 `RestartSec`，并且不会延长它，因此具有 `Restart=always` 的单元以相同的间隔重新启动无法启动的运行器。当启动速度足够快以达到单元的启动速率限制（默认为 10 秒内 5 次启动）时，systemd 停止重新启动该单元。该单元保持停止状态，直到有人再次启动它，systemd 允许在速率限制的间隔已过或在 `systemctl reset-failed` 之后启动。因为 `RestartSec` 适用于每次重新启动，更长的值也会延迟正常退出后的重新启动。选择一个平衡两者的值，并对单元的重新启动计数进行警报。
+* **shell 循环或您自己的监督程序**：自己应用相同的规则。从 5 秒的等待开始。在每次在一分钟内结束的运行之后，将下一次重新启动的等待加倍，最多 5 分钟。在运行了一分钟或更长时间的运行之后，回到 5 秒。
+
+<h4 id="check-why-the-runner-keeps-exiting">
+  检查运行器为什么保持退出
+</h4>
+
+当运行器连续多次在启动后立即退出时，在再次重新启动之前停止并检查这些。
+
+* **最后的 `[runner:fatal]` 或 `error:` 行**：它说明运行器停止的原因。[故障排除](#troubleshooting) 列出了常见原因。
+* **标志的组合**：[Anthropic git 代理](#use-the-anthropic-git-proxy) 需要 `--capacity 1`。此页面上的配方使用更高的容量，因此当您将代理添加到其中一个时降低它。
+* **服务的环境可以到达什么**：如果运行器手动启动并在您的监督程序下失败，请比较用户、主目录、`PATH` 和内存限制。`--configure-git` 和 Anthropic git 代理需要 `PATH` 上的 git 和可写的 `~/.gitconfig`。
+* **环境密钥**：如果您撤销了密钥或输入错误，运行器会打印一行包含 `RegisterRunner auth failed`。
+* **环境的 Activity 标签**：打开环境并选择 **Activity**。如果新运行器不断出现在那里，但没有拾取工作，您的监督程序正在重新启动运行器。
+
+如需在运行器主机上进行引导式诊断，请运行 [doctor 子命令](#troubleshooting)。
 
 <h2 id="what’s-next">
   接下来

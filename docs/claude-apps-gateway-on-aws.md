@@ -513,7 +513,7 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
   遥测
 </h2>
 
-gateway 为您提供每个开发人员的使用指标，无需任何每台机器的 OTEL 配置。Claude Code 发出 OpenTelemetry (OTLP) 指标、日志和选择加入的跟踪；[监控使用](/docs/zh-CN/monitoring-usage)涵盖 CLI 报告的所有内容。在 gateway 会话上，CLI 使用经过身份验证的 IdP 身份属性 `user.id`、`user.email` 和 `user.groups` 标记每个导出，因此使用按开发人员汇总，无需 `OTEL_RESOURCE_ATTRIBUTES` 管道。
+gateway 为您提供每个开发人员的使用指标，无需任何每台机器的 OTEL 配置。Claude Code 发出 OpenTelemetry (OTLP) 指标、日志和选择加入的跟踪；[监控使用](/docs/zh-CN/monitoring-usage)涵盖 CLI 报告的所有内容。在通过 `/login` 登录的会话中，CLI 使用经过身份验证的 IdP 身份属性 `user.id`、`user.email` 和 `user.groups` 标记每个导出，因此使用按开发人员汇总。
 
 gateway 本身是经过身份验证的 OTLP 中继。将 [`telemetry.forward_to`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 与 `listen.public_url` 一起设置，它将 OTEL 导出器设置推送到每个连接的客户端，并将其 OTLP 流量逐字转发到您列出的每个目标。每个目标独立选择加入指标、日志和跟踪，默认值仅为指标；有关每个信号字段及其敏感性权衡，请参阅 [`telemetry` 参考](/docs/zh-CN/claude-apps-gateway-config#telemetry)。gateway 不缓冲、聚合或存储遥测，因此数据落在何处完全是收集器的导出器配置。
 

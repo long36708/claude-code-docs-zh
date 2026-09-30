@@ -122,7 +122,7 @@ export const ContactSalesCard = ({surface}) => {
 
     <tr>
       <td>计费</td>
-      <td><strong>Teams：</strong> \$150/座位（Premium）提供按使用量付费选项<br /><strong>Enterprise：</strong> <a href="https://claude.com/contact-sales?utm_source=claude_code&utm_medium=docs&utm_content=third_party_enterprise">联系销售</a></td>
+      <td><strong>Teams：</strong> 按座位订阅，提供按使用量付费选项，请参阅<a href="https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=third_party_pricing#team-&-enterprise">定价</a><br /><strong>Enterprise：</strong> <a href="https://claude.com/contact-sales?utm_source=claude_code&utm_medium=docs&utm_content=third_party_enterprise">联系销售</a></td>
       <td>按使用量付费</td>
       <td>通过 AWS 按使用量付费</td>
       <td>通过 AWS Marketplace 按使用量付费</td>

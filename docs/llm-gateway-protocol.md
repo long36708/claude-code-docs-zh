@@ -79,7 +79,7 @@ Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-o
 
 当客户端使用 Amazon Bedrock 格式时，原样中继 `InvokeModelWithResponseStream` 响应体及其 `Content-Type: application/vnd.amazon.eventstream` 头，不要将流转换为服务器发送事件。请参阅[网关或代理后面的流式传输错误](/docs/zh-CN/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy)。
 
-也转发保活 ping。在通过 `ANTHROPIC_BASE_URL` 或 `ANTHROPIC_AWS_BASE_URL` 的连接上，Claude Code 计算网关中继的每个字节，包括 SSE `ping` 事件和注释行，并默认在 300 秒内中止无声流。上游的 ping 是长思考暂停期间的唯一流量，因此如果您的网关剥离或缓冲它们，Claude Code 会在这些暂停期间中止流；[自动重试](/docs/zh-CN/errors#automatic-retries)涵盖了根据响应进度如何报告中止的流。完全不发送 ping 的上游（如 Amazon Bedrock 的二进制事件流）在这些暂停中没有任何东西可转发。从这样的上游转换时，在无声间隙期间发出您自己的 `ping` 事件。通过 `ANTHROPIC_BEDROCK_BASE_URL`、`ANTHROPIC_VERTEX_BASE_URL` 或 `ANTHROPIC_FOUNDRY_BASE_URL` 到达的网关不受此字节级监视程序的包装，即使它们中继 Anthropic Messages 格式；在那里，[5 分钟空闲超时](/docs/zh-CN/env-vars)会中止无声流，在 `ANTHROPIC_BEDROCK_BASE_URL` 连接上，您可以使用 [`CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK`](/docs/zh-CN/env-vars) 添加字节监视程序。
+也转发保活 ping，因为 Claude Code 在 [默认五分钟](/docs/zh-CN/network-config#streaming-idle-watchdogs) 内没有字节到达时会中止流式响应。在长思考暂停期间，上游的 SSE `ping` 事件可能是流上唯一的字节。如果您的网关剥离或缓冲它们，Claude Code 会在暂停期间中止响应。当您从完全不发送 ping 的上游（如 Amazon Bedrock 的二进制事件流）进行转换时，在无声间隙期间发出您自己的 `ping` 事件。
 
 <h3 id="format-mismatch-with-the-upstream">
   与上游的格式不匹配

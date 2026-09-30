@@ -98,7 +98,10 @@ Chrome 集成还需要使用 `/login` 登录。如果您使用 API 密钥或来�
 * **暂不**：继续执行任务而不使用浏览器工具。Claude Code 可以在稍后的会话中再次询问。
 * **不再询问**：在未来的会话中停止该提示。您仍然可以随时使用 `/chrome` 设置集成。
 
-如果您的组织使用 [`deniedMcpServers` 托管设置](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists)阻止 `claude-in-chrome` MCP 服务器，Claude Code 不会显示安装提示。
+两个托管 MCP 策略会关闭该提示：
+
+* 如果您的组织使用 [`deniedMcpServers` 托管设置](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists)阻止 `claude-in-chrome` MCP 服务器，Claude Code 不会显示安装提示。
+* 如果您的组织部署了 [`managed-mcp.json`](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json) 文件，但未[在托管集合中允许 Claude in Chrome](/docs/zh-CN/managed-mcp#allow-claude-in-chrome-alongside-the-managed-set)，Claude Code 不会显示安装提示。
 
 <h3 id="enable-chrome-by-default">
   默认启用 Chrome
@@ -118,7 +121,7 @@ Chrome 集成还需要使用 `/login` 登录。如果您使用 API 密钥或来�
   管理网站权限
 </h3>
 
-网站级权限从 Chrome 扩展程序继承。在 Chrome 扩展程序设置中管理权限，以控制 Claude 可以浏览、点击和输入的网站。
+网站级权限从 Chrome 扩展程序继承。在 Chrome 扩展程序设置中管理权限，以控制 Claude 可以浏览、点击和输入的网站。在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，当自动模式分类器本身批准对网站的浏览器调用时，扩展程序会跳过该调用的自己的按网站检查，除非您的权限规则拒绝任何网站对 Claude in Chrome 的访问。
 
 <h3 id="browser-tools-in-plan-mode">
   Plan Mode 中的浏览器工具

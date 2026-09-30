@@ -72,6 +72,8 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 在会话中输入 `/fast on` 以打开快速模式。它仅对该会话保持打开，不会保存为您的默认值。[要求](#requirements)也适用于云会话。
 
+在浏览器中访问 [claude.ai/code](https://claude.ai/code)，您也可以从消息框上的模型菜单打开和关闭快速模式。当您的计划包含快速模式且所选模型支持它时，菜单会显示该开关。
+
 <h2 id="understand-the-cost-tradeoff">
   了解成本权衡
 </h2>

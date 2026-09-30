@@ -96,6 +96,8 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 
 运行 [`/insights`](/docs/zh-CN/commands#all-commands) 以获取关于您如何工作而不是您使用了多少令牌的报告。它分析此机器上的最近会话，并编写一份 HTML 报告，涵盖您处理的内容、摩擦点（例如误解的请求或有缺陷的代码）以及有关更有效地使用 Claude Code 的建议。单次运行分析最多 200 个它之前未见过的会话，并跳过非常短的会话。当会话被遗漏时，报告标题显示分析的计数，括号中显示总数，例如 `200 sessions (412 total)`。
 
+当[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)对会话可用且您最近的会话大多在没有它的情况下运行时，报告还可以包括自动模式在这些会话中可以处理多少权限提示的估计。
+
 Claude Code 将最新报告写入 `~/.claude/usage-data/report.html`，并在同一目录中保存每次运行的时间戳副本，因此早期报告不会被覆盖。Claude Code 按与其余会话数据相同的计划删除报告：在启动时，它删除早于 [`cleanupPeriodDays`](/docs/zh-CN/claude-directory#cleaned-up-automatically) 的文件，默认为 30 天。
 
 您可以在任何计划和任何提供商上运行 `/insights`。分析通过与您的常规会话相同的提供商和账户运行，令牌计入您的计划或 API 使用情况。不包括来自其他设备和 claude.ai 的会话。

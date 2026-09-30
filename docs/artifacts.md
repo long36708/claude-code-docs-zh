@@ -100,7 +100,7 @@ Claude 会选择工件的标题和一个表情符号，两者都会出现在你�
 你可以与谁分享取决于你的计划：
 
 * **在你的组织内**：在Team和Enterprise计划上，向组织中的特定人员或所有人授予访问权限。查看者以组织成员身份登录claude.ai以查看该页面。
-* **公开**：分享一个链接，互联网上的任何人都可以打开，无需claude.ai登录。在Pro和Max计划上，公开链接是分享artifact的唯一方式。在Team和Enterprise计划上，公开分享处于关闭状态，直到所有者[为组织启用它](#control-public-sharing)。
+* **公开**：分享一个链接，互联网上的任何人都可以打开，无需claude.ai登录。在Team和Enterprise计划上，公开分享处于关闭状态，直到所有者[为组织启用它](#control-public-sharing)。
 
 <h3 id="let-someone-edit-with-you">
   让某人与你一起编辑
@@ -122,14 +122,14 @@ Claude 读取他人编写的页面的方式与它读取网页的方式相同，�
   收集工件上的评论
 </h2>
 
-当您在组织内共享工件时，与您共享的人可以在页面上留下评论，您可以让 Claude 读取这些评论并回复。您需要 Claude Code v2.1.221 或更高版本以及 Team 或 Enterprise 计划，因为只有您[在组织内共享](#share-an-artifact)的工件才会接收评论。Claude 在两种情况下读取评论：
+当您在组织内共享工件时，与您共享的人可以在页面上留下评论，您可以让 Claude 读取这些评论并回复。您需要 Claude Code v2.1.221 或更高版本。Claude 在两种情况下读取评论：
 
 * **您要求 Claude 读取评论**：向 Claude 提供工件的 URL 并要求查看评论。Claude 列出每个线程，并标记可以编辑工件的人发送给它的评论。
 * **可以编辑工件的人向 Claude 发送评论**：在页面上的线程中，他们使用**发送给 Claude**发送评论，或在其中提及 `@claude`。无论哪种方式，他们都会激活该线程。
 
 Claude 只能回复或解决已激活的线程。其他线程保持打开状态，直到某人在页面上解决它们。查看者会看到每条回复都归属于 Claude，通过您。
 
-如果您公开共享工件，查看者无法对其进行评论：页面显示`此工件公开共享时评论不可用。`要将已有评论线程的工件切换到公开链接，请先删除这些线程。
+如果您公开共享工件，只有其公开链接访问权限的人看不到其评论，也无法添加任何评论。现有评论线程保留在工件上，您和其编辑者仍然可以读取和回复它们。
 
 要自己要求查看评论，请向 Claude 提供 URL：
 
@@ -195,13 +195,13 @@ Claude 声明该页面可能调用哪些连接器作为发布的一部分，该�
 
 当您计划共享一个由连接器支持的页面时，请要求 Claude 在每个实时部分中包含一条后备消息，该消息命名它需要的连接器。缺少连接的查看者随后会看到要连接的内容，而不是空部分。
 
-调用连接器的 artifact 无法在任何计划上共享到公开链接。在 Team 和 Enterprise 计划上，您可以将其保持为私有或[在您的组织内共享](#share-an-artifact)。在 Pro 和 Max 计划上，其中公开链接是唯一的共享方式，由连接器支持的 artifact 对您保持私有。
+您可以在您的组织内或公开[共享一个由连接器支持的页面](#share-an-artifact)，如您的计划和组织设置所允许的那样。连接器调用不会为未登录 claude.ai 的查看者或来自您组织外部的查看者运行。该查看者看到的页面没有其实时部分。
 
 <h3 id="the-page-shows-no-live-data-for-a-viewer">
   页面对查看者显示没有实时数据
 </h3>
 
-当由连接器支持的页面呈现但其实时部分对您共享的某人保持为空时，请解决这些原因：
+当由连接器支持的页面呈现但其实时部分对您组织中的查看者保持为空时，请解决这些原因：
 
 * **查看者未连接连接器**：连接器是按账户的，因此每个查看者都需要自己连接到页面调用的每个连接器。他们可以在 claude.ai 上的**设置 > 连接器**下添加一个，然后重新加载页面。
 * **查看者拒绝了权限请求**：拒绝在该页面加载的其余部分持续。重新加载页面会再次显示权限请求。
@@ -375,7 +375,7 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
 
 | 要求 | 可用时间 |
 | :- | :- |
-| 计划 | Pro、Max、Team 或 Enterprise。在 Pro 和 Max 计划上，artifacts 仅对您私有，不适用任何管理员管理。在 Team 计划上，artifacts 默认启用。在 Enterprise 计划上，Owner 在 claude.ai 管理设置中 [启用它们](#manage-artifacts-for-your-organization)。 |
+| 计划 | Pro、Max、Team 或 Enterprise。在 Pro 和 Max 计划上，artifacts 仅对您私有，直到您共享它们，不适用任何管理员管理。在 Team 和 Enterprise 计划上，artifacts 默认启用，Owner 可以在 claude.ai 管理设置中 [关闭它们](#manage-artifacts-for-your-organization)。 |
 | 身份验证 | 会话由 claude.ai 账户支持：在 CLI 或桌面应用中使用 `/login` 登录。Claude Tag 会话通过代理的身份登录，因此不需要任何步骤。使用 API 密钥、[网关令牌](/docs/zh-CN/llm-gateway) 或云提供商凭证的会话无法发布。 |
 | 模型提供商 | Anthropic API。在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 上不可用。 |
 | 组织策略 | 客户管理的加密密钥 (CMEK)、HIPAA 和 [零数据保留](/docs/zh-CN/zero-data-retention) 未为组织启用。 |
@@ -408,31 +408,31 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
   为您的组织管理 artifacts
 </h2>
 
-Team 和 Enterprise 计划上的管理员从 [claude.ai 管理设置](https://claude.ai/admin-settings/claude-code) 控制 artifacts。Artifact 内容存储在 Anthropic 运营的基础设施上，仅对发布组织的经过身份验证的成员可见，除非该 artifact 是[公开共享](#control-public-sharing)的。
+Team 和 Enterprise 计划上的所有者从 [claude.ai 管理设置](https://claude.ai/admin-settings/artifacts) 控制 artifacts。Artifact 内容存储在 Anthropic 运营的基础设施上，仅对发布组织的经过身份验证的成员可见，除非该 artifact 是[公开共享](#control-public-sharing)的。
 
 <h3 id="enable-or-disable-artifacts">
   启用或禁用 artifacts
 </h3>
 
-要为整个组织启用或禁用 artifacts，请转到 [**Settings > Claude Code > Capabilities**](https://claude.ai/admin-settings/claude-code) 并使用 **Artifacts** 切换。在具有基于角色的访问控制的 Enterprise 计划上，您还可以将 artifacts 限制到特定角色：转到 [**Settings > Roles**](https://claude.ai/admin-settings/roles)，编辑角色，并在 **Claude Code** 组下设置 **Artifacts** 权限。
+要为整个组织启用或禁用 artifacts，请转到 [**Organization settings > Artifacts**](https://claude.ai/admin-settings/artifacts) 并使用 **Artifacts** 切换。在具有基于角色的访问控制的 Enterprise 计划上，您还可以将 artifacts 限制到特定角色：转到 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles)，编辑角色，并设置 **Artifacts** 权限。
 
 <h3 id="control-connector-calls-from-artifacts">
   控制来自 artifacts 的连接器调用
 </h3>
 
-[来自 artifacts 的连接器调用](#pull-live-data-with-mcp-connectors)有自己的切换，与打开或关闭 artifacts 的 **Artifacts** 切换分开。转到 [**Settings > Capabilities**](https://claude.ai/admin-settings/capabilities) 并使用 **Enable artifact connectors** 切换。同一切换控制在 claude.ai 对话中创建的 artifacts 的连接器调用，这就是为什么它位于 **Settings > Capabilities** 而不是 **Settings > Claude Code** 下。
+[来自 artifacts 的连接器调用](#pull-live-data-with-mcp-connectors)有自己的切换，与打开或关闭 artifacts 的 **Artifacts** 切换分开。转到 [**Organization settings > Capabilities**](https://claude.ai/admin-settings/capabilities) 并使用 **Enable artifact connectors** 切换。同一切换控制在 claude.ai 对话中创建的 artifacts 的连接器调用。
 
 <h3 id="control-public-sharing">
   控制公开共享
 </h3>
 
-在 Team 和 Enterprise 计划上，公开共享默认处于关闭状态，因此成员只能在组织内共享 artifacts，直到管理员将其打开。要让成员将 artifacts 发布到任何人都可以查看而无需登录的公开链接，请转到 **Settings > Claude Code > Capabilities** 并在 **Artifacts** 切换下打开 **External sharing**。将其关闭会阻止通过现有公开链接的访问，而不会更改每个 artifact 的受众；如果您重新启用它，访问将恢复。
+在 Team 和 Enterprise 计划上，公开共享默认处于关闭状态。要让成员将 artifacts 发布到任何人都可以查看而无需登录的公开链接，请转到 [**Organization settings > Artifacts**](https://claude.ai/admin-settings/artifacts) 并在 **Artifacts** 切换下打开 **External sharing**。将其关闭会阻止通过现有公开链接的访问，而不会更改每个 artifact 的受众；如果您重新启用它，访问将恢复。
 
 <h3 id="set-a-retention-policy">
   设置保留策略
 </h3>
 
-要设置在自动删除之前保留 artifacts 的时间长度，请转到 [**Settings > Data & privacy controls**](https://claude.ai/admin-settings/data-privacy-controls)。您可以为仍然对其作者私有的 artifacts 和已共享的 artifacts 设置单独的保留期。
+要设置在自动删除之前保留 artifacts 的时间长度，请转到 [**Organization settings > Data and privacy**](https://claude.ai/admin-settings/data-privacy-controls)。您可以为仍然对其作者私有的 artifacts 和已共享的 artifacts 设置单独的保留期。
 
 <h3 id="review-the-audit-log">
   查看审计日志

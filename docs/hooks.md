@@ -274,7 +274,7 @@ Hooks 在 JSON 设置文件中定义。配置有三个嵌套级别：
 
 来自设置文件、托管策略设置和插件的 Hooks 也在 [subagents](/docs/zh-CN/sub-agents) 内运行。当子代理调用工具时，工具事件（如 `PreToolUse` 和 `PostToolUse`）触发与主对话中相同的配置 hooks，输入包含标识子代理的 `agent_id` 和 `agent_type` [通用输入字段](#common-input-fields)。
 
-企业管理员可以使用 `allowManagedHooksOnly` 来限制哪些 hooks 运行：
+管理员可以使用 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly) 在 [托管设置](/docs/zh-CN/managed-settings) 中限制哪些 hooks 运行：
 
 * 用户、项目、本地和插件 hooks 被阻止。托管设置 `enabledPlugins` 中强制启用的插件中的 Hooks 除外
 * Claude Code 还将 [`statusLine`](/docs/zh-CN/statusline)、[`fileSuggestion`](/docs/zh-CN/settings-reference#filesuggestion) 和 [`subagentStatusLine`](/docs/zh-CN/statusline#subagent-status-lines) 设置限制为托管设置
@@ -1187,7 +1187,7 @@ SessionStart 在每个会话上运行，因此请保持这些 hooks 快速。仅
 | `resume` | `--resume`、`--continue` 或 `/resume` |
 | `clear` | `/clear` |
 | `compact` | 自动或手动压缩 |
-| `fork` | 从现有会话分叉的新会话：`--fork-session` 与 `--resume` 或 `--continue`、`/fork` 后台副本或 `/branch` |
+| `fork` | 从现有会话分叉的新会话：`--fork-session` 与 `--resume` 或 `--continue`、`/fork` 后台副本、`/branch` 或您 [移到后台](/docs/zh-CN/agent-view#from-inside-a-session) 的对话 |
 
 在 v2.1.214 之前，分叉的会话报告源为 `"resume"`。
 
@@ -2431,7 +2431,7 @@ PermissionDenied hooks 可以告诉模型它可能重试被拒绝的工具调用
 | `elicitation_url_dialog` | MCP 服务器要求您打开浏览器 URL，您约六秒没有输入 |
 | `elicitation_complete` | MCP 服务器报告 [URL 模式引出](#elicitation-input) 完成 |
 | `elicitation_response` | MCP 引出响应被发送回服务器 |
-| `agent_needs_input` | 后台会话在 [agent view](/docs/zh-CN/agent-view) 在终端中打开时开始等待您的输入，或当前会话要求您一个 [agent team 队友的终端设置问题](/docs/zh-CN/agent-teams#choose-a-display-mode)，您约六秒没有输入 |
+| `agent_needs_input` | 后台会话在 [agent view](/docs/zh-CN/agent-view) 在终端中打开时开始等待您的输入，或当前会话要求您一个 [agent team 队友的终端设置问题](/docs/zh-CN/agent-teams#choose-a-display-mode) 或自动模式的 [分类器请求费用](/docs/zh-CN/auto-mode-classifier-billing) 通知，您约六秒没有输入 |
 | `agent_completed` | 后台会话完成或失败。仅在 [agent view](/docs/zh-CN/agent-view) 在终端中打开时触发 |
 | `quota_auto_resume_fired` | Claude Code 在 claude.ai 使用限制暂停它后继续您的任务：在重置时，或更早当您在 Claude Code 中做的某事（如添加使用信用、升级您的计划或切换模型）在等待期间使使用可用时，带有 [模型设置异常](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset) |
 | `quota_auto_resume_stale` | claude.ai 使用限制在您的计算机睡眠超过约 30 分钟时重置。Claude Code 等待您按 `Enter` 而不是继续。在更短的睡眠后它继续并改为触发 `quota_auto_resume_fired` |

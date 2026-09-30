@@ -80,17 +80,19 @@
   SCM 连接器标志
 </h3>
 
-编排器可以与 Anthropic 的控制平面保持一个常设 WebSocket 连接，以便托管的预会话流（例如存储库选择器和分支或 ref 解析器）可以到达仅从您的网络内部可路由的 GitHub Enterprise Server 主机。除非您设置 `--scm-connector-host`，否则连接器保持关闭。
+SCM 连接器不可用，因此请将本部分中的标志保持未设置。如果您设置 `--scm-connector-host`，连接不会打开，编排器会继续重试。运行器仍然作为会话队列启动。
+
+连接器是从编排器到 Anthropic 控制平面的常设 WebSocket 连接。它的设计目的是让托管的预会话流（例如存储库选择器和分支或 ref 解析器）能够到达仅从您的网络内部可路由的 GitHub Enterprise Server 主机。请参阅 GitHub Enterprise Server 页面上的[网络要求](/docs/zh-CN/github-enterprise-server#network-requirements)，了解这些流需要什么。
 
 | 标志 | 默认值 | 描述 |
 | :- | :- | :- |
-| `--scm-connector-host <host[:port]>` | 未设置 | GitHub Enterprise Server 主机名以转发请求。端口默认为 `443`。设置此标志启用连接器。 |
-| `--scm-connector-id <n>` | 与 `--scm-connector-host` 一起需要 | 您的组织的 GitHub Enterprise Server 连接的数字 ID。启用连接器时，请与您的 Anthropic 帐户团队联系以获取该值。 |
+| `--scm-connector-host <host[:port]>` | 未设置 | GitHub Enterprise Server 主机名以转发请求。端口默认为 `443`。 |
+| `--scm-connector-id <n>` | 与 `--scm-connector-host` 一起需要 | 您的组织的 GitHub Enterprise Server 连接的数字 ID。 |
 | `--scm-connector-provider <slug>` | `ghe` | 标识提供程序的路径段，匹配 `^[a-z0-9-]{1,32}$`。 |
 | `--scm-connector-ca-file <path>` | 未设置 | 额外的 CA 包，PEM 格式，用于到 GitHub Enterprise Server 主机的 TLS 连接。 |
 | `--scm-connector-host-rewrite <from>=<to_host:to_port>` | 未设置 | 仅用于端到端测试：重定向 TCP 连接，同时将 Host 标头和 TLS SNI 保持为 `--scm-connector-host`。 |
 
-连接器使用编排器的现有环境密钥进行身份验证并自动重新连接：在连接断开时使用指数退避，或当控制平面关闭连接因为另一个编排器副本已持有它时使用固定的 30 秒延迟。
+在每次连接尝试时，编排器发送其现有的环境密钥，并使用指数退避自动重试，上限为 30 秒加抖动。
 
 <h2 id="environment-variable-only-settings">
   仅环境变量设置

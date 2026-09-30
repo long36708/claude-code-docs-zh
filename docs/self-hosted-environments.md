@@ -48,7 +48,7 @@
 * **零数据保留**：对于启用了[零数据保留](/docs/zh-CN/zero-data-retention)的组织不可用。
 * **模型推理**：会话使用 Anthropic API，推理不能通过 [Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry](/docs/zh-CN/third-party-integrations) 或 [LLM 网关](/docs/zh-CN/llm-gateway)路由。
 * **表面**：从 [claude.ai/code](https://claude.ai/code)、移动和桌面应用、[计划例程](/docs/zh-CN/routines)以及终端启动的会话，带有 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud) 或 [`--environment` 调度](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)，可以在自托管环境中运行。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话也可以在其中运行，但 Claude 还不能在这些会话中使用[访问包](https://claude.com/docs/claude-tag/concepts/glossary#access-bundle)。[Claude Security](/docs/zh-CN/claude-security) 和[代码审查](/docs/zh-CN/code-review)会话还不能路由到它们。对这两个表面的支持将单独跟进。
-* **存储库**：会话从 GitHub 检出存储库；请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)。
+* **存储库**：会话从 GitHub 检出存储库；请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)。对于 GitHub Enterprise Server 主机，请参阅其[网络要求](/docs/zh-CN/github-enterprise-server#network-requirements)。
 * **计费**：自托管环境中的会话消耗您的组织的 Claude Code 使用情况，与 Anthropic 托管环境中的会话相同。
 
 <h2 id="why-self-host">

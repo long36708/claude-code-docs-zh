@@ -152,6 +152,7 @@
 | `There's an issue with the selected model` | [请求错误](#theres-an-issue-with-the-selected-model) |
 | `Model ... is not a recognized model id` | [请求错误](#model-is-not-a-recognized-model-id) |
 | `Model ... not found` | [请求错误](#model-not-found) |
+| `Couldn't confirm model ... with the API` | [请求错误](#couldnt-confirm-model-with-the-api) |
 | `API error: ... · model not changed` | [请求错误](#api-error-model-not-changed) |
 | `Claude Opus is not available with the Claude Pro plan` | [请求错误](#claude-opus-is-not-available-with-the-claude-pro-plan) |
 | `Claude Code ... does not support this model; version ... or newer is required` | [请求错误](#claude-code-does-not-support-this-model) |
@@ -252,6 +253,7 @@
 | `Plugin "<name>@synced" is required by your organization and can't be disabled here` | [Plugin 错误](#plugin-is-required-by-your-organization) |
 | `"<plugin>" was not uninstalled: it is still switched on in <file>` | [Plugin 错误](#plugin-was-not-uninstalled) |
 | `"<plugin>" was not uninstalled: <file> is there and could not be read` | [Plugin 错误](#plugin-was-not-uninstalled) |
+| `Plugin "<plugin>" was not uninstalled: installed_plugins.json` | [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting#installed-plugins-json-holds-a-record-this-version-cannot-read) |
 | `would be spawned with zero tools — refusing` | [工具错误](#agent-would-be-spawned-with-zero-tools) |
 | `File is covered by a Read deny rule in your permission settings` | [工具错误](#file-is-covered-by-a-read-deny-rule) |
 | `cannot contain null bytes (\0)` | [工具错误](#path-cannot-contain-null-bytes) |
@@ -2346,28 +2348,30 @@ There's an issue with the selected model (claude-...). It may not exist or you m
   模型不是公认的模型 ID
 </h3>
 
-您传递给模型切换的模型字符串不是模型别名、此 Claude Code 版本知道的模型 ID，也不是以 `claude-` 开头的 ID。常见原因是 ID 中的拼写错误、显示名称（如 `Sonnet 5`，其中需要 ID `claude-sonnet-5`）或仅较新 Claude Code 版本识别的别名。Claude Code 立即拒绝切换。在 v2.1.200 之前，Claude Code 保存字符串并在下一个请求时失败，显示[所选模型存在问题](#theres-an-issue-with-the-selected-model)。
+您传递给模型切换的字符串不是 Claude Code 可以用作模型的字符串，因此它拒绝了切换而不发送请求，会话保持其当前模型。您可以在通过 [Agent SDK](/docs/zh-CN/agent-sdk/typescript) `setModel()` 方法设置模型时获得此错误，通过运行 Claude Code CLI 的应用程序（如 [Desktop app](/docs/zh-CN/desktop)），或当您从通过 [Remote Control](/docs/zh-CN/remote-control) 连接的设备选择模型时。在 v2.1.200 之前，Claude Code 保存字符串并在下一个请求时失败，显示[所选模型存在问题](#theres-an-issue-with-the-selected-model)。
 
 ```text theme={null}
-Model "claud-sonnet-5" is not a recognized model id. Did you mean 'claude-sonnet-5'?
+Model "Sonnet5" is not a recognized model id. Did you mean 'claude-sonnet-5'?
 ```
 
-尾部提示命名最接近的匹配别名或模型 ID。当没有足够接近的内容时，它读取 `Run /model to see available models.`。在 [Desktop app](/docs/zh-CN/desktop) 启动的会话中，无匹配提示读取 `Switch to a different model.`
+在此示例中，应用程序发送了显示名称 `Sonnet 5`，消息重复时不带其空格。尾部提示命名最接近的匹配别名或模型 ID。当没有足够接近的内容时，它读取 `Run /model to see available models.`。在 [Desktop app](/docs/zh-CN/desktop) 启动的会话中，无匹配提示读取 `Switch to a different model.`
 
-Claude Code 在请求切换时在本地生成此错误，在发送任何 API 请求之前。它适用于通过 [Agent SDK](/docs/zh-CN/agent-sdk/typescript) `setModel()` 方法设置模型的情况，通过运行 Claude Code CLI 的应用程序（如 [Desktop app](/docs/zh-CN/desktop)），或当您从通过 [Remote Control](/docs/zh-CN/remote-control) 连接的设备选择模型时。在 v2.1.260 之前，检查不涵盖 Remote Control 选择，因此 Claude Code 应用了选择，下一个请求失败，显示[所选模型存在问题](#theres-an-issue-with-the-selected-model)。
+当您通过 Agent SDK 或在 Anthropic API 上的应用程序切换时，只有无法成为模型 ID 的字符串（如显示名称或空字符串）会获得此错误。
+
+当您从 Remote Control 设备选择模型时，Claude Code 在本地检查字符串。任何不是模型别名、Claude Code 列出或您配置的模型，或以 `claude-` 开头的 ID 的字符串都会获得此错误，包括拼写错误的 ID（如 `claud-sonnet-5`）。在 v2.1.260 之前，此检查不涵盖 Remote Control 选择，因此无法识别的字符串被应用，下一个请求失败。
 
 **要做什么：**
 
 * 运行 `/model` 不带参数以打开选择器并从您帐户可用的模型中选择，然后传递那里显示的别名或 ID
-* 如果您使用了较新 Claude Code 版本支持的别名，运行 `claude update`。以 `claude-` 开头的完整 ID 通过此本地检查，即使模型比您的 Claude Code 版本更新。服务器仍然可能需要该模型的最低版本；请参阅 [Claude Code 不支持此模型](#claude-code-does-not-support-this-model)。
+* 如果您使用了较新 Claude Code 版本支持的别名，运行 `claude update`，或传递模型的完整 ID。服务器仍然可能需要该模型的最低 Claude Code 版本；请参阅 [Claude Code 不支持此模型](#claude-code-does-not-support-this-model)。
 * v2.1.200 之前保存的模型不会被此检查修复。如果过时的值不断返回，请从[设置您的模型](/docs/zh-CN/model-config#setting-your-model)下列出的位置删除它。
-* 检查仅在 Anthropic API 上运行。在任何其他提供商或网关上，包括自定义 `ANTHROPIC_BASE_URL`，提供商定义模型名称，因此 Claude Code 接受任何字符串并将其传递。Claude Code 仍然可以在请求时写入[无法识别的模型诊断行](#unrecognized-model-id-on-a-request)，在每个提供商上。
+* 在 Anthropic API 以外的任何提供商上，或在网关或自定义 `ANTHROPIC_BASE_URL` 后面，只有空字符串会获得此错误。Claude Code 仍然可以在请求时写入[无法识别的模型诊断行](#unrecognized-model-id-on-a-request)，在每个提供商上。
 
 <h3 id="model-not-found">
   模型未找到
 </h3>
 
-您使用 `/model <name>` 选择了模型，Claude Code 无法确认存在具有该名称的模型。当名称不是 [model alias](/docs/zh-CN/model-config#model-aliases) 或 Claude Code 在本地接受的另一种拼写时，`/model` 使用最小 API 请求验证它，此错误通常是您的 API 端点的答案。无法成为模型 ID 的名称（如包含空格的名称）会获得相同的消息。
+您使用名称切换到模型，Claude Code 无法确认存在具有该名称的模型。当名称不是 [model alias](/docs/zh-CN/model-config#model-aliases) 或 Claude Code 在本地接受的另一种拼写时，Claude Code 使用最小 API 请求验证它，此错误通常是您的 API 端点的答案。使用 `/model <name>` 时，无法成为模型 ID 的名称（如包含空格的名称）会获得相同的消息。
 
 ```text theme={null}
 Model 'claude-opus-9' not found
@@ -2379,7 +2383,25 @@ Model 'claude-opus-9' not found
 
 * 运行 `/model` 不带参数并从您帐户可用的模型中选择，或使用 [model alias](/docs/zh-CN/model-config#model-aliases)（如 `sonnet`），它解析为维护的默认值
 * 如果您输入了完整 ID，请根据您提供商的模型目录检查它。新推出的模型可能在 Anthropic API 上可用，但您的提供商或地区尚未提供。
+* 在 Agent SDK 中，`setModel()` 失败，显示此消息，会话继续在其前一个模型上运行。在 TypeScript SDK 中，调用 [`supportedModels()`](/docs/zh-CN/agent-sdk/typescript#query-object) 以列出您可以切换到的模型。
 * 在 v2.1.265 之前，`/model` 也以此错误拒绝了 `opusplan[1m]` 别名拼写。在这些版本上，更新 Claude Code，或在[设置](/docs/zh-CN/model-config#setting-your-model)中或使用 `--model` 设置模型。
+
+<h3 id="couldnt-confirm-model-with-the-api">
+  无法通过 API 确认模型
+</h3>
+
+您通过 [Agent SDK](/docs/zh-CN/agent-sdk/typescript) `setModel()` 方法或运行 Claude Code CLI 的应用程序（如 [Desktop app](/docs/zh-CN/desktop)）切换了模型，确认模型 ID 与您的 API 端点的请求在五秒内没有得到答复。会话保持其当前模型。
+
+```text theme={null}
+Couldn't confirm model "claude-sonnet-5" with the API. Try again, or run /model to see available models.
+```
+
+在 [Desktop app](/docs/zh-CN/desktop) 启动的会话中，消息在 `Try again.` 处结束。
+
+**要做什么：**
+
+* 再次切换到模型
+* 如果切换继续失败，检查 Claude Code 是否可以到达您的 API 端点；请参阅[网络和连接错误](#network-and-connection-errors)
 
 <h3 id="api-error-model-not-changed">
   检查选择的模型时出现 API 错误
@@ -2432,10 +2454,20 @@ API Error: 400 Claude Code 2.1.219 does not support this model; version 2.1.255 
 API Error: 400 Claude Code 2.1.240 is older than the minimum version required by your organization's policy. Run 'claude update', or update the Claude desktop app, to continue.
 ```
 
+发出请求的 Claude Code 二进制文件报告的版本是 API 检查的版本。
+
 **要做什么：**
 
-* 运行 `claude update`，或更新 Claude 桌面应用，然后启动新会话
-* 对于按模型措辞，您可以通过使用 `/model` 切换到另一个模型来继续在当前会话中工作
+更新该二进制文件，然后启动新会话。二进制文件的来源决定了如何，除了在[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#pin-the-version)中：
+
+| 发出请求的二进制文件 | 如何更新它 |
+| :- | :- |
+| 您安装的 Claude Code | 运行 `claude update` |
+| Claude desktop app | 更新应用 |
+| [VS Code extension](/docs/zh-CN/vs-code) 捆绑的二进制文件 | 更新扩展 |
+| Agent SDK 包捆绑的二进制文件 | [升级 SDK 包](/docs/zh-CN/agent-sdk/hosting#runtime-dependencies)，然后重启您的应用程序。在[编译的单文件可执行文件](/docs/zh-CN/agent-sdk/typescript#compile-to-a-single-executable)中，重建它 |
+
+* 对于按模型措辞，您可以通过切换到另一个模型来继续在当前会话中工作：在 CLI 中运行 `/model`，在流式输入模式下的 TypeScript SDK 的 `Query` 对象上调用 [`setModel()`](/docs/zh-CN/agent-sdk/typescript#query-object)，或在 Python SDK 的 `ClaudeSDKClient` 上调用 [`set_model()`](/docs/zh-CN/agent-sdk/python#claudesdkclient)
 * 对于组织政策措辞，在继续之前更新
 
 <h3 id="model-is-restricted-by-your-organizations-settings">
@@ -3890,7 +3922,7 @@ Claude Code 不保存任何内容，plugin 保持启用。
   Plugin 未被卸载
 </h3>
 
-您运行了 [`claude plugin uninstall`](/docs/zh-CN/plugins/cli-reference#plugin-uninstall)，或在 `/plugin` **Installed** 选项卡中选择了 **Uninstall**，卸载停止，消息开头为 `"<plugin>" was not uninstalled:`。
+您运行了 [`claude plugin uninstall`](/docs/zh-CN/plugins/cli-reference#plugin-uninstall)，或在 `/plugin` **Installed** 选项卡中选择了 **Uninstall**，卸载停止，消息开头为 `"<plugin>" was not uninstalled:`。如果冒号后的文本以 `installed_plugins.json` 开头而不是命名设置文件，原因是 `installed_plugins.json` 中的内容此版本的 Claude Code 无法读取。对于该形式，请参阅 [`installed_plugins.json` 保存此版本无法读取的记录](/docs/zh-CN/plugins/troubleshooting#installed-plugins-json-holds-a-record-this-version-cannot-read)。
 
 当 Claude Code 从 `enabledPlugins` 中删除 plugin 的条目并读回该范围的设置文件时，要么 plugin 仍在那里被打开，要么可以打开它的文件无法读取或检查。在设置条目可以将其重新打开时删除 plugin 的保存选项、机密和数据会丢失它们，因此卸载停止：plugin 保持安装，它保存的任何内容都不会被删除。
 

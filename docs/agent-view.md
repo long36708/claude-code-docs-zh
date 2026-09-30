@@ -64,9 +64,35 @@ Agent view 通过 `claude agents` 打开，是所有后台会话的一个屏幕�
   </Step>
 </Steps>
 
-你可以使用 `claude agents` 作为你的主要入口点而不是 `claude`：从 agent view 调度每个任务，当你想要完整对话时附加，按 `←` 返回表格。
-
 在常规 `claude` 会话内，提示页脚的 `←` 提示计算正在等待你的后台 agent 数量，例如 `← 2 agents`，当没有 agent 需要输入时返回 `← for agents`。超过 99 的计数显示为 `99+`。当终端获得焦点时，计数大约每十秒刷新一次，当焦点返回时立即刷新。当计数移动和 agent 完成时，它会短暂改变颜色，当后台会话完成而没有 agent 需要你的输入时，它会短暂显示完成的数量，例如 `← 2 done`。当启用了[`prefersReducedMotion` 设置](/docs/zh-CN/settings-reference#prefersreducedmotion)时，两个闪烁都关闭，并且在[屏幕阅读器模式](/docs/zh-CN/accessibility)中隐藏提示。
+
+<h3 id="open-agent-view-by-default">
+  默认打开 agent view
+</h3>
+
+要让 `claude` 不带参数打开 agent view 而不是新对话，请打开一个 `/config` 设置。
+
+<Steps>
+  <Step title="打开设置">
+    在常规 `claude` 会话中，运行 `/config` 并打开**默认打开 agents view**。要跳过菜单，直接设置 [`defaultToAgentsView`](/docs/zh-CN/settings-reference#defaulttoagentsview) 键：
+
+    ```text theme={null}
+    /config defaultToAgentsView=true
+    ```
+  </Step>
+
+  <Step title="启动 Claude Code">
+    退出会话，然后不带参数运行 `claude`：
+
+    ```bash theme={null}
+    claude
+    ```
+
+    Agent view 打开，代替新对话。
+  </Step>
+</Steps>
+
+要在设置打开时启动常规会话，请传递一个提示：`claude "fix the login test"`。要关闭设置，在常规会话中或在从 agent view 附加的会话中运行 `/config defaultToAgentsView=false`。
 
 <h2 id="monitor-sessions-with-agent-view">
   使用 agent view 监控会话

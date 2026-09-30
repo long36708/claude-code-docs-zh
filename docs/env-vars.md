@@ -110,7 +110,7 @@
 
 某些行为同时具有环境变量和专用设置键，Claude Code 读取哪一个的顺序因键而异。对于 `ANTHROPIC_MODEL` 和 `CLAUDE_CODE_AUTO_CONNECT_IDE`，Claude Code 首先读取变量，仅当变量未设置时才使用 `model` 或 `autoConnectIde` 设置。对于您正在设置的对，请检查下面变量的行和 [设置参考](/docs/zh-CN/settings-reference) 上的键条目。
 
-当同一变量在您的 shell 和设置文件 `env` 块中都设置时，设置文件值适用。Claude Code 将每个 `env` 条目写入进程环境，替换从 shell 继承的值。[`env` 设置](/docs/zh-CN/settings-reference#when-claude-code-applies-env-values) 说明何时应用它们。少数变量是特殊情况；[`env` 设置](/docs/zh-CN/settings-reference#env) 列出了例外。
+当同一变量在您的 shell 和设置文件 `env` 块中都设置时，在大多数会话中设置文件值适用。Claude Code 将每个 `env` 条目写入进程环境，替换从 shell 继承的值。[`env` 值如何与您的 shell 交互](/docs/zh-CN/settings-reference#how-env-values-interact-with-your-shell) 涵盖保留继承值的会话，以及 [`env` 设置](/docs/zh-CN/settings-reference#when-claude-code-applies-env-values) 说明何时应用它们。少数变量是特殊情况；[`env` 设置](/docs/zh-CN/settings-reference#env) 列出了例外。
 
 在设置文件中，您可以设置变量，但不能删除变量。要覆盖无法取消设置的变量，例如由您无法控制的 shell 配置文件导出的过时 `CLAUDE_CODE_USE_VERTEX`，请在 `env` 块中将其设置为空字符串：`"CLAUDE_CODE_USE_VERTEX": ""`。Claude Code 将空值视为未设置以进行提供程序选择。子进程仍然继承空值。
 

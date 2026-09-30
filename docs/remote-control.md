@@ -48,23 +48,23 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
     claude remote-control
     ```
 
-    在您接受远程控制的一次性确认之前，`claude remote-control` 会解释它的作用并在启动服务器之前询问 `Enable Remote Control? (y/n)`。回答 `y` 以接受并启动服务器。如果您拒绝，Claude Code 将退出而不启动服务器，并在您下次运行该命令时再次询问。
+    在您接受远程控制的一次性确认之前，`claude remote-control` 会解释它的作用，并在启动服务器之前询问 `Enable Remote Control? (y/n)`。回答 `y` 以接受并启动服务器。如果您拒绝，Claude Code 将退出而不启动服务器，并在您下次运行该命令时再次询问。
 
-    该进程在您的终端中以服务器模式保持运行，等待远程连接。它显示一个会话 URL，您可以使用该 URL 从[另一台设备连接](#connect-from-another-device)，您可以按空格键显示 QR 码以从您的手机快速访问。当远程会话处于活动状态时，终端显示连接状态和工具活动。
+    该进程在您的终端中以服务器模式保持运行，等待远程连接。它显示一个会话 URL，您可以使用该 URL 从[另一台设备连接](#connect-from-another-device)，您可以按空格键显示 QR 码以便从手机快速访问。当远程会话处于活动状态时，终端显示连接状态和工具活动。
 
     可用标志：
 
     | 标志 | 描述 |
     | - | - |
     | `--name "My Project"` | 设置自定义会话标题，在 claude.ai/code 的会话列表中可见。 |
-    | `--remote-control-session-name-prefix <prefix>` | 当未设置显式名称时，自动生成的会话名称的前缀。默认为您的机器主机名，生成类似 `myhost-graceful-unicorn` 的名称。设置 `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` 以获得相同效果。 |
+    | `--remote-control-session-name-prefix <prefix>` | 当未设置显式名称时，自动生成的会话名称的前缀。默认为您机器的主机名，生成类似 `myhost-graceful-unicorn` 的名称。设置 `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` 可获得相同效果。 |
     | `-c`, `--continue` | 恢复此目录中最后一个服务器启动的会话，而不是创建新会话。请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。不能与 `--session-id`、`--spawn`、`--capacity` 或 `--create-session-in-dir` 结合使用。需要 Claude Code v2.1.200 或更高版本。 |
     | `--session-id <id>` | 按其 ID 恢复一个会话。请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。不能与 `--continue`、`--spawn`、`--capacity` 或 `--create-session-in-dir` 结合使用。需要 Claude Code v2.1.200 或更高版本。 |
-    | `--spawn <mode>` | 服务器如何创建会话。<br />• `same-dir`（默认）：所有会话共享当前工作目录，因此如果编辑相同文件可能会冲突。<br />• `worktree`：每个按需会话获得自己的 [git worktree](/docs/zh-CN/worktrees)。需要 git 存储库。<br />• `session`：单会话模式。恰好服务一个会话并拒绝其他连接。仅在启动时设置。<br />在运行时按 `w` 在 `same-dir` 和 `worktree` 之间切换。 |
+    | `--spawn <mode>` | 服务器创建会话的方式。<br />• `same-dir`（默认）：所有会话共享当前工作目录，因此如果编辑相同文件可能会冲突。<br />• `worktree`：每个按需会话获得自己的 [git worktree](/docs/zh-CN/worktrees)。需要 git 存储库。<br />• `session`：单会话模式。恰好服务一个会话并拒绝其他连接。仅在启动时设置。<br />在运行时按 `w` 在 `same-dir` 和 `worktree` 之间切换。 |
     | `--capacity <N>` | 最大并发会话数。默认为 32。不能与 `--spawn=session` 一起使用。 |
-    | `--[no-]create-session-in-dir` | 在服务器启动时在当前目录中预创建一个会话，以便您有地方立即输入。在 `worktree` 模式下，此会话保留在当前目录中，而按需会话获得隔离的 worktree。默认启用。如果您传递 `--no-create-session-in-dir` 以不启动任何会话，Claude Code 会在您停止服务器时存档服务器的会话，因此没有任何内容可[恢复](#resume-sessions-after-stopping-the-server)。 |
+    | `--[no-]create-session-in-dir` | 服务器启动时在当前目录中预创建一个会话，以便您有地方立即输入。在 `worktree` 模式下，此会话保留在当前目录中，而按需会话获得隔离的 worktree。默认启用。如果您传递 `--no-create-session-in-dir` 以不创建任何会话启动，Claude Code 会在您停止服务器时存档服务器的会话，因此没有任何内容可[恢复](#resume-sessions-after-stopping-the-server)。 |
     | `--permission-mode <mode>` | 为服务器的会话设置起始[权限模式](/docs/zh-CN/permission-modes)，例如 `acceptEdits`。接受 `manual` 作为 `default` 的别名；无法识别的模式会在启动时停止服务器并列出有效模式。 |
-    | `--chrome` / `--no-chrome` | 在服务器创建的会话中打开或关闭 [Chrome 集成](/docs/zh-CN/chrome)，以便 Claude 可以在您从另一台设备工作时在您的机器上使用 Chrome。没有任何标志，服务器预创建的会话和您从 claude.ai/code 或 Claude 应用启动的任何会话都以 Chrome 关闭开始，即使您[默认启用了 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default)。服务器为您的[项目](/docs/zh-CN/claude-projects)线程之一启动的会话改为遵循该设置，除非在 `bypassPermissions` 模式下。需要 Claude Code v2.1.273 或更高版本。 |
+    | `--chrome` / `--no-chrome` | 在服务器创建的会话中打开或关闭 [Chrome 集成](/docs/zh-CN/chrome)，以便 Claude 可以在您从另一台设备工作时在您的机器上使用 Chrome。如果没有任一标志，服务器预创建的会话和您从 claude.ai/code 或 Claude 应用自己启动的任何会话都以 Chrome 关闭开始，即使您[默认启用了 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default)。服务器为您的[项目](/docs/zh-CN/claude-projects)线程之一启动的会话改为遵循该设置，除非在 `bypassPermissions` 模式下。需要 Claude Code v2.1.273 或更高版本。 |
     | `-d`, `--debug[=<filter>]` | 为服务器打开调试日志记录，可选择按类别过滤。仅以 `=` 形式传递过滤器，例如 `--debug=api,hooks`。需要 Claude Code v2.1.282 或更高版本。 |
     | `--debug-file <path>` | 将调试日志写入给定文件。 |
     | `--verbose` | 显示详细的连接和会话日志。 |
@@ -72,7 +72,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
     在 `remote-control` 之后给出这些标志。
 
-    如果您在 `remote-control` 之前传递全局 `claude` 标志，或者包装脚本添加了一个，Claude Code 不会将该标志转移到服务器创建的会话。Claude Code 仅在已知删除该标志不会改变这些会话可以执行的操作时才允许该标志通过，例如 `--verbose` 或 `--model`。对于任何其他标志，例如 `--settings`，Claude Code [拒绝启动](/docs/zh-CN/errors#not-carried-over-to-the-sessions-remote-control-starts)并命名要删除的标志。
+    如果您在 `remote-control` 之前传递全局 `claude` 标志，或包装脚本添加了一个，Claude Code 不会将该标志转移到服务器创建的会话。Claude Code 仅在已知删除该标志不会改变这些会话可以执行的操作时才允许该标志通过，例如 `--verbose` 或 `--model`。对于任何其他标志，例如 `--settings`，Claude Code [拒绝启动](/docs/zh-CN/errors#not-carried-over-to-the-sessions-remote-control-starts)并命名要删除的标志。
 
     Claude Code 在打印帮助之前检查远程控制资格，因此当您未使用符合条件的帐户登录时，`claude remote-control --help` 返回错误而不是此标志列表。
   </Tab>
@@ -84,13 +84,13 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
     claude --remote-control
     ```
 
-    可选择为会话传递一个名称：
+    可选择为会话传递名称：
 
     ```bash theme={null}
     claude --remote-control "My Project"
     ```
 
-    这为您提供了一个完整的交互式会话在您的终端中，您也可以从 claude.ai 或 Claude 应用远程控制。与 `claude remote-control`（服务器模式）不同，您可以在本地输入消息，同时会话也可以远程使用。
+    这为您提供了一个完整的交互式会话在您的终端中，您也可以从 claude.ai 或 Claude 应用远程控制。与 `claude remote-control`（服务器模式）不同，您可以在会话也可远程使用时在本地输入消息。
   </Tab>
 
   <Tab title="从现有会话">
@@ -100,17 +100,17 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
     /remote-control
     ```
 
-    传递一个名称作为参数以设置自定义会话标题：
+    传递名称作为参数以设置自定义会话标题：
 
     ```text theme={null}
     /remote-control My Project
     ```
 
-    这启动一个远程控制会话，该会话继承您当前的对话历史。
+    这启动一个远程控制会话，该会话延续您当前的对话历史。
 
     在您接受远程控制的一次性确认之前，在 `/remote-control` 连接之前会出现一个对话框。选择**启用远程控制**以接受并连接。如果您选择**算了**或按 Esc，Claude Code 不会连接，并在您下次运行 `/remote-control` 时再次询问。
 
-    此命令不支持 `--verbose`、`--sandbox` 和 `--no-sandbox` 标志。
+    `--verbose`、`--sandbox` 和 `--no-sandbox` 标志不适用于此命令。
   </Tab>
 
   <Tab title="VS Code">
@@ -120,7 +120,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
     /remote-control
     ```
 
-    当远程控制打开时，Claude Code 在提示框页脚中显示**远程控制**指示器。会话连接后，单击指示器直接转到会话，或在 [claude.ai/code](https://claude.ai/code) 的会话列表中找到它。Claude Code 也会在对话中发布会话 URL。要断开连接，再次运行 `/remote-control`。
+    当远程控制打开时，Claude Code 在提示框页脚中显示**远程控制**指示器。会话连接后，单击指示器直接转到会话，或在 [claude.ai/code](https://claude.ai/code) 的会话列表中找到它。Claude Code 还在对话中发布会话 URL。要断开连接，再次运行 `/remote-control`。
 
     与 CLI 不同，VS Code 命令不接受名称参数或显示 QR 码。会话标题从您的对话历史或第一个提示派生。
   </Tab>
@@ -142,7 +142,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
   检查连接状态
 </h3>
 
-在交互式会话中，当远程控制已连接时，终端显示一个 `/rc active` 指示器，该指示器链接到 claude.ai 上的会话。当终端太窄无法容纳它时，指示器被隐藏。要查看会话 URL 和 QR 码以[从另一台设备连接](#connect-from-another-device)，再次运行 `/remote-control` 以打开状态面板。该面板还允许您断开远程控制，同时您的本地会话继续运行。
+在交互式会话中，当远程控制已连接时，终端显示一个 `/rc active` 指示器，该指示器链接到 claude.ai 上的会话。当终端太窄无法容纳它时，指示器被隐藏。要查看会话 URL 和用于[从另一台设备连接](#connect-from-another-device)的 QR 码，再次运行 `/remote-control` 以打开状态面板。该面板还允许您断开远程控制，同时您的本地会话继续运行。
 
 <span id="session-ended-elsewhere" />如果连接在交互式会话中失败，指示器会更改以显示失败，Claude Code 会在通知中显示原因并将其添加到对话中。运行 `/remote-control` 以重新连接，除非原因说会话在其他地方更改：
 
@@ -157,21 +157,21 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 一旦远程控制会话处于活动状态，您有几种方式从另一台设备连接：
 
 * **打开会话 URL** 在任何浏览器中直接转到 [claude.ai/code](https://claude.ai/code) 上的会话。
-* **扫描 QR 码** 显示在会话 URL 旁边，以在 Claude 应用中直接打开它。使用 `claude remote-control`，按空格键切换 QR 码显示。
-* **打开 [claude.ai/code](https://claude.ai/code) 或 Claude 应用** 并在会话列表中按名称找到会话。在 Claude 移动应用中，点击导航中的**代码**以到达会话列表。远程控制会话在在线时显示带有绿色状态点的计算机图标。
+* **扫描 QR 码** 显示在会话 URL 旁边，在 Claude 应用中直接打开它。使用 `claude remote-control`，按空格键切换 QR 码显示。
+* **打开 [claude.ai/code](https://claude.ai/code) 或 Claude 应用** 并在会话列表中按名称找到会话。在 Claude 移动应用中，点击导航中的**代码**以到达会话列表。远程控制会话在联机时显示带有绿色状态点的计算机图标。
 
-当您连接时，设备显示会话已在后台运行的任何子代理和工作流。从设备停止其中一个，Claude Code 会停止您的机器上的该任务。
+当您连接时，设备显示会话已在后台运行的任何子代理和工作流。从设备停止其中一个，Claude Code 会停止您机器上的该任务。
 
 远程会话标题按以下顺序选择：
 
 1. 您传递给 `--name`、`--remote-control` 或 `/remote-control` 的名称
 2. 您使用 `/rename` 设置的标题
 3. 现有对话历史中最后一条有意义的消息
-4. 自动生成的名称，如 `myhost-graceful-unicorn`，其中 `myhost` 是您的机器主机名或您使用 `--remote-control-session-name-prefix` 设置的前缀
+4. 自动生成的名称，如 `myhost-graceful-unicorn`，其中 `myhost` 是您机器的主机名或您使用 `--remote-control-session-name-prefix` 设置的前缀
 
 如果您未设置显式名称，Claude Code 会在您发送提示后更新标题以反映您的提示。当您从 claude.ai 或 Claude 应用重命名会话时，Claude Code 也会更新 `claude --resume` 中显示的本地标题。
 
-如果您还没有 Claude 应用，请在 Claude Code 中运行 `/mobile` 以显示 QR 码以访问 [claude.ai/mobile](https://claude.ai/mobile)，它会打开您手机的正确应用商店。
+如果您还没有 Claude 应用，请在 Claude Code 内运行 `/mobile` 以显示 [claude.ai/mobile](https://claude.ai/mobile) 的 QR 码，该码会打开适合您手机的应用商店。
 
 <h3 id="what-connected-devices-see">
   连接的设备看到的内容
@@ -179,35 +179,35 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
 连接的设备显示您终端中的对话。这些情况超出了普通消息：
 
-* **压缩和 `/clear`**：当 Claude Code [压缩对话](/docs/zh-CN/context-window#what-survives-compaction)时，连接的设备显示进度，然后显示对话被压缩的位置。当您运行 `/clear` 时，对话也会在连接的设备上重置。
-* **使用 `/resume` 切换对话**：连接的设备不会接收切换到的对话的标题或早期历史，但双向的新消息进出您的终端中打开的任何对话。要再次从设备处理原始对话，请在您的终端中运行 `/resume` 并切换回它。
-* **使用 `/teleport` 拉取会话**：当您使用 `/teleport` 将[云会话](/docs/zh-CN/claude-code-on-the-web#from-cloud-to-terminal)拉入您的终端时，连接的设备不会接收拉取的对话的早期历史。双向的新消息进出拉取的对话，该对话现在是您的终端中打开的对话。
-* **来自您其他会话的消息**：使用[跨会话消息传递](/docs/zh-CN/cross-session-messaging)，相同的连接在不同机器上的您自己的会话之间以及来自您的[云会话](/docs/zh-CN/claude-code-on-the-web)传递消息。
+* **压缩和 `/clear`**：当 Claude Code [压缩对话](/docs/zh-CN/context-window#what-survives-compaction)时，连接的设备显示进度，然后显示对话被压缩的位置。当您运行 `/clear` 时，对话也在连接的设备上重置。
+* **使用 `/resume` 切换对话**：连接的设备不接收切换到的对话的标题或早期历史，但双向的新消息进出您终端中打开的任何对话。要从设备再次处理原始对话，请在您的终端中运行 `/resume` 并切换回它。
+* **使用 `/teleport` 拉取会话**：当您使用 `/teleport` 将[云会话](/docs/zh-CN/claude-code-on-the-web#from-cloud-to-terminal)拉入您的终端时，连接的设备不接收拉取的对话的早期历史。双向的新消息进出拉取的对话，该对话现在是您终端中打开的对话。
+* **来自您其他会话的消息**：使用[跨会话消息传递](/docs/zh-CN/cross-session-messaging)，相同的连接在您不同机器上的自己的会话之间以及来自您的[云会话](/docs/zh-CN/claude-code-on-the-web)传递消息。
 * **您的更改的差异**：当会话的目录在 git 存储库中时，连接的设备的差异窗格显示您的更改。在具有超过存储库默认分支的提交的分支上，窗格显示自分支从它分离以来的更改，包括您未提交的编辑。在默认分支本身上，或在不超过它的分支上，窗格仅显示您未提交的更改。
 * **模型**：当您从连接的设备选择[模型](/docs/zh-CN/model-config)时，Claude Code 在该模型上运行会话。需要 Claude Code v2.1.238 或更高版本。您从设备的模型控制中选择的模型仅适用于当前会话。当您从设备向交互式会话发送 `/model <name>` 时，Claude Code 也会为新会话设置您的默认值。
-* **努力级别**：当您从连接的设备使用 `/effort` 或设备的努力控制设置[努力级别](/docs/zh-CN/model-config#adjust-effort-level)时，Claude Code 将其应用于您的机器上的会话。如果您使用 `CLAUDE_CODE_EFFORT_LEVEL` 固定了一个级别，会话保持该级别，Claude Code 拒绝从努力控制中选择不同的级别。从努力控制中选择一个级别需要您的机器上的 Claude Code v2.1.234 或更高版本。
+* **努力级别**：当您从连接的设备设置[努力级别](/docs/zh-CN/model-config#adjust-effort-level)时，使用 `/effort` 或设备的努力控制，Claude Code 将其应用于您机器上的会话。如果您使用 `CLAUDE_CODE_EFFORT_LEVEL` 固定了一个级别，会话保持该级别，Claude Code 拒绝从努力控制中选择不同的级别。从努力控制中选择级别需要您机器上的 Claude Code v2.1.234 或更高版本。
 * **连接失败后重新连接**：运行 `/remote-control` 以重新连接。如果压缩重写了对话或您在此期间使用 `/resume` 切换了对话，Claude Code 会存档它正在使用的服务器会话，而不是将其留在会话列表中。您仍然可以通过[过滤存档的会话](/docs/zh-CN/claude-code-on-the-web#archive-sessions)找到它。在设备仍然连接时切换对话不会存档会话。
 
 <h3 id="enable-remote-control-for-all-sessions">
   为所有会话启用远程控制
 </h3>
 
-远程控制仅在您显式运行 `claude remote-control`、`claude --remote-control` 或 `/remote-control` 时激活，除非打开了自动连接。要为每个交互式会话打开自动连接，请在 Claude Code 中运行 `/config` 并设置**为所有会话启用远程控制**。切换有三个值：
+远程控制仅在您显式运行 `claude remote-control`、`claude --remote-control` 或 `/remote-control` 时激活，除非打开了自动连接。要为每个交互式会话打开自动连接，请在 Claude Code 内运行 `/config` 并设置**为所有会话启用远程控制**。切换有三个值：
 
 * **`true`**：当交互式会话启动时自动连接。
-* **`false`**：关闭自动连接，尽管来自[托管设置](/docs/zh-CN/managed-settings)的 `true` 会优先，因为 Claude Code 将选择保存到您的用户设置。项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中的 `false` 甚至会关闭自动连接，即使托管 `true` 也是如此。
-* **`default`**：清除您的选择并遵循您的组织的管理员默认值（如果已设置），否则遵循 Claude Code 的当前默认值。
+* **`false`**：关闭自动连接，尽管来自[托管设置](/docs/zh-CN/managed-settings)的 `true` 会优先，因为 Claude Code 将选择保存到您的用户设置。项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中的 `false` 即使在托管 `true` 上也会关闭自动连接。
+* **`default`**：清除您的选择并遵循您组织的管理员默认值（如果已设置），否则遵循 Claude Code 的当前默认值。
 
 相同的切换出现在 CLI 之外：
 
-* **Desktop 应用**：**设置 > Claude Code > 默认启用远程控制**。
+* **Desktop 应用**：**设置 > Claude Code > 将新会话连接到远程控制**。
 * **VS Code 扩展**：[命令菜单](/docs/zh-CN/vs-code#use-the-prompt-box)的设置部分中的**为所有会话启用远程控制**。
 
 要改为从设置文件打开自动连接，请在您的用户 `~/.claude/settings.json` 或[托管设置](/docs/zh-CN/managed-settings)中将 [`remoteControlAtStartup`](/docs/zh-CN/settings-reference#remotecontrolatstartup) 设置为 `true`。在项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中，Claude Code 遵守 `false` 并为该存储库关闭自动连接，但忽略 `true`，因此已检入的文件无法为打开存储库的每个人打开远程控制。
 
-自动连接使用您自己的 claude.ai 帐户登录，因此它启动的会话仅出现在您自己的帐户的 Claude 应用中，并且不向任何其他人授予访问权限。
+自动连接使用您自己的 claude.ai 帐户登录，因此它启动的会话仅出现在您自己帐户的 Claude 应用中，并且不向任何其他人授予访问权限。
 
-启用此设置后，每个交互式 Claude Code 进程注册一个远程会话。如果您运行多个实例，每个实例都获得自己的远程会话。要从单个进程运行多个并发会话，请改用[服务器模式](#start-a-remote-control-session)。
+启用此设置后，每个交互式 Claude Code 进程注册一个远程会话。如果您运行多个实例，每个实例都获得自己的远程会话。要从单个进程运行多个并发会话，请改为使用[服务器模式](#start-a-remote-control-session)。
 
 <h3 id="resume-sessions-after-stopping-the-server">
   停止服务器后恢复会话
@@ -216,16 +216,16 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 当您使用 Ctrl+C 停止 `claude remote-control` 时，它正在服务的会话停止从您的手机或浏览器响应。只要您没有在同一目录中运行另一个 `claude remote-control` 并且没有使用 `--no-create-session-in-dir` 启动此会话，Claude Code 就不会存档它们。要恢复它们，请在同一目录中运行以下命令之一：
 
 * **`claude remote-control`**：恢复服务器正在服务的每个会话。
-* **`claude remote-control --continue`**：仅恢复服务器启动的会话，并在该会话结束时退出。如果此目录没有记录，Claude Code 会使用此存储库的其他 git worktree 中最新的。
+* **`claude remote-control --continue`**：仅恢复服务器启动的会话，并在该会话结束时退出。如果此目录没有记录，Claude Code 使用此存储库其他 git worktree 中最新的。
 * **`claude remote-control --session-id <id>`**：仅恢复您传递其 ID 的会话，并在该会话结束时退出。ID 是会话 URL 在 claude.ai/code 中 `/code/` 和任何 `?` 之间的部分。
 
-这些命令在服务器停止后约四小时内有效。之后，运行 `claude remote-control` 以启动新会话。如果您在此期间存档了会话，`--continue` 和 `--session-id` 会在 Claude Code v2.1.228 或更高版本上取消存档。
+这些命令在服务器停止后约四小时内有效。之后，运行 `claude remote-control` 以启动新会话。如果您在此期间存档了会话，`--continue` 和 `--session-id` 在 Claude Code v2.1.228 或更高版本上取消存档它。
 
-要恢复您使用 `claude --remote-control` 或 `/remote-control` 启动的会话，请使用 `claude --continue` 或 `claude --resume` 恢复对话。如果远程控制不重新连接，请参阅[无法重新连接到您的远程控制会话](#couldnt-reconnect-to-your-remote-control-session)。
+要恢复您使用 `claude --remote-control` 或 `/remote-control` 启动的会话，请使用 `claude --continue` 或 `claude --resume` 恢复对话。如果远程控制无法重新连接，请参阅[无法重新连接到您的远程控制会话](#couldnt-reconnect-to-your-remote-control-session)。
 
-如果您在第一个终端仍然打开远程控制的情况下在第二个终端中恢复对话，Claude Code 会在第二个终端中打印 `Remote Control not started here` 通知，并改为在那里关闭远程控制。在第二个终端中运行 `/remote-control` 以将远程控制移动到它。
+如果您在第一个终端仍然打开远程控制的情况下在第二个终端中恢复对话，Claude Code 会在第二个终端中打印 `Remote Control not started here` 通知，并改为在那里关闭远程控制，而不是从第一个终端取走会话。在第二个终端中运行 `/remote-control` 以将远程控制移动到它。
 
-当您在具有远程控制的 Claude Desktop 或 IDE 扩展中恢复对话时，Claude Code 会将其重新附加到现有的 claude.ai 会话，而不是向会话列表添加新会话。
+当您在具有远程控制的 Claude Desktop 或 IDE 扩展中恢复对话时，Claude Code 会将其重新附加到现有 claude.ai 会话，而不是向会话列表添加新会话。
 
 <h2 id="connection-and-security">
   连接和安全

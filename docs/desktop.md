@@ -834,6 +834,12 @@ Teams 或 Enterprise 计划上的组织可以通过管理员控制台控制、�
 * **Remote Control**：为你的组织启用或禁用[远程控制](/docs/zh-CN/remote-control)
 * **禁用绕过权限模式**：防止你的组织中的用户启用绕过权限模式
 
+<Note>
+  Cowork 下的 OpenTelemetry 表单位于管理员控制台的[数据和隐私设置](https://claude.ai/admin-settings/data-privacy-controls)中的**监控**下，仅适用于 Cowork 会话。在此机器上的 Cowork 会话中，桌面应用将该收集器作为 `OTEL_*` 环境变量传递给 Claude Code，因此该表单生效，尽管该会话中的 Claude Code [从不获取管理员控制台设置](#managed-settings)。
+
+  要从 Code 选项卡会话导出遥测，请在 Claude Code 托管设置的 `env` 块中设置 `CLAUDE_CODE_ENABLE_TELEMETRY` 和 `OTEL_*` 变量，如[监控的管理员配置](/docs/zh-CN/monitoring-usage#administrator-configuration)中所示。本地、云和 SSH 会话各自从不同来源读取[托管设置](#managed-settings)。有关云会话可以到达的主机，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。有关 Code 选项卡会话报告的 `service.name`，请参阅[服务信息](/docs/zh-CN/monitoring-usage#service-information)。
+</Note>
+
 <h3 id="managed-settings">
   托管设置
 </h3>

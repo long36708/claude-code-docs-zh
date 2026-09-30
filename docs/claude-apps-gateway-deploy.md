@@ -303,7 +303,7 @@ rate_limits:
 | - | - | - |
 | 推理（提示、完成） | CLI → 网关 → 您的上游 | 仅当 Anthropic API 是配置的上游时 |
 | 遥测（OTLP 指标，加上 [选择加入日志和跟踪](/docs/zh-CN/claude-apps-gateway-config#telemetry)） | CLI → 网关 → 您的收集器 | 从不 |
-| 身份（电子邮件、组、sub） | IdP → 网关 → JWT → CLI；CLI 在 OTLP 导出上标记它。如果您打开 [`forward_user_identity`](/docs/zh-CN/claude-apps-gateway-config#per-user-identity-headers-for-a-proxy-you-run)，网关也会将开发者的电子邮件和 IdP 主体作为标头发送到您的代理 | 从不 |
+| 身份（电子邮件、组、sub） | IdP → 网关 → CLI；CLI 在 OTLP 导出上标记它。如果您打开 [`forward_user_identity`](/docs/zh-CN/claude-apps-gateway-config#per-user-identity-headers-for-a-proxy-you-run)，网关也会将开发者的电子邮件和 IdP 主体作为标头发送到您的代理 | 从不 |
 | 托管设置 | 您的网关 YAML → CLI | 从不 |
 | 审计日志 | 网关 stderr → 您的聚合器 | 从不 |
 

@@ -646,6 +646,48 @@ claude plugin install <name>@<marketplace>
 
 然后在您的会话中运行 `/reload-plugins`。**Errors** 选项卡条目消失，插件回到 **Installed** 下。
 
+<h3 id="installed-plugins-json-holds-a-record-this-version-cannot-read">
+  `installed_plugins.json holds a record under "<id>" that this version of Claude Code cannot read`
+</h3>
+
+消息以这些形式出现：
+
+* **`claude plugin list`**：将其打印为 `Note:`
+* **`claude plugin install`、`uninstall` 和 `update`**：拒绝并显示 `Plugin "<name>" was not installed:`、`Plugin "<name>" was not uninstalled:` 或 `Plugin "<name>" was not updated:`，后跟相同的文本
+* **这三个命令中任何一个上的 `--json`**：结果行携带相同的 `message` 和 `failureCode: "install_records_unreadable"`
+* **多个这样的记录**：消息读作 `holds records under`
+* **整个文件声明此版本不知道的格式**：消息读作 `installed_plugins.json is in a format (version <N>) that this version of Claude Code does not know` 而不是
+
+命名的记录在 `installed_plugins.json` 中是有效的 JSON，在有效的插件 id 下，但其字段对此版本不解析。最可能是另一个版本的 Claude Code 写了它，也许是更新的版本。
+
+当记录在那里时，此版本不重写文件，所以记录不会丢失。
+
+按顺序采取消息的选项：
+
+1. 使用 `claude update` 更新 Claude Code。
+2. 如果您无法更新，请使用写入记录的 Claude Code 版本卸载命名的插件。
+3. 如果两者都没有帮助，请手动从 `installed_plugins.json` 删除记录，然后重新启动 Claude Code 或运行 `/reload-plugins`。
+
+<h3 id="installed-plugins-json-could-not-be-read-and-was-rebuilt">
+  `installed_plugins.json could not be read and was rebuilt`
+</h3>
+
+`claude plugin list` 打印此注释，带有保留文件的路径，名为 `installed_plugins.unreadable.<date>.<hash>.kept`，只要该文件位于 `installed_plugins.json` 旁边。
+
+不是有效 JSON 的 `installed_plugins.json`，或不是插件列表的，无法说出您安装了什么。
+
+打开 `.kept` 文件以查看旧文件记录的内容，并重新安装您缺少的插件。Claude Code 永远不会读回该文件，该文件在 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 计划上老化。
+
+<h3 id="install-records-under-names-that-no-version-can-use">
+  `install records under names that no version of Claude Code can use were removed from installed_plugins.json`
+</h3>
+
+`claude plugin list` 打印此注释，带有副本的路径，名为 `installed_plugins.set-aside.<date>.<hash>.json`，只要该副本位于 `installed_plugins.json` 旁边。注释以 `Nothing needs doing about these copies.` 结尾。
+
+`installed_plugins.json` 中的记录位于不是有效插件 id 的键下，因此没有版本的 Claude Code 可以使用它。文件的其余部分正常加载。
+
+Claude Code 将不可用的记录复制到 `.set-aside` 文件中并将其从列表中删除。Claude Code 永远不会读回副本，副本在 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 计划上老化。
+
 <h3 id="a-plugin-you-disabled-still-loads">
   `Disabled in ~/.claude/settings.json but still loads`
 </h3>
@@ -981,9 +1023,11 @@ claude plugin install my-plugin@my-marketplace --config api_url=https://example.
 | `Path contains "..": <path>` 在 `plugins[N].source` 下 | 错误 | 使用相对于市场根的路径，不带 `..` 段。 |
 | `Marketplace name cannot contain control or bidirectional-formatting characters` | 错误 | 从名称中删除字符，例如转义或换行符。 |
 | `Plugin name cannot contain control or bidirectional-formatting characters` | 错误 | 从插件 `name` 中删除字符。 |
+| `Claude Code cannot install plugins from marketplace "<name>". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change the marketplace's "name".` | 错误 | 将市场重命名以符合消息所述的规则。 |
+| `Claude Code cannot install plugin "<name>". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change this entry's "name".` | 错误 | 将条目重命名以符合消息所述的规则。 |
 | `Marketplace has no plugins defined` | 警告 | 至少添加一个条目到 `plugins`。 |
 | `No marketplace description provided` | 警告 | 添加顶级 `description`。 |
-| `Plugin name "<name>" is not kebab-case` 在 `plugins[N] plugin.json → name` 下 | 警告 | 重命名为小写字母、数字和连字符。Claude Code 接受其他形式，但 claude.ai 市场同步拒绝它们。 |
+| `Plugin name "<name>" is not kebab-case` 在 `plugins[N] plugin.json → name` 下 | 警告 | 重命名为小写字母、数字和连字符；claude.ai 市场同步需要该形式。 |
 | `Entry declares version "<a>" but <path>/plugin.json says "<b>"` | 警告 | 更新条目以匹配 `plugin.json`，这在安装时是权威的。 |
 | `Marketplace name "<name>" is reserved in Claude Desktop` | 警告 | 重命名市场。Claude Desktop 的托管市场同步拒绝任何大小写的 `org`、`org-provisioned` 和 `unknown`。 |
 | `Marketplace name "<name>" is not accepted by Claude Desktop` 或 `Plugin name "<name>" is not accepted by Claude Desktop` | 警告 | 重命名为最多 128 个字符的字母、数字、`.`、`_` 和 `-`，以字母或数字开头。 |

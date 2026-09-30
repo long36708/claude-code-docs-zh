@@ -105,7 +105,7 @@ claude self-hosted-runner setup
   </Step>
 </Steps>
 
-运行器在其活跃会话完成后按设计退出；请参阅[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle)。对于生产，在编排器下部署它，该编排器在退出时重新启动它。请参阅[部署到生产环境](/docs/zh-CN/self-hosted-environments-deploy)。
+运行器在其活跃会话完成后按设计退出；请参阅[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle)。对于生产，在编排器下部署它，该编排器在退出时重新启动它，并在运行器启动后立即继续退出时等待更长的时间再重新启动。请参阅[部署到生产环境](/docs/zh-CN/self-hosted-environments-deploy)和[当运行器退出时](/docs/zh-CN/self-hosted-environments-deploy#when-the-runner-exits)。
 
 <h2 id="send-a-follow-up-message-to-a-running-session">
   向运行中的会话发送后续消息

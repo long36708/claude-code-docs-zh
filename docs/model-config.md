@@ -65,7 +65,7 @@
 别名指向你的提供商的推荐版本，并随时间更新。要固定到特定版本，请使用完整模型名称，例如 `claude-opus-5-5`，或设置相应的环境变量，如 `ANTHROPIC_DEFAULT_OPUS_MODEL`。
 
 <Note>
-  Sonnet 5.5 需要 Claude Code v2.1.284 或更高版本，Opus 5.5 需要 v2.1.280 或更高版本。运行 `claude update` 进行升级。
+  Sonnet 5.5 需要 Claude Code v2.1.284 或更高版本，Opus 5.5 需要 v2.1.280 或更高版本。如果来自较旧版本的请求失败，请参阅 [Claude Code does not support this model](/docs/zh-CN/errors#claude-code-does-not-support-this-model)。运行 `claude update` 进行升级。
 </Note>
 
 <h3 id="work-with-fable">
@@ -164,16 +164,14 @@ Fable 模型的安全分类器标记的请求，最常见于网络安全和生�
 
 当 Claude Code 无法判断你的组织的[托管插件](/docs/zh-CN/settings-reference#enabledplugins)提供哪些 PreModelSwitch hooks 时，例如因为托管插件加载失败，它拒绝切换而不是应用它，并在每次新尝试时再次检查。参阅 [Model switch was blocked by a PreModelSwitch hook](/docs/zh-CN/errors#model-switch-was-blocked-by-a-premodelswitch-hook) 了解消息和恢复。
 
-当你通过 [Agent SDK](/docs/zh-CN/agent-sdk/overview) `setModel()` 方法或从通过 [Remote Control](/docs/zh-CN/remote-control) 连接的设备切换模型，或运行 Claude Code CLI 的应用（如 [Desktop app](/docs/zh-CN/desktop)）为你切换时，Claude Code 会检查该字符串是否是它识别的。此检查需要 Claude Code v2.1.200 或更高版本。检查 Remote Control 选择需要你的机器上的 Claude Code v2.1.260 或更高版本。在 Anthropic API 上，Claude Code 识别：
+当你通过 [Agent SDK](/docs/zh-CN/agent-sdk/overview) `setModel()` 方法、通过 [Remote Control](/docs/zh-CN/remote-control) 连接的设备或运行 Claude Code CLI 的应用（如 [Desktop app](/docs/zh-CN/desktop)）切换模型时，Claude Code 会检查该值在切换时：
 
-* 一个模型别名
-* `/model` 选择器中的一个条目
-* 任何以 `claude-` 开头的名称
-* 你自己配置的值，作为[自定义模型选项](#add-a-custom-model-option)或在 [`modelOverrides`](#override-model-ids-per-version) 中
+* **Agent SDK 或应用**：使用 Claude Code v2.1.268 或更高版本，除非 Claude Code 在本地接受模型 ID（如它对你的[自定义模型选项](#add-a-custom-model-option)所做的那样），它在会话首次切换到它时与你的提供商确认该 ID。确认在每个提供商上运行，你的提供商不提供的 ID 在切换时被拒绝，而不是在你的下一个请求时失败。
+* **Remote Control**：在 Anthropic API 上，Claude Code 在本地检查该值并不发送请求。
 
-Claude Code 拒绝无法识别的字符串，显示 `Model "<name>" is not a recognized model id.`，会话保持其当前模型，而不是保存字符串并在下一个请求时失败。参阅[错误参考](/docs/zh-CN/errors#model-is-not-a-recognized-model-id)了解恢复步骤。
+参阅 [Model is not a recognized model id](/docs/zh-CN/errors#model-is-not-a-recognized-model-id) 和 [Model not found](/docs/zh-CN/errors#model-not-found) 了解消息。
 
-检查仅在 Anthropic API 上运行。在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 和 [LLM 网关](/docs/zh-CN/llm-gateway) 后面或自定义 `ANTHROPIC_BASE_URL`，你的提供商或网关定义模型名称，所以 Claude Code 不检查地通过任何字符串。检查也不涵盖 `--model` 标志、`ANTHROPIC_MODEL` 环境变量或 `model` 设置；那里的拼写错误值会在第一个请求时产生 [There's an issue with the selected model](/docs/zh-CN/errors#theres-an-issue-with-the-selected-model)。Claude Code 仍然可以在请求时在每个提供商上写入[无法识别的模型诊断行](/docs/zh-CN/errors#unrecognized-model-id-on-a-request)。
+如果你使用 `--model` 标志、`ANTHROPIC_MODEL` 环境变量或 `model` 设置设置模型，Claude Code 不会提前检查它，拼写错误的值会在第一个请求时产生 [There's an issue with the selected model](/docs/zh-CN/errors#theres-an-issue-with-the-selected-model)。
 
 当请求的模型有计划的停用日期或自动重新映射到较新版本时，Claude Code 显示一个警告，命名请求的模型。交互式会话将其显示为启动通知。从 v2.1.182 开始，在使用默认文本输出格式的[非交互模式](/docs/zh-CN/headless)中，相同的警告被写入 stderr。检查也涵盖在[子代理前言](/docs/zh-CN/sub-agents)中设置的 `model`。对于 `--output-format json` 和 `stream-json`，stderr 警告被抑制；从[结果消息](/docs/zh-CN/headless#get-structured-output)的 `modelUsage` 字段读取实际模型。
 
@@ -751,7 +749,7 @@ Fable 模型、Sonnet 5 及更高版本和 Opus 4.7 及更高版本始终使用�
 | 设置全局默认值 | 运行 `/config` 并切换思考模式。保存为 `~/.claude/settings.json` 中的 `alwaysThinkingEnabled` |
 | 通过环境变量禁用 | 设置 [`MAX_THINKING_TOKENS=0`](/docs/zh-CN/env-vars)，这在 Anthropic API 上关闭思考，除了 Opus 5.5、Sonnet 5.5 和 Fable 模型。在[第三方提供商](/docs/zh-CN/third-party-integrations)上，Claude Code 改为省略 `thinking` 参数，自适应推理模型可能仍然思考。其他值仅适用于[固定思考预算](#adaptive-reasoning-and-fixed-thinking-budgets) |
 
-您不能在 Opus 5.5、Sonnet 5.5 或 Fable 模型上关闭思考。会话切换、`alwaysThinkingEnabled` 和 `MAX_THINKING_TOKENS=0` 在那里没有效果，模型根据努力级别按步骤决定思考多少。
+您不能在 Opus 5.5、Sonnet 5.5 或 Fable 模型上关闭思考。会话切换和 `/config` 行显示 `Thinking can't be turned off` 对于这些模型，而不是提供切换，保存的 `alwaysThinkingEnabled: false` 或 `MAX_THINKING_TOKENS=0` 在那里没有效果。在这些模型上，模型根据努力级别按步骤决定思考多少。保存的设置在您切换到接受它的模型时再次应用。
 
 Claude Code 默认折叠思考输出。按 `Ctrl+O` 切换详细模式并将推理视为灰色斜体文本。Anthropic API 上的交互式会话默认接收编辑的思考块，因此如果您想要完整摘要在展开时可用，在[设置](/docs/zh-CN/settings)中设置 `showThinkingSummaries: true`。您需要为所有生成的思考令牌付费，即使折叠或编辑。
 
@@ -784,7 +782,7 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些计划要求。�
 
 1M 上下文窗口使用标准模型定价，超过 200K 的令牌没有溢价。对于扩展上下文包含在您的订阅中的计划，使用仍由您的订阅覆盖。对于通过使用额度访问扩展上下文的计划，令牌计费到使用额度。
 
-如果您的账户支持 1M 上下文，该选项会出现在最新版本的 Claude Code 的 `/model` 选择器中。如果您看不到它，请尝试重新启动您的会话。
+如果您的账户支持 1M 上下文，该选项会出现在最新版本的 Claude Code 的 `/model` 选择器中。如果您看不到它，请尝试重新启动您的会话，在第三方提供商上检查您的部署是否使用 `ANTHROPIC_DEFAULT_*_MODEL` 变量[固定了模型](#pin-models-for-third-party-deployments)。
 
 您也可以使用 `[1m]` 后缀与模型别名或完整模型名称：
 
@@ -955,6 +953,8 @@ export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8[1m]'
 * Claude Code 在将模型 ID 发送到您的提供商之前会删除该后缀。
 * 仅当底层模型[支持 1M 上下文](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)时才附加 `[1m]`。
 * 该后缀按变量读取，而不是按模型读取。在 Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry 上，一个变量中没有 `[1m]` 的模型 ID 使用 200K 上下文，即使另一个变量使用相同的模型和后缀。Sonnet 5 在这些提供商上始终以 1M 窗口运行，从不需要该后缀。
+
+当您设置 `ANTHROPIC_DEFAULT_*_MODEL` 变量时，`/model` 选择器会显示该模型的一行来替代该家族的内置行，包括任何 1M 上下文行。要在不向该变量添加后缀的情况下到达 1M 窗口，您的用户运行 `/model opus[1m]`，Claude Code 会将后缀应用于该变量命名的模型。`/model sonnet[1m]` 的工作方式相同。
 
 <Note>
   通过 [MDM 或托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms) 提供的 `availableModels` 允许列表在使用第三方提供商时仍然适用；[服务器托管设置不会在那里提供](/docs/zh-CN/server-managed-settings#platform-availability)。

@@ -301,7 +301,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `footer:down` | Down | 在页脚中向下导航 |
 | `footer:openSelected` | Enter | 打开选定的页脚项 |
 | `footer:clearSelection` | Escape | 清除页脚选择 |
-| `footer:dismiss` | (未绑定) | 在 v2.1.281 中移除。仍然命名该操作的 `keybindings.json` 保持有效，绑定不执行任何操作。在 v2.1.281 之前，Backspace 和 Delete 从页脚中关闭选定的 artifact 链接 |
+| `footer:dismiss` | (未绑定) | 绑定键到此操作没有效果，命名它的 `keybindings.json` 保持有效。在 v2.1.281 之前，Backspace 和 Delete 被绑定到它，并从页脚中关闭选定的 artifact 链接。 |
 
 选定页脚项时（例如提示下方的代理面板中的一行），即使您在 `Chat` 上下文中将 `Enter` 重新绑定到 `chat:queueSubmit` 或 `chat:newline`，`Enter` 也会打开它。
 
@@ -417,9 +417,11 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `select:accept` | Enter | 接受选择 |
 | `select:cancel` | Escape | 取消选择 |
 
-在列表面板中，例如 `/skills` 和 `/mcp`，Claude Code 应用您的 `select:pageUp`、`select:pageDown`、`select:first` 和 `select:last` 绑定。在大多数其他列表中，例如 `/model` 选择器，您的 `select:first` 和 `select:last` 绑定适用。PageUp 和 PageDown 在这些列表中进行分页，无论您的绑定如何。
+在列表面板中，例如 `/skills`、`/mcp` 和 `/tasks`，Claude Code 应用您的 `select:pageUp`、`select:pageDown`、`select:first` 和 `select:last` 绑定。在大多数其他列表中，例如 `/model` 选择器，您的 `select:first` 和 `select:last` 绑定适用。PageUp 和 PageDown 在这些列表中进行分页，无论您的绑定如何。
 
 在 v2.1.280 之前，这些其他列表忽略 Home、End 和您的 `select:first` 和 `select:last` 绑定。
+
+在 v2.1.283 之前，`/mcp` 工具列表使用固定的 PageUp 和 PageDown 键进行分页，无论您的绑定如何。
 
 <h3 id="plugin-actions">
   Plugin 操作
@@ -692,6 +694,7 @@ Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl
 Claude Code 验证您的快捷键并向调试日志写入以下警告：
 
 * 解析错误（无效的 JSON 或结构）
+* 拼写错误的修饰符，例如 `ctl+k`。Claude Code 会删除它无法识别的部分，并将绑定应用于剩余的按键，在此示例中为 `k`。
 * 无效的上下文名称
 * 无效的操作值，例如不是字符串或 `null` 的操作
 * 未知的操作名称，例如注册操作的拼写错误。Claude Code 跳过该绑定并保持该键的任何默认绑定有效。在 v2.1.246 之前，具有未知操作名称的绑定会静默禁用该键

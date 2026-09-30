@@ -48,7 +48,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 * **社区 marketplace 名称**：`claude-community`、`claude-plugins-community` 和 `healthcare`。保留规则与官方名称相同。
 * **插件目录名称**：`anthropic-plugin-directory` 和 `claude-plugin-directory`。保留规则与官方名称相同。
 * **冒充官方 marketplace 的名称**：名称如 `official-claude-plugins` 或 `claude-plugins-v2`，以及任何包含非 ASCII 字符的名称。错误是 `Marketplace name impersonates an official Anthropic/Claude marketplace`。名称中的控制或双向格式化字符也会报告 `Marketplace name cannot contain control or bidirectional-formatting characters`。已在这样的名称下注册的 marketplace 停止加载，连同其插件。
-* <span id="reserved-name-spellings" />**保留名称的另一种拼写**：与保留名称仅在尾部点或用除下划线以外的符号代替连字符的名称，因此 `claude.code.plugins` 计为 `claude-code-plugins`。`claude plugin validate` 接受这样的名称；添加 marketplace 失败，错误为 [`is another spelling of "<reserved>", a reserved marketplace name`](/docs/zh-CN/errors#marketplace-name-is-another-spelling-of-a-reserved-name)，已在一个下注册的 marketplace 停止加载。此检查需要 Claude Code v2.1.280 或更高版本。
+* <span id="reserved-name-spellings" />**保留名称的另一种拼写**：与保留名称仅在尾部点或用除下划线以外的符号代替连字符的名称，因此 `claude.code.plugins` 计为 `claude-code-plugins`。添加 marketplace 失败，错误为 [`is another spelling of "<reserved>", a reserved marketplace name`](/docs/zh-CN/errors#marketplace-name-is-another-spelling-of-a-reserved-name)，已在一个下注册的 marketplace 停止加载。此检查需要 Claude Code v2.1.280 或更高版本。
 * **Claude Code 用于不来自 marketplace 的插件的名称**：`inline` 用于使用 [`--plugin-dir`](/docs/zh-CN/cli-reference) 加载的插件，`builtin` 用于内置插件，`skills-dir` 用于从 [`.claude/skills/`](/docs/zh-CN/skills) 自动加载的插件，`synced` 用于从你的 claude.ai 账户同步的插件。`claude-plugin-test` 也被保留。`skills-dir` 也显示为 `{"source": "skills-dir"}`，在 `strictKnownMarketplaces` 和 `blockedMarketplaces` 中，如 [仅在策略列表中有效的源值](#source-values-valid-only-in-policy-lists) 下所述。
 * **`npm`、`pip`、`uv`、`cargo`、`github` 和 `gh`**：以任何大小写保留。此检查需要 Claude Code v2.1.275 或更高版本。
 * **以 `claudeai-` 开头的名称**：为托管在 claude.ai 上的 marketplace 保留。`claude plugin marketplace add` 拒绝任何其他使用一个的 marketplace，错误为 `Cannot add marketplace "<name>": names starting with "claudeai-" are reserved for marketplaces hosted on claude.ai`。
@@ -63,7 +63,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 | 字段 | 类型 | 描述 |
 | :- | :- | :- |
-| `name` | string | Marketplace 标识符。没有空格、控制字符或双向格式化字符，没有 `/` 或 `\`，没有 `..`，不是 `.`。请参阅 [保留名称](#reserved-names)。用户在安装插件时在 `@` 后键入它 |
+| `name` | string | Marketplace 标识符：字母、数字、`.`、`_` 和 `-`，以字母或数字开头，没有 `..`。它形成从 marketplace 安装的每个 [plugin id](/docs/zh-CN/plugins/loading#find-where-a-plugin-came-from) 的 `@` 后面的部分，因此 `claude plugin validate` 会拒绝其他名称。请参阅 [保留名称](#reserved-names) |
 | `owner` | object | 维护者信息。`name` 是必需的；`email` 和 `url` 是可选的 |
 | `plugins` | array | [插件条目](#plugin-entries)。每个条目单独验证，因此一个无效条目不会导致 marketplace 失败 |
 | `$schema` | string | JSON Schema URL 用于编辑器自动完成。在加载时忽略 |
@@ -87,7 +87,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 | 字段 | 类型 | 描述 |
 | :- | :- | :- |
-| `name` | string | 插件标识符，没有空格、控制字符或双向格式化字符。用户在安装时在 `@` 前键入它，即使插件自己的 `plugin.json` 设置了不同的 `name` |
+| `name` | string | 插件标识符：字母、数字、`.`、`_` 和 `-`，以字母或数字开头。`claude plugin validate` 会拒绝其他名称，Claude Code 无法安装。用户在安装时在 `@` 前键入它，即使插件自己的 `plugin.json` 设置了不同的 `name` |
 | `source` | string or object | 从哪里获取插件。请参阅 [插件源](#plugin-sources) |
 | `description` | string | 在 [`/plugin`](/docs/zh-CN/plugins/install) 列表和详情中显示 |
 | `version` | string | 插件的版本字符串。当 `plugin.json` 也设置 `version` 时，`plugin.json` 优先，`claude plugin validate` 警告。请参阅 [插件加载参考](/docs/zh-CN/plugins/loading) |
@@ -469,7 +469,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 
 以条目索引和 `plugin.json →` 为前缀的消息，例如 `plugins[2] plugin.json →`，涉及该插件自己的文件。[`claude plugin validate` 报告错误](/docs/zh-CN/plugins/troubleshooting#claude-plugin-validate-reports-errors) 列出这些消息及其修复。
 
-提及 Claude Desktop 标志名称的警告，这些名称 Claude Code 接受但 Claude Desktop 拒绝，因为 Claude Desktop 的名称规则更严格。
+提及 Claude Desktop 标志名称的警告，这些名称 Claude Desktop 拒绝。
 
 该表将 marketplace 级别的消息映射到每个消息所涉及的字段。
 
@@ -484,6 +484,8 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `Author name cannot be empty` | 错误 | `owner.name` |
 | `Plugin name cannot contain spaces. Use kebab-case (e.g., "my-plugin")` | 错误 | `plugins[i].name` |
 | `Plugin name cannot contain control or bidirectional-formatting characters` | 错误 | `plugins[i].name` |
+| `Claude Code cannot install plugins from marketplace "x". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change the marketplace's "name".` | 错误 | `name` |
+| `Claude Code cannot install plugin "x". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change this entry's "name".` | 错误 | `plugins[i].name` |
 | `Duplicate plugin name "x" found in marketplace` | 错误 | 两个条目共享一个 `name` |
 | `plugins.i.source: Invalid input` | 错误 | 该条目的 `source` 与任何类型都不匹配。请参阅 [Invalid input on a source](#invalid-input-on-a-source) |
 | `plugins[i].source: Path contains "..": <path>` | 错误 | 转义 marketplace 根目录的相对 `source` |

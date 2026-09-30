@@ -4,13 +4,13 @@
 
 # 扫描代码库中的漏洞
 
-> 安装 Claude Security 插件以在 Claude Code 会话中扫描代码库中的漏洞，并将发现的问题转化为您可以审查和应用的补丁。
+> 安装 Claude Security plugin 以在 Claude Code 会话中扫描代码库中的漏洞，并将发现的问题转化为您可以审查和应用的补丁。
 
-Claude Security 插件在 Claude Code 会话中运行代码库的多代理漏洞扫描。一个 Claude 代理团队映射您的架构、构建威胁模型、搜寻漏洞，并在编写报告前独立审查每个发现。使用该插件扫描整个存储库或[仅扫描一组更改](#scan-only-your-changes)，例如分支的差异、拉取请求的差异或单个提交，然后将您选择的发现转化为您自己审查和应用的补丁。
+Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代理漏洞扫描。一个 Claude 代理团队映射您的架构、构建威胁模型、搜寻漏洞，并在编写报告前独立审查每个发现。使用该插件扫描整个存储库或[仅扫描一组更改](#scan-only-your-changes)，例如分支的差异、拉取请求的差异或单个提交，然后将您选择的发现转化为您自己审查和应用的补丁。
 
-该插件在您的会话中本地运行，使用您在 Claude Code 中有权访问的任何模型，每次扫描都会计入您的计划使用限额。如果您想要一个监控您的存储库的托管服务，或想要在 [Claude Mythos 5](https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5) 上运行扫描，请参阅 [Claude Security](https://claude.com/product/claude-security) 产品，该产品在企业计划中可用。该插件可以访问托管产品无法访问的代码，例如托管在 GitLab 或 Bitbucket 上的存储库，或在不允许入站连接的网络上的存储库。
+该插件在您的会话中本地运行，使用[您在 Claude Code 中可以访问的任何模型](#models-and-providers)，每次扫描都计入您的[使用量](/docs/zh-CN/costs)。如果您想要一个监控您的存储库的托管服务，或想要在 [Claude Mythos](https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5) 上运行扫描，请参阅 [Claude Security](https://claude.com/product/claude-security) 产品，该产品在企业计划中提供。该插件可以访问托管产品无法访问的代码，例如托管在 GitLab 或 Bitbucket 上的存储库，或在不允许入站连接的网络上的存储库。
 
-该插件也不同于 Claude Code 中已有的审查工具：[security guidance 插件](/docs/zh-CN/security-guidance)在 Claude 编写代码时审查代码，[`/security-review`](/docs/zh-CN/commands#all-commands) 对您的分支运行单次扫描，[Code Review](/docs/zh-CN/code-review) 审查拉取请求。有关这些层如何堆叠的信息，请参阅[该插件如何与其他安全工具配合](#how-the-plugin-fits-with-other-security-tools)。
+该插件也不同于 Claude Code 中已有的审查工具：[security guidance plugin](/docs/zh-CN/security-guidance) 在 Claude 编写代码时审查代码，[`/security-review`](/docs/zh-CN/commands#all-commands) 对您的分支运行单次扫描，[Code Review](/docs/zh-CN/code-review) 审查拉取请求。有关这些层如何堆叠的信息，请参阅[插件如何与其他安全工具配合](#how-the-plugin-fits-with-other-security-tools)。
 
 <h2 id="prerequisites">
   前置条件
@@ -18,10 +18,23 @@ Claude Security 插件在 Claude Code 会话中运行代码库的多代理漏洞
 
 要运行该插件，您需要：
 
-* 付费计划，用于扫描用来编排其代理的[动态工作流](/docs/zh-CN/workflows)。在 Pro 上，从 `/config` 中的"动态工作流"行启用它们。
-* Python 3.9 或更高版本在您的 `PATH` 上可用，名称为 `python3`。使用 `python3 --version` 检查。该插件的工具仅使用 Python 标准库，因此不会安装任何内容。
+* 付费计划、Anthropic API 访问权限或[第三方提供商](#models-and-providers)，用于扫描使用的[动态工作流](/docs/zh-CN/workflows)来编排其代理。在 Pro 版本上，从 `/config` 中的"Dynamic workflows"行启用它们。
+* Python 3.9 或更高版本，在您的 `PATH` 中以 `python3` 的形式可用。使用 `python3 --version` 检查。该插件的工具仅使用 Python 标准库，因此无需安装任何内容。
 * Linux、macOS 或 Windows。
-* Git，用于更改扫描和将发现转化为补丁；这些任务不支持其他版本控制系统。完整扫描在任何目录中都有效，无论是否有版本控制。
+* Git，用于变更扫描和将发现结果转换为补丁；这些任务不支持其他版本控制系统。完整扫描可在任何目录中工作，无论是否有版本控制。
+
+<h2 id="models-and-providers">
+  模型和提供商
+</h2>
+
+扫描在您的 Claude Code 会话中运行。该插件本身不进行模型调用，因此没有单独的 API 密钥或提供商设置需要配置。
+
+* **模型**：搜索漏洞、验证发现、编写和审查补丁的代理在[您会话的模型](/docs/zh-CN/sub-agents#choose-a-model)上运行。要更改它，请在开始扫描前在您的会话中运行[`/model`](/docs/zh-CN/model-config#setting-your-model)。一些支持步骤，例如映射存储库，改为使用[`sonnet` 别名](/docs/zh-CN/model-config#model-aliases)。
+* **提供商**：扫描在付费计划上运行，具有 Anthropic API 访问权限，或在[第三方提供商](/docs/zh-CN/third-party-integrations)上运行，例如 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)。
+
+在第三方提供商上，`sonnet` 别名可能解析为与 Anthropic API 上不同的版本。如果您的账户无法使用该版本，请[固定您的模型版本](/docs/zh-CN/model-config#pin-models-for-third-party-deployments)，包括 `ANTHROPIC_DEFAULT_SONNET_MODEL`。
+
+[自动模型回退](/docs/zh-CN/model-config#automatic-model-fallback)重新运行被模型的安全防护标记的请求。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，根据[您的部署设置方式](/docs/zh-CN/model-config#enable-fallback-on-bedrock-agent-platform-and-foundry)，请求可能以拒绝消息结束。
 
 <h2 id="install-the-plugin">
   安装插件
@@ -156,7 +169,7 @@ Claude Security 插件是深度扫描层，在纵深防御堆栈中，与[securi
 
 **`/claude-security` 菜单打开时出现 Python 警告。** 该插件需要 `python3` 3.9 或更高版本在您的 `PATH` 上。当它根本找不到 `python3` 时，菜单警告 Claude Security 在安装一个之前不会工作；当您的 `PATH` 上的第一个 `python3` 较旧时，警告会命名它找到的版本。安装 Python 3，或在您的 `PATH` 上放置一个较新的 `python3`，然后启动一个新会话。
 
-**使用 Fable 模型扫描时，您可能会看到"safeguards flagged this message"通知。** 该消息命名模型，例如"Fable 5.1's safeguards flagged this message"。Fable 的网络安全安全分类器标记某些请求，Claude Code 通过[自动模型回退](/docs/zh-CN/model-config#automatic-model-fallback)在 Opus 模型上重新运行标记的请求。这是预期的，扫描应该仍然成功完成。
+**使用 Fable 模型扫描时，您可能会看到"safeguards flagged this message"通知。** 该消息命名您正在运行的模型。Fable 的网络安全安全分类器标记某些请求，Claude Code 通过[自动模型回退](/docs/zh-CN/model-config#automatic-model-fallback)在 Opus 模型上重新运行标记的请求。这是预期的。当请求重新运行时，扫描应该仍然成功完成。
 
 <h2 id="related-resources">
   相关资源

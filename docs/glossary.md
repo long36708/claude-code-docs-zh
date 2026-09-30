@@ -56,7 +56,7 @@ Claude 为每个任务所经历的循环：收集上下文、采取行动、验�
   Artifact
 </h3>
 
-Claude Code 从您的会话发布到 claude.ai 上私有 URL 的实时交互式网页，因此您可以直观地查看输出或共享它，而不是阅读终端文本。当会话重新发布时，页面会就地更新。您从 Claude Code 创建的 Artifacts 出现在与 claude.ai 对话中创建的 artifacts 相同的库中。共享取决于您的计划：在 Pro 和 Max 上，任何人都可以打开的公开链接；在 Team 和 Enterprise 上，在您的组织内共享，以及一旦所有者启用它们就可以公开链接。
+Claude Code 从您的会话发布到 claude.ai 上私有 URL 的实时交互式网页，因此您可以直观地查看输出或共享它，而不是阅读终端文本。当会话重新发布时，页面会就地更新。您从 Claude Code 创建的 Artifacts 出现在与 claude.ai 对话中创建的 artifacts 相同的库中。共享选项取决于您的计划：请参阅[共享 artifact](/docs/zh-CN/artifacts#share-an-artifact)。
 
 了解更多：[将会话输出共享为 artifacts](/docs/zh-CN/artifacts)
 

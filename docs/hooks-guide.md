@@ -196,7 +196,7 @@ Hooks 让你在 Claude Code 生命周期中的关键点运行代码：编辑后�
 | `elicitation_url_dialog` | MCP 服务器要求你打开浏览器 URL，且你约六秒内没有输入 |
 | `elicitation_complete` | MCP 服务器报告[URL 模式引导](/docs/zh-CN/hooks#elicitation-input)已完成 |
 | `elicitation_response` | MCP 引导响应被发送回服务器 |
-| `agent_needs_input` | 后台会话开始等待你的输入，同时 [agent view](/docs/zh-CN/agent-view) 打开，或当前会话询问你一个[代理团队队友的终端设置问题](/docs/zh-CN/agent-teams#choose-a-display-mode)，且你约六秒内没有输入 |
+| `agent_needs_input` | 后台会话开始等待你的输入，同时 [agent view](/docs/zh-CN/agent-view) 打开。也在终端会话显示你一个[代理团队队友的终端设置问题](/docs/zh-CN/agent-teams#choose-a-display-mode)或自动模式的[分类器请求费用](/docs/zh-CN/auto-mode-classifier-billing)通知时触发，且你约六秒内没有输入 |
 | `agent_completed` | 后台会话完成或失败。仅在 [agent view](/docs/zh-CN/agent-view) 打开时触发 |
 | `quota_auto_resume_fired` | Claude Code 在 claude.ai 使用限制暂停后继续你的任务：在重置时，或更早当你在等待期间在 Claude Code 中做的某些事情（如添加使用额度、升级你的计划或切换模型）使使用量再次可用时，但有[模型设置例外](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset) |
 | `quota_auto_resume_stale` | claude.ai 使用限制在你的计算机睡眠超过约 30 分钟时重置。Claude Code 等待你按 `Enter` 而不是继续。在较短的睡眠后它继续并改为触发 `quota_auto_resume_fired` |

@@ -356,6 +356,8 @@ Claude Desktop 在嵌入式 Claude Code 会话上运行其 Cowork 和 Code 选�
 
 仅运行 Claude Desktop 的机器需要它。Claude Desktop 将模型列表和禁用工具列表应用于嵌入式会话本身，但出口允许列表仅作为父设置到达它们，形式为 `WebFetch` 域规则和沙箱网络规则。没有选择加入，这些会话运行时没有出口限制，没有任何警告。网关仍然拒绝策略未授予的模型的推理请求。
 
+插件市场允许列表也仅作为父设置到达嵌入式会话。当您在 Claude Desktop 的托管配置中关闭用户添加的插件市场时，Claude Desktop 2.16120.0 或更高版本隐藏您的组织未配置的市场，并拒绝从它们安装。要停止嵌入式会话加载已从这些市场安装的插件，它将 `strictKnownMarketplaces` 列表作为父设置发送给它们。没有选择加入，Claude Code 忽略该列表，这些插件继续加载。
+
 开发人员通过 `/login` 登录的机器不需要它；每个 Claude Code 会话从网关获取其策略。
 
 其[`policyHelper`](/docs/zh-CN/settings-reference#policyhelper)提供托管设置的舰队无法使用它：Claude Code 从不在这些舰队上合并父设置，因为它仅从助手的输出读取托管设置。
@@ -451,7 +453,7 @@ hooks 锁和 `allowManagedPermissionRulesOnly` 对开发人员自己规则的影
 * **`forceLoginOrgUUID`**：当最高优先级管理员源未设置组织 UUID 时，Claude Code 尊重父提供的值。网关登录不检查此密钥。最高优先级管理员源中的组织 UUID 阻止父的值，是 Claude Code 强制执行的值。
 * **`allowedMcpServers`**：当最高优先级管理员源未设置允许列表时，Claude Code 尊重父提供的允许列表，`allowManagedMcpServersOnly` 不阻止它，因为锁强制执行任何赢家列表作为托管值，包括当最高优先级管理员源未设置时的父提供列表。最高优先级管理员源中的列表阻止父的并是 Claude Code 强制执行的列表，因此在那里设置 `allowedMcpServers`，在锁旁边。在 v2.1.223 之前，任何管理员源中任一密钥的值都阻止父的。
 * **`availableModels`**：当赢家托管源未设置模型列表时，Claude Code 尊重父提供的模型列表。如果您的舰队限制模型，在赢家源中设置 `availableModels`。
-* **`strictKnownMarketplaces`**：当赢家托管源未设置一个时，Claude Code 尊重父提供的插件市场允许列表。如果您的舰队限制市场，在赢家源中设置 `strictKnownMarketplaces`。需要 Claude Code v2.1.282 或更高版本。
+* **`strictKnownMarketplaces`**：当赢家托管源未设置一个时，Claude Code 尊重父提供的插件市场允许列表。Claude Desktop 2.16120.0 或更高版本在其托管配置关闭用户添加的插件市场时发送一个。如果您的舰队限制市场，在赢家源中设置 `strictKnownMarketplaces`。需要 Claude Code v2.1.282 或更高版本。
 * **`blockedMarketplaces`**：父提供的市场阻止列表通过并添加到任何托管源设置的阻止列表，因为阻止列表只能进一步限制。需要 Claude Code v2.1.282 或更高版本。
 * **`strictPluginOnlyCustomization`**：此密钥无论任何锁都通过过滤器，它使 Claude Code 忽略开发人员的自己定制，包括保护性 hooks。没有锁阻止它。
 

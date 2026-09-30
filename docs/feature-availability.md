@@ -312,7 +312,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 | [Computer use](/docs/zh-CN/computer-use) | ✓ | ✓ | ✗ | ✗ |
 | Dispatch ([Desktop](/docs/zh-CN/desktop#sessions-from-dispatch)) | ✓ | ✓ | ✗ | ✗ |
 | [Code Review](/docs/zh-CN/code-review) | ✗ | ✗ | ✓ | ✓ |
-| [Artifacts](/docs/zh-CN/artifacts) | ✓ | ✓ | ✓ | Admin-enabled |
+| [Artifacts](/docs/zh-CN/artifacts) | ✓ | ✓ | ✓ | ✓ |
 | [分析仪表板和贡献指标](/docs/zh-CN/analytics) | ✗ | ✗ | ✓ | ✓ |
 | [Enterprise Analytics API](/docs/zh-CN/analytics#access-data-programmatically) | ✗ | ✗ | ✗ | ✓ |
 | [Server-managed settings](/docs/zh-CN/server-managed-settings) | ✗ | ✗ | ✓ | ✓ |

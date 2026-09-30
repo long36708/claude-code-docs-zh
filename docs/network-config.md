@@ -208,23 +208,25 @@ Claude Code 运行四个独立的计时器，当流式模型响应变得安静�
 | 计时器 | 中止条件 | 运行位置 | 默认超时 |
 | :- | :- | :- | :- |
 | 首字节截止时间 | Claude Code 发送请求后没有响应头到达 | 直接 Anthropic API 和 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws)，包括通过 HTTPS 代理，但不包括当 `ANTHROPIC_BASE_URL` 或 `ANTHROPIC_AWS_BASE_URL` 通过 [gateway](/docs/zh-CN/gateways) 路由时。在 Amazon Bedrock 上可选，使用 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1`；不在 Google Cloud 的 Agent Platform 或 Microsoft Foundry 上运行 | 直接 Anthropic API 上为 180 秒，其他地方为 300 秒，加上每 32KB 请求体一秒 |
-| 事件级监视器 | 没有响应事件解析。在运行字节级监视器的连接上，到达的字节（包括保活 ping）也会重置此监视器，最多约五分钟内没有解析的事件 | 每个提供商 | 300 秒 |
-| 字节级监视器 | 网络上没有字节到达，包括 SSE 保活 ping | 直接 Anthropic API、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 和 [gateway](/docs/zh-CN/gateways) 连接，包括自定义 `ANTHROPIC_BASE_URL`。在 Amazon Bedrock `vnd.amazon.eventstream` 响应上可选，使用 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1`；不在 Google Cloud 的 Agent Platform 或 Microsoft Foundry 上运行 | 直接 Anthropic API 上为 180 秒，其他地方为 300 秒 |
-| 正文空闲超时 | 5 分钟内没有字节到达 | 除直接 Anthropic API 和 Claude Platform on AWS 之外的提供商，除非 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/env-vars) 改变这一点 | 5 分钟 |
+| 事件级监视器 | 没有响应事件解析。在字节级监视器运行在 Amazon Bedrock 以外的连接上的情况下，到达的字节（包括保活 ping）也会重置此监视器，最多约五分钟内没有解析的事件 | 每个提供商 | 300 秒 |
+| 字节级监视器 | 线路上没有字节到达，包括 SSE 保活 ping | 直接 Anthropic API、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 和 [gateway](/docs/zh-CN/gateways) 连接，包括自定义 `ANTHROPIC_BASE_URL`。在 Amazon Bedrock `vnd.amazon.eventstream` 响应上可选，使用 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1`；不在 Google Cloud 的 Agent Platform 或 Microsoft Foundry 上运行 | 直接 Anthropic API 上为 180 秒，其他地方为 300 秒 |
+| 主体空闲超时 | 5 分钟内没有字节到达 | 除了直接 Anthropic API、Claude Platform on AWS 和设置了 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1` 的 Amazon Bedrock 之外的提供商，除非 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/env-vars) 改变这一点 | 5 分钟 |
 
-使用这些变量配置计时器，每个都在 [环境变量参考](/docs/zh-CN/env-vars) 中详细说明：
+如果设置 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1`，字节级监视器会在 Bedrock 上替换主体空闲超时，而不是与其并行运行。`CLAUDE_STREAM_IDLE_TIMEOUT_MS` 随后也会控制 Bedrock 流在 Claude Code 将连接视为死连接之前可以保持沉默多长时间，在下面列出的限制范围内。到达的字节仍然不会在 Bedrock 上重置事件级监视器。启用调试日志后，每个 Bedrock 流随后会记录一条以 `wire-heartbeat: _chunkTimes absent` 开头的调试消息。
 
-* `CLAUDE_ENABLE_STREAM_WATCHDOG` 和 `CLAUDE_ENABLE_BYTE_WATCHDOG` 在表列出的连接范围内，用 `1` 强制打开相应的监视器或用 `0` 关闭；这两个变量都不会将监视器扩展到它不覆盖的连接类型。`CLAUDE_ENABLE_BYTE_WATCHDOG` 设置为 `0` 也会关闭首字节截止时间。
+使用这些变量配置计时器，每个变量在 [环境变量参考](/docs/zh-CN/env-vars) 中详细说明：
+
+* `CLAUDE_ENABLE_STREAM_WATCHDOG` 和 `CLAUDE_ENABLE_BYTE_WATCHDOG` 在表列出的连接范围内，使用 `1` 强制打开相应的监视器或使用 `0` 关闭；这两个变量都不会将监视器扩展到它不覆盖的连接类型。`CLAUDE_ENABLE_BYTE_WATCHDOG` 设置为 `0` 也会关闭首字节截止时间。
 * `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 设置两个监视器的超时。Claude Code 将低于 5 分钟的值提高到 5 分钟，并将字节级监视器的值上限设为 30 分钟。
 * `CLAUDE_BYTE_STREAM_IDLE_TIMEOUT_MS` 设置字节级监视器的超时，而不改变事件级监视器的超时，限制在 10 秒到 30 分钟之间，并优先于 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 用于该监视器。
-* `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` 直接设置首字节截止时间。保持未设置状态，Claude Code 使用字节级监视器的超时，因此 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 和 `CLAUDE_BYTE_STREAM_IDLE_TIMEOUT_MS` 也会改变截止时间。有关限制、上传限额、`API_TIMEOUT_MS` 上限以及重试在无响应中止后等待多长时间，请参阅 [No response from API](/docs/zh-CN/errors#no-response-from-api)。
-* `API_FORCE_IDLE_TIMEOUT` 设置为 `0` 会关闭正文空闲超时，设置为 `1` 会为每个提供商打开它。监视器独立于它运行，因此要让流暂停超过其阈值，还要提高或禁用它们。
+* `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` 直接设置首字节截止时间。保持未设置状态，Claude Code 使用字节级监视器的超时，因此 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 和 `CLAUDE_BYTE_STREAM_IDLE_TIMEOUT_MS` 也会改变截止时间。有关限制、上传额度、`API_TIMEOUT_MS` 上限以及重试在无响应中止后等待多长时间，请参阅 [API 无响应](/docs/zh-CN/errors#no-response-from-api)。
+* `API_FORCE_IDLE_TIMEOUT` 设置为 `0` 会关闭主体空闲超时，设置为 `1` 会为每个提供商打开它。监视器独立于它运行，因此要让流暂停超过其阈值，也要提高或禁用它们。
 
-当监视器中止停滞的流时，Claude Code 将中止视为中流失败，您看到的内容取决于响应已进行到多远。Claude Code 重试请求或以错误结束轮次，保留已完成的输出并显示 [不完整响应通知](/docs/zh-CN/errors#the-response-above-may-be-incomplete)，或正常结束轮次。[自动重试](/docs/zh-CN/errors#automatic-retries) 说明每个结果适用的位置。
+当监视器中止停滞的流时，Claude Code 将中止视为中流失败，你看到的内容取决于响应已进行到多远。Claude Code 重试请求或以错误结束轮次，保留已完成的输出并显示 [不完整响应通知](/docs/zh-CN/errors#the-response-above-may-be-incomplete)，或正常结束轮次。[自动重试](/docs/zh-CN/errors#automatic-retries) 说明每个结果适用的位置。
 
-在 [非交互式会话](/docs/zh-CN/headless) 中，以及在任何会话中的子代理响应中，Claude Code 可能首先提示 Claude 继续被截断的响应；[该通知的条目](/docs/zh-CN/errors#the-response-above-may-be-incomplete) 说明何时执行此操作以及何时您仍然看到通知。
+在 [非交互式会话](/docs/zh-CN/headless) 中，以及在任何会话中的子代理响应中，Claude Code 可能首先提示 Claude 继续被切断的响应；[该通知的条目](/docs/zh-CN/errors#the-response-above-may-be-incomplete) 说明何时执行此操作以及何时仍然看到通知。
 
-当首字节截止时间触发时，没有响应已开始，因此没有部分输出要保留。有关 Claude Code 如何重新发送请求以及何时轮次改为结束，请参阅 [No response from API](/docs/zh-CN/errors#no-response-from-api)。
+当首字节截止时间触发时，没有响应已开始，因此没有部分输出可保留。有关 Claude Code 如何重新发送请求以及何时轮次改为结束，请参阅 [API 无响应](/docs/zh-CN/errors#no-response-from-api)。
 
 <h2 id="network-access-requirements">
   网络访问要求
@@ -277,7 +279,7 @@ Anthropic 托管环境中的 [Web 上的 Claude Code](/docs/zh-CN/claude-code-on
 
 如果您的 GitHub Enterprise Cloud 组织按 IP 地址限制访问，请启用[已安装 GitHub App 的 IP 白名单继承](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps)，并且还要[添加白名单条目](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address)以用于 Anthropic 的[出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses)。继承仅涵盖 Claude GitHub App 作为安装进行的请求，不涵盖它代表您的用户进行的请求。对于其他防火墙，请参阅 [Anthropic API IP 地址](https://platform.claude.com/docs/en/api/ip-addresses)。
 
-对于防火墙后的自托管 [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 实例，白名单 Anthropic 的[出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses)，以便 Anthropic 基础设施可以访问您的 GHES 主机来克隆存储库和发布审查评论。[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#configure-git)中的会话从您的网络内部访问您的 GHES 主机，因此该暴露仅适用于 Anthropic 托管会话、托管的会话前流程（如存储库选择器）以及选择加入 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)的自托管运行程序，该代理从 Anthropic 一侧获取。对于仅在您的网络内可路由的 GHES 主机，[SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags)通过出站连接而不是白名单来承载托管的会话前流程，因此不需要白名单。
+对于防火墙后的自托管 [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 实例，白名单 Anthropic 的[出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses)，以便 Anthropic 基础设施可以访问您的 GHES 主机来克隆存储库和发布审查评论。[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#configure-git)中的会话从您的网络内部访问您的 GHES 主机，因此该暴露仅适用于 Anthropic 托管会话、托管的会话前流程（如存储库选择器）以及选择加入 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)的自托管运行程序，该代理从 Anthropic 一侧获取。[SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags)不可用，因此托管的会话前流程无法访问仅在您的网络内可路由的 GHES 主机。
 
 <h3 id="desktop-and-claude-ai">
   Desktop 和 claude.ai

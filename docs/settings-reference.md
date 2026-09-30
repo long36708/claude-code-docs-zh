@@ -595,6 +595,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`agent`](#agent) | 将每个会话作为具有其提示、工具和模型的命名[子代理](/docs/zh-CN/sub-agents)启动 | 代理、会话和工作树 | Any file |
 | [`agentPushNotifEnabled`](#agentpushnotifenabled) | 让 Claude 在决定时向您的手机发送[推送通知](/docs/zh-CN/remote-control#mobile-push-notifications) | 远程、桌面和通知 | Any file |
 | [`allowAllClaudeAiMcps`](#allowallclaudeaimcps) | 加载[claude.ai 连接器](/docs/zh-CN/mcp)，Claude Code 与部署的 [`managed-mcp.json`](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json) 一起自行获取 | MCP | Managed |
+| [`allowClaudeInChromeWithManagedMcp`](#allowclaudeinchromewithmanagedmcp) | 让内置的[Chrome 中的 Claude](/docs/zh-CN/chrome)服务器与部署的 [`managed-mcp.json`](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json) 一起运行 | MCP | Managed |
 | [`allowedChannelPlugins`](#allowedchannelplugins) | 替换可以推送消息的[频道插件](/docs/zh-CN/channels#restrict-which-channel-plugins-can-run)的默认允许列表 | 插件和技能 | Managed |
 | [`allowedHttpHookUrls`](#allowedhttphookurls) | 限制[HTTP hooks](/docs/zh-CN/hooks)可以针对的 URL | Hooks 和自动化 | Any file |
 | [`allowedMcpServers`](#allowedmcpservers) | 允许列表用户可以添加的[MCP 服务器](/docs/zh-CN/mcp) | MCP | Any file |
@@ -3062,6 +3063,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 </h4>
 
 * 此处的值覆盖在您的 shell 中导出的相同变量，当多个设置文件设置一个变量时，[最高优先级](/docs/zh-CN/settings#settings-precedence)的值适用。[Claude Code 在 `env` 中忽略的变量](#variables-claude-code-ignores-in-env)列出了项目和本地设置的例外。
+* 当 Claude Desktop 应用或[自托管环境](/docs/zh-CN/self-hosted-environments)运行器启动会话时，它构建的启动环境优先：Claude Code 忽略任何设置文件中的 `env` 值，用于启动环境已经设置的变量。[调试日志](/docs/zh-CN/debug-your-config)命名每个被忽略的变量。
 * 要取消 shell 导出，将变量设置为 `""`。Claude Code 将空值视为提供程序选择的未设置，子进程继承空值。
 * `NO_COLOR` 和 `FORCE_COLOR` 在此处设置仅到达子进程。要更改 Claude Code 自己的界面颜色，请在启动 `claude` 之前在您的 shell 中设置它们。
 * 此处的值是设置文件中的纯文本，到达 Claude Code 启动的每个子进程。对于轮换的 OTLP 承载令牌，使用 [`otelHeadersHelper`](#otelheadershelper)；对于 API 凭证，使用 [`apiKeyHelper`](#apikeyhelper)。
@@ -5155,13 +5157,33 @@ Claude Code 忽略项目和本地条目，因为它将这些值替换到 plugin 
 
 [`allowedMcpServers`](#allowedmcpservers) 和 [`deniedMcpServers`](#deniedmcpservers) 仍然适用于此密钥加载的连接器。传递到[云会话](/docs/zh-CN/claude-code-on-the-web)的连接器，其主机携带 `managed-mcp.json`（例如自托管运行器），仍然会被禁止。请参阅[在托管集合旁边允许 claude.ai 连接器](/docs/zh-CN/managed-mcp#allow-claude-ai-connectors-alongside-the-managed-set)。
 
+<h3 id="allowclaudeinchromewithmanagedmcp">
+  `allowClaudeInChromeWithManagedMcp`
+</h3>
+
+让内置的 [Chrome 中的 Claude](/docs/zh-CN/chrome) 服务器在部署的 `managed-mcp.json` 旁边运行。如果没有此密钥，部署的 `managed-mcp.json` 会在终端会话中阻止 Chrome 中的 Claude。需要 Claude Code v2.1.282 或更高版本。
+
+* **作用域**: [`Managed`](#scopes)，仅来自设备自己的托管设置：MDM 部署的 plist 或 HKLM 注册表密钥，或系统 `managed-settings.json` 文件。Claude Code 在服务器托管的设置、用户可写的 HKCU 注册表以及用户或项目设置中忽略它。
+* **类型**: 布尔值
+  * `true`: 内置的 Chrome 中的 Claude 服务器可以在部署的 `managed-mcp.json` 旁边运行
+  * `false`: 部署的 `managed-mcp.json` 会在终端会话中阻止 Chrome 中的 Claude
+* **默认值**: `false`，因此部署的 `managed-mcp.json` 会在终端会话中阻止 Chrome 中的 Claude
+
+```json managed-settings.json theme={null}
+{
+  "allowClaudeInChromeWithManagedMcp": true
+}
+```
+
+[`deniedMcpServers`](#deniedmcpservers) 中的 `claude-in-chrome` 条目仍然会在此密钥打开时阻止服务器。请参阅[在托管集合旁边允许 Chrome 中的 Claude](/docs/zh-CN/managed-mcp#allow-claude-in-chrome-alongside-the-managed-set)。
+
 <h3 id="allowedmcpservers">
   `allowedMcpServers`
 </h3>
 
 允许列表化人们可以添加的 MCP 服务器。Claude Code 会阻止任何不匹配条目的服务器，无论在何处定义，包括插件服务器、使用 `--mcp-config` 传递的服务器以及来自 claude.ai 的服务器。
 
-内置服务器（例如 Chrome 中的 Claude、Claude Code 在运行的 [VS Code](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server) 或 [JetBrains](/docs/zh-CN/jetbrains#the-built-in-ide-mcp-server) IDE 中连接的 `ide` 服务器，以及 CLI 本身配置的服务器）不受允许列表的限制，拒绝列表仍然适用于它们。进程内 `type: "sdk"` 服务器不受两个列表的限制；[启动会话的应用](/docs/zh-CN/mcp#how-connectors-reach-claude-code)会注册它们。
+内置服务器（例如 Chrome 中的 Claude、Claude Code 在运行的 [VS Code](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server) 或 [JetBrains](/docs/zh-CN/jetbrains#the-built-in-ide-mcp-server) IDE 中连接的 `ide` 服务器，以及 CLI 本身配置的服务器）不受允许列表的限制，拒绝列表仍然适用于它们。在 Claude Code v2.1.268 或更高版本上，[Claude Tag](/docs/zh-CN/claude-tag) 会话的 Slack 工具也不受允许列表的限制，拒绝列表仍然适用于它们。进程内 `type: "sdk"` 服务器不受两个列表的限制；[启动会话的应用](/docs/zh-CN/mcp#how-connectors-reach-claude-code)会注册它们。
 
 您的组织提供的服务器也不受允许列表的限制，拒绝列表仍然适用于它们。豁免涵盖每个 [`managedMcpServers`](#managedmcpservers) 条目，以及任何 [`managed-mcp.json`](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json) 条目，其值不使用 `${VAR}` 扩展。有关完整的检查顺序，请参阅[如何评估服务器](/docs/zh-CN/managed-mcp#how-a-server-is-evaluated)。在 v2.1.259 之前，来自 `managed-mcp.json` 的服务器也必须匹配。
 
@@ -6302,11 +6324,11 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
   `disableSideloadFlags`
 </h3>
 
-在启动时拒绝 `--plugin-dir`、`--plugin-url`、`--agents` 和 `--mcp-config` CLI 标志，用户可能会传递这些标志来绕过 [`strictKnownMarketplaces`](#strictknownmarketplaces) 进行单次运行。Claude Code 会以错误退出并命名被拒绝的标志，并对在内部使用这些标志启动 CLI 的表面应用相同的检查，目前在桌面应用中的 [Cowork](/docs/zh-CN/desktop) 本地会话。在[云会话](/docs/zh-CN/claude-code-on-the-web)中，Claude Code 会删除服务器通过 `--mcp-config` 传递的 MCP 服务器，除了进程内 `type: "sdk"` 条目，并启动会话。需要 Claude Code v2.1.193 或更高版本。
+在启动时拒绝 `--plugin-dir`、`--plugin-url`、`--agents` 和 `--mcp-config` CLI 标志，用户可能会传递这些标志来绕过 [`strictKnownMarketplaces`](#strictknownmarketplaces) 进行单次运行。Claude Code 会以错误退出并命名被拒绝的标志，并对在内部使用这些标志启动 CLI 的表面应用相同的检查，目前在桌面应用中的 [Cowork](/docs/zh-CN/desktop) 本地会话。在[云会话](/docs/zh-CN/claude-code-on-the-web)中，Claude Code 会启动会话并删除服务器通过 `--mcp-config` 传递的每个条目，除了进程内 `type: "sdk"` 条目和 [Claude Tag](/docs/zh-CN/claude-tag) 会话的 Slack 工具。需要 Claude Code v2.1.193 或更高版本。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: Boolean
-  * `true`: Claude Code 在启动时拒绝 `--plugin-dir`、`--plugin-url`、`--agents` 和 `--mcp-config`，并以错误退出并命名它们，除了在云会话中它删除服务器通过 `--mcp-config` 传递的 MCP 服务器，除了进程内 `type: "sdk"` 条目，并启动会话
+  * `true`: Claude Code 在启动时拒绝 `--plugin-dir`、`--plugin-url`、`--agents` 和 `--mcp-config`，并以错误退出并命名它们。在云会话中，它会启动会话并删除服务器通过 `--mcp-config` 传递的每个条目，除了进程内 `type: "sdk"` 条目和 Claude Tag 会话的 Slack 工具
   * `false`: Claude Code 接受这些标志
 * **Default**: `false`
 
@@ -6320,7 +6342,7 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 
 相同的检查涵盖在 [`CLAUDE_CODE_PLUGIN_DIRS`](/docs/zh-CN/env-vars#variables) 环境变量中命名的插件文件夹，这需要 Claude Code v2.1.280 或更高版本。当变量命名一个文件夹时，Claude Code 以相同的错误退出，错误说要取消设置该变量。
 
-在云会话中，Claude Code 也忽略服务器传递的中途 MCP 更新，云会话配置和 SDK `setMcpServers()` 调用背后的路径到达这些会话。进程内 `type: "sdk"` 条目在那里也保持豁免。在 v2.1.239 之前，服务器传递的 `--mcp-config` 阻止云会话启动。
+在云会话中，Claude Code 也忽略服务器传递的中途 MCP 更新，云会话配置和 SDK `setMcpServers()` 调用背后的路径到达这些会话。进程内 `type: "sdk"` 条目和 Claude Tag 会话的 Slack 工具在那里也保持豁免。在 v2.1.268 之前，这个删除和启动删除也删除了 Claude Tag 会话的 Slack 工具。在 v2.1.239 之前，服务器传递的 `--mcp-config` 阻止云会话启动。
 
 <h3 id="forceremotesettingsrefresh">
   `forceRemoteSettingsRefresh`

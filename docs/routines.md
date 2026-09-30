@@ -66,7 +66,7 @@ Routines 作为完整的 Claude Code 云会话自主运行：没有权限模式�
 
 在所有其他情况下，包括发布新 artifact，Claude 会先询问。当例程的工作是保持页面最新时，请给它一个您已经发布的 artifact。
 
-Routines 属于您的个人 claude.ai 账户。它们不与队友共享，并且计入您账户的每日运行配额。例程通过您连接的 GitHub 身份或 connectors 所做的任何事情都显示为您：提交和拉取请求携带您的 GitHub 用户，Slack 消息、Linear 票证或其他 connector 操作使用您为这些服务链接的账户。
+Routines 属于您的个人 claude.ai 账户。它们不与队友共享，并且其运行计入您账户的 [usage and limits](#usage-and-limits)。例程通过您连接的 GitHub 身份或 connectors 所做的任何事情都显示为您：提交和拉取请求携带您的 GitHub 用户，Slack 消息、Linear 票证或其他 connector 操作使用您为这些服务链接的账户。
 
 <h3 id="create-from-the-web">
   从 Web 创建
@@ -174,7 +174,7 @@ CLI 中的 `/schedule` 创建计划例程。要添加 API 触发器，请在 Web
 
 与定期计划相同的本地到 UTC 转换适用于一次性时间戳。
 
-一次性运行不计入每日例程运行上限。请参阅 [Usage and limits](#usage-and-limits) 了解详细信息。
+一次性运行计入与其他计划运行相同的每小时限制。请参阅 [Usage and limits](#usage-and-limits) 了解详细信息。
 
 <h3 id="add-an-api-trigger">
   添加 API 触发器
@@ -256,7 +256,7 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 GitHub 触发器在连接的存储库上发生匹配事件时自动启动新会话。Claude Code 不会跨事件重用会话，因此两个 PR 更新会产生两个独立会话。
 
 <Note>
-  在研究预览期间，GitHub webhook 事件受每个例程和每个账户的每小时上限限制。超过限制的事件被丢弃，直到窗口重置。在 [claude.ai/code/routines](https://claude.ai/code/routines) 查看您当前的限制。
+  GitHub webhook 事件受每个例程和每个账户的每小时上限限制。超过限制的事件被丢弃，直到窗口重置。
 </Note>
 
 Claude GitHub App 必须安装在您想订阅的存储库上，无论您从哪个表面配置触发器。
@@ -421,11 +421,21 @@ Connectors 是您账户上的 [claude.ai integrations](/docs/zh-CN/mcp#use-mcp-s
   使用和限制
 </h2>
 
-Routines 以与交互式会话相同的方式消耗订阅使用量。除了标准订阅限制外，routines 还对每个账户每天可以启动多少次运行有上限。在 [claude.ai/code/routines](https://claude.ai/code/routines) 或 [claude.ai/settings/usage](https://claude.ai/settings/usage) 查看您当前的消耗和剩余的每日 routine 运行次数。
+Routines 以与交互式会话相同的方式消耗订阅使用量。在 [claude.ai/settings/usage](https://claude.ai/settings/usage) 查看您当前的消耗。
 
-当 routine 达到每日上限或您的订阅使用限制时，启用了使用额度的组织可以继续在计量超额上运行 routines。没有使用额度，额外运行被拒绝，直到窗口重置。在 [claude.ai/settings/usage](https://claude.ai/settings/usage) 启用使用额度。在 Team 和 Enterprise 计划上，管理员在 [claude.ai/admin-settings/usage](https://claude.ai/admin-settings/usage) 为组织启用使用额度。
+除了订阅使用量外，每种启动运行的方式都有每小时限制：
 
-一次性运行不计入每日 routine 运行上限。它们像任何其他会话一样消耗您的常规订阅使用量。
+| 操作 | 限制 | 计数对象 | 超过限制 |
+| :- | :- | :- | :- |
+| 计划运行，包括一次性运行 | 每小时 100 次 | 您的账户 | 运行等待直到限制重置 |
+| **立即运行**、API 触发和设置一次性 routine 再次运行 | 每小时 30 次 | 每个 routine，三者共享一个计数 | 操作失败直到限制重置 |
+| **立即运行**和设置一次性 routine 再次运行 | 每小时 100 次 | 您的账户 | 相同 |
+| API 触发 | 每小时 100 次 | 您的账户，与**立即运行**分开计数 | 相同 |
+| GitHub 事件 | 见 [添加 GitHub 触发器](#add-a-github-trigger) | | |
+
+这些每小时限制都没有超额费用。
+
+当 routine 达到您的订阅使用限制时，启用了使用额度的组织可以继续在计量超额上运行 routines。没有使用额度，额外运行被拒绝，直到您的使用窗口重置。在 [claude.ai/settings/usage](https://claude.ai/settings/usage) 启用使用额度。在 Team 和 Enterprise 计划上，管理员在 [claude.ai/admin-settings/usage](https://claude.ai/admin-settings/usage) 为组织启用使用额度。
 
 当您的订阅暂停时，您的 routines 会被暂停并且不会运行。一旦您的订阅再次激活，请将它们重新打开。
 

@@ -528,6 +528,7 @@ AWS 请求在请求内容上携带 SigV4 签名，因此一起掩盖 `AWS_ACCESS
 
 * **默认写入行为**：对当前工作目录及其子目录的读写访问，加上使用 `--add-dir`、`/add-dir` 或 [`permissions.additionalDirectories`](/docs/zh-CN/settings-reference#permissions-additionaldirectories) 添加的任何目录，以及 `$TMPDIR` 指向的会话临时目录
 * **默认读取行为**：对整个计算机的读取访问，除了某些被拒绝的目录。注意此默认仍允许读取凭证文件，例如 `~/.aws/credentials` 和 `~/.ssh/`。使用 [`sandbox.credentials`](#protect-credentials) 阻止读取这些文件并取消设置密钥环境变量，或将路径添加到 `denyRead`。
+* **读取阻止**：启用 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 时，沙箱化命令也会失去对你的主目录和其他保存用户文件的目录的读取访问权限，除了 [Sandboxed commands under the block](/docs/zh-CN/settings-reference#sandboxed-commands-under-the-block) 列出的路径。该部分也说明了此阻止部分何时不适用。
 * **被阻止的访问**：无法在没有明确权限的情况下修改工作目录、添加的目录和会话临时目录外的文件，包括 shell 配置文件（例如 `~/.bashrc`）和 `/bin/` 中的系统二进制文件
 * **Git worktrees**：当工作目录是[链接的 git worktree](/docs/zh-CN/worktrees)时，沙箱还允许写入主存储库的共享 `.git` 目录，以便 `git commit` 等命令可以更新引用和索引。对该目录内的 `hooks/` 和 `config` 的写入仍然被拒绝。
 * **可配置**：通过设置定义自定义允许和拒绝的路径

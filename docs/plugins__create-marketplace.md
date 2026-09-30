@@ -126,7 +126,7 @@ plugin marketplace 是一个目录或仓库，包含一个 `.claude-plugin/marke
 
 你分发的每个 plugin 都是 `marketplace.json` 的 `plugins` 数组中的一个对象。要添加第二个 plugin，请添加第二个对象。这些字段涵盖了大多数条目：
 
-* `name`：人们在安装时在 `@` 之前输入的标识符。它不能包含空格。
+* `name`：人们在安装时在 `@` 之前输入的标识符。[Plugin 条目](/docs/zh-CN/plugins/marketplace-reference#plugin-entries)给出了名称可以使用的字符。
 * `source`：Claude Code 从哪里获取 plugin。对于 marketplace 目录内的 plugin，写一个相对路径字符串，如[演练](#create-a-marketplace)中所示，或对于目录外的 plugin，写一个源对象。请参阅[选择 plugin 源](#choose-a-plugin-source)。
 * `description`：人们在 `/plugin` 中浏览你的 marketplace 时在 plugin 旁边看到的行。
 
@@ -199,7 +199,7 @@ plugin 也可以来自以下源类型之一：
 
 * JSON 语法错误，如 `json: Invalid JSON syntax: <reason>`
 * 缺少必需字段，例如 `owner: Invalid input`
-* 包含空格、非 ASCII 字符或模仿官方 Anthropic marketplace 形式的 marketplace 名称，例如 `claude-official`
+* 违反[marketplace 参考](/docs/zh-CN/plugins/marketplace-reference#top-level-fields)中命名规则的 marketplace 或 plugin 名称
 * 包含 `..` 的相对 `source`
 * 顶级或 plugin 条目中的未知字段，作为警告
 * 每个相对路径 plugin 的 `plugin.json` 中的问题，如 `plugins[N] plugin.json → <field>: <message>`

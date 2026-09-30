@@ -30,7 +30,7 @@ Claude 使用每个 subagent 的描述来决定何时委托任务。创建 subag
   内置 subagents
 </h2>
 
-Claude Code 包括内置 subagents，Claude 在适当时自动使用。每个都继承父对话的权限；大多数运行时工具集受限。
+Claude Code 包括内置 subagents，Claude 在适当时自动使用。每个都继承父对话的权限规则；大多数运行时工具集受限。
 
 Explore 和 Plan 会跳过您的 CLAUDE.md 文件和 git 状态快照，以保持研究快速且成本低廉。所有其他内置和[自定义 subagent](#configure-subagents) 都会加载两者，除非其定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 字段以跳过用户、项目和本地 CLAUDE.md 文件。有关到达 subagent 的内容的完整分解，请参阅[启动时加载的内容](#what-loads-at-startup)。
 
@@ -802,7 +802,7 @@ hooks:
     - matcher: "Bash"
       hooks:
         - type: command
-          command: "./scripts/validate-command.sh $TOOL_INPUT"
+          command: "./scripts/validate-command.sh"
   PostToolUse:
     - matcher: "Edit|Write"
       hooks:
@@ -897,13 +897,13 @@ Have the code-reviewer subagent look at my recent changes
 
 您也可以手动输入提及而不使用选择器：`@agent-<name>` 用于本地 subagents，或 `@agent-` 后跟 plugin subagents 的作用域名称，例如 `@agent-my-plugin:code-reviewer`。当您输入这种形式时，类型提前显示文件匹配而不是 agents。当您提交时，agent 提及仍然会解析。
 
-**将整个会话作为 subagent 运行。** 传递 [`--agent <name>`](/docs/zh-CN/cli-reference) 以启动一个会话，其中主线程本身采用该 subagent 的系统提示、工具限制和模型：
+**将整个会话作为 subagent 运行。** 传递 [`--agent <name>`](/docs/zh-CN/cli-reference) 以启动一个会话，其中主线程本身采用该 subagent 的工具限制和模型：
 
 ```bash theme={null}
 claude --agent code-reviewer
 ```
 
-除非代理的 [提示为空](#choose-the-subagent-scope)，subagent 的系统提示完全替换默认 Claude Code 系统提示，就像 [`--system-prompt`](/docs/zh-CN/cli-reference) 一样。`CLAUDE.md` 文件和项目内存仍然通过正常消息流加载，即使代理的定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields)。代理名称在启动标题中显示为 `@<name>`，以便您可以确认它是活跃的。
+除非代理的 [提示为空](#choose-the-subagent-scope)，custom subagent 的系统提示完全替换默认 Claude Code 系统提示，就像 [`--system-prompt`](/docs/zh-CN/cli-reference) 一样。`CLAUDE.md` 文件和项目内存仍然通过正常消息流加载，即使代理的定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields)。代理名称在启动标题中显示为 `@<name>`，以便您可以确认它是活跃的。
 
 这适用于内置和自定义 subagents，当您恢复会话时选择会持续：Claude Code 恢复代理的工具限制和模型以及对话。如果代理在您恢复时不再存在，会话继续使用默认工具并显示 [警告命名代理](/docs/zh-CN/errors#session-agent-no-longer-available)。对于任一情况下的系统提示，请参阅 [已恢复对话中的系统提示标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。
 

@@ -31,7 +31,7 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 
 | 模式 | 功能 | 配置 |
 | :- | :- | :- |
-| **禁用 MCP** | 不加载任何服务器，除了[启动会话的应用程序注册的进程内服务器](#exclusive-control-with-managed-mcp-json)和任何你[通过 `managedMcpServers` 提供的服务器](#provide-servers-through-managed-settings) | 使用空服务器映射的 `managed-mcp.json` |
+| **禁用 MCP** | 不加载任何服务器，除了[在独占控制下加载](#exclusive-control-with-managed-mcp-json)的少数几个 | 使用空服务器映射的 `managed-mcp.json` |
 | **固定部署** | 每个用户获得相同的服务器，无法添加其他服务器 | 包含你想要的服务器的 `managed-mcp.json` |
 | **提供的服务器** | 每个用户获得你列出的远程服务器，并保留他们自己的服务器 | 托管设置中的 `managedMcpServers` |
 | **批准的目录** | 发布批准的服务器列表；用户添加他们想要的服务器，其他任何内容都被阻止 | `allowedMcpServers` + `allowManagedMcpServersOnly: true` |
@@ -48,13 +48,14 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
   使用 managed-mcp.json 进行独占控制
 </h2>
 
-当你部署 `managed-mcp.json` 文件时，Claude Code 仅加载以下 MCP 服务器：
+当你部署 `managed-mcp.json` 文件时，Claude Code 仅加载这些 MCP 服务器：
 
 * 该文件定义的服务器
 * 你[通过 `managedMcpServers` 提供的服务器](#provide-servers-through-managed-settings)
-* 启动会话的应用注册的进程内服务器，例如 VS Code 扩展自己的服务器或[桌面应用提供的连接器](/docs/zh-CN/mcp#how-connectors-reach-claude-code)
+* 启动会话的应用程序注册的进程内服务器，例如 VS Code 扩展自己的服务器或[桌面应用程序提供的连接器](/docs/zh-CN/mcp#how-connectors-reach-claude-code)
+* 内置的[Chrome 中的 Claude](/docs/zh-CN/chrome) 服务器，如果你[允许它与托管集合一起使用](#allow-claude-in-chrome-alongside-the-managed-set)
 
-用户无法添加、修改或使用任何其他 MCP 服务器，包括插件提供的服务器和通过 [`--mcp-config` CLI 标志](/docs/zh-CN/cli-reference#cli-flags)传递的服务器。该文件还会抑制 Claude Code 自身获取的 claude.ai 连接器，除非你[允许它们与托管集合一起使用](#allow-claude-ai-connectors-alongside-the-managed-set)。
+用户无法添加、修改或使用任何其他 MCP 服务器，包括插件提供的服务器和通过 [`--mcp-config` CLI 标志](/docs/zh-CN/cli-reference#cli-flags)传递的服务器。该文件还会禁止 Claude Code 自身获取的 claude.ai 连接器，除非你[允许它们与托管集合一起使用](#allow-claude-ai-connectors-alongside-the-managed-set)。
 
 <h3 id="deploy-managed-mcp-json">
   部署 managed-mcp.json
@@ -62,7 +63,7 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 
 `managed-mcp.json` 是一个独立文件，因此无法通过[服务器管理的设置](/docs/zh-CN/server-managed-settings)交付。要通过托管设置交付服务器而不进行独占控制，请使用 [`managedMcpServers`](#provide-servers-through-managed-settings)。
 
-任何可以以管理员权限写入系统路径的进程都可以部署该文件。在整个机队中，这通常通过设备管理工具进行，例如 macOS 上的 Jamf 或配置文件、Windows 上的组策略或 Intune，或 Linux 上你选择的机队管理工具。Claude Code 在以下路径之一查找该文件：
+任何可以以管理员权限写入系统路径的进程都可以部署该文件。在整个机队中，这通常通过设备管理工具完成，例如 macOS 上的 Jamf 或配置文件、Windows 上的组策略或 Intune，或 Linux 上你选择的机队管理工具。Claude Code 在以下路径之一查找该文件：
 
 | 平台 | 路径 |
 | :- | :- |
@@ -99,20 +100,20 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
   使用按用户凭证进行身份验证
 </h3>
 
-机器上的任何用户都可以读取此文件，因此不要在 `env` 块中存储 API 密钥或其他凭证。改用以下方式之一传递按用户凭证：
+机器上的任何用户都可以读取此文件，因此不要在 `env` 块中存储 API 密钥或其他凭证。改为使用以下方式之一传递按用户凭证：
 
-* [使用 `${VAR}` 扩展](/docs/zh-CN/mcp#environment-variable-expansion-in-mcp-json)从每个用户的环境中读取机密。
-* [OAuth 或按用户标头](/docs/zh-CN/mcp#authenticate-with-remote-mcp-servers)，以便每个用户以自己的身份进行身份验证。
+* [`${VAR}` 扩展](/docs/zh-CN/mcp#environment-variable-expansion-in-mcp-json)从每个用户的环境中读取机密。
+* [OAuth 或按用户标头](/docs/zh-CN/mcp#authenticate-with-remote-mcp-servers)使每个用户以自己的身份进行身份验证。
 * [`headersHelper`](/docs/zh-CN/mcp#use-dynamic-headers-for-custom-authentication)在连接时生成凭证。
 
 <h3 id="servers-passed-with-mcp-config-or-strict-mcp-config">
   通过 `--mcp-config` 或 `--strict-mcp-config` 传递的服务器
 </h3>
 
-当会话在部署 `managed-mcp.json` 时通过 `--mcp-config` 接收服务器时，用户看到的内容在工作站和云会话之间有所不同：
+当会话通过 `--mcp-config` 接收服务器，同时部署了 Claude Code 可以读取和解析的 `managed-mcp.json` 时，用户看到的内容在工作站和云会话之间有所不同：
 
 * 在工作站上，Claude Code 在启动时退出，显示 `You cannot dynamically configure MCP servers when an enterprise MCP config is present`。
-* 在部署了该文件的主机上的[云会话](/docs/zh-CN/claude-code-on-the-web)中，例如[自托管运行器](/docs/zh-CN/self-hosted-environments-configuration#mcp-servers)，Claude Code 仅使用托管服务器启动，并跳过 claude.ai 连接器和云主机通过 `--mcp-config` 交付的其他服务器。会话中没有任何内容告诉用户哪些服务器被遗漏了。Claude Code 在其 stderr 上的警告中命名它们，自托管运行器在 `debug` 日志级别记录这些警告。
+* 在[云会话](/docs/zh-CN/claude-code-on-the-web)中，在部署了该文件的主机上，例如[自托管运行器](/docs/zh-CN/self-hosted-environments-configuration#mcp-servers)，Claude Code 仅使用托管服务器启动，并跳过 claude.ai 连接器和云主机通过 `--mcp-config` 交付的其他服务器。会话中没有任何内容告诉用户哪些服务器被遗漏了。Claude Code 在其 stderr 上以警告的形式命名它们，自托管运行器在 `debug` 日志级别记录这些警告。
 
 `--strict-mcp-config` 标志要求替换托管集合。如果用户在部署了这样的文件时传递它，Claude Code 在工作站和云会话中都会在启动时退出。
 
@@ -125,7 +126,7 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 * `deniedMcpServers` 也适用于托管服务器，因此与条目匹配的托管服务器将不会加载。
 * 用户自己的 `deniedMcpServers` 从他们的设置中合并，因此用户可以为自己阻止托管服务器。
 
-`allowedMcpServers` 不适用于 `managed-mcp.json` 中的服务器，有一个例外：Claude Code 仍然会检查其定义使用 [`${VAR}` 扩展](/docs/zh-CN/mcp#environment-variable-expansion-in-mcp-json)的服务器是否符合允许列表，因为该服务器的有效配置来自每个用户的环境而不是仅来自文件。在 v2.1.259 之前，每个托管服务器在设置了允许列表时都必须通过允许列表。有关哪些字段触发 `${VAR}` 检查和完整检查顺序，请参阅[如何评估服务器](#how-a-server-is-evaluated)。
+`allowedMcpServers` 不适用于 `managed-mcp.json` 中的服务器，有一个例外：Claude Code 仍然会针对允许列表检查其定义使用 [`${VAR}` 扩展](/docs/zh-CN/mcp#environment-variable-expansion-in-mcp-json)的服务器，因为该服务器的有效配置来自每个用户的环境而不仅仅来自文件。在 v2.1.259 之前，每个托管服务器在设置了允许列表时都必须通过允许列表。有关哪些字段触发 `${VAR}` 检查和完整检查顺序，请参阅[如何评估服务器](#how-a-server-is-evaluated)。
 
 如果你使用 `allowedMcpServers` 来防止你自己的某些 `managed-mcp.json` 服务器加载，那些服务器将在每个用户首次启动 v2.1.259 或更高版本时开始加载，除非它们使用 `${VAR}` 扩展，没有提示或通知：只有 `deniedMcpServers` 仍然从这些服务器中减去。在用户升级之前，为它们添加拒绝列表条目，或为每个组部署单独的 `managed-mcp.json`。
 
@@ -135,16 +136,16 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 
 要确认文件生效，请在托管机器上运行两项检查：
 
-1. `claude mcp list` 仅显示 `managed-mcp.json` 中的服务器，加上你通过 `managedMcpServers` 提供的任何服务器。两个其他结果意味着出现了问题：
-   * 如果用户自己的服务器仍然出现，Claude Code 未读取该文件，因此请检查其路径和父目录的权限。
-   * 如果文件的服务器未出现，且 `MCP config diagnostics` 部分将企业配置标记为无法解析，Claude Code 无法读取或解析该文件。修复该部分命名的错误，然后让用户重新启动 Claude Code。
+1. `claude mcp list` 仅显示 `managed-mcp.json` 中的服务器，加上你通过 `managedMcpServers` 提供的任何服务器。另外两个结果意味着出现了问题：
+   * 如果用户自己的服务器仍然出现，Claude Code 没有读取该文件，因此请检查其路径和父目录的权限。
+   * 如果文件的服务器没有出现，且 `MCP config diagnostics` 部分将企业配置标记为解析失败，Claude Code 无法读取或解析该文件。修复该部分命名的错误，然后让用户重新启动 Claude Code。
 2. `claude mcp add --transport http test https://example.com/mcp` 失败，显示 `Cannot add MCP server: enterprise MCP configuration is active and has exclusive control over MCP servers`。URL 不需要是真实服务器，因为策略检查在联系任何内容之前拒绝该命令。
 
 <h3 id="disable-mcp-entirely">
   完全禁用 MCP
 </h3>
 
-部署包含空服务器映射的 `managed-mcp.json` 以阻止除[启动会话的应用注册的进程内服务器](#exclusive-control-with-managed-mcp-json)之外的每个 MCP 服务器：
+部署包含空服务器映射的 `managed-mcp.json` 以阻止除[在独占控制下加载](#exclusive-control-with-managed-mcp-json)的服务器之外的每个 MCP 服务器：
 
 ```json theme={null}
 {
@@ -152,19 +153,29 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 }
 ```
 
-`claude mcp add` 失败，显示上面的企业策略错误。用户之前配置的服务器在下次启动会话时停止加载，没有警告说明策略是原因。你通过 `managedMcpServers` 提供的服务器仍在空映射下加载，因此也保持该密钥未设置以完全禁用 MCP。
+`claude mcp add` 失败，显示上述企业策略错误。用户之前配置的服务器在下次启动会话时停止加载，没有警告说明策略是原因。你通过 `managedMcpServers` 提供的服务器以及你允许与托管集合一起使用的任何其他内容仍然在空映射下加载，因此保持这些键未设置以完全关闭 MCP。
 
 <h3 id="allow-claude-ai-connectors-alongside-the-managed-set">
   允许 claude.ai 连接器与托管集合一起使用
 </h3>
 
-默认情况下，部署 `managed-mcp.json` 会抑制 Claude Code 自身获取的 [claude.ai 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)，包括管理员在 claude.ai 管理控制台中为组织配置的连接器。要将这些连接器与 `managed-mcp.json` 中的服务器一起加载，请在[托管设置源](/docs/zh-CN/admin-setup#decide-how-settings-reach-devices)中设置 `"allowAllClaudeAiMcps": true`。
+默认情况下，部署 `managed-mcp.json` 会禁止 Claude Code 自身获取的 [claude.ai 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)，包括管理员在 claude.ai 管理控制台中为组织配置的连接器。要将这些连接器与 `managed-mcp.json` 中的服务器一起加载，请在[托管设置源](/docs/zh-CN/admin-setup#decide-how-settings-reach-devices)中设置 `"allowAllClaudeAiMcps": true`。
 
-启用该设置后，Claude Code 加载与未部署 `managed-mcp.json` 时相同的 claude.ai 连接器。[允许列表和拒绝列表](#policy-based-control-with-allowlists-and-denylists)仍然适用于这些连接器，因此你可以使用 `deniedMcpServers` 阻止特定连接器。该设置仅影响 Claude Code 自身获取的 claude.ai 连接器；插件提供的服务器保持被抑制。
+启用该设置后，Claude Code 加载与未部署 `managed-mcp.json` 时相同的 claude.ai 连接器。[允许列表和拒绝列表](#policy-based-control-with-allowlists-and-denylists)仍然适用于这些连接器，因此你可以使用 `deniedMcpServers` 阻止特定的连接器。该设置仅影响 Claude Code 自身获取的 claude.ai 连接器；插件提供的服务器保持禁止。
 
-云会话和桌面应用的本地和 SSH 会话以另一种方式接收连接器，如[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code) 中所述。运行云会话的主机上的 `managed-mcp.json`，例如[自托管运行器主机](/docs/zh-CN/self-hosted-environments-configuration#mcp-servers)，无论你是否设置 `allowAllClaudeAiMcps`，都会抑制该会话的连接器。没有 `managed-mcp.json` 到达桌面应用交付给其本地和 SSH 会话的连接器。
+云会话和桌面应用程序的本地和 SSH 会话以另一种方式接收连接器，如[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code) 中所述。运行云会话的主机上的 `managed-mcp.json`，例如[自托管运行器主机](/docs/zh-CN/self-hosted-environments-configuration#mcp-servers)，无论你是否设置 `allowAllClaudeAiMcps`，都会禁止该会话的连接器。没有 `managed-mcp.json` 到达桌面应用程序交付给其本地和 SSH 会话的连接器。
 
-Claude Code 仅从管理员控制的策略层读取 `allowAllClaudeAiMcps`：服务器管理的设置、MDM 部署的 plist 或 HKLM 注册表密钥，或系统 `managed-settings.json` 文件。将其放在用户或项目设置中无效，因此用户无法重新启用独占控制抑制的连接器。
+Claude Code 仅从管理员控制的策略层读取 `allowAllClaudeAiMcps`：服务器管理的设置、MDM 部署的 plist 或 HKLM 注册表项，或系统 `managed-settings.json` 文件。将其放在用户或项目设置中无效，因此用户无法重新启用独占控制禁止的连接器。
+
+<h3 id="allow-claude-in-chrome-alongside-the-managed-set">
+  允许 Chrome 中的 Claude 与托管集合一起使用
+</h3>
+
+默认情况下，当你部署 `managed-mcp.json` 时，Claude Code 在终端会话中阻止内置的[Chrome 中的 Claude](/docs/zh-CN/chrome) 服务器。用户不会获得[扩展安装提示](/docs/zh-CN/chrome#install-the-extension-when-claude-asks)，以及用户[默认启用 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default) 的会话启动时不使用 Chrome 且不打印警告。当可以运行 Chrome 中的 Claude 的用户使用 `claude --chrome` 或 `CLAUDE_CODE_ENABLE_CFC=1` 启动它时，Claude Code 在启动时退出，显示命名 `allowClaudeInChromeWithManagedMcp` 设置的错误。
+
+要让用户在 `managed-mcp.json` 中的服务器旁边运行 Chrome 中的 Claude，请在设备自己的托管设置中设置 `"allowClaudeInChromeWithManagedMcp": true`。将其放在 MDM 部署的 plist 或 HKLM 注册表项中，或系统 `managed-settings.json` 文件中，无论 Claude Code 在该设备上[选择](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)哪个。需要 Claude Code v2.1.282 或更高版本。在 v2.1.282 之前，Claude Code 忽略该设置，启动错误读取 `You cannot dynamically configure MCP servers when an enterprise MCP config is present`。
+
+Claude Code 从这些设备源读取该设置，即使[服务器管理的设置](/docs/zh-CN/server-managed-settings)交付你的其余策略。它忽略服务器管理的设置本身、用户可写的 HKCU 注册表和用户或项目设置中的该设置。[`deniedMcpServers`](#policy-based-control-with-allowlists-and-denylists) 条目中的 `claude-in-chrome` 仍然会阻止该服务器，即使该设置已启用。
 
 <h2 id="provide-servers-through-managed-settings">
   通过托管设置提供服务器
@@ -303,7 +314,7 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 
 | 设置 | 未设置（默认） | 空数组 `[]` | 已填充 |
 | :- | :- | :- | :- |
-| `allowedMcpServers` | 允许所有服务器 | 不允许任何服务器，除了[组织自己的](#how-a-server-is-evaluated) | 仅允许匹配的服务器，除了[组织自己的](#how-a-server-is-evaluated) |
+| `allowedMcpServers` | 允许所有服务器 | 不允许任何服务器，除了[那些跳过允许列表检查的](#how-a-server-is-evaluated) | 仅允许匹配的服务器，除了[那些跳过允许列表检查的](#how-a-server-is-evaluated) |
 | `deniedMcpServers` | 不阻止任何服务器 | 不阻止任何服务器 | 阻止匹配的服务器 |
 
 有关条目未通过架构验证时会发生什么，请参阅[托管设置中的无效条目](/docs/zh-CN/managed-settings#invalid-entries-in-managed-settings)。
@@ -329,9 +340,13 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 2. **检查拒绝列表。** 与任何拒绝列表条目匹配的服务器（按 URL、命令或名称）被阻止。没有任何东西可以覆盖拒绝列表匹配。
 3. **检查允许列表。** 如果 `allowedMcpServers` 未在任何地方设置，每个通过拒绝列表的服务器都会加载。如果已设置，服务器必须匹配的内容取决于其类型，如下表所示。
 
-   组织自己的服务器跳过此检查：每个 `managedMcpServers` 条目，以及任何 `managed-mcp.json` 条目，其值不使用 `${VAR}` 展开。内置服务器也跳过它，例如 Chrome 中的 Claude、Claude Code 在运行的 VS Code 或 JetBrains IDE 中连接的 `ide` 服务器，以及 CLI 本身配置的服务器。
+   三组服务器跳过此检查：
 
-   使用 `${VAR}` 展开的 `managed-mcp.json` 服务器在其命令、参数、`env`、URL 或标头中仍会被检查，用户、插件、`--mcp-config` 或 claude.ai 添加的每个服务器也是如此。
+   * 组织自己的服务器：每个 `managedMcpServers` 条目，以及任何 `managed-mcp.json` 条目，其值不使用 `${VAR}` 展开。
+   * 内置服务器，例如 Chrome 中的 Claude、Claude Code 在运行的 VS Code 或 JetBrains IDE 中连接的 `ide` 服务器，以及 CLI 本身配置的服务器。
+   * [Claude Tag](/docs/zh-CN/claude-tag) 会话的 Slack 工具：它用来读取线程和发布回复的服务器无需允许列表条目即可加载。
+
+   使用 `${VAR}` 展开的 `managed-mcp.json` 服务器在其命令、参数、`env`、URL 或标头中仍会被检查。用户、插件或 claude.ai 添加的每个服务器也是如此，以及用户通过 `--mcp-config` 传递的每个服务器。
 
 | 服务器类型 | 匹配时允许 |
 | :- | :- |
@@ -514,6 +529,7 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 | 限制 | 用户看到的内容 |
 | :- | :- |
 | `managed-mcp.json` 存在且用户运行 `claude mcp add` | `Cannot add MCP server: enterprise MCP configuration is active and has exclusive control over MCP servers` |
+| `managed-mcp.json` 存在且可以在 Chrome 中运行 Claude 的用户运行 `claude --chrome` | Claude Code 在启动时退出，显示 `Claude in Chrome is blocked by your organization's managed MCP configuration (managed-mcp.json). An administrator can allow it with allowClaudeInChromeWithManagedMcp in device policy.` |
 | 服务器在拒绝列表上且用户运行 `claude mcp add` | `Cannot add MCP server "<name>": server is explicitly blocked by enterprise policy` |
 | 服务器不在允许列表上且用户运行 `claude mcp add` | `Cannot add MCP server "<name>": not allowed by enterprise policy` |
 | 用户在来自 `managedMcpServers` 的服务器上运行 `claude mcp remove` | `MCP server "<name>" is provided by your organization (managed settings) and cannot be removed locally.` |
@@ -541,6 +557,7 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 | `allowedMcpServers` | 允许的服务器允许列表 | 任何[设置范围](/docs/zh-CN/settings#where-settings-live)；[服务器如何被评估](#how-a-server-is-evaluated)说明来自多个范围和托管源的列表如何组合 | 为了强制执行，一个[托管设置源](/docs/zh-CN/admin-setup#decide-how-settings-reach-devices)：服务器管理的设置、`managed-settings.json`、MDM 配置文件或注册表 |
 | `deniedMcpServers` | 被阻止的服务器拒绝列表 | 任何设置范围；[服务器如何被评估](#how-a-server-is-evaluated)说明来自多个范围和托管源的列表如何组合 | 与 `allowedMcpServers` 相同 |
 | `allowManagedMcpServersOnly` | 将允许列表锁定为仅托管源 | 仅托管设置源；[从每个管理源读取的密钥](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)说明哪些托管源可以打开它。该设置在其他范围中无效 | 与 `allowedMcpServers` 相同 |
+| `allowClaudeInChromeWithManagedMcp` | 让内置的 Chrome 中的 Claude 服务器与 `managed-mcp.json` 一起运行 | 设备上的托管设置：MDM 配置文件、HKLM 注册表或 `managed-settings.json`。服务器管理的设置和用户可写源无效 | MDM、GPO、舰队管理或任何具有管理员权限的进程 |
 | `allowAllClaudeAiMcps` | 加载 claude.ai 连接器，Claude Code 自身与 `managed-mcp.json` 一起获取。[在运行云会话的主机上的 `managed-mcp.json` 仍然会抑制该会话的连接器](#allow-claude-ai-connectors-alongside-the-managed-set) | 仅托管设置源；该设置在其他地方无效 | 与 `allowedMcpServers` 相同 |
 
 <h2 id="related-resources">

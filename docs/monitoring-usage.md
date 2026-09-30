@@ -64,6 +64,8 @@ claude
 }
 ```
 
+在 Claude Desktop 应用中，Code 标签页会话从 [到达每种 Desktop 会话的源](/docs/zh-CN/desktop#managed-settings) 读取这些托管设置。Cowork 在管理员控制台的 [数据和隐私设置](https://claude.ai/admin-settings/data-privacy-controls) 中的 **监控** 下的 OpenTelemetry 表单仅适用于 Cowork 会话，因此终端 CLI 和 Code 标签页都不会导出到您在那里设置的收集器。
+
 Claude Code 忽略存储库的 `.claude/settings.json` 和 `.claude/settings.local.json` 中的 [OpenTelemetry 导出器变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)，因此存储库无法使用它们来打开遥测、选择其去向或捕获内容。在托管设置中设置它们，或让每个开发者在其 shell 或 `~/.claude/settings.json` 中设置它们。存储库仍然可以通过将其导出器选择器（如 `OTEL_LOGS_EXPORTER`）设置为 `none` 来关闭信号，除非托管设置、`--settings` 文件或启动 Claude Code 的环境设置了该变量。
 
 Claude Code 不会将 `OTEL_*` 环境变量传递给它生成的子进程，包括 Bash 工具、hooks、MCP 服务器和语言服务器。通过 Bash 工具运行的已进行 OpenTelemetry 检测的应用程序不会继承 Claude Code 的导出器端点或标头，因此如果该应用程序需要导出自己的遥测，请直接在命令中设置这些变量。
@@ -582,7 +584,9 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 | `OTEL_RESOURCE_ATTRIBUTES` 中的键 | 您设置的自定义属性，例如 `department` 或 `team.id`。请参阅[多团队组织支持](#multi-team-organization-support) | `OTEL_METRICS_INCLUDE_RESOURCE_ATTRIBUTES`（默认值：true） |
 | `vcs.repository.url.full`、`vcs.owner.name`、`vcs.repository.name`、`vcs.provider.name` | 会话存储库的身份，从其 `origin` 远程派生。请参阅[存储库属性](#repository-attributes) | `OTEL_METRICS_INCLUDE_REPOSITORY`（默认值：false）。需要 Claude Code v2.1.269 或更高版本 |
 
-当 Claude Code 登录到[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)时，CLI 会使用来自网关会话的已认证身份标记导出：`user.id` 是 IdP 主体而不是匿名安装标识符，`user.email` 是已登录的电子邮件，`user.groups` 以逗号分隔的字符串形式携带 IdP 组成员身份。每个导出还携带 `identity.source: gateway-oidc`。网关身份最后应用，因此通过 `OTEL_RESOURCE_ATTRIBUTES` 设置的 `user.*` 和 `identity.*` 键在网关会话上被忽略。
+在通过 `/login` 登录到[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)的会话中，CLI 会使用已认证身份标记导出：`user.id` 是 IdP 主体，`user.email` 是已登录的电子邮件，`user.groups` 以逗号分隔的字符串形式携带 IdP 组成员身份。每个导出还携带 `identity.source: gateway-oidc`。网关身份最后应用，因此通过 `OTEL_RESOURCE_ATTRIBUTES` 设置的 `user.*` 和 `identity.*` 键在这些会话上被忽略。
+
+对于通过网关连接的 Claude Desktop 和 Cowork 会话上的身份属性，请参阅[网关 `telemetry` 参考](/docs/zh-CN/claude-apps-gateway-config#telemetry)。
 
 事件另外包括以下属性。这些永远不会附加到指标，因为它们会导致无限的基数：
 
@@ -1540,11 +1544,11 @@ OpenTelemetry 事件是 Claude Code 活动的审计数据源。每个事件都�
   将属性操作归属于用户
 </h3>
 
-每个事件上的 [标准属性](#standard-attributes) 包括已认证用户的身份：`user.email`、`user.account_uuid`、`user.account_id` 和 `organization.id`（使用 Claude 账户登录时或在 [云会话](/docs/zh-CN/claude-code-on-the-web) 中，当会话自己的凭证携带它们时），加上 `user.id` 和每会话的 `session.id`。`user.id` 是安装范围的标识符，除了在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上，其中它是来自网关颁发的令牌的 IdP 主体。
+每个事件上的 [标准属性](#standard-attributes) 包括已认证用户的身份：`user.email`、`user.account_uuid`、`user.account_id` 和 `organization.id`（使用 Claude 账户登录时或在 [云会话](/docs/zh-CN/claude-code-on-the-web) 中，当会话自己的凭证携带它们时），加上 `user.id` 和每会话的 `session.id`。`user.id` 是安装范围的标识符，除了在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上通过 `/login` 登录时，其中它是来自网关颁发的令牌的 IdP 主体。
 
 在开发人员启动的会话中，MCP 工具调用、Bash 命令和文件编辑因此归属于该开发人员。Claude Code 不在单独的服务账户下运行；每个事件上记录的身份是开发人员自己的 Claude 账户，或开发人员在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上的 IdP 身份。在 Claude Tag 频道会话中，Claude 改为作为您组织的 [共享身份](/docs/zh-CN/cloud-environments#set-the-environment-a-claude-tag-channel-uses) 工作。
 
-当 Claude Code 使用直接 API 密钥进行身份验证，或针对 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 进行身份验证时，会话中没有 Claude 账户，仅填充 `user.id` 和 `session.id`。在这些部署中，使用 `OTEL_RESOURCE_ATTRIBUTES` 自己附加用户身份，通过 [托管设置](#administrator-configuration) 文件或启动包装器按用户设置。Claude apps gateway 会话不需要任何这些：CLI 自动标记 IdP 身份，如 [标准属性](#standard-attributes) 中所述。
+当 Claude Code 使用直接 API 密钥进行身份验证，或针对 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 进行身份验证时，会话中没有 Claude 账户，仅填充 `user.id` 和 `session.id`。在这些部署中，使用 `OTEL_RESOURCE_ATTRIBUTES` 自己附加用户身份，通过 [托管设置](#administrator-configuration) 文件或启动包装器按用户设置。Claude apps gateway 会话不需要任何这些：请参阅 [标准属性](#standard-attributes) 了解其导出携带的身份。
 
 ```bash theme={null}
 export OTEL_RESOURCE_ATTRIBUTES="enduser.id=jdoe@example.com,enduser.directory_id=S-1-5-21-..."

@@ -445,7 +445,12 @@ brew install --cask claude-code
   TLS 或 SSL 连接错误
 </h3>
 
-诸如 `curl: (35) TLS connect error`、`schannel: next InitializeSecurityContext failed` 或 PowerShell 的 `Could not establish trust relationship for the SSL/TLS secure channel` 之类的错误表示 TLS 握手失败。
+诸如以下错误意味着 TLS 握手失败：
+
+* `curl: (35) TLS connect error`
+* `schannel: next InitializeSecurityContext failed`
+* PowerShell 的 `Could not create SSL/TLS secure channel`
+* PowerShell 的 `Could not establish trust relationship for the SSL/TLS secure channel`
 
 **解决方案：**
 

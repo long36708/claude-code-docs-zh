@@ -65,7 +65,7 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
   GitHub App 权限
 </h3>
 
-清单使用以下权限和 webhook 事件配置 GitHub App，这些权限和事件共同涵盖网络会话、代码审查、Claude Security、插件市场和贡献指标：
+清单使用以下权限和 webhook 事件配置 GitHub App，这些权限和事件共同涵盖云会话、代码审查、Claude Security、插件市场和贡献指标：
 
 | 权限 | 访问 | 用途 |
 | :- | :- | :- |
@@ -95,7 +95,7 @@ Claude 在您保存连接时生成应用的 webhook URL。点击 **添加配置*
   网络要求
 </h3>
 
-对于 Anthropic 托管的会话，您的 GHES 实例必须可从 Anthropic 基础设施访问，以便 Claude 可以克隆存储库和发布审查评论。如果您的 GHES 实例在防火墙后面，请将 Anthropic 的 [出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses) 加入白名单。[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#configure-git) 中的会话从您的网络内部克隆，除非运行器选择加入 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)，该代理从 Anthropic 一侧获取并需要相同的可达性；[SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags) 涵盖托管的会话前流程，例如存储库选择器，用于仅在内部可路由的 GHES 主机。
+对于 Anthropic 托管的会话，您的 GHES 实例必须可从 Anthropic 基础设施访问，以便 Claude 可以克隆存储库和发布审查评论。如果您的 GHES 实例在防火墙后面，请将 Anthropic 的 [出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses) 加入白名单。[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#configure-git) 中的会话从您的网络内部克隆，除非运行器选择加入 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)，该代理从 Anthropic 一侧获取并需要相同的可达性。托管的会话前流程（例如存储库选择器）在会话启动前在 Anthropic 一侧运行。即使会话在自托管环境中运行，它们也需要您的 GHES 实例可从 Anthropic 基础设施访问。[SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags) 不可用，因此这些流程无法访问仅在内部可路由的 GHES 主机。
 
 <h2 id="developer-workflow">
   开发人员工作流
@@ -246,7 +246,7 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
   GHES 实例无法访问
 </h3>
 
-如果审查或 Anthropic 托管的云会话超时，您的 GHES 实例可能无法从 Anthropic 基础设施访问。确认您的防火墙允许来自 Anthropic 的 [出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses) 的入站连接。[自托管环境](/docs/zh-CN/self-hosted-environments) 中的会话从您的网络内部访问 GHES，因此对于它们，请检查运行器自己的网络路径和 [SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags) 代替。
+如果审查或 Anthropic 托管的云会话超时，您的 GHES 实例可能无法从 Anthropic 基础设施访问。确认您的防火墙允许来自 Anthropic 的 [出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses) 的入站连接。[自托管环境](/docs/zh-CN/self-hosted-environments) 中的会话从您的网络内部访问 GHES，因此当其中一个无法克隆时，请改为检查运行器自己的网络路径。对于存储库选择器和其他托管的会话前流程，请参阅 [网络要求](#network-requirements)。
 
 <h3 id="session-start-fails-with-unable-to-get-organization-uuid">
   会话启动失败，显示 `Unable to get organization UUID`

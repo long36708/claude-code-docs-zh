@@ -121,6 +121,13 @@
 
 在您的终端中，插件仅在您使用 claude.ai 账户登录的会话中同步。
 
+Claude Code 在这些终端会话中既不下载也不加载同步插件，即使您使用 `/login` 登录后也是如此：
+
+* 一个会话，其中 `ANTHROPIC_AUTH_TOKEN`、`CLAUDE_CODE_OAUTH_TOKEN` 或 `apiKeyHelper` 脚本提供凭证来代替该登录
+* 一个不[从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话，例如您设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 的会话
+* 一个处于[裸模式](/docs/zh-CN/headless#start-faster-with-bare-mode)的会话或您使用 `--safe-mode` 启动的会话
+* 一个您使用[`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags)列表启动的会话，该列表遗漏了 `user`
+
 如果您在早期版本的 Claude Code 上登录，该登录不会覆盖插件，直到 Claude Code 在后台续期。要更快获得访问权限，请再次运行 `/login`。插件同步然后在下次启动 Claude Code 时开始。
 
 <h4 id="control-which-synced-plugins-load">
@@ -190,6 +197,7 @@ Claude Code 在一个插件根目录下保存插件文件和状态记录，该�
 | `.trash/` | claude.ai 同步删除的插件，例如在您在 claude.ai 上关闭一个或停止同步后 |
 | `installed_plugins.json` 和 `known_marketplaces.json` | Claude Code 已安装的内容和已获取的市场的记录，在[检查插件达到的阶段](#check-which-stage-a-plugin-reached)下描述。[托管在 claude.ai 上的市场](/docs/zh-CN/plugins/install#add-from-claude-ai)改为记录在 `known_marketplaces_claudeai.json` 中 |
 | `flagged-plugins.json` | Claude Code 卸载的插件，因为其市场将其除名。它们出现在 `/plugin` 的 **Flagged** 部分；请参阅[托管市场](/docs/zh-CN/plugins/host-marketplace) |
+| `installed_plugins.set-aside.<date>.<hash>.json` 和 `installed_plugins.unreadable.<date>.<hash>.kept` | Claude Code 在删除任何版本的 Claude Code 都无法使用的安装记录或重建不可读的 `installed_plugins.json` 之前保留的日期副本。请参阅[恢复说明](/docs/zh-CN/plugins/troubleshooting#installed-plugins-json-could-not-be-read-and-was-rebuilt)。它们按照 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 计划老化 |
 
 因为 `${CLAUDE_PLUGIN_ROOT}` 指向版本目录，插件的根路径随每个版本更改。改为在 `${CLAUDE_PLUGIN_DATA}` 中保留插件的持久文件。
 

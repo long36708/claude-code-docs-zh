@@ -163,7 +163,9 @@ Channel 是一个在与 Claude Code 相同的机器上运行的 [MCP](https://mo
     有效负载作为 `<channel>` 标签到达 Claude 的上下文中：
 
     ```text theme={null}
-    <channel source="webhook" path="/" method="POST">build failed on main: https://ci.example.com/run/1234</channel>
+    <channel source="webhook" path="/" method="POST">
+    build failed on main: https://ci.example.com/run/1234
+    </channel>
     ```
 
     您的终端将事件呈现为单行摘要 `← webhook: build failed on main: https://ci.example.com/run/1234`，而不是原始标签。然后您会看到 Claude 开始响应：读取文件、运行命令或消息要求的任何操作。这是一个单向频道，因此 Claude 在您的会话中行动，但不会通过 webhook 发送任何内容回复。要添加回复，请参阅[公开回复工具](#expose-a-reply-tool)。

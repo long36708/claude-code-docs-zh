@@ -46,7 +46,7 @@
   构建链接
 </h2>
 
-每个深链接都以 `claude-cli://open` 开头，这是处理程序接受的唯一路径，后跟可选的查询参数。最小形式在你的主目录中打开 Claude Code，带有空提示：
+深链接以 `claude-cli://open` 开头，后跟可选的查询参数。最小形式在你的主目录中打开 Claude Code，带有空提示：
 
 ```text theme={null}
 claude-cli://open
