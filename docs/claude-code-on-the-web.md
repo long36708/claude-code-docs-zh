@@ -150,6 +150,7 @@ CCR_FORCE_BUNDLE=1 claude --cloud "Run the test suite and fix any failures"
 * 目录必须是具有至少一个提交的 git 存储库
 * 捆绑的存储库必须小于 100 MB。较大的存储库会回退到仅捆绑当前分支，然后回退到工作树的单个压缩快照，如果快照仍然太大则失败
 * 未跟踪的文件不包括在内；对您希望云会话看到的文件运行 `git add`
+* 在 macOS、Linux 和 WSL 上，当 Claude Code 无法遵循影响哪些属性规则适用于您的文件的 git 设置时，它会拒绝上传，例如在包含的配置文件中设置的 `core.attributesFile`。[拒绝消息](/docs/zh-CN/errors#the-repository-upload-cant-follow-a-git-setting) 命名该设置和修复
 * 从捆绑创建的会话只有在您的 [GitHub 连接](#github-authentication-options) 对该存储库具有推送访问权限时，才能推送回 GitHub 远程
 
 <h3 id="send-follow-ups-from-the-cli">

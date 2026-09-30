@@ -676,6 +676,8 @@ Review the changed files. Report style problems first, then missing tests.
 
 要在插件中包含说明，将其写成 skill。Claude Code 不会在插件根目录加载 `CLAUDE.md`，`claude plugin validate` 会警告 `CLAUDE.md at the plugin root is not loaded as project context`。
 
+如果规则必须每次都成立，例如 [阻止编辑受保护的文件](/docs/zh-CN/hooks-guide#block-edits-to-protected-files)，将其添加到插件作为 [hook](#hooks) 而不是 skill。要在两者之间选择，参见 [比较相似功能](/docs/zh-CN/features-overview#compare-similar-features) 下的 Hook vs Skill 标签页。
+
 对于 frontmatter 字段和支持文件，参见 [Skills](/docs/zh-CN/skills)。
 
 <h3 id="commands">

@@ -304,8 +304,6 @@ Hook 条目在设置级别之间合并而不是相互替换：用户、项目和
 
 在正则表达式路径上的匹配器使用 JavaScript 的 `RegExp.prototype.test` 进行测试，该测试在值中任何位置的匹配时成功。`Edit.*` 匹配 `Edit` 和 `NotebookEdit`；当需要整个字符串匹配时，用 `^` 和 `$` 包装模式，如 `^Edit$`。
 
-精确匹配集中的连字符需要 Claude Code v2.1.195 或更高版本。在早期版本中，带连字符的名称如 `code-reviewer` 被评估为未锚定的正则表达式，因此它也对 `senior-code-reviewer` 触发；在这些版本上将其锚定为 `^code-reviewer$` 以仅匹配该名称。
-
 `FileChanged` 和 `StopFailure` 使用更窄的精确匹配集，仅包含字母、数字、`_` 和 `|`。这两个事件的匹配器中的连字符、空格或逗号将其保留在正则表达式路径上，仅 `|` 分隔替代项。下表中支持匹配器的其他每个事件接受 `|` 或 `,`。
 
 `FileChanged` 事件在构建其监视列表时不遵循这些规则。请参阅 [FileChanged](#filechanged)。
@@ -379,8 +377,6 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 * `mcp__memory__.*` 匹配来自 `memory` 服务器的所有工具
 * `mcp__brave-search__.*` 匹配来自名称包含连字符的服务器的所有工具
 * `mcp__.*__write.*` 匹配来自任何服务器的名称以 `write` 开头的任何工具
-
-精确匹配集中的连字符需要 Claude Code v2.1.195 或更高版本。在早期版本中，裸连字符前缀如 `mcp__brave-search` 被评估为未锚定的正则表达式，并匹配来自该服务器的每个工具。`mcp__brave-search__.*` 形式在每个版本上都有效。
 
 来自 [插件捆绑的 MCP 服务器](/docs/zh-CN/mcp#plugin-provided-mcp-servers) 的工具使用包含插件名称的范围服务器段：`mcp__plugin_<plugin-name>_<server-name>__<tool>`。针对裸服务器密钥编写的匹配器永远不会对这些工具触发。对于名为 `my-plugin` 的插件，在密钥 `db` 下捆绑服务器，`query` 工具显示为 `mcp__plugin_my-plugin_db__query`，因此来自该服务器的每个工具的匹配器是 `mcp__plugin_my-plugin_db__.*`。在处理程序的 [`if` 字段](#common-fields) 中使用相同的范围工具名称。有关如何构建范围名称的信息，请参阅 [插件提供的 MCP 服务器](/docs/zh-CN/mcp#plugin-provided-mcp-servers)。
 

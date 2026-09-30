@@ -850,8 +850,6 @@ hooks:
 }
 ```
 
-一个带连字符的匹配器，如 `db-agent`，在 Claude Code v2.1.195 或更高版本上精确匹配。在早期版本上，它被评估为 unanchored regular expression，也会为任何包含它的代理类型触发，例如 `prod-db-agent`；在这些版本上使用 `^db-agent$` 锚定它。
-
 有关完整的 hook 配置格式，请参阅 [Hooks](/docs/zh-CN/hooks)。
 
 <h2 id="work-with-subagents">

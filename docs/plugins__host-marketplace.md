@@ -50,6 +50,26 @@
 
 当用户将你的 marketplace 添加为裸 `marketplace.json` URL 时，Claude Code 仅下载该文件。你的 `plugins` 数组中的条目，其 `source` 是相对路径（如 `./plugins/formatter`），则在安装时会失败，出现 [`其 marketplace 条目路径不会停留在 marketplace 目录内`](/docs/zh-CN/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces)。给每个条目一个可以独立获取的源，如 `github` 仓库或 `archive` URL，或在 git 仓库中托管 marketplace，以便 Claude Code 克隆整个树。
 
+<h3 id="stay-within-the-download-limits-for-hosted-files">
+  保持托管文件的下载限制内
+</h3>
+
+当用户将你的 marketplace 添加为 `marketplace.json` URL，或安装具有 [`archive`](/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source) 源的条目时，Claude Code 从你的服务器下载文件。下载超过此表中的限制会失败，因此请调整你的文件大小并配置你的服务器以保持在限制内。
+
+| 文件 | 最大下载 | 你的服务器响应时间 | 重定向 |
+| :- | :- | :- | :- |
+| 来自 `url` marketplace 源的 `marketplace.json` | 5 MiB | 10 秒 | 重定向到不同源必须使用 `https://` 且不能指向环回、链路本地或云元数据主机，因此从 `https://` 重定向到 `http://` 会失败 |
+| 来自 `archive` 插件源的 Zip | 256 MiB | 120 秒 | 最多五个。每个重定向目标必须使用 `https://` 且不能指向环回、链路本地或云元数据主机 |
+
+重定向发送到不同源的请求不会携带你在 marketplace 源或插件条目上配置的任何标头。
+
+存档下载后，当 zip 超过以下任何提取限制时，安装会失败：
+
+* **条目**：100,000 个文件和目录
+* **文件大小**：任何一个文件 512 MiB，未压缩
+* **总大小**：1 GiB 未压缩
+* **压缩比**：未压缩内容是 zip 大小的 50 倍
+
 <h3 id="edit-plugins-in-place-on-a-shared-directory">
   在共享目录上就地编辑插件
 </h3>

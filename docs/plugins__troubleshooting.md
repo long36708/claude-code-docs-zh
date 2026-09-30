@@ -145,7 +145,10 @@ Claude Code 打印 `Successfully added marketplace: claude-plugins-official`，`
   `Marketplace "<name>" not found`
 </h3>
 
-您在会话中运行了 `/plugin install <plugin>@<name>`，通常来自某人发送给您的安装行，Claude Code 报告它没有该名称的市场。
+您在会话中运行了 `/plugin install`，Claude Code 报告它没有该名称的市场。两种形式的命令会到达此消息：
+
+* **`/plugin install <plugin>@<name>`**：安装行，通常是某人发送给您的，命名了您未添加的市场。本条目的其余部分涵盖了查找和添加它。
+* **`/plugin install <source>` 带有路径、URL 或 `owner/repo`**：此形式报告消息而不是安装，即使对于您已添加的源也是如此。要在一个命令中从源安装，请参阅 [添加市场并在一个命令中安装](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command)。
 
 如果名称以 `claudeai-` 开头，市场托管在 claude.ai 上，您可以从 shell 中使用 `claude plugin marketplace add --claudeai <name>` 按名称添加它。请参阅 [从 claude.ai 添加市场](/docs/zh-CN/plugins/install#add-from-claude-ai)。
 

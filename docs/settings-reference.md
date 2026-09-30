@@ -1436,18 +1436,18 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
   `allowManagedPermissionRulesOnly`
 </h3>
 
-使托管设置成为权限规则的唯一设置源。Claude Code 随后会忽略用户、项目、本地和 `--settings` 文件中的 `allow`、`ask` 和 `deny` 规则，忽略 `--allowedTools`，隐藏权限提示中的始终允许选项，并停止保存新规则。
+使托管设置成为权限规则的唯一设置来源。Claude Code 随后会忽略用户、项目、本地和 `--settings` 文件中的 `allow`、`ask` 和 `deny` 规则，忽略 `--allowedTools`，隐藏权限提示中的始终允许选项，并停止保存新规则。
 
-当[来自嵌入主机的父设置](/docs/zh-CN/managed-settings#let-an-embedding-host-add-policy)适用时，Claude Code 将其视为托管层的一部分。它删除其 `allow` 规则和 `additionalDirectories`，并保留其 `deny` 和 `ask` 规则，除了 `Read` 和 `Edit` 规则，其模式以 `!` 开头。主机无法使用 `!` 规则从托管规则中切割出路径，无论您是否设置此键。
+当[来自嵌入主机的父设置](/docs/zh-CN/managed-settings#let-an-embedding-host-add-policy)适用时，Claude Code 将其视为托管层的一部分。它删除其 `allow` 规则和 `additionalDirectories`，并保留其 `deny` 和 `ask` 规则，除了模式以 `!` 开头的 `Read` 和 `Edit` 规则。无论您是否设置此键，主机都无法使用 `!` 规则从托管规则中排除路径。
 
-`--disallowedTools` 规则和当前会话的 `deny` 和 `ask` 规则仍然适用，包括在 Claude Code 在会话中途重新加载设置后。它们仅限制，因此无法扩展托管规则授予的权限。在 v2.1.257 之前，Claude Code 在第一次设置重新加载时删除了这些命令行和会话规则。
+`--disallowedTools` 规则以及当前会话的 `deny` 和 `ask` 规则仍然适用，包括在 Claude Code 在会话中途重新加载设置后。它们仅限制，因此无法扩展托管规则授予的权限。在 v2.1.257 之前，Claude Code 在第一次设置重新加载时删除了这些命令行和会话规则。
 
-有关 `!` 模式在 `--disallowedTools` 或会话规则中可以切割出什么，请参阅[Read 和 Edit 规则](/docs/zh-CN/permissions#read-and-edit)。
+有关 `--disallowedTools` 或会话规则中的 `!` 模式可以排除什么，请参阅 [Read 和 Edit 规则](/docs/zh-CN/permissions#read-and-edit)。
 
 * **作用域**: [`Managed`](#scopes)
 * **类型**: 布尔值
-  * `true`：托管设置成为权限规则的唯一设置源
-  * `false`：Claude Code 除了应用托管规则外，还应用来自用户、项目、本地和 `--settings` 文件的权限规则
+  * `true`: 托管设置成为权限规则的唯一设置来源
+  * `false`: Claude Code 除了应用托管规则外，还应用来自用户、项目、本地和 `--settings` 文件的权限规则
 * **默认值**: 未设置，因此 Claude Code 应用来自用户、项目和本地设置以及 `--settings` 的权限规则，以及托管规则
 
 ```json managed-settings.json theme={null}
@@ -1462,13 +1462,13 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
   `autoMode`
 </h3>
 
-向[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器阻止和允许的内容添加您自己的规则。使用它告诉分类器您的组织信任哪些存储库、存储桶和域，以便它停止阻止常规内部操作。分类器附带[内置允许和拒绝规则](/docs/zh-CN/auto-mode-config#inspect-the-defaults-and-your-effective-config)。在数组中包含字面字符串 `"$defaults"` 以在该位置保留这些内置规则并在其周围添加您的规则；省略它以用您的规则替换它们。
+添加您自己的规则到[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器阻止和允许的内容。使用它告诉分类器您的组织信任哪些仓库、存储桶和域，以便它停止阻止常规内部操作。分类器附带[内置允许和拒绝规则](/docs/zh-CN/auto-mode-config#inspect-the-defaults-and-your-effective-config)。在数组中包含字面字符串 `"$defaults"` 以在该位置保留这些内置规则并在其周围添加您的规则；省略它以用您的规则替换它们。
 
 * **作用域**: [`User or managed`](#scopes)
 * **类型**: 包含 `environment`、`allow`、`soft_deny` 和 `hard_deny` 散文规则数组的对象，加上 [`classifyAllShell`](#automode-classifyallshell) 布尔值
 * **默认值**: 未设置，因此分类器仅使用其[内置规则](/docs/zh-CN/auto-mode-config#inspect-the-defaults-and-your-effective-config)
 
-此示例通过 `"$defaults"` 保留内置的 `soft_deny` 规则，并添加一个阻止 `terraform apply` 的规则：
+此示例保留内置的 `soft_deny` 规则（通过 `"$defaults"`），并添加一个阻止 `terraform apply` 的规则：
 
 ```json settings.json theme={null}
 {
@@ -1478,18 +1478,18 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 }
 ```
 
-当这些文件中的多个文件设置相同的数组时，Claude Code 会连接这些条目。有关规则格式以及如何应用每个数组，请参阅[配置自动模式](/docs/zh-CN/auto-mode-config)。
+当多个文件设置相同的数组时，Claude Code 会连接这些条目。有关规则格式以及如何应用每个数组，请参阅[配置自动模式](/docs/zh-CN/auto-mode-config)。
 
 <h3 id="automode-classifyallshell">
   `autoMode.classifyAllShell`
 </h3>
 
-在自动模式处于活动状态时，通过自动模式分类器发送每个 Bash 和 PowerShell 命令。默认情况下，自动模式仅暂停可能运行任意代码的允许规则：工具范围和通配符规则（如 `Bash(*)`）以及解释器或 shell 包装器前缀（如 `Bash(python *)`）。任何其他允许规则匹配的命令（如 `Bash(npm test)`）会跳过分类器，除非它携带[每命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)。当它跳过时，规则的前缀未预期的破坏性参数可能会被看不见地通过。设置此键会为会话暂停每个 shell 允许规则，以便分类器看到每个命令。需要 Claude Code v2.1.193 或更高版本。
+在自动模式处于活动状态时，将每个 Bash 和 PowerShell 命令通过自动模式分类器。默认情况下，自动模式仅暂停可以运行任意代码的允许规则：工具范围和通配符规则（如 `Bash(*)`）以及解释器或 shell 包装器前缀（如 `Bash(python *)`）。任何其他允许规则匹配的命令（如 `Bash(npm test)`）会跳过分类器，除非它携带[每个命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)。当它跳过时，规则前缀未预期的破坏性参数可能会通过而不被看到。设置此键会为会话暂停每个 shell 允许规则，以便分类器看到每个命令。需要 Claude Code v2.1.193 或更高版本。
 
 * **作用域**: [`User or managed`](#scopes)。在读取 [`autoMode`](#automode) 的任何地方读取。
 * **类型**: 布尔值
-  * `true`：在自动模式处于活动状态时，Claude Code 通过分类器发送每个 Bash 和 PowerShell 命令，并暂停您的 shell 允许规则；在自动模式之外，规则仍然适用
-  * `false`：自动模式仅暂停可能运行任意代码的允许规则，如 `Bash(*)` 和 `Bash(python *)`；任何其他允许规则匹配的命令会跳过分类器，除非它携带[每命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)，每个其他 shell 命令都会通过它
+  * `true`: 当自动模式处于活动状态时，Claude Code 将每个 Bash 和 PowerShell 命令通过分类器发送，并暂停您的 shell 允许规则；在自动模式之外，规则仍然适用
+  * `false`: 自动模式仅暂停可以运行任意代码的允许规则，如 `Bash(*)` 和 `Bash(python *)`；任何其他允许规则匹配的命令会跳过分类器，除非它携带[每个命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)，每个其他 shell 命令都会通过它
 * **默认值**: `false`
 
 ```json settings.json theme={null}
@@ -1500,13 +1500,13 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 }
 ```
 
-请参阅[通过分类器路由所有 shell 命令](/docs/zh-CN/auto-mode-config#route-all-shell-commands-through-the-classifier)。需要 Claude Code v2.1.193 或更高版本。
+请参阅[将所有 shell 命令路由通过分类器](/docs/zh-CN/auto-mode-config#route-all-shell-commands-through-the-classifier)。需要 Claude Code v2.1.193 或更高版本。
 
 <h3 id="disableautomode">
   `disableAutoMode`
 </h3>
 
-从 `Shift+Tab` 循环中删除[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。任何本应[以自动模式启动](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)的会话，无论是来自 `--permission-mode auto`、设置文件还是内置默认值，都会改为以 `default` 启动。管理员在托管设置中设置它以防止其组织中的开发人员使用自动模式。
+从 `Shift+Tab` 循环中删除[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。任何本应[以自动模式启动](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)的会话，无论是来自 `--permission-mode auto`、设置文件还是内置默认值，都改为以 `default` 启动。管理员在托管设置中设置它以防止其组织中的开发人员使用自动模式。
 
 * **作用域**: [`Any file`](#scopes)。在[托管设置](/docs/zh-CN/managed-settings)中最有用，用户无法覆盖它。也接受在 `permissions` 下作为 `permissions.disableAutoMode`。
 * **类型**: 字符串 `"disable"`
@@ -1522,13 +1522,13 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
   `permissions`
 </h3>
 
-控制 Claude 可以在不询问的情况下使用哪些工具、哪些工具始终提示，以及哪些工具被阻止，并设置会话启动的[权限模式](/docs/zh-CN/permission-modes)。下面的每个 `permissions.*` 键都嵌套在此对象下。
+控制 Claude 在不询问的情况下可以使用哪些工具、哪些工具始终提示，以及哪些工具被阻止，并设置会话启动的[权限模式](/docs/zh-CN/permission-modes)。下面的每个 `permissions.*` 键都嵌套在此对象下。
 
 * **作用域**: [`Any file`](#scopes)
 * **类型**: 包含 `allow`、`ask`、`deny`、`additionalDirectories`、`blockReadsOutsideWorkingDirectories`、`defaultMode`、`disableBypassPermissionsMode` 和 `disableAutoMode` 的对象
 * **默认值**: 未设置
 
-此示例在不询问的情况下批准 `npm run` 命令，在 `git push` 之前提示，阻止读取 `.env`，并在 `acceptEdits` 中启动会话：
+此示例批准 `npm run` 命令而不询问，在 `git push` 前提示，阻止读取 `.env`，并以 `acceptEdits` 启动会话：
 
 ```json settings.json theme={null}
 {
@@ -1541,18 +1541,18 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 }
 ```
 
-这三个规则数组共享一个语法；请参阅 `permissions.allow` 下的[权限规则语法](#permission-rule-syntax)。有关来自不同文件的权限规则如何组合，请参阅[权限规则如何跨作用域合并](/docs/zh-CN/permissions#settings-precedence)；有关设置键如何组合，请参阅设置指南上的[设置优先级](/docs/zh-CN/settings#settings-precedence)。
+三个规则数组共享一个语法；请参阅 `permissions.allow` 下的[权限规则语法](#permission-rule-syntax)。有关来自不同文件的权限规则如何组合，请参阅[权限规则如何跨作用域合并](/docs/zh-CN/permissions#settings-precedence)；有关设置键如何组合，请参阅设置指南上的[设置优先级](/docs/zh-CN/settings#settings-precedence)。
 
 <h3 id="useautomodeduringplan">
   `useAutoModeDuringPlan`
 </h3>
 
-选择 Claude Code 是否使用自动模式分类器在计划模式下审查 shell 命令。使用默认值 `true`，分类器在规划期间审查每个命令，当自动模式可用且您看不到提示时，除了[关键路径移除](/docs/zh-CN/permission-modes#critical-paths)。设置 `false` 以获得内置只读集之外的每个命令的权限提示。在 `/config` 中显示为**在计划期间使用自动模式**。
+选择 Claude Code 是否使用自动模式分类器在计划模式下审查 shell 命令。使用默认值 `true`，当自动模式可用且您看不到提示时，分类器在规划期间审查每个命令，除了[关键路径删除](/docs/zh-CN/permission-modes#critical-paths)。设置 `false` 以获得对内置只读集之外的每个命令的权限提示。在 `/config` 中显示为**在计划期间使用自动模式**。
 
 * **作用域**: [`User, local, or managed`](#scopes)。存储库无法为您关闭它。
 * **类型**: 布尔值
-  * `true`：与未设置相同；当自动模式可用时，分类器在规划期间审查每个 shell 命令，而不是提示您，除了[关键路径移除](/docs/zh-CN/permission-modes#critical-paths)。任何这些文件中的 `false` 仍然会关闭它
-  * `false`：您会获得内置只读集之外的每个命令的权限提示
+  * `true`: 与未设置相同；当自动模式可用时，分类器在规划期间审查每个 shell 命令而不是提示您，除了[关键路径删除](/docs/zh-CN/permission-modes#critical-paths)。这些文件中的任何 `false` 仍然会关闭它
+  * `false`: 您会获得对内置只读集之外的每个命令的权限提示
 * **默认值**: `true`
 
 ```json settings.json theme={null}
@@ -1570,7 +1570,7 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 * **作用域**: [`Any file`](#scopes)
 * **类型**: 权限规则字符串数组
 * **默认值**: 未设置
-* **每会话覆盖**: `--allowedTools` 为一个会话添加允许规则，来自任何设置文件的拒绝规则仍然会阻止它命名的工具
+* **每个会话覆盖**: `--allowedTools` 为一个会话添加允许规则，来自任何设置文件的拒绝规则仍然会阻止它命名的工具
 
 此示例批准 `git diff` 并让 Claude Code 读取您的 `.zshrc` 而不询问：
 
@@ -1588,11 +1588,11 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
   权限规则语法
 </h4>
 
-权限规则遵循格式 `Tool` 或 `Tool(specifier)`。Claude Code 首先评估 `deny` 规则，然后是 `ask`，然后是 `allow`，第一个匹配决定，无论每个规则有多具体；请参阅[权限规则评估顺序](/docs/zh-CN/permissions#manage-permissions)。
+权限规则遵循格式 `Tool` 或 `Tool(specifier)`。Claude Code 首先评估 `deny` 规则，然后是 `ask`，然后是 `allow`，第一个匹配决定，无论每个规则的具体程度如何；请参阅[权限规则评估顺序](/docs/zh-CN/permissions#manage-permissions)。
 
 每行显示一个规则形状及其匹配的内容。
 
-| 规则 | 它匹配的内容 |
+| 规则 | 匹配的内容 |
 | :- | :- |
 | `Bash` | 每个 Bash 命令 |
 | `Bash(npm run *)` | 以 `npm run` 开头的命令 |
@@ -1605,7 +1605,7 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
   `permissions.ask`
 </h3>
 
-列出即使在会否则批准它们的权限模式（如 `acceptEdits` 或 `bypassPermissions`）中也会提示您确认的工具使用。在 `dontAsk` 模式中，Claude Code 拒绝匹配的工具使用，而不是提示。
+列出提示您确认的工具使用，即使在本应批准它们的权限模式中，如 `acceptEdits` 或 `bypassPermissions`。在 `dontAsk` 模式中，Claude Code 拒绝匹配的工具使用而不是提示。
 
 * **作用域**: [`Any file`](#scopes)
 * **类型**: 权限规则字符串数组
@@ -1625,14 +1625,16 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
   `permissions.deny`
 </h3>
 
-列出 Claude Code 阻止的工具使用。将其用于保存 API 密钥、机密或环境值的文件：Claude Code 从文件发现和搜索结果中排除匹配的文件，拒绝读取它们，并在匹配的路径上阻止[编辑和写入工具](/docs/zh-CN/permissions#read-and-edit)。读取和编辑拒绝规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail`、`sed` 和 `tee`）以及 Bash[重定向](/docs/zh-CN/permissions#redirections)的目标（如 `> file` 和 `< file`）；它们不适用于读取文件而不命名它们的命令（如 `grep -r pattern .`）或任意子进程，因此对于操作系统级别的强制执行，请[启用沙箱](/docs/zh-CN/sandboxing)。
+列出 Claude Code 阻止的工具使用。将其用于保存 API 密钥、机密或环境值的文件：Claude Code 从文件发现和搜索结果中排除匹配的文件，拒绝读取它们，并在匹配的路径上阻止 [Edit 和 Write 工具](/docs/zh-CN/permissions#read-and-edit)。
+
+Read 和 Edit 拒绝规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail`、`sed` 和 `tee`）以及 Bash [重定向](/docs/zh-CN/permissions#redirections)的目标（如 `> file` 和 `< file`）；它们不适用于读取文件而不命名它们的命令（如 `grep -r pattern .`）或任意子进程，因此对于操作系统级别的强制执行，请[启用沙箱](/docs/zh-CN/sandboxing)。
 
 * **作用域**: [`Any file`](#scopes)
 * **类型**: 权限规则字符串数组
 * **默认值**: 未设置
-* **每会话覆盖**: `--disallowedTools` 为一个会话添加拒绝规则，与此键一起
+* **每个会话覆盖**: `--disallowedTools` 为一个会话添加拒绝规则，与此键一起
 
-此示例拒绝读取 `.env` 文件、`secrets` 目录和凭据文件，并阻止 `curl` 命令：
+此示例拒绝读取 `.env` 文件、`secrets` 目录和凭证文件，并阻止 `curl` 命令：
 
 ```json settings.json theme={null}
 {
@@ -1648,18 +1650,18 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
 }
 ```
 
-工具名称接受 glob 模式，因此 `"*"` 拒绝每个工具，`"mcp__*"` 拒绝每个 MCP 工具。只要任何其他工具仍然可用于 Claude，Claude Code 就会忽略 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 工具的拒绝规则。`Bash` 拒绝规则匹配 Claude 编写的命令，因此 `Bash(curl *)` 不会停止 `/usr/bin/curl` 或 `sh -c 'curl …'`；请参阅[Bash 规则不匹配的内容](/docs/zh-CN/permissions#bash-rule-limits)。此键替换已弃用的 `ignorePatterns` 配置。
+工具名称接受 glob 模式，因此 `"*"` 拒绝每个工具，`"mcp__*"` 拒绝每个 MCP 工具。只要任何其他工具仍然可用于 Claude，Claude Code 就会忽略 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 工具的拒绝规则。`Bash` 拒绝规则与 Claude 编写的命令匹配，因此 `Bash(curl *)` 不会停止 `/usr/bin/curl` 或 `sh -c 'curl …'`；请参阅 [Bash 规则不匹配的内容](/docs/zh-CN/permissions#bash-rule-limits)。此键替换已弃用的 `ignorePatterns` 配置。
 
 <h3 id="permissions-additionaldirectories">
   `permissions.additionalDirectories`
 </h3>
 
-给予 Claude 对您启动的目录之外的目录的文件访问权限，作为额外的[工作目录](/docs/zh-CN/permissions#working-directories)。大多数 `.claude/` 配置[未从这些目录发现](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。
+给予 Claude 对您启动的目录之外的目录的文件访问权限，作为额外的[工作目录](/docs/zh-CN/permissions#working-directories)。大多数 `.claude/` 配置[不会从这些目录中发现](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。
 
 * **作用域**: [`Any file`](#scopes)
 * **类型**: 目录路径数组
 * **默认值**: 未设置
-* **每会话覆盖**: `--add-dir` 和 `/add-dir` 为一个会话添加目录，与此键一起
+* **每个会话覆盖**: `--add-dir` 和 `/add-dir` 为一个会话添加目录，与此键一起
 
 ```json settings.json theme={null}
 {
@@ -1675,22 +1677,22 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
   `permissions.blockReadsOutsideWorkingDirectories`
 </h3>
 
-在每个权限模式（包括 `bypassPermissions`）中，使 Claude 的文件工具拒绝在您的[工作目录](/docs/zh-CN/permissions#working-directories)之外的读取。Claude Code 拒绝这些路径上的 `Read`、`Grep`、`Glob` 和 `LSP` 调用，并告诉 Claude 要求您使用 `/add-dir` 添加目录。Claude Code 本身需要的文件保持可读，如您的技能、插件、规则、代理、命令以及 `~/.claude/` 下的 `CLAUDE.md` 内存文件。需要 Claude Code v2.1.257 或更高版本。
+使 Claude 的文件工具在每种权限模式下拒绝在[工作目录](/docs/zh-CN/permissions#working-directories)之外的读取，包括 `bypassPermissions`。Claude Code 拒绝这些路径上的 `Read`、`Grep`、`Glob` 和 `LSP` 调用，并告诉 Claude 要求您使用 `/add-dir` 添加目录。Claude Code 本身需要的文件保持可读，如您的技能、插件、规则、代理、命令以及 `~/.claude/` 下的 `CLAUDE.md` 内存文件。需要 Claude Code v2.1.257 或更高版本。
 
-Claude Code 不会以相同的方式拒绝 shell 命令：
+Claude Code 不以相同方式拒绝 shell 命令：
 
-* [没有模式自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)涵盖了读取此类路径的 shell 命令何时提示您
-* [块下的沙箱命令](#sandboxed-commands-under-the-block)涵盖了沙箱命令可以读取的内容
+* [没有模式自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)涵盖读取此类路径的 shell 命令何时提示您
+* [块下的沙箱命令](#sandboxed-commands-under-the-block)涵盖沙箱命令可以读取的内容
 
-shell 解析器无法追踪的 Bash 命令（如多次更改目录或运行子 shell 的命令）会在自动模式和 `bypassPermissions` 模式中提示您。即使命令未命名工作目录之外的任何路径，提示也会出现。当命令在[沙箱](/docs/zh-CN/sandboxing)中运行且沙箱强制执行该块时，此提示不适用。
+shell 解析器无法追踪的 Bash 命令（如更改目录多次或运行子 shell 的命令）即使在自动模式和 `bypassPermissions` 模式下也会提示您。即使命令未命名工作目录之外的任何路径，提示也会出现。当命令在[沙箱](/docs/zh-CN/sandboxing)中运行且沙箱强制执行块时，此提示不适用。
 
-Claude Code 也会在此处写入 `true`，当您选择在[自动模式的提示中阻止此类读取（在第一次读取工作目录之外之前）](/docs/zh-CN/permission-modes#first-read-outside-the-working-directories)时。
+Claude Code 还在您选择在[自动模式的提示中阻止此类读取（在第一次在工作目录之外读取之前）](/docs/zh-CN/permission-modes#first-read-outside-the-working-directories)时在此处写入 `true`。
 
-* **作用域**: [`Any file`](#scopes)。任何文件中的 `true` 都会应用，因此存储库可以为自己打开该块，但无法解除您设置的块。
+* **作用域**: [`Any file`](#scopes)。任何文件中的 `true` 都适用，因此存储库可以为自己打开块，但无法解除您的块。
 * **类型**: 布尔值
-  * `true`：Claude 的文件工具拒绝在工作目录之外的读取
-  * `false`：与未设置相同；另一个文件中的块仍然适用如果它设置 `true`
-* **默认值**: 未设置，因此工作目录之外的读取遵循您的[权限模式](/docs/zh-CN/permission-modes)
+  * `true`: Claude 的文件工具拒绝在工作目录之外的读取
+  * `false`: 与未设置相同；如果另一个文件设置 `true`，块仍然适用
+* **默认值**: 未设置，因此在工作目录之外的读取遵循您的[权限模式](/docs/zh-CN/permission-modes)
 
 ```json settings.json theme={null}
 {
@@ -1700,55 +1702,55 @@ Claude Code 也会在此处写入 `true`，当您选择在[自动模式的提示
 }
 ```
 
-您使用 `--add-dir`、`/add-dir` 或用户或托管设置中的 `additionalDirectories` 添加的目录计为该块的工作目录。仅在存储库设置中添加的目录不计：那些在 `.claude/settings.json` 中的，以及在 `.claude/settings.local.json` 中的，除非 git 报告该文件为未跟踪。在不是 git 存储库的目录中，或当 git 跟踪该文件时，Claude Code 将 `.claude/settings.local.json` 视为存储库设置，因此改为在用户设置中放置您想保持可读的目录。
+您使用 `--add-dir`、`/add-dir` 或用户或托管设置中的 `additionalDirectories` 添加的目录计为块的工作目录。仅在存储库设置中添加的目录不计：`.claude/settings.json` 中的目录，以及 `.claude/settings.local.json` 中的目录，除非 git 报告该文件为未跟踪。在不是 git 存储库的目录中，或当 git 跟踪该文件时，Claude Code 将 `.claude/settings.local.json` 视为存储库设置，因此将您想要保持可读的目录放在用户设置中。
 
-当 [`autoMemoryDirectory`](#automemorydirectory) 来自项目的 `.claude/settings.json`，或来自被[视为存储库提供的](/docs/zh-CN/permissions#when-your-local-settings-file-needs-trust) `.claude/settings.local.json` 时，Claude Code 不会从该目录加载任何[自动内存](/docs/zh-CN/memory#storage-location)，也不会保存任何到其中。
+当 [`autoMemoryDirectory`](#automemorydirectory) 来自项目的 `.claude/settings.json` 或来自[视为存储库提供的](/docs/zh-CN/permissions#when-your-local-settings-file-needs-trust) `.claude/settings.local.json` 时，Claude Code 不会从该目录加载任何[自动内存](/docs/zh-CN/memory#storage-location)，也不会将任何保存到它。
 
-要解除该块，从设置它的每个设置文件中删除该键，然后启动新会话。
+要解除块，从设置它的每个设置文件中删除该键，然后启动新会话。
 
 <h4 id="sandboxed-commands-under-the-block">
   块下的沙箱命令
 </h4>
 
-当[沙箱](/docs/zh-CN/sandboxing)打开时，该块也涵盖沙箱命令。Claude Code 拒绝它们对您的主目录和保存用户文件的其他根的读取访问：`/Users`、`/home`、`/root`、`/Volumes`、`/mnt`、`/media`、`/run/media` 和 `/srv`。然后它重新打开工作目录、[worktrees](/docs/zh-CN/worktrees) Claude Code 在会话中创建的、会话临时目录以及 `~/.claude` 的命令需要的部分，如技能和插件。当该块生效时，来自存储库设置的 `allowRead` 和 `allowWrite` 条目不计。
+当[沙箱](/docs/zh-CN/sandboxing)打开时，块也涵盖沙箱命令。Claude Code 拒绝它们对您的主目录和保存用户文件的其他根的读取访问：`/Users`、`/home`、`/root`、`/Volumes`、`/mnt`、`/media`、`/run/media` 和 `/srv`。然后它重新打开工作目录、[Claude Code 在会话中创建的 worktrees](/docs/zh-CN/worktrees)、会话临时目录以及命令需要的 `~/.claude` 部分，如技能和插件。当块生效时，来自存储库设置的 `allowRead` 和 `allowWrite` 条目不计。
 
-当会话的工作目录是链接的 [git worktree](/docs/zh-CN/worktrees)（包括 Claude Code 在会话中途进入的）时，存储库的公共 `.git` 目录对沙箱命令保持可读和可写，因此 git 在那里继续工作。
+当会话的工作目录是链接的 [git worktree](/docs/zh-CN/worktrees)（包括 Claude Code 在会话中途进入的）时，存储库的公共 `.git` 目录对沙箱命令保持可读和可写，因此 git 在那里保持工作。
 
-在这些情况下，该块不会到达沙箱命令，而 Claude 的文件工具继续强制执行它：
+在这些情况下，块不会到达沙箱命令，而 Claude 的文件工具继续强制执行它：
 
 * 文件系统隔离通过 [`sandbox.filesystem.disabled`](#sandbox-filesystem-disabled) 关闭
 * [`allowManagedReadPathsOnly`](#sandbox-filesystem-allowmanagedreadpathsonly) 已设置
 * 您启动 Claude Code 的目录的路径包含 glob 字符，如 `*`、`?` 或 `[`
 
-在该块下，Claude Code 重新打开您的全局 git 配置文件到沙箱命令，以便 `git` 保持您的身份和设置：
+在块下，Claude Code 重新打开您的全局 git 配置文件到沙箱命令，以便 `git` 保持您的身份和设置：
 
 * `~/.gitconfig`
 * `$XDG_CONFIG_HOME/git` 下的 `config`、`ignore` 和 `attributes` 文件，默认为 `~/.config/git`
 * 您的全局 git 配置通过 `[include]`、`[includeIf]`、`core.excludesFile` 或 `core.attributesFile` 命名的文件
 
-Claude Code 单独判断每个文件。当文件位于沙箱命令可以写入的地方（直接或通过符号链接）时，Claude Code 不会重新打开它命名的文件。
+Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接或通过符号链接写入的位置时，Claude Code 不会重新打开它命名的文件。
 
 在 Linux 和 WSL2 上，作为符号链接的配置文件可以在其自己的路径处保持不可读，然后 `git` 在没有它的情况下运行。`~/.git-credentials` 和 `$XDG_CONFIG_HOME/git/credentials` 保持被阻止。
 
-如果重新打开的文件保存机密，如 `http.extraHeader` 令牌，将其路径添加到 [`sandbox.filesystem.denyRead`](#sandbox-filesystem-denyread)。覆盖此重新打开的 `denyRead` 条目始终优先。
+如果重新打开的文件保存机密，如 `http.extraHeader` 令牌，请将其路径添加到 [`sandbox.filesystem.denyRead`](#sandbox-filesystem-denyread)。覆盖此重新打开的 `denyRead` 条目始终优先。
 
 <h3 id="permissions-defaultmode">
   `permissions.defaultMode`
 </h3>
 
-设置新会话启动的[权限模式](/docs/zh-CN/permission-modes)。当您将其留空时，会话会以您的表面的[内置默认值](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)启动。
+设置新会话启动的[权限模式](/docs/zh-CN/permission-modes)。当您将其留空时，会话以您的表面的[内置默认值](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)启动。
 
 * **作用域**: [`Any file`](#scopes)。`auto` 和 `bypassPermissions` 不会从项目或本地设置生效，因此改为在 `~/.claude/settings.json` 中设置它们。在 v2.1.257 之前，`bypassPermissions` 从任何文件生效。对于 VS Code 扩展启动的对话，Claude Code 仅读取用户、托管和 `--settings` 值。
 * **类型**: 字符串，以下之一：
-  * `"default"`：Claude Code 仅在不询问的情况下运行读取
-  * `"acceptEdits"`：Claude Code 也在不询问的情况下运行文件编辑和常见文件系统命令（如 `mkdir` 和 `mv`）
-  * `"plan"`：Claude Code 读取和规划，但阻止编辑直到您批准计划
-  * `"auto"`：Claude Code 运行所有内容，具有后台安全检查
-  * `"dontAsk"`：Claude Code 自动拒绝每个会否则提示的调用；读取、不需要批准的其他操作以及预批准的工具仍然运行
-  * `"bypassPermissions"`：Claude Code 在不询问的情况下运行所有内容
-  * `"manual"`：`"default"` 的别名，在 Claude Code v2.1.200 或更高版本中
+  * `"default"`: Claude Code 仅运行读取而不询问
+  * `"acceptEdits"`: Claude Code 还运行文件编辑和常见文件系统命令（如 `mkdir` 和 `mv`）而不询问
+  * `"plan"`: Claude Code 读取和规划但阻止编辑直到您批准计划
+  * `"auto"`: Claude Code 运行而不进行常规提示；在 shell 命令和网络请求等操作运行之前，后台分类器检查它们是否与您的请求一致
+  * `"dontAsk"`: Claude Code 自动拒绝每个本应提示的调用；读取、不需要批准的其他操作以及预批准的工具仍然运行
+  * `"bypassPermissions"`: Claude Code 运行所有内容而不询问
+  * `"manual"`: `"default"` 的别名，在 Claude Code v2.1.200 或更高版本中
 * **默认值**: 未设置
-* **每会话覆盖**: `--permission-mode` 及其 `bypassPermissions` 的等效项 `--dangerously-skip-permissions` 对一个会话优先于此键
+* **每个会话覆盖**: `--permission-mode` 及其 `bypassPermissions` 的等效 `--dangerously-skip-permissions` 对一个会话优先于此键
 
 ```json settings.json theme={null}
 {
@@ -1758,18 +1760,18 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以写入�
 }
 ```
 
-权限规则分层在每个模式之上：`deny` 规则在每个模式中阻止，包括 `bypassPermissions`。请参阅[权限模式](/docs/zh-CN/permission-modes)。`manual` 命名 CLI 和 VS Code 扩展中标记为"手动"的权限模式；别名需要 Claude Code v2.1.200 或更高版本。在云会话中，Claude Code 仅从此键中遵守 `acceptEdits`、`plan`、`default` 和 `auto`。对于 VS Code 扩展启动的对话，请参阅[扩展为启动权限模式读取的设置](/docs/zh-CN/permission-modes#switch-permission-modes)。
+权限规则分层在每种模式之上：`deny` 规则在每种模式中阻止，包括 `bypassPermissions`。请参阅[权限模式](/docs/zh-CN/permission-modes)。`manual` 命名 CLI 和 VS Code 扩展中标记为 Manual 的权限模式；别名需要 Claude Code v2.1.200 或更高版本。在云会话中，Claude Code 仅从此键中遵守 `acceptEdits`、`plan`、`default` 和 `auto`。对于 VS Code 扩展启动的对话，请参阅[扩展为启动权限模式读取的设置](/docs/zh-CN/permission-modes#switch-permission-modes)。
 
 <h3 id="permissions-disablebypasspermissionsmode">
   `permissions.disableBypassPermissionsMode`
 </h3>
 
-防止任何人进入 `bypassPermissions` 模式。Claude Code 随后会拒绝 `--dangerously-skip-permissions` 标志，并忽略[代理定义的](/docs/zh-CN/sub-agents#permission-modes) `permissionMode: bypassPermissions`，因此子代理使用父会话的权限模式运行。
+防止任何人进入 `bypassPermissions` 模式。Claude Code 随后拒绝 `--dangerously-skip-permissions` 标志，并忽略[代理定义的](/docs/zh-CN/sub-agents#permission-modes) `permissionMode: bypassPermissions`，因此子代理以父会话的权限模式运行。
 
 * **作用域**: [`Any file`](#scopes)。通常在[托管设置](/docs/zh-CN/managed-settings)中设置以强制执行组织政策。
 * **类型**: 字符串 `"disable"`
 * **默认值**: 未设置
-* **每会话覆盖**: 此键优先于 `--dangerously-skip-permissions`，在设置此键时 Claude Code 会拒绝它
+* **每个会话覆盖**: 此键优先于 `--dangerously-skip-permissions`，在设置此键时 Claude Code 拒绝
 
 ```json settings.json theme={null}
 {
@@ -1779,7 +1781,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以写入�
 }
 ```
 
-在 v2.1.223 之前，即使禁用绕过，Claude Code 也应用了 frontmatter 权限模式。
+在 v2.1.223 之前，Claude Code 即使禁用绕过也应用了 frontmatter 权限模式。
 
 <h3 id="skipautopermissionprompt">
   `skipAutoPermissionPrompt`
@@ -1789,8 +1791,8 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以写入�
 
 * **作用域**: [`User or managed`](#scopes)。存储库无法为您设置它。
 * **类型**: 布尔值
-  * `true`：Claude Code 跳过通知
-  * `false`：与未设置相同；除非这些文件中的另一个设置 `true`，否则通知出现一次
+  * `true`: Claude Code 跳过通知
+  * `false`: 与未设置相同；通知出现一次，除非这些文件中的另一个设置 `true`
 * **默认值**: 未设置，因此通知出现一次
 
 ```json settings.json theme={null}
@@ -1807,8 +1809,8 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以写入�
 
 * **作用域**: [`User, local, or managed`](#scopes)。不受信任的存储库无法为您跳过对话框。
 * **类型**: 布尔值
-  * `true`：Claude Code 跳过会话进入 `bypassPermissions` 模式之前的确认对话框
-  * `false`：与未设置相同；除非这些文件中的另一个设置 `true`，否则对话框出现
+  * `true`: Claude Code 跳过会话进入 `bypassPermissions` 模式之前的确认对话框
+  * `false`: 与未设置相同；对话框出现，除非这些文件中的另一个设置 `true`
 * **默认值**: 未设置，因此对话框出现
 
 ```json settings.json theme={null}

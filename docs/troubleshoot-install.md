@@ -1022,7 +1022,7 @@ npm install -g @anthropic-ai/claude-code
   登录后 403 Forbidden
 </h3>
 
-如果登录后看到 `API Error: 403 {"error":{"type":"forbidden","message":"Request not allowed"}}`：
+如果登录后看到 `API Error: 403 Request not allowed`：
 
 * **Claude Pro/Max 用户**：在 [claude.ai/settings](https://claude.ai/settings) 验证您的订阅是否有效
 * **Anthropic Console 用户**：确认您的账户具有"Claude Code"或"Developer"角色。管理员在 Anthropic Console 的"Settings → Members"中分配此角色。

@@ -294,7 +294,7 @@ CLAUDE_CODE_NO_FLICKER=1 CLAUDE_CODE_DISABLE_MOUSE=1 claude
 
 禁用鼠标捕获后，使用 `PgUp`、`PgDn`、`Ctrl+Home` 和 `Ctrl+End` 的键盘滚动仍然有效，您的终端原生处理选择。您会失去点击定位光标、点击展开工具输出、URL 点击和 Claude Code 内部的滚轮滚动。
 
-要保持滚轮滚动但关闭点击、拖动和悬停处理，请改为设置 `CLAUDE_CODE_DISABLE_MOUSE_CLICKS=1`。需要 Claude Code v2.1.195 或更高版本。当两个变量都设置时，`CLAUDE_CODE_DISABLE_MOUSE` 优先。
+要保持滚轮滚动但关闭点击、拖动和悬停处理，请改为设置 `CLAUDE_CODE_DISABLE_MOUSE_CLICKS=1`。当两个变量都设置时，`CLAUDE_CODE_DISABLE_MOUSE` 优先。
 
 禁用点击后，Claude Code 仍然捕获鼠标，因此滚轮和触控板滚动对话，但左键点击在 Claude Code 内部不起作用。您仍然需要按住终端的键进行原生点击和拖动选择。右键点击和中键粘贴在支持它们的终端上继续工作。
 

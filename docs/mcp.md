@@ -542,7 +542,7 @@ MCP 服务器也可以直接将消息推送到您的会话中，以便 Claude �
   * 在 [云会话](/docs/zh-CN/claude-code-on-the-web) 中，对尚未连接的插件服务器的 MCP 调用（例如在空闲会话唤醒后），按需启动服务器并等待它连接
 * **路径占位符**：`${CLAUDE_PLUGIN_ROOT}` 解析为插件的安装目录，`${CLAUDE_PLUGIN_DATA}` 解析为其 [持久状态](/docs/zh-CN/plugins/components#path-variables-and-persistent-data) 目录，`${CLAUDE_PROJECT_DIR}` 解析为稳定的项目根目录。替换适用于：
   * `stdio` 服务器：`command`、`args`、`env`
-  * `http`、`sse` 和 `ws` 服务器：`url`、`headers` 和 `headersHelper`。在 v2.1.195 之前，`headersHelper` 将占位符作为文字字符串传递
+  * `http`、`sse` 和 `ws` 服务器：`url`、`headers` 和 `headersHelper`
 * **用户环境访问**：访问与手动配置的服务器相同的环境变量
 * **多种传输类型**：支持 stdio、SSE、HTTP 和 WebSocket 传输，尽管传输支持可能因服务器而异
 
@@ -1101,7 +1101,7 @@ Claude Code 从声明服务器的配置中选择 `headersHelper` 命令的工作
 
 | 您配置服务器的位置 | 工作目录 |
 | :- | :- |
-| [插件](/docs/zh-CN/plugins/components#mcp-servers) | 插件的根目录。需要 Claude Code v2.1.195 或更高版本 |
+| [插件](/docs/zh-CN/plugins/components#mcp-servers) | 插件的根目录 |
 | 项目 `.mcp.json` 或 [本地范围](#local-scope) 服务器 | 声明服务器的项目目录 |
 | 您项目中的代理文件、来自 SDK 的 `mcpServers` 选项或 `setMcpServers()` 方法的服务器，或 [`--mcp-config`](/docs/zh-CN/cli-reference) | 会话的 [主工作目录](/docs/zh-CN/permissions#working-directories) |
 | [用户范围](#user-scope)、[托管 MCP](/docs/zh-CN/managed-mcp)、[claude.ai 连接器](#use-mcp-servers-from-claude-ai)，或来自您项目外的代理文件，包括来自 `--add-dir` 目录的代理文件 | 您的配置目录，`~/.claude` 除非您设置 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) |
@@ -1440,7 +1440,7 @@ claude
 
 您的服务器接收 Claude 选择的任何参数，因此请继续在服务器端验证组合。
 
-当 Claude Code 无法生成 API 接受的模式，或在未收到启用重写的远程配置的部署上时，它会跳过该工具，在服务器日志中记录原因，并保持服务器的其他工具可用。早于 v2.1.195 的版本会跳过其输入模式具有根级 `anyOf`、`oneOf` 或 `allOf` 的每个工具。
+当 Claude Code 无法生成 API 接受的模式，或在未收到启用重写的远程配置的部署上时，它会跳过该工具，在服务器日志中记录原因，并保持服务器的其他工具可用。
 
 <h2 id="tools-with-invalid-input-schemas">
   具有无效输入架构的工具

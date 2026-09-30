@@ -56,6 +56,25 @@ Claude Code 包含一组捆绑技能，例如 `/doctor`、`/code-review`、`/bat
 
 Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命令或缺少的步骤，因此您可以提交文件而无需每个会话的差异。在 v2.1.205 之前，捆绑技能告诉 Claude 折叠运行学到的任何内容，这导致频繁的合并冲突。
 
+<h3 id="work-on-claude-api-projects">
+  处理 Claude API 项目
+</h3>
+
+捆绑的 `/claude-api` 技能为您的项目语言加载 [Claude API](https://platform.claude.com/docs/en/api/overview) 和[托管代理](https://platform.claude.com/docs/en/managed-agents/overview)参考资料。当您的代码导入 `anthropic` 或 `@anthropic-ai/sdk` 时，Claude 也会自动激活它。
+
+要启动技能的工作流之一，请在 Claude Code 提示符处的技能名称后键入子命令，例如 `/claude-api migrate`。该表列出了每个子命令的作用以及包含它的最早 Claude Code 版本。`migrate` 和 `managed-agents-onboard` 早于 v2.1.221，这是该表跟踪的最早版本。
+
+| 子命令 | 作用 | 最低版本 |
+| :- | :- | :- |
+| `migrate` | 将您现有的 Claude API 代码更新到更新的模型 | 早于 v2.1.221 |
+| `upgrade` | 跨主要版本移动您的项目的 Anthropic SDK 依赖项，目前是 Python `anthropic` 包从 0.x 到 1.x | v2.1.236 或更高版本 |
+| `managed-agents-onboard` | 逐步完成创建新的托管代理 | 早于 v2.1.221 |
+| `prompt-audit` | 标记为旧模型编写的指令在您的提示、技能和工具描述中，并提议修复作为差异 | v2.1.221 或更高版本 |
+| `cost-optimize` | 分析您的项目的 Claude API 支出去向，并提议从提示缓存、修剪不需要的输入和输出令牌、批处理、工作量和模型选择等选项中节省成本，一次一个更改 | v2.1.247 或更高版本 |
+| `build-eval` | 为您的 Claude 驱动的应用构建评估集 | v2.1.259 或更高版本 |
+| `hillclimb` | 针对现有评估迭代改进您的应用 | v2.1.259 或更高版本 |
+| `preserved-thinking-migration` | 查找您的集成对早期轮次、其系统提示或其工具列表所做的编辑，这些编辑使[保留的思考](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking)块失效，测量每个块丢弃多少推理，并提议一次一个修复，在每次更改后重新测量 | v2.1.282 或更高版本 |
+
 <h2 id="getting-started">
   开始使用
 </h2>
@@ -909,9 +928,14 @@ Claude Code 仅针对技能自己的名称和 Claude 调用中的名称匹配 `a
 
 看到技能触发告诉你 Claude 找到了它，但不代表它做了你想要的事情。要知道技能是否有效，需要分别测量两件事：Claude 是否在应该调用的提示上调用它，以及当它调用时输出是否与你的预期相符。
 
-两者的检查都是基线比较。收集几个现实的提示，在启用技能的新会话中运行每个提示，然后在[禁用](#override-skill-visibility-from-settings)技能的情况下再运行一次，并比较结果。新会话很重要，因为编写技能时留下的上下文会掩盖书面说明中的差距。
+两者的检查都是基线比较。收集几个现实的提示，在启用技能的新会话中运行每个提示，然后在禁用技能的情况下再运行一次，并比较结果。新会话很重要，因为编写技能时留下的上下文会掩盖书面说明中的差距。
 
-两个工具可以自动化该比较。对于在[插件](/docs/zh-CN/plugins/overview)中发布的技能，[`claude plugin eval`](/docs/zh-CN/plugin-evals)在隔离会话中运行每个提示，既有插件也没有插件，使用你定义的或它为你编写的评分器对其进行评分，并在低于阈值时以非零状态退出，以便你可以在 CI 上对其进行门控。对于在 Claude Code 对话中迭代单个技能，下面的 skill-creator 插件使用其自己的 `evals/evals.json` 格式运行类似的循环。这两种格式不可互换。
+关闭技能进行第二次运行的方式取决于它来自何处：
+
+* **个人或项目技能**：在 [`skillOverrides`](#override-skill-visibility-from-settings) 中将其设置为 `"off"`。
+* **插件提供的技能**：`skillOverrides` 不适用于插件技能。改用 [`claude plugin eval`](/docs/zh-CN/plugin-evals#the-no-plugin-baseline)，它在没有加载任何插件的情况下重复每次运行。
+
+两个工具可以自动化基线比较。对于在[插件](/docs/zh-CN/plugins/overview)中发布的技能，[`claude plugin eval`](/docs/zh-CN/plugin-evals) 在隔离会话中运行每个提示，既有插件也没有插件，使用你定义的或它为你编写的评分器对其进行评分，并在低于阈值时以非零状态退出，以便你可以在 CI 上对其进行门控。对于在 Claude Code 对话中迭代单个技能，下面的 skill-creator 插件使用其自己的 `evals/evals.json` 格式运行类似的循环。这两种格式不可互换。
 
 <h3 id="run-evals-with-skill-creator">
   使用 skill-creator 运行评估

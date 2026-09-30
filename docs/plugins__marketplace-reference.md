@@ -280,7 +280,7 @@ Claude Code 使用你的 npm 客户端获取包。包的安装脚本，如 `prei
   archive plugin source
 </h3>
 
-`url` 必须使用 `https://`，不能指向环回、链接本地或云元数据主机。
+`url` 必须使用 `https://`，不能指向环回、链接本地或云元数据主机。有关下载的大小、超时、重定向和提取限制，请参阅[保持在托管文件的下载限制内](/docs/zh-CN/plugins/host-marketplace#stay-within-the-download-limits-for-hosted-files)。
 
 插件根可能在 zip 的顶部或下一个目录。
 
@@ -385,7 +385,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | :- | :- | :- | :- | :- | :- |
 | `url` | `url`、`headers`、`headersHelper` | 不匹配 git 形式的 `http://` 或 `https://` URL | 加载 | 允许相同的 URL | 阻止相同的 URL |
 | `github` | `repo`、`ref`、`path`、`sparsePaths` | `owner/repo`、`owner/repo@ref` 或 `owner/repo#ref` | 加载 | 允许相同的 `repo`、`ref` 和 `path`。`repo` 可能是 `owner/*` | 阻止相同的，以及到相同存储库的 `git` URL |
-| `git` | `url`、`ref`、`path`、`sparsePaths` | `user@host:path` URL，或以 `.git` 结尾、包含 `/_git/` 或命名 github.com 或 gitlab.com 存储库的 `https://` URL。`#ref` 固定 ref | 加载 | 允许相同的 URL、`ref` 和 `path` | 阻止相同的，以及相同 github.com 存储库的其他拼写 |
+| `git` | `url`、`ref`、`path`、`sparsePaths` | `user@host:path` URL，或以 `.git` 结尾、包含 `/_git/` 或命名 github.com 或 gitlab.com 存储库的 `http://` 或 `https://` URL。`#ref` 固定 ref | 加载 | 允许相同的 URL、`ref` 和 `path` | 阻止相同的，以及相同 github.com 存储库的其他拼写 |
 | `npm` | `package` | 未产生 | 加载失败：`NPM marketplace sources not yet implemented` | 解析但不匹配任何内容，因为没有任何内容注册 `npm` marketplace | 解析但不匹配任何内容 |
 | `file` | `path` | `.json` 文件的路径 | 加载 | 允许相同的路径 | 阻止相同的路径 |
 | `directory` | `path` | 目录的路径 | 加载 | 允许相同的路径 | 阻止相同的路径 |
@@ -402,7 +402,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 
 | 字段 | 类型 | 描述 |
 | :- | :- | :- |
-| `url` | `url` | 指向 `marketplace.json` 文件的链接。Claude Code 仅下载该文件，因此 marketplace 的插件不能使用 [相对路径源](#relative-path-plugin-source) |
+| `url` | `url` | 指向 `marketplace.json` 文件的链接。Claude Code 仅下载该文件，因此 marketplace 的插件不能使用 [相对路径源](#relative-path-plugin-source)。请参阅 [保持在托管文件的下载限制内](/docs/zh-CN/plugins/host-marketplace#stay-within-the-download-limits-for-hosted-files) 了解大小、超时和重定向限制 |
 | `url` | `git` | 要克隆的 git 存储库 |
 | `headers` | `url` | Claude Code 随获取发送的 HTTP 标头映射，用于经过身份验证的主机 |
 | `headersHelper` | `url` | 打印标头的命令，其值太短暂而无法在 `headers` 中列出。需要 Claude Code v2.1.238 或更高版本。请参阅 [验证 archive 下载](/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads) |

@@ -159,6 +159,7 @@
 | `Claude Code ... is older than the minimum version required by your organization's policy` | [请求错误](#claude-code-does-not-support-this-model) |
 | `Model ... is restricted by your organization's settings` | [请求错误](#model-is-restricted-by-your-organizations-settings) |
 | `Model ... is not available. Your organization restricts model selection.` | [请求错误](#model-is-restricted-by-your-organizations-settings) |
+| `Can't switch to the default model` | [请求错误](#cant-switch-to-the-default-model) |
 | `Model switch ... blocked by a PreModelSwitch hook` | [请求错误](#model-switch-was-blocked-by-a-premodelswitch-hook) |
 | `couldn't save it as your default` / `couldn't confirm it was saved as your default` | [请求错误](#couldnt-save-it-as-your-default) |
 | `thinking.type.enabled is not supported for this model` | [请求错误](#thinking-type-enabled-is-not-supported-for-this-model) |
@@ -220,6 +221,7 @@
 | `Ultrareview clones <owner>/<repo> in the cloud with the GitHub account connected to your Claude account, and none is connected` | [命令行错误](#no-github-account-is-connected-to-your-claude-account) |
 | `Your connected GitHub account can't see <owner>/<repo>` | [命令行错误](#your-connected-github-account-cant-see-the-repository) |
 | `The GitHub App preflight failed transiently (network or service hiccup) — retry in a moment to start from GitHub instead` | [命令行错误](#the-github-app-preflight-failed-transiently) |
+| `Not uploading this working tree` with `the upload cannot follow that setting` | [命令行错误](#the-repository-upload-cant-follow-a-git-setting) |
 | `GitHub isn't connected to your Claude account, so this repository can't be cloned in the cloud` | [命令行错误](#github-isnt-connected-to-your-claude-account) |
 | `Single sign-on authorization needed` | [命令行错误](#single-sign-on-authorization-needed) |
 | `Failed to resume the conversation` | [命令行错误](#failed-to-resume-the-conversation) |
@@ -729,7 +731,7 @@ API Error: Usage credits required for 1M context · run /usage-credits to turn t
   The prompt to confirm went unanswered
 </h3>
 
-如果您的账户需要 [Fable usage-credits consent](/docs/zh-CN/model-config#fable-and-usage-credits)，Claude Code 会在 Fable 请求计费使用额度之前要求您确认。当在可能没有人在其终端的会话中没有人回答该同意提示时，Claude Code 会关闭提示并以以下消息之一结束轮次：
+如果您的账户需要 [Fable usage-credits consent](/docs/zh-CN/model-config#fable-and-usage-credits)，Claude Code 会在 Fable 请求计费使用额度之前要求您确认。当同意提示关闭且没有人回答时，Claude Code 会以以下消息之一结束轮次：
 
 ```text theme={null}
 Fable limit reached · continuing on Fable 5.1 uses usage credits, and the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
@@ -738,13 +740,13 @@ Fable 5.1 now uses usage credits · the prompt to confirm went unanswered — no
 
 消息命名会话的 Fable 模型，因此在 Fable 5 上它们读作 `continuing on Fable 5` 和 `Fable 5 now uses usage credits`。在 v2.1.257 之前，第一条消息以 `Fable 5 limit reached` 开头。
 
-这发生在 [Remote Control](/docs/zh-CN/remote-control) 会话、[background sessions](/docs/zh-CN/agent-view) 和 [agent team](/docs/zh-CN/agent-teams) 队友会话中。Claude Code 仅在会话自己的交互式视图中显示同意提示：运行它的终端，或对于后台会话，一旦您附加，[agents view](/docs/zh-CN/agent-view)。Remote Control 客户端无法显示它。Claude Code 在 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止时间关闭提示，默认为五分钟，或一旦新提示到达而没有人在该终端输入时立即关闭，例如从 Remote Control 客户端发送的提示。在会话运行的终端输入会取消截止时间，Claude Code 等待您的答案。在附加的后台会话视图中，输入不会取消截止时间，新提示仍会关闭同意提示，因此在任何一个发生之前回答。Claude Code 不发送任何内容并保持您的模型，因此当您发送下一个提示时，Claude Code 会再次显示同意提示。
+这发生在 [Remote Control](/docs/zh-CN/remote-control) 会话、[background sessions](/docs/zh-CN/agent-view)、[agent team](/docs/zh-CN/agent-teams) 队友会话以及另一个应用程序通过 Agent SDK 托管的会话中。有关 Claude Code 何时关闭提示，请参阅 [Fable and usage credits](/docs/zh-CN/model-config#fable-and-usage-credits)。
 
 **要做什么：**
 
-* 在会话运行的终端，发送另一个提示并在它重新出现时回答同意提示。对于后台会话，首先从 [agents view](/docs/zh-CN/agent-view) 附加到它。从 Remote Control 客户端重新发送会再次显示此消息，因为客户端无法显示提示。
+* 在会话运行的地方，在终端或托管它的应用程序中，发送另一个提示并在它重新出现时回答同意提示。对于后台会话，首先从 [agents view](/docs/zh-CN/agent-view) 附加到它。从 Remote Control 客户端重新发送会再次显示此消息，因为客户端无法显示提示。
 * 运行 `/model` 切换到不计费使用额度的模型
-* 要给自己更多时间到达该终端，请将 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 设置为更长的值或 `"never"`
+* 要给自己更多时间，请将 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 设置为更长的值或 `"never"`
 
 在 v2.1.236 之前，此消息没有出现：当 Remote Control 客户端连接时，Claude Code 等待 60 秒以获得答案，然后在您的默认模型上继续轮次。
 
@@ -2492,6 +2494,30 @@ Claude Code 将模型族别名（`opus`、`sonnet`、`haiku` 或 `fable` 之一�
 * 如果受限制的模型在 `--model`、`ANTHROPIC_MODEL`、设置文件的 `model` 字段或[子代理](/docs/zh-CN/sub-agents#choose-a-model)、技能或命令的 `model` frontmatter 中设置，删除或更新该值，以便通知不会再次出现
 * 如果您需要访问受限制的模型，请要求您的组织管理员启用它。请参阅[组织模型限制](/docs/zh-CN/model-config#organization-model-restrictions)。
 
+<h3 id="cant-switch-to-the-default-model">
+  无法切换到默认模型
+</h3>
+
+您选择了默认模型，例如通过在 `/model` 选择器中选择默认行或键入 `/model default`。Claude Code 拒绝了切换，因此会话保持其当前模型。
+
+```text theme={null}
+Can't switch to the default model: your organization's managed settings block it (claude-opus-4-6) in "deniedModels", and none of the models they allow can be used as the default instead. Ask your administrator to update "deniedModels" or "availableModels".
+```
+
+冒号后的措辞命名阻止切换的内容：
+
+* **`your organization's managed settings block it ... in "deniedModels"`**：托管拒绝列表阻止默认选项解析到的模型
+* **`your organization allows only the models listed in "availableModels"`**：托管 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表，其 [`availableModelsMatch`](/docs/zh-CN/settings-reference#availablemodelsmatch) 设置为 `"exact"`，遗漏了默认选项解析到的模型
+* **`Claude Code couldn't read your organization's managed settings to check which models they allow`**：[托管设置](/docs/zh-CN/managed-settings)无法读取，Claude Code 拒绝切换而不是未检查地应用它
+
+**要做什么：**
+
+* 对于 [`deniedModels`](/docs/zh-CN/settings-reference#deniedmodels) 和 `availableModels` 措辞，运行 `/model` 并按名称选择您的组织允许的模型
+* 要求您的管理员更新消息命名的托管设置
+* 对于 `couldn't read` 措辞，重启 Claude Code；如果它继续发生，要求您的管理员检查托管设置
+
+如果会话改为在这些托管设置下以 `Claude Code can't start` 消息失败启动，请参阅[托管设置阻止默认模型](#managed-settings-block-the-default-model)。
+
 <h3 id="model-switch-was-blocked-by-a-premodelswitch-hook">
   模型切换被 PreModelSwitch hook 阻止
 </h3>
@@ -3303,8 +3329,6 @@ Claude Code 不将每个以 `/` 开头的提示视为命令。当 `/` 后的第�
   Diff 对于 ultrareview 来说太大
 </h3>
 
-Diff 对于 ultrareview 来说太大：812 个文件，96,410 行更改（限制：500 个文件，8,000 行）。最大的文件：package-lock.json（41,904 行），dist/bundle.js（18,210 行），src/generated/api.ts（9,876 行）。传递更接近的基础分支（`/code-review ultra <branch>`）以缩小范围，或拆分更改。
-
 您的分支与基础分支之间的差异，包括未提交和暂存的更改，超过了 [ultrareview](/docs/zh-CN/ultrareview) 的大小限制，因此 `/code-review ultra` 和 `claude ultrareview` 子命令在云会话启动前拒绝审查。被拒绝的审查不使用免费运行，也不计费使用信用。消息命名生效的限制、您的差异大小以及贡献最多更改行的文件。在 v2.1.216 之前，消息仅显示原始差异统计。
 
 ```text theme={null}
@@ -3409,6 +3433,24 @@ Could not upload repo bundle (<error>). The GitHub App preflight failed transien
 * 如果重试继续失败，消息的开头命名了停止上传的内容。当该原因是您可以修复的内容时，修复它以便会话可以从您的本地存储库启动。
 
 在 v2.1.251 之前，Claude Code 以 `Please set up GitHub on https://claude.ai/code` 结束消息，即使 GitHub 检查仅暂时失败，设置建议也无法清除暂时失败。
+
+<h3 id="the-repository-upload-cant-follow-a-git-setting">
+  存储库上传无法遵循 git 设置
+</h3>
+
+您启动了[上传您的本地存储库的云会话](/docs/zh-CN/claude-code-on-the-web#send-local-repositories-without-github)或[分支的 ultrareview](/docs/zh-CN/ultrareview)，上传无法遵循决定哪些属性规则适用于您的文件的 git 设置之一。如果上传继续并错过了规则，git 在存储它之前转换的文件（例如清理过滤器加密的文件）可能会到达云端，就像它在磁盘上一样。Claude Code 拒绝上传，什么都不上传：
+
+```text theme={null}
+Not uploading this working tree: core.ignoreCase (which decides whether .gitattributes patterns match file names regardless of letter case) is set in <file>, and the upload cannot follow that setting, so a file git would change before storing it (to encrypt it, for example) could be uploaded as it is on disk. Move the core.ignoreCase line into this repository's .git/config or directly into your ~/.gitconfig, then retry.
+```
+
+消息命名设置和它的设置位置，并以该情况的修复结尾。相同的拒绝出现在 `core.attributesFile` 和 `attr.tree` 中，每个都有自己的修复。
+
+消息可以命名您的 git 配置通过 `include` 或 `includeIf` 指令拉入的配置文件，即使该指令的条件不适用于此存储库。
+
+**要做什么：**
+
+* 应用消息最后一句中的修复
 
 <h3 id="github-isnt-connected-to-your-claude-account">
   GitHub 未连接到您的 Claude 帐户

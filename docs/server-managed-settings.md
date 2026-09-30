@@ -310,7 +310,7 @@ Claude Code 无法始终显示对话框。下面的每种情况说明当它无�
 * **无法显示对话框的交互式会话**：Claude Code 不应用传递的设置，保留最后批准的设置。对话框在下一个可以显示它的会话中出现。需要 Claude Code v2.1.211 或更高版本。
 * **`claude install` 或 `claude update`**：Claude Code 在任何命令期间都不显示对话框。该命令使用最后批准的设置运行，对话框在您的下一个交互式会话中出现。如果 Claude Code 在启动时等待设置获取，例如设置了 [`forceRemoteSettingsRefresh`](#enforce-fail-closed-startup) 或在[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)部署上，它会在命令期间显示对话框，从管道运行的安装失败；请参阅[安装期间 `Raw mode is not supported`](/docs/zh-CN/troubleshoot-install#raw-mode-is-not-supported-during-install)。在 v2.1.246 之前，Claude Code 也尝试在这些命令期间显示对话框。
 * **错误在您回答前关闭对话框**：Claude Code 不应用传递的设置，保留最后批准的设置。它在下一个可以显示它的会话中再次显示对话框。
-* **非交互式运行**，例如 `claude -p` 或 Agent SDK 会话：Claude Code 无法显示对话框，因此当传递的设置需要批准时，它仅为该运行应用它们。它不将它们记录为已批准或写入[本地缓存](#fetch-and-caching-behavior)，下一个交互式会话会显示对话框。在用户在交互式会话中批准之前，每个非交互式运行都会在启动时再次获取设置。在 v2.1.207 之前，非交互式运行会将设置保存为已批准，因此后来的交互式会话永远不会为它们显示对话框。
+* **非交互式运行**，例如 `claude -p`、Agent SDK 会话或 VS Code 扩展的聊天面板或桌面应用的代码选项卡中的会话：Claude Code 无法显示对话框，因此当传递的设置需要批准时，它仅为该运行应用它们。它不将它们记录为已批准或写入[本地缓存](#fetch-and-caching-behavior)，下一个交互式会话会显示对话框。在用户在交互式会话中批准之前，每个非交互式运行都会在启动时再次获取设置。在 v2.1.207 之前，非交互式运行会将设置保存为已批准，因此后来的交互式会话永远不会为它们显示对话框。
 
 <h4 id="environment-variables-and-the-approval-dialog">
   环境变量和批准对话框

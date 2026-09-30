@@ -138,8 +138,8 @@ Claude Code 在沙箱内启动，具有您配置的文件系统和网络边界�
 * 在项目根目录，运行时拒绝 `.git/hooks`，拒绝 `.git/config` 除非您设置 `filesystem.allowGitConfig: true`，并拒绝 `.mcp.json`、`.claude/commands`、`.claude/agents` 和 shell 启动文件。
 * 在 macOS 上，这些拒绝在写入发生时被检查，因此它们也涵盖嵌套文件和在会话期间创建的存储库。
 * 在 Linux 和 WSL2 上，运行时在启动时构建拒绝列表一次。它可靠地涵盖项目根目录，对当时存在的嵌套副本进行最佳努力的浅层扫描，并不涵盖会话稍后创建的任何内容，例如 `git init`、`git clone` 或脚手架。README 的 `mandatoryDenySearchDepth` 部分描述了扫描的确切语义。
-* 没有有效的 `~/.srt-settings.json`，运行时仍然启动，阻止网络访问，并将写入限制在内置运行时路径，例如 `/tmp/claude`、`~/.npm/_logs` 和 `~/.claude/debug`。不要将干净的启动作为您的设置已加载的证明。
-* 当您传递 `--settings` 时，如果文件加载失败，运行时拒绝启动。
+* 如果 `~/.srt-settings.json` 不存在且您没有传递 `--settings`，运行时仍然启动。它阻止网络访问并将写入限制在内置运行时路径，例如 `/tmp/claude`、`~/.npm/_logs` 和 `~/.claude/debug`。不要将干净的启动作为您的设置已加载的证明。
+* 如果设置文件存在但为空、不可读或无效，运行时拒绝启动，无论是 `~/.srt-settings.json` 还是您使用 `--settings` 传递的文件。如果 `--settings` 文件不存在，它也拒绝启动。
 
 您的写入授权仍然包括 Claude Code 加载配置的其他路径，因此使用 `denyWrite` 拒绝这些路径。可以写入它们的沙箱化会话可以持久化 hook、权限规则或 MCP 服务器，这些在您下次启动 Claude Code 时以未沙箱化的方式运行。
 

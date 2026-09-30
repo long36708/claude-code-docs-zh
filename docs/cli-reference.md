@@ -22,7 +22,7 @@
 | `claude -c -p "query"` | 通过 SDK 继续 | `claude -c -p "Check for type errors"` |
 | `claude -r "<session>" "query"` | 按 ID 或名称恢复会话 | `claude -r "auth-refactor" "Finish this PR"` |
 | `claude update` | 更新到最新版本 | `claude update` |
-| `claude gateway` | 启动自托管 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 服务器，供在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上部署 SSO 和策略在 Claude Code 前面的管理员使用。需要 `--config` 指向 [`gateway.yaml`](/docs/zh-CN/claude-apps-gateway-config)。在 Claude Code v2.1.195 及更高版本中可用。 | `claude gateway --config gateway.yaml` |
+| `claude gateway` | 启动自托管 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 服务器，供在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上部署 SSO 和策略在 Claude Code 前面的管理员使用。需要 `--config` 指向 [`gateway.yaml`](/docs/zh-CN/claude-apps-gateway-config)。 | `claude gateway --config gateway.yaml` |
 | `claude install [version]` | 安装或重新安装本机二进制文件。接受版本号如 `2.1.118`、`stable` 或 `latest`。请参阅 [安装特定版本](/docs/zh-CN/setup#install-a-specific-version) | `claude install stable` |
 | `claude auth login` | 登录您的 Anthropic 账户。使用 `--email` 预填充您的电子邮件地址，使用 `--sso` 强制 SSO 身份验证，使用 `--console` 使用 Anthropic Console 登录以进行 API 使用计费而不是 Claude 订阅 | `claude auth login --console` |
 | `claude auth logout` | 从您的 Anthropic 账户登出 | `claude auth logout` |

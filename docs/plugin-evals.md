@@ -55,9 +55,9 @@
   无插件基线
 </h3>
 
-仅凭高分不能告诉你插件是否有帮助，因为 Claude 可能在没有插件的情况下也能做得很好。为了区分两者，默认情况下每个用例的运行会重复进行，不加载任何插件，你会得到两个分数，`WITH` 和 `W/OUT`。它们的差异 `Δ` 是插件贡献的内容。如果一个用例在有插件和没有插件的情况下都得分 1.0，那么插件不是使其通过的原因。
+仅凭高分不能告诉你插件是否有帮助，因为 Claude 可能在没有插件的情况下也能做得很好。为了区分两者，一个用例的运行会重复进行，不加载任何插件，你会得到两个分数，`WITH` 和 `W/OUT`。它们的差异 `Δ` 是插件贡献的内容。如果一个用例在有插件和没有插件的情况下都得分 1.0，那么插件不是使其通过的原因。
 
-这两组运行称为 with-arm 和 without-arm；[与无插件基线比较](#compare-against-a-no-plugin-baseline)涵盖了评分器如何在它们之间评分以及如何关闭基线。
+这两组运行称为 with-arm 和 without-arm；[与无插件基线比较](#compare-against-a-no-plugin-baseline)涵盖了哪些用例仅运行 with-arm 以及评分器如何在两个 arm 之间评分。
 
 <h2 id="create-your-first-eval-suite">
   创建你的第一个 eval 套件
@@ -130,7 +130,7 @@
   编写和完善用例
 </h2>
 
-`claude plugin eval init` 编写的用例是你可以打开、更改和添加的纯文件。用例是插件 eval 目录下的一个目录，包含 `prompt.md`、`case.yaml` 或两者。要对用例进行分组，将它们嵌套在不是用例本身的目录下；用例目录内的任何内容，例如 `graders/` 和 fixture 文件，都属于该用例。
+`claude plugin eval init` 编写的用例是你可以打开、更改和添加的纯文件。用例是插件 eval 目录下的一个目录，包含 `prompt.md`、`case.yaml` 或两者。每个用例至少要有一个评分器，作为 `graders/<name>.md` 文件或 `case.yaml` 中的 `graders:` 条目，因为没有评分器的用例无法加载。要对用例进行分组，将它们嵌套在不是用例本身的目录下；用例目录内的任何内容，例如 `graders/` 和 fixture 文件，都属于该用例。
 
 这是 `claude plugin eval init` 编写的布局，也是新套件要使用的布局。[eval 套件参考](#eval-suite-reference)有完整的树，包括 mocks 和结果：
 
@@ -236,7 +236,13 @@ input_match: '"skill"\s*:\s*"(?:[\w-]+:)?your-skill-name"'
   针对无插件基线评分
 </h3>
 
-当插件处于测试中时，默认情况下每个用例在两个 arm 中运行。with-arm 是其加载插件的运行，without-arm 是相同数量的不加载任何插件的运行。摘要和报告显示两个分数和 `Δ`，即 with-arm 分数减去 without-arm 分数。传递 `--ablation none` 以仅运行 with-arm，当你不需要比较时（例如在迭代评分器时）将成本减半。
+当插件处于测试中时，用例通常在两个 arm 中运行。with-arm 是其加载插件的运行，without-arm 是相同数量的不加载任何插件的运行。摘要和报告显示两个分数和 `Δ`，即 with-arm 分数减去 without-arm 分数。
+
+在这些情况下，用例仅运行 with-arm，所以它没有 `W/OUT` 分数或 `Δ`：
+
+* **你传递 `--ablation none`**：每个用例运行一个 arm，当你不需要比较时（例如在迭代评分器时）将成本减半。
+* **用例恢复记录并且目标是一个路径**：使用[目标](#choose-what-to-evaluate)（例如 `.` 而不是已安装插件的名称），[`context.history_file`](#add-setup-or-history-with-case-yaml) 用例默认运行一个 arm，假设记录的对话已经反映了插件。运行在 stderr 上打印 `single-arm (no Δ)` 通知，命名这些用例。要比较恢复的转向与和不带插件，传递 `--ablation with-without`。
+* **没有为用例找到插件**：当目标是一个路径时，Claude Code 无法定位的插件的用例也默认运行一个 arm。参见[基线 arm 显示无插件](#the-baseline-arm-shows-no-plugin-or-delta-is-zero)来修复它。
 
 在两个 arm 运行中，某些评分器报告为 `scored: false`。像"技能被调用"这样的检查在没有插件的情况下永远无法通过，所以计数会将 without-arm 推向零并夸大 `Δ`。为了保持两个 arm 可比较，Claude Code 在两个 arm 中排除此类评分器的分数，并在 with-arm 中仅将其报告为通过/失败指示器。这包括：
 
@@ -274,7 +280,7 @@ input_match: '"skill"\s*:\s*"(?:[\w-]+:)?your-skill-name"'
 每次运行都在空工作区中开始。当用例需要的不仅仅是提示时，在 `prompt.md` 旁边添加一个 `case.yaml`，带有 `context` 块：
 
 * **Fixture 文件或 git 存储库**：在用例目录中编写 Bash 脚本并在 `context.scaffold_script` 中命名它。脚本作为你在代理沙箱外运行，仅当你传递 `--scaffold` 时，所以仅对你或你的组织编写的套件传递该标志。
-* **要继续的早期对话**：将记录保存为 `.jsonl` 文件并在 `context.history_file` 中命名它，用例的提示成为下一个用户轮次。
+* **要继续的早期对话**：将记录保存为 `.jsonl` 文件并在 `context.history_file` 中命名它，用例的提示成为下一个用户轮次。当目标是一个路径时，这样的用例默认[不运行基线 arm](#compare-against-a-no-plugin-baseline)。
 * **Claude 在运行期间可以读取的 Fixture 目录**：在 `context.add_dirs` 中列出它们。
 
 `case.yaml` 也需要 `schema_version: "1.1"` 和 `name`；[case.yaml 字段](#case-yaml-fields)参考有完整列表。
@@ -289,6 +295,8 @@ context:
   scaffold_script: fixture.sh
   add_dirs: [resources]
 ```
+
+scaffold 脚本在空工作区中启动，具有小的固定环境：你的 shell 的 `PATH`、`HOME` 设置为运行的临时主目录、`TMPDIR` 和一些常数，如 `TERM=dumb`。你的 shell 中没有其他内容到达它，用例的 `EVAL_*` 变量也不会。如果脚本以非零退出或运行时间超过 120 秒，该运行得分为 0，出现 `scaffold failed` 错误。仅将脚本用于文件和 git 状态，因为它写入的项目配置[未被加载](#how-runs-are-isolated)。
 
 <h3 id="mock-mcp-servers">
   Mock MCP 服务器
@@ -384,7 +392,7 @@ claude plugin eval . --allow-tools Write Edit "Bash(npm test *)"
 | `-j`, `--concurrency <n>` | `1` | 一次最多运行这么多个代理运行，从 1 到 8。它们共享你账户的速率限制，所以这缩短了实际时间而不是提高超过该限制的吞吐量。结果保持用例顺序 |
 | `--model <model>` | 每个用例的 `model`，否则为 `ANTHROPIC_MODEL`（如果设置），否则为 Claude Code 的默认值 | 被测试代理的模型。在 CI 中固定它，以便模型推出不会被误认为是插件回归 |
 | `--judge-model <model>` | 一个小的快速模型 | 用于 `llm` 和 `baseline` 评分器的模型 |
-| `--ablation <mode>` | 当插件解析时为 `with-without`，否则为 `none` | 是否也运行每个用例而不使用插件来衡量它添加了什么。`none` 运行一个分支；`with-without` 添加无插件基线 |
+| `--ablation <mode>` | 按用例决定；请参阅 [与无插件基线比较](#compare-against-a-no-plugin-baseline) | 是否也运行每个用例而不使用插件来衡量它添加了什么。`none` 运行一个分支；`with-without` 添加无插件基线 |
 | `--threshold <0..1>` | `1.0` | 当用例的 with 分支得分至少为此值时，用例通过。任何低于它的用例都会使命令退出 1 |
 | `--max-cost-usd <usd>` | 无上限 | 运行的列表价格成本估计的上限，不是计划使用的上限。在每次运行开始前检查。一旦花费，不会进一步启动任何内容；已在进行中的运行会完成，所以花费可能会超过这些运行的上限。如果任何运行未启动，命令会以部分结果退出 2 |
 | `--allow-tools <tools...>` | 无 | 授予超出只读集合的工具。请参阅 [授予工具](#grant-tools) |
@@ -494,7 +502,7 @@ Claude Code 会话启动的运行，例如当你要求 Claude 为你运行套件
   信任插件目录
 </h3>
 
-第一次针对一个目录运行 `claude plugin eval` 时，Claude Code 会在加载任何内容之前询问 `Trust this plugin directory?`，除非你已经在交互式 `claude` 会话中接受了那里的信任提示。在 git 仓库内，回答是会信任整个仓库，对交互式会话也是如此。当 stdin 或 stdout 不是终端时，在 `--json` 下，或当 `CI` 环境变量设置为真值（如 `true`）时，运行无法询问并被拒绝，退出代码为 1；传递 `--trust-plugin` 来自己声明信任，仅限于你会在自己机器上运行的插件。你命名而不是作为路径给出的目标，即已安装的插件或 skills 目录插件，会跳过提示。
+第一次针对一个目录运行 `claude plugin eval` 时，Claude Code 会在加载任何内容之前询问 `Trust this plugin directory?`，除非你已经在交互式 `claude` 会话中接受了那里的信任提示。在 git 仓库内，回答是会信任整个仓库，对交互式会话也是如此。当 stdin 或 stdout 不是终端时，或在 `--json` 下，运行无法询问并被拒绝，退出代码为 1；传递 `--trust-plugin` 来自己声明信任，仅限于你会在自己机器上运行的插件。你命名而不是作为路径给出的目标，即已安装的插件或 skills 目录插件，会跳过提示。
 
 插件和套件的某些部分仅在你为该运行传递其标志时才运行：
 
@@ -510,7 +518,7 @@ Claude Code 会话启动的运行，例如当你要求 Claude 为你运行套件
 
 每次运行都获得一个临时主目录、工作目录和 Claude Code 配置，被测试的代理在那里作为 `claude -p` 子进程运行，仅加载你的插件。在编写案例时，请记住这些后果：
 
-* **不加载任何个人或项目级内容。** 你的用户设置、hooks、`CLAUDE.md` 文件、MCP 服务器、其他已安装的插件、memory 和 skills 都不存在，沙箱上方没有项目范围的 `.claude/` 或 `.mcp.json` 被读取。你的大部分 shell 环境也被隐瞒；只有[允许列表](#prompt-md-fields)和 `EVAL_*` 变量到达运行。如果插件需要设置，在插件中提供它，在 `scaffold_script` 中创建它，或传递 `EVAL_*` 变量。
+* **不加载任何个人或项目级内容。** 你的用户设置、hooks、`CLAUDE.md` 文件、MCP 服务器、其他已安装的插件、memory 和 skills 都不存在。项目范围的配置不会在任何地方被读取：没有 `.claude/` 目录、`CLAUDE.md` 或 `.mcp.json` 从工作区上方或内部加载，即使是 `scaffold_script` 写入的，`add_dirs` 目录仅授予读取访问权限。你的大部分 shell 环境也被隐瞒；只有[允许列表](#prompt-md-fields)和 `EVAL_*` 变量到达运行。在被测试的插件中提供任何 skills、agents、hooks 或 MCP 服务器案例所依赖的，因为 [`scaffold_script`](#add-setup-or-history-with-case-yaml) 只能提供文件和 git 状态。
 * **托管策略仍然可以限制运行。** 管理员部署到机器的[托管设置](/docs/zh-CN/managed-settings)中的限制适用于运行内部，所以托管机器上的结果可能因该策略而与非托管机器不同。
 * **Artifact 工具已关闭。** 发布[artifact](/docs/zh-CN/artifacts)的 skill 只能根据在该步骤之前产生的内容进行评分。
 * **案例定义对代理隐藏。** 运行无法读取 eval 目录，所以 Claude 看不到案例的提示、其评分器或兄弟案例。
@@ -520,7 +528,7 @@ Claude Code 会话启动的运行，例如当你要求 Claude 为你运行套件
   Eval 套件参考
 </h2>
 
-eval 套件可以包含的所有内容都位于插件的 eval 目录下，`evals/` 除非你[配置了另一个](#use-a-different-eval-directory)。此树显示 `claude plugin eval` 在那里读取或写入的每个文件；仅 `prompt.md` 或 `case.yaml` 是用例存在所需的：
+eval 套件可以包含的所有内容都位于插件的 eval 目录下，`evals/` 除非你[配置了另一个](#use-a-different-eval-directory)。一个目录在持有 `prompt.md` 或 `case.yaml` 时计为一个用例，没有至少一个评分器的用例加载失败，出现命名 `graders` 的 `invalid case.yaml` 错误。此树显示 `claude plugin eval` 在 eval 目录中读取或写入的每个文件：
 
 ```text theme={null}
 evals/
@@ -576,7 +584,7 @@ evals/
 
 | 字段 | 目的 |
 | :- | :- |
-| `context.scaffold_script` | 用例目录中的 Bash 脚本，在 Claude 启动前在空工作区中运行，以创建 fixture 文件或 git 存储库。仅当你传递 [`--scaffold`](#add-setup-or-history-with-case-yaml) 时运行 |
+| `context.scaffold_script` | 用例目录中的 Bash 脚本，在 Claude 启动前在空工作区中运行，以创建 fixture 文件或 git 存储库。仅当你传递 [`--scaffold`](#add-setup-or-history-with-case-yaml) 时运行，具有最小环境和 120 秒限制，非零退出使运行失败 |
 | `context.history_file` | 用例目录中的 `.jsonl` 记录以恢复。用例的提示成为下一个用户轮次 |
 | `context.add_dirs` | 用例目录内 Claude 可能在运行期间读取的目录，授予只读 |
 | `execution.prompt` | 提示，当你将整个用例保留在 `case.yaml` 中并省略 `prompt.md` 时 |
@@ -665,7 +673,7 @@ Anthropic 已在服务器端关闭了该命令。你的机器上没有任何东�
   "is not a trusted plugin directory, and this run cannot stop to ask you about it"
 </h3>
 
-这是针对 Claude Code 尚未信任的目录的首次运行，由于 stdin 或 stdout 不是终端、你传递了 `--json`，或 `CI` 环境变量设置为 `true` 等真值，它无法询问你。在终端中运行一次 `claude plugin eval <dir>` 并回答提示，或者如果你信任插件的代码和套件，传递 `--trust-plugin`。请参阅[运行可以访问的内容](#security)。
+这是针对 Claude Code 尚未信任的目录的首次运行，由于 stdin 或 stdout 不是终端或你传递了 `--json`，它无法询问你。在终端中运行一次 `claude plugin eval <dir>` 并回答提示，或者如果你信任插件的代码和套件，传递 `--trust-plugin`。请参阅[运行可以访问的内容](#security)。
 
 <h3 id="git-is-too-old-for-claude-plugin-eval">
   "is too old for claude plugin eval"
@@ -691,7 +699,7 @@ eval 目录下不存在 `<case>/prompt.md` 或 `<case>/case.yaml`，或你的 `-
   基线臂显示没有插件，或 delta 为零
 </h3>
 
-如果摘要没有 `W/OUT` 列，或案例失败并显示"ablation requested but no plugin resolved"，则没有为该案例找到插件。将 `plugins: ["../.."]` 添加到案例中，给出从案例目录到插件目录的路径。
+如果摘要没有 `W/OUT` 列，或案例失败并显示"ablation requested but no plugin resolved"，则没有为该案例找到插件。如果每个案例都通过 `context.history_file` 恢复一个记录，缺少该列是预期的，因为这些案例默认运行[一个臂](#compare-against-a-no-plugin-baseline)。否则，将 `plugins: ["../.."]` 添加到案例中，给出从案例目录到插件目录的路径。
 
 如果插件确实加载了，而 `Δ` 仍然接近零，且你的 `tool_used: Skill` grader 失败，这通常是一个真实的发现，意味着该 skill 的 `description` 不会在提示的措辞上触发。调整描述并重新运行相同的套件。
 

@@ -117,7 +117,9 @@ Fable 模型的安全分类器标记的请求，最常见于网络安全和生�
 * 在后台会话中，在截止时间前回答。
 * 如果你在远程客户端发送新消息之前没有人在终端输入，Claude Code 会以相同的方式结束该轮，你的新消息开始下一轮。在有人在终端输入后，Claude Code 继续等待答案并将你的新消息排队在其后面。
 
-在带有 `-p` 标志的[非交互模式](/docs/zh-CN/headless)中以及通过 Agent SDK，Claude Code 永远不会显示同意提示。当 Fable 请求在那里会计入使用额度时，Claude Code 会在不询问的情况下计入。
+在通过 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 托管的应用中，提示是否出现取决于该应用。如果它出现，并且在相同的 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止时间前没有人回答，Claude Code 会结束该轮而不发送请求。
+
+在带有 `-p` 标志的[非交互模式](/docs/zh-CN/headless)中以及在不显示提示的 Agent SDK 应用中，Claude Code 永远不会请求同意。当 Fable 请求在那里会计入使用额度时，Claude Code 会在不询问的情况下计入。
 
 <h3 id="setting-your-model">
   设置你的模型
@@ -164,7 +166,7 @@ Fable 模型的安全分类器标记的请求，最常见于网络安全和生�
 
 当 Claude Code 无法判断你的组织的[托管插件](/docs/zh-CN/settings-reference#enabledplugins)提供哪些 PreModelSwitch hooks 时，例如因为托管插件加载失败，它拒绝切换而不是应用它，并在每次新尝试时再次检查。参阅 [Model switch was blocked by a PreModelSwitch hook](/docs/zh-CN/errors#model-switch-was-blocked-by-a-premodelswitch-hook) 了解消息和恢复。
 
-当你通过 [Agent SDK](/docs/zh-CN/agent-sdk/overview) `setModel()` 方法、通过 [Remote Control](/docs/zh-CN/remote-control) 连接的设备或运行 Claude Code CLI 的应用（如 [Desktop app](/docs/zh-CN/desktop)）切换模型时，Claude Code 会检查该值在切换时：
+当你通过 [Agent SDK](/docs/zh-CN/agent-sdk/overview) `setModel()` 方法、通过应用（如 [Desktop app](/docs/zh-CN/desktop)）或从通过 [Remote Control](/docs/zh-CN/remote-control) 连接的设备切换模型时，Claude Code 会检查该值在切换时：
 
 * **Agent SDK 或应用**：使用 Claude Code v2.1.268 或更高版本，除非 Claude Code 在本地接受模型 ID（如它对你的[自定义模型选项](#add-a-custom-model-option)所做的那样），它在会话首次切换到它时与你的提供商确认该 ID。确认在每个提供商上运行，你的提供商不提供的 ID 在切换时被拒绝，而不是在你的下一个请求时失败。
 * **Remote Control**：在 Anthropic API 上，Claude Code 在本地检查该值并不发送请求。
@@ -295,12 +297,12 @@ Claude Code 代表您进行的模型更改以相同的方式检查：
 
 | 交付机制 | CLI 和 IDE | 桌面本地会话 | Web、移动和云会话 | Agent SDK 和非交互式 | Cowork |
 | :- | :- | :- | :- | :- | :- |
-| 来自管理控制台的[服务器管理设置](/docs/zh-CN/server-managed-settings) | 强制执行 | 强制执行 | 强制执行，除了[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话 | 强制执行 | 未交付 |
+| 来自管理控制台的[服务器管理设置](/docs/zh-CN/server-managed-settings) | 强制执行 | 强制执行 | 强制执行，除了[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话 | 强制执行 | 远程 Cowork 会话：服务器检查模型。在用户的机器上：未交付。 |
 | [MDM 或托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms) | 强制执行 | 强制执行 | 在 Anthropic 托管环境中未交付；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，根据[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)从运行器镜像强制执行 | 强制执行 | 在部署的地方强制执行 |
 
-* [云会话](/docs/zh-CN/claude-code-on-the-web)（包括您从桌面应用启动的会话）默认在 Anthropic 管理的 VM 上运行：部署到您的设备的设置不会到达它们，因此通过服务器管理设置交付允许列表。您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您自己的计算上运行，也读取运行器镜像中的托管设置文件。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明了该文件何时适用。云会话中的中途模型切换在请求的模型被允许列表排除时被拒绝。当您的服务器管理设置中的 `availableModels` 列表非空时，服务器拒绝用户在列表排除的模型上启动云会话的请求。
+* [云会话](/docs/zh-CN/claude-code-on-the-web)（包括您从桌面应用启动的会话）默认在 Anthropic 管理的 VM 上运行：部署到您的设备的设置不会到达它们，因此通过服务器管理设置交付允许列表。您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您自己的计算上运行，也读取运行器镜像中的托管设置文件。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明了该文件何时适用。云会话中的中途模型切换在请求的模型被允许列表排除时被拒绝。当您的服务器管理设置中的 `availableModels` 列表非空时，服务器拒绝在列表排除的模型上启动云会话的请求。
 * [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话在云环境中运行，但不接收服务器管理设置；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，它们仍然读取运行器镜像中的托管设置文件。要为这些会话设置模型，请参阅 Claude Tag 管理员指南中的[为范围选择模型](https://claude.com/docs/claude-tag/admins/customize#choose-the-model-for-a-scope)。
-* Cowork（Claude 桌面应用中的代理工作选项卡）在 Claude Code 上运行其会话，但按设计不从 claude.ai 管理控制台接收服务器管理设置。当托管设置文件存在于会话运行的地方时，它适用于 Cowork 会话；远程 Cowork 会话在 Anthropic 管理的 VM 上运行，其中不存在设备部署的文件。
+* Cowork（Claude 桌面应用中的代理工作选项卡）在 Claude Code 上运行其会话，但按设计不从 claude.ai 管理控制台接收服务器管理设置。当您的服务器管理设置中的 `availableModels` 列表非空且用户选择列表外的模型时，服务器拒绝该模型用于远程 Cowork 会话。当托管设置文件存在于会话运行的地方时，它适用于 Cowork 会话；远程 Cowork 会话在 Anthropic 管理的 VM 上运行，其中不存在设备部署的文件。
 * [第三方提供商](/docs/zh-CN/server-managed-settings#platform-availability)（如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)）上的会话不接收服务器管理设置，因此通过 MDM 或托管设置文件在那里交付允许列表。
 * 服务器管理交付还需要会话使用[符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability)进行身份验证。仅通过 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 脚本生成密钥的舰队应通过 MDM 或托管设置文件交付允许列表。
 * 桌面代码选项卡还托管 [SSH 会话](/docs/zh-CN/desktop#ssh-sessions)，它们从运行的远程主机读取托管设置文件。请参阅[桌面托管设置](/docs/zh-CN/desktop#managed-settings)。
@@ -1053,8 +1055,8 @@ Claude Code 自动使用 [prompt caching](/docs/zh-CN/prompt-caching) 来优化�
 | - | - |
 | `DISABLE_PROMPT_CACHING` | 设置为 `1` 以禁用所有模型的 prompt caching。优先于按模型设置 |
 | `DISABLE_PROMPT_CACHING_HAIKU` | 设置为 `1` 以仅禁用[默认 Haiku 模型](/docs/zh-CN/prompt-caching#disable-prompt-caching)的 prompt caching |
-| `DISABLE_PROMPT_CACHING_SONNET` | 设置为 `1` 以仅禁用 Sonnet 模型的 prompt caching |
-| `DISABLE_PROMPT_CACHING_OPUS` | 设置为 `1` 以仅禁用 Opus 模型的 prompt caching |
+| `DISABLE_PROMPT_CACHING_SONNET` | 设置为 `1` 以仅禁用[默认 Sonnet 模型](/docs/zh-CN/prompt-caching#disable-prompt-caching)的 prompt caching |
+| `DISABLE_PROMPT_CACHING_OPUS` | 设置为 `1` 以仅禁用[默认 Opus 模型](/docs/zh-CN/prompt-caching#disable-prompt-caching)的 prompt caching |
 | `DISABLE_PROMPT_CACHING_FABLE` | 设置为 `1` 以仅禁用 Fable 模型的 prompt caching |
 
 要为主对话和 subagents 分别选择缓存 TTL，请参阅[自己选择 TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)。有关什么会触发缓存未命中，请参阅 [Claude Code 如何使用 prompt caching](/docs/zh-CN/prompt-caching)。

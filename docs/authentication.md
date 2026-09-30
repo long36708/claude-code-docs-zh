@@ -32,6 +32,12 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 
 要登出并重新身份验证，请在 Claude Code 提示符处输入 `/logout`。登出还会重置您的首次启动设置状态，因此下次运行 `claude` 时，它会再次引导您完成登录和设置。
 
+如果您在登录时遇到问题，请参阅 [身份验证故障排除](/docs/zh-CN/troubleshoot-install#login-and-authentication)。
+
+<h3 id="log-in-with-multiple-accounts">
+  使用多个账户登录
+</h3>
+
 要同时保持登录多个账户（例如工作和个人账户），请为每个账户提供自己的配置目录。启动 `claude` 时，将 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars#variables) 环境变量设置为您要使用的账户的目录。每个目录都有自己的设置、会话历史记录和 claude.ai 登录或 API 密钥。例如，在 Bash 或 Zsh 中，将此别名添加到 `~/.bashrc` 或 `~/.zshrc`，以便 `claude-work` 使用您的工作账户，而 `claude` 保持您的个人账户：
 
 ```bash theme={null}
@@ -39,8 +45,6 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 ```
 
 首次打开新终端并运行 `claude-work` 后，Claude Code 会引导您完成新目录的登录和设置。单独的目录不会将两个 Claude Console 登录 [不带 API 密钥](#sign-in-without-an-api-key) 分开，因为 Claude Code 将这种类型的登录存储在配置目录之外。
-
-如果您在登录时遇到问题，请参阅 [身份验证故障排除](/docs/zh-CN/troubleshoot-install#login-and-authentication)。
 
 <h2 id="set-up-team-authentication">
   设置团队身份验证

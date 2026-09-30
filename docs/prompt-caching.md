@@ -412,8 +412,8 @@ Claude Code 按请求决定 TTL，每个请求都属于以下两个固定桶之�
 | - | - |
 | `DISABLE_PROMPT_CACHING` | 对所有模型禁用 |
 | `DISABLE_PROMPT_CACHING_HAIKU` | 仅对默认 Haiku 模型禁用 |
-| `DISABLE_PROMPT_CACHING_SONNET` | 仅对 Sonnet 禁用 |
-| `DISABLE_PROMPT_CACHING_OPUS` | 仅对 Opus 禁用 |
+| `DISABLE_PROMPT_CACHING_SONNET` | 仅对默认 Sonnet 模型禁用 |
+| `DISABLE_PROMPT_CACHING_OPUS` | 仅对默认 Opus 模型禁用 |
 | `DISABLE_PROMPT_CACHING_FABLE` | 仅对 Fable 禁用 |
 
 `DISABLE_PROMPT_CACHING_HAIKU` 适用于默认 Haiku 模型，即 `haiku` 别名解析到的模型。它在该模型运行的任何地方禁用缓存，包括当它是您的主模型时的主对话。覆盖主对话需要 Claude Code v2.1.283 或更高版本。
@@ -421,6 +421,8 @@ Claude Code 按请求决定 TTL，每个请求都属于以下两个固定桶之�
 该变量还涵盖您使用已弃用的 `ANTHROPIC_SMALL_FAST_MODEL` 变量设置的后台模型，当该模型与您的主模型不同时。
 
 您固定为主模型的不同 Haiku 版本保持缓存；设置 `DISABLE_PROMPT_CACHING` 以禁用其缓存。
+
+`DISABLE_PROMPT_CACHING_SONNET` 和 `DISABLE_PROMPT_CACHING_OPUS` 分别适用于 `sonnet` 或 `opus` 别名解析到的模型。如果您将任何其他 Sonnet 或 Opus 模型 ID 设置为主模型，该模型保持缓存。例如，`claude-sonnet-5` 上的会话保持缓存，而 `sonnet` 解析到 `claude-sonnet-5-5`。要禁用该模型的缓存，请设置 `DISABLE_PROMPT_CACHING`。
 
 要在整个组织中设置缓存策略，请将这些或[TTL 变量](#cache-lifetime)中的任何一个放在[托管设置](/docs/zh-CN/managed-settings)的 `env` 块中。对于正常使用，保持缓存启用。
 

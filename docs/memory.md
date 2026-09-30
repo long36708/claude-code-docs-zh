@@ -89,23 +89,27 @@ CLAUDE.md 文件可以位于多个位置，每个位置具有不同的范围。�
   编写有效的指令
 </h3>
 
-CLAUDE.md 文件在每个会话开始时加载到上下文窗口中，与您的对话一起消耗令牌。[上下文窗口可视化](/docs/zh-CN/context-window) 显示 CLAUDE.md 相对于其余启动上下文的加载位置。因为它们是上下文而不是强制配置，您编写指令的方式会影响 Claude 遵循它们的可靠性。具体、简洁、结构良好的指令效果最好。
-
-**大小**：每个 CLAUDE.md 文件目标在 200 行以下。较长的文件消耗更多上下文并降低遵守度。如果您的指令变得很大，请使用 [path-scoped rules](#path-specific-rules)，以便指令仅在 Claude 处理匹配文件时加载。您也可以将内容拆分为 [imports](#import-additional-files) 以便组织，尽管导入的文件仍然加载并在启动时进入上下文窗口。
-
-**结构**：使用 markdown 标题和项目符号来分组相关指令。Claude 扫描结构的方式与读者相同：有组织的部分比密集段落更容易遵循。
-
-**具体性**：编写具体到足以验证的指令。例如：
+Claude 将 CLAUDE.md 文件视为上下文而不是强制配置，因此您编写指令的方式会影响 Claude 遵循它们的可靠性。编写具体到足以验证的指令：
 
 * "使用 2 空格缩进"而不是"正确格式化代码"
 * "在提交前运行 `npm test`"而不是"测试您的更改"
 * "API 处理程序位于 `src/api/handlers/`"而不是"保持文件有组织"
 
-**一致性**：如果两条规则相互矛盾，Claude 可能会任意选择一条。定期审查您的 CLAUDE.md 文件、子目录中的嵌套 CLAUDE.md 文件和 [`.claude/rules/`](#organize-rules-with-claude/rules/)，以删除过时或冲突的指令。在 monorepos 中，使用 [`claudeMdExcludes`](#exclude-specific-claude-md-files) 跳过来自与您的工作无关的其他团队的 CLAUDE.md 文件。
+保持您的文件简短、有组织和一致：
 
-要让 Claude 检查这些文件是否有过时或冲突的指令，请在会话中运行 `/doctor prompt-audit`。Claude 读取您的 CLAUDE.md、CLAUDE.local.md 和 AGENTS.md 文件，以及 `.claude/` 和 `~/.claude/` 下的规则、skills、命令、子代理和输出样式。它查找问题，例如为旧模型编写的指令、对不存在的文件或命令的引用，以及相互矛盾的文件。您会获得一份发现报告和一组建议的编辑，在您要求 Claude 应用它们之前，您的文件中不会有任何更改。
+* **大小**：每个 CLAUDE.md 文件目标在 200 行以下。较长的文件消耗更多上下文并降低遵守度。将仅对代码库的一部分重要的指令移至 [path-scoped rules](#path-specific-rules)，这样它们仅在 Claude 处理匹配文件时加载。[导入](#import-additional-files) 帮助您组织一个长文件，但不会减少其上下文成本，因为导入的文件也在启动时加载。
+* **结构**：使用 markdown 标题和项目符号来分组相关指令。有组织的部分比密集段落更容易让 Claude 遵循。
+* **一致性**：如果两条指令相互矛盾，Claude 可能会任意选择一条。定期审查您的 CLAUDE.md 文件、子目录中的嵌套 CLAUDE.md 文件和 [`.claude/rules/`](#organize-rules-with-claude/rules/)，以删除过时或冲突的指令。要让 Claude 为您找到它们，请 [运行提示审计](#audit-your-instruction-files)。
 
-要审计一个文件或目录，请改为传递其路径，例如 `/doctor prompt-audit .claude/skills/deploy`。审计通过捆绑的 `/claude-api` skill 运行，因此在该 skill 在 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 中关闭或使用 [`disableBundledSkills`](/docs/zh-CN/settings-reference#disablebundledskills) 时不可用。`/doctor prompt-audit` 需要 Claude Code v2.1.283 或更高版本。
+<h4 id="audit-your-instruction-files">
+  审计您的指令文件
+</h4>
+
+要让 Claude 检查您的指令文件是否有过时或冲突的内容，请在会话中运行 `/doctor prompt-audit`。Claude 查找问题，例如为旧模型编写的指令、对不存在的文件或命令的引用，以及相互矛盾的文件。您会获得一份发现报告和一组建议的编辑，在您要求 Claude 应用它们之前，您的文件中不会有任何更改。
+
+默认情况下，审计涵盖您的 CLAUDE.md、CLAUDE.local.md 和 AGENTS.md 文件，以及 `.claude/` 和 `~/.claude/` 下的规则、skills、命令、子代理和输出样式。要审计一个文件或目录，请改为传递其路径，例如 `/doctor prompt-audit .claude/skills/deploy`。
+
+审计通过捆绑的 `/claude-api` skill 运行。当该 skill 在 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 中关闭或使用 [`disableBundledSkills`](/docs/zh-CN/settings-reference#disablebundledskills) 时，它不可用。`/doctor prompt-audit` 需要 Claude Code v2.1.283 或更高版本。
 
 <h3 id="import-additional-files">
   导入其他文件

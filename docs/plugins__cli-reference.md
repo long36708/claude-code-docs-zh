@@ -469,6 +469,8 @@ claude plugin eval [target] [options]
 claude plugin eval init [name] [options]
 ```
 
+从插件的根文件夹运行命令，即保存 `.claude-plugin/plugin.json` 或 skill 的 `SKILL.md` 的目录。要有意在另一个目录中搭建套件，传递 `--eval-dir`。
+
 在终端中，命令打开交互式 Claude Code 会话进行创作访谈。在访谈中，Claude 执行以下操作：
 
 1. 读取插件
@@ -479,7 +481,7 @@ claude plugin eval init [name] [options]
 
 使用 `--bare` 或没有终端时，命令改为写入空白单案例模板。当 Claude 从 Claude Code 会话内运行命令时，命令打印该会话要遵循的访谈说明，而不是写入模板。
 
-可选的 `name` 是案例名称。它与 `--bare` 或没有终端时需要，因为命令为该案例写入空白模板。访谈不需要。
+可选的 `name` 是案例名称。它与 `--bare` 或没有终端时需要，因为命令为该案例写入空白模板。案例名称以字母或数字开头，仅包含字母、数字、`.`、`_` 和 `-`。在每个平台上，命令也拒绝 Windows 无法存储的名称，例如 `con` 或以 `.` 结尾的名称。
 
 命令接受这些选项：
 
@@ -636,8 +638,8 @@ claude plugin marketplace add <source> [options]
 | :- | :- | :- |
 | `owner/repo`、`owner/repo#ref` 或 `owner/repo@ref` | `github` | 克隆 GitHub 仓库，给定时固定到 `ref`。所有者和仓库必须遵循 GitHub 命名规则 |
 | `user@host:path[.git][#ref]` | `git` | 通过 SSH 克隆 |
-| `https://example.com/repo.git[#ref]` 或包含 `/_git/` 的 URL | `git` | 通过 HTTPS 克隆，包括 Azure DevOps URL |
-| `https://github.com/owner/repo` 或 `https://gitlab.com/namespace/project` | `git` | 在追加 `.git` 后通过 HTTPS 克隆 |
+| 以 `.git[#ref]` 结尾或包含 `/_git/` 的 `http://` 或 `https://` URL，例如 `https://example.com/repo.git` | `git` | 克隆 URL，包括 Azure DevOps URL |
+| `https://github.com/owner/repo` 或 `https://gitlab.com/namespace/project`，或相同的 `http://` 形式 | `git` | 在追加 `.git` 后克隆 URL |
 | 任何其他 `http://` 或 `https://` URL，包括没有 `.git` 的自托管 git 主机 | `url` | 将 URL 作为 `marketplace.json` 获取。要改为克隆那里的仓库，请追加 `.git` |
 | `./path`、`../path`、`/path` 或 `~/path` 到目录 | `directory` | 就地读取目录。在 Windows 上，`.\`、`..\` 和 `C:\` 形式也可以工作 |
 | 相同的路径形式，到 `.json` 文件 | `file` | 就地读取文件 |
@@ -775,6 +777,7 @@ Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当你
 | `/plugin list [--enabled\|--disabled]` | `ls` | 内联打印您的市场安装 plugins，带有版本、作用域和状态。过滤标志仅显示该状态。启用状态尚未应用的 plugin 标记为 `— run /reload-plugins to apply`。需要 Claude Code v2.1.163 或更高版本 |
 | `/plugin install` | `i` | 打开 **Discover** 选项卡 |
 | `/plugin install <plugin>` | `i` | 在 **Discover** 选项卡中打开 plugin 的详细信息。使用 `name@marketplace`，在该市场的列表中打开它们 |
+| `/plugin install <source>` | `i` | 当目标是路径、URL 或 `owner/repo` 时报告 [marketplace not found](/docs/zh-CN/plugins/troubleshooting#marketplace-not-found) 错误并不安装任何内容，即使是您已经添加的源。要从源安装，请参阅 [在一个命令中添加市场和安装](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command) |
 | `/plugin install <plugin> --marketplace <source>` | `i` | 当您尚未添加时添加 `<source>` 处的市场，要求您首先确认，然后打开 plugin 的详细信息。请参阅 [在一个命令中添加市场和安装](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command)。需要 Claude Code v2.1.275 或更高版本 |
 | `/plugin manage` | | 打开 **Installed** 选项卡 |
 | `/plugin stats` | | 打开 **Stats** 选项卡，在 [`/skill-doctor`](/docs/zh-CN/skills#find-unused-skills) 可用的会话中。其他任何地方它在 **Discover** 选项卡上打开面板 |
@@ -847,7 +850,7 @@ Plugin 作者使用它们在发布前测试 plugin。对于加载-编辑-重新�
 | `--plugin-dir <path>` | 从目录或其 `.zip` 存档加载 plugin。plugins 的文件夹加载每个包含 `.claude-plugin/plugin.json` 的子文件夹。每个标志接受一个路径 | `claude --plugin-dir ./my-plugin --plugin-dir ./other.zip` |
 | `--plugin-url <url>` | 从 URL 获取 plugin `.zip` 存档。重复标志，或在一个引用值中传递多个 URL 空格分隔 | `claude --plugin-url "https://example.com/a.zip https://example.com/b.zip"` |
 
-任一标志加载的 plugin 是会话内 plugin。`claude plugin list` 将其显示为 `<name>@inline`，作用域为 `session`，但仅当相同的标志在子命令前时。例如，运行 `claude --plugin-dir ./my-plugin plugin list`。
+任一标志加载的 plugin 是会话内 plugin。[`claude plugin list`](#plugin-list) 将其显示为 `<name>@inline`，作用域为 `session`，但仅当相同的标志在子命令前时，例如 `claude --plugin-dir ./my-plugin plugin list`。该 plugin 在以 `Session-only plugins` 开头的标题下显示为 `<name>@inline`，`--json` 将其 `scope` 报告为 `session`。
 
 当会话内 plugin 与已安装的 plugin 共享名称时，Claude Code 为该会话加载会话内副本并跳过已安装的副本。如果您使用 `claude plugin disable <name>@inline` 禁用了会话内副本，或托管设置锁定该 plugin 名称，已安装的副本改为加载。有关优先级，请参阅 [Plugin 加载参考](/docs/zh-CN/plugins/loading)。
 
