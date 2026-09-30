@@ -80,7 +80,7 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 | `default` | 在首次使用每个工具时提示权限。在 CLI、VS Code 和 JetBrains 扩展以及桌面应用中标记为 Manual，Claude Code 接受 `manual` 作为别名。标签和别名需要 Claude Code v2.1.200 或更高版本。桌面应用的标签不依赖于您的 CLI 版本 |
 | `acceptEdits` | 自动接受工作目录或 `additionalDirectories` 中路径的文件编辑和常见文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp` |
 | `plan` | Claude 读取文件并运行只读 shell 命令来探索，但不编辑您的源文件；在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)可用的情况下，分类器批准的命令也会运行。在 CLI 和 VS Code 扩展中标记为 Plan |
-| `auto` | 自动批准工具调用，并进行后台安全检查以验证操作与您的请求一致 |
+| `auto` | 无需常规提示即可运行；在 shell 命令和网络请求等操作运行之前，后台[分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)会检查它们是否与您的请求一致 |
 | `dontAsk` | 自动拒绝每个会导致提示的调用；您的工作目录中的文件读取和其他不需要批准的操作仍会运行，通过 `/permissions` 或 `permissions.allow` 规则预先批准的工具也会运行。`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)在该设置到达 Claude Code 的会话中即使您已允许它们也会被拒绝 |
 | `bypassPermissions` | 跳过权限提示，除了[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) |
 
@@ -144,7 +144,9 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 * 每个规则命名一个参数。要对 `model` 和 `isolation` 进行门控，请编写两个规则 `Agent(model:opus)` 和 `Agent(isolation:worktree)`，而不是在一个规则中组合它们
 * 该值支持 `*` 作为通配符，匹配任何字符序列，因此 `Agent(isolation:*)` 匹配任何显式隔离值。没有 `*` 时匹配是精确的
 * 模型省略的参数永远不会被匹配，因此 `Agent(model:*)` 不匹配留下 `model` 未设置的调用
-* 该值与 Claude 发送的文字输入进行比较，在任何规范化之前。`Agent(model:opus)` 匹配别名 `opus` 但不匹配完整模型 ID。使用 [`--verbose`](/docs/zh-CN/cli-reference) 运行以查看每个工具调用中的确切参数名称和值
+* 该值与 Claude 发送的文字输入进行比较，在任何规范化之前。`Agent(model:opus)` 匹配别名 `opus` 但不匹配完整模型 ID
+* 一个 `Skill(skill:<name>)` 拒绝规则改为[在其任何名称下匹配技能](/docs/zh-CN/skills#restrict-claude%E2%80%99s-skill-access)，例如其别名或显示名称
+* 使用 [`--verbose`](/docs/zh-CN/cli-reference) 运行以查看每个工具调用中的确切参数名称和值
 * 冒号周围的空格被忽略
 
 您不能以这种方式匹配工具的主要内容字段：Bash 和 PowerShell 的 `command`、Read、Edit 和 Write 的 `file_path`、Grep 和 Glob 的 `path`、NotebookEdit 的 `notebook_path` 和 WebFetch 的 `url`。像 `Bash(command:rm *)` 这样的规则可以通过复合命令绕过，因此 Claude Code 会忽略它并在启动时发出警告。改用 `Bash(rm *)`、`Read(./path)` 或 `WebFetch(domain:host)`。
@@ -159,7 +161,7 @@ Bash 规则中的 `*` 匹配任何文本，包括空格，因此一个规则涵�
   将 `*` 放在子命令之后。在 `git log --oneline main` 中，`git` 是程序，`log` 是子命令，是确定程序执行什么操作的词。Claude Code 按照编写的方式匹配第一个 `*` 之前的所有内容，因此这些词是限制规则的内容：`Bash(git log *)` 仅允许 `git log` 命令，`Bash(git *)` 允许每个 git 命令。Claude Code [在启动时警告](/docs/zh-CN/errors#has-a-wildcard-before-the-rest-of-the-command)关于在子命令之前有 `*` 的允许规则，例如 `Bash(git * main)`。
 </Warning>
 
-编写您希望 Claude 运行而不询问的命令，并用 `*` 替换变化的部分。使用此配置，Claude Code 运行 npm 脚本和 git 提交而不询问，并拒绝以 `git push` 开头的命令。以另一种方式编写的推送，例如 `git -C . push`，不匹配；请参阅 [Bash 规则不匹配的内容](#bash-rule-limits)。
+编写您希望 Claude 运行而不询问的命令，并用 `*` 替换变化的部分。使用此配置，Claude Code 运行 npm 脚本和 git 提交而不询问，并拒绝以 `git push` 开头的命令。以另一种方式编写的推送，例如 `git -C . push`，不匹配；请参阅[Bash 规则不匹配的内容](#bash-rule-limits)。
 
 ```json theme={null}
 {
@@ -216,9 +218,9 @@ Bash 规则中的 `*` 匹配任何文本，包括空格，因此一个规则涵�
 
 允许规则仅在文字 `mcp__<server>__` 前缀之后接受工具名称 glob。服务器段必须不含 glob，以便规则命名您配置的特定服务器。`mcp__puppeteer__*` 匹配来自 `puppeteer` 服务器的每个工具，`mcp__github__get_*` 匹配其 `get_` 工具。未锚定的允许 glob（如 `"*"`、`"B*"` 或 `"mcp__*"`）会被跳过并显示警告，不会自动批准任何内容。
 
-工具名称不匹配任何已知工具的拒绝或询问规则会在启动时产生警告以捕获拼写错误。包含 `_` 或 `*` 的工具名称不受此检查的约束。
+工具名称不匹配任何已知工具的拒绝或询问规则会在启动时产生警告以捕获拼写错误。包含 `_` 或 `*` 的工具名称不受此检查的约束，已移除的工具的名称（例如 `TaskOutput`）也不受约束。
 
-转录本和权限对话框中为工具显示的标签可能与其规范名称不同。例如，转录本中标记为 `Stop Task` 的工具具有规范名称 `TaskStop`。权限规则和 [hook 匹配器](/docs/zh-CN/hooks) 不匹配标签，因此写作为 `Stop Task` 的规则不匹配。对于拒绝和询问规则，上面的启动警告会捕获不匹配。使用 [工具参考](/docs/zh-CN/tools-reference) 中列出的规范名称。
+转录本和权限对话框中为工具显示的标签可能与其规范名称不同。例如，转录本中标记为 `Stop Task` 的工具具有规范名称 `TaskStop`。权限规则和 [hook 匹配器](/docs/zh-CN/hooks) 不匹配标签，因此写作为 `Stop Task` 的规则不匹配。对于拒绝和询问规则，上面的启动警告会捕获不匹配。使用[工具参考](/docs/zh-CN/tools-reference)中列出的规范名称。
 
 <h2 id="tool-specific-permission-rules">
   工具特定的权限规则

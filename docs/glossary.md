@@ -475,6 +475,14 @@ Claude 可以采取的操作：读取文件、编辑代码、运行 shell 命令
 
 了解更多：[Claude 可用的工具](/docs/zh-CN/tools-reference)
 
+<h3 id="transcript">
+  Transcript
+</h3>
+
+[session](#session) 的存储记录。对话是您和 Claude 之间的交换；transcript 是将该对话保存为文件，默认位置为 `~/.claude/projects/<project>/<session-id>.jsonl`。Claude Code 在您恢复时读取该文件，这就是会话结束后对话如何继续的方式。有关同一对话的屏幕视图，请参阅 [transcript viewer](/docs/zh-CN/interactive-mode#transcript-viewer)。
+
+了解更多：[Transcripts 存储位置](/docs/zh-CN/sessions#where-transcripts-are-stored)
+
 <h3 id="turn">
   Turn
 </h3>

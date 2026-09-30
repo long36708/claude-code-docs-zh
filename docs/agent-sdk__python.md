@@ -2885,12 +2885,14 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 
 **工具名称：** `Bash`
 
+关于设置前台上限的内容，见 [超时和输出限制](/docs/zh-CN/tools-reference#timeout-and-output-limits)。关于后台时间限制，见 [后台命令](/docs/zh-CN/tools-reference#background-commands)。
+
 **输入：**
 
 ```python theme={null}
 {
     "command": str,  # 要执行的命令
-    "timeout": int | None,  # 可选的超时时间（毫秒）（最大 600000；更高的值被限制为最大值）
+    "timeout": int | None,  # 毫秒。前台：默认上限为 600000，更高的值被限制。使用 run_in_background（Claude Code v2.1.285 或更高版本）：后台时间限制，省略时为 1800000，上限为 7200000，除非提高
     "description": str | None,  # 清晰、简洁的描述（5-10 个单词）
     "run_in_background": bool | None,  # 设置为 true 以在后台运行
 }

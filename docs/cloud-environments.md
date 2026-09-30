@@ -78,7 +78,14 @@ LOG_LEVEL=debug
 DATABASE_URL=postgres://localhost:5432/myapp
 ```
 
-每个会话在启动时将环境的值复制一次到普通环境变量中，Claude运行的任何命令都可以读取这些变量，除了`OTEL_*`变量。Claude Code使用这些变量进行自己的[遥测导出](/docs/zh-CN/monitoring-usage#telemetry-from-cloud-sessions-and-claude-tag)，不会将它们传递给它运行的命令。因为运行中的会话不会重新读取配置，编辑或添加变量会影响你之后启动的会话；已经运行的会话保持它们启动时的值。
+会话在创建时将环境的值读入普通环境变量中，Claude运行的任何命令都可以读取这些变量，除了`OTEL_*`变量。Claude Code使用这些变量进行自己的[遥测导出](/docs/zh-CN/monitoring-usage#telemetry-from-cloud-sessions-and-claude-tag)，不会将它们传递给它运行的命令。
+
+在Anthropic托管的环境中，会话在创建时读取环境的值，以及之后每次Claude Code在会话的VM中启动时读取，这发生在两种情况下：
+
+* **VM在空闲后被恢复**：在几分钟没有活动后，会话的VM会暂停，其文件被保存。你的下一条消息会恢复同一个VM并再次启动Claude Code。
+* **VM被回收并被重建**：如果暂停的VM已经被[回收](/docs/zh-CN/claude-code-on-the-web#environment-expired)，重新打开会话会配置一个新的VM。
+
+编辑、添加或删除变量后，Anthropic托管环境中的现有会话会保持它最后读取的值，直到其VM下次被恢复或重建，然后使用你的更改。其VM在会话空闲后会自动暂停，你无法自己暂停它。要立即使用新值，请要求Claude在它运行的命令上设置它，例如`LOG_LEVEL=trace npm test`，或启动一个新会话。
 
 云会话在启动时也会自己设置一些变量。对于[`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`](/docs/zh-CN/claude-code-on-the-web#manage-context)，会话设置的值会覆盖你在这里添加的值，所以在这里添加该键没有效果。
 
@@ -207,6 +214,8 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
 每个环境都设置一个网络访问级别，控制其会话可以进行的出站连接。默认级别 **Trusted** 允许包注册表和其他[允许列表中的域](#default-allowed-domains)；**Custom** 采用您自己的域列表。
 
 要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的云图标出现在[Default 环境](#the-default-environment)下列出的应用界面上，以及[例程编辑器](/docs/zh-CN/routines#environments-and-network-access)中；个人环境在您的 claude.ai 账户设置中没有单独的页面。
+
+当您更改 Anthropic 托管环境的网络访问时，其现有会话在约一分钟内遵循新设置，用于通过会话的[网络允许列表](#access-levels)的请求。您无需启动新会话。
 
 <Note>
   您在会话或例程上启用的 MCP 连接器无需将其主机添加到 **Allowed domains**，因为连接器流量通过 Anthropic 的服务器而不是会话的网络传输。这依赖于[安全性和隔离](/docs/zh-CN/claude-code-on-the-web#security-and-isolation)下提到的同一条通往 Anthropic 的通道。关闭任何您不需要的连接器，以限制 Claude 可以访问的工具。
@@ -428,10 +437,12 @@ VM 可能会停止需要明显更多内存的工作，例如大型构建工作�
 
 在 Anthropic 托管的环境中，这些时间限制适用于云会话中的长时间运行的工作，例如构建、安装或测试运行。每个条目链接到定义该限制的部分。
 
-* **Claude 运行的命令**：云环境不设置自己的命令超时，因此 Bash 工具的默认值适用。Claude 默认等待 2 分钟的命令，最多可以要求 10 分钟。当命令达到其[超时](/docs/zh-CN/tools-reference#timeout-and-output-limits)时，Claude Code [将其移到后台](/docs/zh-CN/tools-reference#background-commands)，而不是停止它，除非命令以 `sleep` 开头。
+* **Claude 运行的命令**：云环境不设置自己的命令超时，因此 Bash 工具的默认值适用。Claude 默认等待 2 分钟的命令，最多可以要求 10 分钟。
+
+  当命令达到其[超时](/docs/zh-CN/tools-reference#timeout-and-output-limits)时，Claude Code [将其移到后台](/docs/zh-CN/tools-reference#background-commands)，而不是停止它，除非命令以 `sleep` 开头。以这种方式移动的命令可以继续运行最多 30 分钟，然后 Claude Code 在其[后台时间限制](/docs/zh-CN/tools-reference#background-commands)处停止它。将 `BASH_DEFAULT_TIMEOUT_MS` 设置为 `1800000` 毫秒以上会延长该限制以及前台默认值。
 * **SessionStart hooks**：Claude Code 在 600 秒后取消 `command` hook，除非您在 hook 条目上设置 [`timeout`](/docs/zh-CN/hooks#common-fields)（以秒为单位）。Claude Code 不会对您使用 [`async: true`](/docs/zh-CN/hooks#run-hooks-in-the-background) 运行的 hook 强制执行超时。
 * **设置脚本**：花费超过大约五分钟的脚本不会被缓存。[脚本要求](#script-requirements)涵盖如何保持在该时间以下。
-* **空闲会话**：会话在一段时间不活动后停止，其 VM 被回收。[环境已过期](/docs/zh-CN/claude-code-on-the-web#environment-expired)涵盖什么算作不活动以及如何重新打开会话。
+* **空闲会话**：会话在一段时间不活动后停止，其 VM 被回收。[设置环境变量](#set-environment-variables)描述会话在每种情况下会获取什么，[环境已过期](/docs/zh-CN/claude-code-on-the-web#environment-expired)涵盖如何重新打开 VM 被回收的会话。
 
 要为环境的会话提高命令超时，请将 [`BASH_DEFAULT_TIMEOUT_MS` 和 `BASH_MAX_TIMEOUT_MS`](/docs/zh-CN/env-vars#variables) 添加到其[环境变量](#set-environment-variables)。两者都采用毫秒。例如，`BASH_DEFAULT_TIMEOUT_MS=600000` 使 10 分钟成为默认值。
 
@@ -470,7 +481,7 @@ apt update && apt install -y shellcheck
 
 缓存是文件系统快照，因此它会保留设置脚本写入磁盘的内容，并丢失任何仅在运行中的内容。您安装的包、您拉取的 Docker 镜像和您写入的文件都会保留。脚本启动的数据库、`docker compose up` 堆栈或任何其他后台进程不会保留；请通过询问 Claude 或使用 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks) 在每个会话中启动这些。
 
-当您更改环境的设置脚本或允许的网络主机时，以及当缓存在大约七天后到期时，设置脚本会再次运行以重建缓存。恢复现有会话永远不会重新运行设置脚本。
+当您更改环境的设置脚本或允许的网络主机时，以及当缓存在大约七天后到期时，设置脚本会再次运行以重建缓存。在 Anthropic 托管环境中，当会话的 VM 在[空闲后恢复](#set-environment-variables)时，设置脚本不会运行，因此对脚本的更改仅在其 VM 被[回收](/docs/zh-CN/claude-code-on-the-web#environment-expired)并重建时才会到达现有会话。要立即应用更改，请在会话中运行命令或启动新会话。
 
 您不需要自己启用缓存或管理快照。
 

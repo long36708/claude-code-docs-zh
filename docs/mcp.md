@@ -265,7 +265,9 @@ claude mcp remove notion
   服务器状态
 </h4>
 
-`claude mcp add` 通过打印 `Added ...` 行确认成功添加，这意味着配置已写入。`claude mcp list` 然后在它列出的每个服务器旁边显示健康状态，例如 `✔ Connected`、`! Needs authentication` 或 `✘ Failed to connect`。失败状态意味着 Claude Code 无法连接到该服务器，而不是列表命令失败。
+`claude mcp add` 通过打印 `Added ...` 行确认成功添加，这意味着配置已写入。如果命令改为打印 `was not saved` 消息，请参阅 [MCP 服务器未保存或删除](/docs/zh-CN/errors#mcp-server-was-not-saved-or-removed)；对于 `may not have been saved` 消息，请参阅 [MCP 服务器可能未保存或删除](/docs/zh-CN/errors#mcp-server-may-not-have-been-saved-or-removed)。
+
+`claude mcp list` 在它列出的每个服务器旁边显示健康状态，例如 `✔ Connected`、`! Needs authentication` 或 `✘ Failed to connect`。失败状态意味着 Claude Code 无法连接到该服务器，而不是列表命令失败。
 
 此列表中的状态报告配置决策而不是连接尝试，因此 Claude Code 在不连接到服务器的情况下打印它们：
 
@@ -371,6 +373,7 @@ Claude Code 每次启动时选择一个运行时，并在您退出前保持它�
 * 从 [它保持打开的流](#notification-streams-on-the-v2-runtime) 上的较新修订版的服务器接收 `list_changed` 通知。
 * 不注册在较新修订版上连接的 [通道](#push-messages-with-channels) 服务器，因为该修订版无法携带通道消息。
 * 失败 [MCP OAuth 登录](#authenticate-with-remote-mcp-servers)，其授权响应命名意外的发行者。
+* 仅将 [MCP OAuth](#authenticate-with-remote-mcp-servers) 凭证发送到通过 HTTPS 或在 `localhost`、`127.0.0.1` 或 `::1` 处提供的令牌端点。对于令牌端点为纯 `http://` 的服务器（例如本地网络上的设备），登录失败。请参阅 [拒绝向非 https 令牌端点发送凭证](/docs/zh-CN/errors#refusing-to-send-credentials-to-non-https-token-endpoint)。
 
 Anthropic 可以使用 Claude Code 获取的功能标志将特定服务器保持在较早的协议上，或关闭该流。
 
@@ -1288,7 +1291,7 @@ Anthropic 还自己提供一些连接器，无需您或管理员添加它们。�
 您的组织可以在 [claude.ai 连接器](https://claude.com/docs/connectors) 上设置每个工具的控制。Claude Code 在启动时读取这些设置并在本地强制执行它们，除了在桌面应用的 [本地和 SSH 会话](#how-connectors-reach-claude-code) 中。在那里，桌面应用在传入连接器之前扣留 `blocked` 工具，`ask` 设置不会到达 Claude Code，因此它将会话的普通 [权限规则](/docs/zh-CN/permissions) 应用于这些工具，而不是在每次调用时提示。在 Claude Code 本身获取连接器的会话中，运行 `/mcp` 以查看哪个设置适用于连接器上的每个工具。
 
 * **工具设置为 `ask`**：Claude Code 在每次调用时提示，原因是 `Your organization requires approval for this tool`。即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](/docs/zh-CN/permissions#permission-modes) 中，提示也会出现，并且从不提供记住您的选择的选项。匹配工具的 [Allow 规则](/docs/zh-CN/permissions) 也不会跳过提示。在从不提示的 `dontAsk` 模式中，Claude Code 会改为拒绝调用。
-* **工具设置为 `blocked`**：Claude Code 在 Claude 看到它之前过滤掉工具，因此它永远不会出现在工具列表中。桌面应用和 claude.ai 聊天应用相同的 `blocked` 设置，因此 Claude 也无法在那里使用该工具，您无法从桌面应用的会话中扣留工具，同时在聊天中保持其可用。桌面应用会跳过其所有工具都被阻止的连接器。
+* **工具设置为 `blocked`**：Claude Code 在 Claude 看到它之前过滤掉工具，因此它永远不会出现在工具列表中。在 Claude Code 本身获取连接器的会话中，`/mcp` 工具列表仍然显示该工具，标记为 `disabled by your organization`。桌面应用和 claude.ai 聊天应用相同的 `blocked` 设置，因此 Claude 也无法在那里使用该工具，您无法从桌面应用的会话中扣留工具，同时在聊天中保持其可用。桌面应用会跳过其所有工具都被阻止的连接器。
 
 <h3 id="disable-claude-ai-connectors">
   禁用 claude.ai 连接器

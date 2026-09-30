@@ -915,7 +915,7 @@ exit 0  # No decision: the normal permission flow applies
 | :- | :- | :- |
 | `PreToolUse` | 是 | 阻止工具调用 |
 | `PermissionRequest` | 否 | 此事件不接受退出代码 2，权限流程保持不变。改为通过 [`decision` 对象](#permissionrequest-decision-control)拒绝 |
-| `UserPromptSubmit` | 是 | 阻止提示处理并删除提示 |
+| `UserPromptSubmit` | 是 | 阻止提示，所以它永远不会到达 Claude。请参阅[被阻止的提示留下什么](#what-a-blocked-prompt-leaves-behind) |
 | `UserPromptExpansion` | 是 | 阻止扩展 |
 | `Stop` | 是 | 防止 Claude 停止，继续对话 |
 | `SubagentStop` | 是 | 防止 subagent 停止 |
@@ -1206,7 +1206,9 @@ SessionStart 在每个会话上运行，因此请保持这些 hooks 快速。仅
 | `source` | 会话如何启动：新会话为 `"startup"`、恢复的会话为 `"resume"`、`/clear` 后为 `"clear"`、压缩后为 `"compact"` 或从现有会话分叉的新会话为 `"fork"` |
 | `model` | 活跃的模型标识符。例如在 `/clear` 后或通过对话恢复恢复会话时可能被省略，因此在读取前检查该字段 |
 | `agent_type` | agent 名称，当您使用 `claude --agent <name>` 启动 Claude Code 时出现 |
-| `session_title` | 当前会话标题（如果已设置），例如通过 `--name` 或 `/rename`。发出 `sessionTitle` 的 hook 可以先检查 `session_title` 以避免覆盖用户明确设置的标题 |
+| `session_title` | 当前会话标题（如果已设置），例如通过 `--name`、`/rename`、发出 `sessionTitle` 的 hook 或 Agent SDK 的 `renameSession()`。发出 `sessionTitle` 的 hook 可以先检查此字段以避免覆盖现有的自定义标题 |
+
+一个您未命名的会话仍然可以有 [生成的标题](/docs/zh-CN/sessions#name-your-sessions)。该标题不是自定义标题，不出现在 `session_title` 中。
 
 当 `source` 为 `"resume"` 或 `"fork"` 且成绩单包含至少一个来自 Claude 的响应时，SessionStart hooks 也会接收下面的四个字段。您的 hook 可以使用它们在第一个请求之前报告恢复陈旧对话的成本，例如在 [`systemMessage`](#json-output) 中。这些字段需要 Claude Code v2.1.251 或更高版本。
 
@@ -1422,6 +1424,8 @@ InstructionsLoaded hooks 没有决策控制。它们无法阻止或修改指令�
 
 除了 [常见输入字段](#common-input-fields) 外，UserPromptSubmit hooks 接收包含用户提交的文本的 `prompt` 字段。折叠为 `[Pasted text #N]` 占位符的粘贴内容在原位展开到达。在 Claude Code [为 Claude 标记粘贴文本](/docs/zh-CN/terminal-config#how-claude-treats-pasted-text) 的会话中，该展开的内容位于 `<pasted_content id="…">` 行和 `</pasted_content id="…">` 行之间，因此如果您的 hook 解析提示，请考虑这些行。
 
+UserPromptSubmit hooks 也在会话有自定义标题时接收 `session_title`，含义与 [SessionStart `session_title` 字段](#sessionstart-input) 相同。
+
 ```json theme={null}
 {
   "session_id": "abc123",
@@ -1450,11 +1454,11 @@ InstructionsLoaded hooks 没有决策控制。它们无法阻止或修改指令�
 
 | 字段 | 描述 |
 | :- | :- |
-| `decision` | `"block"` 防止提示被处理并从上下文中删除它。省略以允许提示继续 |
+| `decision` | `"block"` 防止提示被处理。省略以允许提示继续 |
 | `reason` | 当 `decision` 为 `"block"` 时显示给用户。不添加到上下文 |
 | `additionalContext` | 与提交的提示一起添加到 Claude 上下文的字符串。有关如何传递文本以及放入其中的内容，请参阅 [为 Claude 添加上下文](#add-context-for-claude) |
 | `sessionTitle` | 设置会话标题。用于根据提示内容自动命名会话 |
-| `suppressOriginalPrompt` | 如果在 `decision` 为 `"block"` 时为 `true`，则从显示给用户的阻止消息中省略原始提示文本 |
+| `suppressOriginalPrompt` | 如果在 hook 阻止提示时为 `true`，则从阻止消息中省略原始提示文本。请参阅 [被阻止的提示留下什么](#what-a-blocked-prompt-leaves-behind) |
 
 通过退出 2 阻止的 hook 路由方式与 `reason` 相同：阻止消息向用户显示 stderr 文本，它不添加到上下文。
 
@@ -1465,10 +1469,19 @@ InstructionsLoaded hooks 没有决策控制。它们无法阻止或修改指令�
   "hookSpecificOutput": {
     "hookEventName": "UserPromptSubmit",
     "additionalContext": "My additional context here",
-    "sessionTitle": "My session title"
+    "sessionTitle": "My session title",
+    "suppressOriginalPrompt": true
   }
 }
 ```
+
+<h4 id="what-a-blocked-prompt-leaves-behind">
+  被阻止的提示留下什么
+</h4>
+
+被阻止的提示永远不会到达 Claude，但其文本不会从任何地方删除。默认情况下，显示给用户的阻止消息以 `Original prompt:` 结尾，后跟提交的文本，Claude Code 将该消息写入会话的成绩单文件。要从消息中省略文本，打印 JSON，其中 `hookSpecificOutput` 中的 `"suppressOriginalPrompt": true`。无论 hook 是用 `decision: "block"` 还是通过退出 2 阻止，这都有效。不打印 JSON 的退出 2 hook 总是在其阻止消息中获得提示文本。
+
+`suppressOriginalPrompt` 仅更改阻止消息。提交的文本仍然可以出现在本地文件中，如会话成绩单和您的提示历史，因此阻止 hook 不是将秘密保留在磁盘外的方式。要限制或删除这些文件，请参阅 [纯文本存储](/docs/zh-CN/claude-directory#plaintext-storage) 和 [清除本地数据](/docs/zh-CN/claude-directory#clear-local-data)。
 
 <h3 id="userpromptexpansion">
   UserPromptExpansion

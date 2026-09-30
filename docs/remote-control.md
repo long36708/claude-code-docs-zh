@@ -52,7 +52,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
     该进程在您的终端中以服务器模式保持运行，等待远程连接。它显示一个会话 URL，您可以使用该 URL 从[另一台设备连接](#connect-from-another-device)，您可以按空格键显示 QR 码以便从手机快速访问。当远程会话处于活动状态时，终端显示连接状态和工具活动。
 
-    可用标志：
+    在 `remote-control` 之后传递以下任何标志：
 
     | 标志 | 描述 |
     | - | - |
@@ -68,11 +68,10 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
     | `-d`, `--debug[=<filter>]` | 为服务器打开调试日志记录，可选择按类别过滤。仅以 `=` 形式传递过滤器，例如 `--debug=api,hooks`。需要 Claude Code v2.1.282 或更高版本。 |
     | `--debug-file <path>` | 将调试日志写入给定文件。 |
     | `--verbose` | 显示详细的连接和会话日志。 |
-    | `--sandbox` / `--no-sandbox` | 启用或禁用[沙箱](/docs/zh-CN/sandboxing)以进行文件系统和网络隔离。默认关闭。 |
-
-    在 `remote-control` 之后给出这些标志。
 
     如果您在 `remote-control` 之前传递全局 `claude` 标志，或包装脚本添加了一个，Claude Code 不会将该标志转移到服务器创建的会话。Claude Code 仅在已知删除该标志不会改变这些会话可以执行的操作时才允许该标志通过，例如 `--verbose` 或 `--model`。对于任何其他标志，例如 `--settings`，Claude Code [拒绝启动](/docs/zh-CN/errors#not-carried-over-to-the-sessions-remote-control-starts)并命名要删除的标志。
+
+    要对服务器启动的会话进行沙箱处理，请在设置文件中打开[沙箱](/docs/zh-CN/sandboxing)。
 
     Claude Code 在打印帮助之前检查远程控制资格，因此当您未使用符合条件的帐户登录时，`claude remote-control --help` 返回错误而不是此标志列表。
   </Tab>
@@ -110,7 +109,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
     在您接受远程控制的一次性确认之前，在 `/remote-control` 连接之前会出现一个对话框。选择**启用远程控制**以接受并连接。如果您选择**算了**或按 Esc，Claude Code 不会连接，并在您下次运行 `/remote-control` 时再次询问。
 
-    `--verbose`、`--sandbox` 和 `--no-sandbox` 标志不适用于此命令。
+    `--verbose` 标志不适用于此命令。
   </Tab>
 
   <Tab title="VS Code">

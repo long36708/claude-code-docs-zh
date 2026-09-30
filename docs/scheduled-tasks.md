@@ -8,7 +8,7 @@
 
 计划任务让 Claude 按间隔自动重新运行提示词。使用它们来轮询部署、监督 PR、检查长时间运行的构建，或在会话中稍后提醒自己做某事。要对事件进行实时反应而不是轮询，请参阅 [Channels](/docs/zh-CN/channels)：您的 CI 可以直接将失败推送到会话中。要保持会话工作转向转向直到满足条件而不是按间隔，请参阅 [`/goal`](/docs/zh-CN/goal)。
 
-任务是会话范围的：它们存在于当前对话中，当您启动新对话时就会停止。使用 `--resume` 或 `--continue` 恢复会带回任何尚未[过期](#seven-day-expiry)的任务，除了[限制](#limitations)下列出的任务。对于独立于任何会话而存在的调度，请使用 [Routines](/docs/zh-CN/routines) 在云上创建例程、设置 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks)，或使用 [GitHub Actions](/docs/zh-CN/github-actions)。
+任务是会话范围的。当您使用 `--resume` 或 `--continue` 恢复时，Claude Code 会恢复尚未[过期](#seven-day-expiry)的任务，除了[限制](#limitations)下列出的任务。对于独立于任何会话而存在的调度，请使用 [Routines](/docs/zh-CN/routines) 在云上创建例程、设置 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks)，或使用 [GitHub Actions](/docs/zh-CN/github-actions)。
 
 <h2 id="compare-scheduling-options">
   比较调度选项
@@ -237,7 +237,7 @@ cancel the deploy check job
 
 * 任务仅在 Claude Code 运行且空闲时触发。关闭终端或让会话退出会停止它们触发。[将会话放在后台](/docs/zh-CN/agent-view#from-inside-a-session)会将 `/loop` 任务转移到后台会话，该会话继续运行而无需终端。
 * 没有错过触发的追赶。如果任务的计划时间在 Claude 忙于长时间运行的请求时经过，它会在 Claude 变为空闲时触发一次，而不是每个错过的间隔触发一次。
-* 启动新对话会清除所有会话范围的任务。当您使用 `claude --resume` 或 `claude --continue` 恢复会话时，Claude Code 会恢复使用 `CronCreate` 调度的任务，除了已[过期](#seven-day-expiry)的重复任务和计划时间已经过去的一次性任务。[自定步调的 `/loop`](#let-claude-choose-the-interval)不会被恢复，因此请再次运行 `/loop` 以重新启动它。后台 Bash 和监视器任务在恢复时永远不会被恢复。
+* 当您使用 `claude --resume` 或 `claude --continue` 恢复会话时，Claude Code 会恢复使用 `CronCreate` 调度的任务，除了已[过期](#seven-day-expiry)的重复任务和计划时间已经过去的一次性任务。[自定步调的 `/loop`](#let-claude-choose-the-interval)不会被恢复，因此请再次运行 `/loop` 以重新启动它。后台 Bash 和监视器任务在恢复时永远不会被恢复。
 * 当[功能标志获取关闭](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)时，Claude Code 会将您要求在会话间保留的任务存储在项目的 `.claude/scheduled_tasks.json` 文件中。当 `.claude` 目录或该文件是符号链接时，Claude Code 会返回错误而不是调度任务。保存的任务仅在您创建它的项目文件夹中运行。如果您将文件复制到另一个文件夹（例如新的 worktree），那里的会话会列出复制的任务但不会运行它们，因此请在该文件夹中再次创建任务。
 
 对于需要无人值守运行的 cron 驱动自动化：

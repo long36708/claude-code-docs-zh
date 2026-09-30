@@ -89,7 +89,7 @@ Claude Desktop 应用有三个选项卡：**Chat** 用于对话，**Cowork** 用
 | **Manual** | `default` | Claude 在编辑文件或运行命令之前询问。你会看到差异，可以接受或拒绝每项更改。 |
 | **Accept edits** | `acceptEdits` | Claude 自动接受文件编辑和常见的文件系统命令，如 `mkdir`、`touch` 和 `mv`，但在运行其他终端命令之前仍会询问。当你信任文件更改并希望更快迭代时，请使用此选项。 |
 | **Plan** | `plan` | Claude 读取文件并运行命令进行探索，然后提出计划而不编辑你的源代码。适合复杂任务，你想先审查方法。 |
-| **Auto** | `auto` | Claude 执行所有操作，并进行后台安全检查以验证与你的请求的一致性。减少权限提示，同时保持监督。当 [auto mode 可用](#auto-mode-availability)时出现；没有单独的设置切换。 |
+| **Auto** | `auto` | Claude 运行时不需要常规提示；在执行 shell 命令和网络请求等操作之前，后台分类器会检查它们是否与你的请求一致。当 [auto mode 可用](#auto-mode-availability)时出现；没有单独的设置切换。 |
 | **Bypass permissions** | `bypassPermissions` | Claude 运行时不需要权限提示，除了[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)、当 Claude [在外部网站上操作](#browse-external-sites)时的安全分类器，或桌面操作（Claude 总是首先询问），例如[归档会话](#work-across-sessions)。等同于 CLI 中的 `--dangerously-skip-permissions`。在 Pro 和 Max 计划上，在你的设置 → Claude Code 中启用它，在"允许绕过权限模式"下；在 Team 和 Enterprise 计划上没有设置切换，组织策略控制它。仅在沙箱容器或虚拟机中使用。 |
 
 代码选项卡的早期版本将这些模式标记为 Ask permissions、Auto accept edits 和 Plan mode。
@@ -496,7 +496,7 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 
 本地会话从 `~/.claude/skills/` 加载你的个人 skills。[SSH](#ssh-sessions) 会话从远程主机的主目录读取 `~/.claude/skills/`，而不是从你的机器。
 
-本地和云会话也加载为你的 claude.ai 账户启用的 skills。云会话改为加载它们，而不是 `~/.claude/skills/`，如[Cowork 和云会话中的 Skills](/docs/zh-CN/skills#skills-in-cowork-and-cloud-sessions)所述。
+本地和云会话也加载为你的 claude.ai 账户启用的 skills，除非你的组织设置了 [`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags)。云会话改为加载它们，而不是 `~/.claude/skills/`，如[Cowork 和云会话中的 Skills](/docs/zh-CN/skills#skills-in-cowork-and-cloud-sessions)所述。
 
 <h3 id="install-plugins">
   安装插件
@@ -506,7 +506,7 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 
 对于本地和 [SSH](#ssh-sessions) 会话，点击提示框旁的 **+** 按钮并选择 **Plugins** 来查看你已安装的插件及其 skills。要添加插件，从子菜单中选择 **Add plugin** 来打开插件浏览器，它显示来自你配置的[市场](/docs/zh-CN/plugins/overview)的可用插件，包括官方 Anthropic 市场。选择 **Manage plugins** 来启用、禁用或卸载插件。
 
-你可以将插件限定到你的用户账户、特定项目或仅本地。如果你的组织集中管理插件，这些插件在桌面会话中的可用方式与在 CLI 中相同。
+你可以将插件限定到你的用户账户、特定项目或仅本地。如果你的组织集中管理插件，这些插件在桌面会话中的可用方式与在 CLI 中相同，除了桌面应用在 [`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags) 下扣留的那些。
 
 插件浏览器在云会话中不可用，从桌面应用安装的插件不可用于云会话。云会话也不会安装存储库的 `.claude/settings.json` 声明的插件，如[从你的设置中继承的内容](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)所述。插件在 WSL 会话中不可用。有关完整的插件参考，包括创建你自己的插件，请参阅 [plugins](/docs/zh-CN/plugins/overview)。
 

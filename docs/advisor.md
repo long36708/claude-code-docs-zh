@@ -95,13 +95,14 @@ Claude Code 在该会话中使用该标志而不是 `advisorModel` 设置。它�
   选择顾问模型
 </h2>
 
-顾问的能力必须至少与主模型相同。每个主模型接受的顾问是：
+Claude Code 和 API 都需要一个顾问，其能力至少与主模型相同，这两者对某些模型的排名不同。每个主模型接受的顾问是：
 
 | 主模型 | 接受的顾问 | 注释 |
 | - | - | - |
 | Haiku 4.5 | Fable、Opus、Sonnet | Haiku 可以调用顾问但不能充当顾问 |
 | Sonnet 4.6 | Fable、Opus、Sonnet | |
-| Sonnet 5.5 或 Sonnet 5 | Fable、Opus 4.7 或更高版本、Sonnet 5 或更高版本 | Sonnet 4.6 顾问被拒绝，API 拒绝 Opus 4.6 顾问 |
+| Sonnet 5 | Fable、Opus 4.7 或更高版本、Sonnet 5 或更高版本 | Sonnet 4.6 顾问被拒绝，API 拒绝 Opus 4.6 顾问 |
+| Sonnet 5.5 | Fable、Opus 5 或更高版本、Sonnet 5.5 | Sonnet 4.6 顾问被拒绝，API 拒绝 Sonnet 5、Opus 4.6、Opus 4.7 或 Opus 4.8 顾问 |
 | Opus 4.6 | Fable、Opus、Sonnet 5 或更高版本 | Sonnet 4.6 顾问被拒绝 |
 | Opus 4.7 或 Opus 4.8 | Fable 和 Opus 4.7 或更高版本 | Opus 4.6 或 Sonnet 顾问被拒绝 |
 | Opus 5.5 或 Opus 5 | Fable 和 Opus 5 或更高版本 | Opus 4.6 或 Sonnet 顾问被拒绝，API 拒绝 Opus 4.7 或 Opus 4.8 顾问 |

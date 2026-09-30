@@ -167,10 +167,14 @@ Bash 工具在单独的进程中运行每个命令。
   超时和输出限制
 </h3>
 
-每个命令在超时下运行，Claude 管理它：当它需要比命令的默认值更长的时间时，它会传递 `timeout` 参数进行该调用 — 您永远不会设置每个命令的超时。两个[环境变量](/docs/zh-CN/env-vars)限制 Claude 获得的内容：
+每个命令在超时下运行，Claude 管理它：当它需要比命令的默认值更长的时间时，它会传递 `timeout` 参数进行该调用。您永远不会设置每个命令的超时。
+
+两个[环境变量](/docs/zh-CN/env-vars)控制 Claude 获得的内容，用于在前台运行的命令：
 
 * `BASH_DEFAULT_TIMEOUT_MS` — 当 Claude 不传递超时时的默认值；开箱即用为两分钟
 * `BASH_MAX_TIMEOUT_MS` — 使用默认值，设置上限以限制 Claude 请求的任何内容：有效上限是两者中较大的，开箱即用为十分钟
+
+对于 Claude 在后台启动的命令，`timeout` 改为设置命令在那里可以运行多长时间，具有在[后台命令](#background-commands)下描述的单独默认值和最大值。[PowerShell 工具](#powershell-tool)遵循相同的超时规则并读取相同的两个变量。
 
 <h4 id="output-limits">
   输出限制
@@ -195,9 +199,23 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 
 对于长时间运行的进程（例如开发服务器或监视构建），Claude 可以设置 `run_in_background: true` 以将命令作为后台任务启动并在其运行时继续工作。使用 `/tasks` 列出和停止后台任务。在您从那里停止一个后，或从连接的客户端（例如桌面应用）停止，Claude 继续而不是等待。如果子代理启动了命令，则是该子代理继续。
 
-[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)启动的命令在该子代理给出最终响应时停止。主对话或后台子代理启动的命令在最终响应后继续运行。在使用 `-p` 标志的非交互模式下，[后台命令在运行的最终结果后不久结束](/docs/zh-CN/headless#background-tasks-at-exit)。
+[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)启动的命令在该子代理的运行结束时停止，无论它是完成、失败还是被中断。主对话或后台子代理启动的命令在最终响应后继续运行，直到它退出、被停止或达到其时间限制。在使用 `-p` 标志的非交互模式下，[后台命令在运行的最终结果后不久结束](/docs/zh-CN/headless#background-tasks-at-exit)。
 
-当命令在完成前达到其超时时，Claude Code 会将其移到后台而不是停止它，除非命令以 `sleep` 开头。Claude 在命令继续时继续工作。Claude Code 对移动的命令应用与任何其他后台命令相同的生命周期规则，因此它仍然在该子代理的最终响应时结束前台子代理的命令。设置 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](/docs/zh-CN/env-vars#variables) 禁用自动后台处理以及其余后台任务功能。
+后台 Bash 和 PowerShell 命令有时间限制，从命令进入后台的时刻开始计算：
+
+* Claude 在后台启动的命令获得 30 分钟，或 Claude 使用 `run_in_background` 传递的 `timeout`，最多 2 小时
+* 在前台启动然后移到后台的命令，例如使用 `Ctrl+B` 或在其超时时，从移动时获得 30 分钟
+
+两个[环境变量](/docs/zh-CN/env-vars)提高这些限制，对于 Bash 和 PowerShell 命令都是如此。两者都采用毫秒，都不能缩短限制：较低的值保留 30 分钟的默认值和 2 小时的最大值。
+
+* 将 `BASH_DEFAULT_TIMEOUT_MS` 设置为高于 `1800000` 以用该值替换 30 分钟的默认值，既适用于 Claude 启动的没有 `timeout` 的命令，也适用于移动的命令
+* 将 `BASH_MAX_TIMEOUT_MS` 设置为高于 `7200000` 以将 2 小时的最大值提高到该值。将 `BASH_DEFAULT_TIMEOUT_MS` 设置为高于 `7200000` 以相同方式提高最大值
+
+当后台命令达到其时间限制时，Claude Code 停止它并告诉 Claude 原因，Claude 可以使用更长的 `timeout` 重新启动命令，如果工作仍然需要的话。停止通知读作 `Background command "<description>" was stopped after reaching its background time limit`。
+
+当前台命令在完成前达到其超时时，Claude Code 会将其移到后台而不是停止它，除非命令以 `sleep` 开头。移动的命令的时间限制从移动时开始计算，前台子代理的移动命令仍然在该子代理的运行结束时停止。
+
+设置 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](/docs/zh-CN/env-vars#variables) 禁用自动后台处理以及其余后台任务功能。
 
 移到后台的命令的结果说明发生了什么：
 

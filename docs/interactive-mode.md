@@ -358,7 +358,10 @@ Claude Code 支持在后台运行 Bash 命令，允许你在长时间运行的�
 * 在 macOS 和 Linux 上，当操作系统报告严重内存压力时，Claude Code 会停止运行中的后台任务，前提是会话已空闲至少 30 分钟且没有 turn 或 subagent 运行。需要 Claude Code v2.1.193 或更高版本
   * [调试日志](/docs/zh-CN/debug-your-config)说明了为什么任务被停止，或为什么压力事件让它们继续运行
   * 将 [`CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP`](/docs/zh-CN/env-vars) 设置为 `1` 可关闭内存压力停止
-* 由[子代理](/docs/zh-CN/sub-agents)拥有的后台命令没有时间限制，除非由在前台运行的子代理拥有的命令在该子代理给出最终响应时结束；请参阅工具参考中的[后台命令](/docs/zh-CN/tools-reference#background-commands)。在 v2.1.218 之前，内存压力回收和之前对子代理命令的 60 分钟限制都不包括用 `Ctrl+B` 移到后台的命令
+* 后台 Bash 和 PowerShell 命令有时间限制，从命令进入后台的时刻开始计算：30 分钟，或 Claude 在启动后台命令时要求的 `timeout`，最多 2 小时。在运行时移到后台的命令（例如使用 `Ctrl+B`）从移动时获得 30 分钟。当命令达到其限制时，Claude Code 会停止它并告诉 Claude 原因，Claude 可以使用更长的 `timeout` 重新启动它，如果工作仍然需要的话。两个环境变量提高限制（以毫秒为单位），两者都不能缩短限制：
+  * 将 [`BASH_DEFAULT_TIMEOUT_MS`](/docs/zh-CN/env-vars) 设置为 `1800000` 以上，以用该值替换 30 分钟的默认值，也适用于移动的命令
+  * 将 [`BASH_MAX_TIMEOUT_MS`](/docs/zh-CN/env-vars) 设置为 `7200000` 以上以提高 2 小时的最大值。将 `BASH_DEFAULT_TIMEOUT_MS` 设置为 `7200000` 以上会以相同方式提高它
+* 由前台[子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)启动的后台命令在该子代理的运行结束时结束，无论是完成、失败还是被中断；请参阅工具参考中的[后台命令](/docs/zh-CN/tools-reference#background-commands)
 
 要禁用所有后台任务功能，请将 `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` 环境变量设置为 `1`。有关详细信息，请参阅[环境变量](/docs/zh-CN/env-vars)。
 

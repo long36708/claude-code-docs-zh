@@ -96,7 +96,9 @@
 | `rejected the credential from its headersHelper` / `rejected the Authorization header in its config` | [身份验证](#mcp-server-needs-you-to-sign-in-again) |
 | `MCP server "<name>" needs additional permissions (scope: "<scope>") — run /mcp to re-authenticate` | [身份验证](#mcp-server-needs-you-to-sign-in-again) |
 | `MCP server "<name>" requires re-authorization (token expired)` | [身份验证](#mcp-server-needs-you-to-sign-in-again) |
+| `This server's URL is missing or not a valid URL, so sign-in can't start` | [身份验证](#mcp-server-url-is-missing-or-not-a-valid-url) |
 | `Issuer mismatch in authorization response (RFC 9207)` | [身份验证](#issuer-mismatch-in-authorization-response) |
+| `Refusing to send credentials to non-https token endpoint` / `<short-name> from the MCP SDK for <server-url>` | [身份验证](#refusing-to-send-credentials-to-non-https-token-endpoint) |
 | `Cloud gateway session expired — run /login to reconnect.` | [身份验证](#cloud-gateway-session-expired) |
 | `Cloud gateway <url> no longer accepts this session` | [身份验证](#cloud-gateway-session-expired) |
 | `Sign-in timed out while waiting for you to continue. Try again.` | [身份验证](#sign-in-timed-out-while-waiting-for-you-to-continue) |
@@ -203,6 +205,8 @@
 | `Cannot add MCP server to scope: managed` | [命令行错误](#cannot-add-mcp-server-to-the-managed-scope) |
 | `is Anthropic-hosted and doesn't support local OAuth` | [命令行错误](#anthropic-hosted-and-doesnt-support-local-oauth) |
 | `Can't read .mcp.json: it isn't a regular file or is larger than 2097152 bytes` | [命令行错误](#cant-read-mcp-json) |
+| `MCP server "<name>" was not saved to` / `was not removed from` | [命令行错误](#mcp-server-was-not-saved-or-removed) |
+| `MCP server "<name>" may not have been saved` / `may not have been removed` | [命令行错误](#mcp-server-may-not-have-been-saved-or-removed) |
 | `Server rejected the Authorization header minted by the configured headersHelper` | [命令行错误](#server-rejected-the-authorization-header-minted-by-the-configured-headershelper) |
 | `Error: MCP tool <name> (passed via --permission-prompt-tool) not found` | [命令行错误](#mcp-permission-prompt-tool-not-found) |
 | `OAuth callback port <port> is already in use — another process may be holding it` | [命令行错误](#oauth-callback-port-is-already-in-use) |
@@ -1499,6 +1503,20 @@ MCP server "<name>" needs additional permissions (scope: "<scope>") — run /mcp
 
 在 v2.1.274 之前，这种情况显示 `needs you to sign in again` 消息，在 v2.1.273 之前它显示 `requires re-authorization (token expired)`，如其他情况。
 
+<h3 id="mcp-server-url-is-missing-or-not-a-valid-url">
+  MCP 服务器 URL 缺失或不是有效的 URL
+</h3>
+
+Claude Code 拒绝为远程 MCP 服务器启动 OAuth 登录，因为服务器的配置 `url` 不解析为 URL。除非 Claude Code 有更具体的配置问题要为服务器报告，否则在您的 shell 中运行 [`claude mcp login <name>`](/docs/zh-CN/mcp#authenticate-from-the-command-line) 会将拒绝打印为：
+
+```text theme={null}
+Couldn't complete authentication for "<name>": This server's URL is missing or not a valid URL, so sign-in can't start. Fix the URL in its MCP config (or set the environment variable it uses) and try again.
+```
+
+**应该做什么：**
+
+* 将条目的 `url` 设置为服务器的真实端点，其中配置服务器，或设置其 [`${VAR}` 引用](/docs/zh-CN/mcp#environment-variable-expansion-in-mcp-json) 命名的环境变量，然后再次运行登录。
+
 <h3 id="issuer-mismatch-in-authorization-response">
   授权响应中的发行者不匹配
 </h3>
@@ -1518,6 +1536,25 @@ Issuer mismatch in authorization response (RFC 9207): expected "https://auth.exa
 * 要在修复服务器时连接，使用 [`MCP_SDK_GENERATION=v1`](/docs/zh-CN/env-vars) 启动 Claude Code，其 [运行时](/docs/zh-CN/mcp#mcp-client-runtimes) 不运行此检查。这消除了对混合攻击的保护，因此更喜欢服务器端修复
 
 在 v2.1.232 之前，Claude Code 仅在逐步推出中或当您设置 `MCP_SDK_GENERATION=v2` 时使用 v2 运行时。
+
+<h3 id="refusing-to-send-credentials-to-non-https-token-endpoint">
+  拒绝向非 https 令牌端点发送凭证
+</h3>
+
+在 [v2 运行时](/docs/zh-CN/mcp#mcp-client-runtimes) 上，Claude Code 仅向通过 HTTPS 或在 `localhost`、`127.0.0.1` 或 `::1` 处提供的令牌端点发送 [MCP OAuth](/docs/zh-CN/mcp#authenticate-with-remote-mcp-servers) 令牌请求。此消息意味着服务器的令牌端点都不是，因此 Claude Code 在发送请求前停止。这发生在浏览器登录之后，因此浏览器步骤首先成功，并且每当 Claude Code 刷新服务器的令牌时再次发生。
+
+在其完整形式中，消息来自 MCP SDK 并引用它拒绝的令牌端点。在调试日志中，它遵循 `Error during auth completion:` 用于登录或 `Token refresh failed:` 用于刷新。在您的 shell 中，`claude mcp login <name>` 在 `Couldn't complete authentication for "<name>":` 之后打印它，在会话中，`/mcp` 在服务器的菜单下显示它：
+
+```text theme={null}
+Refusing to send credentials to non-https token endpoint 'http://192.168.1.50:8123/oauth/token'. OAuth token requests MUST use TLS (localhost / 127.0.0.1 / ::1 are exempt).
+```
+
+Claude Code 将具有查询字符串或长随机外观路径段的服务器 URL 视为可能的秘密。对于这样的服务器，它在显示或记录它们之前会编辑 MCP SDK 引发的登录错误。此错误然后读作可能在版本之间更改的短名称，例如 `io`，后跟 `from the MCP SDK for` 和编辑的服务器 URL。MCP SDK 的其他错误在那里采用相同的形状。编辑的消息只能是此错误，当服务器的令牌端点是纯 `http://` 在 `localhost`、`127.0.0.1` 或 `::1` 以外的地址时。
+
+**应该做什么：**
+
+* 通过 HTTPS 提供该令牌端点，例如通过将服务器放在终止 TLS 的反向代理或隧道后面，并配置服务器以宣传 `https://` 地址
+* 要在不更改服务器的情况下连接，使用 [`MCP_SDK_GENERATION=v1`](/docs/zh-CN/env-vars) 启动 Claude Code，其 [运行时](/docs/zh-CN/mcp#mcp-client-runtimes) 不应用此规则并通过纯 HTTP 发送令牌请求。该选择持续到您退出并应用于每个服务器。v1 运行时也跳过 [发行者检查](#issuer-mismatch-in-authorization-response)，因此更喜欢通过 HTTPS 提供端点
 
 <h3 id="aws-credentials-expired-or-invalid">
   AWS 凭证已过期或无效
@@ -1941,7 +1978,7 @@ x-deny-reason: host_not_allowed
 
 * 打开例程进行编辑，或启动云会话。选择显示您的环境名称（例如**默认**）的云图标以打开选择器。将鼠标悬停在您的环境上，然后单击设置图标。
 * 在**更新云环境**对话框中，将**网络访问**从**受信任**更改为**自定义**，然后将被阻止的域添加到**允许的域**。每行输入一个域。检查**也包括常见包管理器的默认列表**以将[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)与您的自定义域保持在一起。如果您想要不受限制的访问，请改为选择**完全**。
-* 单击**保存更改**。下一次运行使用更新的允许列表。
+* 单击**保存更改**。下一次运行使用更新的允许列表。对于已打开的云会话，请参阅[网络访问更改何时到达现有会话](/docs/zh-CN/cloud-environments#network-access)。
 
 有关访问级别和默认允许列表，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。本地 CLI 会话不受此策略影响。
 
@@ -3123,6 +3160,43 @@ Can't read .mcp.json: it isn't a regular file or is larger than 2097152 bytes. F
 **要做什么：**
 
 * 检查您当前目录中 `.mcp.json` 处的内容。将其替换为[项目范围格式](/docs/zh-CN/mcp#project-scope)中的普通 JSON 文件，或删除它，然后再次运行命令。
+
+<h3 id="mcp-server-was-not-saved-or-removed">
+  MCP 服务器未被保存或删除
+</h3>
+
+您为 `user` 或 `local` [范围](/docs/zh-CN/mcp#mcp-installation-scopes)中的服务器运行了 `claude mcp add`、`claude mcp add-json` 或 `claude mcp remove`。两个范围都存储在 `~/.claude.json` 中，当 Claude Code 在写入后读回该文件时，更改不在该文件中。命令以此错误退出，而不是其成功行。
+
+```text theme={null}
+MCP server "example" was not saved to /home/user/.claude.json. If that file is read-only or protected by a sandbox, make it writable or run the command outside the sandbox, then add the server again.
+```
+
+删除后，消息读取 `was not removed from` 并以 `then remove the server again` 结尾。对于 `local` 范围的服务器，路径后跟项目目录，该条目属于该目录，如 `(local scope for /path/to/project)`。
+
+在 v2.1.283 之前，`claude mcp add`、`claude mcp add-json` 和 `claude mcp remove` 即使更改未到达文件也报告成功。
+
+**要做什么：**
+
+* 使消息命名的文件可写，或在沙箱外运行命令，然后再次运行相同的添加或删除命令。
+
+<h3 id="mcp-server-may-not-have-been-saved-or-removed">
+  MCP 服务器可能未被保存或删除
+</h3>
+
+您为 `user` 或 `local` [范围](/docs/zh-CN/mcp#mcp-installation-scopes)中的服务器运行了 `claude mcp add`、`claude mcp add-json` 或 `claude mcp remove`，Claude Code 无法读回 `~/.claude.json` 以确认更改。更改可能在磁盘上，也可能不在。括号中的文本是该读取的错误。
+
+```text theme={null}
+MCP server "example" may not have been saved: /home/user/.claude.json could not be read to confirm the change (EACCES: permission denied, open '/home/user/.claude.json'). Run `claude mcp get example` to check, then add the server again if it is missing.
+```
+
+删除后，消息读取 `may not have been removed` 并以 `then remove the server again if it is still listed` 结尾。
+
+在 v2.1.283 之前，命令即使无法确认更改也报告成功。
+
+**要做什么：**
+
+* 运行 `claude mcp get <name>` 检查更改是否在磁盘上。对于 `local` 范围的服务器，从服务器所属的项目目录运行它，因为本地范围是每个项目的。
+* 如果服务器在添加后缺失，或在删除后仍然列出，请再次运行相同的添加或删除命令。
 
 <h3 id="anthropic-hosted-and-doesnt-support-local-oauth">
   服务器是 Anthropic 托管的，不支持本地 OAuth

@@ -308,7 +308,7 @@ function listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]>;
 | `summary` | `string` | 显示标题：自定义标题、最近的提示、自动生成的摘要或第一个提示 |
 | `lastModified` | `number` | 上次修改时间（自纪元以来的毫秒数） |
 | `fileSize` | `number \| undefined` | 会话文件大小（字节）。仅对本地 JSONL 存储进行填充 |
-| `customTitle` | `string \| undefined` | 用户设置的会话标题（通过 `/rename`） |
+| `customTitle` | `string \| undefined` | 会话的自定义标题（当设置了一个时），例如通过 `--name`、`/rename`、hook 的 `sessionTitle` 输出或 [`renameSession()`](#renamesession)。否则为 AI 生成的会话标题（如果会话有的话） |
 | `firstPrompt` | `string \| undefined` | 会话中的第一个有意义的用户提示 |
 | `gitBranch` | `string \| undefined` | 会话结束时的 git 分支 |
 | `cwd` | `string \| undefined` | 会话的工作目录 |
@@ -3124,7 +3124,7 @@ type ToolInputSchemas =
 **工具名称：** `Agent`。之前的名称 `Task` 仍然被接受作为别名，[`SDKSystemMessage`](#sdksystemmessage) 初始化消息中的 `tools` 数组目前为了向后兼容仍将此工具列为 `Task`。
 
 <Note>
-  `mode` 字段在 Claude Code v2.1.212 或更高版本上已弃用且被忽略。子代理在父会话的权限模式或其定义的 [`permissionMode`](#agentdefinition) 中运行，[子代理继承规则](/docs/zh-CN/agent-sdk/permissions#available-modes)决定使用哪一个。
+  在 Claude Code v2.1.212 或更高版本上，`mode` 字段已弃用且被忽略。子代理在父会话的权限模式或其定义的 [`permissionMode`](#agentdefinition) 中运行，[子代理继承规则](/docs/zh-CN/agent-sdk/permissions#available-modes)决定使用哪一个。
 </Note>
 
 ```typescript theme={null}
@@ -3174,14 +3174,14 @@ type AskUserQuestionInput = {
 ```typescript theme={null}
 type BashInput = {
   command: string;
-  timeout?: number; // 毫秒，最大 600000；更高的值会被限制为最大值
+  timeout?: number; // 毫秒。前台：默认上限为 600000，更高的值会被限制。使用 run_in_background（Claude Code v2.1.285 或更高版本）：后台时间限制，省略时为 1800000，上限为 7200000，除非提高
   description?: string;
   run_in_background?: boolean;
   dangerouslyDisableSandbox?: boolean;
 };
 ```
 
-执行 Bash 命令，支持可选超时和后台执行。工作目录在命令之间保持不变，包括多轮会话后续轮次中运行的命令；shell 状态（如导出的环境变量）不保持。有关哪些目录更改会保持的限制，请参阅[命令之间保持什么](/docs/zh-CN/tools-reference#what-persists-between-commands)。
+执行 Bash 命令，支持可选超时和后台执行。工作目录在命令之间保持不变，包括多轮会话后续轮次中运行的命令；shell 状态（如导出的环境变量）不保持。有关哪些目录更改会保持的限制，请参阅[命令之间保持什么](/docs/zh-CN/tools-reference#what-persists-between-commands)。有关设置前台上限的内容，请参阅[超时和输出限制](/docs/zh-CN/tools-reference#timeout-and-output-limits)。有关后台时间限制，请参阅[后台命令](/docs/zh-CN/tools-reference#background-commands)。
 
 <h3 id="monitor">
   Monitor
@@ -3609,7 +3609,7 @@ type CronCreateInput = {
 };
 ```
 
-在本地时间的 5 字段 cron 计划上安排提示运行。将 `recurring` 设置为 `false` 以在下一个匹配时仅触发一次。作业默认为会话范围：启动新对话会清除它们，使用 `--resume` 或 `--continue` 恢复会恢复尚未过期的作业。请参阅[计划任务](/docs/zh-CN/scheduled-tasks)。
+在本地时间的 5 字段 cron 计划上安排提示运行。将 `recurring` 设置为 `false` 以在下一个匹配时仅触发一次。作业默认为会话范围，恢复时使用 `--resume` 或 `--continue` 会恢复尚未过期的作业。请参阅[计划任务](/docs/zh-CN/scheduled-tasks)。
 
 将 `durable` 设置为 `true` 请求持久化到 `.claude/scheduled_tasks.json`，以便作业在重启后继续存在。持久化调度并非在每个会话中都可用：当不可用时，Claude Code 接受 `durable: true` 但创建仅会话的作业。读取输出的 `durable` 字段以查看作业是否已持久化。
 
@@ -4085,7 +4085,7 @@ type BashOutput = {
 
 `timedOutAfterMs` 是超时时间（以毫秒为单位），当命令达到其超时并移至后台而不是显式启动时设置。`backgroundCwdHint` 在后台命令包含目录更改内置命令（如 `cd`、`pushd`、`popd` 或 `chdir`）时设置，并注意会话工作目录未更改。两个字段都需要 Claude Code v2.1.210 或更高版本。
 
-当在前台运行的子代理拥有后台命令时，Claude Code 在该子代理给出最终响应时终止该命令。Claude Code 在此类命令上将 `backgroundEndsWithFinalResponse` 设置为 `true`，并在命令存活该轮时省略该字段，如主对话或后台子代理启动的命令那样。该字段需要 Claude Code v2.1.227 或更高版本。
+当在前台运行的子代理拥有后台命令时，该命令[在该子代理的运行结束时结束](/docs/zh-CN/tools-reference#background-commands)。Claude Code 在此类命令上将 `backgroundEndsWithFinalResponse` 设置为 `true`，并在命令存活该轮时省略该字段，如主对话或后台子代理启动的命令那样。该字段需要 Claude Code v2.1.227 或更高版本。
 
 Claude Code 将 `gitOperation.commit.branch` 设置为 git 提交摘要行中命名的分支，对于在分离 HEAD 上进行的提交则省略它。该字段需要 Agent SDK v0.3.227 或更高版本。Claude Code 将 `gh pr reopen` 命令报告为 `reopened` PR 操作，这需要 Agent SDK v0.3.234 或更高版本。
 

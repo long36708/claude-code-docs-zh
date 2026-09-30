@@ -6326,7 +6326,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
   `disableSideloadFlags`
 </h3>
 
-在启动时拒绝 `--plugin-dir`、`--plugin-url`、`--agents` 和 `--mcp-config` CLI 标志，用户可能会传递这些标志来绕过 [`strictKnownMarketplaces`](#strictknownmarketplaces) 进行单次运行。Claude Code 会以错误退出并命名被拒绝的标志，并对在内部使用这些标志启动 CLI 的表面应用相同的检查，目前在桌面应用中的 [Cowork](/docs/zh-CN/desktop) 本地会话。在[云会话](/docs/zh-CN/claude-code-on-the-web)中，Claude Code 会启动会话并删除服务器通过 `--mcp-config` 传递的每个条目，除了进程内 `type: "sdk"` 条目和 [Claude Tag](/docs/zh-CN/claude-tag) 会话的 Slack 工具。需要 Claude Code v2.1.193 或更高版本。
+在启动时拒绝 `--plugin-dir`、`--plugin-url`、`--agents` 和 `--mcp-config` CLI 标志，用户可能会传递这些标志来绕过 [`strictKnownMarketplaces`](#strictknownmarketplaces) 进行单次运行。Claude Code 会以错误退出并命名被拒绝的标志。在[云会话](/docs/zh-CN/claude-code-on-the-web)中，Claude Code 会启动会话并删除服务器通过 `--mcp-config` 传递的每个条目，除了进程内 `type: "sdk"` 条目和 [Claude Tag](/docs/zh-CN/claude-tag) 会话的 Slack 工具。需要 Claude Code v2.1.193 或更高版本。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: Boolean
@@ -6345,6 +6345,11 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 相同的检查涵盖在 [`CLAUDE_CODE_PLUGIN_DIRS`](/docs/zh-CN/env-vars#variables) 环境变量中命名的插件文件夹，这需要 Claude Code v2.1.280 或更高版本。当变量命名一个文件夹时，Claude Code 以相同的错误退出，错误说要取消设置该变量。
 
 在云会话中，Claude Code 也忽略服务器传递的中途 MCP 更新，云会话配置和 SDK `setMcpServers()` 调用背后的路径到达这些会话。进程内 `type: "sdk"` 条目和 Claude Tag 会话的 Slack 工具在那里也保持豁免。在 v2.1.268 之前，这个删除和启动删除也删除了 Claude Tag 会话的 Slack 工具。在 v2.1.239 之前，服务器传递的 `--mcp-config` 阻止云会话启动。
+
+桌面应用自己管理一些插件，包括从 claude.ai 同步的插件和您的组织通过应用部署的插件。如果您通过 MDM、OS 级别策略或托管设置文件将此密钥部署到设备，桌面应用不会将这些插件传递给该设备上的以下会话：
+
+* **[用户机器上的代码会话](/docs/zh-CN/desktop#environment-configuration)**: 它们也启动时不启用用户 claude.ai 账户的技能。Claude Code 从您的托管设置中的市场安装的插件仍然加载。在 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview) 中，您部署到设备 `org-plugins` 目录的插件中的 MCP 服务器仍然可用，因为桌面应用自己连接到它们。在 Claude Desktop v1.37937.0 之前，这些会话在启动时失败。
+* **[用户机器上的协作会话](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)**: 这些插件内的技能和为用户 claude.ai 账户启用的技能保持可用。在 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview) 中，您部署到设备 `org-plugins` 目录的插件中的 MCP 服务器仍然可用，因为桌面应用自己连接到它们。在 Claude Desktop v1.44121.0 之前，这些会话在启动时失败。
 
 <h3 id="forceremotesettingsrefresh">
   `forceRemoteSettingsRefresh`

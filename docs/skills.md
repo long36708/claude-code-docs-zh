@@ -862,13 +862,25 @@ Skill(review-pr *)
 Skill(deploy *)
 ```
 
-权限语法：`Skill(name)` 用于精确匹配，`Skill(name *)` 用于带任何参数的前缀匹配。在 `allow` 规则中，[为同步技能保留的命名空间](#names-reserved-for-synced-skills)之外的前缀不匹配其中的名称：`Skill(anthropic *)` 不涵盖 `anthropic-skills:pdf`。
+权限语法：`Skill(name)` 用于精确匹配，`Skill(name *)` 用于带任何参数的前缀匹配。
 
-如果你的 `deny` 规则命名别名或不合格的名称而不是技能自己的名称，Claude Code 仍然会阻止该技能：使用 `Skill(review)` 它通过其 `/review` 别名阻止捆绑的 `/code-review`，使用 `Skill(deploy)` 它通过其不合格的名称阻止列为 `apps/web:deploy` 的[嵌套技能](#where-skills-live)。在 v2.1.260 之前，当拒绝规则仅命名不合格的名称时，Claude Code 不会阻止列在其合格名称下的嵌套技能。
+下表显示了你的 `deny` 规则命名的名称类型，Claude Code 除了你写的名称外还会阻止什么。
 
-Claude Code 仅针对技能自己的名称和 Claude 调用中的名称匹配 `allow` 规则。
+| 你的 `deny` 规则名称 | 示例规则 | Claude Code 也会阻止 |
+| :- | :- | :- |
+| 别名 | `Skill(review)` | 捆绑的 `/code-review`，通过其 `/review` 别名 |
+| 不合格的名称 | `Skill(deploy)` | 列为 `apps/web:deploy` 的[嵌套技能](#where-skills-live) |
+| [从 claude.ai 同步的技能](#how-synced-skills-behave) | `Skill(anthropic-skills:deploy)` | 当 Claude Desktop 将其作为插件交付给会话时的该技能 |
+| 同步技能的插件形式 | `Skill(deploy:deploy)` | 同步的技能 |
+| [参数形式](/docs/zh-CN/permissions#match-by-input-parameter)中的技能 | `Skill(skill:deploy)` | 该技能无论 Claude 以哪个名称调用它，包括其别名和显示名称 |
 
-要在不提示的情况下批准[同步技能](#how-synced-skills-behave)，请在其[保留命名空间](#names-reserved-for-synced-skills)内命名它：`Skill(anthropic-skills:pdf)` 批准同步的 `pdf` 技能，`Skill(anthropic-skills *)` 批准每个同步的技能。
+在 v2.1.260 之前，当拒绝规则仅命名不合格的名称时，Claude Code 不会阻止列在其合格名称下的嵌套技能。
+
+Claude Code 仅针对技能自己的名称和 Claude 调用中的名称匹配 `allow` 规则。要在不提示的情况下批准[同步技能](#how-synced-skills-behave)，请在其[保留命名空间](#names-reserved-for-synced-skills)内命名它：
+
+* `Skill(anthropic-skills:pdf)` 批准同步的 `pdf` 技能
+* `Skill(anthropic-skills *)` 批准每个同步的技能
+* `Skill(anthropic *)` 不涵盖 `anthropic-skills:pdf`，因为命名空间外的前缀不匹配其中的名称
 
 **通过向其 frontmatter 添加 `disable-model-invocation: true` 来隐藏单个技能**。这将技能从 Claude 的上下文中完全删除。
 
@@ -1196,6 +1208,16 @@ if __name__ == '__main__':
 
 1. 使描述更具体
 2. 如果你只想要手动调用，添加 `disable-model-invocation: true`
+
+<h3 id="claude-stops-following-a-skill">
+  Claude 停止遵循 skill
+</h3>
+
+如果 Claude 在其第一个响应中遵循 skill，但之后停止遵循它，请从与你的情况相匹配的以下任何一种情况开始：
+
+* **Claude 跳过了必须每次都成立的规则**：将规则移到 [hook](/docs/zh-CN/hooks-guide) 中。Claude Code 在其事件发生时每次都运行 hook，例如在每次文件编辑之前，无论 Claude 是否遵循 skill。要将规则与 skill 保持在一起，在 skill 的 [`hooks` frontmatter](/docs/zh-CN/hooks#hooks-in-skills-and-agents) 中定义 hook。该 hook 从 skill 被调用时开始应用，直到会话结束。
+* **Claude 跳过了应该有判断力地应用的指导**：措辞指导使其适用于整个任务，例如"在每次编辑后运行测试"而不是"运行测试"。Claude Code 在 skill 被调用时将 skill 的内容添加到对话中，并且 [不会在后续轮次重新读取文件](#skill-content-lifecycle)。
+* **对话被压缩了**：再次调用 skill 以恢复其完整内容。在 [压缩](/docs/zh-CN/how-claude-code-works#when-context-fills-up) 之后，Claude Code [只能保留被调用的 skill 的开始部分](#skill-content-lifecycle)，所以将最重要的说明放在 `SKILL.md` 的顶部。
 
 <h3 id="skill-descriptions-are-cut-short">
   Skill 描述被截断
