@@ -51,69 +51,69 @@ Claude 应用网关部署由一个 YAML 文件配置，按惯例命名为 `gatew
 | `${file:/path}` | 该绝对路径处的文件内容，已修剪。该引用必须是字段的整个值：与 `${VAR}` 不同，它不会在较长的字符串内展开，因此对于数据库密码，请设置 `store.password` 而不是将其嵌入 `postgres_url`。 | Kubernetes Secret 卷挂载、Vault Agent、SOPS |
 
 <h2 id="required-sections">
-  必需部分
+  必需的部分
 </h2>
 
 <h3 id="listen">
   `listen`
 </h3>
 
-`listen` 块控制网关服务的位置：绑定地址和端口、外部可见的源和可选的 TLS 终止。
+`listen` 块控制网关的服务位置：绑定地址和端口、外部可见的源以及可选的 TLS 终止。
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
 | `host` | 否 | 绑定地址。默认 `0.0.0.0`。 |
 | `port` | 否 | 绑定端口。默认 `8080`。 |
-| `public_url` | 除非 `host` 是环回地址 | 外部可见的 `https://` 源，用于构建 IdP `redirect_uri` 和发现元数据。在 `host` 不是环回地址时是必需的，无论 TLS 是在代理（如 ALB、Ingress 或 Cloud Run）还是通过 `tls` 在网关本身终止，因为网关从不从 `X-Forwarded-*` 头派生自己的源；它们是客户端可欺骗的。没有它启动会失败。下面的 `trusted_proxies` 仅控制客户端 IP 解析。要启用[遥测](#telemetry)也需要它，因为网关从此 URL 构建它推送给客户端的 OTLP 端点。 |
+| `public_url` | 除非 `host` 是环回地址 | 外部可见的 `https://` 源，用于构建 IdP `redirect_uri` 和发现元数据。当 `host` 不是环回地址时需要，无论 TLS 是在代理（如 ALB、Ingress 或 Cloud Run）还是通过 `tls` 在网关本身终止，因为网关永远不会从 `X-Forwarded-*` 标头派生自己的源；这些标头可被客户端欺骗。没有它启动会失败。下面的 `trusted_proxies` 仅控制客户端 IP 解析。还需要启用[遥测](#telemetry)，因为网关从此 URL 构建它推送给客户端的 OTLP 端点。 |
 | `tls.cert` / `tls.key` | 否 | 如果网关自己终止 TLS，则为 PEM 路径 |
-| `trusted_proxies` | 否 | 网关前面的负载均衡器的 CIDR 或 IP。设置时，网关仅从这些对等体信任 `X-Forwarded-For`，并记录真实客户端 IP 用于每 IP 速率限制和审计。等同于 nginx `set_real_ip_from`。`X-Forwarded-For` 条目写成 `ipv4:port` 或 `[ipv6]:port`（如某些负载均衡器所做的那样）被读取时端口被丢弃。带有端口附加且无括号的 IPv6 地址可能被读取为不同的地址或根本不被读取，因此在任何写入该形式的代理上关闭端口选项。 |
+| `trusted_proxies` | 否 | 网关前面的负载均衡器的 CIDR 或 IP。设置后，网关仅从这些对等方信任 `X-Forwarded-For`，并记录真实客户端 IP 用于按 IP 速率限制和审计。等同于 nginx `set_real_ip_from`。`X-Forwarded-For` 条目写成 `ipv4:port` 或 `[ipv6]:port`（如某些负载均衡器所做），读取时端口被丢弃。带有端口附加且无括号的 IPv6 地址可能被读取为不同的地址或根本不被读取，因此在任何写入该形式的代理上关闭端口选项。 |
 
 <h3 id="oidc">
   `oidc`
 </h3>
 
-`oidc` 块将网关连接到你的身份提供者，并决定谁可以登录。它命名发行者和 OAuth 客户端，映射携带电子邮件和组的声明，并按电子邮件域或组限制登录。
+`oidc` 块将网关连接到您的身份提供商，并决定谁可以登录。它命名发行者和 OAuth 客户端，映射携带电子邮件和组的声明，并按电子邮件域或组限制登录。
 
-OpenID Connect (OIDC) 是网关与你的身份提供者一起使用的 SSO 协议；有关在 IdP 端注册的内容，请参阅[身份提供者设置](/docs/zh-CN/claude-apps-gateway-deploy#identity-provider-setup)。
+OpenID Connect (OIDC) 是网关与您的身份提供商一起使用的 SSO 协议；有关在 IdP 端注册的内容，请参阅[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy#identity-provider-setup)。
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
 | `issuer` | 是 | OIDC 发现基础。必须在 `/.well-known/openid-configuration` 提供发现。在生产中使用 HTTPS；网关接受 `http://` 发行者。环回发行者（如 `http://localhost:8081`）被[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)拒绝，除非在网关的环境中设置了 `CLAUDE_GATEWAY_ALLOW_LOOPBACK=1`。 |
-| `client_id` / `client_secret` | 是 | 来自你的 OAuth 客户端注册 |
-| `allowed_email_domains` | 否 | 拒绝其 `email` 声明不在这些域之一中的 id\_token，不区分大小写。针对多租户 IdP 配置错误的纵深防御。独立于此设置，其 `email_verified` 声明明确为 `false` 的 id\_token 总是被拒绝。 |
-| `allowed_groups` | 否 | 限制登录到这些 IdP 组的成员，与 `groups_claim` 匹配。允许的电子邮件域中但不在这些组中的用户被拒绝。需要 IdP 发出组声明。匹配是对该声明中的值的精确、区分大小写的字符串比较，网关不展开嵌套组：要允许子组的成员，在此处列出子组或配置 IdP 发出扁平成员身份。 |
-| `groups_claim` | 否 | 哪个 id\_token 声明携带组成员身份。默认 `groups`。Microsoft Entra 在 `roles` 下发出应用角色。接受平面键或 RFC 6901 JSON 指针，如 `/resource_access/gateway/roles` 用于嵌套声明。 |
+| `client_id` / `client_secret` | 是 | 来自您的 OAuth 客户端注册 |
+| `allowed_email_domains` | 否 | 拒绝 `email` 声明不在这些域之一中的 id\_tokens，不区分大小写。针对多租户 IdP 配置错误的深度防御。独立于此设置，`email_verified` 声明明确为 `false` 的 id\_token 总是被拒绝。 |
+| `allowed_groups` | 否 | 限制登录仅限于这些 IdP 组的成员，与 `groups_claim` 匹配。处于允许的电子邮件域但不在这些组中的用户被拒绝。需要 IdP 发出组声明。匹配是对该声明中的值的精确、区分大小写的字符串比较，网关不展开嵌套组：要允许子组的成员，在此列出子组或配置 IdP 发出扁平化成员资格。 |
+| `groups_claim` | 否 | 哪个 id\_token 声明携带组成员资格。默认 `groups`。Microsoft Entra 在 `roles` 下发出应用角色。接受平面键或 RFC 6901 JSON 指针（如 `/resource_access/gateway/roles`）用于嵌套声明。 |
 | `google_groups` | 否 | 通过 Google Workspace Admin SDK Directory API 查找已登录用户的组，因为 Google 的 id\_token 不携带组声明。将 `service_account_json_path` 设置为具有 `https://www.googleapis.com/auth/admin.directory.group.readonly` 范围的域范围委派的服务帐户密钥文件，并将 `admin_email` 设置为服务帐户模拟的 Workspace 管理员；Directory API 需要真实的管理员主体。每个用户的组电子邮件地址成为他们的组声明，因此 `allowed_groups` 和 `managed.policies.match.groups` 匹配组电子邮件。 |
 | `email_claim` | 否 | 哪个 id\_token 声明携带用户的电子邮件。默认 `email`。某些 IdP（如 ADFS 和 Entra B2C）改为发出 `upn` 或 `preferred_username`。接受平面键、JSON 指针或回退键列表，其中使用第一个存在的键。 |
-| `scopes` | 否 | 网关请求的 OIDC 范围的完全覆盖。默认 `[openid, profile, email, offline_access]`。当你的 IdP 拒绝它不识别的范围或需要自定义范围来发出组或电子邮件时设置。必须包括 `openid`。删除 `offline_access` 会禁用刷新令牌，因此开发者每 `session.ttl_hours` 重新运行浏览器登录。有关每个 IdP 范围配方（如 Google 的刷新令牌流），请参阅[身份提供者设置](/docs/zh-CN/claude-apps-gateway-deploy#identity-provider-setup)。 |
-| `scope_on_refresh` | 否 | 在网关交换刷新令牌时也发送 `scope`，具有与登录请求相同的列表。默认 `false`：刷新请求省略 `scope`。大多数 IdP 在每次刷新时返回 id\_token，不需要这个。当你的 IdP 仅在再次请求 `openid` 时在刷新时返回 id\_token 时设置 `true`，这是 Okta 为其刷新授权记录的。没有 id\_token，每次刷新都依赖于 IdP 的 userinfo 端点接受刷新的访问令牌。如果你在登录或匹配策略上门控组，并且你的 IdP 的刷新时间 id\_token 省略了它们，也设置 `userinfo_fallback: true`，以便网关从 userinfo 端点填充它们。授予的范围少于请求的 IdP 可以用 `invalid_scope` 拒绝刷新，包括现有会话，如果你在此打开时向 `scopes` 添加条目。如果在设置后刷新在 `token_endpoint` 开始失败，取消设置该键。需要网关服务器上的 Claude Code v2.1.260 或更高版本。 |
-| `extra_auth_params` | 否 | 附加到 IdP 授权请求的额外查询参数，逐字。这是 IdP 特定行为的覆盖机制，如 Google 刷新令牌的 `access_type: offline`、某些 Entra 租户的 `domain_hint` 或分步流的 `acr_values`。不能覆盖网关管理的协议参数：`state`、`nonce`、`redirect_uri`、PKCE、`scope`、`response_type`、`response_mode` 和 `client_id`。 |
+| `scopes` | 否 | 网关请求的 OIDC 范围的完全覆盖。默认 `[openid, profile, email, offline_access]`。当您的 IdP 拒绝它不识别的范围或需要自定义范围来发出组或电子邮件时设置。必须包括 `openid`。删除 `offline_access` 会禁用刷新令牌，因此开发人员每 `session.ttl_hours` 重新运行浏览器登录。有关每个 IdP 范围配方（如 Google 的刷新令牌流），请参阅[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy#identity-provider-setup)。 |
+| `scope_on_refresh` | 否 | 当网关交换刷新令牌时，也发送 `scope`，与登录请求相同的列表。默认 `false`：刷新请求省略 `scope`。大多数 IdP 在每次刷新时返回 id\_token，不需要这个。当您的 IdP 仅在再次请求 `openid` 时才在刷新时返回 id\_token 时设置 `true`，Okta 为其刷新授权记录了这一点。没有 id\_token，每次刷新都取决于 IdP 的 userinfo 端点接受刷新的访问令牌。如果您在登录或匹配策略上设置了组，并且您的 IdP 的刷新时间 id\_token 省略了它们，也设置 `userinfo_fallback: true` 以便网关从 userinfo 端点填充它们。授予的范围少于请求的 IdP 可以用 `invalid_scope` 拒绝刷新，包括如果您在此打开时向 `scopes` 添加条目的现有会话。如果在设置后刷新开始在 `token_endpoint` 失败，请取消设置该键。需要网关服务器上的 Claude Code v2.1.260 或更高版本。 |
+| `extra_auth_params` | 否 | 附加到 IdP 授权请求的额外查询参数，逐字。这是 IdP 特定行为的覆盖机制，如 Google 刷新令牌的 `access_type: offline`、某些 Entra 租户的 `domain_hint` 或分步流的 `acr_values`。无法覆盖网关管理的协议参数：`state`、`nonce`、`redirect_uri`、PKCE、`scope`、`response_type`、`response_mode` 和 `client_id`。 |
 | `userinfo_fallback` | 否 | 当 id\_token 省略电子邮件或组时，从 `/userinfo` 获取它们。Keycloak 轻量级访问令牌、Okta 组织服务器和 ADFS 最小令牌需要。id\_token 保持权威；userinfo 仅填补空白。默认 `false`。 |
-| `use_pkce` | 否 | 在授权请求上发送 PKCE (S256) 质询。默认 `true`。仅当你的 IdP 为此机密客户端拒绝 PKCE 时设置 `false`。 |
-| `clock_skew_seconds` | 否 | 验证 id\_token 时间声明时容忍时钟漂移。默认 `0`，这是严格的。如果由于主机/IdP 时钟偏差在登录后立即看到"令牌过期/尚未有效"错误，请提高。 |
+| `use_pkce` | 否 | 在授权请求上发送 PKCE (S256) 质询。默认 `true`。仅当您的 IdP 为此机密客户端拒绝 PKCE 时设置 `false`。 |
+| `clock_skew_seconds` | 否 | 验证 id\_token 时间声明时容忍时钟漂移。默认 `0`，严格。如果您在登录后立即看到"令牌已过期/尚未有效"错误，请提高以应对主机/IdP 时钟偏差。 |
 | `token_endpoint_auth_method` | 否 | 覆盖令牌端点身份验证方法。接受 `client_secret_basic` 或 `client_secret_post`。默认自动协商。 |
 | `id_token_signed_response_alg` | 否 | 预期的 id\_token 签名算法。默认 `RS256`。为使用 ES256、PS256 或 EdDSA 签名的 IdP 设置。 |
 | `additional_authorized_parties` | 否 | 除 `client_id` 外要接受的额外 `azp` 值，用于 Keycloak 代理和令牌交换流 |
-| `discovery_url` | 否 | 从此 URL 而不是从 `issuer` 派生发现文档，用于代理后面重写发行者主机的 IdP。路径必须包含 `/.well-known/`。 |
-| `use_proxy` | 否 | 通过 `HTTPS_PROXY` 或 `HTTP_PROXY` 中的转发代理发送网关自己的 IdP 请求，尊重 `NO_PROXY`。`false` 保持这些请求直接。需要 v2.1.227 或更高版本；请参阅下面的[通过转发代理的 IdP 请求](#idp-requests-through-a-forward-proxy)。 |
-| `form_action_origins` | 否 | `/device` 页面的 `Content-Security-Policy: form-action` 指令的其他源。网关已允许 `'self'` 和发现的 `authorization_endpoint` 源，但 Chrome 对整个重定向链强制执行 `form-action`。如果你的 IdP 通过第二个主机重定向，如 Azure AD 联合到 ADFS、中心辐射 Okta 或公司 SSO 拦截器，列出授权请求可能重定向通过的每个源。 |
-| `ca_cert_pem` | 否 | PEM 编码的 CA 证书本身，而不是文件的路径。它替换 IdP 请求的系统信任存储。要加载挂载的文件，写 `${file:/etc/gateway/idp-ca.pem}`。用于公司 PKI 后面的 Keycloak 或 Dex。 |
+| `discovery_url` | 否 | 从此 URL 获取发现文档而不是从 `issuer` 派生，用于代理后面重写发行者主机的 IdP。路径必须包含 `/.well-known/`。 |
+| `use_proxy` | 否 | 通过 `HTTPS_PROXY` 或 `HTTP_PROXY` 中的前向代理发送网关自己的 IdP 请求，遵守 `NO_PROXY`。`false` 保持这些请求直接。需要 v2.1.227 或更高版本；请参阅下面的[通过前向代理的 IdP 请求](#idp-requests-through-a-forward-proxy)。 |
+| `form_action_origins` | 否 | `/device` 页面的 `Content-Security-Policy: form-action` 指令的其他源。网关已允许 `'self'` 和发现的 `authorization_endpoint` 源，但 Chrome 对整个重定向链强制执行 `form-action`。如果您的 IdP 通过第二个主机重定向，如 Azure AD 联合到 ADFS、中心辐射 Okta 或公司 SSO 拦截器，列出授权请求可能重定向通过的每个源。 |
+| `ca_cert_pem` | 否 | PEM 编码的 CA 证书本身，不是文件的路径。它仅替换 IdP 请求的系统信任存储。要加载挂载的文件，请写 `${file:/etc/gateway/idp-ca.pem}`。用于公司 PKI 后面的 Keycloak 或 Dex。 |
 
 <h4 id="idp-requests-through-a-forward-proxy">
-  通过转发代理的 IdP 请求
+  通过前向代理的 IdP 请求
 </h4>
 
-推理上游在每个版本上都尊重 `HTTPS_PROXY` 和 `HTTP_PROXY`。网关自己对 IdP、发现、JWKS、令牌和 userinfo 的请求直接进行，除非你设置 `oidc.use_proxy: true`，这需要 v2.1.227 或更高版本。当代理变量被设置、`use_proxy` 未设置且发行者不被 `NO_PROXY` 覆盖时，网关保持这些请求直接并在启动时记录通知，要求你选择；`use_proxy: false` 保持它们直接并沉默通知。
+推理上游在每个版本上都遵守 `HTTPS_PROXY` 和 `HTTP_PROXY`。网关自己对 IdP、发现、JWKS、令牌和 userinfo 的请求直接进行，除非您设置 `oidc.use_proxy: true`，这需要 v2.1.227 或更高版本。设置代理变量、`use_proxy` 未设置且发行者不被 `NO_PROXY` 覆盖时，网关保持这些请求直接并在启动时记录通知，要求您选择；`use_proxy: false` 保持它们直接并沉默通知。
 
-使用 `use_proxy: true`，pod 自己解析每个 IdP 端点的主机名，并要求代理 `CONNECT` 到解析的 IP 地址，因此代理必须接受 `CONNECT` 到发现文档命名的每个主机的 IP 地址，而不仅仅是发行者。使用 `http://` 代理 URL。`ca_cert_pem` 和[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)也适用于代理路径。
+使用 `use_proxy: true`，pod 自己解析每个 IdP 端点的主机名，并要求代理 `CONNECT` 到解析的 IP 地址，因此代理必须接受 `CONNECT` 到发现文档命名的每个主机的 IP 地址，不仅仅是发行者。使用 `http://` 代理 URL。`ca_cert_pem` 和[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)也适用于代理路径。
 
-[仅代理出口](#proxy-only-egress)改变这两者：当它活跃时，IdP 请求遵循代理，除非你设置 `use_proxy: false`，网关将每个 IdP 主机名交给代理，而不首先解析它。
+[仅代理出口](#proxy-only-egress)改变这两者：当它活跃时，IdP 请求遵循代理，除非您设置 `use_proxy: false`，网关将每个 IdP 主机名交给代理而不首先解析它。
 
 <h4 id="proxy-only-egress">
   仅代理出口
 </h4>
 
-在网关的环境中设置 `CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1`，在 `HTTPS_PROXY` 旁边，当 pod 仅通过该转发代理到达其他主机且无法自己解析公共 DNS 名称时，或当代理拒绝 `CONNECT` 到 IP 地址时。需要 v2.1.277 或更高版本。它是一个环境变量而不是 `gateway.yaml` 键，因此配置文件中的任何内容都无法放松网关的地址检查。
+在网关的环境中设置 `CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1`，在 `HTTPS_PROXY` 旁边，当 pod 仅通过该前向代理到达其他主机且无法自己解析公共 DNS 名称时，或当代理拒绝 `CONNECT` 到 IP 地址时。需要 v2.1.277 或更高版本。它是环境变量而不是 `gateway.yaml` 键，以便配置文件中的任何内容都无法放松网关的地址检查。
 
 ```bash theme={null}
 export HTTPS_PROXY=http://proxy.corp.example.com:3128
@@ -122,57 +122,57 @@ export no_proxy=
 export CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1
 ```
 
-当仅代理出口活跃时，网关在启动时记录一条 `network:` 行。
+网关在仅代理出口活跃时在启动时记录一条 `network:` 行。
 
 下面的每一行是具有 `HTTPS_PROXY` 设置的网关上的一类出站请求，默认情况下和仅代理出口活跃时。
 
 | 出站请求 | 默认 | 仅代理出口活跃 |
 | - | - | - |
-| `provider: anthropic` 上游、工作负载身份联合令牌交换、`telemetry.forward_to` 导出 | 在本地解析和检查，然后通过代理 `CONNECT` 到检查的 IP 地址。`NO_PROXY` 中列出的遥测收集器改为直接到达 | 主机名交给代理 |
-| IdP 发现、JWKS、令牌和 userinfo | 直接，除非 [`oidc.use_proxy: true`](#idp-requests-through-a-forward-proxy)，然后 `CONNECT` 到检查的 IP 地址 | 主机名交给代理，除非 `oidc.use_proxy: false` 保持内部 IdP 直接 |
-| Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上游；Google 组查找 | 主机名交给代理 | 不变 |
+| `provider: anthropic` 上游、Workload Identity Federation 令牌交换、`telemetry.forward_to` 导出 | 在本地解析和检查，然后通过代理 `CONNECT` 到检查的 IP 地址。`NO_PROXY` 中列出的遥测收集器改为直接到达 | 主机名交给代理 |
+| IdP 发现、JWKS、令牌和 userinfo | 直接，除非[`oidc.use_proxy: true`](#idp-requests-through-a-forward-proxy)，然后 `CONNECT` 到检查的 IP 地址 | 主机名交给代理，除非 `oidc.use_proxy: false` 保持内部 IdP 直接 |
+| Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上游；Google 组查找 | 主机名交给代理 | 不变 |
 
 仅代理出口保持关闭，除非网关的环境满足所有这三个条件：
 
-* `HTTPS_PROXY` 或 `HTTP_PROXY` 被设置。
-* `NO_PROXY` 和 `no_proxy` 为空。如果你的平台将任一个注入到 pod 中，在网关容器上将两者设置为空值。在 `NO_PROXY` 中列出遥测收集器保持仅代理出口关闭。
-* `CLAUDE_GATEWAY_ALLOW_LOOPBACK` 未打开。pod 自己环回上的收集器或 IdP 无法与仅代理出口结合，因为交给代理的环回地址将是代理主机自己的，因此给这些服务一个代理可以到达的地址。出于同样的原因，当仅代理出口活跃时，网关完全拒绝 `localhost` 风格的名称。
+* `HTTPS_PROXY` 或 `HTTP_PROXY` 已设置。
+* `NO_PROXY` 和 `no_proxy` 为空。如果您的平台将任一个注入到 pod，在网关容器上将两者设置为空值。在 `NO_PROXY` 中列出遥测收集器保持仅代理出口关闭。
+* `CLAUDE_GATEWAY_ALLOW_LOOPBACK` 未打开。pod 自己环回上的收集器或 IdP 无法与仅代理出口结合，因为交给代理的环回地址将是代理主机自己的，因此给这些服务一个代理可以到达的地址。出于同样的原因，网关在仅代理出口活跃时完全拒绝 `localhost` 风格的名称。
 
 当这些条件之一未满足时，网关在启动时记录警告，命名停止它的变量，并保持默认行为。
 
-一旦仅代理出口活跃，允许代理中的每个目的地，包括内部收集器和任何由 IP 地址配置的主机。你仍然可以使用 [`oidc.use_proxy: false`](#idp-requests-through-a-forward-proxy) 保持内部 IdP 直接。
+一旦仅代理出口活跃，允许代理中的每个目的地，包括内部收集器和任何由 IP 地址配置的主机。您仍然可以使用[`oidc.use_proxy: false`](#idp-requests-through-a-forward-proxy)保持内部 IdP 直接。
 
 <Warning>
-  仅在代理的允许列表至少与网关自己的检查一样严格时打开这个。代理必须拒绝云元数据端点，如 `169.254.169.254` 和 `metadata.google.internal`、链路本地地址和代理主机自己的环回，并且它必须按名称解析到的地址拒绝它们，而不仅仅是按名称，因为网关不再捕获解析到其中之一的主机名。连接到任何被要求的地方的代理移除网关的[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)用于这些请求。
+  仅当代理的允许列表至少与网关自己的检查一样严格时才打开此功能。代理必须拒绝云元数据端点（如 `169.254.169.254` 和 `metadata.google.internal`）、链路本地地址和代理主机自己的环回，并且必须按名称解析到的地址拒绝它们，而不仅仅按名称，因为网关不再捕获解析到其中之一的主机名。连接到任何要求的地方的代理会移除网关对这些请求的[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)。
 </Warning>
 
 <h3 id="session">
   `session`
 </h3>
 
-`session` 块塑造网关在登录后铸造的持有者令牌：签署它们的密钥和它们的生命周期。
+`session` 块塑造网关在登录后铸造的持有者令牌：签署它们的秘密和它们的生存时间。
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
-| `jwt_secret` | 是 | 至少 32 字节的熵，例如来自 `openssl rand -base64 32`。签署网关的 HS256 持有者令牌。接受单个字符串或用于轮换的数组：索引 0 签署，所有条目验证。要轮换，前置新密钥，等待 `ttl_hours`，然后删除旧密钥。 |
-| `ttl_hours` | 否 | 网关持有者令牌生命周期。默认 `1`。当 IdP 发出刷新令牌时，CLI 在过期前静默刷新。较短的生命周期更快地取消配置；较长的生命周期减少 IdP 往返。如果你的 IdP 因为 `offline_access` 不可用而无法发出刷新令牌，则没有静默刷新，因此提高到 `8` 或 `12` 以避免每小时将开发者发送回浏览器登录。 |
+| `jwt_secret` | 是 | 至少 32 字节的熵，例如来自 `openssl rand -base64 32`。签署网关的 HS256 持有者令牌。接受单个字符串或用于轮换的数组：索引 0 签署，所有条目验证。要轮换，前置新秘密，等待 `ttl_hours`，然后删除旧秘密。 |
+| `ttl_hours` | 否 | 网关持有者令牌生存期。默认 `1`。当 IdP 发出刷新令牌时，CLI 在过期前静默刷新。较短的生存期更快地取消配置；较长的生存期减少 IdP 往返。如果您的 IdP 因为 `offline_access` 不可用而无法发出刷新令牌，则没有静默刷新，因此将其提高到 `8` 或 `12` 以避免每小时将开发人员发送回浏览器登录。 |
 
 <h3 id="store">
   `store`
 </h3>
 
-`store` 块指向网关的 PostgreSQL 数据库，该数据库保存设备授权和速率限制计数器。
+`store` 块将网关指向其 PostgreSQL 数据库，该数据库保存设备授权和速率限制计数器。
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
-| `postgres_url` | 是 | `postgres://` 或 `postgresql://` URL。必需：设备授权会合点，浏览器回调写入，轮询 CLI 读取，需要跨副本状态。网关在启动时运行自己的模式迁移，因此角色需要在目标模式上具有创建和修改表的权限。请参阅[升级](/docs/zh-CN/claude-apps-gateway-deploy#upgrades)和 [Postgres](/docs/zh-CN/claude-apps-gateway-deploy#postgres)。 |
+| `postgres_url` | 是 | `postgres://` 或 `postgresql://` URL。必需：设备授权集合点，浏览器回调写入和轮询 CLI 读取，需要跨副本状态。网关在启动和升级时运行自己的架构迁移，因此角色需要在目标架构上创建和更改表的权限。请参阅[升级](/docs/zh-CN/claude-apps-gateway-deploy#upgrades)和 [Postgres](/docs/zh-CN/claude-apps-gateway-deploy#postgres)。 |
 | `username` | 否 | 覆盖 `postgres_url` 中的用户 |
-| `password` | 否 | 数据库凭证。在此处设置而不是在 `postgres_url` 中，以便凭证保持在 URL 之外。接受任何字符并优先于 URL 凭证。 |
-| `max_connections` | 否 | 每个副本的 Postgres 连接池大小。默认 `5`，这是保守的，对共享数据库友好。启用[支出限制](#admin)后，热路径在每个推理请求中执行几个操作，因此在负载下为专用数据库提高它，并保持副本 × 这个值低于数据库的 `max_connections`。 |
-| `connect_timeout_seconds` | 否 | 网关打开 Postgres 连接时等待的秒数。从 `1` 到 `60` 的整数，默认 `5`。如果当新网关实例启动时连接尝试超时，请提高它。需要网关服务器上的 Claude Code v2.1.274 或更高版本。早期版本在设置该键时拒绝启动。 |
-| `readiness_grace_seconds` | 否 | 在 Postgres 停止应答后 `/readyz` 继续报告就绪的秒数。从 `0` 到 `3600` 的整数，默认 `0`。请参阅[中断行为](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)以了解如何选择值。需要网关服务器上的 Claude Code v2.1.282 或更高版本。早期版本在设置该键时拒绝启动。 |
+| `password` | 否 | 数据库凭证。在此设置而不是在 `postgres_url` 中，以便凭证保持在 URL 之外。接受任何字符并优先于 URL 凭证。 |
+| `max_connections` | 否 | 每个副本的 Postgres 连接池大小。默认 `5`，保守且对共享数据库友好。启用[支出限制](#admin)后，热路径每个推理请求执行几个操作，因此在负载下为专用数据库提高它，并保持副本 × 此值低于数据库的 `max_connections`。 |
+| `connect_timeout_seconds` | 否 | 网关打开 Postgres 连接时等待的秒数。从 `1` 到 `60` 的整数，默认 `5`。如果新网关实例启动时连接尝试超时，请提高它。需要网关服务器上的 Claude Code v2.1.274 或更高版本。早期版本在设置键时拒绝启动。 |
+| `readiness_grace_seconds` | 否 | Postgres 停止应答后 `/readyz` 继续报告就绪的秒数。从 `0` 到 `3600` 的整数，默认 `0`。请参阅[中断行为](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)了解如何选择值。需要网关服务器上的 Claude Code v2.1.282 或更高版本。早期版本在设置键时拒绝启动。 |
 
-对于本地开发，将 `postgres_url` 指向一个一次性 Postgres 容器，例如 `docker run --rm -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres`。
+对于本地开发，将 `postgres_url` 指向一次性 Postgres 容器，例如 `docker run --rm -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres`。
 
 <h3 id="upstreams">
   `upstreams`
@@ -180,15 +180,15 @@ export CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1
 
 `upstreams` 是一个有序列表。网关将推理转发到解析请求的模型的第一个上游。
 
-在 `5xx`、`429`、`401`、`403`、`404` 或超时时，网关故障转移到下一个上游；其他 `4xx` 不会，因为这些错误归因于请求而不是上游。`401` 或 `403` 意味着网关自己的凭证对该上游失败。`404` 意味着该上游不服务请求的模型，因此列表中的后续上游仍然可以。
+在 `5xx`、`429`、`401`、`403`、`404` 或超时时，网关故障转移到下一个上游；其他 `4xx` 不会，因为这些错误可归因于请求而不是上游。`401` 或 `403` 意味着网关对该上游使用的凭证失败。`404` 意味着该上游不提供请求的模型，因此列表中的后续上游仍然可以。
 
-如果你在上游上设置 `forward_user_identity: true`，它返回给携带开发者电子邮件的请求的 `429` 不会故障转移。请参阅[如何每用户限制拒绝到达开发者](#per-user-identity-headers-for-a-proxy-you-run)。
+如果您在上游上设置 `forward_user_identity: true`，它返回给携带开发人员电子邮件的请求的 `429` 不会故障转移。请参阅[每用户限制拒绝如何到达开发人员](#per-user-identity-headers-for-a-proxy-you-run)。
 
-在 `404` 上故障转移需要网关 v2.1.198 或更高版本。早期版本即使列表中的后续上游服务该模型，也会将第一个 `404` 返回给客户端。
+`404` 上的故障转移需要网关 v2.1.198 或更高版本。早期版本即使列表中的后续上游提供模型，也将第一个 `404` 返回给客户端。
 
-同一提供者的多个上游必须设置不同的 `name:`。
+相同提供商的多个上游必须设置不同的 `name:`。
 
-Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 客户端在启动时构建一次，它们的 SDK 在内部刷新凭证，因此轮换云凭证不需要重启。静态 Anthropic API 密钥和持有者在启动时读取；请参阅 [Anthropic API](#anthropic-api)。
+Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 和 Microsoft Foundry 客户端在启动时构建一次，其 SDK 在内部刷新凭证，因此轮换云凭证不需要重启。静态 Anthropic API 密钥和持有者在启动时读取；请参阅 [Anthropic API](#anthropic-api)。
 
 <h4 id="upstream-error-messages">
   上游错误消息
@@ -196,16 +196,16 @@ Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Mi
 
 网关返回一个上游的错误响应或其自己的 `502`，取决于上游如何应答：
 
-* **上游返回了网关不[故障转移](#multiple-upstreams)的状态**：该上游的响应。网关不尝试进一步的上游。
-* **网关尝试的每个上游都以网关[故障转移](#multiple-upstreams)的方式失败**：最后的 `429`。当没有返回 `429` 时，网关按顺序优先选择最后的 `401` 或 `403`、最后的 `404` 和最后的 `501`。当没有返回任何这些时，网关自己的 `502`，`all upstreams failed (N attempted)`，其中 N 计数 [`upstreams`](#upstreams) 中的每个条目，包括网关跳过的条目，因为它们不服务请求的模型。
+* **上游返回网关不[故障转移](#multiple-upstreams)的状态**：该上游的响应。网关不尝试进一步的上游。
+* **网关尝试的每个上游都以网关[故障转移](#multiple-upstreams)的方式失败**：最后一个 `429`。当没有返回 `429` 时，网关按顺序优先选择最后一个 `401` 或 `403`、最后一个 `404` 和最后一个 `501`。当没有返回任何这些时，网关自己的 `502`，`all upstreams failed (N attempted)`，其中 N 计算 [`upstreams`](#upstreams) 中的每个条目，包括网关跳过的条目，因为它们不提供请求的模型。
 
-当网关返回上游的响应时，它保持上游的状态代码。它是否保持上游的消息取决于提供者。Anthropic API 上游的错误正文到达开发者不变。
+当网关返回上游的响应时，它保持上游的状态代码。它是否保持上游的消息取决于提供商。Anthropic API 上游的错误正文不变地到达开发人员。
 
-Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上游可以在其错误文本中命名你的帐户 ID、角色 ARN 和项目 ID。网关在[操作日志](/docs/zh-CN/claude-apps-gateway-deploy#logs)中记录该完整文本。开发者从这些上游看到的取决于拒绝：
+Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上游可以在其错误文本中命名您的帐户 ID、角色 ARN 和项目 ID。网关在[操作日志](/docs/zh-CN/claude-apps-gateway-deploy#logs)中记录该完整文本。开发人员从这些上游看到的内容取决于拒绝：
 
-* Anthropic 标准错误信封中的 `400` 或 `413`：上游自己的消息，如 `prompt is too long`。Claude Platform on AWS、Agent Platform 和 Microsoft Foundry 为模型 API 拒绝返回此信封。
-* 提供者自己形状中的 `400` 或 `413`：`capability_rejected:` 令牌。当网关无法分类拒绝时，`upstream rejected the request` 在 `400` 或 `request too large for this upstream` 在 `413`。
-* 任何其他状态：通用的每状态副本，如 `upstream rate limit exceeded` 在 `429`。
+* Anthropic 标准错误信封中的 `400` 或 `413`：上游自己的消息，如 `prompt is too long`。AWS 上的 Claude Platform、Agent Platform 和 Microsoft Foundry 为模型 API 拒绝返回此信封。
+* 提供商自己形状中的 `400` 或 `413`：`capability_rejected:` 令牌。当网关无法分类拒绝时，`400` 上的 `upstream rejected the request` 或 `413` 上的 `request too large for this upstream`。
+* 任何其他状态：通用的按状态副本，如 `429` 上的 `upstream rate limit exceeded`。
 
 例如，网关将 Amazon Bedrock 的 `Input is too long for requested model.` 替换为 `capability_rejected: prompt_too_long`。Claude Code [自动压缩](/docs/zh-CN/errors#prompt-is-too-long)该令牌，就像它对 `prompt is too long` 所做的那样。
 
@@ -215,24 +215,24 @@ Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Mi
   Anthropic API
 </h4>
 
-最小的 Anthropic 上游是来自 [Claude 控制台](https://platform.claude.com) 的 API 密钥：
+最小的 Anthropic 上游是来自 [Claude Console](https://platform.claude.com) 的 API 密钥：
 
 ```yaml theme={null}
 upstreams:
   - provider: anthropic
     auth:
       api_key: ${ANTHROPIC_API_KEY}
-    # 或 OAuth 持有者（例如工作负载身份联合交换的令牌）：
+    # 或 OAuth 持有者（例如 Workload-Identity-Federation 交换的令牌）：
     #   oauth_token: ${file:/var/run/secrets/anthropic-oauth-token}
-    # base_url: https://api.anthropic.com   # 默认；为转发代理覆盖
+    # base_url: https://api.anthropic.com   # 默认；为前向代理覆盖
 ```
 
-两种凭证形式在它们发送的头中有所不同：
+两种凭证形式在它们发送的标头中有所不同：
 
-* **`api_key`**：发送 `x-api-key`。在 Claude 控制台中轮换它并更新环境变量。
-* **`oauth_token`**：发送 `Authorization: Bearer`。当你的组织发出短期令牌而不是长期 API 密钥时使用持有者形式。持有者在启动时读取一次，因此通过重新挂载密钥和重启来刷新。
+* **`api_key`**：发送 `x-api-key`。在 Claude Console 中轮换它并更新环境变量。
+* **`oauth_token`**：发送 `Authorization: Bearer`。当您的组织发出短期令牌而不是长期 API 密钥时使用持有者形式。持有者在启动时读取一次，因此通过重新挂载秘密和重启来刷新。
 
-代替静态密钥或持有者，你可以使用工作负载身份联合。按照[工作负载身份联合指南](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation)创建联合规则，然后将你的工作负载的 OIDC JWT 挂载为文件，如 Kubernetes 投影服务帐户令牌或 CI 平台的 id-token。网关将 JWT 交换为短期持有者并自动刷新它。令牌文件在每次交换时重新读取，因此轮换的投影令牌被拾取而无需重启。
+您可以使用 Workload Identity Federation 而不是静态密钥或持有者。按照 [Workload Identity Federation 指南](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation)创建联合规则，然后将您的工作负载的 OIDC JWT 挂载为文件，如 Kubernetes 投影服务帐户令牌或 CI 平台的 id-token。网关将 JWT 交换为短期持有者并自动刷新它。令牌文件在每次交换时重新读取，因此轮换的投影令牌被拾取而无需重启。
 
 ```yaml theme={null}
 upstreams:
@@ -241,17 +241,17 @@ upstreams:
       federation_rule_id: ${ANTHROPIC_FEDERATION_RULE_ID}
       organization_id: ${ANTHROPIC_ORGANIZATION_ID}
       identity_token_file: /var/run/secrets/anthropic/id-token
-      # workspace_id: wrkspc_...       # 如果规则覆盖 >1 个工作区，则必需
+      # workspace_id: wrkspc_...       # 如果规则覆盖 >1 个工作区则需要
       # service_account_id: svac_...   # 可选的预期目标检查
 ```
 
 <a id="per-user-identity-headers-for-a-proxy-you-run" />
 
 <h5 id="per-user-identity-headers-for-a-proxy-you-run">
-  为你运行的代理的每用户身份头
+  为您运行的代理的每用户身份标头
 </h5>
 
-你可以将 `provider: anthropic` 上游的 `base_url` 指向你运行的代理，而不是 Anthropic API。要告诉该代理哪个开发者发送了每个请求，在该上游上设置 `forward_user_identity: true`。代理然后可以按开发者属性支出。需要运行 Claude Code v2.1.233 或更高版本的网关。
+您可以将 `provider: anthropic` 上游的 `base_url` 指向您运行的代理而不是 Anthropic API。要告诉该代理哪个开发人员发送了每个请求，在该上游上设置 `forward_user_identity: true`。代理然后可以按开发人员属性支出。需要网关运行 Claude Code v2.1.233 或更高版本。
 
 例如，对于 `upstream-gateway.internal.example.com` 上的代理：
 
@@ -264,25 +264,25 @@ upstreams:
     forward_user_identity: true        # 默认 false
 ```
 
-网关将这些头添加到它转发到该上游的每个请求。
+网关将这些标头添加到它转发到该上游的每个请求。
 
-| 头 | 值 |
+| 标头 | 值 |
 | - | - |
-| `x-litellm-end-user-id` | 开发者的电子邮件，当 IdP 提供时。 |
-| `x-claude-gateway-user-id` | 开发者的 IdP 主体，来自令牌的 `sub` 声明。 |
-| `x-claude-gateway-user-email` | 开发者的电子邮件，当 IdP 提供时。 |
+| `x-litellm-end-user-id` | 开发人员的电子邮件，当 IdP 提供时。 |
+| `x-claude-gateway-user-id` | 开发人员的 IdP 主体，来自令牌的 `sub` 声明。 |
+| `x-claude-gateway-user-email` | 开发人员的电子邮件，当 IdP 提供时。 |
 
-当 IdP 令牌不携带电子邮件时，网关仅发送 `x-claude-gateway-user-id` 并省略两个电子邮件头。如果你的 IdP 将电子邮件放在不同的声明中，将 [`oidc.email_claim`](#oidc) 设置为该声明。
+当 IdP 令牌不携带电子邮件时，网关仅发送 `x-claude-gateway-user-id` 并省略两个电子邮件标头。如果您的 IdP 将电子邮件放在不同的声明中，将 [`oidc.email_claim`](#oidc) 设置为该声明。
 
-当你的代理答复 `429` 给携带开发者电子邮件的请求时，网关将该响应按原样返回给开发者，而不是故障转移到下一个上游，因此你的代理的每用户预算或速率限制保持。代理的其他响应遵循普通[故障转移规则](#upstreams)。如果开发者的 IdP 令牌不携带电子邮件，网关转发他们的请求而不带电子邮件头，因此对其中一个请求的 `429` 计为上游容量并故障转移。在网关服务器上的 v2.1.267 之前，每个 `429` 都故障转移。
+当您的代理对携带开发人员电子邮件的请求应答 `429` 时，网关按原样将该响应返回给开发人员而不是故障转移到下一个上游，因此您的代理的每用户预算或速率限制保持。代理的其他响应遵循普通[故障转移规则](#upstreams)。如果开发人员的 IdP 令牌不携带电子邮件，网关转发其请求而不带电子邮件标头，因此对其中一个请求的 `429` 计为上游容量并故障转移。在网关服务器上的 v2.1.267 之前，每个 `429` 都故障转移。
 
-仅在 `base_url` 是你操作的代理的上游上设置 `forward_user_identity`。网关将开发者电子邮件发送到该 `base_url` 命名的任何服务器。如果 `base_url` 是 Anthropic API（这是默认值），网关拒绝启动。
+仅在 `base_url` 是您操作的代理的上游上设置 `forward_user_identity`。网关将开发人员电子邮件发送到该 `base_url` 命名的任何服务器。如果 `base_url` 是 Anthropic API（默认），网关拒绝启动。
 
 <h4 id="amazon-bedrock">
   Amazon Bedrock
 </h4>
 
-对于网关替换或前置的客户端 Bedrock 部署，请参阅 [Amazon Bedrock 上的 Claude Code](/docs/zh-CN/amazon-bedrock)。网关端上游：
+对于网关替换或前置的客户端 Amazon Bedrock 部署，请参阅 [Amazon Bedrock 上的 Claude Code](/docs/zh-CN/amazon-bedrock)。网关端上游：
 
 ```yaml theme={null}
 upstreams:
@@ -301,24 +301,24 @@ upstreams:
     # base_url: https://bedrock-runtime-fips.us-east-1.amazonaws.com
 ```
 
-空的 `auth` 块使用 AWS SDK 的默认凭证链：环境变量、`~/.aws/credentials`、ECS 任务角色、EC2 实例元数据或 EKS 上的 IRSA。在生产中，给网关 pod 一个 IAM 角色，而不是在容器镜像中嵌入静态密钥。
+空 `auth` 块使用 AWS SDK 的默认凭证链：环境变量、`~/.aws/credentials`、ECS 任务角色、EC2 实例元数据或 EKS 上的 IRSA。在生产中，给网关 pod 一个 IAM 角色而不是在容器镜像中嵌入静态密钥。
 
 显式凭证必须完整：当 `aws_access_key_id` 和 `aws_secret_access_key` 未一起设置时，或当 `aws_session_token` 在没有它们的情况下设置时，网关在启动时失败。在 v2.1.207 之前，部分 `auth:` 块通过验证。
 
 | 设置 | 如何 |
 | - | - |
-| IAM 权限 | 授予网关的主体 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream` 在推理配置文件 ARN 和底层基础模型 ARN 上。对于美国地区的内置目录：`arn:aws:bedrock:<region>:<account>:inference-profile/us.anthropic.*` 和 `arn:aws:bedrock:*::foundation-model/anthropic.*`。也授予基础模型 ARN 上的 `bedrock:CountTokens`。网关使用它（无需付费）来计数客户端放弃的请求的输入令牌，因此[支出限制](#admin)保持准确。没有它，网关回退到该计数的一令牌 Bedrock 请求。 |
-| 模型访问 | Amazon Bedrock 在商业地区默认启用模型访问。剩余的帐户级门是 Anthropic 的一次性用例表单：如果你的 AWS 帐户中没有人提交过，打开 Amazon Bedrock 控制台，从模型目录中选择 Anthropic 模型，并完成表单。有关 AWS Organizations 表单和提交者需要的权限，请参阅[提交用例详情](/docs/zh-CN/amazon-bedrock#1-submit-use-case-details)。 |
-| EKS (IRSA) | 创建一个具有上述策略的 IAM 角色和针对你的集群的 OIDC 提供者的信任策略，范围限定为网关的服务帐户。使用 `eks.amazonaws.com/role-arn: arn:aws:iam::<acct>:role/claude-gateway` 注释服务帐户。`auth: {}` 拾取它。 |
+| IAM 权限 | 授予网关的主体 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream` 在推理配置文件 ARN 和底层基础模型 ARN 上。对于美国地区的内置目录：`arn:aws:bedrock:<region>:<account>:inference-profile/us.anthropic.*` 和 `arn:aws:bedrock:*::foundation-model/anthropic.*`。也在基础模型 ARN 上授予 `bedrock:CountTokens`。网关使用它（免费）来计算客户端放弃的请求的输入令牌，因此[支出限制](#admin)保持准确。没有它，网关回退到该计数的一令牌 Bedrock 请求。 |
+| 模型访问 | Amazon Bedrock 在商业地区默认启用模型访问。剩余的帐户级门是 Anthropic 的一次性用例表：如果您的 AWS 帐户中没有人提交过，请打开 Amazon Bedrock 控制台，从模型目录中选择 Anthropic 模型，并完成表单。有关 AWS Organizations 表和提交者需要的权限，请参阅[提交用例详情](/docs/zh-CN/amazon-bedrock#1-submit-use-case-details)。 |
+| EKS (IRSA) | 创建具有上述策略和您的集群 OIDC 提供商的信任策略的 IAM 角色，范围限于网关的服务帐户。使用 `eks.amazonaws.com/role-arn: arn:aws:iam::<acct>:role/claude-gateway` 注释服务帐户。`auth: {}` 拾取它。 |
 | ECS / EC2 | 将 IAM 角色附加到任务定义或实例配置文件。`auth: {}` 拾取它。 |
 | 其他任何地方 | 通过 `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY` 和 `AWS_SESSION_TOKEN` 环境变量传递凭证，或在 `auth:` 中使用 `${VAR}` 扩展显式设置它们 |
-| 地区 | `region:` 是 API 端点地区。跨地区推理配置文件跨地理位置（美国、欧盟、亚太）路由，无论你选择哪一个。对于非美国地区或预配吞吐量 ARN，添加一个[`models:`](#models)块，其中包含正确的每上游 ID。 |
+| 区域 | `region:` 是 API 端点区域。跨区域推理配置文件跨地理位置（美国、欧盟、亚太）路由，无论您选择哪一个。对于非美国地区或预配吞吐量 ARN，添加带有正确的按上游 ID 的 [`models:`](#models) 块。 |
 
 <h5 id="apply-an-amazon-bedrock-guardrail">
   应用 Amazon Bedrock 防护栏
 </h5>
 
-要将 Amazon Bedrock 防护栏应用于网关通过 Bedrock 上游发送的每个推理请求，请在该上游上添加 `guardrail` 块。需要网关服务器上的 Claude Code v2.1.281 或更高版本。
+要将 Amazon Bedrock 防护栏应用于网关通过 Bedrock 上游发送的每个推理请求，将 `guardrail` 块添加到该上游。需要网关服务器上的 Claude Code v2.1.281 或更高版本。
 
 ```yaml theme={null}
 upstreams:
@@ -328,28 +328,113 @@ upstreams:
     guardrail:
       id: gr-abc123                    # 防护栏 ID 或完整 ARN
       version: "1"                     # 已发布的版本号或 DRAFT
- # 保留引号：裸露的 1 在启动时失败
+ # 保留引号：裸 1 在启动时失败
 ```
 
 <Warning>
-  网关不支持防护栏输入标签。它不向提示添加防护内容标签，因此仅对标记输入应用的防护栏过滤器不在通过网关的流量上运行。对于哪些过滤器依赖于输入标签，请参阅 Amazon Bedrock 文档中的[输入标签](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-tagging.html)。
+  网关不支持防护栏输入标签。它不向提示添加防护内容标签，因此 Amazon Bedrock 仅应用于标记输入的防护栏过滤器不在通过网关的流量上运行。对于哪些过滤器依赖输入标签，请参阅 Amazon Bedrock 文档中的[输入标签](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-tagging.html)。
 </Warning>
 
-也授予网关的 AWS 主体防护栏上的 `bedrock:ApplyGuardrail`。
+也在防护栏上授予 `bedrock:ApplyGuardrail` 给签署此上游请求的主体：网关的 AWS 主体，或使用 [`assume_role`](#bedrock-in-another-aws-account) 的 `role_arn` 中命名的角色。
 
 在每个 `bedrock` 上游或不在任何上游上设置 `guardrail`。网关拒绝在混合上启动，因为[故障转移](#multiple-upstreams)可能会将请求发送到没有防护栏的 Bedrock 上游。
 
-防护栏仅覆盖 Bedrock 上游。如果你在 `upstreams` 中列出另一个提供者，网关将请求发送到该提供者而不带防护栏。
+防护栏仅覆盖 Bedrock 上游。如果您在 `upstreams` 中列出另一个提供商，网关将请求发送到该提供商而不带防护栏。
 
-当 `/v1/messages` 请求的正文携带 `amazon-bedrock-*` 字段（如 `amazon-bedrock-guardrailConfig`）到达设置了 `guardrail` 的 Bedrock 上游时，网关答复 400 而不是转发它。
+当 `/v1/messages` 请求的正文携带 `amazon-bedrock-*` 字段（如 `amazon-bedrock-guardrailConfig`）到达设置了 `guardrail` 的 Bedrock 上游时，网关应答 400 而不是转发它。
+
+<a id="bedrock-in-another-aws-account" />
+
+<h5 id="bedrock-in-another-aws-account">
+  另一个 AWS 帐户中的 Bedrock
+</h5>
+
+在 Bedrock 上游上设置 `assume_role`，网关仅使用其自己的 AWS 身份来调用您命名的角色上的 `sts:AssumeRole`，该角色可以在与网关不同的 AWS 帐户中。该上游的每个 Bedrock 请求都使用 STS 返回的一小时凭证签署，因此没有长期访问密钥跨帐户。
+
+需要网关运行 Claude Code v2.1.281 或更高版本。早期网关在找到键时拒绝启动。
+
+```yaml theme={null}
+upstreams:
+  - name: bedrock-isolated
+    provider: bedrock
+    region: us-east-1
+    auth: {}                           # 网关自己的角色：它仅调用 STS
+    assume_role:
+      role_arn: arn:aws:iam::222222222222:role/claude-gateway-bedrock
+      # external_id: ${BEDROCK_ROLE_EXTERNAL_ID}   # 当角色的信任策略需要时
+```
+
+`assume_role` 块采用三个键：
+
+| 键 | 含义 |
+| - | - |
+| `role_arn` | 网关假设的 IAM 角色，作为 `arn:aws:iam::` 或 `arn:aws-us-gov:iam::` ARN。给它这个上游需要的 [Bedrock 权限](#amazon-bedrock)，包括 `bedrock:CountTokens`，加上当上游设置 `guardrail` 时的 `bedrock:ApplyGuardrail`。 |
+| `external_id` | 可选。在每个 `sts:AssumeRole` 调用上作为外部 ID 发送。当角色的信任策略需要时设置它，如果它全是数字则引用它。 |
+| `session_name` | 可选。`email` 或 `sub` 给每个开发人员他们自己的会话：请参阅[每开发人员 AWS 成本属性](#per-developer-aws-cost-attribution)。未设置，每个请求使用一个名为 `claude-apps-gateway` 的会话。 |
+
+角色的信任策略命名网关自己的主体，如其 IRSA 或 ECS 任务角色。该主体需要在角色上的 `sts:AssumeRole` 且没有 Bedrock 权限。如果您设置没有 `external_id`，删除 `Condition`。
+
+```json theme={null}
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": { "AWS": "arn:aws:iam::111111111111:role/claude-gateway" },
+    "Action": "sts:AssumeRole",
+    "Condition": { "StringEquals": { "sts:ExternalId": "your-external-id" } }
+  }]
+}
+```
+
+* 如果 STS 拒绝或无法到达，网关不使用上游自己的凭证发送请求。它记录 STS 错误和要检查的内容，然后尝试您列出的下一个上游。[上游错误消息](#upstream-error-messages)覆盖当没有上游成功时客户端接收的内容。没有 `assume_role` 的后续上游将使用其自己的凭证提供请求，因此仅在这是您想要的情况下列出一个。
+* 网关调用区域 STS 端点 `sts.<region>.amazonaws.com`，其网络必须到达。对于 FIPS 端点，在网关的环境中设置 `AWS_USE_FIPS_ENDPOINT=true` 而不是在 AWS 配置文件中的 `use_fips_endpoint`。
+* `assume_role` 仅适用于 `provider: bedrock` 并需要 SigV4 源凭证：当它在 `aws_bearer_token` 旁边设置时，网关拒绝启动。
+* 网关允许的每个开发人员都可以使用此上游；[`managed`](#managed) 控制哪些开发人员可能使用哪些模型。要保持通过角色提供的模型也不从另一个帐户提供，给它一个自定义 id，其 `upstream_model` 映射仅具有此上游的名称。对于这样的 id，网关跳过每个其他上游，因此请求和放弃请求的令牌计数都无法故障转移到另一个帐户。内置模型名称仍在每个上游按顺序尝试，包括这个，到达它的请求使用相同的角色签署，因此除非其帐户也应该提供它们，否则最后列出此上游。
+
+此示例给一个模型一个自定义 id，仅隔离上游提供：
+
+```yaml theme={null}
+models:
+  - id: claude-opus-restricted          # 自定义 id，不是内置模型名称
+    upstream_model:
+      bedrock-isolated: us.anthropic.claude-opus-4-8   # 唯一提供它的上游
+```
+
+<a id="per-developer-aws-cost-attribution" />
+
+<h5 id="per-developer-aws-cost-attribution">
+  每开发人员 AWS 成本属性
+</h5>
+
+默认情况下，网关使用一个凭证签署每个 Bedrock 请求，因此 AWS 在单个 IAM 主体下看到所有开发人员的请求。将 `session_name: email` 添加到 [`assume_role`](#bedrock-in-another-aws-account)，网关每个开发人员每小时调用一次 `sts:AssumeRole`，会话名称设置为该开发人员的电子邮件，并使用返回的凭证签署其请求，因此每个开发人员的请求在 AWS 下以其自己的假设角色会话到达。角色可以在网关自己的帐户中。
+
+需要网关运行 Claude Code v2.1.281 或更高版本。[AWS 上的成本属性](/docs/zh-CN/claude-apps-gateway-on-aws#cost-attribution)覆盖 IAM 角色和 AWS 计费显示会话的位置。
+
+```yaml theme={null}
+upstreams:
+  - provider: bedrock
+    region: us-east-1
+    auth: {}                           # 网关自己的角色：它仅调用 STS
+    assume_role:
+      role_arn: arn:aws:iam::123456789012:role/claude-gateway-bedrock-user
+      session_name: email              # 或 sub
+```
+
+`session_name` 选择哪个已验证的声明成为 AWS `RoleSessionName`：`email` 或 `sub`。网关将除 ASCII 字母、数字和 `_+,.@-` 之外的任何字符写成 `=XX` 十六进制（按 UTF-8 字节），并将长于 64 字符的结果缩短为前缀加哈希，因此每个开发人员的会话名称保持有效且唯一。来自其令牌缺少声明的开发人员的请求不通过此上游发送，操作员日志说切换到 `sub` 或设置 [`oidc.email_claim`](#oidc)。
+
+活跃开发人员每小时每个网关副本成本一个 STS 调用，并发首次请求共享一个调用。
+
+网关也在此角色上进行一个调用：客户端放弃的请求的令牌计数，因此[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)保持准确。该计数及其[一令牌回退请求](#amazon-bedrock)由共享 `claude-apps-gateway` 会话签署，因此 AWS 将回退属性到 `claude-apps-gateway` 而不是开发人员。
+
+对于严格的每开发人员属性，在您列出的每个 Bedrock 上游上设置 `assume_role` 与 `session_name`。没有它的上游使用其自己的凭证签署它提供的请求。
 
 <h4 id="claude-platform-on-aws">
-  Claude Platform on AWS
+  AWS 上的 Claude Platform
 </h4>
 
-Claude Platform on AWS 在 `aws-external-anthropic.<region>.api.aws` 上的 AWS 基础设施上服务第一方 Anthropic API。它使用第一方模型 ID，按发送方式尊重 `anthropic-beta` 头，并服务 `count_tokens`，因此 Bedrock 特定的翻译都不适用。`anthropicAws` 提供者需要 Claude Code v2.1.198 或更高版本；早期网关版本在启动时拒绝它。
+AWS 上的 Claude Platform 在 AWS 基础设施上提供第一方 Anthropic API，位于 `aws-external-anthropic.<region>.api.aws`。它使用第一方模型 ID，按原样遵守 `anthropic-beta` 标头，并提供 `count_tokens`，因此没有 Bedrock 特定的转换适用。`anthropicAws` 提供商需要 Claude Code v2.1.198 或更高版本；早期网关版本在启动时拒绝它。
 
-对于同一平台的客户端部署，请参阅 [Claude Platform on AWS 上的 Claude Code](/docs/zh-CN/claude-platform-on-aws)。网关端上游：
+对于相同平台的客户端部署，请参阅 [AWS 上的 Claude Platform 上的 Claude Code](/docs/zh-CN/claude-platform-on-aws)。网关端上游：
 
 ```yaml theme={null}
 upstreams:
@@ -368,17 +453,17 @@ upstreams:
     # base_url: https://aws-external-anthropic.us-east-1.api.aws
 ```
 
-该平台在与 Amazon Bedrock 不同的 AWS 账户中运行，并为其自己的服务名称 `aws-external-anthropic` 签署 SigV4 请求，因此 Bedrock 范围的 IAM 角色不授权它。`auth.api_key` 中的 API 密钥在同时设置 SigV4 凭证时优先。空的 `auth` 块使用 AWS SDK 的默认凭证链，与 [Amazon Bedrock](#amazon-bedrock) 上游使用的链相同。
+平台在与 Amazon Bedrock 不同的 AWS 帐户中运行，并为其自己的服务名称 `aws-external-anthropic` 签署 SigV4 请求，因此 Bedrock 范围的 IAM 角色不授权它。`auth.api_key` 中的 API 密钥在同时设置 SigV4 凭证时优先。空 `auth` 块使用 AWS SDK 的默认凭证链，与 [Amazon Bedrock](#amazon-bedrock) 上游使用的链相同。
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
-| `region` | 是 | AWS 地区，小写字母、数字和连字符。网关从它派生端点为 `https://aws-external-anthropic.<region>.api.aws`。 |
-| `workspace_id` | 是 | 在每个请求上作为头发送；平台需要它 |
+| `region` | 是 | AWS 区域，小写字母、数字和连字符。网关从它派生端点为 `https://aws-external-anthropic.<region>.api.aws`。 |
+| `workspace_id` | 是 | 在每个请求上作为标头发送；平台需要它 |
 | `auth.api_key` | 否 | 平台的 API 密钥，作为 `x-api-key` 发送。不是持有者令牌：两种身份验证模式是 API 密钥或 SigV4。 |
-| `auth.aws_access_key_id` / `auth.aws_secret_access_key` | 否 | 显式 SigV4 凭证。设置其中一个而不设置另一个在启动时失败。`auth.aws_session_token` 与它们一起被接受。 |
+| `auth.aws_access_key_id` / `auth.aws_secret_access_key` | 否 | 显式 SigV4 凭证。在没有另一个的情况下设置一个在启动时失败。`auth.aws_session_token` 在它们旁边被接受。 |
 | `base_url` | 否 | 覆盖派生的端点 |
 
-因为平台解析第一方模型 ID，内置目录路由到它，无需 [`models:`](#models) 块。当你策划 `models:` 列表时，使用第一方 ID 键入 `anthropicAws:` 条目。
+因为平台解析第一方模型 ID，内置目录路由到它而不带 [`models:`](#models) 块。当您策划 `models:` 列表时，使用第一方 ID 键入条目 `anthropicAws:`。
 
 <h4 id="google-cloud-agent-platform">
   Google Cloud Agent Platform
@@ -398,23 +483,23 @@ upstreams:
     # base_url: https://us-east5-aiplatform.p.googleapis.com
 ```
 
-空的 `auth` 块使用应用默认凭证：`GOOGLE_APPLICATION_CREDENTIALS`、GCE 元数据或 GKE 工作负载身份。支持服务帐户 JSON 密钥文件但不推荐；使用工作负载身份或将服务帐户附加到 GCE 或 Cloud Run 实例。
+空 `auth` 块使用应用默认凭证：`GOOGLE_APPLICATION_CREDENTIALS`、GCE 元数据或 GKE Workload Identity。服务帐户 JSON 密钥文件被支持但不鼓励；使用 Workload Identity 或将服务帐户附加到 GCE 或 Cloud Run 实例。
 
-设置 `region: global` 以使用 [Agent Platform 的全局端点](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations)而不是区域端点。Google 然后将每个请求路由到可用地区，因此你不跟踪每地区模型可用性。设置特定地区会将每个请求固定到它。
+设置 `region: global` 以使用 [Google Cloud Agent Platform 的全局端点](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations)而不是区域端点。Google 然后将每个请求路由到可用区域，因此您不跟踪按区域模型可用性。设置特定区域将每个请求固定到它。
 
 | 设置 | 如何 |
 | - | - |
-| IAM 权限 | 授予网关的服务帐户项目上的 `roles/aiplatform.user`，或具有 `aiplatform.endpoints.predict` 的自定义角色。启用 Agent Platform API (`aiplatform.googleapis.com`)。 |
-| 模型访问 | 在 Model Garden 中，为你的项目启用 Claude 模型。它们发布到特定地区；检查模型卡以了解支持的地区。 |
-| GKE (工作负载身份) | 将 GCP 服务帐户绑定到网关的 Kubernetes 服务帐户，并使用 `iam.gke.io/gcp-service-account: claude-gateway@<proj>.iam.gserviceaccount.com` 注释 KSA。`auth: {}` 拾取它。 |
+| IAM 权限 | 授予网关的服务帐户项目上的 `roles/aiplatform.user`，或具有 `aiplatform.endpoints.predict` 的自定义角色。启用 Google Cloud Agent Platform API (`aiplatform.googleapis.com`)。 |
+| 模型访问 | 在 Model Garden 中，为您的项目启用 Claude 模型。它们发布到特定区域；检查模型卡以了解支持的区域。 |
+| GKE (Workload Identity) | 将 GCP 服务帐户绑定到网关的 Kubernetes 服务帐户，并使用 `iam.gke.io/gcp-service-account: claude-gateway@<proj>.iam.gserviceaccount.com` 注释 KSA。`auth: {}` 拾取它。 |
 | Cloud Run / GCE | 将服务的服务帐户设置为具有 `roles/aiplatform.user` 的服务帐户。`auth: {}` 拾取它。 |
-| 其他任何地方 | `auth: { service_account_json: /secrets/sa.json }`，JSON 密钥文件的路径，挂载为密钥。该字段采用文件路径，而不是密钥内容，因此不涉及 `${file:…}` 扩展。 |
+| 其他任何地方 | `auth: { service_account_json: /secrets/sa.json }`，JSON 密钥文件的路径挂载为秘密。该字段采用文件路径，而不是密钥内容，因此不涉及 `${file:…}` 扩展。 |
 
 <h4 id="microsoft-foundry">
   Microsoft Foundry
 </h4>
 
-对于客户端 Foundry 部署，请参阅 [Microsoft Foundry 上的 Claude Code](/docs/zh-CN/microsoft-foundry)。网关端上游：
+对于客户端 Microsoft Foundry 部署，请参阅 [Microsoft Foundry 上的 Claude Code](/docs/zh-CN/microsoft-foundry)。网关端上游：
 
 ```yaml theme={null}
 upstreams:
@@ -426,27 +511,27 @@ upstreams:
     #   api_key: ${FOUNDRY_API_KEY}
 ```
 
-`use_azure_ad: true` 通过 `DefaultAzureCredential` 解析：AKS、ACI 或 App Service 上的托管身份；Azure CLI；或环境凭证。API 密钥有效但是项目范围的，不会自动轮换。Foundry 的端点从 `resource:` 派生；设置可选的 `base_url` 以为主权云（如 Azure Government）覆盖它。
+`use_azure_ad: true` 通过 `DefaultAzureCredential` 解析：AKS、ACI 或 App Service 上的托管身份；Azure CLI；或环境凭证。API 密钥有效但是项目范围的，不自动轮换。Microsoft Foundry 的端点从 `resource:` 派生；为主权云（如 Azure Government）设置可选 `base_url` 以覆盖它。
 
 | 设置 | 如何 |
 | - | - |
-| RBAC | 授予网关的身份 Foundry 资源上的 `Azure AI User` 或 `Cognitive Services User` |
-| 部署 | Foundry 使用管理员选择的部署名称，而不是规范模型 ID。添加一个[`models:`](#models)块，将每个规范 ID 映射到你的部署名称。 |
-| AKS (工作负载身份) | 将用户分配的托管身份与集群的 OIDC 发行者联合，并将其绑定到网关的服务帐户。`use_azure_ad: true` 通过 `WorkloadIdentityCredential` 拾取它。 |
+| RBAC | 授予网关的身份 Microsoft Foundry 资源上的 `Azure AI User` 或 `Cognitive Services User` |
+| 部署 | Microsoft Foundry 使用管理员选择的部署名称，而不是规范模型 ID。添加 [`models:`](#models) 块将每个规范 ID 映射到您的部署名称。 |
+| AKS (workload identity) | 将用户分配的托管身份与集群的 OIDC 发行者联合，并将其绑定到网关的服务帐户。`use_azure_ad: true` 通过 `WorkloadIdentityCredential` 拾取它。 |
 | ACI / App Service | 在资源上启用系统分配或用户分配的托管身份。`use_azure_ad: true` 拾取它。 |
 | 其他任何地方 | `auth: { api_key: "${FOUNDRY_API_KEY}" }`。在 `{ }` 内引用 `${…}`。 |
 
 <h4 id="static-headers-on-upstream-requests">
-  上游请求上的静态头
+  上游请求上的静态标头
 </h4>
 
-要将固定头添加到网关发送到一个上游的请求，在该上游上设置 `headers:`。当你运行的代理通过头路由或属性流量时使用它。
+要将固定标头添加到网关发送到一个上游的请求，在该上游上设置 `headers:`。当您运行的代理通过标头路由或属性流量时使用它。
 
-`headers:` 需要网关服务器上的 Claude Code v2.1.277 或更高版本。早期网关在找到该键时拒绝启动。在添加该键之前升级每个副本，并在回滚到早期版本之前删除该键。
+`headers:` 需要网关服务器上的 Claude Code v2.1.277 或更高版本。早期网关在找到键时拒绝启动。在添加键之前升级每个副本，并在回滚到早期版本之前删除键。
 
-头转到 `base_url` 命名的服务器，或当 `base_url` 未设置时转到提供者自己的端点。提供者也接收它们，除非你的代理删除它们。
+标头转到 `base_url` 命名的服务器，或当 `base_url` 未设置时转到提供商自己的端点。提供商也接收它们，除非您的代理删除它们。
 
-此示例通过 `upstream-proxy.internal.example.com` 上的代理到达 `provider: vertex` 上游。它设置代理读取的 `x-source` 头，并从 `PROXY_TOKEN` 环境变量发送令牌作为 `x-proxy-token`：
+此示例通过 `upstream-proxy.internal.example.com` 上的代理到达 `provider: vertex` 上游。它设置代理读取的 `x-source` 标头，并从 `PROXY_TOKEN` 环境变量发送令牌作为 `x-proxy-token`：
 
 ```yaml theme={null}
 upstreams:
@@ -460,24 +545,24 @@ upstreams:
       x-proxy-token: ${PROXY_TOKEN}
 ```
 
-值是可打印的 ASCII 文本，两端没有空格。引用数字、`true` 或 `false`，以便 YAML 将其读取为文本。
+值是可打印的 ASCII 文本，两端没有空格。引用数字、`true` 或 `false` 以便 YAML 将其读取为文本。
 
-要将密钥保持在配置文件之外，使用[密钥扩展](#secret-expansion)从环境变量使用 `${VAR}` 或从文件使用 `${file:/path}` 加载值。解析为空值的 `${VAR}` 停止网关启动。
+要将秘密保持在配置文件之外，使用[秘密扩展](#secret-expansion)从环境变量使用 `${VAR}` 或从文件使用 `${file:/path}` 加载值。解析为空值的 `${VAR}` 停止网关启动。
 
-`headers:` 适用于每个提供者，每个上游仅发送自己的。
+`headers:` 适用于每个提供商，每个上游仅发送自己的。
 
 并非网关发送到上游的每个请求都携带它们：
 
 | 网关发送到此上游的请求 | 携带 `headers:` |
 | - | - |
-| `/v1/messages`、流式或非流式，和 `/v1/messages/count_tokens` | 是 |
+| `/v1/messages`，流式或不流式，和 `/v1/messages/count_tokens` | 是 |
 | 从另一个上游故障转移的请求 | 是，仅此上游的 `headers:` |
-| 客户端放弃的请求的 Amazon Bedrock 的 `CountTokens` 调用 | 否 |
-| 工作负载身份联合令牌交换 | 否 |
+| Amazon Bedrock 的 `CountTokens` 调用用于客户端放弃的请求 | 否 |
+| Workload Identity Federation 令牌交换 | 否 |
 
-在使用 AWS SigV4 签署请求的 Amazon Bedrock 或 Claude Platform on AWS 上游上，这些头是签名的一部分，因此你的代理必须原样传递它们。
+在使用 AWS SigV4 签署请求的 Amazon Bedrock 或 AWS 上的 Claude Platform 上游上，这些标头是签名的一部分，因此您的代理必须原样通过它们。
 
-如果你使用网关保留的名称，它拒绝启动，启动错误命名该头。保留名称包括：
+如果您使用网关保留的名称，它拒绝启动，启动错误命名标头。保留名称包括：
 
 * `authorization` 和 `x-api-key`
 * `host`、`content-type` 和 `user-agent`
@@ -487,35 +572,35 @@ upstreams:
   多个上游
 </h4>
 
-同一提供者可以出现多次，具有不同的 `name:`。这涵盖不同的地区、通过不同凭证链的不同帐户、预配吞吐量与按需以及跨提供者故障转移。
+相同提供商可以出现多次，具有不同的 `name:`。这涵盖不同的区域、通过不同凭证链的不同帐户、预配吞吐量与按需，以及跨提供商故障转移。
 
-网关按顺序尝试上游。`5xx`、`429`、`401`、`403`、`404`、超时和缺失端点（`501`）故障转移；其他 `4xx` 不会。
+网关按顺序尝试上游。`5xx`、`429`、`401`、`403`、`404`、超时和缺失端点 (`501`) 故障转移；其他 `4xx` 不会。
 
-`429` 是每上游容量，因此预配吞吐量 (PT) 耗尽故障转移到按需。如果你在上游上设置 [`forward_user_identity: true`](#per-user-identity-headers-for-a-proxy-you-run)，对携带开发者电子邮件的请求的 `429` 是每用户拒绝而不是故障转移。
+`429` 是按上游容量，因此预配吞吐量 (PT) 耗尽故障转移到按需。如果您在上游上设置 [`forward_user_identity: true`](#per-user-identity-headers-for-a-proxy-you-run)，对携带开发人员电子邮件的请求的 `429` 是按用户拒绝而不是故障转移。
 
-每个请求从第一个上游开始。请求仅在每个前面的上游都失败或不服务请求的模型时才到达后续上游。
+每个请求从第一个上游开始。请求仅在它前面的每个上游都失败或不提供请求的模型时才到达后续上游。
 
-网关不保留失败上游的记录，因此当上游关闭时，到达它的每个请求仍然尝试它并等待它失败后再继续。
+网关不保持失败上游的记录，因此当上游关闭时，到达它的每个请求仍然尝试它并等待它失败后再继续。
 
-对于 Anthropic API 上游，[`timeouts.upstream_ttfb_ms`](#http-tuning)限制在关闭上游上的等待。该设置不适用于其他提供者，网关在那里等待最多一小时以便上游开始响应。
+对于 Anthropic API 上游，[`timeouts.upstream_ttfb_ms`](#http-tuning) 限制在关闭上游上的等待。该设置不适用于其他提供商，网关等待最多一小时以便上游开始响应。
 
-`404` 是每上游模型可用性，因此未启用模型的上游不会阻止服务它的后续上游。无法解析请求的模型的上游被跳过，无需网络往返。
+`404` 是按上游模型可用性，因此未启用模型的上游不阻止提供它的后续上游。无法解析请求的模型的上游被跳过而不进行网络往返。
 
-此示例首先路由预配吞吐量 Bedrock 分配，溢出到按需和第二个帐户，最后回退到 Anthropic API：
+此示例首先路由预配吞吐量 Amazon Bedrock 分配，溢出到按需和第二个帐户，并最后回退到 Anthropic API：
 
 ```yaml theme={null}
 upstreams:
-  # 主要：你的主地区的预配吞吐量。
+  # 主要：您主区域中的预配吞吐量。
   - name: bedrock-pt
     provider: bedrock
     region: us-east-1
     auth: {}
-  # 溢出：按需跨地区。
+  # 溢出：按需跨区域。
   - name: bedrock-od
     provider: bedrock
     region: us-west-2
     auth: {}
-  # 不同帐户：通过假定角色凭证的单独 Bedrock 分配。
+  # 不同帐户：通过静态密钥的单独 Bedrock 分配。
   - name: bedrock-acct2
     provider: bedrock
     region: us-east-1
@@ -528,7 +613,7 @@ upstreams:
     auth:
       api_key: ${ANTHROPIC_API_KEY}
 
-# 每上游模型 ID 由上游的 `name:` 键入。
+# 按上游模型 ID 在上游的 `name:` 上键入。
 models:
   - id: claude-opus-4-8
     label: Claude Opus 4.8
@@ -541,15 +626,15 @@ models:
 
 | 杠杆 | 如何 |
 | - | - |
-| 不同地区 | 每个地区一个 Bedrock 上游，每个都有自己的 `region:`。使用 [`auto_include_builtin_models: true`](#models)，跨地区推理配置文件自动路由；对于地区固定部署，使用 `models:` 块。 |
-| 不同帐户 | 每个帐户一个 Bedrock 上游，每个在 `auth:` 中都有自己的凭证。默认链 (`auth: {}`) 使用 pod 的身份；对于第二个帐户，设置显式凭证或持有者令牌。 |
-| 预配吞吐量 | 在该上游名称的 `models:` 中将模型映射到预配吞吐量 ARN。其他上游保持按需 ID，因此 PT 容量在故障转移前耗尽。 |
-| VPC / FIPS 端点 | 在上游上设置 `base_url:` 到你的 VPC 端点或 FIPS 端点 URL |
-| 模型范围路由 | 仅自定义模型 `id`（不是内置 Claude 模型的模型）从其 `upstream_model:` 映射中省略的上游被跳过。网关按顺序尝试每个上游上的内置模型，并在映射没有条目时使用提供者的默认 ID，因此对于内置模型，映射改变上游接收哪个 ID 而不是它是否被尝试；拒绝 ID 的上游遵循与任何其他上游错误相同的[故障转移规则](#upstreams)。 |
+| 不同区域 | 每个区域一个 Amazon Bedrock 上游，每个都有自己的 `region:`。使用 [`auto_include_builtin_models: true`](#models) 跨区域推理配置文件自动路由；对于区域固定部署，使用 `models:` 块。 |
+| 不同帐户 | 每个帐户一个 Amazon Bedrock 上游。默认链 (`auth: {}`) 使用 pod 的身份；对于第二个帐户，添加 [`assume_role`](#bedrock-in-another-aws-account) 以使用短期凭证到达它，或在 `auth:` 中设置显式凭证或持有者令牌。 |
+| 预配吞吐量 | 将模型映射到该上游名称的 `models:` 中的预配吞吐量 ARN。其他上游保持按需 ID，因此 PT 容量在故障转移前耗尽。 |
+| VPC / FIPS 端点 | 在上游上设置 `base_url:` 到您的 VPC 端点或 FIPS 端点 URL |
+| 模型范围路由 | 仅自定义模型 `id`，不是内置 Claude 模型，跳过其 `upstream_model:` 映射中不存在的上游。网关按顺序在每个上游上尝试内置模型，并在映射没有条目时使用提供商的默认 ID，因此对于内置模型，映射改变上游接收的 ID 而不是它是否被尝试；拒绝 ID 的上游遵循与任何其他上游错误相同的[故障转移规则](#upstreams)；不在其 `upstream_model:` 映射中的上游被跳过，因此请求和放弃请求的令牌计数都无法故障转移到另一个帐户。内置模型名称仍在每个上游按顺序尝试，包括这个，到达它的请求使用相同的角色签署，因此除非其帐户也应该提供它们，否则最后列出此上游。 |
 
-在云提供者之间或直接 Anthropic API 之间故障转移会改变哪个协议、地理位置和其他条款管理请求。
+在云提供商之间或直接 Anthropic API 之间故障转移改变哪个协议、地理位置和其他条款控制请求。
 
-CLI 对网关应用相同的功能门控，无论哪个上游服务给定请求，因此故障转移不会发送上游会拒绝的正文字段。
+CLI 对网关应用相同的功能门控，无论哪个上游提供给定请求，因此故障转移不发送上游会拒绝的正文字段。
 
 <h2 id="optional-sections">
   可选部分

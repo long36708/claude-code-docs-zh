@@ -513,11 +513,11 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
   遥测
 </h2>
 
-gateway 为您提供每个开发人员的使用指标，无需任何每台机器的 OTEL 配置。Claude Code 发出 OpenTelemetry (OTLP) 指标、日志和选择加入的跟踪；[监控使用](/docs/zh-CN/monitoring-usage)涵盖 CLI 报告的所有内容。在通过 `/login` 登录的会话中，CLI 使用经过身份验证的 IdP 身份属性 `user.id`、`user.email` 和 `user.groups` 标记每个导出，因此使用按开发人员汇总。
+网关为您提供每个开发者的使用指标，无需任何每台机器的 OTEL 配置。Claude Code 发出 OpenTelemetry (OTLP) 指标、日志和可选的跟踪；[监控使用情况](/docs/zh-CN/monitoring-usage)涵盖了 CLI 报告的所有内容。在通过 `/login` 登录的会话中，CLI 使用经过身份验证的 IdP 身份属性 `user.id`、`user.email` 和 `user.groups` 为每个导出加盖时间戳，因此使用情况按开发者汇总。
 
-gateway 本身是经过身份验证的 OTLP 中继。将 [`telemetry.forward_to`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 与 `listen.public_url` 一起设置，它将 OTEL 导出器设置推送到每个连接的客户端，并将其 OTLP 流量逐字转发到您列出的每个目标。每个目标独立选择加入指标、日志和跟踪，默认值仅为指标；有关每个信号字段及其敏感性权衡，请参阅 [`telemetry` 参考](/docs/zh-CN/claude-apps-gateway-config#telemetry)。gateway 不缓冲、聚合或存储遥测，因此数据落在何处完全是收集器的导出器配置。
+网关本身是一个经过身份验证的 OTLP 中继。将 [`telemetry.forward_to`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 与 `listen.public_url` 一起设置，它会将 OTEL 导出器设置推送到每个连接的客户端，并将其 OTLP 流量逐字转发到您列出的每个目标。每个目标独立选择指标、日志和跟踪，默认仅为指标；有关每个信号字段及其敏感性权衡，请参阅 [`telemetry` 参考](/docs/zh-CN/claude-apps-gateway-config#telemetry)。网关不缓冲、聚合或存储遥测数据，因此数据最终的位置完全由收集器的导出器配置决定。
 
-客户端遥测默认关闭；配置 `telemetry.forward_to` 是为连接的开发人员打开它的原因，每个交互式客户端为推送的设置显示一次性安全批准对话框，如[配置参考](/docs/zh-CN/claude-apps-gateway-config#telemetry)中所述。在 AWS 上，每个信号映射到目标如下。
+客户端遥测默认关闭；配置 `telemetry.forward_to` 是为连接的开发者启用它的方式，每个交互式客户端都会显示一个安全批准对话框，用于推送的设置，如 [配置参考](/docs/zh-CN/claude-apps-gateway-config#telemetry) 中所述。在 AWS 上，每个信号映射到目标如下。
 
 <h3 id="client-metrics-logs-and-traces">
   客户端指标、日志和跟踪
@@ -525,25 +525,94 @@ gateway 本身是经过身份验证的 OTLP 中继。将 [`telemetry.forward_to`
 
 将 `telemetry.forward_to` 指向 OpenTelemetry 收集器，例如 [AWS Distro for OpenTelemetry (ADOT) 收集器](https://aws-otel.github.io/)，并从那里导出到 Amazon CloudWatch、Amazon Managed Service for Prometheus 或任何 OTLP 后端。
 
-将收集器作为其自己的内部服务运行，可通过 `https://` 到达；[`telemetry` 参考](/docs/zh-CN/claude-apps-gateway-config#telemetry)涵盖环回异常和 `CLAUDE_GATEWAY_ALLOW_LOOPBACK`。
+将收集器作为其自己的内部服务运行，可通过 `https://` 访问；[`telemetry` 参考](/docs/zh-CN/claude-apps-gateway-config#telemetry)涵盖了环回异常和 `CLAUDE_GATEWAY_ALLOW_LOOPBACK`。
 
 <h3 id="gateway-logs">
-  Gateway 日志
+  网关日志
 </h3>
 
-在 ECS Fargate 上，无需额外设置：`awslogs` 驱动程序将 gateway 的 stderr（包含其审计事件和操作日志）传递到上面创建的 `/ecs/claude-gateway` 日志组。在 EKS 上，pod 日志默认不到达 CloudWatch，因此审计跟踪丢失，直到您安装日志收集：启用容器日志捕获的 Amazon CloudWatch Observability 附加组件，或 Fluent Bit DaemonSet。在任一轨道上，使用 CloudWatch Logs Insights 查询日志并从指标过滤器驱动警报。
+在 ECS Fargate 上，无需额外设置：`awslogs` 驱动程序将网关的 stderr（包含其审计事件和操作日志）传递到上面创建的 `/ecs/claude-gateway` 日志组。在 EKS 上，Pod 日志默认不会到达 CloudWatch，因此审计跟踪会丢失，直到您安装日志收集：启用容器日志捕获的 Amazon CloudWatch Observability 附加组件，或 Fluent Bit DaemonSet。在任一方案上，使用 CloudWatch Logs Insights 查询日志，并从指标过滤器驱动告警。
 
 <h3 id="container-metrics">
   容器指标
 </h3>
 
-使用 `aws ecs update-cluster-settings --cluster claude-gateway --settings name=containerInsights,value=enabled` 在集群上启用 Container Insights 以获得每个任务的 CPU、内存和网络。在 EKS 上，安装 Amazon CloudWatch Observability 附加组件。
+使用 `aws ecs update-cluster-settings --cluster claude-gateway --settings name=containerInsights,value=enabled` 在集群上启用 Container Insights，以获取每个任务的 CPU、内存和网络。在 EKS 上，安装 Amazon CloudWatch Observability 附加组件。
 
 <h3 id="spend">
   支出
 </h3>
 
-遥测显示事后使用；[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)是 gateway 在共享上游凭证之上的实时每个开发人员视图和执行。
+遥测显示事后使用情况；[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)是网关的实时每个开发者视图和执行。
+
+<h2 id="cost-attribution">
+  成本归属
+</h2>
+
+网关使用其自身主体（ECS 任务角色或 EKS IRSA 角色）对每个 Bedrock 请求进行签名，因此默认情况下 AWS 会将所有支出归属于一个 IAM 主体。有两种方法可以在 AWS 的账单数据中拆分成本，它们可以结合使用。
+
+<h3 id="per-developer-with-assume_role">
+  使用 `assume_role` 按开发者拆分
+</h3>
+
+创建第二个 IAM 角色来持有 Bedrock 权限并信任网关的主体，授予该主体对其的 `sts:AssumeRole` 权限，并在 Bedrock 上游上设置 [`assume_role`](/docs/zh-CN/claude-apps-gateway-config#per-developer-aws-cost-attribution)，其中 `session_name: email`。网关随后会每小时为每个开发者假设该角色一次，并将会话名称设置为其电子邮件，然后使用结果对其请求进行签名。需要运行 Claude Code v2.1.281 或更高版本的网关。该角色也可以位于另一个 AWS 账户中：请参阅 [Bedrock 在另一个 AWS 账户中](/docs/zh-CN/claude-apps-gateway-config#bedrock-in-another-aws-account)。在 Terraform 中，在 [Terraform 包](#terraform-reference) 中的任务角色旁边：
+
+```hcl theme={null}
+resource "aws_iam_role" "bedrock_user" {
+  name = "claude-gateway-bedrock-user"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{ Effect = "Allow", Action = "sts:AssumeRole", Principal = { AWS = aws_iam_role.task.arn } }]
+  })
+}
+resource "aws_iam_role_policy" "bedrock_user_invoke" {   # same Bedrock policy as the task role's
+  role   = aws_iam_role.bedrock_user.id
+  policy = aws_iam_role_policy.bedrock_invoke.policy
+}
+resource "aws_iam_role_policy" "task_assume_bedrock_user" {
+  role   = aws_iam_role.task.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{ Effect = "Allow", Action = "sts:AssumeRole", Resource = aws_iam_role.bedrock_user.arn }]
+  })
+}
+```
+
+设置 `assume_role` 后，网关会使用假设角色的凭证对每个 Bedrock 调用进行签名，包括用于支出计量的免费 `CountTokens` 调用，因此网关的主体仅在没有 `assume_role` 的上游上才需要自己的 Bedrock 策略。
+
+由于网关在请求时调用 STS，私有子网需要到 `sts.<region>.amazonaws.com` 的路径。先决条件中的 NAT 网关提供了一条路径，STS 接口 VPC 端点也提供了一条路径，该端点可以应答该主机名。每个活跃开发者每小时每个网关副本需要一个 STS 调用。
+
+每个开发者的请求到达 AWS 时的主体为 `arn:aws:sts::<account>:assumed-role/<role>/<email>`。要查看每个主体的支出，请使用包含 IAM 主体数据的账单导出；AWS 的 [IAM 主体成本分配](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/iam-principal-cost-allocation.html) 页面介绍了如何启用它以及哪些账单工具显示它。
+
+<h3 id="per-team-with-application-inference-profiles">
+  使用应用推理配置文件按团队拆分
+</h3>
+
+此路由仅使用 [`models`](/docs/zh-CN/claude-apps-gateway-config#models) 和 [`managed`](/docs/zh-CN/claude-apps-gateway-config#managed) 部分。为每个团队和模型创建一个 Bedrock [应用推理配置文件](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-create.html)，用团队标记每个配置文件，并激活该标记作为成本分配标记。然后在 `gateway.yaml` 中为每个团队提供其自己的模型 id，并将每个 IdP 组固定到其团队的 id：
+
+```yaml theme={null}
+models:
+  - id: platform-claude-opus-4-8
+    upstream_model:
+      bedrock: arn:aws:bedrock:us-east-1:123456789012:application-inference-profile/abc123
+  - id: data-claude-opus-4-8
+    upstream_model:
+      bedrock: arn:aws:bedrock:us-east-1:123456789012:application-inference-profile/def456
+managed:
+  policies:
+    - match: {groups: [team-platform]}
+      cli: {availableModels: [platform-claude-opus-4-8], enforceAvailableModels: true}
+    - match: {groups: [team-data]}
+      cli: {availableModels: [data-claude-opus-4-8], enforceAvailableModels: true}
+    - match: {}
+      cli: {availableModels: [claude-opus-4-8, claude-sonnet-4-6], enforceAvailableModels: true}
+```
+
+告诉固定团队中的开发者使用 `--model platform-claude-opus-4-8` 启动 Claude Code，使用其团队的 id，因为在没有它的情况下启动的会话会运行默认模型，网关会为他们拒绝该模型。
+
+网关在每个请求上强制执行 `availableModels`，不仅在模型选择器中，AWS 账单会按您激活的标记对支出进行分组。如果没有 `match: {}` 的全部匹配，与任何策略都不匹配的开发者会获得目录中的每个模型，并可以对任一团队的配置文件进行计费。
+
+成本：配置随着团队乘以模型而增长，对此上游的 Bedrock 请求进行签名的角色也必须被允许调用 `application-inference-profile/*` ARN。该角色是网关的主体，或者使用 `assume_role` 时是它假设的角色。请参阅 [`pricing`](/docs/zh-CN/claude-apps-gateway-config#pricing) 了解网关自身的支出计量如何对这些 id 进行定价。
 
 <h2 id="next-steps">
   后续步骤
