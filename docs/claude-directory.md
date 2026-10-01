@@ -1561,6 +1561,7 @@ Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`clean
 | `paste-cache/` | 大型粘贴的内容 |
 | `image-cache/<session>/` | Claude Code v2.1.274 及更早版本保存的附加图像。更高版本将粘贴和附加的图像保存在 `~/.claude` 之外，在 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars) 控制的临时目录下每个会话的 `images/` 目录中。扫描会删除其他会话在此处留下的目录，无论其年龄如何。 |
 | `uploads/<session>/` | 您从网络或移动应用附加的文件，以及从移动应用附加的照片，当向 [Remote Control](/docs/zh-CN/remote-control) 会话发送消息时。对 [cloud session](/docs/zh-CN/claude-code-on-the-web) 的附件保存在该会话自己的云环境中，而不是在您的机器上。 |
+| `dev-mods/<session>/` | [Claude 在会话期间编写的 Mods](/docs/zh-CN/plugins/mods/create#ask-claude-for-a-mod) |
 | `session-env/` | 每个会话的环境元数据 |
 | `tasks/` | 由 task 工具写入的任务列表，每个列表一个目录 |
 | `shell-snapshots/` | 在启动时捕获的别名、函数和 shell 选项，由 [Bash 工具](/docs/zh-CN/tools-reference#bash-tool-behavior) 应用于每个命令。在正常退出时删除。扫描清理任何在崩溃后留下的内容。 |

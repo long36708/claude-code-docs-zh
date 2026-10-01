@@ -1006,6 +1006,7 @@ claude plugin install my-plugin@my-marketplace --config api_url=https://example.
 | `Path contains ".." which could be a path traversal attempt: <path>` | 组件路径逃离插件目录。 | 使用插件根目录内的路径。 |
 | `Path is a file; skills entries must be directories containing SKILL.md` | `skills` 条目指向 `SKILL.md` 而不是其目录。 | 指向父目录，或 `.` 表示根级 `SKILL.md`。 |
 | `No frontmatter block found` 或 `YAML frontmatter failed to parse: <error>` | skill、agent 或 command 文件缺少或有无效的 YAML frontmatter。 | 在 `---` 分隔符之间添加或修复 frontmatter。在验证插件目录时报告。 |
+| `Plugin name "<name>" is reserved: it passes as one of Anthropic's own` | 插件的 `name` 是[保留名称](/docs/zh-CN/plugins/manifest-reference#name)之一。 | 根据其功能重命名插件。 |
 | `Unknown field '<key>'` | 清单有一个架构未定义的字段。 | 删除它，或使用消息建议的名称。Claude Code 在加载时忽略未知字段。 |
 
 在每次修复后再次运行命令，直到它不打印任何错误。

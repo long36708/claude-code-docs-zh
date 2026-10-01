@@ -146,6 +146,7 @@ claude plugin validate ./my-plugin
 | [`dependencies`](#dependencies) | Array of strings or objects | 必须为此 plugin 启用的 plugin |
 | [`settings`](#settings) | Object | Claude Code 在 plugin 启用时应用的设置。仅 `agent` 和 `subagentStatusLine` 生效 |
 | [`userConfig`](#user-configuration) | Object | Claude Code 在 plugin 启用时提示用户输入的值 |
+| `types` | Path | 声明 [mod](/docs/zh-CN/plugins/mods/reference#files) 的 `$.state` 值和 `$` 名词的 `.d.ts` 文件 |
 | [`channels`](#channels) | Array of objects | plugin 提供的消息频道，每个绑定到其 MCP 服务器之一 |
 | `skills` | Path, or array of paths | 要扫描的目录以查找 skills，每个目录是 `<name>/SKILL.md` 文件夹或直接包含 `SKILL.md` 的一个文件夹。`"."` 命名 plugin 根目录。添加到默认 `skills/` 扫描 |
 | [`commands`](#commands) | Path, array of paths, or object | 平面 `.md` 命令文件、它们的目录或命令名称到 `source` 或 `content` 的对象映射。替换默认 `commands/` 扫描 |
@@ -169,6 +170,17 @@ claude plugin validate ./my-plugin
 plugin 标识符。它必须非空，没有空格、`@`、`:`、路径分隔符、控制字符或双向格式字符；使用 kebab-case。
 
 Claude Code 在其下命名空间每个组件，因此 plugin `deploy-tools` 中的 agent `reviewer` 显示为 `deploy-tools:reviewer`。
+
+`claude plugin validate` 还检查该名称是否通过作为 Anthropic 自己的 plugin 之一。检查忽略大小写并将任何分隔符的运行视为一个：
+
+| 名称 | 结果 |
+| :- | :- |
+| 以 `claude-`、`anthropic-`、`anthropics-` 或 `cc-plugin-` 开头 | 错误 |
+| 是 `claude`、`anthropic`、`anthropics`、`claude-code` 或 `claude-mods` | 错误 |
+| 将 `official` 放在 `claude` 或 `anthropic` 旁边，例如 `official-claude-tools` | 错误 |
+| 在其他任何地方有 `claude`、`anthropic` 或 `anthropics` 作为整个单词，例如 `mcp-for-claude` | 警告 |
+
+错误读作 `Plugin name "<name>" is reserved: it passes as one of Anthropic's own`，警告读作 `Plugin name "<name>" reads as one of Anthropic's own`。`claude plugin init` 和 `claude plugin tag` 拒绝引发错误的名称。仅这些命令检查名称。Claude Code 仍然安装和加载其名称被拒绝的 plugin。
 
 <h3 id="displayname">
   `displayName`

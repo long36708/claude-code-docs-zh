@@ -1014,7 +1014,9 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
 
 `PreToolUse` hooks 在任何权限模式检查之前触发，在每个[权限模式](/docs/zh-CN/permission-modes)中，包括 `dontAsk`。返回 `permissionDecision: "deny"` 的 hook 会阻止工具，即使在 `bypassPermissions` 模式或使用 `--dangerously-skip-permissions` 时也是如此。这让你强制执行用户无法通过更改其权限模式来绕过的策略。
 
-反面不成立：返回 `"allow"` 的 hook 不会绕过来自设置的拒绝规则，它也无法抑制标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具的提示或[你的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具在该设置到达 Claude Code 的会话中的提示。Hooks 可以收紧限制，但不能放松它们超过权限规则允许的范围。
+反面不成立：返回 `"allow"` 的 hook 不会绕过来自设置的拒绝规则，它也无法抑制标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具的提示或[你的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具在该设置到达 Claude Code 的会话中的提示。Hooks 在设置文件和插件的 `hooks/hooks.json` 中可以收紧限制，但不能放松它们超过权限规则允许的范围。
+
+一个你安装的[mod](/docs/zh-CN/plugins/mods/overview)如果 hooks `tool.check` 可以批准你的 `PreToolUse` hook 阻止的调用，除非该 hook 在托管设置中。[使用 hooks 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)列出了哪些规则优先于 mod。
 
 <h3 id="hook-not-firing">
   Hook 未触发

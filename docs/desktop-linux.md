@@ -163,6 +163,18 @@ sudo rm /etc/apt/sources.list.d/claude-desktop.list
 
 如果 `claude-desktop` 以此消息退出，说明您以 root 身份启动了它。以普通用户身份登录并从那里启动它。
 
+<h3 id="your-sign-in-won’t-be-saved-on-this-device">
+  您的登录信息不会在此设备上保存
+</h3>
+
+Claude Desktop 将您的登录信息保存在您桌面的密钥环中，例如 GNOME Keyring 或 KDE Wallet。如果它无法访问已解锁的密钥环，您的登录信息不会被保存，每次启动应用时您都需要重新登录。选择与您的系统相匹配的情况：
+
+* **未安装密钥环，在 KDE Plasma 以外的桌面上**：如果您使用 `--no-install-recommends` 安装，或在跳过推荐软件包的最小镜像上，apt 没有安装密钥环。使用 `sudo apt install gnome-keyring` 安装 GNOME Keyring。
+* **KDE Plasma 同时安装了 GNOME Keyring**：KDE Wallet 随 Plasma 桌面一起提供。这两个密钥环会冲突，Claude Desktop 可能会显示此通知，即使 KDE Wallet 正常工作。使用 `sudo apt remove gnome-keyring` 删除额外的密钥环，然后重新启动您的计算机。
+* **密钥环已安装但被锁定**：解锁它。
+
+修复后，重新启动应用并登录。然后退出并再次启动它以确认应用打开时您仍然已登录。
+
 <h3 id="cowork-isn’t-available">
   Cowork 不可用
 </h3>

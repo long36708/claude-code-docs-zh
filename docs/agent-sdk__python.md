@@ -517,6 +517,7 @@ class ClaudeSDKClient:
     async def set_model(self, model: str | None = None) -> None
     async def rewind_files(self, user_message_id: str) -> None
     async def get_mcp_status(self) -> McpStatusResponse
+    async def get_context_usage(self) -> ContextUsageResponse
     async def reconnect_mcp_server(self, server_name: str) -> None
     async def toggle_mcp_server(self, server_name: str, enabled: bool) -> None
     async def stop_task(self, task_id: str) -> None
@@ -540,6 +541,7 @@ class ClaudeSDKClient:
 | `set_model(model)` | 更改当前会话的模型。传递 `None` 以重置为 [Claude Code 的默认模型](/docs/zh-CN/model-config) |
 | `rewind_files(user_message_id)` | 将文件恢复到指定用户消息时的状态。需要 `enable_file_checkpointing=True`。见 [文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing) |
 | `get_mcp_status()` | 获取所有配置的 MCP 服务器的状态。返回 [`McpStatusResponse`](#mcpstatusresponse) |
+| `get_context_usage()` | 获取按类别、技能和工具分类的上下文窗口使用情况的详细信息。这与 `/context` 在交互式会话中显示的数据相同。返回 [`ContextUsageResponse`](#contextusageresponse)。为了计算详细信息，Claude Code 会发出几个不出现在消息流中的令牌计数 API 请求；见[这些请求如何处理](#contextusageresponse) |
 | `reconnect_mcp_server(server_name)` | 重试连接到失败或断开连接的 MCP 服务器 |
 | `toggle_mcp_server(server_name, enabled)` | 在会话中启用或禁用 MCP 服务器。禁用会移除其工具 |
 | `stop_task(task_id)` | 停止运行的后台任务。一个状态为 `"stopped"` 的 [`TaskNotificationMessage`](#tasknotificationmessage) 随后在消息流中出现 |
@@ -1603,6 +1605,39 @@ class McpServerStatus(TypedDict):
 | `config` | [`McpServerStatusConfig`](#mcpserverstatusconfig)（可选） | 服务器配置。与 [`McpServerConfig`](#mcpserverconfig) 形状相同（stdio、SSE、HTTP 或 SDK），加上通过 claude.ai 连接的服务器的 `claudeai-proxy` 变体 |
 | `scope` | `str`（可选） | 配置范围 |
 | `tools` | `list`（可选） | 此服务器提供的工具，每个都有 `name`、`description` 和 `annotations` 字段 |
+
+<h3 id="contextusageresponse">
+  `ContextUsageResponse`
+</h3>
+
+来自 [`ClaudeSDKClient.get_context_usage()`](#methods) 的响应。这是 Claude Code 为交互式会话中的 `/context` 命令呈现的相同有效负载，因此除了令牌计数外，它还携带显示字段，如 `color` 和 `gridRows`，Claude Code 使用这些字段来绘制 `/context` 使用网格。
+
+Claude Code 通过向[令牌计数](https://platform.claude.com/docs/en/build-with-claude/token-counting) API 发送多个请求来构建此有效负载。这些请求不会出现在消息流中，因此读取流的成本跟踪不会看到它们。在 Anthropic API 上，令牌计数不计费。
+
+```python theme={null}
+class ContextUsageResponse(TypedDict):
+    categories: list[ContextUsageCategory]
+    totalTokens: int
+    maxTokens: int
+    rawMaxTokens: int
+    percentage: float
+    model: str
+    isAutoCompactEnabled: bool
+    memoryFiles: list[dict[str, Any]]
+    mcpTools: list[dict[str, Any]]
+    agents: list[dict[str, Any]]
+    gridRows: list[list[dict[str, Any]]]
+    autoCompactThreshold: NotRequired[int]
+    deferredBuiltinTools: NotRequired[list[dict[str, Any]]]
+    systemTools: NotRequired[list[dict[str, Any]]]
+    systemPromptSections: NotRequired[list[dict[str, Any]]]
+    slashCommands: NotRequired[dict[str, Any]]
+    skills: NotRequired[dict[str, Any]]  # skill usage with frontmatter breakdown
+    messageBreakdown: NotRequired[dict[str, Any]]  # message tokens by type
+    apiUsage: NotRequired[dict[str, Any] | None]
+```
+
+每个 `ContextUsageCategory` 条目携带 `name`、`tokens`、`color` 和可选的 `isDeferred` 标志。`totalTokens` 是会话的当前上下文使用情况，`maxTokens` 是测量使用情况的窗口。该窗口是模型的上下文窗口，或当应用一个时的较低自动压缩窗口，`rawMaxTokens` 携带与 `maxTokens` 相同的值。`apiUsage` 保存最新 API 响应的使用情况，而不是会话的运行总计。Claude Code 保持可选的 `deferredBuiltinTools`、`systemTools` 和 `systemPromptSections` 键未设置，因此即使类型声明它们，也应该期望它们不存在。
 
 <h3 id="sdkpluginconfig">
   `SdkPluginConfig`

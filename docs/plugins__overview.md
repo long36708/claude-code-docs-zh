@@ -30,9 +30,10 @@ Claude Code 插件是一个目录，包含 skills、agents、hooks、MCP 服务�
 * [**Skills**](/docs/zh-CN/plugins/components#skills)：`SKILL.md` 指令，Claude 在相关时加载，您也可以作为命令运行
 * [**Agents**](/docs/zh-CN/plugins/components#agents)：Claude 可以委派给的子代理定义
 * [**Hooks**](/docs/zh-CN/plugins/components#hooks)：Claude Code 在其生命周期中的特定点运行的命令，例如每次编辑后
+* [**一个 hooks 模块**](/docs/zh-CN/plugins/mods/overview)：作为 JavaScript 函数编写的 hooks，也可以绘制窗格和添加命令。拥有一个的插件称为 mod
 * [**MCP 服务器**](/docs/zh-CN/plugins/components#mcp-servers)：工具服务器，Claude Code 在启用插件时连接到
 
-此图显示了一个名为 `my-plugin` 的插件，其中包含这些组件中的每一个，以及插件加载后您从每个文件获得的内容。
+此图显示了一个名为 `my-plugin` 的插件，其中包含一个 skill、一个 agent、hooks 和一个 MCP 服务器，以及插件加载后您从每个文件获得的内容。
 
 <img src="https://mintcdn.com/claude-code/2Q_GtOEovg5qaBem/images/plugin-directory.svg?fit=max&auto=format&n=2Q_GtOEovg5qaBem&q=85&s=f623b64e82713b830e48174f0a922888" className="dark:hidden" alt="两列图表，由五个直箭头连接。左侧是名为 my-plugin 的插件目录，包含 .claude-plugin/plugin.json 处的清单、skills/review/SKILL.md、agents/reviewer.md、hooks/hooks.json、.mcp.json 和其他组件。右侧是每个文件在您的会话中提供的内容：清单设置插件名称 my-plugin；skill 作为 /my-plugin:review 运行；agent 文件是 Claude 可以委派给的子代理；hooks 文件包含在生命周期事件上运行的 hooks；.mcp.json 添加了一个 MCP 服务器，为 Claude 提供工具。" width="760" height="336" data-path="images/plugin-directory.svg" />
 

@@ -12,6 +12,8 @@
 
 Hooks 是用户定义的 shell 命令、HTTP 端点、MCP 工具调用、LLM 提示或子代理，在 Claude Code 生命周期中的特定点自动执行。Claude Code 在其运行的任何地方都会触发相同的 hook 事件：终端中的会话、IDE 扩展、[桌面应用](/docs/zh-CN/desktop-quickstart)和[云会话](/docs/zh-CN/claude-code-on-the-web)。使用此参考查找事件架构、配置选项、JSON 输入/输出格式以及异步 hooks、HTTP hooks 和 MCP 工具 hooks 等高级功能。
 
+插件也可以将 hooks 注册为 JavaScript 函数，Claude Code 在其自己的进程中调用这些函数，这些函数既可以在界面中绘制，也可以对事件进行操作。执行此操作的插件是[mod](/docs/zh-CN/plugins/mods/overview)，这些函数 hooks 在[对事件做出反应](/docs/zh-CN/plugins/mods/events)中介绍，而不是在这里。此页面上的 hooks 继续与 mods 一起工作。
+
 <h2 id="hook-lifecycle">
   Hook 生命周期
 </h2>

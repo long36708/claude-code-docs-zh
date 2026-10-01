@@ -484,6 +484,8 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `Author name cannot be empty` | 错误 | `owner.name` |
 | `Plugin name cannot contain spaces. Use kebab-case (e.g., "my-plugin")` | 错误 | `plugins[i].name` |
 | `Plugin name cannot contain control or bidirectional-formatting characters` | 错误 | `plugins[i].name` |
+| `Plugin name "x" is reserved: it passes as one of Anthropic's own` | 错误 | `plugins[i].name`。请参阅 manifest 的 [`name`](/docs/zh-CN/plugins/manifest-reference#name) 以了解保留名称 |
+| `Plugin name "x" reads as one of Anthropic's own` | 警告 | `plugins[i].name` |
 | `Claude Code cannot install plugins from marketplace "x". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change the marketplace's "name".` | 错误 | `name` |
 | `Claude Code cannot install plugin "x". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change this entry's "name".` | 错误 | `plugins[i].name` |
 | `Duplicate plugin name "x" found in marketplace` | 错误 | 两个条目共享一个 `name` |

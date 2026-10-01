@@ -600,7 +600,16 @@ MCP 规则使用在 Claude Code 中配置的服务器名称，可选地后跟该
 
 [Claude Code hooks](/docs/zh-CN/hooks-guide) 让您可以注册自定义 shell 命令，在运行时评估权限。当 Claude Code 进行工具调用时，PreToolUse hooks 在权限提示之前运行，适用于除了 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 之外的每个工具。hook 输出可以拒绝工具调用、强制提示或跳过提示以让调用继续。
 
-Hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask 规则，无论 PreToolUse hook 返回什么：匹配的 deny 规则会阻止调用，匹配的 ask 规则即使在 hook 返回 `"allow"` 或 `"ask"` 时仍然会提示。这保留了[管理权限](#manage-permissions)中描述的 deny 优先级，包括在托管设置中设置的 deny 规则。
+PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask 规则，无论 PreToolUse hook 返回什么：匹配的 deny 规则会阻止调用，匹配的 ask 规则即使在 hook 返回 `"allow"` 或 `"ask"` 时仍然会提示。这保留了[管理权限](#manage-permissions)中描述的 deny 优先级，包括在托管设置中设置的 deny 规则。
+
+该优先级涵盖设置文件中的 hooks 和插件的 `hooks/hooks.json` 中的 hooks。您安装的[模块](/docs/zh-CN/plugins/mods/overview)如果 hooks `tool.check` 会在规则和 `PreToolUse` hooks 已经决定之后回答，其答案可以替代它们的答案：
+
+* **Ask 规则**：模块可以批准 ask 规则会提示的调用
+* **来自 `PreToolUse` hook 的阻止**：模块可以批准调用，除非 hook 在托管设置中
+* **自动模式分类器**：在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，模块批准的调用运行时无需分类器检查
+* **Deny 规则**：在具有托管设置的机器上，或当您使用团队或企业计划登录时，deny 规则默认优先于模块，您的组织可以更改这一点。在其他任何地方，模块可以批准 deny 规则拒绝的调用。
+
+请参见[决定是否信任模块](/docs/zh-CN/plugins/mods/overview#decide-whether-to-trust-a-mod)，或如果您部署托管设置，请参见[为您的组织管理模块](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default)。
 
 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具在 hook 返回 `"allow"` 时仍然会提示，连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的工具在该设置到达 Claude Code 的会话中也是如此。
 
@@ -717,6 +726,8 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 如果工具在任何级别被拒绝，没有其他级别可以允许它。例如，托管设置 deny 无法被 `--allowedTools` 覆盖，`--disallowedTools` 可以添加超出托管设置定义的限制。
 
 同样的规则也适用于设置范围：如果用户设置允许某个权限而项目设置拒绝它，deny 规则会阻止它。反之亦然：用户级别的 deny 会阻止项目级别的 allow，因为来自任何范围的 deny 规则在 allow 规则之前被评估。
+
+这个优先级是在设置文件和命令行参数之间的。关于 deny 规则是否对你安装的 [mod](/docs/zh-CN/plugins/mods/overview) 有效，请参阅[使用 hooks 扩展权限](#extend-permissions-with-hooks)。
 
 嵌入主机可以通过 SDK `managedSettings` 选项提供额外的托管策略，包括权限允许规则，除非管理员设置了 `allowManaged*Only` 锁；[向 Claude Desktop 会话传递策略](/docs/zh-CN/claude-apps-gateway#deliver-policy-to-claude-desktop-sessions)涵盖了嵌入器策略何时适用。
 

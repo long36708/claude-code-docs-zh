@@ -791,6 +791,8 @@ You are a security reviewer. Read the changed files and report injection, authen
 
 `hooks/hooks.json` 和 `hooks` 清单键中的 hooks 都会加载。对于每个事件及其有效负载，参见 [Hook 事件](/docs/zh-CN/hooks#hook-events)。
 
+要将 hooks 写成在 Claude Code 内运行并可以在其界面中绘制的 JavaScript 函数，在同一 `hooks/hooks.json` 中的 `modules` 键下列出一个模块文件。具有一个的插件是 mod。参见 [创建 mod](/docs/zh-CN/plugins/mods/create)。
+
 <h4 id="when-plugin-hooks-fire">
   插件 hooks 何时触发
 </h4>
