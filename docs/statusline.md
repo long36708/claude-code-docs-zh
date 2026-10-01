@@ -20,7 +20,7 @@
 这是一个[多行状态行](#display-multiple-lines)的示例，它在第一行显示 git 信息，在第二行显示颜色编码的上下文栏。
 
 <Frame>
-  <img src="https://mintcdn.com/claude-code/nibzesLaJVh4ydOq/images/statusline-multiline.png?fit=max&auto=format&n=nibzesLaJVh4ydOq&q=85&s=60f11387658acc9ff75158ae85f2ac87" alt="一个多行状态行，显示第一行上的模型名称、目录、git 分支，第二行上的上下文使用进度条、成本和持续时间" width="776" height="212" data-path="images/statusline-multiline.png" />
+  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-multiline.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=a9d0a2fe8e446d80b1abc46da3f93270" alt="一个多行状态行，显示第一行上的模型名称、目录、git 分支，第二行上的上下文使用进度条、成本和持续时间" width="1224" height="262" data-path="images/statusline-multiline.png" />
 </Frame>
 
 本页面介绍了[设置基本状态行](#set-up-a-status-line)，解释了[数据如何从 Claude Code 流向你的脚本](#how-status-lines-work)，列出了[你可以显示的所有字段](#available-data)，并提供了[常见模式的现成示例](#examples)，如 git 状态、成本跟踪和进度条。
@@ -93,7 +93,7 @@
 这些示例使用 Bash 脚本，在 macOS 和 Linux 上工作。在 Windows 上，请参阅[Windows 配置](#windows-configuration)了解 PowerShell 和 Git Bash 示例。
 
 <Frame>
-  <img src="https://mintcdn.com/claude-code/nibzesLaJVh4ydOq/images/statusline-quickstart.png?fit=max&auto=format&n=nibzesLaJVh4ydOq&q=85&s=696445e59ca0059213250651ad23db6b" alt="一个状态行，显示模型名称、目录和上下文百分比" width="726" height="164" data-path="images/statusline-quickstart.png" />
+  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-quickstart.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=88a7eab9c1038dd098ee8e284d96b7e6" alt="一个状态行，显示模型名称、目录和上下文百分比" width="1224" height="224" data-path="images/statusline-quickstart.png" />
 </Frame>
 
 <Steps>
@@ -444,7 +444,7 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
 显示当前模型和上下文窗口使用情况，带有可视进度条。每个脚本从 stdin 读取 JSON，提取 `used_percentage` 字段，并构建一个 10 字符的栏，其中填充的块（▓）代表使用情况：
 
 <Frame>
-  <img src="https://mintcdn.com/claude-code/nibzesLaJVh4ydOq/images/statusline-context-window-usage.png?fit=max&auto=format&n=nibzesLaJVh4ydOq&q=85&s=15b58ab3602f036939145dde3165c6f7" alt="一个状态行，显示模型名称和带有百分比的进度条" width="448" height="152" data-path="images/statusline-context-window-usage.png" />
+  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-context-window-usage.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=f3918a549912dc47e90f2b69e68bc847" alt="一个状态行，显示模型名称和带有百分比的进度条" width="1224" height="224" data-path="images/statusline-context-window-usage.png" />
 </Frame>
 
 <CodeGroup>
@@ -513,7 +513,7 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
 显示 git 分支，带有暂存和修改文件的颜色编码指示器。此脚本使用[ANSI 转义码](https://en.wikipedia.org/wiki/ANSI_escape_code#Colors)表示终端颜色：`\033[32m` 是绿色，`\033[33m` 是黄色，`\033[0m` 重置为默认值。
 
 <Frame>
-  <img src="https://mintcdn.com/claude-code/nibzesLaJVh4ydOq/images/statusline-git-context.png?fit=max&auto=format&n=nibzesLaJVh4ydOq&q=85&s=e656f34f90d1d9a1d0e220988914345f" alt="一个状态行，显示模型、目录、git 分支和暂存和修改文件的彩色指示器" width="742" height="178" data-path="images/statusline-git-context.png" />
+  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-git-context.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=f13c190724d9ec7188c17cd2f98b7bf4" alt="一个状态行，显示模型、目录、git 分支和暂存和修改文件的彩色指示器" width="1224" height="224" data-path="images/statusline-git-context.png" />
 </Frame>
 
 每个脚本检查当前目录是否是 git 存储库，计算暂存和修改文件，并显示颜色编码的指示器：
@@ -611,7 +611,7 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
 每个脚本将成本格式化为货币并将毫秒转换为分钟和秒：
 
 <Frame>
-  <img src="https://mintcdn.com/claude-code/nibzesLaJVh4ydOq/images/statusline-cost-tracking.png?fit=max&auto=format&n=nibzesLaJVh4ydOq&q=85&s=e3444a51fe6f3440c134bd5f1f08ad29" alt="一个状态行，显示模型名称、会话成本和持续时间" width="588" height="180" data-path="images/statusline-cost-tracking.png" />
+  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-cost-tracking.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=925f7024c3b38be0f0eca63564bfb52f" alt="一个状态行，显示模型名称、会话成本和持续时间" width="1224" height="224" data-path="images/statusline-cost-tracking.png" />
 </Frame>
 
 <CodeGroup>
@@ -672,7 +672,7 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
 你的脚本可以输出多行来创建更丰富的显示。
 
 <Frame>
-  <img src="https://mintcdn.com/claude-code/nibzesLaJVh4ydOq/images/statusline-multiline.png?fit=max&auto=format&n=nibzesLaJVh4ydOq&q=85&s=60f11387658acc9ff75158ae85f2ac87" alt="一个多行状态行，显示第一行上的模型名称、目录、git 分支，第二行上的上下文使用进度条、成本和持续时间" width="776" height="212" data-path="images/statusline-multiline.png" />
+  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-multiline.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=a9d0a2fe8e446d80b1abc46da3f93270" alt="一个多行状态行，显示第一行上的模型名称、目录、git 分支，第二行上的上下文使用进度条、成本和持续时间" width="1224" height="262" data-path="images/statusline-multiline.png" />
 </Frame>
 
 此示例结合了几种技术：基于阈值的颜色（70% 以下为绿色，70-89% 为黄色，90%+ 为红色）、进度条和 git 分支信息。每个 `print` 或 `echo` 语句创建单独的行：
@@ -781,7 +781,7 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
 此示例创建指向你的 GitHub 存储库的可点击链接。按住 Cmd（macOS）或 Ctrl（Windows/Linux）并单击以在浏览器中打开链接。
 
 <Frame>
-  <img src="https://mintcdn.com/claude-code/nibzesLaJVh4ydOq/images/statusline-links.png?fit=max&auto=format&n=nibzesLaJVh4ydOq&q=85&s=4bcc6e7deb7cf52f41ab85a219b52661" alt="一个状态行，显示指向 GitHub 存储库的可点击链接" width="726" height="198" data-path="images/statusline-links.png" />
+  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-links.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=4778a144a28cb498c99d5fa018bb374a" alt="一个状态行，显示指向 GitHub 存储库的可点击链接" width="1224" height="224" data-path="images/statusline-links.png" />
 </Frame>
 
 每个脚本获取 git 远程 URL，将 SSH 格式转换为 HTTPS，并将存储库名称包装在 OSC 8 转义码中。Bash 版本使用 `printf '%b'`，它比 `echo -e` 更可靠地跨不同 shell 解释反斜杠转义：

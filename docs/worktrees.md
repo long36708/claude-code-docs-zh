@@ -145,7 +145,7 @@ Claude Code 运行定期扫描，删除 Claude 为子代理和[后台会话](/do
 * worktree 属于您未后台的 `--worktree` 会话，无论其年龄如何。
 * 您自己使用 `git worktree add` 创建了 worktree，即使您随后在其中运行了 `--worktree <name>` 会话并后台了该会话。
 
-Claude Code 将标记写入它使用 git 创建的每个 worktree 的 git 元数据中，扫描会保留任何没有标记的 worktree，包括 [`WorktreeCreate` hook](#non-git-version-control) 创建的 worktree。在 v2.1.246 之前，扫描没有检查标记，当旧的后台会话记录指向它时可能会删除您自己创建的 worktree。
+Claude Code 将标记写入它使用 git 创建的每个 worktree 的 git 元数据中，扫描会保留任何没有标记的 worktree，包括 [`WorktreeCreate` hook](#non-git-version-control) 创建的 worktree。
 
 当代理运行时，Claude Code 在其 worktree 上持有 `git worktree lock`，以便并发清理无法删除它，当代理完成时释放锁。Claude Code 在为后台会话创建的 worktree 上持有相同的锁，同时会话运行，因此扫描会保留 worktree 并且 `git worktree remove` 拒绝删除它。
 

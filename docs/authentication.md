@@ -194,6 +194,26 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 * **云提供商会话，例如 Amazon Bedrock**：仅在 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，或由早期 Claude Console 登录保存的 API 密钥仍然存在于机器上时被阻止。删除它，会话就会启动。这些会话针对您的云提供商进行身份验证，其访问策略管理它们
 * **[Anthropic 配置文件或联合凭证](#anthropic-profiles-and-federation-credentials)**：不被阻止，除非 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，或由早期 Claude Console 登录保存的 API 密钥也存在于机器上。这些密钥不检查配置文件属于哪个组织
 
+<h3 id="restrict-which-api-providers-a-machine-may-use">
+  限制机器可能使用的 API 提供商
+</h3>
+
+[`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) 在 [托管设置](/docs/zh-CN/managed-settings) 中列出托管机器可能通过哪些服务访问 Claude，例如 Anthropic API、Amazon Bedrock 或 LLM 网关。它补充 `forceLoginMethod` 和 `forceLoginOrgUUID`，它们管理会话在与 Anthropic 通信时使用的账户。需要 Claude Code v2.1.285 或更高版本。
+
+```json managed-settings.json theme={null}
+{
+  "forceLoginMethod": "claudeai",
+  "forceLoginOrgUUID": ["xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"],
+  "allowedProviders": ["anthropic", "bedrock"]
+}
+```
+
+使用此文件，登录到您的 claude.ai 组织或为 Amazon Bedrock 配置的开发人员正常启动。为任何其他提供商设置的会话在启动时被拒绝，运行中切换到一个的会话在其下一个请求时被拒绝。[托管设置不允许此 API 提供商](/docs/zh-CN/errors#managed-settings-dont-allow-this-api-provider) 显示每条消息。
+
+* **允许 LLM 网关或代理**：列出 `"customEndpoint"` 并在同一源的托管 `env` 块中设置网关的 URL。[设置参考](/docs/zh-CN/settings-reference#allowedproviders) 列出每个值并说明哪些端点变量需要托管 `env` 引脚。
+* **在托管机器上部署**：将列表放在承载您的其余策略的托管源中。条目的 [范围说明](/docs/zh-CN/settings-reference#allowedproviders) 说明服务器托管列表如何与其结合。
+* **仅服务器托管设置**：您仅在 [服务器托管设置](/docs/zh-CN/server-managed-settings) 中设置的列表仅到达获取您的组织设置的会话，因此将其视为您无法通过设备管理到达的机器的便利，而不是强制执行。[平台可用性](/docs/zh-CN/server-managed-settings#platform-availability) 列出哪些会话获取它们。
+
 <h2 id="credential-management">
   凭证管理
 </h2>

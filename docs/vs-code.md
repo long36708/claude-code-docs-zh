@@ -58,7 +58,7 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 
     * **活动栏**：点击左侧边栏中的 Spark 图标以打开会话列表。点击任何会话以在您的[首选位置](#extension-settings)中打开它，或开始新的会话。此图标在活动栏中始终可见。
     * **命令面板**：`Cmd+Shift+P`（Mac）或 `Ctrl+Shift+P`（Windows/Linux），输入"Claude Code"，然后选择一个选项，如"在新选项卡中打开"
-    * **状态栏**：如果您已将 [`preferredLocation`](#extension-settings) 设置为 `sidebar`，或使用**Claude Code: Open in Side Bar** 打开了 Claude，请点击窗口右下角的 **✻ Claude Code**。即使没有打开文件，这也有效。
+    * **状态栏**：点击窗口右下角的 **✻ Claude Code**。即使没有打开文件，这也有效。
 
     您可以拖动 Claude 面板以在 VS Code 中的任何位置重新定位它。有关详细信息，请参阅[自定义您的工作流](#customize-your-workflow)。
   </Step>
@@ -362,7 +362,8 @@ VS Code 扩展包含一个图形界面，用于安装和管理 [plugins](/docs/z
 
 在 Plugins 选项卡中：
 
-* **已安装的插件**显示在顶部，带有切换开关以启用或禁用它们
+* **已安装的插件**显示在顶部，带有切换开关以启用或禁用它们。
+  * 如果您关闭项目的共享 `.claude/settings.json` 启用的插件，扩展会先询问：**为我禁用**仅为您关闭它，而**为所有人禁用**会更改共享文件。
 * **可用插件**来自您配置的市场，显示在下方
 * 搜索以按名称或描述过滤插件
 * 点击任何可用插件上的**安装**
@@ -372,6 +373,23 @@ VS Code 扩展包含一个图形界面，用于安装和管理 [plugins](/docs/z
 * **为您安装**：在您的所有项目中可用（用户范围）
 * **为此项目安装**：与项目协作者共享（项目范围）
 * **本地安装**：仅供您使用，仅在此存储库中（本地范围）
+
+安装完成后，表单会要求设置任何尚未设置的插件的 [configuration options](/docs/zh-CN/plugins/components#user-configuration)。要稍后查看或更改选项，请点击插件行上的齿轮图标。
+
+敏感文本字段被掩盖，您之前保存的密钥显示 **(unchanged)**。将字段留空以保持保存的值。
+
+保存更改后，打开的会话会重新加载其插件，对话框显示**重启 Claude 以应用插件更改**。
+
+<h3 id="uninstall-plugins">
+  卸载插件
+</h3>
+
+每个已安装的行都标明了它安装的 [scope](/docs/zh-CN/plugins/install#choose-an-install-scope)。要卸载该安装，请点击该行的垃圾桶图标。暗淡的垃圾桶图标标记您无法从此工作区卸载的行，例如您的组织管理的插件或为另一个项目安装的插件。
+
+扩展在两种情况下会先询问：
+
+* **项目的共享 `.claude/settings.json` 启用的插件**：选择**为我禁用**，这会为您的协作者保留插件安装，或**为所有人卸载**，这会使用 [`--keep-data`](/docs/zh-CN/plugins/cli-reference#what-an-uninstall-deletes-and-keeps) 删除项目的安装，因此插件的保存数据目录会保留。如果您已经为自己关闭了插件，垃圾桶图标会删除您自己的安装而不会提问。
+* **否则，最后一个具有保存数据的插件安装**：选择是否保留或删除数据；**保留**是默认选项
 
 <h3 id="share-a-plugin-install-link">
   分享插件安装链接
@@ -407,9 +425,11 @@ GitHub README、问题和某些其他 Markdown 主机会删除其方案不是 `h
 
 * 输入 GitHub 仓库、URL 或本地路径以添加新市场
 * 点击刷新图标以更新市场的插件列表
-* 点击垃圾桶图标以删除市场
+* 点击垃圾桶图标以删除市场。删除它会 [卸载您从中安装的每个插件](/docs/zh-CN/plugins/install#manage-marketplaces)，因此确认会首先列出这些插件
 
-您在对话框中所做的插件更改会立即应用到该 VS Code 窗口中打开的 Claude Code 会话。如果您打开对话框的会话无法重新加载其插件，对话框会提供重试或在该会话中重启 Claude 的选项。
+您在对话框中所做的插件更改会立即应用到该 VS Code 窗口中打开的 Claude Code 会话。
+
+如果您打开对话框的会话无法重新加载其插件，对话框会提供重试或在该会话中重启 Claude 的选项。
 
 <Note>
   VS Code 中的插件管理在底层使用相同的 CLI 命令。您在扩展中配置的插件和市场也可在 CLI 中使用，反之亦然。
@@ -790,7 +810,7 @@ summarize the changes I've made to the auth module
 4. **禁用冲突的扩展程序**：临时禁用其他 AI 扩展程序（Cline、Continue 等）
 5. **检查工作区信任**：该扩展程序在受限模式下不起作用
 
-或者，如果您已将 [`preferredLocation`](#extension-settings) 设置为 `sidebar`，或使用**Claude Code: Open in Side Bar** 打开了 Claude，请点击**状态栏**（右下角）中的"✻ Claude Code"。即使没有打开文件，这也能工作。您也可以使用**命令面板**（`Cmd+Shift+P` / `Ctrl+Shift+P`）并输入"Claude Code"。
+或者，点击窗口右下角**状态栏**中的 **✻ Claude Code**。即使没有打开文件，这也能工作。您也可以使用**命令面板**（`Cmd+Shift+P` / `Ctrl+Shift+P`）并输入"Claude Code"。
 
 <h3 id="cmd-esc-does-nothing-on-macos">
   Cmd+Esc 在 macOS 上无效

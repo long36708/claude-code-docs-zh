@@ -868,6 +868,13 @@ MCP 服务器从外部系统为 Claude 提供工具。在插件根目录的 `.mc
 
 服务器从捆绑清单中的 `name` 获取其名称。
 
+捆绑的自己的清单可以在 `user_config` 块中声明服务器需要的用户设置。具有必需设置但没有保存值的捆绑服务器不启动。`/plugin` **Errors** 标签显示 `Bundled MCP server "<name>" was not started: it needs configuration`。
+
+用户可以通过以下两种方式之一提供值：
+
+* **在 `/plugin` 中**：在 **Installed** 标签上选择插件并选择 **Configure**
+* **在安装时，从 shell**：将 [`--config <server>.<key>=<value>`](/docs/zh-CN/plugins/cli-reference#plugin-install) 传递给 `claude plugin install`。需要 Claude Code v2.1.285 或更高版本，仅适用于打包在插件内的捆绑。
+
 对于传输和身份验证，参见 [MCP](/docs/zh-CN/mcp#plugin-provided-mcp-servers)。
 
 <h3 id="lsp-servers">
@@ -1071,7 +1078,7 @@ monitor 的命令在其启动位置和可以引用的内容方面受到限制：
   配置对话框何时出现
 </h3>
 
-对话框仅在交互式 `/plugin` 界面中出现。当用户执行以下任何操作时，它为任何尚未设置的选项打开：
+对话框是交互式 `/plugin` 界面的一部分。当用户执行以下任何操作时，它为任何尚未设置的选项打开：
 
 * 在 `/plugin` 中安装插件
 * 在会话内运行 `/plugin install <plugin>@<marketplace>`
@@ -1079,7 +1086,11 @@ monitor 的命令在其启动位置和可以引用的内容方面受到限制：
 
 要在任何时间打开相同的对话框，用户运行 `/plugin configure <plugin>@<marketplace>`。
 
-`claude plugin install` shell 命令从不提示 `userConfig` 值。要从 shell 设置值，将每个值作为 `--config KEY=VALUE` 传递。当选项保持未设置时，命令打印一个 `userConfig options not yet set` 行，命名两种设置它们的方式。[`userConfig` 对话框从不出现](/docs/zh-CN/plugins/troubleshooting#the-userconfig-dialog-never-appears)引用该行。
+VS Code 扩展的[管理插件对话框](/docs/zh-CN/vs-code#install-plugins)在安装后作为表单请求未设置的选项，插件行上的齿轮图标再次打开包含每个选项的表单。
+
+`claude plugin install` shell 命令从不提示 `userConfig` 值。要从 shell 设置值，在安装时将每个值作为 `--config KEY=VALUE` 传递，或之后将 JSON 对象管道传输到 [`claude plugin configure --values-stdin`](/docs/zh-CN/plugins/cli-reference#plugin-configure)。
+
+当选项保持未设置时，`claude plugin install` 打印一个 `userConfig options not yet set` 行。有关该行的确切文本，请参阅[`userConfig` 对话框从不出现](/docs/zh-CN/plugins/troubleshooting#the-userconfig-dialog-never-appears)。
 
 对于选项字段、每个值存储的位置、组件如何引用保存的值以及哪些字段拒绝 `${user_config.*}`，请参阅[用户配置](/docs/zh-CN/plugins/manifest-reference#user-configuration)。
 

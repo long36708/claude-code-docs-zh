@@ -321,7 +321,7 @@ Claude Code 警告以下配置问题。每个条目说明 Claude Code 检查什�
 
 * **隐藏的空白**：当 MCP 配置值携带隐藏的前导或尾随空白时，Claude Code 发出警告，这通常来自粘贴带有尾随换行符的令牌。Claude Code 检查 `command`、`url`、每个 `args` 条目以及 `env` 和 `headers` 下的值和密钥名称。Claude Code 在 `claude mcp list` 输出和 `/mcp` 中显示警告，命名受影响的字段而不回显其值，例如 `Leading or trailing whitespace in: headers.Authorization`。Claude Code 不修剪空白并完全按照写入的方式使用值，因此编辑配置以删除它。
 * **在多个范围中具有相同名称**：如果您在多个 [范围](#mcp-installation-scopes) 中定义相同的服务器名称，具有不同的端点，Claude Code 在 `claude mcp list` 输出和 `/mcp` 中警告冲突。Claude Code 按端点存储 OAuth 登录，因此当您对在一个项目中加载的定义进行身份验证时，您仍然需要在另一个项目中单独登录，其中不同的定义加载。保留您想要的端点并使用 `claude mcp remove <name> --scope <scope>` 删除其他端点。在警告中，Claude Code 引用每个范围的端点，如您的配置中所写，带有 [`${VAR}` 引用](#environment-variable-expansion-in-mcp-json) 未展开，因此它永远不会显示已解析的值，例如 API 密钥。
-* **保留名称**：Claude Code 保留其内置服务器的名称，包括 `workspace`、`claude-in-chrome`、`computer-use`、`Claude Preview` 和 `Claude Browser`。如果您的配置定义具有保留名称的服务器，Claude Code 在加载时跳过它并显示警告，要求您重命名它。`claude mcp add` 拒绝保留名称并出现错误。`Claude Preview` 和 `Claude Browser` 都命名 [Claude Code 桌面应用的预览窗格](/docs/zh-CN/desktop#preview-your-app) 使用的内置服务器。在 v2.1.205 之前，`Claude Browser` 未被保留，因此用户配置的服务器可以在该名称下注册。
+* **保留名称**：Claude Code 保留其内置服务器的名称，包括 `workspace`、`claude-in-chrome`、`computer-use`、`Claude Preview` 和 `Claude Browser`。如果您的配置定义具有保留名称的服务器，Claude Code 在加载时跳过它并显示警告，要求您重命名它。`claude mcp add` 拒绝保留名称并出现错误。`Claude Preview` 和 `Claude Browser` 都命名 [Claude Code 桌面应用的预览窗格](/docs/zh-CN/desktop#preview-your-app) 使用的内置服务器。
 * **缺少环境变量**：如果服务器配置中的 [`${VAR}` 引用](#environment-variable-expansion-in-mcp-json) 命名未设置且没有 `:-default` 的变量，Claude Code 在 `claude mcp list` 输出和 `/mcp` 中警告，命名变量，并仍然使用 `${VAR}` 文本未展开加载服务器。设置变量或添加 `${VAR:-default}` 回退。在远程服务器的 `url` 和 `headers` 中，某些凭证变量 [读取为空](#credential-variables-that-read-as-empty) 而不是警告。
 
 <h4 id="tool-availability">
@@ -550,6 +550,8 @@ MCP 服务器也可以直接将消息推送到您的会话中，以便 Claude �
 * **多种传输类型**：支持 stdio、SSE、HTTP 和 WebSocket 传输，尽管传输支持可能因服务器而异
 
 插件服务器在 `/mcp` 中出现，指示器显示它们来自插件。
+
+对于插件的 stdio 服务器，`claude mcp get` 打印 `Command: stdio`、一个空的 `Args:` 行和每个环境变量作为 `NAME=[REDACTED]`。值被隐藏是因为它们可能携带凭证。
 
 **插件 MCP 工具名称**：
 

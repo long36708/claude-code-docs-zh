@@ -121,6 +121,15 @@ const options = {
 
 权限模式提供对 Claude 如何使用工具的全局控制。您可以在调用 `query()` 时设置权限模式，或在流式会话期间动态更改它。
 
+如果您没有设置权限模式，Claude Code 会根据[会话启动时的模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)中的规则选择起始权限模式：
+
+* 当适用时，来自会话的[设置文件](/docs/zh-CN/settings#where-settings-live)中的 `permissions.defaultMode`
+* 否则使用内置默认值，可以是[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)
+
+在自动模式下启动的会话会放弃广泛的允许规则，例如裸 `Bash` 条目，如[自动模式如何评估操作](/docs/zh-CN/permission-modes#how-auto-mode-evaluates-actions)所述。如果您的应用程序依赖于 `default` 模式或此类规则，请显式传递 `default`。
+
+在 TypeScript Agent SDK v0.3.286 之前，省略 `permissionMode` 与传递 `default` 相同。
+
 <h3 id="available-modes">
   可用模式
 </h3>

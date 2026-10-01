@@ -967,6 +967,14 @@ Desktop 可以通过企业部署工具分发：
 
 要将 CLI 会话移动到 Desktop，在终端中运行 `/desktop`。Claude 保存你的会话并在桌面应用中打开它，然后退出 CLI。此命令在 macOS 和 x64 Windows 上可用，当你使用 Claude 订阅登录时。它不适用于 API 密钥身份验证或 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry。
 
+从你的 shell，[`claude --desktop`](/docs/zh-CN/cli-reference#cli-flags) 直接打开 Desktop，无需启动终端会话。它需要 Claude Code v2.1.285 或更高版本，并具有与 `/desktop` 相同的平台和登录要求。没有其他参数时，它在当前目录中打开 Desktop。要在 Desktop 中打开现有的 CLI 会话，添加 `--continue` 以获取此目录中最近的对话，或使用 `--resume` 和 `/status` 显示的会话 ID：
+
+```bash theme={null}
+claude --desktop --resume <session-id>
+```
+
+Claude Code 打印 `Opening session <session-id> in Claude Desktop`，会话在应用中打开，命令退出。会话名称不能代替 ID。Claude Code 不会移动在另一个终端中打开或仍在后台运行的会话。如果未安装 Claude Desktop，命令会打印下载链接并退出。
+
 你也可以从 Desktop 内部使用 `/resume` 选择 CLI 会话。此命令在本地会话中可用，不在 SSH、WSL 或云会话中可用。
 
 要在 Desktop 中继续终端会话：

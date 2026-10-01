@@ -296,14 +296,14 @@ Claude Code 在启动时验证每个 `--mcp-config` 条目并跳过验证失败�
   自动批准工具
 </h3>
 
-使用 `--allowedTools` 让 Claude 使用某些工具而无需提示。此示例运行测试套件并修复失败，允许 Claude 执行 Bash 命令和读取/编辑文件而无需请求权限：
+使用 `--allowedTools` 让 Claude 使用某些工具而无需提示。列出 `Read` 和 `Edit` 让 Claude 读取和编辑文件而无需请求权限。列出 `Bash` 对 shell 命令执行相同操作，除了在 [auto 模式](/docs/zh-CN/permission-modes#how-auto-mode-evaluates-actions) 中启动的运行，其中 Claude Code 删除裸 `Bash` 条目作为广泛允许规则，auto 模式改为评估每个命令。此示例运行测试套件并修复失败，允许这三个工具：
 
 ```bash theme={null}
 claude -p "Run the test suite and fix any failures" \
   --allowedTools "Bash,Read,Edit"
 ```
 
-要为整个会话设置基线而不是列出单个工具，请传递 [权限模式](/docs/zh-CN/permission-modes)。对于 `-p`，[内置启动权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in) 在每个计划上都是 Manual，因此传递您想要的权限模式：
+要为整个会话设置基线而不是列出单个工具，请传递 [权限模式](/docs/zh-CN/permission-modes)。对于不设置权限模式的运行，采用 [内置启动权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)，可能是 `auto`，因此传递您想要的权限模式：
 
 * **`auto`**：传递 `--permission-mode auto` 以让分类器审查大多数操作而不是您
 * **`dontAsk`**：Claude Code 拒绝每个原本会提示的调用，这对于锁定的 CI 运行很有用。在 Manual 模式下无需批准的操作仍会运行，例如工作目录中的文件读取和 [只读命令集](/docs/zh-CN/permissions#read-only-commands)，您的 `--allowedTools` 条目或 `permissions.allow` 规则涵盖的操作也是如此。`AskUserQuestion`、连接器工具 [您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 和标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使当允许规则匹配时也被拒绝

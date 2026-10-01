@@ -45,6 +45,8 @@
 
 [为您的组织部署 LLM 网关](/docs/zh-CN/llm-gateway-rollout)逐步讲解每个步骤，并显示在每个步骤中分发的配置文件。网关是组织设置的一部分；对于策略强制执行、使用情况可见性和数据处理决策，请参阅[为您的组织设置 Claude Code](/docs/zh-CN/admin-setup)。
 
+要使通过 `ANTHROPIC_BASE_URL` 访问的网关成为托管机器唯一可以使用的目标，请在同一托管设置文件中将 [`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) 设置为 `["customEndpoint"]`，并将网关的 `ANTHROPIC_BASE_URL` 放在该文件的 `env` 块中。Claude Code 随后会拒绝指向其他任何地方的会话，包括直接指向 Anthropic 或开发人员自己的代理，并仅接受您在那里设置的值的 `ANTHROPIC_BASE_URL`。对于通过提供商特定端点变量（如 `ANTHROPIC_BEDROCK_BASE_URL`）访问的网关，`allowedProviders` 条目指定要固定的变量。需要 Claude Code v2.1.285 或更高版本。
+
 <h2 id="subscriptions-and-gateways">
   订阅和网关
 </h2>

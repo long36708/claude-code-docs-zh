@@ -764,9 +764,9 @@ Claude Code 运行 git 来区分两者，并且仅在您信任该文件夹后才
 | 设置文件中的 [Hooks](/docs/zh-CN/hooks)、[`env`](/docs/zh-CN/settings-reference#env) 块和辅助命令（如 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper)），以及项目技能的 [hooks](/docs/zh-CN/hooks#hooks-in-skills-and-agents) 和 [`allowed-tools`](/docs/zh-CN/skills#pre-approve-tools-for-a-skill) | 已使用 | 已使用。工作区信任在任何会话中都不会限制技能的 `allowed-tools` |
 | `.claude/settings.json` 中的 `permissions.allow` 规则和 `additionalDirectories` | 在您接受信任对话框之前不使用，对话框再次出现列出它们 | 不使用。Claude Code 向 stderr 打印 [`this workspace has not been trusted`](/docs/zh-CN/errors#workspace-has-not-been-trusted) 警告 |
 | 项目[子代理](/docs/zh-CN/sub-agents#hooks-in-subagent-frontmatter)中的 Frontmatter hooks、项目 [`@skills-dir` 插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository) 和来自存储库或 `--add-dir` 目录的 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 条目 | 不使用，不提供对话框 | 不使用 |
-| 来自存储库或 `--add-dir` 目录的子代理 frontmatter 中的内联 [`mcpServers`](/docs/zh-CN/sub-agents#scope-mcp-servers-to-a-subagent)。在 v2.1.238 之前，Claude Code 在两种情况下都加载这些服务器 | 不使用，不提供对话框 | 不使用 |
+| 来自存储库或 `--add-dir` 目录的子代理 frontmatter 中的内联 [`mcpServers`](/docs/zh-CN/sub-agents#scope-mcp-servers-to-a-subagent) | 不使用，不提供对话框 | 不使用 |
 | `.mcp.json` 中的服务器，包括存储库[在其自己的设置中批准的](/docs/zh-CN/mcp#project-server-approvals-and-workspace-trust)服务器 | Claude Code 在连接它们之前询问您。存储库自己的批准不计数 | 连接而不询问，无论是否批准。SDK 仅在 `settingSources` 包括项目设置时加载它们。同一文件夹中的 `claude mcp list` 仍然将此类服务器报告为待处理 |
-| `.mcp.json` 中服务器上的 [`headersHelper`](/docs/zh-CN/mcp#trust-a-folder-before-its-headershelper-runs)。在 v2.1.238 之前，Claude Code 在两种情况下都运行辅助程序 | 在您接受信任对话框之前不运行，对话框再次出现命名声明辅助程序的位置。Claude Code 仅使用其静态 `headers` 连接服务器直到那时 | 不运行。Claude Code 仅使用其静态 `headers` 连接服务器，并为每个服务器向 stderr 打印 [`headersHelper not run`](/docs/zh-CN/errors#headershelper-not-run) 行 |
+| `.mcp.json` 中服务器上的 [`headersHelper`](/docs/zh-CN/mcp#trust-a-folder-before-its-headershelper-runs) | 在您接受信任对话框之前不运行，对话框再次出现命名声明辅助程序的位置。Claude Code 仅使用其静态 `headers` 连接服务器直到那时 | 不运行。Claude Code 仅使用其静态 `headers` 连接服务器，并为每个服务器向 stderr 打印 [`headersHelper not run`](/docs/zh-CN/errors#headershelper-not-run) 行 |
 
 对于需要此确切文件夹被信任的行，手动信任它：在 `~/.claude.json` 中设置 `projects["<path>"].hasTrustDialogAccepted` 为 `true`，其中 `<path>` 是存储库根目录，或存储库外的文件夹本身。Claude Code 在跳过的子代理 hook 或内联 MCP 服务器的调试日志行中打印确切的键，在跳过的允许规则的 stderr 警告中，以及在跳过的辅助程序的 `headersHelper not run` 行中。
 

@@ -384,6 +384,18 @@ export ANTHROPIC_MODEL='arn:aws:bedrock:us-east-2:your-account-id:application-in
 
 模型别名（如 `opus`）不充当固定版本，Claude Code 无法识别的模型 ID（如应用推理配置文件 ARN）也不充当固定版本。
 
+当这些检查发现您的账户无法调用的模型时，Claude Code 会在这台机器上记住该拒绝长达一天，在此期间启动时会跳过记住的模型，而不再询问 Amazon Bedrock。Claude Code 会在距离上次检查已过十分钟后再次检查当前默认模型的记住拒绝，因此您的管理员重新启用的默认模型会恢复。要关闭此内存功能，请设置 [`CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY=1`](/docs/zh-CN/env-vars)。
+
+<h3 id="when-a-model-is-disabled-mid-session">
+  当模型在会话中被禁用时
+</h3>
+
+如果您的账户失去对会话正在运行的模型的访问权限，例如因为管理员在您的 Amazon Bedrock 账户中禁用了它，Claude Code 会将会话切换到另一个模型，而不是使每个请求都失败，并显示 `Switched to <fallback> because <model> is not available`。它尝试与启动回退相同的模型：首先尝试同一层级的早期版本，对于没有可用 Opus 版本的 Opus 会话，则使用默认 Sonnet 模型。
+
+切换仅适用于您未固定的层级，这与启动回退的条件相同。在您选择的特定版本上的会话，或在[应用推理配置文件 ARN](#map-each-model-version-to-an-inference-profile) 上的会话，会保持其模型，没有回退模型链，请求会失败。在[自动模式](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry)中，Claude Code 仅切换到自动模式在 Amazon Bedrock 上支持的模型。如果这些模型中也没有可用的，请求会失败并显示 [AWS 身份验证失败](/docs/zh-CN/errors#aws-authentication-failed)，并提示启用该模型。
+
+您配置的[回退模型链](/docs/zh-CN/model-config#fallback-model-chains)会替换层级切换：在这些拒绝上，Claude Code 会切换到您配置的回退模型。要使被拒绝的请求失败而不是切换，请设置 [`CLAUDE_CODE_DISABLE_MODEL_ACCESS_FALLBACK=1`](/docs/zh-CN/env-vars)。您配置的回退链仍会在这些拒绝上切换；如果您希望每个被拒绝的请求都失败，也请移除该链。
+
 <h2 id="cross-region-inference-profile-prefixes">
   跨区域推理配置文件前缀
 </h2>

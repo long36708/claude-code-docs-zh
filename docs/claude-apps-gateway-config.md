@@ -1387,6 +1387,8 @@ telemetry:
 
 `parentSettingsBehavior: "merge"` 保持 Claude Desktop 向其嵌入式 Claude Code 会话传递出站允许列表的功能；[向 Claude Desktop 会话传递策略](/docs/zh-CN/claude-apps-gateway#deliver-policy-to-claude-desktop-sessions)解释了该机制以及选择加入必须位于的位置。
 
+为了防止开发者通过云提供商变量或他们自己的 `ANTHROPIC_BASE_URL` 绕过网关，请在同一文件中添加 `"allowedProviders": ["gateway"]`。Claude Code 随后会拒绝机器上未设置为云网关的每个会话，并仅允许网关在它是 `forceLoginGatewayUrl` 命名的网关或文件的 `env` 块将其 URL 设置为 `ANTHROPIC_BASE_URL` 的网关时。`claude gateway` 拒绝在设置该列表的机器上运行，因此请在网关主机上保持该密钥关闭。请参阅设置参考中的 [`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) 条目。需要 Claude Code v2.1.285 或更高版本。
+
 将 `managed-settings.json` 文件部署到每个设备，通常通过你的 MDM 平台。文件路径因平台而异。请参阅[每个机制存储策略的位置](/docs/zh-CN/managed-settings#where-each-mechanism-stores-the-policy)。
 
 默认情况下，Windows 上的注册表策略或 macOS 上的托管首选项 plist 会替换 `managed-settings.json` 文件而不是与其合并，除了[上面的例外密钥和跨源检查](#precedence-with-other-managed-sources)。此代码片段中的所有三个密钥都遵循最高优先级源规则，因此通过组策略或配置文件传递策略的团队必须改为将所有三个密钥放在该机制中。

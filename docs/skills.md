@@ -740,7 +740,7 @@ Claude Code 从技能的 frontmatter 中的 `shell` 键和你的环境中选择�
 
 * **工作目录**：Claude Code 在会话 shell 的当前工作目录中运行每个命令。当 Claude 运行 `cd` 时，该目录会移动。在必须每次都以相同方式解析的路径中使用 [`${CLAUDE_SKILL_DIR}` 或 `${CLAUDE_PROJECT_DIR}`](#available-string-substitutions)。
 * **stderr**：使用默认的 `bash` shell，Claude Code 将 stderr 合并到 stdout。命令写入 stderr 的任何内容都会出现在注入的文本中。
-* **超时**：每个命令在 Bash 工具的默认 2 分钟[超时](/docs/zh-CN/tools-reference#timeout-and-output-limits)下运行。当 Bash 工具[将超时的命令移到后台](/docs/zh-CN/tools-reference#background-commands)时，技能仍然呈现。注入的文本报告移动并命名后台任务和收集命令输出的文件。当命令是 Bash 工具从不自动后台化的命令之一时，Claude Code 在超时时杀死它。该失败[中止调用](#when-an-injected-command-fails)。
+* **超时**：每个命令在 Bash 工具的默认 2 分钟[超时](/docs/zh-CN/tools-reference#timeout-and-output-limits)下运行。当 Bash 工具[将超时的命令移到后台](/docs/zh-CN/tools-reference#foreground-commands-that-move-to-the-background)时，技能仍然呈现。注入的文本报告移动并命名后台任务和收集命令输出的文件。当命令是 Bash 工具从不自动后台化的命令之一时，Claude Code 在超时时杀死它。该失败[中止调用](#when-an-injected-command-fails)。
 * **输出大小**：超过 Bash 工具内联上限的输出作为文件路径加短预览到达，而不是截断的文本。[输出限制](/docs/zh-CN/tools-reference#output-limits)涵盖上限以及如何调整每个边界。
 
 PowerShell 工具对它运行的命令应用相同的超时、后台化和输出上限行为。有关其具体信息，请参阅 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)部分。

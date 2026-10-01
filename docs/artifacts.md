@@ -398,7 +398,7 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
 | [环境变量](/docs/zh-CN/env-vars) | 设置 `CLAUDE_CODE_DISABLE_ARTIFACT=1` |
 | [权限规则](/docs/zh-CN/permissions) | 将 `Artifact` 添加到 `permissions.deny` |
 
-一旦您在 [`--settings`](/docs/zh-CN/cli-reference#cli-flags) 文件中或使用 `CLAUDE_CODE_DISABLE_ARTIFACT` 关闭 artifacts，或您的管理员在[托管设置](/docs/zh-CN/server-managed-settings)中关闭它们，任何设置文件都无法将其重新打开。在 v2.1.242 之前，[优先级堆栈](/docs/zh-CN/settings#settings-precedence)中较高位置的文件可能会重新打开 artifacts，即使较低优先级的文件设置了 `"enableArtifact": false`。
+一旦您在 [`--settings`](/docs/zh-CN/cli-reference#cli-flags) 文件中或使用 `CLAUDE_CODE_DISABLE_ARTIFACT` 关闭 artifacts，或您的管理员在[托管设置](/docs/zh-CN/server-managed-settings)中关闭它们，任何设置文件都无法将其重新打开。
 
 您也可以在项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置 `"enableArtifact": false` 来为该项目中的会话关闭 artifacts。任何文件中的 `"enableArtifact": true` 都不会将其重新打开。在项目和本地设置中支持此键需要 Claude Code v2.1.242 或更高版本。
 

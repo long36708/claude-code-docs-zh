@@ -199,6 +199,8 @@ Claude Code 永远不会在存在的管理员源下应用用户可写的 HKCU �
 
 [网关登录键](#choose-a-delivery-mechanism) 遵循单独的规则。Claude Code 从不从服务器管理的设置读取它们，因此当服务器管理的设置是选定的源时，机器上排名最高的具有策略键的管理员源仍然提供它们。排名低于该源的管理员源中的值，或 HKCU 注册表中的值，被忽略。
 
+[`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) 有自己的规则：其条目的 Scope 注释说明机器上设置的列表如何与服务器管理的列表组合。需要 Claude Code v2.1.285 或更高版本。
+
 当管理员源设置 `allowManagedMcpServersOnly` 或 `allowedMcpServers` 列表且该值不是生效的值时，`/status` 和 `claude doctor` 命名该源和键。
 
 <h3 id="compose-every-managed-source">
@@ -353,7 +355,10 @@ Claude Code 对 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) �
 * 空的托管设置文件计为 `{}`。
 * 用户可写的 HKCU 注册表密钥中的格式错误的值永远不会阻止启动。Claude Code 在 `/status` 和 `claude doctor` 中将其报告为通知。
 
-如果无法读取托管设置文件、drop-in 文件或 `managed-settings.d/` 目录，且没有管理员源提供策略，使用 claude.ai 或 Claude Console 凭据登录的会话将在启动时退出，并显示联系管理员的消息。
+当托管设置文件、drop-in 文件、`managed-settings.d/` 目录、MDM 配置文件或 HKLM 注册表值存在但无法读取，且没有管理员源提供策略时，发生的情况取决于读取失败的原因：
+
+* 如果操作系统拒绝了读取，例如在仅限 root 的文件上，每个会话都会在没有该源的策略的情况下启动。`/status` 和 `claude doctor` 记录失败，使用 `-p` 运行也会将其打印到 stderr。
+* 对于任何其他读取失败，例如 I/O 错误，每个会话在启动时以[联系管理员的消息](/docs/zh-CN/errors#unable-to-read-managed-policy-settings)退出。
 
 要查找丢弃的条目，请查看以下三个位置之一：
 
@@ -387,6 +392,7 @@ Claude Code 按字段而不是整体修复 `permissions`、`autoMode`、`worktre
 | 字段 | 存在但无效时的行为 |
 | :- | :- |
 | `allowedMcpServers` | 强制执行为空的允许列表，直到修复该值，因此用户添加的 MCP 服务器都不被允许。您的组织通过 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 传递的服务器仍然加载，`managed-mcp.json` 服务器根据[如何评估服务器](/docs/zh-CN/managed-mcp#how-a-server-is-evaluated)加载。单个无效条目被剥离，有效子集被强制执行。 |
+| [`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) | 强制执行为空的允许列表，直到修复该值，因此每个 API 提供商都被拒绝，Claude Code 在机器上不启动。如果只有单个条目不是已知的提供商名称，Claude Code 会丢弃并报告该条目并强制执行其余的。 |
 | `allowedHttpHookUrls` | Claude Code 强制执行空的托管[允许列表](/docs/zh-CN/settings-reference#allowedhttphookurls)，直到您修复该值，因此 HTTP hook 仅在另一个设置文件列出其 URL 时运行。如果只有单个条目无效，Claude Code 会剥离该条目并强制执行其余的。 |
 | `httpHookAllowedEnvVars` | Claude Code 强制执行空的托管[允许列表](/docs/zh-CN/settings-reference#httphookallowedenvvars)，直到您修复该值，因此仅当另一个设置文件命名标头变量时才会插值。如果只有单个条目无效，Claude Code 会剥离该条目并强制执行其余的。 |
 | `allowedChannelPlugins` | Claude Code 强制执行空的允许列表，直到您修复该值，因此传递给 `--channels` 的任何通道插件都不被允许。如果只有单个条目无效，它会剥离该条目并强制执行其余的。 |
@@ -437,7 +443,7 @@ Claude Code 仅从托管源读取以下密钥；将它们放在用户或项目�
 
 大多数是锁：锁管理的值，例如权限规则或 `sandbox.network.allowedDomains`，是任何级别都可以设置的普通密钥，锁告诉 Claude Code 仅尊重托管值。
 
-表涵盖权限、插件和交付控制。对于此处未列出的任何密钥，[设置参考](/docs/zh-CN/settings-reference#all-settings)索引的 Scope 列说明它是否仅托管；那里的剩余仅托管密钥包括网关登录 URL、版本、浏览器、移动模拟器、SSH 主机、Desktop 本地会话、沙箱二进制路径、模型定价、模型限制和 CLAUDE.md 控制。
+表涵盖权限、插件和交付控制。对于此处未列出的任何密钥，[设置参考](/docs/zh-CN/settings-reference#all-settings)索引的 Scope 列说明它是否仅托管。
 
 | 设置 | 描述 |
 | :- | :- |

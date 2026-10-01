@@ -293,6 +293,18 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 
 模型别名（如 `opus`）不充当固定值，Claude Code 不识别的模型 ID 也不充当固定值。
 
+当这些检查发现您的项目无法调用的模型时，Claude Code 会在这台机器上记住该拒绝长达一天，并在此期间启动时跳过记住的模型，而不再询问 Agent Platform。Claude Code 会在距离上次检查已过十分钟后，再次检查当前默认模型的记住拒绝，因此管理员重新启用的默认值会恢复。要关闭此内存，请设置 [`CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY=1`](/docs/zh-CN/env-vars)。
+
+<h3 id="when-a-model-is-disabled-mid-session">
+  当模型在会话中途被禁用时
+</h3>
+
+如果您的项目失去对会话正在运行的模型的访问权限，例如因为管理员在 [Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 中禁用了它，Claude Code 会将会话切换到另一个模型，而不是让每个请求都失败，并显示 `Switched to <fallback> because <model> is not available`。它尝试与启动回退相同的模型：首先尝试同一层级的早期版本，对于没有可用 Opus 版本的 Opus 会话，则使用默认 Sonnet 模型。
+
+切换仅适用于您未固定的层级，这与启动回退的条件相同。在您选择的特定版本上的会话保持其模型，没有回退模型链，请求会失败。在 [auto mode](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry) 中，Claude Code 仅切换到 auto mode 在 Agent Platform 上支持的模型。如果这些模型都不可用，请求会失败。
+
+您配置的[回退模型链](/docs/zh-CN/model-config#fallback-model-chains)会替换层级切换：在这些拒绝上，Claude Code 会切换到您配置的回退。要使被拒绝的请求失败而不是切换，请设置 [`CLAUDE_CODE_DISABLE_MODEL_ACCESS_FALLBACK=1`](/docs/zh-CN/env-vars)。您配置的回退链仍会在这些拒绝上切换；如果您希望每个被拒绝的请求都失败，也要移除该链。
+
 <h2 id="iam-configuration">
   IAM 配置
 </h2>

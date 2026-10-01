@@ -1430,6 +1430,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `error.type`：Claude Code 停止会话的原因。仅在 `refused` 事件上存在：
   * `"helper_failed"`：[策略助手运行失败](/docs/zh-CN/settings-reference#helper-failures)
   * `"policy_invalid"`：管理设置包含停止 Claude Code 启动的错误，或管理源无法加载，因此 Claude Code 无法检查组织登录强制
+  * `"provider_not_allowed"`：会话将使用 API 提供商，或将提供商的流量发送到管理的 [`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) 列表不允许的主机。需要 Claude Code v2.1.285 或更高版本
   * `"consent_rejected"`：用户拒绝了服务器管理设置的[安全批准对话](/docs/zh-CN/server-managed-settings#security-approval-dialogs)
   * `"force_refresh_failed"`：[`forceRemoteSettingsRefresh`](/docs/zh-CN/settings-reference#forceremotesettingsrefresh) 需要的设置获取失败
   * `"gateway_rejected"`：[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)用 HTTP 403 回答了管理设置加载

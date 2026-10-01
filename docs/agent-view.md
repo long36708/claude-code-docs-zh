@@ -8,9 +8,9 @@
 
 Agent view 通过 `claude agents` 打开，是所有后台会话的一个屏幕：什么正在运行、什么需要你的输入、什么已完成。调度新会话，一目了然地查看它们的状态而不是滚动浏览记录，只在需要时才介入。每个后台会话都是一个完整的 Claude Code 对话，在没有终端连接的情况下继续运行，所以你可以随时打开它、回复并离开。
 
-<img src="https://mintcdn.com/claude-code/1B48Qz2Z9hac4SLG/images/agent-view-light.png?fit=max&auto=format&n=1B48Qz2Z9hac4SLG&q=85&s=7a186c96ed47d6700d084d77e786be65" className="dark:hidden" alt="终端中的 Agent view：标题显示 Claude Code v2.1.140、模型、工作目录和摘要计数。会话分组在'需要输入'、'正在工作'和'已完成'下，底部有调度输入和键盘提示页脚。" width="1772" height="780" data-path="images/agent-view-light.png" />
+<img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/agent-view-light.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=d6905012bee31f3e6b3920b09c05dd02" className="dark:hidden" alt="终端中的 Agent view。顶部的一行计算等待输入、正在工作和已完成的会话。四个会话分组在'需要输入'、'正在工作'和'已完成'下。每行显示会话的名称、其最新状态或问题以及时间。底部是用于描述新任务的输入和一行键盘提示。" width="1872" height="680" data-path="images/agent-view-light.png" />
 
-<img src="https://mintcdn.com/claude-code/1B48Qz2Z9hac4SLG/images/agent-view-dark.png?fit=max&auto=format&n=1B48Qz2Z9hac4SLG&q=85&s=a5bed7434bae368faea3a8f023b52aa2" className="hidden dark:block" alt="终端中的 Agent view：标题显示 Claude Code v2.1.140、模型、工作目录和摘要计数。会话分组在'需要输入'、'正在工作'和'已完成'下，底部有调度输入和键盘提示页脚。" width="1772" height="780" data-path="images/agent-view-dark.png" />
+<img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/agent-view-dark.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=fc3c195bfc57e313ced1f1beb36cee93" className="hidden dark:block" alt="终端中的 Agent view。顶部的一行计算等待输入、正在工作和已完成的会话。四个会话分组在'需要输入'、'正在工作'和'已完成'下。每行显示会话的名称、其最新状态或问题以及时间。底部是用于描述新任务的输入和一行键盘提示。" width="1872" height="680" data-path="images/agent-view-dark.png" />
 
 当你有多个独立任务 Claude 可以在不需要你观看每一步的情况下处理时，使用 agent view。调度一个 bug 修复、一个拉取请求审查和一个不稳定测试调查作为三行，在另一个窗口中继续工作，当一行显示它需要你或有结果时检查回来。
 
@@ -965,24 +965,6 @@ Claude Code 保存您在拒绝的尝试中输入的回复，并在会话下次�
 [主管](#the-supervisor-process)在其自己的主机进程中运行每个后台会话的终端。当该进程死亡或停止响应时，Claude Code 显示原因并提供重新启动；在两种情况下，对话都被保存，重新启动会恢复它。[错误参考](/docs/zh-CN/errors#terminal-host-process-died)引用完整消息。
 
 Claude Code 永远不会重新启动运行[shell 命令](#run-a-shell-command)的行，无论是从 `Enter` 还是从 `claude attach`，因为那样会再次运行该命令；该行的消息和 `claude attach` 都说该命令不会再次运行。
-
-<h4 id="terminal-host-died">
-  终端主机已死亡
-</h4>
-
-在 Linux 和 WSL 上，主管每隔几秒检查一次每个主机进程，无论您是否打开会话，当进程已退出但其与主管的连接从未关闭时，将会话标记为失败。
-
-* 在代理视图中，该行显示 `terminal host process died — press Enter to restart`。在它上面按 `Enter`，Claude Code 在新的主机进程上重新启动会话。
-* 从 shell，`claude attach <id>` 重新启动已标记为失败的会话。否则它报告原因并退出，告诉您运行 `claude attach <id>`。
-
-<h4 id="session-isn’t-responding">
-  会话没有响应
-</h4>
-
-当主管接受打开但约十秒内没有输出到达时，Claude Code 结束尝试并提供重新启动。仅仅停滞的会话，例如跨机器睡眠，不会达到此提议：主管[在打开时自己重新启动它](#read-session-state)。
-
-* 在代理视图中，页脚显示 `Press enter again to restart this session — it isn't responding (its conversation is saved and resumes).` 在同一行上再次按 `Enter`，Claude Code 停止无响应的进程并重新启动会话；没有第二次按下，它不会停止任何内容。
-* 从 shell，`claude attach <id>` 报告原因并退出，告诉您运行 `claude stop <id>`，然后 `claude attach <id>`。
 
 <h3 id="a-session-fails-before-starting-with-a-possibly-low-memory-note">
   会话在启动前失败，并显示 `possibly low memory` 注释

@@ -29,7 +29,7 @@
 每个子命令共享这些退出代码、插件参数和作用域值：
 
 * **退出代码**：成功时为 `0`，失败时为 `1`。`validate` 为意外错误添加退出 `2`，`eval` 添加 [其部分](#plugin-eval) 中列出的代码。
-* **插件参数**：`<plugin>` 参数是插件 `name` 或 `name@marketplace`。当两个市场提供相同的名称时，使用限定形式。
+* **插件参数**：`<plugin>` 参数是插件 `name` 或 `name@marketplace`。当两个市场提供相同的名称时，使用限定形式。`configure` 仅接受限定形式。
 * **作用域**：`--scope` 接受 `user`、`project` 或 `local`，并命名命令写入的设置文件。`update` 也接受 `managed`。
 
 <h3 id="plugin-init">
@@ -87,7 +87,7 @@ claude plugin install <plugin> [options]
 | 标志 | 描述 |
 | :- | :- |
 | `-s, --scope <scope>` | 安装作用域：`user`、`project` 或 `local`。默认为 `user` |
-| `--config <key=value>` | 设置插件清单声明的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference) 选项。为每个选项重复该标志。需要 Claude Code v2.1.147 或更高版本 |
+| `--config <key=value>` | 设置插件清单声明的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference) 选项。为每个选项重复该标志。需要 Claude Code v2.1.147 或更高版本。写作 `<server>.<key>` 的键设置 [捆绑 MCP 服务器](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server) 在其自己的 `user_config` 中声明的设置，用于在插件内部发送的捆绑文件。`<server>.<key>` 形式需要 Claude Code v2.1.285 或更高版本 |
 | `-y, --yes` | 接受显示的安装命令，无需 `Run this command now?` 提示。在 Claude Code 会话内运行命令时被忽略，例如从 Bash 工具或 hook。需要 Claude Code v2.1.229 或更高版本 |
 | `--accept-command <sha256>` | 接受显示的安装命令，其 `sha256` 之前的 [`--json` 运行](#plugin-json-result) 在 `shownCommand` 中报告，代替 `-y`。不能与 `-y` 组合。请参阅 [接受显示的安装命令](#accept-a-displayed-install-command)。需要 Claude Code v2.1.271 或更高版本 |
 | `--json` | 将结果打印为 stdout 最后一行的一个 JSON 对象，而不是人类可读的消息，供脚本使用。请参阅 [JSON 结果格式](#plugin-json-result)。需要 Claude Code v2.1.268 或更高版本 |
@@ -297,6 +297,7 @@ claude plugin list [options]
 | :- | :- |
 | `--json` | 将列表打印为 JSON |
 | `--available` | 也列出你的市场提供但你未安装的插件。没有 `--json` 时无效 |
+| `--data-size [plugin]` | 测量每个已安装插件的 [保存数据目录](#what-an-uninstall-deletes-and-keeps)，或仅命名插件的，给定为 `name@marketplace`。没有 `--json` 时无效。如果名称没有安装记录，命令打印 `--data-size names a plugin that is not installed` 并退出 `1`，而不是打印列表。需要 Claude Code v2.1.285 或更高版本 |
 
 Claude Code 按每个插件的加载方式对人类可读的输出进行分组：
 
@@ -328,6 +329,10 @@ Claude Code 按每个插件的加载方式对人类可读的输出进行分组�
 | `notes` | array of strings | 插件加载并工作的创作警告 |
 | `errorDetails` | array of objects | 每个 `errors` 条目一个对象，给出其诊断 `type` 和它引用的名称，例如插件、市场、服务器或文件。需要 Claude Code v2.1.268 或更高版本 |
 | `noteDetails` | array of objects | 每个 `notes` 条目的相同详细对象。需要 Claude Code v2.1.268 或更高版本 |
+| `hasUserConfig` | boolean | 当插件加载且其清单声明 [`userConfig` 选项](/docs/zh-CN/plugins/manifest-reference#user-configuration) 时存在且为 `true`。对于加载失败的插件不存在，无论其清单声明什么。保存的值永远不包括。需要 Claude Code v2.1.285 或更高版本 |
+| `projectEnabled` | boolean | 项目的共享 `.claude/settings.json` 是否打开插件。仅市场安装。需要 Claude Code v2.1.285 或更高版本 |
+| `dataDirSize` | object | 使用 `--data-size` 时，插件的 [保存数据目录](#what-an-uninstall-deletes-and-keeps) 的大小为 `bytes` 和 `human`；当目录缺失或为空时不存在。仅市场安装。需要 Claude Code v2.1.285 或更高版本 |
+| `dataDirUnreadable` | boolean | 使用 `--data-size` 时，当保存的数据目录存在但无法测量时为 `true`。仅市场安装。需要 Claude Code v2.1.285 或更高版本 |
 
 使用 `--json --available` 时，Claude Code 打印一个对象而不是数组。其 `installed` 字段保存已安装插件对象的数组，其 `available` 字段保存每个未安装的市场插件的一个对象，带有下面的字段。
 
@@ -370,6 +375,35 @@ Claude Code 打印插件的名称、版本、描述和源，然后是这些部�
 对于两个成本数字的含义，请参阅 [测量插件成本和使用](/docs/zh-CN/plugins/measure)。
 
 对于未加载的插件，Claude Code 打印 ``Plugin "formatter" not found. Run `claude plugin list` to see installed plugins, or pass --plugin-dir <path> to load one from disk.`` 并退出 `1`。
+
+<h3 id="plugin-configure">
+  plugin configure
+</h3>
+
+显示已安装插件的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 选项及其设置的选项，或保存在 stdin 上管道传入的值。需要 Claude Code v2.1.285 或更高版本。
+
+```bash theme={null}
+claude plugin configure <plugin>
+```
+
+| 标志 | 描述 |
+| :- | :- |
+| `--values-stdin` | 从 stdin 读取选项值作为单行字符串的 JSON 对象并保存它们。你留出的选项保留其保存的值 |
+| `--json` | 将结果打印为 stdout 上的一个 JSON 对象。不使用 `--values-stdin` 时，对象携带选项的 `schema` 和 `choices`、它们的起始 `inputs` 和 `configured` 和 `unconfigured` 选项名称。使用 `--values-stdin` 时，它携带 `saved` 选项名称和，当它们可以被读回时，`unconfigured` 的名称 |
+
+不使用标志时，命令列出每个选项，最多三个标签：`required` 或 `optional`，然后 `sensitive` 用于清单声明敏感的选项，然后 `set` 或 `not set`。它不打印保存的值。使用 `--json` 时，输出包括不敏感的选项的保存值，永远不包括敏感的文本。
+
+要保存值，将它们写入文件作为将选项键映射到字符串值的 JSON 对象，然后在 stdin 上传递文件。将 `formatter@my-marketplace` 替换为你自己的插件的 id，如 `claude plugin list` 所示。此示例从包含 `{"api_url": "https://example.com"}` 的文件 `values.json` 设置一个名为 `api_url` 的选项：
+
+```bash theme={null}
+claude plugin configure formatter@my-marketplace --values-stdin < values.json
+```
+
+Claude Code 根据选项的声明类型验证每个值并打印 `Configuration saved. Restart Claude Code to apply it.` 如果你传递清单不声明的键，或失败验证的值，命令不保存任何内容，打印 `Failed to save configuration:` 带原因，并退出 `1`。使用 `--json` 时，拒绝的值也打印 stdout 上的对象，其 `refused` 字段携带 `message` 和，当一个选项有问题时，其 `option` 键。
+
+传递插件的完整 `name@marketplace` id，如 `claude plugin list` 所示。`configure` 不接受裸 `name`。当没有加载的插件有该 id 时，命令打印 `No installed plugin has the id "<plugin>".` 并退出 `1`。
+
+对于捆绑 MCP 服务器的设置，请参阅 [`plugin install --config`](#plugin-install) 或 `/plugin` 中的 **Configure** 项。
 
 <h3 id="plugin-prune">
   plugin prune

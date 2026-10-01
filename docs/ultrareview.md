@@ -66,7 +66,7 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthr
 
 在 PR 模式下，云沙箱直接从主机克隆拉取请求，而不是捆绑您的本地工作树。PR 模式适用于 `github.com` 上的存储库以及 Owner 已连接到 Claude Code 的 [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 实例。
 
-对于 `github.com` 上的存储库，沙箱使用连接到您的 Claude 账户的 GitHub 账户进行克隆，因此该账户必须能够读取 PR 的存储库。Claude Code 在创建云会话之前检查这一点，除非您已设置 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars#variables)，并在[未连接账户](/docs/zh-CN/errors#no-github-account-is-connected-to-your-claude-account)或[账户无法看到存储库](/docs/zh-CN/errors#your-connected-github-account-cant-see-the-repository)时拒绝启动；拒绝会说明修复方法。在 v2.1.248 之前，Claude Code 在启动前不检查这一点。
+对于 `github.com` 上的存储库，沙箱使用连接到您的 Claude 账户的 GitHub 账户进行克隆，因此该账户必须能够读取 PR 的存储库。
 
 运行 [`/web-setup`](/docs/zh-CN/web-quickstart#connect-from-your-terminal) 将您的 GitHub CLI 登录连接到您的 Claude 账户。
 

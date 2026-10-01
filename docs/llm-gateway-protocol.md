@@ -310,7 +310,7 @@ Claude Code 发送的功能集随版本增长。有关当前 beta 请求头字�
 
 Claude Code 使用下面两个凭证请求头发送发现请求，并省略其值无法解析的请求头。发送两个请求头需要 Claude Code v2.1.248 或更高版本。早期版本在设置了 `ANTHROPIC_AUTH_TOKEN` 时仅发送 `Authorization`，否则仅发送 `x-api-key`。
 
-* `Authorization`：`ANTHROPIC_AUTH_TOKEN` 作为承载令牌，否则 [`apiKeyHelper`](/docs/zh-CN/llm-gateway-connect#rotate-credentials-with-apikeyhelper) 值作为承载令牌。在这种情况下，Claude Code 在发送请求前等待助手返回。
+* `Authorization`：`ANTHROPIC_AUTH_TOKEN` 作为承载令牌，否则 [`apiKeyHelper`](/docs/zh-CN/llm-gateway-connect#rotate-credentials-with-apikeyhelper) 值作为承载令牌。
 * `x-api-key`：Claude Code 解析的 API 密钥，例如 `ANTHROPIC_API_KEY`。当助手值是唯一的凭证时，此请求头也会携带它，因此该值会在两个请求头中到达。
 
 Claude Code 还发送来自 `ANTHROPIC_CUSTOM_HEADERS` 的任何请求头。当自定义请求头具有非空值时，Claude Code 会发送它来代替同名的内置请求头，不区分大小写地匹配名称。

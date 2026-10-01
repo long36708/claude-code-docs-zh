@@ -39,7 +39,7 @@
 | **`sonnet`** | 为日常编码任务使用最新的 Sonnet 模型 |
 | **`opus`** | 为复杂推理任务使用最新的 Opus 模型 |
 | **`haiku`** | 为简单任务使用快速高效的 Haiku 模型 |
-| **`sonnet[1m]`** | 为长会话使用具有 [100 万令牌上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model) 的 Sonnet。当 `sonnet` 已解析到具有原生 1M 窗口的 Sonnet 5.5 或 Sonnet 5 时无效；在 [LLM 网关](/docs/zh-CN/llm-gateway) 后面，为该模型选择 1M 窗口 |
+| **`sonnet[1m]`** | 为长会话使用具有 [100 万令牌上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model) 的 Sonnet。当 `sonnet` 已解析到具有原生 1M 窗口的 Sonnet 5.5 或 Sonnet 5 时无效 |
 | **`opus[1m]`** | 为长会话使用具有 [100 万令牌上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model) 的 Opus |
 | **`opusplan`** | 特殊模式，在 Plan Mode 期间使用 `opus`，然后在执行期间切换到 `sonnet` |
 
@@ -521,7 +521,7 @@ Plan Mode Opus 阶段使用与 `opus` 模型设置相同的上下文窗口，执
   回退模型链
 </h3>
 
-当主模型过载、不可用或返回另一个不可重试的服务器错误时，Claude Code 可以切换到回退模型，而不是使请求失败。身份验证、计费、速率限制、请求大小和传输错误，以及[您组织的策略检查拒绝](/docs/zh-CN/errors#automatic-retries)，永远不会触发切换；这些遵循其正常的重试和错误处理。
+当主模型过载、不可用或返回另一个不可重试的服务器错误时，Claude Code 可以切换到回退模型，而不是使请求失败。身份验证、计费、速率限制、请求大小和传输错误，以及[您组织的策略检查拒绝](/docs/zh-CN/errors#automatic-retries)，永远不会触发切换；这些遵循其正常的重试和错误处理。当 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock#when-a-model-is-disabled-mid-session) 或 [Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai#when-a-model-is-disabled-mid-session) 拒绝您的账户无法调用的模型时，它会切换，Claude Code 将其视为模型不可用而不是身份验证错误。
 
 配置一个或多个回退模型，Claude Code 会按顺序尝试它们，在切换时显示通知。切换仅持续当前轮次，因此您的下一条消息会首先再次尝试主模型。Claude Code 在删除重复项后将链限制为三个模型，并忽略额外条目。
 
@@ -775,6 +775,10 @@ Opus 4.6 和 Sonnet 4.6 仅通过其 `[1m]` 变体达到 1M，对该变体的访
 
 Claude Code 仅在直接连接到 Anthropic API 时检查这些计划要求。如果您将 `ANTHROPIC_BASE_URL` 指向[LLM 网关](/docs/zh-CN/llm-gateway#subscriptions-and-gateways)，您保存的 claude.ai 登录保持活跃凭证，Claude Code 不检查账户的使用额度。`/model` 中的 `[1m]` 选项保持可用，网关决定请求是否成功。在 v2.1.229 之前，当 Claude Code 无法确认账户上的使用额度时，它在该配置中拒绝 `/model sonnet[1m]`。
 
+<span id="context-window-behind-a-gateway" />
+
+如果您将 `ANTHROPIC_BASE_URL` 设置为[LLM 网关](/docs/zh-CN/llm-gateway)或另一个代理，Claude Code 给每个它识别的模型与该模型在 Anthropic API 上具有的相同上下文窗口。Fable 5.1、Fable 5、Sonnet 5 及更高版本和 Opus 4.7 及更高版本获得 1M 窗口，没有 `[1m]` 变体可选择，仅通过其 `[1m]` 变体达到 1M 的模型（如 Opus 4.6）在没有它的情况下运行在 200K。Claude Code 无法检测网关或其后面的服务器强制的更低限制。如果您的网关拒绝超过 200K 令牌的请求，运行 [`/autocompact 200k`](#set-the-auto-compact-window) 以便会话在该边界处压缩。
+
 要关闭 1M 上下文，设置 `CLAUDE_CODE_DISABLE_1M_CONTEXT=1`。Claude Code 从模型选择器中删除 1M 模型变体。在具有本地 1M 窗口的模型上，例如 Sonnet 5 和 Fable 模型，它也将模型视为具有 200K 上下文窗口：
 
 * 启用自动压缩时，会话在 200K 边界处通过[自动压缩](#set-the-auto-compact-window)进行压缩。将自动压缩窗口设置在 200K 以上不会解除保持，因为 Claude Code 将该窗口限制为模型的上下文窗口。
@@ -803,9 +807,10 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些计划要求。�
 
 在 Anthropic API 上，Sonnet 5.5 和 Sonnet 5 始终运行 1M 上下文窗口。没有 200K 变体，没有 `[1m]` 后缀可选择，任何计划上都不需要使用额度。会话在窗口填满前自动压缩，默认约 967K 令牌；设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars) 以选择不同的阈值。
 
-两个配置将窗口预算为 200K：
+Claude Code 在[LLM 网关](/docs/zh-CN/llm-gateway)或另一个自定义 `ANTHROPIC_BASE_URL` 后面给 Sonnet 5.5 和 Sonnet 5 相同的 1M 窗口。如果您的网关强制更低的限制，请参阅[网关后面的上下文窗口](#context-window-behind-a-gateway)。
 
-* **LLM 网关**：当 `ANTHROPIC_BASE_URL` 指向[网关](/docs/zh-CN/llm-gateway)时，Claude Code 无法验证 1M 支持。要使用完整窗口，在模型选择器中选择 Sonnet 5.5 (1M context) 或 Sonnet 5 (1M context)，它映射到 `sonnet[1m]`，或运行 `/model claude-sonnet-5[1m]` 用于 Sonnet 5。
+此设置将窗口预算为 200K：
+
 * **`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`**：将具有本地 1M 窗口的每个模型上的会话保持在 200K 窗口；请参阅[扩展上下文](#extended-context)了解保持如何被强制执行。对于需要限制上下文的部署很有用。
 
 <h2 id="context-window-and-auto-compaction">
@@ -841,7 +846,7 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些计划要求。�
 * [云会话](/docs/zh-CN/claude-code-on-the-web)在对话接近模型限制时进行压缩
 * Sonnet 4.6 和 Opus 4.6（不带[扩展上下文](#extended-context)）在 200K 边界处进行压缩，Opus 4.8 和更高版本在使用 200K 上下文窗口运行时也是如此，例如在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上
 * 当您设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](/docs/zh-CN/env-vars) 时，具有原生 1M 窗口的模型（例如 Sonnet 5 和 Fable 模型）在 200K 边界处进行压缩
-* 使用原生 1M 窗口运行的模型（例如 Sonnet 5、Fable 模型以及 Anthropic API 上的 Opus 4.7 及更高版本）在窗口填满之前进行压缩，默认情况下约为 967K 令牌。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，[为第三方部署固定模型](#pin-models-for-third-party-deployments)说明了哪些模型使用该窗口；对于将 Sonnet 5.5 和 Sonnet 5 预算为 200K 的配置，请参阅 [Sonnet 5.5 和 Sonnet 5 上下文窗口](#sonnet-5-5-and-sonnet-5-context-window)
+* 使用原生 1M 窗口运行的模型在窗口填满之前进行压缩，默认情况下约为 967K 令牌。在 Anthropic API 上，这些包括 Sonnet 5、Fable 模型以及 Opus 4.7 及更高版本。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，请参阅[为第三方部署固定模型](#pin-models-for-third-party-deployments)以了解哪些模型使用该窗口。在自定义 `ANTHROPIC_BASE_URL` 后面，请参阅[网关后面的上下文窗口](#context-window-behind-a-gateway)
 * 在 Claude Code 不识别的模型 ID（例如 [LLM 网关](/docs/zh-CN/llm-gateway)别名）上的会话在 Claude Code 为该 ID 假设的上下文窗口处进行压缩；请参阅[为网关或自定义模型 ID 更正窗口](#correct-the-window-for-a-gateway-or-custom-model-id)
 
 <h3 id="correct-the-window-for-a-gateway-or-custom-model-id">

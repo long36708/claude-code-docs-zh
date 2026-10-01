@@ -51,7 +51,7 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 
 该行中的未命中、预期重建以及热或冷部分的含义如下：
 
-* **Misses（未命中）**：重新处理缓存已保存内容的请求，包括最后一次未命中的时间以及这些请求写回缓存的令牌数。当请求重新处理了超过 5% 且至少 2,000 个令牌的内容时，Claude Code 会将请求计为未命中，这些内容本可以从缓存中读取。[使缓存失效的操作](/docs/zh-CN/prompt-caching#actions-that-invalidate-the-cache)列出了常见原因。当 Claude Code 能够识别最后一次未命中的可能原因时，该行也会命名它，例如 `likely cause: tool definitions changed`。可能原因文本需要 Claude Code v2.1.260 或更高版本。
+* **Misses（未命中）**：重新处理缓存已保存内容的请求，包括最后一次未命中的时间以及这些请求写回缓存的令牌数。[使缓存失效的操作](/docs/zh-CN/prompt-caching#actions-that-invalidate-the-cache)列出了常见原因。当 Claude Code 能够识别最后一次未命中的可能原因时，该行也会命名它，例如 `likely cause: tool definitions changed`。可能原因文本需要 Claude Code v2.1.260 或更高版本。
 * **Expected rebuilds（预期重建）**：当 Claude Code 本身刚刚重写对话时，通过[压缩](/docs/zh-CN/prompt-caching#compacting-the-conversation)或从上下文中清除旧工具结果，它会将相同类型的未命中计为预期重建。此部分仅在至少发生过一次预期重建后出现。
 * **Warm or cold（热或冷）**：缓存的前缀是否仍在其[缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)内，以及生效的 TTL。当缓存冷时，该行显示会话已空闲多长时间。当没有响应报告缓存令牌时，该行以 `no prompt caching reported by the API` 结尾。
 

@@ -56,7 +56,7 @@
   </Tab>
 </Tabs>
 
-赋值行在成功时不会打印任何内容，因此在运行 `claude` 之前，通过在同一 shell 中打印变量来确认它已设置：
+赋值行在成功时不会打印任何内容。要确认变量已设置，请在同一 shell 中打印它：
 
 <Tabs>
   <Tab title="macOS, Linux, WSL">
@@ -127,7 +127,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 数值变量（如超时、令牌预算和重试次数）除了接受纯数字外，还接受科学记数法和数字分隔符拼写，除非变量的行注明仅接受纯数字。例如，Claude Code 将 `2e3` 读作 2000，将 `64_000` 读作 64000。在 v2.1.211 之前，这些拼写可能会无声地设置一个更小的值，例如 `1e6` 将超时设置为 1。
 
 <Note>
-  对于打开或关闭行为的变量，设置 `1` 或 `true` 以打开，设置 `0` 或 `false` 以关闭，不区分大小写。
+  对于打开或关闭行为的变量，设置 `1`、`true`、`yes` 或 `on` 以打开，设置 `0`、`false`、`no` 或 `off` 以关闭，不区分大小写。
 
   某些变量仅读取您是否设置了它们，因此任何非空值（包括 `0`）都会打开该行为，而通过取消设置变量或将其设置为空值来关闭该行为。这些变量的工作方式如下：
 
@@ -192,9 +192,9 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `API_FORCE_IDLE_TIMEOUT` | 覆盖 5 分钟的正文空闲超时，当没有字节到达时中止流式模型响应。设置为 `0` 以关闭超时，例如当缓慢的 [网关](/docs/zh-CN/llm-gateway) 或本地模型在块之间暂停超过 5 分钟时，或 `1` 以为每个提供商保持打开。未设置时，超时在除直接 Anthropic API、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 和设置了 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1` 的 Amazon Bedrock 之外的提供商上处于活跃状态。[流监视程序](/docs/zh-CN/network-config#streaming-idle-watchdogs) 独立运行，即使您在此处设置 `0`，也会中止长时间的无声暂停 |
 | `API_TIMEOUT_MS` | API 请求的超时时间（毫秒）（默认值：600000，或 10 分钟；最大值：2147483647）。在缓慢网络上请求超时或通过代理路由时增加此值。超过最大值的值会导致底层计时器溢出，导致请求立即失败 |
 | `AWS_BEARER_TOKEN_BEDROCK` | Amazon Bedrock API 密钥用于身份验证（参见 [Amazon Bedrock API 密钥](https://aws.amazon.com/blogs/machine-learning/accelerate-ai-development-with-amazon-bedrock-api-keys/)） |
-| `BASH_DEFAULT_TIMEOUT_MS` | 前台 Bash 或 PowerShell 工具命令的默认超时时间（毫秒）（默认值：120000，或 2 分钟）。超过 30 分钟的默认值也成为后台命令的默认 [时间限制](/docs/zh-CN/tools-reference#background-commands)。后台时间限制需要 Claude Code v2.1.285 或更高版本 |
+| `BASH_DEFAULT_TIMEOUT_MS` | 前台 Bash 或 PowerShell 工具命令的默认超时时间（毫秒）（默认值：120000，或 2 分钟）。超过 30 分钟的默认值也成为后台命令的默认 [时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)。后台时间限制需要 Claude Code v2.1.285 或更高版本 |
 | `BASH_MAX_OUTPUT_LENGTH` | Claude Code 读回到命令结果中的 bash 输出的最大字符数（默认值：30000；最大值：150000）。如果您设置了 [`bashOutputMaxChars`](/docs/zh-CN/settings-reference#bashoutputmaxchars) 设置，Claude Code 会忽略此变量。参见 [输出限制](/docs/zh-CN/tools-reference#output-limits) |
-| `BASH_MAX_TIMEOUT_MS` | 模型可以为前台 Bash 或 PowerShell 工具命令设置的最大超时时间（毫秒）（默认值：600000，或 10 分钟）。有效的上限是此值和 `BASH_DEFAULT_TIMEOUT_MS` 中的较大者。超过 2 小时的有效上限也成为后台命令的最大 [时间限制](/docs/zh-CN/tools-reference#background-commands)。后台时间限制需要 Claude Code v2.1.285 或更高版本 |
+| `BASH_MAX_TIMEOUT_MS` | 模型可以为前台 Bash 或 PowerShell 工具命令设置的最大超时时间（毫秒）（默认值：600000，或 10 分钟）。有效的上限是此值和 `BASH_DEFAULT_TIMEOUT_MS` 中的较大者。超过 2 小时的有效上限也成为后台命令的最大 [时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)。后台时间限制需要 Claude Code v2.1.285 或更高版本 |
 | `BETA_TRACING_ENDPOINT` | [详细测试版跟踪](/docs/zh-CN/monitoring-usage#traces-beta) 的 OTLP 端点：使用 `ENABLE_BETA_TRACING_DETAILED=1`，日志和跟踪转到那里而不是配置的导出器。在您的 shell、用户设置或托管设置中设置它。在 [项目和本地设置](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env) 中被忽略 |
 | `CCR_FORCE_BUNDLE` | 设置为 `1` 以强制 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#send-local-repositories-without-github) 捆绑并上传您的本地存储库，而不是从其远程克隆 |
 | `CLAUDECODE` | 在 Claude Code 生成的子进程中设置为 `1`（Bash 和 PowerShell 工具、tmux 会话、[hook](/docs/zh-CN/hooks) 命令、[状态行](/docs/zh-CN/statusline) 命令、stdio [MCP 服务器](/docs/zh-CN/mcp) 子进程）。IDE 扩展也在其集成终端中设置此项。用于检测脚本何时在 Claude Code 生成的子进程内运行。要检查当前进程是由工具调用或 hook 直接生成的，而不是在 Claude Code 启动的 stdio MCP 服务器内，请改用 `CLAUDE_CODE_CHILD_SESSION` |
@@ -263,6 +263,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_DISABLE_FILE_CHECKPOINTING` | 设置为 `1` 以禁用文件 [checkpointing](/docs/zh-CN/checkpointing)。`/rewind` 命令将无法恢复代码更改。覆盖 [`fileCheckpointingEnabled`](/docs/zh-CN/settings-reference#filecheckpointingenabled) 设置 |
 | `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS` | 设置为 `1` 以删除内置提交和 PR 工作流说明以及 Claude 上下文中的 git 状态快照。在使用您自己的 git 工作流 skills 时很有用。当设置时优先于 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 设置 |
 | `CLAUDE_CODE_DISABLE_LEGACY_MODEL_REMAP` | 设置为 `1` 以防止在 Anthropic API 上自动将 Opus 4.0 和 4.1 重新映射到当前 Opus 版本。在您想有意固定较旧模型时使用。重新映射不在 Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 上运行 |
+| `CLAUDE_CODE_DISABLE_MODEL_ACCESS_FALLBACK` | 设置为 `1` 以停止 Claude Code 在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock#when-a-model-is-disabled-mid-session) 和 [Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai#when-a-model-is-disabled-mid-session) 上在您的帐户在会话中途失去对会话模型的访问权限时切换到较旧的模型；拒绝的请求立即失败。您配置的 [回退模型链](/docs/zh-CN/model-config#fallback-model-chains) 仍在该拒绝时切换，[启动模型检查](/docs/zh-CN/amazon-bedrock#startup-model-checks) 仍在启动时回退。需要 Claude Code v2.1.285 或更高版本 |
 | `CLAUDE_CODE_DISABLE_MOUSE` | 设置为 `1` 以在 [全屏呈现](/docs/zh-CN/fullscreen) 中禁用鼠标跟踪。使用 `PgUp` 和 `PgDn` 的键盘滚动仍然有效。使用此选项保持您终端的本机选择复制行为 |
 | `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` | 设置为 `1` 以在 [全屏呈现](/docs/zh-CN/fullscreen) 中禁用点击、拖动和悬停处理，同时保持鼠标滚轮滚动。当您希望滚轮滚动在 Claude Code 内工作但不希望点击定位光标、展开工具输出或打开链接时使用此选项。当两者都设置时，`CLAUDE_CODE_DISABLE_MOUSE` 优先。需要 Claude Code v2.1.195 或更高版本 |
 | `CLAUDE_CODE_DISABLE_MTLS_RELOAD_ON_STALE_CONNECTION` | 设置为 `1` 以停止 Claude Code 在 API 请求因连接级错误（如连接重置或 TLS 握手错误）失败时重新读取 [mTLS 客户端证书和密钥](/docs/zh-CN/network-config#mtls-authentication)。禁用重新加载后，Claude Code 仅在下次应用设置或下次启动时加载轮换的文件。需要 Claude Code v2.1.232 或更高版本 |
@@ -352,10 +353,10 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY` | 设置为 `1` 以停止 Claude Code 在为工具调用、hooks 和状态行命令生成 PowerShell 时传递 `-ExecutionPolicy Bypass`，并改为尊重机器的有效执行策略。默认情况下，Claude Code 在进程范围内绕过执行策略，以便 `.ps1` 脚本和模块导入在默认受限的 Windows 安装上工作。进程范围绕过无论此设置如何都永远不会覆盖 Group Policy `MachinePolicy` 或 `UserPolicy` |
 | `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS` | 在 [非交互模式](/docs/zh-CN/headless#background-tasks-at-exit) 中使用 `-p` 标志后，在最后一个转向后等待后台子代理和工作流的空闲等待的上限（毫秒）。每次 Claude 采取转向处理后台结果时，空闲等待重新开始。默认值：`600000`，或 10 分钟。当空闲等待达到上限时，Claude Code 停止等待剩余的后台任务并退出。设置为 `0` 以无限期等待。此上限与适用于纯后台 shell 的五秒宽限期分开。需要 Claude Code v2.1.182 或更高版本 |
 | `CLAUDE_CODE_PROCESS_WRAPPER` | 通过给定为 argv 前缀（如 `/opt/corp/launcher`）的企业启动器启动 Claude Code 从其自己的二进制文件启动的进程，例如托管 [代理视图](/docs/zh-CN/agent-view) 会话的后台服务。在用户或 [托管设置](/docs/zh-CN/managed-settings) 的 `env` 块中设置它，而不是作为 shell 导出，以便分离的后台服务继承它；项目和本地设置无法设置它。等同于 [`processWrapper` 设置](/docs/zh-CN/settings-reference#processwrapper)，需要 Claude Code v2.1.210 或更高版本；当两者都设置时，此变量优先。VS Code 扩展通过其 `claudeProcessWrapper` 设置单独配置其自己的启动器。在 Windows 上被忽略。参见 [在企业启动器后面运行 Claude Code](/docs/zh-CN/corporate-launcher) 了解值格式、启动器涵盖的内容以及启动器必须满足的合同。需要 Claude Code v2.1.208 或更高版本 |
-| `CLAUDE_CODE_PROJECT_DIR_NAME` | 与 `CLAUDE_CONFIG_DIR` 一起设置以选择 `projects/` 目录名称 Claude Code 在其下存储该会话的成绩单和自动内存，代替从工作目录路径派生的名称。例如，使用 `CLAUDE_CONFIG_DIR=/srv/tenant-a CLAUDE_CODE_PROJECT_DIR_NAME=work claude` 启动 Claude Code 在 `/srv/tenant-a/projects/work/` 下存储它们。当 `CLAUDE_CONFIG_DIR` 未设置时，Claude Code 忽略此变量，并仅从启动 `claude` 的环境读取它，从不从 [设置文件 `env` 块](#in-settings-files)。参见 [自己命名项目目录](/docs/zh-CN/sessions#name-the-project-directory-yourself)。需要 Claude Code v2.1.234 或更高版本 |
+| `CLAUDE_CODE_PROJECT_DIR_NAME` | 与 `CLAUDE_CONFIG_DIR` 一起设置以选择 `projects/` 目录名称 Claude Code 在其下存储该会话的成绩单和自动内存，代替从工作目录路径派生的名称。例如，使用 `CLAUDE_CONFIG_DIR=/srv/tenant-a CLAUDE_CODE_PROJECT_DIR_NAME=work claude` 启动 Claude Code 在 `/srv/tenant-a/projects/work/` 下存储它们。当 `CLAUDE_CONFIG_DIR` 未设置时，Claude Code 忽略此变量，并读取它仅从启动 `claude` 的环境，从不从 [设置文件 `env` 块](#in-settings-files)。参见 [自己命名项目目录](/docs/zh-CN/sessions#name-the-project-directory-yourself)。需要 Claude Code v2.1.234 或更高版本 |
 | `CLAUDE_CODE_PROMPT_CACHE_TTL` | 设置 `5m` 或 `1h`，Claude Code 接受的唯一值，以选择主对话的 [提示缓存 TTL](/docs/zh-CN/prompt-caching#cache-lifetime)：您的交互式、`-p` 和 SDK 转向，加上与它们内联运行的帮助程序。优先于 `promptCacheTtl` 设置和 `ENABLE_PROMPT_CACHING_1H`，`FORCE_PROMPT_CACHING_5M` 覆盖它。API 以更高的速率计费 1 小时缓存写入。需要 Claude Code v2.1.242 或更高版本 |
 | `CLAUDE_CODE_PROPAGATE_TRACEPARENT` | 设置为 `1` 以在 `ANTHROPIC_BASE_URL` 指向自定义代理时传播 W3C 跟踪上下文。传播涵盖模型和 HTTP MCP 请求上的 `traceparent` 标头以及 Bash、PowerShell 和 hook 子进程的 `TRACEPARENT` 环境变量。默认情况下，传播仅在直接连接到 Anthropic API 时启用。在 v2.1.152 中添加。参见 [跟踪（测试版）](/docs/zh-CN/monitoring-usage#traces-beta) |
-| `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` | 由嵌入 Claude Code 并代表其管理模型提供商路由的主机平台设置。设置时，Claude Code 在设置文件中忽略提供商选择、端点和身份验证变量（如 `CLAUDE_CODE_USE_BEDROCK`、`ANTHROPIC_BASE_URL` 和 `ANTHROPIC_API_KEY`），因此用户设置无法覆盖主机的路由。Claude Code 也忽略 [托管设置](/docs/zh-CN/managed-settings) 中的模型选择密钥（如 `model`、`fallbackModel` 和 `modelOverrides`），无论哪个托管源传递它们，因此主机的模型配置优先于过期的托管模型固定。Claude Code 也忽略托管 `env` 块中的模型选择变量（如 `ANTHROPIC_MODEL` 和 `ANTHROPIC_DEFAULT_*_MODEL` 系列）；托管设置中的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表仍然适用，除非主机提供其自己的。Claude Code 也跳过它在第三方提供商（如 Amazon Bedrock、Claude Platform on AWS、Google Cloud's Agent Platform 和 Microsoft Foundry）上否则应用的自动遥测选择退出，因此遥测遵循标准 `DISABLE_TELEMETRY` 选择退出。参见 [按 API 提供商的默认行为](/docs/zh-CN/data-usage#default-behaviors-by-api-provider) |
+| `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` | 由嵌入 Claude Code 并代表其管理模型提供商路由的主机平台设置。设置时，Claude Code 在设置文件中忽略提供商选择、端点和身份验证变量（如 `CLAUDE_CODE_USE_BEDROCK`、`ANTHROPIC_BASE_URL` 和 `ANTHROPIC_API_KEY`），因此用户设置无法覆盖主机的路由。Claude Code 也忽略 [托管设置](/docs/zh-CN/managed-settings) 中的模型选择密钥（如 `model`、`fallbackModel` 和 `modelOverrides`），无论哪个托管源传递它们，因此主机的模型配置优先于过期的托管模型固定。Claude Code 也忽略托管 `env` 块中的模型选择变量（如 `ANTHROPIC_MODEL` 和 `ANTHROPIC_DEFAULT_*_MODEL` 系列）；托管设置中的 [`availableModels`](/docs/zh-CN/settings-reference#availablemodels) 允许列表仍然适用，除非主机提供其自己的。Claude Code 也跳过它在第三方提供商（如 Amazon Bedrock、Claude Platform on AWS、Google Cloud's Agent Platform 和 Microsoft Foundry）上否则应用的自动遥测选择退出，因此遥测遵循标准 `DISABLE_TELEMETRY` 选择退出。参见 [按 API 提供商的默认行为](/docs/zh-CN/data-usage#default-behaviors-by-api-provider) |
 | `CLAUDE_CODE_PROXY_RESOLVES_HOSTS` | 设置为 `1` 以允许代理执行 DNS 解析而不是调用者。对于代理应处理主机名解析的环境选择加入 |
 | `CLAUDE_CODE_REMOTE` | 当 Claude Code 作为 [云会话](/docs/zh-CN/claude-code-on-the-web) 运行时自动设置为 `true`。从 hook 或设置脚本读取此项以检测您是否在云会话中 |
 | `CLAUDE_CODE_REMOTE_SESSION_ID` | 在 [云会话](/docs/zh-CN/claude-code-on-the-web) 中自动设置为当前会话的 ID。读取此项以构造回到会话成绩单的链接。参见 [将输出链接回会话](/docs/zh-CN/cloud-environments#link-output-back-to-the-session) |
@@ -381,6 +382,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_SKIP_FAST_MODE_ORG_CHECK` | 设置为 `1` 以跳过客户端 [快速模式](/docs/zh-CN/fast-mode#use-fast-mode-behind-proxies-and-llm-gateways) 可用性检查，用于拦截检查请求而不是拒绝它的代理。当您的组织禁用快速模式时，API 仍然拒绝快速模式请求 |
 | `CLAUDE_CODE_SKIP_FOUNDRY_AUTH` | 跳过 Microsoft Foundry 的 Azure 身份验证，用于代理或网关注入其自己的 `Authorization` 标头。Claude Code 发送没有 Azure 凭证的请求并保留您提供的 `Authorization` 标头，例如通过 `ANTHROPIC_CUSTOM_HEADERS`。当设置 `ANTHROPIC_FOUNDRY_API_KEY` 或 `ANTHROPIC_FOUNDRY_AUTH_TOKEN` 时被忽略。在 v2.1.203 之前，此变量使 Microsoft Foundry 客户端无法发送请求，除非也设置了 API 密钥 |
 | `CLAUDE_CODE_SKIP_MANTLE_AUTH` | 跳过 Amazon Bedrock Mantle 的 AWS 身份验证（例如，使用 LLM 网关时） |
+| `CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY` | [启动模型检查](/docs/zh-CN/amazon-bedrock#startup-model-checks) 在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 和 [Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai) 上记住在此机器上哪些模型他们发现您的帐户无法调用，最多一天。设置为 `1` 以关闭该内存。需要 Claude Code v2.1.285 或更高版本 |
 | `CLAUDE_CODE_SKIP_PROMPT_HISTORY` | 设置为 `1` 以跳过将提示历史和会话成绩单写入磁盘。使用此变量启动的会话不出现在 `--resume`、`--continue` 或向上箭头历史中。对于临时脚本会话很有用 |
 | `CLAUDE_CODE_SKIP_VERTEX_AUTH` | 跳过 Google Cloud's Agent Platform 的 Google 身份验证（例如，使用 LLM 网关时） |
 | `CLAUDE_CODE_STARTUP_FAILURE_RESULTS` | 设置为 `1` 以使用 `--output-format stream-json` 启动的会话为启动失败写入 [结果消息，说明 Claude Code 为什么拒绝启动](/docs/zh-CN/agent-sdk/typescript#startup_failure_reason)，否则仅以 stderr 结束。需要 Claude Code v2.1.274 或更高版本 |

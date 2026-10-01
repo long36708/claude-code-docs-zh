@@ -575,7 +575,7 @@ console.log(`Set by: ${provenance.cleanupPeriodDays?.source}`);
 | `outputFormat` | `{ type: 'json_schema', schema: JSONSchema }` | `undefined` | 为代理结果定义输出格式。请参阅[结构化输出](/docs/zh-CN/agent-sdk/structured-outputs)了解详情 |
 | `outputStyle` | `string` | `undefined` | 不是 `Options` 字段。改为在内联 [`settings`](/docs/zh-CN/settings) 对象或设置文件中设置 `outputStyle`。请参阅[激活输出样式](/docs/zh-CN/agent-sdk/modifying-system-prompts#activate-an-output-style) |
 | `pathToClaudeCodeExecutable` | `string` | 从捆绑的本地二进制文件自动解析 | Claude Code 可执行文件的路径。仅在安装期间跳过可选依赖项或您的平台不在支持的集合中时需要 |
-| `permissionMode` | [`PermissionMode`](#permissionmode) | `'default'` | 会话的权限模式 |
+| `permissionMode` | [`PermissionMode`](#permissionmode) | `undefined` | 会话的权限模式。如果您省略它，会话可以在自动模式下启动。请参阅[权限模式](/docs/zh-CN/agent-sdk/permissions#permission-modes)了解 Claude Code 如何选择启动权限模式 |
 | `permissionPromptToolName` | `string` | `undefined` | 权限提示的 MCP 工具名称 |
 | `permissionPrompts` | `'host' \| 'none'` | `'host'` | 谁回答权限提示：`'host'` 将它们路由到您的 [`canUseTool`](#canusetool) 回调或 `permissionPromptToolName` 工具，`'none'` [拒绝会提示的调用](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)。需要 Claude Code v2.1.259 或更高版本 |
 | `persistSession` | `boolean` | `true` | 当为 `false` 时，禁用会话持久化到磁盘。会话之后无法恢复 |
@@ -716,7 +716,7 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 | `reloadOutputStyles()` | 重新读取[输出样式](/docs/zh-CN/output-styles)从磁盘，以便您在会话中期添加或编辑的样式文件对运行的会话可用。使用 [`SDKControlReloadOutputStylesResponse`](#sdkcontrolreloadoutputstylesresponse) 进行解决，列出重新加载后可用的样式名称。需要 Agent SDK v0.3.261 或更高版本 |
 | `accountInfo()` | 返回帐户信息 |
 | `reconnectMcpServer(serverName)` | 按名称重新连接 MCP 服务器。如果名称也匹配设置文件（如 `.mcp.json` 或 `~/.claude.json`）中的条目，Claude Code 会重新连接您通过 [`mcpServers`](#options) 或 `setMcpServers()` 配置的服务器，而不是设置文件条目。该解析顺序需要 Claude Code v2.1.257 或更高版本 |
-| `toggleMcpServer(serverName, enabled)` | 按名称启用或禁用 MCP 服务器，名称解析与 `reconnectMcpServer()` 相同。禁用会断开服务器连接 |
+| `toggleMcpServer(serverName, enabled)` | 按名称启用或禁用 MCP 服务器，名称解析与 `reconnectMcpServer()` 相同。禁用会断开 stdio、SSE 或 HTTP 服务器的连接并移除其工具；对于您使用 `setMcpServers()` 在会话中期添加的服务器，工具移除需要 Claude Code v2.1.285 或更高版本 |
 | `setMcpServers(servers)` | 动态替换此会话的 MCP 服务器集。使用 [`McpSetServersResult`](#mcpsetserversresult) 进行解决，命名添加和删除的服务器以及任何错误 |
 | `readMcpResource(serverName, uri)` | *Alpha.* 从连接的 MCP 服务器读取一个 MCP Apps `ui://` 资源，以便您的应用程序可以呈现工具的小部件。使用 [`SDKControlMcpReadResourceResponse`](#sdkcontrolmcpreadresourceresponse) 进行解决。需要 TypeScript Agent SDK v0.3.280 或更高版本 |
 | `streamInput(stream)` | 将输入消息流式传输到查询以进行多轮对话 |
@@ -1819,6 +1819,7 @@ Claude Code 拒绝启动的原因，以便您的应用程序可以提供修复�
 ```typescript theme={null}
 type SDKStartupFailureReason =
   | "org_pin_api_key_conflict"
+  | "provider_not_allowed"
   | "org_verify_failed"
   | "org_pin_mismatch"
   | "managed_settings_invalid"
@@ -1841,6 +1842,7 @@ type SDKStartupFailureReason =
 | 值 | 停止会话的原因 |
 | :- | :- |
 | `org_pin_api_key_conflict` | 托管设置[需要第一方或 Cloud 网关登录](/docs/zh-CN/authentication#restrict-login-to-your-organization)，并配置了 Anthropic API 密钥、身份验证令牌或 `apiKeyHelper` |
+| `provider_not_allowed` | 托管设置[列出此机器可能使用的 API 提供商](/docs/zh-CN/settings-reference#allowedproviders)，会话设置为不在列表中的提供商，或设置未固定的端点。需要 Claude Code v2.1.285 或更高版本 |
 | `org_verify_failed` | 登录的组织无法针对 pin 进行验证，例如由于网络故障或已撤销的令牌 |
 | `org_pin_mismatch` | 登录属于 pin 不允许的组织 |
 | `managed_settings_invalid` | 无法读取托管策略设置，pin 未命名任何组织，或[托管模型限制](/docs/zh-CN/errors#managed-settings-block-the-default-model)为默认选项留下没有允许的模型 |
@@ -2059,7 +2061,7 @@ type SDKPermissionDeniedMessage = {
 | `tool_use_id` | `string` | 此拒绝回答的 `tool_use` 块的 ID |
 | `agent_id` | `string` | 当拒绝的调用源自子代理内部时的子代理 ID。镜像主机端路由的 `can_use_tool` 上的字段 |
 | `decision_reason_type` | `string` | 决定组件的鉴别器，例如 `"rule"`、`"mode"`、`"classifier"` 或 `"asyncAgent"` |
-| `decision_reason` | `string` | 来自决定组件的人类可读原因，如果可用 |
+| `decision_reason` | `string` | 来自决定组件的人类可读原因，当可用时 |
 | `message` | `string` | 在 `tool_result` 中返回给模型的拒绝消息 |
 
 <h3 id="sdkpermissiondenial">
@@ -3181,7 +3183,7 @@ type BashInput = {
 };
 ```
 
-执行 Bash 命令，支持可选超时和后台执行。工作目录在命令之间保持不变，包括多轮会话后续轮次中运行的命令；shell 状态（如导出的环境变量）不保持。有关哪些目录更改会保持的限制，请参阅[命令之间保持什么](/docs/zh-CN/tools-reference#what-persists-between-commands)。有关设置前台上限的内容，请参阅[超时和输出限制](/docs/zh-CN/tools-reference#timeout-and-output-limits)。有关后台时间限制，请参阅[后台命令](/docs/zh-CN/tools-reference#background-commands)。
+执行 Bash 命令，支持可选超时和后台执行。工作目录在命令之间保持不变，包括多轮会话后续轮次中运行的命令；shell 状态（如导出的环境变量）不保持。有关哪些目录更改会保持的限制，请参阅[命令之间保持什么](/docs/zh-CN/tools-reference#what-persists-between-commands)。有关设置前台上限的内容，请参阅[超时和输出限制](/docs/zh-CN/tools-reference#timeout-and-output-limits)。有关后台时间限制，请参阅[后台命令的时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)。
 
 <h3 id="monitor">
   Monitor
@@ -4085,7 +4087,7 @@ type BashOutput = {
 
 `timedOutAfterMs` 是超时时间（以毫秒为单位），当命令达到其超时并移至后台而不是显式启动时设置。`backgroundCwdHint` 在后台命令包含目录更改内置命令（如 `cd`、`pushd`、`popd` 或 `chdir`）时设置，并注意会话工作目录未更改。两个字段都需要 Claude Code v2.1.210 或更高版本。
 
-当在前台运行的子代理拥有后台命令时，该命令[在该子代理的运行结束时结束](/docs/zh-CN/tools-reference#background-commands)。Claude Code 在此类命令上将 `backgroundEndsWithFinalResponse` 设置为 `true`，并在命令存活该轮时省略该字段，如主对话或后台子代理启动的命令那样。该字段需要 Claude Code v2.1.227 或更高版本。
+当在前台运行的子代理拥有后台命令时，该命令[在该子代理的运行结束时结束](/docs/zh-CN/tools-reference#when-a-background-command-stops)。Claude Code 在此类命令上将 `backgroundEndsWithFinalResponse` 设置为 `true`，并在命令存活该轮时省略该字段，如主对话或后台子代理启动的命令那样。该字段需要 Claude Code v2.1.227 或更高版本。
 
 Claude Code 将 `gitOperation.commit.branch` 设置为 git 提交摘要行中命名的分支，对于在分离 HEAD 上进行的提交则省略它。该字段需要 Agent SDK v0.3.227 或更高版本。Claude Code 将 `gh pr reopen` 命令报告为 `reopened` PR 操作，这需要 Agent SDK v0.3.234 或更高版本。
 

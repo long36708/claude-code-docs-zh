@@ -599,6 +599,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`allowedChannelPlugins`](#allowedchannelplugins) | 替换可以推送消息的[频道插件](/docs/zh-CN/channels#restrict-which-channel-plugins-can-run)的默认允许列表 | 插件和技能 | Managed |
 | [`allowedHttpHookUrls`](#allowedhttphookurls) | 限制[HTTP hooks](/docs/zh-CN/hooks)可以针对的 URL | Hooks 和自动化 | Any file |
 | [`allowedMcpServers`](#allowedmcpservers) | 允许列表用户可以添加的[MCP 服务器](/docs/zh-CN/mcp) | MCP | Any file |
+| [`allowedProviders`](#allowedproviders) | 限制[API 提供商](/docs/zh-CN/third-party-integrations)机器可以使用的 | 身份验证和提供商 | Managed |
 | [`allowManagedHooksOnly`](#allowmanagedhooksonly) | 仅运行您的组织部署的[hooks](/docs/zh-CN/hooks) | Hooks 和自动化 | Managed |
 | [`allowManagedMcpServersOnly`](#allowmanagedmcpserversonly) | 使托管的 [MCP](/docs/zh-CN/mcp) 允许列表成为唯一适用的列表 | MCP | Managed |
 | [`allowManagedPermissionRulesOnly`](#allowmanagedpermissionrulesonly) | 使[托管设置](/docs/zh-CN/managed-settings)成为[权限规则](/docs/zh-CN/permissions#managed-settings)的唯一设置来源 | 权限设置 | Managed |
@@ -3675,7 +3676,7 @@ your-repo-file-index --query "$query" | head -20
   `spinnerTipsOverride`
 </h3>
 
-将您自己的提示添加到 Claude Code 在 Claude 工作时显示的[加载动画提示](#spinnertipsenabled)，或用您的提示替换内置提示。Claude Code 将您的提示放在与内置提示相同的轮换中：它选择未显示时间最长的提示，跳过仍在冷却期中的提示，并通过优先级打破平局。
+将您自己的提示添加到 Claude Code 在 Claude 工作时显示的[加载动画提示](#spinnertipsenabled)，或用您的提示替换内置提示。Claude Code 将您的提示放在与内置提示相同的轮换中。
 
 如果您将 [`spinnerTipsEnabled`](#spinnertipsenabled) 设置为 `false`，Claude Code 会隐藏所有提示，包括您的。
 
@@ -3683,7 +3684,7 @@ your-repo-file-index --query "$query" | head -20
 * **Type**: 对象，包含 `tips`、`tipsFile`、`label` 和 `excludeDefault` 字段，每个都是可选的
 * **Default**: unset，所以 Claude Code 仅显示内置提示
 
-提示对象、`tipsFile`、`label` 和 Scope 行的规则（项目和本地设置仅贡献纯字符串）需要 Claude Code v2.1.247 或更高版本。在较早的版本上，项目或本地文件的 `excludeDefault` 也适用。
+提示对象、`tipsFile`、`label` 和 Scope 行的规则（项目和本地设置仅贡献纯字符串）需要 Claude Code v2.1.247 或更高版本。
 
 每个 `tips` 条目是纯字符串或具有这些字段的对象：
 
@@ -5653,7 +5654,7 @@ Claude Code 在非交互模式下永远不会显示摘要。
 
 * **作用域**: [`任何文件`](#scopes)
 * **类型**: 布尔值
-  * `true`: Claude Code 为该文件适用的每个会话关闭 Artifact 工具，且没有其他文件将其打开。在 v2.1.242 之前，优先级较高的文件可能会覆盖较低文件的 `true`，而不是该键充当锁定
+  * `true`: Claude Code 为该文件适用的每个会话关闭 Artifact 工具，且没有其他文件将其打开
   * `false`: 被忽略；要保持工具打开，请删除该键
 * **默认值**: 未设置，因此工具遵循你账户的[可用性](/docs/zh-CN/artifacts#availability)
 * **每个会话的覆盖**: [`CLAUDE_CODE_DISABLE_ARTIFACT`](/docs/zh-CN/env-vars) 设置为 `1` 会为一个会话关闭工具
@@ -5740,7 +5741,7 @@ Claude Desktop 为 Code 会话提供从你的桌面配置派生的策略，例�
 }
 ```
 
-当除你自己的用户设置之外的源保持工具关闭时，Claude Code 在 `/config` 中隐藏**Artifacts** 行，因为在那里打开它不会改变任何东西。[禁用 artifacts](/docs/zh-CN/artifacts#disable-artifacts) 列出了关闭工具的每种方式。在 v2.1.242 之前，Claude Code 在项目和本地设置中忽略此键，[优先级堆栈](/docs/zh-CN/settings#settings-precedence)中较高的文件可能会在较低文件的关闭上打开工具。
+当除你自己的用户设置之外的源保持工具关闭时，Claude Code 在 `/config` 中隐藏**Artifacts** 行，因为在那里打开它不会改变任何东西。[禁用 artifacts](/docs/zh-CN/artifacts#disable-artifacts) 列出了关闭工具的每种方式。
 
 <h3 id="inputneedednotifenabled">
   `inputNeededNotifEnabled`
@@ -5878,6 +5879,51 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
 </h2>
 
 通过辅助脚本提供凭证，对于组织，强制使用登录方法或组织。请参阅[身份验证](/docs/zh-CN/authentication)。
+
+<h3 id="allowedproviders">
+  `allowedProviders`
+</h3>
+
+列出机器可以通过其到达 Claude 的服务，例如 Anthropic API、Amazon Bedrock 或 LLM 网关。未列出的提供商上的会话在启动时、登录时以及下次联系 API 时被拒绝，因此在会话中期切换到未列出的提供商也被拒绝。[拒绝消息](/docs/zh-CN/errors#managed-settings-dont-allow-this-api-provider)会命名选择提供商的内容和继续的步骤。需要 Claude Code v2.1.285 或更高版本。
+
+* **Scope**: [`Managed`](#scopes)。机器自身管理员源设置的列表、MDM 策略和托管设置文件在服务器托管设置也提供一个列表时继续应用：会话随后只能使用两个列表上的提供商，因此服务器托管列表可以缩小机器允许的范围但永远不能扩大它。哪个机器源的 `allowedProviders` 计数遵循[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)。通过仅服务器托管设置传递的列表仅到达[获取服务器托管设置](/docs/zh-CN/server-managed-settings#platform-availability)的会话。
+* **Type**: 字符串数组，每个都是以下之一：
+  * `"anthropic"`：Anthropic 自有主机上的 Anthropic API，通过 claude.ai 或 Console 登录或 API 密钥。将其与 [`forceLoginMethod`](#forceloginmethod) 或 [`forceLoginOrgUUID`](#forceloginorguuid) 配对以也限制登录
+  * `"bedrock"`：[Amazon Bedrock](/docs/zh-CN/amazon-bedrock)
+  * `"vertex"`：[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai)，以前称为 Vertex AI
+  * `"foundry"`：[Microsoft Foundry](/docs/zh-CN/microsoft-foundry)
+  * `"anthropicAws"`：[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)
+  * `"mantle"`：Amazon Bedrock [Mantle 端点](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)。[在 Invoke API 旁边运行 Mantle](/docs/zh-CN/amazon-bedrock#run-mantle-alongside-the-invoke-api) 的会话使用两个提供商，因此将 `"bedrock"` 和 `"mantle"` 一起列出
+  * `"customEndpoint"`：Anthropic API 或云提供商的 API 发送到另一个主机，例如由 `ANTHROPIC_BASE_URL` 命名的 [LLM 网关](/docs/zh-CN/llm-gateway)、提供商的 `ANTHROPIC_*_BASE_URL` 变量或不是裸资源名称的 `ANTHROPIC_FOUNDRY_RESOURCE` 值。Claude Code 仅为托管 [`env`](#env) 块固定的确切值允许它
+  * `"gateway"`：[Cloud 网关](/docs/zh-CN/claude-apps-gateway)登录
+* **Default**: 未设置，因此可以使用任何提供商
+
+```json managed-settings.json theme={null}
+{
+  "allowedProviders": ["anthropic", "bedrock"]
+}
+```
+
+每个云提供商的条目意味着该提供商自己的服务，包括其区域、FIPS 和私有端点。
+
+Claude Code 不识别为提供商名称的条目被删除并报告，列表的其余部分保持强制执行。使用空列表，或其每个条目都无法识别的列表，Claude Code 拒绝每个提供商并不在机器上启动。
+
+<h4 id="endpoints-that-need-a-pin-in-managed-env">
+  需要在托管 `env` 中固定的端点
+</h4>
+
+固定是在托管 [`env`](#env) 块中设置的端点变量的值。当会话将提供商的流量发送到该提供商自己的服务以外的地方时，Claude Code 仅在会话的值与固定值相同时允许它。这些端点需要一个：
+
+* **`"customEndpoint"` 会话**：命名主机的变量，例如 `ANTHROPIC_BASE_URL`
+* **Amazon Bedrock**：AWS SDK 的 `AWS_ENDPOINT_URL`、`AWS_ENDPOINT_URL_BEDROCK` 和 `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` 变量当它们指向 Bedrock 自己的服务之外时。会话保持在 `"bedrock"` 下而不是 `"customEndpoint"`
+* **网关登录的 URL**：会话保持在 `"gateway"` 下，[`forceLoginGatewayUrl`](#forcelogingatewayurl) 也计为固定
+
+哪些 `env` 块计为固定取决于列表设置的位置：
+
+* **机器上的管理员源设置列表**：仅机器自身管理员源的 `env` 块计为固定
+* **仅服务器托管设置设置列表**：这些服务器托管设置中的 `env` 值也计为固定
+
+列表不判断云提供商的凭证和租赁变量或网络路径，例如 `HTTPS_PROXY` 和证书设置。在托管 `env` 块中为舰队设置这些。
 
 <h3 id="apikeyhelper">
   `apiKeyHelper`
@@ -6401,7 +6447,7 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 | :- | :- | :- |
 | Lists | 合并来自每个源的条目 | [`permissions.allow`](#permissions-allow)、[`sandbox.network.allowedDomains`](#sandbox-network-alloweddomains) 和其他列表密钥 |
 | Locks | 应用任何源设置的最严格值。当没有源设置严格值时，仅从最高源应用较宽松的值 | [`allowManagedPermissionRulesOnly`](#allowmanagedpermissionrulesonly)、[`permissions.disableBypassPermissionsMode`](#permissions-disablebypasspermissionsmode) 和其他布尔值或枚举锁 |
-| Restriction allowlists | 从设置它的最高源整体取值，不从较低源添加条目。当最高源未设置时，从下一个较低源整体取值 | [`availableModels`](#availablemodels)、[`allowedMcpServers`](#allowedmcpservers)、[`strictKnownMarketplaces`](#strictknownmarketplaces)、[`allowedChannelPlugins`](#allowedchannelplugins) 和 [`fallbackModel`](#fallbackmodel) 链 |
+| Restriction allowlists | 从设置它的最高源整体取值，不从较低源添加条目。当最高源未设置时，从下一个较低源整体取值 | [`availableModels`](#availablemodels)、[`allowedMcpServers`](#allowedmcpservers)、[`allowedProviders`](#allowedproviders)、[`strictKnownMarketplaces`](#strictknownmarketplaces)、[`allowedChannelPlugins`](#allowedchannelplugins) 和 [`fallbackModel`](#fallbackmodel) 链 |
 | Values taken whole | 从设置它的最高源整体取值，不合并来自较低源的条目或字段。当最高源未设置时，从下一个较低源整体取值 | [`sandbox.credentials.awsPairs`](#sandbox-credentials-awspairs)、[`sandbox.ripgrep`](#sandbox-ripgrep) |
 | Provided MCP servers | 合并来自每个源的服务器名称。当两个源设置相同名称时，应用较高源的整个条目 | [`managedMcpServers`](#managedmcpservers) |
 | Read from the highest-priority source only | 仅从携带策略密钥的最高优先级源读取密钥，因此即使最高源未设置任何值，较低源的值也会被忽略 | [`apiKeyHelper`](#apikeyhelper)、[`awsAuthRefresh`](#awsauthrefresh)、[`awsCredentialExport`](#awscredentialexport)、[`gcpAuthRefresh`](#gcpauthrefresh)、[`otelHeadersHelper`](#otelheadershelper)、`proxyAuthHelper`、[`forceLoginOrgUUID`](#forceloginorguuid)、[`forceLoginMethod`](#forceloginmethod) 的 `"claudeai"` 和 `"console"` 值、[`parentSettingsBehavior`](#parentsettingsbehavior)、[`modelPicker`](#modelpicker)、[`policyHelper`](#policyhelper)、[`permissions.defaultMode`](#permissions-defaultmode) |
@@ -6415,6 +6461,7 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 * **[`policyHelper`](#policyhelper)**: Claude Code 仅在携带策略密钥的最高源是 MDM 策略或托管设置文件时才接受它，因此在服务器管理的设置下它不适用。
 * **[`modelOverrides`](#modeloverrides)**: 与 `availableModels` 配对。Claude Code 从设置它的最高源取值 `modelOverrides`，除非较高源设置 `availableModels` 而不设置 `modelOverrides`。在这种情况下，它忽略来自每个源的 `modelOverrides`。
 * **[`forceLoginGatewayUrl`](#forcelogingatewayurl)、[`gatewayInternalNetworks`](#gatewayinternalnetworks) 和 [`forceLoginMethod`](#forceloginmethod) 的 `"gateway"` 值**: Claude Code 从不从服务器管理的设置读取它们中的任何一个，因此那里的值既不适用也不隐藏在 MDM 策略或托管设置文件中设置的值。在机器上的管理员源中，仅携带策略密钥的最高排名源提供它们，无论是否也存在服务器管理的设置。
+* **[`allowedProviders`](#allowedproviders)**: 在表格的规则之后，机器自己的列表仍然限制结果，如其条目的 Scope 注释所述。
 
 要确认机器上合并了哪些源，请运行 `/status` 并[读取 `Setting sources` 行](/docs/zh-CN/managed-settings#read-the-source-in-/status)。
 

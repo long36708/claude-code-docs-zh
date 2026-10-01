@@ -201,6 +201,18 @@ Claude Code 接受以下形式之一的源：
 
 成功的添加打印 `Successfully added marketplace: <name>`。
 
+<h3 id="invalid-git-url">
+  `Invalid git URL`
+</h3>
+
+您添加了市场、安装了插件或从 git 地址运行了更新，命令失败，消息中显示 `Invalid git URL`。
+
+Claude Code 在运行 git 之前检查每个 git 地址。它拒绝其协议不支持的地址。它也拒绝 git 可能读取为命名不同服务器或文件夹的地址。
+
+地址后面的文本命名要更改的内容。按照消息说的重写地址并再次运行命令。
+
+拒绝消息改为说 `is blocked by enterprise policy` 来自您组织的设置。请参阅 [市场源被企业策略阻止](#marketplace-source-is-blocked-by-enterprise-policy)。
+
 <h3 id="path-does-not-exist">
   `Path does not exist: <path>`
 </h3>
@@ -409,6 +421,19 @@ Claude Code 在您的 `PATH` 上查找 `git`，并拒绝运行仅在当前目录
 仅在项目或本地作用域安装的插件不会触发此消息。Claude Code 允许您也在用户作用域安装它，因此它在其他项目中可用。
 
 您的 shell 中的 `claude plugin install` 打印不同的消息。对于已在目标作用域安装的插件，它打印 `Plugin "<name>@<marketplace>" is already installed (scope: user)` 并以 0 退出。如果其缓存目录缺失，相同的命令重新下载它。
+
+<h3 id="plugin-would-share-its-folder">
+  `"<plugin>" was not installed: it would share its folder with "<other>"`
+</h3>
+
+您通过 `claude plugin install`、`/plugin` 或会话中的安装建议安装了插件，Claude Code 拒绝了它，显示此行或 `would share its saved data with`。
+
+被拒绝的插件的 id 和已安装的插件的 id 映射到磁盘上的同一文件夹：一旦 `.` 和 `@` 被写成 `-`，它们就是相同的。在 macOS 和 Windows 上，仅在大小写上不同的 id 也映射到同一文件夹。安装两者都会将一个插件的文件放在另一个的文件夹中，所以 Claude Code 拒绝并且已安装的插件保留其文件。
+
+消息命名了出路：
+
+* **其他插件已安装**：消息说 `Only one of the two can be installed.` 并命名 `claude plugin uninstall` 命令，或 `/plugin` 中的卸载步骤，删除其他插件。运行它，然后再次安装。对于卸载删除和保留的内容，请参阅 [卸载删除和保留的内容](/docs/zh-CN/plugins/cli-reference#what-an-uninstall-deletes-and-keeps)。
+* **两个 id 在一次安装中到达**，例如插件及其需要的依赖项：没有安装顺序有帮助。只有列出这两个插件的市场的维护者可以通过重命名其中一个来修复它。当两者来自不同的市场时，任一个的维护者都可以。
 
 <h3 id="this-plugin-uses-a-source-type-your-claude-code-version-does-not-suppo">
   `This plugin uses a source type your Claude Code version does not support`
@@ -790,6 +815,14 @@ claude plugin install <name>@<marketplace> --scope project
 * **`URL is unset or invalid`**：URL 使用的 `${user_config.*}` 选项未设置。运行 `/plugin configure <plugin>` 设置它
 * **`has an invalid MCP url`** 或 **`headersHelper for MCP server '<server>' references ${user_config.*}`**：插件自己的配置有问题。修复您的插件的 MCP 配置中的 `url` 或 `headersHelper`，或如果插件不是您的，向插件的作者报告。`headersHelper` 情况在 [插件命令参考 user\_config](/docs/zh-CN/errors#plugin-command-references-user-config) 下有其自己的条目
 
+<h4 id="bundled-mcp-server-name-was-not-started-it-needs-configuration">
+  `Bundled MCP server "<name>" was not started: it needs configuration`
+</h4>
+
+插件包括服务器作为 [MCPB bundle](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server)，声明 `user_config`，且必需的设置没有保存的值或保存的值失败 bundle 自己的验证，所以 Claude Code 跳过启动服务器。插件的其余部分工作。
+
+在 `/plugin` 的 **Installed** 选项卡上选择插件并选择 **Configure** 以提供值。保存后，`/plugin` 显示 `Configuration saved.` 并关闭，Claude Code 重新加载插件如 [管理已安装的插件](/docs/zh-CN/plugins/install#manage-installed-plugins) 下所述。服务器在该重新加载应用后启动。在 v2.1.285 之前，Claude Code 跳过服务器而不显示此行。
+
 <h4 id="server-is-configured-but-never-connects">
   服务器已配置但永远不连接
 </h4>
@@ -934,9 +967,10 @@ Skills 从插件根目录的 `skills/` 加载，commands 从插件根目录的 `
 
 你的插件声明了 `userConfig` 选项，但安装时没有出现配置对话框。
 
-交互式安装显示对话框，shell 命令改为将值作为标志：
+安装是否要求这些值取决于你在哪里运行它：
 
 * **在会话中 `/plugin install`，或 `/plugin` 中的 Discover 选项卡**：对话框是此交互式安装的一部分
+* **VS Code 扩展的 Manage plugins 对话框**：在安装后作为表单要求未设置的选项。在 v2.1.285 之前，在那里安装不显示选项表单，所以使用 `/plugin configure <plugin>@<marketplace>` 从终端会话设置值
 * **在你的 shell 中 `claude plugin install`**：从不提示 `userConfig` 值。它保存你传递的任何 `--config KEY=VALUE` 值，当选项保持未设置时，它打印 `N userConfig options not yet set — run /plugin configure <plugin>@<marketplace> in Claude Code, or pass --config KEY=VALUE.` 当任何未设置的选项是必需的时，`(M required)` 跟在 `not yet set` 后面。
 
 如果你从 shell 安装，请使用 `--config` 传递值，每个选项一个标志：
@@ -945,9 +979,13 @@ Skills 从插件根目录的 `skills/` 加载，commands 从插件根目录的 `
 claude plugin install my-plugin@my-marketplace --config api_url=https://example.com
 ```
 
-当每个选项都设置后，安装输出不会包含 `not yet set` 行。要在之后打开对话框，请在会话中运行 `/plugin configure my-plugin@my-marketplace`。
+当每个选项都设置后，安装输出不会包含 `not yet set` 行。
+
+要在之后打开对话框，请在会话中运行 `/plugin configure my-plugin@my-marketplace`。从 shell，[`claude plugin configure`](/docs/zh-CN/plugins/cli-reference#plugin-configure) 显示哪些选项仍未设置，并保存在 stdin 上管道传入的值。它需要 Claude Code v2.1.285 或更高版本。
 
 如果你传递清单未声明的 `--config` 键，插件仍会安装，命令会打印 `⚠ Installed, but --config not applied: --config key "<key>" isn't declared in this plugin's userConfig.` 后跟插件声明的键。
+
+对于运送声明自己的 `user_config` 的[MCPB 包文件](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server)的插件，消息改为读取 `isn't declared in this plugin's userConfig or by its bundled MCP servers.`，已知的键包括该服务器的键，写作 `<server>.<key>`。清单通过 URL 引用的包在安装时不会被读取，所以其键不会被列出，消息说在 `/plugin` 中配置它。设置 `<server>.<key>` 键需要 Claude Code v2.1.285 或更高版本。
 
 <h3 id="claude-plugin-validate-reports-errors">
   `claude plugin validate` 报告错误

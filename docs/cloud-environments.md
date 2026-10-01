@@ -439,7 +439,7 @@ VM 可能会停止需要明显更多内存的工作，例如大型构建工作�
 
 * **Claude 运行的命令**：云环境不设置自己的命令超时，因此 Bash 工具的默认值适用。Claude 默认等待 2 分钟的命令，最多可以要求 10 分钟。
 
-  当命令达到其[超时](/docs/zh-CN/tools-reference#timeout-and-output-limits)时，Claude Code [将其移到后台](/docs/zh-CN/tools-reference#background-commands)，而不是停止它，除非命令以 `sleep` 开头。以这种方式移动的命令可以继续运行最多 30 分钟，然后 Claude Code 在其[后台时间限制](/docs/zh-CN/tools-reference#background-commands)处停止它。将 `BASH_DEFAULT_TIMEOUT_MS` 设置为 `1800000` 毫秒以上会延长该限制以及前台默认值。
+  当命令达到其[超时](/docs/zh-CN/tools-reference#timeout-and-output-limits)时，Claude Code [将其移到后台](/docs/zh-CN/tools-reference#foreground-commands-that-move-to-the-background)，而不是停止它，除非命令以 `sleep` 开头。以这种方式移动的命令可以继续运行最多 30 分钟，然后 Claude Code 在其[后台时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)处停止它。将 `BASH_DEFAULT_TIMEOUT_MS` 设置为 `1800000` 毫秒以上会延长该限制以及前台默认值。
 * **SessionStart hooks**：Claude Code 在 600 秒后取消 `command` hook，除非您在 hook 条目上设置 [`timeout`](/docs/zh-CN/hooks#common-fields)（以秒为单位）。Claude Code 不会对您使用 [`async: true`](/docs/zh-CN/hooks#run-hooks-in-the-background) 运行的 hook 强制执行超时。
 * **设置脚本**：花费超过大约五分钟的脚本不会被缓存。[脚本要求](#script-requirements)涵盖如何保持在该时间以下。
 * **空闲会话**：会话在一段时间不活动后停止，其 VM 被回收。[设置环境变量](#set-environment-variables)描述会话在每种情况下会获取什么，[环境已过期](/docs/zh-CN/claude-code-on-the-web#environment-expired)涵盖如何重新打开 VM 被回收的会话。

@@ -418,6 +418,8 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
   ```
 </CodeGroup>
 
+要确认阻止，请在 `PreToolUse` 下注册回调，使用 `Write|Edit` 匹配器，并要求代理在 `/etc` 下创建文件：Write 工具在消息流中的结果包含 `Writing to /etc is not allowed`，并且不会创建任何文件。
+
 <h3 id="auto-approve-specific-tools">
   自动批准特定工具
 </h3>
@@ -468,7 +470,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 
 当事件触发时，所有匹配的 hooks 并行运行。对于权限决策，最严格的结果获胜：单个 `deny` 会阻止工具调用，无论其他 hooks 返回什么。由于完成顺序是不确定的，请编写每个 hook 以独立行动，而不是依赖另一个 hook 已运行。
 
-下面的示例为每个工具调用注册三个独立检查：
+下面的示例为每个工具调用注册三个独立检查。其中的 hook 名称，例如 Python 中的 `audit_logger` 或 TypeScript 中的 `auditLogger`，代表您定义的回调：
 
 <CodeGroup>
   ```python Python theme={null}
@@ -500,7 +502,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
   使用多工具匹配器过滤
 </h3>
 
-使用多工具匹配器在相关工具间共享一个回调。此示例注册三个具有不同范围的匹配器：
+使用多工具匹配器在相关工具间共享一个回调。此示例注册三个具有不同范围的匹配器，其中每个 hook 名称代表您定义的回调：
 
 * 管道分隔的精确列表（`Write|Edit|NotebookEdit`）仅对文件修改工具触发 `file_security_hook`。
 * 正则表达式（`^mcp__`）对任何名称以 `mcp__` 开头的 MCP 工具触发 `mcp_audit_hook`。
@@ -584,6 +586,8 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
   };
   ```
 </CodeGroup>
+
+要确认 hook 触发，请注册回调并要求代理将小任务委派给子代理，例如列出当前目录中的文件：当子代理完成时，回调会打印 `[SUBAGENT] Completed:` 行，其中包含子代理的 ID 和脚本路径。
 
 <h3 id="make-http-requests-from-hooks">
   从 hooks 发出 HTTP 请求

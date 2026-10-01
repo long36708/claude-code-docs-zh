@@ -87,7 +87,7 @@
 运行器一次为一个所有者服务。运行器拾取的第一个会话将运行器锁定到该会话的所有者，然后运行器仅为该所有者运行会话，达到配置的容量。所有者是谁取决于会话如何启动：
 
 * **用户启动的会话**：所有者是该用户的帐户。
-* **Claude Tag 频道会话**：Claude 运行它们时没有附加用户帐户，因此所有者是启动会话的 [Claude Tag 代理](https://claude.com/docs/claude-tag/concepts/glossary#agent-identity)。该代理启动的每个频道会话都有相同的所有者，无论谁发送了 Slack 消息，因此当您在 `--capacity` 大于 1 或正 `--drain-grace-sec` 时运行它时，锁定到它的运行器为不同的人启动的会话服务。锁定到用户的运行器永远不会拾取这些，锁定到 Claude Tag 代理的运行器永远不会拾取用户的会话。
+* **Claude Tag 频道会话**：Claude 运行它们时没有附加用户帐户，因此所有者是启动会话的 [Claude Tag 代理](https://claude.com/docs/claude-tag/concepts/glossary#agent-identity)。该代理启动的每个频道会话都有相同的所有者，无论谁发送了 Slack 消息，因此当您在 `--capacity` 大于 1 或正 `--drain-grace-sec` 时运行它时，锁定到它的运行器为不同的人启动的会话服务。
 
 因此，最小舰队大小是您期望同时活跃的所有者数量，计算用户和 Claude Tag 代理。
 

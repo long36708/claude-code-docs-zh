@@ -86,8 +86,8 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 | 您如何运行 Claude Code | 内置起始权限模式 |
 | :- | :- |
 | 任何设置文件将 `disableAutoMode` 设置为 `"disable"` | `default` |
-| `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/permissions) | `default` |
-| 在终端或通过 [VS Code 扩展](/docs/zh-CN/vs-code) | `auto`（Claude Code v2.1.283 或更高版本）；在较早的版本上，在 Pro、Max 或 Team 计划中 `auto`（在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中），否则为 `default` |
+| `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/permissions#permission-modes) | 在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中为 `default`。在不获取功能标志的会话中，例如在第三方提供商上或关闭遥测的情况下，Claude Code v2.1.285 或更高版本中为 `auto`，较早版本中为 `default`。组织策略禁止 `auto` 默认值的会话改为以 `default` 启动 |
+| 在终端或通过 [VS Code 扩展](/docs/zh-CN/vs-code) | Claude Code v2.1.283 或更高版本中为 `auto`；在较早的版本上，在 Pro、Max 或 Team 计划中为 `auto`（在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中），否则为 `default` |
 
 在您[安装或升级后的第一个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)中，Claude Code 可以在其功能标志到达之前选择起始权限模式。该会话可能以与表格不同的权限模式启动，您的下一个会话与表格匹配。
 
@@ -98,7 +98,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 * 在终端中，一次，在会话顶部
 * 在 VS Code 扩展中，作为新对话屏幕上的卡片，保留直到您关闭它
 
-在 Pro、Max 和 Team 计划上，如果您的 `~/.claude/settings.json` 将 `defaultMode` 设置为 `auto` 以外的值，且没有其他设置文件设置它，您的会话继续以该模式启动。Claude Code 在终端或 VS Code 扩展中询问一次是否将设置更改为自动模式。如果您拒绝，您的设置保持原样。
+如果您的 `~/.claude/settings.json` 将 `defaultMode` 设置为 `auto` 以外的值，且没有其他设置文件设置它，您的会话继续以该模式启动。在 Pro、Max 和 Team 计划上，以及在[不获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中，Claude Code 在终端或 VS Code 扩展中询问一次是否将设置更改为自动模式。如果您拒绝，您的设置保持原样。
 
 <h3 id="start-in-a-different-mode">
   以不同的权限模式启动
@@ -302,17 +302,17 @@ claude --permission-mode plan
 自动模式还会促使 Claude 继续工作而不停下来提出澄清问题，尽管当您的提示或技能明确依赖它时 Claude 仍会询问。为了在仍会提示您的模式中获得更强的自主行为，请改为设置[主动输出风格](/docs/zh-CN/output-styles)。
 
 <Warning>
-  自动模式减少了权限提示，但不保证安全。将其用于您信任总体方向的任务，而不是作为敏感操作审查的替代品。
+  自动模式减少权限提示但不保证安全。将其用于您信任总体方向的任务，而不是作为敏感操作审查的替代品。
 </Warning>
 
-自动模式仅在您的账户满足以下所有要求时可用：
+自动模式仅在您的账户满足所有这些要求时可用：
 
 * **计划**：所有计划。
 * **组织**：在 Team 和 Enterprise 上，自动模式默认可用。管理员可以通过在[托管设置](/docs/zh-CN/managed-settings)中将 `permissions.disableAutoMode` 设置为 `"disable"` 来为组织关闭它。
 * **模型**：在 Anthropic API 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 上，Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本，或[Fable 模型](/docs/zh-CN/model-config#work-with-fable)。在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和已登录的[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)会话上，仅 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本和 Fable 模型。较旧的模型，包括 Sonnet 4.5、Opus 4.5、Haiku 和 claude-3 模型，在任何提供商上都不受支持。
 * **提供商**：在 Anthropic API、AWS 上的 Claude Platform、Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和已登录的 Claude 应用网关会话上默认可用。
 
-如果 Claude Code 报告自动模式不可用，首先检查这些要求以及任何设置文件是否设置了 [`disableAutoMode`](/docs/zh-CN/settings-reference#disableautomode)。Anthropic 也可能已在服务器端关闭了自动模式，或服务器可能已为您的账户拒绝了自动模式。收到任一答案的会话会保持自动模式关闭直到会话结束，因此稍后启动新会话。
+如果 Claude Code 报告自动模式不可用，首先检查这些要求以及任何设置文件是否设置了 [`disableAutoMode`](/docs/zh-CN/settings-reference#disableautomode)。Anthropic 也可能已在服务器端关闭自动模式，或服务器可能已为您的账户拒绝自动模式。接收任一答案的会话会保持自动模式关闭直到会话结束，因此稍后启动新会话。
 
 一条单独的消息命名一个模型并说自动模式"无法确定"操作的安全性意味着分类器请求失败。该失败通常是暂时的，但在 Amazon Bedrock 上，它可能会重复直到您的账户可以调用命名的模型。有关原因和处理方法，请参阅[错误参考](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)。
 
@@ -322,11 +322,11 @@ claude --permission-mode plan
   Bedrock、Agent Platform 或 Foundry 上的自动模式
 </h3>
 
-在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai)、[Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 和已登录的[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)会话上，自动模式默认可用。在 Claude Code v2.1.283 或更高版本中，它也是交互式终端和 [VS Code](/docs/zh-CN/vs-code) 会话的[内置起始权限模式](#which-mode-a-session-starts-in)。要自己选择起始权限模式，请按照[以不同权限模式启动](#start-in-a-different-mode)的描述设置 `permissions.defaultMode`，或从 VS Code 扩展的模式指示器中选择权限模式。
+在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai)、[Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 和已登录的[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)会话上，自动模式默认可用。当没有其他设置权限模式时，它也是[内置起始权限模式](#which-mode-a-session-starts-in)，在该部分的表列出的版本上。要自己选择起始权限模式，请按照[以不同权限模式启动](#start-in-a-different-mode)的描述设置 `permissions.defaultMode`，或从 VS Code 扩展的模式指示器中选择权限模式。
 
-仅这些提供商上支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本和 Fable 模型。在任何其他模型上，会话以 Manual 模式启动。
+这些提供商上仅支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本和 Fable 模型。在任何其他模型上，会话以 Manual 模式启动。
 
-要防止开发人员使用自动模式，请在[托管设置](/docs/zh-CN/managed-settings)中将 `disableAutoMode` 设置为 `"disable"`。这会从 `Shift+Tab` 循环中移除 `auto`，并且使用 `--permission-mode auto` 启动的会话会以 Manual 模式启动。已在自动模式中运行的会话在设置从[管理员部署的源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)到达该会话时会离开它，并显示 `auto mode disabled by settings`。在 v2.1.251 之前，运行中的会话会保持自动模式直到它结束。
+要防止开发人员使用自动模式，请在[托管设置](/docs/zh-CN/managed-settings)中将 `disableAutoMode` 设置为 `"disable"`。这会从 `Shift+Tab` 循环中移除 `auto`，并且使用 `--permission-mode auto` 启动的会话以 Manual 模式启动。已在自动模式中运行的会话在设置从[管理员部署的源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)到达该会话时会离开它，并显示 `auto mode disabled by settings`。在 v2.1.251 之前，运行中的会话会保持自动模式直到它结束。
 
 在 v2.1.158 到 v2.1.206 中，自动模式在这些提供商上是关闭的，直到您设置 `CLAUDE_CODE_ENABLE_AUTO_MODE=1`，并且 Claude Code 在这些提供商上忽略 `defaultMode: "auto"`，除非也设置了该变量。该变量仍被接受以保持兼容性，从 v2.1.207 开始无效。
 
@@ -340,10 +340,10 @@ claude --permission-mode plan
 * **云提供商、LLM 网关或代理**：在 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，以及每当您将 `ANTHROPIC_BASE_URL` 指向[LLM 网关或代理](/docs/zh-CN/llm-gateway)时，无论您的计划如何。默认询问需要 Claude Code v2.1.278 或更高版本。
 * **已登录的[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)会话**：需要 Claude Code v2.1.280 或更高版本
 
-服务器审查操作的地方，其判决决定了它们。还有两种其他可能的结果：
+服务器审查操作的地方，其判决决定了它们。另外两种结果是可能的：
 
 * **服务器不审查会话**：响应完成时没有审查结果，或服务器回答它不审查此会话。最常见的原因是 LLM 网关或代理丢弃审查请求或结果，以及平台、区域或凭证还没有服务器端检查。Claude Code 回退到自己的分类器请求。一旦该回退对会话的其余部分生效，它会在那些请求被计费的账户上显示[关于分类器请求费用的通知](/docs/zh-CN/auto-mode-classifier-billing)。
-* **服务器对操作没有给出判决**：Claude Code 拒绝该操作而不是运行它而不审查。在任何连接上，当响应在审查结果到达之前结束或结果以 Claude Code 无法读取的形式到达时，这会发生。丢弃响应或重写结果的 LLM 网关或代理可能导致任一情况。在直接连接到 Anthropic API 时，当服务器对操作的检查失败时也会发生，例如超时。[服务器未返回安全判决](/docs/zh-CN/errors#the-server-returned-no-safety-verdict)涵盖拒绝消息、拒绝重复时发生的情况以及处理方法。
+* **服务器对操作没有给出判决**：Claude Code 拒绝该操作而不是运行它未审查。在任何连接上，当响应在审查结果到达之前结束或结果以 Claude Code 无法读取的形式到达时，这会发生。LLM 网关或代理切断响应或重写结果可能导致任一情况。在直接连接到 Anthropic API 时，当服务器对操作的检查失败时也会发生，例如超时。[服务器未返回安全判决](/docs/zh-CN/errors#the-server-returned-no-safety-verdict)涵盖拒绝消息、拒绝重复时发生的情况以及处理方法。
 
 要跳过询问服务器并始终使用 Claude Code 自己的分类器请求，请设置 [`CLAUDE_CODE_AUTO_MODE_SERVER=0`](/docs/zh-CN/env-vars)。在直接连接到 Anthropic API 时，该变量需要 Claude Code v2.1.281 或更高版本。将其设置为 `1` 会在没有它的会话中打开服务器审查，例如 `-p` 或 Agent SDK 会话，除非您也设置了 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`。如果您设置 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 并保持 `CLAUDE_CODE_AUTO_MODE_SERVER` 未设置，Claude Code 也会停止询问服务器，除了[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities)描述的情况。
 
@@ -363,10 +363,10 @@ claude --permission-mode plan
 * 修改共享基础设施
 * 不可逆地销毁会话前存在的文件
 * 强制推送
-* 提交或推送会在运行时向仓库外发送秘密或敏感数据的更改，或扩大部署公开的内容。这涵盖将秘密传递给不已接收它的目的地的 CI 工作流或部署配置、读取秘密存储并发送数据的脚本或设置步骤，以及扩大部署发布内容的配置更改，例如注册表、可见性、工件或源映射设置。检查适用于任何分支，即使仓库是公开的也适用，并在提交或推送时触发，无论该提交或推送是否触发管道；清除它需要命名执行效果，而不仅仅是提交或推送。在 v2.1.211 之前，此检查的范围仅限于默认分支：当推送携带敏感内容、隐瞒或误描述相对于您要求的内容、从仓库外移植的内容或绕过您要求的审查的内容时，推送到那里会被阻止
-* `git reset --hard`、`git checkout -- .`、`git restore .`、`git clean -fd`、`git stash drop` 或 `git stash clear`，分类器假设会丢弃未提交的更改
+* 提交或推送会在运行时向仓库外发送秘密或敏感数据的更改，或扩大部署公开的内容。这涵盖将秘密传递给不已接收它的目的地的 CI 工作流或部署配置、读取秘密存储并发送数据的脚本或设置步骤，以及扩大部署发布内容的配置更改，例如注册表、可见性、工件或源映射设置。检查适用于任何分支，即使仓库是公开的也适用，并在提交或推送时触发，无论该提交或推送是否触发管道；清除它需要命名执行效果，而不仅仅是提交或推送。在 v2.1.211 之前，此检查的范围仅限于默认分支：推送到那里在携带敏感内容、隐瞒或误描述相对于您要求的内容、从仓库外移植的内容或绕过您要求的审查的内容时被阻止
+* `git reset --hard`、`git checkout -- .`、`git restore .`、`git clean -fd`、`git stash drop` 或 `git stash clear`，分类器推测会丢弃未提交的更改
 * `git commit --amend` 当 HEAD 处的提交不是在此会话中创建的
-* 从 v2.1.198 开始，`git commit --amend` 当 HEAD 处的提交已被推送。仅消息重述不被阻止：`--amend -m` 在 Claude 在此会话期间创建的提交上没有新暂存的内容
+* 从 v2.1.198 开始，`git commit --amend` 当 HEAD 处的提交已被推送。仅消息重述不被阻止：`--amend -m` 在此会话中 Claude 创建的提交上没有新暂存的内容
 * `terraform destroy`、`pulumi destroy`、`cdk destroy` 或 `terragrunt destroy`，以及应用销毁资源的计划
 * 写入秘密管理器，或更改 DNS 记录或 TLS 证书
 * 合并没有人类批准的拉取请求、批准 Claude 自己的拉取请求或禁用 CI 检查
@@ -379,43 +379,43 @@ claude --permission-mode plan
 * 打开隧道或反向 shell 使本地服务可从公网访问
 * 将实时凭证或令牌打印到记录或文件中
 * 访问在您的[环境](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure)中列为敏感数据位置的位置，或从一个位置复制数据。从 v2.1.198 开始，这也阻止从一个位置向条目排除的受众发送数据
-* 绕过您的内部包注册表将包安装路由到公共注册表。从 v2.1.198 开始，这也适用于您在对话中告诉 Claude 内部注册表或镜像存在的情况，而不仅仅是在您的环境中列出的情况
+* 绕过您的内部包注册表路由包安装到公开注册表。从 v2.1.198 开始，这也适用于您在对话中告诉 Claude 内部注册表或镜像存在的情况，而不仅仅是在您的环境中列出的情况
 * 使用禁用安全防护的标志运行命令，如 `--insecure`
 * 启动在没有人类批准或沙箱的情况下运行的自主代理循环，例如使用 `--dangerously-skip-permissions` 或 `--no-sandbox` 启动的循环。从 v2.1.198 开始，这也涵盖运行禁用隔离和按操作批准的第三方代理或评估工具，例如使用 `--yes-always` 启动的运行器
-* [Chrome 中的 Claude](/docs/zh-CN/chrome)浏览器操作可能会向外源发送页面内容、cookie 或凭证
+* [Chrome 中的 Claude](/docs/zh-CN/chrome)浏览器操作可能会向源外发送页面内容、cookie 或凭证
 
 其中几个类别取决于[环境](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure)条目，例如敏感的远程目标和受保护的 IaC 范围，您可以将其缩小到具体名称。
 
 Claude Code v2.1.198 及更高版本也默认阻止这些：
 
-* 通过通配符、glob 或年龄过滤器而不是特定命名路径删除 `/tmp`、`$TMPDIR` 或其他共享暂存或缓存目录中的文件
-* 在您自己的消息未授权这些详情给该收件人的情况下，在发送、上传、发布或写入给其他人或共享系统的内容中包含敏感详情。当仓库在信任边界外或公开时，PR 和问题正文、提交消息和评论计为这种出站内容，包括您组织自己的公开仓库；内部文件路径、代码名称、实时 API 响应数据（如电子邮件或账户标识符）和基础设施标识符计为敏感详情。PR、问题和提交消息范围需要 Claude Code v2.1.200 或更高版本。PR 或问题正文中的实时个人数据（如电子邮件地址、账户或组织标识符或使用指标）需要您命名这些详情和收件人，无论仓库的可见性或信任边界如何。该检查需要 Claude Code v2.1.203 或更高版本
+* 通过通配符、glob 或年龄过滤器而不是特定命名路径删除 `/tmp`、`$TMPDIR` 或另一个共享暂存或缓存目录中的文件
+* 在发送、上传、发布或写入其他人或共享系统的内容中包含敏感详情，当您自己的消息没有为该收件人授权这些详情时。PR 和问题正文、提交消息和评论在仓库在信任边界外或公开时计为这种出站内容，包括您组织自己的公开仓库；内部文件路径、代码名称、实时 API 响应数据（如电子邮件或账户标识符）和基础设施标识符计为敏感详情。PR、问题和提交消息范围需要 Claude Code v2.1.200 或更高版本。PR 或问题正文中的实时个人数据（如电子邮件地址、账户或组织标识符或使用指标）需要您命名这些详情和收件人，无论仓库的可见性或信任边界如何。该检查需要 Claude Code v2.1.203 或更高版本
 * 向 Claude Code 自己的 tmux 窗格发送按键以驱动其自己的界面，分类器将其视为 Claude 更改自己的权限或监督
 
 Claude Code v2.1.200 及更高版本也默认阻止这些：
 
 * 注释掉、删除或强制通过保护安全行为的测试或断言，例如身份验证、访问控制、输入验证或沙箱
-* 删除或拆除 Claude 在会话中未创建的有状态资源，当没有更具体的删除规则适用且您未命名该资源时
+* 删除或拆除 Claude 在会话中未创建的有状态资源，当没有更具体的删除规则适用且您没有命名该资源时
 * 将 API 基础 URL、代理端点、webhook 接收器或注册表镜像重新指向不适合任务的第三方主机，包括在 `.env.example` 等示例文件中
 * 使用 `git remote set-url` 或 `git remote add` 更改推送去向，除非您命名了新远程
-* 将秘密或个人或受信数据推送到已知为公开的仓库，或将不属于该仓库自己工作的机密材料推送到那里。dotfiles 仓库自己的主题是个人或受信数据的唯一例外，来自私有仓库到任何公开表面的内容以相同方式被阻止；两项改进都需要 Claude Code v2.1.203 或更高版本。在 v2.1.203 之前，个人数据与机密材料分组，仅当它不属于该仓库自己的工作时才被阻止。当仓库的可见性未确定时，分类器不仅基于此阻止；它改为根据其他规则判断内容
+* 推送秘密或个人或受信任的数据到已知为公开的仓库，或推送不属于该仓库自己工作的机密材料到那里。dotfiles 仓库自己的主题是个人或受信任数据的唯一例外，来自私有仓库到任何公开表面的内容以相同方式被阻止；两项改进都需要 Claude Code v2.1.203 或更高版本。在 v2.1.203 之前，个人数据与机密材料分组，仅在不属于该仓库自己的工作时被阻止。当仓库的可见性未建立时，分类器不仅基于此阻止；它改为根据其他规则判断内容
 * 针对不同仓库或组织打开拉取请求、使用 `gh repo fork` 进行分叉或推送到第三方仓库，除非您命名了该外部目标
 
 Claude Code v2.1.203 及更高版本也默认阻止这些：
 
-* 来自敏感本地存储或其名称、路径或类型将其标记为敏感的文件的内容进入提交、推送、PR 或问题文本、gist 或粘贴或包发布，除非您命名了源和目的地。会话记录和对话日志、凭证和配置点文件夹（如 SSH 密钥、云凭证、浏览器配置文件和 shell 历史记录）以及用户数据导出都计为此，仓库是私有的不会清除它
+* 来自敏感本地存储或其名称、路径或类型将其标记为敏感的文件的内容进入提交、推送、PR 或问题文本、gist 或粘贴或包发布，除非您命名了源和目的地。会话记录和对话日志、凭证和配置点文件夹（如 SSH 密钥、云凭证、浏览器配置文件和 shell 历史）以及用户数据导出都计为此，仓库是私有的不会清除它
 
 Claude Code v2.1.205 及更高版本也默认阻止这些：
 
 * 写入 Claude Code 会话记录、`~/.claude/projects/` 下的 `.jsonl` 历史文件或您配置的配置目录，无论是直接还是通过 shell 命令。该规则也涵盖 Claude Code 为其自己的检查附加到每个记录条目的元数据行。读取记录不被阻止
-* 递归强制删除，例如 `rm -rf "$VAR"` 或 `Remove-Item -Recurse -Force $dir`，其目标是分类器看不到的任何地方分配的 shell 变量，或以这样的变量为根的 glob。该值仅来自较早的命令输出，分类器从不接收，因此分类器无法根据其他删除规则验证删除目标。当您命名被删除的确切路径或 Claude 使用写入命令的已解析文字路径重新运行删除时，该块会清除。分类器可以解析其目标的删除不受影响。
+* 递归强制删除，例如 `rm -rf "$VAR"` 或 `Remove-Item -Recurse -Force $dir`，其目标是在分类器看到的对话中任何地方都未分配的 shell 变量，或以这样的变量为根的 glob。该值仅来自较早的命令输出，分类器永远不会接收，因此分类器无法根据其他删除规则验证删除目标。当您命名被删除的确切路径或 Claude 使用写入命令的已解析文字路径重新运行删除时，该块会清除。其目标分类器可以解析的删除不受影响。
 
-  直接在变量下的 glob，如 `rm -rf "$VAR"/*`，是[关键路径](#critical-paths)。`Remove-Item` 目标是裸 `*` 或以 `/*` 或 `\*` 结尾的从不到达分类器：Claude Code [直接拒绝它们](#remove-item-in-powershell)。
+  直接在变量下的 glob，如 `rm -rf "$VAR"/*`，是[关键路径](#critical-paths)。`Remove-Item` 目标是裸 `*` 或以 `/*` 或 `\*` 结尾的永远不会到达分类器：Claude Code [直接拒绝它们](#remove-item-in-powershell)。
 
 Claude Code v2.1.257 及更高版本也默认阻止这些：
 
 * 从云实例元数据端点请求凭证，例如 `169.254.169.254`，或使用机器自己的服务账户或节点身份显式验证云、集群或注册表调用
-* 通过直接请求以外的路由到达公共主机，例如隧道、反向 shell 或重写为指向外部的解析器或代理配置
+* 通过直接请求以外的路由到达公开主机，例如隧道、反向 shell 或重写为指向外部的解析器或代理配置
 * 读取属于主机而不是您的任务的凭证，例如节点证书或节点的容器注册表身份验证
 * 连接到或扫描 Claude 未启动的同级容器、pod 或 VM，或容器下的节点
 
@@ -438,7 +438,7 @@ Claude Code v2.1.261 及更高版本也默认阻止这些：
 * 向您在 [`environment`](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure) 中列出的受信任域、存储桶和服务发送数据。这仅涵盖数据流，不涵盖同一基础设施上的破坏性或凭证操作
 * [Chrome 中的 Claude](/docs/zh-CN/chrome)导航到受信任的内部域、localhost 或您命名的 URL
 
-沙箱命令默认不获得网络访问。Claude 在命令本身上命名命令需要的主机，分类器与命令一起审查它们，批准的列表仅为该一个命令打开这些主机。[按命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)涵盖列表可以和不能打开什么以及命令到达未列出的主机时发生的情况。
+沙箱命令默认不获得网络访问。Claude 在命令本身上命名命令需要的主机，分类器与命令一起审查它们，批准的列表仅为该一个命令打开这些主机。[每个命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)涵盖列表可以和不能打开什么以及命令到达未列出的主机时发生的情况。
 
 运行 `claude auto-mode defaults` 以将完整规则列表打印为 JSON。如果常规操作被阻止，管理员可以通过 `autoMode.environment` 设置添加受信任的仓库、存储桶和服务：请参阅[配置自动模式](/docs/zh-CN/auto-mode-config)。
 
@@ -463,9 +463,9 @@ Claude Code v2.1.261 及更高版本也默认阻止这些：
   您在对话中陈述的边界
 </h3>
 
-分类器将您在对话中陈述的边界视为阻止信号。如果您告诉 Claude"不要推送"或"在我审查前等待再部署"，分类器会阻止匹配的操作，即使默认规则会允许它们。边界保持有效直到您在后续消息中解除它。Claude 自己的判断条件已满足不会解除它。
+分类器将您在对话中陈述的边界视为阻止信号。如果您告诉 Claude"不要推送"或"在我审查后再部署"，分类器会阻止匹配的操作，即使默认规则会允许它们。边界保持有效直到您在后续消息中解除它。Claude 自己的条件已满足的判断不会解除它。
 
-边界不存储为规则。分类器在每次检查时从记录中重新读取它们，因此如果[上下文压缩](/docs/zh-CN/costs#reduce-token-usage)移除陈述它的消息，边界可能会丢失。为了硬保证，请改为添加[拒绝规则](/docs/zh-CN/permissions#permission-rule-syntax)。
+边界不存储为规则。分类器在每次检查时从记录中重新读取它们，因此如果[上下文压缩](/docs/zh-CN/costs#reduce-token-usage)移除陈述边界的消息，边界可能会丢失。为了硬保证，请改为添加[拒绝规则](/docs/zh-CN/permissions#permission-rule-syntax)。
 
 <h3 id="approvals-you-state-in-conversation">
   您在对话中陈述的批准
@@ -473,9 +473,9 @@ Claude Code v2.1.261 及更高版本也默认阻止这些：
 
 如果您告诉 Claude 被阻止的操作是允许的，分类器将其读取为您的批准并可以清除阻止。您如何措辞决定了操作是否运行以及批准到达多远：
 
-* **命名操作及其具体情况**：您的消息必须命名操作和使其危险的具体事物，例如强制推送的分支。仅命名动词不会清除任何内容，因此"您可以强制推送"会使阻止保持有效。
+* **命名操作及其具体情况**：您的消息必须命名操作和使其危险的具体事项，例如强制推送的分支。仅命名动词不会清除任何内容，因此"您可以强制推送"会使阻止保持有效。
 * **期望它涵盖一个操作**：批准涵盖您命名的破坏性操作，因此稍后的操作再次被阻止，除非您授予批准为常设。要停止一次一个地批准常规模式，请将其添加到 [`autoMode.allow`](/docs/zh-CN/auto-mode-config#override-the-block-and-allow-rules)。
-* **某些阻止保持有效**：[分类器的优先级顺序](/docs/zh-CN/auto-mode-config#override-the-block-and-allow-rules)规定了您的批准可以到达哪些阻止。要运行它不会清除的步骤，请[离开自动模式](#switch-permission-modes)并回答权限提示。
+* **某些阻止保持有效**：[分类器的优先级顺序](/docs/zh-CN/auto-mode-config#override-the-block-and-allow-rules)列出您的批准可以到达的阻止。要运行它不会清除的步骤，请[离开自动模式](#switch-permission-modes)并回答权限提示。
 
 <h3 id="when-auto-mode-falls-back">
   当自动模式回退时
@@ -485,19 +485,19 @@ Claude Code v2.1.261 及更高版本也默认阻止这些：
 
 * **被阻止的操作**：Claude Code 显示通知并在 `/permissions` 下的**最近拒绝**选项卡中列出操作，您可以按 `r` 使用手动批准重试它。
 * **重复阻止**：如果分类器连续阻止操作 3 次或总共 20 次，自动模式暂停，Claude Code 恢复提示。批准提示的操作恢复自动模式。有关如何计数阻止的信息，请参阅[重复阻止阈值](#repeated-block-thresholds)。
-* **分类器无判决**：当独立于自动模式的安全检查拒绝分类器自己的请求或分类器的响应不解析时，Claude Code 拒绝操作而不显示通知或**最近拒绝**条目。有关每种情况显示的消息和处理方法，请参阅[自动模式无法确定操作的安全性](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)。
+* **分类器无判决**：当与自动模式分离的安全检查拒绝分类器自己的请求或分类器的响应不解析时，Claude Code 拒绝操作而不显示通知或**最近拒绝**条目。有关每种情况显示的消息和处理方法，请参阅[自动模式无法确定操作的安全性](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)。
 * **服务器无判决**：在[服务器端分类器审查](#server-side-classifier-review)下，Claude Code 拒绝服务器给不出判决的操作，并在连续十个响应都没有判决后停止轮次。请参阅[服务器未返回安全判决](/docs/zh-CN/errors#the-server-returned-no-safety-verdict)。
-* **检查期间的模式切换**：如果您在分类器检查待处理时切换权限模式，Claude Code 丢弃新模式不会请求的判决。您改为被提示批准，或在 [`dontAsk` 模式](#allow-only-pre-approved-tools-with-dontask-mode)中自动拒绝操作。
+* **检查期间的模式切换**：如果您在分类器检查待处理时切换权限模式，Claude Code 丢弃新模式不会请求的判决。您改为被提示批准，或在 [`dontAsk` 模式](#allow-only-pre-approved-tools-with-dontask-mode)中操作被自动拒绝。
 
 <h4 id="repeated-block-thresholds">
   重复阻止阈值
 </h4>
 
-3 个连续阻止和 20 个总阻止的阈值不可配置。总计数器对会话持续并仅在其自己的限制触发回退时重置。当独立于自动模式的安全检查拒绝分类器自己的请求时，Claude Code 不计数拒绝到任一阈值。
+3 个连续阻止和 20 个总阻止的阈值不可配置。总计数器对会话持续并仅在其自己的限制触发回退时重置。当与自动模式分离的安全检查拒绝分类器自己的请求时，Claude Code 不计数拒绝到任一阈值。
 
-没有 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 的[非交互式](/docs/zh-CN/headless) `-p` 运行没有回退提示。当重复阻止达到阈值时，操作不运行，Claude 继续工作。Claude Code 不停止运行。
+没有 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 的[非交互式](/docs/zh-CN/headless) `-p` 运行没有回退提示。当重复阻止到达阈值时，操作不运行，Claude 继续工作。Claude Code 不停止运行。
 
-重复阻止通常意味着分类器缺少关于您的基础设施的上下文。使用 `/feedback` 报告误报，或让管理员[配置受信任的基础设施](/docs/zh-CN/auto-mode-config)。
+重复阻止通常意味着分类器缺少关于您的基础设施的上下文。使用 `/feedback` 报告假阳性，或让管理员[配置受信任的基础设施](/docs/zh-CN/auto-mode-config)。
 
 <h3 id="how-auto-mode-evaluates-actions">
   自动模式如何评估操作
@@ -508,20 +508,20 @@ Claude Code v2.1.261 及更高版本也默认阻止这些：
 <span id="how-the-classifier-evaluates-actions" />
 
 <AccordionGroup>
-  <Accordion title="分类器如何评估操作">
+  <Accordion title="自动模式如何评估操作">
     每个操作都经过固定的决策顺序。第一个匹配的步骤获胜：
 
     1. 与您的[允许、询问或拒绝规则](/docs/zh-CN/permissions#manage-permissions)匹配的操作立即解决，但有以下例外：
        * 写入[受保护路径](#protected-paths)的操作路由到分类器，即使允许规则匹配
        * 没有允许规则批准针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除
-       * 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具直接提示您，即使允许规则匹配，连接器工具您的组织在会话中设置为 `ask` 的[也是如此](/docs/zh-CN/mcp#organization-controls-on-connector-tools)，其中该设置到达 Claude Code
-       * 携带[按命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)的 shell 命令也路由到分类器，即使允许规则匹配，因为规则批准命令，而不是其主机
-       * 与命令内容匹配的询问规则，例如 `Bash(git push *)`，回退到权限提示
+       * 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具直接提示您，即使允许规则匹配，连接器工具您的组织在会话中设置为 `ask` 的[组织控制](/docs/zh-CN/mcp#organization-controls-on-connector-tools)也是如此，其中该设置到达 Claude Code
+       * 携带[每个命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)的 shell 命令也路由到分类器，即使允许规则匹配，因为规则批准命令，而不是其主机
+       * 在命令内容上匹配的询问规则，例如 `Bash(git push *)`，回退到权限提示
        * [符号链接检查](/docs/zh-CN/permissions#symlinks)解决为受保护路径的写入在 Claude 请求的路径本身不受保护时提示您
-    2. 只读操作和您工作目录中的文件编辑自动批准，除了写入[受保护路径](#protected-paths)和[工作目录外的第一次读取](#first-read-outside-the-working-directories)，这会提示您
+    2. 只读操作和您工作目录中的文件编辑被自动批准，除了写入[受保护路径](#protected-paths)和[工作目录外的第一次读取](#first-read-outside-the-working-directories)，这会提示您
        * 在具有[服务器端分类器审查](#server-side-classifier-review)的会话中，只读和[沙箱](/docs/zh-CN/sandboxing#sandbox-modes) shell 命令等待该审查，如果它标记它们则被阻止
        * 您工作目录内的写入，[符号链接检查](/docs/zh-CN/permissions#symlinks)解决为其外的位置，提示您
-    3. 其他所有内容都进入分类器，除了[关键路径删除](#critical-paths)在其默认处理下。在步骤 1 中直接提示您的连接器工具和 `requiresUserInteraction` MCP 工具从不到达分类器，因此既不是组织要求的批准也不是同意步骤自动批准
+    3. 其他所有内容都进入分类器，除了[关键路径删除](#critical-paths)在其默认处理下。在步骤 1 中直接提示您的连接器工具和 `requiresUserInteraction` MCP 工具永远不会到达分类器，因此既不是组织要求的批准也不是同意步骤被自动批准
     4. 如果分类器阻止，Claude 接收原因。在大多数会话中，原因命名分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[审查拒绝](/docs/zh-CN/auto-mode-config#review-denials)
 
     进入自动模式时，授予任意代码执行的广泛允许规则被丢弃：
@@ -532,9 +532,9 @@ Claude Code v2.1.261 及更高版本也默认阻止这些：
     * `Agent` 允许规则
     * [`Monitor`](/docs/zh-CN/tools-reference#monitor-tool)允许规则，因为 Claude Code 通过 shell 运行 Monitor 命令
 
-    窄规则如 `Bash(npm test)` 保持有效。当您离开自动模式时，Claude Code 恢复丢弃的规则。在 v2.1.236 之前，Claude Code 在自动模式中保持 `Monitor` 允许规则有效，因此与整个工具匹配的规则在没有分类器审查的情况下批准 Monitor 命令。
+    狭窄的规则，如 `Bash(npm test)` 保持有效。Claude Code 在您离开自动模式时恢复丢弃的规则。在 v2.1.236 之前，Claude Code 在自动模式中保持 `Monitor` 允许规则有效，因此与整个工具匹配的规则批准 Monitor 命令而不进行分类器审查。
 
-    Claude Code 也在会丢弃未提交工作的命令之前运行 `git status`，例如 `git reset --hard` 或 `rm -rf`，并向分类器显示是否存在暂存、修改或未跟踪的工作。即使仓库的 git 配置设置 `status.showUntrackedFiles=no`，Claude Code 也在该检查中报告未跟踪的文件。
+    Claude Code 也在会丢弃未提交工作的命令之前运行 `git status`，例如 `git reset --hard` 或 `rm -rf`，并向分类器显示是否存在暂存、修改或未跟踪的工作。Claude Code 在该检查中报告未跟踪的文件，即使仓库的 git 配置设置 `status.showUntrackedFiles=no`。
 
     在 Claude Code 本身发送的分类器请求中，分类器看到用户消息、除只读查找（如文件读取和搜索）之外的工具调用以及您的 CLAUDE.md 内容。工具结果从这些请求中被剥离，因此文件或网页中的恶意内容无法直接操纵分类器。
 
@@ -547,18 +547,18 @@ Claude Code v2.1.261 及更高版本也默认阻止这些：
     分类器在三个点检查[子代理](/docs/zh-CN/sub-agents)工作：
 
     1. 在子代理启动之前，委托的任务描述被评估，因此看起来危险的任务在生成时被阻止。
-    2. 当子代理运行时，其每个操作都通过分类器，使用与父会话相同的规则，子代理前言中的任何 `permissionMode` 被忽略。
-    3. 当子代理完成时，分类器审查其工作和最终报告，然后父代读取报告。当分类器标记子代理的工作或报告，或单独的 API 安全检查拒绝审查时，报告仍被传递，前面加上安全警告。当分类器对审查不可用时，报告到达时带有注意在根据它采取行动前验证子代理工作的注意。
+    2. 当子代理运行时，其每个操作都经过与父会话相同的[决策顺序](#how-the-classifier-evaluates-actions)，具有相同的阻止和允许规则。子代理的 frontmatter 中的任何 `permissionMode` 都被忽略。
+    3. 当子代理完成时，分类器审查其工作和最终报告，然后父会话读取报告。当分类器标记子代理的工作或报告，或单独的 API 安全检查拒绝审查时，报告仍被传递，前面带有安全警告。当分类器对审查不可用时，报告到达时带有注意在根据其采取行动之前验证子代理工作的注意。
   </Accordion>
 
   <Accordion title="成本和延迟">
-    分类器默认在 Claude Sonnet 5 上运行，而不是在您的 `/model` 选择上。Anthropic 配置的服务器端分类器模型优先于该默认值。当您的会话模型是 Claude Sonnet 4.6 时，或当 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 排除 Sonnet 5 时，分类器改为在会话的模型上运行，或在会话在[Fable 模型](/docs/zh-CN/model-config#work-with-fable)上运行时在 Opus 模型上运行；在 Anthropic API 以外的提供商上，该 Opus 回退是提供商的默认 Opus 模型。
+    分类器默认在 Claude Sonnet 5 上运行，而不是在您的 `/model` 选择上。Anthropic 配置的服务器端分类器模型优先于该默认值。当您的会话模型是 Claude Sonnet 4.6 或当 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 排除 Sonnet 5 时，分类器改为在会话的模型上运行，或在会话在[Fable 模型](/docs/zh-CN/model-config#work-with-fable)上运行时在 Opus 模型上运行；在 Anthropic API 以外的提供商上，该 Opus 回退是提供商的默认 Opus 模型。
 
-    会话的第一个自动模式请求验证 Sonnet 5 默认值：如果请求成功，Sonnet 5 保持会话的分类器模型，如果它失败是因为模型不可用，会话改为使用回退。在该验证解决后，分类器的模型对会话不改变。
+    会话的第一个自动模式请求验证 Sonnet 5 默认值：如果请求成功，Sonnet 5 保持会话的分类器模型，如果它因模型不可用而失败，会话改为使用回退。
 
     在 Enterprise 计划和使用 Claude API 的账户、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上，分类器调用计入您的令牌使用。每次检查发送记录的一部分加上待处理操作，在执行前添加往返。读取和工作目录编辑在受保护路径外跳过分类器，因此开销主要来自 shell 命令和网络操作。服务器审查操作作为会话模型请求的一部分的地方，没有单独的分类器调用计数；请参阅[服务器端分类器审查](#server-side-classifier-review)。
 
-    沙箱网络访问不添加按连接分类器请求。分类器在一次审查中与命令一起判断[命令命名的主机](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)，Claude Code 检查每个连接对批准列表而不再次调用分类器。
+    沙箱网络访问不添加每个连接分类器请求。分类器在一次审查中与命令一起判断[命令命名的主机](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)，Claude Code 根据批准的列表检查每个连接而不再次调用分类器。
   </Accordion>
 </AccordionGroup>
 

@@ -281,13 +281,9 @@ Claude Code 在后台扫描，然后向你显示草稿。你可以整体接受�
   从 `/permissions` 编辑规则
 </h2>
 
-要在不打开设置文件的情况下查看和编辑分类器规则，请运行 [`/permissions`](/docs/zh-CN/permissions#manage-permissions) 并选择 **Auto mode** 选项卡。该选项卡需要 Claude Code v2.1.246 或更高版本，仅当 [auto mode 对您的会话可用](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 时才会显示。
+要在不打开设置文件的情况下查看和编辑分类器规则和 `environment` 条目，请运行 [`/permissions`](/docs/zh-CN/permissions#manage-permissions) 并选择 **Auto mode** 选项卡。该选项卡需要 Claude Code v2.1.246 或更高版本，仅当 [auto mode 对您的会话可用](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 时才会显示。
 
-该选项卡列出了来自 [分类器读取的每个作用域](#where-the-classifier-reads-configuration) 的 `allow`、`soft_deny`、`hard_deny` 和 `environment` 条目，并显示内置规则是否对每个部分生效。Claude Code 将来自 [managed settings](/docs/zh-CN/server-managed-settings) 或 `--settings` 标志的条目显示为只读，并将您在该选项卡上所做的每项更改保存到 `~/.claude/settings.json`。从该选项卡中，您可以：
-
-* 在 `allow`、`soft_deny` 和 `hard_deny` 部分中添加、编辑或删除规则。当您向某个部分添加第一条规则时，Claude Code 也会插入 `"$defaults"`，以便 [内置规则](#override-the-block-and-allow-rules) 保持生效。
-* 关闭或重新打开 `allow`、`soft_deny` 或 `hard_deny` 的内置规则。Claude Code 通过在您的列表中为该部分添加或删除 `"$defaults"` 来记录该选择，因此一个部分需要至少有一条您自己的规则，然后才能关闭其内置规则。
-* 在编辑器中将 `environment` 条目编辑为一个文档。如果您还没有配置任何 `environment` 条目，Claude Code 首先会询问是否替换内置环境，然后在完整的内置文本上打开编辑器。保存时，Claude Code 会将您的 `autoMode.environment` 数组替换为该文档。包含 `"$defaults"` 行以 [保留内置条目](#define-trusted-infrastructure)。
+Claude Code 将来自 [managed settings](/docs/zh-CN/server-managed-settings) 或 `--settings` 标志的条目显示为只读，并将您在该选项卡上所做的每项更改保存到 `~/.claude/settings.json`。
 
 <h2 id="route-all-shell-commands-through-the-classifier">
   通过分类器路由所有 shell 命令

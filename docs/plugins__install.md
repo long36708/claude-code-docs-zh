@@ -72,8 +72,9 @@
         摘要的最后一句告诉您插件在此会话中是否可用：
 
         * **Active now**：`Plugin is now active.` 不需要重新加载。
-        * **Reload needed**：`Run /reload-plugins to activate.` 面板关闭，Claude Code 为您运行该重新加载。如果重新加载会 [invalidate the prompt cache](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)，它会警告并改为保留插件待处理。运行 `/reload-plugins --force` 以激活它，这会花费一个未缓存的请求。
-        * **Load failed**：`The plugin couldn't be loaded`。在 `/plugin` 中打开 **Errors** 选项卡以了解原因，然后查看 [After install: plugin not working](/docs/zh-CN/plugins/troubleshooting#plugin-installed-but-not-working)。
+        * **Active, but a server needs setup**：`Plugin is now active.` 后跟 `Its bundled MCP server needs configuration before it can start`。插件的 [bundled MCP server](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server) 在您设置其选项之前无法启动。在 `/plugin` 的 **Installed** 选项卡上选择插件，然后选择 **Configure** 以设置服务器的选项。
+        * **Reload needed**：`Run /reload-plugins to activate.` 面板关闭，Claude Code 为您运行该重新加载。如果重新加载会 [使提示缓存失效](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)，它会警告并改为保留插件待处理。运行 `/reload-plugins --force` 以激活它，这会花费一个未缓存的请求。
+        * **Load failed**：`The plugin couldn't be loaded`。在 `/plugin` 中打开 **Errors** 选项卡以了解原因，然后查看 [安装后：插件不工作](/docs/zh-CN/plugins/troubleshooting#plugin-installed-but-not-working)。
       </Step>
 
       <Step title="确认插件有效">
@@ -248,7 +249,7 @@ claude plugin install formatter@your-org --scope project
 私有市场是您需要凭证才能克隆的存储库中的市场，在 GitHub 或任何其他 git 主机上。您使用与公共市场相同的 `/plugin marketplace add` 或 `claude plugin marketplace add` 命令添加它。Claude Code 使用已在您的机器上的 git 凭证克隆它，从不提示，因此每种连接方式都有要求：
 
 * **HTTPS**：您的 git 凭证助手适用，因此您使用 `gh auth login`、macOS Keychain 或 `git-credential-store` 设置的访问权限有效。交互式提示被抑制，因此您从未认证过的主机失败而不是要求密码。
-* **SSH**：主机必须已在您的 `known_hosts` 文件中，密钥必须在没有密码短语提示的情况下工作，因为主机指纹和密码短语提示也被抑制。
+* **SSH**：主机必须已在您的 `known_hosts` 文件中，密钥必须在没有密码短语提示的情况下工作。如果您的 git 设置在 `GIT_SSH_COMMAND`、`GIT_SSH` 或您的 git 配置的 `core.sshCommand` 中命名 SSH 程序，Claude Code 运行该程序。
 * **GitHub `owner/repo` shorthand**：Claude Code 检查您的 SSH 密钥是否向 `github.com` 认证，如果认证则通过 SSH 克隆，如果不认证则通过 HTTPS 克隆。设置 [`CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1`](/docs/zh-CN/env-vars#variables) 以跳过该检查并始终通过 HTTPS 克隆。
 
 当您运行 `/plugin install`、`/plugin marketplace update` 和 `claude plugin update` 时，相同的凭证适用。
@@ -288,7 +289,12 @@ Claude Code 在以 `claudeai-` 开头的本地名称下注册市场，该名称�
 
 * 输入以按名称或描述过滤。
 * 按 **Space** 启用或禁用所选插件，按 **f** 将其收藏。
-* 按 **Enter** 打开插件的详细信息。那里的菜单提供 **Disable plugin** 或 **Enable plugin**、**Update now** 和 **Uninstall**。采用设置的插件也提供 **Configure options**。
+* 按 **Enter** 打开插件的详细信息。
+
+插件的详细信息菜单提供 **Disable plugin** 或 **Enable plugin**、**Update now** 和 **Uninstall**。采用设置的插件还会显示两个更多项目，一个插件可以同时显示两者：
+
+* **Configure options**：当插件的清单声明 [`userConfig` 选项](/docs/zh-CN/plugins/manifest-reference#user-configuration) 时显示。打开这些选项的对话框
+* **Configure**：当插件包含 [bundled MCP server](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server) 时显示。设置该服务器自己的 `user_config` 设置
 
 该选项卡也可以显示 **Managed** 范围的插件。您的组织通过 [managed settings](/docs/zh-CN/settings#settings-files) 安装了这些，您无法在此处启用、禁用或卸载它们。
 
