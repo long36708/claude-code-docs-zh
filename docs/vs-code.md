@@ -691,7 +691,7 @@ extension 和 CLI 共享相同的对话历史记录。要在 CLI 中继续 exten
 
 当 Claude 正在等待某个命令或[子代理](/docs/zh-CN/sub-agents)，而其耗时超出您的预期时，请单击对话中其工具调用下方的 **Run in background**。该操作会在命令运行约两秒后出现，或在子代理启动后立即出现。Claude 会停止等待并继续当前轮次，而该命令或子代理则作为[后台任务](/docs/zh-CN/tools-reference#background-commands)继续运行，并在完成时通知 Claude。需要 Claude Code v2.1.287 或更高版本。
 
-在此期间，若要查看任务状态或停止任务，请在提示框中输入 `/tasks` 以打开 [Agent 地图](#use-the-prompt-box)。子代理会在其中的 Agent 树中保留其位置，而命令则列在各 Agent 下方，其[卡片上显示最新输出](#monitor-background-processes)。以这种方式移至后台的命令受[后台命令的时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)约束。
+在此期间，若要查看任务状态或停止任务，请在输入框中输入 `/tasks` 以打开 [Agent 地图](#use-the-prompt-box)。子代理会在其中的 Agent 树中保留其位置，而命令则列在各 Agent 下方，其[卡片上显示最新输出](#monitor-background-processes)。
 
 <h3 id="monitor-background-processes">
   Monitor background processes

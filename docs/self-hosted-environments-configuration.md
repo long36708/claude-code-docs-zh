@@ -38,7 +38,7 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 | `CLAUDE_CODE_REMOTE_SESSION_UUID` | 相同的会话 ID，采用规范 UUID 形式，供以 UUID 作为键的系统使用。 |
 | `CLAUDE_SESSION_INGRESS_TOKEN_FILE` | 绝对路径，指向保存当前会话 JWT 的按会话文件，在令牌刷新时保持最新。Shell 子进程在下载用户添加到会话的附件时从中读取其 `Authorization` 标头。`exec` 自动保留该变量；重建子进程环境的包装脚本必须携带该变量，否则附件下载会无声地停止工作。 |
 | `CLAUDE_CONFIG_DIR` | 按会话 Claude 配置目录，在会话启动时从运行器在启动时捕获的运行器主机配置快照中写入；请参阅 [Permissions and tool approval](#permissions-and-tool-approval)。此处的写入仅限于此会话。除非您使用 [`--remove-session-state`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，否则会话结束后该目录仍会保留在 `<base-dir>/_sessions/` 下；请参阅 [Reuse a pre-warmed checkout](/docs/zh-CN/self-hosted-environments-deploy#reuse-a-pre-warmed-checkout)。 |
-| `ANTHROPIC_BASE_URL` | 子进程将使用的 API 基础 URL，由控制平面按会话交付，通常为 `https://api.anthropic.com`。不要覆盖它：会话的推理凭据是 Anthropic 颁发的 OAuth 令牌，其他提供者不接受，因此自托管环境中的推理无法路由到其他地方。 |
+| `ANTHROPIC_BASE_URL` | 子进程将使用的 API 基础 URL，由控制平面按会话交付，通常为 `https://api.anthropic.com`。不要覆盖它：会话的推理凭据是 Anthropic 颁发的 OAuth 令牌，其他提供者不接受。 |
 | `CLAUDE_CODE_OAUTH_TOKEN` | 子进程用于模型推理的短期 OAuth 访问令牌，作用域仅限于模型推理和文件上传，生命周期约为 30 分钟。运行器在过期前重新生成它，并通过子进程的 stdin 交付轮换，因此不 [keep stdin attached](#keep-stdin-and-file-descriptor-3-attached) 的包装脚本只看到初始值。不要依赖您的组织 IP 允许列表来限制此令牌的使用：将其视为持有者凭据，如果泄露，大约 30 分钟内仍可使用，不要记录它、写入磁盘或在会话容器外转发它。 |
 
 包装脚本还继承子进程的其余托管环境，包括任何服务器提供的环境变量。`exec` 自动传播所有内容；如果您的包装脚本以其他方式生成子进程，请转发完整环境。
@@ -293,30 +293,123 @@ hook 写入 stdout 或 stderr 的所有内容都出现在编排器的日志中�
 
 如果会话保持排队，且 **Activity** 标签中没有生成错误，可能意味着 hook 以会话 ID 作为键。要确认这一点，请检查您的平台是否存在该会话第一次生成请求对应的工作负载，而重新请求却没有对应的工作负载。如果是这样，请改为以 `CLAUDE_RUNNER_ORDER_ID` 作为工作负载的键。
 
+<h2 id="send-model-requests-to-bedrock-or-agent-platform">
+  将模型请求发送到 Bedrock 或 Agent Platform
+</h2>
+
+如果您的组织需要模型请求通过其自己的 AWS 或 Google Cloud 账户，请为 runner 配置 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 或 [Google Cloud 的 Agent Platform（前身为 Vertex AI）](/docs/zh-CN/google-vertex-ai)。之后，该 runner 启动的每个会话都会使用您的云凭据在您的云账户中调用模型。如果没有此配置，会话会将模型请求发送到 Anthropic API。
+
+runner 仍会向 Anthropic 轮询会话，且每个会话仍会将其事件流发送到 `api.anthropic.com`。事件流包含提示词、响应和工具结果。[可用性和限制](/docs/zh-CN/self-hosted-environments#availability-and-limitations)中的套餐要求和零数据保留（Zero Data Retention）排除规定仍然适用。
+
+会话是路由到环境而非 runner 的，重新排队或恢复的会话可能会在不同的 runner 上运行。请以相同方式配置环境中的每个 runner。开始之前，请阅读[这些提供商的不同之处](#what-differs-from-sessions-on-the-anthropic-api)。
+
+<Steps>
+  <Step title="准备云账户和出站规则">
+    设置模型访问权限、范围严格受限的策略或角色以及网络访问：
+
+    * **Amazon Bedrock**：[提交用例详情](/docs/zh-CN/amazon-bedrock#1-submit-use-case-details)，然后按照 [IAM 配置](/docs/zh-CN/amazon-bedrock#iam-configuration)创建策略，将 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream` 限制为您的会话所使用的推理配置文件及其背后的基础模型
+    * **Agent Platform**：[启用 API](/docs/zh-CN/google-vertex-ai#1-enable-agent-platform-api) 并[申请模型访问权限](/docs/zh-CN/google-vertex-ai#2-request-model-access)，然后创建 [IAM 配置](/docs/zh-CN/google-vertex-ai#iam-configuration)中所述的自定义角色，仅包含 `aiplatform.endpoints.predict`
+    * **出站流量**：在出站规则中放行您的提供商的端点。请参阅[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)。如果会话无法访问这些端点，Claude Code 可能会持续重试数小时，之后会话才会显示错误。
+  </Step>
+
+  <Step title="为会话提供范围严格受限的凭据">
+    将步骤 1 中的策略或角色附加到一个不能执行任何其他操作的身份。有关 Claude Code 接受的方法，请参阅[配置 AWS 凭据](/docs/zh-CN/amazon-bedrock#2-configure-aws-credentials)和[配置 GCP 凭据](/docs/zh-CN/google-vertex-ai#3-configure-gcp-credentials)。
+
+    <Warning>
+      任何能够让代码在会话中运行的人（包括通过提示词注入）都可以在这些凭据有效期间使用它们，费用由您承担。Claude Code 在会话内部运行，因此它调用模型所用的凭据必须在会话中可读。
+
+      Claude 运行的 shell 命令、您的 [Claude Code hook](/docs/zh-CN/hooks) 以及 stdio MCP 服务器都会继承会话的环境，并以与 Claude Code 相同的用户身份运行。因此，它们可以读取凭据变量和凭据文件。
+
+      当您[加固部署](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)时，可以让主机凭据远离会话，但无法将此凭据排除在外。请确保其背后的身份除步骤 1 中的策略或角色外不具备任何其他权限。
+    </Warning>
+
+    请对照以下 runner 行为检查您选择的方法：
+
+    * **元数据端点**：如果您完全禁止会话访问[云元数据端点](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)，则由该端点提供的凭据（例如实例配置文件）也无法到达 Claude Code。基于文件的 Web 身份（例如 Amazon EKS 上的 IAM Roles for Service Accounts (IRSA) 或 Workload Identity Federation 凭据文件）不依赖于该端点。
+    * **续期**：会话的持续时间可能超过凭据的有效期，因此请使用能够自动续期的方法，例如基于文件的 Web 身份
+    * **包装脚本**：runner 每个会话只启动一次您的[包装脚本](#provision-credentials-scoped-to-the-session-creator)，因此它导出的凭据不会续期。Claude Code 会从其环境中读取 AWS 凭据，因此如果您的包装脚本已为其他工作导出了 AWS 凭据，Claude Code 可能会使用这些凭据对模型请求进行签名。
+  </Step>
+
+  <Step title="在 runner 的环境中设置一个提供商的变量">
+    在设置 runner 其他环境变量的位置（例如容器规范或服务单元）中，只设置一个提供商的变量，然后重启 runner。示例中以 shell export 的形式展示这些变量。使用[按需 runner](#on-demand-runners) 时，请在您的 `spawn-runner` hook 启动的工作负载上设置它们。
+
+    使用 [`--confine-repo-settings enforce`](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment) 启动这些 runner。它会拒绝那些已提交设置被其标记的仓库上的会话，因此请先在默认的 `warn` 模式下运行，并清理其记录的问题。
+
+    <Tabs>
+      <Tab title="Amazon Bedrock">
+        将区域替换为您自己的区域：
+
+        ```bash theme={null}
+        export CLAUDE_CODE_USE_BEDROCK=1
+        export AWS_REGION=us-east-1
+        ```
+
+        有关 Claude Code 如何解析区域，请参阅[配置 Claude Code](/docs/zh-CN/amazon-bedrock#3-configure-claude-code)。有关 Claude Code 针对您的区域使用哪个推理配置文件前缀，请参阅[跨区域推理配置文件前缀](/docs/zh-CN/amazon-bedrock#cross-region-inference-profile-prefixes)。
+      </Tab>
+
+      <Tab title="Google Cloud's Agent Platform">
+        将区域和项目 ID 替换为您自己的值：
+
+        ```bash theme={null}
+        export CLAUDE_CODE_USE_VERTEX=1
+        export CLOUD_ML_REGION=global
+        export ANTHROPIC_VERTEX_PROJECT_ID=YOUR-PROJECT-ID
+        ```
+
+        要选择区域，请参阅[区域配置](/docs/zh-CN/google-vertex-ai#region-configuration)。
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="检查变量是否已传递到会话">
+    您在主机上自己的 shell 是另一个进程，因此请从会话内部进行检查。在该环境中启动一个会话，并让 Claude 运行以下命令：
+
+    ```bash theme={null}
+    env | grep -E 'CLAUDE_CODE_USE_(BEDROCK|VERTEX)'
+    ```
+
+    如果有一行将 `CLAUDE_CODE_USE_BEDROCK` 或 `CLAUDE_CODE_USE_VERTEX` 设置为 `1`，则表示该变量已传递到会话。如果两者都出现，Claude Code 将使用 Amazon Bedrock。如果没有输出，则表示两者都未传递到会话。
+
+    该命令显示的是配置，而非流量。要确认请求本身，请在您云账户自身的指标或请求日志中查找这些请求。如果第一条消息失败，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock#troubleshooting) 或 [Agent Platform](/docs/zh-CN/google-vertex-ai#troubleshooting) 的故障排除。
+  </Step>
+</Steps>
+
+<h3 id="what-differs-from-sessions-on-the-anthropic-api">
+  与 Anthropic API 上的会话的不同之处
+</h3>
+
+将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform 的会话与 Anthropic API 上的会话存在以下不同：
+
+* **来自 claude.ai 的策略**：[服务器托管设置](/docs/zh-CN/server-managed-settings)不会传递到这些会话。Owner 在 Claude Code 管理设置中设定的组织策略也不会传递到这些会话，因此 Claude Code 不会在会话中强制执行这些策略。请将您依赖的规则放入 runner 镜像的[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)中。
+* **文件**：用户在 claude.ai 或移动端、桌面端应用中附加到会话的文件不会传递到会话，Claude 也无法通过 [`SendUserFile` 工具](/docs/zh-CN/tools-reference)回传文件。请改为将输入文件放在仓库中或 runner 上。
+* **模型选择**：Anthropic 的控制平面会发送每个会话的模型；当会话启动时未指定模型，Claude Code 会使用该提供商的默认模型。runner 会从其传递给会话的环境中移除 `ANTHROPIC_MODEL` 和 `ANTHROPIC_DEFAULT_MODEL`。提供商页面的示例设置了 `ANTHROPIC_MODEL`，但在 runner 的环境中这两个变量都不起作用。[Amazon Bedrock](/docs/zh-CN/amazon-bedrock#4-pin-model-versions) 和 [Agent Platform](/docs/zh-CN/google-vertex-ai#5-pin-model-versions) 的"固定模型版本"中的各模型系列变量确实会传递到会话。它们决定的是 `opus` 等别名解析为哪个模型，而不是完整模型 ID 解析为哪个模型。
+* **您的账户不提供的模型**：会话可能在某条消息上失败，并显示指明该模型的错误。请启用您的开发人员可以选择的模型、"固定模型版本"中所述的后台模型，以及[自动模式](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry)使用的分类器模型。在 Amazon Bedrock 上，请在策略中允许其中的每一个模型。
+* **Web 搜索和快速模式**：[Web 搜索](/docs/zh-CN/tools-reference#websearch-tool-behavior)在 Amazon Bedrock 上不可用，[快速模式](/docs/zh-CN/fast-mode)在这两个提供商上均不可用。有关因提供商而异的其他功能，请参阅[因提供商而异的 CLI 功能](/docs/zh-CN/feature-availability#cli-capabilities-that-vary-by-provider)。
+
 <h2 id="mcp-servers">
   MCP 服务器
 </h2>
 
-要在每个会话中提供 [MCP servers](/docs/zh-CN/mcp)，请在镜像构建时使用与桌面安装上使用的相同 `claude mcp add` 命令添加它们。如果您的运行器是裸进程而不是容器，请在主机上以运行器的用户身份运行相同的命令，然后重启运行器：它在启动时读取主机配置一次。`--scope user` 标志是必需的；默认本地作用域写入运行器不播种的按目录密钥下。例如，在您的 Dockerfile 中：
+要让 [MCP 服务器](/docs/zh-CN/mcp)在每个会话中都可用，请在镜像构建时使用与桌面安装相同的 `claude mcp add` 命令添加它们。如果您的运行器是裸进程而非容器，请在主机上以运行器的用户身份运行相同的命令，然后重启运行器：运行器仅在启动时读取一次主机配置。必须使用 `--scope user` 标志；默认的 local 作用域会写入按目录区分的键下，而运行器不会将该键注入会话。例如，在您的 Dockerfile 中：
 
 ```dockerfile theme={null}
 RUN claude mcp add --scope user sidecar -- /usr/local/bin/mcp-sidecar
 RUN claude mcp add --scope user --transport http internal http://mcp-gateway.svc.cluster.local:8080
 ```
 
-运行器在启动时快照主机的配置一次。快照从主机的 `.claude.json` 捕获 `mcpServers` 密钥，该密钥位于 `~/.claude/` 旁边而不是内部，运行器仅将该密钥播种到每个会话的隔离配置中；帐户状态和项目历史被删除。要确认服务器到达会话，请在环境上启动会话并要求 Claude 列出其 MCP 工具；运行器还为任何捕获的条目记录启动警告，其 `type` 它不识别并删除条目，因此您可以看到为什么该服务器从会话中丢失。当设置 `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` 时，运行器从该目录读取 `.claude.json` 而不是，因此将变量指向空目录也禁用 MCP 播种。
+运行器在启动时对主机配置做一次快照。该快照会捕获主机 `.claude.json` 中的 `mcpServers` 键（该文件位于 `~/.claude/` 旁边，而非其内部），运行器只会将这一个键注入每个会话的隔离配置中；账户状态和项目历史会被丢弃。要确认服务器已到达会话，请在该环境上启动一个会话，并让 Claude 列出其 MCP 工具；对于捕获到的任何 `type` 无法识别的条目，运行器还会在启动时记录一条警告并丢弃该条目，因此您可以看到该服务器为何没有出现在会话中。设置 `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` 后，运行器会改为从该目录读取 `.claude.json`，因此将该变量指向一个空目录也会禁用 MCP 注入。
 
-Claude Code 还从其他源加载 MCP 服务器：
+Claude Code 还会从其他来源加载 MCP 服务器：
 
-* 企业作用域的 [managed MCP file](/docs/zh-CN/managed-mcp) 在其标准系统路径：Linux 运行器主机上的 `/etc/claude-code/managed-mcp.json`，macOS 主机上的 `/Library/Application Support/ClaudeCode/managed-mcp.json`。将其用于锁定的队列，其中只有管理员列出的服务器可能加载。有关优先级规则，请参阅 [exclusive control with managed-mcp.json](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json)。当此文件在运行器主机上时，Claude Code 跳过 Anthropic 的控制平面交付给会话的 MCP 服务器（包括 claude.ai 连接器），并在会话子进程的 stderr 上的警告中列出它们的名称，运行器在 `debug` 日志级别记录该警告。在 v2.1.229 之前，这些会话在启动时以 `You cannot dynamically configure MCP servers when an enterprise MCP config is present` 退出。
-* 运行器主机上 [managed settings](/docs/zh-CN/managed-settings) 中的 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 密钥：提供 HTTP 和 SSE 服务器而不获得独占控制，因此来自其他源的服务器仍然加载。需要 Claude Code v2.1.259 或更高版本。
-* `<repo>/.mcp.json`：项目作用域。将文件提交到仓库；其服务器在云端会话中自动批准。
+* 位于标准系统路径的企业作用域[托管 MCP 文件](/docs/zh-CN/managed-mcp)：Linux 运行器主机上为 `/etc/claude-code/managed-mcp.json`，macOS 主机上为 `/Library/Application Support/ClaudeCode/managed-mcp.json`。适用于只允许加载管理员列出的服务器的锁定机群。有关优先级规则，请参阅[使用 managed-mcp.json 进行独占控制](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json)。当运行器主机上存在此文件时，Claude Code 会跳过 Anthropic 控制平面下发给会话的 MCP 服务器（包括 claude.ai 连接器），并在会话子进程的 stderr 上以警告形式列出它们的名称，运行器会以 `debug` 日志级别记录这些警告。在 v2.1.229 之前，这些会话会在启动时退出并显示 `You cannot dynamically configure MCP servers when an enterprise MCP config is present`。
+* 运行器主机上[托管设置](/docs/zh-CN/managed-settings)中的 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 键：提供 HTTP 和 SSE 服务器，但不进行独占控制，因此来自其他来源的服务器仍会加载。需要 Claude Code v2.1.259 或更高版本。
+* `<repo>/.mcp.json`：项目作用域。将该文件提交到仓库；其中的服务器在云端会话中会被自动批准。
 
-当为您的组织启用连接器交付时，Anthropic 的控制平面将您在 claude.ai 上配置的连接器通过服务器提供的 MCP 配置交付给交互式创建的会话，通过 `api.anthropic.com` 路由。以编程方式创建的会话（例如 [CLI dispatches](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)）不接收连接器交付；请改为通过本节列出的任何其他源为它们提供 MCP 服务器。子进程的 OAuth 令牌不携带直接获取连接器的作用域，因此子进程不尝试该获取本身；交付是服务器驱动的。
+当您的组织启用了连接器下发时，Anthropic 的控制平面会通过服务器提供的 MCP 配置，将您在 claude.ai 上配置的连接器下发到以交互方式创建的会话，请求经由 `api.anthropic.com` 路由。以编程方式创建的会话（例如 [CLI 调度](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)）不会接收连接器下发；请改为通过本节列出的任何其他来源为它们提供 MCP 服务器。子进程的 OAuth 令牌不带有直接获取连接器的作用域，因此子进程本身不会尝试获取；下发由服务器驱动。
 
-`settings.json` 不携带 MCP 服务器定义，设置 schema 中没有顶级 `mcpServers` 字段。在托管设置中，请改用 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 密钥提供服务器。
+`settings.json` 不包含 MCP 服务器定义，设置 schema 中也没有顶层 `mcpServers` 字段。在托管设置中，请改用 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 键提供服务器。
 
-会话继承运行器的环境，因此在那里设置 [`ENABLE_TOOL_SEARCH`](/docs/zh-CN/mcp#scale-with-mcp-tool-search) 以控制运行器生成的每个会话的 MCP 工具搜索；MCP 页面涵盖了这些值。
+会话会继承运行器的环境，因此请在运行器环境中设置 [`ENABLE_TOOL_SEARCH`](/docs/zh-CN/mcp#scale-with-mcp-tool-search)，以控制该运行器生成的每个会话的 MCP 工具搜索；MCP 页面介绍了可用的值。
 
 <h3 id="turn-off-built-in-session-tools">
   关闭内置会话工具
@@ -324,7 +417,7 @@ Claude Code 还从其他源加载 MCP 服务器：
 
 Anthropic 的控制平面会将其自己的 MCP 服务器（名为 Claude Code Remote）附加到云端会话。Claude 使用该服务器的工具来安排 [Routine](/docs/zh-CN/routines)、启动和引导其他云端会话、附加更多仓库，以及跟踪 Pull Request 活动。
 
-要关闭整个服务器，请在设置中添加一条[服务器级拒绝规则](/docs/zh-CN/permissions#mcp)。控制平面会根据会话的创建方式，以三个名称之一注册该服务器。Claude Code 会精确匹配规则中的名称（包括大小写），因此请按如下所示为每个名称各写一条规则：
+要关闭整个服务器，请在您的设置中添加一条[服务器级拒绝规则](/docs/zh-CN/permissions#mcp)。根据会话的创建方式，控制平面会以三个名称之一注册该服务器。Claude Code 会精确匹配规则中的名称（包括大小写），因此请按如下所示为每个名称各写一条规则：
 
 ```json theme={null}
 {
@@ -338,11 +431,11 @@ Anthropic 的控制平面会将其自己的 MCP 服务器（名为 Claude Code R
 }
 ```
 
-指定整个服务器的规则也会覆盖该服务器之后新增的工具。要关闭某一个工具而保留其余工具，请在每条规则后追加两个下划线和工具名称，例如 `mcp__Claude_Code_Remote__add_repo`。如果要完全阻止该服务器连接，而不只是移除其工具，请改为将这三个名称（不带 `mcp__` 前缀）作为 `serverName` 条目添加到 [`deniedMcpServers`](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists) 下。
+指定整个服务器的规则也会覆盖该服务器以后新增的工具。要关闭某一个工具并保留其余工具，请在每条规则后追加两个下划线和工具名称，例如 `mcp__Claude_Code_Remote__add_repo`。如果要完全阻止该服务器连接，而不仅是移除其工具，请改为将这三个名称（不带 `mcp__` 前缀）作为 `serverName` 条目添加到 [`deniedMcpServers`](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists) 下。
 
-将这些规则放在[服务器托管设置](/docs/zh-CN/server-managed-settings)中，即可在不更改运行器的情况下作用于每个会话；也可以放在运行器上的 `~/.claude/settings.json` 中。[权限和工具批准](#permissions-and-tool-approval)说明了运行器上的设置如何到达会话。
+将这些规则放在[服务器托管设置](/docs/zh-CN/server-managed-settings)中，无需更改运行器即可作用于会话；也可以放在运行器上的 `~/.claude/settings.json` 中。在[将模型请求发送到 Bedrock 或 Agent Platform](#send-model-requests-to-bedrock-or-agent-platform) 的运行器上，请使用该文件，因为服务器托管设置不会作用于这些会话。[权限和工具批准](#permissions-and-tool-approval)说明了运行器上的设置如何作用于会话。
 
-要确认规则已生效，请在该环境上启动一个会话，并要求 Claude 列出其 MCP 工具。Claude Code 会从 Claude 的上下文中移除被拒绝的工具，因此这些被拒绝的工具不会出现在其回答中。
+要确认规则已生效，请在该环境上启动一个会话，并让 Claude 列出其 MCP 工具。Claude Code 会从 Claude 的上下文中移除被拒绝的工具，因此被拒绝的工具不会出现在其回答中。
 
 <h2 id="prompt-sessions-to-push-their-work">
   提示会话推送其工作

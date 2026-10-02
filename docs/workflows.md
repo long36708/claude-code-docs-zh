@@ -208,8 +208,8 @@ Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排
 * **权限规则**：您的允许规则中的 `Workflow` 批准每个工作流，`Workflow(<name>)` 按名称批准一个保存的工作流。
 * **自动权限模式**：[分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)审查调用并可以批准它。
 * **绕过权限模式**：Claude Code 批准调用。
-* **一个 `PreToolUse` hook**：一个[hook](/docs/zh-CN/hooks#pretooluse)为调用返回 `allow` 批准它。
-* **您的主机**：一个 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)批准它，或者，使用 Agent SDK，一个 [`canUseTool`](/docs/zh-CN/agent-sdk/permissions)回调或一个 [`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest)批准它。
+* **一个 hook**：一个允许该调用的 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) hook 会批准它。
+* **您的主机**：一个 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)，或者在使用 Agent SDK 时，一个 [`canUseTool`](/docs/zh-CN/agent-sdk/permissions) 回调批准它。
 
 在桌面应用中，批准卡显示工作流名称、阶段列表和令牌使用警告，带有**一次**、**总是**和**拒绝**操作。进度视图出现在"后台任务"侧窗格中。
 

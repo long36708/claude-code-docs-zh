@@ -2551,6 +2551,7 @@ API Error: 400 Claude Code 2.1.240 is older than the minimum version required by
 | [VS Code extension](/docs/zh-CN/vs-code) 捆绑的二进制文件 | 更新扩展 |
 | Agent SDK 包捆绑的二进制文件 | [升级 SDK 包](/docs/zh-CN/agent-sdk/hosting#runtime-dependencies)，然后重启您的应用程序。在[编译的单文件可执行文件](/docs/zh-CN/agent-sdk/typescript#compile-to-a-single-executable)中，重新构建它 |
 
+* 如果您在[稳定版发布渠道](/docs/zh-CN/setup#configure-release-channel)上运行 `claude update`，它不会让您越过最新的稳定版本，而该版本仍可能低于所需的最低版本。请切换到 latest 渠道，然后再次更新。如果您的组织通过[托管设置](/docs/zh-CN/managed-settings)固定了您的渠道或版本，请让您的管理员进行更改
 * 对于按模型措辞，您可以通过切换到另一个模型来继续在当前会话中工作：在 CLI 中运行 `/model`，在流式输入模式下的 TypeScript SDK 的 `Query` 对象上调用 [`setModel()`](/docs/zh-CN/agent-sdk/typescript#query-object)，或在 Python SDK 的 `ClaudeSDKClient` 上调用 [`set_model()`](/docs/zh-CN/agent-sdk/python#claudesdkclient)
 * 对于组织政策措辞，在继续之前更新
 
@@ -2675,6 +2676,7 @@ API Error: 400 ... "thinking.type.enabled" is not supported for this model. Use 
 **要做什么：**
 
 * 运行 `claude update` 并重启 Claude Code。Opus 4.7 需要 v2.1.111 或更高版本。Opus 4.8 需要 v2.1.154 或更高版本。Sonnet 5 需要 v2.1.197 或更高版本。Opus 5 需要 v2.1.219 或更高版本。Opus 5.5 需要 v2.1.280 或更高版本。Sonnet 5.5 需要 v2.1.284 或更高版本
+* 在[稳定版发布渠道](/docs/zh-CN/setup#configure-release-channel)上，更新不会让您越过最新的稳定版本，而该版本仍可能早于这些版本。请切换到 latest 渠道，然后更新
 * 如果您无法升级，运行 `/model` 并选择 Opus 4.6 或 Sonnet 4.6
 * 如果您在 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 中遇到这个，升级 SDK 包。Opus 4.8 需要 TypeScript SDK v0.3.154 或更高版本和 Python SDK v0.2.88 或更高版本。Sonnet 5 需要 TypeScript SDK v0.3.197 或更高版本。Opus 5 需要 TypeScript SDK v0.3.219 或更高版本。Opus 5.5 需要 TypeScript SDK v0.3.280 或更高版本。Sonnet 5.5 需要 TypeScript SDK v0.3.284 或更高版本
 

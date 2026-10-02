@@ -14,29 +14,29 @@
   查看加载到上下文中的内容
 </h2>
 
-`/context` 命令显示当前会话中占用上下文窗口的所有内容，按类别分解：系统提示、系统工具、MCP 工具、自定义子代理及其加载源、内存文件、skills 和对话消息。首先运行它来确认你的 `CLAUDE.md`、规则或 skill 描述是否存在。`/context` 中的 skills 部分还包括[捆绑 skills](/docs/zh-CN/skills#bundled-skills)，而 `/skills` 不会列出这些。
+`/context` 命令会显示当前会话中占用上下文窗口的所有内容，并按类别细分：系统提示词、系统工具、MCP 工具、自定义子代理（及其各自的加载来源）、记忆文件、skill 以及对话消息。请首先运行此命令，以确认您的 `CLAUDE.md`、规则或 skill 描述是否已加载。`/context` 中的 skill 部分还包括 [随附 skill](/docs/zh-CN/skills#bundled-skills)，而 `/skills` 不会列出这些内容。
 
-对于特定类别的详细信息，请使用专用命令：
+如需查看特定类别的详细信息，请继续使用相应的专用命令：
 
 | 命令 | 显示内容 |
 | :- | :- |
-| `/memory` | 用户和项目范围内的内存文件位置，以及在编辑器中打开每个文件的选项，加上访问自动内存文件夹和自动内存切换的权限 |
-| `/skills` | 来自项目、用户和插件源的可用 skills |
-| `/hooks` | 活跃的 hook 配置 |
-| `/mcp` | 连接的 MCP 服务器及其状态 |
+| `/memory` | 用户和项目作用域中的记忆文件位置，可选择在编辑器中打开每个文件，还可访问自动记忆文件夹以及自动记忆开关 |
+| `/skills` | 来自项目、用户和插件来源的可用 skill |
+| `/hooks` | 当前生效的 hook 配置 |
+| `/mcp` | 已连接的 MCP 服务器及其状态 |
 | `/permissions` | 当前生效的已解析允许和拒绝规则 |
-| `/doctor` | 配置检查：安装健康状况、无效的设置文件、未使用的扩展、同一目录中重复的[子代理](/docs/zh-CN/sub-agents)名称，以及建议的修复 |
-| `/debug [issue]` | 为会话启用调试日志记录，并提示 Claude 使用日志输出和设置路径进行诊断 |
-| `/status` | 活跃的设置源，包括是否启用了托管设置 |
+| `/doctor` | 设置检查：安装健康状况、无效的设置文件、未使用的扩展、同一目录中重复的[子代理](/docs/zh-CN/sub-agents)名称，以及已签入的、Claude 可以从代码库中推导出的 `CLAUDE.md` 内容，并提供建议的修复方案 |
+| `/debug [issue]` | 为会话启用调试日志，并提示 Claude 利用日志输出和设置路径进行诊断 |
+| `/status` | 当前生效的设置来源，包括托管设置是否生效 |
 
-如果内存文件在 `/context` 分解中缺失，请根据[CLAUDE.md 文件如何加载](/docs/zh-CN/memory#how-claude-md-files-load)检查其位置。子目录 `CLAUDE.md` 文件在 Claude 使用 Read 工具读取该目录中的文件时按需加载，而不是在会话开始时加载。
+如果某个记忆文件未出现在 `/context` 的细分列表中，请对照[CLAUDE.md 文件的加载方式](/docs/zh-CN/memory#how-claude-md-files-load)检查其位置。子目录中的 `CLAUDE.md` 文件并非在会话开始时加载，而是在 Claude 对该目录中的文件使用 Read、Write 或 Edit 工具后按需加载。
 
-如果 `/context` 确认文件已加载但 Claude 仍然没有遵循特定指令，问题可能在于指令的编写方式，而不是是否加载。CLAUDE.md 适用于你会给新队友的指导类型，例如项目约定、构建命令和文件位置。
+如果 `/context` 确认文件已加载，但 Claude 仍未遵循某条特定指令，那么问题很可能在于指令的编写方式，而非是否已加载。CLAUDE.md 非常适合用于提供您会给新团队成员的那类指导，例如项目约定、构建命令以及文件应放置的位置。
 
-当指令足够模糊以至于可以多种方式解释、两个文件给出相互矛盾的方向，或者文件变得足够长以至于单个规则获得较少关注时，遵守度会下降。[编写有效的指令](/docs/zh-CN/memory#write-effective-instructions)涵盖了保持高遵守度的特异性、大小和结构模式。
+当指令含糊到可以有多种理解方式、两个文件给出相互冲突的指示，或者文件变得过长以致单条规则得到的关注减少时，遵循度就会下降。[编写有效的指令](/docs/zh-CN/memory#write-effective-instructions)介绍了有助于保持高遵循度的具体性、篇幅和结构模式。
 
 <Note>
-  CLAUDE.md 和权限解决不同的问题。CLAUDE.md 告诉 Claude 你的项目如何工作，以便它做出好的决定。[权限](/docs/zh-CN/permissions)和[hooks](/docs/zh-CN/hooks)无论 Claude 决定什么都强制执行限制。对于"我们在这里这样做"使用 CLAUDE.md。对于安全边界和任何必须永远不会发生的事情，使用权限或 hooks，你需要一个保证而不是指导。
+  CLAUDE.md 和权限解决的是不同的问题。CLAUDE.md 告诉 Claude 您的项目如何运作，以便其做出良好的决策。[权限](/docs/zh-CN/permissions)和 [hook](/docs/zh-CN/hooks) 则无论 Claude 做出何种决定都会强制执行限制。请将 CLAUDE.md 用于"我们这里是这样做的"这类内容。对于安全边界以及任何绝不能发生的事情，即您需要的是保证而非指导的情况，请使用权限或 hook。
 </Note>
 
 <h2 id="check-resolved-settings">
@@ -116,7 +116,7 @@ cd /tmp && CLAUDE_CONFIG_DIR=/tmp/claude-clean claude
 | `settings.json` 值似乎被忽略 | 相同的键在 `settings.local.json` 中设置 | `settings.local.json` 覆盖 `settings.json`，两者都覆盖 `~/.claude/settings.json`。请参阅[设置优先级](/docs/zh-CN/settings#settings-precedence)。 |
 | Skill 没有出现在 `/skills` 中 | Skill 文件在 `.claude/skills/name.md` 而不是在文件夹中 | 使用包含 `SKILL.md` 的文件夹：`.claude/skills/name/SKILL.md`。 |
 | Skill 出现在 `/skills` 中但 Claude 从不调用它 | Skill 在其 frontmatter 中有 `disable-model-invocation: true`，或其描述与你表述请求的方式不匹配 | 检查 `/skills` 中的徽章：一个"user-only"标签意味着 Claude 不会自动触发它。请参阅[skill 调用](/docs/zh-CN/skills)。 |
-| 子目录 `CLAUDE.md` 指令似乎被忽略 | 子目录文件按需加载，而不是在会话开始时加载 | 它们在 Claude 使用 Read 工具读取该目录中的文件时加载，而不是在启动时，也不是在写入或创建文件时。请参阅[CLAUDE.md 文件如何加载](/docs/zh-CN/memory#how-claude-md-files-load)。 |
+| 子目录 `CLAUDE.md` 指令似乎被忽略 | 子目录文件按需加载，而不是在会话开始时加载 | 它们在 Claude 对该目录中的文件使用 Read、Write 或 Edit 工具之后加载，而不是在启动时加载。在 v2.1.288 之前，只有 Read 工具会加载它们。请参阅[CLAUDE.md 文件如何加载](/docs/zh-CN/memory#how-claude-md-files-load)。 |
 | 子代理忽略 `CLAUDE.md` 指令 | 内置的 Explore 和 Plan 代理跳过 `CLAUDE.md`。自定义子代理以与主对话相同的方式加载它，除非其定义设置了 [`omitClaudeMd`](/docs/zh-CN/sub-agents#supported-frontmatter-fields) | 对于 Explore 或 Plan，在你的委派提示中重新陈述指令。对于设置 `omitClaudeMd` 的子代理，删除该字段。对于任何其他自定义子代理，将关键指令放在代理文件体中，它成为代理的系统提示。请参阅[启动时加载的内容](/docs/zh-CN/sub-agents#what-loads-at-startup)。 |
 | 清理逻辑在会话结束时永远不运行 | 没有配置 `SessionEnd` hook | 在 `settings.json` 中添加 `SessionEnd` hook。请参阅[hook 事件列表](/docs/zh-CN/hooks#hook-events)。 |
 | `.mcp.json` 中的 MCP 服务器永远不加载 | 文件在 `.claude/` 下，或其服务器位于顶级 `servers` 键下，如 VS Code 的 `mcp.json` 中那样，而不是 `mcpServers` | 项目 MCP 配置在存储库根目录下作为 `.mcp.json`，而不是在 `.claude/` 内，服务器位于 `mcpServers` 键下。请参阅[MCP 配置](/docs/zh-CN/mcp)。 |

@@ -358,7 +358,7 @@ Claude Code 支持在后台运行 Bash 命令，允许你在长时间运行的�
 * 在 macOS 和 Linux 上，当操作系统报告严重内存压力时，Claude Code 会停止运行中的后台任务，前提是会话已空闲至少 30 分钟且没有 turn 或 subagent 运行。需要 Claude Code v2.1.193 或更高版本
   * [调试日志](/docs/zh-CN/debug-your-config)说明了为什么任务被停止，或为什么压力事件让它们继续运行
   * 将 [`CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP`](/docs/zh-CN/env-vars) 设置为 `1` 可关闭内存压力停止
-* 后台 Bash 和 PowerShell 命令有时间限制，从命令进入后台的时刻开始计算：30 分钟，或 Claude 在启动后台命令时要求的 `timeout`，最多 2 小时。在运行时移到后台的命令（例如使用 `Ctrl+B`）从移动时获得 30 分钟。当命令达到其限制时，Claude Code 会停止它并告诉 Claude 原因，Claude 可以使用更长的 `timeout` 重新启动它，如果工作仍然需要的话。要延长限制，请参阅工具参考中的[提高后台命令的时间限制](/docs/zh-CN/tools-reference#raise-the-time-limit-for-background-commands)
+* 在您通过终端、桌面应用或 VS Code 扩展进行工作的本地会话中，后台命令没有时间限制。在无人值守运行的会话中（例如 `-p` 运行或云端会话），Claude Code 会在后台命令达到其[时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)时停止它
 * 由前台[子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)启动的后台命令在该子代理的运行结束时结束，无论是完成、失败还是被中断；请参阅工具参考中的[后台命令何时停止](/docs/zh-CN/tools-reference#when-a-background-command-stops)
 
 要禁用所有后台任务功能，请将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars#variables) 环境变量设置为 `1`。启动[裸模式](/docs/zh-CN/headless#start-faster-with-bare-mode)也会关闭它。

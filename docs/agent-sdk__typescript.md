@@ -2074,7 +2074,7 @@ type SDKPluginInstallMessage = {
 当权限系统在没有交互式提示的情况下拒绝工具调用时发出的流事件。使用它在您的 UI 中实时呈现拒绝，而不是仅观察随后的 `is_error` 工具结果。它报告的拒绝取决于运行如何处理权限提示：
 
 * **使用 [`canUseTool`](#canusetool) 回调**和默认 [`permissionPrompts: 'host'`](#options)：权限提示转到您的回调，此事件报告 Claude Code 自己决定的拒绝，而不调用它。
-* **都没有**：裸 `-p` 运行，或 `query()` 既不设置 `canUseTool` 也不设置 `permissionPromptToolName`，拒绝任何会提示的工具调用，此事件也报告这些拒绝以及 Claude Code 自己决定的拒绝。在 v2.1.223 之前，Claude Code 在没有回调的运行中不发出此事件。
+* **两者都不使用**：裸 `-p` 运行，或既未设置 `canUseTool` 也未设置 `permissionPromptToolName` 的 `query()`，会拒绝任何本应触发提示的工具调用，除非 [`PermissionRequest` hook](/docs/zh-CN/hooks-guide#limitations) 允许它；此事件会报告这些拒绝以及 Claude Code 自行决定的拒绝。在 v2.1.223 之前，Claude Code 在没有回调的运行中不会发出此事件。
 * **使用 MCP 提示工具**，使用 `permissionPromptToolName` 或 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 标志设置，和默认 `permissionPrompts: 'host'`：Claude Code 根本不发出此事件，甚至不发出它自己决定的规则拒绝。
 * **使用 [`permissionPrompts: 'none'`](#options)**：Claude Code 拒绝会提示的调用，即使也设置了 `canUseTool` 或 MCP 提示工具，此事件也报告这些拒绝以及 Claude Code 自己决定的拒绝。需要 Claude Code v2.1.259 或更高版本。
 

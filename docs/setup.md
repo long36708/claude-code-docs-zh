@@ -45,19 +45,19 @@ Claude Code 在以下平台和配置上运行：
   <Tab title="原生安装（推荐）">
     **macOS、Linux、WSL：**
 
-    ```bash theme={null}
+    ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
     curl -fsSL https://claude.ai/install.sh | bash
     ```
 
     **Windows PowerShell：**
 
-    ```powershell theme={null}
+    ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
     irm https://claude.ai/install.ps1 | iex
     ```
 
     **Windows CMD：**
 
-    ```batch theme={null}
+    ```batch theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
     ```
 
@@ -75,7 +75,7 @@ Claude Code 在以下平台和配置上运行：
   </Tab>
 
   <Tab title="Homebrew">
-    ```bash theme={null}
+    ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
     brew install --cask claude-code
     ```
 
@@ -87,7 +87,7 @@ Claude Code 在以下平台和配置上运行：
   </Tab>
 
   <Tab title="WinGet">
-    ```powershell theme={null}
+    ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
     winget install Anthropic.ClaudeCode
     ```
 
@@ -257,9 +257,13 @@ Claude Code 在启动时和运行时定期检查更新。更新在后台下载�
 }
 ```
 
+新发布的模型可能需要比 stable 渠道所提供版本更新的 Claude Code 版本。要立即运行该模型，请切换到 latest 渠道。
+
 对于企业部署，您可以使用[托管设置](/docs/zh-CN/managed-settings)在整个组织中强制执行一致的发布渠道。
 
 Homebrew 安装通过 cask 名称而不是此设置来选择渠道：`claude-code` 跟踪稳定版，`claude-code@latest` 跟踪最新版。
+
+从 apt、dnf 和 apk 仓库进行的安装通过仓库而不是此设置来选择渠道。要切换渠道，请按照[使用 Linux 包管理器安装](#install-with-linux-package-managers)中的说明操作。
 
 <h3 id="pin-a-minimum-version">
   固定最低版本

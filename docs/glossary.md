@@ -368,7 +368,7 @@ Hook 配置有三个级别：
   Rules
 </h3>
 
-`.claude/rules/` 中的模块化指令文件，与 CLAUDE.md 一起加载。规则可以使用 YAML `paths:` frontmatter 进行路径范围限定，因此它仅在 Claude 读取匹配文件时加载，保持上下文精简直到相关。
+`.claude/rules/` 中的模块化指令文件，与 CLAUDE.md 一起加载。规则可以使用 YAML `paths:` frontmatter 进行路径范围限定，因此它仅在 Claude 读取、写入或编辑匹配文件时加载，保持上下文精简直到相关。
 
 了解更多：[使用 `.claude/rules/` 组织规则](/docs/zh-CN/memory#organize-rules-with-claude/rules/)
 

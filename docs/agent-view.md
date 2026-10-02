@@ -576,10 +576,11 @@ claude --bg --exec 'pytest -x'
   文件编辑如何隔离
 </h3>
 
-每个后台会话，无论是从 agent 视图、`/bg` 还是 `claude --bg` 启动，都在您打开的工作目录中启动。在编辑文件前，Claude 将会话移到 `.claude/worktrees/` 下的隔离 [git worktree](/docs/zh-CN/worktrees) 中，因此并行会话可以读取相同的检出，但每个写入自己的。一旦会话在其 worktree 中，Claude Code [为会话和它生成的任何 subagents 强制 worktree 隔离](/docs/zh-CN/worktrees#how-claude-code-enforces-isolation)。
+当您从 Agent 视图分派后台会话或使用 `claude --bg` 启动一个后台会话时，会话在您的工作目录中启动。在编辑文件前，Claude 会将会话移入 `.claude/worktrees/` 下的隔离 [git worktree](/docs/zh-CN/worktrees) 中，因此并行会话可以读取同一个检出，但各自写入自己的 worktree。一旦会话进入其 worktree，Claude Code 就会为该会话及其生成的任何子代理 [强制执行 worktree 隔离](/docs/zh-CN/worktrees#how-claude-code-enforces-isolation)。
 
 Claude 在以下情况下跳过 worktree：
 
+* 您使用 `←` 或 `/background` [将已打开的会话移到后台](#from-inside-a-session)。该会话会继续在其原本工作的位置编辑文件
 * 会话已在链接的 git worktree 内，无论 Claude 在 `.claude/worktrees/` 下创建它还是您使用 `git worktree add` 在其他地方创建它
 * Claude 编辑的文件在链接的 git worktree 内，例如会话或其 subagent 使用 `git worktree add` 创建的
 * 工作目录不是 git 存储库，且没有配置 [`WorktreeCreate` hook](/docs/zh-CN/hooks#worktreecreate)
@@ -597,11 +598,11 @@ Claude 在以下情况下跳过 worktree：
 
 在 git 存储库外，会话直接写入工作目录，彼此之间不隔离，因此避免分派编辑相同文件的并行会话。如果您使用不同的版本控制系统，配置 [`WorktreeCreate` hook](/docs/zh-CN/worktrees#non-git-version-control)，Claude 以与 git 相同的方式隔离编辑。
 
-当 hook 在不是 git 存储库的目录中失败时，Claude 跳过该目录的隔离，就地编辑工作目录。在 git 存储库内，Claude Code 阻止对共享检出的写入，直到 Claude 将会话移到 worktree。
+当 hook 在非 git 仓库的目录中失败时，Claude 会跳过该目录的隔离，并就地编辑工作目录。在 git 仓库内，Claude 在编辑前会将其移入 worktree 的会话，在该移动完成之前无法编辑共享检出中的文件。
 
 要找到会话的 worktree 路径，查看会话或附加并检查其工作目录。
 
-后台会话生成的 [subagent](/docs/zh-CN/sub-agents) 继承会话的工作目录，因此其文件编辑落在会话的 worktree 中，而不是您的工作副本。要给 subagent 其自己的单独 worktree，在其 frontmatter 中设置 [`isolation: worktree`](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 或在生成它时传递 `isolation: "worktree"`。
+后台会话生成的 [子代理](/docs/zh-CN/sub-agents) 会继承会话的工作目录。一旦会话进入 worktree，子代理的文件编辑就会落在该 worktree 中，而不是您的工作副本中。要改为给子代理分配单独的 worktree，请在其 frontmatter 中设置 [`isolation: worktree`](/docs/zh-CN/sub-agents#supported-frontmatter-fields)，或在生成它时传递 `isolation: "worktree"`。
 
 当后台会话在 Claude 进入的 worktree 中进行了代码更改时，Claude Code 指示 Claude 在完成前保留工作，因此如果您删除会话及其 worktree，它会存活：
 

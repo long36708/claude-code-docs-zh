@@ -130,19 +130,19 @@ Agent tool 在单独的上下文窗口中生成一个子代理。子代理自主
   AskUserQuestion 工具行为
 </h2>
 
-Claude 使用 `AskUserQuestion` 在需要决策或澄清时向你提出多选题。通过选择一个选项来回答，或通过 `Other` 行或备注字段输入你自己的文本。
+Claude 使用 `AskUserQuestion` 在需要决策或澄清时向您提出多选题。通过选择一个选项来回答，或通过 `Other` 行或备注字段输入您自己的文本。
 
-当你通过输入自己的文本来回答时，Claude Code 会用中立的措辞转达答案，以便 Claude 遵循你写的内容，包括等待或先解释的请求。
+当您通过输入自己的文本来回答时，Claude Code 会用中立的措辞转达答案，以便 Claude 遵循您写的内容，包括等待或先解释的请求。
 
 <h3 id="question-auto-continue-timeout">
   问题自动继续超时
 </h3>
 
-问题保持打开状态，直到你回答。如果你想让一个未回答的问题最终关闭并让 Claude 在没有你的情况下继续，请在你的用户 `settings.json` 中或从 `/config` 中的 **Question auto-continue timeout** 行设置 [`askUserQuestionTimeout`](/docs/zh-CN/settings-reference#askuserquestiontimeout) 为 `60s`、`5m` 或 `10m`。
+问题保持打开状态，直到您回答。如果您想让一个未回答的问题最终关闭并让 Claude 在没有您的情况下继续，请在您的用户 `settings.json` 中或从 `/config` 中的 **Question auto-continue timeout** 行设置 [`askUserQuestionTimeout`](/docs/zh-CN/settings-reference#askuserquestiontimeout) 为 `60s`、`5m` 或 `10m`。
 
-问题在没有输入的情况下保持该长时间后，对话框会自动关闭：它会提交你已经选择的任何选项，并告诉 Claude 你可能离开了键盘，因此 Claude 会根据自己的判断继续进行，稍后可以重新提问。你会看到最后 20 秒的倒计时。按任何键重启计时器；在报告焦点的终端上，切换到窗口也会重启它。
+问题在没有输入的情况下保持该长时间后，对话框会自动关闭：它会提交您已经选择的任何选项，并告诉 Claude 您可能离开了键盘，因此 Claude 会根据自己的判断继续进行，稍后可以重新提问。您会看到最后 20 秒的倒计时。按任意键可重启计时器。当终端报告其窗口处于焦点状态时，计时器不会倒计时。
 
-超时仅适用于 `AskUserQuestion` 的多选题；权限提示（包括计划批准）在空闲时永远不会自动解决。
+对于 Claude 在[后台会话](/docs/zh-CN/agent-view)中、在[屏幕阅读器模式](/docs/zh-CN/accessibility)下，或在会话连接到 [Remote Control](/docs/zh-CN/remote-control) 时提出的问题，计时器永远不会启动。这些问题会一直等待，直到您回答。超时仅适用于 `AskUserQuestion` 的多选题；权限提示（包括计划批准）在空闲时永远不会自动解决。
 
 <h2 id="bash-tool-behavior">
   Bash 工具行为
@@ -174,7 +174,7 @@ Bash 工具在单独的进程中运行每个命令。
 * `BASH_DEFAULT_TIMEOUT_MS` — 当 Claude 不传递超时时的默认值；开箱即用为两分钟
 * `BASH_MAX_TIMEOUT_MS` — 使用默认值，设置上限以限制 Claude 请求的任何内容：有效上限是两者中较大的，开箱即用为十分钟
 
-对于 Claude 在后台启动的命令，`timeout` 改为设置命令在那里可以运行多长时间，具有在[后台命令时间限制](#time-limit-for-background-commands)下描述的单独默认值和最大值。[PowerShell 工具](#powershell-tool)遵循相同的超时规则并读取相同的两个变量。
+在具有[后台命令时间限制](#time-limit-for-background-commands)的会话中，对于 Claude 在后台启动的命令，`timeout` 改为设置命令在那里可以运行多长时间，并使用该限制单独的默认值和最大值。[PowerShell 工具](#powershell-tool)遵循相同的超时规则并读取相同的两个变量。
 
 <h4 id="output-limits">
   输出限制
@@ -209,10 +209,14 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
   后台命令的时间限制
 </h4>
 
-后台 Bash 和 PowerShell 命令有时间限制，从命令进入后台的时刻开始计算：
+在无人值守运行的会话中，例如使用 `-p` 标志的运行、Agent SDK 应用程序、CI 作业或云端会话，后台 Bash 和 PowerShell 命令有时间限制。您在终端、桌面应用或 VS Code 扩展中使用的本地会话对后台命令没有时间限制。
+
+时间限制需要 Claude Code v2.1.285 或更高版本。在 v2.1.288 之前，它适用于每个会话。
+
+时间限制从命令进入后台的时刻开始计算：
 
 * Claude 在后台启动的命令获得 30 分钟，或 Claude 使用 `run_in_background` 传递的 `timeout`，最多 2 小时
-* 在前台启动然后移到后台的命令，例如使用 `Ctrl+B` 或在其超时时，从移动时获得 30 分钟
+* 在前台启动然后移到后台的命令，例如在其超时时，从移动时获得 30 分钟
 
 当后台命令达到其时间限制时，Claude Code 停止它并告诉 Claude 原因，Claude 可以使用更长的 `timeout` 重新启动命令，如果工作仍然需要的话。停止通知读作 `Background command "<description>" was stopped after reaching its background time limit`。
 

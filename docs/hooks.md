@@ -2013,8 +2013,8 @@ hook 的 `"ask"` 也在 [自动模式](/docs/zh-CN/permission-modes#eliminate-pr
   PermissionRequest
 </h3>
 
-在 Claude Code 即将要求您许可使用工具时运行。在无法显示提示的会话中，如 [非交互模式](/docs/zh-CN/headless) 中的后台子 agents，Claude Code 仍然运行这些 hooks，如果没有 hook 返回决策，它拒绝工具调用。
-使用 [PermissionRequest 决策控制](#permissionrequest-decision-control) 代表用户允许或拒绝。
+在 Claude Code 即将向您请求使用某个工具的权限时运行。在无法显示提示的会话中，例如[非交互模式](/docs/zh-CN/headless)下的后台子代理，Claude Code 仍会运行这些 hook，如果没有 hook 返回决策，则会拒绝该工具调用。对于到达 `--permission-prompt-tool` 或 Agent SDK 的 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/permissions)的调用，hook 会与您的宿主并行运行，以先做出决策的一方为准。
+使用 [PermissionRequest 决策控制](#permissionrequest-decision-control)代表用户允许或拒绝。
 
 当您需要 Claude 要求许可使用工具的时刻的信号时使用此事件。Claude Code 仅在提示等待约六秒后才运行 [Notification](#notification) hook，带有 `permission_prompt` 类型。
 

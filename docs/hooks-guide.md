@@ -1002,9 +1002,7 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
   * `agent`：60 秒。
   * [`SessionEnd`](/docs/zh-CN/hooks#sessionend) 任何类型的 hooks 共享 1.5 秒的预算。如果你的设置为每个 hook 设置了更长的 `timeout`，Claude Code 会将预算提高到匹配，最多 60 秒。
 * `PostToolUse` hooks 无法撤销操作，因为工具已经执行。
-* `PermissionRequest` hooks 在 Claude Code 即将要求你获得权限时触发。
-  * 在带 `-p` 标志的[非交互模式](/docs/zh-CN/headless)中，该提示仅在 Agent SDK 的 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/permissions)提供时存在。在纯 `-p` 运行或使用 `--permission-prompt-tool` 时，改为使用 `PreToolUse` hooks 进行自动化权限决策。
-  * 后台子代理无法在非交互模式中显示提示。Claude Code 仍然为其工具调用运行 hooks，如果没有 hook 返回决策，它会拒绝该调用。在交互式会话中，后台子代理提示会显示在你的主会话中，hooks 照常触发。
+* [`PermissionRequest`](/docs/zh-CN/hooks#permissionrequest) hook 在 Claude Code 即将向您请求权限时触发，或在它原本会自动拒绝无法显示提示的调用时触发。在带 `-p` 标志的[非交互模式](/docs/zh-CN/headless)中，它们在 [`dontAsk` 模式](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)之外仍会运行，而没有 hook 做出决策且无其他方式可以应答的调用会被拒绝。
 * `Stop` hooks 在 Claude 完成响应时触发，而不仅仅在任务完成时。它们不在用户中断时触发。API 错误触发 [StopFailure](/docs/zh-CN/hooks#stopfailure) 代替。
 * 当多个 `PreToolUse` hooks 返回 [`updatedInput`](/docs/zh-CN/hooks#pretooluse) 来重写工具的参数时，最后完成的获胜。由于 hooks 并行运行，顺序是非确定性的。避免有多个 hook 修改同一工具的输入。
 

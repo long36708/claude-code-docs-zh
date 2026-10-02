@@ -24,7 +24,7 @@
 * **运行器**：在您网络内的主机上运行的程序。运行器执行会话；其思想与自托管 CI 运行器相同。
 * **会话**：开发者启动的一个 Claude Code 任务。
 
-当开发者启动云会话时，会话启动 UI 显示一个环境选择器，列出 Anthropic 托管的环境以及您的组织创建的任何环境。如果他们选择您的环境，Anthropic 的控制平面将会话放在您的环境队列上，运行器声称它，克隆开发者选择的存储库，并在您的主机上启动 Claude Code 进程来运行它。运行器使用您配置的凭证向您的 git 主机进行身份验证；[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)涵盖了这些选项。会话从您网络内部到达您的内部服务，当它是内部的时，也以相同的方式到达您的 git 主机；到 Anthropic 的流量、队列轮询、会话的事件流和模型推理是到 `api.anthropic.com` 的出站 HTTPS，以及会话可以在[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)中到达的简短主机列表。Anthropic 从不连接到您的网络。
+当开发者启动云端会话时，会话启动 UI 显示一个环境选择器，列出 Anthropic 托管的环境以及您的组织创建的任何环境。如果他们选择您的环境，Anthropic 的控制平面将会话放在您的环境队列上，运行器认领它，克隆开发者选择的仓库，并在您的主机上启动 Claude Code 进程来运行它。运行器使用您配置的凭据向您的 git 主机进行身份验证；[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)涵盖了这些选项。会话从您网络内部到达您的内部服务，当您的 git 主机是内部的时，也以相同的方式到达它；到 Anthropic 的流量，即队列轮询、会话的事件流以及默认情况下的模型推理，是到 `api.anthropic.com` 的出站 HTTPS，会话还可以到达的其他少量主机列在[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)中。Anthropic 从不连接到您的网络。
 
 <div style={{maxWidth: "640px", margin: "0 auto"}}>
   <Frame>
@@ -46,7 +46,7 @@
 
 * **计划**：Team 和 Enterprise 组织的公开测试版。自托管环境默认关闭；[所有者](/docs/zh-CN/cloud-environments#organization-shared-environments)在[**云环境**管理页面](https://claude.ai/admin-settings/cloud-environments)上打开**允许自托管环境**，这需要为组织启用 [cloud sessions](/docs/zh-CN/claude-code-on-the-web)。
 * **零数据保留**：对于启用了[零数据保留](/docs/zh-CN/zero-data-retention)的组织不可用。
-* **模型推理**：会话使用 Anthropic API，推理不能通过 [Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry](/docs/zh-CN/third-party-integrations) 或 [LLM 网关](/docs/zh-CN/llm-gateway)路由。
+* **模型推理**：会话使用 Anthropic API，除非您将 runner 配置为[将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform](/docs/zh-CN/self-hosted-environments-configuration#send-model-requests-to-bedrock-or-agent-platform)。在这两种情况下，会话内容都会发送给 Anthropic。在以这种方式配置的 runner 上，来自 claude.ai 的[服务器托管设置](/docs/zh-CN/server-managed-settings)和组织策略不会作用于会话。
 * **表面**：从 [claude.ai/code](https://claude.ai/code)、移动和桌面应用、[计划例程](/docs/zh-CN/routines)以及终端启动的会话，带有 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud) 或 [`--environment` 调度](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)，可以在自托管环境中运行。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话也可以在其中运行，但 Claude 还不能在这些会话中使用[访问包](https://claude.com/docs/claude-tag/concepts/glossary#access-bundle)。[Claude Security](/docs/zh-CN/claude-security) 和[代码审查](/docs/zh-CN/code-review)会话还不能路由到它们。对这两个表面的支持将单独跟进。
 * **存储库**：会话从 GitHub 检出存储库；请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)。对于 GitHub Enterprise Server 主机，请参阅其[网络要求](/docs/zh-CN/github-enterprise-server#network-requirements)。
 * **计费**：自托管环境中的会话消耗您的组织的 Claude Code 使用情况，与 Anthropic 托管环境中的会话相同。
@@ -61,7 +61,7 @@
 
 * **网络访问**：会话在您的网络内运行，可以到达内部服务、数据库和注册表，而无需将它们暴露给公网
 * **自定义工具**：在您的运行器镜像中预安装编译器、SDK 和内部 CLI，以便每个会话都准备好构建
-* **合规**：存储库检出和构建工件保留在您控制的基础设施上。会话内容仍然发送到 `api.anthropic.com` 进行模型推理。
+* **合规**：仓库检出和构建产物保留在您控制的基础设施上。会话内容仍然发送到 `api.anthropic.com`。
 
 <h2 id="environments-runners-and-sessions">
   环境、运行器和会话
@@ -136,7 +136,7 @@
 * **Git**：运行器通过 HTTPS 或 SSH 从您的 git 主机克隆和推送，使用您的部署提供的凭证进行身份验证；[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)涵盖了选项，包括每个会话铸造的凭证和 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)，它通过 `api.anthropic.com` 路由 git。
 * **会话子进程**：子 Claude Code 进程将会话的事件流保持到 `api.anthropic.com`，并为模型推理和会话期间运行的 git 命令进行自己的出站调用。请参阅[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)了解完整的出站列表。[上面的图](#how-self-hosted-environments-work)显示了这些路径，除了可选的 SCM 连接器。
 
-模型推理使用 Anthropic API。控制平面将 API 端点传递给每个会话，会话使用 Anthropic 颁发的会话范围的 OAuth 令牌进行身份验证，因此推理不能在自托管环境中通过 [Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry](/docs/zh-CN/third-party-integrations) 或 [LLM 网关](/docs/zh-CN/llm-gateway)路由。
+默认情况下，模型推理使用 Anthropic API。控制平面将 API 端点传递给每个会话，会话使用 Anthropic 颁发的会话范围的 OAuth 令牌进行身份验证。如需改为将模型请求发送到您自己的云帐户，请参阅[将模型请求发送到 Bedrock 或 Agent Platform](/docs/zh-CN/self-hosted-environments-configuration#send-model-requests-to-bedrock-or-agent-platform)。
 
 支持企业出站代理。运行器和可选的[自动扩展编排器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)遵守[网络配置](/docs/zh-CN/network-config)中描述的代理和 mTLS 环境变量，例如 `HTTPS_PROXY` 和 `NO_PROXY`；在每个进程的环境中设置它们。这些变量涵盖控制平面调用、编排器的 [SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags) WebSocket 和 HTTPS 远程的内置克隆，会话从运行器继承它们。会话流使用 HTTPS 上的服务器发送事件，因此路径中的代理不能缓冲响应。
 
@@ -146,7 +146,7 @@
   保留在您的基础设施上的内容
 </h2>
 
-存储库检出、构建工件、密钥和会话创建或修改的任何文件保留在您配置的机器上。对话本身，包括提示、响应和工具结果，发送到 `api.anthropic.com` 进行模型推理，Anthropic 存储会话记录，以便您可以从另一个[支持的表面](#availability-and-limitations)恢复会话。
+仓库检出、构建产物、密钥以及会话创建或修改的任何文件都保留在您配置的机器上。对话本身，包括提示词、回复和工具结果，会发送到 `api.anthropic.com`，Anthropic 会存储会话记录，以便您可以从另一个[受支持的使用入口](#availability-and-limitations)恢复会话。当运行器[将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform](/docs/zh-CN/self-hosted-environments-configuration#send-model-requests-to-bedrock-or-agent-platform) 时，对话仍会通过会话的事件流发送到 `api.anthropic.com`。
 
 自托管环境将会话执行移到您的网络中。控制平面仍然是 Anthropic 托管的：会话编排、队列和 claude.ai 界面继续在 Anthropic 的基础设施上运行。
 

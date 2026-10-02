@@ -68,6 +68,7 @@
 | `registry.npmjs.org` | 443 | 当会话安装插件时，用于获取 npm 源插件包和安装插件的 Node.js 依赖项，或当 `npx` 启动的 MCP 服务器运行时 |
 | `http-intake.logs.us5.datadoghq.com` | 443 | Anthropic 操作指标。仅当设置 `CLAUDE_CODE_BYOC_ENABLE_DATADOG=1` 时；在自托管环境中默认关闭。 |
 | `browser-intake-us5-datadoghq.com` | 443 | Anthropic 错误报告上传，仅在为会话帐户启用[错误报告](/docs/zh-CN/data-usage#telemetry-services)时发送。由 `DISABLE_ERROR_REPORTING=1` 或 `DISABLE_TELEMETRY=1` 抑制。 |
+| 您的云提供商用于模型请求、模型查询和续期凭据的端点，例如 `bedrock-runtime.us-east-1.amazonaws.com` 或 `aiplatform.googleapis.com` | 443 | 仅当运行器[将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform](/docs/zh-CN/self-hosted-environments-configuration#send-model-requests-to-bedrock-or-agent-platform) 时 |
 
 运行器不会到达 `statsig.anthropic.com`、`*.sentry.io`、`claude.ai` 或 `platform.claude.com`。这些主机出现在一些较旧的企业网络检查清单中，但您不需要为运行器或会话流量允许列表它们：功能标志获取转到 `api.anthropic.com`，运行器使用环境密钥而不是交互式 OAuth 进行身份验证。两个主机端流程确实到达 `claude.ai`，因此从其出站允许它的主机运行它们，而不是扩大会话容器出站流量：单行安装程序在安装时从 `claude.ai` 获取 `install.sh`，交互式 `claude auth login`（[引导设置](/docs/zh-CN/self-hosted-environments-quickstart#set-up-an-environment-and-runner)、`doctor` 的已登录模式和 [CI 分派](/docs/zh-CN/self-hosted-environments-testing#authenticate-from-ci)使用）通过 `claude.ai`、`claude.com` 和 `platform.claude.com` 登录。`mcp-proxy.anthropic.com` 也不是必需的：自托管会话不使用它，当为您的组织启用时，您组织的 claude.ai 连接器向会话的交付通过 `api.anthropic.com` 路由。请参阅 [MCP 服务器](/docs/zh-CN/self-hosted-environments-configuration#mcp-servers)。
 

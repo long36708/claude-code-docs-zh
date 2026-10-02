@@ -273,7 +273,10 @@ Claude Code 根据模型的设置位置处理任何其他被阻止的选择：
 * **`advisorModel` 设置**：顾问对会话禁用
 * **`--advisor` 标志**：Claude Code 在启动时以错误退出。在[后台会话](/docs/zh-CN/agent-view)中，它改为在没有顾问的情况下启动会话，而不是退出
 
-Claude Code 从 `/model` 选择器中隐藏排除的模型。列表中没有内置选择器行的完整模型 ID（如列表固定的较旧版本）在 `/model` 选择器中显示为其自己的标记行，除非 Claude Code 用 [`modelPicker`](/docs/zh-CN/settings-reference#modelpicker) 阵容替换内置选项。在 v2.1.199 之前，这样的 ID 只能通过键入 `/model <id>` 来选择。
+Claude Code 从 `/model` 选择器中隐藏排除的模型。您列出的模型 ID 是否也会获得自己的一行，因提供商而异：
+
+* **Anthropic API、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、[Claude apps 网关](/docs/zh-CN/claude-apps-gateway)或通过 `ANTHROPIC_BASE_URL` 设置的 [LLM 网关](/docs/zh-CN/llm-gateway)**：您列出的没有内置选择器行的 Anthropic 模型 ID 显示为其自己的标记行。Claude Code 会为 Opus、Sonnet 和 Haiku 版本添加这样的行，例如列表固定的较旧版本。如果您在 [`modelPicker`](/docs/zh-CN/settings-reference#modelpicker) 阵容中设置了 `replaceBuiltInOptions`，则该行不会显示。在 v2.1.199 之前，这样的 ID 只能通过键入 `/model <id>` 来选择。
+* **Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry**：除非您列出的模型 ID 以 `anthropic.` 开头，否则 Claude Code 不会为其添加行，无论它是 Anthropic 模型 ID 还是提供商特定的 ID。[Mantle 模型 ID](#mantle-model-ids) 带有该前缀。要显示没有内置行的已列出版本，还需将其添加到 [`modelPicker`](/docs/zh-CN/settings-reference#modelpicker) 阵容中，该阵容接受您的提供商格式的 ID。
 
 Claude Code 代表您进行的模型更改以相同的方式检查：
 
@@ -376,7 +379,7 @@ Claude Code 代表您进行的模型更改以相同的方式检查：
   Mantle 模型 ID
 </h3>
 
-当启用 [Amazon Bedrock Mantle 端点](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)时，`availableModels` 中以 `anthropic.` 开头的条目被添加到 `/model` 选择器作为自定义选项，并路由到 Mantle 端点。这是[为第三方部署固定模型](#pin-models-for-third-party-deployments)中描述的别名匹配的例外。该设置仍然将选择器限制为列出的条目，Mantle ID 嵌入系列名称，因此它计为特定条目并禁用该系列的通配符：在任何 Mantle ID 旁边，列出您想保持可选择的版本前缀或完整 ID。请参阅[合并行为](#merge-behavior)。
+`availableModels` 中以 `anthropic.` 开头的条目会作为自定义选项添加到 `/model` 选择器中。这是[为第三方部署固定模型](#pin-models-for-third-party-deployments)中描述的别名匹配的例外。启用 [Amazon Bedrock Mantle 端点](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)后，Claude Code 会将符合 Mantle 格式的条目路由到该端点。该设置仍然将选择器限制为列出的条目，Mantle ID 嵌入系列名称，因此它计为特定条目并禁用该系列的通配符：在任何 Mantle ID 旁边，列出您想保持可选择的版本前缀或完整 ID。请参阅[合并行为](#merge-behavior)。
 
 <h3 id="block-specific-models-or-versions">
   阻止特定模型或版本

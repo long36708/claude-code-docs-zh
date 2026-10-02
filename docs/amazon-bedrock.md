@@ -582,7 +582,7 @@ export CLAUDE_CODE_USE_MANTLE=1
 }
 ```
 
-带有 `anthropic.` 前缀的条目被添加为自定义选择器选项并路由到 Mantle。将 `anthropic.claude-haiku-4-5` 替换为您的账户被授予的模型 ID。请参阅[限制模型选择](/docs/zh-CN/model-config#restrict-model-selection)了解 `availableModels` 如何与其他模型设置交互。
+带有 `anthropic.` 前缀的条目被添加为自定义选择器选项，其中与 Mantle 格式匹配的条目被路由到 Mantle。将 `anthropic.claude-haiku-4-5` 替换为您的账户被授予的模型 ID。请参阅[限制模型选择](/docs/zh-CN/model-config#restrict-model-selection)了解 `availableModels` 如何与其他模型设置交互。
 
 当两个提供商都处于活动状态时，`/status` 显示 `Amazon Bedrock + Amazon Bedrock (Mantle)`。
 

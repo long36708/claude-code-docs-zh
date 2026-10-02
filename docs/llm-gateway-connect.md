@@ -290,7 +290,7 @@ steps:
   Slack、云会话和远程控制
 </h3>
 
-[Slack 中的 Claude Code](/docs/zh-CN/slack) 和[云会话](/docs/zh-CN/claude-code-on-the-web)始终使用 Anthropic 的 API；它们不是网关部署的一部分。在云会话的环境配置中设置的网关变量不适用。如果您的流量必须保持在网关上，请不要为这些用户启用这些界面。
+[Slack 中的 Claude Code](/docs/zh-CN/slack) 和[云端会话](/docs/zh-CN/claude-code-on-the-web)不属于网关部署的一部分。在云端会话的环境配置中设置的网关变量不会生效。如果您的流量必须保持在网关上，请不要为这些用户启用这些使用入口。
 
 [远程控制](/docs/zh-CN/remote-control)和[语音听写](/docs/zh-CN/voice-dictation)都依赖于 claude.ai 身份：远程控制将实时会话与您的账户配对，语音听写到达 claude.ai 转录端点。当 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 处于活动状态时，它们不可用。远程控制在 `ANTHROPIC_BASE_URL` 指向非 Anthropic 主机时也被禁用，因此仅使用 claude.ai 登录是不够的。在 v2.1.196 之前，非 Anthropic 基础 URL 不会阻止远程控制。
 

@@ -249,7 +249,7 @@ JSON 中的每个顶级键是代理的名称，其值是该代理的定义。不
   如果您是插件的作者，请改为在插件的 [`hooks/hooks.json`](/docs/zh-CN/plugins/components#hooks) 中提供 hook，并在其 [`.mcp.json`](/docs/zh-CN/plugins/components#mcp-servers) 中提供 MCP 服务器。它们会在插件启用时始终生效，而不仅仅在子代理内部生效。
 </Note>
 
-来自任何这些范围的 subagent 定义也可用于 [agent teams](/docs/zh-CN/agent-teams#use-subagent-definitions-for-teammates)：当生成一个队友时，您可以引用一个 subagent 类型，Claude Code 将该定义的部分应用于队友。有关每个显示模式中哪些部分适用，请参阅 [agent teams](/docs/zh-CN/agent-teams#use-subagent-definitions-for-teammates)。
+您还可以将子代理定义复用为 [agent team](/docs/zh-CN/agent-teams) 的队友：在要求 Claude 生成队友时指定子代理类型，Claude Code 会将该定义的部分内容应用于该队友。[将子代理定义用于队友](/docs/zh-CN/agent-teams#use-subagent-definitions-for-teammates)说明了在每种显示模式下适用哪些作用域以及哪些部分。
 
 <h3 id="write-subagent-files">
   编写 subagent 文件
