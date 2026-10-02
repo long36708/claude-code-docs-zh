@@ -12,7 +12,7 @@
   找出为什么 mod 不起作用
 </h2>
 
-当 mod 不起作用时，两项检查可以找到原因：Claude Code 从 mod 文件读取的内容，以及它在跳过某些内容时写入的行。对于第一项，在您的 shell 中运行 [`claude plugin validate`](/docs/zh-CN/plugins/mods/create#check-what-claude-code-reads-from-your-mod)，使用 mod 的目录，如 `claude plugin validate ./first-mod`。它可以捕获拼写错误的事件、错误的清单和 Claude Code 无法读取的模块，而无需启动会话。
+当 mod 不起作用时，请检查 Claude Code 从 mod 文件读取的内容，以及它在跳过某些内容时写入的行。对于第一项，在您的 shell 中运行 [`claude plugin validate`](/docs/zh-CN/plugins/mods/create#check-what-claude-code-reads-from-your-mod)，使用 mod 的目录，如 `claude plugin validate ./first-mod`。它可以捕获拼写错误的事件、错误的清单和 Claude Code 无法读取的模块，而无需启动会话。
 
 当模块未加载、hook 被跳过或另一个 mod 拒绝您的 mod 时，Claude Code 会写入一行，其中命名您的 mod。您读取该行的位置取决于会话：
 
@@ -112,7 +112,7 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
   `options do not fit plugin.json userConfig`
 </h3>
 
-该行以 mod 的名称开头，然后是 `hooks module did not load: options do not fit plugin.json userConfig:` 和一个原因。选项不适合其 [`userConfig`](/docs/zh-CN/plugins/components#user-configuration) 字段，例如高于字段 `max` 的数字，或必需字段没有值。
+该行以 mod 的名称开头，然后是 `hooks module did not load: options do not fit plugin.json userConfig:` 和一个原因。某个选项未通过其 [`userConfig`](/docs/zh-CN/plugins/components#user-configuration) 字段的验证，例如高于字段 `max` 的数字，或必需字段没有值。
 
 设置或更改值。该行的末尾命名其在 `settings.json` 中的 `pluginConfigs` 条目。
 
@@ -142,7 +142,7 @@ mod 已加载，然后 Claude Code 跳过了其中一个 hooks 或卸载了它�
   `hook skipped`
 </h3>
 
-该行命名 mod 和事件，然后说 `hook skipped:` 和一个原因，如 `first-mod: tool.call hook skipped: threw Error: boom`。hook 抛出了异常、运行超过了其 [10 秒时间限制](/docs/zh-CN/plugins/mods/reference#limits)，或返回了错误形状的结果。该行对每个事件和失败类型出现一次，直到 mod 重新加载。
+该行命名 mod 和事件，然后说 `hook skipped:` 和一个原因，如 `first-mod: tool.call hook skipped: threw Error: boom`。hook 抛出了异常、运行超过了其[时间限制](/docs/zh-CN/plugins/mods/reference#limits)，或返回了错误形状的结果。该行对每个事件和失败类型出现一次，直到 mod 重新加载。
 
 修复错误。调试日志对每次出现都有一行。
 
@@ -209,11 +209,11 @@ mod 已加载，其窗格、带或控件的行为不符合您的预期。
 
 读取该行上的原因。常见原因是元素不接受的 prop 和应用没有的元素。
 
-<h3 id="ui-open-runs-and-no-pane-appears">
+<h3 id="$-ui-open-runs-and-no-pane-appears">
   `$.ui.open` 运行且没有窗格出现
 </h3>
 
-调用不是来自用户做的事情，终端宽度小于 144 列。
+调用不是来自用户做的事情，且终端宽度小于[该窗格所需的宽度](/docs/zh-CN/plugins/mods/interface#when-a-pane-waits-for-a-wider-terminal)。
 
 从命令或按钮打开窗格，或检查调用的 `isPlaced` 结果。请参阅 [在正确的时间打开窗格](/docs/zh-CN/plugins/mods/interface#open-a-pane-at-the-right-time)。
 
@@ -279,7 +279,7 @@ claude --debug-file ./mod-debug.log --plugin-dir ./first-mod
 tail -f ./mod-debug.log | grep first-mod
 ```
 
-已加载的 mod 有一行命名它并列出它 hooks 的事件。使用 `--plugin-dir` 加载的 mod 出现在其名称后跟 `@inline` 下：
+已加载的 mod 有一行命名它并列出它处理的事件。使用 `--plugin-dir` 加载的 mod 出现在其名称后跟 `@inline` 下：
 
 ```text theme={null}
 hooks module first-mod@inline loaded (worker, environment 2, tier user); events: session.start,tool.call,command.run,ui.render

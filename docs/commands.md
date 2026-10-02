@@ -111,7 +111,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/login` | 登录您的 Anthropic 账户 |
 | `/logout` | 从您的 Anthropic 账户注销 |
 | `/loop [interval] [prompt]` | **[Skill](/docs/zh-CN/skills#bundled-skills)。** 在会话保持打开期间重复运行提示词。省略间隔时，Claude 会[自行决定迭代之间的节奏](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)。省略提示词时，Claude 会运行[内置维护提示词](/docs/zh-CN/scheduled-tasks#run-the-built-in-maintenance-prompt)或您的 [`loop.md`](/docs/zh-CN/scheduled-tasks#customize-the-default-prompt-with-loop-md)。示例：`/loop 5m check if the deploy finished`。请参阅[按计划运行提示词](/docs/zh-CN/scheduled-tasks)。别名：`/proactive` |
-| `/mcp [reconnect <server>\|enable\|disable [<server>\|all]]` | 管理 MCP 服务器连接和 OAuth 身份验证。不带参数运行可打开交互式列表，传递 `reconnect <server>` 可重新连接一个已断开的服务器，或传递 `enable`/`disable` 以及服务器名称或 `all`，可在不打开对话框的情况下更改连接状态。也可在非交互模式（`-p`）中使用，在该模式下不带参数运行会输出服务器状态的文本摘要，而不是打开列表；需要 Claude Code v2.1.205 或更高版本 |
+| `/mcp [reconnect (<server>\|all)\|enable\|disable [<server>\|all]]` | 管理 MCP 服务器连接和 OAuth 身份验证。不带参数运行可打开交互式列表，或传递 `reconnect`、`enable` 或 `disable` 以及服务器名称或 `all`，可在不打开列表的情况下更改连接状态。`reconnect all` 会[重试每个失败或需要身份验证的服务器](/docs/zh-CN/mcp#retry-failed-servers-yourself)。也可在非交互模式（`-p`）中使用，在该模式下不带参数运行会输出服务器状态的文本摘要，而不是打开列表；需要 Claude Code v2.1.205 或更高版本 |
 | `/memory` | 编辑 `CLAUDE.md` 文件，启用或禁用[自动记忆](/docs/zh-CN/memory#auto-memory)，并查看自动记忆条目 |
 | `/mobile` | 显示用于下载 Claude 移动应用的二维码。别名：`/ios`、`/android` |
 | `/model [model]` | 切换 AI 模型并将其保存为新会话的默认模型。对于支持的模型，使用左/右箭头[调整 effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。不带参数时，打开选择器；在某一行上按 `s` 可仅为当前会话切换。请参阅 [Claude Code 何时会要求您确认切换](/docs/zh-CN/prompt-caching#switching-models)。一旦您确认切换（如果 Claude Code 询问），Claude Code 会应用更改，而无需等待当前回复完成。在 v2.1.242 之前，Claude Code 会根据从 Anthropic 获取的功能标志来决定是在轮次中途运行该命令，还是将其排队直到轮次结束，并且在不[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中（例如在[第三方提供商](/docs/zh-CN/third-party-integrations)上）始终将其排队。也可在非交互模式（`-p`）中通过模型参数（而非选择器）使用，此时仅应用于当前会话，不会保存为默认模型；需要 Claude Code v2.1.205 或更高版本 |
@@ -120,6 +120,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/permissions` | 管理工具权限的允许、询问和拒绝规则。打开交互式对话框，您可以在其中按作用域查看规则、添加或删除规则、管理工作目录，以及查看[最近的自动模式拒绝记录](/docs/zh-CN/auto-mode-config#review-denials)。您还可以从对话框的 **Auto mode** 选项卡查看和编辑[自动模式分类器规则](/docs/zh-CN/auto-mode-config#edit-rules-from-permissions)。如果在 Claude 回复时运行此命令，Claude Code 会立即打开对话框，并从 Claude 在同一轮次中的下一次工具调用开始应用您的更改。在 v2.1.234 之前，Claude Code 会将该命令排队，直到该轮次结束。别名：`/allowed-tools` |
 | `/plan [description]` | 直接从输入框进入计划模式。传递可选描述可进入计划模式并立即开始处理该任务，例如 `/plan fix the auth bug` |
 | `/plugin [subcommand]` | 管理 Claude Code [插件](/docs/zh-CN/plugins/overview)。不带参数运行可打开插件菜单，或传递 `list`、`install`、`enable` 或 `disable` 等子命令以直接执行操作。Claude Code 可以在安装期间激活插件；[安装摘要](/docs/zh-CN/plugins/install#install-a-plugin)会告诉您插件是否已激活，或是否需要运行 `/reload-plugins` |
+| `/plugin-authoring` | 加载 Claude 用于[编写 mod](/docs/zh-CN/plugins/mods/create#ask-claude-for-a-mod) 的参考资料。当您请求 mod 时，Claude 可以自行加载它。这是一个来自[内置插件](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code)的 skill，您可以在 `/plugin` 中将其关闭。需要 Claude Code v2.1.287 或更高版本 |
 | `/powerup` | 通过带有动画演示的快速交互式课程了解 Claude Code 功能 |
 | `/pr-comments [PR]` | 已在 v2.1.91 中移除。请改为直接让 Claude 查看 Pull Request 评论。在更早版本中，获取并显示 GitHub Pull Request 中的评论；自动检测当前分支的 PR，或传递 PR URL 或编号。需要 `gh` CLI |
 | `/privacy-settings` | 查看和更新您的隐私设置。仅适用于 Pro 和 Max 套餐订阅者 |
@@ -151,7 +152,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/status` | 在 Status 选项卡上打开设置界面，显示版本、模型、账户和连接状态。在[后台会话](/docs/zh-CN/agent-view)中，`Session kind` 行会显示 `background job · attached` 或 `background job · unattended`（取决于是否附加了终端），在其他任何会话中显示 `interactive`。在 v2.1.221 之前，`/status` 不显示此行。在 Claude 回复时也可使用 |
 | `/statusline` | 配置 Claude Code 的[状态栏](/docs/zh-CN/statusline)。描述您想要的内容，或不带参数运行以根据您的 shell 提示符自动配置 |
 | `/stickers` | 订购 Claude Code 贴纸 |
-| `/stop` | 停止当前[后台会话](/docs/zh-CN/agent-view)。仅在附加到后台会话时可用；会话记录和任何 worktree 都会保留。要分离而不停止，请使用 `/exit` 或按 `←` |
+| `/stop` | 停止您已附加到的[后台会话](/docs/zh-CN/agent-view)，或您以[窥视回复](/docs/zh-CN/agent-view#peek-and-reply)方式发送此命令的目标会话；会话记录和任何 worktree 都会保留。要分离而不停止，请使用 `/exit` 或按 `←` |
 | `/subtask <task>` | 生成一个[分叉子代理](/docs/zh-CN/sub-agents#fork-the-current-conversation)：一个继承完整对话的后台子代理，在您继续工作的同时处理该任务。完成后，其结果会返回到此对话。要改为将对话复制到单独的后台会话中，请使用 `/fork`。需要 Claude Code v2.1.212 或更高版本；在 v2.1.161 至 v2.1.211 上，此命令为 `/fork`。当[关闭 Agent 视图](/docs/zh-CN/agent-view#turn-off-agent-view)时，`/subtask` 不可用，`/fork` 保留分叉子代理行为 |
 | `/tasks` | 查看和管理当前会话中的后台工作，包括已完成的子代理。也可作为 `/bashes` 使用 |
 | `/team-onboarding` | 根据您的 Claude Code 使用历史生成团队入门指南。Claude 会分析您过去 30 天的会话、命令和 MCP 服务器使用情况，并生成一份 markdown 指南，队友可以将其作为第一条消息粘贴以快速完成设置。对于 Pro、Max、Team 和 Enterprise 套餐的 claude.ai 订阅者，还会返回一个分享链接，队友可以直接在 Claude Code 中打开 |

@@ -30,9 +30,9 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthr
 /code-review ultra
 ```
 
-不带参数时，ultrareview 审查您当前分支与默认分支之间的差异，包括未提交和暂存的更改。对于名称类似凭证或密钥的文件（如 `.env` 和 `*.tfvars` 文件）中的未提交更改，Claude Code 遵循[将本地存储库上传到云会话](/docs/zh-CN/claude-code-on-the-web#send-local-repositories-without-github)的规则。
+不带参数时，ultrareview 审查您当前分支与默认分支之间的 diff，包括未提交和暂存的更改。
 
-对于分支审查，Claude Code 捆绑存储库状态并将其上传到云沙箱；当您[审查拉取请求](#review-a-pull-request)时，Claude Code 不会从您的计算机上传任何内容。
+对于分支审查，Claude Code 按照[将本地仓库上传到云端会话](/docs/zh-CN/claude-code-on-the-web#send-local-repositories-without-github)的规则捆绑仓库状态并将其上传到云沙箱，这些规则涵盖了大小限制、检出要求，以及名称类似凭据或密钥的文件（如 `.env` 和 `*.tfvars` 文件）中的未提交更改会如何处理。当您[审查拉取请求](#review-a-pull-request)时，Claude Code 不会从您的计算机上传任何内容。
 
 启动前，Claude Code 显示一个确认对话框，其中包含审查范围、您剩余的免费运行次数和估计成本；对于分支审查，范围包括文件和行数。确认后，审查在后台继续进行，您可以继续使用您的会话。
 
@@ -153,7 +153,7 @@ Claude Code 在每次对话中要求您确认一次使用额度计费：例如�
   跟踪正在运行的审查
 </h2>
 
-审查通常需要 5 到 10 分钟。审查作为后台任务运行，因此您可以继续在会话中工作、启动其他命令或完全关闭终端。如果您选择了[将发现发布到拉取请求](#post-findings-to-the-pull-request)，请保持会话打开直到审查完成；如果会话先结束，Claude Code 将不会发布任何内容。
+审查通常需要 5 到 10 分钟。审查作为后台任务运行，因此您可以继续在会话中工作或启动其他命令。如果您选择了[将发现发布到拉取请求](#post-findings-to-the-pull-request)，请保持会话打开直到审查完成；如果会话先结束，Claude Code 将不会发布任何内容。
 
 使用 `/tasks` 查看正在运行和已完成的审查、打开审查的详细视图或停止正在进行的审查。如果您停止审查，Claude Code 会存档云会话，不会返回部分发现。
 
@@ -166,10 +166,10 @@ Claude 还可以告诉您审查已停止或其会话未找到：
 审查完成后，Claude Code 会在您的会话中将验证的发现显示为通知。每个发现都包括文件位置和问题的解释，因此您可以要求 Claude 直接修复它。
 
 <h2 id="run-ultrareview-non-interactively">
-  非交互式运行 ultrareview
+  以非交互方式运行 ultrareview
 </h2>
 
-使用 `claude ultrareview` 子命令从 CI 或脚本启动 ultrareview，无需交互式会话。该子命令启动与 `/code-review ultra` 相同的审查，阻止直到远程审查完成，并将发现打印到 stdout。
+使用 `claude ultrareview` 子命令，可以在 CI 或脚本中启动 ultrareview，而无需交互式会话。该子命令启动的审查与 `/code-review ultra` 相同，会一直阻塞到远程审查完成，然后将发现的问题输出到 stdout。
 
 ```bash theme={null}
 claude ultrareview
@@ -177,37 +177,37 @@ claude ultrareview 1234
 claude ultrareview origin/main
 ```
 
-不带参数时，该子命令审查您当前分支与默认分支之间的差异，当不存在合并基础时具有与 `/code-review ultra` 相同的[整个存储库回退](#diff-limits-and-fallbacks)。传递 PR 编号来审查拉取请求，或传递基础分支来审查与该分支的差异；[基础分支处理](#review-against-a-different-base)与交互式命令匹配。
+不带参数时，该子命令会审查当前分支与默认分支之间的 diff；当不存在合并基准时，会执行与 `/code-review ultra` 相同的[回退到整个仓库审查](#diff-limits-and-fallbacks)。传入 PR 编号可审查对应的 Pull Request，传入基准分支则以该分支为基准进行审查；[基准分支的处理方式](#review-against-a-different-base)与交互式命令一致。
 
-运行该子命令时，您同意整个存储库回退以及计费和条款提示，因此运行开始时无需等待输入。运行它本身就是您的同意。当 Claude 代替您运行该子命令时，例如通过 Bash 工具，Claude Code 会拒绝整个存储库审查。
+运行该子命令即表示您同意回退到整个仓库审查，并同意计费和条款确认提示，因此运行会直接开始，无需等待输入。只有您亲自运行才算作同意。如果改由 Claude 替您运行该子命令（例如通过 Bash 工具），Claude Code 会拒绝执行整个仓库审查。
 
-在 Claude Code v2.1.218 或更高版本上，您也可以通过在非交互式会话中运行 `/code-review ultra` 来启动云审查，例如 `claude -p '/code-review ultra'`。Claude Code 启动审查并打印跟踪链接，无需等待发现，与 `claude ultrareview` 不同，后者会阻止直到发现到达。当审查会计费使用额度时，Claude Code 在启动前停止并指向 `claude ultrareview`，因为计费确认需要交互式会话。在 v2.1.218 之前，非交互式会话中的 `/code-review ultra` 运行本地审查。
+`claude -p '/code-review ultra'` 无法获取发现的问题，因此请在脚本中使用 `claude ultrareview`。`-p` 运行会启动云端审查，但不等待其完成就退出。如果该审查会消耗使用额度，`-p` 运行会停止且不启动审查。在 v2.1.218 之前，非交互式会话中的 `/code-review ultra` 会运行本地审查。
 
-进度消息和实时会话 URL 转到 stderr，以便 stdout 保持可解析。使用这些标志来控制输出、超时以及是否发布发现：
+`claude ultrareview` 会将进度消息写入 stderr，以便 stdout 保持可解析。使用以下标志控制其输出、超时时间以及是否发布发现的问题：
 
 | 标志 | 描述 |
 | - | - |
-| `--json` | 打印原始 `bugs.json` 有效负载而不是格式化的发现 |
-| `--timeout <minutes>` | 等待审查完成的最大分钟数。默认为 45 |
-| `--post` | [将完成的发现作为来自您 GitHub 账户的一条纯文本注释发布](#post-findings-to-the-pull-request)到拉取请求。适用于 `github.com` 拉取请求目标；在其他目标上，Claude Code 忽略该标志并说明。需要 Claude Code v2.1.227 或更高版本 |
-| `--no-post` | 不发布发现。这是默认值，如果您同时传递两个标志，Claude Code 不会发布。需要 Claude Code v2.1.227 或更高版本 |
+| `--json` | 输出原始的 `bugs.json` 负载，而不是格式化后的发现结果 |
+| `--timeout <minutes>` | 等待审查完成的最长分钟数。默认为 45 |
+| `--post` | 以您的 GitHub 账户身份，将完成的发现结果作为一条纯文本评论[发布到 Pull Request](#post-findings-to-the-pull-request)。适用于 `github.com` 上的 Pull Request 目标；对于其他目标，Claude Code 会忽略该标志并给出提示。需要 Claude Code v2.1.227 或更高版本 |
+| `--no-post` | 不发布发现结果。这是默认行为；如果同时传入两个标志，Claude Code 不会发布。需要 Claude Code v2.1.227 或更高版本 |
 
-运行 `claude ultrareview` 需要与 `/code-review ultra` 相同的身份验证和使用额度配置。
+运行 `claude ultrareview` 所需的身份验证和使用额度配置与 `/code-review ultra` 相同。
 
-该子命令以三个代码之一退出：
+该子命令会以以下三种退出码之一退出：
 
-* **0**：审查完成，无论是否有发现
-* **1**：审查无法启动、云会话出错或超时已过
-* **130**：您使用 Ctrl-C 中断了子命令
+* **0**：审查已完成，无论是否有发现结果
+* **1**：审查启动失败或在完成前被停止、云端会话出错，或已超时
+* **130**：您使用 Ctrl-C 中断了该子命令
 
-如果您中断子命令，远程审查会继续运行；按照打印到 stderr 的会话 URL 在浏览器中观看它。
+如果子命令在发现结果返回之前退出，这些结果将永远不会到达您的终端。审查可能仍在云端运行。再次运行该子命令会启动一次新的审查，而不是恢复之前那次，并且新的审查会[使用一次免费运行或按使用额度计费](#pricing-and-free-runs)。
 
-使用 `--post` 时，子命令在打印发现后立即开始发布，并将链接打印到 stderr。
+使用 `--post` 时，子命令会在输出发现结果后立即开始发布，并将链接输出到 stderr。
 
-* 如果运行失败、停止或超时，或者您中断它，子命令不发布任何内容。
-* 如果审查完成但注释未发布，Claude Code 将原因打印到 stderr，发现保留在 stdout 上，以便您可以手动发布它们。
+* 如果运行失败、被停止或超时，子命令不会发布任何内容。
+* 如果审查完成但评论未能发布，Claude Code 会将原因输出到 stderr，发现结果仍保留在 stdout 中，以便您手动发布。
 
-对于 GitHub 拉取请求上的自动审查，[Code Review](/docs/zh-CN/code-review) 直接与您的存储库集成，并将发现作为内联 PR 注释发布，无需 CLI 步骤。
+如需对 GitHub Pull Request 进行自动审查，[Code Review](/docs/zh-CN/code-review) 可直接与您的仓库集成，并以 PR 行内评论的形式发布发现结果，无需 CLI 步骤。
 
 <h2 id="how-ultrareview-compares-to-/code-review">
   ultrareview 与 /code-review 的比较

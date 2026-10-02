@@ -118,16 +118,37 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 如果您的成员通过 claude.ai 或 Anthropic API 登录，并且您在 Claude Enterprise 计划上，您还可以从组织的管理设置中管理模型，而无需部署任何内容：
 
 * [Organization model restrictions](/docs/zh-CN/model-config#organization-model-restrictions)：禁用单个模型。在服务器端强制执行。
-* [Organization default model](/docs/zh-CN/model-config#organization-default-model)：设置新会话启动时使用的模型。用户可以更改它，除非您的组织强制执行默认值，这仅适用于有限的组织集合；请咨询您的 Anthropic 账户团队。
+* [Organization default model](/docs/zh-CN/model-config#organization-default-model)：设置新会话启动时使用的模型。成员仍可切换模型。要在启动时将其恢复为您的默认模型，请启用该部分所述的覆盖设置。要限制成员可选择的模型，请使用[组织模型限制](/docs/zh-CN/model-config#organization-model-restrictions)。
 * [Organization effort limits](/docs/zh-CN/model-config#organization-effort-limits)：按角色限制工作量级别。在服务器端强制执行。
 
 这些控制都不会到达 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上的会话。在这些提供商上，使用托管设置代替：`availableModels` 用于限制，`model` 用于默认值，[`maxEffortLevel`](/docs/zh-CN/settings-reference#maxeffortlevel) 用于工作量限制。
 
-[Cloud sessions](/docs/zh-CN/claude-code-on-the-web) 有其自己的管理表面：在管理设置中的 Cloud environments 页面上，所有者创建[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)，设置成员云会话的[网络访问级别](/docs/zh-CN/cloud-environments#network-access)、环境变量和设置脚本。所有者在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 单独选择组织的默认环境。
+[Cloud sessions](/docs/zh-CN/claude-code-on-the-web) 在 claude.ai 上有其自己的管理入口：
+
+* **Cloud environments 页面**：所有者创建[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)，设置成员云端会话的[网络访问级别](/docs/zh-CN/cloud-environments#network-access)、环境变量和设置脚本。
+* **默认环境**：所有者在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 单独选择组织的默认环境。
+* **GitHub 页面**：请参阅[已关联的 GitHub 账户](#connected-github-accounts)，了解关联到您组织的 GitHub 账户。
 
 权限规则和沙箱覆盖不同的层。拒绝 WebFetch 会阻止 Claude 的 fetch 工具，但如果允许 Bash，`curl` 和 `wget` 仍然可以到达任何 URL。沙箱通过在操作系统级别强制执行的网络域允许列表来弥补这一差距。
 
 有关这些控制防御的威胁模型，请参阅[安全性](/docs/zh-CN/security)。
+
+<h3 id="connected-github-accounts">
+  已关联的 GitHub 账户
+</h3>
+
+在 Team 和 Enterprise 计划中，[**Admin settings > GitHub**](https://claude.ai/admin-settings/github) 列出了通过 [Claude GitHub App](https://github.com/apps/claude) 关联到您的 Claude 组织的 GitHub 组织和个人账户。Claude Code、[Claude Tag](https://claude.com/docs/claude-tag/admins/configure-github) 和 Claude Security 共享此列表。打开该页面需要在您的 Claude 组织中拥有管理员角色。
+
+管理员或成员都可以关联账户：
+
+* **管理员连接**：管理员在该页面上点击 **Connect**，并在某个 GitHub 组织上安装 Claude GitHub App。以这种方式关联组织，需要一个既是该 GitHub 组织所有者、又是您 Claude 组织管理员的人来操作。
+* **成员连接**：当成员将其 GitHub 账户连接到 Claude 时（例如在[设置云端会话](/docs/zh-CN/web-quickstart#connect-github)时），Claude 会关联该成员拥有且已安装 Claude GitHub App 的 GitHub 账户。这可能包括其个人账户以及其拥有的 GitHub 组织。
+
+标记为 **Not linked** 的行来自您自己的 GitHub 登录。它是您在 GitHub 上可以看到且已安装 Claude GitHub App 的账户。
+
+要将某个账户与您的 Claude 组织取消关联，请打开该行的菜单并选择 **Unlink from this workspace**。取消关联后，Claude GitHub App 仍安装在 GitHub 上，下次该账户的某个所有者将 GitHub 连接到 Claude 时，该账户会再次被关联。要防止其再次被关联，请在 GitHub 上从该账户卸载 Claude GitHub App。
+
+在 Enterprise 计划中，用于关联和取消关联的 [Compliance API](https://platform.claude.com/docs/en/api/compliance/activities/list) 活动类型分别为 `github_app_installation_linked` 和 `github_app_installation_unlinked`。
 
 <h2 id="set-up-usage-visibility">
   设置使用情况可见性

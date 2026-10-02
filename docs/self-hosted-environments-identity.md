@@ -187,10 +187,10 @@ https://api.anthropic.com/v1/code/.well-known/jwks.json
 
 [包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)在会话内运行，在 Claude 启动之前。它们可以运行运行程序二进制文件的 `self-hosted-runner decode-token` 子命令，而不是调用 JWT 库。子命令从位置参数、`CLAUDE_CODE_SESSION_ACCESS_TOKEN` 或管道 stdin 读取令牌（按该顺序），然后删除前缀，根据 JWKS 端点验证签名，检查过期，并将声明打印为 JSON。子命令仅执行签名和过期检查；它不检查 `iss`、`aud` 或 `ccr:role`。当您的包装器的身份验证决定取决于这些声明时，从打印的 JSON 中读取它们并明确比较它们。
 
-此命令提取创建者身份，优先选择 SSO 提供程序的主题，然后是电子邮件地址，然后是创建者的 `act.sub` 主题 `user:<id>` 或 `agent:<id>`：
+此命令提取创建者身份，优先选择电子邮件地址，然后是创建者的 `act.sub` 主题 `user:<id>` 或 `agent:<id>`：
 
 ```bash theme={null}
-"$CLAUDE_RUNNER_CLAUDE_BIN" self-hosted-runner decode-token | jq -re '.act.attested_by.sub // .act.email // .act.sub'
+"$CLAUDE_RUNNER_CLAUDE_BIN" self-hosted-runner decode-token | jq -re '.act.email // .act.sub'
 ```
 
 包装脚本在 `CLAUDE_RUNNER_CLAUDE_BIN` 中接收运行程序自身二进制文件的绝对路径；使用该路径而不是 PATH 解析的 `claude`，以便解码在运行程序本身使用的同一二进制文件上运行。
@@ -231,7 +231,7 @@ https://api.anthropic.com/v1/code/.well-known/jwks.json
 | :- | :- |
 | `act.sub` | 创建用户的 Anthropic 用户 ID，形式为 `user:<id>`，或当您组织的服务身份创建会话时为 `agent:<id>`，就像它对 Claude Tag 频道会话所做的那样。 |
 | `act.email` | 创建用户的电子邮件地址，当在会话创建时记录了一个时。不要求它；根据 `act.sub` 确定身份。 |
-| `act.attested_by` | 上游身份提供程序对创建用户的证明，当可用时。`act.attested_by.sub` 是您的 SSO 提供程序（例如 Google 或 Okta）发布的主题。在映射到您自己系统中的身份时，优先选择这个而不是 `act.email`。 |
+| `act.attested_by` | 保留用于上游身份提供程序对创建用户的证明。预期它不存在，请勿依赖它。根据 `act.sub` 确定身份。如果您需要地址，请在 `act.email` 存在时读取它。 |
 | `act.act` | 生成会话的运行程序。`act.act.sub` 是 `ccr:runner:<runner_id>`。 |
 | `act.act.act` | 环境。`act.act.act.sub` 是 `ccr:pool:<pool_id>`。 |
 | `act.act.act.act` | 创建运行程序注册的环境机密的身份。链在此处结束。 |

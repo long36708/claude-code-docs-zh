@@ -91,7 +91,7 @@ Sandboxed Bash tool 内置于 Claude Code 中。它使用操作系统原语来�
   Sandbox runtime
 </h2>
 
-[`@anthropic-ai/sandbox-runtime`](https://github.com/anthropic-experimental/sandbox-runtime) 包将整个进程包装在内置 Bash 沙箱使用的相同 Seatbelt 或 bubblewrap 隔离中。通过它运行 Claude Code 会限制会话中的每个工具、hook 和 MCP 服务器，而不仅仅是 Bash 命令。运行时是测试版研究预览，其配置格式可能会随着包的发展而改变。
+[`@anthropic-ai/sandbox-runtime`](https://github.com/anthropics/sandbox-runtime) 包将整个进程包装在内置 Bash 沙箱使用的相同 Seatbelt 或 bubblewrap 隔离中。通过该运行时运行 Claude Code 不仅会限制 shell 命令，还会限制会话的工具、hook 和 MCP 服务器。运行时是测试版研究预览，其配置格式可能会随着包的发展而改变。
 
 本部分涵盖您配置的内容以及运行时自身强制执行的内容。有关在 Agent SDK 应用程序中部署运行时，请参阅[安全部署指南](/docs/zh-CN/agent-sdk/secure-deployment#sandbox-runtime)。
 
@@ -101,7 +101,7 @@ Sandboxed Bash tool 内置于 Claude Code 中。它使用操作系统原语来�
 
 在 Linux 和 WSL2 上，运行时依赖于与内置沙箱相同的 `bubblewrap` 和 `socat` 包，加上 `ripgrep`，Claude Code 捆绑了它，但独立运行时从您的 PATH 中解析。按照[设置 Linux 和 WSL2](/docs/zh-CN/sandboxing#set-up-linux-and-wsl2) 中的说明安装 `bubblewrap` 和 `socat`，以及从您的发行版包管理器安装 `ripgrep`。在 macOS 上，您不需要任何额外的包。运行时在那里使用内置的 Seatbelt 沙箱。
 
-默认情况下，运行时拒绝网络访问并将写入限制在一小组内置运行时路径，因此在通过它启动 Claude Code 之前配置它。将您的配置放在 `~/.srt-settings.json` 中，或在您使用 `--settings` 传递的文件中。包 [README](https://github.com/anthropic-experimental/sandbox-runtime) 记录了完整的配置架构。
+默认情况下，运行时拒绝网络访问并将写入限制在一小组内置运行时路径，因此在通过它启动 Claude Code 之前配置它。将您的配置放在 `~/.srt-settings.json` 中，或在您使用 `--settings` 传递的文件中。包 [README](https://github.com/anthropics/sandbox-runtime) 记录了配置 schema。
 
 至少允许写入访问：
 
@@ -122,7 +122,7 @@ Sandboxed Bash tool 内置于 Claude Code 中。它使用操作系统原语来�
 mkdir -p ~/.claude && { [ -f ~/.claude.json ] || echo '{}' > ~/.claude.json; }
 ```
 
-配置文件就位后，使用 `npx` 启动 Claude Code 并传递 `claude` 作为要包装的命令：
+设置文件就位后，使用 `npx` 启动 Claude Code 并传递 `claude` 作为要包装的命令：
 
 ```bash theme={null}
 npx @anthropic-ai/sandbox-runtime claude
@@ -138,7 +138,7 @@ Claude Code 在沙箱内启动，具有您配置的文件系统和网络边界�
 
 * `denyWrite` 优先于 `allowWrite`。
 * 在项目根目录，运行时拒绝 `.git/hooks`，拒绝 `.git/config` 除非您设置 `filesystem.allowGitConfig: true`，并拒绝 `.mcp.json`、`.claude/commands`、`.claude/agents` 和 shell 启动文件。
-* 在 macOS 上，这些拒绝在写入发生时被检查，因此它们也涵盖嵌套文件和在会话期间创建的存储库。
+* 在 macOS 上，这些拒绝在写入发生时被检查，因此它们也涵盖嵌套文件和在会话期间创建的仓库。
 * 在 Linux 和 WSL2 上，运行时在启动时构建拒绝列表一次。它可靠地涵盖项目根目录，对当时存在的嵌套副本进行最佳努力的浅层扫描，并不涵盖会话稍后创建的任何内容，例如 `git init`、`git clone` 或脚手架。README 的 `mandatoryDenySearchDepth` 部分描述了扫描的确切语义。
 * 如果 `~/.srt-settings.json` 不存在且您没有传递 `--settings`，运行时仍然启动。它阻止网络访问并将写入限制在内置运行时路径，例如 `/tmp/claude`、`~/.npm/_logs` 和 `~/.claude/debug`。不要将干净的启动作为您的设置已加载的证明。
 * 如果设置文件存在但为空、不可读或无效，运行时拒绝启动，无论是 `~/.srt-settings.json` 还是您使用 `--settings` 传递的文件。如果 `--settings` 文件不存在，它也拒绝启动。
@@ -167,7 +167,7 @@ Claude Code 存储库发布了一个 [example dev container](/docs/zh-CN/devcont
 
 几个托管沙箱和远程执行服务可以为您托管容器。与您操作的任何容器相同的检查清单适用：查看挂载的可写内容、容器内可访问的凭据和令牌，以及网络出站策略允许的内容。
 
-您可以在容器内分层内置 Bash 沙箱以进行按命令限制。无特权容器需要 [Sandboxing troubleshooting](/docs/zh-CN/sandboxing#troubleshooting) 中描述的嵌套沙箱设置。
+您可以在容器内分层内置 Bash 沙箱以进行按命令限制。无特权容器需要 `enableWeakerNestedSandbox`，详见 [Bubblewrap 在容器内无法启动](/docs/zh-CN/sandboxing#bubblewrap-fails-to-start-inside-a-container)。
 
 <h2 id="virtual-machine">
   Virtual machine

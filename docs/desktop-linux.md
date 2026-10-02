@@ -103,7 +103,7 @@ sudo apt install ./claude-desktop_*.deb
 
 如果 apt 报告 `E: Unsupported file ./claude-desktop_*.deb given on commandline`，则该模式与当前目录中的 `.deb` 文件不匹配。确认下载已完成，然后从包含该文件的目录再次运行该命令。
 
-安装 `.deb` 还会在 `/etc/apt/sources.list.d/claude-desktop.list` 注册 Anthropic 的 apt 存储库，因此未来的更新会随您系统的 [常规包更新](#update) 到达。
+`.deb` 包含 Anthropic 的签名密钥，并将其安装到 `/usr/share/keyrings/claude-desktop-archive-keyring.asc`，因此您无需自行下载密钥。除非您已通过 `CLAUDE_DESKTOP_ADD_REPO` 关闭注册，否则该软件包还会在 `/etc/apt/sources.list.d/claude-desktop.list` 注册 apt 仓库，因此未来的更新会随您系统的 [常规包更新](#update) 到达。
 
 <h2 id="update">
   更新

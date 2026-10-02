@@ -75,6 +75,8 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 
     通过此连接，会话可以克隆任何公共存储库，但只有在 Claude GitHub App 安装在私有存储库上时，才能在私有存储库中工作。[安装 Claude GitHub App](https://github.com/apps/claude/installations/new) 到您想要使用其私有存储库的每个 GitHub 账户或组织。在 GitHub 组织上，组织所有者可能需要批准安装。安装应用还会启用[Auto-fix](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)，这让 Claude 能够响应这些存储库中拉取请求的 CI 失败和审查评论。
 
+    连接时，如果您拥有的 GitHub 账户安装了 Claude GitHub App，Claude 还会将这些账户关联到您的 Claude 组织。在 Team 和 Enterprise 计划上，管理员可以在[已连接的 GitHub 账户列表](/docs/zh-CN/admin-setup#connected-github-accounts)中看到这些账户。
+
     如果入门流程在此时提示您安装 Claude GitHub App，而您想稍后再做，请单击**Skip**。
   </Step>
 

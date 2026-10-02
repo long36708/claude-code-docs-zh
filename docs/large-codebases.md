@@ -204,7 +204,7 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
 
 在大型代码库中，查找符号的定义或使用位置可能需要许多文件读取和 grep 调用。[代码智能插件](/docs/zh-CN/plugins/code-intelligence)将 Claude 连接到语言服务器，以便它可以跳转到定义、查找引用和直接显示类型错误，而不是扫描树。
 
-官方市场有 TypeScript、Python、Go、Rust 和其他常见语言的插件。在 Claude Code 会话内运行下面的命令来安装 TypeScript 插件：
+官方市场有 TypeScript、Python、Go、Rust 和其他常见语言的插件。在 VS Code 扩展或桌面应用中，请按照[安装插件](/docs/zh-CN/plugins/install#install-a-plugin)进行安装。在终端中，运行 `claude` 启动 Claude Code，然后在其输入框中输入以下内容来安装 TypeScript 插件：
 
 ```shell theme={null}
 /plugin install typescript-lsp@claude-plugins-official

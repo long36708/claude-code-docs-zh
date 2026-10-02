@@ -378,7 +378,7 @@ skill 的名称也出现在 init 消息的 `slash_commands` 数组中。
 </h2>
 
 <Note>
-  对于项目和个人 skills，Claude Code 在 SDK 会话中应用 [`allowed-tools`](/docs/zh-CN/skills#pre-approve-tools-for-a-skill) frontmatter 字段。你也可以通过查询配置中的 `allowedTools` 选项（Python 中的 `allowed_tools`）为这些 skills 预先批准工具。从 claude.ai [同步的 skills](/docs/zh-CN/skills#how-claude-code-handles-the-frontmatter-of-a-synced-skill) 遵循它们自己的 frontmatter 规则。
+  在 SDK 会话中，您可以通过 skill 的 [`allowed-tools`](/docs/zh-CN/skills#pre-approve-tools-for-a-skill) frontmatter，或通过查询配置中的 `allowedTools` 选项（Python 中的 `allowed_tools`），为项目或个人 skill 预先批准工具。如果您的组织在托管设置中设置了 [`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly)，Claude Code 会忽略这两者。[从 claude.ai 同步的](/docs/zh-CN/skills#how-claude-code-handles-the-frontmatter-of-a-synced-skill) skill 遵循其自身的 frontmatter 规则。
 </Note>
 
 Skills 使用会话的工具运行。下面的示例使用 `allowedTools`（Python 中的 `allowed_tools`）预先批准 `Read`、`Grep` 和 `Glob`，因此 Claude 可以在运行 [security-check skill](#create-and-dispatch-your-first-skill) 时检查文件，而无需停止以获得批准：

@@ -135,9 +135,14 @@ claude --cloud "Refactor the logger to use structured output"
   发送没有 GitHub 的本地存储库
 </h4>
 
-当您从没有 git 远程的存储库运行 `claude --cloud` 时，或从 Claude GitHub App 未安装的 github.com 存储库运行时，Claude Code 会捆绑您的本地存储库并直接上传到云会话。即使您使用 `/web-setup` 连接了 GitHub，这也适用。该捆绑包包括您在所有分支上的完整存储库历史记录，加上对跟踪文件的未提交更改。
+当您从没有 git 远程的仓库运行 `claude --cloud` 时，或从未安装 Claude GitHub App 的 github.com 仓库运行时，Claude Code 会将您的本地仓库打包并直接上传到云端会话。即使您使用 `/web-setup` 连接了 GitHub，这也适用。
 
-在 macOS、Linux 和 WSL 上，Claude Code 将未提交的更改排除在上传之外，这些更改涉及名称类似于凭据或密钥的文件，并命名它排除的文件。这涵盖 `.env` 文件、Terraform `*.tfvars` 文件和密钥文件，例如 `id_rsa` 和 `*.pem`。会话以每个文件的已提交版本启动，或如果未提交任何内容，则不包含该文件。
+对于完整克隆，该捆绑包包括您在所有分支上的仓库历史记录，加上对已跟踪文件的未提交更改。
+
+敏感文件中的未提交更改如何处理取决于您的平台：
+
+* **macOS、Linux 和 WSL**：Claude Code 会将名称类似于凭据或密钥的文件的未提交更改排除在上传之外。这涵盖 `.env` 文件、Terraform `*.tfvars` 文件以及密钥文件，例如 `id_rsa` 和 `*.pem`。它还会排除由 git 过滤器（例如 Git LFS）管理的文件的未提交更改。`Left on this machine:` 通知会列出被排除的文件，会话以每个文件的已提交版本启动，如果该文件没有任何已提交版本，则不包含该文件。
+* **原生 Windows**：对已跟踪文件的未提交更改会按原样上传，无论文件名称如何。在启动云端会话之前，请先 stash 或还原您不希望出现在云端会话中的编辑。
 
 要在 Claude Code 会克隆远程时上传捆绑包，请设置 `CCR_FORCE_BUNDLE=1`：
 
@@ -152,6 +157,17 @@ CCR_FORCE_BUNDLE=1 claude --cloud "Run the test suite and fix any failures"
 * 未跟踪的文件不包括在内；对您希望云会话看到的文件运行 `git add`
 * 在 macOS、Linux 和 WSL 上，当 Claude Code 无法遵循影响哪些属性规则适用于您的文件的 git 设置时，它会拒绝上传，例如在包含的配置文件中设置的 `core.attributesFile`。[拒绝消息](/docs/zh-CN/errors#the-repository-upload-cant-follow-a-git-setting) 命名该设置和修复
 * 从捆绑创建的会话只有在您的 [GitHub 连接](#github-authentication-options) 对该存储库具有推送访问权限时，才能推送回 GitHub 远程
+
+在 macOS、Linux 和 WSL 上，上传还需要 git 2.31 或更高版本以及受支持的检出布局，而在原生 Windows 上，Claude Code 上传时不进行这两项检查。当检出不满足这些要求时，Claude Code 不会启动会话。它会打印一条包含 `Not uploading this working tree:` 的错误，指明原因并说明需要更改的内容。以下是常见原因：
+
+* **较旧的 git**：已安装的 git 早于 2.31。请更新 git，然后重试。
+* **上传不支持的检出布局**：您在子模块内启动、在使用 `git clone --separate-git-dir`、`--shared` 或 `--reference` 创建的克隆中启动、在设置了 `core.worktree` 的检出中启动，或在以 reftable 格式保存 refs 的仓库中启动。请改为从使用普通 `git clone` 创建的克隆的主检出启动。
+* **带有稀疏检出的链接 worktree**：`git sparse-checkout` 会将设置写入该 worktree 自己的 `config.worktree` 文件，而上传不接受该文件，因此具有这些设置的 worktree 不会被上传，Claude Code 使用 [`worktree.sparsePaths`](/docs/zh-CN/settings-reference#worktree-sparsepaths) 创建的 worktree 也不会被上传。请改为从仓库的主检出启动。
+* **保存在工作树内的 git 配置**：您的 git 配置包含位于检出内部的文件，例如指向仓库内部的 `include.path` 条目。请将该文件移到工作树之外或删除该 include，然后重试。
+
+在 macOS、Linux 和 WSL 上，使用 `git clone --filter` 创建的部分克隆会作为其工作树的快照上传，不包含历史记录，前提是该克隆在本地拥有每个已跟踪文件。
+
+对于 `claude --cloud`，如果仓库位于 GitHub 上，您可以避免上传及其要求：推送您的分支，在仓库上安装 Claude GitHub App，然后再次启动会话，使其从 GitHub 克隆。
 
 <h3 id="send-follow-ups-from-the-cli">
   从 CLI 发送后续消息
@@ -226,6 +242,8 @@ Teleport 在恢复会话前检查这些要求。如果任何要求未满足，�
 | 正确的存储库 | 您必须从同一存储库的检出运行 `--teleport`，而不是 fork。如果您从不同存储库的检出运行它，Claude Code 会显示一个错误，命名会话的存储库和您的检出的存储库。在 v2.1.219 之前，错误没有命名您的检出的存储库。如果 Claude Code 无法将您的远程解析为主机名，例如 SSH 主机别名如 `git@work:owner/repo.git`，它会要求您确认，并在远程的所有者和存储库名称与会话的存储库匹配时接受检出。 |
 | 分支可用 | 来自云会话的分支必须已推送到远程。Teleport 会自动获取并检出它。 |
 | 相同账户 | 您必须使用云会话中使用的相同 claude.ai 账户进行身份验证。 |
+
+当 teleport 获取会话的分支时，获取操作永远不会在您的终端中等待输入。如果 git 或 ssh 需要询问密码、密钥口令或确认新的 SSH 主机，获取就会失败，此时只有当您的本地克隆已包含该分支时，检出才能成功。对于两种 SSH 情况，请将您的密钥加载到 `ssh-agent` 中，并先手动运行一次 `git fetch` 以记录该主机。
 
 <h4 id="teleport-is-unavailable">
   `--teleport` 不可用

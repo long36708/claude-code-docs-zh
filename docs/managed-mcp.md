@@ -532,6 +532,7 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 | `managed-mcp.json` 存在且可以在 Chrome 中运行 Claude 的用户运行 `claude --chrome` | Claude Code 在启动时退出，显示 `Claude in Chrome is blocked by your organization's managed MCP configuration (managed-mcp.json). An administrator can allow it with allowClaudeInChromeWithManagedMcp in device policy.` |
 | 服务器在拒绝列表上且用户运行 `claude mcp add` | `Cannot add MCP server "<name>": server is explicitly blocked by enterprise policy` |
 | 服务器不在允许列表上且用户运行 `claude mcp add` | `Cannot add MCP server "<name>": not allowed by enterprise policy` |
+| [`strictPluginOnlyCustomization`](/docs/zh-CN/settings-reference#strictpluginonlycustomization) 为 `true` 或包含 `mcp`，且用户运行 `claude mcp add` | [`Cannot add MCP server: your organization's managed settings allow only MCP servers that plugins provide`](/docs/zh-CN/errors#cannot-add-mcp-server-when-managed-settings-allow-only-plugin-servers) |
 | 用户在来自 `managedMcpServers` 的服务器上运行 `claude mcp remove` | `MCP server "<name>" is provided by your organization (managed settings) and cannot be removed locally.` |
 | 之前配置的服务器现在被策略阻止 | 服务器从 `/mcp` 和 `claude mcp list` 中消失 |
 | 服务器在会话运行时被阻止，用户选择**重新连接**或在 `/mcp` 中将其重新打开 | [`MCP server <name> is blocked by enterprise managed policy`](/docs/zh-CN/errors#mcp-server-is-blocked-by-enterprise-managed-policy) |

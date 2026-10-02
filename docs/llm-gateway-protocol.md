@@ -242,10 +242,10 @@ Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并
 | 功能 | 请求头和请求体对 | 破坏时的症状 | 补救 |
 | :- | :- | :- | :- |
 | [自适应推理](/docs/zh-CN/model-config#adjust-effort-level) | 无 beta 请求头。Claude Code 为 Claude 4.6 及更高版本发送 `thinking: {"type": "adaptive"}`，并将它不识别的模型名称（如 gateway 别名）视为接收该字段的当前模型 | 当上游模型构建不接受它时，命名 `thinking` 字段或 `adaptive` 标签的 `400` | 升级上游。在 Opus 4.6 和 Sonnet 4.6 上，开发者可以改为设置 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` |
-| [上下文管理](https://platform.claude.com/docs/en/build-with-claude/context-editing) | 上下文管理 beta 请求头与 `context_management` 请求体字段配对 | `400` 带有 `Extra inputs are not permitted`。常见于 gateway 接受 Anthropic 格式请求但将其转发到 Amazon Bedrock 时 | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](/docs/zh-CN/env-vars) |
+| [上下文管理](https://platform.claude.com/docs/en/build-with-claude/context-editing) | 上下文管理 beta 请求头与 `context_management` 请求体字段配对 | `400` 带有 `Extra inputs are not permitted`。常见于网关接受 Anthropic 格式请求但将其转发到 Amazon Bedrock 时 | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) |
 | [扩展上下文](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)和[交错思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking#interleaved-thinking) | 仅 Beta 请求头，无请求体字段 | 当请求头被删除时无声地不可用；上游永远不会看到功能请求 | 逐字转发 `anthropic-beta` |
 | Beta [工具字段](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview) | 工具相关的 beta 请求头与工具架构字段（如 `strict` 和 `defer_loading`）配对 | 当请求体通过而没有其请求头时，命名无法识别的工具架构字段的 `400` | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) |
-| [努力](https://platform.claude.com/docs/en/build-with-claude/effort)和[结构化输出](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) | `output_config` 请求体字段携带努力、结构化输出格式和任务预算设置；每个都与自己的 beta 请求头配对 | 在 Amazon Bedrock 和 Google Cloud 的 Agent Platform 上游上命名 `output_config` 的 `400`，通常是 `Extra inputs are not permitted` | 一起转发字段及其请求头 |
+| [努力](https://platform.claude.com/docs/en/build-with-claude/effort)和[结构化输出](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) | `output_config` 请求体字段携带努力、结构化输出格式和任务预算设置；每个都与自己的 beta 请求头配对 | 在 Amazon Bedrock 和 Google Cloud 的 Agent Platform 上游上命名 `output_config` 的 `400`，通常是 `Extra inputs are not permitted` | 一起转发该字段及其请求头，或让开发者设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities)，这会移除格式和任务预算设置，但不会移除努力 |
 | [提示缓存](/docs/zh-CN/prompt-caching) | 无 beta 配对。Claude Code 将 `cache_control` 标记附加到 `system` 块和 `messages` 条目，包括在对话中途附加的 `role: "system"` 条目 | 无错误：对话在每个回合都作为未缓存的输入计费，在 `usage` 中可见为高 `input_tokens` 且缓存活动很少或没有 | 在任何地方原封不动地转发 `cache_control`，并且不要将块形式的 `system` 或消息内容转换为纯字符串 |
 | [令牌计数](https://platform.claude.com/docs/en/build-with-claude/token-counting) | 无 beta 配对；使用 `count_tokens` 端点 | 无错误：Claude Code 回退到基于字符的估计，因此 `/context` 显示近似计数 | 公开该端点以获得精确的令牌计数 |
 
@@ -260,6 +260,7 @@ Claude Code 在上游拒绝后的操作取决于被拒绝的内容：
 * 当上游拒绝 `thinking` 字段、中途对话系统消息或这些消息之一上的 `cache_control` 标记时，Claude Code 会重试请求并为对话的其余部分禁用被拒绝的功能
 * 当上游拒绝[思考签名](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)时，包括带有 `400` 的拒绝，其消息说该块被 `bound to a different conversation`，Claude Code 会从请求中删除早期思考块，重试，并将其排除在每个后续请求之外。新响应仍然包括思考
 * 当 gateway 或其上游将[顾问工具](/docs/zh-CN/advisor)条目在 `tools` 中拒绝为无法识别的工具类型时，Claude Code 会重试一次请求，不包含该条目及其 `anthropic-beta` 值。对该基础 URL 的后续请求会将顾问排除在外，直到 Claude Code 退出，在该时间内 `/advisor` 对开发者不可用。Claude Code 通过 `400` 或 `422` 响应识别此拒绝，其消息在 `Input tag` 之后命名工具类型，例如 `Input tag 'advisor_20260301'`。在 v2.1.280 之前，Claude Code 没有重试此拒绝
+* 当上游拒绝 `output_config.effort` 时，Claude Code 会在不带努力的情况下重试请求，并在 Claude Code 退出之前，在发往该模型的后续请求中省略它。Claude Code 通过 `400` 响应识别此拒绝，其消息同时命名 `output_config.effort` 和 `Extra inputs are not permitted`，或说明该模型不支持 effort 参数
 * Claude Code 不重试上下文管理或工具架构字段拒绝，因此这些 `400` 错误到达开发者
 
 `bound to a different conversation` 拒绝来自 API 的[保留思考](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking)检查，当 `system`、`tools` 或早期 `messages` 内容与产生思考的请求不同时，该检查失败。重写任何该内容的 gateway 可能会导致拒绝本身；[库、代理和网关](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking#libraries-proxies-gateways)涵盖了要原封不动地传递的内容。
@@ -270,7 +271,21 @@ Claude Code 在上游拒绝后的操作取决于被拒绝的内容：
   禁用预发布功能
 </h3>
 
-`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 阻止 Claude Code 发送预发布功能及其请求体字段，包括上下文管理和 beta 工具字段。该变量不影响自适应推理，后者由模型而不是 beta 选择。它永远不会抑制订阅身份验证所需的 OAuth 功能。
+当您的网关或其上游拒绝预发布的 `anthropic-beta` 值或与之配对的请求体字段，并且您无法同时转发两个部分时，请让开发者设置 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`。设置该变量后，Claude Code 将停止发送预发布功能以及与之配对的 `anthropic-beta` 值，包括：
+
+* 上下文管理及其 `context_management` 请求体字段
+* beta 工具 schema 字段，例如 `strict` 和 `defer_loading`。标准的 `name`、`description`、`input_schema` 和 `cache_control` 工具字段会保留
+* 结构化输出 `output_config.format` 字段。需要 Claude Code v2.1.287 或更高版本
+* `output_config.task_budget` 字段
+* [MCP 工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)，因此每个 MCP 工具都会预先加载，除非您的组织通过托管设置保持其开启
+
+该变量不会删除所有 `anthropic-beta` 值。它保留的内容包括：
+
+* 扩展上下文、交错思考和努力的 `anthropic-beta` 值，云提供商也接受这些值
+* `output_config.effort` 字段。[自动重试和错误转发](#automatic-retry-and-error-forwarding)介绍了上游拒绝它的情况
+* 自适应推理的 `thinking` 字段，它没有 beta 请求头
+* 订阅身份验证所需的 OAuth `anthropic-beta` 值
+* 开发者通过 [`ANTHROPIC_BETAS`](/docs/zh-CN/env-vars) 或 [`CLAUDE_CODE_EXTRA_BODY`](/docs/zh-CN/env-vars) 自行添加的请求头值和请求体字段
 
 当嵌入 Claude Code 的主机平台设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars) 时，`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` 不会阻止 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 上的自动模式会话向服务器请求[分类器审查](/docs/zh-CN/permission-modes#server-side-classifier-review)。该审查添加了 `anthropic-beta` 值和 `safeguards` 请求字段。设置 `CLAUDE_CODE_AUTO_MODE_SERVER=0` 以在那里停止它。
 

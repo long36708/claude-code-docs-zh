@@ -287,6 +287,12 @@ Anthropic 托管环境中的 [Web 上的 Claude Code](/docs/zh-CN/claude-code-on
 
 前面的表格涵盖了独立 CLI。Claude Desktop 应用和浏览器中的 claude.ai 从其他 Anthropic CDN 主机加载其应用代码和用户内容，包括 `assets-proxy.anthropic.com` 和其他在这些应用中提供 [Artifact](/docs/zh-CN/artifacts) 的 `*.claudeusercontent.com` 源。允许 `claude.ai` 同时阻止这些主机会产生空白页面而不是错误。请参阅 Desktop 页面上的[网络访问要求](/docs/zh-CN/desktop#network-access-requirements)。
 
+Claude Desktop 和 claude.ai 还会将对话中的某些工具结果呈现为交互式小组件，例如某些连接器提供的 [MCP Apps](https://claude.com/docs/connectors/building/mcp-apps/getting-started)。这些小组件从 `claudemcpcontent.com` 的生成子域加载，因此请允许 `*.claudemcpcontent.com` 并保留通配符。如果您阻止它，应用的其余部分仍可正常工作，但这些小组件不会加载。
+
+<h4 id="third-party-hosts-for-artifact-fonts-and-libraries">
+  用于 Artifact 字体和库的第三方主机
+</h4>
+
 从 [Google Fonts](/docs/zh-CN/artifacts#improve-the-visual-design) 加载字体的 [Artifact](/docs/zh-CN/artifacts) 也会请求 `fonts.googleapis.com` 和 `fonts.gstatic.com`。两个主机都是可选的。如果您阻止它们，Artifact 会以备用字体呈现。使用快速拒绝而不是静默丢弃来阻止，以便字体请求立即失败，而不是延迟页面的首次呈现。
 
 Artifact 还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwindcss.com`、`code.jquery.com` 和 `unpkg.com` 加载 JavaScript 库（如 React 或图表包），而不能从其他外部主机加载。如果您阻止这些主机，Artifact 中依赖库的部分将无法工作，与阻止的字体不同，阻止的库没有备用。也在这里使用快速拒绝，以便阻止的库请求立即失败，而不是挂起直到超时。

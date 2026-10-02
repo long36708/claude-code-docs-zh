@@ -231,7 +231,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 
 当前台命令在完成前达到其超时时，Claude Code 会将其移到后台而不是停止它，除非命令以 `sleep` 开头。移动的命令的[时间限制](#time-limit-for-background-commands)从移动时开始计算，前台子代理的移动命令仍然在该子代理的运行结束时停止。
 
-设置 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](/docs/zh-CN/env-vars#variables) 禁用自动后台处理以及其余后台任务功能。
+设置 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](/docs/zh-CN/env-vars#variables) 或在 [bare 模式](/docs/zh-CN/headless#start-faster-with-bare-mode)下运行会禁用自动后台处理以及其余后台任务功能，因此达到超时的命令会改为停止。
 
 移到后台的命令的结果说明发生了什么：
 
@@ -660,6 +660,8 @@ WebFetch 接收一个 URL 和一个描述要提取内容的提示。它获取页
 要提前允许一个域而不提示，添加一个允许规则，如 `WebFetch(domain:example.com)`；`WebFetch(domain:*)` 允许每个域。`auto` 和 `bypassPermissions` [权限模式](/docs/zh-CN/permissions#permission-modes)跳过提示，除非显式 `ask` 规则匹配一个域。
 
 `deny`、`ask` 或 `allow` 中的显式 `WebFetch(domain:...)` 规则优先于预批准集，所以您可以阻止预批准域或要求对其进行提示。
+
+当 URL 是 claude.ai [Artifact](/docs/zh-CN/artifacts) 链接时，Claude Code 还可能请求批准以读取该 Artifact 本身。有关会请求批准的情况，请参阅[读取与您共享的 Artifact](/docs/zh-CN/artifacts#read-an-artifact-shared-with-you)。
 
 WebFetch 设置一个以 `Claude-User` 开头的 `User-Agent` 标头，以及一个 `Accept` 标头，优先选择 Markdown 而不是 HTML，以便支持内容协商的服务器可以直接返回 Markdown。
 

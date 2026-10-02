@@ -435,7 +435,7 @@ Claude Code 插件由多个组件构建而成，例如 skills、agents、hooks �
 
 <PluginExplorer>
   <Piece id="manifest">
-    [清单](/docs/zh-CN/plugins/manifest-reference)是插件 `.claude-plugin/` 目录中的 `plugin.json` 文件。它包含插件的元数据和 Claude Code 提示用户的 `userConfig` 值。Claude Code 可以在没有清单的情况下加载插件，但 [Anthropic 的目录](/docs/zh-CN/plugins/publish#submit-to-anthropics-directory)需要它。在文件中，只有 `name` 是必需的。在这个文件中，`description` 是用户在 `/plugin` 中看到的插件文本，`version` 使用户保持在该版本，直到您更改它：
+    [清单](/docs/zh-CN/plugins/manifest-reference)是插件 `.claude-plugin/` 目录中的 `plugin.json` 文件。它包含插件的元数据和 Claude Code 提示用户的 `userConfig` 值。Claude Code 可以在没有清单的情况下加载插件。在文件中，只有 `name` 是必需的。在这个文件中，`description` 是用户在 `/plugin` 中看到的插件文本，`version` 使用户保持在该版本，直到您更改它：
 
     ```json theme={null}
     {

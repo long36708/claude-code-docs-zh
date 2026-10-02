@@ -224,7 +224,17 @@ Completed
 
 大多数时候窥视面板就足够了，你不需要打开完整的记录。
 
-在窥视面板中输入回复并按 `Enter` 将其发送到该会话。当会话提出带有预定义选择的问题时，窥视面板将它们显示为编号列表，你可以按数字键选择一个。权限提示显示为描述会话想要运行的内容的文本，没有编号选项。输入回复以回答它，或附加以用标准提示回答。对于其他被阻止的会话，按 `Tab` 用建议的回复填充输入，你可以在发送前编辑。用 `!` 前缀回复以发送 Bash 命令。
+在窥视面板中输入回复并按 `Enter` 将其发送到该会话。在回复前加上 `!` 可改为发送 Bash 命令。回复的处理方式取决于会话以及您发送的内容：
+
+* 正在工作的会话：回复会加入会话的[消息队列](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)而不是打断回复，并[在排队输入生效时](/docs/zh-CN/interactive-mode#when-claude-code-sends-what-you-queued)生效。[命令](/docs/zh-CN/commands)会等待当前轮次结束，即使是在会话自身的提示符处输入后会立即运行的命令
+* 恰好为 `/stop` 的回复：立即停止会话，而不是发送给会话，无论会话正在工作还是在等待您
+* [shell 作业](#run-a-shell-command)：回复（包括 `/stop`）会作为键入的输入发送到该命令的终端
+
+当会话正在等待您时，在窥视面板中如何回答取决于它在等待什么：
+
+* 带有预定义选项的问题：面板按编号列出选项。在回复输入框为空时，按某个选项的编号将其填入，然后按 `Enter` 发送，或者改为输入您自己的答案
+* 没有预定义选项的问题：输入您的答案。当空输入框显示建议的回复时，按 `Tab` 将其填入，并可在发送前编辑
+* 权限提示或其他对话框，例如[沙箱](/docs/zh-CN/sandboxing)提示或 MCP 服务器的[输入请求](/docs/zh-CN/mcp#respond-to-mcp-elicitation-requests)：回复并不会回答它。您的回复会在队列中等待。要回答该对话框，请用 `→` 附加
 
 当 [`PermissionRequest`](/docs/zh-CN/hooks#permissionrequest) 或 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) hook 返回 Claude Code 无法为会话询问的调用验证的输出时，行显示 hook 事件和 `hook output invalid:` 以及验证错误，然后是待处理请求的文本。对于以其他方式失败的 hook，行说 hook 失败。会话仍然等待相同的请求。
 
@@ -301,7 +311,7 @@ Agent view 按状态分组会话，需要输入的会话在顶部，`Ready for r
 * 按 `Ctrl+T` 将会话固定到顶部并[在空闲时保持其进程运行](#the-supervisor-process)
 * 按 `Shift+↑` 或 `Shift+↓` 重新排序会话
 * 按 `Ctrl+R` 重命名会话
-* 在组标题上按 `Enter` 折叠它
+* 在组标题上按 `Enter` 将其折叠，但[过滤](#filter-sessions)处于活动状态时除外，此时所有组都保持展开
 
 要从列表中删除会话，按 `Ctrl+X` 停止它，在两秒内再按 `Ctrl+X` 删除它。在组标题上按 `Ctrl+X` 在确认后删除该组中的每个会话。
 
@@ -324,14 +334,20 @@ Agent view 按状态分组会话，需要输入的会话在顶部，`Ready for r
   过滤会话
 </h3>
 
-在调度输入中输入以过滤而不是调度：
+在调度输入框开头输入以下过滤器之一，即可在输入时缩小列表范围：
 
 | 过滤 | 显示 |
 | :- | :- |
 | `a:<name>` | 运行命名代理的会话 |
-| `s:<state>` | 给定状态的会话，例如 `s:working`。也接受 `s:blocked` 用于等待你的所有内容 |
-| `#<number>` 或拉取或合并请求 URL | 处理该拉取请求或合并请求的会话 |
+| `s:<state>` | 处于给定状态的会话，例如 `s:working`，或位于给定组标题下的会话，例如 `s:ready` 对应 `Ready for review`。`s:blocked` 列出所有正在等待您的会话 |
+| `n:<text>` | 名称或第一个提示词包含该文本的会话，例如 `n:login`。需要 Claude Code v2.1.287 或更高版本 |
+| `o:<text>` | 结果包含该文本的会话，例如 `o:merged`。单独的 `o:` 会列出所有已报告结果的会话 |
+| 拉取请求或合并请求编号（例如 `#1234`）或其 URL | 正在处理该拉取请求或合并请求的会话 |
 | 任何其他 URL | 其第一个提示包含该 URL 的会话 |
+
+要组合过滤器，请以 `a:`、`s:`、`n:` 或 `o:` 开头，再添加更多过滤器，以空格分隔。列表会显示同时匹配所有过滤器的会话。例如，`s:blocked a:reviewer` 会列出正在等待您的 `reviewer` 会话。
+
+过滤器处于活动状态时，您折叠的组会展开以显示匹配项，并且第一个匹配项会被选中，因此按 `Enter` 即可打开它。清空输入框即可移除过滤器，这些组会再次折叠。
 
 <h3 id="keyboard-shortcuts">
   快捷键
@@ -342,7 +358,9 @@ Agent view 按状态分组会话，需要输入的会话在顶部，`Ready for r
 | 快捷键 | 操作 |
 | :- | :- |
 | `↑` / `↓` | 在行之间移动 |
-| `Enter` | 附加到选定的会话，或如果输入中有文本则调度 |
+| `PgUp` / `PgDn` | 按一屏的行数向上或向下移动 |
+| `Home` / `End` | 跳到第一行或最后一行 |
+| `Enter` | 附加到选定的会话；如果输入框中的文本不是[过滤器](#filter-sessions)，则提交该文本 |
 | `Space` | 打开或关闭选定会话的窥视面板 |
 | `Shift+Enter` | 在调度输入中插入换行符，[如在主提示中](/docs/zh-CN/terminal-config#enter-multiline-prompts) |
 | `Ctrl+Enter` | 调度并立即附加，在终端中 `?` overlay 列出 `ctrl+enter to start and open` |
@@ -1068,6 +1086,8 @@ Agent view 在研究预览期间发展迅速。如果你使用较旧的 Claude C
 
 | 版本 | 更改 |
 | - | - |
+| v2.1.287 | [`n:<text>` 筛选器](#filter-sessions)按名称或第一个提示词查找会话。当任何筛选器处于活动状态时，您折叠的组会展开以显示其匹配项，并且第一个匹配项被选中，因此 `Enter` 会打开它。 |
+| v2.1.287 | 作为[窥视回复](#peek-and-reply)发送的命令会在会话当前轮次结束时运行，包括在会话自身的输入框中一键入就立即运行的命令。内容恰好为 `/stop` 的回复会立即停止会话。 |
 | v2.1.281 | [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags) 限制[转移](#what-carries-over-when-you-background)到你使用 `←` 或 `/bg` 后台的会话，以及你从 agent view 调度的会话。在此版本之前，生成的会话加载每个设置源。 |
 | v2.1.281 | `claude --bg` 和重启会话的命令首先检查会话目录的工作区信任。从该目录中的终端，如果你尚未接受，[信任对话框出现](#from-your-shell)；在无法出现对话框的地方，例如在脚本中，命令以 [`Workspace not trusted`](/docs/zh-CN/errors#workspace-not-trusted-when-dispatching-a-background-session) 错误退出。 |
 | v2.1.274 | 自动更新后，你离开约一小时的 agent view 可以将自己重新启动到新的构建上。当它这样做时，它保留你打开它时的[调度默认值](#dispatch-defaults)：`--model`、`--effort`、`--permission-mode`、`--allow-dangerously-skip-permissions` 和 `--agent`。在此版本之前，重新启动的 view 仅保留 `--cwd` 和配置标志，例如 `--settings` 和 `--mcp-config`，所以你之后调度的会话启动时没有这些默认值。 |

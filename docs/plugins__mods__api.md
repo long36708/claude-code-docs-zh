@@ -98,7 +98,7 @@ on('command.run', { command: 'triage' }, async ($, e) => {
 
 当您运行 `/triage the export button does nothing` 时，mod 将该文本发送到模型并打印其答案，例如 `Label: bug`。Claude 的对话不是请求的一部分。当模型不回答时，标签是 `unknown`。
 
-Claude API 失败不会拒绝调用，因此检查 `r.isAnswered`，当其为 `false` 时读取 `r.reason`。调用仅对 Claude Code 不会发送的请求拒绝，例如您的组织阻止的模型。[您的构建的类型](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)列出其他选项，例如 `effort`，[限制](/docs/zh-CN/plugins/mods/reference#limits)给出 `maxTokens` 默认值。
+Claude API 失败不会拒绝调用，因此检查 `r.isAnswered`，当其为 `false` 时读取 `r.reason`。对于 Claude Code 不会发送的请求，调用会拒绝，例如您的组织阻止的模型。[您的构建的类型](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)列出其他选项，例如 `effort`，[限制](/docs/zh-CN/plugins/mods/reference#limits)给出 `maxTokens` 默认值。
 
 `$.model.fork({ prompt })` 改为在当前对话上提出一个问题，使用相同的模型和系统提示，因此 Claude API 从提示缓存为大部分内容提供服务。
 
@@ -108,7 +108,7 @@ Claude API 失败不会拒绝调用，因此检查 `r.isAnswered`，当其为 `f
   在后台运行工作
 </h2>
 
-超越一个事件的工作，例如每分钟检查一次，在您从 `session.start` 启动的计时器上运行。hook 本身为一个事件运行，其自身运行时间限制为 10 秒。在 `next` 或 mods API 调用上花费的时间不计算，除了 `$.clock.sleep`。`$.clock.every` 和 `$.clock.after` 代替 `setInterval` 和 `setTimeout`，延迟以毫秒为单位：`$.clock.after(5000, fn)` 在五秒后调用 `fn` 一次。每个都返回一个带有 `cancel()` 方法的计时器，`await $.clock.now()` 给出以毫秒为单位的时间。
+超越一个事件的工作，例如每分钟检查一次，在您从 `session.start` 启动的计时器上运行。hook 本身为一个事件运行，其自身运行时间有[时间限制](/docs/zh-CN/plugins/mods/reference#limits)。在 `next` 或 mods API 调用上花费的时间不计算，除了 `$.clock.sleep`。`$.clock.every` 和 `$.clock.after` 代替 `setInterval` 和 `setTimeout`，延迟以毫秒为单位：`$.clock.after(5000, fn)` 在五秒后调用 `fn` 一次。每个都返回一个带有 `cancel()` 方法的计时器，`await $.clock.now()` 给出以毫秒为单位的时间。
 
 此 hook 每分钟查找一次拉取请求的检查，并在提示下显示结果。`summarize` 是您自己的函数，将命令的 JSON 输出转换为几个单词：
 
@@ -136,7 +136,7 @@ on('session.start', async ($, e, next) => {
 | 调用 | 用户看到的内容 |
 | :- | :- |
 | `$.ui.status(text)` | 提示下的一行，保持不变直到您更改它。它以 `⚠` 和 mod 的名称开头，如 `⚠ my-mod: checks: 3 passing`。 |
-| `$.ui.toast(text)` | 右上角的一个小框，mod 的名称在文本上方，几秒后消失 |
+| `$.ui.toast(text)` | 右上角的一条 toast 通知，mod 的名称在文本上方，几秒后消失 |
 | `$.ui.log(text)` | 成绩单中的一条暗线，Claude 不读取。它以 `●` 和 mod 的名称开头，如 `● my-mod: build finished`。 |
 
 <h3 id="start-a-turn-from-a-background-job">
@@ -149,7 +149,7 @@ on('session.start', async ($, e, next) => {
   停止后台工作
 </h3>
 
-后台工作以两种方式停止。当模块重新加载时，计时器停止。对于 hook 内的长时间运行工作，[`next.signal`](/docs/zh-CN/plugins/mods/reference#the-hook-function) 是一个 `AbortSignal`，当您的 hook 处理的事件被放弃时中止，例如当用户中断时，因此将其传递给任何长时间运行的内容。
+当模块重新加载时，计时器停止。对于 hook 内的长时间运行工作，[`next.signal`](/docs/zh-CN/plugins/mods/reference#the-hook-function) 是一个 `AbortSignal`，当您的 hook 处理的事件被放弃时中止，例如当用户中断时，因此将其传递给任何长时间运行的内容。
 
 <h2 id="send-and-receive-messages-between-sessions">
   在会话之间发送和接收消息
@@ -170,9 +170,9 @@ on('command.run', { command: 'ping' }, async ($, e) => {
 })
 ```
 
-当消息排队时，您的会话中不会出现任何内容，其他会话的 Claude 读取 `Status? One line.`。当没有传递任何内容时，右上角的小框给出原因并在几秒后消失。
+当消息排队时，您的会话中不会出现任何内容，其他会话的 Claude 读取 `Status? One line.`。当没有传递任何内容时，toast 通知会给出原因。
 
-两个事件让 mod 观察消息。从两者都返回 `next(e)` 以不变地传递每条消息：
+`session.receive` 和 `session.send` 让 mod 观察消息。从两者都返回 `next(e)` 以不变地传递每条消息：
 
 | 事件 | 何时触发 | 有用的字段 |
 | :- | :- | :- |
@@ -202,8 +202,8 @@ mod 通过 mods API 访问文件系统、进程和网络，具有与运行 Claud
 
 文件和进程有一些自己的规则：
 
-* **路径**：相对路径在会话的工作目录下
-* **`$.fs.list`**：将一个目录的条目作为 `{ name, kind, size, isLink }` 返回，不下降到子目录
+* **路径**：相对路径相对于会话的工作目录进行解析
+* **`$.fs.list`**：将一个目录的条目作为 `{ name, kind, size, isLink }` 返回，不进行递归
 * **`$.process.run`**：接受参数列表，不使用 shell。它解析为 `{ exitCode, stdout, stderr }`，无论退出代码如何。如果程序无法启动或在超时时仍在运行，它会拒绝，默认为 30 秒，因此将其包装在 `try` 和 `catch` 中。
 
 这些调用中的每一个本身都是一个事件，以其命名空间和方法命名，不带 `$.`，例如 `fs.read` 用于 `$.fs.read`。[链中较早的](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in) mod 可以观察、重写或拒绝您的调用，这是组织限制 mod 到达的方式。
@@ -215,4 +215,4 @@ mod 通过 mods API 访问文件系统、进程和网络，具有与运行 Claud
 * [对事件做出反应](/docs/zh-CN/plugins/mods/events)：hook 工具调用、提示和轮次
 * [在界面中绘制](/docs/zh-CN/plugins/mods/interface)：在窗格或提示上方显示您的 mod 收集的内容
 * [测试 mod](/docs/zh-CN/plugins/mods/test)：在测试中存根这些调用中的任何一个
-* [Mods 参考](/docs/zh-CN/plugins/mods/reference)：每个事件、每个 mods API 方法和限制
+* [Mods 参考](/docs/zh-CN/plugins/mods/reference)：事件、mods API 方法和限制

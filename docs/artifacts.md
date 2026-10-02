@@ -118,6 +118,15 @@ Claude 会选择工件的标题和一个表情符号，两者都会出现在你�
 
 Claude 读取他人编写的页面的方式与它读取网页的方式相同，使用 [WebFetch](/docs/zh-CN/tools-reference#webfetch-tool-behavior)：它获得关于所询问内容的摘要，而不是原始页面，摘要报告写入页面的说明，而不是转达它们。Claude Code 还将页面的完整源代码保存到本地文件，当 Claude 需要确切内容时可以打开该文件，例如将工件重新发布为 [编辑器](#let-someone-edit-with-you)。
 
+在以下情况下，除了您的权限模式或规则所要求的任何提示之外，Claude Code 还会在 Claude 读取 Artifact 之前请求您的批准：
+
+* **没有网络访问权限的云端会话**：对于[云环境](/docs/zh-CN/cloud-environments#access-levels)，即 **None** 级别。在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下，可以改由分类器进行批准；在 [Cowork](https://claude.com/product/cowork) 会话中，只能由您本人批准。
+* **其他组织的公开 Artifact**：即使在自动模式下，Claude Code 也会先询问您。在 Claude Code 无法询问您的情况下（例如在 `bypassPermissions` 模式下），Claude 无法读取该 Artifact。只有在[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)开启时，Claude 才能读取这些 Artifact。
+* **无法确认所有者或网络设置**：当 Claude Code 无法确认 Artifact 的创建者，或无法确认云端会话的网络设置时，它会进行询问，且您的批准仅适用于该次请求。
+* **计划模式，或已关闭功能标志获取**：在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)下，或者如果您关闭了[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，Claude Code 会在 Artifact 工具读取您组织中其他人创建的 Artifact 之前进行询问。
+
+当 Claude 使用 WebFetch 读取 Artifact 时，WebFetch 自身的[提示规则](/docs/zh-CN/tools-reference#webfetch-tool-behavior)仍然适用。
+
 <h2 id="collect-comments-on-an-artifact">
   收集工件上的评论
 </h2>

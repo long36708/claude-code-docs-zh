@@ -470,7 +470,9 @@ Claude Code 仅从托管源读取以下密钥；将它们放在用户或项目�
 | [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) | 当在 HKLM 注册表或 `C:\Program Files\ClaudeCode` 下的文件中设置时，让 WSL 读取 Windows 策略链，仅当[没有 Windows 管理文档存在](#present-admin-documents)时读取 `/etc/claude-code`；条目给出顺序 |
 
 <Note>
-  在 Team 和 Enterprise 计划上，Owner 在[Claude Code 管理设置](https://claude.ai/admin-settings/claude-code)中为组织启用或禁用[远程控制](/docs/zh-CN/remote-control)和[云会话](/docs/zh-CN/claude-code-on-the-web)。远程控制可以另外通过 [`disableRemoteControl`](/docs/zh-CN/settings-reference#disableremotecontrol) 设置按设备禁用。云会话没有按设备托管设置密钥。
+  在 Team 和 Enterprise 计划上，Owner 在[Claude Code 管理设置](https://claude.ai/admin-settings/claude-code)中为组织启用或禁用 [Remote Control](/docs/zh-CN/remote-control) 和[云端会话](/docs/zh-CN/claude-code-on-the-web)。当 Owner 关闭 Remote Control 时，运行 Claude Code v2.1.286 或更高版本的已连接会话也会断开连接。每个会话会在下次刷新您组织的策略时断开连接，大约每小时一次。有关这些会话中会发生什么，请参阅 [`Remote Control was turned off by your organization's policy`](/docs/zh-CN/remote-control#remote-control-was-turned-off-by-your-organizations-policy)。
+
+  Remote Control 还可以通过 [`disableRemoteControl`](/docs/zh-CN/settings-reference#disableremotecontrol) 设置按设备禁用。云端会话没有按设备的托管设置密钥。
 
   要检查这些组织设置是否到达给定机器，在那里运行 `claude doctor` 并读取 `Organization policy` 行，它说 Claude Code 从哪里加载策略或为什么它没有加载。需要 Claude Code v2.1.261 或更高版本。在运行会话中，当策略未加载时，`/status` 显示相同的行。
 </Note>

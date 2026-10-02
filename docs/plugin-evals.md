@@ -31,7 +31,7 @@
 * Claude Code v2.1.269 或更高版本。运行 `claude --version` 检查，运行 `claude update` 升级。
 * Git 2.31 或更高版本（如果已安装 git）。运行 `git --version` 检查。使用较旧的 git，`claude plugin eval` [在运行任何案例之前停止](#git-is-too-old-for-claude-plugin-eval)。没有 git，它正常运行。
 * 一个包含 `plugin.json` 或 `.claude-plugin/plugin.json` 清单的插件目录，或一个[技能目录插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)。
-* 与你的常规 Claude Code 会话相同的身份验证和模型提供商。Eval 运行、评判评分器和 `claude plugin eval init` 使用你的凭证调用模型，因此它们计入你的计划使用限制或 API 账单。当命令报告成本时，该数字是这些调用的[列表价格估计](/docs/zh-CN/costs)。
+* 与您的常规 Claude Code 会话相同的身份验证和模型提供商。Eval 运行、评判评分器和 `claude plugin eval init` 使用您的凭据调用模型，因此它们计入您的计划用量限制或 API 账单。当命令报告成本时，该数字是这些调用的[列表价格估计](/docs/zh-CN/costs)。如果您在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上运行 Claude Code，请从导出与常规会话相同的提供商变量的 shell 中运行该套件，因为每次运行都会从该 shell 继承这些变量，如 [`env` 字段](#prompt-md-fields)所述。
 
 <h2 id="how-an-eval-run-works">
   eval 运行如何工作
@@ -346,13 +346,13 @@ mock 文件的正文和 frontmatter 接受这些选项：
   运行 evals
 </h2>
 
-一旦套件存在，`claude plugin eval` 就会运行它。你可以使用 target 参数选择运行哪个插件和哪些用例，使用 `--allow-tools` 授予用例所需的任何工具（超出只读集合），并使用其他选项控制运行次数、模型、成本和输出。
+一旦套件存在，`claude plugin eval` 就会运行它。您可以使用 target 参数选择运行哪个插件和哪些用例，使用 `--allow-tools` 授予用例所需的任何工具（超出只读集合），并使用其他选项控制运行次数、模型、成本和输出。
 
 <h3 id="choose-what-to-evaluate">
   选择要评估的内容
 </h3>
 
-大多数时候，你从插件根目录运行 `claude plugin eval .`，这会运行套件中的每个用例，并加载你所在的插件。要运行单个用例文件，或评估你安装的插件而不是你正在开发的插件，请传递不同的 target：
+大多数时候，您从插件根目录运行 `claude plugin eval .`，这会运行套件中的每个用例，并加载您所在的插件。要运行单个用例文件，或评估您安装的插件而不是您正在开发的插件，请传递不同的 target：
 
 | Target | 运行内容 |
 | :- | :- |
@@ -362,23 +362,25 @@ mock 文件的正文和 frontmatter 接受这些选项：
 | `name@skills-dir` | 相同，用于 [skills-directory 插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository) |
 | 省略 | 当前目录作为路径 |
 
-添加 `--case <glob>` 按用例名称过滤，添加 `--tag <tag>` 保留具有任何给定标签的用例。将 target 放在 `--tag`、`--allow-tools` 和 `--json` 之前。前两个接受列表，`--json` 接受可选路径，所以它们每个都读取后面的 target 作为自己的值。
+添加 `--case <glob>` 按用例名称过滤，添加 `--tag <tag>` 保留具有任何给定标签的用例。
+
+将 target 放在 `--tag`、`--allow-tools` 和 `--json` 之前。前两个接受列表，`--json` 接受可选路径，所以它们每个都会将后面的 target 读取为自己的值。
 
 <h3 id="grant-tools">
   授予工具
 </h3>
 
-运行永远不会停下来请求权限。需要授予但你没有授予的内置工具，例如 `Bash`、`Write`、`Edit`、`WebFetch` 和 `WebSearch`，会从会话中移除，所以 Claude 根本无法调用它们。
+运行永远不会停下来请求权限。需要授予但您没有授予的内置工具，例如 `Bash`、`Write`、`Edit`、`WebFetch` 和 `WebSearch`，会从会话中移除，所以 Claude 根本无法调用它们。
 
-运行仅允许用例在 `allowed_tools` 中列出的只读工具，来自 `Read`、`Glob`、`Grep`、`NotebookRead`、`Skill`、`AskUserQuestion`、`Agent`、`TodoWrite` 和任务工具 `TaskCreate`、`TaskGet`、`TaskList`、`TaskUpdate` 和 `TaskStop`，加上你使用 `--allow-tools` 授予的任何工具。该授予适用于运行中的每个用例。要让用例使用 `Bash`、`Write`、`Edit`、`WebFetch` 或 `WebSearch`，请自己授予它们：
+运行仅允许用例在 `allowed_tools` 中列出的只读工具，来自 `Read`、`Glob`、`Grep`、`NotebookRead`、`Skill`、`AskUserQuestion`、`Agent`、`TodoWrite` 和任务工具 `TaskCreate`、`TaskGet`、`TaskList`、`TaskUpdate` 和 `TaskStop`，加上您使用 `--allow-tools` 授予的任何工具。该授予适用于运行中的每个用例。要让用例使用 `Bash`、`Write`、`Edit`、`WebFetch` 或 `WebSearch`，请自行授予它们：
 
 ```bash theme={null}
 claude plugin eval . --allow-tools Write Edit "Bash(npm test *)"
 ```
 
-当用例请求你没有授予的工具时，进度输出会将其列为 `not granted`。[模拟](#mock-mcp-servers) MCP 服务器上的工具不需要授予。真实插件 MCP 服务器上的工具需要服务器启动（使用 `--allow-real-servers` 或 `--mocks off`）和按名称授予，例如 `--allow-tools "mcp__plugin_my-plugin_github__*"`；插件的 MCP 工具命名为 `mcp__plugin_<plugin>_<server>__<tool>`。
+当用例请求您没有授予的工具时，进度输出会将其列为 `not granted`。[模拟](#mock-mcp-servers) MCP 服务器上的工具不需要授予。真实插件 MCP 服务器上的工具需要服务器启动（使用 `--allow-real-servers` 或 `--mocks off`）和按名称授予，例如 `--allow-tools "mcp__plugin_my-plugin_github__*"`；插件的 MCP 工具命名为 `mcp__plugin_<plugin>_<server>__<tool>`。
 
-当你以任何形式授予 `Bash` 时，每个命令都在 Claude Code 的 [OS 级沙箱](/docs/zh-CN/sandboxing) 下运行。写入被限制在运行的工作区，你的主目录和 Claude Code 配置不可读，网络访问限制为你使用 `--allow-tools "WebFetch(domain:example.com)"` 授予的域。如果你在没有沙箱后端的机器上授予 Bash 或 PowerShell，Claude Code 会拒绝每次运行而不是无限制地运行它，用例会显示运行错误，通常得分为 0。原生 Windows 没有后端，所以在 WSL2 下运行授予 shell 的套件；在 Linux 上，首先安装 `bubblewrap` 和 `socat`。请参阅 [沙箱先决条件](/docs/zh-CN/sandboxing)。
+当您以任何形式授予 `Bash` 时，每个命令都在 Claude Code 的 [OS 级沙箱](/docs/zh-CN/sandboxing) 下运行。写入被限制在运行的工作区，您的主目录和 Claude Code 配置不可读，网络访问限制为您使用 `--allow-tools "WebFetch(domain:example.com)"` 授予的域。如果您在没有沙箱后端的机器上授予 Bash 或 PowerShell，Claude Code 会拒绝每次运行而不是无限制地运行它，用例会显示运行错误，通常得分为 0。原生 Windows 没有后端，所以请在 WSL2 下运行授予 shell 的套件；在 Linux 上，请首先安装 `bubblewrap` 和 `socat`。请参阅 [沙箱隔离前提条件](/docs/zh-CN/sandboxing)。
 
 <h3 id="command-options">
   命令选项
@@ -389,28 +391,28 @@ claude plugin eval . --allow-tools Write Edit "Bash(npm test *)"
 | 选项 | 默认值 | 效果 |
 | :- | :- | :- |
 | `--runs <n>` | 每个用例的 `runs`，否则为 3 | 每个用例每个分支的运行次数 |
-| `-j`, `--concurrency <n>` | `1` | 一次最多运行这么多个代理运行，从 1 到 8。它们共享你账户的速率限制，所以这缩短了实际时间而不是提高超过该限制的吞吐量。结果保持用例顺序 |
-| `--model <model>` | 每个用例的 `model`，否则为 `ANTHROPIC_MODEL`（如果设置），否则为 Claude Code 的默认值 | 被测试代理的模型。在 CI 中固定它，以便模型推出不会被误认为是插件回归 |
-| `--judge-model <model>` | 一个小的快速模型 | 用于 `llm` 和 `baseline` 评分器的模型 |
-| `--ablation <mode>` | 按用例决定；请参阅 [与无插件基线比较](#compare-against-a-no-plugin-baseline) | 是否也运行每个用例而不使用插件来衡量它添加了什么。`none` 运行一个分支；`with-without` 添加无插件基线 |
-| `--threshold <0..1>` | `1.0` | 当用例的 with 分支得分至少为此值时，用例通过。任何低于它的用例都会使命令退出 1 |
-| `--max-cost-usd <usd>` | 无上限 | 运行的列表价格成本估计的上限，不是计划使用的上限。在每次运行开始前检查。一旦花费，不会进一步启动任何内容；已在进行中的运行会完成，所以花费可能会超过这些运行的上限。如果任何运行未启动，命令会以部分结果退出 2 |
+| `-j`, `--concurrency <n>` | `1` | 一次最多运行这么多个 Agent 运行，从 1 到 8。它们共享您账户的速率限制，所以这缩短了实际耗时，而不是将吞吐量提高到超过该限制。结果保持用例顺序 |
+| `--model <model>` | 每个用例的 `model`，否则为 `ANTHROPIC_MODEL`（如果设置），否则为 Claude Code 的默认值 | 被测试 Agent 的模型。在 CI 中固定它，以免模型推出被误认为是插件回归 |
+| `--judge-model <model>` | 一个小型快速模型 | 用于 `llm` 和 `baseline` 评分器的模型 |
+| `--ablation <mode>` | 按用例决定；请参阅 [对照无插件基线评分](#compare-against-a-no-plugin-baseline) | 是否还要在不加载插件的情况下运行每个用例，以衡量插件带来的增益。`none` 运行一个分支；`with-without` 添加无插件基线 |
+| `--threshold <0..1>` | `1.0` | 当用例的 with 分支得分至少为此值时，用例通过。任何低于它的用例都会使命令以 1 退出 |
+| `--max-cost-usd <usd>` | 无上限 | 运行的标价成本估算的上限，而不是计划用量的上限。在每次运行开始前检查。一旦花完，不会再启动任何运行；已开始的运行会完成，所以花费可能会因这些运行而超过上限。如果有任何运行未启动，命令会以 2 退出并给出部分结果 |
 | `--allow-tools <tools...>` | 无 | 授予超出只读集合的工具。请参阅 [授予工具](#grant-tools) |
 | `--scaffold` | 关闭 | 运行每个用例的 [`scaffold_script`](#add-setup-or-history-with-case-yaml) |
-| `--trust-plugin` | 关闭 | 跳过你会自己运行其代码和套件的插件的首次运行信任提示。在 CI 中传递它，以便作业永远不会被提示拒绝或等待。请参阅 [运行可以访问什么](#security) |
-| `--mocks <mode>` | `record` | `record` 从 [模拟](#mock-mcp-servers) 回答 MCP 工具调用，不启动插件的真实服务器，并保存代理-模拟答案以供重放。`off` 忽略模拟并启动插件的真实 MCP 服务器 |
+| `--trust-plugin` | 关闭 | 对于您愿意自行运行其代码和套件的插件，跳过首次运行信任提示。在 CI 中传递它，以便作业永远不会被该提示拒绝或卡在该提示处等待。请参阅 [运行可以访问什么](#security) |
+| `--mocks <mode>` | `record` | `record` 从 [模拟](#mock-mcp-servers) 回答 MCP 工具调用，不启动插件的真实服务器，并保存 Agent 模拟答案以供重放。`off` 忽略模拟并启动插件的真实 MCP 服务器 |
 | `--allow-real-servers` | 关闭 | 使用 `--mocks record` 时，也为没有模拟的服务器启动插件的真实 MCP 服务器 |
-| `--json [path]` | 关闭 | 将 [结果文档](#json-result) 打印到 stdout，或将其写入以 `.json` 结尾的路径。运行是安静的：没有进度行或摘要表 |
-| `--output-dir <dir>` | `<eval dir>/results/<timestamp>/` | `aggregate-result.json` 和 `report.html` 的去向 |
-| `--no-publish` | | 保持 HTML 报告本地。请参阅 [HTML 报告](#html-report) |
-| `--publish-report` | | 发布报告，即使它会在默认情况下保持本地，例如 Claude Code 会话启动的运行 |
-| `--keep-temp` | 关闭 | 保持每次运行的沙箱目录并打印其路径，用于调试 Claude 生成的内容 |
+| `--json [path]` | 关闭 | 将 [结果文档](#json-result) 打印到 stdout，或将其写入以 `.json` 结尾的路径。运行是静默的：没有进度行或摘要表 |
+| `--output-dir <dir>` | `<eval dir>/results/<timestamp>/` | `aggregate-result.json` 和 `report.html` 的输出位置 |
+| `--no-publish` | | 将 HTML 报告保留在本地。请参阅 [HTML 报告](#html-report) |
+| `--publish-report` | | 即使在默认会保留在本地的情况下（例如由 Claude Code 会话启动的运行）也发布报告 |
+| `--keep-temp` | 关闭 | 保留每次运行的沙箱目录并打印其路径，用于调试 Claude 生成的内容 |
 
 <h3 id="run-evals-in-ci">
   在 CI 中运行 evals
 </h3>
 
-在你的 CI 作业中，使用 `--json` 运行套件以写入结果以供存档，并根据退出代码使构建失败。传递 `--trust-plugin` 以便作业永远不会在 [首次运行信任提示](#security) 处等待，固定两个模型以便得分在一段时间内可比较，保持报告本地，并设置成本上限作为上限：
+在您的 CI 作业中，使用 `--json` 运行套件以写入结果供存档，并根据退出码使构建失败。传递 `--trust-plugin` 以便作业永远不会在 [首次运行信任提示](#security) 处等待，固定两个模型以便得分在一段时间内可比较，将报告保留在本地，并设置成本上限作为上限：
 
 ```bash theme={null}
 claude plugin eval . \
@@ -423,27 +425,27 @@ claude plugin eval . \
   --max-cost-usd 20
 ```
 
-作业的退出代码告诉你发生了什么：
+作业的退出码说明了发生的情况：
 
-| 退出代码 | 含义 |
+| 退出码 | 含义 |
 | :- | :- |
-| 0 | 每个用例得分在 `--threshold` 处或以上，每个用例文件都加载了 |
+| 0 | 每个用例得分均达到或高于 `--threshold`，且每个用例文件都已加载 |
 | 1 | 用例得分低于阈值，用例文件加载失败，未找到用例，无法启动运行，插件目录不受信任且未传递 `--trust-plugin`，或选项无效 |
-| 2 | 部分运行：达到了 `--max-cost-usd` 上限，或你的凭证在首次运行前或首次运行时被拒绝。`results.json` 仍然以 `partial: true` 和原因写入 |
-| 130 | 中断。部分结果已写入 |
-| 143 | 已终止，例如由 CI 超时 |
+| 2 | 部分运行：达到了 `--max-cost-usd` 上限，或您的凭据在首次运行前或首次运行时被拒绝。`results.json` 仍会写入，并带有 `partial: true` 和原因 |
+| 130 | 已中断。部分结果已写入 |
+| 143 | 已终止，例如因 CI 超时 |
 
-写入或发布 HTML 报告的问题永远不会改变退出代码。
+with 减 without 的差值会被报告，但永远不会改变退出码，写入或发布 HTML 报告时出现的问题也不会。
 
-要查看用例得分低的原因，请在本地运行它而不使用 `--json` 以便打印每次运行的进度和评分器行。
+要查看用例得分低的原因，请在本地运行它且不使用 `--json`，以便打印每次运行的进度和评分器行。
 
-CI 运行程序还需要以下内容：
+CI 运行器还需要具备以下条件：
 
-* **安装和凭证**：CI 运行程序需要 Claude Code 安装和 [环境中的凭证](/docs/zh-CN/authentication)，例如 `ANTHROPIC_API_KEY`。
-* **信任**：没有 `--trust-plugin`，其检出目录 Claude Code 还不信任的作业需要 [首次运行信任提示](#trust-the-plugin-directory)，无法询问的运行会被拒绝，退出 1。
-* **CI 中的 `init`**：`claude plugin eval init` 需要终端来提出问题；在 CI 中，运行 `claude plugin eval init --bare <name>` 以获取空白模板。
+* **安装和凭据**：CI 运行器需要安装 Claude Code，并需要 [环境中的凭据](/docs/zh-CN/authentication)，例如 `ANTHROPIC_API_KEY` 或您的云提供商的变量。
+* **信任**：如果没有 `--trust-plugin`，检出目录尚未被 Claude Code 信任的作业需要经过 [首次运行信任提示](#trust-the-plugin-directory)，无法询问的运行会被拒绝并以 1 退出。
+* **CI 中的 `init`**：`claude plugin eval init` 需要终端来向您提问；在 CI 中，请运行 `claude plugin eval init --bare <name>` 以获取空白模板。
 
-要保持成本可预测，给快速的每次更改套件仅使用不调用评判者的评分器，在你不需要 `Δ` 的地方使用 `--ablation none`，并将 `partial: true` 文档和具有 `skippedPaidGraders` 的运行排除在你绘制的任何趋势之外。
+要保持成本可预测，请为每次更改都运行的快速套件仅使用不调用评判模型的评分器，在不需要 `Δ` 的地方使用 `--ablation none`，并将 `partial: true` 文档和带有 `skippedPaidGraders` 的运行排除在您绘制的任何趋势之外。
 
 <h2 id="read-the-results">
   读取结果

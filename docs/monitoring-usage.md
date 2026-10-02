@@ -255,7 +255,7 @@ claude_code.interaction
 | `duration_ms` | 包括重试的挂钟持续时间 | |
 | `ttft_ms` | 首个令牌的时间（毫秒） | |
 | `first_content_ms` | 从请求开始到成功尝试的第一个内容块的时间（毫秒）。在回退到非流式路径的请求上不存在。需要 Claude Code v2.1.268 或更高版本 | |
-| `input_tokens` | API 使用块中的输入令牌计数 | |
+| `input_tokens` | API 使用块中的输入 token 计数。不包括从提示词缓存读取或写入提示词缓存的 token，这些 token 分别在 `cache_read_tokens` 和 `cache_creation_tokens` 中报告 | |
 | `output_tokens` | 输出令牌计数 | |
 | `cache_read_tokens` | 从提示缓存读取的令牌 | |
 | `cache_creation_tokens` | 写入提示缓存的令牌 | |
@@ -719,7 +719,7 @@ Claude Code 导出以下指标。单位列显示附加到每个指标的 OpenTel
 **属性**：
 
 * 所有[标准属性](#standard-attributes)
-* `type`：（`"input"`、`"output"`、`"cacheRead"`、`"cacheCreation"`）
+* `type`：（`"input"`、`"output"`、`"cacheRead"`、`"cacheCreation"`）。`"input"` 类型不包括从提示词缓存读取或写入提示词缓存的 token，这些 token 分别计入 `"cacheRead"` 和 `"cacheCreation"`
 * `model`：模型标识符（例如，"claude-sonnet-5"）
 * `query_source`：发出请求的子系统的类别。`"main"`、`"subagent"` 或 `"auxiliary"` 之一
 * `speed`：当请求使用快速模式时为 `"fast"`。否则不存在
@@ -874,7 +874,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `cost_usd`：以美元为单位的估计成本
 * `cost_usd_micros`：以美元百万分之一为单位的估计成本，作为整数发出
 * `duration_ms`：请求持续时间（以毫秒为单位）
-* `input_tokens`：输入令牌数
+* `input_tokens`：输入 token 数量，不包括从提示词缓存读取或写入提示词缓存的 token
 * `output_tokens`：输出令牌数
 * `cache_read_tokens`：从缓存读取的令牌数
 * `cache_creation_tokens`：用于缓存创建的令牌数
@@ -1198,14 +1198,23 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 **属性**：
 
 * 所有[标准属性](#standard-attributes)
+
 * `event.name`：`"api_retries_exhausted"`
+
 * `event.timestamp`：ISO 8601 时间戳
+
 * `event.sequence`：用于排序事件的每进程计数器，在[事件关联属性](#event-correlation-attributes)下描述
+
 * `model`：使用的模型
+
 * `error`：最终错误消息
+
 * `status_code`：HTTP 状态代码作为数字。对于非 HTTP 错误不存在。
+
 * `total_attempts`：进行的总尝试次数
+
 * `total_retry_duration_ms`：所有尝试中的总挂钟时间
+
 * `speed`：`"fast"` 或 `"normal"`
 
 <h4 id="hook-registered-event">
@@ -1473,7 +1482,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
 | 指标 | 分析机会 |
 | - | - |
-| `claude_code.token.usage` | 按 `type`（输入/输出）、用户、团队、模型、`skill.name`、`plugin.name` 或 `agent.name` 分解 |
+| `claude_code.token.usage` | 按 token [`type`](#token-counter)、用户、团队、模型、`skill.name`、`plugin.name` 或 `agent.name` 分解 |
 | `claude_code.session.count` | 跟踪随时间推移的采用和参与度 |
 | `claude_code.lines_of_code.count` | 通过跟踪代码添加和删除来衡量生产力，按模型分解 |
 | `claude_code.commit.count` & `claude_code.pull_request.count` | 了解对开发工作流的影响 |
@@ -1534,6 +1543,25 @@ Claude Code 在内部重试失败的 API 请求，仅在放弃后才发出单个
 * 按工具类型的错误模式
 
 **性能监控**：跟踪 API 请求持续时间和工具执行时间以识别性能瓶颈。
+
+<h3 id="map-input-tokens-to-opentelemetry-genai-semantic-conventions">
+  将输入 token 映射到 OpenTelemetry GenAI 语义约定
+</h3>
+
+Claude Code 按照 API 响应的 usage 块中的数值导出输入 token 计数，因此这些值不包括从[提示缓存](/docs/zh-CN/prompt-caching)读取或写入的 token：
+
+* [`claude_code.llm_request`](#span-attributes) span 和 [`api_request`](#api-request-event) 事件上的 `input_tokens`
+* [`claude_code.token.usage`](#token-counter) 指标的 `"input"` 类型
+
+Claude Code 不设置 `gen_ai.usage.*` 属性。[OpenTelemetry GenAI 语义约定](https://github.com/open-telemetry/semantic-conventions-genai)规定 `gen_ai.usage.input_tokens` 应包括从缓存读取和写入缓存的 token。要计算该总数：
+
+* 从 span 或事件：将 `input_tokens`、`cache_read_tokens` 和 `cache_creation_tokens` 相加
+* 从 `claude_code.token.usage` 指标：将其 `"input"`、`"cacheRead"` 和 `"cacheCreation"` 类型相加
+
+这些约定还为缓存读取和缓存写入定义了单独的属性：
+
+* `cache_read_tokens` 映射到 `gen_ai.usage.cache_read.input_tokens`
+* `cache_creation_tokens` 映射到 `gen_ai.usage.cache_write.input_tokens`。旧版本的约定将缓存写入属性命名为 `gen_ai.usage.cache_creation.input_tokens`，因此请使用您的后端所期望的名称。
 
 <h2 id="audit-security-events">
   审计安全事件

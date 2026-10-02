@@ -9,10 +9,11 @@
 Claude Code 插件是一个目录，包含 skills、agents、hooks、MCP 服务器或其他组件，Claude Code 将其作为一个单元进行安装和加载。大多数插件来自市场，市场是一个目录，列出了插件及其获取位置。您也可以从某人提供给您的文件夹中加载插件，或者[构建您自己的插件](/docs/zh-CN/plugins/create)。
 
 <Note>
-  如果以下任一情况适用于您，请改为在 claude.com 上开始：
+  以下情况在其他页面中介绍：
 
   * **您使用 claude.ai 聊天或 Cowork，而不是 Claude Code**：请参阅 [claude.ai 和 Cowork 中的插件](https://claude.com/docs/plugins/overview)
   * **您构建了 MCP 服务器并希望将其添加到 Anthropic 的目录中**：请参阅[发布到目录](https://claude.com/docs/directory/publish)
+  * **您希望在 VS Code 或 JetBrains IDE 中使用 Claude Code**：那是 VS Code 扩展或 JetBrains 插件，而不是 Claude Code 插件。请参阅[在 VS Code 中使用 Claude Code](/docs/zh-CN/vs-code) 或 [JetBrains IDE](/docs/zh-CN/jetbrains)
 </Note>
 
 要立即尝试插件，请在 Claude Code 终端会话中运行 `/plugin`，并从**发现**选项卡安装一个插件，该选项卡列出了来自您的市场的插件。从那里：

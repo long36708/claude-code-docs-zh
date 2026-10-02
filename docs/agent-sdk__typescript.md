@@ -1554,7 +1554,7 @@ type SDKAssistantMessage = {
 * `'model_not_found'`：选定的模型不存在或对您的账户或部署不可用
 * `'overloaded'`：API 返回 529，因为服务器处于容量限制，与 `'rate_limit'` 不同，后者是针对您配额的 429
 * `'account_on_hold'`：[您的账户被冻结](/docs/zh-CN/errors#your-account-is-on-hold)
-* `'cloud_credential_error'`：Claude Code 无法在其运行的机器上获取可用的 AWS 或 Google Cloud 凭证，因此没有请求到达云提供商。通常原因是云登录已过期或从未在该机器上完成，但暂时无法访问的凭证服务会报告相同的值。请参阅[无法加载 AWS 或 Google Cloud 凭证](/docs/zh-CN/errors#could-not-load-aws-or-google-cloud-credentials)。需要 TypeScript Agent SDK v0.3.267 或更高版本，其中包含 Claude Code v2.1.267
+* `'cloud_credential_error'`：Claude Code 无法在其运行的机器上获取可用的 AWS 或 Google Cloud 凭据，因此没有请求到达云提供商。通常原因是云登录已过期或从未在该机器上完成，但暂时无法访问的凭据服务会报告相同的值。请参阅[无法加载 AWS 或 Google Cloud 凭据](/docs/zh-CN/errors#could-not-load-aws-or-google-cloud-credentials)。需要 TypeScript Agent SDK v0.3.267 或更高版本，其中包含 Claude Code v2.1.267
 
 当中断或中止在流完成前截断助手消息时，`aborted` 为 `true`：消息没有 `stop_reason`，内容可能在单词中间结束。该字段在正常完成的消息上不存在。它需要 Agent SDK v0.3.214 或更高版本。
 
@@ -1562,7 +1562,7 @@ Claude Code 在该轮的第一条助手消息上设置 `user_message_uuid` 和 `
 
 `timestamp` 是消息内容在生成它的进程上完成生成的 ISO 8601 时间。该值来自该机器的时钟，因此仅用于显示，不要按它排序消息。一个 API 轮可以产生多条共享 `message.id` 的助手消息，每条都有自己的 `timestamp`。当字段不存在时，回退到您收到消息的时间。
 
-`context_usage` 是 `/context` 报告的结构化副本，类型为 [`SDKContextUsage`](#sdkcontextusage)，需要 Agent SDK v0.3.232 或更高版本。当您发送 `/context` 作为提示时，Claude Code 将报告作为助手消息传递，其 `message.content` 包含 markdown 表格，并将 `context_usage` 附加到同一消息。Claude Code 不在任何其他助手消息上设置该字段，早期版本在没有它的情况下传递 `/context` 表格，因此当字段存在时从字段读取分解，当不存在时回退到 markdown 文本。
+`context_usage` 是 `/context` 报告的结构化副本，类型为 [`SDKContextUsage`](#sdkcontextusage)，需要 Agent SDK v0.3.232 或更高版本。当您发送 `/context` 作为提示词时，Claude Code 将报告作为助手消息传递，其 `message.content` 包含 markdown 表格，并将 `context_usage` 附加到同一消息。Claude Code 不在任何其他助手消息上设置该字段，早期版本在没有它的情况下传递 `/context` 表格，因此当字段存在时从字段读取分解，当不存在时回退到 markdown 文本。
 
 <h3 id="sdkusermessage">
   `SDKUserMessage`
@@ -1587,20 +1587,20 @@ type SDKUserMessage = {
 };
 ```
 
-设置 `pasted_content` 以发送用户粘贴到您的提示 UI 中而不是输入的内容，每个粘贴一个条目，每个条目是字符串或内容块数组。Claude Code 按顺序在输入的文本后追加每个条目的文本，并可能将每个粘贴包装在 `<pasted_content>` 标签中。除文本外的块被忽略，因此在 `message.content` 中发送图像和文档。需要 Agent SDK v0.3.277 或更高版本。
+设置 `pasted_content` 以发送用户粘贴到您的提示词 UI 中而不是输入的内容，每个粘贴一个条目，每个条目是字符串或内容块数组。Claude Code 按顺序在输入的文本后追加每个条目的文本，并可能将每个粘贴包装在 `<pasted_content>` 标签中。除文本外的块被忽略，因此在 `message.content` 中发送图像和文档。需要 Agent SDK v0.3.277 或更高版本。
 
 设置 `shouldQuery` 或 `client_composed` 以改变 Claude Code 处理您发送的消息的方式：
 
-* `shouldQuery`：设置为 `false` 以将消息附加到记录中而不触发助手轮。消息被保留并合并到下一条触发轮的用户消息中。使用此方法注入上下文，例如您在带外运行的命令的输出，而无需在模型调用上花费。
+* `shouldQuery`：设置为 `false` 以将消息附加到会话记录中而不触发助手轮。消息被保留并合并到下一条触发轮的用户消息中。使用此方法注入上下文，例如您在带外运行的命令的输出，而无需在模型调用上花费。
 * `client_composed`：设置为 `true` 以让 Claude Code 按原样传递消息文本。Claude Code 然后不展开 `@path` 或 [`@server:resource`](/docs/zh-CN/mcp#use-mcp-resources) 提及，也不运行以 `/` 开头的文本作为命令。当 [`verbatimPrompts`](#options) 选项打开时，SDK 在每条消息上设置该字段。需要 TypeScript Agent SDK v0.3.280 或更高版本和 Claude Code v2.1.248 或更高版本。
 
 在携带 `tool_result` 块的消息上，`tool_use_result` 是工具的结构化输出对象，而不是发送给模型的文本。其形状取决于匹配 `tool_use` 块命名的工具，因此该字段的类型为 `unknown`；内置形状列在[工具输出类型](#tool-output-types)下。
 
 对于 `Agent` 工具，`tool_use_result` 是 [`AgentOutput`](#agent-2)。请从它渲染，而不是解析 `tool_result` 文本。`completed` 结果的 `content` 包含子代理的报告；对于通过 `SubagentHandback` 工具调用交回报告的子代理，则包含一条关于该交回的简短说明来代替报告。在 Claude Code v2.1.271 或更高版本的[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下，每个产生 `completed` 结果的子代理都以这种方式报告，除非它是一个 [fork](/docs/zh-CN/sub-agents#fork-the-current-conversation)，并且 Claude 会将该报告作为来自子代理的单独消息接收。
 
-对于结果包含 `resource_link` 块的 MCP 工具，`tool_use_result` 是一个对象，其中包含 [`SDKMcpResourceLink`](#sdkmcpresourcelink) 条目的 `resourceLinks` 数组。Claude 将每个链作为 `tool_result` 块中的一行文本接收，因此读取 `resourceLinks` 以渲染服务器返回的文件，而不是解析该文本。Claude Code 在结果没有链时省略 `resourceLinks`，在来自子代理的结果上省略，每个结果最多保留 50 个链，并在数组达到 64 KiB 序列化 JSON 后停止添加链。`resourceLinks` 需要 Agent SDK v0.3.257 或更高版本。
+对于结果包含 `resource_link` 块的 MCP 工具，`tool_use_result` 是一个对象，其中包含 [`SDKMcpResourceLink`](#sdkmcpresourcelink) 条目的 `resourceLinks` 数组。Claude 将每个链接作为 `tool_result` 块中的一行文本接收，因此读取 `resourceLinks` 以渲染服务器返回的文件，而不是解析该文本。Claude Code 在结果没有链接时省略 `resourceLinks`，在来自子代理的结果上省略，每个结果最多保留 50 个链接，并在数组达到 64 KiB 序列化 JSON 后停止添加链接。`resourceLinks` 需要 Agent SDK v0.3.257 或更高版本。
 
-设置 `inline_pastes` 以告诉 Claude Code `message.content` 的哪些部分用户粘贴而不是输入，每个粘贴一个字符串。提示文本保留在用户放置的位置。Claude Code 可能会在其所在位置将每个列出的粘贴包装在 `<pasted_content>` 标签中，以便 Claude 可以区分粘贴的材料和用户自己的话。只有提示最后一个文本块中的粘贴被包装。需要 TypeScript Agent SDK v0.3.280 或更高版本。
+设置 `inline_pastes` 以告诉 Claude Code `message.content` 的哪些部分用户粘贴而不是输入，每个粘贴一个字符串。提示词文本保留在用户放置的位置。Claude Code 可能会在其所在位置将每个列出的粘贴包装在 `<pasted_content>` 标签中，以便 Claude 可以区分粘贴的材料和用户自己的话。只有提示词最后一个文本块中的粘贴被包装。需要 TypeScript Agent SDK v0.3.280 或更高版本。
 
 <h3 id="sdkusermessagereplay">
   `SDKUserMessageReplay`
@@ -1623,7 +1623,7 @@ type SDKUserMessageReplay = {
 };
 ```
 
-从会话外部注入的用户轮，其 [`origin`](#sdkmessageorigin) 类型为 `peer` 或 `channel`，无论是在活跃轮期间传递还是在会话空闲时启动新轮，都作为重放到达流。在 v2.1.207 之前，在会话空闲时传递的注入轮在流上不产生消息，仅在您重新读取记录时出现。
+从会话外部注入的用户轮，其 [`origin`](#sdkmessageorigin) 类型为 `peer` 或 `channel`，无论是在活跃轮期间传递还是在会话空闲时启动新轮，都作为重放到达流。在 v2.1.207 之前，在会话空闲时传递的注入轮在流上不产生消息，仅在您重新读取会话记录时出现。
 
 <h3 id="sdkresultmessage">
   `SDKResultMessage`
@@ -1704,17 +1704,17 @@ type SDKResultMessage =
 结果上的多个字段除了 `subtype` 之外还提供诊断详情：
 
 * `api_error_status`：终止对话的 API 错误的 HTTP 状态码。当轮在没有 API 错误的情况下结束时不存在或为 `null`。
-* `ttft_ms`：首个令牌的时间（毫秒），在第一条完整助手消息到达时测量。仅在成功分支上存在。
-* `ttft_stream_ms`：直到第一个 `message_start` 流事件（响应流打开时）的时间（毫秒）。低于 `ttft_ms`；两者之间的差距是流传输第一条消息所花费的时间。仅在成功分支上存在。
+* `ttft_ms`：首个 token 的时间（毫秒），在第一条完整助手消息到达时测量。仅在成功分支上存在。
+* `ttft_stream_ms`：直到第一个 `message_start` 流事件（响应流打开时）的时间（毫秒）。低于 `ttft_ms`；两者之间的差距是流式传输第一条消息所花费的时间。仅在成功分支上存在。
 * `user_message_uuid`：您发送的消息的 `uuid`，该轮回答了该消息。请参阅 [`user_message_uuid`](#user_message_uuid) 了解哪些结果携带它。
 * `user_message_uuids`：您发送的每条消息的 `uuid`，Claude Code 在该轮中回答了这些消息。请参阅 [`user_message_uuids`](#user_message_uuids)。
-* `resume_reason`：Claude Code 重新运行该轮的原因，在重启中断后。请参阅 [`resume_reason`](#resume_reason)。
-* `local_command`：轮分派的命令的名称，在轮由命令完成而不进入代理循环的成功结果上，例如 `/compact`。名称折叠为小写字母和下划线，因此 `/reload-plugins` 报告 `reload_plugins`。MCP 服务器提供的命令和内置 `/mcp` 报告 `mcp`。您自己定义的命令报告 `custom`。参数从不包含。在进入代理循环的每个轮上不存在，在运行无命令的发送上不存在。需要 Agent SDK v0.3.268 或更高版本。
+* `resume_reason`：在重启中断该轮后，Claude Code 重新运行该轮的原因。在两个分支上都存在，且仅在此类重新运行上存在。请参阅 [`resume_reason`](#resume_reason)。
+* `local_command`：轮分派的命令的名称，在轮由命令完成而不进入 Agent 循环的成功结果上，例如 `/compact`。名称折叠为小写字母和下划线，因此 `/reload-plugins` 报告 `reload_plugins`。MCP 服务器提供的命令和内置 `/mcp` 报告 `mcp`。您自己定义的命令报告 `custom`。参数从不包含。在进入 Agent 循环的每个轮上不存在，在运行无命令的发送上不存在。需要 Agent SDK v0.3.268 或更高版本。
 * `request_sent_wall_ms`：Claude Code 分派 API 请求的纪元毫秒，用于与服务器端时间戳的连接。仅与 [`user_message_uuid`](#user_message_uuid) 一起存在，在成功结果上，其中 `is_error` 为 false，且轮发送了 API 请求。
 * `first_content_frame_ms`：直到第一个 `content_block_start` 或 `content_block_delta` 流事件的时间（毫秒），计算思考块作为内容。仅在成功分支上存在，当 `is_error` 为 false 时。需要 Agent SDK v0.3.260 或更高版本。
-* `first_stream_post_ms`、`first_stream_post_ack_ms`、`first_stream_post_wall_ms`：上传轮的第一个流事件的时间。Claude Code 仅在它流传输到 claude.ai 的会话中记录它们，例如[云会话](/docs/zh-CN/claude-code-on-the-web)，`query()` 产生的结果不携带它们。需要 Agent SDK v0.3.260 或更高版本。
-* `usage`：仅主代理循环。排除子代理和辅助模型调用，在流式输入会话中按轮计算。对于令牌/成本会计，优先使用 `modelUsage`。
-* `modelUsage`：在此 `query()` 调用期间通过查询管道进行的每个模型调用的每模型总计，包括主循环、子代理和内部调用（如压缩和 Workflow 代理）。该管道外的辅助调用（如权限分类器和令牌计数请求）被排除。恢复会话的调用也计算[从会话早期调用恢复的每模型总计](/docs/zh-CN/agent-sdk/cost-tracking#accumulate-costs-across-multiple-calls)。在流式输入会话中，总计在轮中是累积的，因此读取最新结果而不是跨结果求和。请参阅[在流式输入模式中跟踪成本](/docs/zh-CN/agent-sdk/cost-tracking#track-costs-in-streaming-input-mode)了解重置，以及[在会话崩溃后恢复总计](/docs/zh-CN/agent-sdk/cost-tracking#recover-totals-after-a-session-crash)了解零化结果。
+* `first_stream_post_ms`、`first_stream_post_ack_ms`、`first_stream_post_wall_ms`：上传轮的第一个流事件的时间。Claude Code 仅在它流式传输到 claude.ai 的会话中记录它们，例如[云端会话](/docs/zh-CN/claude-code-on-the-web)，`query()` 产生的结果不携带它们。需要 Agent SDK v0.3.260 或更高版本。
+* `usage`：仅主 Agent 循环。排除子代理和辅助模型调用，在流式输入会话中按轮计算。对于 token/成本核算，优先使用 `modelUsage`。
+* `modelUsage`：在此 `query()` 调用期间通过查询管道进行的每个模型调用的每模型总计，包括主循环、子代理和内部调用（如压缩和 Workflow Agent）。该管道外的辅助调用（如权限分类器和 token 计数请求）被排除。恢复会话的调用也计算[从会话早期调用恢复的每模型总计](/docs/zh-CN/agent-sdk/cost-tracking#accumulate-costs-across-multiple-calls)。在流式输入会话中，总计在轮中是累积的，因此读取最新结果而不是跨结果求和。请参阅[在流式输入模式中跟踪成本](/docs/zh-CN/agent-sdk/cost-tracking#track-costs-in-streaming-input-mode)了解重置，以及[在会话崩溃后恢复总计](/docs/zh-CN/agent-sdk/cost-tracking#recover-totals-after-a-session-crash)了解零化结果。
 * `total_cost_usd`：累积估计成本（美元），涵盖与 `modelUsage` 相同的调用并在相同点重置。恢复会话的调用也计算[从会话早期调用恢复的总计](/docs/zh-CN/agent-sdk/cost-tracking#accumulate-costs-across-multiple-calls)。这是一个估计值，不是账单声明。请参阅[跟踪成本和使用情况](/docs/zh-CN/agent-sdk/cost-tracking)了解准确性注意事项。
 * `queued_turn_count`：您发送的带有 `origin: { kind: "human" }` 的消息数，在 Claude Code 产生结果时仍在等待。请参阅 [`queued_turn_count`](#queued_turn_count) 了解 `0` 和缺失字段告诉您什么。
 * `result_index`：此结果在运行的传递顺序中的位置，从 0 开始计算，跨越进程写入的每个结果。在两个分支上存在。写入失败的结果仍然消耗其编号，因此序列中的间隙意味着结果丢失。需要 Agent SDK v0.3.268 或更高版本。
@@ -1740,39 +1740,39 @@ type SDKResultMessage =
 
 相同的字段对出现在 [`SDKSystemMessage`](#sdksystemmessage) 和 [`SDKControlInitializeResponse`](#sdkcontrolinitializeresponse) 上，因此您可以在第一轮之前读取快速模式状态。
 
-`origin` 字段转发触发此结果的用户消息的 [`SDKMessageOrigin`](#sdkmessageorigin)。当 SDK 注入合成后续轮（例如对于完成的后台任务）时，生成的 `SDKResultMessage` 携带 `origin: { kind: "task-notification" }`。触发器触发和服务器验证的来自您其他会话的消息到达时也带有此类型，每个都带有[任务通知子类型](#task-notification-subkinds)中描述的 `subkind`。检查 `kind` 以区分回答您提示的结果和注入的后续，然后在路由或抑制它们之前进行区分。如果您的应用程序[声明计划运行](#declare-a-scheduled-run)，它们的结果也携带 `kind: "task-notification"`，因此不要仅在 `kind` 上抑制。
+`origin` 字段转发触发此结果的用户消息的 [`SDKMessageOrigin`](#sdkmessageorigin)。当 SDK 注入合成后续轮（例如对于完成的后台任务）时，生成的 `SDKResultMessage` 携带 `origin: { kind: "task-notification" }`。触发器已触发的 Routine，以及经服务器验证、来自您其他会话的消息，到达时也带有此类型，每个都带有[任务通知子类型](#task-notification-subkinds)中描述的 `subkind`。在路由或抑制结果之前，检查 `kind` 以区分回答您提示词的结果和注入的后续轮。如果您的应用程序[声明定时运行](#declare-a-scheduled-run)，它们的结果也携带 `kind: "task-notification"`，因此不要仅凭 `kind` 进行抑制。
 
 当多个后台任务完成一起排队时，Claude Code 可以在一轮中回答它们，而不是每个一轮。每个完成仍然产生自己的结果与此来源。Claude Code 一起回答的完成中除最后一个外的所有完成产生空结果，其中 `num_turns: 0`，按顺序，最后一个的结果携带回答它们全部的轮。
 
 该字段在任何用户轮之前发出的结果上不存在，例如启动错误。
 
-当 `PreToolUse` 钩子返回 `permissionDecision: "defer"` 时，结果具有 `stop_reason: "tool_deferred"` 和 `deferred_tool_use` 携带待处理工具的 `id`、`name` 和 `input`。读取此字段以在您自己的 UI 中显示请求，然后使用相同的 `session_id` 恢复以继续。请参阅[延迟工具调用以供稍后使用](/docs/zh-CN/hooks#defer-a-tool-call-for-later)了解完整往返。
+当 `PreToolUse` hook 返回 `permissionDecision: "defer"` 时，结果具有 `stop_reason: "tool_deferred"` 和 `deferred_tool_use` 携带待处理工具的 `id`、`name` 和 `input`。读取此字段以在您自己的 UI 中显示请求，然后使用相同的 `session_id` 恢复以继续。请参阅[延迟工具调用以供稍后使用](/docs/zh-CN/hooks#defer-a-tool-call-for-later)了解完整往返。
 
 <h4 id="user_message_uuid">
   `user_message_uuid`
 </h4>
 
-轮回答的 [`SDKUserMessage`](#sdkusermessage) 的 `uuid`，回显以便您可以将 Claude Code 的回复与您发送的消息匹配。Claude Code 仅在您在消息上设置 uuid 时回显 `uuid`。该字段在 `SDKUserMessage` 上是可选的，传递给 `query()` 的字符串提示不携带任何。
+轮回答的 [`SDKUserMessage`](#sdkusermessage) 的 `uuid`，回显以便您可以将 Claude Code 的回复与您发送的消息匹配。Claude Code 仅在您在消息上设置 uuid 时回显 `uuid`。该字段在 `SDKUserMessage` 上是可选的，传递给 `query()` 的字符串提示词不携带任何。
 
 轮回答的消息取决于轮如何启动：
 
 * **您发送的常规消息**，意思是没有 `isSynthetic: true` 的消息：轮在其整个运行中回答该消息。当您一起发送多条消息时，Claude Code 可以将它们合并为一轮，该字段然后仅携带最后一条消息的 `uuid`。要将回复与任何合并的消息匹配，请使用 [`user_message_uuids`](#user_message_uuids)。
 * **您发送的带有 `isSynthetic: true` 的消息**：轮最初回答该消息。如果 Claude Code 在工具调用之间拾取您的常规消息，轮从那时起回答拾取的消息。回显合成消息的 `uuid` 需要 Agent SDK v0.3.265 或更高版本；早期版本在合成轮上不回显任何内容。
-* **Claude Code 生成的提示以重新运行被重启中断的轮**（在 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars) 下）：当被中断轮的最后一个提示是您发送的常规消息时，无论它是打开轮还是 Claude Code 在轮期间拾取它，重新运行最初回答该消息。[`resume_reason`](#resume_reason) 告诉重新运行的帧来自被中断尝试的。当最后一个提示不是您的常规消息时，重新运行最初不回答您的任何消息。如果 Claude Code 在工具调用之间拾取您的常规消息，轮从那时起回答拾取的消息。回显被中断轮的提示需要 Agent SDK v0.3.268 或更高版本。
-* **Claude Code 自己生成的任何其他提示**：轮最初不回答您的任何消息，其帧不携带回显。如果 Claude Code 在工具调用之间拾取您的常规消息，轮从那时起回答该消息。拾取回显需要 Agent SDK v0.3.265 或更高版本；早期版本在这些轮上不回显任何内容。
+* **Claude Code 生成的、用于在 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars) 下重新运行被中断轮的提示词**：当被中断轮的最后一个提示词是您发送的常规消息时，无论它是打开轮还是 Claude Code 在轮期间拾取它，重新运行最初回答该消息。[`resume_reason`](#resume_reason) 可将重新运行的帧与被中断尝试的帧区分开。当最后一个提示词不是您的常规消息时，重新运行最初不回答您的任何消息。如果 Claude Code 在工具调用之间拾取您的常规消息，轮从那时起回答拾取的消息。回显被中断轮的提示词需要 Agent SDK v0.3.268 或更高版本。
+* **Claude Code 自己生成的任何其他提示词**：轮最初不回答您的任何消息，其帧不携带回显。如果 Claude Code 在工具调用之间拾取您的常规消息，轮从那时起回答该消息。拾取回显需要 Agent SDK v0.3.265 或更高版本；早期版本在这些轮上不回显任何内容。
 
 Claude Code 在三种帧上回显回答的消息的 `uuid`：
 
 * **结果**：回答您发送的消息的轮的每个结果。在 Agent SDK v0.3.265 或更高版本上，每个这样的结果都携带它。在 v0.3.265 之前，常规消息启动的轮的成功结果在轮未发送 API 请求或以延迟工具调用结束时缺少它。在 v0.3.246 之前，错误结果也缺少它，在 v0.3.216 之前每个结果都缺少它。
-* **轮的第一个回复**：第一条[助手消息](#sdkassistantmessage)，或使用 `includePartialMessages` 时第一条[流事件](#sdkpartialassistantmessage)，其 `event.type` 不是 `ping`，因此您可以在结果到达之前绑定回复。当轮流传输任何内容时，Claude Code 改为在第一条助手消息上设置它。第一个回复回显需要 Agent SDK v0.3.246 或更高版本。当轮回答的消息在轮中间改变时，改变后的第一个回复携带该字段，在 Agent SDK v0.3.265 或更高版本上；早期版本在每轮一个回复帧上设置它。
+* **轮的第一个回复**：第一条[助手消息](#sdkassistantmessage)，以及在使用 `includePartialMessages` 时第一条 `event.type` 不是 `ping` 的[流事件](#sdkpartialassistantmessage)，因此您可以在结果到达之前绑定回复。第一个回复回显需要 Agent SDK v0.3.246 或更高版本。在 v0.3.269 之前，使用 `includePartialMessages` 时，Claude Code 仅在该第一条流事件上设置它，或者在轮未流式传输任何内容时在第一条助手消息上设置它。当轮回答的消息在轮中间改变时，改变后的第一个回复也携带该字段，在 Agent SDK v0.3.265 或更高版本上；早期版本在每轮一个回复帧上设置它。
 * **轮的每个 [`thinking_tokens`](#sdkthinkingtokensmessage) 帧**：以便您可以将思考进度归因于您发送的消息，而无需等待轮的第一个回复。需要 Agent SDK v0.3.260 或更高版本。
 
 Claude Code 在这些情况下省略该字段：
 
 * 除了那些第一个回复之外的回复帧
 * 子代理帧
-* 回答没有消息的轮，或回答您发送的没有 `uuid` 的消息的轮
-* 回答您未发送的消息的结果，例如崩溃的工作进程后的零化结果
+* 不回答您任何消息的轮，或回答您发送的没有 `uuid` 的消息的轮
+* 不回答您发送的任何消息的结果，例如崩溃的工作进程后的零化结果
 
 <h4 id="user_message_uuids">
   `user_message_uuids`
@@ -1780,7 +1780,7 @@ Claude Code 在这些情况下省略该字段：
 
 Claude Code 在该轮中回答的您发送的每条消息的 `uuid`。当您一起发送多条消息时，Claude Code 可以将它们合并为一轮，`user_message_uuid` 然后仅命名其中的最后一个。要将回复与任何合并的消息匹配，在此列表中的任何位置查找该消息的 `uuid`。需要 Agent SDK v0.3.259 或更高版本。
 
-Claude Code 在携带该字段的每个回复帧和结果上一起设置列表与 `user_message_uuid`。对于携带 `user_message_uuid` 的完整帧集以及每个需要的版本，请参阅 [`user_message_uuid`](#user_message_uuid)。列表始终包含 `user_message_uuid` 并最多包含 64 个条目。
+Claude Code 在携带 `user_message_uuid` 的每个回复帧和结果上，与该字段一起设置此列表。有关回显所回答消息 `uuid` 的完整轮帧集合以及每种帧所需的版本，请参阅 [`user_message_uuid`](#user_message_uuid)。列表始终包含 `user_message_uuid` 并最多包含 64 个条目。
 
 当 Claude Code 在轮运行时拾取您发送的常规消息时，它将该消息的 `uuid` 添加到结果的列表中。
 
@@ -1790,14 +1790,14 @@ Claude Code 在携带该字段的每个回复帧和结果上一起设置列表�
   `resume_reason`
 </h4>
 
-Claude Code 重新运行该轮的原因，在重启后。Claude Code 在它在 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars) 下重新运行的轮上设置此字段，以便您可以将重新运行的回复和结果与被中断尝试的区分开。需要 Agent SDK v0.3.268 或更高版本。
+Claude Code 在重启后重新运行该轮的原因。Claude Code 在它在 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars) 下重新运行的轮上设置此字段，以便您可以将重新运行的回复和结果与被中断尝试的区分开。需要 Agent SDK v0.3.268 或更高版本。
 
 Claude Code 在两种帧上设置该字段：
 
 * **重新运行的结果**：在成功和错误分支上，无论结果是否携带 `user_message_uuid`。
 * **重新运行的回复帧**：那些携带 [`user_message_uuid`](#user_message_uuid) 的帧。
 
-该值是一个短小写令牌，命名轮被重新运行的原因，例如 `interrupted_turn`。该字段在所有其他轮上不存在。
+该值是一个简短的小写标记，命名轮被重新运行的原因，例如 `interrupted_turn`。该字段在所有其他轮上不存在。
 
 <h4 id="queued_turn_count">
   `queued_turn_count`
@@ -1818,7 +1818,7 @@ Claude Code 拒绝启动的原因，以便您的应用程序可以提供修复�
 
 在 [`env`](#options) 中设置 `CLAUDE_CODE_STARTUP_FAILURE_RESULTS` 为 `1` 以接收每个 `SDKStartupFailureReason` 值的此结果。没有该变量，Claude Code 仅为这些失败写入结果，其余的以 stderr 输出、非零退出和无结果消息结束：
 
-* Claude Code 停止的恢复，因为它[无法将会话返回到其工作树](/docs/zh-CN/worktrees#the-session-resumes-outside-its-worktree)，带有 `worktree_unverified` 或 `worktree_resume_refused`。该部分说明哪个错误携带哪个值。
+* Claude Code 停止的恢复，因为它[无法将会话返回到其 worktree](/docs/zh-CN/worktrees#the-session-resumes-outside-its-worktree)，带有 `worktree_unverified` 或 `worktree_resume_refused`。该部分说明哪个错误携带哪个值。
 * 拒绝后台会话持有的对话的 [`continue`](#options)，带有 `session_held_by_background`。对于这样的对话的拒绝 [`resume`](#options)，Claude Code 仅在设置了变量时写入结果。
 
 ```typescript theme={null}
@@ -1859,8 +1859,8 @@ type SDKStartupFailureReason =
 | `cwd_unavailable` | 工作目录被删除、移动或无法读取 |
 | `shell_tool_missing` | 在 Windows 上，没有可用的 shell 工具：Git Bash 缺失，PowerShell 缺失或使用 `CLAUDE_CODE_USE_POWERSHELL_TOOL` 关闭 |
 | `session_held_by_background` | 要恢复或继续的对话作为[后台会话](/docs/zh-CN/agent-view)运行 |
-| `worktree_resume_refused` | 会话的工作树未通过其安全检查，或恢复是从其内部启动的。`errors` 说明运行相同恢复是否继续而不使用工作树 |
-| `worktree_unverified` | 会话的工作树现在无法验证，重试可能成功 |
+| `worktree_resume_refused` | 会话的 worktree 未通过其安全检查，或恢复是从其内部启动的。`errors` 说明运行相同恢复是否继续而不使用 worktree |
+| `worktree_unverified` | 会话的 worktree 现在无法验证，重试可能成功 |
 | `cli_version_too_old` | 此 Claude Code 版本低于 Anthropic 需要的最低版本 |
 | `bypass_root` | 在以 root 身份运行时请求了绕过权限模式 |
 
@@ -1912,7 +1912,7 @@ type SDKSystemMessage = {
 `terminal_slash_commands` 命名 `slash_commands` 中的条目，其接口绑定到本地终端，例如 `exit`。您可以像 `slash_commands` 中的任何其他条目一样发送它们；该字段存在以便远程或移动客户端可以从其命令菜单中隐藏它们。该字段仅在非空时存在，需要 Agent SDK v0.3.229 或更高版本。
 
 * `source` 在每个 `mcp_servers` 条目上：服务器定义的来源，与 [`McpServerStatus`](#mcpserverstatus) 的 `source` 值相同。需要 Agent SDK v0.3.274 或更高版本。
-* `effort`：[努力级别](/docs/zh-CN/model-config#adjust-effort-level) Claude Code 在会话的下一个请求上发送，或当它不发送任何时为 `null`。Claude Code 仅在它发送到[远程控制](/docs/zh-CN/remote-control)客户端的初始化消息上设置该字段，并从您的应用程序读取的初始化消息中省略它。需要 Agent SDK v0.3.234 或更高版本。
+* `effort`：Claude Code 在会话的下一个请求上发送的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)，或当它不发送任何时为 `null`。Claude Code 仅在它发送到 [Remote Control](/docs/zh-CN/remote-control) 客户端的初始化消息上设置该字段，并从您的应用程序读取的初始化消息中省略它。需要 Agent SDK v0.3.234 或更高版本。
 
 `capabilities` 数组命名此 CLI 实现的协议行为，因此您可以进行功能检测而不是比较 `claude_code_version` 字符串。这是一个开放集：忽略您不认识的值，并检查您依赖其行为的特定功能。该字段需要 Claude Code v2.1.205 或更高版本，在早期 CLI 上不存在。
 
@@ -1979,9 +1979,9 @@ type SDKCompactBoundaryMessage = {
   `SDKInformationalMessage`
 </h3>
 
-循环发出的通用文本横幅。携带警告、通知和其他非错误状态行 Claude Code 引发，以及钩子反馈，例如 `UserPromptSubmit` 钩子的阻止原因。
+循环发出的通用文本横幅。携带 Claude Code 引发的警告、通知和其他非错误状态行，以及 hook 反馈，例如 `UserPromptSubmit` hook 的阻止原因。
 
-在 Claude Code v2.1.227 或更高版本上，钩子的 [`systemMessage`](/docs/zh-CN/hooks#json-output) 可以作为此消息到达，每行以钩子的名称为前缀，例如 `PostToolUse:Bash says:`。每个[事件的部分](/docs/zh-CN/hooks#hook-events)在钩子页面上说明输出如何显示。
+在 Claude Code v2.1.227 或更高版本上，hook 的 [`systemMessage`](/docs/zh-CN/hooks#json-output) 可以作为此消息到达，每行以 hook 的名称为前缀，例如 `PostToolUse:Bash says:`。hooks 页面上每个[事件的部分](/docs/zh-CN/hooks#hook-events)说明输出如何显示。
 
 将 `content` 呈现为给定 `level` 的纯文本。
 
@@ -2002,7 +2002,7 @@ type SDKInformationalMessage = {
   `SDKWorkerShuttingDownMessage`
 </h3>
 
-在优雅的工作进程拆卸上发出，以便远程客户端可以显示工作进程退出的原因，而不是等待心跳超时。`reason` 是由主机 CLI 设置的短 snake\_case 字符串，例如 `"host_exit"` 或 `"remote_control_disabled"`。仅在流式传输实时时对此采取行动。恢复的会话重放此消息的过去实例，因此在这种情况下忽略它们。
+在优雅的工作进程拆卸上发出，以便远程客户端可以显示工作进程退出的原因，而不是等待心跳超时。`reason` 是由主机 CLI 设置的短 snake\_case 字符串，例如 `"host_exit"` 或 `"remote_control_disabled"`。仅在实时流式传输时对此采取行动。恢复的会话重放此消息的过去实例，因此在这种情况下忽略它们。
 
 ```typescript theme={null}
 type SDKWorkerShuttingDownMessage = {
@@ -2043,7 +2043,7 @@ type SDKPluginInstallMessage = {
 * **使用 MCP 提示工具**，使用 `permissionPromptToolName` 或 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 标志设置，和默认 `permissionPrompts: 'host'`：Claude Code 根本不发出此事件，甚至不发出它自己决定的规则拒绝。
 * **使用 [`permissionPrompts: 'none'`](#options)**：Claude Code 拒绝会提示的调用，即使也设置了 `canUseTool` 或 MCP 提示工具，此事件也报告这些拒绝以及 Claude Code 自己决定的拒绝。需要 Claude Code v2.1.259 或更高版本。
 
-在每个配置中，此事件跳过在 `PreToolUse` 钩子路径上决定的任何拒绝，无论钩子本身拒绝了调用还是拒绝规则覆盖了钩子的允许或询问决定。该事件也是尽力而为的：偶尔 Claude Code 记录拒绝而不发出此事件，因此[结果消息](#sdkresultmessage)上的 `permission_denials` 是权威记录。
+在每个配置中，此事件跳过在 `PreToolUse` hook 路径上决定的任何拒绝，无论 hook 本身拒绝了调用还是拒绝规则覆盖了 hook 的允许或询问决定。该事件也是尽力而为的：偶尔 Claude Code 记录拒绝而不发出此事件，因此[结果消息](#sdkresultmessage)上的 `permission_denials` 是权威记录。
 
 ```typescript theme={null}
 type SDKPermissionDeniedMessage = {
@@ -2087,7 +2087,7 @@ type SDKPermissionDenial = {
   `SDKContextUsage`
 </h3>
 
-`/context` 报告的结构化形式，作为 `context_usage` 在传递 `/context` 结果的 [`SDKAssistantMessage`](#sdkassistantmessage) 上携带。Agent SDK v0.3.232 及更高版本导出该类型。与 [`SDKControlGetContextUsageResponse`](#sdkcontrolgetcontextusageresponse) 不同，它仅携带呈现使用情况分解所需的数据，不包含 `color` 和 `gridRows` 等显示字段。Claude Code 使用不出现在消息流中的令牌计数 API 请求计算报告；请参阅[这些请求如何处理](#sdkcontrolgetcontextusageresponse)。
+`/context` 报告的结构化形式，作为 `context_usage` 在传递 `/context` 结果的 [`SDKAssistantMessage`](#sdkassistantmessage) 上携带。Agent SDK v0.3.232 及更高版本导出该类型。与 [`SDKControlGetContextUsageResponse`](#sdkcontrolgetcontextusageresponse) 不同，它仅携带呈现使用情况分解所需的数据，不包含 `color` 和 `gridRows` 等显示字段。Claude Code 使用不出现在消息流中的 token 计数 API 请求计算报告；请参阅[这些请求如何处理](#sdkcontrolgetcontextusageresponse)。
 
 ```typescript theme={null}
 type SDKContextUsage = {
@@ -2124,20 +2124,20 @@ type SDKContextUsage = {
 };
 ```
 
-该表列出了 Claude Code 在每个字段中放入的内容。从 `model` 到 `over_limit` 的字段描述整个会话，集合字段将令牌归因于单个项目。
+该表列出了 Claude Code 在每个字段中放入的内容。从 `model` 到 `over_limit` 的字段描述整个会话，集合字段将 token 归因于单个项目。
 
 | 字段 | 类型 | 描述 |
 | - | - | - |
 | `model` | `string` | Claude Code 计算使用情况的主循环的模型，不是子代理的 |
-| `total_tokens` | `number` | Claude Code 对使用中令牌的估计。未限制在窗口，因此当会话超过限制时可以超过 `raw_max_tokens` |
-| `raw_max_tokens` | `number` | 模型的上下文窗口，或较低的[自动压缩窗口](/docs/zh-CN/model-config#context-window-and-auto-compaction)（当适用时），例如您设置的或 Claude Code 应用于某些具有 1M 令牌窗口的模型的 200K 边界。Claude Code 针对此窗口测量 `total_tokens` |
+| `total_tokens` | `number` | Claude Code 对使用中 token 的估计。未限制在窗口，因此当会话超过限制时可以超过 `raw_max_tokens` |
+| `raw_max_tokens` | `number` | 模型的上下文窗口，或较低的[自动压缩窗口](/docs/zh-CN/model-config#context-window-and-auto-compaction)（当适用时），例如您设置的或 Claude Code 应用于某些具有 1M token 窗口的模型的 200K 边界。Claude Code 针对此窗口测量 `total_tokens` |
 | `percentage` | `number` | `total_tokens` 作为 `raw_max_tokens` 的四舍五入百分比，因此当会话超过限制时可以超过 100 |
 | `over_limit` | `object` | 仅当 `total_tokens` 超过 `raw_max_tokens` 时存在。`tokens_over` 是超过的数量，`kind` 说明 Claude Code 如何解决窗口 |
 | `categories` | [`SDKContextUsageCategory`](#sdkcontextusagecategory)`[]` | 使用情况按类别分解的每一行一个条目 |
-| `mcp_tools` | `object[]` | 归因于每个 MCP 工具的令牌，带有其线路名称（例如 `mcp__linear__create_issue`）和其 `server_name` |
-| `memory_files` | `object[]` | 归因于每个加载的内存文件的令牌，带有其 `path` 和源标签（例如 `Project` 或 `User`）在 `type` 中 |
-| `agents` | `object[]` | 归因于每个自定义子代理定义的令牌，带有源标识符，例如 `projectSettings`、`userSettings` 或 `plugin`。内置子代理未列出 |
-| `skills` | `object[]` | 归因于技能列表中每个技能的令牌，带有源标识符，对于插件技能，插件的名称在 `plugin_name` 中。当没有技能贡献令牌时不存在 |
+| `mcp_tools` | `object[]` | 归因于每个 MCP 工具的 token，带有其线路名称（例如 `mcp__linear__create_issue`）和其 `server_name` |
+| `memory_files` | `object[]` | 归因于每个加载的记忆文件的 token，带有其 `path` 和源标签（例如 `Project` 或 `User`）在 `type` 中 |
+| `agents` | `object[]` | 归因于每个自定义子代理定义的 token，带有源标识符，例如 `projectSettings`、`userSettings` 或 `plugin`。内置子代理未列出 |
+| `skills` | `object[]` | 归因于 skill 列表中每个 skill 的 token，带有源标识符，对于插件 skill，插件的名称在 `plugin_name` 中。当没有 skill 贡献 token 时不存在 |
 
 `over_limit.kind` 记录 Claude Code 如何解决窗口，而不是 API 是否接受下一个请求：
 
@@ -2165,15 +2165,15 @@ type SDKContextUsageCategory = {
 | 字段 | 类型 | 描述 |
 | - | - | - |
 | `name` | `string` | 行的显示名称，如 `/context` 打印的那样，例如 `Messages`。按 `kind` 分类行，而不是按名称 |
-| `tokens` | `number` | 行的令牌计数。行可以携带零令牌 |
+| `tokens` | `number` | 行的 token 计数。行可以携带零 token |
 | `kind` | `string` | 行代表什么：`used`、`free`、`buffer` 或 `deferred` |
 
-每个 `kind` 值说明行的令牌是什么：
+每个 `kind` 值说明行的 token 是什么：
 
 * `used`：占据上下文窗口的内容
 * `free`：剩余窗口
 * `buffer`：压缩保留
-* `deferred`：Claude Code 保留在窗口外的工具模式，从使用情况计算中排除，列出以供了解
+* `deferred`：Claude Code 保留在窗口外的工具 schema，从使用情况计算中排除，列出以供了解
 
 <h3 id="sdkmessageorigin">
   `SDKMessageOrigin`
@@ -2207,46 +2207,46 @@ type SDKMessageOrigin =
 
 | `kind` | 含义 |
 | - | - |
-| `human` | 来自最终用户的直接输入。如果您的应用程序将用户输入的内容转发为用户消息，显式将其 `origin` 设置为 `{ kind: "human" }`：Claude Code 将没有 `origin` 的用户消息视为未归因，并检查需要人类输入的提示（例如 [`ultracode` 工作流关键字](/docs/zh-CN/workflows#ask-for-a-workflow-in-your-prompt)）不接受它。在 v2.1.210 之前，Claude Code 将用户消息上缺失的 `origin` 视为人类输入。 |
+| `human` | 来自最终用户的直接输入。如果您的应用程序将用户输入的内容转发为用户消息，显式将其 `origin` 设置为 `{ kind: "human" }`：Claude Code 将没有 `origin` 的用户消息视为未归因，并且需要人类输入的提示词的检查（例如 [`ultracode` 工作流关键字](/docs/zh-CN/workflows#ask-for-a-workflow-in-your-prompt)）不接受它。在 v2.1.210 之前，Claude Code 将用户消息上缺失的 `origin` 视为人类输入。 |
 | `channel` | 在[频道](/docs/zh-CN/channels)上到达的消息。`server` 是源 MCP 服务器名称。 |
-| `peer` | 来自另一个代理的消息：进程内[队友](/docs/zh-CN/agent-teams)或[跨会话对等体](/docs/zh-CN/cross-session-messaging)，您的另一个 Claude Code 会话。请参阅[对等体来源字段](#peer-origin-fields)了解每个字段的语义和信任模型。 |
-| `task-notification` | 为没有新鲜用户提示的传递注入的合成轮，例如完成的后台任务；请参阅 [`SDKTaskNotificationMessage`](#sdktasknotificationmessage) 了解该分支。您的应用程序[声明为计划运行](#declare-a-scheduled-run)的提示也携带此类型。可选的 `subkind` 标记引发通知的原因。请参阅[任务通知子类型](#task-notification-subkinds)。 |
-| `coordinator` | 来自[代理团队](/docs/zh-CN/agent-teams)中的团队协调员的消息。 |
-| `auto-continuation` | 当会话在没有新鲜用户输入的情况下继续时注入的合成轮，例如触发后续提示的命令结果。 |
-| `unclassified` | 无法确定来源的注入轮。当 Claude Code 接收带有 `isSynthetic: true` 的 [`SDKUserMessage`](#sdkusermessage) 并无法将其分类为任何其他 `kind` 时，它在消息到达时设置此类型，并将轮框架化为非用户源而不是将其视为人类输入。您的应用程序不应设置此值。 |
+| `peer` | 来自另一个 Agent 的消息：进程内[队友](/docs/zh-CN/agent-teams)或[跨会话对等体](/docs/zh-CN/cross-session-messaging)，您的另一个 Claude Code 会话。请参阅[对等体来源字段](#peer-origin-fields)了解每个字段的语义和信任模型。 |
+| `task-notification` | 为没有新鲜用户提示词的传递注入的合成轮，例如完成的后台任务；请参阅 [`SDKTaskNotificationMessage`](#sdktasknotificationmessage) 了解该分支。您的应用程序[声明为定时运行](#declare-a-scheduled-run)的提示词也携带此类型。可选的 `subkind` 标记引发通知的原因。请参阅[任务通知子类型](#task-notification-subkinds)。 |
+| `coordinator` | 来自 [agent team](/docs/zh-CN/agent-teams) 中的团队协调员的消息。 |
+| `auto-continuation` | 当会话在没有新鲜用户输入的情况下继续时注入的合成轮，例如触发后续提示词的命令结果。 |
+| `unclassified` | 无法确定来源的注入轮。需要 Claude Code v2.1.223 或更高版本。当 Claude Code 接收带有 `isSynthetic: true` 的 [`SDKUserMessage`](#sdkusermessage) 并无法将其分类为任何其他 `kind` 时，它在消息到达时设置此类型，并将轮作为非用户来源呈现给模型，而不是将其视为人类输入。您的应用程序不应设置此值。 |
 
 <h3 id="task-notification-subkinds">
   任务通知子类型
 </h3>
 
-当 Claude Code 将任务通知传递到会话中时，如果 Anthropic 服务器验证了该通知的来源，它会在通知的 `origin` 上设置 `subkind`。当您的应用程序[自己声明消息为计划运行](#declare-a-scheduled-run)时，它也设置 `subkind`，这需要 TypeScript Agent SDK v0.3.280 或更高版本。`subkind` 需要 Claude Code v2.1.213 或更高版本，它采用两个值之一：
+当 Claude Code 将任务通知传递到会话中时，如果 Anthropic 服务器验证了该通知的来源，它会在通知的 `origin` 上设置 `subkind`。当您的应用程序[自己声明消息为定时运行](#declare-a-scheduled-run)时，它也设置 `subkind`，这需要 TypeScript Agent SDK v0.3.280 或更高版本。`subkind` 需要 Claude Code v2.1.213 或更高版本，它采用两个值之一：
 
-* `scheduled-trigger`：通知是[例程](/docs/zh-CN/routines)的存储提示，因为例程的触发器之一触发而传递：其计划、其 [API 触发器](/docs/zh-CN/routines#add-an-api-trigger)、其 [GitHub 触发器](/docs/zh-CN/routines#add-a-github-trigger) 或**立即运行**。您的应用程序[声明为计划运行](#declare-a-scheduled-run)的提示也携带此值。Claude Code 将这些框架化为会话的分配任务，与[其他任务通知携带的通知](#sdktasknotificationmessage)不同。
-* `peer-send-message`：通知是另一个您的会话使用[云会话](/docs/zh-CN/claude-code-on-the-web)使用的服务器端 `send_message` 工具发送的消息，而不是[跨会话 `SendMessage` 工具](/docs/zh-CN/cross-session-messaging)，并且 Anthropic 服务器验证了两个会话都属于同一私有会话组。需要 Claude Code v2.1.224 或更高版本。服务器未以这种方式验证的 `send_message` 传递没有 `subkind`。
+* `scheduled-trigger`：通知是 [Routine](/docs/zh-CN/routines) 的存储提示词，因为 Routine 的触发器之一触发而传递：其计划、其 [API 触发器](/docs/zh-CN/routines#add-an-api-trigger)、其 [GitHub 触发器](/docs/zh-CN/routines#add-a-github-trigger) 或**立即运行**。您的应用程序[声明为定时运行](#declare-a-scheduled-run)的提示词也携带此值。Claude Code 将这些作为会话的分配任务呈现给模型，附带的通知与[其他任务通知携带的通知](#sdktasknotificationmessage)不同。
+* `peer-send-message`：通知是您的另一个会话使用[云端会话](/docs/zh-CN/claude-code-on-the-web)用来互相发送消息的服务器端 `send_message` 工具发送的消息，而不是[跨会话 `SendMessage` 工具](/docs/zh-CN/cross-session-messaging)，并且 Anthropic 服务器验证了两个会话都属于同一私有会话组。需要 Claude Code v2.1.224 或更高版本。服务器未以这种方式验证的 `send_message` 传递没有 `subkind`。
 
 每个其他任务通知都没有 `subkind`。这包括[PR 活动](/docs/zh-CN/claude-code-on-the-web#how-claude-responds-to-pr-activity)传递到会话和后台事件，例如完成的任务。来自[跨会话 `SendMessage` 工具](/docs/zh-CN/cross-session-messaging)的消息根本不是任务通知：无论它们来自同一机器上的会话还是通过 Anthropic 服务器来自另一台机器，Claude Code 都给它们 `kind: "peer"` 和[对等体来源字段](#peer-origin-fields)。
 
-`fireReason` 说明 `scheduled-trigger` 通知为什么触发，作为短小写令牌，例如 `scheduled`、`manual`、`retry`、`catch_up` 或 `api`。Anthropic 服务器在[例程](/docs/zh-CN/routines)的传递上设置它，您的应用程序在声明计划运行时设置它。当两者都未发送时不存在。需要 TypeScript Agent SDK v0.3.280 或更高版本。
+`fireReason` 说明 `scheduled-trigger` 通知为什么触发，作为简短的小写标记，例如 `scheduled`、`manual`、`retry`、`catch_up` 或 `api`。Anthropic 服务器在 [Routine](/docs/zh-CN/routines) 的传递上设置它，您的应用程序在声明定时运行时设置它。当两者都未发送时不存在。需要 TypeScript Agent SDK v0.3.280 或更高版本。
 
 <h4 id="declare-a-scheduled-run">
-  声明计划运行
+  声明定时运行
 </h4>
 
-如果您的应用程序按自己的计划运行提示，声明每个运行，以便 Claude Code 将轮框架化为计划任务而不是来自用户的实时输入。使用 [`env`](#options) 中设置为 `1` 的 `CLAUDE_CODE_HOST_SCHEDULED_RUN` 启动会话，然后发送运行的 [`SDKUserMessage`](#sdkusermessage)，其中 `origin: { kind: "task-notification", subkind: "scheduled-trigger", fireReason: "scheduled" }` 且没有 `isSynthetic`。Claude Code 忽略在没有该变量启动的进程中的声明。它也在进程的环境携带 [`CLAUDECODE`](/docs/zh-CN/env-vars) 或 `CLAUDE_CODE_CHILD_SESSION` 时忽略它。Claude Code 仅在值为 1 到 32 个小写字母或下划线时保留 `fireReason`。需要 TypeScript Agent SDK v0.3.280 或更高版本。
+如果您的应用程序按自己的计划运行提示词，声明每个运行，以便 Claude Code 将轮作为定时任务而不是来自用户的实时输入呈现给模型。使用 [`env`](#options) 中设置为 `1` 的 `CLAUDE_CODE_HOST_SCHEDULED_RUN` 启动会话，然后发送运行的 [`SDKUserMessage`](#sdkusermessage)，其中 `origin: { kind: "task-notification", subkind: "scheduled-trigger", fireReason: "scheduled" }` 且没有 `isSynthetic`。Claude Code 忽略在没有该变量启动的进程中的声明。它也在进程的环境携带 [`CLAUDECODE`](/docs/zh-CN/env-vars) 或 `CLAUDE_CODE_CHILD_SESSION` 时忽略它。Claude Code 仅在值为 1 到 32 个小写字母或下划线时保留 `fireReason`。需要 TypeScript Agent SDK v0.3.280 或更高版本。
 
 <h3 id="peer-origin-fields">
   对等体来源字段
 </h3>
 
-`peer` 来源标识哪个代理发送了消息：进程内[队友](/docs/zh-CN/agent-teams)使用 `SendMessage` 发送到 `main`，或[跨会话对等体](/docs/zh-CN/cross-session-messaging)，您的另一个 Claude Code 会话。跨会话对等体在 macOS 和 Linux 上需要 Claude Code v2.1.224 或更高版本；请参阅[跨会话消息传递可用性](/docs/zh-CN/cross-session-messaging#availability)了解本机 Windows 要求。跨会话对等体可以在同一机器上运行，或在[您的另一台机器](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)或[云中](/docs/zh-CN/claude-code-on-the-web)运行，当其消息通过远程控制到达时。两种发送者类型填充字段的方式不同：
+`peer` 来源标识哪个 Agent 发送了消息：进程内[队友](/docs/zh-CN/agent-teams)使用 `SendMessage` 发送到 `main`，或[跨会话对等体](/docs/zh-CN/cross-session-messaging)，您的另一个 Claude Code 会话。跨会话对等体在 macOS 和 Linux 上需要 Claude Code v2.1.224 或更高版本；请参阅[跨会话消息传递可用性](/docs/zh-CN/cross-session-messaging#availability)了解本机 Windows 要求。跨会话对等体可以在同一机器上运行，或在其消息通过 Remote Control 到达时，在[您的另一台机器](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)上或[云中](/docs/zh-CN/claude-code-on-the-web)运行。两种发送者类型填充字段的方式不同：
 
 * `from`：队友的名称，或跨会话对等体的发送者地址。对于[单向跨机器消息](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)，发送者没有回复地址，`from` 是 `"unknown"`。该值由发送者创作；`verifiedPeerPid` 是验证的身份。
 * `fromMode`：发送会话的权限类，`bypass` 或 `prompting`，由在您的会话之间中继对等消息的主机声明，例如[桌面应用](/docs/zh-CN/desktop#work-across-sessions)。Claude Code 在接收会话中应用[入站控制](/docs/zh-CN/cross-session-messaging#control-inbound-messages)时读取它。需要 Agent SDK v0.3.234 或更高版本。
 * `senderTaskId`：队友的任务 ID。对于跨会话对等体不存在。
-* `name`：发送者的显示名称，由 Claude Code 规范化：它删除 Unicode 控制、格式、代理和行或段落分隔符代码点，然后修剪结果并将其限制为 64 个代码点，带有省略号。需要 Claude Code v2.1.205 或更高版本。
+* `name`：发送者的显示名称，由 Claude Code 规范化：它删除 Unicode 控制、格式、代理项和行或段落分隔符代码点，然后修剪结果并将其限制为 64 个代码点，带有省略号。需要 Claude Code v2.1.205 或更高版本。
 * `body`：解码的消息体，去除对等体信封，字节精确匹配模型看到的内容。始终存在于队友消息；对于跨会话对等体，仅当轮恰好是由 Claude Code 形成的一个对等体信封时存在。呈现 `name` 和 `body` 而不是重新解析消息文本。需要 Claude Code v2.1.205 或更高版本。
 * `fromSession`：发送者的主机可打开会话 ID，由发送者的主机设置，以便您的 UI 可以链接回发送会话。像 `from` 一样，它是发送者声称的：仅将其用作导航目标，不要将其视为发送者身份的证明。需要 Claude Code v2.1.216 或更高版本。
-* `verifiedPeerPid`：连接到此会话的跨会话消息传递套接字的进程的进程 ID，由内核验证并从连接本身读取，从不从有效负载读取。使用它，而不是 `from`，来标识发送者：`from` 可由任何同用户进程伪造。当 Claude Code 无法验证它时，该字段不存在，例如在 Windows 或非套接字入口上，因此缺失值意味着发送者未验证。对于中继流量，它标识中继而不是消息的作者，进程 ID 是可回收的，因此将其视为来源而不是身份验证令牌。需要 Claude Code v2.1.216 或更高版本。
+* `verifiedPeerPid`：连接到此会话的跨会话消息传递套接字的进程的进程 ID，由内核验证并从连接本身读取，从不从负载读取。使用它，而不是 `from`，来标识发送者：`from` 可由任何同用户进程伪造。当 Claude Code 无法验证它时，该字段不存在，例如在 Windows 或非套接字入口上，因此缺失值意味着发送者未验证。对于中继流量，它标识中继而不是消息的作者，进程 ID 是可回收的，因此将其视为来源而不是身份验证令牌。需要 Claude Code v2.1.216 或更高版本。
 
 <h2 id="hook-types">
   Hook 类型

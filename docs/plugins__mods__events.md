@@ -52,7 +52,7 @@ on('tool.call', async ($, e, next) => {
   重写事件
 </h3>
 
-要更改 Claude Code 作用的内容，例如提示的文本，请使用修改后的事件副本调用 `next`。事件本身是不可变的：它在每个深度都被冻结，分配给字段会抛出错误。此 hook 在发送前修剪每个提示：
+要更改 Claude Code 作用的内容，例如提示词的文本，请使用修改后的事件副本调用 `next`。事件本身是不可变的：它被深度冻结，对字段赋值会抛出错误。此 hook 在发送前修剪每个提示词：
 
 ```javascript theme={null}
 on('prompt.submit', async ($, e, next) => {
@@ -97,83 +97,83 @@ on('tool.call', { tool: /^mcp__github__/ }, hook)
 
 `hook` 为 Bash、Edit 或 Write 调用各运行一次，为名称以 `mcp__github__` 开头的工具调用运行一次。对任何其他工具（如 Read）的调用都不匹配这三个中的任何一个，因此 `hook` 不会为它运行。
 
-事件名称可以是通配符。`'classic.*'` 匹配每个[设置 hook 事件](#hook-the-settings-hook-events)。`'*'` 匹配除[遥测事件](/docs/zh-CN/plugins/mods/reference#telemetry)之外的每个事件，你可以按名称或作为 `'telemetry.*'` 来 hook 这些事件。
+事件名称可以是通配符。`'classic.*'` 匹配每个[设置 hook 事件](#hook-the-settings-hook-events)。`'*'` 匹配除[遥测事件](/docs/zh-CN/plugins/mods/reference#telemetry)之外的每个事件，遥测事件需使用其自身的名称和 `{ to: 'collector' }` 过滤器。
 
 为每个 matcher 注册一次事件。如果你为 `session.start` 调用 `on` 两次而没有 matcher，模块将无法加载，错误为 `on("session.start") is registered twice without a matcher`。将你的 mod 在会话启动时执行的所有操作放在一个 hook 中。
 
 <h2 id="hook-what-claude-is-doing">
-  Hook Claude 正在做的事情
+  对 Claude 正在执行的操作设置 hook
 </h2>
 
-Hook 这些事件以查看或更改工具调用、提示或轮次。对于每个事件以及 hook 可以返回的内容，请参阅[事件参考](/docs/zh-CN/plugins/mods/reference#events)。
+处理这些事件，可以在工具调用、提示词或轮次发生时查看或更改它们。有关每个事件以及 hook 可以返回的内容，请参阅[事件参考](/docs/zh-CN/plugins/mods/reference#events)。
 
 <h3 id="guard-or-change-a-tool-call">
-  保护或更改工具调用
+  拦截或更改工具调用
 </h3>
 
-`tool.call` hook 看到 Claude 即将使用的每个工具，因此它可以拒绝调用、更改其参数或让其通过。`tool.call` 在 Claude Code 即将运行工具时触发，包括子代理进行的调用和对 MCP 工具的调用。`e.tool` 是工具的名称，工具的参数是 `e` 的字段，例如 Bash 的 `e.command`。当你调用 `next(e)` 时，Claude Code 运行权限检查，然后运行工具。
+`tool.call` hook 会看到 Claude 即将使用的每个工具，因此可以拒绝调用、更改其参数或放行。`tool.call` 在 Claude Code 即将运行某个工具时触发，包括子代理发起的调用以及对 MCP 工具的调用。`e.tool` 是工具名称，工具的参数是 `e` 的字段，例如 Bash 的 `e.command`。调用 `next(e)` 时，Claude Code 会先运行权限检查，然后运行该工具。
 
-此 hook 拒绝强制推送的 Bash 命令，并告诉 Claude 原因：
+以下 hook 会拒绝执行强制推送的 Bash 命令，并告诉 Claude 原因：
 
 ```javascript theme={null}
-// matcher 将 hook 限制为 Bash 调用，因此 e.command 是 shell 命令
+// The matcher limits the hook to Bash calls, so e.command is the shell command
 on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
   if (/git push .*--force/.test(e.command)) {
-    // 返回而不调用 next 会回答事件，所以命令永远不会运行
+    // Returning without calling next answers the event, so the command never runs
     return { deny: 'Force pushes are not allowed in this repository. Push to a new branch instead.' }
   }
-  // 每个其他命令都会进行权限检查，然后进行 Bash
+  // Every other command goes on to the permission check and then to Bash
   return next(e)
 })
 ```
 
-当 Claude 尝试 `git push --force` 时，命令不会运行，也不会出现权限提示，因为 hook 永远不会调用 `next`。Claude 将 `deny` 文本读作工具的结果，因此将其写成 Claude 可以采取行动的指令。每个其他 Bash 命令的运行方式与没有 mod 时相同。
+当 Claude 尝试执行 `git push --force` 时，该命令不会运行，也不会出现权限提示，因为该 hook 从未调用 `next`。Claude 会将 `deny` 文本作为工具的结果读取，因此请将其写成 Claude 可以据此采取行动的指令。其他所有 Bash 命令的运行方式与没有该 mod 时相同。
 
-要在工具运行后采取行动，请 `await next(e)`、执行你的工作并返回 `next` 给你的内容。此 hook 记录 Claude 更改的每个 `.mdx` 文件，使用 [`$.ui.log`](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn)，它向转录中添加一条暗线，Claude 不会读取：
+要在工具运行之后执行操作，请 `await next(e)`，完成您的工作，然后返回 `next` 给您的结果。以下 hook 使用 [`$.ui.log`](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn) 记录 Claude 更改的每个 `.mdx` 文件，该方法会在会话记录中添加一行 Claude 不会读取的暗色文本：
 
 ```javascript theme={null}
 on('tool.call', { tool: ['Edit', 'Write'] }, async ($, e, next) => {
-  // 等待权限检查和工具，并保留它们生成的内容
+  // Wait for the permission check and the tool, and keep what they produced
   const result = await next(e)
-  // 被拒绝的调用返回为 { deny }，失败的调用设置了 isError
+  // A refused call comes back as { deny }, and a failed one has isError set
   const changed = !result.deny && !result.isError
   if (changed && e.file_path.endsWith('.mdx')) $.ui.log('Claude changed ' + e.file_path)
-  // 原样返回结果，所以 Claude 读取工具返回的内容
+  // Return the result as it came, so Claude reads what the tool returned
   return result
 })
 ```
 
-Claude 编辑或写入 `.mdx` 文件后，转录中的暗线会命名该文件。对于另一种文件或被拒绝或失败的调用，不会记录任何内容。Claude 对调用的看法不会改变，因为 hook 返回它接收的结果。
+在 Claude 编辑或写入 `.mdx` 文件后，会话记录中会出现一行暗色文本，注明该文件名。对于其他类型的文件，或者被拒绝或失败的调用，不会记录任何内容。Claude 对该调用的认知不会改变，因为该 hook 返回的是它收到的结果。
 
-要更改调用，请将更改的参数传递给 `next`。要重试调用，请再次调用 `next(e)`：看到第一个结果上的 `isError` 的 hook 可以第二次运行工具并返回该结果。要自己回答调用，请返回带有 `result` 字段的对象，例如 `{ result: 'Skipped by my-mod' }`，而不调用 `next`。当你这样做时，不会出现权限提示，工具不会运行，因此你返回的结果是 Claude 了解发生了什么的全部内容。
+要更改调用，请将更改后的参数传给 `next`。要重试调用，请再次调用 `next(e)`：如果 hook 在第一次结果中看到 `isError`，可以再次运行该工具并返回那次的结果。要自行响应调用，请在不调用 `next` 的情况下返回一个带有 `result` 字段的对象，例如 `{ result: 'Skipped by my-mod' }`。这样做时，不会出现权限提示，工具也不会运行，因此您返回的结果就是 Claude 对所发生情况的全部了解。
 
-你的组织的[托管设置](/docs/zh-CN/server-managed-settings)中的 hooks 在任何 mod 的 `tool.call` hook 之前运行，其中一个的块是最终的。
+您组织的[托管设置](/docs/zh-CN/server-managed-settings)中的 hook 会在任何 mod 的 `tool.call` hook 之前运行，并且其中任一 hook 的阻止都是最终决定。
 
 <h4 id="hold-a-tool-call-until-the-user-decides">
-  保持工具调用直到用户决定
+  暂缓工具调用，直到用户做出决定
 </h4>
 
-hook 可以暂停工具调用并在继续之前询问用户该怎么做。`tool.call` hook 可以在调用 `next` 或返回之前 `await`，工具调用保持待处理状态直到那时。要向用户提出问题，请调用 `$.ui.ask`。它在 Claude 用来问你的对话框中的编号列表上方显示你的问题，并解析为用户选择的标签。在你的选项之后，对话框添加一行用于输入不同的答案和一个**聊天此问题**行。
+hook 可以暂停工具调用，并在其继续之前询问用户如何处理。`tool.call` hook 可以在调用 `next` 或返回之前执行 `await`，在此之前工具调用会一直处于挂起状态。要向用户提出问题，请调用 `$.ui.ask`。它会在 Claude 向您提问时使用的对话框中，将您的问题显示在您的选项编号列表上方，并解析为用户选择的标签。在您的选项之后，对话框会添加一行用于输入其他答案，以及一行 **Chat about this**。
 
-此示例中的 `RISKY` 模式匹配 `rm -r`、`rm -rf`、`git reset --hard` 和带有 `--force` 的 `git push`，它会错过其他拼写，例如 `git push -f`。此模块在运行与模式匹配的 Bash 命令之前询问：
+此示例中的 `RISKY` 模式匹配 `rm -r`、`rm -rf`、`git reset --hard` 以及带有 `--force` 的 `git push`，但不匹配其他写法，例如 `git push -f`。此模块会在运行与该模式匹配的 Bash 命令之前进行询问：
 
 ```javascript theme={null}
 const RISKY = /\brm\s+-rf?\b|\bgit\s+reset\s+--hard\b|\bgit\s+push\b.*--force/
 
 export function register(on) {
   on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
-    // 让每个其他命令通过而不提问
+    // Let every other command through without a question
     if (!RISKY.test(e.command)) return next(e)
-    // 从安全答案开始，所以没有人回答的问题会拒绝命令
+    // Start from the safe answer, so a question nobody answers refuses the command
     let answer = 'Refuse'
     try {
-      // 工具调用在这里等待，直到用户选择两个标签之一
+      // The tool call waits here until the user picks one of the two labels
       answer = await $.ui.ask('Run this command? ' + e.command, ['Run it', 'Refuse'])
     } catch {
-      // 用户关闭了问题，或这是一个 claude -p 运行，没有人可以问
+      // The user dismissed the question, or this is a claude -p run with nobody to ask
     }
     if (answer !== 'Run it') {
-      // 回答而不调用 next，所以命令不会运行
+      // Answer without calling next, so the command doesn't run
       return { deny: 'The user declined this command. Ask before trying a different approach.' }
     }
     return next(e)
@@ -181,28 +181,28 @@ export function register(on) {
 }
 ```
 
-当 Claude 尝试诸如 `rm -rf build` 的命令时，问题会出现，命令会等待答案：
+当 Claude 尝试执行诸如 `rm -rf build` 之类的命令时，会出现包含该命令的问题，命令会等待回答：
 
-* **用户选择 Run it**：hook 调用 `next(e)`，通常的权限检查仍然在之后运行
-* **用户选择 Refuse**：命令不会运行，Claude 读取 `deny` 文本
-* **用户输入答案**：`$.ui.ask` 解析为输入的文本。hook 将其与 `Run it` 进行比较，因此任何其他文本都会拒绝命令。
-* **没有人回答**：当用户关闭问题或选择**聊天此问题**时，`$.ui.ask` 会拒绝，在 `claude -p` 运行中也是如此，因此 `catch` 块将答案保留在 `Refuse`
+* **用户选择 Run it**：hook 调用 `next(e)`，之后仍会运行常规的权限检查
+* **用户选择 Refuse**：命令不会运行，Claude 会读取 `deny` 文本
+* **用户输入答案**：`$.ui.ask` 解析为输入的文本。hook 会将其与 `Run it` 比较，因此任何其他文本都会拒绝该命令。
+* **无人回答**：当用户关闭问题或选择 **Chat about this** 时，以及在 `claude -p` 运行中，`$.ui.ask` 会 reject，因此 `catch` 块会将答案保留为 `Refuse`
 
-将等待保持在 mods API 调用（如 `$.ui.ask`）内，因为该时间不计入 hook 的[10 秒时间限制](/docs/zh-CN/plugins/mods/reference#limits)。花在等待你自己的承诺上的时间确实计入。Claude Code 跳过超时的 hook，因此保持的命令会运行。
+请将等待保持在诸如 `$.ui.ask` 之类的 mods API 调用内部，因为这段时间不计入 hook 的[时间限制](/docs/zh-CN/plugins/mods/reference#limits)。等待您自己的 promise 所花费的时间则会计入。Claude Code 会跳过超时的 hook，因此被暂缓的命令将会运行。
 
 <h4 id="approve-or-refuse-a-tool-call-before-the-user-is-asked">
   在询问用户之前批准或拒绝工具调用
 </h4>
 
-要决定某个工具调用是否可以运行，请处理 [`tool.check`](/docs/zh-CN/plugins/mods/reference#tools)，即 Claude Code 做出该决定的事件。它在权限规则和设置 hook 做出决定之后触发，`next(e)` 解析为它们的决定：`allow`、`ask` 或 `deny`。您的 hook 返回该决定或另一个决定。`e.input` 保存工具的参数，例如 Bash 的 `command`。
+要决定某个工具调用是否可以运行，请处理 [`tool.check`](/docs/zh-CN/plugins/mods/reference#tools)，这是 Claude Code 做出该决定的事件。它在权限规则和设置 hook 做出决定之后触发，`next(e)` 会解析为它们的决定：`allow`、`ask` 或 `deny`。您的 hook 返回该决定或另一个决定。`e.input` 保存工具的参数，例如 Bash 的 `command`。
 
-对于固定的命令或路径，请使用[权限规则](/docs/zh-CN/permissions#permission-rule-syntax)，例如 `Bash(npm test)`，无需编写代码。当决定取决于当时的实际情况（例如当前的 Git 分支或另一个 hook 记录的值）时，请处理 `tool.check`。
+对于固定的命令或路径，请使用诸如 `Bash(npm test)` 之类的[权限规则](/docs/zh-CN/permissions#permission-rule-syntax)，无需编写代码。当决定取决于当下的实际情况（例如当前的 Git 分支或另一个 hook 记录的值）时，请处理 `tool.check`。
 
-此 hook 在当前分支为 `main` 时拒绝 `git push`：
+以下 hook 会在当前分支为 `main` 时拒绝 `git push`：
 
 ```javascript theme={null}
 on('tool.check', { tool: 'Bash' }, async ($, e, next) => {
-  // 权限规则和设置 hook 做出的决定：'allow'、'ask' 或 'deny'
+  // What the permission rules and settings hooks decided: 'allow', 'ask', or 'deny'
   const decided = await next(e)
   if (!e.input.command.includes('git push')) return decided
   const branch = await $.process.run(['git', 'branch', '--show-current'])
@@ -211,98 +211,98 @@ on('tool.check', { tool: 'Bash' }, async ($, e, next) => {
 })
 ```
 
-在 `main` 上，即使某条规则允许 `git push`，hook 也会返回 `deny`。在其他分支上以及对于其他命令，调用会得到没有 mod 时同样的决定。
+在 `main` 上，即使有规则允许 `git push`，该 hook 也会返回 `deny`。在其他分支上以及对于其他命令，调用会得到与没有该 mod 时相同的决定。
 
-该 hook 匹配的是命令的文本，因此请将其视为对 Claude 的提醒。要为所有人阻止向 `main` 推送，请在您的 Git 托管平台上保护该分支。
+该 hook 匹配的是命令文本，因此请将其视为对 Claude 的提醒。要为所有人阻止向 `main` 推送，请在您的 Git 托管平台上保护该分支。
 
-hook 可以返回三种决定中的任何一种，因此它也可以批准被托管设置之外的 `PreToolUse` hook 阻止的调用。[使用 hook 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)列出了哪些决定会优先于 mod。
+hook 可以返回 `allow`、`ask` 或 `deny`，因此它也可以批准被托管设置之外的 `PreToolUse` hook 阻止的调用。[使用 hook 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)列出了哪些决定优先于 mod。
 
 <h3 id="rewrite-or-add-to-a-prompt">
-  重写或添加到提示
+  改写或补充提示词
 </h3>
 
-`prompt.submit` hook 在轮次开始之前看到每个提示，因此它可以重写文本或添加到其中。`e.text` 是输入的内容。
+`prompt.submit` hook 会在轮次开始之前看到每个提示词，因此可以改写文本或向其中添加内容。`e.text` 是输入的内容。
 
-| 要执行此操作 | 返回此内容 |
+| 要执行的操作 | 返回的内容 |
 | :- | :- |
-| 重写提示。转录中的消息显示新文本。 | `next({ ...e, text: newText })` |
-| 仅添加 Claude 读取的文本，在提示之后 | `next({ ...e, context: [...(e.context ?? []), extraText] })` |
-| 停止发送提示 | `{ drop: 'the reason' }` |
+| 改写提示词。会话记录中的消息会显示新文本。 | `next({ ...e, text: newText })` |
+| 在提示词之后添加只有 Claude 读取的文本 | `next({ ...e, context: [...(e.context ?? []), extraText] })` |
+| 阻止发送提示词 | `{ drop: 'the reason' }` |
 
-此 hook 在提示提及拉取请求时为 Claude 添加当前分支名称：
+以下 hook 会在提示词提及 Pull Request 时，为 Claude 添加当前分支名称：
 
 ```javascript theme={null}
 on('prompt.submit', async ($, e, next) => {
-  // 原样传递不提及拉取请求的提示
+  // Pass on a prompt that doesn't mention a pull request as it is
   if (!/\bPR\b|pull request/i.test(e.text)) return next(e)
   const git = await $.process.run(['git', 'branch', '--show-current'])
-  // 在 git 存储库外，命令失败，因此没有分支可添加
+  // Outside a git repository the command fails, so there's no branch to add
   if (git.exitCode !== 0) return next(e)
-  // 保留早期 hook 添加的任何上下文，并为 Claude 添加一行
+  // Keep any context an earlier hook added, and add one more line for Claude
   return next({ ...e, context: [...(e.context ?? []), 'Current branch: ' + git.stdout.trim()] })
 })
 ```
 
-当你发送诸如 `open a PR for this change` 的提示时，你的消息在转录中看起来相同，Claude 也会在其后读取诸如 `Current branch: feature/auth` 的行。不提及拉取请求的提示会原样通过，`git` 不会运行。
+当您发送诸如 `open a PR for this change` 之类的提示词时，您的消息在会话记录中看起来不变，而 Claude 还会在其后读取诸如 `Current branch: feature/auth` 的一行。未提及 Pull Request 的提示词会原样通过，且不会运行 `git`。
 
-[其他事件](/docs/zh-CN/plugins/mods/reference#prompts-and-what-claude-reads)涵盖 Claude 读取的其余内容：`prompt.section` 用于系统提示的每个部分，`prompt.context` 用于与第一条消息一起发送的上下文，`skill.prompt` 用于技能的文本。来自这些 hook 的文本在请求之间更改时会[使提示缓存失效](/docs/zh-CN/prompt-caching)。
+[其他事件](/docs/zh-CN/plugins/mods/reference#prompts-and-what-claude-reads)涵盖了 Claude 读取的其余内容：`prompt.section` 用于系统提示词的每个部分，`prompt.context` 用于随第一条消息发送的上下文，`skill.prompt` 用于 skill 的文本。这些 hook 产生的文本如果在请求之间发生变化，会[使提示缓存失效](/docs/zh-CN/prompt-caching)。
 
 <h3 id="follow-a-turn">
   跟踪轮次
 </h3>
 
-轮次是 Claude 为回答一个提示而做的所有事情。Hook `turn.start`、`turn.step` 和 `turn.complete` 来跟踪一个：
+轮次是 Claude 为回应一个提示词所做的全部工作。处理 `turn.start`、`turn.step` 和 `turn.complete` 来跟踪一个轮次：
 
-| 事件 | 何时触发 | hook 可以做什么 |
+| 事件 | 触发时机 | hook 可以执行的操作 |
 | :- | :- | :- |
-| `turn.start` | 轮次开始 | 观察。`e.turnId` 在其他两个事件中标识轮次。 |
-| `turn.step` | Claude Code 即将向模型发送一个请求。具有工具调用的轮次有多个。`e.agentId` 为子代理的请求设置。 | 读取每个请求的令牌使用情况，使用 `next({ ...e, model })` 将其发送到不同的模型，或在不调用模型的情况下回答 |
-| `turn.complete` | 轮次结束，包括用户中断的轮次，其中 `e.isAborted` 为 `true`。`e.answer` 是 Claude 的最终文本，`e.durationMs` 是花费的时间，`e.usage` 是轮次的令牌总数。子代理的轮次使用 `e.agentId` 设置触发它。 | 观察，或返回带有 `text` 字段的对象，例如 `{ text: 'Done in 12 seconds' }`，以在答案下显示一行 |
+| `turn.start` | 轮次开始 | 观察。`e.turnId` 在另外两个事件中标识该轮次。 |
+| `turn.step` | Claude Code 即将向模型发送一个请求。包含工具调用的轮次会有多个请求。子代理的请求会设置 `e.agentId`。 | 读取每个请求的 token 用量、通过 `next({ ...e, model })` 将其发送到不同的模型，或在不调用模型的情况下直接响应 |
+| `turn.complete` | 轮次结束，包括用户中断的轮次，此时 `e.isAborted` 为 `true`。`e.answer` 是 Claude 的最终文本，`e.durationMs` 是所用时间，`e.usage` 是该轮次的 token 总量。子代理的轮次触发该事件时会设置 `e.agentId`。 | 观察，或返回一个带有 `text` 字段的对象（例如 `{ text: 'Done in 12 seconds' }`），以在回答下方显示一行 |
 
-将 `turn.step` hook 写成异步生成器，因为事件流。`yield* next(e)` 在流式传输时转发响应并评估为完成的结果。此 hook 记录每个请求中 Claude API 从[提示缓存](/docs/zh-CN/prompt-caching)提供的数量：
+请将 `turn.step` hook 编写为异步生成器，因为该事件是流式的。`yield* next(e)` 会在响应流式传输时将其转发，并求值为完成后的结果。以下 hook 会记录 Claude API 从[提示缓存](/docs/zh-CN/prompt-caching)中为每个请求提供了多少内容：
 
 ```javascript theme={null}
-// function* 使 hook 成为生成器，可以逐块传递响应
+// function* makes the hook a generator, which can pass the response on piece by piece
 on('turn.step', async function* ($, e, next) {
-  // 发送请求，在每个片段到达时转发它，并保留完成的结果
+  // Send the request, forward each piece as it arrives, and keep the finished result
   const result = yield* next(e)
-  // 跳过不报告令牌计数的结果
+  // Skip a result that reports no token counts
   if (result.usage) {
     $.ui.log('cache read ' + result.usage.cache_read_input_tokens + ' · wrote ' + result.usage.cache_creation_input_tokens)
   }
-  // 原样返回结果，所以轮次照常继续
+  // Return the result unchanged, so the turn continues as usual
   return result
 })
 ```
 
-Claude 的响应流式传输到屏幕，就像没有 mod 时一样。每个请求完成后，转录中的暗线给出从缓存读取的令牌数和写入的令牌数。具有工具调用的轮次有多个请求，因此它添加多行。
+Claude 的回复会像没有该 mod 时一样以流式方式显示在屏幕上。每个请求完成后，会话记录中会出现一行暗色文本，给出从缓存读取的 token 数和写入缓存的 token 数。包含工具调用的轮次会有多个请求，因此会添加多行。
 
-`result.usage` 保存 Claude API 为请求报告的四个令牌计数，加上回答的 `model`：`input_tokens`、`output_tokens`、`cache_read_input_tokens` 和 `cache_creation_input_tokens`。hook 也为子代理的请求运行，因此当你只想要主对话时检查 `e.agentId`。
+`result.usage` 保存 Claude API 为某个请求报告的 token 计数，以及作出回答的 `model`：`input_tokens`、`output_tokens`、`cache_read_input_tokens` 和 `cache_creation_input_tokens`。该 hook 也会针对子代理的请求运行，因此如果您只想处理主对话，请检查 `e.agentId`。
 
 <h3 id="hook-the-settings-hook-events">
-  Hook 设置 hook 事件
+  处理设置 hook 事件
 </h3>
 
-设置 hooks 是你在设置文件中配置的命令、HTTP、提示和代理 hooks。每个[设置 hook 事件](/docs/zh-CN/hooks#hook-events)，例如 `Stop`、`SessionEnd` 或 `PostToolUse`，也是一个名为 `classic.` 后跟设置 hook 事件名称的事件，例如 `classic.Stop`。`e` 是设置 hook 在 stdin 上接收的 JSON，包括 `transcript_path`。
+设置 hook 是您在设置文件中配置的命令、HTTP、提示词和 Agent hook。每个[设置 hook 事件](/docs/zh-CN/hooks#hook-events)（例如 `Stop`、`SessionEnd` 或 `PostToolUse`）同时也是一个名为 `classic.` 后跟该设置 hook 事件名称的事件，例如 `classic.Stop`。`e` 是设置 hook 在 stdin 上接收的 JSON，包括 `transcript_path`。
 
-此 hook 使用 `Stop`（在 Claude 完成响应时触发）来记录会话的转录保存位置：
+以下 hook 使用 `Stop`（在 Claude 完成回复时触发）来记录会话的会话记录保存位置：
 
 ```javascript theme={null}
 on('classic.Stop', async ($, e, next) => {
-  // e 具有设置文件中的 Stop hook 从 stdin 读取的相同字段
+  // e has the same fields a Stop hook in a settings file reads from stdin
   $.ui.log('Transcript saved at ' + e.transcript_path)
-  // 传递事件，所以你的设置文件中的 Stop hooks 仍然运行
+  // Pass the event on, so Stop hooks in your settings files still run
   return next(e)
 })
 ```
 
-每次 Claude 完成响应时，转录中的暗线都会给出转录文件的路径。hook 返回 `next(e)`，因此它观察事件并不改变轮次的结束方式。
+每次 Claude 完成回复时，会话记录中会出现一行暗色文本，给出会话记录文件的路径。该 hook 返回 `next(e)`，因此它只观察该事件，不会改变轮次结束的方式。
 
 <h2 id="run-alongside-other-mods">
   与其他 mod 一起运行
 </h2>
 
-多个 mod 可以 hook 同一事件，其中任何一个都可能失败。如果你的 mod 阻止工具调用，请检查它在链中的位置以及当其 hook 失败时会发生什么。
+多个 mod 可以处理同一事件，其中任何一个都可能失败。如果您的 mod 阻止工具调用，请检查它在链中的位置以及当其 hook 失败时会发生什么。
 
 <h3 id="the-order-mods-run-in">
   mod 运行的顺序
@@ -351,7 +351,7 @@ on('tool.call', { tool: 'Bash' }, guard).catch(async ($, e, next) => {
 })
 ```
 
-当 `guard` 工作时，处理程序永远不会运行。当 `guard` 在 Bash 调用上抛出或超时时，Claude Code 使用相同的事件调用处理程序。处理程序返回 `{ deny }`，所以命令不会运行，Claude 读取末尾带有 `throw` 或 `timeout` 的文本。没有处理程序，Claude Code 会跳过 `guard` 并运行命令。处理程序有[一秒](/docs/zh-CN/plugins/mods/reference#limits)来回答。
+当 `guard` 工作时，处理程序永远不会运行。当 `guard` 在 Bash 调用上抛出或超时时，Claude Code 使用相同的事件调用处理程序。处理程序返回 `{ deny }`，所以命令不会运行，Claude 读取末尾带有 `throw` 或 `timeout` 的文本。没有处理程序，Claude Code 会跳过 `guard` 并运行命令。处理程序自身有更短的[时间限制](/docs/zh-CN/plugins/mods/reference#limits)。
 
 <h2 id="next-steps">
   后续步骤

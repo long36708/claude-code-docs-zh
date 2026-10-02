@@ -100,7 +100,7 @@
 1. 具有可用容量的运行器声称会话并对其持有租约。
 2. 运行器将存储库克隆到其工作目录中并生成子 Claude Code 进程。
 3. 子进程通过 HTTPS 流回事件，而运行器继续轮询；每次轮询刷新租约并充当心跳。
-4. 如果运行器停止轮询约 60 秒，服务器会将会话重新排队给另一个运行器。
+4. 如果运行器停止轮询，其租约会在大约 60 秒后失效，服务器会在几分钟内将会话重新排队给另一个运行器。
 
 运行器给每个轮询请求 10 秒。当请求超时、丢失或获得运行器无法解析的响应时，运行器继续为其活跃会话服务，并在一两秒后重试，而不是等待下一个计划的轮询。例如，一个拦截代理用自己的页面回答轮询会产生运行器无法解析的响应。每次另一个请求以这些方式之一失败时，运行器会将下一次重试前的间隔加倍，最多 20 秒，并在租约即将过期时缩短间隔。
 
@@ -119,8 +119,8 @@
 
 1. 运行器停止接受新工作。
 2. 运行器通过 [`--release-idle-session-min`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 标志使用的相同释放路径释放每个活跃会话，因此当用户发送下一条消息时，会话在新运行器上恢复。运行器何时释放每个会话取决于其状态：
-   * 运行器在会话中途转时立即释放它。
-   * 当转完成并留下后台任务运行时，运行器等待最多 60 秒，然后释放会话，即使它们仍在运行。如果任务已完成但读取其结果的后续转还未运行，运行器保持会话直到该转完成，并等待不超过 [`SELF_HOSTED_RUNNER_BG_RESULT_GRACE_MS`](/docs/zh-CN/self-hosted-environments-reference#environment-variable-only-settings) 以便该转开始。
+   * 对于处于轮次中途的会话，运行器会在该轮次完成后释放它。它首先等待会话的进程向 Anthropic 报告该轮次结束，等待时间不超过 [`SELF_HOSTED_RUNNER_POST_TURN_SETTLE_MS`](/docs/zh-CN/self-hosted-environments-reference#environment-variable-only-settings)。在 v2.1.280 之前，运行器会在轮次完成后立即释放会话。
+   * 当轮次完成并留下后台任务运行时，运行器等待最多 60 秒，然后释放会话，即使它们仍在运行。如果任务已完成但读取其结果的后续轮次还未运行，运行器保持会话直到该轮次完成，并等待不超过 [`SELF_HOSTED_RUNNER_BG_RESULT_GRACE_MS`](/docs/zh-CN/self-hosted-environments-reference#environment-variable-only-settings) 以便该轮次开始。
 3. 运行器在所有会话都被释放后以 0 退出。
 
 超过杀死的转仍然丢失；[关闭时序](/docs/zh-CN/self-hosted-environments-deploy#shutdown-timing)涵盖了调整边距的大小。没有 `--retire-at`，无信号主机杀死与崩溃无法区分：控制平面记录丢失的工作者而不是干净释放，会话重新排队给另一个运行器。

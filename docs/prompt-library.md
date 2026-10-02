@@ -622,7 +622,9 @@ export const PromptLibrary = ({text = {}, labels = {}, tagLabels = {}, phaseLabe
     const m = p.slice(base.length).match(/^\/([a-z]{2}(?:-[A-Z]{2})?)\//);
     const locale = m ? m[1] : 'en';
     return href => {
-      if (!href || href[0] !== '/' || href[1] === '/') return href;
+      if (!href) return undefined;
+      if (href[0] === '#' || href.startsWith('https://')) return href;
+      if (!(/^\/[A-Za-z0-9]/).test(href)) return undefined;
       return base + (href.startsWith('/en/') ? '/' + locale + href.slice(3) : href);
     };
   }, []);
@@ -671,7 +673,11 @@ export const PromptLibrary = ({text = {}, labels = {}, tagLabels = {}, phaseLabe
   const assemble = p => p.prompt.replace(/\{(\w+)\}/g, (_, k) => fillOf(p, k) || p.slots && p.slots[k] || k);
   const preview = p => p.prompt.replace(/\{(\w+)\}/g, (_, k) => p.slots && p.slots[k] || k);
   const bodyText = p => preview(p) + ' ' + p.teaches.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') + ' ' + (p.next || '');
-  const widthFor = s => (s || '').length + 3 + 'ch';
+  const WIDE_RE = /[\u1100-\u115F\u2E80-\uA4CF\uAC00-\uD7A3\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFF60\uFFE0-\uFFE6]/g;
+  const widthFor = s => {
+    const t = typeof s === 'string' ? s : '';
+    return t.length + (t.match(WIDE_RE) || []).length + 3 + 'ch';
+  };
   const ql = q.trim().toLowerCase();
   const toggleTag = k => {
     setStart(false);
@@ -1096,235 +1102,452 @@ export const catLabels = {
 
 export const text = {
   "get-oriented-in-a": {
-    title: "在新存储库中定位",
-    teaches: "描述你想了解的内容，而不是要读哪些文件。Claude 自己探索项目并返回它如何组合在一起的摘要。",
-    next: "运行 `/init` 来设置 `CLAUDE.md`，以便 Claude 在每个会话中记住这一点"
+    title: "快速熟悉新仓库",
+    teaches: "描述您想了解的内容，而不是要读哪些文件。Claude 会自行探索项目，并返回一份关于各部分如何组合在一起的摘要。",
+    next: "运行 `/init` 来设置 `CLAUDE.md`，以便 Claude 在每个会话中记住这些内容",
+    prompt: "给我概述一下这个代码库：架构、关键目录，以及各部分之间如何关联"
   },
   "explain-unfamiliar-code": {
     title: "解释不熟悉的代码",
-    teaches: "命名文件并说出你想要答案的格式。将 HTML 页面交换为图表、项目符号或任何适合你学习方式的内容。",
-    next: "设置输出样式，以便 Claude 始终以你喜欢的格式进行解释"
+    teaches: "指明文件，并说明您希望答案采用的格式。可以把 HTML 页面换成图表、要点列表，或任何适合您学习方式的形式。",
+    next: "设置输出样式，以便 Claude 始终以您喜欢的格式进行解释",
+    prompt: "解释 {path} 的作用以及数据如何在其中流动。将其写成{format}",
+    slots: {
+      path: "src/scheduler/queue.ts",
+      format: "一个带图表的 HTML 页面，然后在我的浏览器中打开它"
+    }
   },
   "find-where-something-happens": {
-    title: "找到某事发生的地方",
-    teaches: "按行为而不是按文件名搜索。即使你不知道文件叫什么或它位于哪个目录，搜索也能工作。"
+    title: "找到某个行为发生的位置",
+    teaches: "按行为而不是按文件名搜索。即使您不知道文件叫什么或位于哪个目录，搜索也同样有效。",
+    prompt: "我们在哪里{behavior}？",
+    slots: {
+      behavior: "验证上传的文件类型"
+    }
   },
   "see-what-depends-on": {
-    title: "在删除前检查什么会破坏",
-    teaches: "在删除任何内容之前询问。调用者列表和下游影响告诉你是在看一行清理还是需要协调的更改。"
+    title: "删除前检查会破坏什么",
+    teaches: "在删除任何内容之前先询问。调用方列表和下游影响会告诉您，这只是一行代码的清理，还是一项需要协调的更改。",
+    prompt: "如果我删除{target}，会破坏什么？",
+    slots: {
+      target: "retryWithBackoff 辅助函数"
+    }
   },
   "trace-how-code-evolved": {
     title: "追踪代码如何演变",
-    teaches: "当问题是为什么而不是什么时，指向提交历史。Claude 读取你使用的任何版本控制的日志和责备，并解释当前实现背后的决策。"
+    teaches: "当问题是“为什么”而不是“是什么”时，请指向提交历史。Claude 会读取您所用版本控制系统的日志和 blame 信息，并解释当前实现背后的决策。",
+    prompt: "查看 {path} 的提交历史，总结它是如何演变的以及原因",
+    slots: {
+      path: "internal/auth/session.go"
+    }
   },
   "scope-a-change-before": {
-    title: "在开始前确定更改的范围",
-    teaches: "在将工作提交到路线图之前调整其大小。文件列表告诉你是在看一个组件还是跨越式更改。"
+    title: "开始前确定更改的范围",
+    teaches: "在将工作列入路线图之前先评估其规模。文件列表会告诉您，这只涉及一个组件，还是一项跨越多个部分的更改。",
+    prompt: "要{change}，我需要修改哪些文件？",
+    slots: {
+      change: "在设置中添加深色模式开关"
+    }
   },
   "ask-the-codebase-a": {
     title: "向代码库提出产品问题",
-    teaches: "说出你的角色，以便答案在正确的级别上。Claude 从源代码解释产品实际做什么，无需你阅读它。",
-    next: "设置输出样式，以便 Claude 始终在此级别上提出答案"
+    teaches: "说明您的角色，以便答案处于合适的深度。Claude 会根据源代码解释产品实际做了什么，您无需亲自阅读代码。",
+    next: "设置输出样式，以便 Claude 始终以这一深度给出回答",
+    prompt: "我是{role}。请带我了解当用户{action}时会发生什么，从 UI 一直到最终结果",
+    slots: {
+      role: "PM",
+      action: "点击导出为 PDF"
+    }
   },
   "plan-a-multi-file": {
-    title: "在触及代码前计划多文件更改",
-    teaches: "添加\"不要编辑\"将探索与更改分开，所以你在任何代码移动前看到方法。要使计划优先成为每个提示词的默认值，按 Shift+Tab 进入[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)。"
+    title: "在改动代码前规划多文件更改",
+    teaches: "加上“暂时不要编辑”可以将探索与更改分开，让您在任何代码变动之前先看到方案。要让每个提示词都默认先做计划，请按 Shift+Tab 进入[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)。",
+    prompt: "规划如何重构{target}以{goal}。列出需要修改的文件，但暂时不要编辑任何内容",
+    slots: {
+      target: "支付模块",
+      goal: "支持多种货币"
+    }
   },
   "draft-a-spec-by": {
-    title: "通过采访起草规范",
-    teaches: "要求被采访而不是自己编写规范。Claude 提出结构化问题，直到需求完成，然后将结果写入文件。",
-    next: "将你的采访问题保存为 `/spec` 技能，以便每个规范都以相同的方式开始"
+    title: "通过访谈起草规范",
+    teaches: "请 Claude 采访您，而不是自己编写规范。Claude 会向您提出结构化问题，直到需求完整为止，然后将结果写入文件。",
+    next: "将您的访谈问题保存为 `/spec` skill，让每份规范都以相同方式开始",
+    prompt: "我想构建{feature}。就实现、UX、边界情况和权衡向我提问，直到所有内容都覆盖到，然后将规范写入 SPEC.md",
+    slots: {
+      feature: "按工作区划分的速率限制"
+    }
   },
   "turn-a-meeting-into": {
-    title: "将会议转变为工单",
-    teaches: "跳过转录步骤。Claude 从非结构化输入中提取行动项，并通过 [MCP](/docs/zh-CN/mcp) 直接将其写入你的跟踪器，所以你审查工单，而不是转录。",
-    next: "将此保存为 `/tickets` 技能"
+    title: "将会议转化为工单",
+    teaches: "省去整理文字稿这一步。Claude 会从非结构化输入中提取行动项，并通过 [MCP](/docs/zh-CN/mcp) 直接写入您的跟踪器，因此您审查的是工单，而不是文字稿。",
+    next: "将此保存为 `/tickets` skill",
+    prompt: "阅读 {input} 并整理出行动项，然后为每一项创建一个包含验收标准的 {tracker} 工单",
+    slots: {
+      input: "@meeting-notes.md",
+      tracker: "Linear"
+    }
   },
   "map-edge-cases-before": {
-    title: "在构建前映射边界情况",
-    teaches: "要求缺少什么，而不是有什么。Claude 列出快乐路径设计倾向于跳过的错误状态、空状态和边界情况。"
+    title: "构建前梳理边界情况",
+    teaches: "询问缺少什么，而不是已有什么。Claude 会列出只考虑理想路径的设计往往会遗漏的错误状态、空状态和边界情况。",
+    prompt: "列出设计中需要覆盖的{feature}的错误状态、空状态和边界情况",
+    slots: {
+      feature: "文件上传流程"
+    }
   },
   "turn-a-mockup-into": {
-    title: "将模型转变为工作原型",
-    teaches: "可点击的原型回答静态模型无法回答的问题。将工作代码交给工程部门，而不是在文档中解释交互。"
+    title: "将设计稿转化为可运行的原型",
+    teaches: "可点击的原型能回答静态设计稿无法回答的问题。把可运行的代码交给工程团队，而不是在文档中解释交互。",
+    prompt: "这是一份设计稿。构建一个可以点击操作的可运行原型，与其中展示的布局和状态保持一致"
   },
   "implement-from-a-screenshot": {
-    title: "从屏幕截图实现并自检",
-    teaches: "这给 Claude 一个验证循环：它呈现、与源图像比较，并迭代，无需你指出每个差距。",
-    next: "使用 `/goal` 让 Claude 继续迭代，直到屏幕截图匹配"
+    title: "根据截图实现并自行检查",
+    teaches: "这为 Claude 提供了一个验证循环：它会渲染结果、与原始图像比较并反复迭代，无需您逐一指出差距。",
+    next: "使用 `/goal` 让 Claude 持续迭代，直到截图一致",
+    prompt: "实现这个设计，然后对结果截图，与原图进行比较，并修复所有差异"
   },
   "follow-an-existing-pattern": {
     title: "遵循现有模式",
-    teaches: "指向你已经喜欢的代码。没有参考，Claude 默认为一般最佳实践。有了参考，它匹配你的代码库实际使用的约定。",
-    next: "要求 Claude 将其遵循的模式写入 `CLAUDE.md`，以便未来会话无需参考即可匹配它"
+    teaches: "指向您已经认可的代码。没有参考时，Claude 会默认采用通用的最佳实践；有了参考，它会匹配您的代码库实际使用的约定。",
+    next: "请 Claude 将其遵循的模式写入 `CLAUDE.md`，以便以后的会话无需参考也能保持一致",
+    prompt: "查看 {example} 的实现方式以理解其模式，然后用相同的方式构建 {new}",
+    slots: {
+      example: "GitHub webhook 处理程序",
+      new: "Stripe webhook 处理程序"
+    }
   },
   "add-a-small-well": {
-    title: "添加一个小的、定义明确的功能",
-    teaches: "说明输入和输出，而不是如何构建它。Claude 找到类似代码的位置并在其旁边添加你的代码。"
+    title: "添加一个小而明确的功能",
+    teaches: "说明输入和输出，而不是如何构建。Claude 会找到类似代码所在的位置，并在旁边添加您的代码。",
+    prompt: "添加一个 {endpoint} 端点，返回{payload}",
+    slots: {
+      endpoint: "/health",
+      payload: "应用版本和运行时长"
+    }
   },
   "build-a-small-internal": {
-    title: "从头开始构建一个小的内部工具",
-    teaches: "你不需要项目、框架或构建步骤。描述工具并要求 Claude 打开它，以便你立即看到它工作。"
+    title: "从零构建一个小型内部工具",
+    teaches: "您不需要项目、框架或构建步骤。描述工具并请 Claude 打开它，即可立即看到它运行。",
+    prompt: "使用 HTML、CSS 和原生 JavaScript 创建一个{tool}，然后在我的浏览器中打开它",
+    slots: {
+      tool: "包含三列的拖放式看板"
+    }
   },
   "work-an-issue-end": {
-    title: "端到端处理问题",
-    teaches: "给出问题编号，而不是摘要。Claude 自己读取完整工单，所以你会忘记提及的需求会通过，它在报告前验证更改。"
+    title: "端到端处理一个 issue",
+    teaches: "给出 issue 编号，而不是摘要。Claude 会自行读取完整工单，因此您可能忘记提及的需求也会被考虑在内，并且它会在汇报前验证更改。",
+    prompt: "阅读 issue #{issue}，实现修复，并运行测试",
+    slots: {
+      issue: "312"
+    }
   },
   "find-and-update-copy": {
-    title: "在代码库中查找和更新副本",
-    teaches: "要求变体并说出要跳过的内容。Claude 找到字面搜索会遗漏的措辞，并保持测试夹具和历史不变，所以你只审查用户实际看到的副本。"
+    title: "在代码库中查找并更新文案",
+    teaches: "要求查找变体，并说明要跳过的内容。Claude 会找出字面搜索会遗漏的措辞，同时不改动测试夹具和历史记录，因此您只需审查用户实际看到的文案。",
+    prompt: "找到所有提到“{copy}”或类似说法的地方，逐一展示其上下文，然后将它们全部更新为“{new}”。不要改动测试和 changelog",
+    slots: {
+      copy: "免费注册",
+      new: "开始免费试用"
+    }
   },
   "draft-from-past-examples": {
-    title: "从过去的例子起草文档",
-    teaches: "指向已完成工作的文件夹，而不是描述你的风格。Claude 从你已经发布的内容学习结构和声音，所以第一稿读起来像你的。",
-    next: "将声音保存为技能，以便每个草稿都从那里开始"
+    title: "根据以往示例起草文档",
+    teaches: "指向存放已完成工作的文件夹，而不是描述您的风格。Claude 会从您已经发布的内容中学习结构和语气，因此初稿读起来就像出自您之手。",
+    next: "将这种语气保存为 skill，让每份草稿都以此为起点",
+    prompt: "阅读 {folder} 中的{examples}以学习其结构和语气，然后为{topic}起草一份新的",
+    slots: {
+      examples: "隐私影响评估",
+      folder: "legal/pia/",
+      topic: "新的分析集成"
+    }
   },
   "write-tests-run-them": {
-    title: "编写测试、运行它们、修复失败",
-    teaches: "一起要求编写、运行和修复，以便 Claude 迭代而无需停止以获取说明。",
-    next: "运行 `/init` 以便 Claude 自动学习你的测试命令"
+    title: "编写测试、运行测试、修复失败",
+    teaches: "同时要求编写、运行和修复，让 Claude 持续迭代，无需停下来等待指示。",
+    next: "运行 `/init`，让 Claude 自动了解您的测试命令",
+    prompt: "为 {path} 编写测试，运行它们，并修复所有失败",
+    slots: {
+      path: "app/parsers/feed.py"
+    }
   },
   "drive-implementation-from-tests": {
-    title: "从测试驱动实现",
-    teaches: "测试驱动开发：测试定义工作何时完成，Claude 迭代实现直到它们通过。"
+    title: "用测试驱动实现",
+    teaches: "测试驱动开发：由测试来定义工作何时完成，Claude 会不断迭代实现，直到测试通过。",
+    prompt: "先为{feature}编写测试，然后实现它，直到测试通过",
+    slots: {
+      feature: "密码重置流程"
+    }
   },
   "fill-gaps-from-a": {
-    title: "从覆盖率报告填补空白",
-    teaches: "指向覆盖率报告而不是猜测什么是未测试的。Claude 读取实际数字并为最需要的文件编写测试。",
-    next: "将此设置为 `/goal`，以便 Claude 继续编写测试，直到覆盖率达到目标"
+    title: "根据覆盖率报告填补空白",
+    teaches: "指向覆盖率报告，而不是猜测哪些部分未被测试。Claude 会读取实际数据，并为最需要测试的文件编写测试。",
+    next: "将此设置为 `/goal`，让 Claude 持续编写测试，直到达到覆盖率目标",
+    prompt: "阅读 {report}，为覆盖率最低的文件添加测试，直到每个文件都超过 {target}%",
+    slots: {
+      report: "coverage/coverage-summary.json",
+      target: "80"
+    }
   },
   "port-code-between-languages": {
     title: "将代码移植到另一种语言",
-    teaches: "说出要保留的内容，而不仅仅是目标语言。命名必须保持相同的 API 或行为给 Claude 一个合同来检查端口。"
+    teaches: "说明需要保留的内容，而不仅仅是目标语言。指明必须保持不变的 API 或行为，相当于给 Claude 一份契约，用来检验移植结果。",
+    prompt: "将{source}移植到 {target}，保持相同的{keep}",
+    slots: {
+      source: "这个 Python 模块",
+      target: "Rust",
+      keep: "公共 API 和测试行为"
+    }
   },
   "generate-docs-for-code": {
-    title: "为未记录的代码生成文档",
-    teaches: "命名范围和格式。Claude 找到缺少的内容并匹配文件中已有的注释风格，所以新文档读起来像其余部分。"
+    title: "为缺少文档的代码生成文档",
+    teaches: "指明范围和格式。Claude 会找出缺失的内容，并匹配文件中已有的注释风格，让新文档与其余部分保持一致。",
+    prompt: "找出没有 {format} 注释的{scope}并添加注释，与文件中已有的风格保持一致",
+    slots: {
+      scope: "src/auth/ 中的公共函数",
+      format: "JSDoc"
+    }
   },
   "migrate-a-pattern-across": {
-    title: "在代码库中迁移模式",
-    teaches: "描述旧模式和新模式。要求 Claude 首先识别每个地方意味着调用站点在响应中列出，所以你可以检查没有遗漏。对于跨许多文件的迁移，运行 [/batch](/docs/zh-CN/commands)。Claude 将工作分成单位供你批准，然后后台子代理进行更改。"
+    title: "在整个代码库中迁移模式",
+    teaches: "描述旧模式和新模式。要求 Claude 先找出每一处需要修改的地方，这样调用位置会列在回复中，方便您检查是否有遗漏。对于涉及大量文件的迁移，请运行 [/batch](/docs/zh-CN/commands)。Claude 会将工作拆分为多个单元供您批准，然后由后台子代理进行更改。",
+    prompt: "将所有内容从{from}迁移到{to}：先找出每一处需要修改的地方，然后进行修改",
+    slots: {
+      from: "旧的日志 API",
+      to: "结构化日志记录器"
+    }
   },
   "optimize-against-a-measurable": {
-    title: "针对可测量目标进行优化",
-    teaches: "说明指标和目标给 Claude 一个明确的完成定义。",
-    next: "将此设置为 `/goal`，以便 Claude 继续测量和迭代，直到达到数字"
+    title: "针对可量化目标进行优化",
+    teaches: "说明指标和目标，能为 Claude 提供明确的完成标准。",
+    next: "将此设置为 `/goal`，让 Claude 持续测量和迭代，直到达到目标数值",
+    prompt: "优化{target}，将{metric}从 {current} 降低到 {goal} 以下",
+    slots: {
+      target: "搜索查询",
+      metric: "p95 延迟",
+      current: "2s",
+      goal: "500ms"
+    }
   },
   "fix-a-precise-visual": {
-    title: "修复精确的视觉错误",
-    teaches: "精确的视觉反馈得到精确的修复。说明确切的元素、测量和视口。",
-    next: "添加预览工具，以便 Claude 自己截图并验证修复"
+    title: "修复精确的视觉问题",
+    teaches: "精确的视觉反馈才能换来精确的修复。请说明具体的元素、尺寸和视口。",
+    next: "添加预览工具，让 Claude 自行截图并验证修复",
+    prompt: "在{viewport}上，{element}超出{container} {amount}。请修复。",
+    slots: {
+      element: "登录按钮",
+      amount: "20px",
+      container: "卡片边框",
+      viewport: "移动端"
+    }
   },
   "review-your-changes-before": {
-    title: "在提交前审查你的更改",
-    teaches: "在问题仍然便宜时捕获它们。Claude 完整读取更改的文件，而不仅仅是差异行，所以它发现快速自审会遗漏的问题。",
-    next: "运行 `/code-review` 以在一个命令中进行相同的检查"
+    title: "提交前审查您的更改",
+    teaches: "趁问题修复成本还低时发现它们。Claude 会完整读取更改过的文件，而不仅仅是 diff 行，因此能发现快速自查时容易遗漏的问题。",
+    next: "运行 `/code-review`，一条命令完成同样的检查",
+    prompt: "审查我尚未提交的更改，在我提交前标出任何看起来有风险的地方"
   },
   "review-a-pull-request": {
-    title: "审查拉取请求",
-    teaches: "Claude 在整个代码库的背景下审查，而不仅仅是差异。它读取更改的代码和它调用的内容，所以它捕获仅差异审查会遗漏的问题。",
-    next: "为每个 PR 打开代码审查"
+    title: "审查 Pull Request",
+    teaches: "Claude 审查时会结合整个代码库的上下文，而不仅仅是 diff。它会读取更改的代码及其调用的内容，因此能发现只看 diff 的审查会遗漏的问题。",
+    next: "运行 `/code-review <pr#>` 一条命令完成，或为每个 PR 启用 Code Review",
+    prompt: "审查 PR #{pr}，总结更改内容，然后列出任何疑虑",
+    slots: {
+      pr: "247"
+    }
   },
   "review-infrastructure-changes-before": {
-    title: "在应用前审查基础设施更改",
-    teaches: "计划输出密集且难以扫描。粘贴它会得到一个关于实际将要更改的内容的纯文本摘要，然后再应用它。"
+    title: "应用前审查基础设施更改",
+    teaches: "plan 输出内容密集，难以快速浏览。将其粘贴进来，即可在应用之前获得一份通俗易懂的摘要，了解实际将发生哪些更改。",
+    prompt: "这是我的 Terraform plan 输出。它会做什么？其中有没有会导致问题的内容？"
   },
   "run-a-security-review": {
     title: "使用子代理运行安全审查",
-    teaches: "[子代理](/docs/zh-CN/sub-agents)在其自己的上下文窗口中运行审计并报告回摘要，所以长安全审查不会填满你的主会话。内置的通用子代理无需额外设置即可处理此问题。",
-    next: "设置一个专用的安全审查子代理，你的整个团队都可以使用"
+    teaches: "[子代理](/docs/zh-CN/sub-agents)会在自己的上下文窗口中运行审计并汇报摘要，因此冗长的安全审查不会占满您的主会话。内置的通用子代理无需额外设置即可处理此任务。",
+    next: "设置一个专用的安全审查子代理，供整个团队使用",
+    prompt: "使用子代理审查 {path} 中的安全问题，并报告其发现",
+    slots: {
+      path: "src/api/"
+    }
   },
   "review-content-before-sending": {
-    title: "在正式审查前捕获问题",
-    teaches: "在人类花时间之前获得第一遍。命名你想检查的关注点，以便审查是有针对性的，然后修复它找到的内容并发送更清洁的草稿。",
-    next: "将你的审查清单捕获为你的整个团队可以运行的技能"
+    title: "在正式审查前发现问题",
+    teaches: "在他人投入时间之前先过一遍。指明您希望检查的关注点，让审查更有针对性，然后修复发现的问题，再发送一份更完善的草稿。",
+    next: "将您的审查清单保存为整个团队都能运行的 skill",
+    prompt: "审查 {file} 中的{concerns}，并列出在提交给{reviewer}之前需要修复的内容",
+    slots: {
+      file: "launch-post.md",
+      concerns: "无依据的说法、缺失的出处标注以及品牌规范问题",
+      reviewer: "法务"
+    }
   },
   "course-correct-a-wrong": {
-    title: "纠正错误的方法",
-    teaches: "命名 Claude 遗漏的约束，而不仅仅是它是错误的。具体的原因给 Claude 一个具体的约束来满足重试，而不是再次猜测。",
-    next: "按 `Esc` 两次打开倒带菜单并恢复代码和对话，以便重试从干净开始"
+    title: "纠正错误的方向",
+    teaches: "指出 Claude 遗漏的约束，而不只是说它错了。具体的原因能给 Claude 一个在重试时需要满足的明确约束，而不是再次猜测。",
+    next: "按两次 `Esc` 打开回退菜单，恢复代码和对话，让重试从干净的状态开始",
+    prompt: "这不对：{feedback}。换一种方法试试",
+    slots: {
+      feedback: "函数签名需要保持向后兼容"
+    }
   },
   "narrow-the-scope-of": {
     title: "缩小更改的范围",
-    teaches: "当方向正确但更改过于宽泛时，要求 Claude 保留其中一部分而不是倒带所有内容。说明的边界使小修复不会变成重构。"
+    teaches: "当方向正确但更改过于宽泛时，请 Claude 保留其中一部分，而不是全部回退。明确的边界能避免一个小修复演变成一次重构。",
+    prompt: "改动太多了。只保留对{scope}的更改，撤销其他编辑",
+    slots: {
+      scope: "src/forms/ 中的验证逻辑"
+    }
   },
   "turn-a-correction-into": {
-    title: "将更正转变为规则",
-    teaches: "聊天中的更正不与你的团队共享。项目的 [CLAUDE.md](/docs/zh-CN/memory) 中的规则在你提交后共享，Claude 在每个会话开始时读取它。",
-    next: "打开 `/memory` 来审查 Claude 写了什么"
+    title: "将纠正转化为规则",
+    teaches: "在聊天中的纠正不会与团队共享。而项目 [CLAUDE.md](/docs/zh-CN/memory) 中的规则在您提交后即可共享，Claude 会在每个会话开始时读取它。",
+    next: "打开 `/memory` 查看 Claude 写入的内容",
+    prompt: "反复出现{mistake}的问题。请在 CLAUDE.md 中添加一条规则，避免再次发生",
+    slots: {
+      mistake: "在本项目使用具名导出的情况下使用默认导出"
+    }
   },
   "resolve-merge-conflicts": {
     title: "解决合并冲突",
-    teaches: "说出你想要的状态，而不是要保留哪些标记。要求推理使合并可审查，而不是黑盒。"
+    teaches: "说明您想要的最终状态，而不是要保留哪些标记。要求说明理由，能让合并结果可审查，而不是一个黑盒。",
+    prompt: "解决此分支中的合并冲突，并说明从每一方各保留了哪些内容"
   },
   "commit-with-a-generated": {
-    title: "使用生成的消息提交",
-    teaches: "让 Claude 从差异中推导消息。它匹配你的存储库的现有提交风格。"
+    title: "使用生成的提交信息进行提交",
+    teaches: "让 Claude 根据 diff 生成提交信息。它会匹配您仓库现有的提交风格。",
+    prompt: "提交这些更改，并附上一条总结我所做工作的提交信息"
   },
   "open-a-pull-request": {
-    title: "从工单打开拉取请求",
-    teaches: "跳过跟踪器、编辑器和 GitHub 之间的上下文切换。一个提示词读取规范、进行更改并打开 PR。"
+    title: "根据工单创建 Pull Request",
+    teaches: "省去在跟踪器、编辑器和 GitHub 之间来回切换。一个提示词即可读取需求、完成更改并创建 PR。",
+    prompt: "找到关于{topic}的 {tracker} 工单，并创建一个实现它的 PR",
+    slots: {
+      tracker: "Linear",
+      topic: "登录超时"
+    }
   },
   "draft-release-notes-from": {
-    title: "从 git 历史起草发布说明",
-    teaches: "给出两个参考点和你想要的结构。Claude 读取它们之间的提交日志并起草你可以编辑的更改日志。",
-    next: "将此保存为 `/changelog` 技能"
+    title: "根据 git 历史起草发布说明",
+    teaches: "给出两个参考点以及您想要的结构。Claude 会读取两者之间的提交日志，并起草一份可供您编辑的更新日志。",
+    next: "将此保存为 `/changelog` skill",
+    prompt: "比较 {from} 和 {to}，按功能、修复和破坏性变更分组起草发布说明",
+    slots: {
+      from: "v2.3.0",
+      to: "v2.4.0"
+    }
   },
   "write-a-ci-workflow": {
     title: "编写 CI 工作流",
-    teaches: "描述它应该何时运行以及它应该做什么；YAML 为你生成，与你的项目的构建和测试命令匹配。"
+    teaches: "描述它应在何时运行以及应做什么；系统会为您生成 YAML，并与项目的构建和测试命令相匹配。",
+    prompt: "编写一个 GitHub Actions 工作流，在每次推送到 {branch} 时{steps}",
+    slots: {
+      steps: "运行测试并部署到预发布环境",
+      branch: "main"
+    }
   },
   "find-and-fix-a": {
     title: "找到并修复失败的测试",
-    teaches: "描述症状；你不需要知道哪个文件被破坏。Claude 运行测试以查看失败，将其追踪到源中，并修复它。"
+    teaches: "描述症状即可；您无需知道是哪个文件出了问题。Claude 会运行测试查看失败情况，追踪到源代码中，并进行修复。",
+    prompt: "{test} 测试失败了，找出原因并修复",
+    slots: {
+      test: "UserAuth"
+    }
   },
   "investigate-a-reported-error": {
     title: "调查报告的错误",
-    teaches: "描述症状和位置；Claude 读取相关代码路径并追踪可能的原因。如果你有堆栈跟踪或日志，请粘贴它们。",
-    next: "在你的运行手册中放置一个深层链接，用此提示词预填打开 Claude"
+    teaches: "描述症状和位置；Claude 会读取相关代码路径并追踪可能的原因。如果您有堆栈跟踪或日志，请一并粘贴。",
+    next: "在您的运行手册中放置一个深层链接，打开 Claude 时自动预填此提示词",
+    prompt: "用户在 {where} 上遇到了{symptom}。请调查并告诉我发生了什么",
+    slots: {
+      symptom: "500 错误",
+      where: "/api/settings"
+    }
   },
   "fix-a-build-error": {
-    title: "在根处修复构建错误",
-    teaches: "要求根本原因和验证可防止表面级补丁抑制错误而不修复它。"
+    title: "从根源修复构建错误",
+    teaches: "要求修复根本原因并进行验证，可以避免只是压制错误而未真正修复的表面补丁。",
+    prompt: "这是一个构建错误。修复根本原因并验证构建成功"
   },
   "investigate-a-production-incident": {
     title: "调查生产事件",
-    teaches: "列出要关联的证据来源，而不是要采取的步骤。Claude 一起读取日志、git 历史和配置以缩小原因。",
-    next: "通过 MCP 连接 Sentry 或你的日志存储"
+    teaches: "列出需要关联分析的证据来源，而不是要采取的步骤。Claude 会综合读取日志、git 历史和配置，以缩小原因范围。",
+    next: "通过 MCP 连接 Sentry 或您的日志存储",
+    prompt: "{symptom}。检查日志、最近的部署和配置更改，然后告诉我最可能的原因",
+    slots: {
+      symptom: "结账端点从一小时前开始返回 500"
+    }
   },
   "query-logs-in-plain": {
-    title: "用纯英文查询日志",
-    teaches: "问问题而不是编写 SQL。Claude 构建查询，针对你连接的日志运行它，并显示查询和结果，以便你可以检查运行了什么。"
+    title: "用自然语言查询日志",
+    teaches: "直接提出问题，而不是编写 SQL。Claude 会构建查询、在您连接的日志上运行，并同时展示查询语句和结果，方便您核对实际运行的内容。",
+    prompt: "显示{scope}在{timeframe}内的所有{events}。编写查询、运行它，并告诉我哪些地方值得注意",
+    slots: {
+      events: "登录失败",
+      scope: "认证服务",
+      timeframe: "过去 24 小时"
+    }
   },
   "diagnose-from-a-console": {
-    title: "从控制台屏幕截图诊断",
-    teaches: "云控制台向你显示问题，但不显示修复它的命令。Claude 读取屏幕截图并将仪表板转换为要运行的 kubectl、gcloud 或 aws 命令。"
+    title: "根据控制台截图进行诊断",
+    teaches: "云控制台会向您展示问题，但不会给出修复命令。Claude 会读取截图，并将仪表板内容转换为需要运行的 kubectl、gcloud 或 aws 命令。",
+    prompt: "这是{console}的截图。请带我分析{resource}为什么失败，并给出修复它的确切命令",
+    slots: {
+      console: "GCP Kubernetes 仪表板",
+      resource: "这个 pod"
+    }
   },
   "analyze-a-data-file": {
     title: "分析数据文件",
-    teaches: "一次性问题不需要一次性脚本。指向项目文件夹中的文件，Claude 直接读取它，找到模式，并将输出写入你要求的位置。",
-    next: "通过 MCP 连接数据源，而不是导出文件"
+    teaches: "一次性的问题不需要一次性的脚本。指向项目文件夹中的文件，Claude 会直接读取它、找出规律，并将输出写到您指定的位置。",
+    next: "通过 MCP 连接数据源，而不是导出文件",
+    prompt: "读取 {file}，总结关键规律，并将结果写入{output}",
+    slots: {
+      file: "@reports/q1-signups.csv",
+      output: "一个带图表的 HTML 页面，然后在我的浏览器中打开它"
+    }
   },
   "generate-variations-from-performance": {
-    title: "从性能数据生成变体",
-    teaches: "在开始时说明约束，以便生成保持在限制内。Claude 读取指标，选择要替换的内容，并生成适合的替代方案。",
-    next: "通过 MCP 连接广告平台，而不是导出文件"
+    title: "根据效果数据生成变体",
+    teaches: "在一开始就说明约束，让生成内容不超出限制。Claude 会读取指标，挑选需要替换的内容，并生成符合要求的替代方案。",
+    next: "通过 MCP 连接广告平台，而不是导出文件",
+    prompt: "读取 {file}，找出表现不佳的{items}，并生成 {n} 个不超过 {limit} 个字符的新变体",
+    slots: {
+      file: "@ads-performance.csv",
+      items: "标题",
+      n: "20",
+      limit: "90"
+    }
   },
   "turn-a-recurring-task": {
-    title: "将重复任务转变为技能",
-    teaches: "命名步骤一次；将其重用为命令。Claude 编写任何团队成员都可以运行的 [技能](/docs/zh-CN/skills)。"
+    title: "将重复任务转化为 skill",
+    teaches: "只需说明一次步骤，即可作为命令反复使用。Claude 会编写一个团队中任何人都能运行的 [skill](/docs/zh-CN/skills)。",
+    prompt: "为此项目创建一个 /{name} skill，用于{steps}",
+    slots: {
+      name: "ship",
+      steps: "运行 linter 和测试，然后起草提交信息"
+    }
   },
   "add-a-hook-for": {
-    title: "为重复行为添加钩子",
-    teaches: "钩子使行为自动化，而不是你必须记住要求的东西。描述触发器和操作，Claude 编写 [钩子](/docs/zh-CN/hooks) 配置。"
+    title: "为重复行为添加 hook",
+    teaches: "hook 能让某个行为自动发生，而不必每次都记得提出要求。描述触发条件和操作，Claude 就会编写 [hook](/docs/zh-CN/hooks) 配置。",
+    prompt: "编写一个 hook，在每次{event}后{action}",
+    slots: {
+      action: "运行 prettier",
+      event: "编辑 .ts 或 .tsx 文件"
+    }
   },
   "connect-a-tool-with": {
     title: "使用 MCP 连接工具",
-    teaches: "连接源一次，而不是每个会话粘贴数据。在 [MCP](/docs/zh-CN/mcp) 设置后，当你询问它时，Claude 直接从工具读取。"
+    teaches: "一次性连接数据源，而不是每个会话都粘贴数据。完成 [MCP](/docs/zh-CN/mcp) 设置后，当您询问相关内容时，Claude 会直接从该工具读取数据。",
+    prompt: "设置 {server} MCP 服务器，以便直接读取我的{data}",
+    slots: {
+      server: "Sentry",
+      data: "错误报告"
+    }
   },
   "capture-what-to-remember": {
-    title: "捕获下次要记住的内容",
-    teaches: "在你忘记之前询问。Claude 知道它在这个会话中必须弄清楚什么，并提议 [CLAUDE.md](/docs/zh-CN/memory) 条目，以便下一个会话以该上下文开始。"
+    title: "记录下次需要记住的内容",
+    teaches: "趁还没忘记时询问。Claude 知道它在本次会话中需要摸索出哪些内容，并会建议添加到 [CLAUDE.md](/docs/zh-CN/memory) 的条目，让下一个会话从这些上下文开始。",
+    prompt: "总结我们在本次会话中做了什么，并建议向 CLAUDE.md 添加哪些内容"
   }
 };
 

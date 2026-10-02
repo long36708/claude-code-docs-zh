@@ -81,7 +81,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 `marketplace.json` 的顶级 `plugins` 数组中的每个对象命名一个插件并说明从哪里获取它。`name` 和 `source` 是必需的。
 
-条目也接受每个 [`plugin.json` 字段](/docs/zh-CN/plugins/manifest-reference)，如 `description`、`version`、`author`、`commands` 和 `hooks`。有关这些字段何时适用，请参阅 [条目如何与 plugin.json 结合](#entry-and-plugin-json)。
+除 [目录列表字段](/docs/zh-CN/plugins/manifest-reference#directory-listing-fields) 外，条目也接受每个 [`plugin.json` 字段](/docs/zh-CN/plugins/manifest-reference)，如 `description`、`version`、`author`、`commands` 和 `hooks`。有关这些字段何时适用，请参阅 [条目如何与 plugin.json 结合](#entry-and-plugin-json)。
 
 该表列出条目自己的字段和清单字段，其含义在条目中改变。
 
@@ -94,13 +94,13 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | `category` | string | 用于组织目录的自由格式类别 |
 | `tags` | array of strings | 用于搜索的自由格式标签 |
 | `strict` | boolean | 默认 `true`。`plugin.json` 是否是插件组件的权威来源。请参阅 [严格模式](#strict-mode) |
-| `relevance` | object | 告诉 Claude Code 何时建议插件的信号。请参阅 [为你的组织推荐插件](/docs/zh-CN/plugins/relevance) |
+| `relevance` | object | 告诉 Claude Code 何时建议插件的信号。请参阅 [为您的组织推荐插件](/docs/zh-CN/plugins/relevance) |
 | `dependencies` | array | 必须为此插件启用的插件。每个项是 `"name"`、`"name@marketplace"` 或对象。请参阅 [插件依赖项](/docs/zh-CN/plugins/dependencies) |
 | `defaultEnabled` | boolean | 默认 `true`。当用户未在 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 中设置时，插件是否启动时启用。条目值优先于 `plugin.json` |
 | `displayName` | string | 在 UI 中显示的人类可读名称。当条目和插件的 `plugin.json` 都未设置时，用户看到插件的 `name` |
-| `metadata` | object | 用于你自己字段的自由格式对象。Claude Code 不读取它。需要 Claude Code v2.1.222 或更高版本 |
-| `headers` | object | Claude Code 在下载此条目的 [archive](#archive-plugin-source) 时发送的 HTTP 标头。此处设置的标头替换 marketplace 源的 [`headers`](#fields-by-type) 中同名的标头。需要 Claude Code v2.1.238 或更高版本 |
-| `headersHelper` | string | 打印此条目的 archive 下载标头的命令，作为一个 JSON 对象，用于过期的凭证。条目还必须设置 [`"strict": false`](#strict-mode)。需要 Claude Code v2.1.238 或更高版本。请参阅 [验证 archive 下载](/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads) |
+| `metadata` | object | 用于您自己字段的自由格式对象。Claude Code 不读取它。需要 Claude Code v2.1.222 或更高版本 |
+| `headers` | object | Claude Code 在下载此条目的 [archive](#archive-plugin-source) 时发送的 HTTP 标头。此处设置的标头替换市场源的 [`headers`](#fields-by-type) 中同名的标头。需要 Claude Code v2.1.238 或更高版本 |
+| `headersHelper` | string | 打印此条目的 archive 下载标头的命令，作为一个 JSON 对象，用于会过期的凭据。条目还必须设置 [`"strict": false`](#strict-mode)。需要 Claude Code v2.1.238 或更高版本。请参阅 [验证 archive 下载](/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads) |
 
 <h3 id="entry-and-plugin-json">
   条目如何与 plugin.json 结合
@@ -115,7 +115,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
   条目中的 Hooks
 </h4>
 
-将条目 `hooks` 写成内联对象，将 hook 事件名称映射到匹配器数组。如果你写文件路径或数组，`claude plugin validate` 会通过。这些 hooks 永远不会运行，Claude Code 为插件报告 `not yet supported in a marketplace entry` 错误。将基于文件的 hooks 放在插件自己的 [`hooks/hooks.json`](/docs/zh-CN/plugins/components) 或 `plugin.json` 中。
+将条目 `hooks` 写成内联对象，将 hook 事件名称映射到匹配器数组。如果您写文件路径或数组，`claude plugin validate` 会通过。这些 hook 永远不会运行，Claude Code 为插件报告 `not yet supported in a marketplace entry` 错误。将基于文件的 hook 放在插件自己的 [`hooks/hooks.json`](/docs/zh-CN/plugins/components) 或 `plugin.json` 中。
 
 <h4 id="display-fields">
   显示字段
@@ -123,10 +123,10 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 条目和插件自己的 `plugin.json` 都可以设置显示字段 `displayName`、`description`、`author`、`homepage`、`repository`、`license` 和 `keywords`。用户在插件列表和详情中看到这些值，在安装前后：
 
-* 对于你在条目上设置的字段，用户看到条目的值，即使 `plugin.json` 设置了不同的值。
+* 对于您在条目上设置的字段，用户看到条目的值，即使 `plugin.json` 设置了不同的值。
 * 对于条目未设置的字段，用户看到 `plugin.json` 值。
 
-在安装前，Claude Code 只能为具有 [相对路径源](#relative-path-plugin-source) 的条目读取 `plugin.json`，其插件文件在 marketplace 内。对于具有任何其他源类型的条目，用户在安装插件之前只看到条目自己的字段。
+在安装前，Claude Code 只能为具有 [相对路径源](#relative-path-plugin-source) 的条目读取 `plugin.json`，其插件文件在市场内。对于具有任何其他源类型的条目，用户在安装插件之前只看到条目自己的字段。
 
 <h3 id="strict-mode">
   严格模式
@@ -154,7 +154,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | 相对路径 | 字符串本身 | marketplace 内的一个目录，从 marketplace 根目录解析。必须以 `./` 开头，除非你在 [`metadata.pluginRoot` 下写一个裸名](#relative-path-plugin-source)。`"."` 本身表示根目录 |
 | `github` | `repo`, `ref`, `sha` | GitHub 仓库，格式为 `owner/repo` |
 | `url` | `url`, `ref`, `sha` | 任何 git 仓库的 URL |
-| `git-subdir` | `url`, `path`, `ref`, `sha` | git 仓库的一个子目录，使用稀疏部分克隆获取 |
+| `git-subdir` | `url`, `path`, `ref`, `sha` | git 仓库的一个子目录，使用稀疏检出获取 |
 | `npm` | `package`, `version`, `registry` | npm registry 包或 tarball 链接，使用您的 npm 客户端获取并解包，不运行安装脚本 |
 | `archive` | `url`, `sha256` | HTTPS 上的 Zip 存档。需要 Claude Code v2.1.224 或更高版本 |
 | `command` | `command`, `timeout`, `mode` | 由 Claude Code 在用户机器上运行的命令打印的目录。需要 Claude Code v2.1.229 或更高版本 |
@@ -239,7 +239,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
   git-subdir plugin source
 </h3>
 
-`url` 接受完整的 git URL 或 GitHub `owner/repo` 简写。`path` 是保存插件的子目录，Claude Code 仅下载该子目录。
+`url` 接受完整的 git URL 或 GitHub `owner/repo` 简写。`path` 是保存插件的子目录，Claude Code 仅检出该子目录。通过 `https` 或 SSH URL 时，Claude Code 会向服务器请求部分克隆，因此从支持部分克隆的主机获取时，大型 monorepo 中的插件无需下载仓库的其余部分即可安装。
 
 ```json theme={null}
 {

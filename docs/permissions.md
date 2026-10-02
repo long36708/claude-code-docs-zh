@@ -244,7 +244,7 @@ Deny 和 ask 规则在任何子命令匹配它们时适用，包括嵌套在子 
 
 当 `&&` 或 `||` 后面没有任何内容时，例如在 `npm test &&` 中，Claude Code 将命令视为无法解析，不会将其分割为子命令以进行 allow 规则匹配，因此像 `Bash(npm *)` 这样的规则不会批准它。
 
-当您使用"是，不再询问"批准复合命令时，Claude Code 会为需要批准的每个子命令保存一个单独的规则，而不是为完整的复合字符串保存单个规则。例如，批准 `git status && npm test` 会为 `npm test` 保存一个规则，因此将来的 `npm test` 调用被识别，无论 `&&` 前面是什么。诸如 `cd` 进入子目录之类的子命令会为该路径生成自己的 Read 规则。单个复合命令最多可能保存 5 个规则。
+当您使用"是，不再询问"批准复合命令时，Claude Code 会为需要批准的每个子命令保存一个单独的规则，而不是为完整的复合字符串保存单个规则。例如，批准 `git status && npm test` 会为 `npm test` 保存一个规则，因此将来的 `npm test` 调用被识别，无论 `&&` 前面是什么。诸如 `cd` 进入工作目录之外的目录之类的子命令会为该路径生成自己的 Read 规则。单个复合命令最多可能保存 5 个规则。
 
 <h4 id="process-wrappers">
   包装器
@@ -280,7 +280,7 @@ Bash 规则匹配 Claude 编写的命令文本，在 Claude Code 分割[复合�
   只读命令
 </h4>
 
-Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下无需权限提示即可运行它们，除了由 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 限制的路径。该集合包括 `ls`、`cat`、`echo`、`pwd`、`head`、`tail`、`grep`、`find`、`wc`、`which`、`diff`、`stat`、`du`、`cd` 和 `git` 的只读形式。该集合不可配置；要对其中一个命令要求提示，请为其添加 `ask` 或 `deny` 规则。在自动模式下，这些命令也可以等待分类器的审查；请参阅[分类器如何评估操作](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions)。
+Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下无需权限提示即可运行它们，但 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 会改变工作目录之外路径的行为。该集合包括 `ls`、`cat`、`echo`、`pwd`、`head`、`tail`、`grep`、`find`、`wc`、`which`、`diff`、`stat`、`du`、`cd` 和 `git` 的只读形式。该集合不可配置；要对其中一个命令要求提示，请为其添加 `ask` 或 `deny` 规则。在自动模式下，这些命令也可以等待分类器的审查；请参阅[分类器如何评估操作](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions)。
 
 像 `ls > out.txt` 这样的重定向会在目标上添加检查。请参阅[重定向](#redirections)。
 
@@ -292,6 +292,7 @@ Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下�
 * **`docker` 指向另一个守护程序**：当命令携带选择不同守护程序的标志时，`docker` 的只读形式提示，如 `-H`、`--context` 或 Podman 的 `--url` 和 `--connection`。
 * **`file` 带有路径打开标志**：当 `file` 传递 `-m`/`--magic-file` 或 `-f`/`--files-from` 时，`file` 提示，因为这些标志使 `file` 打开标志值中命名的路径。
 * **Windows 上的网络路径**：其参数包括网络 (UNC) 路径的命令，如 `\\server\share\file`，提示是因为访问网络路径可能会将您的 Windows 凭据发送到它命名的主机。同样的检查适用于[PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)命令。
+* **写入特殊 shell 变量**：设置、取消设置或遍历某些特殊 shell 变量（如 `PATH` 或 `IFS`）的命令会提示，即使命令的其余部分是只读的。
 * **分析无法解析的命令**：当 Claude Code 无法完全解析命令时，它会要求批准而不是将命令视为只读。超过 10,000 个字符的命令总是提示，因为它们超过了分析解析的内容。
 
 进入工作目录内或[其他目录](#working-directories)内的路径的 `cd` 也是只读的，像 `cd packages/api && ls` 这样的复合命令在每个部分都符合条件时无需提示即可运行。即使每个部分都是只读的，这些组合也会提示：
@@ -310,7 +311,7 @@ Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下�
   为了更可靠的 URL 过滤，请考虑：
 
   * **限制 Bash 网络工具**：使用 deny 规则阻止 `curl`、`wget` 和类似命令，然后对允许的域使用带有 `WebFetch(domain:github.com)` 权限的 WebFetch 工具。Deny 规则不匹配按路径调用的同一程序或在 `sh -c` 内部调用的程序，因此当限制必须成立时，将其与[沙箱网络允许列表](/docs/zh-CN/sandboxing#network-isolation)配对；请参阅[Bash 规则不匹配的内容](#bash-rule-limits)
-  * **使用 PreToolUse hooks**：实现一个 hook 来验证 Bash 命令中的 URL 并阻止不允许的域
+  * **使用 PreToolUse hook**：实现一个 hook 来验证 Bash 命令中的 URL 并阻止不允许的域
   * **添加 CLAUDE.md 指导**：在 `CLAUDE.md` 中描述您允许的 curl 模式。这会影响 Claude 尝试的内容，但不会强制执行边界，因此请将其与上述选项之一配对
 
   请注意，仅使用 WebFetch 不会阻止网络访问。如果允许 Bash，Claude 仍然可以使用 `curl`、`wget` 或其他工具来访问任何 URL。
@@ -357,9 +358,9 @@ Claude Code 解析 PowerShell AST 并独立检查复合命令中的每个命令�
   Read 和 Edit
 </h3>
 
-要阻止 Claude 的文件工具读取文件或目录，请为其路径添加 `Read` deny 规则，如 `Read(./.env)` 或 `Read(./secrets/**)`；[排除敏感文件](/docs/zh-CN/settings-reference#exclude-sensitive-files)有一个粘贴就用的示例。
+要阻止 Claude 的文件工具读取文件或目录，请为其路径添加 `Read` deny 规则，如 `Read(./.env)` 或 `Read(./secrets/**)`；[排除敏感文件](/docs/zh-CN/settings-reference#exclude-sensitive-files)有一个粘贴就用的示例。如果您的项目有 `.claudeignore` 文件，它不会产生任何效果，因此请将其条目移到 `Read` deny 规则中。
 
-`Edit` 规则适用于所有编辑文件的内置工具。Claude 尽力将 `Read` 规则应用于所有读取文件的内置工具，如 Grep 和 Glob，以及您提示中的 `@file` 提及，以及连接的 [IDE](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server) 与 Claude 共享的选择和打开文件上下文。
+`Edit` 规则适用于所有编辑文件的内置工具。Claude 尽力将 `Read` 规则应用于所有读取文件的内置工具，如 Grep 和 Glob，以及您提示词中的 `@file` 提及，以及连接的 [IDE](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server) 与 Claude 共享的选择和打开文件上下文。
 
 `Read` deny 规则也会阻止同一路径上的 [Edit 和 Write 工具](/docs/zh-CN/errors#file-is-covered-by-a-read-deny-rule)，包括在那里创建新文件。NotebookEdit 不被覆盖，因此为任何工具都不能更改的路径添加 `Edit` deny 规则。检查需要 Claude Code v2.1.208 或更高版本进行编辑，以及 v2.1.228 或更高版本进行写入。
 
@@ -394,7 +395,7 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 
 您通过 `/permissions` 添加的规则遵循您保存它的设置文件的行。
 
-本地设置规则锚定在会话的[主工作目录](#working-directories)，而不是 Claude Code 在 v2.1.211 及更高版本中[存储文件](#permission-system)的存储库根目录。在从存储库根目录启动的会话中，两个目录相同；在[worktree](/docs/zh-CN/worktrees)会话中，像 `Edit(/src/**)` 这样的共享规则匹配该 worktree 自己的 `src/` 目录。
+本地设置规则锚定在会话的[主工作目录](#working-directories)，而不是 Claude Code 在 v2.1.211 及更高版本中[存储文件](#permission-system)的仓库根目录。在从仓库根目录启动的会话中，两个目录相同；在[worktree](/docs/zh-CN/worktrees)会话中，像 `Edit(/src/**)` 这样的共享规则匹配该 worktree 自己的 `src/` 目录。
 
 像 `Read(/secrets/**)` 这样的 deny 规则在用户设置中阻止 `~/.claude/secrets/**`，而不是您项目中的 `secrets` 目录。要在用户设置中编写适用于每个项目内部的规则，请改用 `//` 绝对路径或 `~/` 主目录相对路径。
 
@@ -463,7 +464,7 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
   符号链接
 </h4>
 
-当 Claude 访问的文件路径通过符号链接时，权限检查涵盖两个路径：Claude 请求的路径和它解析到的文件。这适用于 macOS、Linux 和 Windows 上的符号链接，以及 Windows 上的目录连接。
+当 Claude 请求的文件路径通过符号链接时，权限检查涵盖两个路径：Claude 请求的路径和它解析到的文件。这适用于 macOS、Linux 和 Windows 上的符号链接，以及 Windows 上的目录连接。
 
 <h5 id="how-rules-match-a-symlinked-path">
   规则如何匹配符号链接路径
@@ -471,7 +472,7 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 
 Allow 和 deny 规则对请求的路径和它解析到的文件的处理方式不同：
 
-* **Allow 规则**：仅在请求的路径和它解析到的文件都匹配时适用。允许目录内的符号链接指向其外部仍然会提示您。
+* **Allow 规则**：仅在请求的路径和它解析到的文件都匹配时适用。通过允许目录内指向其外部的符号链接进行的读取不匹配该规则。
 * **Deny 规则**：当请求的路径或它解析到的文件匹配时适用。指向被拒绝文件的符号链接本身被拒绝。例如，使用 `Read(./project/**)` 允许和 `Read(~/.ssh/**)` 拒绝，`./project/key` 处的符号链接指向 `~/.ssh/id_rsa` 被阻止：目标未通过 allow 规则，并匹配 deny 规则。
 
 在 macOS 和 Linux 上，通过带有 `//`、`~/` 或 `/` 模式的符号链接目录编写的 deny 或 ask 规则也适用于该目录的真实位置。例如，在 macOS 上，其中 `/etc` 解析为 `/private/etc`，`Read(//etc/**)` 也阻止 `/private/etc/hosts`。在 v2.1.268 之前，通过符号链接目录编写的 deny 或 ask 规则不适用于其真实位置给出的路径。
@@ -509,7 +510,7 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 
 在前导 `*.` 或裸 `*` 以外的任何位置，通配符仅匹配两个点之间的文本。`WebFetch(domain:example.*)` 匹配 `example.org`，其中 `*` 变成 `org`，但不匹配 `example.evil.com`，其中 `*` 必须变成 `evil.com` 并跨越一个点。这防止尾部通配符匹配攻击者可以注册的域。
 
-WebFetch 规则中的通配符需要 Claude Code v2.1.172 或更高版本来匹配获取。
+`WebFetch` 规则中的通配符需要 Claude Code v2.1.172 或更高版本来匹配获取。
 
 <h4 id="allow-or-deny-every-fetch">
   允许或拒绝每次获取
@@ -524,9 +525,9 @@ WebFetch 规则中的通配符需要 Claude Code v2.1.172 或更高版本来匹�
 | `WebFetch` | Claude 无需提示您即可获取。不改变沙箱命令可以到达的主机。 | Claude Code 移除 `WebFetch` 工具，因此 Claude 根本无法获取。不改变沙箱命令可以到达的主机。 |
 | `WebFetch(domain:*)` | Claude 无需提示您即可获取，沙箱命令可以到达任何主机。 | Claude Code 保留工具并拒绝每次获取，沙箱命令无法到达任何主机。 |
 
-两种形式也在[工件](/docs/zh-CN/artifacts)的读取上有所不同，即 Artifact 工具在 claude.ai 上发布的页面。裸 `WebFetch` deny 或 ask 规则不适用于这些读取。覆盖 `claude.ai` 或 `*.claudeusercontent.com` 内容主机的 `domain:` 规则，如 `WebFetch(domain:claude.ai)` 或 `WebFetch(domain:*)`，拒绝每次读取或在读取前提示。[`Artifact` 规则](/docs/zh-CN/artifacts#disable-artifacts)也是如此。
+两种形式也在 [Artifact](/docs/zh-CN/artifacts) 的读取上有所不同，即 Artifact 工具在 claude.ai 上发布的页面。裸 `WebFetch` deny 或 ask 规则不适用于这些读取。覆盖 `claude.ai` 或 `*.claudeusercontent.com` 内容主机的 `domain:` 规则，如 `WebFetch(domain:claude.ai)` 或 `WebFetch(domain:*)`，拒绝每次读取或在读取前提示。[`Artifact` 规则](/docs/zh-CN/artifacts#disable-artifacts)也是如此。
 
-当规则阻止读取时，拒绝命名规则。在 v2.1.268 之前，裸 `WebFetch` deny 规则阻止每次工件读取，裸 ask 规则在每次读取前提示。
+当规则阻止读取时，拒绝命名规则。在 v2.1.268 之前，裸 `WebFetch` deny 规则阻止每次 Artifact 读取，裸 ask 规则在每次读取前提示。
 
 要让 Claude 自由获取同时保持沙箱允许列表不变，请使用裸形式。此 `settings.json` 这样做：
 
@@ -557,7 +558,7 @@ MCP 规则使用在 Claude Code 中配置的服务器名称，可选地后跟该
 在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，Claude 通过 Cowork 的 `mcp__workspace__bash` 工具而不是内置 `Bash` 工具运行 shell 命令，Cowork 同样为 web 获取提供 `mcp__workspace__web_fetch`。Claude Code 也将命名整个 `Bash` 或 `WebFetch` 工具的 deny 规则应用于这些 Cowork 工具，因此托管的 `Bash` deny 规则阻止 Claude 在 Cowork 中运行 shell 命令。当 Claude Code 阻止此类调用时，消息命名 Cowork 工具：`Permission to use mcp__workspace__bash has been denied.` Allow 规则不会转移：Claude Code 从不将 `Bash` allow 规则应用于 `mcp__workspace__bash`。
 
 <h3 id="agent-subagents">
-  Agent（subagents）
+  Agent（子代理）
 </h3>
 
 使用 `Agent(AgentName)` 规则来控制 Claude 可以使用哪些[子代理](/docs/zh-CN/sub-agents)：
@@ -566,7 +567,7 @@ MCP 规则使用在 Claude Code 中配置的服务器名称，可选地后跟该
 * `Agent(Plan)` 匹配 Plan 子代理
 * `Agent(my-custom-agent)` 匹配名为 `my-custom-agent` 的自定义子代理
 
-将这些规则添加到您的设置中的 `deny` 数组，或使用 `--disallowedTools` CLI 标志来禁用特定代理。要禁用 Explore 代理：
+将这些规则添加到您的设置中的 `deny` 数组，或使用 `--disallowedTools` CLI 标志来禁用特定 Agent。要禁用 Explore Agent：
 
 ```json theme={null}
 {
@@ -592,7 +593,7 @@ MCP 规则使用在 Claude Code 中配置的服务器名称，可选地后跟该
 | - | - | - |
 | `Cd(~/code/*)` | `~/code/app` | `~/code/app/src`、`~/code` |
 | `Cd(~/code/**)` | `~/code` 和其下的任何目录 | `~/code` 外的目录 |
-| `Cd(**/node_modules)` | 任何深度的任何 `node_modules` 目录 | `node_modules/pkg` |
+| `Cd(**/node_modules)` | 当前目录下任何深度的任何 `node_modules` 目录 | `node_modules/pkg` |
 
 <h2 id="extend-permissions-with-hooks">
   使用 hooks 扩展权限
@@ -602,7 +603,7 @@ MCP 规则使用在 Claude Code 中配置的服务器名称，可选地后跟该
 
 PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask 规则，无论 PreToolUse hook 返回什么：匹配的 deny 规则会阻止调用，匹配的 ask 规则即使在 hook 返回 `"allow"` 或 `"ask"` 时仍然会提示。这保留了[管理权限](#manage-permissions)中描述的 deny 优先级，包括在托管设置中设置的 deny 规则。
 
-该优先级涵盖设置文件中的 hooks 和插件的 `hooks/hooks.json` 中的 hooks。您安装的[模块](/docs/zh-CN/plugins/mods/overview)如果 hooks `tool.check` 会在规则和 `PreToolUse` hooks 已经决定之后回答，其答案可以替代它们的答案：
+该优先级涵盖设置文件中的 hooks 和插件的 `hooks/hooks.json` 中的 hooks。您安装的处理 `tool.check` 的[模块](/docs/zh-CN/plugins/mods/overview)会在规则和 `PreToolUse` hooks 已经决定之后回答，其答案可以替代它们的答案：
 
 * **Ask 规则**：模块可以批准 ask 规则会提示的调用
 * **来自 `PreToolUse` hook 的阻止**：模块可以批准调用，除非 hook 在托管设置中

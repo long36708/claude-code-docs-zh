@@ -70,6 +70,7 @@ Claude Code 在以下情况下拒绝消息：
 
 * 消息 [超过大小限制](#limitations)。Claude Code 在发送会话中拒绝它，在它离开之前。
 * 对这台机器上的会话的快速突发已达到 [该会话的收件箱接受的内容](#limitations)。Claude Code 拒绝向该会话发送进一步的消息。
+* 这台机器之外的某个会话被[列为无法接收跨会话消息](#message-sessions-on-other-machines)。Claude Code 会在发送会话中、消息离开这台机器之前拒绝它。
 * 这台机器上的回复目标未通过安全检查，例如符号链接目标。[拒绝发送跨会话消息](/docs/zh-CN/errors#refusing-to-send-a-cross-session-message) 列出了这些检查。
 
 接收会话根据其自己的 [入站控制](#control-inbound-messages) 检查每条到达的消息，检查以三种结果之一结束：
@@ -160,7 +161,10 @@ Claude 自己找到消息的目标，所以你不需要在要求它发送之前�
 
 启动与你另一台机器上的会话的对话需要 Claude Code v2.1.225 或更高版本和一个 [出现在列表中](#see-which-sessions-claude-can-reach) 的目标。
 
-你可以向显示为 [列表](#see-which-sessions-claude-can-reach) 中 `offline` 的会话发送消息，其远程控制连接已断开的会话。发送通过，但消息仅在该会话的机器重新连接后到达。
+会话在[列表](#see-which-sessions-claude-can-reach)中的行可能显示某种状况，这会影响 Claude 向该会话发送消息时的结果：
+
+* **`offline`**：该会话的 Remote Control 连接已断开。消息可以发出，但仅在该会话的机器重新连接后才会到达。
+* **`can't receive cross-session messages (off in that session)`**：该会话中的消息功能[不可用](#availability)，或其 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 值为 `refuse`。Claude Code 会在消息离开这台机器之前拒绝发往该会话的消息。Claude 的 `SendMessage` 调用返回的结果以 `Not sent` 开头并说明原因。在该会话中解决问题后，之后的列表将不再显示此状况，Claude 即可向该会话发送消息。
 
 容器内的会话和主机上的会话无法相互到达。同一容器内的两个会话仍然可以相互发送消息，包括在 [自托管运行器](/docs/zh-CN/self-hosted-environments) 上。WSL 2 内的会话和同一计算机上的本机 Windows 会话也无法相互到达。
 
@@ -337,13 +341,14 @@ Claude Code 为启用跨会话消息传递的每个会话绑定收件箱套接�
 要检查会话，输入 `/list-agents`，也可用作 `/peers`。结果将没有该功能的会话与更窄的东西阻止消息的会话分开，如缺少 `SendMessage` 工具或拒绝的发送：
 
 * **`/list-agents` 无法识别**：会话没有跨会话消息传递。通过上面的要求工作，从 `claude --version` 开始获取版本要求。
-* **`/list-agents` 有效但发送未到达**：消息传递启用，更窄的东西适用：
+* **`/list-agents` 有效但发送未到达**：消息传递已启用，适用的是范围更窄的原因：
   * **拒绝规则**：[权限拒绝规则](#turn-off-cross-session-messaging)删除 `SendMessage` 和 `ListAgents` 工具。
   * **入站控制**：[接收会话的入站控制](#control-inbound-messages)可以保留或删除您发送给它的内容。
-  * **云会话缺失**：云会话仅在此会话连接到[远程控制](/docs/zh-CN/remote-control)时出现。
-  * **其他机器会话缺失**：您另一台机器上的会话仅在它使用[远程控制](/docs/zh-CN/remote-control)运行且此会话也连接时出现。
-  * **其他机器会话 `offline`**：向列为 `offline` 的会话发送消息通过，但[仅在该会话的机器重新连接后到达](#message-sessions-on-other-machines)。
-  * **较旧的云或其他机器会话缺失**：Claude Code 首先读取这些会话列表最新的并在有限数量的页面后停止，因此 Claude 无法按名称向超过它们的会话发送消息。
+  * **云端会话缺失**：云端会话仅在此会话连接到 [Remote Control](/docs/zh-CN/remote-control) 时出现。
+  * **其他机器会话缺失**：您另一台机器上的会话仅在它使用 [Remote Control](/docs/zh-CN/remote-control) 运行且此会话也已连接时出现。
+  * **其他机器会话 `offline`**：向列为 `offline` 的会话发送的消息会通过，但[仅在该会话的机器重新连接后到达](#message-sessions-on-other-machines)。
+  * **云端或其他机器会话 `can't receive cross-session messages`**：向列有此状态的会话发送的消息[不会离开此机器](#message-sessions-on-other-machines)，并且 `SendMessage` 下的结果以 `Not sent` 开头。
+  * **较旧的云端或其他机器会话缺失**：Claude Code 按从新到旧的顺序读取这些会话列表，并在有限数量的页面后停止，因此 Claude 无法按名称向超出这些页面的会话发送消息。
 
 在具有消息传递的会话中，`/status` 也显示 `Peer address` 行，带有会话自己的收件箱地址，或 `unavailable` 和原因，当 Claude Code [无法设置收件箱](#the-sessions-inbox-socket)时。
 

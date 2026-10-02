@@ -394,7 +394,7 @@ Shell 模式：
 * 在空提示上按 `Escape`、`Backspace` 或 `Ctrl+U` 退出
 * 将以 `!` 开头的文本粘贴到空提示中会自动进入 shell 模式，与输入的 `!` 行为匹配
 
-除非你的会话是[严格沙箱模式](/docs/zh-CN/sandboxing#the-unsandboxed-retry-escape-hatch)下列出的会话之一，即使你已启用沙箱，你在 shell 模式中输入的命令也会在[沙箱](/docs/zh-CN/sandboxing)外运行，因为沙箱适用于 Claude 运行的命令。
+除非您的会话是[严格沙箱模式](/docs/zh-CN/sandboxing#turn-off-the-retry-with-strict-sandbox-mode)下列出的会话之一，即使您已启用沙箱隔离，您在 shell 模式中输入的命令也会在[沙箱](/docs/zh-CN/sandboxing)外运行，因为沙箱适用于 Claude 运行的命令。
 
 一旦命令输出出现在记录中，Claude 会自动响应，因此你可以运行 `! npm test` 并获得失败的解释，无需第二个提示。响应成本与发送普通提示相同。要恢复之前的行为，其中输出被添加到上下文而不响应，请在 `settings.json` 中将 [`respondToBashCommands`](/docs/zh-CN/settings-reference#respondtobashcommands) 设置为 `false`。在 v2.1.186 之前，shell 模式始终将输出添加到上下文而不响应。
 
@@ -737,16 +737,19 @@ Claude 从对话中已有的内容回答附加问题：你的消息、它的回�
 
 当 claude.ai [使用限制](/docs/zh-CN/errors#youve-hit-your-session-limit) 在任务中途停止 Claude 时，Claude Code 会在打开的会话中等待，并在限制重置后自动继续该任务。在使用 claude.ai 订阅登录的交互式会话中，自动继续功能默认处于启用状态。需要 Claude Code v2.1.234 或更高版本。
 
-Claude Code 等待时，会话底部的一行显示何时继续：
+Claude Code 等待时，会话底部的几行会显示您的限制何时重置以及 Claude 何时继续：
 
 ```text theme={null}
-Usage limit reached · continuing automatically at 3:45pm · esc to cancel
+Usage limit reached · limit resets 3:45pm
+Continuing automatically at 3:45pm · esc to cancel
 ```
+
+这两行在这些文字之后都可能带有更多内容，例如第一行中的帮助链接，或第二行中的 `/usage-credits to continue now`。当等待自动开始时，对话中也会记录一行 `Usage limit reached · continuing automatically at 3:45pm · esc to cancel`。
 
 保持会话打开。接下来发生的情况取决于等待如何结束：
 
-* **在重置时**：该行显示 `continuing shortly`，然后显示 `Usage limit reset · continuing automatically`，Claude Code 向 Claude 发送一个固定提示以从停止的地方继续任务。它不会重新发送您的最后一条消息。
-* **计算机睡眠后**：如果睡眠超过约 30 分钟，并且限制在睡眠期间重置，该行显示 `Your usage limit has reset · press enter to continue`。按 `Enter` 继续。睡眠时间较短后，Claude Code 会自动继续。
+* **在重置时**：第二行变为 `Continuing shortly · esc to cancel`。然后对话中出现 `Usage limit reset · continuing automatically`，Claude Code 提示 Claude 从停止的地方继续任务。它不会重新发送您的最后一条消息。
+* **计算机睡眠后**：如果睡眠超过约 30 分钟，并且限制在睡眠期间重置，第一行显示 `Your usage limit has reset`，第二行显示 `Press enter to continue`。按 `Enter` 继续。如果睡眠时间较短，或睡眠在重置之前结束，Claude Code 会自动继续。
 * **提前**：当您使用 `/usage-credits` 完成添加 [使用额度](/docs/zh-CN/costs#add-usage-credits-to-your-subscription)、在 `/upgrade` 后重新登录或在等待期间使用 `/model` 切换模型时，Claude Code 会检查使用情况是否再次可用，如果可用则立即继续。它不会在您在浏览器中自行进行的升级或购买后进行检查。在 [`opusplan`](/docs/zh-CN/model-config#opusplan-model-setting) 和其他在不同模型上运行计划模式的模型设置下，Claude Code 会等待重置。
 
 继续的任务像任何其他轮次一样运行。Claude Code 仍然照常要求 [权限](/docs/zh-CN/permissions)，因此任务可能在您离开时在提示处停止。如果再次达到限制，Claude Code 最多会自动重新启动等待两次，然后停止并显示 `Automatic continue stopped after repeated usage-limit hits · /rate-limit-options to try again`。
@@ -755,13 +758,13 @@ Usage limit reached · continuing automatically at 3:45pm · esc to cancel
   取消等待
 </h3>
 
-在空提示处按 `Esc`，或在显示该行时按 `Ctrl+C`，或运行 [`/rate-limit-options`](/docs/zh-CN/commands#all-commands) 并选择 **Don't continue automatically**。Claude Code 会确认一行以 `Automatic continue cancelled` 开头的消息。
+在显示这些行时，于输入框为空时按 `Esc` 或按 `Ctrl+C`，或运行 [`/rate-limit-options`](/docs/zh-CN/commands#all-commands) 并选择 **Don't continue automatically**。Claude Code 会显示一行以 `Automatic continue cancelled` 开头的消息进行确认。
 
 取消后，在您发送提示或再次从 `/rate-limit-options` 中选择以 **Wait here, then continue automatically** 开头的行之前，不会继续任何操作。Claude Code 不会为该重置窗口自动启动等待；下一个重置窗口会重新开始。
 
 在这些情况下，等待也会在不继续任务的情况下结束：
 
-* **您发送提示**：Claude Code 运行您的提示而不是等待。
+* **您发送提示词**：Claude Code 发送您的提示词而不是等待。如果您的提示词也达到了限制，它会保留在对话中，并且 Claude Code 会重新开始等待。
 * **您退出 Claude Code**：当您恢复会话时，等待不会重新启动。
 * **对话转手**：您使用 `/login` 切换账户、清除或倒带对话、`/resume` 另一个会话、使用 `/teleport` 拉取一个会话、使用 `/tui` 重新启动，或将会话交给 Claude Desktop、后台会话或云端。
 * **设置关闭，或重置超过 24 小时**：这仅结束 Claude Code 自动启动的等待。您从 `/rate-limit-options` 中选择的等待会继续倒计时。

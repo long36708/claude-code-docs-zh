@@ -6,7 +6,7 @@
 
 > 让 Claude 从描述中编写一个 Claude Code mod，或者自己编写一个来计算工具调用并添加命令。学习重新加载和验证循环。
 
-Mod 是一个 Claude Code [插件](/docs/zh-CN/plugins/overview)，具有一个入口文件，称为 hooks 模块：一个 JavaScript 或 TypeScript 文件，其函数在事件发生时由 Claude Code 调用。有两种方式来创建一个：
+Mod 是一个 Claude Code [插件](/docs/zh-CN/plugins/overview)，具有一个入口文件，称为 hooks 模块：一个 JavaScript 或 TypeScript 文件，其函数在事件发生时由 Claude Code 调用。创建方式如下：
 
 * **让 Claude 编写它**：在 Claude Code 会话中[描述你想要的内容](#ask-claude-for-a-mod)
 * **自己编写**：[按照教程](#write-a-mod-yourself)学习 mod 代码的工作原理。你不需要 Node.js、打包工具或构建步骤，因为 Claude Code 直接加载 `.js` 和 `.ts` 文件。
@@ -69,7 +69,7 @@ Claude 编写的 mod 仅在你批准它后加载，在允许 mod 运行的受信
 
 * **没有人在那里批准**：会话无法向你显示提示，如在 `claude -p` 运行或 [`dontAsk` 模式](/docs/zh-CN/permission-modes)中
 * **工作区不受信任**：你还没有接受目录的信任提示
-* **Mod 已停止**：你使用 `--safe-mode` 或 `--bare` 启动，你设置了 `disableAllHooks`，或你的组织的[托管设置阻止了它](/docs/zh-CN/plugins/mods/admin#choose-how-much-to-allow)
+* **mod 已被禁用**：您使用 `--safe-mode` 或 `--bare` 启动，您设置了 `disableAllHooks`，或者您组织的[托管设置阻止了它](/docs/zh-CN/plugins/mods/admin#choose-how-much-to-allow)
 
 <h2 id="write-a-mod-yourself">
   自己编写一个 mod
@@ -249,7 +249,7 @@ first-mod/
 * **事件**，名为 `e`：[事件的输入](/docs/zh-CN/plugins/mods/reference#events)作为纯数据，例如工具调用的名称和参数
 * **下一个处理程序**，名为 [`next`](/docs/zh-CN/plugins/mods/events#how-a-hook-handles-an-event)：一个函数，将事件传递给其他 mod，然后传递给 Claude Code 自己的行为，并返回结果
 
-`first-mod` 中的 hook 以 hook 可以处理的三种方式处理它们的事件：
+`first-mod` 中的 hook 以下列方式处理各自的事件：
 
 * **观察**：`session.start` hook 注册命令，`tool.call` hook 计算调用并要求重新绘制。两者都返回 `next(e)`，所以会话启动，工具照常运行。
 * **回答**：`command.run` hook 返回自己的结果，从不调用 `next`。`on` 的第二个参数 `{ command: 'tally' }` 是一个过滤器，称为[匹配器](/docs/zh-CN/plugins/mods/events#filter-which-events-a-hook-handles)，所以 hook 仅对 `/tally` 运行。
@@ -318,11 +318,11 @@ claude plugin validate ./first-mod
 
 `hooks:` 行列出你的模块 hook 的事件，每个都带有其在大括号中的过滤器。`calls:` 行列出它调用的每个 mods API 方法。读取或设置环境变量的模块也会获得 `env reads:` 和 `env writes:` 行，使用 [`$.state`](/docs/zh-CN/plugins/mods/interface#keep-state) 的模块会获得 `state reads:` 和 `state writes:`。
 
-如果你打算 hook 的事件在第一行中缺失，Claude Code 也不会调用该 hook。通常的原因是事件名称拼写错误，命令报告为错误，例如 `"tool.calls" is not an event`。
+如果您打算处理的某个事件未出现在第一行中，Claude Code 也不会调用该 hook。常见原因是事件名称拼写错误，该命令会将其报告为错误，例如 `"tool.calls" is not an event`。
 
 遵循这些规则，以便静态分析可以找到每个 hook 和调用：
 
-* 完整拼写每个 mods API 调用：`$`、命名空间，然后是方法，如 `$.store.get('notes')`。你可以将 `$` 传递给在同一文件的顶级声明的函数，对于你的名为 `loadNotes` 的函数，`calls:` 行然后读取 `$.store.get (via loadNotes)`。将 `$` 传递给方法、在 hook 内定义的函数或从另一个文件导入的函数会导致验证失败。[`$.state`](/docs/zh-CN/plugins/mods/interface#keep-state) 使用的 `read` 和 `update` 函数是可以接受它的导入。不要将 `$` 或其命名空间之一分配给变量、解构它或使用计算名称索引它。`const ui = $.ui` 失败，出现 `$.ui is used as a value`。
+* 完整写出每个 mods API 调用：`$`、命名空间，然后是方法，例如 `$.store.get('notes')`。您可以将 `$` 传递给在同一文件顶层声明的函数；对于名为 `loadNotes` 的自定义函数，`calls:` 行会显示 `$.store.get (via loadNotes)`。将 `$` 传递给方法、在 hook 内部定义的函数或从您的其他文件导入的函数会导致验证失败。[`$.state`](/docs/zh-CN/plugins/mods/interface#keep-state) 使用的 `read` 和 `update` 函数是可以接收它的导入。不要将 `$` 或其某个命名空间赋值给变量、对其解构，或使用计算名称对其进行索引。`const ui = $.ui` 会失败并报告 `$.ui is used as a value`。
 * 在每个 `on` 调用中将事件名称写为字符串文字，例如 `'tool.call'`。变量或循环遍历名称列表会失败，出现 `the event name passed to on() is not a string literal`。
 * 在 `register` 内，不要声明第二个名为 `on` 的变量或参数。验证失败，出现 `"on" is declared again (shadowed)`。
 * 仅从插件目录内的文件导入，通过相对路径。唯一允许的裸导入是 `claude-code`，用于类型和一些帮助程序。
@@ -333,9 +333,9 @@ claude plugin validate ./first-mod
   测试 mod
 </h3>
 
-你可以为 mod 编写自动化测试，并使用 `claude plugin test` 从你的 shell 运行它们，无需会话、登录或网络。测试引发你的 hook 处理的事件，并检查 hook 做了什么。
+您可以为 mod 编写自动化测试，并在 shell 中使用 `claude plugin test` 运行，无需会话、登录或网络。测试会触发您的 hook 所处理的事件，并检查 hook 执行了哪些操作。
 
-这个测试引发两个工具调用，运行 `/tally`，并检查回复计算两者。将其保存为 `first-mod/tests/first-mod.test.ts`：
+以下测试触发两次工具调用，运行 `/tally`，并检查回复是否统计了这两次调用。将其保存为 `first-mod/tests/first-mod.test.ts`：
 
 ```typescript first-mod/tests/first-mod.test.ts theme={null}
 import { expect, test } from 'claude-code/testing'
@@ -344,7 +344,7 @@ test('/tally reports the tool calls the mod has seen', async ($, on) => {
   // Answer each tool call in Claude Code's place, so no tool runs
   on('tool.call', () => ({ result: 'ok' }))
 
-  // Raise two tool calls, which the mod's tool.call hook counts
+  // Fire two tool calls, which the mod's tool.call hook counts
   await $.tool.call({ tool: 'Bash', command: 'ls' })
   await $.tool.call({ tool: 'Read', file_path: 'README.md' })
 
@@ -381,7 +381,7 @@ Mod 是一个插件，所以你在清单中对其进行版本控制，人们使�
 
 在你这样做之前，检查插件的 `name`：`claude plugin validate` 失败一个[看起来像 Anthropic 自己的](/docs/zh-CN/plugins/manifest-reference#name)名称，例如以 `claude-` 开头的名称。事件和方法可以在版本之间更改，所以你的 README 是说明你测试的 Claude Code 版本的地方。
 
-继续针对目录使用 `--plugin-dir` 进行开发，而不是针对已安装的副本。Claude Code 按版本缓存已安装的插件，所以你的编辑在你提高版本并再次安装之前不会到达已安装的副本。
+继续针对目录使用 `--plugin-dir` 进行开发，而不是针对已安装的副本。Claude Code 按版本缓存已安装的插件，所以在您提高版本并再次安装之前，您的编辑不会到达已安装的副本。
 
 <h2 id="next-steps">
   后续步骤

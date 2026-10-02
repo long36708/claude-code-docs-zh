@@ -18,7 +18,7 @@
   包装脚本
 </h2>
 
-当每个会话需要运行器无法自行完成的设置时，使用包装脚本：为会话创建者配置作用域的短期凭证、导出特定于环境的密钥、准备语言工具链或围绕子进程应用资源限制。运行器每个会话启动一次您的包装脚本，而不是 Claude Code 二进制文件。通过 `exec` 进入 `$CLAUDE_RUNNER_CLAUDE_BIN`（运行器自己的二进制文件）来结束包装脚本，以便信号和退出码正确传播。
+当每个会话需要运行器无法自行完成的设置时，使用包装脚本：为会话创建者配置作用域的短期凭据、导出特定于环境的密钥、准备语言工具链或围绕子进程应用资源限制。运行器每个会话启动一次您的包装脚本，而不是 Claude Code 二进制文件。通过 `exec` 进入 `$CLAUDE_RUNNER_CLAUDE_BIN`（运行器自己的二进制文件）来结束包装脚本，以便信号和退出码正确传播。
 
 启动运行器时，使用 `--exec-path` 或 `SELF_HOSTED_RUNNER_EXEC_PATH` 指向包装脚本：
 
@@ -30,16 +30,16 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 
 | 变量 | 描述 |
 | :- | :- |
-| `CLAUDE_CODE_SESSION_ACCESS_TOKEN` | 会话 JWT，前缀为 `sk-ant-cc-`。其 `act` 声明标识会话创建者，包含创建者的电子邮件和上游身份提供者主题（如果创建表面记录了它们）。该值是生成时的令牌；刷新通过子进程的 stdin 到达，因此包装脚本只看到初始值。请参阅 [Verify session identity](/docs/zh-CN/self-hosted-environments-identity)。 |
-| `CCR_SESSION_ACCOUNT_EMAIL` | 会话创建者的电子邮件，由运行器从令牌的 `act.email` 声明中预先提取，无需签名验证。适合用于标记，例如提交预告片。当电子邮件控制凭证发放时，验证令牌并从中读取声明；请参阅 [Provision credentials scoped to the session creator](#provision-credentials-scoped-to-the-session-creator)。当令牌不包含创建者电子邮件时未设置。视为个人可识别信息。 |
-| `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端表面，例如 `web_claude_ai`、`desktop_app`、`ios`、`claude_code_cli` 或 `scheduled_trigger`。Anthropic 在会话创建时记录该值一次，因此包装脚本和每个生命周期钩子都看到相同的值。仅将其用于采用分析和标记，不用作授权信号。当会话没有记录或识别的表面时未设置，因此在 `set -u` 下将其引用为 `${CLAUDE_RUNNER_CLIENT_PLATFORM:-}`。需要 Claude Code v2.1.229 或更高版本。 |
+| `CLAUDE_CODE_SESSION_ACCESS_TOKEN` | 会话 JWT，前缀为 `sk-ant-cc-`。其 `act` 声明标识会话创建者，并在创建会话的使用入口记录了创建者电子邮件时包含该电子邮件。该值是生成时的令牌；刷新通过子进程的 stdin 到达，因此包装脚本只看到初始值。请参阅 [Verify session identity](/docs/zh-CN/self-hosted-environments-identity)。 |
+| `CCR_SESSION_ACCOUNT_EMAIL` | 会话创建者的电子邮件，由运行器从令牌的 `act.email` 声明中预先提取，无需签名验证。适合用于标记，例如提交 trailer。当电子邮件控制凭据发放时，验证令牌并从中读取声明；请参阅 [Provision credentials scoped to the session creator](#provision-credentials-scoped-to-the-session-creator)。当令牌不包含创建者电子邮件时未设置。视为个人可识别信息。 |
+| `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端使用入口，例如 `web_claude_ai`、`desktop_app`、`ios`、`claude_code_cli` 或 `scheduled_trigger`。Anthropic 在会话创建时记录该值一次，因此包装脚本和每个生命周期 hook 都看到相同的值。仅将其用于采用分析和标记，不用作授权信号。当会话没有记录或识别的使用入口时未设置，因此在 `set -u` 下将其引用为 `${CLAUDE_RUNNER_CLIENT_PLATFORM:-}`。需要 Claude Code v2.1.229 或更高版本。 |
 | `CLAUDE_RUNNER_CLAUDE_BIN` | 运行器自己的 Claude Code 二进制文件的绝对路径。使用 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"` 结束您的包装脚本，以移交到固定的二进制文件，而无需硬编码安装路径。 |
-| `CLAUDE_CODE_REMOTE_SESSION_ID` | 会话 ID，采用标记的 `cse_...` 形式。这与[生命周期钩子](#lifecycle-hooks)以 `session_...` 形式在 `CLAUDE_RUNNER_SESSION_ID` 中看到的是同一个会话；UUID 变量在两者之间匹配，将 `cse_` 前缀替换为 `session_` 会产生会话 URL 中显示的 ID。 |
+| `CLAUDE_CODE_REMOTE_SESSION_ID` | 会话 ID，采用标记的 `cse_...` 形式。这与[生命周期 hook](#lifecycle-hooks)以 `session_...` 形式在 `CLAUDE_RUNNER_SESSION_ID` 中看到的是同一个会话；UUID 变量在两者之间匹配，将 `cse_` 前缀替换为 `session_` 会产生会话 URL 中显示的 ID。 |
 | `CLAUDE_CODE_REMOTE_SESSION_UUID` | 相同的会话 ID，采用规范 UUID 形式，供以 UUID 作为键的系统使用。 |
 | `CLAUDE_SESSION_INGRESS_TOKEN_FILE` | 绝对路径，指向保存当前会话 JWT 的按会话文件，在令牌刷新时保持最新。Shell 子进程在下载用户添加到会话的附件时从中读取其 `Authorization` 标头。`exec` 自动保留该变量；重建子进程环境的包装脚本必须携带该变量，否则附件下载会无声地停止工作。 |
 | `CLAUDE_CONFIG_DIR` | 按会话 Claude 配置目录，在会话启动时从运行器在启动时捕获的运行器主机配置快照中写入；请参阅 [Permissions and tool approval](#permissions-and-tool-approval)。此处的写入仅限于此会话。除非您使用 [`--remove-session-state`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，否则会话结束后该目录仍会保留在 `<base-dir>/_sessions/` 下；请参阅 [Reuse a pre-warmed checkout](/docs/zh-CN/self-hosted-environments-deploy#reuse-a-pre-warmed-checkout)。 |
-| `ANTHROPIC_BASE_URL` | 子进程将使用的 API 基础 URL，由控制平面按会话交付，通常为 `https://api.anthropic.com`。不要覆盖它：会话的推理凭证是 Anthropic 颁发的 OAuth 令牌，其他提供者不接受，因此自托管环境中的推理无法路由到其他地方。 |
-| `CLAUDE_CODE_OAUTH_TOKEN` | 子进程用于模型推理的短期 OAuth 访问令牌，作用域仅限于模型推理和文件上传，生命周期约为 30 分钟。运行器在过期前重新生成它，并通过子进程的 stdin 交付轮换，因此不 [keep stdin attached](#keep-stdin-and-file-descriptor-3-attached) 的包装脚本只看到初始值。不要依赖您的组织 IP 允许列表来限制此令牌的使用：将其视为持有者凭证，如果泄露，大约 30 分钟内仍可使用，不要记录它、写入磁盘或在会话容器外转发它。 |
+| `ANTHROPIC_BASE_URL` | 子进程将使用的 API 基础 URL，由控制平面按会话交付，通常为 `https://api.anthropic.com`。不要覆盖它：会话的推理凭据是 Anthropic 颁发的 OAuth 令牌，其他提供者不接受，因此自托管环境中的推理无法路由到其他地方。 |
+| `CLAUDE_CODE_OAUTH_TOKEN` | 子进程用于模型推理的短期 OAuth 访问令牌，作用域仅限于模型推理和文件上传，生命周期约为 30 分钟。运行器在过期前重新生成它，并通过子进程的 stdin 交付轮换，因此不 [keep stdin attached](#keep-stdin-and-file-descriptor-3-attached) 的包装脚本只看到初始值。不要依赖您的组织 IP 允许列表来限制此令牌的使用：将其视为持有者凭据，如果泄露，大约 30 分钟内仍可使用，不要记录它、写入磁盘或在会话容器外转发它。 |
 
 包装脚本还继承子进程的其余托管环境，包括任何服务器提供的环境变量。`exec` 自动传播所有内容；如果您的包装脚本以其他方式生成子进程，请转发完整环境。
 
@@ -49,7 +49,7 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 
 子进程的 stdin 是运行器的控制通道。令牌轮换和会话结束信号在其上到达。运行器还在文件描述符 3 上打开一个管道，并从中读取子进程的活动信号以驱动空闲和启动超时。普通的 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"` 自动保留两者。
 
-如果您的包装脚本使用裸 `&` 在后台运行子进程，它会切断子进程的 stdin：会话看起来健康，直到初始 OAuth 令牌的大约 30 分钟生命周期过期，然后每个 API 调用都失败，出现 `401 authentication_error`。如果您的包装脚本必须在后台运行子进程，例如保持拆卸陷阱活跃，请在文件描述符 4 或更高版本上保存 stdin 并显式重新连接它：
+如果您的包装脚本使用裸 `&` 在后台运行子进程，它会切断子进程的 stdin：会话看起来健康，直到初始 OAuth 令牌的大约 30 分钟生命周期过期，然后每个 API 调用都失败，出现 `401 authentication_error`。如果您的包装脚本必须在后台运行子进程，例如保持拆卸陷阱活跃，请在文件描述符 4 或更高编号上保存 stdin 并显式重新连接它：
 
 ```bash theme={null}
 exec 4<&0
@@ -75,10 +75,10 @@ Claude Code v2.1.281 或更高版本上的运行器以文件形式传递提示�
 * **在 v2.1.281 或更高版本的运行器上，您追加的文件标志会替换服务器的标志，而不会叠加**：每个提示词文件标志只接受单个值，Claude Code 保留最后一次出现的值，因此如果您在 `"$@"` 之后追加 `--append-system-prompt-file <path>`，您文件的内容将替换服务器追加的指令。要在服务器指令之上添加指令，请将其放入运行器镜像的 `CLAUDE.md` 中，运行器会将其[植入每个会话的用户级配置](#how-each-session’s-config-is-assembled)。
 
 <h3 id="provision-credentials-scoped-to-the-session-creator">
-  配置作用域限定为会话创建者的凭证
+  配置作用域限定为会话创建者的凭据
 </h3>
 
-使用 `decode-token` 子命令从会话 JWT 读取声明。它从参数、`CLAUDE_CODE_SESSION_ACCESS_TOKEN` 或 stdin 读取令牌，按该顺序；请参阅 [Verify the token inside the session](/docs/zh-CN/self-hosted-environments-identity#verify-the-token-inside-the-session) 了解它检查的内容。下面的示例解码创建者身份，将其交换为短期 AWS 凭证，并 exec 进入 Claude Code：
+使用 `decode-token` 子命令从会话 JWT 读取声明。它从参数、`CLAUDE_CODE_SESSION_ACCESS_TOKEN` 或 stdin 读取令牌，按该顺序；请参阅 [Verify the token inside the session](/docs/zh-CN/self-hosted-environments-identity#verify-the-token-inside-the-session) 了解它检查的内容。下面的示例解码创建者身份，将其交换为短期 AWS 凭据，并 exec 进入 Claude Code：
 
 ```bash theme={null}
 #!/bin/bash
@@ -94,7 +94,7 @@ eval "$creds"
 exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 ```
 
-在提取的声明控制身份验证决策时，使用 `jq -re` 而不是 `jq -r`，以便缺失的声明以非零状态退出，而不是将字面字符串 `null` 传递给下游。由组织服务身份（例如机器人和 Agent 会话）创建的会话携带 `agent:` 主题而不是 `user:`，因此此示例拒绝它们；如果您的环境为这些会话提供服务，请明确决定包装脚本是否为它们回退到默认凭证，而不是退出。当您的凭证交换需要 SSO 主题或电子邮件时，读取 `.act.attested_by.sub` 或 `.act.email` 并处理它们的缺失：令牌仅在创建表面记录它们时才携带它们，[CLI 分派的会话](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop) 可能两者都缺少。有关完整的声明参考和来自运行器外部服务的验证，请参阅 [Verify session identity](/docs/zh-CN/self-hosted-environments-identity)。
+在提取的声明控制身份验证决策时，使用 `jq -re` 而不是 `jq -r`，以便缺失的声明以非零状态退出，而不是将字面字符串 `null` 传递给下游。由组织服务身份（例如机器人和 Agent 会话）创建的会话携带 `agent:` 主题而不是 `user:`，因此此示例拒绝它们；如果您的环境为这些会话提供服务，请明确决定包装脚本是否为它们回退到默认凭据，而不是退出。当您的凭据交换改为需要电子邮件时，读取 `.act.email` 并处理其缺失：令牌仅在创建会话的使用入口记录了电子邮件时才携带它，[CLI 分派的会话](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop) 可能缺少它。有关完整的声明参考和来自运行器外部服务的验证，请参阅 [Verify session identity](/docs/zh-CN/self-hosted-environments-identity)。
 
 <h2 id="lifecycle-hooks">
   生命周期钩子
@@ -108,7 +108,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
   checkout
 </h3>
 
-每个存储库运行一次，代替运行器的内置克隆和获取。使用钩子从读通镜像克隆、从存档为工作树设置种子或应用按会话 git 身份验证。运行器设置：
+每个仓库运行一次，代替运行器的内置克隆和获取。使用此 hook 从读通镜像克隆、从存档为工作树设置种子或应用按会话的 git 身份验证。运行器设置以下变量，并且可能设置表中未列出的其他 `CLAUDE_RUNNER_` 变量：
 
 | 变量 | 描述 |
 | :- | :- |
@@ -120,6 +120,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 | `CLAUDE_RUNNER_API_BASE_URL` | Anthropic API 基础 URL，用于会话范围的调用 |
 | `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端表面，例如 `web_claude_ai`、`desktop_app` 或 `ios`。当会话没有记录或识别的表面时未设置。 |
 | `CLAUDE_CODE_SESSION_ACCESS_TOKEN` | 会话访问令牌，用于会话范围的 API 调用 |
+| `GIT_CONFIG_COUNT`、`GIT_CONFIG_KEY_n`、`GIT_CONFIG_VALUE_n` | 运行器为您的 hook 所运行的 git 固定的 Git 设置。[生命周期 hook 中的 Git 配置](#git-configuration-inside-lifecycle-hooks)对其进行了说明。需要 Claude Code v2.1.280 或更高版本。 |
 
 脚本必须在 `CLAUDE_RUNNER_CHECKOUT_PATH` 处留下一个工作树，检出到请求的修订版本。分离的 HEAD 是可以的；运行器在其上创建会话的工作分支。运行器之后验证路径包含 `.git`；如果您的钩子具体化非 git 源（例如 Perforce 或解包的 tarball），请在运行器的环境中设置 `CLAUDE_RUNNER_SKIP_GIT_VERIFY=1` 以跳过该检查。基于 Git 的流程（例如工作分支创建和推送结果）需要 git 检出，因此使用 [`post-session` 钩子](#post-session) 从非 git 树导出结果。
 
@@ -152,6 +153,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 | `CLAUDE_RUNNER_API_BASE_URL` | Anthropic API 基础 URL，用于会话范围的调用 |
 | `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端表面，例如 `web_claude_ai`、`desktop_app` 或 `ios`。当会话没有记录或识别的表面时未设置。需要 Claude Code v2.1.229 或更高版本。 |
 | `CLAUDE_CODE_SESSION_ACCESS_TOKEN` | 会话访问令牌，用于会话范围的 API 调用 |
+| `GIT_CONFIG_COUNT`、`GIT_CONFIG_KEY_n`、`GIT_CONFIG_VALUE_n` | 运行器为您的 hook 所运行的 git 固定的 Git 设置。[生命周期 hook 中的 Git 配置](#git-configuration-inside-lifecycle-hooks)对其进行了说明。需要 Claude Code v2.1.280 或更高版本。 |
 
 `CLAUDE_RUNNER_EXIT_REASON` 采用四个值之一：
 
@@ -168,12 +170,13 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 #!/usr/bin/env bash
 set -u
 IFS=':'
-# Pin config the session could have planted in the checkout's .git/config:
 # -c overrides beat repo-local settings, blocking session-written fsmonitor,
 # hook-path, and gpg-program config from executing code with the hook's
-# privileges. Repo-local credential.helper, core.sshCommand, and pushurl
-# still apply; if the hook holds credentials the session didn't, pin the
-# push URL and helper too (see the note below the script).
+# privileges. -c commit.gpgsign=false also leaves these rescue commits
+# unsigned under --configure-git.
+# Repo-local credential.helper and pushurl still apply, and on a runner
+# before v2.1.280 so does core.sshCommand; if the hook holds credentials
+# the session didn't, see the note below the script.
 g() { git -c core.fsmonitor=false -c core.hooksPath=/dev/null \
         -c commit.gpgsign=false "$@"; }
 for ws in $CLAUDE_RUNNER_WORKSPACE_PATHS; do
@@ -185,7 +188,7 @@ for ws in $CLAUDE_RUNNER_WORKSPACE_PATHS; do
 done
 ```
 
-钩子使用运行器主机上其自己环境中可用的任何 git 凭证进行推送。在 [no-credentials-in-the-image posture](/docs/zh-CN/self-hosted-environments-deploy#configure-git) 下，包括当内置克隆通过 Anthropic git 代理时，没有凭证，因此在推送前在钩子内生成短期推送凭证：将钩子在 `CLAUDE_CODE_SESSION_ACCESS_TOKEN` 中接收的会话令牌与您自己的令牌服务交换，如 [Verify session identity](/docs/zh-CN/self-hosted-environments-identity) 所述进行验证，然后让您的凭证服务为令牌的 `act` 声明中的身份发放短期推送凭证。当钩子持有会话没有的凭证时，也要固定它推送的位置：将 `origin` 替换为操作员提供的 URL，并传递 `-c credential.helper=` 加上您自己的助手，以便会话写入的 repo-local 配置无法重定向凭证推送。
+hook 使用运行器主机上其自身环境中可用的任何 git 凭据进行推送。在[镜像中不含凭据的部署方式](/docs/zh-CN/self-hosted-environments-deploy#configure-git)下，包括内置克隆通过 Anthropic git 代理进行时，都没有可用凭据，因此请在推送前于 hook 内生成短期推送凭据：将 hook 在 `CLAUDE_CODE_SESSION_ACCESS_TOKEN` 中收到的会话令牌与您自己的令牌服务进行交换，并按照[验证会话身份](/docs/zh-CN/self-hosted-environments-identity)中的说明对其进行验证。当 hook 持有会话没有的凭据时，请将 `origin` 替换为操作员提供的 URL，并传递 `-c credential.helper=` 加上您自己的助手。[生命周期 hook 中的 Git 配置](#git-configuration-inside-lifecycle-hooks)说明了会话写入的配置仍可能影响哪些内容。
 
 <h4 id="hook-timing-when-the-runner-releases-a-session">
   运行器释放会话时的钩子时序
@@ -199,6 +202,29 @@ done
 这适用于运行器释放会话的任何时候：在空闲超时、在 [`--retire-at`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 时间，以及 在 v2.1.260 或更高版本的运行器上，在会话的 [`--kill-session-after-min`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 限制。其轮次已结束且仅持有后台任务的会话在此处计为空闲。在 v2.1.236 之前，运行器在两种情况下都首先释放会话，然后运行此钩子。
 
 在 `SIGTERM` 排空期间，运行器持有会话租约直到钩子完成；请参阅 [Shutdown timing](/docs/zh-CN/self-hosted-environments-deploy#shutdown-timing)。
+
+<h3 id="git-configuration-inside-lifecycle-hooks">
+  生命周期 hook 中的 Git 配置
+</h3>
+
+`checkout` 和 `post-session` hook 运行时，其环境中包含会话的访问令牌，而它们运行的 git 会读取会话可以写入的配置文件，例如 `~/.gitconfig` 和检出目录中的 `.git/config`。在任一 hook 运行之前，运行器会在 hook 的环境中以 `GIT_CONFIG_COUNT`/`GIT_CONFIG_KEY_n`/`GIT_CONFIG_VALUE_n` 对和 git 环境变量的形式设置 git 设置，包括以下各项。Git 将这些设置的优先级排在所有配置文件之上，并且它们仅适用于您的 hook 运行的 git，而不适用于会话自己的 git。启动时，运行器会打印一行 `[runner:git] lifecycle hooks:`，显示当前生效的钩子路径、允许的协议、gpg 程序和签名模式。需要 Claude Code v2.1.280 或更高版本。
+
+* **Git 钩子**：除非您提供值，否则 `core.hooksPath` 为 `/dev/null`，因此 git 会跳过仓库 `.git/hooks` 中的钩子以及 `~/.gitconfig` 指定的任何钩子目录。要提供一个值，请在运行器的环境中将 `core.hooksPath` 导出为 `GIT_CONFIG_KEY_n`/`GIT_CONFIG_VALUE_n` 对。运行器还会从系统 git 配置中读取 `core.hooksPath`，并且仅当运行器的用户无法写入该文件、其指定的目录或其中的钩子文件时才使用它。当运行器忽略某个值时，启动时会有一行 `[runner:warn]` 指明该值及原因。
+* **文件系统监视器**：`core.fsmonitor` 为空，因此 hook 中的 git 不会运行配置文件中指定的监视程序。
+* **远程协议**：`GIT_ALLOW_PROTOCOL` 为 `https:http:ssh`。使用本地路径、`file://` URL 或 `git://` URL 的克隆、获取或推送会失败，并报错 `fatal: transport 'file' not allowed` 或 `fatal: transport 'git' not allowed`。
+* **SSH 命令和凭据提示**：hook 中的 git 会忽略配置文件中的 `core.sshCommand` 和 `core.askPass`。要使用您自己的 SSH 命令，请在运行器的环境中设置 `GIT_SSH_COMMAND`。要使用凭据提示程序，请在其中设置 `GIT_ASKPASS`。会话会继承运行器的环境，因此这两个变量也会影响会话自己的 git。请勿在其中任何一个中放入凭据。
+* **gpg 程序**：`gpg.program`、`gpg.openpgp.program`、`gpg.x509.program` 和 `gpg.ssh.program` 是运行器设置的路径，绝不会取自配置文件中的值。
+* **提交签名**：使用 [`--configure-git`](/docs/zh-CN/self-hosted-environments-deploy#let-the-runner-configure-git) 时，您从 hook 中进行的提交会以会话身份签名。不使用该标志时，`commit.gpgsign` 和 `tag.gpgsign` 为 `false`。
+
+要更改其中某项设置，请使用运行器的环境或在 hook 内使用 `git -c` 选项：
+
+* **配置对**：您在运行器环境中导出的 `GIT_CONFIG_KEY_n`/`GIT_CONFIG_VALUE_n` 对会替换运行器为同一键设置的值。请从 `0` 开始为您的配置对编号，并将 `GIT_CONFIG_COUNT` 设置为配置对的数量。当计数所声明的最后一个配置对缺失时，运行器会忽略您的所有配置对，并在启动时记录一行 `[runner:warn]`。
+* **Git 环境变量**：运行器会保留您在其环境中设置的 `GIT_ALLOW_PROTOCOL`、`GIT_SSH_COMMAND` 和 `GIT_ASKPASS`。
+* **`git -c` 选项**：hook 内的 `git -c` 选项会覆盖 `GIT_CONFIG_KEY_n` 对，无论是运行器的还是您的。它不会更改 `GIT_ALLOW_PROTOCOL`、`GIT_SSH_COMMAND` 或 `GIT_ASKPASS`，git 会先于任何配置读取这些变量。
+
+hook 中的 git 仍会从每个配置文件（包括会话可以写入的配置文件）中读取运行器未设置的所有设置，例如凭据助手、`url.*.insteadOf` 重写和过滤器驱动程序。这些文件之一中指定的凭据助手或过滤器驱动程序会以您的 hook 的权限作为程序运行，并且这些文件中的配置仍可能改变您的 hook 推送的目标位置，包括推送到您在命令行上传递的 URL。
+
+在 v2.1.280 之前，运行器不设置这些设置中的任何一项，并且在 `--configure-git` 下，从 hook 中进行的提交会失败，除非 hook 传递了 `-c commit.gpgsign=false`。
 
 <h3 id="command">
   command

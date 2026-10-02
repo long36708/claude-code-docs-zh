@@ -316,7 +316,7 @@ claude update
   高级安装选项
 </h2>
 
-这些选项用于版本固定、Linux 包管理器、npm 和验证二进制完整性。
+这些选项用于版本固定、Linux 包管理器、npm、网络存储和验证二进制完整性。
 
 <h3 id="install-a-specific-version">
   安装特定版本
@@ -511,6 +511,21 @@ npm 包安装与独立安装程序相同的原生二进制文件。npm 通过每
 <Warning>
   不要使用 `sudo npm install -g`，因为这可能导致权限问题和安全风险。如果遇到权限错误，请参阅[故障排除权限错误](/docs/zh-CN/troubleshoot-install#permission-errors-during-installation)。
 </Warning>
+
+<h3 id="install-on-network-storage">
+  在网络存储上安装
+</h3>
+
+正在运行的会话在工作过程中会从磁盘读取 Claude Code 可执行文件的部分内容，而不仅仅是在启动时读取。如果该文件在会话中途变得不可读，例如因为它在网络存储上被截断或删除，会话就会崩溃。在 Linux 上，您的 shell 会将此报告为 `Bus error`。
+
+当主目录位于网络存储上时（例如挂载在多台机器上的 NFS 主目录），请合理规划安装布局，使每个会话的可执行文件在会话结束前始终保持可读：
+
+* **安装在本地磁盘上**：将二进制文件放在每台机器的本地文件系统上，例如使用 [Linux 包管理器](#install-with-linux-package-managers)或您自己的部署工具。按用户设置的 npm 前缀和原生安装程序的默认 `~/.local/share/claude/versions/` 目录都位于主目录中。
+* **将每个版本保存在各自的目录中**：使用 `npm install -g` 原地升级 npm 安装会删除之前的二进制文件。在多台机器共享的存储上，这会删除其他机器上的会话仍在运行的文件。请将每个新版本安装在旧版本旁边，然后将用户迁移到新版本。
+* **仅在没有任何机器可能仍在运行旧版本时才删除它**：一台机器无法看到其他机器上运行的进程，因此在删除之前检查正在运行的进程是不够的。
+* **关闭 Claude Code 自身的更新**：设置 [`DISABLE_UPDATES`](/docs/zh-CN/env-vars)，并使用您自己的工具安装新版本。否则，一台机器上 npm 安装的自动更新会执行相同的原地升级，从而删除其他机器上的会话正在运行的二进制文件。仅设置 `DISABLE_AUTOUPDATER` 是不够的，因为用户仍然可以运行 `claude update` 和 `claude install`。请参阅[禁用自动更新](#disable-auto-updates)。
+
+原生安装程序会自行从 `~/.local/share/claude/versions/` 中删除旧版本，当该目录位于共享存储上时，这一点尤为重要。除了启动器指向的版本以及同一台机器上的会话正在运行的任何版本之外，它会保留最新的两个版本并删除其余版本。另一台机器上正在运行已删除版本的会话将失去其二进制文件。使用[自定义启动器](#auto-updates)时，Claude Code 会保留所有已安装的版本，并由您自行负责清理。
 
 <h3 id="binary-integrity-and-code-signing">
   二进制完整性和代码签名

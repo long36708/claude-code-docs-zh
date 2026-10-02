@@ -271,7 +271,7 @@ registry.example.com
 
 * **Git 凭证**：VM 内的 git 客户端使用范围受限的凭证，代理验证并将其交换为您的实际 GitHub 令牌。
 * **API 请求**：来自内置 GitHub 工具的请求，以及来自 [`proxy-injected` 占位符](#work-with-github-issues-and-pull-requests)下的 `gh` 的请求，会在替换为您的真实凭证后发出。
-* **推送保护**：`git push` 仅适用于会话的当前工作分支；克隆、获取和 PR 操作正常工作。
+* **推送限制**：代理会拒绝分支删除，以及推送分支以外的任何内容（例如标签）。它不限制推送可以更新哪些分支。如需限制，请在 GitHub 上使用分支保护规则或规则集。
 * **存储库范围**：GitHub API 和发布资产请求仅能到达附加到会话的存储库，因此从未附加的存储库下载发布资产的设置脚本会收到 403。
 * **GraphQL 限制**：代理仅提供一组固定的 GraphQL 操作用于拉取请求工作流。代理在 GraphQL 端点上拒绝所有其他内容，返回 403，显示 `This GraphQL query is not enabled for this session`，并命名 REST 回退 `gh api repos/{owner}/{repo}/...`。无论您提供的凭证如何，限制都适用于通过代理的每个请求，因此您设置的 `GH_TOKEN` 会收到相同的 403。Claude 无法通过代理访问仅存在于 GraphQL 中的 GitHub API，例如 Projects v2。
 

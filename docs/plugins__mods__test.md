@@ -6,7 +6,7 @@
 
 > 为 Claude Code mod 编写自动化测试，该测试可以触发事件、存根 Claude Code 的答案、按下按钮，无需会话、登录或网络。
 
-您可以为 mod 编写自动化测试，并使用 [`claude plugin test`](/docs/zh-CN/plugins/mods/reference#commands) 从您的 shell 运行它们。测试会触发您的 hooks 处理的事件并检查 hooks 做了什么，这样您可以在问题到达会话之前捕获它。第一个示例测试来自 [Create a mod](/docs/zh-CN/plugins/mods/create) 的 mod。
+您可以为 mod 编写自动化测试，并使用 [`claude plugin test`](/docs/zh-CN/plugins/mods/reference#commands) 从您的 shell 运行它们。测试会触发您的 hook 处理的事件并检查 hook 做了什么，这样您可以在问题到达会话之前捕获它。第一个示例测试来自 [创建 mod](/docs/zh-CN/plugins/mods/create) 的 mod。
 
 <h2 id="write-a-test">
   编写测试
@@ -25,7 +25,7 @@ test('/tally reports the tool calls the mod has seen', async ($, on) => {
   // Answer each tool call in Claude Code's place, so no tool runs
   on('tool.call', () => ({ result: 'ok' }))
 
-  // Raise two tool calls, which the mod's tool.call hook counts
+  // Fire two tool calls, which the mod's tool.call hook counts
   await $.tool.call({ tool: 'Bash', command: 'ls' })
   await $.tool.call({ tool: 'Read', file_path: 'README.md' })
 
@@ -105,7 +105,7 @@ test('a passing grade is reported', async ($, on) => {
 
 测试通过是因为 hook 的 `reply` 是 `value` 下的对象，其 `text` 以 `PASS` 开头。要检查另一个分支，添加第二个测试，其 stub 返回以 `FAIL` 开头的 `text`，并期望 `Try again`。
 
-mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段保存调用在您的 mod 中解析的内容：`{ value: 7 }` 使 `$.store.get` 解析为 `7`。Claude Code 事件（例如 [`turn.step`](/docs/zh-CN/plugins/mods/reference#turns) 或 `tool.call`）的 stub 返回该事件自己的结果，例如 `{ result: 'ok' }`。`$.session.send` 和 `$.prompt.fill` 也采用其事件的结果，如表所示。[查看 stub 返回的内容](#look-up-what-a-stub-returns) 显示每个常见名称采用的形式。两个错误意味着 stub 是错误的或缺失的。失败的测试的输出包括一个以 `the engine reported:` 开头的块，每个错误都出现在那里：
+mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段保存调用在您的 mod 中解析的内容：`{ value: 7 }` 使 `$.store.get` 解析为 `7`。Claude Code 事件（例如 [`turn.step`](/docs/zh-CN/plugins/mods/reference#turns) 或 `tool.call`）的 stub 返回该事件自己的结果，例如 `{ result: 'ok' }`。`$.session.send` 和 `$.prompt.fill` 也采用其事件的结果，如表所示。[查看 stub 返回的内容](#look-up-what-a-stub-returns) 显示每个常见名称采用的形式。以下错误意味着 stub 是错误的或缺失的。失败的测试的输出包括一个以 `the engine reported:` 开头的块，每个错误都出现在那里：
 
 * `returned neither { value } nor { deny }`：mods API 调用的 stub 返回了一个裸值
 * `no implementation for` 后跟一个名称：您的 mod 进行了该调用，没有 stub 回答它
@@ -127,7 +127,7 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
   on('session.start', () => ({ cwd: '/work' }))
   // Answer the $.command.register call your hook makes
   on('command.register', () => ({ value: undefined }))
-  // Raise the event, which runs your session.start hook
+  // Fire the event, which runs your session.start hook
   await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })
   ```
 
@@ -152,7 +152,7 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
     return { turnId: e.turnId, index: e.index, answer: 'ok', toolUses: [], stopReason: 'end_turn', usage: null }
   })
 
-  // Raise one request to the model, which runs your turn.step hook
+  // Fire one request to the model, which runs your turn.step hook
   const stream = $.turn.step({ turnId: 't', index: 0, model: 'claude-test', messageCount: 1 })
   // Read every piece until the stream says it's done
   let step = await stream.next()
@@ -340,7 +340,7 @@ test('the saved count comes back after /clear', async ($, on) => {
   // Answer the event after your hook passes it on with next(e)
   on('classic.SessionStart', () => ({}))
 
-  // Raise the event that fires after /clear, which runs your hook
+  // Fire the event that follows /clear, which runs your hook
   await $.classic.SessionStart({ source: 'clear' })
 
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
@@ -353,7 +353,7 @@ test('the saved count comes back after /clear', async ($, on) => {
 当您的 `classic.SessionStart` hook 在窗格绘制之前将存储的 `7` 复制到 `$.state` 时，测试通过。如果您的模块中没有该 hook，窗格绘制 `Count: 0`，`find` 返回 `undefined`，测试在 `toBeDefined` 处失败。
 
 <h2 id="test-a-mod-that-judges-other-mods">
-  测试判断其他 mods 的 mod
+  测试 policy mod
 </h2>
 
 您的组织在 [`prependPlugins`](/docs/zh-CN/plugins/mods/admin) 中列出的 mod 可以在另一个 mod 加载之前拒绝它。要测试一个，请设置您的 mod 的层级并给测试第二个 mod，供您的 mod 接受或拒绝：

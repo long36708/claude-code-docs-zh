@@ -22,122 +22,124 @@
   claude plugin 命令
 </h2>
 
-从你的 shell 或脚本运行 `claude plugin <subcommand>`，在 Claude Code 会话外部。这些子命令安装和管理插件，无需打开 [`/plugin`](#plugin-in-a-session) 面板。
+在 Claude Code 会话外部，从 shell 或脚本运行 `claude plugin <subcommand>`。这些子命令用于安装和管理插件，无需打开 [`/plugin`](#plugin-in-a-session) 面板。
 
 `claude plugins` 是 `claude plugin` 的别名。
 
-每个子命令共享这些退出代码、插件参数和作用域值：
+每个子命令共享以下退出码、插件参数和作用域值：
 
-* **退出代码**：成功时为 `0`，失败时为 `1`。`validate` 为意外错误添加退出 `2`，`eval` 添加 [其部分](#plugin-eval) 中列出的代码。
-* **插件参数**：`<plugin>` 参数是插件 `name` 或 `name@marketplace`。当两个市场提供相同的名称时，使用限定形式。`configure` 仅接受限定形式。
-* **作用域**：`--scope` 接受 `user`、`project` 或 `local`，并命名命令写入的设置文件。`update` 也接受 `managed`。
+* **退出码**：成功时为 `0`，失败时为 `1`。`validate` 额外使用退出码 `2` 表示意外错误，`eval` 额外使用[其章节](#plugin-eval)中列出的退出码。
+* **插件参数**：`<plugin>` 参数是插件 `name` 或 `name@marketplace`。当两个市场提供相同的名称时，请使用限定形式。`configure` 仅接受限定形式。
+* **作用域**：`--scope` 接受 `user`、`project` 或 `local`，用于指定命令写入的设置文件。`update` 还接受 `managed`。
 
 <h3 id="plugin-init">
   plugin init
 </h3>
 
-在 `~/.claude/skills/<name>/` 处搭建新插件。它在你的下一个会话中作为 `<name>@skills-dir` 加载，无需安装步骤。
+在 `~/.claude/skills/<name>/` 处搭建新插件。它会在您的下一个会话中作为 `<name>@skills-dir` 加载，无需安装步骤。
 
 `new` 是 `init` 的别名。
 
-对于从此命令开始的创建、测试和编辑工作流，请参阅 [创建插件](/docs/zh-CN/plugins/create)。
+有关从此命令开始的创建、测试和编辑工作流，请参阅[创建插件](/docs/zh-CN/plugins/create)。
 
 ```bash theme={null}
 claude plugin init <name> [options]
 ```
 
-`<name>` 成为 `~/.claude/skills/` 下的目录名称和插件清单中的 `name`。
+`<name>` 将成为 `~/.claude/skills/` 下的目录名称以及插件清单中的 `name`。
 
-该命令没有用于另一个位置的标志。要在项目内搭建，请参阅 [创建插件](/docs/zh-CN/plugins/create)。
+该命令没有用于指定其他位置的标志。如需在项目内搭建，请参阅[创建插件](/docs/zh-CN/plugins/create)。
 
 | 标志 | 描述 |
 | :- | :- |
 | `--description <text>` | 清单描述 |
 | `--author <name>` | 作者名称。默认为 `git config user.name` |
 | `--author-email <email>` | 作者电子邮件。默认为 `git config user.email` |
-| `--with <components...>` | 也为 `skills`、`agents`、`hooks`、`mcp`、`lsp`、`output-style` 或 `channel` 搭建启动文件 |
-| `-f, --force` | 覆盖目标处的现有 `.claude-plugin/` |
+| `--with <components...>` | 同时为 `skills`、`agents`、`hooks`、`mcp`、`lsp`、`output-style` 或 `channel` 搭建起始文件 |
+| `-f, --force` | 覆盖目标处现有的 `.claude-plugin/` |
 
-搭建带有启动 skill 和 hook 文件的插件：
+搭建带有起始 skill 和 hook 文件的插件：
 
 ```bash theme={null}
 claude plugin init my-helper --with skills hooks
 ```
 
-Claude Code 验证它写入的内容并打印 `Created plugin "my-helper" at ~/.claude/skills/my-helper`，后跟它加载的 id 和关闭它的 `claude plugin disable` 命令。
+Claude Code 会验证其写入的内容并打印 `Created plugin "my-helper" at ~/.claude/skills/my-helper`，随后打印其加载时使用的 id，以及用于关闭它的 `claude plugin disable` 命令。
 
-当 Claude Code 无法安全搭建时，它退出 `1` 而不写入，消息命名原因。这些是常见原因：
+当 Claude Code 无法安全搭建时，它会以 `1` 退出且不写入任何内容，并在消息中说明原因。常见原因如下：
 
 * 未知的 `--with` 值
-* 目标处的现有搭建，没有 `--force`
-* 阻止 skills-directory 插件的托管设置
+* 目标处已存在搭建内容，且未使用 `--force`
+* 某项托管设置阻止了 skills-directory 插件
 
 <h3 id="plugin-install">
   plugin install
 </h3>
 
-从你添加的市场安装插件。`i` 是 `install` 的别名。
+从您已添加的市场安装插件。`i` 是 `install` 的别名。
 
 ```bash theme={null}
 claude plugin install <plugin> [options]
 ```
 
-大多数插件无需提示即可安装。对于其市场条目 [运行命令来安装它](/docs/zh-CN/plugins/host-marketplace) 或 [为其下载设置 `headersHelper`](/docs/zh-CN/plugins/host-marketplace#how-users-accept-a-headershelper-command) 的插件，Claude Code 首先打印命令并询问 `Run this command now? [y/N]`。
+大多数插件无需提示即可安装。对于其市场条目[通过运行命令来安装](/docs/zh-CN/plugins/host-marketplace)或[为下载设置了 `headersHelper`](/docs/zh-CN/plugins/host-marketplace#how-users-accept-a-headershelper-command) 的插件，Claude Code 会先打印该命令并询问 `Run this command now? [y/N]`。
 
 | 标志 | 描述 |
 | :- | :- |
 | `-s, --scope <scope>` | 安装作用域：`user`、`project` 或 `local`。默认为 `user` |
-| `--config <key=value>` | 设置插件清单声明的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference) 选项。为每个选项重复该标志。需要 Claude Code v2.1.147 或更高版本。写作 `<server>.<key>` 的键设置 [捆绑 MCP 服务器](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server) 在其自己的 `user_config` 中声明的设置，用于在插件内部发送的捆绑文件。`<server>.<key>` 形式需要 Claude Code v2.1.285 或更高版本 |
-| `-y, --yes` | 接受显示的安装命令，无需 `Run this command now?` 提示。在 Claude Code 会话内运行命令时被忽略，例如从 Bash 工具或 hook。需要 Claude Code v2.1.229 或更高版本 |
-| `--accept-command <sha256>` | 接受显示的安装命令，其 `sha256` 之前的 [`--json` 运行](#plugin-json-result) 在 `shownCommand` 中报告，代替 `-y`。不能与 `-y` 组合。请参阅 [接受显示的安装命令](#accept-a-displayed-install-command)。需要 Claude Code v2.1.271 或更高版本 |
-| `--json` | 将结果打印为 stdout 最后一行的一个 JSON 对象，而不是人类可读的消息，供脚本使用。请参阅 [JSON 结果格式](#plugin-json-result)。需要 Claude Code v2.1.268 或更高版本 |
+| `--config <key=value>` | 设置插件清单声明的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference) 选项。每个选项重复一次该标志。需要 Claude Code v2.1.147 或更高版本。写作 `<server>.<key>` 的键改为设置[捆绑 MCP 服务器](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server)在其自身 `user_config` 中声明的设置，适用于随插件附带的捆绑文件。`<server>.<key>` 形式需要 Claude Code v2.1.285 或更高版本 |
+| `-y, --yes` | 接受显示的安装命令，不出现 `Run this command now?` 提示。在 Claude Code 会话内运行命令时（例如从 Bash 工具或 hook 运行）会被忽略。需要 Claude Code v2.1.229 或更高版本 |
+| `--accept-command <sha256>` | 代替 `-y`，接受之前某次 [`--json` 运行](#plugin-json-result)在 `shownCommand` 中报告了其 `sha256` 的显示安装命令。不能与 `-y` 组合使用。请参阅[接受显示的安装命令](#accept-a-displayed-install-command)。需要 Claude Code v2.1.271 或更高版本 |
+| `--json` | 将结果作为一个 JSON 对象打印在 stdout 的最后一行，而不是人类可读的消息，供脚本使用。请参阅 [JSON 结果格式](#plugin-json-result)。需要 Claude Code v2.1.268 或更高版本 |
 
-从你自己的终端传递 `-y` 以接受显示的命令，无需提示。以下是没有 TTY 和 Claude 运行命令时发生的情况：
+在 shell 中运行 `claude plugin install --help`，可查看您的版本支持的所有选项。
 
-* **stdin 或 stdout 不是 TTY，且你既不传递 `-y` 也不传递 `--accept-command`**：安装被拒绝。输出说命令仅被显示，退出代码为 `1`
-* **Claude 通过其 Bash 工具运行命令**：`-y` 被忽略。改为从你自己的终端运行命令
+从您自己的终端传递 `-y`，即可接受显示的命令而不出现提示。以下是没有 TTY 以及由 Claude 运行命令时的情况：
 
-为克隆项目的每个人安装插件：
+* **stdin 或 stdout 不是 TTY，且既未传递 `-y` 也未传递 `--accept-command`**：安装被拒绝。输出会说明命令仅被显示，退出码为 `1`
+* **Claude 通过其 Bash 工具运行命令**：`-y` 会被忽略。请改为从您自己的终端运行该命令
+
+为克隆该项目的所有人安装插件：
 
 ```bash theme={null}
 claude plugin install formatter@my-marketplace --scope project
 ```
 
-Claude Code 打印 `Successfully installed plugin: formatter@my-marketplace (scope: project)`。当没有新内容被安装时，输出说明原因：
+Claude Code 打印 `Successfully installed plugin: formatter@my-marketplace (scope: project)`。当没有安装任何新内容时，输出会说明原因：
 
-* **已在该作用域安装**：输出为 `Plugin "formatter@my-marketplace" is already installed (scope: project)`，退出代码为 `0`
-* **你拒绝命令源提示**：输出为 `Aborted.`，退出代码为 `1`
-* **你拒绝 `headersHelper` 提示，或无法在没有 TTY 的情况下确认**：输出为 `Aborted — the command was not run.`，退出代码为 `1`
+* **已在该作用域安装**：输出为 `Plugin "formatter@my-marketplace" is already installed (scope: project)`，退出码为 `0`
+* **您拒绝了命令源提示**：输出为 `Aborted.`，退出码为 `1`
+* **您拒绝了 `headersHelper` 提示，或在没有 TTY 的情况下无法确认**：输出为 `Aborted — the command was not run.`，退出码为 `1`
 
 <h4 id="plugin-json-result">
   JSON 结果格式
 </h4>
 
-当你向 `plugin install` 传递 `--json` 时，stdout 的最后一行是一个 JSON 对象。仅解析该行，因为 Claude Code 在其前面打印市场声明的任何命令。
+向 `plugin install` 传递 `--json` 时，stdout 的最后一行是一个 JSON 对象。请仅解析该行，因为 Claude Code 会在其之前打印市场声明的任何命令。
 
-三个字段始终存在：
+以下三个字段始终存在：
 
 * `command`：运行的子命令，例如 `install`
 * `outcome`：`ok` 或 `failed`
 * `message`：结果的人类可读描述
 
-其他字段，例如 `pluginId`、`scope` 和 `failureCode`，仅在适用时出现。
+其他字段（例如 `pluginId`、`scope` 和 `failureCode`）仅在适用时出现。
 
-`--json` 选项在 `plugin uninstall`、`plugin update`、`plugin enable` 和 `plugin disable` 上打印相同的对象，带有该子命令自己的字段。
+`plugin uninstall`、`plugin update`、`plugin enable` 和 `plugin disable` 上的 `--json` 选项会打印相同的对象，并带有各子命令自己的字段。
 
-使用错误，例如无效的 `--scope`，不打印结果行，退出 `1`，原因在 stderr 上。
+使用错误（例如无效的 `--scope`）不会打印结果行，而是以 `1` 退出，并在 stderr 上给出原因。
 
 <h4 id="accept-a-displayed-install-command">
   接受显示的安装命令
 </h4>
 
-当 `--json` 运行显示市场声明的命令且不运行它时，`failed` 结果也携带 `shownCommand` 对象。其字段包括显示的命令、它所属的插件和命令的 `sha256`。
+当 `--json` 运行显示了市场声明的命令但未运行它时，`failed` 结果还会携带一个 `shownCommand` 对象。其字段包括显示的命令、该命令所属的插件以及命令的 `sha256`。
 
-要接受完全相同的命令，从你自己的终端使用该 `sha256` 作为 `--accept-command` 重新运行，因为该标志在 Claude Code 会话内无效。需要 Claude Code v2.1.271 或更高版本。
+要恰好接受该命令，请从您自己的终端重新运行，并将该 `sha256` 作为 `--accept-command` 传入，因为该标志在 Claude Code 会话内无效。需要 Claude Code v2.1.271 或更高版本。
 
-`sha256` 计为对完全相同的命令、插件和市场目录的接受。如果自命令显示以来其中任何一个发生了变化，Claude Code 不接受 `sha256` 并再次显示命令。运行自己的市场刷新获取的更改也计为此类更改。
+`sha256` 仅对完全相同的命令、插件和市场目录视为接受。如果自命令显示以来其中任何一项发生了变化，Claude Code 不会接受该 `sha256`，并会再次显示命令。运行自身的市场刷新所获取的更改也算作此类变化。
 
-如果 `shownCommand.acceptCommandMatched` 为 `false`，你传递的 `sha256` 与现在显示的命令不匹配。在使用其 `sha256` 重新运行之前，查看该命令。
+如果 `shownCommand.acceptCommandMatched` 为 `false`，则您传递的 `sha256` 与当前显示的命令不匹配。请在使用其 `sha256` 重新运行之前检查该命令。
 
 <h3 id="plugin-uninstall">
   plugin uninstall
@@ -151,11 +153,11 @@ claude plugin uninstall <plugin> [options]
 
 | 标志 | 描述 |
 | :- | :- |
-| `-s, --scope <scope>` | 从作用域卸载：`user`、`project` 或 `local`。默认为 `user` |
+| `-s, --scope <scope>` | 从指定作用域卸载：`user`、`project` 或 `local`。默认为 `user` |
 | `--keep-data` | 保留插件的持久数据目录 `~/.claude/plugins/data/<id>/` |
-| `--prune` | 也移除自动安装的 [依赖项](/docs/zh-CN/plugins/dependencies)，没有剩余插件需要 |
-| `-y, --yes` | 跳过 `--prune` 确认提示。当 stdin 或 stdout 不是 TTY 时，与 `--prune` 一起需要 |
-| `--json` | 将结果打印为 stdout 最后一行的一个 JSON 对象，格式与 [`plugin install --json`](#plugin-json-result) 相同。不能与 `--prune` 组合。需要 Claude Code v2.1.268 或更高版本 |
+| `--prune` | 同时移除不再被任何剩余插件需要的自动安装[依赖项](/docs/zh-CN/plugins/dependencies) |
+| `-y, --yes` | 跳过 `--prune` 确认提示。当 stdin 或 stdout 不是 TTY 时，与 `--prune` 一起使用时必须提供 |
+| `--json` | 将结果作为一个 JSON 对象打印在 stdout 的最后一行，格式与 [`plugin install --json`](#plugin-json-result) 相同。不能与 `--prune` 组合使用。需要 Claude Code v2.1.268 或更高版本 |
 
 从项目作用域卸载插件：
 
@@ -163,27 +165,27 @@ claude plugin uninstall <plugin> [options]
 claude plugin uninstall formatter@my-marketplace --scope project
 ```
 
-Claude Code 打印 `Successfully uninstalled plugin: formatter (scope: project)`。当插件未在该作用域安装时，命令打印以 `Failed to uninstall plugin "formatter@my-marketplace":` 开头的行并退出 `1`。
+Claude Code 打印 `Successfully uninstalled plugin: formatter (scope: project)`。当插件未在该作用域安装时，命令会打印以 `Failed to uninstall plugin "formatter@my-marketplace":` 开头的行并以 `1` 退出。
 
-如果失败行继续为 `"formatter" was not uninstalled:` 并命名设置文件，Claude Code 无法确认作用域的设置不再打开插件，因此插件保持安装状态，保留其保存的所有内容。使用 `--json` 时，结果携带 `failureCode: "settings_still_on"`。此设置检查需要 Claude Code v2.1.282 或更高版本。
+如果失败行后接 `"formatter" was not uninstalled:` 并指出某个设置文件，说明 Claude Code 无法确认该作用域的设置已不再启用该插件，因此插件保持安装状态，其保存的所有内容也都保留。使用 `--json` 时，结果携带 `failureCode: "settings_still_on"`。此设置检查需要 Claude Code v2.1.282 或更高版本。
 
 <h4 id="what-an-uninstall-deletes-and-keeps">
-  卸载删除和保留的内容
+  卸载会删除和保留的内容
 </h4>
 
-当你从最后一个安装它的作用域卸载插件时，Claude Code 也删除插件存储的 [选项和密钥](/docs/zh-CN/plugins/manifest-reference#user-configuration) 及其数据目录 `~/.claude/plugins/data/<id>/`。有三个例外：
+当您从插件安装所在的最后一个作用域卸载插件时，Claude Code 还会删除插件存储的[选项和密钥](/docs/zh-CN/plugins/manifest-reference#user-configuration)及其数据目录 `~/.claude/plugins/data/<id>/`。有三个例外：
 
-* 使用 `--keep-data` 时，数据目录保留
-* 当另一个已安装的插件使用相同的文件夹时，例如其 ID 仅在字母大小写上与此不同的插件，数据目录保留
-* 当 Claude Code 无法在从该作用域移除插件后读回已安装插件的列表时，选项、密钥和数据目录都保留，因为插件可能仍在另一个作用域安装。卸载仍然成功。消息列出保留的内容及如何删除它，使用 `--json` 时结果携带 `savedKept: "install_records_unreadable"`
+* 使用 `--keep-data` 时，数据目录会保留
+* 当另一个已安装的插件使用相同的文件夹时（例如其 ID 与此插件仅在字母大小写上不同），数据目录会保留
+* 当 Claude Code 从该作用域移除插件后无法读回已安装插件列表时，选项、密钥和数据目录都会保留，因为插件可能仍安装在另一个作用域。卸载仍然成功。消息会列出保留的内容以及如何删除它们，使用 `--json` 时结果携带 `savedKept: "install_records_unreadable"`
 
-使用 `--json` 时，`keptData` 报告目录是否保留，`/plugin` 在保留时显示 `· data preserved`。对于在没有 `--keep-data` 的情况下保留的目录，此报告需要 Claude Code v2.1.281 或更高版本。`savedKept` 字段需要 Claude Code v2.1.282 或更高版本。
+使用 `--json` 时，`keptData` 报告目录是否保留，目录保留时 `/plugin` 会显示 `· data preserved`。对于未使用 `--keep-data` 却保留的目录，此报告需要 Claude Code v2.1.281 或更高版本。`savedKept` 字段需要 Claude Code v2.1.282 或更高版本。
 
 <h3 id="plugin-enable">
   plugin enable
 </h3>
 
-启用禁用的插件。对于 [从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)，传递 `<name>@synced` 作为插件。
+启用已禁用的插件。对于[从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)，请传递 `<name>@synced` 作为插件。
 
 ```bash theme={null}
 claude plugin enable <plugin> [options]
@@ -192,36 +194,36 @@ claude plugin enable <plugin> [options]
 | 标志 | 描述 |
 | :- | :- |
 | `-s, --scope <scope>` | 启用的作用域：`user`、`project` 或 `local`。省略时自动检测 |
-| `--json` | 将结果打印为 stdout 最后一行的一个 JSON 对象，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本 |
+| `--json` | 将结果作为一个 JSON 对象打印在 stdout 的最后一行，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本 |
 
-不使用 `--scope` 时，命令按本地、项目、用户的顺序检查你的设置文件，并使用第一个提及插件的作用域。
+不使用 `--scope` 时，命令按 local、project、user 的顺序检查您的设置文件，并使用第一个提及该插件的作用域。
 
-如果你传递插件未声明的 `--scope`，命令要么写入覆盖，要么失败：
+如果传递的 `--scope` 并非插件声明所在的作用域，命令要么写入覆盖，要么失败：
 
-* **一个 [优先于](/docs/zh-CN/plugins/loading) 声明作用域的作用域**：Claude Code 在你传递的作用域处写入覆盖。例如，`claude plugin disable formatter --scope local` 仅为你关闭项目启用的插件
-* **任何其他作用域**：命令失败，显示 `Plugin "formatter" is installed at project scope, not user. Use --scope project or omit --scope to auto-detect.`
+* **[优先级高于](/docs/zh-CN/plugins/loading)声明作用域的作用域**：Claude Code 在您传递的作用域写入覆盖。例如，`claude plugin disable formatter --scope local` 仅为您自己关闭在项目中启用的插件
+* **任何其他作用域**：命令失败，并显示 `Plugin "formatter" is installed at project scope, not user. Use --scope project or omit --scope to auto-detect.`
 
-如果插件已在解析的作用域启用，命令打印 `Plugin "formatter" is already enabled` 并退出 `1`。使用 `--json` 时，结果有 `"failureCode": "already_in_goal_state"` 和 `"alreadyInGoalState": true`，所以脚本可以将该情况视为成功。
+如果插件已在解析出的作用域中启用，命令会打印 `Plugin "formatter" is already enabled` 并以 `1` 退出。使用 `--json` 时，结果包含 `"failureCode": "already_in_goal_state"` 和 `"alreadyInGoalState": true`，因此脚本可以将这种情况视为成功。
 
-当插件声明 [依赖项](/docs/zh-CN/plugins/dependencies) 时，Claude Code 也启用它们。命令在这些情况下失败：
+当插件声明了[依赖](/docs/zh-CN/plugins/dependencies)时，Claude Code 也会启用这些依赖。在以下情况下命令会失败：
 
-* **依赖项未安装**：启用失败并为每个缺失的依赖项打印 `claude plugin install` 命令
-* **依赖项被你的组织的插件策略阻止**：启用失败并命名被阻止的依赖项
-* **依赖项在优先级高于目标作用域的作用域处设置为 `false`**：启用失败。在该作用域启用依赖项，或传递 `--scope` 以在那里写入
+* **某个依赖未安装**：启用失败，并为每个缺失的依赖打印 `claude plugin install` 命令
+* **某个依赖被您组织的插件策略阻止**：启用失败，并指出被阻止的依赖
+* **某个依赖在优先级高于目标作用域的作用域中被设置为 `false`**：启用失败。请在该作用域启用该依赖，或传递 `--scope` 以写入该作用域
 
-在声明它的任何地方重新启用插件：
+在插件声明所在的任何位置重新启用插件：
 
 ```bash theme={null}
 claude plugin enable formatter
 ```
 
-Claude Code 打印 `Successfully enabled plugin: formatter (scope: project)`，命名它检测到的作用域。
+Claude Code 打印 `Successfully enabled plugin: formatter (scope: project)`，并指出它检测到的作用域。
 
 <h3 id="plugin-disable">
   plugin disable
 </h3>
 
-禁用插件而不卸载它。对于 [从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)，传递 `<name>@synced` 作为插件。
+禁用插件而不卸载它。对于[从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)，请传递 `<name>@synced` 作为插件。
 
 ```bash theme={null}
 claude plugin disable [plugin] [options]
@@ -229,18 +231,18 @@ claude plugin disable [plugin] [options]
 
 | 标志 | 描述 |
 | :- | :- |
-| `-a, --all` | 禁用每个启用的插件。不能与插件名称或 `--scope` 组合 |
+| `-a, --all` | 禁用所有已启用的插件。不能与插件名称或 `--scope` 组合使用 |
 | `-s, --scope <scope>` | 禁用的作用域：`user`、`project` 或 `local`。省略时自动检测 |
-| `--json` | 将结果打印为 stdout 最后一行的一个 JSON 对象，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本 |
+| `--json` | 将结果作为一个 JSON 对象打印在 stdout 的最后一行，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本 |
 
-不使用 `--scope` 时，作用域按与 [`plugin enable`](#plugin-enable) 相同的本地、项目、用户顺序自动检测。
+不使用 `--scope` 时，作用域按与 [`plugin enable`](#plugin-enable) 相同的 local、project、user 顺序自动检测。
 
-如果你既不传递插件名称也不传递 `--all`，Claude Code 打印 `Please specify a plugin name or use --all to disable all plugins` 并退出 `1`。禁用已禁用的插件打印 `Plugin "formatter" is already disabled` 并退出 `1`，如 [`plugin enable`](#plugin-enable) 对已启用的插件所做的那样。
+如果既未传递插件名称也未传递 `--all`，Claude Code 会打印 `Please specify a plugin name or use --all to disable all plugins` 并以 `1` 退出。禁用已禁用的插件会打印 `Plugin "formatter" is already disabled` 并以 `1` 退出，与 [`plugin enable`](#plugin-enable) 对已启用插件的处理方式相同。
 
-命令对仍然需要的插件失败：
+对于仍被需要的插件，命令会失败：
 
-* **另一个启用的插件 [依赖于](/docs/zh-CN/plugins/dependencies) 它**：命令失败并命名要首先禁用的依赖项
-* **你的组织要求它作为同步插件**：命令失败并不保存任何内容
+* **另一个已启用的插件[依赖](/docs/zh-CN/plugins/dependencies)它**：命令失败，并列出需要先禁用的依赖方插件
+* **您的组织要求将其作为同步插件**：命令失败且不保存任何内容
 
 禁用一个插件：
 
@@ -254,7 +256,7 @@ Claude Code 打印 `Successfully disabled plugin: formatter (scope: project)`。
   plugin update
 </h3>
 
-将插件更新到其市场提供的最新版本。新版本在你的下一个会话中加载，或在运行中的会话中运行 `/reload-plugins` 后加载。
+将插件更新到其市场提供的最新版本。新版本会在您的下一个会话中加载，或在正在运行的会话中运行 `/reload-plugins` 后加载。
 
 ```bash theme={null}
 claude plugin update <plugin> [options]
@@ -262,16 +264,16 @@ claude plugin update <plugin> [options]
 
 | 标志 | 描述 |
 | :- | :- |
-| `-s, --scope <scope>` | 更新的作用域：`user`、`project`、`local` 或 `managed`。省略时自动检测 |
-| `-y, --yes` | 接受来自 [命令源](/docs/zh-CN/plugins/host-marketplace) 插件的更改的安装命令，无需提示。当 stdin 或 stdout 不是 TTY 时需要，除非你传递 `--accept-command`。需要 Claude Code v2.1.229 或更高版本 |
-| `--accept-command <sha256>` | 接受市场声明的命令，其 `sha256` 之前的 [`--json` 运行](#plugin-json-result) 在 `shownCommand` 中报告，代替 `-y`。不能与 `-y` 组合。需要 Claude Code v2.1.271 或更高版本 |
-| `--json` | 将结果打印为 stdout 最后一行的一个 JSON 对象，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本 |
+| `-s, --scope <scope>` | 要更新的作用域：`user`、`project`、`local` 或 `managed`。省略时自动检测 |
+| `-y, --yes` | 接受[命令源](/docs/zh-CN/plugins/host-marketplace)插件已更改的安装命令，不出现提示。当 stdin 或 stdout 不是 TTY 时必须提供，除非传递了 `--accept-command`。需要 Claude Code v2.1.229 或更高版本 |
+| `--accept-command <sha256>` | 代替 `-y`，接受之前某次 [`--json` 运行](#plugin-json-result)在 `shownCommand` 中报告了其 `sha256` 的市场声明命令。不能与 `-y` 组合使用。需要 Claude Code v2.1.271 或更高版本 |
+| `--json` | 将结果作为一个 JSON 对象打印在 stdout 的最后一行，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本 |
 
-如果你省略 `--scope`，命令在为你的当前项目安装它的最具体作用域处更新插件，检查本地、项目、用户，然后托管。
+如果省略 `--scope`，命令会在当前项目中插件安装所在的最具体作用域更新插件，依次检查 local、project、user，然后是 managed。
 
-在 v2.1.281 之前，当你省略 `--scope` 时命令使用 `user`，所以更新仅在项目或本地作用域安装的插件失败，显示 `Plugin "<name>" is not installed at scope user`。在这些版本上，传递 `--scope`。
+在 v2.1.281 之前，省略 `--scope` 时命令使用 `user`，因此更新仅安装在 project 或 local 作用域的插件会失败，并显示 `Plugin "<name>" is not installed at scope user`。在这些版本上，请传递 `--scope`。
 
-`managed` 是你可以更新但不能安装的唯一作用域。对于管理员安装的插件，请参阅 [为你的组织管理插件](/docs/zh-CN/plugins/org)。
+`managed` 是唯一可以更新但不能安装到的作用域。有关管理员安装的插件，请参阅[为组织管理插件](/docs/zh-CN/plugins/org)。
 
 更新插件：
 
@@ -279,9 +281,9 @@ claude plugin update <plugin> [options]
 claude plugin update formatter@my-marketplace
 ```
 
-Claude Code 打印 `Checking for updates for plugin "formatter@my-marketplace"…`，然后是结果。当没有更新时，它打印 `formatter is already at the latest version (1.0.0).` 并退出 `0`。
+Claude Code 打印 `Checking for updates for plugin "formatter@my-marketplace"…`，然后打印结果。当没有更新的版本时，它会打印 `formatter is already at the latest version (1.0.0).` 并以 `0` 退出。
 
-你可以传递一个裸插件名称，命令将其与你安装的插件匹配。当来自不同市场的已安装插件共享名称时，命令拒绝更新并列出要运行的限定 `plugin-name@marketplace-name` 命令。按裸名称更新需要 Claude Code v2.1.246 或更高版本。
+您可以传递不带市场的插件名称，命令会将其与已安装的插件进行匹配。当来自不同市场的已安装插件同名时，命令会拒绝更新，并列出应改为运行的限定 `plugin-name@marketplace-name` 命令。按裸名称更新需要 Claude Code v2.1.246 或更高版本。
 
 <h3 id="plugin-list">
   plugin list
@@ -295,92 +297,92 @@ claude plugin list [options]
 
 | 标志 | 描述 |
 | :- | :- |
-| `--json` | 将列表打印为 JSON |
-| `--available` | 也列出你的市场提供但你未安装的插件。没有 `--json` 时无效 |
-| `--data-size [plugin]` | 测量每个已安装插件的 [保存数据目录](#what-an-uninstall-deletes-and-keeps)，或仅命名插件的，给定为 `name@marketplace`。没有 `--json` 时无效。如果名称没有安装记录，命令打印 `--data-size names a plugin that is not installed` 并退出 `1`，而不是打印列表。需要 Claude Code v2.1.285 或更高版本 |
+| `--json` | 以 JSON 格式打印列表 |
+| `--available` | 同时列出您的市场提供但尚未安装的插件。不使用 `--json` 时无效 |
+| `--data-size [plugin]` | 测量每个已安装插件的[已保存数据目录](#what-an-uninstall-deletes-and-keeps)，或仅测量以 `name@marketplace` 形式指定的插件。不使用 `--json` 时无效。如果该名称没有安装记录，命令会打印 `--data-size names a plugin that is not installed` 并以 `1` 退出，而不是打印列表。需要 Claude Code v2.1.285 或更高版本 |
 
-Claude Code 按每个插件的加载方式对人类可读的输出进行分组：
+Claude Code 按各插件的加载方式对人类可读的输出进行分组：
 
-* **`Installed plugins:`**：你从市场安装的插件
+* **`Installed plugins:`**：您从市场安装的插件
 * **`Session-only plugins (--plugin-dir / --plugin-url):`**：由同一命令中的这些标志加载的插件，如 `claude --plugin-dir ./my-plugin plugin list`
 * **`Skills-directory plugins (.claude/skills/*):`**：Claude Code 在 skills 目录中找到的插件
-* **`Synced from claude.ai`**：[从你的 claude.ai 账户同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)
+* **`Synced from claude.ai`**：[从您的 claude.ai 账户同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)
 
-当任何组中都没有内容时，Claude Code 打印 ``No plugins installed. Use `claude plugin install` to install a plugin.``
+当所有分组都为空时，Claude Code 打印 ``No plugins installed. Use `claude plugin install` to install a plugin.``
 
 <h4 id="json-output">
   JSON 输出
 </h4>
 
-使用 `--json` 时，Claude Code 打印一个数组，每个安装一个对象。每个对象携带下面的字段。`id`、`version`、`scope`、`enabled` 和 `installPath` 始终存在，其他仅在适用时出现。
+使用 `--json` 时，Claude Code 打印一个数组，每个安装对应一个对象。每个对象携带以下字段。`id`、`version`、`scope`、`enabled` 和 `installPath` 始终存在，其他字段仅在适用时出现。
 
 | 字段 | 类型 | 描述 |
 | :- | :- | :- |
-| `id` | string | 安装时为 `name@marketplace`，会话内插件为 `name@inline`，skills-directory 插件为 `name@skills-dir`，从 claude.ai 同步的插件为 `name@synced` |
-| `version` | string | 对于市场安装，[Claude Code 在安装时计算的](/docs/zh-CN/plugins/loading#versions-and-updates) 版本。对于会话内、skills-directory 或同步插件，清单的 `version`，或当它不声明时为 `unknown` |
-| `scope` | string | 安装时为 `user`、`project`、`local` 或 `managed`；skills-directory 插件为 `user` 或 `project`；会话内插件为 `session`；从 claude.ai 同步的插件为 `synced` |
-| `enabled` | boolean | 插件在你的合并设置中是否启用 |
-| `installPath` | string | 插件加载的目录 |
-| `installedAt` | string | 安装的 ISO 时间戳。仅市场安装 |
-| `lastUpdated` | string | 最后更新的 ISO 时间戳。仅市场安装 |
-| `projectPath` | string | 安装所属的项目。仅 `project` 和 `local` 作用域 |
-| `mcpServers` | object | 插件的 MCP 服务器定义，当市场安装的插件有任何时 |
-| `errors` | array of strings | 加载错误，当插件加载失败时 |
-| `notes` | array of strings | 插件加载并工作的创作警告 |
-| `errorDetails` | array of objects | 每个 `errors` 条目一个对象，给出其诊断 `type` 和它引用的名称，例如插件、市场、服务器或文件。需要 Claude Code v2.1.268 或更高版本 |
-| `noteDetails` | array of objects | 每个 `notes` 条目的相同详细对象。需要 Claude Code v2.1.268 或更高版本 |
-| `hasUserConfig` | boolean | 当插件加载且其清单声明 [`userConfig` 选项](/docs/zh-CN/plugins/manifest-reference#user-configuration) 时存在且为 `true`。对于加载失败的插件不存在，无论其清单声明什么。保存的值永远不包括。需要 Claude Code v2.1.285 或更高版本 |
-| `projectEnabled` | boolean | 项目的共享 `.claude/settings.json` 是否打开插件。仅市场安装。需要 Claude Code v2.1.285 或更高版本 |
-| `dataDirSize` | object | 使用 `--data-size` 时，插件的 [保存数据目录](#what-an-uninstall-deletes-and-keeps) 的大小为 `bytes` 和 `human`；当目录缺失或为空时不存在。仅市场安装。需要 Claude Code v2.1.285 或更高版本 |
-| `dataDirUnreadable` | boolean | 使用 `--data-size` 时，当保存的数据目录存在但无法测量时为 `true`。仅市场安装。需要 Claude Code v2.1.285 或更高版本 |
+| `id` | string | 安装的插件为 `name@marketplace`，仅限会话的插件为 `name@inline`，skills-directory 插件为 `name@skills-dir`，从 claude.ai 同步的插件为 `name@synced` |
+| `version` | string | 对于市场安装，为 [Claude Code 在安装时计算的版本](/docs/zh-CN/plugins/loading#versions-and-updates)。对于仅限会话、skills-directory 或同步插件，为清单的 `version`，未声明时为 `unknown` |
+| `scope` | string | 安装的插件为 `user`、`project`、`local` 或 `managed`；skills-directory 插件为 `user` 或 `project`；仅限会话的插件为 `session`；从 claude.ai 同步的插件为 `synced` |
+| `enabled` | boolean | 插件在合并后的设置中是否启用 |
+| `installPath` | string | 插件加载所在的目录 |
+| `installedAt` | string | 安装的 ISO 时间戳。仅限市场安装 |
+| `lastUpdated` | string | 最后更新的 ISO 时间戳。仅限市场安装 |
+| `projectPath` | string | 安装所属的项目。仅限 `project` 和 `local` 作用域 |
+| `mcpServers` | object | 插件的 MCP 服务器定义，仅当市场安装的插件包含 MCP 服务器时出现 |
+| `errors` | array of strings | 加载错误，仅当插件加载失败时出现 |
+| `notes` | array of strings | 针对已加载且可正常工作的插件的编写警告 |
+| `errorDetails` | array of objects | 每个 `errors` 条目对应一个对象，给出其诊断 `type` 以及它所引用的名称，例如插件、市场、服务器或文件。需要 Claude Code v2.1.268 或更高版本 |
+| `noteDetails` | array of objects | 每个 `notes` 条目对应的相同详细对象。需要 Claude Code v2.1.268 或更高版本 |
+| `hasUserConfig` | boolean | 当插件已加载且其清单声明了 [`userConfig` 选项](/docs/zh-CN/plugins/manifest-reference#user-configuration)时存在且为 `true`。对于加载失败的插件，无论其清单声明什么，该字段都不存在。永远不包含已保存的值。需要 Claude Code v2.1.285 或更高版本 |
+| `projectEnabled` | boolean | 项目共享的 `.claude/settings.json` 是否启用该插件。仅限市场安装。需要 Claude Code v2.1.285 或更高版本 |
+| `dataDirSize` | object | 使用 `--data-size` 时，以 `bytes` 和 `human` 表示的插件[已保存数据目录](#what-an-uninstall-deletes-and-keeps)大小；目录缺失或为空时不存在。仅限市场安装。需要 Claude Code v2.1.285 或更高版本 |
+| `dataDirUnreadable` | boolean | 使用 `--data-size` 时，如果已保存的数据目录存在但无法测量，则为 `true`。仅限市场安装。需要 Claude Code v2.1.285 或更高版本 |
 
-使用 `--json --available` 时，Claude Code 打印一个对象而不是数组。其 `installed` 字段保存已安装插件对象的数组，其 `available` 字段保存每个未安装的市场插件的一个对象，带有下面的字段。
+使用 `--json --available` 时，Claude Code 打印一个对象而不是数组。其 `installed` 字段包含已安装插件对象的数组，其 `available` 字段为每个未安装的市场插件包含一个对象，带有以下字段。
 
 | 字段 | 类型 | 描述 |
 | :- | :- | :- |
 | `pluginId` | string | `name@marketplace` |
 | `name` | string | 插件在市场中的名称 |
-| `marketplaceName` | string | 提供它的市场 |
+| `marketplaceName` | string | 提供该插件的市场 |
 | `source` | string or object | 市场条目的 [source](/docs/zh-CN/plugins/marketplace-reference)：相对路径为字符串，否则为对象 |
-| `description` | string | 条目的描述，当它有时 |
-| `version` | string | 条目的版本，当它声明时 |
-| `installCount` | number | 安装计数，当 Claude Code 有插件的时 |
+| `description` | string | 条目的描述（如有） |
+| `version` | string | 条目的版本（如有声明） |
+| `installCount` | number | 安装次数（当 Claude Code 有该插件的安装次数时） |
 
 <h3 id="plugin-details">
   plugin details
 </h3>
 
-显示插件的组件清单及其预计令牌成本。
+显示插件的组件清单及其预计 token 成本。
 
-插件必须被加载：已安装、在 skills 目录中找到，或在同一命令中使用 `--plugin-dir` 或 `--plugin-url` 传递。`<name>` 是插件 `name` 或 `name@marketplace`。
+插件必须已加载：已安装、在 skills 目录中找到，或在同一命令中通过 `--plugin-dir` 或 `--plugin-url` 传入。`<name>` 是插件 `name` 或 `name@marketplace`。
 
 ```bash theme={null}
 claude plugin details <name>
 ```
 
-该命令除了 `--help` 外不接受标志。
+该命令除 `--help` 外不接受任何标志。
 
-显示已安装插件贡献的内容：
+显示已安装插件提供的内容：
 
 ```bash theme={null}
 claude plugin details formatter
 ```
 
-Claude Code 打印插件的名称、版本、描述和源，然后是这些部分：
+Claude Code 打印插件的名称、版本、描述和来源，然后打印以下部分：
 
-* **`Component inventory`**：插件的 skills、agents、hooks、MCP 服务器和 LSP 服务器
-* **`Projected token cost`**：插件添加到每个会话的始终开启令牌
-* **`Per-component (rounded)`**：每个 skill、agent 和命令的始终开启和按调用估计。当插件没有时省略
+* **`Component inventory`**：插件的 skill、Agent、hook、MCP 服务器和 LSP 服务器
+* **`Projected token cost`**：插件添加到每个会话的常驻 token
+* **`Per-component (rounded)`**：每个 skill、Agent 和命令的常驻和调用时估算值。插件没有这些组件时省略
 
-对于两个成本数字的含义，请参阅 [测量插件成本和使用](/docs/zh-CN/plugins/measure)。
+有关这两个成本数字的含义，请参阅[衡量插件成本和使用情况](/docs/zh-CN/plugins/measure)。
 
-对于未加载的插件，Claude Code 打印 ``Plugin "formatter" not found. Run `claude plugin list` to see installed plugins, or pass --plugin-dir <path> to load one from disk.`` 并退出 `1`。
+对于未加载的插件，Claude Code 打印 ``Plugin "formatter" not found. Run `claude plugin list` to see installed plugins, or pass --plugin-dir <path> to load one from disk.`` 并以 `1` 退出。
 
 <h3 id="plugin-configure">
   plugin configure
 </h3>
 
-显示已安装插件的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 选项及其设置的选项，或保存在 stdin 上管道传入的值。需要 Claude Code v2.1.285 或更高版本。
+显示已安装插件的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 选项及哪些已设置，或保存通过 stdin 管道传入的值。需要 Claude Code v2.1.285 或更高版本。
 
 ```bash theme={null}
 claude plugin configure <plugin>
@@ -388,28 +390,28 @@ claude plugin configure <plugin>
 
 | 标志 | 描述 |
 | :- | :- |
-| `--values-stdin` | 从 stdin 读取选项值作为单行字符串的 JSON 对象并保存它们。你留出的选项保留其保存的值 |
-| `--json` | 将结果打印为 stdout 上的一个 JSON 对象。不使用 `--values-stdin` 时，对象携带选项的 `schema` 和 `choices`、它们的起始 `inputs` 和 `configured` 和 `unconfigured` 选项名称。使用 `--values-stdin` 时，它携带 `saved` 选项名称和，当它们可以被读回时，`unconfigured` 的名称 |
+| `--values-stdin` | 从 stdin 读取以单行字符串组成的 JSON 对象形式的选项值并保存。未提供的选项保留其已保存的值 |
+| `--json` | 将结果作为一个 JSON 对象打印在 stdout 上。不使用 `--values-stdin` 时，该对象携带选项的 `schema` 和 `choices`、它们的初始 `inputs`，以及 `configured` 和 `unconfigured` 选项名称。使用 `--values-stdin` 时，它携带 `saved` 选项名称，以及在可读回时的 `unconfigured` 选项名称 |
 
-不使用标志时，命令列出每个选项，最多三个标签：`required` 或 `optional`，然后 `sensitive` 用于清单声明敏感的选项，然后 `set` 或 `not set`。它不打印保存的值。使用 `--json` 时，输出包括不敏感的选项的保存值，永远不包括敏感的文本。
+不使用标志时，命令列出每个选项，最多带三个标签：`required` 或 `optional`，然后是用于清单声明为敏感的选项的 `sensitive`，然后是 `set` 或 `not set`。它不打印已保存的值。使用 `--json` 时，输出包括非敏感选项的已保存值，但永远不包括敏感选项的文本。
 
-要保存值，将它们写入文件作为将选项键映射到字符串值的 JSON 对象，然后在 stdin 上传递文件。将 `formatter@my-marketplace` 替换为你自己的插件的 id，如 `claude plugin list` 所示。此示例从包含 `{"api_url": "https://example.com"}` 的文件 `values.json` 设置一个名为 `api_url` 的选项：
+要保存值，请将其写入一个文件，作为将选项键映射到字符串值的 JSON 对象，然后通过 stdin 传入该文件。将 `formatter@my-marketplace` 替换为 `claude plugin list` 中显示的您自己插件的 id。此示例从包含 `{"api_url": "https://example.com"}` 的文件 `values.json` 设置一个名为 `api_url` 的选项：
 
 ```bash theme={null}
 claude plugin configure formatter@my-marketplace --values-stdin < values.json
 ```
 
-Claude Code 根据选项的声明类型验证每个值并打印 `Configuration saved. Restart Claude Code to apply it.` 如果你传递清单不声明的键，或失败验证的值，命令不保存任何内容，打印 `Failed to save configuration:` 带原因，并退出 `1`。使用 `--json` 时，拒绝的值也打印 stdout 上的对象，其 `refused` 字段携带 `message` 和，当一个选项有问题时，其 `option` 键。
+Claude Code 根据选项声明的类型验证每个值，并打印 `Configuration saved. Restart Claude Code to apply it.` 如果传递了清单未声明的键，或未通过验证的值，命令不保存任何内容，打印 `Failed to save configuration:` 及原因，并以 `1` 退出。使用 `--json` 时，被拒绝的值还会在 stdout 上打印一个对象，其 `refused` 字段携带 `message`，以及在某个选项出错时该选项的 `option` 键。
 
-传递插件的完整 `name@marketplace` id，如 `claude plugin list` 所示。`configure` 不接受裸 `name`。当没有加载的插件有该 id 时，命令打印 `No installed plugin has the id "<plugin>".` 并退出 `1`。
+请传递 `claude plugin list` 中显示的插件完整 `name@marketplace` id。`configure` 不接受裸 `name`。当没有已加载的插件具有该 id 时，命令打印 `No installed plugin has the id "<plugin>".` 并以 `1` 退出。
 
-对于捆绑 MCP 服务器的设置，请参阅 [`plugin install --config`](#plugin-install) 或 `/plugin` 中的 **Configure** 项。
+有关捆绑 MCP 服务器的设置，请参阅 [`plugin install --config`](#plugin-install) 或 `/plugin` 中的 **Configure** 项。
 
 <h3 id="plugin-prune">
   plugin prune
 </h3>
 
-移除自动安装的 [依赖项](/docs/zh-CN/plugins/dependencies)，没有已安装的插件需要。命令永远不会移除你自己安装的插件。`autoremove` 是 `prune` 的别名。
+移除不再被任何已安装插件需要的自动安装[依赖项](/docs/zh-CN/plugins/dependencies)。该命令永远不会移除您自己安装的插件。`autoremove` 是 `prune` 的别名。
 
 ```bash theme={null}
 claude plugin prune [options]
@@ -417,23 +419,23 @@ claude plugin prune [options]
 
 | 标志 | 描述 |
 | :- | :- |
-| `-s, --scope <scope>` | 在作用域处修剪：`user`、`project` 或 `local`。默认为 `user` |
-| `--dry-run` | 列出将被移除的内容而不移除它 |
-| `-y, --yes` | 跳过确认提示。当 stdin 或 stdout 不是 TTY 时需要 |
+| `-s, --scope <scope>` | 在指定作用域清理：`user`、`project` 或 `local`。默认为 `user` |
+| `--dry-run` | 列出将被移除的内容，但不实际移除 |
+| `-y, --yes` | 跳过确认提示。当 stdin 或 stdout 不是 TTY 时必须提供 |
 
-预览修剪将移除的内容：
+预览清理将移除的内容：
 
 ```bash theme={null}
 claude plugin prune --dry-run
 ```
 
-Claude Code 列出孤立的依赖项并以 `(dry run — nothing removed)` 结尾。没有要移除的内容时，它打印以 `Nothing to prune` 开头的行。
+Claude Code 列出孤立的依赖项，并以 `(dry run — nothing removed)` 结尾。没有可移除的内容时，它会打印以 `Nothing to prune` 开头的行。
 
-不使用 `--dry-run` 时，命令仅在你在提示处确认或传递 `-y` 后移除孤立的依赖项。
+不使用 `--dry-run` 时，命令仅在您于提示处确认或传递 `-y` 后才移除孤立的依赖项。
 
-无论你在提示处的答案如何，退出代码都是 `0`。
+无论您在提示处如何回答，退出码都是 `0`。
 
-`prune` 的作用取决于是否附加了终端以及你是否传递了 `-y`：
+`prune` 的行为取决于是否连接了终端以及是否传递了 `-y`：
 
 | 终端和标志 | 发生的情况 |
 | :- | :- |
@@ -445,109 +447,109 @@ Claude Code 列出孤立的依赖项并以 `(dry run — nothing removed)` 结�
   plugin eval
 </h3>
 
-运行插件的 [eval 案例](/docs/zh-CN/plugin-evals) 并报告评分结果。需要 Claude Code v2.1.269 或更高版本。
+运行插件的 [eval 案例](/docs/zh-CN/plugin-evals)并报告评分结果。需要 Claude Code v2.1.269 或更高版本。
 
-每个案例是一个提示加评分器。Claude Code 在隔离的会话中运行它多次，仅加载目标插件，默认情况下也不加载插件，所以报告显示差异。
+每个案例由一个提示词加评分器组成。Claude Code 在仅加载目标插件的隔离会话中多次运行它，并且默认还会在不加载插件的情况下运行，以便报告显示两者的差异。
 
-请参阅 [使用 evals 测试插件](/docs/zh-CN/plugin-evals) 了解案例格式、评分器、结果和 CI 使用。
+有关案例格式、评分器、结果和 CI 用法，请参阅[使用 evals 测试插件](/docs/zh-CN/plugin-evals)。
 
 ```bash theme={null}
 claude plugin eval [target] [options]
 ```
 
-可选的 `target` 默认为当前目录，并采用以下任何形式：
+可选的 `target` 默认为当前目录，可采用以下任一形式：
 
 * 插件目录
 * 单个 `prompt.md` 或 `case.yaml` 文件
-* 已安装的插件作为 `name` 或 `name@marketplace`
+* 以 `name` 或 `name@marketplace` 形式指定的已安装插件
 * `name@skills-dir`
 
-将目标放在 `--tag`、`--allow-tools` 和 `--json` 之前。这些选项中的每一个都将其后的单词作为其值，所以在其中一个之后写入的目标被读作标签、工具名称或 JSON 输出路径，而不是目标。
+请将目标放在 `--tag`、`--allow-tools` 和 `--json` 之前。这些选项会将其后的单词都作为自己的值，因此写在它们之后的目标会被读作标签、工具名称或 JSON 输出路径，而不是目标。
 
-此表列出大多数运行使用的选项。运行 `claude plugin eval --help` 以获取完整集合，包括 `--case`、`--tag`、`--output-dir`、`--report`、`--allow-real-servers`、`--keep-temp` 和 `--verbose`。
+此表列出大多数运行使用的选项。运行 `claude plugin eval --help` 可查看完整选项集，包括 `--case`、`--tag`、`--output-dir`、`--report`、`--allow-real-servers`、`--keep-temp` 和 `--verbose`。
 
-| 选项 | 描述 | 默认 |
+| 选项 | 描述 | 默认值 |
 | :- | :- | :- |
-| `--runs <n>` | 每个 [arm](/docs/zh-CN/plugin-evals#compare-against-a-no-plugin-baseline) 中每个案例的运行 | 每个案例的 `runs`，否则 3 |
-| `-j, --concurrency <n>` | 一次运行的代理会话，1 到 8。它们共享你的速率限制 | `1` |
-| `--model <model>` | 被测试代理的模型 | 每个案例的 `model`，否则 `ANTHROPIC_MODEL` 如果设置，否则 Claude Code 的默认值 |
-| `--judge-model <model>` | `llm` 和 `baseline` 评分器的模型 | 一个小的快速模型 |
-| `--ablation <mode>` | `none` 或 `with-without`。请参阅 [与无插件基线比较](/docs/zh-CN/plugin-evals#compare-against-a-no-plugin-baseline) | 当插件解析时为 `with-without`，否则 `none` |
-| `--threshold <0..1>` | 如果任何案例评分低于此，退出 1 | `1.0` |
-| `--max-cost-usd <usd>` | 一旦支出达到此值，在下一次运行前停止，退出 2，并报告部分结果 | 无限制 |
-| `--allow-tools <tools...>` | 授予超出只读集合的工具，例如 `Bash`、`Write`、`Edit` 或 `"mcp__plugin_<plugin>_<server>__*"`。请参阅 [授予工具](/docs/zh-CN/plugin-evals#grant-tools) | |
+| `--runs <n>` | 每个 [arm](/docs/zh-CN/plugin-evals#compare-against-a-no-plugin-baseline) 中每个案例的运行次数 | 每个案例的 `runs`，否则为 3 |
+| `-j, --concurrency <n>` | 同时运行的 Agent 会话数，1 到 8。它们共享您的速率限制 | `1` |
+| `--model <model>` | 被测 Agent 使用的模型 | 每个案例的 `model`；否则如已设置则为 `ANTHROPIC_MODEL`；否则为 Claude Code 的默认模型 |
+| `--judge-model <model>` | `llm` 和 `baseline` 评分器使用的模型 | 一个小型快速模型 |
+| `--ablation <mode>` | `none` 或 `with-without`。请参阅[根据无插件基线评分](/docs/zh-CN/plugin-evals#compare-against-a-no-plugin-baseline) | 按案例决定，如该章节所述 |
+| `--threshold <0..1>` | 如果任何案例的得分低于此值，则以 1 退出 | `1.0` |
+| `--max-cost-usd <usd>` | 一旦支出达到此值，在下一次运行前停止，以 2 退出，并报告部分结果 | 无限制 |
+| `--allow-tools <tools...>` | 授予只读工具集之外的工具，例如 `Bash`、`Write`、`Edit` 或 `"mcp__plugin_<plugin>_<server>__*"`。请参阅[授予工具](/docs/zh-CN/plugin-evals#grant-tools) | |
 | `--scaffold` | 运行每个案例的 [`scaffold_script`](/docs/zh-CN/plugin-evals#add-setup-or-history-with-case-yaml) | 关闭 |
-| `--trust-plugin` | 跳过首次运行信任提示，用于 CI。请参阅 [运行可以访问的内容](/docs/zh-CN/plugin-evals#security) | 关闭 |
-| `--mocks <mode>` | `record` 或 `off`。请参阅 [模拟 MCP 服务器](/docs/zh-CN/plugin-evals#mock-mcp-servers) | `record` |
-| `--eval-dir <dir>` | 插件下方保存案例的目录 | 清单的 `experimental.evals`，否则 `evals` |
-| `--json [path]` | 将 [结果文档](/docs/zh-CN/plugin-evals#json-result) 打印到 stdout，或写入 `.json` 路径 | |
-| `--no-publish` | 保持 HTML 报告本地 | |
+| `--trust-plugin` | 跳过首次运行的信任提示，用于 CI。请参阅[运行可以访问的内容](/docs/zh-CN/plugin-evals#security) | 关闭 |
+| `--mocks <mode>` | `record` 或 `off`。请参阅[模拟 MCP 服务器](/docs/zh-CN/plugin-evals#mock-mcp-servers) | `record` |
+| `--eval-dir <dir>` | 插件下存放案例的目录 | 清单的 `experimental.evals`，否则为 `evals` |
+| `--json [path]` | 将[结果文档](/docs/zh-CN/plugin-evals#json-result)打印到 stdout，或写入 `.json` 路径 | |
+| `--no-publish` | 将 HTML 报告保留在本地 | |
 
-退出代码报告运行如何结束。要在管道中对其进行操作，请参阅 [在 CI 中运行 evals](/docs/zh-CN/plugin-evals#run-evals-in-ci)。
+退出码反映运行的结束方式。如需在流水线中据此采取操作，请参阅[在 CI 中运行 evals](/docs/zh-CN/plugin-evals#run-evals-in-ci)。
 
-| 退出代码 | 含义 |
+| 退出码 | 含义 |
 | :- | :- |
-| `0` | 每个案例都满足阈值 |
-| `1` | 失败的案例、加载错误或不受信任的插件目录 |
+| `0` | 所有案例都达到阈值 |
+| `1` | 存在失败的案例、加载错误或不受信任的插件目录 |
 | `2` | 部分运行 |
-| `130` | 中断 |
-| `143` | 终止 |
+| `130` | 被中断 |
+| `143` | 被终止 |
 
 <h3 id="plugin-eval-init">
   plugin eval init
 </h3>
 
-为当前目录中的插件创建 eval 套件。需要 Claude Code v2.1.269 或更高版本。请参阅 [创建你的第一个 eval 套件](/docs/zh-CN/plugin-evals#create-your-first-eval-suite)。
+为当前目录中的插件创建 eval 套件。需要 Claude Code v2.1.269 或更高版本。请参阅[创建您的第一个 eval 套件](/docs/zh-CN/plugin-evals#create-your-first-eval-suite)。
 
 ```bash theme={null}
 claude plugin eval init [name] [options]
 ```
 
-从插件的根文件夹运行命令，即保存 `.claude-plugin/plugin.json` 或 skill 的 `SKILL.md` 的目录。要有意在另一个目录中搭建套件，传递 `--eval-dir`。
+请从插件的根文件夹运行该命令，即包含 `.claude-plugin/plugin.json` 或 skill 的 `SKILL.md` 的目录。如需有意在其他目录中搭建套件，请传递 `--eval-dir`。
 
-在终端中，命令打开交互式 Claude Code 会话进行创作访谈。在访谈中，Claude 执行以下操作：
+在终端中，该命令会打开一个交互式 Claude Code 会话进行编写访谈。在访谈中，Claude 会执行以下操作：
 
 1. 读取插件
-2. 询问你它应该做什么
+2. 询问您插件应擅长做什么
 3. 提议案例和评分器
 4. 写入案例文件
-5. 运行案例并与你一起查看评分，以检查评分器是否按你的方式评分
+5. 运行案例并与您一起审查评分，以检查评分器的打分方式是否与您一致
 
-使用 `--bare` 或没有终端时，命令改为写入空白单案例模板。当 Claude 从 Claude Code 会话内运行命令时，命令打印该会话要遵循的访谈说明，而不是写入模板。
+使用 `--bare` 或没有终端时，该命令改为写入一个空白的单案例模板。当 Claude 从 Claude Code 会话内运行该命令时，命令会打印供该会话遵循的访谈说明，而不是写入模板。
 
-可选的 `name` 是案例名称。它与 `--bare` 或没有终端时需要，因为命令为该案例写入空白模板。案例名称以字母或数字开头，仅包含字母、数字、`.`、`_` 和 `-`。在每个平台上，命令也拒绝 Windows 无法存储的名称，例如 `con` 或以 `.` 结尾的名称。
+可选的 `name` 是案例名称。使用 `--bare` 或没有终端时必须提供，因为命令会为该案例写入空白模板。案例名称以字母或数字开头，且仅包含字母、数字、`.`、`_` 和 `-`。在所有平台上，命令还会拒绝 Windows 无法存储的名称，例如 `con` 或以 `.` 结尾的名称。
 
-命令接受这些选项：
+该命令接受以下选项：
 
-| 选项 | 描述 | 默认 |
+| 选项 | 描述 | 默认值 |
 | :- | :- | :- |
-| `--bare` | 为 `<name>` 写入空白 `prompt.md` 和 `graders/criteria.md`，而不是运行访谈 | |
-| `-i, --interactive` | 需要访谈。没有终端时失败，而不是写入模板 | |
-| `--eval-dir <dir>` | 当前目录下写入案例的目录 | 清单的 `experimental.evals`，否则 `evals` |
+| `--bare` | 为 `<name>` 写入空白的 `prompt.md` 和 `graders/criteria.md`，而不是运行访谈 | |
+| `-i, --interactive` | 要求进行访谈。没有终端时失败，而不是写入模板 | |
+| `--eval-dir <dir>` | 当前目录下写入案例的目录 | 清单的 `experimental.evals`，否则为 `evals` |
 
 <h3 id="plugin-tag">
   plugin tag
 </h3>
 
-为插件发布创建名为 `<name>--v<version>` 的带注释 git 标签。在标记前，命令检查插件的 `plugin.json` 和任何列出它的市场条目在版本上是否一致。
+为插件发布创建名为 `<name>--v<version>` 的带注释 git 标签。在打标签之前，命令会检查插件的 `plugin.json` 与列出该插件的任何市场条目在版本上是否一致。
 
-关于何时标记发布，请参阅 [发布插件](/docs/zh-CN/plugins/publish)。
+有关何时为发布打标签，请参阅[发布插件](/docs/zh-CN/plugins/publish)。
 
 ```bash theme={null}
 claude plugin tag [path] [options]
 ```
 
-`[path]` 是插件目录，默认为当前目录。命令通过从该目录向上走到列出插件的 `.claude-plugin/marketplace.json` 来找到市场条目。
+`[path]` 是插件目录，默认为当前目录。命令从该目录向上查找，直到找到列出该插件的 `.claude-plugin/marketplace.json`，以此定位市场条目。
 
 | 标志 | 描述 |
 | :- | :- |
-| `--push` | 创建标签后推送到 `--remote` |
-| `--dry-run` | 打印将被标记的内容而不创建标签 |
-| `-f, --force` | 跳过脏工作树和标签已存在检查 |
+| `--push` | 创建标签后将其推送到 `--remote` |
+| `--dry-run` | 打印将要打的标签，但不创建标签 |
+| `-f, --force` | 跳过工作树不干净和标签已存在的检查 |
 | `-m, --message <msg>` | 标签注释消息。`%s` 代表版本。默认为 `<name> <version>` |
-| `--remote <name>` | 使用 `--push` 推送到的远程。默认为 `origin` |
+| `--remote <name>` | 使用 `--push` 时推送到的远程。默认为 `origin` |
 
-预览市场检出中插件的标签：
+预览市场检出中某个插件的标签：
 
 ```bash theme={null}
 claude plugin tag plugins/formatter --dry-run
@@ -556,24 +558,42 @@ claude plugin tag plugins/formatter --dry-run
 Claude Code 打印计划：
 
 * 插件名称
-* 版本及其来自的文件
-* 匹配的市场条目，当有时
+* 版本及其来源文件
+* 匹配的市场条目（如有）
 * 标签名称
 * 它将运行的 `git tag` 和 `git push` 命令
 
-不使用 `--dry-run` 时，Claude Code 打印 `Created tag formatter--v1.0.0` 并打印 `Pushed to origin` 或你自己运行的推送命令。如果推送失败，标签仍在本地创建，命令以错误退出。
+不使用 `--dry-run` 时，Claude Code 打印 `Created tag formatter--v1.0.0`，并打印 `Pushed to origin` 或需要您自己运行的推送命令。如果推送失败，标签仍会在本地创建，命令以错误退出。
 
-当命令无法安全标记时，它退出 `1` 并打印原因。常见原因是：
+当无法安全打标签时，命令以 `1` 退出并打印原因。常见原因如下：
 
 * `plugin.json` 或市场条目中没有 `version`
 * 标签已存在
-* 工作树是脏的
+* 工作树不干净
+
+<h3 id="plugin-test">
+  plugin test
+</h3>
+
+运行 [mod](/docs/zh-CN/plugins/mods/overview) 的测试，mod 是通过代码注册事件处理程序的插件。该命令无需会话、登录或网络。有关如何编写测试，请参阅[测试 mod](/docs/zh-CN/plugins/mods/test)。
+
+```bash theme={null}
+claude plugin test [directory]
+```
+
+`[directory]` 是 mod 的目录，默认为当前目录。该命令会运行其下所有名称以 `.test.ts` 或 `.test.tsx` 结尾的文件，并在有测试失败时以状态 1 退出。
+
+运行 `./first-mod` 中 mod 的测试：
+
+```bash theme={null}
+claude plugin test ./first-mod
+```
 
 <h3 id="plugin-validate">
   plugin validate
 </h3>
 
-验证插件清单、市场清单或目录中的 skills、agents 和命令，并以 CI 作业可以操作的代码退出。对于创建、测试和编辑工作流，请参阅 [创建插件](/docs/zh-CN/plugins/create)。对于验证器在每个清单中检查的内容，请参阅 [插件清单参考](/docs/zh-CN/plugins/manifest-reference) 和 [市场参考](/docs/zh-CN/plugins/marketplace-reference)。
+验证插件清单、市场清单或目录中的 skill、Agent 和命令，并以 CI 作业可据此操作的退出码退出。有关创建、测试和编辑工作流，请参阅[创建插件](/docs/zh-CN/plugins/create)。有关验证器在各清单中检查的内容，请参阅[插件清单参考](/docs/zh-CN/plugins/manifest-reference)和[市场参考](/docs/zh-CN/plugins/marketplace-reference)。
 
 ```bash theme={null}
 claude plugin validate <path> [options]
@@ -581,8 +601,8 @@ claude plugin validate <path> [options]
 
 | 标志 | 描述 |
 | :- | :- |
-| `--strict` | 将警告视为错误，所以运行时容忍的未识别字段和缺失元数据失败。需要 Claude Code v2.1.145 或更高版本 |
-| `--json` | 将验证报告输出为一个 JSON 对象，具有相同的退出代码。需要 Claude Code v2.1.259 或更高版本 |
+| `--strict` | 将警告视为错误，使运行时可容忍的未识别字段和缺失元数据导致运行失败。需要 Claude Code v2.1.145 或更高版本 |
+| `--json` | 将验证报告输出为一个 JSON 对象，退出码相同。需要 Claude Code v2.1.259 或更高版本 |
 
 在提交前验证插件：
 
@@ -594,48 +614,48 @@ claude plugin validate ./my-plugin --strict
   验证目录
 </h4>
 
-`<path>` 是清单文件或目录。给定目录，Claude Code 通过它找到的内容选择要验证的内容：
+`<path>` 是清单文件或目录。给定目录时，Claude Code 根据在其中找到的内容选择要验证的对象：
 
-* `.claude-plugin/marketplace.json`，当它存在时
-* 否则 `.claude-plugin/plugin.json`
-* 否则组件文件，由目录的名称选择。在没有清单的情况下验证组件文件需要 Claude Code v2.1.233 或更高版本：
+* `.claude-plugin/marketplace.json`（如果存在）
+* 否则为 `.claude-plugin/plugin.json`
+* 否则为组件文件，根据目录名称选择。在没有清单的情况下验证组件文件需要 Claude Code v2.1.233 或更高版本：
   * 名为 `skills`、`agents` 或 `commands` 的目录：其中的文件
   * 名为 `.claude` 的目录：其中的 `skills`、`agents` 和 `commands` 目录
   * 任何其他目录：其 `.claude` 下的这三个目录
 
-Claude Code 不跟随你命名的目录内的符号链接。它的作用取决于链接的位置：
+Claude Code 不会跟随您指定的目录内的符号链接。其行为取决于链接所在的位置：
 
-* **插件或 `.claude` 根下的链接 `skills`、`agents` 或 `commands` 目录**：Claude Code 警告其中的任何内容都未被读取。
-* **`skills`、`agents` 或 `commands` 目录内的链接条目**：Claude Code 跳过它并警告，每个目录，它跳过了多少条目，会话会加载。
-* **你命名的 `skills`、`agents` 或 `commands` 目录本身是符号链接，或其父 `.claude` 目录是**：Claude Code 报告错误并检查其中的任何内容。改为命名真实目录。
+* **插件或 `.claude` 根目录下作为链接的 `skills`、`agents` 或 `commands` 目录**：Claude Code 会警告其中的任何内容都未被读取。
+* **`skills`、`agents` 或 `commands` 目录内的链接条目**：Claude Code 会跳过它，并按目录警告跳过了多少会话本会加载的条目。
+* **您指定的 `skills`、`agents` 或 `commands` 目录本身是符号链接，或其父级 `.claude` 目录是符号链接**：Claude Code 报告错误，不检查其中的任何内容。请改为指定真实目录。
 
-少数文件不被验证运行读取：
+有少数文件不会被验证运行读取：
 
-* **插件根处的 `SKILL.md`**：当你针对插件目录运行 `claude plugin validate` 时，Claude Code 不检查插件根处的 `SKILL.md`
-* **插件根处的 `CLAUDE.md`**：在插件运行中，Claude Code 也警告插件根处的 `CLAUDE.md`
-* **市场运行中的插件文件**：从市场目录，Claude Code 不打开插件的 skill、agent、command 或 hook 文件，或它们捆绑的 MCP 服务器文件。要在这些文件中找到错误，验证每个插件目录
+* **插件根目录下的 `SKILL.md`**：针对插件目录运行 `claude plugin validate` 时，Claude Code 不会检查插件根目录下的 `SKILL.md`
+* **插件根目录下的 `CLAUDE.md`**：在插件运行中，Claude Code 还会对插件根目录下的 `CLAUDE.md` 发出警告
+* **市场运行中的插件文件**：从市场目录运行时，Claude Code 不会打开各插件的 skill、Agent、命令或 hook 文件，也不会打开它们捆绑的 MCP 服务器文件。要查找这些文件中的错误，请分别验证每个插件目录
 
 <h4 id="output-and-exit-codes">
-  输出和退出代码
+  输出和退出码
 </h4>
 
-Claude Code 打印它验证的文件、任何错误和警告及其路径，以及判决行。退出代码遵循判决：
+Claude Code 打印所验证的文件、所有错误和警告及其路径，以及一行结论。退出码与结论一致：
 
-| 退出代码 | 判决行 | 含义 |
+| 退出码 | 结论行 | 含义 |
 | :- | :- | :- |
-| `0` | `Validation passed` 或 `Validation passed with warnings` | 清单加载。使用 `--strict` 时，也没有警告 |
-| `1` | `Validation failed` 或 `Validation failed (--strict treats warnings as errors)` | 错误，或 `--strict` 下的警告 |
-| `2` | `Unexpected error during validation: <reason>` | 验证器本身失败，例如在不可读的路径上 |
+| `0` | `Validation passed` 或 `Validation passed with warnings` | 清单可以加载。使用 `--strict` 时，也没有警告 |
+| `1` | `Validation failed` 或 `Validation failed (--strict treats warnings as errors)` | 存在错误，或在 `--strict` 下存在警告 |
+| `2` | `Unexpected error during validation: <reason>` | 验证器本身失败，例如遇到不可读的路径 |
 
-使用 `--json` 时，Claude Code 将报告作为一个 JSON 对象写入 stdout，具有这些顶级字段：
+使用 `--json` 时，Claude Code 将报告作为一个 JSON 对象写入 stdout，包含以下顶级字段：
 
-* `success`：退出代码给出的相同判决
+* `success`：与退出码相同的结论
 * `strict`：运行是否将警告视为错误
-* `target`：Claude Code 验证的解析路径
-* `manifest`：清单自己的结果，或对没有清单的运行为 `null`
-* `contents`：每个文件的结果，命名其 `file` 并携带 `errors`、`warnings` 和 `notes` 数组
+* `target`：Claude Code 验证的解析后路径
+* `manifest`：清单自身的结果，对于没有清单的运行为 `null`
+* `contents`：每个文件的结果，各自指明其 `file`，并携带 `errors`、`warnings` 和 `notes` 数组
 
-在退出 `2` 时，命令不向 stdout 写入任何内容。错误消息转到 stderr。
+以 `2` 退出时，命令不向 stdout 写入任何内容。错误消息输出到 stderr。
 
 <h2 id="claude-plugin-marketplace-commands">
   claude plugin marketplace 命令
@@ -802,7 +822,7 @@ Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当你
 
 `<plugin>` 是 plugin `name` 或 `name@marketplace`。
 
-下表列出每个会话形式。shell 子命令 `init`、`update`、`details`、`prune`、`eval` 和 `eval init` 没有会话形式。
+下表列出每个会话形式。shell 子命令 `init`、`update`、`details`、`prune`、`eval`、`eval init` 和 `test` 没有会话形式。
 
 | 命令 | 别名 | 它做什么 |
 | :- | :- | :- |

@@ -606,6 +606,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`alwaysThinkingEnabled`](#alwaysthinkingenabled) | 为每个会话关闭[扩展思考](/docs/zh-CN/model-config#extended-thinking) | 模型和响应 | Any file |
 | [`apiKeyHelper`](#apikeyhelper) | 使用您自己的命令生成 [API 凭证](/docs/zh-CN/authentication#credential-management) | 身份验证和提供商 | Any file |
 | [`askUserQuestionTimeout`](#askuserquestiontimeout) | 让未回答的问题在空闲时间后[自动继续](/docs/zh-CN/tools-reference#question-auto-continue-timeout) | 界面和终端 | User or managed |
+| [`appendPlugins`](#appendplugins) | 在用户安装的每个 mod 之后运行您的组织的 [mod](/docs/zh-CN/plugins/mods/admin) | 插件和 skill | User or managed |
 | [`attribution`](#attribution) | 自定义 Claude Code 添加到提交和拉取请求的属性 | Git 和属性 | Any file |
 | [`attribution.commit`](#attribution-commit) | 更改或隐藏 Claude Code 添加到提交的预告片 | Git 和属性 | Any file |
 | [`attribution.pr`](#attribution-pr) | 更改或隐藏拉取请求描述中的属性行 | Git 和属性 | Any file |
@@ -730,6 +731,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`policyHelper.timeoutMs`](#policyhelper-timeoutms) | 设置 Claude Code 等待[辅助程序](/docs/zh-CN/managed-settings#compute-the-policy-with-a-helper-program)的时间 | 企业和托管设置 | Managed |
 | [`preferredNotifChannel`](#preferrednotifchannel) | 为任务完成选择[终端铃声或桌面通知](/docs/zh-CN/terminal-config#get-a-terminal-bell-or-notification) | 远程、桌面和通知 | Any file |
 | [`prefersReducedMotion`](#prefersreducedmotion) | [减少或关闭](/docs/zh-CN/accessibility#accessibility-settings)旋转、闪烁和闪光动画 | 界面和终端 | Any file |
+| [`prependPlugins`](#prependplugins) | 在用户安装的每个 mod 之前运行您的组织的 [mod](/docs/zh-CN/plugins/mods/admin) | 插件和 skill | User or managed |
 | [`processWrapper`](#processwrapper) | 在 macOS 和 Linux 上通过[企业启动器](/docs/zh-CN/corporate-launcher)运行 Claude Code 的后台进程 | 代理、会话和工作树 | User or managed |
 | [`promptCacheTtl`](#promptcachettl) | 为主对话选择[提示缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime) | 模型和响应 | Any file |
 | [`promptSuggestionEnabled`](#promptsuggestionenabled) | 隐藏输入框中灰显的[提示建议](/docs/zh-CN/interactive-mode#prompt-suggestions) | 界面和终端 | Any file |
@@ -754,7 +756,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`sandbox.credentials.sigv4`](#sandbox-credentials-sigv4) | 选择流式传输、预签名或 [SigV4A AWS 请求](/docs/zh-CN/sandboxing#re-sign-aws-requests)是否失败或通过 | 沙箱设置 | User or managed |
 | [`sandbox.enabled`](#sandbox-enabled) | 在 macOS、Linux 和 WSL2 上打开 [Bash 沙箱](/docs/zh-CN/sandboxing#get-started) | 沙箱设置 | Any file |
 | [`sandbox.enableWeakerNestedSandbox`](#sandbox-enableweakernestedsandbox) | 在无特权容器内运行 Linux [沙箱](/docs/zh-CN/sandboxing) | 沙箱设置 | Any file |
-| [`sandbox.enableWeakerNetworkIsolation`](#sandbox-enableweakernetworkisolation) | 让 `gh`、`gcloud` 和 `terraform` 在[沙箱](/docs/zh-CN/sandboxing#troubleshooting)内的 MITM 代理后面验证 TLS | 沙箱设置 | Any file |
+| [`sandbox.enableWeakerNetworkIsolation`](#sandbox-enableweakernetworkisolation) | 在 macOS 上让 `gh`、`gcloud` 和 `terraform` 在[沙箱](/docs/zh-CN/sandboxing#go-based-clis-fail-tls-verification-on-macos)内的 MITM 代理后面验证 TLS | 沙箱设置 | Any file |
 | [`sandbox.excludedCommands`](#sandbox-excludedcommands) | 命名始终在[沙箱](/docs/zh-CN/sandboxing)外运行的命令 | 沙箱设置 | Any file |
 | [`sandbox.failIfUnavailable`](#sandbox-failifunavailable) | 当[沙箱](/docs/zh-CN/sandboxing)无法启动时拒绝启动，而不是运行未沙箱化的 | 沙箱设置 | Any file |
 | [`sandbox.filesystem`](#sandbox-filesystem) | 控制[沙箱化](/docs/zh-CN/sandboxing#filesystem-isolation)命令可以读写的路径 | 沙箱设置 | Any file |
@@ -768,7 +770,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`sandbox.network`](#sandbox-network) | 控制[沙箱化](/docs/zh-CN/sandboxing#network-isolation)命令可以到达的主机、端口和套接字 | 沙箱设置 | Any file |
 | [`sandbox.network.allowAllUnixSockets`](#sandbox-network-allowallunixsockets) | 让[沙箱化](/docs/zh-CN/sandboxing)命令连接到每个 Unix 套接字 | 沙箱设置 | Any file |
 | [`sandbox.network.allowedDomains`](#sandbox-network-alloweddomains) | 预先允许域，以便[沙箱化](/docs/zh-CN/sandboxing)命令不会提示它们 | 沙箱设置 | Any file |
-| [`sandbox.network.allowLocalBinding`](#sandbox-network-allowlocalbinding) | 让[沙箱化](/docs/zh-CN/sandboxing)命令在 macOS 上绑定到 localhost 端口 | 沙箱设置 | Any file |
+| [`sandbox.network.allowLocalBinding`](#sandbox-network-allowlocalbinding) | 让[沙箱化](/docs/zh-CN/sandboxing)命令在 macOS 上监听网络端口并连接到 localhost | 沙箱设置 | Any file |
 | [`sandbox.network.allowMachLookup`](#sandbox-network-allowmachlookup) | 让 macOS [沙箱化](/docs/zh-CN/sandboxing)工具（如 iOS 模拟器或 Playwright）到达其 XPC 服务 | 沙箱设置 | Any file |
 | [`sandbox.network.allowManagedDomainsOnly`](#sandbox-network-allowmanageddomainsonly) | 将网络允许列表锁定到[托管设置](/docs/zh-CN/sandboxing#keep-developers-from-widening-the-policy) | 沙箱设置 | Managed |
 | [`sandbox.network.allowUnixSockets`](#sandbox-network-allowunixsockets) | 列出[沙箱化](/docs/zh-CN/sandboxing)命令可以在 macOS 上使用的 Unix 套接字路径 | 沙箱设置 | Any file |
@@ -1445,6 +1447,15 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 
 有关 `--disallowedTools` 或会话规则中的 `!` 模式可以排除什么，请参阅 [Read 和 Edit 规则](/docs/zh-CN/permissions#read-and-edit)。
 
+设置此键后，Claude Code v2.1.282 或更高版本还会忽略来自以下来源的 skill 和 `.claude/commands/` 文件中的 [`allowed-tools`](/docs/zh-CN/skills#pre-approve-tools-for-a-skill) frontmatter：
+
+* 仓库的 `.claude/` 目录
+* 您的 `~/.claude/skills/` 和 `~/.claude/commands/` 目录，包括[从 claude.ai 同步的 skill](/docs/zh-CN/skills#where-synced-skills-load)
+* `--add-dir` 目录
+* `~/.claude/skills/` 或项目的 `.claude/skills/` 中[使用 `.claude-plugin` 清单声明的插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)
+
+来自托管设置的 skill 和随附 skill 保留其 `allowed-tools`。skill 的 `disallowed-tools` 仍然适用。有关 Claude Code 忽略该字段时开发人员会看到什么，请参阅[仅应用托管权限规则时](/docs/zh-CN/skills#when-only-managed-permission-rules-apply)。
+
 * **作用域**: [`Managed`](#scopes)
 * **类型**: 布尔值
   * `true`: 托管设置成为权限规则的唯一设置来源
@@ -1659,7 +1670,7 @@ Read 和 Edit 拒绝规则适用于 Claude 的内置文件工具、Claude Code �
 
 给予 Claude 对您启动的目录之外的目录的文件访问权限，作为额外的[工作目录](/docs/zh-CN/permissions#working-directories)。大多数 `.claude/` 配置[不会从这些目录中发现](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。
 
-* **作用域**: [`Any file`](#scopes)
+* **作用域**: [`Any file`](#scopes)，项目和本地条目提供的[沙箱写入访问权限受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **类型**: 目录路径数组
 * **默认值**: 未设置
 * **每个会话覆盖**: `--add-dir` 和 `/add-dir` 为一个会话添加目录，与此键一起
@@ -1855,7 +1866,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 }
 ```
 
-Claude Code 从优先级最高的设置范围获取布尔键的值，因此托管的 `enabled` 或 `failIfUnavailable` 会覆盖开发人员设置的任何内容。它在会话加载的每个设置范围中合并数组键，因此开发人员可以追加条目；请参阅 [Keep developers from widening the policy](/docs/zh-CN/sandboxing#keep-developers-from-widening-the-policy) 了解仅限托管的锁。要为组织强制执行沙箱，请参阅 [Enforce sandboxing with managed settings](/docs/zh-CN/sandboxing#enforce-sandboxing-with-managed-settings)。
+当托管设置设置了 `enabled` 或 `failIfUnavailable` 等布尔键时，该值会覆盖开发人员设置的任何内容。Claude Code 在会话加载的各个设置作用域中合并数组键，因此开发人员可以追加条目；请参阅 [Keep developers from widening the policy](/docs/zh-CN/sandboxing#keep-developers-from-widening-the-policy) 了解仅限托管的锁。要为组织强制执行沙箱，请参阅 [Enforce sandboxing with managed settings](/docs/zh-CN/sandboxing#enforce-sandboxing-with-managed-settings)。
 
 <h3 id="sandbox-enabled">
   `sandbox.enabled`
@@ -1863,7 +1874,7 @@ Claude Code 从优先级最高的设置范围获取布尔键的值，因此托�
 
 为 Bash 命令打开 [sandboxing](/docs/zh-CN/sandboxing)。当您在 `/sandbox` 面板中选择一个模式时，Claude Code 会将此键写入当前项目的 `.claude/settings.local.json`；在 `~/.claude/settings.json` 中设置它以对每个项目进行沙箱处理。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 布尔值
   * `true`: Claude Code 对 Bash 命令进行沙箱处理
   * `false`: Bash 命令在没有沙箱的情况下运行
@@ -1877,18 +1888,20 @@ Claude Code 从优先级最高的设置范围获取布尔键的值，因此托�
 }
 ```
 
-在 Linux 和 WSL2 上，沙箱需要 `bubblewrap` 和 `socat`；请参阅 [Set up Linux and WSL2](/docs/zh-CN/sandboxing#set-up-linux-and-wsl2)。当沙箱无法启动时，Claude Code 会显示警告并在没有设置 [`failIfUnavailable`](#sandbox-failifunavailable) 的情况下运行未沙箱化的命令。
+在 Linux 和 WSL2 上，沙箱需要 `bubblewrap` 和 `socat`；请参阅 [Set up Linux and WSL2](/docs/zh-CN/sandboxing#set-up-linux-and-wsl2)。当沙箱无法启动时，除非您同时设置了 [`failIfUnavailable`](#sandbox-failifunavailable)，否则 Claude Code 会在没有沙箱的情况下运行命令。
 
 <h3 id="sandbox-failifunavailable">
   `sandbox.failIfUnavailable`
 </h3>
 
-当 `sandbox.enabled` 为 `true` 但沙箱无法启动时（因为缺少依赖项或不支持该平台），使 Claude Code 在启动时以错误退出。没有它，Claude Code 会显示警告并运行未沙箱化的命令。在托管设置中使用它，当您的组织要求沙箱作为硬门时。
+当 `sandbox.enabled` 为 `true` 但沙箱无法启动时（因为缺少依赖项或不支持该平台），使 Claude Code 在启动时以错误退出。没有此键时，Claude Code 会在没有沙箱的情况下运行命令。将沙箱作为安全关卡强制要求的托管部署可以使用此设置。
 
-* **Scope**: [`Any file`](#scopes)
+在沙箱不支持的平台上，启用此键时 Claude Code 不会启动。请参阅 [Enforce sandboxing with managed settings](/docs/zh-CN/sandboxing#enforce-sandboxing-with-managed-settings)。
+
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 布尔值
   * `true`: 当 `sandbox.enabled` 为 `true` 但沙箱无法启动时，Claude Code 在启动时以错误退出
-  * `false`: Claude Code 显示警告并运行未沙箱化的命令
+  * `false`: 当沙箱无法启动时，Claude Code 在没有沙箱的情况下运行命令
 * **Default**: `false`
 
 这使每台托管机器对命令进行沙箱处理或拒绝启动：
@@ -1933,11 +1946,11 @@ Claude Code 从优先级最高的设置范围获取布尔键的值，因此托�
   `sandbox.excludedCommands`
 </h3>
 
-命名 Claude Code 在沙箱外运行的命令，例如在沙箱下不工作的工具。每个条目使用与 `Bash(...)` [permission rule](/docs/zh-CN/permissions#permission-rule-syntax) 内容相同的语法：精确命令、前缀（如 `docker *` ）或通配符模式。
+指定 Claude Code 在沙箱外运行的命令，例如在沙箱下无法工作的工具。每个条目使用与 `Bash(...)` [permission rule](/docs/zh-CN/permissions#permission-rule-syntax) 内容相同的语法：精确命令、前缀（如 `docker *` ）或通配符模式。不含通配符的模式是精确匹配，因此 `docker` 仅匹配不带参数的 `docker`。
 
 您的条目仅当它们覆盖复合命令中的每个命令时才将 Bash 调用从沙箱中取出，某些调用形式即使这样也保持沙箱化。单独的 `docker *` 条目不会将 `npm ci && docker build .` 从沙箱中取出。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 命令模式数组
 * **Default**: 未设置，因此没有命令被排除
 
@@ -1956,21 +1969,24 @@ Claude Code 在具有以下形式之一时保持 Bash 调用沙箱化，以及�
 * 命令替换、子 shell 或控制流块，例如 `if` 或 `for`
 * 重定向，例如 `docker build . > build.log`，除了仅复制文件描述符的重定向，如 `2>&1` 所做的
 * 来自变量的命令名称
+* 带有绝对路径参数、以 `~` 开头的路径参数或包含 `..` 段的路径参数的 `git clone`、`git init`、`git worktree add`、`git worktree move` 或 `git bundle create`
 
-例如，`cd build && docker compose up` 在 `docker *` 条目下保持沙箱化，添加 `cd` 条目不会改变这一点。
+例如，`cd build && docker compose up` 在 `docker *` 条目下保持沙箱化，添加 `cd` 条目不会改变这一点。在 `git *` 条目下，`git clone <url> vendor/lib` 在沙箱外运行，但 `git clone <url> ~/tools` 保持沙箱化。克隆操作会在其目标路径指向的任何位置写入整个文件树，其中可能包括可执行文件。
 
-排除的命令仍会通过常规权限流程。排除是一种便利，而不是安全边界：当工具只需要在特定位置写入时，优先使用 [`filesystem.allowWrite`](#sandbox-filesystem-allowwrite)。Claude Code 在会话加载的每个设置范围中合并条目，此列表没有仅限托管的锁，因此保持托管列表狭窄。
+排除的命令仍会通过常规权限流程。排除是一种便利，而不是安全边界：当工具只需要在特定位置写入时，[`filesystem.allowWrite`](#sandbox-filesystem-allowwrite) 可以使其保持沙箱化。
+
+除非沙箱是[管理员强制要求的](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)，否则来自会话加载的各个设置作用域的条目会合并为一个列表。在管理员强制要求沙箱期间，Claude Code 会忽略 `.claude/settings.json` 和 `.claude/settings.local.json` 中的条目，因此克隆的仓库无法将命令移出沙箱。托管设置、`--settings` 和您的 `~/.claude/settings.json` 中的条目仍然适用，并且此列表没有仅限托管的锁。
 
 <h3 id="sandbox-allowunsandboxedcommands">
   `sandbox.allowUnsandboxedCommands`
 </h3>
 
-让 Claude 在沙箱阻止后使用 `dangerouslyDisableSandbox` 参数在沙箱外重试命令。将其设置为 `false` 以使 Claude Code 完全忽略该参数，并且 Claude 运行的每个命令都必须进行沙箱处理或出现在 [`excludedCommands`](#sandbox-excludedcommands) 中。`/sandbox` **Overrides** 选项卡将该状态显示为 **Strict sandbox mode**。在托管设置中使用 `false` 以获得需要严格沙箱处理的策略。
+让 Claude 在沙箱阻止命令后，使用 `dangerouslyDisableSandbox` 参数在沙箱外重试该命令。当其为 `false` 时，Claude Code 会忽略该参数。此时在沙箱运行期间，Claude 运行的命令都会进行沙箱处理，除非它们匹配 [`excludedCommands`](#sandbox-excludedcommands) 条目。`/sandbox` **Overrides** 选项卡将该状态显示为 **Strict sandbox mode**。托管设置中的 `false` 会为其覆盖的开发人员打开严格沙箱模式。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到一项限制](/docs/zh-CN/sandboxing#turn-off-the-retry-with-strict-sandbox-mode)
 * **Type**: 布尔值
   * `true`: Claude 可以在沙箱阻止后使用 `dangerouslyDisableSandbox` 参数在沙箱外重试命令
-  * `false`: Claude Code 忽略该参数，因此 Claude 运行的每个命令都进行沙箱处理或出现在 `excludedCommands` 中
+  * `false`: Claude Code 忽略该参数，因此在沙箱运行期间，Claude 运行的命令都会进行沙箱处理，除非它们匹配 `excludedCommands` 条目
 * **Default**: `true`
 
 这为托管设置覆盖的每个人强制执行严格沙箱模式：
@@ -1984,9 +2000,11 @@ Claude Code 在具有以下形式之一时保持 Bash 调用沙箱化，以及�
 }
 ```
 
-未沙箱化的重试通过常规权限流程，在手动模式下带有提示。请参阅 [The unsandboxed retry escape hatch](/docs/zh-CN/sandboxing#the-unsandboxed-retry-escape-hatch)。
+来自托管设置或 `--settings` 的 `false` 还会使沙箱成为[管理员强制要求的](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)。用户设置中的 `false` 会优先于项目的 `true`，但不会使沙箱成为管理员强制要求的。优先于项目值需要 Claude Code v2.1.285 或更高版本。
 
-要查看您在 [`!` shell-mode prompt](/docs/zh-CN/interactive-mode#shell-mode-with-prefix) 处自己输入的命令何时运行沙箱化，请参阅 [strict sandbox mode](/docs/zh-CN/sandboxing#the-unsandboxed-retry-escape-hatch)。
+由谁批准未沙箱化的重试取决于您的权限模式和允许规则。请参阅 [The unsandboxed retry escape hatch](/docs/zh-CN/sandboxing#the-unsandboxed-retry-escape-hatch)。
+
+要查看您在 [`!` shell-mode prompt](/docs/zh-CN/interactive-mode#shell-mode-with-prefix) 处自己输入的命令何时以沙箱化方式运行，请参阅 [strict sandbox mode](/docs/zh-CN/sandboxing#turn-off-the-retry-with-strict-sandbox-mode)。
 
 <h3 id="sandbox-filesystem">
   `sandbox.filesystem`
@@ -2013,7 +2031,7 @@ Claude Code 在具有以下形式之一时保持 Bash 调用沙箱化，以及�
 
 Claude Code 在操作系统沙箱边界强制执行这些列表，因此它们适用于沙箱化命令启动的每个子进程，例如 `kubectl`、`terraform` 或 `npm`。Claude Code 将您的 [permission rules](/docs/zh-CN/sandboxing#permission-rules) 添加到相同的列表：`Edit` 允许和拒绝规则到 `allowWrite` 和 `denyWrite`，`Read` 拒绝规则到 `denyRead`，以及 `WebFetch(domain:...)` 允许和拒绝规则到 [`network`](#sandbox-network) 域列表。
 
-除非设置了仅限托管的锁，否则 Claude Code 在会话加载的设置文件中合并每个列表。[`allowManagedReadPathsOnly`](#sandbox-filesystem-allowmanagedreadpathsonly) 将 `allowRead` 限制为托管设置中的条目，[`allowManagedDomainsOnly`](#sandbox-network-allowmanageddomainsonly) 对允许的域执行相同操作。
+除非有锁适用，否则 Claude Code 在会话加载的设置文件中合并这些列表。[`allowManagedReadPathsOnly`](#sandbox-filesystem-allowmanagedreadpathsonly) 将 `allowRead` 限制为托管设置中的条目，[`allowManagedDomainsOnly`](#sandbox-network-allowmanageddomainsonly) 对允许的域执行相同操作。[仓库锁](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)会排除来自仓库设置文件的条目。
 
 [Configure sandboxing](/docs/zh-CN/sandboxing#configure-sandboxing) 涵盖您使用 `--setting-sources` 排除的源。当您在会话期间编辑列表时，Claude Code [applies the change to the running session](/docs/zh-CN/settings#when-edits-take-effect)。
 
@@ -2044,7 +2062,7 @@ Claude Code 也删除尾部 `/**`，因此 `~/build/**` 和 `~/build` 覆盖同�
 
 添加沙箱化命令可以写入的路径，超出工作目录、会话临时目录以及使用 `--add-dir`、`/add-dir` 或 `permissions.additionalDirectories` 添加的目录。当子进程（如 `kubectl` 或构建工具）需要在项目外写入时使用它。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 路径字符串数组，使用 [sandbox path prefixes](#sandbox-path-prefixes)
 * **Default**: 未设置，因此沙箱化命令可以写入工作目录、会话临时目录、使用 `--add-dir` 或 `/add-dir` 添加的目录以及 [`permissions.additionalDirectories`](#permissions-additionaldirectories) 中的目录
 
@@ -2060,7 +2078,7 @@ Claude Code 也删除尾部 `/**`，因此 `~/build/**` 和 `~/build` 覆盖同�
 }
 ```
 
-Claude Code 在会话加载的每个设置范围中合并 `allowWrite` 条目和您的 `Edit(...)` 允许权限规则中的路径，在 [`permissions.blockReadsOutsideWorkingDirectories`](#sandboxed-commands-under-the-block) 打开时留出存储库设置中的条目。`allowWrite` 条目不能提升 [protected path](/docs/zh-CN/sandboxing#protected-paths)。
+Claude Code 在会话加载的各个设置作用域中合并 `allowWrite` 条目和您的 `Edit(...)` 允许权限规则中的路径，在 [`permissions.blockReadsOutsideWorkingDirectories`](#sandboxed-commands-under-the-block) 打开时排除来自仓库设置的条目。[仓库锁](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)也可能排除仓库的条目。`allowWrite` 条目不能解除 [protected path](/docs/zh-CN/sandboxing#protected-paths)。
 
 <h3 id="sandbox-filesystem-denywrite">
   `sandbox.filesystem.denyWrite`
@@ -2114,7 +2132,7 @@ Claude Code 在会话加载的每个设置范围中合并条目，并添加您�
 
 重新打开 [`denyRead`](#sandbox-filesystem-denyread) 阻止的区域内特定路径的读取，以构建仅工作区读取访问。精确或通配符 `denyRead` 条目在更广泛的 `allowRead` 内保持阻止，如 [overlap table](/docs/zh-CN/sandboxing#configure-sandboxing) 所示。当通配符 `denyRead` 条目（如 `~/**/.env` ）匹配目录时，Claude Code 也会阻止其内容的读取。在 v2.1.236 之前的 macOS 上，Claude Code 在更广泛的 `allowRead` 条目覆盖它们的任何地方重新打开通配符 `denyRead` 条目匹配的路径，并保持匹配目录的内容可读。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 路径字符串数组，使用 [sandbox path prefixes](#sandbox-path-prefixes)
 * **Default**: 未设置
 
@@ -2131,7 +2149,7 @@ Claude Code 在会话加载的每个设置范围中合并条目，并添加您�
 }
 ```
 
-Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户设置中解析为 `~/.claude`。Claude Code 在会话加载的每个设置文件中合并条目，除非设置了 [`allowManagedReadPathsOnly`](#sandbox-filesystem-allowmanagedreadpathsonly)，并在 [`permissions.blockReadsOutsideWorkingDirectories`](#sandboxed-commands-under-the-block) 打开时留出存储库设置中的条目。
+Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户设置中解析为 `~/.claude`。Claude Code 在会话加载的设置文件中合并条目，除非设置了 [`allowManagedReadPathsOnly`](#sandbox-filesystem-allowmanagedreadpathsonly)，并在 [`permissions.blockReadsOutsideWorkingDirectories`](#sandboxed-commands-under-the-block) 打开时排除来自仓库设置的条目。[仓库锁](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)也可能排除仓库的条目。
 
 <h3 id="sandbox-filesystem-allowmanagedreadpathsonly">
   `sandbox.filesystem.allowManagedReadPathsOnly`
@@ -2142,7 +2160,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 * **Scope**: [`Managed`](#scopes)
 * **Type**: 布尔值
   * `true`: Claude Code 仅遵守来自托管设置的 `allowRead` 条目
-  * `false`: `allowRead` 条目从会话加载的每个设置范围合并
+  * `false`: 来自其他设置文件的 `allowRead` 条目可以合并进来
 * **Default**: `false`
 
 这阻止读取主目录，重新打开 `~/work`，并阻止开发人员重新打开任何其他内容：
@@ -2197,7 +2215,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 沉默沙箱违规报告，针对您期望命令探测并被拒绝的路径，例如在启动时检查 `/etc/hosts` 的工具，因此这些拒绝不会显示为违规或在 Claude 看到的内容中。沙箱仍然阻止访问；只有报告被抑制。键是与命令匹配的子字符串，`*` 匹配每个命令，值是该命令要忽略的违规子字符串，例如文件系统路径。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 对象，将命令子字符串映射到违规子字符串数组，通常是路径
 * **Default**: 未设置，因此报告每个违规
 
@@ -2217,7 +2235,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 在无特权 Docker 容器内运行 Linux 沙箱，其中 bubblewrap 无法挂载新的 `/proc`。相反，内部沙箱绑定挂载容器的现有 `/proc`，这暴露了新挂载会隐藏的进程信息。这降低了安全性；仅当外部容器已提供您需要的隔离时才使用它。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 布尔值
   * `true`: 内部沙箱绑定挂载容器的现有 `/proc` 而不是挂载新的
   * `false`: 沙箱挂载新的 `/proc`，在无特权 Docker 容器中不工作
@@ -2232,7 +2250,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-仅限 Linux 和 WSL2。请参阅 [Bubblewrap fails to start inside a container](/docs/zh-CN/sandboxing#troubleshooting)。
+仅限 Linux 和 WSL2。请参阅 [Bubblewrap fails to start inside a container](/docs/zh-CN/sandboxing#bubblewrap-fails-to-start-inside-a-container)。
 
 <h3 id="sandbox-enableweakernetworkisolation">
   `sandbox.enableWeakerNetworkIsolation`
@@ -2240,7 +2258,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 让 macOS 上的沙箱化命令到达系统 TLS 信任服务 `com.apple.trustd.agent`。基于 Go 的工具（如 `gh`、`gcloud` 和 `terraform` ）在您使用 [`network.httpProxyPort`](#sandbox-network-httpproxyport) 与 MITM 代理和自定义 CA 时需要它来验证 TLS 证书。这通过打开通过信任服务的潜在数据泄露路径来降低安全性。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 布尔值
   * `true`: macOS 上的沙箱化命令可以到达 `com.apple.trustd.agent`
   * `false`: macOS 上的沙箱化命令无法到达系统 TLS 信任服务
@@ -2255,7 +2273,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-如果您不使用 MITM 代理，请改为在 [`excludedCommands`](#sandbox-excludedcommands) 中列出失败的工具；请参阅 [Go-based CLIs fail TLS verification on macOS](/docs/zh-CN/sandboxing#troubleshooting)。
+如果您不使用 MITM 代理，请改为在 [`excludedCommands`](#sandbox-excludedcommands) 中列出失败的工具；请参阅 [Go-based CLIs fail TLS verification on macOS](/docs/zh-CN/sandboxing#go-based-clis-fail-tls-verification-on-macos)。
 
 <h3 id="sandbox-allowappleevents">
   `sandbox.allowAppleEvents`
@@ -2406,7 +2424,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 路径使用与 `sandbox.filesystem.*` 设置相同的 [prefixes](#sandbox-path-prefixes)，Claude Code 在会话加载的每个设置范围中合并数组。[Protect credentials](/docs/zh-CN/sandboxing#protect-credentials) 涵盖您使用 `--setting-sources` 排除的源仍然适用的内容。`mask` 条目需要 Claude Code v2.1.221 或更高版本。
 
-`mask` 替换仅通过沙箱代理运行，因此设置 [`sandbox.network.tlsTerminate`](#sandbox-network-tlsterminate) 或 [`allowPlaintextInject`](#sandbox-credentials-allowplaintextinject) 用于纯 HTTP 测试网络。`mask` 适用于单个文件，因此单独列出每个凭证文件。Claude Code 接受但忽略 `deny` 条目上的 `mask` 字段。[Mask credential files](/docs/zh-CN/sandboxing#mask-credential-files) 涵盖遵守哪些设置源以及条目何时回退到 `deny`。
+`mask` 替换仅通过沙箱代理运行，因此请设置 [`sandbox.network.tlsTerminate`](#sandbox-network-tlsterminate)，或针对纯 HTTP 测试网络设置 [`allowPlaintextInject`](#sandbox-credentials-allowplaintextinject)。`mask` 适用于单个文件，因此请单独列出每个凭据文件。Claude Code 接受但忽略 `deny` 条目上的 `mask` 字段。[Mask credentials](/docs/zh-CN/sandboxing#mask-credentials) 涵盖遵守哪些设置源，[Mask credential files](/docs/zh-CN/sandboxing#mask-credential-files) 涵盖条目何时回退到 `deny`。
 
 <span id="sandbox-credentials-files-extract" />
 
@@ -2483,7 +2501,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 `name` 必须以字母或下划线开头，仅包含字母、数字和下划线。Claude Code 在会话加载的每个设置范围中合并数组，当同一变量同时出现两种模式时应用 `deny`。[Protect credentials](/docs/zh-CN/sandboxing#protect-credentials) 涵盖您使用 `--setting-sources` 排除的源仍然适用的内容。`mask` 条目需要 Claude Code v2.1.199 或更高版本。
 
-`mask` 替换仅通过沙箱代理运行，因此设置 [`sandbox.network.tlsTerminate`](#sandbox-network-tlsterminate) 或 [`allowPlaintextInject`](#sandbox-credentials-allowplaintextinject) 用于纯 HTTP 测试网络；请参阅 [Mask environment variables](/docs/zh-CN/sandboxing#mask-environment-variables)。Claude Code 接受但忽略 `deny` 条目上的 `mask` 字段。
+`mask` 替换仅通过沙箱代理运行，因此请设置 [`sandbox.network.tlsTerminate`](#sandbox-network-tlsterminate)，或针对纯 HTTP 测试网络设置 [`allowPlaintextInject`](#sandbox-credentials-allowplaintextinject)；请参阅 [Mask credentials](/docs/zh-CN/sandboxing#mask-credentials)。Claude Code 接受但忽略 `deny` 条目上的 `mask` 字段。
 
 <span id="sandbox-credentials-envvars-extract" />
 
@@ -2586,7 +2604,11 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-每个命名的变量必须是 [`sandbox.credentials.envVars`](#sandbox-credentials-envvars) 中的整个值 `mask` 条目，没有 `extract` 或 `decode`，并且只能在所有对中填充一个槽。
+每个指定的变量必须是 [`sandbox.credentials.envVars`](#sandbox-credentials-envvars) 中的整值 `mask` 条目，不带 `extract` 或 `decode`，并且在所有配对中只能填充一个槽位。以下规则也适用：
+
+* 代理在访问密钥 ID 条目的 `injectHosts` 中列出的主机上重新签名请求
+* 设置 `sessionTokenVar` 时，代理在重新签名的请求上将真实令牌作为 `x-amz-security-token` 发送
+* 在配对中指定任何常规变量都会替换自动配对
 
 <h3 id="sandbox-credentials-sigv4">
   `sandbox.credentials.sigv4`
@@ -2624,7 +2646,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 * **Scope**: [`Any file`](#scopes)。`strictAllowlist`、`allowManagedDomainsOnly` 和 `tlsTerminate` 从较少的源读取，如其条目所述。
 * **Type**: 对象，包含以下子键
-* **Default**: 未设置，因此没有域被预先允许，沙箱为每个新主机提示
+* **Default**: 未设置，因此没有域被预先允许，由您的权限模式决定[每个新主机的处理方式](/docs/zh-CN/sandboxing#hosts-outside-your-allowed-domains)
 
 这预先允许 GitHub 和 npm，阻止 `uploads.github.com`，并让命令绑定到 localhost：
 
@@ -2640,7 +2662,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-Claude Code 在设置范围中合并数组子键并删除重复项，因此项目可以向您的用户列表添加域。`WebFetch(domain:...)` 允许和拒绝 [permission rules](/docs/zh-CN/sandboxing#permission-rules) 馈送相同的允许和拒绝列表。
+Claude Code 在各个设置作用域中合并数组子键，因此项目可以向您的用户列表添加域，除非有[仓库锁](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)适用。`WebFetch(domain:...)` 允许和拒绝 [permission rules](/docs/zh-CN/sandboxing#permission-rules) 会填充相同的允许和拒绝列表。
 
 <h3 id="sandbox-network-allowunixsockets">
   `sandbox.network.allowUnixSockets`
@@ -2648,7 +2670,7 @@ Claude Code 在设置范围中合并数组子键并删除重复项，因此项�
 
 列出 macOS 上沙箱化命令可以连接到的 Unix 套接字路径。Claude Code 在 Linux 和 WSL2 上忽略此列表，其中 seccomp 过滤器无法检查套接字路径；改为在那里使用 [`allowAllUnixSockets`](#sandbox-network-allowallunixsockets)。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 字符串数组，每个是套接字路径
 * **Default**: 未设置，因此 macOS 沙箱阻止每个 Unix 套接字
 
@@ -2670,7 +2692,7 @@ Claude Code 在设置范围中合并数组子键并删除重复项，因此项�
 
 让沙箱化命令连接到每个 Unix 套接字。在 Linux 和 WSL2 上，沙箱的 [seccomp filter](/docs/zh-CN/sandboxing#set-up-linux-and-wsl2) 阻止 `socket(AF_UNIX, ...)` 调用，因此这是在那里允许 Unix 套接字的唯一方式。当过滤器缺失时，`/sandbox` 在其 Dependencies 选项卡上报告，沙箱不阻止 Unix 套接字调用。请参阅 [Set up Linux and WSL2](/docs/zh-CN/sandboxing#set-up-linux-and-wsl2) 了解过滤器来自何处。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 布尔值
   * `true`: 沙箱化命令可以连接到每个 Unix 套接字
   * `false`: 沙箱阻止 Unix 套接字连接：在 macOS 上除了 `allowUnixSockets` 中的路径，在 Linux 和 WSL2 上通过 seccomp 过滤器（当存在时）
@@ -2692,12 +2714,12 @@ Claude Code 在设置范围中合并数组子键并删除重复项，因此项�
   `sandbox.network.allowLocalBinding`
 </h3>
 
-让 macOS 上的沙箱化命令绑定到 localhost 端口，例如启动开发服务器。
+让 macOS 上的沙箱化命令监听网络端口（例如启动开发服务器），并连接到 localhost 上的任何端口。监听非回环地址的命令会接受来自其他机器的连接。该键在 Linux 和 WSL2 上无效，因为那里每个沙箱化命令都有自己的回环接口。要从 Linux 或 WSL2 访问主机上的服务器，请参阅 [A command fails to reach a server on localhost](/docs/zh-CN/sandboxing#a-command-fails-to-reach-a-server-on-localhost)。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 布尔值
-  * `true`: macOS 上的沙箱化命令可以绑定到 localhost 端口
-  * `false`: macOS 上的沙箱化命令无法绑定到 localhost 端口
+  * `true`: macOS 上的沙箱化命令可以监听任何本地地址并连接到 localhost 上的任何端口
+  * `false`: macOS 上的沙箱化命令无法监听端口，也无法直接连接到 localhost 上的服务器
 * **Default**: `false`
 
 ```json settings.json theme={null}
@@ -2716,7 +2738,7 @@ Claude Code 在设置范围中合并数组子键并删除重复项，因此项�
 
 列出 macOS 沙箱可能查找的其他 XPC 和 Mach 服务名称。通过 XPC 通信的工具，例如 iOS Simulator 或 Playwright，需要在此处列出其服务。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)
 * **Type**: 字符串数组，每个是服务名称；单个尾部 `*` 匹配前缀，`"*"` 单独匹配每个服务
 * **Default**: 未设置
 
@@ -2738,9 +2760,9 @@ Claude Code 在设置范围中合并数组子键并删除重复项，因此项�
 
 预先允许来自沙箱化命令的出站流量的域，因此沙箱不会为它们提示。通配符（如 `*.example.com` ）匹配子域，可选的 `:port` 后缀将条目限制为一个端口；没有端口的条目匹配每个端口。
 
-* **Scope**: [`Any file`](#scopes)。仅当设置 [`allowManagedDomainsOnly`](#sandbox-network-allowmanageddomainsonly) 时的托管设置。
+* **Scope**: [`Any file`](#scopes)，[项目和本地设置受到限制](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)。当设置了 [`allowManagedDomainsOnly`](#sandbox-network-allowmanageddomainsonly) 时，仅限托管设置。
 * **Type**: 字符串数组，每个是域、通配符模式或 IP 文字，带有可选的 `:port` 后缀
-* **Default**: 未设置，因此沙箱在命令首次到达新主机时提示
+* **Default**: 未设置，因此由您的权限模式决定[每个新主机的处理方式](/docs/zh-CN/sandboxing#hosts-outside-your-allowed-domains)
 
 这预先允许 GitHub 在每个端口、每个 npm 子域和一个 API 主机仅在端口 443 上：
 
@@ -2784,7 +2806,7 @@ Claude Code 从会话加载的每个设置源合并此列表，即使设置了 `
   `sandbox.network.strictAllowlist`
 </h3>
 
-拒绝沙箱化命令访问允许列表外的主机，而不是提示批准。允许列表是 [`allowedDomains`](#sandbox-network-alloweddomains) 加上来自 `WebFetch(domain:...)` 允许规则的域，或仅当设置 [`allowManagedDomainsOnly`](#sandbox-network-allowmanageddomainsonly) 时的托管设置条目。需要 Claude Code v2.1.219 或更高版本。
+拒绝沙箱化命令访问允许列表外的主机，而不是提示批准。允许列表是 [`allowedDomains`](#sandbox-network-alloweddomains) 加上来自 `WebFetch(domain:...)` 允许规则的域，或者当设置了 [`allowManagedDomainsOnly`](#sandbox-network-allowmanageddomainsonly) 时仅为托管设置条目。[Locks that apply without an admin-required sandbox](/docs/zh-CN/sandboxing#locks-that-apply-without-an-admin-required-sandbox) 涵盖仓库的条目。需要 Claude Code v2.1.219 或更高版本。
 
 * **Scope**: [`User or managed`](#scopes)。存储库无法打开或关闭它。
 * **Type**: 布尔值
@@ -2812,8 +2834,8 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: 布尔值
-  * `true`: Claude Code 仅遵守来自托管设置的 `allowedDomains` 和 `WebFetch(domain:...)` 允许规则，并自动阻止非允许的域而不是提示
-  * `false`: 来自用户、项目、本地和 `--settings` 设置的域合并到允许列表中
+  * `true`: Claude Code 仅遵守来自托管设置的 `allowedDomains` 和 `WebFetch(domain:...)` 允许规则，并阻止非允许的域而不是提示
+  * `false`: 来自其他设置文件的域可以合并到允许列表中
 * **Default**: `false`
 
 这将允许列表锁定到 GitHub 和 npm，并忽略开发人员添加的任何域：
@@ -2829,15 +2851,17 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
+当该键为 `true` 时，沙箱是[管理员强制要求的](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)，并且只有托管设置可以设置[代理端口](#sandbox-network-httpproxyport)。
+
 被拒绝的域仍然从会话加载的每个源合并。请参阅 [Keep developers from widening the policy](/docs/zh-CN/sandboxing#keep-developers-from-widening-the-policy)。
 
 <h3 id="sandbox-network-httpproxyport">
   `sandbox.network.httpProxyPort`
 </h3>
 
-将沙箱指向您自己的 HTTP 代理而不是 Claude Code 运行的。组织这样做以检查 HTTPS 流量、应用自己的过滤规则或记录每个请求。未设置时，Claude Code 为 HTTP 流量启动自己的代理。
+将沙箱指向您自己的 HTTP 代理，而不是 Claude Code 运行的代理。组织这样做是为了检查 HTTPS 流量、应用自己的过滤规则或记录请求日志。您的代理将接管过滤，Claude Code 不再对发送到那里的流量应用其域列表和网络提示。未设置时，Claude Code 为 HTTP 流量启动自己的代理。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，除非[其他沙箱设置限制了哪些文件可以设置端口](/docs/zh-CN/sandboxing#custom-proxy-configuration)
 * **Type**: 数字，本地 TCP 端口
 * **Default**: 未设置，因此 Claude Code 运行自己的代理
 
@@ -2857,9 +2881,9 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   `sandbox.network.socksProxyPort`
 </h3>
 
-将沙箱指向您自己的 SOCKS5 代理而不是 Claude Code 运行的。未设置时，Claude Code 为 SOCKS 流量启动自己的代理。
+将沙箱指向您自己的 SOCKS5 代理，而不是 Claude Code 运行的代理。您的代理将接管过滤，Claude Code 不再对发送到那里的流量应用其域列表和网络提示。未设置时，Claude Code 为 SOCKS 流量启动自己的代理。
 
-* **Scope**: [`Any file`](#scopes)
+* **Scope**: [`Any file`](#scopes)，除非[其他沙箱设置限制了哪些文件可以设置端口](/docs/zh-CN/sandboxing#custom-proxy-configuration)
 * **Type**: 数字，本地 TCP 端口
 * **Default**: 未设置，因此 Claude Code 运行自己的代理
 
@@ -4306,8 +4330,8 @@ Claude Code 仅将模板应用于它自己呈现的链接；Claude 在消息中�
 将其设置为 `true` 时，Claude Code 会更改加载的 hooks 和类似 hook 的命令：
 
 * **托管和 SDK hooks 运行**: 来自托管设置的 hooks 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 在进程中注册的 hooks
-* **强制启用的插件 hooks 运行**: 来自您的托管设置通过 [`enabledPlugins`](#enabledplugins) 强制启用的插件的 hooks。Claude Code 与完整的 `plugin@marketplace` ID 匹配，因此来自不同市场的同名插件保持被阻止。这使您可以通过组织市场分发经过审查的 hooks，同时阻止其他所有内容
-* **其他所有内容都被阻止**: 用户、项目和本地 hooks，来自其他插件的 hooks，以及在代理 frontmatter 中声明的 hooks
+* **强制启用的插件 hooks 运行**: 来自您的托管设置通过 [`enabledPlugins`](#enabledplugins) 强制启用的插件的 hooks。Claude Code 与完整的 `plugin@marketplace` ID 匹配，因此来自不同市场的同名插件保持被阻止。这使您可以通过组织市场分发经过审查的 hooks，同时阻止其他所有内容。此类插件中的 [mod](/docs/zh-CN/plugins/mods/overview) 仅在[被视为您组织的 mod](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods) 时才会加载
+* **其他所有内容都被阻止**: 用户、项目和本地 hooks，来自其他已安装插件的 hooks 和 mods，以及在 Agent frontmatter 中声明的 hooks。[Claude Code 内置的 mods](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 会继续运行。若只想阻止用户的 mods，请改为设置 [`allowManagedModsOnly`](/docs/zh-CN/plugins/mods/admin#set-options-on-the-built-in-guard)。
 * **禁用命令源插件**: Claude Code 还禁用具有 [`command` 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source) 的插件，包括在托管 `enabledPlugins` 中强制启用的插件，除非您明确将 [`disableCommandPluginSources`](#disablecommandpluginsources) 设置为 `false`
 * **市场 `headersHelper` 命令被阻止**: Claude Code 还会阻止市场 [`headersHelper` 命令](/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads)，除非 [`disableCommandPluginSources`](#disablecommandpluginsources) 明确设置为 `false`，托管设置本身声明的市场除外。需要 Claude Code v2.1.238 或更高版本
 * **状态行和文件建议缩小到托管设置**: Claude Code 仅从托管设置读取 [`statusLine`](/docs/zh-CN/statusline)、[`fileSuggestion`](#filesuggestion) 和 [`subagentStatusLine`](/docs/zh-CN/statusline#subagent-status-lines)，遵循 [状态行和文件建议门](#status-line-and-file-suggestion-gates)
@@ -4336,6 +4360,13 @@ Claude Code 仅将模板应用于它自己呈现的链接；Claude 在消息中�
 
 * **在托管设置中**: Claude Code 禁用每个配置的 hook，包括托管的，并继续运行 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 在进程中注册的 hooks
 * **在任何其他设置文件中**: Claude Code 禁用用户、项目、本地和插件 hooks；托管 hooks、Agent SDK hooks 和来自在托管 [`enabledPlugins`](#enabledplugins) 中强制启用的插件的 hooks 继续运行
+
+该键还会停止 [mods](/docs/zh-CN/plugins/mods/overview)，即其代码会注册 hook 的插件：
+
+* **在托管设置中**: 每个已安装插件中的 mods 都会停止，包括您组织的 mods
+* **在任何其他设置文件中**: 您安装的 mods 会停止，而[您组织的 mods](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods) 继续运行
+
+Claude Code 内置的 mods 在这两种情况下都会继续运行。每个内置 mod 都有[各自的开关](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code)。
 
 当托管设置设置此键时保持 Agent SDK hooks 运行需要 Claude Code v2.1.242 或更高版本。
 
@@ -5047,7 +5078,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 * **`git`**: 任何 git URL，带 `url`
 * **`url`**: 直接 URL 到 `marketplace.json` 文件，带 `url` 和可选 `headers` 和 `headersHelper` 用于经过身份验证的访问。`headersHelper` 命名一个打印标头的命令，其值太短暂而无法在 `headers` 中列出，需要 Claude Code v2.1.238 或更高版本
 * **`file`**: 到 `marketplace.json` 文件的本地路径，带 `path`
-* **`directory`**: 本地文件系统路径，带 `path`，仅用于开发
+* **`directory`**: 本地文件系统路径，使用 `path`。可用于开发，或用于您的组织[部署到每台机器](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)的市场。
 * **`settings`**: 直接在设置文件中声明的内联 marketplace，不带托管存储库，带 `name` 和 `plugins`
 
 `git` 源类型适用于任何 git 托管服务，包括自托管 GitLab 和 Bitbucket。Claude Code 使用 `git clone` 在该机器上使用的相同身份验证克隆存储库：配置的凭证助手或 SSH 密钥。提供者令牌如 `GITHUB_TOKEN` 通过读取它的凭证助手生效。请参阅 [私有存储库](/docs/zh-CN/plugins/host-marketplace#grant-access-to-a-private-marketplace) 了解设置详情。
@@ -5133,6 +5164,50 @@ Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该 pl
 内置 plugins 在同一键下存储其选项，带 `@builtin` 后缀。例如，控制 Claude Code 是否读取 `AGENTS.md` 文件的 [**Project instructions**](/docs/zh-CN/memory#choose-which-instruction-files-load) 设置是 `pluginConfigs["agents-md@builtin"].options.instructionFiles`。
 
 Claude Code 忽略项目和本地条目，因为它将这些值替换到 plugin hook、MCP 和 LSP 配置中，克隆的存储库不得能够提供它们。在 v2.1.207 之前，项目和本地设置也被读取。
+
+<h3 id="prependplugins">
+  `prependPlugins`
+</h3>
+
+列出托管插件，其 [mod](/docs/zh-CN/plugins/mods/overview) 会按列出的顺序在用户安装的所有 mod 之前运行。当您在托管设置中设置此键时，请在列表中包含 `sec-default@builtin` 以保留内置防护。在托管设置中，如果某个 ID 对应的插件不被视为您组织的插件，Claude Code 会跳过它。有关这些条件以及两个排序键如何协同工作，请参阅[安装您组织的 mod 并设置顺序](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)。
+
+* **Scope**: [`User or managed`](#scopes)。Claude Code 从托管设置中读取此键。仅在没有托管设置的机器上，且用户未使用 Team 或 Enterprise 计划登录时，它才会从用户设置中读取此键。它会忽略项目设置、本地设置以及 `--settings` 文件中的此键。
+* **Type**: `plugin-name@marketplace-name` 字符串数组
+* **Default**: 未设置
+
+```json managed-settings.json theme={null}
+{
+  "extraKnownMarketplaces": {
+    "acme-tools": {
+      "source": { "source": "directory", "path": "/opt/acme/claude-plugins" }
+    }
+  },
+  "enabledPlugins": { "acme-guard@acme-tools": true },
+  "prependPlugins": ["acme-guard@acme-tools", "sec-default@builtin"]
+}
+```
+
+<h3 id="appendplugins">
+  `appendPlugins`
+</h3>
+
+列出托管插件，其 [mod](/docs/zh-CN/plugins/mods/overview) 会按列出的顺序在用户安装的所有 mod 之后运行。同时列在 `prependPlugins` 和 `appendPlugins` 中的 ID 会被前置。在托管设置中，如果某个 ID 对应的插件不[被视为您组织的插件](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)，Claude Code 会跳过它。
+
+* **Scope**: [`User or managed`](#scopes)。Claude Code 从托管设置中读取此键。仅在没有托管设置的机器上，且用户未使用 Team 或 Enterprise 计划登录时，它才会从用户设置中读取此键。它会忽略项目设置、本地设置以及 `--settings` 文件中的此键。
+* **Type**: `plugin-name@marketplace-name` 字符串数组
+* **Default**: 未设置
+
+```json managed-settings.json theme={null}
+{
+  "extraKnownMarketplaces": {
+    "acme-tools": {
+      "source": { "source": "directory", "path": "/opt/acme/claude-plugins" }
+    }
+  },
+  "enabledPlugins": { "acme-audit@acme-tools": true },
+  "appendPlugins": ["acme-audit@acme-tools"]
+}
+```
 
 <h2 id="mcp">
   MCP
@@ -5957,6 +6032,8 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 运行您自己的命令（例如 `aws sso login`），以在 Claude Code 用于 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 的凭证停止工作时刷新 `.aws` 目录中的凭证。Claude Code 首先根据 STS 检查当前凭证，仅在该检查失败时运行该命令，然后读取刷新的 `.aws` 目录。
 
+当多个使用相同命令和凭据的 Claude Code 进程（例如不同的终端或 IDE 窗口）同时检查失败时，由一个进程运行该命令，其余进程等待该次运行，而不是各自启动运行。在有待处理请求的情况下已等待 60 秒的进程会自行运行该命令。要关闭此行为，请将 [`CLAUDE_CODE_DISABLE_AUTH_REFRESH_LOCK`](/docs/zh-CN/env-vars) 设置为 `1`。
+
 * **Scope**: [`Any file`](#scopes)
 * **Type**: string，shell 命令行
 * **Default**: 未设置，因此 Claude Code 不为您刷新 AWS 凭证
@@ -6079,6 +6156,8 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 </h3>
 
 运行您自己的命令以在 Claude Code 发现 Google Cloud Application Default Credentials 已过期或无法加载时刷新它们，以便 [Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai) 请求继续工作，而无需您手动重新身份验证。
+
+当多个使用相同命令和凭据的 Claude Code 进程（例如不同的终端或 IDE 窗口）同时发现凭据已过期时，由一个进程运行该命令，其余进程等待该次运行，而不是各自启动运行。在有待处理请求的情况下已等待 60 秒的进程会自行运行该命令。要关闭此行为，请将 [`CLAUDE_CODE_DISABLE_AUTH_REFRESH_LOCK`](/docs/zh-CN/env-vars) 设置为 `1`。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: string，shell 命令行

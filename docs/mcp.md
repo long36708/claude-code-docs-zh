@@ -40,8 +40,8 @@ Claude Code 可以通过 [Model Context Protocol (MCP)](https://modelcontextprot
 您也可以使用官方的 [`mcp-server-dev` plugin](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/mcp-server-dev) 让 Claude 为您搭建服务器。
 
 <Steps>
-  <Step title="安装 plugin">
-    在 Claude Code 会话中，运行：
+  <Step title="安装插件">
+    在 VS Code 扩展或桌面应用中，请按照 [安装插件](/docs/zh-CN/plugins/install#install-a-plugin) 操作，而不是执行此步骤。在终端中，运行 `claude` 启动 Claude Code，然后在其提示符处输入以下内容：
 
     ```
     /plugin install mcp-server-dev@claude-plugins-official
@@ -429,6 +429,12 @@ Claude Code 在这些情况下不重试：
 </h4>
 
 服务器连接后，Claude Code 向其发送能力发现请求，例如 `tools/list`、`prompts/list` 和 `resources/list`。Claude Code 在瞬时网络或服务器错误后最多重试这些请求三次，短退避。它不重试身份验证错误、4xx 响应或请求超时。
+
+<h4 id="retry-failed-servers-yourself">
+  自行重试失败的服务器
+</h4>
+
+要重试所有失败或需要身份验证的服务器，请运行 `/mcp reconnect all`。在交互式终端中，这需要 Claude Code v2.1.284 或更高版本，较早的版本会在此处打印 `MCP server "all" not found`。
 
 <h4 id="how-claude-learns-that-a-server-failed">
   Claude 如何了解服务器失败

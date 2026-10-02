@@ -62,6 +62,14 @@ claude --bare -p "Summarize README.md" --allowedTools "Read"
 | 自定义 agents | `--agents <json>` |
 | 一个插件 | `--plugin-dir <path>`, `--plugin-url <url>` |
 
+bare 模式还会限制会话运行期间发生的事情：
+
+* **MCP 服务器**：只有在命令行中提供的服务器才会连接，例如通过 `--mcp-config`。在交互式会话中，除非您传递 `--ide`，否则 Claude Code 还会跳过自动 IDE 连接。
+* **系统提醒**：Claude 会收到您的提示词和工具结果，但不会收到 Claude Code 原本会随之添加的 [系统提醒](/docs/zh-CN/glossary#system-reminder)。例如，当 Claude 之前读取过的文件在磁盘上发生更改时，Claude 不会收到通知，也不会获得可用 skill 的列表，包括来自 `--add-dir` 文件夹的 skill。
+* **后台任务**：不会运行任何后台任务。达到 [超时](/docs/zh-CN/tools-reference#timeout-and-output-limits) 的命令会停止，而不是 [转入后台](/docs/zh-CN/tools-reference#background-commands)。
+
+在 v2.1.286 之前，这些限制只部分生效：交互式 `--bare` 会话会连接普通会话会连接的 MCP 服务器，每个 `--bare` 会话都会发送系统提醒，并且后台任务仍然可用。
+
 <Note>
   `--bare` 是脚本和 SDK 调用的推荐模式，将在未来版本中成为 `-p` 的默认值。
 </Note>

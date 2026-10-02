@@ -20,15 +20,12 @@
   基于权限的架构
 </h3>
 
-在 Manual mode 中，Claude Code 以只读权限开始。当 Claude Code 需要编辑文件、运行测试或执行命令时，它会先询问您，您可以选择批准该操作一次或从此允许该操作。
+会话的权限模式决定了 Claude 无需先询问您即可执行哪些操作。自动模式是交互式终端和 VS Code 会话的内置初始权限模式。[会话以哪种模式启动](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)介绍了早期版本、其他使用入口以及可更改初始权限模式的设置。
 
-在 Manual mode 中，Claude Code 在运行可以修改您的系统的 Bash 命令之前也会询问。它运行一组内置的[只读命令](/docs/zh-CN/permissions#read-only-commands)，如 `ls`、`cat` 和 `git status`，无需询问。您和您的组织可以直接配置这些权限。
+* **自动模式**：一个单独的分类器模型代替您审查操作，并阻止它认为不安全的操作。[分类器如何评估操作](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions)列出了 Claude Code 直接批准的操作、发送给分类器的操作以及 Claude Code 仍然询问您的操作。您显式设置的 ask 规则和 deny 规则仍然适用，您的组织可以[关闭自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)
+* **Manual mode**：Claude Code 以只读权限开始。当它需要编辑文件、运行测试或执行命令时，它会先询问您，您可以选择批准该操作一次或从此允许该操作。它无需询问即可运行一组内置的[只读命令](/docs/zh-CN/permissions#read-only-commands)，如 `ls`、`cat` 和 `git status`
 
-在 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 中，一个单独的分类器模型会审查操作而不是您，并阻止它认为不安全的操作。[分类器如何评估操作](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions) 列出了 Claude Code 直接批准的操作、发送给分类器的操作以及 Claude Code 仍然询问您的操作。您显式设置的 ask 规则和拒绝规则仍然适用，您的组织可以 [关闭 auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。
-
-会话开始时使用哪种权限模式取决于您的计划、启动它的界面以及您的设置和您的组织的设置；请参阅 [Permission modes](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)。
-
-有关详细的权限配置，请参阅 [Permissions](/docs/zh-CN/permissions)。
+您和您的组织可以直接配置这些权限。有关详细的权限配置，请参阅 [Permissions](/docs/zh-CN/permissions)。
 
 <h3 id="built-in-protections">
   内置保护
@@ -37,7 +34,9 @@
 为了降低代理系统中的风险：
 
 * **沙箱化 bash 工具**：使用文件系统和网络隔离的 [Sandbox](/docs/zh-CN/sandboxing) bash 命令，减少权限提示同时保持安全性。使用 `/sandbox` 配置以定义 Claude Code 可以自主工作的边界
-* **工作目录边界**：在 Manual mode 中，Claude Code 只能写入启动它的文件夹及其子文件夹，不能在没有明确权限的情况下修改父目录中的文件。在 Manual mode 中，Claude Code 在使用 Read、Grep 和 Glob 工具读取此边界外的路径之前也会询问您。使用[额外目录](/docs/zh-CN/permissions#working-directories)扩展边界以跳过提示，或使用[沙箱 `denyRead` 规则](/docs/zh-CN/sandboxing#filesystem-isolation)限制对只读 Bash 命令可用的更广泛读取访问，这些规则仅在启用沙箱时适用
+* **工作目录边界**：在 Manual mode 中，Claude Code 的文件工具在读取或写入启动它的文件夹及其子文件夹之外的内容之前会先询问您。该边界是一个权限提示，因此您批准的 Bash 命令仍然可以写入您的用户账户有权写入的任何位置
+  * 要在没有提示的情况下读取某个文件夹，请将其添加为[额外目录](/docs/zh-CN/permissions#working-directories)
+  * 要在操作系统层面限制 Bash 命令，请启用[沙箱隔离](/docs/zh-CN/sandboxing#filesystem-isolation)
 * **提示疲劳缓解**：支持按用户、按代码库或按组织的白名单常用安全命令
 * **Accept Edits 模式**：自动批准文件编辑和一组固定的文件系统 Bash 命令，如 `mkdir`、`touch`、`rm`、`mv`、`cp` 和 `sed`，用于工作目录中的路径。其他 Bash 命令和超出范围的路径仍然会提示
 
@@ -45,7 +44,7 @@
   用户责任
 </h3>
 
-Claude Code 只拥有您授予它的权限。您负责在批准前审查建议的代码和命令的安全性。
+您负责在批准前审查建议的代码和命令的安全性。
 
 <h2 id="protect-against-prompt-injection">
   防止提示注入
@@ -58,8 +57,6 @@ Claude Code 只拥有您授予它的权限。您负责在批准前审查建议�
 </h3>
 
 * **权限系统**：在手动模式下，敏感操作需要明确批准
-* **上下文感知分析**：通过分析完整请求来检测潜在有害指令
-* **输入清理**：通过处理用户输入来防止命令注入
 * **网络命令批准**：从网络获取内容的命令，如 `curl` 和 `wget`，默认不会自动批准。在手动模式下，它们会像任何其他非只读 Bash 命令一样提示，因此您仍然可以批准一次或添加显式允许规则，如 `Bash(curl *)`。要阻止 Claude 运行它们，请将其添加到 [`permissions.deny`](/docs/zh-CN/permissions#tool-specific-permission-rules)。拒绝规则匹配[按照编写的命令](/docs/zh-CN/permissions#bash-rule-limits)；对于不依赖命令文本的网络强制执行，请参阅[沙箱网络隔离](/docs/zh-CN/sandboxing#network-isolation)
 
 <h3 id="privacy-safeguards">
@@ -79,14 +76,13 @@ Claude Code 只拥有您授予它的权限。您负责在批准前审查建议�
 </h3>
 
 * **网络请求批准**：在手动模式下，进行网络请求的大多数工具默认需要用户批准
-* **隔离的上下文窗口**：Web fetch 使用单独的上下文窗口以避免注入潜在恶意提示
-* **信任验证**：首次代码库运行和新 MCP servers 需要信任验证
-  * 注意：使用 `-p` 标志以非交互方式运行时，信任验证被禁用
+* **网页摘要**：对于大多数获取操作，WebFetch 会针对页面运行一次单独的模型调用，Claude 接收的是该调用的回答，而不是原始页面。请参阅 [WebFetch 工具行为](/docs/zh-CN/tools-reference#webfetch-tool-behavior)
+* **信任验证**：在交互式会话中，当您在尚未信任的文件夹中启动 Claude Code 时，它会显示工作区信任对话框。项目 `.mcp.json` 中的服务器有其单独的批准提示，[项目作用域](/docs/zh-CN/mcp#project-scope) 列出了跳过该提示的会话
+  * 注意：`-p` 会话不会显示上述任何一种提示。[信任文件夹之前会运行什么](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 列出了仓库中的文件在此情况下可以运行的内容
   * 注意：当您直接在主目录中启动 Claude Code 时，信任接受仅在当前会话期间保持，不会写入磁盘，因此提示在每次启动时都会重新出现。没有设置可以持久化它。请从项目子目录启动 Claude Code，其中信任接受按目录保存
-* **命令注入检测**：在手动模式下，即使之前已白名单，可疑的 bash 命令也需要手动批准
+* **命令注入检测**：在手动模式下，Claude Code 在运行无法完全分析的 Bash 命令之前会先询问。针对命令一部分的允许规则（如 `Bash(git *)`）不会跳过该提示。[沙箱隔离的命令](/docs/zh-CN/permissions#how-permissions-interact-with-sandboxing)可以在没有该提示的情况下运行
 * **故障关闭匹配**：在手动模式下，不匹配的命令默认需要批准
-* **自然语言描述**：复杂的 bash 命令包括用户理解的说明
-* **安全凭证存储**：API 密钥和令牌存储在可用时的 macOS Keychain 中，在 Windows 和 Linux 上受文件权限保护。请参阅 [Credential Management](/docs/zh-CN/authentication#credential-management)
+* **安全凭据存储**：API 密钥和令牌在可用时存储在 macOS Keychain 中。在 Linux 上，它们存储在模式为 `0600` 的文件中；在 Windows 上，它们存储在继承您用户配置文件目录访问控制的文件中。请参阅 [Credential Management](/docs/zh-CN/authentication#credential-management)
 
 <Warning>
   **Windows WebDAV 安全风险**：在 Windows 上运行 Claude Code 时，我们建议不要启用 WebDAV 或允许 Claude Code 访问可能包含 WebDAV 子目录的路径，如 `\\*`。[WebDAV 已被 Microsoft 弃用](https://learn.microsoft.com/en-us/windows/whats-new/deprecated-features#:~:text=The%20Webclient%20\(WebDAV\)%20service%20is%20deprecated)，原因是安全风险。启用 WebDAV 可能允许 Claude Code 触发对远程主机的网络请求，绕过权限系统。
@@ -108,7 +104,7 @@ Claude Code 只拥有您授予它的权限。您负责在批准前审查建议�
   MCP 安全性
 </h2>
 
-Claude Code 允许用户配置 Model Context Protocol (MCP) servers。允许的 MCP servers 列表在您的源代码中配置，作为 Claude Code 设置的一部分，工程师将其检入源代码控制。
+您可以将 Claude Code 连接到 Model Context Protocol (MCP) 服务器。项目作用域的服务器在 `.mcp.json` 中定义，您可以将该文件检入源代码控制。[其他作用域](/docs/zh-CN/mcp#mcp-installation-scopes)的服务器和 [claude.ai 连接器](/docs/zh-CN/mcp#how-connectors-reach-claude-code)是在仓库之外配置的，插件也可以添加服务器，因此查看 `.mcp.json` 并不能看到会话可能加载的所有服务器。要限制您的组织中可以运行哪些服务器，请参阅[托管 MCP 配置](/docs/zh-CN/managed-mcp)。
 
 我们鼓励编写您自己的 MCP servers 或使用来自您信任的提供商的 MCP servers。您能够为 MCP servers 配置 Claude Code 权限。Anthropic 在将连接器添加到 [Anthropic Directory](https://claude.ai/directory) 之前，会根据其 [列表标准](https://claude.com/docs/connectors/building/review-criteria) 审查连接器，但不对任何 MCP server 进行安全审计或管理。
 
@@ -127,7 +123,7 @@ Claude Code 允许用户配置 Model Context Protocol (MCP) servers。允许的 
 * **隔离的虚拟机**：每个云会话在隔离的、由 Anthropic 管理的 VM 中运行
 * **网络访问控制**：网络访问默认受限，可以配置为禁用或仅允许特定域
 * **凭证保护**：GitHub 凭证在 Anthropic 的服务器上以加密方式存储，永远不会进入会话 VM。VM 持有一个作用域限制于该会话的短期凭证，GitHub 流量通过 [Anthropic proxy](/docs/zh-CN/cloud-environments#github-proxy) 进行，该代理在服务器端附加 GitHub 凭证。有关如何授予访问权限，请参阅 [GitHub authentication options](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)
-* **分支限制**：Git push 操作限制在当前工作分支
+* **推送限制**：[GitHub 代理](/docs/zh-CN/cloud-environments#github-proxy)会拒绝删除分支，以及推送分支以外的任何内容（例如标签）。GitHub 通过将您仓库的分支保护规则和规则集应用于您所连接的 GitHub 访问权限，来决定会话可以更新哪些分支。该访问权限可以绕过的规则不会阻止会话的推送
 * **审计日志**：云会话中的所有操作都被记录以用于合规和审计目的
 * **自动清理**：会话 VM 在一段时间不活动后被回收
 * **删除**：您可以随时 [delete a session](/docs/zh-CN/claude-code-on-the-web#delete-sessions)。有关 Anthropic 为云会话存储的内容，请参阅 [Cloud execution data flow](/docs/zh-CN/data-usage#cloud-execution-data-flow-and-dependencies)

@@ -21,10 +21,10 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
 如果您管理 Team、Enterprise 或控制台组织，请参阅[为您的组织启用 channels](#enterprise-controls)。要构建您自己的 channel，请参阅 [Channels 参考](/docs/zh-CN/channels-reference)。
 
 <h2 id="supported-channels">
-  支持的 channels
+  支持的频道
 </h2>
 
-每个支持的 channel 都是一个需要 [Bun](https://bun.sh) 的插件。在连接真实平台之前，要获得插件流程的实际演示，请尝试 [fakechat 快速入门](#quickstart)。
+每个支持的频道都是一个需要 [Bun](https://bun.sh) 的插件。在连接真实平台之前，要获得插件流程的实际演示，请尝试 [fakechat 快速入门](#quickstart)。
 
 <Tabs>
   <Tab title="Telegram">
@@ -36,7 +36,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
       </Step>
 
       <Step title="安装插件">
-        在 Claude Code 中，运行：
+        在终端中运行 `claude` 启动 Claude Code，然后在其输入框中输入以下内容：
 
         ```
         /plugin install telegram@claude-plugins-official
@@ -47,7 +47,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
         * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
         * 插件[在市场中找不到](/docs/zh-CN/plugins/install#install-a-plugin)：检查插件名称。
 
-        当安装要求选择安装范围时，选择用户范围选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference#reload-plugins)以使插件的配置命令可用。
+        当安装要求选择安装作用域时，选择用户作用域选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference#reload-plugins)以使插件的配置命令可用。
       </Step>
 
       <Step title="配置您的令牌">
@@ -60,8 +60,8 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
         这会将其保存到 `~/.claude/channels/telegram/.env`。您也可以在启动 Claude Code 之前在 shell 环境中设置 `TELEGRAM_BOT_TOKEN`。
       </Step>
 
-      <Step title="重启并启用 channels">
-        退出 Claude Code 并使用 channel 标志重启。这会启动 Telegram 插件，它开始轮询来自您的机器人的消息：
+      <Step title="重启并启用频道">
+        退出 Claude Code 并使用频道标志重启。这会启动 Telegram 插件，它开始轮询来自您的机器人的消息：
 
         ```bash theme={null}
         claude --channels plugin:telegram@claude-plugins-official
@@ -71,7 +71,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
       <Step title="配对您的账户">
         打开 Telegram 并向您的机器人发送任何消息。机器人会回复一个配对代码。
 
-        <Note>如果您的机器人没有响应，请确保 Claude Code 正在使用上一步中的 `--channels` 运行。机器人只能在 channel 处于活动状态时回复。</Note>
+        <Note>如果您的机器人没有响应，请确保 Claude Code 正在使用上一步中的 `--channels` 运行。机器人只能在频道处于活动状态时回复。</Note>
 
         回到 Claude Code，运行：
 
@@ -101,7 +101,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
       </Step>
 
       <Step title="邀请机器人加入您的服务器">
-        转到 **OAuth2 > URL 生成器**。选择 `bot` 范围并启用这些权限：
+        转到 **OAuth2 > URL 生成器**。选择 `bot` 作用域并启用这些权限：
 
         * 查看频道
         * 发送消息
@@ -114,7 +114,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
       </Step>
 
       <Step title="安装插件">
-        在 Claude Code 中，运行：
+        在终端中运行 `claude` 启动 Claude Code，然后在其输入框中输入以下内容：
 
         ```
         /plugin install discord@claude-plugins-official
@@ -125,7 +125,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
         * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
         * 插件[在市场中找不到](/docs/zh-CN/plugins/install#install-a-plugin)：检查插件名称。
 
-        当安装要求选择安装范围时，选择用户范围选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference#reload-plugins)以使插件的配置命令可用。
+        当安装要求选择安装作用域时，选择用户作用域选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to activate.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference#reload-plugins)以使插件的配置命令可用。
       </Step>
 
       <Step title="配置您的令牌">
@@ -138,8 +138,8 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
         这会将其保存到 `~/.claude/channels/discord/.env`。您也可以在启动 Claude Code 之前在 shell 环境中设置 `DISCORD_BOT_TOKEN`。
       </Step>
 
-      <Step title="重启并启用 channels">
-        退出 Claude Code 并使用 channel 标志重启。这会连接 Discord 插件，以便您的机器人可以接收和响应消息：
+      <Step title="重启并启用频道">
+        退出 Claude Code 并使用频道标志重启。这会连接 Discord 插件，以便您的机器人可以接收和响应消息：
 
         ```bash theme={null}
         claude --channels plugin:discord@claude-plugins-official
@@ -149,7 +149,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
       <Step title="配对您的账户">
         在 Discord 上向您的机器人发送私信。机器人会回复一个配对代码。
 
-        <Note>如果您的机器人没有响应，请确保 Claude Code 正在使用上一步中的 `--channels` 运行。机器人只能在 channel 处于活动状态时回复。</Note>
+        <Note>如果您的机器人没有响应，请确保 Claude Code 正在使用上一步中的 `--channels` 运行。机器人只能在频道处于活动状态时回复。</Note>
 
         回到 Claude Code，运行：
 
@@ -169,7 +169,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
   <Tab title="iMessage">
     查看完整的 [iMessage 插件源代码](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/imessage)。
 
-    iMessage channel 直接读取您的消息数据库，并通过 AppleScript 发送回复。它需要 macOS，不需要机器人令牌或外部服务。
+    iMessage 频道直接读取您的消息数据库，并通过 AppleScript 发送回复。它需要 macOS，不需要机器人令牌或外部服务。
 
     <Steps>
       <Step title="授予完全磁盘访问权限">
@@ -179,7 +179,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
       </Step>
 
       <Step title="安装插件">
-        在 Claude Code 中，运行：
+        在终端中运行 `claude` 启动 Claude Code，然后在其输入框中输入以下内容：
 
         ```
         /plugin install imessage@claude-plugins-official
@@ -190,11 +190,13 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
         * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
         * 插件[在市场中找不到](/docs/zh-CN/plugins/install#install-a-plugin)：检查插件名称。
 
-        当安装要求选择安装范围时，选择用户范围选项，以便插件在所有项目中可用。如果安装摘要报告 `Run /reload-plugins to activate.`，您可以在此跳过，因为下一步中的重启会拾取插件。
+        当安装要求选择安装作用域时，选择用户作用域选项，以便插件在所有项目中可用。
+
+        如果安装摘要报告 `Run /reload-plugins to activate.`，您无需在此处理，因为下一步中的重启会加载该插件。
       </Step>
 
-      <Step title="重启并启用 channels">
-        退出 Claude Code 并使用 channel 标志重启：
+      <Step title="重启并启用频道">
+        退出 Claude Code 并使用频道标志重启：
 
         ```bash theme={null}
         claude --channels plugin:imessage@claude-plugins-official
@@ -235,8 +237,8 @@ Fakechat 是一个官方支持的演示 channel，在 localhost 上运行聊天 
 * **Team、Enterprise 或托管控制台组织**：您的管理员必须在托管设置中[启用 channels](#enterprise-controls)
 
 <Steps>
-  <Step title="安装 fakechat channel 插件">
-    启动 Claude Code 会话并运行安装命令：
+  <Step title="安装 fakechat 频道插件">
+    在终端中运行 `claude` 启动 Claude Code，然后在其输入框中输入安装命令：
 
     ```text theme={null}
     /plugin install fakechat@claude-plugins-official

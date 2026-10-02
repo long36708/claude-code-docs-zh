@@ -130,9 +130,7 @@ plugin marketplace 是一个目录或仓库，包含一个 `.claude-plugin/marke
 * `source`：Claude Code 从哪里获取 plugin。对于 marketplace 目录内的 plugin，写一个相对路径字符串，如[演练](#create-a-marketplace)中所示，或对于目录外的 plugin，写一个源对象。请参阅[选择 plugin 源](#choose-a-plugin-source)。
 * `description`：人们在 `/plugin` 中浏览你的 marketplace 时在 plugin 旁边看到的行。
 
-有关完整的字段列表，请参阅[Plugin 条目](/docs/zh-CN/plugins/marketplace-reference#plugin-entries)。
-
-条目也可以设置任何 [`plugin.json`](/docs/zh-CN/plugins/manifest-reference) 字段。有关条目的 `plugin.json` 字段何时应用于具有自己的 `plugin.json` 的 plugin，请参阅[条目和 plugin.json](/docs/zh-CN/plugins/marketplace-reference#entry-and-plugin-json)。
+有关完整的字段列表，请参阅[插件条目](/docs/zh-CN/plugins/marketplace-reference#plugin-entries)，其中还介绍了条目可以设置的 [`plugin.json`](/docs/zh-CN/plugins/manifest-reference) 字段以及这些字段何时生效。
 
 <h2 id="rules-for-plugin-entries">
   Plugin 条目的规则

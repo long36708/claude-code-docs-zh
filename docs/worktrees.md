@@ -172,7 +172,7 @@ Claude Code 的 worktree 创建默认值涵盖大多数会话：它在 `.claude/
 
 您无法将 `worktree.baseRef` 设置为分支名称。要从特定的现有分支启动 worktree，请[直接使用 git 创建它](#manage-worktrees-manually)。
 
-对于 `"fresh"` 基础，Claude Code 会保持 `origin/HEAD` 最新：当存储库在过去 24 小时内没有被获取时，它会获取默认分支，上限为 5 秒，如果获取失败则使用本地缓存的引用。如果未配置远程，或 `origin/HEAD` 未在本地缓存且无法获取，worktree 会回退到您当前的本地 `HEAD`。在 v2.1.208 之前，新 worktree 使用已经本地缓存的任何 `origin/HEAD`。
+对于 `"fresh"` 基础，Claude Code 会保持 `origin/HEAD` 最新：当仓库在过去 24 小时内没有被获取时，它会获取默认分支，上限为 5 秒，如果获取失败则使用本地缓存的引用。该获取操作从不等待您终端中的输入，因此当 git 或 ssh 要求输入密码、密钥密码短语或确认新的 SSH 主机时，也会被视为获取失败。如果未配置远程，或 `origin/HEAD` 未在本地缓存且无法获取，worktree 会回退到您当前的本地 `HEAD`。在 v2.1.208 之前，新 worktree 使用已经本地缓存的任何 `origin/HEAD`。
 
 此示例使每个新 worktree 从您的当前工作分支：
 
@@ -199,6 +199,8 @@ Claude Code 仅从 URL 读取编号。它总是从您的存储库的 `origin` �
 * **github.com**：获取 `pull/<number>/head`
 * **gitlab.com**：获取 `merge-requests/<number>/head`
 * **GitHub Enterprise、自管理 GitLab 或任何其他主机**：首先尝试 `pull/<number>/head`，然后尝试 `merge-requests/<number>/head`
+
+此获取操作从不等待您终端中的输入。如果 git 或 ssh 会要求输入密码、密钥密码短语或确认新的 SSH 主机，获取会直接失败，Claude Code 会退出并显示 `Error creating worktree: Failed to fetch PR/MR #<number>` 消息。`ssh-agent` 持有的密钥仍然可用，因此请在开始之前将您的密钥加载到其中，并手动运行一次 `git fetch` 以记录新主机。
 
 在 v2.1.233 之前，Claude Code 仅接受 `#<number>` 和 GitHub 风格的拉取请求 URL 用于 `--worktree`，并总是获取 `pull/<number>/head`。
 

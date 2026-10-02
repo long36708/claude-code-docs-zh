@@ -35,6 +35,7 @@
 | `Error loading shared library` | [您的系统的二进制变体错误](#linux-musl-or-glibc-binary-mismatch) |
 | `Illegal instruction` | [架构或 CPU 指令集不匹配](#illegal-instruction) |
 | WSL 中 `cannot execute binary file: Exec format error` | [WSL1 上的本机二进制回归](#exec-format-error-on-wsl1) |
+| 会话运行期间出现 `Bus error` 或 `oh no: Bun has crashed` | [保持可执行文件可读](#bus-error-while-a-session-is-running) |
 | PowerShell 安装程序完成但 `claude` 未找到或显示旧版本 | [将安装目录添加到您的 PATH](#verify-your-path)，然后打开新终端 |
 | macOS 上 `dyld: Symbol not found`、`dyld: cannot load` 或 `Abort trap` | [二进制不兼容](#dyld-cannot-load-on-macos) |
 | `claude update` 在 `Checking for updates` 后挂起，或 `claude doctor` 挂起且无输出 | [移动 shell 配置路径处的目录](#claude-update-or-claude-doctor-hangs) |
@@ -858,6 +859,16 @@ Abort trap: 6
 1. **检查您的 macOS 版本**：Claude Code 需要 macOS 13.0 或更高版本。打开 Apple 菜单并选择"About This Mac"以检查您的版本。
 
 2. **更新 macOS**，如果您在较旧版本上。二进制文件使用较旧 macOS 版本不支持的加载命令和系统库。Homebrew 等替代安装方法下载相同的二进制文件，不会解决此错误。
+
+<h3 id="bus-error-while-a-session-is-running">
+  会话运行时出现 `Bus error`
+</h3>
+
+如果正在运行的会话退出，且您的 shell 打印 `Bus error`，其中一个原因是 Claude Code 无法再从磁盘读取其自身的可执行文件。例如，在会话运行期间，该文件被截断，或在网络存储上被删除。
+
+在 shell 的消息之前，Claude Code 的运行时可能会打印一份崩溃报告，其中包括 `panic(main thread): Bus error at address` 和 `oh no: Bun has crashed. This indicates a bug in Bun, not your code.`。当可执行文件变得不可读时，崩溃来自不可读的文件，而不是 Bun 中的 bug。如果运行时也无法读取打印该报告的代码，该报告也可能缺失。
+
+启动新会话以继续。如果 Claude Code 安装在网络存储上，请按照[在网络存储上安装](/docs/zh-CN/setup#install-on-network-storage)操作，以免升级删除正在运行的会话仍需要的二进制文件。
 
 <h3 id="exec-format-error-on-wsl1">
   WSL1 上的 `Exec format error`

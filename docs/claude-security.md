@@ -40,7 +40,7 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代�
   安装插件
 </h2>
 
-在 Claude Code 会话中，从[官方 Anthropic 市场](/docs/zh-CN/plugins/anthropic-marketplaces)安装：
+在 VS Code 扩展或桌面应用中，请按照[安装插件](/docs/zh-CN/plugins/install#install-a-plugin)进行安装。在终端中，运行 `claude` 启动 Claude Code，然后在其输入框中输入以下内容，从[官方 Anthropic 市场](/docs/zh-CN/plugins/anthropic-marketplaces)安装：
 
 ```text theme={null}
 /plugin install claude-security@claude-plugins-official

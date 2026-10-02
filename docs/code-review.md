@@ -391,7 +391,7 @@ Claude 在这两个运行中都将发现作为文本报告在回复中，即使�
 审查默认在后台运行；在 v2.1.218 之前，它在您的对话中运行。在以下情况下它在前台运行：
 
 * 您在较早的审查仍在进行时再次运行 `/code-review`
-* 您以非交互式模式运行它，使用 `-p` 标志或 Agent SDK；Claude Code 等待审查并在响应中包含发现，除了 `ultra`，它[启动云审查而不等待](#escalate-to-ultrareview)
+* 您以非交互模式运行它，使用 `-p` 标志或 Agent SDK；Claude Code 等待审查并在响应中包含发现，除了 `ultra`，它[不等待云审查](/docs/zh-CN/ultrareview#run-ultrareview-non-interactively)
 * 您将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 设置为 `1`，这也关闭了所有其他后台任务功能
 
 <h3 id="let-claude-start-the-review">
@@ -428,9 +428,7 @@ Ultrareview 使用其自己的范围：您当前的分支与存储库的默认�
   Ultrareview 需要使用 claude.ai 账户进行身份验证，在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用，或对启用了零数据保留的组织不可用。当 ultrareview 不可用时，`/code-review ultra` 在您的会话中运行本地审查。
 </Note>
 
-要从脚本或 CI 启动云审查，请运行 `claude -p '/code-review ultra'`。Claude Code 启动审查并打印用于跟踪它的链接。需要 Claude Code v2.1.218 或更高版本。
-
-当审查会计费[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)时，Claude Code 在启动前停止，因为计费确认需要交互式会话。改为运行[`claude ultrareview` 子命令](/docs/zh-CN/ultrareview#run-ultrareview-non-interactively)；通过运行它，您同意该费用。
+要从脚本或 CI 作业运行云审查，请使用 [`claude ultrareview` 子命令](/docs/zh-CN/ultrareview#run-ultrareview-non-interactively)，它会等待发现并将其打印到 stdout。
 
 该命令在 v2.1.147 之前被命名为 `/simplify`，当时它默认应用修复。`/simplify` 运行单独的仅清理审查，应用修复而不寻找错误。如果您为错误查找编写了 `/simplify` 脚本，请切换到 `/code-review --fix`。
 

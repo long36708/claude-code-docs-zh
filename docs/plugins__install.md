@@ -385,11 +385,15 @@ claude plugin uninstall formatter@your-org --scope project
 
 在 Claude Code 会话中，运行 `/plugin` 并转到 **Marketplaces** 选项卡。选择市场，然后选择 **Enable auto-update** 或 **Disable auto-update**。
 
-<h3 id="update-one-plugin-now">
-  Update one plugin now
+<h3 id="update-plugins-now">
+  Update plugins now
 </h3>
 
-在会话中，在 `/plugin` 中的 **Installed** 选项卡上打开插件并选择 **Update now**，或在 shell 中运行 `claude plugin update <plugin>@<marketplace>`。
+要更新单个插件，请在会话中于 `/plugin` 的 **Installed** 选项卡上打开该插件并选择 **Update now**，或在 shell 中运行 `claude plugin update <plugin>@<marketplace>`。
+
+没有可一次性更新所有插件的命令。要一次性更新您从某个市场安装的插件，请转到 `/plugin` 中的 **Marketplaces** 选项卡，选择该市场，然后选择 **Update marketplace**。这会刷新该市场的列表，更新您从中安装的插件，并报告留待您自行更新的任何插件。具有 [`command` source](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source) 的插件，或其市场条目设置了 `headersHelper` 命令的插件，不会通过这种方式更新，因此您需要在 **Installed** 选项卡上该插件的视图中更新它，或使用 `claude plugin update <plugin>@<marketplace>` 进行更新。
+
+如果您在 shell 中运行不带名称的 `claude plugin marketplace update`，它会刷新每个市场的列表，但会将您已安装的插件保留在当前版本。
 
 <h3 id="auto-update-from-a-private-marketplace">
   Auto-update from a private marketplace

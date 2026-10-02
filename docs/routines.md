@@ -365,11 +365,7 @@ Routines 需要 GitHub 访问权限来克隆存储库。当您使用 `/schedule`
 
 您添加的每个存储库在每次运行时都会被克隆。Claude 从存储库的默认分支开始，除非您的提示另有指定。
 
-Claude 将其工作推送到以 `claude/` 为前缀的分支，这些分支始终被接受。当您的提示指示 Claude 推送到另一个分支时，Claude Code 会先检查推送，如果以下任何情况为真，则拒绝它：
-
-* 该分支在 GitHub 上受保护
-* 其他人有一个来自该分支的开放拉取请求
-* 该分支包含由您以外的人创建的提交
+Claude 将其工作推送到以 `claude/` 为前缀的分支，除非您的提示词指示它推送到其他分支。要控制运行可以推送到哪些分支，请在 GitHub 上使用分支保护规则或规则集。对于在 Anthropic 托管基础设施上的运行，以及通过 [Anthropic 的 git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)推送的自托管运行，GitHub 会将这些规则应用于您连接的 GitHub 访问权限，因此该访问权限可以绕过的规则不会阻止运行的推送。使用您的部署所提供的 git 凭据进行推送的自托管运行，则会根据这些凭据进行检查。请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)。
 
 <h3 id="connectors">
   Connectors

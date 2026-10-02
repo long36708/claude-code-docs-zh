@@ -38,13 +38,13 @@ Explore 和 Plan 会跳过您的 CLAUDE.md 文件和 git 状态快照，以保�
   <Tab title="Explore">
     一个快速的、只读的代理，针对搜索和分析代码库进行了优化。
 
-    * **Model**: 从主对话继承，在 Claude API 上限制为 Opus，因此 Explore 永远不会在比您为会话选择的模型更昂贵的模型上运行，除非您设置 `CLAUDE_CODE_SUBAGENT_MODEL` 并[强制将其应用于每个 subagent](#run-every-subagent-on-one-model)
+    * **Model**: 主对话的模型。当主对话运行 Fable 时，Explore 的模型取决于您的连接方式：
+      * 使用 Claude 订阅、Anthropic Console 账户，或通过 `ANTHROPIC_BASE_URL` 访问的 [LLM 网关](/docs/zh-CN/llm-gateway)时，Explore 在 [`opus` 别名](/docs/zh-CN/model-config#model-aliases)解析到的 Opus 模型上运行。
+      * 在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 或 [Claude apps 网关](/docs/zh-CN/claude-apps-gateway)上，Explore 保持使用主对话的模型。
     * **Tools**: 只读工具；拒绝访问 Write 和 Edit
     * **Purpose**: 文件发现、代码搜索、代码库探索
 
-    从 v2.1.198 开始，Explore 继承主对话的模型，而不是始终在 Haiku 上运行。在 Claude API 上，继承的模型限制为 Opus：主对话在更高层级上运行 Explore 时使用 Opus，主对话在 Sonnet 或 Haiku 上运行 Explore 时使用相同的模型。在任何其他提供商上，例如 [Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 AWS 上的 Claude Platform](/docs/zh-CN/third-party-integrations)，Explore 直接继承主对话的模型。
-
-    名为 `Explore` 的[用户或项目 subagent](#choose-the-subagent-scope) 会覆盖内置的，并保持其自己的 `model` 字段，因此定义一个带有 `model: haiku` 的来保持探索在较低成本的模型上。
+    名为 `Explore` 的[用户或项目子代理](#choose-the-subagent-scope)会覆盖内置的子代理，并保持其自己的 `model` 字段，因此可以定义一个带有 `model: haiku` 的子代理，在较低成本的模型上运行探索。要将同一个模型强制应用于每个子代理（包括 Explore），请参阅[在一个模型上运行每个子代理](#run-every-subagent-on-one-model)。
 
     当 Claude 需要搜索或理解代码库而不进行更改时，它会委托给 Explore。这样可以将探索结果保持在主对话上下文之外。
 
@@ -245,7 +245,9 @@ JSON 中的每个顶级键是代理的名称，其值是该代理的定义。不
 **Plugin subagents** 来自您已安装的 [plugins](/docs/zh-CN/plugins/overview)。它们与您的自定义 subagents 一起自动加载，并在 @-mention 类型提前中以其范围名称出现。有关创建 plugin subagents 的详细信息，请参阅 [plugin 组件参考](/docs/zh-CN/plugins/components#agents)。
 
 <Note>
-  出于安全原因，plugin subagents 不支持 `hooks`、`mcpServers` 或 `permissionMode` frontmatter 字段。加载来自 plugin 的代理时，这些字段被忽略。如果您需要它们，请将代理文件复制到 `.claude/agents/` 或 `~/.claude/agents/`。您也可以在 `settings.json` 或 `settings.local.json` 中向 [`permissions.allow`](/docs/zh-CN/settings-reference#permissions-allow) 添加规则，但这些规则适用于整个会话，而不仅仅是 plugin subagent。
+  出于安全原因，插件子代理不支持 `hooks`、`mcpServers` 或 `permissionMode` frontmatter 字段。从插件加载 Agent 时，这些字段会被忽略。如果您需要它们，请将 Agent 文件复制到 `.claude/agents/` 或 `~/.claude/agents/`。您也可以在 `settings.json` 或 `settings.local.json` 中向 [`permissions.allow`](/docs/zh-CN/settings-reference#permissions-allow) 添加规则，但这些规则适用于整个会话，而不仅仅是该插件子代理。
+
+  如果您是插件的作者，请改为在插件的 [`hooks/hooks.json`](/docs/zh-CN/plugins/components#hooks) 中提供 hook，并在其 [`.mcp.json`](/docs/zh-CN/plugins/components#mcp-servers) 中提供 MCP 服务器。它们会在插件启用时始终生效，而不仅仅在子代理内部生效。
 </Note>
 
 来自任何这些范围的 subagent 定义也可用于 [agent teams](/docs/zh-CN/agent-teams#use-subagent-definitions-for-teammates)：当生成一个队友时，您可以引用一个 subagent 类型，Claude Code 将该定义的部分应用于队友。有关每个显示模式中哪些部分适用，请参阅 [agent teams](/docs/zh-CN/agent-teams#use-subagent-definitions-for-teammates)。
@@ -411,7 +413,7 @@ Claude Code 根据您组织的 [`availableModels`](/docs/zh-CN/model-config#rest
 `CLAUDE_CODE_SUBAGENT_MODEL` 是一个默认值，因此 subagent 的定义或 Claude 传递的模型仍然优先于它。要将一个模型应用于每个 subagent、[teammate](/docs/zh-CN/agent-teams#specify-teammates-and-models) 和 [workflow agent](/docs/zh-CN/workflows)，也设置 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` 为 `1`。需要 Claude Code v2.1.257 或更高版本。
 
 * 如果您设置两个变量，subagents 在 `CLAUDE_CODE_SUBAGENT_MODEL` 中的模型上运行。
-* 如果您仅设置 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`，subagents 在主对话的模型上运行。
+* 如果仅设置 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`，子代理将在主对话的模型上运行，但内置 Explore 子代理除外，它会在[内置子代理下为其列出的模型](#built-in-subagents)上运行。
 
 例如，要在 Haiku 上运行每个 subagent，在 [settings file](/docs/zh-CN/settings) 的 `env` 块中设置两个变量：
 
@@ -426,12 +428,10 @@ Claude Code 根据您组织的 [`availableModels`](/docs/zh-CN/model-config#rest
 
 要检查设置是否生效，在 subagent 运行时运行 [`/tasks`](/docs/zh-CN/commands)。Subagent 的行显示它运行的模型。
 
-当 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` [on](/docs/zh-CN/env-vars) 时，Claude Code 忽略每个 subagent 定义的 `model` 字段，包括内置 Explore 和 Plan subagents，Claude 无法在启动 subagent 时传递模型。两种 subagent 仍然在主对话的模型上运行：
+当 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` [启用](/docs/zh-CN/env-vars)时，Claude Code 会忽略子代理定义中的 `model` 字段，Claude 在启动子代理时也无法传递模型。以下子代理仍在主对话的模型上运行：
 
 * 一个 [fork](#fork-the-current-conversation)
 * 一个 [skill that runs in a subagent](/docs/zh-CN/skills#run-skills-in-a-subagent)，带有 `model: inherit`
-
-当您仅设置 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` 时，内置 Explore subagent 保持其 [model cap](#built-in-subagents)。
 
 <h3 id="control-subagent-capabilities">
   控制 subagent 能力
@@ -1253,7 +1253,12 @@ Claude 通过 Agent 工具请求 `fork` subagent 类型来启动分叉。您可�
 | `x` | 如果分叉正在运行，停止它；如果不再运行，关闭其行。在主会话行或您使用 `Enter` 打开其转录的分叉行上，`x` 会输入到提示中 |
 | `Esc` | 将焦点返回到提示输入 |
 
-打开分叉或 subagent 的转录后，后续消息和 [skills](/docs/zh-CN/skills) 会发送到该代理，但内置命令仍在您的主对话中运行。从 v2.1.199 开始，在该视图中键入 `/model` 或 `/fast` 会显示一条通知，说明它改变主对话的模型或快速模式，而不是所查看代理的，而不是静默运行它。
+打开分叉或子代理的会话记录后，后续消息和 [skill](/docs/zh-CN/skills) 会发送到该 Agent，而内置命令会发送到您的主对话，并有以下保护措施：
+
+* `/compact`、`/clear` 和 `/rewind` 作用于主对话，因此 Claude Code 在从该视图运行其中任何一个之前会要求您确认。
+* `/model` 和 `/fast` 设置的是主对话的模型和快速模式，而不是所查看 Agent 的，因此它们不会从该视图运行。一条通知会告诉您原因。
+
+要让所查看的 Agent 在其等待的工作完成之前读取您的消息，请使用 [`Ctrl+Enter` 或 `Ctrl+X Ctrl+S`](/docs/zh-CN/keybindings#chat-actions) 发送。该 Agent 正在等待的任何可以移至[后台](/docs/zh-CN/tools-reference#background-commands)的 shell 命令或子代理都会移至后台并继续运行。当该 Agent 正在编写回复，或正在等待无法移至后台的工作时，它会继续进行，并在完成后读取您的消息。需要 Claude Code v2.1.286 或更高版本。
 
 <h3 id="how-forks-differ-from-other-subagents">
   分叉与其他 subagents 的区别

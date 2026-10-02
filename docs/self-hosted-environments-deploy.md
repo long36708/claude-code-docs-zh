@@ -140,6 +140,8 @@
 
 提交签名需要 git 2.34 或更高版本；运行器在启动时检查并在您的 git 较旧时以错误退出。此标志不配置推送凭证，您仍然在镜像中提供。
 
+在 v2.1.280 或更高版本的运行器上，您从 `checkout` 或 `post-session` 生命周期钩子中进行的提交也会以会话身份签名，但不带 `Co-authored-by:` 尾注。[生命周期钩子内的 Git 配置](/docs/zh-CN/self-hosted-environments-configuration#git-configuration-inside-lifecycle-hooks)介绍了运行器在这些钩子内固定的 git 设置。
+
 <h3 id="ship-git-config-in-your-image">
   在镜像中提供 git 配置
 </h3>
@@ -435,7 +437,7 @@ secrets:
 
 给你的主机停止超时至少三个部分的总和：你配置的 `n` 分钟、发布后宽限期和 [Shutdown timing](#shutdown-timing) 描述的完整排空路径。使用默认设置，发布后宽限期为 75 秒，排空路径为 80 秒，因此允许 `n` 分钟加 155 秒。当设置 `--defer-shutdown-max-min` 时，运行器在启动时打印此总和。
 
-如果停止超时在运行器完成前用完，主机会杀死运行器。它仍然持有的会话不会获得 `post-session` 钩子。运行器不会注销，控制平面大约一分钟后重新排队会话。如果你无法给停止超时该总和，请不设置 `--defer-shutdown-max-min`，以便运行器在第一个信号上排空。
+如果停止超时在运行器完成前用完，主机会杀死运行器。它仍然持有的会话不会获得 `post-session` hook。运行器不会注销，控制平面会在几分钟内重新排队这些会话。如果您无法给停止超时该总和，请不设置 `--defer-shutdown-max-min`，以便运行器在第一个信号上排空。
 
 <h3 id="what-reaches-a-running-post-session-hook">
   什么到达运行的 post-session 钩子
@@ -543,8 +545,10 @@ Anthropic 从其自己的基础设施而不是从您的运行器调用连接器�
   其他限制
 </h3>
 
-* **恢复的会话丢失未推送的工作**：当会话被释放或其运行器重启，用户发送另一条消息时，会话在新运行器上恢复，该运行器从其起始分支再次克隆存储库，所以会话未推送的工作消失。设置 [`--push-outcome-on-release`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 使运行器在释放之前尽力推送会话的结果分支，所以恢复的会话从这些提交开始；这保留提交的工作，而不是脏工作树。在启用之前，限制谁可以推送到源远程上的 `claude/*` refs，例如使用分支规则集：在恢复时，运行器获取之前推送的分支而不验证谁推送了它，所以任何有推送访问这些 refs 的人都可以将内容放入恢复的工作区。运行器也在恢复时丢弃按会话配置，意味着会话的 Claude 配置目录和会话写入的任何 shell 状态；`--push-outcome-on-release` 不涵盖这些。
-* **私有存储库无法在会话中途添加**：在自托管运行器上，添加到已启动会话的存储库不使用凭证克隆，所以添加失败。创建会话时选择会话需要的每个存储库。
+* **恢复的会话丢失未推送的工作**：新的运行器会从其起始分支重新克隆仓库，因此会话未推送的工作会丢失。
+  * **要保留已提交的工作**：设置 [`--push-outcome-on-release`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)。运行器随后会在释放之前尽力推送会话的结果分支，恢复的会话将从这些提交开始。未提交的更改仍会丢失。
+  * **启用该标志之前**：限制谁可以推送到源远程上的 `claude/*` refs。在恢复时，运行器会获取之前推送的分支，而不验证是谁推送的。
+* **会话中途添加的仓库可能无法克隆**：Claude 通过 HTTPS 使用 `git clone` 克隆它。在未启用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 的运行器上，如果主机上没有任何内容能够读取该仓库，克隆会因 git 身份验证错误而失败。如有可能，请在创建会话时选择会话所需的每个仓库。
 * **某些连接器不出现在自托管会话中**：您在 claude.ai Settings 中尚未连接的连接器不在自托管会话中列出，会话不会提示您连接它。首先在 Settings 中连接它，然后启动新会话。向已运行的会话添加连接器也不会使其工具对 Claude 可用；启动新会话以获取新添加的连接器。
 
 <h3 id="report-an-issue">

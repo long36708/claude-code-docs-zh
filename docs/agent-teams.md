@@ -195,9 +195,12 @@ Spawn an architect teammate to refactor the authentication module.
 * **In-process 模式**：在 agent 面板中使用上下箭头键选择队友，然后按 Enter 查看其会话并输入以向其发送消息。在选定的队友上按 `x` 以停止它。按 Ctrl+T 切换任务列表。
 * **Split-pane 模式**：点击队友的窗格以直接与他们的会话交互。每个队友都有自己终端的完整视图。
 
-当你查看 in-process 队友时，纯文本和 [skills](/docs/zh-CN/skills) 会发送给该队友，但内置命令仍在负责人的会话中运行。
+在查看 in-process 队友时，纯文本和 [skill](/docs/zh-CN/skills) 会发送给该队友，而内置命令会发送到负责人的会话，并有以下保护措施：
 
-队友的模型和快速模式在它生成时是固定的，所以 `/model` 和 `/fast` 只改变负责人的设置。从 v2.1.199 开始，在查看队友时输入任一命令会显示一个通知，表示更改适用于负责人；较早的版本会将其应用于负责人而没有任何指示。`/effort` 仍然适用于所查看队友的后续轮次，因为队友遵循负责人的[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)。
+* `/compact`、`/clear` 和 `/rewind` 作用于负责人的对话，因此在此视图中运行其中任一命令之前，Claude Code 会请您确认。
+* `/model` 和 `/fast` 设置的是负责人的模型和快速模式，而不是队友的，因此它们不会在此视图中运行。系统会显示一条通知说明原因。
+
+队友的模型和快速模式在其生成时即已固定。`/effort` 仍然适用于所查看队友的后续轮次，因为队友遵循负责人的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。
 
 <h3 id="assign-and-claim-tasks">
   分配和认领任务
