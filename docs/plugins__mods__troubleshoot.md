@@ -56,6 +56,8 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 
 读取冒号后的原因。[拒绝消息](#refusal-messages) 部分列出了每一个。如果日志中没有这样的行，请逐一处理此组中的其他条目。
 
+某些设置会阻止 mod，同时让其插件的其余部分继续工作。[启用或关闭 mod](/docs/zh-CN/plugins/mods/overview#turn-mods-on-or-off) 列出了这些设置。
+
 <h3 id="a-claude-p-run-prints-hooks-module-not-loaded">
   `claude -p` 运行打印 `hooks module not loaded`
 </h3>
@@ -143,6 +145,17 @@ mod 已加载，然后 Claude Code 跳过了其中一个 hooks 或卸载了它�
 该行命名 mod 和事件，然后说 `hook skipped:` 和一个原因，如 `first-mod: tool.call hook skipped: threw Error: boom`。hook 抛出了异常、运行超过了其 [10 秒时间限制](/docs/zh-CN/plugins/mods/reference#limits)，或返回了错误形状的结果。该行对每个事件和失败类型出现一次，直到 mod 重新加载。
 
 修复错误。调试日志对每次出现都有一行。
+
+<h3 id="no-command-run-hook-answered-it">
+  `no command.run hook answered it`
+</h3>
+
+您运行了 mod 添加的命令，回复命名了 mod 和命令，如 `first-mod registered /tally but no command.run hook answered it`，然后告诉您添加一个 hook。当命令到达链的末尾而没有答案时，Claude Code 会打印该回复，这发生在两种情况下：
+
+* **没有 hook 回答命令**：模块没有 `command.run` hook，hook 的 [filter](/docs/zh-CN/plugins/mods/events#filter-which-events-a-hook-handles) 命名了不同的命令，或 hook 返回了 `next(e)`
+* **Claude Code 跳过了 hook**：[`hook skipped`](#hook-skipped) 列出了原因。将 `focus: false` 传递给 [`$.ui.open`](/docs/zh-CN/plugins/mods/interface#open-a-pane-at-the-right-time) 是到达那里的一种方式。
+
+如果模块已经有回复描述的 hook，请查找命名 `command.run` 的 `hook skipped` 行，它给出了原因。运行命令的 [test](/docs/zh-CN/plugins/mods/test) 失败，原因相同。
 
 <h3 id="it-crashed-the-hooks-worker">
   `it crashed the hooks worker`

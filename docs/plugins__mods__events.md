@@ -190,6 +190,33 @@ export function register(on) {
 
 将等待保持在 mods API 调用（如 `$.ui.ask`）内，因为该时间不计入 hook 的[10 秒时间限制](/docs/zh-CN/plugins/mods/reference#limits)。花在等待你自己的承诺上的时间确实计入。Claude Code 跳过超时的 hook，因此保持的命令会运行。
 
+<h4 id="approve-or-refuse-a-tool-call-before-the-user-is-asked">
+  在询问用户之前批准或拒绝工具调用
+</h4>
+
+要决定某个工具调用是否可以运行，请处理 [`tool.check`](/docs/zh-CN/plugins/mods/reference#tools)，即 Claude Code 做出该决定的事件。它在权限规则和设置 hook 做出决定之后触发，`next(e)` 解析为它们的决定：`allow`、`ask` 或 `deny`。您的 hook 返回该决定或另一个决定。`e.input` 保存工具的参数，例如 Bash 的 `command`。
+
+对于固定的命令或路径，请使用[权限规则](/docs/zh-CN/permissions#permission-rule-syntax)，例如 `Bash(npm test)`，无需编写代码。当决定取决于当时的实际情况（例如当前的 Git 分支或另一个 hook 记录的值）时，请处理 `tool.check`。
+
+此 hook 在当前分支为 `main` 时拒绝 `git push`：
+
+```javascript theme={null}
+on('tool.check', { tool: 'Bash' }, async ($, e, next) => {
+  // 权限规则和设置 hook 做出的决定：'allow'、'ask' 或 'deny'
+  const decided = await next(e)
+  if (!e.input.command.includes('git push')) return decided
+  const branch = await $.process.run(['git', 'branch', '--show-current'])
+  if (branch.stdout.trim() !== 'main') return decided
+  return { decision: 'deny', reason: 'Push from a branch other than main' }
+})
+```
+
+在 `main` 上，即使某条规则允许 `git push`，hook 也会返回 `deny`。在其他分支上以及对于其他命令，调用会得到没有 mod 时同样的决定。
+
+该 hook 匹配的是命令的文本，因此请将其视为对 Claude 的提醒。要为所有人阻止向 `main` 推送，请在您的 Git 托管平台上保护该分支。
+
+hook 可以返回三种决定中的任何一种，因此它也可以批准被托管设置之外的 `PreToolUse` hook 阻止的调用。[使用 hook 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)列出了哪些决定会优先于 mod。
+
 <h3 id="rewrite-or-add-to-a-prompt">
   重写或添加到提示
 </h3>
@@ -301,7 +328,7 @@ Claude Code 按每个 mod 的来源对链进行排序：
 * **来自托管设置的 `PreToolUse` hooks**：在第一个 mod 的 `tool.call` hook 之前运行，其中一个的块是最终的，因此没有 mod 看到调用。
 * **来自每个其他设置文件和插件的 `hooks/hooks.json` 的 `PreToolUse` hooks**：在最后一个 mod 调用 `next` 后运行，作为 Claude Code 自己的行为的一部分。回答 `tool.call` 而不调用 `next` 的 mod 会阻止它们运行，调用 `next` 的 mod 在它返回的结果中看到它们的决定。
 
-[`tool.check`](/docs/zh-CN/plugins/mods/reference#tools) 是 Claude Code 决定是否允许工具调用运行的事件。它在这些 hooks 和权限规则决定后触发，`next(e)` 解析为它们的决定。`tool.check` 上的 hook 可以返回不同的决定，例如 `{ decision: 'allow' }`，因此它可以批准第二组中的 hook 阻止的调用。[使用 hooks 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)列出哪些决定对 mod 有效。
+[`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) 在这些 hook 和权限规则做出决定后触发，因此其上的 hook 可以批准第二组中的 hook 所阻止的调用。
 
 <h3 id="handle-a-hook-that-fails">
   处理失败的 hook

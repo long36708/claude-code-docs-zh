@@ -325,7 +325,7 @@ Claude 根据任务确定调用哪些工具，但你控制这些调用是否被�
 
 对于长时间运行的代理的几个策略：
 
-* **为子任务使用子代理。** 每个子代理以新鲜对话开始（没有先前的消息历史，尽管它确实加载自己的系统提示和项目级上下文，如 CLAUDE.md）。它看不到父级的轮次，只有其最终响应作为工具结果返回给父级。主代理的上下文增长该摘要，而不是完整的子任务成绩单。有关详情，请参阅[子代理继承什么](/docs/zh-CN/agent-sdk/subagents#what-subagents-inherit)。
+* **为子任务使用子代理。** 每个子代理以全新的对话开始（没有先前的消息历史，但它确实会加载自己的系统提示词和项目级上下文，如 CLAUDE.md）。它看不到父级的轮次，只有其最终回复会返回给父级。主 Agent 的上下文只会增加该摘要，而不是完整的子任务会话记录。有关详情，请参阅[子代理继承什么](/docs/zh-CN/agent-sdk/subagents#what-subagents-inherit)。
 * **对工具有选择性。** 每个工具定义占用上下文空间。在 [`AgentDefinition`](/docs/zh-CN/agent-sdk/subagents#agentdefinition-configuration) 上使用 `tools` 字段将子代理限制在它们需要的最小集合。
 * **监视 MCP 服务器成本。** [MCP 工具搜索](/docs/zh-CN/agent-sdk/mcp#mcp-tool-search)默认延迟 MCP 工具架构，并按需加载它们。当工具搜索关闭或已回退到预先加载时，每个 MCP 服务器将其所有工具架构添加到每个请求，因此具有许多工具的几个服务器可以在代理执行任何工作之前消耗大量上下文。有关应用回退的配置，请参阅[配置工具搜索](/docs/zh-CN/agent-sdk/tool-search#configure-tool-search)。
 * **对常规任务使用较低的努力。** 为仅需要读取文件或列出目录的代理设置[努力](#effort-level)为 `"low"`。这减少了令牌使用和成本。

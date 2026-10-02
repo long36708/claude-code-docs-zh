@@ -1488,7 +1488,7 @@ SdkBeta = Literal["context-1m-2025-08-07"]
 与 `ClaudeAgentOptions` 中的 `betas` 字段一起使用以启用测试功能。
 
 <Warning>
-  `context-1m-2025-08-07` 测试版自 2026 年 4 月 30 日起已停用。使用 Claude Sonnet 4.5 或 Sonnet 4 传递此标头无效，超过标准 200k 令牌上下文窗口的请求返回错误。要使用 1M 令牌上下文窗口，请迁移到 [Claude Opus 5.5、Claude Opus 5、Claude Sonnet 5、Claude Sonnet 4.6、Claude Opus 4.6、Claude Opus 4.7 或 Claude Opus 4.8](https://platform.claude.com/docs/en/about-claude/models/overview)，它们以标准定价包括 1M 上下文，无需测试版标头。
+  在 Claude API 上，`context-1m-2025-08-07` 测试版已针对 Claude Sonnet 4.5 和 Claude Sonnet 4 停用。如果您在使用其中任一模型时仍传递它，超过标准 200K token 上下文窗口的请求会返回错误，因此请将其从 `betas` 中移除。要运行具有 1M token 上下文窗口的会话，请将 `model` 设置为[默认以 1M 窗口运行](/docs/zh-CN/model-config#extended-context)的模型，例如 `claude-sonnet-5-5` 或 `claude-opus-5-5`。对于仅通过其 `[1m]` 变体才能达到 1M 的模型，请在模型 ID 后追加该后缀，例如 `claude-opus-4-6[1m]`。
 </Warning>
 
 <h3 id="mcpsdkserverconfig">

@@ -15,7 +15,7 @@ Claude Code 插件是一个目录，包含 skills、agents、hooks、MCP 服务�
   * **您构建了 MCP 服务器并希望将其添加到 Anthropic 的目录中**：请参阅[发布到目录](https://claude.com/docs/directory/publish)
 </Note>
 
-要立即尝试插件，请在 Claude Code 终端会话中运行 `/plugin`，并从**发现**选项卡安装一个插件，该选项卡列出了来自 Anthropic 官方市场和您添加的任何市场的插件。从那里：
+要立即尝试插件，请在 Claude Code 终端会话中运行 `/plugin`，并从**发现**选项卡安装一个插件，该选项卡列出了来自您的市场的插件。从那里：
 
 * [安装和管理插件](/docs/zh-CN/plugins/install)：完整的安装步骤、作用域和其他界面
 * [创建插件](/docs/zh-CN/plugins/create)：构建您自己的插件
@@ -75,7 +75,7 @@ Skills、子代理、hooks 和 MCP 服务器都可以独立工作，无需插件
   插件市场不是 [Claude Marketplace](https://claude.com/marketplace)。Claude Marketplace 是 claude.com/marketplace 上的网站，您可以在其中浏览插件、连接器、合作伙伴产品和服务合作伙伴。它不是您使用 `/plugin marketplace add` 添加的市场。
 </Note>
 
-Claude Code 在您第一次启动交互式终端会话时添加 Anthropic 的官方市场，除非[托管策略](/docs/zh-CN/plugins/org#allow-the-official-marketplace-and-your-own)阻止它。Claude Code 不会自行添加任何其他市场，包括 Anthropic 的社区和演示市场。要区分三个 Anthropic 市场，请阅读 [Anthropic 的市场](/docs/zh-CN/plugins/anthropic-marketplaces)。要查看官方市场列出的内容，请在会话中打开 `/plugin` 的**发现**选项卡，或浏览 [Claude Marketplace](https://claude.com/marketplace/plugins)。
+Claude Code 在您第一次启动交互式终端会话时添加 Anthropic 的官方市场，除非[托管策略](/docs/zh-CN/plugins/org#allow-the-official-marketplace-and-your-own)阻止它。Claude Code 不会自行添加 Anthropic 的社区和演示市场。要区分三个 Anthropic 市场，请阅读 [Anthropic 的市场](/docs/zh-CN/plugins/anthropic-marketplaces)。要查看官方市场列出的内容，请在会话中打开 `/plugin` 的**发现**选项卡，或浏览 [Claude Marketplace](https://claude.com/marketplace/plugins)。
 
 此图显示了从市场到您的会话的路径。市场列出一个插件，您安装该插件，Claude Code 加载其组件。
 

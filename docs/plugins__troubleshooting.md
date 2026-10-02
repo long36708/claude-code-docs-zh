@@ -460,6 +460,21 @@ Plugin archive integrity check failed for https://artifacts.example.com/claude-p
 * **您发布插件**：重新计算 URL 提供的确切文件的摘要，并更新市场条目中的 `sha256`。使用 `shasum -a 256 my-plugin.zip`，或在 PowerShell 中使用 `Get-FileHash -Algorithm SHA256 my-plugin.zip`
 * **您安装插件**：在会话中运行 `/plugin marketplace update <name>` 以刷新目录以防条目已更正，然后重试安装。如果刷新后摘要仍然不同，请在安装前询问市场所有者他们引脚了哪个文件
 
+<h3 id="an-npm-plugin-source-must-name-a-registry-package">
+  `An npm plugin source must name a registry package`
+</h3>
+
+市场条目使用 [`npm` 源](/docs/zh-CN/plugins/marketplace-reference#npm-plugin-source) 的插件安装、更新或加载失败，且消息中包含这句话。Claude Code 在获取任何内容之前检查了该条目的 `package` 值并拒绝了它。消息会指出该值和原因：
+
+```text theme={null}
+"github:acme/formatter" was not installed: it is not an http or https link. An npm plugin source must name a registry package (name or name@version) or link to a tarball file. For a plugin in a git repository, use a "github", "url" or "git-subdir" source.
+```
+
+市场的所有者必须更改该条目：
+
+* **如果那是您**：将 `package` 更改为 [npm 插件源参考](/docs/zh-CN/plugins/marketplace-reference#npm-plugin-source) 接受的值，或将该条目切换为 `github`、`url` 或 `git-subdir` 源
+* **如果不是您**：向市场所有者报告消息
+
 <h3 id="marketplace-is-registered-from-an-untrusted-source">
   `Marketplace "<name>" is registered from an untrusted source`
 </h3>

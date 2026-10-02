@@ -73,7 +73,7 @@ Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-o
 
 流式传输推理响应。Claude Code 在流到达时读取流，因此如果您的网关在中继之前缓冲完整响应，Claude Code 会停滞。
 
-传递每个响应的完整事件序列，不要丢弃、重复或重新排序事件。当事件引用的内容块的 `content_block_start` 从未到达，或块的 `content_block_stop` 已经到达时，Claude Code 会在该事件处停止读取流，而不是应用它，因此重复的 `content_block_stop` 不能运行相同的工具调用两次。[上述响应可能不完整](/docs/zh-CN/errors#the-response-above-may-be-incomplete)描述了用户看到的内容，在 `部分响应从未到达` 和 `响应流格式错误` 变体下。
+传递每个响应的完整事件序列，不要丢弃、重复或重新排序事件。当 Amazon Bedrock 护栏拦截回复时，原样转发它发送的事件，即使这些事件引用的内容块的 `content_block_stop` 已经到达。[AWS Guardrails](/docs/zh-CN/amazon-bedrock#aws-guardrails) 描述了该回复如何结束。当任何其他事件引用的内容块的 `content_block_start` 从未到达，或块的 `content_block_stop` 已经到达时，Claude Code 会在该事件处停止读取流，而不是应用它，因此重复的 `content_block_stop` 不能运行相同的工具调用两次。[上述响应可能不完整](/docs/zh-CN/errors#the-response-above-may-be-incomplete)描述了用户看到的内容，见 `Part of the response never arrived` 和 `The response stream was malformed` 变体。
 
 在结束正文之前，通过每个响应的最终 `message_delta` 和 `message_stop` 事件中继每个响应。在 `message_delta` 携带 `stop_reason` 之后结束的正文，没有内容块仍然打开，该帧之后没有内容块事件，即使 `message_stop` 缺失，也计为完整。您的网关更早结束的正文，一旦内容块已启动，就被视为与断开连接相同：[自动重试](/docs/zh-CN/errors#automatic-retries)说明 Claude Code 何时重新发出请求，[上述响应可能不完整](/docs/zh-CN/errors#the-response-above-may-be-incomplete)涵盖了一旦可见内容到达它保留的内容。Claude Code 保留 `message_delta` 传递的 `stop_reason`，因此稍后仅使用情况的 `message_delta`，其 `delta` 具有 `stop_reason: null` 或没有 `stop_reason` 键，不会清除它。
 

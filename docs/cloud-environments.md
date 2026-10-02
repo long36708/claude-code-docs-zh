@@ -56,7 +56,9 @@
   </Step>
 
   <Step title="添加或编辑环境">
-    选择**Add cloud environment**，或悬停在现有环境上并选择右侧出现的设置图标。对话框包括名称、网络访问级别、环境变量和设置脚本。当你在Pro或Max计划上编辑现有的云环境时，对话框还包括[API凭证](#add-api-credentials)。
+    选择**Cloud**来列出你的环境。然后选择**Add cloud environment**，或悬停在现有环境上并选择右侧出现的设置图标。
+
+    对话框包括名称、网络访问级别、环境变量和设置脚本。当你在Pro或Max计划上编辑现有的云环境时，对话框还包括[API凭证](#add-api-credentials)。
 
     <Frame>
       <img src="https://mintcdn.com/claude-code/ZFId6l95856c5LSw/images/cloud-environment-dialog.png?fit=max&auto=format&n=ZFId6l95856c5LSw&q=85&s=30d4478b31d1f879f7ee287ddab32505" alt="New cloud environment对话框。一个Name字段，占位符为Default，一个Network access选择器设置为Trusted，带有网络策略和访问级别的链接，一个Environment variables框显示.env格式占位符文本，并注明值对使用该环境的任何人都可见，一个Setup script框描述为在新会话启动时运行的Bash脚本，在Claude Code启动之前，以及Cancel和Create environment按钮。" width="874" height="1372" data-path="images/cloud-environment-dialog.png" />
@@ -108,7 +110,6 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
 * **Role**：你的claude.ai组织中的组织管理员角色
   * 在Team和Enterprise上，所有者持有它，管理员没有
   * 在Pro和Max上，你在自己的组织中持有它
-  * 没有它，你会看到一个注释而不是凭证列表，即使在你自己的环境上也是如此。请求所有者将凭证添加到共享环境并在那里运行你的会话
 * **Environment type**：一个已经存在的Anthropic托管的云环境。[自托管环境](/docs/zh-CN/self-hosted-environments)没有API凭证
 * **API reachability**：API接受来自互联网的连接，因为请求来自Anthropic的网络
 * **Encryption keys**：如果你的组织使用客户管理的加密密钥，你无法保存凭证
@@ -121,7 +122,7 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
 
 <Steps>
   <Step title="打开环境的API凭证">
-    在[claude.ai/code](https://claude.ai/code)[打开环境进行编辑](#configure-your-environment)。在**Update cloud environment**对话框中，在**Environment variables**下方找到**API credentials**。你会看到已经在环境上的凭证，每个都带有它适用的主机。
+    在[claude.ai/code](https://claude.ai/code)[打开环境进行编辑](#configure-your-environment)。在**Edit cloud environment**对话框中，在**Environment variables**下方找到**API credentials**。你会看到已经在环境上的凭证，每个都带有它适用的主机。
   </Step>
 
   <Step title="添加凭证">

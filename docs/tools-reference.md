@@ -665,6 +665,16 @@ WebFetch 设置一个以 `Claude-User` 开头的 `User-Agent` 标头，以及一
 
 沙箱化命令不继承 WebFetch 的内置预批准文档域集。要让沙箱化命令无需提示即可到达一个域，将域添加到 [`allowedDomains`](/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 或使用 `WebFetch(domain:...)` 规则允许它，[沙箱也遵守](/docs/zh-CN/sandboxing#network-isolation)该规则。WebFetch 反过来从不读取沙箱允许列表，所以将域添加到沙箱或组织网络允许列表不会阻止 WebFetch 对其进行提示。
 
+<h3 id="webfetch-availability">
+  WebFetch 可用性
+</h3>
+
+在 Claude Code v2.1.285 或更高版本上，设置 [`CLAUDE_CODE_DISABLE_WEB_FETCH`](/docs/zh-CN/env-vars#variables) 为 `1` 以关闭 WebFetch。
+
+如果您使用 Team 或 Enterprise claude.ai 账户登录，并且不通过 [LLM gateway](/docs/zh-CN/llm-gateway) 连接，WebFetch 也取决于您的组织政策，Claude Code 在会话启动时从 `api.anthropic.com` 请求该政策。对于 Claude Code 无法确定计划的会话也是如此，例如在另一个应用提供的 claude.ai 令牌下运行的会话。
+
+如果 WebFetch 在会话中缺失，在会话中运行 `/status`。如果其 `Organization policy` 行报告政策未加载并在等待它的功能中列出网络获取，Claude Code 正在保留 WebFetch，直到它可以确认您的组织允许它。在会话外，`claude doctor` 进行自己的请求并打印相同的行。一旦允许 WebFetch 的政策加载，该工具返回而无需重启。
+
 <h2 id="websearch-tool-behavior">
   WebSearch 工具行为
 </h2>

@@ -271,7 +271,7 @@ Available commands: ["clear", "compact", "context", "usage", "code-review", "ver
 </CodeGroup>
 
 <Note>
-  `compact_boundary` 消息仅在压缩运行时到达。没有什么可总结的，`/compact` 会报告原因而不是引发。运行仍以 `success` 结果结束，没有 `compact_boundary` 消息，结果文本携带原因，例如在单个短交换后 `Not enough messages to compact.`。新的单次 `query()` 调用以空上下文开始，因此在具有先前轮次的会话中使用此模式，例如在 [流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode) 中或恢复会话时。
+  `compact_boundary` 消息仅在压缩运行时到达。当继续的会话有消息但 `/compact` 无法总结任何内容时，运行仍以 `success` 结果结束而不是错误，并且没有 `compact_boundary` 消息到达。结果文本随后会携带原因，例如当会话仅包含提示但尚未收到 Claude 的回复时 `Not enough messages to compact.`。新的单次 `query()` 调用以空上下文开始，因此在具有先前轮次的会话中使用此模式，例如在 [流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode) 中或恢复会话时。
 </Note>
 
 <h3 id="reset-context-with-/clear">

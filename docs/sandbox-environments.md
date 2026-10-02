@@ -107,7 +107,9 @@ Sandboxed Bash tool 内置于 Claude Code 中。它使用操作系统原语来�
 
 * 您的项目目录。
 * Claude Code 的配置路径 `~/.claude` 和 `~/.claude.json`。
-* `/tmp`，Claude Code 在其中写入运行时文件。
+* Claude Code 写入运行时文件的目录。除非您设置了 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars)，否则该目录为：
+  * **Linux 和 WSL2**：`/tmp`
+  * **macOS**：`/private/tmp`。`/tmp` 是指向该目录的符号链接，而 Seatbelt 检查的是解析后的路径。
 
 允许您的会话需要的网络域：
 

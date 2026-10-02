@@ -4,21 +4,21 @@
 
 # 在自托管环境中自定义会话
 
-> 使用包装脚本在自托管环境会话中自定义每个会话的凭证、生命周期钩子和按需运行程序生成。
+> 使用包装脚本在自托管环境会话中自定义每个会话的凭据、生命周期 hook 和按需运行程序生成。
 
 <Note>
-  自托管环境在 Team 和 Enterprise 计划中处于公开测试阶段；[Owner](/docs/zh-CN/cloud-environments#organization-shared-environments) 通过在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments) 上打开 **Allow self-hosted environments** 来启用它们。本页面假设您已有一个正常运行的运行程序；有关设置，请参阅 [quickstart](/docs/zh-CN/self-hosted-environments-quickstart)，有关 fleet recipes，请参阅 [Deploy to production](/docs/zh-CN/self-hosted-environments-deploy)。
+  自托管环境在 Team 和 Enterprise 计划中处于公开测试阶段；[Owner](/docs/zh-CN/cloud-environments#organization-shared-environments) 通过在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments) 上打开 **Allow self-hosted environments** 来启用它们。本页面假设您已有一个正常运行的运行程序；有关设置，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)，有关集群部署方案，请参阅[部署到生产环境](/docs/zh-CN/self-hosted-environments-deploy)。
 </Note>
 
-[self-hosted environment](/docs/zh-CN/self-hosted-environments) 在您自己的基础设施上运行 Claude Code [cloud sessions](/docs/zh-CN/claude-code-on-the-web)，由您部署的运行程序进程执行。在没有配置的情况下，该运行程序克隆会话的存储库，生成 Claude Code，然后进行清理。本页面适用于操作运行程序的平台工程师：它涵盖了当这些默认值不适用时的扩展点，从每个会话的凭证配置到完全替换检出。包装脚本和钩子作为运行程序主机上的可执行文件运行，该主机是 Linux 或 macOS，本页面上的示例假设使用 POSIX shell。
+[自托管环境](/docs/zh-CN/self-hosted-environments)在您自己的基础设施上运行 Claude Code [云端会话](/docs/zh-CN/claude-code-on-the-web)，由您部署的运行程序进程执行。在没有配置的情况下，该运行程序克隆会话的仓库，生成 Claude Code，然后进行清理。本页面适用于操作运行程序的平台工程师：它涵盖了当这些默认值不适用时的扩展点，从每个会话的凭据配置到完全替换检出。包装脚本和 hook 作为运行程序主机上的可执行文件运行，该主机是 Linux 或 macOS，本页面上的示例假设使用 POSIX shell。
 
-本页面上的一些钩子环境变量仍然使用 `pool`，例如 `CLAUDE_RUNNER_POOL_ID`；CLI 标志和环境变量名称使用 `environment`，例如 `--environment-secret-file`。
+本页面上的一些 hook 环境变量仍然使用 `pool`，例如 `CLAUDE_RUNNER_POOL_ID`；CLI 标志和环境变量名称使用 `environment`，例如 `--environment-secret-file`。
 
 <h2 id="wrapper-scripts">
   包装脚本
 </h2>
 
-当每个会话需要运行器无法自行完成的设置时，使用包装脚本：为会话创建者配置作用域的短期凭证、导出特定于环境的密钥、准备语言工具链或围绕子进程应用资源限制。运行器每个会话启动一次您的包装脚本，而不是 Claude Code 二进制文件。通过 `exec` 进入 `$CLAUDE_RUNNER_CLAUDE_BIN`（运行器自己的二进制文件）来结束包装脚本，以便信号和退出代码正确传播。
+当每个会话需要运行器无法自行完成的设置时，使用包装脚本：为会话创建者配置作用域的短期凭证、导出特定于环境的密钥、准备语言工具链或围绕子进程应用资源限制。运行器每个会话启动一次您的包装脚本，而不是 Claude Code 二进制文件。通过 `exec` 进入 `$CLAUDE_RUNNER_CLAUDE_BIN`（运行器自己的二进制文件）来结束包装脚本，以便信号和退出码正确传播。
 
 启动运行器时，使用 `--exec-path` 或 `SELF_HOSTED_RUNNER_EXEC_PATH` 指向包装脚本：
 
@@ -35,9 +35,9 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 | `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端表面，例如 `web_claude_ai`、`desktop_app`、`ios`、`claude_code_cli` 或 `scheduled_trigger`。Anthropic 在会话创建时记录该值一次，因此包装脚本和每个生命周期钩子都看到相同的值。仅将其用于采用分析和标记，不用作授权信号。当会话没有记录或识别的表面时未设置，因此在 `set -u` 下将其引用为 `${CLAUDE_RUNNER_CLIENT_PLATFORM:-}`。需要 Claude Code v2.1.229 或更高版本。 |
 | `CLAUDE_RUNNER_CLAUDE_BIN` | 运行器自己的 Claude Code 二进制文件的绝对路径。使用 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"` 结束您的包装脚本，以移交到固定的二进制文件，而无需硬编码安装路径。 |
 | `CLAUDE_CODE_REMOTE_SESSION_ID` | 会话 ID，采用标记的 `cse_...` 形式。这与[生命周期钩子](#lifecycle-hooks)以 `session_...` 形式在 `CLAUDE_RUNNER_SESSION_ID` 中看到的是同一个会话；UUID 变量在两者之间匹配，将 `cse_` 前缀替换为 `session_` 会产生会话 URL 中显示的 ID。 |
-| `CLAUDE_CODE_REMOTE_SESSION_UUID` | 相同的会话 ID，采用规范 UUID 形式。 |
+| `CLAUDE_CODE_REMOTE_SESSION_UUID` | 相同的会话 ID，采用规范 UUID 形式，供以 UUID 作为键的系统使用。 |
 | `CLAUDE_SESSION_INGRESS_TOKEN_FILE` | 绝对路径，指向保存当前会话 JWT 的按会话文件，在令牌刷新时保持最新。Shell 子进程在下载用户添加到会话的附件时从中读取其 `Authorization` 标头。`exec` 自动保留该变量；重建子进程环境的包装脚本必须携带该变量，否则附件下载会无声地停止工作。 |
-| `CLAUDE_CONFIG_DIR` | 按会话 Claude 配置目录，在会话启动时从运行器在启动时捕获的运行器主机配置快照中写入；请参阅 [Permissions and tool approval](#permissions-and-tool-approval)。此处的写入仅限于此会话。 |
+| `CLAUDE_CONFIG_DIR` | 按会话 Claude 配置目录，在会话启动时从运行器在启动时捕获的运行器主机配置快照中写入；请参阅 [Permissions and tool approval](#permissions-and-tool-approval)。此处的写入仅限于此会话。除非您使用 [`--remove-session-state`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，否则会话结束后该目录仍会保留在 `<base-dir>/_sessions/` 下；请参阅 [Reuse a pre-warmed checkout](/docs/zh-CN/self-hosted-environments-deploy#reuse-a-pre-warmed-checkout)。 |
 | `ANTHROPIC_BASE_URL` | 子进程将使用的 API 基础 URL，由控制平面按会话交付，通常为 `https://api.anthropic.com`。不要覆盖它：会话的推理凭证是 Anthropic 颁发的 OAuth 令牌，其他提供者不接受，因此自托管环境中的推理无法路由到其他地方。 |
 | `CLAUDE_CODE_OAUTH_TOKEN` | 子进程用于模型推理的短期 OAuth 访问令牌，作用域仅限于模型推理和文件上传，生命周期约为 30 分钟。运行器在过期前重新生成它，并通过子进程的 stdin 交付轮换，因此不 [keep stdin attached](#keep-stdin-and-file-descriptor-3-attached) 的包装脚本只看到初始值。不要依赖您的组织 IP 允许列表来限制此令牌的使用：将其视为持有者凭证，如果泄露，大约 30 分钟内仍可使用，不要记录它、写入磁盘或在会话容器外转发它。 |
 
@@ -61,6 +61,19 @@ wait "$CHILD"
 
 不要在包装脚本中关闭或重用文件描述符 3。重定向子进程的 stdout 和 stderr 是可以的。
 
+<h3 id="pass-the-system-prompt-flags-through">
+  透传系统提示词标志
+</h3>
+
+Anthropic 控制平面为会话发送的系统提示词和追加系统提示词以文件路径的形式（而不是内联文本）到达您的包装脚本。运行器将每个提示词写入会话配置目录 `CLAUDE_CONFIG_DIR` 中的文件，并在您的包装脚本接收的参数中传递其路径，形式为 [`--system-prompt-file <path>` 或 `--append-system-prompt-file <path>`](/docs/zh-CN/cli-reference#system-prompt-flags)。
+
+Claude Code v2.1.281 或更高版本上的运行器以文件形式传递提示词。在 v2.1.281 之前，运行器以 `--system-prompt <text>` 和 `--append-system-prompt <text>` 的形式传递它们。
+
+在您的包装脚本或 [`command` hook](#command) 中，按如下方式处理这些标志：
+
+* **透传它们**：使用 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"` 结束包装脚本，这会将文件标志与其他所有参数一起转发。不要丢弃或改写它们。如果会话丢失了某个提示词文件标志，它将在没有控制平面为其发送的指令的情况下运行。
+* **在 v2.1.281 或更高版本的运行器上，您追加的文件标志会替换服务器的标志，而不会叠加**：每个提示词文件标志只接受单个值，Claude Code 保留最后一次出现的值，因此如果您在 `"$@"` 之后追加 `--append-system-prompt-file <path>`，您文件的内容将替换服务器追加的指令。要在服务器指令之上添加指令，请将其放入运行器镜像的 `CLAUDE.md` 中，运行器会将其[植入每个会话的用户级配置](#how-each-session’s-config-is-assembled)。
+
 <h3 id="provision-credentials-scoped-to-the-session-creator">
   配置作用域限定为会话创建者的凭证
 </h3>
@@ -81,7 +94,7 @@ eval "$creds"
 exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 ```
 
-在提取的声明控制身份验证决策时，使用 `jq -re` 而不是 `jq -r`，以便缺失的声明以非零状态退出，而不是将字面字符串 `null` 传递给下游。由组织服务身份（例如机器人和代理会话）创建的会话携带 `agent:` 主题而不是 `user:`，因此此示例拒绝它们；如果您的环境为这些会话提供服务，请明确决定包装脚本是否为它们回退到默认凭证，而不是退出。当您的凭证交换需要 SSO 主题或电子邮件时，读取 `.act.attested_by.sub` 或 `.act.email` 并处理它们的缺失：令牌仅在创建表面记录它们时才携带它们，[CLI 分派的会话](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop) 可能两者都缺少。有关完整的声明参考和来自运行器外部服务的验证，请参阅 [Verify session identity](/docs/zh-CN/self-hosted-environments-identity)。
+在提取的声明控制身份验证决策时，使用 `jq -re` 而不是 `jq -r`，以便缺失的声明以非零状态退出，而不是将字面字符串 `null` 传递给下游。由组织服务身份（例如机器人和 Agent 会话）创建的会话携带 `agent:` 主题而不是 `user:`，因此此示例拒绝它们；如果您的环境为这些会话提供服务，请明确决定包装脚本是否为它们回退到默认凭证，而不是退出。当您的凭证交换需要 SSO 主题或电子邮件时，读取 `.act.attested_by.sub` 或 `.act.email` 并处理它们的缺失：令牌仅在创建表面记录它们时才携带它们，[CLI 分派的会话](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop) 可能两者都缺少。有关完整的声明参考和来自运行器外部服务的验证，请参阅 [Verify session identity](/docs/zh-CN/self-hosted-environments-identity)。
 
 <h2 id="lifecycle-hooks">
   生命周期钩子
@@ -199,11 +212,11 @@ done
   按需运行器
 </h2>
 
-您可以为每个会话启动一个运行器，而不是运行固定的队列。编排器是一个单独的、无状态的子命令，它轮询 Anthropic 以获取生成请求（每个没有可用运行器的排队会话一个），并为每个运行您的 `spawn-runner` 钩子。您的钩子向您的平台提交工作负载：Kubernetes Job、EC2 实例、Nomad dispatch。
+您可以为每个会话启动一个运行器，而不是运行固定的队列。编排器是一个单独的、无状态的子命令，它轮询 Anthropic 以获取生成请求（每个没有可用运行器的排队会话一个），并为每个请求运行您的 `spawn-runner` hook。您的 hook 向您的平台提交工作负载：Kubernetes Job、EC2 实例、Nomad dispatch。
 
-按需运行器改进了凭证卫生。在固定队列上，环境密钥存在于每个运行器主机上，这是运行用户会话的同一主机。使用编排器，环境密钥仅保留在编排器主机上，该主机从不运行用户代码；每个生成的运行器接收一个单次使用的工作单，恰好注册一个运行器，然后过期。
+按需运行器改进了凭据卫生。在固定队列上，环境密钥存在于每个运行器主机上，这是运行用户会话的同一主机。使用编排器，环境密钥仅保留在编排器主机上，该主机从不运行用户代码；每个生成的运行器接收一个单次使用的工作单，恰好注册一个运行器，然后过期。
 
-要启动编排器，请传递环境密钥和包含可执行 `spawn-runner` 脚本的钩子目录：
+要启动编排器，请传递环境密钥和包含可执行 `spawn-runner` 脚本的 hook 目录：
 
 ```bash theme={null}
 claude self-hosted-runner orchestrator \
@@ -211,46 +224,48 @@ claude self-hosted-runner orchestrator \
   --hooks-dir /etc/claude/hooks
 ```
 
-编排器在轮询之间保持无状态，因此您可以针对同一环境运行两个或多个副本以实现可用性。每个生成请求由服务器端的恰好一个副本声称。所有副本必须使用相同的 `--expected-spawn-seconds` 值；请参阅 [hook contract](#the-spawn-runner-hook)。
+编排器在轮询之间保持无状态，因此您可以针对同一环境运行两个或多个副本以实现可用性。每个生成请求由服务器端的恰好一个副本声称。所有副本必须使用相同的 `--expected-spawn-seconds` 值；请参阅 [hook 约定](#the-spawn-runner-hook)。
 
 <h3 id="the-spawn-runner-hook">
-  spawn-runner 钩子
+  spawn-runner hook
 </h3>
 
-编排器为每个生成请求运行一次 `${hooks-dir}/spawn-runner`。钩子必须异步提交工作，不等待运行器启动，并在 `--hook-timeout`（默认 60 秒）内返回。钩子接收：
+编排器为每个生成请求运行一次 `${hooks-dir}/spawn-runner`。hook 必须异步提交工作，不等待运行器启动，并在 `--hook-timeout`（默认 60 秒）内返回。hook 接收：
 
 | 变量 | 描述 |
 | :- | :- |
-| `CLAUDE_RUNNER_WORK_ORDER_FILE` | 包含新运行器注册的已签名工作单 JWT 的临时文件的路径。钩子退出后删除。不要记录文件的内容。 |
-| `CLAUDE_RUNNER_ORDER_ID` | 不透明的幂等性密钥，每个生成请求唯一，对 Kubernetes 资源名称安全。将其用作您的配置器的去重密钥。 |
-| `CLAUDE_RUNNER_SESSION_ID` | 此请求所针对的会话。对于预热请求为空，当设置 [`--min-idle`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 时启动待命运行器，在任何特定会话之前，因此不要假设变量已设置。 |
+| `CLAUDE_RUNNER_WORK_ORDER_FILE` | 包含新运行器注册所用的已签名工作单 JWT 的临时文件的路径。hook 退出后删除。不要记录文件的内容。 |
+| `CLAUDE_RUNNER_ORDER_ID` | 不透明的幂等性密钥，每个生成请求唯一，对 Kubernetes 资源名称安全。仅将订单 ID 用作您的配置器的去重密钥。 |
+| `CLAUDE_RUNNER_SESSION_ID` | 此请求所针对的会话。该会话的每次重新请求都会重复此值，因此请将其用于日志记录和路由，而不要用作去重密钥。对于预热请求为空，预热请求在设置 [`--min-idle`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 时于任何特定会话之前启动待命运行器，因此不要假设变量已设置。 |
 | `CLAUDE_RUNNER_SESSION_UUID` | 相同的会话 ID，采用规范 UUID 形式。对于预热请求为空。 |
 | `CLAUDE_RUNNER_ATTEMPT` | 此会话已有多少个生成请求。对于预热请求为 `0`。 |
-| `CLAUDE_RUNNER_ORDER_SERVER_TIME` | 来自轮询响应的 HTTP `Date` 标头的服务器时间。当钩子验证工作单 JWT 的 `exp` 时，与此值进行比较而不是本地时钟，以容忍时钟偏差。当网关省略标头时为空。 |
+| `CLAUDE_RUNNER_ORDER_SERVER_TIME` | 来自轮询响应的 HTTP `Date` 标头的服务器时间。当 hook 验证工作单 JWT 的 `exp` 时，与此值进行比较而不是本地时钟，以容忍时钟偏差。当网关省略标头时为空。 |
 | `CLAUDE_RUNNER_POOL_ID` | 新运行器应加入的环境的 ID，采用 `ccpool_...` 形式 |
 | `CLAUDE_RUNNER_ACCOUNT_ID` | 排队会话的帐户的标记 ID，用于按帐户路由、配额或退款。当不可用时为空，对于 Claude Tag 频道会话始终为空，这些会话没有帐户排队。 |
 | `CLAUDE_RUNNER_ACCOUNT_EMAIL` | 排队会话的帐户的电子邮件。当不可用时为空。将电子邮件视为个人可识别信息，不要记录它。 |
-| `CLAUDE_RUNNER_PRIMARY_REPO_URL` | 会话的第一个 git 源的 URL，用于路由到具有该存储库预热的运行器。当会话没有 git 源时为空。 |
+| `CLAUDE_RUNNER_PRIMARY_REPO_URL` | 会话的第一个 git 源的 URL，用于路由到已预热该仓库的运行器。当会话没有 git 源时为空。 |
 | `CLAUDE_RUNNER_PRIMARY_REPO_REVISION` | 会话的第一个 git 源的修订版本：分支、SHA 或标签。当未指定时为空。 |
-| `CLAUDE_RUNNER_REPO_SOURCES` | 所有会话的 git 源的 `{url, revision}` 的 JSON 数组，用于在辅助存储库上路由的钩子。当没有源时为空。 |
-| `CLAUDE_RUNNER_CORRELATION_ID` | 在会话创建时提供的关联 ID，回显以便钩子可以将此工作单映射到创建会话的请求。当会话没有时为空。 |
-| `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端表面，例如 `web_claude_ai`、`desktop_app`、`ios` 或 `scheduled_trigger`，用于采用分析。当会话没有记录或识别的表面时未设置，对于预热请求也未设置；使用 `[ -n "${CLAUDE_RUNNER_CLIENT_PLATFORM:-}" ]` 检查它，这在 `set -u` 下保持安全。 |
+| `CLAUDE_RUNNER_REPO_SOURCES` | 所有会话的 git 源的 `{url, revision}` 的 JSON 数组，用于根据辅助仓库进行路由的 hook。当没有源时为空。 |
+| `CLAUDE_RUNNER_CORRELATION_ID` | 在会话创建时提供的关联 ID，回显以便 hook 可以将此工作单映射到创建会话的请求。当会话没有时为空。 |
+| `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端使用入口，例如 `web_claude_ai`、`desktop_app`、`ios` 或 `scheduled_trigger`，用于采用分析。当会话没有记录或识别的使用入口时未设置，对于预热请求也未设置；使用 `[ -n "${CLAUDE_RUNNER_CLIENT_PLATFORM:-}" ]` 检查它，这在 `set -u` 下保持安全。 |
 
 生成的运行器使用工作单代替环境密钥进行注册：
 
 * **使用工作单启动它**：将 [`--environment-secret-file`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 指向包含工作单 JWT 的文件，或将 `SELF_HOSTED_RUNNER_ENVIRONMENT_SECRET` 设置为 JWT 值。
-* **在钩子退出前复制 JWT**：编排器在钩子退出后删除工作单文件，因此将 JWT 复制到您提交的工作负载中，例如生成的 Job 上的 Kubernetes Secret，而不是通过文件路径。
+* **在 hook 退出前复制 JWT**：编排器在 hook 退出后删除工作单文件，因此将 JWT 复制到您提交的工作负载中，例如生成的 Job 上的 Kubernetes Secret，而不是传递文件路径。
 * **在生成的运行器上使用 `--capacity 1`**：会话绑定的工作单恰好注册一个绑定到该会话的运行器，因此更高的容量添加永远不会接收工作的插槽，运行器在启动时记录警告。
 * **预热工作单注册未绑定**：待命运行器未绑定到会话，并像固定队列运行器一样声称排队的工作。
 
-合同有四个配置器不可知的规则：
+约定有四个与配置器无关的规则：
 
-1. **在 `CLAUDE_RUNNER_ORDER_ID` 上是幂等的。** 相同请求的重新交付必须最多生成一个运行器。从 ID 派生确定性资源名称，让您的平台拒绝重复。
+1. **在 `CLAUDE_RUNNER_ORDER_ID` 上保持幂等。** 相同请求的重新交付必须最多生成一个运行器。从订单 ID 派生确定性资源名称，让您的平台拒绝重复。不要改为以 `CLAUDE_RUNNER_SESSION_ID` 作为键。会话的每次重新请求都携带相同的会话 ID 和新的订单 ID，因此按会话 ID 命名或去重的工作负载只会创建一次，之后该会话再也不会创建。
 2. **不要重试工作负载。** 一个订单 ID 意味着最多创建一个工作负载。如果运行器从不注册，Anthropic 在 `--expected-spawn-seconds` 后使用新订单 ID 重新请求。
-3. **使用退出代码合同。** 退出 0 表示已提交。退出 1 表示可重试失败；会话退避并被重新提供。退出 2 或更高表示不可重试；会话被阻止再次生成，直到 [Owner](/docs/zh-CN/cloud-environments#organization-shared-environments) 在环境的 **Activity** 标签中选择 **Retry**。在非零退出时，钩子的 stderr 尾部出现在那里作为失败原因，因此将可操作的错误写入 stderr，永远不要写密钥。对于预热请求，没有会话失败：编排器仅在本地记录非零退出，服务器在租约后重新请求生成。
+3. **使用退出码约定。** 退出 0 表示已提交。退出 1 表示可重试失败；会话退避并被重新提供。退出 2 或更高表示不可重试；会话被阻止再次生成，直到 [Owner](/docs/zh-CN/cloud-environments#organization-shared-environments) 在环境的 **Activity** 标签中选择 **Retry**。在非零退出时，hook 的 stderr 尾部出现在那里作为失败原因，因此将可操作的错误写入 stderr，永远不要写密钥。对于预热请求，没有会话失败：编排器仅在本地记录非零退出，服务器在租约后重新请求生成。
 4. **将 `--expected-spawn-seconds` 设置为至少您的 p99 启动时间。** 这是服务器端租约。所有编排器副本必须使用相同的值。
 
-钩子写入 stdout 或 stderr 的所有内容都出现在编排器的日志中，凭证自动删除。如果会话保持排队，检查编排器的 `/healthz` 正文以获取队列计数，然后在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments) 上打开您的环境的 **Activity** 标签：在那里展开失败的会话以获取其生成错误，并选择 **Retry** 以重新请求它。
+hook 写入 stdout 或 stderr 的所有内容都出现在编排器的日志中，凭据会自动脱敏。如果会话保持排队，检查编排器的 `/healthz` 正文以获取队列计数，然后在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments) 上打开您的环境的 **Activity** 标签：在那里展开失败的会话以获取其生成错误，并选择 **Retry** 以重新请求它。
+
+如果会话保持排队，且 **Activity** 标签中没有生成错误，可能意味着 hook 以会话 ID 作为键。要确认这一点，请检查您的平台是否存在该会话第一次生成请求对应的工作负载，而重新请求却没有对应的工作负载。如果是这样，请改为以 `CLAUDE_RUNNER_ORDER_ID` 作为工作负载的键。
 
 <h2 id="mcp-servers">
   MCP 服务器
@@ -267,15 +282,41 @@ RUN claude mcp add --scope user --transport http internal http://mcp-gateway.svc
 
 Claude Code 还从其他源加载 MCP 服务器：
 
-* 企业范围的 [managed MCP file](/docs/zh-CN/managed-mcp) 在其标准系统路径：Linux 运行器主机上的 `/etc/claude-code/managed-mcp.json`，macOS 主机上的 `/Library/Application Support/ClaudeCode/managed-mcp.json`。将其用于锁定的队列，其中只有管理员列出的服务器可能加载。有关优先级规则，请参阅 [exclusive control with managed-mcp.json](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json)。当此文件在运行器主机上时，Claude Code 跳过 Anthropic 的控制平面交付给会话的 MCP 服务器（包括 claude.ai 连接器），并在会话子进程的 stderr 上命名它们，运行器在 `debug` 日志级别记录。在 v2.1.229 之前，这些会话在启动时以 `You cannot dynamically configure MCP servers when an enterprise MCP config is present` 退出。
+* 企业作用域的 [managed MCP file](/docs/zh-CN/managed-mcp) 在其标准系统路径：Linux 运行器主机上的 `/etc/claude-code/managed-mcp.json`，macOS 主机上的 `/Library/Application Support/ClaudeCode/managed-mcp.json`。将其用于锁定的队列，其中只有管理员列出的服务器可能加载。有关优先级规则，请参阅 [exclusive control with managed-mcp.json](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json)。当此文件在运行器主机上时，Claude Code 跳过 Anthropic 的控制平面交付给会话的 MCP 服务器（包括 claude.ai 连接器），并在会话子进程的 stderr 上的警告中列出它们的名称，运行器在 `debug` 日志级别记录该警告。在 v2.1.229 之前，这些会话在启动时以 `You cannot dynamically configure MCP servers when an enterprise MCP config is present` 退出。
 * 运行器主机上 [managed settings](/docs/zh-CN/managed-settings) 中的 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 密钥：提供 HTTP 和 SSE 服务器而不获得独占控制，因此来自其他源的服务器仍然加载。需要 Claude Code v2.1.259 或更高版本。
-* `<repo>/.mcp.json`：项目范围。将文件提交到存储库；其服务器在云会话中自动批准。
+* `<repo>/.mcp.json`：项目作用域。将文件提交到仓库；其服务器在云端会话中自动批准。
 
-当为您的组织启用连接器交付时，Anthropic 的控制平面将您在 claude.ai 上配置的连接器交付给通过服务器提供的 MCP 配置路由的交互式创建的会话，通过 `api.anthropic.com` 路由。以编程方式创建的会话（例如 [CLI dispatches](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)）不接收连接器交付；通过本节列出的任何其他源为它们提供 MCP 服务器。子进程的 OAuth 令牌不携带直接获取连接器的作用域，因此子进程不尝试该获取本身；交付是服务器驱动的。
+当为您的组织启用连接器交付时，Anthropic 的控制平面将您在 claude.ai 上配置的连接器通过服务器提供的 MCP 配置交付给交互式创建的会话，通过 `api.anthropic.com` 路由。以编程方式创建的会话（例如 [CLI dispatches](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)）不接收连接器交付；请改为通过本节列出的任何其他源为它们提供 MCP 服务器。子进程的 OAuth 令牌不携带直接获取连接器的作用域，因此子进程不尝试该获取本身；交付是服务器驱动的。
 
-`settings.json` 不携带 MCP 服务器定义，设置架构中没有顶级 `mcpServers` 字段。在托管设置中，使用 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 密钥提供服务器。
+`settings.json` 不携带 MCP 服务器定义，设置 schema 中没有顶级 `mcpServers` 字段。在托管设置中，请改用 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 密钥提供服务器。
 
 会话继承运行器的环境，因此在那里设置 [`ENABLE_TOOL_SEARCH`](/docs/zh-CN/mcp#scale-with-mcp-tool-search) 以控制运行器生成的每个会话的 MCP 工具搜索；MCP 页面涵盖了这些值。
+
+<h3 id="turn-off-built-in-session-tools">
+  关闭内置会话工具
+</h3>
+
+Anthropic 的控制平面会将其自己的 MCP 服务器（名为 Claude Code Remote）附加到云端会话。Claude 使用该服务器的工具来安排 [Routine](/docs/zh-CN/routines)、启动和引导其他云端会话、附加更多仓库，以及跟踪 Pull Request 活动。
+
+要关闭整个服务器，请在设置中添加一条[服务器级拒绝规则](/docs/zh-CN/permissions#mcp)。控制平面会根据会话的创建方式，以三个名称之一注册该服务器。Claude Code 会精确匹配规则中的名称（包括大小写），因此请按如下所示为每个名称各写一条规则：
+
+```json theme={null}
+{
+  "permissions": {
+    "deny": [
+      "mcp__Claude_Code_Remote",
+      "mcp__claude-code-remote",
+      "mcp__bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a"
+    ]
+  }
+}
+```
+
+指定整个服务器的规则也会覆盖该服务器之后新增的工具。要关闭某一个工具而保留其余工具，请在每条规则后追加两个下划线和工具名称，例如 `mcp__Claude_Code_Remote__add_repo`。如果要完全阻止该服务器连接，而不只是移除其工具，请改为将这三个名称（不带 `mcp__` 前缀）作为 `serverName` 条目添加到 [`deniedMcpServers`](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists) 下。
+
+将这些规则放在[服务器托管设置](/docs/zh-CN/server-managed-settings)中，即可在不更改运行器的情况下作用于每个会话；也可以放在运行器上的 `~/.claude/settings.json` 中。[权限和工具批准](#permissions-and-tool-approval)说明了运行器上的设置如何到达会话。
+
+要确认规则已生效，请在该环境上启动一个会话，并要求 Claude 列出其 MCP 工具。Claude Code 会从 Claude 的上下文中移除被拒绝的工具，因此这些被拒绝的工具不会出现在其回答中。
 
 <h2 id="prompt-sessions-to-push-their-work">
   提示会话推送其工作
@@ -388,46 +429,50 @@ exit 0
   权限和工具批准
 </h2>
 
-自托管会话没有连接的终端，因此未回答的权限提示会停止轮次，直到用户在 UI 中响应。Anthropic 的控制平面使用工作负载发送每个会话的工具列表和权限规则；默认配置预批准例行工具调用（包括 `Bash`），云会话 [pre-approve file edits regardless of mode](/docs/zh-CN/permission-modes#switch-permission-modes)。没有任何东西预批准的调用通过会话 UI 提示。
+自托管会话没有连接的终端，因此未回答的权限提示会使当前轮次停滞，直到用户在 UI 中响应。Anthropic 的控制平面随工作负载一起发送每个会话的工具列表和权限规则；默认配置预批准常规工具调用（包括 `Bash`），并且云端会话[无论处于何种模式都会预批准文件编辑](/docs/zh-CN/permission-modes#switch-permission-modes)。任何未被预批准的调用都会通过会话 UI 进行提示。
 
 <Note>
-  仅在会话容器运行 [default-deny network egress](/docs/zh-CN/self-hosted-environments-deploy#default-deny-egress) 和 [hardening section](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment) 中其余部分的环境上固定自动模式。例行工具调用（包括 `Bash` 网络请求）在默认预批准工具集和自动模式中都无需人工干预运行，因此网络边界是限制这些调用可以到达的位置的原因。
+  仅在会话容器运行时启用了[默认拒绝网络出口](/docs/zh-CN/self-hosted-environments-deploy#default-deny-egress)并落实了[加固部分](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)中其余措施的环境上固定自动模式。在默认预批准工具集和自动模式下，常规工具调用（包括 `Bash` 网络请求）都会在无人参与的情况下运行，因此网络边界才是限制这些调用可访问范围的关键。
 </Note>
 
-要无论控制平面发送什么都将提示保持在最低限度，请从您的包装脚本或 [`command` 钩子](#command) 固定 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。自动模式让会话无需例行权限提示运行：单独的分类器模型在运行前审查操作并阻止它拒绝的操作，显式询问规则仍然强制提示；权限模式页面涵盖分类器检查的内容。运行器在调用包装脚本前追加服务器计算的标志，对于单值标志（如 `--permission-mode`），解析器尊重最后出现的标志，因此您在 `"$@"` 后追加的标志覆盖服务器发送的值：
+要无论控制平面发送什么都将提示保持在最低限度，请从您的包装脚本或 [`command` hook](#command) 固定[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。自动模式让会话无需常规权限提示即可运行：单独的分类器模型在操作运行前对其进行审查，并阻止它拒绝的操作，而显式的询问规则仍会强制提示；权限模式页面介绍了分类器检查的内容。运行器在调用包装脚本前追加服务器计算的标志，对于单值标志（如 `--permission-mode`），解析器以最后一次出现的值为准，因此您在 `"$@"` 之后追加的标志会覆盖服务器发送的值：
 
 ```bash theme={null}
 #!/bin/bash
 exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 ```
 
-要预批准特定工具，请改为追加 `--allowed-tools` 和您的规则，例如 `--allowed-tools "Bash(bazel *) Bash(yarn *) mcp__internal__*"`。列表标志（如 `--allowed-tools` 和 `--disallowed-tools`）在出现时累积而不是覆盖，因此您的规则应用在控制平面发送的任何规则之上。要缩小范围，请追加 `--disallowed-tools`，即使另一个规则允许工具也拒绝工具。
+要改为预批准特定工具，请追加 `--allowed-tools` 和您的规则，例如 `--allowed-tools "Bash(bazel *) Bash(yarn *) mcp__internal__*"`。列表标志（如 `--allowed-tools` 和 `--disallowed-tools`）会在多次出现时累积而不是覆盖，因此您的规则会叠加在控制平面发送的任何规则之上。要缩小范围，请追加 `--disallowed-tools`，即使其他规则允许某些工具，它也会拒绝这些工具。
 
 <h3 id="how-each-session’s-config-is-assembled">
   每个会话的配置如何组装
 </h3>
 
-运行器为每个会话提供自己的配置目录，从运行器在启动时捕获的主机 `~/.claude/` 的快照中播种：`settings.json`、`CLAUDE.md`、钩子、代理、命令和技能在您的运行器镜像中应用于每个会话作为用户级基线。如果您更改运行主机上的配置，更改仅在您重启运行器后生效。
+运行器为每个会话提供自己的配置目录，该目录以运行器在启动时一次性捕获的主机 `~/.claude/` 快照为初始内容：您的运行器镜像中的 `settings.json`、`CLAUDE.md`、hook、Agent、命令和 skill 会作为用户级基线应用于每个会话。如果您更改正在运行的主机上的配置，更改仅在您重启运行器后生效。
 
-设置 `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` 以从不同路径播种，或将其指向空目录以禁用播种。
+设置 `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` 可从其他路径获取初始内容，或将其指向空目录以禁用初始内容填充。
 
-存储库提交的 `.claude/settings.json` 作为项目设置分层。会话还从运行器镜像中的标准系统路径读取 [`managed-settings.json`](/docs/zh-CN/settings#where-settings-live)。其密钥是否与 [server-managed settings](/docs/zh-CN/server-managed-settings) 一起应用遵循 [how Claude Code combines managed sources](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)：默认情况下，当您的组织交付任何服务器管理的密钥时，会话忽略运行器镜像的文件，除了 [keys Claude Code reads from every admin source](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)，例如 `env` 块、沙箱锁、沙箱二进制路径和 `forceRemoteSettingsRefresh`。请参阅 [settings precedence](/docs/zh-CN/settings#settings-precedence)。
+仓库中提交的 `.claude/settings.json` 会作为项目设置叠加在其上。会话还会从运行器镜像中的标准系统路径读取 [`managed-settings.json`](/docs/zh-CN/settings#where-settings-live)。其中的键是否与[服务器托管设置](/docs/zh-CN/server-managed-settings)一起应用，取决于 [Claude Code 如何合并托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)：默认情况下，当您的组织下发了任何服务器托管的键时，会话会忽略运行器镜像中的该文件，但 [Claude Code 从每个管理员来源读取的键](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)除外，例如 `env` 块、沙箱锁定、沙箱二进制路径和 `forceRemoteSettingsRefresh`。请参阅[设置优先级](/docs/zh-CN/settings#settings-precedence)。
 
-当 Anthropic 的控制平面为会话提供 [Claude Code hooks](/docs/zh-CN/hooks) 时，运行器将它们安装在旁边，而不是覆盖您自己的配置。需要 Claude Code v2.1.229 或更高版本。
+当 Anthropic 的控制平面为会话提供 [Claude Code hook](/docs/zh-CN/hooks) 时，运行器会将它们与您自己的配置并行安装，而不是覆盖您的配置。需要 Claude Code v2.1.229 或更高版本。
 
-* **它们落在哪里**：运行器将每个提供的钩子脚本写入会话配置目录的保留 `hooks/.ccr-launcher/` 子目录，并在单独的设置文件中注册脚本，它使用 `--settings` 传递给会话，保留播种的 `settings.json` 和您自己的脚本在 `hooks/<name>` 不变。运行器为每个会话重新创建保留的子目录，不播种主机内容在 `~/.claude/hooks/.ccr-launcher/` 到会话。
-* **谁编写它们**：控制平面从其自己部署中的固定常量填充脚本，永远不从按会话或第三方输入。
-* **什么仍然管理它们**：通过 `--settings` 交付的钩子进入普通合并的钩子配置，而不是托管层，因此您的托管设置仍然适用。`disableAllHooks` 禁用它们，它们不在 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly) 保持加载的类别中。
+* **安装位置**：运行器将提供的每个 hook 脚本写入会话配置目录中保留的 `hooks/.ccr-launcher/` 子目录，并在一个单独的设置文件中注册这些脚本，该文件通过 `--settings` 传递给会话，从而使初始填充的 `settings.json` 以及您位于 `hooks/<name>` 的脚本保持不变。运行器会为每个会话重新创建该保留子目录，并且不会将主机上 `~/.claude/hooks/.ccr-launcher/` 中的内容填充到会话中。
+* **编写者**：控制平面使用其自身部署中的固定常量填充这些脚本，绝不使用按会话或第三方的输入。
+* **仍然适用的管控**：通过 `--settings` 下发的 hook 会进入普通的合并 hook 配置，而不是托管层，因此您的托管设置仍然适用。`disableAllHooks` 会禁用它们，并且它们不属于 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly) 保持加载的类别。
+
+除 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话外，自托管环境中的会话默认关闭[自动记忆](/docs/zh-CN/memory#auto-memory)。对于需要跨会话保留的指令，请使用运行器镜像或仓库中的 `CLAUDE.md`。
+
+运行器对主机 `~/.claude/` 的快照不包含 `projects/` 目录。自动记忆的默认存储位置就在该目录下。如果您将记忆文件放在那里，运行器不会将它们填充到会话中，它们也不会启用自动记忆。
 
 <h3 id="repository-committed-permission-rules">
-  存储库提交的权限规则
+  仓库中提交的权限规则
 </h3>
 
-不要在存储库提交的 `permissions.allow` 中放置裸 `"Edit"`、`"Write"` 或 `"NotebookEdit"` 条目。裸文件工具规则匹配工具，无论路径如何，授予主机任何地方的写入而不仅仅是工作区，因此运行器的写入范围限制守卫标记会话；使用 [`--confine-repo-settings enforce`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 它拒绝生成会话而不是记录并继续。请参阅 [hardening section](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)。
+不要在仓库中提交的 `permissions.allow` 中放置不带限定的 `"Edit"`、`"Write"` 或 `"NotebookEdit"` 条目。不带限定的文件工具规则会匹配该工具而不论路径如何，从而授予在主机上任意位置写入的权限，而不仅限于工作区，因此运行器的写入范围限制守卫会标记该会话；使用 [`--confine-repo-settings enforce`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 时，它会拒绝生成该会话，而不是记录日志后继续。请参阅[加固部分](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)。
 
-存储库根本不需要文件工具规则：云会话 [pre-approve file edits regardless of mode](/docs/zh-CN/permission-modes#switch-permission-modes)。如果您确实提交规则，将其作用域限制到工作区，例如 `"Edit(/**)"`；单个前导斜杠相对于项目根目录，这是会话的工作区。裸文件工具规则在操作员的主机级 `settings.json` 中很好，因为该文件不是存储库提交的。
+仓库根本不需要文件工具规则：云端会话[无论处于何种模式都会预批准文件编辑](/docs/zh-CN/permission-modes#switch-permission-modes)。如果您确实要提交规则，请将其限定到工作区，例如 `"Edit(/**)"`；单个前导斜杠相对于项目根目录，即会话的工作区。不带限定的文件工具规则可以放在操作员的主机级 `settings.json` 中，因为该文件不是在仓库中提交的。
 
-`defaultMode` 为 `auto` 仅从镜像范围或用户级设置文件中受尊重，因此检出的存储库无法为自己授予自动模式。有关云会话接受的模式和完整规则语法，请参阅 [permission modes](/docs/zh-CN/permission-modes)。
+`defaultMode` 为 `auto` 的设置仅在来自镜像范围或用户级设置文件时才会生效，因此检出的仓库无法为自己授予自动模式。有关云端会话接受哪些模式以及完整的规则语法，请参阅[权限模式](/docs/zh-CN/permission-modes)。
 
 <h2 id="what’s-next">
   接下来

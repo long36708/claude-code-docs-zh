@@ -44,7 +44,7 @@ Claude Code 打印的第一行确认该模式：`[Screen Reader Mode: on via fla
 | [`CLAUDE_AX_SCREEN_READER`](/docs/zh-CN/env-vars#variables) | 环境变量 | 从您设置它的 shell 启动的会话的屏幕阅读器模式。 |
 | [`axScreenReader`](/docs/zh-CN/settings-reference#axscreenreader) | 设置 | 当为 `true` 时，每个会话的屏幕阅读器模式。 |
 | [`CLAUDE_AX_STARTUP_QUIET_MS`](/docs/zh-CN/env-vars#variables) | 环境变量 | Claude Code 在确认行之后等待多长时间才能在屏幕阅读器模式下绘制第一个提示。需要 Claude Code v2.1.217 或更高版本。 |
-| [`CLAUDE_AX_PREPARK_MS`](/docs/zh-CN/env-vars#variables) | 环境变量 | Claude Code 在屏幕阅读器模式下，光标位于行首时，等待多长时间才能写入新行或更改的行。需要 Claude Code v2.1.233 或更高版本。 |
+| [`CLAUDE_AX_PREPARK_MS`](/docs/zh-CN/env-vars#variables) | 环境变量 | 设置后，Claude Code 在屏幕阅读器模式下写入新行或更改的行之前，将终端光标停留在当前行行首的毫秒数。需要 Claude Code v2.1.233 或更高版本。 |
 | [`CLAUDE_CODE_ACCESSIBILITY`](/docs/zh-CN/env-vars#variables) | 环境变量 | 当您将其设置为 `1` 时，终端光标对屏幕放大镜（如 macOS Zoom）保持可见。光标跟随输入插入符号，在 Claude Code v2.1.218 或更高版本上，跟随菜单和面板（如 `/config` 和 `/plugin`）中的突出显示行。 |
 | [`prefersReducedMotion`](/docs/zh-CN/settings-reference#prefersreducedmotion) | 设置 | 当为 `true` 时，减少或没有旋转器、闪烁和其他动画。 |
 | [`theme`](/docs/zh-CN/settings-reference#theme) | 设置 | 界面颜色，包括色盲友好的 `dark-daltonized` 和 `light-daltonized` 主题。您也可以使用 [`/theme`](/docs/zh-CN/commands#all-commands) 选择一个。 |
@@ -60,13 +60,11 @@ Claude Code 打印的第一行确认该模式：`[Screen Reader Mode: on via fla
 * 没有仅限颜色的提示
 * 没有未更改内容的重绘。进度旋转器呈现为静态文本
 * Claude 回复中的表格读作 `Header: value` 句子而不是方框字符网格
+* diff 以纯文本形式逐行读出，用 `+` 和 `-` 标记添加和删除的行，因此您可以在回答文件编辑批准提示之前听到建议的更改
 
 Claude Code 将其打印到终端滚动条中的所有内容都保留下来，因此您可以使用屏幕阅读器的审查命令或终端的搜索功能重新阅读之前的回合。Claude Code 在屏幕阅读器模式下忽略 [`tui` 设置](/docs/zh-CN/settings-reference#tui)。除了在[已知限制](#known-limitations)下列出的附加后台会话外，它打印滚动文本而不是[全屏渲染](/docs/zh-CN/fullscreen)。
 
-Claude Code 还在两个点等待，以便屏幕阅读器能够跟上：
-
-* Claude Code 打印确认行后，在绘制提示之前等待 3 秒，以便屏幕阅读器可以完成该行。按任意键结束等待。要更改等待的长度，请设置 [`CLAUDE_AX_STARTUP_QUIET_MS`](/docs/zh-CN/env-vars#variables)。
-* 在 Claude Code 写入新行或更改的行（例如提示或更多 Claude 的回复）之前，它将光标移到行的开始处并等待 50 毫秒。然后屏幕阅读器从其第一个字符读取该行。您在输入行末尾键入或删除的字符立即出现。要更改等待的长度，请设置 [`CLAUDE_AX_PREPARK_MS`](/docs/zh-CN/env-vars#variables)。
+Claude Code 在启动时打印[确认行](#turn-on-screen-reader-mode)后，会在绘制输入框之前等待 3 秒，以便屏幕阅读器可以读完该行。按任意键结束等待。要更改等待的长度，请设置 [`CLAUDE_AX_STARTUP_QUIET_MS`](/docs/zh-CN/env-vars#variables)。
 
 成绩单中的每条消息都以屏幕阅读器宣布的标签开头，命名其内容：您的消息、Claude 的回复和思考、工具活动、错误和警告以及提示。这些标签也是可搜索的，因此您可以通过搜索终端的滚动条在成绩单的各个部分之间跳转：
 
@@ -93,6 +91,14 @@ Claude Code 将终端光标保持在输入插入符上，因此屏幕阅读器�
 * 使用 `Ctrl+K` 删除到行的末尾
 
 当您使用 `Shift+Tab` 循环[权限模式](/docs/zh-CN/permission-modes)时，Claude Code 宣布您登陆的权限模式，例如 `[plan mode on]` 或 `[accept edits on]`。Claude Code 打印公告一次，不会在以后的重绘中重复。
+
+<h3 id="read-earlier-output-without-losing-your-place">
+  阅读之前的输出而不丢失位置
+</h3>
+
+如果您在阅读之前的输出时屏幕阅读器跳回到输入框，说明它正在跟随终端光标。Claude Code 每次写入新文本时都会将终端光标移回输入框。
+
+要在阅读时保持位置，请让屏幕阅读器停止跟随终端光标。在 NVDA 中，按 `NVDA+6` 可让浏览光标停止跟随终端光标。再次按 `NVDA+6` 可重新开启跟随。
 
 <h3 id="jump-between-turns">
   在回合之间跳转

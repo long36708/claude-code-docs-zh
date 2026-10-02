@@ -263,7 +263,7 @@ API 组织通过[工作区](https://platform.claude.com/docs/en/build-with-claud
 使用 `/usage` 检查您当前的令牌使用情况，或[配置您的状态行](/docs/zh-CN/statusline#context-window-usage)以连续显示它。
 
 * **在任务之间清除**：使用 `/clear` 在切换到不相关的工作时重新开始。陈旧的上下文会在随后的每条消息上浪费令牌。在清除之前使用 `/rename` 以便您稍后可以轻松找到会话，然后使用 `/resume` 返回到它。
-* **添加自定义 compaction 指令**：`/compact Focus on code samples and API usage` 告诉 Claude 在总结期间保留什么。在新会话中，`/compact` 打印 `Not enough messages to compact.`，因为还没有对话历史可以总结。
+* **添加自定义 compaction 指令**：`/compact Focus on code samples and API usage` 告诉 Claude 在总结期间保留什么。
 
 您还可以在项目根目录的 CLAUDE.md 文件中自定义 compaction 行为：
 

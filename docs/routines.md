@@ -407,7 +407,7 @@ Connectors 是您账户上的 [claude.ai integrations](/docs/zh-CN/mcp#use-mcp-s
   </Step>
 
   <Step title="更改网络访问级别">
-    在 **Update cloud environment** 对话框中，将 **Network access** 更改为 **Custom** 并在 **Allowed domains** 中输入您的域。检查 **Also include default list of common package managers** 以在您的自定义域旁边保留 [默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)。选择 **Full** 以获得不受限制的访问。
+    在 **Edit cloud environment** 对话框中，将 **Network access** 更改为 **Custom** 并在 **Allowed domains** 中输入您的域。检查 **Also include default list of common package managers** 以在您的自定义域旁边保留 [默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)。选择 **Full** 以获得不受限制的访问。
   </Step>
 
   <Step title="保存">

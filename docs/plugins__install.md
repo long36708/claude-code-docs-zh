@@ -41,7 +41,7 @@
         /plugin install commit-commands@claude-plugins-official
         ```
 
-        要浏览，请运行不带插件名称的 `/plugin`：面板在 **Discover** 选项卡上打开，该选项卡列出您添加的每个市场中的插件，您可以输入搜索，然后在插件上按 **Enter** 打开其详细信息。
+        要浏览，请运行不带插件名称的 `/plugin`：面板在 **Discover** 选项卡上打开，该选项卡列出您的市场中的插件，您可以输入搜索，然后在插件上按 **Enter** 打开其详细信息。
       </Step>
 
       <Step title="查看插件添加的内容">

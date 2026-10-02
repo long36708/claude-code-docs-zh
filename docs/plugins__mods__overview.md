@@ -72,6 +72,8 @@ Mod 使用你的权限运行，所以在安装之前，了解它可以访问什�
 * **在不询问你的情况下行动**：在被询问之前批准工具调用
 * **花费你的使用量**：在你的计划或 API 密钥上调用模型
 
+Mod 不在沙箱中运行。如果您启用[沙箱隔离](/docs/zh-CN/sandboxing)，沙箱会隔离 Claude 运行的 Bash 命令，而 mod 启动的进程在沙箱之外运行。
+
 批准工具调用的 mod 可以批准 `ask` 规则会提示的工具调用，或你自己的 `PreToolUse` hooks 阻止的工具调用。[使用 hooks 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)列出了这样的 mod 可以批准的内容，包括它何时可以批准 `deny` 规则拒绝的调用。
 
 Mod 可以重新设置 Claude Code 界面的大部分样式，但不能重新设置权限提示。它不能改变提示显示给你的内容。
@@ -101,6 +103,8 @@ Mods 需要 Claude Code v2.1.287 或更高版本，默认情况下它们是打�
 * **你安装的每个 mod，在每个会话中**：在 `~/.claude/settings.json` 中设置 [`"disableAllHooks": true`](/docs/zh-CN/settings-reference#disableallhooks)。你的设置 hooks 和自定义状态行也会停止。你的组织管理的内容继续运行。
 
 如果你通过组织使用 Claude Code，管理员也可以限制哪些 mods 加载。管理员从[停止用户安装的 mods 加载](/docs/zh-CN/plugins/mods/admin#stop-user-installed-mods-from-loading)开始。
+
+`disableAllHooks` 和您组织的 `allowManagedModsOnly` 会停止 mod，但保留其插件的其余部分：插件保持安装状态，其 skill、命令、Agent 和 MCP 服务器照常加载。其他设置和标志的影响范围更广。[`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks) 和[`allowManagedHooksOnly` 下运行的内容](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)列出了每一项对插件及其设置 hook 的影响。
 
 要了解 mods 是否可以为你加载，请参阅[检查 mods 是否可以加载](/docs/zh-CN/plugins/mods/troubleshoot#check-whether-mods-can-load)。
 

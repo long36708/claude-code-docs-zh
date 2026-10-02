@@ -155,7 +155,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | `github` | `repo`, `ref`, `sha` | GitHub 仓库，格式为 `owner/repo` |
 | `url` | `url`, `ref`, `sha` | 任何 git 仓库的 URL |
 | `git-subdir` | `url`, `path`, `ref`, `sha` | git 仓库的一个子目录，使用稀疏部分克隆获取 |
-| `npm` | `package`, `version`, `registry` | npm 包，使用你的 npm 客户端获取并解包，不运行安装脚本 |
+| `npm` | `package`, `version`, `registry` | npm registry 包或 tarball 链接，使用您的 npm 客户端获取并解包，不运行安装脚本 |
 | `archive` | `url`, `sha256` | HTTPS 上的 Zip 存档。需要 Claude Code v2.1.224 或更高版本 |
 | `command` | `command`, `timeout`, `mode` | 由 Claude Code 在用户机器上运行的命令打印的目录。需要 Claude Code v2.1.229 或更高版本 |
 
@@ -258,11 +258,19 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 一个 `npm` 源采用这些字段：
 
-* `package`：一个包名，或一个作用域名，如 `@your-org/formatter`
-* `version`：一个版本或范围
+* `package`：一个 registry 包名，如 `@your-org/formatter`；一个附加了版本的名称，如 `@your-org/formatter@2.0.0`；或一个指向包 tarball 文件的 `https` 链接
+* `version`：一个版本、一个 semver 范围或一个 dist-tag，在 `package` 是未附加版本的包名时使用。省略它则获取 `latest`
 * `registry`：一个不在默认 registry 上的包的 registry URL
 
 Claude Code 使用你的 npm 客户端获取包。包的安装脚本，如 `preinstall` 或 `postinstall`，永远不会运行，其依赖项在获取期间不会被安装。如果包在其 `package.json` 旁边有一个支持的 lockfile，Claude Code 在单独的步骤中安装这些 [Node.js 包依赖项](/docs/zh-CN/plugins/loading#node-js-package-dependencies)，也禁用脚本。
+
+Claude Code 在获取任何内容之前会检查 `package` 值。被拒绝的值会导致安装失败，并显示一条指明该值及原因的消息。被拒绝的值包括：
+
+* **git 地址、文件夹或 `file:` 路径，或 `npm:` 别名**：对于 git 仓库，请使用 [`github`、`url` 或 `git-subdir` 源](#plugin-sources)；对于市场中的文件夹，请使用相对路径；对于别名，请使用包自身的名称
+* **位于 github.com、gist.github.com、gitlab.com、bitbucket.org 或 git.sr.ht 上的 tarball 链接**：即使该链接是 GitHub release 下载链接也会被拒绝，除非它是 `gitlab.com/api/v4/` 下的 GitLab npm registry 链接
+* **通过 `http` 的 tarball 链接**：除非它指向安装用户自己的默认 npm registry，否则会被拒绝
+
+`registry` URL 必须使用 `https`，除非它是安装用户自己的默认 npm registry。对于任何其他 `http` registry，安装会在 npm 与其联系之前失败。
 
 ```json theme={null}
 {

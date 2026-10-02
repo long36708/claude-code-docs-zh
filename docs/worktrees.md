@@ -131,6 +131,8 @@ and report the results.
 
 子代理 worktrees 使用与 `--worktree` 相同的[基础分支](#choose-the-base-branch)，因此它们从您的存储库的默认分支分支，除非 `worktree.baseRef` 设置为 `"head"`。
 
+在自己的 worktree 中运行的子代理会从您的主对话中获取其[启动时加载](/docs/zh-CN/sub-agents#what-loads-at-startup)的指令文件，而不是从其 worktree 中获取。当该 worktree 位于 `.claude/worktrees/` 下的默认位置时，子代理在读取其中的文件时也不会加载 worktree 根目录下的 `CLAUDE.md` 文件或 `.claude/rules/` 目录，即使它们在 worktree 的分支上有所不同。
+
 <h3 id="clean-up-subagent-and-background-session-worktrees">
   清理子代理和后台会话 worktrees
 </h3>

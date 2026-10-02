@@ -26,7 +26,7 @@
 | `claude install [version]` | 安装或重新安装本机二进制文件。接受版本号如 `2.1.118`、`stable` 或 `latest`。请参阅 [安装特定版本](/docs/zh-CN/setup#install-a-specific-version) | `claude install stable` |
 | `claude auth login` | 登录您的 Anthropic 账户。使用 `--email` 预填充您的电子邮件地址，使用 `--sso` 强制 SSO 身份验证，使用 `--console` 使用 Anthropic Console 登录以进行 API 使用计费而不是 Claude 订阅 | `claude auth login --console` |
 | `claude auth logout` | 从您的 Anthropic 账户登出 | `claude auth logout` |
-| `claude auth status` | 以 JSON 格式显示身份验证状态。使用 `--text` 获取人类可读的输出。如果已登录，则以代码 0 退出，如果未登录，则以代码 1 退出。JSON 包含一个 `configDirectory` 字段，命名 CLI 使用的 [配置目录](/docs/zh-CN/claude-directory)。该字段需要 Claude Code v2.1.268 或更高版本 | `claude auth status` |
+| `claude auth status` | 以 JSON 格式显示身份验证状态。使用 `--text` 获取人类可读的输出。如果已登录，则以代码 0 退出，如果未登录，则以代码 1 退出。JSON 包含一个 `configDirectory` 字段，命名 CLI 使用的 [配置目录](/docs/zh-CN/claude-directory)。该字段需要 Claude Code v2.1.268 或更高版本。JSON 的 `authMethod` 字段取值为 `none`、`claude.ai`、`oauth_token`、`api_key`、`api_key_helper` 或 `third_party` 之一 | `claude auth status` |
 | `claude agents` | 打开 [agent view](/docs/zh-CN/agent-view) 以监控和分派并行后台会话。使用 `--cwd <path>` 仅显示在该目录下启动的会话，或使用 `--json` 将实时会话打印为 JSON 数组以供脚本使用（`--json --all` 也包括已完成的后台会话）。传递 `--permission-mode`、`--model`、`--effort` 或 `--agent` 以设置 [分派会话的默认值](/docs/zh-CN/agent-view#permission-mode-model-and-effort)。接受 `--settings`、`--add-dir`、`--plugin-dir` 和 `--mcp-config`，如顶级 `claude` 命令。打开 agent view 需要交互式终端 | `claude agents --json` |
 | `claude attach <id>` | 在此终端中附加到 [后台会话](/docs/zh-CN/agent-view#manage-sessions-from-the-shell) | `claude attach 7c5dcf5d` |
 | `claude auto-mode defaults` | 以 JSON 格式打印内置 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 分类器规则。使用 `claude auto-mode config` 查看应用了设置的有效配置。`--label <prefix>` 仅打印标签以该前缀开头的规则，不区分大小写匹配。需要 Claude Code v2.1.208 或更高版本 | `claude auto-mode defaults --label 'Git Destructive'` |
@@ -156,7 +156,15 @@ Claude Code 提供五个标志用于自定义系统提示。四个设置其文�
 | `--append-system-prompt-file` | 将文件内容附加到默认提示 | `claude --append-system-prompt-file ./style-rules.txt` |
 | `--system-prompt-snapshot` | 使用 `off`，在每个请求上重建提示。使用 `on`（默认），重用[记录应用的](#system-prompt-flags-in-resumed-conversations)记录的提示 | `claude --append-system-prompt "Draft rules" --system-prompt-snapshot off` |
 
-`--system-prompt` 和 `--system-prompt-file` 互斥。附加标志可以与任一替换标志组合。
+您可以组合使用这些标志。要替换默认提示词并仍然附加您自己的文本，请将 `--append-system-prompt` 或 `--append-system-prompt-file` 与 `--system-prompt` 或 `--system-prompt-file` 一起传递。在 Claude Code v2.1.283 或更高版本中，您还可以将某个标志与其自身的文件形式一起传递，例如将 `--append-system-prompt` 与 `--append-system-prompt-file` 一起使用，Claude Code 会同时使用两者。
+
+例如，在 shell 中运行以下命令，以同时附加来自文件的样式指南和一条额外的指令：
+
+```bash theme={null}
+claude -p --append-system-prompt-file ./style.md --append-system-prompt "Always reply in French" "Summarize README.md"
+```
+
+Claude 收到的是默认系统提示词，后跟 `style.md` 的内容、一个空行，然后是 `Always reply in French`。即使您在 `--append-system-prompt-file` 之前传递 `--append-system-prompt`，文件的内容也会排在前面。
 
 当替换文本将每次运行相同的指令与每次运行变化的上下文结合时，添加仅包含 `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__` 的行在指令和上下文之间。Claude Code 在第一个这样的行处分割提示并删除该行，因此上面的部分保持缓存而下面的部分变化。需要 Claude Code v2.1.275 或更高版本。[缓存自定义提示的静态部分](/docs/zh-CN/agent-sdk/modifying-system-prompts#cache-the-static-part-of-a-custom-prompt)列出应用分割的配置。
 

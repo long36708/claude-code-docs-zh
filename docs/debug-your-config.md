@@ -62,22 +62,24 @@
 对于配置位置和范围规则，请参阅 [MCP](/docs/zh-CN/mcp)。
 
 <h2 id="check-hooks">
-  检查 hooks
+  检查 hook
 </h2>
 
-运行 `/hooks` 来列出当前会话注册的每个 hook，按事件分组。如果你定义的 hook 没有出现，它没有被读取：hooks 在设置文件中的 `"hooks"` 键下，而不是在独立文件中。
+运行 `/hooks` 来列出当前会话注册的每个 hook，按事件分组。如果您定义的 hook 没有出现，说明 Claude Code 没有加载它。请检查以下原因：
+
+* 该 hook 定义在独立文件中。hook 应位于[设置文件](/docs/zh-CN/settings#settings-files)中的 `"hooks"` 键下。
+* `matcher` 值是数组而不是单个字符串。在您启动交互式会话时以及在 `claude doctor` 中，Claude Code 会将该条目列为无效设置。如果该数组位于 `PreToolUse` 或 `PermissionRequest` 下，该文件中的其他 hook 也都不会加载。
 
 如果 hook 出现但没有触发，匹配器通常是原因。检查它是否有这些错误：
 
-* `matcher` 字段是一个使用 `|` 来匹配多个工具名称的单个字符串，例如 `"Edit|Write"`。`,` 分隔符是等效的，所以 `"Edit,Write"` 匹配相同的工具。在 v2.1.191 之前，逗号会进入正则表达式评估，匹配器永远不会匹配，所以如果你不在 v2.1.191 上，请使用 `|`。
+* `matcher` 字段是一个使用 `|` 来匹配多个工具名称的单个字符串，例如 `"Edit|Write"`。`,` 分隔符是等效的，所以 `"Edit,Write"` 匹配相同的工具。在 v2.1.191 之前，逗号会进入正则表达式评估，匹配器永远不会匹配，所以如果您尚未使用 v2.1.191，请使用 `|`。
 * 拼写错误的工具名称会产生一个不匹配任何内容的匹配器，所以 hook 会无声地失败。
-* 数组值是一个 schema 错误：Claude Code 显示设置错误通知并拒绝整个用户、项目或本地设置文件，`claude doctor` 报告验证失败，该文件中没有 hook 出现在 `/hooks` 中。在[托管设置](/docs/zh-CN/managed-settings)中，Claude Code 从包含数组的文件中删除整个 `hooks` 键，所以该文件的 hooks 都不适用。文件的其他设置仍然适用，`claude doctor` 列出删除的键。
 
-当你编辑 `settings.json` 时，更改在短暂的文件稳定延迟后在运行的会话中生效，即使你在会话启动后创建了文件或项目的 `.claude/` 文件夹。你不需要重新启动。在 v2.1.257 之前，Claude Code 没有检测到在会话启动后创建的 `.claude/` 文件夹中的编辑。
+当您编辑 `settings.json` 时，更改在短暂的文件稳定延迟后在运行的会话中生效，即使您在会话启动后创建了文件或项目的 `.claude/` 文件夹。您不需要重新启动。在 v2.1.257 之前，Claude Code 没有检测到在会话启动后创建的 `.claude/` 文件夹中的编辑。
 
 如果保存后几秒钟 `/hooks` 仍然显示旧定义，再次运行 `/hooks` 来刷新视图。
 
-如果 `/hooks` 显示 hook 但它仍然没有触发，下一步是实时观察 hook 评估。使用 `claude --debug` 启动会话并触发工具调用。调试日志记录每个事件、检查了哪些匹配器以及 hook 的退出代码和输出。有关日志格式，请参阅[调试 hooks](/docs/zh-CN/hooks#debug-hooks)，有关常见失败模式，请参阅[hooks 故障排除](/docs/zh-CN/hooks-guide#limitations-and-troubleshooting)。
+如果 `/hooks` 显示 hook 但它仍然没有触发，下一步是实时观察 hook 评估。使用 `claude --debug` 启动会话并触发工具调用。调试日志记录每个事件、检查了哪些匹配器以及 hook 的退出码和输出。有关日志格式，请参阅[调试 hook](/docs/zh-CN/hooks#debug-hooks)，有关常见失败模式，请参阅[hook 故障排除](/docs/zh-CN/hooks-guide#limitations-and-troubleshooting)。
 
 <h2 id="test-against-a-clean-configuration">
   针对干净配置进行测试

@@ -526,6 +526,8 @@ Claude Code 在每个请求上将此作为 `X-Amzn-Bedrock-Service-Tier` 标头�
 
 如果您的组织通过 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 策略传递 guardrail 标头，它们将被视为[需要批准的设置](/docs/zh-CN/server-managed-settings#environment-variables-and-the-approval-dialog)。
 
+当 guardrail 在中途阻止响应时，已流式传输的文本会保留，并且回复将以 guardrail 上为被阻止响应配置的消息结尾。
+
 <h2 id="use-the-mantle-endpoint">
   使用 Mantle 端点
 </h2>

@@ -220,7 +220,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
 这些命令在服务器停止后约四小时内有效。之后，运行 `claude remote-control` 以启动新会话。如果您在此期间存档了会话，`--continue` 和 `--session-id` 在 Claude Code v2.1.228 或更高版本上取消存档它。
 
-要恢复您使用 `claude --remote-control` 或 `/remote-control` 启动的会话，请使用 `claude --continue` 或 `claude --resume` 恢复对话。如果远程控制无法重新连接，请参阅[无法重新连接到您的远程控制会话](#couldnt-reconnect-to-your-remote-control-session)。
+要恢复您使用 `claude --remote-control` 或 `/remote-control` 启动的会话，请使用 `claude --continue` 或 `claude --resume` 恢复对话。有关恢复的对话以何种权限模式启动，请参阅[恢复时的权限模式](/docs/zh-CN/sessions#permission-mode-on-resume)。如果 Remote Control 无法重新连接，请参阅[无法重新连接到您的 Remote Control 会话](#couldnt-reconnect-to-your-remote-control-session)。
 
 如果您在第一个终端仍然打开远程控制的情况下在第二个终端中恢复对话，Claude Code 会在第二个终端中打印 `Remote Control not started here` 通知，并改为在那里关闭远程控制，而不是从第一个终端取走会话。在第二个终端中运行 `/remote-control` 以将远程控制移动到它。
 

@@ -167,6 +167,57 @@ Mod 策略的范围从根本没有已安装的 mods 到用户选择的任何 mod
 
 mod 未加载的用户在其调试日志中找到原因。[拒绝消息](/docs/zh-CN/plugins/mods/troubleshoot#refusal-messages)列出了 `allowManagedHooksOnly` 和 `disableAllHooks` 的行，[来自内置保护程序的消息](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)有 `allowManagedModsOnly` 的行。
 
+<h3 id="allow-only-your-organization’s-mods">
+  仅允许您组织的 mods
+</h3>
+
+要运行您组织的 mods 并阻止用户带来的 mods，请部署[策略表](#choose-how-much-to-allow)中 **仅您组织的 mods** 一行的设置，再加上 `disableSideloadFlags`。使用以下完整的 `managed-settings.json`，Claude Code 会拒绝用户自己的 mods，因此他们的 hooks 都不会运行，而您的策略 mod 会先于其他 mods 运行：
+
+```json managed-settings.json theme={null}
+{
+  "extraKnownMarketplaces": {
+    "acme-tools": {
+      "source": { "source": "directory", "path": "/opt/acme/claude-plugins" }
+    }
+  },
+  "enabledPlugins": { "acme-guard@acme-tools": true },
+  "prependPlugins": ["acme-guard@acme-tools", "sec-default@builtin"],
+  "pluginConfigs": {
+    "cc-plugin-sec-default@builtin": {
+      "options": { "allowManagedModsOnly": true }
+    }
+  },
+  "disableSideloadFlags": true
+}
+```
+
+每组键各负责一项工作：
+
+* **`extraKnownMarketplaces`、`enabledPlugins` 和 `prependPlugins`**：安装您的 mod 以便它计为您的，并让它首先运行，保护程序紧随其后。[安装您组织的 mods 并设置顺序](#install-your-organizations-mods)涵盖这些键所指向的目录。
+* **`pluginConfigs`**：设置保护程序的 `allowManagedModsOnly` 选项，因此 Claude Code 会拒绝用户自己的 mods。他们的设置 hooks、状态栏和 `/goal` 继续工作。
+* **`disableSideloadFlags`**：有关它在启动时拒绝的标志，请参阅 [`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags)
+
+要在测试机器上确认该策略，请在您的 shell 中使用 `claude --debug` 启动会话并阅读调试日志：
+
+* **您的 mod**：其 `hooks module` 行带有 `tier prepend`
+* **用户安装的 mod**：有一行显示 `refused by cc-plugin-sec-default: mods are limited to your organization's by policy (allowManagedModsOnly)`。更早的一行会显示该 mod 的 hooks module 已 `loaded`，因此请查找拒绝信息。
+* **插件目录**：`claude --plugin-dir ./any-mod` 会退出，并显示以 `--plugin-dir is disabled by your organization's managed settings (disableSideloadFlags)` 开头的消息
+
+要同时限制用户可以添加哪些市场，请将此文件与您的[市场限制](/docs/zh-CN/plugins/org#restrict-what-users-can-install)结合使用。
+
+<h3 id="apply-your-plugin-controls-to-mods">
+  将您的插件控制应用于 mods
+</h3>
+
+mod 就是插件，因此您[为组织管理插件](/docs/zh-CN/plugins/org)的方式同样适用于包含 mod 的插件：
+
+* **查看整个设备群中加载了哪些插件**：[审计和审查](/docs/zh-CN/plugins/org#audit-and-review)
+* **决定您审查过的插件何时可以更新**：[设置更新策略](/docs/zh-CN/plugins/org#set-update-policy)
+* **为某个群组（例如试点群组）提供不同的策略**：[为托管设置无法强制执行的内容做好规划](/docs/zh-CN/plugins/org#plan-for-what-managed-settings-can’t-enforce)
+* **检查哪些应用和会话类型会应用插件键**：[各使用入口何时应用插件键](/docs/zh-CN/plugins/org#when-each-surface-applies-the-plugin-keys)
+* **设置 CI 和容器**：[为容器和 CI 预置内容](/docs/zh-CN/plugins/org#seed-containers-and-ci)
+* **提供用户可以安装的 mods**：[托管市场](/docs/zh-CN/plugins/host-marketplace)。Claude Code 从 GitHub、git、URL 或 npm 源复制的 mod 计为用户的，而不是[您组织的](#install-your-organizations-mods)。
+
 <h3 id="set-options-on-the-built-in-guard">
   在内置保护程序上设置选项
 </h3>

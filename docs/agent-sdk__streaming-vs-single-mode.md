@@ -166,6 +166,8 @@ Claude Agent SDK 支持两种不同的输入模式来与代理交互：
 
 当您运行该示例时，TypeScript 版本会在每个响应完成时打印它。Python 版本的 `receive_response()` 循环在第一条结果消息处结束，因此它会打印安全分析；要读取两个响应，请使用一对 `query()` 和 `receive_response()`，如 [Python 参考中继续对话的示例](/docs/zh-CN/agent-sdk/python#example-continuing-a-conversation)所示。
 
+如果图像块的 `source` 缺失或不是对象，SDK 不会报告错误。Claude Code 会向 Claude 发送一条文本说明来代替该图像，例如 `[Image could not be processed: image block has no source object]`，并且会话会继续进行。
+
 <Note>
   在 TypeScript SDK 中，如果您的消息生成器抛出异常，例如当它读取的文件丢失时，流会以一条错误消息结束，内容为 `Claude Code process aborted by user`，而不是原始错误，因此当您看到该消息时，请先检查生成器内部的代码。该错误前面可能还有一长行捆绑 SDK 源代码的缩小代码，因此请阅读输出末尾的错误文本。
 

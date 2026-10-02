@@ -800,6 +800,7 @@ AWS 请求在请求内容上携带 SigV4 签名，因此一起掩盖 `AWS_ACCESS
 * **计算机使用**：当 Claude 打开应用程序并控制你的屏幕时，它在你的实际桌面上运行，而不是在隔离的环境中。每个应用程序的权限提示控制每个应用程序。请参阅 [CLI 中的计算机使用](/docs/zh-CN/computer-use) 或 [Desktop 中的计算机使用](/docs/zh-CN/desktop#let-claude-use-your-computer)。
 * **环境变量**：沙箱化 Bash 命令默认继承父进程环境，包括在那里设置的任何凭证。使用 [`sandbox.credentials`](#protect-credentials) 为沙箱化命令取消设置或掩盖特定变量，或设置 [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](/docs/zh-CN/env-vars) 以从所有子进程中删除凭证。
 * **子代理**：[subagents](/docs/zh-CN/sub-agents) 在与父会话相同的进程中运行，并使用相同的沙箱配置。当在父会话中启用沙箱时，子代理内的 Bash 命令被沙箱化。
+* **Mods**：[mod](/docs/zh-CN/plugins/mods/overview) 是一种在 Claude Code 内运行自身代码的插件，由 mod 启动的进程在沙箱外运行。请参阅 [mod 可以访问的内容](/docs/zh-CN/plugins/mods/overview#what-a-mod-can-reach)。
 
 <Warning>
   有效的沙箱需要同时进行文件系统和网络隔离。没有网络隔离，被破坏的代理可能会泄露敏感文件，如 SSH 密钥。没有文件系统隔离，无论是来自宽泛的策略还是来自 [disabling the filesystem layer](#disable-filesystem-isolation)，被破坏的代理可能会后门系统资源以获得网络访问权限。当你扩大默认值时，检查 `allowWrite` 路径、广泛的 `allowedDomains` 条目或 `excludedCommands` 异常是否不会撤销另一侧的限制。

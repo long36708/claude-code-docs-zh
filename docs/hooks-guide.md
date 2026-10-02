@@ -65,21 +65,17 @@ Hooks 是用户定义的 shell 命令。Claude Code 在其生命周期中的特�
     }
     ```
 
-    你也可以通过在 CLI 中描述你想要的内容来要求 Claude 为你编写 hook。
+    您也可以通过在 CLI 中描述您想要的内容来要求 Claude 为您编写 hook。
   </Step>
 
   <Step title="验证配置">
-    输入 `/hooks` 打开 hooks 浏览器。你将看到所有可用 hook 事件的列表，每个配置了 hooks 的事件旁边都有一个计数。选择 `Notification` 以确认你的新 hook 出现在列表中。选择 hook 会显示其详细信息：事件、匹配器、类型、源文件和命令。
+    在 Claude Code 输入框中输入 `/hooks` 以打开 hook 浏览器。您的新 hook 会出现在 `Notification` 下的列表中。
   </Step>
 
   <Step title="测试 hook">
-    按 `Esc` 返回 CLI。按 `Shift+Tab` 直到状态栏显示 `⏸ manual mode on`，要求 Claude 做需要权限的事情，然后切换离开终端。你应该会收到桌面通知。
+    按 `Esc` 返回 CLI。按 `Shift+Tab` 直到状态栏显示 `⏸ manual mode on`，要求 Claude 做需要权限的事情，然后切换离开终端。您应该会收到桌面通知。
   </Step>
 </Steps>
-
-<Tip>
-  `/hooks` 菜单是只读的。要添加、修改或删除 hooks，请直接编辑你的设置 JSON 或要求 Claude 进行更改。
-</Tip>
 
 <h2 id="what-you-can-automate">
   你可以自动化什么
@@ -97,7 +93,9 @@ Hooks 让你在 Claude Code 生命周期中的关键点运行代码：编辑后�
 
 每当 Claude 完成工作并需要你的输入时获得桌面通知，这样你可以切换到其他任务而无需检查终端。
 
-此 hook 使用 `Notification` 事件，当 Claude 等待输入或权限时触发。请参阅[每个通知类型何时触发](/docs/zh-CN/hooks#notification)以了解确切的时间。下面的每个选项卡使用平台的原生通知命令。将其添加到 `~/.claude/settings.json`：
+此 hook 使用 `Notification` 事件，Claude Code 会在 Claude 等待输入或权限时触发该事件。请参阅[每个通知类型何时触发](/docs/zh-CN/hooks#notification)以了解确切的时间。
+
+下面的每个选项卡使用平台的原生通知命令。将其添加到 `~/.claude/settings.json`：
 
 <Tabs>
   <Tab title="macOS">
@@ -120,7 +118,9 @@ Hooks 让你在 Claude Code 生命周期中的关键点运行代码：编辑后�
     ```
 
     <Accordion title="如果没有通知出现">
-      `osascript` 通过内置的 Script Editor 应用程序路由通知。如果 Script Editor 没有通知权限，命令会静默失败，macOS 不会提示你授予它。在 Terminal 中运行一次以使 Script Editor 出现在你的通知设置中：
+      `osascript` 通过内置的 Script Editor 应用程序路由通知。如果 Script Editor 没有通知权限，命令会静默失败，macOS 也不会提示您授予该权限。
+
+      在 Terminal 中运行一次以下命令，使 Script Editor 出现在您的通知设置中：
 
       ```bash theme={null}
       osascript -e 'display notification "test"'
@@ -180,7 +180,9 @@ Hooks 让你在 Claude Code 生命周期中的关键点运行代码：编辑后�
     ```
 
     <Accordion title="如果没有对话框出现">
-      此命令打开一个对话框而不是屏幕角落的通知，因此对话框可能会在你的终端窗口后面打开。首先在 PowerShell 中直接测试该命令。如果你在 WSL 中运行 Claude Code，`powershell.exe` 必须通过 Windows 互操作在你的 `PATH` 上可用。
+      此命令打开一个对话框而不是屏幕角落的通知，因此对话框可能会在您的终端窗口后面打开。首先在 PowerShell 中直接测试该命令。
+
+      如果您在 WSL 中运行 Claude Code，`powershell.exe` 必须通过 Windows 互操作在您的 `PATH` 上可用。
     </Accordion>
   </Tab>
 </Tabs>
@@ -212,7 +214,7 @@ Claude Code 在终端和通过 Agent SDK 回答权限请求的 Claude Desktop、
 
 队友的终端设置问题的 `agent_needs_input` 需要 Claude Code v2.1.248 或更高版本。
 
-输入 `/hooks` 并选择 `Notification` 以确认 hook 已注册。有关完整的事件架构，请参阅 [Notification 参考](/docs/zh-CN/hooks#notification)。
+在 Claude Code 输入框中输入 `/hooks`，并确认该 hook 出现在 `Notification` 下。
 
 <h3 id="auto-format-code-after-edits">
   编辑后自动格式化代码
@@ -1055,6 +1057,7 @@ Hook 已配置但从不执行。
 * 文件编辑通常会自动拾取。如果几秒钟后它们还没有出现，文件监视器可能错过了更改：重新启动你的会话以强制重新加载。
 * 验证你的 JSON 有效：不允许尾随逗号和注释
 * 确认设置文件在正确的位置：`.claude/settings.json` 用于项目 hooks，`~/.claude/settings.json` 用于全局 hooks
+* 如果菜单显示 `Only hooks from managed settings run here`，说明您的组织设置了 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly)。您的用户、项目和本地设置文件中的 hook 不会运行，也不会列出
 
 <h3 id="stop-hook-hits-the-block-cap">
   Stop hook 达到阻止上限

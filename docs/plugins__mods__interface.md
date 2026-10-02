@@ -311,10 +311,17 @@ await $.ui.close({ id: 'hello-tabs' })
 | :- | :- |
 | `title` | 打开多个窗格时窗格的选项卡标签 |
 | `focus` | 请求[键盘焦点](#know-which-keys-your-mod-can-receive) |
-| `closeOnEscape` | 使 Esc 关闭窗格。传递 `true` 或省略字段，因为 Claude Code 拒绝 `false`。 |
+| `closeOnEscape` | 使 Esc 关闭窗格 |
 | `holdToasts` | 保持 toast，来自 [`$.ui.toast`](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn) 的小通知，直到窗格关闭 |
 | `rows` | 当窗格位于提示符上方时要求的高度。默认值是空间的三分之一。 |
 | `columns` | 当窗格位于记录旁边时要求的宽度 |
+
+`focus`、`closeOnEscape` 和 `holdToasts` 是可选的，仅接受 `true`。要省略其中一个，请忽略它。传递 `false` 会抛出错误，例如 `ui.open: focus is true or left out`。要有条件地设置其中一个，仅在条件成立时添加字段。此调用仅在 `items` 不为空时请求键盘焦点：
+
+```javascript theme={null}
+const pane = { id: 'hello-tabs', title: 'Hello tabs' }
+await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
+```
 
 要让命令在 Claude 工作时打开窗格，请在[注册命令](/docs/zh-CN/plugins/mods/api#add-a-command)时添加 `immediate: true`。没有它，在轮次期间键入的命令会等待轮次结束。
 
@@ -400,12 +407,12 @@ await $.ui.close({ id: 'hello-tabs' })
     ```
 
     ```text theme={null}
-    Note: Type a note and press Enter ⏎ add
+    Note: Type a note and press Enter
     ```
   </Tab>
 </Tabs>
 
-此表列出了每个元素：
+[界面图库](/docs/zh-CN/plugins/mods/gallery)提供了大多数元素的示例和屏幕截图。此表列出了每个元素：
 
 | 元素 | 它绘制什么 | 位置 |
 | :- | :- | :- |

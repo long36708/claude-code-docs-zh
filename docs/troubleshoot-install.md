@@ -22,6 +22,7 @@
 | `curl: (23)` 或 `curl: (56) Failure writing output to destination` | [检查连接或使用替代安装程序](#curl-56-failure-writing-output-to-destination) |
 | Linux 上安装期间 `Killed`，或 `Installation was killed before it could finish (exit code 137)` | [释放内存或添加交换空间](#install-killed-on-low-memory-linux-servers) |
 | 安装期间 `Raw mode is not supported` | [重新运行安装程序](#raw-mode-is-not-supported-during-install) |
+| 安装期间 `EACCES: permission denied` | [修复安装目录的权限](#permission-errors-during-installation) |
 | `TLS connect error` 或 `SSL/TLS secure channel` | [更新 CA 证书](#tls-or-ssl-connection-errors) |
 | `Failed to fetch version` 或无法访问下载服务器 | [检查网络和代理设置](#check-network-connectivity) |
 | `irm is not recognized` 或 `The token '&&' is not a valid statement separator` | [对您的 shell 使用正确的命令](#wrong-install-command-on-windows) |
@@ -295,7 +296,18 @@ winget uninstall Anthropic.ClaudeCode
   检查目录权限
 </h3>
 
-安装程序需要对 macOS 和 Linux 上的 `~/.local/bin/` 和 `~/.claude/` 有写入权限。在 Windows 上，安装位置在 `%USERPROFILE%` 下，默认情况下您的用户可以写入，因此此部分很少适用于那里。
+因权限问题而失败的安装会指出其无法创建或写入的路径。在 Windows 上，安装会写入 `%USERPROFILE%` 下，默认情况下您的用户可以写入该位置，因此此部分很少适用于那里。
+
+在 macOS 和 Linux 上，安装会写入以下位置：
+
+* `~/.claude/downloads/`：安装命令存放下载的二进制文件的位置
+* `~/.local/bin/`：`claude` 启动程序
+* `~/.local/share/claude/`：其下载的每个版本
+* `~/.local/state/claude/`：其锁文件
+* `~/.cache/claude/`：暂存的下载内容
+* [`~/.claude.json`](/docs/zh-CN/claude-directory)：您的全局配置文件，安装程序在其中记录安装方式
+
+如果您设置了 `XDG_DATA_HOME`、`XDG_STATE_HOME` 或 `XDG_CACHE_HOME`，安装将使用这些位置来代替 `~/.local/share`、`~/.local/state` 和 `~/.cache`。如果您设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)，全局配置文件将位于该目录下，而不是您的主目录下。
 
 检查目录是否可写：
 
@@ -1045,7 +1057,7 @@ npm install -g @anthropic-ai/claude-code
 
 如果您看到 `API Error: 400 ... "This organization has been disabled"`，尽管有活跃的 Claude 订阅，`ANTHROPIC_API_KEY` 环境变量正在覆盖您的订阅。这通常发生在来自前一个雇主或项目的旧 API 密钥仍在您的 shell 配置文件中设置时。
 
-当 `ANTHROPIC_API_KEY` 存在且您已批准它时，Claude Code 使用该密钥而不是您的订阅的 OAuth 凭证。在使用 `-p` 标志的非交互模式下，当存在时始终使用该密钥。有关完整的解决顺序，请参阅 [authentication precedence](/docs/zh-CN/authentication#authentication-precedence)。
+当 `ANTHROPIC_API_KEY` 存在且您已批准它时，Claude Code 使用该密钥而不是您的订阅的 OAuth 凭据。在使用 `-p` 标志的非交互模式下，当存在时始终使用该密钥。有关完整的解决顺序，请参阅 [authentication precedence](/docs/zh-CN/authentication#authentication-precedence)。
 
 要改用您的订阅，请取消设置环境变量并从您的 shell 配置文件中删除它：
 
@@ -1098,9 +1110,11 @@ claude auth login
 
 运行 `/login` 重新身份验证。如果这经常发生，检查您的系统时钟是否准确，因为令牌验证取决于正确的时间戳。
 
-一台机器上的并行会话共享已保存的登录并协调其续期，以便只有一个进程一次刷新令牌。在 v2.1.211 之前，从睡眠状态唤醒机器可能导致两个会话使用相同令牌续期，这会撤销已保存的登录并提示每个打开的会话立即再次登录。
+一台机器上的并行会话共享已保存的登录并协调其续期，以便只有一个进程一次刷新令牌。有关在其中一个会话中重新登录后其他会话的行为，请参阅[未登录](/docs/zh-CN/errors#not-logged-in)。
 
-在 macOS 上，Claude Code 将凭证保存到登录 Keychain。当 Keychain 拒绝写入时，例如当它在 SSH 会话中被锁定或其密码与您的账户密码不同步时，Claude Code 改为将您的登录保存到纯文本 `~/.claude/.credentials.json` 文件。Console 登录创建 API 密钥会失败，直到 Keychain 再次可写。
+在 v2.1.211 之前，从睡眠状态唤醒机器可能导致两个会话使用相同令牌续期，这会撤销已保存的登录并提示每个打开的会话立即再次登录。
+
+在 macOS 上，Claude Code 将凭据保存到登录 Keychain。当 Keychain 拒绝写入时，例如当它在 SSH 会话中被锁定或其密码与您的账户密码不同步时，Claude Code 改为将您的登录保存到纯文本 `~/.claude/.credentials.json` 文件。Console 登录创建 API 密钥会失败，直到 Keychain 再次可写。
 
 要使 Keychain 再次可写并将您的登录移回加密的 Keychain：
 
@@ -1122,35 +1136,35 @@ claude auth login
   </Step>
 
   <Step title="注销并重新登录">
-    一旦 Keychain 再次可写，Claude Code 在下次写入凭证时将凭证移回。要立即强制执行，请运行 `/logout` 然后 `/login`。注销会删除所有存储的凭证，包括纯文本文件的内容、已保存的 MCP 服务器登录和插件敏感值，因此预期之后需要重新授权 MCP 服务器和重新输入插件密钥。再次登录会将您的登录存储在 Keychain 中。
+    一旦 Keychain 再次可写，Claude Code 在下次写入凭据时将凭据移回。要立即强制执行，请运行 `/logout` 然后 `/login`。注销会删除所有存储的凭据，包括纯文本文件的内容、已保存的 MCP 服务器登录和插件敏感值，因此预期之后需要重新授权 MCP 服务器和重新输入插件密钥。再次登录会将您的登录存储在 Keychain 中。
   </Step>
 </Steps>
 
 <h3 id="bedrock-agent-platform-or-foundry-credentials-not-loading">
-  Bedrock、Agent Platform 或 Foundry 凭证未加载
+  Bedrock、Agent Platform 或 Foundry 凭据未加载
 </h3>
 
 如果您配置了 Claude Code 以使用云提供商，并在 Amazon Bedrock 上看到 `Could not load credentials from any providers`、在 Google Cloud 的 Agent Platform 上看到 `Could not load the default credentials` 或在 Microsoft Foundry 上看到 `ChainedTokenCredential authentication failed`，您的云提供商 CLI 可能在当前 shell 中未进行身份验证。
 
-对于 Amazon Bedrock，确认您的 AWS 凭证有效：
+对于 Amazon Bedrock，确认您的 AWS 凭据有效：
 
 ```bash theme={null}
 aws sts get-caller-identity
 ```
 
-对于 Google Cloud 的 Agent Platform，确认 `ANTHROPIC_VERTEX_PROJECT_ID` 和 `CLOUD_ML_REGION` 在您的 shell 中设置，然后设置应用默认凭证：
+对于 Google Cloud 的 Agent Platform，确认 `ANTHROPIC_VERTEX_PROJECT_ID` 和 `CLOUD_ML_REGION` 在您的 shell 中设置，然后设置应用默认凭据：
 
 ```bash theme={null}
 gcloud auth application-default login
 ```
 
-对于 Microsoft Foundry，确认 `ANTHROPIC_FOUNDRY_API_KEY` 已设置，或使用 Azure CLI 登录以便默认凭证链可以找到您的账户：
+对于 Microsoft Foundry，确认 `ANTHROPIC_FOUNDRY_API_KEY` 已设置，或使用 Azure CLI 登录以便默认凭据链可以找到您的账户：
 
 ```bash theme={null}
 az login
 ```
 
-如果凭证在您的终端中有效但在 VS Code 或 JetBrains 扩展中无效，IDE 进程可能未继承您的 shell 环境。在 IDE 自己的设置中设置提供商环境变量，或从已导出它们的终端启动 IDE。
+如果凭据在您的终端中有效但在 VS Code 或 JetBrains 扩展中无效，IDE 进程可能未继承您的 shell 环境。在 IDE 自己的设置中设置提供商环境变量，或从已导出它们的终端启动 IDE。
 
 有关完整的提供商设置，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)。
 

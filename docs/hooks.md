@@ -731,23 +731,17 @@ Subagents 在其 YAML frontmatter 中使用相同的格式。
   `/hooks` 菜单
 </h3>
 
-在 Claude Code 中键入 `/hooks` 来打开已配置 hooks 的只读浏览器。菜单显示每个 hook 事件及其配置的 hooks 计数，让您深入了解匹配器，并显示每个 hook 处理程序的完整详细信息。使用它来验证配置、检查 hook 来自哪个设置文件，或检查 hook 的命令、提示或 URL。
+在 Claude Code 中键入 `/hooks` 来打开已配置 hook 的只读浏览器。列表为每个 hook 标注其来源，如用户设置、项目设置、本地设置、插件或当前会话。
 
-菜单显示所有五种 hook 类型：`command`、`prompt`、`agent`、`http` 和 `mcp_tool`。每个 hook 都标有 `[type]` 前缀和指示其定义位置的源：
+选择一个 hook 可查看其运行内容的完整文本以及其定义位置，如其设置文件的路径或其插件的名称。
 
-* `User Settings`：来自 `~/.claude/settings.json`
-* `Project Settings`：来自 `.claude/settings.json`
-* `Local Settings`：来自 `.claude/settings.local.json`
-* `Plugin Hooks`：来自插件的 `hooks/hooks.json`
-* `Session Hooks`：为当前会话在内存中注册
-
-选择 hook 打开详细视图，显示其事件、匹配器、类型、源文件以及完整的命令、提示或 URL。菜单是只读的：要添加、修改或删除 hooks，直接编辑设置 JSON 或要求 Claude 进行更改。
+要浏览所有 hook 事件，包括未配置任何 hook 的事件，请选择列表末尾的 `All events`。
 
 <h3 id="disable-or-remove-hooks">
   禁用或删除 hooks
 </h3>
 
-要删除 hook，从设置 JSON 文件中删除其条目。
+要删除在设置文件中定义的 hook，请从该文件中删除其条目。
 
 要临时禁用所有 hooks 而不删除它们，在设置文件中设置 `"disableAllHooks": true`。Claude Code 读取 [设置优先级](/docs/zh-CN/settings#settings-precedence) 应用后留下的值，所以项目的 `.claude/settings.json` 中的 `"disableAllHooks": false` 覆盖用户设置中的 `true`。要无论项目的设置如何关闭一次运行的 hooks，传递 `--settings '{"disableAllHooks": true}'`，这优先于项目和本地设置。没有办法在保持 hook 在配置中的同时禁用单个 hook。
 

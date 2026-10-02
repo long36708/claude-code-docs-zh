@@ -524,6 +524,8 @@ Claude Code v2.1.261 及更高版本也默认阻止这些：
     3. 其他所有内容都进入分类器，除了[关键路径删除](#critical-paths)在其默认处理下。在步骤 1 中直接提示您的连接器工具和 `requiresUserInteraction` MCP 工具永远不会到达分类器，因此既不是组织要求的批准也不是同意步骤被自动批准
     4. 如果分类器阻止，Claude 接收原因。在大多数会话中，原因命名分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[审查拒绝](/docs/zh-CN/auto-mode-config#review-denials)
 
+    您安装的通过 hook 接入 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 可以在步骤 3 之前批准操作，分类器不会检查该 mod 批准的操作。请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)。
+
     进入自动模式时，授予任意代码执行的广泛允许规则被丢弃：
 
     * 空白 `Bash(*)` 或 `PowerShell(*)`
@@ -667,6 +669,7 @@ Claude Code 在您使用[`--restricted`](/docs/zh-CN/cli-reference#cli-flags)启
 * `.yarn`
 * `.mvn`
 * `.claude`，除了 `.claude/worktrees`，Claude 在其中存储自己的 git worktrees
+* 使用 [`--plugin-dir`](/docs/zh-CN/plugins/mods/create#change-a-mod-with-claude) 加载的目录，因为当文件发生更改时，Claude Code 会从该目录重新加载并运行 mod 的代码
 
 受保护的文件：
 

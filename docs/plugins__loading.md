@@ -244,7 +244,7 @@ Claude Code 根据插件的来源，从您保存它们的位置就地加载某�
   依赖项安装何时运行
 </h4>
 
-Claude Code 在创建复制的版本目录时在其内部运行安装：
+Claude Code 每次创建复制的版本目录时，都会将依赖项安装到其中：
 
 * 当您安装插件时
 * 当 Claude Code 将插件更新到新版本时
@@ -252,19 +252,22 @@ Claude Code 在创建复制的版本目录时在其内部运行安装：
 
 对于从本地目录市场[就地加载](#in-place-and-copied-plugins)的相对路径插件，Claude Code 不会将依赖项安装到源目录中。自己在那里安装它们，或从 hook 安装到[`${CLAUDE_PLUGIN_DATA}`](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。
 
-安装仅在插件的根目录同时包含 `package.json` 和支持的锁定文件时运行。锁定文件决定 Claude Code 运行的命令：
+安装仅在插件的根目录同时包含 `package.json` 和支持的锁定文件时运行。
 
-| 锁定文件 | 命令 |
+锁定文件决定 Claude Code 运行哪个包管理器：
+
+| 锁定文件 | 包管理器 |
 | :- | :- |
-| `bun.lock` 或 `bun.lockb` | `bun install --frozen-lockfile --ignore-scripts` |
-| `npm-shrinkwrap.json` 或 `package-lock.json` | `npm ci --ignore-scripts` |
+| `bun.lock` | Bun |
+| `npm-shrinkwrap.json` 或 `package-lock.json` | npm |
 
-如果插件包含这些锁定文件中的多个，Claude Code 使用第一个匹配项，按顺序检查：`bun.lock`、`bun.lockb`、`npm-shrinkwrap.json`、`package-lock.json`。
+如果插件包含这些锁定文件中的多个，Claude Code 使用第一个匹配项，按顺序检查：`bun.lock`、`npm-shrinkwrap.json`、`package-lock.json`。
 
-Claude Code 跳过 Yarn 和 pnpm 锁定文件以及 Bun 锁定文件旁边的 `bunfig.toml` 的安装：
+在以下锁定文件情况下，Claude Code 会跳过安装：
 
-* 如果您的插件仅有 `yarn.lock` 或 `pnpm-lock.yaml`，请将其替换为 npm 锁定文件
-* 如果 `bunfig.toml` 与 Bun 锁定文件在同一目录中，请删除 `bunfig.toml`，或将 Bun 锁定文件替换为 npm 锁定文件
+* **`bun.lockb`**：Bun 的二进制锁定文件无法被检查。请改为提供文本格式的 `bun.lock` 或 npm 锁定文件
+* **`yarn.lock` 或 `pnpm-lock.yaml`**：请将其替换为 npm 锁定文件
+* **Claude Code 无法读取的格式的锁定文件**：npm 锁定文件需要 `lockfileVersion` 为 `2` 或 `3`（由 npm 7 或更高版本写入），`bun.lock` 需要 `lockfileVersion` 不高于 `2`
 
 包含 npm 锁定文件以到达最多用户。Claude Code 从用户的 PATH 运行匹配的锁定文件的包管理器，如果缺少该包管理器，不会尝试其他锁定文件。
 
@@ -276,8 +279,12 @@ Claude Code 跳过 Yarn 和 pnpm 锁定文件以及 Bun 锁定文件旁边的 `b
 
 Claude Code 限制此依赖项安装，以便插件或其包中的任何代码在安装期间不执行，并限制其运行时间：
 
-* **冻结解析**：Bun 和 npm 安装锁定文件精确固定的内容，当 `package.json` 和锁定文件不一致时失败而不是重新解析版本
+* **仅限注册表包**：每个依赖项都必须是在锁定文件中固定到精确版本的注册表包。具有 git、GitHub、文件夹、工作区或链接依赖项的插件不会进行安装。
+* **`https` 下载**：锁定文件中的下载链接必须使用 `https`，除非它指向执行安装的用户自己的默认 npm 注册表。
+* **单独的安装文件夹**：包管理器在其专用的文件夹中运行，该文件夹仅包含经过检查的依赖项列表的副本，因此 npm 和 Bun 不会读取插件的 `.npmrc`、`.env` 或 `bunfig.toml`。安装成功后，Claude Code 会将生成的 `node_modules` 移入插件中。
+* **冻结解析**：安装严格使用锁定文件固定的版本，当 `package.json` 和锁定文件列出的依赖项不一致时，Claude Code 会跳过安装
 * **无生命周期脚本**：`--ignore-scripts` 防止 `preinstall`、`install` 和 `postinstall` 脚本运行，因此在这些脚本中构建本机模块的依赖项在此安装期间下载但不编译
+* **无覆盖或补丁**：`package.json` 设置了 npm `overrides` 的插件不会从 npm 锁定文件进行安装，设置了 Bun `patchedDependencies` 的插件不会从 `bun.lock` 进行安装
 * **60 秒超时**：Claude Code 停止运行超过 60 秒的安装并将其视为失败
 
 Claude Code 在此依赖项安装之前获取 npm 源插件，包的任何自己的安装脚本在获取期间不运行。请参阅 [npm 插件源](/docs/zh-CN/plugins/marketplace-reference#npm-plugin-source)。
@@ -290,13 +297,12 @@ Claude Code 在此依赖项安装之前获取 npm 源插件，包的任何自己
   依赖项安装失败或被跳过时
 </h4>
 
-失败或跳过的安装永远不会阻止插件，每种情况都留下不同的迹象：
+失败或跳过的安装永远不会阻止插件，插件随后会在没有这些依赖项的情况下加载。每种情况都留下不同的迹象：
 
-* 失败的安装或因 Yarn 或 pnpm 锁定文件或 `bunfig.toml` 而跳过的安装在 `claude --debug` 输出中显示为警告
+* 失败的安装，或因其锁定文件或某项[安装限制](#limits-on-the-dependency-install)而跳过的安装，会在 `claude --debug` 输出中显示为一行说明原因的 `Plugin dependency install warning`
 * 具有 `package.json` 且没有锁定文件的插件被跳过，没有日志条目
-* 超时的安装可能在缓存副本中留下部分 `node_modules` 树
 
-当自动安装无法提供依赖项时，从 hook 安装到[持久数据目录](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。这包括需要其生命周期脚本来构建的包、Python 依赖项以及使用 Yarn 或 pnpm 锁定的插件。
+当自动安装无法提供依赖项时，从 hook 安装到[持久数据目录](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。这包括需要其生命周期脚本来构建的包、Python 依赖项、使用 Yarn 或 pnpm 锁定的插件，以及不是注册表包的依赖项（例如 git 依赖项）。
 
 <h2 id="versions-and-updates">
   版本和更新

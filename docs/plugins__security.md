@@ -37,7 +37,7 @@
 
 Claude Code 的[权限规则](/docs/zh-CN/permissions)和[沙箱](/docs/zh-CN/sandboxing)涵盖 Claude 进行的工具调用，而不是插件自己运行的代码：
 
-* **Hooks 和服务器进程**：命令 hooks 使用您的完整用户权限执行 shell 命令。Claude Code 在沙箱外运行 hooks 和 MCP 服务器。
+* **Hooks 和服务器进程**：命令 hooks 使用您的完整用户权限执行 shell 命令。Claude Code 在沙箱外运行 hook、MCP 服务器以及 [mod](/docs/zh-CN/plugins/mods/overview#what-a-mod-can-reach) 启动的进程。
 * **Claude 的工具调用**：对插件的 MCP 工具之一的调用，以及运行插件 `bin/` 中的可执行文件的 Bash 命令，都是工具调用，所以您的权限规则适用于它们。关于 mod 对工具调用可以做什么，请参阅[决定是否信任 mod](/docs/zh-CN/plugins/mods/overview#decide-whether-to-trust-a-mod)。
 
 安装插件也会启用它，除非其清单或市场条目设置了 [`defaultEnabled: false`](/docs/zh-CN/plugins/install#choose-an-install-scope)，并且您自己没有启用它。
