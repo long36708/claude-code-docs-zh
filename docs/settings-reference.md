@@ -3013,7 +3013,7 @@ Change how Claude Code looks and behaves in your terminal: theme, editor mode, s
 
 ### `askUserQuestionTimeout`
 
-Let an unanswered [`AskUserQuestion`](/docs/en/tools-reference) dialog auto-continue after a period of idle time, submitting whatever options you had already selected. Set it when you step away and want Claude to continue without you. With the default, questions wait until you answer them. Requires Claude Code v2.1.200 or later.
+Let an unanswered [`AskUserQuestion`](/docs/en/tools-reference) dialog auto-continue after a period of idle time, submitting whatever options you had already selected. Set it when you step away and want Claude to continue without you. With the default, questions wait until you answer them. For when the timer pauses or never starts, see [Question auto-continue timeout](/docs/en/tools-reference#question-auto-continue-timeout). Requires Claude Code v2.1.200 or later.
 
 * **Scope**: [`User or managed`](#scopes)
 * **Type**: string, one of `"60s"`, `"5m"`, `"10m"`, or `"never"`
@@ -4476,7 +4476,7 @@ The matching rules differ between the two settings:
 | Rule | `strictKnownMarketplaces` | `blockedMarketplaces` |
 | - | - | - |
 | Matching source spellings | `owner/repo` form only. A git URL that clones the same repository doesn't match | Any spelling, including git URLs that resolve to the same github.com repository |
-| Owner case | Case-sensitive, like exact-entry matching | Case-insensitive |
+| Owner case | Case-sensitive | Case-insensitive |
 | `ref` | Follows the exact-entry rules: an entry with a `ref` matches only sources with that exact ref, and an entry without one matches only sources that don't specify a ref | An entry without a `ref` blocks all refs of the repositories it matches |
 | `path` | Looser than the exact-entry rules: an entry with a `path` requires that exact value, while an entry without one matches any path inside the repository | An entry without a `path` blocks all paths of the repositories it matches |
 
@@ -5211,7 +5211,7 @@ While a sparse worktree exists, git enables `extensions.worktreeConfig` in the r
 
 ### `worktree.bgIsolation`
 
-Choose how [background sessions](/docs/en/agent-view#how-file-edits-are-isolated) isolate their file edits. With `"worktree"`, Claude Code blocks `Edit` and `Write` in the main checkout until the session calls `EnterWorktree`; with `"none"`, background jobs edit the working copy directly. Set `"none"` for a repository where git worktrees are impractical.
+Choose how [background sessions](/docs/en/agent-view#how-file-edits-are-isolated) isolate their file edits. If you moved a session to the background with `←` or `/background`, that session edits files in place whatever this key says. With `"worktree"`, Claude Code blocks `Edit` and `Write` in the main checkout until the session calls `EnterWorktree`; with `"none"`, background jobs edit the working copy directly. Set `"none"` for a repository where git worktrees are impractical.
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: string, one of:
