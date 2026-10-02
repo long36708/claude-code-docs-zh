@@ -27,11 +27,22 @@
 
 Claude Code 将使用 [`claude -p`](/docs/zh-CN/headless) 或 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 创建的会话排除在会话选择器和 `claude --continue` 之外。您仍然可以通过将其会话 ID 传递给 `claude --resume <session-id>` 来恢复它。使用 `claude --continue` 时，Claude Code 也会跳过[第一个提示是 `/loop` 的会话](#where-the-session-picker-looks)。当您运行 [`claude -p --continue`](/docs/zh-CN/headless#continue-conversations) 时，Claude Code 包括 `-p`、SDK 和 `/loop` 会话。
 
+您可以从任何目录运行 `claude --resume <session-id>`，因此可以恢复在其他地方启动或使用 [`/cd`](/docs/zh-CN/commands) 移动过的会话。Claude Code 按以下顺序查找该 ID：
+
+1. 当前项目目录及其 git worktrees
+2. 此计算机上的所有其他项目
+
+跨项目搜索仅在恰好一个其他项目持有具有该 ID 的消息的会话记录时解析 ID，因此手动复制的重复项会导致 Claude Code 报告未找到，而不是恢复任意副本。如果没有存储的会话与 ID 匹配，Claude Code 会报告 `No conversation found with session ID: <session-id>`。
+
+在 v2.1.223 之前，查找在当前项目目录及其 git worktrees 处停止，因此您必须从会话最后工作的目录恢复。
+
 `claude --continue` 打开已完成的[后台会话](/docs/zh-CN/agent-view)，但不打开仍在运行的会话；打开已完成的后台会话需要 Claude Code v2.1.257 或更高版本。如果您最近的对话是您[移到后台](/docs/zh-CN/agent-view#send-the-session-to-the-background)的会话，并且它仍在那里运行，Claude Code 会以 `Your most recent conversation is running in the background` 和该会话的 ID 退出。从 [`claude agents`](/docs/zh-CN/agent-view#attach-to-a-session) 附加到会话，或运行 `claude --resume` 选择另一个。
 
-<span id="resume-a-running-background-session" />
+<h3 id="resume-a-running-background-session">
+  恢复正在运行的后台会话
+</h3>
 
-当您使用 `claude --resume` 或 `/resume` 恢复的对话属于仍在运行的[后台会话](/docs/zh-CN/agent-view)时，Claude Code 会打开运行中的会话本身。在命令行上使用 `--bg` 时，恢复是[后台调度](/docs/zh-CN/agent-view#from-your-shell)。在 v2.1.285 之前，Claude Code 拒绝并告诉您使用 `claude attach <id>` 打开会话，或首先使用 `claude stop <id>` 停止它。
+当您使用 `claude --resume` 或 `/resume` 恢复的对话属于仍在运行的[后台会话](/docs/zh-CN/agent-view)时，Claude Code 会打开运行中的会话本身。在命令行上使用 `--bg` 时，恢复改为[后台调度](/docs/zh-CN/agent-view#from-your-shell)。在 v2.1.285 之前，Claude Code 拒绝并告诉您使用 `claude attach <id>` 打开会话，或首先使用 `claude stop <id>` 停止它。
 
 * **从您的 shell**：`claude --resume <session>` 在同一终端中对该会话运行 [`claude attach`](/docs/zh-CN/agent-view#attach-to-a-session)，而不是加载文本记录本身。您在命令行上传递的提示，如 `claude --resume <session> "check the tests too"`，首先作为其下一轮转到会话，Claude Code 在附加之前打印 `Sent your prompt to the background session (<id>); opening it…`。`claude -p --resume <session> "prompt"` 在终端中输入时执行相同操作，因此 `-p` 不会保持该运行非交互式。
 
@@ -46,8 +57,6 @@ Claude Code 将使用 [`claude -p`](/docs/zh-CN/headless) 或 [Agent SDK](/docs/
 
   以 `/` 或 `!` 开头的提示不会被发送，会话等待您回答问题时的任何提示也不会。在这两种情况下，Claude Code 都不会打开会话，消息包括 `Your prompt was not sent to it` 和原因。
 * **从会话内**：`/resume` 将您当前的对话移到后台，并将此终端附加到运行中的会话，打印 `Opening "<title>", running in the background (<id>)`。在空提示上按 `←` 返回代理视图，这也列出您离开的对话。当当前对话无法移到后台时，例如因为您已附加到后台会话或会话持久性已关闭，`/resume` 会打印 `claude attach` 命令以改为运行。
-
-您可以从任何目录运行 `claude --resume <session-id>`：Claude Code 首先在当前项目目录及其 git worktrees 中查找 ID，然后在此计算机上的所有其他项目中查找，因此它会找到在其他地方启动或使用 [`/cd`](/docs/zh-CN/commands) 移动的会话。跨项目搜索仅在恰好一个其他项目持有具有该 ID 的消息的文本记录时解析 ID，因此手动复制的重复项会导致 Claude Code 报告未找到，而不是恢复任意副本。如果没有存储的会话与 ID 匹配，Claude Code 会报告 `No conversation found with session ID: <session-id>`。在 v2.1.223 之前，查找在当前项目目录及其 git worktrees 处停止，因此您必须从会话最后工作的目录恢复。
 
 <h3 id="what-a-resumed-session-restores">
   恢复的会话恢复的内容

@@ -180,7 +180,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `ANTHROPIC_FOUNDRY_API_KEY` | Microsoft Foundry 身份验证的 API 密钥（参见 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)） |
 | `ANTHROPIC_FOUNDRY_AUTH_TOKEN` | Microsoft Foundry 身份验证的持有者令牌，例如 Microsoft Entra 访问令牌。Claude Code 将其作为 `Authorization: Bearer` 标头发送。优先于 `ANTHROPIC_FOUNDRY_API_KEY` 和 Azure 默认凭证链。参见 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)。需要 Claude Code v2.1.203 或更高版本 |
 | `ANTHROPIC_FOUNDRY_BASE_URL` | Microsoft Foundry 资源的完整基础 URL（例如，`https://my-resource.services.ai.azure.com/anthropic`）。`ANTHROPIC_FOUNDRY_RESOURCE` 的替代方案（参见 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)） |
-| `ANTHROPIC_FOUNDRY_RESOURCE` | Microsoft Foundry 资源名称（例如，`my-resource`）。如果未设置 `ANTHROPIC_FOUNDRY_BASE_URL`，则为必需（参见 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)） |
+| `ANTHROPIC_FOUNDRY_RESOURCE` | Microsoft Foundry 资源名称（例如 `my-resource`）。Claude Code [会拒绝 URL 或主机名](/docs/zh-CN/errors#anthropic-foundry-resource-must-be-a-foundry-resource-name)。如果未设置 `ANTHROPIC_FOUNDRY_BASE_URL` 则为必需（请参阅 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)） |
 | `ANTHROPIC_MODEL` | 要使用的模型设置的名称（参见 [模型配置](/docs/zh-CN/model-config#environment-variables)） |
 | `ANTHROPIC_ORGANIZATION_ID` | [工作负载身份联合](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 的组织 ID。与 `ANTHROPIC_FEDERATION_RULE_ID` 一起设置。参见 [身份验证优先级](/docs/zh-CN/authentication#authentication-precedence) |
 | `ANTHROPIC_PROFILE` | 要使用的 Anthropic 配置文件的名称，例如由 [`ant auth login`](https://platform.claude.com/docs/en/cli-sdks-libraries/cli/authentication) 创建的或通过 [在没有 API 密钥的情况下登录控制台帐户](/docs/zh-CN/authentication#sign-in-without-an-api-key)。参见 [身份验证优先级](/docs/zh-CN/authentication#authentication-precedence) |

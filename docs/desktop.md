@@ -96,12 +96,6 @@ Claude Desktop 应用有三个选项卡：**Chat** 用于对话，**Cowork** 用
 
 `dontAsk` 权限模式仅在 [CLI](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode) 中可用。
 
-<span id="auto-mode-availability" />
-
-Auto mode 对 Anthropic API 上的所有用户可用，需要 Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本，或 [Fable model](/docs/zh-CN/model-config#work-with-fable)。组织管理员可以使用[托管设置](#managed-settings)中的 `disableAutoMode` 键关闭 auto mode。
-
-在路由 Desktop 到 Google Cloud 的 Agent Platform 的 Enterprise 部署中，auto mode 也默认可用；有关支持的模型，请参阅 [Auto mode on Bedrock, Agent Platform, or Foundry](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry)。
-
 <Tip title="最佳实践">
   在 Plan 中开始复杂任务，以便 Claude 在进行更改之前制定方法。一旦你批准计划，切换到 Accept edits 或 Manual 来执行它。有关此工作流的更多信息，请参阅[先探索，然后计划，然后编码](/docs/zh-CN/best-practices#explore-first-then-plan-then-code)。
 </Tip>
@@ -109,6 +103,14 @@ Auto mode 对 Anthropic API 上的所有用户可用，需要 Claude Opus 4.6 �
 云会话支持 Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云会话预先批准文件编辑，因此选择器显示 Accept edits 而不是 Manual。Bypass permissions 在云会话中不可用，包括[自托管环境](/docs/zh-CN/self-hosted-environments)中的会话。
 
 Enterprise 管理员可以限制哪些权限模式可用。有关详细信息，请参阅[企业配置](#enterprise-configuration)。
+
+<h4 id="auto-mode-availability">
+  自动模式可用性
+</h4>
+
+自动模式对 Anthropic API 上的所有用户可用，需要 Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本，或 [Fable 模型](/docs/zh-CN/model-config#work-with-fable)。组织管理员可以使用[托管设置](#managed-settings)中的 `disableAutoMode` 键关闭自动模式。
+
+在将 Desktop 路由到 Google Cloud 的 Agent Platform 的 Enterprise 部署中，自动模式也默认可用；有关支持的模型，请参阅 [Bedrock、Agent Platform 或 Foundry 上的自动模式](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry)。
 
 <h3 id="preview-your-app">
   预览你的应用

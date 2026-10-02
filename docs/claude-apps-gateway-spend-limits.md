@@ -92,16 +92,19 @@ curl -sS https://claude-gateway.internal.example.com/v1/organizations/spend_limi
   Claude Code 中的使用警告
 </h3>
 
-Claude Code 在开发者接近其上限时向其发出警告：一旦利用率超过 75%，再次超过其最消耗上限的 95%。当网关阻止请求时，Claude Code 按原样显示网关的 `429` 消息，包括你的 `admin.blocked_message`。
+Claude Code 在开发者接近其上限时向其发出警告：一旦利用率超过 75% 时警告一次，超过其消耗最多的上限的 95% 时再次警告。当网关阻止请求时，Claude Code 按原样显示网关的 `429` 消息，包括您的 `admin.blocked_message`。它还会在 `/usage` 中显示该上限，并将其传递给开发者的[状态栏](/docs/zh-CN/statusline#spend-limit-fields)脚本。
 
-警告基于响应标头工作：
+每种显示都需要开发者机器和网关服务器上具备最低 Claude Code 版本：
 
-* 在网关服务器上使用 v2.1.225 或更高版本，具有上限的开发者的每个成功 `/v1/messages` 响应在 `anthropic-ratelimit-unified-*` 标头中包含他们自己的上限利用率和重置时间。
-* 在开发者的机器上也使用 v2.1.225 或更高版本，Claude Code 读取标头并显示警告。
+| 开发者看到的内容 | 开发者的机器 | 网关服务器 |
+| :- | :- | :- |
+| 75% 和 95% 时的用量警告 | v2.1.225 或更高版本 | v2.1.225 或更高版本 |
+| `/usage` 中的 **Spend limit** 栏，显示其上限已使用的百分比和重置时间，以及状态栏输入中的 `rate_limits.spend_limit` 对象 | v2.1.251 或更高版本 | v2.1.225 或更高版本 |
+| **Spend limit** 栏中以美元表示的估计支出和上限，例如"\$271.40 / \$500.00 spent this month"，以及状态栏输入中的相同金额和上限期间 | v2.1.284 或更高版本 | v2.1.284 或更高版本 |
 
-标头始终描述开发者自己的上限：网关剥离上游提供商的速率限制标头（描述你的共享配额），从不转发它们。
+警告和百分比来自 `anthropic-ratelimit-unified-*` 标头，网关会将这些标头添加到具有上限的开发者的每个成功 `/v1/messages` 响应中。标头始终描述开发者自己的上限：网关会剥离上游提供商的速率限制标头（这些标头描述您的共享配额），从不转发它们。
 
-在开发者的机器上使用 v2.1.251 或更高版本，Claude Code 也读取相同的标头以在 `/usage` 中显示 **Spend limit** 栏，显示其上限使用的百分比和何时重置，并向 [status line](/docs/zh-CN/statusline#rate-limit-usage) 输入添加 `rate_limits.spend_limit` 对象。Claude Code 将两者显示为百分比而不是美元金额，并且不需要网关服务器上的版本比 v2.1.225 更新。
+开发者看到的支出是网关自身的[估计值](#how-requests-are-priced)，即网关用于执行上限的同一数值，而不是来自您的提供商账单的金额。Claude Code 通过向网关发送单独的请求来读取美元金额。如果您按照 [Compliance posture](/docs/zh-CN/claude-apps-gateway-deploy#compliance-posture) 的建议在开发者的机器上设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`，Claude Code 会跳过该请求。设置了该变量时，或者网关服务器版本早于 v2.1.284 时，该栏和状态栏仅显示百分比。
 
 <h2 id="admin-api-reference">
   Admin API 参考

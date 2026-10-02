@@ -231,7 +231,7 @@ export CLAUDE_CODE_SCROLL_SPEED=3
   在 diff 面板中查看你的更改
 </h2>
 
-在全屏渲染中，[`/diff`](/docs/zh-CN/interactive-mode#review-changes-with-%2Fdiff) 打开一个面板在对话旁边，而不是一个你必须关闭的查看器，所以你可以在 Claude 工作时观看更改累积。在宽终端中，一旦 Claude 开始编辑文件，该面板也可以自动打开。[Diff 面板](/docs/zh-CN/interactive-mode#diff-panel)涵盖了它显示的内容、如何保持它关闭以及如何更改它比较的内容。
+在全屏渲染中，[`/diff`](/docs/zh-CN/interactive-mode#review-changes-with-%2Fdiff) 会在对话旁边打开一个面板，因此您可以在 Claude 工作时观看更改逐步累积。[Diff 面板](/docs/zh-CN/interactive-mode#diff-panel)涵盖了它显示的内容、它何时会自动打开、如何保持它关闭以及如何更改它比较的内容。
 
 <h2 id="clear-the-conversation">
   清除对话

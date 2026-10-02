@@ -297,10 +297,9 @@ Claude Code 在此依赖项安装之前获取 npm 源插件，包的任何自己
   依赖项安装失败或被跳过时
 </h4>
 
-失败或跳过的安装永远不会阻止插件，插件随后会在没有这些依赖项的情况下加载。每种情况都留下不同的迹象：
+如果安装失败或被跳过，插件仍会加载，但其中需要缺失包的部分可能无法正常工作。
 
-* 失败的安装，或因其锁定文件或某项[安装限制](#limits-on-the-dependency-install)而跳过的安装，会在 `claude --debug` 输出中显示为一行说明原因的 `Plugin dependency install warning`
-* 具有 `package.json` 且没有锁定文件的插件被跳过，没有日志条目
+对于已启用的插件，如果其缓存副本包含锁定文件和列出运行时依赖项的 `package.json`，但没有 `node_modules` 目录，`/plugin` 和 `claude plugin list` 会在该插件上显示一条说明。该说明会指出安装是未完成，还是无法针对此插件运行。有关每种情况的处理方法，请参阅[故障排除条目](/docs/zh-CN/plugins/troubleshooting#the-packages-it-lists-are-not-installed)。
 
 当自动安装无法提供依赖项时，从 hook 安装到[持久数据目录](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。这包括需要其生命周期脚本来构建的包、Python 依赖项、使用 Yarn 或 pnpm 锁定的插件，以及不是注册表包的依赖项（例如 git 依赖项）。
 
@@ -308,9 +307,9 @@ Claude Code 在此依赖项安装之前获取 npm 源插件，包的任何自己
   版本和更新
 </h2>
 
-如果插件的作者推送了新提交，`claude plugin update` 打印 `<name> is already at the latest version (<version>).`，Claude Code 为插件计算的版本未更改，因此磁盘上没有任何更改。
+如果插件的作者推送了新提交，`claude plugin update` 打印 `<name> is already at the latest version (<version>).`，Claude Code 为插件计算的版本未更改，因此插件在磁盘上的文件不会更改。
 
-Claude Code 为它安装的每个插件计算一个版本，这就是它如何检测更新的方式。`claude plugin update` 和后台自动更新重新计算版本，当它与 `installed_plugins.json` 记录的内容匹配时跳过插件。
+Claude Code 为它安装的每个插件计算一个版本，这就是它如何检测更新的方式。`claude plugin update` 和后台自动更新会重新计算版本，当它与 `installed_plugins.json` 记录的内容匹配时，不会替换缓存副本。由您发起的更新仍可在该副本中[重试未完成的依赖安装](/docs/zh-CN/plugins/troubleshooting#the-packages-it-lists-are-not-installed)。
 
 版本也命名插件的缓存目录。
 

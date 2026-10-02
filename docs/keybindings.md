@@ -62,7 +62,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `Attachments` | 选择对话框中的图像附件导航 |
 | `Footer` | 页脚指示器导航（任务、团队、差异、工件） |
 | `MessageSelector` | 回退和总结对话框消息选择 |
-| `DiffDialog` | 差异查看器导航 |
+| `DiffDialog` | [diff 查看器](#diff-actions)导航 |
 | `DiffPanel` | [差异面板](/docs/zh-CN/interactive-mode#diff-panel)打开 |
 | `ModelPicker` | 模型选择器工作量级别 |
 | `EffortSlider` | 由 `/effort` 打开的工作量滑块 |
@@ -334,6 +334,8 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
   Diff 操作
 </h3>
 
+这些操作仅作用于 Claude Code 早期的 diff 查看器：在您于 `/plugin` 中禁用 [`cc-plugin-diff` mod](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 后，`/diff` 会在 [全屏渲染](/docs/zh-CN/fullscreen) 之外打开该查看器。启用该 mod 时，`/diff` 会改为打开 [diff 对话框](/docs/zh-CN/interactive-mode#diff-dialog)。无论哪种情况，命名这些操作的 `keybindings.json` 都能正常加载而不会报错。
+
 在 `DiffDialog` 上下文中可用的操作：
 
 | 操作 | 默认 | 描述 |
@@ -364,11 +366,13 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
   Diff panel 操作
 </h3>
 
-用于 [diff 面板](/docs/zh-CN/interactive-mode#diff-panel) 的操作，`/diff` 在全屏渲染中打开。`app:cycleDiffBase` 在 `DiffPanel` 上下文中，在面板打开时处于活动状态；其他的在 `Global` 中。该面板需要 Claude Code v2.1.260 或更高版本。
+用于 [diff 面板](/docs/zh-CN/interactive-mode#diff-panel) 的操作，`/diff` 在全屏渲染中打开。`app:cycleDiffBase` 在 `DiffPanel` 上下文中，在面板打开时处于活动状态；其他的在 `Global` 中。
+
+内置的 [`cc-plugin-diff` mod](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 绘制此面板，并处理 `app:cycleDiffBase`、`app:diffFileListUp` 和 `app:diffFileListDown`。`app:toggleReplTab`、`app:toggleDiffNoiseFilter` 和 `app:toggleDiffPreSession` 仅作用于 Claude Code 早期的面板，在您于 `/plugin` 中禁用 `cc-plugin-diff` 后，`/diff` 会打开该面板。
 
 | 操作 | 默认 | 描述 |
 | :- | :- | :- |
-| `app:toggleReplTab` | (未绑定) | 打开或关闭 diff 面板，与运行 `/diff` 相同 |
+| `app:toggleReplTab` | (未绑定) | 打开或关闭 diff 面板 |
 | `app:cycleDiffBase` | Ctrl+X B | 循环面板的比较基础：此会话、未提交、然后分支 |
 | `app:diffFileListUp` | Ctrl+Up, Meta+Up | 当面板的文件列表溢出时向上滚动 |
 | `app:diffFileListDown` | Ctrl+Down, Meta+Down | 当面板的文件列表溢出时向下滚动 |

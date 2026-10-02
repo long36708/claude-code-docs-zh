@@ -22,6 +22,16 @@ Claude Code 使用分层权限系统来平衡功能和安全性。该表显示�
 | Web 获取 | WebFetch | 是，除了内置的[预批准文档域](/docs/zh-CN/tools-reference#webfetch-tool-behavior)集合 | 每个项目目录和域永久有效 |
 | Web 搜索 | WebSearch | 是 | 每个项目目录永久有效 |
 
+权限提示会显示 Claude 即将执行的操作，然后列出您的选项。以下示例是手动模式会话中 Bash 命令的提示：
+
+<Frame>
+  <img src="https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-prompt-bash-light.png?fit=max&auto=format&n=oa7CKjMeIChox26S&q=85&s=87585d008a29304873466399f7b476f6" className="dark:hidden" alt="一个标题为 Bash command 的 Claude Code 权限提示。在一条关于自动模式的提示下方，它显示了描述&#x22;Run the test suite&#x22;、命令 npm test 以及&#x22;This command requires approval&#x22;这一行，然后询问&#x22;Do you want to proceed?&#x22;并提供四个选项：Yes；Yes, and don't ask again for: npm test *；Yes, and switch to auto mode；以及 No。页脚列出了两个按键：Esc 用于取消，Tab 用于修改。" width="1512" height="680" data-path="images/permission-prompt-bash-light.png" />
+
+  <img src="https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-prompt-bash-dark.png?fit=max&auto=format&n=oa7CKjMeIChox26S&q=85&s=dd25688056898df1d1e4f1b5542bc978" className="hidden dark:block" alt="一个标题为 Bash command 的 Claude Code 权限提示。在一条关于自动模式的提示下方，它显示了描述&#x22;Run the test suite&#x22;、命令 npm test 以及&#x22;This command requires approval&#x22;这一行，然后询问&#x22;Do you want to proceed?&#x22;并提供四个选项：Yes；Yes, and don't ask again for: npm test *；Yes, and switch to auto mode；以及 No。页脚列出了两个按键：Esc 用于取消，Tab 用于修改。" width="1512" height="680" data-path="images/permission-prompt-bash-dark.png" />
+</Frame>
+
+第三个选项 **是，并切换到自动模式**，[并非在每个提示中都会出现](/docs/zh-CN/permission-modes#switch-permission-modes)。
+
 当您选择"是，不再询问"且批准永久保存时（例如对于 Bash 命令或 WebFetch 域），Claude Code 会将规则保存到 git 项目根目录的 `.claude/settings.local.json`，通过[工作树](/docs/zh-CN/worktrees)解析到主检出。该规则适用于该项目中的未来会话，包括在子目录和工作树中启动的会话。文件修改批准不会保存到文件中：如表所示，它仅持续到会话结束。在某些情况下，例如在 git 项目外或在 Windows 上，Claude Code 不使用项目根目录；[Claude Code 查找每个文件的位置](/docs/zh-CN/settings#where-claude-code-looks-for-each-file)列出了这些情况以及它保存规则的位置。
 
 在 v2.1.211 之前，Claude Code 总是在启动目录中保存规则，因此在工作树或子目录中授予的批准不适用于项目的其余部分。早期版本在子目录或工作树中保存的规则仍然适用于在那里启动的会话。

@@ -50,13 +50,15 @@
 
 该命令会确认 `Advisor set to` 后跟顾问模型名称。您的选择被保存到用户设置中的 `advisorModel`，并在会话之间持久化，除了 [`advisorModel` 条目](/docs/zh-CN/settings-reference#advisormodel)列出的仅适用于当前会话的情况。
 
-该命令也适用于没有终端选择器的地方：在[非交互模式](/docs/zh-CN/headless)中使用 `-p`、在 Agent SDK 中、在桌面应用中以及通过[远程控制](/docs/zh-CN/remote-control)。这需要 Claude Code v2.1.260 或更高版本。在这些界面上：
+该命令也适用于没有终端选择器的地方：在[非交互模式](/docs/zh-CN/headless)中使用 `-p`、在 Agent SDK 中、在桌面应用中以及通过 [Remote Control](/docs/zh-CN/remote-control)。这需要 Claude Code v2.1.260 或更高版本。在这些使用入口上：
 
 * 运行不带参数的 `/advisor` 以打印当前顾问模型及其接受的别名。
 * 运行带有模型的 `/advisor`，例如 `/advisor opus`，以设置它。
 * 运行 `/advisor off` 以关闭它。
 
-Claude Code 不会调用您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除的已保存顾问。要使用顾问，请使用 `/advisor` 选择允许的模型。Claude Code 仍然会保存您当前主模型不支持的顾问。该顾问在您使用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 切换到[兼容的主模型](#choose-an-advisor-model)后激活。如果 API 已在当前对话中拒绝了已保存的顾问，它将保持关闭状态，直到 `/clear` 或 `/compact`，即使在您切换模型之后。
+Claude Code 不会调用您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除的已保存顾问。要使用顾问，请使用 `/advisor` 选择允许的模型。
+
+Claude Code 仍然会保存您当前主模型不支持的顾问。该顾问在您使用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 切换到[兼容的主模型](#choose-an-advisor-model)后激活。如果 API 已在当前对话中拒绝了已保存的顾问，它将保持关闭状态，直到 `/clear` 或 `/compact`，即使在您切换模型之后。
 
 在某些计划中，使用 Fable 作为顾问还需要您一次性[同意将 Fable 使用费用计入使用额度](/docs/zh-CN/model-config#fable-and-usage-credits)。有关您给予该同意之前 `/advisor fable` 会做什么，请参阅 [Fable 顾问和使用额度](#fable-advisor-and-usage-credits)。
 
@@ -91,34 +93,36 @@ Claude Code 在该会话中使用该标志而不是 `advisorModel` 设置。它�
 
 如果您使用 `--advisor` 启动[后台会话](/docs/zh-CN/agent-view)，并且上述任何情况成立，Claude Code 会在没有顾问的情况下启动会话，而不是退出。
 
+如果请求的模型可以充当顾问，但[排名低于](#choose-an-advisor-model)会话的主模型，Claude Code 仍会启动会话。在后台会话之外，它还会在启动时警告该模型 `cannot advise` 主模型。
+
 <h2 id="choose-an-advisor-model">
   选择顾问模型
 </h2>
 
-Claude Code 和 API 都需要一个顾问，其能力至少与主模型相同，这两者对某些模型的排名不同。每个主模型接受的顾问是：
+Claude Code 按照担任顾问角色的能力对模型进行排名，顾问的排名必须等于或高于会话的主模型。各行按主模型从排名最低到最高排列：
 
-| 主模型 | 接受的顾问 | 注释 |
-| - | - | - |
-| Haiku 4.5 | Fable、Opus、Sonnet | Haiku 可以调用顾问但不能充当顾问 |
-| Sonnet 4.6 | Fable、Opus、Sonnet | |
-| Sonnet 5 | Fable、Opus 4.7 或更高版本、Sonnet 5 或更高版本 | Sonnet 4.6 顾问被拒绝，API 拒绝 Opus 4.6 顾问 |
-| Sonnet 5.5 | Fable、Opus 5 或更高版本、Sonnet 5.5 | Sonnet 4.6 顾问被拒绝，API 拒绝 Sonnet 5、Opus 4.6、Opus 4.7 或 Opus 4.8 顾问 |
-| Opus 4.6 | Fable、Opus、Sonnet 5 或更高版本 | Sonnet 4.6 顾问被拒绝 |
-| Opus 4.7 或 Opus 4.8 | Fable 和 Opus 4.7 或更高版本 | Opus 4.6 或 Sonnet 顾问被拒绝 |
-| Opus 5.5 或 Opus 5 | Fable 和 Opus 5 或更高版本 | Opus 4.6 或 Sonnet 顾问被拒绝，API 拒绝 Opus 4.7 或 Opus 4.8 顾问 |
-| Fable 5 | Fable 5.1 或 Fable 5 | Opus 或 Sonnet 顾问被拒绝 |
-| Fable 5.1 | Fable 5.1 | Opus 或 Sonnet 顾问被拒绝，API 拒绝 Fable 5 顾问 |
+| 主模型 | 接受的顾问 |
+| - | - |
+| Haiku 4.5 | Fable、Opus、Sonnet |
+| Sonnet 4.6 | Fable、Opus、Sonnet |
+| Opus 4.6 | Fable、Opus、Sonnet 5 或更高版本 |
+| Sonnet 5 | Fable、Opus 4.7 或更高版本、Sonnet 5 或更高版本 |
+| Opus 4.7 或 Opus 4.8 | Fable、Opus 4.7 或更高版本、Sonnet 5.5 |
+| Sonnet 5.5 | Fable、Opus 5 或更高版本、Sonnet 5.5 |
+| Opus 5 或 Opus 5.5 | Fable、Opus 5 或更高版本 |
+| Fable 5 | Fable 5.1 或 Fable 5 |
+| Fable 5.1 | Fable 5.1 |
 
-Fable 5.1 需要 Claude Code v2.1.257 或更高版本。两个 Fable 模型都需要 [Fable 访问权限](/docs/zh-CN/model-config#work-with-fable)。
+Fable 5.1 需要 Claude Code v2.1.257 或更高版本。Fable 模型需要 [Fable 访问权限](/docs/zh-CN/model-config#work-with-fable)。将 Sonnet 5.5 作为 Opus 4.7 或 Opus 4.8 主模型的顾问需要 Claude Code v2.1.287 或更高版本。
 
-将顾问设置为 `fable`、`opus` 或 `sonnet`。这些别名解析为 Claude Code 为每个模型系列内置的默认版本，该版本随新的 Claude Code 版本而推进。您也可以传递完整的模型 ID，例如 `claude-opus-5-5`。
+将顾问设置为 `fable`、`opus` 或 `sonnet`。这些别名解析为 Claude Code 为每个模型系列[内置的默认版本](/docs/zh-CN/model-config#model-aliases)，该版本随新的 Claude Code 版本而推进。您也可以传递完整的模型 ID，例如 `claude-opus-5-5`。Haiku 可以调用顾问，但不能充当顾问。
 
 子代理继承配置的顾问，并对其自己的模型应用相同的配对检查。
 
 Claude Code 在发送请求之前验证配对，API 也会再次验证：
 
-* 对于表中列为被拒绝的顾问，Claude Code 不会将其附加到主模型的请求中。`/advisor` 命令输出和通知会显示这一点。其自己的模型满足配对的子代理仍然可以使用顾问。
-* 对于表中列为 API 拒绝的顾问，Claude Code 会附加它，API 会拒绝它。Claude Code 随后会在没有顾问的情况下重新发送该请求，对话的其余部分会在没有顾问的情况下运行，因此您看不到错误，也不会获得顾问调用。使用 `/advisor` 选择接受的顾问；更改在 `/clear` 或 `/compact` 之后以及新会话中生效。
+* 对于排名低于主模型的顾问，Claude Code 不会将其附加到主模型的请求中。`/advisor` 命令输出和通知会显示这一点；请参阅[顾问的能力低于当前主模型](/docs/zh-CN/errors#advisor-is-less-capable-than-the-current-main-model)。其自己的模型满足配对的子代理仍然可以使用顾问。
+* 如果 API 拒绝了 Claude Code 所附加顾问的配对，Claude Code 会在没有顾问的情况下重新发送该请求。对话会在没有顾问的情况下继续，因此您看不到错误，也不会获得顾问调用。如果您随后使用 `/advisor` 选择其他顾问，更改将在 `/clear` 或 `/compact` 之后以及新会话中生效。
 * 如果主模型或顾问是 Claude Code 无法识别的模型，顾问不会附加。
 
 <h3 id="fable-advisor-and-usage-credits">

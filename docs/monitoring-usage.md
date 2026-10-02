@@ -305,7 +305,7 @@ Claude Code 从工具调用的成功返回时写入此事件，因此引发错�
 * 对除 Read、Edit、Write、Bash、WebFetch、WebSearch 和 MCP 工具之外的任何工具的调用
 * 返回除文件文本之外的任何内容的 Read，例如图像、PDF 或重新读取内容未更改的文件
 * Edit 或 Write 调用，除非您也设置 `OTEL_LOG_TOOL_DETAILS=1`
-* Claude Code 移到后台的 WebFetch 或 WebSearch 调用，因为您中断了转向以[立即发送您排队的消息](/docs/zh-CN/interactive-mode#when-claude-code-sends-what-you-queued)，而调用运行。Claude 稍后在工具跨度结束后收到该结果
+* Claude Code 在运行期间移到后台、以便等待中的消息能够送达 Claude 的 WebFetch 或 WebSearch 调用。稍后到达的结果也不会被记录。要了解 Claude Code 何时移动调用，对于终端请参阅[Claude Code 何时发送您排队的内容](/docs/zh-CN/interactive-mode#when-claude-code-sends-what-you-queued)，对于 Agent SDK 会话请参阅 [`priority` 字段](/docs/zh-CN/agent-sdk/typescript#sdkusermessage)
 
 该事件携带这些属性，每个都在内容限制处截断（默认值 60 KB）。`门控` 命名变量一个属性需要在 `OTEL_LOG_TOOL_CONTENT=1` 之上，对于 Edit 和 Write，该变量门控事件本身而不是属性。
 

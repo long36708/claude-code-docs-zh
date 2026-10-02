@@ -133,7 +133,15 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 
 <Tabs>
   <Tab title="CLI">
-    **在会话期间**：按 `Shift+Tab` 循环权限模式。从 `auto`，第一次按下切换到 `default`，循环然后运行 `default` → `acceptEdits` → `plan` → 回到 `default`。可选模式（如下所述）在 `plan` 之后插入。状态栏显示活动模式为灰色 `⏸ manual mode on`（对于 `default`），或为 `⏵⏵ accept edits on`、`⏸ plan mode on`、`⏵⏵ auto mode on`、`⏵⏵ don't ask on` 或 `⏵⏵ bypass permissions on`。
+    **在会话期间**：按 `Shift+Tab` 循环权限模式。从 `auto` 开始，第一次按下会切换到 `default`，之后循环依次为 `default` → `acceptEdits` → `plan`。可选模式在 `plan` 之后插入。状态栏显示活动模式为灰色 `⏸ manual mode on`（对于 `default`），或为 `⏵⏵ accept edits on`、`⏸ plan mode on`、`⏵⏵ auto mode on`、`⏵⏵ don't ask on` 或 `⏵⏵ bypass permissions on`。
+
+    请观察此片段中状态栏的变化，该会话以自动模式启动。每次按下 `Shift+Tab`，状态栏都会从 `auto mode on` 依次变为 `manual mode on`、`accept edits on`、`plan mode on`，然后回到 `auto mode on`。
+
+    <Frame>
+      <video autoPlay muted loop playsInline className="w-full dark:hidden" style={{aspectRatio: "1440 / 264"}} src="https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-modes-cycle-light.mp4?fit=max&auto=format&n=oa7CKjMeIChox26S&q=85&s=198ca90aeb2e3675b3d01b7d686aab0b" aria-label="每次按下 Shift+Tab，Claude Code 输入框下方的状态栏都会变化：auto mode on、manual mode on、accept edits on、plan mode on，然后再次变为 auto mode on。" data-path="images/permission-modes-cycle-light.mp4" />
+
+      <video autoPlay muted loop playsInline className="w-full hidden dark:block" style={{aspectRatio: "1440 / 264"}} src="https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-modes-cycle-dark.mp4?fit=max&auto=format&n=oa7CKjMeIChox26S&q=85&s=994cdeec4e99d2f474d236c1087d6e63" aria-label="每次按下 Shift+Tab，Claude Code 输入框下方的状态栏都会变化：auto mode on、manual mode on、accept edits on、plan mode on，然后再次变为 auto mode on。" data-path="images/permission-modes-cycle-dark.mp4" />
+    </Frame>
 
     并非每个模式都在默认循环中：
 
@@ -378,19 +386,16 @@ claude --permission-mode plan
 * 连接到敏感远程目标的交互式 shell 或端口转发
 * 打开使本地服务可从公共互联网访问的隧道或反向 shell
 * 将有效的凭据或令牌打印到会话记录或文件中
-* 访问在您的[环境](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure)中被列为敏感数据位置的位置，或从中复制数据。从 v2.1.198 起，这还会阻止将数据从此类位置发送给该条目所排除的受众
-* 绕过您的内部包注册表、将包安装路由到公共注册表。从 v2.1.198 起，这也适用于您在对话中告诉 Claude 存在内部注册表或镜像的情况，而不仅仅是在您的环境中列出了内部注册表的情况
+* 访问在您的[环境](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure)中被列为敏感数据位置的位置、从中复制数据，或将数据从此类位置发送给该条目所排除的受众
+* 绕过您的内部包注册表、将包安装路由到公共注册表。当您的环境中列出了内部注册表或镜像，或者您在对话中告诉 Claude 存在内部注册表或镜像时，此规则适用
 * 使用会解除安全防护的标志运行命令，例如 `--insecure`
-* 启动无需人工批准或沙箱即可运行的自主 Agent 循环，例如使用 `--dangerously-skip-permissions` 或 `--no-sandbox` 启动的循环。从 v2.1.198 起，这还包括在禁用隔离和逐操作批准的情况下运行第三方 Agent 或评估工具，例如使用 `--yes-always` 启动的运行器
+* 启动无需人工批准或沙箱即可运行的自主 Agent 循环，例如使用 `--dangerously-skip-permissions` 或 `--no-sandbox` 启动的循环。这包括在禁用隔离和逐操作批准的情况下运行第三方 Agent 或评估工具，例如使用 `--yes-always` 启动的运行器
 * 可能将页面内容、cookie 或凭据发送到源站之外的 [Claude in Chrome](/docs/zh-CN/chrome) 浏览器操作
-
-其中一些类别依赖于[环境](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure)条目，例如敏感远程目标和受保护的 IaC 作用域，您可以将它们收窄到具体名称。
-
-Claude Code v2.1.198 及更高版本还会默认阻止以下操作：
-
 * 通过通配符、glob 或时间过滤器（而非指定的具体路径）删除 `/tmp`、`$TMPDIR` 或其他共享临时目录或缓存目录中的文件
 * 在发送、上传、发布或写入给他人或共享系统的内容中包含敏感细节，而您自己的消息并未授权将这些细节提供给该接收方。当仓库位于信任边界之外或为公开仓库（包括您组织自己的公开仓库）时，PR 和 issue 正文、提交信息以及评论都属于此类外发内容；内部文件路径、代号、实时 API 响应数据（例如电子邮件或账户标识符）以及基础设施标识符都属于敏感细节。PR、issue 和提交信息的范围限定需要 Claude Code v2.1.200 或更高版本。对于 PR 或 issue 正文中来自 API 响应的实时个人数据，例如电子邮件地址、账户或组织标识符或使用量指标，无论仓库的可见性或信任边界如何，都需要您明确指出这些细节和接收方。该检查需要 Claude Code v2.1.203 或更高版本
 * 向 Claude Code 自己的 tmux 窗格发送按键以驱动其自身界面，分类器会将此视为 Claude 更改其自身的权限或监督
+
+其中一些类别依赖于[环境](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure)条目，例如敏感远程目标和受保护的 IaC 作用域，您可以将它们收窄到具体名称。
 
 Claude Code v2.1.200 及更高版本还会默认阻止以下操作：
 
@@ -526,6 +531,8 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
     4. 如果分类器阻止了操作，Claude 会收到原因。在大多数会话中，原因会指明分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[查看拒绝记录](/docs/zh-CN/auto-mode-config#review-denials)
 
     您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 可以在第 3 步之前批准操作，分类器不会检查 mod 所批准的操作。请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)。
+
+    在 VS Code 扩展中，[Claude in Chrome](/docs/zh-CN/chrome) 浏览器操作如何获得批准取决于会话连接到浏览器的方式：请参阅 [VS Code 会话中的权限提示](/docs/zh-CN/chrome#permission-prompts-in-vs-code-sessions)。
 
     进入自动模式时，授予任意代码执行能力的宽泛 allow 规则会被丢弃：
 

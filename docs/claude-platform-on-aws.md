@@ -232,7 +232,7 @@ export AWS_PROFILE=my-profile
 
 对于 CI 和自动化，为运行程序提供具有调用 Anthropic 服务权限的 IAM 角色，并设置 `AWS_REGION`。凭证链会自动获取该角色。
 
-如果您的 SSO 凭证在会话中途过期，请配置 [`awsAuthRefresh`](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)，以便 Claude Code 重新运行您的登录命令并重试，而不是失败。AWS 上的 Claude Platform 上的自动刷新需要 Claude Code v2.1.198 或更高版本；较早的版本会停止并提示运行 `/login`，这无法刷新 AWS 凭证。将命令添加到您的[设置文件](/docs/zh-CN/settings)，例如 `~/.claude/settings.json`：
+如果您的 SSO 凭据在会话中途过期，请配置 [`awsAuthRefresh`](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)，以便 Claude Code 重新运行您的登录命令并重试，而不是失败。将命令添加到您的[设置文件](/docs/zh-CN/settings)，例如 `~/.claude/settings.json`：
 
 ```json theme={null}
 {

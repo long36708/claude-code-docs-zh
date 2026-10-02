@@ -206,7 +206,8 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `thinking.enabled` | 是否为会话启用了扩展思考 |
 | `rate_limits.five_hour.used_percentage`, `rate_limits.seven_day.used_percentage` | 消耗的 5 小时或 7 天速率限制的百分比，从 0 到 100 |
 | `rate_limits.five_hour.resets_at`, `rate_limits.seven_day.resets_at` | Unix 纪元秒，当 5 小时或 7 天速率限制窗口重置时 |
-| `rate_limits.spend_limit.used_percentage`, `rate_limits.spend_limit.resets_at` | 在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway-spend-limits#usage-warnings-in-claude-code) 后面，应用于你的支出限制的已使用百分比，以及其周期重置时的 Unix 纪元秒。百分比从 0 到 100 运行，或一旦你超过限制就超过 100。需要 Claude Code v2.1.251 或更高版本 |
+| `rate_limits.spend_limit.used_percentage`, `rate_limits.spend_limit.resets_at` | 在 Claude apps gateway 后面，您已使用的支出限制额度以及其周期何时重置。请参阅 [支出限制字段](#spend-limit-fields)。需要 Claude Code v2.1.251 或更高版本 |
+| `rate_limits.spend_limit.used_usd`, `rate_limits.spend_limit.limit_usd`, `rate_limits.spend_limit.period` | 您以美元计的估计支出和限额，以及该限制的周期。这些字段可能不存在。请参阅 [支出限制字段](#spend-limit-fields)。Claude Code 和网关均需要 v2.1.284 或更高版本 |
 | `prompt_cache` | 会话的主对话的 [prompt cache](/docs/zh-CN/prompt-caching) 统计信息：命中率、未命中次数以及缓存是否预热。有关每个字段，请参阅 [prompt cache 字段](#prompt-cache-fields)。在主对话的第一次 API 响应之前不存在。需要 Claude Code v2.1.251 或更高版本 |
 | `session_id` | 唯一的会话标识符 |
 | `session_name` | 会话名称。使用使用 `--name` 标志或 `/rename` 设置的自定义名称（如果存在），否则使用 AI 生成的会话标题。[默认显示名称](/docs/zh-CN/sessions#name-your-sessions)（例如 `my-app-3f`）不会填充此字段。当会话既没有自定义名称也没有 AI 生成的标题时不存在 |
@@ -315,7 +316,10 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
       },
       "spend_limit": {
         "used_percentage": 62.8,
-        "resets_at": 1740787200
+        "resets_at": 1740787200,
+        "used_usd": 314.12,
+        "limit_usd": 500,
+        "period": "monthly"
       }
     },
     "vim": {
@@ -384,6 +388,17 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 如果你从 `current_usage` 手动计算上下文百分比，使用相同的仅输入公式来匹配 `used_percentage`。
 
 `current_usage` 对象在会话中第一次 API 调用之前为 `null`，以及在 `/compact` 之后直到下一次 API 调用重新填充它为止再次为 `null`。
+
+<h3 id="spend-limit-fields">
+  支出限制字段
+</h3>
+
+在 [设置了支出限制的 Claude apps gateway](/docs/zh-CN/claude-apps-gateway-spend-limits#usage-warnings-in-claude-code) 后面，`rate_limits.spend_limit` 对象描述适用于您的支出限制。它在会话的第一次 API 响应后出现，需要 Claude Code v2.1.251 或更高版本。您的脚本按不同的时间表接收其字段：
+
+* `used_percentage` 和 `resets_at`：随每个响应一起提供，因此只要 `spend_limit` 存在，它们就存在。`used_percentage` 的范围是 0 到 100，一旦您超过限制则会超过 100；`resets_at` 是该限制周期重置时的 Unix 纪元秒。
+* `used_usd`、`limit_usd` 和 `period`：您迄今为止以美元计的估计支出和限额，以及该限制涵盖的周期，为 `daily`、`weekly` 或 `monthly` 之一。网关 [根据 token 计数计算 `used_usd`](/docs/zh-CN/claude-apps-gateway-spend-limits#how-requests-are-priced)，因此它是一个估计值，而不是计费金额。Claude Code 通过单独的请求从网关读取这些字段，在您发送请求期间大约每五分钟一次。美元金额可能比 `used_percentage` 滞后约五分钟，因此两者可能会短暂不一致。Claude Code 和网关均需要 v2.1.284 或更高版本。
+
+即使 `spend_limit` 存在，也应将 `used_usd`、`limit_usd` 和 `period` 视为可选字段。您的脚本会先于它们收到百分比；如果您设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`（它会关闭该请求），它们将始终不存在。请在脚本中为每个字段提供备用值来读取，例如 `jq -r '.rate_limits.spend_limit.used_usd // empty'`。
 
 <h3 id="prompt-cache-fields">
   Prompt cache 字段
@@ -860,11 +875,9 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
   速率限制使用情况
 </h3>
 
-在状态行中显示 claude.ai 订阅速率限制使用情况。`rate_limits` 对象包含一个滚动的 `five_hour` 窗口和一个每周的 `seven_day` 窗口。每个窗口提供 `used_percentage`（从 0 到 100）和 `resets_at`（Unix 纪元秒，当窗口重置时）。
+在状态栏中显示 claude.ai 订阅速率限制使用情况，或您相对于 Claude 应用网关支出限制的支出。对于订阅者，`rate_limits` 对象包含一个滚动的 `five_hour` 窗口和一个每周的 `seven_day` 窗口。每个窗口提供 `used_percentage`（从 0 到 100）和 `resets_at`（窗口重置时的 Unix 纪元秒数）。在网关后面时，请读取 `spend_limit` 对象，详见[支出限制字段](#spend-limit-fields)。
 
-在具有支出限制的 Claude 应用网关后面，`rate_limits` 携带 `spend_limit`，其中包含适用于你的支出限制的相同两个字段，除了其 `used_percentage` 一旦超过限制可能会超过 100。需要 Claude Code v2.1.251 或更高版本。
-
-`rate_limits` 对象仅对 claude.ai Pro 和 Max 订阅者或具有支出限制的 Claude 应用网关后面的用户出现，并且仅在第一次 API 响应后出现。每个脚本优雅地处理缺失字段：
+`rate_limits` 对象仅对 claude.ai Pro 和 Max 订阅者或具有支出限制的 Claude 应用网关后面的用户出现，并且仅在第一次 API 响应后出现。每个脚本都会优雅地处理缺失的字段，并且在网关后面时打印 `spend: $314.12 / $500`，或在美元字段缺失时打印 `spend: 63%`：
 
 <CodeGroup>
   ```bash Bash theme={null}
@@ -879,6 +892,11 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
   LIMITS=""
   [ -n "$FIVE_H" ] && LIMITS="5h: $(printf '%.0f' "$FIVE_H")%"
   [ -n "$WEEK" ] && LIMITS="${LIMITS:+$LIMITS }7d: $(printf '%.0f' "$WEEK")%"
+
+  # Behind a Claude apps gateway: dollars when the gateway reports them, else the percentage
+  SPEND_PCT=$(echo "$input" | jq -r '.rate_limits.spend_limit.used_percentage // empty')
+  SPEND_USD=$(echo "$input" | jq -r '.rate_limits.spend_limit | select(.used_usd != null) | "$\(.used_usd) / $\(.limit_usd)"')
+  [ -n "$SPEND_PCT" ] && LIMITS="${LIMITS:+$LIMITS }spend: ${SPEND_USD:-$(printf '%.0f' "$SPEND_PCT")%}"
 
   [ -n "$LIMITS" ] && echo "[$MODEL] | $LIMITS" || echo "[$MODEL]"
   ```
@@ -900,6 +918,14 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
   if week is not None:
       parts.append(f"7d: {week:.0f}%")
 
+  # Behind a Claude apps gateway: dollars when the gateway reports them, else the percentage
+  spend = rate.get('spend_limit', {})
+  if spend.get('used_percentage') is not None:
+      if spend.get('used_usd') is not None:
+          parts.append(f"spend: ${spend['used_usd']} / ${spend['limit_usd']}")
+      else:
+          parts.append(f"spend: {spend['used_percentage']:.0f}%")
+
   if parts:
       print(f"[{model}] | {' '.join(parts)}")
   else:
@@ -920,6 +946,14 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
 
       if (fiveH != null) parts.push(`5h: ${Math.round(fiveH)}%`);
       if (week != null) parts.push(`7d: ${Math.round(week)}%`);
+
+      // Behind a Claude apps gateway: dollars when the gateway reports them, else the percentage
+      const spend = data.rate_limits?.spend_limit;
+      if (spend?.used_percentage != null) {
+          parts.push(spend.used_usd != null
+              ? `spend: $${spend.used_usd} / $${spend.limit_usd}`
+              : `spend: ${Math.round(spend.used_percentage)}%`);
+      }
 
       console.log(parts.length ? `[${model}] | ${parts.join(' ')}` : `[${model}]`);
   });

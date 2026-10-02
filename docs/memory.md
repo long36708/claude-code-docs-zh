@@ -540,7 +540,16 @@ Claude 不会每个会话都保存内容。它根据信息在未来对话中是�
 
 自动记忆在本地会话中默认开启。在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话之外，[自托管环境](/docs/zh-CN/self-hosted-environments-configuration#how-each-session’s-config-is-assembled)中的会话默认关闭自动记忆。
 
-要切换它，在会话中打开 `/memory` 并使用自动记忆切换，它将 `autoMemoryEnabled` 保存到您的用户设置 `~/.claude/settings.json`。要为单个项目关闭它，在该项目的设置中设置 `autoMemoryEnabled`：
+要切换它，在会话中打开 `/memory` 并使用自动记忆切换，它将 `autoMemoryEnabled` 保存到您的用户设置 `~/.claude/settings.json`。
+
+在以下会话中，该切换可以关闭自动记忆，但无法将其重新开启：
+
+* [后台会话](/docs/zh-CN/agent-view)
+* 由另一个 Claude Code 会话启动的会话，例如 Claude 通过其 Bash 工具运行 `claude` 时
+
+在这些会话中自动记忆关闭时，切换显示为 `off · can't be turned on here; use a session started outside Claude Code`。要重新开启自动记忆，请直接在终端中运行 `claude`，并在该会话中使用 `/memory` 切换。
+
+要为单个项目关闭它，在该项目的设置中设置 `autoMemoryEnabled`：
 
 ```json theme={null}
 {

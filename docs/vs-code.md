@@ -120,7 +120,7 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
     * 带任务的 `/plan`，例如 `/plan fix the auth bug`：切换到计划模式并开始为该任务制定计划。
     * `/plan open`：已处于计划模式时，在编辑器中打开计划文件。
   * **Edit automatically**：Claude 直接进行编辑，不再询问。
-* **模型**：从命令菜单中选择 **Switch model…** 即可在会话中途更换模型。您也可以点击输入框底部的模型名称来打开同一个选择器。
+* **模型**：从命令菜单中选择 **Switch model…** 即可在会话中途更换模型。您也可以点击输入框底部的模型名称来打开同一个选择器。在 Claude Code v2.1.284 或更高版本中，在输入框中单独输入 `/model` 也会打开该选择器。
 
   当当前模型支持 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)时，选择器还会显示 **Effort** 行，模型名称按钮会显示所选级别。当您选择 `max` 以外的级别时，Claude Code 会将其保存为当前模型的默认值，存放在用户设置的 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 下；`max` 仅适用于当前会话。模型名称按钮和 **Effort** 行需要 Claude Code v2.1.257 或更高版本。
 
@@ -469,6 +469,8 @@ GitHub README、问题和某些其他 Markdown 主机会删除其方案不是 `h
 
 Claude 为浏览器任务打开新标签页并共享您浏览器的登录状态，因此它可以访问您已登录的任何网站。
 
+如需让每个会话在启动时自动连接到您的浏览器，而无需输入 `@browser`，请参阅[默认启用 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default)。关于在以这种方式连接的会话中，Claude Code 在执行浏览器操作前询问您的情况，请参阅 [VS Code 会话中的权限提示](/docs/zh-CN/chrome#permission-prompts-in-vs-code-sessions)。
+
 有关设置说明、完整的功能列表和故障排除，请参阅 [在 Chrome 中使用 Claude Code](/docs/zh-CN/chrome)。
 
 <h2 id="vs-code-commands-and-shortcuts">
@@ -585,6 +587,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `attachOpenFile` | `true` | 将编辑器中打开的文件添加到您的消息中，并在提示框中显示它。关闭时，仅添加您选择的文本。需要 Claude Code v2.1.271 或更高版本 |
 | `useCtrlEnterToSend` | `false` | 使用 Ctrl/Cmd+Enter 而不是 Enter 来发送提示 |
 | `scrollToBottomOnSend` | `true` | 当您发送消息时，将对话滚动到底部。关闭时，对话保持在您离开的位置。需要 Claude Code v2.1.275 或更高版本 |
+| `showMessageTimestamps` | `false` | 显示每条消息的发送时间。日期行会标记日期变更的位置。需要 Claude Code v2.1.284 或更高版本 |
 | `enableNewConversationShortcut` | `false` | 启用 Cmd/Ctrl+N 来开始新对话 |
 | `enableReopenClosedSessionShortcut` | `true` | 使用 Cmd/Ctrl+Shift+T 重新打开最近关闭的 Claude 会话标签页。当最后关闭的标签页不是 Claude 会话时，快捷键会运行 VS Code 的正常重新打开关闭编辑器命令。 |
 | `archiveInactiveSessions` | `14` | 在无活动的这么多天后[自动存档会话](#resume-past-conversations)：`1`、`2`、`7` 或 `14`。设置为 `0` 以关闭。需要 Claude Code v2.1.265 或更高版本 |
@@ -593,7 +596,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `focusView` | `false` | 将工具调用、工具结果和思考隐藏在可展开的行后面，只留下您的提示和 Claude 的响应。Claude 的最新待办事项列表保持可见；这需要 Claude Code v2.1.225 或更高版本。您也可以从命令菜单切换焦点视图。需要 Claude Code v2.1.221 或更高版本 |
 | `respectGitIgnore` | `true` | 从文件搜索和[选择上下文](#reference-files-and-folders)中排除 .gitignore 模式 |
 | `usePythonEnvironment` | `true` | 运行 Claude 时激活工作区的 Python 环境。需要 Python 扩展。 |
-| `environmentVariables` | `[]` | 为 Claude 进程设置环境变量。对于共享配置，请改用 Claude Code 设置。 |
+| `environmentVariables` | `[]` | 为 Claude 进程设置环境变量。对于共享配置，请改用 Claude Code 设置。仅当值为绝对路径时，[`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 条目才会生效；扩展不会展开 `~`，并且会忽略相对路径值。 |
 | `disableLoginPrompt` | `false` | 跳过身份验证提示（用于第三方提供商设置） |
 | `allowDangerouslySkipPermissions` | `false` | 在模式选择器中添加绕过权限。仅在没有互联网访问的沙箱中使用。 |
 | `claudeProcessWrapper` | - | 用于启动 Claude 进程的可执行文件。当存在时，捆绑的二进制路径作为参数传递。如果扩展构建不包含您的平台的二进制文件，请将其设置为单独安装的 `claude` 二进制文件。在包装的设置中，对话以手动模式开始，除非您设置了 `initialPermissionMode` 或在之前的对话中选择了手动、自动编辑或自动，因为扩展会跳过那里的设置和内置默认步骤；请参阅[切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)。激活时出现"不支持的平台"错误意味着您的平台没有捆绑的二进制文件；请参阅[哪些平台有预构建的二进制文件](/docs/zh-CN/troubleshoot-install#native-binary-not-found-after-npm-install)。 |
@@ -803,6 +806,25 @@ summarize the changes I've made to the auth module
 | - | - | - |
 | `mcp__ide__getDiagnostics` | 返回语言服务器诊断——VS Code 的问题面板中的错误和警告。可选地限定到一个文件。 | 是 |
 | `mcp__ide__executeCode` | 在活动 Jupyter notebook 的内核中运行 Python 代码。请参阅下面的确认流程。 | 否 |
+
+**聊天面板中的诊断。** 在聊天面板中，使用 Claude Code v2.1.285 或更高版本时，Claude 通过一个名为 `claude-vscode` 的独立内置服务器读取 VS Code 的问题面板。Claude 可以向它请求某个文件中的当前错误和警告，或者 VS Code 具有诊断信息的所有文件中的当前错误和警告。
+
+hook 和权限规则将聊天面板的诊断工具视为 `mcp__claude-vscode__getDiagnostics`。要同时涵盖 CLI 和聊天面板中的诊断，请在您的 hook 或规则中同时指定 `mcp__ide__getDiagnostics` 和 `mcp__claude-vscode__getDiagnostics`。
+
+以下 `settings.json` 示例拒绝这两个工具：
+
+```json theme={null}
+{
+  "permissions": {
+    "deny": [
+      "mcp__ide__getDiagnostics",
+      "mcp__claude-vscode__getDiagnostics"
+    ]
+  }
+}
+```
+
+`Read` 拒绝规则不涵盖这两个工具中的任何一个，因此请像示例那样使用[拒绝规则](/docs/zh-CN/permissions#mcp)按名称阻止它们。
 
 **Jupyter 执行始终先询问。** `mcp__ide__executeCode` 无法静默运行任何内容。在每次调用时，代码被插入为活动 notebook 末尾的新单元格，VS Code 将其滚动到视图中，原生快速选择器要求您**执行**或**取消**。取消——或用 `Esc` 关闭选择器——会向 Claude 返回错误，不会运行任何内容。当没有活动 notebook、未安装 Jupyter 扩展 (`ms-toolsai.jupyter`) 或内核不是 Python 时，该工具也会直接拒绝。
 

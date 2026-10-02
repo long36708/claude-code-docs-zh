@@ -716,7 +716,7 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 | `reloadOutputStyles()` | 从磁盘重新读取[输出样式](/docs/zh-CN/output-styles)，以便您在中期会话添加或编辑的样式文件对运行的会话可用。使用 [`SDKControlReloadOutputStylesResponse`](#sdkcontrolreloadoutputstylesresponse) 解决，列出重新加载后可用的样式名称。需要 Agent SDK v0.3.261 或更高版本 |
 | `accountInfo()` | 返回账户信息 |
 | `reconnectMcpServer(serverName)` | 按名称重新连接 MCP 服务器。如果名称也匹配设置文件中的条目如 `.mcp.json` 或 `~/.claude.json`，Claude Code 重新连接您通过 [`mcpServers`](#options) 或 `setMcpServers()` 配置的服务器，而不是设置文件条目。该解析顺序需要 Claude Code v2.1.257 或更高版本 |
-| `toggleMcpServer(serverName, enabled)` | 按名称启用或禁用 MCP 服务器，使用与 `reconnectMcpServer()` 相同的名称解析。禁用 stdio、SSE 或 HTTP 服务器会断开连接并移除其工具；对于您使用 `setMcpServers()` 在中期会话添加的服务器，工具移除需要 Claude Code v2.1.285 或更高版本 |
+| `toggleMcpServer(serverName, enabled)` | 按名称启用或禁用 MCP 服务器，名称解析方式与 `reconnectMcpServer()` 相同。禁用服务器会断开其连接并移除其工具。有关每种服务器所需的 Claude Code 版本，请参阅 [`toggleMcpServer()`](#togglemcpserver) |
 | `setMcpServers(servers)` | 动态替换此会话的 MCP 服务器集。使用 [`McpSetServersResult`](#mcpsetserversresult) 解决，命名添加和移除的服务器以及任何错误 |
 | `readMcpResource(serverName, uri)` | *Alpha.* 从连接的 MCP 服务器读取一个 MCP Apps `ui://` 资源，以便您的应用可以呈现工具的小部件。使用 [`SDKControlMcpReadResourceResponse`](#sdkcontrolmcpreadresourceresponse) 解决。需要 TypeScript Agent SDK v0.3.280 或更高版本 |
 | `streamInput(stream)` | 将输入消息流式传输到查询以进行多轮对话 |
@@ -779,6 +779,15 @@ await q.applyFlagSettings({ model: null });
 * **`"userSettings"`**：接受 `effortLevel` 并将其保存为会话当前模型的默认[努力级别](/docs/zh-CN/model-config#adjust-effort-level)，在您的用户设置文件中的 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 下。传递 `max` 不写任何内容，因为 `max` 仅限会话。运行的会话无论如何都保持其当前努力级别，因此当您也想更改那个时调用 [`applyFlagSettings()`](#applyflagsettings)。此源需要 TypeScript SDK v0.3.277 或更高版本，它捆绑 Claude Code v2.1.277。
 
 当请求携带任何其他键、会话在远程传输上运行以及会话的 [`settingSources`](#options) 排除您命名的源时，调用拒绝。不支持删除键。
+
+<h4 id="togglemcpserver">
+  `toggleMcpServer()`
+</h4>
+
+禁用服务器会断开其连接，并从会话中移除其工具。对于您在会话中途添加的服务器和进程内服务器，这取决于您的 Claude Code 版本：
+
+* 您在会话中途通过 `setMcpServers()` 添加的 stdio、SSE 或 HTTP 服务器：移除其工具需要 Claude Code v2.1.285 或更高版本。
+* 您通过 [`createSdkMcpServer()`](#createsdkmcpserver) 创建的进程内服务器，无论您是在 `mcpServers` 中还是通过 `setMcpServers()` 传入：断开其连接并移除其工具需要 Claude Code v2.1.286 或更高版本。禁用此类服务器还会使其仍在运行的工具调用失败，因此 Claude 会立即收到每个调用的错误结果，而无需等待您的处理程序返回。
 
 <h3 id="warmquery">
   `WarmQuery`
@@ -1582,6 +1591,7 @@ type SDKUserMessage = {
   shouldQuery?: boolean;
   client_composed?: true;
   tool_use_result?: unknown;
+  priority?: "now" | "next" | "later";
   origin?: SDKMessageOrigin;
   inline_pastes?: string[];
 };
@@ -1589,18 +1599,37 @@ type SDKUserMessage = {
 
 设置 `pasted_content` 以发送用户粘贴到您的提示词 UI 中而不是输入的内容，每个粘贴一个条目，每个条目是字符串或内容块数组。Claude Code 按顺序在输入的文本后追加每个条目的文本，并可能将每个粘贴包装在 `<pasted_content>` 标签中。除文本外的块被忽略，因此在 `message.content` 中发送图像和文档。需要 Agent SDK v0.3.277 或更高版本。
 
-设置 `shouldQuery` 或 `client_composed` 以改变 Claude Code 处理您发送的消息的方式：
+设置 `inline_pastes` 可告知 Claude Code `message.content` 中哪些部分是用户粘贴的而非键入的，每次粘贴对应一个字符串。提示词文本保留在用户放置的位置。Claude Code 可能会在原位用 `<pasted_content>` 标签包裹每个列出的粘贴内容，以便 Claude 区分粘贴的材料和用户自己的话。只有提示词最后一个文本块中的粘贴内容会被包裹。需要 TypeScript Agent SDK v0.3.280 或更高版本。
+
+设置 `shouldQuery`、`client_composed` 或 `priority` 可以改变 Claude Code 处理您所发送消息的方式：
 
 * `shouldQuery`：设置为 `false` 以将消息附加到会话记录中而不触发助手轮。消息被保留并合并到下一条触发轮的用户消息中。使用此方法注入上下文，例如您在带外运行的命令的输出，而无需在模型调用上花费。
 * `client_composed`：设置为 `true` 以让 Claude Code 按原样传递消息文本。Claude Code 然后不展开 `@path` 或 [`@server:resource`](/docs/zh-CN/mcp#use-mcp-resources) 提及，也不运行以 `/` 开头的文本作为命令。当 [`verbatimPrompts`](#options) 选项打开时，SDK 在每条消息上设置该字段。需要 TypeScript Agent SDK v0.3.280 或更高版本和 Claude Code v2.1.248 或更高版本。
+* `priority`：控制您在轮次运行期间发送的消息何时到达 Claude：
+  * `'next'` 或未设置 `priority` 字段：Claude 会在同一轮次中读取该消息，时机是其正在运行的工具调用一完成之时。如果轮次先结束，该消息将开启下一轮次。
+  * `'later'`：Claude Code 会暂存该消息直到轮次结束，然后将其作为新轮次发送。
+  * 带有 [`origin: { kind: "human" }`](#sdkmessageorigin) 的 `'now'`：在 Claude Code v2.1.286 或更高版本上，可以在后台继续的工作会被移到后台，Claude 在同一轮次中读取该消息。可移动的工作包括 shell 命令、子代理和 MCP 工具调用。在 v2.1.287 或更高版本上，还包括 WebFetch 和 WebSearch 调用。当 Claude 只是在撰写回复，或其正在运行的工作无法移动时，Claude Code 会改为中断该轮次，Claude 接下来读取该消息。
+  * 不带该 origin 的 `'now'`：Claude Code 中断该轮次，Claude 接下来读取该消息。
 
-在携带 `tool_result` 块的消息上，`tool_use_result` 是工具的结构化输出对象，而不是发送给模型的文本。其形状取决于匹配 `tool_use` 块命名的工具，因此该字段的类型为 `unknown`；内置形状列在[工具输出类型](#tool-output-types)下。
+以下消息在轮次运行期间发送，要求 Claude 改变方向，同时不丢失仍在运行的 shell 命令：
 
-对于 `Agent` 工具，`tool_use_result` 是 [`AgentOutput`](#agent-2)。请从它渲染，而不是解析 `tool_result` 文本。`completed` 结果的 `content` 包含子代理的报告；对于通过 `SubagentHandback` 工具调用交回报告的子代理，则包含一条关于该交回的简短说明来代替报告。在 Claude Code v2.1.271 或更高版本的[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下，每个产生 `completed` 结果的子代理都以这种方式报告，除非它是一个 [fork](/docs/zh-CN/sub-agents#fork-the-current-conversation)，并且 Claude 会将该报告作为来自子代理的单独消息接收。
+```typescript theme={null}
+const message: SDKUserMessage = {
+  type: "user",
+  message: { role: "user", content: "Skip the integration tests and summarize what you have so far" },
+  parent_tool_use_id: null,
+  priority: "now",
+  origin: { kind: "human" },
+};
+```
 
-对于结果包含 `resource_link` 块的 MCP 工具，`tool_use_result` 是一个对象，其中包含 [`SDKMcpResourceLink`](#sdkmcpresourcelink) 条目的 `resourceLinks` 数组。Claude 将每个链接作为 `tool_result` 块中的一行文本接收，因此读取 `resourceLinks` 以渲染服务器返回的文件，而不是解析该文本。Claude Code 在结果没有链接时省略 `resourceLinks`，在来自子代理的结果上省略，每个结果最多保留 50 个链接，并在数组达到 64 KiB 序列化 JSON 后停止添加链接。`resourceLinks` 需要 Agent SDK v0.3.257 或更高版本。
+在携带 `tool_result` 块的消息上，`tool_use_result` 是工具的结构化输出对象，而不是发送给模型的文本。其结构取决于对应 `tool_use` 块所指定的工具，因此该字段的类型为 `unknown`；内置结构列在[工具输出类型](#tool-output-types)下。以下结果需要超出其所列结构的额外处理：
 
-设置 `inline_pastes` 以告诉 Claude Code `message.content` 的哪些部分用户粘贴而不是输入，每个粘贴一个字符串。提示词文本保留在用户放置的位置。Claude Code 可能会在其所在位置将每个列出的粘贴包装在 `<pasted_content>` 标签中，以便 Claude 可以区分粘贴的材料和用户自己的话。只有提示词最后一个文本块中的粘贴被包装。需要 TypeScript Agent SDK v0.3.280 或更高版本。
+* `Agent` 工具：`tool_use_result` 为 [`AgentOutput`](#agent-2)。请据此进行渲染，而不是解析 `tool_result` 文本。`completed` 结果的 `content` 包含子代理的报告；对于通过 `SubagentHandback` 工具调用提交报告的子代理，则包含一条关于该交接的简短说明来代替报告。在 Claude Code v2.1.271 或更高版本的[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下，每个产生 `completed` 结果的子代理都以这种方式报告（[fork](/docs/zh-CN/sub-agents#fork-the-current-conversation) 除外），Claude 会以来自子代理的单独消息接收报告。
+* Claude Code 为交付 `'now'` 消息而移到后台的 WebFetch 或 WebSearch 调用：携带该调用 `tool_result` 的用户消息的 `tool_use_result` 被设为 `{ detachedToolCall: true }`。该调用仍在运行，Claude 会在其完成后收到结果。该 `tool_use_id` 之后不会再有第二个 `tool_result`，因此如果您的应用为每个工具调用绘制一行，请在收到此消息时将该行标记为已移到后台。需要 Claude Code v2.1.287 或更高版本。
+* 结果包含 `resource_link` 块的 MCP 工具：`tool_use_result` 是一个对象，其 `resourceLinks` 数组由 [`SDKMcpResourceLink`](#sdkmcpresourcelink) 条目组成。Claude 会在 `tool_result` 块中以一行文本的形式接收每个链接，因此请读取 `resourceLinks` 来渲染服务器返回的文件，而不是解析该文本。当结果中没有链接时以及对于来自子代理的结果，Claude Code 会省略 `resourceLinks`；每个结果最多保留 50 个链接，并在数组序列化后的 JSON 达到 64 KiB 时停止添加链接。`resourceLinks` 需要 Agent SDK v0.3.257 或更高版本。
+* 返回 [`structuredContent`](#calltoolresult) 的 MCP 工具：`tool_use_result` 是一个对象，其 `structuredContent` 成员包含服务器发送的内容，`content` 成员包含 [`McpOutput`](#mcpoutput) 值。来自子代理的结果不携带 `structuredContent`。
+* `structuredContent` 序列化后超过 1,048,576 个字符 JSON 的 MCP 工具：Claude Code 会从 `tool_use_result` 中去掉 `structuredContent`，并在其位置设置 `structuredContentOmitted: true`，以便您的应用区分被丢弃的对象与根本未发送该对象的工具。其他成员（例如 `content` 和 `resourceLinks`）保留，Claude 接收到的内容也不会改变。来自[进程内 SDK 服务器](/docs/zh-CN/agent-sdk/custom-tools)的工具，以及其 `tools/list` 条目声明了 [MCP Apps `_meta.ui` 资源](#mcpserverstatus)的工具不受此限制，会完整交付该对象。Claude Code v2.1.287 或更高版本应用此上限。
 
 <h3 id="sdkusermessagereplay">
   `SDKUserMessageReplay`
@@ -1655,7 +1684,13 @@ type SDKResultMessage =
       first_content_frame_ms?: number;
       first_stream_post_ms?: number;
       first_stream_post_ack_ms?: number;
+      first_stream_post_queue_wait_ms?: number;
+      first_stream_post_queued_behind?: "durable_post" | "ephemeral_post" | "retry_backoff" | "hold" | "none";
       first_stream_post_wall_ms?: number;
+      first_text_post_ms?: number;
+      first_text_post_queue_wait_ms?: number;
+      first_text_post_queued_behind?: "durable_post" | "ephemeral_post" | "retry_backoff" | "hold" | "none";
+      first_text_post_wall_ms?: number;
       total_cost_usd: number;
       usage: NonNullableUsage;
       modelUsage: { [modelName: string]: ModelUsage };
@@ -4964,7 +4999,7 @@ type McpOutput =
     };
 ```
 
-MCP 工具结果作为字符串或内容块数组返回，取决于服务器。导出类型中的尾部纯对象分支是架构生成工件：SDK 不返回裸对象，因为服务器的结构化输出在返回前被序列化为 JSON 字符串。在运行时值也可能是 `undefined`，尽管导出的类型不对此建模。
+MCP 工具结果作为字符串或内容块数组返回，取决于服务器。导出类型中的尾部纯对象分支是 schema 生成过程的产物。对于同时携带 `structuredContent` 或资源链接的结果，请参阅 [`tool_use_result`](#sdkusermessage)，它在其 `content` 成员中保存此值。在运行时值也可能是 `undefined`，尽管导出的类型不对此建模。
 
 <h2 id="permission-types">
   权限类型

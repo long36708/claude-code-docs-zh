@@ -157,17 +157,24 @@ Claude Code 按此顺序检查源，优先级最高的优先：
 1. 远程设置，从 claude.ai 作为 [服务器管理的设置](/docs/zh-CN/server-managed-settings) 或通过 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 交付。Claude Code 仅在会话使用 [符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability) 直接向 Anthropic 的 API 进行身份验证，或使用 `/login` 登录网关时才获取此源。在其他提供商上，或当 `ANTHROPIC_BASE_URL` 指向 Anthropic 的 API 以外的地方时，它从下一个源开始
 2. MDM 或操作系统级策略：macOS plist 或 HKLM 注册表键
 3. 托管设置文件，`managed-settings.d/*.json` 和 `managed-settings.json` 合并在一起
-4. HKCU 注册表，在 Windows 上，以及在 WSL 上一旦 HKLM 注册表或 Windows 托管设置文件打开 [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 并且 HKCU 值也设置它时。Claude Code 仅在上面没有管理员源存在且没有 [主机提供的父设置](#let-an-embedding-host-add-policy) 提供限制性键时才读取它
-
-<span id="present-admin-documents" />
-
-Claude Code 永远不会在存在的管理员源下应用用户可写的 HKCU 注册表。当源设置任何策略键为非 `null` 值时，该源是存在的，即使是 Claude Code 无法读取的值。无法读取的 HKLM 值、托管设置文件或 `managed-settings.d` 目录也是存在的。在 WSL 上，`/etc/claude-code` 也是用户可写的，[`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 条目说明 Windows 源何时位于其上方。
+4. HKCU 注册表，在 Windows 上，以及在 WSL 上一旦 HKLM 注册表或 Windows 托管设置文件打开 [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 并且 HKCU 值也设置它时。Claude Code 仅在 [其上方没有存在的管理员文档](#present-admin-documents) 且没有 [主机提供的父设置](#let-an-embedding-host-add-policy) 提供限制性键时才读取它
 
 此图显示排名，以及 Claude Code 在任一设置下从前三个源读取的跨源键的示例：
 
 <img src="https://mintcdn.com/claude-code/zuWID2B-Rxm8DEC8/images/managed-source-precedence.svg?fit=max&auto=format&n=zuWID2B-Rxm8DEC8&q=85&s=53f6be49f06eff48e01422c8ae1bc2e6" className="dark:hidden" alt="显示四个托管设置源的图表，从顶部的远程设置到 MDM、托管设置文件和底部的 HKCU 注册表。默认情况下，具有策略键的第一个源提供策略，其余的被跳过；当 managedSourcesBehavior 设置为 merge 时，每个具有策略键的管理员源都会贡献，按键的类型组合，HKCU 注册表保持不变。侧面板显示跨源键（如沙箱锁、forceRemoteSettingsRefresh 和每个变量的 env 合并）从每个管理员源读取，不包括 HKCU 注册表。" width="680" height="330" data-path="images/managed-source-precedence.svg" />
 
 <img src="https://mintcdn.com/claude-code/zuWID2B-Rxm8DEC8/images/managed-source-precedence-dark.svg?fit=max&auto=format&n=zuWID2B-Rxm8DEC8&q=85&s=ae407a9a08a3d680e80cf1a2af845d71" className="hidden dark:block" alt="显示四个托管设置源的图表，从顶部的远程设置到 MDM、托管设置文件和底部的 HKCU 注册表。默认情况下，具有策略键的第一个源提供策略，其余的被跳过；当 managedSourcesBehavior 设置为 merge 时，每个具有策略键的管理员源都会贡献，按键的类型组合，HKCU 注册表保持不变。侧面板显示跨源键（如沙箱锁、forceRemoteSettingsRefresh 和每个变量的 env 合并）从每个管理员源读取，不包括 HKCU 注册表。" width="680" height="330" data-path="images/managed-source-precedence-dark.svg" />
+
+<h3 id="present-admin-documents">
+  管理员文档何时算作存在
+</h3>
+
+在 [托管源的排名](#how-claude-code-combines-managed-sources) 中，Claude Code 永远不会在存在的管理员文档之下应用用户可写的 HKCU 注册表。文档在以下情况下算作存在：
+
+* 它将任何策略键设置为非 `null` 值，即使是 Claude Code 无法读取的值
+* 它是存在但无法读取的 HKLM 值、托管设置文件或 `managed-settings.d` 目录
+
+在 WSL 上，`/etc/claude-code` 也是用户可写的，[`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 条目说明 Windows 文档何时位于其上方。
 
 <h3 id="keys-read-from-every-admin-source">
   从每个管理员源读取的键

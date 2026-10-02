@@ -282,7 +282,7 @@ Claude Code 提供两种沙箱模式。在这两种模式下，沙箱都会强�
 
 这些路径在操作系统层面强制执行，因此在沙箱内运行的所有命令（包括其子进程）都会遵守这些限制。当某个工具需要对特定位置的写入权限时，推荐使用这种方法，而不是使用 `excludedCommands` 将该工具完全排除在沙箱之外。
 
-当您在多个[设置作用域](/docs/zh-CN/settings#settings-precedence)中定义同一个文件系统数组时，Claude Code 会将它们合并，组合来自每个作用域的路径，而不是用一个作用域的数组替换另一个作用域的数组。
+当您在多个[设置作用域](/docs/zh-CN/settings#settings-precedence)中定义同一个文件系统数组时，Claude Code 会将它们合并，组合来自每个作用域的路径，而不是用一个作用域的数组替换另一个作用域的数组。当某个条目受到[防止开发者放宽策略](#keep-developers-from-widening-the-policy)中的锁定约束时，Claude Code 会将该条目排除在合并之外。
 
 如果您在 CLI 上使用 [`--setting-sources`](/docs/zh-CN/cli-reference) 或在 Agent SDK 中使用 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources) 排除了某个来源，Claude Code 在构建沙箱配置时会忽略该来源的 `sandbox.filesystem` 条目、`Edit` 权限规则以及 `Read` 拒绝规则。需要 Claude Code v2.1.246 或更高版本。
 
@@ -865,7 +865,7 @@ Claude Code 在您的计算机上、沙箱之外运行沙箱代理，并通过 `
 
 如果您设置了端口，同时也设置了 `HTTPS_PROXY` 或 `HTTP_PROXY`，Claude Code 不会将沙箱化命令发送到您的代理的内容转发到这些变量指定的代理。要访问公司代理，请配置您自己的代理转发到该代理。
 
-哪些文件可以设置端口取决于您的其他沙箱设置：
+哪些文件可以设置端口取决于您的其他沙箱设置。以第一个匹配的情况为准：
 
 * **已启用 `allowManagedDomainsOnly`**：仅托管设置
 * **沙箱为[管理员强制要求的](#repository-settings-under-an-admin-required-sandbox)，或适用[更窄的网络锁定](#locks-that-apply-without-an-admin-required-sandbox)**：托管设置、`--settings` 和用户设置

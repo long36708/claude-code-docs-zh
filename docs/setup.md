@@ -123,7 +123,7 @@ Claude Code 在您的终端中打开一个交互式会话。
 
 **选项 1：原生 Windows**
 
-从 PowerShell 或 CMD 运行安装命令。您无需以管理员身份运行。安装 [Git for Windows](https://git-scm.com/downloads/win) 是可选的。它通过提供 Git Bash 来启用 [Bash 工具](/docs/zh-CN/tools-reference#bash-tool-behavior)。
+从 PowerShell 或 CMD 运行安装命令。您无需以管理员身份运行。安装 [Git for Windows](https://git-scm.com/downloads/win) 是可选的。它提供 Git Bash，[Bash 工具](/docs/zh-CN/tools-reference#bash-tool-behavior)和 [Monitor 工具](/docs/zh-CN/tools-reference#monitor-tool)需要用到它。
 
 无论您从 PowerShell 还是 CMD 安装，只会影响您运行的安装命令。您的提示在 PowerShell 中显示为 `PS C:\Users\YourName>`，在 CMD 中显示为 `C:\Users\YourName>`（不带 `PS`）。如果您是终端新手，[终端指南](/docs/zh-CN/terminal-guide#windows)会逐步讲解每个步骤。
 
@@ -496,7 +496,7 @@ Claude Code 发布已签名的 apt、dnf 和 apk 存储库。每个存储库提�
   使用 npm 安装
 </h3>
 
-您也可以将 Claude Code 安装为全局 npm 包。从 v2.1.198 开始，npm 包需要 [Node.js 22 或更高版本](https://nodejs.org/en/download)。在较旧的 Node.js 版本上，npm 在安装期间打印 `EBADENGINE` 警告而不是失败；安装完成，`claude` 仍然运行，因为该包下载了在运行时不使用您的 Node.js 的原生二进制文件。
+您也可以将 Claude Code 安装为全局 npm 包。npm 包需要 [Node.js 22 或更高版本](https://nodejs.org/en/download)。在较旧的 Node.js 版本上，npm 在安装期间打印 `EBADENGINE` 警告而不是失败；安装完成，`claude` 仍然运行，因为该包下载了在运行时不使用您的 Node.js 的原生二进制文件。
 
 ```bash theme={null}
 npm install -g @anthropic-ai/claude-code

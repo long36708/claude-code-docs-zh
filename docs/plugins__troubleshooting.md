@@ -713,6 +713,22 @@ Claude Code 在安装期间没有激活插件，要么是因为激活它会 [使
 
 在 v2.1.246 之前，该摘要中的技能计数仅包括插件的 `commands/` 条目，因此重新加载可以加载插件的 `SKILL.md` 技能并仍然报告 `0 skills`。
 
+<h3 id="the-packages-it-lists-are-not-installed">
+  `The packages it lists are not installed` 或 `were not installed, because ...`
+</h3>
+
+当插件的依赖安装未留下 `node_modules` 目录时，`/plugin` 和 `claude plugin list` 会在该插件上显示以下注释之一。插件会加载，但需要缺失包的部分可能无法工作。
+
+* **`are not installed`**：此插件可以运行安装，但安装没有完成，例如因为安装失败或超时。要重试安装，请在您的 shell 中运行注释给出的 `claude plugin update` 命令，或从 `/plugin` 更新插件
+
+  ```shell theme={null}
+  claude plugin update formatter@my-marketplace
+  ```
+
+  如果重试失败，输出会给出原因。当设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，`claude plugin update` 和 `/plugin` 会跳过重试，并报告插件已是最新版本。
+
+* **`were not installed, because ...`**：此插件无法运行安装，注释会说明原因，例如 Yarn、pnpm 或 `bun.lockb` lockfile，或者其包管理器未安装在此计算机上的 lockfile。只要该原因存在，更新插件就不会安装这些包。如果原因是 lockfile，插件作者必须替换它。如果是缺少包管理器，请安装它，然后更新插件
+
 <h3 id="plugin-not-cached-at">
   `Plugin "<name>" not cached at <path>`
 </h3>

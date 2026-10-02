@@ -401,15 +401,15 @@ Monitor 工具让 Claude 在后台监视某些内容，并在其发生变化时�
 
 在截止时间时，监视结束。Claude 会收到一个通知，因此如果仍然需要，它可以重新启动监视。
 
-通过要求 Claude 取消监视或结束会话来停止监视。当您停止启动了监视的 [subagent](/docs/zh-CN/sub-agents)（例如来自 `/tasks`）时，这些监视会随之停止。
+通过要求 Claude 取消监视或结束会话来停止监视。当您停止启动了监视的 [子代理](/docs/zh-CN/sub-agents)（例如来自 `/tasks`）时，这些监视会随之停止。
 
 当 Monitor 运行命令时，它使用与 Bash 相同的 [权限规则](/docs/zh-CN/permissions#tool-specific-permission-rules)，因此您为 Bash 设置的 `allow` 和 `deny` 模式也适用于此处。当 [自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 处于活动状态时，Claude Code 会搁置命名 `Monitor` 本身的允许规则，以及它删除的其他 [广泛允许规则](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions)，因此分类器以与审查 Bash 命令相同的方式审查 Monitor 命令。
 
 [WebSocket 源](#websocket-source) 有其自己的批准提示，分类器也在自动模式下决定。
 
-该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。当设置了 `DISABLE_TELEMETRY` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，它也不可用。
+该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。当设置了 `DISABLE_TELEMETRY` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，它也不可用。在 Windows 上，仅当安装了 [Git Bash](/docs/zh-CN/setup#set-up-on-windows) 时该工具才可用。
 
-插件可以声明在插件处于活动状态时自动启动的监视，而不是要求 Claude 启动它们。请参阅 [plugin monitors](/docs/zh-CN/plugins/components#monitors)。
+插件可以声明在插件处于活动状态时自动启动的监视，而不是要求 Claude 启动它们。请参阅 [插件监视器](/docs/zh-CN/plugins/components#monitors)。
 
 <h3 id="websocket-source">
   WebSocket 源
@@ -637,7 +637,7 @@ Claude Code 仅在您的会话拥有这些工具时才会将其提供给子代�
   WebFetch 工具行为
 </h2>
 
-WebFetch 接收一个 URL 和一个描述要提取内容的提示。它获取页面，当服务器返回 HTML 时将响应转换为 Markdown，并使用一个小型、快速的模型针对内容运行提示。对于大多数获取操作，Claude 接收的是该模型的答案，而不是原始页面。转换步骤不可配置。
+WebFetch 接收一个 URL 和一个描述要提取内容的提示词。它获取页面，当服务器返回 HTML 时将响应转换为 Markdown。对于大多数获取操作，它随后会在单独的模型调用中针对内容运行该提示词，Claude 接收的是该调用的结果，而不是原始页面。转换步骤不可配置。
 
 这使得 WebFetch 在设计上是有损的。提取提示决定了什么到达 Claude，所以一个说页面没有提及某事的结果可能只是意味着提示没有询问它。要求 Claude 使用更具体的提示再次获取，或通过 Bash 使用 `curl` 获取未处理的页面。
 

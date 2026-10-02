@@ -368,6 +368,7 @@ Claude Docs 作为 claude.ai [连接器](/docs/zh-CN/mcp#use-mcp-servers-from-cl
 | 下载 | 页面无法自行启动下载。为了让查看者保存页面生成的文件，Claude 声明下载功能。请参阅[提供文件下载](#offer-a-file-download)。 |
 | 单页面 | 相对链接无法解析，因为页面旁边没有部署任何内容。对于多部分内容，Claude 使用页面内锚点而不是单独的文件。 |
 | 源文件类型 | 发布的文件必须是 `.html`、`.htm` 或 `.md`，并且必须解码为 UTF-8，或通过其字节顺序标记解码为小端 UTF-16。Markdown 文件呈现为样式化的文档页面，带有语法突出显示的代码。无法解码或包含替换字符 `U+FFFD` 的文件会被[拒绝并显示要修复的行和列](/docs/zh-CN/errors#the-source-file-is-not-valid-utf-8-text)。 |
+| 源文件位置 | 路径指向网络主机的文件会被拒绝，且不会被读取。有关哪些路径会被拒绝以及 Windows 上映射驱动器的例外情况，请参阅[未发布：该文件位于网络共享上](/docs/zh-CN/errors#not-published-that-file-is-on-a-network-share)。 |
 | 呈现大小 | 呈现的页面必须为 16 MiB 或更小。大型嵌入图像通常是发布因大小而失败的原因。 |
 
 生成工件使用输出令牌，就像任何其他响应一样，样式化页面比相同内容作为终端文本更耗费令牌。内联 CSS、用于交互控制的 JavaScript，尤其是嵌入为数据 URI 的图像是主要贡献者。要减少工件的令牌成本：

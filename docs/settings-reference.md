@@ -633,7 +633,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`blockedMarketplaces`](#blockedmarketplaces) | 为您的组织阻止[插件市场](/docs/zh-CN/plugins/overview)来源 | 插件和技能 | Managed |
 | [`browserExternalPageTools`](#browserexternalpagetools) | 在[桌面](/docs/zh-CN/desktop)浏览器窗格中的外部页面上关闭 Claude 的工具 | 工具 | Managed |
 | [`channelsEnabled`](#channelsenabled) | 为您的组织允许[频道](/docs/zh-CN/channels#enable-channels-for-your-organization) | 插件和技能 | Managed |
-| [`claudeInChromeDefaultEnabled`](#claudeinchromedefaultenabled) | 在每个交互式 CLI 会话中打开[Chrome 集成](/docs/zh-CN/chrome)而无需传递 `--chrome` | 全局配置设置 | Global config |
+| [`claudeInChromeDefaultEnabled`](#claudeinchromedefaultenabled) | 在会话启动时打开 [Chrome 集成](/docs/zh-CN/chrome)，适用于交互式 CLI 和 VS Code 扩展 | 全局配置设置 | Global config |
 | [`claudeMd`](#claudemd) | 从托管设置注入组织范围的 [CLAUDE.md](/docs/zh-CN/memory#deploy-organization-wide-claude-md) 指令 | 内存和上下文 | Managed |
 | [`claudeMdExcludes`](#claudemdexcludes) | 在内存加载时跳过特定的 [CLAUDE.md](/docs/zh-CN/memory#exclude-specific-claude-md-files) 文件 | 内存和上下文 | Any file |
 | [`cleanupPeriodDays`](#cleanupperioddays) | 选择 Claude Code 在删除[记录](/docs/zh-CN/data-usage#data-retention)之前保留多少天 | 隐私和遥测 | Any file |
@@ -3108,9 +3108,10 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   Claude Code 在 `env` 中忽略的变量
 </h4>
 
-* 项目和本地设置无法设置已检出的存储库不应控制的变量；改为在您的 shell、用户设置或托管设置中设置这些变量。Claude Code 删除每个变量并记录您可以使用 `claude --debug` 看到的警告。它们包括：
+* 项目和本地设置无法设置已检出的仓库不应控制的变量；改为在您的 shell、用户设置或托管设置中设置这些变量。除少数关闭遥测的值外，Claude Code 删除每个变量并记录您可以使用 `claude --debug` 看到的警告。它们包括：
 
   * 选择 Claude Code 存储或写入其自己文件的位置的变量：`CLAUDE_CONFIG_DIR`、`CLAUDE_CODE_TMPDIR` 和操作系统目录变量，例如 `HOME`、`TMPDIR`、`TMP`、`TEMP` 和 `XDG_*` 系列。
+  * 为 Claude Code 启动的进程选择程序和机器范围配置的 Windows 变量，例如 `SystemRoot`、`ComSpec`、`ProgramData`、`LOCALAPPDATA`、`PATHEXT`、`PSModulePath` 和 `ProgramFiles` 系列。
   * 导出会话内容的变量：[`OTEL_LOG_RAW_API_BODIES`](/docs/zh-CN/env-vars#variables) 和详细的 beta 跟踪对 `ENABLE_BETA_TRACING_DETAILED` 和 `BETA_TRACING_ENDPOINT`。
   * [OpenTelemetry 导出器](/docs/zh-CN/monitoring-usage)变量，打开遥测、选择它的去向或选择它捕获的内容：
 
@@ -5953,23 +5954,23 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
   身份验证和提供商
 </h2>
 
-通过辅助脚本提供凭证，对于组织，强制使用登录方法或组织。请参阅[身份验证](/docs/zh-CN/authentication)。
+通过辅助脚本提供凭据，对于组织，强制使用登录方法或组织。请参阅[身份验证](/docs/zh-CN/authentication)。
 
 <h3 id="allowedproviders">
   `allowedProviders`
 </h3>
 
-列出机器可以通过其到达 Claude 的服务，例如 Anthropic API、Amazon Bedrock 或 LLM 网关。未列出的提供商上的会话在启动时、登录时以及下次联系 API 时被拒绝，因此在会话中期切换到未列出的提供商也被拒绝。[拒绝消息](/docs/zh-CN/errors#managed-settings-dont-allow-this-api-provider)会命名选择提供商的内容和继续的步骤。需要 Claude Code v2.1.285 或更高版本。
+列出机器可以通过其访问 Claude 的服务，例如 Anthropic API、Amazon Bedrock 或 LLM 网关。使用未列出的提供商的会话会在启动时、登录时以及下次联系 API 时被拒绝，因此在会话中途切换到未列出的提供商也会被拒绝。[拒绝消息](/docs/zh-CN/errors#managed-settings-dont-allow-this-api-provider)会指明是什么选择了该提供商以及继续操作的步骤。需要 Claude Code v2.1.285 或更高版本。
 
-* **Scope**: [`Managed`](#scopes)。机器自身管理员源设置的列表、MDM 策略和托管设置文件在服务器托管设置也提供一个列表时继续应用：会话随后只能使用两个列表上的提供商，因此服务器托管列表可以缩小机器允许的范围但永远不能扩大它。哪个机器源的 `allowedProviders` 计数遵循[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)。通过仅服务器托管设置传递的列表仅到达[获取服务器托管设置](/docs/zh-CN/server-managed-settings#platform-availability)的会话。
+* **Scope**: [`Managed`](#scopes)。由机器自身的管理员源（MDM 策略和托管设置文件）设置的列表，在服务器托管设置也提供一个列表时仍继续生效：此时会话只能使用同时出现在两个列表上的提供商，因此服务器托管列表可以缩小机器允许的范围，但永远不能扩大它。哪个机器源的 `allowedProviders` 生效遵循[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)。仅通过服务器托管设置提供的列表只会作用于[获取服务器托管设置](/docs/zh-CN/server-managed-settings#platform-availability)的会话。
 * **Type**: 字符串数组，每个都是以下之一：
-  * `"anthropic"`：Anthropic 自有主机上的 Anthropic API，通过 claude.ai 或 Console 登录或 API 密钥。将其与 [`forceLoginMethod`](#forceloginmethod) 或 [`forceLoginOrgUUID`](#forceloginorguuid) 配对以也限制登录
+  * `"anthropic"`：Anthropic 自有主机上的 Anthropic API，通过 claude.ai 或 Console 登录或 API 密钥访问。将其与 [`forceLoginMethod`](#forceloginmethod) 或 [`forceLoginOrgUUID`](#forceloginorguuid) 配合使用，以同时限制登录
   * `"bedrock"`：[Amazon Bedrock](/docs/zh-CN/amazon-bedrock)
   * `"vertex"`：[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai)，以前称为 Vertex AI
   * `"foundry"`：[Microsoft Foundry](/docs/zh-CN/microsoft-foundry)
   * `"anthropicAws"`：[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)
-  * `"mantle"`：Amazon Bedrock [Mantle 端点](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)。[在 Invoke API 旁边运行 Mantle](/docs/zh-CN/amazon-bedrock#run-mantle-alongside-the-invoke-api) 的会话使用两个提供商，因此将 `"bedrock"` 和 `"mantle"` 一起列出
-  * `"customEndpoint"`：Anthropic API 或云提供商的 API 发送到另一个主机，例如由 `ANTHROPIC_BASE_URL` 命名的 [LLM 网关](/docs/zh-CN/llm-gateway)、提供商的 `ANTHROPIC_*_BASE_URL` 变量或不是裸资源名称的 `ANTHROPIC_FOUNDRY_RESOURCE` 值。Claude Code 仅为托管 [`env`](#env) 块固定的确切值允许它
+  * `"mantle"`：Amazon Bedrock [Mantle 端点](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)。[在 Invoke API 旁边运行 Mantle](/docs/zh-CN/amazon-bedrock#run-mantle-alongside-the-invoke-api) 的会话使用两个提供商，因此需为其将 `"bedrock"` 和 `"mantle"` 一起列出
+  * `"customEndpoint"`：发送到其他主机的 Anthropic API 或云提供商的 API，例如由 `ANTHROPIC_BASE_URL` 或由提供商的端点变量（例如 `ANTHROPIC_BEDROCK_BASE_URL`）指定的 [LLM 网关](/docs/zh-CN/llm-gateway)。Claude Code 仅允许托管 [`env`](#env) 块所固定的确切值
   * `"gateway"`：[Cloud 网关](/docs/zh-CN/claude-apps-gateway)登录
 * **Default**: 未设置，因此可以使用任何提供商
 
@@ -5979,32 +5980,32 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
 }
 ```
 
-每个云提供商的条目意味着该提供商自己的服务，包括其区域、FIPS 和私有端点。
+每个云提供商的条目指该提供商自己的服务，包括其区域、FIPS 和私有端点。
 
-Claude Code 不识别为提供商名称的条目被删除并报告，列表的其余部分保持强制执行。使用空列表，或其每个条目都无法识别的列表，Claude Code 拒绝每个提供商并不在机器上启动。
+Claude Code 无法识别为提供商名称的条目会被删除并报告，列表的其余部分仍保持强制执行。如果列表为空，或其每个条目都无法识别，Claude Code 会拒绝所有提供商，并且不会在该机器上启动。
 
 <h4 id="endpoints-that-need-a-pin-in-managed-env">
   需要在托管 `env` 中固定的端点
 </h4>
 
-固定是在托管 [`env`](#env) 块中设置的端点变量的值。当会话将提供商的流量发送到该提供商自己的服务以外的地方时，Claude Code 仅在会话的值与固定值相同时允许它。这些端点需要一个：
+固定值是在托管 [`env`](#env) 块中设置的端点变量的值。当会话将提供商的流量发送到该提供商自己的服务以外的地方时，Claude Code 仅在会话的值与固定值相同时才允许它。以下端点需要固定值：
 
-* **`"customEndpoint"` 会话**：命名主机的变量，例如 `ANTHROPIC_BASE_URL`
-* **Amazon Bedrock**：AWS SDK 的 `AWS_ENDPOINT_URL`、`AWS_ENDPOINT_URL_BEDROCK` 和 `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` 变量当它们指向 Bedrock 自己的服务之外时。会话保持在 `"bedrock"` 下而不是 `"customEndpoint"`
-* **网关登录的 URL**：会话保持在 `"gateway"` 下，[`forceLoginGatewayUrl`](#forcelogingatewayurl) 也计为固定
+* **`"customEndpoint"` 会话**：指定主机的变量，例如 `ANTHROPIC_BASE_URL`
+* **Amazon Bedrock**：当 AWS SDK 的 `AWS_ENDPOINT_URL`、`AWS_ENDPOINT_URL_BEDROCK` 和 `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` 变量指向 Bedrock 自己的服务之外时。会话仍归于 `"bedrock"` 而不是 `"customEndpoint"`
+* **网关登录的 URL**：会话仍归于 `"gateway"`，[`forceLoginGatewayUrl`](#forcelogingatewayurl) 也计为固定值
 
-哪些 `env` 块计为固定取决于列表设置的位置：
+哪些 `env` 块计为固定值取决于列表设置的位置：
 
-* **机器上的管理员源设置列表**：仅机器自身管理员源的 `env` 块计为固定
-* **仅服务器托管设置设置列表**：这些服务器托管设置中的 `env` 值也计为固定
+* **机器上的管理员源设置了列表**：仅机器自身管理员源的 `env` 块计为固定值
+* **仅服务器托管设置设置了列表**：这些服务器托管设置中的 `env` 值也计为固定值
 
-列表不判断云提供商的凭证和租赁变量或网络路径，例如 `HTTPS_PROXY` 和证书设置。在托管 `env` 块中为舰队设置这些。
+该列表不评判云提供商的凭据和租户变量或网络路径，例如 `HTTPS_PROXY` 和证书设置。请在托管 `env` 块中为所有机器设置这些内容。
 
 <h3 id="apikeyhelper">
   `apiKeyHelper`
 </h3>
 
-运行您自己的命令来生成 Claude Code 随模型请求发送的凭证。Claude Code 通过系统 shell 运行该命令，在 macOS 和 Linux 上为 `/bin/sh`，在 Windows 上为 `cmd`，并将其输出作为 `X-Api-Key` 和 `Authorization: Bearer` 标头发送。将其用于动态或轮换凭证，例如从保管库获取的短期令牌。
+运行您自己的命令来生成 Claude Code 随模型请求发送的凭据。Claude Code 通过系统 shell 运行该命令，在 macOS 和 Linux 上为 `/bin/sh`，在 Windows 上为 `cmd`，并将其输出同时作为 `X-Api-Key` 和 `Authorization: Bearer` 标头发送。将其用于动态或轮换的凭据，例如从保管库获取的短期令牌。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: string，shell 命令行
@@ -6018,25 +6019,25 @@ Claude Code 不识别为提供商名称的条目被删除并报告，列表的�
 
 Claude Code 缓存该值并在以下情况下重新运行该命令：
 
-* 在缓存生命周期后，默认为五分钟或您使用 [`CLAUDE_CODE_API_KEY_HELPER_TTL_MS`](/docs/zh-CN/env-vars) 设置的间隔。
-* 当对 Anthropic API 的请求（直接或通过 [LLM gateway](/docs/zh-CN/llm-gateway)）失败并返回 `401` 或 `403` 时。
-* 在向 Anthropic API 发送请求之前（直接或通过 LLM gateway），当缓存的输出是在辅助程序生成后过期的 JWT 时。需要 Claude Code v2.1.246 或更高版本。
+* 在缓存生命周期之后，默认为五分钟或您使用 [`CLAUDE_CODE_API_KEY_HELPER_TTL_MS`](/docs/zh-CN/env-vars) 设置的间隔。
+* 当对 Anthropic API 的请求（直接或通过 [LLM 网关](/docs/zh-CN/llm-gateway)）失败并返回 `401` 或 `403` 时。
+* 在向 Anthropic API 发送请求之前（直接或通过 LLM 网关），当缓存的输出是在辅助程序生成后已过期的 JWT 时。需要 Claude Code v2.1.246 或更高版本。
 
-最后两种情况仅在辅助程序的输出是 Claude Code 发送的凭证且未设置 `ANTHROPIC_AUTH_TOKEN` 时适用。
+最后两种情况仅在辅助程序的输出是 Claude Code 发送的凭据且未设置 `ANTHROPIC_AUTH_TOKEN` 时适用。
 
-在交互式会话中，当命令来自项目或本地设置时，Claude Code 在您接受工作区信任提示之前不会运行它。请参阅[凭证管理](/docs/zh-CN/authentication#credential-management)。
+在交互式会话中，当命令来自项目或本地设置时，Claude Code 在您接受工作区信任提示之前不会运行它。请参阅[凭据管理](/docs/zh-CN/authentication#credential-management)。
 
 <h3 id="awsauthrefresh">
   `awsAuthRefresh`
 </h3>
 
-运行您自己的命令（例如 `aws sso login`），以在 Claude Code 用于 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 的凭证停止工作时刷新 `.aws` 目录中的凭证。Claude Code 首先根据 STS 检查当前凭证，仅在该检查失败时运行该命令，然后读取刷新的 `.aws` 目录。
+运行您自己的命令（例如 `aws sso login`），以在 Claude Code 用于 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 的凭据失效时刷新 `.aws` 目录中的凭据。Claude Code 首先通过 STS 检查当前凭据，仅在该检查失败时运行该命令，然后读取刷新后的 `.aws` 目录。
 
 当多个使用相同命令和凭据的 Claude Code 进程（例如不同的终端或 IDE 窗口）同时检查失败时，由一个进程运行该命令，其余进程等待该次运行，而不是各自启动运行。在有待处理请求的情况下已等待 60 秒的进程会自行运行该命令。要关闭此行为，请将 [`CLAUDE_CODE_DISABLE_AUTH_REFRESH_LOCK`](/docs/zh-CN/env-vars) 设置为 `1`。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: string，shell 命令行
-* **Default**: 未设置，因此 Claude Code 不为您刷新 AWS 凭证
+* **Default**: 未设置，因此 Claude Code 不会为您刷新 AWS 凭据
 
 ```json settings.json theme={null}
 {
@@ -6044,17 +6045,17 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 }
 ```
 
-当您的刷新流写入 `.aws` 时使用此密钥；当它打印凭证时使用 [`awsCredentialExport`](#awscredentialexport)。请参阅[高级凭证配置](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)。
+当您的刷新流程写入 `.aws` 时使用此设置项；当它打印凭据时改用 [`awsCredentialExport`](#awscredentialexport)。请参阅[高级凭据配置](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)。
 
 <h3 id="awscredentialexport">
   `awsCredentialExport`
 </h3>
 
-运行您自己的命令，该命令将 AWS 凭证打印为 JSON，以便 Claude Code 可以使用不存在于 `.aws` 目录中的凭证调用 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)。Claude Code 接受 `aws sts` 输出形状和平面 `aws configure export-credentials` 形状，并将凭证范围限定为其自己的 Bedrock 客户端，因此 Claude Code 运行的 shell 命令仍然看到您的环境凭证。
+运行您自己的命令，该命令将 AWS 凭据打印为 JSON，以便 Claude Code 可以使用不存放在 `.aws` 目录中的凭据调用 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)。Claude Code 接受 `aws sts` 输出格式和扁平的 `aws configure export-credentials` 格式，并将凭据限定于其自己的 Bedrock 客户端，因此 Claude 运行的 shell 命令仍然看到您的环境凭据。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: string，shell 命令行
-* **Default**: 未设置，因此 Claude Code 使用环境 AWS 凭证链
+* **Default**: 未设置，因此 Claude Code 使用环境中的 AWS 凭据链
 
 ```json settings.json theme={null}
 {
@@ -6062,20 +6063,20 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 }
 ```
 
-与 [`awsAuthRefresh`](#awsauthrefresh) 不同，Claude Code 在设置此命令时始终运行它，而不首先检查环境凭证。请参阅[高级凭证配置](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)。
+与 [`awsAuthRefresh`](#awsauthrefresh) 不同，只要设置了此命令，Claude Code 就始终运行它，而不会先检查环境凭据。请参阅[高级凭据配置](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)。
 
 <h3 id="forceloginmethod">
   `forceLoginMethod`
 </h3>
 
-限制人们可以使用哪种帐户登录。设置 `"claudeai"` 以仅允许 claude.ai 帐户，设置 `"console"` 以仅允许 Claude Console 帐户，或设置 `"gateway"` 以将人们发送到 [cloud gateway](/docs/zh-CN/claude-apps-gateway) 而不是第一方登录。管理员在托管设置中设置它，并将其与 [`forceLoginOrgUUID`](#forceloginorguuid) 配对，以将开发人员的 claude.ai 登录保持在一个组织内。如果您在任何设置文件中将其设置为 `"claudeai"` 或 `"console"`，Claude Code 也会停止在该文件适用的会话中提供[无密钥 Console 登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)。
+限制人们可以使用哪种帐户登录。设置 `"claudeai"` 以仅允许 claude.ai 帐户，设置 `"console"` 以仅允许 Claude Console 帐户，或设置 `"gateway"` 以将人们引导至 [cloud gateway](/docs/zh-CN/claude-apps-gateway) 而不是第一方登录。管理员在托管设置中设置它，并将其与 [`forceLoginOrgUUID`](#forceloginorguuid) 配合使用，以将开发人员的 claude.ai 登录限制在一个组织内。如果您在任何设置文件中将其设置为 `"claudeai"` 或 `"console"`，Claude Code 也会在该文件适用的会话中停止提供[无密钥 Console 登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)。
 
-* **Scope**: [`Any file`](#scopes)。Claude Code 仅从机器上的托管源（`managed-settings.json`、macOS plist 或 Windows HKLM 注册表或策略辅助程序）接受 `"gateway"`。它在用户、项目、本地、HKCU 和服务器托管设置中将 `"gateway"` 视为未设置，与 [`forceLoginGatewayUrl`](#forcelogingatewayurl) 的规则相同。
+* **Scope**: [`Any file`](#scopes)。Claude Code 仅接受来自机器上托管源（`managed-settings.json`、macOS plist 或 Windows HKLM 注册表或策略辅助程序）的 `"gateway"`。它在用户、项目、本地、HKCU 和服务器托管设置中将 `"gateway"` 视为未设置，与 [`forceLoginGatewayUrl`](#forcelogingatewayurl) 的规则相同。
 * **Type**: string，以下之一：
   * `"claudeai"`：仅 claude.ai 帐户可以登录
   * `"console"`：仅 Claude Console 帐户可以登录
-  * `"gateway"`：Claude Code 将人们发送到 cloud gateway 而不是第一方登录
-* **Default**: 未设置，因此人们选择登录方法
+  * `"gateway"`：Claude Code 将人们引导至 cloud gateway 而不是第一方登录
+* **Default**: 未设置，因此人们自行选择登录方法
 
 ```json settings.json theme={null}
 {
@@ -6083,20 +6084,20 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 }
 ```
 
-每个第一方登录路径都应用该限制，包括 [VS Code 扩展](/docs/zh-CN/vs-code)、Agent SDK、`claude setup-token` 和 `/install-github-app`，除了终端的交互式登录屏幕（通过 `/login` 或首次运行入门到达），它预选择该方法而不强制执行。在 v2.1.212 之前，仅终端登录应用了它。请参阅[限制登录到您的组织](/docs/zh-CN/authentication#restrict-login-to-your-organization)，了解如何处理每个登录路径、环境凭证和第三方提供商。
+每个第一方登录路径都会应用该限制，包括 [VS Code 扩展](/docs/zh-CN/vs-code)、Agent SDK、`claude setup-token` 和 `/install-github-app`，但终端的交互式登录屏幕（通过 `/login` 或首次运行引导进入）除外，它会预先选择该方法但不强制执行。在 v2.1.212 之前，仅终端登录应用该限制。请参阅[限制登录到您的组织](/docs/zh-CN/authentication#restrict-login-to-your-organization)，了解如何处理每个登录路径、环境凭据和第三方提供商。
 
-当机器上的托管源设置 `"gateway"` 时，Claude Code 不使用剩余登录、API 密钥或 `apiKeyHelper` 凭证。请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)，了解每个凭证生成的消息。如果您通过 `CLAUDE_CODE_USE_BEDROCK` 或类似的环境变量选择云提供商，该会话不需要网关登录。在 v2.1.261 之前，Claude Code 在这些机器上使用了剩余登录。
+当机器上的托管源设置 `"gateway"` 时，Claude Code 不会使用遗留的登录、API 密钥或 `apiKeyHelper` 凭据。请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)，了解每种情况生成的消息。如果您通过 `CLAUDE_CODE_USE_BEDROCK` 或类似的环境变量选择云提供商，该会话不需要网关登录。在 v2.1.261 之前，Claude Code 在这些机器上会使用遗留的登录。
 
 <h3 id="forcelogingatewayurl">
   `forceLoginGatewayUrl`
 </h3>
 
-设置 `/login` Cloud gateway 屏幕连接到的网关 URL，以便人们可以到达您的 [cloud gateway](/docs/zh-CN/claude-apps-gateway) 而无需输入其地址。该屏幕没有 URL 字段：设置此密钥后，它显示您的网关 URL 并在人们按 Enter 时连接；不设置时，它告诉他们联系其 IT 管理员。
+设置 `/login` Cloud gateway 屏幕连接到的网关 URL，以便人们无需输入地址即可访问您的 [cloud gateway](/docs/zh-CN/claude-apps-gateway)。该屏幕没有 URL 字段：设置此设置项后，它会显示您的网关 URL，并在用户按 Enter 时连接；未设置时，它会告诉用户联系其 IT 管理员。
 
-此密钥或 `forceLoginMethod: "gateway"` 使机器仅限网关，除了使用 `CLAUDE_CODE_USE_*` 选择云提供商的会话外。`/login` 然后在 Cloud gateway 屏幕上打开，没有登录方法选择器。请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)，了解剩余第一方登录或 API 密钥会发生什么。设置两个密钥，以便屏幕连接而不是显示错误。
+此设置项或 `forceLoginMethod: "gateway"` 都会使机器仅限网关，但使用 `CLAUDE_CODE_USE_*` 选择云提供商的会话除外。此时 `/login` 会直接打开 Cloud gateway 屏幕，没有登录方法选择器。请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)，了解遗留的第一方登录或 API 密钥会发生什么。请同时设置这两个设置项，以便屏幕能够连接而不是显示错误。
 
 * **Scope**: [`Managed`](#scopes)。仅从机器上的源读取：`managed-settings.json`、macOS plist 或 Windows HKLM 注册表或策略辅助程序。Claude Code 在 HKCU 和服务器托管设置中忽略它。
-* **Type**: string，包括方案的完整 URL
+* **Type**: string，包含协议方案的完整 URL
 * **Default**: 未设置，因此 Cloud gateway 屏幕显示错误，告诉人们联系其 IT 管理员
 
 ```json managed-settings.json theme={null}
@@ -6105,19 +6106,19 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 }
 ```
 
-如果该值不是有效的 URL，登录屏幕会报告它，托管设置文件的其余部分仍然适用。请参阅[设置网关 URL](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url)。
+如果该值不是有效的 URL，登录屏幕会报告该问题，托管设置文件的其余部分仍然适用。请参阅[设置网关 URL](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url)。
 
 <h3 id="forceloginorguuid">
   `forceLoginOrgUUID`
 </h3>
 
-从托管源，要求 claude.ai 帐户登录属于一个 Anthropic 组织（给定为单个 UUID）或属于多个组织（给定为数组）。从任何设置文件，Claude Code 也使用单个 UUID 在 claude.ai 或 Claude Console 登录期间预选择该组织，对于数组预选择任何内容。如果您在任何设置文件中设置该密钥，Claude Code 也会停止在该文件适用的会话中提供[无密钥 Console 登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)，并改为创建 API 密钥。
+在托管源中，要求 claude.ai 帐户登录属于某一个 Anthropic 组织（以单个 UUID 给出），或属于多个组织中的任意一个（以数组给出）。在任何设置文件中，Claude Code 还会使用单个 UUID 在 claude.ai 或 Claude Console 登录期间预先选择该组织，而对于数组则不预选任何组织。如果您在任何设置文件中设置此设置项，Claude Code 也会在该文件适用的会话中停止提供[无密钥 Console 登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)，并改为创建 API 密钥。
 
-* **Scope**: [`Any file`](#scopes)。仅托管源强制执行限制；任何其他设置文件中的单个 UUID 在登录期间预选择组织而不限制它。
+* **Scope**: [`Any file`](#scopes)。仅托管源会强制执行限制；任何其他设置文件中的单个 UUID 只会在登录期间预先选择组织，而不会限制它。
 * **Type**: string，一个 UUID，或字符串数组，多个 UUID
 * **Default**: 未设置，因此任何组织都可以登录
 
-此示例接受来自两个组织之一的登录，而不预选择一个：
+此示例接受来自两个组织中任意一个的登录，而不预先选择其中之一：
 
 ```json managed-settings.json theme={null}
 {
@@ -6125,20 +6126,20 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 }
 ```
 
-如果托管源设置空数组或 Claude Code 无法解析的值，Claude Code 会使用错误配置消息阻止每个登录。
+如果托管源设置了空数组或 Claude Code 无法解析的值，Claude Code 会以配置错误消息阻止所有登录。
 
-请参阅[限制登录到您的组织](/docs/zh-CN/authentication#restrict-login-to-your-organization)，了解 Claude Code 如何处理 Claude Console 登录、其他登录路径和环境凭证。
+请参阅[限制登录到您的组织](/docs/zh-CN/authentication#restrict-login-to-your-organization)，了解 Claude Code 如何处理 Claude Console 登录、其他登录路径和环境凭据。
 
 <h3 id="gatewayinternalnetworks">
   `gatewayInternalNetworks`
 </h3>
 
-声明您的组织从其内部网络编号的公共 IPv4 块，以便 `/login` 在那里接受 [cloud gateway](/docs/zh-CN/claude-apps-gateway)。需要 Claude Code v2.1.268 或更高版本。
+声明您的组织用于为其内部网络编址的公共 IPv4 地址块，以便 `/login` 接受位于其中的 [cloud gateway](/docs/zh-CN/claude-apps-gateway)。需要 Claude Code v2.1.268 或更高版本。
 
-没有此密钥，`/login` 连接到私有地址上的任何网关，仅此而已。有了它，`/login` 也接受列出的块内的网关，仅通过直接连接。该机器在该连接上的自身地址也必须在同一块内。
+未设置此设置项时，`/login` 只会连接到私有地址上的网关。设置后，`/login` 还会接受位于所列地址块内的网关，但仅限直接连接。该机器在该连接上的自身地址也必须位于同一地址块内。
 
 * **Scope**: [`Managed`](#scopes)。仅从机器上的源读取：`managed-settings.json`、macOS plist 或 Windows HKLM 注册表或策略辅助程序。Claude Code 在 HKCU 和服务器托管设置中忽略它。
-* **Type**: 字符串数组，最多四个 IPv4 CIDR 块，每个 `/8` 到 `/32`，彼此不重叠，且都不与私有空间重叠。
+* **Type**: 字符串数组，最多四个 IPv4 CIDR 块，每个为 `/8` 到 `/32`，彼此不重叠，且都不与私有地址空间重叠。
 * **Default**: 未设置，因此 `/login` 仅接受私有地址上的网关
 
 ```json managed-settings.json theme={null}
@@ -6147,21 +6148,21 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 }
 ```
 
-将示例中的文档范围替换为您自己的块。Claude Code 拒绝文档范围、VPN 和 NAT64 客户端在本地使用的范围，以及保留空间（没有网络从其编号），例如多播。
+请将示例中的文档专用地址范围替换为您自己的地址块。Claude Code 会拒绝文档专用地址范围、VPN 和 NAT64 客户端在本地使用的地址范围，以及不用于任何网络编址的保留地址空间，例如多播。
 
-如果条目无效或值不是字符串列表，`/login` 会命名问题，并拒绝机器上的每个新网关登录，直到您修复该值。现有登录继续工作。请参阅[允许网关在您拥有的公共地址空间上](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)，了解完整规则和开发人员看到的内容。
+如果某个条目无效，或该值不是字符串列表，`/login` 会指明问题，并拒绝该机器上的所有新网关登录，直到您修复该值。现有登录继续有效。请参阅[允许网关在您拥有的公共地址空间上](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)，了解完整规则以及开发人员看到的内容。
 
 <h3 id="gcpauthrefresh">
   `gcpAuthRefresh`
 </h3>
 
-运行您自己的命令以在 Claude Code 发现 Google Cloud Application Default Credentials 已过期或无法加载时刷新它们，以便 [Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai) 请求继续工作，而无需您手动重新身份验证。
+运行您自己的命令，以在 Claude Code 发现 Google Cloud Application Default Credentials 已过期或无法加载时刷新它们，以便 [Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 请求继续正常工作，而无需您手动重新进行身份验证。
 
 当多个使用相同命令和凭据的 Claude Code 进程（例如不同的终端或 IDE 窗口）同时发现凭据已过期时，由一个进程运行该命令，其余进程等待该次运行，而不是各自启动运行。在有待处理请求的情况下已等待 60 秒的进程会自行运行该命令。要关闭此行为，请将 [`CLAUDE_CODE_DISABLE_AUTH_REFRESH_LOCK`](/docs/zh-CN/env-vars) 设置为 `1`。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: string，shell 命令行
-* **Default**: 未设置，因此 Claude Code 的凭证错误告诉您自己运行 `gcloud auth application-default login`
+* **Default**: 未设置，因此 Claude Code 的凭据错误会提示您自行运行 `gcloud auth application-default login`
 
 ```json settings.json theme={null}
 {
@@ -6169,16 +6170,16 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 }
 ```
 
-请参阅[高级凭证配置](/docs/zh-CN/google-vertex-ai#advanced-credential-configuration)。
+请参阅[高级凭据配置](/docs/zh-CN/google-vertex-ai#advanced-credential-configuration)。
 
 <h3 id="otelheadershelper">
   `otelHeadersHelper`
 </h3>
 
-运行您自己的命令以生成 Claude Code 随 OpenTelemetry 导出发送的标头，用于令牌轮换的后端。Claude Code 在启动时运行它，之后定期运行，并期望在 stdout 上获得字符串标头值的 JSON 对象。
+运行您自己的命令以生成 Claude Code 随 OpenTelemetry 导出发送的标头，适用于令牌会轮换的后端。Claude Code 在启动时运行它，之后定期运行，并期望在 stdout 上获得由字符串标头值组成的 JSON 对象。
 
 * **Scope**: [`Any file`](#scopes)
-* **Type**: string，可执行路径或 shell 命令行
+* **Type**: string，可执行文件路径或 shell 命令行
 * **Default**: 未设置，因此 Claude Code 不添加辅助程序生成的标头
 
 ```json settings.json theme={null}
@@ -6187,7 +6188,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 }
 ```
 
-使用 [`CLAUDE_CODE_OTEL_HEADERS_HELPER_DEBOUNCE_MS`](/docs/zh-CN/env-vars) 设置刷新间隔。请参阅[动态标头](/docs/zh-CN/monitoring-usage#dynamic-headers)，了解脚本要求以及 Claude Code 报告失败辅助程序的位置。
+使用 [`CLAUDE_CODE_OTEL_HEADERS_HELPER_DEBOUNCE_MS`](/docs/zh-CN/env-vars) 设置刷新间隔。请参阅[动态标头](/docs/zh-CN/monitoring-usage#dynamic-headers)，了解脚本要求以及辅助程序失败时会发生什么。
 
 <h2 id="updates-and-versioning">
   更新和版本控制
@@ -6768,12 +6769,14 @@ Claude Code 在 `settings.json` 中忽略此键。
   `claudeInChromeDefaultEnabled`
 </h3>
 
-启动每个交互式 CLI 会话时，[Chrome 集成](/docs/zh-CN/chrome)默认打开，无需每次都传递 `--chrome`。如果你运行 [`claude remote-control`](/docs/zh-CN/remote-control)，它为你的某个[项目](/docs/zh-CN/claude-projects)线程启动的会话也遵循此键，除非在 `bypassPermissions` 模式下。运行 `/chrome` 并选择**默认启用**会为你设置此键，如[启用 Chrome 默认设置](/docs/zh-CN/chrome#enable-chrome-by-default)中所述。在 `/config` 中显示为**默认启用 Chrome 中的 Claude**。
+启动每个交互式 CLI 会话时默认打开 [Chrome 集成](/docs/zh-CN/chrome)，无需每次都传递 `--chrome`。如果您运行 [`claude remote-control`](/docs/zh-CN/remote-control)，它为您的某个[项目](/docs/zh-CN/claude-projects)线程启动的会话也遵循此键，但 `bypassPermissions` 模式除外。在 Claude Code v2.1.287 或更高版本中，此键也适用于 [VS Code 扩展](/docs/zh-CN/vs-code#automate-browser-tasks-with-chrome)中的会话：请参阅[默认启用 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default)。
+
+运行 `/chrome` 并选择**默认启用**会为您设置此键。在 `/config` 中显示为**默认启用 Chrome 中的 Claude**。
 
 * **作用域**: [`全局配置`](#scopes)
 * **类型**: 布尔值
-  * `true`: 当交互式 CLI 会话启动时，Claude Code 打开 Chrome 集成，就像你传递 `--chrome` 时一样
-  * `false`: 交互式 CLI 会话启动时 Chrome 集成关闭，Claude Code 停止[提供设置它](/docs/zh-CN/chrome#install-the-extension-when-claude-asks)。传递 `--chrome` 为一个交互式会话打开它
+  * `true`: 当交互式 CLI 会话启动时，Claude Code 打开 Chrome 集成，就像传递 `--chrome` 时一样。在 VS Code 扩展中，会话在启动时连接到浏览器
+  * `false`: 交互式 CLI 会话启动时 Chrome 集成关闭，Claude Code 不再[提议进行设置](/docs/zh-CN/chrome#install-the-extension-when-claude-asks)。传递 `--chrome` 可为单个交互式会话打开它。在 VS Code 扩展中，会话在您输入 `@browser` 时连接，与未设置此键时相同
 * **默认值**: 未设置，因此 Chrome 集成关闭，Claude Code 仍然可以提供设置它
 * **每个会话的覆盖**: `--chrome` 和 [`--no-chrome`](/docs/zh-CN/cli-reference) 在一个交互式会话中优先于此键
 

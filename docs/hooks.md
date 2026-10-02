@@ -1879,7 +1879,7 @@ Windows 上的 `Write` 调用传递：
 
 | 字段 | 类型 | 示例 | 描述 |
 | :- | :- | :- | :- |
-| `status` | string | `"completed"` | 前台子 agents 为 `"completed"`，后台子 agents 为 `"async_launched"`。从 v2.1.198 起，子 agents 默认在后台运行，因此省略的 `run_in_background` 也产生 `"async_launched"` |
+| `status` | string | `"completed"` | 前台子代理为 `"completed"`，后台子代理为 `"async_launched"`。子代理默认在后台运行，因此省略 `run_in_background` 的 Agent 调用也会产生 `"async_launched"` |
 | `agentId` | string | `"a4d2c8f1e0b3a297"` | 子 agent 运行的标识符 |
 | `content` | array | `[{"type": "text", "text": "Found 12 endpoints..."}]` | 子 agent 的最终文本块，或对于其报告通过 `SubagentHandback` 的子 agent，关于该交接的简短说明代替 |
 | `resolvedModel` | string | `"claude-sonnet-4-5"` | 子 agent 启动的模型，可能与请求的模型不同 |
@@ -2439,8 +2439,6 @@ PermissionDenied hooks 可以告诉模型它可能重试被拒绝的工具调用
 | `quota_auto_resume_fired` | Claude Code 在 claude.ai 使用限制暂停它后继续您的任务：在重置时，或更早当您在 Claude Code 中做的某事（如添加使用信用、升级您的计划或切换模型）在等待期间使使用可用时，带有 [模型设置异常](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset) |
 | `quota_auto_resume_stale` | claude.ai 使用限制在您的计算机睡眠超过约 30 分钟时重置。Claude Code 等待您按 `Enter` 而不是继续。在更短的睡眠后它继续并改为触发 `quota_auto_resume_fired` |
 | `quota_auto_resume_disabled` | Claude Code 结束其对 claude.ai 使用限制的等待而不继续您的任务：[`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit) 关闭或重置在 Claude Code 自己启动的等待期间移动超过 24 小时，继续的任务继续命中限制，或继续在到达模型之前被阻止。当您按 `Esc` 或 `Ctrl+C` 或选择 **Don't continue automatically** 时不触发 |
-
-`agent_needs_input` 和 `agent_completed` 类型需要 Claude Code v2.1.198 或更高版本。
 
 `quota_auto_resume_fired`、`quota_auto_resume_stale` 和 `quota_auto_resume_disabled` 类型需要 Claude Code v2.1.234 或更高版本。
 
@@ -4123,13 +4121,11 @@ Claude Code 在运行来自设置文件的任何 hook 之前会检查工作区�
 }
 ```
 
-要从 PowerShell shell 形式命令引用项目根目录，请写入 `${CLAUDE_PROJECT_DIR}` 或 `$env:CLAUDE_PROJECT_DIR`。从 v2.1.198 开始，Claude Code 会将 PowerShell shell 形式命令中的 `${CLAUDE_PROJECT_DIR}`、`${CLAUDE_PLUGIN_ROOT}` 和 `${CLAUDE_PLUGIN_DATA}` 占位符重写为 PowerShell 的 `${env:NAME}` 形式，无论 hook 是在 `settings.json`、插件还是技能中定义。PowerShell 在解析后从导出的环境中解析该值，因此占位符在双引号字符串内有效，但在单引号字符串内无效，PowerShell 在单引号字符串中永远不会展开变量。
-
-在 v2.1.198 之前，此重写仅适用于插件 hooks。在早期版本上，`settings.json` hook 需要 `$env:` 形式或 [exec 形式](#exec-form-and-shell-form)，其中 `${CLAUDE_PROJECT_DIR}` 在每个 `args` 元素中被替换，无论 hook 在何处定义。
+要从 PowerShell shell 形式命令引用项目根目录，请写入 `${CLAUDE_PROJECT_DIR}` 或 `$env:CLAUDE_PROJECT_DIR`。Claude Code 会将 PowerShell shell 形式命令中的 `${CLAUDE_PROJECT_DIR}`、`${CLAUDE_PLUGIN_ROOT}` 和 `${CLAUDE_PLUGIN_DATA}` 占位符重写为 PowerShell 的 `${env:NAME}` 形式，无论 hook 是在 `settings.json`、插件还是 skill 中定义。PowerShell 随后在解析后从导出的环境中解析该值，因此占位符在双引号字符串内有效，但在单引号字符串内无效，PowerShell 在单引号字符串中永远不会展开变量。
 
 不要在 PowerShell hook 中写入裸 `$CLAUDE_PROJECT_DIR` 拼写。PowerShell 将其解析为未定义的本地变量，并将其解析为 `$null`，这会导致脚本路径没有其项目根前缀。Claude Code 不会重写该形式；它会在 [debug log](#debug-hooks) 中记录警告。
 
-下面的示例显示了一个 `settings.json` hook，它使用 `$env:` 形式运行项目脚本，该形式在每个版本上都有效：
+下面的示例显示了一个 `settings.json` hook，它使用 `$env:` 形式运行项目脚本：
 
 ```json theme={null}
 {

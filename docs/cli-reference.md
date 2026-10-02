@@ -117,7 +117,7 @@
 | `--permission-prompts` | 在打印模式下设置谁回答权限提示。使用默认 `host`，Claude Code 将它们发送到 Agent SDK 主机或 `--permission-prompt-tool` 工具。当没有人可以回答时传递 `none`，Claude Code 改为拒绝它们。请参阅[在无人值守运行中关闭权限提示](/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs)。需要 Claude Code v2.1.259 或更高版本 | `claude -p --permission-prompts none "query"` |
 | `--plugin-dir` | 从目录或 `.zip` 存档加载 plugin，或从[plugins 文件夹](/docs/zh-CN/plugins/create#load-a-directory-or-archive-for-one-session)加载多个，仅用于此会话。每个标志采用一个路径。重复标志以获取更多路径：`--plugin-dir A --plugin-dir B.zip`。传递 plugins 文件夹需要 Claude Code v2.1.265 或更高版本 | `claude --plugin-dir ./my-plugin` |
 | `--plugin-url` | 从 URL 获取 plugin `.zip` 存档，仅用于此会话。重复标志以获取多个 plugins，或在单个引用值中传递空格分隔的 URL | `claude --plugin-url https://example.com/plugin.zip` |
-| `--print`, `-p` | 打印响应而不进行交互模式（有关编程使用详情，请参阅 [Agent SDK 文档](/docs/zh-CN/agent-sdk/overview)）。对于在仍在运行的后台会话上 `--resume`，请参阅[恢复会话](/docs/zh-CN/sessions#resume-a-running-background-session) | `claude -p "query"` |
+| `--print`, `-p` | 打印回复而不进入交互模式（有关编程使用详情，请参阅 [Agent SDK 文档](/docs/zh-CN/agent-sdk/overview)）。关于对仍在运行的后台会话使用 `--resume`，请参阅[恢复正在运行的后台会话](/docs/zh-CN/sessions#resume-a-running-background-session) | `claude -p "query"` |
 | `--prompt-suggestions` | 在生成提示建议的每个转之后发出 `prompt_suggestion` 消息，其中包含预测的下一个用户提示；非常短的对话可能不会产生任何。需要 `--print`、`--output-format stream-json` 和 `--verbose`。请参阅[提示建议](/docs/zh-CN/interactive-mode#prompt-suggestions) | `claude -p --prompt-suggestions --output-format stream-json --verbose "query"` |
 | `--ref <branch>` | 使用 `--environment`，基于命名的 ref 而不是本地 `HEAD` 的新会话检出 | `claude -p "Run the smoke test" --environment ccpool_abc123 --ref main` |
 | `--remote` | `--cloud` 的已弃用别名，包括现有会话形式 | `claude --remote "Fix the login bug"` |

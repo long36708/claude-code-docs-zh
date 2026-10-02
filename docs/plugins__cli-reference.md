@@ -269,21 +269,35 @@ claude plugin update <plugin> [options]
 | `--accept-command <sha256>` | 代替 `-y`，接受之前某次 [`--json` 运行](#plugin-json-result)在 `shownCommand` 中报告了其 `sha256` 的市场声明命令。不能与 `-y` 组合使用。需要 Claude Code v2.1.271 或更高版本 |
 | `--json` | 将结果作为一个 JSON 对象打印在 stdout 的最后一行，格式与 [`plugin install --json`](#plugin-json-result) 相同。需要 Claude Code v2.1.268 或更高版本 |
 
-如果省略 `--scope`，命令会在当前项目中插件安装所在的最具体作用域更新插件，依次检查 local、project、user，然后是 managed。
-
-在 v2.1.281 之前，省略 `--scope` 时命令使用 `user`，因此更新仅安装在 project 或 local 作用域的插件会失败，并显示 `Plugin "<name>" is not installed at scope user`。在这些版本上，请传递 `--scope`。
-
-`managed` 是唯一可以更新但不能安装到的作用域。有关管理员安装的插件，请参阅[为组织管理插件](/docs/zh-CN/plugins/org)。
-
 更新插件：
 
 ```bash theme={null}
 claude plugin update formatter@my-marketplace
 ```
 
-Claude Code 打印 `Checking for updates for plugin "formatter@my-marketplace"…`，然后打印结果。当没有更新的版本时，它会打印 `formatter is already at the latest version (1.0.0).` 并以 `0` 退出。
+Claude Code 打印 `Checking for updates for plugin "formatter@my-marketplace"…`，然后打印结果。当没有更新的版本时，它会打印 `formatter is already at the latest version (1.0.0).` 并以 `0` 退出，除非它[重试插件的依赖安装](#retry-an-unfinished-dependency-install)且该安装失败。
+
+<h4 id="which-scope-the-command-updates">
+  命令更新哪个作用域
+</h4>
+
+如果省略 `--scope`，命令会在当前项目中插件安装所在的最具体作用域更新插件，依次检查 local、project、user，然后是 managed。
+
+在 v2.1.281 之前，省略 `--scope` 时命令使用 `user`，因此更新仅安装在 project 或 local 作用域的插件会失败，并显示 `Plugin "<name>" is not installed at scope user`。在这些版本上，请传递 `--scope`。
+
+`managed` 是唯一可以更新但不能安装到的作用域。有关管理员安装的插件，请参阅[为组织管理插件](/docs/zh-CN/plugins/org)。
+
+<h4 id="update-by-bare-name">
+  按裸名称更新
+</h4>
 
 您可以传递不带市场的插件名称，命令会将其与已安装的插件进行匹配。当来自不同市场的已安装插件同名时，命令会拒绝更新，并列出应改为运行的限定 `plugin-name@marketplace-name` 命令。按裸名称更新需要 Claude Code v2.1.246 或更高版本。
+
+<h4 id="retry-an-unfinished-dependency-install">
+  重试未完成的依赖安装
+</h4>
+
+当插件已是最新版本时，该命令还可以在其缓存副本中重试未完成的依赖安装。有关该重试会运行或被跳过的情况，请参阅[其列出的软件包未安装](/docs/zh-CN/plugins/troubleshooting#the-packages-it-lists-are-not-installed)。如果重试失败，输出为 `Failed to update plugin "formatter@my-marketplace"` 及原因，退出码为 `1`。在 v2.1.287 之前，该命令会报告插件已是最新版本，而不重试安装。
 
 <h3 id="plugin-list">
   plugin list
@@ -328,7 +342,7 @@ Claude Code 按各插件的加载方式对人类可读的输出进行分组：
 | `projectPath` | string | 安装所属的项目。仅限 `project` 和 `local` 作用域 |
 | `mcpServers` | object | 插件的 MCP 服务器定义，仅当市场安装的插件包含 MCP 服务器时出现 |
 | `errors` | array of strings | 加载错误，仅当插件加载失败时出现 |
-| `notes` | array of strings | 针对已加载且可正常工作的插件的编写警告 |
+| `notes` | array of strings | 非加载错误的警告，例如编写问题或[未安装的软件包](/docs/zh-CN/plugins/loading#when-the-dependency-install-fails-or-is-skipped) |
 | `errorDetails` | array of objects | 每个 `errors` 条目对应一个对象，给出其诊断 `type` 以及它所引用的名称，例如插件、市场、服务器或文件。需要 Claude Code v2.1.268 或更高版本 |
 | `noteDetails` | array of objects | 每个 `notes` 条目对应的相同详细对象。需要 Claude Code v2.1.268 或更高版本 |
 | `hasUserConfig` | boolean | 当插件已加载且其清单声明了 [`userConfig` 选项](/docs/zh-CN/plugins/manifest-reference#user-configuration)时存在且为 `true`。对于加载失败的插件，无论其清单声明什么，该字段都不存在。永远不包含已保存的值。需要 Claude Code v2.1.285 或更高版本 |
@@ -473,7 +487,7 @@ claude plugin eval [target] [options]
 | `--runs <n>` | 每个 [arm](/docs/zh-CN/plugin-evals#compare-against-a-no-plugin-baseline) 中每个案例的运行次数 | 每个案例的 `runs`，否则为 3 |
 | `-j, --concurrency <n>` | 同时运行的 Agent 会话数，1 到 8。它们共享您的速率限制 | `1` |
 | `--model <model>` | 被测 Agent 使用的模型 | 每个案例的 `model`；否则如已设置则为 `ANTHROPIC_MODEL`；否则为 Claude Code 的默认模型 |
-| `--judge-model <model>` | `llm` 和 `baseline` 评分器使用的模型 | 一个小型快速模型 |
+| `--judge-model <model>` | `llm` 和 `baseline` 评分器使用的模型 | [后台任务](/docs/zh-CN/plugin-evals#grade-the-result)使用的模型 |
 | `--ablation <mode>` | `none` 或 `with-without`。请参阅[根据无插件基线评分](/docs/zh-CN/plugin-evals#compare-against-a-no-plugin-baseline) | 按案例决定，如该章节所述 |
 | `--threshold <0..1>` | 如果任何案例的得分低于此值，则以 1 退出 | `1.0` |
 | `--max-cost-usd <usd>` | 一旦支出达到此值，在下一次运行前停止，以 2 退出，并报告部分结果 | 无限制 |

@@ -206,8 +206,6 @@ Hooks 让你在 Claude Code 生命周期中的关键点运行代码：编辑后�
 
 Claude Code 在终端和通过 Agent SDK 回答权限请求的 Claude Desktop、VS Code 扩展和其他主机中对 `permission_prompt` 的时间不同。请参阅[每个通知类型何时触发](/docs/zh-CN/hooks#notification)以了解两种时间。
 
-`agent_needs_input` 和 `agent_completed` 匹配器需要 Claude Code v2.1.198 或更高版本。
-
 `quota_auto_resume_fired`、`quota_auto_resume_stale` 和 `quota_auto_resume_disabled` 匹配器需要 Claude Code v2.1.234 或更高版本。
 
 在终端会话中，沙箱命令的网络请求的 `permission_prompt` 需要 Claude Code v2.1.246 或更高版本。

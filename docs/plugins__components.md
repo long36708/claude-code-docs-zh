@@ -507,7 +507,7 @@ Claude Code 插件由多个组件构建而成，例如 skills、agents、hooks �
   </Piece>
 
   <Piece id="monitors">
-    监视器是一个 shell 命令，Claude Code 在会话启动时在后台启动并保持运行直到会话结束，使用 [Monitor 工具](/docs/zh-CN/tools-reference#monitor-tool)。它打印的内容作为通知到达 Claude。`when` 字段可以改为在命名 skill 首次运行时启动它。这个跟踪错误日志：
+    监视器是一个 shell 命令，Claude Code 在会话启动时在后台启动它，并保持运行直到会话结束。它打印的内容作为通知到达 Claude。`when` 字段可以改为在命名 skill 首次运行时启动它。这个跟踪错误日志：
 
     ```json theme={null}
     [
@@ -1038,7 +1038,7 @@ monitor 是在整个会话中在后台运行的 shell 命令。它打印的内�
 
 monitor 的命令在其启动位置和可以引用的内容方面受到限制：
 
-* **仅交互式会话**：插件 monitors 在交互式会话中启动，从不在带 `-p` 标志的非交互式模式中启动。它们也仅在 [Monitor 工具](/docs/zh-CN/tools-reference#monitor-tool) 可用的地方启动
+* **仅限交互式会话**：插件 monitor 在交互式会话中启动，从不在使用 `-p` 标志的非交互模式中启动。在 API 提供商或遥测设置导致 [Monitor 工具](/docs/zh-CN/tools-reference#monitor-tool) 不可用的会话中，它们也不会启动
 * **无用户配置**：`command` 从环境中获取 [路径变量](#path-variables-and-persistent-data) 和 `${ENV_VAR}`，但从不获取 `${user_config.*}`。引用一个的 monitor 不启动，monitor 进程也不接收 `CLAUDE_PLUGIN_OPTION_<KEY>`
 * **会话中期禁用**：如果你在会话中期禁用插件，Claude Code 不会停止已经运行的 monitors。它们在会话结束时停止
 

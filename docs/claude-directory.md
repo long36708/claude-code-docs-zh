@@ -1620,9 +1620,11 @@ Claude Code 在这些情况下跳过基于年龄的扫描：
 | `cache/changelog.md` | Claude Code changelog 的缓存副本，由 `/release-notes` 显示。在后台刷新。 |
 | `policy-limits.json` | 为您的组织缓存的功能策略设置。仅对某些账户类型存在。自动刷新。`policy-limits.json.stamp.json` sidecar 记录缓存属于哪个账户或 API 密钥。Claude Code 在您注销时删除两个文件。 |
 
-<span id="state-files-to-keep" />
+<h4 id="state-files-to-keep">
+  需保留的状态文件
+</h4>
 
-其他文件根据您使用的功能而出现。缓存和锁定文件可以安全删除。保留这些状态文件：
+根据您使用的功能，`~/.claude/` 中还会保存[应用数据](#application-data)下各表未列出的文件。其中，缓存和锁定文件可以安全删除。请保留以下状态文件：
 
 * `.credentials.json`：您的 [login credentials](/docs/zh-CN/authentication#credential-management)
 * `agent-memory/`：[subagent memory](/docs/zh-CN/sub-agents#enable-persistent-memory)

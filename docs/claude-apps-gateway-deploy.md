@@ -344,12 +344,27 @@ rate_limits:
 * **主机进程流量**：主机进程是 Claude Code CLI。`claude gateway` 在与 Amazon Bedrock 和 Google Cloud 的 Agent Platform 部署相同的第三方规则下运行，不向 Anthropic 发送任何内容。在 v2.1.227 之前，主机进程发送启动遥测，例如产品版本和平台，在容器环境中设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 关闭。这些版本也在启动时发送一个 `HEAD` 请求，没有正文或凭证，到 `https://api.anthropic.com` 上的 `/api/hello`，或在环境设置时的 `ANTHROPIC_BASE_URL` 上，除非环境也设置了代理变量（如 `HTTPS_PROXY`）或 mTLS 客户端证书。它们忽略了响应，因此在出口防火墙处阻止该请求不影响网关。
 * **客户端分析**：CLI 在登录到网关时禁用自己的使用分析和错误报告。在第一次登录之前，CLI 仍然向 Anthropic 发送启动事件，包括在托管设置强制网关登录的机器上。要保持这些关闭，在强制网关登录的相同 [客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings) 中传递 [`DISABLE_TELEMETRY`](/docs/zh-CN/managed-settings#turn-telemetry-off-for-your-organization)。
 * **错误报告**：每当 CLI 的模型请求去往 Anthropic 的第一方 API 以外的任何端点（如 Amazon Bedrock 或自定义 `ANTHROPIC_BASE_URL`）时，CLI 关闭错误报告。
-* **客户端机器**：开发者的 CLI 仍然向 Anthropic 发送 WebFetch 主机名检查和版本检查，除非设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 和 `skipWebFetchPreflight: true`。请参阅 [数据使用](/docs/zh-CN/data-usage)。
+* **客户端机器**：开发者的 CLI 仍然向 Anthropic 发送 WebFetch 主机名检查和版本检查，除非设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 和 `skipWebFetchPreflight: true`。[插件市场请求](#plugin-marketplace-requests) 有各自的关闭开关。请参阅 [数据使用](/docs/zh-CN/data-usage)。
 * **调查评分**：在登录到网关时，CLI 禁用 Anthropic 绑定的评分上传以及分析流，因此它不向 Anthropic 发送评分。
 * **成绩单共享**：在调查的成绩单共享提示上选择"是"会在 `~/.claude/feedback-bundles/` 下写入本地文件，而不是上传到 Anthropic。
 * **客户端更新**：更新检查与网关流量分开。通过您自己的分发固定版本，如果笔记本电脑不得获取版本，设置 `DISABLE_UPDATES`。`DISABLE_AUTOUPDATER` 仅停止后台更新，而 `claude update` 仍然有效。
 * **TLS**：在生产中通过 HTTPS 提供 `public_url`，要么从网关自己的监听器通过 `listen.tls`，要么从 TLS 终止入口在普通 HTTP 副本前面，在两种情况下都设置 `listen.public_url`。网关不拒绝普通 HTTP。IdP 必须在生产中提供 HTTPS，Postgres 支持 `?sslmode=require`。在您的入口处设置 `Strict-Transport-Security`。
 * **漏洞披露**：遵循 [报告安全问题](/docs/zh-CN/security#reporting-security-issues)
+
+<h3 id="plugin-marketplace-requests">
+  插件市场请求
+</h3>
+
+Claude Code 直接从每位开发者的机器获取插件市场，而不是通过网关。[网络访问要求](/docs/zh-CN/network-config#network-access-requirements) 列出了相关主机。
+
+开发者首次启动交互式终端会话时，Claude Code 会注册官方市场 `claude-plugins-official`。它从 `downloads.claude.ai` 下载目录，如果失败，则从 `github.com` 克隆。[哪些市场和插件会自动更新](/docs/zh-CN/plugins/loading#which-marketplaces-and-plugins-auto-update) 介绍了后续刷新。
+
+`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 不会阻止首次注册。以下任一托管设置可以阻止：
+
+* **市场列表**：不包含该市场的 [`strictKnownMarketplaces`](/docs/zh-CN/plugins/org#allowlist-with-strictknownmarketplaces) 允许列表，或指明该市场的 [`blockedMarketplaces`](/docs/zh-CN/plugins/org#blocklist-with-blockedmarketplaces) 条目
+* **环境变量**：在托管的 [`env` 块](/docs/zh-CN/plugins/org#turn-updates-off-for-the-whole-fleet) 中将 `CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL` 设置为 `"1"`
+
+首次注册可能在开发者登录网关之前运行，此时尚未收到任何网关策略。为覆盖首次启动，请在 [客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings) 以及网关策略的 [`cli` 块](/docs/zh-CN/claude-apps-gateway-config#what-goes-in-cli) 中同时传递您的选择。
 
 <h2 id="troubleshooting">
   故障排除

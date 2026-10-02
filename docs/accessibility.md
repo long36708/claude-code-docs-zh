@@ -62,11 +62,11 @@ Claude Code 打印的第一行确认该模式：`[Screen Reader Mode: on via fla
 * Claude 回复中的表格读作 `Header: value` 句子而不是方框字符网格
 * diff 以纯文本形式逐行读出，用 `+` 和 `-` 标记添加和删除的行，因此您可以在回答文件编辑批准提示之前听到建议的更改
 
-Claude Code 将其打印到终端滚动条中的所有内容都保留下来，因此您可以使用屏幕阅读器的审查命令或终端的搜索功能重新阅读之前的回合。Claude Code 在屏幕阅读器模式下忽略 [`tui` 设置](/docs/zh-CN/settings-reference#tui)。除了在[已知限制](#known-limitations)下列出的附加后台会话外，它打印滚动文本而不是[全屏渲染](/docs/zh-CN/fullscreen)。
+Claude Code 将其打印到终端滚动缓冲区中的所有内容都保留下来，因此您可以使用屏幕阅读器的审查命令或终端的搜索功能重新阅读之前的轮次。Claude Code 在屏幕阅读器模式下忽略 [`tui` 设置](/docs/zh-CN/settings-reference#tui)。除了在[已知限制](#known-limitations)下列出的附加后台会话外，它打印滚动文本而不是[全屏渲染](/docs/zh-CN/fullscreen)。
 
 Claude Code 在启动时打印[确认行](#turn-on-screen-reader-mode)后，会在绘制输入框之前等待 3 秒，以便屏幕阅读器可以读完该行。按任意键结束等待。要更改等待的长度，请设置 [`CLAUDE_AX_STARTUP_QUIET_MS`](/docs/zh-CN/env-vars#variables)。
 
-成绩单中的每条消息都以屏幕阅读器宣布的标签开头，命名其内容：您的消息、Claude 的回复和思考、工具活动、错误和警告以及提示。这些标签也是可搜索的，因此您可以通过搜索终端的滚动条在成绩单的各个部分之间跳转：
+会话记录中的每条消息都以屏幕阅读器宣布的标签开头，命名其内容：您的消息、Claude 的回复和思考、工具活动、错误和警告以及提示。这些标签也是可搜索的，因此您可以通过搜索终端的滚动缓冲区在会话记录的各个部分之间跳转：
 
 | 标签 | 含义 |
 | :- | :- |
@@ -80,7 +80,7 @@ Claude Code 在启动时打印[确认行](#turn-on-screen-reader-mode)后，会�
 | `Permission Required:` | 等待您的答案的权限提示 |
 | `Cost:` | Claude Code 退出时的会话成本摘要，如果您的帐户[显示成本](/docs/zh-CN/costs) |
 
-Claude Code 将终端光标保持在输入插入符上，因此屏幕阅读器的读取当前行命令读取您正在编辑的提示。
+Claude Code 将终端光标保持在输入插入符上，因此屏幕阅读器的读取当前行命令读取您正在编辑的输入内容。
 
 当您在输入行末尾键入时，或在那里按 `Backspace`，Claude Code 仅写入更改的字符。您的屏幕阅读器仅回显这些字符。
 
@@ -90,7 +90,7 @@ Claude Code 将终端光标保持在输入插入符上，因此屏幕阅读器�
 * 使用 `Ctrl+U` 或 `Cmd+Backspace` 删除到行的开始
 * 使用 `Ctrl+K` 删除到行的末尾
 
-当您使用 `Shift+Tab` 循环[权限模式](/docs/zh-CN/permission-modes)时，Claude Code 宣布您登陆的权限模式，例如 `[plan mode on]` 或 `[accept edits on]`。Claude Code 打印公告一次，不会在以后的重绘中重复。
+当您使用 `Shift+Tab` 循环[权限模式](/docs/zh-CN/permission-modes)时，Claude Code 宣布您切换到的权限模式，例如 `[plan mode on]` 或 `[accept edits on]`。Claude Code 打印公告一次，不会在以后的重绘中重复。
 
 <h3 id="read-earlier-output-without-losing-your-place">
   阅读之前的输出而不丢失位置
@@ -101,17 +101,17 @@ Claude Code 将终端光标保持在输入插入符上，因此屏幕阅读器�
 要在阅读时保持位置，请让屏幕阅读器停止跟随终端光标。在 NVDA 中，按 `NVDA+6` 可让浏览光标停止跟随终端光标。再次按 `NVDA+6` 可重新开启跟随。
 
 <h3 id="jump-between-turns">
-  在回合之间跳转
+  在轮次之间跳转
 </h3>
 
-Claude Code 在回合边界处发出 OSC 133 shell-integration 标记，因此您的终端的跳转到上一个提示键在回合之间移动，而无需阅读整个成绩单：
+Claude Code 在轮次边界处发出 OSC 133 shell-integration 标记，因此您的终端的跳转到上一个提示符键可在轮次之间移动，而无需阅读整个会话记录：
 
 * iTerm2：Cmd+Shift+Up
 * VS Code 终端：Windows 上的 Ctrl+Up，macOS 上的 Cmd+Up
 * Windows Terminal：默认情况下没有键；在其设置中绑定 `scrollToMark` 操作
-* Kitty 和 Ghostty：检查终端的文档以获取其跳转到提示键
+* Kitty 和 Ghostty：查看终端的文档以获取其跳转到提示符键
 
-macOS Terminal 不对标记进行操作，Claude Code 在 WezTerm 中不发出它们。在这些终端中，搜索滚动条中的 `you:` 标签。
+macOS Terminal 不对标记进行操作，Claude Code 在 WezTerm 中不发出它们。在这些终端中，请改为在滚动缓冲区中搜索 `you:` 标签。
 
 <h2 id="answer-menus-and-prompts">
   回答菜单和提示

@@ -406,7 +406,7 @@ Shell 模式：
 
 已发送和排队的消息在 Claude 开始响应之前以灰色显示，因此您可以看出 Claude 还没有开始处理哪些消息。
 
-如果您从[连接的 IDE](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server)或[差异面板](#diff-panel)排队带有选择的消息，它会保留您按 `Enter` 时的选择，无论您之后选择什么。
+如果您排队的消息附带了来自[连接的 IDE](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server)的选择，它会保留您按 `Enter` 时的选择，无论您之后选择什么。
 
 <h3 id="when-claude-code-sends-what-you-queued">
   Claude Code 何时发送您排队的内容
@@ -422,13 +422,13 @@ Shell 模式：
 如果您在消息前排队了 `!` shell 命令，该快捷键会中断轮次。否则，轮次发生的情况取决于按下快捷键时 Claude 正在做什么：
 
 * 运行 shell 命令、子代理或其他可以移到[后台](#background-bash-commands)的工作：该工作移到后台并继续运行，Claude 在同一轮次中读取您的消息
-* 仅写入响应，或运行无法移到后台的内容：Claude Code 中断轮次并接下来发送您的消息。在 v2.1.281 之前，该快捷键在两种情况下都中断轮次
+* 仅撰写回复，或运行无法移到后台的内容：Claude Code 中断轮次并接下来发送您的消息。在 v2.1.281 之前，该快捷键在两种情况下都中断轮次
 
 在 [shell 模式](#shell-mode-with-prefix)中，该快捷键仅排队您的命令。在不报告扩展键的终端中，`Ctrl+Enter` 作为普通 `Enter` 到达并排队草稿；`Ctrl+X Ctrl+S` 在任何终端中都有效。两个快捷键都是 [`chat:sendNow` 操作](/docs/zh-CN/keybindings#chat-actions)的绑定。
 
 按 `Esc` 中断轮次而不提交您的草稿。Claude Code 保留您排队的内容并立即发送。
 
-Claude Code 在您发送某些命令时立即运行它们，而不是排队它们，其中包括 `/model`、`/effort` 和 `/fast`。这三个命令各改变一个设置：模型、努力级别或快速模式。Claude Code 是将新设置应用于 Claude 已在处理的轮次，还是仅从您的下一轮次应用，因命令而异：
+Claude Code 在您发送某些命令时立即运行它们，而不是排队它们，其中包括 `/model`、`/effort` 和 `/fast`。这三个命令各改变一个设置：模型、effort 级别或快速模式。Claude Code 是将新设置应用于 Claude 已在处理的轮次，还是仅从您的下一轮次应用，因命令而异：
 
 * [`/model`](/docs/zh-CN/model-config#setting-your-model)：一旦您确认[缓存警告](/docs/zh-CN/prompt-caching#switching-models)（如果 Claude Code 显示），Claude Code 会将您的更改应用于该轮次中它发出的下一个请求
 * [`/effort`](/docs/zh-CN/model-config#adjust-effort-level)：一旦您确认[缓存警告](/docs/zh-CN/prompt-caching#changing-effort-level)（如果 Claude Code 显示），Claude Code 会将您的更改应用于该轮次中它发出的下一个请求
@@ -615,59 +615,60 @@ Claude Code 没有自己的单词列表：当您的检查器说一个单词拼�
 
 如果 Claude Code 移除了任何内容，该 Enter 将不发送任何内容。清理后的提示词会返回到输入框中，并显示类似 `Removed 3 invisible characters · review and press Enter to send` 的通知，再次按 Enter 会发送显示的文本。
 
-当您在命令行上传递提示词时，例如 `claude "fix the login bug"`，或将其管道传输到交互式会话中，Claude Code 不会等待第二次 Enter。它会移除这些字符，显示通知，并发送清理后的提示词。如果清理后的提示词以 `/` 开头，Claude Code 会将其放在输入框中供您审查和发送。
+当您在命令行上传递提示词时，例如 `claude "fix the login bug"`，Claude Code 不会等待第二次 Enter。它会移除这些字符，显示通知，并发送清理后的提示词。如果清理后的提示词将以 `/` 开头，Claude Code 会改为将其放在输入框中供您审查和发送。
 
 <h2 id="review-changes-with-/diff">
   使用 /diff 查看更改
 </h2>
 
-运行 `/diff` 可以在不离开 Claude Code 的情况下查看工作树中的更改。您可以看到 Claude 迄今为止所做的编辑以及您尚未提交的任何其他内容。
+运行 `/diff` 可以在不离开 Claude Code 的情况下查看工作树中的更改。您可以看到 Claude 迄今为止所做的编辑以及您尚未提交的任何其他内容。`/diff` 打开的内容取决于当前启用的渲染器：
 
-在 `/diff` 从 git 读取的更改中，子模块显示为单个条目，仅当它指向的提交发生更改时才会出现；对子模块内文件的编辑不会显示在那里。
+* **[全屏渲染](/docs/zh-CN/fullscreen)**：[diff 面板](#diff-panel)会在对话旁边打开。该面板保持打开状态，并在您继续工作时更新。
+* **经典渲染器**：[diff 对话框](#diff-dialog)会在输入框上方打开，您阅读完后可以关闭它。
 
-在[全屏渲染](/docs/zh-CN/fullscreen)中，`/diff` 在对话旁边打开[差异面板](#diff-panel)，该面板保持打开状态并在您继续工作时更新。在经典渲染器中，`/diff` 在提示符的位置打开[差异查看器](#diff-viewer)，您阅读完后可以关闭它。
+面板和对话框都来自 `cc-plugin-diff`，它是 [Claude Code 内置的 mod](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 之一。如果您在 `/plugin` 中禁用该 mod，`/diff` 会改为打开 Claude Code 早期的面板和 [diff 查看器](/docs/zh-CN/keybindings#diff-actions)。
+
+在 `/diff` 从 git 读取的更改中，子模块显示为单个条目，仅当它指向的提交发生更改时才会出现；对子模块内文件的编辑不会显示在那里。一旦 Claude 编辑了文件，面板和对话框还会提供每个轮次编辑的视图。这些轮次视图来自 Claude 的文件编辑而不是 git，因此 Claude 通过 shell 命令所做的更改仅显示在 `Current`（即工作树视图）下。
 
 <h3 id="diff-panel">
   Diff panel
 </h3>
 
-差异面板列出了更改的文件及其添加和删除的行数，并在列表下方显示每个文件的差异。Claude Code 在 Claude 编辑文件或运行 shell 命令时刷新它。要关闭它，请再次运行 `/diff` 或单击其标题中的 `✕`。
+diff 面板列出了更改的文件及其添加和删除的行数，并在列表下方显示每个文件的 diff。Claude Code 在 Claude 编辑文件或运行 shell 命令时刷新它。要关闭面板，请再次运行 `/diff` 或单击其标题中的 `✕`。
 
 要使用该面板，您需要：
 
 * [全屏渲染](/docs/zh-CN/fullscreen)
 * 一个 git 仓库
 * 至少 110 列宽的终端
-* Claude Code v2.1.260 或更高版本
-
-当面板无法打开时，`/diff` 会打开差异查看器或告诉您原因。
+* Claude Code v2.1.287 或更高版本
 
 一旦 Claude 开始编辑文件，如果您的终端至少 144 列宽，该面板也会自动打开。在您自己使用 `/diff` 打开它后，后续会话会在 Claude 在任何足够宽的终端中编辑文件时立即打开它。关闭面板后，它在此会话和后续会话中保持关闭状态，直到您再次运行 `/diff`。
 
 当面板打开时，您可以：
 
 * **跳转到文件**：单击列表中的其行。使用鼠标滚轮滚动面板。当文件列表本身太长无法容纳时，使用 `Alt+Up` 和 `Alt+Down` 或 `Ctrl+Up` 和 `Ctrl+Down` 滚动它。
-* **询问 Claude 关于特定行的问题**：在面板中用鼠标选择它们。Claude Code 将选择附加到您的下一个提示，并在您发送之前在输入旁边显示行数。
-  * 要在不选择的情况下发送提示，请将光标移动到行数指示器之后，然后按 `Backspace` 删除它。需要 Claude Code v2.1.271 或更高版本。
+* **询问 Claude 关于某个文件的更改**：单击文件 diff 上方文件名右侧的 `ask`。Claude Code 会将该文件的 diff 附加到您的下一个提示词，在您发送该提示词之前，按钮会显示为 `asked ✓`。对第二个文件进行询问会替换第一个。
+* **显示某个轮次的编辑**：单击面板标题中的 `source` 选择器，然后使用 `Up` 和 `Down` 选择一个轮次并按 `Enter`。轮次标记为 `T1`、`T2` 等。该选择器在 Claude 编辑文件后出现，选择 `Current` 可返回工作树。
 * **显示面板遗漏的文件**：列表跳过测试文件和生成的文件，并将此会话之前的更改折叠为底部的一行。单击任一计数行以展开它。
-* **更改面板比较的内容**：按 `Ctrl+X B` 在此会话的更改、您的未提交更改作为一个列表，以及自您的分支从默认分支分离以来的所有内容之间循环。Claude Code 为每个项目记住该选择。
+* **更改面板比较的内容**：按 `Ctrl+X B` 在此会话的更改、您的未提交更改作为一个列表，以及自您的分支从默认分支分离以来的所有内容之间循环。Claude Code 为每个仓库记住该选择。
 
-要将快捷键绑定到这些操作，请参阅 [Diff panel actions](/docs/zh-CN/keybindings#diff-panel-actions)。
+要重新绑定用于滚动文件列表或更改比较内容的快捷键，请参阅 [Diff panel actions](/docs/zh-CN/keybindings#diff-panel-actions)。
 
-<h3 id="diff-viewer">
-  Diff viewer
+<h3 id="diff-dialog">
+  Diff dialog
 </h3>
 
-差异查看器取代提示符，直到您关闭它。其**当前**视图显示您来自 git 的未提交更改，或者当没有更改时，显示您的分支在默认分支之上添加的内容。查看器还为 Claude 编辑文件的每个提示后的轮次提供一个轮次视图，仅显示这些编辑。Claude Code 从 Claude 的文件编辑而不是从 git 构建轮次视图，因此 Claude 通过 shell 命令所做的更改仅显示在当前视图下。
+diff 对话框以带边框的区块形式在输入框上方打开，列出您更改的文件及其添加和删除的行数。它将这些文件与 `HEAD` 进行比较，或者与您上次为此仓库[在 diff 面板中选择](#diff-panel)的内容进行比较。
 
-在查看器中使用这些快捷键：
+一旦 Claude 编辑了文件，列表上方会出现一个 `source` 选择器。对于每个促使 Claude 编辑文件的提示词，它都会提供一个轮次视图，标记为 `T1`、`T2` 等。轮次视图仅显示该轮次的编辑，选择 `Current` 可返回工作树。
 
-* **左和右**：在当前视图和轮次视图之间移动。
+在对话框中使用这些快捷键：
+
 * **上和下**：选择一个文件。
-* **Enter**：打开所选文件的差异。使用上和下或 PageUp 和 PageDown 滚动它。
-* **Esc**：从文件的差异返回到列表，或从列表关闭查看器。
-
-要重新绑定这些快捷键，请参阅 [Diff actions](/docs/zh-CN/keybindings#diff-actions)。
+* **Enter**：打开所选文件的 diff。使用上和下或 PageUp 和 PageDown 滚动它。
+* **Esc**：从文件的 diff 返回到列表，或从列表关闭对话框。
+* **Tab**：移动到 `source` 选择器，然后使用上和下选择 `Current` 或某个轮次视图并按 Enter。在文件的 diff 中，Tab 会移动到 `ask` 按钮。按 Enter 可将该文件的 diff 附加到您的下一个提示词。
 
 <h2 id="side-questions-with-/btw">
   使用 /btw 提出附加问题
@@ -727,9 +728,9 @@ Claude 从对话中已有的内容回答附加问题：你的消息、它的回�
 
 当你离开终端后返回时，Claude Code 会显示一行简短的回顾，说明到目前为止会话中发生了什么。一旦距离上次完成的轮次至少过了三分钟，且终端处于未聚焦状态，回顾就会在后台生成，这样当你切换回来时就已准备好。只有当会话至少有三个轮次时，回顾才会出现，且永远不会连续出现两次。
 
-运行 `/recap` 可按需生成摘要。Claude Code 将自动回顾和 `/recap` 输出都限制在 400 个字符以内。要关闭自动回顾，请打开 `/config` 并关闭**会话回顾**。
+运行 `/recap` 可按需生成摘要。它仅在您亲自请求时运行。当它出现在从 Slack、Teams 或项目线程转发的消息中，或出现在 Routine 发送的提示词中时，您会收到一条[通知](/docs/zh-CN/errors#recap-only-runs-when-you-ask-for-it-yourself)，而不是回顾。
 
-会话回顾在所有计划和提供商上默认启用。在非交互模式下，回顾始终被跳过。
+会话回顾在所有计划和提供商上默认启用。要关闭自动回顾，请打开 `/config` 并关闭**会话回顾**。自动回顾永远不会在非交互模式下出现。Claude Code 将自动回顾和 `/recap` 输出都限制在 400 个字符以内。
 
 <h2 id="wait-for-a-usage-limit-to-reset">
   等待使用限制重置
