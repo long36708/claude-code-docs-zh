@@ -36,6 +36,8 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 
 或在 VS Code 中，按 `Cmd+Shift+X`（Mac）或 `Ctrl+Shift+X`（Windows/Linux）打开扩展视图，搜索"Claude Code"，然后点击**安装**。
 
+扩展的版本号即其捆绑的 Claude Code 版本。例如，需要 Claude Code v2.1.286 或更高版本的功能，需要 2.1.286 或更高版本的扩展，扩展视图中会显示该版本号。
+
 该扩展也可以安装在其他 VS Code 分支中，如 Devin Desktop 或 Kiro。在编辑器的扩展视图中搜索"Claude Code"，或从 [Open VSX 注册表](https://open-vsx.org/extension/Anthropic/claude-code) 安装。如果您的编辑器无法安装该扩展，请[安装 CLI](/docs/zh-CN/quickstart) 并在其集成终端中运行 `claude`。CLI 可在任何终端中使用。
 
 <Note>如果安装后扩展没有出现，请重启 VS Code 或从命令面板运行"Developer: Reload Window"。</Note>
@@ -159,6 +161,9 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
     如果您组织的策略关闭了产品反馈，菜单中不会出现 **Report a problem**，并且 `/bug` 和 `/feedback` 会显示 `Feedback is turned off by your organization's policy or this environment's settings.` 提示，而不是打开报告。在 Claude Code v2.1.284 或更高版本中，如果您设置了 `DISABLE_FEEDBACK_COMMAND` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 环境变量，反馈也会被关闭，打开报告时会改为显示该提示。
 * **旁支问题**：输入 `/btw` 后跟一个问题，即可就会话提问，且[不会添加到对话中](/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw)。回答会在聊天旁边的面板中打开，您可以在其中继续追问。该线程在窗口重新加载后仍会保留。Claude Code 会保留最新的 20 次交流，并按照 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 的计划使已存储的线程过期，前提是 Claude Code 能够[安全地确定保留期限](/docs/zh-CN/claude-directory#cleaned-up-automatically)。要清除线程，请点击面板中的垃圾桶图标。需要 Claude Code v2.1.227 或更高版本。
 * **复制回复**：将鼠标悬停在某条回复上并点击 **Copy response** 即可将其复制到剪贴板，或输入 `/copy` 复制最新的回复。`/copy 2` 会复制倒数第二条。需要 Claude Code v2.1.277 或更高版本。
+* **书签**：将鼠标悬停在某条回复上并点击 **Bookmark response** 即可保存它，或在已保存的回复上点击 **Remove bookmark** 将其移除。
+
+  要查看已保存的回复，请打开 Bookmarks 面板：点击 Claude Code 面板顶部的书签图标，在命令菜单的 Context 部分中选择 **Bookmarks**，或输入 `/bookmarks`。需要 Claude Code v2.1.286 或更高版本。
 * **上下文指示器**：输入框会显示您已使用了 Claude 上下文窗口的多少。Claude 会在需要时自动压缩，您也可以手动运行 `/compact`。
 * **提示缓存时钟**：上下文指示器旁边的时钟图标会估算对话的[提示缓存](/docs/zh-CN/prompt-caching)在过期前还剩多少时间。它会从缓存的五分钟或一小时[生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)开始倒计时，每次使用缓存的响应都会重新开始倒计时。除压缩外，[使缓存失效的操作](/docs/zh-CN/prompt-caching#actions-that-invalidate-the-cache)不会重置时钟，因此在您切换模型后它仍可能显示剩余分钟数。
   * 在倒计时结束之前，图标会显示剩余分钟数，例如 **12m**。
@@ -171,6 +176,8 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
   地图还会在 Agent 下方列出会话的其他[后台任务](/docs/zh-CN/tools-reference#background-commands)，例如后台 shell 命令和[监视器](/docs/zh-CN/tools-reference#monitor-tool)。点击某一行即可打开该任务的卡片并在其中停止它。
 
   当没有显示 Agent 计数时（例如 Claude 启动了后台 shell 但没有子代理），要打开地图，请在输入框中输入 `/tasks`。地图中的后台任务以及输入 `/tasks` 需要 Claude Code v2.1.277 或更高版本。
+
+  在 Claude Code v2.1.286 或更高版本中，当您点击 **Stop** 或按 `Esc` 时，当前轮次会结束。后台 Agent 会继续运行，直到完成或您从地图中将其停止。
 * **扩展思考**：让 Claude 花更多时间推理复杂问题。通过命令菜单（`/`）将其打开。Claude 的推理会以折叠块的形式出现在对话中：点击某个块即可阅读，或按 `Ctrl+O` 展开或折叠会话中的所有思考块。详情请参阅[扩展思考](/docs/zh-CN/model-config#extended-thinking)。
 * **多行输入**：按 `Shift+Enter` 可添加新行而不发送。这同样适用于问题对话框中的“Other”自由文本输入。
 

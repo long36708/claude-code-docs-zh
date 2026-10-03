@@ -75,7 +75,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 当任务触发时，您会收到桌面通知，新会话会在侧边栏的 **Scheduled** 部分下出现。打开它以查看 Claude 做了什么、审查更改或响应权限提示。Claude 可以编辑文件、运行命令、创建提交和打开拉取请求，与您自己启动的会话相同，但无法通过 desktop 应用的会话界面发送或接收[您的 desktop 会话之间的消息](/docs/zh-CN/desktop#work-across-sessions)。
 
-任务仅在 desktop 应用运行且计算机处于唤醒状态时运行。如果您的计算机在计划时间内进入睡眠状态，该运行将被跳过。要防止空闲睡眠，请在 Settings 中的 **Desktop app → General** 下启用 **Keep computer awake**。关闭笔记本电脑盖仍会使其进入睡眠状态。对于需要在计算机关闭时运行或应该通过 API 调用或 GitHub 事件触发的任务，请改为创建远程 [routine](/docs/zh-CN/routines)。
+任务仅在 desktop 应用运行且计算机处于唤醒状态时运行。如果您的计算机在计划时间内进入睡眠状态，该运行将被跳过。要防止空闲睡眠，请在 **Settings > This computer > System** 中启用 **Keep computer awake**。关闭笔记本电脑盖仍会使其进入睡眠状态。对于需要在计算机关闭时运行或应该通过 API 调用或 GitHub 事件触发的任务，请改为创建远程 [Routine](/docs/zh-CN/routines)。
 
 <h2 id="missed-runs">
   错过的运行

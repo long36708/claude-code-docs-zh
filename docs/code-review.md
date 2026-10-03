@@ -302,11 +302,14 @@ Code Review 根据令牌使用情况计费。每次审查平均花费 \$15-25，
 
 要再次运行审查，在 PR 上注释 `@claude review`。这启动一个新的审查，不订阅 PR 到未来推送。如果 PR 不是[来自 fork](#review-pull-requests-from-forks)，您可以改为在 GitHub 的 Checks 选项卡中的 **Claude Code Review** 检查上点击 **Re-run**。重新运行也会启动一个新的审查，不订阅 PR。
 
-<h3 id="review-didn’t-run-and-the-pr-shows-a-spend-cap-message">
-  审查未运行，PR 显示支出上限消息
+<h3 id="review-didn’t-run-and-the-pr-shows-a-budget-message">
+  审查未运行，PR 显示预算消息
 </h3>
 
-当您的组织的每月支出上限达到时，Code Review 在 PR 上发布单条评论，解释审查被跳过。审查在下一个计费周期开始时自动恢复，或当管理员在 [claude.ai/admin-settings/usage](https://claude.ai/admin-settings/usage) 提高上限时立即恢复。
+当您的组织的 Code Review 每月支出上限已达到，或其使用额度余额已用完时，Code Review 会跳过审查并在 PR 上发布单条评论。该评论和检查运行卡片都会说明原因，并链接到管理员可在其中解决问题的管理页面：
+
+* **已达到支出上限**：审查在下一个计费周期开始时恢复，或在管理员于 [claude.ai/admin-settings/usage](https://claude.ai/admin-settings/usage) 提高上限后立即恢复
+* **使用额度已用完**：管理员在 [claude.ai/admin-settings/usage](https://claude.ai/admin-settings/usage) 添加更多[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)后，审查即恢复
 
 <h3 id="find-issues-that-aren’t-showing-as-inline-comments">
   查找未显示为内联评论的问题
@@ -322,7 +325,7 @@ Code Review 根据令牌使用情况计费。每次审查平均花费 \$15-25，
   在本地审查差异
 </h2>
 
-[`/code-review` 命令](/docs/zh-CN/commands)在您的终端中审查差异，无需安装 GitHub App。它报告正确性错误和重用、简化和效率清理。
+[`/code-review` 命令](/docs/zh-CN/commands)在您的终端中审查 diff，无需安装 GitHub App。它会报告正确性错误。根据您的模型和 effort 级别，审查还会涵盖重用、简化和效率方面的清理。
 
 `/review` 是 `/code-review` 的别名；在 v2.1.223 之前，它是一个单独的命令，对 GitHub pull request 进行单次通过、只读审查。
 
