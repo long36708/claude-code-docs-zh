@@ -172,7 +172,7 @@ Claude Code 检查为队友选择的模型是否符合你的组织的 [`availabl
 * **系列别名如 `opus`**：在 Anthropic API 和 AWS 上的 Claude Platform 上，Claude Code 在允许列表允许的该系列的最新版本上运行队友。在具有特定于提供商的模型 ID 的提供商上，其中[替换不起作用](/docs/zh-CN/model-config#restrict-model-selection)，被阻止的别名会根据下一个项目符号回退，如同任何其他被阻止的值一样
 * **任何其他被阻止的值，包括在替换不起作用的提供商上的系列别名，或其系列没有允许版本的别名**：Claude Code 在负责人的模型上运行队友。如果你设置 `CLAUDE_CODE_SUBAGENT_MODEL`，Claude Code 首先尝试该模型，遵循相同的规则
 
-队友继承负责人的[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)。在分割窗格模式中，这从 v2.1.186 开始适用；较早的版本没有将负责人的会话工作量传递给分割窗格队友。
+默认情况下，队友继承负责人的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。在分割窗格模式中，这从 v2.1.186 开始适用；较早的版本不会将负责人会话的 effort 传递给分割窗格队友。
 
 <h3 id="have-teammates-plan-before-implementing">
   让队友在实施前进行规划
@@ -200,7 +200,7 @@ Spawn an architect teammate to refactor the authentication module.
 * `/compact`、`/clear` 和 `/rewind` 作用于负责人的对话，因此在此视图中运行其中任一命令之前，Claude Code 会请您确认。
 * `/model` 和 `/fast` 设置的是负责人的模型和快速模式，而不是队友的，因此它们不会在此视图中运行。系统会显示一条通知说明原因。
 
-队友的模型和快速模式在其生成时即已固定。`/effort` 仍然适用于所查看队友的后续轮次，因为队友遵循负责人的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。
+队友的模型和快速模式在其生成时即已固定。
 
 <h3 id="assign-and-claim-tasks">
   分配和认领任务
@@ -293,7 +293,7 @@ Claude Code 在会话启动时自动生成这两个，并在队友加入、空�
   为队友使用 subagent 定义
 </h3>
 
-当在任一显示模式中生成队友时，你可以引用来自项目、用户或托管 [subagent 范围](/docs/zh-CN/sub-agents#choose-the-subagent-scope) 的 [subagent](/docs/zh-CN/sub-agents) 类型。这让你定义一个角色一次，例如安全审查员或测试运行器，并将其同时重用为委派的 subagent 和 agent team 队友。
+当在任一显示模式中生成队友时，您可以引用来自项目、用户、托管或插件 [子代理作用域](/docs/zh-CN/sub-agents#choose-the-subagent-scope) 的 [子代理](/docs/zh-CN/sub-agents) 类型。这让您只需定义一次角色，例如安全审查员或测试运行器，并将其同时重用为委派的子代理和 agent team 队友。
 
 要使用 subagent 定义，在要求 Claude 生成队友时按名称提及它：
 
@@ -305,6 +305,8 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
 
 * **`tools`**：Claude Code 将队友限制为定义的 `tools` 列表中的工具。对于进程内队友，Claude Code 将 `SendMessage` 添加到该列表，在 [具有 Task tools 的会话](/docs/zh-CN/tools-reference#task-tool-availability) 中，它还添加 `TaskCreate`、`TaskGet`、`TaskList` 和 `TaskUpdate`。
 * **`model`**：当你的生成提示没有命名模型时，Claude Code 在任一显示模式中使用定义的 `model`。请参阅 [Claude Code 如何选择队友的模型](#specify-teammates-and-models)。
+* **`disallowedTools`**：对于进程内队友，Claude Code 会从队友的工具集中移除定义的 `disallowedTools` 中的工具。即使该列表中列出了 `SendMessage` 以及 Claude Code 添加的 Task 工具，它们仍然可用。
+* **`effort`**：对于进程内队友，Claude Code 按照 [frontmatter effort 规则](/docs/zh-CN/model-config#set-the-effort-level) 应用定义的 [`effort`](/docs/zh-CN/sub-agents#supported-frontmatter-fields)。
 * **Body**：对于进程内队友，Claude Code 将定义的主体附加到其默认系统提示作为额外指示。对于分割窗格队友，Claude Code 使用主体代替其默认系统提示。
 * **`skills`**：Claude Code 在任一显示模式中都不将定义的 `skills` 应用于队友。队友从你的项目和用户设置加载 skills。
 * **`mcpServers`**：对于分割窗格队友，Claude Code 在 [该字段的规则](/docs/zh-CN/sub-agents#scope-mcp-servers-to-a-subagent) 下应用定义的 `mcpServers`，这些规则涵盖使用 `--agent` 启动的会话。进程内队友忽略该字段，从你的项目和用户设置加载 MCP servers。

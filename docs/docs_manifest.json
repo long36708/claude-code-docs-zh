@@ -213,8 +213,8 @@
     "agent-teams.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/agent-teams",
       "original_md_url": "https://code.claude.com/docs/zh-CN/agent-teams.md",
-      "hash": "f8b762ae477312f7198c4f83623a92c7db67fc0764c0846377c1c2b06ecf2416",
-      "last_updated": "2026-10-03T06:45:44.954333"
+      "hash": "3493bde890a6b1a1eedf0301eaa864b300b03356666b3a65718003638bb8d15e",
+      "last_updated": "2026-10-03T17:29:36.712428"
     },
     "agent-view.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/agent-view",
@@ -1324,8 +1324,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-10-03T12:41:38.418836",
-    "fetch_duration_seconds": 132.917125,
+    "last_fetch_completed": "2026-10-03T17:31:30.612983",
+    "fetch_duration_seconds": 137.005095,
     "total_pages_discovered": 218,
     "pages_fetched_successfully": 220,
     "pages_failed": 0,
@@ -1335,7 +1335,7 @@
     "total_files": 220,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-10-03T12:41:38.418869",
+  "last_updated": "2026-10-03T17:31:30.613015",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
