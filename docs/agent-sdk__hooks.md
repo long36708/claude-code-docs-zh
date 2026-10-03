@@ -154,7 +154,7 @@ SDK 为代理执行的不同阶段提供 hooks。某些 hooks 在两个 SDK 中�
 | `PostToolUse` | 是 | 是 | 工具执行结果 | 将所有文件更改记录到审计跟踪 |
 | `PostToolUseFailure` | 是 | 是 | 工具执行失败 | 处理或记录工具错误 |
 | `PostToolBatch` | 否 | 是 | 一整批工具调用解决，每批一次，在下一个模型调用之前 | 为整个批次注入约定 |
-| `UserPromptSubmit` | 是 | 是 | 用户提示提交 | 将额外上下文注入到提示中 |
+| [`UserPromptSubmit`](/docs/zh-CN/hooks#userpromptsubmit) | 是 | 是 | 提交提示词，包括 Claude Code 自行发起的轮次 | 将额外上下文注入到提示词中 |
 | [`UserPromptExpansion`](/docs/zh-CN/hooks#userpromptexpansion) | 否 | 是 | 用户输入的命令或 MCP 提示在到达 Claude 之前扩展为提示。当 Claude 自己调用 skill 时不会触发 | 阻止命令直接调用或在输入 skill 时添加上下文 |
 | `MessageDisplay` | 否 | 是 | 助手消息包含文本完成，每条消息一次，包含完整消息文本 | 编辑或重新格式化显示的文本而不改变记录 |
 | `Stop` | 是 | 是 | 代理执行停止 | 在退出前保存会话状态 |

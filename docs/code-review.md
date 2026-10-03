@@ -339,8 +339,9 @@ Code Review 根据令牌使用情况计费。每次审查平均花费 \$15-25，
     您还可以添加标志：
 
     * `--fix`：在审查后将发现应用到您的工作树
-    * `--comment`：将发现作为内联评论发布在 GitHub pull request 上，或作为单个注释发布在 GitLab merge request 上
-    * `--post`：在 `github.com` pull request 的 `ultra` 云审查上，在启动对话框中预选将完成的发现发布到 PR；请参阅[将发现发布到 pull request](/docs/zh-CN/ultrareview#post-findings-to-the-pull-request)。需要 Claude Code v2.1.227 或更高版本
+    * `--comment`：将发现作为内联评论发布在 GitHub Pull Request 上，或作为单个注释发布在 GitLab merge request 上
+    * `--post`：在 `github.com` Pull Request 的 `ultra` 云审查上，在启动对话框中预选将完成的发现发布到 PR；请参阅[将发现发布到 Pull Request](/docs/zh-CN/ultrareview#post-findings-to-the-pull-request)。需要 Claude Code v2.1.227 或更高版本
+    * `--max-findings <n>`、`--max-findings all` 或 `--max-findings default`：最多报告 `n` 个发现，或使用 `all` 报告所有发现，以代替审查的常规数量限制。后续审查会重用您输入的值，直到您传递 `--max-findings default`。需要 Claude Code v2.1.288 或更高版本
 
     当您为 GitLab merge request 传递 `--comment` 时，Claude Code 通过 GitLab 的 `glab` CLI 发布发现。需要 Claude Code v2.1.257 或更高版本。当 `glab` 未安装时，Claude 在终端中打印发现。
 

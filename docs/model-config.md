@@ -794,7 +794,7 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些套餐要求。�
 
 <span id="context-window-behind-a-gateway" />
 
-如果您将 `ANTHROPIC_BASE_URL` 设置为 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个代理，Claude Code 给每个它识别的模型与该模型在 Anthropic API 上具有的相同上下文窗口。Fable 5.1、Fable 5、Sonnet 5 及更高版本和 Opus 4.7 及更高版本获得 1M 窗口，没有 `[1m]` 变体可选择，仅通过其 `[1m]` 变体达到 1M 的模型（如 Opus 4.6）在没有它的情况下运行在 200K。Claude Code 无法检测网关或其后面的服务器强制的更低限制。如果您的网关拒绝超过 200K token 的请求，运行 [`/autocompact 200k`](#set-the-auto-compact-window) 以便会话在该边界处压缩。
+如果您将 `ANTHROPIC_BASE_URL` 设置为 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个代理，Claude Code 给每个它识别的模型与该模型在 Anthropic API 上具有的相同上下文窗口。Fable 5.1、Fable 5、Sonnet 5 及更高版本和 Opus 4.7 及更高版本获得 1M 窗口，没有 `[1m]` 变体可选择，仅通过其 `[1m]` 变体达到 1M 的模型（如 Opus 4.6）在没有它的情况下运行在 200K。Claude Code 无法检测网关或其后面的服务器强制的更低限制。如果您的网关拒绝超过 200K token 的请求，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000`](/docs/zh-CN/env-vars)，以便所有模型上的会话都[在该边界处压缩](#set-the-auto-compact-window)。
 
 要关闭 1M 上下文，设置 `CLAUDE_CODE_DISABLE_1M_CONTEXT=1`。Claude Code 从模型选择器中删除 1M 模型变体。在具有原生 1M 窗口的模型上，例如 Sonnet 5 和 Fable 模型，它也将模型视为具有 200K 上下文窗口：
 
@@ -840,9 +840,10 @@ Claude Code 在 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个自定义 `ANTH
   设置自动压缩窗口
 </h3>
 
-您可以在三个地方设置自动压缩窗口：
+您可以在以下位置设置自动压缩窗口：
 
-* **对于此会话及以后的会话**：运行 `/autocompact` 命令并指定一个值，例如 `/autocompact 500k`。Claude Code 将其保存到您的用户设置中作为 [`autoCompactWindow`](/docs/zh-CN/settings-reference#autocompactwindow)，并将其应用于当前会话；如果更高优先级的[设置范围](/docs/zh-CN/settings#settings-precedence)（例如托管设置）设置了该键，该命令会保存您的值，但会话会保持该范围的窗口，命令会说明这一点。运行 `/autocompact auto` 以返回为您的模型调整的窗口。
+* **对于当前模型，在此会话及以后的会话中**：运行 `/autocompact` 命令并指定一个值，例如 `/autocompact 500k`。Claude Code 将其保存到您的用户设置中 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 下的当前模型条目，并将其应用于当前会话。如果更高优先级的[设置作用域](/docs/zh-CN/settings#settings-precedence)（例如托管设置）为该模型或所有模型设置了自己的窗口，该命令会保存您的值，但会话会保持该作用域的窗口，命令会说明这一点。运行 `/autocompact auto` 以返回为您的模型调整的窗口。在 v2.1.288 之前，该命令会为所有模型保存同一个窗口，即顶层的 `autoCompactWindow`。
+* **对于所有模型**：在设置文件中设置 [`autoCompactWindow`](/docs/zh-CN/settings-reference#autocompactwindow)，例如在 `~/.claude/settings.json` 中设置 `"autoCompactWindow": 200000`。对于某个模型，您使用 `/autocompact` 为该模型保存的窗口优先于同一文件中的此键。
 * **对于一次启动**：启动 Claude Code 时传递 [`--autocompact`](/docs/zh-CN/cli-reference#cli-flags)。该标志会为该次启动覆盖您保存的设置，而不会更改它，`claude --autocompact auto` 会以调整的窗口运行会话，即使您保存的设置有一个值。与 `/autocompact` 不同，该标志不会被更高优先级的设置范围（例如托管设置）抢占。
 * **在脚本和云环境中**：设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars)。设置后，它优先于命令、标志和设置，`/autocompact` 会报告该覆盖而不是更改窗口。
 

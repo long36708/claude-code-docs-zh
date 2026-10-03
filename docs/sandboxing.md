@@ -459,9 +459,7 @@ Claude Code 会合并会话所加载的每个[设置作用域](/docs/zh-CN/setti
   掩码凭据
 </h3>
 
-当您对凭据进行掩码时，Claude Code 会向沙箱命令显示一个每个会话的占位符（称为哨兵值），并由[沙箱代理](#network-isolation)在发往您允许的主机的出站请求中替换为真实值。而[保护凭据](#protect-credentials)中的 `deny` 条目则会阻止该凭据。对于 macOS 上的文件，Claude Code 会[阻止该文件](#mask-credential-files)，而不是对其进行掩码。
-
-掩码环境变量需要 Claude Code v2.1.199 或更高版本。[`sandbox.credentials`](/docs/zh-CN/settings-reference#sandbox-credentials) 参考列出了所有字段。
+当您对凭据进行掩码时，Claude Code 会向沙箱命令显示一个每个会话的占位符（称为哨兵值），并由[沙箱代理](#network-isolation)在发往您允许的主机的出站请求中替换为真实值。而[保护凭据](#protect-credentials)中的 `deny` 条目则会阻止该凭据。对于 macOS 上的文件，Claude Code 会[阻止该文件](#mask-credential-files)，而不是对其进行掩码。[`sandbox.credentials`](/docs/zh-CN/settings-reference#sandbox-credentials) 参考列出了所有字段。
 
 掩码需要满足以下条件：
 
@@ -620,7 +618,7 @@ Claude Code 在您的计算机上、沙箱之外运行沙箱代理，并通过 `
 在 `WebFetch(domain:...)` 规则中，沙箱支持两种通配符形式：前导 `*.`（例如 `*.example.com`）和单独的 `*`。单独的 `*` 形式需要 Claude Code v2.1.186 或更高版本。位于其他位置的通配符（例如 `WebFetch(domain:example.*)`）仍可匹配抓取请求，但对沙箱化命令没有任何作用。
 
 <Note>
-  内置代理根据请求的主机名强制执行允许列表，默认情况下不会终止或检查 TLS 流量。实验性的 [`network.tlsTerminate`](/docs/zh-CN/settings-reference#sandbox-network-tlsterminate) 设置（在 Claude Code v2.1.199 及更高版本中可用）会让内置代理自行终止 TLS，这是 [`mask` 凭据条目](#mask-credentials)所必需的。有关默认行为的影响，请参阅[安全限制](#security-limitations)；如果您的威胁模型要求进行 TLS 检查，请参阅[自定义代理配置](#custom-proxy-configuration)。
+  内置代理根据请求的主机名强制执行允许列表，默认情况下不会终止或检查 TLS 流量。实验性的 [`network.tlsTerminate`](/docs/zh-CN/settings-reference#sandbox-network-tlsterminate) 设置会让内置代理自行终止 TLS，这是 [`mask` 凭据条目](#mask-credentials)所必需的。有关默认行为的影响，请参阅[安全限制](#security-limitations)；如果您的威胁模型要求进行 TLS 检查，请参阅[自定义代理配置](#custom-proxy-configuration)。
 </Note>
 
 <h4 id="hosts-outside-your-allowed-domains">

@@ -377,7 +377,12 @@ Ran 1 test across 1 file. [0.19s]
   分享你的 mod
 </h2>
 
-Mod 是一个插件，所以你在清单中对其进行版本控制，人们使用 `/plugin` 命令安装和更新它。要将其提供给其他人，[将其添加到市场](/docs/zh-CN/plugins/publish)。
+mod 是一个插件，所以您在清单中对其进行版本控制，人们使用 `/plugin` 命令安装和更新它。如何分享取决于分享对象：
+
+* **少数几个人**：将插件的目录或其 `.zip` 文件发送给他们。请参阅[在没有市场的情况下分享插件](/docs/zh-CN/plugins/publish#share-a-plugin-without-a-marketplace)
+* **您的团队**：将其列入[您自己的市场](/docs/zh-CN/plugins/publish#publish-through-your-own-marketplace)，例如每个插件各占一个目录的私有仓库。要为在某个仓库中工作的所有人添加该市场，请[在仓库的设置中注册它](/docs/zh-CN/plugins/host-marketplace#register-the-marketplace-for-everyone-in-a-repository)
+* **您的整个组织**：管理员可以通过托管设置[安装您组织的 mod](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)
+* **任何人**：将您的市场仓库设为公开，或[将插件提交到 Anthropic 的目录](/docs/zh-CN/plugins/publish#submit-to-anthropics-directory)
 
 在你这样做之前，检查插件的 `name`：`claude plugin validate` 失败一个[看起来像 Anthropic 自己的](/docs/zh-CN/plugins/manifest-reference#name)名称，例如以 `claude-` 开头的名称。事件和方法可以在版本之间更改，所以你的 README 是说明你测试的 Claude Code 版本的地方。
 

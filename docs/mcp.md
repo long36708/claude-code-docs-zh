@@ -371,7 +371,7 @@ Claude Code 在每次启动时选择一个运行时，并在您退出前保持�
 
 在 v2 上，Claude Code 还会：
 
-* 询问 HTTP 服务器是否支持较新的修订版，并与支持的服务器一起使用它。它也在获取功能标志的会话中询问 claude.ai 连接器服务器。要让它询问 stdio 服务器或每个会话中的连接器服务器，请设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto`。它与 v1 一样连接到其他所有服务器。
+* 询问 HTTP 服务器是否支持较新的修订版，并与支持的服务器一起使用它。在获取功能标志的会话中，它还会询问 claude.ai 连接器服务器；在 Claude Code v2.1.285 或更高版本上，随着 Anthropic 逐步推出该更改，它还会询问 stdio 服务器。要让它在每个会话中都询问连接器服务器和 stdio 服务器，请设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto`。它与 v1 一样连接到其他所有服务器。
 * 通过 [它保持打开的流](#notification-streams-on-the-v2-runtime) 从使用较新修订版的服务器接收 `list_changed` 通知。
 * 不注册在较新修订版上连接的 [频道](#push-messages-with-channels) 服务器，因为该修订版无法携带频道消息。
 * 当授权响应指明意外的发行者时，使 [MCP OAuth 登录](#authenticate-with-remote-mcp-servers) 失败。
@@ -456,7 +456,9 @@ Claude Code 是否告诉 Claude 配置的服务器未能连接取决于 [工具�
 
 MCP 服务器也可以直接将消息推送到您的会话中，以便 Claude 可以对外部事件（如 CI 结果、监控警报或聊天消息）做出反应。要启用此功能，您的服务器声明 `claude/channel` 能力，您在启动时使用 `--channels` 标志选择加入。请参阅 [频道](/docs/zh-CN/channels) 以使用官方支持的频道，或 [频道参考](/docs/zh-CN/channels-reference) 以构建您自己的。
 
-在 [v2 运行时](#mcp-client-runtimes) 上，如果您设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto` 并且频道服务器协商 MCP 协议修订版 2026-07-28，它无法传递频道消息，因此 Claude Code 不将其注册为频道。保留变量未设置，或将其设置为 `legacy`，将 stdio 服务器保持在较早的握手上。
+在 [v2 运行时](#mcp-client-runtimes) 上，协商 MCP 协议修订版 2026-07-28 的频道服务器无法传递频道消息，因此 Claude Code 不将其注册为频道。不支持该修订版的频道服务器会在较早的握手上连接，并像以前一样注册。
+
+当您设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto` 时，Claude Code 会向 stdio 服务器询问该修订版。对于 Claude Code v2.1.285 或更高版本，Anthropic 还在 Claude Code [获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话中默认启用此行为。要将 stdio 频道服务器保持在较早的握手上，请将 `MCP_PROTOCOL_NEGOTIATION` 设置为 `legacy`，这会将所有服务器都保持在较早的握手上。
 
 <Tip>
   提示：
@@ -1481,11 +1483,11 @@ Claude Code 通过从 Anthropic 获取的功能标志打开排除。在 [禁用�
   要求对特定工具进行批准
 </h2>
 
-如果你正在构建 MCP 服务器，可以通过在工具的 `tools/list` 响应条目中将 `_meta["anthropic/requiresUserInteraction"]` 设置为 `true` 来标记工具需要在每次调用时获得明确批准。该值必须是 JSON 布尔值 `true`；任何其他值都会被忽略。
+如果您正在构建 MCP 服务器，可以通过在工具的 `tools/list` 响应条目中将 `_meta["anthropic/requiresUserInteraction"]` 设置为 `true` 来标记工具需要在每次调用时获得明确批准。该值必须是 JSON 布尔值 `true`；任何其他值都会被忽略。
 
 Claude Code 会在每次调用时显示该工具的权限提示，即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](/docs/zh-CN/permissions#permission-modes)中也是如此，并且不会为其提供"不再询问"选项。与该工具匹配的 [允许规则](/docs/zh-CN/permissions#permission-rule-syntax)也不会跳过提示。在 `dontAsk` 模式中（从不提示），Claude Code 会拒绝该调用。
 
-提示必须到达一个人。在非交互模式下使用 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)，来自提示工具的标记工具的 `allow` 结果会被转换为拒绝，消息为 `MCP tool requires user interaction; not supported via --permission-prompt-tool`。Agent SDK 的 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/permissions)确实会接收这些调用并可以批准它们，因为你的 SDK 应用程序应该将它们显示给用户。
+提示必须到达一个人。在非交互模式下使用 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)，来自提示工具的标记工具的 `allow` 结果会被转换为拒绝，消息为 `MCP tool requires user interaction; not supported via --permission-prompt-tool`。Agent SDK 的 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/permissions)确实会接收这些调用并可以批准它们，因为您的 SDK 应用程序应该将它们显示给用户。
 
 将此用于权限提示本身就是目的的工具，例如同意或访问授予步骤，其中自动批准意味着没有人类曾经同意。来自同一服务器的其他工具保持其正常的权限行为。
 
@@ -1501,11 +1503,9 @@ Claude Code 会在每次调用时显示该工具的权限提示，即使在 `acc
 }
 ```
 
-`anthropic/requiresUserInteraction` 注解需要 Claude Code v2.1.199 或更高版本。早期版本会忽略它并应用标准权限流程。
+某些使用入口，例如 [Remote Control](/docs/zh-CN/remote-control) 和基于 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 构建的应用程序，通常允许您通过一次点击来批准工具调用。对于使用此注解标记的工具，Claude Code 会禁用一次点击操作并显示工具的完整权限提示，因此批准仍然来自回答提示的人，而不是点击。
 
-某些界面，例如 [Remote Control](/docs/zh-CN/remote-control) 和基于 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 构建的应用程序，通常允许你通过一次点击来批准工具调用。对于使用此注解标记的工具，Claude Code 会禁用一次点击操作并显示工具的完整权限提示，因此批准仍然来自回答提示的人，而不是点击。
-
-Claude Code 对任何只有终端对话框才能完整呈现的权限请求（例如带有安全警告或远程界面无法显示的始终允许选项的请求）也会以相同方式禁用一次点击批准。你在终端对话框中回答该请求，而不是从 Remote Control 中回答。需要 Claude Code v2.1.214 或更高版本。
+Claude Code 对任何只有终端对话框才能完整呈现的权限请求（例如带有安全警告或远程使用入口无法显示的始终允许选项的请求）也会以相同方式禁用一次点击批准。您需要在终端对话框中回答该请求，而不是从 Remote Control 中回答。需要 Claude Code v2.1.214 或更高版本。
 
 <h2 id="respond-to-mcp-elicitation-requests">
   响应 MCP 引出请求
@@ -1516,7 +1516,7 @@ MCP 服务器可以在任务进行中使用引出功能向你请求结构化输�
 服务器可以通过两种方式请求输入：
 
 * **表单模式**：Claude Code 显示一个对话框，其中包含由服务器定义的表单字段（例如，用户名和密码提示）。填写字段并提交。
-* **URL 模式**：Claude Code 询问是否在浏览器中打开链接，当你接受时打开该链接。服务器使用此模式处理在终端外完成的流程，例如登录。
+* **URL 模式**：Claude Code 询问是否在浏览器中打开链接。服务器使用此模式处理在终端外完成的流程，例如登录。
 
 在 URL 模式中，Claude Code 将 URL 作为命令行参数传递给系统的 URL 处理程序，并限制该参数的长度。当 URL 在为命令行转义后超过该限制时，你只能拒绝该请求。每个需要转义的字符，例如 `%` 或 `&`，都会计为上限的四倍：其自身字符加上三个转义字符。没有这些字符的 URL 在大约 8,000 个字符处达到上限。主要由百分比转义组成的 URL，其中每三个字符中有一个是 `%`，在大约 4,000 处达到上限。
 

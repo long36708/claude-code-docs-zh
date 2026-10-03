@@ -500,7 +500,7 @@ Claude 会自动将这些偏好保存到[项目内存](#give-a-project-standing-
   限制
 </h2>
 
-* Projects 在 claude.ai/code、桌面应用和 Claude 移动应用中可用，不在终端 CLI、VS Code 扩展或 JetBrains 插件中，也不通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry。CLI 的 [`claude project`](/docs/zh-CN/cli-reference) 命令（它管理目录的本地 Claude Code 状态）是无关的。
+* Projects 在 claude.ai/code、桌面应用和 Claude 移动应用中可用，不在终端 CLI、VS Code 扩展或 JetBrains 插件中，也不通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry。
 * 项目线程是[云会话](/docs/zh-CN/claude-code-on-the-web)，或通过[远程控制](/docs/zh-CN/remote-control)在您自己的机器上的会话，两种情况下 Anthropic 都是模型提供者。[安全](/docs/zh-CN/security)和[数据使用](/docs/zh-CN/data-usage)涵盖了云会话如何隔离以及保留什么，[连接和安全](/docs/zh-CN/remote-control#connection-and-security)涵盖了您机器上的线程如何连接以及存储什么。
 * 您不能将自己在机器上启动的会话添加到项目中。项目仅通过[在您自己的计算机上通过远程控制运行线程](#run-a-thread-on-your-own-computer)到达您的机器，该部分列出了它需要什么。
 * 云线程的沙箱在轮之间暂停，并在线程继续时恢复。如果沙箱无法恢复，线程从新克隆继续，因此未提交的更改可能会丢失。在长任务上，要求 Claude 提交和推送进行中的工作。

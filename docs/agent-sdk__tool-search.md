@@ -33,7 +33,7 @@
   配置工具搜索
 </h2>
 
-工具搜索默认启用。对于SDK的不支持模型列表中的模型，SDK会预先加载工具定义，而不是使用`ENABLE_TOOL_SEARCH`值覆盖。在Google Cloud的Agent Platform上，SDK根据模型代数决定：
+工具搜索默认启用。对于SDK的不支持模型列表中的模型，SDK会改为预先加载工具定义，任何`ENABLE_TOOL_SEARCH`值都无法覆盖此行为。在Google Cloud的Agent Platform上，SDK根据模型代数决定：
 
 * **Claude Opus 4.5、Sonnet 4.5、Haiku 4.5及更高版本**：工具搜索默认启用。
 * **早期Agent Platform模型**：SDK预先加载工具定义，因为它们的服务堆栈拒绝所需的beta标头。`ENABLE_TOOL_SEARCH`无法覆盖此行为。
@@ -46,15 +46,15 @@
 | :- | :- |
 | （未设置） | 工具搜索启用。工具定义被延迟并按需发现。在Google Cloud的Agent Platform早于Claude 4.5代的模型、非第一方`ANTHROPIC_BASE_URL`或Microsoft Foundry部署（托管在Azure上）上回退到预先加载。 |
 | `true` | 工具搜索始终启用，除了在Microsoft Foundry部署（托管在Azure上）上，服务器端拒绝仍会强制预先加载，以及在Google Cloud的Agent Platform早于Claude 4.5代的模型上，SDK继续预先加载工具定义。SDK通过代理发送beta标头，在不支持`tool_reference`块的代理上请求会失败。 |
-| `auto` | 计算工具搜索可以延迟的工具定义中的令牌，并将总数与模型的上下文窗口进行比较。当总数达到窗口的10%时，工具搜索激活。低于此值时，SDK预先将每个工具定义加载到上下文中。 |
+| `auto` | 计算工具搜索可以延迟的工具定义中的token，并将总数与模型的上下文窗口进行比较。当总数达到窗口的10%时，工具搜索激活。低于此值时，SDK预先将每个工具定义加载到上下文中。 |
 | `auto:N` | 与`auto`相同，但具有自定义百分比。`auto:5`在这些定义达到上下文窗口的5%时激活。较低的值更早激活。 |
 | `false` | 工具搜索关闭。所有工具定义在每个轮次上都加载到上下文中。 |
 
 设置[`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](/docs/zh-CN/env-vars)会保持工具搜索关闭。您无法通过自己设置`ENABLE_TOOL_SEARCH`来覆盖它。您的组织可以通过[托管设置](/docs/zh-CN/managed-settings)在Claude Code v2.1.227或更高版本上保持工具搜索启用。[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities)涵盖了覆盖应用的位置以及变量删除的内容。
 
-工具搜索适用于所有已注册的工具，无论它们来自远程MCP服务器还是[自定义SDK MCP服务器](/docs/zh-CN/agent-sdk/custom-tools)。当您使用`auto`时，SDK会计算工具搜索可以延迟的每个定义，针对一个组合阈值：来自任何服务器的未标记为[`alwaysLoad`](/docs/zh-CN/mcp#exempt-a-server-from-deferral)的每个MCP工具，加上按需加载的内置工具。SDK始终预先加载核心内置工具（如Bash、Read和Edit），不会将其计入阈值。
+工具搜索适用于所有已注册的工具，无论它们来自远程MCP 服务器还是[自定义SDK MCP 服务器](/docs/zh-CN/agent-sdk/custom-tools)。当您使用`auto`时，SDK会计算工具搜索可以延迟的每个定义，针对一个组合阈值：来自任何服务器的未标记为[`alwaysLoad`](/docs/zh-CN/mcp#exempt-a-server-from-deferral)的每个MCP工具，加上按需加载的内置工具。SDK会预先加载核心内置工具（如Bash、Read和Edit），不会将其计入阈值。您的某个插件中的[mod](/docs/zh-CN/plugins/mods/reference#tools)也可以延迟某个工具或预先加载它，这会改变该计数。
 
-在`query()`上的`env`选项中设置值。在TypeScript中，`env`替换子进程环境，因此展开`...process.env`以保持继承的变量。在Python中，`env`合并到继承的环境之上。此示例连接到公开许多工具的远程MCP服务器，使用通配符预先批准所有工具，并使用`auto:5`，以便当工具搜索可以延迟的定义达到上下文窗口的5%时激活工具搜索：
+在`query()`上的`env`选项中设置值。在TypeScript中，`env`替换子进程环境，因此展开`...process.env`以保持继承的变量。在Python中，`env`合并到继承的环境之上。此示例连接到公开许多工具的远程MCP 服务器，使用通配符预先批准所有工具，并使用`auto:5`，以便当工具搜索可以延迟的定义达到上下文窗口的5%时激活工具搜索：
 
 <CodeGroup>
   ```typescript TypeScript theme={null}
@@ -125,7 +125,7 @@
   ```
 </CodeGroup>
 
-要运行此示例，请将`https://tools.example.com/mcp`替换为您自己的MCP服务器的URL。成功时，结果文本会打印到控制台。
+要运行此示例，请将`https://tools.example.com/mcp`替换为您自己的MCP 服务器的URL。成功时，结果文本会打印到控制台。
 
 因为这是一个单次`query()`调用，SDK在产生错误结果后会抛出异常，所以该示例将循环包装在try块中。要查看运行失败的原因，请检查循环内结果消息的`subtype`，例如`error_during_execution`。有关结果消息的更多信息，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
 

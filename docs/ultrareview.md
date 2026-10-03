@@ -134,16 +134,12 @@ Ultrareview 是一项高级功能，按额外使用量而不是您计划的包�
 | - | - | - |
 | Pro | 3 次免费运行 | 按 [额外使用量](https://support.claude.com/zh-CN/articles/12429409-extra-usage-for-paid-claude-plans) 计费 |
 | Max | 3 次免费运行 | 按 [额外使用量](https://support.claude.com/zh-CN/articles/12429409-extra-usage-for-paid-claude-plans) 计费 |
-| Team 和 Enterprise | 无 | 按 [额外使用量](https://support.claude.com/zh-CN/articles/12429409-extra-usage-for-paid-claude-plans) 计费 |
 
 * **免费运行**：Pro 和 Max 的三次运行是每个账户的一次性分配，不会刷新。
 * **每次审查的成本**：使用完免费运行后，通常花费 \$5 到 \$25 的使用额度，具体取决于更改的大小，与启动对话框在每次运行前显示的估计相匹配。
 * **何时计数一次运行**：一旦云会话启动。您提前停止或未能完成的审查仍然会使用一次免费运行；付费审查仅对运行的部分计费。
 
-由于 ultrareview 在免费运行之外始终按使用额度计费，您的账户或组织必须在启动付费审查之前启用使用额度。如果未启用使用额度，Claude Code 会阻止启动，启用方式取决于您的计费访问权限：
-
-* 如果您可以管理您账户的计费，Claude Code 会将您链接到计费设置，您可以在那里启用使用额度。
-* 在 Team 和 Enterprise 计划上，没有计费访问权限的成员可以从 CLI 发送请求，要求其管理员启用使用额度。
+由于 ultrareview 在免费运行之外始终按使用额度计费，您的账户或组织必须在启动付费审查之前启用使用额度。如果未启用使用额度，Claude Code 会阻止启动。如果您可以管理您账户的计费，Claude Code 会将您链接到计费设置，您可以在那里启用使用额度。
 
 您也可以运行 `/usage-credits` 来检查或更改您的使用额度设置。
 

@@ -63,7 +63,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 | 字段 | 类型 | 描述 |
 | :- | :- | :- |
-| `name` | string | Marketplace 标识符：字母、数字、`.`、`_` 和 `-`，以字母或数字开头，没有 `..`。它形成从 marketplace 安装的每个 [plugin id](/docs/zh-CN/plugins/loading#find-where-a-plugin-came-from) 的 `@` 后面的部分，因此 `claude plugin validate` 会拒绝其他名称。请参阅 [保留名称](#reserved-names) |
+| `name` | string | 市场标识符：字母、数字、`.`、`_` 和 `-`，以字母或数字开头，且不含 `..`。`claude plugin validate` 会使任何其他名称验证失败，因为 Claude Code 无法从使用此类名称的市场安装插件。用户安装插件时，会在 [插件 ID](/docs/zh-CN/plugins/loading#find-where-a-plugin-came-from)（例如 `my-plugin@my-marketplace`）中的 `@` 之后输入该名称。请参阅 [保留名称](#reserved-names) |
 | `owner` | object | 维护者信息。`name` 是必需的；`email` 和 `url` 是可选的 |
 | `plugins` | array | [插件条目](#plugin-entries)。每个条目单独验证，因此一个无效条目不会导致 marketplace 失败 |
 | `$schema` | string | JSON Schema URL 用于编辑器自动完成。在加载时忽略 |

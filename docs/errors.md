@@ -187,6 +187,7 @@
 | `<model>'s safeguards flagged this message` | [请求错误](#safety-measures-flagged-a-cybersecurity-topic) |
 | `<model>'s safeguards flagged this session` | [请求错误](#safety-measures-flagged-a-cybersecurity-topic) |
 | `<model> has safety measures that flagged this message for a cybersecurity topic` | [请求错误](#safety-measures-flagged-a-cybersecurity-topic) |
+| `API Error: Output blocked by content filtering policy` | [请求错误](#output-blocked-by-content-filtering-policy) |
 | `Installation was killed before it could finish (exit code 137)` | [安装错误](#installation-was-killed-before-it-could-finish) |
 | `The connection dropped while downloading the update` | [安装错误](#the-connection-dropped-while-downloading-the-update) |
 | `Download timed out: exceeded the total deadline` | [安装错误](#the-connection-dropped-while-downloading-the-update) |
@@ -402,6 +403,7 @@ Claude Code 不重试这些故障：
 * [Amazon Bedrock 流式响应具有意外的 content-type](#bedrock-streaming-response-has-an-unexpected-content-type)，因为重写响应的网关或代理会以相同方式重写重试。需要 Claude Code v2.1.208 或更高版本。
 * 失败的流式请求的非流式重试获得成功状态但 [body 中没有 Claude API 消息](#api-returned-an-empty-or-malformed-response)。Claude Code 以该错误结束轮次。
 * 您的组织的策略检查拒绝的请求，其表现为携带拒绝消息的 `API Error:` 行。您的组织管理员使用 [Inference hooks](https://platform.claude.com/docs/en/manage-claude/inference-hooks)（Claude Enterprise 功能）设置检查，消息以他们配置的说明结尾，或默认告诉您联系他们。Claude Code 不会将拒绝的请求重新发送到相同模型或 [备用模型](/docs/zh-CN/model-config#fallback-model-chains)，因为拒绝涉及请求的内容而不是模型。在 v2.1.239 之前，Claude Code 可以重新发送拒绝的请求，不流式传输或在配置的备用模型上，然后向您显示拒绝。
+* 被 API 输出内容过滤器拦截的响应。Claude Code 会立即显示 [Output blocked by content filtering policy](#output-blocked-by-content-filtering-policy)，并且不会重试或重新发送该请求。
 
 <h3 id="what-you-see-while-claude-code-retries-or-waits">
   Claude Code 重试或等待时您看到的内容
@@ -432,6 +434,7 @@ Claude Code 不重试这些故障：
 | [`CLAUDE_CODE_MAX_RETRIES`](/docs/zh-CN/env-vars) | 10 | 重试尝试次数。从 v2.1.186 开始上限为 15；从 v2.1.199 开始 `CLAUDE_CODE_RETRY_WATCHDOG` 提高默认值并移除上限。降低它以在脚本中更快地显示故障。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG`](/docs/zh-CN/env-vars) | 未设置 | 在 CI 作业等无人值守会话中设置为 `1`，以无限期重试 `429` 和 `529` 容量错误，而不是在 `CLAUDE_CODE_MAX_RETRIES` 尝试后失败。当标准速度请求获得报告支出限制或耗尽使用额度的 `429` 时，Claude Code 立即失败，即使来自 [gateway spend cap](#spend-limit-reached) 的也是如此，该上限按计划重置。在 v2.1.239 之前，看门狗无限期重试这些。对于快速模式请求，请参阅 [Handle rate limits](/docs/zh-CN/fast-mode#handle-rate-limits)。在 v2.1.199 或更高版本上，它还为其他瞬时错误（例如服务器错误、超时和断开连接）提高默认重试计数至 300，大约三小时的退避，如果您明确设置该变量，则移除 `CLAUDE_CODE_MAX_RETRIES` 的 15 上限。 |
 | [`API_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 600000 | 每个请求的超时（毫秒）。为慢速网络或代理提高它。它还限制 Claude Code 等待响应头的时间，在 [No response from API](#no-response-from-api) 中描述。 |
+| [`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES`](/docs/zh-CN/env-vars) | 未设置 | 超时的[非流式请求](#streaming-response-ended-before-any-complete-data-was-received)的重新发送次数限制。达到该限制时，请求失败。生成时间超过超时时间的 Claude 响应在每次重新发送时都会再次超时，因此请设置较低的数值（例如 `0`）以更快地失败。在本地会话中，每次非流式尝试在 300 秒后超时；当您为 `API_TIMEOUT_MS` 设置正值时，则在该值指定的时间后超时。需要 Claude Code v2.1.285 或更高版本。 |
 | [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 未设置 | 流式请求的第一个响应字节的截止时间（毫秒）。需要 Claude Code v2.1.242 或更高版本。对于当此未设置时 Claude Code 如何选择截止时间，请参阅 [No response from API](#no-response-from-api)。 |
 
 <h2 id="server-errors">
@@ -2022,7 +2025,7 @@ x-deny-reason: host_not_allowed
 这些步骤更改您自己的环境之一。[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)在选择器中以只读方式打开，因此请要求所有者从[管理设置](https://claude.ai/admin-settings)中的**云环境**页面更改其网络访问。
 
 * 打开您的环境进行编辑，可以从[例程的表单](/docs/zh-CN/routines#environments-and-network-access)或从[环境选择器](/docs/zh-CN/cloud-environments#configure-your-environment)启动云会话。
-* 在**编辑云环境**对话框中，将**网络访问**从**受信任**更改为**自定义**，然后将被阻止的域添加到**允许的域**。每行输入一个域。检查**也包括常见包管理器的默认列表**以将[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)与您的自定义域保持在一起。如果您想要不受限制的访问，请改为选择**完全**。
+* 在 **Edit environment** 对话框中，将 **Network access** 从 **Trusted** 更改为 **Custom**，然后将被阻止的域添加到 **Allowed domains**。每行输入一个域。勾选 **Also include default list of common package managers** 以将[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)与您的自定义域保持在一起。如果您想要不受限制的访问，请改为选择 **Full**。
 * 单击**保存更改**。下一次运行使用更新的允许列表。对于已打开的云会话，请参阅[网络访问更改何时到达现有会话](/docs/zh-CN/cloud-environments#network-access)。
 
 有关访问级别和默认允许列表，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。本地 CLI 会话不受此策略影响。
@@ -2864,6 +2867,23 @@ API Error: Opus 4.8's safeguards flagged this message. Our intentionally broad s
 * 如果您的工作需要此内容，通过[网络安全验证计划](https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude)申请访问权限
 * 如果您的请求不是关于网络安全主题，运行 `/feedback` 报告误报
 * 要继续在同一会话中工作，按 Esc 两次或运行 `/rewind` 回退到触发标记的轮次之前的检查点，然后采取不同的方法。请参阅[检查点](/docs/zh-CN/checkpointing)。
+
+<h3 id="output-blocked-by-content-filtering-policy">
+  Output blocked by content filtering policy
+</h3>
+
+API 的输出内容过滤器中止了 Claude 正在生成的响应。消息文本来自 API：
+
+```text theme={null}
+API Error: Output blocked by content filtering policy
+```
+
+Claude Code 在拦截到达时立即显示错误，并在此结束请求。它不会重试请求、以非流式方式重新发送请求，也不会切换到[备用模型](/docs/zh-CN/model-config#fallback-model-chains)。在 v2.1.285 之前，Claude Code 可能会重新发送并重试被拦截的请求（有时持续数分钟），然后才向您显示错误。
+
+**要做什么：**
+
+* 重新表述您的上一条消息或采取不同的方法
+* 要回退到触发拦截的轮次之前的检查点，请按 Esc 两次或运行 `/rewind`。请参阅[检查点](/docs/zh-CN/checkpointing)
 
 <h2 id="installation-errors">
   安装错误
@@ -4414,7 +4434,7 @@ Failed to write to researcher's inbox — nothing was sent. Try again, or messag
   队友的 Agent 定义未被恢复
 </h3>
 
-Claude 给停止的 [agent team](/docs/zh-CN/agent-teams) 队友发消息，Claude Code 将其恢复而没有重新应用它生成时的[子代理定义](/docs/zh-CN/agent-teams#use-subagent-definitions-for-teammates)，因为其定义文件来自没有保存信任的文件夹。该通知跟随发送方 Agent 的工具结果中的恢复报告：
+Claude 给已停止的 [agent team](/docs/zh-CN/agent-teams) 队友发消息，Claude Code 将其恢复，但没有重新应用它生成时所依据的[子代理定义](/docs/zh-CN/agent-teams#use-subagent-definitions-for-teammates)。该通知跟随发送方 Agent 的工具结果中的恢复报告，并说明原因。当定义文件来自没有保存信任的文件夹时，内容如下：
 
 ```text wrap theme={null}
 Its agent definition was not restored: the folder its definition file came from is not trusted (source: projectSettings), so the teammate is running with the team-essential tools and no custom instructions. To restore it, the user needs to run Claude Code in that folder once and accept the trust dialog (the --debug log names the folder); do not change trust settings on the user's behalf.

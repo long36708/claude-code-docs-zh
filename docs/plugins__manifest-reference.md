@@ -371,6 +371,7 @@ Claude Code 首先加载 plugin 根目录处的 `.lsp.json`，然后按顺序加
 | `workspaceFolder` | No | 服务器的工作区文件夹路径 |
 | `startupTimeout` | No | 等待启动的毫秒数，正整数 |
 | `shutdownTimeout` | No | 等待正常关闭的毫秒数，正整数。当超时时间过去时，Claude Code 终止服务器进程。未设置时，不适用超时 |
+| `requestTimeout` | No | 等待服务器响应请求的毫秒数，正整数。默认为 `60000`，因此服务器始终未响应的请求会在 60 秒后失败。需要 v2.1.288 或更高版本 |
 | `restartOnCrash` | No | 服务器崩溃后是否重新启动。默认为 `true`。设置为 `false` 以使崩溃的服务器停止而不是重新启动 |
 | `maxRestarts` | No | 放弃前的重新启动尝试，零或更多 |
 | `diagnostics` | No | 编辑后是否将诊断推送到上下文。默认为 `true` |

@@ -184,7 +184,8 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 
 语音听写不激活或不录制时的常见问题：
 
-* **`Voice mode requires a Claude.ai account`**：你使用 API 密钥或第三方提供商进行了身份验证。运行 `/login` 以使用 Claude.ai 账户登录。
+* **`Unknown command: /voice`**：只有在以 claude.ai 账户作为当前登录方式时才能使用 `/voice`。如果您未使用 claude.ai 账户登录，请运行 `/login`。如果正在使用 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN`、`apiKeyHelper` 设置或[第三方提供商](#requirements)，它们会优先于 claude.ai 登录，因此请将其移除并重新启动 Claude Code。
+* **`Voice mode requires a Claude.ai account`**：在您运行 `/voice` 或开始录制时，Claude Code 找不到可用的 claude.ai 登录。运行 `/login` 重新登录。
 * **`Voice mode is disabled by your organization's policy`**：你的组织的管理员策略关闭了语音听写。联系你的组织管理员以确认你的组织是否可以使用语音听写。
 * **`Microphone access is denied`**：在系统设置中授予你的终端麦克风权限。在 macOS 上，转到系统设置 → 隐私和安全 → 麦克风并启用你的终端应用，然后再次运行 `/voice`。在 Windows 上，转到设置 → 隐私和安全 → 麦克风并为桌面应用打开麦克风访问，然后再次运行 `/voice`。如果你的终端未在 macOS 设置中列出，请参阅[终端未在 macOS 麦克风设置中列出](#terminal-not-listed-in-macos-microphone-settings)。
 * **`Voice mode requires SoX for audio recording` on Linux**：本机音频模块无法加载，没有安装回退。使用错误消息中显示的命令安装 SoX，例如 `sudo apt-get install sox`。

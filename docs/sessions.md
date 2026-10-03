@@ -299,7 +299,7 @@ claude -p --resume <session-id> --output-format json "summarize what we changed"
   删除会话数据
 </h3>
 
-文本记录在 [保留扫描规则](/docs/zh-CN/claude-directory#cleaned-up-automatically) 下过期。要更快地删除项目的文本记录和相关状态，请运行 [`claude project purge`](/docs/zh-CN/claude-directory#clear-local-data)。如果您使用 [`claude rm <id>`](/docs/zh-CN/agent-view#what-deleting-a-session-removes) 删除 [后台会话](/docs/zh-CN/agent-view)，其文本记录保留在磁盘上，并且仍可通过 `claude --resume` 访问。
+会话记录在 [保留扫描规则](/docs/zh-CN/claude-directory#cleaned-up-automatically) 下过期。要更快地删除项目的会话记录和相关状态，请运行 [`claude purge`](/docs/zh-CN/claude-directory#clear-local-data)。如果您使用 [`claude rm <id>`](/docs/zh-CN/agent-view#what-deleting-a-session-removes) 删除 [后台会话](/docs/zh-CN/agent-view)，其会话记录保留在磁盘上，并且仍可通过 `claude --resume` 访问。
 
 <h3 id="name-the-project-directory-yourself">
   自己命名项目目录

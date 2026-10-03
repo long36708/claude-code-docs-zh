@@ -130,7 +130,7 @@ Chrome 集成还需要使用 `/login` 登录。如果您使用 API 密钥或来�
 在 VS Code 会话中，Claude Code 是否在浏览器操作前询问您，取决于该会话连接到您浏览器的方式：
 
 * **您键入了 `@browser`**：扩展程序会批准 Claude Code 原本会询问您的每个浏览器操作。
-* **[Enabled by default](#enable-chrome-by-default) 设置在启动时建立了连接**：在 Manual、Edit automatically、Auto 和 Bypass permissions 模式下，Claude Code 会在浏览器操作前询问您，直到您在该会话中键入 `@browser`。
+* **[Enabled by default](#enable-chrome-by-default) 设置在启动时建立了连接**：在 Manual、Edit automatically、Auto 和 Bypass permissions 模式下，对于您尚未允许的网站，Claude Code 会在浏览器操作前询问您，直到您在该会话中键入 `@browser`。
 
 <h3 id="browser-tools-in-plan-mode">
   Plan Mode 中的浏览器工具

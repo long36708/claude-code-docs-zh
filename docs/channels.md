@@ -349,7 +349,7 @@ iMessage 的工作方式不同：给自己发短信会自动绕过门禁，您�
 
 如果您设置空数组，您会阻止所有 channel 插件从允许列表中，但 `--dangerously-load-development-channels` 仍可以为本地测试绕过该阻止。要完全阻止 channels，包括开发标志，请改为保持 `channelsEnabled` 未设置。
 
-此设置需要 `channelsEnabled: true`。如果用户将不在您列表中的插件传递给 `--channels`，Claude Code 会正常启动，但 channel 不会注册，启动通知会解释该插件不在组织的批准列表中。如果您在 v2 MCP 客户端运行时将 `MCP_PROTOCOL_NEGOTIATION` 设置为 `auto`，channel 也可能无法注册，因为 Claude Code [不会注册协商协议修订版本 2026-07-28 的 channel 服务器](/docs/zh-CN/mcp#push-messages-with-channels)。
+此设置需要 `channelsEnabled: true`。如果用户将不在您列表中的插件传递给 `--channels`，Claude Code 会正常启动，但 channel 不会注册，启动通知会解释该插件不在组织的批准列表中。在 v2 MCP 客户端运行时上，channel 也可能无法注册，因为 Claude Code [不会注册协商协议修订版本 2026-07-28 的 channel 服务器](/docs/zh-CN/mcp#push-messages-with-channels)。
 
 <h2 id="research-preview">
   研究预览

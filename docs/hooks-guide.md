@@ -503,7 +503,7 @@ Claude Code 在其生命周期中的特定点触发 hook 事件。当事件触�
 | :- | :- |
 | `SessionStart` | 当会话开始或恢复时 |
 | `Setup` | 当你使用 `--init-only` 启动 Claude Code，或在 `-p` 模式下使用 `--init` 或 `--maintenance` 时。用于 CI 或脚本中的一次性准备 |
-| `UserPromptSubmit` | 当你提交提示词时，在 Claude 处理之前 |
+| `UserPromptSubmit` | 当提交提示词时，在 Claude 处理之前。对于 [Claude Code 自行发起的轮次](/docs/zh-CN/hooks#userpromptsubmit)也会触发 |
 | `UserPromptExpansion` | 当用户输入的命令扩展为提示词时，在到达 Claude 之前。可以阻止扩展 |
 | `PreToolUse` | 在工具调用执行之前。可以阻止它 |
 | `PermissionRequest` | 当工具调用需要权限决策时 |

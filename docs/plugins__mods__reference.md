@@ -63,7 +63,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | :- | :- | :- |
 | [`tool.call`](/docs/zh-CN/plugins/mods/events#guard-or-change-a-tool-call) | 工具即将运行 | `next(e)`、`{ deny: reason }` 或 `{ result }` |
 | [`tool.check`](/docs/zh-CN/plugins/mods/events#where-settings-hooks-run-in-the-order) | Claude Code 在 `tool.call` 和 `PreToolUse` hook 之后决定是否允许运行某个工具调用。`next(e)` 解析为规则、权限模式和这些 hook 得出的决定。 | `{ decision }`，其值为 `allow`、`ask` 或 `deny` |
-| `tool.describe` | 每个工具一次，在其描述首次发送给 Claude 时 | `{ description }` |
+| `tool.describe` | 每个工具一次，在其描述首次发送给 Claude 时 | `{ description }`，可选择将 `isDeferred` 设为 `true` 以将该工具置于[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)之后，或设为 `false` 以预先加载它 |
 
 <h3 id="prompts-and-what-claude-reads">
   提示词以及 Claude 读取的内容

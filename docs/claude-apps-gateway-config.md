@@ -79,7 +79,8 @@ OpenID Connect (OIDC) 是网关与您的身份提供商一起使用的 SSO 协�
 | 字段 | 必需 | 描述 |
 | - | - | - |
 | `issuer` | 是 | OIDC 发现基础。必须在 `/.well-known/openid-configuration` 提供发现。在生产中使用 HTTPS；网关接受 `http://` 发行者。环回发行者（如 `http://localhost:8081`）被[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)拒绝，除非在网关的环境中设置了 `CLAUDE_GATEWAY_ALLOW_LOOPBACK=1`。 |
-| `client_id` / `client_secret` | 是 | 来自您的 OAuth 客户端注册 |
+| `client_id` | 是 | 来自您的 OAuth 客户端注册 |
+| `client_secret` | 除非 `token_endpoint_auth_method` 为 `private_key_jwt` | 来自您的 OAuth 客户端注册。使用[证书客户端身份验证](#certificate-client-authentication)时省略此项。 |
 | `allowed_email_domains` | 否 | 拒绝 `email` 声明不在这些域之一中的 id\_tokens，不区分大小写。针对多租户 IdP 配置错误的深度防御。独立于此设置，`email_verified` 声明明确为 `false` 的 id\_token 总是被拒绝。 |
 | `allowed_groups` | 否 | 限制登录仅限于这些 IdP 组的成员，与 `groups_claim` 匹配。处于允许的电子邮件域但不在这些组中的用户被拒绝。需要 IdP 发出组声明。匹配是对该声明中的值的精确、区分大小写的字符串比较，网关不展开嵌套组：要允许子组的成员，在此列出子组或配置 IdP 发出扁平化成员资格。 |
 | `groups_claim` | 否 | 哪个 id\_token 声明携带组成员资格。默认 `groups`。Microsoft Entra 在 `roles` 下发出应用角色。接受平面键或 RFC 6901 JSON 指针（如 `/resource_access/gateway/roles`）用于嵌套声明。 |
@@ -91,13 +92,74 @@ OpenID Connect (OIDC) 是网关与您的身份提供商一起使用的 SSO 协�
 | `userinfo_fallback` | 否 | 当 id\_token 省略电子邮件或组时，从 `/userinfo` 获取它们。Keycloak 轻量级访问令牌、Okta 组织服务器和 ADFS 最小令牌需要。id\_token 保持权威；userinfo 仅填补空白。默认 `false`。 |
 | `use_pkce` | 否 | 在授权请求上发送 PKCE (S256) 质询。默认 `true`。仅当您的 IdP 为此机密客户端拒绝 PKCE 时设置 `false`。 |
 | `clock_skew_seconds` | 否 | 验证 id\_token 时间声明时容忍时钟漂移。默认 `0`，严格。如果您在登录后立即看到"令牌已过期/尚未有效"错误，请提高以应对主机/IdP 时钟偏差。 |
-| `token_endpoint_auth_method` | 否 | 覆盖令牌端点身份验证方法。接受 `client_secret_basic` 或 `client_secret_post`。默认自动协商。 |
+| `token_endpoint_auth_method` | 否 | 网关向 IdP 令牌端点进行身份验证的方式：`client_secret_basic`、`client_secret_post`，或用于[证书客户端身份验证](#certificate-client-authentication)的 `private_key_jwt`。默认情况下，网关根据 IdP 公布的内容从两种 `client_secret` 方法中选择一种。 |
+| `client_assertion` | 使用 `private_key_jwt` 时 | 包含 `private_key_pem` 和 `certificate_pem` 的块：用于[证书客户端身份验证](#certificate-client-authentication)的私钥和证书。需要 v2.1.284 或更高版本。 |
 | `id_token_signed_response_alg` | 否 | 预期的 id\_token 签名算法。默认 `RS256`。为使用 ES256、PS256 或 EdDSA 签名的 IdP 设置。 |
 | `additional_authorized_parties` | 否 | 除 `client_id` 外要接受的额外 `azp` 值，用于 Keycloak 代理和令牌交换流 |
 | `discovery_url` | 否 | 从此 URL 获取发现文档而不是从 `issuer` 派生，用于代理后面重写发行者主机的 IdP。路径必须包含 `/.well-known/`。 |
 | `use_proxy` | 否 | 通过 `HTTPS_PROXY` 或 `HTTP_PROXY` 中的前向代理发送网关自己的 IdP 请求，遵守 `NO_PROXY`。`false` 保持这些请求直接。需要 v2.1.227 或更高版本；请参阅下面的[通过前向代理的 IdP 请求](#idp-requests-through-a-forward-proxy)。 |
 | `form_action_origins` | 否 | `/device` 页面的 `Content-Security-Policy: form-action` 指令的其他源。网关已允许 `'self'` 和发现的 `authorization_endpoint` 源，但 Chrome 对整个重定向链强制执行 `form-action`。如果您的 IdP 通过第二个主机重定向，如 Azure AD 联合到 ADFS、中心辐射 Okta 或公司 SSO 拦截器，列出授权请求可能重定向通过的每个源。 |
 | `ca_cert_pem` | 否 | PEM 编码的 CA 证书本身，不是文件的路径。它仅替换 IdP 请求的系统信任存储。要加载挂载的文件，请写 `${file:/etc/gateway/idp-ca.pem}`。用于公司 PKI 后面的 Keycloak 或 Dex。 |
+
+<h4 id="certificate-client-authentication">
+  证书客户端身份验证
+</h4>
+
+如果您的身份提供商使用证书而不是客户端密钥对 OAuth 客户端进行身份验证（如 Microsoft Entra 使用证书凭据），请设置 `token_endpoint_auth_method: private_key_jwt`。需要网关服务器上的 Claude Code v2.1.284 或更高版本。
+
+使用此配置时，网关不发送任何密钥。当开发人员登录时以及网关每次刷新其会话时，网关使用由证书私钥签名的短期 JWT 向 IdP 的令牌端点进行身份验证。该 JWT 使用 RS256 签名，并通过 `x5t` 和 `x5t#S256` 指纹标头而不是 `kid` 来标识证书。您的 IdP 必须能够按指纹找到已注册的证书。
+
+<Steps>
+  <Step title="创建密钥和证书">
+    创建一个至少 2048 位的未加密 RSA 私钥（PKCS#8 或 PKCS#1 PEM 格式），并为其创建证书。对于任何不满足这些条件的密钥，网关都会拒绝启动。以下 `openssl` 命令会创建这样的密钥以及有效期为一年的自签名证书：
+
+    ```bash theme={null}
+    openssl req -x509 -newkey rsa:2048 -nodes -keyout idp-client.key -out idp-client.crt -days 365 -subj "/CN=claude-gateway"
+    ```
+
+    它会将 `idp-client.key` 和 `idp-client.crt` 写入当前目录。将这两个文件复制或挂载到网关可以读取的位置。第 3 步中的示例使用 `/etc/gateway/`。
+  </Step>
+
+  <Step title="将证书上传到 IdP">
+    将证书（而不是私钥）上传到 IdP 上网关的应用注册。
+  </Step>
+
+  <Step title="将密钥和证书添加到 gateway.yaml">
+    在 `client_assertion` 块中向网关提供私钥和证书。省略 `client_secret`，因为当它与 `private_key_jwt` 一起设置时，网关会拒绝启动。以下 `oidc` 块使用证书向 Microsoft Entra 租户对网关进行身份验证：
+
+    ```yaml theme={null}
+    oidc:
+      issuer: https://login.microsoftonline.com/<tenant-id>/v2.0
+      client_id: <application-id>
+      token_endpoint_auth_method: private_key_jwt
+      client_assertion:
+        private_key_pem: ${file:/etc/gateway/idp-client.key}
+        certificate_pem: ${file:/etc/gateway/idp-client.crt}
+    ```
+
+    这两个值都是 PEM 内容，而不是文件路径，因此请像示例那样使用 `${file:/path}` 加载挂载的文件。除非 `certificate_pem` 是单个 PEM 证书（不含证书链的其余部分）且其公钥与 `private_key_pem` 匹配，否则网关会拒绝启动。
+  </Step>
+
+  <Step title="重启网关并检查启动日志">
+    重启网关，并在启动日志中找到以下行：
+
+    ```text theme={null}
+    [gateway] 2026-10-01T23:07:40.512Z info oidc: client authentication private_key_jwt; certificate CN=claude-gateway, SHA-1 thumbprint DE92821854EE8BAA1D98C758FAA04AABE80B9F57, expires Oct  1 23:07:31 2027 GMT
+    ```
+
+    将该 SHA-1 指纹与 IdP 为您上传的证书显示的指纹进行比较。如果证书已过期或尚未生效，网关仍会启动，但会记录一条警告，说明在您替换证书之前登录和刷新都将失败。要确认 IdP 接受该证书，请让一位开发人员通过网关登录。
+  </Step>
+</Steps>
+
+<h4 id="rotate-the-client-certificate">
+  轮换客户端证书
+</h4>
+
+网关在启动时读取一次密钥和证书，因此更改后的文件仅在重启后生效。请按以下顺序轮换，以确保任何令牌请求都不会出示 IdP 中不存在的证书：
+
+1. 将新证书与旧证书一起上传到 IdP。
+2. 替换 `gateway.yaml` 加载的密钥和证书文件，然后重启网关。
+3. 从 IdP 中删除旧证书。
 
 <h4 id="idp-requests-through-a-forward-proxy">
   通过前向代理的 IdP 请求
@@ -1224,7 +1286,7 @@ Claude Code 在直接导出信号之前检查端点，并在检查失败时将�
 | - | - | - | - |
 | `access_control` | `allow_cidrs` / `deny_cidrs` | 空 | 入站 IP 允许/拒绝，按客户端地址，在 `trusted_proxies` 解析后。`deny_cidrs` 首先检查；与它匹配的客户端被拒绝，即使 `allow_cidrs` 也匹配。如果 `allow_cidrs` 非空，网关是默认拒绝。`/healthz` 和 `/readyz` 免除 `allow_cidrs`。当受信任的代理发送不是 IP 地址的 `X-Forwarded-For` 条目时，真实客户端未知，网关记录一次警告，命名要检查的内容。其中任一列表适用于请求的地方，它以 `403` 和审计原因 `xff_unparseable` 拒绝它。其中都不适用的地方，它提供请求并使用代理自己的地址作为客户端 IP，用于每个 IP 速率限制和审计。 |
 | `limits` | `max_request_bytes` | 32 MiB | 最大入站请求体；超大请求在缓冲体之前获得 `413`。为大文件或图像请求提高。 |
-| `limits` | `max_request_header_bytes` | 未设置 | 设置时，超大标头返回 `431` |
+| `limits` | `max_request_header_bytes` | 未设置 | 降低网关对请求标头总大小的 256 KiB 限制。超过限制的请求返回 `431`，大于 256 KiB 的值不起作用。如果开发者在登录后收到 `431`，请参阅[登录后请求标头过大](/docs/zh-CN/claude-apps-gateway-deploy#request-headers-too-large-after-sign-in)。 |
 | `limits` | `max_url_length` | 未设置 | 设置时，过长 URL 返回 `414` |
 | `timeouts` | `upstream_ttfb_ms` | 120000 | 等待上游响应标头的最大时间（首字节时间）。响应体然后流，没有墙钟上限。适用于直接 Anthropic 上游路径；在每个其他提供商上，网关等待最多一小时以响应开始。 |
 | `rate_limits` | `device_authorization.max` / `.window_seconds` | 30 / 600 | 未认证设备授权端点上的每个 IP 速率限制。为共享出口 IP 或 NAT 后面的大型组织提高。[大型推出](/docs/zh-CN/claude-apps-gateway-deploy#large-rollouts)显示如何调整大小。这些限制仅适用于设备授予登录流，不适用于 `/v1/messages` 推理。请参阅[用户代码暴力破解抵抗](/docs/zh-CN/claude-apps-gateway-deploy#user-code-brute-force-resistance)。 |

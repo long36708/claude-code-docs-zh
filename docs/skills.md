@@ -198,12 +198,13 @@ Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/ski
   解决共享名称的 skills
 </h3>
 
-当两个 skills 共享目录或文件名称时，每个来自的位置决定了 `/name` 运行哪一个。对于由 frontmatter `name` 字段设置的名称，请参阅 [skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)。该表涵盖 enterprise、personal、project、nested、plugin 和 claude.ai 位置、捆绑 skills 和命令文件：
+当两个 skill 共享目录或文件名称时，每个来自的位置决定了 `/name` 运行哪一个。对于由 frontmatter `name` 字段设置的名称，请参阅 [skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)。该表涵盖 enterprise、personal、project、nested、plugin 和 claude.ai 位置、随附 skill、内置命令和命令文件：
 
 | 相同名称在 | 运行哪一个 |
 | :- | :- |
 | Enterprise、personal 和 project 中的两个 | Enterprise 优先于 personal，personal 优先于 project。在 `~/.claude/skills/` 和项目的 `.claude/skills/` 中都有 `deploy` 时，`/deploy` 运行 personal 的 |
 | 这些位置中的任何一个和 [捆绑 skill](#bundled-skills) | 您的 skill 替换捆绑命令，但不替换其别名。项目 `code-review` skill 替换 `/code-review`，捆绑别名 `/review` 永远不会运行您的 skill |
+| 这些位置中的任何一个和 [内置命令](/docs/zh-CN/commands) | 在本地终端会话中，您的 skill 替换内置命令，但不替换其别名。项目 `usage` skill 替换 `/usage`，内置别名 `/cost` 仍然运行内置命令 |
 | Skill 和 `.claude/commands/` 中的文件 | Skill |
 | 项目根 skill 和嵌套 skill | 两者都加载。请参阅 [monorepos 和子目录](#discovery-from-parent-and-nested-directories) |
 | 插件 skill 和上述任何位置的 skill | 两者都加载，因为插件 skills 被命名为 `/plugin-name:skill-name` |
@@ -416,7 +417,7 @@ Your skill instructions here...
 | `allowed-tools` | 否 | 在调用此 skill 的轮次中，Claude 无需请求权限即可使用的工具。当您发送下一条消息时，该授予即被清除。接受以空格或逗号分隔的字符串，或 YAML 列表。请参阅[为 skill 预先批准工具](#pre-approve-tools-for-a-skill)。 |
 | `disallowed-tools` | 否 | 在此 skill 处于活动状态时，从 Claude 可用工具池中移除的工具。适用于永远不应调用某些工具的自主 skill，例如对后台循环禁用 `AskUserQuestion`。接受以空格或逗号分隔的字符串，或 YAML 列表。当您发送下一条消息时，该限制即被清除。与拒绝规则一样，只要还有其他工具存在，该字段就无法移除 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)。 |
 | `model` | 否 | 此 skill 处于活动状态时使用的模型。该覆盖适用于当前轮次的剩余部分，且不会保存到设置中。当您发送下一个提示词时，会话模型即恢复。接受与 [`/model`](/docs/zh-CN/model-config) 相同的值，或使用 `inherit` 保留当前活动的模型。被组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除的值不会被使用，会话将保留其当前模型。在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下，以及在[分类器审查命令时的计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)下，自动模式不支持的模型同样不会被使用，会话将保留其当前模型。使用 `context: fork` 时，该值改为设置[分叉子代理的模型](#run-skills-in-a-subagent)，被排除的值遵循[与子代理模型覆盖相同的规则](/docs/zh-CN/model-config#restrict-model-selection)。 |
-| `effort` | 否 | 此 skill 处于活动状态时的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。覆盖会话的 effort 级别。默认值：继承自会话。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型。 |
+| `effort` | 否 | 此 skill 处于活动状态时的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。覆盖会话的 effort 级别。省略该字段时，级别由 [effort 解析顺序](/docs/zh-CN/model-config#adjust-effort-level)决定。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型。 |
 | `context` | 否 | 设置为 `fork` 可在分叉的子代理上下文中运行。请参阅[在子代理中运行 skill](#run-skills-in-a-subagent)。 |
 | `agent` | 否 | 设置 `context: fork` 时使用的子代理类型。 |
 | `background` | 否 | 仅在使用 `context: fork` 时适用。设置为 `false` 可在调用该 skill 的轮次中等待分叉子代理的结果，而不是[在后台运行它](#run-skills-in-a-subagent)。默认值：`true`。需要 Claude Code v2.1.218 或更高版本。 |
@@ -664,7 +665,7 @@ Fix GitHub issue $ARGUMENTS following our coding standards.
 
 如果您在调用 skill 时传递了参数，但 skill 内容中没有占位符接收参数，Claude Code 会将 `ARGUMENTS: <your input>` 附加到 skill 内容的末尾，以便 Claude 仍能看到您输入的内容。占位符是指 `$ARGUMENTS`、索引形式（例如 `$1`）或命名参数。在其位置上没有参数的索引占位符会保留为字面文本，不算作接收了参数。命名占位符即使在其位置上没有参数也算作接收了参数，因为它会展开为空字符串。
 
-您还可以在一条消息的开头叠加多个 skill。输入 `/write-tests /fix-issue 123` 会加载这两个 skill，并将末尾的文本 `123` 作为 `$ARGUMENTS` 传递给每个 skill。在 v2.1.199 之前，只有第一个 skill 会加载，并将 `/fix-issue 123` 作为字面参数文本接收。
+您还可以在一条消息的开头叠加多个 skill。输入 `/write-tests /fix-issue 123` 会加载这两个 skill，并将末尾的文本 `123` 作为 `$ARGUMENTS` 传递给每个 skill。
 
 Claude Code 会展开第一个 skill 以及其后叠加的最多五个 skill。展开会在第一个不是内联用户可调用 skill 的标记处停止，因此以[分叉子代理](#run-skills-in-a-subagent)方式运行的 skill（例如 [`/code-review`](/docs/zh-CN/code-review#review-a-diff-locally)），或其参数本身可能以斜杠命令开头的 skill（例如 `/loop`），也会在该处终止叠加。该标记及其后的所有内容会成为每个已展开 skill 的参数文本。从 v2.1.218 起，`/code-review` 以分叉子代理方式运行；在更早的版本中，它以内联方式运行并可叠加。
 
@@ -923,7 +924,7 @@ Claude Code 仅针对技能自己的名称和 Claude 调用中的名称匹配 `a
 
 `/skills` 菜单将 `"user-invocable-only"` 状态标记为 `user-only`。
 
-从 v2.1.199 开始，`"off"` 也会从广告给[远程控制](/docs/zh-CN/remote-control)客户端和[Agent SDK](/docs/zh-CN/agent-sdk/skills#discover-available-commands)调用者的命令列表中隐藏技能，除了终端 `/` 菜单。按其全名调用隐藏的技能仍然返回 `skillOverrides` 错误而不是运行它。
+除了终端的 `/` 菜单之外，`"off"` 还会将该 skill 从提供给 [Remote Control](/docs/zh-CN/remote-control) 客户端和 [Agent SDK](/docs/zh-CN/agent-sdk/skills#discover-available-commands) 调用方的命令列表中隐藏。按全名调用已隐藏的 skill 会返回 `skillOverrides` 错误，而不会运行它。
 
 不在 `skillOverrides` 中的技能被视为 `"on"`。下面的示例将一个技能折叠为其名称，并完全关闭另一个：
 

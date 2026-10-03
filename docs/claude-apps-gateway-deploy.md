@@ -25,7 +25,7 @@
   身份提供商设置
 </h2>
 
-向身份提供商注册一个机密 OAuth/OpenID Connect (OIDC) Web 应用程序，使用单个重定向 URI `https://<gateway>/oauth/callback`，并将其分配给应该有网关访问权限的用户或组。
+向身份提供商注册一个机密 OAuth/OpenID Connect (OIDC) Web 应用程序，使用单个重定向 URI `https://<gateway>/oauth/callback`，并将其分配给应该有网关访问权限的用户或组。网关使用该注册的客户端密钥向 IdP 进行身份验证；如果您的 IdP 改用[证书凭据](/docs/zh-CN/claude-apps-gateway-config#certificate-client-authentication)，则使用您上传到该注册的证书进行身份验证。
 
 任何符合 OIDC 的 IdP 都可以工作：Okta、Microsoft Entra ID、Google Workspace、Keycloak、Dex、PingFederate 等。IdP 必须满足三个要求：
 
@@ -372,53 +372,68 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 
 如有问题和反馈，请使用 [Claude Code 支持](https://support.claude.com/en/collections/14445694-claude-code)，或在 [Claude Code GitHub 仓库](https://github.com/anthropics/claude-code/issues)上提交问题。报告问题时，请包括：
 
-* **Gateway 问题**：相关窗口的 gateway stderr、你的 `gateway.yaml`（已隐藏密钥）、gateway 版本（显示在 `/` 的登陆页面和 `/managed/settings` 的 `x-cc-gateway-version` 响应头中），以及最近的更改
-* **登录问题**：开发者运行 `claude --debug-file ./claude-debug.txt`、重现问题，然后发送该文件以及同一窗口的 gateway 审计日志
-* **推理问题**：请求的模型、配置的上游服务，以及请求的 gateway 审计日志，其中记录了哪个上游提供了服务以及响应状态
+* **网关问题**：相关时间窗口内网关的 stderr、您的 `gateway.yaml`（已隐藏密钥）、网关版本（显示在 `/` 的登陆页面和 `/managed/settings` 的 `x-cc-gateway-version` 响应头中），以及最近的更改
+* **登录问题**：开发者运行 `claude --debug-file ./claude-debug.txt`、重现问题，然后发送该文件以及同一时间窗口内网关的审计日志
+* **推理问题**：请求的模型、配置的上游服务，以及该请求的网关审计日志，其中记录了由哪个上游提供服务以及响应状态
 
-gateway 的 stderr 包含审计事件流，审计日志记录开发者身份，调试文件记录来自开发者机器的 hook 和 MCP 服务器输出。在发布到公开问题前，请审查并隐藏这些内容。
+网关的 stderr 包含审计事件流，审计日志记录开发者身份，调试文件记录来自开发者机器的 hook 和 MCP 服务器输出。在发布到公开问题前，请审查并隐藏这些内容。
 
 | 症状 | 原因 | 解决方案 |
 | - | - | - |
-| 开发者的 `/login` 显示标准账户选择器而不是 **Cloud gateway** 屏幕 | 该机器的托管设置中未设置 `forceLoginMethod` 或 `forceLoginGatewayUrl` | 将[托管设置文件](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url)部署到设备；`/login` 从那里读取 gateway URL |
-| 开发者的请求失败，显示 `Not signed in to the Cloud gateway — run /login.` | 机器的托管设置设置了 `forceLoginMethod: "gateway"` 或 `forceLoginGatewayUrl`，且会话没有 gateway 登录。残留的 claude.ai 登录不满足要求。 | 让开发者运行 `/login` 并完成 gateway 登录。另请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。 |
-| Claude Desktop 报告其引导配置无法获取 | `/user/bootstrap` 返回 404：与用户匹配的策略不包含 `desktop` 密钥，或没有策略匹配。gateway 的审计日志将每次拒绝记录为 `desktop_bootstrap.denied` 并说明原因。 | 将 `desktop` 块添加到与用户匹配的策略，或添加到 `match: {}` 基础层；空的 `desktop: {}` 就足够了。请参阅 [Claude Desktop 覆盖](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)。 |
-| 启动显示 `Gateway login is configured in managed settings, but this Claude Code build does not include Cloud gateway support.` | 已安装的 Claude Code 版本早于 gateway 支持 | 让开发者更新 Claude Code 到包含 Cloud gateway 支持的版本 |
-| 启动退出，显示 `Administrator policy requires a Cloud gateway sign-in on this machine` | 开发者的环境设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，其设置配置了 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper)，或来自早期 Claude Console 登录的 API 密钥仍然保存 | 让开发者清除每个适用的项：取消设置变量、删除 `apiKeyHelper` 条目，或运行 `claude auth logout` 删除保存的密钥。然后让他们启动 `claude` 并使用 `/login` 登录。另请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。 |
-| 启动或 `/login` 在托管设置加载时返回 403 后报告 `Claude Code may not be enabled for your organization` | gateway 或其前面的某个组件用 403 响应了 `/managed/settings` 请求。gateway 自身的设置路由从不返回 403。状态来自 [`access_control`](/docs/zh-CN/claude-apps-gateway-config#http-tuning) IP 检查或 gateway 前面的代理或 WAF。审计日志将 IP 检查拒绝记录为 `access.denied` 并说明原因。开发者保持登录状态。 | 检查审计日志中失败时的 `access.denied`，修复 `access_control` 列表或前端，然后让开发者再次启动 `claude` |
+| 开发者的 `/login` 显示标准账户选择器而不是 **Cloud gateway** 屏幕 | 该机器的托管设置中未设置 `forceLoginMethod` 或 `forceLoginGatewayUrl` | 将[托管设置文件](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url)部署到设备；`/login` 从那里读取网关 URL |
+| 开发者的请求失败，显示 `Not signed in to the Cloud gateway — run /login.` | 机器的托管设置设置了 `forceLoginMethod: "gateway"` 或 `forceLoginGatewayUrl`，且会话没有网关登录。残留的 claude.ai 登录不满足要求。 | 让开发者运行 `/login` 并完成网关登录。另请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。 |
+| Claude Desktop 报告其引导配置无法获取 | `/user/bootstrap` 返回 404：与用户匹配的策略不包含 `desktop` 键，或没有策略匹配。网关的审计日志将每次拒绝记录为 `desktop_bootstrap.denied` 并说明原因。 | 将 `desktop` 块添加到与用户匹配的策略，或添加到 `match: {}` 基础层；空的 `desktop: {}` 就足够了。请参阅 [Claude Desktop 覆盖](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)。 |
+| 启动显示 `Gateway login is configured in managed settings, but this Claude Code build does not include Cloud gateway support.` | 已安装的 Claude Code 版本早于网关支持 | 让开发者更新 Claude Code 到包含 Cloud gateway 支持的版本 |
+| 启动退出，显示 `Administrator policy requires a Cloud gateway sign-in on this machine` | 开发者的环境设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，其设置配置了 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper)，或来自早期 Claude Console 登录的 API 密钥仍然保存 | 让开发者清除每个适用的项：取消设置变量、删除 `apiKeyHelper` 条目，或运行 `claude auth logout` 删除保存的密钥。之后，使用 `CLAUDE_CODE_USE_*` 选择云提供商的会话无需登录即可启动；对于其他所有会话，让他们启动 `claude` 并使用 `/login` 登录。另请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。 |
+| 启动或 `/login` 在托管设置加载时返回 403 后报告 `Claude Code may not be enabled for your organization` | 网关或其前面的某个组件用 403 响应了 `/managed/settings` 请求。网关自身的设置路由从不返回 403。状态来自 [`access_control`](/docs/zh-CN/claude-apps-gateway-config#http-tuning) IP 检查或网关前面的代理或 WAF。审计日志将 IP 检查拒绝记录为 `access.denied` 并说明原因。开发者保持登录状态。 | 检查审计日志中失败时的 `access.denied`，修复 `access_control` 列表或前端，然后让开发者再次启动 `claude` |
 | CLI `/login`：`The gateway is limiting sign-in attempts right now`，或在较旧版本上 `Request failed with status code 429`。`/device` 页面可能向尚未尝试过的开发者显示 `Too many attempts` | 达到了每 IP 登录速率限制。要么 `listen.trusted_proxies` 不覆盖负载均衡器，所以每个开发者共享其地址，要么许多开发者共享一个 NAT 或 VPN 出口地址。具有 `result: rate_limited` 的审计事件显示相同的一个或几个 `client_ip` 值。 | 首先将 `listen.trusted_proxies` 设置为负载均衡器的源范围，然后如果开发者仍然共享地址，提高 `rate_limits`。请参阅[大规模推出](#large-rollouts)。 |
-| CLI `/login`：`Gateway hosts must be on your organization's private network; <host> resolves to the public (or unrecognized) address <ip>` | gateway 主机名解析为至少一个公网 IP 地址。Claude Code 检查每个解析的地址，要求每个都是私网。常见原因是双栈名称，其中一个族解析为公网地址，包括 AWS 内部双栈负载均衡器，它们返回公网范围的 AAAA 地址。 | 让 gateway 名称在开发者机器上仅解析为私网地址。对于双栈名称，删除公网范围的记录或提供单独的仅内部 DNS 名称。请参阅[私网先决条件](/docs/zh-CN/claude-apps-gateway#prerequisites)。如果地址是你的组织拥有并在内部使用的公网空间，请[声明该块](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)。 |
-| CLI `/login`：`Gateway login would go through proxy <proxy>, which is not on a private network` | `HTTPS_PROXY` 或 `HTTP_PROXY` 适用于 gateway 主机，且代理的主机名解析为公网地址。主机名仅解析为私网地址的代理是允许的，不会触发此错误 | 在开发者的机器上将 gateway 主机添加到 `NO_PROXY`，以便连接是直接的，或使用主机名解析为私网地址的代理。消息会命名要添加的确切 `NO_PROXY` 条目 |
-| CLI `/login`：`Claude Code only signs in to <host> from inside its declared network <block> (managed settings), and this machine is connecting from <ip>, outside it` | gateway 在 [`gatewayInternalNetworks`](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own) 中声明的块上，开发者的机器从该块外的地址到达它：VPN 地址池、容器或 WSL2 NAT 段，或不是你的网络 | 让开发者从你的网络上的主机 OS 运行 `/login`。如果显示的地址也是你的组织自己的公网空间，将 gateway 的条目替换为覆盖两者的块，最多 `/8`；第二个重叠条目会被拒绝 |
-| CLI `/login`：`Every address for gateway host <host> must be inside its declared network <block>, and it also resolves to <ip>` | gateway 的名称解析为 [`gatewayInternalNetworks`](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own) 中声明的块外的地址：第二个站点，或双栈名称上的 IPv6 记录。在声明的块下，每条记录都必须在该单个 IPv4 块内，包括私网和 IPv6 地址 | 在开发者机器上仅为 gateway 名称发布块内的记录，或提供单独的仅内部名称 |
-| CLI `/login`：`<host> is on the declared network <block>, which Claude Code checks over a direct connection, not through an HTTP proxy` | `HTTPS_PROXY` 或 `HTTP_PROXY` 适用于声明块上的 gateway | 在开发者的机器上，添加消息命名的 `NO_PROXY` 条目 |
-| CLI `/login`：消息以 `gatewayInternalNetworks in managed settings` 开头 | 该值违反了[验证规则](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)之一，消息会命名哪一个。在你修复它之前，Claude Code 拒绝机器上的每个新 gateway `/login`，包括私网上的 gateway；现有登录保持工作 | 在你部署的托管设置源中，更正消息命名的条目，然后重新运行 `/login` |
-| CLI `/login`：`Could not resolve the configured HTTP proxy` | `HTTPS_PROXY` 或 `HTTP_PROXY` 中的主机名无法从开发者的机器解析，通常是因为它未连接到公司网络 | 让开发者连接到你的网络或 VPN 并重试，或修复代理 URL |
-| CLI `/login`：`Could not resolve gateway host <host>` | 机器无法解析 gateway 的内部 DNS 名称，通常是因为它不在公司网络上 | 让开发者连接到你的网络或 VPN，然后重试 `/login` |
-| 启动退出，显示配置验证错误，命名 `store.postgres_url` | 未配置 Postgres；gateway 需要 Postgres | 设置 `store.postgres_url`。对于本地开发，使用一次性容器：`docker run --rm -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres`。 |
+| CLI `/login`：`Gateway hosts must be on your organization's private network; <host> resolves to the public (or unrecognized) address <ip>` | 网关主机名解析为至少一个公网 IP 地址。Claude Code 检查每个解析的地址，要求每个都是私网。常见原因是双栈名称，其中一个族解析为公网地址，包括 AWS 内部双栈负载均衡器，它们返回公网范围的 AAAA 地址。 | 让网关名称在开发者机器上仅解析为私网地址。对于双栈名称，删除公网范围的记录或提供单独的仅内部 DNS 名称。请参阅[私网前提条件](/docs/zh-CN/claude-apps-gateway#prerequisites)。如果地址是您的组织拥有并在内部使用的公网空间，请[声明该块](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)。 |
+| CLI `/login`：`Gateway login would go through proxy <proxy>, which is not on a private network` | `HTTPS_PROXY` 或 `HTTP_PROXY` 适用于网关主机，且代理的主机名解析为公网地址。主机名仅解析为私网地址的代理是允许的，不会触发此错误 | 在开发者的机器上将网关主机添加到 `NO_PROXY`，以便连接是直接的，或使用主机名解析为私网地址的代理。消息会命名要添加的确切 `NO_PROXY` 条目 |
+| CLI `/login`：`Claude Code only signs in to <host> from inside its declared network <block> (managed settings), and this machine is connecting from <ip>, outside it` | 网关在 [`gatewayInternalNetworks`](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own) 中声明的块上，开发者的机器从该块外的地址到达它：VPN 地址池、容器或 WSL2 NAT 段，或不是您的网络 | 让开发者从您的网络上的主机 OS 运行 `/login`。如果显示的地址也是您的组织自己的公网空间，将网关的条目替换为覆盖两者的块，最多 `/8`；第二个重叠条目会被拒绝 |
+| CLI `/login`：`Every address for gateway host <host> must be inside its declared network <block>, and it also resolves to <ip>` | 网关的名称解析为 [`gatewayInternalNetworks`](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own) 中声明的块外的地址：第二个站点，或双栈名称上的 IPv6 记录。在声明的块下，每条记录都必须在该单个 IPv4 块内，包括私网和 IPv6 地址 | 在开发者机器上仅为网关名称发布块内的记录，或提供单独的仅内部名称 |
+| CLI `/login`：`<host> is on the declared network <block>, which Claude Code checks over a direct connection, not through an HTTP proxy` | `HTTPS_PROXY` 或 `HTTP_PROXY` 适用于声明块上的网关 | 在开发者的机器上，添加消息命名的 `NO_PROXY` 条目 |
+| CLI `/login`：消息以 `gatewayInternalNetworks in managed settings` 开头 | 该值违反了[验证规则](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)之一，消息会命名哪一个。在您修复它之前，Claude Code 拒绝机器上的每个新网关 `/login`，包括私网上的网关；现有登录保持工作 | 在您部署的托管设置源中，更正消息命名的条目，然后重新运行 `/login` |
+| CLI `/login`：`Could not resolve the configured HTTP proxy` | `HTTPS_PROXY` 或 `HTTP_PROXY` 中的主机名无法从开发者的机器解析，通常是因为它未连接到公司网络 | 让开发者连接到您的网络或 VPN 并重试，或修复代理 URL |
+| CLI `/login`：`Could not resolve gateway host <host>` | 机器无法解析网关的内部 DNS 名称，通常是因为它不在公司网络上 | 让开发者连接到您的网络或 VPN，然后重试 `/login` |
+| 启动退出，显示配置验证错误，命名 `store.postgres_url` | 未配置 Postgres；网关需要 Postgres | 设置 `store.postgres_url`。对于本地开发，使用一次性容器：`docker run --rm -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres`。 |
 | 启动退出：`requires the native binary` | 在 Node 下运行而不是本地二进制 | 使用[独立安装方法](/docs/zh-CN/setup)之一安装 Claude Code |
 | 启动退出，在 `config.load` 后显示 OIDC 发现错误 | `oidc.issuer` 无法访问，或 TLS 链不受信任 | 检查发行者是否可从 pod 访问并提供 `/.well-known/openid-configuration`。为私有 PKI 设置 `ca_cert_pem`。如果 pod 仅通过前向代理到达 IdP，设置 [`oidc.use_proxy: true`](/docs/zh-CN/claude-apps-gateway-config#idp-requests-through-a-forward-proxy)；在 v2.1.227 之前的版本上，改为给 pod 一条到 IdP 每个端点的直接路由。如果 pod 也无法解析 IdP 的主机名，或代理拒绝 `CONNECT` 到 IP 地址，请参阅[仅代理出口](/docs/zh-CN/claude-apps-gateway-config#proxy-only-egress)，这需要 v2.1.277 或更高版本。 |
-| 启动退出，显示 Postgres 权限错误 | 数据库角色在其模式上缺少 DDL 权限 | 授予角色对 gateway 模式的 `CREATE` 权限，以便它可以在启动时创建和修改其表 |
-| 日志：`could not connect to Postgres at boot, attempt 1 of 3` | 当 gateway 启动时数据库无法访问，例如在网络仍在启动的冷实例上 | 如果 gateway 随后完成启动，无需采取任何措施。当数据库无法访问时，gateway 在退出前尝试连接三次，间隔两秒。如果它以 `could not connect to Postgres` 退出，检查 `store.postgres_url` 和到数据库的网络路径。如果尝试超时而不是被拒绝，提高 [`store.connect_timeout_seconds`](/docs/zh-CN/claude-apps-gateway-config#store) 以给每个尝试更长的时间。 |
-| `/oauth/callback` 显示"Sign-in could not be completed" | 电子邮件域被拒绝、id\_token 验证失败，或 `email_verified` 显式为 `false`，gateway 总是拒绝且无覆盖 | 检查 `allowed_email_domains` 和 IdP 是否返回已验证的 `email` 声明。对于 `email_verified: false`，修复 IdP 端验证。如果你的 IdP 在不同的声明名称下发出电子邮件，设置 `oidc.email_claim`。 |
+| 启动退出，显示 Postgres 权限错误 | 数据库角色在其 schema 上缺少 DDL 权限 | 授予角色对网关 schema 的 `CREATE` 权限，以便它可以在启动时创建和修改其表 |
+| 日志：`could not connect to Postgres at boot, attempt 1 of 3` | 当网关启动时数据库无法访问，例如在网络仍在启动的冷实例上 | 如果网关随后完成启动，无需采取任何措施。当数据库无法访问时，网关在退出前尝试连接三次，间隔两秒。如果它以 `could not connect to Postgres` 退出，检查 `store.postgres_url` 和到数据库的网络路径。如果尝试超时而不是被拒绝，提高 [`store.connect_timeout_seconds`](/docs/zh-CN/claude-apps-gateway-config#store) 以给每个尝试更长的时间。 |
+| `/oauth/callback` 显示"Sign-in could not be completed" | 电子邮件域被拒绝、id\_token 验证失败，或 `email_verified` 显式为 `false`，网关总是拒绝且无覆盖 | 检查 `allowed_email_domains` 和 IdP 是否返回已验证的 `email` 声明。对于 `email_verified: false`，修复 IdP 端验证。如果您的 IdP 在不同的声明名称下发出电子邮件，设置 `oidc.email_claim`。 |
 | 日志：`token exchange failed request_id=<id>: id_token missing email claim` | IdP 默认不在 id\_token 中包含 `email`。此拒绝仅在设置 `allowed_email_domains` 时触发；没有它，缺少的电子邮件会创建没有电子邮件的会话 | 配置 IdP 在 id\_token 中发出 `email`。Okta：将 `email` 添加到自定义授权服务器的 ID 令牌声明。Entra：在应用注册上添加 `email` 作为可选声明。PingFederate：启用发出 `email` 的 OpenID Connect 策略。如果 IdP 从 userinfo 端点提供 `email` 但不会在 id\_token 中包含它，例如 Okta 组织授权服务器，设置 `oidc.userinfo_fallback: true`。 |
-| 日志：`refresh failed request_id=<id>: invalid_token (…) (at userinfo_no_id_token, …)`，开发者每 `session.ttl_hours` 看到 `Cloud gateway session expired` | IdP 接受了刷新令牌但没有随之返回 id\_token，所以 gateway 询问了 IdP 的 userinfo 端点以获取用户的声明。IdP 在那里拒绝了刷新的访问令牌。gateway 回答 `temporarily_unavailable`，所以 Claude Code 保留刷新令牌但无法续订会话。v2.1.260 之前的 gateway 版本记录相同的行但没有 `(at …)` 详情。 | 设置 [`oidc.scope_on_refresh: true`](/docs/zh-CN/claude-apps-gateway-config#oidc)，在 gateway v2.1.260 或更高版本中可用，以便刷新请求再次请求 `openid`。某些 IdP（如 Okta）仅在被要求时在刷新时返回 id\_token。在 PingFederate 上，改为在 **Applications > OAuth > OpenID Connect Policy Management** 下启用 **Return ID Token On Refresh Grant**。该密钥不会改变 PingFederate 的行为。对于仍然省略它的其他 IdP，检查 userinfo 端点是否接受由刷新发出的访问令牌。作为临时措施，提高 [`session.ttl_hours`](/docs/zh-CN/claude-apps-gateway-config#session)。请参阅[身份提供者设置](#identity-provider-setup)了解取消配置权衡。 |
-| 每个 Amazon Bedrock 请求都返回 502；日志显示 `Could not load credentials from any providers` | 在 EC2 上，IMDSv2 的默认跳数限制为 1，阻止了来自容器内的实例元数据请求。启动和 `/readyz` 仍然通过，因为 AWS SDK 在第一个请求时解析实例凭证，而不是在客户端构造时 | 使用 `aws ec2 modify-instance-metadata-options --instance-id <id> --http-put-response-hop-limit 2` 提高跳数限制，或在启动模板中设置它。更改适用于实例上的每个容器。在可用的地方优先使用 ECS 任务角色，它们从 ECS 容器凭证端点读取凭证并完全避免更改，或在专用 gateway 实例上应用更改以限制暴露。 |
-| 在峰值负载下，响应开始缓慢或似乎挂起，或在上游健康时失败，显示 502 `all upstreams failed` | 副本打开的请求比它一次发送到上游的请求多，所以额外的请求在 gateway 内等待。在 `provider: anthropic` 上游上，等待时间超过 `timeouts.upstream_ttfb_ms` 的请求放弃该上游，当没有后续上游提供服务时会产生 502。日志显示包含 `client requests are open` 的警告。 | 添加副本，或提高每个副本上的限制。请参阅[并发上游请求](#concurrent-upstream-requests)。 |
-| IdP 错误：unknown or unsupported scope | IdP 拒绝它不识别的作用域 | 将 `oidc.scopes` 设置为你的 IdP 接受的确切列表；它必须包含 `openid`。默认值为 `openid profile email offline_access`。 |
-| 设置 `oidc.scopes` 后会话不会静默续订 | `offline_access` 从覆盖中删除了 | 如果你的 IdP 支持，添加 `offline_access` 回来。没有刷新令牌，开发者每 `session.ttl_hours` 重新运行浏览器登录。 |
+| 日志：`refresh failed request_id=<id>: invalid_token (…) (at userinfo_no_id_token, …)`，开发者每 `session.ttl_hours` 看到 `Cloud gateway session expired` | IdP 接受了刷新令牌但没有随之返回 id\_token，所以网关询问了 IdP 的 userinfo 端点以获取用户的声明。IdP 在那里拒绝了刷新的访问令牌。网关回答 `temporarily_unavailable`，所以 Claude Code 保留刷新令牌但无法续订会话。v2.1.260 之前的网关版本记录相同的行但没有 `(at …)` 详情。 | 设置 [`oidc.scope_on_refresh: true`](/docs/zh-CN/claude-apps-gateway-config#oidc)，在网关 v2.1.260 或更高版本中可用，以便刷新请求再次请求 `openid`。某些 IdP（如 Okta）仅在被要求时在刷新时返回 id\_token。在 PingFederate 上，改为在 **Applications > OAuth > OpenID Connect Policy Management** 下启用 **Return ID Token On Refresh Grant**。该设置项不会改变 PingFederate 的行为。对于仍然省略它的其他 IdP，检查 userinfo 端点是否接受由刷新发出的访问令牌。作为临时措施，提高 [`session.ttl_hours`](/docs/zh-CN/claude-apps-gateway-config#session)。请参阅[身份提供者设置](#identity-provider-setup)了解取消配置权衡。 |
+| 开发者登录后，来自该会话的每个请求都失败并返回 `431` 错误 | 每个请求的 `Authorization` 头中的会话令牌列出了开发者的 IdP 组，因此对于属于许多组的开发者，请求头总大小可能超过网关接受的上限 | 请参阅[登录后请求头过大](#request-headers-too-large-after-sign-in)，了解适用哪个限制以及需要更改什么 |
+| 每个 Amazon Bedrock 请求都返回 502；日志显示 `Could not load credentials from any providers` | 在 EC2 上，IMDSv2 的默认跳数限制为 1，阻止了来自容器内的实例元数据请求。启动和 `/readyz` 仍然通过，因为 AWS SDK 在第一个请求时解析实例凭据，而不是在客户端构造时 | 使用 `aws ec2 modify-instance-metadata-options --instance-id <id> --http-put-response-hop-limit 2` 提高跳数限制，或在启动模板中设置它。更改适用于实例上的每个容器。在可用的地方优先使用 ECS 任务角色，它们从 ECS 容器凭据端点读取凭据并完全避免更改，或在专用网关实例上应用更改以限制暴露。 |
+| 在峰值负载下，响应开始缓慢或似乎挂起，或在上游健康时失败，显示 502 `all upstreams failed` | 副本打开的请求比它一次发送到上游的请求多，所以额外的请求在网关内等待。在 `provider: anthropic` 上游上，等待时间超过 `timeouts.upstream_ttfb_ms` 的请求放弃该上游，当没有后续上游提供服务时会产生 502。日志显示包含 `client requests are open` 的警告。 | 添加副本，或提高每个副本上的限制。请参阅[并发上游请求](#concurrent-upstream-requests)。 |
+| IdP 错误：unknown or unsupported scope | IdP 拒绝它不识别的作用域 | 将 `oidc.scopes` 设置为您的 IdP 接受的确切列表；它必须包含 `openid`。默认值为 `openid profile email offline_access`。 |
+| 设置 `oidc.scopes` 后会话不会静默续订 | `offline_access` 从覆盖中删除了 | 如果您的 IdP 支持，添加 `offline_access` 回来。没有刷新令牌，开发者每 `session.ttl_hours` 重新运行浏览器登录。 |
 | 浏览器显示"This request came from another site and was blocked" | 跨站点表单 POST，作为 CSRF 保护被阻止。对于嵌入或代理的页面是预期的 | 直接打开验证链接 |
-| Chrome 用"Refused to send form data … violates … Content Security Policy directive: form-action"阻止"Approve"按钮，但相同的页面在 Safari 或 Firefox 中工作 | Chrome 对整个重定向链强制执行 `form-action`。你的 IdP 重定向到第二个主机，该主机未被列入白名单。 | 将重定向链中的每个额外来源添加到 `oidc.form_action_origins`。在"Approve"页面上打开 Chrome DevTools → Console 以查看哪个来源被阻止。 |
-| 登录在 IdP 处完成但回调失败，Chrome 中出现 CSP 错误或 Safari 中出现"this sign-in link has expired" | IdP 通过 `response_mode=form_post` 返回了代码，它通过 POST 自动提交到 `/oauth/callback`。Chrome 在严格 CSP 下阻止了这个；Safari 允许提交但回调仅读取查询字符串。 | 确保你的 IdP 遵守 `response_mode=query`，gateway 明确请求它以便回调是普通重定向 |
+| Chrome 用"Refused to send form data … violates … Content Security Policy directive: form-action"阻止"Approve"按钮，但相同的页面在 Safari 或 Firefox 中工作 | Chrome 对整个重定向链强制执行 `form-action`。您的 IdP 重定向到第二个主机，该主机未被列入白名单。 | 将重定向链中的每个额外来源添加到 `oidc.form_action_origins`。在"Approve"页面上打开 Chrome DevTools → Console 以查看哪个来源被阻止。 |
+| 登录在 IdP 处完成但回调失败，Chrome 中出现 CSP 错误或 Safari 中出现"this sign-in link has expired" | IdP 通过 `response_mode=form_post` 返回了代码，它通过 POST 跨源自动提交到 `/oauth/callback`。Chrome 在严格 CSP 下阻止了这个；Safari 允许提交但回调仅读取查询字符串。 | 确保您的 IdP 遵守 `response_mode=query`，网关明确请求它以便回调是普通重定向 |
 | 登录在本地工作但在 ALB 后面失败 | `public_url` 仍然命名本地或内部 `http://` 来源，所以 IdP 获得了错误的 `redirect_uri` | 将 `listen.public_url` 设置为外部 `https://` 来源，并向 IdP 注册 `<public_url>/oauth/callback` |
 | 开发者重复看到信任提示 | TLS 证书按副本或按请求轮换 | 在入口处使用稳定的证书，或终止 TLS 一次并在内部通过普通 HTTP 运行副本 |
-| CLI `/login`："Could not verify the gateway's TLS certificate"或 `SELF_SIGNED_CERT_IN_CHAIN` | gateway 的 TLS 链由 CLI 主机的信任存储中不存在的私有 CA 签名 | Claude Code 在本地二进制上默认读取 OS 信任存储，在 Node 22.15 或更高版本上；[`CLAUDE_CODE_CERT_STORE`](/docs/zh-CN/network-config#ca-certificate-store) 控制此行为。如果 CA 安装在 OS 信任存储中，确保开发者使用当前运行时。否则在启动前将 `NODE_EXTRA_CA_CERTS` 设置为 CA 证书 PEM。首次连接指纹提示仍然适用。 |
-| CLI `/login` 完成浏览器登录，然后会话以 `Cloud gateway sign-in was not completed` 和 TLS 证书不匹配结束 | 在登录后的第一个请求中，gateway 提供了与 Claude Code 固定的指纹不匹配的证书，所以 Claude Code 没有保留任何 gateway 凭证。常见原因是一个地址后面的副本提供不同的证书，或网络路径上的某个东西拦截了 TLS。 | 为主机名提供一个证书，例如在入口处终止 TLS 一次，然后让开发者再次运行 `/login`。如果该证书与固定的不同，Claude Code 会在[信任提示](/docs/zh-CN/claude-apps-gateway#connect-developers)处显示警告，说明证书已更改。 |
+| CLI `/login`："Could not verify the gateway's TLS certificate"或 `SELF_SIGNED_CERT_IN_CHAIN` | 网关的 TLS 链由 CLI 主机的信任存储中不存在的私有 CA 签名 | Claude Code 在本地二进制以及 Node 22.15 或更高版本上默认读取 OS 信任存储；[`CLAUDE_CODE_CERT_STORE`](/docs/zh-CN/network-config#ca-certificate-store) 控制此行为。如果 CA 安装在 OS 信任存储中，确保开发者使用当前运行时。否则在启动前将 `NODE_EXTRA_CA_CERTS` 设置为 CA 证书 PEM。首次连接指纹提示仍然适用。 |
+| CLI `/login` 完成浏览器登录，然后会话以 `Cloud gateway sign-in was not completed` 和 TLS 证书不匹配结束 | 在登录后的第一个请求中，网关提供了与 Claude Code 固定的指纹不匹配的证书，所以 Claude Code 没有保留任何网关凭据。常见原因是一个地址后面的副本提供不同的证书，或网络路径上的某个东西拦截了 TLS。 | 为主机名提供一个证书，例如在入口处终止 TLS 一次，然后让开发者再次运行 `/login`。如果该证书与固定的不同，Claude Code 会在[信任提示](/docs/zh-CN/claude-apps-gateway#connect-developers)处显示警告，说明证书已更改。 |
 | CLI `/login` 停止，显示 `The gateway's TLS certificate changed during sign-in: it no longer matches the one you trusted` | 登录请求到达了一个证书与开发者在 `/login` 启动时接受的证书不匹配的服务器：一个地址后面的副本提供不同的证书、路径上的 TLS 拦截，或登录进行中的证书轮换。 | 为主机名提供一个证书，然后让开发者再次启动登录并在[信任提示](/docs/zh-CN/claude-apps-gateway#connect-developers)处审查新证书。 |
 
-`Cloud gateway sign-in was not completed` 消息命名 gateway 主机名。当 Claude Code 同时拥有固定指纹和呈现的指纹时，消息还显示每个的前 16 个字符。
+`Cloud gateway sign-in was not completed` 消息会命名网关主机名。当 Claude Code 同时拥有固定指纹和呈现的指纹时，消息还显示每个的前 16 个字符。
 
-如果 Claude Code 在 gateway 登录后报告 `couldn't load your organization's managed settings`，Claude Code 会命名原因、就地重启并恢复对话。如果 Claude Code 无法重启，例如在后台会话中，Claude Code 会结束会话并保留登录。
+如果 Claude Code 在网关登录后报告 `couldn't load your organization's managed settings`，Claude Code 会命名原因、就地重启并恢复对话。如果 Claude Code 无法重启，例如在后台会话中，Claude Code 会结束会话并保留登录。
+
+<h3 id="request-headers-too-large-after-sign-in">
+  登录后请求头过大
+</h3>
+
+当开发者属于许多 IdP 组时，其请求可能在登录后失败并返回 `431` 错误。
+
+当请求头总大小超过 256 KiB，或者在您设置了 [`limits.max_request_header_bytes`](/docs/zh-CN/claude-apps-gateway-config#http-tuning) 时超过该值，网关会返回 `431`。对于这些请求，网关不会写入任何日志行或审计事件。v2.1.284 之前的网关版本在超过 16 KiB 时返回 `431`。
+
+需要更改的内容取决于网关的版本和配置：
+
+* **网关版本早于 v2.1.284**：升级网关
+* **设置了 `limits.max_request_header_bytes`**：提高该值或删除该键
+* **以上均不适用，或之后仍出现 `431`**：让您的 IdP 发出更少的组。[身份提供者设置](#identity-provider-setup)介绍了 Okta、Microsoft Entra ID 和 Google Workspace 如何提供组
 
 <h2 id="related">
   相关

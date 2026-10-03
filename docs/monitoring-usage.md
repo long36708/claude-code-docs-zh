@@ -785,7 +785,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   用户提示事件
 </h4>
 
-当用户提交提示时记录。
+在提交提示词时记录，包括 Claude Code 自行开始的轮次。
 
 **事件名称**：`claude_code.user_prompt`
 
@@ -1198,23 +1198,14 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 **属性**：
 
 * 所有[标准属性](#standard-attributes)
-
 * `event.name`：`"api_retries_exhausted"`
-
 * `event.timestamp`：ISO 8601 时间戳
-
 * `event.sequence`：用于排序事件的每进程计数器，在[事件关联属性](#event-correlation-attributes)下描述
-
 * `model`：使用的模型
-
 * `error`：最终错误消息
-
 * `status_code`：HTTP 状态代码作为数字。对于非 HTTP 错误不存在。
-
 * `total_attempts`：进行的总尝试次数
-
 * `total_retry_duration_ms`：所有尝试中的总挂钟时间
-
 * `speed`：`"fast"` 或 `"normal"`
 
 <h4 id="hook-registered-event">

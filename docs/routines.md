@@ -321,97 +321,97 @@ GitHub 触发器可以订阅以下事件类别之一。在每个类别中，您�
 * **Label-gated backport**：labels include `needs-backport`。仅当维护者标记 PR 时才触发移植到另一个分支的例程。
 
 <h2 id="manage-routines">
-  管理例程
+  管理 Routine
 </h2>
 
-单击列表中的例程以打开其详细信息页面。详细信息页面显示例程的存储库、connectors、提示、计划、API 令牌、GitHub 触发器和过去运行的列表。
+在列表中点击某个 Routine 即可打开其详情页。详情页会显示该 Routine 的仓库、连接器、提示词、计划、API 令牌、GitHub 触发器以及过往运行的列表。
 
 <h3 id="view-and-interact-with-runs">
-  查看和交互运行
+  查看运行并与之交互
 </h3>
 
-单击任何运行以将其作为完整会话打开。从那里您可以看到 Claude 所做的工作、审查更改、创建拉取请求或继续对话。每个运行会话的工作方式与任何其他会话相同：使用会话标题旁边的下拉菜单来重命名、存档或删除它。
+点击任意运行即可将其作为完整会话打开。在那里，您可以查看 Claude 执行了哪些操作、审查更改、创建 Pull Request 或继续对话。每个运行会话的用法与其他会话相同：使用会话标题旁边的下拉菜单对其进行重命名、归档或删除。
 
 <Note>
-  运行列表中的绿色状态表示会话已启动并在没有基础设施错误的情况下退出。这并不意味着您提示中的任务成功。打开运行以读取记录并确认 Claude 实际做了什么。被阻止的网络请求、缺失的 connector 工具和任务级别的失败都会在那里显示，而不是在状态指示器中。
+  运行列表中的绿色状态表示会话已启动并退出，且没有出现基础设施错误。这并不表示提示词中的任务已成功完成。请打开该运行阅读会话记录，确认 Claude 实际执行了哪些操作。被阻止的网络请求、缺失的连接器工具以及任务级别的失败都会显示在会话记录中，而不会体现在状态指示器中。
 </Note>
 
 <h3 id="edit-and-control-routines">
-  编辑和控制例程
+  编辑和控制 Routine
 </h3>
 
-从例程详细信息页面，您可以：
+在 Routine 详情页中，您可以：
 
-* 单击 **Run now** 立即启动运行，而无需等待下一个计划时间。您可以选择提供特定于运行的文本，该文本以与 API 触发器的 `text` 字段相同的方式到达例程。
-* 使用页面顶部的开/关开关来暂停或恢复计划。暂停的例程保持其配置但不运行，直到您重新启用它们。
-* 打开例程名称旁边的菜单并选择 **Edit** 以更改名称、提示、存储库、环境、connectors 或例程的任何触发器。**Select a trigger** 部分是您添加或删除计划、API 令牌和 GitHub 事件触发器的地方。
-* 打开同一菜单并选择 **Delete** 以删除例程。
+* 点击 **Run now** 立即启动一次运行，而无需等待下一个计划时间。您可以选择提供特定于本次运行的文本，该文本传递给 Routine 的方式与 API 触发器的 `text` 字段相同。
+* 使用页面顶部的开关暂停或恢复计划。已暂停的 Routine 会保留其配置，但在您重新启用之前不会运行。
+* 打开 Routine 名称旁边的菜单并选择 **Edit**，以更改名称、提示词、仓库、环境、连接器或 Routine 的任何触发器。您可以在 **Select a trigger** 部分添加或移除计划、API 令牌和 GitHub 事件触发器。
+* 打开同一菜单并选择 **Delete** 以删除该 Routine。
 
 <h3 id="manage-routines-from-the-cli">
-  从 CLI 管理例程
+  从 CLI 管理 Routine
 </h3>
 
-CLI 支持管理现有例程。运行 `/schedule list` 查看所有例程，运行 `/schedule update` 更改一个，或运行 `/schedule run` 立即触发它。
+CLI 支持管理现有的 Routine。运行 `/schedule list` 可查看所有 Routine，运行 `/schedule update` 可更改某个 Routine，运行 `/schedule run` 可立即触发它。
 
-您也可以询问例程的运行历史，例如 `/schedule why did my nightly review do nothing this morning?`。Claude 列出例程的最近运行及其状态和一个链接来[在网络上打开每个运行](#view-and-interact-with-runs)，并读取运行的日志来解释发生了什么，包括工具错误、权限拒绝和最终结果。需要 Claude Code v2.1.227 或更高版本。
+您还可以询问某个 Routine 的运行历史，例如 `/schedule why did my nightly review do nothing this morning?`。Claude 会列出该 Routine 最近的运行及其状态，并附上[在网页上打开每次运行](#view-and-interact-with-runs)的链接，还会读取运行日志来解释发生了什么，包括工具错误、权限拒绝和最终结果。需要 Claude Code v2.1.227 或更高版本。
 
 <h3 id="repositories-and-branch-permissions">
-  存储库和分支权限
+  仓库和分支权限
 </h3>
 
-Routines 需要 GitHub 访问权限来克隆存储库。当您使用 `/schedule` 从 CLI 创建例程时，Claude 检查您的账户是否具有您运行它的存储库的 GitHub 访问权限，如果没有，会添加一个设置说明，说明如何授予它。有关授予访问权限的两种方式，请参阅 [GitHub authentication options](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)。
+Routine 需要 GitHub 访问权限才能克隆仓库。当您在 CLI 中使用 `/schedule` 创建 Routine 时，Claude 会检查您的账户是否拥有对您运行该命令所在仓库的 GitHub 访问权限；如果没有，则会添加一条设置说明，指明如何授予访问权限。请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)，了解授予访问权限的两种方式。
 
-如果您的 GitHub 连接在运行到期时缺失或已过期，例程将跳过运行，最多 72 小时。在该时间窗口内重新连接 GitHub，例程将自动恢复。72 小时后仍未连接，例程将关闭，您需要在重新连接 GitHub 后将其打开。
+如果在某次运行按计划应当执行时，您的 GitHub 连接缺失或已过期，Routine 会跳过运行，直到您重新连接为止，最长持续 72 小时。在此期间内重新连接 GitHub，Routine 会自行恢复。如果 72 小时后仍未连接，Routine 将被关闭，您需要在重新连接 GitHub 后再将其重新打开。
 
-您添加的每个存储库在每次运行时都会被克隆。Claude 从存储库的默认分支开始，除非您的提示另有指定。
+您添加的每个仓库都会在每次运行时被克隆。除非您的提示词另有指定，否则 Claude 会从仓库的默认分支开始。
 
-Claude 将其工作推送到以 `claude/` 为前缀的分支，除非您的提示词指示它推送到其他分支。要控制运行可以推送到哪些分支，请在 GitHub 上使用分支保护规则或规则集。对于在 Anthropic 托管基础设施上的运行，以及通过 [Anthropic 的 git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)推送的自托管运行，GitHub 会将这些规则应用于您连接的 GitHub 访问权限，因此该访问权限可以绕过的规则不会阻止运行的推送。使用您的部署所提供的 git 凭据进行推送的自托管运行，则会根据这些凭据进行检查。请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)。
+除非您的提示词指示 Claude 推送到其他分支，否则 Claude 会将其工作推送到以 `claude/` 为前缀的分支。要控制运行可以推送到哪些分支，请在 GitHub 上使用分支保护规则或规则集。对于在 Anthropic 托管基础设施上的运行，以及通过 [Anthropic 的 git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)推送的自托管运行，GitHub 会将这些规则应用于您所连接的 GitHub 访问权限，因此该访问权限可以绕过的规则不会阻止运行的推送。使用您的部署所提供的 git 凭据进行推送的自托管运行，则会依据这些凭据进行检查。请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)。
 
 <h3 id="connectors">
-  Connectors
+  连接器
 </h3>
 
-Routines 可以使用您连接的 MCP connectors 在每次运行期间读取和写入外部服务。例如，分类支持请求的例程可能从 Slack 频道读取并在 Linear 中创建问题。
+Routine 可以在每次运行期间使用您已连接的 MCP 连接器来读取和写入外部服务。例如，一个对支持请求进行分类的 Routine 可能会从 Slack 频道读取内容，并在 Linear 中创建问题。
 
-Connectors 是您账户上的 [claude.ai integrations](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。您在 CLI 中使用 `claude mcp add` 本地添加的 MCP 服务器存储在您的机器上而不是您的 claude.ai 账户上，因此它们不会出现在 connectors 列表中。要在例程中使用其中一个服务器，请在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 处将其添加为 connector，或在提交的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 中声明它，以便它是克隆存储库的一部分。
+连接器是您账户中的 [claude.ai 集成](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。您在 CLI 中使用 `claude mcp add` 在本地添加的 MCP 服务器存储在您的计算机上，而不是您的 claude.ai 账户中，因此它们不会出现在连接器列表中。要在 Routine 中使用其中某个服务器，请在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 将其添加为连接器。对于只有一个仓库的 Routine，您也可以改为在已提交的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 中声明它，使其成为所克隆仓库的一部分。
 
-创建例程时，默认情况下包括您当前连接的所有 connectors。删除不需要的任何内容以限制 Claude 在运行期间可以访问的工具。您也可以直接从例程表单添加 connectors。
+创建 Routine 时，默认会包含您当前已连接的所有连接器。请移除不需要的连接器，以限制 Claude 在运行期间可以访问的工具。您也可以直接在 Routine 表单中添加连接器。
 
-要在例程表单外管理或添加 connectors，请访问 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 或在 CLI 中使用 `/schedule update`。
+要在 Routine 表单之外管理或添加连接器，请访问 [claude.ai/customize/connectors](https://claude.ai/customize/connectors)，或在 CLI 中使用 `/schedule update`。
 
 <h3 id="environments-and-network-access">
   环境和网络访问
 </h3>
 
-每个例程使用一个 [cloud environment](/docs/zh-CN/cloud-environments)，该环境控制网络访问、环境变量和设置脚本。例程在每次运行时继承环境的网络策略。
+每个 Routine 都使用一个[云环境](/docs/zh-CN/cloud-environments)，用于控制网络访问、环境变量和设置脚本。Routine 在每次运行时都会继承该环境的网络策略。
 
-**Default** 环境使用 **Trusted** 网络访问，它仅允许 [默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains) 通过会话的网络。对该路径之外的主机的请求失败，返回 `403` 和 `x-deny-reason: host_not_allowed`。MCP connector 流量通过 Anthropic 的服务器路由，而不是该路径，因此您添加到例程的 connectors 无需将其主机添加到 **Allowed domains** 即可工作。删除您在 [Connectors](#connectors) 下不需要的任何 connectors。
+**Default** 环境使用 **Trusted** 网络访问，仅允许[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)中的主机通过会话的网络。通过该路径向允许列表以外主机发出的请求会失败，并返回 `403` 和 `x-deny-reason: host_not_allowed`。MCP 连接器流量通过 Anthropic 的服务器路由，而不经过该路径，因此您添加到 Routine 的连接器无需将其主机添加到 **Allowed domains** 即可正常工作。请在[连接器](#connectors)下移除您不需要的任何连接器。
 
-要允许其他域上的一个您自己的环境，请按照以下步骤操作。[organization-shared environment](/docs/zh-CN/cloud-environments#organization-shared-environments) 在此处打开为只读，因此所有者从 [admin settings](https://claude.ai/admin-settings) 中的 **Cloud environments** 页面更改其网络访问。
+要在您自己的某个环境中允许更多域名，请按照以下步骤操作。[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)在此处以只读方式打开，因此需要由 Owner 在[管理设置](https://claude.ai/admin-settings)的 **Cloud environments** 页面中更改其网络访问。
 
 <Steps>
-  <Step title="打开例程进行编辑">
-    在例程的详细信息页面上，打开例程名称旁边的菜单并选择 **Edit**。
+  <Step title="打开 Routine 进行编辑">
+    在 Routine 的详情页中，打开 Routine 名称旁边的菜单并选择 **Edit**。
   </Step>
 
   <Step title="打开环境选择器">
-    在 **Instructions** 框下方，选择显示您的环境名称（例如 **Default**）的云图标。
+    在 **Instructions** 框下方，选择显示您环境名称（例如 **Default**）的云图标。
   </Step>
 
   <Step title="打开环境设置">
-    将鼠标悬停在列表中的环境上，然后单击右侧出现的设置图标。
+    将鼠标悬停在列表中的环境上，然后点击右侧出现的设置图标。
   </Step>
 
   <Step title="更改网络访问级别">
-    在 **Edit cloud environment** 对话框中，将 **Network access** 更改为 **Custom** 并在 **Allowed domains** 中输入您的域。检查 **Also include default list of common package managers** 以在您的自定义域旁边保留 [默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)。选择 **Full** 以获得不受限制的访问。
+    在 **Edit environment** 对话框中，将 **Network access** 更改为 **Custom**，并在 **Allowed domains** 中输入您的域名。勾选 **Also include default list of common package managers**，以便在自定义域名之外保留[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)。如需不受限制的访问，请改为选择 **Full**。
   </Step>
 
   <Step title="保存">
-    单击 **Save changes**。新策略从下一次运行开始应用。
+    点击 **Save changes**。新策略将从下一次运行开始生效。
   </Step>
 </Steps>
 
-有关访问级别和默认允许列表的详细信息，请参阅 [Network access](/docs/zh-CN/cloud-environments#network-access)。
+有关访问级别和默认允许列表的详细信息，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。
 
 <h2 id="usage-and-limits">
   使用和限制

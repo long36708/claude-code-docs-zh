@@ -145,7 +145,7 @@ macOS Terminal 不对标记进行操作，Claude Code 在 WezTerm 中不发出�
 某些行为不适应屏幕阅读器模式：
 
 * 屏幕阅读器模式在屏幕阅读器运行时不会自动打开。
-* Claude Code 不会宣布通过除了使用 `Shift+Tab` 循环以外的任何方式进行的权限模式更改，例如从命令进入[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)。
+* Claude Code 不会宣布通过命令进行的权限模式更改，例如使用 `/plan` 进入[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)。
 * 使用 `claude attach` 或从代理视图附加到[后台会话](/docs/zh-CN/agent-view)会进入终端的备用屏幕，该屏幕没有本机滚动缓冲区。这与[其他附加会话的行为相同](/docs/zh-CN/fullscreen)。要退出，请在空提示上按左箭头，或如果对话框有焦点，请按 Ctrl+Z。
 * Claude Code 在退出时打印的摘要中宣布成本，而不是每轮。
 * 屏幕阅读器模式不改变带有 `-p` 标志的[非交互模式](/docs/zh-CN/headless)。非交互模式已经写入纯文本，并且仍然是脚本编写的替代方案。

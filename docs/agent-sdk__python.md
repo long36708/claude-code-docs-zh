@@ -2241,7 +2241,7 @@ HookEvent = Literal[
     "PreToolUse",  # Called before tool execution
     "PostToolUse",  # Called after tool execution
     "PostToolUseFailure",  # Called when a tool execution fails
-    "UserPromptSubmit",  # Called when user submits a prompt
+    "UserPromptSubmit",  # Called when a prompt is submitted
     "Stop",  # Called when stopping execution
     "SubagentStop",  # Called when a subagent stops
     "PreCompact",  # Called before message compaction
@@ -2443,7 +2443,7 @@ class UserPromptSubmitHookInput(BaseHookInput):
 | 字段 | 类型 | 描述 |
 | :- | :- | :- |
 | `hook_event_name` | `Literal["UserPromptSubmit"]` | 始终为 "UserPromptSubmit" |
-| `prompt` | `str` | 用户提交的提示 |
+| `prompt` | `str` | 提交的提示词 |
 
 <h3 id="stophookinput">
   `StopHookInput`

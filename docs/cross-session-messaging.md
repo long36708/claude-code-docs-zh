@@ -176,111 +176,115 @@ Claude 自己找到消息的目标，所以你不需要在要求它发送之前�
   会话如何处理传入消息
 </h2>
 
-当会话 A 向会话 B 发送消息时，Claude Code 告诉 B 的 Claude 消息来自另一个会话，而不是来自您，并限制消息可以做什么：
+当会话 A 向会话 B 发送消息时，Claude Code 会告诉 B 的 Claude 该消息来自另一个会话，而不是来自您，并限制该消息可以做什么：
 
-* **它不能批准任何内容**：来自另一个会话的消息永远不计为您的同意，因此它不能代表您回答待处理的权限提示。
-* **它不能改变配置**：Claude Code 指示接收 Claude 永远不要改变权限设置、`CLAUDE.md` 或其他配置，因为另一个会话要求。
-* **命令不运行**：消息文本中的命令，如 `/compact`，作为纯文本到达。Claude Code 永远不执行它。
-* **权限提示仍然触发**：如果对消息进行操作需要接收会话没有的权限，您会看到与任何其他工作相同的提示。
+* **它不能批准任何内容**：来自另一个会话的消息永远不会被视为您的同意，因此它不能代表您回答待处理的权限提示。
+* **它不能更改配置**：Claude Code 指示接收方 Claude 永远不要因为另一个会话的要求而更改权限设置、`CLAUDE.md` 或其他配置。
+* **命令不会运行**：消息文本中的命令（如 `/compact`）以纯文本形式到达。Claude Code 永远不会执行它。
+* **权限提示仍会触发**：如果处理该消息需要接收会话不具备的权限，您会看到与任何其他工作相同的提示。
 
 <h3 id="what-a-message-looks-like">
   消息的样子
 </h3>
 
-当消息到达时，Claude Code 在对话中将其显示为暗淡的单行预览，预览行之后保留在对话中。预览包含发送者的名称和消息的第一行，当它很长时用 `…` 切割，如 `› Message from @api-worker: Schema migration finished (ctrl+o to expand)`。
+当消息到达时，Claude Code 会在对话中将其显示为暗淡的单行预览，该预览行之后会保留在对话中。预览包含发送者的名称和消息的第一行，消息较长时会用 `…` 截断，例如 `› Message from @api-worker: Schema migration finished (ctrl+o to expand)`。
 
-这两个中的任何一个都显示您完整的文本：
+以下任一方式都会向您显示完整文本：
 
-* 按 `Ctrl+O` 打开[成绩单查看器](/docs/zh-CN/interactive-mode#transcript-viewer)并在发送者的会话名称下读取完整文本。
-* 在使用 [`--verbose`](/docs/zh-CN/cli-reference#cli-flags) 启动的会话中，Claude Code 显示完整文本而不是预览。
+* 按 `Ctrl+O` 打开[会话记录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)，并在发送者的会话名称下阅读完整文本。
+* 在使用 [`--verbose`](/docs/zh-CN/cli-reference#cli-flags) 启动的会话中，Claude Code 会显示完整文本而不是预览。
 
-预览仅缩短您看到的内容。无论您是否展开它，Claude 都读取完整消息。
+预览仅缩短您看到的内容。无论您是否展开它，Claude 都会读取完整消息。
 
-Claude 接收消息时带有发送者的名称和回复地址，除了[单向跨机器消息](#message-sessions-on-other-machines)，它不携带回复地址。
+Claude 接收消息时会附带发送者的名称和回复地址，但[单向跨机器消息](#message-sessions-on-other-machines)除外，它不携带回复地址。
 
-这个例子是一个 Claude 写给另一个的消息，当您展开它时其完整文本读作：
+以下示例是一个 Claude 写给另一个 Claude 的消息，展示了展开后的完整文本：
 
 ```text wrap theme={null}
-架构迁移已完成
-新列是 tenant_id，在 main 上变基现在是安全的。
+Schema migration finished
+The new column is tenant_id, and rebasing on main is safe now.
 ```
 
 <h3 id="control-inbound-messages">
   控制入站消息
 </h3>
 
-设置 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 以选择会话对来自您的其他会话的到达消息做什么：
+设置 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 以选择会话如何处理来自您其他会话的消息：
 
 | 值 | 行为 |
 | :- | :- |
 | `accept` | Claude Code 将每条消息传递给 Claude |
-| `hold` | Claude Code 为每条消息显示通知，不传递它。如果稍后应用 `accept`，根据[优先级规则](/docs/zh-CN/settings-reference#crosssessioninbound)，Claude Code 释放保留的消息 |
-| `refuse` | Claude Code 删除每条消息而不传递它 |
+| `hold` | Claude Code 为每条消息显示通知，但不传递它。如果之后根据[优先级规则](/docs/zh-CN/settings-reference#crosssessioninbound)适用 `accept`，Claude Code 会释放被保留的消息 |
+| `refuse` | Claude Code 丢弃每条消息而不传递它 |
 
-除了编辑设置文件，您可以在 `/config` 行**来自您的其他会话的消息**中选择值。Claude Code 将您选择的值写入您的用户设置。该行需要 Claude Code v2.1.232 或更高版本，当托管设置或 `--settings` 标志设置密钥时不出现，因为用户设置值不会应用。Claude Code 拒绝此密钥的 `/config crossSessionInbound=value` 快捷方式。
+除了编辑设置文件，您还可以在 `/config` 的 **Messages from your other sessions** 行中选择该值。Claude Code 会将您选择的值写入您的用户设置。该行需要 Claude Code v2.1.232 或更高版本，并且当托管设置或 `--settings` 标志设置了该设置项时不会出现，因为此时用户设置中的值不会生效。对于此设置项，Claude Code 会拒绝 `/config crossSessionInbound=value` 简写形式。
 
-要查看哪个值适用，请遵循[设置参考](/docs/zh-CN/settings-reference#crosssessioninbound)中的 `crossSessionInbound` 优先级规则。当没有值适用时，Claude Code 根据两个会话的权限模式按消息决定。它将[绕过权限提示](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)的会话分组为一个类，每个其他会话分组为另一个。Plan Mode 在具有可用绕过权限的交互式终端会话中计为绕过，[auto](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)、`acceptEdits` 和 `dontAsk` 计为提示：
+要查看哪个值适用，请遵循[设置参考](/docs/zh-CN/settings-reference#crosssessioninbound)中的 `crossSessionInbound` 优先级规则。
 
-* **接收会话提示权限**：Claude Code 传递每条消息。它仅当发送会话将自己标识为绕过权限提示时才为您的批准保留一条。
-* **接收会话绕过权限提示**：Claude Code 为您的批准保留每条消息。它仅当发送会话也标识为绕过时才传递一条。
+当没有值适用时，Claude Code 会根据两个会话的权限模式逐条消息做出决定。它将[绕过权限提示](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)的会话归为一类，将其他所有会话归为另一类。在可使用绕过权限的交互式终端会话中，计划模式被视为绕过，而 [auto](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)、`acceptEdits` 和 `dontAsk` 被视为提示：
 
-当默认保留消息时，Claude Code 在接收会话中打开批准对话。对话显示发送者和预览：
+* **接收会话会提示权限**：Claude Code 传递每条消息。仅当发送会话将自身标识为绕过权限提示时，它才会保留该消息以等待您的批准。
+* **接收会话绕过权限提示**：Claude Code 保留每条消息以等待您的批准。仅当发送会话也将自身标识为绕过时，它才会传递该消息。
 
-* **批准**将该条消息传递给 Claude。
-* **拒绝**，或关闭对话，删除它。
-* 当对话在 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止日期后保持无答案时，Claude Code 关闭它并删除消息。截止日期默认为五分钟。
-* 当没有终端附加到[后台会话](/docs/zh-CN/agent-view)时，Claude Code 将对话保留在截止日期之后。在您附加后，如果对话在完整截止日期期间保持无答案，Claude Code 关闭它并删除消息。
-* 如果此会话的权限模式类在消息被保留时改变，Claude Code 重新应用入站规则，传递它们现在接受的消息，并显示通知。
+当默认行为在交互式终端会话中保留消息时，Claude Code 会在该会话中打开批准对话框。对话框显示发送者和预览：
 
-Claude Code 最多保留 100 条消息，超过那个删除最旧的。
+* **Approve** 将该条消息传递给 Claude。
+* **Deny** 或关闭对话框会丢弃该消息。
+* 当对话框在 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止时间后仍未得到回应时，Claude Code 会关闭它并丢弃消息。截止时间默认为五分钟。
+* 当没有终端连接到[后台会话](/docs/zh-CN/agent-view)时，Claude Code 会让对话框在截止时间之后保持打开。在您连接后，如果对话框在一个完整的截止时间段内仍未得到回应，Claude Code 会关闭它并丢弃消息。
+* 如果在消息被保留期间此会话的权限模式类别发生变化，Claude Code 会重新应用入站规则，传递现在被接受的消息，并显示通知。
+
+VS Code 扩展或 Desktop 应用中的会话无法显示该对话框。在这些会话中，Claude Code 会将被保留的消息保留到相同的截止时间，如[非交互式会话](#non-interactive-sessions)中所述。
+
+Claude Code 最多保留 100 条消息，超出后会丢弃最旧的消息。
 
 <h3 id="non-interactive-sessions">
   非交互式会话
 </h3>
 
-Claude Code 为 [`claude -p`](/docs/zh-CN/headless) 会话绑定收件箱套接字，如交互式会话，因此长期运行的 `-p` 工作者可以接收消息并出现在列表中。当您在[裸模式](/docs/zh-CN/headless#start-faster-with-bare-mode)中启动会话时，Claude Code 不绑定套接字，因此该会话无法接收消息，不出现在代理列表中。
+Claude Code 会像交互式会话一样为 [`claude -p`](/docs/zh-CN/headless) 会话绑定收件箱套接字，因此长期运行的 `-p` 工作进程可以接收消息并出现在列表中。当您在 [bare 模式](/docs/zh-CN/headless#start-faster-with-bare-mode)下启动会话时，Claude Code 不会绑定套接字，因此该会话无法接收消息，也不会出现在 Agent 列表中。
 
-`-p` 会话无法显示批准对话。当[入站默认](#control-inbound-messages)在那里保留消息时，Claude Code 为相同的 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止日期保留它，对话使用的默认值为五分钟：
+`-p` 会话无法显示批准对话框。当[入站默认行为](#control-inbound-messages)在此类会话中保留消息时，Claude Code 会将其保留到对话框所使用的相同 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止时间，默认为五分钟：
 
-* **在截止日期之前**：如果模式或设置更改允许消息，Claude Code 传递它。
-* **在截止日期之后**：Claude Code 删除消息并向它可以到达的发送者报告它已过期。
+* **截止时间之前**：如果模式或设置的更改允许该消息，Claude Code 会传递它。
+* **截止时间之后**：Claude Code 会丢弃该消息，并向其能够联系到的发送者报告该消息已过期。
 
-设置 `dialogExpiry` 为 `"never"` 以保留默认保留的消息直到会话结束。由显式 `hold` 设置保留的消息不过期；Claude Code 仅当稍后应用 `accept` 时才传递它。
+将 `dialogExpiry` 设置为 `"never"` 可将默认保留的消息保留到会话结束。由显式 `hold` 设置保留的消息不会过期；仅当之后适用 `accept` 时，Claude Code 才会传递它。
 
-要让 `-p` 工作者无人值守地接收消息，使用 `crossSessionInbound` 设置为 `accept` 在其 `--settings` 值中启动它。您的用户设置中的 `accept` 也有效，但适用于您运行的每个会话。
+要让 `-p` 工作进程在无人值守的情况下接收消息，请在其 `--settings` 值中将 `crossSessionInbound` 设置为 `accept` 来启动它。在您的用户设置中设置 `accept` 也有效，但会应用于您运行的每个会话。
 
 <h3 id="the-sessions-inbox-socket">
   会话的收件箱套接字
 </h3>
 
-当您期望的会话不在代理列表中时，当您想要脚本或钩子发布到会话中时，或当沙箱命令无法到达套接字时，阅读本部分。
+当您预期的会话不在 Agent 列表中、当您希望脚本或 hook 向会话发布消息，或者当沙箱中的命令无法访问套接字时，请阅读本节。
 
-Claude Code 为启用跨会话消息传递的每个会话绑定收件箱套接字，同一机器上的其他会话在其中传递消息。套接字是 macOS 和 Linux 上的 Unix 域套接字，包括 WSL 2 内的 Linux，以及原生 Windows 上的命名管道。对于哪些会话类型绑定一个，请参阅[非交互式会话](#non-interactive-sessions)。
+Claude Code 会为每个启用了跨会话消息传递的会话绑定一个收件箱套接字，同一机器上的其他会话通过它传递消息。在 macOS 和 Linux（包括 WSL 2 内的 Linux）上，该套接字是 Unix 域套接字；在原生 Windows 上则是命名管道。关于哪些类型的会话会绑定套接字，请参阅[非交互式会话](#non-interactive-sessions)。
 
 您可以在两个地方找到套接字的路径：
 
 * `/status` 在 `Peer address` 行中显示它。路径以 `uds:` 为前缀。
-* Claude Code 将其导出到[钩子](/docs/zh-CN/hooks)和 Bash 命令作为 [`CLAUDE_CODE_MESSAGING_SOCKET`](/docs/zh-CN/env-vars#variables) 环境变量：
-  * 在以消息传递启动的会话中，Claude Code 在任何钩子运行之前导出变量，包括 `SessionStart`。
+* Claude Code 会将其作为 [`CLAUDE_CODE_MESSAGING_SOCKET`](/docs/zh-CN/env-vars#variables) 环境变量导出给 [hook](/docs/zh-CN/hooks) 和 Bash 命令：
+  * 在启动时即开启消息传递的会话中，Claude Code 会在任何 hook 运行之前导出该变量，包括 `SessionStart`。
 
-在 macOS 和 Linux 上，Claude Code 将套接字限制为您的操作系统用户。在原生 Windows 上，它改为要求每个连接首先使用只有您的操作系统用户可以读取的密钥进行身份验证。无论哪种方式，在共享机器上，另一个用户的会话无法传递给它。
+在 macOS 和 Linux 上，Claude Code 将套接字限制为仅供您的操作系统用户使用。在原生 Windows 上，它改为要求每个连接首先使用只有您的操作系统用户才能读取的密钥进行身份验证。无论哪种方式，在共享机器上，其他用户的会话都无法向其传递消息。
 
-在 macOS 和 Linux 上，Claude Code 也拒绝在它无法接受的目录中创建套接字，例如另一个用户拥有的目录，并改为使用私有的每用户目录 `/tmp/cc-socks-<uid>`。当它无法接受任何目录时，会话运行而没有收件箱：Claude Code 显示通知，`/status` 在其 `Peer address` 行中显示 `unavailable` 和原因，[`--debug`](/docs/zh-CN/cli-reference#cli-flags) 日志记录完整拒绝。
+在 macOS 和 Linux 上，Claude Code 还会拒绝在它无法接受的目录（例如由其他用户拥有的目录）中创建套接字，而是改用私有的每用户目录 `/tmp/cc-socks-<uid>`。当它无法接受任何目录时，会话将在没有收件箱的情况下运行：Claude Code 显示通知，`/status` 在其 `Peer address` 行中显示 `unavailable` 及原因，[`--debug`](/docs/zh-CN/cli-reference#cli-flags) 日志会记录完整的拒绝信息。
 
-除了套接字的路径，Claude Code 导出每个会话令牌作为 [`CLAUDE_CODE_MESSAGING_TOKEN`](/docs/zh-CN/env-vars#variables)。发布到自己会话的套接字的脚本可以发送 `{"type":"auth","token":"<token>"}` 作为其连接的第一行，其中 `<token>` 是 `CLAUDE_CODE_MESSAGING_TOKEN` 的值。Claude Code 是否需要该行取决于平台：
+除了套接字的路径，Claude Code 还会将每个会话的令牌导出为 [`CLAUDE_CODE_MESSAGING_TOKEN`](/docs/zh-CN/env-vars#variables)。向其自身会话的套接字发布消息的脚本可以将 `{"type":"auth","token":"<token>"}` 作为其连接的第一行发送，其中 `<token>` 是 `CLAUDE_CODE_MESSAGING_TOKEN` 的值。Claude Code 是否要求该行取决于平台：
 
-* **macOS 和 Linux，包括 WSL 2**：该行是可选的。Claude Code 接受有或没有它的连接。
-* **原生 Windows**：该行是必需的。Claude Code 关闭任何第一行不是有效身份验证行的连接，不从该连接传递任何内容。
+* **macOS 和 Linux，包括 WSL 2**：该行是可选的。无论是否包含该行，Claude Code 都会接受连接。
+* **原生 Windows**：该行是必需的。Claude Code 会关闭第一行不是有效身份验证行的任何连接，并且不会传递来自该连接的任何内容。
 
-仅在您发布的消息准备好时打开连接。Claude Code 关闭在 30 秒内未发送完整行的连接，因此首先捕获慢速命令的输出，然后打开连接以发送它。
+仅在您要发布的消息准备就绪时才打开连接。Claude Code 会关闭在 30 秒内未发送完整一行的连接，因此请先捕获慢速命令的输出，然后再打开连接发送它。
 
-<span id="own-child-messages" />Claude Code 通过套接字上到达的消息运行与任何其他对等消息相同的[入站控制](#control-inbound-messages)，有一个例外和一个先决条件：
+<span id="own-child-messages" />对于通过套接字到达的消息，Claude Code 会应用与任何其他对等消息相同的[入站控制](#control-inbound-messages)，但有一个例外和一个前提条件：
 
-* **自己的子消息**：当没有 `crossSessionInbound` 值适用时，Claude Code 传递它验证来自会话自己的子进程的消息，如钩子或 Bash 命令发布回自己会话的套接字。
-  * 在 Linux 上，包括 WSL 2 内，Claude Code 可以通过进程证据验证，即使对于已经退出的子进程。在 macOS 上，它只能在发布进程仍在运行时通过这种方式验证，在 Claude Code 作为进程 ID 1 运行的容器中，它根本没有进程证据。在原生 Windows 上它也没有。
-  * 在 macOS 上发布进程已退出后，在 Claude Code 作为进程 ID 1 运行的容器中，该进程证据丢失，Claude Code 改为验证发送会话导出的 [`CLAUDE_CODE_MESSAGING_TOKEN`](/docs/zh-CN/env-vars#variables) 在打开其连接的身份验证行中的子进程。在原生 Windows 上，该令牌是 Claude Code 验证自己的子消息的唯一方式。
-  * 当 Claude Code 无法以任何方式验证时，它将消息视为任何其他声称没有权限类的消息，因此绕过权限提示的会话为您的批准保留它。
-* **沙箱会话**：使用沙箱的 Unix 套接字设置 [`sandbox.network.allowAllUnixSockets` 和 `sandbox.network.allowUnixSockets`](/docs/zh-CN/settings-reference#sandbox-settings) 控制 Bash 命令是否可以从[沙箱](/docs/zh-CN/sandboxing)内到达套接字。
+* **自身子进程的消息**：当没有 `crossSessionInbound` 值适用时，Claude Code 会传递经其验证来自会话自身子进程的消息，例如 hook 或 Bash 命令向其自身会话的套接字回发的消息。
+  * 在 Linux 上（包括 WSL 2 内），即使子进程已经退出，Claude Code 也可以通过进程证据进行验证。在 macOS 上，它只能在发布进程仍在运行时以这种方式验证；而在 Claude Code 以进程 ID 1 运行的容器中，它完全没有进程证据。在原生 Windows 上它也没有进程证据。
+  * 在 macOS 上发布进程退出之后，以及在 Claude Code 以进程 ID 1 运行的容器中，该进程证据缺失，Claude Code 改为验证在打开其连接的身份验证行中发送了会话所导出的 [`CLAUDE_CODE_MESSAGING_TOKEN`](/docs/zh-CN/env-vars#variables) 的子进程。在原生 Windows 上，该令牌是 Claude Code 验证自身子进程消息的唯一方式。
+  * 当 Claude Code 无法通过任何一种方式验证时，它会像对待任何其他未声明权限类别的消息一样对待该消息，因此绕过权限提示的会话会保留它以等待您的批准。
+* **沙箱中的会话**：使用沙箱的 Unix 套接字设置 [`sandbox.network.allowAllUnixSockets` 和 `sandbox.network.allowUnixSockets`](/docs/zh-CN/settings-reference#sandbox-settings) 控制 Bash 命令能否从[沙箱](/docs/zh-CN/sandboxing)内部访问套接字。
 
 <h2 id="restrict-cross-session-messaging">
   限制跨会话消息传递

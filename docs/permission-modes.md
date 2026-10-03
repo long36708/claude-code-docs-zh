@@ -478,7 +478,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 如果您告诉 Claude 某个被阻止的操作是允许的，分类器会将其视为您的批准，并可以解除阻止。您的措辞决定了该操作是否会运行，以及批准的覆盖范围：
 
-* **指明操作及其具体细节**：您的消息必须指明该操作以及使其具有危险性的具体内容，例如强制推送的分支。仅指明动词不会解除任何阻止，因此"你可以强制推送"不会解除阻止。
+* **指明操作及其具体细节**：您的消息必须指明该操作以及使其具有危险性的具体内容，例如强制推送的分支。仅指明动词不会解除任何阻止，因此"您可以强制推送"不会解除阻止。
 * **预期它仅涵盖一个操作**：批准涵盖您所指明的破坏性操作，因此之后的操作会再次被阻止，除非您授予的是持续性批准。如果不想逐个操作地批准某种常规模式，请将其添加到 [`autoMode.allow`](/docs/zh-CN/auto-mode-config#override-the-block-and-allow-rules)。
 * **有些阻止会保持不变**：[分类器的优先级顺序](/docs/zh-CN/auto-mode-config#override-the-block-and-allow-rules)规定了您的批准可以解除哪些阻止。要运行它不会解除阻止的步骤，请[退出自动模式](#switch-permission-modes)并回应权限提示。
 
@@ -578,7 +578,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 如果您设置 `dontAsk` 模式，Claude Code 会自动拒绝所有原本会提示的工具调用。Claude 仍然运行在 Manual 模式下不需要批准的操作，例如您工作目录内的文件读取和[只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)，以及与您的 `permissions.allow` 规则匹配的操作和由 [PreToolUse hook](/docs/zh-CN/permissions#extend-permissions-with-hooks) 批准的调用。在 CI 管道或受限环境中使用此模式，您可以预先定义 Claude 可以执行的操作；会话永远不会等待输入。当此模式处于活动状态时，状态栏显示 `⏵⏵ don't ask on`。
 
-Claude Code 拒绝与您的显式 [`ask` 规则](/docs/zh-CN/permissions#manage-permissions)匹配的调用，而不是提示。它还拒绝内置的 `AskUserQuestion` 工具，即使您的 allow 规则与其匹配，以及您的组织[设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具在该设置到达 Claude Code 的会话中。它以相同的方式拒绝标记为 [`_meta["anthropic/requiresUserInteraction"]`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具，因为其批准卡需要此模式永远不会收集的答案；这需要 Claude Code v2.1.199 或更高版本。
+Claude Code 拒绝与您的显式 [`ask` 规则](/docs/zh-CN/permissions#manage-permissions)匹配的调用，而不是提示。它还拒绝内置的 `AskUserQuestion` 工具，即使您的 allow 规则与其匹配，以及您的组织[设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具在该设置到达 Claude Code 的会话中。它以相同的方式拒绝标记为 [`_meta["anthropic/requiresUserInteraction"]`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具，因为其批准卡需要此模式永远不会收集的答案。
 
 `rm` 和 `rmdir` 移除针对[关键路径](#critical-paths)的操作，如 `rm -rf /` 和 `rm -rf ~`，即使 allow 规则与其匹配或 `PreToolUse` hook 允许它们，也被拒绝。
 

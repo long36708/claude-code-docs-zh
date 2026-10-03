@@ -118,15 +118,15 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
   添加凭证
 </h4>
 
-你从已经存在的环境的编辑器一次添加一个凭证。新环境的对话框不提供它们。也没有编辑。要更改凭证的主机或值，请删除它并再次添加。
+凭据需要逐个添加，添加后无法编辑。要更改凭据的主机或值，请将其删除后重新添加。
 
 <Steps>
-  <Step title="打开环境的API凭证">
-    在[claude.ai/code](https://claude.ai/code)[打开环境进行编辑](#configure-your-environment)。在**Edit cloud environment**对话框中，在**Environment variables**下方找到**API credentials**。你会看到已经在环境上的凭证，每个都带有它适用的主机。
+  <Step title="打开环境的 API 凭据">
+    在 [claude.ai/code](https://claude.ai/code) [打开环境进行编辑](#configure-your-environment)。在 **Edit environment** 对话框中，找到 **API credentials** 部分。您会看到环境上已有的凭据，每个凭据都附有其适用的主机。
   </Step>
 
-  <Step title="添加凭证">
-    选择**Add credential**并填写表单。对于在请求头中传输的API密钥，保持默认的**Credential type**、**Bearer**，并填写这些字段：
+  <Step title="添加凭据">
+    选择 **Add credential** 并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Credential type**，即 **Bearer**，并填写以下字段：
 
     * **Name**：凭证的标签，例如`Internal billing API`
     * **Allowed websites**：API的主机，例如`api.example.com`。前导`*.`匹配每个子域

@@ -708,7 +708,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`modelOverrides`](#modeloverrides) | [将模型 ID 映射](/docs/zh-CN/model-config#override-model-ids-per-version)到您的提供商的 ID，例如 Bedrock ARN | 模型和响应 | Any file |
 | [`modelPicker`](#modelpicker) | 选择 [`/model` 选择器](/docs/zh-CN/model-config#available-models)列出的模型，按您自己的顺序和您自己的标签 | 模型和响应 | User or managed |
 | [`modelPricing`](#modelpricing) | 按您的组织合同费率而不是列表价格报告支出 | 模型和响应 | Managed |
-| [`modelSettings`](#modelsettings) | 为每个模型保留保存的[努力级别](/docs/zh-CN/model-config#adjust-effort-level)，或限制一个模型的努力 | 模型和响应 | Any file |
+| [`modelSettings`](#modelsettings) | 为每个模型保留已保存的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)或[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)，或限制某个模型的 effort | 模型和响应 | Any file |
 | [`otelHeadersHelper`](#otelheadershelper) | 使用您自己的命令生成旋转的 [OpenTelemetry](/docs/zh-CN/monitoring-usage#dynamic-headers) 标头 | 身份验证和提供商 | Any file |
 | [`outputStyle`](#outputstyle) | 使用[输出样式](/docs/zh-CN/output-styles)更改 Claude 的角色、语气和输出格式 | 模型和响应 | Any file |
 | [`parentSettingsBehavior`](#parentsettingsbehavior) | 应用或删除[SDK 或 IDE 主机](/docs/zh-CN/managed-settings#let-an-embedding-host-add-policy)在您部署[托管设置](/docs/zh-CN/managed-settings)时传递的限制 | 企业和托管设置 | Managed |
@@ -1282,7 +1282,10 @@ Claude Code 从行的键决定行适用于哪些模型：
 要限制一个模型的努力而不是设置其级别，将[`maxEffortLevel`](#maxeffortlevel)字段添加到该模型的条目。该字段需要 Claude Code v2.1.267 或更高版本。
 
 * **Scope**: [`Any file`](#scopes)
-* **Type**: 将模型名称映射到具有 `effortLevel` 字段的对象，其中一个 `"low"`、`"medium"`、`"high"` 或 `"xhigh"`、[`maxEffortLevel`](#maxeffortlevel)字段或两者
+* **Type**: 将模型名称映射到对象的对象，该对象可包含以下任意字段：
+  * `effortLevel`: 其中一个 `"low"`、`"medium"`、`"high"` 或 `"xhigh"`
+  * [`maxEffortLevel`](#maxeffortlevel): 该模型可以运行的最高 effort 级别
+  * `autoCompactWindow`: 从 `100000` 到 `1000000` 的 token 数，或 `"auto"` 表示为该模型调优的窗口。[`/autocompact`](/docs/zh-CN/model-config#set-the-auto-compact-window) 保存到此处。对于该模型，该值优先于同一设置文件中的顶级 [`autoCompactWindow`](#autocompactwindow)。需要 Claude Code v2.1.288 或更高版本
 * **Default**: 未设置
 
 Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5`，并将该模型的别名、日期后缀、`[1m]` 和识别的提供商特定 ID 匹配到同一条目。
@@ -2478,7 +2481,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
   `sandbox.credentials.envVars`
 </h3>
 
-保护环境变量免受沙箱化命令。使用 `"mode": "deny"`，Claude Code 从沙箱化命令的环境中删除变量。使用 `"mode": "mask"`，沙箱化命令看到每个会话的哨兵值，沙箱代理在对该条目的 `injectHosts` 的出站请求上替换真实值，因此 `gh` 和 `npm` 等工具保持认证而无需持有真实凭证。`"mode": "mask"` 需要 Claude Code v2.1.199 或更高版本。
+保护环境变量免受沙箱化命令。使用 `"mode": "deny"`，Claude Code 从沙箱化命令的环境中删除变量。使用 `"mode": "mask"`，沙箱化命令看到每个会话的哨兵值，沙箱代理在对该条目的 `injectHosts` 的出站请求上替换真实值，因此 `gh` 和 `npm` 等工具保持身份验证而无需持有真实凭据。
 
 * **Scope**: [`Any file`](#scopes)。Claude Code 从项目 `.claude/settings.json` 和本地 `.claude/settings.local.json` 删除 `mask` 条目。
 * **Type**: 对象数组，每个包含 `name` 和 `"deny"` 或 `"mask"` 的 `mode`，加上可选的 [mask fields for environment variables](#mask-fields-for-environment-variables)
@@ -2499,7 +2502,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-`name` 必须以字母或下划线开头，仅包含字母、数字和下划线。Claude Code 在会话加载的每个设置范围中合并数组，当同一变量同时出现两种模式时应用 `deny`。[Protect credentials](/docs/zh-CN/sandboxing#protect-credentials) 涵盖您使用 `--setting-sources` 排除的源仍然适用的内容。`mask` 条目需要 Claude Code v2.1.199 或更高版本。
+`name` 必须以字母或下划线开头，仅包含字母、数字和下划线。Claude Code 在会话加载的每个设置作用域中合并数组，当同一变量同时出现两种模式时应用 `deny`。[Protect credentials](/docs/zh-CN/sandboxing#protect-credentials) 涵盖您使用 `--setting-sources` 排除的源仍然适用的内容。
 
 `mask` 替换仅通过沙箱代理运行，因此请设置 [`sandbox.network.tlsTerminate`](#sandbox-network-tlsterminate)，或针对纯 HTTP 测试网络设置 [`allowPlaintextInject`](#sandbox-credentials-allowplaintextinject)；请参阅 [Mask credentials](/docs/zh-CN/sandboxing#mask-credentials)。Claude Code 接受但忽略 `deny` 条目上的 `mask` 字段。
 
@@ -2525,7 +2528,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 | `onExtractNoMatch` | `"warn"`、`"deny"` 或 `"error"`；默认 `"warn"`。在带有 `decode` 的条目上，仅接受 `"warn"` | 当 `extract` 匹配不到任何内容时会发生什么。`warn` 未掩盖地传递变量，`deny` 在沙箱内取消设置它，`error` 停止沙箱设置直到您修复配置。需要 v2.1.224 或更高版本 |
 | `decode` | 字符串 `"jwt"` | 验证整个值是 JWT 并用结构有效的假令牌替换它，因此沙箱内解码令牌的代码保持工作；代理在出口上替换整个真实令牌。不验证的值未掩盖地传递并带有警告。需要 v2.1.224 或更高版本 |
 | `maskClaims` | 字符串数组，至少一个声明名称；需要 `decode` | 仅掩盖解码的 JWT 内的命名顶级有效负载声明并围绕修改的有效负载重建令牌，因此其他声明保持可读。当没有命名声明匹配时，变量未掩盖地传递并带有警告。需要 v2.1.224 或更高版本 |
-| `injectHosts` | 字符串数组，每个是 [`sandbox.network.allowedDomains`](#sandbox-network-alloweddomains) 也允许的主机 | 缩小沙箱代理替换真实值的主机。未设置时，代理在对 `sandbox.network.allowedDomains` 中每个主机的请求上替换它。将 IPv6 目标写为裸压缩地址，例如 `"::1"`，而不是括号形式；请参阅 [IPv6 destinations in `injectHosts`](/docs/zh-CN/sandboxing#ipv6-destinations-in-injecthosts)。需要 v2.1.199 或更高版本 |
+| `injectHosts` | 字符串数组，每个是 [`sandbox.network.allowedDomains`](#sandbox-network-alloweddomains) 也允许的主机 | 缩小沙箱代理替换真实值的主机。未设置时，代理在对 `sandbox.network.allowedDomains` 中每个主机的请求上替换它。将 IPv6 目标写为裸压缩地址，例如 `"::1"`，而不是括号形式；请参阅 [IPv6 destinations in `injectHosts`](/docs/zh-CN/sandboxing#ipv6-destinations-in-injecthosts) |
 
 这仅掩盖 `DATABASE_URL` 内的密码，如果模式匹配不到任何内容则取消设置变量，并掩盖 `SERVICE_JWT` 中的 JWT，同时保持除 `api_key` 外的每个声明可读：
 
@@ -2556,7 +2559,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
   `sandbox.credentials.allowPlaintextInject`
 </h3>
 
-允许 `mask` 替换在纯 HTTP 请求以及 TLS 终止的 HTTPS 上。在纯 HTTP 上，上游身份未验证，凭证以明文形式传输，因此在受信任的测试网络外保持关闭。需要 Claude Code v2.1.199 或更高版本。
+允许 `mask` 替换在纯 HTTP 请求以及 TLS 终止的 HTTPS 上。在纯 HTTP 上，上游身份未验证，凭据以明文形式传输，因此在受信任的测试网络外保持关闭。
 
 * **Scope**: [`User or managed`](#scopes)
 * **Type**: 布尔值
@@ -2573,8 +2576,6 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
   }
 }
 ```
-
-需要 Claude Code v2.1.199 或更高版本。
 
 <h3 id="sandbox-credentials-awspairs">
   `sandbox.credentials.awsPairs`
@@ -2919,7 +2920,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-当多个遵守的源设置它时，Claude Code 使用来自最高优先级源的值：托管设置，然后是 `--settings` 标志，然后是用户设置。需要 Claude Code v2.1.199 或更高版本。
+当多个遵守的源设置它时，Claude Code 使用来自最高优先级源的值：托管设置，然后是 `--settings` 标志，然后是用户设置。
 
 <span id="context-and-memory" />
 
@@ -2967,7 +2968,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-使用 [`/autocompact`](/docs/zh-CN/commands#all-commands) 命令设置它，该命令将此键写入您的用户设置。[设置自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)涵盖了命令、标志、变量和设置如何相互作用。
+[`/autocompact`](/docs/zh-CN/commands#all-commands) 命令会在 [`modelSettings`](#modelsettings) 下为当前模型保存一个窗口，对于该模型，它优先于同一文件中的此键。[设置自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)涵盖了命令、标志、变量和设置如何相互作用。
 
 <h3 id="automemorydirectory">
   `autoMemoryDirectory`
@@ -3229,7 +3230,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   `askUserQuestionTimeout`
 </h3>
 
-让未回答的 [`AskUserQuestion`](/docs/zh-CN/tools-reference) 对话框在空闲一段时间后自动继续，提交您已选择的任何选项。当您离开时设置此项，让 Claude 在没有您的情况下继续。使用默认设置时，问题会等待您回答。需要 Claude Code v2.1.200 或更高版本。
+让未回答的 [`AskUserQuestion`](/docs/zh-CN/tools-reference) 对话框在空闲一段时间后自动继续，提交您已选择的任何选项。当您离开时设置此项，让 Claude 在没有您的情况下继续。使用默认设置时，问题会等待您回答。关于计时器何时暂停或从不启动，请参阅[问题自动继续超时](/docs/zh-CN/tools-reference#question-auto-continue-timeout)。需要 Claude Code v2.1.200 或更高版本。
 
 * **Scope**: [`User or managed`](#scopes)
 * **Type**: string，值为 `"60s"`、`"5m"`、`"10m"` 或 `"never"` 之一
@@ -4842,7 +4843,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 | Rule | `strictKnownMarketplaces` | `blockedMarketplaces` |
 | - | - | - |
 | 匹配源拼写 | 仅 `owner/repo` 形式。克隆同一存储库的 git URL 不匹配 | 任何拼写，包括解析为同一 github.com 存储库的 git URL |
-| Owner 大小写 | 区分大小写，如精确条目匹配 | 不区分大小写 |
+| Owner 大小写 | 区分大小写 | 不区分大小写 |
 | `ref` | 遵循精确条目规则：带 `ref` 的条目仅匹配具有该精确 ref 的源，没有的条目仅匹配不指定 ref 的源 | 没有 `ref` 的条目阻止它匹配的存储库的所有 refs |
 | `path` | 比精确条目规则更宽松：带 `path` 的条目需要该精确值，而没有的条目匹配存储库内的任何路径 | 没有 `path` 的条目阻止它匹配的存储库的所有路径 |
 
@@ -5653,7 +5654,7 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
   `worktree.bgIsolation`
 </h3>
 
-选择 [background sessions](/docs/zh-CN/agent-view#how-file-edits-are-isolated) 如何隔离其文件编辑。使用 `"worktree"`，Claude Code 在会话调用 `EnterWorktree` 之前阻止主检出中的 `Edit` 和 `Write`；使用 `"none"`，后台作业直接编辑工作副本。对于 git worktrees 不切实际的存储库，设置 `"none"`。
+选择[后台会话](/docs/zh-CN/agent-view#how-file-edits-are-isolated)如何隔离其文件编辑。如果您是通过 `←` 或 `/background` 将会话移至后台的，则无论此键如何设置，该会话都会就地编辑文件。使用 `"worktree"` 时，Claude Code 会在会话调用 `EnterWorktree` 之前阻止在主检出中使用 `Edit` 和 `Write`；使用 `"none"` 时，后台作业直接编辑工作副本。对于不适合使用 git worktree 的仓库，请设置 `"none"`。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: string，以下之一：

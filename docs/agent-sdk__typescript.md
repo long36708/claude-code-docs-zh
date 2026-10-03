@@ -275,7 +275,7 @@ function createSdkMcpServer(options: {
 | `options.version` | `string` | 可选版本字符串 |
 | `options.instructions` | `string` | 可选服务器说明，从 `initialize` 返回并作为 MCP 说明块呈现给模型 |
 | `options.tools` | `Array<SdkMcpToolDefinition>` | 使用 [`tool()`](#tool) 创建的工具定义数组 |
-| `options.alwaysLoad` | `boolean` | 当为 `true` 时，来自此服务器的每个工具都保留在初始提示中，永远不会在[工具搜索](/docs/zh-CN/agent-sdk/tool-search)后延迟。与 [`tool()`](#tool) 中的每个工具 `alwaysLoad` 结合 |
+| `options.alwaysLoad` | `boolean` | 当为 `true` 时，来自此服务器的每个工具都保留在初始提示词中，而不是被延迟到[工具搜索](/docs/zh-CN/agent-sdk/tool-search)之后。与 [`tool()`](#tool) 中的每个工具 `alwaysLoad` 结合 |
 | `options.timeout` | `number` | 此服务器的工具调用超时（毫秒）。Claude Code 将其应用于此服务器以代替 [`MCP_TOOL_TIMEOUT`](/docs/zh-CN/env-vars)。传递至少 1000 的整数。Claude Code 忽略其他值。需要 TypeScript Agent SDK v0.3.248 或更高版本 |
 
 <h3 id="listsessions">

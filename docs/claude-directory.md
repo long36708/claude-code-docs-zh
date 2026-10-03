@@ -1598,7 +1598,7 @@ Claude Code 在这些情况下跳过基于年龄的扫描：
 
 `<project>` 是您的工作目录路径，其中除字母和数字外的每个字符都被替换为 `-`，例如 `-Users-you-my-project`。如果您设置了 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars)，树会改为移动到该目录下。Hooks 接收当前会话的路径作为 [`scratchpad_dir`](/docs/zh-CN/hooks#common-input-fields)。
 
-暂存文件的生命周期与会话的记录相同：[保留扫描](#cleaned-up-automatically)在删除记录时删除目录，[`claude project purge`](#clear-local-data) 不会触及临时目录。因为目录位于系统临时位置下，您的操作系统也可以清除它，例如在重启时。要保留 Claude 在那里写入的内容，请要求 Claude 将其移动到您的项目中。
+暂存文件的生命周期与会话的会话记录相同：[保留扫描](#cleaned-up-automatically)在删除会话记录时删除该目录，而 [`claude purge`](#clear-local-data) 不会触及临时目录。由于该目录位于系统临时位置下，您的操作系统也可能清除它，例如在重启时。要保留 Claude 在那里写入的内容，请让 Claude 将其移动到您的项目中。
 
 会话仅在以下所有条件成立时才有暂存：
 
@@ -1645,7 +1645,7 @@ Claude Code 在这些情况下跳过基于年龄的扫描：
   清除本地数据
 </h3>
 
-运行 `claude project purge` 以删除 Claude Code 为一个项目保存的状态。它删除：
+运行 `claude purge` 以删除 Claude Code 为某个项目保存的状态。它会删除：
 
 * `projects/` 下的记录和自动内存
 * 每个会话的 `tasks/`、`debug/` 和 `file-history/` 条目
@@ -1656,12 +1656,14 @@ Claude Code 在这些情况下跳过基于年龄的扫描：
 
 该命令打印完整的删除计划，并在删除任何内容之前要求确认。
 
+在 v2.1.288 之前，该命令为 `claude project purge`。
+
 下面的示例使用 `~/work/my-repo` 作为占位符。将其替换为您的项目的路径。如果没有状态与路径匹配，该命令打印错误并以状态 1 退出。
 
 预览计划而不删除任何内容：
 
 ```bash theme={null}
-claude project purge ~/work/my-repo --dry-run
+claude purge ~/work/my-repo --dry-run
 ```
 
 该计划列出每个匹配项及其包含的原因：
@@ -1684,7 +1686,7 @@ Dry run: 3 item(s) would be deleted.
 通过单个确认提示删除：
 
 ```bash theme={null}
-claude project purge ~/work/my-repo
+claude purge ~/work/my-repo
 ```
 
 该命令打印相同的计划，然后询问 `Delete 3 item(s) for /home/user/work/my-repo? This cannot be undone. [y/N]` 并仅在您回答 `y` 时删除。
@@ -1694,7 +1696,7 @@ claude project purge ~/work/my-repo
 跳过确认提示以在脚本中使用：
 
 ```bash theme={null}
-claude project purge ~/work/my-repo --yes
+claude purge ~/work/my-repo --yes
 ```
 
 传递 `--all` 而不是路径以一次清除所有项目的状态，这会直接删除 `history.jsonl` 而不是过滤它。传递 `-i` 以逐项逐步执行删除计划。

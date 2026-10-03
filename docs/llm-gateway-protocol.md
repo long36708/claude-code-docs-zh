@@ -245,7 +245,7 @@ Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并
 | [上下文管理](https://platform.claude.com/docs/en/build-with-claude/context-editing) | 上下文管理 beta 请求头与 `context_management` 请求体字段配对 | `400` 带有 `Extra inputs are not permitted`。常见于网关接受 Anthropic 格式请求但将其转发到 Amazon Bedrock 时 | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) |
 | [扩展上下文](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)和[交错思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking#interleaved-thinking) | 仅 Beta 请求头，无请求体字段 | 当请求头被删除时无声地不可用；上游永远不会看到功能请求 | 逐字转发 `anthropic-beta` |
 | Beta [工具字段](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview) | 工具相关的 beta 请求头与工具架构字段（如 `strict` 和 `defer_loading`）配对 | 当请求体通过而没有其请求头时，命名无法识别的工具架构字段的 `400` | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) |
-| [努力](https://platform.claude.com/docs/en/build-with-claude/effort)和[结构化输出](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) | `output_config` 请求体字段携带努力、结构化输出格式和任务预算设置；每个都与自己的 beta 请求头配对 | 在 Amazon Bedrock 和 Google Cloud 的 Agent Platform 上游上命名 `output_config` 的 `400`，通常是 `Extra inputs are not permitted` | 一起转发该字段及其请求头，或让开发者设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities)，这会移除格式和任务预算设置，但不会移除努力 |
+| [努力](https://platform.claude.com/docs/en/build-with-claude/effort)和[结构化输出](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) | `output_config` 请求体字段携带努力、结构化输出格式和任务预算设置；每个都与自己的 beta 请求头配对 | 在 Amazon Bedrock 和 Google Cloud 的 Agent Platform 上游上命名 `output_config` 的 `400`，通常是 `Extra inputs are not permitted` | 一起转发该字段及其请求头，或让开发者设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities)，这会移除格式和任务预算设置，但不会移除努力。若只想移除格式，开发者可以改为设置 [`CLAUDE_CODE_DISABLE_STRUCTURED_OUTPUTS=1`](/docs/zh-CN/env-vars)，这需要 v2.1.288 或更高版本 |
 | [提示缓存](/docs/zh-CN/prompt-caching) | 无 beta 配对。Claude Code 将 `cache_control` 标记附加到 `system` 块和 `messages` 条目，包括在对话中途附加的 `role: "system"` 条目 | 无错误：对话在每个回合都作为未缓存的输入计费，在 `usage` 中可见为高 `input_tokens` 且缓存活动很少或没有 | 在任何地方原封不动地转发 `cache_control`，并且不要将块形式的 `system` 或消息内容转换为纯字符串 |
 | [令牌计数](https://platform.claude.com/docs/en/build-with-claude/token-counting) | 无 beta 配对；使用 `count_tokens` 端点 | 无错误：Claude Code 回退到基于字符的估计，因此 `/context` 显示近似计数 | 公开该端点以获得精确的令牌计数 |
 
@@ -362,7 +362,7 @@ Claude Code 在其 `id` 中任何位置包含 `claude` 或 `anthropic` 的条目
 当发现的 ID 与选择器中已有的行匹配时，它不会获得自己的行：
 
 * 相同 ID：发现的 ID 完全匹配现有行的 ID，或两个 ID 是同一 [Fable](/docs/zh-CN/model-config#work-with-fable) 版本的拼写。
-* 与内置别名相同的模型：当发现的显式 ID 命名内置别名当前解析到的模型时，选择器仅显示别名行。例如，当 `sonnet` 解析为 `claude-sonnet-5-5` 时，发现的 `claude-sonnet-5-5` 会折叠到 `sonnet` 行中，而发现的 `claude-sonnet-5` 仍会获得自己的行。在 v2.1.197 之前，Claude Code 不会将这些 ID 折叠到内置行中，因此别名解析到的 ID 也会获得自己的"From gateway"行。
+* 与内置别名相同的模型：当发现的显式 ID 命名内置别名当前解析到的模型时，选择器仅显示别名行。例如，当 `sonnet` 解析为 `claude-sonnet-5-5` 时，发现的 `claude-sonnet-5-5` 会折叠到 `sonnet` 行中，而发现的 `claude-sonnet-5` 仍会获得自己的行。
 
 结果被缓存到 `~/.claude/cache/gateway-models.json`，或在 Windows 上 `%USERPROFILE%\.claude\cache\gateway-models.json`，并在每次启动时刷新。如果您设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)，缓存会改为位于该目录下。如果请求失败或 gateway 未实现 `/v1/models`，选择器会回退到上次启动的缓存列表或内置模型列表。如果您的 gateway 在不匹配发现过滤器的别名下提供 Claude 模型，开发者可以使用[模型配置](/docs/zh-CN/model-config)变量手动添加这些别名。
 

@@ -68,6 +68,8 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `EffortSlider` | 由 `/effort` 打开的工作量滑块 |
 | `Select` | 通用选择/列表组件 |
 | `Plugin` | Plugin 对话框（浏览、发现、管理） |
+| `Pane` | 由 [mod](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive) 绘制的窗格获得键盘焦点 |
+| `PaneField` | mod 窗格中的输入字段或选择框获得键盘焦点 |
 | `Agents` | [Agent 视图](/docs/zh-CN/agent-view)（`claude agents`） |
 | `Scroll` | 对话滚动和全屏模式下的文本选择 |
 
@@ -596,7 +598,15 @@ ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
 
 这也适用于和弦绑定。取消绑定共享前缀的每个和弦会释放该前缀以用作单键绑定。任何活跃上下文中的和弦都会保留其前缀，因此您必须在定义该和弦的上下文中取消绑定每个和弦。
 
-Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl+x ctrl+k`、`ctrl+x ctrl+e`、`ctrl+x enter`、`ctrl+x ctrl+a`、`ctrl+x ctrl+s` 和 `ctrl+x tab`，`Task` 中的 `ctrl+x ctrl+b`，以及 `DiffPanel` 中的 `ctrl+x b`。`ctrl+x enter` 和弦需要 v2.1.247 或更高版本，`ctrl+x b`、`ctrl+x ctrl+a` 和 `ctrl+x tab` 需要 v2.1.260 或更高版本，以及 `ctrl+x ctrl+s` 需要 v2.1.275 或更高版本。
+Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
+
+* `Chat`：`ctrl+x ctrl+k`、`ctrl+x ctrl+e`、`ctrl+x enter`、`ctrl+x ctrl+a`、`ctrl+x ctrl+s` 和 `ctrl+x tab`
+* `Task`：`ctrl+x ctrl+b`
+* `DiffPanel`：`ctrl+x b`
+* `Pane`：`ctrl+x left`、`ctrl+x right`、`ctrl+x up`、`ctrl+x down` 和 `ctrl+x x`
+* `PaneField`：`ctrl+x x`
+
+`ctrl+x enter` 和弦需要 v2.1.247 或更高版本，`ctrl+x b`、`ctrl+x ctrl+a` 和 `ctrl+x tab` 需要 v2.1.260 或更高版本，以及 `ctrl+x ctrl+s` 需要 v2.1.275 或更高版本。
 
 要将 `ctrl+x` 本身回收为单键绑定，请取消绑定所有这些：
 
@@ -613,6 +623,22 @@ Claude Code 在 `ctrl+x` 前缀上绑定这些默认和弦：`Chat` 中的 `ctrl
       "context": "DiffPanel",
       "bindings": {
         "ctrl+x b": null
+      }
+    },
+    {
+      "context": "Pane",
+      "bindings": {
+        "ctrl+x left": null,
+        "ctrl+x right": null,
+        "ctrl+x up": null,
+        "ctrl+x down": null,
+        "ctrl+x x": null
+      }
+    },
+    {
+      "context": "PaneField",
+      "bindings": {
+        "ctrl+x x": null
       }
     },
     {
