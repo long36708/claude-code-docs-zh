@@ -23,7 +23,7 @@
 | 快捷键 | 描述 | 上下文 |
 | :- | :- | :- |
 | `Ctrl+C` | 中断或清除输入 | 中断正在运行的操作。如果没有任何操作在运行，第一次按下会清除提示输入，第二次按下会退出 Claude Code |
-| `Ctrl+X Ctrl+K` | 停止此会话中所有正在运行的[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)，并关闭[工件自动回复](/docs/zh-CN/artifacts#let-claude-reply-to-comments-on-its-own)。在 3 秒内按两次以确认 | 子代理控制 |
+| `Ctrl+X Ctrl+K` | 停止此会话中所有正在运行的[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)，并在该会话的剩余时间内关闭 [Artifact 自动回复](/docs/zh-CN/artifacts#let-claude-reply-to-comments-on-its-own)。在 3 秒内按两次以确认。后台子代理的权限提示打开时，您也可以按此快捷键 | 子代理控制 |
 | `Ctrl+D` | 退出 Claude Code 会话 | 第一次按下显示确认提示，第二次在 800ms 内按下会退出。当提示有文本时，`Ctrl+D` 会删除光标后的字符 |
 | `Ctrl+G` 或 `Ctrl+X Ctrl+E` | 在默认文本编辑器中打开 | 在默认文本编辑器中编辑您的提示或自定义响应。`Ctrl+X Ctrl+E` 是 readline 原生绑定。在 `/config` 中打开**在外部编辑器中显示最后一个响应**，以在您的提示上方将 Claude 的前一个回复作为 `#` 注释上下文预置；Claude Code 在您保存时会删除注释块 |
 | `Ctrl+L` | 重绘屏幕 | 强制完整的终端重绘，保持输入和对话历史。如果显示变得混乱或部分空白，请使用此选项恢复。请参阅[清除对话](/docs/zh-CN/fullscreen#clear-the-conversation)了解全屏渲染 |
