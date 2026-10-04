@@ -138,7 +138,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 * **仅限 Anthropic API 或订阅**：快速模式可通过 Anthropic 控制台 API 和使用使用额度的 Claude 订阅计划获得。它在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 AWS 上的 Claude Platform 上不可用。控制台组织还必须[为您的组织配置快速模式访问权限](#enable-fast-mode-for-your-organization)。
 * **为订阅计划启用使用额度**：在 Pro、Max、Team 或 Enterprise 计划上，您的账户必须[启用使用额度](/docs/zh-CN/costs#add-usage-credits-to-your-subscription)，这允许在您的计划包含的使用量之外进行计费。在启用之前，`/fast` 显示"Fast mode requires usage credits"。您启用它们的方式取决于您的计划：
   * 在 Pro 和 Max 上，在 claude.ai 上的[**Settings > Usage**](https://claude.ai/settings/usage)的**Usage credits**部分中启用它们，或运行 `/usage-credits` 来打开该页面。
-  * 在 Team 和 Enterprise 上，具有计费访问权限的成员在[**Admin settings > Usage**](https://claude.ai/admin-settings/usage)处为组织启用它们，没有访问权限的成员运行 `/usage-credits` 向组织的管理员发送请求。
+  * 在 Team 和 Enterprise 上，具有计费访问权限的成员在[**Organization settings > Usage**](https://claude.ai/admin-settings/usage)处为组织启用它们，没有访问权限的成员运行 `/usage-credits` 向组织的管理员发送请求。
 
 <Note>
   快速模式使用直接计入使用额度，即使您的计划上还有剩余使用量。
@@ -165,7 +165,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 * **控制台**（API 客户）：管理员在 [Claude Code 偏好设置](https://platform.claude.com/claude-code/preferences)中启用它。快速模式处于[研究预览](#research-preview)中，因此您的组织还必须在快速模式请求成功之前配置快速模式访问权限。要获得访问权限，请联系您的账户经理或加入等待列表，如[Claude API 上的快速模式](https://platform.claude.com/docs/en/build-with-claude/fast-mode)中所述。
 
   没有配置的访问权限，API 会以 429 拒绝每个快速模式请求，Claude Code 会将每个拒绝视为[快速模式速率限制](#handle-rate-limits)。与速率限制的冷却时间不同，拒绝会继续，直到配置了访问权限。
-* **Claude AI**（团队和企业）：所有者在[管理员设置 > Claude Code](https://claude.ai/admin-settings/claude-code)中启用它
+* **Claude AI**（团队和企业）：所有者在[**Organization settings > Claude Code**](https://claude.ai/admin-settings/claude-code)中启用它
 
 另一个完全禁用快速模式的选项是设置 `CLAUDE_CODE_DISABLE_FAST_MODE=1`。请参阅[环境变量](/docs/zh-CN/env-vars)。
 

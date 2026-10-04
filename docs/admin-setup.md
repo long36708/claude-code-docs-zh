@@ -137,7 +137,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
   已关联的 GitHub 账户
 </h3>
 
-在 Team 和 Enterprise 计划中，[**Admin settings > GitHub**](https://claude.ai/admin-settings/github) 列出了通过 [Claude GitHub App](https://github.com/apps/claude) 关联到您的 Claude 组织的 GitHub 组织和个人账户。Claude Code、[Claude Tag](https://claude.com/docs/claude-tag/admins/configure-github) 和 Claude Security 共享此列表。打开该页面需要在您的 Claude 组织中拥有管理员角色。
+在 Team 和 Enterprise 计划中，[**Organization settings > GitHub**](https://claude.ai/admin-settings/github) 列出了通过 [Claude GitHub App](https://github.com/apps/claude) 关联到您的 Claude 组织的 GitHub 组织和个人账户。Claude Code、[Claude Tag](https://claude.com/docs/claude-tag/admins/configure-github) 和 Claude Security 共享此列表。打开该页面需要在您的 Claude 组织中拥有管理员角色。
 
 管理员或成员都可以关联账户：
 
@@ -161,7 +161,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 | Usage monitoring | 会话、工具和令牌的 OpenTelemetry 导出 | 所有提供商 | [Monitoring usage](/docs/zh-CN/monitoring-usage) |
 | Analytics dashboard | Teams / Enterprise 上具有排行榜的采用和贡献指标；Console 上的每用户使用情况和支出指标 | Teams / Enterprise 在 [claude.ai/analytics](https://claude.ai/analytics/claude-code)，Console 在 [platform.claude.com/claude-code](https://platform.claude.com/claude-code) | [Analytics](/docs/zh-CN/analytics) |
 | Programmatic reporting | 通过 API 的每用户使用情况和成本数据 | Enterprise 的 [Enterprise Analytics API](https://platform.claude.com/docs/en/api/admin/analytics)，Console 的 [Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api) | [Costs](/docs/zh-CN/costs#manage-costs-for-your-organization) |
-| Spend controls | 支出限制和速率限制 | Teams / Enterprise 的管理员设置，Console 的工作区限制；在第三方云上，云预算控制或具有每用户[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) | [Costs](/docs/zh-CN/costs#manage-costs-for-your-organization) |
+| Spend controls | 支出限制和速率限制 | Teams / Enterprise 的组织设置，Console 的工作区限制；在第三方云上，云预算控制或具有每用户[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) | [Costs](/docs/zh-CN/costs#manage-costs-for-your-organization) |
 
 在 Teams 和 Enterprise 上，每用户使用情况和支出数字来自您组织的分析设置中的[支出报告](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans)，而不是分析仪表板。云提供商通过 AWS Cost Explorer、GCP Billing 或 Azure Cost Management 公开支出。有关跨 Claude chat、Claude Code 和 Cowork 规划企业预算的信息，请参阅 [Claude Enterprise consumption guide](https://support.claude.com/en/articles/14782391-claude-enterprise-consumption-guide)。
 

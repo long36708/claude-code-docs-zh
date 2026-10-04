@@ -326,7 +326,7 @@ iMessage 的工作方式不同：给自己发短信会自动绕过门禁，您�
   为您的组织启用 channels
 </h3>
 
-可以从 [**claude.ai → 管理员设置 → Claude Code → Channels**](https://claude.ai/admin-settings/claude-code) 为您的组织启用 channels（需要所有者角色），或通过在托管设置中将 `channelsEnabled` 设置为 `true`。
+可以从 [**Organization settings > Claude Code > Channels**](https://claude.ai/admin-settings/claude-code) 为您的组织启用频道（需要所有者角色），或通过在托管设置中将 `channelsEnabled` 设置为 `true`。
 
 启用后，您组织中的用户可以使用 `--channels` 将 channel 服务器选择加入到各个会话中。如果设置被禁用或未设置，MCP 服务器仍会连接，其工具可以工作，但 channel 消息不会到达。启动警告会告诉用户让管理员启用该设置。
 

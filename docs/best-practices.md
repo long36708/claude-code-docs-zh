@@ -538,7 +538,7 @@ claude -p "Analyze this log file" --output-format stream-json --verbose
 </h3>
 
 <Tip>
-  循环遍历任务，为每个调用 `claude -p`。使用 `--allowedTools` 来限定批量操作的权限。
+  循环遍历任务，为每个任务调用 `claude -p`。使用 `--allowedTools` 为批量操作预先批准工具。
 </Tip>
 
 对于大型迁移或分析，你可以跨许多并行 Claude 调用分配工作。运行 [`/batch <instruction>`](/docs/zh-CN/commands#all-commands) 让 Claude 将更改分割到 5 到 30 个子代理中。每个子代理在自己的 worktree 中工作。要从你自己的脚本驱动扇出，请循环遍历 `claude -p`：
@@ -552,13 +552,14 @@ claude -p "Analyze this log file" --output-format stream-json --verbose
     ```bash theme={null}
     for file in $(cat files.txt); do
       claude -p "Migrate $file from Python 2 to Python 3. Return OK or FAIL." \
-        --allowedTools "Edit,Bash(git commit *)"
+        --allowedTools "Edit,Bash(git commit *)" \
+        --permission-mode dontAsk
     done
     ```
   </Step>
 
-  <Step title="在几个文件上测试，然后大规模运行">
-    根据前 2-3 个文件出错的情况精化你的提示，然后在完整集合上运行。`--allowedTools` 标志限制 Claude 能做什么，这在你无人值守运行时很重要。
+  <Step title="先在几个文件上测试，然后在全部文件上运行">
+    根据前 2-3 个文件出现的问题改进提示词，然后在完整集合上运行。`--allowedTools` 标志预先批准迁移所需的工具，而 [`--permission-mode dontAsk`](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode) 会拒绝其他任何需要批准的操作，这在无人值守运行时非常重要。
   </Step>
 </Steps>
 

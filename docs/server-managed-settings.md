@@ -6,7 +6,7 @@
 
 > 通过服务器交付的设置为您的组织集中配置 Claude Code，无需设备管理基础设施。
 
-服务器管理的设置允许组织所有者通过 claude.ai 控制台中的 [**Admin Settings > Claude Code > Managed settings**](https://claude.ai/admin-settings/claude-code) 集中配置 Claude Code。Claude Code 客户端在用户使用符合条件的凭证在支持服务器管理交付的平台上进行身份验证时自动获取这些设置。请参阅[平台可用性](#platform-availability)了解符合条件的凭证和平台。
+服务器管理的设置允许组织所有者通过 claude.ai 控制台中的 [**Organization settings > Claude Code > Managed settings**](https://claude.ai/admin-settings/claude-code) 集中配置 Claude Code。Claude Code 客户端在用户使用符合条件的凭据在支持服务器管理交付的平台上进行身份验证时自动获取这些设置。请参阅[平台可用性](#platform-availability)了解符合条件的凭据和平台。
 
 <Note>
   服务器管理的设置可供 [Claude for Teams](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=server_settings_teams#team-&-enterprise) 和 [Claude for Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=server_settings_enterprise) 客户使用。
@@ -41,9 +41,9 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
 
 <Steps>
   <Step title="打开管理控制台">
-    在 claude.ai 控制台中，转到 [**Admin Settings > Claude Code > Managed settings**](https://claude.ai/admin-settings/claude-code)。
+    在 claude.ai 控制台中，转到 [**Organization settings > Claude Code > Managed settings**](https://claude.ai/admin-settings/claude-code)。
 
-    如果链接将您重定向到不同的 Admin Settings 页面而不是 Claude Code 页面，您的账户没有所需的角色。Admin 和其他非 Owner 角色无法查看或编辑托管设置，因此请要求您的组织中的 Owner 或 Primary Owner 进行更改。请参阅[访问控制](#access-control)。
+    如果链接将您重定向到其他 Organization settings 页面而不是 Claude Code 页面，则说明您的账户没有所需的角色。Admin 和其他非 Owner 角色无法查看或编辑托管设置，因此请要求您的组织中的 Owner 或 Primary Owner 进行更改。请参阅[访问控制](#access-control)。
   </Step>
 
   <Step title="定义您的设置">

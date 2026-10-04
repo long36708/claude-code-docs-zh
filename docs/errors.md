@@ -366,6 +366,7 @@
 | `Invalid permission rule "..." was skipped: Malformed Tool(content) rule` | [配置警告](#malformed-tool-content-rule) |
 | `... is not matched by file permission checks` | [配置警告](#is-not-matched-by-file-permission-checks) |
 | `... has a wildcard before the rest of the command` | [配置警告](#has-a-wildcard-before-the-rest-of-the-command) |
+| `Denying Bash also turns off the PowerShell tool, so Claude has neither` | [配置警告](#denying-bash-also-turns-off-the-powershell-tool) |
 | `CLAUDE_CODE_DISABLE_1M_CONTEXT is set, but the 200K limit isn't enforced` | [配置警告](#the-200k-limit-isnt-enforced) |
 | `[claude-code:unrecognized_model]` | [配置警告](#unrecognized-model-id-on-a-request) |
 | `Stale sandbox mask files left by a killed session` | [配置警告](#stale-sandbox-mask-files-left-by-a-killed-session) |
@@ -846,7 +847,7 @@ You've hit your channel's monthly spend limit · an org owner or channel manager
 **要做什么：**
 
 * 在 Pro 和 Max 上，在 claude.ai 的 [**Settings > Usage**](https://claude.ai/settings/usage) 中增加您的月度支出限制，或运行 `/usage-credits`
-* 在 Team 和 Enterprise 上，如果您管理计费，在 [**Admin settings > Usage**](https://claude.ai/admin-settings/usage) 中增加限制，或要求管理员这样做。`/usage-credits` 为您向您的管理员发送该请求
+* 在 Team 和 Enterprise 上，如果您管理计费，在 [**Organization settings > Usage**](https://claude.ai/admin-settings/usage) 中增加限制，或要求管理员这样做。`/usage-credits` 为您向您的管理员发送该请求
 * 对于频道的限制，要求组织所有者或频道的管理员在 claude.ai 上提高它。请参阅 Claude Tag 文档中的 [Per-channel limits](https://claude.com/docs/claude-tag/admins/set-spend-limit#per-channel-limits)
 * 如果消息命名您的计划窗口的重置时间，您可以改为等待它
 * 运行 `/usage` 查看您的计划窗口以及每个何时重置
@@ -5641,6 +5642,23 @@ Permission allow rule (.claude/settings.json): Bash(git -C * status *) has a wil
 * 如果来源显示为 `managed policy settings`，请将警告转发给维护您的托管设置的人，因为您无法自己清除它。
 
 在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，Claude Code 将警告写入调试日志而不是 stderr，以保持机器读取的输出干净。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。在 v2.1.246 之前，Claude Code 接受这些规则而不警告。
+
+<h3 id="denying-bash-also-turns-off-the-powershell-tool">
+  拒绝 Bash 也会关闭 PowerShell 工具
+</h3>
+
+您移除了整个 Bash 工具，例如使用 `--disallowedTools Bash`，或在您的某个设置文件中使用裸 `Bash` 或 `Bash(*)` [拒绝规则](/docs/zh-CN/permissions#match-all-uses-of-a-tool)。在安装了 Git Bash 的 Windows 上，[拒绝 Bash 也会关闭 PowerShell 工具](/docs/zh-CN/tools-reference#bash-deny-rules-also-turn-off-the-powershell-tool)，因此会话启动时没有任何 shell 工具。Claude Code 在启动时打印此警告：
+
+```text theme={null}
+Denying Bash also turns off the PowerShell tool, so Claude has neither. To use PowerShell, set CLAUDE_CODE_USE_POWERSHELL_TOOL=1.
+```
+
+**要做什么：**
+
+* 要让 Claude 使用 PowerShell，请在您的环境中或设置文件的 `env` 块中将 [`CLAUDE_CODE_USE_POWERSHELL_TOOL`](/docs/zh-CN/env-vars) 设置为 `1`，如[启用 PowerShell 工具](/docs/zh-CN/tools-reference#enable-the-powershell-tool)所示。之后 PowerShell 工具会与您的 Bash 拒绝规则并存并保持启用。
+* 要阻止特定命令而不是整个工具，请在同一设置文件或标志中将裸 `Bash` 条目替换为限定范围的规则，例如 `Bash(git push *)`。Claude 会保留 Bash 工具，而 PowerShell 工具会保持关闭，直到您同时设置该变量或添加限定范围的 [`PowerShell` 权限规则](/docs/zh-CN/permissions#powershell)。
+
+在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，Claude Code 将警告写入调试日志而不是 stderr。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。在 v2.1.287 之前，Claude Code 以同样的方式关闭 PowerShell 工具，但不打印警告。
 
 <h3 id="crosssessioninbound-must-be-one-of-accept-hold-refuse">
   crossSessionInbound 必须是 accept、hold 或 refuse 之一

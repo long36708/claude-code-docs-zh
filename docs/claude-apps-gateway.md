@@ -451,7 +451,7 @@ hooks 锁和 `allowManagedPermissionRulesOnly` 对开发人员自己规则的影
 即使设置了所有五个锁，这些父提供的设置也会通过过滤器：
 
 * **`forceLoginOrgUUID`**：当最高优先级管理员源未设置组织 UUID 时，Claude Code 尊重父提供的值。网关登录不检查此密钥。最高优先级管理员源中的组织 UUID 阻止父的值，是 Claude Code 强制执行的值。
-* **`allowedMcpServers`**：当最高优先级管理员源未设置允许列表时，Claude Code 尊重父提供的允许列表，`allowManagedMcpServersOnly` 不阻止它，因为锁强制执行任何赢家列表作为托管值，包括当最高优先级管理员源未设置时的父提供列表。最高优先级管理员源中的列表阻止父的并是 Claude Code 强制执行的列表，因此在那里设置 `allowedMcpServers`，在锁旁边。在 v2.1.223 之前，任何管理员源中任一密钥的值都阻止父的。
+* **`allowedMcpServers`**：当没有生效的管理员列表时，Claude Code 尊重父提供的允许列表。`allowManagedMcpServersOnly` 不阻止它，因为锁强制执行任何赢家列表作为托管值，包括当没有管理员源提供列表时的父提供列表。最高优先级管理员源中的列表阻止父的并是 Claude Code 强制执行的列表，因此在那里设置 `allowedMcpServers`，在锁旁边。在 v2.1.223 之前，任何管理员源中任一密钥的值都阻止父的。
 * **`availableModels`**：当赢家托管源未设置模型列表时，Claude Code 尊重父提供的模型列表。如果您的舰队限制模型，在赢家源中设置 `availableModels`。
 * **`allowedProviders`**：当赢家托管源未设置 API 提供商允许列表时，Claude Code 尊重父提供的 API 提供商允许列表。如果您的舰队限制开发人员可以使用的 API 提供商，在赢家源中设置 `allowedProviders`。需要 Claude Code v2.1.285 或更高版本。
 * **`strictKnownMarketplaces`**：当赢家托管源未设置一个时，Claude Code 尊重父提供的插件市场允许列表。Claude Desktop 2.16120.0 或更高版本在其托管配置关闭用户添加的插件市场时发送一个。如果您的舰队限制市场，在赢家源中设置 `strictKnownMarketplaces`。需要 Claude Code v2.1.282 或更高版本。
@@ -486,7 +486,7 @@ Claude Desktop 通过网关的身份提供商使用相同的浏览器 SSO 步骤
 
 这些保证适用于每个通过 `/login` 登录的会话。Claude Desktop 启动的嵌入式会话按[将策略传递给 Claude Desktop 会话](#deliver-policy-to-claude-desktop-sessions)中所述获取其策略，遥测项目说明其导出的去向。
 
-* **模型访问**：对策略未授予的模型的请求返回 400，`/model` 选择器被过滤到策略的 `availableModels` 允许列表。在策略中设置 [`enforceAvailableModels: true`](/docs/zh-CN/model-config#default-model-behavior)，以便 Default 选项解析为 `availableModels` 内的模型，而不是 Claude Code 的内置默认值；没有它，Default 保持可选，如果该模型未被授予，则在请求时被拒绝。
+* **模型访问**：对策略未授予的模型的请求返回 400，`/model` 选择器被过滤到策略的 `availableModels` 允许列表。这包括开发人员选择模型之前会话启动时使用的模型；请参阅[在策略允许的模型上启动会话](/docs/zh-CN/claude-apps-gateway-config#start-sessions-on-a-model-the-policy-allows)。
 * **遥测目标**：在通过 `/login` 登录的会话中，CLI 将其 OTLP/HTTP 导出发送到网关，而不是任何本地设置的 `OTEL_EXPORTER_OTLP_ENDPOINT`，除非策略[将您的收集器命名为端点](/docs/zh-CN/claude-apps-gateway-config#export-directly-to-your-collector)。网关将它接收的导出中继到 [`telemetry.forward_to`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 中的目标。
   * 在[Claude Desktop 启动](#connect-claude-desktop)的嵌入式会话中，CLI 将其导出发送到配置的 `OTEL_EXPORTER_OTLP_ENDPOINT`。CLI 仅当该端点指向网关本身时才将网关会话令牌附加到这些导出。
   * 没有为信号配置目标时，网关接受并丢弃它。
@@ -516,7 +516,7 @@ Claude Desktop 通过网关的身份提供商使用相同的浏览器 SSO 步骤
 
 | 功能 | 状态 | 注释 |
 | - | - | - |
-| 推理转发 (Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform、Microsoft Foundry、Anthropic) | 可用 | 具有按上游模型转换和故障转移。Amazon Bedrock 上游使用 `bedrock-runtime` 端点和 AWS 默认凭证链；Amazon Bedrock [Mantle 端点](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)不是支持的上游。[Claude Platform on AWS 上游](/docs/zh-CN/claude-apps-gateway-config#claude-platform-on-aws)需要网关服务器上的 Claude Code v2.1.198 或更高版本。 |
+| 推理转发 (Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform、Microsoft Foundry、Anthropic) | 可用 | 具有按上游模型转换和故障转移。Amazon Bedrock 上游使用 `bedrock-runtime` 端点和 AWS 默认凭据链。[Amazon Bedrock Mantle 上游](/docs/zh-CN/claude-apps-gateway-config#amazon-bedrock-mantle-endpoint)需要网关服务器上的 Claude Code v2.1.283 或更高版本，[Claude Platform on AWS 上游](/docs/zh-CN/claude-apps-gateway-config#claude-platform-on-aws)需要 v2.1.198 或更高版本。 |
 | 按 IdP 组的模型访问和托管设置 | 可用 | 模型访问在服务器端强制执行；托管设置按 IdP 组交付，由 CLI 在[托管设置层](/docs/zh-CN/settings#settings-precedence)应用 |
 | Claude Desktop | 可用（需要选择加入） | 网关在 `/user/bootstrap` 处为 Claude Desktop 的配置提供服务，一旦策略[使用 `desktop` 密钥选择加入](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)，Claude Desktop 从其 Cowork 和 Code 选项卡以及从 Chat 选项卡（当您启用它时）发送模型请求通过网关。要打开 Chat 选项卡，请参阅[连接 Claude Desktop](#connect-claude-desktop)。需要网关服务器上的 Claude Code v2.1.203 或更高版本。 |
 | 遥测扇出 (OTLP/HTTP) | 可用 | 按导出标识戳；protobuf 和 JSON 编码 |
@@ -528,7 +528,7 @@ Claude Desktop 通过网关的身份提供商使用相同的浏览器 SSO 步骤
 | 需要功能标志获取的功能，例如 `/import` 和 `claude import` | 不可用 | CLI 在网关会话上跳过标志获取。[需要功能标志获取的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)列出了关闭的内容 |
 | 标准提示缓存 | 可用 | 网关将 `cache_control` 断点转发到每个上游。[缓存位置](/docs/zh-CN/prompt-caching#where-the-cache-lives)涵盖 CLI 标记的块，包括它在对话中途追加的系统上下文 |
 | 1 小时缓存 TTL | 不可用 | CLI 在网关会话上省略扩展缓存 TTL beta，因为并非网关可以路由到的每个上游都支持 1 小时 TTL，因此通过网关的提示缓存使用 5 分钟 TTL；请参阅上面的 beta 标头注释 |
-| Auto 模式 | 可用 | 遵循[第三方提供商规则](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry)：仅第三方提供商上符合条件的模型可以使用它。在 v2.1.207 之前，网关会话上的 auto 模式需要设置 `CLAUDE_CODE_ENABLE_AUTO_MODE=1`，可通过托管策略 `env` 块交付 |
+| 自动模式 | 可用 | 遵循[第三方提供商规则](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry)：仅第三方提供商上符合条件的模型可以使用它。在 v2.1.207 之前，网关会话上的自动模式需要设置 `CLAUDE_CODE_ENABLE_AUTO_MODE=1`，可通过托管策略 `env` 块交付 |
 | 仅第一方优化，如全局缓存范围和令牌高效工具 | 不可用 | CLI 在网关会话上不启用它们；请参阅上面的 beta 标头注释 |
 | OTLP/gRPC | 不支持 | 仅 OTLP over HTTP |
 | SAML、LDAP 和其他非 OIDC 身份验证 | 不支持 | 仅 OIDC。如果需要，使用 OIDC 桥前置 |

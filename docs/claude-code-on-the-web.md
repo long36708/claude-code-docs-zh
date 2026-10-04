@@ -67,11 +67,11 @@
   启用了[零数据保留](/docs/zh-CN/zero-data-retention)的组织无法使用 `/web-setup` 或其他云会话功能。
 </Note>
 
-<h3 id="quick-web-setup-for-team-and-enterprise">
-  面向 Team 和 Enterprise 的快速 Web 设置
+<h3 id="quick-setup-for-team-and-enterprise">
+  面向 Team 和 Enterprise 的快速设置
 </h3>
 
-快速 Web 设置是一项组织设置，可减少成员在 GitHub 和环境设置中的步骤。在 Team 和 Enterprise 计划中，该设置默认处于关闭状态。
+快速设置是一项组织设置，可减少成员在 GitHub 和环境设置中的步骤。在 Team 和 Enterprise 计划中，该设置默认处于关闭状态。
 
 启用后，成员会看到以下变化：
 
@@ -79,7 +79,7 @@
 * **GitHub App 提示**：浏览器入门引导会跳过 Claude GitHub App 安装提示
 * **第一个环境**：浏览器入门引导会为成员创建 [**Default** 环境](/docs/zh-CN/cloud-environments#the-default-environment)，而不是显示环境表单
 
-[所有者](/docs/zh-CN/server-managed-settings#access-control)可以在 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code) 处通过 **Quick web setup** 开关启用该设置。
+[所有者](/docs/zh-CN/server-managed-settings#access-control)可以在 [**Organization settings > Claude Code**](https://claude.ai/admin-settings/claude-code) 处通过 **Quick setup** 开关启用该设置。
 
 <h2 id="move-tasks-between-terminal-and-cloud">
   在终端和云之间移动任务

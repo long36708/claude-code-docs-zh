@@ -285,6 +285,7 @@ Claude Code 代表您进行的模型更改以相同的方式检查：
 * **[自动模型回退](#automatic-model-fallback)**：目标被排除的回退不运行，因此标记的请求以拒绝结束
 * **[自动模式分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)**：分类器的 Claude Sonnet 5 默认值仅在允许列表允许 Sonnet 5 时适用。当它被排除时，分类器在会话的模型上运行，允许列表已经管理该模型，或在会话运行 [Fable 模型](#work-with-fable)时在 Opus 模型上运行。在 Anthropic API 以外的提供商上，该 Opus 回退在您于 `ANTHROPIC_DEFAULT_OPUS_MODEL` 中设置的模型上运行，否则在 Opus 5 上运行，不咨询允许列表。需要 Claude Code v2.1.210 或更高版本
 * **[快速模式](/docs/zh-CN/fast-mode)**：当会话之后运行的模型在允许列表外时，启用快速模式被拒绝
+* **Amazon Bedrock 和 Google Cloud 的 Agent Platform 上的可用性回退**：当您的帐户在会话中途失去对某个模型的访问权限时，切换到其他模型时会跳过被排除的模型。[Amazon Bedrock](/docs/zh-CN/amazon-bedrock#when-your-organization-enforces-a-model-allowlist) 和 [Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai#when-your-organization-enforces-a-model-allowlist) 上的启动模型检查仅在托管设置同时设置了 [`enforceAvailableModels`](#enforce-the-allowlist-for-the-default-model) 时才跳过被排除的模型
 
 ```json theme={null}
 {

@@ -282,7 +282,7 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 
 允许列表和拒绝列表过滤哪些已配置的服务器可以加载。它们不是注册表：服务器仍然必须由用户、插件或您的组织添加，然后任一列表才能应用于它。
 
-您的组织通过 `managedMcpServers` 提供的服务器无需允许列表条目即可加载，[服务器如何被评估](#how-a-server-is-evaluated)涵盖 `managed-mcp.json` 服务器。拒绝列表适用于每个服务器，无论它来自何处，除了进程内 `type: "sdk"` 条目。
+您的组织通过 `managedMcpServers` 提供的服务器无需允许列表条目即可加载，[跳过允许列表检查的服务器](#servers-that-skip-the-allowlist-check)涵盖 `managed-mcp.json` 服务器。拒绝列表适用于每个服务器，无论它来自何处，除了进程内 `type: "sdk"` 条目。
 
 要将服务器部署给用户，请使用 [`managed-mcp.json`](#exclusive-control-with-managed-mcp-json) 或 [`managedMcpServers`](#provide-servers-through-managed-settings)。两个列表也过滤通过 [`--mcp-config` CLI 标志](/docs/zh-CN/cli-reference#cli-flags)传递的服务器，除了进程内 `type: "sdk"` 条目；`--strict-mcp-config` 限制哪些配置文件加载，不会绕过任一列表。
 
@@ -308,16 +308,22 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 | :- | :- | :- |
 | `serverUrl` | 远程服务器 URL，精确或带有 `*` 通配符 | HTTP 和 SSE 服务器 |
 | `serverCommand` | 启动 stdio 服务器的确切命令和参数 | Stdio 服务器 |
-| `serverName` | 用户分配的标签。仅精确匹配；通配符不展开 | 任一类型，但请参阅下面的警告 |
+| `serverName` | 用户分配的标签。仅精确匹配；通配符不展开 | 任一类型，但请参阅[`serverName` 条目如何匹配](#how-servername-entries-match) |
 
 将 `allowedMcpServers` 保留未设置与将其设置为空数组不同：
 
 | 设置 | 未设置（默认） | 空数组 `[]` | 已填充 |
 | :- | :- | :- | :- |
-| `allowedMcpServers` | 允许所有服务器 | 不允许任何服务器，除了[那些跳过允许列表检查的](#how-a-server-is-evaluated) | 仅允许匹配的服务器，除了[那些跳过允许列表检查的](#how-a-server-is-evaluated) |
+| `allowedMcpServers` | 允许所有服务器 | 不允许任何服务器，除了[那些跳过允许列表检查的](#servers-that-skip-the-allowlist-check) | 仅允许匹配的服务器，除了[那些跳过允许列表检查的](#servers-that-skip-the-allowlist-check) |
 | `deniedMcpServers` | 不阻止任何服务器 | 不阻止任何服务器 | 阻止匹配的服务器 |
 
 有关条目未通过架构验证时会发生什么，请参阅[托管设置中的无效条目](/docs/zh-CN/managed-settings#invalid-entries-in-managed-settings)。
+
+<h4 id="how-servername-entries-match">
+  `serverName` 条目如何匹配
+</h4>
+
+`serverName` 条目精确匹配用户分配的标签，不支持通配符。
 
 <Warning>
   任一列表中的 `serverName` 条目不是安全控制。该名称是用户在运行 `claude mcp add` 或编辑配置文件时分配的标签，而不是底层服务器，因此用户可以将任何服务器称为 `github`。对于 claude.ai 连接器，名称是 claude.ai 返回的显示名称，可能会更改。要强制执行实际运行的服务器，请添加 `serverCommand` 或 `serverUrl` 条目。
@@ -330,34 +336,22 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 
 要关闭 Claude Code 自身获取的所有 claude.ai 连接器，请参阅 [`disableClaudeAiConnectors`](/docs/zh-CN/mcp#disable-claude-ai-connectors)。
 
-<h3 id="how-a-server-is-evaluated">
-  服务器如何被评估
-</h3>
+<h4 id="how-servercommand-entries-match">
+  `serverCommand` 条目如何匹配
+</h4>
 
-在加载服务器之前，包括来自 `managed-mcp.json` 的服务器，Claude Code 按顺序运行以下三个检查。当用户重新连接服务器或在 `/mcp` 中打开已禁用的服务器时，它会再次运行它们。进程内 `type: "sdk"` 服务器（[启动会话的应用程序注册](/docs/zh-CN/mcp#how-connectors-reach-claude-code)）跳过全部三个。
-
-1. **合并列表。** 来自每个设置范围的允许列表和拒绝列表条目合并为一个允许列表和一个拒绝列表。当 `allowManagedMcpServersOnly` 为 `true` 时，仅保留托管允许列表；拒绝列表始终从每个范围合并。当存在多个托管源时，[从每个管理员源读取的键](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)说明其中哪些提供托管范围的列表。
-2. **检查拒绝列表。** 与任何拒绝列表条目匹配的服务器（按 URL、命令或名称）被阻止。没有任何东西可以覆盖拒绝列表匹配。
-3. **检查允许列表。** 如果 `allowedMcpServers` 未在任何地方设置，每个通过拒绝列表的服务器都会加载。如果已设置，服务器必须匹配的内容取决于其类型，如下表所示。
-
-   三组服务器跳过此检查：
-
-   * 组织自己的服务器：每个 `managedMcpServers` 条目，以及任何 `managed-mcp.json` 条目，其值不使用 `${VAR}` 展开。
-   * 内置服务器，例如 Chrome 中的 Claude、Claude Code 在运行的 VS Code 或 JetBrains IDE 中连接的 `ide` 服务器，以及 CLI 本身配置的服务器。
-   * [Claude Tag](/docs/zh-CN/claude-tag) 会话的 Slack 工具：它用来读取线程和发布回复的服务器无需允许列表条目即可加载。
-
-   使用 `${VAR}` 展开的 `managed-mcp.json` 服务器在其命令、参数、`env`、URL 或标头中仍会被检查。用户、插件或 claude.ai 添加的每个服务器也是如此，以及用户通过 `--mcp-config` 传递的每个服务器。
-
-| 服务器类型 | 匹配时允许 |
-| :- | :- |
-| 远程（HTTP 或 SSE） | 一个 `serverUrl` 条目。仅当允许列表不包含 `serverUrl` 条目时，`serverName` 匹配才计数 |
-| Stdio | 一个 `serverCommand` 条目。仅当允许列表不包含 `serverCommand` 条目时，`serverName` 匹配才计数 |
-
-这些检查中应用三个匹配规则：
+`serverCommand` 条目将命令及其参数保存为一个数组，如 `{ "serverCommand": ["npx", "-y", "server"] }`。Claude Code 将该数组与服务器配置中的命令和参数进行比较：
 
 * **命令精确匹配。** 每个参数，按顺序。`["npx", "-y", "server"]` 不匹配 `["npx", "server"]` 或 `["npx", "-y", "server", "--flag"]`。
-* **`serverCommand` 和 `serverUrl` 值在匹配前展开。** 策略条目和服务器的配置值都通过 [`${VAR}` 和 `${VAR:-default}` 展开](/docs/zh-CN/mcp#environment-variable-expansion-in-mcp-json)，因此写成 `["${HOME}/bin/server"]` 的条目与使用相同引用或展开路径的服务器配置匹配。在 Windows 上，引用在那里设置的环境变量，例如 `${USERPROFILE}` 而不是 `${HOME}`。`serverName` 值按字面匹配，永不展开。两边读取不同的环境；[策略条目如何展开](#how-policy-entries-expand)涵盖哪个以及允许列表和拒绝列表条目如何不同。
-* **URL 支持 `*` 通配符**在模式中的任何地方，包括方案。主机名匹配不区分大小写，忽略尾部 FQDN 点，因此 `https://Mcp.Example.com/*` 匹配 `https://mcp.example.com/api`。路径保持区分大小写。
+* **不比较 `env` 块。** `["node", "server.js"]` 匹配以任何 `env` 值运行该命令的服务器。某些环境变量会改变 `node` 在启动时加载的内容。要自行设置 `env` 值，请在 [`managed-mcp.json`](#exclusive-control-with-managed-mcp-json) 中定义该服务器。
+
+<h4 id="how-serverurl-entries-match">
+  `serverUrl` 条目如何匹配
+</h4>
+
+URL 支持在模式中的任何位置使用 `*` 通配符，包括方案。主机名匹配不区分大小写，忽略尾部 FQDN 点，因此 `https://Mcp.Example.com/*` 匹配 `https://mcp.example.com/api`。路径保持区分大小写。
+
+下表显示常见模式允许的内容：
 
 | 模式 | 允许 |
 | :- | :- |
@@ -368,17 +362,55 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
 | `*://mcp.example.com/*` | 到特定域的任何方案 |
 
 <h4 id="how-policy-entries-expand">
-  策略条目如何展开
+  `serverCommand` 和 `serverUrl` 条目中的环境变量
 </h4>
 
-服务器的配置值从实时进程环境展开，就像 `.mcp.json` 的其余部分一样。策略条目从固定环境展开，因此由项目或用户设置文件设置的变量无法更改允许列表条目的含义。因为策略条目仍然取决于启动 shell 对其引用的任何变量的值，对于您依赖的条目以进行强制执行，请使用字面 URL 和命令。
+`serverCommand` 和 `serverUrl` 值在匹配前展开。策略条目和服务器的配置值都通过 [`${VAR}` 和 `${VAR:-default}` 展开](/docs/zh-CN/mcp#environment-variable-expansion-in-mcp-json)，因此写成 `["${HOME}/bin/server"]` 的条目与使用相同引用或展开路径的服务器配置匹配。`serverName` 值按字面匹配，永不展开。
+
+两边读取不同的环境：
+
+* **服务器的配置值**：从实时进程环境展开，就像 `.mcp.json` 的其余部分一样
+* **策略条目**：从固定环境展开，因此由项目或用户设置文件设置的变量无法更改允许列表条目的含义
+
+因为策略条目仍然取决于启动 shell 对其引用的任何变量的值，对于您依赖的条目以进行强制执行，请使用字面 URL 和命令。
+
+在 Windows 上，引用在那里设置的环境变量，例如 `${USERPROFILE}` 而不是 `${HOME}`。
+
+两个列表的展开方式不同：
 
 | 条目列表 | 展开自 | 会改变 URL 条目的方案、主机或路径范围的展开 |
 | - | - | - |
 | `allowedMcpServers` | Claude Code 启动时的环境，加上来自托管设置的 `env` 值 | Claude Code 忽略该条目 |
 | `deniedMcpServers` | 相同，以及没有启动值且没有 `:-default` 的变量从存储库外的设置文件（如用户或托管设置）填充，这只会扩大条目匹配的内容 | 该条目仍然匹配 |
 
-需要 Claude Code v2.1.219 或更高版本。
+固定环境和此表中的规则需要 Claude Code v2.1.219 或更高版本。
+
+<h3 id="how-a-server-is-evaluated">
+  服务器如何被评估
+</h3>
+
+在加载服务器之前，包括来自 `managed-mcp.json` 的服务器，Claude Code 按顺序运行以下三个检查。当用户重新连接服务器或在 `/mcp` 中打开已禁用的服务器时，它会再次运行它们。进程内 `type: "sdk"` 服务器（[启动会话的应用程序注册](/docs/zh-CN/mcp#how-connectors-reach-claude-code)）跳过全部三个。
+
+1. **合并列表。** 来自每个设置作用域的允许列表和拒绝列表条目合并为一个允许列表和一个拒绝列表。当 `allowManagedMcpServersOnly` 为 `true` 时，仅保留托管允许列表；拒绝列表始终从每个作用域合并。当存在多个托管源时，[从每个管理员源读取的键](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)说明其中哪些提供托管作用域的列表。
+2. **检查拒绝列表。** 与任何拒绝列表条目匹配的服务器（按 URL、命令或名称）被阻止。没有任何东西可以覆盖拒绝列表匹配。
+3. **检查允许列表。** [某些服务器跳过此检查](#servers-that-skip-the-allowlist-check)。如果 `allowedMcpServers` 未在任何地方设置，每个通过拒绝列表的服务器都会加载。如果已设置，服务器必须匹配的内容取决于其类型，如下表所示。
+
+| 服务器类型 | 匹配时允许 |
+| :- | :- |
+| 远程（HTTP 或 SSE） | 一个 `serverUrl` 条目。仅当允许列表不包含 `serverUrl` 条目时，`serverName` 匹配才计数 |
+| Stdio | 一个 `serverCommand` 条目。仅当允许列表不包含 `serverCommand` 条目时，`serverName` 匹配才计数 |
+
+<h4 id="servers-that-skip-the-allowlist-check">
+  跳过允许列表检查的服务器
+</h4>
+
+除了跳过[全部三个检查](#how-a-server-is-evaluated)的进程内 `type: "sdk"` 服务器之外，还有三组服务器跳过允许列表检查：
+
+* 组织自己的服务器：每个 `managedMcpServers` 条目，以及任何其值不使用 `${VAR}` 展开的 `managed-mcp.json` 条目。
+* 内置服务器，例如 Chrome 中的 Claude、Claude Code 在运行的 VS Code 或 JetBrains IDE 中连接的 `ide` 服务器，以及 CLI 本身配置的服务器。
+* [Claude Tag](/docs/zh-CN/claude-tag) 会话的 Slack 工具：它用来读取线程和发布回复的服务器无需允许列表条目即可加载。
+
+在其命令、参数、`env`、URL 或标头中使用 `${VAR}` 展开的 `managed-mcp.json` 服务器仍会被检查。Claude Code 还会检查用户、插件或 claude.ai 添加的每个服务器，以及用户通过 `--mcp-config` 传递的每个服务器。
 
 <h3 id="example-configuration">
   示例配置

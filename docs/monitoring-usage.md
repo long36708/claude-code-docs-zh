@@ -358,13 +358,26 @@ Claude Code 从工具调用的成功返回时写入此事件，因此引发错�
 
 <span id="new-context-gates" />
 
+**详细测试版跟踪下的内容属性**
+
 <Note>
-  其他内容承载属性，例如 `new_context`、`system_prompt_preview`、`user_system_prompt`、`tool_input` 和 `response.model_output`，仅在启用详细测试版跟踪时发出。它们不是稳定跨度架构的一部分。
-
-  `new_context` 上的门取决于哪个跨度携带它，每个副本都在内容限制处截断（默认值 60 KB）。在 `claude_code.tool` 跨度上，它携带该工具调用的结果，无论工具如何，并需要 `OTEL_LOG_TOOL_CONTENT=1`。在 `claude_code.interaction` 跨度上，它携带用户提示，在 `claude_code.llm_request` 跨度上，它携带该请求的新用户消息和工具结果。两者都需要 `OTEL_LOG_USER_PROMPTS=1`。
-
-  `user_system_prompt` 另外需要 `OTEL_LOG_USER_PROMPTS=1`。它仅携带您通过 `systemPrompt` SDK 选项或 `--system-prompt` 和 `--append-system-prompt` 标志提供的系统提示文本，在内容限制处截断（默认值 60 KB），并且每个会话发出一次而不是每个请求。
+  其他内容承载属性，例如 `new_context`、`system_reminders`、`system_prompt_preview`、`user_system_prompt`、`tool_input` 和 `response.model_output`，仅在启用详细测试版跟踪时发出。它们不是稳定跨度 schema 的一部分。
 </Note>
+
+这些属性出现在下列跨度上，`门控` 列指出属性在详细测试版跟踪之外还需要的变量。长度超过内容限制（默认值 60 KB）的值会被截断。
+
+| 属性 | 跨度 | 描述 | 门控 |
+| - | - | - | - |
+| `new_context` | `claude_code.interaction` | 用户提示词 | `OTEL_LOG_USER_PROMPTS` |
+| `new_context` | `claude_code.llm_request` | 随请求发送的新用户消息和工具结果 | `OTEL_LOG_USER_PROMPTS` |
+| `system_reminders` | `claude_code.llm_request` | 请求的新消息中[系统提醒](/docs/zh-CN/glossary#system-reminder)的文本 | `OTEL_LOG_USER_PROMPTS` |
+| `system_prompt_preview` | `claude_code.llm_request` | 随请求发送的完整系统提示词的前 500 个字符 | `OTEL_LOG_USER_PROMPTS` |
+| `user_system_prompt` | `claude_code.llm_request` | 仅包含您通过 `systemPrompt` SDK 选项或 `--system-prompt` 和 `--append-system-prompt` 标志提供的系统提示词文本。每个会话发出一次，而不是每个请求发出一次 | `OTEL_LOG_USER_PROMPTS` |
+| `response.model_output` | `claude_code.llm_request` | 模型对该请求的响应文本 | `OTEL_LOG_USER_PROMPTS` |
+| `new_context` | `claude_code.tool` | 工具调用的结果，无论是哪个工具 | `OTEL_LOG_TOOL_CONTENT` |
+| `tool_input` | `claude_code.tool` | 工具调用的序列化输入 | `OTEL_LOG_TOOL_DETAILS` |
+
+在详细测试版跟踪下且设置了 `OTEL_LOG_USER_PROMPTS=1` 时，Claude Code 还会发出一个 `claude_code.system_prompt` 事件，该事件携带完整的系统提示词，并在内容限制处截断。会话每次首次发送某个不同的系统提示词时都会发出该事件，压缩之后也会再次发出。
 
 <h3 id="dynamic-headers">
   动态标头
@@ -797,6 +810,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.sequence`：用于排序事件的每进程计数器，在[事件关联属性](#event-correlation-attributes)下描述
 * `prompt_length`：提示的长度
 * `prompt`：提示内容。默认编辑。设置 `OTEL_LOG_USER_PROMPTS=1` 以包含它
+* `prompt_text`：与 `prompt` 的值相同，受相同的开关控制脱敏。将带点属性名存储为嵌套对象的后端会把 `prompt.id` 读作名为 `prompt` 的对象中的 `id`，从而可能丢失提示词字符串。在这类后端中，请改为读取 `prompt_text`。需要 Claude Code v2.1.287 或更高版本
 * `message.uuid`：生成的用户消息的 UUID，与保存的记录条目匹配。在命令调度上不存在，它可以产生零个或多个消息。需要 Claude Code v2.1.214 或更高版本
 * `command_name`：当提示调用一个时的命令名称。内置和捆绑命令名称如 `compact` 或 `debug` 按原样发出；别名如 `reset` 按键入的方式发出而不是规范名称。自定义、插件和 MCP 命令名称折叠为 `custom` 或 `mcp`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`
 * `command_source`：命令存在时的来源：`builtin`、`custom` 或 `mcp`。插件提供的命令报告为 `custom`
@@ -1694,14 +1708,31 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 * OpenTelemetry 导出到您的后端是可选的，需要显式配置。有关 Anthropic 的单独操作遥测以及如何禁用它，请参阅 [数据使用](/docs/zh-CN/data-usage#telemetry-services)
 * 原始文件内容和代码片段不包含在指标或事件中。Trace spans 是一个单独的数据路径：请参阅下面的 `OTEL_LOG_TOOL_CONTENT` 项目符号
 * 通过 OAuth 认证时，`user.email` 包含在遥测属性中，仅发送到您配置的 OTel 端点，永远不会发送到 Anthropic。如果这对您的组织是一个问题，请与您的遥测后端合作以过滤或编辑此字段
-* 默认情况下不收集用户提示内容。仅记录提示长度。要包含提示内容，请设置 `OTEL_LOG_USER_PROMPTS=1`。在详细的 beta 追踪下，此变量的作用范围更广：它还控制 [`new_context` span 属性](#new-context-gates)，该属性在 `claude_code.llm_request` span 上携带工具结果
-* 默认情况下不收集助手响应文本。仅记录响应长度。要包含响应文本，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=1`。与来自 Claude Code 的所有 OpenTelemetry 数据一样，响应文本仅发送到您配置的 OTel 端点，永远不会发送到 Anthropic。当此变量未设置时，`OTEL_LOG_USER_PROMPTS` 用作后备，因此如果您想要提示内容而不要响应内容，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=0`
+* 默认情况下不收集用户提示词内容。仅记录提示词长度。要包含提示词内容，请设置 `OTEL_LOG_USER_PROMPTS=1`。启用后：
+  * `user_prompt` 事件在两个属性中携带提示词文本：`prompt` 和 [`prompt_text`](#user-prompt-event)。如果您在收集器中按属性名称删除或屏蔽该事件的提示词文本，请在规则中同时指定这两个属性
+
+    此 OpenTelemetry Collector `attributes` 处理器会在列出它的管道中删除这两个属性：
+
+    ```yaml theme={null}
+    processors:
+      attributes/drop-prompt-text:
+        actions:
+          - key: prompt
+            action: delete
+          - key: prompt_text
+            action: delete
+    ```
+
+  * 启用[追踪](#traces-beta)后，`claude_code.interaction` span 在其 `user_prompt` 属性中携带提示词文本
+
+  * 在详细的 beta 追踪下，spans 还会携带每个请求发送的新用户消息、工具结果和系统提醒、系统提示词文本以及模型输出。[详细 beta 追踪下的内容属性](#new-context-gates)列出了每个属性。`claude_code.system_prompt` 事件携带完整的系统提示词
+* 默认情况下不收集助手响应文本。仅记录响应长度。要包含响应文本，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=1`。与来自 Claude Code 的所有 OpenTelemetry 数据一样，响应文本仅发送到您配置的 OTel 端点，永远不会发送到 Anthropic。当此变量未设置时，会回退到 `OTEL_LOG_USER_PROMPTS`，因此如果您希望事件中包含提示词内容而不包含响应内容，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=0`。在详细的 beta 追踪下，`claude_code.llm_request` span 仍会在 [`response.model_output`](#new-context-gates) 中携带模型输出，该属性遵循 `OTEL_LOG_USER_PROMPTS` 而非此变量
 * 默认情况下不记录工具输入参数和参数。要包含它们，请设置 `OTEL_LOG_TOOL_DETAILS=1`。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，`tool_decision` 和 `tool_result` 携带 `mcp_server_name`/`mcp_tool_name` 对，即主机编写的名称而非参数内容，即使关闭该标志也是如此。此异常需要 Claude Code v2.1.214 或更高版本。此数据仅发送到您配置的 OTEL 端点，永远不会发送到 Anthropic。参数仍可能包含敏感值，因此请根据需要配置您的遥测后端以过滤或编辑这些属性。启用后：
-  * `tool_result` 和 `tool_decision` 事件包含 `tool_parameters` 属性，其中包含 Bash 命令、MCP 服务器和工具名称以及技能名称。`full_command` 等字段以未截断的形式发出
+  * `tool_result` 和 `tool_decision` 事件包含 `tool_parameters` 属性，其中包含 Bash 命令、MCP 服务器和工具名称以及 skill 名称。`full_command` 等字段以未截断的形式发出
   * `tool_result` 事件另外包含 `tool_input` 属性，其中包含文件路径、URL、搜索模式和其他参数。超过 512 个字符的单个值被截断，总数限制为约 4 K 字符
   * `user_prompt` 事件包含自定义、插件和 MCP 命令的逐字 `command_name`
-  * [成本和令牌计数器](#cost-counter)以及 `api_request`、`api_error` 和 `api_refusal` 事件在其归属属性中携带真实的代理、技能、插件和 MCP 服务器以及工具名称
-  * Trace spans 包含相同的 `tool_input` 属性和输入派生属性（如 `file_path`），与 `tool_input` 的截断方式相同
+  * [成本和 token 计数器](#cost-counter)以及 `api_request`、`api_error` 和 `api_refusal` 事件在其归属属性中携带真实的 Agent、skill、插件和 MCP 服务器以及工具名称
+  * `claude_code.tool` span 携带输入派生属性（如 `file_path`）。在详细的 beta 追踪下，它还携带 [`tool_input`](#new-context-gates) 属性
 * 默认情况下，trace spans 中不记录工具内容。要包含它，请设置 `OTEL_LOG_TOOL_CONTENT=1`。`claude_code.tool` span 随后携带一个 [`tool.output` span 事件](#tool-output-span-event)，其中包含原始文件内容、Bash 命令输出以及 MCP 工具、WebFetch 和 WebSearch 返回的内容，在内容限制处截断（默认为 60 KB）每个属性。来自 MCP 工具、WebFetch 和 WebSearch 的结果需要 Claude Code v2.1.283 或更高版本。工具内容也通过 [`new_context` 到达 spans，其门控因 span 而异](#new-context-gates)。根据需要配置您的遥测后端以过滤或编辑这些属性
 * 默认情况下不记录原始 Anthropic Messages API 请求和响应主体。要包含它们，请在您的 shell、用户设置或托管设置中设置 `OTEL_LOG_RAW_API_BODIES`。在 [项目和本地设置](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env) 中被忽略。主体包含完整的对话历史，包括系统提示、每个先前的用户和助手轮次以及工具结果，因此启用此选项意味着同意其他 `OTEL_LOG_*` 内容标志会揭示的所有内容。Claude Code 始终从这些主体中编辑 Claude 的扩展思考内容，无论其他设置如何。您设置的值决定了 Claude Code 如何传递主体：
   * 使用 `=1` 时，Claude Code 为每个 API 调用发出 `api_request_body` 和 `api_response_body` 日志事件。事件的 `body` 属性携带 JSON 序列化的有效负载，在内容限制处截断（默认为 60 KB）

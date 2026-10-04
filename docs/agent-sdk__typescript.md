@@ -863,6 +863,14 @@ type SDKControlInitializeResponse = {
   fast_mode_state?: "off" | "cooldown" | "on";
   fast_mode_disabled_reason?: FastModeDisabledReason;
   hooks_applied?: boolean;
+  sdk_mcp_manifests_parked?: Record<
+    string,
+    | "parked"
+    | "already_connected"
+    | "protocol_version_mismatch"
+    | "malformed"
+    | "not_honoured"
+  >;
 };
 ```
 
@@ -874,6 +882,8 @@ type SDKControlInitializeResponse = {
 * `false`：Claude Code 忽略了 hooks。发送到远程会话的重复初始化返回此值，因此加入会话的第二个客户端无法替换第一个客户端注册的 hooks。
 
 在 Agent SDK v0.3.238 之前，响应从不携带该字段，Claude Code 在每个重复初始化上忽略 `hooks`。
+
+请求的 `sdkMcpServerManifests` 字段和响应的 `sdk_mcp_manifests_parked` 字段用于您通过 [`createSdkMcpServer()`](#createsdkmcpserver) 创建的进程内 [SDK MCP 服务器](/docs/zh-CN/agent-sdk/custom-tools)。您的应用不会设置或读取这两个字段。
 
 响应始终报告 `fast_mode_state`，当某些东西阻止[快速模式](/docs/zh-CN/fast-mode)时，`fast_mode_disabled_reason` 在其旁边携带原因代码，以便您可以解释阻止的状态而不是重新推导可用性。两种行为都需要 Claude Code v2.1.219 或更高版本。在 v2.1.219 之前，当快速模式不可用时响应省略 `fast_mode_state`，从不携带原因。有关原因代码及其含义，参见结果消息上的 [`fast_mode_disabled_reason`](#sdkresultmessage)。
 
@@ -1955,6 +1965,8 @@ type SDKSystemMessage = {
 | - | - |
 | `interrupt_receipt_v1` | [`interrupt()`](#query-object) 使用 [`SDKControlInterruptResponse`](#sdkcontrolinterruptresponse) 收据解析，列出中断到达时待处理的消息 |
 | `interrupt_cancel_queued_v1` | `interrupt` 控制请求尊重 `cancel_queued: true`，取消收据在 `still_queued` 下列出的消息，并改为在 `cancelled` 下列出它们。请参阅 [`SDKControlInterruptResponse`](#sdkcontrolinterruptresponse)。需要 Claude Code v2.1.219 或更高版本 |
+| `sdk_mcp_manifests` | `initialize` 控制请求接受 `sdkMcpServerManifests`，即从您的进程内 [SDK MCP 服务器](/docs/zh-CN/agent-sdk/custom-tools)捕获的 MCP 握手结果。Claude Code 在 v2.1.286 或更高版本中公布此能力 |
+| `sdk_mcp_tools_list_changed` | 来自 [SDK MCP 服务器](/docs/zh-CN/agent-sdk/custom-tools)的 `tools/list_changed` 通知会使 Claude Code 重新列出该服务器的工具，因此服务器在会话中途添加的工具能够到达 Claude。Claude Code 在 v2.1.286 或更高版本中公布此能力 |
 
 `plugin_errors` 数组列出插件加载失败。一个条目描述要么是未加载的插件且在 `plugins` 中不存在，要么是加载但没有其部分之一（例如其 hooks 文件）的插件。当没有任何东西失败时，该键被省略。`SDKSystemMessage` 在 Agent SDK v0.3.283 或更高版本中声明 `plugin_errors`。
 

@@ -386,6 +386,23 @@ export ANTHROPIC_MODEL='arn:aws:bedrock:us-east-2:your-account-id:application-in
 
 当这些检查发现您的账户无法调用的模型时，Claude Code 会在这台机器上记住该拒绝长达一天，在此期间启动时会跳过记住的模型，而不再询问 Amazon Bedrock。Claude Code 会在距离上次检查已过十分钟后再次检查当前默认模型的记住拒绝，因此您的管理员重新启用的默认模型会恢复。要关闭此内存功能，请设置 [`CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY=1`](/docs/zh-CN/env-vars)。
 
+<h3 id="when-your-organization-enforces-a-model-allowlist">
+  当您的组织强制执行模型允许列表时
+</h3>
+
+如果您在托管设置中设置了 [`enforceAvailableModels`](/docs/zh-CN/model-config#enforce-the-allowlist-for-the-default-model)，启动模型检查将仅使用您的 `availableModels` 列表允许的模型。这适用于 Amazon Bedrock Invoke API，并且需要 Claude Code v2.1.287 或更高版本。未设置 `enforceAvailableModels` 的列表不会限制这些检查。
+
+检查会将每个条目与其将要发送的推理配置文件 ID（包括其[区域前缀](#cross-region-inference-profile-prefixes)）进行比较，因此请使用这些 ID 编写列表。此示例为模型解析为 `us.` 配置文件的部署允许 Opus 4.8 和 Sonnet 4.5：
+
+```json theme={null}
+{
+  "availableModels": ["us.anthropic.claude-opus-4-8", "us.anthropic.claude-sonnet-4-5-20250929-v1:0"],
+  "enforceAvailableModels": true
+}
+```
+
+有关别名、版本前缀和 `modelOverrides` 条目，请参阅[为第三方部署固定模型](/docs/zh-CN/model-config#pin-models-for-third-party-deployments)。
+
 <h3 id="when-a-model-is-disabled-mid-session">
   当模型在会话中被禁用时
 </h3>

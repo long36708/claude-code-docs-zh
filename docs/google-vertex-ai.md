@@ -295,6 +295,23 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 
 当这些检查发现您的项目无法调用的模型时，Claude Code 会在这台机器上记住该拒绝长达一天，并在此期间启动时跳过记住的模型，而不再询问 Agent Platform。Claude Code 会在距离上次检查已过十分钟后，再次检查当前默认模型的记住拒绝，因此管理员重新启用的默认值会恢复。要关闭此内存，请设置 [`CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY=1`](/docs/zh-CN/env-vars)。
 
+<h3 id="when-your-organization-enforces-a-model-allowlist">
+  当您的组织强制执行模型允许列表时
+</h3>
+
+如果您在托管设置中设置了 [`enforceAvailableModels`](/docs/zh-CN/model-config#enforce-the-allowlist-for-the-default-model)，启动模型检查将仅使用您的 `availableModels` 列表允许的模型。这需要 Claude Code v2.1.287 或更高版本。没有 `enforceAvailableModels` 的列表不会限制这些检查。
+
+这些检查会将每个条目与它们将发送到 Agent Platform 的模型 ID 进行比较，因此请使用这些 ID 编写列表。此示例允许 Opus 4.8 和 Sonnet 4.5：
+
+```json theme={null}
+{
+  "availableModels": ["claude-opus-4-8", "claude-sonnet-4-5@20250929"],
+  "enforceAvailableModels": true
+}
+```
+
+有关别名、版本前缀和 `modelOverrides` 条目，请参阅[为第三方部署固定模型](/docs/zh-CN/model-config#pin-models-for-third-party-deployments)。
+
 <h3 id="when-a-model-is-disabled-mid-session">
   当模型在会话中途被禁用时
 </h3>

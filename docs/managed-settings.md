@@ -227,7 +227,7 @@ Claude Code 按此顺序检查源，优先级最高的优先：
 | 限制允许列表 | 从设置它的最高排名源整体取值，不添加来自较低源的条目 | `availableModels`、`allowedMcpServers`、`strictKnownMarketplaces`、`allowedChannelPlugins` 和 `fallbackModel` 链 |
 | 整体取值 | 从设置它的最高排名源整体取值，不组合来自较低源的条目或字段 | `sandbox.credentials.awsPairs`、`sandbox.ripgrep` |
 | 提供的 MCP 服务器 | 组合来自每个源的服务器名称；当两个源设置相同的名称时，应用较高排名源的整个条目 | `managedMcpServers` |
-| 仅从最高排名源读取的键 | 忽略每个较低源中的键，即使最高排名源未设置它 | 凭证助手如 `apiKeyHelper`、登录 pin 如 `forceLoginOrgUUID`、`modelPicker`、`permissions.defaultMode` |
+| 仅从最高排名源读取的键 | 忽略每个较低源中的键，即使最高排名源未设置它 | 凭据助手如 `apiKeyHelper`、登录 pin 如 `forceLoginOrgUUID`、`modelPicker`、`permissions.defaultMode` |
 | `env` | 在任一设置下跨管理员源按变量合并，如 [从每个管理员源读取的键](#keys-read-from-every-admin-source) 所述 | |
 | 所有其他键 | 从设置它的最高排名源取值 | `model`、`cleanupPeriodDays` |
 
@@ -266,7 +266,7 @@ Claude Code 然后仅保留主机的限制 Claude 可以做什么的值，有一
 Claude Code 也对父提供的值本身应用这些检查：
 
 * 当任何管理员源设置 `allowManagedPermissionRulesOnly` 时，Claude Code 会删除 [父提供的](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings) 权限允许规则和 `additionalDirectories`，即使较高优先级源未设置该键。该键对您自己的权限规则的影响来自 Claude Code 应用的托管设置，或来自您选择合并的父设置
-* Claude Code 强制执行它应用的托管设置中的 `forceLoginOrgUUID` 或 `allowedMcpServers` 值，并阻止父提供的值。Claude Code 不应用的较低管理员源中的值既不应用也不阻止父的值。在 MCP 允许列表锁之外，Claude Code 不应用的较低管理员源中的值既不应用也不阻止父的值。
+* Claude Code 强制执行它应用的托管设置中的 `forceLoginOrgUUID` 或 `allowedMcpServers` 值，并阻止父提供的值。在 MCP 允许列表锁之外，Claude Code 不应用的较低管理员源中的值既不应用也不阻止父的值。
 
   在 Claude Code v2.1.273 或更高版本上，当 `allowManagedMcpServersOnly` 打开时，来自设置一个的最高排名管理员源的 `allowedMcpServers` 列表应用并阻止父的，作为 [跨源键](#keys-read-from-every-admin-source)。父的列表仅在没有管理员源设置一个时应用。[`managedSourcesBehavior`](/docs/zh-CN/settings-reference#managedsourcesbehavior) 条目说明在 `"merge"` 下哪个源提供每个键。在 v2.1.223 之前，任何管理员源中的值都会阻止父的值
 * 对于 `availableModels`，Claude Code 强制执行它应用的托管设置中的值并阻止父提供的列表
@@ -302,6 +302,7 @@ Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) �
 开发人员自己的设置文件、`--settings` 值和项目文件永远不会覆盖托管值；[异常](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence) 仅让更严格的较低级别值计数。这些情况在该规则之外：
 
 * **会话的模型**：托管的 `model` 是默认值，不是锁。`--model` 和 `ANTHROPIC_MODEL` 仍然为该会话选择模型，因此部署 [`availableModels`](/docs/zh-CN/settings-reference#availablemodels) 来限制选择。
+* **会话的自动压缩窗口**：托管的 [`autoCompactWindow`](/docs/zh-CN/settings-reference#autocompactwindow) 也是默认值。`--autocompact` 标志和 `CLAUDE_CODE_AUTO_COMPACT_WINDOW` 变量仍然为该会话设置 [自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)。
 * **本地管理员权限**：作为机器上的管理员的开发人员可以编辑托管源本身，这就是为什么 MDM 工具可以按计划重新部署配置文件或文件，以及为什么 HKLM 注册表和 macOS 托管首选项域存在。
 * **服务器管理的缓存**：服务器管理的设置来自 Anthropic 的服务器，对本地缓存的编辑 [仅持续到下一次成功获取](/docs/zh-CN/server-managed-settings#security-considerations)。
 * **其他工具**：托管设置仅绑定 Claude Code。从另一个工具调用 API 的开发人员不在它们下。
@@ -347,9 +348,9 @@ Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) �
   查找 Claude Code 丢弃的条目
 </h3>
 
-当托管设置文件、MDM 配置文件、注册表值或服务器管理的有效负载未通过架构验证时，Claude Code 首先跳过它可以修复的单个条目（例如一个无效的权限规则），每个都带有警告，然后丢弃其值仍然失败的任何值，除非该值属于[失败关闭](#keys-that-fail-closed)的密钥之一。
+如果您的托管设置文件、MDM 配置文件、注册表值或服务器管理的负载未通过 schema 验证，Claude Code 首先跳过它可以修复的每个单独条目（例如一个无效的权限规则），并针对每个条目发出警告。然后，Claude Code 丢弃仍然验证失败的任何值，除非该值属于[失败关闭](#keys-that-fail-closed)的密钥之一。
 
-Claude Code 对 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 发出的 `managedSettings` 更严格：它进行相同的条目修复，但任何幸存的架构违规都会导致整个 helper 运行失败，在启动时 Claude Code 拒绝启动，与 helper 以非零状态退出相同。
+Claude Code 对 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 发出的 `managedSettings` 更严格：它进行相同的条目修复，但任何幸存的 schema 违规都会导致整个 helper 运行失败，在启动时 Claude Code 拒绝启动，与 helper 以非零状态退出相同。
 
 当托管设置文件、drop-in 文件、MDM plist 或 HKLM 注册表值存在但无法解析为 JSON 对象时，Claude Code 拒绝启动并打印[命名源的错误](/docs/zh-CN/errors#managed-settings-document-could-not-be-parsed)，即使另一个管理员源传递有效策略。每个源在以下情况下以这种方式失败：
 
@@ -383,7 +384,7 @@ Claude Code 对 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) �
 这些情况不会失败关闭：
 
 * `null` 删除该密钥。
-* 无效的 `disableAllHooks`，即使是带引号的布尔值，也会被丢弃并带有警告，因为强制执行 `true` 也会卸载您自己的托管设置部署的 hooks。
+* 无效的 `disableAllHooks`，即使是带引号的布尔值，也会被丢弃并带有警告，因为强制执行 `true` 也会卸载您自己的托管设置部署的 hook。
 * 对于规则涵盖的每个其他布尔密钥，字符串 `"true"` 或 `"false"` 读取为该布尔值，在 `/status` 中带有通知，要求您删除引号。
 
 Claude Code 按字段而不是整体修复 `permissions`、`autoMode`、`worktree` 和 `attribution` 块：
@@ -399,11 +400,11 @@ Claude Code 按字段而不是整体修复 `permissions`、`autoMode`、`worktre
 
 | 字段 | 存在但无效时的行为 |
 | :- | :- |
-| `allowedMcpServers` | 强制执行为空的允许列表，直到修复该值，因此用户添加的 MCP 服务器都不被允许。您的组织通过 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 传递的服务器仍然加载，`managed-mcp.json` 服务器根据[如何评估服务器](/docs/zh-CN/managed-mcp#how-a-server-is-evaluated)加载。单个无效条目被剥离，有效子集被强制执行。 |
+| `allowedMcpServers` | 强制执行为空的允许列表，直到修复该值，因此用户添加的 MCP 服务器都不被允许。您的组织通过 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 传递的服务器仍然加载，`managed-mcp.json` 服务器根据[跳过允许列表检查的服务器](/docs/zh-CN/managed-mcp#servers-that-skip-the-allowlist-check)加载。单个无效条目被剥离，有效子集被强制执行。 |
 | [`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) | 强制执行为空的允许列表，直到修复该值，因此每个 API 提供商都被拒绝，Claude Code 在机器上不启动。如果只有单个条目不是已知的提供商名称，Claude Code 会丢弃并报告该条目并强制执行其余的。 |
 | `allowedHttpHookUrls` | Claude Code 强制执行空的托管[允许列表](/docs/zh-CN/settings-reference#allowedhttphookurls)，直到您修复该值，因此 HTTP hook 仅在另一个设置文件列出其 URL 时运行。如果只有单个条目无效，Claude Code 会剥离该条目并强制执行其余的。 |
 | `httpHookAllowedEnvVars` | Claude Code 强制执行空的托管[允许列表](/docs/zh-CN/settings-reference#httphookallowedenvvars)，直到您修复该值，因此仅当另一个设置文件命名标头变量时才会插值。如果只有单个条目无效，Claude Code 会剥离该条目并强制执行其余的。 |
-| `allowedChannelPlugins` | Claude Code 强制执行空的允许列表，直到您修复该值，因此传递给 `--channels` 的任何通道插件都不被允许。如果只有单个条目无效，它会剥离该条目并强制执行其余的。 |
+| `allowedChannelPlugins` | Claude Code 强制执行空的允许列表，直到您修复该值，因此传递给 `--channels` 的任何频道插件都不被允许。如果只有单个条目无效，它会剥离该条目并强制执行其余的。 |
 | `strictKnownMarketplaces` | 强制执行为空的允许列表，直到修复该值，因此不允许任何[市场源](/docs/zh-CN/plugins/org#restrict-what-users-can-install)。无效或无法强制执行的单个条目（例如无法编译的 `hostPattern` 正则表达式）被剥离，有效子集被强制执行。 |
 | `availableModels` | 强制执行为空的允许列表，直到修复，因此只有默认模型可用；非字符串条目被剥离，有效子集被强制执行。 |
 | [`availableModelsMatch`](/docs/zh-CN/settings-reference#availablemodelsmatch) | 视为 `exact`，直到修复该值。 |
@@ -415,7 +416,7 @@ Claude Code 按字段而不是整体修复 `permissions`、`autoMode`、`worktre
 | `blockedMarketplaces` | 单个无效条目被剥离，有效子集被强制执行。解析但永远无法匹配的条目（例如无法编译的 `hostPattern` 正则表达式）被保留并带有警告。在修复之前它不会阻止任何内容，但[市场限制](/docs/zh-CN/plugins/org#restrict-what-users-can-install)保持活跃。完全无效的值被丢弃并带有警告，因为阻止每个市场会阻止策略从未命名的源。 |
 | `sandbox` | 当块内的一个值无效时，Claude Code 不会丢弃整个块。对于每种无效字段发生的情况，请参阅[`sandbox` 内的无效值](#invalid-values-inside-sandbox)。 |
 | `sandbox.credentials` | 可恢复的无效条目降级为 `mode: "deny"` 并带有警告；不可恢复的条目被剥离；有效条目保持强制执行。请参阅[托管设置中的无效凭据条目](/docs/zh-CN/settings-reference#invalid-credential-entries-in-managed-settings)。 |
-| `strictPluginOnlyCustomization` | 视为 `true`，锁定所有四个表面，当该值既不是布尔值也不是数组时。此版本不识别为表面的数组条目不锁定任何内容；状态注释计算此类条目，以便您可以检查它们是否有拼写错误。 |
+| `strictPluginOnlyCustomization` | 视为 `true`，锁定所有四个使用入口，当该值既不是布尔值也不是数组时。此版本不识别为使用入口的数组条目不锁定任何内容；状态注释计算此类条目，以便您可以检查它们是否有拼写错误。 |
 | `enabledPlugins` | 无效条目被丢弃并带有警告，其他条目保持强制执行。不是插件 ID 映射的值，或其每个条目都无效的值，被整体丢弃并带有警告。 |
 
 `allowedHttpHookUrls` 和 `httpHookAllowedEnvVars` 跨设置文件合并，因此您的用户、项目或本地设置中的条目在托管列表为空时仍然适用。

@@ -62,7 +62,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 连接 GitHub 是一次性步骤。如果您已经使用 GitHub CLI，可以[从终端执行此操作](#connect-from-your-terminal)，而不是使用浏览器。
 
 <Note>
-  在 Team 和 Enterprise 计划上，**Sign in with GitHub** 步骤仅在您的 Claude 组织的[所有者](/docs/zh-CN/server-managed-settings#access-control)在[**Admin settings > Connectors**](https://claude.ai/admin-settings/connectors)处打开 GitHub 连接器后才有效。在此之前，该步骤显示"GitHub access is required for Claude Code on the web"而不是登录按钮。连接器打开后，重新加载 [claude.ai/code](https://claude.ai/code)并从第一步重新开始。第二个切换开关[Quick web setup](/docs/zh-CN/claude-code-on-the-web#quick-web-setup-for-team-and-enterprise)位于[**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code)，是可选的：打开它后，`/web-setup` 可以工作，入门流程会为成员创建环境。
+  在 Team 和 Enterprise 计划上，**Sign in with GitHub** 步骤仅在您的 Claude 组织的[所有者](/docs/zh-CN/server-managed-settings#access-control)在[**Organization settings > Connectors**](https://claude.ai/admin-settings/connectors)处打开 GitHub 连接器后才有效。在此之前，该步骤显示"GitHub access is required for Claude Code cloud sessions"而不是登录按钮。连接器打开后，重新加载 [claude.ai/code](https://claude.ai/code)并从第一步重新开始。第二个切换开关[Quick setup](/docs/zh-CN/claude-code-on-the-web#quick-setup-for-team-and-enterprise)位于[**Organization settings > Claude Code**](https://claude.ai/admin-settings/claude-code)，是可选的：打开它后，`/web-setup` 可以工作，入门流程会为成员创建环境。
 </Note>
 
 <Steps>
@@ -84,7 +84,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
     [云环境](/docs/zh-CN/cloud-environments)是保存的配置，控制会话期间 Claude 拥有的网络访问权限以及会话启动时运行的内容。连接 GitHub 后发生的情况取决于您的计划：
 
     * **Pro 和 Max**：入门流程为您创建一个名为**Default**的环境。
-    * **Team 和 Enterprise**：入门流程显示**Create your first cloud environment**表单。保持预填充的名称和网络访问不变，然后单击**Create & finish**以创建**Default**环境。如果所有者已打开[Quick web setup](/docs/zh-CN/claude-code-on-the-web#quick-web-setup-for-team-and-enterprise)，入门流程会为您创建**Default**。
+    * **Team 和 Enterprise**：入门流程显示**Create your first cloud environment**表单。保持预填充的名称和网络访问不变，然后单击**Create & finish**以创建**Default**环境。如果所有者已打开[Quick setup](/docs/zh-CN/claude-code-on-the-web#quick-setup-for-team-and-enterprise)，入门流程会为您创建**Default**。
 
     **Default** 使用[`Trusted` 网络访问](/docs/zh-CN/cloud-environments#access-levels)：会话可以访问[常见包注册表](/docs/zh-CN/cloud-environments#default-allowed-domains)和其他允许列表中的域，以及通过会话网络的其他任何内容都无法访问。有关无需任何配置即可使用的内容，请参阅[已安装的工具](/docs/zh-CN/cloud-environments#installed-tools)。
 
@@ -96,7 +96,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
   从终端连接
 </h3>
 
-如果您已经使用 GitHub CLI (`gh`)，可以从终端为云端会话连接 GitHub。这需要[Claude Code CLI](/docs/zh-CN/quickstart)。在 Team 和 Enterprise 计划上，只有在所有者打开[Quick web setup](/docs/zh-CN/claude-code-on-the-web#quick-web-setup-for-team-and-enterprise)后，`/web-setup` 才可用。
+如果您已经使用 GitHub CLI (`gh`)，可以从终端为云端会话连接 GitHub。这需要[Claude Code CLI](/docs/zh-CN/quickstart)。在 Team 和 Enterprise 计划上，只有在所有者打开[Quick setup](/docs/zh-CN/claude-code-on-the-web#quick-setup-for-team-and-enterprise)后，`/web-setup` 才可用。
 
 运行 `/web-setup` 时，Claude Code 读取 `gh auth token` 打印的令牌，要求您确认，并将令牌发送给 Anthropic。Anthropic 使用您的 claude.ai 账户加密存储它，您的云会话使用它进行 GitHub 访问，直到您[删除它](#remove-the-web-setup-token)。您自己启动的云会话随后可以访问该令牌可以访问的任何存储库，无需安装 Claude GitHub App。[项目](/docs/zh-CN/claude-projects#set-up-github-access)中的线程仍然需要该应用。
 
@@ -259,7 +259,7 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
 
 如果您在 Claude Code 内输入它，命令菜单显示 `No commands match "/web-setup"`，或提交它返回 `Unknown command: /web-setup`，该命令被隐藏是因为未满足要求。原因通常是您使用 API 密钥或第三方提供商而不是 claude.ai 订阅进行身份验证。运行 `/login` 以使用您的 claude.ai 账户登录。
 
-在 Team 和 Enterprise 套餐上，该命令默认被隐藏：[快速 Web 设置开关](/docs/zh-CN/claude-code-on-the-web#quick-web-setup-for-team-and-enterprise)处于关闭状态，直到所有者将其打开。在其关闭期间，请改为[从浏览器连接 GitHub](#connect-github)。
+在 Team 和 Enterprise 套餐上，该命令默认被隐藏：[快速设置开关](/docs/zh-CN/claude-code-on-the-web#quick-setup-for-team-and-enterprise)处于关闭状态，直到所有者将其打开。在其关闭期间，请改为[从浏览器连接 GitHub](#connect-github)。
 
 该命令在另外两种情况下也被隐藏：
 

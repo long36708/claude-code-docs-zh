@@ -195,6 +195,25 @@ RUN git config --system --add safe.directory '*'
 
 运行器还在注册时向 Anthropic 报告选择加入，在启动时打印 `Registering as opted in to Anthropic-managed git (--use-anthropic-git-proxy)`。报告选择加入需要 Claude Code v2.1.267 或更高版本，较早的版本接受该标志而不报告它或打印该行。选择加入运行器上的每个会话然后使用 Anthropic 管理的 git 或按会话代理 URL。当会话使用按会话代理 URL 时，运行器记录一行 `[runner:warn]` 说明这一点。
 
+<h4 id="github-api-access-without-the-github-cli">
+  不使用 GitHub CLI 访问 GitHub API
+</h4>
+
+如果您的运行器镜像不包含 GitHub CLI，Claude Code 可以提供内置的 `gh`，因此 Claude 仍然可以创建 Pull Request、发表评论并读取 CI 结果。内置 `gh` 适用于使用 Anthropic 管理的 git 的运行器。它支持一个命令 `gh api`，用于调用 GitHub 的 REST API。需要运行器镜像中的 Claude Code v2.1.287 或更高版本。
+
+此命令代替 `gh pr create` 创建 Pull Request。内置 `gh` 会为当前仓库填入 `{owner}` 和 `{repo}`：
+
+```bash theme={null}
+gh api repos/{owner}/{repo}/pulls -f title='Fix' -f head='my-branch' -f base='main'
+```
+
+* **凭据**：内置 `gh` 通过 Anthropic 管理的 git 发送其 REST 请求，由 Anthropic 端提供 GitHub 凭据，因此镜像无需为其准备 GitHub 令牌
+* **哪些会话可以获得它**：Anthropic 按会话决定是否由 Anthropic 管理的 git 为会话的 `gh` 提供服务。如果是，运行器为该会话记录的 `[runner:session] governed git ACTIVE` 行会显示 `gh_path_shim=true`。如果不是，该会话没有 `gh`
+* **`jq`**：如果您希望 `--jq` 可用，请在镜像中安装 `jq`
+* **[`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars)**：如果会话环境设置了它，Claude Code 不会提供内置 `gh`，会话也就没有 `gh`
+
+当镜像包含 GitHub CLI 时，会话使用它。
+
 <h4 id="trust-a-private-certificate-authority-with-anthropic-managed-git">
   使用 Anthropic 管理的 git 信任专用证书颁发机构
 </h4>

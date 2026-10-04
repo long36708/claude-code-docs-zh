@@ -292,6 +292,7 @@ claude -p --resume <session-id> --output-format json "summarize what we changed"
 | [自己命名 `<project>` 目录](#name-the-project-directory-yourself) | [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/env-vars) | 环境变量 |
 | 更改 30 天保留期 | [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) | `settings.json` |
 | 为 [Claude Desktop 和 Cowork 文本记录](/docs/zh-CN/claude-directory#cleaned-up-automatically) 设置年龄限制 | [`desktopSessionCleanupPeriodDays`](/docs/zh-CN/settings-reference#desktopsessioncleanupperioddays) | 用户设置、托管设置或 `--settings` |
+| 限制 `-p` 或 Agent SDK 会话的会话记录文件可增长的大小 | [`CLAUDE_CODE_TRANSCRIPT_LOCAL_GC`](/docs/zh-CN/env-vars) | 环境变量 |
 | 在所有模式下禁止文本记录写入 | [`CLAUDE_CODE_SKIP_PROMPT_HISTORY`](/docs/zh-CN/env-vars) | 环境变量 |
 | 禁止一次非交互式运行的写入 | [`--no-session-persistence`](/docs/zh-CN/cli-reference) | 与 `claude -p` 一起使用的 CLI 标志 |
 

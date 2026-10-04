@@ -919,6 +919,20 @@ Claude Code 在每个查询开始时发出一条 `system` 类型、子类型为 
   ```
 </CodeGroup>
 
+<h3 id="a-tool-is-missing-from-an-sdk-mcp-server">
+  SDK MCP 服务器中缺少某个工具
+</h3>
+
+在 TypeScript SDK 中，当某个工具的输入 schema 无法转换为 JSON Schema 时，您使用 [`createSdkMcpServer()`](/docs/zh-CN/agent-sdk/typescript#createsdkmcpserver) 创建的服务器在列出其工具时会省略该工具。此时 SDK 会发出一条警告。在 Node.js 下，该警告是一个代码为 `CLAUDE_SDK_MCP_TOOL_SCHEMA_UNCONVERTIBLE` 的进程警告，并以以下文本开头：
+
+```text theme={null}
+Tool "<name>" on SDK MCP server "<server>" was left out of the server's tool list, because its input schema cannot be converted to JSON Schema
+```
+
+警告的其余部分会给出转换错误的消息（如果有），然后说明需要检查和更改的内容。
+
+在 TypeScript Agent SDK v0.3.286 之前，只要有一个无法转换的 schema，就会导致该服务器的整个工具列表失败且不显示此警告，因此该服务器的所有工具都无法提供给 Claude。
+
 <h3 id="connection-timeouts">
   连接超时
 </h3>

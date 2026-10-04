@@ -227,9 +227,9 @@ export CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
-| `postgres_url` | 是 | `postgres://` 或 `postgresql://` URL。必需：设备授权集合点，浏览器回调写入和轮询 CLI 读取，需要跨副本状态。网关在启动和升级时运行自己的架构迁移，因此角色需要在目标架构上创建和更改表的权限。请参阅[升级](/docs/zh-CN/claude-apps-gateway-deploy#upgrades)和 [Postgres](/docs/zh-CN/claude-apps-gateway-deploy#postgres)。 |
+| `postgres_url` | 是 | `postgres://` 或 `postgresql://` URL。必需：设备授权集合点，浏览器回调写入和轮询 CLI 读取，需要跨副本状态。网关在启动和升级时运行自己的 schema 迁移，因此角色需要在目标 schema 上创建和更改表的权限。请参阅[升级](/docs/zh-CN/claude-apps-gateway-deploy#upgrades)和 [Postgres](/docs/zh-CN/claude-apps-gateway-deploy#postgres)。 |
 | `username` | 否 | 覆盖 `postgres_url` 中的用户 |
-| `password` | 否 | 数据库凭证。在此设置而不是在 `postgres_url` 中，以便凭证保持在 URL 之外。接受任何字符并优先于 URL 凭证。 |
+| `password` | 否 | 数据库凭据。在此设置而不是在 `postgres_url` 中，以便凭据保持在 URL 之外。接受任何字符并优先于 URL 凭据。 |
 | `max_connections` | 否 | 每个副本的 Postgres 连接池大小。默认 `5`，保守且对共享数据库友好。启用[支出限制](#admin)后，热路径每个推理请求执行几个操作，因此在负载下为专用数据库提高它，并保持副本 × 此值低于数据库的 `max_connections`。 |
 | `connect_timeout_seconds` | 否 | 网关打开 Postgres 连接时等待的秒数。从 `1` 到 `60` 的整数，默认 `5`。如果新网关实例启动时连接尝试超时，请提高它。需要网关服务器上的 Claude Code v2.1.274 或更高版本。早期版本在设置键时拒绝启动。 |
 | `readiness_grace_seconds` | 否 | Postgres 停止应答后 `/readyz` 继续报告就绪的秒数。从 `0` 到 `3600` 的整数，默认 `0`。请参阅[中断行为](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)了解如何选择值。需要网关服务器上的 Claude Code v2.1.282 或更高版本。早期版本在设置键时拒绝启动。 |
@@ -242,7 +242,7 @@ export CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1
 
 `upstreams` 是一个有序列表。网关将推理转发到解析请求的模型的第一个上游。
 
-在 `5xx`、`429`、`401`、`403`、`404` 或超时时，网关故障转移到下一个上游；其他 `4xx` 不会，因为这些错误可归因于请求而不是上游。`401` 或 `403` 意味着网关对该上游使用的凭证失败。`404` 意味着该上游不提供请求的模型，因此列表中的后续上游仍然可以。
+在 `5xx`、`429`、`401`、`403`、`404` 或超时时，网关故障转移到下一个上游；其他 `4xx` 不会，因为这些错误可归因于请求而不是上游。`401` 或 `403` 意味着上游拒绝了网关使用的凭据，或拒绝其访问，例如对所请求模型的访问。`404` 意味着该上游不提供请求的模型，因此列表中的后续上游仍然可以。
 
 如果您在上游上设置 `forward_user_identity: true`，它返回给携带开发人员电子邮件的请求的 `429` 不会故障转移。请参阅[每用户限制拒绝如何到达开发人员](#per-user-identity-headers-for-a-proxy-you-run)。
 
@@ -250,7 +250,7 @@ export CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1
 
 相同提供商的多个上游必须设置不同的 `name:`。
 
-Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 和 Microsoft Foundry 客户端在启动时构建一次，其 SDK 在内部刷新凭证，因此轮换云凭证不需要重启。静态 Anthropic API 密钥和持有者在启动时读取；请参阅 [Anthropic API](#anthropic-api)。
+Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 和 Microsoft Foundry 客户端在启动时构建一次，其 SDK 在内部刷新凭据，因此轮换云凭据不需要重启。静态 Anthropic API 密钥和持有者在启动时读取；请参阅 [Anthropic API](#anthropic-api)。
 
 <h4 id="upstream-error-messages">
   上游错误消息
@@ -289,7 +289,7 @@ upstreams:
     # base_url: https://api.anthropic.com   # 默认；为前向代理覆盖
 ```
 
-两种凭证形式在它们发送的标头中有所不同：
+两种凭据形式在它们发送的标头中有所不同：
 
 * **`api_key`**：发送 `x-api-key`。在 Claude Console 中轮换它并更新环境变量。
 * **`oauth_token`**：发送 `Authorization: Bearer`。当您的组织发出短期令牌而不是长期 API 密钥时使用持有者形式。持有者在启动时读取一次，因此通过重新挂载秘密和重启来刷新。
@@ -350,8 +350,8 @@ upstreams:
 upstreams:
   - provider: bedrock
     region: us-east-1
-    auth: {}                           # 首选：AWS 默认凭证链
-    # 或显式凭证：
+    auth: {}                           # 首选：AWS 默认凭据链
+    # 或显式凭据：
     # auth:
     #   aws_access_key_id: ${AWS_AKID}
     #   aws_secret_access_key: ${AWS_SK}
@@ -363,17 +363,17 @@ upstreams:
     # base_url: https://bedrock-runtime-fips.us-east-1.amazonaws.com
 ```
 
-空 `auth` 块使用 AWS SDK 的默认凭证链：环境变量、`~/.aws/credentials`、ECS 任务角色、EC2 实例元数据或 EKS 上的 IRSA。在生产中，给网关 pod 一个 IAM 角色而不是在容器镜像中嵌入静态密钥。
+空 `auth` 块使用 AWS SDK 的默认凭据链：环境变量、`~/.aws/credentials`、ECS 任务角色、EC2 实例元数据或 EKS 上的 IRSA。在生产中，给网关 pod 一个 IAM 角色而不是在容器镜像中嵌入静态密钥。
 
-显式凭证必须完整：当 `aws_access_key_id` 和 `aws_secret_access_key` 未一起设置时，或当 `aws_session_token` 在没有它们的情况下设置时，网关在启动时失败。在 v2.1.207 之前，部分 `auth:` 块通过验证。
+显式凭据必须完整：当 `aws_access_key_id` 和 `aws_secret_access_key` 未一起设置时，或当 `aws_session_token` 在没有它们的情况下设置时，网关在启动时失败。在 v2.1.207 之前，部分 `auth:` 块通过验证。
 
 | 设置 | 如何 |
 | - | - |
-| IAM 权限 | 授予网关的主体 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream` 在推理配置文件 ARN 和底层基础模型 ARN 上。对于美国地区的内置目录：`arn:aws:bedrock:<region>:<account>:inference-profile/us.anthropic.*` 和 `arn:aws:bedrock:*::foundation-model/anthropic.*`。也在基础模型 ARN 上授予 `bedrock:CountTokens`。网关使用它（免费）来计算客户端放弃的请求的输入令牌，因此[支出限制](#admin)保持准确。没有它，网关回退到该计数的一令牌 Bedrock 请求。 |
+| IAM 权限 | 授予网关的主体 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream` 在推理配置文件 ARN 和底层基础模型 ARN 上。对于美国地区的内置目录：`arn:aws:bedrock:<region>:<account>:inference-profile/us.anthropic.*` 和 `arn:aws:bedrock:*::foundation-model/anthropic.*`。也在基础模型 ARN 上授予 `bedrock:CountTokens`。网关使用它（免费）来计算客户端放弃的请求的输入 token，因此[支出限制](#admin)保持准确。没有它，网关回退到针对该计数的单 token Bedrock 请求。 |
 | 模型访问 | Amazon Bedrock 在商业地区默认启用模型访问。剩余的帐户级门是 Anthropic 的一次性用例表：如果您的 AWS 帐户中没有人提交过，请打开 Amazon Bedrock 控制台，从模型目录中选择 Anthropic 模型，并完成表单。有关 AWS Organizations 表和提交者需要的权限，请参阅[提交用例详情](/docs/zh-CN/amazon-bedrock#1-submit-use-case-details)。 |
 | EKS (IRSA) | 创建具有上述策略和您的集群 OIDC 提供商的信任策略的 IAM 角色，范围限于网关的服务帐户。使用 `eks.amazonaws.com/role-arn: arn:aws:iam::<acct>:role/claude-gateway` 注释服务帐户。`auth: {}` 拾取它。 |
 | ECS / EC2 | 将 IAM 角色附加到任务定义或实例配置文件。`auth: {}` 拾取它。 |
-| 其他任何地方 | 通过 `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY` 和 `AWS_SESSION_TOKEN` 环境变量传递凭证，或在 `auth:` 中使用 `${VAR}` 扩展显式设置它们 |
+| 其他任何地方 | 通过 `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY` 和 `AWS_SESSION_TOKEN` 环境变量传递凭据，或在 `auth:` 中使用 `${VAR}` 扩展显式设置它们 |
 | 区域 | `region:` 是 API 端点区域。跨区域推理配置文件跨地理位置（美国、欧盟、亚太）路由，无论您选择哪一个。对于非美国地区或预配吞吐量 ARN，添加带有正确的按上游 ID 的 [`models:`](#models) 块。 |
 
 <h5 id="apply-an-amazon-bedrock-guardrail">
@@ -394,14 +394,14 @@ upstreams:
 ```
 
 <Warning>
-  网关不支持防护栏输入标签。它不向提示添加防护内容标签，因此 Amazon Bedrock 仅应用于标记输入的防护栏过滤器不在通过网关的流量上运行。对于哪些过滤器依赖输入标签，请参阅 Amazon Bedrock 文档中的[输入标签](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-tagging.html)。
+  网关不支持防护栏输入标签。它不向提示词添加防护内容标签，因此 Amazon Bedrock 仅应用于标记输入的防护栏过滤器不在通过网关的流量上运行。对于哪些过滤器依赖输入标签，请参阅 Amazon Bedrock 文档中的[输入标签](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-tagging.html)。
 </Warning>
 
 也在防护栏上授予 `bedrock:ApplyGuardrail` 给签署此上游请求的主体：网关的 AWS 主体，或使用 [`assume_role`](#bedrock-in-another-aws-account) 的 `role_arn` 中命名的角色。
 
 在每个 `bedrock` 上游或不在任何上游上设置 `guardrail`。网关拒绝在混合上启动，因为[故障转移](#multiple-upstreams)可能会将请求发送到没有防护栏的 Bedrock 上游。
 
-防护栏仅覆盖 Bedrock 上游。如果您在 `upstreams` 中列出另一个提供商，网关将请求发送到该提供商而不带防护栏。
+防护栏仅覆盖 Bedrock 上游。如果您在 `upstreams` 中列出另一个提供商，网关将请求发送到该提供商而不带防护栏；如果该提供商是 [`mantle`](#amazon-bedrock-mantle-endpoint)，则网关拒绝启动。
 
 当 `/v1/messages` 请求的正文携带 `amazon-bedrock-*` 字段（如 `amazon-bedrock-guardrailConfig`）到达设置了 `guardrail` 的 Bedrock 上游时，网关应答 400 而不是转发它。
 
@@ -411,7 +411,7 @@ upstreams:
   另一个 AWS 帐户中的 Bedrock
 </h5>
 
-在 Bedrock 上游上设置 `assume_role`，网关仅使用其自己的 AWS 身份来调用您命名的角色上的 `sts:AssumeRole`，该角色可以在与网关不同的 AWS 帐户中。该上游的每个 Bedrock 请求都使用 STS 返回的一小时凭证签署，因此没有长期访问密钥跨帐户。
+在 Bedrock 上游上设置 `assume_role`，网关仅使用其自己的 AWS 身份来调用您命名的角色上的 `sts:AssumeRole`，该角色可以在与网关不同的 AWS 帐户中。该上游的每个 Bedrock 请求都使用 STS 返回的一小时凭据签署，因此没有长期访问密钥跨帐户。
 
 需要网关运行 Claude Code v2.1.281 或更高版本。早期网关在找到键时拒绝启动。
 
@@ -448,10 +448,10 @@ upstreams:
 }
 ```
 
-* 如果 STS 拒绝或无法到达，网关不使用上游自己的凭证发送请求。它记录 STS 错误和要检查的内容，然后尝试您列出的下一个上游。[上游错误消息](#upstream-error-messages)覆盖当没有上游成功时客户端接收的内容。没有 `assume_role` 的后续上游将使用其自己的凭证提供请求，因此仅在这是您想要的情况下列出一个。
+* 如果 STS 拒绝或无法到达，网关不使用上游自己的凭据发送请求。它记录 STS 错误和要检查的内容，然后尝试您列出的下一个上游。[上游错误消息](#upstream-error-messages)覆盖当没有上游成功时客户端接收的内容。没有 `assume_role` 的后续上游将使用其自己的凭据提供请求，因此仅在这是您想要的情况下列出一个。
 * 网关调用区域 STS 端点 `sts.<region>.amazonaws.com`，其网络必须到达。对于 FIPS 端点，在网关的环境中设置 `AWS_USE_FIPS_ENDPOINT=true` 而不是在 AWS 配置文件中的 `use_fips_endpoint`。
-* `assume_role` 仅适用于 `provider: bedrock` 并需要 SigV4 源凭证：当它在 `aws_bearer_token` 旁边设置时，网关拒绝启动。
-* 网关允许的每个开发人员都可以使用此上游；[`managed`](#managed) 控制哪些开发人员可能使用哪些模型。要保持通过角色提供的模型也不从另一个帐户提供，给它一个自定义 id，其 `upstream_model` 映射仅具有此上游的名称。对于这样的 id，网关跳过每个其他上游，因此请求和放弃请求的令牌计数都无法故障转移到另一个帐户。内置模型名称仍在每个上游按顺序尝试，包括这个，到达它的请求使用相同的角色签署，因此除非其帐户也应该提供它们，否则最后列出此上游。
+* `assume_role` 仅适用于 `provider: bedrock` 并需要 SigV4 源凭据：当它在 `aws_bearer_token` 旁边设置时，网关拒绝启动。
+* 网关允许的每个开发人员都可以使用此上游；[`managed`](#managed) 控制哪些开发人员可能使用哪些模型。要保持通过角色提供的模型也不从另一个帐户提供，给它一个自定义 id，其 `upstream_model` 映射仅具有此上游的名称。对于这样的 id，网关跳过每个其他上游，因此请求和放弃请求的 token 计数都无法故障转移到另一个帐户。对内置模型名称的请求仍可能[到达此上游](#multiple-upstreams)，网关会使用同一角色对其签名。除非其帐户也应该提供这些模型，否则请将此上游列在最后。
 
 此示例给一个模型一个自定义 id，仅隔离上游提供：
 
@@ -468,7 +468,7 @@ models:
   每开发人员 AWS 成本属性
 </h5>
 
-默认情况下，网关使用一个凭证签署每个 Bedrock 请求，因此 AWS 在单个 IAM 主体下看到所有开发人员的请求。将 `session_name: email` 添加到 [`assume_role`](#bedrock-in-another-aws-account)，网关每个开发人员每小时调用一次 `sts:AssumeRole`，会话名称设置为该开发人员的电子邮件，并使用返回的凭证签署其请求，因此每个开发人员的请求在 AWS 下以其自己的假设角色会话到达。角色可以在网关自己的帐户中。
+默认情况下，网关使用一个凭据签署每个 Bedrock 请求，因此 AWS 在单个 IAM 主体下看到所有开发人员的请求。将 `session_name: email` 添加到 [`assume_role`](#bedrock-in-another-aws-account)，网关每个开发人员每小时调用一次 `sts:AssumeRole`，会话名称设置为该开发人员的电子邮件，并使用返回的凭据签署其请求，因此每个开发人员的请求在 AWS 下以其自己的假设角色会话到达。角色可以在网关自己的帐户中。
 
 需要网关运行 Claude Code v2.1.281 或更高版本。[AWS 上的成本属性](/docs/zh-CN/claude-apps-gateway-on-aws#cost-attribution)覆盖 IAM 角色和 AWS 计费显示会话的位置。
 
@@ -486,9 +486,48 @@ upstreams:
 
 活跃开发人员每小时每个网关副本成本一个 STS 调用，并发首次请求共享一个调用。
 
-网关也在此角色上进行一个调用：客户端放弃的请求的令牌计数，因此[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)保持准确。该计数及其[一令牌回退请求](#amazon-bedrock)由共享 `claude-apps-gateway` 会话签署，因此 AWS 将回退属性到 `claude-apps-gateway` 而不是开发人员。
+网关也在此角色上进行一个调用：客户端放弃的请求的 token 计数，因此[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)保持准确。该计数及其[单 token 回退请求](#amazon-bedrock)由共享 `claude-apps-gateway` 会话签署，因此 AWS 将回退属性到 `claude-apps-gateway` 而不是开发人员。
 
-对于严格的每开发人员属性，在您列出的每个 Bedrock 上游上设置 `assume_role` 与 `session_name`。没有它的上游使用其自己的凭证签署它提供的请求。
+对于严格的每开发人员属性，在您列出的每个 Bedrock 上游上设置 `assume_role` 与 `session_name`。没有它的上游使用其自己的凭据签署它提供的请求。
+
+<h4 id="amazon-bedrock-mantle-endpoint">
+  Amazon Bedrock Mantle 端点
+</h4>
+
+`mantle` 提供商将推理发送到 Amazon Bedrock 的 [Mantle 端点](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)。它需要网关服务器上的 Claude Code v2.1.283 或更高版本。早期网关版本在启动时拒绝它，因此请在添加之前升级每个副本。
+
+下面的示例将 Mantle 放在首位，其后是一个 Amazon Bedrock 上游，用于提供 `models` 字段未列出的每个模型：
+
+```yaml theme={null}
+upstreams:
+  - provider: mantle
+    region: us-east-1
+    models: [claude-opus-4-7, claude-haiku-4-5]   # 必需
+    auth: {}                           # AWS 默认凭据链
+  - provider: bedrock
+    region: us-east-1
+    auth: {}
+```
+
+下表列出 `mantle` 上游特有的字段。
+
+| 字段 | 必需 | 描述 |
+| - | - | - |
+| `region` | 是 | AWS 区域。网关从它派生端点为 `https://bedrock-mantle.<region>.api.aws/anthropic`。 |
+| `models` | 是 | 您的 AWS 帐户在 Mantle 上获授权的模型，按客户端发送的名称命名，如 `claude-haiku-4-5`。只有这些模型会发送到此上游，其他每个模型都跳到下一个上游。 |
+| `auth` | 否 | 接受与 [Amazon Bedrock](#amazon-bedrock) 上游的 `auth` 块相同的键，遵循相同的规则。 |
+| `base_url` | 否 | 覆盖派生的端点。在末尾保留 `/anthropic` 路径。 |
+
+为上游的 AWS 身份授予 Mantle 自己用于推理和 token 计数的 IAM 操作，[使用 Mantle 端点](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)中列出了这些操作。
+
+对于网关不知道的 Mantle 模型 ID，在顶层 [`models:`](#models) 块中添加一个条目，其 `upstream_model` 将此上游的名称映射到该 ID。然后也将该条目的 `id` 放入此上游的 `models` 字段。
+
+`bedrock` 上游的 `guardrail` 和 `assume_role` 设置不会扩展到 Mantle 提供的请求：
+
+* **`guardrail`**：网关不对发送到 Mantle 的请求应用 [Bedrock 防护栏](#apply-an-amazon-bedrock-guardrail)，因此当列出 `mantle` 上游而任何 `bedrock` 上游设置了 `guardrail` 时，网关拒绝启动。
+* **`assume_role`**：`mantle` 上游不接受 [`assume_role`](#bedrock-in-another-aws-account)。Mantle 提供的请求使用 `mantle` 上游自己的 `auth` 凭据发送，且不会[按开发人员归属](#per-developer-aws-cost-attribution)。
+
+有关 Mantle 自身错误响应的含义，请参阅 [Mantle 端点错误](/docs/zh-CN/amazon-bedrock#mantle-endpoint-errors)。
 
 <h4 id="claude-platform-on-aws">
   AWS 上的 Claude Platform
@@ -505,9 +544,9 @@ upstreams:
     workspace_id: wrkspc_...
     auth:
       api_key: ${ANTHROPIC_AWS_API_KEY}   # 作为 x-api-key 发送
-    # 或通过 AWS 默认凭证链的 SigV4：
+    # 或通过 AWS 默认凭据链的 SigV4：
     # auth: {}
-    # 或显式 SigV4 凭证：
+    # 或显式 SigV4 凭据：
     # auth:
     #   aws_access_key_id: ${AWS_ACCESS_KEY_ID}
     #   aws_secret_access_key: ${AWS_SECRET_ACCESS_KEY}
@@ -515,14 +554,14 @@ upstreams:
     # base_url: https://aws-external-anthropic.us-east-1.api.aws
 ```
 
-平台在与 Amazon Bedrock 不同的 AWS 帐户中运行，并为其自己的服务名称 `aws-external-anthropic` 签署 SigV4 请求，因此 Bedrock 范围的 IAM 角色不授权它。`auth.api_key` 中的 API 密钥在同时设置 SigV4 凭证时优先。空 `auth` 块使用 AWS SDK 的默认凭证链，与 [Amazon Bedrock](#amazon-bedrock) 上游使用的链相同。
+平台在与 Amazon Bedrock 不同的 AWS 帐户中运行，并为其自己的服务名称 `aws-external-anthropic` 签署 SigV4 请求，因此 Bedrock 范围的 IAM 角色不授权它。`auth.api_key` 中的 API 密钥在同时设置 SigV4 凭据时优先。空 `auth` 块使用 AWS SDK 的默认凭据链，与 [Amazon Bedrock](#amazon-bedrock) 上游使用的链相同。
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
 | `region` | 是 | AWS 区域，小写字母、数字和连字符。网关从它派生端点为 `https://aws-external-anthropic.<region>.api.aws`。 |
 | `workspace_id` | 是 | 在每个请求上作为标头发送；平台需要它 |
 | `auth.api_key` | 否 | 平台的 API 密钥，作为 `x-api-key` 发送。不是持有者令牌：两种身份验证模式是 API 密钥或 SigV4。 |
-| `auth.aws_access_key_id` / `auth.aws_secret_access_key` | 否 | 显式 SigV4 凭证。在没有另一个的情况下设置一个在启动时失败。`auth.aws_session_token` 在它们旁边被接受。 |
+| `auth.aws_access_key_id` / `auth.aws_secret_access_key` | 否 | 显式 SigV4 凭据。在没有另一个的情况下设置一个在启动时失败。`auth.aws_session_token` 在它们旁边被接受。 |
 | `base_url` | 否 | 覆盖派生的端点 |
 
 因为平台解析第一方模型 ID，内置目录路由到它而不带 [`models:`](#models) 块。当您策划 `models:` 列表时，使用第一方 ID 键入条目 `anthropicAws:`。
@@ -538,14 +577,14 @@ upstreams:
   - provider: vertex
     region: us-east5
     project_id: example-prod
-    auth: {}                           # 首选：应用默认凭证
+    auth: {}                           # 首选：应用默认凭据
     # 或服务帐户密钥文件：
     # auth: { service_account_json: /secrets/sa.json }
     # 为私有服务连接覆盖 aiplatform 端点：
     # base_url: https://us-east5-aiplatform.p.googleapis.com
 ```
 
-空 `auth` 块使用应用默认凭证：`GOOGLE_APPLICATION_CREDENTIALS`、GCE 元数据或 GKE Workload Identity。服务帐户 JSON 密钥文件被支持但不鼓励；使用 Workload Identity 或将服务帐户附加到 GCE 或 Cloud Run 实例。
+空 `auth` 块使用应用默认凭据：`GOOGLE_APPLICATION_CREDENTIALS`、GCE 元数据或 GKE Workload Identity。服务帐户 JSON 密钥文件被支持但不鼓励；使用 Workload Identity 或将服务帐户附加到 GCE 或 Cloud Run 实例。
 
 设置 `region: global` 以使用 [Google Cloud Agent Platform 的全局端点](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations)而不是区域端点。Google 然后将每个请求路由到可用区域，因此您不跟踪按区域模型可用性。设置特定区域将每个请求固定到它。
 
@@ -573,7 +612,7 @@ upstreams:
     #   api_key: ${FOUNDRY_API_KEY}
 ```
 
-`use_azure_ad: true` 通过 `DefaultAzureCredential` 解析：AKS、ACI 或 App Service 上的托管身份；Azure CLI；或环境凭证。API 密钥有效但是项目范围的，不自动轮换。Microsoft Foundry 的端点从 `resource:` 派生；为主权云（如 Azure Government）设置可选 `base_url` 以覆盖它。
+`use_azure_ad: true` 通过 `DefaultAzureCredential` 解析：AKS、ACI 或 App Service 上的托管身份；Azure CLI；或环境凭据。API 密钥有效但是项目范围的，不自动轮换。Microsoft Foundry 的端点从 `resource:` 派生；为主权云（如 Azure Government）设置可选 `base_url` 以覆盖它。
 
 | 设置 | 如何 |
 | - | - |
@@ -617,7 +656,7 @@ upstreams:
 
 | 网关发送到此上游的请求 | 携带 `headers:` |
 | - | - |
-| `/v1/messages`，流式或不流式，和 `/v1/messages/count_tokens` | 是 |
+| `/v1/messages`，流式或非流式，和 `/v1/messages/count_tokens` | 是 |
 | 从另一个上游故障转移的请求 | 是，仅此上游的 `headers:` |
 | Amazon Bedrock 的 `CountTokens` 调用用于客户端放弃的请求 | 否 |
 | Workload Identity Federation 令牌交换 | 否 |
@@ -634,7 +673,7 @@ upstreams:
   多个上游
 </h4>
 
-相同提供商可以出现多次，具有不同的 `name:`。这涵盖不同的区域、通过不同凭证链的不同帐户、预配吞吐量与按需，以及跨提供商故障转移。
+相同提供商可以出现多次，具有不同的 `name:`。这涵盖不同的区域、通过不同凭据链的不同帐户、预配吞吐量与按需，以及跨提供商故障转移。
 
 网关按顺序尝试上游。`5xx`、`429`、`401`、`403`、`404`、超时和缺失端点 (`501`) 故障转移；其他 `4xx` 不会。
 
@@ -689,10 +728,10 @@ models:
 | 杠杆 | 如何 |
 | - | - |
 | 不同区域 | 每个区域一个 Amazon Bedrock 上游，每个都有自己的 `region:`。使用 [`auto_include_builtin_models: true`](#models) 跨区域推理配置文件自动路由；对于区域固定部署，使用 `models:` 块。 |
-| 不同帐户 | 每个帐户一个 Amazon Bedrock 上游。默认链 (`auth: {}`) 使用 pod 的身份；对于第二个帐户，添加 [`assume_role`](#bedrock-in-another-aws-account) 以使用短期凭证到达它，或在 `auth:` 中设置显式凭证或持有者令牌。 |
+| 不同帐户 | 每个帐户一个 Amazon Bedrock 上游。默认链 (`auth: {}`) 使用 pod 的身份；对于第二个帐户，添加 [`assume_role`](#bedrock-in-another-aws-account) 以使用短期凭据到达它，或在 `auth:` 中设置显式凭据或持有者令牌。 |
 | 预配吞吐量 | 将模型映射到该上游名称的 `models:` 中的预配吞吐量 ARN。其他上游保持按需 ID，因此 PT 容量在故障转移前耗尽。 |
 | VPC / FIPS 端点 | 在上游上设置 `base_url:` 到您的 VPC 端点或 FIPS 端点 URL |
-| 模型范围路由 | 仅自定义模型 `id`，不是内置 Claude 模型，跳过其 `upstream_model:` 映射中不存在的上游。网关按顺序在每个上游上尝试内置模型，并在映射没有条目时使用提供商的默认 ID，因此对于内置模型，映射改变上游接收的 ID 而不是它是否被尝试；拒绝 ID 的上游遵循与任何其他上游错误相同的[故障转移规则](#upstreams)；不在其 `upstream_model:` 映射中的上游被跳过，因此请求和放弃请求的令牌计数都无法故障转移到另一个帐户。内置模型名称仍在每个上游按顺序尝试，包括这个，到达它的请求使用相同的角色签署，因此除非其帐户也应该提供它们，否则最后列出此上游。 |
+| 模型范围路由 | 仅自定义模型 `id`（即不是内置 Claude 模型的 id）会跳过其 `upstream_model:` 映射中不存在的上游。`mantle` 上游仅针对其 [`models` 字段](#amazon-bedrock-mantle-endpoint)中列出的模型被尝试。在其他每个上游上，网关按顺序尝试内置模型，并在映射没有条目时使用提供商的默认 ID，因此对于内置模型，映射改变上游接收的 ID 而不是它是否被尝试；拒绝 ID 的上游遵循与任何其他上游错误相同的[故障转移规则](#upstreams)。 |
 
 在云提供商之间或直接 Anthropic API 之间故障转移改变哪个协议、地理位置和其他条款控制请求。
 
@@ -848,6 +887,9 @@ managed:
     - match: {}
       cli:
         availableModels: [claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5]
+        # 使 /model 中的 Default 选项在每个策略的
+        # 列表内解析。eng-contractors 策略继承 enforceAvailableModels。
+        enforceAvailableModels: true
 ```
 
 `match: {}` 全部捕获，按惯例列在最后，被视为基础层。每个其他策略从全部捕获继承它不设置的任何键，因此每个角色条目只需列出与组织默认值不同的内容。合并规则取决于键类型：
@@ -856,7 +898,7 @@ managed:
 * **拒绝列表和 hook 数组**：`permissions.deny`、`permissions.ask`、`disabledMcpjsonServers`、`deniedMcpServers`、`blockedMarketplaces` 和每个 `hooks` 事件类型数组。这些取基础和策略的并集，因此组织范围的拒绝或审计 hook 不能被每个角色覆盖意外删除。
 * **记录类型键**：`env`、`modelOverrides` 和 `skillOverrides`。这些浅合并，因此每个角色 `env` 块覆盖它设置的键并从基础继承其余的。
 
-`availableModels` 也在 `/v1/messages` 服务器端强制执行，因此被拒绝的模型返回 `400`，无论客户端发送什么。
+`availableModels` 也在 `/v1/messages` 服务器端强制执行，因此被拒绝的模型返回 `400`，无论客户端发送什么。空列表会拒绝所有模型。该检查还涵盖开发者选择模型之前会话开始时使用的模型，因此请[让会话从策略允许的模型开始](#start-sessions-on-a-model-the-policy-allows)。
 
 网关在中继请求之前验证 `model` 值本身，因此格式错误的值永远不会到达上游。它在两种情况下以 `400` 拒绝请求：
 
@@ -882,6 +924,29 @@ managed:
   * **策略内容**：编辑策略并重新部署在连接的客户端的下一个托管设置轮询中到达，在一小时内，除了[仅在下一次启动时应用的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)
   * **组成员身份**：更改用户的组成员身份更改哪个策略匹配他们。这在下一个会话重新铸造时生效，意味着下一个静默刷新，受 `session.ttl_hours` 限制。
 </Note>
+
+<h4 id="start-sessions-on-a-model-the-policy-allows">
+  让会话从策略允许的模型开始
+</h4>
+
+如果 `availableModels` 未包含 Claude Code 的默认模型，会话会收到 `400` 响应，直到开发者选择一个已列出的模型，例如通过 `/model`。在网关会话中，默认模型是 `opus` 别名解析到的 Opus 模型，仅设置 `availableModels` 不会改变它。
+
+要解决此问题，请在同一 `cli` 块中设置 [`enforceAvailableModels: true`](/docs/zh-CN/model-config#enforce-the-allowlist-for-the-default-model)，然后检查列表中包含哪种条目：
+
+* **别名（如 `sonnet`）或内置 ID（如 `claude-sonnet-4-6`）**：会话从其中一个模型开始，`/model` 中的 Default 选项解析为该模型
+* **列表中没有别名或内置 ID**：会话可能仍从内置默认模型开始，因此还要在该策略的 `cli` 块中将 [`model`](/docs/zh-CN/model-config#control-the-model-users-run-on) 设置为已列出的 ID 之一
+
+此策略列出一个由 [`models`](#models) 定义的自定义 ID，并让会话从该 ID 开始：
+
+```yaml theme={null}
+managed:
+  policies:
+    - match: { groups: [restricted-projects] }
+      cli:
+        availableModels: [claude-opus-restricted]
+        enforceAvailableModels: true
+        model: claude-opus-restricted
+```
 
 <h4 id="matcher-values-that-stop-the-gateway-at-boot">
   在启动时停止网关的匹配器值
@@ -920,6 +985,7 @@ managed:
       cli:
         # 模型访问（也在 /v1/messages 服务器端强制执行）
         availableModels: [claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5]
+        enforceAvailableModels: true              # Default 在列表内解析
 
         # 权限策略
         permissions:
@@ -1041,6 +1107,7 @@ managed:
     - match: { groups: [eng-contractors] }
       cli:
         availableModels: [claude-sonnet-4-6]
+        enforceAvailableModels: true
       desktop:
         isLocalDevMcpEnabled: false
         disableAutoUpdates: true
@@ -1342,7 +1409,7 @@ load_test_mode:
   完整示例
 </h2>
 
-此完整参考配置演示了每个核心部分；[HTTP 调整块](#http-tuning)保持其默认值。复制它，删除你不需要的，并填入你的值。[快速入门](/docs/zh-CN/claude-apps-gateway#quickstart)中的配置是此的最小版本。
+此完整参考配置演示了每个核心部分；[HTTP 调整块](#http-tuning)保持其默认值。复制它，删除您不需要的，并填入您的值。[快速入门](/docs/zh-CN/claude-apps-gateway#quickstart)中的配置是此的最小版本。
 
 ```yaml gateway.yaml theme={null}
 # 运行方式：
@@ -1434,6 +1501,11 @@ upstreams:
   #   region: us-east-1
   #   auth: {}
 
+  # - provider: mantle
+  #   region: us-east-1
+  #   models: [claude-opus-4-8, claude-opus-4-7, claude-haiku-4-5]
+  #   auth: {}
+
   # - provider: anthropicAws
   #   region: us-east-1
   #   workspace_id: wrkspc_...
@@ -1456,6 +1528,7 @@ models:
     upstream_model:
       anthropic: claude-opus-4-8
       # bedrock: us.anthropic.claude-opus-4-8
+      # mantle: anthropic.claude-opus-4-8
       # anthropicAws: claude-opus-4-8
       # vertex: claude-opus-4-8
       # foundry: <your-opus-deployment-name>
@@ -1473,15 +1546,16 @@ managed:
     - match: { groups: [contractors] }
       cli:
         availableModels: [claude-haiku-4-5]
-        # 将默认选择器选项限制为 availableModels 而不是
-        # 层默认，因此承包商不会在默认上获得 400。
-        enforceAvailableModels: true
         # allow 自动批准这些工具；它不阻止其余的。
         # 添加拒绝规则以限制工具。
         permissions: { allow: [Read, Grep] }
     - match: {}
       cli:
         availableModels: [claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5]
+        # 将默认选择器选项限制为每个策略的 availableModels，
+        # 而不是内置默认值，因此任何角色都不会在默认上获得 400。
+        # 承包商策略继承此键。
+        enforceAvailableModels: true
         permissions:
           allow: [Read, Grep, Bash, Edit]
           deny: ["WebFetch"]

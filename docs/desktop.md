@@ -244,7 +244,7 @@ Code 选项卡围绕你可以以任何布局排列的窗格构建：聊天、dif
   切换视图模式
 </h3>
 
-视图模式控制聊天记录中显示多少详细信息。从发送按钮旁的 **Transcript view** 下拉菜单切换模式，或在 macOS 或 Windows 上按 **Ctrl+O** 来循环浏览它们。Thinking 模式仅在 Claude 在你正在查看的会话中产生思考后才出现在下拉菜单中。
+视图模式控制聊天会话记录中显示的详细程度。要切换视图模式，请从会话标题旁的插入符号打开会话菜单并选择 **Transcript view**，或在 macOS 或 Windows 上按 **Ctrl+O** 循环切换。只有在 Claude 于您正在查看的会话中产生思考后，Thinking 模式才会出现在菜单中。
 
 | 模式 | 显示内容 |
 | - | - |
@@ -1005,7 +1005,7 @@ Desktop 继续相同的会话而不是副本，所以之后在终端中 `claude 
 | `--dangerously-skip-permissions` | 绕过权限模式。在 Pro 和 Max 计划上，在设置 → Claude Code → "允许绕过权限模式"中启用它；在 Team 和 Enterprise 计划上，组织策略控制它 |
 | `--add-dir` | 在云会话中使用 **+** 按钮添加多个存储库 |
 | `--allowedTools`, `--disallowedTools` | 无每个会话的等效项。[设置文件](/docs/zh-CN/settings)中的权限规则仍然适用。 |
-| `--verbose` | [Verbose 视图模式](#switch-view-modes)在 Transcript 视图下拉菜单中 |
+| `--verbose` | [Verbose 视图模式](#switch-view-modes) |
 | `--print`, `--output-format` | 不可用。Desktop 仅是交互式的。 |
 | `ANTHROPIC_MODEL` 环境变量 | 发送按钮旁的模型下拉菜单 |
 | `MAX_THINKING_TOKENS` 环境变量 | 在本地环境编辑器中设置。请参阅[环境配置](#environment-configuration)。 |

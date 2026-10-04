@@ -429,11 +429,18 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 
 当请求头总大小超过 256 KiB，或者在您设置了 [`limits.max_request_header_bytes`](/docs/zh-CN/claude-apps-gateway-config#http-tuning) 时超过该值，网关会返回 `431`。对于这些请求，网关不会写入任何日志行或审计事件。v2.1.284 之前的网关版本在超过 16 KiB 时返回 `431`。
 
-需要更改的内容取决于网关的版本和配置：
+从以下各项中第一个适用于您网关的情况开始处理：
 
 * **网关版本早于 v2.1.284**：升级网关
 * **设置了 `limits.max_request_header_bytes`**：提高该值或删除该键
 * **以上均不适用，或之后仍出现 `431`**：让您的 IdP 发出更少的组。[身份提供者设置](#identity-provider-setup)介绍了 Okta、Microsoft Entra ID 和 Google Workspace 如何提供组
+
+精简组声明时，请保留您在以下设置中指定的组，这些设置决定开发者的访问权限、策略和支出上限：
+
+* **[`oidc.allowed_groups`](/docs/zh-CN/claude-apps-gateway-config#oidc)**：决定谁可以登录
+* **[`admin.admin_groups`](/docs/zh-CN/claude-apps-gateway-config#admin)**：决定谁可以使用其网关会话调用管理 API
+* **[`managed.policies`](/docs/zh-CN/claude-apps-gateway-config#managed) 中的 `match.groups`**：决定哪个策略适用于开发者
+* **`rbac_group` [支出上限](/docs/zh-CN/claude-apps-gateway-spend-limits)**：决定哪些组上限适用于开发者
 
 <h2 id="related">
   相关

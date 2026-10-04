@@ -89,7 +89,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 | `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/permissions#permission-modes) | 在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中为 `default`。在不获取功能标志的会话中，例如在第三方提供商上或关闭遥测的情况下，Claude Code v2.1.285 或更高版本中为 `auto`，较早版本中为 `default`。组织策略禁止 `auto` 默认值的会话改为以 `default` 启动 |
 | 在终端或通过 [VS Code 扩展](/docs/zh-CN/vs-code) | Claude Code v2.1.283 或更高版本中为 `auto`；在较早的版本上，在 Pro、Max 或 Team 计划中为 `auto`（在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中），否则为 `default` |
 
-在您[安装或升级后的第一个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)中，Claude Code 可以在其功能标志到达之前选择起始权限模式。该会话可能以与表格不同的权限模式启动，您的下一个会话与表格匹配。
+在您[安装或升级后的第一个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)中，Claude Code 可以在其功能标志到达之前选择起始权限模式。该会话可能以与表格不同的权限模式启动。
 
 当标志、设置文件或内置默认值选择 `auto` 但自动模式对会话不可用时，Claude Code 以 Manual 启动会话。自动模式在会话不满足[可用性要求](#eliminate-prompts-with-auto-mode)时不可用，例如设置文件关闭它或不支持它的模型，或当 Anthropic 已在服务器端临时关闭它时。
 

@@ -487,6 +487,19 @@ PowerShell 工具让 Claude 能够原生运行 PowerShell 命令。在 Windows �
 
 Claude Code 使用 `-ExecutionPolicy Bypass` 仅在进程范围内生成 PowerShell，因此 `.ps1` 脚本和模块导入可以在默认 Windows 安装上工作，无需更改机器的策略。进程范围的绕过不会覆盖组策略 `MachinePolicy` 或 `UserPolicy`，因此企业策略仍然适用。要改为遵守机器的有效执行策略，请设置 `CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY=1`。
 
+<h3 id="bash-deny-rules-also-turn-off-the-powershell-tool">
+  Bash 拒绝规则也会关闭 PowerShell 工具
+</h3>
+
+在安装了 Git Bash 的 Windows 上，拒绝 Bash 也会在该会话中关闭 PowerShell 工具。这既适用于限定范围的规则（例如 `Bash(git push *)`），也适用于单独的 `Bash`，并且适用于来自您某个设置文件或 `--disallowedTools` 的规则。Claude Code 这样做是因为 `Bash` 规则不会限制 PowerShell 工具，后者有[自己的权限规则](/docs/zh-CN/permissions#powershell)。如果 PowerShell 保持开启，Claude 可能会在其中运行您的规则在 Bash 中所拒绝的内容。
+
+要在存在 Bash 拒绝规则的同时保持 PowerShell 工具开启，请执行以下任一操作：
+
+* 在您的环境或设置文件的 `env` 块中设置 `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`，如[启用 PowerShell 工具](#enable-the-powershell-tool)中所示。
+* 向设置文件添加限定范围的 [`PowerShell` 权限规则](/docs/zh-CN/permissions#powershell)，例如 `PowerShell(git push *)` 拒绝规则。
+
+如果没有其中任何一项，限定范围的 Bash 拒绝规则会保留 Bash 工具可用，而 Claude Code 会在不发出警告的情况下关闭 PowerShell。移除整个 Bash 工具的规则会使 Claude 在该会话中没有任何 shell 工具。
+
 <h3 id="shell-selection-in-settings-hooks-and-skills">
   设置、hooks 和 skills 中的 shell 选择
 </h3>

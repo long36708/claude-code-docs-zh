@@ -990,6 +990,8 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 
 当您的组织部署任何托管设置时，Claude Code 仅从托管源读取此键，并在您的其他文件中忽略它。
 
+关于此键如何应用于启动时的模型检查，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock#when-your-organization-enforces-a-model-allowlist) 和 [Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai#when-your-organization-enforces-a-model-allowlist)。
+
 * **Scope**: [`Any file`](#scopes)
 * **Type**: Boolean
   * `true`: 当**默认**会解析为 `availableModels` 外的模型时，Claude Code 将其解析为列表中第一个可用的模型
