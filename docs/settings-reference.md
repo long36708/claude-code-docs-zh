@@ -3135,7 +3135,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 * [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/sessions#name-the-project-directory-yourself)，Claude Code 仅从启动环境读取，从每个文件中被忽略；需要 v2.1.234 或更高版本。
 * [`CLAUDE_CODE_RESTRICTED`](/docs/zh-CN/env-vars#variables)，Claude Code 仅从启动环境读取，从每个文件中被忽略。
 * [`CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY`](/docs/zh-CN/env-vars#variables)，Claude Code 仅从启动环境读取，从每个文件中被忽略。该变量需要 Claude Code v2.1.283 或更高版本。
-* [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT` 和 `CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`](/docs/zh-CN/env-vars#variables)，Claude Code 仅从启动环境读取，从每个文件中被忽略。
+* [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`、`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT` 和 `CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT`](/docs/zh-CN/env-vars#variables)，Claude Code 仅从启动环境读取，从每个文件中被忽略。
 
 <h3 id="filecheckpointingenabled">
   `fileCheckpointingEnabled`

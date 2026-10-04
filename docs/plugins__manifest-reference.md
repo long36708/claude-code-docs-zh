@@ -199,7 +199,7 @@ Claude Code 在其下命名空间每个组件，因此 plugin `deploy-tools` 中
   `version`
 </h3>
 
-版本字符串，不针对 semver 检查。设置它会将 plugin 固定到该版本，直到您更改它；参见[版本和更新](/docs/zh-CN/plugins/loading#versions-and-updates)。具有[`command` 源](/docs/zh-CN/plugins/marketplace-reference)的 plugin、来自[托管在 claude.ai 上的 marketplace](/docs/zh-CN/plugins/install#add-from-claude-ai) 的 plugin 以及从作为本地目录添加的 marketplace [就地加载](/docs/zh-CN/plugins/loading#find-plugins-on-disk)的 plugin 不由此字段固定。
+版本字符串，不针对 semver 检查。设置它会将插件固定到该版本，直到您更改它；参见[版本和更新](/docs/zh-CN/plugins/loading#versions-and-updates)。具有[`command` 源](/docs/zh-CN/plugins/marketplace-reference)的插件、来自[托管在 claude.ai 上的市场](/docs/zh-CN/plugins/install#add-from-claude-ai)的插件以及从通过本地路径添加的市场[就地加载](/docs/zh-CN/plugins/loading#find-plugins-on-disk)的插件不由此字段固定。
 
 <h3 id="metadata">
   `metadata`

@@ -135,7 +135,7 @@ Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介�
 
 **将 Claude 放在日程上。** 设置 [scheduled tasks](/docs/zh-CN/desktop-scheduled-tasks) 以定期自动运行 Claude：每天早上进行代码审查、每周进行依赖项审计，或从您连接的工具中提取信息的简报。
 
-**准备好时扩展。** 从侧边栏打开 [parallel sessions](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 以同时处理多个任务，可选择每个任务都在其自己的 Git worktree 中，并打开 [tasks pane](/docs/zh-CN/desktop#watch-background-tasks) 以观看会话正在运行的子代理和后台命令。打开 [side chat](/docs/zh-CN/desktop#ask-a-side-question-without-derailing-the-session) 以提出问题而不偏离主线程。将 [long-running work 发送到云](/docs/zh-CN/desktop#run-long-running-tasks-in-the-cloud) 以便即使关闭应用也能继续，或 [在 web 或 IDE 中继续会话](/docs/zh-CN/desktop#continue-in-another-surface)（如果任务花费的时间比预期长）。[连接外部工具](/docs/zh-CN/desktop#extend-claude-code)（如 GitHub、Slack 和 Linear）以整合您的工作流。
+**准备好时扩展。** 从侧边栏打开 [parallel sessions](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 以同时处理多个任务，可选择每个任务都在其自己的 Git worktree 中，并打开 [tasks pane](/docs/zh-CN/desktop#watch-background-tasks) 以观看会话正在运行的子代理和后台命令。打开 [side chat](/docs/zh-CN/desktop#ask-a-side-question-without-derailing-the-session) 以提出问题而不偏离主线程。将 [long-running work 发送到云](/docs/zh-CN/desktop#run-long-running-tasks-in-the-cloud) 以便即使关闭应用也能继续，或 [将您已开始的会话移至云端](/docs/zh-CN/desktop#continue-in-another-surface)（如果任务花费的时间比预期长）。[连接外部工具](/docs/zh-CN/desktop#extend-claude-code)（如 GitHub、Slack 和 Linear）以整合您的工作流。
 
 <h2 id="what’s-next">
   接下来

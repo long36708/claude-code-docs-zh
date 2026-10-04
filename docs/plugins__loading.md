@@ -208,7 +208,7 @@ Claude Code 在一个插件根目录下保存插件文件和状态记录，该�
 Claude Code 根据插件的来源，从您保存它们的位置就地加载某些插件，并将其余的复制到缓存中：
 
 * **`--plugin-dir` 和技能目录插件**：目录就地加载，永远不会被复制。`--plugin-url` 存档或 `--plugin-dir` `.zip` 首先被提取到会话临时目录中
-* **您从本地目录添加的市场中的相对路径插件**：插件从市场文件夹内的其路径就地加载。您对源目录的编辑在下次会话启动或 `/reload-plugins` 时生效，您不需要增加版本。插件的 hook 进程以及 MCP 和 LSP 服务器接收指向源目录的 `CLAUDE_PLUGIN_ROOT`。有关其 Node.js 包依赖项，请参阅[依赖项安装何时运行](#when-the-dependency-install-runs)
+* **您从本地路径添加的市场中的相对路径插件**：插件从市场文件夹内的其路径就地加载。您对源目录的编辑在下次会话启动或 `/reload-plugins` 时生效，您不需要增加版本。插件的 hook 进程以及 MCP 和 LSP 服务器接收指向源目录的 `CLAUDE_PLUGIN_ROOT`。有关其 Node.js 包依赖项，请参阅[依赖项安装何时运行](#when-the-dependency-install-runs)
 * **[链接模式](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)中的 `command` 源插件**：命令打印的目录通过缓存条目中的链接就地加载
 * **每个其他市场插件**：Claude Code 在安装时将插件复制到 `cache/<marketplace>/<plugin>/<version>/` 中，并从该副本加载。插件目录外的文件不会被复制，因此当复制的插件内的脚本读取插件根目录上方的路径（如 `../shared`）时，它找不到它们
 
@@ -250,7 +250,7 @@ Claude Code 每次创建复制的版本目录时，都会将依赖项安装到�
 * 当 Claude Code 将插件更新到新版本时
 * 在会话启动时，当已启用的插件未缓存时，例如在新机器上
 
-对于从本地目录市场[就地加载](#in-place-and-copied-plugins)的相对路径插件，Claude Code 不会将依赖项安装到源目录中。自己在那里安装它们，或从 hook 安装到[`${CLAUDE_PLUGIN_DATA}`](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。
+对于从您通过本地路径添加的市场中[就地加载](#in-place-and-copied-plugins)的相对路径插件，Claude Code 不会将依赖项安装到源目录中。自己在那里安装它们，或从 hook 安装到[`${CLAUDE_PLUGIN_DATA}`](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。
 
 安装仅在插件的根目录同时包含 `package.json` 和支持的锁定文件时运行。
 
@@ -315,7 +315,7 @@ Claude Code 为它安装的每个插件计算一个版本，这就是它如何�
 
 固定 `"version"` 的清单是计算的版本在提交中保持相同的一种方式。有关解析顺序，请参阅[Claude Code 如何计算版本](#how-claude-code-computes-the-version)。
 
-从本地目录市场[就地加载](#in-place-and-copied-plugins)的插件在每次会话启动时加载其当前源文件，无论其版本字符串说什么。对于来自[托管在 claude.ai 上的市场](/docs/zh-CN/plugins/install#add-from-claude-ai)的插件，claude.ai 为插件记录的版本是其版本，清单的 `version` 不被读取。
+从您通过本地路径添加的市场中[就地加载](#in-place-and-copied-plugins)的插件在每次会话启动时加载其当前源文件，无论其版本字符串说什么。对于来自[托管在 claude.ai 上的市场](/docs/zh-CN/plugins/install#add-from-claude-ai)的插件，claude.ai 为插件记录的版本是其版本，清单的 `version` 不被读取。
 
 <h3 id="how-claude-code-computes-the-version">
   Claude Code 如何计算版本

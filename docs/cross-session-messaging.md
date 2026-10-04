@@ -192,6 +192,7 @@ Claude 自己找到消息的目标，所以你不需要在要求它发送之前�
 以下任一方式都会向您显示完整文本：
 
 * 按 `Ctrl+O` 打开[会话记录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)，并在发送者的会话名称下阅读完整文本。
+* 在[全屏渲染](/docs/zh-CN/fullscreen#use-the-mouse)中，点击未完整显示消息的预览行，即可将其就地展开。
 * 在使用 [`--verbose`](/docs/zh-CN/cli-reference#cli-flags) 启动的会话中，Claude Code 会显示完整文本而不是预览。
 
 预览仅缩短您看到的内容。无论您是否展开它，Claude 都会读取完整消息。

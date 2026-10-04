@@ -12,6 +12,8 @@
 
 云会话是在云基础设施上运行的 Claude Code 会话，而不是在你的机器上运行。默认情况下，它在 Anthropic 管理的基础设施上运行，或在路由到你的组织的[自托管环境](/docs/zh-CN/self-hosted-environments)时在那里运行。即使关闭笔记本电脑后，会话也会继续运行，你可以从任何设备检查或控制它。
 
+要让云端会话从 GitHub 克隆代码并推送分支，请使用其中一种 [GitHub 连接方式](#github-authentication-options)连接 GitHub。如果您的仓库位于 GitLab、Bitbucket 或其他托管平台上，请参阅[平台限制](#limitations)了解哪些功能可用。
+
 你可以从以下任何界面启动云会话：
 
 * **浏览器**：[claude.ai/code](https://claude.ai/code)，也称为网络上的 Claude Code
@@ -20,31 +22,26 @@
 * **终端**：[`claude --cloud`](#from-terminal-to-cloud)
 * **例程**：[计划和触发的运行](/docs/zh-CN/routines)每次都作为云会话运行
 
-要让 Claude 为一项工作启动并跟踪许多云会话，请使用[项目](/docs/zh-CN/claude-projects)。在你的终端、IDE 或选择了 **Local** 的桌面应用中的会话在你自己的机器上运行。要从手机或浏览器控制这些本地会话之一，请使用[远程控制](/docs/zh-CN/remote-control)。
+完成设置后，可使用本页在终端和云端之间移动工作、管理和共享会话、为 Pull Request 启用自动修复，以及进行故障排除。
 
-<Tip>
-  初次使用云会话？从[入门](/docs/zh-CN/web-quickstart)开始，连接你的 GitHub 账户并提交你的第一个任务。
-</Tip>
+<Note>
+  以下情况在其他页面中介绍：
 
-本页涵盖：
-
-* [云环境](#cloud-environments)：会话运行的位置，以及在哪里配置
-* [GitHub 身份验证选项](#github-authentication-options)：两种连接 GitHub 的方式
-* [在终端和云之间移动任务](#move-tasks-between-terminal-and-cloud)，使用 `--cloud` 和 `--teleport`
-* [处理会话](#work-with-sessions)：权限模式、审查、共享、归档、删除
-* [自动修复拉取请求](#auto-fix-pull-requests)：自动响应 CI 失败和审查评论
-* [安全和隔离](#security-and-isolation)：会话如何隔离
-* [限制](#limitations)：速率限制和平台限制
+  * **启动您的第一个云端会话**：[云端会话入门](/docs/zh-CN/web-quickstart)介绍如何连接 GitHub，并引导您在浏览器中完成一个任务
+  * **为一项工作使用多个云端会话**：[项目](/docs/zh-CN/claude-projects)可让 Claude 为您启动并跟踪这些会话
+  * **从其他设备控制本地会话**：在终端、IDE 或选择了 **Local** 的桌面应用中的会话在您的机器上运行，[Remote Control](/docs/zh-CN/remote-control) 让您可以从手机或浏览器访问这些会话
+</Note>
 
 <h2 id="cloud-environments">
   云环境
 </h2>
 
-每个云会话都在一个[云环境](/docs/zh-CN/cloud-environments)中运行，这是一个保存的配置，控制网络访问、环境变量和设置脚本。如果你还没有环境，入门会设置一个**默认**环境，具有[**受信任**网络访问](/docs/zh-CN/cloud-environments#access-levels)，要么为你创建它，要么要求你创建它。请参阅[默认环境](/docs/zh-CN/cloud-environments#the-default-environment)，了解在你的计划上会发生哪种情况，以及当你有多个环境时会话如何选择环境。
+每个云端会话都在一个[云环境](/docs/zh-CN/cloud-environments)中运行，这是一个保存的配置，控制网络访问、环境变量和设置脚本。
 
-相同的环境适用于你启动云会话的任何地方：网络、终端、[Claude Tag](https://claude.com/docs/claude-tag/overview)、[routines](/docs/zh-CN/routines) 以及移动和 Desktop 应用。Claude Tag 频道会话仅使用组织级环境，要么是[共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)，要么是[自托管环境](/docs/zh-CN/self-hosted-environments)。
-
-请参阅[配置云环境](/docs/zh-CN/cloud-environments)以更改环境允许的内容、设置变量或添加设置脚本，以及[已安装的工具](/docs/zh-CN/cloud-environments#installed-tools)以了解会话在没有任何配置的情况下包含的内容。
+* **您的第一个环境**：如果您还没有环境，入门流程会设置一个具有[**受信任**网络访问](/docs/zh-CN/cloud-environments#access-levels)的**默认**环境，要么为您创建它，要么要求您创建它。请参阅[默认环境](/docs/zh-CN/cloud-environments#the-default-environment)，了解在您的计划上会发生哪种情况
+* **会话使用哪个环境**：请参阅[默认环境](/docs/zh-CN/cloud-environments#the-default-environment)，了解当您有多个环境时会话如何选择环境
+* **更改会话可以访问的内容或在启动时运行的内容**：请参阅[配置云环境](/docs/zh-CN/cloud-environments)
+* **无需任何配置即已安装的内容**：请参阅[已安装的工具](/docs/zh-CN/cloud-environments#installed-tools)
 
 <h2 id="github-authentication-options">
   GitHub 身份验证选项
@@ -57,19 +54,32 @@
 | **GitHub App** | 在[网络快速入门](/docs/zh-CN/web-quickstart)期间授权 Claude GitHub App | 任何公开存储库，以及安装了 Claude GitHub App 的私有存储库 | 浏览器入门；想要[自动修复](#auto-fix-pull-requests)的团队 |
 | **`/web-setup`** | 在终端中运行 `/web-setup` 以将本地 `gh` CLI 令牌发送到你的 Claude 账户 | 你的 `gh` 令牌可以访问的任何存储库，无论是否安装了 Claude GitHub App | 已经使用 `gh` 的个人开发者 |
 
-在存储库上安装 Claude GitHub App 也会为其中的拉取请求启用[自动修复](#auto-fix-pull-requests)。
+以下功能依赖于仓库上已安装 Claude GitHub App：
 
-[项目](/docs/zh-CN/claude-projects)中的线程需要在每个克隆的存储库上安装 Claude GitHub App，无论你使用哪种连接方法。请参阅[设置 GitHub 访问权限](/docs/zh-CN/claude-projects#set-up-github-access)。
+* **自动修复**：在仓库上安装 Claude GitHub App 也会为其中的 Pull Request 启用[自动修复](#auto-fix-pull-requests)
+* **项目**：[项目](/docs/zh-CN/claude-projects)中的线程需要在其克隆的每个仓库上安装 Claude GitHub App，无论您使用哪种方法连接。请参阅[设置 GitHub 访问权限](/docs/zh-CN/claude-projects#set-up-github-access)
 
 在 Anthropic 托管的环境中，你的 GitHub 凭证在 Anthropic 的服务器上保持加密状态，永远不会进入会话的虚拟机。来自虚拟机的 GitHub 操作通过 [GitHub 代理](/docs/zh-CN/cloud-environments#github-proxy)进行，它在服务器端附加凭证。
 
-有关 `/schedule` 如何在创建 routine 之前检查存储库访问权限，请参阅[存储库和分支权限](/docs/zh-CN/routines#repositories-and-branch-permissions)。有关 `/web-setup` 演练（包括 `/web-setup` 存储的内容以及如何删除它），请参阅[从终端连接](/docs/zh-CN/web-quickstart#connect-from-your-terminal)。
-
-快速网络设置是一个组织设置，允许成员使用 `/web-setup` 连接 GitHub，在浏览器入门期间跳过 Claude GitHub App 安装提示，并让浏览器入门为他们创建[**默认**环境](/docs/zh-CN/cloud-environments#the-default-environment)，而不是显示环境表单。在 Team 和 Enterprise 计划上，默认情况下它是关闭的，这会隐藏 `/web-setup`。[所有者](/docs/zh-CN/server-managed-settings#access-control)可以在 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code) 处使用**快速网络设置**切换来打开它。
+有关 `/web-setup` 的分步说明（包括 `/web-setup` 存储的内容以及如何删除它），请参阅[从终端连接](/docs/zh-CN/web-quickstart#connect-from-your-terminal)。
 
 <Note>
   启用了[零数据保留](/docs/zh-CN/zero-data-retention)的组织无法使用 `/web-setup` 或其他云会话功能。
 </Note>
+
+<h3 id="quick-web-setup-for-team-and-enterprise">
+  面向 Team 和 Enterprise 的快速 Web 设置
+</h3>
+
+快速 Web 设置是一项组织设置，可减少成员在 GitHub 和环境设置中的步骤。在 Team 和 Enterprise 计划中，该设置默认处于关闭状态。
+
+启用后，成员会看到以下变化：
+
+* **`/web-setup`**：成员可以使用 `/web-setup` 连接 GitHub。该设置关闭时，此命令处于隐藏状态
+* **GitHub App 提示**：浏览器入门引导会跳过 Claude GitHub App 安装提示
+* **第一个环境**：浏览器入门引导会为成员创建 [**Default** 环境](/docs/zh-CN/cloud-environments#the-default-environment)，而不是显示环境表单
+
+[所有者](/docs/zh-CN/server-managed-settings#access-control)可以在 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code) 处通过 **Quick web setup** 开关启用该设置。
 
 <h2 id="move-tasks-between-terminal-and-cloud">
   在终端和云之间移动任务
@@ -78,7 +88,7 @@
 这些工作流需要 [Claude Code CLI](/docs/zh-CN/quickstart) 登录到同一个 claude.ai 账户。您可以从终端启动新的云会话，或将云会话拉入终端以继续本地工作。云会话即使在您关闭笔记本电脑后也会持续存在，您可以从任何地方（包括 Claude 移动应用）监控它们。
 
 <Note>
-  从 CLI 来看，会话切换是单向的：您可以使用 `--teleport` 将云会话拉入终端，但无法将现有的终端会话推送到云。带有任务描述的 `--cloud` 标志为您当前的存储库创建新的云会话；带有 `-p` 和会话 ID 或 claude.ai/code URL 时，它会改为 [将消息排队到该现有会话](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli)。[Desktop 应用](/docs/zh-CN/desktop#continue-in-another-surface) 提供了一个"继续在"菜单，可以将本地会话发送到云。
+  从 CLI 来看，会话切换是单向的：您可以使用 `--teleport` 将云端会话拉入终端，但无法将现有的终端会话推送到云端。带有任务描述的 `--cloud` 标志会为您当前的仓库创建新的云端会话；带有 `-p` 和会话 ID 或 claude.ai/code URL 时，它会改为[将消息排队到该现有会话](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli)。[Desktop 应用](/docs/zh-CN/desktop#continue-in-another-surface)可以通过其 **Open in** 菜单，将其 Code 标签页中的本地会话发送到云端。
 </Note>
 
 <h3 id="from-terminal-to-cloud">
@@ -173,7 +183,7 @@ CCR_FORCE_BUNDLE=1 claude --cloud "Run the test suite and fix any failures"
   从 CLI 发送后续消息
 </h3>
 
-一旦云会话运行，无论它在哪里执行，都可以从任何您使用 `claude auth login` 登录的机器上的 `claude` CLI 向它发送后续消息。CLI 使用您的 Anthropic 账户凭据进行身份验证，不发送任何本地会话状态，因此该命令不需要从启动会话的机器运行，并且在每个 shell 中都是相同的，包括 PowerShell。
+一旦云端会话运行，无论它在哪里执行，都可以从任何您使用 `claude auth login` 登录的机器上的 `claude` CLI 向它发送后续消息。CLI 使用您的 Anthropic 账户凭据进行身份验证，不发送任何本地会话状态，因此该命令不需要从启动会话的机器运行。
 
 该命令发布一条消息并退出：
 
@@ -189,8 +199,8 @@ CLI 将消息排队到会话中并退出，无需等待回复。使用它来引�
   `--cloud` 需要 Anthropic 账户。当 Claude Code 为 Amazon Bedrock、Google Cloud 的 Agent Platform 或其他第三方提供商配置时，它不可用。仅通过 `ANTHROPIC_BASE_URL` 配置的 [LLM 网关](/docs/zh-CN/llm-gateway) 不算作此检查的第三方提供商，但您仍需要使用 `claude auth login` 登录。您组织的 `allow_remote_sessions` 策略也必须启用。所有者可以在 claude.ai/admin-settings/claude-code 的 Claude Code 管理设置中打开它。
 </Note>
 
-<h4 id="output-and-errors">
-  输出和错误
+<h4 id="output">
+  输出
 </h4>
 
 成功时，该命令打印会话 ID 和查看会话的链接：
@@ -203,16 +213,7 @@ View: https://claude.ai/code/session_01DiUkqY2kzbUbDmW1w96rfi?from=cli&m=0
 
 传递 `--output-format json` 以获得机器可读的结果：成功时为 `{ok, session_id, url}`，或发送失败时为 `{ok: false, session_id, error}`，例如当会话缺失或已存档时。配置错误（例如不支持的提供商或禁用的组织策略）打印到 stderr，不带 JSON。`--output-format stream-json` 不支持 `--cloud <session-id>`。
 
-CLI 在错误前加上 `Error: ` 前缀。失败的传递被包装为 `failed to send message to cloud session <id>: <reason>`。
-
-| 消息 | 含义 |
-| - | - |
-| `Cloud sessions aren't available with <provider>. They run on Anthropic's infrastructure and require an Anthropic account.` | Claude Code 为第三方提供商配置。该消息使用您的配置使用的标签命名提供商，例如 `Amazon Bedrock` 或 `Google Vertex AI`。删除该提供商的配置，例如通过取消设置 `CLAUDE_CODE_USE_BEDROCK`，并使用 Anthropic 账户登录（`claude auth login`）。 |
-| `Cloud sessions are disabled by your organization's policy. Contact your organization admin to enable them.` | `allow_remote_sessions` 组织策略已关闭。 |
-| `Couldn't verify your organization's policy for cloud sessions. Check your network connection and try again.` | Claude Code 无法获取您的组织策略，因此它拒绝发送而不是假设云会话被允许。检查您的网络连接并重试。 |
-| `Attaching to an existing cloud session is not enabled for your account.` | 您运行了 `--cloud <session-id>` 而没有 `-p`。使用 `claude -p "your message" --cloud <session-id>` 发送消息。 |
-| `Session not found: <id>` | ID 或 URL 与您可以访问的会话不匹配。根据会话的 claude.ai/code URL 检查它。 |
-| `cloud session <id> is archived and cannot accept new messages` | 会话已被存档。改为启动新会话。 |
+如果发送失败，请参阅[发送到云端会话时的错误](#errors-when-sending-to-a-cloud-session)。
 
 <h3 id="from-cloud-to-terminal">
   从云到终端
@@ -239,7 +240,7 @@ Teleport 在恢复会话前检查这些要求。如果任何要求未满足，�
 | 要求 | 详情 |
 | - | - |
 | 干净的 git 状态 | 您的工作目录必须没有未提交的更改。如果需要，Teleport 会提示您隐藏更改。 |
-| 正确的存储库 | 您必须从同一存储库的检出运行 `--teleport`，而不是 fork。如果您从不同存储库的检出运行它，Claude Code 会显示一个错误，命名会话的存储库和您的检出的存储库。在 v2.1.219 之前，错误没有命名您的检出的存储库。如果 Claude Code 无法将您的远程解析为主机名，例如 SSH 主机别名如 `git@work:owner/repo.git`，它会要求您确认，并在远程的所有者和存储库名称与会话的存储库匹配时接受检出。 |
+| 正确的仓库 | 您必须从同一仓库的检出运行 `--teleport`，而不是 fork。如果您从不同仓库的检出运行它，Claude Code 会显示一个错误，指明会话的仓库和您的检出的仓库。如果 Claude Code 无法将您的远程解析为主机名，例如 SSH 主机别名如 `git@work:owner/repo.git`，它会要求您确认，并在远程的所有者和仓库名称与会话的仓库匹配时接受检出。 |
 | 分支可用 | 来自云会话的分支必须已推送到远程。Teleport 会自动获取并检出它。 |
 | 相同账户 | 您必须使用云会话中使用的相同 claude.ai 账户进行身份验证。 |
 
@@ -249,7 +250,11 @@ Teleport 在恢复会话前检查这些要求。如果任何要求未满足，�
   `--teleport` 不可用
 </h4>
 
-Teleport 需要 claude.ai 订阅身份验证。如果您通过 API 密钥进行身份验证，请运行 `/login` 以改为使用您的 claude.ai 账户登录。如果错误命名您的提供商，云会话不可通过第三方提供商获得；请参阅 [错误表](#output-and-errors)。如果您已通过 claude.ai 登录且 `--teleport` 仍不可用，您的组织可能已禁用云会话。
+Teleport 需要 claude.ai 订阅身份验证。请找到与您相符的情况：
+
+* **您通过 API 密钥进行身份验证**：运行 `/login` 以改为使用您的 claude.ai 账户登录
+* **错误指明了您的提供商**：云端会话无法通过第三方提供商使用。请参阅[错误表](#errors-when-sending-to-a-cloud-session)
+* **您已通过 claude.ai 登录**：您的组织可能已禁用云端会话
 
 <h2 id="work-with-sessions">
   处理会话
@@ -257,13 +262,31 @@ Teleport 需要 claude.ai 订阅身份验证。如果您通过 API 密钥进行�
 
 会话出现在 claude.ai/code 的侧边栏中。从那里你可以审查更改、与队友共享、归档完成的工作或永久删除会话。
 
-<h3 id="take-back-a-queued-message">
-  取回已排队的消息
+<h3 id="permission-modes-in-cloud-sessions">
+  云端会话中的权限模式
 </h3>
 
-如果你在 Claude 工作时发送消息，该消息会排队直到 Claude 读取它。要取回已排队的消息，请点击它上面的 ✕。文本返回到消息框，以便你可以编辑它或发送其他内容。
+无论是在创建任务时还是在会话运行期间，您都可以从[模式下拉菜单](/docs/zh-CN/permission-modes#switch-permission-modes)为云端会话选择[权限模式](/docs/zh-CN/permission-modes)。
 
-如果 Claude 已经读取了消息，它会保留在对话中。
+在以下任一情况下，Claude Code 会以会话原先所处的权限模式恢复该会话：
+
+* 重新打开 Anthropic 托管的[环境已过期](#environment-expired)的会话
+* 向自托管运行程序[在空闲时释放](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)的会话发送消息
+
+<h3 id="review-changes">
+  审查更改
+</h3>
+
+每个会话都会显示一个 diff 指示器，标示添加和删除的行数，例如 `+42 -18`。选择它即可打开 diff 视图，在特定行上添加内联评论，并随下一条消息将这些评论发送给 Claude。
+
+diff 视图默认将会话的更改与其基础分支进行比较。要与仓库中的任何其他分支进行比较，请选择 **Compare against** 并选择一个分支。
+
+Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配置的 diff 驱动程序和 `textconv` 过滤器不适用。
+
+以下步骤在其他文档中介绍：
+
+* **完整演练（包括 PR 创建）**：请参阅[审查和迭代](/docs/zh-CN/web-quickstart#review-and-iterate)
+* **让 Claude 自动监控 PR 的 CI 失败和审查评论**：请参阅[自动修复 Pull Request](#auto-fix-pull-requests)
 
 <h3 id="manage-context">
   管理上下文
@@ -291,23 +314,13 @@ Teleport 需要 claude.ai 订阅身份验证。如果您通过 API 密钥进行�
 
 [Agent teams](/docs/zh-CN/agent-teams) 默认关闭，但可以通过将 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 添加到你的[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)来启用。
 
-<h3 id="permission-modes-in-cloud-sessions">
-  云会话中的权限模式
+<h3 id="take-back-a-queued-message">
+  取回已排队的消息
 </h3>
 
-你从[模式下拉菜单](/docs/zh-CN/permission-modes#switch-permission-modes)为云会话选择[权限模式](/docs/zh-CN/permission-modes)，既在你创建任务时，也在会话运行时。当你重新打开其 Anthropic 托管[环境已过期](#environment-expired)的会话，或向自托管运行程序在空闲时[释放的会话](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)发送消息时，Claude Code 在它所在的权限模式中恢复会话。
+如果您在 Claude 工作时发送消息，该消息会排队，直到 Claude 读取它。要取回已排队的消息，请点击消息上的 ✕。文本会返回到消息框，以便您编辑或发送其他内容。
 
-<h3 id="review-changes">
-  审查更改
-</h3>
-
-每个会话显示一个 diff 指示器，显示添加和删除的行数，如 `+42 -18`。选择它以打开 diff 视图，在特定行上留下内联评论，并使用你的下一条消息将它们发送给 Claude。
-
-diff 视图默认将会话的更改与其基础分支进行比较。要与存储库中的任何其他分支进行比较，请选择 **Compare against** 并选择一个分支。
-
-Claude Code 从原始 git blob 内容计算这些 diffs，包括 Claude 编辑时显示的每个文件 diffs，所以存储库中配置的 diff 驱动程序和 `textconv` 过滤器不适用。对于不是会话自己的检出之一的存储库中的文件，如在会话期间克隆到工作区内的文件，每个文件 diff 显示 Claude 的编辑本身，而不是 git 比较。
-
-有关完整演练（包括 PR 创建），请参阅[审查和迭代](/docs/zh-CN/web-quickstart#review-and-iterate)。要让 Claude 自动监控 PR 以查找 CI 失败和审查评论，请参阅[自动修复拉取请求](#auto-fix-pull-requests)。
+如果 Claude 已经读取了该消息，它会保留在对话中。
 
 <h3 id="share-sessions">
   共享会话
@@ -319,17 +332,22 @@ Claude Code 从原始 git blob 内容计算这些 diffs，包括 Claude 编辑�
   从 Enterprise 或 Team 账户共享
 </h4>
 
-对于 Enterprise 和 Team 账户，两个可见性选项是**私有**和**团队**。团队可见性使会话对你的 claude.ai 组织的其他成员可见。[Claude in Slack](/docs/zh-CN/slack) 会话会自动以团队可见性共享。
+Enterprise 和 Team 账户的共享方式如下：
 
-默认情况下启用存储库访问验证，基于连接到收件人账户的 GitHub 账户。你的账户显示名称对所有有访问权限的收件人可见。
+* **可见性选项**：**私有**和**团队**。团队可见性使会话对您的 claude.ai 组织中的其他成员可见
+* **仓库访问权限**：默认启用验证，基于收件人账户所连接的 GitHub 账户
+* **您的名称**：您账户的显示名称对所有有访问权限的收件人可见
+* **Slack 会话**：[Claude in Slack](/docs/zh-CN/slack) 会话会自动以团队可见性共享
 
 <h4 id="share-from-a-max-or-pro-account">
   从 Max 或 Pro 账户共享
 </h4>
 
-对于 Max 和 Pro 账户，两个可见性选项是**私有**和**公开**。公开可见性使会话对任何登录到 claude.ai 的用户可见。
+Max 和 Pro 账户的共享方式如下：
 
-在共享之前检查你的会话是否包含敏感内容。会话可能包含来自私有 GitHub 存储库的代码和凭证。默认情况下不启用存储库访问验证。
+* **可见性选项**：**私有**和**公开**。公开可见性使会话对任何登录 claude.ai 的用户可见
+* **仓库访问权限**：默认不启用验证
+* **敏感内容**：共享前请检查您的会话。会话可能包含来自私有 GitHub 仓库的代码和凭据
 
 要要求收件人拥有存储库访问权限，或从共享会话中隐藏你的名称，请转到 [**Settings > Claude Code > Sharing settings**](https://claude.ai/settings/claude-code)。
 
@@ -421,9 +439,13 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
   无法获取组织 UUID
 </h3>
 
-`claude --cloud` 和 `claude --teleport` 需要使用 claude.ai 账户登录。如果你使用 API 密钥进行身份验证，或你的存储账户详情已过期，这些命令会失败，显示 `Unable to get organization UUID` 或消息 API 密钥身份验证不足。使用 API 密钥身份验证或过期账户详情，运行不带会话 ID 的 `claude --teleport` 会在会话选择器中显示 `Error loading Claude Code sessions`，而不是任一消息，相同的修复适用。
+`claude --cloud` 和 `claude --teleport` 需要使用 claude.ai 账户登录。如果您使用 API 密钥进行身份验证，或者存储的账户详情已过期，您会看到以下情况之一：
 
-运行 `/login` 以使用你的 claude.ai 账户登录，然后重试命令。如果错误命名你的提供商，请参阅[错误表](#output-and-errors)：云会话不通过第三方提供商可用。
+* `Unable to get organization UUID`
+* 提示 API 密钥身份验证不足的消息
+* 在不带会话 ID 运行 `claude --teleport` 时，会话选择器中显示 `Error loading Claude Code sessions`
+
+运行 `/login` 以使用您的 claude.ai 账户登录，然后重试该命令。如果错误中提到的是您的提供商，请参阅[错误表](#errors-when-sending-to-a-cloud-session)：云端会话无法通过第三方提供商使用。
 
 <h3 id="remote-control-session-expired-or-access-denied">
   Remote Control 会话已过期或访问被拒绝
@@ -435,13 +457,31 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 * 确认你已登录到拥有会话的相同账户
 * 如果你看到 `Remote Control may not be available for this organization`，所有者尚未为你的组织启用云会话
 
+<h3 id="errors-when-sending-to-a-cloud-session">
+  向云端会话发送消息时的错误
+</h3>
+
+这些错误来自使用 [`--cloud <session-id>`](#send-follow-ups-from-the-cli) 运行 `claude`，无论是否带有 `-p`。CLI 会在错误前加上 `Error: ` 前缀。发送失败时会包装为 `failed to send message to cloud session <id>: <reason>`。
+
+| 消息 | 含义 |
+| - | - |
+| `Cloud sessions aren't available with <provider>. They run on Anthropic's infrastructure and require an Anthropic account.` | Claude Code 配置为使用第三方提供商。消息会使用您的配置中的标签显示提供商名称，例如 `Amazon Bedrock` 或 `Google Vertex AI`。请移除该提供商的配置（例如取消设置 `CLAUDE_CODE_USE_BEDROCK`），并使用 Anthropic 账户登录（`claude auth login`）。 |
+| `Cloud sessions are disabled by your organization's policy. Contact your organization admin to enable them.` | `allow_remote_sessions` 组织策略已关闭。 |
+| `Couldn't verify your organization's policy for cloud sessions. Check your network connection and try again.` | Claude Code 无法获取您组织的策略，因此拒绝发送，而不是假定云端会话已被允许。请检查网络连接并重试。 |
+| `Attaching to an existing cloud session is not enabled for your account.` | 您在运行 `--cloud <session-id>` 时未带 `-p`。请使用 `claude -p "your message" --cloud <session-id>` 发送消息。 |
+| `Session not found: <id>` | 该 ID 或 URL 与您可以访问的任何会话都不匹配。请对照该会话的 claude.ai/code URL 进行检查。 |
+| `cloud session <id> is archived and cannot accept new messages` | 该会话已归档。请改为启动一个新会话。 |
+
 <h3 id="environment-expired">
   环境已过期
 </h3>
 
 云会话在不活动一段时间后停止，会话的 VM 被回收。会话在等待你批准 [MCP 连接器](/docs/zh-CN/cloud-environments#network-access)工具调用或登录到 MCP 服务器时计为不活动，它可以在该等待期间过期。
 
-从 [claude.ai/code](https://claude.ai/code) 重新打开会话以配置新 VM，并恢复你的对话历史。在 VM 被回收时仍在运行的后台工作，如 subagents 和 shell 命令，不会被恢复。
+从 [claude.ai/code](https://claude.ai/code) 重新打开会话以预配新的 VM：
+
+* **会恢复**：您的对话历史
+* **不会恢复**：VM 被回收时仍在运行的后台工作，例如子代理和 shell 命令
 
 <h2 id="limitations">
   限制

@@ -347,7 +347,7 @@ Agent view 按状态分组会话，需要输入的会话在顶部，`Ready for r
 
 要组合过滤器，请以 `a:`、`s:`、`n:` 或 `o:` 开头，再添加更多过滤器，以空格分隔。列表会显示同时匹配所有过滤器的会话。例如，`s:blocked a:reviewer` 会列出正在等待您的 `reviewer` 会话。
 
-过滤器处于活动状态时，您折叠的组会展开以显示匹配项，并且第一个匹配项会被选中，因此按 `Enter` 即可打开它。清空输入框即可移除过滤器，这些组会再次折叠。
+过滤器处于活动状态时，您折叠的组会展开以显示匹配项，并且会选中一个匹配项，因此按 `Enter` 即可打开它。清空输入框即可移除过滤器，这些组会再次折叠。
 
 <h3 id="keyboard-shortcuts">
   快捷键
@@ -369,6 +369,8 @@ Agent view 按状态分组会话，需要输入的会话在顶部，`Ready for r
 | `Tab` | 在空输入上浏览所有 subagents。否则应用突出显示的建议 |
 | `Ctrl+S` | 在状态和目录之间切换分组 |
 | `Ctrl+T` | 固定或取消固定选定的会话 |
+| `Ctrl+F` | 使用 [`n:` 过滤器](#filter-sessions)按名称查找会话 |
+| `Alt+↑` / `Alt+↓` | 跳到上一个或下一个组标题 |
 | `Ctrl+R` | 重命名选定的会话 |
 | `Ctrl+G` | 在你的 `$VISUAL` 或 `$EDITOR` 中打开调度提示 |
 | `Ctrl+J` | 在调度输入中插入换行符 |
@@ -378,7 +380,7 @@ Agent view 按状态分组会话，需要输入的会话在顶部，`Ready for r
 | `Ctrl+C` | 清除输入；按两次退出 |
 | `?` | 显示所有快捷键 |
 
-`Ctrl+S`、`Ctrl+T` 和 `Ctrl+G` 遵循你的 [`keybindings.json`](/docs/zh-CN/keybindings)。在 [`Agents` 上下文](/docs/zh-CN/keybindings#agents-actions)中用 `agents:switchView` 和 `agents:togglePin` 操作重新绑定或取消绑定 `Ctrl+S` 和 `Ctrl+T`，以及通过 `Chat` 上下文的 `chat:externalEditor` 绑定的 `Ctrl+G`。表中的其他快捷键无法重新绑定。
+在 [`Agents` 上下文](/docs/zh-CN/keybindings#agents-actions)中有对应操作的快捷键遵循您的 [`keybindings.json`](/docs/zh-CN/keybindings)。`Ctrl+G` 也是如此，它通过 `Chat` 上下文的 `chat:externalEditor` 绑定进行配置。
 
 <h2 id="dispatch-new-agents">
   分派新的 agents
@@ -1087,6 +1089,7 @@ Agent view 在研究预览期间发展迅速。如果你使用较旧的 Claude C
 
 | 版本 | 更改 |
 | - | - |
+| v2.1.288 | `Ctrl+F` 按名称查找会话，`Alt+↑` / `Alt+↓` 在组标题之间跳转。这两者以及 `Ctrl+R` 都可以[重新绑定](/docs/zh-CN/keybindings#agents-actions)。 |
 | v2.1.287 | [`n:<text>` 筛选器](#filter-sessions)按名称或第一个提示词查找会话。当任何筛选器处于活动状态时，您折叠的组会展开以显示其匹配项，并且第一个匹配项被选中，因此 `Enter` 会打开它。 |
 | v2.1.287 | 作为[窥视回复](#peek-and-reply)发送的命令会在会话当前轮次结束时运行，包括在会话自身的输入框中一键入就立即运行的命令。内容恰好为 `/stop` 的回复会立即停止会话。 |
 | v2.1.281 | [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags) 限制[转移](#what-carries-over-when-you-background)到你使用 `←` 或 `/bg` 后台的会话，以及你从 agent view 调度的会话。在此版本之前，生成的会话加载每个设置源。 |

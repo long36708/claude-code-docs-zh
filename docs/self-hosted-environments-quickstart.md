@@ -117,7 +117,7 @@ claude self-hosted-runner setup
 claude -p "your message" --cloud <session-id>
 ```
 
-对于 `<session-id>`，传递裸 `session_...` 或 `cse_...` ID 或会话的 claude.ai/code URL。成功发送打印 `Sent to cloud session.` 以及会话 ID 和查看链接。接受的 ID 形式、JSON 输出、帐户和策略要求以及错误参考在[从 CLI 发送后续消息](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli)上，因为该命令对 Anthropic 托管的会话的工作方式相同。
+对于 `<session-id>`，传递裸 `session_...` 或 `cse_...` ID 或会话的 claude.ai/code URL。成功发送打印 `Sent to cloud session.` 以及会话 ID 和查看链接。接受的 ID 形式、JSON 输出以及帐户和策略要求在[从 CLI 发送后续消息](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli)上，因为该命令对 Anthropic 托管的会话的工作方式相同。
 
 <h2 id="what’s-next">
   接下来的步骤

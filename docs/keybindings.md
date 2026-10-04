@@ -464,6 +464,10 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | :- | :- | :- |
 | `agents:switchView` | Ctrl+S | 在状态和目录之间切换 [会话分组](/docs/zh-CN/agent-view#organize-the-list) |
 | `agents:togglePin` | Ctrl+T | [固定或取消固定](/docs/zh-CN/agent-view#organize-the-list) 选定的会话 |
+| `agents:find` | Ctrl+F | 使用 [`n:` 筛选器](/docs/zh-CN/agent-view#filter-sessions) 按名称查找会话。需要 v2.1.288 或更高版本 |
+| `agents:rename` | Ctrl+R | [重命名](/docs/zh-CN/agent-view#organize-the-list) 选定的会话。需要 v2.1.288 或更高版本 |
+| `agents:previousGroup` | Ctrl+Up, Meta+Up | 跳到上一个 [分组标题](/docs/zh-CN/agent-view#organize-the-list)。需要 v2.1.288 或更高版本 |
+| `agents:nextGroup` | Ctrl+Down, Meta+Down | 跳到下一个分组标题。需要 v2.1.288 或更高版本 |
 
 当 agent 视图打开时，Claude Code 对 `Agents` 上下文绑定的任何键使用 `Agents` 绑定，并忽略同一键上的 `Chat` 或 `Global` 绑定。例如，在 agent 视图中按 Ctrl+S 会切换会话分组，而不是触发默认的 `chat:stash`。
 

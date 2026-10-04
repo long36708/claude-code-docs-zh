@@ -1016,7 +1016,7 @@ skill 从插件根目录的 `skills/` 加载，command 从插件根目录的 `co
 
 请按顺序检查以下原因：
 
-* **skill 设置了 `disable-model-invocation: true`**：设置该字段后，只有您可以调用该 skill。[创建您的第一个插件](/docs/zh-CN/plugins/create#create-your-first-plugin)中的模板 skill 设置了该字段。请从希望 Claude 自行调用的 skill 中删除该行。[控制谁调用 skill](/docs/zh-CN/skills#control-who-invokes-a-skill) 介绍了该字段
+* **skill 设置了 `disable-model-invocation: true`**：[创建您的第一个插件](/docs/zh-CN/plugins/create#create-your-first-plugin)中的模板 skill 设置了该字段。请从希望 Claude 自行调用的 skill 中删除该行。[控制谁调用 skill](/docs/zh-CN/skills#control-who-invokes-a-skill) 介绍了该字段
 * **描述与人们的提问方式不匹配**：请完成[Skill 未触发](/docs/zh-CN/skills#skill-not-triggering)中的检查
 * **描述被截断**：当安装了许多 skill 时，Claude Code 会缩短描述以适应列表的字符预算，这可能会删除 Claude 匹配请求所需的关键字。请参阅[Skill 描述被截断](/docs/zh-CN/skills#skill-descriptions-are-cut-short)
 

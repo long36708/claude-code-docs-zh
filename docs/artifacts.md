@@ -156,7 +156,7 @@ Claude 只能回复或解决已激活的线程。其他线程保持打开状态�
   让 Claude 自动回复评论
 </h3>
 
-在您的会话发布工件后，Claude Code 会在会话运行期间监视该工件的评论。当可以编辑工件的人向 Claude 发送评论时，它会立即到达您的会话，Claude 可以读取线程并回复，而无需您询问。
+在您的会话发布 Artifact 后，Claude Code 会监视该 Artifact 的评论。当可以编辑 Artifact 的人向 Claude 发送评论时，它会立即到达您的会话，Claude 可以读取线程并回复，而无需您询问。
 
 您需要 Claude Code v2.1.228 或更高版本。如果您关闭了[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，Claude Code 不会监视评论。
 
@@ -173,6 +173,8 @@ Claude 还会在处理该工件上的 60 条已发送评论或线程激活后的
 * **在空闲提示符处按一次 Ctrl+C**：Claude 暂停回复您的会话正在监视的每个工件。在您发送下一条消息后，回复会重新开始。
 * **在 `/tasks` 中停止任务**：Claude 停止回复该工件，直到您要求它在那里恢复回复。重新发布工件不会再次启动回复，当您稍后恢复会话时，停止仍然适用。
 * **在 3 秒内按两次 `Ctrl+X Ctrl+K`**：[停止每个运行的后台子代理](/docs/zh-CN/interactive-mode#general-controls)的和弦也会停止 Claude 为会话的其余部分回复每个工件。要求 Claude 恢复回复不会撤销此停止。
+
+由 Claude Code 自行启动的监视可能会在 Artifact 数小时无活动后结束。要重新启动监视，请再次发布该 Artifact 或要求 Claude 监视它。
 
 如果传递评论的服务变得不可用或停止响应，Claude Code 会尝试重新连接一段时间，然后停止监视您的会话正在监视的每个工件。
 

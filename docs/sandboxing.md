@@ -463,7 +463,7 @@ Claude Code 会合并会话所加载的每个[设置作用域](/docs/zh-CN/setti
 
 掩码需要满足以下条件：
 
-* **TLS 终止**：代理在请求内容中替换真实值，因此它必须能够看到请求内容。请设置 [`network.tlsTerminate`](/docs/zh-CN/settings-reference#sandbox-network-tlsterminate)，使代理自行终止 TLS。如果不设置，掩码会失败，但不会暴露任何内容：命令仍然只能看到哨兵值，但哨兵值会原样到达服务器，导致身份验证失败。Claude Code 会在启动时报告此错误配置。
+* **TLS 终止**：代理在请求内容中替换真实值，因此它必须能够看到请求内容。请设置 [`network.tlsTerminate`](/docs/zh-CN/settings-reference#sandbox-network-tlsterminate)，使代理自行终止 TLS。如果不设置，掩码会失败，但不会暴露任何内容：命令仍然只能看到哨兵值，但哨兵值会原样到达服务器，导致身份验证失败。要检查此错误配置，请在终端中运行 `claude doctor`，并查看是否有 `TLS termination is unavailable` 警告。
 * **允许的目标**：每个 `mask` 条目可以列出 `injectHosts`，即允许真实值到达的主机。代理只在[域名允许列表](#network-isolation)所允许的连接上注入凭据，因此每个 `injectHosts` 主机还必须能够通过 `network.allowedDomains` 访问。对于没有 `injectHosts` 的 `mask` 条目，代理会在发往 `network.allowedDomains` 中每个主机的请求中替换真实值。
 * **受信任的设置作用域**：掩码会授权代理将您的真实凭据发送到某处，因此 Claude Code 只接受来自用户设置、托管设置和 `--settings` 标志的 `mask` 条目、`network.tlsTerminate`、[`credentials.allowPlaintextInject`](/docs/zh-CN/settings-reference#sandbox-credentials-allowplaintextinject)、`awsPairs` 和 `sigv4`。它会忽略仓库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的这些设置。当您的管理员通过服务器托管设置下发 `mask` 条目、`network.tlsTerminate` 或 `credentials.allowPlaintextInject` 时，它们属于[需要批准的设置](/docs/zh-CN/server-managed-settings#security-approval-dialogs)。
 

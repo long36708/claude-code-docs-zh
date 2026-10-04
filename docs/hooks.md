@@ -438,7 +438,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 | 字段 | 必需 | 描述 |
 | :- | :- | :- |
 | `type` | 是 | `"command"`、`"http"`、`"mcp_tool"`、`"prompt"` 或 `"agent"` |
-| `if` | 否 | 权限规则语法来过滤此 hook 何时运行，如 `"Bash(git *)"` 或 `"Edit(*.ts)"`。hook 命令仅在工具调用匹配模式时运行。请参阅下面的 [Bash 匹配表](#bash-if-matching) 了解 Bash 模式如何针对子命令、`$()` 和反引号进行评估。仅在工具事件上评估：`PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest` 和 `PermissionDenied`。在其他事件上，设置了 `if` 的 hook 永远不会运行。使用与 [权限规则](/docs/zh-CN/permissions) 相同的语法 |
+| `if` | 否 | 用于过滤此 hook 何时运行的 [权限规则语法](/docs/zh-CN/permissions#permission-rule-syntax)，如 `"Bash(git *)"` 或 `"Edit(*.ts)"`。hook 命令仅在工具调用匹配模式时运行。请参阅 [Bash 匹配表](#bash-if-matching) 了解 Bash 模式如何针对子命令、`$()` 和反引号进行评估。仅在工具事件上评估：`PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest` 和 `PermissionDenied`。在其他事件上，设置了 `if` 的 hook 永远不会运行 |
 | `timeout` | 否 | 取消前的秒数。Claude Code 不在您使用 [`async: true`](#run-hooks-in-the-background) 运行的命令 hook 上强制执行。默认值：`command`、`http` 和 `mcp_tool` 为 600；`prompt` 为 30；`agent` 为 60。Claude Code 在 [`UserPromptSubmit`](#userpromptsubmit)、[`PreModelSwitch`](#premodelswitch) 和 [`PostModelSwitch`](#postmodelswitch) 上将 `command`、`http` 和 `mcp_tool` 默认值降低到 30，在 [`MessageDisplay`](#messagedisplay) 上降低到 10。[`SessionEnd`](#sessionend) hooks 共享 1.5 秒的预算；如果您的设置设置了更长的每个 hook `timeout`，Claude Code 会提高预算以匹配，最多 60 秒 |
 | `statusMessage` | 否 | hook 运行时显示的自定义微调消息 |
 | `once` | 否 | 如果为 `true`，Claude Code 在第一次成功运行后删除 hook。失败、以退出代码 2 阻止或超时的运行会将 hook 保留在原位，因此它在下一个匹配事件上再次运行。仅在 [技能 frontmatter](#hooks-in-skills-and-agents) 中声明的 hooks 上受尊重；在设置文件和代理 frontmatter 中被忽略 |
@@ -447,7 +447,11 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 
 在文件工具的 `if` 条件中，单段目录模式如 `"Edit(src/**)"` 仅匹配工作目录中的 `src` 目录及其下的文件。要匹配任何深度的名为 `src` 的目录，请写 `"Edit(**/src/**)"`。在 v2.1.214 之前，`"Edit(src/**)"` 匹配工作目录下任何深度的名为 `src` 的目录。
 
-<span id="bash-if-matching" />对于 Bash 模式，您的 hook 命令是否运行取决于模式的形状和 Claude 调用的 Bash 命令。匹配前会剥离前导 `VAR=value` 赋值。
+<h4 id="bash-if-matching">
+  `if` 模式如何匹配 Bash 命令
+</h4>
+
+对于 [`if` 字段](#common-fields) 中的 Bash 模式，您的 hook 命令是否运行取决于模式的形状和 Claude 调用的 Bash 命令。匹配前会剥离前导 `VAR=value` 赋值。
 
 | `if` 模式 | Bash 命令 | Hook 运行？ | 为什么 |
 | :- | :- | :- | :- |
@@ -1913,7 +1917,7 @@ Windows 上的 `Write` 调用会传入：
 
 | 字段 | 类型 | 示例 | 描述 |
 | :- | :- | :- | :- |
-| `questions` | array | `[{"question": "Which framework?", "header": "Framework", "options": [{"label": "React"}], "multiSelect": false}]` | 要呈现的问题，每个问题包含一个 `question` 字符串、简短的 `header`、`options` 数组以及可选的 `multiSelect` 标志 |
+| `questions` | array | `[{"question": "Which framework?", "header": "Framework", "options": [{"label": "React", "description": "Component library"}, {"label": "Vue", "description": "Progressive framework"}], "multiSelect": false}]` | 要呈现的问题，每个问题包含一个 `question` 字符串、简短的 `header`、`options` 数组，以及可选的 `multiSelect` 标志 |
 | `answers` | object | `{"Which framework?": "React"}` | 可选。将问题文本映射到所选选项的标签。多选答案以逗号连接标签。Claude 不会设置此字段；可通过 `updatedInput` 提供它以编程方式作答 |
 
 <h5 id="exitplanmode">
@@ -1965,15 +1969,47 @@ hook 的 `"ask"` 在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompt
 }
 ```
 
-<span id="allow-with-updatedinput" />
+<Note>
+  PreToolUse 以前使用顶层的 `decision` 和 `reason` 字段，但这些字段对于此事件已弃用。请改用 `hookSpecificOutput.permissionDecision` 和 `hookSpecificOutput.permissionDecisionReason`。已弃用的值 `"approve"` 和 `"block"` 分别映射到 `"allow"` 和 `"deny"`。PostToolUse 和 Stop 等其他事件继续使用顶层 `decision` 和 `reason` 作为其当前格式。
+</Note>
 
-在使用 `-p` 标志的[非交互模式](/docs/zh-CN/headless)下，只有当运行具有接收提示的[权限宿主](/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs)（例如 Agent SDK 的 `canUseTool` 回调）时，Claude Code 才会提供 `AskUserQuestion` 和 `ExitPlanMode`。这些工具需要用户交互。同时返回 `permissionDecision: "allow"` 和 `updatedInput` 即可满足这一要求：hook 从 stdin 读取工具的输入，通过您自己的 UI 收集答案，并在 `updatedInput` 中返回，使工具无需提示即可运行。对于这些工具，仅返回 `"allow"` 是不够的。对于 `AskUserQuestion`，请回传原始的 `questions` 数组，并添加一个 [`answers`](#askuserquestion) 对象，将每个问题的文本映射到所选答案。
+<h4 id="allow-with-updatedinput">
+  需要用户交互的工具
+</h4>
+
+`AskUserQuestion` 和 `ExitPlanMode` 需要用户交互。在使用 `-p` 标志的[非交互模式](/docs/zh-CN/headless)下，只有当运行具有接收提示的[权限宿主](/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs)（例如 Agent SDK 的 `canUseTool` 回调）时，Claude Code 才会提供它们。
+
+当 `PreToolUse` hook 执行以下操作时，即满足该要求：
+
+1. 从 stdin 读取工具的输入
+2. 通过您自己的 UI 收集答案
+3. 返回 `permissionDecision: "allow"` 以及包含答案的 `updatedInput`，使工具在不提示的情况下运行
+
+对于这些工具，仅返回 `"allow"` 是不够的。
+
+对于 `AskUserQuestion`，请回传原始的 `questions` 数组，并添加一个 [`answers`](#askuserquestion) 对象，将每个问题的文本映射到所选答案。以下输出用 `React` 回答了一个问题：
+
+```json theme={null}
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "allow",
+    "updatedInput": {
+      "questions": [
+        {
+          "question": "Which framework?",
+          "header": "Framework",
+          "options": [{"label": "React", "description": "Component library"}, {"label": "Vue", "description": "Progressive framework"}],
+          "multiSelect": false
+        }
+      ],
+      "answers": {"Which framework?": "React"}
+    }
+  }
+}
+```
 
 对于其服务器使用 [`_meta["anthropic/requiresUserInteraction"]`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 标记的 MCP 工具，要求更为严格：hook 无法通过 `"allow"` 跳过其批准提示，无论是否带有 `updatedInput`，因为 Claude Code 无法确认 hook 是否收集了该工具所需的交互。
-
-<Note>
-  PreToolUse 之前使用顶层 `decision` 和 `reason` 字段，但这些字段在此事件中已弃用。请改用 `hookSpecificOutput.permissionDecision` 和 `hookSpecificOutput.permissionDecisionReason`。已弃用的值 `"approve"` 和 `"block"` 分别映射到 `"allow"` 和 `"deny"`。PostToolUse 和 Stop 等其他事件继续使用顶层 `decision` 和 `reason` 作为其当前格式。
-</Note>
 
 <h4 id="defer-a-tool-call-for-later">
   延迟工具调用以便稍后处理
@@ -2000,7 +2036,7 @@ hook 的 `"ask"` 在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompt
   "deferred_tool_use": {
     "id": "toolu_01abc",
     "name": "AskUserQuestion",
-    "input": { "questions": [{ "question": "Which framework?", "header": "Framework", "options": [{"label": "React"}, {"label": "Vue"}], "multiSelect": false }] }
+    "input": { "questions": [{ "question": "Which framework?", "header": "Framework", "options": [{"label": "React", "description": "Component library"}, {"label": "Vue", "description": "Progressive framework"}], "multiSelect": false }] }
   }
 }
 ```

@@ -372,101 +372,101 @@ Claude 第一次需要使用应用时，会话中会出现提示。点击**允�
   管理会话
 </h2>
 
-每个会话是一个独立的对话，拥有自己的上下文和更改。你可以并行运行多个会话、分支侧边聊天、让 Claude 检查并向你的其他会话发送消息、将工作发送到云，或让 Dispatch 从你的手机为你启动会话。
+每个会话是一个独立的对话，拥有自己的上下文和更改。您可以并行运行多个会话、开启侧边聊天、让 Claude 查看您的其他会话并向其发送消息、将工作发送到云端，或让 Dispatch 从您的手机为您启动会话。
 
 <h3 id="work-in-parallel-with-sessions">
   使用会话并行工作
 </h3>
 
-点击侧边栏中的 **+ New session**，或在 macOS 上按 **Cmd+N** 或在 Windows 上按 **Ctrl+N**，来并行处理多个任务。按 **Ctrl+Tab** 和 **Ctrl+Shift+Tab** 来循环侧边栏中的会话。对于 Git 存储库，选择分支名称旁边的 **worktree** 选项，为会话提供使用 [Git worktrees](/docs/zh-CN/worktrees) 的项目隔离副本，因此一个会话中的更改不会影响其他会话，直到你提交它们。
+点击侧边栏中的 **+ New session**，或在 macOS 上按 **Cmd+N**、在 Windows 上按 **Ctrl+N**，即可并行处理多个任务。按 **Ctrl+Tab** 和 **Ctrl+Shift+Tab** 可在侧边栏中循环切换会话。对于 Git 仓库，选择分支名称旁边的 **worktree** 选项，即可使用 [Git worktrees](/docs/zh-CN/worktrees) 为会话提供项目的独立隔离副本，这样一个会话中的更改在您提交之前不会影响其他会话。
 
-要同时查看两个会话，在 macOS 上按住 **Cmd** 或在 Windows 上按住 **Ctrl** 并点击侧边栏中的会话。会话在第二个窗格中打开，与你已经打开的窗格并排。当分割处于活跃状态时，点击另一个侧边栏会话会替换具有焦点的窗格。在 macOS 上按 **Cmd+\\** 或在 Windows 上按 **Ctrl+\\** 来关闭焦点窗格并返回到单个会话。
+要同时查看两个会话，请在 macOS 上按住 **Cmd** 或在 Windows 上按住 **Ctrl** 并点击侧边栏中的会话。该会话会在第二个窗格中打开，与您已打开的会话并排显示。分屏处于活跃状态时，点击侧边栏中的另一个会话会替换当前具有焦点的窗格。在 macOS 上按 **Cmd+\\** 或在 Windows 上按 **Ctrl+\\** 可关闭具有焦点的窗格并返回单个会话。
 
-Worktrees 默认存储在 `<project-root>/.claude/worktrees/` 中。你可以在设置 → Claude Code 中的"Worktree location"下将其更改为自定义目录。你也可以设置一个分支前缀，该前缀会添加到每个 worktree 分支名称前面，这对于保持 Claude 创建的分支有组织很有用。要在完成后删除 worktree，请将鼠标悬停在侧边栏中的会话上并点击存档图标。要在 PR 合并或关闭时让会话自动存档，在设置 → Claude Code 中打开 **Auto-archive after PR merge or close**。自动存档仅适用于已完成运行的本地会话。
+Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。您可以在设置 → Claude Code 中的"Worktree location"下将其更改为自定义目录。您还可以设置一个分支前缀，该前缀会添加到每个 worktree 分支名称的前面，这有助于让 Claude 创建的分支保持条理。完成后要删除 worktree，请将鼠标悬停在侧边栏中的会话上并点击存档图标。要让会话在其 Pull Request 合并或关闭时自动存档，请在设置 → Claude Code 中打开 **Auto-archive after PR merge or close**。自动存档仅适用于已完成运行的本地会话。
 
-要在新 worktrees 中包含 gitignored 文件（如 `.env`），在你的项目根目录中创建一个 [`.worktreeinclude` 文件](/docs/zh-CN/worktrees#copy-gitignored-files-into-worktrees)。
+要在新 worktree 中包含被 gitignore 的文件（如 `.env`），请在项目根目录中创建一个 [`.worktreeinclude` 文件](/docs/zh-CN/worktrees#copy-gitignored-files-into-worktrees)。
 
 <Note>
-  会话隔离需要 [Git](https://git-scm.com/downloads)。大多数 Mac 默认包含 Git。在终端中运行 `git --version` 来检查；如果它打印版本号，则 Git 已安装。如果你遇到 Git 错误，请在 [Cowork 选项卡](https://claude.com/product/cowork) 中询问 Claude 来帮助排除你的设置。
+  会话隔离需要 [Git](https://git-scm.com/downloads)。大多数 Mac 默认已包含 Git。在终端中运行 `git --version` 进行检查；如果输出了版本号，则说明 Git 已安装。如果遇到 Git 错误，请在 [Cowork 选项卡](https://claude.com/product/cowork)中请 Claude 帮助排查您的设置。
 </Note>
 
-使用侧边栏顶部的控制来按状态、项目或环境过滤会话，并按项目分组会话。要重命名会话，点击活跃会话顶部工具栏中的会话标题。
+使用侧边栏顶部的控件可按状态、项目或环境筛选会话，并按项目对会话分组。要重命名会话，请点击活跃会话顶部工具栏中的会话标题。
 
-要检查上下文使用情况，请参阅[检查使用情况](#check-usage)。当上下文填满时，Claude 自动总结对话并继续工作。你也可以输入 `/compact` 来更早触发总结并释放上下文空间。有关压缩工作原理的详细信息，请参阅[上下文窗口](/docs/zh-CN/how-claude-code-works#the-context-window)。
+要检查上下文使用情况，请参阅[检查使用情况](#check-usage)。当上下文填满时，Claude 会自动总结对话并继续工作。您也可以输入 `/compact` 提前触发总结并释放上下文空间。有关压缩工作原理的详细信息，请参阅[上下文窗口](/docs/zh-CN/how-claude-code-works#the-context-window)。
 
-桌面应用在 Code 会话完成任务且你当前未查看该会话时发送操作系统通知。对于属于[项目](/docs/zh-CN/claude-projects#see-what-needs-you-in-overview)的会话，你会获得项目的通知。
+当 Code 会话完成任务且您当前未在查看该会话时，桌面应用会发送操作系统通知。对于属于某个[项目](/docs/zh-CN/claude-projects#see-what-needs-you-in-overview)的会话，您将收到该项目的通知。
 
 <h3 id="ask-a-side-question-without-derailing-the-session">
   在不偏离会话的情况下提出侧边问题
 </h3>
 
-侧边聊天让你提出一个使用你的会话上下文的问题，但不会添加任何内容回到主对话。当你想要理解一段代码、检查一个假设或探索一个想法而不引导会话偏离时，使用它。
+侧边聊天让您可以向 Claude 提出一个使用会话上下文的问题，但不会向主对话添加任何内容。当您想要理解一段代码、检查某个假设或探索某个想法，又不想让会话偏离方向时，可以使用它。
 
-在 macOS 上按 **Cmd+;** 或在 Windows 上按 **Ctrl+;** 来打开侧边聊天，或在提示框中输入 `/btw`。侧边聊天可以读取主线程中到该点为止的所有内容。完成后，关闭侧边聊天并在你离开的地方继续主会话。
+在 macOS 上按 **Cmd+;** 或在 Windows 上按 **Ctrl+;** 打开侧边聊天，或在输入框中输入 `/btw`。侧边聊天可以读取主线程中截至该时刻的所有内容。完成后，关闭侧边聊天，即可从中断处继续主会话。
 
-侧边聊天在本地、SSH 和 WSL 会话中可用。桌面应用不会将侧边聊天保存到磁盘，因此你在关闭应用后无法返回到一个。
+侧边聊天可在本地、SSH 和 WSL 会话中使用。桌面应用不会将侧边聊天保存到磁盘，因此关闭应用后无法再返回之前的侧边聊天。
 
 <h3 id="watch-background-tasks">
-  观看后台任务
+  查看后台任务
 </h3>
 
-任务窗格显示在当前会话内运行的后台工作：子代理、后台 shell 命令和[动态工作流](/docs/zh-CN/workflows)。从 **Views** 菜单打开它或将其拖入你的布局。
+任务窗格显示当前会话内正在运行的后台工作：子代理、后台 shell 命令和[动态工作流](/docs/zh-CN/workflows)。可从 **Views** 菜单打开它，或将其拖入您的布局。
 
-点击任何条目来在子代理窗格中查看其输出或停止它。要查看其他会话在做什么，使用[侧边栏](#work-in-parallel-with-sessions)，或要求 Claude [为你检查它们](#work-across-sessions)。
+点击任意条目可在子代理窗格中查看其输出或将其停止。要查看其他会话正在做什么，请使用[侧边栏](#work-in-parallel-with-sessions)，或请 Claude [为您查看](#work-across-sessions)。
 
 <h3 id="work-across-sessions">
   跨会话工作
 </h3>
 
-Claude 可以列出你的其他 Code 选项卡会话，读取每个会话一直在做什么，并在它们之间发送消息。用简单的语言提问："哪个会话涉及了身份验证重构？"、"API 会话得出了什么结论？"或"告诉支付会话模式已更改"。你也可以要求 Claude 重命名或存档会话。Claude 存档会话的方式与侧边栏的存档图标相同，因此要求它清理 PR 已合并的会话。
+Claude 可以列出您的其他 Code 选项卡会话，读取每个会话一直在做的工作，并在它们之间发送消息。用自然语言提问即可："哪个会话涉及了身份验证重构？"、"API 会话得出了什么结论？"或"告诉支付会话 schema 已更改"。您也可以请 Claude 重命名或存档会话。Claude 存档会话的方式与侧边栏的存档图标相同，因此可以让它清理 PR 已合并的会话。
 
-通过这个界面，Claude 只看到桌面应用本身运行的会话：本地、[SSH](#ssh-sessions) 和 [WSL](/docs/zh-CN/desktop-wsl) 会话在 Code 选项卡中。Claude 看不到云会话，或你从终端 CLI 或 VS Code 扩展启动的会话，即使在同一项目的 worktrees 中，所以有九个终端 worktrees 打开和两个桌面会话，Claude 在其中一个回答时报告另一个桌面会话。Claude 永远不会列出你提问的会话。默认情况下，它看到 20 个最近活跃的会话，并跳过存档的会话，除非你要求它们。[跨会话消息传递](/docs/zh-CN/cross-session-messaging) 单独让 Claude 向[你的其他 Claude Code 会话](/docs/zh-CN/cross-session-messaging#see-which-sessions-claude-can-reach)发送消息，包括终端会话。
+通过此使用入口，Claude 只能看到桌面应用自身运行的会话：Code 选项卡中的本地、[SSH](#ssh-sessions) 和 [WSL](/docs/zh-CN/desktop-wsl) 会话。Claude 看不到云端会话，也看不到您从终端 CLI 或 VS Code 扩展启动的会话，即使它们位于同一项目的 worktree 中也是如此。因此，如果打开了九个终端 worktree 和两个桌面会话，在其中一个桌面会话中回答的 Claude 只会报告另一个桌面会话。Claude 从不会列出您正在提问的那个会话。默认情况下，它可以看到最近活跃的 20 个会话，并跳过已存档的会话，除非您明确要求。[跨会话消息传递](/docs/zh-CN/cross-session-messaging)则另外让 Claude 可以向[您的其他 Claude Code 会话](/docs/zh-CN/cross-session-messaging#see-which-sessions-claude-can-reach)发送消息，包括终端会话。
 
-当 Claude 通过这个界面向另一个会话发送消息时，Claude Code 在那里将其显示为一张卡片，标记有发送会话的标题和返回链接，因此你总是可以看到消息来自哪里。如果接收会话正在执行任务中，Claude Code 会保留消息，Claude 在当前工作完成后读取它。接收的 Claude 可以回复，Claude Code 通过这个界面将回复传递回去。Claude 无法传递到存档的会话，并在消息未通过时告诉你。
+当 Claude 通过此使用入口向另一个会话发送消息时，Claude Code 会在对方会话中将其显示为一张卡片，卡片标有发送会话的标题和返回链接，因此您始终可以知道消息来自何处。如果接收会话正在执行任务，Claude Code 会暂存该消息，Claude 会在当前工作完成后读取它。接收方的 Claude 可以回复，Claude Code 会通过此使用入口将回复传回。Claude 无法向已存档的会话发送消息，并会在消息未送达时告知您。
 
-Claude Code 在会话间应用四个安全行为：
+Claude Code 在跨会话时应用四项安全行为：
 
-* 在存档任何会话之前，Claude 首先询问你。你在每个权限模式中看到批准卡片，包括自动和绕过权限。
-* 通过这个界面，Claude 无法从没有人观看的会话（例如计划任务运行）发送跨会话消息，也无法将消息传递到一个。
-* Claude Code 根据接收会话的[入站控制](/docs/zh-CN/cross-session-messaging#control-inbound-messages)检查来自这个界面的每条消息，即使接收会话本身没有[跨会话消息传递](/docs/zh-CN/cross-session-messaging#availability)。如果你在接收会话中将 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 `refuse`，Claude Code 会丢弃来自这个界面的消息。Claude Code 向 Claude 桌面应用报告拒绝。在 v2.1.234 之前，Claude Code 丢弃来自这个界面到没有跨会话消息传递的接收会话的每条消息。
-* Claude Code 引用每条传入消息并将其归属于发送它的会话，Claude 在对其进行操作时仍然遵循接收会话自己的权限设置。
+* 在存档任何会话之前，Claude 会先询问您。在每种权限模式下您都会看到批准卡片，包括 Auto 和 Bypass permissions。
+* 通过此使用入口，Claude 无法从无人查看的会话（例如定时任务运行）发送跨会话消息，也无法向此类会话发送消息。
+* Claude Code 会根据接收会话的[入站控制](/docs/zh-CN/cross-session-messaging#control-inbound-messages)检查来自此使用入口的每条消息，即使接收会话本身未启用[跨会话消息传递](/docs/zh-CN/cross-session-messaging#availability)。如果您在接收会话中将 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 `refuse`，Claude Code 会丢弃来自此使用入口的消息。Claude Code 会向 Claude 桌面应用报告该拒绝。在 v2.1.234 之前，对于未启用跨会话消息传递的接收会话，Claude Code 会丢弃来自此使用入口的所有消息。
+* Claude Code 会引用每条传入消息并注明其来自哪个发送会话，且 Claude 在据此执行操作时仍遵循接收会话自身的权限设置。
 
-Claude 也可以建议新会话。当它注意到值得修复但超出当前任务范围的东西时，它在聊天中将工作作为任务芯片提供。点击芯片来在具有自己 worktree 的新会话中启动该工作；Claude 继续你的当前会话而不中断。
+Claude 还可以建议新会话。当它注意到值得修复但超出当前任务范围的问题时，会在聊天中以任务标签的形式提供该工作。点击该标签即可在拥有独立 worktree 的新会话中开始该工作；Claude 会继续您的当前会话而不受干扰。
 
 <h3 id="run-long-running-tasks-in-the-cloud">
-  在云中运行长时间运行的任务
+  在云端运行长时间运行的任务
 </h3>
 
-对于大型重构、测试套件、迁移或其他长时间运行的任务，在启动会话时选择 **Cloud** 而不是 **Local**。云会话默认在 Anthropic 管理的基础设施上运行，即使你关闭应用或关闭计算机，也会继续运行。随时检查进度或引导 Claude 朝不同方向发展。你也可以从 [claude.ai/code](https://claude.ai/code) 或 [Claude 移动应用](/docs/zh-CN/mobile)监控云会话。
+对于大型重构、测试套件、迁移或其他长时间运行的任务，请在启动会话时选择 **Cloud** 而不是 **Local**。云端会话默认在 Anthropic 管理的基础设施上运行，即使您关闭应用或关闭计算机也会继续运行。您可以随时回来查看进度，或引导 Claude 转向不同的方向。您也可以从 [claude.ai/code](https://claude.ai/code) 或 [Claude 移动应用](/docs/zh-CN/mobile)监控云端会话。
 
-云会话也支持多个存储库。选择云环境后，点击所选存储库旁边的 **+** 按钮向会话添加更多存储库。每个存储库都有自己的分支选择器。这对于跨越多个代码库的任务很有用，例如更新共享库及其使用者。
+云端会话还支持多个仓库。选择云端环境后，点击所选仓库旁边的 **+** 按钮即可向会话添加更多仓库。每个仓库都有自己的分支选择器。这对于跨越多个代码库的任务很有用，例如更新共享库及其使用方。
 
-有关云会话如何工作的更多信息，请参阅 [Web 上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)。当一项工作需要许多云会话时，在侧边栏中选择 **Projects** 来创建一个[项目](/docs/zh-CN/claude-projects)，Claude 从一个对话中为你启动和跟踪会话。
+有关云端会话工作方式的更多信息，请参阅[在云端使用 Claude Code](/docs/zh-CN/claude-code-on-the-web)。当一项工作需要许多云端会话时，请在侧边栏中选择 **Projects** 创建一个[项目](/docs/zh-CN/claude-projects)，Claude 会在一个对话中为您启动并跟踪这些会话。
 
 <h3 id="continue-in-another-surface">
-  在另一个表面继续
+  在另一个使用入口继续
 </h3>
 
-**Continue in** 菜单，可从会话工具栏右下角的 VS Code 图标访问，让你将会话移动到另一个表面：
+要在其他地方继续会话，请通过会话标题旁边的下拉箭头或侧边栏中该会话所在的行打开会话菜单，然后选择 **Open in**：
 
-* **Web 上的 Claude Code**：将你的本地会话发送到云中继续运行。Desktop 推送你的分支，生成对话摘要，并创建具有完整上下文的新云会话。你可以然后选择存档本地会话或保留它。这需要干净的工作树，对于 SSH 会话不可用。
-* **你的 IDE**：在当前工作目录的支持的 IDE 中打开你的项目。
+* 选择 **Cloud** 可将会话作为[云端会话](/docs/zh-CN/claude-code-on-the-web)继续，您的对话会以摘要形式带过去。在您确认之前，对话框会说明您的文件是否也会一并移动，以及云端会话就绪后此会话是否会被存档。通过 [SSH](#ssh-sessions) 或在 [WSL](/docs/zh-CN/desktop-wsl) 中运行的会话无法以这种方式移动。
+* 选择已安装的编辑器或文件管理器，可在其中打开该会话在磁盘上的文件夹。
 
 <h3 id="sessions-from-dispatch">
   来自 Dispatch 的会话
 </h3>
 
-[Dispatch](https://support.claude.com/en/articles/13947068) 是一个与 Claude 的持久对话，存在于 [Cowork](https://claude.com/product/cowork) 选项卡中。你向 Dispatch 发送任务消息，它决定如何处理。
+[Dispatch](https://support.claude.com/en/articles/13947068) 是一个与 Claude 的持久对话，位于 [Cowork](https://claude.com/product/cowork) 选项卡中。您向 Dispatch 发送任务消息，由它决定如何处理。
 
-任务可以通过两种方式成为 Code 会话：你直接要求一个，例如"打开 Claude Code 会话并修复登录错误"，或 Dispatch 决定任务是开发工作并自己生成一个。通常路由到 Code 的任务包括修复错误、更新依赖项、运行测试或打开拉取请求。研究、文档编辑和电子表格工作保留在 Cowork 中。
+任务可以通过两种方式成为 Code 会话：您直接提出要求，例如"打开一个 Claude Code 会话并修复登录错误"；或者 Dispatch 判断该任务属于开发工作，并自行创建一个会话。通常会路由到 Code 的任务包括修复错误、更新依赖、运行测试或创建 Pull Request。研究、文档编辑和电子表格工作则保留在 Cowork 中。
 
-无论哪种方式，Code 会话都会在 Code 选项卡的侧边栏中出现，带有 **Dispatch** 徽章。当它完成或需要你的批准时，你会在手机上收到推送通知。
+无论哪种方式，Code 会话都会出现在 Code 选项卡的侧边栏中，并带有 **Dispatch** 徽章。当它完成或需要您批准时，您会在手机上收到推送通知。
 
-如果你启用了[计算机使用](#let-claude-use-your-computer)，Dispatch 生成的 Code 会话也可以使用它。这些会话中的应用批准在 30 分钟后过期并重新提示，而不是像常规 Code 会话那样持续整个会话。
+如果您启用了[计算机使用](#let-claude-use-your-computer)，由 Dispatch 创建的 Code 会话也可以使用它。这些会话中的应用批准会在 30 分钟后过期并重新提示，而不是像常规 Code 会话那样在整个会话期间有效。
 
-有关设置、配对和 Dispatch 设置，请参阅 [Dispatch 帮助文章](https://support.claude.com/en/articles/13947068)。Dispatch 需要 Pro 或 Max 计划，在 Team 或 Enterprise 计划上不可用。
+有关设置、配对和 Dispatch 设置，请参阅 [Dispatch 帮助文章](https://support.claude.com/en/articles/13947068)。Dispatch 需要 Pro 或 Max 计划，Team 或 Enterprise 计划不可用。
 
-Dispatch 是远离终端时与 Claude 合作的几种方式之一。有关与其他选项的比较，请参阅[平台和集成](/docs/zh-CN/platforms#work-when-you-are-away-from-your-terminal)。
+Dispatch 是您离开终端时与 Claude 协作的几种方式之一。有关与其他选项的比较，请参阅[平台和集成](/docs/zh-CN/platforms#work-when-you-are-away-from-your-terminal)。
 
 <h2 id="extend-claude-code">
   扩展 Claude Code
@@ -739,7 +739,7 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 [Extended thinking](/docs/zh-CN/model-config#extended-thinking)默认启用，这改进了复杂推理任务的性能，但使用额外的令牌。在 Anthropic API 上，在本地环境编辑器中将 `MAX_THINKING_TOKENS` 设置为 `0` 来关闭思考；这对 Opus 5.5、Sonnet 5.5 或 Fable 模型没有影响，它们始终使用 extended thinking。在 Anthropic API 上关闭思考后，Claude Code 发送努力级别 `high` 而不是更高级别给它知道的[不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off)的模型，例如 Opus 5。
 
-在具有[自适应推理](/docs/zh-CN/model-config#adjust-effort-level)的模型上，除 `0` 外的 `MAX_THINKING_TOKENS` 值被忽略，因为自适应推理控制思考深度。在 Opus 4.6 和 Sonnet 4.6 上，设置 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` 为 `1` 来使用固定思考预算；Fable 模型、Sonnet 5 及更高版本和 Opus 4.7 及更高版本始终使用自适应推理，没有固定预算模式。
+在具有[自适应推理](/docs/zh-CN/model-config#adjust-effort-level)的模型上，对于为正数的 `MAX_THINKING_TOKENS` 值，Claude Code 会忽略该数值本身，因为思考深度改由自适应推理控制。在 Opus 4.6 和 Sonnet 4.6 上，将 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` 设置为 `1` 可使用固定思考预算；Fable 模型、Sonnet 5 及更高版本以及 Opus 4.7 及更高版本始终使用自适应推理，没有固定预算模式。
 
 <h4 id="local-sessions-on-managed-devices">
   托管设备上的本地会话

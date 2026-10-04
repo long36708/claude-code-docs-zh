@@ -109,7 +109,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 * **单击列表边缘的 `↑ N more` 或 `↓ N more` 行**以跳转到列表的该端，而不选择任何选项。需要 Claude Code v2.1.286 或更高版本。
 * **单击折叠的工具结果**以展开它并查看完整输出。再次单击以折叠。工具调用及其结果一起展开。只有有更多内容要显示的消息才可点击。
   * 单击也会展开 `!` shell 命令的输出，无论是较旧的截断结果还是命令运行时的实时进度行。需要 Claude Code v2.1.257 或更高版本。
-  * 单击也会展开一条暗淡的 `Message from @<sender>` 行，当发送者是[队友](/docs/zh-CN/agent-teams)或在您的会话中运行的另一个代理时。来自[您的其他会话之一](/docs/zh-CN/cross-session-messaging#what-a-message-looks-like)的消息行也会显示消息的第一行，并且不可点击，因此按 `Ctrl+o` 来阅读那一条。
+  * 当发送者是[队友](/docs/zh-CN/agent-teams)或在您的会话中运行的另一个 Agent 时，单击也会展开暗淡的 `Message from @<sender>` 行。
 * **在 macOS 上按住 `Cmd`，或在 Linux 和 Windows 上按住 `Ctrl`，然后单击 URL 或文件路径**以打开它。纯 `http://` 和 `https://` URL 在您的浏览器中打开，工具输出中的文件路径（如 Edit 或 Write 后打印的路径）在您的默认应用程序中打开。不带修饰符的纯单击不会打开链接，与本机终端行为相匹配。
   * Claude Code 将网络 (UNC) 路径（例如 `\\server\share\file.ts`）呈现为纯文本，没有链接，因为打开网络路径可能会将您的 Windows 凭据发送到它命名的主机。
   * 某些 macOS 终端会将 `Cmd`+单击转发给正在运行的应用程序，而不是自己打开链接，终端鼠标协议无法编码 `Cmd` 键，因此 Claude Code 收到纯单击。在 Ghostty 中，以及在 macOS 上的 Warp 中，Claude Code 检测到这一点，并让纯单击链接打开它，按住 `Cmd` 仍然有效。

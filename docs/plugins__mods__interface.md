@@ -434,7 +434,7 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 | `Link`, `Code`, `Markdown` | 带有 `href` 和可选 `label` 的链接、代码块和格式化为 Claude 回复方式的文本。`Markdown` 在 `text` 属性中而不是在 `children` 中获取其内容，当您传递 `onLinkPress` 时需要 `key`。 | 到处 |
 | `Input`, `Select` | 文本字段和下拉列表 | 终端、桌面 |
 | `Svg` | SVG 文档 | 桌面 |
-| `Client` | 由您的第二个文件绘制的区域，用于动画和指针输入。该文件没有 mods API。它仅通过发布数据到达您的 hook，该数据作为 `ui.message` 事件到达。 | 终端、桌面 |
+| `Client` | 由您的第二个文件绘制的区域，用于动画和指针输入。该文件没有 mod API。它通过发布数据到达您的 hook，该数据作为 `ui.message` 事件到达。如果它加载、绘制或运行失败，您的 hook 会收到 [`ui.fault`](/docs/zh-CN/plugins/mods/reference#interface) 事件。 | 终端、桌面 |
 | `Raster`, `Image` | [彩色单元格网格](#draw-a-grid-of-colored-cells)和图片 | 终端 |
 
 如果您的模块是 `.tsx` 或 `.jsx` 文件，您可以将树写成 JSX。首先从 `$.ui.resolve(e)` 解构元素。
@@ -664,7 +664,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
   当 Claude Code 在不被要求时重绘
 </h3>
 
-当站点的 prop 更改或终端的宽度更改时，Claude Code 会再次运行您的 `ui.render` hook。它不会按计时器运行 hook，也无法判断您的模块中的变量何时更改。
+当站点的 prop 更改或终端的宽度更改时，Claude Code 会再次运行您的 `ui.render` hook。当站点中的某个 `Client` 失败且您的 mod 处理 [`ui.fault`](/docs/zh-CN/plugins/mods/reference#interface) 时，Claude Code 会在您的 `ui.fault` hook 返回后再运行一次该 hook，以便您的 `ui.render` hook 可以省略该 `Client`。它不会按计时器运行 hook，也无法判断您的模块中的变量何时更改。
 
 <h3 id="redraw-when-your-data-changes">
   当您的数据更改时重绘

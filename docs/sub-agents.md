@@ -632,7 +632,7 @@ Implement API endpoints. Follow the conventions and patterns from the preloaded 
 
 每个列出的技能的完整内容被注入到 subagent 的上下文中。此字段控制哪些技能被预加载，而不是 subagent 可以访问哪些技能：没有它，subagent 仍然可以在执行期间通过 Skill 工具发现和调用项目、用户和 plugin 技能。要防止 subagent 完全调用技能，请从 [`tools`](#available-tools) 列表中省略 `Skill` 或将其添加到 `disallowedTools`。
 
-您无法预加载设置了 [`disable-model-invocation: true`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的技能，因为预加载来自 Claude 可以调用的相同技能集。这包括捆绑的 `/verify` 技能：只有您可以运行它，因此它也无法被预加载。
+您无法预加载设置了 [`disable-model-invocation: true`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill，因为预加载的来源与 Claude 可以调用的 skill 集合相同。这包括内置的 `/verify` skill，Claude 无法自行运行它。
 
 如果列出的技能缺失或被禁用，例如由您的组织的策略，Claude Code 会跳过它并向调试日志记录警告。
 

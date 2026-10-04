@@ -561,11 +561,11 @@ my-skill/
 
 默认情况下，您和 Claude 都可以调用任何 skill。您可以输入 `/skill-name` 直接调用它，Claude 也可以在与您的对话相关时自动加载它。有两个 frontmatter 字段可用于限制这一点：
 
-* **`disable-model-invocation: true`**：只有您可以调用该 skill。适用于具有副作用或您希望控制时机的工作流，例如 `/commit`、`/deploy` 或 `/send-slack-message`。您不会希望 Claude 因为代码看起来已准备就绪就决定进行部署。
+* **`disable-model-invocation: true`**：Claude 无法自行调用该 skill。适用于具有副作用或您希望控制时机的工作流，例如 `/commit`、`/deploy` 或 `/send-slack-message`。您不会希望 Claude 因为代码看起来已准备就绪就决定进行部署。
 
 * **`user-invocable: false`**：只有 Claude 可以调用该 skill。适用于无法作为命令执行的背景知识。例如，`legacy-system-context` skill 解释旧系统的工作原理。Claude 应在相关时了解这些内容，但 `/legacy-system-context` 对用户而言并不是一个有意义的操作。
 
-此示例创建了一个只有您可以触发的部署 skill。如果您设置 `disable-model-invocation: true`，Claude 就无法自动运行该 skill：
+此示例创建了一个部署 skill。如果您设置 `disable-model-invocation: true`，Claude 就无法自动运行该 skill：
 
 ```yaml theme={null}
 ---
@@ -589,12 +589,25 @@ Deploy $ARGUMENTS to production:
 | Frontmatter | 您可以调用 | Claude 可以调用 | 何时加载到上下文中 |
 | :- | :- | :- | :- |
 | （默认） | 是 | 是 | 描述始终在上下文中，调用时加载完整 skill |
-| `disable-model-invocation: true` | 是 | 否 | 描述不在上下文中，您调用时加载完整 skill |
+| `disable-model-invocation: true` | 是 | 不能自行调用 | 描述不在上下文中，调用时加载完整 skill |
 | `user-invocable: false` | 否 | 是 | 描述始终在上下文中，调用时加载完整 skill |
 
 <Note>
   在常规会话中，skill 描述会加载到上下文中，以便 Claude 知道有哪些可用的 skill，但完整的 skill 内容仅在调用时加载。[预加载了 skill 的子代理](/docs/zh-CN/sub-agents#preload-skills-into-subagents)的工作方式不同：完整的 skill 内容会在启动时注入。
 </Note>
+
+<h4 id="where-you-write-the-skill’s-name">
+  在何处写 skill 名称
+</h4>
+
+要直接运行 skill，请将其名称放在消息开头。如果放在普通文本之后，该名称会授予 Claude 运行该 skill 的权限，但不会直接运行它：
+
+| 位置 | 示例 | 结果 |
+| :- | :- | :- |
+| 消息开头 | `/deploy staging` | Claude Code 直接运行该 skill |
+| 普通文本之后，作为单独的词且不附带任何标点 | `go ahead and /deploy to staging` | 不会直接运行任何内容。该名称视为您针对该消息授予的权限：Claude 可以在回复时运行该 skill，并根据您的措辞判断您是否要求它这样做 |
+
+如果只是想提及该 skill 而不允许其运行，请省略斜杠。
 
 <h3 id="skill-content-lifecycle">
   Skill 内容生命周期

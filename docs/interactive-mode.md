@@ -470,6 +470,8 @@ Claude Code 还在多种情况下跳过单个建议，包括：
 * 你的账户接近或已达到使用限制。要在达到限制之前保持建议开启，请将 [`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](/docs/zh-CN/env-vars) 设置为 `true`。在 v2.1.238 之前，Claude Code 即使将变量设置为 `true` 也会在接近限制时跳过建议
 * 在[代理团队](/docs/zh-CN/agent-teams)中，默认情况下在队友的会话中。主导的会话显示建议
 
+提示 `Showing fewer prompt suggestions · use one to bring them back` 表示由于您连续多次未使用建议，Claude Code 正在降低显示建议的频率。要恢复正常频率，请使用一个建议，或将 [`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](/docs/zh-CN/env-vars) 设置为 `true`。
+
 在打印模式下，Claude Code 默认不生成建议。使用 [`--prompt-suggestions`](/docs/zh-CN/cli-reference#cli-flags) 与 `-p "<prompt>" --output-format stream-json --verbose` 一起传递，以使 Claude Code 在生成建议的每一轮之后发出 `prompt_suggestion` 消息。生成器在这里也会跳过非常短的对话和冷提示缓存，因此单个短的 `-p` 查询可能不会发出任何建议。
 
 <h3 id="turn-prompt-suggestions-off">

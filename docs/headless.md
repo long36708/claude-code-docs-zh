@@ -59,7 +59,7 @@ claude --bare -p "Summarize README.md" --allowedTools "Read"
 | 系统提示添加 | `--append-system-prompt`, `--append-system-prompt-file` |
 | 设置 | `--settings <file-or-json>` |
 | MCP 服务器 | `--mcp-config <file-or-json>` |
-| 自定义 agents | `--agents <json>` |
+| [自定义 Agent](/docs/zh-CN/sub-agents#choose-the-subagent-scope) | `--agents <file-or-json>` |
 | 一个插件 | `--plugin-dir <path>`, `--plugin-url <url>` |
 
 bare 模式还会限制会话运行期间发生的事情：

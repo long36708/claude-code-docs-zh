@@ -248,7 +248,7 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
 | **Subagents** | 生成时 | 具有指定 skills 的新鲜上下文，或用于 [fork](/docs/zh-CN/sub-agents#fork-the-current-conversation) 的父对话 | 与主会话隔离 |
 | **Hooks** | 触发时 | 无（外部运行） | 零，除非 hook 返回额外上下文 |
 
-\*默认情况下，skill 描述在会话开始时加载，以便 Claude 可以决定何时使用它们。在 skill 的 frontmatter 中设置 `disable-model-invocation: true` 以将其完全隐藏在 Claude 中，直到您手动调用它。对于您未编写的 skill，在设置中设置 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 以在不编辑其文件的情况下执行相同操作。
+\*在 skill 的 frontmatter 中设置 [`disable-model-invocation: true`](/docs/zh-CN/skills#control-who-invokes-a-skill)，可使其描述不进入 Claude 的上下文。对于您未编写的 skill，在设置中设置 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 以在不编辑其文件的情况下执行相同操作。
 
 <h3 id="understand-how-features-load">
   了解功能如何加载
@@ -278,13 +278,13 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](/docs/zh
 
     **加载内容：** 对于模型可调用的 skills，Claude 在每个请求中看到名称和描述。当您使用 `/<name>` 调用 skill 或 Claude 自动加载它时，完整内容加载到您的对话中。
 
-    **Claude 如何选择 skills：** Claude 将您的任务与 skill 描述相匹配，以决定哪些相关。如果描述模糊或重叠，Claude 可能加载错误的 skill 或错过会有帮助的 skill。要告诉 Claude 使用特定的 skill，请使用 `/<name>` 调用它。带有 `disable-model-invocation: true` 的 Skills 对 Claude 不可见，直到您调用它们。
+    **Claude 如何选择 skill：** Claude 将您的任务与 skill 描述相匹配，以决定哪些相关。如果描述模糊或重叠，Claude 可能加载错误的 skill 或错过会有帮助的 skill。要告诉 Claude 使用特定的 skill，请使用 `/<name>` 调用它。
 
     **上下文成本：** 低，直到使用。仅用户 skills 在调用前成本为零。
 
     **在 subagents 中：** Skills 在 subagents 中的工作方式不同。不是按需加载，而是在 subagent 的 `skills` 字段中列出的 skills 在启动时完全预加载到其上下文中。Subagents 仍然可以通过 Skill 工具发现和调用未列出的项目、用户和插件 skills。
 
-    <Tip>对于有副作用的 skills，使用 `disable-model-invocation: true`。这节省上下文并确保只有您触发它们。</Tip>
+    <Tip>对于有副作用的 skill，使用 `disable-model-invocation: true`。这节省上下文并确保它们仅在您指名时运行。</Tip>
   </Tab>
 
   <Tab title="MCP 服务器">

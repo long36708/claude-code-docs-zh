@@ -6,7 +6,7 @@
 
 > Claude Code mod 的完整参考：hook 模块布局、事件、mods API 方法、渲染位置、按使用入口划分的元素、限制和设置。
 
-查阅 [mod](/docs/zh-CN/plugins/mods/overview) 可以处理的任何事件、可以调用的任何 mods API 方法，或可以在其中绘制的任何渲染位置，适用于 v2.1.287 起的 Claude Code CLI 和 Desktop 应用。每个条目给出名称和一行描述，如有相应的指南章节，还会链接到该章节。
+查阅 [mod](/docs/zh-CN/plugins/mods/overview) 可以处理的任何事件、可以调用的任何 mods API 方法，或可以在其中绘制的任何渲染位置，适用于 v2.1.289 起的 Claude Code CLI 和 Desktop 应用。每个条目给出名称和一行描述，如有相应的指南章节，还会链接到该章节。
 
 <Note>
   完整的参考是 Claude Code 的 [mod TypeScript 声明](https://github.com/anthropics/claude-code/blob/main/mods/types/claude-code.d.ts)，其中描述了每个事件、方法和元素，并附有示例。GitHub 上的副本可能比您安装的 Claude Code 版本更旧。两者不一致时，请以 [Claude Code 为您的版本写入的副本](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)为准。
@@ -128,12 +128,12 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
   子代理
 </h3>
 
-子代理事件在向 Claude 提供某个子代理类型时，以及子代理即将启动时触发：
+子代理事件在向 Claude 提供某个子代理类型时，以及子代理或 agent team 队友即将启动时触发：
 
 | 事件 | 触发时机 | hook 可以返回 |
 | :- | :- | :- |
 | `agent.offer` | 向 Claude 提供某个子代理类型 | `{ isOffered: false }` 以不提供它 |
-| `agent.spawn` | 子代理即将启动 | `{ model }` 或 `{ deny: reason }` |
+| `agent.spawn` | 子代理或 [agent team](/docs/zh-CN/agent-teams) 队友即将启动。对于队友，`e.isTeammate` 为 `true`。 | `next({ ...e, model })` 以选择其模型，或 `{ deny: reason }` |
 
 <h3 id="interface">
   界面
@@ -149,6 +149,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | `ui.focus`, `ui.scroll` | 获得焦点的控件，或窗格或横栏的滚动位置即将更改 |
 | `ui.close` | 窗格即将关闭。`e.id` 是该窗格，`e.origin.kind` 为 `plugin`、`person` 或 `unload`。 |
 | [`ui.message`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `Client` 元素向其 mod 发送数据 |
+| [`ui.fault`](/docs/zh-CN/plugins/mods/interface#redraw-when-something-changes) | 您的 mod 绘制的 `Client` 元素加载、绘制或运行失败。`e.phase` 为 `load`、`render` 或 `run`，`e.reason` 是错误消息。需要 Claude Code v2.1.289 或更高版本。 |
 
 <h3 id="other-mods">
   其他 mod
@@ -192,7 +193,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | 命名空间 | 方法 |
 | :- | :- |
 | `$.plugin` | `name`、`root`：此插件的名称和目录 |
-| [`$.ui`](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `resolve`、`invalidate`、`open`、`close`、`panes`、`focus`、`scroll`、`toast`、`status`、`log`、`notice`、`ask`、`copy`、`blit` |
+| [`$.ui`](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `resolve`、`invalidate`、`open`、`close`、`panes`、`focus`、`scroll`、`toast`、`status`、`log`、`notice`、`ask`、`copy`、`selection`、`blit` |
 | [`$.command`](/docs/zh-CN/plugins/mods/api#add-a-command) | `register`、`run`、`list` |
 | [`$.tool`](/docs/zh-CN/plugins/mods/api#add-a-tool) | `register`、`call`、`check`、`list` |
 | `$.agent` | `register`、`spawn`、`list` |
@@ -276,9 +277,9 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 
 | 限制 | 值 |
 | :- | :- |
-| 单个事件中 hook 自身的执行时间，不计入在 `next` 内或在除 `$.clock.sleep` 之外的 mods API 调用中花费的时间 | 10 秒 |
+| 单个事件中 hook 自身的执行时间，不计入在 `next` 内或在除 `$.clock.sleep` 之外的 mods API 调用中花费的时间 | 10 秒；对于 `prompt.edit` hook 为 50 毫秒 |
 | `.catch` 处理程序的执行时间 | 1 秒 |
-| 所有 `session.end` hook 合计 | 1.5 秒 |
+| 所有 `session.end` hook 合计 | 与 [SessionEnd hook 预算](/docs/zh-CN/hooks#sessionend-input)相同，除非您更改，否则为 1.5 秒，从您设置中的 `SessionEnd` hook 完成时开始计算 |
 | `$.process.run` 超时时间 | 默认 30 秒，最长 10 分钟 |
 | `$.model.complete` `maxTokens` | 默认 1024，最多 64,000 或模型的输出上限 |
 | `$.fs.read` 和 `$.fs.write` | 单个文件 4 MiB |

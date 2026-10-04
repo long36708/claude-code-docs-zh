@@ -215,7 +215,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 要向用户发布新版本，更改插件的 `version`。用户只有在插件的计算版本与他们拥有的版本不同时才获得新副本。该版本首先来自 `plugin.json`，然后来自 marketplace 条目，根据 [版本和更新](/docs/zh-CN/plugins/loading#versions-and-updates)。
 
-用户从他们添加为本地目录的 marketplace [就地加载](/docs/zh-CN/plugins/loading#find-plugins-on-disk) 的插件不受 `version` 控制。它在每次会话启动时加载你的当前文件，无论其版本字符串说什么。
+如果用户从通过本地路径添加的市场中[就地加载](/docs/zh-CN/plugins/loading#find-plugins-on-disk)插件，该插件不受 `version` 控制。无论其版本字符串是什么，它都会在每次会话启动时加载您当前的文件。
 
 对于除了就地加载或来自 `command` 源的安装之外的每次安装，要么在每次发布时增加 `version`，要么省略它：
 

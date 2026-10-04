@@ -336,7 +336,9 @@ Claude Code 按各插件的加载方式对人类可读的输出进行分组：
 | `version` | string | 对于市场安装，为 [Claude Code 在安装时计算的版本](/docs/zh-CN/plugins/loading#versions-and-updates)。对于仅限会话、skills-directory 或同步插件，为清单的 `version`，未声明时为 `unknown` |
 | `scope` | string | 安装的插件为 `user`、`project`、`local` 或 `managed`；skills-directory 插件为 `user` 或 `project`；仅限会话的插件为 `session`；从 claude.ai 同步的插件为 `synced` |
 | `enabled` | boolean | 插件在合并后的设置中是否启用 |
-| `installPath` | string | 插件加载所在的目录 |
+| `installPath` | string | 插件加载所在的目录，但会话从其市场文件夹中[就地加载](/docs/zh-CN/plugins/loading#in-place-and-copied-plugins)的插件除外 |
+| `readFromFolder` | string | 对于会话从其市场文件夹中[就地加载](/docs/zh-CN/plugins/loading#in-place-and-copied-plugins)的插件，为该文件夹内插件的源目录。需要 Claude Code v2.1.289 或更高版本 |
+| `folderVersion` | string | 与 `readFromFolder` 一起出现，为 Claude Code 从该文件夹加载插件时插件的 `version`，可能与上面的 `version` 字段不同。插件未加载或未声明版本时不存在。需要 Claude Code v2.1.289 或更高版本 |
 | `installedAt` | string | 安装的 ISO 时间戳。仅限市场安装 |
 | `lastUpdated` | string | 最后更新的 ISO 时间戳。仅限市场安装 |
 | `projectPath` | string | 安装所属的项目。仅限 `project` 和 `local` 作用域 |
@@ -637,6 +639,8 @@ claude plugin validate ./my-plugin --strict
   * 名为 `.claude` 的目录：其中的 `skills`、`agents` 和 `commands` 目录
   * 任何其他目录：其 `.claude` 下的这三个目录
 
+当目录同时包含 `.claude-plugin/marketplace.json` 和 `.claude-plugin/plugin.json` 时，Claude Code 会验证市场，同时也验证插件的清单和组件文件。这需要 Claude Code v2.1.289 或更高版本。
+
 Claude Code 不会跟随您指定的目录内的符号链接。其行为取决于链接所在的位置：
 
 * **插件或 `.claude` 根目录下作为链接的 `skills`、`agents` 或 `commands` 目录**：Claude Code 会警告其中的任何内容都未被读取。
@@ -647,7 +651,7 @@ Claude Code 不会跟随您指定的目录内的符号链接。其行为取决�
 
 * **插件根目录下的 `SKILL.md`**：针对插件目录运行 `claude plugin validate` 时，Claude Code 不会检查插件根目录下的 `SKILL.md`
 * **插件根目录下的 `CLAUDE.md`**：在插件运行中，Claude Code 还会对插件根目录下的 `CLAUDE.md` 发出警告
-* **市场运行中的插件文件**：从市场目录运行时，Claude Code 不会打开各插件的 skill、Agent、命令或 hook 文件，也不会打开它们捆绑的 MCP 服务器文件。要查找这些文件中的错误，请分别验证每个插件目录
+* **市场运行中的插件文件**：从市场目录运行时，Claude Code 不会打开市场在其他目录中列出的插件的 skill、Agent、命令或 hook 文件，也不会打开它们捆绑的 MCP 服务器文件。要查找这些文件中的错误，请分别验证每个插件目录
 
 <h4 id="output-and-exit-codes">
   输出和退出码

@@ -766,7 +766,7 @@ Fable 模型、Sonnet 5 及更高版本和 Opus 4.7 及更高版本始终使用�
 | :- | :- |
 | 当前会话的切换 | 在 macOS 上按 `Option+T` 或在 Windows 和 Linux 上按 `Alt+T` |
 | 设置全局默认值 | 运行 `/config` 并切换思考模式。保存为 `~/.claude/settings.json` 中的 `alwaysThinkingEnabled` |
-| 通过环境变量禁用 | 设置 [`MAX_THINKING_TOKENS=0`](/docs/zh-CN/env-vars)，这在 Anthropic API 上关闭思考，除了 Opus 5.5、Sonnet 5.5 和 Fable 模型。在[第三方提供商](/docs/zh-CN/third-party-integrations)上，Claude Code 改为省略 `thinking` 参数，自适应推理模型可能仍然思考。其他值仅适用于[固定思考预算](#adaptive-reasoning-and-fixed-thinking-budgets) |
+| 通过环境变量禁用 | 设置 [`MAX_THINKING_TOKENS=0`](/docs/zh-CN/env-vars)，这在 Anthropic API 上关闭思考，除了 Opus 5.5、Sonnet 5.5 和 Fable 模型。在[第三方提供商](/docs/zh-CN/third-party-integrations)上，Claude Code 改为省略 `thinking` 参数，自适应推理模型可能仍然思考 |
 
 您不能在 Opus 5.5、Sonnet 5.5 或 Fable 模型上关闭思考。对于这些模型，会话切换和 `/config` 行显示 `Thinking can't be turned off`，而不是提供切换，保存的 `alwaysThinkingEnabled: false` 或 `MAX_THINKING_TOKENS=0` 在那里没有效果。在这些模型上，模型根据 effort 级别按步骤决定思考多少。保存的设置在您切换到接受它的模型时再次应用。
 

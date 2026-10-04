@@ -26,7 +26,7 @@
 
 * **CLI 流程（例如 `/web-setup`）**：为您创建 **Default**
 * **Pro 和 Max 上的网页引导**：为您创建 **Default**
-* **Team 和 Enterprise 上的网页引导**：显示 **Create your first cloud environment** 表单，除非所有者已启用[快速网页设置](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)；保持表单的默认值并点击 **Create & finish** 以获得相同的 **Default** 环境
+* **Team 和 Enterprise 上的网页引导**：显示 **Create your first cloud environment** 表单，除非所有者已启用[快速网页设置](/docs/zh-CN/claude-code-on-the-web#quick-web-setup-for-team-and-enterprise)；保持表单的默认值并点击 **Create & finish** 以获得相同的 **Default** 环境
 
 **Default** 本身不带有任何配置：
 

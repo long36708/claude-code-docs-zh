@@ -676,7 +676,7 @@ Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) �
 * `.devcontainer`
 * `.yarn`
 * `.mvn`
-* `.claude`，除了 `.claude/worktrees`，Claude 在其中存储自己的 git worktrees
+* `.claude`，除了 `.claude/worktrees`（Claude 在其中存储自己的 git worktree），以及在未使用 `--restricted` 启动的会话中 Claude 自己的[自动记忆](/docs/zh-CN/memory#storage-location)目录中的 markdown 文件
 * 使用 [`--plugin-dir`](/docs/zh-CN/plugins/mods/create#change-a-mod-with-claude) 加载的目录，因为当文件发生更改时，Claude Code 会从该目录重新加载并运行 mod 的代码
 
 受保护的文件：
@@ -739,9 +739,11 @@ Claude Code 也将以下 `rm` 和 `rmdir` 目标视为关键路径。最后一�
 Claude Code 也查看这些构造内部：
 
 * **嵌套命令**：带有 `(...)` 的子 shell、带有 `{ ...; }` 的大括号组、带有 `$(...)` 或反引号的命令替换，或带有 `<(...)` 的进程替换。Claude Code 找到关键路径移除，无论它位于嵌套形式内部（如 `(rm -rf ~)` 或 `echo "$(rm -rf ~)"`），还是位于同一命令中的其他地方。
-* **内联脚本**：Claude Code 检查传递给 shell 的脚本（如 `sh -c` 或 `bash -c`）中的 shell 变量和位置参数[目标](#other-targets-that-count-as-critical-paths)。
+* **内联脚本**：通过 `-c` 传递给 `sh`、`bash`、`zsh` 或类似 POSIX shell 的脚本，如 `bash -c 'rm -rf ~'`。
   * 当脚本是双引号时，调用 shell 在内部 shell 接收脚本之前扩展其变量。在 `find . -name '*.tmp' -exec sh -c "rm -rf \"$1\"/*" _ {} \;` 中，命令对每个匹配扩展为从文件系统根目录的移除，Claude Code 将其视为关键路径移除。
   * 绑定 `$1` 到真实值的单引号脚本（如 `sh -c 'rm -rf "$1"/*' _ {}` 所做的）不被标记。
+
+要关闭对直接写在 `-c` 脚本中的关键路径（如 `~`）的检查，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT=1`](/docs/zh-CN/env-vars#variables)。
 
 <h3 id="rewrite-a-flagged-command">
   重写被标记的命令
