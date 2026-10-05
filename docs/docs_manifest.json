@@ -495,8 +495,8 @@
     "errors.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/errors",
       "original_md_url": "https://code.claude.com/docs/zh-CN/errors.md",
-      "hash": "b2615a9c8cdd11f3a8d44a55e2acfdfc9c320a93194db88435b5e6778fc4a5e6",
-      "last_updated": "2026-10-04T17:44:42.296935"
+      "hash": "eb1c3b007169a95d9443e13163cec8965b37ee31873c87e0768ab43e415e488b",
+      "last_updated": "2026-10-05T16:16:26.615630"
     },
     "fast-mode.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/fast-mode",
@@ -1324,8 +1324,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-10-05T07:23:01.547147",
-    "fetch_duration_seconds": 148.12112,
+    "last_fetch_completed": "2026-10-05T16:17:47.473806",
+    "fetch_duration_seconds": 131.209296,
     "total_pages_discovered": 218,
     "pages_fetched_successfully": 220,
     "pages_failed": 0,
@@ -1335,7 +1335,7 @@
     "total_files": 220,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-10-05T07:23:01.547171",
+  "last_updated": "2026-10-05T16:17:47.473833",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

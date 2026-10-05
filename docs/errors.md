@@ -187,6 +187,7 @@
 | `<model>'s safeguards flagged this message` | [请求错误](#safety-measures-flagged-a-cybersecurity-topic) |
 | `<model>'s safeguards flagged this session` | [请求错误](#safety-measures-flagged-a-cybersecurity-topic) |
 | `<model> has safety measures that flagged this message for a cybersecurity topic` | [请求错误](#safety-measures-flagged-a-cybersecurity-topic) |
+| `` Details: `[reasoning_extraction]` `` | [请求错误](#safeguards-flagged-a-request-for-claudes-reasoning) |
 | `API Error: Output blocked by content filtering policy` | [请求错误](#output-blocked-by-content-filtering-policy) |
 | `Installation was killed before it could finish (exit code 137)` | [安装错误](#installation-was-killed-before-it-could-finish) |
 | `The connection dropped while downloading the update` | [安装错误](#the-connection-dropped-while-downloading-the-update) |
@@ -2825,6 +2826,8 @@ Claude Code 自己的 [WebSearch 工具](/docs/zh-CN/tools-reference#websearch-t
 
 API 拒绝了响应，因为对话中的内容触发了[使用政策](https://www.anthropic.com/legal/aup)检查。
 
+如果消息包含 `` Details: `[reasoning_extraction]` `` 行，请参阅[保护措施标记了索取 Claude 推理过程的请求](#safeguards-flagged-a-request-for-claudes-reasoning)。
+
 消息包括请求 ID 和消息 ID，如果您认为拒绝不正确，可以将其提供给支持人员。
 
 ```text theme={null}
@@ -2855,6 +2858,8 @@ Send feedback with /feedback or learn more: https://www.anthropic.com/legal/aup
 API Error: Opus 4.8's safeguards flagged this message. Our intentionally broad safeguards allow us to deliver more capabilities faster, but can sometimes flag legitimate cybersecurity work. Apply to the Cyber Verification Program to reduce these interruptions. Send feedback with /feedback or learn more: https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude
 ```
 
+如果消息包含 `` Details: `[reasoning_extraction]` `` 行，请参阅[保护措施标记了索取 Claude 推理过程的请求](#safeguards-flagged-a-request-for-claudes-reasoning)。
+
 消息链接到[网络安全验证计划](https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude)，该计划为合法网络安全工作授予访问权限。在 Opus 5.5 和 Sonnet 5.5 上，消息改以 `<model>'s safeguards flagged this session` 开头。当标记的类别有可用的备用模型时，Claude Code [切换模型](/docs/zh-CN/model-config#automatic-model-fallback)而不是显示此错误。
 
 在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 和 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 上，网络安全标记会改为产生[使用政策拒绝](#usage-policy-refusal)消息。
@@ -2868,6 +2873,27 @@ API Error: Opus 4.8's safeguards flagged this message. Our intentionally broad s
 * 如果您的工作需要此内容，通过[网络安全验证计划](https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude)申请访问权限
 * 如果您的请求不是关于网络安全主题，运行 `/feedback` 报告误报
 * 要继续在同一会话中工作，按 Esc 两次或运行 `/rewind` 回退到触发标记的轮次之前的检查点，然后采取不同的方法。请参阅[检查点](/docs/zh-CN/checkpointing)。
+
+<h3 id="safeguards-flagged-a-request-for-claudes-reasoning">
+  保护措施标记了索取 Claude 推理过程的请求
+</h3>
+
+API 拒绝了该请求，因为保护措施将其标记为要求模型在响应中复述其内部推理过程。API 将此[拒绝类别](https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#refusal-response)命名为 `reasoning_extraction`，拒绝消息包含以下行：
+
+```text theme={null}
+Details: `[reasoning_extraction]`
+```
+
+在 v2.1.234 之前，拒绝消息不包含 `Details` 行。
+
+**要做什么：**
+
+* 删除或改写任何要求 Claude 逐字或以固定格式写出其思考或推理过程的指令，例如 `<thinking>` 部分、草稿区部分或 JSON 输出中的 `reasoning` 字段。该指令可能位于您的提示词中，也可能位于 Claude Code 随其加载的自定义内容中，例如 CLAUDE.md、skill、子代理提示词、输出样式或 MCP 工具描述。
+* 要检查某个自定义内容是否为触发原因，请在终端中运行 [`claude --safe-mode`](/docs/zh-CN/cli-reference#cli-flags) 以启动禁用自定义内容的会话，然后发送相同的提示词
+* 更改自定义内容后，启动新会话
+* 要改写您已发送的提示词，请参阅[回退并总结](/docs/zh-CN/checkpointing#rewind-and-summarize)
+* 您仍然可以要求 Claude 解释其答案。可以要求简短的解释、结果背后的依据，或其所执行操作的摘要。要阅读 Claude 思考的摘要，请参阅 [`showThinkingSummaries`](/docs/zh-CN/settings-reference#showthinkingsummaries)。
+* 有关更多示例，以及改写后的请求仍被拒绝时该怎么做，请参阅[将推理保留在思考块中](https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#keep-reasoning-in-thinking-blocks)
 
 <h3 id="output-blocked-by-content-filtering-policy">
   Output blocked by content filtering policy
