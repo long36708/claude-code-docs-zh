@@ -35,29 +35,29 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
   管理员设置
 </h2>
 
-一个所有者将您的 GHES 实例连接到 Claude Code 一次。之后，您组织中的开发人员可以使用 GHES 存储库，无需任何额外配置。您需要在 Claude 组织中具有所有者或主要所有者角色，以及在 GHES 实例上创建 GitHub App 的权限。
+所有者只需将您的 GHES 实例连接到 Claude Code 一次。之后，您组织中的开发人员可以使用 GHES 仓库，无需任何额外配置。您需要在 Claude 组织中具有所有者或主要所有者角色，以及在 GHES 实例上创建 GitHub App 的权限。
 
-引导式设置生成 GitHub App 清单，并将您重定向到 GHES 实例以一键创建应用。如果您的环境阻止重定向流，可以使用 [替代手动设置](#manual-setup)。
+引导式设置会生成 GitHub App 清单，并将您重定向到 GHES 实例以一键创建应用。如果您的环境阻止重定向流程，可以使用[替代手动设置](#manual-setup)。
 
 <Steps>
-  <Step title="打开 Claude Code 管理员设置">
-    转到 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 并找到 GitHub Enterprise Server 部分。
+  <Step title="打开 Git 提供商设置">
+    转到 [**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control#github-enterprise) 并找到 GitHub Enterprise 部分。
   </Step>
 
   <Step title="启动引导式设置">
-    点击 **连接**。输入连接的显示名称（最多 20 个字符）和您的 GHES 主机名，例如 `github.example.com`。如果您的 GHES 实例使用自签名或私有证书颁发机构，请在可选字段中粘贴 CA 证书。
+    点击 **Connect**，如果已连接某个实例，则点击 **Add instance**，然后选择 **Set up automatically**。输入连接的显示名称（最多 20 个字符）和您的 GHES 主机名，例如 `github.example.com`。如果您的 GHES 实例使用自签名或私有证书颁发机构，请在可选字段中粘贴 CA 证书。
   </Step>
 
   <Step title="创建 GitHub App">
-    点击 **继续到 GitHub Enterprise**。您的浏览器重定向到您的 GHES 实例，并显示预填充的应用清单。审查配置并点击 **创建 GitHub App**。GHES 将您重定向回 Claude，应用凭证自动存储。
+    点击 **Continue to GitHub Enterprise**。您的浏览器会重定向到您的 GHES 实例，并显示预填充的应用清单。审查配置并点击 **Create GitHub App**。GHES 会将您重定向回 Claude，应用凭据将自动存储。
   </Step>
 
-  <Step title="在您的存储库上安装应用">
-    从您的 GHES 实例上的 GitHub App 页面，在您希望 Claude 访问的存储库或组织上安装应用。您可以从一个子集开始，稍后添加更多。
+  <Step title="在您的仓库上安装应用">
+    从您的 GHES 实例上的 GitHub App 页面，在您希望 Claude 访问的仓库或组织上安装应用。您可以从一个子集开始，稍后再添加更多。
   </Step>
 
   <Step title="启用功能">
-    返回 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 并为您的 GHES 存储库启用 [代码审查](/docs/zh-CN/code-review#set-up-code-review)、Claude Security 和 [贡献指标](/docs/zh-CN/analytics#enable-contribution-metrics)，使用与 github.com 相同的配置。
+    转到 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)，使用与 github.com 相同的配置为您的 GHES 仓库启用 [Code Review](/docs/zh-CN/code-review#set-up-code-review) 和[贡献指标](/docs/zh-CN/analytics#enable-contribution-metrics)。
   </Step>
 </Steps>
 
@@ -65,37 +65,39 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
   GitHub App 权限
 </h3>
 
-清单使用以下权限和 webhook 事件配置 GitHub App，这些权限和事件共同涵盖云会话、代码审查、Claude Security、插件市场和贡献指标：
+清单使用以下权限和 webhook 事件配置 GitHub App，这些权限和事件共同涵盖云端会话、Code Review、Claude Security、插件市场和贡献指标：
 
 | 权限 | 访问 | 用途 |
 | :- | :- | :- |
-| Contents | 读写 | 克隆存储库和推送分支 |
+| Contents | 读写 | 克隆仓库和推送分支 |
 | Pull requests | 读写 | 创建 PR 和发布审查评论 |
-| Issues | 读写 | 响应问题提及 |
-| Checks | 读写 | 发布代码审查检查运行 |
+| Issues | 读写 | 响应 issue 中的提及 |
+| Checks | 读写 | 发布 Code Review 检查运行 |
 | Actions | 读 | 读取 CI 状态以进行自动修复 |
-| Commit statuses | 读 | 从报告提交状态而不是检查运行的提供商读取 CI 状态 |
-| Repository hooks | 读写 | 当 [**组织设置 > 插件和技能**](https://claude.ai/admin-settings/skills?tab=marketplaces) 中的市场启用 **自动同步** 时，在插件市场存储库上创建 webhook |
+| Commit statuses | 读 | 从报告提交状态而非检查运行的提供商读取 CI 状态 |
+| Repository hooks | 读写 | 当 [**Organization settings > Plugins & skills**](https://claude.ai/admin-settings/skills?tab=marketplaces) 中的某个市场开启 **Sync automatically** 时，在插件市场仓库上创建 webhook |
 | Metadata | 读 | GitHub 对所有应用的要求 |
-| Organization members | 读 | 匹配 github.com 上的 Claude GitHub App，用于在链接安装时检查连接用户的组织角色 |
+| Organization members | 读 | 与 github.com 上的 Claude GitHub App 保持一致，该应用使用此权限在链接安装时检查连接用户的组织角色 |
 
 应用订阅 `pull_request`、`issue_comment`、`pull_request_review_comment`、`pull_request_review`、`check_run` 和 `status` 事件。
 
-GitHub 仅在创建应用时应用清单，因此从早期版本的清单创建的应用会保留创建时的权限和事件。如果您的应用缺少上述任何权限或事件，请在您的 GHES 实例上的应用设置中添加它们。GitHub 随后会要求每个安装的所有者批准新权限，安装将保留其旧权限，直到他们批准为止。
+GitHub 仅在创建应用时应用清单，因此从早期版本的清单创建的应用会保留创建时的权限和事件。如果您的应用缺少上述任何权限或事件，请在您的 GHES 实例上的应用设置中添加它们。GitHub 随后会要求每个安装的所有者批准新权限，在他们批准之前，安装将保留其旧权限。
 
 <h3 id="manual-setup">
   手动设置
 </h3>
 
-如果引导式重定向流被您的网络配置阻止，请点击 **手动添加** 而不是连接。在您的 GHES 实例上创建 GitHub App，具有 [上述权限和事件](#github-app-permissions)，然后在表单中输入连接详情：显示名称、您的 GHES 主机名和可选端口，以及应用的 ID、客户端 ID、客户端密钥、webhook 密钥和私钥。表单还接受可选的自定义 CA 证书和读副本主机名。
+如果引导式重定向流程被您的网络配置阻止，请点击 **Connect** 或 **Add instance**，然后选择 **Add manually** 而不是 **Set up automatically**。在您的 GHES 实例上创建具有[上述权限和事件](#github-app-permissions)的 GitHub App，然后在表单中输入连接详情：显示名称、您的 GHES 主机名和可选端口，以及应用的 ID、客户端 ID、客户端密钥、webhook 密钥和私钥。表单还接受可选的自定义 CA 证书和只读副本主机名。
 
-Claude 在您保存连接时生成应用的 webhook URL。点击 **添加配置** 后，打开连接的 **更多选项** 菜单，选择 **复制 webhook URL**，并将 URL 粘贴到您的 GHES 实例上的应用 webhook 设置中。使用您在表单中输入的相同 webhook 密钥。
+Claude 会在您保存连接时生成应用的 webhook URL。点击 **Add configuration** 后，打开连接的 **More options** 菜单，选择 **Copy webhook URL**，并将 URL 粘贴到您的 GHES 实例上的应用 webhook 设置中。使用您在表单中输入的相同 webhook 密钥。
 
 <h3 id="network-requirements">
   网络要求
 </h3>
 
-对于 Anthropic 托管的会话，您的 GHES 实例必须可从 Anthropic 基础设施访问，以便 Claude 可以克隆存储库和发布审查评论。如果您的 GHES 实例在防火墙后面，请将 Anthropic 的 [出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses) 加入白名单。[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#configure-git) 中的会话从您的网络内部克隆，除非运行器选择加入 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)，该代理从 Anthropic 一侧获取并需要相同的可达性。托管的会话前流程（例如存储库选择器）在会话启动前在 Anthropic 一侧运行。即使会话在自托管环境中运行，它们也需要您的 GHES 实例可从 Anthropic 基础设施访问。[SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags) 不可用，因此这些流程无法访问仅在内部可路由的 GHES 主机。
+对于 Anthropic 托管的会话，您的 GHES 实例必须可从 Anthropic 基础设施访问，以便 Claude 可以克隆仓库和发布审查评论。如果您的 GHES 实例位于防火墙后面，请将 Anthropic 的[出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses)加入允许列表。[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#configure-git)中的会话则从您的网络内部克隆，除非运行器选择使用 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)，该代理从 Anthropic 一侧获取，因此需要相同的可达性。
+
+托管的会话前流程（例如仓库选择器）会在会话启动前在 Anthropic 一侧运行。即使会话在自托管环境中运行，这些流程也需要您的 GHES 实例可从 Anthropic 基础设施访问。[SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags)不可用，因此这些流程无法访问仅在内部可路由的 GHES 主机。
 
 <h2 id="developer-workflow">
   开发人员工作流
@@ -238,7 +240,12 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
 
 如果从您的用户设置添加 GHES 市场失败并出现通用错误（如"无法添加市场"），请先检查您的 GitHub Enterprise 连接。这是当您自己的 GitHub Enterprise 账户未连接到 Claude 时出现的情况，即使您的组织的 GHES 实例已配置且其他用户已连接。该对话框不会指向 GitHub Enterprise 连接流程，"浏览"选项卡上的"连接到 GitHub"选项会登录到 github.com，这不会授予对 GHES 存储库的访问权限。
 
-要连接您的 GitHub Enterprise 账户：[claude.ai/code](https://claude.ai/code) 上的存储库选择器为每个已配置的 GHES 实例提供连接选项，Owner 也可以从 [Claude Code 管理员设置](https://claude.ai/admin-settings/claude-code) 的 GitHub Enterprise 部分进行连接。然后再次添加市场。或者，要求 Owner 在组织插件设置中添加市场，这样可以消除每个用户的连接要求。
+在以下任一位置连接您的 GitHub Enterprise 账户，然后再次添加市场：
+
+* **仓库选择器**：在 [claude.ai/code](https://claude.ai/code) 上，仓库选择器为每个已配置的 GHES 实例提供连接选项。
+* **Git providers 页面**：如果您是 Owner，请前往 [**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) 的 GitHub 部分并点击 **Connect**，或在已连接账户后点击 **Add organization**。在 **GitHub instance** 下选择 GHES 主机名，然后点击 **Connect**。
+
+或者，要求 Owner 在组织插件设置中添加市场，这样可以消除每个用户的连接要求。
 
 在其他 claude.ai 界面上，GHES 市场上的"找不到存储库。如果是私有的，需要 GitHub 访问"错误通常表示相同的缺失连接。通过上述路径之一连接您的 GitHub Enterprise 账户，然后重试。
 

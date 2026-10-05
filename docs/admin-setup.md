@@ -127,7 +127,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 
 * **Cloud environments 页面**：所有者创建[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)，设置成员云端会话的[网络访问级别](/docs/zh-CN/cloud-environments#network-access)、环境变量和设置脚本。
 * **默认环境**：所有者在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 单独选择组织的默认环境。
-* **GitHub 页面**：请参阅[已关联的 GitHub 账户](#connected-github-accounts)，了解关联到您组织的 GitHub 账户。
+* **Git providers 页面**：请参阅[已关联的 GitHub 账户](#connected-github-accounts)，了解关联到您组织的 GitHub 账户。
 
 权限规则和沙箱覆盖不同的层。拒绝 WebFetch 会阻止 Claude 的 fetch 工具，但如果允许 Bash，`curl` 和 `wget` 仍然可以到达任何 URL。沙箱通过在操作系统级别强制执行的网络域允许列表来弥补这一差距。
 
@@ -137,11 +137,11 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
   已关联的 GitHub 账户
 </h3>
 
-在 Team 和 Enterprise 计划中，[**Organization settings > GitHub**](https://claude.ai/admin-settings/github) 列出了通过 [Claude GitHub App](https://github.com/apps/claude) 关联到您的 Claude 组织的 GitHub 组织和个人账户。Claude Code、[Claude Tag](https://claude.com/docs/claude-tag/admins/configure-github) 和 Claude Security 共享此列表。打开该页面需要在您的 Claude 组织中拥有管理员角色。
+在 Team 和 Enterprise 计划中，[**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) 的 GitHub 部分列出了通过 [Claude GitHub App](https://github.com/apps/claude) 关联到您的 Claude 组织的 GitHub 组织和个人账户。Claude Code、[Claude Tag](https://claude.com/docs/claude-tag/admins/configure-github) 和 Claude Security 共享此列表。打开该页面需要在您的 Claude 组织中拥有管理员角色。
 
 管理员或成员都可以关联账户：
 
-* **管理员连接**：管理员在该页面上点击 **Connect**，并在某个 GitHub 组织上安装 Claude GitHub App。以这种方式关联组织，需要一个既是该 GitHub 组织所有者、又是您 Claude 组织管理员的人来操作。
+* **管理员连接**：管理员在该部分点击 **Connect**（或在已连接账户后点击 **Add organization**），并在某个 GitHub 组织上安装 Claude GitHub App。以这种方式关联组织，需要一个既是该 GitHub 组织所有者、又是您 Claude 组织管理员的人来操作。
 * **成员连接**：当成员将其 GitHub 账户连接到 Claude 时（例如在[设置云端会话](/docs/zh-CN/web-quickstart#connect-github)时），Claude 会关联该成员拥有且已安装 Claude GitHub App 的 GitHub 账户。这可能包括其个人账户以及其拥有的 GitHub 组织。
 
 标记为 **Not linked** 的行来自您自己的 GitHub 登录。它是您在 GitHub 上可以看到且已安装 Claude GitHub App 的账户。

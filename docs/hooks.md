@@ -791,7 +791,7 @@ Hook 事件接收这些字段作为 JSON，除了每个 [hook 事件](#hook-even
 
 没有 `$CLAUDE_MODEL` 环境变量。如果您在 shell 中设置了 hook，可以读取 `$ANTHROPIC_MODEL`，但该值在您使用 `/model` 在会话期间切换模型时不会改变。
 
-hook 进程继承父环境，除了 Claude Code [从它生成的每个子进程中删除](/docs/zh-CN/monitoring-usage#administrator-configuration)的 `OTEL_*` 导出器变量，以及当 [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](/docs/zh-CN/env-vars#variables) 设置为 `1` 时它剥离的变量。
+hook 进程继承父环境，但 Claude Code [从它生成的每个子进程中删除](/docs/zh-CN/monitoring-usage#administrator-configuration)的 `OTEL_*` 导出器变量除外，另外当 [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](/docs/zh-CN/env-vars#variables) 设置为 `1` 时，它剥离的变量也除外。在[获得 HIPAA 配置](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)的会话中，Claude Code 还会从 hook 的环境中[删除 Anthropic 凭据](/docs/zh-CN/hipaa-setup#anthropic-credentials-in-commands-hooks-and-mcp-servers)。
 
 例如，Bash 命令的 `PreToolUse` hook 在 stdin 上接收以下内容：
 

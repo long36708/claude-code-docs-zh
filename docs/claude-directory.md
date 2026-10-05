@@ -1577,7 +1577,12 @@ Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`clean
 
 * **`sessions/`**：为每个运行的会话保存一个小文件，用于检测并发会话和崩溃。它不是基于年龄的扫描的一部分：Claude Code 在其会话退出时删除每个文件，并在下次启动时清理崩溃遗留物。
 * **自动内存**：扫描不删除项目 [自动内存](/docs/zh-CN/memory#auto-memory) 目录中的内存文件，`projects/<project>/memory/`。Claude Code 仅在整个保留期内该目录为空时才删除该目录。在 v2.1.228 之前，扫描将内存目录内的文件夹视为会话数据，可能删除其下的旧文件。
-* **Claude Desktop 和 Cowork 记录**：Claude Code 保留您在 Claude Desktop 或 Cowork 中启动或最近继续的会话的记录，无论其年龄如何。要给这些记录设置年龄限制，请设置 [`desktopSessionCleanupPeriodDays`](/docs/zh-CN/settings-reference#desktopsessioncleanupperioddays)。当 [managed settings](/docs/zh-CN/managed-settings) 设置 `cleanupPeriodDays` 时，Claude Code 改为在该期间后删除这些记录。需要 Claude Code v2.1.248 或更高版本；早期版本在 `cleanupPeriodDays` 后删除它们。
+* **Claude Desktop 和 Cowork 会话记录**：Claude Code 保留您在 Claude Desktop 或 Cowork 中启动或最近继续的会话的会话记录，无论其年龄如何。要给这些会话记录设置年龄限制，请设置 [`desktopSessionCleanupPeriodDays`](/docs/zh-CN/settings-reference#desktopsessioncleanupperioddays)。需要 Claude Code v2.1.248 或更高版本；早期版本在 `cleanupPeriodDays` 后删除它们。
+
+  在以下任一情况下，Claude Code 改为在 `cleanupPeriodDays` 后删除这些会话记录：
+
+  * [托管设置](/docs/zh-CN/managed-settings)设置了 `cleanupPeriodDays`
+  * 您的组织应用了 HIPAA 配置，且 Claude Code 直接连接到 Claude API
 
 Claude Code 在这些情况下跳过基于年龄的扫描：
 
@@ -1610,11 +1615,11 @@ Claude Code 在这些情况下跳过基于年龄的扫描：
   保留直到您删除它们
 </h3>
 
-保留清理扫描不删除下面的路径。Claude Code 保留它们直到您删除它们，除了两个缓存在您注销时删除。
+除表中另有说明的行外，保留清理扫描不会删除下面的路径，Claude Code 会保留它们，直到您删除它们。
 
 | `~/.claude/` 下的路径 | 内容 |
 | - | - |
-| `history.jsonl` | 您输入的每个提示，带有时间戳和项目路径。用于向上箭头回忆、`Ctrl+R` 历史搜索和 `!` shell 命令补全。 |
+| `history.jsonl` | 您输入的每个提示词，带有时间戳和项目路径。用于向上箭头回忆、`Ctrl+R` 历史搜索和 `!` shell 命令补全。在应用了 HIPAA 配置的组织中，当 Claude Code 直接连接到 Claude API 时，每次扫描都会删除早于 `cleanupPeriodDays` 的条目。 |
 | `stats-cache.json` | 由 `/usage` 显示的聚合令牌和成本计数 |
 | `remote-settings.json` | [server-managed settings](/docs/zh-CN/server-managed-settings) 的缓存副本，用于您的组织，或当您的组织未配置任何设置时为 `{}`。仅在会话 [获取它们](/docs/zh-CN/server-managed-settings#platform-availability) 时存在。Claude Code 在启动时和会话期间每小时检查更新。Claude Code 在您注销时删除它。 |
 | `cache/changelog.md` | Claude Code changelog 的缓存副本，由 `/release-notes` 显示。在后台刷新。 |

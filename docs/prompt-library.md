@@ -108,10 +108,10 @@ export const PromptLibrary = ({text = {}, labels = {}, tagLabels = {}, phaseLabe
     sdlc: 'design',
     cat: 'Plan',
     roles: ['pm'],
-    prompt: 'read {input} and write up the action items, then create a {tracker} ticket for each with acceptance criteria',
+    prompt: 'read {input} and write up the action items, then create a ticket in {tracker} for each one, with acceptance criteria',
     slots: {
       input: '@meeting-notes.md',
-      tracker: 'Linear'
+      tracker: 'our issue tracker'
     },
     needs: 'tracker',
     nextHref: '/en/skills',
@@ -151,8 +151,8 @@ export const PromptLibrary = ({text = {}, labels = {}, tagLabels = {}, phaseLabe
     roles: [],
     prompt: 'look at how {example} is implemented to understand the pattern, then build {new} the same way',
     slots: {
-      example: 'the GitHub webhook handler',
-      new: 'a Stripe webhook handler'
+      example: 'the existing webhook handler',
+      new: 'a payments webhook handler'
     },
     nextHref: '/en/memory',
     src: 'best-practices'
@@ -412,9 +412,9 @@ export const PromptLibrary = ({text = {}, labels = {}, tagLabels = {}, phaseLabe
     sdlc: 'ship',
     cat: 'Git',
     roles: [],
-    prompt: 'find the {tracker} ticket about {topic} and open a PR that implements it',
+    prompt: 'find the ticket about {topic} in {tracker} and open a PR that implements it',
     slots: {
-      tracker: 'Linear',
+      tracker: 'our issue tracker',
       topic: 'the login timeout'
     },
     needs: 'tracker',
@@ -492,7 +492,7 @@ export const PromptLibrary = ({text = {}, labels = {}, tagLabels = {}, phaseLabe
     paste: 'screenshot',
     prompt: 'here is a screenshot of {console}. walk me through why {resource} is failing and give me the exact commands to fix it',
     slots: {
-      console: 'the GCP Kubernetes dashboard',
+      console: 'our Kubernetes dashboard',
       resource: 'this pod'
     },
     src: 'teams'
@@ -564,10 +564,10 @@ export const PromptLibrary = ({text = {}, labels = {}, tagLabels = {}, phaseLabe
     sdlc: 'operate',
     cat: 'Automate',
     roles: [],
-    prompt: 'set up the {server} MCP server so you can read my {data} directly',
+    prompt: 'connect {server} via MCP so you can read its {data} directly',
     slots: {
-      server: 'Sentry',
-      data: 'error reports'
+      server: 'our error tracker',
+      data: 'stack traces'
     },
     src: 'workflows'
   }, {

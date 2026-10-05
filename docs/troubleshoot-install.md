@@ -431,7 +431,9 @@ curl: (22) The requested URL returned error: 403
 | Windows CMD | `'claude' is not recognized as an internal or external command` |
 | PowerShell | `claude : The term 'claude' is not recognized as the name of a cmdlet` |
 
-这意味着安装目录不在您的 shell 搜索路径中。请参阅[验证您的 PATH](#verify-your-path) 了解每个平台上的修复。
+在 Windows 上，如果该错误是在 Claude Code 更新后立即出现的，请参阅[从备份恢复 `claude.exe`](#claude-exe-missing-after-an-update-on-windows)。
+
+否则，请参阅[验证您的 PATH](#verify-your-path) 了解每个平台上的修复。
 
 <h3 id="curl-56-failure-writing-output-to-destination">
   `curl: (56) Failure writing output to destination`
@@ -624,7 +626,7 @@ irm https://claude.ai/install.ps1 | iex
   `claude.exe` 在 Windows 更新后丢失
 </h3>
 
-如果您的终端在 Claude Code 在 Windows 上更新后报告 `'claude' is not recognized`，请检查 `%USERPROFILE%\.local\bin` 是否仍然包含 `claude.exe`。如果该目录根本不在您的 PATH 上，请改为参阅[修复您的 PATH](#command-not-found-claude-after-installation)。要在 Windows 上更新，Claude Code 将现有的 `claude.exe` 重命名为备份，并将新版本移动到其位置。如果将新版本移动到位失败，Claude Code 也无法重命名备份，则该目录保留备份但没有 `claude.exe`。
+如果您的终端在 Claude Code 在 Windows 上更新后报告 `'claude' is not recognized`，请检查 `%USERPROFILE%\.local\bin` 是否仍然包含 `claude.exe`。如果该目录根本不在您的 PATH 上，请改为参阅[验证您的 PATH](#verify-your-path)。要在 Windows 上更新，Claude Code 将现有的 `claude.exe` 重命名为备份，并将新版本移动到其位置。如果将新版本移动到位失败，Claude Code 也无法重命名备份，则该目录保留备份但没有 `claude.exe`。
 
 备份是同一目录中的一个文件，其名称以 `claude.exe.old.` 开头，后跟数字时间戳。在 PowerShell 中运行以下命令以将最新的备份重命名回 `claude.exe`：
 

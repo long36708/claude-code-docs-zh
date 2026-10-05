@@ -451,7 +451,7 @@ Claude Code 无法访问功能标志服务来检查是否为您的账户启用�
 
 * **错误提到 `disableRemoteControl`**：您的 IT 管理员已通过[托管设置](/docs/zh-CN/managed-settings)在此设备上禁用了 Remote Control，独立于组织范围的切换和您的登录方式。
 * **您的 claude.ai 计划是 Pro 或 Max**：Claude Code 仍然以来自较早登录的 Team 或 Enterprise 组织身份登录，因此它检查该组织的 Remote Control 策略。运行 `/status` 以查看您的登录使用的计划和组织。运行 `claude auth logout` 然后 `claude auth login` 以在您当前的计划下重新登录。
-* **消息未说联系您的组织管理员**：您的组织具有与 Remote Control 不兼容的 HIPAA 配置，`/status` 在其 `Compliance` 行中列出 `HIPAA`。在此状态下，管理面板的 Remote Control 切换呈灰显状态，因此所有者无法在那里更改它。联系 Anthropic 支持以讨论选项。在 v2.1.267 之前，此情况显示"Remote Control isn't available for your organization due to its compliance policy"。
+* **消息未说联系您的组织管理员**：您的组织具有与 Remote Control 不兼容的 HIPAA 配置，`/status` 在其 `Organization configuration` 行中列出 `HIPAA`。在此状态下，管理面板的 Remote Control 切换呈灰显状态，因此所有者无法在那里更改它。联系 Anthropic 支持以讨论选项。在 v2.1.267 之前，此情况显示"Remote Control isn't available for your organization due to its compliance policy"。
 * **否则，所有者尚未为您的组织启用它**：Remote Control 在 Team 和 Enterprise 计划上默认关闭。所有者可以在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 通过打开 **Remote Control** 切换来启用它。此切换是服务器端组织设置。
 
 在 v2.1.281 之前，当 Claude Code 未在此计算机上加载您的组织策略时，此消息也会出现，例如在离线启动后。更高版本将该状态报告为[`Couldn't verify your organization's policy for remote control`](#couldnt-verify-your-organizations-policy-for-remote-control)。

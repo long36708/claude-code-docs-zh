@@ -245,7 +245,7 @@ gh api repos/{owner}/{repo}/pulls -f title='Fix' -f head='my-branch' -f base='ma
   为专用网络重写 git URL
 </h3>
 
-存储库 URL 从控制平面作为 HTTPS 到达，带有您的 git 主机的主机名；对于 GitHub Enterprise，这是您在 claude.ai 上的 Claude Code 管理设置中为 [GitHub Enterprise 集成](/docs/zh-CN/github-enterprise-server)配置的主机名。两个可重复的标志在克隆之前重写这些 URL：
+仓库 URL 从控制平面作为 HTTPS 到达，带有您的 git 主机的主机名；对于 GitHub Enterprise，这是您在 claude.ai 上为 [GitHub Enterprise 集成](/docs/zh-CN/github-enterprise-server)配置的主机名。两个可重复的标志在克隆之前重写这些 URL：
 
 * `--git-host-rewrite <from>=<to>`：对于分割视界 DNS，其中 Anthropic 通过外部主机名到达您的 git 主机，但运行器必须使用内部主机名
 * `--git-ssh-rewrite <host>`：对于仅接受 SSH 的 git 主机，将 `https://<host>/owner/repo` 重写为 `git@<host>:owner/repo`

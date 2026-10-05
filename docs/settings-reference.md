@@ -6370,7 +6370,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
   `desktopSessionCleanupPeriodDays`
 </h3>
 
-为您在 Claude Desktop 或 Cowork 中启动或最近继续的会话的记录设置天数年龄限制。没有此键，Claude Code [会无限期地保留这些记录](/docs/zh-CN/claude-directory#cleaned-up-automatically)。Claude Code 在每个记录的年龄超过此限制和 [`cleanupPeriodDays`](#cleanupperioddays) 时删除它，因此当 `cleanupPeriodDays` 处于其默认值 30 时，值 `7` 仍会保留它们 30 天。当托管设置设置 `cleanupPeriodDays` 时，该期间改为适用，此键被忽略。需要 Claude Code v2.1.248 或更高版本。
+为您在 Claude Desktop 或 Cowork 中启动或最近继续的会话的会话记录设置天数年龄限制。没有此键，Claude Code [会无限期地保留这些会话记录](/docs/zh-CN/claude-directory#cleaned-up-automatically)。Claude Code 在每个会话记录的年龄超过此限制和 [`cleanupPeriodDays`](#cleanupperioddays) 时删除它，因此当 `cleanupPeriodDays` 处于其默认值 30 时，值 `7` 仍会保留它们 30 天。[自动清理](/docs/zh-CN/claude-directory#cleaned-up-automatically)列出了改为适用 `cleanupPeriodDays` 且 Claude Code 忽略此键的情况。需要 Claude Code v2.1.248 或更高版本。
 
 * **范围**: [`用户或托管`](#scopes)。Claude Code 也从您使用 `--settings` 传递的文件中读取该键，并在项目和本地设置中忽略它。
 * **类型**: 天数，整数，最小值 `0`

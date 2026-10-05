@@ -85,7 +85,7 @@ claude
 
 您在 shell 中运行了 `claude plugin install ...`，shell 根本找不到 `claude`。在 Windows 上，消息是 `'claude' is not recognized as the name of a cmdlet` 或 `'claude' is not recognized as an internal or external command`。
 
-原因不是插件命令。要么 Claude Code 未安装，要么其安装目录不在此 shell 中的 `PATH` 上。按照 [安装后 `command not found: claude`](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation) 进行操作，然后重试插件命令。
+原因不是插件命令。请按照 [验证您的 PATH](/docs/zh-CN/troubleshoot-install#verify-your-path) 进行操作，然后重试插件命令。
 
 <h3 id="unknown-command-and-command-spellings-that-dont-exist">
   `Unknown command` 和不存在的命令拼写
