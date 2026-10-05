@@ -171,11 +171,9 @@ Claude Code 仅从管理员控制的策略层读取 `allowAllClaudeAiMcps`：服
   允许 Chrome 中的 Claude 与托管集合一起使用
 </h3>
 
-默认情况下，当你部署 `managed-mcp.json` 时，Claude Code 在终端会话中阻止内置的[Chrome 中的 Claude](/docs/zh-CN/chrome) 服务器。用户不会获得[扩展安装提示](/docs/zh-CN/chrome#install-the-extension-when-claude-asks)，以及用户[默认启用 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default) 的会话启动时不使用 Chrome 且不打印警告。当可以运行 Chrome 中的 Claude 的用户使用 `claude --chrome` 或 `CLAUDE_CODE_ENABLE_CFC=1` 启动它时，Claude Code 在启动时退出，显示命名 `allowClaudeInChromeWithManagedMcp` 设置的错误。
+默认情况下，当您部署 `managed-mcp.json` 时，Claude Code 在终端会话中阻止内置的[Chrome 中的 Claude](/docs/zh-CN/chrome) 服务器。用户不会获得[扩展安装提示](/docs/zh-CN/chrome#install-the-extension-when-claude-asks)，而用户[默认启用 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default) 的会话启动时不包含 Chrome 且不打印警告。如果原本可以运行 Chrome 中的 Claude 的用户启动 `claude --chrome`，Claude Code 会在启动时退出，并显示一条指明 `allowClaudeInChromeWithManagedMcp` 设置的错误。
 
-要让用户在 `managed-mcp.json` 中的服务器旁边运行 Chrome 中的 Claude，请在设备自己的托管设置中设置 `"allowClaudeInChromeWithManagedMcp": true`。将其放在 MDM 部署的 plist 或 HKLM 注册表项中，或系统 `managed-settings.json` 文件中，无论 Claude Code 在该设备上[选择](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)哪个。需要 Claude Code v2.1.282 或更高版本。在 v2.1.282 之前，Claude Code 忽略该设置，启动错误读取 `You cannot dynamically configure MCP servers when an enterprise MCP config is present`。
-
-Claude Code 从这些设备源读取该设置，即使[服务器管理的设置](/docs/zh-CN/server-managed-settings)交付你的其余策略。它忽略服务器管理的设置本身、用户可写的 HKCU 注册表和用户或项目设置中的该设置。[`deniedMcpServers`](#policy-based-control-with-allowlists-and-denylists) 条目中的 `claude-in-chrome` 仍然会阻止该服务器，即使该设置已启用。
+要让用户在托管集合之外同时运行 Chrome 中的 Claude，请在设备自己的托管设置中设置 `"allowClaudeInChromeWithManagedMcp": true`。将其放在 MDM 部署的 plist、HKLM 注册表项或系统 `managed-settings.json` 文件中，以 Claude Code 在该设备上[选择](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)的那一个为准。需要 Claude Code v2.1.282 或更高版本。Claude Code 仅从这些设备源读取该设置，即使[服务器管理的设置](/docs/zh-CN/server-managed-settings)交付您的其余策略也是如此。即使启用了该设置，针对 `claude-in-chrome` 的 [`deniedMcpServers`](#policy-based-control-with-allowlists-and-denylists) 条目仍然会阻止该服务器。
 
 <h2 id="provide-servers-through-managed-settings">
   通过托管设置提供服务器

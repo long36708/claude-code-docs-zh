@@ -71,15 +71,13 @@ Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-o
   流式传输
 </h3>
 
-流式传输推理响应。Claude Code 在流到达时读取流，因此如果您的网关在中继之前缓冲完整响应，Claude Code 会停滞。
+Claude Code 会在每个流式推理响应到达时逐个事件地读取它，因此您的网关中继流的方式会影响用户看到的内容：
 
-传递每个响应的完整事件序列，不要丢弃、重复或重新排序事件。当 Amazon Bedrock 护栏拦截回复时，原样转发它发送的事件，即使这些事件引用的内容块的 `content_block_stop` 已经到达。[AWS Guardrails](/docs/zh-CN/amazon-bedrock#aws-guardrails) 描述了该回复如何结束。当任何其他事件引用的内容块的 `content_block_start` 从未到达，或块的 `content_block_stop` 已经到达时，Claude Code 会在该事件处停止读取流，而不是应用它，因此重复的 `content_block_stop` 不能运行相同的工具调用两次。[上述响应可能不完整](/docs/zh-CN/errors#the-response-above-may-be-incomplete)描述了用户看到的内容，见 `Part of the response never arrived` 和 `The response stream was malformed` 变体。
-
-在结束正文之前，通过每个响应的最终 `message_delta` 和 `message_stop` 事件中继每个响应。在 `message_delta` 携带 `stop_reason` 之后结束的正文，没有内容块仍然打开，该帧之后没有内容块事件，即使 `message_stop` 缺失，也计为完整。您的网关更早结束的正文，一旦内容块已启动，就被视为与断开连接相同：[自动重试](/docs/zh-CN/errors#automatic-retries)说明 Claude Code 何时重新发出请求，[上述响应可能不完整](/docs/zh-CN/errors#the-response-above-may-be-incomplete)涵盖了一旦可见内容到达它保留的内容。Claude Code 保留 `message_delta` 传递的 `stop_reason`，因此稍后仅使用情况的 `message_delta`，其 `delta` 具有 `stop_reason: null` 或没有 `stop_reason` 键，不会清除它。
-
-当客户端使用 Amazon Bedrock 格式时，原样中继 `InvokeModelWithResponseStream` 响应体及其 `Content-Type: application/vnd.amazon.eventstream` 头，不要将流转换为服务器发送事件。请参阅[网关或代理后面的流式传输错误](/docs/zh-CN/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy)。
-
-也转发保活 ping，因为 Claude Code 在 [默认五分钟](/docs/zh-CN/network-config#streaming-idle-watchdogs) 内没有字节到达时会中止流式响应。在长思考暂停期间，上游的 SSE `ping` 事件可能是流上唯一的字节。如果您的网关剥离或缓冲它们，Claude Code 会在暂停期间中止响应。当您从完全不发送 ping 的上游（如 Amazon Bedrock 的二进制事件流）进行转换时，在无声间隙期间发出您自己的 `ping` 事件。
+* 如果您的网关将响应一直缓冲到完整为止，Claude Code 会停滞。
+* Claude Code 期望按顺序收到每个响应的完整事件序列，直到最终的 `message_delta` 和 `message_stop` 事件。如果正文在内容块已启动之后、但在最终 `message_delta` 之前正常结束，Claude Code 会将该响应视为连接断开。[上述响应可能不完整](/docs/zh-CN/errors#the-response-above-may-be-incomplete)描述了此时用户看到的内容，[自动重试](/docs/zh-CN/errors#automatic-retries)则说明了 Claude Code 何时会改为重新发出请求。
+* 当 Amazon Bedrock 护栏拦截回复时，Bedrock 发送的事件可能会引用其 `content_block_stop` 已经到达的内容块，而 Claude Code 依赖于按原样接收这些事件。[AWS Guardrails](/docs/zh-CN/amazon-bedrock#aws-guardrails) 描述了该回复如何结束。
+* 一旦超过其[流式空闲超时时间](/docs/zh-CN/network-config#streaming-idle-watchdogs)仍没有任何字节到达，Claude Code 就会中止流式响应。在长时间的思考暂停期间，上游的 SSE `ping` 事件可能是流上唯一的字节，因此剥离或缓冲这些事件的网关可能会在响应中途触发该超时。从不发送 ping 的上游（如 Amazon Bedrock 的二进制事件流）进行转换的网关也存在同样的间隙，除非它发出自己的 `ping` 事件。
+* 在 [Amazon Bedrock InvokeModel 格式](#api-formats)下，Claude Code 会将 `/model/{model}/invoke-with-response-stream` 响应作为 Bedrock 返回的二进制 `application/vnd.amazon.eventstream` 正文来读取，一旦网关将其转换为服务器发送事件或重写该 `Content-Type` 头，Claude Code 就无法解析它。[网关或代理后面的流式传输错误](/docs/zh-CN/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy)描述了此时用户看到的内容。
 
 <h3 id="format-mismatch-with-the-upstream">
   与上游的格式不匹配

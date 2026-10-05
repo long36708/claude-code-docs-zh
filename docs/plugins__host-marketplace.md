@@ -295,7 +295,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
   使用重命名映射迁移用户
 </h3>
 
-当你必须更改 `name` 时，向 `marketplace.json` 添加顶级 `renames` 映射，以便 Claude Code 迁移现有用户而不是报告 [`Plugin "<name>" not found in marketplace`](/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace)。当你从 `plugins` 中删除条目时也这样做。自动迁移需要 Claude Code v2.1.193 或更高版本。
+当您必须更改 `name` 时，向 `marketplace.json` 添加顶级 `renames` 映射，以便 Claude Code 迁移现有用户，而不是报告 [`Plugin "<name>" not found in marketplace`](/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace)。当您从 `plugins` 中删除条目时也应这样做。
 
 将每个前名称映射到其当前名称，或在插件消失时映射到 `null`。此 marketplace 将 `formatter` 重命名为 `code-formatter` 并记录 `legacy-linter` 被删除：
 

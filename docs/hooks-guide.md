@@ -1061,7 +1061,7 @@ Hook 已配置但从不执行。
 
 Claude 继续工作而不是停止，然后以警告结束该轮，表示 Stop hook 连续阻止了太多次。
 
-Claude Code 在 Stop hook 连续阻止 8 次而没有进展后会覆盖它。你的 hook 脚本需要检查它是否已经触发了继续。从 JSON 输入中解析 `stop_hook_active` 字段，如果为 `true` 则提前退出：
+当 Stop hook 连续阻止 8 次、且期间 Claude 没有进行任何工具调用时，Claude Code 会覆盖该 hook。您的 hook 脚本需要检查它是否已经触发过继续。从 JSON 输入中解析 `stop_hook_active` 字段，如果为 `true` 则提前退出：
 
 ```bash theme={null}
 #!/bin/bash

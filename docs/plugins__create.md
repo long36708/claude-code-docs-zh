@@ -246,7 +246,7 @@ Claude Code 在启动时下载存档。要加载多个，重复该标志或在�
   使用 `claude plugin init` 搭建插件
 </h4>
 
-`claude plugin init` 在 `~/.claude/skills/` 下写入一个启动插件。需要 Claude Code v2.1.157 或更高版本。从您的 shell 搭建一个：
+`claude plugin init` 在 `~/.claude/skills/` 下写入一个启动插件。从您的 shell 搭建一个：
 
 ```bash theme={null}
 claude plugin init my-tool

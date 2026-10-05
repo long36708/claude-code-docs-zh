@@ -1517,7 +1517,7 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 }
 ```
 
-请参阅[将所有 shell 命令路由通过分类器](/docs/zh-CN/auto-mode-config#route-all-shell-commands-through-the-classifier)。需要 Claude Code v2.1.193 或更高版本。
+请参阅[将所有 shell 命令路由通过分类器](/docs/zh-CN/auto-mode-config#route-all-shell-commands-through-the-classifier)。
 
 <h3 id="disableautomode">
   `disableAutoMode`

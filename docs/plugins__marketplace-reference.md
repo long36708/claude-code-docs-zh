@@ -73,7 +73,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | `metadata.pluginRoot` | string | 裸插件源名称解析的目录。请参阅 [相对路径插件源](#relative-path-plugin-source)。需要 Claude Code v2.1.239 或更高版本 |
 | `forceRemoveDeletedPlugins` | boolean | 当为 `true` 时，从 `plugins` 中删除的插件会在用户的机器上卸载。请参阅 [托管和维护 marketplace](/docs/zh-CN/plugins/host-marketplace) |
 | `allowCrossMarketplaceDependenciesOn` | array of strings | 其插件可作为此 marketplace 插件的依赖项安装的 marketplace 名称。安装插件时，仅适用该插件自己的 marketplace 中的列表，用于其整个依赖链。请参阅 [插件依赖项](/docs/zh-CN/plugins/dependencies) |
-| `renames` | object | 从前一个插件 `name` 映射到其当前名称，或映射到 `null` 以删除插件。需要 Claude Code v2.1.193 或更高版本。请参阅 [托管和维护 marketplace](/docs/zh-CN/plugins/host-marketplace) |
+| `renames` | object | 从插件以前的 `name` 映射到其当前名称；对于已删除的插件，则映射到 `null`。请参阅 [托管和维护市场](/docs/zh-CN/plugins/host-marketplace) |
 
 <h2 id="plugin-entries">
   插件条目

@@ -949,9 +949,9 @@ MCP 服务器连接默认在 30 秒后超时。要更改运行中的工具调用
   工具输出超过最大允许令牌数
 </h3>
 
-SDK 应用与 Claude Code 相同的 MCP 输出限制。当没有图像内容的工具结果大于 25,000 个令牌时，Claude Code 会将输出保存到文件中，并用错误消息替换工具结果，该消息命名文件路径，以便代理可以分部分读取输出。
+SDK 应用与 Claude Code 相同的 MCP 输出限制。当不含图像内容的成功工具结果大于 25,000 个 token 时，Claude Code 会将输出保存到文件中，并用一条指明文件路径的错误消息替换工具结果，以便 Agent 可以分部分读回输出。
 
-使用 [`MAX_MCP_OUTPUT_TOKENS`](/docs/zh-CN/env-vars) 环境变量提高限制。请参阅 [MCP 输出限制和警告](/docs/zh-CN/mcp#mcp-output-limits-and-warnings) 了解完整行为，包括服务器如何使用 `anthropic/maxResultSizeChars` 注释声明更高的每工具限制。
+要更改 token 限制，请设置 [`MAX_MCP_OUTPUT_TOKENS`](/docs/zh-CN/env-vars) 环境变量。除非工具声明了 `anthropic/maxResultSizeChars`，否则长度超过 50,000 个字符的成功文本结果无论 token 限制如何都会被保存到文件中。请参阅 [MCP 输出限制和警告](/docs/zh-CN/mcp#mcp-output-limits-and-warnings) 了解完整行为，包括服务器如何声明该注释。
 
 <h2 id="related-resources">
   相关资源

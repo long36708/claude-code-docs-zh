@@ -729,6 +729,7 @@ Claude Code 也将以下 `rm` 和 `rmdir` 目标视为关键路径。最后一�
 | 仅命令替换的输出的目标，当 `rm` 是递归的时 | `rm -rf "$(pwd)"` | Claude Code 无法在命令运行前检查目标 |
 | 关键路径后的尾部命令替换 | `rm -rf ~/$(cmd)` | Claude Code 检查如果替换扩展为空将保留的路径，此处为您的主目录 |
 | 仅反斜杠的目标 | `rm -rf "\\"` | Windows 上的 Git Bash 将单个反斜杠读取为当前驱动器的根目录，因此检查适用于每个平台 |
+| 部分以 `/*` 或 `/*/` 结尾的目标 | `rm -rf logs/*/*`、`rm -rf logs/*/`、`cd logs && rm -rf a/*` | Claude Code 无法在命令运行前判断它们会涉及哪些目录 |
 
 要关闭仅命令替换输出的目标上的检查，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT=1`](/docs/zh-CN/env-vars#variables)。
 

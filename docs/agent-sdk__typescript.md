@@ -4017,6 +4017,7 @@ type AgentOutput =
         output_tokens_details?: {
           thinking_tokens?: number | null;
         } | null;
+        fallback_credit?: unknown;
       };
       toolStats?: {
         readCount: number;
@@ -4061,7 +4062,7 @@ type AgentOutput =
 
 如果 Claude Code [保留了子代理的隔离 worktree](/docs/zh-CN/worktrees#isolate-subagents-with-worktrees)，`completed` 结果上的 `worktreePath` 是找到它的位置。`worktreeBranch` 是其分支，当 Claude Code 使用 git 创建 worktree 时出现。
 
-Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usage` 和 `totalTokens`，因此 `usage.service_tier` 是 API 在该请求上报告的服务层字符串。当存在时，`usage.output_tokens_details.thinking_tokens` 是该请求的输出令牌中属于思考令牌的数量。`output_tokens_details` 字段需要 TypeScript SDK v0.3.228 或更高版本，该版本包含 Claude Code v2.1.228。
+Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usage` 和 `totalTokens`，因此 `usage.service_tier` 是 API 在该请求上报告的服务层字符串。当存在时，`usage.output_tokens_details.thinking_tokens` 是该请求的输出 token 中属于思考 token 的数量。`output_tokens_details` 字段需要 TypeScript SDK v0.3.228 或更高版本，该版本包含 Claude Code v2.1.228。`fallback_credit` 字段需要 TypeScript SDK v0.3.285 或更高版本，该版本包含 Claude Code v2.1.285。
 
 `usage.output_tokens_details` 在含义上与 [`Usage.output_tokens_details`](#usage) 匹配，范围限于该最终请求，但其每个级别都是可选的。保护对象和字段，例如 `usage.output_tokens_details?.thinking_tokens ?? 0`，而不是直接读取它。
 
@@ -5349,11 +5350,13 @@ type ConfigScope = "local" | "user" | "project";
   `NonNullableUsage`
 </h3>
 
-[`Usage`](#usage) 的一个版本，所有可空字段都变为非可空。
+[`Usage`](#usage) 的一个版本，除 `fallback_credit` 外所有可空字段都变为非可空，`fallback_credit` 仍可以为 `null`。
 
 ```typescript theme={null}
 type NonNullableUsage = {
-  [K in keyof Usage]: NonNullable<Usage[K]>;
+  [K in keyof Usage]: K extends "fallback_credit"
+    ? Usage[K]
+    : NonNullable<Usage[K]>;
 };
 ```
 
@@ -5379,10 +5382,11 @@ type Usage = {
   inference_geo: string | null;
   iterations: BetaIterationsUsage | null;
   output_tokens_details: BetaOutputTokensDetails | null;
+  fallback_credit: BetaFallbackCreditUsage | null;
 };
 ```
 
-`BetaServerToolUsage`、`BetaIterationsUsage` 和 `BetaOutputTokensDetails` 在 `@anthropic-ai/sdk` 中定义。
+`BetaServerToolUsage`、`BetaIterationsUsage`、`BetaOutputTokensDetails` 和 `BetaFallbackCreditUsage` 在 `@anthropic-ai/sdk` 中定义。
 
 `output_tokens_details` 按类别分解计费输出。它目前携带一个字段 `thinking_tokens: number`，计算模型生成的作为内部推理的输出 token，包括思考块分隔符。`output_tokens_details` 字段需要 TypeScript SDK v0.3.228 或更高版本，它捆绑了 Claude Code v2.1.228。
 
@@ -5390,6 +5394,8 @@ type Usage = {
 * **计数涵盖的内容**：模型生成的原始推理，可能比响应体中返回的思考文本更长。API 通过重新对该原始文本进行 token 化来计算它，因此它可能与模型的精确生成计数相差几个 token。
 * **流式输出**：在流式助手消息上，此分解与 `output_tokens` 一样是 `message_start` 占位符，不携带真实计数，因此从结果消息的 `usage` 读取它，如 [Read output tokens from the result message](/docs/zh-CN/agent-sdk/cost-tracking#read-output-tokens-from-the-result-message) 所述。在结果消息上，当模型或提供商不报告分解时，`thinking_tokens` 读取 `0`。
 * **`null` 情况**：`output_tokens_details` 本身在 Claude Code 合成的助手消息上为 `null`，例如 API 错误消息。
+
+`Usage` 是否携带 `fallback_credit` 取决于您安装的 `@anthropic-ai/sdk`，该字段在 0.115.0 中添加。
 
 <h3 id="calltoolresult">
   `CallToolResult`

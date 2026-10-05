@@ -471,7 +471,7 @@ MCP 服务器也可以直接将消息推送到您的会话中，以便 Claude �
   * `--transport` 和 `--header` 标志也接受 `-t` 和 `-H` 短形式
   * 使用 `MCP_TIMEOUT` 环境变量配置 MCP 服务器启动超时（例如 `MCP_TIMEOUT=10000 claude` 设置 10 秒超时）
   * 通过在该服务器的 `.mcp.json` 条目中添加 `timeout` 字段（以毫秒为单位）来设置按服务器工具执行超时，例如 `"timeout": 600000` 表示十分钟。这仅对该服务器覆盖 `MCP_TOOL_TIMEOUT` 环境变量
-  * 当 MCP 工具输出超过 10,000 个 token 时，Claude Code 显示警告，默认限制输出为 25,000 个 token。要提高限制，请设置 `MAX_MCP_OUTPUT_TOKENS` 环境变量（例如 `MAX_MCP_OUTPUT_TOKENS=50000`）；警告阈值是固定的。请参阅 [MCP 输出限制和警告](#mcp-output-limits-and-warnings)
+  * 当 MCP 工具输出超过 10,000 个 token 时，Claude Code 显示警告，默认限制输出为 25,000 个 token。要更改 token 限制，请设置 `MAX_MCP_OUTPUT_TOKENS` 环境变量，例如 `MAX_MCP_OUTPUT_TOKENS=50000`。警告阈值是固定的。除非服务器提高了某个工具自身的限制，否则超过 50,000 个字符的成功文本结果会被保存到文件中，不受此变量影响。请参阅 [MCP 输出限制和警告](#mcp-output-limits-and-warnings)
   * 使用 `/mcp` 与需要 OAuth 2.0 身份验证的远程服务器进行身份验证
 </Tip>
 
@@ -853,7 +853,7 @@ claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
 
 返回指向其授权服务器的 `WWW-Authenticate` 标头的自定义服务器会获得与任何其他远程服务器相同的自动发现。
 
-当一个或多个配置的服务器需要身份验证时，Claude Code 也会显示启动通知，因此您不必打开 `/mcp` 来发现哪些服务器需要登录。该通知需要 Claude Code v2.1.193 或更高版本。它仅计算您可以从 Claude Code 登录的服务器。在 v2.1.218 之前，它还计算了在 claude.ai 中未连接的 [claude.ai 连接器](#use-mcp-servers-from-claude-ai)，您只能从 claude.ai 设置中连接这些连接器。
+当一个或多个配置的服务器需要身份验证时，Claude Code 也会显示启动通知，因此您不必打开 `/mcp` 来发现哪些服务器需要登录。该通知仅计算您可以从 Claude Code 登录的服务器。在 v2.1.218 之前，它还计算了在 claude.ai 中未连接的 [claude.ai 连接器](#use-mcp-servers-from-claude-ai)，您只能从 claude.ai 设置中连接这些连接器。
 
 该通知每次宣布每个服务器一次，并在后续启动时将其排除在计数之外，直到该服务器已连接并再次需要登录。`/mcp` 仍然列出每个需要登录的服务器。
 
@@ -1406,9 +1406,14 @@ claude mcp serve
 * **可配置限制**：您可以使用 `MAX_MCP_OUTPUT_TOKENS` 环境变量调整允许的最大 MCP 输出令牌数
 * **默认限制**：默认最大值为 25,000 个令牌
 * **范围**：环境变量适用于未声明自己限制的工具。设置了 [`anthropic/maxResultSizeChars`](#raise-the-limit-for-a-specific-tool) 的工具会对文本内容使用该值，而不管 `MAX_MCP_OUTPUT_TOKENS` 设置为什么。返回图像数据的工具仍然受 `MAX_MCP_OUTPUT_TOKENS` 限制
-* **超过限制**：当没有图像内容的结果超过限制时，Claude Code 会将其保存到文件中，并在对话中用一条消息替换它，该消息指定文件路径，以便 Claude 在需要内容时读取该文件。该文件位于会话的 `tool-results` 目录中，在 [`~/.claude/projects/`](/docs/zh-CN/claude-directory#cleaned-up-automatically) 下。
+* **超过限制**：当没有图像内容的成功结果超过 token 限制时，Claude Code 会将其保存到文件中，并在对话中用一条消息替换它，该消息指定文件路径，以便 Claude 在需要内容时读取该文件。该文件位于会话的 `tool-results` 目录中，在 [`~/.claude/projects/`](/docs/zh-CN/claude-directory#cleaned-up-automatically) 下。
 
-要增加产生大量输出的工具的限制：
+已被 Claude Code [移至后台任务](#automatic-backgrounding-of-long-tool-calls)的调用会通过任务通知报告其结果。对于在前台完成的调用，还有另外两项限制：
+
+* **文本结果的字符限制**：对于未声明 [`anthropic/maxResultSizeChars`](#raise-the-limit-for-a-specific-tool) 的工具，当没有图像内容的成功结果长度超过 50,000 个字符时，无论其 token 数是多少，Claude Code 都会将其保存到文件中。设置 `MAX_MCP_OUTPUT_TOKENS` 不会改变此阈值
+* **错误结果**：当工具返回标记为 `isError: true` 的结果时，Claude 会将该结果的文本作为工具的错误消息接收。超过约 11,000 个字符的错误文本只会保留其前 5,000 个和后 5,000 个字符，中间带有一个标记，说明删除了多少个字符
+
+要更改 token 限制，请在启动 Claude Code 之前在您的 shell 中设置 `MAX_MCP_OUTPUT_TOKENS`：
 
 ```bash theme={null}
 export MAX_MCP_OUTPUT_TOKENS=50000
@@ -1419,9 +1424,9 @@ claude
   为特定工具提高限制
 </h3>
 
-如果您正在构建 MCP 服务器，可以通过在工具的 `tools/list` 响应条目中设置 `_meta["anthropic/maxResultSizeChars"]` 来允许单个工具返回超过默认持久化到磁盘阈值的结果。Claude Code 会将该工具的阈值提高到注释值，最高可达 500,000 个字符的硬上限。
+如果您正在构建 MCP 服务器，可以通过在工具的 `tools/list` 响应条目中设置 `_meta["anthropic/maxResultSizeChars"]` 来允许单个工具返回超过默认持久化到磁盘阈值（50,000 个字符）的结果。Claude Code 会将该工具的阈值提高到注释值，最高可达 500,000 个字符的硬上限。
 
-这对于返回本质上很大但必要的输出的工具很有用，例如数据库架构或完整文件树。如果没有注释，超过默认阈值的结果会被持久化到磁盘，并在对话中被替换为文件引用。
+这对于返回本质上很大但必要的输出的工具很有用，例如数据库 schema 或完整文件树。如果没有注释，超过默认阈值的成功结果会被持久化到磁盘，并在对话中被替换为文件引用。
 
 ```json theme={null}
 {

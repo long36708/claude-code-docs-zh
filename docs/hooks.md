@@ -2775,7 +2775,9 @@ exit 0
   Stop 输入
 </h4>
 
-除了[通用输入字段](#common-input-fields)之外，Stop hook 还会接收 `stop_hook_active`、`last_assistant_message`、`background_tasks` 和 `session_crons`。当 Claude Code 已经因 stop hook 而继续执行时，`stop_hook_active` 字段为 `true`。请检查此值或处理会话记录，以避免因一个永远无法满足的条件而持续阻止。Claude Code 设有 8 次连续继续的上限：在 stop hook 连续八次让轮次继续之后，Claude Code 会覆盖下一次阻止并结束该轮次。要提高此上限，请设置 [`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`](/docs/zh-CN/env-vars)。
+除了[通用输入字段](#common-input-fields)之外，Stop hook 还会收到 `stop_hook_active`、`last_assistant_message`、`background_tasks` 和 `session_crons`。当 Claude Code 已经因 stop hook 而在继续运行时，`stop_hook_active` 字段为 `true`。请检查此值或处理会话记录，以避免因永远无法满足的条件而持续阻止。
+
+Claude Code 设有连续 8 次继续的上限：在 stop hook 已连续八次让轮次继续之后，Claude Code 会覆盖下一次阻止并结束该轮次。每当 Claude 调用工具时，连续继续的计数都会重置。要提高上限，请设置 [`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`](/docs/zh-CN/env-vars)。
 
 `last_assistant_message` 字段包含 Claude 最终回复的文本内容，因此 hook 无需解析会话记录文件即可访问它。对于需要处理刚完成的轮次的 hook（例如朗读或通知 hook），请使用此字段，而不是读取 `transcript_path`：在所有版本中，并不能保证会话记录文件在 Stop 时已包含最终消息。
 

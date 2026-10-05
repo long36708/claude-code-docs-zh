@@ -87,7 +87,7 @@ claude plugin install <plugin> [options]
 | 标志 | 描述 |
 | :- | :- |
 | `-s, --scope <scope>` | 安装作用域：`user`、`project` 或 `local`。默认为 `user` |
-| `--config <key=value>` | 设置插件清单声明的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference) 选项。每个选项重复一次该标志。需要 Claude Code v2.1.147 或更高版本。写作 `<server>.<key>` 的键改为设置[捆绑 MCP 服务器](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server)在其自身 `user_config` 中声明的设置，适用于随插件附带的捆绑文件。`<server>.<key>` 形式需要 Claude Code v2.1.285 或更高版本 |
+| `--config <key=value>` | 设置插件清单声明的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference) 选项。每个选项重复一次该标志。写作 `<server>.<key>` 的键改为设置[捆绑 MCP 服务器](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server)在其自身 `user_config` 中声明的设置，适用于随插件附带的捆绑文件。`<server>.<key>` 形式需要 Claude Code v2.1.285 或更高版本 |
 | `-y, --yes` | 接受显示的安装命令，不出现 `Run this command now?` 提示。在 Claude Code 会话内运行命令时（例如从 Bash 工具或 hook 运行）会被忽略。需要 Claude Code v2.1.229 或更高版本 |
 | `--accept-command <sha256>` | 代替 `-y`，接受之前某次 [`--json` 运行](#plugin-json-result)在 `shownCommand` 中报告了其 `sha256` 的显示安装命令。不能与 `-y` 组合使用。请参阅[接受显示的安装命令](#accept-a-displayed-install-command)。需要 Claude Code v2.1.271 或更高版本 |
 | `--json` | 将结果作为一个 JSON 对象打印在 stdout 的最后一行，而不是人类可读的消息，供脚本使用。请参阅 [JSON 结果格式](#plugin-json-result)。需要 Claude Code v2.1.268 或更高版本 |
@@ -617,7 +617,7 @@ claude plugin validate <path> [options]
 
 | 标志 | 描述 |
 | :- | :- |
-| `--strict` | 将警告视为错误，使运行时可容忍的未识别字段和缺失元数据导致运行失败。需要 Claude Code v2.1.145 或更高版本 |
+| `--strict` | 将警告视为错误，使运行时可容忍的未识别字段和缺失元数据导致运行失败 |
 | `--json` | 将验证报告输出为一个 JSON 对象，退出码相同。需要 Claude Code v2.1.259 或更高版本 |
 
 在提交前验证插件：
@@ -846,7 +846,7 @@ Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当你
 | :- | :- | :- |
 | `/plugin` | | 在 **Discover** 选项卡上打开面板。`/plugin` 后的任何无法识别的第一个单词也这样做 |
 | `/plugin help` | `/plugin --help`、`/plugin -h` | 显示 `/plugin` 子命令的使用列表 |
-| `/plugin list [--enabled\|--disabled]` | `ls` | 内联打印您的市场安装 plugins，带有版本、作用域和状态。过滤标志仅显示该状态。启用状态尚未应用的 plugin 标记为 `— run /reload-plugins to apply`。需要 Claude Code v2.1.163 或更高版本 |
+| `/plugin list [--enabled\|--disabled]` | `ls` | 内联打印您从市场安装的插件，带有版本、作用域和状态。过滤标志仅显示该状态。启用状态尚未应用的插件标记为 `— run /reload-plugins to apply` |
 | `/plugin install` | `i` | 打开 **Discover** 选项卡 |
 | `/plugin install <plugin>` | `i` | 在 **Discover** 选项卡中打开 plugin 的详细信息。使用 `name@marketplace`，在该市场的列表中打开它们 |
 | `/plugin install <source>` | `i` | 当目标是路径、URL 或 `owner/repo` 时报告 [marketplace not found](/docs/zh-CN/plugins/troubleshooting#marketplace-not-found) 错误并不安装任何内容，即使是您已经添加的源。要从源安装，请参阅 [在一个命令中添加市场和安装](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command) |
@@ -856,7 +856,7 @@ Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当你
 | `/plugin enable <plugin>` | | 在 plugin 处打开 **Installed** 选项卡并启用它 |
 | `/plugin disable <plugin>` | | 在 plugin 处打开 **Installed** 选项卡并禁用它 |
 | `/plugin uninstall <plugin>` | | 在 plugin 处打开 **Installed** 选项卡并卸载它 |
-| `/plugin configure <plugin>` | `config` | 打开 plugin 的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference) 对话框，或报告 plugin 不声明任何。需要 Claude Code v2.1.147 或更高版本 |
+| `/plugin configure <plugin>` | `config` | 打开插件的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference) 对话框，或报告该插件未声明任何配置 |
 | `/plugin validate <path>` | | 打印与 `claude plugin validate` 相同的报告，内联 |
 | `/plugin tag [path] [--push] [--dry-run] [--force]` | | 创建发布标签，如 `claude plugin tag` 所做的那样。接受 `--push`、`--dry-run` 和 `--force` 或 `-f`；使用任何其他标志或额外参数，Claude Code 改为打印使用 |
 | `/plugin marketplace` | `market` | 不做任何可见的事情。传递 `add`、`list`、`update` 或 `remove` |

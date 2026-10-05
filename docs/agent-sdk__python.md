@@ -2775,7 +2775,7 @@ asyncio.run(main())
 ```python theme={null}
 {
     "status": "completed",
-    "agentId": str,  # 运行的代理的 ID
+    "agentId": str,  # 运行的 Agent 的 ID
     "agentType": str | None,  # 处理任务的子代理类型
     "content": [  # 结果内容块
         {
@@ -2786,10 +2786,10 @@ asyncio.run(main())
     ],
     "resolvedModel": str | None,  # 子代理启动时的模型
     "modelsUsed": list[str] | None,  # 按顺序使用的模型，连续重复被折叠
-    "totalToolUseCount": int,  # 代理进行的工具调用次数
+    "totalToolUseCount": int,  # Agent 进行的工具调用次数
     "totalDurationMs": int,  # 执行持续时间（毫秒）
-    "totalTokens": int,  # 来自最终 API 请求的令牌计数，不是整个运行
-    "usage": {  # 令牌使用统计
+    "totalTokens": int,  # 来自最终 API 请求的 token 计数，不是整个运行
+    "usage": {  # token 使用统计
         "input_tokens": int,
         "output_tokens": int,
         "cache_creation_input_tokens": int | None,
@@ -2801,6 +2801,7 @@ asyncio.run(main())
         "speed": str | None,
         "iterations": Any | None,
         "output_tokens_details": {"thinking_tokens": int | None} | None,
+        "fallback_credit": Any | None,
     },
     "toolStats": {  # 运行的聚合工具活动
         "readCount": int,
@@ -2812,7 +2813,7 @@ asyncio.run(main())
         "otherToolCount": int,
         "frameCount": int | None,
     } | None,
-    "prompt": str,  # 代理运行的提示
+    "prompt": str,  # Agent 运行的提示词
     "worktreePath": str | None,  # 当 Claude Code 保留子代理的 worktree 时出现
     "worktreeBranch": str | None,  # 当 Claude Code 使用 git 创建该 worktree 时出现
 }
@@ -2851,7 +2852,7 @@ asyncio.run(main())
 
 在 `completed` 变体上，`resolvedModel` 命名子代理启动时的模型，当应用 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 或其他覆盖时，它可能与请求的 `model` 输入不同。此字段需要 Claude Code v2.1.174 或更高版本。在 `async_launched` 变体上，`resolvedModel` 命名代理移到后台时使用的模型，因此在后台转换之前发生的交换会反映在那里。两个变体上的 `modelsUsed` 字段按顺序列出使用的模型，连续重复被折叠；仅当模型在运行中被交换时才设置。`modelsUsed` 和后台转换时的 `resolvedModel` 行为需要 Claude Code v2.1.212 或更高版本。
 
-Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usage` 和 `totalTokens`。当存在时，`usage` 中 `output_tokens_details` 下的 `thinking_tokens` 是该请求的输出令牌中是思考令牌的数量。`output_tokens_details` 键需要 Python SDK v0.2.136 或更高版本，它捆绑了 Claude Code v2.1.228。
+Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usage` 和 `totalTokens`。当存在时，`usage` 中 `output_tokens_details` 下的 `thinking_tokens` 是该请求的输出 token 中属于思考 token 的数量。`output_tokens_details` 键需要 Python SDK v0.2.136 或更高版本，它捆绑了 Claude Code v2.1.228。`fallback_credit` 键需要 Python SDK v0.2.162 或更高版本，它捆绑了 Claude Code v2.1.285。
 
 <h3 id="askuserquestion">
   AskUserQuestion
