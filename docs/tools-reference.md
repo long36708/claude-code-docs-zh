@@ -33,7 +33,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `ExitWorktree` | 退出 worktree 会话并返回到原始目录。不适用于已在自己的工作目录中运行的子代理，例如 [`isolation: worktree`](/docs/zh-CN/sub-agents#supported-frontmatter-fields) | 否 |
 | `Glob` | 基于模式匹配查找文件。在 macOS、Linux 和 WSL 上默认不存在。请参阅 [Glob 工具行为](#glob-tool-behavior) | 否 |
 | `Grep` | 在文件内容中搜索模式。在 macOS、Linux 和 WSL 上默认不存在。请参阅 [Grep 工具行为](#grep-tool-behavior) | 否 |
-| `ListAgents` | 列出 Claude 可以使用 `SendMessage` 消息的代理：会话中的子代理、[代理团队](/docs/zh-CN/agent-teams)队友、您的其他本地 Claude Code 会话，以及当此会话连接到[远程控制](/docs/zh-CN/remote-control)时，您的[网络版 Claude Code](/docs/zh-CN/claude-code-on-the-web) 会话和您在其他机器上的远程控制会话。支持 `/list-agents` 命令。请参阅[跨会话消息传递](/docs/zh-CN/cross-session-messaging)。需要 Claude Code v2.1.224 或更高版本，仅在[启用跨会话消息传递](/docs/zh-CN/cross-session-messaging#availability)的会话中出现。队友行和显示此会话自己名称的第一行需要 v2.1.239 或更高版本 | 否 |
+| `ListAgents` | 列出 Claude 可以使用 `SendMessage` 消息的代理：会话中的子代理、[代理团队](/docs/zh-CN/agent-teams)队友、您的其他本地 Claude Code 会话，以及当此会话连接到[远程控制](/docs/zh-CN/remote-control)时，您的[云会话](/docs/zh-CN/claude-code-on-the-web)和您在其他机器上的远程控制会话。支持 `/list-agents` 命令。请参阅[跨会话消息传递](/docs/zh-CN/cross-session-messaging)。需要 Claude Code v2.1.224 或更高版本，仅在[启用跨会话消息传递](/docs/zh-CN/cross-session-messaging#availability)的会话中出现。队友行和显示此会话自己名称的第一行需要 v2.1.239 或更高版本 | 否 |
 | `ListMcpResourcesTool` | 列出连接的 [MCP 服务器](/docs/zh-CN/mcp)公开的资源，不包括 [MCP Apps UI 资源](/docs/zh-CN/mcp#reference-mcp-resources)，这些是主机应用程序要呈现的页面 | 否 |
 | `LSP` | 通过语言服务器的代码智能：跳转到定义、查找引用、报告类型错误和警告。请参阅 [LSP 工具行为](#lsp-tool-behavior) | 否 |
 | `Monitor` | 在后台运行命令并将每个输出行反馈给 Claude，以便它可以对日志条目、文件更改或轮询状态做出反应。还可以打开 WebSocket 并将每条传入消息视为事件。请参阅 [Monitor 工具](#monitor-tool) | 是 |
@@ -381,7 +381,7 @@ LSP tool 从运行的语言服务器为 Claude 提供代码智能。在每次文
 * 查找接口的实现
 * 追踪调用层次结构
 
-Claude Code 会保持该工具处于非活动状态，直到您为您的语言安装 [code intelligence plugin](/docs/zh-CN/plugins/code-intelligence)。在 [cloud sessions](/docs/zh-CN/claude-code-on-the-web) 中，Claude Code 不会启动 plugin 语言服务器，因此 LSP tool 在那里保持非活动状态。Claude Code 从 plugin 获取语言服务器的配置，您需要自己安装服务器二进制文件。
+Claude Code 会保持该工具处于非活动状态，直到您为您的语言安装 [code intelligence plugin](/docs/zh-CN/plugins/code-intelligence)。在[云会话](/docs/zh-CN/claude-code-on-the-web)中，Claude Code 不会启动 plugin 语言服务器，因此 LSP tool 在那里保持非活动状态。Claude Code 从 plugin 获取语言服务器的配置，您需要自己安装服务器二进制文件。
 
 Claude Code 对于无法启动其语言服务器的文件上的每个 LSP 调用都会返回错误结果。
 
@@ -624,7 +624,7 @@ Claude Code 在本地草稿中保留您的工作目录，以便它可以找到�
 Claude Code 在使用 Claude API 而不是云提供商的您自己机器上的交互式终端会话中包含该工具。它在以下情况下省略该工具：
 
 * 非交互式 `-p` 运行和 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 会话，这些没有屏幕来查看队列
-* [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) 等云会话，无法在您的机器上写入队列
+* [云会话](/docs/zh-CN/claude-code-on-the-web)，无法在您的机器上写入队列
 * [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 上的会话
 * 您设置 [`CLAUDE_CODE_SEND_FEEDBACK=0`](/docs/zh-CN/env-vars) 或 [`DISABLE_FEEDBACK_COMMAND=1`](/docs/zh-CN/env-vars) 的会话，将 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 设置为任何非空值，或关闭 [功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)
 * 已关闭产品反馈的组织、[零数据保留的组织](/docs/zh-CN/zero-data-retention#features-disabled-under-zdr)，以及已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup) 的组织
@@ -644,7 +644,7 @@ Task 跟踪工具 `TaskCreate`、`TaskGet`、`TaskUpdate`、`TaskList` 和 `Todo
 * 在 [`--tools`](/docs/zh-CN/cli-reference#cli-flags) 中列出这些工具，这会将会话的内置工具限制为它命名的工具。将您想要的工具与您使用的其他内置工具一起包括
 * 在 Agent SDK 中，[`allowedTools` 和 `tools` 选项](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)的工作方式与这两个标志相同
 
-在[后台会话](/docs/zh-CN/agent-view)和[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) 中，Claude Code 在每个模型上提供相同的工具，无论是否列出。
+在[后台会话](/docs/zh-CN/agent-view)和[云会话](/docs/zh-CN/claude-code-on-the-web)中，Claude Code 在每个模型上提供相同的工具，无论是否列出。
 
 Claude Code 仅在您的会话拥有这些工具时才会将其提供给子代理，即使子代理运行不同的模型也是如此。进程内[代理团队](/docs/zh-CN/agent-teams)队友以相同的方式跟随您的会话，而在其自己的[分割窗格](/docs/zh-CN/agent-teams#choose-a-display-mode)中的队友作为单独的 Claude Code 进程运行，因此其自己的模型决定。没有 Task 工具，代理通过消息而不是[共享任务列表](/docs/zh-CN/agent-teams#assign-and-claim-tasks)与其团队协调。
 

@@ -628,7 +628,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`awsAuthRefresh`](#awsauthrefresh) | 使用您自己的命令刷新 `.aws` 中过期的 [Bedrock 凭证](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration) | 身份验证和提供商 | Any file |
 | [`awsCredentialExport`](#awscredentialexport) | 从您自己的命令以 JSON 形式提供 [Bedrock 凭证](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration) | 身份验证和提供商 | Any file |
 | [`axScreenReader`](#axscreenreader) | 渲染[屏幕阅读器友好的输出](/docs/zh-CN/accessibility) | 界面和终端 | Any file |
-| [`bashEditDiffEnabled`](#basheditdiffenabled) | 在每个权限模式中记录 [Bash 命令更改的文件](/docs/zh-CN/hooks#bash) | 界面和终端 | User or managed |
+| [`bashEditDiffEnabled`](#basheditdiffenabled) | 在每个权限模式中记录 [Bash 命令运行期间发生更改的文件](/docs/zh-CN/hooks#bash) | 界面和终端 | User or managed |
 | [`bashOutputMaxChars`](#bashoutputmaxchars) | 设置成功命令的[输出](/docs/zh-CN/tools-reference#output-limits)有多少 Claude 内联接收 | 内存和上下文 | Any file |
 | [`blockedMarketplaces`](#blockedmarketplaces) | 为您的组织阻止[插件市场](/docs/zh-CN/plugins/overview)来源 | 插件和技能 | Managed |
 | [`browserExternalPageTools`](#browserexternalpagetools) | 在[桌面](/docs/zh-CN/desktop)浏览器窗格中的外部页面上关闭 Claude 的工具 | 工具 | Managed |
@@ -1424,7 +1424,7 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
   * `true`: 当为您启用动态工作流且您的模型支持 `xhigh` 时，会话以 ultracode 打开启动
   * `false`: 会话以 ultracode 关闭启动
 * **Default**: 未设置，因此 ultracode 已关闭
-* **Per-session overrides**: `/effort ultracode` 为一个会话打开 ultracode，不需要此键。`--effort ultracode` 标志也为一个会话打开它，在 `xhigh` 努力处，需要 Claude Code v2.1.203 或更高版本
+* **Per-session overrides**: `/effort ultracode` 在没有此键的情况下为一个会话打开 ultracode，而当此键为 `true` 时，`/effort ultracode off` 为一个会话关闭它。`--effort ultracode` 标志也为一个会话打开它，在 `xhigh` 努力处，需要 Claude Code v2.1.203 或更高版本
 
 ```json settings.json theme={null}
 {
@@ -3310,7 +3310,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   `bashEditDiffEnabled`
 </h3>
 
-选择 Claude Code 是否记录 Bash 命令在 Git 存储库中更改的文件。当它记录它们时，您会在命令后在终端中看到它们的差异，您的 [PostToolUse Bash hooks](/docs/zh-CN/hooks#bash) 会接收更改的文件列表。
+选择 Claude Code 是否记录 Bash 命令运行期间 Git 存储库中发生更改的文件。当它记录它们时，您会在命令后在终端中看到它们的差异，您的 [PostToolUse Bash hooks](/docs/zh-CN/hooks#bash) 会接收更改的文件列表。
 
 列出的文件并不总是命令更改的文件。命令运行时另一个程序或另一个 Bash 调用所做的更改也可能出现在那里。
 
@@ -6602,7 +6602,7 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 
 Claude Code 不带参数运行帮助程序，在其环境中设置 `CLAUDE_CODE_VERSION`，并从 stdout 读取 JSON 信封，上限为 1 MiB。
 
-将设置放在 `managedSettings` 密钥下。没有 `managedSettings` 密钥的裸设置对象解析为 `managedSettings` 未定义并应用任何内容，Claude Code 报告无错误：
+将设置放在 `managedSettings` 密钥下。没有 `managedSettings` 密钥的裸设置对象解析为 `managedSettings` 未定义且不应用任何内容，Claude Code 也不报告错误：
 
 ```json theme={null}
 {

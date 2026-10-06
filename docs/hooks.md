@@ -789,7 +789,7 @@ Hook 事件接收这些字段作为 JSON，除了每个 [hook 事件](#hook-even
 
 只有 [`SessionStart`](#sessionstart) hook 可以接收 `model` 字段，Claude Code 并不总是包括它。[`PreModelSwitch`](#premodelswitch) 和 [`PostModelSwitch`](#postmodelswitch) hook 改为接收 `from_model` 和 `to_model`，因此使用 PostModelSwitch hook 来跟踪模型在会话期间的变化。
 
-没有 `$CLAUDE_MODEL` 环境变量。如果您在 shell 中设置了 hook，可以读取 `$ANTHROPIC_MODEL`，但该值在您使用 `/model` 在会话期间切换模型时不会改变。
+没有 `$CLAUDE_MODEL` 环境变量。如果您在 shell 中设置了 `$ANTHROPIC_MODEL`，hook 可以读取它，但该值在您使用 `/model` 在会话期间切换模型时不会改变。
 
 hook 进程继承父环境，但 Claude Code [从它生成的每个子进程中删除](/docs/zh-CN/monitoring-usage#administrator-configuration)的 `OTEL_*` 导出器变量除外，另外当 [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](/docs/zh-CN/env-vars#variables) 设置为 `1` 时，它剥离的变量也除外。在[获得 HIPAA 配置](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)的会话中，Claude Code 还会从 hook 的环境中[删除 Anthropic 凭据](/docs/zh-CN/hipaa-setup#anthropic-credentials-in-commands-hooks-and-mcp-servers)。
 
@@ -837,7 +837,7 @@ Claude Code 是否将您的 stdout 读取为 [JSON 输出](#json-output)或纯�
 
 * **以 `{` 开始并以 `}` 结束**：Claude Code 将其解析为 JSON。当输出是两行或更多行，每行本身都解析为 JSON，且没有行是设置字段的 [JSON 输出](#json-output)对象时，Claude Code 将整个输出视为纯文本。当其中一行确实设置了字段时，整个输出是解析失败，如下所述。
 * **以 `{` 开始但不以 `}` 结束**：Claude Code 将其视为纯文本。
-* **以其他任何内容开始**：Claude Code 将其视为纯文本、JSON 数组或包含的引用 JSON 字符串。
+* **以其他任何内容开始**：Claude Code 将其视为纯文本，即使它是 JSON 数组或带引号的 JSON 字符串也是如此。
 
 对于使用标准决策模型的事件，退出 0 且解析对象未通过架构验证是非阻止错误：操作继续，转录显示 `<hook name> hook error` 通知，带有验证消息。在任何退出代码（除 2 外）上都会发生相同情况，而[退出 2 仍然阻止](#exit-code-2)。
 
