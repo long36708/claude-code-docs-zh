@@ -103,7 +103,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 如果您已经在浏览器中连接了 GitHub，`/web-setup` 会警告您继续将替换您的云会话的该连接。
 
 <Note>
-  启用了[零数据保留](/docs/zh-CN/zero-data-retention)的组织无法使用 `/web-setup` 或其他云会话功能。如果未安装 GitHub CLI 或未进行身份验证，Claude Code 会打开浏览器入门流程。
+  启用了[零数据保留](/docs/zh-CN/zero-data-retention)或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织无法使用 `/web-setup` 或其他云端会话功能。如果未安装 GitHub CLI 或未进行身份验证，Claude Code 会打开浏览器入门流程。
 </Note>
 
 <Steps>
@@ -264,7 +264,7 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
 该命令在另外两种情况下也被隐藏：
 
 * 管理员为您的组织禁用了云会话。在这种情况下，提交 `/web-setup` 返回 [`Cloud sessions are disabled by your organization's policy`](/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。在 v2.1.268 之前，这种情况也返回 `Unknown command: /web-setup`。
-* 您的 Enterprise 组织启用了[零数据保留](/docs/zh-CN/zero-data-retention)，这使云会话不可用。
+* 您的 Enterprise 组织启用了[零数据保留](/docs/zh-CN/zero-data-retention)，或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)。任一情况都会使云会话不可用。
 
 <h3 id="could-not-create-a-cloud-environment-or-no-cloud-environment-available-when-using-cloud">
   使用 `--cloud` 时出现 "Could not create a cloud environment" 或 "No cloud environment available"

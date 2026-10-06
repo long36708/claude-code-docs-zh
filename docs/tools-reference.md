@@ -43,11 +43,11 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `Read` | 读取文件的内容。请参阅 [Read 工具行为](#read-tool-behavior) | 否 |
 | `ReadMcpResourceTool` | 按 URI 读取特定 MCP 资源 | 否 |
 | `RemoteTrigger` | 在 claude.ai 上创建、更新、运行和列出[例程](/docs/zh-CN/routines)。支持 `/schedule` 命令。[`RemoteTrigger` 输入参考](/docs/zh-CN/agent-sdk/typescript#remotetrigger)记录了每个操作和删除该工具的组织策略。例程位于 claude.ai 上，需要 Pro、Max、Team 或 Enterprise 计划，因此此工具无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
-| `ReportFindings` | 将代码审查发现报告为结构化列表，每个发现都有文件、摘要和失败场景，以便 Claude Code 可以呈现它们而不是将其打印为文本。当活跃的代码审查说明告诉它这样做时，Claude 会调用它。需要 Claude Code v2.1.196 或更高版本。从 v2.1.199 开始，发现还可以携带可选的 `category` 段，例如 `correctness` 或 `test-coverage`，显示在呈现列表中的文件位置旁边 | 否 |
+| `ReportFindings` | 将代码审查发现报告为结构化列表，每个发现都有文件、摘要和失败场景，以便 Claude Code 可以呈现它们而不是将其打印为文本。当活跃的代码审查指令要求它这样做时，Claude 会调用它。发现还可以携带可选的 `category` 段，例如 `correctness` 或 `test-coverage`，显示在呈现列表中的文件位置旁边 | 否 |
 | `ScheduleWakeup` | 重新安排[自定步调 `/loop`](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)的下一次迭代。Claude 在每次迭代结束时调用此方法以选择下一次运行的时间，在一分钟到一小时之间；您不直接调用它。要改为结束循环，Claude 使用 `stop: true` 调用它，这会取消待处理的唤醒。`stop` 字段需要 Claude Code v2.1.202 或更高版本。待处理的唤醒出现在[停止 hook 输入](/docs/zh-CN/hooks#stop-input)中的 `session_crons` 中 | 否 |
 | `SendFeedback` | 起草关于 Claude Code 的反馈报告，涵盖产品问题或 Claude 在会话中的自身行为，并将其排队在您的机器上供您审查。Claude Code 在您选择发送草稿之前不会发送任何内容。请参阅 [SendFeedback 工具行为](#sendfeedback-tool-behavior)。需要 Claude Code v2.1.238 或更高版本 | 否 |
 | `SendMessage` | 向另一个代理发送消息：[代理团队](/docs/zh-CN/agent-teams)队友、[通过代理 ID 或名称恢复的子代理](/docs/zh-CN/sub-agents#resume-subagents)，或您的其他 Claude Code 会话之一，在此机器上或超越它。消息传递其他会话需要 Claude Code v2.1.224 或更高版本。[跨会话消息传递](/docs/zh-CN/cross-session-messaging)涵盖 Claude 可以到达的会话、[消息到达时的样子](/docs/zh-CN/cross-session-messaging#what-a-message-looks-like)以及[Claude 如何在另一个会话空闲时获得通知](/docs/zh-CN/cross-session-messaging#get-a-notice-when-another-session-goes-idle)。Claude 可以包含可选的 `summary` 输入，通常为 5-10 个单词，Claude Code 显示为单行预览。当 Claude 在[纯文本消息](/docs/zh-CN/cross-session-messaging#limitations)上省略它时，Claude Code 使用消息的第一行作为摘要。Claude Code 使用省略号截断长于 200 个字符的摘要 | 否 |
-| `SendUserFile` | 从会话向您发送文件，带有可选标题，以便生成的报告、图表、屏幕截图或构建的工件到达您的设备，而不仅仅在成绩单中提及。从 v2.1.196 开始，可选的 `display` 输入控制呈现：`render` 在客户端中内联打开文件，`attach` 仅显示下载卡，未设置时客户端按文件类型决定。在连接[远程控制](/docs/zh-CN/remote-control)客户端或在[网络版 Claude Code](/docs/zh-CN/claude-code-on-the-web)中时可用。传递通过 Anthropic 托管的基础设施运行，因此该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用 | 否 |
+| `SendUserFile` | 从会话向您发送文件，带有可选标题，以便生成的报告、图表、屏幕截图或构建产物到达您的设备，而不仅仅在会话记录中提及。可选的 `display` 输入控制呈现方式：`render` 在客户端中内联打开文件，`attach` 仅显示下载卡，未设置时客户端按文件类型决定。在连接 [Remote Control](/docs/zh-CN/remote-control) 客户端或在[云端会话](/docs/zh-CN/claude-code-on-the-web)中时可用。传递通过 Anthropic 托管的基础设施运行，因此该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用 | 否 |
 | `ShareOnboardingGuide` | 上传 `ONBOARDING.md` 并返回队友可以在 Claude Code 中打开的共享链接。在编写指南后从 `/team-onboarding` 调用。适用于 Pro、Max、Team 和 Enterprise 计划上的 claude.ai 订阅者 | 是 |
 | `Skill` | 在主对话中执行[skill](/docs/zh-CN/skills#control-who-invokes-a-skill) | 是 |
 | `SubagentHandback` | 将子代理的最终报告传递给接收该子代理结果的任何对话。仅在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中提供，给 Agent 工具在本地运行的子代理，除了[分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)，并在终端 CLI、IDE 扩展、网络版会话和 Agent SDK 中可用；分类器在传递报告前审查它。需要 Claude Code v2.1.271 或更高版本 | 否 |
@@ -55,7 +55,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `TaskGet` | 检索特定任务的完整详细信息。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
 | `TaskList` | 列出所有任务及其当前状态。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
 | `TaskOutput` | 从后台任务检索输出。已弃用，改为在任务的输出文件路径上使用 `Read`。当没有任务与 ID 匹配时，错误按 ID 和描述列出运行的后台代理。在 v2.1.203 之前，错误仅命名缺失的 ID | 否 |
-| `TaskStop` | 按 ID 停止运行的后台任务。它还接受[代理团队队友](/docs/zh-CN/agent-teams)或按代理 ID 或名称命名的后台代理。在 v2.1.198 之前，它仅接受后台任务 ID。当没有任务与 ID 匹配时，错误按 ID 和描述列出运行的后台代理，包括另一个代理生成的代理。在 v2.1.203 之前，错误列出了运行的队友和命名的代理，但不是另一个代理生成的后台代理，因此无法从主对话中识别或停止这些代理 | 否 |
+| `TaskStop` | 按 ID 停止运行中的后台任务。它还接受 [agent team 队友](/docs/zh-CN/agent-teams)或按 Agent ID 或名称指定的命名后台 Agent。当没有任务与 ID 匹配时，错误按 ID 和描述列出运行中的后台 Agent，包括由另一个 Agent 生成的 Agent。在 v2.1.203 之前，错误列出了运行中的队友和命名 Agent，但不包括由另一个 Agent 生成的后台 Agent，因此无法从主对话中识别或停止这些 Agent | 否 |
 | `TaskUpdate` | 更新任务状态、依赖项、详细信息或删除任务。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
 | `TodoWrite` | 管理会话任务清单。默认禁用，改为使用 `TaskCreate`、`TaskGet`、`TaskList` 和 `TaskUpdate`。设置 `CLAUDE_CODE_ENABLE_TASKS=0` 以在[具有任务跟踪工具的会话](#task-tool-availability)中重新启用它 | 否 |
 | `ToolSearch` | 当[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)启用时，搜索并加载延迟工具 | 否 |
@@ -122,7 +122,7 @@ Agent tool 在单独的上下文窗口中生成一个子代理。子代理自主
 您看到子代理权限提示的位置取决于它是在前台还是后台运行。Claude Code 默认在后台运行子代理，除了 [cases that run in the foreground](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)。
 
 * **前台子代理**显示您在主对话中会看到的相同权限提示，在每个 tool 调用发生时。
-* **后台子代理** 从 v2.1.186 开始在您的主会话中显示权限提示。提示命名哪个子代理在请求，按 Esc 拒绝该单个 tool 调用而不停止子代理。在 v2.1.186 之前，后台子代理自动拒绝任何否则会提示的 tool 调用，并在没有该 tool 的情况下继续。
+* **后台子代理**在您的主会话中显示权限提示。提示会注明是哪个子代理在请求，按 Esc 会拒绝该单个 tool 调用而不停止子代理。
 
 要 [limit what a subagent can reach](/docs/zh-CN/sub-agents#control-subagent-capabilities)，首先缩小其 `tools` 字段，例如通过将 Bash 排除在列表之外，或在您的设置中设置拒绝规则。
 
@@ -512,7 +512,7 @@ Claude Code 使用 `-ExecutionPolicy Bypass` 仅在进程范围内生成 PowerSh
 
 Bash 工具部分下描述的相同主会话工作目录重置行为适用于 PowerShell 命令，包括 `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` 环境变量。
 
-从 v2.1.196 开始，来自 `grep`、`rg`、`egrep`、`fgrep`、`findstr` 和 `git grep` 的退出代码 1 表示没有匹配。来自 `git diff` 的退出代码 1 表示存在差异。这两个结果都不会作为命令失败报告给 Claude。对于 `robocopy`，退出代码 0 到 7 是信息性结果，例如复制的文件或检测到的额外文件。退出代码 8 或更高被视为失败。
+来自 `grep`、`rg`、`egrep`、`fgrep`、`findstr` 和 `git grep` 的退出码 1 表示没有匹配。来自 `git diff` 的退出码 1 表示存在差异。这两个结果都不会作为命令失败报告给 Claude。对于 `robocopy`，退出码 0 到 7 是信息性结果，例如复制的文件或检测到的额外文件。退出码 8 或更高被视为失败。
 
 <h3 id="windows-encoding-and-exit-codes">
   Windows 编码和退出代码
@@ -551,7 +551,7 @@ Read 工具接收文件路径并返回带有行号的文件内容。Claude 被�
 
 Read 处理多种文件类型，不仅仅是纯文本：
 
-* **图像**：PNG、JPG 和其他图像格式作为 Claude 可以看到的视觉内容返回，而不是原始字节。Claude Code 在发送大型图像之前会调整大小并重新压缩，以适应模型的图像大小限制，因此 Claude 可能会看到大型屏幕截图的缩小版本。从 v2.1.196 开始，在调整大小后仍然大于 500KB 的图像会被重新编码为质量降低的 JPEG，其像素尺寸保持不变。如果 Claude 在大型图像中遗漏了细微的像素级细节，请要求它先裁剪感兴趣的区域，例如通过 Bash 使用 ImageMagick。
+* **图像**：PNG、JPG 和其他图像格式作为 Claude 可以看到的视觉内容返回，而不是原始字节。Claude Code 在发送大型图像之前会调整大小并重新压缩，以适应模型的图像大小限制，因此 Claude 可能会看到大型屏幕截图的缩小版本。在调整大小后仍然大于 500KB 的图像会被重新编码为质量降低的 JPEG，其像素尺寸保持不变。如果 Claude 在大型图像中遗漏了细微的像素级细节，请要求它先裁剪感兴趣的区域，例如通过 Bash 使用 ImageMagick。
 * **PDF**：Claude 完整读取短 `.pdf` 文件。对于超过 10 页的 PDF，它使用 `pages` 参数按范围读取，例如 `"1-5"`，一次最多 20 页。页面范围读取使用 poppler-utils 中的 `pdftoppm` 呈现页面，因此在 macOS 上使用 `brew install poppler` 安装，在 Debian 和 Ubuntu 上使用 `apt-get install poppler-utils` 安装。在 Windows 和其他平台上，安装一个将 `pdftoppm` 放在 `PATH` 上的 poppler 构建。没有它，页面范围读取会失败并显示 `pdftoppm is not installed`。
 * **Jupyter 笔记本**：`.ipynb` 文件返回所有单元格及其输出，包括代码、markdown 和可视化。Claude Code 拒绝读取超过 100 MB 的笔记本文件；错误会告诉 Claude 如何改为读取笔记本的一部分，例如使用 shell 命令读取单元格的一个切片。
 
@@ -603,7 +603,7 @@ Claude 将草稿加入队列后，您会在提示上方看到一张卡片，显�
 
 Claude Code 在本地草稿中保留您的工作目录，以便它可以找到记录，并且不发送目录。
 
-在 [零数据保留的组织](/docs/zh-CN/zero-data-retention#features-disabled-under-zdr) 中，Claude Code 会省略该工具，就像它对 `/feedback` 所做的那样。如果此类组织中的会话仍然提供该工具，草稿保留在您的机器上，发送失败并显示 `Feedback collection is not available for organizations with custom data retention policies.`
+在 [零数据保留的组织](/docs/zh-CN/zero-data-retention#features-disabled-under-zdr) 中，以及在已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup) 的组织中，Claude Code 会省略该工具，就像它对 `/feedback` 所做的那样。如果零数据保留组织中的会话仍然提供该工具，草稿保留在您的机器上，发送失败并显示 `Feedback collection is not available for organizations with custom data retention policies.`
 
 <h3 id="discard-or-keep-a-draft">
   丢弃或保留草稿
@@ -627,7 +627,7 @@ Claude Code 在使用 Claude API 而不是云提供商的您自己机器上的�
 * [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) 等云会话，无法在您的机器上写入队列
 * [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 上的会话
 * 您设置 [`CLAUDE_CODE_SEND_FEEDBACK=0`](/docs/zh-CN/env-vars) 或 [`DISABLE_FEEDBACK_COMMAND=1`](/docs/zh-CN/env-vars) 的会话，将 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 设置为任何非空值，或关闭 [功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)
-* 已关闭产品反馈的组织，以及 [零数据保留的组织](/docs/zh-CN/zero-data-retention#features-disabled-under-zdr)
+* 已关闭产品反馈的组织、[零数据保留的组织](/docs/zh-CN/zero-data-retention#features-disabled-under-zdr)，以及已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup) 的组织
 
 <h2 id="task-tool-availability">
   Task 工具可用性

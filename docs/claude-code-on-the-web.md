@@ -64,7 +64,7 @@
 有关 `/web-setup` 的分步说明（包括 `/web-setup` 存储的内容以及如何删除它），请参阅[从终端连接](/docs/zh-CN/web-quickstart#connect-from-your-terminal)。
 
 <Note>
-  启用了[零数据保留](/docs/zh-CN/zero-data-retention)的组织无法使用 `/web-setup` 或其他云会话功能。
+  启用了[零数据保留](/docs/zh-CN/zero-data-retention)或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织无法使用 `/web-setup` 或其他云端会话功能。
 </Note>
 
 <h3 id="quick-setup-for-team-and-enterprise">

@@ -87,7 +87,7 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 
 | 模式 | 描述 |
 | :- | :- |
-| `default` | 在首次使用每个工具时提示权限。在 CLI、VS Code 和 JetBrains 扩展以及桌面应用中标记为 Manual，Claude Code 接受 `manual` 作为别名。标签和别名需要 Claude Code v2.1.200 或更高版本。桌面应用的标签不依赖于您的 CLI 版本 |
+| `default` | 在首次使用每个工具时提示权限。在 CLI、VS Code 和 JetBrains 扩展以及桌面应用中标记为 Manual，Claude Code 接受 `manual` 作为别名 |
 | `acceptEdits` | 自动接受工作目录或 `additionalDirectories` 中路径的文件编辑和常见文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp` |
 | `plan` | Claude 读取文件并运行只读 shell 命令来探索，但不编辑您的源文件；在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)可用的情况下，分类器批准的命令也会运行。在 CLI 和 VS Code 扩展中标记为 Plan |
 | `auto` | 无需常规提示即可运行；在 shell 命令和网络请求等操作运行之前，后台[分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)会检查它们是否与您的请求一致 |
@@ -773,7 +773,7 @@ Claude Code 运行 git 来区分两者，并且仅在您信任该文件夹后才
   配置主目录例外仅跳过信任步骤。`~/.claude/settings.local.json` 仍然是[本地范围](/docs/zh-CN/settings#compare-the-scope-of-each-settings-file)，因此 Claude Code 仅在您从主目录本身启动的会话中读取它，而不是在每个项目中。要在所有项目中应用权限规则，请将它们添加到您的用户设置中：`~/.claude/settings.json`，或当设置 `CLAUDE_CONFIG_DIR` 时为 `$CLAUDE_CONFIG_DIR/settings.json`。
 </Note>
 
-在版本 2.1.196 至 2.1.199 中，Claude Code 在您的配置主目录中和 git 存储库外也会暂不应用该文件的规则，并在那里打印[`this workspace has not been trusted`](/docs/zh-CN/errors#workspace-has-not-been-trusted)警告。在 v2.1.207 之前，Claude Code 在您接受对话框之前应用未跟踪文件的规则。
+在 v2.1.207 之前，Claude Code 在您接受对话框之前应用未跟踪文件的规则。
 
 <h3 id="what-runs-before-you-trust-a-folder">
   在您信任文件夹之前运行什么

@@ -15,6 +15,7 @@
 | 如果您想... | 执行此操作 |
 | :- | :- |
 | 定义工具 | 使用 [`@tool`](/docs/zh-CN/agent-sdk/python#tool)（Python）或 [`tool()`](/docs/zh-CN/agent-sdk/typescript#tool)（TypeScript），包含名称、描述、架构和处理程序。请参阅[创建自定义工具](#create-a-custom-tool)。 |
+| 将参数设为可选 | 在 schema 中将其声明为可选，并在处理程序中应用默认值。请参阅[将参数设为可选](#make-a-parameter-optional)。 |
 | 向 Claude 注册工具 | 在 `create_sdk_mcp_server` / `createSdkMcpServer` 中包装并传递给 `query()` 中的 `mcpServers`。请参阅[调用自定义工具](#call-a-custom-tool)。 |
 | 预先批准工具 | 添加到您的允许工具列表。请参阅[配置允许的工具](#configure-allowed-tools)。 |
 | 从 Claude 的上下文中删除内置工具 | 传递仅列出您想要的内置工具的 `tools` 数组。请参阅[配置允许的工具](#configure-allowed-tools)。 |
@@ -32,7 +33,9 @@
 
 * **名称：** Claude 用来调用工具的唯一标识符。
 * **描述：** 工具的功能。Claude 读取此内容以决定何时调用它。
-* **输入模式：** Claude 必须提供的参数。在 TypeScript 中，这始终是一个 [Zod schema](https://zod.dev/)，处理程序的 `args` 会自动从中获得类型。在 Python 中，这是一个将名称映射到类型的字典，如 `{"latitude": float}`，SDK 会为您将其转换为 JSON Schema。Python 装饰器还接受完整的 [JSON Schema](https://json-schema.org/understanding-json-schema/about) 字典，当您需要枚举、范围、可选字段或嵌套对象时。
+* **输入 schema：** 工具接受的参数，按语言分别声明：
+  * **TypeScript**：一个 [Zod schema](https://zod.dev/)。处理程序的 `args` 从中获得类型。对字段调用 `.describe()` 可为其添加 Claude 能看到的描述。
+  * **Python**：一个将名称映射到类型的字典，如 `{"latitude": float}`，SDK 会为您将其转换为 JSON Schema。将类型包装在 `Annotated` 中，如 `{"latitude": Annotated[float, "Latitude coordinate"]}`，可为字段添加 Claude 能看到的描述。当您需要枚举、范围、可选字段或嵌套对象时，装饰器还可以直接接受完整的 [JSON Schema](https://json-schema.org/understanding-json-schema/about) 字典。
 * **处理程序：** 当 Claude 调用工具时运行的异步函数。它接收验证的参数，必须返回一个包含以下内容的对象：
   * `content`（必需）：结果块数组，每个块的 `type` 为 `"text"`、`"image"`、`"audio"`、`"resource"` 或 `"resource_link"`。有关非文本块，请参阅[返回图像和资源](#return-images-and-resources)。
   * `structuredContent`（可选）：包含结果作为机器可读数据的 JSON 对象，与 `content` 一起返回。请参阅[返回结构化数据](#return-structured-data)。
@@ -40,15 +43,31 @@
 
 定义工具后，使用 [`createSdkMcpServer`](/docs/zh-CN/agent-sdk/typescript#createsdkmcpserver)（TypeScript）或 [`create_sdk_mcp_server`](/docs/zh-CN/agent-sdk/python#create_sdk_mcp_server)（Python）将其包装在服务器中。服务器在应用程序内部进程中运行，而不是作为单独的进程运行。
 
+本页中发出 HTTP 请求的 Python 示例使用 [httpx](https://www.python-httpx.org/)。请使用您项目所用的包管理器添加它：
+
+<Tabs>
+  <Tab title="Python (uv)">
+    ```bash theme={null}
+    uv add httpx
+    ```
+  </Tab>
+
+  <Tab title="Python (pip)">
+    ```bash theme={null}
+    pip install httpx
+    ```
+  </Tab>
+</Tabs>
+
 <h3 id="weather-tool-example">
   天气工具示例
 </h3>
 
-此示例定义了一个 `get_temperature` 工具并将其包装在 MCP 服务器中。它仅设置工具；要将其传递给 `query` 并运行它，请参阅下面的[调用自定义工具](#call-a-custom-tool)。
+此示例定义了一个 `get_temperature` 工具并将其包装在 MCP 服务器中，但没有将服务器传递给 `query`。要运行该工具，请参阅下面的[调用自定义工具](#call-a-custom-tool)。
 
 <CodeGroup>
   ```python Python theme={null}
-  from typing import Any
+  from typing import Annotated, Any
   import httpx
   from claude_agent_sdk import tool, create_sdk_mcp_server
 
@@ -57,7 +76,10 @@
   @tool(
       "get_temperature",
       "Get the current temperature at a location",
-      {"latitude": float, "longitude": float},
+      {
+          "latitude": Annotated[float, "Latitude coordinate"],
+          "longitude": Annotated[float, "Longitude coordinate"],
+      },
   )
   async def get_temperature(args: dict[str, Any]) -> dict[str, Any]:
       async with httpx.AsyncClient() as client:
@@ -128,9 +150,16 @@
 
 有关完整的参数详细信息，包括 JSON Schema 输入格式和返回值结构，请参阅 [`tool()`](/docs/zh-CN/agent-sdk/typescript#tool) TypeScript 参考或 [`@tool`](/docs/zh-CN/agent-sdk/python#tool) Python 参考。
 
-<Tip>
-  要使参数可选：在 TypeScript 中，向 Zod 字段添加 `.optional()`，并在处理程序中应用默认值。在 Python 中，字典模式将每个键视为必需的，因此将参数从模式中省略，在描述字符串中提及它，并在处理程序中使用 `args.get()` 读取它。下面的 [`get_precipitation_chance` 工具](#add-more-tools)展示了两种模式。
-</Tip>
+<h3 id="make-a-parameter-optional">
+  使参数可选
+</h3>
+
+要使参数可选，请在 schema 中将其声明为可选，并在处理程序中应用默认值：
+
+* **TypeScript**：向 Zod 字段添加 `.optional()`。
+* **Python**：字典 schema 要求每个键都必须提供。请使用 JSON Schema 形式，将该参数从 `required` 中省略，并使用 `args.get()` 读取它。如需带有可选键的类型化 schema，请参阅 [TypedDict 类](/docs/zh-CN/agent-sdk/python#input-schema-options)。
+
+下面的 [`get_precipitation_chance` 工具](#add-more-tools)展示了这两种写法。
 
 <h3 id="call-a-custom-tool">
   调用自定义工具
@@ -182,7 +211,31 @@
   ```
 </CodeGroup>
 
-将此代码片段与[天气工具示例](#weather-tool-example)中的工具和服务器定义结合在一个文件中，然后使用 `python weather.py`（Python）或 `npx tsx weather.ts`（TypeScript）运行它。Claude 调用 `get_temperature`，脚本打印一行答案，显示旧金山的当前温度。
+将此代码片段与[天气工具示例](#weather-tool-example)中的工具和服务器定义合并到一个文件（`weather.py` 或 `weather.ts`）中，然后在终端中运行它：
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```bash theme={null}
+    npx tsx weather.ts
+    ```
+  </Tab>
+
+  <Tab title="Python (uv)">
+    ```bash theme={null}
+    uv run weather.py
+    ```
+  </Tab>
+
+  <Tab title="Python (pip)">
+    激活您安装了 SDK 的虚拟环境，然后运行：
+
+    ```bash theme={null}
+    python weather.py
+    ```
+  </Tab>
+</Tabs>
+
+Claude 调用 `get_temperature`，脚本打印一行答案，显示旧金山的当前温度。
 
 <h3 id="add-more-tools">
   添加更多工具
@@ -197,12 +250,25 @@
   # Define a second tool for the same server
   @tool(
       "get_precipitation_chance",
-      "Get the hourly precipitation probability for a location. "
-      "Optionally pass 'hours' (1-24) to control how many hours to return.",
-      {"latitude": float, "longitude": float},
+      "Get the hourly precipitation probability for a location",
+      {
+          "type": "object",
+          "properties": {
+              "latitude": {"type": "number"},
+              "longitude": {"type": "number"},
+              "hours": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 24,
+                  "description": "How many hours of forecast to return",
+              },
+          },
+          # 'hours' is left out of required, so Claude can omit it
+          "required": ["latitude", "longitude"],
+      },
   )
   async def get_precipitation_chance(args: dict[str, Any]) -> dict[str, Any]:
-      # 'hours' isn't in the schema - read it with .get() to make it optional
+      # 'hours' isn't in required - read it with .get() to fall back to a default
       hours = args.get("hours", 12)
       async with httpx.AsyncClient() as client:
           response = await client.get(

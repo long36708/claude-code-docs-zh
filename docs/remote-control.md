@@ -236,7 +236,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
 Remote Control 连接时，会话记录（包括您的消息、Claude 的响应和工具活动）存储在 Anthropic 服务器上。存储的记录保持您的设备之间的对话同步，并让会话在网络中断后重新连接。执行和文件系统访问保留在您的机器上，存储的记录根据[数据使用](/docs/zh-CN/data-usage)政策保留。
 
-要完全关闭 Remote Control，请使用 [`disableRemoteControl`](/docs/zh-CN/settings-reference#disableremotecontrol) 设置。具有零数据保留等合规要求的组织无法启用 Remote Control。
+要完全关闭 Remote Control，请使用 [`disableRemoteControl`](/docs/zh-CN/settings-reference#disableremotecontrol) 设置。启用了[零数据保留](/docs/zh-CN/zero-data-retention)或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织无法启用 Remote Control。
 
 <h2 id="trusted-devices">
   受信任的设备
@@ -316,7 +316,7 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 | [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch) | 从 Claude 移动应用发送任务消息 | 您的机器（Desktop） | [将移动应用与 Desktop 配对](https://support.claude.com/en/articles/13947068) | 在您离开时委派工作，最少设置 |
 | [Remote Control](/docs/zh-CN/remote-control) | 从 [claude.ai/code](https://claude.ai/code) 或 Claude 移动应用驱动正在运行的会话 | 您的机器（CLI、Desktop 或 VS Code） | 运行 [`claude remote-control` 或 `/remote-control`](/docs/zh-CN/remote-control#start-a-remote-control-session) | 从另一台设备控制进行中的工作 |
 | [Channels](/docs/zh-CN/channels) | 从聊天应用（如 Telegram 或 Discord）或您自己的服务器推送事件 | 您的机器（CLI） | [安装频道插件](/docs/zh-CN/channels#quickstart) 或 [构建您自己的](/docs/zh-CN/channels-reference) | 对外部事件（如 CI 失败或聊天消息）做出反应 |
-| [Slack](/docs/zh-CN/slack) | 在团队频道中提及 `@Claude` | Anthropic 云 | [安装 Slack 应用](/docs/zh-CN/slack#setting-up-claude-code-in-slack)，启用 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) | 从团队聊天进行 PR 和审查 |
+| [Slack](/docs/zh-CN/slack) | 在团队频道中提及 `@Claude` | Anthropic 云 | [安装 Slack 应用](/docs/zh-CN/slack#setting-up-claude-code-in-slack)，启用 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web)，在 Pro 和 Max 计划上 | 从团队聊天进行 PR 和审查 |
 | [Self-hosted environments](/docs/zh-CN/self-hosted-environments) | 启动 [云会话](/docs/zh-CN/claude-code-on-the-web)并选择您组织的环境 | 您组织的基础设施 | [部署运行器](/docs/zh-CN/self-hosted-environments-quickstart)，在 Team 和 Enterprise 计划上 | 必须在您的网络内运行的云会话 |
 | [Scheduled tasks](/docs/zh-CN/scheduled-tasks) | 设置计划 | [CLI](/docs/zh-CN/scheduled-tasks)、[Desktop](/docs/zh-CN/desktop-scheduled-tasks) 或 [云](/docs/zh-CN/routines) | 选择频率 | 定期自动化，如每日审查 |
 
@@ -451,7 +451,7 @@ Claude Code 无法访问功能标志服务来检查是否为您的账户启用�
 
 * **错误提到 `disableRemoteControl`**：您的 IT 管理员已通过[托管设置](/docs/zh-CN/managed-settings)在此设备上禁用了 Remote Control，独立于组织范围的切换和您的登录方式。
 * **您的 claude.ai 计划是 Pro 或 Max**：Claude Code 仍然以来自较早登录的 Team 或 Enterprise 组织身份登录，因此它检查该组织的 Remote Control 策略。运行 `/status` 以查看您的登录使用的计划和组织。运行 `claude auth logout` 然后 `claude auth login` 以在您当前的计划下重新登录。
-* **消息未说联系您的组织管理员**：您的组织具有与 Remote Control 不兼容的 HIPAA 配置，`/status` 在其 `Organization configuration` 行中列出 `HIPAA`。在此状态下，管理面板的 Remote Control 切换呈灰显状态，因此所有者无法在那里更改它。联系 Anthropic 支持以讨论选项。在 v2.1.267 之前，此情况显示"Remote Control isn't available for your organization due to its compliance policy"。
+* **消息未说联系您的组织管理员**：您的组织应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)，该配置会关闭 Remote Control。要确认这一点，请运行 `/status` 并在 `Organization configuration` 行中查找 `HIPAA`。所有者会在[管理设置](https://claude.ai/admin-settings/claude-code)中看到 **Remote Control** 切换呈灰显状态，且无法将其打开。如果您对该配置有疑问，请询问所有者，所有者可以联系您组织的 Anthropic 客户团队。在 v2.1.267 之前，此情况显示"Remote Control isn't available for your organization due to its compliance policy"。
 * **否则，所有者尚未为您的组织启用它**：Remote Control 在 Team 和 Enterprise 计划上默认关闭。所有者可以在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 通过打开 **Remote Control** 切换来启用它。此切换是服务器端组织设置。
 
 在 v2.1.281 之前，当 Claude Code 未在此计算机上加载您的组织策略时，此消息也会出现，例如在离线启动后。更高版本将该状态报告为[`Couldn't verify your organization's policy for remote control`](#couldnt-verify-your-organizations-policy-for-remote-control)。

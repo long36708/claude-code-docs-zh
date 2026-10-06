@@ -29,7 +29,7 @@
 | `/debug [issue]` | 为会话启用调试日志，并提示 Claude 利用日志输出和设置路径进行诊断 |
 | `/status` | 当前生效的设置来源，包括托管设置是否生效 |
 
-如果某个记忆文件未出现在 `/context` 的细分列表中，请对照[CLAUDE.md 文件的加载方式](/docs/zh-CN/memory#how-claude-md-files-load)检查其位置。子目录中的 `CLAUDE.md` 文件并非在会话开始时加载，而是在 Claude 对该目录中的文件使用 Read、Write 或 Edit 工具后按需加载。
+如果某个记忆文件未出现在 `/context` 的细分列表中，请对照[CLAUDE.md 文件的加载方式](/docs/zh-CN/memory#how-claude-md-files-load)检查其位置。子目录中的 `CLAUDE.md` 文件是按需加载的，而不是在会话开始时加载，因此它们不会出现在该细分列表中。
 
 如果 `/context` 确认文件已加载，但 Claude 仍未遵循某条特定指令，那么问题很可能在于指令的编写方式，而非是否已加载。CLAUDE.md 非常适合用于提供您会给新团队成员的那类指导，例如项目约定、构建命令以及文件应放置的位置。
 
@@ -116,7 +116,7 @@ cd /tmp && CLAUDE_CONFIG_DIR=/tmp/claude-clean claude
 | `settings.json` 值似乎被忽略 | 相同的键在 `settings.local.json` 中设置 | `settings.local.json` 覆盖 `settings.json`，两者都覆盖 `~/.claude/settings.json`。请参阅[设置优先级](/docs/zh-CN/settings#settings-precedence)。 |
 | Skill 没有出现在 `/skills` 中 | Skill 文件在 `.claude/skills/name.md` 而不是在文件夹中 | 使用包含 `SKILL.md` 的文件夹：`.claude/skills/name/SKILL.md`。 |
 | Skill 出现在 `/skills` 中但 Claude 从不调用它 | Skill 在其 frontmatter 中有 `disable-model-invocation: true`，或其描述与你表述请求的方式不匹配 | 检查 `/skills` 中的徽章：一个"user-only"标签意味着 Claude 不会自动触发它。请参阅[skill 调用](/docs/zh-CN/skills)。 |
-| 子目录 `CLAUDE.md` 指令似乎被忽略 | 子目录文件按需加载，而不是在会话开始时加载 | 它们在 Claude 对该目录中的文件使用 Read、Write 或 Edit 工具之后加载，而不是在启动时加载。在 v2.1.288 之前，只有 Read 工具会加载它们。请参阅[CLAUDE.md 文件如何加载](/docs/zh-CN/memory#how-claude-md-files-load)。 |
+| 子目录 `CLAUDE.md` 指令似乎被忽略 | 子目录文件按需加载，而不是在会话开始时加载 | 请参阅[子目录文件何时加载](/docs/zh-CN/memory#how-claude-md-files-load)。在 v2.1.288 之前，只有 Read 工具会加载它们。 |
 | 子代理忽略 `CLAUDE.md` 指令 | 内置的 Explore 和 Plan 代理跳过 `CLAUDE.md`。自定义子代理以与主对话相同的方式加载它，除非其定义设置了 [`omitClaudeMd`](/docs/zh-CN/sub-agents#supported-frontmatter-fields) | 对于 Explore 或 Plan，在你的委派提示中重新陈述指令。对于设置 `omitClaudeMd` 的子代理，删除该字段。对于任何其他自定义子代理，将关键指令放在代理文件体中，它成为代理的系统提示。请参阅[启动时加载的内容](/docs/zh-CN/sub-agents#what-loads-at-startup)。 |
 | 清理逻辑在会话结束时永远不运行 | 没有配置 `SessionEnd` hook | 在 `settings.json` 中添加 `SessionEnd` hook。请参阅[hook 事件列表](/docs/zh-CN/hooks#hook-events)。 |
 | `.mcp.json` 中的 MCP 服务器永远不加载 | 文件在 `.claude/` 下，或其服务器位于顶级 `servers` 键下，如 VS Code 的 `mcp.json` 中那样，而不是 `mcpServers` | 项目 MCP 配置在存储库根目录下作为 `.mcp.json`，而不是在 `.claude/` 内，服务器位于 `mcpServers` 键下。请参阅[MCP 配置](/docs/zh-CN/mcp)。 |

@@ -45,7 +45,7 @@
 在规划推出之前检查这些：
 
 * **计划**：Team 和 Enterprise 组织的公开测试版。自托管环境默认关闭；[所有者](/docs/zh-CN/cloud-environments#organization-shared-environments)在[**云环境**管理页面](https://claude.ai/admin-settings/cloud-environments)上打开**允许自托管环境**，这需要为组织启用 [cloud sessions](/docs/zh-CN/claude-code-on-the-web)。
-* **零数据保留**：对于启用了[零数据保留](/docs/zh-CN/zero-data-retention)的组织不可用。
+* **零数据保留和 HIPAA**：对于启用了[零数据保留](/docs/zh-CN/zero-data-retention)或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织不可用。
 * **模型推理**：会话使用 Anthropic API，除非您将 runner 配置为[将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform](/docs/zh-CN/self-hosted-environments-configuration#send-model-requests-to-bedrock-or-agent-platform)。在这两种情况下，会话内容都会发送给 Anthropic。在以这种方式配置的 runner 上，来自 claude.ai 的[服务器托管设置](/docs/zh-CN/server-managed-settings)和组织策略不会作用于会话。
 * **表面**：从 [claude.ai/code](https://claude.ai/code)、移动和桌面应用、[计划例程](/docs/zh-CN/routines)以及终端启动的会话，带有 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud) 或 [`--environment` 调度](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)，可以在自托管环境中运行。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话也可以在其中运行，但 Claude 还不能在这些会话中使用[访问包](https://claude.com/docs/claude-tag/concepts/glossary#access-bundle)。[Claude Security](/docs/zh-CN/claude-security) 和[代码审查](/docs/zh-CN/code-review)会话还不能路由到它们。对这两个表面的支持将单独跟进。
 * **存储库**：会话从 GitHub 检出存储库；请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)。对于 GitHub Enterprise Server 主机，请参阅其[网络要求](/docs/zh-CN/github-enterprise-server#network-requirements)。

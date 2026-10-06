@@ -37,7 +37,7 @@ Usage by model:
 
 这些总计在 `/clear` 启动新会话时重置，因此下一个会话的总成本从 \$0 开始。在 v2.1.211 之前，它们在 `/clear` 后继续累积，直到 Claude Code 进程的生命周期结束。
 
-对于以 1.1× [数据驻留费率](https://platform.claude.com/docs/en/about-claude/pricing#data-residency-pricing) 计费的 Claude API 响应，Claude Code 在会话成本数字中将该响应令牌的列表价格乘以 1.1。Claude Code 在[状态行的成本字段](/docs/zh-CN/statusline#cost-and-duration-tracking)中报告相同的总计，并将其与 [`--max-budget-usd`](/docs/zh-CN/cli-reference#cli-flags) 进行比较。在 v2.1.239 之前，Claude Code 没有对这些响应应用 1.1×，因此会话成本数字低于账单。
+对于以 1.1× [数据驻留费率](https://platform.claude.com/docs/en/about-claude/pricing#data-residency-pricing) 计费的 Claude API 响应，Claude Code 在会话成本数字中将该响应 token 的列表价格乘以 1.1。相同的总计也会出现在[状态栏的成本字段](/docs/zh-CN/statusline#cost-and-duration-tracking)中，并且乘以后的数字同样计入 [`--max-budget-usd`](/docs/zh-CN/cli-reference#cli-flags)。
 
 <h4 id="prompt-cache-statistics">
   Prompt cache 统计
@@ -262,7 +262,7 @@ API 组织通过[工作区](https://platform.claude.com/docs/en/build-with-claud
 
 使用 `/usage` 检查您当前的令牌使用情况，或[配置您的状态行](/docs/zh-CN/statusline#context-window-usage)以连续显示它。
 
-* **在任务之间清除**：使用 `/clear` 在切换到不相关的工作时重新开始。陈旧的上下文会在随后的每条消息上浪费令牌。在清除之前使用 `/rename` 以便您稍后可以轻松找到会话，然后使用 `/resume` 返回到它。
+* **在任务之间清除**：在切换到不相关的工作时，使用 `/clear` 重新开始。陈旧的上下文会在随后的每条消息上浪费 token。在清除之前使用 `/rename`，以便您稍后可以找到该会话，然后使用 `/resume` 返回到它。
 * **添加自定义 compaction 指令**：`/compact Focus on code samples and API usage` 告诉 Claude 在总结期间保留什么。
 
 您还可以在项目根目录的 CLAUDE.md 文件中自定义 compaction 行为：

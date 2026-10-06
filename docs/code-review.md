@@ -7,7 +7,7 @@
 > 设置自动化 PR 审查，通过对完整代码库的多代理分析来捕获逻辑错误、安全漏洞和回归问题
 
 <Note>
-  Code Review 处于研究预览阶段，仅适用于 [Team 和 Enterprise](https://claude.ai/admin-settings/claude-code) 订阅。对于启用了 [Zero Data Retention](/docs/zh-CN/zero-data-retention) 的组织，此功能不可用。在其他计划上，您仍然可以使用 `/code-review` 命令[在本地审查差异](#review-a-diff-locally)。
+  Code Review 目前为研究预览版，仅适用于 [Team 和 Enterprise](https://claude.ai/admin-settings/claude-code) 订阅。对于启用了 [Zero Data Retention](/docs/zh-CN/zero-data-retention) 或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织，此功能不可用，且不在 Anthropic 的 BAA 涵盖范围内。在其他套餐上，您仍然可以使用 `/code-review` 命令[在本地审查 diff](#review-a-diff-locally)。
 </Note>
 
 Code Review 分析您的 GitHub pull request，并在发现问题的代码行上发布内联评论。一支由专业代理组成的团队在完整代码库的上下文中检查代码更改，寻找逻辑错误、安全漏洞、破损的边界情况和微妙的回归问题。
@@ -365,7 +365,7 @@ Claude 在这两个运行中都将发现作为文本报告在回复中，即使�
 * 在终端会话中，其中 `/code-review` 作为[分叉子代理](/docs/zh-CN/skills#run-skills-in-a-subagent)运行审查
 * 在带有文本或 JSON 输出的 `-p` 运行中
 
-在请求发现列表的主机应用程序中，例如[桌面应用](/docs/zh-CN/desktop)，Claude 通过[`ReportFindings` 工具](/docs/zh-CN/tools-reference)报告审查的发现。Claude Code 将报告呈现为发现列表，每个条目显示文件位置、单句摘要和类别标签，例如当发现包含一个时的 `correctness`。主机请求在每个工作量级别应用，需要 Claude Code v2.1.218 或更高版本。
+在请求发现列表的主机应用程序中，例如[桌面应用](/docs/zh-CN/desktop#review-your-code)，Claude 通过[`ReportFindings` 工具](/docs/zh-CN/tools-reference)报告审查的发现。Claude Code 将报告呈现为发现列表，每个条目显示文件位置、单句摘要，以及当发现带有类别标签时显示的类别标签，例如 `correctness`。主机请求在每个 effort 级别都适用，需要 Claude Code v2.1.218 或更高版本。
 
 当 Claude 稍后在会话中修复报告的发现时，它会再次报告它们，Claude Code 将更新的发现列表中的每个发现标记为已修复、已跳过或无需更改。
 
@@ -429,7 +429,7 @@ Ultrareview 使用其自己的范围：您当前的分支与存储库的默认�
 当目标是 `github.com` pull request 时，您可以让 Claude[将完成的发现发布到 PR](/docs/zh-CN/ultrareview#post-findings-to-the-pull-request)作为来自您 GitHub 账户的评论。需要 Claude Code v2.1.227 或更高版本。
 
 <Note>
-  Ultrareview 需要使用 claude.ai 账户进行身份验证，在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用，或对启用了零数据保留的组织不可用。当 ultrareview 不可用时，`/code-review ultra` 在您的会话中运行本地审查。
+  Ultrareview 需要使用 claude.ai 账户进行身份验证，在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用，对启用了零数据保留或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织也不可用。当 ultrareview 不可用时，`/code-review ultra` 在您的会话中运行本地审查。
 </Note>
 
 要从脚本或 CI 作业运行云审查，请使用 [`claude ultrareview` 子命令](/docs/zh-CN/ultrareview#run-ultrareview-non-interactively)，它会等待发现并将其打印到 stdout。

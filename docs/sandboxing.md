@@ -1109,7 +1109,7 @@ git remote set-url origin https://git.example.com/example-org/example-repo.git
 </h2>
 
 * [Sandbox environments](/docs/zh-CN/sandbox-environments)：比较内置沙箱与开发容器、容器和虚拟机
-* [Security](/docs/zh-CN/security)：全面的安全功能和最佳实践
+* [Security](/docs/zh-CN/security)：安全功能和最佳实践
 * [Permissions](/docs/zh-CN/permissions)：权限配置和访问控制
 * [All settings](/docs/zh-CN/settings-reference)：每个设置键
 * [CLI reference](/docs/zh-CN/cli-reference)：命令行选项

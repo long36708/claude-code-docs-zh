@@ -8,7 +8,7 @@
 
 [mod](/docs/zh-CN/plugins/mods/overview) 是在 Claude Code 内运行代码的插件，具有安装它的用户的权限。Mods 不是沙箱化的。通过[托管设置](/docs/zh-CN/managed-settings)，您可以决定 mods 是否在用户的机器上运行、运行哪些 mods 以及运行顺序。您还可以安装自己的 mod，用于监视或拒绝其他 mods 的操作。
 
-本页面适用于为 Claude Code 部署托管设置的人员，无论是通过文件、MDM 还是从 claude.ai 管理控制台部署。在 Claude Code v2.1.287 及更高版本中，Mods 默认处于启用状态。从与您要执行的操作相匹配的部分开始：
+本页面适用于为 Claude Code 部署托管设置的人员，无论是通过文件、MDM 还是从 claude.ai 管理控制台部署。在 Claude Code v2.1.286 及更高版本中，mod 默认处于启用状态。从与您要执行的操作相匹配的部分开始：
 
 * **排除用户自己的 mods，有或没有您自己的 mods**：[停止用户安装的 mods 加载](#stop-user-installed-mods-from-loading)
 * **查看当您不做任何更改时用户会获得什么**：[了解默认情况下会发生什么](#know-what-happens-by-default)

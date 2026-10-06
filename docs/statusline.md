@@ -211,7 +211,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `prompt_cache` | 会话的主对话的 [prompt cache](/docs/zh-CN/prompt-caching) 统计信息：命中率、未命中次数以及缓存是否预热。有关每个字段，请参阅 [prompt cache 字段](#prompt-cache-fields)。在主对话的第一次 API 响应之前不存在。需要 Claude Code v2.1.251 或更高版本 |
 | `session_id` | 唯一的会话标识符 |
 | `session_name` | 会话名称。使用使用 `--name` 标志或 `/rename` 设置的自定义名称（如果存在），否则使用 AI 生成的会话标题。[默认显示名称](/docs/zh-CN/sessions#name-your-sessions)（例如 `my-app-3f`）不会填充此字段。当会话既没有自定义名称也没有 AI 生成的标题时不存在 |
-| `prompt_id` | 标识当前正在处理的用户提示的 UUID。与 OpenTelemetry 事件上的 [`prompt.id` 属性](/docs/zh-CN/monitoring-usage#event-correlation-attributes) 匹配。在第一次用户输入之前不存在。需要 Claude Code v2.1.196 或更高版本 |
+| `prompt_id` | 标识当前正在处理的用户提示词的 UUID。与 OpenTelemetry 事件上的 [`prompt.id` 属性](/docs/zh-CN/monitoring-usage#event-correlation-attributes) 匹配。在第一次用户输入之前不存在 |
 | `transcript_path` | 对话记录文件的路径 |
 | `version` | Claude Code 版本 |
 | `output_style.name` | 当前输出样式的名称 |

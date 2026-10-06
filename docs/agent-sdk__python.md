@@ -147,6 +147,29 @@ def tool(
    }
    ```
 
+3. **TypedDict 类**：一种类型化的 schema，其中 `NotRequired` 键不会包含在 `required` 中。
+
+   * **Python 3.11 及更高版本**：从 `typing` 导入 `TypedDict` 和 `NotRequired`。
+   * **Python 3.10**：`typing` 中没有 `NotRequired`。请从 `typing_extensions` 导入 `TypedDict` 和 `NotRequired`，SDK 会在 Python 3.10 上安装该包。
+
+   ```python theme={null}
+   from typing import Annotated, Any, NotRequired, TypedDict
+   from claude_agent_sdk import tool
+
+
+   class ForecastArgs(TypedDict):
+       latitude: Annotated[float, "Latitude coordinate"]
+       hours: NotRequired[Annotated[int, "How many hours of forecast to return"]]
+
+
+   @tool("get_forecast", "Get the hourly forecast for a location", ForecastArgs)
+   async def get_forecast(args: dict[str, Any]) -> dict[str, Any]:
+       hours = args.get("hours", 12)
+       return {"content": [{"type": "text", "text": f"{hours}-hour forecast for {args['latitude']}"}]}
+   ```
+
+在简单映射和 TypedDict 形式中，将类型包装在 `Annotated[type, "description"]` 中即可设置该字段的描述。
+
 <h4 id="returns-2">
   返回值
 </h4>
@@ -1780,6 +1803,8 @@ class SystemMessage:
     subtype: str
     data: dict[str, Any]
 ```
+
+没有自己数据类的子类型以 `SystemMessage` 的形式到达。要在轮次之间跟踪会话，请设置 [`CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS=1`](/docs/zh-CN/env-vars#variables)，并在每条 `subtype` 为 `session_state_changed` 的消息上读取 `message.data["state"]`。[`SDKSessionStateChangedMessage`](/docs/zh-CN/agent-sdk/typescript#sdksessionstatechangedmessage) 列出了它可以携带的状态。使用 `receive_messages()` 迭代以读取这些消息：`receive_response()` 会在 `ResultMessage` 处停止，而 `session_state_changed` 消息可能出现在该结果之后。
 
 <h3 id="resultmessage">
   `ResultMessage`

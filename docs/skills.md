@@ -40,7 +40,7 @@ Claude Code 包含一组捆绑技能，例如 `/doctor`、`/code-review`、`/bat
   运行并验证您的应用
 </h3>
 
-三个捆绑技能协同工作来启动您的应用并根据运行中的应用而不仅仅是测试来确认更改：
+三个随附 skill 协同工作来启动您的应用并根据运行中的应用而不仅仅是测试来确认更改：
 
 | 技能 | 目的 |
 | :- | :- |
@@ -52,7 +52,7 @@ Claude Code 包含一组捆绑技能，例如 `/doctor`、`/code-review`、`/bat
 
 `/run-skill-generator` 改为记录配方。它从干净的环境中让您的应用运行，捕获有效的内容（安装命令、环境变量、启动脚本），并将其作为每个项目的技能提交到 `.claude/skills/run-<name>/`。之后，`/run`、`/verify` 和存储库中的任何其他代理都遵循记录的配方而不是重新发现它。每个项目运行一次 `/run-skill-generator`，如果构建或启动过程更改，则再次运行。
 
-`/verify` 也可以记录自己的配方。当它必须在没有记录的配方的情况下构建和驱动您的应用时，它会将有效的内容写入存储库根目录的 `.claude/skills/verify/SKILL.md`，或在 monorepo 中的受触及的包目录中，以便后续运行和其他代理遵循相同的步骤。在存储库根目录，记录的技能替换捆绑的 `/verify`。这需要 Claude Code v2.1.200 或更高版本。
+`/verify` 也可以记录自己的配方。当它必须在没有记录的配方的情况下构建和驱动您的应用时，它会将有效的内容写入存储库根目录的 `.claude/skills/verify/SKILL.md`，或在 monorepo 中的受触及的包目录中，以便后续运行和其他 Agent 遵循相同的步骤。在存储库根目录，记录的 skill 替换随附的 `/verify`。
 
 Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命令或缺少的步骤，因此您可以提交文件而无需每个会话的差异。在 v2.1.205 之前，捆绑技能告诉 Claude 折叠运行学到的任何内容，这导致频繁的合并冲突。
 
@@ -996,7 +996,7 @@ Claude Code 仅针对技能自己的名称和 Claude 调用中的名称匹配 `a
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
 * [插件在市场中找不到](/docs/zh-CN/plugins/install#install-a-plugin)：检查插件名称。
 
-如果安装摘要报告 `Run /reload-plugins to activate.`，Claude Code 随后会为你运行该重新加载。如果重新加载警告你的下一条消息会重新读取对话，请运行 `/reload-plugins --force` 以在当前会话中使插件的技能可用。然后要求 Claude 评估现有技能，例如 `evaluate my summarize-changes skill with skill-creator`。该插件会引导你编写测试用例并运行循环：
+如果安装摘要报告 `Run /reload-plugins to apply.`，Claude Code 随后会为您执行该重新加载。如果重新加载警告您的下一条消息会重新读取对话，请运行 `/reload-plugins --force`，使插件的 skill 在当前会话中可用。然后让 Claude 评估现有 skill，例如 `evaluate my summarize-changes skill with skill-creator`。该插件会引导您编写测试用例并运行循环：
 
 * **测试用例**：在技能目录内的 `evals/evals.json` 中存储提示、输入文件和预期行为
 * **隔离运行**：为每个测试用例生成一个[子代理](/docs/zh-CN/sub-agents)，以便每次运行都从干净的上下文开始，并记录令牌计数和持续时间

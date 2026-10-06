@@ -14,7 +14,7 @@ Mod 是一个 Claude Code [插件](/docs/zh-CN/plugins/overview)，具有一个�
 如果你还没有决定 mod 是否是合适的工具，请先阅读[概述中的比较](/docs/zh-CN/plugins/mods/overview#compare-mods-settings-hooks-skills-and-mcp-servers)。
 
 <Note>
-  Mod 需要 Claude Code v2.1.287 或更高版本。在你的 shell 中，运行 `claude --version` 来检查。要查看 mod 是否可以为你加载，请参阅[检查 mod 是否可以加载](/docs/zh-CN/plugins/mods/troubleshoot#check-whether-mods-can-load)。
+  请使用 Claude Code v2.1.287 或更高版本。在 shell 中运行 `claude --version` 进行检查。要查看 mod 是否可以为您加载，请参阅[检查 mod 是否可以加载](/docs/zh-CN/plugins/mods/troubleshoot#check-whether-mods-can-load)。
 </Note>
 
 <h2 id="ask-claude-for-a-mod">

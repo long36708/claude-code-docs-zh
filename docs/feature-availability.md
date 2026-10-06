@@ -51,7 +51,8 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 
 这些需要使用 claude.ai 账户登录，无法通过 Anthropic Console API 密钥或第三方提供商访问：
 
-* [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)、移动设备上的 Claude Code 和 [Slack 中的 Claude Code](/docs/zh-CN/slack)
+* [云端会话](/docs/zh-CN/claude-code-on-the-web)和移动设备上的 Claude Code
+* [Slack 中的 Claude Code](/docs/zh-CN/slack)：Pro 和 Max 计划
 * [Claude Code Desktop](/docs/zh-CN/desktop)
 * [Routines](/docs/zh-CN/routines)（`/schedule`）
 * [Ultrareview](/docs/zh-CN/ultrareview)
@@ -302,6 +303,8 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 </h2>
 
 如果您通过 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 Anthropic Console API 密钥进行身份验证，本部分不适用于您。当您使用 claude.ai 账户登录时，您的计划决定了以下哪些功能可用。
+
+在已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的 Enterprise 组织中，此表中的部分功能会被关闭。
 
 | 功能 | Pro | Max | Team | Enterprise |
 | :- | :- | :- | :- | :- |

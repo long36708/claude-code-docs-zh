@@ -35,7 +35,7 @@ Claude 为浏览器任务打开新标签页，并共享您浏览器的登录状�
 * **会话录制**：将浏览器交互录制为 GIF，以记录或分享发生的情况
 
 <h2 id="prerequisites">
-  前置条件
+  前提条件
 </h2>
 
 在使用 Claude Code 与 Chrome 之前，您需要：
@@ -44,6 +44,8 @@ Claude 为浏览器任务打开新标签页，并共享您浏览器的登录状�
 * [Claude in Chrome 扩展程序](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn) 版本 1.0.36 或更高版本，可在 Chrome Web Store 中获得
 * [Claude Code](/docs/zh-CN/quickstart#step-1-install-claude-code)
 * 直接 Anthropic 计划（Pro、Max、Team 或 Enterprise）
+
+在已启用 HIPAA 的 Enterprise 组织中，Claude in Chrome 默认处于关闭状态，[Owner](/docs/zh-CN/server-managed-settings#access-control) 可以在 [**Organization settings > Claude in Chrome**](https://claude.ai/admin-settings/browser-extension) 中将其启用。您与 Anthropic 签订的商业伙伴协议（BAA）不涵盖通过 Claude in Chrome 发送到第三方网站的数据。有关合格服务（Eligible Services）的列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
 
 Chrome 集成还需要使用 `/login` 登录。如果您使用 API 密钥或来自 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 的长期令牌进行身份验证，Claude Code 会关闭 Chrome 集成，即使您传递 `--chrome`，因为浏览器扩展程序无法使用这些凭据进行身份验证。在 v2.1.216 之前，这些会话可以启用 Chrome 集成，但每次尝试连接到浏览器扩展程序都会失败，并显示 403 错误。
 

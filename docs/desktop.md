@@ -124,19 +124,20 @@ Claude 可以启动开发服务器并在浏览器窗格中打开它以验证其�
 
 * 直接在浏览器窗格中与运行的应用交互
 * 观看 Claude 自动验证其自己的更改：它拍摄屏幕截图、检查 DOM、点击元素、填充表单，并修复它发现的问题
-* 从会话工具栏中的服务器下拉菜单启动或停止服务器
-* 通过在下拉菜单中选择**持久化会话**来在服务器重启后保持 cookie 和本地存储，这样你就不必在开发期间重新登录
-* 编辑服务器配置或一次停止所有服务器
+* 从浏览器窗格标题栏中的 **Dev servers** 菜单启动或停止服务器，或一次停止所有服务器
+* 通过浏览器窗格 **⋮** 菜单中的 **Keep cookies**，选择浏览器在您退出应用后是否保留 cookie，这样您就不必在开发期间重新登录
 
 Claude 根据你的项目创建初始服务器配置。如果你的应用使用自定义开发命令，编辑 `.claude/launch.json` 以匹配你的设置。有关完整参考，请参阅[配置预览服务器](#configure-preview-servers)。
 
-要清除保存的会话数据，或完全关闭浏览器，请使用设置 → Claude Code 中的切换。
+要清除浏览器保存的数据，请在浏览器窗格的 **⋮** 菜单中选择 **Clear browsing data**。要完全关闭浏览器，请在 **Settings > Claude Code** 中关闭 **Browser tools**。
 
 <h3 id="browse-external-sites">
   浏览外部网站
 </h3>
 
-浏览器窗格是一个选项卡式浏览器，因此你可以在运行应用旁边打开文档、问题跟踪器或任何其他网站。要打开浏览器，在 macOS 上按 **Cmd+Shift+B** 或在 Windows 上按 **Ctrl+Shift+B**，或从**视图**菜单中选择它。当你点击聊天中的外部链接时，选择器会提供**在应用中打开**以使用浏览器窗格或**默认浏览器**以使用你自己的；在 macOS 上 **Cmd** 点击或在 Windows 上 **Ctrl** 点击直接在你的系统浏览器中打开链接。你可以登录窗格中的网站，包括弹出式登录流，例如 Google OAuth。
+浏览器窗格是一个选项卡式浏览器，因此您可以在运行的应用旁边打开文档、问题跟踪器或任何其他网站。要打开浏览器，在 macOS 上按 **Cmd+Shift+B** 或在 Windows 上按 **Ctrl+Shift+B**，或点击会话标题栏中的 **Browser**。您可以在窗格中登录网站，包括弹出式登录流程，例如 Google OAuth。
+
+您第一次点击聊天中的外部链接时，会出现一个对话框，询问链接是在浏览器窗格中打开还是在您的默认浏览器中打开。要在之后更改您的选择，请使用浏览器窗格 **⋮** 菜单中的 **Open links in built-in browser**。在 macOS 上 **Cmd** 点击或在 Windows 上 **Ctrl** 点击会直接在您的默认浏览器中打开链接。
 
 Claude 可以使用与[验证你的应用](#preview-your-app)相同的工具读取和交互外部页面，并进行两项额外的安全检查：
 
@@ -184,9 +185,14 @@ Claude 读取你的评论并进行请求的更改，这些更改显示为你可�
   审查你的代码
 </h3>
 
-在差异视图中，点击右上角工具栏中的**审查代码**以要求 Claude 在你提交之前评估更改。Claude 检查当前差异并直接在差异视图中留下评论。你可以回应任何评论或要求 Claude 修订。
+要让 Claude 在您提交之前审查您的更改，请在[输入框](#use-the-prompt-box)中输入 `/code-review`。审查完成后，结果会出现在对话中。
 
-审查侧重于高信号问题：编译错误、明确的逻辑错误、安全漏洞和明显的错误。它不会标记样式、格式、预先存在的问题或 linter 会捕获的任何内容。
+在本地、[SSH](#ssh-sessions) 和 [WSL](/docs/zh-CN/desktop-wsl) 会话中，结果会显示为一张按文件分组的 **Code review** 卡片。使用该卡片处理这些结果：
+
+* 点击 **Walk through in diff** 打开 diff 视图，逐条查看结果。当前 diff 中的结果会显示在其对应的行上，您可以在那里点击 **Fix this one** 或忽略它。
+* 点击 **Apply fixes** 让 Claude 修复仍未处理的结果。
+
+在任何会话中，您也可以在输入框中要求 Claude 修复审查发现的问题。有关 `/code-review` 检查的内容及其接受的参数，请参阅[在本地审查 diff](/docs/zh-CN/code-review#review-a-diff-locally)。
 
 <h3 id="monitor-pull-request-status">
   监控拉取请求状态
@@ -194,10 +200,10 @@ Claude 读取你的评论并进行请求的更改，这些更改显示为你可�
 
 打开拉取请求后，CI 状态栏会出现在会话中。Claude Code 使用 GitHub CLI 轮询检查结果并显示失败。
 
-* **自动修复**：启用后，Claude 会通过读取失败输出并迭代来自动尝试修复失败的 CI 检查。
-* **自动合并**：启用后，Claude 在所有检查通过后合并 PR。合并方法是压缩。首先在你的 [GitHub 存储库设置](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-auto-merge-for-pull-requests-in-your-repository)中启用自动合并；没有它，Claude 无法合并 PR。
+* **Auto-fix CI & address comments**：启用后，Claude 会通过读取失败输出并迭代来自动尝试修复失败的 CI 检查。在本地会话中，当评论作者是仓库所有者、组织成员、协作者或 GitHub App 时，Claude 还会处理除您之外的其他人留下的新审查评论。
+* **Auto-merge when ready**：启用后，Claude 在所有检查通过后合并 PR。合并方法是 squash。请先在您的 [GitHub 仓库设置](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-auto-merge-for-pull-requests-in-your-repository)中启用自动合并；没有它，Claude 无法合并 PR。
 
-使用 CI 状态栏中的**自动修复**和**自动合并**切换来启用任一选项。Claude Code 也会在 CI 完成时发送桌面通知。要在 PR 合并或关闭后自动归档会话，请在设置 → Claude Code 中打开[自动归档](#work-in-parallel-with-sessions)。
+要启用这些选项，请点击状态栏中的 **CI**。要在 PR 合并或关闭后自动归档会话，请在 **Settings > Claude Code** 中打开[自动归档](#work-in-parallel-with-sessions)。
 
 <Note>
   PR 监控需要在你的机器上安装并认证 [GitHub CLI (`gh`)](https://cli.github.com/)。如果未安装 `gh`，Desktop 会在你第一次尝试创建 PR 时提示你安装它。
@@ -207,7 +213,7 @@ Claude 读取你的评论并进行请求的更改，这些更改显示为你可�
   整理工作区
 </h2>
 
-Code 选项卡围绕你可以以任何布局排列的窗格构建：聊天、diff、浏览器、终端、文件、plan、tasks 和 subagent，以及 macOS 上的 [iOS Simulator](/docs/zh-CN/desktop-ios-simulator)。通过其标题拖动窗格来重新定位它，或拖动窗格边缘来调整大小。在 macOS 上按 **Cmd+\\** 或在 Windows 上按 **Ctrl+\\** 来关闭焦点窗格。从会话工具栏中的 **Views** 菜单打开其他窗格。
+Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff、浏览器、终端、文件、计划、任务和子代理，以及 macOS 上的 [iOS Simulator](/docs/zh-CN/desktop-ios-simulator)。通过其标题拖动窗格来重新定位它，或拖动窗格边缘来调整大小。在 macOS 上按 **Cmd+\\** 或在 Windows 上按 **Ctrl+\\** 来关闭焦点窗格。点击会话标题栏中的 **Terminal**、**Changes** 或 **Browser** 来打开终端、diff 或浏览器窗格。它们旁边的 **⋮** 菜单可打开更多窗格（例如 **Files**），并在窗口过窄无法显示这些按钮时容纳它们。
 
 要在多个屏幕上工作，可以将 diff 或终端等窗格弹出到其自己的窗口中，完成后再停靠回来。Claude 继续在主窗口中工作。
 
@@ -219,7 +225,7 @@ Code 选项卡围绕你可以以任何布局排列的窗格构建：聊天、dif
   在终端中运行命令
 </h3>
 
-集成终端让你在不切换到另一个应用的情况下运行命令。从 **Views** 菜单打开它，或在 macOS 或 Windows 上按 **Ctrl+\`**。终端在你的会话工作目录中打开，并与 Claude 共享相同的环境，因此 `npm test` 或 `git status` 等命令看到 Claude 正在编辑的相同文件。要打开第二个终端选项卡，点击终端窗格标题中的 **+** 或右键点击聊天中的文件夹来选择 **Open in terminal**。终端仅在本地会话中可用。
+集成终端让您无需切换到另一个应用即可在会话旁运行命令。点击会话标题栏中的 **Terminal**，或在 macOS 或 Windows 上按 **Ctrl+\`**。终端在您的会话工作目录中打开，并与 Claude 共享相同的环境，因此 `npm test` 或 `git status` 等命令看到 Claude 正在编辑的相同文件。要打开第二个终端选项卡，点击终端窗格标题中的 **+** 或右键点击聊天中的文件夹来选择 **Open in terminal**。终端仅在本地会话中可用。
 
 <h3 id="open-and-edit-files">
   打开和编辑文件
@@ -410,7 +416,7 @@ Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。您可以在�
   查看后台任务
 </h3>
 
-任务窗格显示当前会话内正在运行的后台工作：子代理、后台 shell 命令和[动态工作流](/docs/zh-CN/workflows)。可从 **Views** 菜单打开它，或将其拖入您的布局。
+任务窗格显示当前会话内正在运行的后台工作：子代理、后台 shell 命令和[动态工作流](/docs/zh-CN/workflows)。会话中有后台工作后，可通过标题栏 **⋮** 菜单中的 **Background tasks** 打开该窗格。
 
 点击任意条目可在子代理窗格中查看其输出或将其停止。要查看其他会话正在做什么，请使用[侧边栏](#work-in-parallel-with-sessions)，或请 Claude [为您查看](#work-across-sessions)。
 
@@ -518,7 +524,7 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 
 Claude 自动检测你的开发服务器设置并将配置存储在启动会话时选择的文件夹根目录的 `.claude/launch.json` 中。Preview 使用此文件夹作为其工作目录，因此如果你选择了父文件夹，具有自己开发服务器的子文件夹将不会自动检测。要使用子文件夹的服务器，要么直接在该文件夹中启动会话，要么手动添加配置。
 
-要自定义服务器的启动方式，例如使用 `yarn dev` 而不是 `npm run dev` 或更改端口，手动编辑文件或点击服务器下拉菜单中的 **Edit configuration** 在你的代码编辑器中打开它。该文件支持带注释的 JSON。
+要自定义服务器的启动方式，例如使用 `yarn dev` 而不是 `npm run dev`，或更改端口，请编辑 `.claude/launch.json`。该文件支持带注释的 JSON。
 
 ```json theme={null}
 {
@@ -542,7 +548,7 @@ Claude 自动检测你的开发服务器设置并将配置存储在启动会话�
 
 启用 `autoVerify` 时，Claude 在编辑文件后自动验证代码更改。它拍摄屏幕截图、检查错误并在完成响应之前确认更改有效。
 
-自动验证默认打开。通过在 `.claude/launch.json` 中添加 `"autoVerify": false` 来按项目禁用它，或从服务器下拉菜单切换它。
+自动验证默认开启。可通过在 `.claude/launch.json` 中添加 `"autoVerify": false` 来按项目禁用它，或在 Browser 窗格的 **⋮** 菜单中关闭 **Auto-verify changes**。
 
 ```json theme={null}
 {
@@ -766,14 +772,14 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 SSH 会话让你在远程机器上运行 Claude Code，同时使用桌面应用作为你的界面。这对于使用存在于云虚拟机、开发容器或具有特定硬件或依赖项的服务器上的代码库很有用。
 
-要添加 SSH 连接，在启动会话之前点击环境下拉菜单并选择 **+ Add SSH connection**。对话框要求：
+要添加 SSH 连接，请在启动会话之前在输入框中打开环境下拉菜单，然后选择 **SSH > Add SSH connection…** 并填写连接详细信息：
 
 * **Name**：此连接的友好标签
-* **SSH Host**：`user@hostname` 或在 `~/.ssh/config` 中定义的主机
-* **SSH Port**：如果留空，默认为 22，或使用你的 SSH 配置中的端口
-* **Identity File**：你的私钥的路径，例如 `~/.ssh/id_rsa`。留空以使用默认密钥或你的 SSH 配置。
+* **SSH host**：`user@hostname` 或在 `~/.ssh/config` 中定义的主机
+* **SSH port**：如果留空，则默认为 22，或使用您 SSH 配置中的端口
+* **SSH key (optional)**：您的私钥路径，例如 `~/.ssh/id_ed25519`。留空则使用您的 SSH 配置或 SSH agent。
 
-添加后，连接出现在环境下拉菜单中。选择它在该机器上启动会话。Claude 在远程机器上运行，可以访问其文件和工具。
+添加后，该连接会出现在环境下拉菜单的 **SSH** 下。选择它即可在该机器上启动会话。Claude 在远程机器上运行，可以访问其文件和工具。
 
 远程机器必须运行 Linux 或 macOS。Desktop 在你第一次连接时会自动在远程机器上安装 Claude Code。连接后，SSH 会话支持权限模式、connectors、plugins 和 MCP servers。
 
@@ -823,7 +829,7 @@ SSH 会话让你在远程机器上运行 Claude Code，同时使用桌面应用�
   企业配置
 </h2>
 
-Teams 或 Enterprise 计划上的组织可以通过管理员控制台控制、托管设置文件和设备管理策略来管理桌面应用行为。
+Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托管设置文件和设备管理策略来管理桌面应用行为。
 
 <h3 id="admin-console-controls">
   管理员控制台控制
@@ -831,44 +837,45 @@ Teams 或 Enterprise 计划上的组织可以通过管理员控制台控制、�
 
 这些设置通过[管理员设置控制台](https://claude.ai/admin-settings/claude-code)配置：
 
-* **Desktop 中的 Code**：控制你的组织中的用户是否可以在桌面应用中访问 Claude Code
-* **Web 中的 Code**：为你的组织启用或禁用[云会话](/docs/zh-CN/claude-code-on-the-web)
-* **Remote Control**：为你的组织启用或禁用[远程控制](/docs/zh-CN/remote-control)
-* **禁用绕过权限模式**：防止你的组织中的用户启用绕过权限模式
+* **Desktop**：控制您的组织中的用户是否可以在桌面应用中访问 Claude Code
+* **Cloud sessions**：为您的组织启用或禁用[云端会话](/docs/zh-CN/claude-code-on-the-web)
+* **Remote Control**：为您的组织启用或禁用 [Remote Control](/docs/zh-CN/remote-control)
+
+在启用了 HIPAA 的 Enterprise 组织中，**Desktop** 开关默认关闭，[Owner](/docs/zh-CN/server-managed-settings#access-control) 可以将其打开。应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup)会将其关闭（即使之前已打开），因此 Owner 之后必须重新将其打开。**Cloud sessions** 和 **Remote Control** 也默认关闭，并且一旦组织应用了 HIPAA 配置，Owner 就无法将它们打开。
 
 <Note>
   Cowork 下的 OpenTelemetry 表单位于管理员控制台的[数据和隐私设置](https://claude.ai/admin-settings/data-privacy-controls)中的**监控**下，仅适用于 Cowork 会话。在此机器上的 Cowork 会话中，桌面应用将该收集器作为 `OTEL_*` 环境变量传递给 Claude Code，因此该表单生效，尽管该会话中的 Claude Code [从不获取管理员控制台设置](#managed-settings)。
 
-  要从 Code 选项卡会话导出遥测，请在 Claude Code 托管设置的 `env` 块中设置 `CLAUDE_CODE_ENABLE_TELEMETRY` 和 `OTEL_*` 变量，如[监控的管理员配置](/docs/zh-CN/monitoring-usage#administrator-configuration)中所示。本地、云和 SSH 会话各自从不同来源读取[托管设置](#managed-settings)。有关云会话可以到达的主机，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。有关 Code 选项卡会话报告的 `service.name`，请参阅[服务信息](/docs/zh-CN/monitoring-usage#service-information)。
+  要从 Code 选项卡会话导出遥测，请在 Claude Code 托管设置的 `env` 块中设置 `CLAUDE_CODE_ENABLE_TELEMETRY` 和 `OTEL_*` 变量，如[监控的管理员配置](/docs/zh-CN/monitoring-usage#administrator-configuration)中所示。本地、云端和 SSH 会话各自从不同来源读取[托管设置](#managed-settings)。有关云端会话可以到达的主机，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。有关 Code 选项卡会话报告的 `service.name`，请参阅[服务信息](/docs/zh-CN/monitoring-usage#service-information)。
 </Note>
 
 <h3 id="managed-settings">
   托管设置
 </h3>
 
-托管设置覆盖项目和用户设置，并应用于 Desktop 中的 Claude Code 会话。你可以在你的组织的[托管设置](/docs/zh-CN/managed-settings)文件中设置这些键，或通过管理员控制台远程推送它们。
+托管设置覆盖项目和用户设置，并应用于 Desktop 中的 Claude Code 会话。您可以在您的组织的[托管设置](/docs/zh-CN/managed-settings)文件中设置这些键，或通过管理员控制台远程推送它们。
 
 | 键 | 描述 |
 | - | - |
 | `permissions.disableBypassPermissionsMode` | 设置为 `"disable"` 以防止用户启用绕过权限模式。 |
 | `disableAutoMode` | 设置为 `"disable"` 以从模式选择器中删除 [Auto](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 模式。也在 `permissions` 下接受。 |
-| `autoMode` | 自定义 auto 模式分类器在你的组织中信任和阻止的内容。请参阅[配置 auto 模式](/docs/zh-CN/auto-mode-config)。 |
+| `autoMode` | 自定义自动模式分类器在您的组织中信任和阻止的内容。请参阅[配置自动模式](/docs/zh-CN/auto-mode-config)。 |
 | `browserExternalPageTools` | 设置为 `"disabled"` 以防止 Claude 使用工具在[浏览器窗格](#browse-external-sites)中读取或作用于外部页面。用户仍然可以自己导航到外部网站，本地开发服务器预览不受影响。 |
 | `disableMobileSimulatorTools` | 设置为 `true` 以阻止 Claude 在 [iOS Simulator 窗格](/docs/zh-CN/desktop-ios-simulator#turn-off-simulator-access)中控制和捕获设备的工具。该窗格仍可用于用户自己的点击；仅删除 Claude 的访问权限。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
 | `disableBrowserExternalNavigation` | 设置为 `true` 以完全关闭[浏览器窗格](#browse-external-sites)中的外部浏览。用户和 Claude 都无法导航到外部网站，localhost 开发服务器预览不受影响。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
 | `sshConfigs` | 预配置[SSH 连接](#pre-configure-ssh-connections-for-your-team)，在环境下拉菜单中显示。用户无法编辑或删除托管连接。 |
 | `sshHostAllowlist` | 限制 [SSH 会话](#restrict-which-ssh-hosts-users-can-connect-to)连接到已解析主机名与这些模式之一匹配的主机。空数组禁用 SSH 会话。仅从托管设置中读取。 |
-| `disableDesktopLocalSessions` | 设置为 `true` 以关闭[在设备上运行的 Code 会话](#local-sessions-on-managed-devices)，仅保留 SSH 会话到其他主机和云会话可用。该值必须是 JSON 布尔值 `true`。仅从托管设置中读取。需要 Claude Desktop v1.37937.0 或更高版本。 |
-| `managedMcpServers` | 将 MCP 服务器配置推送到所有用户。仅在第三方 (3P) Desktop 部署中可用。在每个条目中，设置 `"http"`、`"sse"` 或 `"stdio"` 的传输、连接详细信息，以及可选的 `toolPolicy` 映射，该映射限制该服务器中用户可以调用的工具。通过托管设置文件、MDM 或 Claude apps gateway 策略的 [`desktop` 块](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)提供它，因为 3P 部署不接收管理员控制台设置。要通过网关提供它，你需要网关服务器上的 Claude Code v2.1.232 或更高版本。这是桌面应用自己的键；Claude Code 读取自己的[同名托管设置](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)，具有不同的条目形状。 |
+| `disableDesktopLocalSessions` | 设置为 `true` 以关闭[在设备上运行的 Code 会话](#local-sessions-on-managed-devices)，仅保留到其他主机的 SSH 会话和云端会话可用。该值必须是 JSON 布尔值 `true`。仅从托管设置中读取。需要 Claude Desktop v1.37937.0 或更高版本。 |
+| `managedMcpServers` | 将 MCP 服务器配置推送到所有用户。仅在第三方 (3P) Desktop 部署中可用。在每个条目中，设置 `"http"`、`"sse"` 或 `"stdio"` 的传输、连接详细信息，以及可选的 `toolPolicy` 映射，该映射限制该服务器中用户可以调用的工具。通过托管设置文件、MDM 或 Claude apps gateway 策略的 [`desktop` 块](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)提供它，因为 3P 部署不接收管理员控制台设置。要通过网关提供它，您需要网关服务器上的 Claude Code v2.1.232 或更高版本。这是桌面应用自己的键；Claude Code 读取自己的[同名托管设置](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)，具有不同的条目形状。 |
 
-哪些托管设置到达 Desktop 会话取决于该会话运行的位置。模型限制（如 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection)）在 Desktop 的 Claude Code 会话中的执行方式与在终端 CLI 中相同；请参阅[表面覆盖](/docs/zh-CN/model-config#surface-coverage)。
+哪些托管设置到达 Desktop 会话取决于该会话运行的位置。模型限制（如 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection)）在 Desktop 的 Claude Code 会话中的执行方式与在终端 CLI 中相同；请参阅[使用入口覆盖范围](/docs/zh-CN/model-config#surface-coverage)。
 
 * **此机器上的本地会话**：部署到磁盘的托管设置文件适用。通过管理员控制台远程推送的托管设置也在会话使用[符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability)向 Anthropic 的 API 进行身份验证时到达这些会话，遵循与终端 CLI 相同的[设置优先级](/docs/zh-CN/settings#settings-precedence)。
-* **[云会话](#cloud-sessions)**：接收[服务器管理的设置](/docs/zh-CN/server-managed-settings)；设备部署的文件无法到达它们，因为它们在 Anthropic 管理的虚拟机上运行。路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话也读取运行程序镜像中的托管设置文件。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明该文件何时适用。
+* **[云端会话](#cloud-sessions)**：接收[服务器管理的设置](/docs/zh-CN/server-managed-settings)；设备部署的文件无法到达它们，因为它们在 Anthropic 管理的虚拟机上运行。路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话也读取运行程序镜像中的托管设置文件。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明该文件何时适用。
 * **[SSH 会话](#ssh-sessions)**：会话从远程主机读取托管设置文件。Desktop 本身从本地机器的托管设置中读取 `sshConfigs`、`sshHostAllowlist` 和 `disableDesktopLocalSessions`。
-* **[Cowork](https://claude.com/docs/cowork/overview) 会话**：在此机器上的 Cowork 会话中，Claude Code 永远不会获取管理员控制台设置，即使用户使用 Team 或 Enterprise 帐户登录，并读取部署到机器的策略，除非你的 Claude Desktop 配置设置 `requireCoworkFullVmSandbox`。远程 Cowork 会话都不接收。请参阅[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)了解哪些设备文件到达 Cowork，以及[MCP 权限规则](/docs/zh-CN/permissions#mcp)了解 `Bash` 和 `WebFetch` 规则如何应用于 Cowork 的工具。
+* **[Cowork](https://claude.com/docs/cowork/overview) 会话**：在此机器上的 Cowork 会话中，Claude Code 永远不会获取管理员控制台设置，即使用户使用 Team 或 Enterprise 帐户登录，并读取部署到机器的策略，除非您的 Claude Desktop 配置设置了 `requireCoworkFullVmSandbox`。远程 Cowork 会话两者都不接收。请参阅[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)了解哪些设备文件到达 Cowork，以及[MCP 权限规则](/docs/zh-CN/permissions#mcp)了解 `Bash` 和 `WebFetch` 规则如何应用于 Cowork 的工具。
 
-在本地和 SSH 会话中，桌面应用直接将每个用户连接的 claude.ai 连接器传递给 Claude Code。无论你使用哪个设置源或文件位置，都没有 MCP 设置或 `managed-mcp.json` 到达这些连接器。要在这些会话中阻止连接器的工具，请使用你的组织的[连接器工具控制](/docs/zh-CN/mcp#organization-controls-on-connector-tools)。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code)显示在每种会话中哪些设置管理连接器。
+在本地和 SSH 会话中，桌面应用直接将每个用户连接的 claude.ai 连接器传递给 Claude Code。无论您使用哪个设置源或文件位置，都没有 MCP 设置或 `managed-mcp.json` 到达这些连接器。要在这些会话中阻止连接器的工具，请使用您的组织的[连接器工具控制](/docs/zh-CN/mcp#organization-controls-on-connector-tools)。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code)显示在每种会话中哪些设置管理连接器。
 
 `permissions.disableBypassPermissionsMode` 和 `disableAutoMode` 也在用户和项目设置中工作，但将它们放在托管设置中可防止用户覆盖它们。
 
@@ -902,7 +909,7 @@ claude.app
 *.claudemcpcontent.com
 ```
 
-流量在端口 443 上使用 HTTPS，除非你为 [OTLP](/docs/zh-CN/monitoring-usage)、LLM 网关或 MCP 服务器配置自定义端口。
+流量在端口 443 上使用 HTTPS，除非您为 [OTLP](/docs/zh-CN/monitoring-usage)、LLM 网关或 MCP 服务器配置自定义端口。
 
 有关代理服务器、自定义证书颁发机构、mTLS 和独立 CLI 需要的域，请参阅[网络配置](/docs/zh-CN/network-config)。
 
@@ -928,13 +935,13 @@ platform.claude.com
 *.claudemcpcontent.com
 ```
 
-如果你的组织启用了[IP 允许列表](https://support.claude.com/en/articles/13200993-restrict-access-to-claude-with-ip-allowlisting)用于 Claude，请通过与 `claude.ai` 和 `api.anthropic.com` 相同的代理出口路由 `bridge.claudeusercontent.com`。如果你无法以这种方式路由它，请将你的代理用于该主机的出口地址添加到你的组织的 IP 允许列表，但仅当该地址专用于你的组织时：共享代理出口范围也允许代理供应商的其他客户。
+如果您的组织为 Claude 启用了[IP 允许列表](https://support.claude.com/en/articles/13200993-restrict-access-to-claude-with-ip-allowlisting)，请通过与 `claude.ai` 和 `api.anthropic.com` 相同的代理出口路由 `bridge.claudeusercontent.com`。如果您无法以这种方式路由它，请将您的代理用于该主机的出口地址添加到您的组织的 IP 允许列表，但仅当该地址专用于您的组织时：共享代理出口范围也允许代理供应商的其他客户。
 
-Anthropic 根据它们到达的地址检查与该主机的连接是否符合你的组织的 IP 允许列表。如果你的代理通过不在该允许列表上的地址为其发送流量，Chrome 中的 Claude 和通过网桥连接的其他功能将停止工作，而应用的其余部分继续工作。
+Anthropic 根据连接到达的地址检查与该主机的连接是否符合您的组织的 IP 允许列表。如果您的代理通过不在该允许列表上的地址为其发送流量，Chrome 中的 Claude 和通过网桥连接的其他功能将停止工作，而应用的其余部分继续工作。
 
-从 [Google Fonts](/docs/zh-CN/artifacts#improve-the-visual-design) 加载字体的[工件](/docs/zh-CN/artifacts)也请求 `fonts.googleapis.com` 和 `fonts.gstatic.com`。两个主机都是可选的。如果你阻止它们，工件将以备用字体呈现。使用快速拒绝而不是静默丢弃来阻止，以便字体请求立即失败，而不是延迟页面的首次呈现。
+从 [Google Fonts](/docs/zh-CN/artifacts#improve-the-visual-design) 加载字体的 [Artifact](/docs/zh-CN/artifacts) 也会请求 `fonts.googleapis.com` 和 `fonts.gstatic.com`。两个主机都是可选的。如果您阻止它们，Artifact 将以备用字体呈现。使用快速拒绝而不是静默丢弃来阻止，以便字体请求立即失败，而不是延迟页面的首次呈现。
 
-工件还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwindcss.com`、`code.jquery.com` 和 `unpkg.com` 加载 JavaScript 库（如 React 或图表包），而不能从其他任何外部主机加载。如果你阻止这些主机，工件中依赖库的部分将无法工作，与阻止的字体不同，阻止的库没有备用。这里也使用快速拒绝，以便阻止的库请求立即失败，而不是挂起直到超时。
+Artifact 还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwindcss.com`、`code.jquery.com` 和 `unpkg.com` 加载 JavaScript 库（如 React 或图表包），而不能从其他任何外部主机加载。如果您阻止这些主机，Artifact 中依赖库的部分将无法工作，与被阻止的字体不同，被阻止的库没有备用方案。这里也使用快速拒绝，以便被阻止的库请求立即失败，而不是挂起直到超时。
 
 <h3 id="authentication-and-sso">
   身份验证和 SSO
@@ -946,7 +953,7 @@ Team 和 Enterprise 组织可以要求所有用户使用 SSO。有关计划级�
   数据处理
 </h3>
 
-Claude Code 在本地会话中本地处理你的代码，或在云会话中在 Anthropic 管理的基础设施上处理，除非你的组织将它们路由到[自托管环境](/docs/zh-CN/self-hosted-environments)。云会话（包括在自托管环境中）将对话和代码上下文发送到 Anthropic 的 API 进行处理；本地和 SSH 会话将它们发送到你的部署配置的任何[模型提供商](#feature-comparison)，默认为 Anthropic 的 API。有关数据保留、隐私和合规性的详细信息，请参阅[数据处理](/docs/zh-CN/data-usage)。
+Claude Code 在本地会话中本地处理您的代码，或在云端会话中在 Anthropic 管理的基础设施上处理，除非您的组织将它们路由到[自托管环境](/docs/zh-CN/self-hosted-environments)。云端会话（包括在自托管环境中）将对话和代码上下文发送到 Anthropic 的 API 进行处理；本地和 SSH 会话将它们发送到您的部署配置的任何[模型提供商](#feature-comparison)，默认为 Anthropic 的 API。有关数据保留、隐私和合规性的详细信息，请参阅[数据处理](/docs/zh-CN/data-usage)。
 
 <h3 id="deployment">
   部署
@@ -957,7 +964,7 @@ Desktop 可以通过企业部署工具分发：
 * **macOS**：通过 MDM（如 Jamf 或 Kandji）使用 `.dmg` 安装程序分发
 * **Windows**：通过 MSIX 包部署。有关企业部署选项（包括静默安装），请参阅[为 Windows 部署 Claude Desktop](https://support.claude.com/en/articles/12622703-deploy-claude-desktop-for-windows)
 
-有关在防火墙中允许列表的域，请参阅上面的[网络访问要求](#network-access-requirements)。有关代理设置、自定义证书颁发机构和 LLM 网关，请参阅[网络配置](/docs/zh-CN/network-config)。
+有关需要在防火墙中加入允许列表的域，请参阅上面的[网络访问要求](#network-access-requirements)。有关代理设置、自定义证书颁发机构和 LLM 网关，请参阅[网络配置](/docs/zh-CN/network-config)。
 
 有关完整的企业配置参考，请参阅[企业配置指南](https://support.claude.com/en/articles/12622667-enterprise-configuration)。
 
@@ -1155,7 +1162,7 @@ Desktop 应用从 `claude_desktop_config.json` 将 MCP servers 加载到本地 C
   在 CLI 中打开时"Branch doesn't exist yet"
 </h3>
 
-远程会话可以创建在你的本地机器上不存在的分支。点击会话工具栏中的分支名称来复制它，然后在本地获取它：
+云端会话可以创建在您的本地机器上不存在的分支。点击会话中的分支名称并选择 **Copy branch name**，然后在本地获取它：
 
 ```bash theme={null}
 git fetch origin <branch-name>

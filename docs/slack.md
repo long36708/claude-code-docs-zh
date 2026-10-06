@@ -4,18 +4,19 @@
 
 # Slack 中的 Claude Code
 
-> 直接从 Slack 工作区委派编码任务。Anthropic 正在为 Team 和 Enterprise 工作区停用此早期版本，转而使用 Claude Tag；它仍然是 Pro 和 Max 计划上的设置路径。
+> 从 Slack 委派编码任务。此早期版本仅在未连接到 Claude Tag 的工作区中回应来自 Pro 和 Max 账户的频道提及。
 
 <Warning>
-  本页面记录了早期的 Slack 中的 Claude Code，它在每个会话中以单个用户的账户运行。
+  本页面记录了早期的 Slack 中的 Claude Code，它在每个会话中以单个用户的账户运行。它仅回应来自 Pro 和 Max 账户的频道 @提及，并且仅在尚未有任何组织将其连接到 [Claude Tag](https://claude.com/product/tag) 的 Slack 工作区中回应。Claude Tag 以您组织的共享身份运行 @Claude，具有管理员配置的访问权限。
 
-  * **Team 和 Enterprise 计划：** Anthropic 正在停用此版本，转而使用 [Claude Tag](https://claude.com/product/tag)，它以您组织的共享身份运行 @Claude，具有管理员配置的访问权限。您现有的 Slack 应用和 @Claude 处理保持不变，您的 Anthropic 账户团队可以告诉您切换日期。[为新工作区设置 Claude Tag](https://claude.com/docs/claude-tag/overview)；要移动已经使用此版本的工作区，请参阅 [从早期 Claude in Slack 迁移](https://claude.com/docs/claude-tag/admins/migrate-from-earlier)。
-  * **Pro 和 Max 计划：** Claude Tag 在个人计划上不可用，因此本页面仍然是设置路径。
+  * **Pro 和 Max 计划：** Claude Tag 在个人计划上不可用，因此在未连接到 Claude Tag 的工作区中，本页面仍然是设置路径。
+  * **Team 和 Enterprise 计划：** 您现有的 Slack 应用和 @Claude 用户名保持不变。为新工作区[设置 Claude Tag](https://claude.com/docs/claude-tag/overview)；要迁移已经使用此版本的工作区，请参阅[从早期 Claude in Slack 迁移](https://claude.com/docs/claude-tag/admins/migrate-from-earlier)。
+  * **收到通知而非回答：** 请查阅 @Claude 回复的[设置通知](#this-workspace-isnt-set-up-for-claude-tag-yet)或[停用通知](#the-legacy-claude-in-slack-bot-is-retired)。
 </Warning>
 
-Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack 工作区。当您使用编码任务提及 `@Claude` 时，Claude 会自动检测意图并创建 Claude Code 云会话，允许您在不离开团队对话的情况下委派开发工作。
+Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack 工作区。当您使用编码任务提及 `@Claude` 时，Claude 会自动检测意图并创建 Claude Code 云端会话，允许您在不离开团队对话的情况下委派开发工作。
 
-此集成基于现有的 Claude for Slack 应用程序构建，但为与编码相关的请求添加了到 Claude Code 云会话的智能路由。每个会话在您自己的 Claude 账户下运行，使用您连接的存储库和您的计划限制。
+此集成基于现有的 Claude for Slack 应用程序构建，但为与编码相关的请求添加了到 Claude Code 云端会话的智能路由。每个会话在您自己的 Claude 账户下运行，使用您连接的仓库和您的计划限制。
 
 <h2 id="use-cases">
   用例
@@ -27,17 +28,18 @@ Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack
 * **并行任务执行**：在 Slack 中启动编码任务，同时继续其他工作，完成时收到通知。
 
 <h2 id="prerequisites">
-  前置条件
+  前提条件
 </h2>
 
 在使用 Slack 中的 Claude Code 之前，请确保您具有以下条件：
 
 | 要求 | 详情 |
 | :- | :- |
-| Claude 计划 | Pro、Max、Team 或 Enterprise，具有 Claude Code 访问权限（高级席位或 Chat + Claude Code 席位） |
-| 云会话 | [云会话](/docs/zh-CN/claude-code-on-the-web)已为您的账户启用 |
-| GitHub 账户 | 在 [claude.ai/code](https://claude.ai/code) 连接，至少有一个存储库已认证 |
-| Slack 认证 | 您的 Slack 账户通过 Claude 应用程序链接到您的 Claude 账户 |
+| Claude 计划 | Pro 或 Max |
+| Slack 工作区 | 未被任何组织连接到 [Claude Tag](https://claude.com/docs/claude-tag/overview)。如果 @Claude 回复了[停用通知](#the-legacy-claude-in-slack-bot-is-retired)，则说明该工作区已被连接 |
+| 云端会话 | [云端会话](/docs/zh-CN/claude-code-on-the-web)已为您的账户启用 |
+| GitHub 账户 | 在 [claude.ai/code](https://claude.ai/code) 连接，至少有一个仓库已通过身份验证 |
+| Slack 身份验证 | 您的 Slack 账户通过 Claude 应用程序链接到您的 Claude 账户 |
 
 <h2 id="setting-up-claude-code-in-slack">
   在 Slack 中设置 Claude Code
@@ -211,11 +213,30 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
   故障排除
 </h2>
 
-<h3 id="claude-code-is-not-enabled-for-your-account">
-  "Claude Code 未为您的账户启用"
+<h3 id="this-workspace-isnt-set-up-for-claude-tag-yet">
+  "This workspace isn't set up for Claude Tag yet"
 </h3>
 
-此错误意味着您的 Claude 账户还没有云环境。使用连接到 Slack 的同一账户在 [claude.ai/code](https://claude.ai/code) 登录一次，并完成[网络入门](/docs/zh-CN/web-quickstart#connect-github)，这将创建您的默认云环境或要求您创建它。错误将在您下次提及时清除。每个用户必须单独执行此操作。
+当以下两个条件同时满足时，@Claude 会在话题中回复此通知，而不是给出答案：
+
+* 没有任何组织将您的 Slack 工作区连接到 [Claude Tag](https://claude.com/docs/claude-tag/overview)。
+* 您在 Slack 中关联的 Claude 账户不属于 Pro 或 Max 计划。
+
+Claude Tag 适用于 Team 和 Enterprise 计划。要连接工作区，请先使用通知中提到的 `@Claude connect` 命令，然后按照[设置 Claude Tag](https://claude.com/docs/claude-tag/overview) 进行操作。
+
+<h3 id="the-legacy-claude-in-slack-bot-is-retired">
+  "The legacy Claude in Slack bot is retired"
+</h3>
+
+该通知以 `The legacy Claude in Slack bot is retired effective October 5, 2026 and no longer responds in channels.` 开头。这表示您的 Slack 工作区已连接到某个 Claude 组织，但在该组织的 Claude Tag 设置中，频道、工作区或组织默认值仍选择了早期版本。此通知与您自己的计划无关，因此 Pro 和 Max 账户也会收到。
+
+如果您是该组织的所有者，请打开 [Claude 管理设置](https://claude.ai/admin-settings/claude-tag)，并为该频道启用 Claude Tag。要修复所有继承该设置的频道，请改为在工作区或组织默认值上更改该设置。有关完整的迁移步骤，请参阅[从早期版本的 Claude in Slack 迁移](https://claude.com/docs/claude-tag/admins/migrate-from-earlier)。如果您不是所有者，请将此条目发送给所有者。
+
+<h3 id="claude-code-is-not-enabled-for-your-account">
+  "Claude Code is not enabled for your account"
+</h3>
+
+此错误意味着您的 Claude 账户还没有云环境。使用连接到 Slack 的同一账户在 [claude.ai/code](https://claude.ai/code) 登录一次，并完成 [Web 入门](/docs/zh-CN/web-quickstart#connect-github)，这将创建您的默认云环境或要求您创建它。错误将在您下次提及时清除。每个用户必须单独执行此操作。
 
 <h3 id="sessions-not-starting">
   会话未启动
@@ -223,7 +244,7 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
 
 1. 验证您的 Claude 账户在 Claude 应用程序主页中已连接
 2. 检查您的账户是否启用了云会话
-3. 确保您至少有一个 GitHub 存储库连接到 Claude Code
+3. 确保您至少有一个 GitHub 仓库连接到 Claude Code
 
 <h3 id="sessions-from-a-claude-tag-channel-fail-to-start">
   来自 Claude Tag 频道的会话启动失败
@@ -241,35 +262,34 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
 如果您不是所有者，请将此条目发送给所有者。
 
 <h3 id="repository-not-showing">
-  存储库未显示
+  仓库未显示
 </h3>
 
-1. 在 [claude.ai/code](https://claude.ai/code) 连接存储库
-2. 验证您对该存储库的 GitHub 权限
+1. 在 [claude.ai/code](https://claude.ai/code) 连接仓库
+2. 验证您对该仓库的 GitHub 权限
 3. 尝试断开并重新连接您的 GitHub 账户
 
 <h3 id="wrong-repository-selected">
-  选择了错误的存储库
+  选择了错误的仓库
 </h3>
 
-1. 单击"Change Repo"按钮选择不同的存储库
-2. 在您的请求中包括存储库名称以获得更准确的选择
+1. 单击"Change Repo"按钮选择不同的仓库
+2. 在您的请求中包括仓库名称以获得更准确的选择
 
 <h3 id="authentication-errors">
-  认证错误
+  身份验证错误
 </h3>
 
 1. 在应用程序主页中断开并重新连接您的 Claude 账户
 2. 确保您在浏览器中登录到正确的 Claude 账户
-3. 检查您的 Claude 计划是否包括 Claude Code 访问权限
 
 <h2 id="current-limitations">
   当前限制
 </h2>
 
-* **仅 GitHub**：存储库必须在 GitHub 上。
+* **仅 GitHub**：仓库必须在 GitHub 上。
 * **一次一个 PR**：每个会话可以创建一个拉取请求。
-* **需要云会话访问**：用户需要访问[云会话](/docs/zh-CN/claude-code-on-the-web)；没有访问权限的用户，Claude 将回复标准聊天响应。
+* **需要云端会话访问权限**：用户需要访问[云端会话](/docs/zh-CN/claude-code-on-the-web)。
 
 <h2 id="related-resources">
   相关资源

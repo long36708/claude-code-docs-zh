@@ -772,7 +772,7 @@ Hook 事件接收这些字段作为 JSON，除了每个 [hook 事件](#hook-even
 | 字段 | 描述 |
 | :- | :- |
 | `session_id` | 当前会话标识符 |
-| `prompt_id` | 标识当前正在处理的用户提示的 UUID。与 [OpenTelemetry 事件上的 `prompt.id` 属性](/docs/zh-CN/monitoring-usage#event-correlation-attributes)匹配，因此您可以将 hook 输出与单个提示的遥测关联起来。在第一个用户输入之前不存在。需要 Claude Code v2.1.196 或更高版本 |
+| `prompt_id` | 标识当前正在处理的用户提示词的 UUID。与 [OpenTelemetry 事件上的 `prompt.id` 属性](/docs/zh-CN/monitoring-usage#event-correlation-attributes)匹配，因此您可以将 hook 输出与单个提示词的遥测关联起来。在第一个用户输入之前不存在 |
 | `transcript_path` | 对话 JSON 的路径。转录文件异步写入，可能滞后于内存中的对话，因此当 hook 触发时，它可能还不包括当前轮次的最新消息。需要当前轮次最终助手文本的 hook 应在 [Stop](#stop) 和 [SubagentStop](#subagentstop) 上使用 `last_assistant_message`，而不是读取转录 |
 | `cwd` | 调用 hook 时的当前工作目录 |
 | `scratchpad_dir` | 会话的 [scratchpad 目录](/docs/zh-CN/claude-directory#session-scratchpad-directory)的路径，Claude 在其中保存临时工作文件。当会话没有 scratchpad 或 temp 目录不可用时不存在。需要 Claude Code v2.1.257 或更高版本 |
@@ -1359,13 +1359,13 @@ exit 0
 
 Setup hook 无法阻止执行；无论退出码如何，执行都会继续。对于任何退出码，Claude Code 都会丢弃 Setup hook 的 [JSON 输出字段](#json-output)，例如 `systemMessage`、`continue` 和 `hookSpecificOutput.additionalContext`。使用 `-p` 时，只有在以 `--output-format stream-json --verbose` 启动时，Setup hook 的 stdout、stderr 和退出码才会作为 [`hook_response` 事件](/docs/zh-CN/headless#read-session-metadata)出现在运行输出中。
 
-Setup hook 可以访问 `CLAUDE_ENV_FILE`。写入该文件的变量会持久保留到该会话的后续 Bash 命令中，与 [SessionStart hook](#persist-environment-variables) 中相同。只有 `type: "command"` hook 会在 `Setup` 上运行。`Setup` 上的 `type: "mcp_tool"` hook 总是会被跳过，如 [MCP 工具 hook 字段](#mcp-tool-hook-fields)中所述。
+Setup hook 可以访问 `CLAUDE_ENV_FILE`。写入该文件的变量会持久保留到该会话后续的 Bash 命令中，与 [SessionStart hook](#persist-environment-variables) 相同。只有 `type: "command"` hook 会在 `Setup` 上运行。`Setup` 上的 `type: "mcp_tool"` hook 始终会被跳过，如 [MCP 工具 hook 字段](#mcp-tool-hook-fields)中所述。
 
 <h3 id="instructionsloaded">
   InstructionsLoaded
 </h3>
 
-在 `CLAUDE.md` 或 `.claude/rules/*.md` 文件被加载到上下文中时触发。此事件会在会话开始时针对预先加载的文件触发，之后在文件被延迟加载时再次触发，例如当 Claude 访问包含嵌套 `CLAUDE.md` 的子目录时，或当带有 `paths:` frontmatter 的条件规则匹配时。该 hook 不支持阻止或决策控制。它以异步方式运行，用于可观测性目的。
+当 `CLAUDE.md` 或 `.claude/rules/*.md` 文件被加载到上下文中时触发。此事件会在会话开始时为预先加载的文件触发，之后在文件被延迟加载时再次触发，例如当 Claude 访问包含嵌套 `CLAUDE.md` 的子目录时，或带有 `paths:` frontmatter 的条件规则匹配时。该 hook 不支持阻止或决策控制。它以异步方式运行，用于可观测性目的。
 
 当 Claude 通过 **Project instructions** 设置[直接读取 `AGENTS.md`](/docs/zh-CN/memory#agents-md) 时，此事件不会触发。当 `CLAUDE.md` 导入您的 `AGENTS.md` 时，此事件会触发，`load_reason` 与其他任何导入文件一样设置为 `include`；当 `CLAUDE.md` 是指向它的符号链接时，此事件也会作为普通的 `CLAUDE.md` 加载而触发。
 
@@ -2140,7 +2140,7 @@ PreToolUse hook 在每次工具调用之前运行，无论是否需要权限。P
 | `addRules` | `rules`、`behavior`、`destination` | 添加权限规则。`rules` 是 `{toolName, ruleContent?}` 对象的数组。省略 `ruleContent` 可匹配整个工具。`behavior` 为 `"allow"`、`"deny"` 或 `"ask"` |
 | `replaceRules` | `rules`、`behavior`、`destination` | 用提供的 `rules` 替换 `destination` 处给定 `behavior` 的所有规则 |
 | `removeRules` | `rules`、`behavior`、`destination` | 删除给定 `behavior` 的匹配规则 |
-| `setMode` | `mode`、`destination` | 更改权限模式。有效模式为 `default`、`auto`、`acceptEdits`、`dontAsk`、`bypassPermissions`、`plan`，以及作为 `default` 别名的 `manual`。`manual` 别名需要 Claude Code v2.1.200 或更高版本 |
+| `setMode` | `mode`、`destination` | 更改权限模式。有效模式为 `default`、`auto`、`acceptEdits`、`dontAsk`、`bypassPermissions`、`plan`，以及作为 `default` 别名的 `manual` |
 | `addDirectories` | `directories`、`destination` | 添加工作目录。`directories` 是路径字符串数组 |
 | `removeDirectories` | `directories`、`destination` | 移除工作目录 |
 

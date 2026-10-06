@@ -4,13 +4,15 @@
 
 # 零数据保留
 
-> 了解 Claude for Enterprise 上 Claude Code 的零数据保留 (ZDR)，包括范围、禁用功能以及如何请求启用。
+> 了解 Claude Code 的零数据保留 (ZDR)，适用于 Claude for Enterprise 上符合条件的账户，包括范围、禁用功能以及如何请求启用。
 
-零数据保留 (ZDR) 在通过 Claude for Enterprise 使用 Claude Code 时可用。启用 ZDR 后，Claude Code 会话期间生成的提示和模型响应会实时处理，在返回响应后不会由 Anthropic 存储，除非需要遵守法律或防止滥用。
+Claude Code 的零数据保留 (ZDR) 适用于 Claude for Enterprise 上符合条件的账户。启用 ZDR 后，Claude Code 会话期间生成的提示词和模型响应会实时处理，在返回响应后不会由 Anthropic 存储，除非需要遵守法律或防止滥用。
 
 <Note>
   ZDR 不包含在标准 Claude for Enterprise 计划中，也无法从您的管理员设置中启用。它仅适用于符合条件的账户，需要由 Anthropic 单独启用。如果您的组织需要 ZDR，请[联系销售](https://www.anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=zero_data_retention_request)或您的 Anthropic 账户团队以确认资格。
 </Note>
+
+已启用 HIPAA 的 Claude for Enterprise 组织，在将 HIPAA 配置应用于 Claude Code（本地模式）和 Cowork（本地模式）后，无需 ZDR 即可将 Claude Code CLI 和 Claude Desktop 中的 Code 标签页纳入其业务伙伴协议 (BAA) 的覆盖范围。请参阅[为符合 HIPAA 要求的组织设置 Claude Code（本地模式）](/docs/zh-CN/hipaa-setup)。未应用 HIPAA 配置的组织仍需要 ZDR 才能使 Claude Code 获得 BAA 覆盖。有关合格服务的列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
 
 Claude for Enterprise 上的 ZDR 为企业客户提供了使用 Claude Code 并实现零数据保留的能力，同时可以访问管理功能：
 

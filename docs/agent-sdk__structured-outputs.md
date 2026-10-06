@@ -8,7 +8,7 @@
 
 结构化输出让你定义从代理返回的数据的确切形状。代理可以使用任何需要的工具来完成任务，最后你仍然会获得与你的 schema 匹配的验证 JSON。定义一个 [JSON Schema](https://json-schema.org/understanding-json-schema/about) 来描述你需要的结构，SDK 会根据它验证输出，在不匹配时重新提示。如果验证在重试限制内没有成功，结果将是一个错误而不是结构化数据；请参阅 [错误处理](#error-handling)。
 
-为了获得完整的类型安全，使用 [Zod](#type-safe-schemas-with-zod-and-pydantic)（TypeScript）或 [Pydantic](#type-safe-schemas-with-zod-and-pydantic)（Python）来定义你的 schema 并获取强类型对象。
+为了获得完整的类型安全，使用 [Zod](#type-safe-schemas-with-zod-and-pydantic)（TypeScript）或 [Pydantic](#type-safe-schemas-with-zod-and-pydantic)（Python）来定义您的 schema 并获取强类型对象。
 
 <h2 id="why-structured-outputs">
   为什么使用结构化输出？

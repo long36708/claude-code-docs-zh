@@ -69,7 +69,7 @@ export HTTPS_PROXY=http://username:password@proxy.example.com:8080
   CA 证书存储
 </h2>
 
-默认情况下，Claude Code 信任其捆绑的 Mozilla CA 证书和您的操作系统的证书存储。读取操作系统存储需要具有 `tls.getCACertificates` 的运行时：本机安装程序始终具有它，npm 安装需要 Node 22.15 或更高版本。在较旧的 Node 版本上，仅捆绑的集合和 `NODE_EXTRA_CA_CERTS` 适用。企业 TLS 检查代理在其根证书安装在操作系统信任存储中且运行时可以读取它时无需额外配置即可工作。
+默认情况下，Claude Code 信任其捆绑的 Mozilla CA 证书和您的操作系统的证书存储。读取操作系统存储需要具有 `tls.getCACertificates` 的运行时：本机安装程序始终具有它，npm 安装需要 Node 22.15 或更高版本。在较旧的 Node 版本上，仅捆绑的集合和 `NODE_EXTRA_CA_CERTS` 适用。企业 TLS 检查代理在其根证书安装在操作系统信任存储中且运行时可以读取它时无需额外配置即可工作。如果此类代理无法正确处理 gzip 压缩的请求正文，请设置 [`CLAUDE_CODE_GZIP_REQUEST_BODIES=0`](/docs/zh-CN/env-vars)，以关闭 Claude API、遥测和 Artifact 发布请求的压缩。
 
 `CLAUDE_CODE_CERT_STORE` 接受逗号分隔的源列表。识别的值为 `bundled`（Claude Code 附带的 Mozilla CA 集）和 `system`（操作系统信任存储）。默认值为 `bundled,system`。
 

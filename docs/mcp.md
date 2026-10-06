@@ -52,7 +52,7 @@ Claude Code 可以通过 [Model Context Protocol (MCP)](https://modelcontextprot
     * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加 marketplace，然后重试安装。
     * plugin [在 marketplace 中找不到](/docs/zh-CN/plugins/install#install-a-plugin)：检查 plugin 名称。
 
-    如果安装摘要报告 `Run /reload-plugins to activate.`，Claude Code 会为您运行该重新加载。如果重新加载警告您的下一条消息会重新读取对话，请运行 `/reload-plugins --force`。
+    如果安装摘要报告 `Run /reload-plugins to apply.`，Claude Code 会为您运行该重新加载。如果重新加载警告您的下一条消息会重新读取对话，请运行 `/reload-plugins --force`。
   </Step>
 
   <Step title="运行构建 skill">

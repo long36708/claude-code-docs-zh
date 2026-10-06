@@ -159,10 +159,10 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `confirm:no` | Escape | 拒绝操作 |
 | `confirm:previous` | Up | 上一个选项 |
 | `confirm:next` | Down | 下一个选项 |
-| `confirm:nextField` | Tab | 下一个字段 |
-| `confirm:previousField` | (未绑定) | 上一个字段 |
+| `confirm:nextField` | Tab | 在 `/fast` 对话框中，打开或关闭快速模式 |
+| `confirm:previousField` | (未绑定) | Claude Code 不响应此操作，命名该操作的 `keybindings.json` 仍然有效 |
 | `confirm:toggle` | Space | 切换选择 |
-| `confirm:cycleMode` | Shift+Tab\* | 循环权限模式。在文件权限提示上，关闭打开的 [注释字段](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)；没有打开的字段时，选择允许会话其余部分操作的选项（当提示提供该选项时） |
+| `confirm:cycleMode` | Shift+Tab\* | 在文件权限提示上，关闭打开的 [注释字段](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)；没有打开的字段时，选择允许会话其余部分操作的选项（当提示提供该选项时） |
 
 \*在没有 VT 模式的 Windows 上 (Node \<24.2.0/\<22.17.0, Bun \<1.2.23)，默认为 Meta+M。
 
@@ -200,7 +200,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 | 操作 | 默认 | 描述 |
 | :- | :- | :- |
-| `permission:toggleDebug` | (未绑定) | 切换权限调试信息。之前的 Ctrl+D 默认值在 v2.1.146 中被移除，因为它与 `app:exit` 冲突 |
+| `permission:toggleDebug` | (未绑定) | Claude Code 不响应此操作，命名该操作的 `keybindings.json` 仍然有效 |
 
 <h3 id="transcript-actions">
   Transcript 操作
@@ -239,7 +239,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 | 操作 | 默认 | 描述 |
 | :- | :- | :- |
-| `task:background` | Ctrl+B, Ctrl+X Ctrl+B | 后台当前任务。Ctrl+X Ctrl+B 弦避免 tmux 前缀冲突 |
+| `task:background` | Ctrl+B, Ctrl+X Ctrl+B | 将当前任务转入后台 |
 
 <h3 id="theme-actions">
   Theme 操作

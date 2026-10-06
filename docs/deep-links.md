@@ -204,7 +204,7 @@ VS Code 扩展在 `vscode://anthropic.claude-code/open` 注册自己的处理程
   链接呈现为纯文本而不是可点击的
 </h3>
 
-某些 Markdown 渲染器只允许 `http` 和 `https` 链接，并删除其他 URL 方案。GitHub 在 README、问题、拉取请求和 wiki 中这样做：`[label](claude-cli://...)` 呈现为仅 `label`，没有链接，URL 被删除。在这些平台上，将深链接放在代码块中，以便读者可以看到 URL 并将其粘贴到浏览器的地址栏中。
+某些 Markdown 渲染器只允许 `http` 和 `https` 链接，并删除其他 URL 方案。GitHub 在 README、问题、Pull Request 和 wiki 中这样做：`[label](claude-cli://...)` 呈现为仅 `label`，没有链接，URL 被删除。在这些平台上，将深链接放在代码块中，以便读者可以看到 URL 并将其粘贴到浏览器的地址栏中。
 
 <h3 id="the-session-opens-in-my-home-directory-instead-of-the-repo">
   会话在我的主目录中打开而不是仓库

@@ -110,7 +110,10 @@ claude plugin validate ./some-mod
   打开或关闭 mods
 </h2>
 
-Mods 需要 Claude Code v2.1.287 或更高版本，默认情况下它们是打开的。在您的 shell 中，运行 `claude --version` 以检查，如果您的版本较旧，请更新 Claude Code。
+mod 默认处于打开状态。在终端中，请使用 Claude Code v2.1.287 或更高版本。Desktop 应用包含其自带的 Claude Code 副本，mod 从 v2.1.286 起即可在其中使用。请在您使用 mod 的地方检查版本：
+
+* **终端**：在您的 shell 中运行 `claude --version`。如果您的版本较旧，请[更新 Claude Code](/docs/zh-CN/setup#update-claude-code)。
+* **Desktop 应用**：在 Code 选项卡的本地会话中输入 `/status`，查看 **Claude Code** 一行，其中会显示 `2.1.286` 之类的版本号。如果您的版本较旧，请更新 Desktop 应用。
 
 要关闭 mods，选择要停止多少个，以及停止多长时间。要重新打开它们，撤销相同的更改：
 

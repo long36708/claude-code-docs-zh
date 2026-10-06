@@ -15,7 +15,7 @@ HIPAA 配置是 Claude Enterprise 计划中的一项组织设置，适用于处�
   * Claude Desktop 的 Code 标签页中的 Claude Code
   * Claude Desktop 中的 Cowork
 
-  适用于 VS Code 和 JetBrains 的 Claude Code 扩展不属于（本地模式）。应用 HIPAA 配置后，这些扩展仍可继续使用，但您的 BAA 不涵盖它们。有关合格服务的完整列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=rgirr4qe8u7ek8c2igx3\&name=claude-for-enterprise-hipaa-ready-offering-implementation-guide)。
+  适用于 VS Code 和 JetBrains 的 Claude Code 扩展不属于（本地模式）。应用 HIPAA 配置后，这些扩展仍可继续使用，但您的 BAA 不涵盖它们。有关合格服务的完整列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
 </Note>
 
 本页面面向负责为开发人员准备计算机的 IT 或安全管理员。配置本身由您的 Claude 组织的主要所有者（Primary Owner）应用。[在符合 HIPAA 要求的 Enterprise 计划中使用 Claude Code（本地模式）和 Cowork（本地模式）](https://support.claude.com/en/articles/17318731)说明了您的 BAA 包含的内容、配置的应用方式，以及如何安排应用配置的日期。
@@ -174,6 +174,7 @@ HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的
 
 * **Claude Console 登录和联合凭据**：`forceLoginOrgUUID` 仅检查 claude.ai 登录。[将登录限制为您的组织](/docs/zh-CN/authentication#restrict-login-to-your-organization)列出了 Claude Code 对每种登录路径和凭据检查的内容。
 * **服务器托管设置**：如果您的组织还使用[服务器托管设置](/docs/zh-CN/server-managed-settings)，请让所有者在其中添加相同的键。[Claude Code 如何合并托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明了哪个来源生效。
+* **低于 v2.1.285 的版本**：这些版本会忽略 `allowedProviders`，因此仍可能在云提供商或网关上启动。要让 v2.1.163 至 v2.1.284 拒绝启动，您可以在与[示例键](#deploy-managed-settings)相同的托管设置中添加值为 `"2.1.285"` 的 [`requiredMinimumVersion`](/docs/zh-CN/settings-reference#requiredminimumversion)。v2.1.163 之前的版本既会忽略 `allowedProviders`，也会忽略 `requiredMinimumVersion`，因此请[更新这些计算机](#update-claude-code-and-claude-desktop)。
 
 要了解您的 BAA 是否涵盖在没有 HIPAA 配置的情况下运行的会话，请参阅[在符合 HIPAA 要求的 Enterprise 计划中使用 Claude Code（本地模式）和 Cowork（本地模式）](https://support.claude.com/en/articles/17318731)。
 
@@ -234,7 +235,7 @@ HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的
 
 应用 HIPAA 配置后，Claude Code 会从其启动的 shell 命令、hook 和 MCP 服务器的环境中移除其用于访问 Anthropic 的凭据，例如 `ANTHROPIC_API_KEY` 和 `ANTHROPIC_AUTH_TOKEN`。
 
-HIPAA 配置不会移除云提供商或 GitHub 凭据，因此推送到 GitHub 或调用其他服务的命令仍然可以使用该开发人员的访问权限正常工作。您与 Anthropic 签订的 BAA 不涵盖发送到这些位置的数据。有关合格服务的完整列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=rgirr4qe8u7ek8c2igx3\&name=claude-for-enterprise-hipaa-ready-offering-implementation-guide)。
+HIPAA 配置不会移除云提供商或 GitHub 凭据，因此推送到 GitHub 或调用其他服务的命令仍然可以使用该开发人员的访问权限正常工作。您与 Anthropic 签订的 BAA 不涵盖发送到这些位置的数据。有关合格服务的完整列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
 
 要限制 Claude 可以使用的命令和主机，请参阅[权限规则](/docs/zh-CN/permissions)和[沙箱](/docs/zh-CN/sandboxing)。
 
@@ -275,15 +276,21 @@ Code 标签页将数据存储在以下位置：
   立即删除会话数据
 </h3>
 
-如果您的组织需要在保留清理删除之前移除某位开发人员的会话数据，您可以使用一条命令移除其中的大部分数据。以该开发人员的身份登录计算机，然后在任意 shell 中运行以下命令：
+如果您的组织需要在保留清理删除之前移除某位开发人员的会话数据，您可以使用一条命令移除其中的大部分数据。以该开发人员的身份登录计算机，打开任意 shell，然后运行与已安装的 Claude Code 版本对应的命令。
+
+在 Claude Code v2.1.288 或更高版本上，运行 `claude purge`：
 
 ```bash theme={null}
 claude purge --all --yes
 ```
 
-在 v2.1.288 之前，该命令为 `claude project purge`。
+在 v2.1.126 至 v2.1.287 上，运行 `claude project purge`，它接受相同的标志：
 
-该命令会删除每个项目的会话记录和自动记忆、`tasks/`、`debug/` 和 `file-history/` 中的条目、`history.jsonl`，以及 `~/.claude.json` 中的项目条目。如果不加 `--yes`，它会先输出计划并进行询问。
+```bash theme={null}
+claude project purge --all --yes
+```
+
+这两个命令都会删除每个项目的会话记录和自动记忆、`tasks/`、`debug/` 和 `file-history/` 中的条目、`history.jsonl`，以及 `~/.claude.json` 中的项目条目。如果不加 `--yes`，它会先输出计划并进行询问。
 
 清除操作会保留其他可能包含会话内容的路径，例如 `paste-cache/` 中粘贴的文本。[清除本地数据](/docs/zh-CN/claude-directory#clear-local-data)列出了您可以手动删除的路径。要彻底清理一台计算机（例如在重新分配之前），请[擦除它](#offboard-a-developer)。
 

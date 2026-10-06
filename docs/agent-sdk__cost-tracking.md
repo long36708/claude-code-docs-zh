@@ -10,6 +10,8 @@ Claude Agent SDK 为每次与 Claude 的交互提供详细的令牌使用信息�
 
 有关完整的 API 文档，请参阅 [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript) 和 [Python SDK 参考](/docs/zh-CN/agent-sdk/python)。
 
+<span id="estimates-not-billing" />
+
 <Warning>
   `total_cost_usd` 和 `costUSD` 字段是客户端估计值，不是权威的计费数据。SDK 从在构建时捆绑的价格表中本地计算它们，除非 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 表生效。当以下情况发生时，它们可能与您实际被计费的金额不同：
 
@@ -241,6 +243,8 @@ try {
 
 * **独立调用，没有 `resume` 或 `continue` 选项**：每个结果仅涵盖其自己的调用，因此您需要自己添加总计，如下面的示例所做的那样。
 * **恢复同一会话的调用**：Claude Code 在进程正常退出时将会话的总计保存到其[记录](/docs/zh-CN/sessions#where-transcripts-are-stored)，并在稍后的调用恢复或分叉会话时恢复它们。每个结果已经包括会话的早期支出。读取会话的最新结果以获得会话总计；对结果求和会重复计算恢复的支出。在 v2.1.277 之前，通过 SDK 或 `claude -p` 恢复的会话将其总计从零开始，因此每个调用的结果仅涵盖该调用。
+
+无论哪种情况，合并后的数值仍然是[客户端估算值](#estimates-not-billing)。
 
 在流式输入模式下，按照[在流式输入模式下跟踪成本](#track-costs-in-streaming-input-mode)中的说明读取每个调用的总计。对于以崩溃结束的调用，请参阅[在会话崩溃后恢复总计](#recover-totals-after-a-session-crash)。
 

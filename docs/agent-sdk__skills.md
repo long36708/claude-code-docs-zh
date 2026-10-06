@@ -8,7 +8,7 @@
 
 Agent Skills 通过专业能力扩展 Claude，Claude 会在相关时自动调用这些能力。Skills 被打包为 `SKILL.md` 文件，包含说明、描述和可选的支持资源。本页还涵盖了 [Agent SDK 会话中的命令](#commands-in-agent-sdk-sessions)。
 
-有关 skills 的全面信息，包括优势、架构和编写指南，请参阅 [Agent Skills 概述](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)。
+有关 skill 的更多信息，包括优势、架构和编写指南，请参阅 [Agent Skills 概述](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)。
 
 <h2 id="how-skills-work-with-the-agent-sdk">
   Skills 如何与 Agent SDK 配合使用

@@ -315,7 +315,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 | `tools` | 否 | [Tools](#available-tools) subagent 可以使用，作为逗号分隔的字符串，例如 `Read, Grep, Bash` 或 YAML 列表。如果省略，继承 subagents 可用的每个工具。如果列表中没有条目解析为工具，subagent 通常 [fails to launch](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools) 并出现错误，命名条目。要将 Skills 预加载到上下文中，请使用 `skills` 字段而不是在此处列出 `Skill` |
 | `disallowedTools` | 否 | 要拒绝的工具，从继承或指定的列表中删除。格式与 `tools` 相同。带有说明符的条目，例如 `Bash(git push *)`，仍然 [removes the whole tool](#available-tools) |
 | `model` | 否 | [Model](#choose-a-model) 使用：`sonnet`、`opus`、`haiku`、`fable`、完整模型 ID（例如，`claude-opus-5-5`）或 `inherit`。当您省略它时，Claude Code 在 [subagent model order](#choose-a-model) 中选择模型 |
-| `permissionMode` | 否 | [Permission mode](#permission-modes)：`default`、`acceptEdits`、`auto`、`dontAsk`、`bypassPermissions`、`plan` 或 `manual` 作为 `default` 的别名。`manual` 别名需要 Claude Code v2.1.200 或更高版本。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略 |
+| `permissionMode` | 否 | [权限模式](#permission-modes)：`default`、`acceptEdits`、`auto`、`dontAsk`、`bypassPermissions`、`plan`，或作为 `default` 别名的 `manual`。对[插件子代理](#choose-the-subagent-scope)会被忽略 |
 | `maxTurns` | 否 | subagent 停止前的最大代理轮数。当 subagent 达到限制时，Claude Code 返回其输出标记为部分，Claude 可以 [resume it](#resume-subagents) 继续。部分标记需要 Claude Code v2.1.246 或更高版本 |
 | `skills` | 否 | [Skills](/docs/zh-CN/skills) 在启动时预加载到 subagent 的上下文中。注入完整的技能内容，而不仅仅是描述。Subagents 仍然可以通过 Skill 工具调用未列出的项目、用户和 plugin 技能 |
 | `mcpServers` | 否 | [MCP servers](/docs/zh-CN/mcp) 对此 subagent 可用。每个条目要么是引用已配置服务器的服务器名称（例如，`"slack"`），要么是内联定义，其中服务器名称为键，完整的 [MCP server config](/docs/zh-CN/mcp#installing-mcp-servers) 为值。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略 |
@@ -988,7 +988,7 @@ Claude 可以在 Agent 工具调用中传递 `name` 参数来为子代理命名�
 
 因 API 错误（例如用量限制或反复出现的服务器错误）而结束运行的子代理会将该失败报告给 Claude。Claude 收到的内容取决于子代理的运行位置：
 
-* **前台**：如果速率限制、过载或服务器错误截断了已经产生文本输出的子代理，Agent 工具会返回该部分输出，并附注说明子代理被截断、未完成其任务。未产生任何输出、或输出仅包含工具调用的子代理会以 [`Agent terminated early due to an API error`](/docs/zh-CN/errors#agent-terminated-early-due-to-an-api-error) 失败，后跟错误详情。在 v2.1.199 中，速率限制、过载或服务器错误截断仅含工具调用的输出时，返回的是只包含截断说明的空部分结果。
+* **前台**：如果速率限制、过载或服务器错误截断了已经产生文本输出的子代理，Agent 工具会返回该部分输出，并附注说明子代理被截断、未完成其任务。未产生任何输出、或输出仅包含工具调用的子代理会以 [`Agent terminated early due to an API error`](/docs/zh-CN/errors#agent-terminated-early-due-to-an-api-error) 失败，后跟错误详情。
 * **后台**：子代理会被标记为失败，Claude 在其结束时收到的消息会指明该 API 错误，并包含子代理的最后输出，因此部分工作不会丢失。
 
 当您配置了[备用模型链](/docs/zh-CN/model-config#fallback-model-chains)，且子代理遇到该链所覆盖的失败（例如其模型不可用）时，Claude Code 会将子代理切换到链中第一个接受请求的模型。子代理会继续工作，而不是因错误而结束。

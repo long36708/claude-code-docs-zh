@@ -1181,10 +1181,10 @@ export const text = {
     title: "将会议转化为工单",
     teaches: "省去整理文字稿这一步。Claude 会从非结构化输入中提取行动项，并通过 [MCP](/docs/zh-CN/mcp) 直接写入您的跟踪器，因此您审查的是工单，而不是文字稿。",
     next: "将此保存为 `/tickets` skill",
-    prompt: "阅读 {input} 并整理出行动项，然后为每一项创建一个包含验收标准的 {tracker} 工单",
+    prompt: "阅读 {input} 并整理出行动项，然后在{tracker}中为每一项创建一个包含验收标准的工单",
     slots: {
       input: "@meeting-notes.md",
-      tracker: "Linear"
+      tracker: "我们的问题跟踪器"
     }
   },
   "map-edge-cases-before": {
@@ -1212,8 +1212,8 @@ export const text = {
     next: "请 Claude 将其遵循的模式写入 `CLAUDE.md`，以便以后的会话无需参考也能保持一致",
     prompt: "查看 {example} 的实现方式以理解其模式，然后用相同的方式构建 {new}",
     slots: {
-      example: "GitHub webhook 处理程序",
-      new: "Stripe webhook 处理程序"
+      example: "现有的 webhook 处理程序",
+      new: "支付 webhook 处理程序"
     }
   },
   "add-a-small-well": {
@@ -1419,9 +1419,9 @@ export const text = {
   "open-a-pull-request": {
     title: "根据工单创建 Pull Request",
     teaches: "省去在跟踪器、编辑器和 GitHub 之间来回切换。一个提示词即可读取需求、完成更改并创建 PR。",
-    prompt: "找到关于{topic}的 {tracker} 工单，并创建一个实现它的 PR",
+    prompt: "在{tracker}中找到关于{topic}的工单，并创建一个实现它的 PR",
     slots: {
-      tracker: "Linear",
+      tracker: "我们的问题跟踪器",
       topic: "登录超时"
     }
   },
@@ -1470,7 +1470,7 @@ export const text = {
   "investigate-a-production-incident": {
     title: "调查生产事件",
     teaches: "列出需要关联分析的证据来源，而不是要采取的步骤。Claude 会综合读取日志、git 历史和配置，以缩小原因范围。",
-    next: "通过 MCP 连接 Sentry 或您的日志存储",
+    next: "通过 MCP 连接您的错误跟踪器或日志存储",
     prompt: "{symptom}。检查日志、最近的部署和配置更改，然后告诉我最可能的原因",
     slots: {
       symptom: "结账端点从一小时前开始返回 500"
@@ -1491,7 +1491,7 @@ export const text = {
     teaches: "云控制台会向您展示问题，但不会给出修复命令。Claude 会读取截图，并将仪表板内容转换为需要运行的 kubectl、gcloud 或 aws 命令。",
     prompt: "这是{console}的截图。请带我分析{resource}为什么失败，并给出修复它的确切命令",
     slots: {
-      console: "GCP Kubernetes 仪表板",
+      console: "我们的 Kubernetes 仪表板",
       resource: "这个 pod"
     }
   },
@@ -1538,10 +1538,10 @@ export const text = {
   "connect-a-tool-with": {
     title: "使用 MCP 连接工具",
     teaches: "一次性连接数据源，而不是每个会话都粘贴数据。完成 [MCP](/docs/zh-CN/mcp) 设置后，当您询问相关内容时，Claude 会直接从该工具读取数据。",
-    prompt: "设置 {server} MCP 服务器，以便直接读取我的{data}",
+    prompt: "通过 MCP 连接{server}，以便你能直接读取其{data}",
     slots: {
-      server: "Sentry",
-      data: "错误报告"
+      server: "我们的错误跟踪器",
+      data: "堆栈跟踪"
     }
   },
   "capture-what-to-remember": {

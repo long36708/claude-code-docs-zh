@@ -40,13 +40,11 @@
 
 mod 添加的任何内容都不会出现：没有命令、没有绘图，也没有行为改变。
 
-<h3 id="your-version-is-older-than-2-1-287">
-  您的版本早于 2.1.287
+<h3 id="your-version-is-too-old">
+  您的版本过旧
 </h3>
 
-`claude --version` 打印的版本早于 2.1.287。您的版本早于 mod 默认启用的时期。
-
-[更新 Claude Code](/docs/zh-CN/setup#update-claude-code)。
+请参阅[应使用哪个版本以及如何检查您的版本](/docs/zh-CN/plugins/mods/overview#turn-mods-on-or-off)。
 
 <h3 id="the-mods-active-line-doesn’t-name-the-mod">
   `mods active` 行不命名 mod

@@ -71,14 +71,14 @@
       <Step title="读取安装摘要">
         摘要的最后一句告诉您插件在此会话中是否可用：
 
-        * **Active now**：`Plugin is now active.` 不需要重新加载。
-        * **Active, but a server needs setup**：`Plugin is now active.` 后跟 `Its bundled MCP server needs configuration before it can start`。插件的 [bundled MCP server](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server) 在您设置其选项之前无法启动。在 `/plugin` 的 **Installed** 选项卡上选择插件，然后选择 **Configure** 以设置服务器的选项。
-        * **Reload needed**：`Run /reload-plugins to activate.` 面板关闭，Claude Code 为您运行该重新加载。如果重新加载会 [使提示缓存失效](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)，它会警告并改为保留插件待处理。运行 `/reload-plugins --force` 以激活它，这会花费一个未缓存的请求。
-        * **Load failed**：`The plugin couldn't be loaded`。在 `/plugin` 中打开 **Errors** 选项卡以了解原因，然后查看 [安装后：插件不工作](/docs/zh-CN/plugins/troubleshooting#plugin-installed-but-not-working)。
+        * **已激活**：`Plugin is now active.` 无需重新加载。
+        * **已激活，但服务器需要设置**：`Plugin is now active.` 后跟 `Its bundled MCP server needs configuration before it can start`。在您设置其选项之前，插件的[捆绑 MCP 服务器](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server)无法启动。在 `/plugin` 的 **Installed** 选项卡上选择该插件，然后选择 **Configure** 以设置服务器的选项。
+        * **需要重新加载**：`Run /reload-plugins to apply.` 面板会关闭，Claude Code 会为您运行该重新加载。如果重新加载会[使提示缓存失效](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)，它会发出警告，并改为让插件保持待处理状态。运行 `/reload-plugins --force` 可强制激活它，这会产生一次未缓存的请求。
+        * **加载失败**：`The plugin couldn't be loaded`。在 `/plugin` 中打开 **Errors** 选项卡查看原因，然后参阅[安装后：插件不工作](/docs/zh-CN/plugins/troubleshooting#plugin-installed-but-not-working)。
       </Step>
 
-      <Step title="确认插件有效">
-        输入 `/` 并在其名称下查找插件的 skills，形式为 `/<plugin>:<skill>`。对于 `commit-commands`，`/commit-commands:commit` 出现。还有两个其他地方列出插件：
+      <Step title="确认插件正常工作">
+        输入 `/`，并在插件名称下查找其 skill，形式为 `/<plugin>:<skill>`。对于 `commit-commands`，会出现 `/commit-commands:commit`。另外还有两个地方会列出该插件：
 
         * 在 `/plugin` 中打开 **Installed** 选项卡，该选项卡列出带有其范围的插件。
         * 在您的 shell 中，运行 `claude plugin list`，它打印相同的列表，带有 `Version`、`Scope` 和 `Status` 行。

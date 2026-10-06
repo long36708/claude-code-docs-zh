@@ -1604,8 +1604,8 @@ Claude Code 的上下文窗口包含 Claude 在您的会话中了解的所有内
 | 自动内存 | 从磁盘重新注入 |
 | [Git 状态快照](/docs/zh-CN/settings-reference#includegitinstructions) | Claude Code 从您的存储库读取一个新的 |
 | Claude 在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中编写的计划 | 从磁盘重新注入 |
-| 带有 `paths:` frontmatter 的规则 | Claude Code 在读取匹配的文件时重新加载它们 |
-| 子目录中的嵌套 CLAUDE.md | Claude Code 在读取该子目录中的文件时重新加载它们 |
+| 带有 `paths:` frontmatter 的规则 | Claude Code [按需](/docs/zh-CN/memory#path-specific-rules)重新加载它们 |
+| 子目录中的嵌套 CLAUDE.md | Claude Code [按需](/docs/zh-CN/memory#how-claude-md-files-load)重新加载它们 |
 | Claude 读取或编辑的文件 | Claude Code 重新读取最多五个，最近修改的优先 |
 | 调用的技能主体 | 重新注入，每个技能上限为 5,000 个令牌，总计 25,000 个令牌；最旧的首先删除 |
 | [后台命令](/docs/zh-CN/interactive-mode#background-bash-commands)和后台[子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background) | 继续运行。Claude Code 提醒 Claude 哪些仍在运行，以便它不会启动重复的 |

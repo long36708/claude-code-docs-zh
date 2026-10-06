@@ -77,7 +77,7 @@ sudo xcode-select -s /Applications/Xcode-26.4.app
 
 Claude 启动的设备也会出现在 Apple 的 Simulator 应用中，或在 Xcode 27 的 Device Hub 中。Claude 可以在你已经启动的设备上安装应用。
 
-你也可以自己打开模拟器窗格。一旦会话有模拟器连接或已编辑 Swift 文件，会话工具栏中的**Views** 菜单会显示 **iOS Simulator** 条目。如果窗格还没有显示设备，请单击**Attach simulator**，或从它旁边的设备菜单中选择特定设备；选择关闭的设备会启动它。如果 Xcode 或其模拟器缺失，窗格会显示设置步骤，并在你完成每个步骤时检查它们。
+您也可以自己打开模拟器窗格。一旦会话有模拟器连接或 Claude Code 检测到 iOS 应用相关工作，会话的标题栏中就会出现 **iOS Simulator** 按钮。如果窗格还没有显示设备，请单击**Attach simulator**，或从它旁边的设备菜单中选择特定设备；选择关闭的设备会启动它。如果 Xcode 或其模拟器缺失，窗格会显示设置步骤，并在您完成每个步骤时检查它们。
 
 <h2 id="control-the-simulator-yourself">
   自己控制模拟器

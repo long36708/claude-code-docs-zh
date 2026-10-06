@@ -8,7 +8,7 @@
 
 在 Claude Code CLI 中说出你的提示词，而不是输入它们。你的语音会实时转录到提示词输入中，所以你可以在同一条消息中混合使用语音和输入。使用 `/voice` 启用听写，然后要么在说话时按住一个键，要么点击一次开始，再点击一次发送。
 
-听写功能也适用于[代理视图](/docs/zh-CN/agent-view#peek-and-reply)。在调度输入或窥视面板回复获得焦点时，按住或点击你的按键通话键，以便向后台会话进行听写。
+在[按住模式](#hold-to-record)下，听写功能也适用于 [Agent 视图](/docs/zh-CN/agent-view#peek-and-reply)。在 Dispatch 输入框或窥视面板回复获得焦点时，按住您的按键通话键，即可向后台会话进行听写。
 
 <h2 id="requirements">
   要求

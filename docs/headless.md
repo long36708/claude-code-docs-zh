@@ -206,7 +206,7 @@ claude -p "Explain recursion" --output-format stream-json --verbose --include-pa
 
 如果您的消费者缓慢读取流，Claude Code 会等待队列中的输出排空后再退出，根据仍然队列中的数量缩放等待时间，上限为 30 秒。在 v2.1.214 之前，退出等待的上限约为两秒，这可能会截断大型响应的末尾。
 
-以下示例使用 [jq](https://jqlang.org/) 来过滤文本增量并仅显示流式文本。`-r` 标志输出原始字符串（无引号），`-j` 不带换行符连接，以便令牌连续流式传输：
+以下示例使用 [jq](https://jqlang.org/) 过滤文本增量，仅显示流式文本。`-r` 标志输出原始字符串（无引号），`-j` 不带换行符地连接，以便 token 连续流式输出：
 
 ```bash theme={null}
 claude -p "Write a poem" --output-format stream-json --verbose --include-partial-messages | \

@@ -1765,7 +1765,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
   * `"auto"`: Claude Code 运行而不进行常规提示；在 shell 命令和网络请求等操作运行之前，后台分类器检查它们是否与您的请求一致
   * `"dontAsk"`: Claude Code 自动拒绝每个本应提示的调用；读取、不需要批准的其他操作以及预批准的工具仍然运行
   * `"bypassPermissions"`: Claude Code 运行所有内容而不询问
-  * `"manual"`: `"default"` 的别名，在 Claude Code v2.1.200 或更高版本中
+  * `"manual"`: `"default"` 的别名
 * **默认值**: 未设置
 * **每个会话覆盖**: `--permission-mode` 及其 `bypassPermissions` 的等效 `--dangerously-skip-permissions` 对一个会话优先于此键
 
@@ -1777,7 +1777,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 }
 ```
 
-权限规则分层在每种模式之上：`deny` 规则在每种模式中阻止，包括 `bypassPermissions`。请参阅[权限模式](/docs/zh-CN/permission-modes)。`manual` 命名 CLI 和 VS Code 扩展中标记为 Manual 的权限模式；别名需要 Claude Code v2.1.200 或更高版本。在云会话中，Claude Code 仅从此键中遵守 `acceptEdits`、`plan`、`default` 和 `auto`。对于 VS Code 扩展启动的对话，请参阅[扩展为启动权限模式读取的设置](/docs/zh-CN/permission-modes#switch-permission-modes)。
+权限规则分层在每种模式之上：`deny` 规则在每种模式中阻止，包括 `bypassPermissions`。请参阅[权限模式](/docs/zh-CN/permission-modes)。在云端会话中，Claude Code 仅从此键中遵守 `acceptEdits`、`plan`、`default` 和 `auto`。对于 VS Code 扩展启动的对话，请参阅[扩展为启动权限模式读取的设置](/docs/zh-CN/permission-modes#switch-permission-modes)。
 
 <h3 id="permissions-disablebypasspermissionsmode">
   `permissions.disableBypassPermissionsMode`
@@ -3232,7 +3232,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   `askUserQuestionTimeout`
 </h3>
 
-让未回答的 [`AskUserQuestion`](/docs/zh-CN/tools-reference) 对话框在空闲一段时间后自动继续，提交您已选择的任何选项。当您离开时设置此项，让 Claude 在没有您的情况下继续。使用默认设置时，问题会等待您回答。关于计时器何时暂停或从不启动，请参阅[问题自动继续超时](/docs/zh-CN/tools-reference#question-auto-continue-timeout)。需要 Claude Code v2.1.200 或更高版本。
+让未回答的 [`AskUserQuestion`](/docs/zh-CN/tools-reference) 对话框在空闲一段时间后自动继续，提交您已选择的任何选项。当您离开时设置此项，让 Claude 在没有您的情况下继续。使用默认设置时，问题会等待您回答。关于计时器何时暂停或从不启动，请参阅[问题自动继续超时](/docs/zh-CN/tools-reference#question-auto-continue-timeout)。
 
 * **Scope**: [`User or managed`](#scopes)
 * **Type**: string，值为 `"60s"`、`"5m"`、`"10m"` 或 `"never"` 之一
@@ -3245,7 +3245,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-在 `/config` 中显示为**问题自动继续超时**，它将此键写入用户设置；当托管设置或 `--settings` 标志设置此键时，Claude Code 会隐藏该行。需要 Claude Code v2.1.200 或更高版本。
+在 `/config` 中显示为**问题自动继续超时**，它将此键写入用户设置；当托管设置或 `--settings` 标志设置此键时，Claude Code 会隐藏该行。
 
 <h3 id="autocontinueatusagelimit">
   `autoContinueAtUsageLimit`
@@ -5165,7 +5165,7 @@ Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该 pl
 }
 ```
 
-内置 plugins 在同一键下存储其选项，带 `@builtin` 后缀。例如，控制 Claude Code 是否读取 `AGENTS.md` 文件的 [**Project instructions**](/docs/zh-CN/memory#choose-which-instruction-files-load) 设置是 `pluginConfigs["agents-md@builtin"].options.instructionFiles`。
+内置插件在同一键下存储其选项，带 `@builtin` 后缀。例如，控制 Claude Code 是否读取 `AGENTS.md` 文件的 [**Project instructions**](/docs/zh-CN/memory#choose-which-instruction-files-load) 设置是 `pluginConfigs["cc-plugin-agents-md@builtin"].options.instructionFiles`。在 v2.1.285 之前，该插件的 ID 为 `agents-md@builtin`。更高版本会读取任一 ID 下的条目。
 
 Claude Code 忽略项目和本地条目，因为它将这些值替换到 plugin hook、MCP 和 LSP 配置中，克隆的存储库不得能够提供它们。在 v2.1.207 之前，项目和本地设置也被读取。
 

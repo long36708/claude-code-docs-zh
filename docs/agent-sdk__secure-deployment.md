@@ -317,7 +317,7 @@ Claude Code 和 Agent SDK 尊重这些标准环境变量，通过代理路由所
 
 这种方法处理任何基于 HTTP 的服务，而无需编写自定义工具，但增加了围绕证书管理的复杂性。
 
-请注意，并非所有程序都尊重 `HTTP_PROXY`/`HTTPS_PROXY`。大多数工具（curl、pip、npm、git）都尊重，但有些可能绕过这些变量并直接连接。例如，Node.js `fetch()` 默认忽略这些变量；在 Node 24+ 中，您可以设置 `NODE_USE_ENV_PROXY=1` 来启用支持。为了全面覆盖，您可以使用 [proxychains](https://github.com/haad/proxychains) 来拦截网络调用，或配置 iptables 将出站流量重定向到透明代理。
+请注意，并非所有程序都遵循 `HTTP_PROXY`/`HTTPS_PROXY`。大多数工具（curl、pip、npm、git）都遵循，但有些可能绕过这些变量并直接连接。例如，Node.js `fetch()` 默认忽略这些变量；在 Node 24+ 中，您可以设置 `NODE_USE_ENV_PROXY=1` 来启用支持。为了覆盖忽略这些变量的工具，您可以使用 [proxychains](https://github.com/haad/proxychains) 来拦截网络调用，或配置 iptables 将出站流量重定向到透明代理。
 
 <Info>
   **透明代理**在网络级别拦截流量，因此客户端不需要配置为使用它。常规代理要求客户端显式连接并使用 HTTP CONNECT 或 SOCKS。透明代理（如 Squid 或透明模式下的 mitmproxy）可以处理原始重定向的 TCP 连接。

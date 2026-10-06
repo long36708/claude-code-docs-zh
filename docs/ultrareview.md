@@ -18,7 +18,7 @@ Ultrareview 是在 Anthropic 基础设施上运行的[云会话](/docs/zh-CN/cla
 * **更广泛的覆盖范围**：许多审查代理并行探索更改，这会发现本地审查可能遗漏的问题
 * **无本地资源使用**：审查完全在云沙箱中运行，因此您的终端在运行时保持空闲，可用于其他工作
 
-Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthropic 基础设施上作为云会话运行。如果您仅使用 API 密钥登录，请先运行 `/login` 并使用 claude.ai 进行身份验证。当使用 Claude Code 与 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 时，Ultrareview 不可用，对于已启用零数据保留的组织也不可用。当 ultrareview 不可用时，`/code-review ultra` 会在您的会话中运行本地审查。
+Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthropic 基础设施上作为云端会话运行。如果您仅使用 API 密钥登录，请先运行 `/login` 并使用 claude.ai 进行身份验证。当使用 Claude Code 与 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 时，Ultrareview 不可用；对于已启用零数据保留或已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织也不可用。当 ultrareview 不可用时，`/code-review ultra` 会在您的会话中运行本地审查。
 
 <h2 id="run-ultrareview-from-the-cli">
   从 CLI 运行 ultrareview

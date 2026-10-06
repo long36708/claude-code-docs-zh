@@ -156,7 +156,7 @@ RUN git config --system user.name "Claude" && \
 
 没有身份，`git commit` 失败并显示 `Please tell me who you are`，会话无法取得进展。您可以改用自己的机器人身份；运行器不会覆盖这些值。
 
-不要将长期或广泛范围的推送凭证烘焙到共享运行器镜像中：镜像中的凭证可用于镜像运行的每个会话，无论谁启动它。相反，从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)按会话铸造短期、最小范围的令牌，使用从会话 JWT 解码的会话创建者的身份。将其与临时的按会话容器配对，这需要 `--capacity 1`，因此没有凭证超过铸造它的会话；请参阅[加固部分](#harden-your-deployment)。
+不要将长期或广泛范围的推送凭据烘焙到共享运行器镜像中：镜像中的凭据可用于镜像运行的每个会话，无论谁启动它。相反，从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)按会话铸造短期、最小范围的令牌，使用从会话 JWT 解码的会话创建者的身份。将其与临时的按会话容器配对，这需要 `--capacity 1`，因此没有凭据超过铸造它的会话；请参阅[加固部分](#harden-your-deployment)。
 
 如果您必须在镜像级别配置推送凭证，例如对于只读部署密钥，请尽可能紧密地限制它们：
 

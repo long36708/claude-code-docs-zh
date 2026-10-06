@@ -499,7 +499,7 @@ Claude 在一个 [session](#session) 中的一个完整响应。一个 turn 从�
   Verification loop
 </h3>
 
-一个会话知道工作实际完成而不仅仅是看起来合理的方式。您给 Claude 一个它可以运行的检查，例如测试套件、构建或屏幕截图比较，Claude 迭代直到检查通过，而不是在一次尝试后停止。验证循环是 [`/goal`](/docs/zh-CN/goal)、无人值守运行和[动态工作流](/docs/zh-CN/workflows)的先决条件：没有它，唯一决定代理完成的东西就是代理本身。
+一个会话知道工作实际完成而不仅仅是看起来合理的方式。您给 Claude 一个它可以运行的检查，例如测试套件、构建或屏幕截图比较，Claude 迭代直到检查通过，而不是在一次尝试后停止。验证循环是 [`/goal`](/docs/zh-CN/goal)、无人值守运行和[动态工作流](/docs/zh-CN/workflows)的前提条件：没有它，唯一决定 Agent 是否完成的就是 Agent 本身。
 
 了解更多：[给 Claude 一种验证其工作的方式](/docs/zh-CN/best-practices#give-claude-a-way-to-verify-its-work)
 

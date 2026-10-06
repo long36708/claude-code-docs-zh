@@ -128,7 +128,7 @@ Claude Code 不会删除您在托管设置中自己设置的每信号变量，�
 | `OTEL_METRIC_EXPORT_INTERVAL` | 导出间隔（毫秒）（默认值：60000） | `5000`、`60000` |
 | `OTEL_LOGS_EXPORT_INTERVAL` | 日志导出间隔（毫秒）（默认值：5000） | `1000`、`10000` |
 | `OTEL_LOG_USER_PROMPTS` | 启用用户提示内容的日志记录（默认值：禁用） | `1` 启用 |
-| `OTEL_LOG_ASSISTANT_RESPONSES` | 在 `assistant_response` 事件上启用助手响应文本的日志记录（默认值：禁用）。未设置时，回退到 `OTEL_LOG_USER_PROMPTS` 的值。需要 Claude Code v2.1.193 或更高版本 | `1` 启用，`0` 保持编辑 |
+| `OTEL_LOG_ASSISTANT_RESPONSES` | 在 `assistant_response` 事件上启用助手响应文本的日志记录（默认值：禁用）。未设置时，回退到 `OTEL_LOG_USER_PROMPTS` 的值 | `1` 启用，`0` 保持脱敏 |
 | `OTEL_LOG_TOOL_DETAILS` | 在工具事件和跟踪跨度属性中启用工具参数和输入参数的日志记录：Bash 命令、MCP 服务器和工具名称、技能名称、用户编写的工作流名称和工具输入。还在 `user_prompt` 事件上启用自定义、插件和 MCP 命令名称，以及在[成本和令牌计数器](#cost-counter)上启用真实代理、技能、插件和 MCP 服务器和工具名称（默认值：禁用）。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，即使关闭标志，`mcp_server_name`/`mcp_tool_name` 也会在 `tool_decision`/`tool_result` 上发出。该异常需要 Claude Code v2.1.214 或更高版本 | `1` 启用 |
 | `OTEL_LOG_TOOL_CONTENT` | 在 [`tool.output` 跨度事件](#tool-output-span-event)中启用工具内容的日志记录（默认值：禁用）。跨度属性在[其自己的门](#new-context-gates)下携带工具内容。需要[跟踪](#traces-beta)。内容在内容限制处截断（默认值 60 KB） | `1` 启用 |
 | `OTEL_LOG_MANAGED_SETTINGS` | 将编辑的托管设置和编辑前设置的 SHA-256 摘要添加到[托管设置已解决](#managed-settings-resolved-event)事件（默认值：禁用）。项目或本地设置中的值不会将其打开。需要 Claude Code v2.1.274 或更高版本 | `1` 启用 |
@@ -819,7 +819,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   助手响应事件
 </h4>
 
-在返回来自模型的文本内容的每个 API 请求后记录。仅包括响应的文本块；思考块和工具使用块被排除。需要 Claude Code v2.1.193 或更高版本。
+在每个从模型返回文本内容的 API 请求之后记录。仅包含响应的文本块；思考块和工具使用块会被排除。
 
 **事件名称**：`claude_code.assistant_response`
 
@@ -1157,7 +1157,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `plugin_id_hash`：插件名称和市场的确定性哈希，仅发送到您配置的导出器。让您计算整个舰队中加载的不同第三方插件，而无需记录其名称。对于[从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)，Claude Code 使用 claude.ai 为插件报告的市场名称或 `synced` 哈希插件名称。在 v2.1.246 之前，Claude Code 在哈希中没有使用 claude.ai 报告的市场名称
 * `has_hooks`：插件是否贡献钩子
 * `has_mcp`：插件是否贡献 MCP 服务器
-* `host_owned_mcp`：当 SDK 主机管理此插件的 MCP 连接且 Claude Code 跳过读取插件的 MCP 服务器配置时为 `true`，否则为 `false`。需要 Claude Code v2.1.172 或更高版本
+* `host_owned_mcp`：当 SDK 主机管理此插件的 MCP 连接且 Claude Code 跳过了读取插件的 MCP 服务器配置时为 `true`，否则为 `false`
 * `skill_path_count`：插件声明的技能目录数
 * `command_path_count`：插件声明的命令目录数
 * `agent_path_count`：插件声明的代理目录数
@@ -1336,7 +1336,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `pre_tokens`：压缩前的近似令牌计数
 * `post_tokens`：压缩后的近似令牌计数
 * `error`：压缩失败时的错误消息
-* `precompute_reuse`：仅当 `trigger` 为 `"manual"` 时设置。自动压缩可以在上下文窗口填满之前在后台准备摘要，此属性记录 `/compact` 是否重用了该准备的摘要。`"hit"` 表示它被重用；`"miss_custom_instructions"`、`"miss_hook"` 和 `"miss_not_ready"` 给出改为计算新摘要的原因。需要 Claude Code v2.1.153 或更高版本
+* `precompute_reuse`：仅当 `trigger` 为 `"manual"` 时设置。自动压缩可以在上下文窗口填满之前在后台预先准备摘要，此属性记录 `/compact` 是否复用了该预先准备的摘要。`"hit"` 表示已复用；`"miss_custom_instructions"`、`"miss_hook"` 和 `"miss_not_ready"` 给出了改为重新计算摘要的原因
 
 <h4 id="subagent-completed-event">
   子代理完成事件
@@ -1518,7 +1518,7 @@ Claude Code 将每个流式响应计入成本和令牌指标，恰好一次，�
 * 异常的令牌消耗
 * 来自特定用户的高会话量
 
-所有指标都可以按[标准属性](#standard-attributes)进行分段。`model` 属性在 `claude_code.token.usage`、`claude_code.cost.usage` 上可用，以及 从 v2.1.172 开始，`claude_code.lines_of_code.count` 上也可用。
+所有指标都可以按[标准属性](#standard-attributes)进行分段。`model` 属性在 `claude_code.token.usage`、`claude_code.cost.usage` 和 `claude_code.lines_of_code.count` 上可用。
 
 按模型的提交分解只能通过在 `session.id` 上与令牌或成本指标进行联接来近似，因为一个会话可以跨越多个模型。筛选令牌或成本端的行，使 `query_source` 为 `"main"`，以便辅助和子代理请求不会将会话的提交归属于未进行这些提交的模型。
 

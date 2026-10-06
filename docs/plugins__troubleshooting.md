@@ -695,10 +695,10 @@ Could not move the new copy of this plugin version into /home/user/.claude/plugi
 * **某人发布的插件**：在 `/plugin` 中打开 **Installed** 并打开插件的详细信息窗格，其中列出了插件包含的内容。在那里列出无技能的插件在您键入 `/` 时没有什么可提供的
 
 <h3 id="run-reload-plugins-to-activate">
-  `Run /reload-plugins to activate.`
+  `Run /reload-plugins to apply.`
 </h3>
 
-`/plugin` 中的安装摘要以 `Run /reload-plugins to activate.` 结尾，而不是 `Plugin is now active.`
+`/plugin` 中的安装摘要以 `Run /reload-plugins to apply.` 结尾，而不是 `Plugin is now active.`。同时，输入框上方可能会出现 `Plugins changed. Run /reload-plugins to activate.` 通知。
 
 Claude Code 在安装期间没有激活插件，要么是因为激活它会 [使提示缓存失效](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)，要么是因为激活尝试失败。
 

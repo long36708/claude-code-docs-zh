@@ -116,7 +116,7 @@ Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介�
 
 **使用 skills 处理可重复的任务。** 输入 `/` 或点击 **+** → **Slash commands** 以浏览 [内置命令](/docs/zh-CN/commands)、[自定义 skills](/docs/zh-CN/skills) 和插件 skills。Skills 是可重用的提示，您可以在需要时调用它们，例如代码审查清单或部署步骤。
 
-**在提交前审查更改。** Claude 编辑文件后，会出现 `+12 -1` 指示符。点击它以打开 [diff 视图](/docs/zh-CN/desktop#review-changes-with-diff-view)，逐个文件审查修改，并对特定行进行评论。Claude 会读取您的评论并进行修订。点击 **Review code** 让 Claude 自己评估 diffs 并留下内联建议。
+**在提交前审查更改。** Claude 编辑文件后，会出现 `+12 -1` 指示符。点击它以打开 [diff 视图](/docs/zh-CN/desktop#review-changes-with-diff-view)，逐个文件审查修改，并对特定行进行评论。Claude 会读取您的评论并进行修订。要让 Claude 自行审查这些更改，请在提示框中输入 [`/code-review`](/docs/zh-CN/desktop#review-your-code)。
 
 **调整您拥有的控制权。** 您的 [permission mode](/docs/zh-CN/desktop#choose-a-permission-mode) 设置了 Claude 在不请求批准的情况下可以执行的操作：
 

@@ -215,7 +215,7 @@ Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](/
 | `$` | 行尾 |
 | `^` | 第一个非空白字符 |
 | `gg` | 输入开始 |
-| `G` | 输入结束 |
+| `G` | 最后一行的行首 |
 | `f{char}` | 跳转到下一个字符出现位置 |
 | `F{char}` | 跳转到上一个字符出现位置 |
 | `t{char}` | 跳转到下一个字符出现位置之前 |
@@ -355,7 +355,7 @@ Claude Code 支持在后台运行 Bash 命令，允许你在长时间运行的�
 * 当 Claude Code 退出时，后台任务会自动清理。在 macOS 和 Linux 上，当你从 [`/tasks`](/docs/zh-CN/commands) 停止后台任务或 Claude Code 在退出时停止它时，从任务的 shell 分离的进程（例如在 `setsid` 或 `timeout` 下启动的进程）也会停止
 * 如果你将会话放在后台而不是退出，你的后台任务将继续在后台会话中运行。请参阅[将运行中的会话放在后台](/docs/zh-CN/agent-view#from-inside-a-session)
 * 如果输出超过 5GB，后台任务会自动终止，stderr 中会有说明原因的注释
-* 在 macOS 和 Linux 上，当操作系统报告严重内存压力时，Claude Code 会停止运行中的后台任务，前提是会话已空闲至少 30 分钟且没有 turn 或 subagent 运行。需要 Claude Code v2.1.193 或更高版本
+* 在 macOS 和 Linux 上，当操作系统报告严重内存压力时，Claude Code 会停止运行中的后台任务，前提是会话已空闲至少 30 分钟且没有轮次或子代理正在运行
   * [调试日志](/docs/zh-CN/debug-your-config)说明了为什么任务被停止，或为什么压力事件让它们继续运行
   * 将 [`CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP`](/docs/zh-CN/env-vars) 设置为 `1` 可关闭内存压力停止
 * 在您通过终端、桌面应用或 VS Code 扩展进行工作的本地会话中，后台命令没有时间限制。在无人值守运行的会话中（例如 `-p` 运行或云端会话），Claude Code 会在后台命令达到其[时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)时停止它
@@ -390,13 +390,13 @@ Shell 模式：
 * 支持相同的 `Ctrl+B` 后台运行，用于长时间运行的命令
 * 不需要 Claude 解释或批准命令
 * 支持基于历史的自动完成：输入部分命令并按 `Tab` 从当前项目中的前面 `!` 命令完成
-* 从 v2.1.193 开始在所有平台上支持实时文件路径自动完成：输入包含正斜杠的令牌，例如 `./src/` 或 `~/`，查看匹配文件和目录的下拉列表，然后按 `Tab` 接受。在 Windows 上也使用正斜杠；下拉列表由 `/` 触发，而不是 `\`
+* 支持实时文件路径自动完成：输入包含正斜杠的 token，例如 `./src/` 或 `~/`，查看匹配文件和目录的下拉列表，然后按 `Tab` 接受。在 Windows 上也使用正斜杠；下拉列表由 `/` 触发，而不是 `\`
 * 在空提示上按 `Escape`、`Backspace` 或 `Ctrl+U` 退出
 * 将以 `!` 开头的文本粘贴到空提示中会自动进入 shell 模式，与输入的 `!` 行为匹配
 
 除非您的会话是[严格沙箱模式](/docs/zh-CN/sandboxing#turn-off-the-retry-with-strict-sandbox-mode)下列出的会话之一，即使您已启用沙箱隔离，您在 shell 模式中输入的命令也会在[沙箱](/docs/zh-CN/sandboxing)外运行，因为沙箱适用于 Claude 运行的命令。
 
-一旦命令输出出现在记录中，Claude 会自动响应，因此你可以运行 `! npm test` 并获得失败的解释，无需第二个提示。响应成本与发送普通提示相同。要恢复之前的行为，其中输出被添加到上下文而不响应，请在 `settings.json` 中将 [`respondToBashCommands`](/docs/zh-CN/settings-reference#respondtobashcommands) 设置为 `false`。在 v2.1.186 之前，shell 模式始终将输出添加到上下文而不响应。
+一旦命令输出出现在会话记录中，Claude 会自动对其进行回复，因此您可以运行 `! npm test` 并获得失败原因的解释，无需再发送提示词。该回复的成本与发送普通提示词相同。若要改为仅将输出添加到上下文而不回复，请在 `settings.json` 中将 [`respondToBashCommands`](/docs/zh-CN/settings-reference#respondtobashcommands) 设置为 `false`。
 
 <h2 id="queue-messages-while-claude-works">
   在 Claude 工作时排队消息

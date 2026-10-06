@@ -10,7 +10,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 
 输入 `/` 查看可用的命令，或输入 `/` 后跟字母来筛选。[命令菜单如何匹配你输入的内容](#how-the-command-menu-matches-what-you-type)涵盖了高亮显示、拼写错误以及 Claude Code 在你输入完整名称之前隐藏的少数命令。
 
-命令只在你的消息开头被识别。命令名称后面的文本成为其参数。从 v2.1.199 开始，[skills](/docs/zh-CN/skills#pass-arguments-to-skills)是例外：一个 skill 调用后跟更多 skills，例如 `/skill-a /skill-b do XYZ`，会加载开头命名的每个 skill，并将尾部文本作为参数传递给每个 skill。最多可以链接六个 skills。
+命令只在您的消息开头被识别。命令名称后面的文本成为其参数。[Skills](/docs/zh-CN/skills#pass-arguments-to-skills) 是例外：一个 skill 调用后跟更多 skill，例如 `/skill-a /skill-b do XYZ`，会加载开头命名的 skill，并将尾部文本作为参数传递给每个 skill。最多可以链接六个 skill。
 
 如果你在 Claude 响应时发送命令，Claude Code 会将其排队，并在当前轮次完成后运行。Claude Code 会立即运行某些命令而不中断响应，例如 `/status`、`/tasks` 和 `/usage`。在[全屏渲染](/docs/zh-CN/fullscreen)中，Claude Code 也会立即打开对话命令，例如 `/theme` 和 `/help`。在 v2.1.234 之前，Claude Code 会将这些对话排队直到轮次完成。
 
@@ -140,7 +140,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/run-skill-generator` | **[Skill](/docs/zh-CN/skills#bundled-skills)。** 通过编写一个项目专属的 [skill](/docs/zh-CN/skills#run-and-verify-your-app)，教会 `/run` 和 `/verify` 如何在干净的环境中构建、启动和操作您项目的应用 |
 | `/sandbox` | 切换[沙箱模式](/docs/zh-CN/sandboxing)。仅在支持的平台上可用 |
 | `/schedule [description]` | 创建、更新、列出或运行在云端执行的 [Routine](/docs/zh-CN/routines)。Claude 会以对话方式引导您完成设置。您还可以询问 [Routine 的最近运行情况](/docs/zh-CN/routines#manage-routines-from-the-cli)。别名：`/routines` |
-| `/scroll-speed` | 以交互方式调整鼠标滚轮[滚动速度](/docs/zh-CN/fullscreen#mouse-wheel-scrolling)，对话框打开时可以滚动标尺来预览更改。仅在[全屏渲染](/docs/zh-CN/fullscreen)中可用，在 JetBrains IDE 终端中不可用 |
+| `/scroll-speed` | 以交互方式调整鼠标滚轮[滚动速度](/docs/zh-CN/fullscreen#mouse-wheel-scrolling)。仅在[全屏渲染](/docs/zh-CN/fullscreen)中可用，在 JetBrains IDE 终端中不可用 |
 | `/security-review` | 分析当前分支上的更改是否存在安全漏洞。审查您的分支与 origin 默认分支之间的 diff，识别注入、身份验证问题和数据泄露等风险。需要 `origin` 远程；如果审查因 `ambiguous argument` 错误而失败，请参阅[错误参考](/docs/zh-CN/errors#security-review-fails-without-origin-head) |
 | `/setup-bedrock` | 通过交互式向导配置 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 身份验证、区域和模型固定。在设置 `CLAUDE_CODE_USE_BEDROCK=1` 之前[在命令菜单中隐藏](#how-the-command-menu-matches-what-you-type)；需要完整输入。首次使用 Amazon Bedrock 的用户也可以从登录屏幕访问此向导 |
 | `/setup-vertex` | 通过交互式向导配置 [Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai) 身份验证、项目、区域和模型固定。在设置 `CLAUDE_CODE_USE_VERTEX=1` 之前[在命令菜单中隐藏](#how-the-command-menu-matches-what-you-type)；需要完整输入。首次使用 Google Cloud's Agent Platform 的用户也可以从登录屏幕访问此向导 |

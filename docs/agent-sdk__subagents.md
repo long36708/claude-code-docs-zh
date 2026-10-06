@@ -768,6 +768,6 @@ Claude Code 监视 `~/.claude/agents/` 和 `.claude/agents/`，并在几秒内�
   相关文档
 </h2>
 
-* [Claude Code 子代理](/docs/zh-CN/sub-agents)：包括基于文件系统的定义的全面子代理文档
+* [Claude Code 子代理](/docs/zh-CN/sub-agents)：子代理文档，包括基于文件系统的定义
 * [动态工作流](/docs/zh-CN/workflows)：从脚本编排许多子代理，用于对话过大的工作
 * [SDK 概述](/docs/zh-CN/agent-sdk/overview)：Claude Agent SDK 入门

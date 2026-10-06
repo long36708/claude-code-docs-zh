@@ -25,7 +25,7 @@
 | [`dontAsk`](#allow-only-pre-approved-tools-with-dontask-mode) | 读取和预批准的工具；任何会提示的内容都被拒绝 | 锁定的 CI 和脚本 |
 | [`bypassPermissions`](#skip-all-checks-with-bypasspermissions-mode) | 一切 | 仅限隔离容器和虚拟机 |
 
-审查每项操作的模式在 CLI 中名为 **Manual**，在 `claude --help` 中、在 VS Code 和 JetBrains 扩展中以及在桌面应用中也是如此。其配置值是 `default`，这是 hooks 和 SDK 集成使用的。CLI 在您输入值的任何地方接受 `manual` 作为别名，例如 `claude --permission-mode manual` 或 `"defaultMode": "manual"`。Manual 标签和 `manual` 别名需要 Claude Code v2.1.200 或更高版本。桌面应用的标签不依赖于您的 CLI 版本。
+审查每项操作的模式在 CLI 中名为 **Manual**，在 `claude --help` 中、在 VS Code 和 JetBrains 扩展中以及在桌面应用中也是如此。其配置值是 `default`，这是 hook 和 SDK 集成使用的。CLI 在您输入值的任何地方接受 `manual` 作为别名，例如 `claude --permission-mode manual` 或 `"defaultMode": "manual"`。
 
 对 [受保护路径](#protected-paths) 的写入永远不会自动批准，除非在 `bypassPermissions` 模式下以及在 plan 模式会话中，其中绕过权限可用，意味着会话以 [将 `bypassPermissions` 放入模式循环](#switch-permission-modes) 的方式启动。
 
@@ -359,7 +359,7 @@ claude --permission-mode plan
   分类器默认阻止的内容
 </h3>
 
-分类器信任您的工作目录以及会话启动时为其配置的远程仓库。在会话期间通过 `git remote add` 或 `git remote set-url` 添加或重新指向的远程仓库不受信任，其他所有内容都被视为外部内容，直到您[配置受信任的基础设施](/docs/zh-CN/auto-mode-config)。在 v2.1.200 之前，会话中途添加的远程仓库也受信任。
+分类器信任您的工作目录以及会话启动时为其配置的远程仓库。在会话期间通过 `git remote add` 或 `git remote set-url` 添加或重新指向的远程仓库不受信任，其他所有内容都被视为外部内容，直到您[配置受信任的基础设施](/docs/zh-CN/auto-mode-config)。
 
 **默认阻止**：
 
@@ -392,19 +392,16 @@ claude --permission-mode plan
 * 启动无需人工批准或沙箱即可运行的自主 Agent 循环，例如使用 `--dangerously-skip-permissions` 或 `--no-sandbox` 启动的循环。这包括在禁用隔离和逐操作批准的情况下运行第三方 Agent 或评估工具，例如使用 `--yes-always` 启动的运行器
 * 可能将页面内容、cookie 或凭据发送到源站之外的 [Claude in Chrome](/docs/zh-CN/chrome) 浏览器操作
 * 通过通配符、glob 或时间过滤器（而非指定的具体路径）删除 `/tmp`、`$TMPDIR` 或其他共享临时目录或缓存目录中的文件
-* 在发送、上传、发布或写入给他人或共享系统的内容中包含敏感细节，而您自己的消息并未授权将这些细节提供给该接收方。当仓库位于信任边界之外或为公开仓库（包括您组织自己的公开仓库）时，PR 和 issue 正文、提交信息以及评论都属于此类外发内容；内部文件路径、代号、实时 API 响应数据（例如电子邮件或账户标识符）以及基础设施标识符都属于敏感细节。PR、issue 和提交信息的范围限定需要 Claude Code v2.1.200 或更高版本。对于 PR 或 issue 正文中来自 API 响应的实时个人数据，例如电子邮件地址、账户或组织标识符或使用量指标，无论仓库的可见性或信任边界如何，都需要您明确指出这些细节和接收方。该检查需要 Claude Code v2.1.203 或更高版本
+* 在发送、上传、发布或写入给他人或共享系统的内容中包含敏感细节，而您自己的消息并未授权将这些细节提供给该接收方。当仓库位于信任边界之外或为公开仓库（包括您组织自己的公开仓库）时，PR 和 issue 正文、提交信息以及评论都属于此类外发内容；内部文件路径、代号、实时 API 响应数据（例如电子邮件或账户标识符）以及基础设施标识符都属于敏感细节。对于 PR 或 issue 正文中来自 API 响应的实时个人数据，例如电子邮件地址、账户或组织标识符或使用量指标，无论仓库的可见性或信任边界如何，都需要您明确指出这些细节和接收方。该检查需要 Claude Code v2.1.203 或更高版本
 * 向 Claude Code 自己的 tmux 窗格发送按键以驱动其自身界面，分类器会将此视为 Claude 更改其自身的权限或监督
-
-其中一些类别依赖于[环境](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure)条目，例如敏感远程目标和受保护的 IaC 作用域，您可以将它们收窄到具体名称。
-
-Claude Code v2.1.200 及更高版本还会默认阻止以下操作：
-
 * 注释掉、删除或强制通过用于保护安全行为（例如身份验证、访问控制、输入验证或沙箱隔离）的测试或断言
 * 删除或拆除 Claude 未在本会话中创建的有状态资源，且没有更具体的删除规则适用、您也未指定该资源
 * 将 API 基础 URL、代理端点、webhook 接收器或注册表镜像重新指向与任务不相符的第三方主机，包括在 `.env.example` 等示例文件中
 * 使用 `git remote set-url` 或 `git remote add` 更改推送目标，除非您指定了新的远程仓库
 * 将密钥或个人数据、受托数据推送到已知为公开的仓库，或将不属于该仓库本身工作的机密材料推送到该仓库。对于个人数据或受托数据，唯一的例外是 dotfiles 仓库本身的主题内容；来自私有仓库的内容进入任何公开渠道也会以同样方式被阻止；这两项细化都需要 Claude Code v2.1.203 或更高版本。在 v2.1.203 之前，个人数据与机密材料归为一类，仅在不属于该仓库本身工作时才被阻止。当仓库的可见性无法确定时，分类器不会仅凭这一点进行阻止，而是依据其他规则来判断内容
 * 向其他仓库或组织发起 Pull Request、使用 `gh repo fork` 进行 fork，或推送到第三方仓库，除非您指定了该外部目标
+
+其中一些类别依赖于[环境](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure)条目，例如敏感远程目标和受保护的 IaC 作用域，您可以将它们收窄到具体名称。
 
 Claude Code v2.1.203 及更高版本还会默认阻止以下操作：
 
@@ -676,7 +673,12 @@ Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) �
 * `.devcontainer`
 * `.yarn`
 * `.mvn`
-* `.claude`，除了 `.claude/worktrees`（Claude 在其中存储自己的 git worktree），以及在未使用 `--restricted` 启动的会话中 Claude 自己的[自动记忆](/docs/zh-CN/memory#storage-location)目录中的 markdown 文件
+* `.claude`，但有少数例外，例如：
+  * Claude 自己位于 `.claude/worktrees/` 下的 git worktree
+  * 当前会话自己的计划文件，位于 `~/.claude/plans/` 或您设置的 [`plansDirectory`](/docs/zh-CN/settings-reference#plansdirectory) 中
+  * [后台会话](/docs/zh-CN/agent-view#where-state-is-stored)自己位于 `~/.claude/jobs/<id>/tmp/` 的临时目录
+  * 在未使用 `--restricted` 启动的会话中，项目[自动记忆](/docs/zh-CN/memory#storage-location)目录（例如 `~/.claude/projects/<project>/memory/`）中的 markdown 文件
+  * 在未使用 `--restricted` 启动的会话中，[子代理记忆](/docs/zh-CN/sub-agents#enable-persistent-memory)目录（例如 `.claude/agent-memory/`）中的 markdown 文件
 * 使用 [`--plugin-dir`](/docs/zh-CN/plugins/mods/create#change-a-mod-with-claude) 加载的目录，因为当文件发生更改时，Claude Code 会从该目录重新加载并运行 mod 的代码
 
 受保护的文件：

@@ -237,17 +237,17 @@ API 限制每个请求可以携带多少图像和 PDF。有关当前数字，请
 
 这些操作要么追加到对话的末尾，要么根本不触及请求。其中一些操作（例如编辑 CLAUDE.md）保持缓存的原因与该更改在运行会话中不会生效直到 `/clear`、`/compact` 或重启的原因相同。
 
-* [编辑存储库中的文件](#editing-files-in-your-repository)
+* [编辑仓库中的文件](#editing-files-in-your-repository)
 * [在会话中编辑 CLAUDE.md](#editing-claude-md-mid-session)
 * [更改权限模式](#changing-permission-mode)
 * [更改输出样式](#changing-output-style)
-* [调用 skills 和命令](#invoking-skills-and-commands)
+* [调用 skill 和命令](#invoking-skills-and-commands)
 * [运行 `/recap`](#running-%2Frecap)
 * [回溯对话](#rewinding-the-conversation)
 * [生成子代理](#subagents-and-the-cache)
 
 <h3 id="editing-files-in-your-repository">
-  编辑存储库中的文件
+  编辑仓库中的文件
 </h3>
 
 文件内容仅在 Claude 读取文件时进入上下文，而读取操作会追加到对话中。编辑 Claude 之前读过的文件不会追溯性地改变历史记录中的早期读取。相反，Claude Code 会追加一条 [`<system-reminder>`](/docs/zh-CN/glossary#system-reminder) 注明文件已更改，Claude 会在需要时重新读取该文件。
@@ -258,24 +258,24 @@ API 限制每个请求可以携带多少图像和 PDF。有关当前数字，请
 
 您的项目根目录和用户级 CLAUDE.md 文件在会话开始时读取一次并保存在内存中。在会话中编辑它们不会使缓存失效，但编辑也不会应用。Claude 继续使用在会话开始时加载的版本。新内容在下一次 `/clear`、`/compact` 或重启时加载。
 
-[子目录中的嵌套 CLAUDE.md 文件](/docs/zh-CN/memory)和[带有 `paths:` frontmatter 的规则](/docs/zh-CN/memory#path-specific-rules)稍后加载，当 Claude 首次读取匹配的文件时。在加载前编辑它确实会生效。加载后，内容成为对话历史的一部分，所以中途编辑不会追溯性地改变它。
+[子目录中的嵌套 CLAUDE.md 文件](/docs/zh-CN/memory)和[带有 `paths:` frontmatter 的规则](/docs/zh-CN/memory#path-specific-rules)稍后按需加载。在其加载前自行编辑确实会生效。加载后，内容成为对话历史的一部分，所以中途编辑不会追溯性地改变它。
 
 <h3 id="changing-permission-mode">
   更改权限模式
 </h3>
 
-在[权限模式](/docs/zh-CN/permission-modes)之间切换，例如从手动模式切换到接受编辑，不会改变系统提示或工具定义，所以模式更改是缓存安全的。例外是使用 [`opusplan`](/docs/zh-CN/model-config#opusplan-model-setting) 模型设置的计划模式，它在您进入或离开计划模式时在 Opus 和 Sonnet 之间切换模型。这使得模式切换成为[模型切换](#switching-models)。
+在[权限模式](/docs/zh-CN/permission-modes)之间切换，例如从手动模式切换到接受编辑，不会改变系统提示词或工具定义，所以模式更改是缓存安全的。例外是使用 [`opusplan`](/docs/zh-CN/model-config#opusplan-model-setting) 模型设置的计划模式，它在您进入或离开计划模式时在 Opus 和 Sonnet 之间切换模型。这使得模式切换成为[模型切换](#switching-models)。
 
 <h3 id="changing-output-style">
   更改输出样式
 </h3>
 
-当您在会话中使用 [`/output-style`](/docs/zh-CN/output-styles#change-your-output-style)、`/config` 或 `outputStyle` 设置切换[输出样式](/docs/zh-CN/output-styles)时，Claude 从您的下一条消息开始使用新样式。Claude Code 将新样式的指令作为对话中的消息传递，所以该请求仍然从缓存中读取系统提示和早期对话。
+当您在会话中使用 [`/output-style`](/docs/zh-CN/output-styles#change-your-output-style)、`/config` 或 `outputStyle` 设置切换[输出样式](/docs/zh-CN/output-styles)时，Claude 从您的下一条消息开始使用新样式。Claude Code 将新样式的指令作为对话中的消息传递，所以该请求仍然从缓存中读取系统提示词和早期对话。
 
 在 v2.1.251 之前，中途样式切换保持缓存但直到您运行 `/clear` 或启动新会话时才应用。
 
 <h3 id="invoking-skills-and-commands">
-  调用 skills 和命令
+  调用 skill 和命令
 </h3>
 
 [Skills](/docs/zh-CN/skills) 和[命令](/docs/zh-CN/commands)在调用点将其指令作为用户消息注入。对话中早期的任何内容都不会改变。frontmatter 中命名 `model` 的 skill 或命令可以是该轮的[模型切换](#switching-models)。
@@ -290,9 +290,9 @@ API 限制每个请求可以携带多少图像和 PDF。有关当前数字，请
   回溯对话
 </h3>
 
-[`/rewind`](/docs/zh-CN/checkpointing) 将您的对话截断回到较早的轮次。剩余的历史是缓存在该点构建时的相同内容，系统提示和项目上下文层保持不变，所以下一个请求会命中较早的缓存条目。从那时起的每一轮都读过该前缀，即使原始轮次比 TTL 更久远，也保持了该条目的活跃。
+[`/rewind`](/docs/zh-CN/checkpointing) 将您的对话截断回到较早的轮次。剩余的历史是缓存在该点构建时的相同内容，系统提示词和项目上下文层保持不变，所以下一个请求会命中较早的缓存条目。从那时起的每一轮都读过该前缀，即使原始轮次比 TTL 更久远，也保持了该条目的活跃。
 
-恢复文件检查点与对话一起对缓存没有单独的影响。文件内容仅在 Claude 读取文件时进入上下文，与[编辑存储库中的文件](#editing-files-in-your-repository)相同。
+恢复文件检查点与对话一起对缓存没有单独的影响。文件内容仅在 Claude 读取文件时进入上下文，与[编辑仓库中的文件](#editing-files-in-your-repository)相同。
 
 <h2 id="resuming-a-session">
   恢复会话

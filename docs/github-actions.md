@@ -326,7 +326,7 @@ jobs:
 
 仅授予工作流所需的权限，并在合并前审查 Claude 的更改。
 
-有关全面的安全指导，包括权限和身份验证，请参阅 [Claude Code Action 安全文档](https://github.com/anthropics/claude-code-action/blob/main/docs/security.md)。
+有关安全指导，包括权限和身份验证，请参阅 [Claude Code Action 安全文档](https://github.com/anthropics/claude-code-action/blob/main/docs/security.md)。
 
 <h3 id="manage-costs">
   管理成本
