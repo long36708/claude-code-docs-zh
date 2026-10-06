@@ -1589,6 +1589,8 @@ Claude Code 在这些情况下跳过基于年龄的扫描：
 * **Bare mode**：当您使用 [`--bare`](/docs/zh-CN/headless#start-faster-with-bare-mode) 运行 `claude -p` 时，Claude Code 不会在该会话中运行扫描。
 * **暂停扫描**：如果 Claude Code 无法安全地确定保留期，它会暂停保留清理扫描；[`retention_sweep` 事件](/docs/zh-CN/monitoring-usage#retention-sweep-event)列出每个暂停它的配置。当原因是无法读取或解析的设置文件，或 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 明确设置的设置错误时，Claude Code 也会在 `/status` 中显示警告，直到您修复设置错误。当 [managed settings](/docs/zh-CN/server-managed-settings) 提供 `cleanupPeriodDays` 时，Claude Code 在任何情况下都以 managed 值运行扫描。
 
+要检查您组织中的机器是否按您设置的保留期运行扫描，请参阅[检查保留扫描](/docs/zh-CN/monitoring-usage#check-the-retention-sweep)。
+
 <h3 id="session-scratchpad-directory">
   会话暂存目录
 </h3>
@@ -1706,7 +1708,9 @@ claude purge ~/work/my-repo --yes
 
 传递 `--all` 而不是路径以一次清除所有项目的状态，这会直接删除 `history.jsonl` 而不是过滤它。传递 `-i` 以逐项逐步执行删除计划。
 
-该命令不理会 `shell-snapshots/` 和 `backups/`，因为这些不是项目范围的，并在计划输出中警告它们。
+在脚本中，请检查输出，而不仅仅是退出状态。删除了计划中所有内容的运行会以 `Purged N item(s)` 结尾。请将该行视为成功的标志。
+
+该命令不理会 `shell-snapshots/` 和 `backups/`，因为这些不是项目范围的，并在计划输出中警告它们。如果有人在该机器上运行过 [`/heapdump`](/docs/zh-CN/troubleshooting#high-cpu-or-memory-usage)，也请删除它写入的 `.heapsnapshot` 文件。堆快照包含完整的对话以及进程持有的所有凭据，保留扫描和清除都不会触及它。
 
 您也可以手动删除上面的任何应用数据路径，除了 [state files to keep](#state-files-to-keep)。新会话不受影响。下表显示您对过去会话失去的内容。
 

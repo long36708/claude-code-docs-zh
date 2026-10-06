@@ -1098,6 +1098,8 @@ git remote set-url origin https://git.example.com/example-org/example-repo.git
 
 * **计算机使用**：当 Claude 打开应用程序并控制您的屏幕时，它在您的实际桌面上运行，而不是在隔离的环境中。每个应用程序的权限提示控制每个应用程序。请参阅 [CLI 中的计算机使用](/docs/zh-CN/computer-use) 或 [Desktop 中的计算机使用](/docs/zh-CN/desktop#let-claude-use-your-computer)。
 * **子代理**：[子代理](/docs/zh-CN/sub-agents) 在与父会话相同的进程中运行，并使用相同的沙箱配置。当在父会话中启用沙箱隔离时，子代理内的 Bash 命令被沙箱化。
+* **后台会话**：[后台会话](/docs/zh-CN/agent-view) 在其自己的进程中运行，当[其设置](/docs/zh-CN/agent-view#settings-and-provider)启用沙箱隔离时，其 Bash 命令会被沙箱化。
+* **围绕整个进程的边界**：若要将[在沙箱外运行的内容](#what-runs-outside-the-sandbox)中的进程也置于边界之后，请在 [sandbox runtime](/docs/zh-CN/sandbox-environments#sandbox-runtime) 中运行 Claude Code（本地模式），并将网络允许列表限定为您批准的主机；或者在带有防火墙脚本的 [dev container](/docs/zh-CN/devcontainer) 中运行。对于后台服务及其托管的会话，请参阅[在企业启动器后运行 Claude Code](/docs/zh-CN/corporate-launcher)。
 * **Mods**：[mod](/docs/zh-CN/plugins/mods/overview) 是一种在 Claude Code 内运行自身代码的插件，由 mod 启动的进程在沙箱外运行。请参阅 [mod 可以访问的内容](/docs/zh-CN/plugins/mods/overview#what-a-mod-can-reach)。
 
 <Warning>

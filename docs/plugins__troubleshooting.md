@@ -93,7 +93,7 @@ claude
 
 您键入了在某处看到的插件命令，并在会话中收到 `Unknown command: /<name>`，或从 shell 中的 `claude` 二进制文件收到 `error: unknown command '<name>'` 或 `error: unknown option '<flag>'`。
 
-有几种命令拼写在使用中，但 Claude Code 没有。下表将每一个映射到真实命令。[插件命令参考](/docs/zh-CN/plugins/cli-reference) 列出了每个子命令和标志。
+有几种命令拼写在使用中，但 Claude Code 没有。下表将每一个映射到真实命令。[插件命令参考](/docs/zh-CN/plugins/cli-reference) 列出了各个子命令及其标志。
 
 | 您键入的 | Claude Code 说什么 | 改为使用 |
 | :- | :- | :- |

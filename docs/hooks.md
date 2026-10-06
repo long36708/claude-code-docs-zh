@@ -1485,7 +1485,7 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
   被阻止的提示词会留下什么
 </h4>
 
-被阻止的提示词永远不会到达 Claude，但其文本并不会从所有地方移除。默认情况下，显示给用户的阻止消息以 `Original prompt:` 结尾，后跟提交的文本，并且 Claude Code 会将该消息写入磁盘上的会话记录文件。要在消息中省略该文本，请在 `hookSpecificOutput` 中打印带有 `"suppressOriginalPrompt": true` 的 JSON。无论 hook 是通过 `decision: "block"` 还是以退出码 2 退出来阻止，此方法都有效。以退出码 2 退出且未打印 JSON 的 hook，其阻止消息中总是会包含提示词文本。
+被阻止的提示词永远不会到达 Claude，但其文本并不会从所有地方移除。默认情况下，显示给用户的阻止消息以 `Original prompt:` 结尾，后跟所提交的文本，并且 Claude Code 会将该消息写入磁盘上的会话记录文件。要在消息中省略该文本，请在 `hookSpecificOutput` 中打印带有 `"suppressOriginalPrompt": true` 的 JSON。无论 hook 是通过 `decision: "block"` 还是以退出码 2 退出来阻止，此设置都有效。
 
 `suppressOriginalPrompt` 仅更改阻止消息。提交的文本仍可能出现在本地文件中，例如会话记录和您的提示词历史记录，因此阻止型 hook 并不是防止机密写入磁盘的方法。要限制或删除这些文件，请参阅[明文存储](/docs/zh-CN/claude-directory#plaintext-storage)和[清除本地数据](/docs/zh-CN/claude-directory#clear-local-data)。
 

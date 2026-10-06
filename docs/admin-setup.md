@@ -178,7 +178,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 | HIPAA configuration | 适用于已启用 HIPAA 的 Claude for Enterprise 组织。部分 Claude Code（本地模式）功能会被关闭，其他功能默认关闭 | [Set up Claude Code (local mode) for a HIPAA-ready organization](/docs/zh-CN/hipaa-setup) |
 | Security architecture | 网络模型、加密、身份验证、审计跟踪 | [Security](/docs/zh-CN/security) |
 
-如果您需要请求级别的审计日志或按数据敏感性路由流量，我们建议您在开发人员和您的提供商之间放置网关：自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 记录带有 IdP 身份的每个请求审计日志，或者您也可以使用另一个 [LLM gateway](/docs/zh-CN/llm-gateway)。通过网关的会话不符合 HIPAA 配置的条件。[Check how developers sign in and connect](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect) 列出了符合条件的连接方式。有关监管要求和认证，请参阅 [Legal and compliance](/docs/zh-CN/legal-and-compliance)。
+如果您需要请求级别的审计日志或按数据敏感性路由流量，我们建议您在开发人员和您的提供商之间放置网关：自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 记录带有 IdP 身份的每个请求审计日志，或者您也可以使用另一个 [LLM gateway](/docs/zh-CN/llm-gateway)。通过网关的会话不符合 HIPAA 配置的条件。[Check how developers sign in and connect](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect) 列出了哪些登录和连接方式符合条件。有关监管要求和认证，请参阅 [Legal and compliance](/docs/zh-CN/legal-and-compliance)。
 
 <h2 id="verify-and-onboard">
   验证和入职

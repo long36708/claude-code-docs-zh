@@ -32,7 +32,7 @@ Claude 应用网关部署由一个 YAML 文件配置，按惯例命名为 `gatew
 
 * [`admin`](#admin)：Admin API 身份验证和支出限制的保留
 * [`enforcement`](#enforcement)：支出限制故障开放或故障关闭行为
-* [`pricing`](#pricing)：合同费率和支出计量器的折扣乘数以及开发人员看到的成本数字的折扣乘数
+* [`pricing`](#pricing)：合同费率，以及适用于支出计量器和开发人员所见成本数字的乘数
 * [`models`](#models) 和 `auto_include_builtin_models`：管理员策划的模型列表和每个上游 ID
 * [`managed`](#managed)：按 IdP 组的托管设置策略
 * [`telemetry`](#telemetry)：OTLP 转发到您的可观测性堆栈

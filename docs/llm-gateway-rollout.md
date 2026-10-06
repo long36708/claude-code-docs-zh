@@ -220,6 +220,19 @@ claude -p "Reply with one word: connected"
 * CI 运行器需要在[运行器的环境](/docs/zh-CN/llm-gateway-connect#configure-each-surface)中设置 `ANTHROPIC_BASE_URL` 和凭证
 * 托管 Windows 机器上的 WSL 仅在 [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 为 `true` 时读取 Windows 托管设置
 
+<h4 id="the-hipaa-configuration-behind-a-gateway">
+  网关后的 HIPAA 配置
+</h4>
+
+通过网关的会话不符合 HIPAA 配置的条件。[检查开发者如何登录和连接](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)列出了哪些登录和连接方式符合条件。
+
+要在托管设置文件中为这些会话限制功能，请使用[将出口路径映射到托管控制和事件](/docs/zh-CN/monitoring-usage#map-egress-paths-to-managed-controls-and-events)中的键。这些键不会使会话符合 HIPAA 配置的条件，也不涵盖该配置所更改的全部内容。例如：
+
+* **云端会话**：没有任何托管键可以关闭它们。请参阅[管理控制台控制](/docs/zh-CN/desktop#admin-console-controls)
+* **子进程中的 Anthropic 凭据**：该配置会从 Claude Code 启动的进程中[移除它们](/docs/zh-CN/hipaa-setup#anthropic-credentials-in-commands-hooks-and-mcp-servers)，而没有任何设置项只执行这一操作
+
+不要使用 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 代替这些键。它会关闭其中一些功能，但也会关闭自动更新程序，并且会让 WebFetch 保持开启。
+
 <h4 id="hand-developers-the-values-to-set-themselves">
   手动向开发者提供值以自己设置
 </h4>

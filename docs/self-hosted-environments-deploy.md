@@ -19,6 +19,7 @@
 自托管运行器代表所有可以向其环境分派会话的人在您的基础设施上执行任意的、模型指导的代码。这是您 Anthropic 组织的任何成员，以及任何可以在所有者路由到环境的范围内启动 [Claude Tag](https://claude.com/docs/claude-tag/overview) 频道会话的人。在将环境连接到生产系统之前，请逐项完成以下操作：
 
 * **临时的、按会话的容器**：在新容器或 VM 中运行每个运行器进程，该容器或 VM 在进程退出时被销毁，使用 `--capacity 1` 和默认的 `--drain-grace-sec 0`，以便每个容器恰好服务一个会话。在更高的容量或正的 drain grace 下，一个容器为来自同一[锁定所有者](/docs/zh-CN/self-hosted-environments#key-concepts)的多个会话服务；请参阅[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle)。不要在运行器重启之间重用文件系统，除了在刻意的[预热检出](#reuse-a-pre-warmed-checkout)设置中，并且永远不要跨所有者。
+  * <span id="processes-a-stopped-session-leaves" />当运行器停止会话时，它不会向在其 shell 命令退出后仍在运行的进程（例如已转为守护进程的服务）发送任何信号。销毁容器或 VM 会结束该进程。
 * **镜像中没有广泛的凭证**：不要包含长期的 SSH 密钥、云提供商凭证或授予超过会话需要的个人访问令牌。从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)按会话铸造会话期间使用的凭证，例如推送或 API 令牌。对于在包装脚本运行之前发生的初始克隆，使用 [`checkout` 生命周期钩子](/docs/zh-CN/self-hosted-environments-configuration#checkout)或 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)；请参阅[配置 git](#configure-git)。
 * **将环境密钥保持在运行会话的主机之外**：环境密钥可以注册运行器并获取在环境上排队的任何会话。在固定队列上，它存在于每个运行器主机上，任何会话的代码都可以读取密钥文件。优先使用[按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)，其中密钥保留在编排器主机上，该主机从不运行用户代码，每个运行器接收单次使用的工作单，恰好注册一个运行器。在固定队列上，将环境密钥文件视为可由每个会话读取，并在任何可疑会话泄露后轮换密钥。
 * **默认拒绝网络出站流量**：在每个环境上限制运行器和会话容器的出站流量在您自己的网络边界；[默认拒绝出站流量](#default-deny-egress)涵盖允许什么以及原因。
@@ -419,19 +420,32 @@ secrets:
   关闭时序
 </h2>
 
-在 `SIGTERM` 上，运行器停止接收新工作，除非你设置了 [`--defer-shutdown-max-min`](#defer-the-drain-past-the-first-signal)，否则最多等待 `--drain-wait-sec`（默认为零）以完成进行中的轮次，终止每个会话的进程树，并运行 [`post-session` 生命周期钩子](/docs/zh-CN/self-hosted-environments-configuration#post-session)。该进程树包括 Claude 仍在会话中运行的命令。
+收到 `SIGTERM` 后，运行器需要时间在编排器将其终止之前干净地关闭其会话。运行器会在启动时记录所需时长，在默认设置下，该日志行包含 `This runner needs up to 80s`。请将编排器的停止超时时间设置为至少该秒数：在 Kubernetes 上为 `terminationGracePeriodSeconds`，在 Docker Compose 上为 `stop_grace_period`，或您所用平台的等效设置。Kubernetes 默认为 30 秒，因此如果不进行此设置，它可能会在运行器完成之前停止 pod。
 
-完整的排空路径最多需要 `--session-stop-grace-sec` + `--drain-wait-sec` + `--post-session-hook-timeout-sec`，加上 15 秒的固定进程清理开销，加上当设置 [`--push-outcome-on-release`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 时的额外 30 秒。在默认设置下为 80 秒，运行器在启动时记录总时间。会话在这一个预算下并行排空，因此总时间不会随 `--capacity` 增长。
+收到 `SIGTERM` 时，运行器停止接受新会话。随后，除非您设置了 [`--defer-shutdown-max-min`](#defer-the-drain-past-the-first-signal) 来推迟，否则它会开始一次优雅关闭，称为排空。排空包含三个步骤：
 
-在默认的 `--drain-wait-sec 0` 下，滚动重启会中断进行中的轮次；每个会话在另一个运行器上恢复，丧失未推送的工作，如 [已知问题](#additional-limitations) 中所述。设置 `--drain-wait-sec`，并提高宽限期以匹配，以让轮次先完成。
+1. 运行器最多等待 [`--drain-wait-sec`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 秒（默认为 `0`），以便仍在运行的轮次完成。
+2. 终止每个会话的进程树，包括 Claude 仍在运行的任何命令，但不包括[在其 shell 命令退出后仍在运行的进程](#processes-a-stopped-session-leaves)。
+3. 运行 [`post-session` 生命周期 hook](/docs/zh-CN/self-hosted-environments-configuration#post-session)。
 
-在整个路径中，运行器以零容量持续向控制平面发送心跳，因此会话租约不会过期并被重新排队到另一个运行器，同时 `post-session` 钩子仍在写出未提交的工作。心跳在运行器注销前停止。
+在整个排空过程中，运行器持续轮询 Anthropic。这会使其会话保持分配给它，因此在您的 `post-session` hook 仍在保存未提交的工作时，其他运行器不会接管这些会话。
 
-在主机停止运行器之前，至少给运行器启动时记录的总时间。你在哪里设置这个取决于你的主机如何停止：
+由于 `--drain-wait-sec` 默认为 `0`，滚动重启会中断任何仍在运行的轮次，会话将在另一个运行器上恢复，但不包含其[未推送的工作](#additional-limitations)。若要让轮次先完成，请设置 `--drain-wait-sec`，并相应提高停止超时时间。
 
-* **使用 `SIGTERM` 宽限期**：在 Kubernetes 上设置 `terminationGracePeriodSeconds`，在 Docker Compose 上设置 `stop_grace_period`，或你的编排器的等效项至少为该总时间。Kubernetes 的默认值 30 秒短于运行器的排空路径，因此 Kubernetes 在运行器完成排空前停止 pod。
-* **使用 [`--retire-at`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)**：调整退休时间和主机停止时间之间的边距以覆盖典型轮次，加上 [Runner lifecycle](/docs/zh-CN/self-hosted-environments#runner-lifecycle) 描述的后台任务保持，加上相同的总时间。在每次启动时计算退休时间，例如 `date +%s` 加上运行器的预期生命周期。
-* **使用 [`--defer-shutdown-max-min`](#defer-the-drain-past-the-first-signal)**：向排空路径总时间添加两个额外部分。第一个是你配置的分钟数。第二个是 [Defer the drain past the first signal](#defer-the-drain-past-the-first-signal) 描述的发布后宽限期，默认为 75 秒。设置该标志后，运行器也会在启动时打印组合数字，在排空路径总时间之后。
+记录的时间是以下各值之和：
+
+* 步骤 1 的 `--drain-wait-sec`，默认为 0 秒
+* 步骤 2 的 [`--session-stop-grace-sec`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，默认为 5 秒
+* 步骤 3 的 [`--post-session-hook-timeout-sec`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，默认为 60 秒
+* 固定的 15 秒余量
+* 设置 [`--push-outcome-on-release`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 时额外的 30 秒
+
+在默认设置下，总计为 0 + 5 + 60 + 15 = 80 秒。更高的 `--capacity` 不会增加该时间，因为运行器会同时排空其所有会话。
+
+如果您设置了以下任一标志，请预留更多时间：
+
+* **使用 [`--retire-at`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)**：在退休时间与主机停止时间之间留出足够的时间，以便典型轮次完成，再加上 [Runner lifecycle](/docs/zh-CN/self-hosted-environments#runner-lifecycle) 所述的后台任务等待时间，再加上记录的时间。在每次启动时计算退休时间，例如 `date +%s` 加上运行器的预期生命周期。
+* **使用 [`--defer-shutdown-max-min`](#defer-the-drain-past-the-first-signal)**：停止超时时间还必须涵盖您配置的分钟数，以及排空开始前的进一步等待时间（默认设置下为 75 秒）。[Defer the drain past the first signal](#defer-the-drain-past-the-first-signal) 对这两者都有说明。运行器同样会在启动时记录这一更长的时间。
 
 <h3 id="defer-the-drain-past-the-first-signal">
   延迟排空超过第一个信号
@@ -455,7 +469,7 @@ secrets:
   调整停止超时
 </h4>
 
-给你的主机停止超时至少三个部分的总和：你配置的 `n` 分钟、发布后宽限期和 [Shutdown timing](#shutdown-timing) 描述的完整排空路径。使用默认设置，发布后宽限期为 75 秒，排空路径为 80 秒，因此允许 `n` 分钟加 155 秒。当设置 `--defer-shutdown-max-min` 时，运行器在启动时打印此总和。
+给您的主机停止超时至少三个部分的总和：您配置的 `n` 分钟、发布后宽限期和 [Shutdown timing](#shutdown-timing) 描述的排空。使用默认设置，发布后宽限期为 75 秒，排空最多需要 80 秒，因此允许 `n` 分钟加 155 秒。当设置 `--defer-shutdown-max-min` 时，运行器在启动时打印此总和。
 
 如果停止超时在运行器完成前用完，主机会杀死运行器。它仍然持有的会话不会获得 `post-session` hook。运行器不会注销，控制平面会在几分钟内重新排队这些会话。如果您无法给停止超时该总和，请不设置 `--defer-shutdown-max-min`，以便运行器在第一个信号上排空。
 
@@ -465,9 +479,9 @@ secrets:
 
 `post-session` 钩子和 Claude 会话子进程各自在自己的 POSIX 进程组中运行，与运行器分离，因此停止机制以不同方式到达它们：
 
-* **运行器已在排空时的 `SIGTERM`**：立即强制退出运行器，跳过排空路径的任何剩余部分。没有 [`--defer-shutdown-max-min`](#defer-the-drain-past-the-first-signal)，那是运行器接收的第二个 `SIGTERM`。没有信号发送到正在运行的 `post-session` 钩子，因此在采用孤儿的初始进程的裸主机上，它自行完成，但不受监督：其超时预算不再适用，写入关闭的日志管道可以用 `SIGPIPE` 杀死它，因此需要在强制退出时存活的钩子应该将其自己的输出重定向到文件。在此页面的容器配方中，运行器是容器的 PID 1，其退出结束容器，在 systemd 的默认 `KillMode=control-group` 下，cgroup 范围的杀死到达钩子，如 **Cgroup-wide kills** 条目所述；在两者中，将强制退出视为对钩子致命，并依赖宽限期。
+* **运行器已在排空时的 `SIGTERM`**：立即强制退出运行器，跳过排空的任何剩余部分。没有 [`--defer-shutdown-max-min`](#defer-the-drain-past-the-first-signal)，那是运行器接收的第二个 `SIGTERM`。没有信号发送到正在运行的 `post-session` hook，因此在由初始进程收养孤儿进程的裸主机上，它会自行完成，但不受监督：其超时预算不再适用，写入关闭的日志管道可能会用 `SIGPIPE` 杀死它，因此需要在强制退出时存活的 hook 应该将其自己的输出重定向到文件。在此页面的容器配方中，运行器是容器的 PID 1，其退出会结束容器；在 systemd 的默认 `KillMode=control-group` 下，cgroup 范围的杀死也会到达 hook，如 **Cgroup-wide kills** 条目所述；在这两种情况下，请将强制退出视为对 hook 致命，并改为依赖宽限期。
 * **进程组范围的信号**，例如包装脚本中的 `kill -- -<pid>`、shell 作业控制或组范围的看门狗：到达运行器和正在进行的 `checkout` 钩子子进程（故意保持组附加），但不到达正在运行的 `post-session` 钩子或会话子进程。
-* **Cgroup 范围的杀死**，例如 systemd 的默认 `KillMode=control-group` 或当 `terminationGracePeriodSeconds` 过期时 Kubernetes 传递给整个容器的 `SIGKILL`：到达一切，包括钩子。进程组隔离不能防止这些，这就是为什么宽限期必须覆盖完整排空路径。
+* **Cgroup 范围的杀死**，例如 systemd 的默认 `KillMode=control-group` 或当 `terminationGracePeriodSeconds` 过期时 Kubernetes 传递给整个容器的 `SIGKILL`：到达一切，包括 hook。进程组隔离不能防止这些，这就是为什么宽限期必须覆盖整个排空。
 * **钩子自己的超时**：当钩子超过 `--post-session-hook-timeout-sec` 时，运行器向钩子的整个进程组发送 `SIGTERM`，然后两秒后发送 `SIGKILL`，因此钩子分叉的工作进程（例如 tar、rsync 或 git）与包装 shell 一起终止，而不是作为孤儿存活。运行器的监督在钩子的 stdio 关闭后结束：将其自己的输出重定向到文件并在 `SIGTERM` 阶段后存活的工作进程超出运行器的范围。
 
 当排空开始时，以及在强制退出时，运行器记录仍在运行的 `post-session` 钩子数量，因此你可以区分安静的排空和正在进行快照的排空。

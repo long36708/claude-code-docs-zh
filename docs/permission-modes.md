@@ -87,6 +87,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 | :- | :- |
 | 任何设置文件将 `disableAutoMode` 设置为 `"disable"` | `default` |
 | `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/permissions#permission-modes) | 在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中为 `default`。在不获取功能标志的会话中，例如在第三方提供商上或关闭遥测的情况下，Claude Code v2.1.285 或更高版本中为 `auto`，较早版本中为 `default`。组织策略禁止 `auto` 默认值的会话改为以 `default` 启动 |
+| 您的组织已应用 [HIPAA 配置](#hipaa-configuration)，且该会话[符合其适用条件](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect) | Claude Code v2.1.285 或更高版本中为 `default`；仍可切换到自动模式 |
 | 在终端或通过 [VS Code 扩展](/docs/zh-CN/vs-code) | Claude Code v2.1.283 或更高版本中为 `auto`；在较早的版本上，在 Pro、Max 或 Team 计划中为 `auto`（在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中），否则为 `default` |
 
 在您[安装或升级后的第一个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)中，Claude Code 可以在其功能标志到达之前选择起始权限模式。该会话可能以与表格不同的权限模式启动。
@@ -124,6 +125,21 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 ```
 
 您启动的下一个会话在状态栏中显示 `⏸ manual mode on`。
+
+<h3 id="hipaa-configuration">
+  HIPAA 配置下的权限模式
+</h3>
+
+在已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织中，内置 `auto` 默认值不适用。当没有其他方式选择起始权限模式时，终端或 VS Code 会话以 Manual 模式启动。终端会话还会显示 `Auto mode isn't the default for your organization · Shift+Tab to switch`，而 VS Code 扩展不显示任何通知。[检查开发人员如何登录和连接](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)列出了适用此规则的会话。
+
+自动模式和 `bypassPermissions` 仍然可用：
+
+* **切换到自动模式**：按 `Shift+Tab`，或使用[您界面中的控件](#switch-permission-modes)
+* **以自动模式启动**：传递 `--permission-mode auto`，或在您的用户设置中将 `permissions.defaultMode` 设置为 `auto`，或在托管设置中为整个组织进行此设置。请参阅[以不同的权限模式启动](#start-in-a-different-mode)
+* **移除自动模式**：在托管设置中将 [`permissions.disableAutoMode`](/docs/zh-CN/settings-reference#disableautomode) 设置为 `"disable"`
+* **阻止 `bypassPermissions`**：在托管设置中将 [`permissions.disableBypassPermissionsMode`](/docs/zh-CN/settings-reference#permissions-disablebypasspermissionsmode) 设置为 `"disable"`
+
+需要 Claude Code v2.1.285 或更高版本，即 [HIPAA 配置的最低版本](/docs/zh-CN/hipaa-setup#update-claude-code-and-claude-desktop)。
 
 <h2 id="switch-permission-modes">
   切换权限模式

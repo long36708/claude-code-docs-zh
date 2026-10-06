@@ -187,7 +187,7 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 
 两个列表的执行位置取决于您在哪里设置它们：
 
-* **claude.ai 管理控制台**：Claude Code 在[读取服务器托管设置](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)的会话中执行两个列表。claude.ai 也在您组织中的任何人从 git 存储库在 claude.ai 上添加新市场时检查它们，或从 Claude Desktop 应用外其 Code 选项卡的**自定义**中检查。这涵盖成员为自己的账户添加的市场和在[**组织设置 > 插件**](https://claude.ai/admin-settings/plugins)下为整个组织添加的市场。claude.ai 拒绝允许列表不允许或阻止列表命名的存储库。它不重新检查在您设置列表之前在任一位置添加的市场，也不检查上传的插件。
+* **claude.ai 管理控制台**：Claude Code 在[读取服务器托管设置](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)的会话中执行两个列表。claude.ai 也在您组织中的任何人从 git 存储库在 claude.ai 上添加新市场，或从 Claude Desktop 应用中 Code 选项卡之外的**自定义**添加新市场时检查它们。这涵盖成员为自己的账户添加的市场和在[**组织设置 > 插件**](https://claude.ai/admin-settings/plugins)下为整个组织添加的市场。claude.ai 拒绝允许列表不允许或阻止列表命名的存储库。它不重新检查在您设置列表之前在任一位置添加的市场，也不检查上传的插件。
 * **托管设置文件、OS 级策略或其他托管源**：Claude Code 在读取该源的地方执行两个列表。claude.ai 不读取它。
 
 虽然设置了任何允许列表，或阻止列表命名除[`skills-dir`](#blocklist-with-blockedmarketplaces)之外的任何源，Claude Code 找不到的市场的插件不加载。`/plugin` 为其显示策略错误而不是未找到错误。常见情况是市场的陈旧 `enabledPlugins` 条目，没有人注册。

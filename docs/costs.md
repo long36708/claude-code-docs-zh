@@ -10,7 +10,7 @@ Claude Code 按 API 令牌消耗收费。有关订阅计划定价（Pro、Max、
 
 在企业部署中，平均成本约为每个开发者每个活跃日 $13，每个开发者每月 $150-250，90% 的用户每个活跃日成本保持在 \$30 以下。要估计您自己团队的支出，请从一个小的试点团体开始，并使用下面的跟踪工具建立基线，然后再进行更广泛的推出。
 
-本页面介绍如何[跟踪成本](#track-your-costs)、[管理团队成本](#manage-costs-for-your-organization)和[减少令牌使用](#reduce-token-usage)。
+本页面仅涵盖 Claude Code 的使用：如何[跟踪成本](#track-your-costs)、[管理组织成本](#manage-costs-for-your-organization)和[减少 token 使用](#reduce-token-usage)。有关其他 Claude 产品的用量限制，请参阅 [Claude 帮助中心](https://support.claude.com)。
 
 <h2 id="track-your-costs">
   跟踪成本

@@ -17,6 +17,10 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
 与[网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)（在云基础设施上运行）不同，Remote Control 会话直接在您的机器上运行并与您的本地文件系统交互。网络和移动界面只是该本地会话的一个窗口，因此您的计算机必须保持开启状态，`claude` 进程必须继续运行。
 
+<Note>
+  Remote Control 是 Claude Code 的一项功能。有关其他 Claude 产品中的对话，请参阅 [Claude 帮助中心](https://support.claude.com)。
+</Note>
+
 <h2 id="requirements">
   要求
 </h2>

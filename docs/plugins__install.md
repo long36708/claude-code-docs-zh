@@ -199,7 +199,7 @@ claude plugin install formatter@your-org --scope project
 
 某些插件通过运行其市场命名的命令来安装，称为 [`command` source](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)。Claude Code 向您显示该命令并要求您在运行前接受它。脚本没有人来回答该提示，因此在那里传递 `--yes` 以接受它。
 
-对于每个 `claude plugin install` 标志，请参阅 [plugin install](/docs/zh-CN/plugins/cli-reference#plugin-install)。
+有关其他 `claude plugin install` 标志，请参阅 [plugin install](/docs/zh-CN/plugins/cli-reference#plugin-install)。
 
 <h2 id="add-a-marketplace">
   Add a marketplace

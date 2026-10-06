@@ -1172,7 +1172,7 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 
 每个任务的 `model` 字段是任务运行的已解析模型 ID。`contextWindowSize` 是该模型的上下文窗口（以令牌计），计算方式与主状态行的 `context_window.context_window_size` 相同，因此你可以从 `tokenCount` 呈现每行百分比。这两个字段需要 Claude Code v2.1.205 或更高版本，对于模型尚未解析的任务会被省略。
 
-每个任务的 `effort` 字段是为该子代理设置的推理工作量，在其[定义 frontmatter](/docs/zh-CN/sub-agents#supported-frontmatter-fields)中或在单个调用时设置。该值要么是工作量级别字符串 `low`、`medium`、`high`、`xhigh` 或 `max` 之一，要么是数字令牌预算。该字段报告配置的值（按原样写入）：如果模型不支持该级别，Claude Code 实际应用的工作量可能会有所不同。该字段需要 Claude Code v2.1.214 或更高版本，当子代理继承会话的工作量级别时不存在。
+每个任务的 `effort` 字段是为该子代理设置的推理 effort，在其[定义 frontmatter](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 中或在单次调用时设置。该值要么是 effort 级别字符串 `low`、`medium`、`high`、`xhigh` 或 `max` 之一，要么是数字 token 预算。该字段按原样报告所配置的值：如果模型不支持该级别，Claude Code 实际应用的 effort 可能会有所不同。该字段需要 Claude Code v2.1.214 或更高版本，当未为该子代理设置级别时不存在。
 
 将一个 JSON 行写入 stdout，用于你想覆盖的每一行，形式为 `{"id": "<task id>", "content": "<row body>"}` 。`content` 字符串按原样呈现，包括 ANSI 颜色和 OSC 8 超链接。省略任务的 `id` 以保持该行的默认呈现；发出空 `content` 字符串以隐藏它。
 

@@ -2,13 +2,13 @@
 > Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
 > Use this file to discover all available pages before exploring further.
 
-# Plugin 命令参考
+# 插件命令参考
 
-> claude plugin shell 命令、会话中的 /plugin 和 /reload-plugins 的完整参考，以及在一个会话中加载 plugin 的标志。
+> claude plugin shell 命令、会话中的 /plugin 和 /reload-plugins 的参考，以及在一个会话中加载插件的标志。
 
 您可以从 shell 或脚本中以 `claude plugin` 的形式运行 plugin 命令，或在 Claude Code 会话中以 `/plugin` 和 `/reload-plugins` 的形式运行。本参考给出每个命令的标志、默认值、输出和退出代码，以及在一个会话中加载 plugin 的两个标志。
 
-在您的构建上运行 `claude plugin --help` 以确认您的版本具有哪些子命令。
+下表列出了每个子命令的常用选项，而非全部选项。在 shell 中运行 `claude plugin --help` 可查看您的版本具有哪些子命令，运行 `claude plugin <subcommand> --help` 可查看某个子命令的完整选项列表。
 
 <Note>
   这些情况在其他页面上有介绍：

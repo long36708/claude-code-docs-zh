@@ -323,7 +323,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 | `memory` | 否 | [Persistent memory scope](#enable-persistent-memory)：`user`、`project` 或 `local`。启用跨会话学习 |
 | `background` | 否 | 设置为 `true` 以即使 Claude 要求在前台运行也保持此 subagent 在后台。其中 [fork mode](#turn-fork-mode-on-or-off) 打开时，Claude Code 已经在 [background](#run-subagents-in-foreground-or-background) 中运行 Claude 生成的 subagents |
 | `omitClaudeMd` | 否 | 设置为 `true` 以启动此 subagent 而不使用用户、项目和本地 CLAUDE.md 文件；[managed policy files](/docs/zh-CN/memory#how-claude-md-files-load) 仍然加载，除了 [managed subagents](#choose-the-subagent-scope)。对于从 [delegation prompt](#what-loads-at-startup) 获取所需一切的 subagents 使用它。当代理通过 `--agent` 或 `agent` 设置作为主会话代理运行时被忽略。需要 Claude Code v2.1.271 或更高版本 |
-| `effort` | 否 | 此 subagent 活跃时的努力级别。覆盖会话努力级别。默认：从会话继承。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型 |
+| `effort` | 否 | 此子代理活跃时的 effort 级别。覆盖会话的 effort 级别，但不覆盖 [`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars#variables) 环境变量。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型 |
 | `isolation` | 否 | 设置为 `worktree` 以在临时 [git worktree](/docs/zh-CN/worktrees) 中运行 subagent，为其提供存储库的隔离副本，默认从您的 [default branch](/docs/zh-CN/worktrees#choose-the-base-branch) 分支，而不是父会话的 `HEAD`。如果 subagent 不进行任何更改，worktree 会自动清理 |
 | `color` | 否 | Subagent 在任务列表和转录中的显示颜色。接受 `red`、`blue`、`green`、`yellow`、`purple`、`orange`、`pink` 或 `cyan` |
 | `initialPrompt` | 否 | 当此代理作为主会话代理运行时（通过 `--agent` 或 `agent` 设置），自动提交为第一个用户轮次。[Commands](/docs/zh-CN/commands) 和 [skills](/docs/zh-CN/skills) 被处理。前置于任何用户提供的提示。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略 |

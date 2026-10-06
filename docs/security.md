@@ -142,7 +142,7 @@
 
 * 在批准前审查所有建议的更改
 * 为敏感存储库使用项目特定的权限设置
-* 考虑使用 [dev containers](/docs/zh-CN/devcontainer) 以获得额外隔离
+* 如需额外隔离，请在 [沙箱运行时](/docs/zh-CN/sandbox-environments#sandbox-runtime) 或 [dev container](/docs/zh-CN/devcontainer) 中运行整个 Claude Code（本地模式）进程
 * 使用 `/permissions` 定期审计您的权限设置
 
 <h3 id="team-security">

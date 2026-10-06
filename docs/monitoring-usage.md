@@ -1414,7 +1414,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `session_files_deleted`：会话文件扫描删除的工件数：记录加上每个会话的伴随文件，如侧边栏、录音和工具结果
 * `artifacts_deleted`：扫描删除的数据目录中的总项目数，包括会话文件。某些扫描将整个删除的目录树计为一项，少数清理通过不贡献计数器，因此将值视为下限而不是精确文件计数
 * `files_retained_fresh`：检查并保留在原地的文件，因为它们仍在保留期内。仅每个文件扫描计数这些，因此值是下限；非零值是正常稳定状态
-* `files_past_cutoff`：早于保留期的文件，扫描无法删除，例如由于权限错误或文件被打开。值高于零表示文件超过了配置的保留期；零不是证明没有任何文件，因为整个目录的删除失败计入 `error_count`
+* `files_past_cutoff`：早于保留期但扫描未能删除的文件，例如由于权限错误或文件被占用。该计数还包括扫描在 `skills/synced/` 或 `plugins/synced/` 下发现的每个过期文件夹，无论扫描是否将该文件夹移至回收站。除这些文件夹外，大于零的值表示有文件超出了配置的保留期；零并不能证明没有文件超出，因为删除整个目录失败会计入 `error_count`
 * `error_count`：扫描在列出或删除文件时遇到的错误数
 
 <h4 id="managed-settings-resolved-event">
@@ -1624,6 +1624,53 @@ export OTEL_RESOURCE_ATTRIBUTES="enduser.id=jdoe@example.com,enduser.directory_i
 | 托管设置源机器运行的内容、其策略助手是否健康，以及机器拒绝启动的原因 | `managed_settings_resolved` | `managed_settings.trigger`、`managed_settings.sources`、`managed_settings.source_behavior`、`managed_settings.helper.state`、`error.type`；`managed_settings.settings` 和 `managed_settings.resolved_sha256`，带有 `OTEL_LOG_MANAGED_SETTINGS=1` |
 
 Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关联和警报是您的 SIEM 或可观测性后端的责任。
+
+<h3 id="map-egress-paths-to-managed-controls-and-events">
+  将出站路径映射到托管控制项和事件
+</h3>
+
+下表将可能把会话内容带出机器的路径以及本地保留，与限制它们的 [托管设置](/docs/zh-CN/managed-settings) 键和记录它们的事件对应起来。关于 Claude Code 本身发送给 Anthropic 的内容（例如 `/feedback` 报告），请参阅 [数据使用](/docs/zh-CN/data-usage)。名称链接到各自的参考条目，其中给出了取值和默认值。
+
+| 路径 | 托管控制项 | 事件 |
+| - | - | - |
+| Bash 和 PowerShell 命令 | [`sandbox.enabled`](/docs/zh-CN/settings-reference#sandbox-enabled)、[`sandbox.failIfUnavailable`](/docs/zh-CN/settings-reference#sandbox-failifunavailable)、[`sandbox.allowUnsandboxedCommands`](/docs/zh-CN/settings-reference#sandbox-allowunsandboxedcommands)、[`sandbox.network.allowManagedDomainsOnly`](/docs/zh-CN/settings-reference#sandbox-network-allowmanageddomainsonly)、[`sandbox.network.allowedDomains`](/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) | [`tool_decision`](#tool-decision-event)、[`tool_result`](#tool-result-event) |
+| MCP 服务器 | [`allowedMcpServers`](/docs/zh-CN/settings-reference#allowedmcpservers)、[`allowManagedMcpServersOnly`](/docs/zh-CN/settings-reference#allowmanagedmcpserversonly)、[`deniedMcpServers`](/docs/zh-CN/settings-reference#deniedmcpservers)、[`managed-mcp.json`](/docs/zh-CN/managed-mcp) | [`mcp_server_connection`](#mcp-server-connection-event)、`tool_decision`、`tool_result` |
+| Hook | [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly)、[`allowedHttpHookUrls`](/docs/zh-CN/settings-reference#allowedhttphookurls) | [`hook_registered`](#hook-registered-event)、[`hook_execution_start`](#hook-execution-start-event)、[`hook_execution_complete`](#hook-execution-complete-event) |
+| 插件 | [`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces)、[`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags)、[`syncClaudeAiPlugins`](/docs/zh-CN/settings-reference#syncclaudeaiplugins)、[`syncClaudeAiSkills`](/docs/zh-CN/settings-reference#syncclaudeaiskills) | [`plugin_installed`](#plugin-installed-event)、[`plugin_loaded`](#plugin-loaded-event) |
+| [WebFetch](/docs/zh-CN/permissions#webfetch) | [`permissions.deny`](/docs/zh-CN/settings-reference#permissions-deny)、[`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) | `tool_decision`、`tool_result` |
+| 上传到 claude.ai 的工具，例如 Artifact | `permissions.deny`、[`enableArtifact`](/docs/zh-CN/settings-reference#enableartifact) | `tool_decision`、`tool_result` |
+| Remote Control | [`disableRemoteControl`](/docs/zh-CN/settings-reference#disableremotecontrol) | 无专用事件 |
+| 本地会话记录保留 | [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) | [`retention_sweep`](#retention-sweep-event) |
+
+`allowedHttpHookUrls`、`managed-mcp.json` 和 hook 事件这几项需要的信息超出了表中所示：
+
+* **`allowedHttpHookUrls`**：条目会在各设置文件之间合并，因此开发人员可以向空的托管列表中添加条目。由 `allowManagedHooksOnly` 决定哪些 hook 运行
+* **`managed-mcp.json`**：要关闭 MCP，请参阅 [完全禁用 MCP](/docs/zh-CN/managed-mcp#disable-mcp-entirely)。要确认 Claude Code 读取了该文件，请参阅 [验证配置](/docs/zh-CN/managed-mcp#validate-the-configuration)
+* **Hook 事件**：Claude Code 对每个 hook 事件记录一次 `hook_execution_start` 和 `hook_execution_complete`，涵盖所有匹配的 hook。仅靠 `OTEL_LOG_TOOL_DETAILS=1` 不会记录 HTTP hook 的 URL。hook 配置只出现在 `hook_definitions` 中，而这还需要启用详细的 beta 追踪
+
+`OTEL_LOG_TOOL_DETAILS=1` 会向这些事件添加命令字符串、服务器和工具名称以及工具输入。这些详情可能包含与会话本身相同的敏感内容，因此仅当您的收集器获准保存此类内容时才启用它。
+
+<h3 id="check-the-retention-sweep">
+  检查保留清理
+</h3>
+
+要为每台机器设置相同的保留期，请在 [托管设置](/docs/zh-CN/managed-settings) 中设置 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays)。要检查机器是否使用该值运行清理，请收集 [`retention_sweep`](#retention-sweep-event) 事件。`period_days` 和各计数器是字符串，因此在比较之前请先将它们转换为数字。
+
+| 机器报告的内容 | 含义 |
+| - | - |
+| `result` 为 `"skipped"` | Claude Code 暂停了清理。`skip_reason` 给出原因 |
+| `used_default` 为 `"true"`，或 `period_days` 与您的托管值不同 | 该机器未应用您托管的 `cleanupPeriodDays` |
+| `error_count` 大于零 | 清理在列出或删除文件时遇到错误，因此超过保留期的数据可能仍然存在 |
+| `files_past_cutoff` 大于零 | 清理未能删除超过保留期的文件，或发现了过期的已同步 skill 和插件文件夹。请结合 `error_count` 解读 |
+| 没有事件 | 本身并不代表失败 |
+
+按预期工作的机器也可能因以下原因没有事件：
+
+* **没有人启动 Claude Code**：不会运行清理，机器会保留其数据直到下次启动
+* **会话保持打开**：Claude Code 每个会话最多运行一次清理
+* **会话提前结束**：会话退出时尚未完成的清理不会发出任何事件，因意外错误而停止的清理也不会
+
+清理并不覆盖所有路径。[保留直到您删除](/docs/zh-CN/claude-directory#kept-until-you-delete-them) 列出了会保留的内容，[清除本地数据](/docs/zh-CN/claude-directory#clear-local-data) 说明了如何删除它们。
 
 <h3 id="send-events-to-a-siem">
   将事件发送到 SIEM

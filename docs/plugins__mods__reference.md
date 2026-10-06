@@ -6,7 +6,7 @@
 
 > Claude Code mod 的完整参考：hook 模块布局、事件、mods API 方法、渲染位置、按使用入口划分的元素、限制和设置。
 
-查阅 [mod](/docs/zh-CN/plugins/mods/overview) 可以处理的任何事件、可以调用的任何 mods API 方法，或可以在其中绘制的任何渲染位置，适用于 v2.1.289 起的 Claude Code CLI 和 Desktop 应用。每个条目给出名称和一行描述，如有相应的指南章节，还会链接到该章节。
+查阅 [mod](/docs/zh-CN/plugins/mods/overview) 可以处理的任何事件、可以调用的任何 mods API 方法，或可以在其中绘制的任何渲染位置，适用于 v2.1.290 起的 Claude Code CLI 和 Desktop 应用。每个条目给出名称和一行描述，如有相应的指南章节，还会链接到该章节。
 
 <Note>
   完整的参考是 Claude Code 的 [mod TypeScript 声明](https://github.com/anthropics/claude-code/blob/main/mods/types/claude-code.d.ts)，其中描述了每个事件、方法和元素，并附有示例。GitHub 上的副本可能比您安装的 Claude Code 版本更旧。两者不一致时，请以 [Claude Code 为您的版本写入的副本](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)为准。
@@ -80,6 +80,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | [`prompt.section`](/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | 系统提示词的每个命名部分一次。`e.name` 是该部分在 `prompt.compose` 中的 `id`。 | `{ text }`，或 `{ text: null }` 以省略该部分 |
 | [`prompt.context`](/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | 每个对话一次，用于随第一条消息发送的上下文 | `{ blocks }` |
 | `prompt.attachment` | Claude Code 为 Claude 添加一条它自己的消息，例如提醒。`e.type` 指明消息类型；对于类型声明中已声明的类型，`e.detail` 包含编写该文本所依据的事实。 | `{ text }`，或 `{ text: null }` 以省略它 |
+| `prompt.mention` | Claude Code 即将读取提示词中 @ 提及的文件。需要 Claude Code v2.1.290 或更高版本。 | `next({ ...e, path })` 以读取其他文件，或 `{ deny: reason }` |
 | [`skill.prompt`](/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | skill 的文本为 Claude 展开时 | `{ text }` |
 | `attribution.text` | Claude Code 撰写提交或 Pull Request 的署名文本时 | `{ text }` |
 
@@ -160,7 +161,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | 事件 | 触发时机 | hook 可以返回 |
 | :- | :- | :- |
 | [`plugin.register`](/docs/zh-CN/plugins/mods/admin#enforce-a-policy-with-a-mod-of-your-own) | hook 模块即将加载。`e.uses` 列出它的事件、mods API 调用、环境变量和状态，与 `claude plugin validate` 打印的内容一致。每个调用都不带 `$.` 前缀，如 `fs.read`。 | `{ refuse: reason }` |
-| `engine.create` | 正在为此 mod 构建 mods API | 更改后的 mods API，用于添加或隐藏某个命名空间 |
+| `engine.create` | 正在为此 mod 构建 mods API | 更改后的 mods API，用于添加某个命名空间。`user` [层级](#the-hook-function)之外的 mod 还可以隐藏某个命名空间。 |
 
 <h3 id="telemetry">
   遥测
@@ -242,7 +243,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 
 * **`Pane` 或横栏的宽度**：按 `e.props.bodyColumns` 绘制
 * **会话记录旁的 `Pane` 的高度**：当 `e.props.placement` 为 `'dock'` 时，`e.props.scroll.bodyRows` 是该窗格拥有的行数
-* **输入框上方的 `Pane` 的高度**：当 `e.props.placement` 为 `'inline'` 时，窗格会随您的树增高，直到达到上限，且 `bodyRows` 只计算当前显示的行。[`$.ui.open` 的 `rows` 字段](/docs/zh-CN/plugins/mods/interface#open-a-pane-at-the-right-time)可请求不同的上限。
+* **输入框上方的 `Pane` 的高度**：当 `e.props.placement` 为 `'inline'` 时，窗格会随您的树增高，直到达到上限，而 `bodyRows` 就是该上限。[`$.ui.open` 的 `rows` 字段](/docs/zh-CN/plugins/mods/interface#open-a-pane-at-the-right-time)可请求不同的上限。
 
 比窗格更高的树会整体滚动。
 
@@ -258,8 +259,8 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`Text`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `color`、`backgroundColor`、`bold`、`italic`、`underline`、`dimColor`、`inverse`、`wrap` | ✓ | ✓ |
 | [`Button`](/docs/zh-CN/plugins/mods/interface#respond-to-presses-and-typing) | `key`、`label`、`onPress`、`hotkey`、`plain`、`dimColor`、`autoFocus`、`action` | ✓ | ✓ |
 | `Link` | `href`、`label` | ✓ | ✓ |
-| `Code` | 代码，最多 10,000 个字符 | ✓ | ✓ |
-| `Markdown` | `text`（最多 10,000 个字符）、`key`、`dimColor`、`onLinkPress`、`pressableLinks` | ✓ | ✓ |
+| `Code` | 代码 | ✓ | ✓ |
+| `Markdown` | `text`、`key`、`dimColor`、`onLinkPress`、`pressableLinks` | ✓ | ✓ |
 | [`Input`](/docs/zh-CN/plugins/mods/interface#take-typed-input-and-draw-a-row-for-each-item) | `key`、`label`、`placeholder`、`value`、`submitLabel`、`onSubmit`、`onInput`、`autoFocus` | ✓ | ✓ |
 | `Select` | `key`、`label`、`options`、`value`、`onSelect`、`autoFocus` | ✓ | ✓ |
 | `Svg` | 一个 SVG 文档，最多 131,072 个字符 | | ✓ |
@@ -283,7 +284,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | `$.process.run` 超时时间 | 默认 30 秒，最长 10 分钟 |
 | `$.model.complete` `maxTokens` | 默认 1024，最多 64,000 或模型的输出上限 |
 | `$.fs.read` 和 `$.fs.write` | 单个文件 4 MiB |
-| `Text` 的单个字符串子元素 | 10,000 个字符 |
+| 单个树中的文本 | 仅绘制前 100,000 个字符 |
 | `$.store` | JSON 总计 4 MiB |
 | `$.session.messages()` | 最新的 4,096 个条目 |
 | `$.ui.invalidate('ui.render')` 重绘 | 限制为每秒 10 次；在终端中，对于可见窗格、展开区域以及输入框下方的提示行，限制为每秒 30 次。更早到达的调用会被合并。 |

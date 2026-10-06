@@ -636,7 +636,9 @@ export ANTHROPIC_BEDROCK_MANTLE_BASE_URL=https://your-gateway.example.com
   使用 SSO 和企业代理的身份验证循环
 </h3>
 
-如果在使用 AWS SSO 时浏览器标签页反复生成，请从您的[设置文件](/docs/zh-CN/settings)中删除 `awsAuthRefresh` 设置。这可能发生在企业 VPN 或 TLS 检查代理中断 SSO 浏览器流时。Claude Code 将中断的连接视为身份验证失败，重新运行 `awsAuthRefresh`，并无限循环。
+如果在使用 AWS SSO 时浏览器登录标签页不断打开，请从您的[设置文件](/docs/zh-CN/settings)中删除 `awsAuthRefresh` 设置。
+
+当企业 VPN 或 TLS 检查代理中断 SSO 浏览器流程时，可能会出现此循环。Claude Code 将中断的连接视为身份验证失败。当后续请求发现凭据仍处于过期状态时，Claude Code 会重新运行 `awsAuthRefresh`，从而打开另一个标签页。
 
 如果您的网络环境干扰自动基于浏览器的 SSO 流，请在启动 Claude Code 之前手动使用 `aws sso login`，而不是依赖 `awsAuthRefresh`。
 

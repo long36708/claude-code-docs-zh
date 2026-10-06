@@ -210,7 +210,7 @@ HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的
 
 如果 `/status` 中缺少 `HIPAA`，请按顺序检查以下原因：
 
-1. **账户或连接方式错误**：确认 `/status` 在 `Organization` 行显示您的组织，并且未显示 `API provider` 或 `Anthropic base URL` 行。[检查开发人员的登录和连接方式](#check-how-developers-sign-in-and-connect)列出了不符合配置条件的连接方式。
+1. **账户或连接方式错误**：确认 `/status` 在 `Organization` 行显示您的组织，并且未显示 `API provider` 或 `Anthropic base URL` 行。[检查开发人员的登录和连接方式](#check-how-developers-sign-in-and-connect)列出了哪些登录和连接方式不符合配置条件。
 2. **策略获取被阻止**：在 `/status` 中查找 `Organization policy` 行，该行会给出原因。在会话之外，运行 `claude doctor` 并查看同一行，该行会说明 Claude Code 从何处加载了策略或策略未加载的原因。请通过您的代理允许 `api.anthropic.com`，然后重新启动 Claude Code。
 3. **配置尚未应用**：询问主要所有者是否已应用配置。
 

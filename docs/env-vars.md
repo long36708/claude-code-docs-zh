@@ -536,7 +536,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
   子进程环境清理会移除哪些内容
 </h2>
 
-当您将 [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](#variables) 设置为 `1` 时，Claude Code 会从其启动的子进程（例如 Bash 命令、hook 和 stdio MCP 服务器）的环境中移除凭据。这可以减少提示词注入攻击通过 shell 展开所能读取的内容。Claude Code 进程本身会保留这些凭据，用于其自身的 API 调用。
+当您将 [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](#variables) 设置为 `1` 时，Claude Code 会从其启动的子进程（例如 Bash 命令、hook 和 stdio MCP 服务器）的环境中移除凭据。这可以减少提示词注入攻击所能读取的内容。Claude Code 进程本身会保留这些凭据，用于其自身的 API 调用。
 
 清理功能通过变量名或变量值的形态来识别凭据，因此应将其作为与精细的[权限规则](/docs/zh-CN/permissions)配合使用的一层防护，而不是唯一的控制手段。
 
@@ -548,7 +548,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `NPM_TOKEN`、`DB_PASSWORD` | 移除，因为其名称看起来像凭据 |
 | 包含密码的 `DATABASE_URL` | 移除，因为其值看起来像凭据 |
 | 包含密码的 `PIP_INDEX_URL` 或 `NPM_CONFIG_REGISTRY` | 保留 URL，但从中删去用户名和密码 |
-| `CLAUDE_CONFIG_DIR` | 移除。需要 Claude Code v2.1.251 或更高版本 |
+| `CLAUDE_CONFIG_DIR` | 移除 |
 | `GITHUB_TOKEN`、`GH_TOKEN`、`GH_ENTERPRISE_TOKEN`、`GITHUB_ENTERPRISE_TOKEN` | 保留，以便 `gh` 和调用 GitHub API 的脚本能够继续正常工作 |
 | `HTTP_PROXY`、`HTTPS_PROXY` | 保留，包括 [URL 中的用户名和密码](/docs/zh-CN/network-config#basic-authentication)。[沙箱](/docs/zh-CN/sandboxing#network-isolation)可以自行为沙箱化的命令设置这些变量 |
 | `GIT_CONFIG_COUNT`、`GIT_CONFIG_KEY_<n>`、`GIT_CONFIG_VALUE_<n>` | 保留，无论其内容为何 |
@@ -559,6 +559,8 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 如果某个子进程需要用到被移除的变量之一，请不要设置清理功能。
 
 在 Linux 上，清理功能还会在隔离的 PID 命名空间中运行 Bash 子进程，使其无法通过 `/proc` 读取主机进程的环境。这带来的一个副作用是，`ps`、`pgrep` 和 `kill` 无法看到主机进程，也无法向其发送信号。
+
+在 v2.1.251 之前，清理功能会移除 `ANTHROPIC_API_KEY` 和 `AWS_SECRET_ACCESS_KEY`，而表中的其他示例变量保持不变。
 
 <h2 id="features-that-need-feature-flag-fetching">
   需要获取功能标志的功能

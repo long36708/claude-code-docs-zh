@@ -65,6 +65,8 @@ Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-o
 
 网关还会看到尽力而为的启动流量，可以拒绝而不会破坏任何东西。Anthropic Messages 格式的网关接收 `HEAD /api/hello` 连接预热探针，当配置了 HTTP 代理或客户端证书时，Claude Code 会跳过该探针。Amazon Bedrock 格式的网关接收 `GET /inference-profiles?type=SYSTEM_DEFINED` 请求，以及当配置的模型是推理配置文件时，`GET /inference-profiles/{profile}` 查询。
 
+通过网关的会话不符合 HIPAA 配置的条件。[检查开发人员如何登录和连接](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)列出了哪些登录和连接方式符合条件。请参阅[网关后面的 HIPAA 配置](/docs/zh-CN/llm-gateway-rollout#the-hipaa-configuration-behind-a-gateway)。
+
 [快速模式](/docs/zh-CN/fast-mode)可用性检查永远不会出现在网关日志中：它直接调用 `api.anthropic.com` 而不是遵循 `ANTHROPIC_BASE_URL`，因此在阻止直接出站到 `api.anthropic.com` 的网络上，快速模式可能会报告连接错误，而通过网关的推理继续工作。[WebFetch 域安全检查](/docs/zh-CN/data-usage#webfetch-domain-safety-check)也直接调用 `api.anthropic.com`。[在代理和 LLM 网关后面使用快速模式](/docs/zh-CN/fast-mode#use-fast-mode-behind-proxies-and-llm-gateways)涵盖了恢复它的变量。
 
 <h3 id="streaming">

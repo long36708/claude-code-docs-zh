@@ -1720,7 +1720,7 @@ Microsoft Foundry authentication failed · refresh your Foundry credential (ANTH
   Could not load AWS or Google Cloud credentials
 </h3>
 
-Claude Code 无法在其运行的机器上从 AWS 凭据提供程序链或 Google 应用默认凭据中获取可用的凭据，因此没有请求到达您的云提供商。Claude Code 会清除其缓存的凭据并重试两次，然后才显示此消息。`·` 之后的详细信息会指出具体原因，例如 SSO 会话已过期、缺少应用默认凭据（报告为 `Could not load the default credentials`），或登录已被撤销（报告为 `invalid_grant`）：
+Claude Code 无法从其运行所在机器上的 AWS 凭据提供程序链或 Google 应用默认凭据中获取可用凭据，因此没有请求到达您的云提供商。`·` 之后的详细信息指明了具体原因，例如 SSO 会话已过期、缺少应用默认凭据（报告为 `Could not load the default credentials`），或登录已被撤销（报告为 `invalid_grant`）：
 
 ```text theme={null}
 API Error: Could not load AWS credentials · Could not load credentials from any providers. Check or refresh your AWS credentials and try again.
@@ -5304,12 +5304,6 @@ Transcript saving is off — inherited CLAUDE_CODE_CHILD_SESSION marker · resta
 * 如果您有意从另一个 Claude Code 会话内部启动了此会话，无需采取任何操作
 * 如果这是顶级会话，请退出并使用设置的 [`CLAUDE_CODE_FORCE_SESSION_PERSISTENCE=1`](/docs/zh-CN/env-vars) 重新启动。保存从重新启动时开始应用，因此在此之前发送的消息不会被保存。
 * 要修复从同一终端或启动器的未来启动，请从其环境中删除 `CLAUDE_CODE_CHILD_SESSION`
-
-***
-
-title: "配置警告"
-description: "了解 Claude Code 配置警告、其含义以及如何解决它们。"
------------------------------------------------
 
 <h2 id="configuration-warnings">
   配置警告
