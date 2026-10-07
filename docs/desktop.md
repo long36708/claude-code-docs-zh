@@ -108,7 +108,7 @@ Enterprise 管理员可以限制哪些权限模式可用。有关详细信息，
   自动模式可用性
 </h4>
 
-自动模式对 Anthropic API 上的所有用户可用，需要 Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本，或 [Fable 模型](/docs/zh-CN/model-config#work-with-fable)。组织管理员可以使用[托管设置](#managed-settings)中的 `disableAutoMode` 键关闭自动模式。
+自动模式对 Anthropic API 上的所有用户可用，需要 Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本、Haiku 5.5，或 [Fable 模型](/docs/zh-CN/model-config#work-with-fable)。组织管理员可以使用[托管设置](#managed-settings)中的 `disableAutoMode` 键关闭自动模式。
 
 在将 Desktop 路由到 Google Cloud 的 Agent Platform 的 Enterprise 部署中，自动模式也默认可用；有关支持的模型，请参阅 [Bedrock、Agent Platform 或 Foundry 上的自动模式](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry)。
 
@@ -225,7 +225,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
   在终端中运行命令
 </h3>
 
-集成终端让您无需切换到另一个应用即可在会话旁运行命令。点击会话标题栏中的 **Terminal**，或在 macOS 或 Windows 上按 **Ctrl+\`**。终端在您的会话工作目录中打开，并与 Claude 共享相同的环境，因此 `npm test` 或 `git status` 等命令看到 Claude 正在编辑的相同文件。要打开第二个终端选项卡，点击终端窗格标题中的 **+** 或右键点击聊天中的文件夹来选择 **Open in terminal**。终端仅在本地会话中可用。
+集成终端让您无需切换到另一个应用即可在会话旁运行命令。点击会话标题栏中的 **Terminal**，或在 macOS 或 Windows 上按 **Ctrl+\`**。终端在您的会话工作目录中打开，并与 Claude 共享相同的环境，因此 `npm test` 或 `git status` 等命令看到 Claude 正在编辑的相同文件。要打开第二个终端选项卡，点击终端窗格标题中的 **+** 或右键点击聊天中的文件夹来选择 **Open in terminal**。终端在本地和 [SSH](#ssh-sessions) 会话中可用。
 
 <h3 id="open-and-edit-files">
   打开和编辑文件
@@ -743,9 +743,9 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 要在任何平台上为本地会话和开发服务器设置环境变量，在提示框中打开环境下拉菜单，将鼠标悬停在 **Local** 上，然后点击齿轮图标来打开本地环境编辑器。你在此处保存的变量在你的机器上加密存储，并适用于你启动的每个本地会话和预览服务器。你也可以将变量添加到你的 `~/.claude/settings.json` 文件中的 `env` 键，尽管这些仅到达 Claude 会话而不是开发服务器。有关支持的变量的完整列表，请参阅[环境变量](/docs/zh-CN/env-vars)。
 
-[Extended thinking](/docs/zh-CN/model-config#extended-thinking)默认启用，这改进了复杂推理任务的性能，但使用额外的令牌。在 Anthropic API 上，在本地环境编辑器中将 `MAX_THINKING_TOKENS` 设置为 `0` 来关闭思考；这对 Opus 5.5、Sonnet 5.5 或 Fable 模型没有影响，它们始终使用 extended thinking。在 Anthropic API 上关闭思考后，Claude Code 发送努力级别 `high` 而不是更高级别给它知道的[不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off)的模型，例如 Opus 5。
+[扩展思考](/docs/zh-CN/model-config#extended-thinking)默认启用，这改进了复杂推理任务的性能，但会使用额外的 token。在 Anthropic API 上，在本地环境编辑器中将 `MAX_THINKING_TOKENS` 设置为 `0` 来关闭思考；这对 Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 模型没有影响，它们始终使用扩展思考。在 Anthropic API 上关闭思考后，Claude Code 会向它已知[不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off)的模型（例如 Opus 5）发送努力级别 `high`，而不是更高级别。
 
-在具有[自适应推理](/docs/zh-CN/model-config#adjust-effort-level)的模型上，对于为正数的 `MAX_THINKING_TOKENS` 值，Claude Code 会忽略该数值本身，因为思考深度改由自适应推理控制。在 Opus 4.6 和 Sonnet 4.6 上，将 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` 设置为 `1` 可使用固定思考预算；Fable 模型、Sonnet 5 及更高版本以及 Opus 4.7 及更高版本始终使用自适应推理，没有固定预算模式。
+在具有[自适应推理](/docs/zh-CN/model-config#adjust-effort-level)的模型上，对于为正数的 `MAX_THINKING_TOKENS` 值，Claude Code 会忽略该数值本身，因为思考深度改由自适应推理控制。在 Opus 4.6 和 Sonnet 4.6 上，将 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` 设置为 `1` 可使用固定思考预算；Fable 模型、Sonnet 5 及更高版本、Haiku 5.5 以及 Opus 4.7 及更高版本始终使用自适应推理，没有固定预算模式。
 
 <h4 id="local-sessions-on-managed-devices">
   托管设备上的本地会话
@@ -783,6 +783,55 @@ SSH 会话让你在远程机器上运行 Claude Code，同时使用桌面应用�
 
 远程机器必须运行 Linux 或 macOS。Desktop 在你第一次连接时会自动在远程机器上安装 Claude Code。连接后，SSH 会话支持权限模式、connectors、plugins 和 MCP servers。
 
+<h4 id="open-an-ssh-session-from-a-link">
+  通过链接打开 SSH 会话
+</h4>
+
+`claude://code/new` 链接会打开 Desktop 的新会话页面，并且可以指定一个 SSH 连接。将此类链接放入运维手册、仪表板或 wiki 页面中，即可打开已为正确的机器和文件夹设置好的 Desktop。对于会去除此类链接的平台，请参阅[链接显示为纯文本而不可点击](/docs/zh-CN/deep-links#the-link-renders-as-plain-text-instead-of-being-clickable)。
+
+SSH 链接需要 Claude Desktop v2.110.0 或更高版本。
+
+以下链接指定了 `build.example.com` 上的用户 `dev`、端口 2222 和文件夹 `/srv/payments`，并填入一条提示词：
+
+```text theme={null}
+claude://code/new?ssh_host=dev%40build.example.com&ssh_port=2222&ssh_folder=/srv/payments&q=Investigate%20the%20failed%20deploy
+```
+
+SSH 链接接受以下参数，其中只有 `ssh_host` 是必需的：
+
+| 参数 | 值 |
+| :- | :- |
+| `ssh_host` | `host` 或 `user@host`，写法与 **SSH host** 字段相同。该值不能以 `-` 开头，主机部分只能包含字母、数字、`.`、`_`、`:` 和 `-` |
+| `ssh_port` | 1 到 65535 之间的端口号 |
+| `ssh_folder` | 远程机器上的文件夹。以 `/` 或 `~/` 开头，或使用 `~` |
+| `q` | 用于输入框的 URL 编码文本 |
+
+`~/.ssh/config` 中的别名仅对拥有该条目的人可用作 `ssh_host`。要匹配用户已有的连接，请在链接中使用与该连接相同的用户、主机和端口。
+
+当您打开链接时，Desktop 会在选择连接之前要求您确认：
+
+* **您已有的连接**：如果主机、用户和端口与您的某个连接匹配，Desktop 会询问是否使用它，并向您显示该连接的名称和主机，如果链接指定了文件夹，还会显示文件夹。
+* **新连接**：否则，Desktop 会打开用于添加 SSH 连接的对话框。当您添加连接时，Desktop 会在保存任何内容之前询问是否连接，并向您显示链接中的主机，如果链接指定了端口和文件夹，还会显示它们。
+
+在您确认之前，Desktop 不会保存链接中的主机、端口或文件夹，也不会使用它们选择或打开连接。如果已经选择了某个 SSH 连接，新会话页面仍可以像没有链接时一样自行连接到该连接，即使链接指定了相同的主机也是如此。链接不能携带密钥文件、密码或命令。
+
+任何人都可以编写链接，因此请检查它填入的内容：
+
+* **确认之前**：检查主机和文件夹。
+* **发送之前**：检查提示词和所选环境。
+
+Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文本，并且绝不会替您发送。它将提示词视为纯文本，因此开头的 `/` 或 `!` 以及 `@` 文件提及不会作为命令或提及生效。如果您取消，提示词会保留在输入框中，您之前选择的环境也不会改变。
+
+链接不会绕过 [`sshHostAllowlist`](#restrict-which-ssh-hosts-users-can-connect-to)。Desktop 会在连接时检查允许列表。
+
+如果链接打开了 Desktop 却没有出现关于连接的对话框，请检查是否存在以下原因之一：
+
+* **您已退出登录**：请登录，然后再次打开链接。
+* **另一个对话框处于打开状态**：关闭它，然后再次打开链接。
+* **链接无效**：Desktop 会显示一条消息说明需要修正的内容，并且不会填入提示词。
+* **Desktop 版本早于 v2.110.0**：早期版本会忽略 SSH 参数，仅带着提示词打开新会话页面。
+* **SSH 会话已关闭**：如果您的管理员将允许列表设置为空数组，Desktop 会拒绝 SSH 链接。
+
 <h4 id="pre-configure-ssh-connections-for-your-team">
   为你的团队预配置 SSH 连接
 </h4>
@@ -805,7 +854,7 @@ SSH 会话让你在远程机器上运行 Claude Code，同时使用桌面应用�
 }
 ```
 
-每个条目需要 `id`、`name` 和 `sshHost`。`sshPort` 和 `sshIdentityFile` 字段是可选的。用户也可以将 `sshConfigs` 添加到他们自己的 `~/.claude/settings.json`，这是通过对话框添加的连接存储的位置。
+每个条目需要 `id`、`name` 和 `sshHost`。`sshPort` 和 `sshIdentityFile` 字段是可选的。用户也可以将 `sshConfigs` 添加到他们自己的 `~/.claude/settings.json`。
 
 <h4 id="restrict-which-ssh-hosts-users-can-connect-to">
   限制用户可以连接的 SSH 主机
@@ -866,13 +915,14 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 | `sshConfigs` | 预配置[SSH 连接](#pre-configure-ssh-connections-for-your-team)，在环境下拉菜单中显示。用户无法编辑或删除托管连接。 |
 | `sshHostAllowlist` | 限制 [SSH 会话](#restrict-which-ssh-hosts-users-can-connect-to)连接到已解析主机名与这些模式之一匹配的主机。空数组禁用 SSH 会话。仅从托管设置中读取。 |
 | `disableDesktopLocalSessions` | 设置为 `true` 以关闭[在设备上运行的 Code 会话](#local-sessions-on-managed-devices)，仅保留到其他主机的 SSH 会话和云端会话可用。该值必须是 JSON 布尔值 `true`。仅从托管设置中读取。需要 Claude Desktop v1.37937.0 或更高版本。 |
+| `disableSshSavedPasswords` | 设置为 `true` 以阻止 Desktop 提供记住 SSH 密码的选项，并阻止其使用或显示之前保存的密码。启用此设置不会删除这些密码。仅从托管设置中读取。需要 Claude Desktop v1.49585.0 或更高版本。 |
 | `managedMcpServers` | 将 MCP 服务器配置推送到所有用户。仅在第三方 (3P) Desktop 部署中可用。在每个条目中，设置 `"http"`、`"sse"` 或 `"stdio"` 的传输、连接详细信息，以及可选的 `toolPolicy` 映射，该映射限制该服务器中用户可以调用的工具。通过托管设置文件、MDM 或 Claude apps gateway 策略的 [`desktop` 块](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)提供它，因为 3P 部署不接收管理员控制台设置。要通过网关提供它，您需要网关服务器上的 Claude Code v2.1.232 或更高版本。这是桌面应用自己的键；Claude Code 读取自己的[同名托管设置](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)，具有不同的条目形状。 |
 
 哪些托管设置到达 Desktop 会话取决于该会话运行的位置。模型限制（如 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection)）在 Desktop 的 Claude Code 会话中的执行方式与在终端 CLI 中相同；请参阅[使用入口覆盖范围](/docs/zh-CN/model-config#surface-coverage)。
 
 * **此机器上的本地会话**：部署到磁盘的托管设置文件适用。通过管理员控制台远程推送的托管设置也在会话使用[符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability)向 Anthropic 的 API 进行身份验证时到达这些会话，遵循与终端 CLI 相同的[设置优先级](/docs/zh-CN/settings#settings-precedence)。
 * **[云端会话](#cloud-sessions)**：接收[服务器管理的设置](/docs/zh-CN/server-managed-settings)；设备部署的文件无法到达它们，因为它们在 Anthropic 管理的虚拟机上运行。路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话也读取运行程序镜像中的托管设置文件。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明该文件何时适用。
-* **[SSH 会话](#ssh-sessions)**：会话从远程主机读取托管设置文件。Desktop 本身从本地机器的托管设置中读取 `sshConfigs`、`sshHostAllowlist` 和 `disableDesktopLocalSessions`。
+* **[SSH 会话](#ssh-sessions)**：会话从远程主机读取托管设置文件。Desktop 本身从本地机器的托管设置中读取 `sshConfigs`、`sshHostAllowlist`、`disableSshSavedPasswords` 和 `disableDesktopLocalSessions`。
 * **[Cowork](https://claude.com/docs/cowork/overview) 会话**：在此机器上的 Cowork 会话中，Claude Code 永远不会获取管理员控制台设置，即使用户使用 Team 或 Enterprise 帐户登录，并读取部署到机器的策略，除非您的 Claude Desktop 配置设置了 `requireCoworkFullVmSandbox`。远程 Cowork 会话两者都不接收。请参阅[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)了解哪些设备文件到达 Cowork，以及[MCP 权限规则](/docs/zh-CN/permissions#mcp)了解 `Bash` 和 `WebFetch` 规则如何应用于 Cowork 的工具。
 
 在本地和 SSH 会话中，桌面应用直接将每个用户连接的 claude.ai 连接器传递给 Claude Code。无论您使用哪个设置源或文件位置，都没有 MCP 设置或 `managed-mcp.json` 到达这些连接器。要在这些会话中阻止连接器的工具，请使用您的组织的[连接器工具控制](/docs/zh-CN/mcp#organization-controls-on-connector-tools)。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code)显示在每种会话中哪些设置管理连接器。
@@ -885,10 +935,11 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
   设备管理策略
 </h3>
 
-IT 团队可以通过 macOS 上的 MDM 或 Windows 上的组策略管理桌面应用。可用的策略包括启用或禁用 Claude Code 功能、控制自动更新和设置自定义部署 URL。
+IT 团队可以通过 macOS 上的 MDM、Windows 上的组策略或 Linux 上的策略文件管理桌面应用。可用的策略包括启用或禁用 Claude Code 功能、在 macOS 和 Windows 上控制自动更新以及设置自定义部署 URL。
 
 * **macOS**：通过使用 Jamf 或 Kandji 等工具的 `com.anthropic.claudefordesktop` 偏好域配置
 * **Windows**：通过 `SOFTWARE\Policies\Claude` 处的注册表配置
+* **Linux**：通过位于 `/etc/claude-desktop/managed-settings.json` 的 root 所有的文件配置，该文件以 JSON 对象形式保存策略键。如果除 root 之外的任何人可以写入该文件或其所在文件夹，Desktop 将拒绝使用该文件。它与 Claude Code 的[托管设置文件](/docs/zh-CN/managed-settings)是不同的文件。
 
 <h3 id="network-access-requirements">
   网络访问要求

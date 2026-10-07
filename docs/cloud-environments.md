@@ -10,7 +10,7 @@
   云环境适用于[云会话](/docs/zh-CN/claude-code-on-the-web)，这些会话在 Pro、Max 和 Team 计划上可用，以及具有[高级席位或 Chat + Claude Code 席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)的 Enterprise 用户。
 </Note>
 
-每个[云会话](/docs/zh-CN/claude-code-on-the-web)都在云环境中运行。您可以配置环境以允许或拒绝[网络访问](#access-levels)、为会话[设置环境变量](#set-environment-variables)、在 Pro 和 Max 计划上存储会话使用的[API 凭证](#add-api-credentials)而不会看到它们，以及在 Claude 开始工作前运行[设置脚本](#setup-scripts)。
+每个[云端会话](/docs/zh-CN/claude-code-on-the-web)都在云环境中运行。您可以配置环境以允许或拒绝[网络访问](#access-levels)、为会话[设置环境变量](#set-environment-variables)、在 Pro 和 Max 计划上存储会话使用但无法看到的[网络密钥](#add-api-credentials)，以及在 Claude 开始工作前运行[设置脚本](#setup-scripts)。
 
 相同的环境适用于您启动云会话的任何地方：[Desktop 应用](/docs/zh-CN/desktop)、[Claude 移动应用](/docs/zh-CN/mobile)、浏览器中的 [claude.ai/code](https://claude.ai/code)、终端中搭配 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)、[例程](/docs/zh-CN/routines)和 [Claude Tag](https://claude.com/docs/claude-tag/overview)。这些界面中的每一个也可以路由到[自托管环境](/docs/zh-CN/self-hosted-environments)。[可用性和限制](/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖了当 Claude Tag 会话在其中运行时 Claude 还不能使用的内容。
 
@@ -58,7 +58,7 @@
   <Step title="添加或编辑环境">
     选择**Cloud**来列出你的环境。然后选择**Add cloud environment**，或悬停在现有环境上并选择右侧出现的设置图标。
 
-    对话框包括名称、网络访问级别、环境变量和设置脚本。当你在Pro或Max计划上编辑现有的云环境时，对话框还包括[API凭证](#add-api-credentials)。
+    对话框包括名称、网络访问级别、环境变量和设置脚本。当您在 Pro 或 Max 计划上编辑现有的云环境时，对话框还包括[网络机密](#add-api-credentials)。
 
     <Frame>
       <img src="https://mintcdn.com/claude-code/ZFId6l95856c5LSw/images/cloud-environment-dialog.png?fit=max&auto=format&n=ZFId6l95856c5LSw&q=85&s=30d4478b31d1f879f7ee287ddab32505" alt="New cloud environment对话框。一个Name字段，占位符为Default，一个Network access选择器设置为Trusted，带有网络策略和访问级别的链接，一个Environment variables框显示.env格式占位符文本，并注明值对使用该环境的任何人都可见，一个Setup script框描述为在新会话启动时运行的Bash脚本，在Claude Code启动之前，以及Cancel和Create environment按钮。" width="874" height="1372" data-path="images/cloud-environment-dialog.png" />
@@ -91,70 +91,70 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 云会话在启动时也会自己设置一些变量。对于[`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`](/docs/zh-CN/claude-code-on-the-web#manage-context)，会话设置的值会覆盖你在这里添加的值，所以在这里添加该键没有效果。
 
-使用该环境的任何人都可以读取这些值。在Pro和Max计划上，对于代理可以附加到请求的键，请改用[API凭证](#add-api-credentials)。[从不获得凭证的请求](#requests-that-never-get-the-credential)在那里列出。
+使用该环境的任何人都可以读取这些值。在 Pro 和 Max 计划上，对于 Agent 代理可以附加到请求中的密钥，请改用[网络机密](#add-api-credentials)。[永远不会获得机密的请求](#requests-that-never-get-the-credential)在该处列出。
 
 <h3 id="add-api-credentials">
-  添加API凭证
+  添加网络机密
 </h3>
 
-API凭证是你存储在云环境上的API密钥或令牌，这样Claude可以从环境中的任何会话调用该API，而无需看到密钥。Anthropic的代理在每个请求离开会话的VM后，将密钥添加到你列出的主机的请求中。密钥永远不会到达Claude、它运行的命令或会话的环境变量。
+网络机密是您存储在云环境中的 API 密钥或令牌，使 Claude 可以从该环境中的任何会话调用该 API，而无需看到密钥。每个请求离开会话的 VM 后，Anthropic 的 Agent 代理会将密钥添加到发往您所列主机的请求中，因此密钥本身始终位于 VM 之外。
 
-API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不可用，所以**API credentials**部分不会出现在这些计划的环境对话框中。
+网络机密适用于 Pro 和 Max 计划。它们目前尚不适用于 Team 或 Enterprise 计划，因此在这些计划上，环境对话框中不会出现 **Network secrets** 部分。
 
 <h4 id="requirements">
   要求
 </h4>
 
-其中两个决定你是否可以添加凭证，两个决定代理在添加后是否可以使用它：
+以下要求决定您是否可以添加机密，以及添加后 Agent 代理是否可以使用它：
 
 * **Role**：你的claude.ai组织中的组织管理员角色
   * 在Team和Enterprise上，所有者持有它，管理员没有
   * 在Pro和Max上，你在自己的组织中持有它
-* **Environment type**：一个已经存在的Anthropic托管的云环境。[自托管环境](/docs/zh-CN/self-hosted-environments)没有API凭证
+* **Environment type**：一个已存在的 Anthropic 托管云环境。[自托管环境](/docs/zh-CN/self-hosted-environments)没有网络机密
 * **API reachability**：API接受来自互联网的连接，因为请求来自Anthropic的网络
-* **Encryption keys**：如果你的组织使用客户管理的加密密钥，你无法保存凭证
+* **Encryption keys**：如果您的组织使用客户管理的加密密钥，则无法保存网络机密
 
 <h4 id="add-a-credential">
-  添加凭证
+  添加机密
 </h4>
 
-凭据需要逐个添加，添加后无法编辑。要更改凭据的主机或值，请将其删除后重新添加。
+机密需要逐个添加，添加后无法编辑。要更改机密的主机或值，请将其删除后重新添加。
 
 <Steps>
-  <Step title="打开环境的 API 凭据">
-    在 [claude.ai/code](https://claude.ai/code) [打开环境进行编辑](#configure-your-environment)。在 **Edit environment** 对话框中，找到 **API credentials** 部分。您会看到环境上已有的凭据，每个凭据都附有其适用的主机。
+  <Step title="打开环境的网络机密">
+    在 [claude.ai/code](https://claude.ai/code) [打开环境进行编辑](#configure-your-environment)。在 **Edit environment** 对话框中，找到 **Network secrets** 部分。您会看到环境中已有的机密，每个机密都附有其适用的主机。
   </Step>
 
-  <Step title="添加凭据">
-    选择 **Add credential** 并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Credential type**，即 **Bearer**，并填写以下字段：
+  <Step title="添加机密">
+    选择 **Add secret** 并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Credential type**，即 **Bearer**，并填写以下字段：
 
-    * **Name**：凭证的标签，例如`Internal billing API`
-    * **Allowed websites**：API的主机，例如`api.example.com`。前导`*.`匹配每个子域
-    * **Custom headers**：一行用于携带密钥的头。该行以`Authorization`作为头的**Name**和`Bearer`作为其**Prefix**开始；将密钥本身粘贴为**Value**。对于采用裸值的头（如`X-Api-Key`），更改名称并清除前缀
+    * **Name**：机密的标签，例如 `Internal billing API`
+    * **Allowed websites**：API 的主机，例如 `api.example.com`。前导 `*.` 匹配所有子域
+    * **Custom headers**：用于携带密钥的请求头占一行。该行默认以 `Authorization` 作为请求头的 **Name**，以 `Bearer` 作为其 **Prefix**；将密钥本身粘贴为 **Value**。对于接受裸值的请求头（如 `X-Api-Key`），请更改名称并清除前缀
 
-    对于以其他方式进行身份验证的API，选择不同的**Credential type**。该列表与[Claude Tag](https://claude.com/docs/claude-tag/overview)（Team和Enterprise计划的Slack集成）为[connections](https://claude.com/docs/claude-tag/admins/add-connections)提供的列表相同。
+    对于以其他方式进行身份验证的 API，请选择不同的 **Credential type**。该列表与 [Claude Tag](https://claude.com/docs/claude-tag/overview)（适用于 Team 和 Enterprise 计划的 Slack 集成）为 [connections](https://claude.com/docs/claude-tag/admins/add-connections) 提供的列表相同。
   </Step>
 
-  <Step title="保存凭证">
-    选择**Connect**。凭证出现在列表中，带有其主机，保存时不需要对话框的**Save changes**按钮。保存后你无法再次查看该值。
+  <Step title="保存机密">
+    选择 **Connect**。机密会连同其主机一起出现在列表中，无需点击对话框的 **Save changes** 按钮即已保存。保存后您无法再次查看该值。
   </Step>
 </Steps>
 
-要确认凭证有效，请在环境中启动会话并要求Claude调用API，例如使用`curl`。API的响应就像密钥在请求中一样，密钥不会出现在会话的环境变量或任何文件中。如果列表将凭证标记为**Not sent**，其下方的注释会说明原因和解决方法。两个主机重叠但不完全匹配的凭证不会获得标记，代理只会发送其中一个。
+要确认机密是否有效，请在该环境中启动会话并让 Claude 调用 API，例如使用 `curl`。API 的响应就如同请求中带有密钥一样，而密钥不会出现在会话的环境变量或任何文件中。如果列表将某个机密标记为 **Not sent**，其下方的说明会解释原因和处理方法。两个主机重叠但不完全匹配的机密不会显示标记，而 Agent 代理只会发送其中一个。
 
 <h4 id="which-requests-get-the-credential">
-  哪些请求获得凭证
+  哪些请求会获得机密
 </h4>
 
-当请求的主机与你在该凭证上列出的主机匹配时，代理会将凭证附加到请求。会话可以到达这些主机，即使环境的[网络访问级别](#access-levels)不允许，除了[从不获得凭证的主机](#requests-that-never-get-the-credential)。凭证适用于在环境中运行的每个会话，无论谁启动它，直到你删除它。
+当请求的主机与您在某个机密上列出的主机匹配时，Agent 代理会将该机密附加到请求中。即使环境的[网络访问级别](#access-levels)原本不允许访问这些主机，会话也可以访问它们，但[永远不会获得机密的主机](#requests-that-never-get-the-credential)除外。机密适用于在该环境中运行的每个会话，无论由谁启动，直到您将其删除。
 
 <h4 id="requests-that-never-get-the-credential">
-  从不获得凭证的请求
+  永远不会获得机密的请求
 </h4>
 
-代理永远不会将你添加的凭证附加到这些请求：
+Agent 代理永远不会将您添加的机密附加到以下请求：
 
-* **GitHub**：[GitHub代理](#github-proxy)改为对GitHub的请求进行身份验证，所以你不需要为它提供API凭证
+* **GitHub**：[GitHub 代理](#github-proxy)会代为对发往 GitHub 的请求进行身份验证，因此您无需为其设置网络机密
 * **Anthropic API和公共包注册表**：`api.anthropic.com`、`registry.npmjs.org`、`jsr.io`、`npm.jsr.io`、`pypi.org`、`files.pythonhosted.org`、`index.crates.io`和`proxy.golang.org`
 * **Setup script请求**：Claude Code在启动时连接到代理，在[setup script](#setup-scripts)运行后
 * **Claude Code的遥测导出**：Claude Code自己发送其[遥测导出](/docs/zh-CN/monitoring-usage#telemetry-from-cloud-sessions-and-claude-tag)，而不是通过它运行的命令，该请求不会通过代理
@@ -179,7 +179,7 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
 
 * 已经在环境中运行的会话继续工作。
 * 环境从选择器和`/remote-env`中消失，所以你无法为新会话选择它。
-* 环境上的API凭证在其运行的会话中保持附加。删除你不再需要的任何凭证，然后再归档。
+* 环境中的网络机密在其正在运行的会话中仍保持附加状态。请在归档前删除不再需要的机密。
 * 没有新会话可以在任何表面上的归档环境中启动。如果该环境是你保存的[CLI默认值](#select-an-environment-from-the-cli)，当你的列表有一个时，Claude Code会在Anthropic托管的环境中启动CLI云会话，否则在你列表中不是[Remote Control bridge环境](#the-default-environment)的第一个环境中启动。任何显式配置了该环境的东西，例如[routine](/docs/zh-CN/routines#environments-and-network-access)，无法在其中启动新会话。将其指向另一个环境。
 
 <h3 id="organization-shared-environments">
@@ -197,7 +197,7 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
 
 所有者在[claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)单独选择组织的[默认环境](#the-default-environment)。
 
-每个成员在共享环境中的会话都读取其变量，所以不要在其中包含秘密。[API凭证](#add-api-credentials)给予会话一个它们无法读取的密钥，在Team或Enterprise计划上还不可用。
+每个成员在共享环境中的会话都会读取其变量，因此请勿在其中包含机密信息。[网络机密](#add-api-credentials)可以为会话提供其无法读取的密钥，但目前尚不适用于 Team 或 Enterprise 计划。
 
 <h3 id="set-the-environment-a-claude-tag-channel-uses">
   设置Claude Tag频道使用的环境
@@ -239,7 +239,7 @@ API凭证在Pro和Max计划上可用。它们在Team和Enterprise计划上还不
 
 * GitHub，通过其[单独的代理](#github-proxy)
 * 您启用的 [MCP 连接器](#network-access)，其流量通过 Anthropic 的服务器传输
-* 您在环境的 [API 凭证](#add-api-credentials)上列出的主机，除了[代理跳过的主机](#requests-that-never-get-the-credential)
+* 您在环境的[网络密钥](#add-api-credentials)上列出的主机，除了[永远不会获得该密钥的主机](#requests-that-never-get-the-credential)
 * Anthropic API，用于 Claude Code 自己的请求，即使在 **None** 下也是如此，如[安全性和隔离](/docs/zh-CN/claude-code-on-the-web#security-and-isolation)下所述
 
 <h3 id="allow-specific-domains">
@@ -254,7 +254,7 @@ api.example.com
 registry.example.com
 ```
 
-此环境中的会话现在可以访问 `api.example.com`、`internal.example.com` 的任何子域和 `registry.example.com`，但无法通过会话的网络访问其他域。[GitHub 流量](#github-proxy)、[MCP 连接器流量](#network-access)和对环境 [API 凭证](#add-api-credentials)的主机的请求（除了[代理跳过的主机](#requests-that-never-get-the-credential)）不经过此允许列表。前导 `*.` 匹配每个子域。要同时保留 [Trusted 域](#default-allowed-domains)，请勾选 **Also include default list of common package managers**；不勾选则只允许您列出的内容。
+此环境中的会话现在可以访问 `api.example.com`、`internal.example.com` 的任何子域和 `registry.example.com`，但无法通过会话的网络访问其他域。[GitHub 流量](#github-proxy)、[MCP 连接器流量](#network-access)和对环境[网络密钥](#add-api-credentials)的主机的请求（除了[永远不会获得该密钥的主机](#requests-that-never-get-the-credential)）不经过此允许列表。前导 `*.` 匹配每个子域。要同时保留 [Trusted 域](#default-allowed-domains)，请勾选 **Also include default list of common package managers**；不勾选则只允许您列出的内容。
 
 如果您的组织使用[工件](/docs/zh-CN/artifacts#availability)，会话读取工件时不需要在列表中包含 `*.frame.claudeusercontent.com`。当列表中没有该主机时，Claude Code 通过会话与 Anthropic 的连接读取工件内容。在两种情况下保留允许列表中的主机：
 
@@ -272,8 +272,8 @@ registry.example.com
 * **Git 凭证**：VM 内的 git 客户端使用范围受限的凭证，代理验证并将其交换为您的实际 GitHub 令牌。
 * **API 请求**：来自内置 GitHub 工具的请求，以及来自 [`proxy-injected` 占位符](#work-with-github-issues-and-pull-requests)下的 `gh` 的请求，会在替换为您的真实凭证后发出。
 * **推送限制**：代理会拒绝分支删除，以及推送分支以外的任何内容（例如标签）。它不限制推送可以更新哪些分支。如需限制，请在 GitHub 上使用分支保护规则或规则集。
-* **存储库范围**：GitHub API 和发布资产请求仅能到达附加到会话的存储库，因此从未附加的存储库下载发布资产的设置脚本会收到 403。
-* **GraphQL 限制**：代理仅提供一组固定的 GraphQL 操作用于拉取请求工作流。代理在 GraphQL 端点上拒绝所有其他内容，返回 403，显示 `This GraphQL query is not enabled for this session`，并命名 REST 回退 `gh api repos/{owner}/{repo}/...`。无论您提供的凭证如何，限制都适用于通过代理的每个请求，因此您设置的 `GH_TOKEN` 会收到相同的 403。Claude 无法通过代理访问仅存在于 GraphQL 中的 GitHub API，例如 Projects v2。
+* **仓库范围**：代理为附加到会话的仓库处理 GitHub API 请求。针对其他仓库的 API 请求会收到 403，其消息以 `GitHub access to` 开头并包含 `is not enabled for this session`。
+* **GraphQL 限制**：代理会拒绝发往 GitHub GraphQL 端点的请求，返回 403，其消息以 `GitHub GraphQL is not available from Claude Code sessions` 开头，并指明 REST 回退方式 `gh api repos/{owner}/{repo}/...`。使用 GraphQL 的 `gh` 子命令（例如 `gh pr` 和 `gh issue`）也会收到相同的 403。无论您提供的凭据如何，限制都适用于通过代理的每个请求，因此您设置的 `GH_TOKEN` 会收到相同的 403。Claude 无法通过代理访问仅存在于 GraphQL 中的 GitHub API，例如 Projects v2。
 
 来自公开存储库的已提交文件通过 `raw.githubusercontent.com` 到达，改由[安全代理](#security-proxy)处理。该域在默认 [Trusted 列表](#default-allowed-domains)中，因此除非环境的[访问级别](#access-levels)排除它，否则这些文件保持可访问。
 
@@ -285,14 +285,12 @@ Anthropic 托管环境中的云会话在 HTTP/HTTPS 网络代理后面运行，�
 
 * 防范恶意请求
 * 速率限制和滥用防范
-* 增强安全性的内容过滤
-* 所请求主机名的 DNS 级审计踪迹
 
 <h2 id="what’s-available-in-cloud-sessions">
-  云会话中可用的内容
+  云端会话中可用的内容
 </h2>
 
-在 Anthropic 托管的环境中，每个会话都会获得一台运行 Ubuntu 24.04 的全新虚拟机 (VM)（x86\_64 架构），无论您自己的操作系统和 CPU 架构是什么，您的存储库已克隆，常见的工具链已预安装。当依赖项提供预编译的二进制文件（例如具有本机扩展的 Ruby gem 或预构建的 Python wheel）时，请使用其 x86\_64 Linux 构建以匹配 VM。本节涵盖 Anthropic 托管的默认值、内置 GitHub 工具、如何[运行测试和服务](#run-tests-start-services-and-add-packages)、每台 VM 获得的[资源限制](#resource-limits)，以及[时间限制](#time-limits)对长时间运行的工作的限制。
+在 Anthropic 托管的环境中，每个会话都会获得一台运行 Ubuntu 24.04 的全新虚拟机 (VM)（x86\_64 架构），无论您自己的操作系统和 CPU 架构是什么，您的仓库已克隆，常见的工具链已预安装。当依赖提供预编译的二进制文件（例如具有本机扩展的 Ruby gem 或预构建的 Python wheel）时，请使用其 x86\_64 Linux 构建版本以匹配 VM。本节涵盖 Anthropic 托管的默认值、内置 GitHub 工具、如何[运行测试和服务](#run-tests-start-services-and-add-packages)、每台 VM 获得的[资源限制](#resource-limits)，以及长时间运行的工作的[时间限制](#time-limits)。
 
 <Note>
   您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您自己的运行器上运行，使用您的运行器镜像提供的工具。
@@ -302,34 +300,52 @@ Anthropic 托管环境中的云会话在 HTTP/HTTPS 网络代理后面运行，�
   您的设置中会保留的内容
 </h3>
 
-云会话从您存储库的全新克隆开始。您提交到存储库的任何内容都可用。您只在自己机器上安装或配置的任何内容在会话中都不可用。您组织的策略通过[服务器管理的设置](/docs/zh-CN/server-managed-settings)单独到达。
+云端会话从您仓库的全新克隆开始。您提交到仓库的任何内容都可用。您只在自己机器上安装或配置的任何内容在会话中都不可用。您组织的策略通过[服务器托管设置](/docs/zh-CN/server-managed-settings)单独到达。
 
-| | 在云会话中可用 | 原因 |
+| | 在云端会话中可用 | 原因 |
 | :- | :- | :- |
-| 您的存储库的 `CLAUDE.md` | 是 | 克隆的一部分 |
-| 您的存储库的 `.claude/settings.json` hooks 和权限规则 | 是，在具有一个存储库的会话中 | 克隆的一部分。具有多个存储库的会话（包括[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)线程）在克隆上方启动，不读取它们 |
-| 您的存储库的 `.mcp.json` MCP 服务器 | 是，在具有一个存储库的会话中 | 克隆的一部分，从会话的工作目录中找到 |
-| 您的存储库的 `.claude/rules/` | 是 | 克隆的一部分 |
-| 您的存储库的 `.claude/skills/`、`.claude/agents/`、`.claude/commands/` | 是 | 克隆的一部分 |
-| 在您的存储库的 `.claude/settings.json` 中声明的 plugins 和 marketplaces | 否 | 云会话不会安装存储库在 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 下启用的 plugins，包括来自它在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 下列出的 marketplaces 的 plugins |
-| 您组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings) | 是，除了在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话中 | 在会话启动时从 Anthropic 的服务器获取。请参阅 [Surface coverage](/docs/zh-CN/model-config#surface-coverage) 了解 `availableModels` 在云会话中如何强制执行。通过 MDM 或管理配置文件部署到您设备的设置不适用，因为会话在 Anthropic 管理的 VM 上运行；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，会话也会读取运行器镜像中的管理设置文件，根据 [Claude Code 如何组合管理来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources) |
-| 您的用户 `~/.claude/CLAUDE.md` | 否 | 位于您的机器上，不在存储库中 |
-| 您的用户 `~/.claude/skills/`、`~/.claude/agents/`、`~/.claude/commands/` | 否 | 位于您的机器上，不在存储库中。请改为将它们提交到存储库的 `.claude/` 目录。云会话会自动加载您在 claude.ai 上启用的技能 |
-| 仅在您的用户设置中启用的 plugins | 否 | 用户范围的 `enabledPlugins` 位于您机器上的 `~/.claude/settings.json` |
-| 您使用 `claude mcp add` 在默认本地范围或用户范围添加的 MCP 服务器 | 否 | 这些写入您机器上的 `~/.claude.json`，而不是存储库。请使用 `claude mcp add --scope project` 添加服务器，它会写入存储库的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope)，并提交该文件。具有一个存储库的会话会加载它 |
-| 您的存储库的 `.claude/settings.json` `env` 块中的传输变量，例如 `NODE_EXTRA_CA_CERTS` 和 [mTLS 客户端证书变量](/docs/zh-CN/network-config#mtls-authentication) | 否 | 托管环境管理会话的 API 连接，因此 Claude Code 忽略这些键，并在会话的调试日志中记录每个被忽略的键 |
-| Claude 调用的服务的 API 密钥和令牌 | 在 Pro 和 Max 计划中，作为 [API 凭证](#add-api-credentials) | 您在环境中添加一次密钥，代理会将其附加到您列出的主机的请求。代理[无法附加](#requests-that-never-get-the-credential)的密钥，或 Team 或 Enterprise 计划中的任何密钥，保留在环境变量中 |
-| 交互式身份验证，例如 AWS SSO | 否 | 不支持。SSO 需要基于浏览器的登录，无法在云会话中执行 |
+| 您的仓库的 `CLAUDE.md` | 是 | 克隆的一部分 |
+| 您的仓库的 `.claude/settings.json` hook 和权限规则 | 是，在具有一个仓库的会话中 | 克隆的一部分。具有多个仓库的会话（包括[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)线程）在克隆上方启动，不读取它们 |
+| 您的仓库的 `.mcp.json` MCP 服务器 | 是，在具有一个仓库的会话中 | 克隆的一部分，从会话的工作目录中找到 |
+| 您的仓库的 `.claude/rules/` | 是 | 克隆的一部分 |
+| 您的仓库的 `.claude/skills/`、`.claude/agents/`、`.claude/commands/` | 是 | 克隆的一部分 |
+| 在您的仓库的 `.claude/settings.json` 中声明的插件和市场 | 否 | 云端会话不会安装仓库在 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 下启用的插件，包括来自它在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 下列出的市场的插件 |
+| 您组织的[服务器托管设置](/docs/zh-CN/server-managed-settings) | 是，除了在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话中 | 在会话启动时从 Anthropic 的服务器获取。请参阅[使用入口覆盖范围](/docs/zh-CN/model-config#surface-coverage)了解 `availableModels` 在云端会话中如何强制执行。通过 MDM 或托管设置文件部署到您设备的设置不适用，因为会话在 Anthropic 管理的 VM 上运行；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，会话也会读取运行器镜像中的托管设置文件，根据 [Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources) |
+| 您的用户 `~/.claude/CLAUDE.md` | 否 | 位于您的机器上，不在仓库中。请参阅[添加个人偏好而无需提交到仓库](#add-personal-preferences-without-committing-to-the-repo) |
+| 您的用户 `~/.claude/skills/`、`~/.claude/agents/`、`~/.claude/commands/` | 否 | 位于您的机器上，不在仓库中。请改为将它们提交到仓库的 `.claude/` 目录。云端会话会自动加载您在 claude.ai 上启用的 skill |
+| 仅在您的用户设置中启用的插件 | 否 | 用户作用域的 `enabledPlugins` 位于您机器上的 `~/.claude/settings.json` |
+| 您使用 `claude mcp add` 在默认本地作用域或用户作用域添加的 MCP 服务器 | 否 | 这些写入您机器上的 `~/.claude.json`，而不是仓库。请使用 `claude mcp add --scope project` 添加服务器，它会写入仓库的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope)，并提交该文件。具有一个仓库的会话会加载它 |
+| 您的仓库的 `.claude/settings.json` `env` 块中的传输变量，例如 `NODE_EXTRA_CA_CERTS` 和 [mTLS 客户端证书变量](/docs/zh-CN/network-config#mtls-authentication) | 否 | 托管环境管理会话的 API 连接，因此 Claude Code 忽略这些键，并在会话的调试日志中记录每个被忽略的键 |
+| Claude 调用的服务的 API 密钥和令牌 | 在 Pro 和 Max 计划中，作为[网络密钥](#add-api-credentials) | 您在环境中添加一次密钥，Agent 代理会将其附加到发往您列出的主机的请求。Agent 代理[无法附加](#requests-that-never-get-the-credential)的密钥，或 Team 或 Enterprise 计划中的任何密钥，保留在环境变量中 |
+| 交互式身份验证，例如 AWS SSO | 否 | 不支持。SSO 需要基于浏览器的登录，无法在云端会话中执行 |
 
-要在云会话中提供您自己的配置，请将其提交到存储库。
+要在云端会话中提供您自己的配置，请将其提交到仓库。
 
-任何使用环境的人都可以读取其环境变量和设置脚本。对话框在**环境变量**下的注释说明了这一点，并警告不要在那里放置密钥。在 Pro 和 Max 计划中，存储代理可以附加的密钥作为 [API 凭证](#add-api-credentials)。
+任何使用环境的人都可以读取其环境变量和设置脚本。对话框在**环境变量**下的注释说明了这一点，并警告不要在那里放置密钥。在 Pro 和 Max 计划中，请改为将 Agent 代理可以附加的密钥存储为[网络密钥](#add-api-credentials)。
+
+<h4 id="add-personal-preferences-without-committing-to-the-repo">
+  添加个人偏好而无需提交到仓库
+</h4>
+
+在 Anthropic 托管的环境中，对于您不希望放入共享仓库的偏好，请添加一个写入 `~/.claude/CLAUDE.md` 的[设置脚本](#setup-scripts)。Claude Code 会在会话中将该文件作为[用户指令](/docs/zh-CN/memory#choose-where-to-put-claude-md-files)加载。以下示例设置了一项提交信息偏好：
+
+```bash theme={null}
+#!/bin/bash
+mkdir -p ~/.claude
+cat > ~/.claude/CLAUDE.md <<'EOF'
+Use conventional commit messages.
+EOF
+```
+
+请将该脚本放在您自己的某个环境上，而不是[共享环境](#organization-shared-environments)上。
+
+在下一个云端会话中运行 `/context`，并确认 `/root/.claude/CLAUDE.md` 出现在 **Memory files** 下。
 
 <h3 id="installed-tools">
   已安装的工具
 </h3>
 
-云会话预安装了常见的语言运行时、构建工具和数据库。下表按类别总结了包含的内容。
+云端会话预安装了常见的语言运行时、构建工具和数据库。下表按类别总结了包含的内容。
 
 | 类别 | 包含 |
 | :- | :- |
@@ -347,38 +363,38 @@ Anthropic 托管环境中的云会话在 HTTP/HTTPS 网络代理后面运行，�
 
 ¹ Bun 已安装，但在包获取时存在已知的[代理兼容性问题](#install-dependencies-with-a-sessionstart-hook)。
 
-要获取此表中大多数工具的版本，请让 Claude 在云会话中运行 `check-tools`。它是安装在会话 VM 上的 shell 命令，不是斜杠命令；您让 Claude 运行是因为 [Claude 为您运行所有 VM 命令](#run-tests-start-services-and-add-packages)。对于它不报告的工具，例如 Ruby、PHP、bun、PostgreSQL 或 Redis，请让 Claude 运行该工具自己的版本命令，例如 `psql --version`。
+要获取此表中大多数工具的版本，请让 Claude 在云端会话中运行 `check-tools`。它是安装在会话 VM 上的 shell 命令，不是您以 `/` 输入的命令；您让 Claude 运行是因为 [Claude 为您运行所有 VM 命令](#run-tests-start-services-and-add-packages)。对于它不报告的工具，例如 Ruby、PHP、bun、PostgreSQL 或 Redis，请让 Claude 运行该工具自己的版本命令，例如 `psql --version`。
 
 Node.js 版本安装在 `/opt/node20`、`/opt/node21` 和 `/opt/node22`，默认情况下 22 在 `PATH` 上。要使用不同的版本，请让 Claude 将该版本的 `bin` 目录（例如 `/opt/node20/bin`）前置到 `PATH`。
 
 此列表之外的工具链，例如 .NET SDK，即使其包注册表在[默认允许列表](#default-allowed-domains)上也不会预安装。请使用[设置脚本](#setup-scripts)安装它们。
 
 <h3 id="work-with-github-issues-and-pull-requests">
-  使用 GitHub 问题和拉取请求
+  使用 GitHub 问题和 Pull Request
 </h3>
 
-云会话包括内置 GitHub 工具，让 Claude 无需任何设置即可读取问题、列出拉取请求、获取差异和发布评论。这些工具通过 [GitHub 代理](#github-proxy)，使用您在 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)下设置的任何方法进行身份验证，因此您的令牌永远不会进入容器。
+云端会话包括内置 GitHub 工具，让 Claude 无需任何设置即可读取问题、列出 Pull Request、获取 diff 和发布评论。这些工具通过 [GitHub 代理](#github-proxy)，使用您在 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)下配置的任何方法进行身份验证，因此您的令牌永远不会进入容器。
 
 您可以在[环境设置](#set-environment-variables)中自己设置 `GH_TOKEN` 或 `GITHUB_TOKEN`，或者两者都不设置，让 [GitHub 代理](#github-proxy)为您进行身份验证：
 
 * 如果您设置了令牌，它会原封不动地传递到容器中，因此您的脚本和 GitHub 的 [`gh` CLI](https://cli.github.com) 会直接使用它。
-* 如果您都不设置，则由 [GitHub 代理](#github-proxy)为您的会话处理身份验证，这两个变量在 Claude 运行的命令中读取为占位符字符串 `proxy-injected`，代理在出站 GitHub 请求上替换为您的真实凭证。`gh` 无需您自己的令牌即可工作，但直接读取 `GITHUB_TOKEN` 的脚本会得到占位符，而不是可用的令牌。
+* 如果您都不设置，且由 [GitHub 代理](#github-proxy)为您的会话处理身份验证，这两个变量在 Claude 运行的命令中读取为占位符字符串 `proxy-injected`，代理在出站 GitHub 请求上替换为您的真实凭据。针对已附加仓库的 `gh api` 调用无需您自己的令牌即可工作，但直接读取 `GITHUB_TOKEN` 的脚本会得到占位符，而不是可用的令牌。
 
-您设置的令牌是普通环境变量，因此使用环境的任何人都可以读取它；代理路径将凭证保留在环境配置和会话 VM 之外。
+您设置的令牌是普通环境变量，因此使用环境的任何人都可以读取它；代理路径将凭据保留在环境配置和会话 VM 之外。
 
 要检查哪种情况适用于您的会话，请让 Claude 运行 `echo $GH_TOKEN`。
 
-GitHub 的 [`gh` CLI](https://cli.github.com) 已预安装。如果您需要内置工具未涵盖的 `gh` 命令，例如 `gh release` 或 `gh workflow run`，请让 Claude 运行它。`gh` 会自动读取 `GH_TOKEN`，因此您不需要运行 `gh auth login`。
+GitHub 的 [`gh` CLI](https://cli.github.com) 已预安装。如果您需要内置工具未涵盖的 GitHub 操作，请让 Claude 使用 `gh api` 调用 REST API。使用 REST API 的 `gh` 子命令（例如 `gh workflow list`）也可以工作。代理会[拒绝使用 GraphQL 的子命令](#github-proxy)，例如 `gh pr` 和 `gh issue`。`gh` 会自动读取 `GH_TOKEN`，因此您不需要运行 `gh auth login`。
 
 <h3 id="link-output-back-to-the-session">
   将输出链接回会话
 </h3>
 
-每个云会话在 claude.ai 上都有一个转录 URL，会话可以从 `CLAUDE_CODE_REMOTE_SESSION_ID` 环境变量读取自己的 ID。使用它在 PR 正文、提交消息、Slack 帖子或生成的报告中放置可追溯的链接，以便审阅者可以打开生成它们的运行。
+每个云端会话在 claude.ai 上都有一个会话记录 URL，会话可以从 `CLAUDE_CODE_REMOTE_SESSION_ID` 环境变量读取自己的 ID。使用它在 PR 正文、提交信息、Slack 帖子或生成的报告中放置可追溯的链接，以便审阅者可以打开生成它们的运行。
 
-Claude 在云会话中创建的提交包括 `Claude-Session: <url>` git 尾注，PR 正文在单独一行包括会话 URL。要省略尾注和 PR 正文链接，请将 [`attribution.sessionUrl`](/docs/zh-CN/settings-reference#attribution-sessionurl) 设置为 `false`。
+Claude 在云端会话中创建的提交包括 `Claude-Session: <url>` git 尾注，PR 正文在单独一行包括会话 URL。要省略尾注和 PR 正文链接，请将 [`attribution.sessionUrl`](/docs/zh-CN/settings-reference#attribution-sessionurl) 设置为 `false`。
 
-要在提交或 PR 以外的内容中包含会话链接，例如 Claude 发布的 Slack 消息或它编写的报告文件，请让 Claude 运行以下命令并使用其输出。该命令将环境变量值中的 `cse_` 前缀转换为转录 URL 预期的 `session_` 前缀：
+要在提交或 PR 以外的内容中包含会话链接，例如 Claude 发布的 Slack 消息或它编写的报告文件，请让 Claude 运行以下命令并使用其输出。该命令将环境变量值中的 `cse_` 前缀转换为会话记录 URL 预期的 `session_` 前缀：
 
 ```bash theme={null}
 echo "https://claude.ai/code/${CLAUDE_CODE_REMOTE_SESSION_ID/#cse_/session_}"
@@ -388,13 +404,13 @@ echo "https://claude.ai/code/${CLAUDE_CODE_REMOTE_SESSION_ID/#cse_/session_}"
   运行测试、启动服务和添加包
 </h3>
 
-您无法进入会话 VM 的 shell。Claude 为您运行每个命令，因此请将本节中的工作表述为您提示中的请求。
+您无法进入会话 VM 的 shell。Claude 为您运行每个命令，因此请将本节中的任务表述为您提示词中的请求。
 
 <h4 id="run-tests">
   运行测试
 </h4>
 
-Claude 在处理工作的过程中运行测试。在您的提示中提出要求，例如"修复 `tests/` 中的失败测试"或"在每次更改后运行 pytest"。随[预安装的工具链](#installed-tools)提供的测试运行器（例如 pytest 和 cargo test）无需额外设置即可工作。您的项目声明为依赖项的运行器（例如 jest）会随您的依赖项一起安装。
+Claude 在处理任务的过程中运行测试。在您的提示词中提出要求，例如"修复 `tests/` 中的失败测试"或"在每次更改后运行 pytest"。随[预安装的工具链](#installed-tools)提供的测试运行器（例如 pytest 和 cargo test）无需额外设置即可工作。您的项目声明为依赖的运行器（例如 jest）会随您的依赖一起安装。
 
 <h4 id="start-services">
   启动服务
@@ -424,28 +440,28 @@ Docker 可用于运行容器化服务。让 Claude 运行 `docker compose up` �
   资源限制
 </h3>
 
-Anthropic 托管环境中的云会话运行时具有可能随时间变化的近似资源上限：
+Anthropic 托管环境中的云端会话运行时具有可能随时间变化的近似资源上限：
 
 * 4 vCPU
 * 16 GB RAM
 * 30 GB 磁盘
 
-VM 可能会停止需要明显更多内存的工作，例如大型构建工作或内存密集型测试。对于超出这些限制的工作负载，请使用 [Remote Control](/docs/zh-CN/remote-control) 在您自己的硬件上运行 Claude Code，或在[自托管环境](/docs/zh-CN/self-hosted-environments)中运行云会话，该环境在您的组织运营的计算上。
+VM 可能会停止需要明显更多内存的任务，例如大型构建作业或内存密集型测试。对于超出这些限制的工作负载，请使用 [Remote Control](/docs/zh-CN/remote-control) 在您自己的硬件上运行 Claude Code，或在[自托管环境](/docs/zh-CN/self-hosted-environments)中运行云端会话，该环境在您的组织运营的计算资源上。
 
 <h3 id="time-limits">
   时间限制
 </h3>
 
-在 Anthropic 托管的环境中，这些时间限制适用于云会话中的长时间运行的工作，例如构建、安装或测试运行。每个条目链接到定义该限制的部分。
+在 Anthropic 托管的环境中，这些时间限制适用于云端会话中的长时间运行的工作，例如构建、安装或测试运行。每个条目链接到定义该限制的部分。
 
-* **Claude 运行的命令**：云环境不设置自己的命令超时，因此 Bash 工具的默认值适用。Claude 默认等待 2 分钟的命令，最多可以要求 10 分钟。
+* **Claude 运行的命令**：云环境不设置自己的命令超时时间，因此 Bash 工具的默认值适用。Claude 默认为前台命令等待 2 分钟，最多可以要求 10 分钟。
 
   当命令达到其[超时](/docs/zh-CN/tools-reference#timeout-and-output-limits)时，Claude Code [将其移到后台](/docs/zh-CN/tools-reference#foreground-commands-that-move-to-the-background)，而不是停止它，除非命令以 `sleep` 开头。以这种方式移动的命令可以继续运行最多 30 分钟，然后 Claude Code 在其[后台时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)处停止它。将 `BASH_DEFAULT_TIMEOUT_MS` 设置为 `1800000` 毫秒以上会延长该限制以及前台默认值。
-* **SessionStart hooks**：Claude Code 在 600 秒后取消 `command` hook，除非您在 hook 条目上设置 [`timeout`](/docs/zh-CN/hooks#common-fields)（以秒为单位）。Claude Code 不会对您使用 [`async: true`](/docs/zh-CN/hooks#run-hooks-in-the-background) 运行的 hook 强制执行超时。
+* **SessionStart hook**：Claude Code 在 600 秒后取消 `command` hook，除非您在 hook 条目上设置 [`timeout`](/docs/zh-CN/hooks#common-fields)（以秒为单位）。Claude Code 不会对您使用 [`async: true`](/docs/zh-CN/hooks#run-hooks-in-the-background) 运行的 hook 强制执行超时。
 * **设置脚本**：花费超过大约五分钟的脚本不会被缓存。[脚本要求](#script-requirements)涵盖如何保持在该时间以下。
-* **空闲会话**：会话在一段时间不活动后停止，其 VM 被回收。[设置环境变量](#set-environment-variables)描述会话在每种情况下会获取什么，[环境已过期](/docs/zh-CN/claude-code-on-the-web#environment-expired)涵盖如何重新打开 VM 被回收的会话。
+* **空闲会话**：在几分钟没有活动后，会话的 VM 会暂停并保存其文件，暂停的 VM 之后可能会被回收。[设置环境变量](#set-environment-variables)描述会话在每种情况下会获取什么，[环境已过期](/docs/zh-CN/claude-code-on-the-web#environment-expired)涵盖如何重新打开 VM 被回收的会话。
 
-要为环境的会话提高命令超时，请将 [`BASH_DEFAULT_TIMEOUT_MS` 和 `BASH_MAX_TIMEOUT_MS`](/docs/zh-CN/env-vars#variables) 添加到其[环境变量](#set-environment-variables)。两者都采用毫秒。例如，`BASH_DEFAULT_TIMEOUT_MS=600000` 使 10 分钟成为默认值。
+要为环境的会话提高命令超时时间，请将 [`BASH_DEFAULT_TIMEOUT_MS` 和 `BASH_MAX_TIMEOUT_MS`](/docs/zh-CN/env-vars#variables) 添加到其[环境变量](#set-environment-variables)。两者都采用毫秒。例如，`BASH_DEFAULT_TIMEOUT_MS=600000` 使 10 分钟成为默认值。
 
 <h2 id="setup-scripts">
   设置脚本

@@ -40,6 +40,8 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 
 该扩展也可以安装在其他 VS Code 分支中，如 Devin Desktop 或 Kiro。在编辑器的扩展视图中搜索"Claude Code"，或从 [Open VSX 注册表](https://open-vsx.org/extension/Anthropic/claude-code) 安装。如果您的编辑器无法安装该扩展，请[安装 CLI](/docs/zh-CN/quickstart) 并在其集成终端中运行 `claude`。CLI 可在任何终端中使用。
 
+要在开发容器中运行 Claude Code，请参阅[开发容器](/docs/zh-CN/devcontainer)。
+
 <Note>如果安装后扩展没有出现，请重启 VS Code 或从命令面板运行"Developer: Reload Window"。</Note>
 
 <h2 id="get-started">
@@ -786,18 +788,18 @@ summarize the changes I've made to the auth module
 启用自动编辑权限后，Claude Code 可以修改 VS Code 配置文件（如 `settings.json` 或 `tasks.json`），VS Code 可能会自动执行这些文件。为了在处理不受信任的代码时降低风险：
 
 * 为不受信任的工作区启用 [VS Code 受限模式](https://code.visualstudio.com/docs/editor/workspace-trust#_restricted-mode)
-* 使用手动模式而不是自动编辑或自动编辑
+* 编辑时使用手动模式，而不是自动编辑模式或自动模式
 * 在接受更改之前仔细审查更改
 
 <h3 id="the-built-in-ide-mcp-server">
   内置 IDE MCP 服务器
 </h3>
 
-当扩展处于活动状态时，它运行一个本地 MCP 服务器，CLI 会自动连接到该服务器。这是 CLI 在 VS Code 的原生 diff 查看器中打开 diff、读取您当前的 `@`-mentions 选择，以及——当您在 Jupyter notebook 中工作时——要求 VS Code 执行单元格的方式。
+当扩展处于活动状态时，它运行一个本地 MCP 服务器，CLI 会自动连接到该服务器。这是 CLI 在 VS Code 的原生 diff 查看器中打开 diff、读取您当前的选择以用于 `@`-mentions，以及——当您在 Jupyter notebook 中工作时——要求 VS Code 执行单元格的方式。
 
-服务器名为 `ide`，从 `/mcp` 中隐藏，因为没有什么需要配置的。但是，如果您的组织使用 `PreToolUse` hook 来允许列表 MCP 工具，您需要知道它的存在。
+服务器名为 `ide`，从 `/mcp` 中隐藏，因为没有什么需要配置的。但是，如果您的组织使用 `PreToolUse` hook 将 MCP 工具加入允许列表，您需要知道它的存在。
 
-**选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，记录会显示一行 `⧉ Selected N lines from <file>`。
+**选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示词中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，会话记录会显示一行 `⧉ Selected N lines from <file>`。
 
 如果您[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)，它会保留您按下 `Enter` 时的选择，无论您之后选择什么。
 
@@ -807,11 +809,11 @@ summarize the changes I've made to the auth module
 
 **传输和身份验证。** 服务器绑定到 `127.0.0.1` 上的随机端口，范围在 10000–65535，端口不可配置。传输是未加密的 `ws://`；因为套接字仅限于本地回环，任何可以捕获流量的进程也可以从锁文件中读取令牌，所以 TLS 不会增加保护。每次扩展激活都会生成一个新的随机身份验证令牌，将其写入 `~/.claude/ide/<port>.lock` 处的锁文件，CLI 必须将其作为 `X-Claude-Code-Ide-Authorization` 标头呈现才能连接。锁文件在 `0700` 目录中具有 `0600` 权限，因此只有运行 VS Code 的用户才能读取它。如果设置了 `CLAUDE_CONFIG_DIR`，锁文件将写入 `$CLAUDE_CONFIG_DIR/ide/` 目录。
 
-**暴露给模型的工具。** 服务器托管十几个工具，但只有两个对模型可见。其余的是 CLI 用于自己的 UI 的内部 RPC——打开 diff、读取选择、保存文件——在工具列表到达 Claude 之前被过滤掉。
+**暴露给模型的工具。** 服务器托管十几个工具，但只有两个对模型可见。其余的是 CLI 用于自己的 UI 的内部 RPC，例如打开 diff、读取选择和保存文件。它们在工具列表到达 Claude 之前被过滤掉。
 
-| 工具名称（如 hooks 所见） | 功能 | 只读 |
+| 工具名称（如 hook 所见） | 功能 | 只读 |
 | - | - | - |
-| `mcp__ide__getDiagnostics` | 返回语言服务器诊断——VS Code 的问题面板中的错误和警告。可选地限定到一个文件。 | 是 |
+| `mcp__ide__getDiagnostics` | 返回语言服务器诊断：VS Code 的问题面板中的错误和警告。可选地限定到一个文件。 | 是 |
 | `mcp__ide__executeCode` | 在活动 Jupyter notebook 的内核中运行 Python 代码。请参阅下面的确认流程。 | 否 |
 
 **聊天面板中的诊断。** 在聊天面板中，使用 Claude Code v2.1.285 或更高版本时，Claude 通过一个名为 `claude-vscode` 的独立内置服务器读取 VS Code 的问题面板。Claude 可以向它请求某个文件中的当前错误和警告，或者 VS Code 具有诊断信息的所有文件中的当前错误和警告。
@@ -833,10 +835,10 @@ hook 和权限规则将聊天面板的诊断工具视为 `mcp__claude-vscode__ge
 
 `Read` 拒绝规则不涵盖这两个工具中的任何一个，因此请像示例那样使用[拒绝规则](/docs/zh-CN/permissions#mcp)按名称阻止它们。
 
-**Jupyter 执行始终先询问。** `mcp__ide__executeCode` 无法静默运行任何内容。在每次调用时，代码被插入为活动 notebook 末尾的新单元格，VS Code 将其滚动到视图中，原生快速选择器要求您**执行**或**取消**。取消——或用 `Esc` 关闭选择器——会向 Claude 返回错误，不会运行任何内容。当没有活动 notebook、未安装 Jupyter 扩展 (`ms-toolsai.jupyter`) 或内核不是 Python 时，该工具也会直接拒绝。
+**Jupyter 执行始终先询问。** `mcp__ide__executeCode` 无法静默运行任何内容。在每次调用时，代码被插入为活动 notebook 末尾的新单元格，VS Code 将其滚动到视图中，原生快速选择器要求您**执行**或**取消**。取消或用 `Esc` 关闭选择器，会向 Claude 返回错误，不会运行任何内容。当没有活动 notebook、未安装 Jupyter 扩展 (`ms-toolsai.jupyter`) 或内核不是 Python 时，该工具也会直接拒绝。
 
 <Note>
-  快速选择器确认与 `PreToolUse` hooks 分开。`mcp__ide__executeCode` 的允许列表条目让 Claude *提议*运行单元格；VS Code 内的快速选择器是让它*实际*运行的原因。
+  快速选择器确认与 `PreToolUse` hook 分开。`mcp__ide__executeCode` 的允许列表条目让 Claude *提议*运行单元格；VS Code 内的快速选择器是让它*实际*运行的原因。
 </Note>
 
 <a id="troubleshooting" />
@@ -844,6 +846,19 @@ hook 和权限规则将聊天面板的诊断工具视为 `mcp__claude-vscode__ge
 <h2 id="fix-common-issues">
   修复常见问题
 </h2>
+
+登录、网络和启动错误在安装故障排除页面和错误参考页面中有各自的条目。请在表格中找到您看到的内容，然后点击相应链接。
+
+| 您看到的内容 | 前往位置 |
+| - | - |
+| 登录后出现 `API Error: 403 Request not allowed` | [登录后出现 403 Forbidden](/docs/zh-CN/troubleshoot-install#403-forbidden-after-login) |
+| 已经登录后仍被要求再次登录 | [未登录或令牌已过期](/docs/zh-CN/troubleshoot-install#not-logged-in-or-token-expired) |
+| 云提供商凭据在终端中可用，但在扩展程序中不可用 | [Bedrock、Agent Platform 或 Foundry 凭据未加载](/docs/zh-CN/troubleshoot-install#bedrock-agent-platform-or-foundry-credentials-not-loading) |
+| `SSL certificate verification failed` 或 `Self-signed certificate detected` | [SSL 证书错误](/docs/zh-CN/errors#ssl-certificate-errors) |
+| `Claude Code process exited with code 1` 或其他代码 | [Claude Code process exited with code N](/docs/zh-CN/errors#claude-code-process-exited-with-code-n) |
+| `Could not locate the Claude CLI on PATH` | [Could not locate the Claude CLI on PATH](/docs/zh-CN/errors#could-not-locate-the-claude-cli-on-path) |
+| `The connection to Claude Code ended before this message completed` | [The connection to Claude Code ended before this message completed](/docs/zh-CN/errors#the-connection-to-claude-code-ended-before-this-message-completed) |
+| 在 VS Code 的集成终端中找不到 `claude` | [在 VS Code 中运行 CLI](#run-cli-in-vs-code) |
 
 <h3 id="extension-won’t-install">
   扩展程序无法安装

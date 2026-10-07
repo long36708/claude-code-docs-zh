@@ -12,7 +12,7 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
   登录 Claude Code
 </h2>
 
-[安装 Claude Code](/docs/zh-CN/setup#install-claude-code) 后，在终端中运行 `claude`。首次启动时，Claude Code 会打开浏览器窗口供您登录。如果您已设置 `ANTHROPIC_API_KEY` 环境变量，Claude Code 会跳过登录提示，改为要求您批准该密钥。
+[安装 Claude Code](/docs/zh-CN/setup#install-claude-code) 后，在终端中运行 `claude`。首次启动时，Claude Code 会打开浏览器窗口供您登录。如果您已设置 `ANTHROPIC_API_KEY` 环境变量，并在 Claude Code 询问是否使用该密钥时批准了它，Claude Code 会跳过登录提示。
 
 如果浏览器没有自动打开，请按 `c` 将登录 URL 复制到剪贴板，然后将其粘贴到浏览器中。
 

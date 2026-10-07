@@ -42,7 +42,7 @@
 | `Ctrl+Enter` 或 `Ctrl+X Ctrl+S` | 立即发送排队的消息 | 发送您的[排队的消息](#queue-messages-while-claude-works)和您的草稿与它们一起立即发出。[Claude Code 何时发送您排队的内容](#when-claude-code-sends-what-you-queued)涵盖了 Claude 正在处理的轮次会发生什么。在[shell 模式](#shell-mode-with-prefix)中，该键仅排队您的命令。在不报告扩展键的终端中，`Ctrl+Enter` 作为普通 `Enter` 到达；`Ctrl+X Ctrl+S` 在任何终端中都有效。需要 Claude Code v2.1.275 或更高版本 |
 | `Shift+Tab` 或在 Node 或 Bun 运行时不启用 VT 输入模式时在 Windows 上使用 `Alt+M` | 循环权限模式 | 循环通过 `default`（在模式指示器中标记为 Manual）、`acceptEdits`、`plan` 和（如果可用）`bypassPermissions` 然后 `auto`。从 `auto`，第一次按下切换到 `default`。请参阅[权限模式](/docs/zh-CN/permission-modes)。在文件权限提示上，相同的键会关闭打开的[注释字段](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)。如果没有字段打开，它会选择允许该操作在会话其余部分的选项，当提示提供该选项时 |
 | `Option+P`（macOS）或 `Alt+P`（Windows/Linux） | 切换模型 | 在不清除提示的情况下切换模型 |
-| `Option+T`（macOS）或 `Alt+T`（Windows/Linux） | 切换扩展思考 | 启用或禁用扩展思考模式。对 Opus 5.5、Sonnet 5.5 或 Fable 模型无效，它们始终使用扩展思考。在 macOS 上无需配置 Option 为 Meta 即可工作 |
+| `Option+T`（macOS）或 `Alt+T`（Windows/Linux） | 切换扩展思考 | 启用或禁用扩展思考模式。对 Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 模型无效，它们始终使用扩展思考。在 macOS 上无需配置 Option 为 Meta 即可工作 |
 | `Option+O`（macOS）或 `Alt+O`（Windows/Linux） | 切换快速模式 | 启用或禁用[快速模式](/docs/zh-CN/fast-mode) |
 
 <h3 id="text-editing">

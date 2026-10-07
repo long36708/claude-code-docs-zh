@@ -87,7 +87,7 @@ claude --advisor opus
 Claude Code 在该会话中使用该标志而不是 `advisorModel` 设置。它不会在 `claude --help` 中列出 `--advisor`。如果以下任何情况成立，Claude Code 在启动时会以错误退出：
 
 * 会话的主模型不支持顾问
-* 请求的模型（例如 Haiku）无法充当顾问
+* 请求的模型（例如 Haiku 4.5）无法充当顾问
 * 您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了请求的模型
 * 您请求了 Fable，而您的账户仍然需要[使用额度同意](#fable-advisor-and-usage-credits)
 
@@ -103,19 +103,19 @@ Claude Code 按照担任顾问角色的能力对模型进行排名，顾问的�
 
 | 主模型 | 接受的顾问 |
 | - | - |
-| Haiku 4.5 | Fable、Opus、Sonnet |
-| Sonnet 4.6 | Fable、Opus、Sonnet |
-| Opus 4.6 | Fable、Opus、Sonnet 5 或更高版本 |
-| Sonnet 5 | Fable、Opus 4.7 或更高版本、Sonnet 5 或更高版本 |
+| Haiku 4.5 | Fable、Opus、Sonnet、Haiku 5.5 |
+| Sonnet 4.6 | Fable、Opus、Sonnet、Haiku 5.5 |
+| Opus 4.6 | Fable、Opus、Sonnet 5 或更高版本、Haiku 5.5 |
+| Sonnet 5 或 Haiku 5.5 | Fable、Opus 4.7 或更高版本、Sonnet 5 或更高版本、Haiku 5.5 |
 | Opus 4.7 或 Opus 4.8 | Fable、Opus 4.7 或更高版本、Sonnet 5.5 |
 | Sonnet 5.5 | Fable、Opus 5 或更高版本、Sonnet 5.5 |
 | Opus 5 或 Opus 5.5 | Fable、Opus 5 或更高版本 |
 | Fable 5 | Fable 5.1 或 Fable 5 |
 | Fable 5.1 | Fable 5.1 |
 
-Fable 5.1 需要 Claude Code v2.1.257 或更高版本。Fable 模型需要 [Fable 访问权限](/docs/zh-CN/model-config#work-with-fable)。将 Sonnet 5.5 作为 Opus 4.7 或 Opus 4.8 主模型的顾问需要 Claude Code v2.1.287 或更高版本。
+Fable 5.1 需要 Claude Code v2.1.257 或更高版本。Fable 模型需要 [Fable 访问权限](/docs/zh-CN/model-config#work-with-fable)。将 Sonnet 5.5 作为 Opus 4.7 或 Opus 4.8 主模型的顾问需要 Claude Code v2.1.287 或更高版本。将 Haiku 5.5 作为主模型或顾问需要 Claude Code v2.1.293 或更高版本。
 
-将顾问设置为 `fable`、`opus` 或 `sonnet`。这些别名解析为 Claude Code 为每个模型系列[内置的默认版本](/docs/zh-CN/model-config#model-aliases)，该版本随新的 Claude Code 版本而推进。您也可以传递完整的模型 ID，例如 `claude-opus-5-5`。Haiku 可以调用顾问，但不能充当顾问。
+将顾问设置为 `fable`、`opus` 或 `sonnet`。这些别名解析为 Claude Code 为每个模型系列[内置的默认版本](/docs/zh-CN/model-config#model-aliases)，该版本随新的 Claude Code 版本而推进。您也可以传递完整的模型 ID，例如 `claude-opus-5-5` 或 `claude-haiku-5-5`。Haiku 4.5 可以调用顾问，但不能充当顾问。
 
 子代理继承配置的顾问，并对其自己的模型应用相同的配对检查。
 
@@ -202,7 +202,7 @@ Claude 在决策点而不是每一轮都调用顾问，因此将更快的主模�
 顾问工具需要以下所有条件：
 
 * **仅 Anthropic API**：顾问是服务器执行的工具。它在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。通过配置了 `ANTHROPIC_BASE_URL` 的 [LLM 网关](/docs/zh-CN/llm-gateway)，可用性取决于网关是否将请求完整转发到 Anthropic API。如果网关或其上游不识别顾问工具，请参阅[自动重试和错误转发](/docs/zh-CN/llm-gateway-protocol#automatic-retry-and-error-forwarding)了解 Claude Code 如何响应。
-* **支持的主模型**：Fable、Opus 4.6 或更高版本、Sonnet 4.6 或更高版本，或 Haiku 4.5。请参阅[选择顾问模型](#choose-an-advisor-model)了解每个顾问接受的模型。
+* **支持的主模型**：Fable、Opus 4.6 或更高版本、Sonnet 4.6 或更高版本、Haiku 4.5 或 Haiku 5.5。请参阅[选择顾问模型](#choose-an-advisor-model)了解每个主模型接受哪些顾问。
 * **功能标志获取**：Claude Code 通过从 Anthropic 获取的功能标志来启用顾问。在设置了关闭标志获取的变量（例如 `DISABLE_TELEMETRY`）的会话中，顾问保持关闭状态。请参阅[需要功能标志获取的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)。
 
 <h2 id="turn-the-advisor-off">

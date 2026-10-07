@@ -220,7 +220,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 </table>
 
 <span id="fn1" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>1</sup> 在 Google Cloud's Agent Platform 上，web search 适用于 Claude 4 及更高版本的模型。<br />
-<span id="fn2" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>2</sup> 在这些提供商上，auto mode 仅支持 Claude Sonnet 5、Opus 4.7 或更高版本以及 Fable 模型。请参阅 [Auto mode 配置](/docs/zh-CN/auto-mode-config)。有关会话在这些提供商上启动时所处的权限模式，请参阅[会话启动时的模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)。在 v2.1.158 到 v2.1.206 中，这些提供商上的 auto mode 还需要设置 `CLAUDE_CODE_ENABLE_AUTO_MODE=1`；v2.1.207 移除了该要求。<br />
+<span id="fn2" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>2</sup> 在这些提供商上，自动模式仅支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型。请参阅 [Auto mode 配置](/docs/zh-CN/auto-mode-config)。有关会话在这些提供商上启动时所处的权限模式，请参阅[会话启动时的模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)。在 v2.1.158 到 v2.1.206 中，这些提供商上的 auto mode 还需要设置 `CLAUDE_CODE_ENABLE_AUTO_MODE=1`；v2.1.207 移除了该要求。<br />
 <span id="fn3" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>3</sup> 受您与云提供商的协议约束。<br />
 <span id="fn4" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>4</sup> 仅限仪表板和 API。[贡献指标](/docs/zh-CN/analytics#enable-contribution-metrics)需要 claude.ai Team 或 Enterprise 组织。<br />
 <span id="fn5" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>5</sup> 在 macOS 和 Linux 上需要 Claude Code v2.1.224 或更高版本，包括 WSL 2 内的 Linux。在原生 Windows 上，需要 Claude Code v2.1.234 或更高版本。使用 API 密钥身份验证时，消息传递仅限同一台机器。在 Amazon Bedrock、Claude Platform on AWS、Google Cloud's Agent Platform 和 Microsoft Foundry 上，消息传递仅限同一台机器，需要 Claude Code v2.1.248 或更高版本。Claude 只能从连接到 [Remote Control](/docs/zh-CN/remote-control) 的会话中找到您的 [cloud sessions](/docs/zh-CN/claude-code-on-the-web) 和其他机器上的会话。要连接，您需要 claude.ai 登录和其他 [Remote Control 要求](/docs/zh-CN/remote-control#requirements)。请参阅[在其他机器上发送消息](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)。
@@ -244,7 +244,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
     **部分支持：**
 
     * [Desktop](/docs/zh-CN/desktop)：仅通过 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
-    * [Auto mode](/docs/zh-CN/auto-mode-config)：仅 Sonnet 5、Opus 4.7 或更高版本以及 Fable 模型
+    * [Auto mode](/docs/zh-CN/auto-mode-config)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
     * [Cross-session messaging](/docs/zh-CN/cross-session-messaging)：仅在此机器上的您的会话之间 <sup><a href="#fn5">5</a></sup>
     * [Zero Data Retention](/docs/zh-CN/zero-data-retention)：受您的 AWS 协议约束
 
@@ -270,7 +270,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
     * [Desktop](/docs/zh-CN/desktop)：通过[托管设置](https://claude.com/docs/third-party/claude-desktop/configuration)或 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
     * [Web search](/docs/zh-CN/tools-reference#websearch-tool-behavior)：Claude 4 及更高版本的模型
-    * [Auto mode](/docs/zh-CN/auto-mode-config)：仅 Sonnet 5、Opus 4.7 或更高版本以及 Fable 模型
+    * [Auto mode](/docs/zh-CN/auto-mode-config)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
     * [Cross-session messaging](/docs/zh-CN/cross-session-messaging)：仅在此机器上的您的会话之间 <sup><a href="#fn5">5</a></sup>
     * [Zero Data Retention](/docs/zh-CN/zero-data-retention)：受您的 Google Cloud 协议约束
 
@@ -284,7 +284,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
     * [Desktop](/docs/zh-CN/desktop)：仅通过 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
     * [Web search](/docs/zh-CN/tools-reference#websearch-tool-behavior)：[部署在 Anthropic 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)仅
-    * [Auto mode](/docs/zh-CN/auto-mode-config)：仅 Sonnet 5、Opus 4.7 或更高版本以及 Fable 模型
+    * [Auto mode](/docs/zh-CN/auto-mode-config)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
     * [Cross-session messaging](/docs/zh-CN/cross-session-messaging)：仅在此机器上的您的会话之间 <sup><a href="#fn5">5</a></sup>
     * [Zero Data Retention](/docs/zh-CN/zero-data-retention)：受您的 Azure 协议约束
 

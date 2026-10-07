@@ -870,7 +870,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 
 通过将其设置为 `false` 来为每个会话关闭[扩展思考](/docs/zh-CN/model-config#extended-thinking)。默认情况下思考是打开的，所以 `true` 不会改变任何内容。大多数人通过 `/config` 而不是编辑文件来设置这个。
 
-在总是思考的模型上，如 Opus 5.5、Sonnet 5.5 和 Fable 模型，`false` 没有效果。在[第三方提供商](/docs/zh-CN/third-party-integrations)上，Claude Code 省略 `thinking` 参数而不是关闭思考，因此自适应推理模型可能仍然会思考。在 Anthropic API 上关闭思考时，Claude Code 会发送努力 `high` 而不是更高级别给它知道[不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off)的模型，如 Opus 5。
+在总是思考的模型上，如 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 模型，`false` 没有效果。在[第三方提供商](/docs/zh-CN/third-party-integrations)上，Claude Code 省略 `thinking` 参数而不是关闭思考，因此自适应推理模型可能仍然会思考。在 Anthropic API 上关闭思考时，对于 Claude Code 已知[不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off)的模型（如 Opus 5），Claude Code 会发送 effort `high` 而不是更高级别。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: Boolean

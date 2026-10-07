@@ -365,7 +365,7 @@ Claude 决定何时推送。它通常在长时间运行的任务完成时或需�
 </h2>
 
 * **每个交互式进程只能有一个远程会话**：在服务器模式之外，每个 Claude Code 实例一次只支持一个远程会话。使用[服务器模式](#start-a-remote-control-session)从单个进程运行多个并发会话。
-* **本地进程必须保持运行**：Remote Control 作为本地进程运行。如果您关闭终端、退出桌面应用或 VS Code，或以其他方式停止 `claude` 进程，会话将离线，直到您[恢复它](#resume-sessions-after-stopping-the-server)。要在断开 SSH 连接后保持远程机器上的会话运行，请在 `tmux` 或 `screen` 内启动它。
+* **本地进程必须保持运行**：Remote Control 作为本地进程运行。如果您关闭终端、退出 Desktop 应用或 VS Code，或以其他方式停止 `claude` 进程，会话将离线，直到您[将其恢复](#resume-sessions-after-stopping-the-server)。如果您在远程机器上的终端中运行 `claude`，请在 `tmux` 或 `screen` 中启动它，以便在断开 SSH 连接后会话仍保持运行。
 * **服务器模式中的崩溃会话**：如果由 `claude remote-control` 提供的会话崩溃，请从连接的设备向其发送消息。Claude Code 会再次提供它。您不必重启服务器。需要 Claude Code v2.1.238 或更高版本。
 * **已连接会话上的 HTTP 403 拒绝**：一旦交互式会话连接，当您的机器和 Anthropic 服务器之间的某个地方返回 HTTP 403 时（在 VPN 或网络更改后可能发生），Claude Code 会重试最多三分钟。如果拒绝持续更长时间，Claude Code 会断开连接，原因会说明是什么拒绝了：网络边缘，或您自己网络上的代理、VPN 或防火墙。
 * **扩展网络中断**：如果您的机器处于唤醒状态但无法到达网络，接下来的操作取决于模式：

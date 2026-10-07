@@ -1164,7 +1164,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 
 * 子代理完成时，Claude 会收到其 Agent ID。
 * 内置的 Explore 和 Plan Agent 是一次性的，不返回 Agent ID，因此 Claude 无法恢复它们。需要继续工作时，请使用 `general-purpose` 或自定义子代理。
-* 当子代理因达到 [`maxTurns`](#supported-frontmatter-fields) 限制而停止时，Claude Code 会将返回的输出标记为部分结果。对于会返回 Agent ID 的子代理，Claude Code 还会在结果中注明 Claude 可以向该子代理发送消息，让它从停止处继续。
+* 当子代理因达到 [`maxTurns`](#supported-frontmatter-fields) 限制而停止时，Claude Code 会将返回的输出标记为部分结果，Claude 可以恢复该子代理以继续其工作。
 
 Claude 使用 `SendMessage` 工具，以 Agent 的 ID 或名称作为 `to` 字段来恢复它。`SendMessage` 不要求启用 [agent teams](/docs/zh-CN/agent-teams)；只有 `shutdown_request` 和 `plan_approval_response` 等结构化团队协议消息才需要。除了子代理和队友之外，在启用了跨会话消息的会话中，Claude 还可以使用同一工具向[您的其他 Claude Code 会话](/docs/zh-CN/cross-session-messaging)发送消息，无论它们在本机还是[其他机器上](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)。
 
@@ -1279,7 +1279,7 @@ Claude 通过 Agent 工具请求 `fork` subagent 类型来启动分叉。您可�
 | 权限 | 提示在您的终端中出现 | [提示在后台运行时在您的主会话中出现](#run-subagents-in-foreground-or-background) |
 | Prompt cache | 与主会话共享 | 单独的缓存 |
 
-因为分叉的系统提示和工具定义与父级相同，其第一个请求重用父级的 [prompt cache](/docs/zh-CN/prompt-caching#subagents-and-the-cache)。这使得分叉比为需要相同上下文的任务生成新 subagent 更便宜。
+因为分叉的系统提示词和工具定义与父级相同，其第一个请求重用父级的[提示缓存](/docs/zh-CN/prompt-caching#subagents-and-the-cache)。由于这种重用，对于需要相同上下文的任务，分叉的成本低于新的子代理。
 
 当 Claude 通过 Agent 工具生成分叉时，它可以传递 `isolation: "worktree"` 以便分叉的文件编辑被写入单独的 git worktree 而不是您的检出。分叉无法生成进一步的分叉。
 

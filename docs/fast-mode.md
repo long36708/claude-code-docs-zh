@@ -88,7 +88,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 快速模式定价在整个 1M 令牌上下文窗口中是固定的。有关要比较的标准 Opus 费率，请参阅 [Claude 定价参考](https://platform.claude.com/docs/zh-CN/about-claude/pricing)。
 
-在对话中首次启用快速模式时，您需要为整个对话上下文支付完整的快速模式未缓存输入令牌价格。对话进行得越深入，成本就越高，因此从一开始就启用快速模式更便宜。该成本每个对话只应用一次，因此稍后关闭快速模式再打开不会重复收费。有关机制，请参阅 [快速模式如何与提示缓存交互](/docs/zh-CN/prompt-caching#turning-on-fast-mode)。
+在对话中首次启用快速模式时，您需要为整个对话上下文支付完整的快速模式未缓存输入 token 价格。对话进行得越深入，成本就越高，因此在对话开始时启用快速模式的费用最低。该成本每个对话只应用一次，因此稍后关闭快速模式再打开不会重复收费。有关机制，请参阅 [快速模式如何与提示缓存交互](/docs/zh-CN/prompt-caching#turning-on-fast-mode)。
 
 <h3 id="see-where-fast-mode-spend-appears">
   查看快速模式支出出现的位置

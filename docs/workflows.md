@@ -522,7 +522,12 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
 
 要为整个组织关闭工作流，在[托管设置](/docs/zh-CN/server-managed-settings)中设置 `"disableWorkflows": true`，或使用[Claude Code 管理员设置](https://claude.ai/admin-settings/claude-code)页面上的切换。
 
-当工作流被禁用时，捆绑工作流命令和 `/workflow-authoring` skill 不可用，`ultracode` 关键字不再触发运行，**Ultracode** 切换从 `/effort` 中移除。一个已在进行中的运行会继续进行。
+当工作流被禁用时：
+
+* `/workflows`、工作流命令和 `/workflow-authoring` skill 不可用
+* `ultracode` 关键字不再触发运行，**Ultracode** 开关会从 `/effort` 中移除
+
+已在进行中的运行会继续进行。
 
 关闭工作流也会使[ultracode](#let-claude-decide-with-ultracode)不可用。没有托管设置单独排除 ultracode：无论它在哪里[可用](/docs/zh-CN/model-config#when-ultracode-is-available)，用户可以使用 `/effort ultracode` 打开它。[努力上限](/docs/zh-CN/model-config#organization-effort-limits)降低了启用 ultracode 的会话运行的努力级别，但不会关闭 ultracode。
 

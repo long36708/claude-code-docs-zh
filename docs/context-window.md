@@ -1599,24 +1599,24 @@ Claude Code 的上下文窗口包含 Claude 在您的会话中了解的所有内
 
 | 机制 | 压缩后 |
 | :- | :- |
-| 系统提示和输出样式 | 两者仍然适用 |
+| 系统提示词和输出样式 | 两者仍然适用 |
 | 项目根目录 CLAUDE.md 和无范围规则 | 从磁盘重新注入 |
-| 自动内存 | 从磁盘重新注入 |
-| [Git 状态快照](/docs/zh-CN/settings-reference#includegitinstructions) | Claude Code 从您的存储库读取一个新的 |
+| 自动记忆 | 从磁盘重新注入 |
+| [Git 状态快照](/docs/zh-CN/settings-reference#includegitinstructions) | Claude Code 从您的仓库读取一个新的 |
 | Claude 在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中编写的计划 | 从磁盘重新注入 |
 | 带有 `paths:` frontmatter 的规则 | Claude Code [按需](/docs/zh-CN/memory#path-specific-rules)重新加载它们 |
 | 子目录中的嵌套 CLAUDE.md | Claude Code [按需](/docs/zh-CN/memory#how-claude-md-files-load)重新加载它们 |
 | Claude 读取或编辑的文件 | Claude Code 重新读取最多五个，最近修改的优先 |
-| 调用的技能主体 | 重新注入，每个技能上限为 5,000 个令牌，总计 25,000 个令牌；最旧的首先删除 |
+| 调用的 skill 主体 | 重新注入，每个 skill 上限为 5,000 个 token，总计 25,000 个 token；最旧的首先删除 |
 | [后台命令](/docs/zh-CN/interactive-mode#background-bash-commands)和后台[子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background) | 继续运行。Claude Code 提醒 Claude 哪些仍在运行，以便它不会启动重复的 |
-| Hooks 添加的上下文 | 与对话的其余部分一起总结 |
+| hook 先前添加的上下文 | 与对话的其余部分一起总结 |
 | 匹配 `compact` 源的 [SessionStart hooks](/docs/zh-CN/hooks-guide#re-inject-context-after-compaction) | Claude Code 运行它们并将其输出添加到压缩的上下文中 |
 
-压缩后立即，Claude Code 重新读取最多五个 Claude 在会话中读取或编辑的文件，选择最近修改的文件。超过 5,000 个令牌的文件作为路径引用返回，不包含其内容，显示为 `Referenced file` 而不是 `Read`。
+压缩后立即，Claude Code 重新读取最多五个 Claude 在会话中读取或编辑的文件，选择最近修改的文件。超过 5,000 个 token 的文件作为路径引用返回，不包含其内容，显示为 `Referenced file` 而不是 `Read`。
 
-路径范围的规则和嵌套的 CLAUDE.md 文件在读取其触发文件时加载到消息历史中，因此压缩会将它们与其他所有内容一起总结。如果规则必须在压缩过程中保持不变，请删除 `paths:` frontmatter 或将其移动到项目根目录 CLAUDE.md。
+路径范围的规则和嵌套的 CLAUDE.md 文件在 Claude 读取、写入或编辑其触发文件时加载到消息历史中，因此压缩会将它们与其他所有内容一起总结。如果规则必须在压缩过程中保持不变，请删除 `paths:` frontmatter 或将其移动到项目根目录 CLAUDE.md。
 
-技能主体在压缩后重新注入，但大型技能会被截断以适应每个技能的上限，一旦超过总预算，最旧的调用技能就会被删除。截断保留文件的开头，因此请将最重要的指令放在 `SKILL.md` 的顶部附近。
+skill 主体在压缩后重新注入，但大型 skill 会被截断以适应每个 skill 的上限，一旦超过总预算，最旧的已调用 skill 就会被删除。截断保留文件的开头，因此请将最重要的指令放在 `SKILL.md` 的顶部附近。
 
 <h2 id="when-your-context-fills-up">
   当您的上下文填满时
@@ -1632,7 +1632,7 @@ Claude Code 在您接近限制时自动压缩，因此完整的上下文窗口�
 * **在任务之间清除**：切换到不相关的工作时运行 `/clear`。旧对话会挤出您接下来需要的文件，并在每条消息上花费令牌。
 * **委托大型读取**：将研究发送给[子代理](/docs/zh-CN/sub-agents)，以便文件内容保留在其上下文窗口中，而不是您的。
 
-如果您需要更大的窗口而不是更小的对话，Fable 模型、Sonnet 5 及更高版本、Opus 4.6 及更高版本以及 Sonnet 4.6 支持 100 万令牌的上下文窗口。有关按计划的可用性以及如何选择 `[1m]` 模型变体，请参阅[扩展上下文](/docs/zh-CN/model-config#extended-context)。压缩在更大的限制下以相同的方式工作。
+如果您需要更大的窗口而不是更小的对话，Fable 模型、Sonnet 5 及更高版本、Haiku 5.5、Opus 4.6 及更高版本以及 Sonnet 4.6 支持 100 万 token 的上下文窗口。有关按计划的可用性以及如何选择 `[1m]` 模型变体，请参阅[扩展上下文](/docs/zh-CN/model-config#extended-context)。压缩在更大的限制下以相同的方式工作。
 
 Sonnet 5.5 和 Sonnet 5 以 1M 上下文窗口运行，没有 `[1m]` 变体可选择。有关其自动压缩阈值，请参阅[Sonnet 5.5 和 Sonnet 5 上下文窗口](/docs/zh-CN/model-config#sonnet-5-5-and-sonnet-5-context-window)，以及[网关后面的上下文窗口](/docs/zh-CN/model-config#context-window-behind-a-gateway)，了解当您将 `ANTHROPIC_BASE_URL` 设置为 [LLM 网关](/docs/zh-CN/llm-gateway)时 Claude Code 如何调整窗口大小。
 

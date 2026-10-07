@@ -347,17 +347,28 @@ Claude Code 不会在第三方部署中的 Claude Desktop 应用的 Code 选项�
   `serverUrl` 条目如何匹配
 </h4>
 
-URL 支持在模式中的任何位置使用 `*` 通配符，包括方案。主机名匹配不区分大小写，忽略尾部 FQDN 点，因此 `https://Mcp.Example.com/*` 匹配 `https://mcp.example.com/api`。路径保持区分大小写。
+URL 支持 `*` 通配符，包括以 `*` 作为整个方案。主机名匹配不区分大小写，忽略尾部 FQDN 点，因此 `https://Mcp.Example.com/*` 匹配 `https://mcp.example.com/api`。路径保持区分大小写。如果未指定端口，主机名的写法决定该模式仅匹配方案的默认端口还是所有端口：
+
+* **完整写出的主机名**：仅默认端口，`https` 为 443，`http` 为 80
+* **包含 `*` 的主机名**：所有端口
 
 下表显示常见模式允许的内容：
 
 | 模式 | 允许 |
 | :- | :- |
-| `https://mcp.example.com/*` | 特定域上的所有路径 |
-| `https://mcp.example.com` | 也允许该域上的所有路径。没有路径的模式匹配任何路径 |
-| `https://*.example.com/*` | `example.com` 的任何子域 |
+| `https://mcp.example.com/*` | 特定域上的所有路径，仅限端口 443 |
+| `https://mcp.example.com` | 也允许该域上的所有路径，仅限端口 443。没有路径的模式匹配任何路径 |
+| `https://mcp.example.com:8443/*` | 该域上的所有路径，仅限端口 8443 |
+| `https://mcp.example.com:*/*` | 该域上任何端口（包括 443）的所有路径 |
+| `https://*.example.com/*` | `example.com` 的任何子域，任何端口 |
 | `http://localhost:*/*` | localhost 上的任何端口 |
-| `*://mcp.example.com/*` | 到特定域的任何方案 |
+| `*://mcp.example.com/*` | 到特定域的任何方案，每个方案仅限其默认端口 |
+
+`deniedMcpServers` 中的条目以相同方式匹配端口，因此请根据需要阻止的端口和方案为 `staging.example.com` 选择条目：
+
+* `https://staging.example.com/*`：仅阻止该主机上端口 443 的 `https` 服务器，因此不会阻止位于 `https://staging.example.com:8443/api` 的服务器
+* `https://staging.example.com:*/*`：阻止该主机上所有端口的 `https` 服务器
+* `*://staging.example.com:*/*`：阻止该主机的任何方案和任何端口
 
 <h4 id="how-policy-entries-expand">
   `serverCommand` 和 `serverUrl` 条目中的环境变量
@@ -529,6 +540,7 @@ URL 支持在模式中的任何位置使用 `*` 通配符，包括方案。主�
   | :- | :- |
   | `https://mcp.example.com/api` 处的 HTTP 服务器 | 允许：匹配允许列表 URL 模式，无拒绝列表匹配 |
   | `https://staging.example.com/api` 处的 HTTP 服务器 | 阻止：两者都匹配，但拒绝列表优先 |
+  | `https://staging.example.com:8443/api` 处的 HTTP 服务器 | 允许：匹配允许列表 URL 模式，[此端口上无拒绝列表匹配](#how-serverurl-entries-match) |
   | `https://other.com/mcp` 处的 HTTP 服务器 | 阻止：不匹配允许列表 |
 </Accordion>
 

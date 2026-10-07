@@ -78,7 +78,7 @@ Claude Desktop 在检测到设备为组织管理的设备上默认关闭 WSL 会
 
 Desktop 在每次 WSL 会话启动时读取策略，因此在部署后无需重启应用。
 
-如果设备仍然拒绝 WSL 会话，请在该设备上的 Claude Desktop 中打开 **Help > Troubleshooting > Show Logs in Explorer**，这会将其日志文件夹的副本保存到 Downloads。在该副本中搜索 `main.log` 中的 `[wslPolicyGate] denying WSL session`。拒绝的原因在括号中，例如 `(cli-file-present)`。如果 Claude Desktop 是用 `.exe` 安装程序安装的，您也可以在 `%APPDATA%\Claude\logs\main.log` 处读取实时文件。
+如果设备仍然拒绝 WSL 会话，请在该设备上的 Claude Desktop 中打开 **Help > Troubleshooting > Show Logs in File Explorer**，这会将其日志文件夹的副本保存到 Downloads。在该副本中搜索 `main.log` 中的 `[wslPolicyGate] denying WSL session`。拒绝的原因在括号中，例如 `(cli-file-present)`。
 
 启用 WSL 会话后，将您的托管设置扩展到它们：
 

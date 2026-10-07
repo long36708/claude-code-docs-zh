@@ -950,7 +950,7 @@ class ClaudeAgentOptions:
 | `user` | `str \| None` | `None` | 在 POSIX 平台上，Claude Code 子进程运行的 OS 用户账户。Claude Code 保持父进程的环境，包括 `HOME`，并在 `cwd` 中运行 |
 | `include_partial_messages` | `bool` | `False` | 包括部分消息流式事件。启用时，会产生 [`StreamEvent`](#streamevent) 消息 |
 | `include_hook_events` | `bool` | `False` | 在消息流中以 `HookEventMessage` 对象的形式包括 hook 生命周期事件 |
-| `forward_subagent_text` | `bool` | `False` | 在消息流中转发子代理文本和思考块。没有此选项，Claude Code 会发出子代理 `tool_use` 和 `tool_result` 块，但不会发出文本或思考。需要 Python Agent SDK 0.2.140 或更高版本 |
+| `forward_subagent_text` | `bool` | `False` | 在消息流中转发子代理文本和思考块。没有此选项时，Claude Code 会省略在[前台](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)运行的子代理的文本和思考块。有关嵌套子代理、带有 `context: fork` 的 skill 以及各自所需的 Claude Code 版本，见 [跟踪子代理消息](/docs/zh-CN/headless#follow-subagent-messages)。需要 Python Agent SDK 0.2.140 或更高版本 |
 | `verbatim_prompts` | `bool` | `False` | 按原样传递每个提示词。SDK 发送每条用户消息时将 `client_composed` 设置为 `True`。见 [`client_composed`](/docs/zh-CN/agent-sdk/typescript#sdkusermessage) 了解 Claude Code 在这些消息上跳过的内容。当您的提示词文本包含最终用户未输入的内容时使用此选项。如需按轮次控制，请保持关闭，并改为在单个流式消息上设置 `"client_composed": True`。启用此选项时，SDK 会覆盖您设置的任何 `client_composed` 值。需要 Python Agent SDK 0.2.158 或更高版本以及 Claude Code v2.1.248 或更高版本；这些 SDK 版本附带的 CLI 满足 Claude Code 要求 |
 | `fork_session` | `bool` | `False` | 使用 `resume` 恢复时，分叉到新会话 ID 而不是继续原始会话 |
 | `resume_session_at` | `str \| None` | `None` | 恢复时，仅加载对话直到并包括具有此 UUID 的消息。与 `resume` 一起使用，通常还要使用 `fork_session`，以从较早的点创建分支。需要 Python Agent SDK 0.2.137 或更高版本 |
@@ -1465,7 +1465,7 @@ ThinkingConfig = ThinkingConfigAdaptive | ThinkingConfigEnabled | ThinkingConfig
 | `enabled` | `type`, `budget_tokens`, `display` | 启用具有特定 token 预算的思考 |
 | `disabled` | `type` | 禁用思考 |
 
-可选的 `display` 字段控制思考文本以 `"summarized"` 还是 `"omitted"` 形式返回。在 Claude Opus 4.7 及更高版本上，API 默认值为 `"omitted"`，因此请设置 `"summarized"` 以在 [`ThinkingBlock`](#thinkingblock) 输出中接收思考内容。Claude Code 在发往某些提供商（如 Amazon Bedrock 和 Google Cloud 的 Agent Platform）的请求中不包含 `display`。在这些提供商上，即使您将 `display` 设置为 `"summarized"`，Opus 4.7 及更高版本也会返回空的 `ThinkingBlock` 输出。
+可选的 `display` 字段控制思考文本以 `"summarized"` 还是 `"omitted"` 形式返回。在 Claude Opus 4.7 及更高版本上，API 默认值为 `"omitted"`，因此请设置 `"summarized"` 以在 [`ThinkingBlock`](#thinkingblock) 输出中接收思考内容。Claude Code 不会将您的 `display` 值传递给某些提供商，例如 Amazon Bedrock 和 Google Cloud 的 Agent Platform。在这些提供商上，即使您将 `display` 设置为 `"summarized"`，Opus 4.7 及更高版本也会返回空的 `ThinkingBlock` 输出。
 
 因为这些是 `TypedDict` 类，它们在运行时是普通字典。可以将它们构造为字典字面量，也可以像调用构造函数一样调用类；两者都产生 `dict`。使用 `config["budget_tokens"]` 访问字段，而不是 `config.budget_tokens`：
 

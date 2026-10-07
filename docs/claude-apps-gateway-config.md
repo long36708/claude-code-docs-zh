@@ -376,6 +376,8 @@ upstreams:
 | 其他任何地方 | 通过 `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY` 和 `AWS_SESSION_TOKEN` 环境变量传递凭据，或在 `auth:` 中使用 `${VAR}` 扩展显式设置它们 |
 | 区域 | `region:` 是 API 端点区域。跨区域推理配置文件跨地理位置（美国、欧盟、亚太）路由，无论您选择哪一个。对于非美国地区或预配吞吐量 ARN，添加带有正确的按上游 ID 的 [`models:`](#models) 块。 |
 
+<a id="apply-an-amazon-bedrock-guardrail" />
+
 <h5 id="apply-an-amazon-bedrock-guardrail">
   应用 Amazon Bedrock 防护栏
 </h5>
@@ -921,8 +923,10 @@ managed:
 
   两个传播时钟适用：
 
-  * **策略内容**：编辑策略并重新部署在连接的客户端的下一个托管设置轮询中到达，在一小时内，除了[仅在下一次启动时应用的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)
+  * **策略内容**：编辑策略并重新部署在连接的 Claude Code 客户端的下一个托管设置轮询中到达，在一小时内，除了[仅在下一次启动时应用的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)
   * **组成员身份**：更改用户的组成员身份更改哪个策略匹配他们。这在下一个会话重新铸造时生效，意味着下一个静默刷新，受 `session.ttl_hours` 限制。
+
+  Claude Desktop 遵循[其自己的时间表](#when-a-policy-change-reaches-claude-desktop)。
 </Note>
 
 <h4 id="start-sessions-on-a-model-the-policy-allows">
@@ -1086,7 +1090,13 @@ Claude Code 应用此变量时不会向开发者显示批准对话框。该变�
   需要网关服务器上的 Claude Code v2.1.203 或更高版本，以及显式选择加入：`/user/bootstrap` 返回 404，除非与用户匹配的策略携带 `desktop` 键。空 `desktop: {}` 选择一个策略，`match: {}` 基础层上的 `desktop` 键选择继承它的每个策略。审计日志将每个请求记录为 `desktop_bootstrap.serve` 或 `desktop_bootstrap.denied`。
 </Note>
 
-网关从匹配策略的 `cli` 块和顶级网关配置派生响应的大部分：
+如果您不部署 Claude Desktop，请完全从您的策略中省略 `desktop`；网关然后从每个用户的 `/user/bootstrap` 返回 404。
+
+<h5 id="settings-the-gateway-derives-for-claude-desktop">
+  网关为 Claude Desktop 派生的设置
+</h5>
+
+网关从匹配策略的 `cli` 块和顶级网关配置派生引导响应的大部分：
 
 * 模型列表，来自 `availableModels`。[Claude Desktop 中的扩展上下文](#extended-context-in-claude-desktop)介绍每个模型的 1M 上下文选项
 * 禁用的工具，来自裸工具名称 `permissions.deny` 条目。如果您在策略的 `desktop` 块中设置 `disabledBuiltinTools`，网关提供您的值和派生列表的并集，因此您可以通过这种方式禁用更多工具，但无法重新启用您通过 `permissions.deny` 禁用的工具
@@ -1099,7 +1109,13 @@ Claude Code 应用此变量时不会向开发者显示批准对话框。该变�
 
 网关省略没有 Claude Desktop 等效项的键，例如 `hooks` 和范围权限规则，如 `Bash(npm *)`，来自引导响应。
 
-添加可选的 `desktop` 块与 `cli` 一起直接设置 Claude Desktop 设置。从 Claude Desktop 的[托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)编写设置为平面键名。省略 Claude Desktop 仅从 MDM 或本地文件读取的键，例如 `bootstrapUrl`；网关在启动时拒绝它们。在 v2.1.232 之前，网关接受 11 个固定的功能门键的列表，例如 `chatTabEnabled` 和 `disableAutoUpdates`，并在启动时拒绝每个其他键。在 v2.1.227 之前，网关也在启动时拒绝 `chatTabEnabled` 和 `chatAdvancedFileAnalysisEnabled`。
+<h5 id="set-claude-desktop-settings-directly">
+  直接设置 Claude Desktop 设置
+</h5>
+
+添加可选的 `desktop` 块与 `cli` 一起直接设置 Claude Desktop 设置。从 Claude Desktop 的[托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)编写设置为平面键名。省略 Claude Desktop 仅从 MDM 或本地文件读取的键，例如 `bootstrapUrl`；网关在启动时拒绝它们。
+
+此示例为 `eng-contractors` 组在其 `cli` 设置之外设置三个 Claude Desktop 键：
 
 ```yaml theme={null}
 managed:
@@ -1114,7 +1130,13 @@ managed:
         banner: { text: "Contractor build: internal use only" }
 ```
 
-每个键都是可选的；Claude Desktop 为您省略的任何键应用其自己的默认值。网关在启动时根据 Claude Desktop 本身使用的配置 schema 验证每个 `desktop` 块，因此错误在网关启动时显示为命名该键的错误，而不是到达每个连接的桌面。网关在块包含以下内容时在启动时失败：
+每个键都是可选的；Claude Desktop 为您省略的任何键应用其自己的默认值。
+
+<h5 id="what-the-gateway-rejects-at-boot">
+  网关在启动时拒绝的内容
+</h5>
+
+网关在启动时根据 Claude Desktop 本身使用的配置 schema 验证每个 `desktop` 块，因此错误在网关启动时显示为命名该键的错误，而不是到达每个连接的桌面。网关在块包含以下内容时在启动时失败：
 
 * 未知键
 * 识别的键，其值 Claude Desktop 会拒绝或静默删除，例如空值或嵌套条目内的拼写错误的子键。在 v2.1.260 之前，网关静默删除 `managedMcpServers` 或 `orgPluginSettings` 条目的嵌套对象内的拼写错误字段，而不是在启动时失败。
@@ -1123,11 +1145,21 @@ managed:
 
 如果您使用已弃用的值或条目形状，例如没有 `transport` 的 `managedMcpServers` 条目，网关启动并记录命名替换的警告。
 
+在 v2.1.232 之前，网关接受 11 个固定的功能门键的列表，例如 `chatTabEnabled` 和 `disableAutoUpdates`，并在启动时拒绝每个其他键。在 v2.1.227 之前，网关也在启动时拒绝 `chatTabEnabled` 和 `chatAdvancedFileAnalysisEnabled`。
+
+<h5 id="keys-that-need-a-later-gateway-or-claude-desktop-version">
+  需要更高版本网关或 Claude Desktop 的键
+</h5>
+
 网关根据与其已安装版本捆绑的 schema 验证 `desktop` 块，就像它对 `cli` 块所做的那样。要交付由较新 Claude Desktop 版本引入的设置，首先升级网关。例如，`userPluginMarketplacesEnabled` 和 `userPluginUploadsEnabled` 需要网关服务器上的 Claude Code v2.1.260 或更高版本以及成员机器上的 Claude Desktop 1.37937.0 或更高版本。
 
 `blockReadsOutsideWorkingDirectories`、`disableBypassPermissionsMode`、`configRecheckIntervalMinutes` 和 `sshClientPath` 需要网关服务器上的 Claude Code v2.1.281 或更高版本。`microsoftAuthBroker` 的 `required` 值和 Microsoft 365 `managedMcpServers` 条目的 `continuousAccessEvaluation` 字段也是如此。早于 `required` 值的 Claude Desktop 版本将其读取为 `disabled`，因此仅在每个成员的 Claude Desktop 支持它后才设置 `required`。Claude Desktop 的[托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)列出首次读取每个键的版本。
 
 如果您在策略的 `desktop` 块中设置 `orgPluginSettings`，网关以 Claude Desktop 1.15200.0 及更高版本读取的数组形式提供它。较旧的桌面忽略数组并强制执行没有插件工具策略，因此在您依赖它之前将成员更新到 1.15200.0 或更高版本。
+
+<h5 id="how-a-role-policy-inherits-the-base-desktop-block">
+  角色策略如何继承基础 `desktop` 块
+</h5>
 
 网关从策略的 `desktop` 块不设置的 `match: {}` 全部捕获的 `desktop` 块填充键，与它填充策略的 `cli` 块的方式相同。如果您在基础和角色策略中都设置 `disabledBuiltinTools` 或 `builtinToolPolicy`，网关保留基础的限制：
 
@@ -1136,7 +1168,16 @@ managed:
 
 对于每个其他键，如果您在角色策略中设置它，网关使用角色策略的值。网关替换数组或嵌套对象（如 `banner`）整体，因此如果您在角色策略中设置 `banner.text`，网关删除基础的 `banner.backgroundColor`。
 
-如果您不部署 Claude Desktop，请完全从您的策略中省略 `desktop`；网关然后从每个用户的 `/user/bootstrap` 返回 404。
+<h5 id="when-a-policy-change-reaches-claude-desktop">
+  策略更改何时到达 Claude Desktop
+</h5>
+
+在您使用更改后的策略重新部署网关后，Claude Desktop 仅在下次启动时应用大多数设置：
+
+* **已关闭**：Claude Desktop 在启动时获取引导响应，因此更改从下次启动起生效
+* **已打开**：Claude Desktop 默认每 10 分钟检查一次响应是否有更改，并在不重启的情况下应用少数设置。对于其余设置，例如 [`skillCreationEnabled`](https://claude.com/docs/third-party/claude-desktop/configuration#skillcreationenabled)，用户会在侧边栏中看到 **Relaunch Claude Desktop** 卡片，并在重启应用之前保留先前的配置。默认在 24 小时后，Claude Desktop 会显示重启对话框，并在 2 分钟无活动后自行重启
+
+要缩短这 24 小时，请在策略的 `desktop` 块中设置 [`relaunchEnforcementHours`](https://claude.com/docs/third-party/claude-desktop/configuration#relaunchenforcementhours)。您需要网关服务器上的 Claude Code v2.1.260 或更高版本，以及成员机器上的 Claude Desktop 1.40609.0 或更高版本。设置为 `0` 时，Claude Desktop 一发现更改就会显示该对话框。
 
 <h4 id="extended-context-in-claude-desktop">
   Claude Desktop 中的扩展上下文

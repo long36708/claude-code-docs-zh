@@ -216,7 +216,14 @@ CLI 读取上面的环境变量和设置文件。其他界面是 VS Code 扩展�
 * **由管理员分发**：如果您的组织已[部署配置](/docs/zh-CN/llm-gateway-rollout#distribute-through-managed-settings)，桌面应用通过网关路由，无需您进行任何设置
 * **本地配置**：对于没有管理员分发配置的设备，打开帮助 → 故障排除 → 启用开发者模式，这将重新启动应用并显示开发者菜单。然后打开开发者 → 配置第三方推理并输入您的网关基础 URL。管理员分发的配置优先级更高，使此表单为只读
 
-启用网关配置后，桌面应用仅在您的本地机器上运行会话：环境选择器不提供 SSH 会话或 Anthropic 托管的云环境，[远程控制](/docs/zh-CN/remote-control)不可用。要通过网关在远程主机上使用 Claude Code，请在该主机上运行 CLI，并在那里设置[`ANTHROPIC_BASE_URL` 和网关凭证](#set-the-base-url-and-credential)。
+启用网关配置后，环境选择器不提供 Anthropic 托管的云环境，并且 [Remote Control](/docs/zh-CN/remote-control) 不可用。
+
+在网关配置下，SSH 会话处于 beta 阶段，需要 Claude Desktop v1.40609.0 或更高版本。连接之前，请检查允许列表和网关地址：
+
+* **允许的主机**：SSH 会话默认关闭。要启用它们，您或您的管理员需要在第三方推理配置的 [`sshHostAllowlist`](https://claude.com/docs/third-party/claude-desktop/configuration#sshhostallowlist) 键中列出允许的主机
+* **网关地址**：远程机器会自行连接网关，因此位于您计算机 `localhost` 上的网关不适用于 SSH 会话
+
+请参阅 [SSH remote sessions in Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。您也可以在远程主机上运行 CLI，并在那里设置 [`ANTHROPIC_BASE_URL` 和网关凭据](#set-the-base-url-and-credential)。
 
 如果桌面应用显示 `Gateway was unreachable`，应用在启动时无法到达配置的基础 URL；使用上面的 [curl 测试](#verify-the-connection)检查 URL 和网络路径。
 

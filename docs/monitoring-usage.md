@@ -551,7 +551,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 * **服务器管理的设置**：将它们添加到您组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings)的 `env` 块中。Claude Code 在启动时会在[服务器管理的设置适用](/docs/zh-CN/model-config#surface-coverage)的任何地方获取这些设置，这包括您用户的机器和除 Claude Tag 频道会话外的云会话。Claude Tag 会话不会接收您的服务器管理的设置，因此此路由不会配置它们。
 * **环境的变量**：将它们添加到云环境的[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)中，以仅配置在该环境中运行的会话。这是到达 Claude Tag 会话的路由。
 
-任何使用环境的人都可以读取其变量，因此不要在其中放置凭证，例如 `OTEL_EXPORTER_OTLP_HEADERS` 中的收集器令牌。环境上的 [API 凭证](/docs/zh-CN/cloud-environments#add-api-credentials)也无法帮助，因为 Claude Code 自己的遥测导出是[从不获得凭证的请求](/docs/zh-CN/cloud-environments#requests-that-never-get-the-credential)之一。如果您的收集器需要凭证，请改为通过服务器管理的设置配置整个导出，因为当您在那里设置凭证时，[Claude Code 会删除在托管设置外设置的端点变量](#how-managed-settings-lock-the-otlp-destination)。
+任何使用环境的人都可以读取其变量，因此不要在其中放置凭据，例如 `OTEL_EXPORTER_OTLP_HEADERS` 中的收集器令牌。环境上的[网络密钥](/docs/zh-CN/cloud-environments#add-api-credentials)也无济于事，因为 Claude Code 自己的遥测导出是[从不获得该密钥的请求](/docs/zh-CN/cloud-environments#requests-that-never-get-the-credential)之一。如果您的收集器需要凭据，请改为通过服务器管理的设置配置整个导出，因为当您在那里设置凭据时，[Claude Code 会删除在托管设置外设置的端点变量](#how-managed-settings-lock-the-otlp-destination)。
 
 在为云会话配置遥测时，请记住这些约束：
 

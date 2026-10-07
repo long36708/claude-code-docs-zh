@@ -299,10 +299,11 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | :- | :- | :- |
 | `footer:next` | Right | 下一个页脚项 |
 | `footer:previous` | Left | 上一个页脚项 |
-| `footer:up` | Up | 在页脚中向上导航（在顶部取消选择） |
-| `footer:down` | Down | 在页脚中向下导航 |
+| `footer:up` | Up, Ctrl+P | 在页脚中向上导航（在顶部取消选择） |
+| `footer:down` | Down, Ctrl+N | 在页脚中向下导航 |
 | `footer:openSelected` | Enter | 打开选定的页脚项 |
 | `footer:clearSelection` | Escape | 清除页脚选择 |
+| `footer:close` | x | 停止选定的 [Agent](/docs/zh-CN/sub-agents#observe-and-steer-running-forks) 或 [工作流](/docs/zh-CN/workflows#manage-runs)；如果它已不再运行，则关闭其所在行 |
 | `footer:dismiss` | (未绑定) | 绑定键到此操作没有效果，命名它的 `keybindings.json` 保持有效。在 v2.1.281 之前，Backspace 和 Delete 被绑定到它，并从页脚中关闭选定的 artifact 链接。 |
 
 选定页脚项时（例如提示下方的代理面板中的一行），即使您在 `Chat` 上下文中将 `Enter` 重新绑定到 `chat:queueSubmit` 或 `chat:newline`，`Enter` 也会打开它。

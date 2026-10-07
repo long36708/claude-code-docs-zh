@@ -32,6 +32,8 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
         curl -fsSL https://claude.ai/install.sh | bash
         ```
 
+        在 Windows 上，当您在 PowerShell 中时，您的提示符显示 `PS C:\`；当您在 CMD 中时，提示符显示 `C:\`（没有 `PS`）。
+
         **Windows PowerShell：**
 
         ```powershell theme={null}
@@ -46,9 +48,9 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
 
         安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
 
-        如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。当您在 PowerShell 中时，您的提示符显示 `PS C:\`，当您在 CMD 中时显示 `C:\`（没有 `PS`）。
+        如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。
 
-        如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他 curl 错误，请参阅 [Troubleshoot installation](/docs/zh-CN/troubleshoot-install#find-your-error) 以匹配错误并获得修复方案和替代安装方法。
+        如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他任何错误，请参阅[排查安装问题](/docs/zh-CN/troubleshoot-install#find-your-error)以匹配错误并获得修复方案和替代安装方法。
 
         建议在原生 Windows 上安装 [Git for Windows](https://git-scm.com/downloads/win)，以便 Claude Code 可以使用 Bash 工具。如果未安装 Git for Windows，Claude Code 将使用 PowerShell 作为 shell 工具。WSL 设置不需要 Git for Windows。
 
@@ -89,7 +91,7 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
     claude
     ```
 
-    首次使用时，系统会提示你登录。如果你已设置 `ANTHROPIC_API_KEY` 环境变量，Claude Code 会跳过登录提示，改为要求你批准该密钥。就这样！[继续快速入门 →](/docs/zh-CN/quickstart)
+    首次使用时，Claude Code 会提示您登录。如果您已设置 `ANTHROPIC_API_KEY` 环境变量，并在 Claude Code 询问是否使用该密钥时予以批准，Claude Code 将跳过登录提示。[继续快速入门 →](/docs/zh-CN/quickstart)
 
     <Tip>
       查看[高级设置](/docs/zh-CN/setup)了解安装选项、手动更新或卸载说明。如果遇到问题，请访问[安装故障排除](/docs/zh-CN/troubleshoot-install)。

@@ -2,11 +2,11 @@
 > Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
 > Use this file to discover all available pages before exploring further.
 
-# 快速开始
+# 快速入门
 
-> 欢迎使用 Claude Code！
+> 在终端中安装 Claude Code，完成登录，并使用 CLI 探索您的代码库、进行第一次代码更改。
 
-本快速开始指南将在几分钟内让您使用 AI 驱动的编码辅助。完成本指南后，您将了解如何使用 Claude Code 完成常见的开发任务。
+本快速入门介绍终端中的 Claude Code：安装 CLI、在第一个会话中登录，以及在您自己的项目中使用它完成常见的开发任务。
 
 <Note>
   默认配置下，Claude Code 需要能够访问 claude.ai 和 Anthropic API 等端点才能完成安装、登录和正常使用。在中国大陆的网络环境中，这些端点可能无法直接访问。开始前，请先确认所在网络能够连通这些服务。企业代理配置以及 Amazon Bedrock 等第三方提供商的网络要求，请参阅[网络配置](/docs/zh-CN/network-config#network-access-requirements)。
@@ -19,12 +19,14 @@
 确保您拥有：
 
 * 打开的终端或命令提示符
-  * 如果您之前从未使用过终端，请查看[终端指南](/docs/zh-CN/terminal-guide)
 * 一个可以使用的代码项目
 * 一个 [Claude 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_prereq)（Pro、Max、Team 或 Enterprise）、[Claude Console](https://platform.claude.com/) 账户，或通过[支持的云提供商](/docs/zh-CN/third-party-integrations)的访问权限
 
 <Note>
-  本指南涵盖终端 CLI。Claude Code 也可在[网页](https://claude.ai/code)、[桌面应用](/docs/zh-CN/desktop)、[VS Code](/docs/zh-CN/vs-code) 和 [JetBrains IDE](/docs/zh-CN/jetbrains)、[Slack](/docs/zh-CN/slack) 中使用，以及通过 [GitHub Actions](/docs/zh-CN/github-actions) 和 [GitLab](/docs/zh-CN/gitlab-ci-cd) 进行 CI/CD。查看[所有界面](/docs/zh-CN/overview#use-claude-code-everywhere)。
+  以下情况在其他页面中介绍：
+
+  * **从未使用过终端**：请从[终端指南](/docs/zh-CN/terminal-guide)开始
+  * **希望在终端以外的地方使用 Claude Code**：Claude Code 也可在[网页](https://claude.ai/code)、[桌面应用](/docs/zh-CN/desktop)、[VS Code](/docs/zh-CN/vs-code) 和 [JetBrains IDE](/docs/zh-CN/jetbrains)、[Slack](/docs/zh-CN/slack) 中使用，以及通过 [GitHub Actions](/docs/zh-CN/github-actions) 和 [GitLab](/docs/zh-CN/gitlab-ci-cd) 在 CI/CD 中使用。查看[所有界面](/docs/zh-CN/overview#use-claude-code-everywhere)。
 </Note>
 
 <h2 id="step-1-install-claude-code">
@@ -41,6 +43,8 @@
     curl -fsSL https://claude.ai/install.sh | bash
     ```
 
+    在 Windows 上，当您在 PowerShell 中时，您的提示符显示 `PS C:\`；当您在 CMD 中时，提示符显示 `C:\`（没有 `PS`）。
+
     **Windows PowerShell：**
 
     ```powershell theme={null}
@@ -55,9 +59,9 @@
 
     安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
 
-    如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。当您在 PowerShell 中时，您的提示符显示 `PS C:\`，当您在 CMD 中时显示 `C:\`（没有 `PS`）。
+    如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。
 
-    如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他 curl 错误，请参阅 [Troubleshoot installation](/docs/zh-CN/troubleshoot-install#find-your-error) 以匹配错误并获得修复方案和替代安装方法。
+    如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他任何错误，请参阅[排查安装问题](/docs/zh-CN/troubleshoot-install#find-your-error)以匹配错误并获得修复方案和替代安装方法。
 
     建议在原生 Windows 上安装 [Git for Windows](https://git-scm.com/downloads/win)，以便 Claude Code 可以使用 Bash 工具。如果未安装 Git for Windows，Claude Code 将使用 PowerShell 作为 shell 工具。WSL 设置不需要 Git for Windows。
 
@@ -99,57 +103,43 @@ claude --version
 
 该命令会打印一个版本号，后面跟着 `(Claude Code)`。
 
-<h2 id="step-2-log-in-to-your-account">
-  步骤 2：登录您的账户
+<h2 id="step-2-start-your-first-session">
+  步骤 2：开始您的第一个会话
 </h2>
 
-Claude Code 需要账户才能使用。使用 `claude` 命令启动交互式会话，首次使用时系统会提示您登录：
-
-```bash theme={null}
-claude
-```
-
-对于 Claude 订阅或 Console 账户，请按照提示在浏览器中完成身份验证。如果您已设置 `ANTHROPIC_API_KEY` 环境变量，Claude Code 会跳过登录提示，改为要求您批准该密钥。要稍后切换账户或重新身份验证，请在运行的会话中输入 `/login`：
-
-```text wrap theme={null}
-/login
-```
-
-您可以使用以下任何账户类型登录：
-
-* [Claude Pro、Max、Team 或 Enterprise](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_login)（推荐）
-* [Claude Console](https://platform.claude.com/)（具有预付费额度的 API 访问）。首次登录时，Console 中会自动为集中成本跟踪创建一个"Claude Code"工作区。
-* [Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry](/docs/zh-CN/third-party-integrations)（企业云提供商）
-* 自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway)（如果您的组织运行一个）：您的管理员会预先配置网关 URL，`/login` 会直接在 **Cloud gateway** 屏幕上打开，供您使用企业 SSO 登录
-
-登录后，您的凭证将被存储，您无需再次登录。详细了解 [凭证管理](/docs/zh-CN/authentication#credential-management)。
-
-<h2 id="step-3-start-your-first-session">
-  步骤 3：启动您的第一个会话
-</h2>
-
-在任何项目目录中打开您的终端并启动 Claude Code：
+在任意项目目录中打开终端并启动 Claude Code：
 
 ```bash theme={null}
 cd /path/to/your/project
 claude
 ```
 
-将 `/path/to/your/project` 替换为您要处理的项目的路径。
+将 `/path/to/your/project` 替换为您要处理的项目路径。
 
-您将看到 Claude Code 提示符，其中显示版本、当前模型和上方显示的工作目录。输入 `/help` 查看可用命令，或输入 `/resume` 继续之前的对话。
+首次使用时，Claude Code 会提示您登录。对于 Claude 订阅或 Console 账户，请按照提示在浏览器中完成身份验证。如果您已设置 `ANTHROPIC_API_KEY` 环境变量，并且在 Claude Code 询问是否使用该密钥时予以批准，Claude Code 将跳过登录提示。
 
-<h2 id="step-4-ask-your-first-question">
-  步骤 4：提出您的第一个问题
+您可以使用以下任一账户类型登录：
+
+* [Claude Pro、Max、Team 或 Enterprise](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_login)（推荐）
+* [Claude Console](https://platform.claude.com/)（使用预付额度的 API 访问）。首次登录时，系统会在 Console 中自动创建一个"Claude Code"工作区，用于集中跟踪费用。
+* [Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry](/docs/zh-CN/third-party-integrations)（企业云服务提供商）
+* 自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway)（如果您的组织部署了该网关）：管理员会预先配置网关 URL，`/login` 将直接打开 **Cloud gateway** 界面，供您使用企业 SSO 登录
+
+登录后，您的凭据会被保存，无需再次登录。如需了解更多信息，请参阅[凭据管理](/docs/zh-CN/authentication#credential-management)。
+
+随后将显示 Claude Code 提示符，其上方会显示版本、当前模型和工作目录。输入 `/help` 查看可用命令，或输入 `/resume` 继续之前的对话。如需稍后切换账户或重新进行身份验证，请在运行中的会话内输入 `/login`。
+
+<h2 id="step-3-ask-your-first-question">
+  步骤 3：提出您的第一个问题
 </h2>
 
-让我们从理解您的代码库开始。尝试以下命令之一：
+尝试以下命令之一：
 
 ```text wrap theme={null}
 what does this project do?
 ```
 
-Claude 将分析您的文件并提供摘要。您也可以提出更具体的问题：
+Claude 将分析您的文件并提供摘要。您还可以提出更具体的问题：
 
 ```text wrap theme={null}
 what technologies does this project use?
@@ -163,7 +153,7 @@ where is the main entry point?
 explain the folder structure
 ```
 
-您也可以询问 Claude 关于其自身功能的问题：
+您还可以询问 Claude 有关其自身功能的问题：
 
 ```text wrap theme={null}
 what can Claude Code do?
@@ -178,85 +168,72 @@ can Claude Code work with Docker?
 ```
 
 <Note>
-  Claude Code 根据需要读取您的项目文件。您不必手动添加上下文。
+  Claude Code 会根据需要读取您的项目文件。您无需手动添加上下文。
 </Note>
 
-<h2 id="step-5-make-your-first-code-change">
-  步骤 5：进行您的第一次代码更改
+<h2 id="step-4-make-your-first-code-change">
+  步骤 4：进行您的第一次代码更改
 </h2>
 
-现在让我们让 Claude Code 进行一些实际的编码。尝试一个简单的任务：
+尝试一个小任务：
 
 ```text wrap theme={null}
-在主文件中添加一个 hello world 函数
+add a hello world function to the main file
 ```
 
-Claude Code 找到适当的文件并向您显示更改。如果它在进行更改前询问，请选择**是**以批准。
+Claude Code 会找到合适的文件并向您展示更改。如果它在进行更改前征求确认，请选择 **Yes** 以批准。
 
-使用 Claude Code v2.1.283 或更高版本，auto 模式是交互式终端会话的[内置起始权限模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：分类器审查操作而不是您，Claude 在不询问的情况下编辑大多数文件并运行大多数命令。在早期版本上，auto 模式仅在 Pro、Max 和 Team 计划上是内置起始权限模式。对于安装后立即启动的会话，请参阅[安装或升级后的首个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)。
+会话的[权限模式](/docs/zh-CN/permission-modes)决定了 Claude 可以在不事先询问您的情况下执行哪些操作。随时按 `Shift+Tab` 即可切换当前会话的权限模式。
 
-<Note>
-  您的设置或您的组织可以设置不同的起始权限模式。[会话启动时的权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)列出了相关内容。随时按 `Shift+Tab` 切换您所在会话的权限模式。
-</Note>
-
-<h2 id="step-6-use-git-with-claude-code">
-  步骤 6：在 Claude Code 中使用 Git
+<h2 id="step-5-use-git-with-claude-code">
+  步骤 5：在 Claude Code 中使用 Git
 </h2>
 
-Claude Code 使 Git 操作变得对话式：
+Claude Code 让 Git 操作变得像对话一样简单：
 
 ```text wrap theme={null}
-我更改了哪些文件？
+what files have I changed?
 ```
 
 ```text wrap theme={null}
-用描述性消息提交我的更改
+commit my changes with a descriptive message
 ```
 
-您也可以提示更复杂的 Git 操作：
+您还可以通过提示词执行更复杂的 Git 操作：
 
 ```text wrap theme={null}
-创建一个名为 feature/quickstart 的新分支
-```
-
-```text wrap theme={null}
-显示我最后的 5 次提交
+create a new branch called feature/quickstart
 ```
 
 ```text wrap theme={null}
-帮我解决合并冲突
+show me the last 5 commits
 ```
 
-<h2 id="step-7-fix-a-bug-or-add-a-feature">
-  步骤 7：修复错误或添加功能
+```text wrap theme={null}
+help me resolve merge conflicts
+```
+
+<h2 id="step-6-fix-a-bug-or-add-a-feature">
+  步骤 6：修复 bug 或添加功能
 </h2>
-
-Claude 擅长调试和功能实现。
 
 用自然语言描述您想要的内容：
 
 ```text wrap theme={null}
-向用户注册表单添加输入验证
+add input validation to the user registration form
 ```
 
 或修复现有问题：
 
 ```text wrap theme={null}
-有一个错误，用户可以提交空表单 - 修复它
+there's a bug where users can submit empty forms - fix it
 ```
 
-Claude Code 将：
-
-* 定位相关代码
-* 理解上下文
-* 实现解决方案
-* 如果可用，运行测试
-
-<h2 id="step-8-test-out-other-common-workflows">
-  步骤 8：尝试其他常见工作流
+<h2 id="step-7-test-out-other-common-workflows">
+  步骤 7：试用其他常见工作流
 </h2>
 
-有多种方式可以与 Claude 一起工作：
+您可以通过多种方式与 Claude 协作：
 
 **重构代码**
 
@@ -283,7 +260,7 @@ review my changes and suggest improvements
 ```
 
 <Tip>
-  像与有帮助的同事交谈一样与 Claude 交谈。描述您想要实现的目标，它将帮助您实现。
+  像与一位乐于助人的同事交流一样与 Claude 对话。描述您想要实现的目标，它会帮助您达成。
 </Tip>
 
 <h2 id="essential-commands">
@@ -361,29 +338,18 @@ review my changes and suggest improvements
 
 现在您已经学习了基础知识，探索更多高级功能：
 
-<CardGroup cols={2}>
-  <Card title="Claude Code 如何工作" icon="microchip" href="/docs/zh-CN/how-claude-code-works">
-    了解代理循环、内置工具以及 Claude Code 如何与您的项目交互
-  </Card>
+* [Claude Code 如何工作](/docs/zh-CN/how-claude-code-works)：了解智能体循环、内置工具以及 Claude Code 如何与您的项目交互
+* [最佳实践](/docs/zh-CN/best-practices)：通过有效的提示和项目设置获得更好的结果
+* [常见工作流](/docs/zh-CN/common-workflows)：常见任务的分步指南
+* [扩展 Claude Code](/docs/zh-CN/features-overview)：使用 CLAUDE.md、skill、hook、MCP 等进行自定义
 
-  <Card title="最佳实践" icon="star" href="/docs/zh-CN/best-practices">
-    通过有效的提示和项目设置获得更好的结果
-  </Card>
-
-  <Card title="常见工作流" icon="graduation-cap" href="/docs/zh-CN/common-workflows">
-    常见任务的分步指南
-  </Card>
-
-  <Card title="扩展 Claude Code" icon="puzzle-piece" href="/docs/zh-CN/features-overview">
-    使用 CLAUDE.md、skills、hooks、MCP 等进行自定义
-  </Card>
-</CardGroup>
+有关安装选项、手动更新或卸载说明，请参阅[高级设置](/docs/zh-CN/setup)。
 
 <h2 id="getting-help">
   获取帮助
 </h2>
 
 * **在 Claude Code 中**：输入 `/help` 或询问"我如何..."
-* **文档**：您在这里！浏览其他指南
+* **文档**：浏览本站的其他指南
 * **课程**：参加 [Claude Code 101](https://academy.claude.com/courses/claude-code-101) 和 [Claude Academy](https://academy.claude.com/) 上的其他免费自学课程
 * **社区**：加入 [Discord 服务器](https://www.anthropic.com/discord) 获取提示和支持

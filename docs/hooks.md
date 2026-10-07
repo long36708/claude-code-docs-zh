@@ -3275,12 +3275,15 @@ Claude Code 会拒绝包含 `.` 或 `..` 段的绝对路径，以及任何经过
 
 当 Claude Code 清理由您的 [`WorktreeCreate`](#worktreecreate) hook 创建的 worktree 时运行。该事件在以下情况下触发：
 
-* 您退出 `--worktree` 会话并选择删除 worktree
+* 您退出交互式 [worktree 会话](/docs/zh-CN/worktrees#start-claude-in-a-worktree)，并在 Claude Code 提示时选择删除该 worktree
+* 您退出一个尚未[命名](/docs/zh-CN/sessions#name-your-sessions)的交互式 worktree 会话，Claude Code 未发现已更改或未跟踪的文件，并在不提示您的情况下删除该 worktree
 * 您删除在该 worktree 中运行的[后台会话](/docs/zh-CN/agent-view#what-deleting-a-session-removes)
+
+Claude Code 使用 git 查找已更改或未跟踪的文件，因此对于不是 git checkout 或不在 git checkout 内的 worktree，即使目录中有未提交的工作，它也找不到任何文件。请在 WorktreeRemove hook 删除任何内容之前检查这类工作。
 
 对于基于 git 的 worktree，Claude Code 会使用 `git worktree remove` 自动处理清理。如果您配置了 WorktreeCreate hook，请搭配一个 WorktreeRemove hook，以控制其所创建的 worktree 的清理：
 
-* **没有 WorktreeRemove hook**：当您退出 `--worktree` 会话并选择移除时，Claude Code 会回退为对 WorktreeCreate hook 返回的路径执行 `git worktree remove --force`，因此 git 能识别的 worktree 会被移除。git 无法识别的 worktree（例如您的 hook 使用非 git 版本控制系统创建的 worktree）会保留在磁盘上。关于删除[后台会话](/docs/zh-CN/agent-view#what-deleting-a-session-removes)时如何处理由 hook 创建的 worktree，请参阅 Agent 视图的删除规则。
+* **没有 WorktreeRemove hook**：当 Claude Code 在您退出 worktree 会话时删除该 worktree，它会回退到对 WorktreeCreate hook 返回的路径执行 `git worktree remove --force`，因此 git 能识别的 worktree 会被删除。git 无法识别的 worktree（例如您的 hook 使用非 git 版本控制系统创建的 worktree）会保留在磁盘上。关于删除[后台会话](/docs/zh-CN/agent-view#what-deleting-a-session-removes)时如何处理由 hook 创建的 worktree，请参阅 agent view 的删除规则。
 * **Hook 以 0 退出**：该 worktree 视为已移除。Claude Code 不会从 hook 读取其他任何内容，因此请确保您的 hook 已删除该目录。
 * **Hook 以非零值退出**：如果 `worktree_path` 处的目录在之后仍然存在，则移除失败，worktree 保留在磁盘上，且不会回退到 git。在以非零值退出之前已删除目录的 hook 视为已移除。关于失败的报告方式，请参阅 [WorktreeRemove 输入](#worktreeremove-input)。
 

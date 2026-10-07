@@ -130,7 +130,7 @@
 | `unable to get local issuer certificate` | [网络](#ssl-certificate-errors) |
 | `403` with `x-deny-reason: host_not_allowed` in a cloud or routine session | [网络](#host-not-allowed-in-a-cloud-session) |
 | `proxy refused the connection` | [网络](#the-proxy-refused-the-connection) |
-| `403` with `This GraphQL query is not enabled for this session` in a cloud session | [GitHub proxy](/docs/zh-CN/cloud-environments#github-proxy) |
+| `403` with `GitHub GraphQL is not available from Claude Code sessions` in a cloud session | [GitHub proxy](/docs/zh-CN/cloud-environments#github-proxy) |
 | `The cloud environments service returned an empty response` / `The cloud environments service returned a response in an unexpected format` | [网络](#the-cloud-environments-service-returned-an-empty-or-unexpected-response) |
 | `Couldn't reconnect to your Remote Control session` | [网络](#couldnt-reconnect-to-your-remote-control-session) |
 | `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.` | [网络](#sessions-ended-while-this-machine-was-offline) |
@@ -2300,7 +2300,7 @@ Claude Code 用文本占位符替换无法处理的图像并重试，因此后�
 
 **要做什么：**
 
-* 在粘贴之前调整图像大小。API 接受单个图像最长边最多 8000 像素的图像，或当许多图像在上下文中时最多 2000 像素。
+* 在粘贴之前调整图像大小。API 接受单个图像最长边最多 8000 像素的图像，或当上下文中有超过 20 张图像时最多 3000 像素。
 * 拍摄相关区域的更紧密屏幕截图，而不是整个屏幕
 
 <h3 id="unable-to-resize-image">

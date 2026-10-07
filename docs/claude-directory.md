@@ -164,7 +164,7 @@ config/secrets.json`,
           icon: 'folder',
           color: '#9B7BC4',
           oneLiner: 'Topic-scoped instructions, optionally gated by file paths',
-          when: <>Rules without <C>paths:</C> load at session start. Rules with <C>paths:</C> load when a matching file enters context</>,
+          when: <>Rules without <C>paths:</C> load at session start. Rules with <C>paths:</C> load when Claude reads, writes, or edits a matching file</>,
           description: [<>Project instructions split into topic files that can load conditionally based on file paths. A rule without <C>paths:</C> frontmatter loads at session start like CLAUDE.md; a rule with <C>paths:</C> loads only when Claude reads, writes, or edits a matching file.</>, <>Like CLAUDE.md, rules are guidance Claude reads, not configuration Claude Code enforces. For guaranteed behavior use <A href="/docs/en/hooks">hooks</A> or <A href="/docs/en/permissions">permissions</A>.</>],
           tips: [<>Use <C>paths:</C> frontmatter with globs to scope rules to directories or file types</>, <>Subdirectories work: <C>.claude/rules/frontend/react.md</C> is discovered automatically</>, 'When CLAUDE.md approaches 200 lines, start splitting into rules'],
           docsLink: '/en/memory#organize-rules-with-claude/rules/',
@@ -176,7 +176,7 @@ config/secrets.json`,
             color: '#9B7BC4',
             badge: 'committed',
             oneLiner: 'Test conventions scoped to test files',
-            when: <>Loaded when Claude reads a file matching the <C>paths:</C> globs below</>,
+            when: <>Loaded when Claude reads, writes, or edits a file matching the <C>paths:</C> globs below</>,
             description: <>An example rule that only loads when Claude is working on test files. The <C>paths:</C> globs in the frontmatter define which files trigger it; here, anything ending in .test.ts or .test.tsx. For other files, this rule is not loaded into context.</>,
             example: `---
 paths:
@@ -197,8 +197,8 @@ paths:
             color: '#9B7BC4',
             badge: 'committed',
             oneLiner: 'API conventions scoped to backend code',
-            when: <>Loaded when Claude reads a file matching the <C>paths:</C> glob below</>,
-            description: <>A second example showing a rule scoped to backend code. The <C>paths:</C> glob matches files under src/api/, so these conventions load only when Claude is editing API routes.</>,
+            when: <>Loaded when Claude reads, writes, or edits a file matching the <C>paths:</C> glob below</>,
+            description: <>A second example showing a rule scoped to backend code. The <C>paths:</C> glob matches files under src/api/, so these conventions load only when Claude is working on API routes.</>,
             example: `---
 paths:
   - "src/api/**/*.ts"
@@ -605,7 +605,7 @@ type: reference
           icon: 'folder',
           color: '#9B7BC4',
           oneLiner: 'User-level rules that apply to every project',
-          when: <>Rules without <C>paths:</C> load at session start. Rules with <C>paths:</C> load when a matching file enters context</>,
+          when: <>Rules without <C>paths:</C> load at session start. Rules with <C>paths:</C> load when Claude reads, writes, or edits a matching file</>,
           description: 'Same as project .claude/rules/ but applies everywhere. Use this for conventions you want across all your work, like personal code style or commit message format.',
           docsLink: '/en/memory#organize-rules-with-claude/rules/',
           children: []
@@ -1452,7 +1452,7 @@ Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、�
 
 | 文件 | 位置 | 用途 |
 | - | - | - |
-| `managed-settings.json` | 系统级别，因操作系统而异 | 企业强制执行的设置，您无法覆盖，除了[狭窄的例外](/docs/zh-CN/settings#security-keys-where-the-stricter-value-applies)。请参阅[保存文件的位置](/docs/zh-CN/managed-settings#deploy-a-managed-settings-file)和[Claude Code 使用的托管源](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)。 |
+| `managed-settings.json` | 系统级别，因操作系统而异 | 企业强制执行的设置，您自己的设置文件和 `--settings` 值无法覆盖这些设置，除了[狭窄的例外](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)。请参阅[保存文件的位置](/docs/zh-CN/managed-settings#deploy-a-managed-settings-file)和[Claude Code 使用的托管源](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)。 |
 | `CLAUDE.local.md` | 项目根目录 | 您对此项目的私人偏好，与 CLAUDE.md 一起加载。手动创建它并将其添加到 `.gitignore`。 |
 | `AGENTS.md` | 项目根目录、`.claude/` 或任何目录 | 您为 AI 编码 Agent 编写的项目说明。Claude Code 可以[加载它](/docs/zh-CN/memory#agents-md)来代替 `CLAUDE.md`。 |
 | 已安装的插件 | `~/.claude/plugins` | 克隆的市场、已安装的插件版本、`installed_plugins.json` 安装记录和每个插件的数据，由 `claude plugin` 命令管理。从您的 claude.ai 账户[同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)下载到 `~/.claude/plugins/synced/`。对于从市场[`command` 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)以链接模式安装的插件，Claude Code 在此处存储链接而不是副本，插件的文件保留在命令打印的目录中。`command` 源需要 Claude Code v2.1.229 或更高版本。在您从本地路径添加的市场中按相对路径列出的插件也会[从其源目录就地加载](/docs/zh-CN/plugins/loading#find-plugins-on-disk)，而不是从缓存副本加载。请参阅[插件缓存](/docs/zh-CN/plugins/loading#find-plugins-on-disk)了解孤立版本如何被清理。 |
@@ -1487,7 +1487,7 @@ Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、�
 <Note>
   有几件事可以覆盖您在这些文件中放入的内容：
 
-  * 您的组织部署的[托管设置](/docs/zh-CN/server-managed-settings)优先于所有内容，除了[设置优先级下的例外](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)
+  * 您的组织部署的[托管设置](/docs/zh-CN/server-managed-settings)优先于所有设置文件和 `--settings` 值，[设置优先级下的例外](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)除外
   * CLI 标志（如 `--permission-mode` 或 `--settings`）在该会话中覆盖 `settings.json`
   * 某些环境变量优先于其等效设置，但这会有所不同：检查[环境变量参考](/docs/zh-CN/env-vars)以了解每个变量
 
@@ -1707,8 +1707,6 @@ claude purge ~/work/my-repo --yes
 ```
 
 传递 `--all` 而不是路径以一次清除所有项目的状态，这会直接删除 `history.jsonl` 而不是过滤它。传递 `-i` 以逐项逐步执行删除计划。
-
-在脚本中，请检查输出，而不仅仅是退出状态。删除了计划中所有内容的运行会以 `Purged N item(s)` 结尾。请将该行视为成功的标志。
 
 该命令不理会 `shell-snapshots/` 和 `backups/`，因为这些不是项目范围的，并在计划输出中警告它们。如果有人在该机器上运行过 [`/heapdump`](/docs/zh-CN/troubleshooting#high-cpu-or-memory-usage)，也请删除它写入的 `.heapsnapshot` 文件。堆快照包含完整的对话以及进程持有的所有凭据，保留扫描和清除都不会触及它。
 

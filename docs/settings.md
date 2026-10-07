@@ -407,7 +407,7 @@ Claude Code 从四个文件读取设置，组织也可以从 claude.ai 控制台
 | 用户 | `~/.claude/settings.json` | 你在这台机器上的每个项目中 | 个人偏好：主题、编辑器模式、默认模型、你自己的权限规则 |
 | 共享项目 | `.claude/settings.json` | 包含该文件的文件夹中的所有人。在 git 仓库中，提交它以便队友获得 | 团队权限、hooks、plugins 和项目需要的环境变量 |
 | 项目本地 | `.claude/settings.local.json` | 仅在这个项目中的你。Claude Code 在创建文件时将其排除在 git 之外；如果你手动创建，请自己添加到 `.gitignore` | 单个项目的个人覆盖，以及在共享前的测试 |
-| 托管 | `managed-settings.json` 和其他[托管来源](/docs/zh-CN/managed-settings#delivery-mechanisms) | 你的组织部署到的所有人；你设置的任何内容都不会覆盖它，除了少数[安全敏感的例外](#exceptions-to-managed-settings-precedence) | 安全策略和合规要求 |
+| 托管 | `managed-settings.json` 和其他[托管来源](/docs/zh-CN/managed-settings#delivery-mechanisms) | 您的组织部署到的所有人；[设置优先级](#settings-precedence)说明了哪些内容可以覆盖它 | 安全策略和合规要求 |
 
 在"文件"列中，`~/.claude` 是你主目录中的 `.claude` 文件夹，而单独的 `.claude` 是项目内的 `.claude` 文件夹。
 
@@ -659,8 +659,8 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 
 按顺序，最高优先级优先：
 
-1. **托管设置**：您的组织部署的设置，通过 `managed-settings.json` 文件、MDM 策略或来自 claude.ai 控制台的[服务器管理设置](/docs/zh-CN/server-managed-settings)。您设置的任何内容都不会覆盖它们：您使用 `--settings` 传递的键不会覆盖相同的托管键，`--model` 等标志仅从您的组织允许的模型中选择。托管 `model` 设置每个会话启动的模型，您仍然可以使用 `/model` 切换；锁定是 [`availableModels`](/docs/zh-CN/settings-reference#availablemodels)，它限制 `/model`、`--model` 和您自己文件中的 `model` 键。当您的组织传递多个托管来源时，[托管层内的优先级](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)的规则说 Claude Code 从每个读取什么。
-2. **命令行参数**：您在从终端启动 `claude` 时传递的标志，用于一个会话；请参阅[为一个会话更改设置](#change-a-setting-for-one-session)。Claude Code 使用与其他级别相同的规则将您使用 `--settings <file-or-json>` 传递的 JSON 与您的设置文件合并：它在此处设置的键优先于本地、项目或用户设置中的相同键，省略的键保持较低级别的值。
+1. **托管设置**：您的组织部署的设置，通过 `managed-settings.json` 文件、MDM 策略或来自 claude.ai 控制台的[服务器管理设置](/docs/zh-CN/server-managed-settings)。您自己的设置文件或 `--settings` 中的任何内容都不会覆盖托管键，`--model` 等标志仅从您的组织允许的模型中选择。托管 [`model`](/docs/zh-CN/settings-reference#model) 是起始默认值，而不是锁定；锁定是 [`availableModels`](/docs/zh-CN/settings-reference#availablemodels) 和 [`deniedModels`](/docs/zh-CN/settings-reference#deniedmodels)。当您的组织传递多个托管来源时，[托管层内的优先级](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)的规则说明 Claude Code 从每个来源读取什么。
+2. **命令行**：您在启动 `claude` 时使用 `--settings <file-or-json>` 传递的 JSON，仅用于该会话；请参阅[为一个会话更改设置](#change-a-setting-for-one-session)。您在此处设置的键会覆盖项目和用户设置文件中的相同键，省略的键保留这些文件中的值。其他标志（如 `--model`）为会话设置某一项内容，不属于此堆栈；[设置参考](/docs/zh-CN/settings-reference)上的键条目说明哪些标志会覆盖它。
 3. **项目本地设置** (`.claude/settings.local.json`)：您对此项目的个人设置。
 4. **共享项目设置** (`.claude/settings.json`)：您的团队检入源代码管理的设置。
 5. **用户设置** (`~/.claude/settings.json`)：您对每个项目的个人设置。
@@ -767,7 +767,7 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 
 两件事阻止 `.claude/settings.json` 中的键为克隆它的每个人应用：
 
-* **Claude Code 忽略存储库文件中的键。** 在[设置索引](/docs/zh-CN/settings-reference#settings-index)的作用域列中查找 `User, local, or managed`、`User or managed`、`Managed` 或 `Global config`。这些键永远不会从共享文件应用，除了少数几个存储库文件仍然可以关闭的。每个这些条目在其作用域行上说明。`Global config` 键仅从 `~/.claude.json` 应用。
+* **Claude Code 忽略仓库文件中的键。** 在[设置索引](/docs/zh-CN/settings-reference#settings-index)的作用域列中查找 `User, local, or managed`、`User or managed`、`Managed` 或 `Global config`。这些键永远不会从共享文件应用，除了少数几个仓库文件仍然可以关闭的。每个这些条目在其作用域行上说明。`Global config` 键仅从 `~/.claude.json` 应用。
 
   在 `env` 键内，遥测导出变量也永远不会从共享文件应用，除了少数关闭值；请参阅[Claude Code 在 `env` 中忽略的变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)。
 * **键等待信任。** `permissions.allow` 规则、`permissions.additionalDirectories`、`extraKnownMarketplaces` 和大多数 [`env`](/docs/zh-CN/settings-reference#env) 值仅在每个队友[信任文件夹](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)后应用。在那之前他们仍然看到提示并不从文件声明的市场获得插件。`deny` 和 `ask` 规则立即应用。
@@ -792,6 +792,8 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 | [`disableClaudeAiConnectors`](/docs/zh-CN/settings-reference#disableclaudeaiconnectors) | 来自任何作用域的 `true` | 即使托管来源设置 `false` 也被尊重 |
 | [`enableArtifact`](/docs/zh-CN/settings-reference#enableartifact) | 来自任何作用域的 `false`，以及来自任何作用域的 `disableArtifact: true` | 即使托管来源设置 `true` 也被尊重；没有什么打开[Artifact 工具](/docs/zh-CN/artifacts#disable-artifacts)。需要 Claude Code v2.1.242 或更高版本 |
 | [`isolatePeerMachines`](/docs/zh-CN/settings-reference#isolatepeermachines) | 来自任何作用域的 `true` | 即使托管来源设置 `false` 也被尊重 |
+| [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) | 来自任何作用域的 `true` | 即使托管来源设置 `false` 也被尊重。需要 Claude Code v2.1.257 或更高版本 |
+| [`autoMode.classifyAllShell`](/docs/zh-CN/settings-reference#automode-classifyallshell) | 来自 `~/.claude/settings.json` 或 `--settings` 的 `true` | 即使托管来源设置 `false` 也被尊重 |
 | [`remoteControlAtStartup`](/docs/zh-CN/settings-reference#remotecontrolatstartup) | 来自 `.claude/settings.json` 或 `.claude/settings.local.json` 的 `false` | 即使托管来源设置 `true` 也被尊重；项目或本地 `true` 被忽略 |
 | [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) | 来自 `.claude/settings.json` 或 `.claude/settings.local.json` 的更严格值，在 `accept` \< `hold` \< `refuse` 梯形上 | 在托管、`--settings` 和用户值上被尊重；不是更严格的项目或本地值被忽略 |
 | [`useAutoModeDuringPlan`](/docs/zh-CN/settings-reference#useautomodeduringplan) | 来自任何托管来源、`--settings`、`~/.claude/settings.json` 或 `.claude/settings.local.json` 的 `false` | 即使获胜的托管来源设置 `true` 也被尊重；`.claude/settings.json` 中的 `false` 被忽略 |

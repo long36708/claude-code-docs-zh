@@ -60,14 +60,14 @@
 这两组运行称为 with-arm 和 without-arm；[与无插件基线比较](#compare-against-a-no-plugin-baseline)涵盖了哪些用例仅运行 with-arm 以及评分器如何在两个 arm 之间评分。
 
 <h2 id="create-your-first-eval-suite">
-  创建你的第一个 eval 套件
+  创建您的第一个 eval 套件
 </h2>
 
-本演练为你自己的插件编写一个用例，运行它，并读取结果。在开始之前，请确保你有：
+本演练为您自己的插件编写一个用例，运行它，并读取结果。在开始之前，请确保您具备：
 
-* Claude Code v2.1.269 或更高版本和其他[要求](#requirements)
-* 在你的插件根目录打开的终端，即包含 `plugin.json` 或 `.claude-plugin/plugin.json` 的目录
-* 插件中你想测试的一个技能，以及用户会输入的应该触发它的请求
+* Claude Code v2.1.269 或更高版本以及其他[要求](#requirements)
+* 在插件根目录打开的终端，即包含 `plugin.json` 或 `.claude-plugin/plugin.json` 的目录
+* 插件中您想测试的一个 skill，以及一条用户会输入且应触发该 skill 的请求
 
 <Steps>
   <Step title="创建用例">
@@ -77,27 +77,31 @@
     claude plugin eval init
     ```
 
-    如果 Claude Code 还不信任此目录，它首先会询问 `Trust this plugin directory?`；回答 `y`。然后打开一个交互式 Claude Code 会话。Claude 读取你的插件并询问你好的结果是什么样的，提议应该和不应该触发插件的提示，为每个设计评分器，试运行一次以检查它们的行为，并在 `evals/` 下为每个提示写一个用例目录，每个都以其提示命名。当 Claude 告诉你套件已准备好时，使用 `/exit` 或 Ctrl+D 退出该会话以返回到你的 shell。
+    如果 Claude Code 尚未信任此目录，它首先会询问 `Trust this plugin directory?`；回答 `y`。
 
-    如果你已经在插件根目录打开了 Claude Code 会话，你可以改为要求 Claude 在那里运行 `claude plugin eval init`。Claude 运行命令，然后在该对话中询问你相同的问题。
+    随后会打开一个交互式 Claude Code 会话。Claude 读取您的插件并询问您理想的结果是什么样的，提议应该和不应该触发插件的提示词，为每个提示词设计评分器，试运行一次以检查它们的行为，并在 `evals/` 下为每个提示词写入一个用例目录，每个目录以其提示词命名。
 
-    如果你宁愿自己编写一个用例以准确查看文件包含的内容，请按照[手动编写用例](#write-a-case-manually)进行，然后回到这里运行它。
+    当 Claude 告诉您套件已准备好时，使用 `/exit` 或 Ctrl+D 退出该会话以返回 shell。
+
+    如果您已经在插件根目录打开了 Claude Code 会话，也可以改为让 Claude 在那里运行 `claude plugin eval init`。Claude 会运行该命令，然后在该对话中询问您相同的问题。
+
+    如果您更愿意自己编写用例以准确了解文件包含的内容，请按照[手动编写用例](#write-a-case-manually)操作，然后回到这里运行它。
   </Step>
 
   <Step title="运行套件">
-    回到你的 shell 中的插件根目录，运行 `evals/` 下的每个用例：
+    回到插件根目录下的 shell，运行 `evals/` 下的每个用例：
 
     ```bash theme={null}
     claude plugin eval .
     ```
 
-    你已经在第 1 步中信任了此目录，所以运行立即开始。如果你改为手动编写了用例，运行首先会询问 `Trust this plugin directory? [y/N]`；回答 `y`。[运行可以访问什么](#security)解释了你同意的内容。
+    您已经在第 1 步中信任了此目录，所以运行会立即开始。如果您改为手动编写了用例，运行首先会询问 `Trust this plugin directory? [y/N]`；回答 `y`。[运行可以访问什么](#security)解释了您所同意的内容。
 
-    每个用例使用你的插件运行三次，不使用插件运行三次，所以一个用例是六次运行。当每次运行完成时，会打印一条进度线，显示该运行的分数和每个评分器的判决。
+    每个用例在加载插件的情况下运行三次，在不加载插件的情况下运行三次，因此一个用例共六次运行。每次运行完成时，会打印一行进度，显示该运行的分数和每个评分器的判定。
   </Step>
 
   <Step title="读取摘要">
-    当套件完成时，你会看到一个摘要表，然后是报告的位置：
+    套件完成后，您会看到一个摘要表，随后是报告的位置：
 
     ```text theme={null}
     CASE        WITH  W/OUT Δ      RUNS COST    NOTES
@@ -108,21 +112,21 @@
     Published: https://claude.ai/... · keep local next time with --no-publish
     ```
 
-    `WITH` 是加载你的插件的用例分数，`W/OUT` 是不加载插件的分数，正的 `Δ` 意味着插件提高了分数。`COST` 是模型调用的列表价格估计，`NOTES` 显示最高权重失败评分器的解释，或来自 with-arm 的运行错误。
+    `WITH` 是加载插件时该用例的分数，`W/OUT` 是不加载插件时的分数，正的 `Δ` 表示插件提高了分数。`COST` 是模型调用按标价估算的费用，`NOTES` 显示 with-arm 中权重最高的失败评分器的解释或该运行的错误。
   </Step>
 
   <Step title="打开报告并迭代">
-    打开 `Published:` URL，或当没有 `Published:` 行出现时打开 `Report:` 路径，以查看每个评分器对每次运行的判决和解释，以及对于 `llm` 评分器的评判的投票和它评判的摘录。`Published:` 行仅在你的账户可以[发布报告](#html-report)时出现。
+    打开 `Published:` URL，或在没有 `Published:` 行时打开 `Report:` 路径，以查看每个评分器对每次运行的判定和解释，对于 `llm` 评分器还可查看评判者的投票及其评判的摘录。`Published:` 行仅在您的账户可以[发布报告](#html-report)时出现。
 
-    最常见的第一个发现是 `Δ` 接近零，用例的 `tool_used: Skill` 评分器失败，这意味着 Claude 在自然措辞上没有选择你的技能。调整技能的 [`description`](/docs/zh-CN/skills#frontmatter-reference)，再次运行 `claude plugin eval .`，并进行比较。
+    最常见的首个发现是 `Δ` 接近零且用例的 `tool_used: Skill` 评分器失败，这意味着 Claude 在自然措辞下没有选择您的 skill。调整该 skill 的 [`description`](/docs/zh-CN/skills#frontmatter-reference)，再次运行 `claude plugin eval .`，并进行比较。
 
-    要廉价地迭代单个用例，运行单个 arm 一次。单次运行噪声很大，所以在信任任何更改之前，在默认三次运行时确认它。使用一个 arm，表格显示 `SCORE` 和 `PASS%` 列而不是 `WITH`、`W/OUT` 和 `Δ`：
+    要以更少的运行次数迭代单个用例，可以只运行单个 arm 一次。单次运行噪声较大，因此在信任任何更改之前，请以默认的三次运行进行确认。只运行一个 arm 时，表格显示 `SCORE` 和 `PASS%` 列，而不是 `WITH`、`W/OUT` 和 `Δ`：
 
     ```bash theme={null}
     claude plugin eval . --case <case-name> --runs 1 --ablation none
     ```
 
-    将 `<case-name>` 替换为 `evals/` 下的目录名之一。
+    将 `<case-name>` 替换为 `evals/` 下的某个目录名。
   </Step>
 </Steps>
 

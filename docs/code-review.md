@@ -379,7 +379,7 @@ Claude 在这两个运行中都将发现作为文本报告在回复中，即使�
   调整工作量和参数
 </h3>
 
-传递一个[工作量级别](/docs/zh-CN/model-config#adjust-effort-level)以权衡覆盖范围和置信度。在 `low` 和 `medium` 处，审查仅报告它最有信心的发现，因此您看到更少的误报；`high` 到 `max` 扩大覆盖范围，可能包括审查不太确定的发现。
+传递一个 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)以权衡覆盖范围和置信度。在 `low` 级别，审查报告它最有信心的发现，因此您看到更少的误报。从 `medium` 到 `max`，审查会扩大覆盖范围。
 
 当您不输入级别时，审查重用您上次输入的 `low` 到 `max` 的级别，即使在较早的会话中，Claude Code 显示一个通知，例如 `Reusing high effort, the level you typed last time`。输入一个级别，例如 `/code-review high`，以更改后续运行重用的内容；您在非交互式 `-p` 运行中传递的级别不会更新它。`ultra` 既不更新也不使用记住的级别。如果您从未输入过级别，审查使用会话的当前工作量。在 v2.1.223 之前，没有级别的 `/code-review` 总是使用会话的当前工作量。
 

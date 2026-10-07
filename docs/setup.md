@@ -49,6 +49,8 @@ Claude Code 在以下平台和配置上运行：
     curl -fsSL https://claude.ai/install.sh | bash
     ```
 
+    在 Windows 上，当您在 PowerShell 中时，您的提示符显示 `PS C:\`；当您在 CMD 中时，提示符显示 `C:\`（没有 `PS`）。
+
     **Windows PowerShell：**
 
     ```powershell theme={null}
@@ -63,9 +65,9 @@ Claude Code 在以下平台和配置上运行：
 
     安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
 
-    如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。当您在 PowerShell 中时，您的提示符显示 `PS C:\`，当您在 CMD 中时显示 `C:\`（没有 `PS`）。
+    如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。
 
-    如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他 curl 错误，请参阅 [Troubleshoot installation](/docs/zh-CN/troubleshoot-install#find-your-error) 以匹配错误并获得修复方案和替代安装方法。
+    如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他任何错误，请参阅[排查安装问题](/docs/zh-CN/troubleshoot-install#find-your-error)以匹配错误并获得修复方案和替代安装方法。
 
     建议在原生 Windows 上安装 [Git for Windows](https://git-scm.com/downloads/win)，以便 Claude Code 可以使用 Bash 工具。如果未安装 Git for Windows，Claude Code 将使用 PowerShell 作为 shell 工具。WSL 设置不需要 Git for Windows。
 
@@ -204,7 +206,7 @@ claude doctor
 
 Claude Code 需要 Pro、Max、Team、Enterprise 或 Console 账户。免费的 claude.ai 计划不包括 Claude Code 访问权限。您也可以通过第三方 API 提供商（如 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)）使用 Claude Code。
 
-安装后，通过运行 `claude` 并按照浏览器提示登录。如果设置了 `ANTHROPIC_API_KEY` 环境变量，Claude Code 会提示您一次以批准该密钥，而不是打开浏览器。有关所有账户类型和团队设置选项，请参阅[身份验证](/docs/zh-CN/authentication)。
+安装后，通过运行 `claude` 并按照浏览器提示登录。如果设置了 `ANTHROPIC_API_KEY` 环境变量，并且在 Claude Code 询问是否使用该密钥时您批准了它，Claude Code 将跳过登录提示。有关所有账户类型和团队设置选项，请参阅[身份验证](/docs/zh-CN/authentication)。
 
 <h2 id="update-claude-code">
   更新 Claude Code

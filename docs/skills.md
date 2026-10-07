@@ -237,9 +237,14 @@ Claude Code 从您的账户下载同步 skill，而不是读取您在会话运�
 
 在 Cowork 或云会话中，Claude Code 加载为您的 claude.ai 账户启用的 skills，[Cowork 和云会话中的 Skills](#skills-in-cowork-and-cloud-sessions) 说明了如何选择这些会话获得哪些 skills。
 
-在您的终端中，Claude Code 在您使用 claude.ai 账户登录的会话中同步这些 skills。会话启动时，Claude Code 在后台将您账户的 skills 下载到 `~/.claude/skills/synced/` 中，然后在会话运行时大约每 10 分钟检查一次 claude.ai 是否有更改。当检查发现 skill 在 claude.ai 上被添加、编辑或关闭时，Claude Code 在运行的会话中添加、更新或删除它，无需重新启动。终端会话中的同步需要 Claude Code v2.1.273 或更高版本。
+在您的终端中，Claude Code 在您使用 claude.ai 账户登录的会话中同步这些 skill。会话启动时，Claude Code 在后台将您账户的 skill 下载到 `~/.claude/skills/synced/` 中，然后在会话运行期间检查 claude.ai 是否有更改。当检查发现 skill 在 claude.ai 上被添加、编辑或关闭时，Claude Code 在运行的会话中添加、更新或删除它，无需重新启动。终端会话中的同步需要 Claude Code v2.1.273 或更高版本。
 
-同步永远不会延迟启动，因为 Claude 仅在调用 skill 时等待其下载。因此，短 [非交互式](/docs/zh-CN/headless) 运行可能在新添加的 skill 下载之前完成，在这种情况下，稍后的会话会下载它。要使非交互式运行下载您的 skills 并在回答提示之前等待列表，请将 [`CLAUDE_CODE_SYNC_SKILLS`](/docs/zh-CN/env-vars#variables) 设置为 `1`。
+会话空闲时，检查运行得不那么频繁：
+
+* **当您或 Claude 在会话中工作时**：大约每 10 分钟运行一次检查。
+* **当会话空闲时**：大约每 40 分钟运行一次检查。当您再次在会话中输入时，如果上次检查已超过 10 分钟，Claude Code 会在几分钟内进行检查。
+
+同步永远不会延迟启动，因为 Claude 仅在调用 skill 时等待其下载。因此，短 [非交互式](/docs/zh-CN/headless) 运行可能在新添加的 skill 下载之前完成，在这种情况下，稍后的会话会下载它。要使非交互式运行下载您的 skill 并在回答提示词之前等待列表，请将 [`CLAUDE_CODE_SYNC_SKILLS`](/docs/zh-CN/env-vars#variables) 设置为 `1`。在 v2.1.273 之前，终端会话仅在设置了此变量的 `-p` 运行中下载它们。
 
 Claude Code 仅在使用您的 claude.ai 账户登录的会话中同步，并 [从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)。它不在这些会话中同步：
 

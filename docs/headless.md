@@ -219,16 +219,32 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
   跟踪 subagent 消息
 </h4>
 
-来自 [subagents](/docs/zh-CN/sub-agents) 的消息在流中显示为 `assistant` 和 `user` 消息，其 `parent_tool_use_id` 字段是生成 subagent 的工具调用的 ID。来自主对话的消息在该字段中携带 `null`。
+来自[子代理](/docs/zh-CN/sub-agents)以及[在子代理中运行](/docs/zh-CN/skills#run-skills-in-a-subagent)的 skill 的消息在流中显示为 `assistant` 和 `user` 消息。其 `parent_tool_use_id` 字段表明每条消息属于哪次运行。来自主对话的消息在该字段中为 `null`。
 
-来自在 [前台](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background) 运行的 subagent 的第一条消息是携带驱动它的提示的 `user` 消息。在该第一条消息之后，Claude Code 发出：
+来自 forked skill 或在[前台](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)运行的子代理的第一条消息是一条 `user` 消息，携带驱动它的提示词或 skill 内容。在该第一条消息之后，Claude Code 发出：
 
-* **默认情况下**：subagent 的 `tool_use` 和 `tool_result` 块。
-* **使用 [`--forward-subagent-text`](/docs/zh-CN/cli-reference#cli-flags) 或 [`CLAUDE_CODE_FORWARD_SUBAGENT_TEXT`](/docs/zh-CN/env-vars)**：subagent 的文本和思考块也是如此，因此您可以重建每个 subagent 的记录。这需要 Claude Code v2.1.211 或更高版本。
+* **默认情况下**：该次运行的 `tool_use` 和 `tool_result` 块。
+* **使用 [`--forward-subagent-text`](/docs/zh-CN/cli-reference#cli-flags) 或 [`CLAUDE_CODE_FORWARD_SUBAGENT_TEXT`](/docs/zh-CN/env-vars) 时**：还包括该次运行的文本和思考块，因此您可以重建每次运行的会话记录。
 
-当您启用任一选项时，Claude Code 从 [每个嵌套深度的 subagents](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents) 转发消息，无论每个 subagent 是使用 Agent 工具生成的还是作为 [forked skill](/docs/zh-CN/skills#run-skills-in-a-subagent) 启动的。forked skill 生成的 subagents 的消息，以及在 subagent 或另一个 forked skill 内启动的 forked skills，需要 Claude Code v2.1.275 或更高版本。在 `parent_tool_use_id` 中，嵌套 subagent 的消息携带启动它的 Agent 或 Skill 工具调用的 ID，因此您可以通过跟踪这些 ID 来重建完整的嵌套树。在 v2.1.219 之前，来自嵌套 subagents 的消息不会出现在流中。
+当您启用任一选项时，Claude Code 会转发来自[每个嵌套深度的子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)的消息，无论每个子代理是使用 Agent 工具生成的还是作为 forked skill 启动的。在 `parent_tool_use_id` 中，嵌套子代理的消息携带启动它的 Agent 或 Skill 工具调用的 ID，因此您可以通过跟踪这些 ID 来重建完整的嵌套树。
 
-[在 subagent 中运行](/docs/zh-CN/skills#run-skills-in-a-subagent) 的 Skills 在流中以相同的方式出现：forked skill 的第一条消息是携带驱动运行的 skill 内容的 `user` 消息。如果您启用任一选项，流也会携带 forked skill 的文本和思考块。在 v2.1.265 之前，只有 forked skill 的 `tool_use` 和 `tool_result` 块出现在流中。
+由 Claude 通过工具调用启动的运行携带该工具调用的 ID。通过将 `/<skill-name>` 作为提示词传递而启动的 forked skill 没有工具调用，因此其消息改为携带 `forked-command-` 值，并在其完成后到达。请在第一列中查找运行的启动方式：
+
+| 运行的启动方式 | `parent_tool_use_id` | 其消息何时到达 |
+| :- | :- | :- |
+| Claude 从主对话调用 Agent 工具 | 该 Agent `tool_use` 块的 ID | 在子代理工作期间 |
+| Claude 从主对话为 forked skill 调用 Skill 工具 | 该 Skill `tool_use` 块的 ID | 在 forked skill 工作期间 |
+| 您将 `/<skill-name>` 作为提示词传递 | 以 `forked-command-` 开头的值 | 在 forked skill 完成后一起按顺序到达 |
+
+对于从提示词启动的 forked skill，请按 `forked-command-` 前缀匹配 `parent_tool_use_id`，因为其后的名称可能与您输入的名称不同。
+
+如果流中缺少其中某些消息，请将您的 Claude Code 版本与以下最低版本进行对照：
+
+* **`--forward-subagent-text` 和 `CLAUDE_CODE_FORWARD_SUBAGENT_TEXT`**：v2.1.211 或更高版本
+* **在每个嵌套深度转发**：v2.1.219 或更高版本
+* **Claude 从主对话使用 Skill 工具启动的 forked skill**：其 `tool_use` 和 `tool_result` 块需要 v2.1.86 或更高版本，其第一条 `user` 消息以及文本和思考块需要 v2.1.265 或更高版本
+* **forked skill 生成的子代理的消息，以及在子代理或另一个 forked skill 内启动的 forked skill 的消息**：v2.1.275 或更高版本
+* **通过将 `/<skill-name>` 作为提示词传递而启动的 forked skill 的消息**：v2.1.287 或更高版本
 
 <h4 id="handle-api-retries">
   处理 API 重试

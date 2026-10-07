@@ -333,7 +333,7 @@ claude --permission-mode plan
 
 * **计划**：所有计划。
 * **组织**：在 Team 和 Enterprise 上，自动模式默认可用。管理员可以通过在[托管设置](/docs/zh-CN/managed-settings)中将 `permissions.disableAutoMode` 设置为 `"disable"` 来为组织关闭该功能。
-* **模型**：在 Anthropic API 和 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上，需要 Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本，或 [Fable 模型](/docs/zh-CN/model-config#work-with-fable)。在 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 以及已登录的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中，仅支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本以及 Fable 模型。较旧的模型（包括 Sonnet 4.5、Opus 4.5、Haiku 和 claude-3 模型）在任何提供商上均不受支持。
+* **模型**：在 Anthropic API 和 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上，需要 Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本、Haiku 5.5，或 [Fable 模型](/docs/zh-CN/model-config#work-with-fable)。在 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 以及已登录的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中，仅支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型。较旧的模型（包括 Sonnet 4.5、Opus 4.5、Haiku 4.5 和 claude-3 模型）在任何提供商上均不受支持。
 * **提供商**：在 Anthropic API、Claude Platform on AWS、Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 以及已登录的 Claude apps gateway 会话中默认可用。
 
 如果 Claude Code 报告自动模式不可用，请首先检查这些要求，以及是否有任何设置文件设置了 [`disableAutoMode`](/docs/zh-CN/settings-reference#disableautomode)。Anthropic 也可能已在服务器端关闭了自动模式，或者服务器可能拒绝了您账户的自动模式。收到上述任一答复的会话会在会话结束前一直保持自动模式关闭，因此请稍后启动新会话。
@@ -348,7 +348,7 @@ claude --permission-mode plan
 
 在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai)、[Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 以及已登录的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中，自动模式默认可用。当没有其他内容设置权限模式时，在该部分表格所列的版本上，它也是[内置初始权限模式](#which-mode-a-session-starts-in)。要自行选择初始权限模式，请按照[以不同的权限模式启动](#start-in-a-different-mode)中的说明设置 `permissions.defaultMode`，或从 VS Code 扩展的模式指示器中选择权限模式。
 
-在这些提供商上，仅支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本以及 Fable 模型。在任何其他模型上，会话将改为以 Manual 模式启动。
+在这些提供商上，仅支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型。在任何其他模型上，会话将改为以 Manual 模式启动。在这些提供商上将自动模式与 Haiku 5.5 一起使用需要 Claude Code v2.1.293 或更高版本。
 
 要阻止开发者使用自动模式，请在[托管设置](/docs/zh-CN/managed-settings)中将 `disableAutoMode` 设置为 `"disable"`。这会将 `auto` 从 `Shift+Tab` 循环中移除，并且使用 `--permission-mode auto` 启动的会话将改为以 Manual 模式启动。当该设置从[管理员部署的来源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)到达一个已在自动模式下运行的会话时，该会话会退出自动模式，并显示 `auto mode disabled by settings`。在 v2.1.251 之前，正在运行的会话会保持自动模式直到会话结束。
 

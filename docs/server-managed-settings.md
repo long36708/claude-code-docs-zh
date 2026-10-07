@@ -149,7 +149,7 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
   设置优先级
 </h3>
 
-服务器管理的设置和[端点管理的设置](/docs/zh-CN/managed-settings#delivery-mechanisms)都占据 Claude Code [设置层次结构](/docs/zh-CN/settings#settings-precedence)中的最高层。没有其他设置级别可以覆盖它们，包括命令行参数，除了[托管设置优先级的例外](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)。
+服务器管理的设置和[端点管理的设置](/docs/zh-CN/managed-settings#delivery-mechanisms)都占据 Claude Code [设置层次结构](/docs/zh-CN/settings#settings-precedence)中的最高层。您在此处设置的键优先于用户自己的设置文件中或 `--settings` 值中的同一键，[托管设置优先级的例外](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)除外。
 
 在托管层内，Claude Code 默认使用首先传递至少一个策略键的源，首先检查服务器管理的设置，然后检查端点管理的设置，除了[接下来涵盖的例外键](#per-key-exceptions-across-managed-sources)。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)包含完整的排名、控制键的例外以及适用于每个源的选择加入。
 

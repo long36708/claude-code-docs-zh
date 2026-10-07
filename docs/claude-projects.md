@@ -57,10 +57,10 @@
 * **项目对话**：一个长期运行的会话，Claude 充当协调员。它接收您发送的内容，决定什么成为线程，并跟踪它启动的每个线程。它看到线程报告回来的内容，而不是它们采取的每一步。
 * **线程**：工作者。每个都是一个单独的会话，有自己的上下文窗口，完成一项工作并在完成时报告回对话。云线程在自己的分支上工作，当工作需要时打开拉取请求。
 * **每个云线程开始时的内容**：
-  * 项目的代码库和文件，加上其[说明和记忆](#give-a-project-standing-context)
-  * `CLAUDE.md` 和[项目每个代码库](#what-threads-pick-up-from-your-repositories)中的 skills，以及在有一个代码库的项目中，该代码库的权限规则和 hooks
+  * 项目的仓库和文件，加上其[说明和记忆](#give-a-project-standing-context)
+  * `CLAUDE.md` 和[项目每个仓库](#what-threads-pick-up-from-your-repositories)中的 skill，以及在只有一个仓库的项目中，该仓库的权限规则和 hook
   * 您 claude.ai 账户上的[连接器](#get-skills-plugins-connectors-and-tools-into-threads)
-  * 一个[云环境](#choose-an-environment-for-threads)，设置其网络访问、环境变量、API 凭证和已安装的工具
+  * 一个[云环境](#choose-an-environment-for-threads)，设置其网络访问、环境变量、网络密钥和已安装的工具
 * **Overview 窗格**：您在其中[一次看到所有线程](#see-what-needs-you-in-overview)以及哪些需要您。其他标签页是 **Library**（用于您添加的文件和线程生成的文件）、**Pull requests**（用于线程打开的文件）和 **Routines**（用于项目中的计划工作）。
 
 云线程不会从您自己机器上的 Claude Code 设置中获取任何内容。[将 skills、plugins、连接器和工具放入线程](#get-skills-plugins-connectors-and-tools-into-threads)涵盖了如何为它们提供它们可能缺少的内容。
@@ -92,7 +92,7 @@
 
 * **计划**：您在 Pro 或 Max 上，**Projects** 显示在您的侧边栏中。
 * **GitHub，如果项目将处理代码**：您的代码在 github.com 上而不是 GitHub Enterprise Server、GitLab 或 Bitbucket 上，您连接的 GitHub 账户对其有推送访问权限，Claude GitHub App 已安装在其上。如果您使用 [`/web-setup`](/docs/zh-CN/web-quickstart#connect-from-your-terminal) 连接了 GitHub，该令牌让您的其他云会话可以访问代码库，但对于项目线程来说还不够，项目线程需要 Claude GitHub App。[设置 GitHub 访问](#set-up-github-access)有相关步骤。
-* **网络、凭证和工具**：这些来自项目的[云环境](#choose-an-environment-for-threads)。默认环境已经可以访问[常见的包注册表](/docs/zh-CN/cloud-environments#default-allowed-domains)，因此仅在工作需要其他域、密钥或未预装的工具时检查此项。如果工作需要 MCP 服务器，检查它是否在您的 [claude.ai 连接器](https://claude.ai/customize/connectors)中显示为已连接。
+* **网络访问、密钥和工具**：对于云端线程，这些来自项目的[云环境](#choose-an-environment-for-threads)。默认环境已经可以访问[常见的包注册表](/docs/zh-CN/cloud-environments#default-allowed-domains)，因此仅在工作需要其他域、密钥或未预装的工具时检查此项。如果工作需要 MCP 服务器，检查它是否在您的 [claude.ai 连接器](https://claude.ai/customize/connectors)中显示为已连接。
 
 <h3 id="start-a-new-project-from-scratch">
   从头开始启动新项目
@@ -316,102 +316,102 @@ Claude 会自动将这些偏好保存到[项目内存](#give-a-project-standing-
   给项目提供常规上下文
 </h2>
 
-项目记忆、项目说明和项目的代码库、文件和环境跨线程携带上下文。您设置每个一次。
+项目记忆、项目说明以及项目的仓库、文件和环境会跨线程携带上下文。每一项您只需设置一次。
 
 | 上下文 | 它携带什么 | 您如何设置它 |
 | :- | :- | :- |
 | 项目记忆 | Claude 关于项目的笔记，例如要求、决定和陷阱，存储为文件。每个云线程在启动时读取索引文件 `MEMORY.md`，并在需要时打开其他文件 | 在项目对话或任何云线程中要求 Claude 记住要求、决定或陷阱，或忘记一个。在 **Project settings > Memory** 中读取、编辑和删除文件 |
 | 项目说明 | 发送到每个新线程和项目对话中 Claude 的文本，最多 16,000 个字符。[编写项目说明](#write-project-instructions)涵盖了要放入其中的内容 | **Project settings > Memory > Project instructions**，或要求 Claude 更改说明 |
-| 代码库、文件和环境 | 每个云线程克隆的代码库、每个线程可以在 `/mnt/project-files` 下读取的文件夹和文件，以及线程运行的云环境 | 代码库和环境在 **Project settings > Environment** 中，或在对话中要求 Claude 将代码库添加到项目。[文件和文件夹](#add-files-and-folders)来自 **Overview** 中 **Library** 标签页上的 **Add** |
+| 仓库、文件和环境 | 每个云线程克隆的仓库、它可以在 `/mnt/project-files` 下读取的文件夹和文件，以及它运行的云环境 | 仓库和环境在 **Project settings > Environment** 中设置，或在对话中要求 Claude 将仓库添加到项目。[文件和文件夹](#add-files-and-folders)通过 **Overview** 中 **Library** 标签页上的 **Add** 添加 |
 
-**Project settings > Memory** 在 **Auto memory** 下列出这些文件，因为 Claude 在项目中工作时自己写入它们。它们与 Claude Code 在您机器上保留的[自动记忆](/docs/zh-CN/memory)分开，即使两者都使用 `MEMORY.md` 索引。项目记忆也与项目代码库中的 `CLAUDE.md` 文件分开。每个云线程在启动时仍然从其克隆中读取那些 `CLAUDE.md` 文件，因此将关于代码库的说明放在其 `CLAUDE.md` 中，将关于项目的笔记放在项目记忆中。
+**Project settings > Memory** 在 **Auto memory** 下列出这些文件，因为 Claude 在项目中工作时自己写入它们。它们与 Claude Code 在您机器上保留的[自动记忆](/docs/zh-CN/memory)是分开的，即使两者都使用 `MEMORY.md` 索引。项目记忆也与项目仓库中的 `CLAUDE.md` 文件分开。每个云线程在启动时仍然从其克隆中读取那些 `CLAUDE.md` 文件，因此将关于仓库的说明放在其 `CLAUDE.md` 中，将关于项目的笔记放在项目记忆中。
 
 <h3 id="write-project-instructions">
   编写项目说明
 </h3>
 
-项目说明是每个新线程开始的简报。点击项目标题中的齿轮图标打开 **Project settings**，然后转到 **Memory > Project instructions**。有用的简报涵盖：
+项目说明是每个新线程开始时的简报。点击项目标题中的齿轮图标打开 **Project settings**，然后转到 **Memory > Project instructions**。有用的简报涵盖：
 
 * 项目的目的
-* 工作发生的地方：哪些代码库、从哪个分支开始、如何命名拉取请求
-* 线程在调用完成之前如何检查自己的工作
+* 工作发生的地方：哪些仓库、从哪个分支开始、如何命名 Pull Request
+* 线程在宣布完成之前如何检查自己的工作
 * 当它需要的东西缺失时该做什么
-* 什么需要您的批准
+* 什么需要先获得您的批准
 
 例如：
 
 ```text theme={null}
-此项目将支付 API 的 p95 延迟保持在 200 毫秒以下：分析、查询和缓存修复，以及随之而来的依赖升级，在 payments-api 代码库中。
+This project holds p95 latency for the payments API under 200 ms: profiling, query and caching fixes, and the dependency upgrades that come with them, in the payments-api repository.
 
-- 从 main 分支并为每个线程打开一个草稿拉取请求。
-- 在您调用工作完成之前，运行 `make test` 和 `make lint` 并在您的最终消息中粘贴摘要行。
-- 如果您无法到达您需要的东西，例如代码库、密钥、API 或连接器，请在您的第一条消息中准确说出缺失的内容并停止。不要替代、模拟或猜测。
-- 不要在没有在线程中询问我的情况下合并、强制推送或更改 CI 配置。
+- Branch from main and open one draft pull request per thread.
+- Before you call work done, run `make test` and `make lint` and paste the summary lines in your final message.
+- If you can't reach something you need, such as a repository, a secret, an API, or a connector, say exactly what's missing in your first message and stop. Don't substitute, mock, or guess.
+- Don't merge, force-push, or change CI configuration without asking me in the thread.
 ```
 
-关于一个代码库的规则，例如其构建命令，属于该代码库的 `CLAUDE.md`，每个云线程在代码库是项目的一部分时启动时读取。一旦工作进行中，当您纠正线程时，也告诉 Claude 记住纠正：它进入[项目记忆](#give-a-project-standing-context)，后续云线程从它开始。
+关于某个仓库的规则，例如其构建命令，应放在该仓库的 `CLAUDE.md` 中；当该仓库属于项目时，每个云线程都会读取它。工作开始后，当您纠正某个线程时，也告诉 Claude 记住这个纠正：它会进入[项目记忆](#give-a-project-standing-context)，之后的云线程启动时就会带有它。
 
 <h3 id="decide-which-repositories-to-add">
-  决定要添加哪些代码库
+  决定要添加哪些仓库
 </h3>
 
-您添加到项目的代码库在每个云线程中都带有其中的所有内容、其代码、`CLAUDE.md` 和 skills。您不添加的代码库仍在范围内：当其任务需要时，云线程可以将一个添加到自己。大多数项目同时使用两者：
+您添加到项目的仓库会连同其中的所有内容（代码、`CLAUDE.md` 和 skill）出现在每个云线程中。您未添加的仓库仍在可及范围内：当任务需要时，云线程可以将其添加到自身。大多数项目两者兼用：
 
-* **将其添加到项目**，在 **New project** 对话框中、**Project settings > Environment** 中，或通过在对话中要求 Claude 将其添加到项目。从那时起，每个云线程克隆它并从其 `CLAUDE.md` 和 skills 加载开始，无论任务是否涉及它。从一个代码库转到多个也改变了线程从每个代码库的 `.claude/settings.json` 中获取什么；请参阅[线程从您的代码库中获取什么](#what-threads-pick-up-from-your-repositories)。
-* **将其留下，让线程在需要时添加它。** 其任务需要项目没有的代码库的云线程可以将其添加到自己，线程中的注释说它仅被添加到此线程。克隆发生在任务的中途，因此该代码库的 `CLAUDE.md` 和 skills 在线程启动时不存在。下一个线程再次启动时没有它。线程添加的代码库需要与项目代码库相同的[先决条件](#check-the-prerequisites)：Claude GitHub App 安装在其上并从您的 GitHub 账户推送访问。
+* **将其添加到项目**，可在 **New project** 对话框中、**Project settings > Environment** 中，或在对话中要求 Claude 将其添加到项目。从那时起，每个云线程都会克隆它，并在启动时加载其 `CLAUDE.md` 和 skill，无论任务是否涉及它。从一个仓库增加到多个仓库也会改变线程从每个仓库的 `.claude/settings.json` 中获取的内容；请参阅[线程从您的仓库中获取什么](#what-threads-pick-up-from-your-repositories)。
+* **不添加，让线程在需要时自行添加。** 如果云线程的任务需要项目中没有的仓库，它可以将其添加到自身，线程中会有一条说明，表明该仓库仅被添加到此线程。克隆发生在任务中途，因此线程启动时该仓库的 `CLAUDE.md` 和 skill 并不存在。下一个线程启动时不会有它。以这种方式添加的仓库需要与项目仓库相同的[前提条件](#check-the-prerequisites)：在其上安装 Claude GitHub App，并且您的 GitHub 账户具有推送权限。
 
-项目根本不需要代码库。其云线程仍然可以研究、编写文档和在自己的沙箱中编写和运行代码，并将文件提交到 **Library** 标签页。那里的任何云线程也可以在任务需要时将代码库添加到自己。
+项目完全可以不包含仓库。其云线程仍然可以进行研究、编写文档，以及在自己的沙箱中编写和运行代码，并将文件交付到 **Library** 标签页。当任务需要时，它的任何云线程仍然可以将仓库添加到自身。
 
-一旦项目有了代码库，Claude 只能从项目已经使用的 GitHub 所有者添加代码库，无论它是将一个添加到项目还是线程将一个添加到自己。要引入来自不同所有者的代码库，请自己在 **Project settings > Environment** 中将其添加到项目。
+一旦项目有了仓库，无论是将仓库添加到项目还是线程将仓库添加到自身，Claude 都只能添加项目已使用的 GitHub 所有者下的仓库。要引入来自不同所有者的仓库，请自己在 **Project settings > Environment** 中将其添加到项目。
 
-对于跨越许多代码库的项目，例如一个具有服务器、网络、移动和桌面代码的功能，添加几乎每个任务涉及的一个或两个代码库，并在[项目说明](#write-project-instructions)中命名其他代码库，以便 Claude 知道其余代码在哪里。云线程然后启动小，仅为需要它们的任务拉入其他代码库。
+对于跨越许多仓库的项目，例如一个包含服务器、Web、移动和桌面代码的功能，请添加几乎每个任务都会涉及的一两个仓库，并在[项目说明](#write-project-instructions)中列出其他仓库，以便 Claude 知道其余代码在哪里。这样云线程启动时规模较小，仅在需要时为相应任务拉入其他仓库。
 
 <h3 id="add-files-and-folders">
   添加文件和文件夹
 </h3>
 
-在 **New project** 对话框的 **Context** 字段中添加您想要线程读取的文件和文件夹，或之后使用 **Overview** 中 **Library** 标签页上的 **Add**。以下限制适用于您添加的内容：
+在 **New project** 对话框的 **Context** 字段中添加您希望线程读取的文件和文件夹，或之后使用 **Overview** 中 **Library** 标签页上的 **Add**。以下限制适用于您添加的内容：
 
 * **Library 标签页**：一次选择最多 100 个文件和 2 GB，单个文件最多 480 MB。
-* **New project 对话框**：超过 30 MB 的文件被跳过，因此在创建项目后从 **Library** 标签页添加较大的文件。
-* **文件夹**：当您从任一位置添加文件夹时，项目接收其前 100 个文件的副本，最多 200 MB，不包括任何超过 30 MB 的文件、隐藏文件或 `node_modules`。项目最多可以容纳 10 个文件夹和 Google Drive 文件夹的组合，单个文件不计入该限制。
-* **上传后的更改**：上传是副本，因此您之后在计算机上所做的更改不会到达项目，直到您再次上传文件并在询问现有名称时选择 **Replace**。
+* **New project 对话框**：超过 30 MB 的文件会被跳过，因此请在创建项目后从 **Library** 标签页添加较大的文件。
+* **文件夹**：当您从任一位置添加文件夹时，项目会收到其前 100 个文件的副本，最多 200 MB，不包括任何超过 30 MB 的文件、隐藏文件或 `node_modules`。一个项目最多可容纳 10 个文件夹和 Google Drive 文件夹（合计），单个文件不计入该限制。
+* **上传后的更改**：上传的是副本，因此您之后在计算机上所做的更改不会同步到项目，直到您再次上传该文件并在询问现有名称时选择 **Replace**。
 
 <h3 id="what-threads-pick-up-from-your-repositories">
-  线程从您的代码库中获取什么
+  线程从您的仓库中获取什么
 </h3>
 
-每个云线程克隆项目中的每个代码库并从所有代码库加载 `CLAUDE.md` 和 skills。权限规则、hooks 和 `env` 仅来自线程启动的目录中的 `.claude/settings.json`：在有一个代码库时在代码库内，在有多个时在克隆上方，其中没有代码库的文件被读取。
+每个云线程会克隆项目中的每个仓库，并从所有仓库加载 `CLAUDE.md` 和 skill。权限规则、hook 和 `env` 仅来自线程启动目录中的 `.claude/settings.json`：当项目只有一个仓库时，该目录位于仓库内；当有多个仓库时，该目录位于各克隆的上层，此时不会读取任何仓库的该文件来获取这些内容。
 
-| 在每个代码库中 | 一个代码库 | 多个代码库 |
+| 在每个仓库中 | 一个仓库 | 多个仓库 |
 | :- | :- | :- |
-| `CLAUDE.md` | 在线程启动时加载 | 在线程启动时从每个代码库加载 |
-| `.claude/` 下的 Skills、agents 和 commands | 加载 | 从每个代码库加载 |
-| 在 `.claude/settings.json` 中启用的 Plugins | 不加载。改为在 **Project settings > Plugins** 中添加 plugin | 不加载。改为在 **Project settings > Plugins** 中添加 plugin |
-| 在 `.claude/settings.json` 中定义的权限规则、hooks 和 `env` | 适用于线程，除了[没有云会话遵守](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)的 `env` 键 | 不适用 |
+| `CLAUDE.md` | 在线程启动时加载 | 在线程启动时从每个仓库加载 |
+| `.claude/` 下的 skill、Agent 和命令 | 加载 | 从每个仓库加载 |
+| 在 `.claude/settings.json` 中启用的插件 | 不加载。请改为在 **Project settings > Plugins** 中添加该插件 | 不加载。请改为在 **Project settings > Plugins** 中添加该插件 |
+| 在 `.claude/settings.json` 中定义的权限规则、hook 和 `env` | 适用于线程，但[任何云端会话都不遵循](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)的 `env` 键除外 | 不适用 |
 
-在有多个代码库的项目中，每个克隆作为[附加目录](/docs/zh-CN/memory#load-from-additional-directories)附加到线程，`CLAUDE.md` 加载打开，这就是为什么每个代码库的 `CLAUDE.md` 和 skills 在启动时加载，即使线程在它们上方启动。在这样的项目中，将常规规则放在项目说明中，并通过[云环境](#choose-an-environment-for-threads)为线程提供环境变量。
+在有多个仓库的项目中，每个克隆都作为[附加目录](/docs/zh-CN/memory#load-from-additional-directories)附加到线程，并启用了 `CLAUDE.md` 加载，这就是为什么即使线程在它们的上层启动，每个仓库的 `CLAUDE.md` 和 skill 仍会在启动时加载。在这样的项目中，请将常规规则放在项目说明中，并通过[云环境](#choose-an-environment-for-threads)为线程提供环境变量。
 
 <h3 id="choose-an-environment-for-threads">
   为线程选择环境
 </h3>
 
-每个新云线程在项目的[云环境](/docs/zh-CN/cloud-environments)中启动。环境设置线程可以到达哪些域、它们有哪些环境变量、哪些 API 凭证被添加到它们的请求中，以及设置脚本在 Claude 启动之前安装什么。云线程使用默认的 Anthropic 托管环境，直到您在 **Project settings > Environment** 中选择一个。
+每个新云线程都在项目的[云环境](/docs/zh-CN/cloud-environments)中启动。环境决定线程可以访问哪些域、它们拥有哪些环境变量、哪些网络密钥会被添加到它们的请求中，以及设置脚本在 Claude 启动之前安装什么。在您于 **Project settings > Environment** 中选择环境之前，云线程使用默认的 Anthropic 托管环境。
 
-如果云线程需要到达内部 API 或私有包注册表，或需要您的机器通常持有的令牌，请更改环境而不是项目：请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)、[添加 API 凭证](/docs/zh-CN/cloud-environments#add-api-credentials)和[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)。
+如果云线程需要访问内部 API 或私有包注册表，或需要您的机器通常持有的令牌，请更改环境而不是项目：请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)、[添加网络密钥](/docs/zh-CN/cloud-environments#add-api-credentials)和[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)。
 
 <h3 id="get-skills-plugins-connectors-and-tools-into-threads">
-  将 skills、plugins、connectors 和工具放入线程
+  将 skill、插件、连接器和工具引入线程
 </h3>
 
-云线程没有仅在您机器上安装的 skills、MCP 服务器、plugins 和工具。线程通过[远程控制](/docs/zh-CN/remote-control)在您的机器上运行 Claude 使用那里安装的内容。要使这些中的每一个对云线程可用：
+云线程不具备仅安装在您机器上的 skill、MCP 服务器、插件和工具。Claude 通过 [Remote Control](/docs/zh-CN/remote-control) 在您机器上运行的线程会使用那里安装的内容。要让这些内容对云线程可用：
 
-* Skills、subagents 和 commands：将它们提交到您添加到项目的代码库，例如 `.claude/skills/<skill-name>/SKILL.md` 处的 skill。每个云线程克隆项目中的每个代码库并从每个代码库加载 `.claude/skills/`、`.claude/agents/` 和 `.claude/commands/`，因此提交到一个代码库的 skill 在每个云线程中可用。云线程也加载您为 claude.ai 账户启用的 skills。
-* Plugins：在 **Project settings > Plugins** 中添加它们；它们加载到每个新云线程中。代码库在其 `.claude/settings.json` 中声明的 Plugins [不在云线程中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
-* MCP 服务器：云线程从您 claude.ai 账户上的连接器获取其 MCP 工具，这些是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 一次连接的 MCP 服务器，或通过 **Project settings > Environment** 中的 **Manage connectors** 链接。每个云线程可以使用所有这些而无需每个项目的设置。项目对话本身没有连接器，因此将需要一个的工作作为云线程的任务发送。在有一个代码库的项目中，云线程也从该代码库的[`.mcp.json`](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)加载 MCP 服务器。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code)列出了云会话的规则和关闭连接器的设置。
+* skill、子代理和命令：将它们提交到您已添加到项目的仓库，例如位于 `.claude/skills/<skill-name>/SKILL.md` 的 skill。每个云线程会克隆项目中的每个仓库，并从每个仓库加载 `.claude/skills/`、`.claude/agents/` 和 `.claude/commands/`，因此提交到一个仓库的 skill 在每个云线程中都可用。云线程还会加载您为 claude.ai 账户启用的 skill。
+* 插件：在 **Project settings > Plugins** 中添加它们；它们会加载到每个新云线程中。仓库在其 `.claude/settings.json` 中声明的插件[不会在云线程中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
+* MCP 服务器：云线程从您 claude.ai 账户上的连接器获取 MCP 工具，这些连接器是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 或通过 **Project settings > Environment** 中的 **Manage connectors** 链接一次性连接的 MCP 服务器。每个云线程都可以使用所有这些连接器，无需按项目设置。项目对话本身没有连接器，因此请将需要连接器的工作作为任务发送给云线程。在只有一个仓库的项目中，云线程还会从该仓库的 [`.mcp.json`](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup) 加载 MCP 服务器。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code) 列出了云端会话的规则以及关闭连接器的设置。
 * 命令行工具和包：在环境的[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)中安装它们。
 
-要查看运行云线程在 claude.ai/code 有哪些连接器，请打开线程并从其消息框旁的 **+** 菜单中选择 **Connectors**。在那里关闭连接器会将其从该线程中移除，并且将其保存为您的账户默认值，因此新线程和 claude.ai 聊天在您重新打开它之前启动时没有它。云线程在您向其发送下一条消息后获取您添加或重新连接的连接器。
+要在 claude.ai/code 查看正在运行的云线程拥有哪些连接器，请打开该线程，并从其消息框旁的 **+** 菜单中选择 **Connectors**。在那里关闭某个连接器会将其从该线程中移除，并将此保存为您的账户默认值，因此在您重新打开它之前，新线程和 claude.ai 聊天启动时都不会带有它。在您向云线程发送下一条消息后，它才会获取您新添加或重新连接的连接器。
 
 <h2 id="project-settings-reference">
   项目设置参考
@@ -590,7 +590,7 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 </h2>
 
 * [在云中使用 Claude Code](/docs/zh-CN/claude-code-on-the-web)：每个云线程背后的云会话如何工作，包括 GitHub 访问选项和拉取请求上的自动修复
-* [配置云环境](/docs/zh-CN/cloud-environments)：更改云线程可以在网络上到达什么，为它们提供环境变量和 API 凭证，并使用设置脚本安装工具
+* [配置云环境](/docs/zh-CN/cloud-environments)：更改云线程可以在网络上到达什么，为它们提供环境变量和网络密钥，并使用设置脚本安装工具
 * [使用例程自动化工作](/docs/zh-CN/routines)：例程的时间表、触发器和管理，包括 Claude 从项目创建的那些
 * [使用代理视图管理多个代理](/docs/zh-CN/agent-view)：当工作需要仅您的机器可以到达的工具或服务时，在您自己的机器上运行和跟踪多个会话
 * [Projects redesigned: from folder to conversation](https://claude.com/blog/projects-redesigned)：发布公告，带有使项目成为与 Claude 对话的思考

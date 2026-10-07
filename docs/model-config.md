@@ -43,14 +43,14 @@
 | **`opus[1m]`** | 为长会话使用具有 [100 万令牌上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model) 的 Opus |
 | **`opusplan`** | 特殊模式，在 Plan Mode 期间使用 `opus`，然后在执行期间切换到 `sonnet` |
 
-`opus` 和 `sonnet` 别名解析到的版本取决于提供商：
+`opus`、`sonnet` 和 `haiku` 别名在 Anthropic API 上解析到最新版本，在其他一些提供商上解析到较早的版本：
 
-| 提供商 | `opus` | `sonnet` |
-| :- | :- | :- |
-| Anthropic API | Opus 5.5 | Sonnet 5.5 |
-| [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) | Opus 5.5 | Sonnet 4.6 |
-| Amazon Bedrock、Google Cloud 的 Agent Platform | Opus 5.5 | Sonnet 4.5 |
-| Microsoft Foundry | Opus 4.6 | Sonnet 4.5 |
+| 提供商 | `opus` | `sonnet` | `haiku` |
+| :- | :- | :- | :- |
+| Anthropic API | Opus 5.5 | Sonnet 5.5 | Haiku 5.5 |
+| [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) | Opus 5.5 | Sonnet 4.6 | Haiku 4.5 |
+| Amazon Bedrock、Google Cloud 的 Agent Platform | Opus 5.5 | Sonnet 4.5 | Haiku 4.5 |
+| Microsoft Foundry | Opus 4.6 | Sonnet 4.5 | Haiku 4.5 |
 
 <span id="fable-alias-resolution" />
 
@@ -58,14 +58,14 @@
 
 未配置为提供 `claude-fable-5-1` 的网关会拒绝对该模型的请求。要通过提供它的网关使用 Fable 5.1，请使用 `/model claude-fable-5-1` 选择它。
 
-当别名解析到较旧的模型时，可以通过显式选择完整模型名称或设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 来获得较新的模型。
+当 `opus` 或 `sonnet` 解析到较旧的模型时，可以通过显式选择完整模型名称或设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 来使用较新的模型。
 
 较早的版本将这些别名解析到较旧的模型。有关每个别名更改的版本，请参阅[版本历史](#version-history)。
 
 别名指向你的提供商的推荐版本，并随时间更新。要固定到特定版本，请使用完整模型名称，例如 `claude-opus-5-5`，或设置相应的环境变量，如 `ANTHROPIC_DEFAULT_OPUS_MODEL`。
 
 <Note>
-  Sonnet 5.5 需要 Claude Code v2.1.284 或更高版本，Opus 5.5 需要 v2.1.280 或更高版本。如果来自较旧版本的请求失败，请参阅 [Claude Code does not support this model](/docs/zh-CN/errors#claude-code-does-not-support-this-model)。运行 `claude update` 进行升级。
+  Sonnet 5.5 需要 Claude Code v2.1.284 或更高版本，Opus 5.5 需要 v2.1.280 或更高版本。如果从较旧版本对其中某个模型的请求失败，请参阅 [Claude Code does not support this model](/docs/zh-CN/errors#claude-code-does-not-support-this-model)。使用 Haiku 5.5 时请使用 v2.1.293 或更高版本。运行 `claude update` 进行升级。
 </Note>
 
 <h3 id="work-with-fable">
@@ -156,7 +156,9 @@ Fable 模型的安全分类器标记的请求，最常见于网络安全和生�
 
 当 Claude Code 与 Anthropic API 通信时（直接或通过代理它的 [LLM 网关](/docs/zh-CN/llm-gateway)），`/model` 选择器中的价格会出现，行上的价格是该行选择的模型的价格。在[第三方提供商](/docs/zh-CN/third-party-integrations)（如 Amazon Bedrock）和 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 上，你的提供商或网关决定你支付的费用，所以选择器行不显示价格。价格仅是显示标签；它不影响行选择哪个模型或你的提供商计费的内容。在 v2.1.206 之前，[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 和网关会话显示 Anthropic 列表价格，行可能显示与其选择的模型不同的模型的价格。
 
-使用 `claude --resume`、`--continue` 或 `/resume` 选择器启动的恢复会话保持它们保存记录时使用的模型，无论当前 `model` 设置如何。如果恢复的模型已被停用或被 [`availableModels`](#restrict-model-selection) 排除，会话会回退到正常的优先级顺序。这可以防止另一个会话的 `/model` 选择在恢复时改变模型。在使用提供商特定部署 ID 而不是 Anthropic 模型 ID 的提供商上，如 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry，根本不会恢复记录模型，会话通过正常的优先级顺序解析其模型。
+使用 `claude --resume`、`--continue` 或 `/resume` 选择器启动的恢复会话会保持保存会话记录时所使用的模型。如果恢复的模型已被停用或被 [`availableModels`](#restrict-model-selection) 排除，会话会回退到正常的优先级顺序。在使用提供商特定部署 ID 而不是 Anthropic 模型 ID 的提供商上，如 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry，完全不会恢复会话记录中的模型，会话会通过正常的优先级顺序解析其模型。
+
+如果您的 `model` 设置为 `haiku`，在 Haiku 模型上保存的会话会在 `haiku` 当前解析到的模型上恢复。例如，当 `haiku` 解析到 Haiku 5.5 后，在 Haiku 4.5 上保存的会话会在 Haiku 5.5 上恢复。
 
 你为新启动使用 `--model` 或 `ANTHROPIC_MODEL` 选择的模型仍然优先于恢复的模型。从 v2.1.195 开始，[`ANTHROPIC_DEFAULT_OPUS_MODEL`](#environment-variables) 系列变量也是如此。[`ANTHROPIC_DEFAULT_MODEL`](#set-a-default-model-for-new-sessions) 也可以，在其部分中列出的条件下。
 
@@ -645,7 +647,7 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 运行安全分类器，最常�
 | 模型 | 级别 |
 | :- | :- |
 | Fable 5.1 和 Fable 5 | `low`、`medium`、`high`、`xhigh`、`max` |
-| Opus 5.5、Sonnet 5.5、Opus 5、Sonnet 5、Opus 4.8 和 Opus 4.7 | `low`、`medium`、`high`、`xhigh`、`max` |
+| Opus 5.5、Sonnet 5.5、Haiku 5.5、Opus 5、Sonnet 5、Opus 4.8 和 Opus 4.7 | `low`、`medium`、`high`、`xhigh`、`max` |
 | Opus 4.6 和 Sonnet 4.6 | `low`、`medium`、`high`、`max` |
 
 如果您设置活动模型不支持的级别，Claude Code 会回退到不高于您所设级别的最高支持级别。例如，`xhigh` 在 Opus 4.6 上运行为 `high`。您的组织或您自己的设置也可以限制模型提供的级别；请参阅[组织 effort 限制](#organization-effort-limits)。
@@ -654,7 +656,7 @@ Claude Code 按此顺序解析会话的 effort 级别，采用首先适用的：
 
 1. 明确选择：[`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars#variables) 环境变量、使用 `--effort` 启动或会话中的 `/effort`（[非交互式 `/effort` 的效果更窄](#non-interactive-effort)）
 2. 您的设置：您为模型保存的级别或 [`effortLevel`](/docs/zh-CN/settings-reference#effortlevel) 键，在 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 中说明它们之间和跨设置文件的优先级
-3. 模型的默认 effort：在支持 effort 的每个模型上为 `high`，除了 Opus 5.5 和 Sonnet 5.5 默认为 `medium`、Opus 4.7 默认为 `xhigh`，当您的组织为其[组织默认模型](#organization-default-model)设置默认 effort 级别时，当您运行该模型时该级别是默认值。自动模型回退后适用的级别，请参阅[回退后的 effort 级别](#effort-level-after-a-fallback)。
+3. 模型的默认 effort：在支持 effort 的每个模型上为 `high`，除了 Opus 5.5、Sonnet 5.5 和 Haiku 5.5 默认为 `medium`、Opus 4.7 默认为 `xhigh`，当您的组织为其[组织默认模型](#organization-default-model)设置默认 effort 级别时，当您运行该模型时该级别是默认值。自动模型回退后适用的级别，请参阅[回退后的 effort 级别](#effort-level-after-a-fallback)。
 
 Opus 5.5 从 `medium` 开始，除非上面的源之一为其设置级别，您的用户设置文件中的顶级 `effortLevel` 不计入 Opus 5.5。该键是较旧的形式 `/effort` 在 Claude Code 按模型保存级别之前写入的：它继续在它之前应用的地方应用，在 Opus 5、Fable 5.1 和更早的模型上，而 Opus 5.5 和在它之后发布的模型从它们自己的默认开始，直到您使用 `/effort` 或 `/model` 选择器为它们选择级别。项目、本地或托管设置中的顶级 `effortLevel`，或使用 `--settings` 传递的，适用于每个模型。
 
@@ -709,8 +711,8 @@ Ultracode 在以下情况下不可用：
 | 级别 | 何时使用 |
 | :- | :- |
 | `low` | 快速交换，您审查每个结果，例如头脑风暴、初稿或小改动如重命名 |
-| `medium` | Opus 5.5 和 Sonnet 5.5 上的默认值，适合具有明确范围的日常工程工作，例如实现新功能。在其他模型上，减少成本敏感工作的 token 使用，可以权衡一些智能 |
-| `high` | 验证重要或边界情况可能的工作，例如修复现有代码库中的错误。除 Opus 5.5、Sonnet 5.5 和 Opus 4.7 外，每个模型上的默认值 |
+| `medium` | Opus 5.5、Sonnet 5.5 和 Haiku 5.5 上的默认值。在 Opus 5.5 和 Sonnet 5.5 上，它适合具有明确范围的日常工程工作，例如实现新功能。在默认值更高的模型上，减少成本敏感工作的 token 使用，可以权衡一些智能 |
+| `high` | 验证重要或边界情况可能的工作，例如修复现有代码库中的错误。除 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Opus 4.7 外，每个模型上的默认值 |
 | `xhigh` | 更高 token 支出的更深推理。Opus 4.7 上的默认值 |
 | `max` | 您想让 Claude 自己完成的难题，例如发现安全漏洞。`max` 可能显示收益递减，容易过度思考，所以在广泛采用前测试 |
 | `ultracode` | 一个 Claude Code 设置而不是级别：为每个实质性任务规划[动态工作流](/docs/zh-CN/workflows)，在任何 effort 级别 |
@@ -753,7 +755,7 @@ Effort 滑块在选择支持的模型时出现在 `/model` 中。当前 effort �
 
 自适应推理使思考在每一步上可选，因此 Claude 可以更快地响应常规提示词，并为受益于它的步骤保留更深入的思考。如果您想要 Claude 比当前级别产生的更频繁或更少地思考，您可以直接在您的提示词或 `CLAUDE.md` 中说出来；模型在其 effort 设置内响应该指导。
 
-Fable 模型、Sonnet 5 及更高版本和 Opus 4.7 及更高版本始终使用自适应推理。固定思考预算模式和 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` 不适用于它们。
+Fable 模型、Sonnet 5 及更高版本、Haiku 5.5 和 Opus 4.7 及更高版本始终使用自适应推理。固定思考预算模式和 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` 不适用于它们。
 
 在 Opus 4.6 和 Sonnet 4.6 上，您可以设置 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` 以恢复到由 `MAX_THINKING_TOKENS` 控制的先前固定思考预算。请参阅[环境变量](/docs/zh-CN/env-vars)。
 
@@ -767,9 +769,9 @@ Fable 模型、Sonnet 5 及更高版本和 Opus 4.7 及更高版本始终使用�
 | :- | :- |
 | 当前会话的切换 | 在 macOS 上按 `Option+T` 或在 Windows 和 Linux 上按 `Alt+T` |
 | 设置全局默认值 | 运行 `/config` 并切换思考模式。保存为 `~/.claude/settings.json` 中的 `alwaysThinkingEnabled` |
-| 通过环境变量禁用 | 设置 [`MAX_THINKING_TOKENS=0`](/docs/zh-CN/env-vars)，这在 Anthropic API 上关闭思考，除了 Opus 5.5、Sonnet 5.5 和 Fable 模型。在[第三方提供商](/docs/zh-CN/third-party-integrations)上，Claude Code 改为省略 `thinking` 参数，自适应推理模型可能仍然思考 |
+| 通过环境变量禁用 | 设置 [`MAX_THINKING_TOKENS=0`](/docs/zh-CN/env-vars)，这在 Anthropic API 上关闭思考，除了 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 模型。在[第三方提供商](/docs/zh-CN/third-party-integrations)上，Claude Code 改为省略 `thinking` 参数，自适应推理模型可能仍然思考 |
 
-您不能在 Opus 5.5、Sonnet 5.5 或 Fable 模型上关闭思考。对于这些模型，会话切换和 `/config` 行显示 `Thinking can't be turned off`，而不是提供切换，保存的 `alwaysThinkingEnabled: false` 或 `MAX_THINKING_TOKENS=0` 在那里没有效果。在这些模型上，模型根据 effort 级别按步骤决定思考多少。保存的设置在您切换到接受它的模型时再次应用。
+您不能在 Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 模型上关闭思考。对于这些模型，会话切换和 `/config` 行显示 `Thinking can't be turned off`，而不是提供切换，保存的 `alwaysThinkingEnabled: false` 或 `MAX_THINKING_TOKENS=0` 在那里没有效果。在这些模型上，模型根据 effort 级别按步骤决定思考多少。保存的设置在您切换到接受它的模型时再次应用。
 
 Claude Code 默认折叠思考输出。按 `Ctrl+O` 切换详细模式并将推理视为灰色斜体文本。Anthropic API 上的交互式会话默认接收编辑的思考块，因此如果您想要完整摘要在展开时可用，在[设置](/docs/zh-CN/settings)中设置 `showThinkingSummaries: true`。您需要为所有生成的思考 token 付费，即使折叠或编辑。
 
@@ -779,9 +781,9 @@ Claude Code 默认折叠思考输出。按 `Ctrl+O` 切换详细模式并将推�
   扩展上下文
 </h3>
 
-Fable 5.1、Fable 5、Sonnet 5 及更高版本、Opus 4.6 及更高版本和 Sonnet 4.6 支持[100 万 token 上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)，用于具有大型代码库的长会话。
+Fable 5.1、Fable 5、Sonnet 5 及更高版本、Haiku 5.5、Opus 4.6 及更高版本和 Sonnet 4.6 支持[100 万 token 上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)，用于具有大型代码库的长会话。
 
-在 Anthropic API 上，Fable 5.1、Fable 5、Sonnet 5 及更高版本和 Opus 4.7 及更高版本在每个套餐上运行 1M 窗口，包括 Pro。您不需要为这些模型上的 1M 窗口选择 `[1m]` 变体或打开使用额度。Fable 使用本身可以在某些套餐上计费到使用额度；请参阅[Fable 和使用额度](#fable-and-usage-credits)。
+在 Anthropic API 上，Fable 5.1、Fable 5、Sonnet 5 及更高版本、Haiku 5.5 和 Opus 4.7 及更高版本在每个套餐上运行 1M 窗口，包括 Pro。您不需要为这些模型上的 1M 窗口选择 `[1m]` 变体或打开使用额度。Fable 使用本身可以在某些套餐上计费到使用额度；请参阅[Fable 和使用额度](#fable-and-usage-credits)。
 
 Opus 4.6 和 Sonnet 4.6 仅通过其 `[1m]` 变体达到 1M，对该变体的访问取决于您的套餐。在 Max、Team 和 Enterprise 套餐上，包括 Team Standard 和 Team Premium 席位，Opus 4.6 与 1M 上下文包含在您的订阅中。Sonnet 4.6 与 1M 上下文在每个订阅套餐上都需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，包括 Max。
 
@@ -795,7 +797,7 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些套餐要求。�
 
 <span id="context-window-behind-a-gateway" />
 
-如果您将 `ANTHROPIC_BASE_URL` 设置为 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个代理，Claude Code 给每个它识别的模型与该模型在 Anthropic API 上具有的相同上下文窗口。Fable 5.1、Fable 5、Sonnet 5 及更高版本和 Opus 4.7 及更高版本获得 1M 窗口，没有 `[1m]` 变体可选择，仅通过其 `[1m]` 变体达到 1M 的模型（如 Opus 4.6）在没有它的情况下运行在 200K。Claude Code 无法检测网关或其后面的服务器强制的更低限制。如果您的网关拒绝超过 200K token 的请求，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000`](/docs/zh-CN/env-vars)，以便所有模型上的会话都[在该边界处压缩](#set-the-auto-compact-window)。
+如果您将 `ANTHROPIC_BASE_URL` 设置为 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个代理，Claude Code 给每个它识别的模型与该模型在 Anthropic API 上具有的相同上下文窗口。Fable 5.1、Fable 5、Sonnet 5 及更高版本、Haiku 5.5 和 Opus 4.7 及更高版本获得 1M 窗口，没有 `[1m]` 变体可选择，仅通过其 `[1m]` 变体达到 1M 的模型（如 Opus 4.6）在没有它的情况下运行在 200K。Claude Code 无法检测网关或其后面的服务器强制的更低限制。如果您的网关拒绝超过 200K token 的请求，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000`](/docs/zh-CN/env-vars)，以便所有模型上的会话都[在该边界处压缩](#set-the-auto-compact-window)。
 
 要关闭 1M 上下文，设置 `CLAUDE_CODE_DISABLE_1M_CONTEXT=1`。Claude Code 从模型选择器中删除 1M 模型变体。在具有原生 1M 窗口的模型上，例如 Sonnet 5 和 Fable 模型，它也将模型视为具有 200K 上下文窗口：
 
@@ -804,7 +806,7 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些套餐要求。�
 
 在 v2.1.223 之前，Claude Code 仅将 Sonnet 5、Opus 4.8 和 Opus 5 会话限制在 200K。请参阅[环境变量](/docs/zh-CN/env-vars)。
 
-1M 上下文窗口使用标准模型定价，超过 200K 的 token 没有溢价。对于扩展上下文包含在您的订阅中的套餐，使用仍由您的订阅覆盖。对于通过使用额度访问扩展上下文的套餐，token 计费到使用额度。
+1M 上下文窗口使用标准模型定价，超过 200K 的 token 没有溢价，但 Haiku 5.5 除外，它[在提示词超过 100K token 时费用更高](#haiku-5-5-context-window-and-pricing)。对于扩展上下文包含在您的订阅中的套餐，使用仍由您的订阅覆盖。对于通过使用额度访问扩展上下文的套餐，token 计费到使用额度。
 
 如果您的账户支持 1M 上下文，该选项会出现在最新版本的 Claude Code 的 `/model` 选择器中。如果您看不到它，请重新启动您的会话，在第三方提供商上检查您的部署是否使用 `ANTHROPIC_DEFAULT_*_MODEL` 变量[固定了模型](#pin-models-for-third-party-deployments)。
 
@@ -830,6 +832,16 @@ Claude Code 在 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个自定义 `ANTH
 此设置将窗口预算为 200K：
 
 * **`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`**：将具有原生 1M 窗口的每个模型上的会话限制在 200K 窗口；请参阅[扩展上下文](#extended-context)了解该限制如何被强制执行。对于需要限制上下文的部署很有用。
+
+<h4 id="haiku-5-5-context-window-and-pricing">
+  Haiku 5.5 上下文窗口和定价
+</h4>
+
+在 Anthropic API 上，Haiku 5.5 在每个套餐上都运行 1M 上下文窗口，没有 `[1m]` 后缀可选择。其模型 ID 为 `claude-haiku-5-5`。要使用它，请在会话中运行 `/model claude-haiku-5-5`，或在 shell 中使用 `claude --model claude-haiku-5-5` 启动 Claude Code。
+
+当 Haiku 5.5 请求的提示词超过 100K token 时，每 token 的费用更高。两种费率请参阅 [Anthropic 定价](https://platform.claude.com/docs/en/about-claude/pricing)。
+
+会话默认在约 967K token 时自动压缩。要更早压缩，请为该模型[设置更小的自动压缩窗口](#set-the-auto-compact-window)。
 
 <h2 id="context-window-and-auto-compaction">
   上下文窗口和自动压缩
@@ -865,7 +877,7 @@ Claude Code 在 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个自定义 `ANTH
 * [云会话](/docs/zh-CN/claude-code-on-the-web)在对话接近模型限制时进行压缩
 * Sonnet 4.6 和 Opus 4.6（不带[扩展上下文](#extended-context)）在 200K 边界处进行压缩，Opus 4.8 和更高版本在使用 200K 上下文窗口运行时也是如此，例如在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上
 * 当您设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](/docs/zh-CN/env-vars) 时，具有原生 1M 窗口的模型（例如 Sonnet 5 和 Fable 模型）在 200K 边界处进行压缩
-* 使用原生 1M 窗口运行的模型在窗口填满之前进行压缩，默认情况下约为 967K 令牌。在 Anthropic API 上，这些包括 Sonnet 5、Fable 模型以及 Opus 4.7 及更高版本。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，请参阅[为第三方部署固定模型](#pin-models-for-third-party-deployments)以了解哪些模型使用该窗口。在自定义 `ANTHROPIC_BASE_URL` 后面，请参阅[网关后面的上下文窗口](#context-window-behind-a-gateway)
+* 使用原生 1M 窗口运行的模型在窗口填满之前进行压缩，默认情况下约为 967K token。在 Anthropic API 上，这些包括 Sonnet 5、Haiku 5.5、Fable 模型以及 Opus 4.7 及更高版本。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，请参阅[为第三方部署固定模型](#pin-models-for-third-party-deployments)以了解哪些模型使用该窗口。在自定义 `ANTHROPIC_BASE_URL` 后面，请参阅[网关后面的上下文窗口](#context-window-behind-a-gateway)
 * 在 Claude Code 不识别的模型 ID（例如 [LLM 网关](/docs/zh-CN/llm-gateway)别名）上的会话在 Claude Code 为该 ID 假设的上下文窗口处进行压缩；请参阅[为网关或自定义模型 ID 更正窗口](#correct-the-window-for-a-gateway-or-custom-model-id)
 
 <h3 id="correct-the-window-for-a-gateway-or-custom-model-id">
@@ -1093,6 +1105,7 @@ Claude Code 自动使用 [prompt caching](/docs/zh-CN/prompt-caching) 来优化�
 
 | 版本 | 更改 |
 | :- | :- |
+| v2.1.293 | `haiku` 在 Anthropic API 上解析为 Haiku 5.5 |
 | v2.1.284 | `sonnet` 在 Anthropic API 上解析为 Sonnet 5.5 |
 | v2.1.280 | `opus` 在 Anthropic API、AWS 上的 Claude Platform、Amazon Bedrock 和 Google Cloud 的 Agent Platform 上解析为 Opus 5.5 |
 | v2.1.257 | `fable` 解析为 Fable 5.1，Claude 应用网关会话中除外 |
@@ -1100,4 +1113,4 @@ Claude Code 自动使用 [prompt caching](/docs/zh-CN/prompt-caching) 来优化�
 | v2.1.207 | `opus` 在 AWS 上的 Claude Platform、Amazon Bedrock 和 Agent Platform 上解析为 Opus 4.8 |
 | v2.1.197 | `sonnet` 在 Anthropic API 上解析为 Sonnet 5 |
 | v2.1.154 | `opus` 在 Anthropic API 上解析为 Opus 4.8 |
-| 更早版本 | `opus` 在 AWS 上的 Claude Platform 上解析为 Opus 4.7，在 Amazon Bedrock 和 Agent Platform 上解析为 Opus 4.6。`fable` 在每个提供商上解析为 Fable 5 |
+| 更早版本 | `opus` 在 AWS 上的 Claude Platform 上解析为 Opus 4.7，在 Amazon Bedrock 和 Agent Platform 上解析为 Opus 4.6。`fable` 在每个提供商上解析为 Fable 5，`haiku` 在每个提供商上解析为 Haiku 4.5 |

@@ -188,7 +188,7 @@ Claude Code 解析 AWS 默认凭证提供程序链一次，并将解析的凭证
 
 缓存涵盖上述所有凭证选项，除了 Amazon Bedrock API 密钥，它不使用提供程序链。要在每个请求上解析链，请改为设置 [`CLAUDE_CODE_SKIP_AWS_CRED_CACHE=1`](/docs/zh-CN/env-vars)。
 
-链的每次解析在 60 秒后超时。如果链中的某个步骤停滞，例如等待无法接收的输入的 `credential_process` 帮助程序，请求会失败并显示 [`AWS default-chain credential resolve timed out`](/docs/zh-CN/errors#aws-default-chain-credential-resolve-timed-out)。如果您的链运行合法需要更长时间的交互式登录，例如通过 `aws-vault` 等包装器进行基于浏览器的 SSO 和 MFA，请使用 [`CLAUDE_CODE_AWS_CHAIN_RESOLVE_TIMEOUT_MS`](/docs/zh-CN/env-vars) 以毫秒为单位提高限制。在 v2.1.207 之前，停滞的凭证解析会使请求无限期等待。
+填充缓存的解析在 60 秒后超时。如果链中的某个步骤停滞，例如等待无法接收的输入的 `credential_process` 帮助程序，请求会失败并显示 [`AWS default-chain credential resolve timed out`](/docs/zh-CN/errors#aws-default-chain-credential-resolve-timed-out)。如果您的链运行合法需要更长时间的交互式登录，例如通过 `aws-vault` 等包装器进行基于浏览器的 SSO 和 MFA，请使用 [`CLAUDE_CODE_AWS_CHAIN_RESOLVE_TIMEOUT_MS`](/docs/zh-CN/env-vars) 以毫秒为单位提高限制。设置 `CLAUDE_CODE_SKIP_AWS_CRED_CACHE=1` 后，每个 API 请求解析链时不受此限制。
 
 除了使用 Amazon Bedrock API 密钥进行身份验证外，[设置向导](#sign-in-with-bedrock)对它在验证您的凭证时进行的每个 AWS 调用以及每个模型检查之前的凭证查找应用相同的限制。在凭证验证期间，超过限制的检查会失败并显示 [`Timed out after 60s waiting for AWS`](/docs/zh-CN/errors#bedrock-setup-verification-timed-out-waiting-for-aws)。
 
