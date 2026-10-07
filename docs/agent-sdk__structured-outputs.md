@@ -60,7 +60,7 @@
 
 要使用结构化输出，定义一个 [JSON Schema](https://json-schema.org/understanding-json-schema/about) 来描述你想要的数据形状，然后通过 `outputFormat` 选项（TypeScript）或 `output_format` 选项（Python）将其传递给 `query()`。当代理完成时，结果消息包含一个 `structured_output` 字段，其中包含与你的 schema 匹配的验证数据。
 
-下面的示例要求代理研究 Anthropic 并返回公司名称、成立年份和总部作为结构化输出。
+在运行本页上的示例之前，请按照[快速入门](/docs/zh-CN/agent-sdk/quickstart#setup)安装 Claude Agent SDK。下面的示例要求 Agent 研究 Anthropic 并返回公司名称、成立年份和总部作为结构化输出。
 
 <CodeGroup>
   ```typescript TypeScript theme={null}
@@ -390,7 +390,7 @@ schema 包括可选字段（`author` 和 `date`），因为 git blame 信息可�
   错误处理
 </h2>
 
-结构化输出生成可能会失败，当代理无法生成与你的 schema 匹配的有效 JSON 时。这通常发生在 schema 对于任务来说太复杂、任务本身不明确或代理在尝试修复验证错误时达到重试限制时。它也可能在没有任何验证失败的情况下发生：[模型回退](/docs/zh-CN/model-config#automatic-model-fallback)可以在流中途收回已完成的输出，如果没有重试替换它，运行将以相同的错误结束。在调试你的 schema 之前，检查结果消息上的 `errors` 列表以区分这两个原因。
+结构化输出生成可能会失败，当 Agent 无法生成与您的 schema 匹配的有效 JSON 时。这通常发生在 schema 对于任务来说太复杂、任务本身不明确或 Agent 在尝试修复验证错误时达到重试限制时。它也可能在没有任何验证失败的情况下发生：[模型回退](/docs/zh-CN/model-config#automatic-model-fallback)可以在流中途收回已完成的输出，如果没有重试替换它，运行将以相同的错误结束。在调试您的 schema 之前，检查错误结果消息上的 `errors` 列表以区分这两个原因。
 
 发生错误时，结果消息有一个 `subtype` 指示出了什么问题：
 

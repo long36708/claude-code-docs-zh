@@ -347,7 +347,7 @@ claude auto-mode config
 }
 ```
 
-获取关于您的自定义 `allow`、`soft_deny` 和 `hard_deny` 规则的 AI 反馈：
+获取关于您的自定义 `allow`、`soft_deny`、`hard_deny` 和 `environment` 条目的 AI 反馈：
 
 ```bash theme={null}
 claude auto-mode critique

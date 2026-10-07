@@ -130,7 +130,7 @@ Claude Code 读取项目范围配置的目录：settings、hooks、skills、suba
 
 一个 markdown 文件，包含您为 Claude 编写的持久指令，在每个会话开始时作为系统提示后的用户消息加载。在此处放置项目约定、架构笔记和"始终执行 X"规则。Project-root CLAUDE.md 在 [compaction](#compaction) 期间保留，之后从磁盘重新读取。
 
-您可以在项目范围内的 `./CLAUDE.md` 或 `./.claude/CLAUDE.md`、用户范围内的 `~/.claude/CLAUDE.md` 或作为组织的[托管策略](#managed-settings)放置 CLAUDE.md。所有发现的文件都被连接到上下文中，而不是相互覆盖，按从最广泛的范围到最具体的范围排序。Claude Code 也可以加载项目的 [AGENTS.md](#agents-md) 文件，单独或与 CLAUDE.md 一起。
+您可以在项目作用域内的 `./CLAUDE.md` 或 `./.claude/CLAUDE.md`、用户作用域内的 `~/.claude/CLAUDE.md` 或作为组织的[托管策略](#managed-settings)放置 CLAUDE.md。所有发现的文件都被连接到上下文中，而不是相互覆盖，按从最广泛的作用域到最具体的作用域排序。Claude Code 也可以加载项目的 [AGENTS.md](#agents-md) 文件来代替 CLAUDE.md。
 
 了解更多：[CLAUDE.md files](/docs/zh-CN/memory#claude-md-files)
 

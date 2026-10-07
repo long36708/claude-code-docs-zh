@@ -681,7 +681,7 @@ Claude Code 使用 Amazon Bedrock [Invoke API](https://docs.aws.amazon.com/bedro
 
 Amazon Bedrock 以二进制事件流格式流式传输 `InvokeModelWithResponseStream` 响应，标头为 `Content-Type: application/vnd.amazon.eventstream`。Claude Code 和 Amazon Bedrock 之间的网关或代理必须转发响应正文及其标头，包括 `Content-Type`，就像 Amazon Bedrock 发送的那样。
 
-如果网关将 `Content-Type` 重写为另一个值，Claude Code 会拒绝响应，错误以 `Bedrock streaming response has content-type` 开头，命名它收到的值。常见的重写是 `text/event-stream`，来自将流重新发出为服务器发送事件的集成。
+如果网关将 `Content-Type` 重写为另一个值，Claude Code 会拒绝响应，错误以 `Bedrock streaming response has content-type` 开头，命名它收到的值。常见的重写是 `text/event-stream`，来自将流重新发出为服务器发送事件的集成。有关错误消息中提到的 `CLAUDE_CODE_DISABLE_BEDROCK_CONTENT_TYPE_GUARD` 变量，请参阅 [Bedrock streaming response has an unexpected content-type](/docs/zh-CN/errors#bedrock-streaming-response-has-an-unexpected-content-type)。
 
 如果网关删除或清空标头，Claude Code 会假设正文是 Amazon Bedrock 的事件流并对其进行解码，因此网关未修改地通过的正文会继续流式传输。
 

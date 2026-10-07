@@ -8,13 +8,13 @@
 
 每个 Claude Code 会话都以全新的上下文窗口开始。两种机制可以跨会话传递知识：
 
-* **CLAUDE.md 文件**：您编写的指令，为 Claude 提供持久上下文。Claude 也可以读取存储库的 [`AGENTS.md` 文件](#agents-md)，单独使用或与 CLAUDE.md 一起使用
+* **CLAUDE.md 文件**：您编写的指令，为 Claude 提供持久上下文。Claude 也可以读取仓库的 [`AGENTS.md` 文件](#agents-md)来代替 CLAUDE.md
 * **自动记忆**：Claude 根据您的更正和偏好自己编写的笔记
 
 本页面涵盖以下内容：
 
 * [编写和组织 CLAUDE.md 文件](#claude-md-files)
-* [使用现有 AGENTS.md](#agents-md) 作为您的项目指令，单独使用或与 CLAUDE.md 一起使用
+* [使用现有 AGENTS.md](#agents-md) 作为您的项目指令
 * [使用 `.claude/rules/` 将规则范围限定为特定文件类型](#organize-rules-with-claude/rules/)
 * [配置自动记忆](#auto-memory)，以便 Claude 自动记笔记
 * [故障排除](#troubleshoot-memory-issues)当指令未被遵循时

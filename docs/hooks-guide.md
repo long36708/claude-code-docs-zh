@@ -526,7 +526,7 @@ Claude Code 在其生命周期中的特定点触发 hook 事件。当事件触�
 | `DirectoryAdded` | 当工作目录在会话中期通过 `/add-dir` 或 SDK `register_repo_root` 控制请求添加时 |
 | `FileChanged` | 当监视的文件在磁盘上更改时。`matcher` 字段指定要监视的文件名 |
 | `WorktreeCreate` | 当通过 `--worktree`、`isolation: "worktree"` 创建工作树时，或用于后台会话。替换默认的 git 行为 |
-| `WorktreeRemove` | 当在会话退出时、子代理完成时或删除后台会话时移除工作树 |
+| `WorktreeRemove` | 当由 `WorktreeCreate` hook 创建的 worktree 正在被移除时 |
 | `PreCompact` | 在上下文压缩之前 |
 | `PostCompact` | 在上下文压缩完成后 |
 | `PreModelSwitch` | 在 Claude Code 应用你或客户端请求的模型切换之前。可以阻止切换 |

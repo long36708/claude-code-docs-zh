@@ -210,7 +210,7 @@ export VERTEX_REGION_CLAUDE_HAIKU_4_5=us-east5
 export VERTEX_REGION_CLAUDE_4_6_SONNET=europe-west1
 ```
 
-大多数模型版本都有对应的 `VERTEX_REGION_CLAUDE_*` 变量。有关完整列表，请参阅[环境变量参考](/docs/zh-CN/env-vars)。检查 [Google Cloud 的 Agent Platform Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 以确定哪些模型支持全局端点与仅区域端点。
+大多数模型版本都有对应的 `VERTEX_REGION_CLAUDE_*` 变量。有关完整列表，请参阅[环境变量参考](/docs/zh-CN/env-vars#variables)。检查 [Google Cloud 的 Agent Platform Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 以确定哪些模型支持全局端点与仅区域端点。
 
 如果区域值的形状不像区域或位置名称，Claude Code 会将其视为未设置。例如，Claude Code 将包含斜杠、点或空格的值视为未设置。Claude Code 为每个变量回退到不同的源：
 
@@ -366,7 +366,7 @@ Claude Sonnet 5、Opus 4.6 及更高版本以及 Sonnet 4.6 在 Google Cloud 的
 * 验证该模型在您指定的位置可用。某些模型仅在 `global` 或多区域位置（如 `eu` 和 `us`）上提供，而不是在特定区域
 * 如果使用 `CLOUD_ML_REGION=global`，请检查您的模型是否在 [Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 中的"支持的功能"下支持全局端点。对于不支持全局端点的模型，请执行以下任一操作：
   * 通过 `ANTHROPIC_MODEL` 或 `ANTHROPIC_DEFAULT_HAIKU_MODEL` 指定支持的模型，或
-  * 使用 `VERTEX_REGION_<MODEL_NAME>` 环境变量设置区域或多区域位置
+  * 使用该模型对应的 `VERTEX_REGION_CLAUDE_*` 变量设置区域或多区域位置，这些变量列于[环境变量参考](/docs/zh-CN/env-vars#variables)中
 
 如果您遇到 429 错误：
 

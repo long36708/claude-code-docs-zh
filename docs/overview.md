@@ -167,15 +167,15 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
     claude "commit my changes with a descriptive message"
     ```
 
-    在 CI 中，你可以使用 [GitHub Actions](/docs/zh-CN/github-actions) 或 [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd) 自动化代码审查和问题分类。
+    在 CI 中，您可以使用 [GitHub Actions](/docs/zh-CN/github-actions) 或 [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd) 自动化代码审查和问题分类。
   </Accordion>
 
-  <Accordion title="使用 MCP 连接你的工具" icon="plug">
-    [Model Context Protocol (MCP)](/docs/zh-CN/mcp) 是一个开放标准，用于将 AI 工具连接到外部数据源。使用 MCP，Claude Code 可以读取 Google Drive 中的设计文档、更新 Jira 中的工单、从 Slack 拉取数据，或使用你自己的自定义工具。[MCP 快速入门](/docs/zh-CN/mcp-quickstart)端到端连接你的第一个服务器。
+  <Accordion title="使用 MCP 连接您的工具" icon="plug">
+    [Model Context Protocol (MCP)](/docs/zh-CN/mcp) 是一个开放标准，用于将 AI 工具连接到外部数据源。使用 MCP，Claude Code 可以读取 Google Drive 中的设计文档、更新 Jira 中的工单、从 Slack 拉取数据，或使用您自己的自定义工具。[MCP 快速入门](/docs/zh-CN/mcp-quickstart)将端到端地连接您的第一个服务器。
   </Accordion>
 
-  <Accordion title="使用说明、skills 和 hooks 进行自定义" icon="sliders">
-    [`CLAUDE.md`](/docs/zh-CN/memory) 是一个 markdown 文件，你可以将其添加到项目根目录，Claude Code 会在每个会话开始时读取它。使用它来设置编码标准、架构决策、首选库和审查清单。如果你的存储库已经有一个用于其他编码代理的 `AGENTS.md`，Claude Code [可以自己读取它](/docs/zh-CN/memory#agents-md)或与 `CLAUDE.md` 一起读取。Claude 还会在工作时构建[自动内存](/docs/zh-CN/memory#auto-memory)，保存学习内容，跨会话使用，无需你编写任何内容。
+  <Accordion title="使用指令、skill 和 hook 进行自定义" icon="sliders">
+    [`CLAUDE.md`](/docs/zh-CN/memory) 是一个 markdown 文件，您可以将其添加到项目根目录，Claude Code 会在每个会话开始时读取它。使用它来设置编码标准、架构决策、首选库和审查清单。如果您的仓库已经有一个供其他编码 Agent 使用的 `AGENTS.md`，Claude Code [可以读取它](/docs/zh-CN/memory#agents-md)来代替 `CLAUDE.md`。Claude 还会在工作时构建[自动记忆](/docs/zh-CN/memory#auto-memory)，跨会话保存所学内容，无需您编写任何内容。
 
     创建 [skills](/docs/zh-CN/skills) 来打包你的团队可以共享的可重复工作流，如 `/review-pr` 或 `/deploy-staging`。
 

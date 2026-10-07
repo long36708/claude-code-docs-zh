@@ -63,7 +63,7 @@ Claude Code 在会话期间的特定点运行 hooks。当事件触发且匹配�
 | `DirectoryAdded` | 当工作目录在会话中期通过 `/add-dir` 或 SDK `register_repo_root` 控制请求添加时 |
 | `FileChanged` | 当监视的文件在磁盘上更改时。`matcher` 字段指定要监视的文件名 |
 | `WorktreeCreate` | 当通过 `--worktree`、`isolation: "worktree"` 创建工作树时，或用于后台会话。替换默认的 git 行为 |
-| `WorktreeRemove` | 当在会话退出时、子代理完成时或删除后台会话时移除工作树 |
+| `WorktreeRemove` | 当由 `WorktreeCreate` hook 创建的 worktree 正在被移除时 |
 | `PreCompact` | 在上下文压缩之前 |
 | `PostCompact` | 在上下文压缩完成后 |
 | `PreModelSwitch` | 在 Claude Code 应用你或客户端请求的模型切换之前。可以阻止切换 |
@@ -3273,11 +3273,10 @@ Claude Code 会拒绝包含 `.` 或 `..` 段的绝对路径，以及任何经过
   WorktreeRemove
 </h3>
 
-在移除 worktree 时运行。这是 [WorktreeCreate](#worktreecreate) 对应的清理事件。该事件在以下情况下触发：
+当 Claude Code 清理由您的 [`WorktreeCreate`](#worktreecreate) hook 创建的 worktree 时运行。该事件在以下情况下触发：
 
-* 您退出 `--worktree` 会话并选择将其移除
-* 设置了 `isolation: "worktree"` 的子代理完成
-* 您删除了一个[后台会话](/docs/zh-CN/agent-view#what-deleting-a-session-removes)，且其 worktree 由该 hook 创建
+* 您退出 `--worktree` 会话并选择删除 worktree
+* 您删除在该 worktree 中运行的[后台会话](/docs/zh-CN/agent-view#what-deleting-a-session-removes)
 
 对于基于 git 的 worktree，Claude Code 会使用 `git worktree remove` 自动处理清理。如果您配置了 WorktreeCreate hook，请搭配一个 WorktreeRemove hook，以控制其所创建的 worktree 的清理：
 

@@ -343,7 +343,7 @@ Chrome 扩展程序的 service worker 在扩展会话期间可能会进入空闲
 
 | 错误 | 原因 | 修复 |
 | - | - | - |
-| "浏览器扩展程序未连接" | 本机消息传递主机无法到达扩展程序，或您的组织的 IP 允许列表拒绝了到 `bridge.claudeusercontent.com` 的连接 | 重新启动 Chrome 和 Claude Code，然后运行 `/chrome` 以重新连接。如果您的组织使用 IP 允许列表且错误仍然存在，请参阅[组织 IP 允许列表和代理出口](/docs/zh-CN/network-config#organization-ip-allowlists-and-proxy-egress) |
+| "浏览器扩展程序未连接" | 本机消息传递主机无法到达扩展程序，或您的组织的 IP 允许列表拒绝了到 `bridge.claudeusercontent.com` 的连接 | 检查扩展程序登录的 claude.ai 账户是否与 Claude Code 相同，重新启动 Chrome 和 Claude Code，然后运行 `/chrome` 以重新连接。如果您的组织使用 IP 允许列表且错误仍然存在，请参阅[组织 IP 允许列表和代理出口](/docs/zh-CN/network-config#organization-ip-allowlists-and-proxy-egress) |
 | 扩展程序在 `/chrome` 中显示"未检测到" | Chrome 扩展程序未安装或已禁用 | 在 `chrome://extensions` 中安装或启用扩展程序 |
 | "没有可用的标签页" | Claude 在标签页准备好之前尝试操作 | 要求 Claude 创建新标签页并重试 |
 | "接收端不存在" | 扩展程序 service worker 进入空闲状态 | 运行 `/chrome` 并选择"重新连接扩展程序" |

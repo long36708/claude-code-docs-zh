@@ -34,7 +34,7 @@ export const ClaudeExplorer = () => {
         oneLiner: 'Project instructions Claude reads every session',
         when: 'Loaded into context at the start of every session',
         description: 'Project-specific instructions that shape how Claude works in this repository. Put your conventions, common commands, and architectural context here so Claude operates with the same assumptions your team does.',
-        tips: ['Target under 200 lines. Longer files still load in full but may reduce adherence', <>CLAUDE.md loads into every session. If something only matters for specific tasks, move it to a <A href="/docs/en/skills">skill</A> or a path-scoped <A href="/docs/en/memory#organize-rules-with-claude/rules/">rule</A> so it loads only when needed</>, 'List the commands you run most, like build, test, and format, so Claude knows them without you spelling them out each time', <>Run <C>/memory</C> to open and edit CLAUDE.md from within a session</>, <>Also works at <C>.claude/CLAUDE.md</C> if you prefer to keep the project root clean</>, <>If your repo already has an <C>AGENTS.md</C> for other coding agents, Claude Code <A href="/docs/en/memory#agents-md">can read that</A> on its own or alongside CLAUDE.md</>],
+        tips: ['Target under 200 lines. Longer files still load in full but may reduce adherence', <>CLAUDE.md loads into every session. If something only matters for specific tasks, move it to a <A href="/docs/en/skills">skill</A> or a path-scoped <A href="/docs/en/memory#organize-rules-with-claude/rules/">rule</A> so it loads only when needed</>, 'List the commands you run most, like build, test, and format, so Claude knows them without you spelling them out each time', <>Run <C>/memory</C> to open and edit CLAUDE.md from within a session</>, <>Also works at <C>.claude/CLAUDE.md</C> if you prefer to keep the project root clean</>, <>If your repo already has an <C>AGENTS.md</C> for other coding agents, Claude Code <A href="/docs/en/memory#agents-md">can read that</A> in place of a <C>CLAUDE.md</C></>],
         exampleIntro: 'This example is for a TypeScript and React project. It lists the build and test commands, the framework conventions Claude should follow, and project-specific rules like export style and file layout.',
         example: `# Project conventions
 
@@ -1434,7 +1434,7 @@ Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、�
 
 在 Windows 上，`~/.claude` 解析为 `%USERPROFILE%\.claude`。如果您设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)，此页面上的每个 `~/.claude` 路径都将位于该目录下。
 
-大多数用户只编辑 `CLAUDE.md` 和 `settings.json`。如果您的存储库已经有一个 `AGENTS.md` 用于其他编码代理，Claude Code [可以自己读取它](/docs/zh-CN/memory#agents-md)或与 `CLAUDE.md` 一起读取。目录的其余部分是可选的：根据需要添加 skills、rules 或 subagents。
+大多数用户只编辑 `CLAUDE.md` 和 `settings.json`。如果您的仓库已经有一个供其他编码 Agent 使用的 `AGENTS.md`，Claude Code [可以读取它](/docs/zh-CN/memory#agents-md)来代替 `CLAUDE.md`。目录的其余部分是可选的：根据需要添加 skill、规则或子代理。
 
 <h2 id="explore-the-directory">
   探索目录
@@ -1454,7 +1454,7 @@ Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、�
 | - | - | - |
 | `managed-settings.json` | 系统级别，因操作系统而异 | 企业强制执行的设置，您无法覆盖，除了[狭窄的例外](/docs/zh-CN/settings#security-keys-where-the-stricter-value-applies)。请参阅[保存文件的位置](/docs/zh-CN/managed-settings#deploy-a-managed-settings-file)和[Claude Code 使用的托管源](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)。 |
 | `CLAUDE.local.md` | 项目根目录 | 您对此项目的私人偏好，与 CLAUDE.md 一起加载。手动创建它并将其添加到 `.gitignore`。 |
-| `AGENTS.md` | 项目根目录、`.claude/` 或任何目录 | 您为 AI 编码代理编写的项目说明。Claude Code 可以[自行加载它](/docs/zh-CN/memory#agents-md)或与 `CLAUDE.md` 一起加载。 |
+| `AGENTS.md` | 项目根目录、`.claude/` 或任何目录 | 您为 AI 编码 Agent 编写的项目说明。Claude Code 可以[加载它](/docs/zh-CN/memory#agents-md)来代替 `CLAUDE.md`。 |
 | 已安装的插件 | `~/.claude/plugins` | 克隆的市场、已安装的插件版本、`installed_plugins.json` 安装记录和每个插件的数据，由 `claude plugin` 命令管理。从您的 claude.ai 账户[同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)下载到 `~/.claude/plugins/synced/`。对于从市场[`command` 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)以链接模式安装的插件，Claude Code 在此处存储链接而不是副本，插件的文件保留在命令打印的目录中。`command` 源需要 Claude Code v2.1.229 或更高版本。在您从本地路径添加的市场中按相对路径列出的插件也会[从其源目录就地加载](/docs/zh-CN/plugins/loading#find-plugins-on-disk)，而不是从缓存副本加载。请参阅[插件缓存](/docs/zh-CN/plugins/loading#find-plugins-on-disk)了解孤立版本如何被清理。 |
 
 `~/.claude` 还保存 Claude Code 在您工作时写入的数据：记录、提示历史、文件快照、缓存和日志。请参阅下面的[应用数据](#application-data)。

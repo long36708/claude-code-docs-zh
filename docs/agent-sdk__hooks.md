@@ -15,20 +15,20 @@ Hooks 是回调函数，用于响应代理事件（如工具被调用、会话�
 * **跟踪会话生命周期**以管理状态、清理资源或发送通知
 
 <h2 id="how-hooks-work">
-  Hooks 如何工作
+  hook 如何工作
 </h2>
 
 <Steps>
   <Step title="事件触发">
-    代理执行期间发生某事，SDK 触发事件：工具即将被调用（`PreToolUse`）、工具返回结果（`PostToolUse`）、子代理启动或停止、代理空闲或执行完成。请参阅[完整事件列表](#available-hooks)。
+    Agent 执行期间发生某事，SDK 触发事件：工具即将被调用（`PreToolUse`）、工具返回结果（`PostToolUse`）、子代理启动或停止、Agent 空闲或执行完成。请参阅[完整事件列表](#available-hooks)。
   </Step>
 
-  <Step title="SDK 收集已注册的 hooks">
-    SDK 检查为该事件类型注册的 hooks。这包括您在 `options.hooks` 中传递的回调 hooks 和来自设置文件的 shell 命令 hooks，当相应的 [`settingSources`](/docs/zh-CN/agent-sdk/typescript#settingsource) 或 [`setting_sources`](/docs/zh-CN/agent-sdk/python#settingsource) 条目启用时（默认 `query()` 选项就是这样）。
+  <Step title="SDK 收集已注册的 hook">
+    SDK 检查为该事件类型注册的 hook。这包括您在 `options.hooks` 中传递的回调 hook 和来自设置文件的 shell 命令 hook，当相应的 [`settingSources`](/docs/zh-CN/agent-sdk/typescript#settingsource) 或 [`setting_sources`](/docs/zh-CN/agent-sdk/python#settingsource) 条目启用时（默认 `query()` 选项就是这样）。
   </Step>
 
-  <Step title="匹配器过滤哪些 hooks 运行">
-    如果 hook 有 [`matcher`](#matchers) 模式（如 `"Write|Edit"`），SDK 会针对事件的目标（例如工具名称）测试它。没有匹配器的 hooks 对该类型的每个事件都运行。
+  <Step title="匹配器过滤哪些 hook 运行">
+    如果 hook 有 [`matcher`](#matchers) 模式（如 `"Write|Edit"`），SDK 会针对事件的目标（例如工具名称）测试它。没有匹配器的 hook 对该类型的每个事件都运行。
   </Step>
 
   <Step title="回调函数执行">
@@ -36,7 +36,7 @@ Hooks 是回调函数，用于响应代理事件（如工具被调用、会话�
   </Step>
 
   <Step title="您的回调返回决定">
-    执行任何操作（日志记录、API 调用、验证）后，您的回调返回一个[输出对象](#outputs)，告诉代理该做什么：允许操作、阻止它、修改输入或将上下文注入到对话中。
+    执行任何操作（日志记录、API 调用、验证）后，您的回调返回一个[输出对象](#outputs)，告诉 Agent 该做什么：允许操作、阻止它、修改输入或将上下文注入到对话中。
   </Step>
 </Steps>
 
@@ -140,7 +140,7 @@ Hooks 是回调函数，用于响应代理事件（如工具被调用、会话�
   ```
 </CodeGroup>
 
-当您运行任一脚本时，Claude 尝试创建 `.env` 文件，hook 拒绝工具调用，Claude 的最终响应解释它无法创建 `.env` 文件。
+当您运行任一脚本时，Claude 尝试创建 `.env` 文件，hook 拒绝该工具调用。
 
 <h2 id="available-hooks">
   可用的 hooks
@@ -179,16 +179,16 @@ SDK 为代理执行的不同阶段提供 hooks。某些 hooks 在两个 SDK 中�
 | `ConfigChange` | 否 | 是 | 配置文件更改 | 动态重新加载设置 |
 | `InstructionsLoaded` | 否 | 是 | `CLAUDE.md` 或规则文件加载到上下文中 | 审计加载哪些指令文件 |
 | `WorktreeCreate` | 否 | 是 | Git worktree 创建 | 跟踪隔离的工作区 |
-| `WorktreeRemove` | 否 | 是 | Git worktree 移除 | 清理工作区资源 |
+| `WorktreeRemove` | 否 | 是 | 由 `WorktreeCreate` hook 创建的 worktree 正在被移除 | 清理工作区资源 |
 | `CwdChanged` | 否 | 是 | 会话期间工作目录更改 | 按目录重新加载环境变量 |
 | `FileChanged` | 否 | 是 | 监视的文件被修改、创建或删除 | 项目文件更改时重新加载配置 |
 | `DirectoryAdded` | 否 | 是 | 会话期间添加工作目录 | 为中途添加的存储库安装依赖项 |
 
 <h2 id="configure-hooks">
-  配置 hooks
+  配置 hook
 </h2>
 
-要配置 hook，请在您的代理选项的 `hooks` 字段中传递它（Python 中的 `ClaudeAgentOptions`，TypeScript 中的 `options` 对象）。此代码段假设您已经定义了一个 hook 回调，例如上面示例中 Python 中的 `protect_env_files` 或 TypeScript 中的 `protectEnvFiles`：
+要配置 hook，请在您的 Agent 选项的 `hooks` 字段中传递它（Python 中的 `ClaudeAgentOptions`，TypeScript 中的 `options` 对象）。此代码段假设您已经定义了一个 hook 回调，例如上面示例中 Python 中的 `protect_env_files` 或 TypeScript 中的 `protectEnvFiles`：
 
 <CodeGroup>
   ```python Python theme={null}
@@ -225,13 +225,13 @@ SDK 为代理执行的不同阶段提供 hooks。某些 hooks 在两个 SDK 中�
   匹配器
 </h3>
 
-使用匹配器来过滤您的回调何时触发。`matcher` 字段根据 hook 事件类型匹配不同的值。例如，基于工具的 hooks 匹配工具名称，而 `Notification` hooks 匹配通知类型。
+使用匹配器来过滤您的回调何时触发。`matcher` 字段根据 hook 事件类型匹配不同的值。例如，基于工具的 hook 匹配工具名称，而 `Notification` hook 匹配通知类型。
 
 SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-patterns)相同的规则。该部分记录了精确字符串和正则表达式评估路径、它们的版本要求以及每个事件类型的匹配器值。
 
 | 选项 | 类型 | 默认值 | 描述 |
 | - | - | - | - |
-| `matcher` | `string` | `undefined` | 针对事件的过滤字段匹配的模式，遵循[设置文件中匹配器的规则](/docs/zh-CN/hooks#matcher-patterns)。对于工具 hooks，这是工具名称。内置工具包括 `Bash`、`Read`、`Write`、`Edit`、`Glob`、`Grep`、`WebFetch`、`Agent` 等（请参阅[工具输入类型](/docs/zh-CN/agent-sdk/typescript#tool-input-types)以获取完整列表）。MCP 工具使用模式 `mcp__<server>__<action>`，其中 `<server>` 是您在 `mcpServers` 配置中使用的键。 |
+| `matcher` | `string` | `undefined` | 针对事件的过滤字段匹配的模式，遵循[设置文件中匹配器的规则](/docs/zh-CN/hooks#matcher-patterns)。对于工具 hook，这是工具名称。内置工具包括 `Bash`、`Read`、`Write`、`Edit`、`Glob`、`Grep`、`WebFetch`、`Agent` 等（请参阅[工具输入类型](/docs/zh-CN/agent-sdk/typescript#tool-input-types)以获取完整列表）。MCP 工具使用模式 `mcp__<server>__<action>`，其中 `<server>` 是您在 `mcpServers` 配置中使用的键。 |
 | `hooks` | `HookCallback[]` | - | 必需。当模式匹配时执行的回调函数数组 |
 | `timeout` | `number` | `undefined` | 超时时间（秒）。省略时，Claude Code 应用[事件的默认超时](#hook-timeout)。您的 SDK 回调遵循 `command` hook 默认值 |
 
@@ -259,23 +259,23 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 
 您的回调返回一个具有两类字段的对象：
 
-* **顶级字段**在每个事件上被接受：`systemMessage` 向用户显示消息，`continue`（Python 中的 `continue_`）确定代理在此 hook 后是否继续运行。某些事件会丢弃它们或将它们传递到其他地方。每个[事件的部分](/docs/zh-CN/hooks#hook-events)在 hooks 页面上说明它们的去向。
+* **顶级字段**在每个事件上被接受：`systemMessage` 向用户显示消息，`continue`（Python 中的 `continue_`）确定 Agent 在此 hook 后是否继续运行。某些事件会丢弃它们或将它们传递到其他地方。hooks 页面上每个[事件的部分](/docs/zh-CN/hooks#hook-events)说明了它们的去向。
 * **`hookSpecificOutput`** 控制当前操作。内部的字段取决于 hook 事件类型：
   * 对于 `PreToolUse` hook，这是您设置 `permissionDecision`（`"allow"`、`"deny"`、`"ask"` 或 `"defer"`）、`permissionDecisionReason` 和 `updatedInput` 的地方。如果您返回 `"defer"`，该轮次将以一条 `stop_reason` 为 `"tool_deferred"` 的结果消息结束，以便您可以[稍后恢复该调用](/docs/zh-CN/hooks#defer-a-tool-call-for-later)。
-  * 对于 `PostToolUse` hook，您可以设置 `additionalContext` 以将信息附加到工具结果。要在 Claude 看到之前替换工具的输出，请设置 `updatedToolOutput`，这适用于两个 SDK 中的任何工具。较旧的 `updatedMCPToolOutput` 字段仅替换 MCP 工具输出，已弃用。
+  * 对于 `PostToolUse` hook，您可以设置 `additionalContext` 以将信息附加到工具结果。要在 Claude 看到之前替换工具的输出，请设置 `updatedToolOutput`，这适用于两个 SDK 中的任何工具。较旧的 `updatedMCPToolOutput` 字段仅替换 MCP 工具输出。
   * 在 TypeScript SDK 中，`PostToolUse` 回调也可以返回 `classifierContext`，这是关于工具调用结果的简短说明，用于[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)权限分类器。因为您的回调在您的应用程序自己的进程中运行，分类器可能会将您在说明中转达的用户声明视为用户意图。该字段需要 TypeScript Agent SDK v0.3.236 或更高版本。[为自动模式分类器注释结果](/docs/zh-CN/hooks#annotate-a-result-for-the-auto-mode-classifier)涵盖了长度上限、仅同步规则以及不要在说明中放入的内容。
 
-返回 `{}` 以允许操作而不进行更改。SDK 回调 hooks 使用与 [Claude Code shell 命令 hooks](/docs/zh-CN/hooks#json-output) 相同的 JSON 输出格式，其中记录了每个字段和事件特定的选项。对于 SDK 类型定义，请参阅 [TypeScript](/docs/zh-CN/agent-sdk/typescript#synchookjsonoutput) 和 [Python](/docs/zh-CN/agent-sdk/python#synchookjsonoutput) SDK 参考。
+返回 `{}` 以允许操作而不进行更改。SDK 回调 hook 使用与 [Claude Code shell 命令 hook](/docs/zh-CN/hooks#json-output) 相同的 JSON 输出格式，其中记录了每个字段和事件特定的选项。对于 SDK 类型定义，请参阅 [TypeScript](/docs/zh-CN/agent-sdk/typescript#synchookjsonoutput) 和 [Python](/docs/zh-CN/agent-sdk/python#synchookjsonoutput) SDK 参考。
 
 <Note>
-  当多个 hooks 或权限规则适用时，`deny` 优先于 `defer`，`defer` 优先于 `ask`，`ask` 优先于 `allow`。如果任何 hook 返回 `deny`，操作将被阻止，无论其他 hooks 如何。
+  当多个 hook 或权限规则适用时，`deny` 优先于 `defer`，`defer` 优先于 `ask`，`ask` 优先于 `allow`。如果任何 hook 返回 `deny`，操作将被阻止，无论其他 hook 如何。
 </Note>
 
 <h4 id="asynchronous-output">
   异步输出
 </h4>
 
-默认情况下，代理在您的 hook 返回前等待。如果您的 hook 执行副作用，例如日志记录或发送 webhook，并且不需要影响代理的行为，您可以改为返回异步输出。这告诉代理立即继续，而不等待 hook 完成。在此代码段中，Python 中的 `send_to_logging_service` 和 TypeScript 中的 `sendToLoggingService` 代表您定义的任何日志记录函数：
+默认情况下，Agent 在您的 hook 返回前等待。如果您的 hook 执行副作用，例如日志记录或发送 webhook，并且不需要影响 Agent 的行为，您可以改为返回异步输出。这告诉 Agent 立即继续，而不等待 hook 完成。在此代码段中，Python 中的 `send_to_logging_service` 和 TypeScript 中的 `sendToLoggingService` 代表您定义的任何日志记录函数：
 
 <CodeGroup>
   ```python Python theme={null}
@@ -296,11 +296,11 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 
 | 字段 | 类型 | 描述 |
 | - | - | - |
-| `async` | `true` | 表示异步模式。代理继续而不等待。在 Python 中，使用 `async_` 以避免保留关键字。 |
+| `async` | `true` | 表示异步模式。Agent 继续而不等待。在 Python 中，使用 `async_` 以避免保留关键字。 |
 | `asyncTimeout` | `number` | 后台操作的可选超时时间（毫秒） |
 
 <Note>
-  异步输出无法阻止、修改或将上下文注入到操作中，因为代理已经继续。仅将它们用于日志记录、指标或通知等副作用。
+  异步输出无法阻止、修改或将上下文注入到操作中，因为 Agent 已经继续。仅将它们用于日志记录、指标或通知等副作用。
 </Note>
 
 <h2 id="examples">
@@ -804,8 +804,8 @@ Claude Code 从 SDK 会话不运行的交互式 UI 发出其他类型，例如 `
 * 验证 hook 事件名称正确且区分大小写（`PreToolUse`，而不是 `preToolUse`）
 * 检查您的匹配器模式是否与工具名称完全匹配
 * 确保 hook 在 `options.hooks` 中的正确事件类型下
-* 对于支持匹配器的非工具 hooks，如 `Notification` 和 `SubagentStop`，匹配器匹配不同的字段，而 `Stop` 完全忽略匹配器（请参阅[匹配器模式](/docs/zh-CN/hooks#matcher-patterns)）
-* 当代理达到 [`max_turns`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 限制时，hooks 可能不会触发，因为会话在 hooks 可以执行前结束
+* 对于支持匹配器的非工具 hook，如 `Notification` 和 `SubagentStop`，匹配器匹配不同的字段，而 `Stop` 完全忽略匹配器（请参阅[匹配器模式](/docs/zh-CN/hooks#matcher-patterns)）
+* 当 Agent 达到 [`max_turns`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 限制时，hook 可能不会触发，因为会话在 hook 可以执行前结束
 
 <h3 id="matcher-not-filtering-as-expected">
   匹配器未按预期过滤
@@ -832,11 +832,11 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 
 当回调超过其超时时间时，Claude Code 会取消它并丢弃其输出，会话继续而不是挂起。接下来发生的情况取决于事件：
 
-* `PreToolUse`: Claude Code 不运行工具调用，Claude 收到一个工具结果，说明 hook 未在超时前响应，转轮继续。如果另一个 `PreToolUse` hook 返回了明确的拒绝，Claude 会收到该拒绝而不是超时错误。在 v2.1.210 之前，Claude Code 将超时报告给 Claude 作为用户拒绝，这使得无人值守会话停止并等待输入。
-* `PostToolUse` 和 `PostToolUseFailure`：Claude Code 保留工具结果，转轮继续。
-* `UserPromptSubmit` 和 [`UserPromptExpansion`](/docs/zh-CN/hooks#userpromptexpansion)：Claude Code 使用命名 hook 和超时的消息阻止提示，会话继续。因为这些事件上的回调可以充当策略门，Claude Code 永远不会让超时的提示通过未筛选。在 v2.1.208 之前，当这些事件上的回调超时时，Claude Code 以 `error_during_execution` 结束查询。
-* `Stop` 和 `SubagentStop`：超时的回调计为不返回任何决定。代理或子代理停止，就像该回调已允许它一样，您在该事件上的其他 hooks 的决定仍然适用。在 Claude Code v2.1.273 之前，超时的 `Stop` 或 `SubagentStop` 回调计为失败的 hook 运行，Claude Code 丢弃了您在该事件上的其他 hooks 的决定。
-* `SessionStart`：超时的回调计为不返回任何输出，会话继续使用您的其他 `SessionStart` hooks 的输出。
+* `PreToolUse`: Claude Code 不运行工具调用，Claude 收到一个工具结果，说明 hook 未在超时前响应，轮次继续。如果另一个 `PreToolUse` hook 返回了明确的拒绝，Claude 会收到该拒绝而不是超时错误。在 v2.1.210 之前，Claude Code 将超时报告给 Claude 作为用户拒绝，这使得无人值守会话停止并等待输入。
+* `PostToolUse` 和 `PostToolUseFailure`：Claude Code 保留工具结果，轮次继续。
+* `UserPromptSubmit` 和 [`UserPromptExpansion`](/docs/zh-CN/hooks#userpromptexpansion)：Claude Code 使用指明 hook 和超时的消息阻止该提示词，会话继续。因为这些事件上的回调可以充当策略门，Claude Code 永远不会让超时的提示词未经筛选就通过。在 v2.1.208 之前，当这些事件上的回调超时时，Claude Code 以 `error_during_execution` 结束查询。
+* `Stop` 和 `SubagentStop`：超时的回调计为不返回任何决定。Agent 或子代理停止，就像该回调已允许它一样，您在该事件上的其他 hook 的决定仍然适用。在 Claude Code v2.1.273 之前，超时的 `Stop` 或 `SubagentStop` 回调计为失败的 hook 运行，Claude Code 丢弃了您在该事件上的其他 hook 的决定。
+* `SessionStart`：超时的回调计为不返回任何输出，会话继续使用您的其他 `SessionStart` hook 的输出。
 * `PreModelSwitch`：Claude Code 阻止模型切换。未回答的 hook 尚未批准切换。
 * 其他事件，如 `Notification`、`PreCompact` 和 `PostModelSwitch`：Claude Code 记录失败并继续。
 
@@ -850,8 +850,8 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
   工具意外被阻止
 </h3>
 
-* 检查所有 `PreToolUse` hooks 是否返回 `permissionDecision: 'deny'`
-* 向您的 hooks 添加日志记录以查看它们返回的 `permissionDecisionReason`
+* 检查所有 `PreToolUse` hook 是否返回 `permissionDecision: 'deny'`
+* 向您的 hook 添加日志记录以查看它们返回的 `permissionDecisionReason`
 * 验证匹配器模式不会太宽泛：空匹配器匹配所有工具
 
 <h3 id="modified-input-not-applied">
@@ -875,10 +875,10 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 * 在 `hookSpecificOutput` 中包括 `hookEventName` 以识别输出针对的 hook 类型
 
 <h3 id="session-hooks-not-available-in-python">
-  Python 中不可用会话 hooks
+  Python 中不可用会话 hook
 </h3>
 
-`SessionStart` 和 `SessionEnd` 可以在 TypeScript 中注册为 SDK 回调 hooks，但在 Python SDK 中不可用，因为其 `HookEvent` 类型省略了它们。在 Python 中，它们仅作为[shell 命令 hooks](/docs/zh-CN/hooks#hook-events)在设置文件中定义，例如 `.claude/settings.json`。要从您的 SDK 应用程序加载 shell 命令 hooks，请使用 [`setting_sources`](/docs/zh-CN/agent-sdk/python#settingsource) 或 [`settingSources`](/docs/zh-CN/agent-sdk/typescript#settingsource) 包括适当的设置源：
+`SessionStart` 和 `SessionEnd` 可以在 TypeScript 中注册为 SDK 回调 hook，但在 Python SDK 中不可用，因为其 `HookEvent` 类型省略了它们。在 Python 中，它们仅作为在设置文件（例如 `.claude/settings.json`）中定义的 [shell 命令 hook](/docs/zh-CN/hooks#hook-events) 可用。您的 SDK 应用程序加载哪些设置文件取决于 [`setting_sources`](/docs/zh-CN/agent-sdk/python#settingsource) 或 [`settingSources`](/docs/zh-CN/agent-sdk/typescript#settingsource)。如果您设置了该选项，请包括包含这些 hook 的设置源：
 
 <CodeGroup>
   ```python Python theme={null}
@@ -900,7 +900,7 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
   子代理权限提示倍增
 </h3>
 
-生成多个子代理时，每个子代理可能会单独请求其自身工具调用的权限。要避免重复提示，请使用 `PreToolUse` hooks 自动批准特定工具，或配置权限规则，子代理[从父对话继承](/docs/zh-CN/sub-agents#permission-modes)。
+生成多个子代理时，每个子代理可能会单独请求其自身工具调用的权限。要避免重复提示，请使用 `PreToolUse` hook 自动批准特定工具，或配置权限规则，子代理[从父对话继承](/docs/zh-CN/sub-agents#permission-modes)这些规则。
 
 <h3 id="recursive-hook-loops-with-subagents">
   子代理的递归 hook 循环
@@ -909,15 +909,15 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 生成子代理的 `UserPromptSubmit` hook 如果这些子代理触发相同的 hook，可能会创建无限循环。要防止这种情况：
 
 * 使用共享变量或会话状态来跟踪您是否已在子代理内
-* 将 hooks 范围限制为仅对顶级代理会话运行
+* 将 hook 限定为仅对顶级 Agent 会话运行
 
 <h3 id="systemmessage-not-appearing-in-output">
   systemMessage 未出现在输出中
 </h3>
 
-`systemMessage` 字段向用户显示消息，而不是模型。在 Claude Code v2.1.227 或更高版本上，hook 的 `systemMessage` 可以在消息流中显示为 [`SDKInformationalMessage`](/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage)。它是否显示取决于事件。每个[事件的部分](/docs/zh-CN/hooks#hook-events)在 hooks 页面上说明输出如何显示。要改为将上下文传递给模型，请返回 [`additionalContext`](/docs/zh-CN/hooks#add-context-for-claude)。
+`systemMessage` 字段向用户显示消息，而不是模型。在 Claude Code v2.1.227 或更高版本上，hook 的 `systemMessage` 可以在消息流中显示为 [`SDKInformationalMessage`](/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage)。它是否显示取决于事件。hooks 页面上每个[事件的部分](/docs/zh-CN/hooks#hook-events)说明输出如何显示。要改为将上下文传递给模型，请返回 [`additionalContext`](/docs/zh-CN/hooks#add-context-for-claude)。
 
-在 v2.1.227 之前，SDK 仅在消息流中为 `SessionStart` 和 `Setup` hooks 显示 hook 输出。对于任何其他事件，输出仅出现在 [`includeHookEvents`](/docs/zh-CN/agent-sdk/typescript#options)（Python 中为 `include_hook_events`）添加的生命周期事件中。该选项的条目涵盖每个 hook 事件产生的生命周期事件。
+在 v2.1.227 之前，SDK 仅在消息流中为 `SessionStart` 和 `Setup` hook 显示 hook 输出。对于任何其他事件，输出仅出现在 [`includeHookEvents`](/docs/zh-CN/agent-sdk/typescript#options)（Python 中为 `include_hook_events`）添加的生命周期事件中。该选项的条目涵盖每个 hook 事件产生的生命周期事件。
 
 如果您需要可靠地将 hook 决定呈现给您的应用程序，请单独记录它们或使用专用输出通道。
 
