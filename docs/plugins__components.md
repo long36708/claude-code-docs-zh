@@ -733,7 +733,7 @@ model: sonnet
 You are a security reviewer. Read the changed files and report injection, authentication, and secrets-handling risks.
 ```
 
-此代理名为 `my-plugin:security-reviewer`，用户可以使用 `@agent-my-plugin:security-reviewer` [显式调用它](/docs/zh-CN/sub-agents#invoke-subagents-explicitly)。名称形式是 `<plugin>:<name>`，其中 `<name>` 来自 frontmatter，或在没有时来自文件名。
+此 Agent 名为 `my-plugin:security-reviewer`，用户可以使用 `@agent-my-plugin:security-reviewer` [显式调用它](/docs/zh-CN/sub-agents#invoke-subagents-explicitly)。名称形式是 `<plugin>:<name>`，其中 `<name>` 来自 frontmatter 的 `name` 字段，或在该字段缺失时来自文件名。
 
 `agents` 清单键替换 `agents/` 扫描。
 

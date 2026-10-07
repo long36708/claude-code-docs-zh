@@ -606,7 +606,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `environmentVariables` | `[]` | 为 Claude 进程设置环境变量。对于共享配置，请改用 Claude Code 设置。仅当值为绝对路径时，[`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 条目才会生效；扩展不会展开 `~`，并且会忽略相对路径值。 |
 | `disableLoginPrompt` | `false` | 跳过身份验证提示（用于第三方提供商设置） |
 | `allowDangerouslySkipPermissions` | `false` | 在模式选择器中添加绕过权限。仅在没有互联网访问的沙箱中使用。 |
-| `claudeProcessWrapper` | - | 用于启动 Claude 进程的可执行文件。当存在时，捆绑的二进制路径作为参数传递。如果扩展构建不包含您的平台的二进制文件，请将其设置为单独安装的 `claude` 二进制文件。在包装的设置中，对话以手动模式开始，除非您设置了 `initialPermissionMode` 或在之前的对话中选择了手动、自动编辑或自动，因为扩展会跳过那里的设置和内置默认步骤；请参阅[切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)。激活时出现"不支持的平台"错误意味着您的平台没有捆绑的二进制文件；请参阅[哪些平台有预构建的二进制文件](/docs/zh-CN/troubleshoot-install#native-binary-not-found-after-npm-install)。 |
+| `claudeProcessWrapper` | - | 用于启动 Claude 进程的可执行文件。当存在时，捆绑的二进制路径作为参数传递。如果扩展构建不包含您的平台的二进制文件，请将其设置为单独安装的 `claude` 二进制文件。 |
 
 <h2 id="use-a-screen-reader">
   使用屏幕阅读器

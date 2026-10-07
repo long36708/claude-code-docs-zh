@@ -717,7 +717,7 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 | `accountInfo()` | 返回账户信息 |
 | `reconnectMcpServer(serverName)` | 按名称重新连接 MCP 服务器。如果名称也匹配设置文件中的条目如 `.mcp.json` 或 `~/.claude.json`，Claude Code 重新连接您通过 [`mcpServers`](#options) 或 `setMcpServers()` 配置的服务器，而不是设置文件条目。该解析顺序需要 Claude Code v2.1.257 或更高版本 |
 | `toggleMcpServer(serverName, enabled)` | 按名称启用或禁用 MCP 服务器，名称解析方式与 `reconnectMcpServer()` 相同。禁用服务器会断开其连接并移除其工具。有关每种服务器所需的 Claude Code 版本，请参阅 [`toggleMcpServer()`](#togglemcpserver) |
-| `setMcpServers(servers)` | 动态替换此会话的 MCP 服务器集。使用 [`McpSetServersResult`](#mcpsetserversresult) 解决，命名添加和移除的服务器以及任何错误 |
+| `setMcpServers(servers)` | 替换此方法所管理的 MCP 服务器：通过它添加的服务器以及[进程内 SDK 服务器](#createsdkmcpserver)。解析为一个 [`McpSetServersResult`](#mcpsetserversresult)，指明添加和移除了哪些服务器以及任何错误；该部分说明了哪些其他服务器会保持连接 |
 | `readMcpResource(serverName, uri)` | *Alpha.* 从连接的 MCP 服务器读取一个 MCP Apps `ui://` 资源，以便您的应用可以呈现工具的小部件。使用 [`SDKControlMcpReadResourceResponse`](#sdkcontrolmcpreadresourceresponse) 解决。需要 TypeScript Agent SDK v0.3.280 或更高版本 |
 | `streamInput(stream)` | 将输入消息流式传输到查询以进行多轮对话 |
 | `stopTask(taskId)` | 按 ID 停止运行的后台任务 |
@@ -1337,7 +1337,7 @@ type CanUseTool = (
 | `mcpServer` | `{ name: string; source: string }` | 对于 `mcp__*` 工具，提供它的 MCP 服务器及其服务器定义来自何处，具有 [`McpServerProvenance`](#mcpserverprovenance) 的字段。对于其他工具不存在。需要 Agent SDK v0.3.274 或更高版本 |
 | `decisionReason` | `string` | 解释为什么触发了此权限请求 |
 | `defaultToNo` | `boolean` | 当为 `true` 时，单个流浪击键不得批准此请求：在其拒绝选项上打开您的提示，不要预选批准，并提供无单键批准快捷方式。需要 Agent SDK v0.3.268 或更高版本 |
-| `suppressAlwaysAllowRule` | `boolean` | 当为 `true` 时，不为此请求提供持久始终允许选择，因为它写入的规则授予超过请求自身操作的权限。需要 Agent SDK v0.3.268 或更高版本 |
+| `suppressAlwaysAllowRule` | `boolean` | 为 `true` 时，不要为此请求提供持久的"始终允许"选项。需要 Agent SDK v0.3.268 或更高版本 |
 | `toolUseID` | `string` | 助手消息内此特定工具调用的唯一标识符 |
 | `agentID` | `string` | 如果在 sub-agent 内运行，sub-agent 的 ID |
 | `requestId` | `string` | `control_request` 信封的 `request_id`。您的应用在其自己的通道上发送的 `control_response`（例如签名的 HTTP POST）必须回显此值，以便 Claude Code 进程可以将回复与请求匹配 |
@@ -5530,8 +5530,8 @@ type McpSetServersResult = {
 
 调用 `setMcpServers()` 时，Claude Code 会应用以下规则：
 
-* **调用未指定的服务器**：Claude Code 会保持插件提供的服务器继续运行。需要 Agent SDK v0.3.210 或更高版本。
-* **调用指定的服务器**：除 CLI 在启动时启动的内置服务器外，只有当正在运行的服务器的配置与您传入的配置不同时，Claude Code 才会替换它。
+* **调用未指定的服务器**：在[云端会话](/docs/zh-CN/claude-code-on-the-web)之外，Claude Code 会断开先前 `setMcpServers()` 调用添加的服务器以及进程内 SDK 服务器的连接，并在 `removed` 中列出它们。其他服务器会继续运行，且不会列在 `removed` 中，其中包括来自 [`mcpServers`](#options) 选项的 stdio、HTTP 和 SSE 服务器、来自设置文件的服务器以及插件提供的服务器。
+* **调用指定的服务器**：对于先前 `setMcpServers()` 调用添加的 stdio、HTTP 或 SSE 服务器，只有当其配置与您传入的配置不同时，Claude Code 才会替换它。已以该名称注册的进程内 SDK 服务器会保持原样，因此要替换它，请在一次调用中将其省略，然后在下一次调用中添加它。
 * **CLI 在启动时启动的内置服务器**：如果调用指定了其中之一，Claude Code 会丢弃该条目并在 `errors` 中报告它。
 
 Promise 会在新添加的 stdio、HTTP 和 SSE 服务器连接成功或失败后 resolve，因此已连接服务器的工具在下一轮次即可使用。

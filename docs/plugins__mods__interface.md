@@ -428,7 +428,7 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 
 | 元素 | 它绘制什么 | 位置 |
 | :- | :- | :- |
-| `Box` | 一个 flex 容器。接受布局属性，如 `flexDirection`、`columnGap`、`padding`、`borderStyle` 和 `width`。 | 到处 |
+| `Box` | 一个 flex 容器。接受布局 prop，如 `flexDirection`、`columnGap`、`padding`、[`borderStyle`](/docs/zh-CN/plugins/mods/reference#box-border-styles) 和 `width`。 | 到处 |
 | `Text` | 样式化文本。接受 `color`、`bold`、`dimColor`、`italic` 和 `wrap`。`color` 是主题键或颜色，如 `'red'`。`wrap` 是 `'wrap'`、`'truncate'`、`'truncate-start'`、`'truncate-middle'` 或 `'truncate-end'`。 | 到处 |
 | `Button` | 调用 `onPress` 的控件 | 到处 |
 | `Link`, `Code`, `Markdown` | 带有 `href` 和可选 `label` 的链接、代码块和格式化为 Claude 回复方式的文本。`Markdown` 在 `text` 属性中而不是在 `children` 中获取其内容，当您传递 `onLinkPress` 时需要 `key`。 | 到处 |
@@ -563,12 +563,14 @@ mod 无法将 Tab 或方向键绑定到其他任何功能，因此游戏使用 `
 许多窗格是一个文本字段，下面有一个列表。本部分中的示例是一个笔记窗格：输入一条笔记并按 Enter 添加它，每条笔记都有一个用于删除它的 `x` 按钮。添加两条笔记后，终端这样绘制窗格：
 
 ```text theme={null}
-╭──────────────────────────────────────────────────────────╮
-│ Note: Type a note and press Enter ⏎ add                ✕ │
+╭────────────────────────────────────────────────────────✕─╮
+│ Note: Type a note and press Enter ⏎ add                  │
 │ x buy milk │
 │ x call bob │
 ╰──────────────────────────────────────────────────────────╯
 ```
+
+顶部边框上的 `✕` 是 Claude Code 自己用于关闭窗格的标记。
 
 示例使用以下技术：
 

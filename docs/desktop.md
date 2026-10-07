@@ -1092,7 +1092,7 @@ Desktop 应用从 `claude_desktop_config.json` 将 MCP servers 加载到本地 C
 要查看你运行的桌面应用版本：
 
 * **macOS**：点击菜单栏中的 **Claude**，然后点击 **About Claude**
-* **Windows**：点击 **Help**，然后点击 **About**
+* **Windows**：点击 **Help**，然后点击 **About Claude**
 
 点击版本号将其复制到你的剪贴板。
 

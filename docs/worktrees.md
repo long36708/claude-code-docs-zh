@@ -6,7 +6,7 @@
 
 > 在单独的 git worktrees 中隔离并行 Claude Code 会话，以便更改不会相互冲突。涵盖 `--worktree` 标志、子代理隔离、`.worktreeinclude`、清理和非 git VCS hooks。
 
-[git worktree](https://git-scm.com/docs/git-worktree) 是一个单独的工作目录，具有自己的文件和分支，但与主检出共享相同的存储库历史和远程。在自己的 worktree 中运行每个 Claude Code 会话意味着一个会话中的编辑永远不会触及另一个会话中的文件，因此一个会话可以构建功能，而第二个会话可以修复错误。
+[git worktree](https://git-scm.com/docs/git-worktree) 是一个单独的工作目录，具有自己的文件和分支，但与主检出共享相同的仓库历史和远程。在各自的 worktree 中运行每个 Claude Code 会话，可以为其提供一份单独的文件副本用于编辑，因此一个会话可以构建功能，而第二个会话可以修复错误。
 
 <Note>
   Worktrees 需要 git 存储库；对于其他版本控制系统，请[配置 hooks 来替换 git 逻辑](#non-git-version-control)。在[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)中，启动会话时选择 **worktree** 选项，为其提供自己的 worktree。
@@ -103,6 +103,8 @@ Claude Code 应用四个检查：
 * **命令工作目录**：Claude Code 阻止其工作目录解析为主检出的 Bash、PowerShell 或 Monitor 命令，或其工作目录它无法验证保持在其外的命令。
 * **Git 重定向**：Claude Code 阻止将 git 重定向到主检出的 Bash 或 Monitor 命令。重定向可以通过 `git -C`、`--git-dir`、`GIT_DIR` 或 `GIT_WORK_TREE` 变量，或在运行 git 之前 `cd` 到主检出来进行。
 * **命令形状**：当 Claude Code 无法从命令文本验证命令运行的任何 git 保持在 worktree 内时，它会阻止 Bash 或 Monitor 命令。例如，当命令名称在运行时计算、语法无法解析，或当诸如 `${!name}` 或 `${ command; }` 之类的扩展可能运行文本中未明确说明的命令时，就会发生这种情况。Claude Code 告诉 Claude 如何重写被拒绝的命令，例如将其分割成普通的单独命令。您无法关闭此检查。
+
+这些检查读取编辑所针对的路径、命令运行所在的目录以及命令的文本。它们都不会跟踪 shell 命令写入了哪些文件，因此，在主检出中写入文件但并未在那里运行 git 的命令（例如 `cp` 或 shell 重定向）不会被这些检查拒绝。Claude Code 会像对待任何其他 shell 命令一样对待该命令，因此它是直接运行还是向您发出提示，取决于您的[权限模式](/docs/zh-CN/permission-modes)和规则。
 
 检查适用于您启动 Claude Code 的存储库。它们也涵盖链接的 worktree 链接自的主检出。对于 PowerShell 命令，Claude Code 仅应用工作目录检查。
 

@@ -242,7 +242,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 要使树适配其所在位置，请在 hook 中读取以下 prop：
 
 * **`Pane` 或横栏的宽度**：按 `e.props.bodyColumns` 绘制
-* **会话记录旁的 `Pane` 的高度**：当 `e.props.placement` 为 `'dock'` 时，`e.props.scroll.bodyRows` 是该窗格拥有的行数
+* **会话记录旁的 `Pane` 的高度**：当 `e.props.placement` 为 `'dock'` 时，`e.props.scroll.bodyRows` 是该窗格可供您的树使用的行数
 * **输入框上方的 `Pane` 的高度**：当 `e.props.placement` 为 `'inline'` 时，窗格会随您的树增高，直到达到上限，而 `bodyRows` 就是该上限。[`$.ui.open` 的 `rows` 字段](/docs/zh-CN/plugins/mods/interface#open-a-pane-at-the-right-time)可请求不同的上限。
 
 比窗格更高的树会整体滚动。
@@ -255,7 +255,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 
 | 元素 | 主要 prop | 终端 | Desktop |
 | :- | :- | :-: | :-: |
-| [`Box`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `key`、flex 布局、`gap`、`padding`、`margin`、`width`、`height`、`borderStyle`、`backgroundColor`、`position`、`hover` | ✓ | ✓ |
+| [`Box`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `key`、flex 布局、`gap`、`padding`、`margin`、`width`、`height`、[`borderStyle`](#box-border-styles)、`backgroundColor`、`position`、`hover` | ✓ | ✓ |
 | [`Text`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `color`、`backgroundColor`、`bold`、`italic`、`underline`、`dimColor`、`inverse`、`wrap` | ✓ | ✓ |
 | [`Button`](/docs/zh-CN/plugins/mods/interface#respond-to-presses-and-typing) | `key`、`label`、`onPress`、`hotkey`、`plain`、`dimColor`、`autoFocus`、`action` | ✓ | ✓ |
 | `Link` | `href`、`label` | ✓ | ✓ |
@@ -269,6 +269,27 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | `Image` | 最多 2 MiB 的 PNG 或 RGBA 字节，或文件路径 | ✓ | |
 
 更多 `Button` 规则：`action` 指定 Claude Code 自身的某个[快捷键操作](/docs/zh-CN/keybindings)，当用户为该操作设置的绑定是组合键或带修饰键的按键时，该绑定会按下此按钮。当用户在空的输入框中只输入某个数字并停顿时，横栏中设置了该数字 `hotkey` 的按钮也会触发。当同一次绘制中的两个按钮指定相同的 `hotkey` 时，由后一个按钮获得它。`autoFocus` 在任何控件上都只接受 `true`，因此要关闭它，请省略该 prop。
+
+<h3 id="box-border-styles">
+  `Box` 边框样式
+</h3>
+
+要在 `Box` 周围绘制边框，请将其 `borderStyle` 设置为以下名称之一，例如 `borderStyle: 'round'`。每一行说明终端针对该名称绘制的内容，并展示边框的上边缘。
+
+| `borderStyle` | 终端绘制的内容 | 上边缘 |
+| :- | :- | :- |
+| `'single'` | 直角细线 | `┌──┐` |
+| `'double'` | 双线 | `╔══╗` |
+| `'round'` | 圆角细线 | `╭──╮` |
+| `'bold'` | 粗线 | `┏━━┓` |
+| `'singleDouble'` | 上下为细线，左右两侧为双线 | `╓──╖` |
+| `'doubleSingle'` | 上下为双线，左右两侧为细线 | `╒══╕` |
+| `'classic'` | ASCII 字符 `+`、`-` 和 `\|` | `+--+` |
+| `'arrow'` | 指向 `Box` 内部的箭头 | `↘↓↓↙` |
+| `'dashed'` | 虚线，四角留空 | `╌╌` |
+| `'quote'` | 左侧一条竖条 `▎`，其他三边为空白单元格 | 空白 |
+
+如果 `Box` 的 `borderStyle` 指定的是其他名称（例如 `'rounded'`），则绘制时不带边框。
 
 <h2 id="limits">
   限制

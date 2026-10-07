@@ -136,7 +136,7 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
       --policy-name bedrock-invoke --policy-document file://bedrock-invoke.json
     ```
 
-    ECS 还需要一个执行角色，ECS 代理本身使用它从 ECR 拉取镜像并注入稍后创建的 Secrets Manager 值。它与 gateway 的 AWS SDK 在运行时使用的任务角色分开：
+    ECS 还需要一个执行角色，ECS Agent 本身使用它从 ECR 拉取镜像并注入稍后创建的 Secrets Manager 值。它与 gateway 的 AWS SDK 在运行时使用的任务角色分开：
 
     ```bash theme={null}
     aws iam create-role --role-name claude-gateway-execution \
@@ -169,7 +169,7 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
   </Step>
 
   <Step title="配置 Amazon RDS for PostgreSQL">
-    该实例在私有子网中运行，没有公共地址，存储加密打开。引擎版本固定为 Postgres 16，满足 gateway 支持的 PostgreSQL 14 下限，并保证下面的参数组系列与实例匹配。
+    该实例在私有子网中运行 Postgres 16，没有公共地址，存储加密打开。
 
     首先，创建将数据库放在私有子网中的子网组，以及具有 `rds.force_ssl=1` 的参数组，以便服务器拒绝明文连接。引擎版本固定一次，因为参数组的系列必须与实例运行的引擎主版本匹配：
 
@@ -218,7 +218,7 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
   </Step>
 
   <Step title="编写 gateway.yaml">
-    `upstreams` 块使用 `auth: {}` 指向 Bedrock，因此 gateway 通过 ECS 上的任务角色或 EKS 上的 IRSA 角色从 AWS 默认凭证链进行身份验证。有关每个字段，请参阅[配置参考](/docs/zh-CN/claude-apps-gateway-config)。
+    `upstreams` 块使用 `auth: {}` 指向 Bedrock，因此 gateway 通过 ECS 上的任务角色或 EKS 上的 IRSA 角色从 AWS 默认凭据链进行身份验证。有关每个字段，请参阅[配置参考](/docs/zh-CN/claude-apps-gateway-config)。
 
     两个 `listen` 字段描述什么位于 gateway 前面：
 
@@ -255,13 +255,14 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
 
     store:
       postgres_url: ${GATEWAY_POSTGRES_URL}          # EKS: ${file:/secrets/postgres-url}
-      # readiness_grace_seconds: 300                 # 通过 RDS 故障转移保持通过健康检查
+      # readiness_grace_seconds: 300                 # 在 RDS 故障转移期间
+    # 保持通过健康检查
 
     upstreams:
       - provider: bedrock
         region: <your-region>                        # 匹配 $AWS_REGION 以便 IAM
     # 策略的 ARN 涵盖它
-        auth: {} # AWS 默认凭证链：
+        auth: {} # AWS 默认凭据链：
     # ECS 任务角色，或 EKS 上的 IRSA
     ```
 
@@ -288,7 +289,7 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
       字面 `--secret-string` 参数在每个命令运行时在进程表和审计/EDR 日志中可见。在共享或受监控的主机上，将值放在 `0600` 文件中，改为传递 `--secret-string file://<path>`。bundle 的 `setup.sh` 以相同的方式将机密值保持在进程 argv 之外，将 `0600` 临时文件传递给 `--cli-input-json`。
     </Note>
 
-    与机密不同，`gateway.yaml` 本身不包含机密值，因为每个凭证在启动时通过 [`${VAR}` 或 `${file:...}` 扩展](/docs/zh-CN/claude-apps-gateway-config#secret-expansion)解析。一切如何到达容器因轨道而异：
+    与机密不同，`gateway.yaml` 本身不包含机密值，因为每个凭据在启动时通过 [`${VAR}` 或 `${file:...}` 扩展](/docs/zh-CN/claude-apps-gateway-config#secret-expansion)解析。一切如何到达容器因轨道而异：
 
     * 在 ECS 上，下一步的构建将 `gateway.yaml` 复制到镜像中的 `/etc/claude/gateway.yaml`，任务定义通过其 `secrets` 字段将三个机密作为环境变量注入，因此 YAML 引用 `${GATEWAY_JWT_SECRET}`、`${OIDC_CLIENT_SECRET}` 和 `${GATEWAY_POSTGRES_URL}`。
     * 在 EKS 上，从 ConfigMap 挂载 `gateway.yaml` 并将机密作为文件挂载在 `/secrets`，引用为 `${file:/secrets/...}`。使用 External Secrets Operator 或 Secrets Store CSI 驱动程序的 AWS 提供程序从 Secrets Manager 获取 Kubernetes Secrets，或使用 `kubectl` 直接创建它们。
@@ -311,7 +312,7 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
     ENV NODE_EXTRA_CA_CERTS=/etc/claude/rds-global-bundle.pem
     ```
 
-    创建 ECR 存储库并将 Docker 登录到它。不可变标签意味着部署步骤固定的 `<version>` 标签以后不能被无声地重新指向不同的镜像：
+    创建 ECR 仓库并将 Docker 登录到它。不可变标签意味着部署步骤固定的 `<version>` 标签以后不能被无声地重新指向不同的镜像：
 
     ```bash theme={null}
     aws ecr create-repository --repository-name claude-gateway \
@@ -424,11 +425,13 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
           --load-balancers "targetGroupArn=$TG_ARN,containerName=gateway,containerPort=8080"
         ```
 
-        60 秒的宽限期给冷任务时间拉取镜像、连接到存储并在 ECS 开始计算针对部署的失败之前回答其第一个健康检查。目标组对 `GET /readyz` 的健康检查验证存储是否可达，因此无法到达 Postgres 的任务永远不会进入轮换。要通过短数据库中断（例如 RDS 故障转移）保持任务通过检查，请按照[中断行为](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)中所述设置 `store.readiness_grace_seconds`，其中也涵盖了 `/healthz` 替代方案。
+        60 秒的宽限期给冷任务时间拉取镜像、连接到存储并在 ECS 开始计算针对部署的失败之前回答其第一个健康检查。
+
+        目标组对 `GET /readyz` 的健康检查验证存储是否可达，因此无法到达 Postgres 的任务永远不会进入轮换。要通过短数据库中断（例如 RDS 故障转移）保持任务通过检查，请按照[中断行为](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)中所述设置 `store.readiness_grace_seconds`，其中也涵盖了 `/healthz` 替代方案。
 
         任务在私有子网中运行，没有公共 IP，因此所有出站（到 Bedrock、您的 IdP、Secrets Manager、ECR 和 CloudWatch Logs）都通过 NAT 网关。要将 Bedrock 流量保持在公共路径之外，创建一个 `bedrock-runtime` 接口 VPC 端点并将上游的 `base_url` 指向它，如 [Bedrock 上游参考](/docs/zh-CN/claude-apps-gateway-config#amazon-bedrock)所示；IdP 仍然需要互联网出站。
 
-        通过在 Route 53 私有托管区域中为 gateway 的内部 DNS 名称别名到 ALB，并将 `listen.public_url` 设置为该主机名，为开发人员完成私有可解析主机名。ALB 自己的 `*.elb.amazonaws.com` 名称在内部 ALB 上解析为私有地址，但它不能携带您的 ACM 证书，因此使用您自己的名称。
+        最后，为开发人员提供一个可私有解析的主机名：在 Route 53 私有托管区域中，将 gateway 的内部 DNS 名称别名到 ALB，并将 `listen.public_url` 设置为该主机名。ALB 自己的 `*.elb.amazonaws.com` 名称在内部 ALB 上解析为私有地址，但它不能携带您的 ACM 证书，因此使用您自己的名称。
 
         在第一次登录之前，将 OAuth 客户端的授权重定向 URI 更新为 `<public_url>/oauth/callback`。更改 `public_url` 后，在新标签下重建并推送镜像，注册新的任务定义修订版本，然后重新部署。在 ECS 上，该设置位于镜像的嵌入式 `gateway.yaml` 中，gateway 仅从该设置构建其公共源，忽略 `X-Forwarded-Host` 和 `X-Forwarded-Proto`。`X-Forwarded-For` 仅在设置 `listen.trusted_proxies` 时才被遵守用于客户端 IP。
       </Tab>
@@ -436,7 +439,7 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
       <Tab title="EKS">
         此轨道需要本地安装 `kubectl` 和 `eksctl`，以及具有 IAM OIDC 提供程序和已安装 AWS Load Balancer Controller 的现有 EKS 集群。集群必须在 `$VPC_ID` 上，以便 pod 可以到达 RDS 私有端点，`claude-gateway-db` 安全组必须允许集群的 pod 或节点安全组而不是 `$GW_SG`。
 
-        在 EKS 上，gateway 通过 IRSA 而不是 ECS 角色获得其 Bedrock 凭证。IAM 步骤中的 `ecs-tasks.amazonaws.com` 信任策略在这里不适用；IRSA 需要一个信任策略在集群的 OIDC 提供程序上联合的角色，范围为 `system:serviceaccount:claude-gateway:gateway`。`eksctl create iamserviceaccount` 在一个步骤中创建该角色、附加策略并使用角色 ARN 注解 Kubernetes 服务账户。将 IAM 步骤中的两个策略文档转换为它可以附加的托管策略：
+        在 EKS 上，gateway 通过 IRSA 而不是 ECS 角色获得其 Bedrock 凭据。IAM 步骤中的 `ecs-tasks.amazonaws.com` 信任策略在这里不适用；IRSA 需要一个信任策略在集群的 OIDC 提供程序上联合的角色，范围为 `system:serviceaccount:claude-gateway:gateway`。`eksctl create iamserviceaccount` 在一个步骤中创建该角色、附加策略并使用角色 ARN 注解 Kubernetes 服务账户。将 IAM 步骤中的两个策略文档转换为它可以附加的托管策略：
 
         ```bash theme={null}
         BEDROCK_POLICY_ARN="$(aws iam create-policy --policy-name claude-gateway-bedrock-invoke \
@@ -475,7 +478,7 @@ export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
   </Step>
 
   <Step title="将 gateway URL 推送到开发人员机器">
-    gateway 现在正在运行，但开发人员在通过 MDM 部署的[托管设置文件](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url)中设置 `forceLoginMethod` 和 `forceLoginGatewayUrl` 之前无法从 `/login` 到达它。开发人员无法手动在登录选择器中选择 gateway 选项。
+    gateway 现在正在运行，但在 gateway URL 出现在开发人员的机器上之前，开发人员无法从 `/login` 到达它。在通过 MDM 部署到每台设备的[托管设置文件](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url)中设置 `forceLoginMethod` 和 `forceLoginGatewayUrl`。登录选择器中没有可供开发人员手动选择的 gateway 选项。
   </Step>
 </Steps>
 

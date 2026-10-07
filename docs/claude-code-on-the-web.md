@@ -442,10 +442,12 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 `claude --cloud` 和 `claude --teleport` 需要使用 claude.ai 账户登录。如果您使用 API 密钥进行身份验证，或者存储的账户详情已过期，您会看到以下情况之一：
 
 * `Unable to get organization UUID`
-* 提示 API 密钥身份验证不足的消息
+* ``Cloud sessions need a claude.ai sign-in. Run `claude auth login` (or /login in a local session), then try again.``
 * 在不带会话 ID 运行 `claude --teleport` 时，会话选择器中显示 `Error loading Claude Code sessions`
 
-运行 `/login` 以使用您的 claude.ai 账户登录，然后重试该命令。如果错误中提到的是您的提供商，请参阅[错误表](#errors-when-sending-to-a-cloud-session)：云端会话无法通过第三方提供商使用。
+在 shell 中运行 [`claude auth login`](/docs/zh-CN/cli-reference#cli-commands) 以使用您的 claude.ai 账户登录，然后重试该命令。在正在运行的会话中，`/login` 的作用相同。如果错误中提到的是您的提供商，请参阅[错误表](#errors-when-sending-to-a-cloud-session)：云端会话无法通过第三方提供商使用。
+
+在 v2.1.274 至 v2.1.289 版本中，登录消息为 `Claude Code cloud sessions require authentication with a Claude.ai account. API key authentication is not sufficient. Please run /login to authenticate, or check your authentication status with /status.`
 
 <h3 id="remote-control-session-expired-or-access-denied">
   Remote Control 会话已过期或访问被拒绝

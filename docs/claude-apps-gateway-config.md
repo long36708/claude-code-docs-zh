@@ -158,8 +158,8 @@ OpenID Connect (OIDC) 是网关与您的身份提供商一起使用的 SSO 协�
 网关在启动时读取一次密钥和证书，因此更改后的文件仅在重启后生效。请按以下顺序轮换，以确保任何令牌请求都不会出示 IdP 中不存在的证书：
 
 1. 将新证书与旧证书一起上传到 IdP。
-2. 替换 `gateway.yaml` 加载的密钥和证书文件，然后重启网关。
-3. 从 IdP 中删除旧证书。
+2. 替换 `gateway.yaml` 加载的密钥和证书文件，然后重启网关。如果您运行多个副本，可以使用[滚动重启](/docs/zh-CN/claude-apps-gateway-deploy#upgrades)，因为在您删除旧证书之前，IdP 同时拥有这两个证书。
+3. 在每个副本都重启之后，从 IdP 中删除旧证书。
 
 <h4 id="idp-requests-through-a-forward-proxy">
   通过前向代理的 IdP 请求
@@ -227,7 +227,7 @@ export CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
-| `postgres_url` | 是 | `postgres://` 或 `postgresql://` URL。必需：设备授权集合点，浏览器回调写入和轮询 CLI 读取，需要跨副本状态。网关在启动和升级时运行自己的 schema 迁移，因此角色需要在目标 schema 上创建和更改表的权限。请参阅[升级](/docs/zh-CN/claude-apps-gateway-deploy#upgrades)和 [Postgres](/docs/zh-CN/claude-apps-gateway-deploy#postgres)。 |
+| `postgres_url` | 是 | `postgres://` 或 `postgresql://` URL，只能包含一个主机，不能是逗号分隔的列表。网关在启动和升级时运行自己的 schema 迁移，因此角色需要在目标 schema 上创建和更改表的权限。请参阅[升级](/docs/zh-CN/claude-apps-gateway-deploy#upgrades)和 [Postgres](/docs/zh-CN/claude-apps-gateway-deploy#postgres)。 |
 | `username` | 否 | 覆盖 `postgres_url` 中的用户 |
 | `password` | 否 | 数据库凭据。在此设置而不是在 `postgres_url` 中，以便凭据保持在 URL 之外。接受任何字符并优先于 URL 凭据。 |
 | `max_connections` | 否 | 每个副本的 Postgres 连接池大小。默认 `5`，保守且对共享数据库友好。启用[支出限制](#admin)后，热路径每个推理请求执行几个操作，因此在负载下为专用数据库提高它，并保持副本 × 此值低于数据库的 `max_connections`。 |

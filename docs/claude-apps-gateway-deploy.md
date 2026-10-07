@@ -249,6 +249,11 @@ rate_limits:
   Postgres
 </h3>
 
+网关将其状态存储在 PostgreSQL 数据库中：
+
+* **数据库**：PostgreSQL 本身，自托管或托管均可，版本为[最低版本](/docs/zh-CN/claude-apps-gateway#prerequisites)或更高。仅实现 Postgres 协议的数据库（例如分布式 SQL 数据库）不受支持。
+* **地址**：`store.postgres_url` 接受一个主机。如果数据库有多个节点，请使用位于它们前面的地址，例如您的托管服务的端点、负载均衡器或虚拟 IP。设置一个比故障转移所需时间更长的[就绪宽限期](#readiness-grace-period)。
+
 网关持有五个数据表加上一个 `_migrations` 表，全部由其启动时迁移创建：
 
 | 表 | 内容 | 保留 |
@@ -396,10 +401,11 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 | CLI `/login`：`Could not resolve the configured HTTP proxy` | `HTTPS_PROXY` 或 `HTTP_PROXY` 中的主机名无法从开发者的机器解析，通常是因为它未连接到公司网络 | 让开发者连接到您的网络或 VPN 并重试，或修复代理 URL |
 | CLI `/login`：`Could not resolve gateway host <host>` | 机器无法解析网关的内部 DNS 名称，通常是因为它不在公司网络上 | 让开发者连接到您的网络或 VPN，然后重试 `/login` |
 | 启动退出，显示配置验证错误，命名 `store.postgres_url` | 未配置 Postgres；网关需要 Postgres | 设置 `store.postgres_url`。对于本地开发，使用一次性容器：`docker run --rm -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres`。 |
+| 启动退出：`store.postgres_url in <path> is not a URL the gateway can read`，或在 v2.1.290 之前仅显示 `Invalid URL` 或 `URI error` | 无法解析该 URL，例如因为它列出了多个主机，或其密码包含未编码的 `/`、`?`、`#` 或 `%` | 仅指定[一个主机](#postgres)，并将密码移到 [`store.password`](/docs/zh-CN/claude-apps-gateway-config#store) 中 |
 | 启动退出：`requires the native binary` | 在 Node 下运行而不是本地二进制 | 使用[独立安装方法](/docs/zh-CN/setup)之一安装 Claude Code |
 | 启动退出，在 `config.load` 后显示 OIDC 发现错误 | `oidc.issuer` 无法访问，或 TLS 链不受信任 | 检查发行者是否可从 pod 访问并提供 `/.well-known/openid-configuration`。为私有 PKI 设置 `ca_cert_pem`。如果 pod 仅通过前向代理到达 IdP，设置 [`oidc.use_proxy: true`](/docs/zh-CN/claude-apps-gateway-config#idp-requests-through-a-forward-proxy)；在 v2.1.227 之前的版本上，改为给 pod 一条到 IdP 每个端点的直接路由。如果 pod 也无法解析 IdP 的主机名，或代理拒绝 `CONNECT` 到 IP 地址，请参阅[仅代理出口](/docs/zh-CN/claude-apps-gateway-config#proxy-only-egress)，这需要 v2.1.277 或更高版本。 |
 | 启动退出，显示 Postgres 权限错误 | 数据库角色在其 schema 上缺少 DDL 权限 | 授予角色对网关 schema 的 `CREATE` 权限，以便它可以在启动时创建和修改其表 |
-| 日志：`could not connect to Postgres at boot, attempt 1 of 3` | 当网关启动时数据库无法访问，例如在网络仍在启动的冷实例上 | 如果网关随后完成启动，无需采取任何措施。当数据库无法访问时，网关在退出前尝试连接三次，间隔两秒。如果它以 `could not connect to Postgres` 退出，检查 `store.postgres_url` 和到数据库的网络路径。如果尝试超时而不是被拒绝，提高 [`store.connect_timeout_seconds`](/docs/zh-CN/claude-apps-gateway-config#store) 以给每个尝试更长的时间。 |
+| 日志：`could not connect to Postgres at boot, attempt 1 of 3` | 当网关启动时数据库无法访问，例如在网络仍在启动的冷实例上 | 如果网关随后完成启动，无需采取任何措施。当数据库无法访问时，网关在退出前尝试连接三次，间隔两秒。如果它以 `could not connect to Postgres` 退出，检查 `store.postgres_url`（包括它是否只指定了一个主机）以及到数据库的网络路径。如果尝试超时而不是被拒绝，提高 [`store.connect_timeout_seconds`](/docs/zh-CN/claude-apps-gateway-config#store) 以给每个尝试更长的时间。 |
 | `/oauth/callback` 显示"Sign-in could not be completed" | 电子邮件域被拒绝、id\_token 验证失败，或 `email_verified` 显式为 `false`，网关总是拒绝且无覆盖 | 检查 `allowed_email_domains` 和 IdP 是否返回已验证的 `email` 声明。对于 `email_verified: false`，修复 IdP 端验证。如果您的 IdP 在不同的声明名称下发出电子邮件，设置 `oidc.email_claim`。 |
 | 日志：`token exchange failed request_id=<id>: id_token missing email claim` | IdP 默认不在 id\_token 中包含 `email`。此拒绝仅在设置 `allowed_email_domains` 时触发；没有它，缺少的电子邮件会创建没有电子邮件的会话 | 配置 IdP 在 id\_token 中发出 `email`。Okta：将 `email` 添加到自定义授权服务器的 ID 令牌声明。Entra：在应用注册上添加 `email` 作为可选声明。PingFederate：启用发出 `email` 的 OpenID Connect 策略。如果 IdP 从 userinfo 端点提供 `email` 但不会在 id\_token 中包含它，例如 Okta 组织授权服务器，设置 `oidc.userinfo_fallback: true`。 |
 | 日志：`refresh failed request_id=<id>: invalid_token (…) (at userinfo_no_id_token, …)`，开发者每 `session.ttl_hours` 看到 `Cloud gateway session expired` | IdP 接受了刷新令牌但没有随之返回 id\_token，所以网关询问了 IdP 的 userinfo 端点以获取用户的声明。IdP 在那里拒绝了刷新的访问令牌。网关回答 `temporarily_unavailable`，所以 Claude Code 保留刷新令牌但无法续订会话。v2.1.260 之前的网关版本记录相同的行但没有 `(at …)` 详情。 | 设置 [`oidc.scope_on_refresh: true`](/docs/zh-CN/claude-apps-gateway-config#oidc)，在网关 v2.1.260 或更高版本中可用，以便刷新请求再次请求 `openid`。某些 IdP（如 Okta）仅在被要求时在刷新时返回 id\_token。在 PingFederate 上，改为在 **Applications > OAuth > OpenID Connect Policy Management** 下启用 **Return ID Token On Refresh Grant**。该设置项不会改变 PingFederate 的行为。对于仍然省略它的其他 IdP，检查 userinfo 端点是否接受由刷新发出的访问令牌。作为临时措施，提高 [`session.ttl_hours`](/docs/zh-CN/claude-apps-gateway-config#session)。请参阅[身份提供者设置](#identity-provider-setup)了解取消配置权衡。 |

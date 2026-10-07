@@ -83,15 +83,15 @@ Claude Code 启动恢复会话的权限模式取决于您如何恢复。下面�
 * 终端：`claude --continue`、`claude --resume <session-id>` 或 `claude --resume <name>`（当名称与一个会话匹配时），不带 `-p`。Claude Code 恢复会话所在的权限模式，除了表中的情况。传递 `--permission-mode` 或 `--dangerously-skip-permissions` 以覆盖恢复的模式。
 * 非交互式：`claude -p --resume` 或 `claude -p --continue`。Claude Code 在新 `claude -p` 运行会启动的权限模式中启动运行，除了在[下面的条件](#resume-in-plan-mode-with-p)下以计划模式结束的会话在计划模式中恢复。
 * VS Code：扩展的对话面板。该表仅涵盖以计划模式结束的对话；对于其余部分，请参阅[恢复过去的对话](/docs/zh-CN/vs-code#resume-past-conversations)。
-* 启动时的会话选择器：您从[会话选择器](#use-the-session-picker)中选择的会话，无论您是使用 `claude --resume` 单独打开它、`claude --from-pr` 还是与多个会话匹配的名称。Claude Code 不恢复存储的权限模式。它在从同一命令行启动新会话的权限模式中启动会话。
-* 会话内的 `/resume`，带或不带参数：Claude Code 不恢复存储的权限模式。您切换到的对话继续在您当前会话所在的权限模式中。
+* 启动时的会话选择器：您从[会话选择器](#use-the-session-picker)中选择的会话，无论您是单独使用 `claude --resume`、使用 `claude --from-pr`，还是使用与多个会话匹配的名称打开它。Claude Code 以从同一命令行启动新会话时的权限模式启动该会话，但以计划模式结束的会话会以计划模式恢复，除非您传递 `--permission-mode`、`--dangerously-skip-permissions` 或 `--fork-session`。不会恢复其他存储的权限模式。
+* 会话内的 `/resume`，带或不带参数：您切换到的对话继续使用您当前会话所在的权限模式，但以计划模式结束的对话会以计划模式恢复，即使您使用 `--permission-mode` 或 `--dangerously-skip-permissions` 启动了 Claude Code。如果该对话在本次运行 Claude Code 期间已经打开过，例如您开始时的对话，或您通过 `/clear` 或 `/resume` 离开的对话，则它会改为继续使用您当前的权限模式。
 
 在非交互式和 VS Code 路径上恢复计划模式需要 Claude Code v2.1.246 或更高版本。每一行命名会话结束的权限模式、您通过哪个终端、非交互式和 VS Code 路径恢复它，以及 Claude Code 启动恢复会话的权限模式。
 
 | 会话结束于 | 您如何恢复 | 恢复后的权限模式 |
 | :- | :- | :- |
 | `bypassPermissions` | 终端 | 新会话会启动的权限模式。要再次[绕过权限](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)，在启动时使用其启动标志之一或[用户、`--settings` 或托管设置](/docs/zh-CN/settings-reference#permissions-defaultmode)中的 `permissions.defaultMode: "bypassPermissions"` 启用它 |
-| `plan` | 终端 | 新会话会启动的权限模式 |
+| `plan` | 终端 | 计划模式。使用 `--fork-session` 时，为新会话会启动的权限模式 |
 | `auto` | 终端 | `auto`，仅当您的帐户仍然满足[自动模式要求](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)时 |
 | Manual | 终端 | 当新会话会从[内置默认值](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)以自动模式启动时，手动模式。当来自设置文件的 `defaultMode` [生效](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)时，Claude Code 在该模式中启动恢复的会话 |
 | `plan` | 非交互式，在[下面的条件](#resume-in-plan-mode-with-p)下 | 计划模式 |

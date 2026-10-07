@@ -17,6 +17,7 @@
 
   * **为什么作用域、缓存和优先级的行为方式如此**：阅读 [Plugin loading reference](/docs/zh-CN/plugins/loading)
   * **查找标志、字段或命令**：使用 [plugin commands reference](/docs/zh-CN/plugins/cli-reference)、[manifest reference](/docs/zh-CN/plugins/manifest-reference) 或 [marketplace reference](/docs/zh-CN/plugins/marketplace-reference)
+  * **`hooks module not loaded` 或 `hooks module did not load` 消息**：该插件是一个 [mod](/docs/zh-CN/plugins/mods/overview)，请阅读 [The mod doesn't load](/docs/zh-CN/plugins/mods/troubleshoot#the-mod-doesn’t-load)
 </Note>
 
 搜索您看到的确切消息。每条消息都列在产生它的阶段下，这不一定是您运行的命令。例如，安装可能因为市场缺失而失败，所以该消息在 [Add a marketplace](#add-a-marketplace) 下。

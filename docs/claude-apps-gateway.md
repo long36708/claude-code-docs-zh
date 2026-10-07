@@ -64,7 +64,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 </Note>
 
 <h3 id="prerequisites">
-  前置条件
+  前提条件
 </h3>
 
 在开始之前，请准备好以下内容：
@@ -73,10 +73,10 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 | - | - |
 | Claude Code v2.1.195 或更高版本 | `claude gateway` 子命令和网关登录流在 v2.1.195 中发布。早期的公开版本不包含它们。运行网关服务器的机器和每个开发人员的机器都必须是 v2.1.195 或更高版本；运行 `claude update` 获取最新版本。[Claude Platform on AWS 上游](/docs/zh-CN/claude-apps-gateway-config#claude-platform-on-aws)在网关服务器上需要 Claude Code v2.1.198 或更高版本。 |
 | OpenID Connect (OIDC) 身份提供商 | Okta、Microsoft Entra ID、Google Workspace、Keycloak 或 Dex，或任何其他符合 OIDC 的 IdP，如 PingFederate。网关针对它运行标准 OIDC 发现和授权代码流。不支持 SAML 和 LDAP。 |
-| PostgreSQL 14 或更高版本 | 支持设备登录流，其中浏览器回调写入，轮询 CLI 读取，加上速率限制计数器。任何托管 Postgres 都可以，包括最小层级。在没有配置支出限制的情况下，网关存储几 KB 的短期身份验证状态；使用[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)，它还保存应备份的持久支出、审计和身份表。建议通过 `?sslmode=require` 使用 TLS。 |
-| 模型上游 | Amazon Bedrock 凭证、Claude Platform on AWS 凭证、Google Cloud 凭证、Microsoft Foundry 资源或 Anthropic API 密钥。支持多个上游和故障转移。 |
-| HTTPS | 网关必须可从开发人员笔记本电脑和用于登录的任何浏览器通过 `https://` 访问；网关在同一侦听器上提供设备验证页面。通过 `listen.tls` 提供 TLS 证书，或在 TLS 终止入口后运行并设置 `listen.public_url` 为外部源，两种情况都是如此。纯 `http://` 源仅在网关主机是环回时接受：`localhost`、`127.0.0.1` 或 `::1`。 |
-| 私有网络地址 | 在 `/login` 处，Claude Code 要求网关的主机名或 IP 地址仅解析为私有地址：RFC 1918、链路本地、CGNAT `100.64.0.0/10`、IPv6 ULA `fc00::/7` 或环回。对于您托管的网关，任何公共地址都被拒绝；请参阅部署指南中的[威胁模型](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)。如果开发人员机器通过公司代理路由 HTTPS，登录还要求代理主机解析为私有地址；如果不是，将网关主机添加到 `NO_PROXY`，以便 CLI 直接连接。如果您的内部网络使用您的组织拥有的公共 IPv4 空间编号，[声明这些块](#allow-a-gateway-on-public-address-space-you-own)，以便 `/login` 接受那里的网关。 |
+| PostgreSQL 11 或更高版本 | 支持设备登录流和速率限制计数器。托管 PostgreSQL 服务均可使用，包括最小层级；请参阅[支持哪些数据库](/docs/zh-CN/claude-apps-gateway-deploy#postgres)。使用[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)时，它还保存应备份的持久支出、审计和身份表。建议通过 `?sslmode=require` 使用 TLS。PostgreSQL 11、12 和 13 要求网关服务器上的 Claude Code 为 v2.1.290 或更高版本。PostgreSQL 项目已不再维护这些版本，因此请尽可能使用更新的版本。 |
+| 模型上游 | Amazon Bedrock 凭据、Claude Platform on AWS 凭据、Google Cloud 凭据、Microsoft Foundry 资源或 Anthropic API 密钥。支持多个上游和故障转移。 |
+| HTTPS | 网关必须可从开发人员笔记本电脑和用于登录的任何浏览器通过 `https://` 访问；网关在同一侦听器上提供设备验证页面。通过 `listen.tls` 提供 TLS 证书，或在 TLS 终止入口后运行，两种情况下都要将 `listen.public_url` 设置为外部源。在 `/login` 处，Claude Code 仅在网关主机是环回时才接受纯 `http://` 源：`localhost`、`127.0.0.1` 或 `::1`。 |
+| 私有网络地址 | 在 `/login` 处，Claude Code 要求网关的主机名或 IP 地址仅解析为私有地址：RFC 1918、链路本地、CGNAT `100.64.0.0/10`、IPv6 ULA `fc00::/7` 或环回。对于您托管的网关，任何不在您所声明地址块内的公共地址都会被拒绝；请参阅部署指南中的[威胁模型](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)。如果开发人员机器通过公司代理路由 HTTPS，登录还要求代理主机解析为私有地址；如果不是，将网关主机添加到 `NO_PROXY`，以便 CLI 直接连接。如果您的内部网络使用您的组织拥有的公共 IPv4 空间编号，[声明这些块](#allow-a-gateway-on-public-address-space-you-own)，以便 `/login` 接受那里的网关。 |
 | Linux 运行时 | 网关服务器仅在本机 Linux 二进制文件上运行。macOS 适用于本地开发。Windows 不支持作为服务器平台。 |
 
 <h3 id="steps">
@@ -89,7 +89,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
   </Step>
 
   <Step title="配置 PostgreSQL 数据库">
-    任何 Postgres 14 或更高版本都可以，包括最小的托管层级。网关在启动时运行自己的架构迁移，因此数据库角色需要创建和修改表的权限；请参阅 [`store`](/docs/zh-CN/claude-apps-gateway-config#store)。
+    使用 PostgreSQL 11 或更高版本。最小的托管层级就足够了。网关在启动时运行自己的 schema 迁移，因此数据库角色需要创建和修改表的权限；请参阅 [`store`](/docs/zh-CN/claude-apps-gateway-config#store)。
   </Step>
 
   <Step title="编写 gateway.yaml">
@@ -120,7 +120,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
     upstreams:
       - provider: bedrock
         region: us-east-1
-        auth: {} # 空：AWS 默认凭证链
+        auth: {} # 空：AWS 默认凭据链
     # (IRSA, EC2/ECS task role, env vars, ~/.aws)
 
     # 模型会自动按上游转换。内置目录
@@ -133,7 +133,9 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
     此配置足以使用默认 Amazon Bedrock 模型目录进行工作登录循环。运行后，通过 [`managed.policies`](/docs/zh-CN/claude-apps-gateway-config#managed) 添加按组 RBAC 和托管设置，通过 [`telemetry`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 添加遥测扇出，以及通过 [`models`](/docs/zh-CN/claude-apps-gateway-config#models) 添加多上游故障转移、预配置吞吐量 ARN 或非美国地区。
 
     <Note>
-      Amazon Bedrock 上游需要一个 AWS 主体，具有对 `inference-profile/us.anthropic.*` ARN 和底层 `foundation-model/anthropic.*` ARN 的 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream`，以及在 Bedrock 控制台的模型目录中为该账户提交的 Anthropic 一次性用例表单。使用 EKS 上的 IRSA、ECS 任务角色或 EC2 实例配置文件提供凭证，而不是静态密钥。[`upstreams` 参考](/docs/zh-CN/claude-apps-gateway-config#upstreams)具有完整的 IAM 详情、跨云凭证矩阵以及其他提供商的 `auth` 块。
+      Amazon Bedrock 上游需要一个 AWS 主体，具有对 `inference-profile/us.anthropic.*` ARN 和底层 `foundation-model/anthropic.*` ARN 的 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream` 权限。它还需要在 Bedrock 控制台的模型目录中为该账户提交 Anthropic 的一次性用例表单。
+
+      使用 EKS 上的 IRSA、ECS 任务角色或 EC2 实例配置文件提供凭据，而不是静态密钥。[`upstreams` 参考](/docs/zh-CN/claude-apps-gateway-config#upstreams)具有完整的 IAM 详情、跨云凭据矩阵以及其他提供商的 `auth` 块。
     </Note>
   </Step>
 
@@ -150,7 +152,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
           OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
           GATEWAY_JWT_SECRET: ${GATEWAY_JWT_SECRET}
           GATEWAY_POSTGRES_URL: postgres://gw:pw@postgres/gateway
-          # AWS 凭证：在生产中，省略这些并使用实例
+          # AWS 凭据：在生产中，省略这些并使用实例
           # 角色。对于本地 Compose 测试，传递您自己的：
           AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
           AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
@@ -168,11 +170,13 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
     volumes: { pgdata: }
     ```
 
-    网关是一个单一的 Linux 二进制文件，读取配置，连接到 Postgres 并应用其架构迁移，针对您的 IdP 运行 OIDC 发现，构建上游客户端，并开始侦听。启动对配置、Postgres 连接、OIDC 发现和上游客户端构造是失败关闭的。如果其中任何一个无法访问或配置错误，网关会以错误退出，而不是以降级状态提供流量。
+    网关是一个单一的 Linux 二进制文件，读取配置，连接到 Postgres 并应用其 schema 迁移，针对您的 IdP 运行 OIDC 发现，构建上游客户端，并开始侦听。
 
-    成功启动不会验证推理路径，因为 Amazon Bedrock 和 Google Cloud 的 Agent Platform 实例凭证在第一个请求时解析，而不是在启动时。
+    启动对配置、Postgres 连接、OIDC 发现和上游客户端构造是失败关闭的。如果其中任何一个无法访问或配置错误，网关会以错误退出，而不是以降级状态提供流量。
 
-    监视 stderr 以获取启动序列。日志行使用格式 `[gateway] <timestamp> <level> <message>`，审计事件是带有 `evt` 字段的单行 JSON，启动横幅（下面省略）在迁移和侦听行之间打印。新数据库每个架构迁移打印一行 `migration N applied`；已迁移的数据库不打印任何内容。您应该按顺序看到：
+    成功启动不会验证推理路径，因为 Amazon Bedrock 和 Google Cloud 的 Agent Platform 实例凭据在第一个请求时解析，而不是在启动时。
+
+    监视 stderr 以获取启动序列。日志行使用格式 `[gateway] <timestamp> <level> <message>`，审计事件是带有 `evt` 字段的单行 JSON，启动横幅（下面省略）在迁移和侦听行之间打印。新数据库每个 schema 迁移打印一行 `migration N applied`；已迁移的数据库不打印任何内容。您应该按顺序看到：
 
     ```text theme={null}
     {"ts":"2026-06-10T17:03:21.114Z","evt":"config.load","path":"/etc/claude/gateway.yaml","sha256":"…"}
@@ -190,7 +194,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
     * 无法访问的 Postgres
     * 没有 DDL 权限的 Postgres 角色
     * 无法访问或无效的 OIDC 发现文档
-    * 配置架构违规，带有违规字段路径
+    * 配置 schema 违规，带有违规字段路径
 
     修复它并重新启动。
 
@@ -249,7 +253,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
   </Step>
 
   <Step title="登录开发人员">
-    最后一步发生在开发人员机器上，而不是服务器上。在该机器的[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)中将 `forceLoginMethod` 设置为 `"gateway"` 并将 `forceLoginGatewayUrl` 设置为您的网关的 `public_url`，然后运行 `/login`，在**Cloud gateway** 屏幕上按 Enter，并完成浏览器登录。下面的[设置网关 URL](#set-the-gateway-url)涵盖大规模分发两个密钥。
+    最后一步发生在开发人员机器上，而不是服务器上。在该机器的[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)中将 `forceLoginMethod` 设置为 `"gateway"` 并将 `forceLoginGatewayUrl` 设置为您的网关的 `public_url`，然后运行 `/login`，在**Cloud gateway** 屏幕上按 Enter，并完成浏览器登录。下面的[设置网关 URL](#set-the-gateway-url)介绍如何将这两个键分发到每台开发人员机器。
   </Step>
 </Steps>
 

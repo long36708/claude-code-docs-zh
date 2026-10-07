@@ -43,7 +43,7 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
   <Step title="打开管理控制台">
     在 claude.ai 控制台中，转到 [**Organization settings > Claude Code > Managed settings**](https://claude.ai/admin-settings/claude-code)。
 
-    如果链接将您重定向到其他 Organization settings 页面而不是 Claude Code 页面，则说明您的账户没有所需的角色。Admin 和其他非 Owner 角色无法查看或编辑托管设置，因此请要求您的组织中的 Owner 或 Primary Owner 进行更改。请参阅[访问控制](#access-control)。
+    在 Team 或 Enterprise 组织中，如果页面显示您没有访问权限，请让 [Owner 或 Primary Owner](#access-control) 进行更改。
   </Step>
 
   <Step title="定义您的设置">

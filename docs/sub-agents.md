@@ -310,7 +310,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 
 | Field | 必需 | Description |
 | :- | :- | :- |
-| `name` | 是 | 唯一标识符，例如 `code-reviewer` 或 `reviewer-v2`。[Hooks](/docs/zh-CN/hooks#subagentstart) 将此值作为 `agent_type` 接收。文件名不必匹配。名称不能包含 `:`，这是为 [plugin-scoped identifiers](/docs/zh-CN/plugins/overview) 保留的，例如 `my-plugin:reviewer`。Claude Code 不加载名称包含一个的文件，并向调试日志记录错误。在 v2.1.218 之前，这样的名称被接受 |
+| `name` | 是 | 最多 256 个字符的唯一标识符，例如 `code-reviewer` 或 `reviewer-v2`。[Hook](/docs/zh-CN/hooks#subagentstart) 以 `agent_type` 的形式接收此值。文件名不必与之一致。名称不能包含 `:`，该字符保留用于[插件作用域标识符](/docs/zh-CN/plugins/overview)，例如 `my-plugin:reviewer` |
 | `description` | 是 | Claude 何时应该委托给此 subagent |
 | `tools` | 否 | [Tools](#available-tools) subagent 可以使用，作为逗号分隔的字符串，例如 `Read, Grep, Bash` 或 YAML 列表。如果省略，继承 subagents 可用的每个工具。如果列表中没有条目解析为工具，subagent 通常 [fails to launch](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools) 并出现错误，命名条目。要将 Skills 预加载到上下文中，请使用 `skills` 字段而不是在此处列出 `Skill` |
 | `disallowedTools` | 否 | 要拒绝的工具，从继承或指定的列表中删除。格式与 `tools` 相同。带有说明符的条目，例如 `Bash(git push *)`，仍然 [removes the whole tool](#available-tools) |
@@ -348,7 +348,7 @@ Claude Code 跳过项目、用户或托管 `agents` 目录中的文件，或在�
 
 * **没有 `name`**：Claude Code 将文件视为保存在您的代理旁边的文档。
 * **一个开始 `---` 不是文件的第一行**：Claude Code 读取文件为没有 frontmatter，并将其视为文档。
-* **一个以 `-` 开头或包含 `:` 的 `name`**：Claude Code 跳过文件并向调试日志写入错误。请参阅上表中的 `name` 行。
+* **`name` 以 `-` 开头、包含 `:` 或超过 256 个字符**：Claude Code 跳过该文件，并向调试日志写入一条错误。
 * **一个 `name` 但没有 `description`**：Claude Code 跳过文件并向调试日志写入原因。
 * **不解析的 YAML**：Claude Code 从文件读取没有字段，跳过它，并向调试日志写入解析错误。
 

@@ -819,6 +819,7 @@ claude agents --settings ./ci-settings.json --add-dir ../shared-lib
 | `claude rm <id> --discard-unpushed <commit>@<worktree-id>` | 删除因未推送提交而删除被拒绝的会话，丢弃 worktree 及其分支和提交。传递拒绝打印的确切值；参见 [删除会话会删除什么](#what-deleting-a-session-removes)。需要 v2.1.260 或更高版本 |
 | `claude rm <id> --force-remove-worktree <worktree-id>` | 删除因 git 或 `WorktreeRemove` hook 无法删除其 worktree 而删除被拒绝的会话，无论如何删除 worktree 目录并在仓库中保留其分支。传递拒绝打印的确切值；参见 [删除会话会删除什么](#what-deleting-a-session-removes)。需要 v2.1.268 或更高版本 |
 | `claude daemon status` | 打印 [supervisor](#the-supervisor-process) 的状态、版本、socket 目录和 worker 数量 |
+| `claude daemon logs` | 跟踪 supervisor 的日志文件 [`~/.claude/daemon.log`](#where-state-is-stored)，在新行到达时将其打印出来，直到您按下 `Ctrl+C` |
 | `claude daemon stop --any` | 停止 supervisor 进程及其托管的后台会话。传递 `--keep-workers` 以保持后台会话运行，以便下一个 supervisor 重新连接到它们。下一个 `claude agents` 或 `claude --bg` 启动一个新的 supervisor |
 
 `claude attach` 和 `claude logs` 可以使用运行中会话名称的一部分代替 ID，例如 `claude logs "auth refactor"`。传递名称需要 Claude Code v2.1.290 或更高版本。

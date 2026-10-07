@@ -197,6 +197,7 @@
 | `Cloud sessions cannot be created from a --restricted session` | [命令行错误](#cloud-sessions-cannot-be-created-from-a-restricted-session) |
 | `Cloud sessions are disabled by your organization's policy` | [命令行错误](#cloud-sessions-are-disabled-by-your-organizations-policy) |
 | `Couldn't verify your organization's policy for cloud sessions` | [命令行错误](#cloud-sessions-are-disabled-by-your-organizations-policy) |
+| `Cloud sessions need a claude.ai sign-in` | [无法获取组织 UUID](/docs/zh-CN/claude-code-on-the-web#unable-to-get-organization-uuid) |
 | `Error: --json-schema is not a valid JSON Schema` | [命令行错误](#the-json-schema-value-is-not-a-valid-json-schema) |
 | `Error: Invalid --agents configuration:` | [命令行错误](#invalid-agents-configuration) |
 | `Error: --agents takes a JSON object, or a file path only with --print (-p)` | [命令行错误](#invalid-agents-configuration) |
@@ -387,6 +388,7 @@ Claude Code 重试这些故障：
 * Claude Code 检测到的连接在您的计算机进入睡眠状态时在请求过程中途被破坏。Claude Code 将其计为上述规则下的断开连接；一旦重试标签命名了具体原因，它会读作 `Connection lost while your computer was asleep`，如果轮次在 Claude 完成思考之后但在任何文本或工具调用之前结束，消息会读作 `Your computer went to sleep before a response was produced`。
 * 停滞的响应流，当响应头已到达但 Claude 响应的任何部分都未到达，或当 Claude 完成思考但尚未开始任何文本或工具调用时：Claude Code 中止停滞连接并最多重新发送一次请求，不计入上述 10 次尝试预算。如果响应在 Claude 完成思考之后但在任何文本或工具调用之前第二次停滞，Claude Code 以 `The response stalled before a response was produced` 结束轮次。
 * 流式请求 API 从未用响应头回答，在 [first-byte deadline runs](/docs/zh-CN/network-config#streaming-idle-watchdogs) 的连接上：Claude Code 在截止时间中止它，并在重试预算内每个模型请求最多重新发送一次，然后如果该尝试也未得到回答，则以 [No response from API](#no-response-from-api) 结束轮次。在其他连接上，请求等待 `API_TIMEOUT_MS`。当您设置 `CLAUDE_CODE_RETRY_WATCHDOG` 时，一次重试上限不适用。
+* 在 Claude 完成思考或开始任何文本或工具调用之前，被 API 输出内容过滤器拦截的流式响应。Claude Code 会在重试预算内重新发送一次请求，如果过滤器也拦截了第二次响应，则显示 [Output blocked by content filtering policy](#output-blocked-by-content-filtering-policy)。
 * 临时 429 节流，但不是网关的支出限制 `429`，这不是节流；请参阅 [Spend limit reached](#spend-limit-reached)。
   * 当您使用 claude.ai 订阅登录时，这包括不携带您套餐配额头的 429 节流。在 v2.1.199 之前，Claude Code 仅对 API 密钥和企业登录重试这些节流。
 * 因为输入加上 `max_tokens` 超过上下文限制而被拒绝的请求。以相同方式重新发送它会以相同方式失败，所以 Claude Code 使用减少的 `max_tokens` 重试，并在两种情况下停止重试并改为压缩：
@@ -405,7 +407,6 @@ Claude Code 不重试这些故障：
 * [Amazon Bedrock 流式响应具有意外的 content-type](#bedrock-streaming-response-has-an-unexpected-content-type)，因为重写响应的网关或代理会以相同方式重写重试。需要 Claude Code v2.1.208 或更高版本。
 * 失败的流式请求的非流式重试获得成功状态但 [body 中没有 Claude API 消息](#api-returned-an-empty-or-malformed-response)。Claude Code 以该错误结束轮次。
 * 您的组织的策略检查拒绝的请求，其表现为携带拒绝消息的 `API Error:` 行。您的组织管理员使用 [Inference hooks](https://platform.claude.com/docs/en/manage-claude/inference-hooks)（Claude Enterprise 功能）设置检查，消息以他们配置的说明结尾，或默认告诉您联系他们。Claude Code 不会将拒绝的请求重新发送到相同模型或 [备用模型](/docs/zh-CN/model-config#fallback-model-chains)，因为拒绝涉及请求的内容而不是模型。在 v2.1.239 之前，Claude Code 可以重新发送拒绝的请求，不流式传输或在配置的备用模型上，然后向您显示拒绝。
-* 被 API 输出内容过滤器拦截的响应。Claude Code 会立即显示 [Output blocked by content filtering policy](#output-blocked-by-content-filtering-policy)，并且不会重试或重新发送该请求。
 
 <h3 id="what-you-see-while-claude-code-retries-or-waits">
   Claude Code 重试或等待时您看到的内容
@@ -2904,8 +2905,6 @@ API 的输出内容过滤器中止了 Claude 正在生成的响应。消息文�
 ```text theme={null}
 API Error: Output blocked by content filtering policy
 ```
-
-Claude Code 在拦截到达时立即显示错误，并在此结束请求。它不会重试请求、以非流式方式重新发送请求，也不会切换到[备用模型](/docs/zh-CN/model-config#fallback-model-chains)。在 v2.1.285 之前，Claude Code 可能会重新发送并重试被拦截的请求（有时持续数分钟），然后才向您显示错误。
 
 **要做什么：**
 
