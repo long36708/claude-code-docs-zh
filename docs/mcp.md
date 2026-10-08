@@ -505,7 +505,7 @@ Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道
   插件提供的 MCP 服务器
 </h3>
 
-[插件](/docs/zh-CN/plugins/overview) 可以捆绑 MCP 服务器，在您启用插件时提供工具和集成。插件 MCP 服务器的工作方式与用户配置的服务器相同。
+[插件](/docs/zh-CN/plugins/overview) 可以捆绑 MCP 服务器，在您启用插件时提供工具和集成。
 
 **插件 MCP 服务器如何工作**：
 
@@ -1403,7 +1403,7 @@ claude mcp serve
 * **默认限制**：默认最大值为 25,000 个 token
 * **范围**：环境变量适用于未声明自己限制的工具。设置了 [`anthropic/maxResultSizeChars`](#raise-the-limit-for-a-specific-tool) 的工具会对文本内容使用该值，而不管 `MAX_MCP_OUTPUT_TOKENS` 设置为什么。返回图像数据的工具仍然受 `MAX_MCP_OUTPUT_TOKENS` 限制
 * **超过限制**：当没有图像内容的成功结果超过 token 限制时，Claude Code 会将其保存到文件中，并在对话中用一条消息替换它，该消息指定文件路径，以便 Claude 在需要内容时读取该文件。该文件位于会话的 `tool-results` 目录中，在 [`~/.claude/projects/`](/docs/zh-CN/claude-directory#cleaned-up-automatically) 下。
-* **来自 HTTP 和 SSE 服务器的响应大小**：一旦单个 JSON 响应体或事件流中的单个事件在解压后超过 16 MB，Claude Code 就会停止读取来自 [HTTP](#option-1-add-a-remote-http-server) 或 [SSE](#option-2-add-a-remote-sse-server) 服务器的响应。该响应所对应的请求会失败。如果您维护该服务器，请减少每个响应返回的数据量以保持在限制之内，例如对结果进行分页
+* **来自 HTTP 和 SSE 服务器的响应大小**：一旦某个 JSON 响应体或事件流中的某个事件在解压后超过 16 MB，Claude Code 就会停止读取来自 [HTTP](#option-1-add-a-remote-http-server) 或 [SSE](#option-2-add-a-remote-sse-server) 服务器的响应。该响应所对应的请求会失败。如果您负责维护该服务器，请减少每个响应返回的数据量以保持在限制之内，例如对结果进行分页
 
 已被 Claude Code [移至后台任务](#automatic-backgrounding-of-long-tool-calls)的调用会通过任务通知报告其结果。对于在前台完成的调用，还有另外两项限制：
 
@@ -1597,6 +1597,29 @@ Claude Code 将每个工具描述和每个服务器的说明截断为默认 2,04
 
 要更改会话中每个 MCP 服务器的限制，请将 [`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH`](/docs/zh-CN/env-vars#variables) 设置为字符数。此变量需要 Claude Code v2.1.280 或更高版本。
 
+<h4 id="per-tool-alwaysload">
+  将工具标记为预先加载或保持延迟
+</h4>
+
+要控制服务器中某个工具的加载方式，请在该工具的 `_meta` 对象中设置 `"anthropic/alwaysLoad"`。将您的服务器添加到 Claude Code 的人也可以在其配置中为整个服务器设置 [`alwaysLoad`](#exempt-a-server-from-deferral)，并且其设置可以覆盖您的设置：
+
+| 您的工具的值 | 结果 |
+| :- | :- |
+| `true` | 该工具预先加载。启动不会因为此值而等待您的服务器。配置您的服务器的人仍然可以[延迟其所有工具](#defer-a-servers-tools) |
+| `false` | 当其配置设置了 `"alwaysLoad": true` 时，该工具保持延迟。这适用于通过 [`--mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 传入、由 [Agent SDK 应用程序](/docs/zh-CN/agent-sdk/mcp#in-code)提供或由[插件](#plugin-provided-mcp-servers)提供的服务器。在其他服务器上，该工具预先加载。需要 Claude Code v2.1.285 或更高版本 |
+
+以下 `tools/list` 条目请求预先加载一个工具：
+
+```json theme={null}
+{
+  "name": "search_tickets",
+  "description": "Searches the ticket tracker by keyword",
+  "_meta": {
+    "anthropic/alwaysLoad": true
+  }
+}
+```
+
 <h3 id="configure-tool-search">
   配置工具搜索
 </h3>
@@ -1648,7 +1671,7 @@ ENABLE_TOOL_SEARCH=false claude
   豁免服务器不延迟
 </h3>
 
-如果服务器的工具应该始终对 Claude 可见而无需搜索步骤，请在该服务器的配置中将 `alwaysLoad` 设置为 `true`。来自该服务器的每个工具都会在会话开始时加载到上下文中，无论 `ENABLE_TOOL_SEARCH` 设置如何。对于 Claude 在每个回合都需要的少量工具使用此选项，因为每个预先加载的工具会消耗本来可用于您的对话的上下文。
+如果服务器的工具应该始终对 Claude 可见而无需搜索步骤，请在该服务器的配置中将 `alwaysLoad` 设置为 `true`。之后，该服务器的工具会加载到上下文中，无论 `ENABLE_TOOL_SEARCH` 设置如何。对于 Claude 在每一轮都需要的少量工具使用此选项，因为每个预先加载的工具会消耗本来可用于您的对话的上下文。
 
 以下 `.mcp.json` 条目豁免一个 HTTP 服务器，同时保持其他服务器延迟：
 
@@ -1664,9 +1687,15 @@ ENABLE_TOOL_SEARCH=false claude
 }
 ```
 
-`alwaysLoad` 字段在所有服务器类型上都可用。MCP 服务器也可以通过在工具的 `_meta` 对象中包含 `"anthropic/alwaysLoad": true` 来标记单个工具为始终加载，这对该工具只有相同的效果。
+`alwaysLoad` 字段在所有服务器类型上都可用。
 
 设置 `alwaysLoad: true` 也会使启动等待服务器的工具，上限为标准 5 秒连接超时，因为它们必须在构建第一个提示时存在。具有有效 [`cached` 条目](#server-status-detail) 的远程服务器从缓存提供其工具而无需连接，因此它不会延迟启动。其他服务器默认在后台连接；设置 [`MCP_CONNECTION_NONBLOCKING=0`](/docs/zh-CN/env-vars) 也使启动等待它们。
+
+<h3 id="defer-a-servers-tools">
+  延迟服务器的工具
+</h3>
+
+要让服务器的所有工具都保持在工具搜索之后，请在 MCP 配置中该服务器的条目里设置 `"alwaysLoad": false`。这包括服务器作者已[标记为预先加载](#per-tool-alwaysload)的工具。如果您省略 `alwaysLoad`，这些已标记的工具会预先加载。需要 Claude Code v2.1.287 或更高版本。
 
 <h2 id="use-mcp-prompts-as-commands">
   将 MCP 提示用作命令

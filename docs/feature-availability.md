@@ -200,7 +200,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
     <tr>
       <td>[Server-managed settings](/docs/zh-CN/server-managed-settings)</td>
       <td>✓（Team 和 Enterprise）</td>
-      <td>请参阅[平台可用性](/docs/zh-CN/server-managed-settings#platform-availability)</td>
+      <td>参见[平台可用性](/docs/zh-CN/server-managed-settings#platform-availability)</td>
       <td>✗</td>
       <td>✗</td>
       <td>✗</td>
@@ -293,7 +293,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
   <Tab title="Anthropic Console">
     **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)。
 
-    [按提供商变化的 CLI 功能](#cli-capabilities-that-vary-by-provider)中的所有内容都可用，除了 [fast mode](/docs/zh-CN/fast-mode) 需要[预配置访问](/docs/zh-CN/fast-mode#enable-fast-mode-for-your-organization)。您在 claude.ai Team 或 Enterprise 组织中配置的 [Server-managed settings](/docs/zh-CN/server-managed-settings) 不会作用于使用 Console API 密钥进行身份验证的会话。有关如何覆盖这些会话，请参阅[平台可用性](/docs/zh-CN/server-managed-settings#platform-availability)。
+    [按提供商变化的 CLI 功能](#cli-capabilities-that-vary-by-provider)中的所有内容都可用，除了 [fast mode](/docs/zh-CN/fast-mode) 需要[预配置访问](/docs/zh-CN/fast-mode#enable-fast-mode-for-your-organization)。在 claude.ai Team 或 Enterprise 组织中配置的 [Server-managed settings](/docs/zh-CN/server-managed-settings) 不会作用于使用 Console API 密钥进行身份验证的会话。有关如何覆盖这些会话，请参阅[平台可用性](/docs/zh-CN/server-managed-settings#platform-availability)。
   </Tab>
 </Tabs>
 

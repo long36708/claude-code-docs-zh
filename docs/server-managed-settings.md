@@ -348,9 +348,9 @@ Claude Code 也根据传递的值决定 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/e
 
 由 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 脚本返回的密钥和 [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 凭证都不会触发设置获取。
 
-会话接收的是其进行身份验证所用凭据所属组织的托管设置。来自 [Claude Console](https://platform.claude.com) 的 API 密钥属于创建该密钥的 Console 组织，该组织与您的 claude.ai Team 或 Enterprise 组织是相互独立的组织。因此，您在 claude.ai Admin Settings 中配置的设置不会到达使用该密钥进行身份验证的会话，例如使用贵公司 Console API 密钥的 CI 作业。要将这些设置应用于该作业，请使用以下选项之一。OAuth 令牌选项不适用于使用 [`--bare`](/docs/zh-CN/headless#start-faster-with-bare-mode) 运行的作业，因为 bare 模式不会读取 `CLAUDE_CODE_OAUTH_TOKEN`。
+会话接收的是其身份验证所用凭据所属组织的托管设置。来自 [Claude Console](https://platform.claude.com) 的 API 密钥属于创建它的 Console 组织，该组织与您的 claude.ai Team 或 Enterprise 组织是相互独立的组织。因此，您在 claude.ai Admin Settings 中配置的设置不会到达使用该密钥进行身份验证的会话，例如使用您公司 Console API 密钥的 CI 作业。要将这些设置应用于该作业，请使用以下选项之一。OAuth 令牌选项不适用于使用 [`--bare`](/docs/zh-CN/headless#start-faster-with-bare-mode) 运行的作业，因为 bare 模式不会读取 `CLAUDE_CODE_OAUTH_TOKEN`。
 
-* **OAuth 令牌**：使用 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 生成令牌，为您的 Team 或 Enterprise 组织授权该令牌，并在作业环境中将其设置为 `CLAUDE_CODE_OAUTH_TOKEN`。从该环境中移除任何[优先于](/docs/zh-CN/authentication#authentication-precedence)该令牌的凭据，例如 `ANTHROPIC_API_KEY`。
+* **OAuth 令牌**：使用 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 生成令牌，为您的 Team 或 Enterprise 组织授权该令牌，并在作业环境中将其设置为 `CLAUDE_CODE_OAUTH_TOKEN`。从该环境中删除任何[优先于](/docs/zh-CN/authentication#authentication-precedence)该令牌的凭据，例如 `ANTHROPIC_API_KEY`。
 * **端点管理的设置**：将[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)部署到运行该作业的机器上。
 
 在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，即使用户使用 Team 或 Enterprise 账户登录，Claude Code 也不会从 claude.ai 管理控制台获取服务器管理的设置。[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies) 涵盖了哪些策略到达用户机器上的 Cowork 会话和远程 Cowork 会话。claude.ai 在 Cowork 用户从 git 存储库或从 Cowork 标签中的**自定义**添加市场时，仍然会应用您的 [`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces) 和 [`blockedMarketplaces`](/docs/zh-CN/settings-reference#blockedmarketplaces) 列表。[限制如何工作](/docs/zh-CN/plugins/org#restrict-what-users-can-install) 描述了该检查。

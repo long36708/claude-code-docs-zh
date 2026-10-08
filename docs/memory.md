@@ -161,7 +161,7 @@ Claude Code 从您的当前工作目录和其上方的每个目录加载 `CLAUDE
 
 所有发现的文件被连接到上下文中，而不是相互覆盖。在目录树中，内容从文件系统根目录向下排序到您的工作目录。对于 `foo/bar/` 示例，`foo/CLAUDE.md` 在上下文中出现在 `foo/bar/CLAUDE.md` 之前，因此更接近您启动 Claude 的位置的指令最后读取。在每个目录中，`CLAUDE.local.md` 附加在 `CLAUDE.md` 之后，因此您的个人笔记是 Claude 在该级别读取的最后一件事。
 
-Claude 还发现当前工作目录下子目录中的 `CLAUDE.md` 和 `CLAUDE.local.md` 文件。它们不是在启动时加载，而是在 Claude 对这些子目录中的文件使用 [Read](/docs/zh-CN/tools-reference#read-tool-behavior)、[Write](/docs/zh-CN/tools-reference#write-tool-behavior) 或 [Edit](/docs/zh-CN/tools-reference#edit-tool-behavior) 工具时由 Claude Code 包含。如果 Claude 已经对某个子目录的 `CLAUDE.md` 本身使用过这些工具之一，则不会以这种方式加载该文件，因为 Claude Code 将其视为已在对话中。对于 `.claude/worktrees/` 下 worktree 中的文件，请参阅 [使用 worktree 隔离子代理](/docs/zh-CN/worktrees#isolate-subagents-with-worktrees)。
+Claude 还发现当前工作目录下子目录中的 `CLAUDE.md` 和 `CLAUDE.local.md` 文件。它们不会在启动时加载，而是在 Claude 读取、写入或编辑该子目录中的其他文件时，由 Claude Code 逐个加载。读取包括使用[算作读取](/docs/zh-CN/tools-reference#edit-tool-behavior)的 Bash 命令查看文件，例如对单个文件使用 `cat` 或 `head`。对于 `.claude/worktrees/` 下 worktree 中的文件，请参阅 [使用 worktree 隔离子代理](/docs/zh-CN/worktrees#isolate-subagents-with-worktrees)。
 
 如果您在大型 monorepo 中工作，其中其他团队的 CLAUDE.md 文件被拾取，请使用 [`claudeMdExcludes`](#exclude-specific-claude-md-files) 跳过它们。有关根目录和每目录 CLAUDE.md 文件和规则的完整布局，请参阅 [Monorepos 和大型仓库](/docs/zh-CN/large-codebases)。
 
@@ -232,7 +232,7 @@ paths:
 - Include OpenAPI documentation comments
 ```
 
-没有 `paths` 字段的规则无条件加载并适用于所有文件。路径范围规则在 Claude 对与模式匹配的文件使用 Read、Write 或 Edit 工具时触发，而不是在每次工具使用时。当 Claude 通过项目目录的符号链接路径到达文件时，匹配也有效，例如在符号链接检出中。
+没有 `paths` 字段的规则无条件加载并适用于所有文件。当 Claude 对匹配的文件使用 Read、Write 或 Edit 工具时，路径范围规则会加载。当 Claude 使用[算作读取](/docs/zh-CN/tools-reference#edit-tool-behavior)的 Bash 命令查看匹配的文件时（例如对单个文件使用 `cat` 或 `head`），该规则也会加载。当 Claude 通过项目目录的符号链接路径到达文件时，匹配也有效，例如在符号链接检出中。
 
 在 `paths` 字段中使用 glob 模式按扩展名、目录或任何组合匹配文件：
 

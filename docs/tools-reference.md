@@ -187,7 +187,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 | 有效 | 内联最多约 30,000 个字符（默认）；超过该值，为保存到会话目录的文件的路径（文件超过 64 MiB 的部分会被截断），加上最多前 2,000 个字符的预览，Claude 在需要其余部分时读取或搜索该文件 |
 | 失败 | 内联最多约 10,000 个字符；超过该值，从读回窗口中切割的该大小的头尾摘录，没有文件路径 |
 
-退出代码为 1 的命令仅当 Claude Code 识别退出代码 1 为该命令的良性结果时，才计为 Bash 工具的有效结果：`grep`、`rg`、`egrep`、`fgrep`、`find`、`diff`、`test` 和 `[`，加上 `git diff` 和 `git grep`。退出代码为 1 的所有其他命令都计为失败，即使退出 1 是良性信息结果：`pgrep` 和 `jq -e` 没有匹配项，`cmp` 的文件不同。
+退出码为 1 的命令仅当 Claude Code 识别退出码 1 为该命令的良性结果时，才计为 Bash 工具的有效结果：`grep`、`rg`、`egrep`、`fgrep`、`find`、`diff`、`test` 和 `[`，加上 `git diff` 和 `git grep`。退出码为 1 的所有其他命令都计为失败，即使退出 1 是良性信息结果：`pgrep` 和 `jq -e` 没有匹配项，`cmp` 的文件不同。
 
 [`BASH_MAX_OUTPUT_LENGTH`](/docs/zh-CN/env-vars) 设置 Claude Code 从工作文件读回到命令结果中的输出字符数：默认 30,000，最多 150,000。当您的命令经常溢出该窗口时（例如详细的构建或完整的测试套件日志），请提高它。提高它会扩大读回窗口，这也是失败命令的摘录被切割的窗口。它不会提高内联上限：超过内联上限的有效结果作为文件路径加预览到达，无论此变量如何。
 
@@ -203,7 +203,9 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
   后台命令何时停止
 </h4>
 
-[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)启动的命令在该子代理的运行结束时停止，无论它是完成、失败还是被中断。主对话或后台子代理启动的命令在最终响应后继续运行，直到它退出、被停止或达到其[时间限制](#time-limit-for-background-commands)。在使用 `-p` 标志的非交互模式下，[后台命令在运行的最终结果后不久结束](/docs/zh-CN/headless#background-tasks-at-exit)。
+[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)启动的命令在该子代理的运行结束时停止，无论它是完成、失败还是被中断。主对话或后台子代理启动的命令在最终响应后继续运行，直到它退出、被停止或达到其[时间限制](#time-limit-for-background-commands)。
+
+当主对话启动的命令仍在运行时，使用 `-p` 标志的非交互模式运行会[在其结果之后保持打开](/docs/zh-CN/headless#background-tasks-at-exit)，直到该命令退出或达到其时间限制。后台子代理启动的命令会在运行退出时被停止。
 
 <h4 id="time-limit-for-background-commands">
   后台命令的时间限制
@@ -218,15 +220,17 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 * Claude 在后台启动的命令获得 30 分钟，或 Claude 使用 `run_in_background` 传递的 `timeout`，最多 2 小时
 * 在前台启动然后移到后台的命令，例如在其超时时，从移动时获得 30 分钟
 
+在使用 `-p` 标志且以文本形式（而不是使用 `--input-format stream-json`）传递提示词的运行中，两个默认值都是 10 分钟而不是 30 分钟，因为该运行会[在其结果之后等待后台命令](/docs/zh-CN/headless#background-tasks-at-exit)。
+
 当后台命令达到其时间限制时，Claude Code 停止它并告诉 Claude 原因，Claude 可以使用更长的 `timeout` 重新启动命令，如果工作仍然需要的话。停止通知读作 `Background command "<description>" was stopped after reaching its background time limit`。
 
 <h4 id="raise-the-time-limit-for-background-commands">
   提高后台命令的时间限制
 </h4>
 
-两个[环境变量](/docs/zh-CN/env-vars)提高这些限制，对于 Bash 和 PowerShell 命令都是如此。两者都采用毫秒，都不能缩短限制：较低的值保留 30 分钟的默认值和 2 小时的最大值。
+两个[环境变量](/docs/zh-CN/env-vars)提高这些限制，对于 Bash 和 PowerShell 命令都是如此。两者都采用毫秒，都不能缩短限制：较低的值保留默认值和 2 小时的最大值。
 
-* 将 `BASH_DEFAULT_TIMEOUT_MS` 设置为高于 `1800000` 以用该值替换 30 分钟的默认值，既适用于 Claude 启动的没有 `timeout` 的命令，也适用于移动的命令
+* 将 `BASH_DEFAULT_TIMEOUT_MS` 设置为高于 `1800000` 以用该值替换 30 分钟的默认值，既适用于 Claude 启动的没有 `timeout` 的命令，也适用于移动的命令。在以文本形式传递提示词的 `-p` 运行中，任何高于 `600000` 的值都会替换其 10 分钟的默认值
 * 将 `BASH_MAX_TIMEOUT_MS` 设置为高于 `7200000` 以将 2 小时的最大值提高到该值。将 `BASH_DEFAULT_TIMEOUT_MS` 设置为高于 `7200000` 以相同方式提高最大值
 
 <h4 id="foreground-commands-that-move-to-the-background">
@@ -256,10 +260,10 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 
 Claude Code 也可以将它启动的其他类型的进程计入同一限制。设置 [`CLAUDE_CODE_TOOL_MEMORY_CGROUP_EXCLUDE`](/docs/zh-CN/env-vars#variables) 为逗号分隔的类型列表以豁免上限；Claude Code 对不在您列表中的每种类型应用上限。设置为 `none` 以限制每种类型，或设置为 `all-new` 以仅限制 Bash、PowerShell 和 Monitor 工具命令。需要 Claude Code v2.1.246 或更高版本。您可以命名的类型：
 
-* `mcp`: 本地 [MCP servers](/docs/zh-CN/mcp)
+* `mcp`: 本地 [MCP 服务器](/docs/zh-CN/mcp)
 * `lsp`: [language servers](#lsp-tool-behavior)
 * `hooks`: [hook](/docs/zh-CN/hooks) 命令
-* `plugin`: [plugins](/docs/zh-CN/plugins/overview) 运行的命令
+* `plugin`: [插件](/docs/zh-CN/plugins/overview)运行的命令
 * `helper`: Claude Code 自己的辅助命令，例如 `git`
 * `agent`: 子 Claude Code 进程，例如 [agent teammates](/docs/zh-CN/agent-teams)
 
@@ -267,7 +271,7 @@ Claude Code 也可以将它启动的其他类型的进程计入同一限制。�
 
 * **未知名称**：Claude Code 忽略它不识别的名称
 * **变量未设置**：Claude Code 从 Anthropic 从服务器传递的配置中获取其他限制类型的集合，该集合可能随时间变化，因此当您需要不变的集合时设置变量
-* **权限门控 hooks**：即使每种类型都受限，Claude Code 也会从上限中排除可以阻止或更改操作结果的 hook，以及任何此类 hook 调用的 MCP 服务器，因此内核杀死权限门控 hook 不能允许它阻止的操作
+* **权限门控 hook**：即使每种类型都受限，Claude Code 也会从上限中排除可以阻止或更改操作结果的 hook，以及任何此类 hook 调用的 MCP 服务器，因此内核杀死权限门控 hook 不能允许它阻止的操作
 
 <h2 id="edit-tool-behavior">
   Edit 工具行为
@@ -285,7 +289,7 @@ Edit 工具执行精确字符串替换。它接受一个 `old_string` 和一个 
 
 使用 Bash 查看文件也满足编辑前读取要求，当命令是 `cat`、`nl`、`bat`、`batcat`、`head`、`tail`、`sed -n 'X,Yp'`、`grep`、`egrep`、`fgrep` 或 `rg` 在单个文件上且没有管道或重定向时。管道输出和其他 Bash 命令不计入编辑前读取检查。
 
-使用 Bash 查看文件仅影响编辑资格，不影响权限。请参阅 [Read 和 Edit 权限规则](/docs/zh-CN/permissions#read-and-edit)，了解您的 `Read` 和 `Edit` 拒绝规则涵盖哪些 Bash 命令。
+当 Claude 以这种方式查看文件时，Claude Code 还会加载适用于该文件的任何[子目录 `CLAUDE.md`](/docs/zh-CN/memory#how-claude-md-files-load) 和[路径范围规则](/docs/zh-CN/memory#path-specific-rules)。请参阅 [Read 和 Edit 权限规则](/docs/zh-CN/permissions#read-and-edit)，了解您的 `Read` 和 `Edit` 拒绝规则涵盖哪些 Bash 命令。
 
 <h2 id="endconversation-tool-behavior">
   EndConversation 工具行为
@@ -720,11 +724,11 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
 
 当会话达到限制时，搜索在对话中显示为未执行任何操作的调用。Claude 会收到一个通知，告诉它继续使用已经收集的信息，如果需要更多搜索，则要求您提高限制。
 
-要获得更多搜索次数，可以提高上限、等待限制恢复，或开始新的对话：
+要获得更多搜索次数，请提高上限、等待限制恢复，或开始新的对话：
 
 * **提高上限**：将 [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](/docs/zh-CN/env-vars#variables) 环境变量设置为正整数，例如 `500`。上限可以提高但不能关闭。
 * **等待恢复**：在 Claude Code v2.1.290 或更高版本中，交互式终端会话的限制大约每小时恢复 100 次调用。要更改该速率，请将 [`CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR`](/docs/zh-CN/env-vars#variables) 设置为每小时的调用次数，例如 `50`。
-* **开始新的对话**：在 Claude Code 输入框中运行 [`/clear`](/docs/zh-CN/commands#all-commands) 也会重置计数。如果仍然可以生成子代理的工作（例如正在运行的工作流）在清除后继续存在，计数会改为延续。
+* **开始新的对话**：在 Claude Code 提示符处运行 [`/clear`](/docs/zh-CN/commands#all-commands) 也会重置计数。如果仍然可以生成子代理的工作（例如正在运行的工作流）在清除后继续存在，计数会改为继续累计。
 
 <h2 id="write-tool-behavior">
   Write tool 行为

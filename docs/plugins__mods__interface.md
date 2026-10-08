@@ -443,6 +443,26 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 
 在使用 `--plugin-dir` 启动的会话中，会话记录中会有一行说明这一点，例如 `ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew its own`。[调试日志](/docs/zh-CN/plugins/mods/troubleshoot#read-the-debug-log) 将其记录为 `ui.render (Pane): a hook returned a tree that does not validate` 并带有相同的原因。会话中没有其他内容出现，所以当绘制不显示时，请检查该行或日志。
 
+<h3 id="link-in-the-desktop-app">
+  桌面应用中的 `Link`
+</h3>
+
+在桌面应用中，除非 `Link` 的 `href` 满足以下要求，否则它会绘制为纯文本：
+
+* **协议和主机**：`https:` URL，或 `http://localhost` URL，例如 `http://localhost:3000`
+* **不含 `@`**：将路径或查询中的 `@` 写为 `%40`
+* **写法**：与 `new URL(href).href` 返回的内容一致，主机后缺少的 `/` 除外。这排除了大写主机、空格以及 `https:` URL 上的 `:443`。
+
+在终端中，这些要求不适用。
+
+<h3 id="when-a-client-fails">
+  当 `Client` 失败时
+</h3>
+
+在终端中，当 `Client` 运行的文件失败时，一行暗色文本（例如 `my-mod: Client client/spinner.js: boom`）会取代 `Client` 的位置，而您绘制的其余部分仍会显示。
+
+如果您的 mod 处理 [`ui.fault`](/docs/zh-CN/plugins/mods/reference#interface)，Claude Code 随后会[再次绘制该站点](#when-claude-code-redraws-without-being-asked)。
+
 <h3 id="draw-a-grid-of-colored-cells">
   绘制彩色单元格网格
 </h3>

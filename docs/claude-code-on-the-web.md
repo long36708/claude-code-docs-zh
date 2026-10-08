@@ -4,13 +4,13 @@
 
 # 在云端使用 Claude Code
 
-> 从浏览器、手机、桌面应用或终端在云端运行 Claude Code 会话，使用 `--cloud` 和 `--teleport` 移动会话，以及自动修复拉取请求。
+> 从浏览器、手机、桌面应用或终端在云端运行 Claude Code 会话，使用 `--cloud` 和 `--teleport` 移动会话，以及自动修复 Pull Request。
 
 <Note>
   云会话在 Pro、Max 和 Team 计划上可用，以及拥有高级席位或 Chat + Claude Code 席位的 Enterprise 用户。
 </Note>
 
-云会话是在云基础设施上运行的 Claude Code 会话，而不是在你的机器上运行。默认情况下，它在 Anthropic 管理的基础设施上运行，或在路由到你的组织的[自托管环境](/docs/zh-CN/self-hosted-environments)时在那里运行。即使关闭笔记本电脑后，会话也会继续运行，你可以从任何设备检查或控制它。
+云端会话是在云基础设施上运行的 Claude Code 会话，而不是在您的机器上运行。默认情况下，它在 Anthropic 管理的基础设施上运行，或在路由到您的组织的[自托管环境](/docs/zh-CN/self-hosted-environments)时在那里运行。即使关闭笔记本电脑后，会话也会继续运行，您可以从任何设备检查或控制它。它会与您的其他 Claude 和 Claude Code 使用量一起计入您计划的用量限制，云端 VM 不会单独收费。
 
 要让云端会话从 GitHub 克隆代码并推送分支，请使用其中一种 [GitHub 连接方式](#github-authentication-options)连接 GitHub。如果您的仓库位于 GitLab、Bitbucket 或其他托管平台上，请参阅[平台限制](#limitations)了解哪些功能可用。
 
@@ -491,7 +491,7 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 
 在依赖云会话进行工作流之前，请考虑这些约束：
 
-* **速率限制**：云会话与你账户内所有其他 Claude 和 Claude Code 使用共享速率限制。并行运行多个任务会按比例消耗更多速率限制。云 VM 没有单独的计算费用。
+* **速率限制**：云端会话与您账户内所有其他 Claude 和 Claude Code 使用共享速率限制。并行运行多个任务会按比例消耗更多速率限制。
 * **时间限制**：Claude 运行的命令和 SessionStart hooks 有你可以更改的默认超时，设置脚本仅在大约五分钟内完成时才被缓存。请参阅[时间限制](/docs/zh-CN/cloud-environments#time-limits)
 * **存储库身份验证**：你只能在认证到相同账户时将云会话拉入你的终端
 * **平台限制**：存储库克隆和拉取请求创建需要 GitHub。自托管[GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 实例支持 Team 和 Enterprise 计划。你可以通过设置 `CCR_FORCE_BUNDLE=1` 将 GitLab、Bitbucket 或其他非 GitHub 存储库作为[本地捆绑](#send-local-repositories-without-github)发送到云会话，但会话无法将结果推送回该远程

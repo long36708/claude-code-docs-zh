@@ -370,7 +370,7 @@ mock 文件的正文和 frontmatter 接受这些选项：
 | :- | :- |
 | 插件的根目录，例如 `.` | 其 eval 目录下的每个用例，加载该插件 |
 | 单个 `prompt.md` 或 `case.yaml` 文件 | 该用例，加载其所在的插件 |
-| 已安装的插件（按名称），`name` 或 `name@marketplace` | 已安装副本的 eval 目录中的用例，加载已安装的副本。结果写入当前目录下的 `./evals/results/`，或使用 `--eval-dir` 时写入 `./<dir>/results/` |
+| 已安装的插件（按名称），`name` 或 `name@marketplace` | 该插件及其 eval 目录中的用例，[就地读取或从已安装的副本读取](/docs/zh-CN/plugins/loading#in-place-and-copied-plugins)。结果写入当前目录下的 `./evals/results/`，或使用 `--eval-dir` 时写入 `./<dir>/results/` |
 | `name@skills-dir` | 相同，用于 [skills-directory 插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository) |
 | 省略 | 当前目录作为路径 |
 

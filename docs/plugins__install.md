@@ -189,7 +189,7 @@
 
 * **Scope**：默认为用户范围。传递 `--scope project` 或 `--scope local` 以更改它。
 * **When the plugins load**：它安装的插件在您下次启动 Claude Code 时加载，或当您在已打开的会话中运行 `/reload-plugins` 时加载。
-* **The marketplace must be added first**：在没有人打开交互式 Claude Code 会话的机器上，官方市场未注册，因此从它安装的脚本在安装前运行 `claude plugin marketplace add anthropics/claude-plugins-official`。
+* **The marketplace on a new machine**：在还没有人打开过交互式 Claude Code 会话的机器上，官方市场未注册，因此从它安装的脚本在安装前运行 `claude plugin marketplace add anthropics/claude-plugins-official`。请参阅[从 shell 添加和安装](#add-and-install-from-your-shell)。
 
 ```bash theme={null}
 claude plugin install formatter@your-org --scope project
@@ -232,15 +232,31 @@ claude plugin install formatter@your-org --scope project
   Add a marketplace and install in one command
 </h3>
 
-要从您尚未添加的市场安装插件，请在 Claude Code 会话中运行 `/plugin install` 并使用 `--marketplace` 命名市场来源。需要 Claude Code v2.1.275 或更高版本。
+要从您尚未添加的市场安装插件，请在安装命令中使用 `--marketplace` 命名市场来源，可以在会话中或从 shell 中执行。来源采用 [the same forms as `/plugin marketplace add`](#add-a-marketplace)，例如 GitHub `owner/repo`、git URL 或本地路径。单独给出插件名称，不带 `@marketplace` 后缀。
+
+<h4 id="add-and-install-in-a-session">
+  Add and install in a session
+</h4>
+
+在 Claude Code 会话中运行 `/plugin install`，并指定插件和来源。需要 Claude Code v2.1.275 或更高版本。在会话中，来源不能包含空格。
 
 ```text theme={null}
 /plugin install deploy-helper --marketplace your-org/plugins
 ```
 
-来源采用 [the same forms as `/plugin marketplace add`](#add-a-marketplace)，例如 GitHub `owner/repo`、git URL 或本地路径，除了它不能包含空格。单独给出插件名称，不带 `@marketplace` 后缀。
-
 如果您尚未添加该市场，Claude Code 显示它解析的来源并要求您在添加前确认。一旦添加了市场，插件的详细信息打开，您选择 [installation scope](#install-a-plugin)。如果来源与您已添加的市场匹配，Claude Code 跳过确认并在该市场中打开插件的详细信息。
+
+<h4 id="add-and-install-from-your-shell">
+  Add and install from your shell
+</h4>
+
+在 shell 中，无需启动会话，运行 `claude plugin install` 并指定插件和来源。需要 Claude Code v2.1.292 或更高版本。
+
+```bash theme={null}
+claude plugin install deploy-helper --marketplace your-org/plugins
+```
+
+shell 命令添加市场时没有确认步骤。您已从该来源添加的市场会被重用。新市场会经过与 `claude plugin marketplace add` 相同的 [organization policy checks](/docs/zh-CN/plugins/org#restrict-what-users-can-install) 后添加，并且即使您传递 `--scope project`，也会在您的用户设置中声明。
 
 <h3 id="add-a-private-marketplace">
   Add a private marketplace

@@ -138,7 +138,7 @@ claude plugin validate ./some-mod
 | `$.mcp.call` | 在连接的 MCP 服务器上调用工具，在会话的权限规则下 |
 | `$.model.complete` | 使用用户的计划或 API 密钥进行模型调用 |
 | `$.prompt.submit` | 提交提示，可以将其作为用户自己的话语发送 |
-| `$.session.send` | 发送另一个会话或子代理的 Claude 读取的消息 |
+| `$.session.send` | 发送另一个会话、子代理或[队友](/docs/zh-CN/agent-teams)的 Claude 读取的消息 |
 
 在 `hooks:` 行中，[`tool.call`](/docs/zh-CN/plugins/mods/reference#tools) 和 [`prompt.submit`](/docs/zh-CN/plugins/mods/reference#prompts-and-what-claude-reads) 意味着 mod 看到每个工具调用和每个提示，并可以更改它们。[`session.append`](/docs/zh-CN/plugins/mods/reference#session) 意味着 mod 可以在存储之前重写对话的每一行。[`ui.render{component=AskUserQuestion}`](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) 意味着 mod 可以重新绘制 Claude 用来询问用户问题的对话框。`tool.check` 意味着 mod 可以在权限提示出现之前批准或拒绝工具调用。[了解默认情况下会发生什么](#know-what-happens-by-default)列出了您的哪些规则和 hooks 优先于其答案。
 

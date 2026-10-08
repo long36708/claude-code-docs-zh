@@ -959,7 +959,7 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 
 哪些托管设置到达 Desktop 会话取决于该会话运行的位置。模型限制（如 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection)）在 Desktop 的 Claude Code 会话中的执行方式与在终端 CLI 中相同；请参阅[使用入口覆盖范围](/docs/zh-CN/model-config#surface-coverage)。
 
-* **此机器上的本地会话**：部署到磁盘的托管设置文件适用。通过管理员控制台远程推送的托管设置也在会话使用[符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability)向 Anthropic 的 API 进行身份验证时到达这些会话，遵循与终端 CLI 相同的[设置优先级](/docs/zh-CN/settings#settings-precedence)。
+* **此机器上的本地会话**：部署到磁盘的托管设置文件适用。通过管理员控制台远程推送的托管设置也在会话使用[符合条件的登录](/docs/zh-CN/server-managed-settings#platform-availability)向 Anthropic 的 API 进行身份验证时到达这些会话，遵循与终端 CLI 相同的[设置优先级](/docs/zh-CN/settings#settings-precedence)。
 * **[云端会话](#cloud-sessions)**：接收[服务器管理的设置](/docs/zh-CN/server-managed-settings)；设备部署的文件无法到达它们，因为它们在 Anthropic 管理的虚拟机上运行。路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话也读取运行程序镜像中的托管设置文件。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明该文件何时适用。
 * **[SSH 会话](#ssh-sessions)**：会话从远程主机读取托管设置文件。Desktop 本身在本地机器上读取 `sshConfigs`、`sshHostAllowlist`、`disableSshSavedPasswords` 和 `disableDesktopLocalSessions`。如果您提供多个托管源，它[默认只从其中一个](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)读取。
 * **[Cowork](https://claude.com/docs/cowork/overview) 会话**：在此机器上的 Cowork 会话中，Claude Code 永远不会获取管理员控制台设置，即使用户使用 Team 或 Enterprise 帐户登录，并读取部署到机器的策略，除非您的 Claude Desktop 配置设置了 `requireCoworkFullVmSandbox`。远程 Cowork 会话两者都不接收。请参阅[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)了解哪些设备文件到达 Cowork，以及[MCP 权限规则](/docs/zh-CN/permissions#mcp)了解 `Bash` 和 `WebFetch` 规则如何应用于 Cowork 的工具。
@@ -1184,6 +1184,16 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 * **Windows**：点击 **Help**，然后点击 **About Claude**
 
 点击版本号将其复制到你的剪贴板。
+
+<h4 id="claude-code-version-in-the-code-tab">
+  Code 选项卡中的 Claude Code 版本
+</h4>
+
+要查看会话运行的 Claude Code 版本，请在 **Code** 选项卡的本地会话中输入 `/status`，然后查看 **Claude Code** 行，其中会显示版本号，例如 `2.1.286`。
+
+要为本地会话获取更新的版本，请在 macOS 上打开 **Claude → Check for Updates**，或在 Windows 上打开 **Help → Check for Updates**，然后启动新会话。
+
+在本地会话中，**Code** 选项卡运行其自己的 Claude Code 副本，该副本有自己的版本号。桌面应用会下载并更新该副本，因此它可能与终端中的 `claude` 命令版本不同，并且更新其中一个不会更新另一个。
 
 <h3 id="403-or-authentication-errors-in-the-code-tab">
   Code 选项卡中的 403 或身份验证错误

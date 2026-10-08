@@ -10,7 +10,7 @@
   可用模型
 </h2>
 
-对于 Claude Code 中的 `model` 设置，你可以配置以下任一项：
+对于 Claude Code 中的 `model` 设置，您可以配置以下任一项：
 
 * 一个**模型别名**
 * 一个**模型名称**
@@ -19,10 +19,10 @@
   * Microsoft Foundry：部署名称
   * Google Cloud 的 Agent Platform：版本名称
 
-有关哪种模型和工作量级别适合不同类型工作的指导，请参阅博客上的 [Choosing a Claude model and effort level in Claude Code](https://claude.com/blog/claude-model-and-effort-level-in-claude-code)。
+有关哪种模型和 effort 级别适合不同类型工作的指导，请参阅博客上的 [Choosing a Claude model and effort level in Claude Code](https://claude.com/blog/claude-model-and-effort-level-in-claude-code)。
 
 <Note>
-  `ANTHROPIC_BASE_URL` 改变请求发送的位置，而不是哪个模型回答它们。要通过 LLM 网关路由 Claude，请参阅 [LLM gateways](/docs/zh-CN/llm-gateway)。
+  `ANTHROPIC_BASE_URL` 改变的是请求发送的位置，而不是由哪个模型回答。要通过 LLM 网关路由 Claude，请参阅 [LLM gateways](/docs/zh-CN/llm-gateway)。
 </Note>
 
 <h3 id="model-aliases">
@@ -33,15 +33,15 @@
 
 | 模型别名 | 行为 |
 | - | - |
-| **`default`** | 特殊值，清除任何模型覆盖并恢复到[你账户的运行时默认值](#default-model-setting)。本身不是模型别名 |
-| **`best`** | 使用 [`fable` 别名解析到的模型](#fable-alias-resolution)（如果 Fable 对你可用），否则使用与 `opus` 相同的模型 |
-| **`fable`** | 为你最困难和运行时间最长的任务使用[你的提供商的 Fable 模型](#fable-alias-resolution) |
+| **`default`** | 特殊值，清除任何模型覆盖并恢复到[您账户的运行时默认值](#default-model-setting)。本身不是模型别名 |
+| **`best`** | 如果 Fable 对您可用，则使用 [`fable` 别名解析到的模型](#fable-alias-resolution)，否则使用与 `opus` 相同的模型 |
+| **`fable`** | 为您最困难和运行时间最长的任务使用[您的提供商的 Fable 模型](#fable-alias-resolution) |
 | **`sonnet`** | 为日常编码任务使用最新的 Sonnet 模型 |
 | **`opus`** | 为复杂推理任务使用最新的 Opus 模型 |
 | **`haiku`** | 为简单任务使用快速高效的 Haiku 模型 |
-| **`sonnet[1m]`** | 为长会话使用具有 [100 万令牌上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model) 的 Sonnet。当 `sonnet` 已解析到具有原生 1M 窗口的 Sonnet 5.5 或 Sonnet 5 时无效 |
-| **`opus[1m]`** | 为长会话使用具有 [100 万令牌上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model) 的 Opus |
-| **`opusplan`** | 特殊模式，在 Plan Mode 期间使用 `opus`，然后在执行期间切换到 `sonnet` |
+| **`sonnet[1m]`** | 为长会话使用具有 [100 万 token 上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model) 的 Sonnet。当 `sonnet` 已解析到具有原生 1M 窗口的 Sonnet 5.5 或 Sonnet 5 时无效 |
+| **`opus[1m]`** | 为长会话使用具有 [100 万 token 上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model) 的 Opus。当 `opus` 已解析到具有原生 1M 窗口的 Opus 4.7 或更高版本时无效 |
+| **`opusplan`** | 特殊模式，在计划模式期间使用 `opus`，然后在执行期间切换到 `sonnet` |
 
 `opus`、`sonnet` 和 `haiku` 别名在 Anthropic API 上解析到最新版本，在其他一些提供商上解析到较早的版本：
 
@@ -54,7 +54,7 @@
 
 <span id="fable-alias-resolution" />
 
-除非你设置 `ANTHROPIC_DEFAULT_FABLE_MODEL`，否则 `fable` 别名解析到 Fable 5.1，除了在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中，其中 `fable` 和 `best` 解析到 Fable 5。
+除非您设置 `ANTHROPIC_DEFAULT_FABLE_MODEL`，否则 `fable` 别名解析到 Fable 5.1，但在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中除外，其中 `fable` 和 `best` 解析到 Fable 5。
 
 未配置为提供 `claude-fable-5-1` 的网关会拒绝对该模型的请求。要通过提供它的网关使用 Fable 5.1，请使用 `/model claude-fable-5-1` 选择它。
 
@@ -62,7 +62,7 @@
 
 较早的版本将这些别名解析到较旧的模型。有关每个别名更改的版本，请参阅[版本历史](#version-history)。
 
-别名指向你的提供商的推荐版本，并随时间更新。要固定到特定版本，请使用完整模型名称，例如 `claude-opus-5-5`，或设置相应的环境变量，如 `ANTHROPIC_DEFAULT_OPUS_MODEL`。
+别名指向您的提供商的推荐版本，并随时间更新。要固定到特定版本，请使用完整模型名称，例如 `claude-opus-5-5`，或设置相应的环境变量，如 `ANTHROPIC_DEFAULT_OPUS_MODEL`。
 
 <Note>
   Sonnet 5.5 需要 Claude Code v2.1.284 或更高版本，Opus 5.5 需要 v2.1.280 或更高版本。如果从较旧版本对其中某个模型的请求失败，请参阅 [Claude Code does not support this model](/docs/zh-CN/errors#claude-code-does-not-support-this-model)。使用 Haiku 5.5 时请使用 v2.1.293 或更高版本。运行 `claude update` 进行升级。
@@ -72,112 +72,112 @@
   使用 Fable
 </h3>
 
-[Claude Fable 5.1](https://platform.claude.com/docs/en/about-claude/models/overview) 和 Claude Fable 5 是 Claude Code 中最强大的模型，适合大于单次会话的任务。它们能够维持长时间的自主会话，在行动前进行调查，并比较小的模型更频繁地验证其工作。Fable 5.1 是较新的版本。
+[Claude Fable 5.1](https://platform.claude.com/docs/en/about-claude/models/overview) 和 Claude Fable 5 是 Claude Code 中最强大的模型，适合一次无法完成的大型任务。它们能够维持长时间的自主会话，在行动前进行调查，并比较小的模型更频繁地验证其工作。Fable 5.1 是较新的版本。
 
-这两个 Fable 模型都不是任何计划或提供商上的账户类型默认值。显式选择一个：
+这两个 Fable 模型都不是任何套餐或提供商上的账户类型默认值。请显式选择一个：
 
-* **Fable 5.1**：运行 `/model fable`，或使用 `claude --model fable` 启动。在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中，别名解析到 Fable 5，改为运行 `/model claude-fable-5-1`。
-* **Fable 5**：按模型 ID 选择它。在 Anthropic API 上，运行 `/model claude-fable-5` 或使用 `claude --model claude-fable-5` 启动。在其他提供商上，使用你的提供商的 Fable 5 模型 ID 或使用 `ANTHROPIC_DEFAULT_FABLE_MODEL` [固定它](#pin-models-for-third-party-deployments)。
+* **Fable 5.1**：运行 `/model fable`，或使用 `claude --model fable` 启动。在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中，别名解析到 Fable 5，请改为运行 `/model claude-fable-5-1`。
+* **Fable 5**：按模型 ID 选择它。在 Anthropic API 上，运行 `/model claude-fable-5` 或使用 `claude --model claude-fable-5` 启动。在其他提供商上，使用您的提供商的 Fable 5 模型 ID，或使用 `ANTHROPIC_DEFAULT_FABLE_MODEL` [固定它](#pin-models-for-third-party-deployments)。
 
-如果你直接连接到 Anthropic API，并且你的用户设置将 `claude-fable-5` 或 `claude-fable-5[1m]` 作为模型，例如因为你在 v2.1.257 之前在 `/model` 选择器中选择了 Fable，Claude Code 会在你首次运行 v2.1.257 或更高版本时将该保存的值更改为 `fable` 或 `fable[1m]` 别名。启动模型行显示 `(auto-updated)` 一次。项目、本地或托管设置中的 `claude-fable-5` 值保持原样。
+如果您直接连接到 Anthropic API，并且您的用户设置将 `claude-fable-5` 或 `claude-fable-5[1m]` 作为模型（例如因为您在 v2.1.257 之前在 `/model` 选择器中选择了 Fable），Claude Code 会在您首次运行 v2.1.257 或更高版本时将该保存的值更改为 `fable` 或 `fable[1m]` 别名。启动模型行会显示一次 `(auto-updated)`。项目、本地或托管设置中的 `claude-fable-5` 值保持原样。
 
-Fable 模型的安全分类器标记的请求，最常见于网络安全和生物学领域，会触发[自动模型回退](#automatic-model-fallback)。
+被 Fable 模型的安全分类器标记的请求（最常见于网络安全和生物学领域）会触发[自动模型回退](#automatic-model-fallback)。
 
 要充分利用 Fable：
 
-* **描述结果，而不是步骤**：给它你想要的结果，让它规划路径。要保持它朝着该结果工作，[设置一个目标](/docs/zh-CN/goal)。
-* **给它模糊的问题**：根本原因调查、中断调试和架构决策是额外调查和验证发挥作用的地方。
-* **跳过验证提醒**：它用更少的提示验证自己的工作，所以测试或检查的提醒通常是不必要的。
-* **规划更大的任务**：给它你通常会分成几部分的工作。它能够维持长时间的会话而不失去思路。
+* **描述结果，而不是步骤**：告诉它您想要的结果，让它规划路径。要让它持续朝着该结果工作，请[设置一个目标](/docs/zh-CN/goal)。
+* **交给它模糊的问题**：根本原因调查、故障调试和架构决策正是额外调查和验证发挥作用的地方。
+* **省去验证提醒**：它无需太多提示就会验证自己的工作，因此通常不必提醒它测试或检查。
+* **交给它更大的任务**：把您通常会拆分成几部分的工作交给它。它能够维持长时间的会话而不失去思路。
 
 <Note>
   Fable 5.1 需要 Claude Code v2.1.257 或更高版本。如果来自较旧版本的请求失败，请参阅 [Claude Code does not support this model](/docs/zh-CN/errors#claude-code-does-not-support-this-model)。运行 `claude update` 进行升级。有关零数据保留下的可用性，请参阅 [Model availability under ZDR](/docs/zh-CN/zero-data-retention#model-availability-under-zdr)。
 </Note>
 
-在 Anthropic API 上，Fable 模型出现在 `/model` 选择器中，除非 [`availableModels`](#restrict-model-selection) 或[组织模型限制](#organization-model-restrictions)排除它。当你的组织根本无法使用 Fable 时，例如在[零数据保留](/docs/zh-CN/zero-data-retention#model-availability-under-zdr)下，该行在选择器中保持灰显，并附有说明原因的注释。
+在 Anthropic API 上，Fable 模型会出现在 `/model` 选择器中，除非 [`availableModels`](#restrict-model-selection) 或[组织模型限制](#organization-model-restrictions)将其排除。当您的组织完全无法使用 Fable 时，例如在[零数据保留](/docs/zh-CN/zero-data-retention#model-availability-under-zdr)下，该行在选择器中保持灰显，并附有说明原因的注释。
 
 <h4 id="fable-and-usage-credits">
   Fable 和使用额度
 </h4>
 
-根据你的计划和座位等级，Fable 使用可以计入[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，而不是从你的计划的包含限制中扣除。当它这样做时，`/model` 选择器在 Fable 行上显示"需要使用额度"。要管理使用额度，请参阅 [Add usage credits to your subscription](/docs/zh-CN/costs#add-usage-credits-to-your-subscription)。
+根据您的套餐和席位等级，Fable 的使用可能计入[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，而不是从您套餐包含的限额中扣除。在这种情况下，`/model` 选择器会在 Fable 行上显示"Requires usage credits"。要管理使用额度，请参阅 [Add usage credits to your subscription](/docs/zh-CN/costs#add-usage-credits-to-your-subscription)。
 
-在交互式会话中，Claude Code 在 Fable 请求计入使用额度之前显示同意提示。企业计划的成员（具有组织计费）不会看到该提示。你可以继续使用 Fable 使用额度或切换到你的默认模型。你也可以关闭提示：
+在交互式会话中，Claude Code 会在 Fable 请求计入使用额度之前显示同意提示。使用组织计费的企业套餐成员不会看到该提示。您可以选择使用使用额度继续使用 Fable，或切换到您的默认模型。您也可以关闭提示：
 
-* 在 `/model` 选择器中，你保持当前模型。
-* 在会话中途，Claude Code 继续在你的默认模型上进行该轮。
+* 当您使用 `/model` 选择 Fable 模型时，将保持当前模型。
+* 在会话中途，Claude Code 会在您的默认模型上继续该轮次。
 
-在你选择继续使用 Fable 使用额度后，Claude Code 不会再显示该提示。
+在您选择使用使用额度继续使用 Fable 后，Claude Code 不会再显示该提示。
 
-在与 [Remote Control](/docs/zh-CN/remote-control) 连接的会话中、[后台会话](/docs/zh-CN/agent-view)中或[代理团队](/docs/zh-CN/agent-teams)队友的会话中，可能没有人在终端，所以 Claude Code 会将中途同意提示保持到 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止时间，默认为五分钟。如果到截止时间没有人回答，Claude Code 会结束该轮而不发送请求，并在记录中添加通知，Remote Control 客户端也会显示该通知。你的模型选择保持不变，Claude Code 会在你的下一条消息上再次请求同意。
+在连接了 [Remote Control](/docs/zh-CN/remote-control) 的会话、[后台会话](/docs/zh-CN/agent-view)或 [agent team](/docs/zh-CN/agent-teams) 队友的会话中，终端前可能没有人，因此 Claude Code 会将会话中途的同意提示保留到 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止时间，默认为五分钟。如果到截止时间仍无人回答，Claude Code 会结束该轮次而不发送请求，并在会话记录中添加通知，Remote Control 客户端也会显示该通知。您的模型选择保持不变，Claude Code 会在您发送下一条消息时再次请求同意。
 
-提示等待时你能做什么取决于会话：
+提示等待期间您可以执行的操作取决于会话：
 
-* 连接了 Remote Control 或在队友的会话中，在终端按任意键取消截止时间，Claude Code 会等待你的答案。
-* 在后台会话中，在截止时间前回答。
-* 如果你在远程客户端发送新消息之前没有人在终端输入，Claude Code 会以相同的方式结束该轮，你的新消息开始下一轮。在有人在终端输入后，Claude Code 继续等待答案并将你的新消息排队在其后面。
+* 在连接了 Remote Control 的会话或队友的会话中，在终端按任意键可取消截止时间，Claude Code 会等待您的回答。
+* 在后台会话中，请在截止时间前回答。
+* 如果在有人在终端输入之前，您从远程客户端发送了新消息，Claude Code 会以相同的方式结束该轮次，您的新消息将开始下一轮。在有人在终端输入之后，Claude Code 会继续等待回答，并将您的新消息排在其后。
 
-在通过 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 托管的应用中，提示是否出现取决于该应用。如果它出现，并且在相同的 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止时间前没有人回答，Claude Code 会结束该轮而不发送请求。
+在由其他应用通过 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 托管的会话中，是否显示提示由该应用决定。如果显示了提示，并且在相同的 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 截止时间前无人回答，Claude Code 会结束该轮次而不发送请求。
 
-在带有 `-p` 标志的[非交互模式](/docs/zh-CN/headless)中以及在不显示提示的 Agent SDK 应用中，Claude Code 永远不会请求同意。当 Fable 请求在那里会计入使用额度时，Claude Code 会在不询问的情况下计入。
+在使用 `-p` 标志的[非交互模式](/docs/zh-CN/headless)中，以及在不显示提示的 Agent SDK 应用中，Claude Code 永远不会请求同意。当其中的 Fable 请求会计入使用额度时，Claude Code 会直接计费而不询问。
 
 <h3 id="setting-your-model">
-  设置你的模型
+  设置您的模型
 </h3>
 
-你可以通过多种方式配置你的模型，按优先级顺序列出：
+您可以通过多种方式配置模型，按优先级顺序列出：
 
 1. **在会话期间**：使用 `/model <alias|name>` 立即切换，或运行不带参数的 `/model` 打开选择器。参阅 [when Claude Code asks you to confirm the switch](/docs/zh-CN/prompt-caching#switching-models)
 2. **在启动时**：使用 `claude --model <alias|name>` 启动
 3. **环境变量**：设置 `ANTHROPIC_MODEL=<alias|name>`
-4. **设置**：使用 `model` 字段在你的设置文件中永久配置
+4. **设置**：使用 `model` 字段在设置文件中永久配置
 5. **[新会话的默认值](#set-a-default-model-for-new-sessions)**：设置 `ANTHROPIC_DEFAULT_MODEL=<alias|name>`
 
-`/model` 通过在你的用户设置中写入 `model` 字段，将你的选择保存为新会话的默认值。在选择器中：
+`/model` 通过在您的用户设置中写入 `model` 字段，将您的选择保存为新会话的默认值。在选择器中：
 
-* `Enter`：切换模型并保存为你的默认值
-* `s`：仅为此会话切换模型，保持你的默认值不变。要使用不同的键，重新绑定 [`modelPicker:thisSessionOnly`](/docs/zh-CN/keybindings#model-picker-actions)
+* `Enter`：切换模型并保存为默认值
+* `s`：仅为此会话切换模型，保持默认值不变。要使用其他按键，请重新绑定 [`modelPicker:thisSessionOnly`](/docs/zh-CN/keybindings#model-picker-actions)
 
-直接输入 `/model <name>` 的行为类似于 `Enter`。要仅为此会话切换，使用 `/model` 打开选择器，然后在模型的行上按 `s`。
+直接输入 `/model <name>` 的行为与 `Enter` 相同。要仅为此会话切换，请使用 `/model` 打开选择器，然后在该模型的行上按 `s`。
 
-在企业计划上，当你使用你的 claude.ai 账户登录并使用 `/model` 保存默认值时，Claude Code 也会在该账户上记录该选择。这需要 Claude Code v2.1.280 或更高版本。
+在企业套餐上，当您使用 claude.ai 账户登录并使用 `/model` 保存默认值时，Claude Code 也会在该账户上记录该选择。这需要 Claude Code v2.1.280 或更高版本。
 
-* 当你的管理员没有设置[组织默认模型](#organization-default-model)时，[Default 选项](#default-model-setting)可以解析为记录的模型，当它这样做时，选择器的 Default 行显示该模型的名称。
-* 如果[模型限制](#restrict-model-selection)排除记录的模型或它对你的账户不可用，并且你的管理员没有设置组织默认模型，Default 选项解析如同没有记录任何内容。
-* 如果你在 `/model` 中选择 Default 或 `opusplan`，记录的选择不会改变。
+* 当您的管理员未设置[组织默认模型](#organization-default-model)时，[Default 选项](#default-model-setting)可以解析为记录的模型，此时选择器的 Default 行会显示该模型的名称。
+* 如果[模型限制](#restrict-model-selection)排除了记录的模型，或该模型对您的账户不可用，并且您的管理员未设置组织默认模型，则 Default 选项会按未记录任何内容的情况解析。
+* 如果您在 `/model` 中选择 Default 或 `opusplan`，记录的选择不会改变。
 
-如果你使用 `/model` 切换模型，该切换也会到达[继承主对话模型的子代理](/docs/zh-CN/sub-agents#choose-a-model)，因为 Claude Code 在 Claude 启动它们时从你的会话正在使用的模型解析它们的模型。在 Claude 将研究或测试运行委托给其中一个之前切换到 Opus，该工作也会在 Opus 上运行。要保持自定义子代理在较小的模型上，在其定义中设置 `model`。
+如果您使用 `/model` 切换模型，该切换也会影响[继承主对话模型的子代理](/docs/zh-CN/sub-agents#choose-a-model)，因为 Claude Code 会在 Claude 启动它们时根据会话正在使用的模型解析它们的模型。在 Claude 将研究或测试运行委派给其中某个子代理之前切换到 Opus，该工作也会在 Opus 上运行。要让自定义子代理保持使用较小的模型，请在其定义中设置 `model`。
 
-如果你在[非交互模式](/docs/zh-CN/headless)中使用 `-p` 标志在 `/model` 中设置模型，你的选择仅适用于当前会话，不会保存为你的默认值；该模式中的 `/model` 需要 Claude Code v2.1.205 或更高版本。项目和托管设置仍然优先，并在下次启动时重新应用。你的管理员配置的[组织默认模型](#organization-default-model)以覆盖用户选择也会在下次启动时重新应用。
+如果您在使用 `-p` 标志的[非交互模式](/docs/zh-CN/headless)中通过 `/model` 设置模型，您的选择仅适用于当前会话，不会保存为默认值；该模式中的 `/model` 需要 Claude Code v2.1.205 或更高版本。项目和托管设置仍然优先，并在下次启动时重新应用。您的管理员配置为覆盖用户选择的[组织默认模型](#organization-default-model)也会在下次启动时重新应用。
 
-在 v2.1.144 到 v2.1.152 中，`/model` 仅适用于当前会话，选择器中的 `d` 保存默认值。
+在 v2.1.144 到 v2.1.152 中，`/model` 仅适用于当前会话，在选择器中按 `d` 可保存默认值。
 
-`--model` 标志和 `ANTHROPIC_MODEL` 环境变量仅适用于你使用它们启动的会话。要同时在不同的终端中运行不同的模型，使用各自的 `--model` 标志启动每个，而不是使用 `/model` 切换。
+`--model` 标志和 `ANTHROPIC_MODEL` 环境变量仅适用于使用它们启动的会话。要同时在不同的终端中运行不同的模型，请分别使用各自的 `--model` 标志启动，而不是使用 `/model` 切换。
 
-当 Claude Code 与 Anthropic API 通信时（直接或通过代理它的 [LLM 网关](/docs/zh-CN/llm-gateway)），`/model` 选择器中的价格会出现，行上的价格是该行选择的模型的价格。在[第三方提供商](/docs/zh-CN/third-party-integrations)（如 Amazon Bedrock）和 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 上，你的提供商或网关决定你支付的费用，所以选择器行不显示价格。价格仅是显示标签；它不影响行选择哪个模型或你的提供商计费的内容。在 v2.1.206 之前，[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 和网关会话显示 Anthropic 列表价格，行可能显示与其选择的模型不同的模型的价格。
+当 Claude Code 直接或通过代理 Anthropic API 的 [LLM 网关](/docs/zh-CN/llm-gateway)与 Anthropic API 通信时，`/model` 选择器中会显示价格，每行的价格即该行所选模型的价格。在[第三方提供商](/docs/zh-CN/third-party-integrations)（如 Amazon Bedrock）和 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 上，由您的提供商或网关决定您支付的费用，因此选择器行不显示价格。价格仅是显示标签；它不影响某行选择哪个模型，也不影响提供商的计费。在 v2.1.206 之前，[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 和网关会话显示 Anthropic 标价，且某行可能显示与其所选模型不同的模型的价格。
 
 使用 `claude --resume`、`--continue` 或 `/resume` 选择器启动的恢复会话会保持保存会话记录时所使用的模型。如果恢复的模型已被停用或被 [`availableModels`](#restrict-model-selection) 排除，会话会回退到正常的优先级顺序。在使用提供商特定部署 ID 而不是 Anthropic 模型 ID 的提供商上，如 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry，完全不会恢复会话记录中的模型，会话会通过正常的优先级顺序解析其模型。
 
 如果您的 `model` 设置为 `haiku`，在 Haiku 模型上保存的会话会在 `haiku` 当前解析到的模型上恢复。例如，当 `haiku` 解析到 Haiku 5.5 后，在 Haiku 4.5 上保存的会话会在 Haiku 5.5 上恢复。
 
-你为新启动使用 `--model` 或 `ANTHROPIC_MODEL` 选择的模型仍然优先于恢复的模型。从 v2.1.195 开始，[`ANTHROPIC_DEFAULT_OPUS_MODEL`](#environment-variables) 系列变量也是如此。[`ANTHROPIC_DEFAULT_MODEL`](#set-a-default-model-for-new-sessions) 也可以，在其部分中列出的条件下。
+您在新启动时通过 `--model` 或 `ANTHROPIC_MODEL` 选择的模型仍然优先于恢复的模型。从 v2.1.195 开始，[`ANTHROPIC_DEFAULT_OPUS_MODEL`](#environment-variables) 系列变量也是如此。[`ANTHROPIC_DEFAULT_MODEL`](#set-a-default-model-for-new-sessions) 在其章节所列条件下也可以优先。
 
-当启动时的活跃模型来自项目或托管设置而不是你自己的选择时，启动标题显示哪个设置文件设置了它。运行 `/model` 覆盖；项目或托管设置在下次启动时重新应用。在嵌入 Claude Code 并设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars) 的平台上，主机的模型配置优先于托管模型设置，而托管 `availableModels` 允许列表保持有效，除非主机提供自己的；[Exceptions to managed settings precedence](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence) 说明主机覆盖哪些键和变量。
+当启动时的活动模型来自项目或托管设置而不是您自己的选择时，启动标题会显示是哪个设置文件设置了它。运行 `/model` 可覆盖；项目或托管设置会在下次启动时重新应用。在嵌入 Claude Code 并设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars) 的平台上，主机的模型配置优先于托管模型设置，而托管的 `availableModels` 允许列表仍然有效，除非主机提供自己的允许列表；[Exceptions to managed settings precedence](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence) 说明主机会覆盖哪些键和变量。
 
-如果你或你的组织配置 [PreModelSwitch hooks](/docs/zh-CN/hooks#premodelswitch)，它们在请求的切换应用之前运行，可以阻止它或要求你确认。
+如果您或您的组织配置了 [PreModelSwitch hook](/docs/zh-CN/hooks#premodelswitch)，它们会在请求的切换生效之前运行，并可以阻止切换或要求您确认。
 
-当 Claude Code 无法判断你的组织的[托管插件](/docs/zh-CN/settings-reference#enabledplugins)提供哪些 PreModelSwitch hooks 时，例如因为托管插件加载失败，它拒绝切换而不是应用它，并在每次新尝试时再次检查。参阅 [Model switch was blocked by a PreModelSwitch hook](/docs/zh-CN/errors#model-switch-was-blocked-by-a-premodelswitch-hook) 了解消息和恢复。
+当 Claude Code 无法判断您组织的[托管插件](/docs/zh-CN/settings-reference#enabledplugins)提供了哪些 PreModelSwitch hook 时（例如因为某个托管插件加载失败），它会拒绝切换而不是在未经检查的情况下应用，并在每次新尝试时再次检查。有关消息和恢复方法，请参阅 [Model switch was blocked by a PreModelSwitch hook](/docs/zh-CN/errors#model-switch-was-blocked-by-a-premodelswitch-hook)。
 
-当你通过 [Agent SDK](/docs/zh-CN/agent-sdk/overview) `setModel()` 方法、通过应用（如 [Desktop app](/docs/zh-CN/desktop)）或从通过 [Remote Control](/docs/zh-CN/remote-control) 连接的设备切换模型时，Claude Code 会检查该值在切换时：
+当您通过 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 的 `setModel()` 方法、通过应用（如 [Desktop app](/docs/zh-CN/desktop)）或从通过 [Remote Control](/docs/zh-CN/remote-control) 连接的设备切换模型时，Claude Code 会在切换时检查该值：
 
-* **Agent SDK 或应用**：使用 Claude Code v2.1.268 或更高版本，除非 Claude Code 在本地接受模型 ID（如它对你的[自定义模型选项](#add-a-custom-model-option)所做的那样），它在会话首次切换到它时与你的提供商确认该 ID。确认在每个提供商上运行，你的提供商不提供的 ID 在切换时被拒绝，而不是在你的下一个请求时失败。
-* **Remote Control**：在 Anthropic API 上，Claude Code 在本地检查该值并不发送请求。
+* **Agent SDK 或应用**：使用 Claude Code v2.1.268 或更高版本时，除非 Claude Code 在本地接受该模型 ID（如对您的[自定义模型选项](#add-a-custom-model-option)所做的那样），否则它会在会话首次切换到该 ID 时向您的提供商确认。该确认在所有提供商上都会运行，您的提供商不提供的 ID 会在切换时被拒绝，而不是在您的下一个请求时失败。
+* **Remote Control**：在 Anthropic API 上，Claude Code 在本地检查该值，不发送请求。
 
-参阅 [Model is not a recognized model id](/docs/zh-CN/errors#model-is-not-a-recognized-model-id) 和 [Model not found](/docs/zh-CN/errors#model-not-found) 了解消息。
+有关这些消息，请参阅 [Model is not a recognized model id](/docs/zh-CN/errors#model-is-not-a-recognized-model-id) 和 [Model not found](/docs/zh-CN/errors#model-not-found)。
 
-如果你使用 `--model` 标志、`ANTHROPIC_MODEL` 环境变量或 `model` 设置设置模型，Claude Code 不会提前检查它，拼写错误的值会在第一个请求时产生 [There's an issue with the selected model](/docs/zh-CN/errors#theres-an-issue-with-the-selected-model)。
+如果您使用 `--model` 标志、`ANTHROPIC_MODEL` 环境变量或 `model` 设置来设置模型，Claude Code 不会预先检查，拼写错误的值会在第一个请求时产生 [There's an issue with the selected model](/docs/zh-CN/errors#theres-an-issue-with-the-selected-model)。
 
-当请求的模型有计划的停用日期或自动重新映射到较新版本时，Claude Code 显示一个警告，命名请求的模型。交互式会话将其显示为启动通知。从 v2.1.182 开始，在使用默认文本输出格式的[非交互模式](/docs/zh-CN/headless)中，相同的警告被写入 stderr。检查也涵盖在[子代理前言](/docs/zh-CN/sub-agents)中设置的 `model`。对于 `--output-format json` 和 `stream-json`，stderr 警告被抑制；从[结果消息](/docs/zh-CN/headless#get-structured-output)的 `modelUsage` 字段读取实际模型。
+当请求的模型有计划的停用日期或会被自动重新映射到较新版本时，Claude Code 会显示一条指明所请求模型的警告。交互式会话将其显示为启动通知。从 v2.1.182 开始，在使用默认文本输出格式的[非交互模式](/docs/zh-CN/headless)中，相同的警告会写入 stderr。该检查也涵盖在[子代理 frontmatter](/docs/zh-CN/sub-agents) 中设置的 `model`。对于 `--output-format json` 和 `stream-json`，stderr 警告会被抑制；请改为从[结果消息](/docs/zh-CN/headless#get-structured-output)的 `modelUsage` 字段读取实际模型。
 
 例如，在 Opus 上启动会话：
 
@@ -185,7 +185,7 @@ Fable 模型的安全分类器标记的请求，最常见于网络安全和生�
 claude --model opus
 ```
 
-然后从会话内切换模型：
+然后在会话内切换模型：
 
 ```text theme={null}
 /model sonnet
@@ -206,38 +206,38 @@ claude --model opus
   为新会话设置默认模型
 </h4>
 
-设置 `ANTHROPIC_DEFAULT_MODEL=<alias|name>` 来选择你的会话默认启动的模型。需要 Claude Code v2.1.236 或更高版本。
+设置 `ANTHROPIC_DEFAULT_MODEL=<alias|name>` 来选择会话默认启动的模型。需要 Claude Code v2.1.236 或更高版本。
 
-Claude Code 仅在以下都没有选择模型时在变量的模型上启动新会话：
+仅当以下各项都未选择模型时，Claude Code 才会在该变量的模型上启动新会话：
 
 * `--model` 标志
 * `ANTHROPIC_MODEL`
-* 任何设置文件中的 `model` 值，包括你使用 `/model` 保存的选择
+* 任何设置文件中的 `model` 值，包括您使用 `/model` 保存的选择
 * [组织默认模型](#organization-default-model)
 
-你使用 `/model` 保存的选择在后续启动时也优先于变量。设置 `ANTHROPIC_MODEL` 代替，Claude Code 在下次启动时返回到该变量的模型，无论你使用 `/model` 保存了什么。
+您使用 `/model` 保存的选择在后续启动时也优先于该变量。如果改为设置 `ANTHROPIC_MODEL`，无论您使用 `/model` 保存了什么，Claude Code 都会在下次启动时回到该变量的模型。
 
-Claude Code 也将 Default 选项解析为变量的模型，除非应用了组织默认模型。当 Default 选项解析为变量的模型时，`/model` 选择器中的 Default 行显示标签 Set by ANTHROPIC\_DEFAULT\_MODEL。
+除非应用了组织默认模型，Claude Code 也会将 Default 选项解析为该变量的模型。当 Default 选项解析为该变量的模型时，`/model` 选择器中的 Default 行会显示标签 Set by ANTHROPIC\_DEFAULT\_MODEL。
 
-Claude Code 在这些情况下忽略变量，Default 选项解析如同你没有设置它：
+在以下情况下，Claude Code 会忽略该变量，Default 选项会按未设置该变量的情况解析：
 
-* 你将其设置为 `default`、`inherit`、`opusplan` 或 `haiku`
-* [`enforceAvailableModels`](#enforce-the-allowlist-for-the-default-model) 已打开
-* 你的组织的[模型限制](#restrict-model-selection)排除该模型
-* 该模型对你的账户不可用
+* 您将其设置为 `default`、`inherit`、`opusplan` 或 `haiku`
+* [`enforceAvailableModels`](#enforce-the-allowlist-for-the-default-model) 已启用
+* 您组织的[模型限制](#restrict-model-selection)排除了该模型
+* 该模型对您的账户不可用
 
-当新会话将在变量的模型上启动时，你使用 `claude --resume`、`--continue` 或 `/resume` 选择器恢复的会话也会在其上启动。Claude Code 不会恢复该会话的记录中保存的模型。否则 Claude Code 在你[恢复会话](#setting-your-model)时不使用变量。
+当新会话会在该变量的模型上启动时，您使用 `claude --resume`、`--continue` 或 `/resume` 选择器恢复的会话也会在该模型上启动。Claude Code 不会恢复该会话的会话记录中保存的模型。在其他情况下，Claude Code 在您[恢复会话](#setting-your-model)时不使用该变量。
 
 <h4 id="a-new-session-starts-on-a-different-model-than-you-picked">
-  新会话在与你选择的不同的模型上启动
+  新会话在与您所选不同的模型上启动
 </h4>
 
-当你使用 `/model` 选择模型，你的下一个会话在其他东西上启动时，这些是常见原因：
+当您使用 `/model` 选择了模型，但下一个会话却在其他模型上启动时，常见原因如下：
 
-* **你为一个会话选择了它。** 在选择器中按 `s`、使用 `--model` 启动和在非交互模式中运行 `/model` 都仅适用于当前会话，保持你的保存默认值不变。
-* **优先级更高的东西设置了模型。** 项目或托管设置中的 `model` 值、你的 shell 中的 `ANTHROPIC_MODEL` 或你的管理员设置的[组织默认值](#organization-default-model)以覆盖用户选择在每次启动时再次应用。你的 `/model` 选择仍然被保存；它被超越。当项目或托管设置设置模型时，启动标题命名该文件。
-* **Claude Code 无法保存你的选择。** `/model` 写入 `~/.claude/settings.json`。如果你无法写入该文件，例如因为另一个工具生成它或将其链接到只读副本，你选择的模型持续该会话，下次启动读取旧值。在生成文件的工具中设置 `model`，或使文件可写。参阅 [A change you made in Claude Code is lost in new sessions](/docs/zh-CN/settings#a-change-you-made-in-claude-code-is-lost-in-new-sessions)。
-* **你恢复了一个会话。** 你使用 `claude --resume` 或 `--continue` 恢复的会话通常[保持它使用的模型](#setting-your-model)而不是你的当前默认值。
+* **您只为一个会话选择了它。** 在选择器中按 `s`、使用 `--model` 启动以及在非交互模式中运行 `/model` 都仅适用于当前会话，不会改变已保存的默认值。
+* **优先级更高的项设置了模型。** 项目或托管设置中的 `model` 值、shell 中的 `ANTHROPIC_MODEL`，或管理员设置为覆盖用户选择的[组织默认值](#organization-default-model)，会在每次启动时再次生效。您的 `/model` 选择仍然已保存，只是优先级较低。当项目或托管设置设置了模型时，启动标题会指明该文件。
+* **Claude Code 无法保存您的选择。** `/model` 会将 `model` 写入 `~/.claude/settings.json`。如果您无法写入该文件（例如因为另一个工具生成了该文件，或将其链接到只读副本），您所选的模型仅在当前会话中有效，下次启动时会读取旧值。请在生成该文件的工具中设置 `model`，或使该文件可写。参阅 [A change you made in Claude Code is lost in new sessions](/docs/zh-CN/settings#a-change-you-made-in-claude-code-is-lost-in-new-sessions)。
+* **您恢复了一个会话。** 使用 `claude --resume` 或 `--continue` 恢复的会话通常会[保持其原先使用的模型](#setting-your-model)，而不是当前的默认值。
 
 <h2 id="restrict-model-selection">
   限制模型选择
@@ -310,7 +310,7 @@ Claude Code 代表您进行的模型更改以相同的方式检查：
 * [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话在云环境中运行，但不接收服务器管理设置；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，它们仍然读取运行器镜像中的托管设置文件。要为这些会话设置模型，请参阅 Claude Tag 管理员指南中的[为作用域选择模型](https://claude.com/docs/claude-tag/admins/customize#choose-the-model-for-a-scope)。
 * Cowork（Claude 桌面应用中的 Agent 式工作选项卡）在 Claude Code 上运行其会话，但按设计不从 claude.ai 管理控制台接收服务器管理设置。当您的服务器管理设置中的 `availableModels` 列表非空且用户选择列表外的模型时，服务器拒绝该模型用于远程 Cowork 会话。当托管设置文件存在于会话运行的地方时，它适用于 Cowork 会话；远程 Cowork 会话在 Anthropic 管理的 VM 上运行，其中不存在设备部署的文件。
 * [第三方提供商](/docs/zh-CN/server-managed-settings#platform-availability)（如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)）上的会话不接收服务器管理设置，因此通过 MDM 或托管设置文件在那里交付允许列表。
-* 服务器管理交付还需要会话使用[符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability)进行身份验证。仅通过 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 脚本生成密钥的舰队应通过 MDM 或托管设置文件交付允许列表。
+* 来自管理控制台的交付还要求会话使用登录到您组织的[符合条件的登录](/docs/zh-CN/server-managed-settings#platform-availability)或为您组织签发的 OAuth 令牌来获取设置。对于使用 API 密钥进行身份验证的设备群（无论是直接配置的，还是由 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 脚本生成的），请通过 MDM 或托管设置文件交付允许列表。
 * 桌面代码选项卡还托管 [SSH 会话](/docs/zh-CN/desktop#ssh-sessions)，它们从运行的远程主机读取托管设置文件。请参阅[桌面托管设置](/docs/zh-CN/desktop#managed-settings)。
 * claude.ai 和桌面应用中的模型选择器隐藏或灰显您的组织的允许列表排除的模型。选择器状态是用户的便利；它不强制执行允许列表。
 
@@ -562,13 +562,15 @@ Claude Code 也将链应用于[子代理](/docs/zh-CN/sub-agents)。当子代理
 
 本部分涵盖来自 Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 的基于内容的回退。关于模型过载或不可用时的基于可用性的回退，请参阅[备用模型链](#fallback-model-chains)。
 
-Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 运行安全分类器，最常标记网络安全和生物学内容。当分类器标记请求且标记的类别有备用模型时，Claude Code 在该模型上重新运行请求并在会话记录中显示通知。对于这两个类别，备用模型取决于哪个模型拒绝：
+Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 运行安全分类器，最常标记网络安全和生物学内容。对于这两个类别，备用模型取决于哪个模型拒绝：
 
 * **Fable 5.1、Fable 5 和 Opus 5.5**：生物学标记的请求在 Opus 5 上重新运行，网络安全标记的请求在 Opus 4.8 上重新运行。
 * **Sonnet 5.5**：网络安全标记的请求在 Sonnet 5 上重新运行。生物学标记的请求以拒绝结束，因为 Sonnet 5.5 没有生物学备用模型。
 * **Opus 5**：网络安全标记的请求在 Opus 4.8 上重新运行。生物学标记的请求以拒绝结束，因为 Opus 5 运行自己的生物学分类器，没有备用模型。
 
 在 Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry 上，Claude Code 通过您的部署的模型 ID 解析这些目标。请参阅[在 Bedrock、Agent Platform 和 Foundry 上启用回退](#enable-fallback-on-bedrock-agent-platform-and-foundry)。
+
+当 Claude Code 将被标记的请求切换到其类别对应的备用模型时，它会在该模型上重新运行请求。在您的主对话中，它会在会话记录中显示通知。如果希望先被询问，请参阅[切换前询问](#ask-before-switching)。
 
 回退后，会话继续在备用模型上。要返回到您的原始模型，运行 [`/model`](#setting-your-model)。
 
@@ -601,14 +603,19 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 运行安全分类器，最常�
   切换前询问
 </h4>
 
-要决定每次请求被标记时发生什么，而不是自动切换，运行 `/config` 并关闭 **Switch models when a message is flagged**，或在您的设置文件中将 [`switchModelsOnFlag`](/docs/zh-CN/settings-reference#switchmodelsonflag) 设置为 `false`。标记的请求然后暂停会话，有两个选项：切换到备用模型，或编辑提示词并在当前模型上重试。
+要决定每次请求被标记时发生什么，运行 `/config`，选择 **Switch models when a message is flagged**，然后选择 **Ask each time**。您也可以在设置文件中将 [`switchModelsOnFlag`](/docs/zh-CN/settings-reference#switchmodelsonflag) 设置为 `false`。之后，Claude Code 会在将要切换模型的标记请求处暂停，并为您提供两个选项：切换到备用模型，或编辑提示词并重试。
 
-某些情况的行为不同：
+在交互式会话中，第一次有标记的请求将要切换模型时，Claude Code 可能会询问今后是否自动切换。仅当您尚未设置 `switchModelsOnFlag` 时它才会询问，并将您的选择作为该键保存到您的用户设置中。
+
+如果您选择保留在当前模型上，保存的值为 `false`，与 **Ask each time** 相同。如果您关闭该询问，Claude Code 不保存任何内容，并在下次有标记的请求将要切换模型时再次询问。
+
+当您选择了 **Ask each time** 时，某些情况的行为不同：
 
 * 当标记的类别没有备用模型时，例如 Opus 5 或 Sonnet 5.5 上的生物学标记，Claude Code 不显示提示，请求以拒绝结束。
 * 如果两个模型都标记相同的请求，您可以编辑提示词并重试，或启动新会话。
 * 在移动应用上的[云端会话](/docs/zh-CN/claude-code-on-the-web)中，不支持编辑和重试。切换模型，或从桌面浏览器或桌面应用继续会话。
 * 在[非交互模式](/docs/zh-CN/cli-reference#cli-flags)和无法显示提示的 SDK 集成中，标记的请求以拒绝结束轮次。
+* 在[子代理](/docs/zh-CN/sub-agents)中，Claude Code 不显示提示，将要切换模型的标记请求会在备用模型上重新运行。
 * 当回退目标被 [`availableModels`](#restrict-model-selection) 阻止时，Claude Code 不显示提示。标记的请求以拒绝结束，与目标被阻止时的自动回退相同。
 
 <h4 id="enable-fallback-on-bedrock-agent-platform-and-foundry">
@@ -627,11 +634,13 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 运行安全分类器，最常�
 * **每个源模型**：将 `ANTHROPIC_DEFAULT_OPUS_MODEL` 设置为 Opus 模型 ID 以打开回退并为标记的类别提供目标。命名 Opus 系列外的模型或拒绝的模型的固定值会使拒绝成立。
 * **Sonnet 5.5**：除了 Opus 固定值外，设置 `ANTHROPIC_DEFAULT_SONNET_MODEL` 或在提供商的模型列表中保留 Sonnet 5 条目以提供请求重新运行的模型。命名 Sonnet 系列外的模型或 Sonnet 5.5 本身的 Sonnet 固定值会使拒绝成立。
 
+备用模型的上下文窗口还必须至少与会话的上下文窗口一样大，否则 Claude Code 不会切换，标记的请求会以相同的拒绝结束。在这些提供商上，源模型默认运行 [1M 上下文窗口](#extended-context)。请固定一个同样如此的模型，例如在 `ANTHROPIC_DEFAULT_OPUS_MODEL` 中固定 Opus 4.8，或在 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中固定 Sonnet 5，并使用 Claude Code [能够匹配到该模型](#pin-models-for-third-party-deployments)的 ID。
+
 <h4 id="security-research-and-biology-workloads">
   安全研究和生物学工作负载
 </h4>
 
-进攻性安全或生物学中的工作负载，包括渗透测试、Capture the Flag (CTF) 练习和生物学相邻代码库，经常触发回退，通常在第一个请求上。对于 Fable 5.1、Fable 5 或 Opus 5.5 上的实质性生物学工作，Claude Code 在第一个标记的请求处将会话移动到 Opus 5，后来的生物学标记请求在那里以拒绝结束，因为 Opus 5 没有生物学回退。在 Opus 5 和 Sonnet 5.5 上，您从第一个标记的请求获得这些拒绝。
+进攻性安全或生物学中的工作负载，包括渗透测试、Capture the Flag (CTF) 练习和生物学相邻代码库，经常触发回退，通常在第一个请求上。对于 Fable 5.1、Fable 5 或 Opus 5.5 上的实质性生物学工作，第一个切换模型的标记请求会将会话移动到 Opus 5，后来的生物学标记请求在那里以拒绝结束，因为 Opus 5 没有生物学回退。在 Opus 5 和 Sonnet 5.5 上，您从第一个标记的请求获得这些拒绝。
 
 这是这些域的预期路由，不是账户标记。如果您的组织需要 Fable 级别的能力来完成这项工作，请向您的 Anthropic 账户团队询问受信任的访问计划。
 
@@ -778,13 +787,15 @@ Claude Code 默认折叠思考输出。按 `Ctrl+O` 切换详细模式并将推�
 
 <a id="extended-context-with-1m" />
 
+<span id="sonnet-5-5-and-sonnet-5-context-window" />
+
 <h3 id="extended-context">
   扩展上下文
 </h3>
 
 Fable 5.1、Fable 5、Sonnet 5 及更高版本、Haiku 5.5、Opus 4.6 及更高版本和 Sonnet 4.6 支持[100 万 token 上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)，用于具有大型代码库的长会话。
 
-在 Anthropic API 上，Fable 5.1、Fable 5、Sonnet 5 及更高版本、Haiku 5.5 和 Opus 4.7 及更高版本在每个套餐上运行 1M 窗口，包括 Pro。您不需要为这些模型上的 1M 窗口选择 `[1m]` 变体或打开使用额度。Fable 使用本身可以在某些套餐上计费到使用额度；请参阅[Fable 和使用额度](#fable-and-usage-credits)。
+Fable 5.1、Fable 5、Sonnet 5 及更高版本、Haiku 5.5 和 Opus 4.7 及更高版本默认运行 1M 窗口，无需 `[1m]` 后缀。这包括 Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry 上的会话，以及 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话。要改为以 200K 窗口运行它们，请参阅[关闭 1M 上下文](#turn-off-1m-context)。
 
 Opus 4.6 和 Sonnet 4.6 仅通过其 `[1m]` 变体达到 1M，对该变体的访问取决于您的套餐。在 Max、Team 和 Enterprise 套餐上，包括 Team Standard 和 Team Premium 席位，Opus 4.6 与 1M 上下文包含在您的订阅中。Sonnet 4.6 与 1M 上下文在每个订阅套餐上都需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，包括 Max。
 
@@ -796,43 +807,39 @@ Opus 4.6 和 Sonnet 4.6 仅通过其 `[1m]` 变体达到 1M，对该变体的访
 
 Claude Code 仅在直接连接到 Anthropic API 时检查这些套餐要求。如果您将 `ANTHROPIC_BASE_URL` 指向 [LLM 网关](/docs/zh-CN/llm-gateway#subscriptions-and-gateways)，且您保存的 claude.ai 登录仍为活跃凭据，Claude Code 不检查您套餐的使用额度。`/model` 中的 `[1m]` 选项保持可用，网关决定请求是否成功。在 v2.1.229 之前，当 Claude Code 无法确认账户上的使用额度时，它在该配置中拒绝 `/model sonnet[1m]`。
 
+在 Anthropic API 上，1M 上下文窗口使用标准模型定价，超过 200K 的 token 没有溢价，但 Haiku 5.5 除外，它[在提示词超过 100K token 时费用更高](#haiku-5-5-context-window-and-pricing)。对于扩展上下文包含在您的订阅中的套餐，使用仍由您的订阅覆盖。对于通过使用额度访问扩展上下文的套餐，token 计费到使用额度。
+
+<h4 id="select-1m-context-for-opus-4-6-or-sonnet-4-6">
+  为 Opus 4.6 或 Sonnet 4.6 选择 1M 上下文
+</h4>
+
+要按名称选择 1M 变体，请在模型别名或完整模型名称后附加 `[1m]` 后缀：
+
+```text theme={null}
+# Append [1m] to a full model name
+/model claude-opus-4-6[1m]
+/model claude-sonnet-4-6[1m]
+
+# Or to an alias: the suffix applies to the model the alias resolves to
+/model opus[1m]
+```
+
 <span id="context-window-behind-a-gateway" />
+
+<h4 id="context-window-behind-an-llm-gateway">
+  LLM 网关后面的上下文窗口
+</h4>
 
 如果您将 `ANTHROPIC_BASE_URL` 设置为 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个代理，Claude Code 给每个它识别的模型与该模型在 Anthropic API 上具有的相同上下文窗口。Fable 5.1、Fable 5、Sonnet 5 及更高版本、Haiku 5.5 和 Opus 4.7 及更高版本获得 1M 窗口，没有 `[1m]` 变体可选择，仅通过其 `[1m]` 变体达到 1M 的模型（如 Opus 4.6）在没有它的情况下运行在 200K。Claude Code 无法检测网关或其后面的服务器强制的更低限制。如果您的网关拒绝超过 200K token 的请求，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000`](/docs/zh-CN/env-vars)，以便所有模型上的会话都[在该边界处压缩](#set-the-auto-compact-window)。
 
-要关闭 1M 上下文，设置 `CLAUDE_CODE_DISABLE_1M_CONTEXT=1`。Claude Code 从模型选择器中删除 1M 模型变体。在具有原生 1M 窗口的模型上，例如 Sonnet 5 和 Fable 模型，它也将模型视为具有 200K 上下文窗口：
+<h4 id="turn-off-1m-context">
+  关闭 1M 上下文
+</h4>
+
+要将会话保持在 200K 窗口，请在您的 shell 或[设置文件](/docs/zh-CN/env-vars#set-environment-variables)中设置 `CLAUDE_CODE_DISABLE_1M_CONTEXT=1`。Claude Code 从模型选择器中删除 `[1m]` 模型变体。在默认运行 1M 窗口的模型上，例如 Fable 模型、Sonnet 5 及更高版本和 Opus 4.7 及更高版本，它也将模型视为具有 200K 上下文窗口：
 
 * 启用自动压缩时，会话在 200K 边界处通过[自动压缩](#set-the-auto-compact-window)进行压缩。将自动压缩窗口设置在 200K 以上不会解除该限制，因为 Claude Code 将该窗口限制为模型的上下文窗口。
 * 禁用自动压缩时，会话在 200K 边界处停止，出现[上下文限制错误](/docs/zh-CN/errors#prompt-is-too-long)，而不是压缩。
-
-在 v2.1.223 之前，Claude Code 仅将 Sonnet 5、Opus 4.8 和 Opus 5 会话限制在 200K。请参阅[环境变量](/docs/zh-CN/env-vars)。
-
-1M 上下文窗口使用标准模型定价，超过 200K 的 token 没有溢价，但 Haiku 5.5 除外，它[在提示词超过 100K token 时费用更高](#haiku-5-5-context-window-and-pricing)。对于扩展上下文包含在您的订阅中的套餐，使用仍由您的订阅覆盖。对于通过使用额度访问扩展上下文的套餐，token 计费到使用额度。
-
-如果您的账户支持 1M 上下文，该选项会出现在最新版本的 Claude Code 的 `/model` 选择器中。如果您看不到它，请重新启动您的会话，在第三方提供商上检查您的部署是否使用 `ANTHROPIC_DEFAULT_*_MODEL` 变量[固定了模型](#pin-models-for-third-party-deployments)。
-
-您也可以使用 `[1m]` 后缀与模型别名或完整模型名称：
-
-```text theme={null}
-# Use the opus[1m] or sonnet[1m] alias
-/model opus[1m]
-/model sonnet[1m]
-
-# Or append [1m] to a full model name
-/model claude-opus-4-8[1m]
-```
-
-<h4 id="sonnet-5-5-and-sonnet-5-context-window">
-  Sonnet 5.5 和 Sonnet 5 上下文窗口
-</h4>
-
-在 Anthropic API 上，Sonnet 5.5 和 Sonnet 5 始终运行 1M 上下文窗口。没有 200K 变体，没有 `[1m]` 后缀可选择，任何套餐上都不需要使用额度。会话在窗口填满前自动压缩，默认约 967K token；设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars) 以选择不同的阈值。
-
-Claude Code 在 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个自定义 `ANTHROPIC_BASE_URL` 后面给 Sonnet 5.5 和 Sonnet 5 相同的 1M 窗口。如果您的网关强制更低的限制，请参阅[网关后面的上下文窗口](#context-window-behind-a-gateway)。
-
-此设置将窗口预算为 200K：
-
-* **`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`**：将具有原生 1M 窗口的每个模型上的会话限制在 200K 窗口；请参阅[扩展上下文](#extended-context)了解该限制如何被强制执行。对于需要限制上下文的部署很有用。
 
 <h4 id="haiku-5-5-context-window-and-pricing">
   Haiku 5.5 上下文窗口和定价
@@ -858,16 +865,16 @@ Claude Code 在 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个自定义 `ANTH
 
 * **对于当前模型，在此会话及以后的会话中**：运行 `/autocompact` 命令并指定一个值，例如 `/autocompact 500k`。Claude Code 将其保存到您的用户设置中 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 下的当前模型条目，并将其应用于当前会话。如果更高优先级的[设置作用域](/docs/zh-CN/settings#settings-precedence)（例如托管设置）为该模型或所有模型设置了自己的窗口，该命令会保存您的值，但会话会保持该作用域的窗口，命令会说明这一点。运行 `/autocompact auto` 以返回为您的模型调整的窗口。在 v2.1.288 之前，该命令会为所有模型保存同一个窗口，即顶层的 `autoCompactWindow`。
 * **对于所有模型**：在设置文件中设置 [`autoCompactWindow`](/docs/zh-CN/settings-reference#autocompactwindow)，例如在 `~/.claude/settings.json` 中设置 `"autoCompactWindow": 200000`。对于某个模型，您使用 `/autocompact` 为该模型保存的窗口优先于同一文件中的此键。
-* **对于一次启动**：启动 Claude Code 时传递 [`--autocompact`](/docs/zh-CN/cli-reference#cli-flags)。该标志会为该次启动覆盖您保存的设置，而不会更改它，`claude --autocompact auto` 会以调整的窗口运行会话，即使您保存的设置有一个值。与 `/autocompact` 不同，该标志不会被更高优先级的设置范围（例如托管设置）抢占。
+* **对于一次启动**：启动 Claude Code 时传递 [`--autocompact`](/docs/zh-CN/cli-reference#cli-flags)。该标志会为该次启动覆盖您保存的设置，而不会更改它，`claude --autocompact auto` 会以调整的窗口运行会话，即使您保存的设置有一个值。与 `/autocompact` 不同，该标志不会被更高优先级的设置作用域（例如托管设置）抢占。
 * **在脚本和云环境中**：设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars)。设置后，它优先于命令、标志和设置，`/autocompact` 会报告该覆盖而不是更改窗口。
 
-命令和标志接受 100K 到 1M 令牌的窗口大小，采用以下任何形式：
+命令和标志接受 100K 到 1M token 的窗口大小，采用以下任何形式：
 
-* 纯令牌计数，例如 `200000`
+* 纯 token 计数，例如 `200000`
 * `k` 或 `M` 后缀，例如 `500k` 或 `1M`
 * 100 到 1000 之间的裸数字，表示千位，所以 `200` 设置 200,000
 
-环境变量仅接受纯令牌计数。Claude Code 将窗口限制在模型的上下文窗口。
+环境变量仅接受纯 token 计数。Claude Code 将窗口限制在模型的上下文窗口。
 
 <h3 id="default-auto-compact-thresholds">
   默认自动压缩阈值
@@ -875,10 +882,10 @@ Claude Code 在 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个自定义 `ANTH
 
 如果您没有设置自动压缩窗口，Claude Code 会在对话达到模型的上下文限制时进行压缩，除了以下会话：
 
-* [云会话](/docs/zh-CN/claude-code-on-the-web)在对话接近模型限制时进行压缩
-* Sonnet 4.6 和 Opus 4.6（不带[扩展上下文](#extended-context)）在 200K 边界处进行压缩，Opus 4.8 和更高版本在使用 200K 上下文窗口运行时也是如此，例如在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上
+* [云端会话](/docs/zh-CN/claude-code-on-the-web)在对话接近模型限制时进行压缩
+* Sonnet 4.6 和 Opus 4.6（不带[扩展上下文](#extended-context)）在 200K 边界处进行压缩
 * 当您设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](/docs/zh-CN/env-vars) 时，具有原生 1M 窗口的模型（例如 Sonnet 5 和 Fable 模型）在 200K 边界处进行压缩
-* 使用原生 1M 窗口运行的模型在窗口填满之前进行压缩，默认情况下约为 967K token。在 Anthropic API 上，这些包括 Sonnet 5、Haiku 5.5、Fable 模型以及 Opus 4.7 及更高版本。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，请参阅[为第三方部署固定模型](#pin-models-for-third-party-deployments)以了解哪些模型使用该窗口。在自定义 `ANTHROPIC_BASE_URL` 后面，请参阅[网关后面的上下文窗口](#context-window-behind-a-gateway)
+* 使用原生 1M 窗口运行的模型在窗口填满之前进行压缩，默认情况下约为 967K token。这些模型包括 Fable 模型、Sonnet 5 及更高版本、Haiku 5.5 以及 Opus 4.7 及更高版本。在自定义 `ANTHROPIC_BASE_URL` 后面，请参阅[网关后面的上下文窗口](#context-window-behind-a-gateway)
 * 在 Claude Code 不识别的模型 ID（例如 [LLM 网关](/docs/zh-CN/llm-gateway)别名）上的会话在 Claude Code 为该 ID 假设的上下文窗口处进行压缩；请参阅[为网关或自定义模型 ID 更正窗口](#correct-the-window-for-a-gateway-or-custom-model-id)
 
 <h3 id="correct-the-window-for-a-gateway-or-custom-model-id">
@@ -887,7 +894,7 @@ Claude Code 在 [LLM 网关](/docs/zh-CN/llm-gateway)或另一个自定义 `ANTH
 
 在 [LLM 网关](/docs/zh-CN/llm-gateway)或其他自定义部署上，Claude Code 可能会为模型 ID 假设一个与模型实际窗口不同的上下文窗口，无论它是否将 ID 解析为 Claude 模型。设置 [`CLAUDE_CODE_MAX_CONTEXT_TOKENS`](/docs/zh-CN/env-vars) 为 Claude Code 应该假设的窗口。
 
-变量的应用方式取决于 ID。当 Claude Code 不以 `claude-`（任何大小写）开头时，或当它携带 Claude Code 在读取 ID 时剥离的后缀（例如 Google Cloud 的 Agent Platform 上使用的 `@YYYYMMDD` 日期）时，Claude Code 将 ID 视为提供商或自定义拼写。在 v2.1.259 之前，Claude Code 没有计算剥离的后缀，所以带有日期后缀的无法识别的 `claude-` ID 被视为裸 `claude-` 名称。
+变量的应用方式取决于 ID。当 ID 不以 `claude-`（任何大小写）开头时，或当它携带 Claude Code 在读取 ID 时剥离的后缀（例如 Google Cloud 的 Agent Platform 上使用的 `@YYYYMMDD` 日期）时，Claude Code 将 ID 视为提供商或自定义拼写。在 v2.1.259 之前，Claude Code 没有计算剥离的后缀，所以带有日期后缀的无法识别的 `claude-` ID 被视为裸 `claude-` 名称。
 
 无法识别的提供商或自定义拼写、相同拼写加上 `[1m]` 和所有其他 ID 是三种不同的情况：
 
@@ -948,10 +955,10 @@ Claude Code 跳过对 `ANTHROPIC_CUSTOM_MODEL_OPTION` 中设置的模型 ID 的�
 | 环境变量 | 描述 |
 | - | - |
 | `ANTHROPIC_DEFAULT_FABLE_MODEL` | 用于 `fable` 的模型，以及 Claude Code 识别为 Fable 模型的模型 ID，用于[第三方提供商上的自动模型回退](#automatic-model-fallback) |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` | 用于 `opus` 的模型，或在 Plan Mode 活跃时用于 `opusplan` 的模型。 |
-| `ANTHROPIC_DEFAULT_SONNET_MODEL` | 用于 `sonnet` 的模型，或在 Plan Mode 不活跃时用于 `opusplan` 的模型。 |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | 用于 `opus` 的模型，或在计划模式活跃时用于 `opusplan` 的模型。 |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | 用于 `sonnet` 的模型，或在计划模式不活跃时用于 `opusplan` 的模型。 |
 | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | 用于 `haiku` 的模型，或[后台功能](/docs/zh-CN/costs#background-token-usage) |
-| `CLAUDE_CODE_SUBAGENT_MODEL` | [subagents](/docs/zh-CN/sub-agents#choose-a-model)、[agent team](/docs/zh-CN/agent-teams#specify-teammates-and-models) 队友和[工作流](/docs/zh-CN/workflows)代理的默认模型，这些代理没有以其他方式分配模型。接受别名（如 `haiku`）或完整模型名称。每次调用的模型或定义的 `model` 字段（包括 `inherit`）优先。要更改该设置，请设置 [`CLAUDE_CODE_SUBAGENT_MODEL_FORCE`](/docs/zh-CN/sub-agents#run-every-subagent-on-one-model) |
+| `CLAUDE_CODE_SUBAGENT_MODEL` | [子代理](/docs/zh-CN/sub-agents#choose-a-model)、[agent team](/docs/zh-CN/agent-teams#specify-teammates-and-models) 队友和[工作流](/docs/zh-CN/workflows) Agent 的默认模型，适用于未以其他方式分配模型的情况。接受别名（如 `haiku`）或完整模型名称。每次调用的模型或定义的 `model` 字段（包括 `inherit`）优先。要改变这一点，请设置 [`CLAUDE_CODE_SUBAGENT_MODEL_FORCE`](/docs/zh-CN/sub-agents#run-every-subagent-on-one-model) |
 
 在第三方提供商上，[自定义固定模型显示和功能](#customize-pinned-model-display-and-capabilities)描述了固定模型在 `/model` 选择器中的行显示的内容。
 
@@ -963,7 +970,7 @@ Claude Code 跳过对 `ANTHROPIC_CUSTOM_MODEL_OPTION` 中设置的模型 ID 的�
 
 当通过 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai)、[Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 或 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 部署 Claude Code 时，在向用户推出前固定模型版本。
 
-不固定模型，Claude Code 会使用模型别名（如 `fable`、`opus`、`sonnet` 和 `haiku`），这些别名会解析为每个提供商的内置默认模型 ID。该默认值可能滞后于最新的 Anthropic 版本，并且它指向的模型可能尚未在用户账户中启用。当默认值不可用时，Amazon Bedrock 和 Google Cloud's Agent Platform 用户会看到通知并回退到该默认模型的早期版本，或当默认值是 Opus 模型且没有 Opus 版本可用时回退到默认 Sonnet 模型。Microsoft Foundry 用户会看到错误，因为 Microsoft Foundry 没有等效的启动检查。
+不固定模型，Claude Code 会使用模型别名（如 `fable`、`opus`、`sonnet` 和 `haiku`），这些别名会解析为每个提供商的内置默认模型 ID。该默认值可能滞后于最新的 Anthropic 版本，并且它指向的模型可能尚未在用户账户中启用。当默认值不可用时，Amazon Bedrock 和 Google Cloud's Agent Platform 用户会看到通知，会话会回退到该默认模型的早期版本，或当默认值是 Opus 模型且没有 Opus 版本可用时回退到默认 Sonnet 模型。Microsoft Foundry 用户则会看到错误，因为 Microsoft Foundry 没有等效的启动检查。
 
 在 Amazon Bedrock 和 Google Cloud's Agent Platform 上，以特定 Sonnet 或 Opus 版本启动会话的用户（例如使用 `--model`、`ANTHROPIC_MODEL` 或 `model` 设置），会将该版本固定为会话的默认值，用于匹配的别名：启动检查会跳过它替换的内置默认值，并且不显示回退通知。在 v2.1.211 之前，即使会话模型被显式配置，检查也会运行并可能显示通知。
 
@@ -981,17 +988,19 @@ Claude Code 跳过对 `ANTHROPIC_CUSTOM_MODEL_OPTION` 中设置的模型 ID 的�
 
 对 `ANTHROPIC_DEFAULT_FABLE_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 和 `ANTHROPIC_DEFAULT_HAIKU_MODEL` 应用相同的模式。有关所有提供商的当前和旧版模型 ID，请参阅[模型概览](https://platform.claude.com/docs/en/about-claude/models/overview)。要将用户升级到新模型版本，请更新这些环境变量并重新部署。
 
-要为固定模型启用[扩展上下文](#extended-context)，请在 `ANTHROPIC_DEFAULT_OPUS_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 或 `ANTHROPIC_DEFAULT_FABLE_MODEL` 中的模型 ID 后附加 `[1m]`：
+具有原生 1M 窗口的固定模型（如 Opus 4.8 或 Sonnet 5），当 Claude Code 能够将固定 ID 与该模型匹配时，无需任何后缀即可以 [1M 上下文窗口](#extended-context)运行。当 ID 包含该模型的 Anthropic API ID（例如 `us.anthropic.claude-opus-4-8` 包含 `claude-opus-4-8`），或 [`modelOverrides`](#override-model-ids-per-version) 条目将该模型映射到该 ID 时，即视为匹配。对于 Claude Code 无法与模型匹配的固定 ID，会话默认以 200K 窗口运行，除非该 ID 带有 `[1m]` 后缀。
+
+对于通过其 `[1m]` 变体达到 1M 的模型（如 Opus 4.6 或 Sonnet 4.6），请在 `ANTHROPIC_DEFAULT_OPUS_MODEL` 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的模型 ID 后附加 `[1m]` 以启用扩展上下文：
 
 ```bash theme={null}
-export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8[1m]'
+export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-6[1m]'
 ```
 
-使用 `[1m]` 后缀，1M 上下文窗口适用于固定别名的所有使用，包括 [`opusplan`](#opusplan-model-setting) 的 plan-mode Opus 阶段和 `model` frontmatter 命名别名的 [subagents](/docs/zh-CN/sub-agents#choose-a-model)。
+使用 `[1m]` 后缀，1M 上下文窗口适用于固定别名的所有使用，包括 [`opusplan`](#opusplan-model-setting) 的计划模式 Opus 阶段和 `model` frontmatter 指定该别名的[子代理](/docs/zh-CN/sub-agents#choose-a-model)。
 
 * Claude Code 在将模型 ID 发送到您的提供商之前会删除该后缀。
 * 仅当底层模型[支持 1M 上下文](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)时才附加 `[1m]`。
-* 该后缀按变量读取，而不是按模型读取。在 Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry 上，一个变量中没有 `[1m]` 的模型 ID 使用 200K 上下文，即使另一个变量使用相同的模型和后缀。Sonnet 5 在这些提供商上始终以 1M 窗口运行，从不需要该后缀。
+* 该后缀按变量读取，而不是按模型读取。在 Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry 上，一个变量中没有 `[1m]` 的 Opus 4.6 或 Sonnet 4.6 ID 使用 200K 上下文，即使另一个变量使用相同的模型和后缀。
 
 当您设置 `ANTHROPIC_DEFAULT_*_MODEL` 变量时，`/model` 选择器会显示该模型的一行来替代该家族的内置行，包括任何 1M 上下文行。要在不向该变量添加后缀的情况下到达 1M 窗口，您的用户运行 `/model opus[1m]`，Claude Code 会将后缀应用于该变量命名的模型。`/model sonnet[1m]` 的工作方式相同。
 
@@ -1014,7 +1023,7 @@ export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8[1m]'
 
 Claude Code 也可能无法识别固定模型支持的功能。您可以自己设置显示名称和描述，并为每个固定模型使用伴随环境变量声明功能。
 
-这些变量在第三方提供商（如 Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry）上生效。`_NAME` 和 `_DESCRIPTION` 变量在 `ANTHROPIC_BASE_URL` 指向 [LLM gateway](/docs/zh-CN/llm-gateway) 时也生效。当直接连接到 `api.anthropic.com` 时无效。
+这些变量在第三方提供商（如 Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry）上生效。`_NAME` 和 `_DESCRIPTION` 变量在 `ANTHROPIC_BASE_URL` 指向 [LLM 网关](/docs/zh-CN/llm-gateway) 时也生效。当直接连接到 `api.anthropic.com` 时无效。
 
 | 环境变量 | 描述 |
 | - | - |
@@ -1024,18 +1033,18 @@ Claude Code 也可能无法识别固定模型支持的功能。您可以自己�
 
 相同的 `_NAME`、`_DESCRIPTION` 和 `_SUPPORTED_CAPABILITIES` 后缀可用于 `ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_FABLE_MODEL` 和 `ANTHROPIC_CUSTOM_MODEL_OPTION`。
 
-Claude Code 通过将模型 ID 与已知模式匹配来启用[工作量级别](#adjust-effort-level)和[扩展思考](#extended-thinking)等功能。提供商特定的 ID（如 Amazon Bedrock ARN 或自定义部署名称）通常与这些模式不匹配，导致支持的功能被禁用。设置 `_SUPPORTED_CAPABILITIES` 以告诉 Claude Code 模型实际支持的功能：
+Claude Code 通过将模型 ID 与已知模式匹配来启用 [effort 级别](#adjust-effort-level)和[扩展思考](#extended-thinking)等功能。提供商特定的 ID（如 Amazon Bedrock ARN 或自定义部署名称）通常与这些模式不匹配，导致支持的功能被禁用。设置 `_SUPPORTED_CAPABILITIES` 以告诉 Claude Code 模型实际支持的功能：
 
 | 功能值 | 启用 |
 | - | - |
-| `effort` | [工作量级别](#adjust-effort-level)和 `/effort` 命令 |
-| `xhigh_effort` | `xhigh` 工作量级别 |
-| `max_effort` | `max` 工作量级别 |
+| `effort` | [effort 级别](#adjust-effort-level)和 `/effort` 命令 |
+| `xhigh_effort` | `xhigh` effort 级别 |
+| `max_effort` | `max` effort 级别 |
 | `thinking` | [扩展思考](#extended-thinking) |
 | `adaptive_thinking` | 根据任务复杂性动态分配思考的自适应推理 |
 | `interleaved_thinking` | 工具调用之间的思考 |
 
-设置 `_SUPPORTED_CAPABILITIES` 时，列出的功能对匹配的固定模型启用，未列出的功能被禁用。未设置变量时，Claude Code 回退到基于模型 ID 的内置检测。
+设置 `_SUPPORTED_CAPABILITIES` 时，Claude Code 会为匹配的固定模型启用列出的功能，并禁用未列出的功能。未设置该变量时，Claude Code 回退到基于模型 ID 的内置检测。
 
 此示例将 Opus 固定到 Amazon Bedrock 自定义模型 ARN，设置友好名称，并声明其功能：
 
@@ -1078,25 +1087,25 @@ export ANTHROPIC_DEFAULT_OPUS_MODEL_SUPPORTED_CAPABILITIES='effort,xhigh_effort,
 
 当您通过 `--model`、`ANTHROPIC_MODEL` 环境变量或 `ANTHROPIC_DEFAULT_*_MODEL` 环境变量直接传递 Anthropic 模型 ID 时，覆盖也适用。在 Amazon Bedrock、Google Cloud's Agent Platform 和 [Mantle](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint) 上，没有 `modelOverrides` 条目的 Anthropic 模型 ID 解析为与该版本的 `/model` 选择器行相同的提供商特定 ID（当提供商支持该版本时）。Mantle 支持版本的子集。对于该子集之外的 Anthropic 模型 ID，Claude Code 将原始 ID 发送到 Mantle 而不进行映射，除非 `modelOverrides` 条目覆盖它。在 v2.1.200 之前，`--model` 和环境变量值直接到达提供商，不经过覆盖映射。
 
-`modelOverrides` 与 `availableModels` 一起工作。允许列表针对 Anthropic 模型 ID 进行评估，而不是覆盖值，因此 `availableModels` 中的条目（如 `"opus"`）即使在 Opus 版本映射到 ARN 时也会继续匹配。当在托管设置中设置 `enforceAvailableModels` 时，强制执行的默认值通过 `modelOverrides` 从[托管设置](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)解析。管理员的映射（如固定到推理配置文件 ARN 的版本）在强制执行的默认值中得到遵守。来自用户或项目设置的覆盖不会影响它。
+`modelOverrides` 与 `availableModels` 一起工作。允许列表针对 Anthropic 模型 ID 进行评估，而不是覆盖值，因此 `availableModels` 中的条目（如 `"opus"`）即使在 Opus 版本映射到 ARN 时也会继续匹配。当在托管设置中设置 `enforceAvailableModels` 时，强制执行的默认值仅通过来自[托管设置](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)的 `modelOverrides` 解析。管理员的映射（如固定到推理配置文件 ARN 的版本）在强制执行的默认值中得到遵守。来自用户或项目设置的覆盖不会影响它。
 
 当 `availableModels` 在[托管设置](/docs/zh-CN/managed-settings)中设置时，仅来自托管设置的 `modelOverrides` 适用于通过 `--model` 或上述环境变量直接传递的 Anthropic 模型 ID。Claude Code 忽略用户或项目设置中针对这些 ID 的覆盖，并且永远不会通过任何设置源的 `modelOverrides` 解析托管列表排除的 ID。此托管源限制需要 Claude Code v2.1.200 或更高版本。有关如何处理被阻止的 ID，请参阅[限制模型选择](#restrict-model-selection)。
 
 <h3 id="prompt-caching-configuration">
-  Prompt caching 配置
+  提示缓存配置
 </h3>
 
-Claude Code 自动使用 [prompt caching](/docs/zh-CN/prompt-caching) 来优化性能并降低成本。您可以全局禁用 prompt caching 或针对特定模型层级禁用：
+Claude Code 自动使用[提示缓存](/docs/zh-CN/prompt-caching)来优化性能并降低成本。您可以全局禁用提示缓存或针对特定模型层级禁用：
 
 | 环境变量 | 描述 |
 | - | - |
-| `DISABLE_PROMPT_CACHING` | 设置为 `1` 以禁用所有模型的 prompt caching。优先于按模型设置 |
-| `DISABLE_PROMPT_CACHING_HAIKU` | 设置为 `1` 以仅禁用[默认 Haiku 模型](/docs/zh-CN/prompt-caching#disable-prompt-caching)的 prompt caching |
-| `DISABLE_PROMPT_CACHING_SONNET` | 设置为 `1` 以仅禁用[默认 Sonnet 模型](/docs/zh-CN/prompt-caching#disable-prompt-caching)的 prompt caching |
-| `DISABLE_PROMPT_CACHING_OPUS` | 设置为 `1` 以仅禁用[默认 Opus 模型](/docs/zh-CN/prompt-caching#disable-prompt-caching)的 prompt caching |
-| `DISABLE_PROMPT_CACHING_FABLE` | 设置为 `1` 以仅禁用 Fable 模型的 prompt caching |
+| `DISABLE_PROMPT_CACHING` | 设置为 `1` 以禁用所有模型的提示缓存。优先于按模型设置 |
+| `DISABLE_PROMPT_CACHING_HAIKU` | 设置为 `1` 以禁用[默认 Haiku 模型](/docs/zh-CN/prompt-caching#disable-prompt-caching)的提示缓存 |
+| `DISABLE_PROMPT_CACHING_SONNET` | 设置为 `1` 以禁用[默认 Sonnet 模型](/docs/zh-CN/prompt-caching#disable-prompt-caching)的提示缓存 |
+| `DISABLE_PROMPT_CACHING_OPUS` | 设置为 `1` 以禁用[默认 Opus 模型](/docs/zh-CN/prompt-caching#disable-prompt-caching)的提示缓存 |
+| `DISABLE_PROMPT_CACHING_FABLE` | 设置为 `1` 以仅禁用 Fable 模型的提示缓存 |
 
-要为主对话和 subagents 分别选择缓存 TTL，请参阅[自己选择 TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)。有关什么会触发缓存未命中，请参阅 [Claude Code 如何使用 prompt caching](/docs/zh-CN/prompt-caching)。
+要为主对话和子代理分别选择缓存 TTL，请参阅[自己选择 TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)。有关什么会触发缓存未命中，请参阅 [Claude Code 如何使用提示缓存](/docs/zh-CN/prompt-caching)。
 
 <h2 id="version-history">
   版本历史

@@ -323,7 +323,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 | `memory` | 否 | [Persistent memory scope](#enable-persistent-memory)：`user`、`project` 或 `local`。启用跨会话学习 |
 | `background` | 否 | 设置为 `true` 以即使 Claude 要求在前台运行也保持此 subagent 在后台。其中 [fork mode](#turn-fork-mode-on-or-off) 打开时，Claude Code 已经在 [background](#run-subagents-in-foreground-or-background) 中运行 Claude 生成的 subagents |
 | `omitClaudeMd` | 否 | 设置为 `true` 以启动此 subagent 而不使用用户、项目和本地 CLAUDE.md 文件；[managed policy files](/docs/zh-CN/memory#how-claude-md-files-load) 仍然加载，除了 [managed subagents](#choose-the-subagent-scope)。对于从 [delegation prompt](#what-loads-at-startup) 获取所需一切的 subagents 使用它。当代理通过 `--agent` 或 `agent` 设置作为主会话代理运行时被忽略。需要 Claude Code v2.1.271 或更高版本 |
-| `effort` | 否 | 此子代理活跃时的 effort 级别。覆盖会话的 effort 级别，但不覆盖 [`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars#variables) 环境变量。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型 |
+| `effort` | 否 | 此子代理活跃时的 effort 级别。覆盖会话的 effort 级别，但不覆盖 [`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars#variables) 环境变量。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型。请参阅[选择 effort 级别](#choose-an-effort-level) |
 | `isolation` | 否 | 设置为 `worktree` 以在临时 [git worktree](/docs/zh-CN/worktrees) 中运行 subagent，为其提供存储库的隔离副本，默认从您的 [default branch](/docs/zh-CN/worktrees#choose-the-base-branch) 分支，而不是父会话的 `HEAD`。如果 subagent 不进行任何更改，worktree 会自动清理 |
 | `color` | 否 | Subagent 在任务列表和转录中的显示颜色。接受 `red`、`blue`、`green`、`yellow`、`purple`、`orange`、`pink` 或 `cyan` |
 | `initialPrompt` | 否 | 当此代理作为主会话代理运行时（通过 `--agent` 或 `agent` 设置），自动提交为第一个用户轮次。[Commands](/docs/zh-CN/commands) 和 [skills](/docs/zh-CN/skills) 被处理。前置于任何用户提供的提示。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略 |
@@ -401,7 +401,7 @@ Claude Code 根据您组织的 [`availableModels`](/docs/zh-CN/model-config#rest
 
 在交互式会话中，Claude Code 显示一个警告，命名请求的模型和 subagent 运行的模型，对于任一替换。
 
-要检查 subagent 运行的模型，运行 [`/tasks`](/docs/zh-CN/commands)。Claude Code 在 subagent 的行上命名模型，并在 subagent 的定义或它分叉的技能设置 [`effort`](#supported-frontmatter-fields) 时添加 [effort level](/docs/zh-CN/model-config#adjust-effort-level)。需要 Claude Code v2.1.242 或更高版本。
+要检查子代理运行在哪个模型上，请运行 [`/tasks`](/docs/zh-CN/commands)。Claude Code 会在子代理所在行显示模型名称，并在为该子代理设置了 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)时一并显示。需要 Claude Code v2.1.242 或更高版本。
 
 每次调用的 `model` 参数也适用于 subagent 何时 [resumed or sent a follow-up message](#resume-subagents)，因此 subagent 保持在该模型上。在 v2.1.211 之前，恢复删除了每次调用的值，subagent 恢复到其定义的 `model` 字段或，没有一个，主对话的模型。
 
@@ -433,6 +433,14 @@ Claude Code 根据您组织的 [`availableModels`](/docs/zh-CN/model-config#rest
 
 * 一个 [fork](#fork-the-current-conversation)
 * 一个 [skill that runs in a subagent](/docs/zh-CN/skills#run-skills-in-a-subagent)，带有 `model: inherit`
+
+<h3 id="choose-an-effort-level">
+  选择 effort 级别
+</h3>
+
+要让子代理以其自身的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)运行，请在其定义中设置 [`effort`](#supported-frontmatter-fields) 字段。
+
+当您要求 Claude 以特定 effort 级别运行非分叉子代理时，Claude 也可以为该次调用传递一个 `effort` 参数。该参数会覆盖 `effort` 字段，并在子代理被[恢复](#resume-subagents)时保持有效。[`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars#variables) 环境变量优先于这两者。每次调用的参数需要 Claude Code v2.1.292 或更高版本。
 
 <h3 id="control-subagent-capabilities">
   控制 subagent 能力
@@ -601,7 +609,9 @@ Claude Code 加载两种服务器而不检查代理文件来自的文件夹的�
 主对话的权限模式决定 Claude Code 是否使用您设置的值：
 
 * 当主对话在 `bypassPermissions`、`acceptEdits` 或 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 时，subagent 在该相同模式中运行，Claude Code 忽略您设置的 `permissionMode`。在自动模式下，分类器使用主对话的块和允许规则评估 subagent 的工具调用。当 subagent 完成时，分类器也会在报告被传递之前审查其工作和最终报告，如 [How auto mode handles subagents](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 所述。
-* 当主对话在 `default`、`dontAsk` 或 `plan` 模式时，subagent 在您设置的权限模式中运行，除了 `bypassPermissions`。声明 `bypassPermissions` 的 subagent 改为保持主对话的模式。`bypassPermissions` 例外需要 Claude Code v2.1.267 或更高版本。
+* 当主对话处于 `default`、`dontAsk` 或 `plan` 模式时，子代理会在您设置的权限模式下运行。在以下情况下，它会改为保持主对话的权限模式：
+  * 您设置了 `bypassPermissions`。`bypassPermissions` 例外需要 Claude Code v2.1.267 或更高版本。
+  * 您设置了 `auto`，但子代理[无法使用自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)，例如某个设置文件设置了 [`disableAutoMode`](/docs/zh-CN/settings-reference#disableautomode)，或子代理的模型不支持自动模式。
 
 `permissionMode` 接受这些值，以及 `manual` 作为 `default` 的别名：
 

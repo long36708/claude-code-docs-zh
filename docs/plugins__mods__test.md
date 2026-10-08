@@ -110,7 +110,12 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 * `returned neither { value } nor { deny }`：mods API 调用的 stub 返回了一个裸值，这会导致测试失败
 * `no implementation for` 后跟一个名称：您的 mod 进行了该调用，没有 stub 回答它
 
-工具包还导出内存中的 mocks，为您回答整个命名空间。`mock.clock(on)` 回答 [`$.clock`](/docs/zh-CN/plugins/mods/api#run-work-in-the-background)，`mock.store(on, { count: 7 })` 从以这些条目开始的存储中回答 `$.store`，`mock.env(on, { CI: 'true' })` 从这些变量中回答 `$.env.get`。`mock.clock` 返回一个您的测试可以推进的 mock 时钟，因此计时器的测试不会等待。`mock.store` 返回 nothing，因此要检查您的 mod 保存了什么，请自己编写两个 `store` stubs，如 [drawing test](#test-a-drawing) 所做的那样。
+工具包还导出现成的 mocks，用于时钟、存储、环境变量以及追加到对话中的行：
+
+* **`mock.clock(on)`**：回答 [`$.clock`](/docs/zh-CN/plugins/mods/api#run-work-in-the-background)，并返回一个您的测试可以推进的 mock 时钟，因此计时器的测试不会等待。
+* **`mock.store(on, { count: 7 })`**：从以这些条目开始的存储中回答 `$.store`。它不返回任何内容，因此要检查您的 mod 保存了什么，请自己编写两个 `store` stubs，如 [drawing test](#test-a-drawing) 所做的那样。
+* **`mock.env(on, { CI: 'true' })`**：从这些变量中回答 `$.env.get`。
+* **`mock.session(on)`**：返回一个 mock 会话，其 `appended()` 方法按从旧到新的顺序列出您的 mod 通过 [`$.session.append`](/docs/zh-CN/plugins/mods/reference#session) 添加的行；需要 Claude Code v2.1.293 或更高版本。
 
 <h3 id="follow-the-test-kit’s-rules">
   遵循测试工具包的规则
@@ -168,7 +173,7 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
   查看 stub 返回的内容
 </h3>
 
-您的 mod 在测试中进行的每个 mods API 调用都需要一个 stub 来回答，除了工具包自己回答的少数几个：[`$.ui.invalidate`](/docs/zh-CN/plugins/mods/interface#redraw-when-something-changes) 和 [`$.state`](/docs/zh-CN/plugins/mods/interface#keep-state) 调用。对于 `$.clock` 调用，使用 `mock.clock(on)`，否则您的 mod 的 `$.clock.now()` 会失败并显示 `no implementation for clock.now`。
+您的 mod 在测试中进行的每个 mods API 调用都需要一个 stub 来回答，除了工具包自己回答的少数几个：[`$.ui.invalidate`](/docs/zh-CN/plugins/mods/interface#redraw-when-something-changes)、[`$.state`](/docs/zh-CN/plugins/mods/interface#keep-state) 和 `$.session.append` 调用。对于 `$.clock` 调用，使用 `mock.clock(on)`，否则您的 mod 的 `$.clock.now()` 会失败并显示 `no implementation for clock.now`。
 
 此表列出了 mods 最常使用的。第一列是您的 mod 进行的调用或它使用 `next(e)` 传递的事件。第二列是传递给 `on` 的函数，使用该名称，因此 `$.store.get` 行变成 `on('store.get', ($, e) => ({ value: saved.get(e.key) }))`。stub 中的 `'...'` 标记您需要填写的文本：
 

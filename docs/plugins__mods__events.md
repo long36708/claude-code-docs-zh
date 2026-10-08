@@ -245,6 +245,8 @@ on('prompt.submit', async ($, e, next) => {
 
 当您发送诸如 `open a PR for this change` 之类的提示词时，您的消息在会话记录中看起来不变，而 Claude 还会在其后读取诸如 `Current branch: feature/auth` 的一行。未提及 Pull Request 的提示词会原样通过，且不会运行 `git`。
 
+要阻止提示词，请在不调用 `next` 的情况下返回 `{ drop: 'the reason' }`。如果您的 hook 在其 `next(e)` 调用已放行提示词之后返回 `drop`，轮次仍会运行，并且该 hook 会[失败](#handle-a-hook-that-fails)，错误消息中包含 `a drop after its next() was answered`。
+
 [其他事件](/docs/zh-CN/plugins/mods/reference#prompts-and-what-claude-reads)涵盖了 Claude 读取的其余内容：`prompt.section` 用于系统提示词的每个部分，`prompt.context` 用于随第一条消息发送的上下文，`skill.prompt` 用于 skill 的文本。这些 hook 产生的文本如果在请求之间发生变化，会[使提示缓存失效](/docs/zh-CN/prompt-caching)。
 
 <h3 id="follow-a-turn">
@@ -279,6 +281,8 @@ Claude 的回复会像没有该 mod 时一样以流式方式显示在屏幕上�
 
 `result.usage` 保存 Claude API 为某个请求报告的 token 计数，以及作出回答的 `model`：`input_tokens`、`output_tokens`、`cache_read_input_tokens` 和 `cache_creation_input_tokens`。该 hook 也会针对子代理的请求运行，因此如果您只想处理主对话，请检查 `e.agentId`。
 
+要查看 API 在请求期间自行运行的工具调用（例如对 [advisor 工具](/docs/zh-CN/advisor)的调用），请读取 `result.serverToolUses`。Claude Code 不会运行这些调用，因此不会为它们触发任何 `tool.call` 或 `tool.check` hook。当响应中没有此类调用时，该字段不存在；该字段需要 Claude Code v2.1.290 或更高版本。
+
 <h3 id="hook-the-settings-hook-events">
   处理设置 hook 事件
 </h3>
@@ -308,25 +312,25 @@ on('classic.Stop', async ($, e, next) => {
   mod 运行的顺序
 </h3>
 
-同一事件上的 hooks 形成一个中间件链。每个 mod 的 `next` 调用以下 mod 的 hook，最后的 `next` 到达 Claude Code 自己的行为。第一个 mod 是最外层的：它在其他 mod 之前看到事件，在它们之后看到结果，并决定其他 mod 是否运行。后续 mod 无法阻止早期 mod 看到事件。
+同一事件上的 hook 形成一个中间件链。每个 mod 的 `next` 调用下一个 mod 的 hook，最后的 `next` 到达 Claude Code 自己的行为。第一个 mod 是最外层的：它在其他 mod 之前看到事件，在它们之后看到结果，并决定其他 mod 是否运行。后续 mod 无法阻止早期 mod 看到事件。
 
 Claude Code 按每个 mod 的来源对链进行排序：
 
-1. 内置保护 `sec-default@builtin`，一个内置于 Claude Code 的 mod，`/plugin` 列为 `cc-plugin-sec-default`，其中[它加载](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default)，你的组织在 [`prependPlugins`](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods) 中列出的 mod，然后是任何其他计为你的组织的 mod，不在 `appendPlugins` 中
-2. 你安装的 mod
-3. 你的组织在 `appendPlugins` 中列出的 mod
+1. 内置守卫 `sec-default@builtin`（一个内置于 Claude Code 的 mod，`/plugin` 将其列为 `cc-plugin-sec-default`，在[它加载](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default)的位置）、您的组织在 [`prependPlugins`](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods) 中列出的 mod，然后是任何其他算作您的组织的、且不在 `appendPlugins` 中的 mod
+2. 您安装的 mod
+3. 您的组织在 `appendPlugins` 中列出的 mod
 4. 其他内置于 Claude Code 的 mod
 
-在你安装的 mod 中，mod 在它在清单中的 `dependencies` 下列出的 mod 之前运行。在一个模块中，hooks 按 `register` 调用 `on` 的顺序运行。
+在您安装的 mod 中，mod 在它在清单中的 `dependencies` 下列出的 mod 之前运行。在一个模块中，hook 按 `register` 调用 `on` 的顺序运行。
 
 <h4 id="where-settings-hooks-run-in-the-order">
-  设置 hooks 在顺序中运行的位置
+  设置 hook 在顺序中运行的位置
 </h4>
 
-在设置文件中配置的 `PreToolUse` hooks 也在工具调用期间运行，在 mod 链中的固定点：
+在设置文件中配置的 `PreToolUse` hook 也在工具调用期间运行，位于 mod 链中的固定点：
 
-* **来自托管设置的 `PreToolUse` hooks**：在第一个 mod 的 `tool.call` hook 之前运行，其中任一 hook 的阻止都是最终决定，因此没有 mod 看到调用。
-* **来自每个其他设置文件和插件的 `hooks/hooks.json` 的 `PreToolUse` hooks**：在最后一个 mod 调用 `next` 后运行，作为 Claude Code 自己的行为的一部分。回答 `tool.call` 而不调用 `next` 的 mod 会阻止它们运行，调用 `next` 的 mod 在它返回的结果中看到它们的决定。
+* **来自托管设置的 `PreToolUse` hook**：在第一个 mod 的 `tool.call` hook 之前运行，其中任一 hook 的阻止都是最终决定，因此没有 mod 看到调用。
+* **来自每个其他设置文件和插件的 `hooks/hooks.json` 的 `PreToolUse` hook**：在最后一个 mod 调用 `next` 后运行，作为 Claude Code 自己的行为的一部分。回答 `tool.call` 而不调用 `next` 的 mod 会阻止它们运行，调用 `next` 的 mod 在它返回的结果中看到它们的决定。
 
 [`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) 在这些 hook 和权限规则做出决定后触发，因此其上的 hook 可以批准第二组中的 hook 所阻止的调用。
 
@@ -334,24 +338,38 @@ Claude Code 按每个 mod 的来源对链进行排序：
   处理失败的 hook
 </h3>
 
-失败的 hook 不会破坏会话，你可以决定接下来会发生什么。当没有 `.catch` 处理程序的 hook 抛出、超时或返回错误形状的结果时，接下来会发生什么取决于它是否调用了 `next`：
+失败的 hook 不会破坏会话，您可以决定接下来会发生什么。当没有 `.catch` 处理程序的 hook 抛出、超时或返回错误形状的结果时，接下来会发生什么取决于它是否调用了 `next`：
 
 * **它在调用 `next` 之前失败**：Claude Code 跳过它，下一个处理程序代替运行
 * **它在 `next` 解析后失败**：该结果成立，没有任何东西运行第二次
 
-一行命名 mod、事件和原因，例如 `my-mod: tool.call hook skipped: threw Error: boom`。你读取它的位置取决于会话，如[找出 mod 为什么不做任何事](/docs/zh-CN/plugins/mods/troubleshoot#find-out-why-a-mod-does-nothing)列出的。其绘图不验证的 `ui.render` hook 的报告方式不同，如[从元素构建树](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)所述。
+一行内容会指明 mod、事件和原因，例如 `my-mod: tool.call hook skipped: threw Error: boom`。您读取它的位置取决于会话，如[找出 mod 为什么不做任何事](/docs/zh-CN/plugins/mods/troubleshoot#find-out-why-a-mod-does-nothing)所列。其绘图未通过验证的 `ui.render` hook 的报告方式不同，如[从元素构建树](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)所述。
 
-要使阻止调用的 hook 失败关闭，请添加一个 `.catch` 错误处理程序来代替回答。这里，`guard` 是你的 hook 函数：
+要使阻止调用的 hook 失败关闭，请添加一个 `.catch` 错误处理程序来代替回答。这里，`guard` 是您的 hook 函数，处理程序检查 [`next.called`](/docs/zh-CN/plugins/mods/reference#the-hook-function) 来判断 `guard` 在失败时是否已经调用了 `next`：
 
 ```javascript theme={null}
 // on 返回一个注册，.catch 将处理程序附加到该 hook
 on('tool.call', { tool: 'Bash' }, guard).catch(async ($, e, next) => {
-  // next.error.kind 是 'throw' 或 'timeout'，说明 guard 如何失败
+  // guard 已经调用了 next，因此返回得到的结果
+  if (next.called) return next(e)
+  // next.error.kind 说明调用处理程序的原因，例如 'throw' 或 'timeout'
   return { deny: 'The command guard failed, so this command was not run: ' + next.error.kind }
 })
 ```
 
-当 `guard` 工作时，处理程序永远不会运行。当 `guard` 在 Bash 调用上抛出或超时时，Claude Code 使用相同的事件调用处理程序。处理程序返回 `{ deny }`，所以命令不会运行，Claude 读取末尾带有 `throw` 或 `timeout` 的文本。没有处理程序，Claude Code 会跳过 `guard` 并运行命令。处理程序自身有更短的[时间限制](/docs/zh-CN/plugins/mods/reference#limits)。
+当 `guard` 在 Bash 调用上抛出或超时时，Claude Code 使用相同的事件调用处理程序：
+
+* **`guard` 在调用 `next` 之前失败**：命令不会运行，Claude 读取末尾带有该类型的 `deny` 文本
+* **`guard` 在调用 `next` 之后失败**：处理程序的 `next(e)` 解析为 `guard` 的调用所产生的结果，而不会再次运行命令，Claude 读取该结果
+
+处理程序自身有更短的[时间限制](/docs/zh-CN/plugins/mods/reference#limits)。如果处理程序本身抛出或超时，Claude Code 会像该 hook 没有处理程序一样跳过它。如果 `guard` 尚未调用 `next`，命令随后会像没有该 mod 时一样继续执行。
+
+同样的处理程序形式也适用于 `prompt.submit` 或 `config.set` 上的守卫。当 `next.called` 为 false 时，返回[事件参考](/docs/zh-CN/plugins/mods/reference#events)为该事件列出的拒绝：`prompt.submit` 使用 `{ drop: 'the reason' }`，`config.set` 使用 `{ deny: 'the reason' }`。
+
+在 `tool.check` 和 `plugin.register` 中，在 `next` 解析后返回的拒绝仍然有效，因此无需检查 `next.called`，直接返回即可：
+
+* **`tool.check`**：返回 `{ decision: 'deny', reason: 'the reason' }`
+* **`plugin.register`**：返回 `{ refuse: 'the reason' }`，如[在检查失败时拒绝 mod](/docs/zh-CN/plugins/mods/admin#refuse-mods-when-your-check-fails) 所示
 
 <h2 id="next-steps">
   后续步骤

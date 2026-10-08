@@ -521,6 +521,7 @@ Claude Desktop 通过网关的身份提供商使用相同的浏览器 SSO 步骤
 | 功能 | 状态 | 注释 |
 | - | - | - |
 | 推理转发 (Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform、Microsoft Foundry、Anthropic) | 可用 | 具有按上游模型转换和故障转移。Amazon Bedrock 上游使用 `bedrock-runtime` 端点和 AWS 默认凭据链。[Amazon Bedrock Mantle 上游](/docs/zh-CN/claude-apps-gateway-config#amazon-bedrock-mantle-endpoint)需要网关服务器上的 Claude Code v2.1.283 或更高版本，[Claude Platform on AWS 上游](/docs/zh-CN/claude-apps-gateway-config#claude-platform-on-aws)需要 v2.1.198 或更高版本。 |
+| 1M token 上下文窗口 | 可用 | Fable 模型、Sonnet 5 及更高版本以及 Opus 4.7 及更高版本默认使用 1M 窗口运行；请参阅[扩展上下文](/docs/zh-CN/model-config#extended-context)。Fable 和 Opus 模型的 1M 默认值需要开发人员机器上的 Claude Code v2.1.287 或更高版本 |
 | 按 IdP 组的模型访问和托管设置 | 可用 | 模型访问在服务器端强制执行；托管设置按 IdP 组交付，由 CLI 在[托管设置层](/docs/zh-CN/settings#settings-precedence)应用 |
 | Claude Desktop | 可用（需要选择加入） | 网关在 `/user/bootstrap` 处为 Claude Desktop 的配置提供服务，一旦策略[使用 `desktop` 密钥选择加入](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)，Claude Desktop 从其 Cowork 和 Code 选项卡以及从 Chat 选项卡（当您启用它时）发送模型请求通过网关。要打开 Chat 选项卡，请参阅[连接 Claude Desktop](#connect-claude-desktop)。需要网关服务器上的 Claude Code v2.1.203 或更高版本。 |
 | 遥测扇出 (OTLP/HTTP) | 可用 | 按导出标识戳；protobuf 和 JSON 编码 |

@@ -446,7 +446,7 @@ Claude Code 可以在任何目录中工作。在笔记库、文档文件夹或�
   询问 Claude 关于其功能
 </h3>
 
-Claude 内置访问其文档，可以回答关于其自身功能和限制的问题。
+Claude 可以回答关于其自身功能和限制的问题。它会在最新的 Claude Code 文档中查找答案，因此答案不局限于您正在运行的版本。
 
 <h4 id="example-questions">
   示例问题
@@ -483,7 +483,6 @@ what are the limitations of Claude Code?
 <Tip>
   提示：
 
-  * Claude 始终可以访问最新的 Claude Code 文档，无论您使用的版本如何
   * 提出具体问题以获得详细答案
   * Claude 可以解释复杂的功能，如 MCP 集成、企业配置和高级工作流程
 </Tip>

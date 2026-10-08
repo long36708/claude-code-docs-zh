@@ -154,7 +154,7 @@ Claude Code 首先合并 `managed-settings.json`，然后按字母顺序合并�
 
 Claude Code 按此顺序检查源，优先级最高的优先：
 
-1. 远程设置，从 claude.ai 作为 [服务器管理的设置](/docs/zh-CN/server-managed-settings) 或通过 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 交付。Claude Code 仅在会话使用 [符合条件的登录或密钥](/docs/zh-CN/server-managed-settings#platform-availability) 直接向 Anthropic 的 API 进行身份验证，或使用 `/login` 登录网关时才获取此源。在其他提供商上，或当 `ANTHROPIC_BASE_URL` 指向 Anthropic 的 API 以外的地方时，它从下一个源开始
+1. 远程设置，从 claude.ai 作为 [服务器管理的设置](/docs/zh-CN/server-managed-settings) 或通过 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 交付。Claude Code 仅在会话使用 [符合条件的凭据](/docs/zh-CN/server-managed-settings#platform-availability) 直接向 Anthropic 的 API 进行身份验证，或使用 `/login` 登录网关时才获取此源。在其他提供商上，或当 `ANTHROPIC_BASE_URL` 指向 Anthropic 的 API 以外的地方时，它从下一个源开始
 2. MDM 或操作系统级策略：macOS plist 或 HKLM 注册表键
 3. 托管设置文件，`managed-settings.d/*.json` 和 `managed-settings.json` 合并在一起
 4. HKCU 注册表，在 Windows 上，以及在 WSL 上一旦 HKLM 注册表或 Windows 托管设置文件打开 [`wslInheritsWindowsSettings`](/docs/zh-CN/settings-reference#wslinheritswindowssettings) 并且 HKCU 值也设置它时。Claude Code 仅在 [其上方没有存在的管理员文档](#present-admin-documents) 且没有 [主机提供的父设置](#let-an-embedding-host-add-policy) 提供限制性键时才读取它
@@ -385,7 +385,7 @@ Claude Code 对 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) �
 
 * `null` 删除该密钥。
 * 无效的 `disableAllHooks`，即使是带引号的布尔值，也会被丢弃并带有警告，因为强制执行 `true` 也会卸载您自己的托管设置部署的 hook。
-* 对于规则涵盖的每个其他布尔密钥，字符串 `"true"` 或 `"false"` 读取为该布尔值，在 `/status` 中带有通知，要求您删除引号。
+* 对于规则涵盖的每个其他布尔设置项，字符串 `"true"` 或 `"false"` 读取为该布尔值，在 `/status` 中带有通知，要求您删除引号。
 
 Claude Code 按字段而不是整体修复 `permissions`、`autoMode`、`worktree` 和 `attribution` 块：
 

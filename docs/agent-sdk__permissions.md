@@ -146,7 +146,7 @@ SDK 支持以下权限模式：
 | `auto` | 模型分类批准 | 模型分类器审查 shell 命令和网络请求等操作，允许或阻止它审查的每一个操作。有关可用性和决策顺序，请参阅[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) |
 
 <Warning>
-  **子代理继承：** 子代理在父会话的权限模式下运行，除非您在其[`AgentDefinition`](/docs/zh-CN/agent-sdk/typescript#agentdefinition)上设置 `permissionMode`，且父会话处于 `default`、`dontAsk` 或 `plan` 模式。即使这样，Claude Code 也永远不会应用 `"bypassPermissions"` 值。子代理仅在父会话本身处于 `bypassPermissions` 模式时才在该模式下运行。 `bypassPermissions` 异常需要 Claude Code v2.1.267 或更高版本。
+  **子代理继承：** 子代理在父会话的权限模式下运行，除非您在其[`AgentDefinition`](/docs/zh-CN/agent-sdk/typescript#agentdefinition)上设置 `permissionMode`，且父会话处于 `default`、`dontAsk` 或 `plan` 模式。即使这样，Claude Code 也永远不会应用 `"bypassPermissions"` 值，并且仅当该子代理[可以使用自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)时才会应用 `"auto"` 值。子代理仅在父会话本身处于 `bypassPermissions` 模式时才在该模式下运行。 `bypassPermissions` 异常需要 Claude Code v2.1.267 或更高版本。
 
   子代理可能具有不同的系统提示和比主代理更少受限的行为，因此继承 `bypassPermissions` 会授予它们完整的自主系统访问权限。[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)仍然适用。
 </Warning>

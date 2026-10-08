@@ -1314,7 +1314,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.sequence`：用于排序事件的每进程计数器，在[事件关联属性](#event-correlation-attributes)下描述
 * `plugin_id`：`<name>@<marketplace>` 形式的插件标识符
 * `hook_event`：发出指标的钩子事件类型
-* 最多 20 个插件发出的指标键。名称匹配 `^[a-z][a-z0-9_]{0,39}$`。值是布尔值或数字。
+* 最多 20 个由插件发出的指标键。名称匹配 `^[a-z][a-z0-9_]{0,39}$`。值为 Boolean 或数字。
 
 <h4 id="compaction-event">
   压缩事件
@@ -1382,7 +1382,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `appearance_id`：链接为一个调查实例发出的事件的唯一 ID
 * `survey_type`：哪个调查产生了事件。`"session"` 是"Claude 做得怎么样？"评分提示
 * `response`：用户在 `responded` 事件上的选择
-* `enabled_via_override`：当设置了 [`CLAUDE_CODE_ENABLE_FEEDBACK_SURVEY_FOR_OTEL`](/docs/zh-CN/env-vars) 时为 `true`。作为布尔值而不是字符串发出。存在于 `session` 调查事件上。在此属性上过滤以确认覆盖在整个舰队中应用
+* `enabled_via_override`：设置了 [`CLAUDE_CODE_ENABLE_FEEDBACK_SURVEY_FOR_OTEL`](/docs/zh-CN/env-vars) 时为 `true`。以布尔值而非字符串形式发出。存在于 `session` 调查事件中。可按此属性筛选，以确认覆盖已在整个设备群中生效
 
 <h4 id="retention-sweep-event">
   保留扫描事件
@@ -1473,7 +1473,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   例如，具有 `apiKeyHelper`、两个 `env` 变量和拒绝规则的管理设置导出为 `{"apiKeyHelper":"[REDACTED]","env":{"HTTPS_PROXY":"[REDACTED]","CLAUDE_CODE_ENABLE_TELEMETRY":"[REDACTED]"},"permissions":{"deny":["Read([REDACTED])"]}}`.
 
   Claude Code 在 8 KB UTF-8 处切割值，切割值不是有效的 JSON
-* `managed_settings.settings_truncated`（当 `managed_settings.settings` 存在时）：当 Claude Code 在 8 KB 处切割 `managed_settings.settings` 时为 `true`，否则为 `false`。作为布尔值而不是字符串发出
+* `managed_settings.settings_truncated`（当存在 `managed_settings.settings` 时）：当 Claude Code 在 8 KB 处截断了 `managed_settings.settings` 时为 `true`，否则为 `false`。以布尔值而非字符串形式发出
 
 <h2 id="interpret-metrics-and-events-data">
   解释指标和事件数据

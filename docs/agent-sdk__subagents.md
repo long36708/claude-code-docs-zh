@@ -323,7 +323,9 @@ Claude 根据任务和每个子代理的 `description` 自动决定何时调用�
   检测子代理调用
 </h2>
 
-Claude 通过 Agent 工具调用子代理。要检测何时调用子代理，请检查 `tool_use` 块，其中 `name` 为 `"Agent"`。来自子代理上下文内的消息包含 `parent_tool_use_id` 字段。
+Claude 通过 Agent 工具调用子代理。要检测何时调用子代理，请检查 `tool_use` 块，其中 `name` 为 `"Agent"`。
+
+来自子代理上下文内的消息包含 `parent_tool_use_id` 字段。在 TypeScript 中，子代理生成的每条 assistant 消息和 user 消息还带有 [`agent_id`](/docs/zh-CN/agent-sdk/typescript#sdkassistantmessage)：即该子代理的[任务事件](/docs/zh-CN/agent-sdk/typescript#sdktaskstartedmessage)中的 `task_id`。`agent_id` 需要 TypeScript Agent SDK v0.3.292 或更高版本。
 
 <Note>
   该工具在 `tool_use` 块中显示为 `"Agent"`，但在 `system:init` 工具列表中显示为 `"Task"`。在 Claude Code v2.1.63 之前，`tool_use` 块也将其命名为 `"Task"`。为了保持检测在不同 SDK 版本中的工作，请在 `block.name` 中匹配两个值。
@@ -331,7 +333,7 @@ Claude 通过 Agent 工具调用子代理。要检测何时调用子代理，请
 
 消息结构在不同 SDK 中有所不同。在 Python 中，您可以通过 `message.content` 直接访问内容块。在 TypeScript 中，`SDKAssistantMessage` 包装 Claude API 消息，因此您通过 `message.message.content` 访问内容。
 
-此示例遍历流式消息，记录何时调用子代理以及后续消息来自该子代理执行上下文内的时间。
+此示例遍历流式消息，记录何时调用子代理以及后续消息来自该子代理执行上下文内的时间。TypeScript 版本还会为每条带有 `agent_id` 的子代理消息记录该 `agent_id`。
 
 <CodeGroup>
   ```python Python theme={null}
@@ -403,6 +405,11 @@ Claude 通过 Agent 工具调用子代理。要检测何时调用子代理，请
     // Check if this message is from within a subagent's context
     if (msg.parent_tool_use_id) {
       console.log("  (running inside subagent)");
+      // On assistant and user messages, agent_id matches the task_id
+      // on that subagent's task_started and other task events
+      if (msg.agent_id) {
+        console.log(`  agent_id: ${msg.agent_id}`);
+      }
     }
 
     if ("result" in message) {

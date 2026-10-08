@@ -159,7 +159,15 @@ on('session.start', async ($, e, next) => {
   在会话之间发送和接收消息
 </h2>
 
-mod 可以向您的另一个会话或此会话的子代理之一发送纯文本消息，并观察到达和离开的消息。`$.session.send({ to, text })` 发送一个，与 SendMessage 工具进行相同的传递。`to` 是 `{ sessionId }` 用于会话，`{ agentId }` 用于来自 `$.agent.list()` 的子代理，或接收消息来自的字符串地址。调用在消息排队后解析，带有 `{ isDelivered: true }`。当没有传递任何内容时，它使用 `{ isDelivered: false, reason }` 解析，`reason` 说明原因。
+mod 可以向您的另一个会话、此会话的子代理之一或其 [agent team](/docs/zh-CN/agent-teams) 中的队友发送纯文本消息，还可以观察到达和离开的消息。
+
+要发送消息，请调用 `$.session.send({ to, text })`，它与 SendMessage 工具进行相同的传递。根据消息的接收者设置 `to`：
+
+* **您的另一个会话**：`{ sessionId }`
+* **子代理或队友**：`{ agentId }`，使用来自 `$.agent.list()` 的 id
+* **您收到的某条消息的发送者**：该消息来源的字符串地址
+
+调用在消息排队后解析，带有 `{ isDelivered: true }`。当没有传递任何内容时，它使用 `{ isDelivered: false, reason }` 解析，`reason` 说明原因。
 
 此 hook 通过要求您在其后键入的 id 的会话获取状态来回答 `/ping` 命令（[注册为命令](#add-a-command)）：
 

@@ -436,6 +436,7 @@ Claude Code 不重试这些故障：
 | :- | :- | :- |
 | [`CLAUDE_CODE_MAX_RETRIES`](/docs/zh-CN/env-vars) | 10 | 重试尝试次数。从 v2.1.186 开始上限为 15；从 v2.1.199 开始 `CLAUDE_CODE_RETRY_WATCHDOG` 提高默认值并移除上限。降低它以在脚本中更快地显示故障。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG`](/docs/zh-CN/env-vars) | 未设置 | 在 CI 作业等无人值守会话中设置为 `1`，以无限期重试 `429` 和 `529` 容量错误，而不是在 `CLAUDE_CODE_MAX_RETRIES` 尝试后失败。当标准速度请求获得报告支出限制或耗尽使用额度的 `429` 时，Claude Code 立即失败，即使来自 [gateway spend cap](#spend-limit-reached) 的也是如此，该上限按计划重置。在 v2.1.239 之前，看门狗无限期重试这些。对于快速模式请求，请参阅 [Handle rate limits](/docs/zh-CN/fast-mode#handle-rate-limits)。在 v2.1.199 或更高版本上，它还为其他瞬时错误（例如服务器错误、超时和断开连接）提高默认重试计数至 300，大约三小时的退避，如果您明确设置该变量，则移除 `CLAUDE_CODE_MAX_RETRIES` 的 15 上限。 |
+| [`CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS`](/docs/zh-CN/env-vars) | 500 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的起始延迟（毫秒）。当 API 容量已满时，可将其提高（最高 32000），以便在更长的时间窗口内分散重试。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](/docs/zh-CN/fast-mode#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.292 或更高版本。 |
 | [`API_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 600000 | 每个请求的超时（毫秒）。为慢速网络或代理提高它。它还限制 Claude Code 等待响应头的时间，在 [No response from API](#no-response-from-api) 中描述。 |
 | [`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES`](/docs/zh-CN/env-vars) | 未设置 | 超时的[非流式请求](#streaming-response-ended-before-any-complete-data-was-received)的重新发送次数限制。达到该限制时，请求失败。生成时间超过超时时间的 Claude 响应在每次重新发送时都会再次超时，因此请设置较低的数值（例如 `0`）以更快地失败。在本地会话中，每次非流式尝试在 300 秒后超时；当您为 `API_TIMEOUT_MS` 设置正值时，则在该值指定的时间后超时。需要 Claude Code v2.1.285 或更高版本。 |
 | [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 未设置 | 流式请求的第一个响应字节的截止时间（毫秒）。需要 Claude Code v2.1.242 或更高版本。对于当此未设置时 Claude Code 如何选择截止时间，请参阅 [No response from API](#no-response-from-api)。 |
@@ -703,16 +704,16 @@ Agent terminated early due to an API error: <error detail>
 当速率限制、过载或服务器错误中断已经生成文本输出的前台子代理时，Claude 接收该部分输出标记为不完整，而不是此错误。仅输出为工具调用的子代理也会收到此错误；在 v2.1.199 中，该形状返回了空的部分结果。请参阅[子代理中的 API 错误](/docs/zh-CN/sub-agents#api-errors-in-subagents)。
 
 <h2 id="usage-limits">
-  使用限制
+  用量限制
 </h2>
 
-本部分中的大多数错误意味着与您的账户或计划相关的配额已达到。其中三个的工作方式不同：[`Server is temporarily limiting requests`](#server-is-temporarily-limiting-requests) 是与您的计划配额无关的服务器端限流，[`Usage credits required for 1M context`](#usage-credits-required-for-1m-context) 是权限检查而非配额耗尽，[`The prompt to confirm went unanswered`](#the-prompt-to-confirm-went-unanswered) 表示使用额度同意提示未被回答而关闭，无论是否达到配额。
+本部分中的大多数错误意味着与您的账户或套餐相关的配额已达到。其中三个的工作方式不同：[`Server is temporarily limiting requests`](#server-is-temporarily-limiting-requests) 是与您的套餐配额无关的服务器端限流，[`Usage credits required for 1M context`](#usage-credits-required-for-1m-context) 是权限检查而非配额耗尽，[`The prompt to confirm went unanswered`](#the-prompt-to-confirm-went-unanswered) 表示使用额度同意提示未被回答而关闭，无论是否达到配额。
 
 <h3 id="youve-hit-your-session-limit">
   You've hit your session limit
 </h3>
 
-订阅计划包括滚动使用额度。当额度用完时，您会看到以下消息之一：
+订阅套餐包括滚动用量额度。当额度用完时，您会看到以下消息之一：
 
 ```text theme={null}
 You've hit your session limit · resets 3:45pm
@@ -732,9 +733,9 @@ Claude Code 会阻止进一步的请求，直到消息中显示的重置时间�
 * 等待错误中显示的重置时间
 * 在 [Desktop app](/docs/zh-CN/desktop) 的 Code 选项卡中，会话限制卡提供 **Auto-continue when limits reset** 复选框。周限制卡没有。选中后，Desktop app 会在重置后重试中断的轮次，并在卡上显示重试时间。Desktop 复选框和 CLI 中 `/config` 中的 **Continue automatically at usage limit** 设置是分开的，因此需要分别关闭每一个。
 * 对于 Opus 或 Sonnet 限制，运行 `/model` 并切换到该系列之外的模型以继续工作。每个模型都有自己的提示缓存，因此下一个请求会重新读取整个对话，没有缓存命中；请参阅 [Switching models](/docs/zh-CN/prompt-caching#switching-models)
-* 运行 `/usage` 查看您的计划限制以及何时重置
-* 运行 `/usage-credits` 在 Pro 和 Max 上购买额外使用，或在 Team 和 Enterprise 上向您的管理员请求。有关如何计费的信息，请参阅 [usage credits for paid plans](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)。
-* 要升级您的计划以获得更高的基础限制，请参阅 [claude.com/pricing](https://claude.com/pricing)
+* 运行 `/usage` 查看您的套餐限制以及何时重置
+* 运行 `/usage-credits` 在 Pro 和 Max 上购买额外用量，或在 Team 和 Enterprise 上向您的管理员请求。有关如何计费的信息，请参阅 [usage credits for paid plans](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)。
+* 要升级您的套餐以获得更高的基础限制，请参阅 [claude.com/pricing](https://claude.com/pricing)
 
 在窗口用完之前，Claude Code 可以警告您已使用了大部分额度，显示类似 `You've used 85% of your session limit · resets 3:45pm` 的消息。要持续监视您的剩余额度，请将 `rate_limits` 字段添加到 [custom status line](/docs/zh-CN/statusline#rate-limit-usage)，或在 Desktop app 中单击模型选择器旁边的 [usage ring](/docs/zh-CN/desktop#check-usage)。
 
@@ -742,17 +743,17 @@ Claude Code 会阻止进一步的请求，直到消息中显示的重置时间�
   Usage credits required for 1M context
 </h3>
 
-所选模型使用 1M 令牌扩展上下文窗口，您的计划仅通过使用额度包含它。
+所选模型使用 1M token 扩展上下文窗口，而您的套餐仅通过使用额度包含它。
 
 ```text theme={null}
 API Error: Usage credits required for 1M context · run /usage-credits to turn them on (they take effect after you restart Claude Code), or /model to switch to standard context
 ```
 
-在 Claude Desktop app 运行的会话中，提示不命名任何命令：它指向 claude.ai 使用设置页面，或在 Team 和 Enterprise 计划上说在 claude.ai/admin-settings/usage 启用使用额度或向您的管理员请求。
+在 Claude Desktop app 运行的会话中，提示不命名任何命令：它指向 claude.ai 用量设置页面，或在 Team 和 Enterprise 套餐上说在 claude.ai/admin-settings/usage 启用使用额度或向您的管理员请求。
 
-这是权限检查，而非配额耗尽。即使您的会话和周额度有剩余容量，它也会触发。有关哪些计划直接包含 1M 上下文以及哪些需要使用额度的信息，请参阅 [Extended context](/docs/zh-CN/model-config#extended-context)。
+这是权限检查，而非配额耗尽。即使您的会话和周额度有剩余容量，它也会触发。有关哪些套餐直接包含 1M 上下文以及哪些需要使用额度的信息，请参阅 [Extended context](/docs/zh-CN/model-config#extended-context)。
 
-当此错误在对话中期出现，因为上下文增长超过 200K 令牌时，Claude Code 会自动将对话压缩回标准上下文限制以下，并之后将会话保持在该限制，因此无需采取任何操作。在 v2.1.172 之前的版本中，错误会在每个后续请求（包括 `/compact`）上重复；在这些版本上运行 `/clear` 以恢复。以下步骤适用于您明确选择 `[1m]` 模型的情况。
+当此错误因上下文增长超过 200K token 而在对话中途出现时，Claude Code 会自动将对话压缩回标准上下文限制以下，并在之后将会话保持在该限制，因此无需采取任何操作。在 v2.1.172 之前的版本中，错误会在每个后续请求（包括 `/compact`）上重复；在这些版本上运行 `/clear` 以恢复。以下步骤适用于您明确选择 `[1m]` 模型的情况。
 
 **要做什么：**
 
@@ -780,7 +781,7 @@ Fable 5.1 now uses usage credits · the prompt to confirm went unanswered — no
 
 **要做什么：**
 
-* 在会话运行的地方，在终端或托管它的应用程序中，发送另一个提示并在它重新出现时回答同意提示。对于后台会话，首先从 [agents view](/docs/zh-CN/agent-view) 附加到它。从 Remote Control 客户端重新发送会再次显示此消息，因为客户端无法显示提示。
+* 在会话运行的地方，在终端或托管它的应用程序中，发送另一个提示词并在同意提示重新出现时回答它。对于后台会话，首先从 [agents view](/docs/zh-CN/agent-view) 附加到它。从 Remote Control 客户端重新发送会再次显示此消息，因为客户端无法显示提示。
 * 运行 `/model` 切换到不计费使用额度的模型
 * 要给自己更多时间，请将 [`dialogExpiry`](/docs/zh-CN/settings-reference#dialogexpiry) 设置为更长的值或 `"never"`
 
@@ -790,13 +791,13 @@ Fable 5.1 now uses usage credits · the prompt to confirm went unanswered — no
   Server is temporarily limiting requests
 </h3>
 
-API 应用了与您的计划配额无关的短期限流。
+API 应用了与您的套餐配额无关的短期限流。
 
 ```text theme={null}
 API Error: Server is temporarily limiting requests (not your usage limit)
 ```
 
-Claude Code 通过真实限制响应所携带的统一配额标头的缺失来区分这些。从 v2.1.199 开始，这是 [retried automatically](#automatic-retries) 带有退避，无论您如何进行身份验证。在早期版本中，使用 claude.ai 订阅登录的会话在第一次出现时失败轮次；只有 API 密钥和 Enterprise 登录重试了它。
+Claude Code 通过真实限制响应所携带的统一配额标头的缺失来区分这些。从 v2.1.199 开始，无论您如何进行身份验证，此错误在显示之前都会以退避方式[自动重试](#automatic-retries)。在早期版本中，使用 claude.ai 订阅登录的会话在第一次出现时即使轮次失败；只有 API 密钥和 Enterprise 登录会重试它。
 
 **要做什么：**
 
@@ -819,7 +820,7 @@ API Error: Request rejected (429) · this may be a temporary capacity issue. If 
 
 **要做什么：**
 
-* 运行 `/status` 并确认活跃凭证是您期望的。环境中的流浪 `ANTHROPIC_API_KEY` 可能会通过低层密钥而不是您的订阅路由请求。
+* 运行 `/status` 并确认活跃凭据是您期望的。环境中残留的 `ANTHROPIC_API_KEY` 可能会通过低层级密钥而不是您的订阅路由请求。
 * 检查您的提供商控制台以了解活跃限制，如果需要请求更高的层级
 * 对于 Anthropic API 密钥，请参阅 [rate limits reference](https://platform.claude.com/docs/en/api/rate-limits) 了解层级如何工作以及如何设置每个工作区的上限
 * 降低并发：降低 [`CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY`](/docs/zh-CN/env-vars)，避免运行许多并行子代理，或使用 `/model` 为高容量脚本运行切换到更小的模型
@@ -828,31 +829,29 @@ API Error: Request rejected (429) · this may be a temporary capacity issue. If 
   You've hit your monthly spend limit
 </h3>
 
-您的计划包含的使用量无法覆盖此请求，而本应为其付款的 [usage credits](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) 已达到支出限制。这发生在您的计划的使用窗口之一用完时，或当请求是仅由使用额度支付的请求时，例如对 [bills to usage credits](/docs/zh-CN/model-config#fable-and-usage-credits) 的模型的请求。消息命名其限制阻止了您。`·` 后的文本说明如何增加该限制，并因您的计划和您是否管理计费而异：
+您的套餐包含的用量无法覆盖此请求，而本应为其付款的 [usage credits](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) 已达到支出限制。这发生在您的套餐的用量窗口之一用完时，或当请求是仅由使用额度支付的请求时，例如对 [bills to usage credits](/docs/zh-CN/model-config#fable-and-usage-credits) 的模型的请求。消息会指明是谁的限制阻止了您。`·` 后的文本说明如何增加该限制，并因您的套餐和您是否管理计费而异：
 
 ```text theme={null}
-You've hit your monthly spend limit · raise it at claude.ai/settings/usage
+You've hit your monthly spend limit · raise it at https://claude.ai/settings/usage?from=cc_cli_limit_message
 You've hit your individual spend limit · ask your admin for a higher limit
-You've hit your org's monthly spend limit · visit claude.ai/admin-settings/usage to raise it
-You've hit your team's shared budget · ask your admin to raise it at claude.ai/admin-settings/usage
+You've hit your org's monthly spend limit · visit https://claude.ai/admin-settings/usage to raise it
+You've hit your team's shared budget · ask your admin to raise it at https://claude.ai/admin-settings/usage
 You've hit your channel's monthly spend limit · an org owner or channel manager can raise it in the channel's Claude settings
 ```
 
 `team's shared budget` 是管理员分配给您所属的组的汇总预算；消息不命名该组。`channel's monthly spend limit` 是会话运行的一个 Slack 频道的预算，因此您的组织可能在其外部仍有预算。
 
-当您的计划的窗口之一用完时，消息也会说该窗口何时重置，例如 `· your session limit resets 3:45pm`，访问权限会在那时返回，无需任何人提高限制。在使用基于使用量的计费的组织中，消息说 `usage limit` 代替 `spend limit`，如 `You've hit your individual usage limit`。
-
-在 v2.1.239 之前，消息没有命名计划窗口的重置时间。在 v2.1.268 之前，组的汇总预算产生 `individual spend limit` 消息而不是 `team's shared budget`。
+当您的套餐的窗口之一用完时，消息也会说该窗口何时重置，例如 `· your session limit resets 3:45pm`，访问权限会在那时恢复，无需任何人提高限制。在使用基于用量计费的组织中，消息说 `usage limit` 代替 `spend limit`，如 `You've hit your individual usage limit`。
 
 如果您通过 Claude apps gateway 连接并看到小写 `spend limit reached`，那是您的网关操作员的上限；请参阅 [Spend limit reached](#spend-limit-reached)。
 
 **要做什么：**
 
 * 在 Pro 和 Max 上，在 claude.ai 的 [**Settings > Usage**](https://claude.ai/settings/usage) 中增加您的月度支出限制，或运行 `/usage-credits`
-* 在 Team 和 Enterprise 上，如果您管理计费，在 [**Organization settings > Usage**](https://claude.ai/admin-settings/usage) 中增加限制，或要求管理员这样做。`/usage-credits` 为您向您的管理员发送该请求
+* 在 Team 和 Enterprise 上，如果您管理计费，在 [**Organization settings > Usage**](https://claude.ai/admin-settings/usage) 中增加限制，或要求管理员这样做。`/usage-credits` 会代您向管理员发送该请求
 * 对于频道的限制，要求组织所有者或频道的管理员在 claude.ai 上提高它。请参阅 Claude Tag 文档中的 [Per-channel limits](https://claude.com/docs/claude-tag/admins/set-spend-limit#per-channel-limits)
-* 如果消息命名您的计划窗口的重置时间，您可以改为等待它
-* 运行 `/usage` 查看您的计划窗口以及每个何时重置
+* 如果消息命名您的套餐窗口的重置时间，您可以改为等待它
+* 运行 `/usage` 查看您的套餐窗口以及每个何时重置
 
 <h3 id="spend-limit-reached">
   Spend limit reached
@@ -885,8 +884,8 @@ Credit balance is too low
 
 **要做什么：**
 
-* 如果您有 Pro、Max、Team 或 Enterprise 计划并看到这个，运行 `/status` 并检查 `API key` 行。环境中已批准的 `ANTHROPIC_API_KEY` 通过该密钥而不是您的订阅路由请求。在当前 shell 中取消设置它并从您的 shell 配置文件中删除它，然后重新启动 `claude`。如果您还没有使用您的订阅登录，运行 `/login`。
-* 在 [platform.claude.com/settings/billing](https://platform.claude.com/settings/billing) 添加额度，并考虑在那里启用自动重新加载，以便余额在达到零之前重新填充
+* 如果您有 Pro、Max、Team 或 Enterprise 套餐并看到这个，运行 `/status` 并检查 `API key` 行。环境中已批准的 `ANTHROPIC_API_KEY` 通过该密钥而不是您的订阅路由请求。在当前 shell 中取消设置它并从您的 shell 配置文件中删除它，然后重新启动 `claude`。如果您还没有使用您的订阅登录，运行 `/login`。
+* 在 [platform.claude.com/settings/billing](https://platform.claude.com/settings/billing) 添加额度，并考虑在那里启用自动充值，以便余额在达到零之前重新填充
 * 在 Console 中设置每个工作区的支出上限，以防止单个项目耗尽组织余额。请参阅 [Manage costs effectively](/docs/zh-CN/costs)。
 
 <h3 id="could-not-update-your-spend-limit">
@@ -2861,7 +2860,7 @@ API Error: Opus 4.8's safeguards flagged this message. Our intentionally broad s
 
 如果消息包含 `` Details: `[reasoning_extraction]` `` 行，请参阅[保护措施标记了索取 Claude 推理过程的请求](#safeguards-flagged-a-request-for-claudes-reasoning)。
 
-消息链接到[网络安全验证计划](https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude)，该计划为合法网络安全工作授予访问权限。在 Opus 5.5 和 Sonnet 5.5 上，消息改以 `<model>'s safeguards flagged this session` 开头。当标记的类别有可用的备用模型时，Claude Code [切换模型](/docs/zh-CN/model-config#automatic-model-fallback)而不是显示此错误。
+此消息链接到[网络安全验证计划](https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude)，该计划为合法网络安全工作授予访问权限。具有[自动模型回退](/docs/zh-CN/model-config#automatic-model-fallback)的模型会打印不同的消息，不含此链接；在 Opus 5.5 和 Sonnet 5.5 上，该消息以 `<model>'s safeguards flagged this session` 开头。该部分还介绍了 Claude Code 何时改为切换模型。
 
 在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 和 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 上，网络安全标记会改为产生[使用政策拒绝](#usage-policy-refusal)消息。
 
@@ -4065,7 +4064,7 @@ Claude Code refuses the marketplace name "anthropic-plugins-v2"
   Marketplace 已从不同的来源添加
 </h3>
 
-您通过[`/plugin install <plugin> --marketplace <source>`](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command)确认添加了 marketplace，Claude Code 从该来源获取的目录将自己命名为与您已从不同来源添加的 marketplace 相同。Claude Code 保留现有的 marketplace 而不是替换它，插件未安装。
+您在会话中或从 shell 中，通过[安装命令上的`--marketplace <source>`](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command)指定了一个新的市场来源。Claude Code 从该来源获取的目录与您已从不同来源添加的市场同名。Claude Code 保留现有的市场而不是替换它，插件未安装。
 
 ```text theme={null}
 Marketplace "acme-tools" is already added from a different source (github:acme/plugins). To use this source instead, remove that marketplace first with /plugin marketplace remove acme-tools.
@@ -4824,7 +4823,7 @@ This session is isolated in the worktree /path/to/worktree, but this command eva
 This session has no saved transcript — it was stopped before its first response finished. If it was backgrounded from another conversation, that one is still intact; `claude respawn <id>` starts this one fresh.
 ```
 
-在 [Agent 视图](/docs/zh-CN/agent-view)中打开相同会话的行会在列表下方显示 `Press enter again to restart this session fresh`，在该行上第二次按 `Enter` 会使用空对话重启会话。在 v2.1.212 之前，打开该行显示拒绝消息，无法从 Agent 视图重启。在 v2.1.211 之前，打开停止的会话会无声地启动该空白对话，并可能重新运行会话的原始提示词。
+在 [Agent 视图](/docs/zh-CN/agent-view)中打开相同会话的行则会在列表下方显示 `Press enter again to restart this session fresh`，在该行上第二次按 `Enter` 会使用空对话重启会话。
 
 **要做什么：**
 
@@ -4845,8 +4844,6 @@ This conversation is already open in another running Claude session — use that
 
 * **`running in another terminal`**：终端持有对话，例如您使用 `claude --resume` 或 `/resume` 恢复它的终端。该行也显示 `Open in a terminal`。
 * **`already open in another running Claude session`**：另一个非交互式 Claude Code 进程持有它，例如相同对话的[后台会话](/docs/zh-CN/agent-view#the-supervisor-process)进程尚未退出。
-
-Claude Code 保存您在打开行时键入的回复，并在会话下次启动时将其作为会话的下一个提示词发送。
 
 **要做什么：**
 

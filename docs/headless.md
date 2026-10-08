@@ -78,13 +78,18 @@ bare 模式还会限制会话运行期间发生的事情：
   退出时的后台任务
 </h3>
 
-如果 Claude 在 `claude -p` 运行期间启动 [后台 Bash 任务](/docs/zh-CN/tools-reference#bash-tool-behavior)（例如开发服务器或监视构建），该 shell 将在 Claude 返回其最终结果并关闭 stdin 后约五秒钟被终止。宽限期允许在结果之后立即完成的任务仍然传递其输出。
+在 Claude 完成其轮次且 stdin 关闭后，`claude -p` 运行可以保持打开状态，以等待 Claude 启动的后台工作。
 
-如果 Claude 启动后台 [subagent](/docs/zh-CN/sub-agents) 或工作流，`claude -p` 会改为保持打开状态，直到该工作完成，因为其结果是最终输出的一部分。
+除非主对话启动的后台命令仍在运行，否则默认情况下，Claude Code 会在连续空闲等待 10 分钟后停止仍在运行的任何内容，并丢弃其部分结果。要更改 10 分钟上限，请设置 [`CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS`](/docs/zh-CN/env-vars)，或将其设置为 `0` 以在没有上限的情况下等待。
 
-默认情况下，等待在连续空闲等待 10 分钟后结束，因此卡住的 subagent 或工作流无法无限期地保持进程打开。此时 Claude Code 停止仍在运行的任何内容并丢弃其部分结果。要更改限制，请设置 [`CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS`](/docs/zh-CN/env-vars)，或将其设置为 `0` 以无限期等待。
+运行会等待后台工作，例如后台命令、子代理和工作流、Monitor 监视以及待处理的 `/loop` 唤醒：
 
-如果 Claude 在 `claude -p` 运行期间启动 [Monitor](/docs/zh-CN/tools-reference#monitor-tool) 监视，Claude Code 会等待监视直到它超时或十分钟的上限结束等待，以先发生者为准。在等待期间，Claude 继续响应监视报告的内容。默认情况下，监视在 Claude 启动后五分钟超时。
+* **[后台命令](/docs/zh-CN/tools-reference#background-commands)**：对于主对话启动的命令（例如开发服务器或监视构建），运行会等待，直到该命令退出或达到其 [时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)。随后 Claude 会根据结果再进行一轮，该轮次的结果成为运行的最后结果，也就是 `text` 和 `json` 输出所打印的结果。在命令运行期间，10 分钟上限不会结束等待。
+* **后台[子代理](/docs/zh-CN/sub-agents)和工作流**：运行会保持打开状态，直到该工作完成，因为其结果是最终输出的一部分。
+* **[Monitor](/docs/zh-CN/tools-reference#monitor-tool) 监视**：运行会等待，直到监视超时或 10 分钟上限结束等待，以先发生者为准。在等待期间，Claude 会继续响应监视报告的内容。默认情况下，监视在 Claude 启动后五分钟超时。
+* **待处理的唤醒**：在以文本形式而非通过 `--input-format stream-json` 传递提示词的运行中，如果 Claude 已安排 [自定节奏的 `/loop` 唤醒](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)，运行会等待每次唤醒触发并执行其迭代，直到 [循环结束](/docs/zh-CN/scheduled-tasks#stop-a-loop)，即使超过 10 分钟上限也是如此。
+
+如果运行达到其 [`--max-budget-usd`](/docs/zh-CN/cli-reference#cli-flags) 上限，Claude Code 会停止剩余的后台工作，而不是继续等待。
 
 <h3 id="stop-a-run-with-sigterm">
   使用 SIGTERM 停止运行

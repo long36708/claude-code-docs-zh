@@ -85,7 +85,18 @@
   针对干净配置进行测试
 </h2>
 
-使用 [`claude --safe-mode`](/docs/zh-CN/cli-reference#cli-flags) 开始，它会启动一个会话，禁用所有自定义，包括 `CLAUDE.md`、skills、plugins、hooks、MCP 服务器以及自定义命令和代理。身份验证、模型选择、内置工具和权限正常工作。如果问题在安全模式下消失，则其中一个方面是原因；使用上面的针对性检查来找出是哪一个。安全模式仍然应用来自你的组织的托管 hooks 和设置策略。托管 plugins、skills、CLAUDE.md 和 MCP 服务器被关闭。
+首先使用 [`claude --safe-mode`](/docs/zh-CN/cli-reference#cli-flags)，它会启动一个禁用您的自定义内容的会话，包括：
+
+* `CLAUDE.md`
+* Skill、插件和 hook
+* MCP 服务器
+* 自定义命令和 Agent
+* 自定义输出样式
+* 自定义快捷键
+
+身份验证、模型选择、内置工具和权限正常工作。如果问题在安全模式下消失，则说明原因已缩小到您关闭的某一项。要找出具体是哪一项，请使用该项对应的检查，例如[查看加载到上下文中的内容](#see-what-loaded-into-context)、[检查 MCP 服务器](#check-mcp-servers)或[检查 hook](#check-hooks)。
+
+安全模式仍然应用来自您组织的托管 hook 和设置策略。托管插件、skill、`CLAUDE.md` 和 MCP 服务器会被关闭。
 
 如果问题在安全模式下仍然存在，或你的设置本身可疑，请与从你的常规设置中不加载任何内容的会话进行比较。将 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 指向一个空目录以绕过 `~/.claude` 下的所有内容，并从没有 `.claude` 文件夹、`.mcp.json` 或 `CLAUDE.md` 的目录启动，以便也跳过项目配置。
 

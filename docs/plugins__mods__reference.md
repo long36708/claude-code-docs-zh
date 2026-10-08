@@ -43,7 +43,8 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | `next.origin` | 触发该事件者的 `{ plugin, tier }`。Claude Code 自身为 `{ plugin: 'engine', tier: 'core' }`。mod 的 `tier` 是它在 [mod 运行顺序](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)中的优先级组：`prepend`、`user`、`append` 或 `builtin`。 |
 | `next.budget` | hook 的时间限制（以毫秒为单位）：`next.budget.ms` 是总限制，`next.budget.remainingMs` 是当前剩余时间 |
 | `next.to(e, tier)` | 跳到后面的层级，即 `append`、`builtin` 或 `core`。`next.to(e, 'append')` 会跳过用户安装的 mod。只有 `prependPlugins` 或 `appendPlugins` 中的 mod 才能调用它。 |
-| `next.error`, `next.called` | 仅在 `.catch` 处理程序中可用。`next.error.kind` 为 `throw` 或 `timeout`，`next.error.message` 是错误文本；当失败的 hook 已调用 `next` 时，`next.called` 为 `true`。 |
+| `next.error` | 仅在 `.catch` 处理程序中可用。hook 失败时，`kind` 为 `throw` 或 `timeout`，`message` 是错误文本。当 hook 因事件来自其自身某个 mods API 调用内部而被跳过时，`kind` 为 `re-entry`；如果触发该事件的是另一个 mod 添加到 mods API 的方法，则 `cause` 为 `lent`。`re-entry` 和 `cause` 需要 Claude Code v2.1.292 或更高版本。 |
+| `next.called` | 仅在 `.catch` 处理程序中可用。当 hook 已调用 `next` 时为 `true`。 |
 
 <h2 id="events">
   事件
@@ -64,6 +65,17 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | [`tool.call`](/docs/zh-CN/plugins/mods/events#guard-or-change-a-tool-call) | 工具即将运行 | `next(e)`、`{ deny: reason }` 或 `{ result }` |
 | [`tool.check`](/docs/zh-CN/plugins/mods/events#where-settings-hooks-run-in-the-order) | Claude Code 在 `tool.call` 和 `PreToolUse` hook 之后决定是否允许运行某个工具调用。`next(e)` 解析为规则、权限模式和这些 hook 得出的决定。 | `{ decision }`，其值为 `allow`、`ask` 或 `deny` |
 | `tool.describe` | 每个工具一次，在其描述首次发送给 Claude 时 | `{ description }`，可选择将 `isDeferred` 设为 `true` 以将该工具置于[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)之后，或设为 `false` 以预先加载它 |
+
+<h4 id="agent-and-organization-fields-on-tool-check">
+  `tool.check` 上的 Agent 和组织字段
+</h4>
+
+在 `tool.check` hook 中，读取以下字段可区分子代理的调用与主对话的调用，并查看您的组织是否要求对某个连接器工具进行批准：
+
+* **`e.agentId`**：当[子代理](/docs/zh-CN/sub-agents)或[进程内队友](/docs/zh-CN/agent-teams#choose-a-display-mode)发出调用时设置，由主对话发出调用时则不存在
+* **`e.ceiling`**：对于您的组织设为 `ask` 的连接器工具，其值为 `ask`，适用于[该设置能传达到 Claude Code 的会话](/docs/zh-CN/mcp#organization-controls-on-connector-tools)
+
+在 `tool.check` 上，`e.agentId` 和 `e.ceiling` 需要 Claude Code v2.1.290 或更高版本。
 
 <h3 id="prompts-and-what-claude-reads">
   提示词以及 Claude 读取的内容
@@ -197,7 +209,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`$.ui`](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `resolve`、`invalidate`、`open`、`close`、`panes`、`focus`、`scroll`、`toast`、`status`、`log`、`notice`、`ask`、`copy`、`selection`、`blit` |
 | [`$.command`](/docs/zh-CN/plugins/mods/api#add-a-command) | `register`、`run`、`list` |
 | [`$.tool`](/docs/zh-CN/plugins/mods/api#add-a-tool) | `register`、`call`、`check`、`list` |
-| `$.agent` | `register`、`spawn`、`list` |
+| `$.agent` | `register`、`spawn`、`list`。`list()` 返回此会话的子代理和队友，每项都带有 `status`，其值为 `pending`、`running`、`waiting`、`idle`、`completed`、`failed` 或 `killed` 之一，其中 `idle` 和 `waiting` 需要 Claude Code v2.1.289 或更高版本。 |
 | [`$.model`](/docs/zh-CN/plugins/mods/api#call-a-model) | `complete`、`fork`、`classify` |
 | [`$.prompt`](/docs/zh-CN/plugins/mods/api#start-a-turn-from-a-background-job) | `submit`、`read`、`fill`、`suggest`、`compose`。Claude 读取来自 `submit({ text })` 的文本时，前面会有一句指明您的 mod 为发送者的话。`submit({ text, asUser: true })` 将文本作为用户自己的话发送，不带那句话。 |
 | `$.turn` | `abort` |
@@ -258,7 +270,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`Box`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `key`、flex 布局、`gap`、`padding`、`margin`、`width`、`height`、[`borderStyle`](#box-border-styles)、`backgroundColor`、`position`、`hover` | ✓ | ✓ |
 | [`Text`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `color`、`backgroundColor`、`bold`、`italic`、`underline`、`dimColor`、`inverse`、`wrap` | ✓ | ✓ |
 | [`Button`](/docs/zh-CN/plugins/mods/interface#respond-to-presses-and-typing) | `key`、`label`、`onPress`、`hotkey`、`plain`、`dimColor`、`autoFocus`、`action` | ✓ | ✓ |
-| `Link` | `href`、`label` | ✓ | ✓ |
+| [`Link`](/docs/zh-CN/plugins/mods/interface#link-in-the-desktop-app) | `href`、`label`。请参阅[限制](#limits)。 | ✓ | ✓ |
 | [`Code`](/docs/zh-CN/plugins/mods/gallery#show-code-and-changes) | `source`、`language`、`path`、`startLine`、`format`、`wrap` | ✓ | ✓ |
 | `Markdown` | `text`、`key`、`dimColor`、`onLinkPress`、`pressableLinks` | ✓ | ✓ |
 | [`Input`](/docs/zh-CN/plugins/mods/interface#take-typed-input-and-draw-a-row-for-each-item) | `key`、`label`、`placeholder`、`value`、`submitLabel`、`onSubmit`、`onInput`、`autoFocus` | ✓ | ✓ |
@@ -295,7 +307,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
   限制
 </h2>
 
-hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出时间限制的 hook，并拒绝超出大小限制的调用。
+hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出时间限制的 hook。
 
 | 限制 | 值 |
 | :- | :- |
@@ -305,7 +317,10 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | `$.process.run` 超时时间 | 默认 30 秒，最长 10 分钟 |
 | `$.model.complete` `maxTokens` | 默认 1024，最多 64,000 或模型的输出上限 |
 | `$.fs.read` 和 `$.fs.write` | 单个文件 4 MiB |
+| hook 的 `drop` 原因或 `config.set` 的 `deny` 原因 | 4,096 个字符。更长的原因会被截去末尾部分，drop 或 deny 仍然生效。截断需要 Claude Code v2.1.292 或更高版本；在更早的版本中，该 hook 会改为[失败](/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)。 |
 | 单个树中的文本 | 仅绘制前 100,000 个字符 |
+| `Code` 的 `language` 或 `path`、`Select` 选项的 `value`，或 `Client` 的 `module` | 10,000 个字符。如果其中任何一项超出此长度，Claude Code 会[在该位置绘制其自身的版本](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)。 |
+| `Link` 的 `href` | 2,048 个字符。更长的 `href` 会导致整个树无法绘制。 |
 | `$.store` | JSON 总计 4 MiB |
 | `$.session.messages()` | 最新的 4,096 个条目 |
 | `$.ui.invalidate('ui.render')` 重绘 | 限制为每秒 10 次；在终端中，对于可见窗格、展开区域以及输入框下方的提示行，限制为每秒 30 次。更早到达的调用会被合并。 |

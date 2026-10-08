@@ -6,7 +6,7 @@
 
 > 了解为什么 Claude Code mod 不起作用：将症状或消息与其原因匹配，查找拒绝消息，并阅读调试日志。
 
-当 mod 的模块或其中一个 hooks 失败时，Claude Code 会跳过它，会话继续进行，因此损坏的 mod 看起来像什么都不做的 mod。首先检查 Claude Code 从 mod 读取了什么以及它在哪里报告问题，然后找到您遇到的症状或消息。
+当 mod 的模块或其中一个 hook 失败时，Claude Code 会跳过它，会话继续进行，因此损坏的 mod 看起来像什么都不做的 mod。首先检查 Claude Code 从 mod 读取了什么以及它在哪里报告问题，然后找到您遇到的症状或消息。
 
 <h2 id="find-out-why-a-mod-does-nothing">
   找出为什么 mod 不起作用
@@ -30,7 +30,8 @@
 | :- | :- |
 | `no hooks module to load` | Mod 可以加载。该命令在此目录中找不到要测试的 mod。 |
 | `hooks modules are turned off here` | 一个设置正在阻止您的 mod：您自己的设置中的 `disableAllHooks`，或您的组织的策略 |
-| `hooks modules are turned off in this process` | Anthropic 已远程关闭已安装的 mod。您机器上的任何设置都无法将其打开。 |
+| `hooks modules are turned off in this process: the rollout switch served off` | Anthropic 已远程关闭已安装的 mod。 |
+| `hooks modules are turned off in this process: the rollout switch was saved off by an earlier session` | 该命令使用了之前某个会话保存的值，该值可能已过时。请启动一次 `claude` 以刷新该值，然后再次运行该命令。 |
 
 组织还可以设置 `allowManagedModsOnly` 以仅允许其自己的 mod，此命令不会报告。在这种情况下，Claude Code 会拒绝您安装的 mod，并且[会有消息说明原因](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)。
 
@@ -72,7 +73,8 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 
 | 消息开头 | 这意味着什么 |
 | :- | :- |
-| `hooks modules are turned off for installed plugins in this process` | Anthropic 已远程关闭已安装的 mod。您机器上的任何设置都无法将其打开。 |
+| `hooks modules are turned off for installed plugins in this process: the rollout switch served off` | Anthropic 已远程关闭已安装的 mod。 |
+| `hooks modules are turned off for installed plugins in this process: the rollout switch was saved off by an earlier session` | 该会话使用了先前会话保存的值，该值可能已过时。请重新启动 Claude Code 以刷新该值。 |
 | `disableAllHooks in managed settings` | 您的组织关闭了来自已安装插件的 hooks |
 | `only managed plugins and built-in plugins run` | 设置了 `allowManagedHooksOnly`，或在托管设置以外的设置文件中设置了 `disableAllHooks` |
 | `installed plugins that are not managed load no hooks module in this mode (--bare)` | 您使用 `--bare` 启动了 Claude Code |
@@ -163,6 +165,16 @@ mod 已加载，然后 Claude Code 跳过了其中一个 hooks 或卸载了它�
 
 修复 hook。
 
+<h3 id="its-session-start-ran-again-in-a-fresh-copy">
+  `its session.start ran again in a fresh copy`
+</h3>
+
+该行以 mod 的名称开头，并指出一个 `$.prompt.submit`、`$.command.run` 或 `$.agent.spawn` 调用，如 `first-mod: its session.start ran again in a fresh copy; the $.prompt.submit call it had already made was not made again`。Claude Code 再次加载了该 mod 的模块（例如在 hooks worker 崩溃并被替换之后），新副本的 [`session.start`](/docs/zh-CN/plugins/mods/reference#session) hook 运行了。该行指出的调用以其首次运行的结果完成，而没有再次运行，因此您的 mod 不会重复提交提示词、运行命令或启动子代理。hook 的其余部分照常运行。
+
+无需修复。
+
+在 v2.1.292 之前，该调用会再运行一次，因此提示词会被提交两次、命令会被运行两次，或子代理会被启动两次。
+
 <h3 id="mods-that-run-in-the-hooks-worker-are-off-for-this-session">
   `mods that run in the hooks worker are off for this session`
 </h3>
@@ -203,9 +215,29 @@ mod 已加载，其窗格、带或控件的行为不符合您的预期。
   窗格或带为空或显示 Claude Code 的常规内容
 </h3>
 
-您的 hook 返回的 [树](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) 未验证。使用 `--plugin-dir`，成绩单说 `ui.render (Pane) refused:` 带有原因，如 `first-mod: ui.render (Pane) refused: Box prop "flexDirection" must be one of row, column, row-reverse, column-reverse; the engine drew its own`。调试日志有 `a hook returned a tree that does not validate` 带有相同的原因。
+您的 hook 返回的 [树](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) 未通过验证。使用 `--plugin-dir` 时，会话记录会显示 `ui.render (Pane) refused:` 及原因，如 `first-mod: ui.render (Pane) refused: Box prop "flexDirection" must be one of row, column, row-reverse, column-reverse; the engine drew its own`。调试日志中有 `a hook returned a tree that does not validate` 及相同的原因。
 
 读取该行上的原因。常见原因是元素不接受的 prop 和应用没有的元素。
+
+<h3 id="a-ui-render-line-says-threw-while-drawn">
+  `ui.render` 行显示 `threw while drawn`
+</h3>
+
+该行会指明[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)，然后显示 `threw while drawn:` 及错误，如 `first-mod: ui.render (ToolUse) threw while drawn: <error>; the engine drew its own`。Claude Code 在绘制您的 [`ui.render`](/docs/zh-CN/plugins/mods/reference#interface) hook 返回的树时，或在根据[您的 hook 传递给 `next` 的 `props`](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) 绘制该位置时，遇到了该错误。结尾的 `the engine drew its own` 表示该位置显示 Claude Code 的常规内容。
+
+读取该错误，并修复您的 hook 中导致该错误的值。
+
+在 v2.1.289 之前，会话记录行中出现此错误会导致会话以 [`Claude Code exited after an unrecoverable interface error`](/docs/zh-CN/errors#exited-after-an-unrecoverable-interface-error) 结束。
+
+<h3 id="the-module-failed-without-a-message">
+  `the module failed without a message`
+</h3>
+
+某个 [`Client`](/docs/zh-CN/plugins/mods/interface#when-a-client-fails) 因一个没有消息的错误而失败，例如 `throw new Error()`。在其位置显示的行类似 `my-mod: Client client/spinner.js: the module failed without a message`。
+
+在您的 `Client` 代码中找到该 throw，并为该错误提供消息。该行随后会显示该消息。
+
+在 v2.1.289 之前，该行改为显示 `Error` 作为原因。
 
 <h3 id="$-ui-open-runs-and-no-pane-appears">
   `$.ui.open` 运行且没有窗格出现
@@ -227,9 +259,9 @@ mod 已加载，其窗格、带或控件的行为不符合您的预期。
   绘图在终端中有效，在桌面应用中无效
 </h3>
 
-该网站或元素在那里不可用。
+该位置或元素在那里不可用。
 
-检查 [渲染网站](/docs/zh-CN/plugins/mods/reference#render-sites) 和 [元素](/docs/zh-CN/plugins/mods/reference#elements) 表。
+检查 [渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites) 和 [元素](/docs/zh-CN/plugins/mods/reference#elements) 表。
 
 <h2 id="an-edit-or-a-value-is-lost">
   编辑或值丢失
@@ -265,7 +297,7 @@ mod 运行，您所做的更改或它保留的值不存在。
   阅读调试日志
 </h2>
 
-调试日志对 Claude Code 加载或拒绝的每个模块、每个失败的 hook 以及它拒绝的每个结果都有一行，因此当成绩单显示无内容时，这是查看的地方。要写入一个，在您的 shell 中使用 `--debug` 启动 Claude Code，或使用 `--debug-file <path>` 选择它的位置：
+调试日志对 Claude Code 加载或拒绝的每个模块、每个失败的 hook 以及它拒绝的每个结果都有一行，因此当会话记录中没有任何显示时，这是查看的地方。要写入一个，在您的 shell 中使用 `--debug` 启动 Claude Code，或使用 `--debug-file <path>` 选择它的位置：
 
 ```bash theme={null}
 claude --debug-file ./mod-debug.log --plugin-dir ./first-mod
@@ -283,9 +315,9 @@ tail -f ./mod-debug.log | grep first-mod
 hooks module first-mod@inline loaded (worker, environment 2, tier user); events: session.start,tool.call,command.run,ui.render
 ```
 
-未验证的绘图计为被拒绝的结果，也会获得一行。要在日志中写入您自己的行，请调用 [`$.ui.log`](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn)，带有第二个参数，如 `$.ui.log('message', { to: 'debug' })`。没有第二个参数，`$.ui.log` 会在成绩单中添加一条暗行。
+未验证的绘图计为被拒绝的结果，也会获得一行。要在日志中写入您自己的行，请调用 [`$.ui.log`](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn)，带有第二个参数，如 `$.ui.log('message', { to: 'debug' })`。没有第二个参数，`$.ui.log` 会在会话记录中添加一条暗行。
 
-当您编辑使用 `--plugin-dir` 加载的 mod 时，成绩单为每次重新加载显示一行，命名 mod 并列出其 hooks。如果保存破坏了模块，该行说 `reload failed, the previous version stays loaded:` 带有原因，最后一个工作版本继续运行。
+当您编辑使用 `--plugin-dir` 加载的 mod 时，会话记录为每次重新加载显示一行，命名 mod 并列出其 hook。如果保存破坏了模块，该行会显示 `reload failed, the previous version stays loaded:` 及原因，最后一个可用版本会继续运行，直到 Claude Code 下次重新加载插件，例如当您运行 `/reload-plugins` 时。
 
 <h2 id="next-steps">
   后续步骤

@@ -1399,11 +1399,11 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 
 选择当[安全分类器标记请求](/docs/zh-CN/model-config#automatic-model-fallback)时会发生什么：切换到备用模型并继续，或暂停以便您可以在切换和编辑提示之间选择。
 
-* **Scope**: [`Any file`](#scopes)。在 `/config` 中显示为**消息被标记时切换模型**。
+* **Scope**: [`Any file`](#scopes)。在 `/config` 中显示为 **Switch models when a message is flagged**，选项为 **Switch automatically** 和 **Ask each time**。
 * **Type**: Boolean
   * `true`: Claude Code 切换到备用模型并继续
   * `false`: 在交互式会话中，Claude Code 暂停以便您可以在切换和编辑提示之间选择；在无法显示对话框的地方，如 `-p` 运行，标记的请求以错误结束
-* **Default**: `true`，自动切换
+* **Default**: 未设置。Claude Code 会自动切换，但在交互式会话中可能会[先询问](/docs/zh-CN/model-config#ask-before-switching)
 
 ```json settings.json theme={null}
 {
@@ -3130,8 +3130,10 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
     在项目和本地设置中忽略此组需要 Claude Code v2.1.282 或更高版本。
   * 改变 Claude Code 如何启动或同步的变量，例如 `CLAUDE_CODE_PROCESS_WRAPPER`、`CLAUDE_CODE_SYNC_SKILLS`、`CLAUDE_CODE_SYNC_PLUGINS`、`CLAUDE_CODE_PLUGIN_CACHE_DIR` 和 `CLAUDE_CODE_PLUGIN_SEED_DIR`。
+  * 设置未应答对话框计时器的变量：[`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`、`CLAUDE_AFK_TIMEOUT_MS` 和 `CLAUDE_AFK_COUNTDOWN_MS`](/docs/zh-CN/env-vars#variables)。
+  * [`CLAUDE_CODE_DISABLE_ATTACHMENTS`](/docs/zh-CN/env-vars#variables)，它会关闭附件处理。
 
-  在 v2.1.251 之前，项目和本地设置也可以设置此列表中选择 Claude Code 写入其文件位置或导出会话内容的变量，除了 `HOME` 和 `XDG_CONFIG_HOME`。
+  在 v2.1.251 之前，项目和本地设置也可以设置此列表中选择 Claude Code 写入其文件位置或导出会话内容的变量，除了 `HOME` 和 `XDG_CONFIG_HOME`。在 v2.1.290 之前，它们还可以设置对话框计时器变量和 `CLAUDE_CODE_DISABLE_ATTACHMENTS`。
 * Claude Code 的托管环境拥有的身份变量，例如 `CLAUDE_CODE_REMOTE` 和 `CLAUDE_CODE_ACCOUNT_UUID`，从每个文件中被忽略。
 * [`CLAUDE_CODE_MESSAGING_SOCKET` 和 `CLAUDE_CODE_MESSAGING_TOKEN`](/docs/zh-CN/env-vars#variables)，Claude Code 自己导出的，从每个文件中被忽略。忽略套接字变量需要 Claude Code v2.1.224 或更高版本，忽略令牌需要 v2.1.228 或更高版本。
 * [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/sessions#name-the-project-directory-yourself)，Claude Code 仅从启动环境读取，从每个文件中被忽略；需要 v2.1.234 或更高版本。

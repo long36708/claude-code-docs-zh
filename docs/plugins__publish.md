@@ -129,6 +129,7 @@
 * 添加市场一次：`claude plugin marketplace add your-org/your-marketplace`，其中参数是 GitHub `owner/repo` 简写、URL 或路径
 * 安装插件：`claude plugin install deploy-helper@your-marketplace`
 * 或从会话内同时执行两者：`/plugin install deploy-helper --marketplace your-org/your-marketplace`。需要 Claude Code v2.1.275 或更高版本。请参阅[在一个命令中添加市场和安装](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command)
+* 或在 shell 中用一个命令同时执行两者：`claude plugin install deploy-helper --marketplace your-org/your-marketplace`。需要 Claude Code v2.1.292 或更高版本
 
 <h3 id="ship-updates-to-users">
   向用户发布更新

@@ -596,7 +596,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `attachOpenFile` | `true` | 将编辑器中打开的文件添加到您的消息中，并在提示框中显示它。关闭时，仅添加您选择的文本。需要 Claude Code v2.1.271 或更高版本 |
 | `useCtrlEnterToSend` | `false` | 使用 Ctrl/Cmd+Enter 而不是 Enter 来发送提示 |
 | `scrollToBottomOnSend` | `true` | 当您发送消息时，将对话滚动到底部。关闭时，对话保持在您离开的位置。需要 Claude Code v2.1.275 或更高版本 |
-| `showMessageTimestamps` | `false` | 显示每条消息的发送时间。日期行会标记日期变更的位置。需要 Claude Code v2.1.284 或更高版本 |
+| `showMessageTimestamps` | `true` | 显示每条消息的发送时间。日期行会标记日期变更的位置。需要 Claude Code v2.1.284 或更高版本。在 v2.1.290 之前，默认值为 `false` |
 | `enableNewConversationShortcut` | `false` | 启用 Cmd/Ctrl+N 来开始新对话 |
 | `enableReopenClosedSessionShortcut` | `true` | 使用 Cmd/Ctrl+Shift+T 重新打开最近关闭的 Claude 会话标签页。当最后关闭的标签页不是 Claude 会话时，快捷键会运行 VS Code 的正常重新打开关闭编辑器命令。 |
 | `archiveInactiveSessions` | `14` | 在无活动的这么多天后[自动存档会话](#resume-past-conversations)：`1`、`2`、`7` 或 `14`。设置为 `0` 以关闭。需要 Claude Code v2.1.265 或更高版本 |

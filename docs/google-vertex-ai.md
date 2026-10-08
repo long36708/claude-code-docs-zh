@@ -342,9 +342,11 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
   1M token context window
 </h2>
 
-Claude Sonnet 5、Opus 4.6 及更高版本以及 Sonnet 4.6 在 Google Cloud 的 Agent Platform 上支持 [1M token context window](https://platform.claude.com/docs/zh-CN/build-with-claude/context-windows#context-window-sizes-by-model)。Sonnet 5 始终以 1M 窗口运行，没有 `[1m]` 变体可选择。对于其他模型，当您选择 1M 模型变体时，Claude Code 会自动启用扩展 context window。
+Fable 模型、Sonnet 5 及更高版本以及 Opus 4.7 及更高版本在 Google Cloud 的 Agent Platform 上默认以 [1M token 上下文窗口](https://platform.claude.com/docs/zh-CN/build-with-claude/context-windows#context-window-sizes-by-model)运行，无需 `[1m]` 后缀。如需改为保留 200K 窗口，请设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](/docs/zh-CN/model-config#turn-off-1m-context)。
 
-[设置向导](#sign-in-with-agent-platform)在固定模型时提供 1M context 选项。要为手动固定的模型启用它，请在模型 ID 后附加 `[1m]`。有关详细信息，请参阅[为第三方部署固定模型](/docs/zh-CN/model-config#pin-models-for-third-party-deployments)，包括如何在不更改固定的情况下使用 1M 窗口。
+Opus 4.6 和 Sonnet 4.6 在您选择其 `[1m]` 变体时可使用 1M 窗口。[设置向导](#sign-in-with-agent-platform)在固定模型时提供 1M 上下文选项。如需改为为手动固定的模型启用它，请在模型 ID 后附加 `[1m]`。有关详细信息，请参阅[为第三方部署固定模型](/docs/zh-CN/model-config#pin-models-for-third-party-deployments)，包括如何在不更改固定的情况下使用 1M 窗口。
+
+在 v2.1.287 之前，Fable 模型以及 Opus 4.7 及更高版本在 Google Cloud 的 Agent Platform 上默认以 200K 窗口运行，并通过 `[1m]` 后缀使用 1M 窗口。
 
 <h2 id="troubleshooting">
   故障排除

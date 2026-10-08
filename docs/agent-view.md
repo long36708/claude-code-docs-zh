@@ -238,7 +238,7 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 当 [`PermissionRequest`](/docs/zh-CN/hooks#permissionrequest) 或 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) hook 针对会话正在询问的调用返回了 Claude Code 无法验证的输出时，该行会在待处理请求的文本之前显示 hook 事件以及 `hook output invalid:` 和验证错误。对于以其他方式失败的 hook，该行会说明 hook 失败。会话仍在等待同一个请求。
 
-由于后台服务无法访问或发送失败而无法送达的回复会被保存，并在会话进程再次启动时作为其下一个提示词发送给会话，错误消息会说明回复已保存。以 `!` 开头的回复不会被保存，因为保存的文本会以普通提示词而不是 Bash 命令的形式送达会话。
+当回复无法送达时，错误消息会说明它是否已保存。以 `!` 或 `/` 开头的回复永远不会被保存。下次您重启会话时，Claude Code 会将已保存的回复作为会话的下一个提示词发送；其他回复请重新发送。
 
 在[按住模式](/docs/zh-CN/voice-dictation#hold-to-record)下启用[语音听写](/docs/zh-CN/voice-dictation)后，在回复输入框获得焦点时按住您的按键通话键，即可通过听写而非键入来回复。agent view 底部的分派输入框中也同样适用。
 
@@ -295,6 +295,7 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 * **前台子代理仍在运行**：Claude Code 会继续等待，以便 Claude 启动的[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)的工作能够转移，并显示 `Still backgrounding after the current tool`。再按一次 `←` 可不等待直接转入后台，这会从头重新启动这些子代理。
 * **有权限提示或问题在等待您的回答**：当权限提示或 Claude 提出的问题处于等待状态时，Claude Code 会继续等待并显示 `Still backgrounding after the current tool — a question is waiting for your answer.`
 * **您在提示输入框中输入内容**：Claude Code 会取消切换，因为未发送的文本会留在终端的输入框中，不会移到后台会话。它会显示 `Backgrounding cancelled — you have unsent text in the input. Send it or clear it, then press ← again.`
+* **排队的消息无法移动**：您[在 Claude 工作时排队的消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)会随对话移到后台会话。当其中某条消息无法移动时，会话会留在前台，Claude Code 会显示类似 `Cannot open agents — 1 queued message can't move to the background. Press ← again once Claude has read it.` 的通知。
 
 即使对话还没有任何消息，按 `←` 也会创建该会话的行，因此 `→` 仍可返回该会话。
 
@@ -972,7 +973,7 @@ Claude Code 将 agent view 中列出的每个会话都视为后台会话，无�
 * 您恢复对话的终端，例如使用 `claude --resume` 或 `/resume`：该行显示 `Open in a terminal`，并提示在那里继续，打开该行显示 `Can't open — this session is running in another terminal`。在该终端中继续，或退出它并再次打开该行。
 * 另一个非交互式 Claude Code 进程，例如同一对话的后台会话进程，尚未退出：打开该行显示 `This conversation is already open in another running Claude session`。使用该进程，或等待它退出并再次打开该行。
 
-Claude Code 保存您在被拒绝的尝试中输入的回复，并在会话下次启动时发送它。
+Claude Code 保存您在被拒绝的尝试中输入的回复（以 `!` 或 `/` 开头的回复除外），并在会话下次启动时发送它。
 
 <h3 id="opening-a-session-says-it-has-no-saved-transcript">
   打开会话说它没有保存的会话记录
@@ -1096,6 +1097,7 @@ Agent view 在研究预览期间发展迅速。如果您使用的是较旧的 Cl
 | - | - |
 | v2.1.290 | [`claude attach` 和 `claude logs`](#manage-sessions-from-the-shell) 可以使用正在运行的会话名称的一部分来代替 ID。 |
 | v2.1.290 | `/model`、`/effort`、`/rename` 和 `/usage` 作为[窥视回复](#peek-and-reply)发送给正在工作的会话时会立即运行。 |
+| v2.1.290 | 无法投递的[窥视回复](#peek-and-reply)如果以 `/` 开头，或者在会话进程运行期间回答的是带有预定义选项的问题，则不再被保存以待下次重启时发送。 |
 | v2.1.288 | `Ctrl+F` 按名称查找会话，`Alt+↑` / `Alt+↓` 在组标题之间跳转。这两者以及 `Ctrl+R` 都可以[重新绑定](/docs/zh-CN/keybindings#agents-actions)。 |
 | v2.1.287 | [`n:<text>` 筛选器](#filter-sessions)按名称或第一个提示词查找会话。当任何筛选器处于活动状态时，您折叠的组会展开以显示其匹配项，并且第一个匹配项被选中，因此 `Enter` 会打开它。 |
 | v2.1.287 | 作为[窥视回复](#peek-and-reply)发送的命令会在会话当前轮次结束时运行，包括在会话自身的输入框中一键入就立即运行的命令。内容恰好为 `/stop` 的回复会立即停止会话。 |

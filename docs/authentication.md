@@ -142,8 +142,6 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 * **它将您登出的内容**：Claude Code 将您登出存储在机器上的任何 claude.ai 登录
 * **如何撤销它**：运行 `/logout`，它会删除并撤销此登录写入的凭证
 
-如果您的组织使用 [服务器托管设置](/docs/zh-CN/server-managed-settings)，它们会在 Claude Code v2.1.257 或更高版本上应用于此登录。
-
 关于配置文件的所有其他内容都适用于此登录，包括它在您的其他凭证中的排名、您在 `/status` 中获得的 `Profile` 行，以及需要 claude.ai 登录的功能。请参阅 [Anthropic 配置文件和联合凭证](#anthropic-profiles-and-federation-credentials)。
 
 <h3 id="cloud-provider-authentication">

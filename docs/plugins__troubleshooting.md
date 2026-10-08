@@ -163,7 +163,7 @@ Claude Code 打印 `Successfully added marketplace: claude-plugins-official`，`
   `Invalid marketplace source format`
 </h3>
 
-您运行了 `/plugin marketplace add <source>` 或 `claude plugin marketplace add <source>`，Claude Code 回复 `Invalid marketplace source format. Try: owner/repo, https://..., or ./path`。
+您运行了 `/plugin marketplace add <source>`、`claude plugin marketplace add <source>` 或 `claude plugin install <plugin> --marketplace <source>`，Claude Code 回复 `Invalid marketplace source format. Try: owner/repo, https://..., or ./path`。
 
 Claude Code 接受以下形式之一的源：
 
@@ -568,7 +568,7 @@ Claude Code 打印 `Successfully added marketplace: claude-plugins-official`，*
   `Marketplace "<name>" is already added from a different source`
 </h3>
 
-您通过 [`/plugin install <plugin> --marketplace <source>`](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command) 确认添加市场，Claude Code 从该源获取的目录与您已从不同源添加的市场具有相同的名称。Claude Code 保留现有市场而不是替换它，插件未安装。
+您在会话中或从 shell 中，通过 [安装命令上的 `--marketplace <source>`](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command) 指定了一个新的市场源。Claude Code 从该源获取的目录与您已从不同源添加的市场具有相同的名称。Claude Code 保留现有市场而不是替换它，插件未安装。
 
 完整消息如下所示：
 

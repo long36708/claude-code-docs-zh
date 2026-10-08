@@ -91,6 +91,7 @@ claude plugin install <plugin> [options]
 | `-y, --yes` | 接受显示的安装命令，不出现 `Run this command now?` 提示。在 Claude Code 会话内运行命令时（例如从 Bash 工具或 hook 运行）会被忽略。需要 Claude Code v2.1.229 或更高版本 |
 | `--accept-command <sha256>` | 代替 `-y`，接受之前某次 [`--json` 运行](#plugin-json-result)在 `shownCommand` 中报告了其 `sha256` 的显示安装命令。不能与 `-y` 组合使用。请参阅[接受显示的安装命令](#accept-a-displayed-install-command)。需要 Claude Code v2.1.271 或更高版本 |
 | `--json` | 将结果作为一个 JSON 对象打印在 stdout 的最后一行，而不是人类可读的消息，供脚本使用。请参阅 [JSON 结果格式](#plugin-json-result)。需要 Claude Code v2.1.268 或更高版本 |
+| `--marketplace <source>` | 从位于 `<source>` 的市场安装以裸名称指定的 `<plugin>`，如果您尚未添加该市场，则先添加它。请参阅[通过一条命令添加市场并安装](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command)。需要 Claude Code v2.1.292 或更高版本 |
 
 在 shell 中运行 `claude plugin install --help`，可查看您的版本支持的所有选项。
 

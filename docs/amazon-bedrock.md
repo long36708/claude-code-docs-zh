@@ -544,9 +544,11 @@ Claude Code 不会重写您自己配置的 Amazon Bedrock 推理配置文件 ID 
   1M 令牌上下文窗口
 </h2>
 
-Claude Sonnet 5、Opus 4.6 及更高版本，以及 Sonnet 4.6 在 Amazon Bedrock 上支持 [1M 令牌上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)。Sonnet 5 在 Invoke API 和 [Mantle 端点](#use-the-mantle-endpoint)上始终以 1M 窗口运行，没有 `[1m]` 变体可选择。对于 Invoke API 上的其他模型，当您选择 1M 模型变体时，Claude Code 会自动启用扩展上下文窗口。
+Fable 模型、Sonnet 5 及更高版本，以及 Opus 4.7 及更高版本在 Amazon Bedrock 上默认以 [1M token 上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)运行，Invoke API 和 [Mantle 端点](#use-the-mantle-endpoint)均是如此，无需 `[1m]` 后缀。当 [`modelOverrides`](#map-each-model-version-to-an-inference-profile) 条目将其模型映射到应用程序推理配置文件 ARN 时，该 ARN 将获得 1M 窗口。如需改为保留 200K 窗口，请设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](/docs/zh-CN/model-config#turn-off-1m-context)。
 
-[设置向导](#sign-in-with-bedrock)在固定模型时提供 1M 上下文选项。要为手动固定的模型启用它，请在模型 ID 后附加 `[1m]`。请参阅[为第三方部署固定模型](/docs/zh-CN/model-config#pin-models-for-third-party-deployments)了解详情，包括如何在不更改固定的情况下使用 1M 窗口。
+在 Invoke API 上，当您选择 Opus 4.6 和 Sonnet 4.6 的 `[1m]` 变体时，它们将使用 1M 窗口。[设置向导](#sign-in-with-bedrock)在固定模型时提供 1M 上下文选项。如需改为为手动固定的模型启用它，请在模型 ID 后附加 `[1m]`。请参阅[为第三方部署固定模型](/docs/zh-CN/model-config#pin-models-for-third-party-deployments)了解详情，包括如何在不更改固定的情况下使用 1M 窗口。
+
+在 v2.1.287 之前，Fable 模型以及 Opus 4.7 及更高版本在 Invoke API 上默认以 200K 窗口运行，需通过 `[1m]` 后缀才能在其上使用 1M 窗口。
 
 <h2 id="service-tiers">
   服务层级
