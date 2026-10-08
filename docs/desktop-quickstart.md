@@ -45,7 +45,7 @@ Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介�
 
 <Steps>
   <Step title="安装并登录">
-    在 macOS 和 Windows 上，从上面的链接下载安装程序并运行它。在 Linux 上，请按照 [Claude Desktop on Linux](/docs/zh-CN/desktop-linux) 中的安装步骤进行操作。在 macOS 上从应用程序文件夹启动 Claude，在 Windows 上从开始菜单启动，或在 Linux 上从应用程序启动器启动，然后使用您的 Anthropic 账户登录。
+    在 macOS 和 Windows 上，从上面的链接下载安装程序并运行它。在 Linux 上，请按照 [Linux 上的 Claude Desktop](/docs/zh-CN/desktop-linux) 中的安装步骤进行操作。在 macOS 上从应用程序文件夹启动 Claude，在 Windows 上从开始菜单启动，或在 Linux 上从应用程序启动器启动，然后使用您的 Anthropic 账户登录。
   </Step>
 
   <Step title="打开 Code 选项卡">
@@ -118,14 +118,14 @@ Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介�
 
 **在提交前审查更改。** Claude 编辑文件后，会出现 `+12 -1` 指示符。点击它以打开 [diff 视图](/docs/zh-CN/desktop#review-changes-with-diff-view)，逐个文件审查修改，并对特定行进行评论。Claude 会读取您的评论并进行修订。要让 Claude 自行审查这些更改，请在提示框中输入 [`/code-review`](/docs/zh-CN/desktop#review-your-code)。
 
-**调整您拥有的控制权。** 您的 [permission mode](/docs/zh-CN/desktop#choose-a-permission-mode) 设置了 Claude 在不请求批准的情况下可以执行的操作：
+**调整您拥有的控制权。** 您的 [权限模式](/docs/zh-CN/desktop#choose-a-permission-mode) 设置了 Claude 在不请求批准的情况下可以执行的操作：
 
 * **Auto**：分类器在后台审查操作，并阻止风险操作，而不是询问您。
 * **Manual**：Claude 在编辑文件或运行命令前询问。
 * **Accept edits**：Claude 自动接受文件编辑以加快迭代。
 * **Plan**：Claude 提出一种方法而不编辑任何文件，这在大型重构前很有用。
 
-**添加插件以获得更多功能。** 点击提示框旁边的 **+** 按钮并选择 **Plugins** 以浏览和安装 [plugins](/docs/zh-CN/desktop#install-plugins)，这些插件添加 skills、agents、MCP servers 等。
+**添加插件以获得更多功能。** 点击提示框旁边的 **+** 按钮并选择 **Plugins** 以浏览和安装 [插件](/docs/zh-CN/desktop#install-plugins)，这些插件添加 skills、agents、MCP servers 等。
 
 **整理您的工作区。** 将聊天、diff、终端、文件和浏览器窗格拖动到您想要的任何布局中。使用 **Ctrl+\`** 打开终端以在您的会话旁边运行命令，或点击文件路径以在文件窗格中打开它。请参阅 [整理您的工作区](/docs/zh-CN/desktop#arrange-your-workspace)。
 
@@ -133,9 +133,9 @@ Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介�
 
 **跟踪您的拉取请求。** 打开 PR 后，Claude Code 会监控 CI 检查结果，并可以自动修复失败，或在所有检查通过后合并 PR。请参阅 [监控拉取请求状态](/docs/zh-CN/desktop#monitor-pull-request-status)。
 
-**将 Claude 放在日程上。** 设置 [scheduled tasks](/docs/zh-CN/desktop-scheduled-tasks) 以定期自动运行 Claude：每天早上进行代码审查、每周进行依赖项审计，或从您连接的工具中提取信息的简报。
+**将 Claude 放在日程上。** 设置 [定时任务](/docs/zh-CN/desktop-scheduled-tasks) 以定期自动运行 Claude：每天早上进行代码审查、每周进行依赖项审计，或从您连接的工具中提取信息的简报。
 
-**准备好时扩展。** 从侧边栏打开 [parallel sessions](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 以同时处理多个任务，可选择每个任务都在其自己的 Git worktree 中，并打开 [tasks pane](/docs/zh-CN/desktop#watch-background-tasks) 以观看会话正在运行的子代理和后台命令。打开 [side chat](/docs/zh-CN/desktop#ask-a-side-question-without-derailing-the-session) 以提出问题而不偏离主线程。将 [long-running work 发送到云](/docs/zh-CN/desktop#run-long-running-tasks-in-the-cloud) 以便即使关闭应用也能继续，或 [将您已开始的会话移至云端](/docs/zh-CN/desktop#continue-in-another-surface)（如果任务花费的时间比预期长）。[连接外部工具](/docs/zh-CN/desktop#extend-claude-code)（如 GitHub、Slack 和 Linear）以整合您的工作流。
+**准备好时扩展。** 从侧边栏打开 [并行会话](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 以同时处理多个任务，可选择每个任务都在其自己的 Git worktree 中，并打开 [任务窗格](/docs/zh-CN/desktop#watch-background-tasks) 以观看会话正在运行的子代理和后台命令。打开 [侧边聊天](/docs/zh-CN/desktop#ask-a-side-question-without-derailing-the-session) 以提出问题而不偏离主线程。将 [长时间运行的工作发送到云端](/docs/zh-CN/desktop#run-long-running-tasks-in-the-cloud) 以便即使关闭应用也能继续，或 [将您已开始的会话移至云端](/docs/zh-CN/desktop#continue-in-another-surface)（如果任务花费的时间比预期长）。[连接外部工具](/docs/zh-CN/desktop#extend-claude-code)（如 GitHub、Slack 和 Linear）以整合您的工作流。
 
 <h2 id="what’s-next">
   接下来

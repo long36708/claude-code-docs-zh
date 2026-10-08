@@ -4439,7 +4439,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 在 Claude Code 的生命周期中的某些点（例如在工具调用之前或会话启动时）运行您自己的命令、提示、代理、HTTP 请求或 MCP 工具作为 [hooks](/docs/zh-CN/hooks)；[hooks 参考](/docs/zh-CN/hooks#hook-events) 列出每个事件、其有效负载和其退出代码。每个事件映射到匹配器组列表，每个组列出在匹配器应用时运行的处理程序。
 
 * **作用域**: [`任何文件`](#scopes)。Hooks 在文件中合并而不是相互替换，来自托管设置的 hooks 无法从其他文件中删除。
-* **类型**: 由 [hook 事件](/docs/zh-CN/hooks#hook-events) 键入的对象；每个值是 `{ "matcher", "hooks" }` 组的数组，其 `hooks` 条目的 `type` 为 `"command"`、`"prompt"`、`"agent"`、`"http"` 或 `"mcp_tool"`
+* **类型**: 以 [hook 事件](/docs/zh-CN/hooks#hook-events) 为键的对象；每个值是 `{ "matcher", "hooks" }` 组的数组，其 `hooks` 条目的 `type` 为 `"command"`、`"prompt"`、`"agent"`、`"http"` 或 `"mcp_tool"`
 * **默认值**: 未设置，因此没有 hooks 运行
 
 此示例在每个 Bash 工具调用之前运行脚本：
@@ -5421,7 +5421,7 @@ Claude Code 忽略项目和本地条目，因为它将这些值替换到 plugin 
 从托管设置向每个用户提供远程 MCP 服务器。用户保留他们自己添加的服务器，无法编辑或删除您提供的服务器。需要 Claude Code v2.1.259 或更高版本。
 
 * **作用域**: [`Managed`](#scopes)。Claude Code 在用户、项目和本地设置中使用警告删除该密钥，并且不在 Claude Desktop 应用的代码选项卡中读取它（在第三方部署上）或在应用的 Cowork 会话中读取它，其中 Claude Desktop 提供并锁定这些会话的 MCP 服务器。
-* **类型**: 按服务器名称键入的对象。每个条目都具有 `http` 或 `sse` 服务器的 `.mcp.json` 形状：必需的 `https://` `url`，以及可选的 `headers`、`oauth` 和其他 HTTP 和 SSE 选项。Claude Code 删除验证失败的条目，[条目可以包含的内容](/docs/zh-CN/managed-mcp#what-an-entry-can-contain)列出了条件
+* **类型**: 以服务器名称为键的对象。每个条目都具有 `http` 或 `sse` 服务器的 `.mcp.json` 形状：必需的 `https://` `url`，以及可选的 `headers`、`oauth` 和其他 HTTP 和 SSE 选项。Claude Code 删除验证失败的条目，[条目可以包含的内容](/docs/zh-CN/managed-mcp#what-an-entry-can-contain)列出了条件
 * **默认值**: 未设置，因此托管设置不提供任何服务器
 
 此示例提供一个名为 `search` 的 HTTP 服务器：

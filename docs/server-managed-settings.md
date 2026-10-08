@@ -348,6 +348,11 @@ Claude Code 也根据传递的值决定 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/e
 
 由 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 脚本返回的密钥和 [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 凭证都不会触发设置获取。
 
+会话接收的是其进行身份验证所用凭据所属组织的托管设置。来自 [Claude Console](https://platform.claude.com) 的 API 密钥属于创建该密钥的 Console 组织，该组织与您的 claude.ai Team 或 Enterprise 组织是相互独立的组织。因此，您在 claude.ai Admin Settings 中配置的设置不会到达使用该密钥进行身份验证的会话，例如使用贵公司 Console API 密钥的 CI 作业。要将这些设置应用于该作业，请使用以下选项之一。OAuth 令牌选项不适用于使用 [`--bare`](/docs/zh-CN/headless#start-faster-with-bare-mode) 运行的作业，因为 bare 模式不会读取 `CLAUDE_CODE_OAUTH_TOKEN`。
+
+* **OAuth 令牌**：使用 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 生成令牌，为您的 Team 或 Enterprise 组织授权该令牌，并在作业环境中将其设置为 `CLAUDE_CODE_OAUTH_TOKEN`。从该环境中移除任何[优先于](/docs/zh-CN/authentication#authentication-precedence)该令牌的凭据，例如 `ANTHROPIC_API_KEY`。
+* **端点管理的设置**：将[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)部署到运行该作业的机器上。
+
 在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，即使用户使用 Team 或 Enterprise 账户登录，Claude Code 也不会从 claude.ai 管理控制台获取服务器管理的设置。[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies) 涵盖了哪些策略到达用户机器上的 Cowork 会话和远程 Cowork 会话。claude.ai 在 Cowork 用户从 git 存储库或从 Cowork 标签中的**自定义**添加市场时，仍然会应用您的 [`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces) 和 [`blockedMarketplaces`](/docs/zh-CN/settings-reference#blockedmarketplaces) 列表。[限制如何工作](/docs/zh-CN/plugins/org#restrict-what-users-can-install) 描述了该检查。
 
 如果您在 shell 中导出 `CLAUDE_CODE_USE_*` 提供商变量或非默认的 `ANTHROPIC_BASE_URL`，Claude Code 将跳过您的会话的设置获取。[`claude doctor` 和 `/status` 报告跳过的获取及其原因](#verify-settings-delivery)。
@@ -379,7 +384,7 @@ Claude Code 也根据传递的值决定 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/e
 | 用户运行修改的 Claude Code 二进制文件 | 能够运行修改的客户端的用户可以绕过任何客户端控制 |
 | 用户运行较旧的 Claude Code 版本 | 早于服务器管理设置的版本不会获取或应用它们 |
 | API 不可用 | 如果可用，缓存的设置应用，但 Claude Code 在获取成功前暂扣的[值](#fetch-and-caching-behavior)除外。没有缓存的情况下，Claude Code 在下次成功获取前不强制执行任何服务器管理的设置，但仍然在设备上应用任何[端点管理的设置](/docs/zh-CN/managed-settings#delivery-mechanisms)。使用 `forceRemoteSettingsRefresh: true` 时，CLI 退出而不是继续，但[`claude auth` 子命令](#enforce-fail-closed-startup)除外。通过[Claude 应用网关](#platform-availability)登录的客户端在启动时退出而没有该设置，具有相同的 `claude auth` 豁免 |
-| 用户使用不同的组织进行身份验证 | 不为托管组织外的账户传递设置 |
+| 用户使用不同的组织进行身份验证 | 不为托管组织外的账户传递设置，包括使用 [Console API 密钥](#platform-availability)进行身份验证的会话 |
 | 用户配置[第三方模型提供商](#platform-availability) | 服务器管理的设置被绕过。这包括设置 `CLAUDE_CODE_USE_BEDROCK`、`CLAUDE_CODE_USE_MANTLE`、`CLAUDE_CODE_USE_VERTEX`、`CLAUDE_CODE_USE_FOUNDRY`、`CLAUDE_CODE_USE_ANTHROPIC_AWS` 或非默认的 `ANTHROPIC_BASE_URL` |
 | 网络流量被拦截或重定向 | 禁用的 TLS 验证或拦截的流量可以改变客户端接收的设置 |
 

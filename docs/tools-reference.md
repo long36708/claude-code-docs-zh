@@ -716,9 +716,15 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
   会话搜索限制
 </h3>
 
-一个交互式终端会话最多可以进行 200 次 WebSearch 调用，计数跨越主对话和它生成的每个[子代理](/docs/zh-CN/sub-agents)，因此并行研究扇出进行的搜索计入同一限制。该限制需要 Claude Code v2.1.212 或更高版本。当 Claude 达到限制时，进一步的调用会返回一个通知，告诉 Claude 继续使用它已经收集的信息，而不是会邀请重试的错误。您看不到该通知：受限的调用在对话中显示为未执行任何操作的搜索，如果 Claude 需要更多搜索，该通知会告诉它要求您提高限制。
+一个交互式终端会话最多可以进行 200 次 WebSearch 调用。来自主对话和[子代理](/docs/zh-CN/sub-agents)的搜索（例如并行研究扇出）计入同一限制。该限制需要 Claude Code v2.1.212 或更高版本。
 
-设置 [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](/docs/zh-CN/env-vars) 环境变量来更改上限；它接受正整数，因此上限可以提高但不能关闭。交互式终端会话的限制大约每小时恢复 100 次调用，[`CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR`](/docs/zh-CN/env-vars#variables) 用于设置该速率。运行 [`/clear`](/docs/zh-CN/commands#all-commands) 会重置计数。如果仍然可以生成[子代理](/docs/zh-CN/sub-agents)的工作（例如正在运行的工作流）在清除后继续存在，计数会改为继续。
+当会话达到限制时，搜索在对话中显示为未执行任何操作的调用。Claude 会收到一个通知，告诉它继续使用已经收集的信息，如果需要更多搜索，则要求您提高限制。
+
+要获得更多搜索次数，可以提高上限、等待限制恢复，或开始新的对话：
+
+* **提高上限**：将 [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](/docs/zh-CN/env-vars#variables) 环境变量设置为正整数，例如 `500`。上限可以提高但不能关闭。
+* **等待恢复**：在 Claude Code v2.1.290 或更高版本中，交互式终端会话的限制大约每小时恢复 100 次调用。要更改该速率，请将 [`CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR`](/docs/zh-CN/env-vars#variables) 设置为每小时的调用次数，例如 `50`。
+* **开始新的对话**：在 Claude Code 输入框中运行 [`/clear`](/docs/zh-CN/commands#all-commands) 也会重置计数。如果仍然可以生成子代理的工作（例如正在运行的工作流）在清除后继续存在，计数会改为延续。
 
 <h2 id="write-tool-behavior">
   Write tool 行为

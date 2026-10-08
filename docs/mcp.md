@@ -1403,6 +1403,7 @@ claude mcp serve
 * **默认限制**：默认最大值为 25,000 个 token
 * **范围**：环境变量适用于未声明自己限制的工具。设置了 [`anthropic/maxResultSizeChars`](#raise-the-limit-for-a-specific-tool) 的工具会对文本内容使用该值，而不管 `MAX_MCP_OUTPUT_TOKENS` 设置为什么。返回图像数据的工具仍然受 `MAX_MCP_OUTPUT_TOKENS` 限制
 * **超过限制**：当没有图像内容的成功结果超过 token 限制时，Claude Code 会将其保存到文件中，并在对话中用一条消息替换它，该消息指定文件路径，以便 Claude 在需要内容时读取该文件。该文件位于会话的 `tool-results` 目录中，在 [`~/.claude/projects/`](/docs/zh-CN/claude-directory#cleaned-up-automatically) 下。
+* **来自 HTTP 和 SSE 服务器的响应大小**：一旦单个 JSON 响应体或事件流中的单个事件在解压后超过 16 MB，Claude Code 就会停止读取来自 [HTTP](#option-1-add-a-remote-http-server) 或 [SSE](#option-2-add-a-remote-sse-server) 服务器的响应。该响应所对应的请求会失败。如果您维护该服务器，请减少每个响应返回的数据量以保持在限制之内，例如对结果进行分页
 
 已被 Claude Code [移至后台任务](#automatic-backgrounding-of-long-tool-calls)的调用会通过任务通知报告其结果。对于在前台完成的调用，还有另外两项限制：
 
