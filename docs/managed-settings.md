@@ -352,8 +352,8 @@ When a managed source sets a top-level key that has a single restrictive value, 
 These cases don't fail closed:
 
 * A `null` removes the key.
-* An invalid `disableAllHooks`, even a quoted boolean, is dropped with a warning, because enforcing `true` would also unload the hooks your own managed settings deploy.
-* For every other boolean key the rule covers, the string `"true"` or `"false"` reads as that boolean, with a notice in `/status` asking you to drop the quotes.
+* An invalid `disableAllHooks`, even a quoted Boolean, is dropped with a warning, because enforcing `true` would also unload the hooks your own managed settings deploy.
+* For every other Boolean key the rule covers, the string `"true"` or `"false"` reads as that Boolean, with a notice in `/status` asking you to drop the quotes.
 
 Claude Code repairs the `permissions`, `autoMode`, `worktree`, and `attribution` blocks per field instead of dropping them whole:
 
