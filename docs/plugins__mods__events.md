@@ -325,7 +325,7 @@ Claude Code 按每个 mod 的来源对链进行排序：
 
 在设置文件中配置的 `PreToolUse` hooks 也在工具调用期间运行，在 mod 链中的固定点：
 
-* **来自托管设置的 `PreToolUse` hooks**：在第一个 mod 的 `tool.call` hook 之前运行，其中一个的块是最终的，因此没有 mod 看到调用。
+* **来自托管设置的 `PreToolUse` hooks**：在第一个 mod 的 `tool.call` hook 之前运行，其中任一 hook 的阻止都是最终决定，因此没有 mod 看到调用。
 * **来自每个其他设置文件和插件的 `hooks/hooks.json` 的 `PreToolUse` hooks**：在最后一个 mod 调用 `next` 后运行，作为 Claude Code 自己的行为的一部分。回答 `tool.call` 而不调用 `next` 的 mod 会阻止它们运行，调用 `next` 的 mod 在它返回的结果中看到它们的决定。
 
 [`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) 在这些 hook 和权限规则做出决定后触发，因此其上的 hook 可以批准第二组中的 hook 所阻止的调用。

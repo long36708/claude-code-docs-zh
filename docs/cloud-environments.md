@@ -574,7 +574,7 @@ exit 0
 SessionStart hooks 在云端的行为与本地相同，但有以下注意事项：
 
 * **每个会话一个存储库**：具有多个存储库的会话不会从任何存储库的 `.claude/settings.json` 加载 hooks，因此您在那里定义的 SessionStart hook 不会运行。请改为使用[设置脚本](#setup-scripts)为这些会话安装依赖项。
-* **没有仅云端的范围**：hooks 在本地和云会话中都运行。要跳过本地运行，请检查 `CLAUDE_CODE_REMOTE` 环境变量是否为 `true`，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
+* **没有仅云端的范围**：hooks 在本地和云会话中都运行。要跳过本地运行，请在 `CLAUDE_CODE_REMOTE` 环境变量不为 `true` 时提前退出，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
 * **需要网络访问**：安装命令需要连接到包注册表。如果您的环境使用 **None** 网络访问，这些 hooks 会失败。**Trusted** 下的[默认允许列表](#default-allowed-domains)涵盖 npm、PyPI、RubyGems 和 crates.io。
 * **代理兼容性**：在 Anthropic 托管环境中，所有出站流量都经过[安全代理](#security-proxy)，某些包管理器无法与此代理正确配合工作；Bun 是一个已知的例子。在[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#default-deny-egress)中，出站流量改为经过您自己的网络边界。
 * **增加启动延迟**：hooks 在每次会话启动或恢复时运行，不同于受益于[环境缓存](#environment-caching)的设置脚本。请通过在重新安装之前检查依赖项是否已存在来保持安装脚本快速。

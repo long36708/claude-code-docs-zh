@@ -50,7 +50,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 | **使用您的本地配置** | 否，仅限仓库 | 是 | 是 |
 | **需要 GitHub** | 是，或通过 `--cloud` [捆绑本地仓库](/docs/zh-CN/claude-code-on-the-web#send-local-repositories-without-github) | 否 | 否 |
 | **断开连接时继续运行** | 是 | 否 | 当会话在您的机器上保持打开时 |
-| **[权限模式](/docs/zh-CN/permission-modes)** | 接受编辑、Plan、自动 | 终端中的所有模式；请参阅 [切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes) 了解 IDE 和 Desktop 应用 | 从 claude.ai 和移动应用中的手动、接受编辑或 Plan |
+| **[权限模式](/docs/zh-CN/permission-modes)** | 接受编辑、Plan、自动 | 终端中的所有模式；请参阅 [切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes) 了解 IDE 和 Desktop 应用 | 从 claude.ai 和移动应用中的手动、接受编辑、Plan 或自动 |
 | **网络访问** | 每个环境可配置 | 您的机器网络 | 您的机器网络 |
 
 请参阅[终端快速入门](/docs/zh-CN/quickstart)、[Desktop 应用](/docs/zh-CN/desktop)或 [Remote Control](/docs/zh-CN/remote-control) 文档来设置本地会话。
@@ -150,7 +150,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
   </Step>
 
   <Step title="选择权限模式">
-    输入旁边的模式下拉菜单显示会话将在其中运行的模式：
+    [权限模式控件](/docs/zh-CN/permission-modes#switch-permission-modes)显示会话将在其中运行的权限模式：
 
     * **Auto**：分类器审查 Claude 的操作，而不是询问您。当您的组织允许自动模式且所选模型支持它时出现
     * **Accept edits**：Claude 进行更改并推送分支而无需停止以获得批准

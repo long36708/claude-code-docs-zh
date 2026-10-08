@@ -89,7 +89,7 @@ Dispatch 在其生成的 Code 会话完成或需要您的批准时发送自己�
 移动客户端涵盖了会话需要的大部分内容，但有一些限制：
 
 * **仅限本地命令**：仅在终端界面中运行的命令，例如 `/plugin` 和 `/resume`，无法从应用程序中工作。[远程控制限制](/docs/zh-CN/remote-control#limitations)列出了从移动设备工作的命令以及它们的行为如何不同。
-* **权限模式**：云会话在模式下拉菜单中提供接受编辑、Plan 和 Auto，远程控制会话提供 Manual、接受编辑和 Plan。在任何情况下，您都无法从应用程序中选择 Bypass permissions，也无法为远程控制会话选择 Auto。请参阅[切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)。
+* **权限模式**：云端会话提供接受编辑、Plan 和 Auto，Remote Control 会话提供 Manual、接受编辑、Plan 和 Auto。在任何一种情况下，您都无法从应用程序中选择 Bypass permissions。有关 Auto 何时可用，请参阅[切换权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)。
 * **Dispatch 计划**：Dispatch 需要 Pro 或 Max 计划，在 Team 或 Enterprise 上不可用。
 
 <h2 id="related-resources">

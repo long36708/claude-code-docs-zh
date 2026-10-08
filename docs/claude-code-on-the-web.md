@@ -296,7 +296,7 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 
 * **`/model`、`/effort`、`/color` 和 `/rename`**：将值作为参数传递，例如 `/model sonnet`，而不是打开终端选择器或滑块。参数形式需要会话环境中的 Claude Code v2.1.205 或更高版本，并遵循每个命令的[可用性说明](/docs/zh-CN/commands#all-commands)。
 * **`/fast`**：当快速模式在[你的账户上可用](/docs/zh-CN/fast-mode#requirements)时，为会话切换[快速模式](/docs/zh-CN/fast-mode#use-fast-mode-in-cloud-sessions)。需要会话环境中的 Claude Code v2.1.271 或更高版本。
-* **`/config`**：在你的浏览器中的 claude.ai/code 上，打开你的设置的 Claude Code 部分，而不是设置值，命令后的文本（包括 `key=value`）被忽略。要更改云会话的设置，请设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)，或在具有一个存储库的会话中，将密钥提交到该存储库的 `.claude/settings.json`。[云会话中的设置](/docs/zh-CN/settings#settings-in-cloud-sessions)列出了每个会话读取的内容。
+* **`/config`**：在你的浏览器中的 claude.ai/code 上，打开你的设置的 Claude Code 部分，而不是设置值，命令后的文本（包括 `key=value`）被忽略。要更改云会话的设置，请在环境上设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)，或在具有一个存储库的会话中，将该设置键提交到该存储库的 `.claude/settings.json`。[云会话中的设置](/docs/zh-CN/settings#settings-in-cloud-sessions)列出了每个会话读取的内容。
 
 对于上下文管理特别是：
 

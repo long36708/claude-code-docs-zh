@@ -233,10 +233,10 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
   </Tab>
 
   <Tab title="Web and mobile">
-    在 [claude.ai/code](https://claude.ai/code) 或移动应用中使用提示框旁边的模式下拉菜单。权限提示出现在 claude.ai 中以供批准。显示哪些模式取决于会话在何处运行：
+    在 [claude.ai/code](https://claude.ai/code) 上，使用输入框旁边的模式下拉菜单。在移动应用中，点击输入框中的 **+** 按钮，然后点击 **Permission**。云端会话和 Remote Control 会话提供不同的权限模式：
 
     * **[Cloud sessions](/docs/zh-CN/claude-code-on-the-web)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。Auto 模式仅在您的组织允许且所选模型支持时出现。Bypass permissions 不可用。
-    * **[Remote Control](/docs/zh-CN/remote-control) sessions** 在您的本地机器上：Manual、Accept edits 和 Plan（对于您自己启动的会话），您无法从应用中选择 Auto 或 Bypass permissions。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](/docs/zh-CN/claude-projects#run-a-thread-on-your-own-computer)。
+    * **[Remote Control](/docs/zh-CN/remote-control) sessions** 在您的本地机器上：Manual、Accept edits、Plan 和 Auto（对于您自己启动的会话），您无法从应用中选择 Bypass permissions。要使用 Auto，会话必须满足自动模式的[可用性要求](#eliminate-prompts-with-auto-mode)。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](/docs/zh-CN/claude-projects#run-a-thread-on-your-own-computer)。
       * 除了 Bypass permissions，下拉菜单显示本地会话所在的权限模式，包括从终端设置的模式。它在应用或终端中权限模式更改时更新。
       * 由[桌面应用](/docs/zh-CN/desktop)或 [VS Code 扩展](/docs/zh-CN/vs-code)托管的会话在权限模式更改时向 claude.ai 报告，与在终端中托管的会话相同。
       * 在 v2.1.202 之前，使用 `/remote-control` 或 `claude --remote-control` 连接的会话根本不报告其权限模式，因此 claude.ai 和移动应用可能显示会话不在的权限模式。不匹配仅影响标签。Claude Code 从会话的实际权限模式生成权限提示，它们仍然出现在应用中以供批准。

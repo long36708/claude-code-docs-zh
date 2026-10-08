@@ -61,7 +61,7 @@
   * `CLAUDE.md` 和[项目每个仓库](#what-threads-pick-up-from-your-repositories)中的 skill，以及在只有一个仓库的项目中，该仓库的权限规则和 hook
   * 您 claude.ai 账户上的[连接器](#get-skills-plugins-connectors-and-tools-into-threads)
   * 一个[云环境](#choose-an-environment-for-threads)，设置其网络访问、环境变量、网络密钥和已安装的工具
-* **Overview 窗格**：您在其中[一次看到所有线程](#see-what-needs-you-in-overview)以及哪些需要您。其他标签页是 **Library**（用于您添加的文件和线程生成的文件）、**Pull requests**（用于线程打开的文件）和 **Routines**（用于项目中的计划工作）。
+* **Overview 窗格**：您在其中[一次看到所有线程](#see-what-needs-you-in-overview)以及哪些需要您。其他标签页是 **Library**（用于您添加的文件和线程生成的文件）、**Pull requests**（用于线程打开的拉取请求）和 **Routines**（用于项目中的计划工作）。
 
 云线程不会从您自己机器上的 Claude Code 设置中获取任何内容。[将 skills、plugins、连接器和工具放入线程](#get-skills-plugins-connectors-and-tools-into-threads)涵盖了如何为它们提供它们可能缺少的内容。
 
@@ -252,7 +252,7 @@ Claude 决定你在对话中发送的每条消息的去向：
 * **线程模型**和**线程工作量**适用于线程。要为一个任务使用不同的模型，请在任务中要求它；对于已在运行的线程，使用该线程的模型选择器。
 * **协调器模型**和**协调器工作量**适用于项目对话中的 Claude。
 
-你不在项目中管理上下文窗口。线程自动压缩，对话从最近的消息、最近的线程和项目内存而不是其完整历史记录工作，因此只要项目运行，它就会继续进行。将任何必须永远不被丢弃的内容放在[项目内存](#give-a-project-standing-context)中。如果一个线程超出其上下文，它会显示[Claude 在此轮中用尽了上下文](#context-limit)。
+你不在项目中管理上下文窗口。线程自动压缩，对话从最近的消息、最近的线程和项目内存而不是其完整历史记录工作，因此只要项目运行，它就会继续进行。将任何必须永远不被丢弃的内容放在[项目内存](#give-a-project-standing-context)中。如果一个线程超出其上下文，它会显示 [Claude ran out of context on this turn](#context-limit)。
 
 <h3 id="tune-how-claude-runs-a-project">
   调整 Claude 如何运行项目
@@ -545,13 +545,13 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 * **"Unable to access your repository"**，由线程报告，当其克隆失败时：GitHub 拒绝了克隆、在项目拥有的名称下找不到代码库，或线程被要求启动的分支不存在。
 * **"Claude can't access"** 一个代码库，在您在 **New project** 对话框或 **Project settings** 中保存代码库时显示。消息继续带有安装链接和重新连接链接。如果 Claude GitHub App 不在该代码库上，使用安装链接，如果它在，使用重新连接链接，因为 GitHub App 可以在 GitHub 上安装而不链接到您连接到 Claude 的账户。如果消息说 GitHub App 已暂停或不包括此代码库，请按照其链接到 GitHub 修复。
 
-要修复任何一个，点击消息提供的按钮，例如 **Install GitHub App** 或 **Select repositories on GitHub**，然后 **Check again**。当块在 GitHub 组织一侧时，例如尚未批准应用的所有者或排除 Claude 的 IP 允许列表，消息显示 **See how to fix** 链接。如果没有按钮，请按照[设置 GitHub 访问](#set-up-github-access)，然后发送另一条消息重试。
+要修复任何一个，点击消息提供的按钮，例如 **Install GitHub App** 或 **Select repositories on GitHub**，然后 **Check again**。当受阻的原因在 GitHub 组织一侧时，例如尚未批准应用的所有者或排除 Claude 的 IP 允许列表，消息改为显示 **See how to fix** 链接。如果没有按钮，请按照[设置 GitHub 访问](#set-up-github-access)，然后发送另一条消息重试。
 
 <h3 id="usage-limit-reached">
   线程达到使用限制
 </h3>
 
-当线程或项目对话达到您计划的五小时或每周限制时，它自己保持重试并在限制重置时继续。在它等待时，线程显示 **Service is busy**，带有"Claude is still retrying and will continue automatically."。您不需要做任何事情工作就能继续。如果您宁愿它不使用您的下一个使用窗口，请点击线程中的 **Stop**，或[暂停项目](#pause-archive-or-delete-a-project)以保持每个线程。例程启动的线程不等待：其轮停止，带有限制错误，您在限制重置后向其发送消息。
+当线程或项目对话达到您计划的五小时或每周限制时，它自己保持重试并在限制重置时继续。在它等待时，线程显示 **Service is busy**，带有"Claude is still retrying and will continue automatically."。您不需要做任何事情工作就能继续。如果您宁愿它不使用您的下一个使用窗口，请点击线程中的 **Stop**，或[暂停项目](#pause-archive-or-delete-a-project)以暂停每个线程。例程启动的线程不等待：其轮停止，带有限制错误，您在限制重置后向其发送消息。
 
 [使用限制错误](/docs/zh-CN/errors#youve-hit-your-session-limit)解释了限制以及何时重置。
 
