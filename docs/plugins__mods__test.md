@@ -107,7 +107,7 @@ test('a passing grade is reported', async ($, on) => {
 
 mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段保存调用在您的 mod 中解析的内容：`{ value: 7 }` 使 `$.store.get` 解析为 `7`。Claude Code 事件（例如 [`turn.step`](/docs/zh-CN/plugins/mods/reference#turns) 或 `tool.call`）的 stub 返回该事件自己的结果，例如 `{ result: 'ok' }`。`$.session.send` 和 `$.prompt.fill` 也采用其事件的结果，如表所示。[查看 stub 返回的内容](#look-up-what-a-stub-returns) 显示每个常见名称采用的形式。以下错误意味着 stub 是错误的或缺失的。失败的测试的输出包括一个以 `the engine reported:` 开头的块，每个错误都出现在那里：
 
-* `returned neither { value } nor { deny }`：mods API 调用的 stub 返回了一个裸值
+* `returned neither { value } nor { deny }`：mods API 调用的 stub 返回了一个裸值，这会导致测试失败
 * `no implementation for` 后跟一个名称：您的 mod 进行了该调用，没有 stub 回答它
 
 工具包还导出内存中的 mocks，为您回答整个命名空间。`mock.clock(on)` 回答 [`$.clock`](/docs/zh-CN/plugins/mods/api#run-work-in-the-background)，`mock.store(on, { count: 7 })` 从以这些条目开始的存储中回答 `$.store`，`mock.env(on, { CI: 'true' })` 从这些变量中回答 `$.env.get`。`mock.clock` 返回一个您的测试可以推进的 mock 时钟，因此计时器的测试不会等待。`mock.store` 返回 nothing，因此要检查您的 mod 保存了什么，请自己编写两个 `store` stubs，如 [drawing test](#test-a-drawing) 所做的那样。
@@ -197,6 +197,8 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 | `ui.render` | `() => ({ type: 'Text', props: {}, children: ['...'] })` |
 
 `expect` 有断言 `toBe`、`toEqual`、`toMatch`、`toMatchObject`、`toContain`、`toBeDefined`、`toBeUndefined` 和 `toThrow`，以及任何之前的 `.not`。
+
+当 `expect` 在您以普通函数（而非异步生成器）形式传给 `on` 的 stub 或 hook 中失败时，测试会失败。引擎会跳过该 hook，失败输出会指出其名称，例如 `in the test's store.set hook`。
 
 <h2 id="test-a-timer">
   测试计时器

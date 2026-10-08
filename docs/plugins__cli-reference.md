@@ -129,6 +129,23 @@ Claude Code 打印 `Successfully installed plugin: formatter@my-marketplace (sco
 
 使用错误（例如无效的 `--scope`）不会打印结果行，而是以 `1` 退出，并在 stderr 上给出原因。
 
+<h4 id="json-result-for-marketplace-commands">
+  市场命令的 JSON 结果
+</h4>
+
+在 `plugin marketplace add`、`plugin marketplace remove` 和 `plugin marketplace update` 上，`--json` 会在 stdout 的最后一行打印一个 JSON 对象，包含 `command`、`outcome` 和 `message` 字段。以下是 `claude plugin marketplace remove your-marketplace --json` 的结果：
+
+```json theme={null}
+{"command":"marketplace-remove","outcome":"ok","marketplace":"your-marketplace","message":"Successfully removed marketplace: your-marketplace"}
+```
+
+`command` 的值为 `marketplace-add`、`marketplace-remove` 或 `marketplace-update`。以下字段仅在适用时出现：
+
+* `marketplace`：命令所作用的市场名称
+* `failureCode`：表示命令失败原因的代码，例如 `invalid_source`
+
+当参数为[保留名称](/docs/zh-CN/plugins/marketplace-reference#reserved-names) `anthropic-plugin-directory` 时，`plugin marketplace add` 和 `plugin marketplace remove` 可能不打印结果行，因此对于该名称请检查退出码。
+
 <h4 id="accept-a-displayed-install-command">
   接受显示的安装命令
 </h4>
@@ -672,6 +689,7 @@ Claude Code 打印所验证的文件、所有错误和警告及其路径，以�
 * `target`：Claude Code 验证的解析后路径
 * `manifest`：清单自身的结果，对于没有清单的运行为 `null`
 * `contents`：每个文件的结果，各自指明其 `file`，并携带 `errors`、`warnings` 和 `notes` 数组
+  * `gatingHooks`：每个可以拒绝操作的 [mod](/docs/zh-CN/plugins/mods/overview) hook（例如 `tool.call` hook）是否具有 [`.catch` 处理程序](/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)。每一项给出 `module`、`pattern`、`hook` 和 `hasCatch`。需要 Claude Code v2.1.290 或更高版本
 
 以 `2` 退出时，命令不向 stdout 写入任何内容。错误消息输出到 stderr。
 
@@ -679,9 +697,9 @@ Claude Code 打印所验证的文件、所有错误和警告及其路径，以�
   claude plugin marketplace 命令
 </h2>
 
-从你的 shell 运行 `claude plugin marketplace <subcommand>` 来添加、列出、刷新和移除你安装插件的市场。
+从您的 shell 运行 `claude plugin marketplace <subcommand>` 来添加、列出、刷新和移除您安装插件的市场。
 
-* **退出代码**：这些子命令遵循插件命令的[退出代码约定](#claude-plugin-commands)
+* **退出码**：这些子命令遵循插件命令的[退出码约定](#claude-plugin-commands)
 * **作用域**：它们的 `--scope` 标志没有 `-s` 短形式
 
 关于市场是什么以及 Claude Code 如何缓存它，请参阅[插件加载参考](/docs/zh-CN/plugins/loading)。
@@ -692,7 +710,7 @@ Claude Code 打印所验证的文件、所有错误和警告及其路径，以�
 
 从 GitHub 仓库、git URL、托管的 `marketplace.json` 或本地路径添加市场，并在设置文件中声明它。
 
-添加后，Claude Code 会安装你已安装的插件缺失的任何[依赖项](/docs/zh-CN/plugins/dependencies)。
+添加后，Claude Code 会安装您已安装的插件缺失的任何[依赖项](/docs/zh-CN/plugins/dependencies)。
 
 ```bash theme={null}
 claude plugin marketplace add <source> [options]
@@ -703,10 +721,11 @@ claude plugin marketplace add <source> [options]
 | `--scope <scope>` | 声明市场的设置文件：`user`、`project` 或 `local`。默认为 `user` |
 | `--sparse <paths...>` | 将 git 检出限制在这些目录，用于 monorepos。仅限 `github` 和 `git` 源 |
 | `--claudeai` | 将参数读取为[托管在 claude.ai 上的市场](/docs/zh-CN/plugins/install#add-from-claude-ai)的名称，而不是源。需要 Claude Code v2.1.273 或更高版本 |
+| `--json` | 以 [JSON 结果格式](#plugin-json-result)在 stdout 的最后一行以一个 JSON 对象打印命令是否成功及其消息。与 `--claudeai` 一起使用时无效。需要 Claude Code v2.1.287 或更高版本 |
 
 `<source>` 采用下表中的任何形式，其形式决定了源类型以及 Claude Code 如何获取市场。关于生成的源对象，请参阅[市场参考](/docs/zh-CN/plugins/marketplace-reference)。
 
-| 你输入的 | 源类型 | Claude Code 如何获取它 |
+| 您输入的 | 源类型 | Claude Code 如何获取它 |
 | :- | :- | :- |
 | `owner/repo`、`owner/repo#ref` 或 `owner/repo@ref` | `github` | 克隆 GitHub 仓库，给定时固定到 `ref`。所有者和仓库必须遵循 GitHub 命名规则 |
 | `user@host:path[.git][#ref]` | `git` | 通过 SSH 克隆 |
@@ -728,9 +747,9 @@ claude plugin marketplace add your-org/your-marketplace --scope project
 
 Claude Code 打印 `Successfully added marketplace: your-marketplace (declared in project settings)`，使用市场自己清单中的 `name`。重复添加或无效源会改为打印以下结果之一：
 
-* **市场已在磁盘上**：输出为 `Marketplace 'your-marketplace' already on disk — declared in project settings`，退出代码为 `0`
-* **无法识别的源**：输出为 `Invalid marketplace source format. Try: owner/repo, https://..., or ./path`，退出代码为 `1`
-* **裸主机，如 `gitlab.example.com/team/plugins`**：添加失败，作为无效的 `owner/repo` 简写，消息告诉你添加 `https://` 或使用本地路径
+* **市场已在磁盘上**：输出为 `Marketplace 'your-marketplace' already on disk — declared in project settings`，退出码为 `0`
+* **无法识别的源**：输出为 `Invalid marketplace source format. Try: owner/repo, https://..., or ./path`，退出码为 `1`
+* **裸主机，如 `gitlab.example.com/team/plugins`**：添加失败，作为无效的 `owner/repo` 简写，消息告诉您添加 `https://` 或使用本地路径
 
 通过 `claude plugin marketplace list` 的 `From claude.ai:` 部分中打印的名称添加[托管在 claude.ai 上的市场](/docs/zh-CN/plugins/install#add-from-claude-ai)：
 
@@ -738,13 +757,13 @@ Claude Code 打印 `Successfully added marketplace: your-marketplace (declared i
 claude plugin marketplace add --claudeai claudeai-organization-library
 ```
 
-使用 `--claudeai` 时，命令拒绝 `--scope` 和 `--sparse`。市场为你的账户托管，未在设置文件中声明，因此你无法通过项目的 `.claude/settings.json` 共享它。
+使用 `--claudeai` 时，命令拒绝 `--scope` 和 `--sparse`。市场为您的账户托管，未在设置文件中声明，因此您无法通过项目的 `.claude/settings.json` 共享它。
 
 <h3 id="plugin-marketplace-list">
   plugin marketplace list
 </h3>
 
-列出你添加的每个市场及其源。
+列出您添加的每个市场及其源。
 
 ```bash theme={null}
 claude plugin marketplace list [options]
@@ -770,7 +789,7 @@ Claude Code 打印 `Configured marketplaces:` 和每个市场一行 `Source:`，
 
 添加的 [claude.ai 市场](/docs/zh-CN/plugins/install#add-from-claude-ai)没有本地克隆，因此其条目在 `installLocation` 的位置携带其 claude.ai 标识符 `marketplaceId` 和 `organizationUuid`。它也在记录时携带 `scope` 和 `status`。
 
-如果你的终端会话[从你的 claude.ai 账户同步插件](/docs/zh-CN/plugins/loading#synced-plugins)，文本列表以 `From claude.ai:` 部分结尾。该部分命名 claude.ai 为你的账户列出的市场，你还没有添加的，包括基于 git 的和托管的。它需要 Claude Code v2.1.273 或更高版本。
+如果您的终端会话[从您的 claude.ai 账户同步插件](/docs/zh-CN/plugins/loading#synced-plugins)，文本列表以 `From claude.ai:` 部分结尾。该部分列出 claude.ai 为您的账户列出但您尚未添加的市场，包括基于 git 的和托管的。它需要 Claude Code v2.1.273 或更高版本。
 
 要从该部分添加市场，请参阅[从 claude.ai 添加市场](/docs/zh-CN/plugins/install#add-from-claude-ai)。
 
@@ -780,10 +799,10 @@ Claude Code 打印 `Configured marketplaces:` 和每个市场一行 `Source:`，
   plugin marketplace remove
 </h3>
 
-从你的设置中移除市场的声明。`rm` 是 `remove` 的别名。
+从您的设置中移除市场的声明。`rm` 是 `remove` 的别名。
 
 <Warning>
-  当你从最后一个声明市场的作用域中移除市场时，Claude Code 也会删除其缓存并卸载你从中安装的每个插件。它也会删除它们保存的[选项和密钥](/docs/zh-CN/plugins/manifest-reference#user-configuration)和[数据](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)（如果可以的话）。
+  当您从最后一个声明市场的作用域中移除市场时，Claude Code 也会删除其缓存并卸载您从中安装的每个插件。它也会删除它们保存的[选项和密钥](/docs/zh-CN/plugins/manifest-reference#user-configuration)和[数据](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)（如果可以的话）。
 
   要在不丢失其插件的情况下刷新市场，请改为运行 `plugin marketplace update`。
 </Warning>
@@ -792,11 +811,12 @@ Claude Code 打印 `Configured marketplaces:` 和每个市场一行 `Source:`，
 claude plugin marketplace remove <name> [options]
 ```
 
-`<name>` 是 `plugin marketplace list` 显示的市场名称，而不是你传递给 `add` 的源。
+`<name>` 是 `plugin marketplace list` 显示的市场名称，而不是您传递给 `add` 的源。
 
 | 标志 | 描述 |
 | :- | :- |
 | `--scope <scope>` | 从一个设置作用域中移除声明：`user`、`project` 或 `local`。不使用它时，Claude Code 从每个作用域中移除声明 |
+| `--json` | 以 [JSON 结果格式](#plugin-json-result)在 stdout 的最后一行以一个 JSON 对象打印命令是否成功及其消息。需要 Claude Code v2.1.287 或更高版本 |
 
 从每个作用域中移除市场：
 
@@ -806,7 +826,7 @@ claude plugin marketplace remove your-marketplace
 
 Claude Code 打印 `Successfully removed marketplace: your-marketplace`。当命令卸载插件时，输出在诸如 `Also uninstalled 2 plugins from this marketplace:` 的行下列出它们。要再次使用其中一个，请添加市场并重新安装插件。
 
-如果你限定作用域到不声明市场的设置文件，命令失败，显示 `Marketplace 'your-marketplace' is not declared in project settings. Omit --scope to remove it from all scopes.`
+如果您限定作用域到不声明市场的设置文件，命令失败，显示 `Marketplace 'your-marketplace' is not declared in project settings. Omit --scope to remove it from all scopes.`
 
 <h3 id="plugin-marketplace-update">
   plugin marketplace update
@@ -815,10 +835,12 @@ Claude Code 打印 `Successfully removed marketplace: your-marketplace`。当命
 从其源刷新一个市场或每个市场，以获取新插件和版本。使用分支或标签 `ref` 添加的市场更新到该 ref 的最新提交，而不是仓库的默认分支。
 
 ```bash theme={null}
-claude plugin marketplace update [name]
+claude plugin marketplace update [name] [options]
 ```
 
-该命令除了 `--help` 外不接受任何标志。
+| 标志 | 描述 |
+| :- | :- |
+| `--json` | 以 [JSON 结果格式](#plugin-json-result)在 stdout 的最后一行以一个 JSON 对象打印命令是否成功及其消息。未提供名称时，命令拒绝 `--json` 并以 `1` 退出。需要 Claude Code v2.1.287 或更高版本 |
 
 刷新一个市场：
 
@@ -826,7 +848,7 @@ claude plugin marketplace update [name]
 claude plugin marketplace update your-marketplace
 ```
 
-Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当你省略名称时，它打印计数，如 `Successfully updated 2 marketplaces`。没有添加市场时，它打印 `No marketplaces configured` 并退出 `0`。
+Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当您省略名称时，它打印计数，如 `Successfully updated 2 marketplaces`。
 
 <h2 id="plugin-in-a-session">
   会话中的 /plugin

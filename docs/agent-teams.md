@@ -159,6 +159,8 @@ Claude Code 从以下第一个适用的来源为每个队友选择模型：
 3. [`CLAUDE_CODE_SUBAGENT_MODEL`](/docs/zh-CN/model-config#environment-variables)，当它设置为除 `inherit` 之外的任何值时。
 4. 负责人的当前模型。
 
+如果已安装的 [mod](/docs/zh-CN/plugins/mods/overview) 在其 [`agent.spawn`](/docs/zh-CN/plugins/mods/reference#subagents) hook 中设置了模型，Claude Code 会使用该模型代替第一个来源。
+
 如果你设置 [`CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1`](/docs/zh-CN/sub-agents#run-every-subagent-on-one-model)，前两个来源不适用。当 Claude Code 设置为除 `inherit` 之外的任何值时，Claude Code 从 `CLAUDE_CODE_SUBAGENT_MODEL` 为每个队友选择模型，否则从负责人的当前模型选择。需要 Claude Code v2.1.257 或更高版本。
 
 在 v2.1.251 之前，`CLAUDE_CODE_SUBAGENT_MODEL` 在此顺序中排在第一位。

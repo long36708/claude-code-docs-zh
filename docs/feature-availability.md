@@ -92,7 +92,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✗</td>
       <td>✓</td>
       <td>参见注释 <sup><a href="#fn1">1</a></sup></td>
-      <td>✓（[部署在 Anthropic 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)）</td>
+      <td>✓</td>
     </tr>
 
     <tr>
@@ -283,7 +283,6 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
     **部分支持：**
 
     * [Desktop](/docs/zh-CN/desktop)：仅通过 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
-    * [Web search](/docs/zh-CN/tools-reference#websearch-tool-behavior)：[部署在 Anthropic 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)仅
     * [Auto mode](/docs/zh-CN/auto-mode-config)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
     * [Cross-session messaging](/docs/zh-CN/cross-session-messaging)：仅在此机器上的您的会话之间 <sup><a href="#fn5">5</a></sup>
     * [Zero Data Retention](/docs/zh-CN/zero-data-retention)：受您的 Azure 协议约束

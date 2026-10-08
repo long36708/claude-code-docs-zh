@@ -294,7 +294,7 @@ Hook 配置有三个级别：
   Output style
 </h3>
 
-一个配置，改变 Claude Code 给予 Claude 的指令，以设置响应行为、语气或格式。与 [CLAUDE.md](#claude-md) 不同，后者在 Claude Code 的默认指令旁添加项目上下文，自定义输出样式可以替换默认的软件工程指令。
+一个配置，改变 Claude Code 给予 Claude 的指令，以设置回复行为、语气或格式。与 [CLAUDE.md](#claude-md) 不同，后者在 Claude Code 的默认指令旁添加项目上下文，自定义输出样式会添加自己的指令，并且可以省略默认的软件工程指令。
 
 了解更多：[Output styles](/docs/zh-CN/output-styles)
 

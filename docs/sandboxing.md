@@ -698,7 +698,7 @@ Claude Code 在您的计算机上、沙箱之外运行沙箱代理，并通过 `
 权限规则和沙箱隔离控制不同的事项：
 
 * **权限规则**控制 Claude Code 可以使用哪些工具，并在任何工具运行之前进行评估。它们适用于每个工具：Bash、Read、Edit、WebFetch、MCP 和其他工具，除了拒绝或询问规则无法阻止 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)，而任何其他工具仍然存在。
-* **沙箱隔离**提供操作系统级别的强制执行，限制 shell 命令在文件系统和网络级别可以访问的内容。它仅适用于 Bash、PowerShell 和 [Monitor](/docs/zh-CN/tools-reference#monitor-tool) 命令及其子进程。
+* **沙箱隔离**提供操作系统级别的强制执行，限制 shell 命令在文件系统和网络级别可以访问的内容。它适用于 Bash、PowerShell 和 [Monitor](/docs/zh-CN/tools-reference#monitor-tool) 工具的命令及其子进程。
 
 这两个层级在强制执行方式上也有所不同。Claude Code 在命令运行之前根据命令字符串和在自动模式下单独分类器对命令是否安全的判断来评估权限决策。操作系统在运行的进程上强制执行沙箱边界，因此无论模型选择运行什么，即使允许的命令执行的操作超出其名称所示，它也会保持有效。
 

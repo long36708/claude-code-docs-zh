@@ -259,14 +259,14 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`Text`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `color`、`backgroundColor`、`bold`、`italic`、`underline`、`dimColor`、`inverse`、`wrap` | ✓ | ✓ |
 | [`Button`](/docs/zh-CN/plugins/mods/interface#respond-to-presses-and-typing) | `key`、`label`、`onPress`、`hotkey`、`plain`、`dimColor`、`autoFocus`、`action` | ✓ | ✓ |
 | `Link` | `href`、`label` | ✓ | ✓ |
-| `Code` | 代码 | ✓ | ✓ |
+| [`Code`](/docs/zh-CN/plugins/mods/gallery#show-code-and-changes) | `source`、`language`、`path`、`startLine`、`format`、`wrap` | ✓ | ✓ |
 | `Markdown` | `text`、`key`、`dimColor`、`onLinkPress`、`pressableLinks` | ✓ | ✓ |
 | [`Input`](/docs/zh-CN/plugins/mods/interface#take-typed-input-and-draw-a-row-for-each-item) | `key`、`label`、`placeholder`、`value`、`submitLabel`、`onSubmit`、`onInput`、`autoFocus` | ✓ | ✓ |
 | `Select` | `key`、`label`、`options`、`value`、`onSelect`、`autoFocus` | ✓ | ✓ |
 | `Svg` | 一个 SVG 文档，最多 131,072 个字符 | | ✓ |
 | [`Client`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `module`、`key` | ✓ | ✓ |
 | [`Raster`](/docs/zh-CN/plugins/mods/interface#draw-a-grid-of-colored-cells) | `key`、`columns`（最多 512）、`rows`（最多 256）、`cells`。请参阅[绘制彩色单元格网格](/docs/zh-CN/plugins/mods/interface#draw-a-grid-of-colored-cells)。 | ✓ | |
-| `Image` | 最多 2 MiB 的 PNG 或 RGBA 字节，或文件路径 | ✓ | |
+| `Image` | 最多 2 MiB 的 PNG 或 RGBA 字节，或文件路径，`columns` 和 `rows`（最多 255），以及 `alt` 文本。 | ✓ | |
 
 更多 `Button` 规则：`action` 指定 Claude Code 自身的某个[快捷键操作](/docs/zh-CN/keybindings)，当用户为该操作设置的绑定是组合键或带修饰键的按键时，该绑定会按下此按钮。当用户在空的输入框中只输入某个数字并停顿时，横栏中设置了该数字 `hotkey` 的按钮也会触发。当同一次绘制中的两个按钮指定相同的 `hotkey` 时，由后一个按钮获得它。`autoFocus` 在任何控件上都只接受 `true`，因此要关闭它，请省略该 prop。
 
@@ -325,7 +325,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | `CLAUDE_CODE_PLUGIN_DIRS` | 环境变量，或 `~/.claude/settings.json` 中的 `env` | 要像 `--plugin-dir` 那样加载的插件目录，用于无法传递标志的应用。以 `:` 分隔的绝对路径，在 Windows 上以 `;` 分隔。 |
 | `CLAUDE_CODE_PLUGIN_DIR_WATCH` | 环境变量 | `1` 使长时间运行的非交互式会话在保存时重新加载 `--plugin-dir` mod |
 | `prependPlugins`, `appendPlugins` | 托管设置。仅在没有托管设置的机器上、且用户未使用 Team 或 Enterprise 套餐登录时，才可在用户设置中使用。 | 插件 id 列表，例如 `acme-guard@acme-tools`。`prependPlugins` 中的 mod 在用户安装的每个 mod 之前运行，`appendPlugins` 中的 mod 在之后运行，均按列出的顺序。请参阅 [mod 运行顺序](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)。 |
-| `allowManagedModsOnly` | 托管设置，作为[内置守卫的选项](/docs/zh-CN/plugins/mods/admin#set-options-on-the-built-in-guard) | 只加载[算作您组织的](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods) mod 以及 Claude Code 内置的 mod。用户的设置 hook 会继续运行。 |
+| `allowManagedModsOnly` | 托管设置，作为[内置守卫的选项](/docs/zh-CN/plugins/mods/admin#set-options-on-the-built-in-guard) | 只有[算作您组织的](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods) mod 以及 Claude Code 内置的 mod 会运行其 hook。用户的设置 hook 会继续运行。 |
 | `allowModsToOverrideDenyRules` | 托管设置，作为[内置守卫的选项](/docs/zh-CN/plugins/mods/admin#set-options-on-the-built-in-guard) | 允许用户安装的 mod 批准被 `deny` 规则拒绝的工具调用 |
 | `allowManagedHooksOnly` | 托管设置 | 阻止不属于您组织的 hook 和已安装的 mod。请参阅[哪些会继续运行](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)。 |
 | `disableAllHooks` | 任何设置文件 | 在托管设置中，来自已安装插件的任何 mod 或 hook 都不会运行。在您自己的设置中，您组织管理的内容会继续运行。请参阅 [`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks)。 |

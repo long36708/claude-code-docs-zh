@@ -22,7 +22,7 @@ Claude Code 可以在多种隔离环境中运行，从轻量级的按命令沙�
 
 | 方法 | 隔离的内容 | 需要 Docker | 设置工作量 |
 | :- | :- | :- | :- |
-| [Sandboxed Bash tool](#sandboxed-bash-tool) | Bash、PowerShell 和 Monitor 命令及其子进程 | 否 | macOS 上最少；Linux 和 WSL2 上较少 |
+| [Sandboxed Bash tool](#sandboxed-bash-tool) | Bash、PowerShell 和 Monitor 工具命令及其子进程 | 否 | macOS 上最少；Linux 和 WSL2 上较少 |
 | [Sandbox runtime](#sandbox-runtime) | 整个 Claude Code 进程，包括文件工具、MCP 服务器和 hooks | 否 | 较少 |
 | [Dev container](#dev-containers) | 完整开发环境 | 是 | 中等 |
 | [Custom container](#custom-container) | 完整开发环境 | 是 | 中等到高 |
@@ -76,14 +76,14 @@ Claude Code 可以在多种隔离环境中运行，从轻量级的按命令沙�
   此选项不支持本机 Windows。在 Windows 主机上，使用 WSL2 或下面的容器或虚拟机方法之一。
 </Note>
 
-Sandboxed Bash tool 内置于 Claude Code 中。它使用操作系统原语来限制 Claude 运行的每个 Bash、PowerShell 或 Monitor 命令的文件系统和网络访问。
+Sandboxed Bash tool 内置于 Claude Code 中。它使用操作系统原语来限制 Claude 运行的 Bash、PowerShell 和 Monitor 工具命令的文件系统和网络访问。
 
 运行 `/sandbox` 命令打开沙箱面板并选择一个模式。[Sandboxing](/docs/zh-CN/sandboxing) 指南涵盖批准模式、默认边界以及如何扩大或缩小它。
 
 按命令沙箱不涵盖会话中运行的所有内容：
 
 * 其他 [built-in tools](/docs/zh-CN/tools-reference)（如 Read、Edit 和 WebFetch）在 Claude Code 进程内运行，不会生成任意代码。[Permission rules](/docs/zh-CN/permissions) 用于路径或域来控制它们。
-* [MCP](/docs/zh-CN/mcp) 服务器和 [command hooks](/docs/zh-CN/hooks#command-hook-fields) 是在主机上无约束运行的单独进程。
+* [MCP](/docs/zh-CN/mcp) 服务器、[命令 hook](/docs/zh-CN/hooks#command-hook-fields) 和[插件监视器](/docs/zh-CN/plugins/components#monitors)是在主机上无约束运行的单独进程。有关以这种方式运行的其他进程，请参阅[哪些内容在沙箱外运行](/docs/zh-CN/sandboxing#what-runs-outside-the-sandbox)。
 
 要将内置工具、MCP 服务器和 hooks 都放在一个操作系统边界后面，请在 [sandbox runtime](#sandbox-runtime)、[dev container](#dev-containers) 或 [custom container](#custom-container) 内运行整个 Claude Code 进程。
 

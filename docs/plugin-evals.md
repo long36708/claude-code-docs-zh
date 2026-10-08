@@ -335,7 +335,7 @@ mock 文件的正文和 frontmatter 接受这些选项：
 * **替换**：使用 `{{input.<field>}}` 从调用的输入插入字段，使用 `{{file:fixtures/{input.<field>}.json}}` 插入 mock 旁边的 fixture 文件的内容。
 * **`expect:`**：`expect:` 块保护输入。如果调用违反它，运行以分数 0 中止并记录原因，以便用例可以断言你的插件要求服务器执行的操作。
 * **`error: true`**：设置 `error: true` 以将正文作为工具错误返回。
-* **`type: agent`**：设置 `type: agent`，让评判模型根据正文中的指令以服务器身份回答。
+* **`type: agent`**：设置 `type: agent`，让评判模型根据正文中的指令以服务器身份回答。对 Agent mock 的调用共享一个[每次运行的预算](#mock-call-budget-exceeded)，其值为用例 `max_turns` 的四倍，超出预算的调用会以分数 0 中止运行。
 
 [mock 文件参考](#mock-files)列出了每个键和 `_server.md` 和 `_tools.json` 文件。
 
@@ -502,7 +502,7 @@ Claude Code 会话启动的运行，例如当你要求 Claude 为你运行套件
 | `cases[].aggregates.score` | 用例的平均 with-arm 运行分数 |
 | `cases[].aggregates.delta` | With-arm 分数减去 without-arm 分数。当 arm 不可比较时省略 |
 | `cases[].arms.with[].error` | `null`，或运行异常结束的原因，例如 `timed out after 300s`。启动但结束不好的运行仍然在它生成的内容上评分，所以非空错误不意味着分数 0 |
-| `cases[].arms.with[].aborted` | 当[mock](#mock-mcp-servers) 的 `expect:` 或 `abort_when` 停止运行时出现，带有 `server`、`tool` 和 `reason`。运行分数为 0，`error` 保持 `null` |
+| `cases[].arms.with[].aborted` | 当 [mock](#mock-mcp-servers) 通过 `expect:`、`abort_when` 或 [agent-mock 调用预算](#mock-call-budget-exceeded)停止运行时出现，带有 `server`、`tool` 和 `reason`。运行分数为 0，`error` 保持 `null` |
 | `cases[].arms.with[].skippedPaidGraders` | `true` 当成本上限跳过此运行的评判评分器时，所以其分数不可比较 |
 | `costUsd`, `durationSeconds`, `claudeVersion` | 列表价格的估计成本，包括评判调用、挂钟秒数和运行套件的 Claude Code 版本 |
 
@@ -654,16 +654,31 @@ evals/
 | 键 | 默认 | 目的 |
 | :- | :- | :- |
 | `type` | `fixed` | `fixed` 按原样返回正文。`agent` 将正文视为给[评判模型](#command-options)的指令，该模型在运行中充当服务器，并将之前的调用视为历史 |
-| `expect` | 未设置 | 从点分输入路径到类型名称（例如 `string`、`number`、`boolean`、`array` 或 `object`）、`/regex/`、文字或允许的文字列表的映射。违反它的调用以分数 0 中止运行，并报告为 `aborted`，带有服务器、工具和原因 |
+| `expect` | 未设置 | 从点分输入路径到类型名称（例如 `string`、`number`、`boolean`、`array` 或 `object`）、[`/regex/`](#expect-patterns)、字面值或允许的字面值列表的映射。违反它的调用会以分数 0 中止运行，并报告为 `aborted`，附带服务器、工具和原因 |
 | `error` | `false` | `fixed` 仅。将正文作为工具错误返回 |
 | `abort_when` | 未设置 | `agent` 仅。散文列出代理可能中止运行的唯一条件 |
 
 两个可选文件位于服务器目录中的工具文件旁边：
 
-* **`_server.md`**：单个 `type: agent` mock，在其 `tools:` frontmatter 键中列出的几个工具回答。相同工具的 `<tool>.md` 优先。在单个 `<tool>.md` 上放置 `expect:` 保护，不在这里
+* **`_server.md`**：单个 `type: agent` mock，回答其 `tools:` frontmatter 键中列出的多个工具。同一工具的 `<tool>.md` 优先于它。在这里放置 `expect:` 保护会导致加载错误，除非 `tools:` 只列出一个工具，因此请将保护放在单独的 `<tool>.md` 上
 * **`_tools.json`**：来自真实服务器的保存 `tools/list` 响应，所以 mocked 工具携带其真实描述和输入架构，而不是宽松的占位符
 
 用例自己的 `mocks/` 目录使用相同的布局并逐文件覆盖套件的 mocks。
+
+<h4 id="expect-patterns">
+  expect 中的正则表达式模式
+</h4>
+
+`expect:` 中的 `/regex/` 值使用一种小型方言，Claude Code 会在加载套件时对其进行检查：
+
+* 字面字符、`.`、转义序列（如 `\d`）以及字符类（如 `[a-z]`）
+* 量词 `*`、`+`、`?` 以及 `{m,n}` 形式，每个都作用于单个字符、转义序列或字符类
+* 开头可选的 `^` 和结尾可选的 `$`
+* 仅限标志 `i` 和 `s`
+
+超出该方言的模式，例如包含分组、交替、反向引用、环视或其他标志的模式，会导致用例无法加载：该用例得分为 0，其错误信息会指明该模式。要允许多个确切值，请编写字面值列表，而不是使用交替。
+
+每个模式只检查不超过某个最大长度的值，更长的值会被视为违规。量词会降低该长度，而开头的 `^` 会提高该长度，因此请用 `^` 锚定模式并尽量少用量词。
 
 <h2 id="troubleshooting">
   故障排除
@@ -772,6 +787,12 @@ eval 目录下不存在 `<case>/prompt.md` 或 `<case>/case.yaml`，或你的 `-
 </h3>
 
 如果你的账户在套件运行时达到了计划的使用限制或 API 速率限制，每个后续运行都会以该错误结束，根据它生成的内容进行评分，通常评分为 0。套件仍然完成，不会标记为 `partial`，所以结果看起来像是一个回归。在信任评分之前，检查 `NOTES` 列或 JSON 中的 `cases[].arms.with[].error` 中的限制消息，然后在限制重置后重新运行，如果你需要保持在限制内，使用 `--runs 1` 或 `--case` 过滤器。
+
+<h3 id="mock-call-budget-exceeded">
+  "mock call budget exceeded"
+</h3>
+
+一次运行中的每个 `type: agent` [模拟](#mock-mcp-servers)都共用一个调用预算，该预算为案例 `max_turns` 的四倍，在默认值 10 下即为 40 次调用。由 `.replay/` 录制内容应答的调用同样计入，案例的 `mock budget` 进度行会打印该预算。超出预算的调用会中止运行，评分为 0 并给出此原因，因此对于会大量调用 Agent 模拟的 skill，请在案例中提高 `max_turns`。
 
 <h3 id="runs-time-out-or-hit-the-turn-cap">
   运行超时或达到轮次上限

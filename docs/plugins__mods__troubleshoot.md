@@ -32,7 +32,7 @@
 | `hooks modules are turned off here` | 一个设置正在阻止您的 mod：您自己的设置中的 `disableAllHooks`，或您的组织的策略 |
 | `hooks modules are turned off in this process` | Anthropic 已远程关闭已安装的 mod。您机器上的任何设置都无法将其打开。 |
 
-组织还可以设置 `allowManagedModsOnly` 以仅允许其自己的 mod，此命令不会报告。在这种情况下，您安装的 mod 不会加载，[消息会说明原因](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)。
+组织还可以设置 `allowManagedModsOnly` 以仅允许其自己的 mod，此命令不会报告。在这种情况下，Claude Code 会拒绝您安装的 mod，并且[会有消息说明原因](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)。
 
 <h2 id="the-mod-doesn’t-load">
   mod 不加载
@@ -86,7 +86,7 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 
 | 消息包含 | 这意味着什么 | 它出现在哪里 |
 | :- | :- | :- |
-| `mods are limited to your organization's by policy (allowManagedModsOnly)` | 您的组织仅允许 [其自己的 mod](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)，因此您的 mod 未被加载 | 调试日志，以及 [热重新加载插件目录的会话](#find-out-why-a-mod-does-nothing) 中的成绩单 |
+| `mods are limited to your organization's by policy (allowManagedModsOnly)` | 您的组织仅允许 [其自己的 mod](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)，因此您的 mod 被拒绝 | 调试日志，以及 [热重新加载插件目录的会话](#find-out-why-a-mod-does-nothing) 中的会话记录 |
 | `tried to lift a deny rule in your settings` | 您的 mod 的 [`tool.check`](/docs/zh-CN/plugins/mods/reference#tools) hook 批准了 `deny` 规则拒绝的调用。该调用保持被拒绝。 | 成绩单和调试日志，会话中每个 mod 一次。在 `claude -p` 运行中，仅调试日志。 |
 | `the deny rules in your settings could not be checked for this call, so it is refused` | 保护在检查 mod 批准的调用时失败，因此它拒绝了该调用 | Claude 为被拒绝的调用读取的原因 |
 

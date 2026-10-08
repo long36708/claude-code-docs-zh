@@ -623,6 +623,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 * **Claude 的回复**：该扩展在每条回复完成时宣布一次，在文本流入时保持沉默。您的屏幕阅读器将代码块读作行数摘要，按标签读取链接，逐个单元格读取表格；完整回复在记录中保持可读。
 * **权限请求和问题**：当权限提示出现时，该扩展会宣布请求，并命名 Claude 想要使用的工具。当 Claude 向您提问以及当 Claude 完成计划并等待您审查时，它以相同方式宣布。
 * **状态更改**：当 Claude 开始工作、Claude 准备好接收您的输入以及 Claude Code 开始压缩对话时，该扩展会宣布。
+* **排队的消息**：当您在 Claude 工作时发送消息，该扩展会为该消息宣布"Message queued."。
 * **错误和模型提示**：该扩展宣布对话中的错误，并在 [使用额度同意提示](/docs/zh-CN/model-config#fable-and-usage-credits) 或 [标记请求提示](/docs/zh-CN/model-config#ask-before-switching) 出现时宣布。
 
 当 Claude 工作时，您的屏幕阅读器会读取一个文本标签来代替进度旋转器的动画。

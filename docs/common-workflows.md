@@ -391,7 +391,7 @@ Claude Code 可以在任何目录中工作。在笔记库、文档文件夹或�
     Explain the logic in @src/utils/auth.js
     ```
 
-    这在对话中包含文件的完整内容。
+    当文件符合 [Read 工具](/docs/zh-CN/tools-reference#read-tool-behavior)的 token 限制（默认为 25,000 个 token）时，这会将文件内容包含在对话中。大于 256KB 的文本文件不会被包含。
   </Step>
 
   <Step title="引用目录">

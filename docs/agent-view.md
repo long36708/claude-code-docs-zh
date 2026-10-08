@@ -226,7 +226,7 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 在窥视面板中输入回复并按 `Enter` 将其发送到该会话。在回复前加上 `!` 可改为发送 Bash 命令。回复的处理方式取决于会话以及您发送的内容：
 
-* 正在工作的会话：回复会加入会话的[消息队列](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)而不是打断回复，并[在排队输入生效时](/docs/zh-CN/interactive-mode#when-claude-code-sends-what-you-queued)生效。[命令](/docs/zh-CN/commands)会等待当前轮次结束，即使是在会话自身的提示符处输入后会立即运行的命令
+* 正在工作的会话：`/model`、`/effort`、`/rename` 和 `/usage` 会立即运行。其他回复会加入会话的[消息队列](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)而不是打断回复，并[在排队输入生效时](/docs/zh-CN/interactive-mode#when-claude-code-sends-what-you-queued)生效。其他[命令](/docs/zh-CN/commands)会等待当前轮次结束，即使是在会话自身的提示符处输入后会立即运行的命令
 * 恰好为 `/stop` 的回复：立即停止会话，而不是发送给会话，无论会话正在工作还是在等待您
 * [shell 作业](#run-a-shell-command)：回复（包括 `/stop`）会作为键入的输入发送到该命令的终端
 
@@ -288,11 +288,13 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 在您用方向键或鼠标移动选择后，您按下 `←` 时所在的行仍会保持粗体、不暗淡的名称，便于您辨认自己来自哪个会话。
 
-如果按 `←` 时有工具正在运行，Claude Code 会最多等待约十秒让其完成后再转入后台，Claude 会在后台会话中继续回复。再按一次 `←` 可立即转入后台而不等待。当进行中的工作无法转移到后台会话时，Claude Code 会先显示 `Background this session?` 对话框，与 [`/background`](#from-inside-a-session) 相同。
+如果按 `←` 时有工具正在运行，Claude Code 会等待其完成后再转入后台，Claude 会在后台会话中继续回复。再按一次 `←` 可立即转入后台而不等待。当进行中的工作无法转移到后台会话时，Claude Code 会先显示 `Background this session?` 对话框，与 [`/background`](#from-inside-a-session) 相同。
 
-当 Claude 在对话中启动的[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)仍在运行时，十秒限制不适用。Claude Code 会继续等待以便转移它们的工作，并在等待期间显示 `Still backgrounding after the current tool` 通知。再按一次 `←` 可不等待直接转入后台，这会从头重新启动这些子代理。Claude Code 不会等待[动态工作流](/docs/zh-CN/workflows)正在运行的子代理。当工作流有子代理正在运行时，Claude Code 会改为显示 `Background this session?` 对话框。
+大约十秒后，Claude Code 会不再等待，直接将会话转入后台，但以下情况等除外：
 
-当提示输入框中有未发送的文本时，Claude Code 不会将会话转入后台，因为这些文本会留在终端的输入框中，不会移到后台会话。如果您在 Claude Code 等待转入后台期间在输入框中输入内容，它会取消切换并显示 `Backgrounding cancelled — you have unsent text in the input. Send it or clear it, then press ← again.`
+* **前台子代理仍在运行**：Claude Code 会继续等待，以便 Claude 启动的[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)的工作能够转移，并显示 `Still backgrounding after the current tool`。再按一次 `←` 可不等待直接转入后台，这会从头重新启动这些子代理。
+* **有权限提示或问题在等待您的回答**：当权限提示或 Claude 提出的问题处于等待状态时，Claude Code 会继续等待并显示 `Still backgrounding after the current tool — a question is waiting for your answer.`
+* **您在提示输入框中输入内容**：Claude Code 会取消切换，因为未发送的文本会留在终端的输入框中，不会移到后台会话。它会显示 `Backgrounding cancelled — you have unsent text in the input. Send it or clear it, then press ← again.`
 
 即使对话还没有任何消息，按 `←` 也会创建该会话的行，因此 `→` 仍可返回该会话。
 
@@ -876,7 +878,7 @@ Claude Code 将 agent view 中列出的每个会话都视为后台会话，无�
 
 每个会话都是监督进程下的独立 Claude Code 进程，该进程发生的情况取决于会话的状态：
 
-* **工作中、暂停在权限提示或其他对话框上，或已连接**：进程继续运行。运行中的子代理、工作流或监视器计为工作中。
+* **工作中、暂停在权限提示或其他对话框上，或已连接**：进程继续运行。运行中的子代理、工作流或监视器计为工作中，待执行的[会话范围定时任务](/docs/zh-CN/scheduled-tasks)（例如 `/loop` 唤醒）也同样计为工作中。
 * **已完成或等待您的下一条消息，且未连接约一小时**：监督进程停止该进程以释放资源。以向您提问结束其轮次的会话计为等待您的下一条消息。对话保存在磁盘上，下次您连接或回复时，会话从中断处恢复。使用 `Ctrl+T` 固定会话以保持其进程运行。
 * **在监督进程运行时意外退出**：监督进程重新启动该进程。如果通过 `kill` 等方式结束您自己使用 `←` 或 `/background` 后台化的会话，该会话会被标记为已停止，而不是重新启动。对于以关闭结束的会话，请参阅[会话在关闭后显示为失败或已停止](#sessions-show-as-failed-after-shutdown)。
 * **自动更新后**：监督进程重新启动自身到新版本，并在后台移动空闲会话。工作中、等待您或已连接的会话不会被中断。
@@ -1093,6 +1095,7 @@ Agent view 在研究预览期间发展迅速。如果您使用的是较旧的 Cl
 | 版本 | 更改 |
 | - | - |
 | v2.1.290 | [`claude attach` 和 `claude logs`](#manage-sessions-from-the-shell) 可以使用正在运行的会话名称的一部分来代替 ID。 |
+| v2.1.290 | `/model`、`/effort`、`/rename` 和 `/usage` 作为[窥视回复](#peek-and-reply)发送给正在工作的会话时会立即运行。 |
 | v2.1.288 | `Ctrl+F` 按名称查找会话，`Alt+↑` / `Alt+↓` 在组标题之间跳转。这两者以及 `Ctrl+R` 都可以[重新绑定](/docs/zh-CN/keybindings#agents-actions)。 |
 | v2.1.287 | [`n:<text>` 筛选器](#filter-sessions)按名称或第一个提示词查找会话。当任何筛选器处于活动状态时，您折叠的组会展开以显示其匹配项，并且第一个匹配项被选中，因此 `Enter` 会打开它。 |
 | v2.1.287 | 作为[窥视回复](#peek-and-reply)发送的命令会在会话当前轮次结束时运行，包括在会话自身的输入框中一键入就立即运行的命令。内容恰好为 `/stop` 的回复会立即停止会话。 |

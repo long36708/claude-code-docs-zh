@@ -411,12 +411,12 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
   安全和隔离
 </h2>
 
-每个云会话通过多个层与你的机器和其他会话分离：
+每个云端会话通过多个层与您的机器和其他会话分离：
 
-* **隔离的虚拟机**：每个会话在隔离的、Anthropic 管理的 VM 中运行。你的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话改为在你自己的基础设施上运行，其中隔离是你的部署的责任
-* <span id="default-allowed-domains" />**网络访问控制**：在 Anthropic 托管的环境中，网络访问默认受限，可以禁用。请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)了解访问级别、[默认允许的域](/docs/zh-CN/cloud-environments#default-allowed-domains)和不通过允许列表的流量。在自托管环境中，你在自己的网络边界处限制会话出口。当在禁用网络访问的情况下运行时，Claude Code 仍然可以与 Anthropic API 通信，这可能允许数据从 VM 中退出。
-* **凭证保护**：在 Anthropic 托管的环境中，git 凭证和签名密钥保持在沙箱外，代理使用作用域凭证代表会话进行身份验证。在自托管环境中，你的部署提供 git 凭证；请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)
-* **网络密钥**：在 Pro 和 Max 计划的 Anthropic 托管环境中，您[添加到云环境](/docs/zh-CN/cloud-environments#add-api-credentials)的密钥以相同的方式保持在沙箱外，在请求离开会话后附加到匹配的请求。自托管环境没有网络密钥，Team 和 Enterprise 计划目前也还没有
+* **隔离的虚拟机**：每个会话在隔离的、Anthropic 管理的 VM 中运行。您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话改为在您自己的基础设施上运行，其中隔离是您的部署的责任
+* <span id="default-allowed-domains" />**网络访问控制**：在 Anthropic 托管的环境中，网络访问默认受限，可以禁用。请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)了解访问级别、[默认允许的域](/docs/zh-CN/cloud-environments#default-allowed-domains)和不通过允许列表的流量。在自托管环境中，您在自己的网络边界处限制会话出口。当在禁用网络访问的情况下运行时，Claude Code 仍然可以与 Anthropic API 通信，这可能允许数据从 VM 中退出。
+* **凭据保护**：在 Anthropic 托管的环境中，git 凭据和签名密钥保持在沙箱外，代理使用作用域凭据代表会话进行身份验证。在自托管环境中，您的部署提供 git 凭据；请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)
+* **网络密钥**：在 Pro 和 Max 计划的 Anthropic 托管环境中，您[添加到云环境](/docs/zh-CN/cloud-environments#add-network-secrets)的密钥以相同的方式保持在沙箱外，在请求离开会话后附加到匹配的请求。自托管环境没有网络密钥，Team 和 Enterprise 计划目前也还没有
 * **安全分析**：代码在会话的隔离环境内分析和修改，然后创建 PR
 
 <h2 id="troubleshooting">

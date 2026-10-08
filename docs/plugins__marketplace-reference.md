@@ -498,6 +498,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `Claude Code cannot install plugin "x". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change this entry's "name".` | 错误 | `plugins[i].name` |
 | `Duplicate plugin name "x" found in marketplace` | 错误 | 两个条目共享一个 `name` |
 | `plugins.i.source: Invalid input` | 错误 | 该条目的 `source` 与任何类型都不匹配。请参阅 [Invalid input on a source](#invalid-input-on-a-source) |
+| `plugins.i.source: Invalid string: must start with "./"` | 错误 | 缺少开头 `./` 的相对路径 `source`。在 v2.1.285 之前，此错误会改为打印 `Invalid input` |
 | `plugins[i].source: Path contains "..": <path>` | 错误 | 转义 marketplace 根目录的相对 `source` |
 | `source.source: 'unsupported' is a parse-time placeholder and cannot be authored` | 错误 | `plugins[i].source` |
 | `Plugin "x" sets headersHelper but is not "strict": false` | 错误 | `plugins[i].headersHelper`，在 `archive` 条目上 |
@@ -524,10 +525,11 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 
 `source` 上的 `Invalid input` 意味着该对象与任何源类型都不匹配。检查这些原因：
 
-* 不以 `./` 开头的相对路径，除了 `"."` 或 [`metadata.pluginRoot` 下的裸名称](#relative-path-plugin-source)
 * 包含 `..` 的 `npm` `package`
 * 不是 [plugin sources](#plugin-sources) 之一的 `source` 类型
 * 已知类型缺少必需字段或字段类型错误，例如没有 `repo` 的 `github`
+
+不以 `./` 开头的相对路径（`"."` 或 [`metadata.pluginRoot` 下的裸名称](#relative-path-plugin-source) 除外）会失败并显示 `Invalid string: must start with "./"`。在 v2.1.285 之前，它会像上述原因一样打印 `Invalid input`。
 
 <h3 id="failures-that-validation-doesn’t-catch">
   验证未捕获的失败

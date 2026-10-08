@@ -22,10 +22,10 @@
 </Note>
 
 <h2 id="stop-user-installed-mods-from-loading">
-  停止用户安装的 mods 加载
+  停止用户安装的 mod 加载
 </h2>
 
-要防止用户带来的每个 mod 加载，请在[内置保护](#know-what-happens-by-default)上设置 `allowManagedModsOnly` 选项，这是一个策略 mod，Claude Code 在用户安装的每个 mod 之前加载。该选项位于 `pluginConfigs` 下的托管设置中，由 `cc-plugin-sec-default@builtin` 键入：
+要阻止用户带来的每个 mod 运行其 hook，请在[内置守卫](#know-what-happens-by-default)上设置 `allowManagedModsOnly` 选项。内置守卫是一个策略 mod，Claude Code 会在用户安装的每个 mod 之前加载它。该选项位于托管设置的 `pluginConfigs` 下，以 `cc-plugin-sec-default@builtin` 为键：
 
 ```json managed-settings.json theme={null}
 {
@@ -39,18 +39,18 @@
 }
 ```
 
-设置了托管设置中的选项后：
+在托管设置中设置该选项后：
 
-* **用户带来的任何 mod 都不会加载**：这包括用户安装的插件中的 mod、使用 `--plugin-dir` 加载的 mod 以及[Claude 在会话期间编写的](/docs/zh-CN/plugins/mods/create#ask-claude-for-a-mod) mod
-* **您组织的 mods 仍然加载**：[计为您组织的](#install-your-organizations-mods) mod 不会被检查。所有其他 mod 都计为用户的 mod，不会加载。这包括您从 GitHub 或其他远程市场启用的插件中的 mod，以及您的组织为其成员在 claude.ai 上启用的 mod。如果没有计为您的 mod，则不会加载任何已安装的 mod。
-* **用户无法撤销它**：保护程序仅从托管设置读取选项，因此用户、项目或本地设置文件中的相同条目，或使用 `--settings` 传递的文件中的条目不会改变任何内容
-* **文件或 MDM 策略涵盖每个提供商**：当您以文件形式或通过 MDM 提供选项时，它在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的工作方式相同。对于从 claude.ai 管理控制台的交付，请参阅[平台可用性](/docs/zh-CN/server-managed-settings#platform-availability)
-* **用户的其他自定义保持工作**：他们[设置文件中的 hooks](/docs/zh-CN/hooks)、状态行和 `/goal` 不受影响
-* **内置 mods 继续运行**：内置于 Claude Code 的 mods，例如 `AGENTS.md` 支持，各有[自己的开关](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code)
+* **用户带来的任何 mod 都不会运行其 hook**：这包括用户安装的插件中的 mod、使用 `--plugin-dir` 加载的 mod，以及[Claude 在会话期间编写的](/docs/zh-CN/plugins/mods/create#ask-claude-for-a-mod) mod
+* **您组织的 mod 仍然运行**：[计为您组织的](#install-your-organizations-mods) mod 不会被检查。所有其他 mod 都计为用户的 mod，并会被拒绝。这包括您从 GitHub 或其他远程市场启用的插件中的 mod，以及您的组织为其成员在 claude.ai 上启用的 mod。如果没有任何 mod 计为您组织的，则所有已安装的 mod 都不会运行其 hook。
+* **用户无法撤销它**：守卫仅从托管设置读取该选项，因此用户、项目或本地设置文件中的相同条目，或使用 `--settings` 传递的文件中的条目都不会改变任何内容
+* **文件或 MDM 策略涵盖每个提供商**：当您以文件形式或通过 MDM 提供该选项时，它在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的工作方式相同。对于从 claude.ai 管理控制台进行的交付，请参阅[平台可用性](/docs/zh-CN/server-managed-settings#platform-availability)
+* **用户的其他自定义保持工作**：他们[设置文件中的 hook](/docs/zh-CN/hooks) 和插件 `hooks/hooks.json` 中的 hook、状态栏以及 `/goal` 均不受影响
+* **内置 mod 继续运行**：内置于 Claude Code 的 mod，例如 `AGENTS.md` 支持，各有[自己的开关](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code)
 
-要确认用户机器上的选项，请使用 `--plugin-dir` 和包含 mod 的目录路径（例如 `claude --plugin-dir ./first-mod`）启动该机器上的 Claude Code。mod 的 hooks 不会运行，成绩单和调试日志会显示[保护程序的消息](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)，其中命名了 mod 和 `allowManagedModsOnly`。如果 mod 加载，请参阅[检查策略是否生效](/docs/zh-CN/managed-settings#check-that-a-policy-is-in-force)和[决定选项是否生效的规则](#set-options-on-the-built-in-guard)。
+要在用户机器上确认该选项，请在该机器上使用 `--plugin-dir` 和包含 mod 的目录路径启动 Claude Code，例如 `claude --plugin-dir ./first-mod`。该 mod 的 hook 不会运行，会话记录和调试日志中会出现[守卫的消息](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)，其中会指明该 mod 和 `allowManagedModsOnly`。如果没有出现该消息，请参阅[检查策略是否生效](/docs/zh-CN/managed-settings#check-that-a-policy-is-in-force)以及[决定选项是否生效的规则](#set-options-on-the-built-in-guard)。
 
-如果您在早期访问期间将 `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` 设置为 `0`，请将其替换为此选项。Claude Code v2.1.287 及更高版本在任何值下都会忽略该变量，因此那里的 `0` 会使 mods 保持开启。
+如果您在早期访问期间将 `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` 设置为 `0`，请将其替换为此选项。Claude Code v2.1.287 及更高版本在任何值下都会忽略该变量，因此那里的 `0` 会使 mod 保持开启。
 
 <h2 id="know-what-happens-by-default">
   了解默认情况下会发生什么
@@ -117,7 +117,7 @@ Mod 可以做的比插件的其他部分更多，因为它在 Claude Code 内运
 claude plugin validate ./some-mod
 ```
 
-输出中的两行描述了 mod 的代码：
+输出中的 `hooks:` 和 `calls:` 行描述了 mod 的代码：
 
 ```text theme={null}
   ❯ ./register.js hooks: session.start, tool.call, ui.render{component=Pane}
@@ -146,32 +146,32 @@ claude plugin validate ./some-mod
   选择允许的程度
 </h2>
 
-Mod 策略的范围从根本没有已安装的 mods 到用户选择的任何 mod，以及您自己的 mod 检查其他 mods，每一个都是几个托管设置。在第一列中找到您想要的策略，并设置第二列命名的内容。[部署托管设置](/docs/zh-CN/managed-settings)涵盖托管设置的位置。
+Mod 策略的范围从根本没有已安装的 mod 到用户选择的任何 mod，以及由您自己的 mod 检查其他 mod，每一种都只需几个托管设置。在第一列中找到您想要的策略，并设置第二列列出的内容。[部署托管设置](/docs/zh-CN/managed-settings)介绍了托管设置的存放位置。
 
 | 您想要什么 | 设置 |
 | :- | :- |
-| 没有已安装的 mods，hooks 保持不变 | 设置 [`allowManagedModsOnly`](#set-options-on-the-built-in-guard) 并且不部署您自己的 mods |
-| 没有已安装的 mods 和根本没有 hooks，包括您的托管 hooks | 将 `disableAllHooks` 设置为 `true` |
-| 仅您组织的 mods | 设置保护程序的 [`allowManagedModsOnly` 选项](#stop-user-installed-mods-from-loading)，并[安装您的 mods](#install-your-organizations-mods) 以便它们计为您的 |
+| 没有已安装的 mod 运行，设置 hook 保持不变 | 设置 [`allowManagedModsOnly`](#set-options-on-the-built-in-guard) 并且不部署您自己的 mod |
+| 没有已安装的 mod，也根本没有 hook，包括您的托管 hook | 将 `disableAllHooks` 设置为 `true` |
+| 仅您组织的 mod | 设置守卫的 [`allowManagedModsOnly` 选项](#stop-user-installed-mods-from-loading)，并[安装您的 mod](#install-your-organizations-mods) 以便它们计为您的 |
 | 来自您批准的市场的任何 mod | 保持您的[市场限制](/docs/zh-CN/plugins/org#restrict-what-users-can-install)，并将 `disableSideloadFlags` 设置为 `true` |
-| 任何 mod，您自己的 mod 检查其他 mods | [安装您的 mod](#install-your-organizations-mods)，并在 `prependPlugins` 中与 `sec-default@builtin` 一起列出它 |
+| 任何 mod，由您自己的 mod 检查其他 mod | [安装您的 mod](#install-your-organizations-mods)，并在 `prependPlugins` 中将它与 `sec-default@builtin` 一起列出 |
 
 每个设置的作用：
 
-* **`allowManagedModsOnly`**：内置保护程序上的选项。用户自己的 mods 不加载，他们的设置 hooks、状态行和 `/goal` 继续工作。[停止用户安装的 mods 加载](#stop-user-installed-mods-from-loading)列出了它涵盖的内容。
-* **`allowManagedHooksOnly`**：更广泛的设置。仅[您组织的 mods](#install-your-organizations-mods) 和内置于 Claude Code 的 mods 加载。用户自己安装的 mod 不加载。该设置还阻止用户自己的设置文件中的 hooks。在设置之前，请阅读[`allowManagedHooksOnly` 下运行什么](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)。
-* **`disableAllHooks`**：最广泛的设置。在托管设置中，它停止每个已安装插件中的 mods，包括您的，并关闭设置文件中的每个 hook，因此您的托管设置中的 `PreToolUse` hook 不再阻止任何内容。自定义状态行和 `/goal` 也停止工作。在设置之前，请阅读[`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks)。
-* **`disableSideloadFlags`**：在启动时拒绝 `--plugin-dir` 和 `--plugin-url`，并防止 Claude 在会话期间编写的 mods 加载。该设置还拒绝 `--agents` 和 `--mcp-config`。在设置之前，请阅读[`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags)。
+* **`allowManagedModsOnly`**：内置守卫上的一个选项。Claude Code 会拒绝用户自己的 mod，因此他们的 hook 都不会运行。用户的设置 hook、状态栏和 `/goal` 继续工作。[停止加载用户安装的 mod](#stop-user-installed-mods-from-loading)列出了它涵盖的内容。
+* **`allowManagedHooksOnly`**：范围更广的设置。仅[您组织的 mod](#install-your-organizations-mods) 和内置于 Claude Code 的 mod 会加载。用户自己安装的 mod 不会加载。该设置还会阻止用户自己的设置文件中的 hook。在设置之前，请阅读[`allowManagedHooksOnly` 下运行什么](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)。
+* **`disableAllHooks`**：范围最广的设置。在托管设置中，它会停止每个已安装插件中的 mod（包括您的），并关闭设置文件中的每个 hook，因此您的托管设置中的 `PreToolUse` hook 不再阻止任何内容。自定义状态栏和 `/goal` 也会停止工作。在设置之前，请阅读[`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks)。
+* **`disableSideloadFlags`**：在启动时拒绝 `--plugin-dir` 和 `--plugin-url`，并阻止 Claude 在会话期间编写的 mod 加载。该设置还会拒绝 `--agents` 和 `--mcp-config`。在设置之前，请阅读[`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags)。
 
-内置于 Claude Code 的 Mods，例如 `AGENTS.md` 支持，不受这些设置的影响。每个都有[自己的开关](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code)。
+内置于 Claude Code 的 mod，例如 `AGENTS.md` 支持，不受这些设置的影响。每个都有[自己的开关](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code)。
 
-mod 未加载的用户在其调试日志中找到原因。[拒绝消息](/docs/zh-CN/plugins/mods/troubleshoot#refusal-messages)列出了 `allowManagedHooksOnly` 和 `disableAllHooks` 的行，[来自内置保护程序的消息](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)有 `allowManagedModsOnly` 的行。
+如果用户的 mod 被拒绝或未加载，用户可以在其调试日志中找到原因。[拒绝消息](/docs/zh-CN/plugins/mods/troubleshoot#refusal-messages)列出了 `allowManagedHooksOnly` 和 `disableAllHooks` 对应的日志行，[来自内置守卫的消息](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)包含 `allowManagedModsOnly` 对应的日志行。
 
 <h3 id="allow-only-your-organization’s-mods">
-  仅允许您组织的 mods
+  仅允许您组织的 mod
 </h3>
 
-要运行您组织的 mods 并阻止用户带来的 mods，请部署[策略表](#choose-how-much-to-allow)中 **仅您组织的 mods** 一行的设置，再加上 `disableSideloadFlags`。使用以下完整的 `managed-settings.json`，Claude Code 会拒绝用户自己的 mods，因此他们的 hooks 都不会运行，而您的策略 mod 会先于其他 mods 运行：
+要运行您组织的 mod 并阻止用户带来的 mod，请部署[策略表](#choose-how-much-to-allow)中 **仅您组织的 mod** 一行的设置，再加上 `disableSideloadFlags`。使用以下完整的 `managed-settings.json`，Claude Code 会拒绝用户自己的 mod，因此他们的 hook 都不会运行，而您的策略 mod 会先于其他 mod 运行：
 
 ```json managed-settings.json theme={null}
 {
@@ -193,20 +193,20 @@ mod 未加载的用户在其调试日志中找到原因。[拒绝消息](/docs/z
 
 每组键各负责一项工作：
 
-* **`extraKnownMarketplaces`、`enabledPlugins` 和 `prependPlugins`**：安装您的 mod 以便它计为您的，并让它首先运行，保护程序紧随其后。[安装您组织的 mods 并设置顺序](#install-your-organizations-mods)涵盖这些键所指向的目录。
-* **`pluginConfigs`**：设置保护程序的 `allowManagedModsOnly` 选项，因此 Claude Code 会拒绝用户自己的 mods。他们的设置 hooks、状态栏和 `/goal` 继续工作。
+* **`extraKnownMarketplaces`、`enabledPlugins` 和 `prependPlugins`**：安装您的 mod 以便它计为您的，并让它首先运行，守卫紧随其后。[安装您组织的 mod 并设置顺序](#install-your-organizations-mods)介绍了这些键所指向的目录。
+* **`pluginConfigs`**：设置守卫的 `allowManagedModsOnly` 选项，因此 Claude Code 会拒绝用户自己的 mod。他们的设置 hook、状态栏和 `/goal` 继续工作。
 * **`disableSideloadFlags`**：有关它在启动时拒绝的标志，请参阅 [`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags)
 
 要在测试机器上确认该策略，请在您的 shell 中使用 `claude --debug` 启动会话并阅读调试日志：
 
 * **您的 mod**：其 `hooks module` 行带有 `tier prepend`
-* **用户安装的 mod**：有一行显示 `refused by cc-plugin-sec-default: mods are limited to your organization's by policy (allowManagedModsOnly)`。更早的一行会显示该 mod 的 hooks module 已 `loaded`，因此请查找拒绝信息。
+* **用户安装的 mod**：有一行显示 `refused by cc-plugin-sec-default: mods are limited to your organization's by policy (allowManagedModsOnly)`。更早的一行会显示该 mod 的 hook 模块已 `loaded`，因此请查找拒绝信息。
 * **插件目录**：`claude --plugin-dir ./any-mod` 会退出，并显示以 `--plugin-dir is disabled by your organization's managed settings (disableSideloadFlags)` 开头的消息
 
 要同时限制用户可以添加哪些市场，请将此文件与您的[市场限制](/docs/zh-CN/plugins/org#restrict-what-users-can-install)结合使用。
 
 <h3 id="apply-your-plugin-controls-to-mods">
-  将您的插件控制应用于 mods
+  将您的插件控制应用于 mod
 </h3>
 
 mod 就是插件，因此您[为组织管理插件](/docs/zh-CN/plugins/org)的方式同样适用于包含 mod 的插件：
@@ -216,41 +216,41 @@ mod 就是插件，因此您[为组织管理插件](/docs/zh-CN/plugins/org)的�
 * **为某个群组（例如试点群组）提供不同的策略**：[为托管设置无法强制执行的内容做好规划](/docs/zh-CN/plugins/org#plan-for-what-managed-settings-can’t-enforce)
 * **检查哪些应用和会话类型会应用插件键**：[各使用入口何时应用插件键](/docs/zh-CN/plugins/org#when-each-surface-applies-the-plugin-keys)
 * **设置 CI 和容器**：[为容器和 CI 预置内容](/docs/zh-CN/plugins/org#seed-containers-and-ci)
-* **提供用户可以安装的 mods**：[托管市场](/docs/zh-CN/plugins/host-marketplace)。Claude Code 从 GitHub、git、URL 或 npm 源复制的 mod 计为用户的，而不是[您组织的](#install-your-organizations-mods)。
+* **提供用户可以安装的 mod**：[托管市场](/docs/zh-CN/plugins/host-marketplace)。Claude Code 从 GitHub、git、URL 或 npm 源复制的 mod 计为用户的，而不是[您组织的](#install-your-organizations-mods)。
 
 <h3 id="set-options-on-the-built-in-guard">
-  在内置保护程序上设置选项
+  在内置守卫上设置选项
 </h3>
 
-内置保护程序接受选项。在托管设置中的 `pluginConfigs` 下设置它们，由 `cc-plugin-sec-default@builtin` 键入，如[停止用户安装的 mods 加载](#stop-user-installed-mods-from-loading)中的示例所示。
+内置守卫接受选项。在托管设置中的 `pluginConfigs` 下设置它们，以 `cc-plugin-sec-default@builtin` 为键，如[停止加载用户安装的 mod](#stop-user-installed-mods-from-loading)中的示例所示。
 
-该表给出了您的用户在每个选项未设置和设置为 `true` 时获得的内容：
+该表给出了每个选项未设置和设置为 `true` 时您的用户获得的结果：
 
 | 选项 | 未设置 | `true` |
 | :- | :- | :- |
-| `allowManagedModsOnly` | 用户自己的 mods 加载 | 仅[您组织的 mods](#install-your-organizations-mods) 和内置于 Claude Code 的 mods 加载。Claude Code 拒绝所有其他 mods，包括用户安装的或使用 `--plugin-dir` 命名的。 |
-| `allowModsToOverrideDenyRules` | 拒绝规则优先于用户的 mods | 批准工具调用的用户 mod 可以批准 `deny` 规则拒绝的调用 |
+| `allowManagedModsOnly` | 用户自己的 mod 会运行 | 仅[您组织的 mod](#install-your-organizations-mods) 和内置于 Claude Code 的 mod 会运行其 hook。Claude Code 会拒绝所有其他 mod，包括用户安装的或使用 `--plugin-dir` 指定的 mod。 |
+| `allowModsToOverrideDenyRules` | 拒绝规则优先于用户的 mod | 批准工具调用的用户 mod 可以批准 `deny` 规则拒绝的调用 |
 
 这些规则决定选项是否生效：
 
 * **id 在这里只有一种形式**：Claude Code 仅在 `cc-plugin-sec-default@builtin` 下读取选项。`prependPlugins` 也接受 `sec-default@builtin`，而 `pluginConfigs` 不接受。
-* **仅托管设置计数**：用户、项目或本地设置文件中的相同条目，或使用 `--settings` 传递的文件中的相同条目既不设置选项也不放松选项
-* **保护程序必须加载**：如果您设置 `prependPlugins`，[在列表中命名保护程序](#install-your-organizations-mods)。保护程序不加载的地方，两个选项都不适用。
-* **保护程序失败关闭**：如果保护程序无法读取托管设置，它会拒绝每个用户的 mod 加载。如果它无法检查用户的 mod 批准的调用的拒绝规则，它会拒绝该调用。
+* **仅托管设置有效**：用户、项目或本地设置文件中的相同条目，或使用 `--settings` 传递的文件中的相同条目，既不会设置选项，也不会放宽选项
+* **守卫必须加载**：如果您设置了 `prependPlugins`，请[在列表中指定守卫](#install-your-organizations-mods)。守卫未加载时，两个选项都不适用。
+* **守卫以失败即关闭方式运行**：如果守卫无法读取托管设置，它会在加载时拒绝每个用户的 mod。如果它无法针对用户的 mod 所批准的调用检查拒绝规则，它会拒绝该调用。
 
-[来自内置保护程序的消息](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)是您的用户在任一选项适用时看到的内容。
+[来自内置守卫的消息](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)是任一选项生效时您的用户看到的内容。
 
 <h2 id="run-your-organization’s-own-mods">
-  运行您组织自己的 mods
+  运行您组织自己的 mod
 </h2>
 
-您可以将自己的 mods 部署给每个用户，选择它们相对于用户 mods 的运行位置，并使用一个来强制执行策略。
+您可以将自己的 mod 部署给每个用户，选择它们相对于用户 mod 的运行位置，并使用一个来强制执行策略。
 
 <h3 id="install-your-organizations-mods">
-  安装您组织的 mods 并设置顺序
+  安装您组织的 mod 并设置顺序
 </h3>
 
-您组织的 mods 在用户 mods 无法加载的地方加载，并且可以在用户 mods 之前运行，因此 Claude Code 必须能够判断 mod 是否来自您。只有当以下所有条件都为真时，它才会将 mod 视为您组织的：
+您组织的 mod 在用户 mod 无法加载的地方加载，并且可以在用户 mod 之前运行，因此 Claude Code 必须能够判断 mod 是否来自您。只有当以下所有条件都为真时，它才会将 mod 视为您组织的：
 
 * 托管的 `enabledPlugins` 将 mod 的插件设置为 `true`
 * 托管设置通过绝对路径将插件的[市场](/docs/zh-CN/plugins/create-marketplace)指定为用户机器上的目录。`extraKnownMarketplaces` 条目可以做到这一点，并且也会为用户注册该市场。
@@ -285,14 +285,14 @@ mod 就是插件，因此您[为组织管理插件](/docs/zh-CN/plugins/org)的�
 }
 ```
 
-Claude Code 复制到其缓存中的插件计为用户的，即使托管的 `enabledPlugins` 启用了它。这涵盖了来自 GitHub、git、URL 或 npm 源的每个插件。其 mod 在用户 mods 中运行，`prependPlugins` 和 `appendPlugins` 会跳过它，并且它不会在 `allowManagedModsOnly` 或 `allowManagedHooksOnly` 下加载。用户的调试日志中有一行以插件的 id 和 `is enabled by managed settings, but` 开头。
+Claude Code 复制到其缓存中的插件计为用户的，即使托管的 `enabledPlugins` 启用了它。这涵盖了来自 GitHub、git、URL 或 npm 源的每个插件。其 mod 在用户 mod 中运行，`prependPlugins` 和 `appendPlugins` 会跳过它，`allowManagedModsOnly` 会拒绝它，`allowManagedHooksOnly` 会阻止它加载。用户的调试日志中有一行以插件的 id 和 `is enabled by managed settings, but` 开头。
 
-Claude Code 每次即将采取行动（例如运行工具）时都会触发一个事件，并依次将其传递给每个 mod。计为您的 mod [在用户 mods 之前运行](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)，即使您没有在任何地方列出它。要设置其位置，请在两个设置之一中列出其 id。id 是插件的名称、`@` 和市场的名称，例如 `acme-guard@acme-tools`。
+Claude Code 每次即将采取行动（例如运行工具）时都会触发一个事件，并依次将其传递给每个 mod。计为您的 mod [在用户 mod 之前运行](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)，即使您没有在任何地方列出它。要设置其位置，请在两个设置之一中列出其 id。id 是插件的名称、`@` 和市场的名称，例如 `acme-guard@acme-tools`。
 
-* **`prependPlugins`**：您的 mod 在任何用户 mod 之前看到每个事件，并在之后看到每个结果。它可以更改事件、拒绝事件或跳过用户 mods。
-* **`appendPlugins`**：您的 mod 在每个用户 mod 之后运行，因此它只看到这些 mods 传递的事件，并以它们传递的形式看到
+* **`prependPlugins`**：您的 mod 在任何用户 mod 之前看到每个事件，并在之后看到每个结果。它可以更改事件、拒绝事件或跳过用户 mod。
+* **`appendPlugins`**：您的 mod 在每个用户 mod 之后运行，因此它只看到这些 mod 传递的事件，并以它们传递的形式看到
 
-此示例在 `/opt/acme/claude-plugins` 声明 `acme-tools` 市场，启用来自它的 `acme-guard`，并首先运行该 mod，内置保护在其后：
+此示例在 `/opt/acme/claude-plugins` 声明 `acme-tools` 市场，启用来自它的 `acme-guard`，并首先运行该 mod，内置守卫在其后：
 
 ```json managed-settings.json theme={null}
 {
@@ -310,7 +310,7 @@ Claude Code 每次即将采取行动（例如运行工具）时都会触发一�
 
 * **`extraKnownMarketplaces`**：指定保存 `acme-tools` 市场的目录。`path` 是包含 `.claude-plugin/marketplace.json` 的目录的绝对路径。
 * **`enabledPlugins`**：为接收这些托管设置的每个用户启用 `acme-guard`
-* **`prependPlugins`**：将 `acme-guard` 放在第一位，内置保护放在第二位，都在用户安装的任何 mod 之前。Claude Code 遵循您列出的顺序。
+* **`prependPlugins`**：将 `acme-guard` 放在第一位，内置守卫放在第二位，都在用户安装的任何 mod 之前。Claude Code 遵循您列出的顺序。
 
 要确认用户的机器收到了设置，请参阅[检查策略是否生效](/docs/zh-CN/managed-settings#check-that-a-policy-is-in-force)。
 
@@ -321,15 +321,15 @@ Claude Code 每次即将采取行动（例如运行工具）时都会触发一�
 
 这些规则决定了两个列表中哪些 id 生效：
 
-* **列表替换默认值**：当您在托管设置中设置 `prependPlugins` 时，请在其中列出 `sec-default@builtin` 以保留内置保护。该保护是内置的，不需要 `enabledPlugins` 条目。
+* **列表替换默认值**：当您在托管设置中设置 `prependPlugins` 时，请在其中列出 `sec-default@builtin` 以保留内置守卫。该守卫是内置的，不需要 `enabledPlugins` 条目。
 * **您自己的 id 必须计为您的**：在托管设置中，Claude Code 会跳过其插件不满足组织 mod 条件的 id
-* **仓库无法设置它们**：Claude Code 从托管设置读取这两个设置，从不从仓库的设置文件读取。用户可以在 `~/.claude/settings.json` 中设置它们来对自己的 mods 排序，但仅限于没有托管设置的机器，并且仅当他们未使用 Team 或 Enterprise 计划登录时。在其他任何情况下，Claude Code 都会忽略用户设置中的这两个键。那里的列表既不添加也不删除内置保护。
+* **仓库无法设置它们**：Claude Code 从托管设置读取这两个设置，从不从仓库的设置文件读取。用户可以在 `~/.claude/settings.json` 中设置它们来对自己的 mod 排序，但仅限于没有托管设置的机器，并且仅当他们未使用 Team 或 Enterprise 计划登录时。在其他任何情况下，Claude Code 都会忽略用户设置中的这两个键。那里的列表既不添加也不删除内置守卫。
 
 <h3 id="enforce-a-policy-with-a-mod-of-your-own">
   使用您自己的 mod 强制执行策略
 </h3>
 
-要阻止每个用户的 mod，您不需要自己的 mod。设置 [`allowManagedModsOnly`](#stop-user-installed-mods-from-loading) 即可。当您想允许某些用户的 mods 并拒绝其他的，或记录 mods 的行为时，请编写策略 mod。
+要阻止每个用户的 mod，您不需要自己的 mod。设置 [`allowManagedModsOnly`](#stop-user-installed-mods-from-loading) 即可。当您想允许某些用户的 mod 并拒绝其他的，或记录 mod 的行为时，请编写策略 mod。
 
 每次另一个 mod 即将加载时，您的 mod 会在名为 [`plugin.register`](/docs/zh-CN/plugins/mods/reference#other-mods) 的事件中收到 `claude plugin validate` 打印的列表。`prependPlugins` 中的 mod 可以读取该列表并拒绝该 mod。它也可以[按名称处理任何 mods API 调用](/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)，以便针对每个其他 mod 记录或拒绝该调用。名称是去掉 `$.` 的方法，因此 `fs.write` 上的 hook 会看到每个 `$.fs.write` 调用。
 
@@ -381,15 +381,15 @@ export function register(on) {
 
 要将审计行发送到调试日志以外的地方，请从相同的 hook 中调用 `$.http.fetch`。
 
-会话可以在没有您的 mod 的情况下运行。如果运行已安装 mods 的工作线程[崩溃三次](/docs/zh-CN/plugins/mods/troubleshoot#mods-that-run-in-the-hooks-worker-are-off-for-this-session)，Claude Code 会卸载所有非内置的 mod（包括您的），直到用户运行 `/reload-plugins` 或启动新会话。此外，使用 `--safe-mode` 启动 Claude Code 的用户运行时不会加载已安装的 mods，包括您的。
+会话可以在没有您的 mod 的情况下运行。如果运行已安装 mod 的工作线程[崩溃三次](/docs/zh-CN/plugins/mods/troubleshoot#mods-that-run-in-the-hooks-worker-are-off-for-this-session)，Claude Code 会卸载所有非内置的 mod（包括您的），直到用户运行 `/reload-plugins` 或启动新会话。此外，使用 `--safe-mode` 启动 Claude Code 的用户运行时不会加载已安装的 mod，包括您的。
 
 [创建 mod](/docs/zh-CN/plugins/mods/create) 介绍 mod 需要的文件。[测试策略 mod](/docs/zh-CN/plugins/mods/test#test-a-mod-that-judges-other-mods) 提供此策略 mod 的测试文件。
 
 <h4 id="refuse-mods-when-your-check-fails">
-  当您的检查失败时拒绝 mods
+  当您的检查失败时拒绝 mod
 </h4>
 
-如果您的 `plugin.register` hook 抛出异常或超过其时间限制，Claude Code 会跳过该 hook，因此检查以放行方式失败，正在被检查的 mod 会加载。要以拒绝方式失败并拒绝用户 mods，请将检查移到命名函数中，并添加返回拒绝的 `.catch` 处理程序。此版本的文件仅显示 `plugin.register` hook，因此请在 `register` 中保留第一个版本的两个审计 hook：
+如果您的 `plugin.register` hook 抛出异常或超过其时间限制，Claude Code 会跳过该 hook，因此检查以放行方式失败，正在被检查的 mod 会加载。要以拒绝方式失败并拒绝用户 mod，请将检查移到命名函数中，并添加返回拒绝的 `.catch` 处理程序。此版本的文件仅显示 `plugin.register` hook，因此请在 `register` 中保留第一个版本的两个审计 hook：
 
 ```javascript acme-guard/hooks/register.js theme={null}
 const BLOCKED_CALLS = ['process.run', 'process.spawn']
@@ -414,7 +414,7 @@ export function register(on) {
 }
 ```
 
-处理程序就位后，如果检查在处理某个 mod 时抛出异常或超时，该 mod 不会加载，拒绝行会带有第二个原因，例如 `refused by acme-guard: Acme policy check failed, so this mod was not loaded`。处理程序将 `user` 层以外的每个 mod 传递给 `next(e)`，因此失败的检查不会阻止您组织列出的 mods。[处理失败的 hook](/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails) 介绍其他事件的 `.catch`。
+处理程序就位后，如果检查在处理某个 mod 时抛出异常或超时，该 mod 不会加载，拒绝行会带有第二个原因，例如 `refused by acme-guard: Acme policy check failed, so this mod was not loaded`。处理程序将 `user` 层以外的每个 mod 传递给 `next(e)`，因此失败的检查不会阻止您组织列出的 mod。[处理失败的 hook](/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails) 介绍其他事件的 `.catch`。
 
 <h2 id="next-steps">
   后续步骤

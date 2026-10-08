@@ -580,15 +580,14 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 运行安全分类器，最常�
   回退后的 effort 级别
 </h4>
 
-当 Claude Code 将您的会话切换到备用模型时，它会保留被标记请求运行时的 effort 级别，而不是使用该模型的默认 effort。例如，在 Opus 5.5 上以其默认 `medium` 运行的会话回退到 Opus 4.8 后仍保持 `medium`，尽管 Opus 4.8 默认为 `high`。
+当 Claude Code 将您的会话切换到备用模型时，它会保留被标记请求运行时的 effort 级别。例如，在 Opus 5.5 上以其默认 `medium` 运行的会话回退到 Opus 4.8 后仍保持 `medium`，尽管 Opus 4.8 默认为 `high`。
 
 在以下情况下会应用不同的级别：
 
-* **设置或组织默认值**：您的设置中适用于备用模型的级别，或您的组织为其设置的默认 effort，会改为生效。
 * **您自己的更改**：一旦您选择了 effort 级别、在 `/model` 中选择了模型或稍后恢复会话，被标记请求的级别就不再沿用。
 * **Skill effort**：skill 的 `effort` frontmatter 为被标记请求设置的级别适用于该轮次，后续轮次以 [effort 解析顺序](#adjust-effort-level)为备用模型给出的级别运行。
 
-会话标题在模型名称旁边显示当前生效的级别。要更改它，在会话中运行 `/effort`。
+在会话中，运行 `/effort status` 查看当前生效的级别，或运行 `/effort` 更改它。
 
 <h4 id="check-what-triggered-fallback">
   检查触发回退的原因
@@ -656,7 +655,9 @@ Claude Code 按此顺序解析会话的 effort 级别，采用首先适用的：
 
 1. 明确选择：[`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars#variables) 环境变量、使用 `--effort` 启动或会话中的 `/effort`（[非交互式 `/effort` 的效果更窄](#non-interactive-effort)）
 2. 您的设置：您为模型保存的级别或 [`effortLevel`](/docs/zh-CN/settings-reference#effortlevel) 键，在 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 中说明它们之间和跨设置文件的优先级
-3. 模型的默认 effort：在支持 effort 的每个模型上为 `high`，除了 Opus 5.5、Sonnet 5.5 和 Haiku 5.5 默认为 `medium`、Opus 4.7 默认为 `xhigh`，当您的组织为其[组织默认模型](#organization-default-model)设置默认 effort 级别时，当您运行该模型时该级别是默认值。自动模型回退后适用的级别，请参阅[回退后的 effort 级别](#effort-level-after-a-fallback)。
+3. 模型的默认 effort：在支持 effort 的每个模型上为 `high`，除了 Opus 5.5、Sonnet 5.5 和 Haiku 5.5 默认为 `medium`、Opus 4.7 默认为 `xhigh`，当您的组织为其[组织默认模型](#organization-default-model)设置默认 effort 级别时，当您运行该模型时该级别是默认值
+
+自动模型回退后适用的级别，请参阅[回退后的 effort 级别](#effort-level-after-a-fallback)。
 
 Opus 5.5 从 `medium` 开始，除非上面的源之一为其设置级别，您的用户设置文件中的顶级 `effortLevel` 不计入 Opus 5.5。该键是较旧的形式 `/effort` 在 Claude Code 按模型保存级别之前写入的：它继续在它之前应用的地方应用，在 Opus 5、Fable 5.1 和更早的模型上，而 Opus 5.5 和在它之后发布的模型从它们自己的默认开始，直到您使用 `/effort` 或 `/model` 选择器为它们选择级别。项目、本地或托管设置中的顶级 `effortLevel`，或使用 `--settings` 传递的，适用于每个模型。
 

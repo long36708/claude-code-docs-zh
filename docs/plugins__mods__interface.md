@@ -806,6 +806,7 @@ onPress: () => update($, count, (value) => value + 1)
 以下规则适用于代码：
 
 * **将 `plugin` 和 `key` 写成字面字符串**：`claude plugin validate` 从您的源代码中读取它们
+* **将每个 `atom` 调用的结果保存在 `const` 中**：如果您用 `let` 声明 `count`，验证失败，出现 `takes a source the scan can read`
 * **在类型声明文件中声明每个值**：否则验证失败，出现 `hello-tabs.count is not declared`
 * **从回调或另一个事件的 hook 中写入**：`ui.render` hook 可以读取状态，但不能写入它，因此请从 `onPress`、`onSubmit` 或另一个事件的 hook 中写入
 

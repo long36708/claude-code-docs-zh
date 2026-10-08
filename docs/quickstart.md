@@ -57,7 +57,7 @@
     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
     ```
 
-    安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
+    安装命令在下载 Claude Code 期间不会显示进度。安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
 
     如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。
 
@@ -233,27 +233,19 @@ there's a bug where users can submit empty forms - fix it
   步骤 7：试用其他常见工作流
 </h2>
 
-您可以通过多种方式与 Claude 协作：
-
-**重构代码**
+再尝试几个提示词。您可以让 Claude 重构代码、编写测试、更新文档或审查您的更改：
 
 ```text wrap theme={null}
 refactor the authentication module to use async/await instead of callbacks
 ```
 
-**编写测试**
-
 ```text wrap theme={null}
 write unit tests for the calculator functions
 ```
 
-**更新文档**
-
 ```text wrap theme={null}
 update the README with installation instructions
 ```
-
-**代码审查**
 
 ```text wrap theme={null}
 review my changes and suggest improvements
@@ -267,9 +259,13 @@ review my changes and suggest improvements
   基本命令
 </h2>
 
-以下是日常使用中最重要的命令。Shell 命令从您的终端运行以启动或恢复 Claude Code。会话命令在 Claude Code 启动后在其内部运行。
+以下是日常使用中最重要的命令，按运行位置分组。
 
-**Shell 命令**
+<h3 id="shell-commands">
+  Shell 命令
+</h3>
+
+从终端运行这些命令以启动或恢复 Claude Code。
 
 | 命令 | 功能 | 示例 |
 | - | - | - |
@@ -279,7 +275,13 @@ review my changes and suggest improvements
 | `claude -c` | 在当前目录中继续最近的对话 | `claude -c` |
 | `claude -r` | 恢复之前的对话 | `claude -r` |
 
-**会话命令**
+有关完整的 shell 命令列表，请参阅 [CLI 参考](/docs/zh-CN/cli-reference)。
+
+<h3 id="session-commands">
+  会话命令
+</h3>
+
+在 Claude Code 启动后，在其内部运行这些命令。
 
 | 命令 | 功能 | 示例 |
 | - | - | - |
@@ -287,7 +289,7 @@ review my changes and suggest improvements
 | `/help` | 显示可用命令 | `/help` |
 | `/exit` 或 Ctrl+D 两次 | 退出 Claude Code | `/exit` |
 
-有关完整的 shell 命令列表，请参阅 [CLI 参考](/docs/zh-CN/cli-reference)，有关完整的会话命令列表，请参阅 [命令参考](/docs/zh-CN/commands)。
+有关完整的会话命令列表，请参阅 [命令参考](/docs/zh-CN/commands)。
 
 <h2 id="pro-tips-for-beginners">
   初学者专业提示

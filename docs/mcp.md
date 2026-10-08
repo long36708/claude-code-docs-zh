@@ -142,8 +142,6 @@ claude mcp add --env AIRTABLE_API_KEY=YOUR_KEY --transport stdio airtable \
 ```
 
 <Note>
-  **重要：用 `--` 分隔服务器参数**
-
   对于 stdio 服务器，`--`（双破折号）将 Claude 自己的选项（例如 `--transport`、`--env` 和 `--scope`）与运行服务器的命令和参数分开。`--` 之后的所有内容都原封不动地传递给服务器。
 
   例如：
@@ -275,8 +273,6 @@ claude mcp remove notion
 * `✘ Rejected (see disabledMcpjsonServers in settings)`：由 [`disabledMcpjsonServers`](/docs/zh-CN/settings-reference#disabledmcpjsonservers) 条目拒绝的 `.mcp.json` 服务器。Claude Code 仅在 `claude mcp get <name>` 中显示它。
 * `⊘ Disabled for this project (re-enable via /mcp)`：项目的 [`disabledMcpServers`](#disable-a-server-without-removing-it) 列表命名的服务器。Claude Code 在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。从 `/mcp` 面板重新打开服务器。
 
-WebSocket 服务器不出现在 `claude mcp list` 输出中。使用 `claude mcp get <name>` 或 `/mcp` 面板检查它们。
-
 <h4 id="project-server-approvals-and-workspace-trust">
   项目服务器批准和工作区信任
 </h4>
@@ -371,7 +367,7 @@ Claude Code 在每次启动时选择一个运行时，并在您退出前保持�
 
 在 v2 上，Claude Code 还会：
 
-* 询问 HTTP 服务器是否支持较新的修订版，并与支持的服务器一起使用它。在获取功能标志的会话中，它还会询问 claude.ai 连接器服务器；在 Claude Code v2.1.285 或更高版本上，随着 Anthropic 逐步推出该更改，它还会询问 stdio 服务器。要让它在每个会话中都询问连接器服务器和 stdio 服务器，请设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto`。它与 v1 一样连接到其他所有服务器。
+* 询问 HTTP 和 stdio 服务器是否支持较新的修订版，并与支持的服务器一起使用它。在获取功能标志的会话中，它还会询问 claude.ai 连接器服务器。它与 v1 一样连接到其他所有服务器。
 * 通过 [它保持打开的流](#notification-streams-on-the-v2-runtime) 从使用较新修订版的服务器接收 `list_changed` 通知。
 * 不注册在较新修订版上连接的 [频道](#push-messages-with-channels) 服务器，因为该修订版无法携带频道消息。
 * 当授权响应指明意外的发行者时，使 [MCP OAuth 登录](#authenticate-with-remote-mcp-servers) 失败。
@@ -458,7 +454,7 @@ MCP 服务器也可以直接将消息推送到您的会话中，以便 Claude �
 
 在 [v2 运行时](#mcp-client-runtimes) 上，协商 MCP 协议修订版 2026-07-28 的频道服务器无法传递频道消息，因此 Claude Code 不将其注册为频道。不支持该修订版的频道服务器会在较早的握手上连接，并像以前一样注册。
 
-当您设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto` 时，Claude Code 会向 stdio 服务器询问该修订版。对于 Claude Code v2.1.285 或更高版本，Anthropic 还在 Claude Code [获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话中默认启用此行为。要将 stdio 频道服务器保持在较早的握手上，请将 `MCP_PROTOCOL_NEGOTIATION` 设置为 `legacy`，这会将所有服务器都保持在较早的握手上。
+Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道服务器保持在较早的握手上，请将 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 设置为 `legacy`，这会将所有服务器都保持在较早的握手上。
 
 <Tip>
   提示：
@@ -1400,11 +1396,11 @@ claude mcp serve
   MCP 输出限制和警告
 </h2>
 
-当 MCP 工具产生大量输出时，Claude Code 会帮助管理令牌使用情况，以防止压倒您的对话上下文：
+当 MCP 工具产生大量输出时，Claude Code 会帮助管理 token 使用情况，以防止压倒您的对话上下文：
 
-* **输出警告阈值**：当任何 MCP 工具输出超过 10,000 个令牌时，Claude Code 会显示警告
-* **可配置限制**：您可以使用 `MAX_MCP_OUTPUT_TOKENS` 环境变量调整允许的最大 MCP 输出令牌数
-* **默认限制**：默认最大值为 25,000 个令牌
+* **输出警告阈值**：当任何 MCP 工具输出超过 10,000 个 token 时，Claude Code 会显示警告
+* **可配置限制**：您可以使用 `MAX_MCP_OUTPUT_TOKENS` 环境变量调整允许的最大 MCP 输出 token 数
+* **默认限制**：默认最大值为 25,000 个 token
 * **范围**：环境变量适用于未声明自己限制的工具。设置了 [`anthropic/maxResultSizeChars`](#raise-the-limit-for-a-specific-tool) 的工具会对文本内容使用该值，而不管 `MAX_MCP_OUTPUT_TOKENS` 设置为什么。返回图像数据的工具仍然受 `MAX_MCP_OUTPUT_TOKENS` 限制
 * **超过限制**：当没有图像内容的成功结果超过 token 限制时，Claude Code 会将其保存到文件中，并在对话中用一条消息替换它，该消息指定文件路径，以便 Claude 在需要内容时读取该文件。该文件位于会话的 `tool-results` 目录中，在 [`~/.claude/projects/`](/docs/zh-CN/claude-directory#cleaned-up-automatically) 下。
 
@@ -1438,11 +1434,7 @@ claude
 }
 ```
 
-该注释对文本内容独立于 `MAX_MCP_OUTPUT_TOKENS` 应用，因此用户不需要为声明它的工具提高环境变量。返回图像数据的工具仍然受令牌限制。
-
-<Warning>
-  如果您经常遇到特定 MCP 服务器的输出警告，而您无法控制这些服务器，请考虑增加 `MAX_MCP_OUTPUT_TOKENS` 限制。您也可以要求服务器作者添加 `anthropic/maxResultSizeChars` 注释或对其响应进行分页。该注释对返回图像内容的工具无效；对于这些工具，提高 `MAX_MCP_OUTPUT_TOKENS` 是唯一的选择。
-</Warning>
+该注释对文本内容独立于 `MAX_MCP_OUTPUT_TOKENS` 应用，因此用户不需要为声明它的工具提高环境变量。返回图像数据的工具仍然受 token 限制。
 
 <h3 id="images-in-tool-results">
   工具结果中的图像

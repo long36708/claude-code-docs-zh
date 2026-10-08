@@ -116,12 +116,24 @@ export const ContactSalesCard = ({surface}) => {
   2) 配置 Azure 凭据
 </h3>
 
-Claude Code 支持三种 Microsoft Foundry 身份验证方法。选择最适合您安全要求的方法。
+Claude Code 支持三种 Microsoft Foundry 身份验证方法。选择最适合您安全要求的方法：
 
-**选项 A：API 密钥身份验证**
+* [API 密钥](#use-an-api-key)：从 Microsoft Foundry 门户复制密钥，并将其设置为 `ANTHROPIC_FOUNDRY_API_KEY`
+* [Microsoft Entra ID](#use-microsoft-entra-id)：Claude Code 通过 Azure SDK 默认凭据链获取令牌，例如从 `az login` 会话中获取，因此无需存储 API 密钥
+* [Bearer 令牌](#use-a-bearer-token)：由另一个进程获取 Microsoft Entra ID 访问令牌，然后您通过 `ANTHROPIC_FOUNDRY_AUTH_TOKEN` 传入
+
+<Note>
+  使用 Microsoft Foundry 时，`/logout` 命令不可用，因为身份验证通过 Azure 凭据处理。
+</Note>
+
+<h4 id="use-an-api-key">
+  使用 API 密钥
+</h4>
+
+从 Microsoft Foundry 门户复制密钥，然后将其设置为环境变量：
 
 1. 在 Microsoft Foundry 门户中导航到您的资源
-2. 转到**端点和密钥**部分
+2. 打开**端点和密钥**部分
 3. 复制 **API 密钥**
 4. 设置环境变量，将 `your-azure-api-key` 替换为您复制的密钥：
 
@@ -129,18 +141,24 @@ Claude Code 支持三种 Microsoft Foundry 身份验证方法。选择最适合�
 export ANTHROPIC_FOUNDRY_API_KEY=your-azure-api-key
 ```
 
-**选项 B：Microsoft Entra ID 身份验证**
+<h4 id="use-microsoft-entra-id">
+  使用 Microsoft Entra ID
+</h4>
 
-当未设置 `ANTHROPIC_FOUNDRY_API_KEY` 和 `ANTHROPIC_FOUNDRY_AUTH_TOKEN` 时，Claude Code 会自动使用 Azure SDK [默认凭据链](https://learn.microsoft.com/en-us/azure/developer/javascript/sdk/authentication/credential-chains#defaultazurecredential-overview)。
+不要设置 `ANTHROPIC_FOUNDRY_API_KEY` 和 `ANTHROPIC_FOUNDRY_AUTH_TOKEN`。这样 Claude Code 就会使用 Azure SDK [默认凭据链](https://learn.microsoft.com/en-us/azure/developer/javascript/sdk/authentication/credential-chains#defaultazurecredential-overview)。
 这支持多种方法来验证本地和远程工作负载。
 
-在本地环境中，您通常可以使用 Azure CLI：
+在本地计算机上，使用 Azure CLI 登录：
 
 ```bash theme={null}
 az login
 ```
 
-**选项 C：Bearer 令牌身份验证**
+有关您的身份所需的角色，请参阅 [Azure RBAC 配置](#azure-rbac-configuration)。
+
+<h4 id="use-a-bearer-token">
+  使用 Bearer 令牌
+</h4>
 
 Claude Code 在每个请求中将 `ANTHROPIC_FOUNDRY_AUTH_TOKEN` 的值作为 `Authorization: Bearer` 标头发送。当另一个进程（例如主机应用程序或登录脚本）已经为您获取了访问令牌时，请使用此选项。需要 Claude Code v2.1.203 或更高版本。
 
@@ -151,10 +169,6 @@ export ANTHROPIC_FOUNDRY_AUTH_TOKEN=your-entra-access-token
 ```
 
 `ANTHROPIC_FOUNDRY_AUTH_TOKEN` 优先于 `ANTHROPIC_FOUNDRY_API_KEY` 和默认凭据链。
-
-<Note>
-  使用 Microsoft Foundry 时，`/logout` 命令不可用，因为身份验证通过 Azure 凭据处理。
-</Note>
 
 <h3 id="3-configure-claude-code">
   3. 配置 Claude Code

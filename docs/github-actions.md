@@ -140,11 +140,13 @@ Claude Code 然后推送一个包含您选择的工作流文件的分支，已�
 | 权限 | 访问 |
 | - | - |
 | Actions | 读写 |
+| Administration | 读 |
 | Checks | 读写 |
 | Contents | 读写 |
 | Discussions | 读写 |
 | Issues | 读写 |
 | Members | 读 |
+| Merge queues | 读 |
 | Metadata | 读 |
 | Pull requests | 读写 |
 | Repository hooks | 读写 |

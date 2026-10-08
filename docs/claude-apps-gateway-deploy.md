@@ -6,6 +6,14 @@
 
 > 向身份提供商注册网关，构建容器，在 Kubernetes 或 Cloud Run 上部署，并运维它：健康检查、密钥轮换、升级和安全。
 
+<Info>
+  **请先规划网关的网络。** 登录时，如果 Claude 应用网关的主机名解析为公共 IP 地址，Claude Code 会拒绝连接，即使该地址无法从互联网访问也是如此。
+
+  Claude 应用网关可以向用户的机器推送设置，包括运行 shell 命令的 hook。此检查有助于防止用户意外登录到公共互联网上的恶意网关。也请不要让您自己的网关暴露在互联网上。
+
+  在选择网关的运行位置之前，请先选择网关的地址。通常这是一个私有地址，用户可以在内部网络上或通过 VPN 访问。如果您的内部网络使用公共 IPv4 地址段，您可以列出一个同时包含网关和用户机器的地址段。Claude Code 会将该匹配视为网关位于您内部网络上的标志。请参阅 [为网关选择地址](#choose-an-address-for-the-gateway)。如果以上两种方式都不适合您的网络，请联系您的 Anthropic 客户团队。
+</Info>
+
 本页面涵盖运行 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 的运维方面：在身份提供商 (IdP) 中注册 OAuth 客户端、将网关部署为容器，以及日常运行。关于网关在启动时读取的 `gateway.yaml` 文件中的每个选项，请参阅 [配置参考](/docs/zh-CN/claude-apps-gateway-config)。
 
 生产部署按顺序遵循四个步骤，下面的部分与之相对应。前两个是您做出选择的地方；后两个是在运行后参考的材料。
@@ -16,10 +24,6 @@
 4. [审查安全态势](#security)：数据流向何处、威胁模型和合规性答案。用于安全审查的参考
 
 如果在此过程中登录或启动失败，请直接转到 [故障排除](#troubleshooting)，该部分按您看到的错误进行索引。
-
-<Note>
-  **在您的私有网络上部署。** Claude Code 仅连接到地址为私有的网关。这是一个安全防护，因为受信任的网关可以推送在开发者机器上运行命令的设置。将网关放在内部负载均衡器或 VPN 后面，并为其分配一个仅解析为私有 IP 的主机名。如果您的内部网络是从您的组织拥有的公共 IPv4 空间编号的，请参阅 [允许网关在您拥有的公共地址空间上运行](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)。
-</Note>
 
 <h2 id="identity-provider-setup">
   身份提供商设置
@@ -51,7 +55,7 @@
   部署
 </h2>
 
-网关是一个单一的无状态 Linux 二进制文件，通过 Postgres 进行协调，因此按照您在环境中部署任何其他无状态服务的方式部署它。将其保持在您的网络内，您的开发者和 IdP 可以通过 HTTPS 到达它，并将其视为任何持有生产凭证的服务。
+网关是一个单一的无状态 Linux 二进制文件，通过 Postgres 进行协调，因此按照您在环境中部署任何其他无状态服务的方式部署它。将其保持在您的网络内，您的开发者和 IdP 可以通过 HTTPS 到达它，并将其视为任何持有生产凭据的服务。
 
 除了运行位置外，还有一些决策塑造部署：
 
@@ -70,6 +74,17 @@
 * 在 `provider: anthropic` 上，网关原样传递响应，包括 Anthropic API 自己的 ping。
 
 默认值（如 ALB 的 60 秒）足以保持安静的流打开。[AWS 工作示例](/docs/zh-CN/claude-apps-gateway-on-aws#troubleshooting) 无论如何将其提高到一小时，其故障排除行涵盖早于 v2.1.229 的网关，这些网关在现在获得 ping 的上游上的安静期间没有发送任何内容。
+
+<h3 id="choose-an-address-for-the-gateway">
+  为网关选择地址
+</h3>
+
+Claude Code 通过以下两种方式之一接受网关的地址：
+
+* **私有地址**：将网关置于内部负载均衡器或 VPN 之后，并使用仅解析为私有地址（如 RFC 1918 或 CGNAT `100.64.0.0/10`）的主机名。用户的机器可以使用任何地址。[私有网络前提条件](/docs/zh-CN/claude-apps-gateway#prerequisites) 列出了可接受的地址范围。
+* **声明的地址块**：如果您的内部网络使用贵组织拥有的公共 IPv4 地址空间，请在 `gatewayInternalNetworks` 托管设置中列出该地址块。网关和用户的机器都必须位于该地址块内。请参阅 [允许网关使用您拥有的公共地址空间](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)。
+
+如果没有单个地址块能同时包含两者，请改为给网关分配私有地址。
 
 <h3 id="container-image">
   容器镜像
@@ -375,7 +390,7 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
   故障排除
 </h2>
 
-如有问题和反馈，请使用 [Claude Code 支持](https://support.claude.com/en/collections/14445694-claude-code)，或在 [Claude Code GitHub 仓库](https://github.com/anthropics/claude-code/issues)上提交问题。报告问题时，请包括：
+如有问题和反馈，请使用 [Claude Code 支持](https://support.claude.com/en/collections/14445694-claude-code)，或在 [Claude Code GitHub 仓库](https://github.com/anthropics/claude-code/issues)上提交问题。您也可以联系您的 Anthropic 客户团队。报告问题时，请包括：
 
 * **网关问题**：相关时间窗口内网关的 stderr、您的 `gateway.yaml`（已隐藏密钥）、网关版本（显示在 `/` 的登陆页面和 `/managed/settings` 的 `x-cc-gateway-version` 响应头中），以及最近的更改
 * **登录问题**：开发者运行 `claude --debug-file ./claude-debug.txt`、重现问题，然后发送该文件以及同一时间窗口内网关的审计日志
@@ -394,7 +409,7 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 | CLI `/login`：`The gateway is limiting sign-in attempts right now`，或在较旧版本上 `Request failed with status code 429`。`/device` 页面可能向尚未尝试过的开发者显示 `Too many attempts` | 达到了每 IP 登录速率限制。要么 `listen.trusted_proxies` 不覆盖负载均衡器，所以每个开发者共享其地址，要么许多开发者共享一个 NAT 或 VPN 出口地址。具有 `result: rate_limited` 的审计事件显示相同的一个或几个 `client_ip` 值。 | 首先将 `listen.trusted_proxies` 设置为负载均衡器的源范围，然后如果开发者仍然共享地址，提高 `rate_limits`。请参阅[大规模推出](#large-rollouts)。 |
 | CLI `/login`：`Gateway hosts must be on your organization's private network; <host> resolves to the public (or unrecognized) address <ip>` | 网关主机名解析为至少一个公网 IP 地址。Claude Code 检查每个解析的地址，要求每个都是私网。常见原因是双栈名称，其中一个族解析为公网地址，包括 AWS 内部双栈负载均衡器，它们返回公网范围的 AAAA 地址。 | 让网关名称在开发者机器上仅解析为私网地址。对于双栈名称，删除公网范围的记录或提供单独的仅内部 DNS 名称。请参阅[私网前提条件](/docs/zh-CN/claude-apps-gateway#prerequisites)。如果地址是您的组织拥有并在内部使用的公网空间，请[声明该块](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)。 |
 | CLI `/login`：`Gateway login would go through proxy <proxy>, which is not on a private network` | `HTTPS_PROXY` 或 `HTTP_PROXY` 适用于网关主机，且代理的主机名解析为公网地址。主机名仅解析为私网地址的代理是允许的，不会触发此错误 | 在开发者的机器上将网关主机添加到 `NO_PROXY`，以便连接是直接的，或使用主机名解析为私网地址的代理。消息会命名要添加的确切 `NO_PROXY` 条目 |
-| CLI `/login`：`Claude Code only signs in to <host> from inside its declared network <block> (managed settings), and this machine is connecting from <ip>, outside it` | 网关在 [`gatewayInternalNetworks`](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own) 中声明的块上，开发者的机器从该块外的地址到达它：VPN 地址池、容器或 WSL2 NAT 段，或不是您的网络 | 让开发者从您的网络上的主机 OS 运行 `/login`。如果显示的地址也是您的组织自己的公网空间，将网关的条目替换为覆盖两者的块，最多 `/8`；第二个重叠条目会被拒绝 |
+| CLI `/login`：`Claude Code only signs in to <host> from inside its declared network <block> (managed settings), and this machine is connecting from <ip>, outside it` | 网关在 [`gatewayInternalNetworks`](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own) 中声明的块上，开发者的机器从该块外的地址到达它：VPN 地址池、容器或 WSL2 NAT 段，或不是您的网络 | 让开发者从您的网络上的主机 OS 运行 `/login`。如果显示的地址也是您的组织自己的公网空间，将网关的条目替换为覆盖两者的块，最多 `/8`；第二个重叠条目会被拒绝。如果没有能覆盖两者的块，请参阅[为网关选择地址](#choose-an-address-for-the-gateway) |
 | CLI `/login`：`Every address for gateway host <host> must be inside its declared network <block>, and it also resolves to <ip>` | 网关的名称解析为 [`gatewayInternalNetworks`](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own) 中声明的块外的地址：第二个站点，或双栈名称上的 IPv6 记录。在声明的块下，每条记录都必须在该单个 IPv4 块内，包括私网和 IPv6 地址 | 在开发者机器上仅为网关名称发布块内的记录，或提供单独的仅内部名称 |
 | CLI `/login`：`<host> is on the declared network <block>, which Claude Code checks over a direct connection, not through an HTTP proxy` | `HTTPS_PROXY` 或 `HTTP_PROXY` 适用于声明块上的网关 | 在开发者的机器上，添加消息命名的 `NO_PROXY` 条目 |
 | CLI `/login`：消息以 `gatewayInternalNetworks in managed settings` 开头 | 该值违反了[验证规则](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)之一，消息会命名哪一个。在您修复它之前，Claude Code 拒绝机器上的每个新网关 `/login`，包括私网上的网关；现有登录保持工作 | 在您部署的托管设置源中，更正消息命名的条目，然后重新运行 `/login` |

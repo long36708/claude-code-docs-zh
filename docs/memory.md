@@ -278,7 +278,9 @@ Glob 语法将 `[` 视为括号表达式的开始，例如 `[abc]`。具有无�
 
 `.claude/rules/` 目录支持符号链接，因此您可以维护一组共享规则并将它们链接到多个项目中。循环符号链接被检测并妥善处理。
 
-Claude Code 将其目标在工作目录外的符号链接视为 [external import](#import-additional-files)。链接的规则不加载，直到您批准项目的外部导入，之后仅加载没有 [`paths` 字段](#path-specific-rules) 的规则。Claude Code 仅当项目记忆文件使用 `@path` 导入工作目录外的文件时才要求该批准，而不是仅针对符号链接。要加载共享规则而不需要该批准，请将它们保存在 [`~/.claude/rules/`](#user-level-rules) 中，它们适用于您机器上的每个项目。
+Claude Code 将其目标在工作目录外的符号链接视为 [external import](#import-additional-files)。链接的规则不加载，直到您批准项目的外部导入，之后仅加载没有 [`paths` 字段](#path-specific-rules) 的规则。
+
+Claude Code 会针对每个项目请求一次该批准，方式是在交互式会话开始时显示一个对话框。该对话框会列出链接的规则文件以及任何外部 `@path` 导入。要加载共享规则而不需要该批准，请将它们保存在 [`~/.claude/rules/`](#user-level-rules) 中，它们适用于您机器上的每个项目。
 
 此示例链接共享目录和单个文件：
 

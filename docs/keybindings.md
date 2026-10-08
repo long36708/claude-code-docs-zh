@@ -68,6 +68,9 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `EffortSlider` | 由 `/effort` 打开的工作量滑块 |
 | `Select` | 通用选择/列表组件 |
 | `Plugin` | Plugin 对话框（浏览、发现、管理） |
+| `AbovePrompt` | [输入框上方的区域](#above-prompt-actions)或其中的按钮获得键盘焦点 |
+| `AbovePromptInput` | 输入框上方区域或 mod 窗格中的输入字段获得键盘焦点 |
+| `AbovePromptSelect` | 输入框上方区域或 mod 窗格中的选择框获得键盘焦点 |
 | `Pane` | 由 [mod](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive) 绘制的窗格获得键盘焦点 |
 | `PaneField` | mod 窗格中的输入字段或选择框获得键盘焦点 |
 | `Agents` | [Agent 视图](/docs/zh-CN/agent-view)（`claude agents`） |
@@ -441,6 +444,52 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `plugin:toggle` | Space | 切换插件选择 |
 | `plugin:install` | I | 安装选定的插件 |
 | `plugin:favorite` | F | 收藏选定的插件，使其在"已安装"标签页附近排序 |
+
+<h3 id="above-prompt-actions">
+  Above-prompt 操作
+</h3>
+
+用于输入框上方区域的操作，该区域是 [mod](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) 绘制按钮、输入字段和选择框的共享条带。`abovePrompt:toggle` 和 `abovePrompt:focus` 在 `Chat` 上下文中适用。其他操作在该区域或窗格中拥有键盘焦点的元素所在的 [上下文](#contexts) 中适用。
+
+| 操作 | 默认 | 描述 |
+| :- | :- | :- |
+| `abovePrompt:toggle` | Ctrl+X Ctrl+A | 将该区域折叠为一行提示，或再次展开 |
+| `abovePrompt:focus` | Ctrl+X Tab | 将键盘焦点移入该区域，然后依次移到每个打开的 [窗格](#pane-actions)，并从最后一个窗格回到输入框 |
+| `abovePrompt:next` | Tab | 聚焦下一个控件 |
+| `abovePrompt:previous` | Shift+Tab | 聚焦上一个控件 |
+| `abovePrompt:press` | Enter | 按下获得焦点的按钮、提交获得焦点的输入字段，或在选择框中选取突出显示的选项 |
+| `abovePrompt:leave` | Escape | 将键盘焦点返回到输入框 |
+| `abovePrompt:highlightNext` | Down | 在获得焦点的选择框中突出显示下一个选项 |
+| `abovePrompt:highlightPrevious` | Up | 在获得焦点的选择框中突出显示上一个选项 |
+
+有两个上下文默认将更多键绑定到这些操作：
+
+* **`AbovePrompt`**：Right 和 Left 也会运行 `abovePrompt:next` 和 `abovePrompt:previous`，Space 也会运行 `abovePrompt:press`
+* **`AbovePromptInput`**：Down 和 Up 也会运行 `abovePrompt:next` 和 `abovePrompt:previous`
+
+`AbovePrompt` 上下文还将 Up、Down、PageUp、PageDown、Home 和 End 绑定到 [窗格滚动操作](#pane-actions) `pane:scrollUp` 至 `pane:bottom`，因此要为该区域更改其中某个键，请在 `AbovePrompt` 块中绑定相应的滚动操作。
+
+<h3 id="pane-actions">
+  Pane 操作
+</h3>
+
+用于由 [mod](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive) 绘制的窗格的操作。滚动、调整大小和关闭操作在 `Pane` [上下文](#contexts) 中适用。`pane:close` 也在 `PaneField` 上下文中适用，因此当窗格的某个字段拥有焦点时它也能生效。当打开的窗格多于一个时，`pane:next` 和 `pane:previous` 在 `Global` 上下文中适用。
+
+| 操作 | 默认 | 描述 |
+| :- | :- | :- |
+| `pane:scrollUp` | Up | 当窗格的行数超出其可显示的范围时向上滚动窗格 |
+| `pane:scrollDown` | Down | 当窗格的行数超出其可显示的范围时向下滚动窗格 |
+| `pane:pageUp` | PageUp | 将窗格向上滚动一页 |
+| `pane:pageDown` | PageDown | 将窗格向下滚动一页 |
+| `pane:top` | Home | 跳到窗格顶部 |
+| `pane:bottom` | End | 跳到窗格底部 |
+| `pane:grow` | Ctrl+X Left, Ctrl+X Up | 为窗格提供更多空间：位于会话记录旁边时增加宽度，位于输入框上方时增加高度 |
+| `pane:shrink` | Ctrl+X Right, Ctrl+X Down | 为窗格提供更少空间：位于会话记录旁边时减小宽度，位于输入框上方时减小高度 |
+| `pane:close` | Ctrl+X X | 关闭窗格 |
+| `pane:next` | (未绑定) | 显示下一个打开的窗格 |
+| `pane:previous` | (未绑定) | 显示上一个打开的窗格 |
+
+`Pane` 上下文还将 Tab、Shift+Tab、Enter 和 Escape 绑定到与该区域相同的 [Above-prompt 操作](#above-prompt-actions)，窗格中的输入字段和选择框使用 `AbovePromptInput` 和 `AbovePromptSelect` 上下文。[键盘焦点和快捷键](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive) 列出了每个键在窗格中的作用。
 
 <h3 id="settings-actions">
   Settings 操作

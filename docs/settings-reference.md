@@ -3164,7 +3164,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   `plansDirectory`
 </h3>
 
-选择 Claude Code 在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中写入的计划文件的存储位置。Claude Code 相对于项目根目录解析路径，当路径解析到项目外时保持默认值。
+选择 Claude Code 在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中写入的计划文件的存储位置。Claude Code 相对于项目根目录解析路径。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: 字符串，相对于项目根目录的路径
@@ -3175,6 +3175,11 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   "plansDirectory": "./plans"
 }
 ```
+
+在以下情况下，Claude Code 会将计划存储在 `~/.claude/plans` 中，而不是您设置的目录中：
+
+* **位于项目根目录之外**：路径解析到项目根目录之外，例如 `"../plans"`。
+* **在 macOS、Linux 和 WSL 上包含反斜杠**：解析后的路径包含反斜杠，例如 Windows 风格的 `"docs\\plans"`。请写成 `"docs/plans"`，它在 Windows 上同样适用。
 
 <h3 id="skilllistingbudgetfraction">
   `skillListingBudgetFraction`
@@ -5768,7 +5773,7 @@ Claude Code 在非交互模式下永远不会显示摘要。
 
 在[桌面应用](/docs/zh-CN/desktop#local-sessions-on-managed-devices)中关闭在设备上运行的 Code 会话，用于开发人员应该通过 SSH 在远程机器上工作的部署。在 Code 选项卡中，**本地**环境保留在环境下拉列表中，但呈灰显状态且无法选择，工具提示显示你的组织已关闭它；在 Windows 上，WSL 条目以相同方式呈灰显，尽管 WSL 会话是否在托管设备上运行[由单独管理](/docs/zh-CN/admin-setup#wsl-sessions-in-claude-code-desktop)。新会话默认为第一个[SSH 连接](/docs/zh-CN/desktop#ssh-sessions)（如果已配置），应用拒绝在设备上启动或恢复会话，包括返回同一机器的 SSH 连接。到其他主机的 SSH 会话和云会话不受影响。桌面应用读取此键；终端 CLI 忽略它。需要 Claude Desktop v1.37937.0 或更高版本。
 
-* **作用域**: [`托管`](#scopes)
+* **作用域**: [`托管`](#scopes)。默认情况下，桌面应用从[一个托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)读取此键。
 * **类型**: 布尔值；仅 JSON 布尔值 `true` 生效
   * `true`: 桌面应用不提供设备上的 Code 会话；现有本地会话保留在列表中但无法继续
   * `false`: 本地会话保持可用
@@ -5915,7 +5920,7 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
 
 将 SSH 连接添加到[桌面](/docs/zh-CN/desktop#pre-configure-ssh-connections-for-your-team)环境下拉列表。管理员使用它向团队分发共享连接。你在托管设置中定义的连接显示为托管，因此用户可以选择它们，但无法在应用中编辑或删除它们。
 
-* **作用域**: [`用户或托管`](#scopes)。桌面应用读取此键。
+* **作用域**: [`用户或托管`](#scopes)。桌面应用读取此键。默认情况下，它从[一个托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)读取托管连接。
 * **类型**: 对象数组，每个都有必需的 `id`、`name` 和 `sshHost` 以及可选的 `sshPort` 和 `sshIdentityFile`
 * **默认值**: 未设置
 
@@ -5939,7 +5944,7 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
 
 限制[桌面 SSH 会话](/docs/zh-CN/desktop#restrict-which-ssh-hosts-users-can-connect-to)可以连接到的主机。仅桌面应用读取此键；CLI 不读取。模式不区分大小写：`*` 匹配任何主机，`*.example.com` 匹配 `example.com` 和每个子域，其他任何内容都是针对 `~/.ssh/config` 解析后的主机名的精确匹配。空数组关闭 SSH 会话。
 
-* **作用域**: [`托管`](#scopes)
+* **作用域**: [`托管`](#scopes)。默认情况下，桌面应用从[一个托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)读取此键。
 * **类型**: 主机名模式数组
 * **默认值**: 未设置，因此允许任何主机
 
@@ -5950,6 +5955,10 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
   "sshHostAllowlist": ["*.devboxes.example.com", "bastion.example.com"]
 }
 ```
+
+桌面应用无法读取为主机列表的值（例如 `true` 或对象）在您更正之前会被视为空数组，但 `null` 除外，它被视为未设置。需要 Claude Desktop v2.26454.0 或更高版本。
+
+如果您在优先级最高的源中将 [`managedSourcesBehavior`](#managedsourcesbehavior) 设置为 `"merge"`，桌面应用会合并来自每个[管理员源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)的列表，并允许与其中任意一个列表匹配的主机。如果您在某个源中设置了空数组，对于另一个源列出的主机，SSH 会话仍保持开启。
 
 <span id="authentication-and-login" />
 

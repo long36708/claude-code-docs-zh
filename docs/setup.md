@@ -63,7 +63,7 @@ Claude Code 在以下平台和配置上运行：
     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
     ```
 
-    安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
+    安装命令在下载 Claude Code 期间不会显示进度。安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
 
     如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。
 
@@ -119,13 +119,15 @@ Claude Code 在您的终端中打开一个交互式会话。
 
 | 选项 | 需要 | [沙箱](/docs/zh-CN/sandboxing) | 何时使用 |
 | - | - | - | - |
-| 原生 Windows | 无；[Git for Windows](https://git-scm.com/downloads/win) 是可选的 | 不支持 | Windows 原生项目和工具 |
-| WSL 2 | WSL 2 已启用 | 支持 | Linux 工具链或沙箱命令执行 |
-| WSL 1 | WSL 1 已启用 | 不支持 | 如果 WSL 2 不可用 |
+| [原生 Windows](#install-on-native-windows) | 无；[Git for Windows](https://git-scm.com/downloads/win) 是可选的 | 不支持 | Windows 原生项目和工具 |
+| [WSL 2](#install-in-wsl) | WSL 2 已启用 | 支持 | Linux 工具链或沙箱命令执行 |
+| [WSL 1](#install-in-wsl) | WSL 1 已启用 | 不支持 | 如果 WSL 2 不可用 |
 
-**选项 1：原生 Windows**
+<h4 id="install-on-native-windows">
+  在原生 Windows 上安装
+</h4>
 
-从 PowerShell 或 CMD 运行安装命令。您无需以管理员身份运行。安装 [Git for Windows](https://git-scm.com/downloads/win) 是可选的。它提供 Git Bash，[Bash 工具](/docs/zh-CN/tools-reference#bash-tool-behavior)和 [Monitor 工具](/docs/zh-CN/tools-reference#monitor-tool)需要用到它。
+从 PowerShell 或 CMD 运行[安装命令](#install-claude-code)。您无需以管理员身份运行。安装 [Git for Windows](https://git-scm.com/downloads/win) 是可选的。它提供 Git Bash，[Bash 工具](/docs/zh-CN/tools-reference#bash-tool-behavior)和 [Monitor 工具](/docs/zh-CN/tools-reference#monitor-tool)需要用到它。
 
 无论您从 PowerShell 还是 CMD 安装，只会影响您运行的安装命令。您的提示在 PowerShell 中显示为 `PS C:\Users\YourName>`，在 CMD 中显示为 `C:\Users\YourName>`（不带 `PS`）。如果您是终端新手，[终端指南](/docs/zh-CN/terminal-guide#windows)会逐步讲解每个步骤。
 
@@ -144,9 +146,11 @@ Claude Code 在您的终端中打开一个交互式会话。
 
 安装 Git for Windows 后，PowerShell 工具可与 Bash 一起使用：在 claude.ai 和 Console 账户上默认启用，在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 会话中使用 `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` 启用。将其设置为 `0` 以关闭该工具。有关设置和限制，请参阅 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)。
 
-**选项 2：WSL**
+<h4 id="install-in-wsl">
+  在 WSL 中安装
+</h4>
 
-打开您的 WSL 发行版并从上面的[安装说明](#install-claude-code)中运行 Linux 安装程序。您在 WSL 终端内安装和启动 `claude`，而不是从 PowerShell 或 CMD。
+打开您的 WSL 发行版并按照[安装说明](#install-claude-code)运行 Linux 安装程序。您在 WSL 终端内安装和启动 `claude`，而不是从 PowerShell 或 CMD。
 
 <h3 id="alpine-linux-and-musl-based-distributions">
   Alpine Linux 和基于 musl 的发行版

@@ -398,7 +398,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 每个新云线程都在项目的[云环境](/docs/zh-CN/cloud-environments)中启动。环境决定线程可以访问哪些域、它们拥有哪些环境变量、哪些网络密钥会被添加到它们的请求中，以及设置脚本在 Claude 启动之前安装什么。在您于 **Project settings > Environment** 中选择环境之前，云线程使用默认的 Anthropic 托管环境。
 
-如果云线程需要访问内部 API 或私有包注册表，或需要您的机器通常持有的令牌，请更改环境而不是项目：请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)、[添加网络密钥](/docs/zh-CN/cloud-environments#add-api-credentials)和[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)。
+如果云线程需要访问内部 API 或私有包注册表，或需要您的机器通常持有的令牌，请更改环境而不是项目：请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)、[添加网络密钥](/docs/zh-CN/cloud-environments#add-network-secrets)和[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)。
 
 <h3 id="get-skills-plugins-connectors-and-tools-into-threads">
   将 skill、插件、连接器和工具引入线程

@@ -183,7 +183,7 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
 | :- | :- | :- |
 | `name` | 否 | 输出样式的名称，在 `/config` 选择器中显示。默认值：文件名 |
 | `description` | 否 | 输出样式的描述，在 `/config` 选择器中显示 |
-| `keep-coding-instructions` | 否 | 设置为 `true` 以在你的样式旁边保留 Claude Code 的内置软件工程说明。默认值：`false` |
+| `keep-coding-instructions` | 否 | 设置为 `true` 以在您的样式之外保留 Claude Code 的内置软件工程说明部分（只有完整的系统提示词包含该部分）。请参阅[输出样式的工作原理](#how-output-styles-work)。默认值：`false` |
 | `force-for-plugin` | 否 | 仅限 Plugin 输出样式。设置为 `true` 以在启用 plugin 时自动应用此样式，无需要求用户选择它。覆盖用户的 `outputStyle` 设置。如果多个启用的 plugin 设置了此项，Claude Code 使用第一个加载的。默认值：`false` |
 
 <span id="comparisons-to-related-features" />
@@ -214,9 +214,9 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
 输出样式改变 Claude Code 给予 Claude 的指令。
 
 * Claude Code 在每个请求中发送活跃样式的指令。
-* 自定义输出样式会省略 Claude Code 的内置软件工程指令，例如如何限定更改范围、编写注释和验证工作，除非 `keep-coding-instructions` 设置为 `true`。
+* 在完整系统提示词中，自定义输出样式会省略 Claude Code 的内置软件工程指令部分，例如如何限定更改范围、编写注释和验证工作，除非 `keep-coding-instructions` 设置为 `true`。较短的系统提示词不包含该部分，因此该字段在那里不起作用。若要依赖该字段，请将 [`CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT`](/docs/zh-CN/env-vars#variables) 设置为 `0`，这样在任何模型上都会选用完整提示词。
 
-输出样式适用于主对话和[分支](/docs/zh-CN/sub-agents#fork-the-current-conversation)，分支继承父级的完整对话和系统提示。其他[子代理运行自己的系统提示](/docs/zh-CN/sub-agents#what-loads-at-startup)，因此样式不会改变它们的响应方式。
+输出样式适用于主对话和[分支](/docs/zh-CN/sub-agents#fork-the-current-conversation)，分支继承父级的完整对话和系统提示词。其他[子代理运行自己的系统提示词](/docs/zh-CN/sub-agents#what-loads-at-startup)，因此样式不会改变它们的回复方式。
 
 令牌使用情况取决于样式。样式的指令会增加输入令牌，尽管提示缓存在会话中的第一个请求之后会降低这个成本。
 

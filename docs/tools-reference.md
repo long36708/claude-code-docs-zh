@@ -709,16 +709,16 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
 搜索后端不可配置。要使用不同的提供商进行搜索，请添加一个[MCP 服务器](/docs/zh-CN/mcp)来公开搜索工具。
 
 <Note>
-  WebSearch 在 Claude API 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 上可用。在 Microsoft Foundry 上，它需要[部署在 Anthropic 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)：部署在 Azure 上的部署不支持服务器端工具，因此 WebSearch 调用失败。在 Google Cloud 的 Agent Platform 上，它适用于 Claude 4 及更高版本的模型，包括 Opus、Sonnet 和 Haiku。Amazon Bedrock 不公开服务器端网络搜索工具。
+  WebSearch 在 Claude API、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 和 Microsoft Foundry 上可用。在 Google Cloud 的 Agent Platform 上，它适用于 Claude 4 及更高版本的模型，包括 Opus、Sonnet 和 Haiku。Amazon Bedrock 不公开服务器端网络搜索工具。
 </Note>
 
 <h3 id="session-search-limit">
   会话搜索限制
 </h3>
 
-一个会话最多可以进行 200 次 WebSearch 调用，计数跨越主对话和它生成的每个[子代理](/docs/zh-CN/sub-agents)，因此并行研究扇出进行的搜索计入同一限制。该限制需要 Claude Code v2.1.212 或更高版本。当 Claude 达到限制时，进一步的调用会返回一个通知，告诉 Claude 继续使用它已经收集的信息，而不是会邀请重试的错误。您看不到该通知：受限的调用在对话中显示为未执行任何操作的搜索，如果 Claude 需要更多搜索，该通知会告诉它要求您提高限制。
+一个交互式终端会话最多可以进行 200 次 WebSearch 调用，计数跨越主对话和它生成的每个[子代理](/docs/zh-CN/sub-agents)，因此并行研究扇出进行的搜索计入同一限制。该限制需要 Claude Code v2.1.212 或更高版本。当 Claude 达到限制时，进一步的调用会返回一个通知，告诉 Claude 继续使用它已经收集的信息，而不是会邀请重试的错误。您看不到该通知：受限的调用在对话中显示为未执行任何操作的搜索，如果 Claude 需要更多搜索，该通知会告诉它要求您提高限制。
 
-设置 [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](/docs/zh-CN/env-vars) 环境变量来更改上限；它接受正整数，因此上限可以提高但不能关闭。运行 [`/clear`](/docs/zh-CN/commands#all-commands) 会重置计数。如果仍然可以生成[子代理](/docs/zh-CN/sub-agents)的工作（例如正在运行的工作流）在清除后继续存在，计数会改为继续。
+设置 [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](/docs/zh-CN/env-vars) 环境变量来更改上限；它接受正整数，因此上限可以提高但不能关闭。交互式终端会话的限制大约每小时恢复 100 次调用，[`CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR`](/docs/zh-CN/env-vars#variables) 用于设置该速率。运行 [`/clear`](/docs/zh-CN/commands#all-commands) 会重置计数。如果仍然可以生成[子代理](/docs/zh-CN/sub-agents)的工作（例如正在运行的工作流）在清除后继续存在，计数会改为继续。
 
 <h2 id="write-tool-behavior">
   Write tool 行为

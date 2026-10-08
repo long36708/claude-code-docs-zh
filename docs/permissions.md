@@ -700,7 +700,7 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 权限和[沙箱](/docs/zh-CN/sandboxing)是互补的安全层：
 
 * **权限**控制 Claude Code 可以使用哪些工具以及它可以访问哪些文件或域。它们适用于 Bash、Read、Edit、WebFetch、MCP 和其他所有工具，除了 deny 或 ask 规则无法阻止 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)，而任何其他工具仍然存在。
-* **沙箱**提供 OS 级别的强制执行，限制 shell 命令的文件系统和网络访问。它仅适用于 Bash、PowerShell 和 [Monitor](/docs/zh-CN/tools-reference#monitor-tool) 命令及其子进程。
+* **沙箱隔离**提供 OS 级别的强制执行，限制 shell 命令的文件系统和网络访问。它适用于 Bash、PowerShell 和 [Monitor](/docs/zh-CN/tools-reference#monitor-tool) 工具命令及其子进程。
 
 使用两者进行深度防御，因为即使提示注入绕过 Claude 的决策制定，沙箱限制仍然适用。来自沙箱设置和权限规则的路径和域被[合并到最终沙箱配置](/docs/zh-CN/sandboxing#permission-rules)中。
 

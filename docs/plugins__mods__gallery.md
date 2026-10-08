@@ -415,6 +415,14 @@ Svg({
 
 另有两个元素在此没有示例。`Image` 在终端中绘制 PNG 或原始像素。`Client` 是由您的另一个文件负责绘制的区域，用于动画和指针输入。[元素参考](/docs/zh-CN/plugins/mods/reference#elements)列出了它们的 props。
 
+除非 Claude Code 检测到终端能够绘制使用 Unicode 占位符的 kitty 图形协议图像，否则用户看到的将是以暗色显示的 `Image` 的 `alt` 文本，而不是图片。请编写能够独立表达含义的 `alt` 文本。检测在启动时运行：在 kitty 0.28 或更高版本以及 Ghostty 中，一旦终端响应了 Claude Code 的图形查询，检测即会成功；在以下情况下检测会失败：
+
+* **其他终端**：不属于上述两者的任何终端，或不响应该查询的终端。
+* **tmux 和 screen**：在任何终端（包括 kitty 和 Ghostty）中运行于 tmux 或 screen 内的会话。
+* **后台会话**：每个[后台会话](/docs/zh-CN/agent-view)，无论从哪个终端连接。
+
+如果您的 mod 的用户在确实能够绘制这些占位符图像的终端中看到了暗色文本，可以将 [`CLAUDE_CODE_FORCE_TERMINAL_IMAGES`](/docs/zh-CN/env-vars) 设置为 `1`，以跳过检测。在 tmux 或 screen 中这样做并无帮助：`alt` 文本会消失，而 Claude Code 发送图片时不会为 tmux 或 screen 直通对其进行包装。
+
 <h2 id="see-where-a-mod-can-draw">
   了解 mod 可以在哪里绘制
 </h2>

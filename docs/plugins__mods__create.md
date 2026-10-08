@@ -316,7 +316,7 @@ claude plugin validate ./first-mod
 ✔ Validation passed
 ```
 
-`hooks:` 行列出你的模块 hook 的事件，每个都带有其在大括号中的过滤器。`calls:` 行列出它调用的每个 mods API 方法。读取或设置环境变量的模块也会获得 `env reads:` 和 `env writes:` 行，使用 [`$.state`](/docs/zh-CN/plugins/mods/interface#keep-state) 的模块会获得 `state reads:` 和 `state writes:`。
+在 `hooks:` 行中查看您的模块 hook 的事件，每个事件的过滤器都显示在大括号中；在 `calls:` 行中查看它调用的每个 mods API 方法。如果您的模块读取或设置环境变量，还请查看 `env reads:` 和 `env writes:` 行；如果它使用 [`$.state`](/docs/zh-CN/plugins/mods/interface#keep-state)，还请查看 `state reads:` 和 `state writes:` 行。对于每个可以拒绝操作的 hook，您还会看到一行，例如 `gating hook without .catch: tool.call`，它表明该 hook 是否有 [`.catch` 处理程序](/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)。
 
 如果您打算处理的某个事件未出现在第一行中，Claude Code 也不会调用该 hook。常见原因是事件名称拼写错误，该命令会将其报告为错误，例如 `"tool.calls" is not an event`。
 

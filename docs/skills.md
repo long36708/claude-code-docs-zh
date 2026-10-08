@@ -36,6 +36,21 @@ Claude Code 包含一组捆绑技能，例如 `/doctor`、`/code-review`、`/bat
 
 捆绑技能与内置命令一起列在[命令参考](/docs/zh-CN/commands)中，在"目的"列中标记为**技能**。
 
+<h3 id="check-your-setup-with-/doctor">
+  使用 `/doctor` 检查您的设置
+</h3>
+
+在 Claude Code 输入框中运行 `/doctor`，进行设置检查，诊断问题并可以修复它们。Claude 会先报告其发现，并在更改任何内容之前请求确认。检查涵盖以下方面：
+
+* **安装健康状况**：重复或残留的安装、`PATH` 问题、无法解析的设置文件，以及您的[发布渠道](/docs/zh-CN/setup#configure-release-channel)上是否有更新版本可用
+* **扩展**：未使用的 skill、MCP 服务器和插件与其上下文成本的对比，以及缓慢的 [hook](/docs/zh-CN/hooks)
+* **`CLAUDE.md` 文件**：与已签入文件重复的本地 `CLAUDE.md` 文件、已签入的 [Claude 可以从代码库推导出的 `CLAUDE.md` 内容](/docs/zh-CN/memory#my-claude-md-is-too-large)，以及其余始终加载的指导内容，Claude 会提议将其迁移到按需加载的 skill 和嵌套 `CLAUDE.md` 文件中
+* **权限**：提议将[自动模式](/docs/zh-CN/permissions#permission-modes)设为您的默认权限模式，并[预先批准](/docs/zh-CN/permissions)您经常拒绝的只读命令
+
+如需在不启动会话的情况下进行只读安装诊断，请改为在终端中运行 `claude doctor`。
+
+要审核您的指令而不是您的设置，请在 Claude Code 输入框中运行 `/doctor prompt-audit`。Claude 会[检查您的 `CLAUDE.md` 文件、skill 和其他配置](/docs/zh-CN/memory#audit-your-instruction-files)中是否存在过时或相互冲突的指令，而不是运行设置检查。`prompt-audit` 子命令需要 Claude Code v2.1.283 或更高版本。
+
 <h3 id="run-and-verify-your-app">
   运行并验证您的应用
 </h3>

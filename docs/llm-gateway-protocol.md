@@ -200,7 +200,7 @@ Claude Code 读取这些响应头来检测停滞的流、决定是否以及何�
 
 | 头部 | 返回内容及原因 |
 | :- | :- |
-| `content-type` | 在流式 Anthropic Messages 格式响应上返回 `text/event-stream`，在 Amazon Bedrock 格式响应上返回 `application/vnd.amazon.eventstream`（不做修改），其中[不同的类型会导致请求失败](/docs/zh-CN/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy)。[流式传输](#streaming)列出了哪些连接在这些流上运行停滞检测 |
+| `content-type` | 在流式 Anthropic Messages 格式响应上返回 `text/event-stream`，在 Amazon Bedrock 格式响应上返回 `application/vnd.amazon.eventstream`（不做修改），其中[不同的类型会导致请求失败](/docs/zh-CN/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy) |
 | `retry-after` | 返回整数秒而不是 HTTP 日期。Claude Code 在下一次[自动重试](/docs/zh-CN/errors#automatic-retries)之前至少等待该时长，在 [`CLAUDE_CODE_RETRY_WATCHDOG`](/docs/zh-CN/env-vars) 会话之外，超过 60 的值会停止重试并立即显示错误 |
 | `x-should-retry` | 原样转发上游的值。Claude Code 在决定是否重试失败的请求时将此头部作为一个输入来读取：`true` 标记响应可重试，`false` 标记响应不可重试。有关重试次数、退避和 Claude Code 重试的失败情况，请参阅[自动重试](/docs/zh-CN/errors#automatic-retries) |
 | `anthropic-ratelimit-unified-*` | 在每个响应上原样转发上游的值。Claude Code 在成功响应上读取它们以向使用 claude.ai 登录的开发人员显示针对计划限制的使用情况，在 `429` 上读取它们以区分计划限制或支出上限与临时限流；请参阅[使用限制](/docs/zh-CN/errors#usage-limits) |

@@ -201,10 +201,10 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 * **`false`**：关闭自动连接，尽管来自[托管设置](/docs/zh-CN/managed-settings)的 `true` 会优先，因为 Claude Code 将选择保存到您的用户设置。项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中的 `false` 即使在托管 `true` 上也会关闭自动连接。
 * **`default`**：清除您的选择并遵循您组织的管理员默认值（如果已设置），否则遵循 Claude Code 的当前默认值。
 
-相同的切换出现在 CLI 之外：
+VS Code 扩展和 Desktop 应用也有自动连接开关：
 
-* **Desktop 应用**：**设置 > Claude Code > 将新会话连接到远程控制**。
 * **VS Code 扩展**：[命令菜单](/docs/zh-CN/vs-code#use-the-prompt-box)的设置部分中的**为所有会话启用远程控制**。
+* **Desktop 应用**：**Settings > Claude Code > Connect new sessions to Remote Control**。请参阅[控制哪些会话出现在您的其他设备上](/docs/zh-CN/desktop#control-which-sessions-appear-on-your-other-devices)。
 
 要改为从设置文件打开自动连接，请在您的用户 `~/.claude/settings.json` 或[托管设置](/docs/zh-CN/managed-settings)中将 [`remoteControlAtStartup`](/docs/zh-CN/settings-reference#remotecontrolatstartup) 设置为 `true`。在项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中，Claude Code 遵守 `false` 并为该存储库关闭自动连接，但忽略 `true`，因此已检入的文件无法为打开存储库的每个人打开远程控制。
 

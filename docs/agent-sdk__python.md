@@ -2768,41 +2768,42 @@ asyncio.run(main())
   工具输入/输出类型
 </h2>
 
-内置 Claude Code 工具的输入/输出 schema 文档。虽然 Python SDK 不将这些导出为类型，但它们代表消息中工具输入和输出的结构。
+内置 Claude Code 工具的输入/输出 schema 文档。虽然 Python SDK 不会将这些作为类型导出，但它们代表了消息中工具输入和输出的结构。
 
-每个显示的输出是您从该工具的 [`UserMessage.tool_use_result`](#usermessage) 读取的值。键名完全按照 Claude Code 发出的方式出现。标注了 `| None` 并带有"present when"或"optional"注释的键在不适用时会被省略。
+下面展示的每个输出都是您从该工具的 [`UserMessage.tool_use_result`](#usermessage) 中读取的值。键名与 Claude Code 发出的完全一致。标注了 `| None` 并带有"present when"或"optional"注释的键，在不适用时会被省略。
 
 <h3 id="agent">
   Agent
 </h3>
 
-**工具名称：** `Agent`。之前的名称 `Task` 仍然被接受作为别名，初始化 [`SystemMessage`](#systemmessage) 中的 `tools` 列表为了向后兼容将此工具报告为 `Task`。
+**工具名称：** `Agent`。先前的名称 `Task` 仍作为别名被接受，并且为了向后兼容，init [`SystemMessage`](#systemmessage) 中的 `tools` 列表会将此工具报告为 `Task`。
 
 **输入：**
 
 ```python theme={null}
 {
-    "description": str,  # 任务的简短描述（3-5 个单词）
-    "prompt": str,  # Agent 要执行的任务
-    "subagent_type": str | None,  # 要使用的专门 Agent 的类型
+    "description": str,  # 任务的简短描述（3-5 个词）
+    "prompt": str,  # 要由 Agent 执行的任务
+    "subagent_type": str | None,  # 要使用的专用 Agent 类型
     "model": "sonnet" | "opus" | "haiku" | "fable" | None,  # 此 Agent 的模型覆盖
-    "run_in_background": bool | None,  # Agent 默认在后台运行；设置为 False 以同步运行
-    "name": str | None,  # 生成的 Agent 的名称
-    "team_name": str | None,  # 已弃用；被忽略
-    "mode": "acceptEdits" | "auto" | "bypassPermissions" | "default" | "dontAsk" | "plan" | None,  # 已弃用；被忽略。子代理继承规则决定子代理的权限模式
-    "isolation": "worktree" | "remote" | None,  # Agent 更改的隔离模式
+    "effort": "low" | "medium" | "high" | "xhigh" | "max" | None,  # 此 Agent 的推理强度
+    "run_in_background": bool | None,  # Agent 默认在后台运行；设置为 False 可同步运行
+    "name": str | None,  # 所生成 Agent 的名称
+    "team_name": str | None,  # 已弃用；会被忽略
+    "mode": "acceptEdits" | "auto" | "bypassPermissions" | "default" | "dontAsk" | "plan" | None,  # 已弃用；会被忽略。子代理的权限模式由子代理继承规则决定
+    "isolation": "worktree" | "remote" | None,  # Agent 所做更改的隔离模式
 }
 ```
 
-启动一个新 Agent 来自主处理复杂的多步骤任务。
+启动一个新的 Agent 来自主处理复杂的多步骤任务。
 
-**输出（状态：`"completed"`）：**
+**输出（status：`"completed"`）：**
 
 ```python theme={null}
 {
     "status": "completed",
     "agentId": str,  # 运行的 Agent 的 ID
-    "agentType": str | None,  # 处理任务的子代理类型
+    "agentType": str | None,  # 处理该任务的子代理类型
     "content": [  # 结果内容块
         {
             "type": "text",
@@ -2810,11 +2811,11 @@ asyncio.run(main())
             "citations": list | None,
         }
     ],
-    "resolvedModel": str | None,  # 子代理启动时的模型
-    "modelsUsed": list[str] | None,  # 按顺序使用的模型，连续重复被折叠
+    "resolvedModel": str | None,  # 子代理启动时使用的模型
+    "modelsUsed": list[str] | None,  # 按顺序使用的模型，连续重复项已合并
     "totalToolUseCount": int,  # Agent 进行的工具调用次数
-    "totalDurationMs": int,  # 执行持续时间（毫秒）
-    "totalTokens": int,  # 来自最终 API 请求的 token 计数，不是整个运行
+    "totalDurationMs": int,  # 执行时长（毫秒）
+    "totalTokens": int,  # 来自最后一次 API 请求的 token 数，而非整个运行过程
     "usage": {  # token 使用统计
         "input_tokens": int,
         "output_tokens": int,
@@ -2829,7 +2830,7 @@ asyncio.run(main())
         "output_tokens_details": {"thinking_tokens": int | None} | None,
         "fallback_credit": Any | None,
     },
-    "toolStats": {  # 运行的聚合工具活动
+    "toolStats": {  # 本次运行的工具活动汇总
         "readCount": int,
         "searchCount": int,
         "bashCount": int,
@@ -2840,45 +2841,45 @@ asyncio.run(main())
         "frameCount": int | None,
     } | None,
     "prompt": str,  # Agent 运行的提示词
-    "worktreePath": str | None,  # 当 Claude Code 保留子代理的 worktree 时出现
-    "worktreeBranch": str | None,  # 当 Claude Code 使用 git 创建该 worktree 时出现
+    "worktreePath": str | None,  # 当 Claude Code 保留了子代理的 worktree 时存在
+    "worktreeBranch": str | None,  # 当 Claude Code 使用 git 创建了该 worktree 时存在
 }
 ```
 
-**输出（状态：`"async_launched"`）：**
+**输出（status：`"async_launched"`）：**
 
 ```python theme={null}
 {
     "status": "async_launched",
     "isAsync": bool | None,  # 后台启动时为 True
-    "agentId": str,  # 启动的 Agent 的 ID
+    "agentId": str,  # 已启动 Agent 的 ID
     "description": str,  # 任务描述
-    "resolvedModel": str | None,  # 后台转换时使用的模型
-    "modelsUsed": list[str] | None,  # 后台转换前使用的模型，按顺序，连续重复被折叠
+    "resolvedModel": str | None,  # 转入后台时正在使用的模型
+    "modelsUsed": list[str] | None,  # 转入后台之前按顺序使用的模型，连续重复项已合并
     "prompt": str,  # Agent 运行的提示词
-    "outputFile": str,  # Agent 输出被写入的文件路径
-    "canReadOutputFile": bool | None,  # 输出文件是否可以直接读取
+    "outputFile": str,  # 写入 Agent 输出的文件路径
+    "canReadOutputFile": bool | None,  # 是否可以直接读取输出文件
 }
 ```
 
-**输出（状态：`"remote_launched"`）：**
+**输出（status：`"remote_launched"`）：**
 
 ```python theme={null}
 {
     "status": "remote_launched",
-    "taskId": str,  # 分派任务的 ID
-    "sessionUrl": str,  # 云端会话的链接
+    "taskId": str,  # 已派发任务的 ID
+    "sessionUrl": str,  # 指向云端会话的链接
     "description": str,  # 任务描述
     "prompt": str,  # Agent 运行的提示词
-    "outputFile": str,  # Agent 输出被写入的文件路径
+    "outputFile": str,  # 写入 Agent 输出的文件路径
 }
 ```
 
-返回来自子代理的结果。输出在 `status` 字段上进行区分：`"completed"` 用于完成的任务，`"async_launched"` 用于后台任务，`"remote_launched"` 用于 Claude Code 分派到云端会话的任务，其中 `sessionUrl` 链接到该会话，`taskId` 标识它。如果 Claude Code [保留了子代理的隔离 worktree](/docs/zh-CN/worktrees#isolate-subagents-with-worktrees)，`completed` 变体上的 `worktreePath` 是找到它的位置，`worktreeBranch` 是当 Claude Code 使用 git 创建 worktree 时的分支。
+返回子代理的结果。输出通过 `status` 字段进行区分：`"completed"` 表示已完成的任务，`"async_launched"` 表示后台任务，`"remote_launched"` 表示 Claude Code 派发到云端会话的任务，其中 `sessionUrl` 链接到该会话，`taskId` 用于标识该会话。如果 Claude Code [保留了子代理的隔离 worktree](/docs/zh-CN/worktrees#isolate-subagents-with-worktrees)，`completed` 变体上的 `worktreePath` 就是该 worktree 的位置；当 Claude Code 使用 git 创建该 worktree 时，`worktreeBranch` 是其分支。
 
-在 `completed` 变体上，`resolvedModel` 命名子代理启动时的模型，当应用 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 或其他覆盖时，它可能与请求的 `model` 输入不同。此字段需要 Claude Code v2.1.174 或更高版本。在 `async_launched` 变体上，`resolvedModel` 命名 Agent 移到后台时使用的模型，因此在后台转换之前发生的交换会反映在那里。两个变体上的 `modelsUsed` 字段按顺序列出使用的模型，连续重复被折叠；仅当模型在运行中被交换时才设置。`modelsUsed` 和后台转换时的 `resolvedModel` 行为需要 Claude Code v2.1.212 或更高版本。
+在 `completed` 变体上，`resolvedModel` 指明子代理启动时使用的模型；当 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 或其他覆盖生效时，它可能与请求的 `model` 输入不同。此字段需要 Claude Code v2.1.174 或更高版本。在 `async_launched` 变体上，`resolvedModel` 指明 Agent 转入后台时正在使用的模型，因此在转入后台之前发生的模型切换会反映在其中。两种变体上的 `modelsUsed` 字段按顺序列出所使用的模型，连续重复项已合并；仅当运行中途切换了模型时才会设置该字段。`modelsUsed` 以及转入后台时的 `resolvedModel` 行为需要 Claude Code v2.1.212 或更高版本。
 
-Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usage` 和 `totalTokens`。当存在时，`usage` 中 `output_tokens_details` 下的 `thinking_tokens` 是该请求的输出 token 中属于思考 token 的数量。`output_tokens_details` 键需要 Python SDK v0.2.136 或更高版本，它捆绑了 Claude Code v2.1.228。`fallback_credit` 键需要 Python SDK v0.2.162 或更高版本，它捆绑了 Claude Code v2.1.285。
+Claude Code 根据子代理的最后一次 API 请求（而非整个运行过程）填充 `usage` 和 `totalTokens`。如果存在，`usage` 中 `output_tokens_details` 下的 `thinking_tokens` 表示该请求的输出 token 中属于思考 token 的数量。`output_tokens_details` 键需要 Python SDK v0.2.136 或更高版本，该版本捆绑了 Claude Code v2.1.228。`fallback_credit` 键需要 Python SDK v0.2.162 或更高版本，该版本捆绑了 Claude Code v2.1.285。
 
 <h3 id="askuserquestion">
   AskUserQuestion
@@ -2886,7 +2887,7 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 
 **工具名称：** `AskUserQuestion`
 
-在执行期间向用户提出澄清问题。见 [处理批准和用户输入](/docs/zh-CN/agent-sdk/user-input#handle-clarifying-questions) 了解使用详情。
+在执行过程中向用户提出澄清问题。有关用法详情，请参阅[处理批准和用户输入](/docs/zh-CN/agent-sdk/user-input#handle-clarifying-questions)。
 
 **输入：**
 
@@ -2895,26 +2896,26 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
     "questions": [  # 要向用户提出的问题（1-4 个问题）
         {
             "question": str,  # 要向用户提出的完整问题
-            "header": str,  # 显示为芯片/标签的非常简短的标签（最多 12 个字符）
-            "options": [  # 可用的选择（2-4 个选项）
+            "header": str,  # 以标签/徽标形式显示的极短标签（最多 12 个字符）
+            "options": [  # 可用选项（2-4 个选项）
                 {
-                    "label": str,  # 此选项的显示文本（1-5 个单词）
-                    "description": str,  # 此选项含义的说明
-                    "preview": str | None,  # 当选项被聚焦时呈现的预览内容
+                    "label": str,  # 此选项的显示文本（1-5 个词）
+                    "description": str,  # 对此选项含义的说明
+                    "preview": str | None,  # 选项获得焦点时渲染的预览内容
                 }
             ],
-            "multiSelect": bool,  # 设置为 true 以允许多个选择
+            "multiSelect": bool,  # 设置为 true 以允许多选
         }
     ],
     "answers": dict[str, str] | None,
-    # 由权限系统填充的用户答案。多选
-    # 答案是所选标签的逗号连接字符串；
-    # 输入时接受标签列表并强制转换为该形式
+    # 由权限系统填充的用户答案。多选答案是
+    # 所选标签以逗号连接而成的字符串；输入时也接受
+    # 标签列表，并会被转换为该形式
     "annotations": dict[str, dict] | None,
-    # 来自用户的按问题文本键入的每个问题注释。
-    # 每个值可以携带"preview"（所选选项的预览
-    # 内容）和"notes"（关于选择的自由文本注释）
-    "metadata": dict | None,  # 分析元数据，例如 {"source": "remember"}；不向用户显示
+    # 用户针对每个问题的注释，以问题文本为键。
+    # 每个值可以包含 "preview"（所选选项的预览
+    # 内容）和 "notes"（关于所选内容的自由文本备注）
+    "metadata": dict | None,  # 分析元数据，例如 {"source": "remember"}；不会向用户显示
 }
 ```
 
@@ -2922,7 +2923,7 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 
 ```python theme={null}
 {
-    "questions": [  # 被提出的问题
+    "questions": [  # 已提出的问题
         {
             "question": str,
             "header": str,
@@ -2933,10 +2934,10 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
     "answers": dict[str, str],  # 将问题文本映射到答案字符串
     # 多选答案以逗号分隔
     "response": str | None,
-    # 用户输入的自由形式回复而不是回答问题；当设置时，
-    # Claude 收到"用户回复：..."而不是答案列表
-    "annotations": dict[str, dict] | None,  # 来自用户选择的每个问题"preview"和"notes"
-    "afkTimeoutMs": int | None,  # 在用户不活动这么多毫秒后对话框自动解决时设置；用户回答时不存在
+    # 用户未回答问题而是直接输入的自由回复；设置后，
+    # Claude 收到的是 "The user responded: ..." 而不是答案列表
+    "annotations": dict[str, dict] | None,  # 用户所选内容中针对每个问题的 "preview" 和 "notes"
+    "afkTimeoutMs": int | None,  # 当对话框因用户在这么多毫秒内无操作而自动结束时设置；用户作答时不存在
 }
 ```
 
@@ -2946,15 +2947,15 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 
 **工具名称：** `Bash`
 
-关于设置前台上限的内容，见 [超时和输出限制](/docs/zh-CN/tools-reference#timeout-and-output-limits)。关于后台时间限制，见 [后台命令的时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)。
+有关前台上限由什么决定，请参阅[超时和输出限制](/docs/zh-CN/tools-reference#timeout-and-output-limits)。有关后台时间限制，请参阅[后台命令的时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)。
 
 **输入：**
 
 ```python theme={null}
 {
     "command": str,  # 要执行的命令
-    "timeout": int | None,  # 毫秒。前台：默认上限为 600000，更高的值被限制。使用 run_in_background（Claude Code v2.1.285 或更高版本）：后台时间限制，省略时为 1800000，上限为 7200000，除非提高
-    "description": str | None,  # 清晰、简洁的描述（5-10 个单词）
+    "timeout": int | None,  # 毫秒。前台：默认上限为 600000，更高的值会被截断。使用 run_in_background 时（Claude Code v2.1.285 或更高版本）：后台时间限制，省略时为 1800000，除非调高，否则上限为 7200000
+    "description": str | None,  # 清晰、简洁的描述（5-10 个词）
     "run_in_background": bool | None,  # 设置为 true 以在后台运行
 }
 ```
@@ -2963,11 +2964,11 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 
 ```python theme={null}
 {
-    "stdout": str,  # 命令的输出；stdout 和 stderr 合并到这个一个交错流中
-    "stderr": str,  # 工具本身添加的通知，不是命令的 stderr
+    "stdout": str,  # 命令的输出；stdout 和 stderr 合并到这一个交错的流中
+    "stderr": str,  # 工具本身添加的通知，而非命令的 stderr
     "interrupted": bool,  # 命令是否被中断
     "isImage": bool | None,  # stdout 是否包含图像数据
-    "backgroundTaskId": str | None,  # 如果命令在后台运行，后台任务的 ID
+    "backgroundTaskId": str | None,  # 命令在后台运行时的后台任务 ID
 }
 ```
 
@@ -2977,18 +2978,18 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 
 **工具名称：** `Monitor`
 
-运行后台源并将每个事件传递给 Claude，以便它可以做出反应而无需轮询：`command` 运行脚本并每个 stdout 行发出一个事件，`ws` 打开 WebSocket 并每个文本帧发出一个事件。恰好提供 `command` 或 `ws` 中的一个。
+运行一个后台来源，并将每个事件传递给 Claude，使其无需轮询即可做出响应：`command` 运行一个脚本，每行 stdout 产生一个事件；`ws` 打开一个 WebSocket，每个文本帧产生一个事件。`command` 和 `ws` 必须且只能提供其中一个。
 
-当 Monitor 运行命令时，它遵循与 Bash 相同的权限规则；WebSocket 监视会单独提示批准。`ws` 源需要 Claude Code v2.1.195 或更高版本。见 [Monitor 工具参考](/docs/zh-CN/tools-reference#monitor-tool) 了解行为和提供商可用性。
+当 Monitor 运行命令时，它遵循与 Bash 相同的权限规则；WebSocket 监视会单独请求批准。`ws` 来源需要 Claude Code v2.1.195 或更高版本。有关行为和提供商可用性，请参阅 [Monitor 工具参考](/docs/zh-CN/tools-reference#monitor-tool)。
 
 **输入：**
 
 ```python theme={null}
 {
-    "command": str | None,  # Shell 脚本；每个 stdout 行是一个事件，退出结束监视
-    "ws": dict | None,  # WebSocket 源：{"url": str, "protocols": list[str] | None}；每个文本帧是一个事件
+    "command": str | None,  # Shell 脚本；每行 stdout 是一个事件，退出即结束监视
+    "ws": dict | None,  # WebSocket 来源：{"url": str, "protocols": list[str] | None}；每个文本帧是一个事件
     "description": str,  # 在通知中显示的简短描述
-    "timeout_ms": int | None,  # 截止时间（毫秒）（默认 300000，最大 3600000；有效截止时间最多为 1800000）
+    "timeout_ms": int | None,  # 截止时间（毫秒）（默认 300000，最大 3600000；实际生效的截止时间最多为 1800000）
 }
 ```
 
@@ -2997,8 +2998,8 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 ```python theme={null}
 {
     "taskId": str,  # 后台监视任务的 ID
-    "timeoutMs": int,  # 监视的有效截止时间（毫秒）
-    "persistent": bool | None,  # False：每个监视都有一个截止时间
+    "timeoutMs": int,  # 监视实际生效的截止时间（毫秒）
+    "persistent": bool | None,  # False：每个监视都有截止时间
 }
 ```
 
@@ -3014,8 +3015,8 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 {
     "file_path": str,  # 要修改的文件的绝对路径
     "old_string": str,  # 要替换的文本
-    "new_string": str,  # 替换为的文本
-    "replace_all": bool | None,  # 替换所有出现（默认 False）
+    "new_string": str,  # 用于替换的文本
+    "replace_all": bool | None,  # 替换所有匹配项（默认 False）
 }
 ```
 
@@ -3025,9 +3026,9 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 {
     "filePath": str,  # 被编辑的文件
     "oldString": str,  # 被替换的文本
-    "newString": str,  # 替换它的文本
+    "newString": str,  # 替换后的文本
     "originalFile": str | None,  # 编辑前的文件内容
-    "structuredPatch": [  # 更改的 diff hunks
+    "structuredPatch": [  # 此次更改的 diff 块
         {
             "oldStart": int,
             "oldLines": int,
@@ -3036,16 +3037,16 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
             "lines": list[str],
         }
     ],
-    "userModified": bool,  # 用户是否在接受前更改了建议的编辑
-    "replaceAll": bool,  # 是否替换了所有出现
-    "gitDiff": {  # 文件的可选 git diff 摘要
+    "userModified": bool,  # 用户在接受之前是否修改了提议的编辑
+    "replaceAll": bool,  # 是否替换了所有匹配项
+    "gitDiff": {  # 可选的文件 git diff 摘要
         "filename": str,
         "status": "modified" | "added",
         "additions": int,
         "deletions": int,
         "changes": int,
         "patch": str,
-        "repository": str | None,  # 可用时的 GitHub owner/repo
+        "repository": str | None,  # 可用时为 GitHub owner/repo
     } | None,
 }
 ```
@@ -3066,9 +3067,9 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 }
 ```
 
-输出根据 Claude 读取的内容采用以下形状之一。检查 `type` 键来区分它们。
+根据 Claude 读取的内容，输出采用以下形状之一。请检查 `type` 键来区分它们。
 
-**输出（type: `"text"`）：**
+**输出（type：`"text"`）：**
 
 ```python theme={null}
 {
@@ -3077,14 +3078,14 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
         "filePath": str,  # 被读取的文件
         "content": str,  # 返回的内容
         "numLines": int,  # 返回内容中的行数
-        "startLine": int,  # 内容开始的行号
-        "totalLines": int,  # 文件中的总行数
-        "truncatedByTokenCap": bool | None,  # 当整个文件读取超过 token 上限且内容是第一页时出现且为 True
+        "startLine": int,  # 内容起始的行号
+        "totalLines": int,  # 文件的总行数
+        "truncatedByTokenCap": bool | None,  # 当整个文件的读取超出 token 上限且 content 为第一页时存在，值为 True
     },
 }
 ```
 
-**输出（type: `"image"`）：**
+**输出（type：`"image"`）：**
 
 ```python theme={null}
 {
@@ -3093,7 +3094,7 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
         "base64": str,  # Base64 编码的图像数据
         "type": "image/jpeg" | "image/png" | "image/gif" | "image/webp",  # 图像 MIME 类型
         "originalSize": int,  # 原始文件大小（字节）
-        "dimensions": {  # 坐标映射的可选大小信息
+        "dimensions": {  # 用于坐标映射的可选尺寸信息
             "originalWidth": int | None,  # 可选；原始宽度（像素）
             "originalHeight": int | None,  # 可选；原始高度（像素）
             "displayWidth": int | None,  # 可选；调整大小后的宽度
@@ -3103,19 +3104,19 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 }
 ```
 
-**输出（type: `"notebook"`）：**
+**输出（type：`"notebook"`）：**
 
 ```python theme={null}
 {
     "type": "notebook",
     "file": {
-        "filePath": str,  # 被读取的笔记本
-        "cells": list,  # 笔记本单元格
+        "filePath": str,  # 被读取的 notebook
+        "cells": list,  # Notebook 单元格
     },
 }
 ```
 
-**输出（type: `"pdf"`）：**
+**输出（type：`"pdf"`）：**
 
 ```python theme={null}
 {
@@ -3128,7 +3129,7 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 }
 ```
 
-**输出（type: `"parts"`）：**
+**输出（type：`"parts"`）：**
 
 ```python theme={null}
 {
@@ -3137,21 +3138,21 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
         "filePath": str,  # 被读取的 PDF
         "originalSize": int,  # 文件大小（字节）
         "count": int,  # 提取为图像的页数
-        "outputDir": str,  # 包含提取的页面图像的目录
+        "outputDir": str,  # 包含所提取页面图像的目录
     },
-    "firstPage": int | None,  # 可选的第一个提取页面的文档页码
+    "firstPage": int | None,  # 可选；第一个提取页面在文档中的页码
 }
 ```
 
-**输出（type: `"file_unchanged"`）：**
+**输出（type：`"file_unchanged"`）：**
 
 ```python theme={null}
 {
-    "type": "file_unchanged",  # 文件自 Claude 在此会话中上次读取以来未更改，因此不重复内容
+    "type": "file_unchanged",  # 自 Claude 在此会话中上次读取以来文件未发生变化，因此不会重复返回内容
     "file": {
         "filePath": str,
     },
-    "source": "seeded" | None,  # 当较早的副本来自在启动时加载的 CLAUDE.md 或记忆文件而不是 Read 调用时出现
+    "source": "seeded" | None,  # 当之前的副本来自启动时加载的 CLAUDE.md 或记忆文件（而非 Read 调用）时存在
 }
 ```
 
@@ -3174,10 +3175,10 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 
 ```python theme={null}
 {
-    "type": "create" | "update",  # 写入是创建了新文件还是覆盖了现有文件
+    "type": "create" | "update",  # 此次写入是创建了新文件还是覆盖了现有文件
     "filePath": str,  # 被写入的文件
-    "content": str,  # 被写入的内容
-    "structuredPatch": [  # Diff hunks；对于新文件、未更改或 Claude Code 跳过 diff 时为空
+    "content": str,  # 写入的内容
+    "structuredPatch": [  # diff 块；对于新文件、内容无变化或 Claude Code 跳过 diff 时为空
         {
             "oldStart": int,
             "oldLines": int,
@@ -3186,17 +3187,17 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
             "lines": list[str],
         }
     ],
-    "originalFile": str | None,  # 之前的内容；对于新文件或之前的内容太大而无法包含时为 None
-    "gitDiff": {  # 文件的可选 git diff 摘要
+    "originalFile": str | None,  # 之前的内容；对于新文件或之前的内容过大而无法包含时为 None
+    "gitDiff": {  # 可选的文件 git diff 摘要
         "filename": str,
         "status": "modified" | "added",
         "additions": int,
         "deletions": int,
         "changes": int,
         "patch": str,
-        "repository": str | None,  # 可用时的 GitHub owner/repo
+        "repository": str | None,  # 可用时为 GitHub owner/repo
     } | None,
-    "userModified": bool | None,  # 可选；用户是否在接受前编辑了建议的内容
+    "userModified": bool | None,  # 可选；用户在接受之前是否编辑了提议的内容
 }
 ```
 
@@ -3219,11 +3220,11 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 
 ```python theme={null}
 {
-    "durationMs": int,  # 运行搜索所花费的时间（毫秒）
-    "numFiles": int,  # 返回的路径数，任何截断后
+    "durationMs": int,  # 运行搜索所用的时间（毫秒）
+    "numFiles": int,  # 截断后返回的路径数量
     "filenames": list[str],  # 匹配的文件路径
-    "truncated": bool,  # 结果是否在 100 文件限制处被截断
-    "totalMatches": int | None,  # 可选的截断前匹配文件的总数；当 countIsComplete 为 False 时为下界
+    "truncated": bool,  # 结果是否因 100 个文件的限制而被截断
+    "totalMatches": int | None,  # 可选；截断前匹配文件的总数；当 countIsComplete 为 False 时为下限值
     "countIsComplete": bool | None,  # 可选；totalMatches 是否精确
 }
 ```
@@ -3247,13 +3248,13 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
     "output_mode": str | None,  # "content"、"files_with_matches" 或 "count"
     "-i": bool | None,  # 不区分大小写的搜索
     "-n": bool | None,  # 显示行号
-    "-B": int | None,  # 每个匹配前显示的行数
-    "-A": int | None,  # 每个匹配后显示的行数
-    "-C": int | None,  # 每个匹配前后显示的行数
-    "context": int | None,  # 每个匹配前后显示的行数；-C 是别名
-    "-o": bool | None,  # 仅打印每行的匹配部分
+    "-B": int | None,  # 每个匹配项之前显示的行数
+    "-A": int | None,  # 每个匹配项之后显示的行数
+    "-C": int | None,  # 前后显示的行数
+    "context": int | None,  # 前后显示的行数；-C 是其别名
+    "-o": bool | None,  # 仅打印每行中匹配的部分
     "head_limit": int | None,  # 将输出限制为前 N 行/条目
-    "offset": int | None,  # 在应用 head_limit 前跳过前 N 行/条目
+    "offset": int | None,  # 在应用 head_limit 之前跳过前 N 行/条目
     "multiline": bool | None,  # 启用多行模式
 }
 ```
@@ -3262,20 +3263,20 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 
 ```python theme={null}
 {
-    "mode": "content" | "files_with_matches" | "count" | None,  # 使用的输出模式
-    "numFiles": int,  # 结果中的文件数；在 content 模式中始终为 0
-    "filenames": list[str],  # files_with_matches 模式中的匹配文件；在其他模式中为空
-    "content": str | None,  # content 模式中的匹配行，或 count 模式中的每个文件计数
-    "numLines": int | None,  # content 中的行数，在 content 模式中出现
-    "numMatches": int | None,  # 总匹配计数，在 count 模式中出现
-    "totalFiles": int | None,  # 可选的 head_limit 和 offset 前的总数，在 files_with_matches 模式中
-    "totalLines": int | None,  # 可选的 head_limit 和 offset 前的总数，在 content 模式中
-    "appliedLimit": int | None,  # 当 head_limit 截断结果时出现
-    "appliedOffset": int | None,  # 当应用了 offset 时出现
+    "mode": "content" | "files_with_matches" | "count" | None,  # 所使用的输出模式
+    "numFiles": int,  # 结果中的文件数；在 content 模式下始终为 0
+    "filenames": list[str],  # files_with_matches 模式下的匹配文件；其他模式下为空
+    "content": str | None,  # content 模式下的匹配行，或 count 模式下每个文件的计数
+    "numLines": int | None,  # content 中的行数，在 content 模式下存在
+    "numMatches": int | None,  # 匹配总数，在 count 模式下存在
+    "totalFiles": int | None,  # 可选；应用 head_limit 和 offset 之前的总数，在 files_with_matches 模式下
+    "totalLines": int | None,  # 可选；应用 head_limit 和 offset 之前的总数，在 content 模式下
+    "appliedLimit": int | None,  # 当 head_limit 截断了结果时存在
+    "appliedOffset": int | None,  # 当应用了 offset 时存在
 }
 ```
 
-Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决于 `output_mode`。
+Grep 在每种输出模式下都返回这种 dict 形状。存在哪些可选键取决于 `output_mode`。
 
 `totalFiles` 需要 Claude Code v2.1.208 或更高版本。`totalLines` 需要 Claude Code v2.1.210 或更高版本。
 
@@ -3289,7 +3290,7 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 
 ```python theme={null}
 {
-    "notebook_path": str,  # Jupyter 笔记本的绝对路径
+    "notebook_path": str,  # Jupyter notebook 的绝对路径
     "cell_id": str | None,  # 要编辑的单元格的 ID
     "new_source": str,  # 单元格的新源代码
     "cell_type": "code" | "markdown" | None,  # 单元格的类型
@@ -3302,15 +3303,15 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 ```python theme={null}
 {
     "new_source": str,  # 写入单元格的源代码
-    "old_source": str | None,  # 之前的单元格源代码，对于 replace 和 delete 出现
-    "cell_id": str | None,  # 编辑的单元格的 ID，当可用时
+    "old_source": str | None,  # 之前的单元格源代码，replace 和 delete 时存在
+    "cell_id": str | None,  # 被编辑单元格的 ID（如果可用）
     "cell_type": "code" | "markdown",  # 单元格类型
-    "language": str,  # 笔记本的编程语言
-    "edit_mode": str,  # 使用的编辑模式
+    "language": str,  # notebook 的编程语言
+    "edit_mode": str,  # 所使用的编辑模式
     "error": str | None,  # 操作失败时的错误消息
-    "notebook_path": str,  # 笔记本文件
-    "original_file": str,  # 编辑前的笔记本内容
-    "updated_file": str,  # 编辑后的笔记本内容
+    "notebook_path": str,  # notebook 文件
+    "original_file": str,  # 编辑前的 notebook 内容
+    "updated_file": str,  # 编辑后的 notebook 内容
 }
 ```
 
@@ -3325,7 +3326,7 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 ```python theme={null}
 {
     "url": str,  # 要从中获取内容的 URL
-    "prompt": str,  # 在获取的内容上运行的提示词
+    "prompt": str,  # 要在获取的内容上运行的提示词
 }
 ```
 
@@ -3333,11 +3334,11 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 
 ```python theme={null}
 {
-    "bytes": int,  # 获取的内容大小（字节）
-    "code": int,  # HTTP 响应代码
-    "codeText": str,  # HTTP 响应代码文本
-    "result": str,  # 通过将提示词应用于内容得到的处理结果
-    "durationMs": int,  # 获取和处理内容的时间（毫秒）
+    "bytes": int,  # 获取内容的大小（字节）
+    "code": int,  # HTTP 响应码
+    "codeText": str,  # HTTP 响应码文本
+    "result": str,  # 将提示词应用于内容后得到的处理结果
+    "durationMs": int,  # 获取和处理内容所用的时间（毫秒）
     "url": str,  # 被获取的 URL
 }
 ```
@@ -3353,8 +3354,8 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 ```python theme={null}
 {
     "query": str,  # 要使用的搜索查询
-    "allowed_domains": list[str] | None,  # 仅包含来自这些域的结果
-    "blocked_domains": list[str] | None,  # 永远不包含来自这些域的结果
+    "allowed_domains": list[str] | None,  # 仅包含来自这些域名的结果
+    "blocked_domains": list[str] | None,  # 绝不包含来自这些域名的结果
 }
 ```
 
@@ -3364,7 +3365,7 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 {
     "query": str,  # 搜索查询
     "results": list[str | {"tool_use_id": str, "content": list[{"title": str, "url": str}]}],
-    "durationSeconds": float,  # 搜索持续时间（秒）
+    "durationSeconds": float,  # 搜索时长（秒）
 }
 ```
 
@@ -3387,7 +3388,7 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 
   此默认集合适用于 Claude Code v2.1.268 及更高版本，TypeScript Agent SDK 从 v0.3.268 开始捆绑此版本。
 
-  见 [模型可用性](/docs/zh-CN/agent-sdk/todo-tracking#model-availability) 以选择加入。
+  请参阅[模型可用性](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)以选择启用。
 </Note>
 
 **输入：**
@@ -3398,7 +3399,7 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
         {
             "content": str,  # 任务描述
             "status": "pending" | "in_progress" | "completed",  # 任务状态
-            "activeForm": str,  # 描述的活跃形式
+            "activeForm": str,  # 描述的进行时形式
         }
     ]
 }
@@ -3438,7 +3439,7 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
     "subject": str,  # 简短的任务标题
     "description": str,  # 详细的任务正文
     "activeForm": str | None,  # 进行中时显示的现在时标签
-    "metadata": dict | None,  # 任意调用者元数据
+    "metadata": dict | None,  # 任意调用方元数据
 }
 ```
 
@@ -3446,7 +3447,7 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 
 ```python theme={null}
 {
-    "task": {"id": str, "subject": str},  # 创建的任务及其分配的 ID
+    "task": {"id": str, "subject": str},  # 已创建的任务及其分配的 ID
 }
 ```
 
@@ -3460,13 +3461,13 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 
 ```python theme={null}
 {
-    "taskId": str,  # 要修补的任务的 ID
+    "taskId": str,  # 要修改的任务的 ID
     "status": Literal["pending", "in_progress", "completed", "deleted"] | None,
     "subject": str | None,
     "description": str | None,
     "activeForm": str | None,
-    "addBlocks": list[str] | None,  # 此任务现在阻止的任务 ID
-    "addBlockedBy": list[str] | None,  # 现在阻止此任务的任务 ID
+    "addBlocks": list[str] | None,  # 此任务现在阻塞的任务 ID
+    "addBlockedBy": list[str] | None,  # 现在阻塞此任务的任务 ID
     "owner": str | None,
     "metadata": dict | None,
 }
@@ -3478,7 +3479,7 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 {
     "success": bool,
     "taskId": str,
-    "updatedFields": list[str],  # 更改的字段名称
+    "updatedFields": list[str],  # 发生变化的字段名称
     "error": str | None,
     "statusChange": {"from": str, "to": str} | None,
 }
@@ -3509,7 +3510,7 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
         "status": Literal["pending", "in_progress", "completed"],
         "blocks": list[str],
         "blockedBy": list[str],
-    } | None,  # 当 ID 未找到时为 None
+    } | None,  # 未找到该 ID 时为 None
 }
 ```
 
@@ -3545,22 +3546,22 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
   TaskOutput
 </h3>
 
-在 Claude Code v2.1.277 中移除。之前检索来自运行中或已完成的后台任务的输出，`BashOutput` 被接受作为别名；Claude 改用 `Read` 在后台任务的输出文件上读取。
+已在 Claude Code v2.1.277 中移除。此前用于从正在运行或已完成的后台任务中检索输出，并接受 `BashOutput` 作为别名；现在 Claude 改用 `Read` 读取后台任务的输出文件。
 
-`disallowed_tools` 条目或仍然命名任一名称的拒绝规则被忽略而不发出警告。
+仍然引用这两个名称之一的 `disallowed_tools` 条目或拒绝规则会被忽略，且不会发出警告。
 
 <h3 id="taskstop">
   TaskStop
 </h3>
 
-**工具名称：** `TaskStop`。之前的名称 `KillShell` 和 `KillBash` 仍然被接受作为别名。
+**工具名称：** `TaskStop`。先前的名称 `KillShell` 和 `KillBash` 仍作为别名被接受。
 
 **输入：**
 
 ```python theme={null}
 {
     "task_id": str | None,  # 要停止的后台任务的 ID
-    "shell_id": str | None,  # 已弃用：改用 task_id
+    "shell_id": str | None,  # 已弃用：请改用 task_id
 }
 ```
 
@@ -3568,10 +3569,10 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 
 ```python theme={null}
 {
-    "message": str,  # 关于操作的状态消息
-    "task_id": str,  # 被停止的任务的 ID
-    "task_type": str,  # 被停止的任务的类型
-    "command": str | None,  # 被停止的任务的命令或描述
+    "message": str,  # 关于该操作的状态消息
+    "task_id": str,  # 已停止任务的 ID
+    "task_type": str,  # 已停止任务的类型
+    "command": str | None,  # 已停止任务的命令或描述
 }
 ```
 
@@ -3585,7 +3586,7 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 
 ```python theme={null}
 {
-    "plan": str  # 要提交给用户批准的计划
+    "plan": str  # 要呈给用户过目以获得批准的计划
 }
 ```
 
@@ -3594,12 +3595,12 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 ```python theme={null}
 {
     "plan": str | None,  # 呈现给用户的计划
-    "isAgent": bool,  # 当子代理调用工具时为 True
-    "filePath": str | None,  # 当计划被保存到文件时出现
-    "hasTaskTool": bool | None,  # 可选；Agent 工具是否在当前上下文中可用
-    "planWasEdited": bool | None,  # 当用户在批准前编辑了计划时出现且为 True
-    "awaitingLeaderApproval": bool | None,  # 当队友将计划发送给团队负责人以获得批准时出现且为 True
-    "requestId": str | None,  # 该批准请求的可选 ID
+    "isAgent": bool,  # 当子代理调用该工具时为 True
+    "filePath": str | None,  # 当计划已保存到文件时存在
+    "hasTaskTool": bool | None,  # 可选；Agent 工具在当前上下文中是否可用
+    "planWasEdited": bool | None,  # 当用户在批准之前编辑了计划时存在，值为 True
+    "awaitingLeaderApproval": bool | None,  # 当队友将计划发送给团队负责人批准时存在，值为 True
+    "requestId": str | None,  # 可选；该批准请求的 ID
 }
 ```
 
@@ -3613,11 +3614,11 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
 
 ```python theme={null}
 {
-    "server": str | None  # 可选的服务器名称以按其过滤资源
+    "server": str | None  # 可选；用于过滤资源的服务器名称
 }
 ```
 
-结果是一个列表而不是 dict，所以 `tool_use_result` 为此工具保存一个 `list`。
+结果是一个列表而不是 dict，因此对于此工具，`tool_use_result` 包含一个 `list`。
 
 **输出：**
 
@@ -3626,8 +3627,8 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
     {
         "uri": str,  # 资源 URI
         "name": str,  # 资源名称
-        "mimeType": str | None,  # 可选 MIME 类型
-        "description": str | None,  # 可选描述
+        "mimeType": str | None,  # 可选的 MIME 类型
+        "description": str | None,  # 可选的描述
         "server": str,  # 提供此资源的服务器
     }
 ]
@@ -3655,12 +3656,12 @@ Grep 在每个输出模式中返回此 dict 形状。哪些可选键存在取决
     "contents": [
         {
             "uri": str,  # 资源 URI
-            "mimeType": str | None,  # 可选 MIME 类型
-            "text": str | None,  # 文本内容，或关于二进制内容的注释
-            "blobSavedTo": str | None,  # 当 Claude Code 将二进制内容保存到磁盘时出现；保存文件的路径
+            "mimeType": str | None,  # 可选的 MIME 类型
+            "text": str | None,  # 文本内容，或关于二进制内容的说明
+            "blobSavedTo": str | None,  # 当 Claude Code 将二进制内容保存到磁盘时存在；为所保存文件的路径
         }
     ],
-    "error": str | None,  # 当服务器无法读取资源时出现
+    "error": str | None,  # 当服务器无法读取该资源时存在
 }
 ```
 

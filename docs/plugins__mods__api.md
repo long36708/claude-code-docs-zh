@@ -71,6 +71,10 @@ on('tool.call', { tool: 'mcp__my-mod__ticket' }, async ($, e) => {
 
 当您询问工单时，Claude 可以使用其 id 调用 `mcp__my-mod__ticket`。第二个 hook 获取工单并返回响应体，Claude 将其作为工具的结果读取。当服务器以错误状态回答时，Claude 读取 `Lookup failed with status` 和数字。
 
+<Tip>
+  当 [MCP 工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)延迟加载某个已注册的工具时，Claude 能看到其名称，但在搜索该工具之前看不到其描述。如果 Claude 应在每一轮都考虑该工具，请在注册中添加 [`isDeferred: false`](/docs/zh-CN/plugins/mods/reference#tools)，以[预先加载完整工具](/docs/zh-CN/mcp#exempt-a-server-from-deferral)。该字段需要 Claude Code v2.1.293 或更高版本，早期版本会忽略它。
+</Tip>
+
 <h2 id="call-a-model">
   调用模型
 </h2>
@@ -187,7 +191,7 @@ on('command.run', { command: 'ping' }, async ($, e) => {
   访问文件、进程和网络
 </h2>
 
-mod 通过 mods API 访问文件系统、进程和网络，具有与运行 Claude Code 的用户相同的权限。hooks 模块本身没有 Node.js API、没有计时器全局变量（如 `setTimeout`），也没有自己的网络或文件访问。标准 JavaScript 和 Web API（如 `URL`、`TextEncoder`、`AbortController` 和 `crypto.subtle`）可用。下面的每个命名空间涵盖一种访问：
+mod 通过 mods API 访问文件系统、进程和网络，具有与运行 Claude Code 的用户相同的权限。hook 模块本身没有 Node.js API、没有计时器全局变量（如 `setTimeout`），也没有自己的网络或文件访问。标准 JavaScript 和 Web API（如 `URL`、`TextEncoder`、`AbortController` 和 `crypto.subtle`）可用。下面的每个命名空间涵盖一种访问：
 
 | 命名空间 | 它做什么 |
 | :- | :- |
@@ -197,16 +201,21 @@ mod 通过 mods API 访问文件系统、进程和网络，具有与运行 Claud
 | `$.store` | 您的插件自己的 JSON 键值存储，在会话之间保留 |
 | `$.env` | `get` 和 `set` 环境变量。将名称写为文字字符串。 |
 | `$.settings` | `read` 设置文件和托管策略持有的内容 |
-| `$.session` | `messages()` 将成绩单作为 `{ role, text, toolUses }` 列表返回。还有工作目录、模型等。[`usage()`](/docs/zh-CN/plugins/mods/reference#mods-api-methods) 返回上下文窗口使用和计划限制。 |
+| `$.session` | `messages()` 将会话记录作为 `{ role, text, toolUses }` 列表返回。还有工作目录、模型等。[`usage()`](/docs/zh-CN/plugins/mods/reference#mods-api-methods) 返回上下文窗口使用和计划限制。 |
 | `$.mcp` | `call` 连接的 MCP 服务器上的工具 |
 
 文件和进程有一些自己的规则：
 
 * **路径**：相对路径相对于会话的工作目录进行解析
 * **`$.fs.list`**：将一个目录的条目作为 `{ name, kind, size, isLink }` 返回，不进行递归
-* **`$.process.run`**：接受参数列表，不使用 shell。它解析为 `{ exitCode, stdout, stderr }`，无论退出代码如何。如果程序无法启动或在超时时仍在运行，它会拒绝，默认为 30 秒，因此将其包装在 `try` 和 `catch` 中。
+* **`$.process.run`**：接受参数列表，不使用 shell。它解析为 `{ exitCode, stdout, stderr }`，无论退出码如何。如果程序无法启动或在超时时仍在运行，它会拒绝，默认为 30 秒，因此将其包装在 `try` 和 `catch` 中。
 
 这些调用中的每一个本身都是一个事件，以其命名空间和方法命名，不带 `$.`，例如 `fs.read` 用于 `$.fs.read`。[链中较早的](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in) mod 可以观察、重写或拒绝您的调用，这是组织限制 mod 到达的方式。
+
+mod 可以在命令已产生输出或已退出之后拒绝您的 `$.process.spawn` 调用，且该命令已执行的任何操作都不会被撤销。此时该调用会拒绝，并返回一条以下列字符串之一加上拒绝方 mod 的原因结尾的消息：
+
+* **`$.process.spawn started, and a plugin withheld its result:`**：拒绝方 mod 尚未将命令的输出读取到末尾。如果命令仍在运行，Claude Code 会将其停止。
+* **`$.process.spawn ran, and a plugin withheld its result:`**：拒绝方 mod 已将命令的输出读取到末尾，因此命令已经退出
 
 <h2 id="next-steps">
   后续步骤

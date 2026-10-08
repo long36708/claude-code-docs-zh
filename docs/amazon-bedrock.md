@@ -136,15 +136,33 @@ export const ContactSalesCard = ({surface}) => {
   2. 配置 AWS 凭证
 </h3>
 
-Claude Code 使用默认 AWS SDK 凭证链。使用以下方法之一设置您的凭证：
+Claude Code 使用默认 AWS SDK 凭据链。如果机器已经向该链提供凭据，例如 Amazon EC2 实例配置文件或 Amazon ECS 任务凭据，请直接跳到[第 3 步](#3-configure-claude-code)。
 
-**选项 A：AWS CLI 配置**
+AWS [不建议在开发专用软件或处理真实数据时使用 IAM 用户的访问密钥](https://docs.aws.amazon.com/cli/latest/userguide/cli-authentication-user.html)。使用以下方法之一设置您的凭据：
+
+* [`aws configure`](#use-aws-configure)：将 IAM 用户的访问密钥保存到 `~/.aws` 目录中的配置文件
+* [访问密钥环境变量](#export-an-access-key)：仅在当前 shell 中设置访问密钥，或带会话令牌的临时凭据
+* [SSO 配置文件](#use-an-sso-profile)：在浏览器中通过 IAM Identity Center 登录并获取临时凭据。如果您通过 IAM Identity Center 访问 AWS 账户，请使用此方法。
+* [AWS 管理控制台凭据](#use-aws-management-console-credentials)：在浏览器中使用您的 AWS 管理控制台凭据登录并获取临时凭据。如果您以根用户、IAM 用户身份或通过 IAM 联合身份访问 AWS 账户，AWS [推荐此方法](https://docs.aws.amazon.com/signin/latest/userguide/command-line-sign-in.html)。
+* [Amazon Bedrock API 密钥](#use-an-amazon-bedrock-api-key)：使用仅适用于 Amazon Bedrock 的持有者令牌进行身份验证，而不是使用 AWS 凭据
+
+<h4 id="use-aws-configure">
+  使用 `aws configure`
+</h4>
+
+运行 `aws configure`，并在提示时输入您的访问密钥 ID、秘密访问密钥和默认区域：
 
 ```bash theme={null}
 aws configure
 ```
 
-**选项 B：环境变量（访问密钥）**
+AWS CLI 会将密钥保存到 `~/.aws/credentials` 中的 `default` 配置文件，凭据链会从那里读取它。
+
+<h4 id="export-an-access-key">
+  导出访问密钥
+</h4>
+
+将您的访问密钥导出为环境变量。`AWS_SESSION_TOKEN` 仅在使用临时凭据时需要，因此如果您的访问密钥属于 IAM 用户，请省略该行：
 
 ```bash theme={null}
 export AWS_ACCESS_KEY_ID=your-access-key-id
@@ -152,9 +170,11 @@ export AWS_SECRET_ACCESS_KEY=your-secret-access-key
 export AWS_SESSION_TOKEN=your-session-token
 ```
 
-**选项 C：环境变量（SSO 配置文件）**
+<h4 id="use-an-sso-profile">
+  使用 SSO 配置文件
+</h4>
 
-在运行这些命令之前，将 `your-profile-name` 替换为您的 AWS 配置文件的名称。
+如果您还没有配置文件，请使用 `aws configure sso` 创建一个。然后登录 IAM Identity Center 并设置 `AWS_PROFILE`，使凭据链使用该配置文件。在运行这些命令之前，将 `your-profile-name` 替换为您的 AWS 配置文件的名称。
 
 ```bash theme={null}
 aws sso login --profile=your-profile-name
@@ -164,21 +184,36 @@ export AWS_PROFILE=your-profile-name
 
 Claude Code 从配置文件的 `sso_region` 命名的 IAM Identity Center 区域请求角色凭证，这不需要与您运行 Amazon Bedrock 的区域匹配。在 v2.1.207 中，Amazon Bedrock 区域覆盖了 `sso_region`，因此 IAM Identity Center 实例在不同区域的配置文件无法使用 `Session token not found or invalid` 错误进行身份验证。
 
-**选项 D：AWS 管理控制台凭证**
+<h4 id="use-aws-management-console-credentials">
+  使用 AWS 管理控制台凭据
+</h4>
+
+`aws login` 命令需要 AWS CLI 2.32.0 或更高版本。有关您的身份所需的 IAM 策略，请参阅 [AWS 关于 `aws login` 的说明](https://docs.aws.amazon.com/signin/latest/userguide/command-line-sign-in.html)。
+
+运行以下命令，在浏览器中使用您的 AWS 管理控制台凭据登录：
 
 ```bash theme={null}
 aws login
 ```
 
-[了解更多](https://docs.aws.amazon.com/signin/latest/userguide/command-line-sign-in.html)关于 `aws login`。
+会话最长有效 12 小时，之后需要再次运行 `aws login`。
 
-**选项 E：Amazon Bedrock API 密钥**
+<h4 id="use-an-amazon-bedrock-api-key">
+  使用 Amazon Bedrock API 密钥
+</h4>
+
+Amazon Bedrock API 密钥是一种持有者令牌，可代替 AWS 凭据对您的请求进行身份验证。AWS 提供[两种类型的密钥](https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html)：
+
+* **短期密钥**：最长有效 12 小时。对于生产环境，AWS 更推荐使用短期密钥而非长期密钥。
+* **长期密钥**：在您设置的到期日期之前一直有效。AWS 仅建议将其用于探索。
+
+将密钥导出为 `AWS_BEARER_TOKEN_BEDROCK`：
 
 ```bash theme={null}
 export AWS_BEARER_TOKEN_BEDROCK=your-bedrock-api-key
 ```
 
-Amazon Bedrock API 密钥提供了一种更简单的身份验证方法，无需完整的 AWS 凭证。[了解更多关于 Amazon Bedrock API 密钥](https://aws.amazon.com/blogs/machine-learning/accelerate-ai-development-with-amazon-bedrock-api-keys/)。
+设置 `AWS_BEARER_TOKEN_BEDROCK` 后，Claude Code 会使用该密钥进行身份验证，并且不会解析凭据链，即使存在其他 AWS 凭据也是如此。[了解更多关于 Amazon Bedrock API 密钥](https://aws.amazon.com/blogs/machine-learning/accelerate-ai-development-with-amazon-bedrock-api-keys/)。
 
 <h4 id="credential-caching-and-resolution-timeout">
   凭证缓存和解析超时
@@ -186,7 +221,7 @@ Amazon Bedrock API 密钥提供了一种更简单的身份验证方法，无需�
 
 Claude Code 解析 AWS 默认凭证提供程序链一次，并将解析的凭证保存在内存中。它重复使用这些凭证，直到它们过期前五分钟，或在没有过期时间时使用一小时，因此 SSO 支持的配置文件大约每个凭证生命周期从 IAM Identity Center 请求一次凭证。来自 API 的凭证错误会清除缓存，重试会解析新凭证。需要 Claude Code v2.1.207 或更高版本。
 
-缓存涵盖上述所有凭证选项，除了 Amazon Bedrock API 密钥，它不使用提供程序链。要在每个请求上解析链，请改为设置 [`CLAUDE_CODE_SKIP_AWS_CRED_CACHE=1`](/docs/zh-CN/env-vars)。
+缓存涵盖此步骤开头列出的所有凭据方法，但 Amazon Bedrock API 密钥除外，它不使用提供程序链。要在每个请求上解析链，请改为设置 [`CLAUDE_CODE_SKIP_AWS_CRED_CACHE=1`](/docs/zh-CN/env-vars)。
 
 填充缓存的解析在 60 秒后超时。如果链中的某个步骤停滞，例如等待无法接收的输入的 `credential_process` 帮助程序，请求会失败并显示 [`AWS default-chain credential resolve timed out`](/docs/zh-CN/errors#aws-default-chain-credential-resolve-timed-out)。如果您的链运行合法需要更长时间的交互式登录，例如通过 `aws-vault` 等包装器进行基于浏览器的 SSO 和 MFA，请使用 [`CLAUDE_CODE_AWS_CHAIN_RESOLVE_TIMEOUT_MS`](/docs/zh-CN/env-vars) 以毫秒为单位提高限制。设置 `CLAUDE_CODE_SKIP_AWS_CRED_CACHE=1` 后，每个 API 请求解析链时不受此限制。
 

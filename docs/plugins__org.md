@@ -212,7 +212,7 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 | `pluginTrustMessage` | 将您的文本附加到 `/plugin` 在插件安装之前显示的信任警告 | 不改变警告自己的文本 |
 | `allowedChannelPlugins` | 替换允许推送频道消息的默认插件列表。需要 `channelsEnabled: true` | 请参阅[限制哪些频道插件可以运行](/docs/zh-CN/channels#restrict-which-channel-plugins-can-run) |
 | [`CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL=1`](/docs/zh-CN/env-vars) | 停止交互式终端会话自动注册官方市场 | 不删除已注册的市场。允许列表和阻止列表在没有它的情况下门控相同的自动注册。在设置它的情况下启动一次的机器在您取消设置它后不会恢复自动注册 |
-| [`allowManagedModsOnly`](/docs/zh-CN/plugins/mods/admin#stop-user-installed-mods-from-loading) | 停止每个已安装的[mod](/docs/zh-CN/plugins/mods/overview)，其不[计为您的组织的](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)从加载 | 不停止包含 mod 的插件安装。为此，使用此表中的市场键 |
+| [`allowManagedModsOnly`](/docs/zh-CN/plugins/mods/admin#stop-user-installed-mods-from-loading) | 阻止每个不[算作您组织所有](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)的已安装 [mod](/docs/zh-CN/plugins/mods/overview) 运行其 hook | 不停止包含 mod 的插件安装。为此，使用此表中的市场键 |
 
 表中的每个键都是托管设置，除了 `enabledPlugins`、`syncClaudeAiPlugins`、`CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL` 和 `allowManagedModsOnly`：
 

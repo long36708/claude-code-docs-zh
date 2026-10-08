@@ -379,6 +379,8 @@ Claude Code 跳过项目、用户或托管 `agents` 目录中的文件，或在�
 3. [`CLAUDE_CODE_SUBAGENT_MODEL`](/docs/zh-CN/model-config#environment-variables) 环境变量，当您将其设置为模型别名或模型 ID 时
 4. 主对话的模型
 
+如果已安装的 [mod](/docs/zh-CN/plugins/mods/overview) 在其 [`agent.spawn`](/docs/zh-CN/plugins/mods/reference#subagents) hook 中设置了模型，Claude Code 会使用该模型来代替每次调用的参数。
+
 在两种情况下，家族别名（例如 frontmatter 或每次调用的参数中的 `opus`）解析到主对话的模型，而不是 [alias points to](/docs/zh-CN/model-config#model-aliases) 的版本：
 
 * **主对话的模型属于该家族**：subagent 在主对话的确切模型上运行，包括任何 `[1m]` 后缀，因此它获得与主对话相同的 [extended context](/docs/zh-CN/model-config#extended-context) 窗口。
