@@ -1194,6 +1194,8 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
 当 Claude Code 解析提示中的 `@` 提及时记录。并非每个提及都发出事件：早期退出路径如权限拒绝、超大文件、PDF 参考附件和目录列表失败返回而不记录。
 
+每次 Claude Code 读取提示词时，对于 `mention_type` 为 `"agent"` 的事件最多记录 100 个，对于 `"mcp_resource"` 也最多记录 100 个。超出任一限制的提及仍会被解析，但不会发出事件。
+
 **事件名称**：`claude_code.at_mention`
 
 **属性**：
@@ -1216,23 +1218,14 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 **属性**：
 
 * 所有[标准属性](#standard-attributes)
-
 * `event.name`：`"api_retries_exhausted"`
-
 * `event.timestamp`：ISO 8601 时间戳
-
 * `event.sequence`：用于排序事件的每进程计数器，在[事件关联属性](#event-correlation-attributes)下描述
-
 * `model`：使用的模型
-
 * `error`：最终错误消息
-
 * `status_code`：HTTP 状态代码作为数字。对于非 HTTP 错误不存在。
-
 * `total_attempts`：进行的总尝试次数
-
 * `total_retry_duration_ms`：所有尝试中的总挂钟时间
-
 * `speed`：`"fast"` 或 `"normal"`
 
 <h4 id="hook-registered-event">
@@ -1714,24 +1707,30 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 
 您选择的指标、日志和跟踪后端决定了您可以执行的分析类型：
 
-<h3 id="for-metrics">
-  对于指标
+<span id="for-metrics" />
+
+<h3 id="backends-for-metrics">
+  用于指标的后端
 </h3>
 
 * **时间序列数据库**：速率计算、聚合指标
 * **列式存储**：复杂查询、唯一用户分析
 * **全功能可观测性平台**：高级查询、可视化、警报
 
-<h3 id="for-events/logs">
-  对于事件/日志
+<span id="for-events/logs" />
+
+<h3 id="backends-for-events-and-logs">
+  用于事件和日志的后端
 </h3>
 
 * **日志聚合系统**：全文搜索、日志分析
 * **列式存储**：结构化事件分析
 * **全功能可观测性平台**：指标和事件之间的关联
 
-<h3 id="for-traces">
-  对于跟踪
+<span id="for-traces" />
+
+<h3 id="backends-for-traces">
+  用于跟踪的后端
 </h3>
 
 选择支持分布式跟踪存储和 span 关联的后端：

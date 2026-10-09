@@ -181,8 +181,10 @@ MCP 服务器不特定于 Claude Code，因此服务器的设置说明可能是�
 
 每一个都是 [安装 MCP 服务器](#installing-mcp-servers) 中四个选项之一接受的输入。找到您下面拥有的形状，将其转换为 Claude Code 接受的命令。除非您添加 `--scope project` 或 `--scope user`，否则每个命令都写入 [本地作用域](#local-scope)。
 
-<h4 id="from-a-url">
-  从 URL
+<span id="from-a-url" />
+
+<h4 id="add-a-server-from-a-url">
+  从 URL 添加服务器
 </h4>
 
 URL 表示服务器是远程的。对于 `https://` 端点，使用 `--transport http` 添加它，或在说明说端点使用 SSE 时遵循 [选项 2](#option-2-add-a-remote-sse-server)。对于 `wss://` 端点，改为使用 [选项 4](#option-4-add-a-remote-websocket-server)，因为 `--transport` 不接受 `ws`：
@@ -193,8 +195,10 @@ claude mcp add --transport http example https://mcp.example.com/mcp
 
 如果说明还提供 API 密钥或令牌标头，请使用 `--header` 传递它，如 [选项 1](#option-1-add-a-remote-http-server) 所示。
 
-<h4 id="from-an-npx-uvx-or-binary-command">
-  从 `npx`、`uvx` 或二进制命令
+<span id="from-an-npx-uvx-or-binary-command" />
+
+<h4 id="add-a-server-from-an-npx-uvx-or-binary-command">
+  从 `npx`、`uvx` 或二进制命令添加服务器
 </h4>
 
 启动命令表示服务器作为本地 stdio 进程运行。将整个命令放在 `--` 之后，以便 Claude Code 将标志（如 `-y`）传递给启动服务器的命令，而不是将它们读取为自己的选项。使用 `--env` 传递说明要求的任何环境变量，在服务器名称之后和 `--` 之前：
@@ -205,8 +209,10 @@ claude mcp add example --env API_KEY=your-key -- npx -y @example/mcp-server
 
 [选项 3](#option-3-add-a-local-stdio-server) 完整涵盖 `--` 分隔符。
 
-<h4 id="from-an-mcpservers-json-block">
-  从 `mcpServers` JSON 块
+<span id="from-an-mcpservers-json-block" />
+
+<h4 id="add-a-server-from-an-mcpservers-json-block">
+  从 `mcpServers` JSON 块添加服务器
 </h4>
 
 为另一个 MCP 客户端（例如 Claude Desktop）编写的 `mcpServers` 块使用 Claude Code 读取的包装器键和条目形状。将 `mcpServers` 内的对象（而不是包装器）传递给 `claude mcp add-json`。两种条目需要先修复：
@@ -891,7 +897,7 @@ claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
   从命令行进行身份验证
 </h3>
 
-`claude mcp login <name>` 命令直接从您的 shell 运行配置的服务器的 OAuth 流程，因此您不需要在会话内打开 `/mcp` 面板。
+`claude mcp login <name>` 命令直接从您的 shell 运行配置的服务器的 OAuth 流程，因此您不需要在会话内打开 `/mcp` 面板。对于 claude.ai 连接器，请按照 [从 shell 再次授权连接器](/docs/zh-CN/remote-control#authorize-a-connector-again-from-your-shell) 操作。
 
 ```bash theme={null}
 claude mcp login sentry
@@ -1581,8 +1587,10 @@ MCP Apps UI 资源是具有 `ui://` URI 或 `text/html;profile=mcp-app` 媒体�
   工具搜索在 Microsoft Foundry [部署在 Azure 上的部署](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)上不受支持，这些部署在服务器端拒绝它：Claude Code 检测到拒绝并为该部署改为预先加载 MCP 工具。[`ENABLE_TOOL_SEARCH`](#configure-tool-search) 无法覆盖此设置，因为拒绝来自部署本身。
 </Note>
 
-<h3 id="for-mcp-server-authors">
-  对于 MCP 服务器作者
+<span id="for-mcp-server-authors" />
+
+<h3 id="tool-search-for-mcp-server-authors">
+  面向 MCP 服务器作者的工具搜索
 </h3>
 
 如果您正在构建 MCP 服务器，启用工具搜索后，服务器说明字段会变得更加有用。服务器说明帮助 Claude 理解何时搜索您的工具，类似于 [skills](/docs/zh-CN/skills) 的工作方式。

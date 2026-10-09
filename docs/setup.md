@@ -638,8 +638,10 @@ npm 包安装与独立安装程序相同的原生二进制文件。npm 通过每
 
 要删除 Claude Code，请按照您的安装方法的说明进行操作。如果之后 `claude` 仍然运行，您可能有第二个安装或来自较旧安装程序的遗留 shell 别名。请参阅[检查冲突的安装](/docs/zh-CN/troubleshoot-install#check-for-conflicting-installations)以查找并删除它。
 
-<h3 id="native-installation">
-  原生安装
+<span id="native-installation" />
+
+<h3 id="uninstall-a-native-installation">
+  卸载原生安装
 </h3>
 
 删除 Claude Code 二进制文件和版本文件：
@@ -660,8 +662,10 @@ npm 包安装与独立安装程序相同的原生二进制文件。npm 通过每
   </Tab>
 </Tabs>
 
-<h3 id="homebrew-installation">
-  Homebrew 安装
+<span id="homebrew-installation" />
+
+<h3 id="uninstall-with-homebrew">
+  使用 Homebrew 卸载
 </h3>
 
 删除您安装的 Homebrew cask。如果您安装了稳定版 cask：
@@ -676,8 +680,10 @@ brew uninstall --cask claude-code
 brew uninstall --cask claude-code@latest
 ```
 
-<h3 id="winget-installation">
-  WinGet 安装
+<span id="winget-installation" />
+
+<h3 id="uninstall-with-winget">
+  使用 WinGet 卸载
 </h3>
 
 删除 WinGet 包：
@@ -686,8 +692,10 @@ brew uninstall --cask claude-code@latest
 winget uninstall Anthropic.ClaudeCode
 ```
 
-<h3 id="apt-/-dnf-/-apk">
-  apt / dnf / apk
+<span id="apt-/-dnf-/-apk" />
+
+<h3 id="uninstall-with-apt-dnf-or-apk">
+  使用 apt、dnf 或 apk 卸载
 </h3>
 
 删除包和存储库配置：
@@ -716,8 +724,10 @@ winget uninstall Anthropic.ClaudeCode
   </Tab>
 </Tabs>
 
-<h3 id="npm">
-  npm
+<span id="npm" />
+
+<h3 id="uninstall-with-npm">
+  使用 npm 卸载
 </h3>
 
 删除全局 npm 包：

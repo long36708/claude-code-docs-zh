@@ -476,6 +476,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 | `async` | 否 | 如果为 `true`，在后台运行而不阻止。请参阅 [在后台运行 hooks](#run-hooks-in-the-background) |
 | `asyncRewake` | 否 | 如果为 `true`，在后台运行并在退出代码 2 时唤醒 Claude。hook 的 stderr 或 stdout（如果 stderr 为空）显示给 Claude 作为 [系统提醒](/docs/zh-CN/glossary#system-reminder)，以便它可以对长时间运行的后台失败做出反应 |
 | `shell` | 否 | 用于此 hook 的 shell。接受 `"bash"` 或 `"powershell"`。默认为 `"bash"`，或在未安装 Git Bash 时在 Windows 上默认为 `"powershell"`。设置 `"powershell"` 在 Windows 上通过 PowerShell 运行命令。不需要 `CLAUDE_CODE_USE_POWERSHELL_TOOL`，因为 hooks 直接生成 PowerShell。设置 `args` 时被忽略 |
+| `onFailure` | 否 | hook 失败时对该操作的处理方式：`"continue"`（默认值）或 `"block"`。请参阅 [在 hook 失败时阻止操作](#block-the-action-when-a-hook-fails)。需要 Claude Code v2.1.295 或更高版本 |
 
 <a id="exec-form-and-shell-form" />
 
@@ -533,6 +534,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 | `url` | 是 | 发送 POST 请求的 URL |
 | `headers` | 否 | 其他 HTTP 标头作为键值对。值支持使用 `$VAR_NAME` 或 `${VAR_NAME}` 语法的环境变量插值。仅解析 `allowedEnvVars` 中列出的变量 |
 | `allowedEnvVars` | 否 | 可能被插值到标头值中的环境变量名称列表。对未列出变量的引用被替换为空字符串。任何环境变量插值都需要 |
+| `onFailure` | 否 | hook 失败时对该操作的处理方式：`"continue"`（默认值）或 `"block"`。请参阅 [在 hook 失败时阻止操作](#block-the-action-when-a-hook-fails)。需要 Claude Code v2.1.295 或更高版本 |
 
 Claude Code 将 hook 的 [JSON 输入](#hook-input-and-output) 作为 POST 请求体发送，`Content-Type: application/json`。响应体使用与命令 hooks 相同的 [JSON 输出格式](#json-output)。
 
@@ -821,9 +823,29 @@ hook 进程继承父环境，但 Claude Code [从它生成的每个子进程中�
   退出码输出
 </h3>
 
-来自 hook 命令的退出码告诉 Claude Code 该操作是否应继续、被阻止或被忽略。退出码不单独起作用。Claude Code 从 stdout 读取 [JSON 输出字段](#json-output)，无论退出码是什么（不仅仅是 0），对于使用标准决策模型的事件，通过 schema 验证的解析对象与退出码一起生效。退出 2 的阻止是 JSON 无法覆盖的唯一结果。
+hook 的退出码告诉 Claude Code 是否继续执行触发该 hook 的操作，例如工具调用或提示词。运行结束时有以下三种结果之一：
 
-两个表负责说明每个事件的例外：[每个事件的退出码 2 行为](#exit-code-2-behavior-per-event)说明退出码对每个事件的作用，[决策控制](#decision-control)说明每个事件接受哪些决策字段。通用字段如 `systemMessage` 在大多数事件中工作，并在 [JSON 输出](#json-output)表中列出。
+* **成功**：hook 以 0 退出。Claude Code 应用 hook 打印的任何 [JSON 输出](#json-output)字段，除非这些字段阻止或拒绝该操作，否则操作继续进行。
+* **阻止错误**：hook 以 2 退出。在[可以阻止的事件](#exit-code-2-behavior-per-event)上，Claude Code 停止该操作。
+* **非阻止错误**：hook 以任何其他代码退出，或以其他方式失败，例如无法启动或打印无效 JSON。操作继续进行，在 `PreToolUse` 等事件上，您会在会话记录中看到 `<hook name> hook error` 通知。如果希望失败的 hook 阻止操作，请设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。
+
+hook 打印到 stdout 的内容可能会改变结果。例如，如果 `PreToolUse` hook 以 1 退出但打印了通过验证的 JSON，则该运行是成功的，由 JSON 字段决定后续行为。要确定 hook 在 `PreToolUse` 等事件上的结果，请将其打印到 stdout 的内容与第一列匹配，并将其退出码与表头匹配：
+
+| Stdout | 退出 0 | 退出 2 | 任何其他退出码 |
+| :- | :- | :- | :- |
+| 通过 [schema 验证](#json-output)的 JSON 对象 | 成功。字段生效 | 阻止错误。Claude Code 仍读取字段，但它们无法覆盖阻止 | 成功。Claude Code 忽略退出码，仅由字段决定。设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails) 时，这算作失败 |
+| [无法解析](#exit-code-0)或未通过 schema 验证的 JSON | 非阻止错误。通知带有解析或验证消息 | 阻止错误。您的 stderr 作为原因 | 非阻止错误。通知带有解析或验证消息 |
+| [纯文本](#exit-code-0)或无输出 | 成功 | 阻止错误。您的 stderr 作为原因 | 非阻止错误。通知带有您的 stderr 的第一行 |
+
+某些事件有自己的规则：
+
+* **`WorktreeCreate`**：任何非零退出码都会使 worktree 创建失败，无论您的 JSON 说什么。
+* **`WorktreeRemove`**：任何非零退出码会在目录之后仍然存在时使 worktree 移除失败。
+* **`Stop`、`SubagentStop`、`TaskCompleted` 以及插件的 `UserPromptSubmit` hook**：当 hook 以 2 退出、stdout 上无内容且其 stderr 表明某个文件缺失（例如 `No such file or directory`）时，Claude Code 将该运行视为非阻止错误。
+* **`Elicitation` 和 `ElicitationResult`**：Claude Code 在 hook 以 0 退出时应用您的 `hookSpecificOutput`，在任何其他退出码上忽略它。
+* **丢弃 hook 输出的事件，如 `StopFailure`**：Claude Code 在任何退出码上都忽略您的 JSON，但 `terminalSequence` 等副作用字段除外，它们仍会触发。
+
+要查看退出码 2 对您的事件有何作用，请参阅[每个事件的退出码 2 行为](#exit-code-2-behavior-per-event)。要查看它接受哪些决策字段，请参阅[决策控制](#decision-control)。
 
 <h4 id="exit-code-0">
   退出码 0
@@ -835,25 +857,26 @@ hook 进程继承父环境，但 Claude Code [从它生成的每个子进程中�
 
 Claude Code 是否将您的 stdout 读取为 [JSON 输出](#json-output)或纯文本取决于它如何开始和结束，忽略周围的空白：
 
-* **以 `{` 开始并以 `}` 结束**：Claude Code 将其解析为 JSON。当输出是两行或更多行，每行本身都解析为 JSON，且没有行是设置字段的 [JSON 输出](#json-output)对象时，Claude Code 将整个输出视为纯文本。当其中一行确实设置了字段时，整个输出是解析失败，如下所述。
+* **以 `{` 开始并以 `}` 结束**：Claude Code 将其解析为 JSON。当输出是两行或更多行，每行本身都解析为 JSON，且没有行是设置字段的 [JSON 输出](#json-output)对象时，Claude Code 将整个输出视为纯文本。当其中一行确实设置了字段时，整个输出是解析失败。
 * **以 `{` 开始但不以 `}` 结束**：Claude Code 将其视为纯文本。
 * **以其他任何内容开始**：Claude Code 将其视为纯文本，即使它是 JSON 数组或带引号的 JSON 字符串也是如此。
 
-对于使用标准决策模型的事件，退出 0 且解析对象未通过 schema 验证是非阻止错误：操作继续，会话记录显示 `<hook name> hook error` 通知，带有验证消息。在除 2 以外的任何退出码上都会发生相同情况，而[退出 2 仍然阻止](#exit-code-2)。
+当 Claude Code 尝试将您的 stdout 解析为 JSON 但无法解析，或解析后的对象未通过 [schema 验证](#json-output)时，该运行是[非阻止错误](#exit-code-output)。`<hook name> hook error` 通知带有解析或验证消息。在添加纯文本 stdout 作为上下文的事件上，Claude Code 不会添加它未能解析的 stdout。
 
-对于使用标准决策模型的事件，当 Claude Code 尝试将您的 stdout 解析为 JSON 且无法解析时，它在除 2 外的每个退出码上报告非阻止错误。会话记录显示 `<hook name> hook error` 通知，带有解析消息。在添加纯文本 stdout 作为上下文的事件上，Claude Code 不添加文本。在 v2.1.248 之前，Claude Code 将该 stdout 视为纯文本。
-
-来自退出 0 的 hook 的 stderr 仅进入调试日志，从不进入会话记录，Claude 从不看到它。要自己读取它，请启用[调试日志](#debug-hooks)。要从 `PostToolUse` 或 `PostToolUseFailure` hook 向 Claude 显示警告，请改为退出 2，以便 [Claude 看到 stderr](#exit-code-2-behavior-per-event)，即使工具已经运行。
+Claude 从不看到以 0 退出的 hook 的 stderr。要在 `PreToolUse` 等事件上自己读取它，请启用[调试日志](#debug-hooks)。要从 `PostToolUse` 或 `PostToolUseFailure` hook 向 Claude 显示警告，请改为退出 2，以便 [Claude 看到 stderr](#exit-code-2-behavior-per-event)，即使工具已经运行。
 
 <h4 id="exit-code-2">
   退出码 2
 </h4>
 
-退出 2 表示阻止错误。在[可以阻止的事件](#exit-code-2-behavior-per-event)上，无论您是否打印 JSON，退出 2 都会阻止：即使 JSON `permissionDecision` 为 `"allow"` 也无法覆盖它。Claude Code 仍然读取 stdout 上的任何有效 [JSON 输出](#json-output)。在 `Elicitation` 和 `ElicitationResult` 上，退出 2 的 hook 的 `hookSpecificOutput` 被忽略。
+以代码 2 退出以阻止操作。在[可以阻止的事件](#exit-code-2-behavior-per-event)上，Claude Code 会停止该操作：例如，`PreToolUse` hook 会阻止工具调用，`UserPromptSubmit` hook 会拒绝提示词。
 
-阻止消息是您的 JSON 阻止决策中的原因（如果它做出了阻止决策），否则是您的 stderr 文本。阻止的作用因事件而异：`PreToolUse` 阻止工具调用，`UserPromptSubmit` 拒绝提示词，等等。[每个事件的退出码 2 行为](#exit-code-2-behavior-per-event)列出每个事件的效果，每个事件的部分说明消息去向。
+随阻止一起提供的消息是 hook 的 stderr。如果 hook 还打印了做出阻止决策的 JSON，Claude Code 会改用该决策的原因。
 
-退出 2 的 hook 同时打印未通过 [JSON 输出](#json-output) schema 验证的 JSON 时仍然阻止：Claude Code 使用 stderr 作为阻止原因，并在调试日志中记录验证失败。在 v2.1.214 之前，Claude Code 将该组合视为非阻止错误，操作继续。
+即使 hook 打印了 JSON，退出 2 也会阻止：
+
+* **通过 schema 验证的 JSON**：Claude Code 仍读取 [JSON 输出](#json-output)字段，但它们无法覆盖阻止。即使 `permissionDecision` 为 `"allow"`，也不会放行操作。在 `Elicitation` 和 `ElicitationResult` 上，以 2 退出的 hook 的 `hookSpecificOutput` 被忽略。
+* **未通过 schema 验证的 JSON**：hook 仍然阻止。Claude Code 使用您的 stderr 作为阻止原因，并在调试日志中记录验证失败。
 
 此脚本通过退出 2 阻止 `rm` 命令，并将所有其他命令留给正常权限流程：
 
@@ -871,25 +894,28 @@ fi
 exit 0  # No decision: the normal permission flow applies
 ```
 
+将此脚本注册为 `Bash` 上的 `PreToolUse` hook 后，以 `rm` 开头的命令会被阻止，Claude 会收到 hook 的 stderr 作为工具的错误，前缀为事件名称、工具名称和 hook 的命令：
+
+```text theme={null}
+PreToolUse:Bash hook error: [${CLAUDE_PROJECT_DIR}/.claude/hooks/no-rm.sh]: Blocked: rm commands are not allowed
+```
+
 <h4 id="other-exit-codes">
   其他退出码
 </h4>
 
-对于大多数 hook 事件，任何其他退出码本身不会阻止。发生什么取决于您的 stdout：
+当 hook 以 0 或 2 以外的代码退出，并且向 stdout 打印纯文本或不打印任何内容时，该运行是[非阻止错误](#exit-code-output)。您会在会话记录中看到 `<hook name> hook error` 通知，带有 `Failed with non-blocking status code:` 和 hook stderr 的第一行。例如，当 `Bash` 上的 `PreToolUse` hook 向 stderr 打印 `something broke` 并以 1 退出时，`PreToolUse:Bash hook error` 通知带有以下行：
 
-* 使用通过 schema 验证的解析对象时，对于使用标准决策模型的事件，Claude Code 忽略退出码，仅由 JSON 决定结果：
-  * 事件支持的每个字段都会生效，包括 `permissionDecision`、`additionalContext`、`updatedInput` 和 `systemMessage`，hook 不被报告为错误。
-  * [决策控制](#decision-control)列出每个事件的决策字段；通用字段如 `systemMessage` 遵循 [JSON 输出](#json-output)表。
-* 使用未通过 schema 验证的解析对象时，对于使用标准决策模型的事件，它与[退出 0 时](#exit-code-0)相同，是非阻止错误：操作继续，`<hook name> hook error` 通知带有验证消息。
-* 使用 Claude Code [尝试解析为 JSON](#exit-code-0) 但无法解析的 stdout 时，对于使用标准决策模型的事件，Claude Code 报告与退出 0 时相同的非阻止错误。操作继续，通知带有解析消息。
-* 使用 Claude Code [视为纯文本](#exit-code-0)的 stdout，或使用空 stdout 时，对于大多数 hook 事件是非阻止错误：操作继续，会话记录显示 `<hook name> hook error` 通知，后跟 stderr 的第一行，前缀为 `Failed with non-blocking status code:`。要捕获完整 stderr，请启用[调试日志](#debug-hooks)。
+```text theme={null}
+Failed with non-blocking status code: something broke
+```
 
-标准决策模型之外的事件在[每个事件表](#exit-code-2-behavior-per-event)中保留自己的行：`WorktreeCreate` 在任何非零退出时都会使创建失败，无论您的 JSON 说什么；完全丢弃 hook 输出的事件（如 `StopFailure`）在每个退出码上都忽略您的 JSON，但 `terminalSequence` 等副作用字段除外，它们仍会触发。
+要捕获完整的 stderr 而不仅是第一行，请启用[调试日志](#debug-hooks)。
 
-无法启动的 hook 也归入相同的非阻止类别。当脚本路径不存在或不可执行时，shell 以某个代码（如 127）退出，您会看到相同的通知，带有解释器的消息，例如 `Failed with non-blocking status code: /bin/sh: /path/to/hook.sh: No such file or directory`。对于大多数 hook 事件，操作继续。当您设置策略 hook 时，请在其第一次运行时留意此通知：`settings.json` 中拼写错误的路径会使该关卡被悄无声息地禁用。
+无法启动的 hook 也是非阻止错误。在 shell 形式下，当脚本路径不存在或不可执行时，shell 以某个代码（如 127）退出，通知带有解释器的消息，例如 `Failed with non-blocking status code: /bin/sh: /path/to/hook.sh: No such file or directory`。当您设置策略 hook 时，请在其第一次运行时留意此通知，因为 `settings.json` 中拼写错误的路径意味着该 hook 从不运行。要改为阻止操作，请设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。
 
 <Warning>
-  对于大多数 hook 事件，退出码 2 是唯一仅凭退出码即可阻止的退出码。如果 stdout 上没有有效 JSON，Claude Code 将退出码 1 视为非阻止错误并继续操作，即使 1 是传统的 Unix 失败代码。如果您的 hook 旨在强制执行策略，请使用 `exit 2`。worktree 事件不同：来自 `WorktreeCreate` 的任何非零退出码都会中止 worktree 创建，来自 `WorktreeRemove` 的任何非零退出码会在目录之后仍然存在时使 worktree 移除失败。
+  如果 stdout 上没有有效 JSON，Claude Code 将退出码 1 视为非阻止错误，即使 1 是传统的 Unix 失败代码。如果您的 hook 旨在强制执行策略，请使用 `exit 2`。
 </Warning>
 
 <h4 id="timeouts">
@@ -900,8 +926,60 @@ exit 0  # No decision: the normal permission flow applies
 
 在 [`PreModelSwitch`](#premodelswitch) 上，因超时被取消的 hook 会阻止模型切换。在 `PreToolUse` 上，两类 hook 的行为不同：
 
-* 超时的 `command`、`http` 或 `mcp_tool` hook 不阻止工具调用。调用通过正常[权限流程](/docs/zh-CN/permissions)继续，因此不要指望停滞的 hook 充当关卡。
+* 超时的 `command`、`http` 或 `mcp_tool` hook 不阻止工具调用。调用通过正常[权限流程](/docs/zh-CN/permissions)继续，因此不要指望停滞的 hook 充当关卡。要在 `command` 或 `http` hook 超时时阻止调用，请设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。
 * 超过其超时时间的 [Agent SDK 回调 hook](/docs/zh-CN/agent-sdk/hooks) 会[阻止工具调用](#pretooluse)。
+
+<h4 id="block-the-action-when-a-hook-fails">
+  hook 失败时阻止操作
+</h4>
+
+在大多数事件上，当 hook 失败或超时时，Claude Code 仍会执行该操作，因此路径错误或脚本崩溃的策略 hook 会放行一切。要改为阻止操作，请在 `command` 或 `http` hook 上设置 `"onFailure": "block"`。默认值为 `"continue"`。需要 Claude Code v2.1.295 或更高版本。
+
+`.claude/settings.json` 中的这个 `PreToolUse` hook 会在每个 Bash 命令之前运行一个项目脚本，如果脚本失败则阻止该命令：
+
+```json theme={null}
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/check-command.js"],
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+要测试它，请让 `check-command.js` 保持缺失状态，并让 Claude 运行一个 Bash 命令，例如 `ls`。Claude Code 会阻止该调用，错误中包含 `failed; blocking because onFailure is "block"`，后跟 node 自身的错误输出（此处截取为一行）：
+
+```text theme={null}
+PreToolUse:Bash hook error: [node ${CLAUDE_PROJECT_DIR}/.claude/hooks/check-command.js]: failed; blocking because onFailure is "block"
+Error: Cannot find module '/path/to/project/.claude/hooks/check-command.js'
+```
+
+超时后，消息显示 `timed out` 而不是 `failed`。如果未设置 `onFailure`，同样缺失的脚本是非阻止错误，`ls` 会运行。
+
+以下每种情况都算作失败：
+
+* **无法启动**：命令 hook 无法启动，例如因为脚本或可执行文件不存在
+* **0 或 2 以外的退出码**：对于命令 hook，即使它打印了允许操作的 JSON（如 `permissionDecision: "allow"`），也算作失败。要返回 JSON 决策，请以 0 退出
+* **HTTP 错误**：HTTP hook 的连接失败，或响应状态不是 2xx
+* **超时**：hook 达到其 [`timeout`](#common-fields)
+* **无效输出**：JSON 输出[无法解析](#exit-code-0)或未通过 [schema 验证](#json-output)。对于 HTTP hook，既不为空也不是 JSON 对象的 2xx 响应体也算。命令 hook 的纯文本 stdout 不算失败
+
+设置 `"block"` 后，失败的效果与[该事件上退出码 2 的效果](#exit-code-2-behavior-per-event)相同，但 `PermissionRequest` 除外，在该事件上它会拒绝请求。例如，`PreToolUse` 失败会阻止工具调用，`UserPromptSubmit` 失败会阻止提示词。
+
+该字段对以下 hook 无效：
+
+* **`Stop`、`SubagentStop`、`TaskCompleted` 和 `TeammateIdle` hook**：这些事件上的退出码 2 会让 Claude 回去继续工作，而 Claude 无法修复无法运行的 hook
+* **后台命令 hook**：设置了 [`async` 或 `asyncRewake`](#run-hooks-in-the-background) 的命令 hook
 
 <h4 id="exit-code-2-behavior-per-event">
   每个事件的退出码 2 行为
@@ -960,7 +1038,7 @@ HTTP hook 使用 HTTP 状态码和响应体，而不是退出码和 stdout。下
 * **连接失败**：非阻止错误，执行继续
 * **超时**：hook 被取消，如[超时](#timeouts)下所述
 
-与命令 hook 不同，HTTP hook 无法仅通过状态码发出阻止错误信号。要阻止工具调用或拒绝权限，请返回 2xx 响应，其 JSON 响应体包含相应的决策字段。
+HTTP hook 无法仅通过状态码发出阻止错误信号：非 2xx 状态或连接失败是[非阻止错误](#exit-code-output)。要阻止工具调用或拒绝权限，请返回 2xx 响应，其 JSON 响应体包含相应的决策字段。要在请求失败或返回非 2xx 状态时阻止操作，请设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。
 
 <h3 id="json-output">
   JSON 输出
@@ -1429,7 +1507,7 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 
 对于 `command`、`http` 和 `mcp_tool` 类型，`UserPromptSubmit` hook 的默认超时时间为 30 秒，短于这些类型在大多数其他事件上 600 秒的默认值。由于此 hook 在每个提示词之前运行，并且在完成前会阻塞模型处理，卡住的 hook 会使会话停滞。如果您的 hook 需要更多时间，请在 hook 条目中设置 `timeout` 字段。
 
-除了使用 [`async: true`](#run-hooks-in-the-background) 运行的 command hook 外，达到超时的 `UserPromptSubmit` command、HTTP 或 MCP 工具 hook 会被取消，其输出（包括任何 `additionalContext`）会被丢弃。提示词仍会传达给 Claude，只是不带该上下文。会话记录中会显示一条通知，指明该 hook、触发的超时时间，以及输出已被丢弃。
+除了使用 [`async: true`](#run-hooks-in-the-background) 运行的 command hook 之外，达到超时的 `UserPromptSubmit` command、HTTP 或 MCP 工具 hook 都会被取消，其输出（包括任何 `additionalContext`）会被丢弃。提示词仍会在没有该上下文的情况下传达给 Claude。若要改为阻止该提示词，请在 command 或 HTTP hook 上设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。会话记录中会显示一条通知，指明该 hook、触发的超时以及输出已被丢弃。
 
 `UserPromptSubmit` 上的 [Agent SDK 回调 hook](/docs/zh-CN/agent-sdk/hooks) 达到超时时，会阻止该提示词，并显示一条指明该 hook 和超时时间的消息，因为此处的回调可能充当不能失败放行的策略关卡。会话会继续。在 v2.1.208 之前，该事件上的回调超时会以执行错误结束该轮次。
 
@@ -2123,7 +2201,7 @@ PreToolUse hook 在每次工具调用之前运行，无论该调用是否需要�
 | `message` | 仅用于 `"deny"`：告诉 Claude 权限被拒绝的原因 |
 | `interrupt` | 仅用于 `"deny"`：如果为 `true`，则停止 Claude |
 
-以 2 退出但不带 `decision` 对象的 hook 不会改变权限流程，其 stderr 会被丢弃。只有 `decision` 对象才能授予或拒绝请求。
+以退出码 2 退出但未提供 `decision` 对象的 hook 不会改变权限流程，其 stderr 会被丢弃。要授予或拒绝请求，请返回 `decision` 对象。
 
 ```json theme={null}
 {
@@ -2689,7 +2767,7 @@ TaskCreated hook 不支持匹配器，每次发生时都会触发。
   TaskCreated 决策控制
 </h4>
 
-TaskCreated hook 可以通过两种方式阻止创建。无论哪种方式，Claude Code 都会删除该任务，并将您的消息作为工具错误返回给 Claude。Claude Code 会忽略此事件中的 `continue: false`，Claude 会继续工作。
+TaskCreated hook 可以通过退出码 2 或 JSON 决策来阻止创建。无论哪种方式，Claude Code 都会删除该任务，并将您的消息作为工具的错误返回给 Claude。Claude Code 会忽略来自此事件的 `continue: false`，Claude 会继续工作。
 
 * **退出码 2**：Claude Code 将 stderr 文本作为消息返回。
 * **JSON `{"decision": "block", "reason": "..."}`**：Claude Code 将 `reason` 作为消息返回。
@@ -3571,9 +3649,9 @@ Claude Code 会将匹配器与会话要切换到的模型的规范名称进行�
 
 无论决策如何，Claude Code 都会向用户显示您的 hook 返回的任何 `systemMessage`，因此用于报告成本的 hook 可以返回 `{"systemMessage": "..."}` 并以 0 退出。
 
-未在超时时间内响应的 PreModelSwitch hook 会阻止切换。相比之下，在 [PreToolUse](#timeouts) 上，超时的命令 hook 会让工具调用继续进行。此事件的默认超时时间为 30 秒。`PreModelSwitch` 仅运行 `command`、`http` 和 `mcp_tool` hook，因此 `prompt` 和 `agent` 的默认值不适用。
+在超时之前未响应的 PreModelSwitch hook 会阻止切换。关于超时对其他事件的影响，请参阅[超时](#timeouts)。此事件的默认超时时间为 30 秒。`PreModelSwitch` 仅运行 `command`、`http` 和 `mcp_tool` hook，因此 `prompt` 和 `agent` 的默认值不适用。
 
-以 0 或 2 以外的代码退出且未打印 JSON 决策的 hook 不会阻止切换：Claude Code 会显示其 stderr 并应用切换，如[其他退出码](#other-exit-codes)中所述。
+以 0 或 2 以外的代码退出且未打印 JSON 决策的 hook 属于非阻塞错误，如[其他退出码](#other-exit-codes)中所述。
 
 <h3 id="postmodelswitch">
   PostModelSwitch
