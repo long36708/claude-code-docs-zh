@@ -207,8 +207,8 @@
     "agent-sdk__user-input.md": {
       "original_url": "https://code.claude.com/docs/en/agent-sdk/user-input",
       "original_md_url": "https://code.claude.com/docs/en/agent-sdk/user-input.md",
-      "hash": "bdff732e3af50c0c28252d84dd0a82c2496092ff55032a4271a5ecf9e4740341",
-      "last_updated": "2026-09-28T21:28:52.229186"
+      "hash": "ff01dec6260ddebd97cdaaa1e05349884a7a5363b01bba70bb0cb1b91db5f6b2",
+      "last_updated": "2026-10-09T11:01:38.913018"
     },
     "agent-teams.md": {
       "original_url": "https://code.claude.com/docs/en/agent-teams",
@@ -1323,8 +1323,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-10-09T01:36:29.891647",
-    "fetch_duration_seconds": 160.006782,
+    "last_fetch_completed": "2026-10-09T11:03:43.601993",
+    "fetch_duration_seconds": 148.88605,
     "total_pages_discovered": 220,
     "pages_fetched_successfully": 221,
     "pages_failed": 0,
@@ -1334,7 +1334,7 @@
     "total_files": 220,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-10-09T01:36:29.891666",
+  "last_updated": "2026-10-09T11:03:43.602029",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
