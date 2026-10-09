@@ -367,7 +367,7 @@ Claude Code 在每次启动时选择一个运行时，并在您退出前保持�
 
 在 v2 上，Claude Code 还会：
 
-* 询问 HTTP 和 stdio 服务器是否支持较新的修订版，并与支持的服务器一起使用它。在获取功能标志的会话中，它还会询问 claude.ai 连接器服务器。它与 v1 一样连接到其他所有服务器。
+* 询问 HTTP、stdio 和 claude.ai 连接器服务器是否支持较新的修订版，并与支持的服务器一起使用它。它与 v1 一样连接到其他所有服务器。
 * 通过 [它保持打开的流](#notification-streams-on-the-v2-runtime) 从使用较新修订版的服务器接收 `list_changed` 通知。
 * 不注册在较新修订版上连接的 [频道](#push-messages-with-channels) 服务器，因为该修订版无法携带频道消息。
 * 当授权响应指明意外的发行者时，使 [MCP OAuth 登录](#authenticate-with-remote-mcp-servers) 失败。

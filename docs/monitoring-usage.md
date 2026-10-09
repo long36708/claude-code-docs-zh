@@ -921,7 +921,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `error`：错误消息
 * `status_code`：HTTP 状态代码作为数字。对于非 HTTP 错误（如连接失败）不存在。
 * `duration_ms`：请求持续时间（以毫秒为单位）
-* `attempt`：进行的总尝试次数，包括初始请求（`1` 表示没有重试发生）
+* `attempt`：已进行的尝试次数，包括初始请求。[检测重试耗尽](#detect-retry-exhaustion)说明了计数何时重新开始
 * `request_id`：API 请求 ID，例如 `"req_011..."`，在[事件关联属性](#event-correlation-attributes)下描述。
 * `client_request_id`：作为 `x-client-request-id` 请求头发送的客户端生成的 UUID。即使在超时或连接错误等失败从未产生服务器 `request_id` 时也可用；请参阅[事件关联属性](#event-correlation-attributes)表了解何时存在。需要 Claude Code v2.1.214 或更高版本
 * `speed`：`"fast"` 或 `"normal"`，指示快速模式是否活跃
@@ -1216,14 +1216,23 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 **属性**：
 
 * 所有[标准属性](#standard-attributes)
+
 * `event.name`：`"api_retries_exhausted"`
+
 * `event.timestamp`：ISO 8601 时间戳
+
 * `event.sequence`：用于排序事件的每进程计数器，在[事件关联属性](#event-correlation-attributes)下描述
+
 * `model`：使用的模型
+
 * `error`：最终错误消息
+
 * `status_code`：HTTP 状态代码作为数字。对于非 HTTP 错误不存在。
+
 * `total_attempts`：进行的总尝试次数
+
 * `total_retry_duration_ms`：所有尝试中的总挂钟时间
+
 * `speed`：`"fast"` 或 `"normal"`
 
 <h4 id="hook-registered-event">
@@ -1532,9 +1541,11 @@ Claude Code 将每个流式响应计入成本和令牌指标，恰好一次，�
 
 Claude Code 在内部重试失败的 API 请求，仅在放弃后才发出单个 `claude_code.api_error` 事件，因此事件本身是该请求的终端信号。中间重试尝试不会作为单独的事件记录。
 
-事件上的 `attempt` 属性记录进行的总尝试次数。`CLAUDE_CODE_MAX_RETRIES` 默认为 10，上限为 15。在 v2.1.199 或更高版本上，您可以设置 `CLAUDE_CODE_RETRY_WATCHDOG` 来提高默认值并移除上限。
+事件上的 `attempt` 属性记录尝试次数。`CLAUDE_CODE_MAX_RETRIES` 默认为 10，上限为 15。在 v2.1.199 或更高版本上，您可以设置 `CLAUDE_CODE_RETRY_WATCHDOG` 来提高默认值并移除上限。
 
-当请求在瞬时错误上耗尽所有重试时，`attempt` 等于该有效限制加一：默认为 11，除非设置了看门狗，否则永远不超过 16。较低的值表示不可重试的错误，例如 `400` 响应，或具有自己较小重试预算的原因。例如，Claude Code 最多重试两次加载 AWS 或 Google Cloud 凭证的失败。
+当请求在瞬时错误上耗尽所有重试时，`attempt` 最多等于该有效限制加一：默认为 11。
+
+较低的值仍可能表示重试已耗尽：每次 Claude Code 在流式传输失败后重新发出请求时，`attempt` 都会从 `1` 重新开始计数。
 
 要区分从一个恢复的会话与停滞的会话，按 `session.id` 分组事件，并检查错误后是否存在更晚的 `api_request` 事件。
 
