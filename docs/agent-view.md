@@ -603,7 +603,7 @@ Claude 在以下情况下跳过 worktree：
 
 在 git 仓库外，会话直接写入工作目录，彼此之间不隔离，因此请避免分派会编辑相同文件的并行会话。如果您使用其他版本控制系统，请配置 [`WorktreeCreate` hook](/docs/zh-CN/worktrees#non-git-version-control)，Claude 会以与 git 相同的方式隔离编辑。
 
-当 hook 在非 git 仓库的目录中失败时，Claude 会跳过该目录的隔离，并就地编辑工作目录。在 git 仓库内，Claude 在编辑前会将其移入 worktree 的会话，在该移动完成之前无法编辑共享检出中的文件。
+当 hook 在非 git 仓库的目录中失败时，Claude 会跳过该目录的隔离，并就地编辑工作目录。在 git 仓库内，Claude 在编辑前会将其移入 worktree 的会话，在该移动完成之前无法对共享检出使用 `Edit`、`Write` 或 `NotebookEdit` 工具。
 
 要查找会话的 worktree 路径，请附加到会话并查看其工作目录。
 

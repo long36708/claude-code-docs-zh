@@ -1870,6 +1870,7 @@ Windows 上的 `Write` 调用会传入：
 | :- | :- | :- | :- |
 | `url` | string | `"https://example.com/api"` | 要获取内容的 URL |
 | `prompt` | string | `"Extract the API endpoints"` | 对获取到的内容运行的提示词 |
+| `offset` | number | `100000` | 可选，从页面开头跳过的字符数。Claude 会设置它以继续读取较长的页面。需要 Claude Code v2.1.290 或更高版本 |
 
 <h5 id="websearch">
   WebSearch
@@ -4288,7 +4289,7 @@ jq -nc --arg msg "$MSG" '{hookSpecificOutput: {hookEventName: "PostToolUse", add
 异步 hooks 与同步 hooks 相比有额外的约束：
 
 * Hook 输出在下一个对话轮次传递。如果会话空闲，响应等待直到下一个用户交互。例外：退出代码为 2 的 `asyncRewake` hook 即使在会话空闲时也会立即唤醒 Claude。
-* 每次执行创建一个单独的后台进程。同一异步 hook 的多个触发之间没有去重。
+* 每次执行创建一个单独的后台进程。
 
 <h2 id="security-considerations">
   安全考虑

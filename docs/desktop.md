@@ -396,7 +396,7 @@ Claude 第一次需要使用应用时，会话中会出现提示。点击**允�
   使用会话并行工作
 </h3>
 
-点击侧边栏中的 **+ New session**，或在 macOS 上按 **Cmd+N**、在 Windows 上按 **Ctrl+N**，即可并行处理多个任务。按 **Ctrl+Tab** 和 **Ctrl+Shift+Tab** 可在侧边栏中循环切换会话。对于 Git 仓库，选择分支名称旁边的 **worktree** 选项，即可使用 [Git worktrees](/docs/zh-CN/worktrees) 为会话提供项目的独立隔离副本，这样一个会话中的更改在您提交之前不会影响其他会话。
+点击侧边栏中的 **+ New session**，或在 macOS 上按 **Cmd+N**、在 Windows 上按 **Ctrl+N**，即可并行处理多个任务。按 **Ctrl+Tab** 和 **Ctrl+Shift+Tab** 可在侧边栏中循环切换会话。对于 Git 仓库，选择分支名称旁边的 **worktree** 选项，即可使用 [Git worktrees](/docs/zh-CN/worktrees) 为会话提供项目的独立隔离副本。
 
 要同时查看两个会话，请在 macOS 上按住 **Cmd** 或在 Windows 上按住 **Ctrl** 并点击侧边栏中的会话。该会话会在第二个窗格中打开，与您已打开的会话并排显示。分屏处于活跃状态时，点击侧边栏中的另一个会话会替换当前具有焦点的窗格。在 macOS 上按 **Cmd+\\** 或在 Windows 上按 **Ctrl+\\** 可关闭具有焦点的窗格并返回单个会话。
 

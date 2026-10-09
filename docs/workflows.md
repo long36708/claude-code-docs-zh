@@ -354,7 +354,7 @@ return audits.filter(Boolean)
 
 主体是带有顶级 `await` 的纯 JavaScript。`agent()` 生成一个子代理，`pipeline()` 为列表中的每个项目运行一个，`parallel()` 同时运行一组代理任务并等待所有任务完成。
 
-如果您在运行中途停止 `agent()` 调用或它遇到不可恢复的 API 错误，则 `agent()` 调用解析为 `null`。`pipeline()` 在结果数组中保留每个 `null`，这就是为什么示例以 `.filter(Boolean)` 结尾以删除这些条目。
+如果您在运行中途停止 `agent()` 调用或它遇到不可恢复的 API 错误，则 `agent()` 调用解析为 `null`。`pipeline()` 在结果数组中保留每个 `null`，这就是为什么示例以 `.filter(Boolean)` 结尾以删除这些条目，其中包括[每次尝试都停滞的 Agent](#when-an-agent-stalls-and-restarts) 所占的位置。
 
 在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，您的脚本传递给 `agent()` 的提示不会计为您的请求，当分类器审查该子代理的操作时，因为 Claude Code 将其标记为脚本计算的文本。
 
@@ -462,6 +462,32 @@ Claude Code 按代理启动的顺序重放运行，每个代理要么返回其�
 * [`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit) 已打开，这是让会话本身[等待使用限制重置](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)的相同设置。如果您在等待期间关闭它，等待会结束，等待的代理会失败。
 * 限制在 24 小时内重置。每周限制可能重置得更远。
 * 运行还没有等待过两次。当它第三次达到限制时，代理会失败。
+
+<h3 id="when-an-agent-stalls-and-restarts">
+  当 Agent 停滞并重启时
+</h3>
+
+如果某个 Agent 的输出停止到达足够长的时间，它会使用相同的提示词重新开始。在 [`/workflows`](#watch-the-run) 中，其名称会添加 `(retry 1)` 后缀，其详细信息会显示 `attempt 2 (stalled)`。重启是自动的，因此您无需执行任何操作。
+
+新的尝试在开始时不带有停滞尝试的会话记录。停滞尝试已更改的文件保持更改状态，其消耗的 token 仍计入运行的总量。停滞窗口是 Claude Code 在结束尝试之前等待 Agent 输出的时长。Agent 等待其自身工具调用或等待[用量限制重置](#when-a-run-hits-your-usage-limit)所花费的时间不计入停滞窗口。
+
+一个 Agent 最多重启五次，包括您使用 `r` 请求的任何重启。如果第六次尝试也停滞，`agent()` 调用会失败，错误的开头会说明原因：
+
+* `agent stalled on all 6 attempts`：每次尝试在整个窗口内都没有输出。如果 Agent 的工作使其保持静默这么长时间，请延长窗口
+* `agent lost its reply on all 6 attempts`：每次尝试的响应流都变为静默，Claude Code 放弃了等待。延长停滞窗口没有帮助，因为[流式空闲看门狗](/docs/zh-CN/network-config#streaming-idle-watchdogs)先结束了响应，而 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 设置该看门狗的超时时间
+* `agent abandoned after 6 attempts`：各次尝试以不同方式结束，错误会按顺序列出这些方式
+
+要在窗口结束前给 Agent 更多时间来产生输出：
+
+* **单个 Agent**：在其 `agent()` 调用中以毫秒为单位传入 `stallMs`，例如 `agent(prompt, { stallMs: 1800000 })` 表示 30 分钟
+* **所有 Agent**：设置 [`CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS`](/docs/zh-CN/env-vars#variables)，它也适用于工作流之外的子代理
+
+失败后运行是否继续取决于您的脚本如何调用该 Agent：
+
+* **在 [`parallel()` 或 `pipeline()`](#what-the-saved-script-looks-like) 内部**：运行继续，用 `null` 代替该 Agent 的结果
+* **直接 await**：运行以该错误结束
+
+要重试，请要求 Claude 重新启动工作流。[暂停后恢复](#resume-after-a-pause)介绍了哪些内容会再次运行。
 
 <h3 id="cost">
   成本

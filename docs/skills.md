@@ -94,6 +94,8 @@ Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命�
 | `migrate` | 将您现有的 Claude API 代码更新到更新的模型 | 早于 v2.1.221 |
 | `upgrade` | 跨主要版本移动您的项目的 Anthropic SDK 依赖项，目前是 Python `anthropic` 包从 0.x 到 1.x | v2.1.236 或更高版本 |
 | `managed-agents-onboard` | 逐步完成创建新的托管代理 | 早于 v2.1.221 |
+| `managed-agents-onboard <url>` | 构建该 URL 所指页面描述的 Managed Agent，例如 [Managed Agents 文档](https://platform.claude.com/docs/en/managed-agents/overview)中的某个页面 | v2.1.290 或更高版本 |
+| `managed-agents-onboard <quickstart-name>` | 构建 Console 的某个快速入门模板，例如 `deep-researcher`。如果您提供的单个词不是模板名称，Claude 会列出有效的名称 | v2.1.290 或更高版本 |
 | `prompt-audit` | 标记为旧模型编写的指令在您的提示、技能和工具描述中，并提议修复作为差异 | v2.1.221 或更高版本 |
 | `cost-optimize` | 分析您的项目的 Claude API 支出去向，并提议从提示缓存、修剪不需要的输入和输出令牌、批处理、工作量和模型选择等选项中节省成本，一次一个更改 | v2.1.247 或更高版本 |
 | `build-eval` | 为您的 Claude 驱动的应用构建评估集 | v2.1.259 或更高版本 |

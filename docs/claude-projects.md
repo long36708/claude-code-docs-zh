@@ -489,7 +489,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 * **例程**：当您在项目中要求计划工作时，Claude 创建一个[例程](/docs/zh-CN/routines)，作为该项目中的线程运行，并出现在其 **Routines** 标签页上。您在项目外创建的例程继续自己工作。
 * **Remote Control**：[Remote Control](/docs/zh-CN/remote-control) 连接 claude.ai 到在您的机器上运行的 Claude Code 会话。当您在项目中要求 Claude 在您的计算机上运行线程时，项目[使用 Remote Control 来执行](#run-a-thread-on-your-own-computer)。
 * **本地会话和代理视图**：您在终端、IDE 或桌面应用的本地环境中启动的会话不能添加到项目中。[代理视图](/docs/zh-CN/agent-view)是用于跟踪多个本地会话并排的屏幕，您仍然启动每个会话并自己给它分配任务。
-* **Worktrees**：一个[worktree](/docs/zh-CN/worktrees)为每个本地会话提供其自己的代码库工作副本，因此您机器上的并行会话不会相互覆盖。云线程不需要它们：每个线程将其代码库克隆到其自己的云沙箱中，并在其自己的分支上工作。
+* **Worktrees**：一个 [worktree](/docs/zh-CN/worktrees) 为每个本地会话提供其自己的仓库工作副本。云线程不需要它们：每个线程将其仓库克隆到其自己的云沙箱中，并在其自己的分支上工作。
 * **代理团队**：一个[代理团队](/docs/zh-CN/agent-teams)是一个会话，为单个任务启动队友会话，在您的机器上或在云会话内，并以该任务结束。
 * **Subagents**：一个[subagent](/docs/zh-CN/sub-agents)在一个会话内运行，在其自己的上下文窗口中执行一个辅助任务，并向该会话返回摘要。项目的线程是 Claude 启动的整个会话，向项目对话报告，一个线程仍然可以为其自己的辅助任务使用 subagents。
 * **claude.ai 聊天和 Cowork 中的 Projects**：[早期的 Projects 体验](https://support.claude.com/en/articles/9517075-what-are-projects)，对对话和参考文件进行分组，没有线程或协调员。这些项目继续按照今天的方式工作，直到重新设计的体验到达它们。

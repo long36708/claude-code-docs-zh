@@ -307,8 +307,8 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 | | 在云端会话中可用 | 原因 |
 | :- | :- | :- |
 | 您的仓库的 `CLAUDE.md` | 是 | 克隆的一部分 |
-| 您的仓库的 `.claude/settings.json` hook 和权限规则 | 是，在具有一个仓库的会话中 | 克隆的一部分。具有多个仓库的会话（包括[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)线程）在克隆上方启动，不读取它们 |
-| 您的仓库的 `.mcp.json` MCP 服务器 | 是，在具有一个仓库的会话中 | 克隆的一部分，从会话的工作目录中找到 |
+| 您的仓库的 `.claude/settings.json` hook 和权限规则 | 是，在具有一个仓库的会话中 | 克隆的一部分。对于具有多个仓库的会话，请参阅[它读取哪些设置](/docs/zh-CN/settings#settings-in-cloud-sessions) |
+| 您的仓库的 `.mcp.json` MCP 服务器 | 是，在具有一个仓库的会话中 | 克隆的一部分，从会话的工作目录中找到。对于自托管环境，请参阅[哪个仓库的设置适用](/docs/zh-CN/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories) |
 | 您的仓库的 `.claude/rules/` | 是 | 克隆的一部分 |
 | 您的仓库的 `.claude/skills/`、`.claude/agents/`、`.claude/commands/` | 是 | 克隆的一部分 |
 | 在您的仓库的 `.claude/settings.json` 中声明的插件和市场 | 否 | 云端会话不会安装仓库在 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 下启用的插件，包括来自它在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 下列出的市场的插件 |
@@ -575,7 +575,7 @@ exit 0
 
 SessionStart hooks 在云端的行为与本地相同，但有以下注意事项：
 
-* **每个会话一个存储库**：具有多个存储库的会话不会从任何存储库的 `.claude/settings.json` 加载 hooks，因此您在那里定义的 SessionStart hook 不会运行。请改为使用[设置脚本](#setup-scripts)为这些会话安装依赖项。
+* **每个会话一个仓库**：在 Anthropic 托管环境中，具有多个仓库的会话不会从任何仓库的 `.claude/settings.json` 加载 hook，因此您在那里定义的 SessionStart hook 不会运行。请改为使用[设置脚本](#setup-scripts)为这些会话安装依赖项。对于自托管环境，请参阅[适用哪个仓库的设置](/docs/zh-CN/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories)。
 * **没有仅云端的范围**：hooks 在本地和云会话中都运行。要跳过本地运行，请在 `CLAUDE_CODE_REMOTE` 环境变量不为 `true` 时提前退出，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
 * **需要网络访问**：安装命令需要连接到包注册表。如果您的环境使用 **None** 网络访问，这些 hooks 会失败。**Trusted** 下的[默认允许列表](#default-allowed-domains)涵盖 npm、PyPI、RubyGems 和 crates.io。
 * **代理兼容性**：在 Anthropic 托管环境中，所有出站流量都经过[安全代理](#security-proxy)，某些包管理器无法与此代理正确配合工作；Bun 是一个已知的例子。在[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#default-deny-egress)中，出站流量改为经过您自己的网络边界。

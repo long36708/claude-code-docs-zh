@@ -1237,7 +1237,7 @@ managed:
 
 CLI 将指标、日志和（启用时）跟踪发送到网关，网关将它们逐字中继到每个配置的目的地。导出使用 OpenTelemetry Protocol (OTLP) over HTTP。要跳过中继并让会话直接导出到您的收集器，[在策略中命名收集器](#export-directly-to-your-collector)。请参阅[监控使用](/docs/zh-CN/monitoring-usage)了解 CLI 发出的指标和事件。
 
-在通过 `/login` 登录的会话中，CLI 使用从网关颁发的 JWT 读取的已认证用户的身份为每个导出加盖时间戳：`user.id`、`user.email` 和 `user.groups` 属性。每个开发者的成本和使用归因因此无需开发者端配置即可工作。
+在通过 `/login` 登录的会话中，CLI 使用从网关颁发的 JWT 读取的已认证用户的身份为每个导出加盖时间戳：`user.id`、`user.email` 和 `user.groups` 属性。每个开发者的成本和使用归因因此无需开发者端配置即可工作。Claude Code 在开发者登录之前记录的事件[不携带此身份](/docs/zh-CN/monitoring-usage#standard-attributes)。
 
 [Claude Desktop](#claude-desktop-overlay) 和通过网关登录的 Cowork 会话使用 `user.email` 和 `user.groups` 以及 `enduser.id` 为其遥测加盖时间戳，因此您可以使用一个关于 `user.email` 或 `user.groups` 的查询覆盖终端、Desktop 和 Cowork 使用。`user.groups` 是逗号分隔的 IdP 组列表。
 

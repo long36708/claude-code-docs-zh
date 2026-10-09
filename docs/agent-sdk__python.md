@@ -928,7 +928,7 @@ class ClaudeAgentOptions:
 | `resume` | `str \| None` | `None` | 要恢复的会话 ID |
 | `session_id` | `str \| None` | `None` | 使用特定的会话 ID 而不是自动生成的。必须是有效的 UUID。不能与 `continue_conversation` 或 `resume` 结合使用，除非也设置了 `fork_session` |
 | `max_turns` | `int \| None` | `None` | 最大 Agent 轮次（工具使用往返） |
-| `max_budget_usd` | `float \| None` | `None` | 当客户端成本估计达到此 USD 值时停止查询。仅计算调用自身的支出；从恢复的会话恢复的总数不计算。有关准确性注意事项和重置行为，见 [跟踪成本和使用](/docs/zh-CN/agent-sdk/cost-tracking) |
+| `max_budget_usd` | `float \| None` | `None` | 当客户端成本估计达到此 USD 值时停止查询。该估计值可能超过此值，因此请[预留余量](/docs/zh-CN/agent-sdk/agent-loop#budget-headroom)。仅计算调用自身的支出；从恢复的会话恢复的总数不计算。有关准确性注意事项和重置行为，见 [跟踪成本和使用](/docs/zh-CN/agent-sdk/cost-tracking) |
 | `disallowed_tools` | `list[str]` | `[]` | 要拒绝的工具。裸名称如 `"Bash"` 从 Claude 的上下文中移除工具。限定规则如 `"Bash(rm *)"` 保持工具可用，并在每个权限模式（包括 `bypassPermissions`）中拒绝匹配的调用，针对[按书写形式](/docs/zh-CN/permissions#bash-rule-limits)的命令。见 [权限](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules) |
 | `enable_file_checkpointing` | `bool` | `False` | 启用文件更改跟踪以进行回滚。见 [文件检查点功能](/docs/zh-CN/agent-sdk/file-checkpointing) |
 | `model` | `str \| None` | `None` | Claude 模型别名或完整模型名称。见 [接受的值和特定于提供商的 ID](/docs/zh-CN/model-config#available-models) |
@@ -3327,6 +3327,7 @@ Grep 在每种输出模式下都返回这种 dict 形状。存在哪些可选键
 {
     "url": str,  # 要从中获取内容的 URL
     "prompt": str,  # 要在获取的内容上运行的提示词
+    "offset": int | None,  # 从页面开头跳过的字符数。需要 Python Agent SDK 0.2.164 或更高版本
 }
 ```
 

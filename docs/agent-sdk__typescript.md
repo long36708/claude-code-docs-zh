@@ -569,7 +569,7 @@ console.log(`Set by: ${provenance.cleanupPeriodDays?.source}`);
 | `includePartialMessages` | `boolean` | `false` | 包含部分消息事件 |
 | `loadTimeoutMs` | `number` | `60000` | *Alpha。* 在恢复物化期间，每次 `sessionStore.load()` 和 `sessionStore.listSubkeys()` 调用的超时时间（毫秒）。如果适配器在此时间窗口内未完成，查询将失败而不是挂起。未设置 `sessionStore` 时忽略 |
 | `managedSettings` | `Settings` | `undefined` | 由您的宿主进程提供给所生成会话的策略层级设置。在部署了管理员托管设置的机器上，除非管理员优先级最高的托管源设置了 `parentSettingsBehavior: 'merge'`，否则 Claude Code 会忽略这些设置；并且当 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 提供托管设置时，永远不会合并它们。合并的值会经过一个仅限收紧的过滤器；[限制父级设置](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings)介绍了过滤器允许的内容以及 `allowManaged*Only` 锁定。设置了 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars) 的宿主会改为直接从此负载中读取三个键：在 Claude Code v2.1.222 或更高版本中读取其[模型配置](/docs/zh-CN/model-config#restrict-model-selection)；在 v2.1.246 或更高版本中，当没有托管源设置 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 时读取该键；在 v2.1.247 或更高版本中读取其 `ENABLE_TOOL_SEARCH` env 条目 |
-| `maxBudgetUsd` | `number` | `undefined` | 当客户端成本估算达到此美元值时停止查询。仅计算本次调用自身的花费；从恢复的会话中还原的总额不计入。有关准确性注意事项和重置行为，请参阅[跟踪成本和用量](/docs/zh-CN/agent-sdk/cost-tracking) |
+| `maxBudgetUsd` | `number` | `undefined` | 当客户端成本估算达到此美元值时停止查询。估算值可能超过此值，因此请[留出余量](/docs/zh-CN/agent-sdk/agent-loop#budget-headroom)。仅计算本次调用自身的花费；从恢复的会话中还原的总计不计入。有关准确性注意事项和重置行为，请参阅[跟踪成本和用量](/docs/zh-CN/agent-sdk/cost-tracking) |
 | `maxThinkingTokens` | `number` | `undefined` | *已弃用：* 请改用 `thinking`。思考过程的最大 token 数 |
 | `maxTurns` | `number` | `undefined` | 最大 agentic 轮次（工具使用往返次数） |
 | `mcpServers` | `Record<string, [`McpServerConfig`](#mcpserverconfig)>` | `{}` | MCP 服务器配置 |
@@ -3426,10 +3426,13 @@ type NotebookEditInput = {
 type WebFetchInput = {
   url: string;
   prompt: string;
+  offset?: number;
 };
 ```
 
 从 URL 获取内容并使用 AI 模型处理它。
+
+`offset` 是从页面开头跳过的字符数。Claude 设置它以继续读取较长的页面。该字段需要 Agent SDK v0.3.290 或更高版本。
 
 <h3 id="websearch">
   WebSearch

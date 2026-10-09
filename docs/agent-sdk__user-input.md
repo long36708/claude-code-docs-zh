@@ -36,10 +36,13 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
   ```
 
   ```typescript TypeScript theme={null}
-  async function handleToolRequest(toolName, input, options) {
+  import type { CanUseTool } from "@anthropic-ai/claude-agent-sdk";
+
+  const handleToolRequest: CanUseTool = async (toolName, input, options) => {
     // options includes { signal: AbortSignal, suggestions?: PermissionUpdate[] }
-    // 提示用户并返回允许或拒绝
-  }
+    // 在此提示用户，然后返回允许或拒绝
+    return { behavior: "deny", message: "User declined" };
+  };
 
   const options = { canUseTool: handleToolRequest };
   ```
@@ -440,7 +443,8 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
           // 在您的工具列表中包含 AskUserQuestion
           tools: ["Read", "Glob", "Grep", "AskUserQuestion"],
           canUseTool: async (toolName, input) => {
-            // 在此处处理澄清问题
+            // 批准每次调用的占位实现。"检测 AskUserQuestion"步骤会替换它。
+            return { behavior: "allow", updatedInput: input };
           }
         }
       })) {
@@ -763,6 +767,7 @@ Claude 的预定义选项并不总是涵盖用户想要的内容。要让用户�
 
   ```typescript TypeScript theme={null}
   import { query } from "@anthropic-ai/claude-agent-sdk";
+  import type { PermissionResult } from "@anthropic-ai/claude-agent-sdk";
   import * as readline from "readline/promises";
 
   // 帮助程序在终端中提示用户输入
@@ -783,7 +788,7 @@ Claude 的预定义选项并不总是涵盖用户想要的内容。要让用户�
   }
 
   // 显示 Claude 的问题并收集用户答案
-  async function handleAskUserQuestion(input: any) {
+  async function handleAskUserQuestion(input: any): Promise<PermissionResult> {
     const answers: Record<string, string> = {};
 
     for (const q of input.questions) {

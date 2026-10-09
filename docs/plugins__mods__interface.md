@@ -10,9 +10,9 @@ mod 可以在 Claude Code 中绘制自己的界面，并更改 Claude Code 已�
 
 此地图显示 mod 可以在终端会话中的绘制位置：
 
-<img src="https://mintcdn.com/claude-code/dgiVO_Od1X1faduV/images/mods-screen-map.svg?fit=max&auto=format&n=dgiVO_Od1X1faduV&q=85&s=5fda26b6609c62b68c6f9e528c1590ea" className="dark:hidden" alt="Claude Code 终端会话的地图。mod 可以在右侧添加窗格作为侧边栏，在会话记录的右上角添加 toast，在会话记录中添加日志行，在输入框上方添加条带，以及在输入框下方添加状态栏。mod 可以重绘消息、工具调用行和加载指示器。输入框是 Claude Code 自己的。" width="600" height="336" data-path="images/mods-screen-map.svg" />
+<img src="https://mintcdn.com/claude-code/dgiVO_Od1X1faduV/images/mods-screen-map.svg?fit=max&auto=format&n=dgiVO_Od1X1faduV&q=85&s=5fda26b6609c62b68c6f9e528c1590ea" className="dark:hidden" alt="全屏渲染模式下 Claude Code 终端会话的地图。mod 可以在右侧添加窗格作为侧边栏，在会话记录的右上角添加 toast，在会话记录中添加日志行，在输入框上方添加条带，以及在输入框下方添加状态栏。mod 可以重绘消息、工具调用行和加载指示器。输入框是 Claude Code 自己的。" width="600" height="336" data-path="images/mods-screen-map.svg" />
 
-<img src="https://mintcdn.com/claude-code/dgiVO_Od1X1faduV/images/mods-screen-map-dark.svg?fit=max&auto=format&n=dgiVO_Od1X1faduV&q=85&s=5b4161581a1bd2c0450b0c8b57bc1225" className="hidden dark:block" alt="Claude Code 终端会话的地图。mod 可以在右侧添加窗格作为侧边栏，在会话记录的右上角添加 toast，在会话记录中添加日志行，在输入框上方添加条带，以及在输入框下方添加状态栏。mod 可以重绘消息、工具调用行和加载指示器。输入框是 Claude Code 自己的。" width="600" height="336" data-path="images/mods-screen-map-dark.svg" />
+<img src="https://mintcdn.com/claude-code/dgiVO_Od1X1faduV/images/mods-screen-map-dark.svg?fit=max&auto=format&n=dgiVO_Od1X1faduV&q=85&s=5b4161581a1bd2c0450b0c8b57bc1225" className="hidden dark:block" alt="全屏渲染模式下 Claude Code 终端会话的地图。mod 可以在右侧添加窗格作为侧边栏，在会话记录的右上角添加 toast，在会话记录中添加日志行，在输入框上方添加条带，以及在输入框下方添加状态栏。mod 可以重绘消息、工具调用行和加载指示器。输入框是 Claude Code 自己的。" width="600" height="336" data-path="images/mods-screen-map-dark.svg" />
 
 在较窄的终端中，窗格位于输入框上方而不是会话记录旁边。
 
@@ -324,7 +324,7 @@ await $.ui.close({ id: 'hello-tabs' })
 | `title` | 打开多个窗格时窗格的选项卡标签 |
 | `focus` | 请求[键盘焦点](#know-which-keys-your-mod-can-receive) |
 | `closeOnEscape` | 使 Esc 关闭窗格 |
-| `holdToasts` | 暂缓显示 toast（来自 [`$.ui.toast`](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn) 的小通知），直到窗格关闭 |
+| `holdToasts` | 在终端中，当此窗格是正在显示的窗格时暂缓显示 toast。请参阅[在对话框后暂缓显示 toast](#hold-toasts-behind-a-dialog)。 |
 | `rows` | 当窗格位于输入框上方时请求的高度。默认值为空间的三分之一。 |
 | `columns` | 当窗格位于会话记录旁边时请求的宽度 |
 
@@ -336,6 +336,14 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 ```
 
 要让命令在 Claude 工作时打开窗格，请在[注册命令](/docs/zh-CN/plugins/mods/api#add-a-command)时添加 `immediate: true`。如果不添加，在轮次进行期间输入的命令会等待轮次结束。
+
+<h4 id="hold-toasts-behind-a-dialog">
+  在对话框后暂缓显示 toast
+</h4>
+
+当窗格是用户作答后即离开的对话框时，请向 `$.ui.open` 传递 `holdToasts: true`，这样在用户做决定时不会出现 toast。在终端中，只要该窗格是正在显示的窗格，暂缓就会持续，在此期间触发的 toast 会等到暂缓结束后再显示。
+
+除了您的 mod 通过 [`$.ui.toast`](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn) 触发的 toast 外，Claude Code 还会暂缓其他 mod 的 toast 以及它自己的短时通知。对于保持打开的窗格，请不要设置该字段，以便用户能继续看到这些通知。
 
 <h4 id="when-a-pane-waits-for-a-wider-terminal">
   当窗格等待更宽的终端时

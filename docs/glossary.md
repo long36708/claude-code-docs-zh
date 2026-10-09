@@ -511,7 +511,7 @@ Claude 在一个 [session](#session) 中的一个完整响应。一个 turn 从�
   Worktree isolation
 </h3>
 
-一个隔离模式，在 `.claude/worktrees/` 下的单独 git worktree 中运行 Claude，使用 `-w` 标志或 subagent 配置中的 `isolation: worktree` 启用。更改保留在单独分支的单独目录中，因此并行代理不会覆盖彼此的文件。
+一个隔离模式，在 `.claude/worktrees/` 下的单独 git worktree 中运行 Claude，使用 `-w` 标志或子代理配置中的 `isolation: worktree` 启用。更改保留在单独目录中的单独分支上，因此每个并行 Agent 都各自编辑自己的文件副本。
 
 了解更多：[使用 git worktrees 运行并行会话](/docs/zh-CN/worktrees)
 

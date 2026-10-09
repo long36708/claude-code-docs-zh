@@ -403,7 +403,7 @@ Claude Code 还会从其他来源加载 MCP 服务器：
 
 * 位于标准系统路径的企业作用域[托管 MCP 文件](/docs/zh-CN/managed-mcp)：Linux 运行器主机上为 `/etc/claude-code/managed-mcp.json`，macOS 主机上为 `/Library/Application Support/ClaudeCode/managed-mcp.json`。适用于只允许加载管理员列出的服务器的锁定机群。有关优先级规则，请参阅[使用 managed-mcp.json 进行独占控制](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json)。当运行器主机上存在此文件时，Claude Code 会跳过 Anthropic 控制平面下发给会话的 MCP 服务器（包括 claude.ai 连接器），并在会话子进程的 stderr 上以警告形式列出它们的名称，运行器会以 `debug` 日志级别记录这些警告。在 v2.1.229 之前，这些会话会在启动时退出并显示 `You cannot dynamically configure MCP servers when an enterprise MCP config is present`。
 * 运行器主机上[托管设置](/docs/zh-CN/managed-settings)中的 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 键：提供 HTTP 和 SSE 服务器，但不进行独占控制，因此来自其他来源的服务器仍会加载。需要 Claude Code v2.1.259 或更高版本。
-* `<repo>/.mcp.json`：项目作用域。将该文件提交到仓库；其中的服务器在云端会话中会被自动批准。
+* `<repo>/.mcp.json`：项目作用域。将该文件提交到仓库；其中的服务器在云端会话中会被自动批准。在包含多个仓库的会话中，[最多只会加载一个仓库的该文件](#repository-settings-in-sessions-with-several-repositories)。
 
 当您的组织启用了连接器下发时，Anthropic 的控制平面会通过服务器提供的 MCP 配置，将您在 claude.ai 上配置的连接器下发到以交互方式创建的会话，请求经由 `api.anthropic.com` 路由。以编程方式创建的会话（例如 [CLI 调度](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)）不会接收连接器下发；请改为通过本节列出的任何其他来源为它们提供 MCP 服务器。子进程的 OAuth 令牌不带有直接获取连接器的作用域，因此子进程本身不会尝试获取；下发由服务器驱动。
 
@@ -542,7 +542,7 @@ fi
 exit 0
 ```
 
-钩子在会话结束前提示 Claude 提交并推送，当目录不是 git 存储库或没有远程时保持沉默。
+该 hook 在会话结束前提示 Claude 提交并推送，当目录不是 git 仓库或没有远程时保持沉默。对于包含多个仓库的会话，请参阅 [`$CLAUDE_PROJECT_DIR` 指向的内容](#repository-settings-in-sessions-with-several-repositories)。
 
 <h2 id="permissions-and-tool-approval">
   权限和工具批准
@@ -571,7 +571,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 
 设置 `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` 可从其他路径获取初始内容，或将其指向空目录以禁用初始内容填充。
 
-仓库中提交的 `.claude/settings.json` 会作为项目设置叠加在其上。会话还会从运行器镜像中的标准系统路径读取 [`managed-settings.json`](/docs/zh-CN/settings#where-settings-live)。其中的键是否与[服务器托管设置](/docs/zh-CN/server-managed-settings)一起应用，取决于 [Claude Code 如何合并托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)：默认情况下，当您的组织下发了任何服务器托管的键时，会话会忽略运行器镜像中的该文件，但 [Claude Code 从每个管理员来源读取的键](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)除外，例如 `env` 块、沙箱锁定、沙箱二进制路径和 `forceRemoteSettingsRefresh`。请参阅[设置优先级](/docs/zh-CN/settings#settings-precedence)。
+仓库中提交的 `.claude/settings.json` 会作为项目设置叠加在其上。在包含多个仓库的会话中，[最多只有一个仓库的文件生效](#repository-settings-in-sessions-with-several-repositories)。会话还会从运行器镜像中的标准系统路径读取 [`managed-settings.json`](/docs/zh-CN/settings#where-settings-live)。其中的键是否与[服务器托管设置](/docs/zh-CN/server-managed-settings)一起应用，取决于 [Claude Code 如何合并托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)：默认情况下，当您的组织下发了任何服务器托管的键时，会话会忽略运行器镜像中的该文件，但 [Claude Code 从每个管理员来源读取的键](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)除外，例如 `env` 块、沙箱锁定、沙箱二进制路径和 `forceRemoteSettingsRefresh`。请参阅[设置优先级](/docs/zh-CN/settings#settings-precedence)。
 
 当 Anthropic 的控制平面为会话提供 [Claude Code hook](/docs/zh-CN/hooks) 时，运行器会将它们与您自己的配置并行安装，而不是覆盖您的配置。需要 Claude Code v2.1.229 或更高版本。
 
@@ -582,6 +582,19 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 除 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话外，自托管环境中的会话默认关闭[自动记忆](/docs/zh-CN/memory#auto-memory)。对于需要跨会话保留的指令，请使用运行器镜像或仓库中的 `CLAUDE.md`。
 
 运行器对主机 `~/.claude/` 的快照不包含 `projects/` 目录。自动记忆的默认存储位置就在该目录下。如果您将记忆文件放在那里，运行器不会将它们填充到会话中，它们也不会启用自动记忆。
+
+<h3 id="repository-settings-in-sessions-with-several-repositories">
+  包含多个仓库的会话中的仓库设置
+</h3>
+
+在包含多个仓库的会话中，Claude Code 从会话启动所在的目录读取项目设置，因此最多只有一个仓库的 `.claude/settings.json` 作为项目设置生效。在其他仓库的文件中定义的 hook 不会运行，其中的拒绝规则不会生效，其 `env` 也不会被设置。
+
+* **`--capacity 1`（默认值）并使用内置检出**：会话在其仓库列表中的第一个仓库中启动。该仓库的 `.claude/settings.json` 作为项目设置生效，其 `.mcp.json` 会被加载，而其他仓库的则不会。
+* **`--capacity` 大于 1，或使用 [`checkout` hook](#checkout)**：会话在包含各检出内容的按会话目录中启动。没有任何仓库的 `.claude/settings.json` 作为项目设置生效，没有任何仓库的 `.mcp.json` 会被加载，并且 hook 命令中的 [`$CLAUDE_PROJECT_DIR`](/docs/zh-CN/hooks#reference-scripts-by-path) 是该目录，而不是某个检出目录。
+
+无论会话在何处启动，每个仓库的 `CLAUDE.md` 和 skill 都会被加载。运行器将每个仓库作为[附加目录](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)传递给 Claude Code，因此 Claude Code 还会从每个仓库的 `.claude/settings.json` 中读取 `enabledPlugins` 和 `extraKnownMarketplaces` 键。
+
+要在每个会话中运行某个 hook 或应用某条权限规则，请将其放在运行器主机上的 `~/.claude/settings.json` 中。无论会话在何处启动，运行器都会[将该主机文件填充到每个会话中](#how-each-session’s-config-is-assembled)。在 `Read` 或 `Edit` 规则中，请将路径写为以 `//` 开头的绝对路径或以 `~/` 开头的相对于主目录的[模式](/docs/zh-CN/permissions#read-and-edit)，因为其他模式会以设置来源或当前目录为锚点。
 
 <h3 id="repository-committed-permission-rules">
   仓库中提交的权限规则

@@ -599,6 +599,10 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 
 在通过 `/login` 登录到[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)的会话中，CLI 会使用已认证身份标记导出：`user.id` 是 IdP 主体，`user.email` 是已登录的电子邮件，`user.groups` 以逗号分隔的字符串形式携带 IdP 组成员身份。每个导出还携带 `identity.source: gateway-oidc`。网关身份最后应用，因此通过 `OTEL_RESOURCE_ATTRIBUTES` 设置的 `user.*` 和 `identity.*` 键在这些会话上被忽略。
 
+<Note>
+  Claude Code 在开发者登录之前记录的事件不携带网关身份。当 Claude Code 以未登录网关的状态打开会话时（例如在[网关结束登录](/docs/zh-CN/errors#cloud-gateway-session-expired)之后），登录前记录的启动事件会携带匿名 `user.id`，且不含 `identity.source`。这些事件包括 [`managed_settings_resolved`](#managed-settings-resolved-event)、[`plugin_loaded`](#plugin-loaded-event) 和 [`mcp_server_connection`](#mcp-server-connection-event)。
+</Note>
+
 对于通过网关连接的 Claude Desktop 和 Cowork 会话上的身份属性，请参阅[网关 `telemetry` 参考](/docs/zh-CN/claude-apps-gateway-config#telemetry)。
 
 事件另外包括以下属性。这些永远不会附加到指标，因为它们会导致无限的基数：

@@ -56,7 +56,7 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthr
   审查拉取请求
 </h3>
 
-要审查 GitHub 拉取请求而不是本地分支，请传递 PR 编号：
+要审查 `github.com` 上的拉取请求而不是本地分支，请传递 PR 编号：
 
 ```text theme={null}
 /code-review ultra 1234
@@ -64,9 +64,9 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthr
 
 该命令也接受 `#1234`、`PR 1234` 和粘贴的 PR URL；粘贴的 URL 必须指向您当前目录中的存储库。
 
-在 PR 模式下，云沙箱直接从主机克隆拉取请求，而不是捆绑您的本地工作树。PR 模式适用于 `github.com` 上的存储库以及 Owner 已连接到 Claude Code 的 [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 实例。
+PR 模式需要 `github.com` 上的仓库。对于 [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 实例上的仓库，请运行不带 PR 编号的 `/code-review ultra` 来审查您的本地分支。
 
-对于 `github.com` 上的存储库，沙箱使用连接到您的 Claude 账户的 GitHub 账户进行克隆，因此该账户必须能够读取 PR 的存储库。
+在 PR 模式下，云沙箱从 `github.com` 克隆拉取请求，而不是上传您的工作树。它使用连接到您的 Claude 账户的 GitHub 账户，因此该账户需要对仓库具有读取权限。
 
 运行 [`/web-setup`](/docs/zh-CN/web-quickstart#connect-from-your-terminal) 将您的 GitHub CLI 登录连接到您的 Claude 账户。
 
@@ -74,7 +74,7 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthr
   将发现发布到拉取请求
 </h3>
 
-在 Claude Code v2.1.227 或更高版本上，当您在 `github.com` 上审查拉取请求时，您可以让 Claude 将完成的发现作为来自您自己 GitHub 账户的单个纯文本评论发布到 PR。该评论不是审查或批准，并以"由 Claude Code 生成"的说明结尾。当您审查分支或 GitHub Enterprise Server 拉取请求时，Claude Code 仅在您的会话中显示发现。
+在 Claude Code v2.1.227 或更高版本上，当您在 `github.com` 上审查拉取请求时，您可以让 Claude 将完成的发现作为来自您自己 GitHub 账户的单个纯文本评论发布到 PR。该评论不是审查或批准，并以"由 Claude Code 生成"的说明结尾。当您审查分支时，Claude Code 仅在您的会话中显示发现。
 
 Claude Code 永远不会发布，除非您在该运行中选择，`--no-post` 是默认值。发布是您为每次运行做出的选择：
 
@@ -106,7 +106,7 @@ Claude Code 不会从您的计算机发布。它将审查的会话 ID 发送到 
 当 Claude Code 的文本超过一个单词且不是分支名称或 PR 引用时，它将您的文本视为说明。它将单个单词读取为分支名称或 PR 引用，因此拼写错误的分支名称会从[针对不同的基础进行审查](#review-against-a-different-base)获得最接近分支的错误，而不是使用说明启动。如果您的文本将 PR 引用与其他单词结合，如 `check PR 123 again`，Claude Code 也不会启动；它会要求您重新运行仅使用 PR 编号来审查该 PR，或不使用引用来审查您的当前分支。
 
 <Tip>
-  如果您的存储库太大而无法捆绑，Claude Code 会提示您改用 PR 模式。推送您的分支并打开草稿 PR，然后运行 `/code-review ultra <PR-number>`。
+  如果您的仓库太大而无法捆绑，Claude Code 会提示您改用 PR 模式。对于 `github.com` 上的仓库，推送您的分支并打开草稿 PR，然后运行 `/code-review ultra <PR-number>`。
 </Tip>
 
 <h3 id="diff-limits-and-fallbacks">
@@ -173,7 +173,7 @@ claude ultrareview 1234
 claude ultrareview origin/main
 ```
 
-不带参数时，该子命令会审查当前分支与默认分支之间的 diff；当不存在合并基准时，会执行与 `/code-review ultra` 相同的[回退到整个仓库审查](#diff-limits-and-fallbacks)。传入 PR 编号可审查对应的 Pull Request，传入基准分支则以该分支为基准进行审查；[基准分支的处理方式](#review-against-a-different-base)与交互式命令一致。
+不带参数时，该子命令会审查当前分支与默认分支之间的 diff；当不存在合并基准时，会执行与 `/code-review ultra` 相同的[回退到整个仓库审查](#diff-limits-and-fallbacks)。传入 PR 编号可[审查 `github.com` 上的 Pull Request](#review-a-pull-request)，传入基准分支则以该分支为基准进行审查；[基准分支的处理方式](#review-against-a-different-base)与交互式命令一致。
 
 运行该子命令即表示您同意回退到整个仓库审查，并同意计费和条款确认提示，因此运行会直接开始，无需等待输入。只有您亲自运行才算作同意。如果改由 Claude 替您运行该子命令（例如通过 Bash 工具），Claude Code 会拒绝执行整个仓库审查。
 

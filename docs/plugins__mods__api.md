@@ -140,7 +140,7 @@ on('session.start', async ($, e, next) => {
 | 调用 | 用户看到的内容 |
 | :- | :- |
 | `$.ui.status(text)` | 提示下的一行，保持不变直到您更改它。它以 `⚠` 和 mod 的名称开头，如 `⚠ my-mod: checks: 3 passing`。 |
-| `$.ui.toast(text)` | 右上角的一条 toast 通知，mod 的名称在文本上方，几秒后消失 |
+| `$.ui.toast(text)` | 一条带有 mod 名称的 toast 通知，几秒后消失。在[全屏渲染](/docs/zh-CN/fullscreen)中，它是右上角的一个框；在经典渲染器中，它是提示下右侧的一行。 |
 | `$.ui.log(text)` | 成绩单中的一条暗线，Claude 不读取。它以 `●` 和 mod 的名称开头，如 `● my-mod: build finished`。 |
 
 <h3 id="start-a-turn-from-a-background-job">

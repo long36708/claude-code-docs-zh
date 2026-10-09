@@ -209,7 +209,7 @@ mod 已加载，其 hooks 运行，它接触的工具调用被拒绝。
   绘图不出现或不响应
 </h2>
 
-mod 已加载，其窗格、带或控件的行为不符合您的预期。
+mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期。
 
 <h3 id="a-pane-or-band-is-empty-or-shows-claude-code’s-usual-content">
   窗格或带为空或显示 Claude Code 的常规内容
@@ -246,6 +246,20 @@ mod 已加载，其窗格、带或控件的行为不符合您的预期。
 调用不是来自用户做的事情，且终端宽度小于[该窗格所需的宽度](/docs/zh-CN/plugins/mods/interface#when-a-pane-waits-for-a-wider-terminal)。
 
 从命令或按钮打开窗格，或检查调用的 `isPlaced` 结果。请参阅 [在正确的时间打开窗格](/docs/zh-CN/plugins/mods/interface#open-a-pane-at-the-right-time)。
+
+<h3 id="a-toast-doesn’t-appear">
+  toast 不出现
+</h3>
+
+您的 mod 在交互式终端会话中调用了 [`$.ui.toast`](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn)，但您没有看到该 toast。要确认调用已运行，请在[调试日志](#read-the-debug-log)中查找包含您的 mod 名称和 toast 文本的行，如 `$.ui.toast (first-mod): build finished`。然后检查以下原因：
+
+* **缺少该调用对应的行**：查找说明 Claude Code 拒绝该调用原因的行，如 `first-mod: $.ui.toast dropped: timeoutMs is a whole number of ms, 1 to 60000`。
+* **某个窗格正在暂缓 toast**：您的 mod 或其他 mod 在打开当前显示的窗格时传递了 [`holdToasts`](/docs/zh-CN/plugins/mods/interface#hold-toasts-behind-a-dialog)。关闭该窗格即可结束暂缓。如果该窗格是您的且需要保持打开，请从其 `$.ui.open` 调用中移除 `holdToasts`，然后重新打开该窗格。
+* **toast 位于输入框下方**：在[经典渲染器](/docs/zh-CN/fullscreen#enable-fullscreen-rendering)中，请查看输入框下方的右侧。该处的 toast 是以 mod 名称开头的一行文字，而不是右上角的方框。
+* **您的 mod 发出了更新的 toast**：在经典渲染器中，来自您的 mod 的更新 toast 可能会取代正在显示或等待显示的 toast。调试日志中会有针对较早 toast 的另一行：如果该 toast 当时正在显示，该行以 `gave way, cut short` 结尾；如果它从未出现，则以 `gave way, unseen` 结尾。要同时显示两条消息，请将它们放在一个 toast 中。
+* **toast 在绘制前超时**：在全屏渲染中，Claude Code 一次最多绘制三个 toast，因此 toast 可能在绘制之前就已超时。调试日志中会有针对该 toast 的另一行，以 `left the stack, never drawn` 结尾。当您的 mod 同时发出多个 toast 时，请将这些消息放在一个 toast 中。
+
+在 v2.1.290 之前，如果某个 toast 是在 Claude Code 为您的 mod 显示上一个 toast 后两秒内发出的，Claude Code 会丢弃该 toast，且调试日志中针对被丢弃 toast 的行会显示 `within 2000ms of the last; dropped`。
 
 <h3 id="hotkeys-do-nothing">
   热键不起作用

@@ -87,11 +87,15 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
 
     由于 hooks 执行 shell 命令，交互式会话中的用户在 Claude Code 应用它们之前会看到[安全批准对话框](#security-approval-dialogs)。
 
-    要配置 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 分类器，使其了解您的组织信任的存储库、存储桶和域，以相同的方式传递 `autoMode` 块；有关 `autoMode` 条目如何影响分类器阻止的内容以及关于 `environment`、`allow`、`soft_deny` 和 `hard_deny` 字段的重要警告，请参阅[配置 auto mode](/docs/zh-CN/auto-mode-config)。
+    要配置[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器，使其了解您的组织信任的存储库、存储桶和域，以相同的方式传递 `autoMode` 块；有关 `autoMode` 条目如何影响分类器阻止的内容以及关于 `environment`、`allow`、`soft_deny` 和 `hard_deny` 字段的重要警告，请参阅[配置自动模式](/docs/zh-CN/auto-mode-config)。
   </Step>
 
   <Step title="保存并部署">
     保存您的更改。Claude Code 客户端在下次启动或每小时轮询周期时接收更新的设置。
+
+    编辑器会根据已发布的 Claude Code 设置 JSON schema 检查您的 JSON。如果在可解析的 JSON 中发现问题，它会显示警告并更改保存按钮的标签。当已保存设置时，标签为 **Update with errors**；当尚未保存任何设置时，标签为 **Add with errors**。该按钮仍然会保存，因为 schema 警告不会阻止保存。
+
+    该 schema [可能落后于最新版本](/docs/zh-CN/settings#edit-a-settings-file)，因此编辑器可能会标记[设置参考](/docs/zh-CN/settings-reference#all-settings)中已记录的键或值。Claude Code 会接收您保存的键和值，并在加载它们时运行[自己的验证](#invalid-entries-in-delivered-settings)。
   </Step>
 </Steps>
 
