@@ -909,12 +909,12 @@ Before v2.1.232, the gateway started with these values. Each value had this effe
   * **Mixed keys**: a file that has both `code` and `cli`, or its earlier spelling `settings`, stops the gateway at boot. Put every block under one key, in one edit.
 </Warning>
 
-A policy's Claude Code settings, such as a rule that denies reading `.env` files, go in a block under the `cli` or `code` key. Both keys take the same contents. The key decides where the settings are enforced:
+A policy's Claude Code settings, such as a rule that denies reading `.env` files, go in a block under the `cli` or `code` key. `code` is the recommended key, and `cli` is the legacy key. Both keys take the same contents. The key decides where the settings are enforced:
 
 * **`cli`**: the terminal, the VS Code and JetBrains extensions, and the Agent SDK. Under `cli`, Claude Desktop's Code tab gets the [derived settings](#claude-desktop-overlay), so a scoped rule such as `Read(./.env)` doesn't stop a user there.
 * **`code`**: the same places, and Claude Desktop's Code tab can be covered too.
 
-The choice is whether these settings should also cover the Code tab. If not, change nothing. A file that uses `cli` works as it did, and a gateway that finds `cli` in a policy with a [`desktop`](#claude-desktop-overlay) key warns at boot and starts anyway. To cover the Code tab, switch to `code`, the recommended key.
+A file that uses `cli` works as it did, and a gateway that finds `cli` in a policy with a [`desktop`](#claude-desktop-overlay) key warns at boot and starts anyway. Switch to `code` so that the settings can also cover the Code tab.
 
 Before you switch, read [Apply `code` settings in the Code tab](#apply-code-settings-in-the-code-tab). The policy needs a `desktop` key and users' machines need setup before the settings apply there, and web search turns off in Claude Desktop.
 
