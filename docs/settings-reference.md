@@ -638,7 +638,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`claudeMdExcludes`](#claudemdexcludes) | 在内存加载时跳过特定的 [CLAUDE.md](/docs/zh-CN/memory#exclude-specific-claude-md-files) 文件 | 内存和上下文 | Any file |
 | [`cleanupPeriodDays`](#cleanupperioddays) | 选择 Claude Code 在删除[记录](/docs/zh-CN/data-usage#data-retention)之前保留多少天 | 隐私和遥测 | Any file |
 | [`companyAnnouncements`](#companyannouncements) | 在启动时显示您的组织的公告 | 界面和终端 | Any file |
-| [`copyFullResponse`](#copyfullresponse) | 使 [`/copy`](/docs/zh-CN/commands) 复制完整响应而不显示代码块选择器 | 全局配置设置 | Global config |
+| [`copyFullResponse`](#copyfullresponse) | 使 [`/copy`](/docs/zh-CN/commands) 复制完整回复而不显示选择器 | 全局配置设置 | Global config |
 | [`copyOnSelect`](#copyonselect) | 关闭在[全屏渲染](/docs/zh-CN/fullscreen#use-the-mouse)和代理视图中用鼠标选择的文本的自动复制 | 全局配置设置 | Global config |
 | [`crossSessionInbound`](#crosssessioninbound) | 选择 Claude Code 是否传递[来自您其他会话的消息](/docs/zh-CN/cross-session-messaging#control-inbound-messages)、显示通知而不传递它们，或拒绝它们 | 代理、会话和工作树 | Any file |
 | [`defaultShell`](#defaultshell) | 选择 Bash 或 PowerShell 是否运行您使用 [`!` 前缀](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)键入的 shell 命令 | 界面和终端 | Any file |
@@ -684,7 +684,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`fileCheckpointingEnabled`](#filecheckpointingenabled) | 打开或关闭 [`/rewind`](/docs/zh-CN/checkpointing) 恢复的文件快照 | 内存和上下文 | Any file |
 | [`fileSuggestion`](#filesuggestion) | 从您自己的命令提供 [`@` 文件自动完成](/docs/zh-CN/interactive-mode#quick-commands) | 界面和终端 | Any file |
 | [`footerLinksRegexes`](#footerlinksregexes) | 将输出中的问题或审查 ID 变成输入框下方的[可点击链接](/docs/zh-CN/statusline#clickable-links) | 界面和终端 | User or managed |
-| [`forceLoginGatewayUrl`](#forcelogingatewayurl) | 设置登录屏幕连接到的[网关 URL](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url) | 身份验证和提供商 | Managed |
+| [`forceLoginGatewayUrl`](#forcelogingatewayurl) | 设置登录屏幕连接到的[网关 URL](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url) | 身份验证和提供商 | User or managed |
 | [`forceLoginMethod`](#forceloginmethod) | [限制登录](/docs/zh-CN/authentication#restrict-login-to-your-organization)到 claude.ai、Claude Console 或[云网关](/docs/zh-CN/claude-apps-gateway) | 身份验证和提供商 | Any file |
 | [`forceLoginOrgUUID`](#forceloginorguuid) | [将 claude.ai 登录固定到您的组织](/docs/zh-CN/authentication#restrict-login-to-your-organization)；仅托管源强制执行 | 身份验证和提供商 | Any file |
 | [`forceRemoteSettingsRefresh`](#forceremotesettingsrefresh) | 阻止启动，直到[服务器托管设置](/docs/zh-CN/server-managed-settings)被新鲜获取 | 企业和托管设置 | Managed |
@@ -6085,7 +6085,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 限制人们可以使用哪种帐户登录。设置 `"claudeai"` 以仅允许 claude.ai 帐户，设置 `"console"` 以仅允许 Claude Console 帐户，或设置 `"gateway"` 以将人们引导至 [cloud gateway](/docs/zh-CN/claude-apps-gateway) 而不是第一方登录。管理员在托管设置中设置它，并将其与 [`forceLoginOrgUUID`](#forceloginorguuid) 配合使用，以将开发人员的 claude.ai 登录限制在一个组织内。如果您在任何设置文件中将其设置为 `"claudeai"` 或 `"console"`，Claude Code 也会在该文件适用的会话中停止提供[无密钥 Console 登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)。
 
-* **Scope**: [`Any file`](#scopes)。Claude Code 仅接受来自机器上托管源（`managed-settings.json`、macOS plist 或 Windows HKLM 注册表或策略辅助程序）的 `"gateway"`。它在用户、项目、本地、HKCU 和服务器托管设置中将 `"gateway"` 视为未设置，与 [`forceLoginGatewayUrl`](#forcelogingatewayurl) 的规则相同。
+* **Scope**: [`Any file`](#scopes)。Claude Code 接受来自与 [`forceLoginGatewayUrl`](#forcelogingatewayurl) 相同来源的 `"gateway"`，在其他任何位置都将其视为未设置。
 * **Type**: string，以下之一：
   * `"claudeai"`：仅 claude.ai 帐户可以登录
   * `"console"`：仅 Claude Console 帐户可以登录
@@ -6108,9 +6108,9 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 设置 `/login` Cloud gateway 屏幕连接到的网关 URL，以便人们无需输入地址即可访问您的 [cloud gateway](/docs/zh-CN/claude-apps-gateway)。该屏幕没有 URL 字段：设置此设置项后，它会显示您的网关 URL，并在用户按 Enter 时连接；未设置时，它会告诉用户联系其 IT 管理员。
 
-此设置项或 `forceLoginMethod: "gateway"` 都会使机器仅限网关，但使用 `CLAUDE_CODE_USE_*` 选择云提供商的会话除外。此时 `/login` 会直接打开 Cloud gateway 屏幕，没有登录方法选择器。请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)，了解遗留的第一方登录或 API 密钥会发生什么。请同时设置这两个设置项，以便屏幕能够连接而不是显示错误。
+在托管设置中，此设置项或 `forceLoginMethod: "gateway"` 都会使机器仅限网关，但使用 `CLAUDE_CODE_USE_*` 选择云提供商的会话除外。此时 `/login` 会直接打开 Cloud gateway 屏幕，没有登录方法选择器。请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)，了解遗留的第一方登录或 API 密钥会发生什么。请同时设置这两个设置项，以便屏幕能够连接而不是显示错误。
 
-* **Scope**: [`Managed`](#scopes)。仅从机器上的源读取：`managed-settings.json`、macOS plist 或 Windows HKLM 注册表或策略辅助程序。Claude Code 在 HKCU 和服务器托管设置中忽略它。
+* **Scope**: [`User or managed`](#scopes)。从机器上的托管源读取：`managed-settings.json`、macOS plist 或 Windows HKLM 注册表或策略辅助程序。在没有上述任何来源的机器上，Claude Code v2.1.295 或更高版本还会从[用户设置](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url-in-user-settings)中读取它。Claude Code 在 HKCU 和服务器托管设置中忽略它。
 * **Type**: string，包含协议方案的完整 URL
 * **Default**: 未设置，因此 Cloud gateway 屏幕显示错误，告诉人们联系其 IT 管理员
 
@@ -6806,12 +6806,12 @@ Claude Code 在 `settings.json` 中忽略此键。
   `copyFullResponse`
 </h3>
 
-使 [`/copy`](/docs/zh-CN/commands) 每次都复制完整响应，而不显示当响应包含代码块时通常显示的选择器。在该选择器中选择**始终复制完整响应**会将此键设置为 `true`。在 `/config` 中显示为**跳过 /copy 选择器**。
+使 [`/copy`](/docs/zh-CN/commands) 每次都复制完整回复，而不显示选择器。在该选择器中选择**始终复制完整回复**会将此键设置为 `true`。在 `/config` 中显示为**跳过 /copy 选择器**。
 
 * **作用域**: [`全局配置`](#scopes)
 * **类型**: 布尔值
-  * `true`: `/copy` 复制完整响应而不显示选择器
-  * `false`: 当响应包含代码块时，`/copy` 显示一个选择器，你可以在其中选择一个代码块或完整响应
+  * `true`: `/copy` 复制完整回复而不显示选择器
+  * `false`: 当回复包含代码块或引用块时，`/copy` 显示一个选择器，您可以在其中选择一个块或完整回复
 * **默认值**: `false`
 
 ```json ~/.claude.json theme={null}

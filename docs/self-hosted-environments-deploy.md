@@ -210,6 +210,8 @@ RUN git config --system --add safe.directory '*'
 作为交换，git 代理会限制运行器支持的内容，并改变运行器的需求：
 
 * **仅限 github.com**：只有当会话的所有仓库都在 github.com 上时，Anthropic 才会为其提供服务，并且 git 代理尚不支持 GitHub Enterprise Server。在启用 git 代理的运行器上，包含其他 git 主机上仓库的会话[无法启动](#when-anthropic-doesnt-serve-a-session)。
+* **仅限会话仓库的凭据**：Anthropic 只为属于会话的仓库提供 git 凭据，而不为同一 git 主机上的其他仓库提供。私有子模块、包管理器通过 git 获取的依赖，或位于另一个仓库中的插件市场，都不会从 Anthropic 获得凭据。请让创建会话的人员在创建会话时[添加会话所需的每个仓库](/docs/zh-CN/web-quickstart#start-a-task)。
+* **仅限分支推送**：删除分支的推送会失败，推送到任何其他类型的引用（例如标签）也会失败。有关推送可以更新哪些分支，请参阅 [GitHub 代理](/docs/zh-CN/cloud-environments#github-proxy)。
 * **已连接的 GitHub 账户**：创建用户会话的人必须已在 claude.ai 上连接 GitHub，否则会话[无法启动](#creator-has-no-github-connection)。
 * **`--capacity 1`**：git 代理要求每个运行器进程只有一个会话，因此请运行更多副本以获得并行性。[启用 Anthropic git 代理](#turn-the-anthropic-git-proxy-on)列出了各项要求。
 * **替换全局 git 配置**：运行器会[删除并替换其运行用户的全局 git 配置](#git-proxy-replaces-global-git-config)。请以专用用户身份或在容器中运行它。

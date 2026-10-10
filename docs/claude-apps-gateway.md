@@ -261,7 +261,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
   连接开发人员
 </h2>
 
-开发人员从自己的笔记本电脑使用一次浏览器登录进行连接，使用他们的公司工作账户。他们不需要 claude.ai 账户、API 密钥或订阅，因为对模型的请求通过网关使用组织的上游凭证。连接由您通过 MDM 推送的[客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)驱动，因此开发人员端没有手动设置；本部分涵盖管理员配置的内容。
+开发人员从自己的笔记本电脑使用一次浏览器登录进行连接，使用他们的公司工作账户。他们不需要 claude.ai 账户、API 密钥或订阅，因为对模型的请求通过网关使用组织的上游凭据。连接由您通过 MDM 推送的[客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)驱动，本部分涵盖管理员配置的内容。
 
 CLI 在首次连接时对网关的 TLS 叶证书进行指纹识别，并按主机名固定它。它在登录期间、静默会话刷新期间和托管设置获取期间再次检查该固定，而推理请求使用标准 TLS 验证而不使用固定。通过 HTTPS 代理路由的请求跳过固定检查，因此将网关主机添加到 `NO_PROXY` 以保持它们直接连接。
 
@@ -285,7 +285,7 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
   设置网关 URL
 </h3>
 
-三个密钥进入您通过 MDM 或直接在磁盘上部署的每个操作系统[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)。`forceLoginMethod` 和 `forceLoginGatewayUrl` 在**Cloud gateway** 屏幕上直接打开 `/login`，URL 已填入，`parentSettingsBehavior: "merge"` 让 Claude Desktop 将网关的出口允许列表传递给它启动的 Claude Code 会话，在[将策略传递给 Claude Desktop 会话](#deliver-policy-to-claude-desktop-sessions)中解释：
+三个密钥进入您通过 MDM 或直接在磁盘上部署的每个操作系统[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)。对于没有托管设置的机器，请改为参阅[在用户设置中设置网关 URL](#set-the-gateway-url-in-user-settings)。`forceLoginMethod` 和 `forceLoginGatewayUrl` 在**Cloud gateway** 屏幕上直接打开 `/login`，URL 已填入，`parentSettingsBehavior: "merge"` 让 Claude Desktop 将网关的出口允许列表传递给它启动的 Claude Code 会话，在[将策略传递给 Claude Desktop 会话](#deliver-policy-to-claude-desktop-sessions)中解释：
 
 ```json theme={null}
 {
@@ -297,7 +297,25 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 
 开发人员按 Enter 连接。[首次连接 TLS 指纹提示](#connect-developers)仍然出现。文件在机器上后，未完成网关登录的开发人员会看到[管理员策略需要 Cloud 网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)下描述的消息之一。通过环境变量（如 `CLAUDE_CODE_USE_BEDROCK`）选择云提供商的开发人员不需要网关登录。
 
-开发人员无法手动设置此项。登录选择器中没有网关选项，`forceLoginGatewayUrl` 在开发人员自己的设置文件中被忽略。单独的 `forceLoginMethod`，没有 URL，将开发人员留在"联系您的 IT 管理员"消息处。登录密钥属于您推送到机器的文件中，而不是网关的 `managed.policies[].cli` 块中，该块仅到达已连接的客户端。
+登录选择器中没有网关选项，而在托管设置中，单独的 `forceLoginMethod`（没有 URL）会将开发人员留在"联系您的 IT 管理员"消息处。登录密钥属于您推送到机器的文件中，而不是网关的 `managed.policies[].cli` 块中，该块仅到达已连接的客户端。
+
+<h4 id="set-the-gateway-url-in-user-settings">
+  在用户设置中设置网关 URL
+</h4>
+
+在没有托管设置的机器上，让每位开发人员将 `forceLoginMethod` 和 `forceLoginGatewayUrl` 添加到其自己的用户设置文件 `~/.claude/settings.json` 中。这需要开发人员机器上的 Claude Code v2.1.295 或更高版本。此示例指定位于 `claude-gateway.internal.example.com` 的网关：
+
+```json theme={null}
+{
+  "forceLoginMethod": "gateway",
+  "forceLoginGatewayUrl": "https://claude-gateway.internal.example.com"
+}
+```
+
+当开发人员在 Claude Code 提示符处运行 `/login` 时，**Cloud gateway** 屏幕会以该地址打开，开发人员按 Enter 即可连接。[首次连接 TLS 指纹提示](#connect-developers)仍然出现。以这种方式设置的设置项受以下限制：
+
+* **仅限用户设置**：Claude Code 从 `~/.claude/settings.json` 读取这两个设置项，而不是从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 读取。
+* **托管设置会使其失效**：一旦管理员的设置通过托管设置文件、macOS plist 或 Windows HKLM 策略，或[策略助手](/docs/zh-CN/settings-reference#policyhelper)到达机器，Claude Code 就会忽略用户设置中指定的网关。
 
 <h3 id="allow-a-gateway-on-public-address-space-you-own">
   在您拥有的公共地址空间上允许网关

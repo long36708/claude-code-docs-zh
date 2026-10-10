@@ -114,15 +114,15 @@ Checkpointing 仅跟踪在当前会话中编辑过的文件。您在 Claude Code
   中途发送的消息未检查点
 </h3>
 
-当您在 Claude 工作时[排队的消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)在运行的轮次中到达 Claude 时，它会加入该轮次而不是开始新的轮次。该消息会出现在对话中，但 Claude Code 不会为其创建检查点。Claude Code 作为新轮次的一部分发送的排队消息会照常获得检查点，包括当多个排队消息[共享该轮次](/docs/zh-CN/interactive-mode#when-claude-code-sends-what-you-queued)时。
+在回溯菜单中，您[在 Claude 仍在工作时输入的](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)消息可能会被标记为 **No code restore**。Claude 在其轮次结束之前读取了该消息。[检查点是为启动轮次的提示词创建的](#how-checkpoints-work)，因此该消息没有属于自己的检查点。Claude 在读取该消息之后所做的编辑会计入启动该轮次的提示词。
 
-要撤销 Claude 在此类消息之后所做的编辑，请回溯到启动该轮次的提示词。这会回溯整个轮次，包括 Claude 在您的消息到达之前所做的工作。
+您无需对该消息本身做任何处理。要撤销会话中那部分的文件更改，请选择启动该轮次的提示词，然后选择 **Restore code** 或 **Restore code and conversation**。这会还原 Claude 在整个轮次中所做的文件编辑，包括您的消息到达之前所做的编辑。选择被标记的消息时仍会提供 **Restore conversation**，它会将对话回溯到该消息，并保持您的文件不变。
 
 <h3 id="symlinked-and-hard-linked-paths-not-restored">
   符号链接和硬链接路径未恢复
 </h3>
 
-Checkpointing 不会回溯符号链接或硬链接文件。当您从 `/rewind` 菜单中选择**恢复代码**或**恢复代码和对话**时，Claude Code 会跳过任何是符号链接或硬链接的跟踪路径，并显示 `已恢复代码，但跳过了 N 个文件` 警告。跳过的文件保持其当前内容。要撤销会话对其中一个文件的更改，请要求 Claude 反转编辑或自己编辑文件。配置文件（dotfile 管理器符号链接到您的项目中的文件）和 pnpm 硬链接到位的文件都属于此类别。
+检查点功能不会回溯符号链接或硬链接文件。当您从 `/rewind` 菜单中选择 **Restore code** 或 **Restore code and conversation** 时，Claude Code 会跳过任何是符号链接或硬链接的跟踪路径，并显示 `Restored the code, but skipped N files` 警告。跳过的文件保持其当前内容。要撤销会话对其中一个文件的更改，请要求 Claude 反转编辑或自己编辑文件。dotfile 管理器符号链接到您项目中的配置文件，以及 pnpm 硬链接到位的文件，都属于此类别。
 
 要查看恢复跳过的路径，请在恢复前使用 `/debug` 打开调试日志：`~/.claude/debug/<session-id>.txt` 中的调试日志会列出每个跳过的路径。有关每个跳过原因和恢复步骤，请参阅[错误参考中的 skipped-files 条目](/docs/zh-CN/errors#restored-the-code-but-skipped-files)。
 

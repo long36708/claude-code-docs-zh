@@ -122,6 +122,19 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 }
 ```
 
+<h2 id="see-session-status-in-your-terminal">
+  在终端中查看会话状态
+</h2>
+
+如果您的终端实现了 OSC 7501 Program Status Protocol，它可以显示每个交互式 Claude Code 会话是正在工作、正在等待您，还是已完成，这在您运行长时间任务或同时运行多个会话时很有帮助。Claude Code 中无需启用任何设置。要了解您的终端是否实现了该协议以及在何处显示状态，请查阅其文档。
+
+如果终端已实现该协议，但您没有看到某个会话的状态，请逐一检查以下原因：
+
+* **Claude Code 版本**：状态报告需要 Claude Code v2.1.295 或更高版本。在 shell 中运行 `claude --version` 进行检查。
+* **tmux**：在 tmux 中，Claude Code 会检查 tmux 而非您的终端是否支持该协议，且 [`allow-passthrough`](#configure-tmux) 对此没有影响。请在 tmux 之外启动会话。
+* **后台会话**：[后台会话](/docs/zh-CN/agent-view)不会向您的终端报告其状态，即使您已连接到该会话也是如此。Agent 视图会改为显示其状态。
+* **[`CLAUDE_CODE_DISABLE_TERMINAL_TITLE`](/docs/zh-CN/env-vars#variables)**：如果您将此变量设置为 `1`，Claude Code 将不会检查支持情况，也不会报告状态。请取消设置该变量。
+
 <h2 id="configure-tmux">
   配置 tmux
 </h2>

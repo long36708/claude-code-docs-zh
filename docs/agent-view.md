@@ -256,6 +256,8 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 附加的会话始终以[全屏模式](/docs/zh-CN/fullscreen)呈现，不受您的 `tui` 设置影响，因为后台会话没有可追加内容的终端回滚缓冲区。使用 `PgUp`、`PgDn` 或鼠标滚轮滚动，按 `Ctrl+O` 进入会话记录模式。终端的原生滚动和 tmux 复制模式仅显示当前视口，与运行任何全屏应用程序时相同。
 
+附加的会话不会[向您的终端报告其状态](/docs/zh-CN/terminal-config#see-session-status-in-your-terminal)。
+
 在空提示符上按 `←` 或运行 `/exit` 即可分离并返回 agent view，无论您是从 agent view 打开会话，还是从 shell 用 `claude attach <id>` 打开的。
 
 [`/btw` overlay](/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw) 打开时，`←` 也可以分离。需要 Claude Code v2.1.257 或更高版本。仍在回答中的旁支问题会在您离开期间继续运行。下次附加时，overlay 会重新打开并显示该问题或其答案。

@@ -279,17 +279,25 @@ Claude Code 也可以将它启动的其他类型的进程计入同一限制。�
 
 Edit 工具执行精确字符串替换。它接受一个 `old_string` 和一个 `new_string`，并用后者替换前者。它不使用正则表达式或模糊匹配。
 
-编辑应用必须通过三项检查。在任何检查之前，与 [`Read` 拒绝规则](/docs/zh-CN/permissions#tool-specific-permission-rules)匹配的路径会被拒绝，包括在该路径创建新文件。此拒绝需要 Claude Code v2.1.208 或更高版本。
+编辑应用必须通过以下检查。在任何检查之前，与 [`Read` 拒绝规则](/docs/zh-CN/permissions#tool-specific-permission-rules)匹配的路径会被拒绝，包括在该路径创建新文件。此拒绝需要 Claude Code v2.1.208 或更高版本。
 
-* **编辑前读取**：Claude 在编辑文件前在当前对话中读取该文件，并且以 [`PARTIAL view` 通知](#read-tool-behavior)中断的读取不计数。Claude Opus 4.6、Claude Haiku 4.5 和更早的模型始终需要读取。较新的模型可以在读取不需要权限提示且 Read 工具可用时编辑未读文件。
+* **编辑前读取**：Claude 在编辑文件前在当前对话中读取该文件，并且以 [`PARTIAL view` 通知](#large-files)中断的读取不计数。Claude Opus 4.6、Claude Haiku 4.5 和更早的模型始终需要读取。较新的模型可以在读取不需要权限提示且 Read 工具可用时编辑未读文件。
 * **匹配**：`old_string` 必须在文件中完全按照编写的方式出现。单个空格或缩进差异足以导致不匹配。
 * **唯一性**：`old_string` 必须恰好出现一次。当它出现多次时，Claude 要么提供一个更长的字符串，其周围上下文足以确定一个出现位置，要么设置 `replace_all: true` 来替换所有出现位置。
 
 当 `old_string` 与当前内容完全匹配且明确无误，且 Claude Code 可以在不提示的情况下读取文件时，在 Claude 最后读取后在磁盘上更改的文件仍然可以编辑。针对文件的当前内容进行匹配可以保持安全，结果会注明该文件包含其他更改，以便 Claude 在依赖周围内容的编辑前重新读取它。在任何其他情况下，例如过时的 `old_string` 或在没有 `replace_all` 的情况下匹配多次的情况，Claude 在编辑前再次读取文件。对未读和已更改文件的宽松处理需要 Claude Code v2.1.208 或更高版本；在此之前，Claude Code 拒绝对它在对话中未读过或在读取后在磁盘上更改的任何文件进行编辑。
 
-使用 Bash 查看文件也满足编辑前读取要求，当命令是 `cat`、`nl`、`bat`、`batcat`、`head`、`tail`、`sed -n 'X,Yp'`、`grep`、`egrep`、`fgrep` 或 `rg` 在单个文件上且没有管道或重定向时。管道输出和其他 Bash 命令不计入编辑前读取检查。
+使用 Bash 查看文件也满足编辑前读取要求，当命令是 `cat`、`nl`、`bat`、`batcat`、`head`、`tail`、`sed -n 'X,Yp'`、`grep`、`egrep`、`fgrep` 或 `rg` 在单个文件上且没有管道或重定向时。没有匹配到任何内容的搜索不会将文件视为已读取。管道输出和其他 Bash 命令不计入编辑前读取检查。
 
 当 Claude 以这种方式查看文件时，Claude Code 还会加载适用于该文件的任何[子目录 `CLAUDE.md`](/docs/zh-CN/memory#how-claude-md-files-load) 和[路径范围规则](/docs/zh-CN/memory#path-specific-rules)。请参阅 [Read 和 Edit 权限规则](/docs/zh-CN/permissions#read-and-edit)，了解您的 `Read` 和 `Edit` 拒绝规则涵盖哪些 Bash 命令。
+
+<h3 id="non-utf-8-files">
+  非 UTF-8 文件
+</h3>
+
+Edit 和 [NotebookEdit](#notebookedit-tool-behavior) 会拒绝更改字节无法按 UTF-8 解码的文件，并且不写入任何内容，因为将其以 UTF-8 保存回去会把所有无法解码的字节都变成替换字符 `U+FFFD`。例如，这包括以 Windows-1252 或 Shift-JIS 等旧编码保存且含有非 ASCII 文本的文件、二进制文件，以及包含无效字节序列的 UTF-8 文件。[Claude 收到的错误](/docs/zh-CN/errors#file-is-not-valid-utf-8)会告诉它使用一条以文件自身编码读写该文件的 shell 命令来进行更改，或者先询问您是否将文件转换为 UTF-8。对于以小端 UTF-16 字节顺序标记开头的文件，Edit 会改为按 UTF-16 读取，因此该文件仍可编辑。
+
+Write 不会执行这种拒绝。对于 Edit 会拒绝的文件，Write 会用新内容替换整个文件并将其保存为 UTF-8，因此文件的原始编码会丢失。当磁盘上的文件无法解码且新内容包含 `U+FFFD`（Read 对无法解码的字节所显示的字符）时，Write 会拒绝并且不写入任何内容。
 
 <h2 id="endconversation-tool-behavior">
   EndConversation 工具行为
@@ -455,6 +463,8 @@ NotebookEdit 一次修改一个 Jupyter notebook 单元格，按其 `cell_id` �
 * `insert`：在目标后添加新单元格。没有 `cell_id` 时，新单元格位于 notebook 的开始。需要 `cell_type` 设置为 `code` 或 `markdown`。
 * `delete`：删除目标单元格。
 
+对于无法按 UTF-8 解码的 notebook 文件，NotebookEdit 会依照[与 Edit 相同的规则](#non-utf-8-files)拒绝处理，且不写入任何内容。
+
 权限规则使用 `Edit(...)` 路径格式。像 `Edit(notebooks/**)` 这样的规则涵盖该目录中的 NotebookEdit 调用。
 
 <h2 id="powershell-tool">
@@ -547,19 +557,26 @@ PowerShell 工具在预览期间有以下已知限制：
 
 Read 工具接收文件路径并返回带有行号的文件内容。Claude 被指示始终传递绝对路径。
 
-默认情况下，Read 从文件开始处返回内容。当整个文件读取超过令牌限制时，Read 返回第一页并显示 `PARTIAL view` 通知，告诉 Claude 它接收了多少文件内容以及如何使用 `offset` 和 `limit` 读取更多内容。传递显式 `offset` 或 `limit` 的读取仍然超过令牌限制时会返回错误。
-
-带有显式 `limit` 的读取会在选定的行数超过令牌限制可能容纳的内容时立即停止，并返回错误而不加载范围的其余部分。该错误告诉 Claude 使用更小的 `limit`，或者当单行非常大时改用 [Grep](#grep-tool-behavior) 搜索特定内容。在 v2.1.208 之前，Claude Code 在拒绝之前会将整个范围加载到内存中，因此读取包含极长单行的文件可能会导致内存不足。
-
 读取空文件会返回一个通知，说明文件存在但内容为空，而 `offset` 超过最后一行会返回一个通知，给出文件的行数。在 v2.1.208 之前，读取空文件会返回超过末尾的通知。
 
 Read 处理多种文件类型，不仅仅是纯文本：
 
 * **图像**：PNG、JPG 和其他图像格式作为 Claude 可以看到的视觉内容返回，而不是原始字节。Claude Code 在发送大型图像之前会调整大小并重新压缩，以适应模型的图像大小限制，因此 Claude 可能会看到大型屏幕截图的缩小版本。在调整大小后仍然大于 500KB 的图像会被重新编码为质量降低的 JPEG，其像素尺寸保持不变。如果 Claude 在大型图像中遗漏了细微的像素级细节，请要求它先裁剪感兴趣的区域，例如通过 Bash 使用 ImageMagick。
 * **PDF**：Claude 完整读取短 `.pdf` 文件。对于超过 10 页的 PDF，它使用 `pages` 参数按范围读取，例如 `"1-5"`，一次最多 20 页。页面范围读取使用 poppler-utils 中的 `pdftoppm` 呈现页面，因此在 macOS 上使用 `brew install poppler` 安装，在 Debian 和 Ubuntu 上使用 `apt-get install poppler-utils` 安装。在 Windows 和其他平台上，安装一个将 `pdftoppm` 放在 `PATH` 上的 poppler 构建。没有它，页面范围读取会失败并显示 `pdftoppm is not installed`。
-* **Jupyter 笔记本**：`.ipynb` 文件返回所有单元格及其输出，包括代码、markdown 和可视化。Claude Code 拒绝读取超过 100 MB 的笔记本文件；错误会告诉 Claude 如何改为读取笔记本的一部分，例如使用 shell 命令读取单元格的一个切片。
+* **Jupyter 笔记本**：`.ipynb` 文件返回所有单元格及其输出，包括代码、markdown 和可视化。如果笔记本的单元格总量超过 256 KB，或超过 [token 限制](#large-files)，则会返回错误。Claude Code 拒绝读取超过 100 MB 的笔记本文件；错误会告诉 Claude 如何改为读取笔记本的一部分，例如使用 shell 命令读取单元格的一个切片。
 
 Read 仅读取文件，不读取目录。Claude 使用 shell 命令（如 `ls`）列出目录内容。
+
+<h3 id="large-files">
+  大型文件
+</h3>
+
+Claude 可以读取大于单次 Read 调用所能返回内容的文本文件。默认情况下，单次调用最多返回 25,000 个 token，或您在 [`CLAUDE_CODE_FILE_READ_MAX_OUTPUT_TOKENS`](/docs/zh-CN/env-vars) 中设置的值，并且会拒绝读取超过 256 KB 的整个文件，因此 Claude 会使用 `offset` 和 `limit` 分页读取较大的文件。在 Claude Code v2.1.296 或更高版本中，Claude 可以在需要时（例如因为您要求读取整个文件）通过设置 `allow_large: true`，在一次调用中读取整个文件或较长的行范围。此类读取的大小依据会话[上下文窗口](/docs/zh-CN/context-window)中的剩余空间来确定，而不是依据默认限制。图像、PDF 和笔记本仍保留各自的限制。
+
+当读取超过默认限制时，Claude 收到的内容：
+
+* **整个文件超过 token 限制**：文件的第一页，并附带 `PARTIAL view` 通知，说明它接收了多少文件内容以及如何使用 `offset` 和 `limit` 读取更多内容
+* **整个文件超过 256 KB，或使用 `offset` 或 `limit` 的读取超过 token 限制**：一个错误，告诉它使用 `offset` 和 `limit` 读取一部分内容，或改用 [Grep](#grep-tool-behavior) 搜索特定内容
 
 <h2 id="sendfeedback-tool-behavior">
   SendFeedback 工具行为
@@ -734,13 +751,13 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
   Write tool 行为
 </h2>
 
-Write tool 创建一个新文件或用提供的完整内容覆盖现有文件。它不会追加或合并。
+Write tool 创建一个新文件或用提供的完整内容覆盖现有文件。它不会追加或合并。对于字节无法解码的现有文件，Write 同样会将其覆盖，并将新内容保存为 UTF-8，详见[非 UTF-8 文件](#non-utf-8-files)。
 
 Claude 是否必须在当前对话中读取现有文件后才能覆盖它取决于模型和文件：
 
 * Claude Opus 4.6、Claude Haiku 4.5 和更早的模型始终需要读取，因此对未读的现有文件进行 Write 操作会失败并显示错误。
 * 较新的模型可以在与[读取前编辑](#edit-tool-behavior)相同的条件下覆盖他们在此会话中从未读过的文件：读取它不需要权限提示，且 Read tool 可用。
-* Jupyter notebooks 和 Claude 仅部分读取的文件（带有[`PARTIAL view` 通知](#read-tool-behavior)）在每个模型上都需要读取。
+* Jupyter notebooks 和 Claude 仅部分读取的文件（带有[`PARTIAL view` 通知](#large-files)）在每个模型上都需要读取。
 
 此约束不适用于新文件。在 v2.1.228 之前，每个模型都需要在覆盖现有文件前进行读取。
 

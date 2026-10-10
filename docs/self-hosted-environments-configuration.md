@@ -211,8 +211,8 @@ IFS=':'
 # privileges. -c commit.gpgsign=false also leaves these rescue commits
 # unsigned under --configure-git.
 # Repo-local credential.helper and pushurl still apply, and on a runner
-# before v2.1.280 so does core.sshCommand; if the hook holds credentials
-# the session didn't, see the note below the script.
+# before v2.1.280 so does core.sshCommand; see the note below the script
+# before you give this push a credential.
 g() { git -c core.fsmonitor=false -c core.hooksPath=/dev/null \
         -c commit.gpgsign=false "$@"; }
 for ws in $CLAUDE_RUNNER_WORKSPACE_PATHS; do
@@ -226,7 +226,9 @@ done
 
 脚本中的 `GIT_ALLOW_PROTOCOL` 行将 git 限制为 HTTPS、HTTP 和 SSH 远程。如果运行器的环境已经设置了自己的非空 `GIT_ALLOW_PROTOCOL` 列表，脚本会保留该列表。
 
-hook 使用运行器主机上其自身环境中可用的任何 git 凭据进行推送。在[镜像中不含凭据的部署方式](/docs/zh-CN/self-hosted-environments-deploy#configure-git)下，包括内置克隆通过 Anthropic git 代理进行时，都没有可用凭据，因此请在推送前于 hook 内生成短期推送凭据：将 hook 在 `CLAUDE_CODE_SESSION_ACCESS_TOKEN` 中收到的会话令牌与您自己的令牌服务进行交换，并按照[验证会话身份](/docs/zh-CN/self-hosted-environments-identity)中的说明对其进行验证。当 hook 持有会话没有的凭据时，请将 `origin` 替换为操作员提供的 URL，并传递 `-c credential.helper=` 加上您自己的助手。[生命周期 hook 中的 Git 配置](#git-configuration-inside-lifecycle-hooks)说明了会话写入的配置仍可能影响哪些内容。
+hook 使用运行器主机上其自身环境中可用的任何 git 凭据进行推送。在[镜像中不含凭据的部署方式](/docs/zh-CN/self-hosted-environments-deploy#configure-git)下，包括内置克隆通过 Anthropic git 代理进行时，都没有可用凭据，因此请在推送前于 hook 内生成短期推送凭据：将 hook 在 `CLAUDE_CODE_SESSION_ACCESS_TOKEN` 中收到的会话令牌与您自己的令牌服务进行交换，并按照[验证会话身份](/docs/zh-CN/self-hosted-environments-identity)中的说明对其进行验证。
+
+请将您的 hook 提供给 git 的任何凭据都视为会话可以获取的凭据，并在生成时使其只能完成此次推送。hook 中的 git 会读取会话可以写入的配置文件，而其中某个文件指定的凭据助手或过滤器驱动程序会以您的 hook 的权限运行。无论您指定哪个远程，这些文件中的设置还可能改变推送的目标位置。有关运行器在您的 hook 中固定的 git 设置以及留给这些文件决定的设置，请参阅[生命周期 hook 中的 Git 配置](#git-configuration-inside-lifecycle-hooks)。
 
 <h4 id="hook-timing-when-the-runner-releases-a-session">
   运行器释放会话时的钩子时序

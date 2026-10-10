@@ -309,6 +309,7 @@
 | `Your disk quota is full on the filesystem with Claude Code's temp directory <dir> (EDQUOT)` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `The filesystem with Claude Code's temp directory <dir>, or your disk quota on it, is full (ENOSPC)` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `Command output was lost: the temp filesystem at <dir> is full` / `is out of inodes` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
+| `File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary` | [工具错误](#file-is-not-valid-utf-8) |
 | `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `the source file has the replacement character U+FFFD` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `Not published: that file is on a network share` | [工具错误](#not-published-that-file-is-on-a-network-share) |
@@ -1902,6 +1903,8 @@ A proxy is configured via HTTPS_PROXY. Check that it allows connections to the h
 Claude Code 通过与 API 请求相同的[代理配置](/docs/zh-CN/network-config)发送检查，并给每个探针 10 秒。当失败的探针通过代理时，消息名称配置它的环境变量，例如 `HTTPS_PROXY`。在 v2.1.222 之前，检查使用不同的代理传输，没有超时：在具有 `https://` 方案的代理 URL 后面，它可能会在 `Checking connectivity...` 上无限期停滞，然后即使通过同一代理的 API 请求成功也会失败。
 
 当[托管设置文件、MDM 策略或策略助手](/docs/zh-CN/managed-settings)将 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 设置为 `"gateway"` 或设置 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl) 而不设置 `forceLoginMethod` 时，Claude Code 会跳过此检查。使用任一配置，Claude Code 在**云网关**屏幕上打开登录步骤，而不是 Anthropic 登录方法。当机器上存在托管设置源但无法读取时，Claude Code 也会跳过检查，因为该源可能包含网关配置。在 v2.1.247 之前，Claude Code 在此配置下也运行检查，当 Anthropic 的端点无法到达时以此错误退出。
+
+在没有托管设置的机器上，当您自己的 `~/.claude/settings.json` 通过 `forceLoginMethod` 和 `forceLoginGatewayUrl` [指定网关](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url-in-user-settings)时，Claude Code 也会跳过此检查。在 v2.1.295 之前，Claude Code 在这种情况下会运行检查。
 
 **要做什么：**
 
@@ -4612,6 +4615,25 @@ Your disk quota is full on the filesystem with Claude Code's temp directory /pri
 * 删除您在持有 Claude Code 临时目录的文件系统上不再需要的文件。对于 `EDQUOT`，删除计入您自己配额的文件。对于 `out of inodes`，删除许多文件而不是几个大文件，因为每个文件占用一个 inode，无论其大小如何
 * 或使用设置为具有空间的文件系统上的目录的 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars)重启 Claude Code
 * 然后让 Claude 再次运行该命令。它打印的输出已丢失，未被截断
+
+<h3 id="file-is-not-valid-utf-8">
+  File is not valid UTF-8
+</h3>
+
+Claude 对一个字节无法解码为 UTF-8 的文件使用了 Edit 或 NotebookEdit 工具，Claude Code 拒绝了该更改。没有写入任何内容，因此文件保持原样。这些工具会将整个文件以 UTF-8 保存回去，这会将它们无法解码的每个字节都变成替换字符 `U+FFFD`。消息出现在工具结果中：
+
+```text wrap theme={null}
+File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary. This tool saves the whole file as UTF-8, which would replace every byte it cannot decode with U+FFFD. Nothing was written. Make the change with a shell command that reads and writes the file in its own encoding, or ask the user whether to convert the file to UTF-8 first.
+```
+
+本应为 UTF-8 的文件只要包含哪怕一个无效字节序列，也会收到此消息，因为该检查针对的是文件的全部字节。
+
+**应该做什么：**
+
+* 要保持文件当前的编码，请让 Claude 按照消息的指示，使用以该编码读写文件的 shell 命令进行更改
+* 要继续使用 Edit 工具编辑该文件，请将其转换为 UTF-8，或修复本应为 UTF-8 的文件中的无效字节，然后要求 Claude 再次进行编辑
+
+在 v2.1.296 之前，Edit 和 NotebookEdit 会应用此类编辑，并将无法解码的每个字节保存为 `U+FFFD`。如果您使用的是这些版本，请更新 Claude Code。
 
 <h3 id="the-source-file-is-not-valid-utf-8-text">
   源文件不是有效的 UTF-8 文本

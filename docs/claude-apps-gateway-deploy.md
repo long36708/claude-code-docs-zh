@@ -135,7 +135,7 @@ Claude Code 通过以下两种方式之一接受网关的地址：
   将网关 URL 推送到开发者机器
 </h3>
 
-一旦网关开始提供服务，通过托管设置、MDM 或直接写入每个操作系统的 `managed-settings.json` 将 `forceLoginMethod`、`forceLoginGatewayUrl` 和 `parentSettingsBehavior: "merge"` 推送到每个开发者的机器。没有这个，`/login` 显示标准账户选择器，没有网关选项。
+一旦网关开始提供服务，通过托管设置、MDM 或直接写入每个操作系统的 `managed-settings.json` 将 `forceLoginMethod`、`forceLoginGatewayUrl` 和 `parentSettingsBehavior: "merge"` 推送到每个开发者的机器。
 
 一旦您部署密钥，Claude Code 停止使用机器上剩余的 API 密钥或 claude.ai 登录，因此计划与您的登录说明一起推送。[管理员策略需要 Cloud 网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in) 描述开发者看到的消息。
 

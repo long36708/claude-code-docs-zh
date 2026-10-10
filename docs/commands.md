@@ -77,7 +77,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/compact [instructions]` | 通过总结到目前为止的对话来释放上下文。可选择传递摘要的重点指令。请参阅[压缩如何处理规则、skill 和记忆文件](/docs/zh-CN/context-window#what-survives-compaction) |
 | `/config [key=value ...]` | 打开[设置](/docs/zh-CN/settings)界面，以调整主题、模型、[输出样式](/docs/zh-CN/output-styles)和其他偏好。传递一个或多个 `key=value` 对可直接设置某项设置而无需打开界面，例如 `/config thinking=false`、`/config theme=dark` 或 `/config model=sonnet`。`key=value` 形式也适用于非交互模式（`-p`），以及通过 [Remote Control](/docs/zh-CN/remote-control) 从 Claude 移动应用使用。`key=value` 形式无法开启需要您在面板中确认的设置，例如 [`autoContinueAtUsageLimit`](/docs/zh-CN/interactive-mode#turn-automatic-continue-off)，但可以将其关闭。运行 `/config --help` 可列出其接受的键。别名：`/settings` |
 | `/context [all]` | 以彩色网格形式可视化当前上下文使用情况。显示针对占用大量上下文的工具、记忆膨胀的优化建议以及容量警告。当对话超出上下文窗口时，输出会包含一条[警告](/docs/zh-CN/errors#context-exceeds-the-token-limit)，显示超出限制多少以及哪个命令可以释放空间。在[全屏模式](/docs/zh-CN/fullscreen)下，`/context` 会折叠逐项明细以保持网格可见。传递 `all` 可将其展开 |
-| `/copy [N]` | 将最后一条助手回复复制到剪贴板。传递数字 `N` 可复制倒数第 N 条回复：`/copy 2` 复制倒数第二条。当存在代码块时，会显示交互式选择器，以选择单个代码块或完整回复。在选择器中按 `w` 可将所选内容写入文件而不是剪贴板，这在通过 SSH 使用时很有用 |
+| `/copy [N]` | 将最后一条助手回复复制到剪贴板。传递数字 `N` 可复制倒数第 N 条回复：`/copy 2` 复制倒数第二条。当存在代码块或引用块时，会显示交互式选择器，以选择单个块或完整回复。在选择器中按 `w` 可将所选内容写入文件而不是剪贴板，这在通过 SSH 使用时很有用 |
 | `/cost` | `/usage` 的别名 |
 | `/dataviz [request]` | **[Skill](/docs/zh-CN/skills#bundled-skills)。** 图表、图形和仪表板的设计指导。Claude 会为数据选择图表形式，按角色分配颜色，使用随附脚本验证调色板的色盲安全性和对比度，并应用标记、交互和无障碍规则。使用品牌中立的占位调色板，供您替换为自己的调色板 |
 | `/debug [description]` | **[Skill](/docs/zh-CN/skills#bundled-skills)。** 为当前会话启用调试日志记录，并通过读取会话调试日志来排除问题。除非您使用 `claude --debug` 启动，否则调试日志记录默认关闭，因此在会话中途运行 `/debug` 会从该时刻开始捕获日志。可选择描述问题以聚焦分析 |
