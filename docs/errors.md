@@ -247,6 +247,7 @@
 | `Windows reported an error (EBADF) when Claude Code read this session's transcript file` | [命令行错误](#windows-reported-an-error-ebadf) |
 | `Cannot switch renderers in this session` | [命令行错误](#cannot-switch-renderers-in-this-session) |
 | `Cannot switch renderers while work is running in the background` | [命令行错误](#cannot-switch-renderers-in-this-session) |
+| `Claude Code couldn't restart` | [命令行错误](#claude-code-couldnt-restart) |
 | `Couldn't open Claude Desktop` | [命令行错误](#couldnt-open-claude-desktop) |
 | `Failed to open Claude Desktop. Please try opening it manually.` | [命令行错误](#couldnt-open-claude-desktop) |
 | `Couldn't read your Zed keymap` / `Couldn't back up your Zed keymap` / `Couldn't update your Zed keymap` | [命令行错误](#terminal-setup-left-your-zed-keymap-unchanged) |
@@ -334,6 +335,7 @@
 | `Session isn't responding` / `Press enter again to restart this session — it isn't responding` | [后台会话错误](#session-isnt-responding) |
 | `Session <id> was stopped while the respawn was in flight` | [后台会话错误](#session-was-stopped-while-the-respawn-was-in-flight) |
 | `This session was running agent '<name>', which is no longer available` | [后台会话错误](#session-agent-no-longer-available) |
+| `This session restarted <time> after its next /loop wakeup was due, so that wakeup will not fire` | [后台会话错误](#restarted-after-its-next-loop-wakeup-was-due) |
 | `CLAUDE_CODE_PROCESS_WRAPPER: launcher ...` | [后台会话错误](#claude_code_process_wrapper-launcher-errors) |
 | `EUNKNOWN: unknown error, uv_spawn` | [后台会话错误](#eunknown-when-starting-a-background-session) |
 | `EACCES: permission denied, posix_spawn` | [后台会话错误](#eacces-when-starting-a-background-session) |
@@ -439,6 +441,7 @@ Claude Code 不重试这些故障：
 | :- | :- | :- |
 | [`CLAUDE_CODE_MAX_RETRIES`](/docs/zh-CN/env-vars) | 10 | 重试尝试次数。从 v2.1.186 开始上限为 15；从 v2.1.199 开始 `CLAUDE_CODE_RETRY_WATCHDOG` 提高默认值并移除上限。降低它以在脚本中更快地显示故障。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG`](/docs/zh-CN/env-vars) | 未设置 | 在 CI 作业等无人值守会话中设置为 `1`，以无限期重试 `429` 和 `529` 容量错误，而不是在 `CLAUDE_CODE_MAX_RETRIES` 尝试后失败。当标准速度请求获得报告支出限制或耗尽使用额度的 `429` 时，Claude Code 立即失败，即使来自 [gateway spend cap](#spend-limit-reached) 的也是如此，该上限按计划重置。在 v2.1.239 之前，看门狗无限期重试这些。对于快速模式请求，请参阅 [Handle rate limits](/docs/zh-CN/fast-mode#handle-rate-limits)。在 v2.1.199 或更高版本上，它还为其他瞬时错误（例如服务器错误、超时和断开连接）提高默认重试计数至 300，大约三小时的退避，如果您明确设置该变量，则移除 `CLAUDE_CODE_MAX_RETRIES` 的 15 上限。 |
+| [`CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS`](/docs/zh-CN/env-vars) | 未设置 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 时，每个 API 请求在等待 `429` 和 `529` 错误上所花费的最长时间（毫秒）。未设置时，等待时间没有限制。需要 Claude Code v2.1.295 或更高版本。 |
 | [`CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS`](/docs/zh-CN/env-vars) | 500 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的起始延迟（毫秒）。当 API 容量已满时，可将其提高（最高 32000），以便在更长的时间窗口内分散重试。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](/docs/zh-CN/fast-mode#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.292 或更高版本。 |
 | [`API_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 600000 | 每个请求的超时（毫秒）。为慢速网络或代理提高它。它还限制 Claude Code 等待响应头的时间，在 [No response from API](#no-response-from-api) 中描述。 |
 | [`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES`](/docs/zh-CN/env-vars) | 未设置 | 超时的[非流式请求](#streaming-response-ended-before-any-complete-data-was-received)的重新发送次数限制。达到该限制时，请求失败。生成时间超过超时时间的 Claude 响应在每次重新发送时都会再次超时，因此请设置较低的数值（例如 `0`）以更快地失败。在本地会话中，每次非流式尝试在 300 秒后超时；当您为 `API_TIMEOUT_MS` 设置正值时，则在该值指定的时间后超时。需要 Claude Code v2.1.285 或更高版本。 |
@@ -3412,8 +3415,8 @@ Use '--' to separate paths from revisions, like this:
 
 对于任何[注入动态上下文](/docs/zh-CN/skills#when-an-injected-command-fails)的 skill，Claude Code 都会显示相同的错误，注入的命令失败会中止该 skill 的调用。还有两条相关字符串会在命令运行之前就触发：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求在没有 bash 的机器上使用 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
 
 **解决方法：**
 
@@ -3562,7 +3565,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较前已从 origin fetch 了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个被 fetch 的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin fetch 了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个 fetch 过来的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
 
 **解决方法：**
 
@@ -3815,6 +3818,23 @@ Cannot switch renderers in this session — it has restrictions a restart can't 
 **解决方法：**
 
 * 在不带这些限制启动的会话中运行 `/tui fullscreen`，或运行 `/tui default` 切换回来。Claude Code 会在那里保存 [`tui` 设置](/docs/zh-CN/settings-reference#tui)
+
+<h3 id="claude-code-couldnt-restart">
+  Claude Code couldn't restart
+</h3>
+
+Claude Code 正在重启，例如在您运行 [`/tui`](/docs/zh-CN/fullscreen#enable-fullscreen-rendering) 后切换到全屏渲染或从全屏渲染切换回来。它关闭了会话，但无法启动新进程，因此打印了以下消息并以状态 1 退出：
+
+```text theme={null}
+Claude Code couldn't restart. Your conversation is saved. Start Claude Code again and run /resume to pick it up.
+```
+
+当重启时没有可重新打开的对话，例如 `/tui` 是您在新会话中的第一个输入时，消息为 `Claude Code couldn't restart. Start Claude Code again.`
+
+**解决方法：**
+
+* 在 shell 中从同一目录再次运行 `claude`。如果消息表示您的对话已保存，请在新会话中运行 [`/resume`](/docs/zh-CN/sessions#resume-a-session) 并选择该对话
+* 如果重启持续失败，请在 shell 中使用 [`claude --debug-file claude-debug.log`](/docs/zh-CN/cli-reference#cli-flags) 启动 Claude Code。如果从该会话重启失败，您启动时所在目录中的 `claude-debug.log` 会记录一行包含操作系统错误的 `Failed to relaunch:`。[报告问题](#report-an-error)时请附上该行
 
 <h3 id="couldnt-open-claude-desktop">
   无法打开 Claude Desktop
@@ -4752,12 +4772,13 @@ This write was blocked because the path is network-shaped (a UNC share or /net a
   命令被 worktree 隔离检查阻止
 </h3>
 
-Claude 在[在 worktree 中隔离的会话](/docs/zh-CN/worktrees#how-claude-code-enforces-isolation)中运行了 Bash 或 Monitor 命令，Claude Code 因以下两个原因之一拒绝了它：
+Claude 在[在 worktree 中隔离的会话](/docs/zh-CN/worktrees#how-claude-code-enforces-isolation)中运行了 Bash、[PowerShell](/docs/zh-CN/tools-reference#powershell-tool) 或 [Monitor](/docs/zh-CN/tools-reference#monitor-tool) 命令，Claude Code 因以下原因之一拒绝了它：
 
-* 该命令将 git 指向主检出。
-* Claude Code 无法从命令文本验证该命令运行的任何 git 都保留在 worktree 内。从不命名 git 的命令仍然可能因此原因被拒绝，因为展开变量间接寻址（如 `${!name}`）或运行 Bash 函数替换（如 `${ command; }`）会产生在运行时本身可能是命令的值。
+* 该命令将在主检出或另一个 worktree 中运行。消息会说明其工作目录 `resolved to the shared checkout` 或 `is in a different worktree`。
+* Bash 或 Monitor 命令将 git 指向主检出。
+* Claude Code 无法从 Bash 或 Monitor 命令的文本验证该命令运行的任何 git 都保留在 worktree 内。从不命名 git 的命令仍然可能因此原因被拒绝，因为展开变量间接寻址（如 `${!name}`）或运行 Bash 函数替换（如 `${ command; }`）会产生在运行时本身可能是命令的值。
 
-消息的中间命名无法验证的内容：
+消息会说 `is isolated in the worktree <path>, but this command`，后跟原因，例如 Claude Code 无法验证其文本的命令：
 
 ```text wrap theme={null}
 This session is isolated in the worktree /path/to/worktree, but this command evaluates ${!x@P} arithmetically inside a construct too complex to verify, which can run a command hidden in a variable's value. Refusing to run it — a worktree-isolated session's git operations must target its own worktree. Split it into plain, separate commands and run them from /path/to/worktree.
@@ -4765,8 +4786,7 @@ This session is isolated in the worktree /path/to/worktree, but this command eva
 
 **要做什么：**
 
-* 通常什么都不做：Claude 读取消息并按照其最后一句要求的方式重写命令
-* 如果您要求的命令继续被拒绝，按字面拼写标记的值：用其值替换间接寻址或替换，并从 worktree 内作为其自己的纯命令运行 git
+* **git 指向主检出，或命令文本无法验证**：什么都不用做。Claude 读取消息并按照其最后一句要求的方式重写命令。如果您要求的命令因其文本中的展开而持续被拒绝，请按字面拼写被标记的值，并从 worktree 内将 git 作为独立的纯命令运行
 * 要有意对主检出采取行动，在会话外的终端中自己运行该命令
 
 <h3 id="this-session-has-no-saved-transcript">
@@ -4945,6 +4965,23 @@ Claude Code 不会将回退保存到会话，因此警告在每次恢复时重�
 * 在会话的项目中的 `.claude/agents/<name>.md` 或个人 Agent 的 `~/.claude/agents/<name>.md` 重新创建 Agent 文件，然后再次恢复
 * 或使用 `--agent <name>` 恢复，命名确实存在的 Agent，以改为作为该 Agent 运行会话
 * 如果 Agent 是项目范围的，您还没有信任会话的原始目录，在那里运行一次 Claude Code，接受信任对话框，然后再次恢复
+
+<h3 id="restarted-after-its-next-loop-wakeup-was-due">
+  此会话在其下一次 /loop 唤醒到期后才重启
+</h3>
+
+[后台会话](/docs/zh-CN/agent-view)中的[自定节奏 `/loop`](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval) 已停止。会话的进程在循环等待下一次唤醒时结束，而该唤醒在会话的[下一个进程](/docs/zh-CN/agent-view#the-supervisor-process)启动之前就已到期。错过的唤醒不会延迟触发。通知会说明会话重启时该唤醒已逾期多久：
+
+```text theme={null}
+This session restarted 12m after its next /loop wakeup was due, so that wakeup will not fire. The loop stays stopped until Claude schedules it again: reply to continue it.
+```
+
+在 v2.1.295 之前，循环在这种情况下会停止且不显示通知。
+
+**要做什么：**
+
+* 要继续循环，请[回复该会话](/docs/zh-CN/agent-view#peek-and-reply)并说明这一点，例如 `keep the loop running`。Claude 会连同您的回复一起读取通知，并可以安排下一次唤醒
+* 如果您已不再需要该循环，则无需任何操作。它已经停止
 
 <h3 id="claude_code_process_wrapper-launcher-errors">
   CLAUDE\_CODE\_PROCESS\_WRAPPER 启动器错误

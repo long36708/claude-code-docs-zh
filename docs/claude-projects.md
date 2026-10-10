@@ -277,7 +277,13 @@ Claude 会自动将这些偏好保存到[项目内存](#give-a-project-standing-
 
 当线程的模型支持时，线程在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中运行，因此大多数工具调用无需询问你即可运行。当线程需要你的批准时，提示在该线程内，线程等待你在那里回答。在项目对话中告诉 Claude 继续不会到达它。
 
-每个批准涵盖该提示，或如果你选择更广泛的选项，则涵盖该线程的其余部分。要让每个线程运行某些命令而不询问，或阻止某些命令，请将[权限规则](/docs/zh-CN/permissions)添加到存储库的`.claude/settings.json`。云线程仅在具有一个存储库的项目中应用它们；请参阅[线程从你的存储库中获取什么](#what-threads-pick-up-from-your-repositories)。在具有多个存储库的项目中，没有存储库的权限规则到达云线程，因此你依赖自动模式和你在每个线程内给出的批准。
+每次批准仅涵盖该提示，或者如果您选择更广泛的选项，则涵盖该线程的其余部分。
+
+要让每个线程无需询问即可运行某些命令，或阻止某些命令，请将[权限规则](/docs/zh-CN/permissions)添加到仓库的 `.claude/settings.json` 中。请确认项目中的云线程是否会应用这些规则：
+
+* **一个仓库**：云线程会应用这些规则。请参阅[线程从您的仓库中获取哪些内容](#what-threads-pick-up-from-your-repositories)。
+* **多个仓库，Anthropic 托管的环境**：任何仓库的权限规则都不会传达到云线程，因此您需要依赖自动模式以及您在每个线程内给出的批准。
+* **多个仓库，自托管环境**：请参阅[哪个仓库的设置适用](/docs/zh-CN/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories)。
 
 <h3 id="run-a-thread-on-your-own-computer">
   在你自己的计算机上运行线程
@@ -381,16 +387,16 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
   线程从您的仓库中获取什么
 </h3>
 
-每个云线程会克隆项目中的每个仓库，并从所有仓库加载 `CLAUDE.md` 和 skill。权限规则、hook 和 `env` 仅来自线程启动目录中的 `.claude/settings.json`：当项目只有一个仓库时，该目录位于仓库内；当有多个仓库时，该目录位于各克隆的上层，此时不会读取任何仓库的该文件来获取这些内容。
+每个云线程会克隆项目中的每个仓库，并从所有仓库加载 `CLAUDE.md` 和 skill。权限规则、hook 和 `env` 仅来自线程启动目录中的 `.claude/settings.json`。
 
 | 在每个仓库中 | 一个仓库 | 多个仓库 |
 | :- | :- | :- |
 | `CLAUDE.md` | 在线程启动时加载 | 在线程启动时从每个仓库加载 |
 | `.claude/` 下的 skill、Agent 和命令 | 加载 | 从每个仓库加载 |
 | 在 `.claude/settings.json` 中启用的插件 | 不加载。请改为在 **Project settings > Plugins** 中添加该插件 | 不加载。请改为在 **Project settings > Plugins** 中添加该插件 |
-| 在 `.claude/settings.json` 中定义的权限规则、hook 和 `env` | 适用于线程，但[任何云端会话都不遵循](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)的 `env` 键除外 | 不适用 |
+| 在 `.claude/settings.json` 中定义的权限规则、hook 和 `env` | 适用于线程，但[任何云端会话都不遵循](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)的 `env` 键除外 | 在 Anthropic 托管环境中不适用。对于自托管环境，请参阅[哪个仓库的设置适用](/docs/zh-CN/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories) |
 
-在有多个仓库的项目中，每个克隆都作为[附加目录](/docs/zh-CN/memory#load-from-additional-directories)附加到线程，并启用了 `CLAUDE.md` 加载，这就是为什么即使线程在它们的上层启动，每个仓库的 `CLAUDE.md` 和 skill 仍会在启动时加载。在这样的项目中，请将常规规则放在项目说明中，并通过[云环境](#choose-an-environment-for-threads)为线程提供环境变量。
+在有多个仓库的项目中，请将常规规则放在项目说明中，并通过[云环境](#choose-an-environment-for-threads)为线程提供环境变量。
 
 <h3 id="choose-an-environment-for-threads">
   为线程选择环境
@@ -406,7 +412,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 云线程不具备仅安装在您机器上的 skill、MCP 服务器、插件和工具。Claude 通过 [Remote Control](/docs/zh-CN/remote-control) 在您机器上运行的线程会使用那里安装的内容。要让这些内容对云线程可用：
 
-* skill、子代理和命令：将它们提交到您已添加到项目的仓库，例如位于 `.claude/skills/<skill-name>/SKILL.md` 的 skill。每个云线程会克隆项目中的每个仓库，并从每个仓库加载 `.claude/skills/`、`.claude/agents/` 和 `.claude/commands/`，因此提交到一个仓库的 skill 在每个云线程中都可用。云线程还会加载您为 claude.ai 账户启用的 skill。
+* skill、子代理和命令：将它们提交到您已添加到项目的仓库，例如位于 `.claude/skills/<skill-name>/SKILL.md` 的 skill。每个云线程会克隆项目中的每个仓库，并从每个仓库加载 `.claude/skills/`、`.claude/agents/` 和 `.claude/commands/`，因此提交到一个仓库的 skill 在每个云线程中都可用。云线程还会加载[您为 claude.ai 账户启用的 skill](/docs/zh-CN/skills#skills-in-cowork-and-cloud-sessions)。
 * 插件：在 **Project settings > Plugins** 中添加它们；它们会加载到每个新云线程中。仓库在其 `.claude/settings.json` 中声明的插件[不会在云线程中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
 * MCP 服务器：云线程从您 claude.ai 账户上的连接器获取 MCP 工具，这些连接器是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 或通过 **Project settings > Environment** 中的 **Manage connectors** 链接一次性连接的 MCP 服务器。每个云线程都可以使用所有这些连接器，无需按项目设置。项目对话本身没有连接器，因此请将需要连接器的工作作为任务发送给云线程。在只有一个仓库的项目中，云线程还会从该仓库的 [`.mcp.json`](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup) 加载 MCP 服务器。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code) 列出了云端会话的规则以及关闭连接器的设置。
 * 命令行工具和包：在环境的[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)中安装它们。

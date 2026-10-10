@@ -235,7 +235,7 @@ Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/ski
 
 如果 skill 仅存在于您机器上的 `~/.claude/skills/` 中，当 [routine](/docs/zh-CN/routines) 调用它时，Claude Code 会报告找不到该 skill，因为每个 routine 运行都作为新的云会话启动。要在这些会话中使用个人 skill：
 
-* 对于 Cowork 和云会话，为您的 claude.ai 账户启用该 skill。
+* 对于 Cowork 和云端会话，为您的 claude.ai 账户启用该 skill。[自托管环境中的某些会话](/docs/zh-CN/self-hosted-environments-configuration#how-each-session’s-config-is-assembled) 不会加载您账户的 skill。
 * 对于云会话，您可以改为将 skill 提交到存储库的 `.claude/skills/`。在存储库的 `.claude/settings.json` 中声明的插件和仅在您的用户设置中启用的插件 [不会在云会话中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
 
 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks) 在您的机器上本地运行，因此它们确实加载 `~/.claude/skills/`。

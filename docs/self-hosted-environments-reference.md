@@ -52,15 +52,34 @@
 | `--release-idle-session-min <n>` | `SELF_HOSTED_RUNNER_SESSION_IDLE_MS` | `0` | 在轮次完成或会话等待用户操作后，在 N 分钟的不活动后释放会话槽。仍在进行中的会话（包括持有永不完成的后台任务或从运行的工具调用内部请求的批准的会话）不计为空闲；与 `--kill-session-after-min` 配对作为硬后挡。在会话的后台任务完成后，运行器认为会话繁忙，直到读取结果的后续轮次开始，最多为 [`SELF_HOSTED_RUNNER_BG_RESULT_GRACE_MS`](#environment-variable-only-settings) 窗口。在运行器接收到关闭信号或达到其退休时间之前，留下运行器没有活跃会话的释放启动与正常排空相同的退出路径，由 `--drain-grace-sec` 管理。在您使用 [`--defer-shutdown-max-min`](/docs/zh-CN/self-hosted-environments-deploy#defer-the-drain-past-the-first-signal) 推迟的第一个信号之后，运行器在释放使其不持有任何会话时立即退出。`0` 禁用。 |
 | `--remove-session-state [bool]` | `SELF_HOSTED_RUNNER_REMOVE_SESSION_STATE` | 关闭 | 当会话在此运行器上结束时，删除 `<base-dir>/_sessions/` 下的会话的每个会话目录，无论结果如何。[重用预热的检出](/docs/zh-CN/self-hosted-environments-deploy#reuse-a-pre-warmed-checkout)描述它们保存的内容以及当它们保留时谁可以读取它们。删除是尽力而为：当运行器被杀死或在清理运行之前达到其排空截止时间时，每个会话目录保持到位。启用标志后，失败或中断的会话的调试日志不会保留在磁盘上。需要 Claude Code v2.1.268 或更高版本。 |
 | `--retire-at <epoch-seconds>` | `SELF_HOSTED_RUNNER_RETIRE_AT` | 未设置 | 在绝对 Unix 时间戳（以秒为单位）处退休运行器，用于在已知时间杀死运行器的基础设施；[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle)描述释放序列以及如何调整边距。2001 年之前或 5138 年之后的值被标志拒绝，被环境变量忽略。 |
+| `--server-auto-mode-lists <mode>` | `SELF_HOSTED_RUNNER_SERVER_AUTO_MODE_LISTS` | `no-allow` | 控制平面随会话发送的[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器规则列表中，哪些可以到达该会话：`all`、`no-allow` 或 `none`。请参阅[自动模式规则列表](#auto-mode-rule-lists)了解每个值应用的内容。无效值会使运行器在启动时停止。需要 Claude Code v2.1.295 或更高版本。 |
 | `--session-stop-grace-sec <n>` | `SELF_HOSTED_RUNNER_SESSION_STOP_GRACE_MS` | `5` | 会话结束后等待 Claude 进程干净退出的时间，然后强制杀死它。如果子进程自己的 `SessionEnd` 钩子需要更多时间，请提高该值。 |
-| `--startup-timeout-min <n>` | `SELF_HOSTED_RUNNER_STARTUP_TIMEOUT_MS` | `15` | 如果子进程在生成后 N 分钟内未在[活动频道](/docs/zh-CN/self-hosted-environments-configuration#keep-stdin-and-file-descriptor-3-attached)上发出初始化信号，则释放会话槽。由子进程的初始化信号清除，而不是普通输出，之后 `--release-idle-session-min` 接管。`0` 禁用。 |
+| `--startup-timeout-min <n>` | `SELF_HOSTED_RUNNER_STARTUP_TIMEOUT_MS` | `15` | 如果子进程在生成后 N 分钟内未发出已完成初始化的信号，则释放会话槽。克隆发生在生成之前，因此克隆时间不计入。由子进程在[活动频道](/docs/zh-CN/self-hosted-environments-configuration#keep-stdin-and-file-descriptor-3-attached)上的初始化信号清除，而不是由普通输出清除，之后 `--release-idle-session-min` 接管。`0` 禁用。 |
 | `--trust-workspace [bool]` | `SELF_HOSTED_RUNNER_TRUST_WORKSPACE` | 开启 | 为每个会话的存储库路径播种持久化信任，以便遵守存储库提交的 `permissions.allow` 和 `additionalDirectories`。设置 `false` 以删除存储库提交的权限授予，并在主机配置的 `settings.json` 中配置允许规则；无论如何，存储库提交的 `sandbox.*` 设置仍然适用，这就是为什么[存储库设置保护](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)无论此标志如何都扫描它们。 |
-| `--use-anthropic-git-proxy` | `CLAUDE_RUNNER_USE_GIT_PROXY=1` | 关闭 | 通过 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)而不是客户管理的 git 身份验证进行克隆。需要 `--capacity 1` 和 git 2.32 或更高版本；运行器否则拒绝启动。取代重写标志。 |
+| `--use-anthropic-git-proxy` | `CLAUDE_RUNNER_USE_GIT_PROXY=1` | 关闭 | 通过 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)而不是客户管理的 git 身份验证克隆 github.com 上的仓库。需要 `--capacity 1` 和 git 2.32 或更高版本；运行器否则拒绝启动。取代重写标志。 |
 
 大多数持续时间标志都有最大值，选择以将每个超时保持在运行时的 32 位计时器上限内，大约 24.85 天。`--*-min` 标志上限为 10080 分钟，7 天；`--drain-grace-sec` 为 604800 秒，也是 7 天；`--drain-wait-sec` 为 86400 秒，24 小时。`--session-stop-grace-sec` 和 `--post-session-hook-timeout-sec` 无上限。超过上限的行为因表面而异：
 
 * **标志**：启动失败并出现错误。
 * **环境变量**：运行器将值夹紧到计时器上限，而不是拒绝它。
+
+<h3 id="auto-mode-rule-lists">
+  自动模式规则列表
+</h3>
+
+`--server-auto-mode-lists` 让您决定来自运行器外部的哪些[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器规则可以到达您的运行器上的会话。Anthropic 的控制平面可以随会话发送规则列表，并要求运行器应用它们。其中某些条目可能是您组织的管理员编写的规则。这些列表是 `environment`、`soft_deny` 和 `allow`：
+
+* **`environment`**：条目既可以让分类器允许更多操作，也可以让其允许更少操作。
+* **`soft_deny`**：条目会阻止某个操作，除非用户明确要求执行该操作，或者适用某个 `allow` 例外。
+* **`allow`**：`soft_deny` 条目的例外。
+
+标志的值决定运行器应用哪些列表：
+
+* **`no-allow`**：默认值。应用 `environment` 和 `soft_deny`，不应用 `allow`。`environment` 条目仍然可以让分类器允许更多操作，因此默认值并不能排除所有放宽。
+* **`all`**：应用全部三个列表。
+* **`none`**：不应用其中任何列表。选择 `none` 可排除来自这些列表的所有放宽。它也会丢弃 `soft_deny` 限制。
+
+没有任何运行器设置能让控制平面要求运行器应用这些列表。当控制平面没有提出要求时，无论您如何设置，会话都不会收到任何列表。要查看发生了哪种情况，请使用 `--log-level debug` 启动运行器。随后，运行器会为每个会话记录一行包含 `the server asked this runner to apply` 的日志，或一行包含 `the server did not ask this runner to apply the auto mode lists it sends` 的日志。
 
 <h2 id="orchestrator-cli-flags">
   Orchestrator CLI 标志
@@ -72,7 +91,7 @@
 | :- | :- | :- |
 | `--hook-concurrency <n>` | `4` | 最大 `spawn-runner` 钩子并行运行。还限制每次轮询声称的生成请求数。 |
 | `--hook-timeout <sec>` | `60` | 在这么多秒后终止钩子的进程树。超时加其 5 秒杀死宽限期必须保持在 `--expected-spawn-seconds` 以下；编排器在启动时强制执行此操作。 |
-| `--expected-spawn-seconds <sec>` | `120` | 生成的运行器的预期 p99 启动时间，在服务器强制的范围 10 到 3600 内。在每次轮询时发送作为服务器端租约；如果没有运行器在其过期前注册，会话将使用新的订单 ID 重新提供。所有副本必须共享此值。 |
+| `--expected-spawn-seconds <sec>` | `120` | 从编排器收到生成请求到运行器注册的预期 p99 时间，包括在您的平台上等待容量的任何时间。服务器强制的范围为 10 到 3600。在每次轮询时作为服务器端租约发送；如果没有运行器在其过期前注册，会话将使用新的订单 ID 重新提供。所有副本必须共享此值。 |
 | `--min-idle <n>` | `0` | 通过主动生成待命运行器来保持至少 N 个空闲会话槽。`0` 禁用预热。与运行器的 `--exit-if-unused-min` 配对，以便多余的待命运行器回收自己。 |
 | `--debug-dir <path>` | 未设置 | 将每个生成请求的工作订单和钩子 stderr 写入磁盘。仅用于调试；永远不要在生产中设置。 |
 
@@ -108,6 +127,7 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 | `SELF_HOSTED_RUNNER_POST_TURN_SETTLE_MS` | `7000` | 运行器在轮次完成后计算会话繁忙的时间上限，用于 `--drain-wait-sec` 排空，而会话的进程向 Anthropic 报告轮次的结束。`0` 或不可用的值回退到默认值，因此无法关闭保持。需要 Claude Code v2.1.275 或更高版本。 |
 | `SELF_HOSTED_RUNNER_SIGKILL_GRACE_MS` | `30000` | 运行器等待操作系统向陷入不可中断 I/O 的子进程传递 `SIGKILL` 的时间，然后自己退出。下限为 `--post-session-hook-timeout-sec` 加 15 秒，设置 `--push-outcome-on-release` 时再加 30 秒，因此有效最小值在默认值处为 75 秒。 |
 | `CLAUDE_RUNNER_FETCH_DEPTH` | `50` | 新克隆的 git 获取深度。设置正整数，或 `full` 或 `0` 以进行完整获取。工作区中已存在的存储库保持其现有深度。 |
+| `CLAUDE_RUNNER_FETCH_SERVER_PROGRESS_CAP_MS` | `600000` | 在 git 服务器自身的进度数字持续上升期间（例如服务器为大型仓库准备 pack 时），每次尝试中 git 获取等待首批数据的最长时间（以毫秒为单位）。`0` 或 `off` 会关闭此等待：此类获取在两分钟内没有收到数据时将被中断。任何其他整数都会被限制在 `120000` 到 `1800000` 之间，即 2 到 30 分钟。需要 Claude Code v2.1.295 或更高版本。 |
 | `CLAUDE_RUNNER_SKIP_GIT_VERIFY` | 未设置 | 当为 `1` 时，跳过 `checkout` 钩子运行后的 `.git` 存在检查。当您的钩子物化非 git 源时设置此项。 |
 | `FORCE_AUTOUPDATE_PLUGINS` | 未设置 | 当为 `1` 时，让插件市场自动更新，即使二进制文件被固定 |
 | `CLAUDE_CODE_DISABLE_ARTIFACT` | 未设置 | 当为 `1` 时，无论组织的管理员设置如何，都在会话中禁用 Artifact 工具，并删除 `*.frame.claudeusercontent.com` 出口要求 |
@@ -178,7 +198,7 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 | `claude_code_self_hosted_orchestrator_poll_errors_total{error_kind}` | 按类型累积 PollSpawnHints 失败：`transport`、`timeout`、`5xx`、`429` 或 `4xx`。所有五个系列从进程启动时存在；在 `rate(...[5m]) > 0` 时发出警报。 |
 | `claude_code_self_hosted_orchestrator_queue_pending_sessions` | 现在可声称的生成请求 |
 | `claude_code_self_hosted_orchestrator_queue_backing_off_sessions` | 在可重试钩子失败后处于重试退避中的生成请求 |
-| `claude_code_self_hosted_orchestrator_queue_circuit_broken_sessions` | 被阻止的生成请求，直到所有者从环境的**活动**选项卡重试它们；如果高于零则发出警报 |
+| `claude_code_self_hosted_orchestrator_queue_circuit_broken_sessions` | 被阻止生成的会话。每个会话都保持阻止状态，直到用户向其发送新消息，或所有者从环境的**活动**选项卡重试它。修复原因后，该计数可能仍保持在零以上。如果高于零则发出警报。 |
 | `claude_code_self_hosted_orchestrator_pool_pending_sessions` | 等待此环境中的运行器的总会话。环境范围的聚合，在每个编排器实例上相同：在实例间使用 `MAX` 而不是 `SUM`。 |
 | `claude_code_self_hosted_orchestrator_pool_active_sessions` | 当前分配给此环境中活跃运行器的会话。环境范围的聚合，在每个编排器实例上相同：在实例间使用 `MAX` 而不是 `SUM`。 |
 | `claude_code_self_hosted_orchestrator_spawn_hooks_total{result}` | 累积 `spawn-runner` 钩子结果：`ok`、`retryable`、`non_retryable`。计数编排器钩子调用，而不是运行器生成的会话子进程：与 `sessions_started_total` 不可比，因为容量高于 1、热池和为同一会话再次生成的运行器都使两者分散。 |
@@ -283,7 +303,7 @@ groups:
         for: 1m
         labels: {severity: critical}
         annotations:
-          summary: "{{ $value }} 个会话断路 — spawn-runner 钩子反复不可重试；修复基础设施然后从活动选项卡重试"
+          summary: "被阻止生成的会话：{{ $value }}。在 Activity 选项卡中查看每个会话的错误，修复原因，然后选择 Retry"
       - alert: ClaudeOrchestratorPollErrors
         expr: sum by (pod) (rate(claude_code_self_hosted_orchestrator_poll_errors_total[5m])) > 0
         for: 2m
@@ -318,7 +338,7 @@ groups:
 
 在 v2.1.260 之前，运行器终止达到其 `--kill-session-after-min` 限制的每个会话，并在 `sessions_interrupted_total` 中计数。
 
-[`post-session` 钩子](/docs/zh-CN/self-hosted-environments-configuration#post-session)的 `CLAUDE_RUNNER_EXIT_REASON` 以不同方式分类干净交接。钩子将释放、启动超时和服务器取消分配报告为 `interrupted`，因为运行器停止了子进程。这些计数器记录与 `completed` 相同的事件，因为槽被干净地交还。
+[`post-session` 钩子](/docs/zh-CN/self-hosted-environments-configuration#post-session)的 `CLAUDE_RUNNER_EXIT_REASON` 以不同方式分类干净交接。钩子将以下情况报告为 `interrupted`，因为运行器停止了子进程：释放、启动超时、服务器取消分配，以及轮询先注意到的存档或删除。这些计数器记录与 `completed` 相同的事件，因为槽被干净地交还。
 
 如果您直接根据 `sessions_completed_total` 协调钩子收据，您会低估完成。对每个会话保证使用钩子，对聚合速率使用计数器。
 

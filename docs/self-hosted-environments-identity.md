@@ -52,53 +52,53 @@ sk-ant-cc-<base64url header>.<base64url payload>.<base64url signature>
   验证令牌
 </h2>
 
-验证在两个地方之一运行。网络上的服务根据 Anthropic 发布的密钥对令牌进行加密验证，会话内的包装脚本可以改为使用运行程序二进制文件的内置解码器。
+验证可以在两个位置之一进行。您网络中的服务可以使用 Anthropic 发布的密钥对令牌进行加密验证，而会话内的包装脚本则可以改用运行器二进制文件内置的解码器。
 
 <h3 id="verify-the-token-from-your-service">
   从您的服务验证令牌
 </h3>
 
-Anthropic 在公开的、未经身份验证的端点发布验证密钥：
+Anthropic 在一个公开、无需身份验证的端点上发布验证密钥：
 
 ```text theme={null}
 https://api.anthropic.com/v1/code/.well-known/jwks.json
 ```
 
-响应是标准的 [JSON Web Key Set](https://www.rfc-editor.org/rfc/rfc7517)。Anthropic 定期轮换签名密钥，轮换前的密钥在集合中保留足够长的时间，以便它们签名的令牌继续验证，因此不要固定单个密钥。端点设置 `Cache-Control: public, max-age=300`，因此缓存密钥集并每五分钟重新获取一次是安全的。
+响应是标准的 [JSON Web Key Set](https://www.rfc-editor.org/rfc/rfc7517)。Anthropic 会定期轮换签名密钥，轮换前的密钥会在密钥集中保留足够长的时间，使其签发的令牌仍能通过验证，因此请勿固定使用单个密钥。该端点设置了 `Cache-Control: public, max-age=300`，因此缓存密钥集并每五分钟重新获取一次是安全的。
 
-根据以下检查验证每个传入令牌：
+请按以下检查项验证每个传入的令牌：
 
 <Steps>
   <Step title="检查前缀">
-    如果值不以 `sk-ant-cc-` 开头，则拒绝该值，然后删除该前缀。其余部分是标准的紧凑 JWT。
+    如果值不以 `sk-ant-cc-` 开头，则拒绝该值，否则移除该前缀。剩余部分是一个标准的紧凑格式 JWT。
   </Step>
 
   <Step title="验证签名">
-    获取 JWKS，选择 `kid` 与令牌头部匹配的密钥，并验证 `ES256` 签名。拒绝 `alg` 头部不是 `ES256` 的令牌。如果令牌到达时带有缓存密钥集中没有的 `kid`，在拒绝之前重新获取 JWKS 一次：轮换后，新令牌使用缓存集还没有的密钥进行签名。
+    获取 JWKS，选择 `kid` 与令牌头部匹配的密钥，并验证 `ES256` 签名。拒绝 `alg` 头部不是 `ES256` 的令牌。如果传入令牌的 `kid` 不在您缓存的密钥集中，请在拒绝之前重新获取一次 JWKS：密钥轮换后，新令牌会使用您缓存的密钥集中尚未包含的密钥进行签名。
   </Step>
 
-  <Step title="验证发行者">
-    如果 `iss` 不完全是 `ccr`，则拒绝令牌。
+  <Step title="验证签发者">
+    如果 `iss` 不完全等于 `ccr`，则拒绝该令牌。
   </Step>
 
   <Step title="根据您的环境验证受众">
-    `aud` 声明是一个数组。除非它包含您的环境 ID（形式为 `ccpool_...`），否则拒绝令牌。环境 ID 显示在[**云环境**管理页面](https://claude.ai/admin-settings/cloud-environments)上您的环境的详细信息对话框中，并在任何环境的会话令牌中显示为 `ccr:pool_id` 声明。此检查是将令牌范围限制到您的环境并拒绝发布给其他组织的令牌的内容。
+    `aud` 声明是一个数组。除非其中包含您的环境 ID（格式为 `ccpool_...`），否则拒绝该令牌。环境 ID 显示在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments)中您环境的详情对话框里，也会作为 `ccr:pool_id` 声明出现在该环境的任意会话令牌中。正是这项检查将令牌限定在您的环境内，并拒绝签发给其他组织的令牌。
   </Step>
 
   <Step title="验证角色">
-    如果 `ccr:role` 不完全是 `session_worker`，则拒绝令牌。为自托管环境发布的其他令牌，例如环境机密、运行程序令牌和工作订单，由同一密钥集签名，但携带不同的角色。
+    如果 `ccr:role` 不完全等于 `session_worker`，则拒绝该令牌。为自托管环境签发的其他令牌（例如环境密钥、运行器令牌和工单）由同一密钥集签名，但携带不同的角色。
   </Step>
 
-  <Step title="验证过期">
-    如果 `exp` 在过去，则拒绝令牌。Anthropic 默认发布生命周期为四小时、最长为八小时的会话令牌。运行程序在过期前刷新令牌，并将新值推送到会话，因此 Claude 在刷新后启动的子进程继承它。因此，一个会话在其生命周期内可以向您的服务呈现多个不同的有效令牌。
+  <Step title="验证过期时间">
+    如果 `exp` 已经过去，则拒绝该令牌。Anthropic 签发的会话令牌默认有效期为四小时，最长为八小时。运行器会在令牌过期前刷新令牌并将新值推送到会话中，因此 Claude 在刷新后启动的子进程会继承新令牌。因此，一个会话在其生命周期内可能会向您的服务出示多个不同的有效令牌。
   </Step>
 
   <Step title="读取身份">
-    创建用户的身份在 `act` 声明中：`act.sub` 是他们的 Anthropic 用户 ID，采用前缀形式 `user:<id>`，`act.email`（当创建表面记录了一个时）是他们的电子邮件地址。您组织的服务身份创建的会话（包括 Claude Tag 频道会话）改为在 `act.sub` 中携带 `agent:` 主题，因此仅当 `act.sub` 携带 `user:` 前缀时才将会话视为用户创建的，而不是测试身份声明是否不存在。有关完整结构和平面重复声明，请参阅[声明参考](#claims-reference)。
+    创建者的用户身份位于 `act` 声明中：`act.sub` 是其 Anthropic 用户 ID，采用带前缀的形式 `user:<id>`；`act.email`（当创建会话的使用入口记录了该信息时）是其电子邮件地址。由您组织的服务身份创建的会话（包括 Claude Tag 频道会话）则携带 `agent:` 主体，因此，仅当 `act.sub` 带有 `user:` 前缀时才将会话视为用户创建，而不是通过检测身份声明是否缺失来判断。有关完整结构和扁平的重复声明，请参阅[声明参考](#claims-reference)。
   </Step>
 </Steps>
 
-这些检查直接映射到标准 JWT 库。下面的示例使用 [`jose`](https://www.npmjs.com/package/jose) 在 Node.js 中实现完整序列，它处理 JWKS 获取、缓存和 `kid` 选择，以及使用 [`PyJWT`](https://pyjwt.readthedocs.io/) 及其内置 JWKS 客户端在 Python 中实现。
+这些检查可以直接对应到标准 JWT 库。以下示例分别在 Node.js 中使用 [`jose`](https://www.npmjs.com/package/jose)（它负责 JWKS 的获取、缓存和 `kid` 选择），以及在 Python 中使用 [`PyJWT`](https://pyjwt.readthedocs.io/) 及其内置的 JWKS 客户端，实现了完整的检查流程。
 
 <Tabs>
   <Tab title="Node.js (jose)">
@@ -185,17 +185,19 @@ https://api.anthropic.com/v1/code/.well-known/jwks.json
   在会话内验证令牌
 </h3>
 
-[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)在会话内运行，在 Claude 启动之前。它们可以运行运行程序二进制文件的 `self-hosted-runner decode-token` 子命令，而不是调用 JWT 库。子命令从位置参数、`CLAUDE_CODE_SESSION_ACCESS_TOKEN` 或管道 stdin 读取令牌（按该顺序），然后删除前缀，根据 JWKS 端点验证签名，检查过期，并将声明打印为 JSON。子命令仅执行签名和过期检查；它不检查 `iss`、`aud` 或 `ccr:role`。当您的包装器的身份验证决定取决于这些声明时，从打印的 JSON 中读取它们并明确比较它们。
+[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)在会话内、Claude 启动之前运行。它们无需调用 JWT 库，而是可以运行运行器二进制文件的 `self-hosted-runner decode-token` 子命令。该子命令依次从位置参数、`CLAUDE_CODE_SESSION_ACCESS_TOKEN` 或通过管道传入的 stdin 读取令牌，然后去除前缀，根据 JWKS 端点验证签名，检查过期时间，并以 JSON 格式打印声明。该子命令仅执行签名和过期检查；它不会检查 `iss`、`aud` 或 `ccr:role`。当您的包装脚本的授权决策依赖于这些声明时，请从打印的 JSON 中读取它们并进行显式比较。
 
-此命令提取创建者身份，优先选择电子邮件地址，然后是创建者的 `act.sub` 主题 `user:<id>` 或 `agent:<id>`：
+以下命令提取创建者身份，优先使用电子邮件地址，其次使用创建者的 `act.sub` 主体（`user:<id>` 或 `agent:<id>`）：
 
 ```bash theme={null}
 "$CLAUDE_RUNNER_CLAUDE_BIN" self-hosted-runner decode-token | jq -re '.act.email // .act.sub'
 ```
 
-包装脚本在 `CLAUDE_RUNNER_CLAUDE_BIN` 中接收运行程序自身二进制文件的绝对路径；使用该路径而不是 PATH 解析的 `claude`，以便解码在运行程序本身使用的同一二进制文件上运行。
+包装脚本会通过 `CLAUDE_RUNNER_CLAUDE_BIN` 获得运行器自身二进制文件的绝对路径；请使用该路径，而不是通过 PATH 解析的 `claude`，以便解码操作在运行器本身所使用的同一个二进制文件上运行。
 
-使用 `jq -re` 而不是 `jq -r`，以便缺少的声明导致非零退出。仅使用 `-r`，缺少的声明会打印文字字符串 `null` 并以零退出，这会以静默方式将坏值传递给下游。仅在 JWKS 端点无法访问的离线检查中将 `--no-verify` 传递给 `decode-token`。
+请使用 `jq -re` 而不是 `jq -r`，这样缺失的声明会导致非零退出码。如果仅使用 `-r`，缺失的声明会打印字面字符串 `null` 并以零退出码退出，从而悄无声息地将错误值传递到下游。
+
+如果 `decode-token` 无法从 JWKS 端点获取密钥或无法验证令牌，它会将原因打印到 stderr，不打印任何声明，并以退出码 1 退出。仅在 JWKS 端点无法访问、需要进行离线检查时，才向 `decode-token` 传递 `--no-verify`。
 
 <h2 id="claims-reference">
   声明参考

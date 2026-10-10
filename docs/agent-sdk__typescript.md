@@ -1588,7 +1588,7 @@ type SDKAssistantMessage = {
 
 请通过 `agent_id` 将子代理的消息与其任务事件进行匹配，而不是将消息的 `parent_tool_use_id` 与任务事件的 `tool_use_id` 配对。当某个工具调用恢复子代理时，任务事件携带的是该调用的 `tool_use_id`，而消息保留的是最初启动该子代理的工具调用的 `parent_tool_use_id`，因此两者不再匹配。
 
-Claude Code 在该轮的第一条助手消息上设置 `user_message_uuid` 和 `user_message_uuids`，条件在 [`user_message_uuid`](#user_message_uuid) 中。当 Claude Code 重新运行被重启中断的轮时，重新运行的携带这些字段的助手消息也携带 [`resume_reason`](#resume_reason)。
+Claude Code 会在满足 [`user_message_uuid`](#user_message_uuid) 中所述条件时，在该轮次的第一条助手消息上设置 `user_message_uuid` 和 `user_message_uuids`。当该轮次是继续一个被重启中断的轮次时，携带这些字段的助手消息还会携带 [`resume_reason`](#resume_reason)。
 
 `timestamp` 是消息内容在生成它的进程上完成生成的 ISO 8601 时间。该值来自该机器的时钟，因此仅用于显示，不要按它排序消息。一个 API 轮可以产生多条共享 `message.id` 的助手消息，每条都有自己的 `timestamp`。当字段不存在时，回退到您收到消息的时间。
 
@@ -1630,6 +1630,11 @@ type SDKUserMessage = {
 设置 `pasted_content` 以发送用户粘贴到您的提示词 UI 中而不是输入的内容，每个粘贴一个条目，每个条目是字符串或内容块数组。Claude Code 按顺序在输入的文本后追加每个条目的文本，并可能将每个粘贴包装在 `<pasted_content>` 标签中。除文本外的块被忽略，因此在 `message.content` 中发送图像和文档。需要 Agent SDK v0.3.277 或更高版本。
 
 设置 `inline_pastes` 可告知 Claude Code `message.content` 中哪些部分是用户粘贴的而非键入的，每次粘贴对应一个字符串。提示词文本保留在用户放置的位置。Claude Code 可能会在原位用 `<pasted_content>` 标签包裹每个列出的粘贴内容，以便 Claude 区分粘贴的材料和用户自己的话。只有提示词最后一个文本块中的粘贴内容会被包裹。需要 TypeScript Agent SDK v0.3.280 或更高版本。
+
+每个粘贴字段都有大小限制：
+
+* `pasted_content`：如果条目数加上其中的内容块数超过 1,000，Claude Code 会忽略整个字段。
+* `inline_pastes`：Claude Code 使用前 100 个非空条目，并忽略其余条目。
 
 设置 `shouldQuery`、`client_composed` 或 `priority` 可以改变 Claude Code 处理您所发送消息的方式：
 
@@ -1775,7 +1780,7 @@ type SDKResultMessage =
 * `ttft_stream_ms`：直到第一个 `message_start` 流事件（响应流打开时）的时间（毫秒）。低于 `ttft_ms`；两者之间的差距是流式传输第一条消息所花费的时间。仅在成功分支上存在。
 * `user_message_uuid`：您发送的消息的 `uuid`，该轮回答了该消息。请参阅 [`user_message_uuid`](#user_message_uuid) 了解哪些结果携带它。
 * `user_message_uuids`：您发送的每条消息的 `uuid`，Claude Code 在该轮中回答了这些消息。请参阅 [`user_message_uuids`](#user_message_uuids)。
-* `resume_reason`：Claude Code 在重启中断该轮次后重新运行它的原因。出现在两个分支上。请参阅 [`resume_reason`](#resume_reason)。
+* `resume_reason`：本轮次为何是继续一个被重启中断的轮次。在两个分支上都存在。请参阅 [`resume_reason`](#resume_reason)。
 * `local_command`：轮分派的命令的名称，在轮由命令完成而不进入 Agent 循环的成功结果上，例如 `/compact`。名称折叠为小写字母和下划线，因此 `/reload-plugins` 报告 `reload_plugins`。MCP 服务器提供的命令和内置 `/mcp` 报告 `mcp`。您自己定义的命令报告 `custom`。参数从不包含。在进入 Agent 循环的每个轮上不存在，在运行无命令的发送上不存在。需要 Agent SDK v0.3.268 或更高版本。
 * `request_sent_wall_ms`：Claude Code 分派 API 请求的纪元毫秒，用于与服务器端时间戳的连接。仅与 [`user_message_uuid`](#user_message_uuid) 一起存在，在成功结果上，其中 `is_error` 为 false，且轮发送了 API 请求。
 * `first_content_frame_ms`：直到第一个 `content_block_start` 或 `content_block_delta` 流事件的时间（毫秒），计算思考块作为内容。仅在成功分支上存在，当 `is_error` 为 false 时。需要 Agent SDK v0.3.260 或更高版本。
@@ -1825,7 +1830,7 @@ type SDKResultMessage =
 
 * **您发送的常规消息**，意思是没有 `isSynthetic: true` 的消息：轮在其整个运行中回答该消息。当您一起发送多条消息时，Claude Code 可以将它们合并为一轮，该字段然后仅携带最后一条消息的 `uuid`。要将回复与任何合并的消息匹配，请使用 [`user_message_uuids`](#user_message_uuids)。
 * **您发送的带有 `isSynthetic: true` 的消息**：轮最初回答该消息。如果 Claude Code 在工具调用之间拾取您的常规消息，轮从那时起回答拾取的消息。回显合成消息的 `uuid` 需要 Agent SDK v0.3.265 或更高版本；早期版本在合成轮上不回显任何内容。
-* **Claude Code 生成的、用于在 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars) 下重新运行被中断轮的提示词**：当被中断轮的最后一个提示词是您发送的常规消息时，无论它是打开轮还是 Claude Code 在轮期间拾取它，重新运行最初回答该消息。[`resume_reason`](#resume_reason) 可将重新运行的帧与被中断尝试的帧区分开。当最后一个提示词不是您的常规消息时，重新运行最初不回答您的任何消息。如果 Claude Code 在工具调用之间拾取您的常规消息，轮从那时起回答拾取的消息。回显被中断轮的提示词需要 Agent SDK v0.3.268 或更高版本。
+* **Claude Code 在 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars) 下为继续被中断的轮次而生成的提示词**：当被中断轮次的最后一个提示词是您发送的常规消息时（无论它是开启了该轮次，还是 Claude Code 在轮次期间接收的），继续的轮次起初回答该消息。[`resume_reason`](#resume_reason) 可将继续轮次的帧与被中断尝试的帧区分开来。当最后一个提示词不是您的常规消息时，继续的轮次起初不回答您的任何消息。如果 Claude Code 在工具调用之间接收了您的一条常规消息，则从那时起该轮次回答被接收的消息。回显被中断轮次的提示词需要 Agent SDK v0.3.268 或更高版本。
 * **Claude Code 自己生成的任何其他提示词**：轮最初不回答您的任何消息，其帧不携带回显。如果 Claude Code 在工具调用之间拾取您的常规消息，轮从那时起回答该消息。拾取回显需要 Agent SDK v0.3.265 或更高版本；早期版本在这些轮上不回显任何内容。
 
 Claude Code 在三种帧上回显回答的消息的 `uuid`：
@@ -1857,14 +1862,14 @@ Claude Code 在携带 `user_message_uuid` 的每个回复帧和结果上，与�
   `resume_reason`
 </h4>
 
-Claude Code 在重启后重新运行该轮的原因。Claude Code 在它在 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars) 下重新运行的轮上设置此字段，以便您可以将重新运行的回复和结果与被中断尝试的区分开。需要 Agent SDK v0.3.268 或更高版本。
+本轮次为何是继续一个被重启中断的轮次。Claude Code 会在 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars) 下继续被中断轮次的轮次上设置此字段，以便您将继续轮次的回复和结果与被中断尝试的回复和结果区分开来。需要 Agent SDK v0.3.268 或更高版本。
 
 Claude Code 在两种帧上设置该字段：
 
-* **重新运行的结果**：在成功和错误分支上，无论结果是否携带 `user_message_uuid`。
-* **重新运行的回复帧**：那些携带 [`user_message_uuid`](#user_message_uuid) 的帧。
+* **继续轮次的结果**：在 success 和 error 分支上均设置，无论结果是否携带 `user_message_uuid`。
+* **继续轮次的回复帧**：携带 [`user_message_uuid`](#user_message_uuid) 的那些帧。
 
-该值是一个简短的小写标记，指明该轮次被重新运行的原因，例如 `interrupted_turn`。
+其值是一个简短的小写标记，例如 `interrupted_turn`。
 
 <h4 id="queued_turn_count">
   `queued_turn_count`
@@ -2029,7 +2034,7 @@ type SDKPartialAssistantMessage = {
 };
 ```
 
-Claude Code 在轮的第一个非 ping 流事件上设置 `user_message_uuid` 和 `user_message_uuids`，并在轮回答的消息改变时再次设置，条件在 [`user_message_uuid`](#user_message_uuid) 中。当 Claude Code 重新运行被重启中断的轮时，重新运行的携带这些字段的流事件也携带 [`resume_reason`](#resume_reason)。
+Claude Code 会在满足 [`user_message_uuid`](#user_message_uuid) 中所述条件时，在该轮次的第一个非 ping 流事件上设置 `user_message_uuid` 和 `user_message_uuids`，并在轮次所回答的消息发生变化时再次设置。当该轮次是继续一个被重启中断的轮次时，携带这些字段的流事件还会携带 [`resume_reason`](#resume_reason)。
 
 <h3 id="sdkcompactboundarymessage">
   `SDKCompactBoundaryMessage`
@@ -3558,7 +3563,7 @@ type WorkflowInput = {
 | - | - | - |
 | `script` | `string` | 内联工作流脚本。必须以 `export const meta = { name, description }` 作为字面量开头，后跟使用 `agent()`、`parallel()`、`pipeline()` 和 `phase()` 的脚本主体。`meta` 中的可选 `phases` 数组在进度视图中将 Agent 分组到命名阶段下 |
 | `name` | `string` | 内置工作流的名称或保存在 `.claude/workflows/` 中的工作流名称。解析为脚本 |
-| `scriptPath` | `string` | 磁盘上工作流脚本文件的路径。优先于 `script` 和 `name`。Claude Code 持久化每次调用的脚本并在结果中返回路径，因此您可以编辑该文件并使用相同的 `scriptPath` 重新调用以进行迭代 |
+| `scriptPath` | `string` | 磁盘上工作流脚本文件的路径，例如先前运行返回的 `scriptPath`。优先于 `script` 和 `name`。当会话的工具不包含 `Read` 时，Claude Code 会以错误拒绝 `scriptPath` |
 | `args` | `unknown` | 输入值，作为全局 `args` 暴露给脚本，用于参数化的命名工作流，例如研究问题或文件路径列表。将数组和对象作为实际 JSON 值传递，而不是作为 JSON 编码的字符串 |
 | `resumeFromRunId` | `string` | 要恢复的先前 `Workflow` 调用的运行 ID。具有未更改输入的已完成 `agent()` 调用通常返回缓存的结果；其余的实时运行。[暂停后恢复](/docs/zh-CN/workflows#resume-after-a-pause)涵盖哪些已完成的调用会重新运行。仅限同一会话 |
 | `title` | `string` | 被忽略；脚本的 `meta` 块设置标题 |

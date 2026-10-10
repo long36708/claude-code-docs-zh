@@ -981,12 +981,12 @@ managed:
   * **混合键**：同时包含 `code` 和 `cli`（或其早期写法 `settings`）的文件会使网关在启动时停止。请在一次编辑中将所有块放在同一个键下。
 </Warning>
 
-策略的 Claude Code 设置（例如拒绝读取 `.env` 文件的规则）放在 `cli` 或 `code` 键下的块中。两个键接受相同的内容。键决定设置在哪里被执行：
+策略的 Claude Code 设置（例如拒绝读取 `.env` 文件的规则）放在 `cli` 或 `code` 键下的块中。`code` 是推荐的键，`cli` 是旧版键。两个键接受相同的内容。键决定了设置在何处强制执行：
 
 * **`cli`**：终端、VS Code 和 JetBrains 扩展以及 Agent SDK。在 `cli` 下，Claude Desktop 的 Code 标签页获得的是[派生设置](#claude-desktop-overlay)，因此诸如 `Read(./.env)` 之类的限定规则在那里不会阻止用户。
 * **`code`**：相同的位置，并且也可以覆盖 Claude Desktop 的 Code 标签页。
 
-需要决定的是这些设置是否也应覆盖 Code 标签页。如果不需要，无需做任何更改。使用 `cli` 的文件会照常工作；如果网关在带有 [`desktop`](#claude-desktop-overlay) 键的策略中发现 `cli`，它会在启动时发出警告但仍会启动。要覆盖 Code 标签页，请切换到推荐的 `code` 键。
+使用 `cli` 的文件照常工作；如果网关在带有 [`desktop`](#claude-desktop-overlay) 键的策略中发现 `cli`，会在启动时发出警告，但仍会启动。请切换到 `code`，以便设置也能涵盖 Code 标签页。
 
 切换之前，请阅读[在 Code 标签页中应用 `code` 设置](#apply-code-settings-in-the-code-tab)。策略需要 `desktop` 键，用户的机器也需要进行设置后这些设置才会在那里生效，并且 Claude Desktop 中的网页搜索会被关闭。
 

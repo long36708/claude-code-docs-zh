@@ -479,7 +479,7 @@ GitHub README、问题和某些其他 Markdown 主机会删除其方案不是 `h
 
 Claude 为浏览器任务打开新标签页并共享您浏览器的登录状态，因此它可以访问您已登录的任何网站。
 
-如需让每个会话在启动时自动连接到您的浏览器，而无需输入 `@browser`，请参阅[默认启用 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default)。关于在以这种方式连接的会话中，Claude Code 在执行浏览器操作前询问您的情况，请参阅 [VS Code 会话中的权限提示](/docs/zh-CN/chrome#permission-prompts-in-vs-code-sessions)。
+如需让每个会话在启动时自动连接到您的浏览器，而无需输入 `@browser`，请参阅[默认启用 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default)。关于 Claude Code 在执行浏览器操作前询问您的情况，请参阅 [VS Code 会话中的权限提示](/docs/zh-CN/chrome#permission-prompts-in-vs-code-sessions)。
 
 有关设置说明、完整的功能列表和故障排除，请参阅 [在 Chrome 中使用 Claude Code](/docs/zh-CN/chrome)。
 

@@ -87,7 +87,10 @@ hook 有以下要求：
 
 `--environment` 和 `--ref` 分派标志需要在运行脚本的机器上使用 Claude Code v2.1.224 或更高版本，这与运行器本身的下限相同。安装 hook 并在此主机上启动运行器后，测试脚本：
 
-1. 使用 `claude -p "<prompt>" --environment <environment-id> --output-format json` 在测试环境上创建会话，从 git 检出运行，以便 CLI 可以从 `origin` 远程自动检测存储库。可选的 `--ref <branch>` 将会话的检出基于命名的 ref 而不是本地 HEAD。该命令创建会话，打印包含 `session_id` 的一行 JSON，并退出而不等待 Claude 的回复。
+1. 使用 `claude -p "<prompt>" --environment <environment-id> --output-format json` 在测试环境上创建会话。请从 git 检出中运行该命令，以便 CLI 可以从 `origin` 远程自动检测仓库。可选的 `--ref <branch>` 将会话的检出基于命名的 ref 而不是本地 HEAD。该命令退出时不会等待 Claude 的回复。其输出会告知脚本结果：
+   * **会话已创建**：一行 JSON，例如 `{"ok":true,"session_id":"session_...","title":"...","url":"...","pool_id":"..."}`
+   * **会话创建失败**：输出 `{"ok":false,"error":"..."}` 这一行，并且命令以状态 1 退出
+   * **某些较早发生的错误**，例如您的组织无法使用云端会话或缺少提示词：错误输出到 stderr，不输出 JSON 行，并且命令以状态 1 退出
 2. 等待回复出现在 `$E2E_REPLY_DIR/<session_id>.txt` 中，由运行器上的 Stop hook 在回合完成后写入。
 3. 使用 `claude -p "<message>" --cloud <session_id> --output-format json` 发送后续消息（请参阅[向运行中的会话发送后续消息](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli)），它将用户事件发布到现有会话并退出。
 4. 以与步骤 2 相同的方式等待后续回复。
@@ -104,7 +107,14 @@ Claude Code 创建会话，打印会话 ID 和指向它的链接，然后退出�
   示例脚本
 </h2>
 
-下面的脚本针对 `$CLAUDE_TEST_ENVIRONMENT_ID`（您的测试环境的 `ccpool_...` ID，显示在管理页面上的环境详细信息对话框中或由[创建环境调用](#create-a-dedicated-test-environment)返回）运行完整循环，并对每个回复中的哨兵短语进行断言。从您希望会话在其中工作的仓库的 git 检出运行它，在此主机上启动运行器后，安装捕获 hook 并导出 `E2E_REPLY_DIR`。首先，按照[从 CI 进行身份验证](#authenticate-from-ci)中的说明，在运行该脚本的机器上使用 claude.ai 账户登录。如果未登录，第一次分派将失败，并出现诸如 `Unable to get organization UUID for cloud session creation` 之类的错误。
+示例脚本与测试运行器在同一台机器上运行。运行之前，请先准备好该机器：
+
+* **仓库检出**：从您希望会话在其中工作的仓库的 git 检出运行该脚本。
+* **运行器**：在此主机上启动运行器，安装捕获 hook 并导出 `E2E_REPLY_DIR`。
+* **登录**：按照[从 CI 进行身份验证](#authenticate-from-ci)中的说明，在运行该脚本的机器上使用 claude.ai 账户登录。
+* **环境 ID**：将 `CLAUDE_TEST_ENVIRONMENT_ID` 设置为您的测试环境的 `ccpool_...` ID，该 ID 显示在管理页面上的环境详细信息对话框中，或由[创建环境调用](#create-a-dedicated-test-environment)返回。
+
+下面的脚本针对 `$CLAUDE_TEST_ENVIRONMENT_ID` 运行完整循环，并对每个回复中的哨兵短语进行断言。
 
 ```bash theme={null}
 #!/usr/bin/env bash
@@ -152,7 +162,7 @@ await_reply() {
 TURN1="e2e-probe-$(date +%s)-$$: say exactly 'ok: custom tools are reachable' and nothing else"
 EXPECT1="ok: custom tools are reachable"
 create_json=$(claude -p "$TURN1" --environment "$CLAUDE_TEST_ENVIRONMENT_ID" \
-  --ref "$TEST_REPO_REF" --output-format json)
+  --ref "$TEST_REPO_REF" --output-format json < /dev/null)
 echo "create: $create_json"
 SESSION_ID=$(jq -er '.session_id' <<<"$create_json")
 
@@ -163,7 +173,7 @@ echo "turn-1 reply ok"
 # 3. Post a follow-up via the CLI.
 TURN2="e2e-probe-followup-$(date +%s): say exactly 'ok: follow-up delivered' and nothing else"
 EXPECT2="ok: follow-up delivered"
-followup_json=$(claude -p "$TURN2" --cloud "$SESSION_ID" --output-format json)
+followup_json=$(claude -p "$TURN2" --cloud "$SESSION_ID" --output-format json < /dev/null)
 echo "followup: $followup_json"
 jq -e '.ok == true' <<<"$followup_json" >/dev/null
 

@@ -314,7 +314,7 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 | 在您的仓库的 `.claude/settings.json` 中声明的插件和市场 | 否 | 云端会话不会安装仓库在 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 下启用的插件，包括来自它在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 下列出的市场的插件 |
 | 您组织的[服务器托管设置](/docs/zh-CN/server-managed-settings) | 是，除了在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话中 | 在会话启动时从 Anthropic 的服务器获取。请参阅[使用入口覆盖范围](/docs/zh-CN/model-config#surface-coverage)了解 `availableModels` 在云端会话中如何强制执行。通过 MDM 或托管设置文件部署到您设备的设置不适用，因为会话在 Anthropic 管理的 VM 上运行；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，会话也会读取运行器镜像中的托管设置文件，根据 [Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources) |
 | 您的用户 `~/.claude/CLAUDE.md` | 否 | 位于您的机器上，不在仓库中。请参阅[添加个人偏好而无需提交到仓库](#add-personal-preferences-without-committing-to-the-repo) |
-| 您的用户 `~/.claude/skills/`、`~/.claude/agents/`、`~/.claude/commands/` | 否 | 位于您的机器上，不在仓库中。请改为将它们提交到仓库的 `.claude/` 目录。云端会话会自动加载您在 claude.ai 上启用的 skill |
+| 您的用户 `~/.claude/skills/`、`~/.claude/agents/`、`~/.claude/commands/` | 否 | 位于您的机器上，不在仓库中。请改为将它们提交到仓库的 `.claude/` 目录。云端会话会自动加载[您在 claude.ai 上启用的 skill](/docs/zh-CN/skills#skills-in-cowork-and-cloud-sessions) |
 | 仅在您的用户设置中启用的插件 | 否 | 用户作用域的 `enabledPlugins` 位于您机器上的 `~/.claude/settings.json` |
 | 您使用 `claude mcp add` 在默认本地作用域或用户作用域添加的 MCP 服务器 | 否 | 这些写入您机器上的 `~/.claude.json`，而不是仓库。请使用 `claude mcp add --scope project` 添加服务器，它会写入仓库的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope)，并提交该文件。具有一个仓库的会话会加载它 |
 | 您的仓库的 `.claude/settings.json` `env` 块中的传输变量，例如 `NODE_EXTRA_CA_CERTS` 和 [mTLS 客户端证书变量](/docs/zh-CN/network-config#mtls-authentication) | 否 | 托管环境管理会话的 API 连接，因此 Claude Code 忽略这些键，并在会话的调试日志中记录每个被忽略的键 |

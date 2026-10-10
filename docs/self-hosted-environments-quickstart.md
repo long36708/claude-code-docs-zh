@@ -34,6 +34,7 @@ claude.ai 端需要：
 运行器主机需要：
 
 * 一个 Linux 或 macOS 主机或容器，具有到 `api.anthropic.com` 的出站 HTTPS、到 `claude.ai` 和下面安装步骤重定向到的下载主机的出站 HTTPS，以及到您的 git 主机的出站 HTTPS 用于克隆；[网络要求表](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)有完整列表。Windows 不支持作为运行器主机；改为在 Linux 容器中运行运行器。开发人员工作站不受影响，因为会话从浏览器中的 claude.ai 启动。
+* 一个用于测试会话的仓库：可以是公共仓库，也可以是此主机已能通过其 HTTPS URL 克隆且无需提供凭据的仓库。
 * 与实时同步的时钟，例如使用 NTP。当时钟偏离超过五分钟时，身份验证失败；请参阅[故障排除](/docs/zh-CN/self-hosted-environments-deploy#troubleshooting)。
 
 <h3 id="software-on-the-runner-host">
@@ -57,13 +58,30 @@ claude self-hosted-runner --help
   设置环境和运行器
 </h2>
 
-Claude Code 包括一个引导式设置：一个交互式 Claude Code 会话，引导您在管理 UI 中创建环境、使用您保存的密钥文件启动本地运行器、确认运行器注册，并将速查表写入 `./runner-setup/CHEAT-SHEET.md`。在您已使用拥有所有者角色的帐户使用 `claude auth login` 登录的机器上运行它；它不适用于 API 密钥或第三方模型提供商。在无法进行交互式会话的主机上，改为使用下面的手动步骤。首先确认[版本检查](#software-on-the-runner-host)通过：在 2.1.224 之前的版本上，此命令启动一个普通的 Claude 会话，将这些词作为提示而不是引导式设置。要启动引导式设置，请运行设置子命令并按照提示进行：
+使用[引导式设置](#run-the-guided-setup)或[手动步骤](#set-up-manually)。引导式设置只需一条命令，它会启动一个交互式 Claude Code 会话，并引导您完成其余步骤。在无法进行交互式会话的主机上，请改用手动步骤。如果拥有所有者角色的人员已创建环境并将其密钥交给您，也请使用手动步骤，因为引导式设置需要以所有者身份登录。
+
+<h3 id="run-the-guided-setup">
+  运行引导式设置
+</h3>
+
+引导式设置会引导您在管理 UI 中创建环境、使用您保存的密钥文件启动本地运行器、确认运行器已注册，并将速查表写入 `./runner-setup/CHEAT-SHEET.md`。运行之前，请确认您的登录状态和版本：
+
+* **登录**：在您已使用拥有所有者角色的帐户通过 `claude auth login` 登录的机器上运行它。如果仅使用 API 密钥或第三方模型提供商，会话虽然会启动，但其组织检查会失败。
+* **版本**：确认[版本检查](#software-on-the-runner-host)已通过。在 2.1.224 之前的版本上，此设置命令会启动一个 Claude 会话，并将这些词作为提示词，而不是启动引导式设置。
+
+要启动引导式设置，请在 shell 中运行设置子命令并按照提示进行操作：
 
 ```bash theme={null}
 claude self-hosted-runner setup
 ```
 
-要改为手动设置：
+设置本身不会启动测试会话：它会提示您在 claude.ai/code 启动一个。设置的最后一步会停止它所启动的运行器。如果您在该步骤之前退出设置，运行器将继续运行。要在最后一步之后继续，请在 shell 中使用 `./runner-setup/CHEAT-SHEET.md` 中的命令再次启动运行器，然后[将会话路由到环境](#route-a-session)。
+
+<h3 id="set-up-manually">
+  手动设置
+</h3>
+
+在 claude.ai 上创建环境，从主机上的终端启动运行器，然后返回 claude.ai 确认运行器出现并将会话路由到它。如果拥有所有者角色的人员已创建环境并将其密钥交给您，请从第 2 步开始。
 
 <Steps>
   <Step title="创建环境">
@@ -73,7 +91,7 @@ claude self-hosted-runner setup
   </Step>
 
   <Step title="启动运行器">
-    创建密钥目录。此步骤和下一步需要 root 用于 `/etc/claude` 路径；运行器进程可以读取的任何路径都有效，因此如果您使用不同的路径，请一起调整两个命令和 `--environment-secret-file` 值。
+    创建密钥目录。此命令和下一条命令使用 `/etc/claude`，这需要 root 权限，并且它们创建的密钥文件仅可由运行这些命令的用户读取。如果运行器将以其他用户身份运行，它会退出并显示 `error: Failed to read environment secret file <path> (EACCES: permission denied, open '<path>')`。在这种情况下，请以运行器的用户身份运行这两条命令，并使用该用户可写入的目录代替 `/etc/claude`，同时将相同的路径传递给 `--environment-secret-file`。运行器进程可以读取的任何路径都有效。
 
     ```bash theme={null}
     mkdir -p /etc/claude
@@ -89,23 +107,43 @@ claude self-hosted-runner setup
 
     如果运行器无法创建或写入路径，它在启动时以命名目录的错误退出，而不是注册。请参阅[故障排除](/docs/zh-CN/self-hosted-environments-deploy#troubleshooting)。
 
-    然后使用 `--environment-secret-file` 和 `--base-dir` 启动运行器。运行器向您的环境注册并开始轮询工作。如果运行器退出，请手动重新启动它。生产部署在编排器下运行运行器，该编排器重新启动已退出的运行器，通常每次重新启动时使用新的文件系统；[重用预热的检查](/docs/zh-CN/self-hosted-environments-deploy#reuse-a-pre-warmed-checkout)涵盖了支持的持久磁盘设置。
+    然后使用 `--environment-secret-file` 和 `--base-dir` 启动运行器：
 
     ```bash theme={null}
     claude self-hosted-runner --environment-secret-file '/etc/claude/environment-secret' --base-dir '<writable-dir>'
     ```
+
+    运行器向您的环境注册后会记录 `Registered: runner_id=<runner-id>`，然后开始轮询工作。如果运行器之后退出，请手动重新启动它。有关何时会发生这种情况，请参阅[如果运行器退出](#if-the-runner-exits)。
   </Step>
 
   <Step title="验证运行器出现">
-    返回[**Cloud environments** 页面](https://claude.ai/admin-settings/cloud-environments)。您的环境状态在运行器启动后几秒内从 **No runners deployed** 更改为 **Healthy**；打开环境并选择 **Activity** 以查看运行器本身。
+    返回[**Cloud environments** 页面](https://claude.ai/admin-settings/cloud-environments)。您的环境状态在运行器启动后几秒内从 **No runners deployed** 更改为 **Healthy**；打开环境并选择 **Activity** 以查看运行器本身。如果您无权访问管理页面，上一步运行器日志中的 `Registered: runner_id=<runner-id>` 行可提供相同的信号。
   </Step>
 
   <Step title="将会话路由到环境">
-    在 claude.ai/code 启动会话，并从环境选择器中选择您的环境，其中自托管环境与 Anthropic 托管的环境一起出现。运行器使用主机已有的任何 git 凭证进行克隆，因此选择此主机已可以克隆的存储库或公共存储库；生产中私有存储库的凭证选项在[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)上。下一个可用的运行器拾取排队的会话并记录 `Picked up session <session-id>` 以及其活跃计数和容量，因此您可以从运行器自己的输出中确认哪个主机接收了会话。在 [claude.ai/code](https://claude.ai/code) 观看会话工作并阅读 Claude 的回复。如果会话保持排队状态，请参阅[故障排除](/docs/zh-CN/self-hosted-environments-deploy#troubleshooting)。
+    <span id="route-a-session" />在 claude.ai/code 启动会话，并从环境选择器中选择您的环境，其中自托管环境与 Anthropic 托管的环境一起出现。对于仓库，请选择[前提条件](#host-and-network)中的仓库：公共仓库，或此主机已可以克隆的仓库。运行器使用主机已有的任何 git 凭据进行克隆。
+
+    下一个可用的运行器拾取排队的会话并记录 `Picked up session <session-id>` 以及其活跃计数和容量，因此您可以从运行器自己的输出中确认哪个主机接收了会话。在 [claude.ai/code](https://claude.ai/code) 观看会话工作并阅读 Claude 的回复。
+
+    如果会话没有开始工作，请对照您看到的情况：
+
+    * **会话保持排队状态**：请参阅[故障排除](/docs/zh-CN/self-hosted-environments-deploy#troubleshooting)。
+    * **会话因 git 错误而无法启动**：错误会显示在会话和运行器的日志中。如果错误包含 git 的 `could not read Username for`，后跟您的 git 主机的 URL，则说明运行器没有该主机的 HTTPS 凭据。请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)，其中还介绍了生产环境中私有仓库的凭据选项。
   </Step>
 </Steps>
 
-运行器在其活跃会话完成后按设计退出；请参阅[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle)。对于生产，在编排器下部署它，该编排器在退出时重新启动它，并在运行器启动后立即继续退出时等待更长的时间再重新启动。请参阅[部署到生产环境](/docs/zh-CN/self-hosted-environments-deploy)和[当运行器退出时](/docs/zh-CN/self-hosted-environments-deploy#when-the-runner-exits)。
+<h3 id="if-the-runner-exits">
+  如果运行器退出
+</h3>
+
+如果运行器在本快速入门期间退出，请使用相同的命令再次启动它。运行器可能会自行退出：
+
+* **会话已完成**：日志显示 `[runner:exit] account workload drained — exiting`。运行器在其活跃会话完成后按设计退出。请参阅[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle)。
+* **失去联系**：日志显示一行包含 `runner record gone server-side` 或 `poll auth failed` 的 `[runner:fatal]`。如果运行器与 Anthropic 失去联系一段时间（例如因为主机休眠），它可能会在下次连接到 Anthropic 时退出。
+
+一个轮次结束并不会结束您的测试会话。第一轮之后，会话仍处于连接状态，运行器也仍在运行，因此您可以[向会话发送后续消息](#send-a-follow-up-message-to-a-running-session)，而无需先重新启动运行器。
+
+对于生产，在编排器下部署运行器，该编排器在退出时重新启动它，并在运行器启动后立即继续退出时等待更长的时间再重新启动。请参阅[部署到生产环境](/docs/zh-CN/self-hosted-environments-deploy)和[当运行器退出时](/docs/zh-CN/self-hosted-environments-deploy#when-the-runner-exits)。
 
 <h2 id="send-a-follow-up-message-to-a-running-session">
   向运行中的会话发送后续消息

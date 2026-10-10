@@ -132,9 +132,11 @@
 运行器及其会话进行多种出站连接，不需要来自 Anthropic 的入站连接：
 
 * **控制平面**：运行器轮询 `api.anthropic.com` 以获取工作并发布设置进度和失败事件，全部出站 HTTPS。轮询充当运行器的心跳。
-* **SCM 连接器**：可选的编排器 [SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags)隧道是唯一的 WebSocket 连接。
-* **Git**：运行器通过 HTTPS 或 SSH 从您的 git 主机克隆和推送，使用您的部署提供的凭证进行身份验证；[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)涵盖了选项，包括每个会话铸造的凭证和 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)，它通过 `api.anthropic.com` 路由 git。
-* **会话子进程**：子 Claude Code 进程将会话的事件流保持到 `api.anthropic.com`，并为模型推理和会话期间运行的 git 命令进行自己的出站调用。请参阅[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)了解完整的出站列表。[上面的图](#how-self-hosted-environments-work)显示了这些路径，除了可选的 SCM 连接器。
+* **Git**：运行器通过 HTTPS 或 SSH 从您的 git 主机克隆和推送，使用您的部署提供的凭据进行身份验证。请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)了解各选项，包括每个会话铸造的凭据。使用 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)时，github.com 上仓库的 git 流量改为经由 `api.anthropic.com` 传输。
+* **会话子进程**：子 Claude Code 进程将会话的事件流保持到 `api.anthropic.com`，并为模型推理和会话期间运行的 git 命令进行自己的出站调用。在使用 [Anthropic 托管 git](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy) 的会话中，子进程通过其打开到 `api.anthropic.com` 的 WebSocket 连接发送 github.com 的 `git` 和 `gh` 流量。
+* **SCM 连接器**：可选的编排器 [SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags)不可用，因此其隧道不会打开。该隧道是到 `api.anthropic.com` 的 WebSocket 连接。
+
+请参阅[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)了解完整的出站列表。[上面的图](#how-self-hosted-environments-work)显示了这些路径，但可选的 SCM 连接器和 Anthropic 托管的 git 连接除外。
 
 默认情况下，模型推理使用 Anthropic API。控制平面将 API 端点传递给每个会话，会话使用 Anthropic 颁发的会话范围的 OAuth 令牌进行身份验证。如需改为将模型请求发送到您自己的云帐户，请参阅[将模型请求发送到 Bedrock 或 Agent Platform](/docs/zh-CN/self-hosted-environments-configuration#send-model-requests-to-bedrock-or-agent-platform)。
 

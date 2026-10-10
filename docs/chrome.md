@@ -129,16 +129,15 @@ Chrome 集成还需要使用 `/login` 登录。如果您使用 API 密钥或来�
   VS Code 会话中的权限提示
 </h3>
 
-在 VS Code 会话中，Claude Code 是否在浏览器操作前询问您，取决于该会话连接到您浏览器的方式：
+在 VS Code 会话中，当 Claude Code 在浏览器操作前询问您时，提示会以卡片形式显示在聊天面板中。当该操作针对您尚未允许的网站时，该卡片还会提供允许该网站的选项。
 
-* **您键入了 `@browser`**：扩展程序会批准 Claude Code 原本会询问您的每个浏览器操作。
-* **[Enabled by default](#enable-chrome-by-default) 设置在启动时建立了连接**：在 Manual、Edit automatically、Auto 和 Bypass permissions 模式下，对于您尚未允许的网站，Claude Code 会在浏览器操作前询问您，直到您在该会话中键入 `@browser`。
+在因 [Enabled by default](#enable-chrome-by-default) 已开启而在启动时连接到您浏览器的会话中，在 Manual、Edit automatically、Auto 和 Bypass permissions 模式下，对于您尚未允许的网站，Claude Code 会在浏览器操作前询问您。在 Auto 和 Bypass permissions 模式下，这一行为持续到您在该会话中键入 `@browser` 为止。
 
 <h3 id="browser-tools-in-plan-mode">
   Plan Mode 中的浏览器工具
 </h3>
 
-在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中，在 Claude 记录 GIF、打开新标签页或运行快捷方式之前会出现权限提示，但在您键入了 [`@browser`](#permission-prompts-in-vs-code-sessions) 的 VS Code 会话中除外。在交互式 CLI 会话中，如果[可用绕过权限模式](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)且[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)已关闭，这些调用将在没有提示的情况下运行。
+在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中，在 Claude 记录 GIF、打开新标签页或运行快捷方式之前会出现权限提示。在交互式 CLI 会话中，如果[可用绕过权限模式](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)且[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)已关闭，这些调用将在没有提示的情况下运行。
 
 当 `tabs_context_mcp` 调用设置 `createIfEmpty` 时也会提示，包含任何这些操作的 `browser_batch` 调用也是如此。
 

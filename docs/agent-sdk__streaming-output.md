@@ -124,6 +124,14 @@ ResultMessage - final result
 
 未启用部分消息时，你会接收除 `StreamEvent` 之外的所有消息类型。常见类型包括 `SystemMessage`（会话初始化）、`AssistantMessage`（完整内容块）、`ResultMessage`（最终结果）和一个紧凑边界消息，指示何时压缩了对话历史记录（TypeScript 中为 `SDKCompactBoundaryMessage`；Python 中为带有子类型 `"compact_boundary"` 的 `SystemMessage`）。
 
+<h3 id="handle-a-stream-that’s-cut-off">
+  处理被中断的流
+</h3>
+
+如果流在消息中途被中断，例如当您中断该轮次或连接断开时，您仍会在该轮次结束前收到该消息的 `message_stop`。被中断的文本块或思考块也会收到其 `content_block_stop`。被中断的工具调用则不会，因此如果 `message_stop` 到达时某个工具调用的块仍处于打开状态，请将该调用的输入视为不完整。
+
+在 Claude Code v2.1.290 之前，被中断的流可能会在没有 `message_stop` 的情况下结束轮次，因此您根据流事件渲染的回复可能会一直显示为进行中。TypeScript Agent SDK 从 v0.3.290 起捆绑 Claude Code v2.1.290 或更高版本，Python Agent SDK 则从 v0.2.164 起捆绑。如果轮次结束后回复仍显示为进行中，请更新 SDK。
+
 <h2 id="stream-tool-calls">
   流式传输工具调用
 </h2>
