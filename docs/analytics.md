@@ -67,7 +67,7 @@ Team 和 Enterprise 仪表板包括：
 * **"GitHub 应用必需"**：安装 GitHub 应用以查看贡献指标
 * **"数据处理进行中"**：几天后重新检查，如果数据未出现，请确认 GitHub 应用已安装
 
-贡献指标支持 GitHub Cloud 和 GitHub Enterprise Server。
+贡献指标涵盖托管在 github.com 上的仓库。对于 [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 上的仓库，分析仪表板仅显示使用指标。
 
 <h3 id="review-summary-metrics">
   查看摘要指标

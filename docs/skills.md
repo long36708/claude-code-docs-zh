@@ -192,9 +192,9 @@ Skill 文件夹还遵循以下规则：
 
 Claude Code 从启动它的目录和每个父目录（直到存储库根目录）中的 `.claude/skills/` 加载项目 skills，因此在 `packages/frontend/` 中启动仍会获取在根目录定义的 skills。当您在 v2.1.246 或更高版本上 [使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory) 时，Claude Code 会添加新目录的项目 skills。
 
-在链接的 [git worktree](/docs/zh-CN/worktrees) 中运行的会话中，Claude Code 仅在 worktree 根目录之前搜索父目录。在 Claude Code v2.1.277 或更高版本上，当 worktree 检出在其根目录没有 `.claude/skills` 目录时，Claude Code 会改为加载主检出的项目 skills。请参阅 [worktrees 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
+在您使用 `--worktree` 或 `git worktree add` 创建的链接 [git worktree](/docs/zh-CN/worktrees) 中运行的会话中，Claude Code 仅在 worktree 根目录之前搜索父目录。在 Claude Code v2.1.277 或更高版本上，当 worktree 检出在其根目录没有 `.claude/skills` 目录时，Claude Code 会改为加载主检出的项目 skill。请参阅 [worktrees 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
 
-`.claude/skills/` 目录中启动位置下方的 skills 在启动时不会加载。它们在 Claude 首次读取或编辑该子目录中的文件时加载，并在会话的其余时间保持可用。在此之前，它们不会出现在 `/` 菜单中，您也无法按名称调用它们。要更早加载它们，请使用子目录的路径运行 `/add-dir`，这需要 Claude Code v2.1.257 或更高版本。
+`.claude/skills/` 目录中启动位置下方的 skill 在启动时不会加载。它们在 Claude 首次读取或编辑该子目录中的文件时加载，并在会话的其余时间保持可用。在此之前，它们不会出现在 `/` 菜单中，您也无法按名称调用它们。要更早加载它们，请使用子目录的路径运行 `/add-dir`，这需要 Claude Code v2.1.257 或更高版本。对于从桌面应用启动的 worktree 会话，请参阅 [worktrees 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
 
 当嵌套 skill 的目录名称与另一个 skill 的名称匹配时，两者都保持可用。在存储库根目录有一个 `deploy` skill，在 `apps/web/.claude/skills/` 中有另一个：
 
@@ -434,7 +434,7 @@ Your skill instructions here...
 | `when_to_use` | 否 | 关于 Claude 何时应调用该 skill 的附加上下文，例如触发短语或示例请求。在 skill 列表中附加到 `description` 之后，并计入 1,536 个字符的上限。 |
 | `argument-hint` | 否 | 自动补全期间显示的提示，用于指示预期的参数。示例：`[issue-number]` 或 `[filename] [format]`。 |
 | `arguments` | 否 | 用于 skill 内容中 [`$name` 替换](#available-string-substitutions)的命名位置参数。接受以空格分隔的字符串或 YAML 列表。名称按顺序映射到参数位置。 |
-| `disable-model-invocation` | 否 | 设置为 `true` 可防止 Claude 自动加载此 skill。适用于您希望通过 `/name` 手动触发的工作流。还会阻止该 skill [预加载到子代理中](/docs/zh-CN/sub-agents#preload-skills-into-subagents)。从 v2.1.196 起，当以该 skill 作为提示词的[定时任务](/docs/zh-CN/scheduled-tasks)触发时，也会阻止该 skill 运行。默认值：`false`。 |
+| `disable-model-invocation` | 否 | 设置为 `true` 可防止 Claude 自动加载此 skill。适用于您希望通过 `/name` 手动触发的工作流。还会阻止该 skill [预加载到子代理中](/docs/zh-CN/sub-agents#preload-skills-into-subagents)，并在以该 skill 作为提示词的[定时任务](/docs/zh-CN/scheduled-tasks)触发时阻止其运行。默认值：`false`。 |
 | `user-invocable` | 否 | 当只有 Claude 应调用该 skill 时设置为 `false`：Claude Code 会将其从 `/` 菜单中隐藏，并且在您输入 `/name` 时不会运行它。适用于用户不应直接调用的背景知识。默认值：`true`。 |
 | `allowed-tools` | 否 | 在调用此 skill 的轮次中，Claude 无需请求权限即可使用的工具。当您发送下一条消息时，该授予即被清除。接受以空格或逗号分隔的字符串，或 YAML 列表。请参阅[为 skill 预先批准工具](#pre-approve-tools-for-a-skill)。 |
 | `disallowed-tools` | 否 | 在此 skill 处于活动状态时，从 Claude 可用工具池中移除的工具。适用于永远不应调用某些工具的自主 skill，例如对后台循环禁用 `AskUserQuestion`。接受以空格或逗号分隔的字符串，或 YAML 列表。当您发送下一条消息时，该限制即被清除。与拒绝规则一样，只要还有其他工具存在，该字段就无法移除 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)。 |
@@ -527,8 +527,6 @@ Run `${CLAUDE_SKILL_DIR}/scripts/render.sh <csv-file>` to render the chart.
 ```
 
 如果此 skill 安装在 `~/.claude/skills/render-chart/`，则两处 `${CLAUDE_SKILL_DIR}` 都会展开为该目录。这样，`allowed-tools` 规则就会与 skill 正文指示 Claude 运行的命令完全匹配，因此脚本运行时无需提示。
-
-`${CLAUDE_PROJECT_DIR}` 替换需要 Claude Code v2.1.196 或更高版本。
 
 索引参数使用 shell 风格的引号规则，因此请将多词值用引号括起来，以将其作为单个参数传递。例如，`/my-skill "hello world" second` 会使 `$0` 展开为 `hello world`，`$1` 展开为 `second`。`$ARGUMENTS` 占位符始终展开为输入时的完整参数字符串。
 
@@ -803,7 +801,7 @@ PowerShell 工具对它运行的命令应用相同的超时、后台化和输出
   当注入命令失败时
 </h4>
 
-失败的命令中止整个技能调用，而不仅仅是其自己的占位符。Claude 永远看不到该调用的技能内容。中止显示 `Shell command failed for pattern "..."`。错误消息包括命令的输出在 `[stderr]` 下。
+失败的命令会中止整个 skill 调用，而不仅仅是其自身的占位符。Claude 永远看不到该次调用的 skill 内容。中止时会显示 `Shell command failed for pattern "..."`。错误消息会在 `[stderr]` 下包含该命令的输出。
 
 使用默认的 `bash` shell，任何非零退出代码都算作失败。一个例外适用：Claude Code 将来自[搜索和比较命令](/docs/zh-CN/tools-reference#output-limits)的退出代码 1 视为正常结果并注入其输出。退出代码 2 或更高的代码即使对于这些命令也会失败。
 
@@ -842,6 +840,8 @@ Claude Code 也会等待结果，即使技能没有设置 `background: false`，
 * 当你将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 设置为 `1` 时，这也会关闭所有其他后台任务功能
 * 当你在同一技能的早期调用仍在运行时调用分叉技能时
 * 当[计划任务](/docs/zh-CN/scheduled-tasks)以技能作为其提示触发时
+
+当[动态工作流](/docs/zh-CN/workflows)中的 Agent 调用分叉 skill 时，即使该 skill 没有设置 `background: false`，该 Agent 也会等待并接收结果。在 v2.1.295 之前，Claude Code 在这种情况下不会等待，并且当 skill 在后台运行时，其结果会出现在您的主对话中，而不会到达该 Agent。
 
 后台化的分叉也使用[适用于后台子代理的更窄工具集](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)运行：技能的子代理是常规代理类型，因此分叉对话的子代理的豁免不适用于它。如果你的技能的步骤依赖于该集合之外的工具，请设置 `background: false` 以保持完整的工具集。
 

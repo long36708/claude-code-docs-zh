@@ -424,7 +424,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
   自动批准特定工具
 </h3>
 
-默认情况下，代理可能在使用某些工具前提示权限。此示例通过返回 `permissionDecision: 'allow'` 自动批准只读文件系统工具（Read、Glob、Grep），让它们无需用户确认即可运行，同时让所有其他工具受到正常权限检查：
+默认情况下，Agent 可能在使用某些工具前请求权限。此示例通过返回 `permissionDecision: 'allow'` 自动批准只读文件系统工具（Read、Glob、Grep），让它们无需用户确认即可运行（从[网络路径](/docs/zh-CN/permissions#network-paths)读取的操作除外），同时让所有其他工具受到正常权限检查：
 
 <CodeGroup>
   ```python Python theme={null}

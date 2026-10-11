@@ -511,7 +511,7 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
 * 在大型运行前检查 `/model`，如果您通常为日常工作切换到较小的模型
 * 当您描述任务时，要求 Claude 为不需要最强模型的阶段使用较小的模型
 
-当您组织的 [`availableModels` 允许列表](/docs/zh-CN/model-config#restrict-model-selection)阻止脚本为代理请求的模型时，该代理会改为在替代模型上运行，遵循与子代理相同的[替代规则](/docs/zh-CN/sub-agents#choose-a-model)。[`/workflows`](#watch-the-run) 中的运行进度视图显示一个警告，命名请求的和替代的模型。
+当您组织的 [`availableModels` 允许列表](/docs/zh-CN/model-config#restrict-model-selection)阻止脚本为某个 Agent 请求的模型时，该 Agent 会改为在替代模型上运行，遵循与[子代理相同的替代规则](/docs/zh-CN/sub-agents#choose-a-model)。
 
 <h3 id="set-a-size-guideline">
   设置大小指南

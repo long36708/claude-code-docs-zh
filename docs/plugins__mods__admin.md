@@ -68,7 +68,7 @@
 * **保护程序保护您管理的内容。** 用户的 mod 无法更改您的托管 hooks 接收或决定的内容、系统提示、您的托管 `CLAUDE.md` 和其他托管说明、任何 mod 读取的设置内容，或您的托管 MCP 服务器的工具和描述。
 * **允许所有其他内容。** 保护程序不添加其他限制。用户的 mod 仍然可以读写文件、启动进程、发出网络请求、重写工具调用和提示、拒绝工具调用、批准否则会提示的工具调用，以及在界面中绘制，所有这些都具有该用户的权限。
 * **拒绝规则和您的托管 hook 优先。** 保护程序加载的地方，用户的 mod 无法批准 `deny` 规则拒绝的调用，无论哪个设置文件持有该规则。来自托管设置中 `PreToolUse` hook 的阻止也是最终的。两者都适用于 Claude 的工具调用。两者都不适用于 mod 自己的 [`$.fs` 和 `$.process` 调用](/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)：即使 `Read(.env)` 被拒绝，mod 仍然可以使用 `$.fs.read` 读取该文件或启动执行此操作的程序。要限制这些调用，请防止 mod 加载或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中处理该调用。
-* **其他权限检查可以被覆盖。** 批准工具调用的用户 mod 可以批准 `ask` 规则会提示的调用，或 `PreToolUse` hook 在托管设置外阻止的调用。在自动模式下，mod 批准的调用运行时不进行分类器检查。
+* **其他权限检查可以被覆盖。** 批准工具调用的用户 mod 可以批准 `ask` 规则会提示的调用，或 `PreToolUse` hook 在托管设置外阻止的调用。在自动模式下，mod 批准的调用运行时不进行分类器检查。对于 mod 的 `tool.check` 批准不会跳过的提示，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)。
 
 保护程序的源代码在 [Claude Code 存储库的 `mods/sec-default` 目录](https://github.com/anthropics/claude-code/tree/main/mods/sec-default)中是公开的。
 
@@ -81,7 +81,12 @@ Mods 不会替换您已有的控制：
 * **设置 hooks 继续工作。** 设置文件和插件的 `hooks/hooks.json` 中的命令、HTTP、提示和代理 hooks 照常运行，与 mods 一起。关于它们的任何内容都没有被弃用。
 * **拒绝规则在保护程序加载的地方优先。** 用户的 mod 无法批准 `deny` 规则拒绝的调用，除非您设置 [`allowModsToOverrideDenyRules`](#set-options-on-the-built-in-guard)。
 * **托管 hooks 首先运行。** 托管设置中的 `PreToolUse` hook 在任何 mod 看到工具调用之前运行，其块是最终的。如果 mod 随后重写调用，您的托管 hooks 在重写的调用上再次运行，因此块仍然适用。来自其他设置文件和插件的 `PreToolUse` hooks 在最后一个 mod 之后运行，因此返回自己结果代替运行工具的 mod 会阻止这些运行。请参阅[mods 运行的顺序](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)。
-* **网络策略涵盖 `$.http.fetch`。** 如果您的组织关闭了网络获取，或为会话关闭了非必要的网络流量，Claude Code 会拒绝 mod 使用 `$.http.fetch` 发出的网络请求。该策略不涵盖 mod 使用 `$.process.run` 启动的程序。该程序使用用户自己的访问权限到达网络。
+* **网络策略涵盖 `$.http.fetch`。**
+
+  * **您的组织策略不允许 WebFetch**：Claude Code 也会拒绝每个 mod 的 `$.http.fetch` 请求。请参阅 [WebFetch 可用性](/docs/zh-CN/tools-reference#webfetch-availability)。
+  * **您设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars)**：您或您的用户安装的 mod 仍然可以发出这些请求。该变量仅阻止 [Claude Code 内置的 mod](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code)，以及任何携带会话 Anthropic 凭据的 `$.http.fetch` 请求。在 v2.1.288 之前，该变量会阻止每个 mod 的 `$.http.fetch` 请求。
+
+  两者都不涵盖 mod 使用 `$.process.run` 启动的程序，该程序使用用户自己的访问权限访问网络。
 * **插件控制涵盖 mods。** Mod 是一个插件，因此[限制用户可以安装的内容的设置](/docs/zh-CN/plugins/org#restrict-what-users-can-install)，例如 `strictKnownMarketplaces`，决定它是否可以被安装。
 * **Mods 无法更改权限提示。** Mod 可以重新设置 Claude Code 界面的大部分样式，但不能更改权限提示，因此它无法更改提示显示的内容。Mod 仍然可以在提示出现之前批准或拒绝工具调用，如[了解默认情况下会发生什么](#know-what-happens-by-default)所述。
 * **信任提示首先出现。** 在用户尚未信任的目录中的交互式会话中，在他们回答信任提示之前，没有 mod 加载。

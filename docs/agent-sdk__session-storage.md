@@ -358,7 +358,7 @@ SDK 永远不会自行从您的存储中删除。保留是适配器的责任：�
 * [`renameSession()`](/docs/zh-CN/agent-sdk/typescript#renamesession)
 * [`tagSession()`](/docs/zh-CN/agent-sdk/typescript#tagsession)
 * [`deleteSession()`](/docs/zh-CN/agent-sdk/typescript)
-* [`forkSession()`](/docs/zh-CN/agent-sdk/typescript)
+* [`forkSession()`](/docs/zh-CN/agent-sdk/typescript#forksession)
 * [`listSubagents()`](/docs/zh-CN/agent-sdk/typescript)
 * [`getSubagentMessages()`](/docs/zh-CN/agent-sdk/typescript)
 

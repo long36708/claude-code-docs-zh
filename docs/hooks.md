@@ -425,7 +425,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 
 所有匹配的 hooks 并行运行。如果在多个设置文件中定义相同的处理程序，它运行一次。插件或技能的相同处理程序副本保持分离。
 
-处理程序在当前目录中使用 Claude Code 的环境运行。如果当前目录不再存在，例如另一个 shell 在会话中途删除的 worktree 或临时目录，Claude Code 从以下第一个仍然存在的目录运行命令 hooks：会话启动的目录、项目根目录、您的主目录或系统临时目录。Claude Code 在 [调试日志](#debug-hooks) 中记录一个警告，命名回退目录。
+处理程序在当前目录中使用 Claude Code 的环境运行。如果当前目录不再存在，例如另一个 shell 在会话中途删除的 worktree 或临时目录，Claude Code 从以下第一个仍然存在的目录运行命令 hook：会话启动的目录、项目根目录、您的主目录或系统临时目录。Claude Code 在 [调试日志](#debug-hooks) 中记录一个警告，命名回退目录。对于从桌面应用启动的 worktree 会话，请参阅 [worktree 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
 
 `$CLAUDE_CODE_REMOTE` 环境变量在远程 web 环境中为 `"true"`，在本地 CLI 中未设置。Claude Code v2.1.199 及更高版本在本地会话有活跃的远程控制连接时将 [`$CLAUDE_CODE_BRIDGE_SESSION_ID`](/docs/zh-CN/env-vars) 设置为 [远程控制](/docs/zh-CN/remote-control) 会话 ID。
 
@@ -645,6 +645,8 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 的�
 
   * **`${CLAUDE_PROJECT_DIR}` 保持不变**：它仍然指向会话启动的项目根目录，所以像 `${CLAUDE_PROJECT_DIR}/.claude/hooks/check-style.sh` 这样的命令仍然在主检出中运行脚本。
   * **`cwd` 跟随 Claude**：hook 的 [输入 JSON](#common-input-fields) 中的 `cwd` 字段在 Claude 进入 worktree 后是 worktree 根目录，在 Claude 运行 `cd` 后是新目录。当 hook 需要知道 Claude 正在哪个目录中工作时读取它。
+
+  对于从桌面应用启动的 worktree 会话，请参阅 [worktree 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout) 了解 `${CLAUDE_PROJECT_DIR}` 指向何处。
 </Note>
 
 对于任何引用路径占位符的 hook，优先使用 [exec 形式](#exec-form-and-shell-form)。在 shell 形式中，用双引号包装每个占位符。
@@ -680,7 +682,7 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 的�
 
     ```json theme={null}
     {
-      "description": "自动代码格式化",
+      "description": "Automatic code formatting",
       "hooks": {
         "PostToolUse": [
           {
@@ -717,7 +719,7 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 的�
 ```yaml theme={null}
 ---
 name: secure-operations
-description: 执行具有安全检查的操作
+description: Perform operations with security checks
 hooks:
   PreToolUse:
     - matcher: "Bash"
@@ -782,11 +784,11 @@ Hook 事件接收这些字段作为 JSON，除了每个 [hook 事件](#hook-even
 | `effort` | 对象，其 `level` 字段保存 hook 运行时生效的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)：`"low"`、`"medium"`、`"high"`、`"xhigh"` 或 `"max"`。如果您设置了活跃模型不支持的级别，`level` 会报告 Claude Code 实际运行的级别；[调整 effort 级别](/docs/zh-CN/model-config#adjust-effort-level)说明它如何选择该级别。该对象与[状态栏](/docs/zh-CN/statusline#available-data) `effort` 字段匹配。对于在工具使用上下文中触发的事件（如 `PreToolUse`、`PostToolUse`、`Stop` 和 `SubagentStop`），当当前模型支持 effort 参数时存在。该级别也可作为 `$CLAUDE_EFFORT` 环境变量供 hook 命令和 Bash 工具使用。 |
 | `hook_event_name` | 触发的事件的名称 |
 
-使用 `--agent` 运行或在子代理内部时，包括两个额外字段：
+`agent_id` 和 `agent_type` 告诉您的脚本 hook 是在哪个 Agent 中触发的，例如子代理、[进程内队友](/docs/zh-CN/agent-teams#choose-a-display-mode)，或您通过 `--agent` 选择的 Agent：
 
 | 字段 | 描述 |
 | :- | :- |
-| `agent_id` | 子代理的唯一标识符。仅当 hook 在子代理调用内触发时存在。使用此来区分子代理 hook 调用和主线程调用。 |
+| `agent_id` | hook 触发所在的子代理或进程内队友的唯一标识符。 |
 | `agent_type` | Agent 名称（例如，`"Explore"` 或 `"security-reviewer"`）。当会话使用 `--agent` 或 hook 在子代理内触发时存在。对于子代理，子代理的类型优先于会话的 `--agent` 值。请参阅 [SubagentStart](#subagentstart) 了解自定义和插件子代理报告的值以及如何针对限定于插件的名称编写匹配器。 |
 
 只有 [`SessionStart`](#sessionstart) hook 可以接收 `model` 字段，Claude Code 并不总是包括它。[`PreModelSwitch`](#premodelswitch) 和 [`PostModelSwitch`](#postmodelswitch) hook 改为接收 `from_model` 和 `to_model`，因此使用 PostModelSwitch hook 来跟踪模型在会话期间的变化。
@@ -855,11 +857,12 @@ hook 打印到 stdout 的内容可能会改变结果。例如，如果 `PreToolU
 
 对于大多数事件，Claude Code 将 stdout 写入调试日志，不在会话记录中显示。例外是 `UserPromptSubmit`、`UserPromptExpansion`、`SessionStart` 和 `PostModelSwitch`，其中 Claude Code 添加纯文本 stdout 作为 Claude 可以看到并据此行动的上下文。
 
-Claude Code 是否将您的 stdout 读取为 [JSON 输出](#json-output)或纯文本取决于它如何开始和结束，忽略周围的空白：
+对于非[异步](#how-async-hooks-execute)的 hook，当整个输出是一个 JSON 对象且周围除空白外没有其他内容时，Claude Code 会将您的 stdout 解析为 [JSON 输出](#json-output)，否则将其视为纯文本或解析失败：
 
-* **以 `{` 开始并以 `}` 结束**：Claude Code 将其解析为 JSON。当输出是两行或更多行，每行本身都解析为 JSON，且没有行是设置字段的 [JSON 输出](#json-output)对象时，Claude Code 将整个输出视为纯文本。当其中一行确实设置了字段时，整个输出是解析失败。
-* **以 `{` 开始但不以 `}` 结束**：Claude Code 将其视为纯文本。
-* **以其他任何内容开始**：Claude Code 将其视为纯文本，即使它是 JSON 数组或带引号的 JSON 字符串也是如此。
+* **一个 JSON 对象，无论单行还是多行**：解析为 JSON 输出。
+* **不以 `{` 开头的输出，或以 `{` 开头但不以 `}` 结尾的输出**：纯文本。根据此规则，JSON 数组和带引号的 JSON 字符串都是纯文本。
+* **两行或更多行，每行本身都可解析为 JSON，且第一行以 `{` 开头、最后一行以 `}` 结尾**：如果没有任何一行是设置了字段的 JSON 输出对象，则为纯文本；如果有一行是，则为解析失败。
+* **其他任何以 `{` 开头并以 `}` 结尾但不是有效 JSON 的内容**：解析失败。
 
 当 Claude Code 尝试将您的 stdout 解析为 JSON 但无法解析，或解析后的对象未通过 [schema 验证](#json-output)时，该运行是[非阻止错误](#exit-code-output)。`<hook name> hook error` 通知带有解析或验证消息。在添加纯文本 stdout 作为上下文的事件上，Claude Code 不会添加它未能解析的 stdout。
 
@@ -1050,7 +1053,7 @@ HTTP hook 无法仅通过状态码发出阻止错误信号：非 2xx 状态或�
   每个 hook 选择一种方法：要么仅使用退出码发出信号，要么退出 0 并打印 JSON 进行结构化控制。如果您混合使用，退出 2 保持其[阻止效果](#exit-code-2-behavior-per-event)，Claude Code 仍然读取 JSON 字段，但[退出码 2](#exit-code-2) 下注明的 elicitation 例外除外。
 </Note>
 
-您的 hook 的 stdout 必须仅包含 JSON 对象。如果您的 shell 配置文件在启动时打印文本，它可能会干扰 JSON 解析。请参阅故障排除指南中的 [Hook JSON 无效](/docs/zh-CN/hooks-guide#hook-json-has-no-effect)。
+只向 stdout 打印 JSON 对象，不要打印其他任何内容。对于非[异步](#how-async-hooks-execute)的 hook，stdout 中的其他文本（例如 shell 配置文件在启动时 echo 的一行）会使 Claude Code 无法将该对象读取为 JSON，[Hook JSON 无效](/docs/zh-CN/hooks-guide#hook-json-has-no-effect)介绍了如何找到并屏蔽这类文本。
 
 hook 的 `additionalContext`、`systemMessage` 和 `initialUserMessage` 字符串，以及其纯 stdout，限制为 10,000 个字符：
 
@@ -1141,6 +1144,8 @@ jq -nc --arg seq "$seq" '{terminalSequence: $seq}'
 * [PostModelSwitch](#postmodelswitch)：与切换后的下一个请求一起。请参阅 [PostModelSwitch 决策控制](#postmodelswitch-decision-control)了解时机
 
 当多个 hook 为同一事件返回 `additionalContext` 时，Claude 会接收所有值。
+
+如果您的字符串包含 `<system-reminder>` 或 `</system-reminder>` 标签，Claude 收到的字符串中该标签的 `<` 会被替换为 `&lt;`。
 
 如果值超过 10,000 个字符，Claude Code 会将文本写入会话目录中的文件，并改为向 Claude 传递文件路径以及最多前 2,000 个字符的预览。Claude 可以读取该文件，但 Claude Code 不会要求它读取。
 
@@ -1364,7 +1369,7 @@ echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "reloadSkills": t
   持久化环境变量
 </h4>
 
-SessionStart hook 可以访问 `CLAUDE_ENV_FILE` 环境变量，该变量提供一个文件路径，您可以在其中持久化环境变量，供后续 Bash 命令使用。
+SessionStart hook 可以访问 `CLAUDE_ENV_FILE` 环境变量，它提供一个文件路径，您可以在其中为 Claude 在会话后续运行的 shell 命令持久化环境变量。
 
 要设置单个环境变量，请将 `export` 语句写入 `CLAUDE_ENV_FILE`。使用追加（`>>`）以保留其他 hook 设置的变量：
 
@@ -1399,8 +1404,23 @@ fi
 exit 0
 ```
 
+每个 Bash 命令在执行命令本身之前，都会将该文件的内容作为 shell 代码运行，因此其中的行可以使用 Bash 能求值的任何内容，例如 `export PATH="$PATH:./node_modules/.bin"` 中的 `$PATH` 引用。
+
+<a id="persisted-variables-in-powershell-commands" />
+
+<h5 id="persisted-variables-in-powershell-commands">
+  PowerShell 命令中的持久化变量
+</h5>
+
+在 Claude Code v2.1.296 或更高版本中，[PowerShell](/docs/zh-CN/tools-reference#powershell-tool) 命令也会接收来自 `CLAUDE_ENV_FILE` 的变量，但 PowerShell 从不运行该文件。Claude Code 会从中读取赋值语句，并将其复制到 PowerShell 命令的环境中。只有当本会话中每个 hook 写入的内容，以及您在启动前[将 `CLAUDE_ENV_FILE` 设置为](/docs/zh-CN/env-vars)的任何脚本中，每一行都属于以下类型之一时，它才会这样做：
+
+* 空行或 `#` 注释
+* 位于行首的一条赋值语句，写作 `export NAME=value`、`declare -x NAME=value` 或 `NAME=value`，其值必须是 Bash 会按原样使用的值，由以下部分任意组合而成：仅使用字母、数字和字符 `_ @ % + = : , . / -` 的无引号文本、单引号内的文本，以及双引号内的文本（其中的任何 `$`、反引号或 `"` 都用反斜杠转义）
+
+如果任何一行属于其他类型，例如带有未转义 `$PATH` 的 `export PATH="$PATH:./node_modules/.bin"`、`source` 命令，或 `direnv export bash` 打印的 `$'...'` 字符串，则 PowerShell 命令不会接收任何变量，并且 `claude --debug` 会记录 `Session environment is not all plain assignments`。Bash 命令仍会接收所有变量。在 Windows 上，PowerShell 命令也不会接收值中包含 `/` 或 `\` 的变量，因为 Git Bash 和 Windows 的路径写法不同。[沙箱化](/docs/zh-CN/sandboxing)的 PowerShell 命令不会接收任何变量。
+
 <Note>
-  `CLAUDE_ENV_FILE` 可用于 SessionStart、[Setup](#setup)、[CwdChanged](#cwdchanged) 和 [FileChanged](#filechanged) hook。其他 hook 类型无法访问此变量。
+  `CLAUDE_ENV_FILE` 可用于 SessionStart、[Setup](#setup)、[CwdChanged](#cwdchanged) 和 [FileChanged](#filechanged) hook。其他 hook 事件无法访问此变量，在 PowerShell 中运行的 hook 也无法访问，无论是通过 [`"shell": "powershell"`](#command-hook-fields) 还是在没有 Git Bash 的 Windows 上默认如此。
 </Note>
 
 <h3 id="setup">
@@ -2030,7 +2050,7 @@ Windows 上的 `Write` 调用会传入：
 
 | 字段 | 描述 |
 | :- | :- |
-| `permissionDecision` | `"allow"` 会跳过权限提示，但[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)除外，`AskUserQuestion` 和 `ExitPlanMode` 也除外，它们需要[与 `updatedInput` 配合使用](#allow-with-updatedinput)。`"deny"` 会阻止工具调用。`"ask"` 会提示用户确认。`"defer"` 会正常退出，以便稍后恢复该工具。无论 hook 返回什么，[拒绝和询问规则](/docs/zh-CN/permissions#manage-permissions)仍会被评估 |
+| `permissionDecision` | `"allow"` 跳过权限提示，但以下情况除外：[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)、[从网络路径读取](/docs/zh-CN/permissions#network-paths)，以及需要[与 `updatedInput` 搭配使用](#allow-with-updatedinput)的 `AskUserQuestion` 和 `ExitPlanMode`。`"deny"` 阻止工具调用。`"ask"` 提示用户确认。`"defer"` 正常退出，以便稍后恢复该工具。无论 hook 返回什么，[拒绝和询问规则](/docs/zh-CN/permissions#manage-permissions)仍会被评估 |
 | `permissionDecisionReason` | 对于 `"ask"`，在权限提示中向用户显示。当 Claude Code 在无人能响应该提示的 `-p` 运行中[拒绝调用](/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs)时，Claude 会改为在工具结果中读取该原因。对于 `"deny"`，向 Claude 显示。对于 `"allow"` 和 `"defer"`，仅写入[调试日志](#debug-hooks) |
 | `updatedInput` | 在执行前修改工具的输入参数。会替换整个输入对象，因此请将未更改的字段与修改后的字段一并包含在内。Claude Code 会针对您的 hook 返回的输入（而不是 Claude 发送的输入）评估权限规则以及 Bash 命令的[自动转入后台资格](/docs/zh-CN/tools-reference#foreground-commands-that-move-to-the-background)。与 `"allow"` 结合可自动批准，与 `"ask"` 结合可向用户显示修改后的输入。对于 `"defer"` 会被忽略 |
 | `additionalContext` | 与工具结果一同添加到 Claude 上下文中的字符串。当 `permissionDecision` 为 `"defer"` 时会被忽略。请参阅[为 Claude 添加上下文](#add-context-for-claude) |
@@ -2136,7 +2156,7 @@ hook 的 `"ask"` 在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompt
 如果恢复时被推迟的工具已不可用，进程会在 hook 触发之前以 `stop_reason: "tool_deferred_unavailable"` 和 `is_error: true` 退出。当提供该工具的 MCP 服务器在恢复的会话中未连接时，就会发生这种情况。`deferred_tool_use` 负载仍会包含在内，以便您确定缺失的是哪个工具。
 
 <Note>
-  要在计划模式下恢复被推迟的会话，请将 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 与 `--resume` 一起传入，以便 Claude Code 可以呈现计划供批准。如果您传入了某些其他启动标志，恢复的运行将不会回到计划模式；请参阅[使用 `-p` 在计划模式下恢复](/docs/zh-CN/sessions#resume-in-plan-mode-with-p)。需要 Claude Code v2.1.246 或更高版本。
+  要在计划模式下恢复被延迟的会话，请将 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 与 `--resume` 一起传入，以便 Claude Code 可以展示计划供批准。有关其他条件，请参阅[使用 `-p` 在计划模式下恢复](/docs/zh-CN/sessions#resume-in-plan-mode-with-p)。需要 Claude Code v2.1.246 或更高版本。
 
   当您使用 `-p` 恢复时，Claude Code 不会还原任何其他已存储的权限模式。它会以新的 `claude -p` 运行所使用的权限模式启动，因此如果被推迟的会话使用了 `--permission-mode` 或 `--dangerously-skip-permissions`，请再次传入。当您不带 `-p` 使用 `claude --resume <session-id>` 恢复时，Claude Code 会还原已存储的权限模式，例外情况列于[恢复时的权限模式](/docs/zh-CN/sessions#permission-mode-on-resume)中。
 </Note>
@@ -4303,6 +4323,11 @@ Claude Code 仅在会话运行时传递异步 hook 的结果：
 
 后台进程退出后，Claude Code 从 hook 的 JSON 响应中传递 `additionalContext` 和 `systemMessage` 字段给 Claude 在下一个对话轮次。与同步 hook 的 `systemMessage` 不同，这两个字段都不会显示给你。
 
+将 JSON 响应单独输出到 stdout，或单独输出在一行上：
+
+* **单独输出到 stdout**：当响应是 stdout 上唯一的文本时，它可以跨越多行，例如经过格式化美化的 `jq` 输出。跨越多行需要 Claude Code v2.1.295 或更高版本。
+* **单独输出在一行上**：当响应可以单独放在一行中时（例如使用 `jq -c`），异步 hook 可以向 stdout 输出其他文本。
+
 Claude Code 根据与同步 hooks 相同的[输出架构](#json-output)验证 JSON 响应，并删除任何值类型错误的字段，例如不是字符串的 `systemMessage`，而不是传递它。使用 `--debug` 运行以查看命名每个删除字段的警告。在 v2.1.202 之前，来自异步 hook 的格式错误的 JSON 输出可能会导致会话崩溃，并且每次恢复会话时崩溃都会重复发生。
 
 异步 hook 完成通知默认被抑制。要查看它们，请使用 `Ctrl+O` 启用详细模式或使用 `--verbose` 启动 Claude Code。
@@ -4455,6 +4480,8 @@ Hook 执行详细信息被写入调试日志文件。使用 `claude --debug-file
 2026-07-19T02:03:24.382Z [DEBUG] Hook output does not start with {, treating as plain text
 2026-07-19T02:03:24.382Z [DEBUG] "Hook PostToolUse:Write (PostToolUse) success:\nhook-ran"
 ```
+
+要查找运行缓慢的 hook，请在日志中搜索以持续时间结尾的 `Hooks:` 行。在 Claude Code v2.1.296 或更高版本中，工具事件、`UserPromptSubmit`、`SessionStart`、`Stop` 以及其他若干事件上的每个命令 hook 在完成时都会留下一行这样的记录，无论其打印了什么内容。该行依次给出事件名称（通过冒号与 hook 所匹配的工具名称或其他值相连），然后是方括号中的 hook 命令、其来源插件（如有）、运行的结束方式以及耗时，例如 `Hooks: PostToolUse:Write [.claude/hooks/log-write.sh] finished with status 0 (31ms)`。运行也可能以 `timed out after <N>ms`、`cancelled`、`moved to the background` 或 `failed to start` 结束。在某些事件（例如 `Notification`、`SessionEnd` 和 `PreCompact`）上，命令 hook 会改为留下一行不带持续时间的 `completed with status` 记录。
 
 对于更细粒度的 hook 匹配详细信息，设置 `CLAUDE_CODE_DEBUG_LOG_LEVEL=verbose` 以查看额外的日志行，例如 hook 匹配器计数和查询匹配。
 

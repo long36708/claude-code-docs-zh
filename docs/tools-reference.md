@@ -287,7 +287,7 @@ Edit 工具执行精确字符串替换。它接受一个 `old_string` 和一个 
 
 当 `old_string` 与当前内容完全匹配且明确无误，且 Claude Code 可以在不提示的情况下读取文件时，在 Claude 最后读取后在磁盘上更改的文件仍然可以编辑。针对文件的当前内容进行匹配可以保持安全，结果会注明该文件包含其他更改，以便 Claude 在依赖周围内容的编辑前重新读取它。在任何其他情况下，例如过时的 `old_string` 或在没有 `replace_all` 的情况下匹配多次的情况，Claude 在编辑前再次读取文件。对未读和已更改文件的宽松处理需要 Claude Code v2.1.208 或更高版本；在此之前，Claude Code 拒绝对它在对话中未读过或在读取后在磁盘上更改的任何文件进行编辑。
 
-使用 Bash 查看文件也满足编辑前读取要求，当命令是 `cat`、`nl`、`bat`、`batcat`、`head`、`tail`、`sed -n 'X,Yp'`、`grep`、`egrep`、`fgrep` 或 `rg` 在单个文件上且没有管道或重定向时。没有匹配到任何内容的搜索不会将文件视为已读取。管道输出和其他 Bash 命令不计入编辑前读取检查。
+Claude 使用 `cat` 或 `grep` 等 Bash 命令查看文件后，也可以在不单独执行 Read 的情况下编辑该文件。这些命令是 `cat`、`nl`、`bat`、`batcat`、`head`、`tail`、`sed -n 'X,Yp'`、`grep`、`egrep`、`fgrep` 和 `rg`，且每个命令都需在单个文件上运行，没有管道或重定向。没有输出任何匹配的搜索不算作读取，此列表之外的任何命令也不算。
 
 当 Claude 以这种方式查看文件时，Claude Code 还会加载适用于该文件的任何[子目录 `CLAUDE.md`](/docs/zh-CN/memory#how-claude-md-files-load) 和[路径范围规则](/docs/zh-CN/memory#path-specific-rules)。请参阅 [Read 和 Edit 权限规则](/docs/zh-CN/permissions#read-and-edit)，了解您的 `Read` 和 `Edit` 拒绝规则涵盖哪些 Bash 命令。
 
@@ -295,9 +295,11 @@ Edit 工具执行精确字符串替换。它接受一个 `old_string` 和一个 
   非 UTF-8 文件
 </h3>
 
-Edit 和 [NotebookEdit](#notebookedit-tool-behavior) 会拒绝更改字节无法按 UTF-8 解码的文件，并且不写入任何内容，因为将其以 UTF-8 保存回去会把所有无法解码的字节都变成替换字符 `U+FFFD`。例如，这包括以 Windows-1252 或 Shift-JIS 等旧编码保存且含有非 ASCII 文本的文件、二进制文件，以及包含无效字节序列的 UTF-8 文件。[Claude 收到的错误](/docs/zh-CN/errors#file-is-not-valid-utf-8)会告诉它使用一条以文件自身编码读写该文件的 shell 命令来进行更改，或者先询问您是否将文件转换为 UTF-8。对于以小端 UTF-16 字节顺序标记开头的文件，Edit 会改为按 UTF-16 读取，因此该文件仍可编辑。
+Claude 无法对不是有效 UTF-8 的文件使用 [NotebookEdit](#notebookedit-tool-behavior)。Edit 也是如此，除非该文件以小端 UTF-16 字节顺序标记开头。当 Claude 尝试时，工具会拒绝更改，并保持文件不变。被拒绝的文件包括以 Windows-1252 或 Shift-JIS 等旧编码保存的非 ASCII 文本、二进制文件，以及包含无效字节序列的 UTF-8 文件。
 
-Write 不会执行这种拒绝。对于 Edit 会拒绝的文件，Write 会用新内容替换整个文件并将其保存为 UTF-8，因此文件的原始编码会丢失。当磁盘上的文件无法解码且新内容包含 `U+FFFD`（Read 对无法解码的字节所显示的字符）时，Write 会拒绝并且不写入任何内容。
+这些工具之所以拒绝，是因为它们会将整个文件以 UTF-8 保存回去，这会把所有无法解码的字节都替换为替换字符 `U+FFFD`。相反，[Claude 收到的错误](/docs/zh-CN/errors#file-is-not-valid-utf-8)会告诉它使用一条保留文件编码的 shell 命令来进行更改，或者先询问您是否将文件转换为 UTF-8。
+
+Claude 仍然可以使用 Write 替换此类文件，除非新内容包含 `U+FFFD`，即 Read 在无法解码的字节位置向 Claude 显示的字符。这一防护措施可防止 Claude 将其读取到的乱码文本写回。当 Write 确实替换文件时，它会将新内容保存为 UTF-8，因此文件的原始编码会丢失。
 
 <h2 id="endconversation-tool-behavior">
   EndConversation 工具行为
@@ -524,7 +526,9 @@ Claude Code 使用 `-ExecutionPolicy Bypass` 仅在进程范围内生成 PowerSh
 * 单个 [command hooks](/docs/zh-CN/hooks#command-hook-fields) 上的 `"shell": "powershell"`：在 PowerShell 中运行该 hook。Hooks 直接生成 PowerShell，因此无论 `CLAUDE_CODE_USE_POWERSHELL_TOOL` 如何，这都有效。
 * [skill frontmatter](/docs/zh-CN/skills#frontmatter-reference) 中的 `shell: powershell`：在 PowerShell 中运行 `` !`command` `` 块。需要启用 PowerShell 工具。
 
-Bash 工具部分下描述的相同主会话工作目录重置行为适用于 PowerShell 命令，包括 `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` 环境变量。
+PowerShell 命令遵循与 Bash 命令[相同的主会话工作目录重置行为](#what-persists-between-commands)，包括 `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` 环境变量。
+
+PowerShell 命令还会接收 hook 通过 `CLAUDE_ENV_FILE` 持久化的变量，具体条件请参阅 [PowerShell 命令中的持久化变量](/docs/zh-CN/hooks#persisted-variables-in-powershell-commands)。需要 Claude Code v2.1.296 或更高版本。
 
 来自 `grep`、`rg`、`egrep`、`fgrep`、`findstr` 和 `git grep` 的退出码 1 表示没有匹配。来自 `git diff` 的退出码 1 表示存在差异。这两个结果都不会作为命令失败报告给 Claude。对于 `robocopy`，退出码 0 到 7 是信息性结果，例如复制的文件或检测到的额外文件。退出码 8 或更高被视为失败。
 

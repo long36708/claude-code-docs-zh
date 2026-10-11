@@ -256,6 +256,27 @@ Cannot add marketplace "_internal": Claude Code cannot install plugins from a ma
 
 在 v2.1.295 之前，Claude Code 会将此示例中的添加报告为成功。
 
+<h3 id="claude-code-reserves-this-name">
+  `Cannot add marketplace "<name>": Claude Code reserves this name and cannot register a marketplace under it`
+</h3>
+
+您添加了一个市场，但其 `marketplace.json` 中的 [`name`](/docs/zh-CN/plugins/marketplace-reference#top-level-fields) 是每个 JavaScript 对象都具有的成员名称之一，例如 `constructor`、`toString` 或 `valueOf`。Claude Code 保留这些名称，因此它拒绝添加，且不注册任何内容。[保留名称](/docs/zh-CN/plugins/marketplace-reference#reserved-names) 列出了这些名称。
+
+在此示例中，市场名为 `constructor`：
+
+```text theme={null}
+Cannot add marketplace "constructor": Claude Code reserves this name and cannot register a marketplace under it. The name is set by "name" in the marketplace's marketplace.json; ask its maintainer to change it.
+```
+
+如果设置文件在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 下声明了该市场，Claude Code 在启动时尝试添加它也会以相同方式失败，该消息会显示在 `/plugin` 的 **Errors** 选项卡中。
+
+为市场指定另一个名称，然后再次添加：
+
+* **您拥有市场**：更改 `marketplace.json` 中的 `name`
+* **其他人托管它**：请所有者更改名称
+
+在 v2.1.296 之前，添加此类市场会因内部错误而失败，而不是显示此消息。
+
 <h3 id="ssh-authentication-failed-or-https-authentication-failed">
   `SSH authentication failed` 或 `HTTPS authentication failed`
 </h3>
@@ -907,7 +928,7 @@ claude plugin uninstall <name>@<marketplace> --scope project
   Hook 加载但永远不触发
 </h4>
 
-如果 hook 加载无错误但永远不触发，检查其定义然后观看它运行：
+如果 hook 加载无错误但永远不触发，请先在会话中运行 `/plugin` 并打开该插件的详细信息。如果其中有一条以 `Its hooks.json hooks do not run` 开头的说明，则表示另一个同名的已启用插件改为注册了它的 hook，[两个已启用插件同名时的 hook](/docs/zh-CN/plugins/loading#hooks-when-two-enabled-plugins-share-a-name) 说明了是哪个副本以及如何切换。否则，请检查 hook 的定义，然后观察它运行：
 
 <Steps>
   <Step title="检查事件名称">

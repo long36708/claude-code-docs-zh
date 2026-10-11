@@ -187,7 +187,7 @@ SDK 包含与 Claude Code 相同的工具：
 
 Claude 根据任务确定调用哪些工具，但你控制这些调用是否被允许执行。你可以自动批准特定工具、完全阻止其他工具，或要求对所有工具进行批准。三个选项一起工作以确定什么运行：
 
-* **`allowed_tools` / `allowedTools`** 自动批准列出的工具。具有 `["Read", "Glob", "Grep"]` 在其允许工具列表中的只读代理运行这些工具而不提示。未列出的工具仍然可用，对它们的调用如果需要批准会转到权限模式和 `canUseTool`。
+* **`allowed_tools` / `allowedTools`** 自动批准列出的工具。允许工具列表中包含 `["Read", "Glob", "Grep"]` 的只读 Agent 会运行这些工具而不提示，但从[网络路径](/docs/zh-CN/permissions#network-paths)读取的情况除外。未列出的工具仍然可用，对它们的调用如果需要批准会转到权限模式和 `canUseTool`。
 * **`disallowed_tools` / `disallowedTools`** 阻止列出的工具，无论其他设置如何。有关在工具运行前检查规则的顺序，请参阅 [权限](/docs/zh-CN/agent-sdk/permissions)。
 * **`permission_mode` / `permissionMode`** 控制你想要多少人工监督。SDK 按固定顺序评估活跃模式以及你的允许和拒绝规则，详见 [权限如何被评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)。有关可用模式，请参阅 [权限模式](#permission-mode)。
 
@@ -263,7 +263,7 @@ Claude Code 在模型响应到达后才将支出与 `max_budget_usd` / `maxBudge
 | `"default"` | 需要批准且不被允许规则覆盖的工具调用触发你的 `canUseTool` 回调；没有回调意味着拒绝 | 具有自定义批准回调的交互式应用程序 |
 | `"acceptEdits"` | 自动批准文件编辑和常见文件系统命令（`mkdir`、`touch`、`mv`、`cp` 等）；其他 Bash 命令遵循默认规则 | 你信任 Claude 的编辑并想要更快的迭代，例如在原型设计期间或在隔离目录中工作时 |
 | `"plan"` | Claude 探索并规划而不编辑你的源文件；文件编辑永远不会自动批准，并通过你的 `canUseTool` 回调提示 | 你想要 Claude 提议更改而不执行它们，例如在代码审查期间或当你需要在进行更改前批准它们时 |
-| `"dontAsk"` | 从不提示。由 [权限规则](/docs/zh-CN/settings-reference#permission-settings) 预批准的工具运行，以及在 `default` 模式中不需要批准的调用（如你的工作目录内的文件读取）；所有其他会提示的调用都被拒绝。`AskUserQuestion`、连接器工具 [你的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 和标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使你已允许它们也会被拒绝 | 你想要为无头代理提供固定、明确的工具表面，并且更喜欢硬拒绝而不是在 `canUseTool` 缺失时的无声依赖 |
+| `"dontAsk"` | 从不提示。由 [权限规则](/docs/zh-CN/settings-reference#permission-settings) 预批准的工具会运行，在 `default` 模式中不需要批准的调用（如您的工作目录内的文件读取）也会运行；所有其他会提示的调用都被拒绝。`AskUserQuestion`、[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及 [从网络路径读取](/docs/zh-CN/permissions#network-paths) 即使您已允许它们也会被拒绝 | 您希望为无头 Agent 提供固定、明确的工具范围，并且更倾向于硬拒绝，而不是默默依赖 `canUseTool` 缺失 |
 | `"auto"` | 使用模型分类器来审查诸如 shell 命令和网络请求之类的操作，允许或阻止它审查的每一个。有关可用性和决策顺序，请参阅 [自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) | 仍然想要工具使用安全防护的自主代理 |
 | `"bypassPermissions"` | 运行所有允许的工具而不询问，除了由显式 [`ask` 规则](/docs/zh-CN/settings-reference#permission-settings) 匹配的工具、连接器工具 [你的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 和需要用户交互的工具。[跨会话消息安全防护](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode) 仍然适用。有关优先级顺序，请参阅 [权限如何被评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)。在 TypeScript SDK 中，还需要在 `options` 中设置 `allowDangerouslySkipPermissions: true`。无法在 Unix 上以 root 身份运行。仅在隔离环境中使用，其中代理的操作无法影响你关心的系统 | CI、容器或其他隔离环境 |
 

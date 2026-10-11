@@ -78,7 +78,7 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 | `disableAllHooks in managed settings` | 您的组织关闭了来自已安装插件的 hooks |
 | `only managed plugins and built-in plugins run` | 设置了 `allowManagedHooksOnly`，或在托管设置以外的设置文件中设置了 `disableAllHooks` |
 | `installed plugins that are not managed load no hooks module in this mode (--bare)` | 您使用 `--bare` 启动了 Claude Code |
-| `another plugin of that name loads first` | 两个插件共享一个名称。使用托管的或首先加载的。 |
+| `another plugin of that name loads first` | 另一个已启用的插件与您的 mod 同名，并且[占用了该名称](/docs/zh-CN/plugins/loading#hooks-when-two-enabled-plugins-share-a-name)，因此您的 hook 模块不会加载 |
 
 <h3 id="messages-from-the-built-in-guard">
   来自内置保护的消息
@@ -190,6 +190,14 @@ mod 已加载，然后 Claude Code 跳过了其中一个 hooks 或卸载了它�
 无需修复。
 
 在 v2.1.292 之前，该调用会再运行一次，因此提示词会被提交两次、命令会被运行两次，或子代理会被启动两次。
+
+<h3 id="$-agent-register-refused-the-hooks-module-that-made-the-call-is-no-longer-loaded">
+  `$.agent.register refused: the hooks module that made the call is no longer loaded`
+</h3>
+
+该行以您的 mod 名称开头，如 `first-mod: $.agent.register refused: the hooks module that made the call is no longer loaded (it was reloaded or removed)`，且该 Agent 未被注册。您的 mod 在该调用之前被重新加载或卸载。重新加载会加载 hook 模块的新副本，而此调用来自仍在旧副本中运行的代码，例如尚未返回的 hook。
+
+如果该 hook 未捕获此拒绝，它会失败，Claude Code 会[跳过它](#hook-skipped)。要从保持加载的副本注册该 Agent，请在您的 [`session.start`](/docs/zh-CN/plugins/mods/reference#session) hook 中进行该调用，该 hook 会在重新加载后的每个新副本中再次运行。
 
 <h3 id="mods-that-run-in-the-hooks-worker-are-off-for-this-session">
   `mods that run in the hooks worker are off for this session`

@@ -8,7 +8,7 @@
 
 某些组织要求工作站上的每个进程都通过强制启动器启动。启动器应用沙箱、网络控制或凭证注入，这些是公司安全态势所依赖的，而不通过它启动的二进制文件是策略违规。
 
-`CLAUDE_CODE_PROCESS_WRAPPER` 通过您的启动器启动 Claude Code 从其自身二进制文件启动的每个进程：后台服务、它在 [agent view](/docs/zh-CN/agent-view) 中托管的每个会话，以及 Claude Code 在更新后的重新启动。将其设置为启动器的绝对路径，Claude Code 将使用 Claude Code 命令作为其参数运行启动器。
+`CLAUDE_CODE_PROCESS_WRAPPER` 通过您的启动器启动 Claude Code 从其自身二进制文件启动的每个进程：[后台服务](/docs/zh-CN/agent-view#the-supervisor-process)、它在 [agent view](/docs/zh-CN/agent-view) 中托管的每个会话，以及 Claude Code 在更新后的重新启动。将其设置为启动器的绝对路径，Claude Code 将使用 Claude Code 命令作为其参数运行启动器。
 
 在您的 `PATH` 上包装 `claude` 命令的启动器无法到达这些进程，因为它们从二进制文件的直接路径启动，不查询 `claude`。
 
@@ -39,7 +39,6 @@
 
 以下进程不通过启动器启动：
 
-* [已安装的后台服务](/docs/zh-CN/agent-view#the-supervisor-process)，其单元在配置启动器之前编写：`launchd` 或 `systemd` 从其单元文件启动该进程。当运行的服务和配置的启动器不匹配时，`/status` 和 `claude daemon status` 会发出警告，一旦服务使用设置中的变量重新启动，服务生成的会话仍会通过启动器启动。
 * 您自己在终端中启动的会话，它运行的方式取决于您如何调用它。要覆盖这些会话，在 `PATH` 上较早的目录中放置一个名为 `claude` 的脚本，该脚本使用真实二进制文件运行您的启动器；不要替换托管符号链接。后台服务及其会话启动时不进行 `PATH` 查询，所以两个启动器不会在那里堆叠。
 * `claude-cli://` 深层链接的第一个进程，操作系统的协议处理程序直接启动。该会话之后在后台启动的所有内容都通过启动器运行。要完全关闭此路径，请使用 `disableDeepLinkRegistration` 设置 [prevent handler registration](/docs/zh-CN/deep-links#registration-and-supported-platforms)。
 * `--worktree` 与 `--tmux` 结合执行的重新启动：终端多路复用器启动该窗格，而不是 Claude Code 的二进制文件。
@@ -100,13 +99,13 @@
 
     因为 `processWrapper` 是一个命名设置，通过 [远程托管设置](/docs/zh-CN/managed-settings#delivery-mechanisms) 提供它的组织会在 [安全批准对话框](/docs/zh-CN/server-managed-settings#security-approval-dialogs) 上看到它与运行管理员提供的可执行文件的其他设置一起列出。
 
-    项目和本地设置无法配置启动器。提交到存储库的文件不能在机器上的每个 Claude Code 进程前放置二进制文件，因此 Claude Code 在 `.claude/settings.json` 或 `.claude/settings.local.json` 中忽略 `CLAUDE_CODE_PROCESS_WRAPPER`，并在 [调试日志](/docs/zh-CN/troubleshooting) 中发出警告，并且从不从这些文件中读取 `processWrapper` 键。
+    项目和本地设置无法配置启动器。提交到仓库的文件不能在机器上的每个 Claude Code 进程前放置二进制文件，因此 Claude Code 在 `.claude/settings.json` 或 `.claude/settings.local.json` 中忽略 `CLAUDE_CODE_PROCESS_WRAPPER`，并在 [调试日志](/docs/zh-CN/troubleshooting) 中发出警告，并且从不从这些文件中读取 `processWrapper` 键。
   </Step>
 
   <Step title="重新启动后台服务和您的会话">
-    运行的后台服务和任何打开的 `claude` 会话在启动时读取变量一次，因此它们继续启动未包装的进程，直到重新启动。运行 `claude daemon stop --any` 停止按需服务；下一个需要它的命令（例如 `claude agents`）启动一个包装的。[已安装的服务](/docs/zh-CN/agent-view#the-supervisor-process) 采用 `claude daemon stop` 不带 `--any`。然后重新启动您打开的 `claude` 会话。
+    运行的后台服务和任何打开的 `claude` 会话在启动时读取变量一次，因此它们继续启动未包装的进程，直到重新启动。运行 `claude daemon stop --any` 停止按需服务。下一个需要它的命令（例如 `claude agents`）会启动一个包装的服务。然后重新启动您打开的 `claude` 会话。
 
-    在您无法手动重新启动的机器上，设置推送后启动的第一个会话自动停用剩余的未包装按需服务。没有新会话启动的机器保持其未包装的服务，直到启动一个，已安装的服务始终需要此步骤中的重新启动。
+    在您无法手动重新启动的机器上，设置推送后启动的第一个会话会自动停用剩余的未包装按需服务。没有新会话启动的机器会保持其未包装的后台服务，直到有新会话启动。
   </Step>
 
   <Step title="验证">

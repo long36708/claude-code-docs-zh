@@ -582,7 +582,7 @@ export const ReferenceFilter = ({placeholder, noun, facets, facetOrder, columnHe
 <ReferenceFilter
   noun="settings"
   placeholder="按键或用途筛选设置"
-  facetOrder={{ scope: ["Any file", "User, local, or managed", "User or managed", "Managed", "Global config"] }}
+  facetOrder={{ scope: ["Any file", "User, local, or managed", "User or managed", "User", "Managed", "Global config"] }}
   columnHelp={{
 topic: "本页面中包含该条目的部分。使用排序方式按主题对表格进行分组。",
 scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)、项目 (.claude/settings.json)、本地 (.claude/settings.local.json) 或托管（由您的组织部署）。全局配置键位于 ~/.claude.json 中。",
@@ -831,6 +831,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`worktree`](#worktree) | 配置 Claude Code 如何创建 git [worktrees](/docs/zh-CN/worktrees) | 代理、会话和工作树 | Any file |
 | [`worktree.baseRef`](#worktree-baseref) | 从远程默认分支或本地 HEAD 分支新[worktrees](/docs/zh-CN/worktrees) | 代理、会话和工作树 | Any file |
 | [`worktree.bgIsolation`](#worktree-bgisolation) | 让后台会话编辑工作副本而无需[worktree](/docs/zh-CN/worktrees) | 代理、会话和工作树 | Any file |
+| [`worktree.location`](#worktree-location) | 选择 [Desktop SSH 会话](/docs/zh-CN/desktop#ssh-sessions)在远程机器上创建 worktree 的位置 | Agent、会话和 worktree | User |
 | [`worktree.sparsePaths`](#worktree-sparsepaths) | 在每个[worktree](/docs/zh-CN/worktrees)中仅检出您需要的目录 | 代理、会话和工作树 | Any file |
 | [`worktree.symlinkDirectories`](#worktree-symlinkdirectories) | 将大型目录符号链接到每个[worktree](/docs/zh-CN/worktrees)中，而不是复制它们 | 代理、会话和工作树 | Any file |
 | [`wslInheritsWindowsSettings`](#wslinheritswindowssettings) | 让 WSL 从 Windows 策略链读取[托管设置](/docs/zh-CN/managed-settings) | 企业和托管设置 | Managed |
@@ -1763,7 +1764,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
   * `"acceptEdits"`: Claude Code 还运行文件编辑和常见文件系统命令（如 `mkdir` 和 `mv`）而不询问
   * `"plan"`: Claude Code 读取和规划但阻止编辑直到您批准计划
   * `"auto"`: Claude Code 运行而不进行常规提示；在 shell 命令和网络请求等操作运行之前，后台分类器检查它们是否与您的请求一致
-  * `"dontAsk"`: Claude Code 自动拒绝每个本应提示的调用；读取、不需要批准的其他操作以及预批准的工具仍然运行
+  * `"dontAsk"`: Claude Code 自动拒绝每个本应提示的调用；工作目录内的文件读取、不需要批准的其他操作以及预批准的工具仍然运行，但从[网络路径](/docs/zh-CN/permissions#network-paths)的读取除外
   * `"bypassPermissions"`: Claude Code 运行所有内容而不询问
   * `"manual"`: `"default"` 的别名
 * **默认值**: 未设置
@@ -2398,7 +2399,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 * `files` 或 `envVars` 中仍有有效 `path` 或 `name` 和 `mask` 或 `deny` 的 `mode` 的条目，例如其 `extract` 模式没有捕获组的条目，降级为 `mode: "deny"` 并带有警告，因此凭证保持阻止，而不是掩盖，直到您修复条目。降级的 `files` 条目像显式 `deny` 条目一样固定 [`filesystem.disabled`](/docs/zh-CN/sandboxing#disable-filesystem-isolation)，警告注意如果托管设置关闭文件系统隔离，其读取块不被强制执行。
 * 具有未知 `mode` 或无效 `path` 或 `name` 的条目被删除。
-* 每种情况都会警告；无论条目是降级还是删除，其余有效条目仍然被强制执行，完全无效的 `credentials` 值被删除，同时 `sandbox` 的其余部分仍然适用。
+* 每种情况都会警告；无论条目是降级还是删除，其余有效条目仍然被强制执行。
 
 适用于 v2.1.191 及更高版本；在 v2.1.221 之前，每个无效条目都被删除。对于其他具有每字段处理的托管键，请参阅 [Invalid entries in managed settings](/docs/zh-CN/managed-settings#invalid-entries-in-managed-settings)。
 
@@ -5681,6 +5682,28 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 
 在 git 存储库之外，失败的 [`WorktreeCreate` hook](/docs/zh-CN/worktrees#non-git-version-control) 释放块，以便会话可以就地编辑工作目录；该释放需要 Claude Code v2.1.203 或更高版本。
 
+<h3 id="worktree-location">
+  `worktree.location`
+</h3>
+
+选择 [Desktop SSH 会话](/docs/zh-CN/desktop#choose-where-ssh-session-worktrees-go) 在远程机器上创建 worktree 的文件夹，以替代 `<project-root>/.claude/worktrees/`。只有桌面应用会读取此键：`--worktree`、`EnterWorktree` 工具、隔离的子代理和后台会话都会忽略它。需要 Claude Desktop v1.44121.0 或更高版本。
+
+* **Scope**: [`User`](#scopes)，位于远程机器上的 `~/.claude/settings.json` 中
+* **Type**: string，绝对路径或以 `~/` 开头的路径
+* **Default**: 未设置，因此 worktree 位于项目内
+
+此示例将文件夹设置为 `~/worktrees`：
+
+```json settings.json theme={null}
+{
+  "worktree": {
+    "location": "~/worktrees"
+  }
+}
+```
+
+在 Desktop 中为 SSH 连接设置的 **Worktree folder** 优先于此键。如果您的组织限制了会话可以使用的文件夹，Desktop 会将 worktree 保留在项目内。
+
 <h2 id="remote-desktop-and-notifications">
   远程、桌面和通知
 </h2>
@@ -5813,7 +5836,7 @@ Claude Desktop 为 Code 会话提供从你的桌面配置派生的策略，例�
   `enableArtifact`
 </h3>
 
-关闭 [Artifact](/docs/zh-CN/artifacts) 工具，该工具将会话输出发布为 claude.ai 上的私有网页。当你在 `/config` 中关闭**Artifacts** 行时，Claude Code 会将此键写入你的用户设置，因此你通常不需要手动编辑它。需要 Claude Code v2.1.196 或更高版本。
+关闭 [Artifact](/docs/zh-CN/artifacts) 工具，该工具将会话输出发布为 claude.ai 上的私有网页。当您在 `/config` 中关闭**Artifacts** 行时，Claude Code 会将此键写入您的用户设置，因此通常不需要手动编辑它。
 
 * **作用域**: [`任何文件`](#scopes)。每个文件都可以关闭工具，但没有文件可以将其打开。
 * **类型**: 布尔值
@@ -5920,7 +5943,7 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
   `sshConfigs`
 </h3>
 
-将 SSH 连接添加到[桌面](/docs/zh-CN/desktop#pre-configure-ssh-connections-for-your-team)环境下拉列表。管理员使用它向团队分发共享连接。你在托管设置中定义的连接显示为托管，因此用户可以选择它们，但无法在应用中编辑或删除它们。
+将 SSH 连接添加到[桌面](/docs/zh-CN/desktop#pre-configure-ssh-connections-for-your-team)环境下拉列表。管理员使用它向团队分发共享连接。您在托管设置中定义的连接显示为托管。用户可以选择它们，并为其[设置自己的 **Worktree folder**](/docs/zh-CN/desktop#choose-where-ssh-session-worktrees-go)，但无法在应用中编辑其他任何内容或删除它们。
 
 * **作用域**: [`用户或托管`](#scopes)。桌面应用读取此键。默认情况下，它从[一个托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)读取托管连接。
 * **类型**: 对象数组，每个都有必需的 `id`、`name` 和 `sshHost` 以及可选的 `sshPort` 和 `sshIdentityFile`
@@ -6140,7 +6163,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 }
 ```
 
-如果托管源设置了空数组或 Claude Code 无法解析的值，Claude Code 会以配置错误消息阻止所有登录。
+如果托管源设置了空数组，或设置的值既不是字符串也不是字符串数组，使用 Anthropic 帐户登录的用户将无法启动 Claude Code 或完成登录。他们会看到一条消息，其中指明 `forceLoginOrgUUID` 并告知他们联系管理员。而输出错误类型值的 [`policyHelper`](#policyhelper) 则会[运行失败](#helper-failures)。
 
 请参阅[限制登录到您的组织](/docs/zh-CN/authentication#restrict-login-to-your-organization)，了解 Claude Code 如何处理 Claude Console 登录、其他登录路径和环境凭据。
 

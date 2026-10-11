@@ -85,8 +85,8 @@ Routines 属于您的个人 claude.ai 账户。它们不与队友共享，并且
     提示输入包括一个模型选择器。Claude 在每次运行时使用选定的模型。
   </Step>
 
-  <Step title="选择存储库">
-    添加一个或多个 GitHub 存储库供 Claude 在其中工作。每个存储库在运行开始时从默认分支克隆。Claude 为其更改创建 `claude/` 前缀的分支。
+  <Step title="选择仓库">
+    添加一个或多个供 Claude 在其中工作的 GitHub 仓库。每个仓库都会在运行开始时被克隆。Claude 会为其更改创建带有 `claude/` 前缀的分支。
   </Step>
 
   <Step title="选择环境">
@@ -359,11 +359,11 @@ CLI 支持管理现有的 Routine。运行 `/schedule list` 可查看所有 Rout
   仓库和分支权限
 </h3>
 
-Routine 需要 GitHub 访问权限才能克隆仓库。当您在 CLI 中使用 `/schedule` 创建 Routine 时，Claude 会检查您的账户是否拥有对您运行该命令所在仓库的 GitHub 访问权限；如果没有，则会添加一条设置说明，指明如何授予访问权限。请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)，了解授予访问权限的两种方式。
+Routine 需要 GitHub 访问权限才能克隆仓库。当您在 CLI 中使用 `/schedule` 创建 Routine 时，Claude 会检查您的账户是否拥有对您运行该命令所在仓库的 GitHub 访问权限；如果没有，则会添加一条设置说明，指明如何授予访问权限。请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)，了解授予访问权限的两种方式。在 Team 和 Enterprise 计划中，必须由您 Claude 组织的 [Owner](/docs/zh-CN/server-managed-settings#access-control) 先启用每种方式，您才能使用；请参阅[连接 GitHub](/docs/zh-CN/web-quickstart#connect-github)。
 
 如果在某次运行按计划应当执行时，您的 GitHub 连接缺失或已过期，Routine 会跳过运行，直到您重新连接为止，最长持续 72 小时。在此期间内重新连接 GitHub，Routine 会自行恢复。如果 72 小时后仍未连接，Routine 将被关闭，您需要在重新连接 GitHub 后再将其重新打开。
 
-您添加的每个仓库都会在每次运行时被克隆。除非您的提示词另有指定，否则 Claude 会从仓库的默认分支开始。
+您添加的每个仓库都会在每次运行时被克隆。除非您的提示词另有指定，否则 Claude 会从仓库的默认分支开始。如果运行由 [GitHub Pull Request 事件](#add-a-github-trigger)触发，且该 Pull Request 所在的仓库是 Routine 中的第一个仓库，则该仓库会改为从 Pull Request 的 head 提交开始。
 
 除非您的提示词指示 Claude 推送到其他分支，否则 Claude 会将其工作推送到以 `claude/` 为前缀的分支。要控制运行可以推送到哪些分支，请在 GitHub 上使用分支保护规则或规则集。对于在 Anthropic 托管基础设施上的运行，以及通过 [Anthropic 的 git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)推送的自托管运行，GitHub 会将这些规则应用于您所连接的 GitHub 访问权限，因此该访问权限可以绕过的规则不会阻止运行的推送。使用您的部署所提供的 git 凭据进行推送的自托管运行，则会依据这些凭据进行检查。请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)。
 

@@ -46,7 +46,7 @@ Claude 会自己编写实际的消息，所以你的提示可以将内容留给 
 要自己命名目标，在你的提示中提及会话：输入 `@` 后跟会话名称的首字母，然后从类型提示中选择会话，方式与 [@-提及子代理](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 相同。需要 Claude Code v2.1.232 或更高版本。Claude Code 会插入提及，例如 `@api-worker`，并告诉 Claude 它命名的是哪个会话，这样 Claude 可以向该会话发送消息而无需先列出你的会话。这个提示用提及命名目标：
 
 ```text wrap theme={null}
-让 @api-worker 知道架构迁移已完成
+让 @api-worker 知道 schema 迁移已完成
 ```
 
 类型提示列出你在这台机器上的其他活跃会话。两种情况需要超过名称的首字母：
@@ -142,7 +142,7 @@ Claude 自己找到消息的目标，所以你不需要在要求它发送之前�
 
 会话响应你用 [`/rename`](/docs/zh-CN/commands) 命令或 [`--name`](/docs/zh-CN/cli-reference#cli-flags) 标志设置的名称。当你不设置一个时，Claude Code 自己命名会话。对于交互式会话，这是在 [运行会话的列表](/docs/zh-CN/sessions#name-your-sessions) 中显示的名称。
 
-当你重命名会话，或用另一个活跃会话在这台机器上已经使用的名称启动或恢复交互式会话时，Claude Code 将名称留给已经拥有它的会话，并 [将你的重命名为变体](/docs/zh-CN/sessions#name-your-sessions)。会话仍然可以共享名称，例如当其中一个运行早期版本的 Claude Code 或共享名称是 Claude Code 生成的名称时。除非此会话连接到远程控制，Claude Code 在 `/list-agents` 输出中显示每个本地会话的工作目录，所以当它们在不同目录中运行时，你可以区分同名会话。Claude 根据有多少活跃会话响应该名称，以两种方式之一寻址消息：
+除非此会话连接到 Remote Control，否则 Claude Code 会在 `/list-agents` 输出中显示每个本地会话的工作目录，以便您在同名会话运行于不同目录时区分它们。Claude 会根据有多少活跃会话对应该名称，以以下两种方式之一指定消息地址：
 
 * **一个会话响应该名称**：Claude Code 仅在名称上传递消息。
 * **多个会话共享该名称，或 Claude Code 无法检查你的会话运行的所有地方**：Claude 为其列表的每一行添加一个短标识符，并在地址中使用该标识符。

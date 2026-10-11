@@ -37,6 +37,7 @@
 | `Connection lost while your computer was asleep` | [自动重试](#automatic-retries) |
 | `<model> is temporarily unavailable, so auto mode cannot determine the safety of...` | [服务器错误](#auto-mode-cannot-determine-the-safety-of-an-action) |
 | `Auto mode could not evaluate this action and is blocking it for safety` | [服务器错误](#auto-mode-cannot-determine-the-safety-of-an-action) |
+| `Not run · auto mode's check had no usable answer` | [服务器错误](#auto-mode-cannot-determine-the-safety-of-an-action) |
 | `Auto mode classifier transcript exceeded context window` | [服务器错误](#auto-mode-cannot-determine-the-safety-of-an-action) |
 | `Agent aborted: auto mode classifier request refused by the safety safeguard` | [服务器错误](#auto-mode-cannot-determine-the-safety-of-an-action) |
 | `The server-side auto mode classifier gave no verdict` | [服务器错误](#the-server-returned-no-safety-verdict) |
@@ -263,6 +264,7 @@
 | `Marketplace "<name>" is already added from a different source` | [Plugin 错误](#marketplace-is-already-added-from-a-different-source) |
 | `"<name>" is another spelling of "<reserved>", a reserved marketplace name` | [Plugin 错误](#marketplace-name-is-another-spelling-of-a-reserved-name) |
 | `Cannot add marketplace "<name>": Claude Code cannot install plugins from a marketplace with this name` | [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting#cannot-install-plugins-from-a-marketplace-with-this-name) |
+| `Cannot add marketplace "<name>": Claude Code reserves this name and cannot register a marketplace under it` | [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting#claude-code-reserves-this-name) |
 | `Marketplace "<name>" is added but ignored` | [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting#marketplace-is-added-but-ignored) |
 | `Marketplace "<name>" is registered but was refused (see the debug log)` | [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting#marketplace-is-added-but-ignored) |
 | `references ${user_config.*} in a shell-form command` | [Plugin 错误](#plugin-command-references-user-config) |
@@ -599,6 +601,8 @@ API Error: The response stream was malformed. The response above may be incomple
 ```text theme={null}
 <model> is temporarily unavailable, so auto mode cannot determine the safety of <tool> right now. Wait a moment and then try this action again.
 ```
+
+在交互式会话中，工具调用下方会显示一行暗色的 `Not run · auto mode's check had no usable answer`，而不是此消息。按 `Ctrl+O` 可在[会话记录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)中阅读该消息。[The server returned no safety verdict](#the-server-returned-no-safety-verdict) 下的拒绝也显示同样的一行。在 v2.1.296 之前，该消息以红色错误的形式显示在调用下方。
 
 当 Claude Code 可以确定故障类别时，它在 `temporarily unavailable` 后的括号中指出该类别，例如 `<model> is temporarily unavailable (rate-limited), so auto mode cannot determine the safety of <tool> right now`。类别为 `(rate-limited)`、`(overloaded)`、`(server error)`、`(timed out)` 和 `(connection failed)`。如果 `(timed out)` 或 `(connection failed)` 重复出现，请检查您的连接；请参阅[无法连接到 API](#unable-to-connect-to-api)。在 v2.1.229 之前，消息从不指出类别，读作 `Wait briefly and then try this action again`。
 
@@ -3418,8 +3422,8 @@ Use '--' to separate paths from revisions, like this:
 
 对于任何[注入动态上下文](/docs/zh-CN/skills#when-an-injected-command-fails)的 skill，Claude Code 都会显示相同的错误，注入的命令失败会中止该 skill 的调用。还有两条相关字符串会在命令运行之前就触发：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求在没有 bash 的机器上使用 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许其运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
 
 **解决方法：**
 
@@ -3568,7 +3572,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin fetch 了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个 fetch 过来的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin fetch 了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个被 fetch 的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
 
 **解决方法：**
 
@@ -3762,7 +3766,7 @@ Run claude --resume <session-id> to retry, or claude to start a new session.
 No conversation found with session ID: <session-id>
 ```
 
-显示该消息后，Claude Code 以退出码 1 退出。Claude Code 会[先搜索当前项目，然后搜索这台机器上的所有其他项目](/docs/zh-CN/sessions#resume-a-session)来查找该 ID。在 v2.1.223 之前，查找仅限于当前项目目录及其 git worktree，因此需要从该会话最后工作的目录中进行恢复。
+Claude Code 在显示该消息后以退出码 1 退出。Claude Code 会[先在当前项目中查找该 ID，然后在本机上的所有其他项目中查找](/docs/zh-CN/sessions#where-the-session-picker-looks)。在 v2.1.223 之前，查找仅限于当前项目目录及其 git worktree，因此需要从该会话最后工作的目录中恢复。
 
 常见原因：
 
@@ -5402,7 +5406,7 @@ Claude Code 不将网络路径添加为工作目录。查找网络路径可能�
 Claude Code 以这种方式拒绝的路径包括：
 
 * UNC 共享，例如 `\\server\share`
-* 自动挂载路径，例如 `/net/<host>`，除非您从该主机的自动挂载下的目录启动了 Claude Code
+* 自动挂载路径，例如 `/net/<host>`，除非您从该主机的自动挂载下的目录启动了 Claude Code。对该自动挂载下的读取仍会经过[网络路径检查](/docs/zh-CN/permissions#network-paths)。
 * 通过符号链接或连接点到达网络位置的本地路径
 
 映射的驱动器号和 `\\wsl$` 路径不计为网络路径。

@@ -283,7 +283,7 @@ claude mcp remove notion
   项目服务器批准和工作区信任
 </h4>
 
-从 v2.1.196 开始，`claude mcp list` 和 `claude mcp get` 仅从未签入仓库的设置文件中读取 `.mcp.json` 批准，直到您通过在其中运行 `claude` 并接受工作区信任对话框来信任工作区。克隆的仓库无法批准自己的服务器：提交到项目的 `.claude/settings.json` 的 [`enableAllProjectMcpServers`](/docs/zh-CN/settings-reference#enableallprojectmcpservers) 或 [`enabledMcpjsonServers`](/docs/zh-CN/settings-reference#enabledmcpjsonservers) 在不受信任的文件夹中被忽略，服务器保持在 `⏸ Pending approval` 而不是被连接和健康检查。
+`claude mcp list` 和 `claude mcp get` 仅从未签入仓库的设置文件中读取 `.mcp.json` 批准，直到您通过在其中运行 `claude` 并接受工作区信任对话框来信任工作区。克隆的仓库无法批准自己的服务器：提交到项目的 `.claude/settings.json` 的 [`enableAllProjectMcpServers`](/docs/zh-CN/settings-reference#enableallprojectmcpservers) 或 [`enabledMcpjsonServers`](/docs/zh-CN/settings-reference#enabledmcpjsonservers) 在不受信任的文件夹中被忽略，服务器保持在 `⏸ Pending approval` 而不是被连接和健康检查。
 
 这些来源的批准仍然适用于不受信任的文件夹：
 
@@ -859,7 +859,7 @@ claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
 
 该通知每次宣布每个服务器一次，并在后续启动时将其排除在计数之外，直到该服务器已连接并再次需要登录。`/mcp` 仍然列出每个需要登录的服务器。
 
-在非交互模式下，没有 `/mcp` 面板，因此 Claude Code 无法为您运行 OAuth 流程。从 v2.1.196 开始，当配置的服务器在启用了 [工具搜索](#scale-with-mcp-tool-search)（这是默认设置）的 `claude -p` 或 Agent SDK 运行期间需要身份验证时，Claude Code 会告诉 Claude 该服务器的工具不可用，直到您授权它。Claude 然后可以命名需要登录的服务器，而不是响应就像服务器未配置一样。从使用 `/mcp` 或 `claude mcp login <name>` 的交互式会话完成登录。
+在非交互模式下，没有 `/mcp` 面板，因此 Claude Code 无法为您运行 OAuth 流程。当配置的服务器在启用了 [工具搜索](#scale-with-mcp-tool-search)（这是默认设置）的 `claude -p` 或 Agent SDK 运行期间需要身份验证时，Claude Code 会告诉 Claude 该服务器的工具在您授权之前不可用。Claude 随后可以指出需要登录的服务器。请在交互式会话中使用 `/mcp` 或 `claude mcp login <name>` 完成登录。
 
 如果您为服务器配置了 `headers.Authorization`，而服务器拒绝了该标头，Claude Code 会报告连接失败，而不是回退到 OAuth。检查令牌对 MCP 端点是否有效，或删除标头以使用 OAuth 流程。
 
@@ -1048,7 +1048,7 @@ URL 必须使用 `https://`。元数据 URL 的 `scopes_supported` 覆盖上游�
 
 `oauth.scopes` 优先于 `authServerMetadataUrl` 和服务器在 `/.well-known` 处发现的范围。将其保留为未设置以让 MCP 服务器确定请求的范围集。
 
-从 v2.1.196 开始，当未设置 `oauth.scopes` 时，Claude Code 请求服务器的 `WWW-Authenticate` 标头或其受保护资源元数据提供的范围，当两者都不提供时不发送 `scope` 参数。它不再从自动发现的授权服务器元数据请求完整的 `scopes_supported` 目录。请求该目录导致宣传仅限管理员或模板范围的身份提供者以 `invalid_scope` 错误拒绝授权请求。从配置的 `authServerMetadataUrl` 获取的元数据仍然将其 `scopes_supported` 作为请求的范围提供。
+当未设置 `oauth.scopes` 时，Claude Code 不会从自动发现的授权服务器元数据中请求完整的 `scopes_supported` 目录。从配置的 `authServerMetadataUrl` 获取的元数据仍会将其 `scopes_supported` 作为请求的作用域提供。
 
 如果授权服务器在 `scopes_supported` 中宣传 `offline_access`，Claude Code 会将其附加到固定范围，以便可以在没有新浏览器登录的情况下刷新访问令牌。
 

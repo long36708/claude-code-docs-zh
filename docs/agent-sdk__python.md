@@ -518,6 +518,55 @@ for session in list_sessions(directory="/path/to/project"):
         print(session.summary)
 ```
 
+<h3 id="fork_session">
+  `fork_session()`
+</h3>
+
+将会话的会话记录复制到新会话中，以便您可以将对话引向另一个方向，同时原始会话保持不变。要从对话中较早的某个点分支，请传递 `up_to_message_id`。同步。
+
+```python theme={null}
+def fork_session(
+    session_id: str,
+    directory: str | None = None,
+    up_to_message_id: str | None = None,
+    title: str | None = None,
+) -> ForkSessionResult
+```
+
+<h4 id="parameters-9">
+  参数
+</h4>
+
+| 参数 | 类型 | 默认值 | 描述 |
+| :- | :- | :- | :- |
+| `session_id` | `str` | 必需 | 要分叉的会话的 UUID |
+| `directory` | `str \| None` | `None` | 项目目录路径。省略时，搜索所有项目目录 |
+| `up_to_message_id` | `str \| None` | `None` | 复制会话记录直到（并包括）具有此 UUID 的消息，例如来自 [`get_session_messages()`](#get_session_messages) 的 `uuid`。省略时，复制整个会话记录 |
+| `title` | `str \| None` | `None` | 分叉的标题。省略时，SDK 会从原始会话派生一个标题，后跟 `(fork)` |
+
+返回一个 `ForkSessionResult`，其 `session_id` 是新会话的 UUID。将其作为 [`resume`](#claudeagentoptions) 传递即可继续该分叉。分叉不包含原始会话的[文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing)，因此您无法将其回退到分叉之前捕获的检查点。
+
+`fork_session()` 会抛出：
+
+* `ValueError`：`session_id` 或 `up_to_message_id` 不是有效的 UUID
+* `ValueError`：会话没有消息，或 `up_to_message_id` 与会话记录中的任何消息都不匹配
+* `FileNotFoundError`：找不到会话
+
+<h4 id="example-8">
+  示例
+</h4>
+
+以新标题分叉最近的会话，然后恢复该分叉。原始会话保留其自身的历史记录。
+
+```python theme={null}
+from claude_agent_sdk import fork_session, list_sessions
+
+sessions = list_sessions(directory="/path/to/project", limit=1)
+if sessions:
+    forked = fork_session(sessions[0].session_id, title="Try the OAuth approach")
+    print(forked.session_id)  # pass as ClaudeAgentOptions(resume=...) to continue the fork
+```
+
 <h2 id="classes">
   类
 </h2>
@@ -919,7 +968,7 @@ class ClaudeAgentOptions:
 | 属性 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
 | `tools` | `list[str] \| ToolsPreset \| None` | `None` | 工具配置。使用 `{"type": "preset", "preset": "claude_code"}` 获取 Claude Code 的默认工具 |
-| `allowed_tools` | `list[str]` | `[]` | 无需提示即可自动批准的工具。这不会限制 Claude 仅使用这些工具。如果您在此处列出[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)之一，Claude Code 也会为该会话启用它们。其他未列出的工具会交由 `permission_mode` 和 `can_use_tool` 处理。使用 `disallowed_tools` 阻止工具。见 [权限](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules) |
+| `allowed_tools` | `list[str]` | `[]` | 无需提示即可自动批准的工具，但从[网络路径](/docs/zh-CN/permissions#network-paths)进行的读取除外。这不会限制 Claude 仅使用这些工具。如果您在此处列出[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)之一，Claude Code 也会为该会话启用它们。其他未列出的工具会交由 `permission_mode` 和 `can_use_tool` 处理。使用 `disallowed_tools` 阻止工具。见 [权限](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules) |
 | `system_prompt` | `str \| SystemPromptPreset \| SystemPromptCustom \| SystemPromptFile \| None` | `None` | 系统提示词配置。传递字符串以使用自定义提示词，`{"type": "preset", "preset": "claude_code"}` 以使用 Claude Code 的系统提示词（带可选 `"append"`），`{"type": "custom", "prompt": "..."}` 以使用也可以设置 `"snapshot"` 的自定义提示词，或 `{"type": "file", "path": "..."}` 从磁盘加载大型提示词。见 [`SystemPromptPreset`](#systempromptpreset)、[`SystemPromptCustom`](#systempromptcustom) 和 [`SystemPromptFile`](#systempromptfile) |
 | `mcp_servers` | `dict[str, McpServerConfig] \| str \| Path` | `{}` | MCP 服务器配置或配置文件路径 |
 | `strict_mcp_config` | `bool` | `False` | 当为 `True` 时，仅使用在 `mcp_servers` 中传递的服务器，忽略项目 `.mcp.json`、用户设置、插件提供的 MCP 服务器和 [claude.ai 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。映射到 CLI `--strict-mcp-config` 标志 |
@@ -1848,6 +1897,8 @@ class ResultMessage:
 * `errors`：循环级别的错误字符串，例如最大轮次消息。仅在 `error_*` 子类型上填充。
 * `terminal_reason`：查询循环结束的原因，例如 `"completed"`、`"max_turns"`、`"api_error"`、`"aborted_streaming"` 或 `"aborted_tools"`。值为 `"aborted_streaming"` 或 `"aborted_tools"` 意味着轮次在完成前被中止。常见原因是 [`interrupt()`](#claudesdkclient) 和权限回调返回 [`PermissionResultDeny`](#permissionresultdeny) 且 `interrupt=True`。在早于该字段的 CLI 版本上为 `None`，在本地命令（如 `/voice` 或 `/usage`）的结果上为 `None`，这些命令绕过查询循环，或在会话严重失败时发出的合成错误结果上为 `None`。镜像 TypeScript SDK 的 [`SDKResultMessage.terminal_reason`](/docs/zh-CN/agent-sdk/typescript#sdkresultmessage)，其列出了完整的值集。
 * `origin`：触发此轮次的用户消息的来源。在[流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)中，检查此项以区分您自己的提示词结果（其中 `origin` 为 `None` 或 `{"kind": "human"}`）与注入的轮次（如后台任务通知）的结果。需要 Python Agent SDK 0.2.137 或更高版本。
+
+当多个后台任务在相近时间内完成时，Claude Code 可以在一个轮次中回复它们的通知，而不是为每个通知各用一个轮次。您仍会按顺序为每个通知收到一个 `ResultMessage`，每个都带有 `kind` 为 `"task-notification"` 的 `origin`。除最后一个外，其余消息的 `num_turns` 均为 `0` 且 `result` 为空，最后一个则承载回复所有通知的那个轮次。
 
 `usage` 字典仅涵盖主 Agent 循环，不包括子代理和其他嵌套或辅助模型调用。在[流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)中，值是按轮次的。优先使用 `model_usage` 进行 token 和成本核算。`usage` 字典在存在时包含以下键：
 

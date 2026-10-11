@@ -6,7 +6,7 @@
 
 > 命名、恢复、分支和在 Claude Code 对话之间切换。涵盖 `--continue`、`--resume`、`--from-pr`、`/resume` 选择器、会话命名、导出文本记录和文本记录存储位置。
 
-会话是与项目目录关联的已保存对话。Claude Code 在您工作时将其本地存储，因此您可以从中断处恢复、分支以尝试不同的方法，或在任务之间切换。
+[会话](/docs/zh-CN/glossary#session)是与项目目录关联的已保存对话。Claude Code 在您工作时将其本地存储，因此您可以从中断处恢复、分支以尝试不同的方法，或在任务之间切换。
 
 [桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)、[claude.ai/code](/docs/zh-CN/claude-code-on-the-web) 和 [VS Code 扩展](/docs/zh-CN/vs-code#resume-past-conversations)各自维护自己的会话列表，桌面应用还可以[恢复 CLI 会话](/docs/zh-CN/desktop#coming-from-the-cli)。本页涵盖 CLI。
 
@@ -18,25 +18,12 @@
 
 | 命令 | 功能 |
 | :- | :- |
-| `claude --continue` | 重新打开当前目录中最近的对话 |
+| `claude --continue` | 重新打开当前目录中最近的会话 |
 | `claude --resume` | 打开[会话选择器](#use-the-session-picker) |
 | `claude --resume <name>` | 直接恢复命名的会话 |
-| `claude --resume <transcript-path>` | 恢复存储在该绝对路径的 `.jsonl` [会话记录文件](#where-transcripts-are-stored)中的对话 |
+| `claude --resume <transcript-path>` | 恢复存储在该绝对路径的 `.jsonl` [会话记录文件](#where-transcripts-are-stored)中的会话 |
 | `claude --from-pr <number>` | 打开会话选择器，筛选链接到该 Pull Request 的会话 |
-| `/resume` | 从活跃会话内切换到不同的对话 |
-
-Claude Code 将使用 [`claude -p`](/docs/zh-CN/headless) 或 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 创建的会话排除在会话选择器和 `claude --continue` 之外。您仍然可以通过将其会话 ID 传递给 `claude --resume <session-id>` 来恢复它。使用 `claude --continue` 时，Claude Code 也会跳过[第一个提示词是 `/loop` 的会话](#where-the-session-picker-looks)。当您运行 [`claude -p --continue`](/docs/zh-CN/headless#continue-conversations) 时，Claude Code 包括 `-p`、SDK 和 `/loop` 会话。
-
-您可以从任何目录运行 `claude --resume <session-id>`，因此可以恢复在其他地方启动或使用 [`/cd`](/docs/zh-CN/commands) 移动过的会话。Claude Code 按以下顺序查找该 ID：
-
-1. 当前项目目录及其 git worktrees
-2. 此计算机上的所有其他项目
-
-跨项目搜索仅在恰好一个其他项目持有具有该 ID 的消息的会话记录时解析 ID，因此手动复制的重复项会导致 Claude Code 报告未找到，而不是恢复任意副本。如果没有存储的会话与 ID 匹配，Claude Code 会报告 `No conversation found with session ID: <session-id>`。
-
-在 v2.1.223 之前，查找在当前项目目录及其 git worktrees 处停止，因此您必须从会话最后工作的目录恢复。
-
-`claude --continue` 打开已完成的[后台会话](/docs/zh-CN/agent-view)，但不打开仍在运行的会话；打开已完成的后台会话需要 Claude Code v2.1.257 或更高版本。如果您最近的对话是您[移到后台](/docs/zh-CN/agent-view#send-the-session-to-the-background)的会话，并且它仍在那里运行，Claude Code 会以 `Your most recent conversation is running in the background` 和该会话的 ID 退出。从 [`claude agents`](/docs/zh-CN/agent-view#attach-to-a-session) 附加到会话，或运行 `claude --resume` 选择另一个。
+| `/resume` | 从活跃会话内切换到不同的会话 |
 
 <h3 id="resume-a-running-background-session">
   恢复正在运行的后台会话
@@ -64,7 +51,7 @@ Claude Code 将使用 [`claude -p`](/docs/zh-CN/headless) 或 [Agent SDK](/docs/
 
 当 Claude Code 从其会话记录加载对话时，恢复的会话会恢复对话以及保存在其中的状态：
 
-* 对话历史：完整历史，包括工具调用和结果。如果工具在上一个进程结束时仍在运行（例如在崩溃中），当您恢复时它不会完成或再次运行。Claude 会看到该调用被标记为在记录其结果之前被切断，并被告知在再次运行之前检查它是否已生效，除非设置了 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars#variables)。在 v2.1.281 之前，Claude Code 会从对话中删除被切断的调用，或将其作为您中断的调用显示给 Claude。
+* 对话历史：完整历史，包括工具调用和结果。如果工具在上一个进程结束时仍在运行（例如在崩溃中），当您恢复时它不会完成或再次运行。Claude 会看到该调用被标记为在记录其结果之前被切断，并被告知在再次运行之前检查它是否已生效，除非设置了 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars#variables)。
 * 模型：会话继续使用它之前使用的模型，[设置模型](/docs/zh-CN/model-config#setting-your-model)中所述的情况除外。
 * Agent：使用 [`--agent`](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 或 `agent` 设置启动的会话继续作为该 Agent 运行，保持其工具限制和模型。在恢复时传递 `--agent` 以选择不同的 Agent；关于任一情况下的系统提示词，请参阅[恢复对话中的系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。Claude Code 在两个地方查找 Agent：会话的原始目录（前提是您已[信任该工作区](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)），然后是您恢复时所在的目录，因此项目范围的 Agent 在您从另一个目录恢复时仍会加载。如果 Claude Code 在任一位置都找不到该 Agent，会话会以默认工具恢复并显示[指明该 Agent 的警告](/docs/zh-CN/errors#session-agent-no-longer-available)。
 * 权限模式：如果您从终端使用 `claude --continue`、`claude --resume <session-id>` 或 `claude --resume <name>`（当名称与一个会话匹配时）恢复，且不带 `-p`，Claude Code 会恢复会话所在的权限模式，[恢复时的权限模式](#permission-mode-on-resume)中的情况除外，该部分也涵盖会话选择器、`/resume` 和使用 `claude -p` 恢复。传递 `--permission-mode` 或 `--dangerously-skip-permissions` 以覆盖恢复的模式。
@@ -83,8 +70,10 @@ Claude Code 以何种权限模式启动恢复的会话取决于您如何恢复�
 * 终端：`claude --continue`、`claude --resume <session-id>` 或 `claude --resume <name>`（当名称与一个会话匹配时），不带 `-p`。Claude Code 恢复会话所在的权限模式，表中的情况除外。传递 `--permission-mode` 或 `--dangerously-skip-permissions` 以覆盖恢复的模式。
 * 非交互式：`claude -p --resume` 或 `claude -p --continue`。Claude Code 以新的 `claude -p` 运行会启动的权限模式启动该运行，但在[下面的条件](#resume-in-plan-mode-with-p)下，以计划模式结束的会话会以计划模式恢复。
 * VS Code：扩展的对话面板。该表仅涵盖以计划模式结束的对话；其余情况请参阅[恢复过去的对话](/docs/zh-CN/vs-code#resume-past-conversations)。
-* 启动时的会话选择器：您从[会话选择器](#use-the-session-picker)中选择的会话，无论您是单独使用 `claude --resume`、使用 `claude --from-pr`，还是使用与多个会话匹配的名称打开它。Claude Code 以从同一命令行启动新会话时的权限模式启动该会话，但以计划模式结束的会话会以计划模式恢复，除非您传递 `--permission-mode`、`--dangerously-skip-permissions` 或 `--fork-session`。不会恢复其他存储的权限模式。
+* 启动时的会话选择器：您从[会话选择器](#use-the-session-picker)中选择的会话，无论您是单独使用 `claude --resume`、使用 `claude --from-pr`，还是使用与多个会话匹配的名称打开它。Claude Code 以从同一命令行启动新会话时的权限模式启动该会话，但以计划模式结束的会话会以计划模式恢复。如果您传递 `--permission-mode`、`--dangerously-skip-permissions` 或 `--fork-session`，Claude Code 不会恢复计划模式。不会恢复其他存储的权限模式。
 * 会话内的 `/resume`，带或不带参数：您切换到的对话继续使用您当前会话所在的权限模式，但以计划模式结束的对话会以计划模式恢复，即使您使用 `--permission-mode` 或 `--dangerously-skip-permissions` 启动了 Claude Code。如果该对话在本次运行 Claude Code 期间已经打开过，例如您开始时的对话，或您通过 `/clear` 或 `/resume` 离开的对话，则它会改为继续使用您当前的权限模式。
+
+如果某条[拒绝规则](/docs/zh-CN/permissions#manage-permissions)移除了 [`ExitPlanMode`](/docs/zh-CN/tools-reference) 工具，Claude 就无法呈现计划以供批准，因此 Claude Code 不会恢复计划模式。会话以从同一命令行启动新会话时的权限模式启动。使用 `/resume` 时，对话继续使用您当前的权限模式。
 
 在非交互式和 VS Code 路径上恢复计划模式需要 Claude Code v2.1.246 或更高版本。每一行列出会话结束时的权限模式、您通过终端、非交互式和 VS Code 中的哪条路径恢复它，以及 Claude Code 启动恢复会话时的权限模式。
 
@@ -92,6 +81,7 @@ Claude Code 以何种权限模式启动恢复的会话取决于您如何恢复�
 | :- | :- | :- |
 | `bypassPermissions` | 终端 | 新会话会启动的权限模式。要再次[绕过权限](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)，请在启动时使用其启动标志之一，或在[用户、`--settings` 或托管设置](/docs/zh-CN/settings-reference#permissions-defaultmode)中使用 `permissions.defaultMode: "bypassPermissions"` 启用它 |
 | `plan` | 终端 | 计划模式。使用 `--fork-session` 时，为新会话会启动的权限模式 |
+| `plan` | 终端，当拒绝规则移除了 `ExitPlanMode` 时 | 新会话会启动的权限模式 |
 | `auto` | 终端 | `auto`，仅当您的帐户仍然满足[自动模式要求](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)时 |
 | Manual | 终端 | 当新会话会因[内置默认值](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)以自动模式启动时，为手动模式。当来自设置文件的 `defaultMode` [生效](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)时，Claude Code 改为以该模式启动恢复的会话 |
 | `plan` | 非交互式，在[下面的条件](#resume-in-plan-mode-with-p)下 | 计划模式 |
@@ -110,6 +100,7 @@ Claude Code 以何种权限模式启动恢复的会话取决于您如何恢复�
 * 您不传递 `--permission-mode` 或 `--dangerously-skip-permissions`
 * 您不传递 `--fork-session`
 * 运行不是通过[频道](/docs/zh-CN/channels)启动的
+* 没有[拒绝规则](/docs/zh-CN/permissions#manage-permissions)移除 `ExitPlanMode` 工具
 
 <h3 id="resume-from-a-summary">
   从摘要恢复
@@ -117,10 +108,10 @@ Claude Code 以何种权限模式启动恢复的会话取决于您如何恢复�
 
 在 Pro 或 Max 计划上，当您恢复已不活跃超过约一小时且超过 100,000 个 token 的会话时，Claude Code 会恢复对话，然后在您发送第一条消息之前打开一个对话框。到那时，会话的[提示缓存](/docs/zh-CN/prompt-caching#cache-lifetime)已过期，因此无论您选择对话框的哪个选项，下一个请求都会处理一次完整历史。
 
-对话框提供三种继续会话的方式。它们的区别在于各自向后续请求携带多少对话内容，这是在保留每个细节与每个请求发送更少 token 之间的权衡：
+对话框提供三种继续会话的方式：
 
-* **从摘要恢复**：立即运行 [`/compact`](/docs/zh-CN/context-window#what-survives-compaction)。Claude Code 针对完整历史发送一个摘要请求，然后用摘要、您最近的交互和最多五个最近读取的文件替换历史。后续请求携带摘要而不是完整历史。
-* **按原样恢复完整会话**：加载未更改的对话。在您发送第一条消息后，Claude Code 重新处理并重新缓存完整历史，然后在缓存保持有效期间，后续请求从缓存中重新读取它。
+* **从摘要恢复**：立即运行 [`/compact`](/docs/zh-CN/context-window#what-survives-compaction)。后续请求携带摘要而不是完整历史。
+* **按原样恢复完整会话**：加载未更改的对话。
 * **不再询问**：恢复完整会话，并在以后所有恢复中不再显示该对话框。
 
 按原样恢复会保持对话的每个细节可用，每个请求的成本随对话的大小而增长。从摘要恢复在每个后续请求上成本更低，因为它携带摘要而不是完整历史，但摘要遗漏的任何内容都不再位于 Claude 的上下文中。请参阅[为什么长会话中的使用量会增加](/docs/zh-CN/costs#why-usage-climbs-in-a-long-session)了解该每个请求成本的来源。
@@ -136,11 +127,34 @@ Claude Code 按项目目录存储会话。默认情况下，会话选择器显�
 
 使用 `Ctrl+W` 扩展到仓库的所有 worktrees，或使用 `Ctrl+A` 扩展到此计算机上的每个项目。
 
-第一个提示词是 [`/loop`](/docs/zh-CN/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop) 命令的会话不会出现在选择器中，`claude --continue` 也会跳过它们。在对话中稍后运行 `/loop` 不会隐藏会话。在 v2.1.211 之前，在对话早期运行 `/loop` 会使该会话永久从选择器中隐藏。
+<h4 id="/loop-p-agent-sdk-and-background-sessions">
+  `/loop`、`-p`、Agent SDK 和后台会话
+</h4>
 
-使用 [`/cd`](/docs/zh-CN/commands) 移动会话会将其重新定位到新目录的项目存储，因此之后它会出现在该目录的选择器中。从 v2.1.196 开始，移动的会话即使在崩溃或强制退出后也不会出现在旧目录的选择器中。在较早的版本中，当旧路径包含下划线等特殊字符时，在非正常退出后，它也可能重新出现在旧目录的列表中。
+第一个提示词是 [`/loop`](/docs/zh-CN/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop) 命令的会话不会出现在选择器中，`claude --continue` 也会跳过它们。在对话中稍后运行 `/loop` 不会隐藏会话。
+
+Claude Code 将使用 [`claude -p`](/docs/zh-CN/headless) 或 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 创建的会话排除在会话选择器和 `claude --continue` 之外。您仍然可以通过将其会话 ID 传递给 `claude --resume <session-id>` 来恢复它。当您运行 [`claude -p --continue`](/docs/zh-CN/headless#continue-conversations) 时，Claude Code 包括 `-p`、SDK 和 `/loop` 会话。
+
+`claude --continue` 打开已完成的[后台会话](/docs/zh-CN/agent-view)，但不打开仍在运行的会话；打开已完成的后台会话需要 Claude Code v2.1.257 或更高版本。如果您最近的对话是您[移到后台](/docs/zh-CN/agent-view#send-the-session-to-the-background)的会话，并且它仍在那里运行，Claude Code 会以 `Your most recent conversation is running in the background` 和该会话的 ID 退出。从 [`claude agents`](/docs/zh-CN/agent-view#attach-to-a-session) 附加到会话，或运行 `claude --resume` 选择另一个。
+
+<h4 id="sessions-in-other-worktrees-and-projects">
+  其他 worktrees 和项目中的会话
+</h4>
 
 从同一仓库的另一个 worktree 选择会话时，Claude Code 会在原地恢复它；当会话自己的 worktree 不再存在时，Claude Code 会[在您的当前目录中恢复它](/docs/zh-CN/worktrees#resume-a-worktree-session)。从不相关项目选择会话时，Claude Code 会改为将 `cd` 和恢复命令复制到您的剪贴板。如果该项目的目录不再存在，Claude Code 会在您的当前目录中恢复会话，而不是复制会失败的 `cd` 命令。
+
+使用 [`/cd`](/docs/zh-CN/commands) 移动会话会将其重新定位到新目录的项目存储，因此之后它会出现在该目录的选择器中。
+
+<h4 id="resume-by-session-id-or-name">
+  按会话 ID 或名称恢复
+</h4>
+
+您可以从任何目录运行 `claude --resume <session-id>`，因此可以恢复在其他地方启动或使用 [`/cd`](/docs/zh-CN/commands) 移动过的会话。Claude Code 按以下顺序查找该 ID：
+
+1. 当前项目目录及其 git worktrees
+2. 此计算机上的所有其他项目
+
+跨项目搜索仅在恰好一个其他项目持有具有该 ID 的消息的会话记录时解析 ID，因此手动复制的重复项会导致 Claude Code 报告未找到，而不是恢复任意副本。如果没有存储的会话与 ID 匹配，Claude Code 会报告 `No conversation found with session ID: <session-id>`。
 
 按名称恢复会在当前仓库及其 worktrees 范围内解析。两种形式都会查找精确匹配并直接恢复，即使它位于不同的 worktree 中：
 
@@ -166,24 +180,12 @@ Claude Code 按项目目录存储会话。默认情况下，会话选择器显�
 
 通过 CLI 路由或从 claude.ai 命名会话后，使用 `claude --resume <name>` 或 `/resume <name>` 返回到它；桌面应用会话在 [桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 中恢复。有关名称解析如何跨 worktrees 工作的信息，请参阅[恢复会话](#resume-a-session)。
 
-当您使用此计算机上另一个活跃会话已经使用的名称启动或恢复交互式会话，或将会话重命名为这样的名称时，Claude Code 会将该名称保留给已经拥有它的会话，将您的会话重命名为带有两个单词后缀的变体，例如 `auth-refactor-graceful-unicorn`，并告知您。如果您想自己选择一个名称，请使用新名称运行 `/rename`。在 v2.1.232 之前，两个会话都保留该名称。
-
-在三种情况下，Claude Code 不会重命名重复项，因此您仍然可以在列表中看到两个具有相同名称的会话：
-
-* 它不检查 AI 生成的标题或默认显示名称。
-* 它不检查启动时 [后台](/docs/zh-CN/agent-view#from-your-shell) 或 `-p` 会话的 `--name`。
-* 它无法重命名早期版本 Claude Code 上的会话。
-
 您未命名的会话仍会获得 Claude Code 分配的两个标签。只有生成的标题可用作恢复句柄：
 
-* 默认显示名称：您从未命名的交互式会话在启动时仍会获得默认显示名称。需要 Claude Code v2.1.196 或更高版本。默认名称将工作目录的名称与两个字符的后缀组合在一起，例如 `my-app-3f`，并在运行会话的列表中标识会话，例如 [agent view](/docs/zh-CN/agent-view) 和 `claude agents --json` 输出。默认名称不是恢复句柄。如果您将其传递给 `claude --resume` 或 `/resume`，Claude Code 不会找到该会话。命名会话会替换这些列表中的默认名称，接受计划也会这样做。
+* 默认显示名称：您从未命名的交互式会话在启动时仍会获得默认显示名称。需要 Claude Code v2.1.196 或更高版本。默认名称将工作目录的名称与两个字符的后缀组合在一起，例如 `my-app-3f`，并在运行会话的列表中标识会话，例如 [agent view](/docs/zh-CN/agent-view) 和 `claude agents --json` 输出。默认名称不是恢复句柄。如果您将其传递给 `claude --resume` 或 `/resume`，Claude Code 不会找到该会话。
 * 生成的标题：如果您不命名会话，Claude Code 会为其生成会话标题。该标题是您第一个提示的简短摘要，由对小型/快速模型（通常是 Haiku 级别的模型）的后台请求编写。您直接从 shell 或脚本启动的 `claude -p` 运行不会获得一个。
 
-  接受计划会将生成的标题替换为基于计划的标题。命名会话也会替换它。
-
-  您可以在 [会话选择器](#use-the-session-picker) 中和未设置名称时的状态行 [`session_name`](/docs/zh-CN/statusline) 字段中看到第一个提示标题。计划标题显示在相同的两个位置，也显示在运行会话的列表中，其中它取代了默认显示名称。
-
-  您可以将任一标题传递给 `claude --resume` 或 `/resume`，Claude Code 会以与您设置的名称相同的方式解析它。
+  接受计划会将生成的标题替换为基于计划的标题。您可以将任一标题传递给 `claude --resume` 或 `/resume`，Claude Code 会以与您设置的名称相同的方式解析它。
 
 <h2 id="use-the-session-picker">
   使用会话选择器
@@ -205,7 +207,7 @@ Claude Code 按项目目录存储会话。默认情况下，会话选择器显�
 | `Ctrl+B` | 过滤到当前 git 分支的会话。再次按下以显示所有分支 |
 | `Esc` | 退出会话选择器或搜索模式 |
 
-每行显示会话名称（如果已设置），否则显示 AI 生成的会话标题、对话摘要或第一个提示，以及自上次活动以来的时间、git 分支和文件大小。使用 `Ctrl+A` 扩展到所有项目后，还会显示每个会话的项目路径。
+每行显示会话名称（如果已设置），否则显示 AI 生成的会话标题、对话摘要或第一个提示词，以及自上次活动以来的时间、git 分支和文件大小。
 
 使用 `/branch` 或 `--fork-session` 创建的会话会获得自己的会话 ID 并显示为单独的行。当选择器为同一会话找到多个条目时，它会将它们分组在单个行下。按 `→` 展开一个组。
 
@@ -223,7 +225,7 @@ Claude Code 按项目目录存储会话。默认情况下，会话选择器显�
 /branch try-streaming-approach
 ```
 
-如果您省略名称，Claude Code 会根据对话中的第一个提示为新分支命名。从 v2.1.198 开始，这也适用于 [compaction](/docs/zh-CN/how-claude-code-works#when-context-fills-up) 之后；较早的版本会回退到字面名称 `Branched conversation`，而不是查看 compaction 摘要之外的原始第一个提示。
+如果您省略名称，Claude Code 会根据对话中的第一个提示词为新分支命名。
 
 从命令行，将 `--continue` 或 `--resume` 与 `--fork-session` 结合：
 
@@ -250,7 +252,7 @@ claude --continue --fork-session
 
 这些命令控制上下文窗口中的内容而不离开会话：
 
-* **`/clear`**：以空上下文重新开始。Claude Code 保存之前的对话；可通过 `/resume` 恢复它，或在同一个 Claude Code 进程中，从[倒带菜单的上一个会话条目](/docs/zh-CN/checkpointing#rewind-past-a-cleared-conversation)恢复。不带参数时，新对话保留您使用 `--name` 或 `/rename` 设置的名称，但不保留 AI 生成的会话标题。要为您要离开的对话命名，请传递名称，如 `/clear release-prep`；新对话随后将以未命名状态开始
+* **`/clear`**：以空上下文重新开始。Claude Code 保存之前的会话；可通过 `/resume` 恢复它，或在同一个 Claude Code 进程中，从[倒带菜单的上一个会话条目](/docs/zh-CN/checkpointing#rewind-past-a-cleared-conversation)恢复。不带参数时，新会话保留您使用 `--name` 或 `/rename` 设置的名称，但不保留 AI 生成的会话标题。若要改为给您即将离开的会话命名，请传递名称，如 `/clear release-prep`；新会话随后将以未命名状态开始
 * **`/compact [instructions]`**：用摘要替换历史记录，可选地专注于您指定的内容
 * **`/context`**：显示当前消耗的上下文
 

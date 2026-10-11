@@ -293,7 +293,7 @@ Resume 和 fork 需要会话 ID。从结果消息上的 `session_id` 字段读�
 
   您可以从任何工作目录恢复：
 
-  * **跨目录查找**：Claude Code 搜索超出当前项目目录以查找 ID；请参阅[恢复会话](/docs/zh-CN/sessions#resume-a-session)了解确切的查找顺序以及如何处理重复副本。
+  * **跨目录查找**：Claude Code 搜索超出当前项目目录以查找 ID；请参阅[恢复会话](/docs/zh-CN/sessions#where-the-session-picker-looks)了解确切的查找顺序以及如何处理重复副本。
   * **仅限同一机器**：会话文件仍需要存在于当前机器上。
 
   在 v2.1.223 之前，查找范围限于当前项目目录及其 git worktrees；捆绑较旧 CLI 的 SDK 版本仍然以这种方式运行。
@@ -423,7 +423,7 @@ Forking 创建一个新会话，从原始会话历史记录的副本开始，但
 
 * **移动会话文件。** 从第一次运行中保持 `~/.claude/projects/<encoded-cwd>/<session-id>.jsonl`，并在调用 `resume` 之前将其恢复到新主机上的 `~/.claude/projects/` 下的任何目录内。
 
-  Claude Code 搜索超出当前项目目录以查找 ID；有关确切的查找顺序以及如何处理重复副本，请参阅[恢复会话](/docs/zh-CN/sessions#resume-a-session)。在 v2.1.223 之前，查找范围限于当前项目目录及其 git worktrees；捆绑较旧 CLI 的 SDK 版本仍然以这种方式运行。
+  Claude Code 搜索超出当前项目目录以查找 ID；有关确切的查找顺序以及如何处理重复副本，请参阅[恢复会话](/docs/zh-CN/sessions#where-the-session-picker-looks)。在 v2.1.223 之前，查找范围限于当前项目目录及其 git worktrees；捆绑较旧 CLI 的 SDK 版本仍然以这种方式运行。
 
 * **不依赖会话恢复。** 捕获您需要的结果（分析输出、决定、文件差异）作为应用状态，并将其传递到新会话的提示中。这通常比在周围运送记录文件更强大。
 

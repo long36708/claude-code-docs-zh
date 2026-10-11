@@ -386,13 +386,11 @@ Claude Code 跳过项目、用户或托管 `agents` 目录中的文件，或在�
 * **主对话的模型属于该家族**：subagent 在主对话的确切模型上运行，包括任何 `[1m]` 后缀，因此它获得与主对话相同的 [extended context](/docs/zh-CN/model-config#extended-context) 窗口。
 * **Claude Code 无法告诉主对话的模型家族，在 [a provider other than the Anthropic API](/docs/zh-CN/third-party-integrations) 上**：这可能发生在 Amazon Bedrock 上的 [application inference profile ARN](/docs/zh-CN/amazon-bedrock#iam-configuration)，Claude Code 尚未解析为支持模型。这种情况仅涵盖 `opus` 别名，当您设置 [`ANTHROPIC_DEFAULT_OPUS_MODEL`](/docs/zh-CN/model-config#environment-variables) 时不适用，因为 `opus` 然后解析到您设置的模型。
 
-`CLAUDE_CODE_SUBAGENT_MODEL` 中的别名始终解析到别名指向的版本，即使它命名主对话的家族。
+`CLAUDE_CODE_SUBAGENT_MODEL` 中的别名始终解析为该别名指向的版本，即使它指定的是主对话所属的系列。将该变量设置为 `inherit` 与不设置它相同。
 
 设置 `CLAUDE_CODE_SUBAGENT_MODEL` 本身不会改变内置 Explore 和 Plan subagents 运行的模型。要改变它，请参阅 [Run every subagent on one model](#run-every-subagent-on-one-model)。
 
 在 v2.1.251 之前，`CLAUDE_CODE_SUBAGENT_MODEL` 在此顺序中排在第一位，并覆盖每次调用的参数和 frontmatter，包括 `model: inherit`。
-
-将变量设置为 `inherit` 与不设置它相同。在 v2.1.196 之前，该值强制 subagents 使用主对话的模型并忽略其他来源。
 
 Claude Code 根据您组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表检查每次调用的参数、frontmatter 和环境变量值。对于被阻止的值，它替换另一个模型：
 
@@ -620,7 +618,7 @@ Claude Code 加载两种服务器而不检查代理文件来自的文件夹的�
 | `default` | 手动模式：提示权限 |
 | `acceptEdits` | 自动接受文件编辑和工作目录或 `additionalDirectories` 中路径的常见文件系统命令 |
 | `auto` | [Auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：后台分类器审查命令和受保护目录的写入 |
-| `dontAsk` | 自动拒绝权限提示。显式允许的工具仍然工作；`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具，以及[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具（在该设置到达 Claude Code 的会话中）会被拒绝，即使您已允许它们 |
+| `dontAsk` | 自动拒绝权限提示。显式允许的工具仍可使用；`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](/docs/zh-CN/permissions#network-paths)，以及[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具（在该设置传达到 Claude Code 的会话中）会被拒绝，即使您已允许它们 |
 | `bypassPermissions` | [Skip permission prompts](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)。Subagent 仅在主对话也这样做时在此模式中运行 |
 | `plan` | Plan mode（只读探索） |
 
@@ -682,7 +680,7 @@ Subagent 内存是 [auto memory](/docs/zh-CN/memory#auto-memory) 的一部分：
 启用内存时：
 
 * Subagent 的系统提示包括读取和写入内存目录的说明。
-* Subagent 的系统提示还包括内存目录中 `MEMORY.md` 的前 200 行或 25KB，以先到者为准，以及如果 `MEMORY.md` 超过该限制则策划 `MEMORY.md` 的说明。
+* 子代理的系统提示词还包含记忆目录中 `MEMORY.md` 的前 200 行或前 25KB（以先达到者为准），以及在 `MEMORY.md` 超过该限制时对其进行整理的说明。
 * Read、Write 和 Edit 工具会自动启用，以便 subagent 可以管理其内存文件。
 
 <h5 id="persistent-memory-tips">
@@ -1150,7 +1148,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 * **系统提示词**：Agent 自身的提示词加上 Claude Code 附加的环境详情，而不是 Claude Code 系统提示词。自定义子代理在 [markdown 正文](#write-subagent-files)或 `prompt` 字段中定义其系统提示词。内置 Agent 具有预定义的提示词。
 * **任务消息**：Claude 在移交工作时编写的委托提示词。
 * **CLAUDE.md 文件**：主对话所加载的 [CLAUDE.md 层级结构](/docs/zh-CN/memory#how-claude-md-files-load)中的每一级，包括 `~/.claude/CLAUDE.md`、项目规则、`CLAUDE.local.md`、托管策略文件，以及作为项目指令加载的任何 [`AGENTS.md` 文件](/docs/zh-CN/memory#agents-md)。内置的 Explore 和 Plan Agent 会跳过这些。定义中设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 的子代理只加载托管策略文件；如果该定义来自[托管设置](#choose-the-subagent-scope)，则一个也不加载。
-* **Git 状态**：子代理启动时 Claude Code 从您的仓库读取的快照。在 Git 仓库之外或快照被关闭时不存在；请参阅 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions)。Explore 和 Plan 无论如何都会跳过它。
+* **Git 状态**：子代理启动时 Claude Code 从您的仓库读取的快照。对于在该仓库的[自有 worktree](/docs/zh-CN/worktrees#isolate-subagents-with-worktrees) 中运行的子代理，快照会显示该 worktree 的分支、状态和最近的提交。在 Git 仓库之外或快照被关闭时不存在；请参阅 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions)。Explore 和 Plan 无论如何都会跳过它。
 * **预加载的 skill**：Agent 的 [`skills` 字段](#preload-skills-into-subagents)中列出的每个 skill 的完整内容。内置 Agent 不预加载 skill。
 * **同级名单**：一条[系统提醒](/docs/zh-CN/glossary#system-reminder)，列出 `main` 以及会话中所有其他已命名的 Agent，每一个都是 [`SendMessage`](#resume-subagents) 的有效 `to` 值。需要 Claude Code v2.1.206 或更高版本。仅当子代理的工具包含 `SendMessage` 且至少有一个其他 Agent 拥有名称时才会出现该名单，无论该名称是 Claude 在生成时指定的，还是该 Agent 作为 [agent team](/docs/zh-CN/agent-teams) 队友运行。名单是子代理启动时拍摄的快照，因此之后命名的 Agent 不会出现在其中。
 

@@ -148,6 +148,8 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | `agent.offer` | 向 Claude 提供某个子代理类型 | `{ isOffered: false }` 以不提供它 |
 | `agent.spawn` | 子代理或 [agent team](/docs/zh-CN/agent-teams) 队友即将启动。对于队友，`e.isTeammate` 为 `true`。 | `next({ ...e, model })` 以选择其模型，或 `{ deny: reason }` |
 
+当 Claude 使用 [`SendMessage`](/docs/zh-CN/sub-agents#resume-subagents) 工具恢复子代理时，您的 `agent.spawn` hook 不会再次运行。要拒绝恢复子代理的 `SendMessage` 调用，请在 [`tool.call`](/docs/zh-CN/plugins/mods/events#guard-or-change-a-tool-call) hook 中匹配该工具。
+
 <h3 id="interface">
   界面
 </h3>
@@ -174,6 +176,8 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | :- | :- | :- |
 | [`plugin.register`](/docs/zh-CN/plugins/mods/admin#enforce-a-policy-with-a-mod-of-your-own) | hook 模块即将加载。`e.uses` 列出它的事件、mods API 调用、环境变量和状态，与 `claude plugin validate` 打印的内容一致。每个调用都不带 `$.` 前缀，如 `fs.read`。 | `{ refuse: reason }` |
 | `engine.create` | 正在为此 mod 构建 mods API | 更改后的 mods API，用于添加某个命名空间。`user` [层级](#the-hook-function)之外的 mod 还可以隐藏某个命名空间。 |
+
+当另一个 mod 的 hook 调用您在 `engine.create` 中添加的命名空间上的方法时，在该事件上的所有 hook 返回之前，您的方法发出的 `$` 调用都在该 hook 的上下文中运行。例如，相对路径基于该 hook 的工作目录解析，而当轮次正在等待该 hook 时，`$.prompt.submit` 会被拒绝。在此之后您的方法发出的调用将在您的 mod 自身的上下文中运行。
 
 <h3 id="telemetry">
   遥测
@@ -317,6 +321,10 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | `$.process.run` 超时时间 | 默认 30 秒，最长 10 分钟 |
 | `$.model.complete` `maxTokens` | 默认 1024，最多 64,000 或模型的输出上限 |
 | `$.fs.read` 和 `$.fs.write` | 单个文件 4 MiB |
+| `$.http.fetch` 请求正文 | 4 MiB，按字符计算。正文更大的调用会被拒绝。 |
+| `$.http.fetch` 响应正文 | 4 MiB。`text` 保存前 4 MiB，其余部分不会被读取。当 `Content-Length` 标头声明的大小超出此限制时，该调用会改为被拒绝，拒绝原因以 `is over the 4194304-byte limit` 结尾，但经过所有重定向后的最后一个请求使用 `HEAD` 方法时除外。`HEAD` 例外需要 Claude Code v2.1.296 或更高版本。 |
+| 单次 `$.http.fetch` 调用（包括重定向和正文） | 30 秒 |
+| 单次 `$.http.fetch` 调用跟随的重定向次数 | 5 |
 | hook 的 `drop` 原因或 `config.set` 的 `deny` 原因 | 4,096 个字符。更长的原因会被截去末尾部分，drop 或 deny 仍然生效。截断需要 Claude Code v2.1.292 或更高版本；在更早的版本中，该 hook 会改为[失败](/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)。 |
 | 单个树中的文本 | 仅绘制前 100,000 个字符 |
 | `Code` 的 `language` 或 `path`、`Select` 选项的 `value`，或 `Client` 的 `module` | 10,000 个字符。如果其中任何一项超出此长度，Claude Code 会[在该位置绘制其自身的版本](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)。 |

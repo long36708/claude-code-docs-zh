@@ -144,7 +144,9 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 这些条目源不需要 git 账户：
 
 * **`archive`**：通过 HTTPS 下载的 zip。用户既不需要 `git` 也不需要账户，只需要对 URL 的网络访问。需要 Claude Code v2.1.224 或更高版本。用 `sha256` 固定每个存档，以便 Claude Code 拒绝更改的下载。要随下载发送凭证，请参阅 [认证存档下载](#authenticate-archive-downloads)。
-* **公共 git 仓库**：当条目给出 `https://` URL 时，Claude Code 通过 HTTPS 克隆公共 `url` 或 `git-subdir` 源，无需凭证。对于 `github` 源或写成 `owner/repo` 的 `git-subdir` 源，没有 GitHub SSH 密钥的用户设置 `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1`。
+* **公共 git 仓库**：当条目给出 `https://` URL 时，Claude Code 会通过 HTTPS 克隆公共 `url` 或 `git-subdir` 源，无需凭据。对于 `github` 源，或写成 `owner/repo` 形式的 `git-subdir` 源，请告知没有 GitHub SSH 密钥的用户设置 `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1`。
+
+即使在没有 SSH 密钥的机器上从 shell 运行 `claude plugin install` 不设置该变量也能成功，也请在您的说明中保留 `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1`。对于 `github` 源，该命令可能会自行回退到 HTTPS，并输出 `SSH not configured, cloning via HTTPS`。在会话内通过 `/plugin` 进行的安装以及插件更新不会回退，因此如果不设置该变量，没有 GitHub SSH 密钥的用户会遇到失败。
 
 对于一个网络上的团队，共享文件系统上的 `directory` marketplace 也可以在没有 git 账户的情况下工作。用户只需要对路径的读取访问权限。
 

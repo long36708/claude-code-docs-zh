@@ -80,7 +80,11 @@
 
 云会话不会添加存储库在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 下列出的市场，因为这需要工作区信任对话框，云会话永远不会显示。
 
-项目范围的技能目录插件仅从会话[主工作目录](/docs/zh-CN/permissions#working-directories)的 `.claude/skills/` 加载，并且仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)后加载。它不会[搜索从存储库根目录向上的父目录](/docs/zh-CN/skills#discovery-from-parent-and-nested-directories)，就像普通技能和命令那样。如果您从子目录启动，存储库根目录中的插件不会加载。改为从存储库根目录启动，或 [使用 `/cd` 将会话移到那里](/docs/zh-CN/permissions#move-the-session-to-another-directory)（v2.1.246 或更高版本）。
+如果仓库 `.claude/skills/` 中的插件未加载，请检查您在何处启动了会话以及是否信任了该文件夹：
+
+* **在子目录中**：仓库根目录中的插件不会加载。Claude Code 读取会话[主工作目录](/docs/zh-CN/permissions#working-directories)的 `.claude/skills/`，并且与普通 skill 和命令不同，它不会为插件[搜索父目录](/docs/zh-CN/skills#discovery-from-parent-and-nested-directories)。请改为从仓库根目录启动，或在 v2.1.246 或更高版本上 [使用 `/cd` 将会话移到那里](/docs/zh-CN/permissions#move-the-session-to-another-directory)
+* **从桌面应用启动、在 worktree 中**：插件从主检出的 `.claude/skills/` 加载，而不是从 worktree 的 `.claude/skills/` 加载。请参阅 [worktree 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)
+* **在您尚未信任的文件夹中**：插件仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)后加载
 
 项目范围的插件被检入存储库，并到达克隆它的每个协作者。因为该内容来自存储库而不是来自您，它仅在应用于 `.claude/settings.json` 中项目允许规则的相同信任检查后加载。信任父文件夹或使用 `-p` 运行是不够的。运行代码的组件受到进一步限制：
 
@@ -420,6 +424,16 @@ Claude Code 在以下情况下跳过 `name@marketplace` 安装之前的刷新：
 5. [从 claude.ai 同步的](#synced-plugins)插件。当来自任何其他来源的已启用插件与其名称匹配时，Claude Code 加载该插件并报告同步副本未加载。要改为使用 claude.ai 副本，请禁用您自己的副本
 
 因为顺序比较清单名称，名为 `hello-plugin` 的 `--plugin-dir` 插件在该插件的清单也说 `"name": "hello-plugin"` 时替换 `hello@example-marketplace`。
+
+<h3 id="hooks-when-two-enabled-plugins-share-a-name">
+  两个已启用插件同名时的 hook
+</h3>
+
+当您从不同市场安装并启用两个具有相同清单名称的插件时，两者在 `/plugin` 中都显示为已启用，但其中一个的 hook 会被略过。每个名称只有一个插件会注册其 `hooks/hooks.json` 中的 hook，每个名称也只有一个插件会加载 [hook 模块](/docs/zh-CN/plugins/mods/overview)。当您组织的托管设置启用了其中一个副本时，该副本占有此名称。否则，由 Claude Code 首先加载的副本占有此名称。
+
+要查看哪个副本占有此名称，请在会话中运行 `/plugin` 并打开 **Errors** 选项卡。对于 hook 被略过的副本，那里会有一条说明，指出占有此名称的副本，被略过副本的详细信息中也会显示相同的说明。对于 `hooks/hooks.json` 中的 hook，说明以 `Its hooks.json hooks do not run` 开头；对于 hook 模块，说明以 `Its hooks module does not load` 开头。此说明需要 Claude Code v2.1.296 或更高版本。
+
+要改为运行被略过副本的 hook，请禁用或卸载占有此名称的副本，然后在会话中运行 `/reload-plugins`。重新加载会注册剩余副本的 hook 并清除该说明。当占有此名称的副本是由您的托管设置启用的副本时，您无法禁用它，只要两者都已安装，另一个副本的 hook 就会保持关闭。
 
 <h3 id="keep-a-session-only-plugin-from-loading">
   防止会话专用插件加载

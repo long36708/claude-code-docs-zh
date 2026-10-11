@@ -442,6 +442,8 @@ Claude Code 在您发送某些命令时立即运行它们，而不是排队它�
 
 Claude Code 仅在输入框为空且您没有其他排队内容时才取回排队的 shell 命令，并在执行此操作时将输入框切换到 shell 模式。否则，它会将其保留在队列中，用其 `!` 前缀列出，并在轮次结束后运行它们。
 
+如果您在 `←` [等待将会话转入后台](/docs/zh-CN/agent-view#switch-sessions-without-leaving-the-terminal)时取回排队的文本，文本会保留在输入框中，Claude Code 会取消切换。如果您恰好在会话移动的那一刻取回文本，文本会随前台屏幕一起消失：它并未被发送。您取回的每条消息都会作为单独的条目保存在[命令历史记录](#command-history)中。要恢复某条消息，请重新打开该会话，并在提示词为空且没有排队内容时按 `Up`。
+
 <h2 id="prompt-suggestions">
   提示建议
 </h2>

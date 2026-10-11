@@ -22,7 +22,7 @@
 | [`acceptEdits`](#auto-approve-file-edits-with-acceptedits-mode) | 读取、文件编辑和常见文件系统命令（`mkdir`、`touch`、`mv`、`cp` 等） | 迭代您正在审查的代码 |
 | [`plan`](#analyze-before-you-edit-with-plan-mode) | 读取，加上当 [auto 模式](#eliminate-prompts-with-auto-mode) 可用时分类器批准的命令 | 在更改代码库之前探索它 |
 | [`auto`](#eliminate-prompts-with-auto-mode) | 一切，带有后台安全检查 | 长任务，减少提示疲劳 |
-| [`dontAsk`](#allow-only-pre-approved-tools-with-dontask-mode) | 读取和预批准的工具；任何会提示的内容都被拒绝 | 锁定的 CI 和脚本 |
+| [`dontAsk`](#allow-only-pre-approved-tools-with-dontask-mode) | 工作目录内的文件读取和预批准的工具；任何会提示的内容都被拒绝 | 锁定的 CI 和脚本 |
 | [`bypassPermissions`](#skip-all-checks-with-bypasspermissions-mode) | 一切 | 仅限隔离容器和虚拟机 |
 
 审查每项操作的模式在 CLI 中名为 **Manual**，在 `claude --help` 中、在 VS Code 和 JetBrains 扩展中以及在桌面应用中也是如此。其配置值是 `default`，这是 hook 和 SDK 集成使用的。CLI 在您输入值的任何地方接受 `manual` 作为别名，例如 `claude --permission-mode manual` 或 `"defaultMode": "manual"`。
@@ -466,7 +466,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
   首次读取工作目录之外的内容
 </h3>
 
-当 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 关闭时，在自动模式下文件读取无需提示即可运行，包括读取[工作目录](/docs/zh-CN/permissions#working-directories)之外的内容。当 Claude 首次对工作目录之外的路径使用 Read、Grep 或 Glob 工具时，Claude Code 会询问是否允许该读取。
+当 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 关闭时，在自动模式下，除[从网络路径读取](/docs/zh-CN/permissions#network-paths)之外的文件读取无需提示即可运行，包括读取[工作目录](/docs/zh-CN/permissions#working-directories)之外的内容。当 Claude 首次对工作目录之外的路径使用 Read、Grep 或 Glob 工具时，Claude Code 会询问是否允许该读取。
 
 在非交互式 `-p` 运行或后台会话中不会出现该提示；这些情况下的读取照常运行。
 
@@ -530,16 +530,18 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
     每个操作都会经过固定的决策顺序。第一个匹配的步骤生效：
 
     1. 与您的 [allow、ask 或 deny 规则](/docs/zh-CN/permissions#manage-permissions)匹配的操作会立即得到处理，但以下情况除外：
-       * 对[受保护路径](#protected-paths)的写入即使匹配了 allow 规则，也会交由分类器处理
+       * 对[受保护路径](#protected-paths)的写入即使匹配了 allow 规则，也会交由分类器处理。当受保护路径是某个符号链接形式的设置文件所指向的文件时，该写入可能会改为提示您，如[受保护路径](#protected-paths)列表所述
        * 任何 allow 规则都不会批准针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除操作
        * 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使匹配了 allow 规则，也会直接提示您；在[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具上也是如此（在该设置传达到 Claude Code 的会话中）
        * 携带[按命令允许的域名](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)的 shell 命令即使匹配了 allow 规则，也会交由分类器处理，因为规则批准的是命令，而不是其主机
        * 基于命令内容进行匹配的 ask 规则（例如 `Bash(git push *)`）会回退为权限提示
        * 当 Claude 请求的路径本身不受保护，但[符号链接检查](/docs/zh-CN/permissions#symlinks)将写入解析到受保护路径时，会提示您
+       * 从[网络路径](/docs/zh-CN/permissions#network-paths)读取即使匹配了 allow 规则，也会提示您
     2. 工作目录中的只读操作和文件编辑会被自动批准，但对[受保护路径](#protected-paths)的写入以及[首次读取工作目录之外的内容](#first-read-outside-the-working-directories)除外，后者会提示您
        * 在启用了[服务器端分类器审查](#server-side-classifier-review)的会话中，只读和[沙箱化](/docs/zh-CN/sandboxing#sandbox-modes)的 shell 命令会等待该审查，如果审查标记了它们，则会被阻止
        * 当[符号链接检查](/docs/zh-CN/permissions#symlinks)将工作目录内的写入解析到工作目录之外的位置时，会提示您
        * 当 Claude 读取[他人制作的 Artifact](/docs/zh-CN/artifacts#read-an-artifact-shared-with-you) 时，适用该部分列出的批准情况
+       * 从[网络路径](/docs/zh-CN/permissions#network-paths)读取会提示您
     3. 其他所有操作都会交给分类器处理，按默认方式处理的[关键路径删除](#critical-paths)除外。在第 1 步中直接提示您的连接器工具和 `requiresUserInteraction` MCP 工具也永远不会到达分类器，因此组织要求的批准和同意步骤都不会被自动批准
     4. 如果分类器阻止了操作，Claude 会收到原因。在大多数会话中，原因会指明分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[查看拒绝记录](/docs/zh-CN/auto-mode-config#review-denials)
 
@@ -593,7 +595,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 Claude Code 拒绝与您的显式 [`ask` 规则](/docs/zh-CN/permissions#manage-permissions)匹配的调用，而不是提示。它还拒绝内置的 `AskUserQuestion` 工具，即使您的 allow 规则与其匹配，以及您的组织[设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具在该设置到达 Claude Code 的会话中。它以相同的方式拒绝标记为 [`_meta["anthropic/requiresUserInteraction"]`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具，因为其批准卡需要此模式永远不会收集的答案。
 
-`rm` 和 `rmdir` 移除针对[关键路径](#critical-paths)的操作，如 `rm -rf /` 和 `rm -rf ~`，即使 allow 规则与其匹配或 `PreToolUse` hook 允许它们，也被拒绝。
+`rm` 和 `rmdir` 移除针对[关键路径](#critical-paths)的操作，如 `rm -rf /` 和 `rm -rf ~`，即使 allow 规则与其匹配或 `PreToolUse` hook 允许它们，也被拒绝。从[网络路径](/docs/zh-CN/permissions#network-paths)进行的读取也会以相同的方式被拒绝。
 
 [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)上的云会话忽略 `defaultMode: "dontAsk"`；有关详细信息，请参阅 [bypassPermissions](#skip-all-checks-with-bypasspermissions-mode)。
 
@@ -639,7 +641,10 @@ Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) �
 * **如果您接受**：Claude Code 在 `~/.claude/settings.json` 中将 `skipDangerousModePermissionPrompt` 设置为 `true`，因此后续会话会跳过对话框。要再次看到对话框，请从该文件中删除该键或将其设置为 `false`。[`skipDangerousModePermissionPrompt` 参考](/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)列出了您或您的组织可以设置它的其他设置文件。
 * **如果您拒绝**：Claude Code 退出。
 
-在[非交互模式](/docs/zh-CN/headless)中不显示对话框，使用 `--bg` 启动的[后台会话](/docs/zh-CN/agent-view)会被拒绝，直到您在交互式会话中接受对话框。
+在[非交互模式](/docs/zh-CN/headless)中不显示对话框。当您的接受记录在用户设置或托管设置中时，[后台会话](/docs/zh-CN/agent-view)会遵循该接受：
+
+* 如果没有记录接受，`claude --bg --permission-mode bypassPermissions` 会被拒绝，直到您在交互式会话中接受对话框。
+* 如果 `skipDangerousModePermissionPrompt` 仅在 `.claude/settings.local.json` 中设置，后台会话启动时会忽略绕过请求，并固定显示通知 `Bypass permissions was requested at launch and ignored · if that was you, ~/.claude/settings.json needs "skipDangerousModePermissionPrompt": true`。要使绕过生效，请将该键添加到 `~/.claude/settings.json`，然后启动新的后台会话。
 
 在 Linux 和 macOS 上，当以 root 身份或在 `sudo` 下运行时，Claude Code 拒绝以此模式启动：
 
@@ -708,6 +713,7 @@ Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) �
 * `.devcontainer.json`
 * `.ripgreprc`、`pyrightconfig.json`
 * `.mcp.json`、`.claude.json`
+* 当您的用户、项目或本地[设置文件](/docs/zh-CN/settings#settings-files-and-who-they-affect)本身是符号链接（例如指向 dotfiles 仓库）时，该设置文件所指向的文件。在将受保护路径写入路由到分类器的模式中，对此文件的写入会改为提示您，即使有允许规则匹配也是如此。如果该文件自身的路径同时也是某个设置文件的路径，例如另一个文件夹中的 `.claude/settings.json`，则该写入会像其他受保护路径写入一样交由分类器处理
 
 <h2 id="critical-paths">
   关键路径
@@ -727,10 +733,12 @@ Claude Code 将 `rm` 或 `rmdir` 目标视为关键路径，当它是以下任�
 
 * 文件系统根目录
 * 顶级目录，意味着根目录的任何直接子目录，如 `/usr`、`/etc` 或 `/data`
-* 您的主目录
-* Windows 驱动器根目录及其顶级目录，如 `C:\` 和 `C:\Windows`
+* 您的主目录。在 Windows 上，其 8.3 短名称也计算在内，如 `C:\Users\LONGNA~1`
+* Windows 驱动器根目录及其顶级目录，如 `C:\` 和 `C:\Windows`。`\\?\C:\` 和 `\\localhost\C$` 等写法均视为 `C:\`
 * 您的工作目录及其父目录
 * 您的额外工作目录及其父目录，但仅当移除是其下的 glob 时，如 `rm -rf <dir>/*`。`rm -rf <dir>` 在目录本身上不会触发此检查
+
+对主目录 8.3 短名称以及 `\\?\C:\` 和 `\\localhost\C$` 写法的检查需要 Claude Code v2.1.292 或更高版本。
 
 <h3 id="other-targets-that-count-as-critical-paths">
   计为关键路径的其他目标
@@ -747,6 +755,7 @@ Claude Code 也将以下 `rm` 和 `rmdir` 目标视为关键路径。最后一�
 | 仅命令替换的输出的目标，当 `rm` 是递归的时 | `rm -rf "$(pwd)"` | Claude Code 无法在命令运行前检查目标 |
 | 关键路径后的尾部命令替换 | `rm -rf ~/$(cmd)` | Claude Code 检查如果替换扩展为空将保留的路径，此处为您的主目录 |
 | 仅反斜杠的目标 | `rm -rf "\\"` | Windows 上的 Git Bash 将单个反斜杠读取为当前驱动器的根目录，因此检查适用于每个平台 |
+| 通过 GUID 而非驱动器号命名卷的 Windows 路径 | `rm -rf '\\?\Volume{GUID}\work\build'` | 该路径未说明它位于哪个驱动器上，因此它可能是关键路径。需要 Claude Code v2.1.292 或更高版本 |
 | 部分以 `/*` 或 `/*/` 结尾的目标 | `rm -rf logs/*/*`、`rm -rf logs/*/`、`cd logs && rm -rf a/*` | Claude Code 无法在命令运行前判断它们会涉及哪些目录 |
 
 要关闭仅命令替换输出的目标上的检查，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT=1`](/docs/zh-CN/env-vars#variables)。

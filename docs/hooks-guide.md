@@ -620,11 +620,11 @@ INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command')
 
 if echo "$COMMAND" | grep -q "drop table"; then
-  echo "Blocked: dropping tables is not allowed" >&2  # stderr 变成 Claude 的反馈
-  exit 2 # exit 2 = 阻止操作
+  echo "Blocked: dropping tables is not allowed" >&2  # stderr becomes Claude's feedback
+  exit 2 # exit 2 = block the action
 fi
 
-exit 0  # exit 0 = 没有决策；正常权限流程适用
+exit 0  # exit 0 = no decision; the normal permission flow applies
 ```
 
 退出代码确定接下来会发生什么：
@@ -664,7 +664,7 @@ exit 0  # exit 0 = 没有决策；正常权限流程适用
 
 在 `PreToolUse` 上，Claude Code 处理每个 `permissionDecision` 值如下：
 
-* `"allow"`：跳过交互式权限提示。拒绝和询问规则（包括企业托管拒绝列表）仍然适用，以及标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具和你的组织设置为 `ask` 的 [连接器工具](/docs/zh-CN/mcp#organization-controls-on-connector-tools)（在该设置到达 Claude Code 的会话中）
+* `"allow"`：跳过交互式权限提示。拒绝和询问规则（包括企业托管拒绝列表）仍然适用；从 [网络路径](/docs/zh-CN/permissions#network-paths) 读取的提示、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具的提示，以及 [您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具的提示（在该设置到达 Claude Code 的会话中）也仍然适用
 * `"deny"`：取消工具调用并将原因发送给 Claude
 * `"ask"`：照常向用户显示权限提示
 
@@ -1015,7 +1015,7 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
 
 `PreToolUse` hooks 在任何权限模式检查之前触发，在每个[权限模式](/docs/zh-CN/permission-modes)中，包括 `dontAsk`。返回 `permissionDecision: "deny"` 的 hook 会阻止工具，即使在 `bypassPermissions` 模式或使用 `--dangerously-skip-permissions` 时也是如此。这让你强制执行用户无法通过更改其权限模式来绕过的策略。
 
-反面不成立：返回 `"allow"` 的 hook 不会绕过来自设置的拒绝规则，它也无法抑制标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具的提示或[你的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具在该设置到达 Claude Code 的会话中的提示。Hooks 在设置文件和插件的 `hooks/hooks.json` 中可以收紧限制，但不能放松它们超过权限规则允许的范围。
+反过来则不成立：返回 `"allow"` 的 hook 不会绕过设置中的拒绝规则，并且在以下情况下也无法抑制提示：从[网络路径](/docs/zh-CN/permissions#network-paths)读取、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具，以及在该设置会传达到 Claude Code 的会话中[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具。设置文件和插件的 `hooks/hooks.json` 中的 hook 可以收紧限制，但不能放宽到超出权限规则允许的范围。
 
 您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 可以批准被您的 `PreToolUse` hook 阻止的调用，除非该 hook 位于托管设置中。[使用 hooks 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)列出了哪些规则优先于 mod。
 
@@ -1038,7 +1038,7 @@ Hook 已配置但从不执行。
 * 你的脚本意外以非零代码退出。通过管道传递示例 JSON 来手动测试它：
   ```bash theme={null}
   echo '{"tool_name":"Bash","tool_input":{"command":"ls"}}' | ./my-hook.sh
-  echo $?  # 检查退出代码
+  echo $?  # Check the exit code
   ```
 * 如果你看到"command not found"，使用绝对路径或 `${CLAUDE_PROJECT_DIR}` 来引用脚本。为了完全避免 shell 引用，添加 `"args": []` 来切换到 [exec 形式](/docs/zh-CN/hooks#exec-form-and-shell-form)，它直接生成脚本而不使用 shell
 * 如果你看到"jq: command not found"，安装 `jq` 或使用 Python/Node.js 进行 JSON 解析
@@ -1070,9 +1070,9 @@ Claude 继续工作而不是停止，然后以警告结束该轮，表示 Stop h
 #!/bin/bash
 INPUT=$(cat)
 if [ "$(echo "$INPUT" | jq -r '.stop_hook_active')" = "true" ]; then
-  exit 0  # 允许 Claude 停止
+  exit 0  # Allow Claude to stop
 fi
-# ... 你的 hook 逻辑的其余部分
+# ... rest of your hook logic
 ```
 
 如果你的 hook 合理地需要超过八次迭代才能收敛，使用 [`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`](/docs/zh-CN/env-vars) 提高上限。
@@ -1083,17 +1083,21 @@ fi
 
 你的 hook 打印有效的 JSON，但决策没有生效，成绩单中没有出现错误。检查哪个原因适用：
 
-* **JSON 前面有额外输出**：其他东西首先写入 stdout，通常是你的 shell 配置文件中的无条件 `echo`，所以输出不再以 `{` 开头，Claude Code 不会将其解析为 JSON。原因和修复如下所示。
-* **字段在错误的级别**：将每个字段的位置与 [JSON 输出](/docs/zh-CN/hooks#json-output)格式进行比较。例如，`permissionDecision` 属于 `hookSpecificOutput` 内部，而不是顶级。
+* **JSON 前面有额外输出**：有其他内容先写入了 stdout，通常是您的 shell profile 中无条件的 `echo`，导致输出不再以 `{` 开头。请参阅 [JSON 之前的 shell profile 输出](#shell-profile-output-before-the-json)。
+* **字段位于错误的层级**：将每个字段的位置与 [JSON 输出](/docs/zh-CN/hooks#json-output)格式进行比较。例如，`permissionDecision` 应位于 `hookSpecificOutput` 内部，而不是顶层。请参阅[字段位于错误的层级](#fields-at-the-wrong-level)。
 
-当 Claude Code 运行 shell 形式的命令 hook（没有 `args` 的）时，它在 macOS 和 Linux 上生成 `sh -c`，在 Windows 上生成 Git Bash，或在默认情况下未安装 Git Bash 时生成 PowerShell。这个 shell 是非交互式的，但 Git Bash 和某些配置（例如 `BASH_ENV` 指向 `~/.bashrc`）仍然会源你的配置文件。如果该配置文件包含无条件的 `echo` 语句，输出会被添加到你的 hook 的 JSON 前面：
+<h4 id="shell-profile-output-before-the-json">
+  JSON 之前的 shell profile 输出
+</h4>
+
+Hook 在非交互式 shell 中运行，但 Git Bash 和某些配置（例如 `BASH_ENV` 指向 `~/.bashrc`）仍会加载您的 profile，profile 打印的任何内容都会先于 hook 的 JSON 进入 stdout：
 
 ```text theme={null}
 Shell ready on arm64
 {"decision": "block", "reason": "Not allowed"}
 ```
 
-组合输出不再以 `{` 开头，所以 Claude Code 将所有 stdout 视为纯文本并忽略 JSON。在退出 0 时，成绩单中不会报告任何内容；解析尝试仅在[调试日志](/docs/zh-CN/hooks#debug-hooks)中记录。要修复此问题，在你的 shell 配置文件中包装 echo 语句，使其仅在交互式 shell 中运行：
+除非该 hook 是[异步](/docs/zh-CN/hooks#how-async-hooks-execute)的，否则 Claude Code 会将不以 `{` 开头的输出作为纯文本读取，因此您的 JSON 会被忽略。由于 hook 以 0 退出，会话记录中也不会显示错误。要检查是否为此原因，请使用 `claude --debug` 启动 Claude Code，触发该 hook，然后在[调试日志](/docs/zh-CN/hooks#debug-hooks)中搜索 `Hook output does not start with {`。要修复此问题，请包装 profile 中的 `echo` 语句，使其仅在交互式 shell 中运行：
 
 ```bash theme={null}
 # 在 ~/.zshrc 或 ~/.bashrc 中
@@ -1103,6 +1107,10 @@ fi
 ```
 
 `$-` 变量包含 shell 标志，`i` 表示交互式。Hooks 在非交互式 shell 中运行，因此 echo 被跳过。
+
+<h4 id="fields-at-the-wrong-level">
+  字段位于错误的层级
+</h4>
 
 当你的 hook 返回 `permissionDecision` 或 `additionalContext` 在顶级而不是在 `hookSpecificOutput` 内部时，JSON 仍然解析，Claude Code 忽略错误放置的字段而不报告错误。要查看它忽略了哪些字段，使用 `claude --debug` 启动 Claude Code 并在[调试日志](/docs/zh-CN/hooks#debug-hooks)中搜索 `Hook JSON output had unrecognized keys`。
 
@@ -1119,7 +1127,7 @@ fi
 
 要查询特定退出码和 stdout 对应的结果（包括各事件的例外情况），请参阅参考文档中的[退出码输出](/docs/zh-CN/hooks#exit-code-output)。
 
-有关完整的执行详情，包括 hook 的退出码、stdout 和 stderr，请阅读调试日志。使用 `claude --debug-file /tmp/claude.log` 启动 Claude Code 以写入已知路径，然后在另一个终端中运行 `tail -f /tmp/claude.log`。如果您启动时没有使用该标志，请在会话中运行 `/debug` 以启用日志记录并找到日志路径。
+有关完整的执行详情，包括 hook 的退出码、stdout 和 stderr，请阅读[调试日志](/docs/zh-CN/hooks#debug-hooks)。使用 `claude --debug-file /tmp/claude.log` 启动 Claude Code 以写入已知路径，然后在另一个终端中运行 `tail -f /tmp/claude.log`。如果您启动时没有使用该标志，请在会话中运行 `/debug` 以启用日志记录并找到日志路径。
 
 <h2 id="learn-more">
   了解更多

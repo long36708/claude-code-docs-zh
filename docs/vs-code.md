@@ -237,10 +237,11 @@ Claude Code 还会从您粘贴到输入框中的文本以及您发送的任何�
 
 要恢复已归档的会话，请展开 **Archived sessions** 并点击 **Unarchive session**。要一次性恢复所有已归档的会话，请将鼠标悬停在活动栏会话列表中的 **Archived sessions** 标题上，然后点击其取消归档图标，这需要 Claude Code v2.1.277 或更高版本。在 v2.1.257 之前，该操作是 **Delete session**，它会隐藏会话且无法恢复。升级后，您当时删除的会话会出现在 **Archived sessions** 下。
 
-当您恢复的对话以计划模式结束时，Claude Code 会恢复计划模式。需要 Claude Code v2.1.246 或更高版本。在以下两种情况下，Claude Code 不会恢复计划模式：
+当您恢复的对话以计划模式结束时，Claude Code 会恢复计划模式。需要 Claude Code v2.1.246 或更高版本。在以下情况下，Claude Code 不会恢复计划模式：
 
 * 扩展根据 `claudeCode.initialPermissionMode` 或从先前对话沿用的选择来[选择初始权限模式](/docs/zh-CN/permission-modes#switch-permission-modes)
 * 您配置了 `claudeCode.claudeProcessWrapper`
+* 某条[拒绝规则](/docs/zh-CN/permissions#manage-permissions)移除了 [`ExitPlanMode`](/docs/zh-CN/tools-reference) 工具
 
 <h3 id="resume-cloud-sessions-from-claude-ai">
   从 Claude.ai 恢复云端会话

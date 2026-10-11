@@ -183,7 +183,7 @@ mTLS: Loaded client key from CLAUDE_CODE_CLIENT_KEY
   在设置中设置网络变量，而不是在 shell 中
 </h3>
 
-监督进程是由每个终端共享的一个进程。它继承启动它的第一个 shell 的环境，而操作系统安装的监督进程根本不接收任何 shell 环境。如果你仅在 shell 中导出代理、CA 路径或 mTLS 变量，当该 shell 碰巧冷启动监督进程时，它会到达后台代理，而当不同的 shell 启动时，它会无声地失败。
+监督进程是由每个终端共享的一个进程。它继承最先启动它的那个 shell 的环境。如果您仅在 shell 中导出代理、CA 路径或 mTLS 变量，当该 shell 碰巧冷启动监督进程时，这些变量会到达后台 Agent；而当由另一个 shell 启动监督进程时，它们会无声地无法到达。
 
 将相同的变量放在 `~/.claude/settings.json` 的 `env` 块中或[托管设置](/docs/zh-CN/settings)中。此页面上的每个变量都可以在那里设置，设置是唯一到达每台机器上每个后台会话的配置。
 
@@ -196,7 +196,7 @@ mTLS: Loaded client key from CLAUDE_CODE_CLIENT_KEY
 设置 [`processWrapper`](/docs/zh-CN/settings-reference#processwrapper) 设置以使用你的启动器为监督进程、其工作进程和[启动器覆盖的内容](/docs/zh-CN/corporate-launcher#what-the-launcher-covers)下列出的其他后台进程添加前缀。等效的 [`CLAUDE_CODE_PROCESS_WRAPPER`](/docs/zh-CN/env-vars) 环境变量在两者都设置时优先，它受相同规则约束：通过托管设置或 `~/.claude/settings.json` 传递它，而不是 shell 导出。[在企业启动器后面运行 Claude Code](/docs/zh-CN/corporate-launcher)涵盖启动器必须满足的合同、它做什么和不做什么，以及如何推出它。
 
 <Note>
-  已运行的监督进程保持它启动时的启动配置。部署启动器设置后，运行 [`claude daemon stop --any`](/docs/zh-CN/agent-view#the-supervisor-process)，以便下一个 `claude agents` 或 `--bg` 启动一个尊重它的监督进程。已安装的服务采用 `claude daemon stop` 而不需要 `--any`。
+  已运行的监督进程保持它启动时的启动配置。部署启动器设置后，运行 [`claude daemon stop --any`](/docs/zh-CN/agent-view#the-supervisor-process)，以便下一个 `claude agents` 或 `--bg` 启动一个遵循该设置的监督进程。
 </Note>
 
 <h2 id="streaming-idle-watchdogs">

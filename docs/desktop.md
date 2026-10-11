@@ -400,9 +400,16 @@ Claude 第一次需要使用应用时，会话中会出现提示。点击**允�
 
 要同时查看两个会话，请在 macOS 上按住 **Cmd** 或在 Windows 上按住 **Ctrl** 并点击侧边栏中的会话。该会话会在第二个窗格中打开，与您已打开的会话并排显示。分屏处于活跃状态时，点击侧边栏中的另一个会话会替换当前具有焦点的窗格。在 macOS 上按 **Cmd+\\** 或在 Windows 上按 **Ctrl+\\** 可关闭具有焦点的窗格并返回单个会话。
 
-Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。您可以在设置 → Claude Code 中的"Worktree location"下将其更改为自定义目录。您还可以设置一个分支前缀，该前缀会添加到每个 worktree 分支名称的前面，这有助于让 Claude 创建的分支保持条理。完成后要删除 worktree，请将鼠标悬停在侧边栏中的会话上并点击存档图标。要让会话在其 Pull Request 合并或关闭时自动存档，请在设置 → Claude Code 中打开 **Auto-archive after PR merge or close**。自动存档仅适用于已完成运行的本地会话。
+Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。您可以将其更改为自定义目录：
 
-要在新 worktree 中包含被 gitignore 的文件（如 `.env`），请在项目根目录中创建一个 [`.worktreeinclude` 文件](/docs/zh-CN/worktrees#copy-gitignored-files-into-worktrees)。
+* **本地会话**：在 **Settings > Claude Code** 中设置 **Worktree location**
+* **SSH 会话**：在 [SSH 连接](#choose-where-ssh-session-worktrees-go)上设置 **Worktree folder**
+
+您还可以在 **Settings > Claude Code** 中设置 **Branch prefix**。Desktop 会将其添加到每个 worktree 分支名称的前面，这有助于让 Claude 创建的分支保持条理。
+
+完成后要删除 worktree，请将鼠标悬停在侧边栏中的会话上并点击存档图标。要让会话在其 Pull Request 合并或关闭时自动存档，请在 **Settings > Claude Code** 中打开 **Auto-archive after PR merge or close**。自动存档仅适用于已完成运行的本地会话。
+
+要在新 worktree 中包含被 gitignore 的文件（如 `.env`），请在项目根目录中创建一个 [`.worktreeinclude` 文件](/docs/zh-CN/worktrees#copy-gitignored-files-into-worktrees)。有关 worktree 会话从何处读取项目设置、hook 和 skill，请参阅 [worktree 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
 
 <Note>
   会话隔离需要 [Git](https://git-scm.com/downloads)。大多数 Mac 默认已包含 Git。在终端中运行 `git --version` 进行检查；如果输出了版本号，则说明 Git 已安装。如果遇到 Git 错误，请在 [Cowork 选项卡](https://claude.com/product/cowork)中请 Claude 帮助排查您的设置。
@@ -811,10 +818,27 @@ SSH 会话让你在远程机器上运行 Claude Code，同时使用桌面应用�
 * **SSH host**：`user@hostname` 或在 `~/.ssh/config` 中定义的主机
 * **SSH port**：如果留空，则默认为 22，或使用您 SSH 配置中的端口
 * **SSH key (optional)**：您的私钥路径，例如 `~/.ssh/id_ed25519`。留空则使用您的 SSH 配置或 SSH agent。
+* **Worktree folder**：远程机器上的一个文件夹，例如 `~/worktrees`，新会话会在其中创建 worktree。留空则使用[远程机器的默认设置](#choose-where-ssh-session-worktrees-go)。
 
 添加后，该连接会出现在环境下拉菜单的 **SSH** 下。选择它即可在该机器上启动会话。Claude 在远程机器上运行，可以访问其文件和工具。
 
 远程机器必须运行 Linux 或 macOS。Desktop 在你第一次连接时会自动在远程机器上安装 Claude Code。连接后，SSH 会话支持权限模式、connectors、plugins 和 MCP servers。
+
+<h4 id="choose-where-ssh-session-worktrees-go">
+  选择 SSH 会话 worktree 的位置
+</h4>
+
+除非您的组织限制了会话可以使用的文件夹，否则新的 SSH 会话会在以下各项中第一个已设置的位置创建其 [worktree](#work-in-parallel-with-sessions)：
+
+1. SSH 连接上的 **Worktree folder**
+2. 远程机器上 `~/.claude/settings.json` 中的 [`worktree.location`](/docs/zh-CN/settings-reference#worktree-location)
+3. `<project-root>/.claude/worktrees/`，即默认位置
+
+每个项目在您设置的文件夹中都有自己的子文件夹，因此使用 `~/worktrees` 时，worktree 的路径为 `~/worktrees/<project>-<id>/<worktree-name>`。如果您设置的文件夹位于项目内部，Desktop 会对该项目忽略它并使用默认位置。
+
+要为您之前添加的连接或由您的组织管理的连接设置 **Worktree folder**，请在环境下拉菜单中将鼠标悬停在该连接上，然后点击齿轮图标。
+
+该字段需要 Claude Desktop v1.44121.0 或更高版本。如果您的组织限制了会话可以使用的文件夹，Desktop 会隐藏该字段，并将 worktree 保留在项目内部。
 
 <h4 id="open-an-ssh-session-from-a-link">
   通过链接打开 SSH 会话
@@ -869,7 +893,7 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
   为你的团队预配置 SSH 连接
 </h4>
 
-管理员可以通过在[托管设置](/docs/zh-CN/managed-settings)中设置 `sshConfigs` 来向团队成员分发 SSH 连接。以这种方式定义的连接会自动出现在每个用户的环境下拉菜单中，并显示为托管的，因此用户可以选择它们，但不能在应用中编辑或删除它们。
+管理员可以通过在[托管设置](/docs/zh-CN/managed-settings)中设置 `sshConfigs` 来向团队成员分发 SSH 连接。以这种方式定义的连接会自动出现在每个用户的环境下拉菜单中，并显示为托管的。用户可以选择它们并为其[设置自己的 **Worktree folder**](#choose-where-ssh-session-worktrees-go)，但不能在应用中编辑其他任何内容或删除它们。
 
 以下示例预配置了一个单个连接：
 
@@ -935,6 +959,8 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
   Cowork 下的 OpenTelemetry 表单位于管理员控制台的[数据和隐私设置](https://claude.ai/admin-settings/data-privacy-controls)中的**监控**下，仅适用于 Cowork 会话。在此机器上的 Cowork 会话中，桌面应用将该收集器作为 `OTEL_*` 环境变量传递给 Claude Code，因此该表单生效，尽管该会话中的 Claude Code [从不获取管理员控制台设置](#managed-settings)。
 
   要从 Code 选项卡会话导出遥测，请在 Claude Code 托管设置的 `env` 块中设置 `CLAUDE_CODE_ENABLE_TELEMETRY` 和 `OTEL_*` 变量，如[监控的管理员配置](/docs/zh-CN/monitoring-usage#administrator-configuration)中所示。本地、云端和 SSH 会话各自[从不同来源读取托管设置](#managed-settings)。有关云端会话可以到达的主机，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。有关 Code 选项卡会话报告的 `service.name`，请参阅[服务信息](/docs/zh-CN/monitoring-usage#service-information)。
+
+  要了解 SSH 会话在哪台远程机器上运行，请参阅[将遥测归因于 Desktop SSH 会话](/docs/zh-CN/monitoring-usage#attribute-telemetry-to-desktop-ssh-sessions)。
 </Note>
 
 <h3 id="managed-settings">
@@ -951,7 +977,7 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 | `browserExternalPageTools` | 设置为 `"disabled"` 以防止 Claude 使用工具在[浏览器窗格](#browse-external-sites)中读取或作用于外部页面。用户仍然可以自己导航到外部网站，本地开发服务器预览不受影响。 |
 | `disableMobileSimulatorTools` | 设置为 `true` 以阻止 Claude 在 [iOS Simulator 窗格](/docs/zh-CN/desktop-ios-simulator#turn-off-simulator-access)中控制和捕获设备的工具。该窗格仍可用于用户自己的点击；仅删除 Claude 的访问权限。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
 | `disableBrowserExternalNavigation` | 设置为 `true` 以完全关闭[浏览器窗格](#browse-external-sites)中的外部浏览。用户和 Claude 都无法导航到外部网站，localhost 开发服务器预览不受影响。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
-| `sshConfigs` | 预配置[SSH 连接](#pre-configure-ssh-connections-for-your-team)，在环境下拉菜单中显示。用户无法编辑或删除托管连接。 |
+| `sshConfigs` | 预配置[SSH 连接](#pre-configure-ssh-connections-for-your-team)，在环境下拉菜单中显示。用户无法删除托管连接，也无法编辑除其自己的 **Worktree folder** 之外的任何内容。 |
 | `sshHostAllowlist` | 限制 [SSH 会话](#restrict-which-ssh-hosts-users-can-connect-to)连接到已解析主机名与这些模式之一匹配的主机。仅从托管设置中读取。 |
 | `disableDesktopLocalSessions` | 设置为 `true` 以关闭[在设备上运行的 Code 会话](#local-sessions-on-managed-devices)，仅保留到其他主机的 SSH 会话和云端会话可用。该值必须是 JSON 布尔值 `true`。仅从托管设置中读取。需要 Claude Desktop v1.37937.0 或更高版本。 |
 | `disableSshSavedPasswords` | 设置为 `true` 以阻止 Desktop 提供记住 SSH 密码的选项，并阻止其使用或显示之前保存的密码。启用此设置不会删除这些密码。仅从托管设置中读取。需要 Claude Desktop v1.49585.0 或更高版本。 |

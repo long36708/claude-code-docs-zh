@@ -264,11 +264,11 @@ Claude 在目录层次结构的每个级别读取 `CLAUDE.md` 文件，因此子
 | 部分 | 显示内容 |
 | :- | :- |
 | 审查的 PR | 所选时间范围内每日审查的 pull request 计数 |
-| 每周成本 | Code Review 的每周支出 |
+| Code Review 成本 | 本月迄今为止的 Code Review 支出 |
 | 反馈 | 因开发人员解决问题而自动解决的审查评论计数 |
-| 存储库分解 | 每个存储库的审查 PR 计数和已解决评论 |
+| 仓库细分 | 每个仓库的审查 PR 计数、已解决评论计数和审查运行次数，以及估算成本和按 PR 查看的视图 |
 
-仪表板成本数字是用于监控活动的估计。对于发票准确的支出，请参考您的 Anthropic 账单。
+仅当选择当前月份时，Code Review 成本卡片才会显示金额。分析中的成本数字可能与您的发票不同。仓库细分中的成本按标价估算，未计入任何折扣或抵扣额度，并且仅涵盖 Claude 在 Pull Request 上发布的审查。对于发票准确的支出，请参考您的 Anthropic 账单。
 
 <h2 id="pricing">
   定价
@@ -286,7 +286,7 @@ Code Review 根据令牌使用情况计费。每次审查平均花费 \$15-25，
 
 无论您的组织是否为其他 Claude Code 功能使用 Amazon Bedrock 或 Google Cloud 的 Agent Platform，成本都会出现在您的 Anthropic 账单上。要为 Code Review 设置每月支出上限，请转到 [claude.ai/admin-settings/usage](https://claude.ai/admin-settings/usage) 并为 Claude Code Review 服务配置限制。
 
-通过[分析](#view-usage)中的每周成本图表或管理员设置中的每个存储库平均成本列监控支出。
+要监控支出，请使用[分析仪表板](#view-usage)。
 
 <h2 id="troubleshooting">
   故障排除

@@ -303,11 +303,12 @@ mod 通过 mods API 访问文件系统、进程和网络，具有与运行 Claud
 | `$.session` | `messages()` 将会话记录作为 `{ role, text, toolUses }` 列表返回。还有工作目录、模型等。[`usage()`](/docs/zh-CN/plugins/mods/reference#mods-api-methods) 返回上下文窗口使用和计划限制。 |
 | `$.mcp` | `call` 连接的 MCP 服务器上的工具 |
 
-文件和进程有一些自己的规则：
+文件、进程和请求有一些自己的规则：
 
-* **路径**：相对路径相对于会话的工作目录进行解析
+* **路径**：相对路径相对于会话的工作目录进行解析，或相对于 hook 正在处理其事件的子代理的工作目录进行解析
 * **`$.fs.list`**：将一个目录的条目作为 `{ name, kind, size, isLink }` 返回，不进行递归
 * **`$.process.run`**：接受参数列表，不使用 shell。它解析为 `{ exitCode, stdout, stderr }`，无论退出码如何。如果程序无法启动或在超时时仍在运行，它会拒绝，默认为 30 秒，因此将其包装在 `try` 和 `catch` 中。
+* **`$.http.fetch`**：最多跟随五次重定向。当重定向到不同的源时，它只保留您设置的 `accept`、`accept-language`、`content-type` 和 `user-agent` 请求头，并丢弃其余请求头，因此依赖其他请求头（如 `Authorization`）的请求在该重定向之后可能会失败。[限制](/docs/zh-CN/plugins/mods/reference#limits)中列出了它的超时时间和体大小。
 
 这些调用中的每一个本身都是一个事件，以其命名空间和方法命名，不带 `$.`，例如 `fs.read` 用于 `$.fs.read`。[链中较早的](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in) mod 可以观察、重写或拒绝您的调用，这是组织限制 mod 到达的方式。
 

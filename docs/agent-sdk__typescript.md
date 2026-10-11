@@ -464,6 +464,38 @@ function tagSession(
 | `tag` | `string \| null` | 必需 | 标签字符串，或 `null` 以清除 |
 | `options.dir` | `string` | `undefined` | 项目目录路径。省略时，搜索所有项目目录 |
 
+<h3 id="forksession">
+  `forkSession()`
+</h3>
+
+将会话的会话记录复制到新会话中，以便您可以将对话引向另一个方向，同时保持原始会话不变。要从对话中较早的某个点分支，请传递 `upToMessageId`。
+
+```typescript theme={null}
+function forkSession(
+  sessionId: string,
+  options?: ForkSessionOptions
+): Promise<ForkSessionResult>;
+```
+
+<h4 id="parameters-10">
+  参数
+</h4>
+
+| 参数 | 类型 | 默认值 | 描述 |
+| :- | :- | :- | :- |
+| `sessionId` | `string` | 必需 | 要分叉的会话 UUID |
+| `options.dir` | `string` | `undefined` | 项目目录路径。省略时，搜索所有项目目录 |
+| `options.upToMessageId` | `string` | `undefined` | 复制会话记录，直到并包括具有此 `uuid` 的消息：该值来自 [`getSessionMessages()`](#getsessionmessages)，或是您在流式传输的 [`SDKUserMessage`](#sdkusermessage) 上设置的 `uuid`。省略时，复制整个会话记录 |
+| `options.title` | `string` | `undefined` | 分叉的标题。省略时，SDK 从原始会话派生一个标题，后跟 `(fork)` |
+
+返回 `{ sessionId }`，即新会话的 UUID。将其作为 [`resume`](#options) 传递以继续该分叉。分叉不包括原始会话的[文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing)，因此您无法将其回退到分叉之前捕获的检查点。
+
+`forkSession()` 在以下情况下会抛出错误：
+
+* `sessionId` 不是 UUID
+* 找不到会话，或会话没有消息
+* `upToMessageId` 与会话记录中的任何消息都不匹配
+
 <h3 id="resolvesettings">
   `resolveSettings()`
 </h3>
@@ -486,7 +518,7 @@ function resolveSettings(
 ): Promise<ResolvedSettings>;
 ```
 
-<h4 id="parameters-10">
+<h4 id="parameters-11">
   参数
 </h4>
 
@@ -547,7 +579,7 @@ console.log(`Set by: ${provenance.cleanupPeriodDays?.source}`);
 | `agents` | `Record<string, [`AgentDefinition`](#agentdefinition)>` | `undefined` | 以编程方式定义子代理 |
 | `agentProgressSummaries` | `boolean` | `false` | 为 `true` 时，为子代理生成单行进度摘要，并通过 `summary` 字段在 [`task_progress`](#sdktaskprogressmessage) 事件中转发。适用于前台和后台子代理 |
 | `allowDangerouslySkipPermissions` | `boolean` | `false` | 启用绕过权限。使用 `permissionMode: 'bypassPermissions'` 时必需，无论是在启动时还是之后通过 `setPermissionMode()` 设置。有关它与 `permissionMode: 'plan'` 的交互方式，请参阅[计划模式](/docs/zh-CN/agent-sdk/permissions#plan-mode-plan) |
-| `allowedTools` | `string[]` | `[]` | 无需提示即可自动批准的工具。这不会将 Claude 限制为只能使用这些工具。如果您在此处指定了某个[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)，Claude Code 也会为该会话启用它。其他未列出的工具将交由 `permissionMode` 和 `canUseTool` 处理。使用 `disallowedTools` 来阻止工具。请参阅[权限](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules) |
+| `allowedTools` | `string[]` | `[]` | 无需提示即可自动批准的工具，从[网络路径](/docs/zh-CN/permissions#network-paths)读取的操作除外。这并不会将 Claude 限制为仅使用这些工具。如果您在此处指定了某个[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)，Claude Code 也会为该会话启用它。其他未列出的工具将交由 `permissionMode` 和 `canUseTool` 处理。使用 `disallowedTools` 来阻止工具。请参阅[权限](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules) |
 | `betas` | [`SdkBeta`](#sdkbeta)`[]` | `[]` | 启用 beta 功能 |
 | `canUseTool` | [`CanUseTool`](#canusetool) | `undefined` | 自定义权限函数，仅在[权限流程](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)落到提示环节时调用。对于由 `allowedTools`、允许规则或 `permissionMode` 自动批准的调用，不会调用此函数。允许规则不会预先批准[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)。详情请参阅 [`CanUseTool`](#canusetool) |
 | `continue` | `boolean` | `false` | 继续最近的对话 |
@@ -1666,7 +1698,9 @@ const message: SDKUserMessage = {
 * Claude Code 为交付 `'now'` 消息而移到后台的 WebFetch 或 WebSearch 调用：携带该调用 `tool_result` 的用户消息的 `tool_use_result` 被设为 `{ detachedToolCall: true }`。该调用仍在运行，Claude 会在其完成后收到结果。该 `tool_use_id` 之后不会再有第二个 `tool_result`，因此如果您的应用为每个工具调用绘制一行，请在收到此消息时将该行标记为已移到后台。需要 Claude Code v2.1.287 或更高版本。
 * 结果包含 `resource_link` 块的 MCP 工具：`tool_use_result` 是一个对象，其 `resourceLinks` 数组由 [`SDKMcpResourceLink`](#sdkmcpresourcelink) 条目组成。Claude 会在 `tool_result` 块中以一行文本的形式接收每个链接，因此请读取 `resourceLinks` 来渲染服务器返回的文件，而不是解析该文本。当结果中没有链接时以及对于来自子代理的结果，Claude Code 会省略 `resourceLinks`；每个结果最多保留 50 个链接，并在数组序列化后的 JSON 达到 64 KiB 时停止添加链接。`resourceLinks` 需要 Agent SDK v0.3.257 或更高版本。
 * 返回 [`structuredContent`](#calltoolresult) 的 MCP 工具：`tool_use_result` 是一个对象，其 `structuredContent` 成员包含服务器发送的内容，`content` 成员包含 [`McpOutput`](#mcpoutput) 值。来自子代理的结果不携带 `structuredContent`。
-* `structuredContent` 序列化后超过 1,048,576 个字符 JSON 的 MCP 工具：Claude Code 会从 `tool_use_result` 中去掉 `structuredContent`，并在其位置设置 `structuredContentOmitted: true`，以便您的应用区分被丢弃的对象与根本未发送该对象的工具。其他成员（例如 `content` 和 `resourceLinks`）保留，Claude 接收到的内容也不会改变。来自[进程内 SDK 服务器](/docs/zh-CN/agent-sdk/custom-tools)的工具，以及其 `tools/list` 条目声明了 [MCP Apps `_meta.ui` 资源](#mcpserverstatus)的工具不受此限制，会完整交付该对象。Claude Code v2.1.287 或更高版本应用此上限。
+* `structuredContent` 序列化后超过 1,048,576 个 JSON 字符的 MCP 工具：Claude Code 会从 `tool_use_result` 中去掉 `structuredContent`，并在其位置设置 `structuredContentOmitted: true`，以便您的应用能够区分被丢弃的对象与根本未发送该对象的工具。其他成员（例如 `content` 和 `resourceLinks`）会保留，Claude 收到的内容也不会改变。Claude Code v2.1.287 或更高版本会应用此上限。有两类工具有所不同：
+  * 来自[进程内 SDK 服务器](/docs/zh-CN/agent-sdk/custom-tools)的工具不受此限制，会完整交付该对象。
+  * 在 `tools/list` 条目中声明了 [MCP Apps `ui://` 资源](#mcpserverstatus)的工具，在 Claude Code v2.1.295 或更高版本上的上限为 8,388,608 个字符，而 v2.1.295 之前的版本对其不设限制。
 
 <h3 id="sdkusermessagereplay">
   `SDKUserMessageReplay`
@@ -2375,7 +2409,7 @@ type SDKMessageOrigin =
 当 Claude Code 将任务通知传递到会话中时，如果 Anthropic 服务器验证了该通知的来源，它会在通知的 `origin` 上设置 `subkind`。当您的应用程序[自己声明消息为定时运行](#declare-a-scheduled-run)时，它也设置 `subkind`，这需要 TypeScript Agent SDK v0.3.280 或更高版本。`subkind` 需要 Claude Code v2.1.213 或更高版本，它采用两个值之一：
 
 * `scheduled-trigger`：通知是 [Routine](/docs/zh-CN/routines) 的存储提示词，因为 Routine 的触发器之一触发而传递：其计划、其 [API 触发器](/docs/zh-CN/routines#add-an-api-trigger)、其 [GitHub 触发器](/docs/zh-CN/routines#add-a-github-trigger) 或**立即运行**。您的应用程序[声明为定时运行](#declare-a-scheduled-run)的提示词也携带此值。Claude Code 将这些作为会话的分配任务呈现给模型，附带的通知与[其他任务通知携带的通知](#sdktasknotificationmessage)不同。
-* `peer-send-message`：通知是您的另一个会话使用[云端会话](/docs/zh-CN/claude-code-on-the-web)用来互相发送消息的服务器端 `send_message` 工具发送的消息，而不是[跨会话 `SendMessage` 工具](/docs/zh-CN/cross-session-messaging)，并且 Anthropic 服务器验证了两个会话都属于同一私有会话组。需要 Claude Code v2.1.224 或更高版本。服务器未以这种方式验证的 `send_message` 传递没有 `subkind`。
+* `peer-send-message`：该通知是您的另一个会话通过服务器端 `send_message` 工具发送的消息（[云端会话](/docs/zh-CN/claude-code-on-the-web)之间使用该工具互相发送消息），而不是[跨会话 `SendMessage` 工具](/docs/zh-CN/cross-session-messaging)，并且 Anthropic 服务器已验证两个会话属于同一个私有会话组。需要 Claude Code v2.1.224 或更高版本。服务器未以此方式验证的 `send_message` 投递不会获得子类型。
 
 每个其他任务通知都没有 `subkind`。这包括[PR 活动](/docs/zh-CN/claude-code-on-the-web#how-claude-responds-to-pr-activity)传递到会话和后台事件，例如完成的任务。来自[跨会话 `SendMessage` 工具](/docs/zh-CN/cross-session-messaging)的消息根本不是任务通知：无论它们来自同一机器上的会话还是通过 Anthropic 服务器来自另一台机器，Claude Code 都给它们 `kind: "peer"` 和[对等体来源字段](#peer-origin-fields)。
 

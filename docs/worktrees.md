@@ -268,7 +268,9 @@ Worktree 获得自己的文件和分支，但它与主检出共享以下内容�
 
   相同的读取覆盖也适用于 `.claude/agents` 和 `.claude/commands`。对于 skills，读取覆盖需要 Claude Code v2.1.277 或更高版本。
 
-无论您是使用 `--worktree`、使用 `git worktree add` 还是通过[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)创建 worktree，所有这些都适用。
+无论您是使用 `--worktree` 还是使用 `git worktree add` 创建 worktree，所有这些都适用。
+
+在从[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)启动的 worktree 会话中，Claude Code 从主检出的根目录而不是从 worktree 读取项目配置，例如设置、hook、skill、Agent、命令和 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 服务器。Hook 命令在该根目录中运行，`${CLAUDE_PROJECT_DIR}` 也指向该根目录。要访问 Claude 正在处理的文件，请从 hook 的 [`cwd` 输入字段](/docs/zh-CN/hooks#common-input-fields)读取 worktree 的路径。`CLAUDE.md` 文件和 `.claude/rules/` 仍从 worktree 加载。
 
 <h2 id="manage-worktrees-manually">
   手动管理 worktrees

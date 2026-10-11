@@ -470,6 +470,38 @@ Claude Code 将这些值作为属性附加到每个指标数据点和事件记�
   用引号包装值不会转义空格。例如，`org.name="My Company"` 导致文字值 `"My Company"`（包括引号），而不是 `My Company`。
 </Warning>
 
+<h3 id="attribute-telemetry-to-desktop-ssh-sessions">
+  将遥测归因到 Desktop SSH 会话
+</h3>
+
+要查看 [Desktop SSH 会话](/docs/zh-CN/desktop#ssh-sessions)在哪台远程机器上运行，请在自定义属性中为每台机器命名。指标和事件不会指明会话运行所在的机器。
+
+在每台远程机器上，将 [`OTEL_RESOURCE_ATTRIBUTES`](#multi-team-organization-support) 添加到[会话读取的托管设置文件](/docs/zh-CN/desktop#managed-settings)中启用遥测的 `env` 块。在每台机器的文件中写出名称。Claude Code 不会展开该值，因此 `host.name=$(hostname)` 会按这些字符原样到达。
+
+以下示例将机器命名为 `build-7`：
+
+```json theme={null}
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://collector.example.com:4317",
+    "OTEL_RESOURCE_ATTRIBUTES": "host.name=build-7"
+  }
+}
+```
+
+当没有其他来源设置该变量时，`host.name` 会出现在资源块中，适用于 Desktop SSH 会话以及该机器上的 CLI。有关自定义属性还会出现在哪些位置，请参阅[多团队组织支持](#multi-team-organization-support)。
+
+如果名称没有到达，请检查是否存在以下原因之一：
+
+* **您在运行 Desktop 的计算机上设置了它**：Desktop 不会将您在那里设置的值传递给 SSH 会话
+* **您在登录文件中导出了它**：只有登录 shell 会读取 `/etc/profile` 之类的文件。您在其中 `export` 的值会传递给从登录 shell 启动的 Claude Code。它不会传递到 Desktop SSH 会话，因为 Desktop 不通过登录 shell 启动 Claude Code。
+* **某个值内部包含空格**：此时 Claude Code 不会将任何键复制到事件或数据点上，也不会报告错误。[从值中去掉空格](#multi-team-organization-support)。
+* **其他来源已经设置了该变量**：在桌面应用启动的会话中，启动环境中已设置的变量[优先于设置文件](/docs/zh-CN/settings-reference#how-env-values-interact-with-your-shell)。[调试日志](/docs/zh-CN/debug-your-config)会列出每个被忽略的变量。当第三方 Desktop 部署在其提供的环境中[指定 OTLP 端点](#how-managed-settings-lock-the-otlp-destination)时，该环境会带有 Desktop 自己的 `OTEL_RESOURCE_ATTRIBUTES`。
+
 <h3 id="example-configurations">
   示例配置
 </h3>
@@ -1746,15 +1778,15 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 
 所有指标和事件都使用以下资源属性导出：
 
-* `service.name`：终端会话为 `claude-code`，从 [Claude Desktop 应用](/docs/zh-CN/desktop)中的代码选项卡启动的会话为 `claude-code-desktop`
-* `service.version`：当前 Claude Code 版本，或代码选项卡会话的 Desktop 应用版本
+* `service.name`：终端会话为 `claude-code`，从 [Claude Desktop 应用](/docs/zh-CN/desktop)中的代码选项卡启动的本地会话为 `claude-code-desktop`
+* `service.version`：当前 Claude Code 版本，或本地代码选项卡会话的 Desktop 应用版本
 * `os.type`：操作系统类型（例如，`linux`、`darwin`、`windows`）
 * `os.version`：操作系统版本字符串
 * `host.arch`：主机架构（例如，`amd64`、`arm64`）
 * `wsl.version`：WSL 版本号（仅在 Windows Subsystem for Linux 上运行时出现）
 * 仪表名称：`com.anthropic.claude_code`
 
-如果您的收集器管道或仪表板在 `service.name = claude-code` 上进行过滤，请将 `claude-code-desktop` 添加到过滤器中，以便也捕获来自代码选项卡会话的遥测数据。
+如果您的收集器管道或仪表板在 `service.name = claude-code` 上进行过滤，请将 `claude-code-desktop` 添加到过滤器中，以便也捕获来自本地代码选项卡会话的遥测数据。
 
 <h2 id="roi-measurement-resources">
   ROI 测量资源

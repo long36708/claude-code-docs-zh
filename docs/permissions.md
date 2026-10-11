@@ -36,7 +36,7 @@ Claude Code 使用分层权限系统来平衡功能和安全性。该表显示�
 
 在 v2.1.211 之前，Claude Code 总是在启动目录中保存规则，因此在工作树或子目录中授予的批准不适用于项目的其余部分。早期版本在子目录或工作树中保存的规则仍然适用于在那里启动的会话。
 
-有时权限提示仅提供一次性批准，没有"不再询问"选项，也没有允许操作在会话的其余部分进行的选项。Claude Code 仅在提示可以向您显示它们允许的所有内容时才提供这些选项，因此您从提示保存的规则仅涵盖其选项命名的内容。当提示仅提供一次性批准时，批准该操作一次，或在 [`/permissions`](#manage-permissions) 中自己添加规则。
+有时权限提示仅提供一次性批准，没有"不再询问"选项，也没有允许操作在会话的其余部分进行的选项。Claude Code 仅在提示可以向您显示它们允许的所有内容时才提供这些选项，因此您从提示保存的规则仅涵盖其选项命名的内容。当提示仅提供一次性批准时，批准该操作一次，或在 [`/permissions`](#manage-permissions) 中自己添加规则。要停止针对以 `watch` 等 exec 包装器开头的命令的提示，或针对带有 `-delete` 等操作的 `find` 命令的提示，请参阅 [Exec 包装器和 `find` 操作](#exec-wrappers-and-find-actions)。
 
 <h3 id="add-a-comment-when-you-answer-a-permission-prompt">
   在回答权限提示时添加注释
@@ -91,7 +91,7 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 | `acceptEdits` | 自动接受工作目录或 `additionalDirectories` 中路径的文件编辑和常见文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp` |
 | `plan` | Claude 读取文件并运行只读 shell 命令来探索，但不编辑您的源文件；在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)可用的情况下，分类器批准的命令也会运行。在 CLI 和 VS Code 扩展中标记为 Plan |
 | `auto` | 无需常规提示即可运行；在 shell 命令和网络请求等操作运行之前，后台[分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)会检查它们是否与您的请求一致 |
-| `dontAsk` | 自动拒绝每个会导致提示的调用；您的工作目录中的文件读取和其他不需要批准的操作仍会运行，通过 `/permissions` 或 `permissions.allow` 规则预先批准的工具也会运行。`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)在该设置到达 Claude Code 的会话中即使您已允许它们也会被拒绝 |
+| `dontAsk` | 自动拒绝每个会导致提示的调用；您的工作目录中的文件读取和其他不需要批准的操作仍会运行，通过 `/permissions` 或 `permissions.allow` 规则预先批准的工具也会运行。`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](#network-paths)，以及[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，在该设置到达 Claude Code 的会话中即使您已允许它们也会被拒绝 |
 | `bypassPermissions` | 跳过权限提示，除了[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) |
 
 <Warning>
@@ -240,7 +240,7 @@ Bash 规则中的 `*` 匹配任何文本，包括空格，因此一个规则涵�
   Bash
 </h3>
 
-Bash 规则匹配整个命令文本，其中 `*` 代表任何文本。[通配符模式](#wildcard-patterns)显示每个规则形状匹配的命令以及在哪里放置 `*`。本节的其余部分涵盖 Claude Code 如何匹配复合命令和包装器、规则不匹配的内容、只读命令和重定向。
+Bash 规则匹配整个命令文本，其中 `*` 代表任何文本。[通配符模式](#wildcard-patterns)显示每个规则形状匹配的命令以及在哪里放置 `*`。本节的其余部分涵盖 Claude Code 如何匹配复合命令和包装器、哪些包装器和 `find` 操作无法通过前缀规则批准、规则不匹配的内容、只读命令和重定向。
 
 <h4 id="compound-commands">
   复合命令
@@ -268,7 +268,18 @@ Claude Code 也会剥离某些已知安全的环境变量的前导赋值，因�
 
 此包装器列表是内置的，不可配置。开发环境运行器，如 `direnv exec`、`devbox run`、`mise exec`、`npx` 和 `docker exec` 不在列表中。因为这些工具将其参数作为命令执行，像 `Bash(devbox run *)` 这样的规则匹配 `run` 之后的任何内容，包括 `devbox run rm -rf .`。要批准环境运行器内的工作，请编写一个包含运行器和内部命令的特定规则，如 `Bash(devbox run npm test)`。为您想要允许的每个内部命令添加一个规则。
 
-Exec 包装器，如 `watch`、`setsid`、`ionice` 和 `flock` 无法通过像 `Bash(watch *)` 这样的前缀规则自动批准，因此在 Manual 模式下它们总是提示。同样适用于带有 `-exec` 或 `-delete` 的 `find`：`Bash(find *)` 规则不涵盖这些形式。要批准特定调用，请为完整命令字符串编写精确匹配规则。
+<h4 id="exec-wrappers-and-find-actions">
+  Exec 包装器和 `find` 操作
+</h4>
+
+像 `Bash(watch *)` 或 `Bash(find *)` 这样的前缀规则无法自动批准以下命令，因此在 Manual 模式下它们会提示：
+
+* **Exec 包装器**：如 `watch`、`setsid`、`ionice` 和 `flock`
+* **`find`**：带有运行命令、删除文件或写入文件的操作（如 `-exec`、`-delete` 或 `-fprint`），或带有 `-files0-from`（从文件中获取要搜索的路径）
+
+要批准不含 `*` 的特定调用，请为完整命令字符串编写精确匹配规则，如 `Bash(find build -type f -delete)`。
+
+当命令包含 `*` 时，如 `find . -name '*.tmp' -delete`，Claude Code 会将规则读作[通配符模式](#wildcard-patterns)而不是精确匹配，因此该命令仍然会提示。请在每次提示时批准它，或使用为其返回 `"allow"` 的 [PreToolUse hook](/docs/zh-CN/hooks#pretooluse-decision-control)。
 
 <h4 id="bash-rule-limits">
   Bash 规则不匹配的内容
@@ -301,6 +312,7 @@ Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下�
 * **具有写入能力标志的命令的未引用 glob**：具有写入能力或执行能力标志的命令，如 `find`、`sort`、`sed` 和 `git`，在存在未引用的 glob 时提示，因为 glob 可能扩展为像 `-delete` 这样的标志。
 * **`docker` 指向另一个守护程序**：当命令携带选择不同守护程序的标志时，`docker` 的只读形式提示，如 `-H`、`--context` 或 Podman 的 `--url` 和 `--connection`。
 * **`file` 带有路径打开标志**：当 `file` 传递 `-m`/`--magic-file` 或 `-f`/`--files-from` 时，`file` 提示，因为这些标志使 `file` 打开标志值中命名的路径。
+* **可能打印环境变量的 `ps`**：当 `ps` 的某个参数可能充当 `e` 选项时（如 `ps auxe` 或 `ps aux -e`），`ps` 会提示，因为该选项会打印进程环境变量。`ps aux` 和 `ps -ef` 无需提示即可运行。对 `ps aux -e` 等带短横线形式的检查需要 Claude Code v2.1.290 或更高版本。
 * **Windows 上的网络路径**：其参数包括网络 (UNC) 路径的命令，如 `\\server\share\file`，提示是因为访问网络路径可能会将您的 Windows 凭据发送到它命名的主机。同样的检查适用于[PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)命令。
 * **写入特殊 shell 变量**：设置、取消设置或遍历某些特殊 shell 变量（如 `PATH` 或 `IFS`）的命令会提示，即使命令的其余部分是只读的。
 * **分析无法解析的命令**：当 Claude Code 无法完全解析命令时，它会要求批准而不是将命令视为只读。超过 10,000 个字符的命令总是提示，因为它们超过了分析解析的内容。
@@ -508,13 +520,32 @@ Grep 和 Glob 搜索 `path` 参数解析到的目录。Claude Code 将 `Read` de
 
 当工具随后打开已批准的文件时，它[确认路径仍然解析到权限检查批准的位置](/docs/zh-CN/errors#refusing-after-a-symlink-changed)。
 
+<h4 id="network-paths">
+  网络路径
+</h4>
+
+当 Claude 的文件读取工具（如 Read、Grep 和 Glob）从网络路径读取时，该读取会经过单独的权限检查。网络路径是可以访问另一台计算机的路径：在 Windows 上是 UNC 路径，如 `\\server\share\file`；在 macOS 和 Linux 上是 `/net` 自动挂载路径，如 `/net/fileserver/notes.txt`。查找此类路径可能会联系它命名的主机，而在 Windows 上，这种联系可能会将您的凭据发送给该主机。Shell 命令有自己的检查：在 Manual 模式下，参数中包含 UNC 路径的只读 Bash 或 PowerShell 命令[在 Windows 上仍然会提示](#read-only-commands)。
+
+在 Claude Code v2.1.292 及更高版本中，以下各项都不会取消该提示：
+
+* **Allow 规则**：规则不会预先批准该读取，包括针对整个工具的规则，如 `Read`
+* **PreToolUse hook**：返回 `"allow"` 的 [hook](#extend-permissions-with-hooks) 不会跳过该提示
+* **自动模式**：提示会交给您，而不是由[分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)决定该读取
+
+在 `dontAsk` 模式下，Claude Code 会拒绝该读取而不是提示。在 `bypassPermissions` 模式下，以及在可使用[绕过权限](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)的交互式终端会话中处于计划模式时，该读取无需此提示即可运行。
+
+要在没有此提示的情况下读取网络共享上的文件，请先为该共享提供一个本地路径：
+
+* **Windows**：将共享映射到驱动器号，并在启动 Claude Code 时使用 `--add-dir` 传递该驱动器，如[工作目录](#working-directories)中所述
+* **macOS 和 Linux**：将共享挂载到本地路径（如 `/mnt` 或 `/Volumes` 下的目录），并从那里读取文件，如[工作目录是网络路径](/docs/zh-CN/errors#working-directory-is-a-network-path)中所述
+
 <h3 id="webfetch">
   WebFetch
 </h3>
 
 WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行匹配。匹配不区分大小写，支持 `*` 通配符，并从规则和主机名中剥离尾部 `.`，因此 `example.com.` 和 `example.com` 被视为相同。
 
-* `WebFetch(domain:example.com)` 匹配对 `example.com` 的请求
+* `WebFetch(domain:example.com)` 仅匹配对 `example.com` 的请求。要同时涵盖 `api.example.com` 等子域，请添加 `WebFetch(domain:*.example.com)` 规则
 * `WebFetch(domain:*.example.com)` 匹配任何深度的任何子域，如 `api.example.com` 或 `a.b.example.com`，但不匹配 `example.com` 本身
 * `WebFetch(domain:*)` 匹配每个域。它与裸 `WebFetch` 规则不同；请参阅[允许或拒绝每次获取](#allow-or-deny-every-fetch)
 
@@ -622,7 +653,7 @@ PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask
 
 请参见[决定是否信任模块](/docs/zh-CN/plugins/mods/overview#decide-whether-to-trust-a-mod)，或如果您部署托管设置，请参见[为您的组织管理模块](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default)。
 
-标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具在 hook 返回 `"allow"` 时仍然会提示，连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的工具在该设置到达 Claude Code 的会话中也是如此。
+对于[需要用户交互的工具](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)，例如 `AskUserQuestion` 或标记为 `requiresUserInteraction` 的 MCP 工具，mod 的 `tool.check` 批准不会跳过提示。需要 Claude Code v2.1.292 或更高版本。标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具在 hook 返回 `"allow"` 时也仍然会提示，从[网络路径](#network-paths)进行的读取，以及在该设置到达 Claude Code 的会话中[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具也是如此。
 
 阻止 hook 也优先于 allow 规则。以退出代码 2 退出的 hook 在权限规则被评估之前停止工具调用，因此即使 allow 规则会让调用继续，阻止也适用。要运行所有 Bash 命令而无需提示，除了您想要阻止的少数几个，将 `"Bash"` 添加到您的 allow 列表，并注册一个 PreToolUse hook 来拒绝那些特定命令。请参见[阻止对受保护文件的编辑](/docs/zh-CN/hooks-guide#block-edits-to-protected-files)以获取您可以调整的 hook 脚本。
 
@@ -636,7 +667,7 @@ PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask
 * **会话期间**：使用 `/add-dir` 命令
 * **持久配置**：添加到[设置文件](/docs/zh-CN/settings#where-settings-live)中的 `additionalDirectories`
 
-其他目录中的文件遵循与原始工作目录相同的权限规则：它们变为可读的而无需提示，文件编辑权限遵循当前权限模式。
+其他目录中的文件遵循与原始工作目录相同的权限规则：除[网络路径](#network-paths)检查外，它们变为可读的而无需提示，文件编辑权限遵循当前权限模式。
 
 您无法添加大多数[网络路径](/docs/zh-CN/errors#working-directory-is-a-network-path)（例如 UNC 共享 `\\server\share`）作为工作目录，因为查找它们可能会联系它们命名的主机。在 Windows 上，将共享映射到驱动器号，然后在启动时使用 `--add-dir` 传递该驱动器。
 
@@ -648,7 +679,7 @@ PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask
   将会话移动到另一个目录
 </h3>
 
-要将会话移动到不同的主工作目录，而不是[在当前目录旁添加目录](#working-directories)，请运行 `/cd <path>`。Claude Code 保持对话，加载新目录的 `CLAUDE.md`，如果您之前未在其中工作过，会提示您[信任工作区](#project-allow-rules-and-workspace-trust)。之后，当您从新目录运行 `--resume` 时，Claude Code [找到移动的会话](/docs/zh-CN/sessions#resume-a-session)。
+要将会话移动到不同的主工作目录，而不是[在当前目录旁添加目录](#working-directories)，请运行 `/cd <path>`。Claude Code 保持对话，加载新目录的 `CLAUDE.md`，如果您之前未在其中工作过，会提示您[信任工作区](#project-allow-rules-and-workspace-trust)。之后，当您从新目录运行 `--resume` 时，Claude Code [找到移动的会话](/docs/zh-CN/sessions#where-the-session-picker-looks)。
 
 移动后，Claude Code 立即应用新目录的项目配置：
 

@@ -96,7 +96,7 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
   <Step title="添加用户">
     您可以通过以下任一方法添加用户：
 
-    * 从 Console 内批量邀请用户：Settings -> Members -> Invite
+    * 从 Console 的 Members 页面 [platform.claude.com/settings/members](https://platform.claude.com/settings/members) 批量邀请用户：点击 **Invite**
     * [设置 SSO](https://support.claude.com/en/articles/13132885-setting-up-single-sign-on-sso)
   </Step>
 
@@ -113,7 +113,7 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
     * 接受 Console 邀请
     * [检查系统要求](/docs/zh-CN/setup#system-requirements)
     * [安装 Claude Code](/docs/zh-CN/setup#install-claude-code)
-    * 使用 Console 账户凭证登录
+    * 使用 Console 账户凭据登录
   </Step>
 </Steps>
 

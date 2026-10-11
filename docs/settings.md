@@ -495,7 +495,7 @@ Claude Code 也会写入此文件，将其排除在您的提交之外，并且�
 
 在 v2.1.211 之前，Claude Code 将该文件保存在启动目录中。它仍会读取早期版本留在那里的文件，并与根目录文件一同读取；当两者设置了相同的键时，以根目录文件的值为准，而两个文件中的权限规则都会生效。Agent SDK 的 [`resolveSettings()`](/docs/zh-CN/agent-sdk/typescript#resolvesettings) 辅助函数始终从启动目录读取该文件。
 
-Claude Code 从会话的[主工作目录](/docs/zh-CN/permissions#working-directories)读取共享的 `.claude/settings.json`，因此要使用提交在仓库根目录的文件，请从那里启动 Claude Code。在您[使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory)后，Claude Code 会改为从新目录读取这两个项目文件，并按相同规则放置本地文件。从您移动到的目录读取它们需要 Claude Code v2.1.246 或更高版本。
+Claude Code 从会话的[主工作目录](/docs/zh-CN/permissions#working-directories)读取共享的 `.claude/settings.json`，因此要使用提交在仓库根目录的文件，请从那里启动 Claude Code。在您[使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory)后，Claude Code 会改为从新目录读取这两个项目文件，并按相同规则放置本地文件。从您移动到的目录读取它们需要 Claude Code v2.1.246 或更高版本。对于从桌面应用启动的 worktree 会话，请参阅[worktree 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
 
 <span id="managed-settings-delivery" />
 
@@ -767,7 +767,7 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 
 两件事阻止 `.claude/settings.json` 中的键为克隆它的每个人应用：
 
-* **Claude Code 忽略仓库文件中的键。** 在[设置索引](/docs/zh-CN/settings-reference#settings-index)的作用域列中查找 `User, local, or managed`、`User or managed`、`Managed` 或 `Global config`。这些键永远不会从共享文件应用，除了少数几个仓库文件仍然可以关闭的。每个这些条目在其作用域行上说明。`Global config` 键仅从 `~/.claude.json` 应用。
+* **Claude Code 忽略仓库文件中的键。** 在[设置索引](/docs/zh-CN/settings-reference#settings-index)的作用域列中查找 `User, local, or managed`、`User or managed`、`User`、`Managed` 或 `Global config`。这些键永远不会从共享文件应用，除了少数几个仓库文件仍然可以关闭的。每个这些条目在其作用域行上说明。`Global config` 键仅从 `~/.claude.json` 应用。
 
   在 `env` 键内，遥测导出变量也永远不会从共享文件应用，除了少数关闭值；请参阅[Claude Code 在 `env` 中忽略的变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)。
 * **键等待信任。** `permissions.allow` 规则、`permissions.additionalDirectories`、`extraKnownMarketplaces` 和大多数 [`env`](/docs/zh-CN/settings-reference#env) 值仅在每个队友[信任文件夹](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)后应用。在那之前他们仍然看到提示并不从文件声明的市场获得插件。`deny` 和 `ask` 规则立即应用。

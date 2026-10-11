@@ -379,7 +379,9 @@ claude auto-mode reset
 
 屏幕上报告拒绝的另外两个位置省略了命令或 URL：输入框附近的通知，例如 `bash denied by auto mode · [Data Exfiltration] · /permissions`，给出工具和原因，**Recently denied** 选项卡按 Claude 为其编写的描述列出 shell 命令。要以编程方式捕获这些拒绝的确切输入，请添加一个 [`PermissionDenied` hook](/docs/zh-CN/hooks#permissiondenied)，它将其作为 `tool_input` 接收。
 
-调用下方的文本告诉您是否有任何需要修复的内容。报告分类器本身问题的文本，例如 `is temporarily unavailable` 的模型或分类器错误，意味着 Claude Code 在没有来自分类器的最终判决的情况下阻止了调用；请参阅 [Auto mode 无法确定操作的安全性](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)了解该怎么做。否则，一行显示 `Denied by auto mode classifier` 并带有 `[Production Deploy]` 或 `Blocked by classifier` 等原因意味着分类器判断调用不安全，因此从调用试图到达或执行的内容中选择修复：
+调用下方的文本告诉您是否有任何需要修复的内容。一行暗色的 `Not run · auto mode's check had no usable answer`，或报告分类器本身问题的文本（例如 `Auto mode could not evaluate this action`），意味着 Claude Code 在没有来自分类器的判决的情况下阻止了调用。对于 `Not run` 行，请按 `Ctrl+O` 阅读完整消息，然后参阅[自动模式无法确定操作的安全性](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)或[服务器未返回安全判决](/docs/zh-CN/errors#the-server-returned-no-safety-verdict)了解该怎么做。
+
+否则，一行显示 `Denied by auto mode classifier` 并带有 `[Production Deploy]` 或 `Blocked by classifier` 等原因意味着分类器判断调用不安全，因此从调用试图到达或执行的内容中选择修复：
 
 * Claude 在整个任务中需要的目标，例如包注册表、内部域或存储库主机：将其添加到 `autoMode.environment`。
 * 您想从现在开始运行而无需审查的命令：添加一个 `allow` 规则。

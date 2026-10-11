@@ -27,7 +27,7 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
 | Claude Security | ✅ 支持 | 在 [claude.ai/security](https://claude.ai/security) 为 Enterprise 计划提供公开测试版 |
 | Teleport 会话 | ✅ 支持 | 使用 `--teleport` 在云和终端之间移动会话 |
 | 插件市场 | ✅ 支持 | 凭证要求因表面而异。请参阅 [GHES 上的插件市场](#plugin-marketplaces-on-ghes) |
-| 贡献指标 | ✅ 支持 | 通过 webhook 传递到 [分析仪表板](/docs/zh-CN/analytics) |
+| 贡献指标 | ❌ 不支持 | 需要托管在 github.com 上的仓库。[分析仪表板](/docs/zh-CN/analytics) 仍会显示 GHES 仓库中工作的使用指标 |
 | GitHub Actions | ✅ 支持 | 需要手动工作流设置；`/install-github-app` 仅适用于 github.com |
 | GitHub MCP server | ❌ 不支持 | GitHub MCP server 不适用于 GHES 实例 |
 
@@ -56,8 +56,8 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
     从您的 GHES 实例上的 GitHub App 页面，在您希望 Claude 访问的仓库或组织上安装应用。您可以从一个子集开始，稍后再添加更多。
   </Step>
 
-  <Step title="启用功能">
-    转到 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)，使用与 github.com 相同的配置为您的 GHES 仓库启用 [Code Review](/docs/zh-CN/code-review#set-up-code-review) 和[贡献指标](/docs/zh-CN/analytics#enable-contribution-metrics)。
+  <Step title="启用 Code Review">
+    转到 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)，使用与 github.com 相同的配置为您的 GHES 仓库启用 [Code Review](/docs/zh-CN/code-review#set-up-code-review)。
   </Step>
 </Steps>
 
@@ -65,7 +65,7 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
   GitHub App 权限
 </h3>
 
-清单使用以下权限和 webhook 事件配置 GitHub App，这些权限和事件共同涵盖云端会话、Code Review、Claude Security、插件市场和贡献指标：
+清单使用以下权限和 webhook 事件配置 GitHub App，这些权限和事件共同涵盖云端会话、Code Review、Claude Security 和插件市场：
 
 | 权限 | 访问 | 用途 |
 | :- | :- | :- |
@@ -270,6 +270,6 @@ Claude Code 无法从您的凭据中读取 claude.ai 组织。使用 `/login` �
 * [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)：在云基础设施上运行 Claude Code 会话
 * [代码审查](/docs/zh-CN/code-review)：自动化 PR 审查
 * [插件市场](/docs/zh-CN/plugins/host-marketplace)：构建和分发插件目录
-* [分析](/docs/zh-CN/analytics)：跟踪使用情况和贡献指标
+* [分析](/docs/zh-CN/analytics)：跟踪整个组织的 Claude Code 使用情况
 * [托管设置](/docs/zh-CN/settings)：组织范围的策略配置
 * [网络配置](/docs/zh-CN/network-config)：防火墙和 IP 白名单要求

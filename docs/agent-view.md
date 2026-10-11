@@ -152,7 +152,7 @@ Completed
 | 形状 | 含义 |
 | :- | :- |
 | `✻` 或动画 `✽` | 会话进程正在运行，或会话需要您的输入 |
-| `∙` | 进程已退出。您仍然可以窥视该行，当您回复或附加时，Claude 会从中断处重新启动 |
+| `∙` | 进程已退出。您仍然可以窥视该行，当您回复或附加时，Claude 会根据其保存的对话重新启动它 |
 | `✢` | 一个 [`/loop`](/docs/zh-CN/scheduled-tasks) 会话正在迭代之间休眠。该行显示其运行次数和倒计时 |
 
 行右边缘可能出现的 `#N` 或 `!N` 标签是指向会话的[拉取请求或合并请求](#pull-request-status)的链接，不是状态图标的一部分。
@@ -266,9 +266,9 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 `Ctrl+Z` 也会分离，但会返回到您开始的地方：如果您从 agent view 附加则返回 agent view，如果您运行的是 `claude attach` 则返回 shell。当对话框获得焦点且不响应 `←` 时，请使用 `Ctrl+Z`。
 
-附加时 `Ctrl+C` 保持其标准中断行为：它会取消正在进行的回复或 `!` shell 命令，而不是分离。在空提示符上按两次 `Ctrl+C` 会分离，与在任何会话中相同。
+附加时 `Ctrl+C` 保持其标准中断行为：它会取消正在进行的回复或 `!` shell 命令，而不是分离。在空提示符上按两次 `Ctrl+C` 会分离。
 
-分离永远不会停止后台会话：`←`、`Ctrl+Z`、`/exit` 以及连按两次 `Ctrl+C` 或 `Ctrl+D` 都会让它继续运行。要从会话内部结束会话，请运行 `/stop`。
+分离永远不会停止后台会话：`←`、`Ctrl+Z`、`/exit` 以及连按两次 `Ctrl+C` 或 `Ctrl+D` 都会让它继续运行。如果您在 `/loop` 等待下一次迭代时分离，循环会继续运行，该次迭代会在您不在时按计划开始。要在分离前停止循环，请参阅[停止循环](/docs/zh-CN/scheduled-tasks#stop-a-loop)。要从会话内部结束会话，请运行 `/stop`。
 
 <h4 id="switch-sessions-without-leaving-the-terminal">
   在不离开终端的情况下切换会话
@@ -295,8 +295,9 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 大约十秒后，Claude Code 会不再等待，直接将会话转入后台，但以下情况等除外：
 
 * **前台子代理仍在运行**：Claude Code 会继续等待，以便 Claude 启动的[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)的工作能够转移，并显示 `Still backgrounding after the current tool`。再按一次 `←` 可不等待直接转入后台，这会从头重新启动这些子代理。
-* **有权限提示或问题在等待您的回答**：当权限提示或 Claude 提出的问题处于等待状态时，Claude Code 会继续等待并显示 `Still backgrounding after the current tool — a question is waiting for your answer.`
+* **有权限提示或问题在等待您的回答**：当权限提示或 Claude 提出的问题处于等待状态时，Claude Code 会继续等待并显示 `Still backgrounding after the current tool — a question is waiting for your answer.` 如果您的回答让当前轮次得以继续，例如在权限提示上选择 **Yes**，Claude Code 会在当前工具完成时将会话转入后台。
 * **您在提示输入框中输入内容**：Claude Code 会取消切换，因为未发送的文本会留在终端的输入框中，不会移到后台会话。它会显示 `Backgrounding cancelled — you have unsent text in the input. Send it or clear it, then press ← again.`
+* **您停止了当前轮次**：Claude Code 会取消切换并显示 `Backgrounding cancelled — the turn was stopped.` 例如，当您[用 `Esc` 中断 Claude](/docs/zh-CN/interactive-mode#general-controls)，在主对话的权限提示上[不添加评论](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)而选择 **No**，或在主对话中 Claude 提出的问题上按 `Esc` 时，当前轮次会停止。再按一次 `←` 即可将会话转入后台。
 * **排队的消息无法移动**：您[在 Claude 工作时排队的消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)会随对话移到后台会话。当其中某条消息无法移动时，会话会留在前台，Claude Code 会显示类似 `Cannot open agents — 1 queued message can't move to the background. Press ← again once Claude has read it.` 的通知。
 
 即使对话还没有任何消息，按 `←` 也会创建该会话的行，因此 `→` 仍可返回该会话。
@@ -515,7 +516,7 @@ Claude Code 会停止无法继承的工作，例如正在运行的 [monitor](/do
 * `--fallback-model`
 * `--allow-dangerously-skip-permissions`
 
-您在会话期间使用 [`/add-dir`](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration) 添加的目录也会继承。继承 `--allow-dangerously-skip-permissions` 会使 `bypassPermissions` 在后台会话中保持可用，但不会授予任何新权限：该模式仍需要 [权限模式、模型和 effort](#permission-mode-model-and-effort) 中所述的一次性交互式接受。
+您在会话期间使用 [`/add-dir`](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration) 添加的目录也会继承。继承 `--allow-dangerously-skip-permissions` 会使 `bypassPermissions` 在后台会话中保持可用，但不会授予任何新权限：该模式仍需要有您 [接受绕过免责声明](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode) 的记录。
 
 <span id="from-your-shell" />
 
@@ -769,13 +770,13 @@ claude agents --permission-mode plan --model opus --effort high
 
 当前生效的默认值会显示在分派输入框下方的页脚中。
 
-在您通过交互式运行一次 `claude --dangerously-skip-permissions` 接受绕过免责声明之前，Claude Code 会拒绝 `claude --bg --permission-mode bypassPermissions`，因为该模式允许一个您未在观察的会话无需批准即可执行操作。如果您之前未接受过，将 `--dangerously-skip-permissions` 或 `--permission-mode bypassPermissions` 传递给 `claude agents` 会显示相同的免责声明，接受后会将 `bypassPermissions` 应用于您从该视图启动的会话。传递 `--allow-dangerously-skip-permissions` 同样会显示该免责声明，接受后会使 `bypassPermissions` 在这些会话的 `Shift+Tab` 循环中可用，但不会以该模式启动它们。
+以 `bypassPermissions` 模式启动的后台会话需要有您 [接受绕过免责声明](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode) 的记录，因为该模式允许一个您未在观察的会话无需批准即可执行操作。如果您之前未接受过，将 `--dangerously-skip-permissions` 或 `--permission-mode bypassPermissions` 传递给 `claude agents` 会显示相同的免责声明，接受后会将 `bypassPermissions` 应用于您从该视图启动的会话。传递 `--allow-dangerously-skip-permissions` 同样会显示该免责声明，接受后会使 `bypassPermissions` 在这些会话的 `Shift+Tab` 循环中可用，但不会以该模式启动它们。
 
 <h4 id="what-persists-across-restarts">
   重新启动后保留的内容
 </h4>
 
-您为后台会话选择的权限模式、模型和 effort，以及 [它继承的配置标志](#what-carries-over-when-you-background)，在主管进程之后 [停止并重新启动](#the-supervisor-process) 其进程时都会保留。使用 `claude --bg --dangerously-skip-permissions` 或 `claude --bg --permission-mode bypassPermissions` 启动的会话在重新启动后仍处于 `bypassPermissions`。您在会话中途使用 `/model` 或 `/effort` 更改的模型或 effort 也会保留。
+您为后台会话选择的权限模式、模型和 effort，以及 [它继承的配置标志](#what-carries-over-when-you-background)，在主管进程之后 [停止并重新启动](#the-supervisor-process) 其进程时都会保留。您在会话中途使用 `/model` 或 `/effort` 更改的模型或 effort 也会保留。
 
 如果会话的 effort 来自您的设置，而不是 `--effort` 或 `/effort`，Claude Code 每次为该会话启动进程时都会重新读取您的设置。在您编辑 `settings.json` 中保存的 effort 后，更改会作用于您使用 `←` 或 `/bg` 转入后台的会话及其之后的重新启动。保存的 effort 是 [`effortLevel`](/docs/zh-CN/settings-reference#effortlevel) 键或 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 条目。
 
@@ -824,16 +825,16 @@ claude agents --settings ./ci-settings.json --add-dir ../shared-lib
 | `claude attach <id\|name>` | 在此终端附加到会话 |
 | `claude logs <id\|name>` | 打印会话的最近输出 |
 | `claude stop <id>` | 停止会话。也接受 `claude kill` |
-| `claude respawn <id>` | 重新启动会话，运行中或已停止，例如用于获取更新的 Claude Code 二进制文件。重新启动的会话恢复其保存的对话；当磁盘上没有对话时，它会再次运行其原始提示词作为新对话 |
+| `claude respawn <id>` | 重新启动会话，运行中或已停止，例如用于获取更新的 Claude Code 二进制文件。具有已保存对话的会话会恢复该对话 |
 | `claude respawn --all` | 重新启动每个运行中的会话，例如一次性将所有会话移至更新的 Claude Code 二进制文件 |
 | `claude rm <id>` | 从列表中删除会话，以及 Claude 为其创建的 worktree（当安全删除时）；参见 [删除会话会删除什么](#what-deleting-a-session-removes)。会话记录保存在您的本地机器上，并且仍然可以通过 `claude --resume` 访问 |
 | `claude rm <id> --discard-unpushed <commit>@<worktree-id>` | 删除因未推送提交而删除被拒绝的会话，丢弃 worktree 及其分支和提交。传递拒绝打印的确切值；参见 [删除会话会删除什么](#what-deleting-a-session-removes)。需要 v2.1.260 或更高版本 |
 | `claude rm <id> --force-remove-worktree <worktree-id>` | 删除因 git 或 `WorktreeRemove` hook 无法删除其 worktree 而删除被拒绝的会话，无论如何删除 worktree 目录并在仓库中保留其分支。传递拒绝打印的确切值；参见 [删除会话会删除什么](#what-deleting-a-session-removes)。需要 v2.1.268 或更高版本 |
 | `claude daemon status` | 打印 [supervisor](#the-supervisor-process) 的状态、版本、socket 目录和 worker 数量 |
 | `claude daemon logs` | 跟踪 supervisor 的日志文件 [`~/.claude/daemon.log`](#where-state-is-stored)，在新行到达时将其打印出来，直到您按下 `Ctrl+C` |
-| `claude daemon stop --any` | 停止 supervisor 进程及其托管的后台会话。传递 `--keep-workers` 以保持后台会话运行，以便下一个 supervisor 重新连接到它们。下一个 `claude agents` 或 `claude --bg` 启动一个新的 supervisor |
+| `claude daemon stop --any` | 停止 supervisor 进程及其托管的后台会话。传递 `--keep-workers` 以保持后台会话运行，以便[下一个 supervisor](#the-supervisor-process) 重新连接到它们。下一个 `claude agents` 或 `claude --bg` 启动一个新的 supervisor |
 
-`claude attach` 和 `claude logs` 可以使用会话名称的一部分代替 ID，例如 `claude logs "auth refactor"`。传递名称需要 Claude Code v2.1.290 或更高版本。
+`claude attach` 和 `claude logs` 可以使用会话名称的一部分代替 ID，例如 `claude logs "auth refactor"`。`claude attach` 仅在会话进程运行时才能按名称打开会话，因此要重新启动已停止的会话，请改为传递 ID。传递名称需要 Claude Code v2.1.290 或更高版本。
 
 <h3 id="list-sessions-as-json">
   将会话列为 JSON
@@ -891,6 +892,7 @@ Claude Code 将 agent view 中列出的每个会话都视为后台会话，无�
 * **已完成或等待您的下一条消息，且未连接约一小时**：监督进程停止该进程以释放资源。以向您提问结束其轮次的会话计为等待您的下一条消息。对话保存在磁盘上，下次您连接或回复时，会话从中断处恢复。使用 `Ctrl+T` 固定会话以保持其进程运行。
 * **在监督进程运行时意外退出**：监督进程重新启动该进程。如果通过 `kill` 等方式结束您自己使用 `←` 或 `/background` 后台化的会话，该会话会被标记为已停止，而不是重新启动。对于以关闭结束的会话，请参阅[会话在关闭后显示为失败或已停止](#sessions-show-as-failed-after-shutdown)。
 * **自动更新后**：监督进程重新启动自身到新版本，并在后台移动空闲会话。工作中、等待您或已连接的会话不会被中断。
+* **监督进程本身停止**，例如因为其进程被 Claude Code 外部结束：在 macOS 和 Linux 上，每个会话的进程会等待约一分钟，等待新的监督进程重新连接到它，如果没有重新连接则停止。在这一分钟内于 shell 中运行 `claude agents`，即可启动新的监督进程并保持会话运行。如果这一分钟先过去，会话会停止，但其保存的对话仍保留在磁盘上：连接或回复某个会话，它就会从保存的对话重新启动，如[会话在关闭后显示为失败或已停止](#sessions-show-as-failed-after-shutdown)中所述。
 
 当会话的进程停止或重新启动时，Claude 在其中启动的后台 shell 命令、动态工作流和后台子代理会转移到其下一个进程；运行中的监视器和子代理启动的 shell 命令会随进程停止。删除会话会停止它转移的所有内容。要改为让所有内容随进程停止而不是转移，请将 [`CLAUDE_CODE_DISABLE_BG_EXIT_HANDOFF`](/docs/zh-CN/env-vars#variables) 设置为 `1`。
 
@@ -913,7 +915,7 @@ Claude Code 将 agent view 中列出的每个会话都视为后台会话，无�
 
 要在不直接读取文件的情况下检查此状态，请运行 `claude daemon status`。它报告监督进程是否可达、其进程 ID 和版本、套接字目录以及有多少后台会话处于活跃状态。
 
-该命令还会在运行的监督进程版本与您调用的 `claude` 版本不同时发出警告，这发生在监督进程尚未重新启动到新版本的更新之后。警告显示两个版本，并告诉您运行 `claude daemon stop --any` 以获取新版本。当 Claude Code 作为操作系统服务安装时，建议的命令是 `claude daemon stop` 不带该标志。
+该命令还会在运行的监督进程版本与您调用的 `claude` 版本不同时发出警告，这发生在监督进程尚未重新启动到新版本的更新之后。警告显示两个版本，并告诉您运行 `claude daemon stop --any` 以获取新版本。
 
 会话在该版本不匹配时完好无损：更新会话 `state.json` 的较旧 Claude Code 版本会保留它不识别的字段并保持会话列出。`roster.json` 中的会话列表遵循相同的规则，因此由较新版本启动的会话保持可达并在监督进程重新启动后继续接受输入。
 
@@ -965,7 +967,7 @@ Claude Code 将 agent view 中列出的每个会话都视为后台会话，无�
 
 关闭或重新启动您的机器会停止运行的后台会话。等待您输入的会话在您返回时仍会显示在 `Needs input` 下。对于任何其他运行的会话，Agent 视图显示的内容取决于它上次取得进展的时间：
 
-* 在 48 小时内，会话显示为失败。附加或回复它，它会从中断的地方重新启动。
+* 在 48 小时内，会话显示为失败。附加或回复它，它会从其保存的对话重新启动。要继续被中断的工作，请向它发送一条回复，要求它继续。
 * 超过 48 小时，例如机器关闭数天后，会话显示为已停止，并显示 `ended while the background service was off`。在该行上按 `Enter`，页脚会显示 `Press enter again to resume this session (it ended while the background service was off), or ctrl+x to delete it.` 在同一行上再次按 `Enter` 来恢复其保存的对话。回复或 `claude attach <id>` 会在没有该页脚提示的情况下恢复它。
 
 当[会话记录清理](/docs/zh-CN/settings-reference#cleanupperioddays)删除了已停止会话的保存对话时，Claude Code 拒绝打开该行：消息说没有可恢复的内容。`claude rm <id>` 删除该行，除了上文[保留的情况](#what-deleting-a-session-removes)中描述的情况，`claude respawn <id>` 再次运行其原始提示词。请参阅[此会话的保存对话不再在磁盘上](/docs/zh-CN/errors#this-sessions-saved-conversation-is-no-longer-on-disk)。
@@ -1024,7 +1026,7 @@ Claude Code 永远不会重新启动运行[shell 命令](#run-a-shell-command)�
 claude daemon stop --any --keep-workers
 ```
 
-新的主管重新连接到运行的会话。没有 `--keep-workers`，该命令也会结束后台会话。`--any` 标志确认您想停止按需启动的主管，而不是作为已安装的服务，这是默认值。
+然后在 shell 中运行 `claude agents` 来启动新的主管。如果您在停止后[大约一分钟](#the-supervisor-process)内执行此操作，它会重新连接到仍在运行的会话，这些会话的工作会不间断地继续。如果您花费的时间更长，在 macOS 和 Linux 上，这些会话届时已自行停止，附加或回复其中一个会话会从其保存的对话重新启动它。没有 `--keep-workers`，该命令也会结束后台会话。`--any` 标志使该命令停止由 Claude Code 按需启动的主管。
 
 启动但无法接受连接的主管会自行退出并释放其锁，所以下一个 `claude agents` 会启动新的，无需此手动停止。上述步骤适用于运行的主管停滞的情况。
 
@@ -1042,7 +1044,7 @@ claude daemon stop --any --keep-workers
 claude daemon stop --any --keep-workers
 ```
 
-下一个 `claude agents` 或 `claude --bg` 启动读取您存储凭据的新主管。如果您使用环境变量（如 `ANTHROPIC_API_KEY`）而不是 `/login` 进行身份验证，请从设置了该变量的 shell 运行该下一个命令。
+在[大约一分钟](#the-supervisor-process)内，在 shell 中运行 `claude agents` 或 `claude --bg`，以启动读取您存储凭据的新主管。如果您使用环境变量（如 `ANTHROPIC_API_KEY`）而不是 `/login` 进行身份验证，请从设置了该变量的 shell 运行该下一个命令。
 
 有关原因和修复的完整列表，请参阅[错误参考](/docs/zh-CN/errors#could-not-resolve-authentication-method)。
 

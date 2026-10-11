@@ -329,7 +329,7 @@ Claude Code 在启动时验证每个 `--mcp-config` 条目并跳过验证失败�
   自动批准工具
 </h3>
 
-使用 `--allowedTools` 让 Claude 使用某些工具而无需提示。列出 `Read` 和 `Edit` 让 Claude 读取和编辑文件而无需请求权限。列出 `Bash` 对 shell 命令执行相同操作，但在 [自动模式](/docs/zh-CN/permission-modes#how-auto-mode-evaluates-actions) 中启动的运行除外，此时 Claude Code 会将裸 `Bash` 条目作为宽泛的允许规则丢弃，改由自动模式评估每个命令。此示例运行测试套件并修复失败，列出了这三个工具：
+使用 `--allowedTools` 让 Claude 使用某些工具而无需提示。列出 `Read` 和 `Edit` 让 Claude 读取和编辑文件而无需请求权限，但从 [网络路径](/docs/zh-CN/permissions#network-paths) 读取除外。列出 `Bash` 对 shell 命令执行相同操作，但在 [自动模式](/docs/zh-CN/permission-modes#how-auto-mode-evaluates-actions) 中启动的运行除外，此时 Claude Code 会将裸 `Bash` 条目作为宽泛的允许规则丢弃，改由自动模式评估每个命令。此示例运行测试套件并修复失败，列出了这三个工具：
 
 ```bash theme={null}
 claude -p "Run the test suite and fix any failures" \
@@ -339,7 +339,7 @@ claude -p "Run the test suite and fix any failures" \
 要为整个会话设置基线而不是列出单个工具，请传递 [权限模式](/docs/zh-CN/permission-modes)。对于不设置权限模式的运行，采用 [内置启动权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)，可能是 `auto`，因此请传递您想要的权限模式：
 
 * **`auto`**：传递 `--permission-mode auto` 以让分类器代替您审查大多数操作
-* **`dontAsk`**：Claude Code 拒绝每个原本会提示的调用，这对于锁定的 CI 运行很有用。在 Manual 模式下无需批准的操作仍会运行，例如工作目录中的文件读取和 [只读命令集](/docs/zh-CN/permissions#read-only-commands)，您的 `--allowedTools` 条目或 `permissions.allow` 规则涵盖的操作也是如此。`AskUserQuestion`、[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具和标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使在允许规则匹配时也会被拒绝
+* **`dontAsk`**：Claude Code 拒绝每个原本会提示的调用，这对于锁定的 CI 运行很有用。在 Manual 模式下无需批准的操作仍会运行，例如工作目录中的文件读取和 [只读命令集](/docs/zh-CN/permissions#read-only-commands)，您的 `--allowedTools` 条目或 `permissions.allow` 规则涵盖的操作也是如此。`AskUserQuestion`、[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及 [从网络路径读取](/docs/zh-CN/permissions#network-paths) 即使在允许规则匹配时也会被拒绝
 * **`acceptEdits`**：Claude 写入文件而无需提示，Claude Code 自动批准常见的文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp`。[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) 仍然适用。除了只读命令集，其他 shell 命令和网络请求仍然需要 `--allowedTools` 条目或 `permissions.allow` 规则。有关完整列表，请参阅 [`acceptEdits` 自动批准的内容](/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)
 
 此示例使用 `acceptEdits` 作为基线应用 lint 修复：
@@ -413,7 +413,7 @@ gh pr diff "$1" | claude -p \
   继续对话
 </h3>
 
-使用 `--continue` 继续最近的对话，或使用 `--resume` 与会话 ID 继续特定对话。在 Claude Code v2.1.257 或更高版本上，当您传递 `--continue` 时，Claude Code 会打开已完成的 [后台会话](/docs/zh-CN/sessions#resume-a-session)，但不会打开仍在运行的后台会话。此示例运行审查，然后发送后续提示词：
+使用 `--continue` 继续最近的对话，或使用 `--resume` 与会话 ID 继续特定对话。在 Claude Code v2.1.257 或更高版本上，当您传递 `--continue` 时，Claude Code 会打开已完成的 [后台会话](/docs/zh-CN/sessions#where-the-session-picker-looks)，但不会打开仍在运行的后台会话。此示例运行审查，然后发送后续提示词：
 
 ```bash theme={null}
 # First request
@@ -431,7 +431,7 @@ session_id=$(claude -p "Start a review" --output-format json | jq -r '.session_i
 claude -p "Continue that review" --resume "$session_id"
 ```
 
-您可以从不同的目录运行这两个命令：Claude Code 会在此机器上的任何项目中 [按其 ID 查找会话](/docs/zh-CN/sessions#resume-a-session)。在 v2.1.223 之前，Claude Code 仅在当前项目目录及其 git worktree 中查找 ID，因此您必须从同一目录运行两个命令。
+您可以从不同的目录运行这两个命令：Claude Code 会在此机器上的任何项目中 [按其 ID 查找会话](/docs/zh-CN/sessions#where-the-session-picker-looks)。
 
 您可以向 `--resume` 传递会话的 `.jsonl` [会话记录文件](/docs/zh-CN/sessions#where-transcripts-are-stored) 的绝对路径来代替会话 ID，Claude Code 会继续存储在该文件中的对话。
 
