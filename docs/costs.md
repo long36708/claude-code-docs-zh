@@ -90,6 +90,19 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 
 当您的计划限制请求失败时（通常是因为使用情况端点受到速率限制），`/usage` 会显示它在过去 60 分钟内在此机器上加载的最后一个使用情况条，以及一个 `Showing last-known usage` 注释，说明该数据是多久前获取的。按 `r` 重试；成功重试会用新数据替换最后已知的条。如果没有过去 60 分钟内的快照，`/usage` 会报告使用情况端点受到速率限制，并提供相同的重试快捷方式。在 v2.1.208 之前，在尚未加载使用情况的会话中受速率限制的请求始终显示错误，没有条。
 
+<h3 id="read-the-token-count-beside-the-spinner">
+  读取加载指示器旁的 token 计数
+</h3>
+
+当 Claude 在主对话中工作时，加载指示器旁的行末尾可能显示已用时间和 token 计数，例如 `Deciphering… (10m 27s · ↓ 5.5k tokens)`。这是当前轮次迄今为止所产生输出的实时近似计数。在输出到达或工具运行时，计数旁的箭头指向下方。
+
+* **涵盖的内容**：该轮次生成的输出，例如 Claude 流式返回的文本和工具调用、其思考，以及在[前台](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)运行的子代理的输出
+* **不包括的内容**：Claude Code 发送给模型的内容，因此您的提示词、对话历史记录以及上下文的其余部分不会使其变化
+* **何时重置**：在每个轮次开始时，以及 Claude Code [压缩对话](/docs/zh-CN/prompt-caching#compacting-the-conversation)时
+* **何时保持隐藏**：在输出开始到达之前、该行过窄无法容纳时，以及在[屏幕阅读器模式](/docs/zh-CN/accessibility)中
+
+它不会与 `/usage` Session 块中 `Usage by model` 的输出数字一致，后者累加的是整个会话而非单个轮次。它也不同于[详细模式添加](/docs/zh-CN/statusline#notifications-share-the-status-line-row)的 token 计数，因为后者衡量的是您上下文的大小，而非单个轮次的输出。
+
 <h3 id="analyze-your-usage-patterns">
   分析您的使用情况模式
 </h3>

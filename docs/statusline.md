@@ -1308,5 +1308,5 @@ Claude Code 仅在脚本以代码 0 退出后才显示其输出：
 在[全屏渲染](/docs/zh-CN/fullscreen)之外，Claude Code 在与您的状态栏相同的行上显示通知。在全屏渲染中，Claude Code 会为通知提供单独的一行。
 
 * 系统通知，如 MCP 服务器错误和自动更新，显示在该行的右侧。临时通知，如上下文不足警告，也会在此区域轮流显示。
-* 启用详细模式会向此区域添加 token 计数器
+* 启用详细模式会向此区域添加 token 计数器，显示的是最后一次 API 响应所报告的上下文大小，而不是[旋转指示器旁边的每轮计数](/docs/zh-CN/costs#read-the-token-count-beside-the-spinner)
 * 在窄终端上，这些通知可能会截断您的状态栏输出

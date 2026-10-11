@@ -290,7 +290,7 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 在您用方向键或鼠标移动选择后，您按下 `←` 时所在的行仍会保持粗体、不暗淡的名称，便于您辨认自己来自哪个会话。
 
-如果按 `←` 时有工具正在运行，Claude Code 会等待其完成后再转入后台，Claude 会在后台会话中继续回复。再按一次 `←` 可立即转入后台而不等待。当进行中的工作无法转移到后台会话时，Claude Code 会先显示 `Background this session?` 对话框，与 [`/background`](#from-inside-a-session) 相同。
+如果按 `←` 时有工具正在运行，Claude Code 会等待其完成后再转入后台，Claude 会在后台会话中继续回复。再按一次 `←` 可立即转入后台而不等待。当进行中的后台工作无法转移到后台会话时，Claude Code 会先显示 `Background this session?` 对话框，与 [`/background`](#from-inside-a-session) 相同。
 
 大约十秒后，Claude Code 会不再等待，直接将会话转入后台，但以下情况等除外：
 
@@ -299,6 +299,8 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 * **您在提示输入框中输入内容**：Claude Code 会取消切换，因为未发送的文本会留在终端的输入框中，不会移到后台会话。它会显示 `Backgrounding cancelled — you have unsent text in the input. Send it or clear it, then press ← again.`
 * **您停止了当前轮次**：Claude Code 会取消切换并显示 `Backgrounding cancelled — the turn was stopped.` 例如，当您[用 `Esc` 中断 Claude](/docs/zh-CN/interactive-mode#general-controls)，在主对话的权限提示上[不添加评论](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)而选择 **No**，或在主对话中 Claude 提出的问题上按 `Esc` 时，当前轮次会停止。再按一次 `←` 即可将会话转入后台。
 * **排队的消息无法移动**：您[在 Claude 工作时排队的消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)会随对话移到后台会话。当其中某条消息无法移动时，会话会留在前台，Claude Code 会显示类似 `Cannot open agents — 1 queued message can't move to the background. Press ← again once Claude has read it.` 的通知。
+
+当 Claude Code 将会话转入后台时（无论是大约十秒后，还是在您再按一次 `←` 之后），它会停止 Claude 仍在前台运行的 shell 命令。Claude Code 不会针对该命令显示 `Background this session?` 对话框。在后台会话中，Claude 没有该命令已启动的记录，因此 Claude 可能会再次运行该命令。要在会话移动时让该命令继续运行，请在 Claude Code 仍在等待时按 `Ctrl+B` [将其转为后台命令](/docs/zh-CN/interactive-mode#background-bash-commands)。
 
 即使对话还没有任何消息，按 `←` 也会创建该会话的行，因此 `→` 仍可返回该会话。
 
@@ -498,11 +500,11 @@ fork 之后，两个对话彼此独立：副本所做的任何事情都不会自
   后台处理时的继承内容
 </h4>
 
-后台处理会启动一个从已保存对话恢复的新进程，进行中的工作会移到该进程：正在运行的后台 shell 命令、已转入后台的子代理、动态工作流、您使用 [`/loop`](/docs/zh-CN/scheduled-tasks) 创建的定时任务，以及 Claude 对 [Artifact 评论的自动回复](/docs/zh-CN/artifacts#let-claude-reply-to-comments-on-its-own) 都会继承过去并在那里继续运行。子代理会与其启动的所有内容一起移动，因此只有当所有这些工作也都能移动时它才会被继承。要停止进行中的工作而不是继承它，请设置 [`CLAUDE_DISABLE_ADOPT=1`](/docs/zh-CN/env-vars#variables) 环境变量；Claude Code 随后会在后台处理前要求您确认。
+后台处理会启动一个从已保存对话恢复的新进程，进行中的后台工作会移到该进程：正在运行的后台 shell 命令、已转入后台的子代理、动态工作流、您使用 [`/loop`](/docs/zh-CN/scheduled-tasks) 创建的定时任务，以及 Claude 对 [Artifact 评论的自动回复](/docs/zh-CN/artifacts#let-claude-reply-to-comments-on-its-own) 都会继承过去并在那里继续运行。子代理会与其启动的所有内容一起移动，因此只有当所有这些工作也都能移动时它才会被继承。要停止进行中的后台工作而不是继承它，请设置 [`CLAUDE_DISABLE_ADOPT=1`](/docs/zh-CN/env-vars#variables) 环境变量；Claude Code 随后会在后台处理前要求您确认。
 
 当 [动态工作流](/docs/zh-CN/workflows) 仍有子代理在运行时，Claude Code 会在后台处理前通过 `Background this session?` 对话框询问，其中会说明有多少子代理将重新启动。选择 `Stay` 可让它们先完成。如果您确认，Claude Code 会在后台会话中重放该运行：仍在运行的子代理会从头开始，因此它们目前已使用的 token 会再次消耗。请参阅 [暂停后恢复](/docs/zh-CN/workflows#resume-after-a-pause) 了解哪些已完成的子代理会返回其保存的结果、哪些会再次运行。
 
-Claude Code 会停止无法继承的工作，例如正在运行的 [monitor](/docs/zh-CN/tools-reference#monitor-tool)，并一并停止拥有 monitor 的后台子代理。当有任何此类工作正在运行时，Claude Code 会显示 `Background this session?` 对话框，以便您在它停止工作前确认。
+Claude Code 会停止无法继承的后台工作，例如正在运行的 [monitor](/docs/zh-CN/tools-reference#monitor-tool)，并一并停止拥有 monitor 的后台子代理。当有任何此类工作正在运行时，Claude Code 会显示 `Background this session?` 对话框，以便您在它停止工作前确认。
 
 进入后台后，会话可以启动新的子代理、monitor 和后台命令，这些在之后的分离和重新附加过程中会持续运行。
 
