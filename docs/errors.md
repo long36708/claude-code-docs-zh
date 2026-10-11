@@ -4039,8 +4039,12 @@ Claude Code refuses the marketplace name "anthropic-plugins-v2"
 
 **要做什么：**
 
-* 运行`claude plugin marketplace remove <name>`。这也会卸载从 marketplace 安装的插件并删除其保存的数据
-* 要保留 marketplace，请等待其维护者重命名它，然后运行`claude plugin marketplace update <name>`
+* 要保留某个设置文件通过`"source": "settings"`内联声明的市场，请在删除旧名称之前先重命名它，因为删除市场也会从您的设置文件中删除其条目。Claude Code v2.1.292 或更高版本会在消息中列出以下步骤：
+  1. 在每个于`extraKnownMarketplaces`下列出该市场的设置文件中，为该条目的键及其`source.name`指定同一个新的纯 ASCII 名称，且该名称看起来不像官方名称。如果管理员通过您组织的托管设置添加该市场，则由管理员执行此步骤
+  2. 运行`claude plugin marketplace remove <old-name>`，或在`/plugin`的**Marketplaces**选项卡中删除旧名称。这也会卸载其插件并删除其数据、选项和机密
+  3. 再次启动 Claude Code；如果该文件是项目的设置文件，请在项目文件夹中启动。然后从重命名后的市场安装插件
+* 要保留任何其他市场，请等待其维护者重命名它，然后运行`claude plugin marketplace update <name>`
+* 要删除该市场，运行`claude plugin marketplace remove <name>`。这也会卸载从该市场安装的插件并删除其数据、选项和机密
 * 如果您发布 marketplace，在您的`marketplace.json`中重命名它；用户随后更新 marketplace 而不是删除它
 
 <h3 id="marketplace-is-already-added-from-a-different-source">

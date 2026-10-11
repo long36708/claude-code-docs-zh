@@ -202,8 +202,18 @@ Claude Code 提供两种沙箱模式。在这两种模式下，沙箱都会强�
 * 始终遵守明确的[拒绝规则](/docs/zh-CN/permissions)
 * 针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)的 `rm` 或 `rmdir` 命令仍会经过常规权限流程
 * 限定内容范围的[询问规则](/docs/zh-CN/permissions)（如 `Bash(git push *)`）即使对沙箱命令也仍会强制提示
-* 单独的 `Bash` 询问规则或等效的 `Bash(*)` 形式，对于在沙箱中运行的命令会被跳过；对于回退到常规权限流程的命令仍然适用。在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)下，该规则不会被跳过：它同样会对沙箱命令进行提示，包括只读命令
+* 单独的 `Bash` 询问规则或等效的 `Bash(*)` 形式，对于在沙箱中运行的命令会被跳过；对于在沙箱外运行的命令仍然适用。在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)下，该规则不会被跳过：它同样会对沙箱命令进行提示，包括只读命令
 * [Monitor 工具](/docs/zh-CN/tools-reference#monitor-tool)的命令不会被自动批准，但仍会在沙箱中运行。要跳过提示，请添加与该命令匹配的[允许规则](/docs/zh-CN/permissions#bash)，例如 `Bash(npm run *)`
+
+某些沙箱命令也会经过常规的[权限流程](/docs/zh-CN/permissions)，而不是被自动批准。这种情况会出现在诸如 `FOO=bar npm test` 之类的命令上（在命令前设置的变量可能会改变实际运行的程序），以及 `make CC=clang` 或 `eval "ls"` 上。此时由您的允许规则和权限模式决定是否显示提示，而命令仍在沙箱内运行。
+
+对于这三个命令，与命令匹配的[允许规则](/docs/zh-CN/permissions#bash)可以避免反复出现提示。以下规则展示了这种模式：
+
+* `Bash(make *)` 会批准 `make CC=clang`
+* `Bash(FOO=bar npm *)` 会批准 `FOO=bar npm test`。当命令以变量赋值开头时，请在规则中包含该赋值
+* `Bash(eval "ls")` 会批准 `eval "ls"`。诸如 `Bash(eval *)` 之类的通配符规则无法避免此提示，因此请编写与整个命令匹配的规则
+
+与命令匹配的允许规则也会批准该命令的[沙箱外重试](#the-unsandboxed-retry-escape-hatch)，因此该命令可以在沙箱外运行且不提示。
 
 <Info>
   自动允许模式独立于您的权限模式设置运行，但有三个例外：[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)、带有[每命令允许域名](#per-command-allowed-domains-in-auto-mode)的自动模式命令，以及自动模式下对沙箱命令的[服务器端分类器审查](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions)。即使您未处于"接受编辑"模式，启用自动允许后，沙箱 Bash 命令也会自动运行。这意味着，即使在 Manual 模式下（此时文件编辑工具会提示），在沙箱边界内修改文件的 Bash 命令也会在不提示的情况下执行。

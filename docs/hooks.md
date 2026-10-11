@@ -3320,7 +3320,18 @@ Claude Code 会从其 JSON 输出中读取 `watchPaths` 和 `systemMessage`，�
   WorktreeCreate
 </h3>
 
-在创建 worktree 时运行，无论是通过 `claude --worktree`、通过[使用 `isolation: "worktree"` 的子代理](/docs/zh-CN/sub-agents#choose-the-subagent-scope)，还是为 Claude Code 隔离在其自身 worktree 中的[后台会话](/docs/zh-CN/agent-view#how-file-edits-are-isolated)创建。默认情况下，Claude Code 使用 `git worktree` 创建隔离的工作副本。配置 WorktreeCreate hook 会替换此默认的 git 行为，让您可以使用其他版本控制系统，例如 SVN、Perforce 或 Mercurial。
+在 Claude Code 于以下等情况下创建 worktree 时运行：
+
+* 您使用 `claude --worktree` 启动会话
+* Claude 在会话期间创建 worktree，并通过 [`EnterWorktree`](/docs/zh-CN/tools-reference) 工具切换进去
+* [子代理使用 `isolation: "worktree"`](/docs/zh-CN/sub-agents#choose-the-subagent-scope)
+* [工作流](/docs/zh-CN/workflows#migrate-many-files-in-parallel)在其自己的 worktree 中运行 Agent
+* Claude Code 将[后台会话](/docs/zh-CN/agent-view#how-file-edits-are-isolated)隔离在其自己的 worktree 中
+* `worktree` 模式下的 [`claude remote-control`](/docs/zh-CN/remote-control#start-a-remote-control-session) 在其自己的 worktree 中启动会话
+
+当 Claude 通过 Bash 工具运行 `git worktree add` 而不是调用 `EnterWorktree` 时，您的 WorktreeCreate hook 不会运行。要检查或阻止该命令，请添加一个使用 `Bash` 匹配器的 [`PreToolUse`](#pretooluse) hook。
+
+默认情况下，Claude Code 使用 `git worktree` 创建隔离的工作副本。配置 WorktreeCreate hook 会替换这种默认的 git 行为，让您可以使用其他版本控制系统，例如 SVN、Perforce 或 Mercurial。
 
 由于该 hook 完全替换了默认行为，因此不会处理 [`.worktreeinclude`](/docs/zh-CN/worktrees#copy-gitignored-files-into-worktrees)。如果需要将 `.env` 等本地配置文件复制到新的 worktree 中，请在 hook 脚本中完成。
 
@@ -3389,12 +3400,22 @@ Claude Code 会拒绝包含 `.` 或 `..` 段的绝对路径，以及任何经过
 * 您退出交互式 [worktree 会话](/docs/zh-CN/worktrees#start-claude-in-a-worktree)，并在 Claude Code 提示时选择删除该 worktree
 * 您退出一个尚未[命名](/docs/zh-CN/sessions#name-your-sessions)的交互式 worktree 会话，Claude Code 未发现已更改或未跟踪的文件，并在不提示的情况下删除该 worktree
 * 您删除一个在该 worktree 中运行的[后台会话](/docs/zh-CN/agent-view#what-deleting-a-session-removes)
+* 您在会话期间要求 Claude 退出并删除 worktree，Claude 使用 [`ExitWorktree`](/docs/zh-CN/tools-reference) 工具将其删除
+* 由 [`claude remote-control`](/docs/zh-CN/remote-control#start-a-remote-control-session) 以 `worktree` 模式启动的会话在未崩溃的情况下结束，且 Claude Code 在其 worktree 中未发现任何已更改或未跟踪的文件，也没有新的提交
+* 您停止 `claude remote-control` 时，它以 `worktree` 模式启动的会话仍在运行，且 Claude Code 在这些会话的 worktree 中未发现任何已更改或未跟踪的文件，也没有新的提交
+
+当子代理或工作流 Agent 完成时，Claude Code 会保留您的 WorktreeCreate hook 为其创建的 worktree，并且不会运行您的 WorktreeRemove hook。工作完成后，请自行删除这些 worktree。
+
+对于 `ExitWorktree` 调用或 `claude remote-control` 清理，Claude Code 在运行您的 hook 之前不会提示您。除非调用传入 [`discard_changes: true`](/docs/zh-CN/agent-sdk/typescript#exitworktree)，否则 `ExitWorktree` 会拒绝删除由 hook 创建的 worktree，这使您的 hook 成为该路径上的最后一道检查。
 
 Claude Code 使用 git 查找已更改或未跟踪的文件，因此对于不是 git 检出或不位于 git 检出内的 worktree，即使目录中有未提交的工作，它也找不到任何内容。请在 WorktreeRemove hook 删除任何内容之前检查此类工作。
 
-对于基于 git 的 worktree，Claude Code 会使用 `git worktree remove` 自动处理清理。如果您配置了 WorktreeCreate hook，请将其与 WorktreeRemove hook 配对使用，以控制对其所创建 worktree 的清理：
+对于基于 git 的 worktree，Claude Code 会使用 `git worktree remove` 自动处理清理。如果您配置了 WorktreeCreate hook，请将其与 WorktreeRemove hook 配对使用以控制清理：
 
-* **没有 WorktreeRemove hook**：当您退出 worktree 会话、Claude Code 删除该 worktree 时，它会回退为对您的 WorktreeCreate hook 返回的路径执行 `git worktree remove --force`，因此 git 能识别的 worktree 会被删除。git 无法识别的 worktree（例如您的 hook 使用非 git 版本控制系统创建的 worktree）会保留在磁盘上。有关删除[后台会话](/docs/zh-CN/agent-view#what-deleting-a-session-removes)时如何处理由 hook 创建的 worktree，请参阅 agent view 的删除规则。
+* **没有 WorktreeRemove hook**：对于退出时或通过 `ExitWorktree` 进行的删除，Claude Code 会回退到 git；当 `claude remote-control` 执行清理时，则保留 worktree：
+  * **您退出 worktree 会话，或 Claude 调用 `ExitWorktree`**：Claude Code 会像 `git worktree remove --force` 那样删除您的 WorktreeCreate hook 返回的路径，因此 git 能识别的 worktree 会被删除。git 无法识别的 worktree（例如您的 hook 使用非 git 版本控制系统创建的 worktree）会保留在磁盘上。
+  * **`claude remote-control` 清理会话的 worktree**：worktree 保留在磁盘上，运行 `claude remote-control` 的终端会显示 `worktree removal failed, kept: <path>`。
+  * **您删除后台会话**：请参阅[删除会话会移除哪些内容](/docs/zh-CN/agent-view#what-deleting-a-session-removes)。
 * **Hook 以 0 退出**：该 worktree 被视为已删除。Claude Code 不会从 hook 读取其他任何内容，因此请确保您的 hook 已删除该目录。
 * **Hook 以非零值退出**：如果之后 `worktree_path` 处的目录仍然存在，则删除失败，worktree 保留在磁盘上，且不会回退到 git。在以非零值退出之前已删除目录的 hook 被视为已删除。有关如何报告失败，请参阅 [WorktreeRemove 输入](#worktreeremove-input)。
 
@@ -3402,7 +3423,7 @@ Claude Code 永远不会删除属于由 hook 创建的 worktree 的分支，因�
 
 Claude Code 会丢弃 WorktreeRemove hook 的 [JSON 输出字段](#json-output)，例如 `systemMessage` 和 `continue`。
 
-对于后台会话删除，Claude Code 会在运行 hook 之前验证存储的 worktree 路径，并拒绝本身是符号链接或经过仓库根目录下符号链接的路径。对于仍包含文件的 worktree，只有当您在 [agent view](/docs/zh-CN/agent-view#what-deleting-a-session-removes) 中确认删除时，hook 才会运行；对于此类 worktree，[`claude rm`](/docs/zh-CN/agent-view#manage-sessions-from-the-shell) 会保留会话和 worktree。在 v2.1.216 之前，hook 会在未经这些检查的情况下对存储的路径运行。
+对于后台会话删除，Claude Code 会在运行 hook 之前验证存储的 worktree 路径，并拒绝本身是符号链接或经过仓库根目录下符号链接的路径。在这条路径上，只有当您在 [agent view](/docs/zh-CN/agent-view#what-deleting-a-session-removes) 中确认删除时，hook 才会针对仍包含文件的 worktree 运行；对于这样的 worktree，[`claude rm`](/docs/zh-CN/agent-view#manage-sessions-from-the-shell) 会改为保留会话和 worktree。在 v2.1.216 之前，hook 会在不进行这些检查的情况下针对存储的路径运行。
 
 Claude Code 会将 WorktreeCreate 返回的路径作为 hook 输入中的 `worktree_path` 传递。此示例读取该路径并删除目录：
 
@@ -3443,6 +3464,7 @@ WorktreeRemove hook 的退出码决定结果。当 hook 以非零值退出，且
 
 * worktree 保留在磁盘上，hook 的命令和 stderr 会写入[调试日志](#debug-hooks)。
 * 如果您正在删除后台会话，该会话也会保留。[agent view](/docs/zh-CN/agent-view#what-deleting-a-session-removes) 中的拒绝消息会报告 hook 的结束方式（例如 `exited 1`），引用其 stderr 的开头部分，并说明再次删除该会话是否仍会删除该目录。
+* 如果当时 `claude remote-control` 正在清理会话的 worktree，运行它的终端会显示 `worktree removal failed, kept: <path>`。
 
 <h3 id="precompact">
   PreCompact
@@ -4049,7 +4071,7 @@ ElicitationResult hook 可以让用户的响应通过、更改其值或阻止它
 
 您的 `content` 会替换用户的整个 `content` 对象，因此请包含您未更改的字段。请同时返回 `action`，因为 Claude Code 会忽略没有 `action` 的 `hookSpecificOutput`。
 
-当用户拒绝或取消时，ElicitationResult hook 也会运行，并且您的 `action` 会替换用户的 `action`。在返回 `accept` 之前，请检查输入的 `action` 是否为 `accept`，否则您的 hook 会将已拒绝的请求变为已接受的请求。此脚本在用户接受时进行相同的更改，保留其他字段，否则不打印任何内容：
+当用户拒绝或取消时，ElicitationResult hook 也会运行，并且您的 `action` 会替换用户的。在返回 `accept` 之前，请检查输入中的 `action` 是否为 `accept`，否则您的 hook 会将被拒绝的请求变成被接受的请求。此脚本在用户接受时进行相同的更改，保留其他字段，否则不输出任何内容：
 
 ```bash theme={null}
 #!/bin/bash

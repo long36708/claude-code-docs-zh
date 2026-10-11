@@ -98,18 +98,60 @@
 
 安全模式仍然应用来自您组织的托管 hook 和设置策略。托管插件、skill、`CLAUDE.md` 和 MCP 服务器会被关闭。
 
-如果问题在安全模式下仍然存在，或你的设置本身可疑，请与从你的常规设置中不加载任何内容的会话进行比较。将 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 指向一个空目录以绕过 `~/.claude` 下的所有内容，并从没有 `.claude` 文件夹、`.mcp.json` 或 `CLAUDE.md` 的目录启动，以便也跳过项目配置。
+如果问题在安全模式下仍然存在，或您的设置本身可疑，请启动一个不包含您任何自有配置的会话，检查问题是否仍然出现。
 
-```bash theme={null}
-cd /tmp && CLAUDE_CONFIG_DIR=/tmp/claude-clean claude
-```
+<Steps>
+  <Step title="创建一个空目录并切换到该目录">
+    在没有运行 Claude Code 会话的 shell 中，创建该目录并进入其中：
 
-干净会话没有用户或项目设置、hooks、MCP 服务器、plugins 或内存。在首次启动时，预期会看到首次运行设置屏幕，从主题选择开始。如果你看到它们，说明干净配置目录已生效。后续使用同一目录的启动会跳过这些屏幕，因为 Claude Code 会在那里保存入门状态。
+    <Tabs>
+      <Tab title="Bash or Zsh">
+        ```bash theme={null}
+        mkdir -p ~/claude-clean/empty && cd ~/claude-clean/empty
+        ```
+      </Tab>
 
-* 如果你的组织部署了托管设置，它们仍然适用。Claude Code 读取 MDM 配置文件、注册表策略和来自配置目录外部位置的 `managed-settings.json`，并在干净会话获得凭证后[再次获取服务器管理的设置](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)
-* 你将被提示再次登录
+      <Tab title="PowerShell">
+        ```powershell theme={null}
+        New-Item -ItemType Directory -Force "$HOME/claude-clean/empty" | Out-Null
+        Set-Location "$HOME/claude-clean/empty"
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
 
-如果问题在这里消失，原因在你的真实 `~/.claude` 或项目 `.claude` 文件中的某处。一次重新引入一个，通过将文件复制到临时目录或从你的项目启动，来找到哪一个。如果它在干净会话中持续存在，原因在你的用户和项目配置之外。运行 `/status` 来检查是否启用了托管设置，查找影响 Claude Code 的[环境变量](/docs/zh-CN/env-vars)，然后参阅[故障排除](/docs/zh-CN/troubleshooting)。
+  <Step title="使用干净的配置目录启动 Claude Code">
+    在同一个 shell 中，将 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 设置为一个新目录以替代 `~/.claude`，并传入 [`--setting-sources user`](/docs/zh-CN/cli-reference#cli-flags) 以关闭项目配置，例如 `.claude/settings.json`、`CLAUDE.md` 和 `.mcp.json`：
+
+    <Tabs>
+      <Tab title="Bash or Zsh">
+        该变量仅对本次启动生效。
+
+        ```bash theme={null}
+        CLAUDE_CONFIG_DIR=~/claude-clean/config claude --setting-sources user
+        ```
+      </Tab>
+
+      <Tab title="PowerShell">
+        该变量在此 PowerShell 会话的剩余时间内保持设置，因此之后在同一窗口中启动的 `claude` 会继续使用这个干净目录。要恢复使用您的常用目录，请在下次启动前运行 `Remove-Item Env:CLAUDE_CONFIG_DIR`。
+
+        ```powershell theme={null}
+        $env:CLAUDE_CONFIG_DIR = "$HOME/claude-clean/config"
+        claude --setting-sources user
+        ```
+      </Tab>
+    </Tabs>
+
+    首次启动时，您会再次经历首次运行设置屏幕，这表明干净配置目录已生效。托管设置仍然适用；如果您使用 claude.ai 账户登录，[连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)仍会加载。
+  </Step>
+
+  <Step title="重现问题">
+    在干净会话中重复触发问题的操作：
+
+    * **问题消失**：原因在您的用户或项目配置中。将 `~/.claude.json` 和 `~/.claude` 中的文件逐个复制到 `~/claude-clean/config`。如果没有任何文件使问题重新出现，请在同一个 shell 中进入您的项目目录，并在不带 `--setting-sources user` 的情况下启动 Claude Code。在 Bash 或 Zsh 中，运行 `CLAUDE_CONFIG_DIR=~/claude-clean/config claude`。在 PowerShell 中，该变量仍处于设置状态，因此运行 `claude` 即可。
+    * **问题仍然存在**：原因在您的用户和项目配置之外。在会话中运行 `/status` 以检查托管设置，检查您的 shell 中的[环境变量](/docs/zh-CN/env-vars)，然后参阅[故障排除](/docs/zh-CN/troubleshooting)。
+  </Step>
+</Steps>
 
 <h2 id="check-common-causes">
   检查常见原因

@@ -64,7 +64,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
     | `--remote-control-session-name-prefix <prefix>` | 当未设置显式名称时，自动生成的会话名称的前缀。默认为您机器的主机名，生成类似 `myhost-graceful-unicorn` 的名称。设置 `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` 可获得相同效果。 |
     | `-c`, `--continue` | 恢复此目录中最后一个服务器启动的会话，而不是创建新会话。请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。不能与 `--session-id`、`--spawn`、`--capacity` 或 `--create-session-in-dir` 结合使用。需要 Claude Code v2.1.200 或更高版本。 |
     | `--session-id <id>` | 按其 ID 恢复一个会话。请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。不能与 `--continue`、`--spawn`、`--capacity` 或 `--create-session-in-dir` 结合使用。需要 Claude Code v2.1.200 或更高版本。 |
-    | `--spawn <mode>` | 服务器创建会话的方式。<br />• `same-dir`（默认）：所有会话共享当前工作目录，因此如果编辑相同文件可能会冲突。<br />• `worktree`：每个按需会话获得自己的 [git worktree](/docs/zh-CN/worktrees)。需要 git 存储库。<br />• `session`：单会话模式。恰好服务一个会话并拒绝其他连接。仅在启动时设置。<br />在运行时按 `w` 在 `same-dir` 和 `worktree` 之间切换。 |
+    | `--spawn <mode>` | 服务器创建会话的方式。<br />• `same-dir`（默认）：所有会话共享当前工作目录，因此如果编辑相同文件可能会冲突。<br />• `worktree`：每个按需会话获得自己的 [git worktree](/docs/zh-CN/worktrees)。需要 git 仓库或 [`WorktreeCreate` hook](/docs/zh-CN/hooks#worktreecreate)。<br />• `session`：单会话模式。恰好服务一个会话并拒绝其他连接。仅在启动时设置。<br />在运行时按 `w` 在 `same-dir` 和 `worktree` 之间切换。 |
     | `--capacity <N>` | 最大并发会话数。默认为 32。不能与 `--spawn=session` 一起使用。 |
     | `--[no-]create-session-in-dir` | 服务器启动时在当前目录中预创建一个会话，以便您有地方立即输入。在 `worktree` 模式下，此会话保留在当前目录中，而按需会话获得隔离的 worktree。默认启用。如果您传递 `--no-create-session-in-dir` 以不创建任何会话启动，Claude Code 会在您停止服务器时存档服务器的会话，因此没有任何内容可[恢复](#resume-sessions-after-stopping-the-server)。 |
     | `--permission-mode <mode>` | 为服务器的会话设置起始[权限模式](/docs/zh-CN/permission-modes)，例如 `acceptEdits`。接受 `manual` 作为 `default` 的别名；无法识别的模式会在启动时停止服务器并列出有效模式。 |

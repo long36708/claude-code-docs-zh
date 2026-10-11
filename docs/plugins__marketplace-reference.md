@@ -55,7 +55,9 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 * **以 `claudeai-` 开头的名称**：为托管在 claude.ai 上的 marketplace 保留。`claude plugin marketplace add` 拒绝任何其他使用一个的 marketplace，错误为 `Cannot add marketplace "<name>": names starting with "claudeai-" are reserved for marketplaces hosted on claude.ai`。
 * **已注册 GitHub 市场的下载文件夹名称 `<owner>-<repo>`**：对于从 `github` 源（例如 `acme/x-tools`）添加的市场，无论该市场自身的 `name` 是什么，Claude Code 都会通过名为 `acme-x-tools` 的文件夹下载它。当该市场以 `acme-x-tools` 以外的名称注册时，`claude plugin marketplace add` 会在下载另一个名为 `acme-x-tools` 的市场后拒绝它，并报告 `Can't use the marketplace name "acme-x-tools"`。此检查需要 Claude Code v2.1.290 或更高版本。
 
-当已注册的 marketplace 因其名称模仿官方名称而停止加载时，`claude plugin list` 和 `/plugin` 报告 `Claude Code refuses the marketplace name "<name>"`。该消息告诉你删除该 marketplace。删除它也会卸载其插件并删除其保存的数据。此命名拒绝消息需要 Claude Code v2.1.282 或更高版本。
+当已注册的市场因其名称模仿官方市场而停止加载时，`claude plugin list` 和 `/plugin` 会报告 `Claude Code refuses the marketplace name "<name>"`。该消息会提示您删除该市场。删除它也会卸载其插件，并删除这些插件的数据、选项和密钥。此命名拒绝消息需要 Claude Code v2.1.282 或更高版本。
+
+如果某个设置文件以内联方式声明了该市场，该消息会提示您在删除旧名称之前先重命名其条目。有关步骤，请参阅 [Claude Code refuses the marketplace name](/docs/zh-CN/errors#claude-code-refuses-the-marketplace-name)。该消息在 Claude Code v2.1.292 或更高版本中会列出这些步骤。
 
 <h2 id="top-level-fields">
   顶级字段

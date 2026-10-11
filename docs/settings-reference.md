@@ -1931,7 +1931,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: 布尔值
-  * `true`: Claude Code 运行沙箱化的 Bash 命令而无需权限提示，受 `deny` 规则和内容范围的 `ask` 规则约束；`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` 关闭自动允许
+  * `true`: Claude Code 运行沙箱化的 Bash 命令而无需权限提示，[Auto-allow mode](/docs/zh-CN/sandboxing#auto-allow-mode) 所述的情况除外；`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` 关闭自动允许
   * `false`: 沙箱化命令通过常规权限流程，因此您的允许规则和权限模式决定。`/sandbox` **Mode** 选项卡称之为常规权限模式
 * **Default**: `true`
 
@@ -1946,7 +1946,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 }
 ```
 
-请参阅 [Sandbox modes](/docs/zh-CN/sandboxing#sandbox-modes) 了解自动允许模式仍会提示什么以及它在计划模式中的行为。
+请参阅 [Auto-allow mode](/docs/zh-CN/sandboxing#auto-allow-mode) 了解自动允许模式仍会提示什么以及它在计划模式中的行为。
 
 <h3 id="sandbox-excludedcommands">
   `sandbox.excludedCommands`

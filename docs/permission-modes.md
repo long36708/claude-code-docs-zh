@@ -50,18 +50,18 @@ Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypass
   常见设置
 </h2>
 
-权限模式决定 Claude 是否在操作前询问，[Bash 沙箱](/docs/zh-CN/sandboxing)和外部[隔离边界](/docs/zh-CN/sandbox-environments)决定操作运行后可以到达什么。下表将目标与获得该目标的标志或设置以及所需的隔离配对，作为起点。[可用模式](#available-modes)列出了在每种模式下无需提示即可运行的内容。
+权限模式决定 Claude 在执行操作之前是否询问，而 [Bash 沙箱](/docs/zh-CN/sandboxing)和外层[隔离边界](/docs/zh-CN/sandbox-environments)决定操作运行后能够访问哪些内容。下表每一行都将一个目标与实现该目标的标志或设置以及所需的隔离配对，可作为起点。[可用模式](#available-modes)列出了每种模式下无需提示即可运行的操作。
 
-| 您想要 | 从以下开始 | 需要的隔离 | 注意 |
+| 您想要 | 起步方式 | 所需隔离 | 说明 |
 | :- | :- | :- | :- |
-| 自己审查每个操作 | Manual 模式：`claude --permission-mode default` | 无 | 敏感工作、不熟悉的代码 |
-| 在本地迭代，更少提示，无分类器 | Manual 模式加上 Bash 沙箱在[自动允许模式](/docs/zh-CN/sandboxing#sandbox-modes)：`claude --permission-mode default`，然后运行 `/sandbox` 并选择自动允许 | 内置 Bash 沙箱，在 macOS、Linux 和 WSL2 上 | 拒绝规则仍然适用，询问规则命名命令（如 `Bash(git push *)`）仍然会提示。要从设置文件启用沙箱，请改为将 [`sandbox.enabled`](/docs/zh-CN/settings-reference#sandbox-enabled) 设置为 `true` |
-| 在更改任何内容前探索 | `claude --permission-mode plan` | 无 | Claude Code 阻止编辑，直到您[批准计划](#review-and-approve-a-plan) |
-| 在自动模式下无需干预工作 | `claude --permission-mode auto`，v2.1.283 或更高版本的[内置起始权限模式](#which-mode-a-session-starts-in) | 无；沙箱或容器增加深度防御 | 需要[支持的模型](#eliminate-prompts-with-auto-mode)，您的组织可以[关闭自动模式](#eliminate-prompts-with-auto-mode) |
-| 在 CI 中使用精确允许列表运行 | `claude -p "run the test suite" --permission-mode dontAsk --allowedTools "Bash(npm test)" "Read"` | 无，超出您的 CI 运行器提供的 | [云会话](/docs/zh-CN/claude-code-on-the-web)忽略设置文件中的 `dontAsk` |
-| 在容器内完全无人值守运行 | `claude -p "<prompt>" --dangerously-skip-permissions` | 必需：容器、虚拟机或[沙箱运行时](/docs/zh-CN/sandbox-environments#sandbox-runtime)；在 Linux 和 macOS 上，以[非 root 用户](#skip-all-checks-with-bypasspermissions-mode)身份运行 | 云会话忽略设置文件中的此模式。在此 `-p` 运行中，[仍会提示的少数调用](#skip-all-checks-with-bypasspermissions-mode)被拒绝 |
+| 亲自审查每个操作 | 手动模式：`claude --permission-mode default` | 无 | 敏感工作、不熟悉的代码 |
+| 在本地迭代，减少提示，且不使用分类器 | 手动模式加上处于[自动允许模式](/docs/zh-CN/sandboxing#sandbox-modes)的 Bash 沙箱：`claude --permission-mode default`，然后运行 `/sandbox` 并选择自动允许 | 内置 Bash 沙箱，适用于 macOS、Linux 和 WSL2 | 拒绝规则仍然适用，指定了命令的询问规则（例如 `Bash(git push *)`）仍会提示。[自动允许模式](/docs/zh-CN/sandboxing#auto-allow-mode)介绍了其他可能触发提示的命令。若要改为通过设置文件启用沙箱，请将 [`sandbox.enabled`](/docs/zh-CN/settings-reference#sandbox-enabled) 设为 `true` |
+| 在进行任何更改之前先探索 | `claude --permission-mode plan` | 无 | 在您[批准计划](#review-and-approve-a-plan)之前，Claude Code 会阻止编辑 |
+| 在自动模式下免干预工作 | `claude --permission-mode auto`，即 v2.1.283 或更高版本的[内置起始权限模式](#which-mode-a-session-starts-in) | 无；沙箱或容器可提供纵深防御 | 需要[受支持的模型](#eliminate-prompts-with-auto-mode)，并且您的组织可以[关闭自动模式](#eliminate-prompts-with-auto-mode) |
+| 在 CI 中使用精确的允许列表运行 | `claude -p "run the test suite" --permission-mode dontAsk --allowedTools "Bash(npm test)" "Read"` | 除 CI 运行器所提供的隔离外无需其他隔离 | [云端会话](/docs/zh-CN/claude-code-on-the-web)会忽略来自设置文件的 `dontAsk` |
+| 在容器内完全无人值守地运行 | `claude -p "<prompt>" --dangerously-skip-permissions` | 必需：容器、虚拟机或[沙箱运行时](/docs/zh-CN/sandbox-environments#sandbox-runtime)；在 Linux 和 macOS 上，请以[非 root 用户](#skip-all-checks-with-bypasspermissions-mode)身份运行 | 云端会话会忽略来自设置文件的此模式。在此 `-p` 运行中，[本来仍会触发提示的少数调用](#skip-all-checks-with-bypasspermissions-mode)会改为直接被拒绝，而不会提示 |
 
-Bash 沙箱和自动模式独立工作并结合，除了在[沙箱模式](/docs/zh-CN/sandboxing#sandbox-modes)下列出的例外。有关完整交互，请参阅[沙箱化如何与权限和权限模式相关](/docs/zh-CN/sandboxing#how-sandboxing-relates-to-permissions-and-permission-modes)和[隔离如何与权限模式相关](/docs/zh-CN/sandbox-environments#how-isolation-relates-to-permission-modes)。
+Bash 沙箱和自动模式彼此独立运作，也可以组合使用，例外情况列于[沙箱模式](/docs/zh-CN/sandboxing#sandbox-modes)中。有关完整的交互方式，请参阅[沙箱隔离与权限及权限模式的关系](/docs/zh-CN/sandboxing#how-sandboxing-relates-to-permissions-and-permission-modes)和[隔离与权限模式的关系](/docs/zh-CN/sandbox-environments#how-isolation-relates-to-permission-modes)。
 
 <h2 id="which-mode-a-session-starts-in">
   会话在哪个模式下启动

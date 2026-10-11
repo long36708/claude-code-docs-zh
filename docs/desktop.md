@@ -913,6 +913,8 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
 
 每个条目需要 `id`、`name` 和 `sshHost`。`sshPort` 和 `sshIdentityFile` 字段是可选的。用户也可以将 `sshConfigs` 添加到他们自己的 `~/.claude/settings.json`。
 
+如果您在 `sshHost` 中省略 `user@`，Desktop 会以每位开发者的 `~/.ssh/config` 为该主机设置的 `User` 身份连接，否则以他们在自己计算机上的用户名连接。
+
 <h4 id="restrict-which-ssh-hosts-users-can-connect-to">
   限制用户可以连接的 SSH 主机
 </h4>
@@ -936,6 +938,57 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
 模式不区分大小写。`*` 匹配任何主机，`*.example.com` 匹配 `example.com` 和任何子域。其他任何内容都是精确匹配。检查针对通过 `ssh -G` 进行 `~/.ssh/config` 解析后的主机名运行，因此允许 `Host` 别名和 `ProxyCommand`/`ProxyJump` 条目，只要解析的 `HostName` 匹配。
 
 `sshHostAllowlist` 仅从托管设置中读取；用户或项目设置中的值被忽略。只有 Claude Desktop 应用遵守此设置；Claude Code CLI 和 IDE 扩展不读取它，它也不限制通过 Bash 工具运行的 `ssh` 命令。它管理 Desktop 应用连接到的主机，而不是网络出口，因此如果你需要硬边界，请将其与你的组织的网络或零信任控制配对。
+
+<h4 id="turn-off-local-sessions-and-distribute-ssh-connections">
+  关闭本地会话并分发 SSH 连接
+</h4>
+
+要关闭本地会话并将 SSH 会话限制为您选择的主机，请同时部署 [`disableDesktopLocalSessions`](/docs/zh-CN/settings-reference#disabledesktoplocalsessions)、[`sshConfigs`](#pre-configure-ssh-connections-for-your-team) 和 [`sshHostAllowlist`](#restrict-which-ssh-hosts-users-can-connect-to)。
+
+<Note>
+  此设置适用于使用 Claude 账户登录的用户。使用[第三方提供商](/docs/zh-CN/third-party-integrations)时，SSH 会话默认关闭，而设置 `sshHostAllowlist` 可能会将其打开。在部署这些键之前，请阅读 [SSH remote sessions in Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
+</Note>
+
+以下示例关闭本地会话、添加一个连接，并将 SSH 会话限制为该连接的主机：
+
+```json managed-settings.json theme={null}
+{
+  "disableDesktopLocalSessions": true,
+  "sshConfigs": [
+    {
+      "id": "shared-dev-vm",
+      "name": "Shared Dev VM",
+      "sshHost": "dev.example.com"
+    }
+  ],
+  "sshHostAllowlist": ["dev.example.com"]
+}
+```
+
+这些键适用于桌面应用。它们不会改变运行 Claude Code 的其他方式，例如 CLI、Cowork 和云端会话：
+
+* **CLI**：这些键都不会阻止开发者在自己的计算机上运行 Claude Code CLI
+* **Cowork**：这些键都不适用于 [Cowork](https://claude.com/docs/cowork/overview) 会话或 Cowork 定时任务
+* **云端会话**：这些键都不会改变[云端会话](#cloud-sessions)是否可用。要关闭云端会话，请使用 [Admin console 控制](#admin-console-controls)下的 **Cloud sessions** 设置。
+
+在调整示例时，请检查主机名和 Desktop 版本：
+
+* **主机名**：确保 `sshHostAllowlist` 中的某个模式与每个 `sshConfigs` 条目的主机名（不含 `user@`）匹配，否则开发者无法连接到该主机。有关 Desktop 如何匹配主机名，请参阅[限制用户可以连接的 SSH 主机](#restrict-which-ssh-hosts-users-can-connect-to)。
+* **版本**：`disableDesktopLocalSessions` 需要 Claude Desktop v1.37937.0 或更高版本
+
+将这三个键放在一个[托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)中，即您提供的最高优先级来源。如果您提供[服务器托管设置](/docs/zh-CN/server-managed-settings)，还请在每台计算机上最高优先级的 MDM 策略或托管设置文件中保留这三个键的副本。Desktop 在启动时获取服务器托管设置，在获取成功之前，适用的是计算机上的副本。
+
+要确认设置已生效，请检查开发者的计算机：
+
+<Steps>
+  <Step title="检查环境下拉菜单">
+    退出并重新打开 Desktop，然后在输入框中打开环境下拉菜单。**Local** 呈灰显状态，**Shared Dev VM** 出现在 **SSH** 下。如果 **Local** 仍然可用，请检查 Desktop 版本、文件是否为有效的 JSON，以及计算机读取的是哪个托管来源。
+  </Step>
+
+  <Step title="添加一个不在允许列表中的主机">
+    使用不在允许列表中的主机名（例如 `other.example.com`）[添加 SSH 连接](#ssh-sessions)。Desktop 会保存该连接但拒绝连接，并提示您的组织设置不允许该连接。
+  </Step>
+</Steps>
 
 <h2 id="enterprise-configuration">
   企业配置

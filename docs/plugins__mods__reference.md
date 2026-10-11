@@ -88,6 +88,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | [`prompt.submit`](/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | 提交提示词时 | `next({ ...e, text })`、`next({ ...e, context })` 或 `{ drop: reason }` |
 | `prompt.fill`, `prompt.suggest` | 文本即将作为草稿或暗色建议进入输入框 | 更改了文本的 `next(e)` |
 | `prompt.edit` | 用户编辑输入框 | `next(e)` |
+| `prompt.autocomplete` | 用户在输入框中输入内容，且光标处有一个词结束。`e.token` 即该词。Claude Code 不会等待该 hook：其自身的自动补全行会先显示。 | `{ suggestions }`，一个由 `{ text, label, description }` 行组成的列表，显示在 Claude Code 自身的行下方。选择某一行会用其 `text` 覆盖该词。 |
 | `prompt.compose` | Claude Code 渲染系统提示词 | `{ sections }`，一个按发送顺序排列的 `{ id, text, scope }` 列表 |
 | [`prompt.section`](/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | 系统提示词的每个命名部分一次。`e.name` 是该部分在 `prompt.compose` 中的 `id`。 | `{ text }`，或 `{ text: null }` 以省略该部分 |
 | [`prompt.context`](/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | 每个对话一次，用于随第一条消息发送的上下文 | `{ blocks }` |

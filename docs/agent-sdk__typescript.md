@@ -4077,7 +4077,7 @@ MCP 工具参数是开放对象：每个服务器定义自己的参数，因此�
   工具输出类型
 </h2>
 
-所有内置 Claude Code 工具的输出 schema 文档。这些类型从 `@anthropic-ai/claude-agent-sdk/sdk-tools` 导出，代表每个工具返回的实际响应数据。
+内置 Claude Code 工具的输出 schema 文档。这些类型从 `@anthropic-ai/claude-agent-sdk/sdk-tools` 导出，代表每个工具返回的实际响应数据。
 
 <h3 id="tooloutputschemas">
   `ToolOutputSchemas`

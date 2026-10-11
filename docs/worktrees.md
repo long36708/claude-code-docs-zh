@@ -129,7 +129,7 @@ Apply the requested refactor across every affected file, then run the tests
 and report the results.
 ```
 
-每个子代理都会获得一个临时 worktree，当子代理完成且没有更改时 Claude Code 会自动删除；带有更改的 worktree 会保留在磁盘上，直到下面的[定期扫描](#clean-up-subagent-and-background-session-worktrees)可以删除它而不会丢失工作。
+每个子代理都会获得一个临时 worktree，当子代理完成且没有更改时 Claude Code 会自动删除；带有更改的 worktree 会保留在磁盘上，直到下面的[定期扫描](#clean-up-subagent-and-background-session-worktrees)可以删除它而不会丢失工作。对于由您的 [WorktreeCreate hook](/docs/zh-CN/hooks#worktreecreate) 创建的 worktree，请改为参阅 [WorktreeRemove](/docs/zh-CN/hooks#worktreeremove)。
 
 子代理 worktrees 使用与 `--worktree` 相同的[基础分支](#choose-the-base-branch)，因此它们从您的存储库的默认分支分支，除非 `worktree.baseRef` 设置为 `"head"`。
 

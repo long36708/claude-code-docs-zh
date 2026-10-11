@@ -744,6 +744,7 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 * 内容范围的 ask 规则（如 `Bash(git push *)`）仍然强制提示
 * 显式 deny 规则仍然适用
 * 针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)的 `rm` 或 `rmdir` 命令仍然通过常规权限流程
+* 其他沙箱化的命令也可能通过常规权限流程，如[自动允许模式](/docs/zh-CN/sandboxing#auto-allow-mode)中所述
 
 不会在沙箱中运行的命令（如排除的命令）按照通常的方式遵守裸 `Bash` ask 规则。请参见[沙箱模式](/docs/zh-CN/sandboxing#sandbox-modes)以更改此行为。
 
