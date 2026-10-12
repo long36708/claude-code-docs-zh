@@ -2386,6 +2386,7 @@ type SDKMessageOrigin =
       kind: "task-notification";
       subkind?: "scheduled-trigger" | "peer-send-message";
       fireReason?: string;
+      runId?: string;
     }
   | { kind: "coordinator" }
   | { kind: "auto-continuation" }
@@ -2414,6 +2415,8 @@ type SDKMessageOrigin =
 每个其他任务通知都没有 `subkind`。这包括[PR 活动](/docs/zh-CN/claude-code-on-the-web#how-claude-responds-to-pr-activity)传递到会话和后台事件，例如完成的任务。来自[跨会话 `SendMessage` 工具](/docs/zh-CN/cross-session-messaging)的消息根本不是任务通知：无论它们来自同一机器上的会话还是通过 Anthropic 服务器来自另一台机器，Claude Code 都给它们 `kind: "peer"` 和[对等体来源字段](#peer-origin-fields)。
 
 `fireReason` 说明 `scheduled-trigger` 通知为什么触发，作为简短的小写标记，例如 `scheduled`、`manual`、`retry`、`catch_up` 或 `api`。Anthropic 服务器在 [Routine](/docs/zh-CN/routines) 的传递上设置它，您的应用程序在声明定时运行时设置它。当两者都未发送时不存在。需要 TypeScript Agent SDK v0.3.280 或更高版本。
+
+一个后台任务可以在同一个 `task_id` 下运行多次，例如当 Claude [恢复子代理](/docs/zh-CN/agent-sdk/subagents#resume-subagents)时。每次运行都有自己的 [`run_id`](#sdktaskstartedmessage)。当某次运行的通知作为用户消息到达您的会话时，该消息 `task-notification` origin 上的 `runId` 持有相同的值。通知可能在任务的下一次运行开始后才到达，但它仍然带有较早那次运行的 ID。要判断某个轮次属于哪次运行，请比较 `runId`，而不是 `task_id`。需要 TypeScript Agent SDK v0.3.292 或更高版本。
 
 <h4 id="declare-a-scheduled-run">
   声明定时运行
@@ -5730,13 +5733,14 @@ type SDKStatusMessage = {
   `SDKTaskNotificationMessage`
 </h3>
 
-后台任务完成、失败或被停止时的通知。后台任务包括 `run_in_background` Bash 命令、[Monitor](#monitor) 监视以及后台子代理。有关 `ambient` 字段，请参阅 [`SDKTaskStartedMessage`](#sdktaskstartedmessage)，其中定义了该字段及其版本要求。
+后台任务完成、失败或被停止时的通知。后台任务包括 `run_in_background` Bash 命令、[Monitor](#monitor) 监视以及后台子代理。有关 `run_id` 和 `ambient` 字段，请参阅 [`SDKTaskStartedMessage`](#sdktaskstartedmessage)，其中定义了这些字段及其版本要求。
 
 ```typescript theme={null}
 type SDKTaskNotificationMessage = {
   type: "system";
   subtype: "task_notification";
   task_id: string;
+  run_id?: string;
   tool_use_id?: string;
   status: "completed" | "failed" | "stopped";
   reason?: "worker_restart";
@@ -5909,6 +5913,7 @@ type SDKTaskStartedMessage = {
   type: "system";
   subtype: "task_started";
   task_id: string;
+  run_id?: string;
   tool_use_id?: string;
   description: string;
   task_type?: string;
@@ -5919,6 +5924,20 @@ type SDKTaskStartedMessage = {
   uuid: UUID;
   session_id: string;
 };
+```
+
+`run_id` 标识任务的一次运行。当任务以相同的 `task_id` 再次运行时（例如 [Claude 恢复的子代理](/docs/zh-CN/agent-sdk/subagents#resume-subagents)），新的运行会获得新的 `run_id`。该字段需要 Agent SDK v0.3.292 或更高版本。使用它来区分同一任务的各次运行：
+
+* **将消息与某次运行匹配**：同一次运行的 `task_started`、[`task_progress`](#sdktaskprogressmessage)、[`task_updated`](#sdktaskupdatedmessage) 和 [`task_notification`](#sdktasknotificationmessage) 消息携带相同的 `run_id`。每条 [`SDKBackgroundTasksChangedMessage`](#sdkbackgroundtaskschangedmessage) 中该运行的条目也携带它，传递该运行通知的用户消息的 origin 上的 [`runId`](#task-notification-subkinds) 也是如此。
+* **检测迟到的消息**：按普通字符串比较时，同一任务的各个运行 ID 按运行开始的顺序排序，因此如果某条消息的 `run_id` 排在您正在显示的运行之前，则它来自更早的运行。除该比较外，请将该值视为不透明值。
+* **回退到 `task_id`**：当消息不携带 `run_id` 时（例如恢复的会话为关闭先前进程启动的任务而发出的 `task_notification`），请按 `task_id` 确定其归属。
+
+例如，以下三条消息（已精简为其标识字段）来自一个被 Claude 恢复过一次的后台子代理。两条 `task_started` 消息共享同一个 `task_id`，结束第一次运行的通知携带第一次运行的 ID：
+
+```json theme={null}
+{"subtype": "task_started", "task_id": "a5c2e8f41b09d7a36", "run_id": "0mubbs7i8-6f0c2d41"}
+{"subtype": "task_notification", "task_id": "a5c2e8f41b09d7a36", "run_id": "0mubbs7i8-6f0c2d41", "status": "completed"}
+{"subtype": "task_started", "task_id": "a5c2e8f41b09d7a36", "run_id": "0mubc18m1-b7719e05"}
 ```
 
 对于不属于会话工作的任务（例如 Claude Code 为其自身运行而执行的任务），`ambient` 为 `true`。实时更新监视器也属于 ambient，包括用户要求的监视器。请将 ambient 任务从活动指示器中排除。该字段需要 Agent SDK v0.3.247 或更高版本。
@@ -5944,7 +5963,7 @@ type SDKTaskStartedMessage = {
   `SDKTaskProgressMessage`
 </h3>
 
-在子代理或后台任务运行期间定期发出。
+在子代理或后台任务运行期间定期发出。有关 `run_id` 字段，请参阅 [`SDKTaskStartedMessage`](#sdktaskstartedmessage)，其中定义了该字段及其版本要求。
 
 对于子代理任务，`summary` 字段携带模型生成的进度摘要，仅在启用 [`agentProgressSummaries`](#options) 时填充。对于[已移到后台的 MCP 工具调用](/docs/zh-CN/mcp#automatic-backgrounding-of-long-tool-calls)，`summary` 携带 MCP 服务器最近报告的进度，不依赖于该选项。
 
@@ -5953,6 +5972,7 @@ type SDKTaskProgressMessage = {
   type: "system";
   subtype: "task_progress";
   task_id: string;
+  run_id?: string;
   tool_use_id?: string;
   description: string;
   subagent_type?: string;
@@ -5972,13 +5992,14 @@ type SDKTaskProgressMessage = {
   `SDKTaskUpdatedMessage`
 </h3>
 
-在后台任务状态发生变化时发出，例如从 `running` 转换为 `completed` 时。请将 `patch` 合并到以 `task_id` 为键的本地任务映射中。`end_time` 字段是以毫秒为单位的 Unix 纪元时间戳，可与 `Date.now()` 比较。
+在后台任务状态发生变化时发出，例如从 `running` 转换为 `completed` 时。请将 `patch` 合并到以 `task_id` 为键的本地任务映射中。`end_time` 字段是以毫秒为单位的 Unix 纪元时间戳，可与 `Date.now()` 比较。有关 `run_id` 字段，请参阅 [`SDKTaskStartedMessage`](#sdktaskstartedmessage)，其中定义了该字段及其版本要求。
 
 ```typescript theme={null}
 type SDKTaskUpdatedMessage = {
   type: "system";
   subtype: "task_updated";
   task_id: string;
+  run_id?: string;
   patch: {
     status?: "pending" | "running" | "completed" | "failed" | "killed";
     description?: string;
@@ -5996,7 +6017,7 @@ type SDKTaskUpdatedMessage = {
   `SDKBackgroundTasksChangedMessage`
 </h3>
 
-每当活动后台任务集合发生变化时发出：任务启动、完成、被终止、前台 Agent 被移到后台，或任务的 `description`、`ambient` 或 `parent_task_id` 字段发生变化。有关每个条目上的 `parent_task_id` 字段，请参阅 [`SDKTaskStartedMessage`](#sdktaskstartedmessage)，其中定义了该字段及其版本要求。
+每当活动后台任务集合发生变化时发出：任务启动、完成、被终止、前台 Agent 被移到后台，或任务的 `description`、`ambient` 或 `parent_task_id` 字段发生变化。有关每个条目上的 `run_id` 和 `parent_task_id` 字段，请参阅 [`SDKTaskStartedMessage`](#sdktaskstartedmessage)，其中定义了这些字段及其版本要求。
 
 `tasks` 数组是完整的活动集合。请用每次的负载替换任何缓存的集合，而不是对 `task_started` 和 `task_notification` 事件进行配对，这样下一次成员变化就会纠正您错过的任何事件。
 
@@ -6014,6 +6035,7 @@ type SDKBackgroundTasksChangedMessage = {
   subtype: "background_tasks_changed";
   tasks: {
     task_id: string;
+    run_id?: string;
     task_type: string;
     subagent_type?: string;
     description: string;

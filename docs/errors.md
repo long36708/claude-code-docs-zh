@@ -94,6 +94,7 @@
 | `Your account is on hold and can't use Claude Code. View details or appeal: https://claude.ai/restricted` | [身份验证](#your-account-is-on-hold) |
 | `Your account is on hold and can't sign in to Claude Code. View details or appeal: https://claude.ai/restricted` | [身份验证](#your-account-is-on-hold) |
 | `Anthropic profile login expired · Re-authenticate your Anthropic profile` | [身份验证](#anthropic-profile-login-expired) |
+| `Login expired · Run /login to sign in again, or re-authenticate your Anthropic profile` | [身份验证](#anthropic-profile-login-expired) |
 | `Anthropic profile login expired · Run /login to use your claude.ai account instead, or re-authenticate the profile` | [身份验证](#anthropic-profile-login-expired) |
 | `does not meet scope requirement user:profile` | [身份验证](#oauth-scope-requirement) |
 | `claude.ai rejected the session token` / `session token rejected` | [身份验证](#claude-ai-rejected-the-session-token) |
@@ -1303,6 +1304,8 @@ Login expired · Please run /login
 Failed to authenticate: OAuth session expired and could not be refreshed
 ```
 
+对于以 `or re-authenticate your Anthropic profile` 结尾的 `Login expired` 消息，请参阅 [Anthropic profile login expired](#anthropic-profile-login-expired)。
+
 这与 [OAuth 令牌已撤销或已过期](#oauth-token-revoked-or-expired)并非同一状态。那些消息报告的是 API 返回的拒绝。而 `Login expired` 是 Claude Code 针对已续期失败的登录自行生成的，因此它不会发送任何请求。当续期失败是因为账户本身被暂停而不是登录过时，Claude Code 会改为显示[您的账户已被暂停](#your-account-is-on-hold)。
 
 使用 API 密钥、[`CLAUDE_CODE_OAUTH_TOKEN`](/docs/zh-CN/env-vars) 或第三方提供商进行身份验证的会话不使用已保存的登录，永远不会看到此消息。
@@ -1468,26 +1471,28 @@ Your account is on hold and can't sign in to Claude Code. View details or appeal
   Anthropic 配置文件登录已过期
 </h3>
 
-Claude Code 正在通过一个 Anthropic 凭据配置文件进行身份验证，该配置文件中已保存的登录凭据已过期，并且配置文件中没有 Claude Code 可用于续期的刷新凭据。Claude Code 会在本地停止每个请求且不重试，因为重试只会读取同一个已过期的凭据。
+Claude Code 正在通过某个 Anthropic 凭据配置档案进行身份验证，该配置档案中已保存的登录凭据已过期，且配置档案中没有 Claude Code 可用于续期的刷新凭据。Claude Code 会在本地停止每个请求，且不会重试。
 
 ```text theme={null}
 Anthropic profile login expired · Re-authenticate your Anthropic profile
-Anthropic profile login expired · Run /login to use your claude.ai account instead, or re-authenticate the profile
+Login expired · Run /login to sign in again, or re-authenticate your Anthropic profile
 ```
-
-只有当生效的凭据来自 Anthropic 凭据配置文件时才会出现此消息，该配置文件可以是您通过 `ANTHROPIC_PROFILE` 环境变量选择的、Claude Code 在您的 Anthropic 配置目录中发现为活跃配置文件的，或是您[在没有 API 密钥的情况下登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)时 Claude Code 写入的。使用 API 密钥、bearer 令牌（例如 `ANTHROPIC_AUTH_TOKEN`）或第三方提供商进行身份验证的会话永远不会看到此消息。
-
-在[提供无密钥登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)的机器上，运行 `/login`，选择 Anthropic Console 账户并重新登录，即可续期由无密钥 Console 登录或 Claude Platform CLI 的 `ant auth login` 写入的配置文件。Claude Code 会替换该配置文件中已过期的凭据。对于联合身份配置文件或由其他工具创建的配置文件，`/login` 不会续期凭据。您看到哪种形式，取决于配置文件是您选择的还是 Claude Code 发现的：
-
-* 当您显式设置了 `ANTHROPIC_PROFILE` 时，消息以 `Re-authenticate your Anthropic profile` 结尾。
-* 当 Claude Code 从您的配置目录中发现该配置文件时，消息会提供 `/login` 选项，因为 Claude Code 让可用的 `/login` 优先于所发现的配置文件，然后改用您的 claude.ai 或 Console 账户进行身份验证。在 v2.1.234 之前，这种情况下 Claude Code 也会显示 `Re-authenticate your Anthropic profile` 形式。
 
 **解决方法：**
 
-* 重新登录该配置文件，然后重试：在[提供无密钥登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)的机器上，对于由无密钥 Console 登录或 Claude Platform CLI 的 `ant auth login` 写入的配置文件，运行 `/login` 并选择 Anthropic Console 账户；对于其他配置文件，请使用创建它们的工具
+* 如果消息以 `Login expired` 开头，请运行 `/login` 重新登录
+* 要续期由无密钥 Console 登录或 Claude Platform CLI 的 `ant auth login` 写入的配置档案，请在[提供无密钥登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)的机器上运行 `/login`。选择 Anthropic Console 账户，然后选择 **Sign in with your Console account**。Claude Code 会替换该配置档案中的过期凭据
+* 要续期由其他工具创建的配置档案，请使用该工具重新登录。如果您改为在 `/login` 中选择 **Sign in with your Console account**，Claude Code 会保留该配置档案不变并创建一个 API 密钥
 * 如果该配置文件的凭据由管理员预配，请让他们签发一个新的凭据
 * 运行 `/status`，确认当前生效的凭据来源和配置文件名称
 * 如需停止使用该配置文件，请取消设置 `ANTHROPIC_PROFILE`（如果您设置过），然后以其他方式进行身份验证，例如 `/login` 或 `ANTHROPIC_API_KEY`
+
+消息的开头说明了 Claude Code 是如何找到该配置档案的：
+
+* 当 Claude Code 从您的配置目录中发现该配置档案且其身份验证模式为 `user_oauth` 时，消息以 `Login expired` 开头，并优先提供 `/login`。可用的 `/login` 优先于发现的配置档案，Claude Code 随后会改用您的 claude.ai 账户进行身份验证。从 v2.1.234 到 v2.1.277 之前，这种形式显示为 `Anthropic profile login expired · Run /login to use your claude.ai account instead, or re-authenticate the profile`。在 v2.1.234 之前，Claude Code 在这种情况下也会显示 `Re-authenticate your Anthropic profile` 形式。
+* 当您通过 `ANTHROPIC_PROFILE` 选择该配置档案时，消息以 `Anthropic profile login expired` 开头。
+
+只有当当前生效的凭据来自 Anthropic 凭据配置档案时才会出现此消息，该配置档案可以是您通过 `ANTHROPIC_PROFILE` 环境变量选择的、Claude Code 在您的 Anthropic 配置目录中发现的当前配置档案，或者是您[在没有 API 密钥的情况下登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)时 Claude Code 写入的配置档案。使用 API 密钥、bearer 令牌（例如 `ANTHROPIC_AUTH_TOKEN`）或第三方服务商进行身份验证的会话永远不会看到此消息。
 
 <h3 id="oauth-scope-requirement">
   OAuth 作用域要求

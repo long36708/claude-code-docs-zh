@@ -126,7 +126,7 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 * **使用您的 Console 账户登录**，标记为 `(recommended)`：Claude Code 保留该登录的 OAuth 令牌，并将其存储为 [Anthropic 配置文件](#anthropic-profiles-and-federation-credentials)。它不创建 API 密钥
 * **创建 API 密钥**，标记为 `(legacy)`：Claude Code 为您创建 Console API 密钥，并将其与您的其他凭证一起存储
 
-实际上，配置文件存储 OAuth 登录，而 API 密钥是静态凭证：Claude Code 自动刷新配置文件的登录，当刷新失败时，请求会失败并显示 [Anthropic 配置文件登录已过期](/docs/zh-CN/errors#anthropic-profile-login-expired)，直到您再次登录。
+实际上，配置文件存储的是 OAuth 登录，而 API 密钥是静态凭据。Claude Code 会自动刷新配置文件的登录；刷新失败时，请求会失败并显示 [配置文件登录已过期错误](/docs/zh-CN/errors#anthropic-profile-login-expired)，直到您再次登录。
 
 您不会在每台机器上都获得选择。Claude Code 在以下情况下会在不询问的情况下创建 API 密钥：
 
