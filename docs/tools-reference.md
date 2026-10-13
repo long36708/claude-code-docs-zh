@@ -658,7 +658,7 @@ Claude Code 在使用 Claude API 而不是云提供商的您自己机器上的�
   Task 工具可用性
 </h2>
 
-Task 跟踪工具 `TaskCreate`、`TaskGet`、`TaskUpdate`、`TaskList` 和 `TodoWrite` 默认仅在 Claude 3.x 模型、Opus 4 至 4.7、Sonnet 4 至 4.6 和 Haiku 4.5 上可用。只要这些工具可用，您就会获得四个 Task 工具，或者当您设置 [`CLAUDE_CODE_ENABLE_TASKS=0`](/docs/zh-CN/env-vars) 时改为获得 `TodoWrite`。
+Task 跟踪工具 `TaskCreate`、`TaskGet`、`TaskUpdate`、`TaskList` 和 `TodoWrite` 默认仅在 Opus 4.7、Sonnet 4.6、Haiku 4.5 及更早的模型上可用。只要这些工具可用，您就会获得四个 Task 工具，或者当您设置 [`CLAUDE_CODE_ENABLE_TASKS=0`](/docs/zh-CN/env-vars) 时改为获得 `TodoWrite`。
 
 在所有其他模型上，Claude Code 会排除这些工具，除非您选择加入。这同样适用于 Claude Code 无法识别的模型 ID，例如通过 [LLM 网关](/docs/zh-CN/llm-gateway)提供的自定义模型名称。在较新的模型上，Claude 可以在没有书面清单的情况下跟踪多步骤工作，而这些工具的定义和提醒会占用上下文。没有这些工具，Claude 在工作时不会向[任务列表](/docs/zh-CN/interactive-mode#task-list)添加任何内容。
 
@@ -734,7 +734,7 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
 搜索后端不可配置。要使用不同的提供商进行搜索，请添加一个[MCP 服务器](/docs/zh-CN/mcp)来公开搜索工具。
 
 <Note>
-  WebSearch 在 Claude API、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 和 Microsoft Foundry 上可用。在 Google Cloud 的 Agent Platform 上，它适用于 Claude 4 及更高版本的模型，包括 Opus、Sonnet 和 Haiku。Amazon Bedrock 不公开服务器端网络搜索工具。
+  WebSearch 在 Claude API、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 和 Microsoft Foundry 上可用。在 Google Cloud 的 Agent Platform 上，它适用于 Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型。Amazon Bedrock 不公开服务器端网络搜索工具。
 </Note>
 
 <h3 id="session-search-limit">

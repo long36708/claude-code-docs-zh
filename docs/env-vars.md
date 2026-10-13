@@ -220,7 +220,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_ACCESSIBILITY` | 设置为 `1` 可保持原生终端光标可见，并禁用反色文本光标指示器。使 macOS 缩放等屏幕放大工具能够跟踪光标位置 |
 | `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD` | 设置为 `1` 可从通过 `--add-dir` 指定的目录加载记忆文件。加载 `CLAUDE.md`、`.claude/CLAUDE.md`、`.claude/rules/*.md` 和 `CLAUDE.local.md`。默认情况下，附加目录不会加载记忆文件 |
 | `CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT` | 设置为 `1` 可在[全屏渲染](/docs/zh-CN/fullscreen)中每帧重绘整个屏幕，而不是发送增量更新。如果全屏模式显示过时或错位的文本片段，请使用此变量。在 Windows 上，Claude Code 会为后台会话和 [Agent 视图](/docs/zh-CN/agent-view)自动启用此功能 |
-| `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` | 设置为 `1` 可在每个请求中发送 [effort](/docs/zh-CN/model-config#adjust-effort-level) 参数，即使 Claude Code 未将该模型 ID 识别为支持 effort。在通过 [LLM 网关](/docs/zh-CN/llm-gateway)或以自定义标识符提供模型的第三方提供商路由时使用。在 API 层面拒绝 effort 参数的模型（包括 Claude 3 模型、Sonnet 4.0 和 4.5、Opus 4.0 和 4.1 以及 Haiku 4.5）仍会被排除，以免请求失败 |
+| `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` | 设为 `1` 可在每个请求中发送 [effort](/docs/zh-CN/model-config#adjust-effort-level) 参数，即使 Claude Code 未将该模型 ID 识别为支持 effort。通过 [LLM 网关](/docs/zh-CN/llm-gateway)或以自定义标识符提供模型的第三方提供商路由时使用。在 API 层拒绝 effort 参数的模型（包括 Claude Opus 4.1、Claude Sonnet 4.5、Claude Haiku 4.5 及更早的模型）仍会被排除，以免请求失败 |
 | `CLAUDE_CODE_API_KEY_HELPER_TTL_MS` | 刷新凭据的时间间隔，以毫秒为单位（使用 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 时） |
 | `CLAUDE_CODE_ARTIFACT_AUTO_OPEN` | 设置为 `0` 可阻止 Claude Code 在发布新的 [Artifact](/docs/zh-CN/artifacts#create-an-artifact) 时自动打开浏览器 |
 | `CLAUDE_CODE_ARTIFACT_COMMENTS` | 设置为 `0` 可阻止 Claude 读取和回复 [Artifact 上的评论](/docs/zh-CN/artifacts#collect-comments-on-an-artifact)。当 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 已[关闭 Artifact](/docs/zh-CN/artifacts#availability) 时不起作用。需要 Claude Code v2.1.221 或更高版本 |
@@ -270,7 +270,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_DISABLE_FILE_CHECKPOINTING` | 设置为 `1` 可禁用文件[检查点功能](/docs/zh-CN/checkpointing)。`/rewind` 命令将无法恢复代码更改。覆盖 [`fileCheckpointingEnabled`](/docs/zh-CN/settings-reference#filecheckpointingenabled) 设置 |
 | `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS` | 设置为 `1` 可从 Claude 的上下文中移除内置的提交和 PR 工作流说明以及 git 状态快照。在使用您自己的 git 工作流 skill 时很有用。设置后优先于 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 设置 |
 | `CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT` | 设置为 `1` 可阻止 Claude Code 读取通过 `-c` 传递给 shell 的脚本（例如 `bash -c 'rm -rf ~'`）以检查[关键路径](/docs/zh-CN/permission-modes#removals-inside-nested-commands-and-inline-scripts)删除。Claude Code 仍会检查这些脚本中的 shell 变量和位置参数目标，其他关键路径检查也会继续运行。请在启动 Claude Code 的环境中设置它，因为 Claude Code 会忽略通过设置 `env` 块传递的副本。需要 Claude Code v2.1.288 或更高版本 |
-| `CLAUDE_CODE_DISABLE_LEGACY_MODEL_REMAP` | 设置为 `1` 可阻止在 Anthropic API 上将 Opus 4.0 和 4.1 自动重新映射到当前 Opus 版本。在您有意固定使用较旧模型时使用。该重新映射不会在 Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 上运行 |
+| `CLAUDE_CODE_DISABLE_LEGACY_MODEL_REMAP` | 设为 `1` 可阻止在 Anthropic API 上将 Opus 4 和 Opus 4.1 自动重新映射到当前 Opus 版本。当您有意固定使用较旧的模型时使用。该重新映射不会在 Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 上运行 |
 | `CLAUDE_CODE_DISABLE_MODEL_ACCESS_FALLBACK` | 设置为 `1` 可阻止 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock#when-a-model-is-disabled-mid-session) 和 [Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai#when-a-model-is-disabled-mid-session) 上的 Claude Code 在您的账户于会话中途失去对会话模型的访问权限时切换到较旧的模型；被拒绝的请求会立即失败。您配置的[备用模型链](/docs/zh-CN/model-config#fallback-model-chains)仍会在该拒绝发生时切换，[启动模型检查](/docs/zh-CN/amazon-bedrock#startup-model-checks)仍会在启动时回退。需要 Claude Code v2.1.285 或更高版本 |
 | `CLAUDE_CODE_DISABLE_MOUSE` | 设置为 `1` 可在[全屏渲染](/docs/zh-CN/fullscreen)中禁用鼠标跟踪。使用 `PgUp` 和 `PgDn` 的键盘滚动仍然有效。使用此变量可保留终端原生的选中即复制行为 |
 | `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` | 设置为 `1` 可在[全屏渲染](/docs/zh-CN/fullscreen)中禁用点击、拖动和悬停处理，同时保留鼠标滚轮滚动。当您希望滚轮滚动在 Claude Code 中正常工作，但不希望点击定位光标、展开工具输出或打开链接时使用。同时设置两者时，`CLAUDE_CODE_DISABLE_MOUSE` 优先。需要 Claude Code v2.1.195 或更高版本 |
@@ -523,9 +523,9 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `VERTEX_REGION_CLAUDE_3_5_HAIKU` | 使用 Google Cloud's Agent Platform 时覆盖 Claude 3.5 Haiku 的区域 |
 | `VERTEX_REGION_CLAUDE_3_5_SONNET` | 使用 Google Cloud's Agent Platform 时覆盖 Claude 3.5 Sonnet 的区域 |
 | `VERTEX_REGION_CLAUDE_3_7_SONNET` | 使用 Google Cloud's Agent Platform 时覆盖 Claude 3.7 Sonnet 的区域 |
-| `VERTEX_REGION_CLAUDE_4_0_OPUS` | 使用 Google Cloud's Agent Platform 时覆盖 Claude 4.0 Opus 的区域 |
-| `VERTEX_REGION_CLAUDE_4_0_SONNET` | 使用 Google Cloud's Agent Platform 时覆盖 Claude 4.0 Sonnet 的区域 |
-| `VERTEX_REGION_CLAUDE_4_1_OPUS` | 使用 Google Cloud's Agent Platform 时覆盖 Claude 4.1 Opus 的区域 |
+| `VERTEX_REGION_CLAUDE_4_0_OPUS` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Opus 4 的区域 |
+| `VERTEX_REGION_CLAUDE_4_0_SONNET` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Sonnet 4 的区域 |
+| `VERTEX_REGION_CLAUDE_4_1_OPUS` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Opus 4.1 的区域 |
 | `VERTEX_REGION_CLAUDE_4_5_OPUS` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Opus 4.5 的区域 |
 | `VERTEX_REGION_CLAUDE_4_5_SONNET` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Sonnet 4.5 的区域 |
 | `VERTEX_REGION_CLAUDE_4_6_OPUS` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Opus 4.6 的区域 |

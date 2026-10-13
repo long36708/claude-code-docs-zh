@@ -335,7 +335,7 @@ Claude Code 警告以下配置问题。每个条目说明 Claude Code 检查什�
 如果您的请求需要来自仍在后台连接的服务器的工具，Claude 会在继续之前等待该服务器。等待的方式取决于您的配置：
 
 * **使用 [工具搜索](#scale-with-mcp-tool-search)（默认）**：等待发生在 `ToolSearch` 调用内。
-* **不使用工具搜索**：Claude 改为使用 `WaitForMcpServers` 工具。不使用工具搜索的配置包括自定义 `ANTHROPIC_BASE_URL`、`ENABLE_TOOL_SEARCH=false` 和 Google Cloud 的 Agent Platform 上早于 Claude 4.5 代的模型。
+* **不使用工具搜索**：Claude 改为使用 `WaitForMcpServers` 工具。不使用工具搜索的配置包括自定义 `ANTHROPIC_BASE_URL`、`ENABLE_TOOL_SEARCH=false`，以及 Google Cloud 的 Agent Platform 上早于 Claude Opus 4.5、Claude Sonnet 4.5 和 Claude Haiku 4.5 的模型。
 * **在 Microsoft Foundry [部署托管在 Azure 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)**：Claude 在工具搜索路径上启动而不是使用 `WaitForMcpServers`，因为 Claude Code 仅从 API 发现部署的服务器端拒绝。Claude Code 将该部署切换到 [前期加载](#scale-with-mcp-tool-search) 后，来自完成连接的服务器的工具在 Claude 的下一个请求中变为可用。
 
 启用工具搜索后，当服务器在 Claude 工作时完成连接时，Claude Code 在同一轮次的下一个请求中将服务器的工具名称列出给 Claude。Claude 然后可以搜索和调用这些工具，而无需等待您的下一条消息。

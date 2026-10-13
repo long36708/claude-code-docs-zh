@@ -38,7 +38,7 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 
 这些有提供商特定的差异：
 
-* **MCP servers**：[来自 claude.ai 的连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)仅在您的 claude.ai 订阅是活跃身份验证方法时加载。[工具搜索](/docs/zh-CN/mcp#configure-tool-search)在 `ANTHROPIC_BASE_URL` 指向非第一方主机时默认关闭，在 Google Cloud's Agent Platform 上早于 Claude 4.5 代的模型或在 Microsoft Foundry [部署在 Azure 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)时不受支持
+* **MCP servers**：[来自 claude.ai 的连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)仅在您的 claude.ai 订阅是活跃身份验证方法时加载。[工具搜索](/docs/zh-CN/mcp#configure-tool-search)在 `ANTHROPIC_BASE_URL` 指向非第一方主机时默认关闭，在 Google Cloud's Agent Platform 上早于 Claude Opus 4.5、Claude Sonnet 4.5 和 Claude Haiku 4.5 的模型或在 Microsoft Foundry [部署在 Azure 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)时不受支持
 * **Subagents**：当主对话运行 Fable 时，如果使用 Claude 订阅、Anthropic Console 账户或通过 `ANTHROPIC_BASE_URL` 访问的 [LLM gateway](/docs/zh-CN/llm-gateway)，内置的 [Explore subagent](/docs/zh-CN/sub-agents#built-in-subagents) 会在 Opus 上运行。在其他提供商（包括 Claude Platform on AWS）上，它在 Fable 上运行
 * **[Commands](/docs/zh-CN/commands#all-commands)**：
   * `/design-sync` 和 `/import` 及其 `claude import` 子命令形式在 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 和 Claude Platform on AWS 上不可用，以及通过 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway#availability-and-limitations)
@@ -219,7 +219,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
   </tbody>
 </table>
 
-<span id="fn1" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>1</sup> 在 Google Cloud's Agent Platform 上，web search 适用于 Claude 4 及更高版本的模型。<br />
+<span id="fn1" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>1</sup> 在 Google Cloud's Agent Platform 上，web search 适用于 Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型。<br />
 <span id="fn2" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>2</sup> 在这些提供商上，自动模式仅支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型。请参阅 [Auto mode 配置](/docs/zh-CN/auto-mode-config)。有关会话在这些提供商上启动时所处的权限模式，请参阅[会话启动时的模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)。在 v2.1.158 到 v2.1.206 中，这些提供商上的 auto mode 还需要设置 `CLAUDE_CODE_ENABLE_AUTO_MODE=1`；v2.1.207 移除了该要求。<br />
 <span id="fn3" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>3</sup> 受您与云提供商的协议约束。<br />
 <span id="fn4" style={{display: 'block', position: 'relative', top: '-120px'}} /><sup>4</sup> 仅限仪表板和 API。[贡献指标](/docs/zh-CN/analytics#enable-contribution-metrics)需要 claude.ai Team 或 Enterprise 组织。<br />
@@ -269,7 +269,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
     **部分支持：**
 
     * [Desktop](/docs/zh-CN/desktop)：通过[托管设置](https://claude.com/docs/third-party/claude-desktop/configuration)或 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
-    * [Web search](/docs/zh-CN/tools-reference#websearch-tool-behavior)：Claude 4 及更高版本的模型
+    * [Web search](/docs/zh-CN/tools-reference#websearch-tool-behavior)：Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型
     * [Auto mode](/docs/zh-CN/auto-mode-config)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
     * [Cross-session messaging](/docs/zh-CN/cross-session-messaging)：仅在此机器上的您的会话之间 <sup><a href="#fn5">5</a></sup>
     * [Zero Data Retention](/docs/zh-CN/zero-data-retention)：受您的 Google Cloud 协议约束

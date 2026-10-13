@@ -3625,7 +3625,7 @@ type TodoWriteInput = {
 创建和管理结构化任务列表以跟踪进度。
 
 <Note>
-  以下工具仅在 Claude 3.x 模型、Opus 4 至 4.7、Sonnet 4 至 4.6 和 Haiku 4.5 上默认可用。在所有其他模型上，包括 Claude Code 无法识别的模型 ID，除非您选择加入，否则它们不可用：
+  以下工具仅在 Claude Opus 4.7、Claude Sonnet 4.6、Claude Haiku 4.5 及更早的模型上默认可用。在所有其他模型上，包括 Claude Code 无法识别的模型 ID，除非您选择加入，否则它们不可用：
 
   * `TodoWrite`
   * `TaskCreate`
@@ -4659,7 +4659,7 @@ type TodoWriteOutput = {
 返回之前和更新的任务列表。
 
 <Note>
-  以下工具仅在 Claude 3.x 模型、Opus 4 至 4.7、Sonnet 4 至 4.6 和 Haiku 4.5 上默认可用。在所有其他模型上，包括 Claude Code 无法识别的模型 ID，除非您选择加入，否则它们不可用：
+  以下工具仅在 Claude Opus 4.7、Claude Sonnet 4.6、Claude Haiku 4.5 及更早的模型上默认可用。在所有其他模型上，包括 Claude Code 无法识别的模型 ID，除非您选择加入，否则它们不可用：
 
   * `TodoWrite`
   * `TaskCreate`

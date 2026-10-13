@@ -718,7 +718,7 @@ Claude 从对话中已有的内容回答附加问题：你的消息、它的回�
 
 任务列表是 Claude 的待办事项清单：Claude 创建的用于规划多步骤工作的项目，带有指示器显示待处理、进行中或已完成的状态。它与后台任务视图分开。要查看运行中的 shell 和子代理，请改用 [`/tasks`](/docs/zh-CN/commands)。
 
-该列表仅在具有任务跟踪工具的会话中填充，Claude Code 在 [Claude 3.x 模型、Opus 4 至 4.7、Sonnet 4 至 4.6 以及 Haiku 4.5](/docs/zh-CN/tools-reference#task-tool-availability) 上默认提供。在任何其他模型上，包括 Claude Code 无法识别的模型 ID，除非您使用 `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` 或 [任务工具可用性](/docs/zh-CN/tools-reference#task-tool-availability) 下的其他方式选择加入，否则列表保持为空。当会话具有这些工具时，任务列表的工作方式如下：
+该列表仅在具有任务跟踪工具的会话中填充，Claude Code 在 [Opus 4.7、Sonnet 4.6、Haiku 4.5 及更早的模型](/docs/zh-CN/tools-reference#task-tool-availability) 上默认提供。在任何其他模型上，包括 Claude Code 无法识别的模型 ID，除非您使用 `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` 或 [Task 工具可用性](/docs/zh-CN/tools-reference#task-tool-availability) 下的其他方式选择加入，否则列表保持为空。当会话具有这些工具时，任务列表的工作方式如下：
 
 * 按 `Ctrl+T` 切换任务列表视图。显示一次最多显示五个任务。当 Claude 尚未创建任何清单项目时，切换没有可见效果，因为没有要显示的内容
 * 如果您保持列表展开，Claude Code 会在下次启动仍有任务的会话时恢复展开视图，例如使用 `--resume` 或 `--continue`。当任务列表为空时，Claude Code 会将其启动为折叠状态

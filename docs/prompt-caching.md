@@ -125,7 +125,7 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 上的[自动模型回退](/docs
 工具定义位于系统提示词层，因此当请求中的工具定义集在轮次之间发生变化时，缓存会失效。切换[顾问工具](/docs/zh-CN/advisor)是一个例外：其定义位于缓存断点之后，因此启用或禁用 `/advisor` 会保持缓存的前缀完整。[MCP 服务器](/docs/zh-CN/mcp)的更改是否会导致缓存失效，取决于[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)是否延迟加载会话的 MCP 工具，这是受支持模型上的默认行为：
 
 * **工具延迟加载**：Claude Code 在整个对话中保持对话第一个请求中的工具列表，因此服务器在会话中途连接或断开连接不会干扰任何已缓存的内容。在第一个请求之后才完成连接的服务器会将其工具作为延迟定义提供，由 Claude 按需加载。
-* **工具预先加载**：添加定义会使缓存失效，有意移除定义也会。这适用于[工具搜索低于其 `auto` 阈值、被禁用或不可用](/docs/zh-CN/mcp#configure-tool-search)的情况，例如在 Google Cloud 的 Agent Platform 上使用早于 Claude 4.5 代的模型、使用自定义 `ANTHROPIC_BASE_URL` 网关，或在 Microsoft Foundry [托管于 Azure 的部署](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)上且 Claude Code 检测到该部署拒绝工具搜索时。
+* **工具预先加载**：添加定义会使缓存失效，有意移除定义也会。这适用于[工具搜索低于其 `auto` 阈值、被禁用或不可用](/docs/zh-CN/mcp#configure-tool-search)的情况，例如在 Google Cloud 的 Agent Platform 上使用早于 Opus 4.5、Sonnet 4.5 和 Haiku 4.5 的模型、使用自定义 `ANTHROPIC_BASE_URL` 网关，或在 Microsoft Foundry [托管于 Azure 的部署](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)上且 Claude Code 检测到该部署拒绝工具搜索时。
 
 没有工具搜索时，会话中途的服务器更改是否使缓存失效取决于更改的内容。对于每种更改，下表给出缓存是否保持以及下一个请求中工具定义的变化情况。
 
