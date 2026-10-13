@@ -812,6 +812,10 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 SSH 会话让你在远程机器上运行 Claude Code，同时使用桌面应用作为你的界面。这对于使用存在于云虚拟机、开发容器或具有特定硬件或依赖项的服务器上的代码库很有用。
 
+<Note>
+  如果您将 Desktop 与[第三方提供商](/docs/zh-CN/third-party-integrations)一起使用，SSH 会话需要单独设置。请参阅 [SSH remote sessions in Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
+</Note>
+
 要添加 SSH 连接，请在启动会话之前在输入框中打开环境下拉菜单，然后选择 **SSH > Add SSH connection…** 并填写连接详细信息：
 
 * **Name**：此连接的友好标签
@@ -823,6 +827,66 @@ SSH 会话让你在远程机器上运行 Claude Code，同时使用桌面应用�
 添加后，该连接会出现在环境下拉菜单的 **SSH** 下。选择它即可在该机器上启动会话。Claude 在远程机器上运行，可以访问其文件和工具。
 
 远程机器必须运行 Linux 或 macOS。Desktop 在你第一次连接时会自动在远程机器上安装 Claude Code。连接后，SSH 会话支持权限模式、connectors、plugins 和 MCP servers。
+
+<h4 id="remote-machine-requirements-for-ssh-sessions">
+  SSH 会话的远程机器要求
+</h4>
+
+Linux 或 macOS 远程机器需要受支持的处理器、支持 SFTP 的 SSH 服务器、未以 `noexec` 方式挂载的安装文件夹、可正常工作的 shell 以及网络访问。请在连接之前，或在登录后连接失败时，逐项检查以下要求：
+
+* **系统**：x86\_64 或 arm64 处理器。该机器还必须满足 Claude Code 的[系统要求](/docs/zh-CN/setup#system-requirements)。
+* **SFTP**：SSH 服务器必须提供 SFTP 子系统，该子系统由其 `sshd_config` 中的 `Subsystem sftp` 行启用。要进行检查，请在您计算机的终端中使用 `sftp` 连接到相同的主机和端口。正常工作的服务器会显示 `sftp>` 提示符。
+* **每个连接的会话数**：macOS 和 Linux 上的 Desktop 会在一个 SSH 连接上打开多个会话。如果服务器的 `sshd_config` 设置了 `MaxSessions 1`，请调高该值，例如调到 OpenSSH 的默认值 10。
+* **安装文件夹**：Desktop 会在您主目录下的 `~/.claude/remote/` 中安装一个辅助程序和 Claude Code，并从该位置运行它们，因此该文件夹不能位于以 `noexec` 方式挂载的文件系统上。请在每个连接用户的主目录中预留约 1 GB 的磁盘空间。
+* **Shell**：远程机器上为您的账户设置的 shell 必须能够运行通过 SSH 发送的命令，Bash、Zsh 和 `sh` 都可以
+* **网络**：Claude Code 在远程机器上运行并从那里发出网络请求，因此该机器需要具备 [Claude Code 所需的网络访问](/docs/zh-CN/network-config#network-access-requirements)。如果该机器无法下载 Claude Code，Desktop 会在您的计算机上下载并上传它。Claude Code 的其他请求仍从远程机器发出。
+
+<h4 id="use-your-ssh-configuration-on-macos-and-linux">
+  在 macOS 和 Linux 上使用您的 SSH 配置
+</h4>
+
+在 macOS 和 Linux 上，Desktop 通过在您的计算机上运行 OpenSSH 客户端进行连接，因此会使用您的 `~/.ssh/config`。通过 OpenSSH 客户端连接需要 Claude Desktop v1.37937.0 或更高版本。在 **SSH host** 字段中输入该文件中的 `Host` 名称，即可使用其条目中的设置，例如 `HostName`、`User`、`IdentityFile`、`CertificateFile`、`ProxyJump` 和 `ProxyCommand`。
+
+在添加连接之前，请在您计算机的终端中检查客户端和该条目：
+
+* **客户端版本**：运行 `ssh -V`。客户端必须是 OpenSSH 7.6 或更高版本。
+* **条目**：使用 `Host` 名称运行 `ssh`，例如 `ssh devbox`。如果失败，请先修复该条目。
+
+您可以将 **SSH port** 和 **SSH key (optional)** 字段留空。如果填写了其中一项，Desktop 会将其与该条目一起使用：
+
+* **SSH port**：此处的值会覆盖条目中的 `Port`
+* **SSH key (optional)**：除了条目中的 `IdentityFile` 和 SSH agent 中的密钥之外，Desktop 还会提供您选择的密钥文件
+
+<h5 id="reach-a-machine-behind-a-jump-host">
+  访问跳板主机后的机器
+</h5>
+
+要访问位于跳板主机（也称为堡垒主机）之后的机器，请在条目中设置 `ProxyJump` 或 `ProxyCommand`。以下条目通过 `bastion.example.com` 访问 `devbox.internal.example.com`：
+
+```text ~/.ssh/config theme={null}
+Host devbox
+  HostName devbox.internal.example.com
+  User alice
+  ProxyJump bastion.example.com
+```
+
+在 **SSH host** 字段中输入 `devbox`。
+
+<h5 id="raise-the-ssh-connection-timeout">
+  提高 SSH 连接超时时间
+</h5>
+
+如果您的 SSH 配置没有为该主机设置 `ConnectTimeout`，Desktop 会给 `ssh` 30 秒时间进行连接。通过跳板主机或 `ProxyCommand` 连接时，这段时间包括该路由建立连接所需的时间。如果您的路由需要更长时间，请在条目中添加更大的值：
+
+```text ~/.ssh/config theme={null}
+Host devbox
+  HostName devbox.internal.example.com
+  User alice
+  ProxyJump bastion.example.com
+  ConnectTimeout 120
+```
+
+`ssh` 会使用它为某个主机找到的第一个值，因此请将该条目放在任何设置了 `ConnectTimeout` 的 `Host *` 条目之前。要进行确认，请在您计算机的终端中运行 `ssh -G devbox`，其输出应包含 `connecttimeout 120`。更改该值后，请退出并重新打开 Desktop。
 
 <h4 id="choose-where-ssh-session-worktrees-go">
   选择 SSH 会话 worktree 的位置
