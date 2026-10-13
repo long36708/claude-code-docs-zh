@@ -712,6 +712,10 @@ See [Configure cloud environments](/docs/en/cloud-environments) for details on c
 
 SSH sessions let you run Claude Code on a remote machine while using the desktop app as your interface. This is useful for working with codebases that live on cloud VMs, dev containers, or servers with specific hardware or dependencies.
 
+<Note>
+  If you use Desktop with a [third-party provider](/docs/en/third-party-integrations), SSH sessions need their own setup. See [SSH remote sessions in Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions).
+</Note>
+
 To add an SSH connection, open the environment dropdown in the prompt box before you start a session, then select **SSH > Add SSH connection…** and fill in the connection details:
 
 * **Name**: a friendly label for this connection
@@ -723,6 +727,58 @@ To add an SSH connection, open the environment dropdown in the prompt box before
 Once added, the connection appears under **SSH** in the environment dropdown. Select it to start a session on that machine. Claude runs on the remote machine with access to its files and tools.
 
 The remote machine must run Linux or macOS. Desktop installs Claude Code on the remote machine automatically the first time you connect. Once connected, SSH sessions support permission modes, connectors, plugins, and MCP servers.
+
+#### Remote machine requirements for SSH sessions
+
+A Linux or macOS remote machine needs a supported processor, an SSH server with SFTP, an install folder that isn't mounted `noexec`, a working shell, and network access. Check each requirement before you connect, or when a connection fails after you log in:
+
+* **System**: an x86\_64 or arm64 processor. The machine also has to meet Claude Code's [system requirements](/docs/en/setup#system-requirements).
+* **SFTP**: the SSH server has to offer the SFTP subsystem, which a `Subsystem sftp` line in its `sshd_config` turns on. To check, connect to the same host and port with `sftp` in a terminal on your computer. A working server shows the `sftp>` prompt.
+* **Sessions per connection**: Desktop on macOS and Linux opens several sessions on one SSH connection. If the server's `sshd_config` sets `MaxSessions 1`, raise it, for example to OpenSSH's default of 10.
+* **Install folder**: Desktop installs a helper program and Claude Code under `~/.claude/remote/` in your home directory. It runs them from there, so that folder can't be on a file system mounted `noexec`. Allow about 1 GB of disk space in the home directory of each user who connects.
+* **Shell**: the shell set for your account on the remote machine has to run commands sent over SSH, as Bash, Zsh, and `sh` do
+* **Network**: Claude Code runs on the remote machine and makes its network requests from there, so the machine needs the [network access that Claude Code requires](/docs/en/network-config#network-access-requirements). If the machine can't download Claude Code, Desktop downloads it on your computer and uploads it. Claude Code's other requests still go out from the remote machine.
+
+#### Use your SSH configuration on macOS and Linux
+
+On macOS and Linux, Desktop connects by running the OpenSSH client on your computer, so it uses your `~/.ssh/config`. Connecting through the OpenSSH client requires Claude Desktop v1.37937.0 or later. Enter a `Host` name from that file in the **SSH host** field to use settings from its entry, such as `HostName`, `User`, `IdentityFile`, `CertificateFile`, `ProxyJump`, and `ProxyCommand`.
+
+Before you add the connection, check the client and the entry in a terminal on your computer:
+
+* **Client version**: run `ssh -V`. The client has to be OpenSSH 7.6 or later.
+* **Entry**: run `ssh` with the `Host` name, such as `ssh devbox`. If that fails, fix the entry first.
+
+You can leave the **SSH port** and **SSH key (optional)** fields empty. If you fill one in, Desktop uses it with the entry:
+
+* **SSH port**: a value here overrides the entry's `Port`
+* **SSH key (optional)**: Desktop offers the key file you pick in addition to the entry's `IdentityFile` and the keys in your SSH agent
+
+##### Reach a machine behind a jump host
+
+To reach a machine behind a jump host, also called a bastion, set `ProxyJump` or `ProxyCommand` in the entry. The following entry reaches `devbox.internal.example.com` through `bastion.example.com`:
+
+```text ~/.ssh/config theme={null}
+Host devbox
+  HostName devbox.internal.example.com
+  User alice
+  ProxyJump bastion.example.com
+```
+
+Enter `devbox` in the **SSH host** field.
+
+##### Raise the SSH connection timeout
+
+If your SSH configuration sets no `ConnectTimeout` for the host, Desktop gives `ssh` 30 seconds to connect. Through a jump host or a `ProxyCommand`, that time includes the time the route takes to connect. If your route needs longer, add a higher value to the entry:
+
+```text ~/.ssh/config theme={null}
+Host devbox
+  HostName devbox.internal.example.com
+  User alice
+  ProxyJump bastion.example.com
+  ConnectTimeout 120
+```
+
+`ssh` uses the first value it finds for a host, so keep the entry above any `Host *` entry that sets `ConnectTimeout`. To confirm, run `ssh -G devbox` in a terminal on your computer. Its output includes `connecttimeout 120`. After you change the value, quit and reopen Desktop.
 
 #### Choose where SSH session worktrees go
 

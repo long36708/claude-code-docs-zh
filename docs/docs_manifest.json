@@ -460,8 +460,8 @@
     "desktop.md": {
       "original_url": "https://code.claude.com/docs/en/desktop",
       "original_md_url": "https://code.claude.com/docs/en/desktop.md",
-      "hash": "1e159a0ea0243f2ae2589cd3ac4076350e025ba6139fe8c9fd1b9ab4f72f156b",
-      "last_updated": "2026-10-11T19:49:00.801214"
+      "hash": "353325024cfb5e9207752e1ee7fdddbd7a743769590d17a0be06b744d5a43d0e",
+      "last_updated": "2026-10-13T19:40:20.176518"
     },
     "desktop-ios-simulator.md": {
       "original_url": "https://code.claude.com/docs/en/desktop-ios-simulator",
@@ -1329,8 +1329,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-10-13T11:19:31.924476",
-    "fetch_duration_seconds": 152.523883,
+    "last_fetch_completed": "2026-10-13T19:41:54.140522",
+    "fetch_duration_seconds": 143.46025,
     "total_pages_discovered": 221,
     "pages_fetched_successfully": 222,
     "pages_failed": 0,
@@ -1340,7 +1340,7 @@
     "total_files": 221,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-10-13T11:19:31.924508",
+  "last_updated": "2026-10-13T19:41:54.140546",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
