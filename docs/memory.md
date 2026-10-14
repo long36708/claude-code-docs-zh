@@ -258,7 +258,7 @@ paths:
 
 Claude Code 使用任何会超过预算的未展开模式，其字面大括号不匹配任何文件。在 v2.1.217 之前，具有许多大括号组的 `paths` 值在启动时使 CLI 停滞或崩溃。
 
-Glob 语法将 `[` 视为括号表达式的开始，例如 `[abc]`。具有无法读作括号表达式的 `[` 的模式，例如 `photos [2024/**`，是无效的：它不匹配任何内容，规则的其他模式继续工作。要匹配文件名中的字面 `[`，请将其转义为 `photos \[2024/**`。在 v2.1.207 之前，一个无效模式使 Read 工具对规则被评估的每个文件失败，而不是不匹配任何内容。
+Glob 语法将 `[` 视为括号表达式的开始，例如 `[abc]`。具有无法读作括号表达式的 `[` 的模式，例如 `photos [2024/**`，是无效的：它不匹配任何内容，规则的其他模式继续工作。要匹配文件名中的字面 `[`，请将其转义为 `photos \[2024/**`。
 
 <h4 id="rules-frontmatter-reference">
   规则 frontmatter 参考
@@ -413,7 +413,7 @@ Claude Code 可以将 [`AGENTS.md`](/docs/zh-CN/glossary#agents-md) 作为您的
 
 * **在会话开始时**：您的工作目录和其上方目录中的每个 `AGENTS.md` 和 `.claude/AGENTS.md`。在交互式会话中，您会看到一行，例如 `no CLAUDE.md found; AGENTS.md loaded: /home/you/repo/AGENTS.md` 在对话中
 * **当 Claude 在子目录中工作时**：当 Claude 使用 Read 工具打开该处的文件且该子目录没有三个 `CLAUDE.md` 文件中的任何一个时，子目录的 `AGENTS.md`
-* **在每个 `AGENTS.md` 内**：[`@path` 导入](#import-additional-files)被展开，[`claudeMdExcludes`](#exclude-specific-claude-md-files) 模式适用，[跳过项目说明](/docs/zh-CN/sub-agents#what-loads-at-startup)的子代理也会跳过这些文件
+* **在每个 `AGENTS.md` 内**：[`@path` 导入](#import-additional-files)被展开，[`claudeMdExcludes`](#exclude-specific-claude-md-files) 模式适用，[启动时不带项目说明](/docs/zh-CN/sub-agents#what-loads-at-startup)的子代理启动时同样不带这些文件
 * **不读取**：`AGENTS.local.md`、`AGENTS.override.md` 或 `.agents/` 目录下的任何内容
 
 <Note>
@@ -495,7 +495,7 @@ Claude Code 可以将 [`AGENTS.md`](/docs/zh-CN/glossary#agents-md) 作为您的
 
 ## Claude Code
 
-对 `src/billing/` 下的更改使用计划模式。
+Use plan mode for changes under `src/billing/`.
 ```
 
 如果您不需要 Claude 特定的内容，符号链接也可以工作：
@@ -692,7 +692,7 @@ CLAUDE.md 内容作为用户消息在系统提示词之后传递，而不是系�
 
 如果您的某个指令文件超过推荐长度，您会在启动时和运行 `/status` 时看到警告。当各自都在该长度内的文件在会话开始时加起来超过组合限制时，您也会看到警告。每个 CLAUDE.md、规则文件和 `@path` 导入都计为单独的文件。
 
-[`/doctor`](/docs/zh-CN/commands#all-commands) 检查为已检入的 CLAUDE.md 提议修剪：它删除 Claude 可以从代码库派生的内容，例如目录布局、依赖项列表和架构概览，并保留与工具默认值不同的陷阱、基本原理和约定。修剪检查需要 Claude Code v2.1.206 或更高版本。
+[`/doctor`](/docs/zh-CN/commands#all-commands) 检查为已检入的 CLAUDE.md 提议修剪：它删除 Claude 可以从代码库派生的内容，例如目录布局、依赖项列表和架构概览，并保留与工具默认值不同的陷阱、基本原理和约定。
 
 <h3 id="instructions-seem-lost-after-/compact">
   在 `/compact` 后指令似乎丢失了

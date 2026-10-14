@@ -44,13 +44,13 @@
 
 | 值 | 行为 |
 | :- | :- |
-| （未设置） | 工具搜索启用。工具定义被延迟并按需发现。在Google Cloud的Agent Platform早于Claude 4.5代的模型、非第一方`ANTHROPIC_BASE_URL`或Microsoft Foundry部署（托管在Azure上）上回退到预先加载。 |
-| `true` | 工具搜索始终启用，除了在Microsoft Foundry部署（托管在Azure上）上，服务器端拒绝仍会强制预先加载，以及在Google Cloud的Agent Platform早于Claude 4.5代的模型上，SDK继续预先加载工具定义。SDK通过代理发送beta标头，在不支持`tool_reference`块的代理上请求会失败。 |
+| （未设置） | 工具搜索启用。工具定义被延迟并按需发现。在早于Opus 4和Sonnet 4的模型、Google Cloud的Agent Platform上早于Opus 4.5、Sonnet 4.5和Haiku 4.5的模型、非第一方`ANTHROPIC_BASE_URL`或托管在Azure上的Microsoft Foundry部署上回退到预先加载。 |
+| `true` | 在非第一方`ANTHROPIC_BASE_URL`下工具搜索保持启用。其他（未设置）情况下的回退仍然适用。SDK通过代理发送beta标头，在不支持`tool_reference`块的代理上请求会失败。 |
 | `auto` | 计算工具搜索可以延迟的工具定义中的token，并将总数与模型的上下文窗口进行比较。当总数达到窗口的10%时，工具搜索激活。低于此值时，SDK预先将每个工具定义加载到上下文中。 |
 | `auto:N` | 与`auto`相同，但具有自定义百分比。`auto:5`在这些定义达到上下文窗口的5%时激活。较低的值更早激活。 |
 | `false` | 工具搜索关闭。所有工具定义在每个轮次上都加载到上下文中。 |
 
-设置[`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](/docs/zh-CN/env-vars)会保持工具搜索关闭。您无法通过自己设置`ENABLE_TOOL_SEARCH`来覆盖它。您的组织可以通过[托管设置](/docs/zh-CN/managed-settings)在Claude Code v2.1.227或更高版本上保持工具搜索启用。[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities)涵盖了覆盖应用的位置以及变量删除的内容。
+设置[`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](/docs/zh-CN/env-vars)会保持工具搜索关闭。您无法通过自己设置`ENABLE_TOOL_SEARCH`来覆盖它。在Claude Code v2.1.227或更高版本上，您的组织可以通过[托管设置](/docs/zh-CN/managed-settings)在设置了此变量的情况下保持工具搜索启用。在[获得HIPAA配置](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)的会话中，工具搜索处于关闭状态，`ENABLE_TOOL_SEARCH`和托管设置都无法将其重新启用。[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities)涵盖了覆盖应用的位置以及变量删除的内容。
 
 工具搜索适用于所有已注册的工具，无论它们来自远程MCP 服务器还是[自定义SDK MCP 服务器](/docs/zh-CN/agent-sdk/custom-tools)。当您使用`auto`时，SDK会计算工具搜索可以延迟的每个定义，针对一个组合阈值：来自任何服务器的未标记为[`alwaysLoad`](/docs/zh-CN/mcp#exempt-a-server-from-deferral)的每个MCP工具，加上按需加载的内置工具。SDK会预先加载核心内置工具（如Bash、Read和Edit），不会将其计入阈值。您的某个插件中的[mod](/docs/zh-CN/plugins/mods/reference#tools)也可以延迟某个工具或预先加载它，这会改变该计数。
 
@@ -167,7 +167,7 @@
 
 * **最大工具数：** 您的目录中最多10,000个工具
 * **搜索结果：** 默认每次搜索返回最多五个最相关的工具
-* **模型支持：** Claude Sonnet 4.5、Claude Haiku 4.5、Claude Opus 4.5及更新版本；请参阅[API文档中的模型兼容性](https://platform.claude.com/docs/zh-CN/agents-and-tools/tool-use/tool-search-tool#model-compatibility)了解当前列表。Google Cloud的Agent Platform上也适用相同的最低要求。
+* **模型支持：** Opus 4、Sonnet 4、Haiku 4.5及更新的模型；在Google Cloud的Agent Platform上为Opus 4.5、Sonnet 4.5、Haiku 4.5及更新的模型。在更早的模型上，SDK会预先加载工具定义，如[配置工具搜索](#configure-tool-search)中所述。
 
 <h2 id="related-documentation">
   相关文档

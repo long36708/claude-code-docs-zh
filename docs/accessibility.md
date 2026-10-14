@@ -20,7 +20,7 @@ Claude Code 具有屏幕阅读器模式，可将其视觉终端界面替换为�
 * 对于从一个 shell 启动的会话：设置 `CLAUDE_AX_SCREEN_READER` 环境变量为 `1`。在 Bash 或 Zsh 中，运行 `export CLAUDE_AX_SCREEN_READER=1`。在 PowerShell 中，运行 `$env:CLAUDE_AX_SCREEN_READER = "1"`。将该行添加到您的 shell 配置文件以保持它用于未来的 shell。
 * 对于机器上的每个会话：将 `"axScreenReader": true` 添加到您的用户[设置文件](/docs/zh-CN/settings)。该设置适用于任何终端，包括 VS Code 集成终端。
 
-如果您组合方法，Claude Code 将 [`--ax-screen-reader`](/docs/zh-CN/cli-reference#cli-flags) 标志应用于 [`CLAUDE_AX_SCREEN_READER`](/docs/zh-CN/env-vars#variables) 环境变量，以及该变量应用于 [`axScreenReader`](/docs/zh-CN/settings-reference#axscreenreader) 设置。
+如果您组合使用多种方法，Claude Code 会优先应用 [`--ax-screen-reader`](/docs/zh-CN/cli-reference#cli-flags) 标志而非 [`CLAUDE_AX_SCREEN_READER`](/docs/zh-CN/env-vars#variables) 环境变量，并优先应用该环境变量而非 [`axScreenReader`](/docs/zh-CN/settings-reference#axscreenreader) 设置。
 
 如果您通过 SSH 使用 Claude Code，请在运行 Claude Code 的远程机器上设置环境变量或设置。
 

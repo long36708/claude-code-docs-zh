@@ -165,7 +165,7 @@
 | `initialPrompt` | `string` | 否 | 当此代理作为主线程代理运行时自动提交为第一个用户轮次。当代理作为子代理调用时忽略 |
 | `maxTurns` | `number` | 否 | 代理停止前的最大代理轮次数。当代理达到限制时，Claude Code 返回其输出标记为部分，您可以[恢复代理](#resume-subagents)以继续。部分标记需要 Claude Code v2.1.246 或更高版本 |
 | `background` | `boolean` | 否 | 调用时将此代理作为非阻塞后台任务运行 |
-| `omitClaudeMd` | `boolean` | 否 | 当此代理作为子代理运行时，在不使用用户、项目和本地 CLAUDE.md 文件的情况下运行此代理；托管策略文件仍然加载。当代理作为主线程代理运行时忽略。需要 TypeScript Agent SDK v0.3.271 或更高版本。Python SDK 的 [`AgentDefinition`](/docs/zh-CN/agent-sdk/python#agentdefinition) 没有此字段 |
+| `omitClaudeMd` | `boolean` | 否 | 将用户、项目和本地 CLAUDE.md 文件排除在此 Agent 的初始上下文之外；托管策略文件仍会加载。当该 Agent 作为主线程 Agent 运行时忽略。需要 TypeScript Agent SDK v0.3.271 或更高版本。Python SDK 的 [`AgentDefinition`](/docs/zh-CN/agent-sdk/python#agentdefinition) 没有此字段 |
 | `effort` | `'low' \| 'medium' \| 'high' \| 'xhigh' \| 'max' \| number` | 否 | 此代理的推理工作量级别 |
 | `permissionMode` | `PermissionMode` | 否 | 此代理内工具执行的权限模式。[子代理继承规则](/docs/zh-CN/agent-sdk/permissions#available-modes)决定何时应用 |
 
@@ -200,7 +200,7 @@
 | 子代理接收 | 子代理不接收 |
 | :- | :- |
 | 其自身的系统提示（`AgentDefinition.prompt`）和 Agent 工具的提示 | 父代理的对话历史或工具结果 |
-| 项目 CLAUDE.md（通过 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources) 加载），除非代理设置了 [`omitClaudeMd`](#agentdefinition-configuration) | 预加载的技能内容，除非在 `AgentDefinition.skills` 中列出 |
+| 项目 CLAUDE.md（通过 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources) 加载）。设置了 [`omitClaudeMd`](#agentdefinition-configuration) 的 Agent 启动时不包含它 | 预加载的 skill 内容，除非在 `AgentDefinition.skills` 中列出 |
 | 工具定义（从父代理继承或 `tools` 中的子集，[为后台运行过滤](/docs/zh-CN/sub-agents#available-tools)） | 父代理的系统提示 |
 
 <Note>

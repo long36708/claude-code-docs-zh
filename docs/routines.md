@@ -52,19 +52,9 @@ Team 和 Enterprise 所有者可以在 [claude.ai/admin-settings/claude-code](ht
 
 创建表单设置例程的提示、存储库、环境、connectors 和触发器。
 
-Routines 作为完整的 Claude Code 云会话自主运行：没有权限模式选择器，会话运行 shell 命令、使用 [skills](/docs/zh-CN/skills) 提交到克隆的存储库，并调用您包含的任何 connectors，所有这些都无需停止以获得批准，除了某些 [artifact](/docs/zh-CN/artifacts) 操作。
+Routine 作为完整的 Claude Code 云端会话自主运行：没有权限模式选择器，会话会运行 shell 命令、使用提交到克隆仓库中的 [skill](/docs/zh-CN/skills)，并调用您包含的任何连接器，所有这些都无需停下来等待批准，某些 [Artifact 操作](#when-a-run-publishes-an-artifact-without-asking)除外。
 
 例程可以到达的内容由您选择的存储库、[environment](/docs/zh-CN/cloud-environments) 的网络访问和变量以及您包含的 connectors 决定。将每个范围限制在例程实际需要的范围内。
-
-当例程的计划或 **Run now** 启动运行时，Claude 仅在以下所有条件都成立时才会重新发布现有 artifact，无需询问：
-
-* 您可以编辑 artifact，它属于您自己的组织
-* artifact 不是公开共享的
-* 如果 artifact 与特定人员或您的组织共享，其查看者不会自动看到每个新版本
-* 发布仅包含页面，没有支持文件或任何其他添加的内容，并且不会强制覆盖较新版本
-* 页面不包含超出页面范围的授权，例如 [connector calls](/docs/zh-CN/artifacts#pull-live-data-with-mcp-connectors)
-
-在所有其他情况下，包括发布新 artifact，Claude 会先询问。当例程的工作是保持页面最新时，请给它一个您已经发布的 artifact。
 
 Routines 属于您的个人 claude.ai 账户。它们不与队友共享，并且其运行计入您账户的 [usage and limits](#usage-and-limits)。例程通过您连接的 GitHub 身份或 connectors 所做的任何事情都显示为您：提交和拉取请求携带您的 GitHub 用户，Slack 消息、Linear 票证或其他 connector 操作使用您为这些服务链接的账户。
 
@@ -381,6 +371,26 @@ Routine 可以在每次运行期间使用您已连接的 MCP 连接器来读取�
 创建 Routine 时，默认会包含您当前已连接的所有连接器。请移除不需要的连接器，以限制 Claude 在运行期间可以访问的工具。您也可以直接在 Routine 表单中添加连接器。
 
 要在 Routine 表单之外管理或添加连接器，请访问 [claude.ai/customize/connectors](https://claude.ai/customize/connectors)，或在 CLI 中使用 `/schedule update`。
+
+<h3 id="when-a-run-publishes-an-artifact-without-asking">
+  运行在未询问的情况下发布 Artifact 的情形
+</h3>
+
+当 Routine 的计划或 **Run now** 启动一次运行时，Claude 可以在不询问的情况下发布新的 [Artifact](/docs/zh-CN/artifacts)。在您[共享它](/docs/zh-CN/artifacts#share-an-artifact)之前，新的 Artifact 仅对您可见。如果发布操作为页面声明了运行时能力，例如[连接器调用](/docs/zh-CN/artifacts#pull-live-data-with-mcp-connectors)或[文件下载](/docs/zh-CN/artifacts#offer-a-file-download)，Claude 会先询问。
+
+在这些运行中，只有当以下所有条件都满足时，Claude 才会在不询问的情况下重新发布现有的 Artifact：
+
+* 您可以编辑该 Artifact，且它属于您自己的组织
+* 如果发布内容不止页面本身（例如附带支持文件），则您是该 Artifact 的所有者
+* 该 Artifact 未公开共享
+* 如果该 Artifact 已与特定人员或您的组织共享，其查看者不会自动看到每个新版本
+* 发布操作不会强制覆盖较新的版本
+* 发布操作未为页面声明运行时能力
+* 现有页面不持有任何超出页面范围的授权，例如[连接器调用](/docs/zh-CN/artifacts#pull-live-data-with-mcp-connectors)
+
+在所有其他情况下，包括由 API 或 GitHub 触发器启动的运行，Claude 都会先询问。
+
+如果 Routine 的任务是保持某个页面处于最新状态，请为其提供一个您已经发布的 Artifact。
 
 <h3 id="environments-and-network-access">
   环境和网络访问

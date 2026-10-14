@@ -1198,9 +1198,9 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 | `description` | string | 任务的简短描述，例如 Claude 在生成该子代理时给出的描述 |
 | `label` | string | Claude Code 提供的任务简短进度摘要（如果有），否则与 `description` 文本相同 |
 | `startTime` | number | 任务开始时间，以自 Unix 纪元以来的毫秒数表示 |
-| `model` | string，可选 | 任务运行所用的已解析模型 ID。在模型解析之前省略。需要 Claude Code v2.1.205 或更高版本 |
+| `model` | string，可选 | 任务运行所用的已解析模型 ID。在模型解析之前省略 |
 | `effort` | string 或 number，可选 | 在子代理的[定义 frontmatter](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 中或单次调用时为其设置的推理 effort：`low`、`medium`、`high`、`xhigh`、`max` 或数字 token 预算。这是所配置的值，当模型不支持该级别时，Claude Code 实际应用的 effort 可能会有所不同。未设置 effort 时省略。需要 Claude Code v2.1.213 或更高版本 |
-| `contextWindowSize` | number，可选 | `model` 的上下文窗口（以 token 计），计算方式与主状态栏的 [`context_window.context_window_size`](#context-window-fields) 相同，因此您可以根据 `tokenCount` 渲染每行百分比。当 `model` 被省略时也会省略。需要 Claude Code v2.1.205 或更高版本 |
+| `contextWindowSize` | number，可选 | `model` 的上下文窗口（以 token 计），计算方式与主状态栏的 [`context_window.context_window_size`](#context-window-fields) 相同，因此您可以根据 `tokenCount` 渲染每行百分比。当 `model` 被省略时也会省略 |
 | `tokenCount` | number | 子代理的累计 token 数，即默认行中显示的数值 |
 | `tokenSamples` | array of numbers | 最近最多 16 个 `tokenCount` 读数，每个刷新周期一个，按从旧到新排列，最后一个为当前值 |
 | `cwd` | string | 子代理的工作目录：如果子代理在自己的目录（例如隔离的 worktree）中运行，则为该目录，否则为会话的工作目录 |

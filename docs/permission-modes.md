@@ -235,11 +235,10 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
   <Tab title="Web and mobile">
     在 [claude.ai/code](https://claude.ai/code) 上，使用输入框旁边的模式下拉菜单。在移动应用中，点击输入框中的 **+** 按钮，然后点击 **Permission**。云端会话和 Remote Control 会话提供不同的权限模式：
 
-    * **[Cloud sessions](/docs/zh-CN/claude-code-on-the-web)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。Auto 模式仅在您的组织允许且所选模型支持时出现。Bypass permissions 不可用。
-    * **[Remote Control](/docs/zh-CN/remote-control) sessions** 在您的本地机器上：Manual、Accept edits、Plan 和 Auto（对于您自己启动的会话），您无法从应用中选择 Bypass permissions。要使用 Auto，会话必须满足自动模式的[可用性要求](#eliminate-prompts-with-auto-mode)。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](/docs/zh-CN/claude-projects#run-a-thread-on-your-own-computer)。
+    * **[云端会话](/docs/zh-CN/claude-code-on-the-web)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云端会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。Auto 模式仅在您的组织允许且所选模型支持时出现。Bypass permissions 不可用。
+    * 您本地机器上的 **[Remote Control](/docs/zh-CN/remote-control) 会话**：Manual、Accept edits、Plan 和 Auto（对于您自己启动的会话），您无法从应用中选择 Bypass permissions。要使用 Auto，会话必须满足自动模式的[可用性要求](#eliminate-prompts-with-auto-mode)。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](/docs/zh-CN/claude-projects#run-a-thread-on-your-own-computer)。
       * 除了 Bypass permissions，下拉菜单显示本地会话所在的权限模式，包括从终端设置的模式。它在应用或终端中权限模式更改时更新。
       * 由[桌面应用](/docs/zh-CN/desktop)或 [VS Code 扩展](/docs/zh-CN/vs-code)托管的会话在权限模式更改时向 claude.ai 报告，与在终端中托管的会话相同。
-      * 在 v2.1.202 之前，使用 `/remote-control` 或 `claude --remote-control` 连接的会话根本不报告其权限模式，因此 claude.ai 和移动应用可能显示会话不在的权限模式。不匹配仅影响标签。Claude Code 从会话的实际权限模式生成权限提示，它们仍然出现在应用中以供批准。
 
     对于 Remote Control，运行会话的本地机器必须使用您的 claude.ai 账户登录；不支持 API 密钥。您也可以在启动该本地会话时设置起始权限模式：
 
@@ -352,8 +351,6 @@ claude --permission-mode plan
 
 要阻止开发者使用自动模式，请在[托管设置](/docs/zh-CN/managed-settings)中将 `disableAutoMode` 设置为 `"disable"`。这会将 `auto` 从 `Shift+Tab` 循环中移除，并且使用 `--permission-mode auto` 启动的会话将改为以 Manual 模式启动。当该设置从[管理员部署的来源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)到达一个已在自动模式下运行的会话时，该会话会退出自动模式，并显示 `auto mode disabled by settings`。在 v2.1.251 之前，正在运行的会话会保持自动模式直到会话结束。
 
-在 v2.1.158 到 v2.1.206 中，这些提供商上的自动模式默认关闭，直到您设置 `CLAUDE_CODE_ENABLE_AUTO_MODE=1`；并且除非同时设置了该变量，否则 Claude Code 会在这些提供商上忽略 `defaultMode: "auto"`。出于兼容性考虑，该变量仍然可用，但从 v2.1.207 起不再产生任何效果。
-
 <h3 id="server-side-classifier-review">
   服务器端分类器审查
 </h3>
@@ -408,27 +405,21 @@ claude --permission-mode plan
 * 启动无需人工批准或沙箱即可运行的自主 Agent 循环，例如使用 `--dangerously-skip-permissions` 或 `--no-sandbox` 启动的循环。这包括在禁用隔离和逐操作批准的情况下运行第三方 Agent 或评估工具，例如使用 `--yes-always` 启动的运行器
 * 可能将页面内容、cookie 或凭据发送到源站之外的 [Claude in Chrome](/docs/zh-CN/chrome) 浏览器操作
 * 通过通配符、glob 或时间过滤器（而非指定的具体路径）删除 `/tmp`、`$TMPDIR` 或其他共享临时目录或缓存目录中的文件
-* 在发送、上传、发布或写入给他人或共享系统的内容中包含敏感细节，而您自己的消息并未授权将这些细节提供给该接收方。当仓库位于信任边界之外或为公开仓库（包括您组织自己的公开仓库）时，PR 和 issue 正文、提交信息以及评论都属于此类外发内容；内部文件路径、代号、实时 API 响应数据（例如电子邮件或账户标识符）以及基础设施标识符都属于敏感细节。对于 PR 或 issue 正文中来自 API 响应的实时个人数据，例如电子邮件地址、账户或组织标识符或使用量指标，无论仓库的可见性或信任边界如何，都需要您明确指出这些细节和接收方。该检查需要 Claude Code v2.1.203 或更高版本
+* 在发送、上传、发布或写入给他人或共享系统的内容中包含敏感细节，而您自己的消息并未授权将这些细节提供给该接收方。当仓库位于信任边界之外或为公开仓库（包括您组织自己的公开仓库）时，PR 和 issue 正文、提交信息以及评论都属于此类外发内容；内部文件路径、代号、实时 API 响应数据（例如电子邮件或账户标识符）以及基础设施标识符都属于敏感细节。对于 PR 或 issue 正文中来自 API 响应的实时个人数据，例如电子邮件地址、账户或组织标识符或使用量指标，无论仓库的可见性或信任边界如何，都需要您明确指出这些细节和接收方
 * 向 Claude Code 自己的 tmux 窗格发送按键以驱动其自身界面，分类器会将此视为 Claude 更改其自身的权限或监督
 * 注释掉、删除或强制通过用于保护安全行为（例如身份验证、访问控制、输入验证或沙箱隔离）的测试或断言
 * 删除或拆除 Claude 未在本会话中创建的有状态资源，且没有更具体的删除规则适用、您也未指定该资源
 * 将 API 基础 URL、代理端点、webhook 接收器或注册表镜像重新指向与任务不相符的第三方主机，包括在 `.env.example` 等示例文件中
 * 使用 `git remote set-url` 或 `git remote add` 更改推送目标，除非您指定了新的远程仓库
-* 将密钥或个人数据、受托数据推送到已知为公开的仓库，或将不属于该仓库本身工作的机密材料推送到该仓库。对于个人数据或受托数据，唯一的例外是 dotfiles 仓库本身的主题内容；来自私有仓库的内容进入任何公开渠道也会以同样方式被阻止；这两项细化都需要 Claude Code v2.1.203 或更高版本。在 v2.1.203 之前，个人数据与机密材料归为一类，仅在不属于该仓库本身工作时才被阻止。当仓库的可见性无法确定时，分类器不会仅凭这一点进行阻止，而是依据其他规则来判断内容
+* 将密钥或个人数据、受托数据推送到已知为公开的仓库，或将不属于该仓库本身工作的机密材料推送到该仓库。对于个人数据或受托数据，唯一的例外是 dotfiles 仓库本身的主题内容；来自私有仓库的内容进入任何公开渠道也会以同样方式被阻止。当仓库的可见性无法确定时，分类器不会仅凭这一点进行阻止，而是依据其他规则来判断内容
 * 向其他仓库或组织发起 Pull Request、使用 `gh repo fork` 进行 fork，或推送到第三方仓库，除非您指定了该外部目标
-
-其中一些类别依赖于[环境](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure)条目，例如敏感远程目标和受保护的 IaC 作用域，您可以将它们收窄到具体名称。
-
-Claude Code v2.1.203 及更高版本还会默认阻止以下操作：
-
 * 来自敏感本地存储的内容，或来自名称、路径或类型表明其为敏感文件的内容，进入提交、推送、PR 或 issue 文本、gist 或粘贴、或包发布，除非您同时指定了来源和目标。会话记录和对话日志、凭据和配置类点文件夹（例如 SSH 密钥、云凭据、浏览器配置文件和 shell 历史记录）以及用户数据导出都包括在内，仓库为私有也不能解除此阻止
-
-Claude Code v2.1.205 及更高版本还会默认阻止以下操作：
-
 * 写入 Claude Code 会话记录，即 `~/.claude/projects/` 或您所配置的配置目录下的 `.jsonl` 历史文件，无论是直接写入还是通过 shell 命令写入。该规则还涵盖 Claude Code 为其自身检查而附加到每条会话记录条目中的元数据行。读取会话记录不会被阻止
 * 递归强制删除，例如 `rm -rf "$VAR"` 或 `Remove-Item -Recurse -Force $dir`，其目标是在分类器所见对话中任何地方都未赋值的 shell 变量，或以此类变量为根的 glob。该值仅来自先前的命令输出，而分类器从不接收这些输出，因此分类器无法根据其他删除规则验证删除目标。当您指明要删除的确切路径，或 Claude 将解析后的字面路径写入命令并重新运行删除时，该阻止会解除。分类器能够解析目标的删除操作不受影响。
 
   直接位于变量下的 glob（例如 `rm -rf "$VAR"/*`）则属于[关键路径](#critical-paths)。目标为单独的 `*` 或以 `/*` 或 `\*` 结尾的 `Remove-Item` 永远不会到达分类器：Claude Code 会[直接拒绝它们](#remove-item-in-powershell)。
+
+其中一些类别依赖于[环境](/docs/zh-CN/auto-mode-config#define-trusted-infrastructure)条目，例如敏感远程目标和受保护的 IaC 作用域，您可以将它们收窄到具体名称。
 
 Claude Code v2.1.257 及更高版本还会默认阻止以下操作：
 
@@ -449,7 +440,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 * 安装您的锁文件或清单中声明的依赖
 * 读取 `.env` 并将凭据发送到与之匹配的 API
 * 只读 HTTP 请求
-* 推送到您正在处理的仓库的任何分支，包括默认分支。名称表明其为部署或发布目标的非默认分支（例如 `production` 或 `gh-pages`）不在此列：分类器会单独判断推送到这类分支的操作。推送的内容仍会根据其他规则进行检查，[`permissions.deny` 规则](/docs/zh-CN/permissions#manage-permissions)在所有模式下仍可按[命令的书写形式](/docs/zh-CN/permissions#bash-rule-limits)阻止推送命令，并且远程仓库自身的分支保护仍然适用。在 v2.1.211 之前，默认仅允许推送到您开始时所在的分支、Claude 创建的分支，以及对默认分支的常规推送；而在 v2.1.203 之前，任何直接推送到默认分支的操作都会被阻止
+* 推送到您正在处理的仓库的任何分支，包括默认分支。名称表明其为部署或发布目标的非默认分支（例如 `production` 或 `gh-pages`）不在此列：分类器会单独判断推送到这类分支的操作。推送的内容仍会根据其他规则进行检查，[`permissions.deny` 规则](/docs/zh-CN/permissions#manage-permissions)在所有模式下仍可按[命令的书写形式](/docs/zh-CN/permissions#bash-rule-limits)阻止推送命令，并且远程仓库自身的分支保护仍然适用。在 v2.1.211 之前，默认仅允许推送到您开始时所在的分支、Claude 创建的分支，以及对默认分支的常规推送
 * 删除 Claude 在同一会话中先前创建的确切作业
 * 作为任务的一部分，读取、审查或编写与安全相关的代码、配置和威胁模型
 * 在同一多 Agent 会话中协同工作的 Agent 之间的消息

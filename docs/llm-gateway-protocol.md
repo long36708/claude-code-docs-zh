@@ -168,7 +168,7 @@ Claude Code 也可以发送路由提示：网关或路由器可以用来调度�
 | :- | :- |
 | `x-claude-code-request-class` | 这是什么类型的请求：`main` 用于主对话的一个回合，`subagent` 用于 [子代理](/docs/zh-CN/sub-agents) 的一个回合，`workflow` 用于在工作流内运行的代理，`compaction` 用于压缩对话的总结请求，或 `auxiliary` 用于侧面请求，如会话标题、分类器和摘要。在每个请求上发送 |
 | `x-claude-code-agent-type` | 发出请求的子代理的类型：内置代理类型名称，如 `Explore`、`Plan` 或 `general-purpose`，或 `custom` 用于用户定义的代理，`teammate` 用于在主导的进程中运行的 [代理团队](/docs/zh-CN/agent-teams) 成员，或 `fork` 用于 [分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)。仅在子代理自己的回合上存在；子代理的压缩或侧面请求保留代理 ID 但不携带类型。用户选择的代理名称永远不会被发送 |
-| `x-claude-code-compaction` | 在 [压缩](/docs/zh-CN/prompt-caching#compacting-the-conversation) 期间总结对话的请求上存在。该值说明触发了什么：`auto` 当上下文窗口接近容量时，`manual` 用于 `/compact`，或 `reactive` 当 API 拒绝请求过长时。在所有其他请求上不存在 |
+| `x-claude-code-compaction` | 在 [压缩](/docs/zh-CN/prompt-caching#compacting-the-conversation) 期间总结对话的请求上存在。该值说明触发了什么：`auto` 当上下文窗口接近容量时，`manual` 用于 `/compact`，或 `reactive` 当 API 拒绝请求过长时。对于 [空闲压缩](/docs/zh-CN/settings-reference#idlecompaction)，该值也为 `auto`。在所有其他请求上不存在 |
 | `x-claude-code-context-compacted` | 在压缩后的第一个主对话请求上存在一次，具有与 `x-claude-code-compaction` 相同的值。此请求之前的对话前缀不再使用，因此可以删除以其为键的缓存 |
 | `x-claude-code-prev-tool-durations` | 此请求携带其结果的工具调用的测量运行时间，格式为 `<name>=<ms>;<name>=<ms>`，例如 `Bash=742;Read=9`。在同一对话的下一个请求之后发送，来自主会话或子代理的一批工具调用 |
 | `x-claude-code-prompt-id` | 标识请求所服务的用户提示的随机 UUID。服务一个提示的请求共享该值，包括提示启动的子代理的回合。未归属于提示的请求省略它。使用它按提示对会话的请求进行分组。需要 Claude Code v2.1.283 或更高版本 |
@@ -291,8 +291,9 @@ Claude Code 在上游拒绝后的操作取决于被拒绝的内容：
 
 在 Claude Code v2.1.227 或更高版本上，您的组织可以通过[托管设置](/docs/zh-CN/managed-settings)在此变量下保持 [MCP 工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)打开。Claude Code 在该覆盖生效时发送的内容取决于您如何连接：
 
-* 在直接连接上，或通过设置了 `ANTHROPIC_BASE_URL` 的 gateway，Claude Code 继续发送工具搜索 beta 请求头、`defer_loading` 工具字段和 `tool_reference` 块，并删除其余部分
+* 在未使用 HIPAA 配置的直接连接上，或通过设置了 `ANTHROPIC_BASE_URL` 的网关，Claude Code 继续发送工具搜索 beta 请求头、`defer_loading` 工具字段和 `tool_reference` 块
 * 在云提供商上，或通过 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 登录，覆盖没有效果
+* 在[获得 HIPAA 配置](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)的会话中，覆盖没有效果，工具搜索保持关闭
 
 Claude Code 发送的功能集随版本增长。有关当前 beta 请求头字符串，请参阅 [beta 请求头参考](https://platform.claude.com/docs/en/api/beta-headers)；针对新的 Claude Code 版本测试您的 gateway，而不是固定到观察列表。
 

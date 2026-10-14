@@ -908,6 +908,7 @@ type SDKControlInitializeResponse = {
     | "malformed"
     | "not_honoured"
   >;
+  claude_code_version?: string;
 };
 ```
 
@@ -921,6 +922,11 @@ type SDKControlInitializeResponse = {
 在 Agent SDK v0.3.238 之前，响应从不携带该字段，并且 Claude Code 在每次重复 initialize 时都会忽略 `hooks`。
 
 请求的 `sdkMcpServerManifests` 字段和响应的 `sdk_mcp_manifests_parked` 字段用于您通过 [`createSdkMcpServer()`](#createsdkmcpserver) 创建的进程内 [SDK MCP 服务器](/docs/zh-CN/agent-sdk/custom-tools)。您的应用不需要设置或读取这两个字段。
+
+`claude_code_version` 是运行会话轮次的进程的 Claude Code 版本。它与 [`SDKSystemMessage`](#sdksystemmessage) init 消息携带的值相同，因此您可以在第一轮之前读取 CLI 版本。
+
+* 该字段需要 Agent SDK v0.3.296 或更高版本，该版本捆绑了 Claude Code v2.1.296。
+* 如果该字段为 `undefined` 且您设置了 `pathToClaudeCodeExecutable`，请将其指向 Claude Code v2.1.296 或更高版本。
 
 响应始终会报告 `fast_mode_state`，并且当有因素阻止[快速模式](/docs/zh-CN/fast-mode)时，`fast_mode_disabled_reason` 会随之携带原因代码，因此您可以解释被阻止的状态，而无需重新推断可用性。这两种行为都需要 Claude Code v2.1.219 或更高版本。在 v2.1.219 之前，当快速模式不可用时，响应会省略 `fast_mode_state`，并且从不携带原因。有关原因代码及其含义，请参阅结果消息上的 [`fast_mode_disabled_reason`](#sdkresultmessage)。
 
@@ -1239,7 +1245,7 @@ type AgentDefinition = {
 | `initialPrompt` | 否 | 当此 Agent 作为主线程 Agent 运行时，作为第一轮用户输入自动提交 |
 | `maxTurns` | 否 | 停止前的最大 agentic 轮次数（API 往返次数） |
 | `background` | 否 | 被调用时将此 Agent 作为非阻塞的后台任务运行 |
-| `omitClaudeMd` | 否 | 当此 Agent 作为子代理运行时，不加载用户、项目和本地 CLAUDE.md 文件；托管策略文件仍会加载。适用于从 Agent 工具提示词中获取所需全部内容的 Agent。当此 Agent 作为主线程 Agent 运行时忽略。需要 TypeScript Agent SDK v0.3.271 或更高版本 |
+| `omitClaudeMd` | 否 | 不将用户、项目和本地 CLAUDE.md 文件纳入此 Agent 的初始上下文；托管策略文件仍会加载。适用于从 Agent 工具提示词中获取所需全部信息的 Agent。当此 Agent 作为主线程 Agent 运行时忽略。需要 TypeScript Agent SDK v0.3.271 或更高版本 |
 | `memory` | 否 | 此 Agent 的记忆来源：`'user'`、`'project'` 或 `'local'` |
 | `effort` | 否 | 此 Agent 的推理 effort 级别。接受命名级别或整数 |
 | `permissionMode` | 否 | 此 Agent 内工具执行的权限模式。[子代理继承规则](/docs/zh-CN/agent-sdk/permissions#available-modes)决定其何时生效。请参阅 [`PermissionMode`](#permissionmode) |
@@ -3444,10 +3450,14 @@ type FileReadInput = {
   offset?: number;
   limit?: number;
   pages?: string;
+  allow_large?: boolean;
 };
 ```
 
-从本地文件系统读取文件，包括文本、图像、PDF 和 Jupyter 笔记本。对 PDF 页面范围使用 `pages`（例如，`"1-5"`）。
+从本地文件系统读取文件，包括文本、图像、PDF 和 Jupyter 笔记本。
+
+* 对 PDF 页面范围使用 `pages`（例如，`"1-5"`）。
+* `allow_large` 允许 Claude 在会话的上下文窗口有空间时读取超过[通常大小限制](/docs/zh-CN/tools-reference#large-files)的文本文件。它需要 Agent SDK v0.3.296 或更高版本，该版本捆绑了 Claude Code v2.1.296。
 
 对于 PDF，Claude 在 Read 调用的 `tool_result` 内容中接收文件的内容。返回 `pdf` [输出](#tool-output-types)的读取操作包含一个摘要 `text` 块，后跟一个 `document` 块。返回 `parts` 输出的读取操作包含摘要 `text` 块，后跟每个提取页面的一个块：一个 `image` 块，或当 Claude Code 无法将其呈现为图像时命名该页面的 `text` 块。在 Agent SDK v0.3.242 之前，Claude Code 在工具结果后作为单独的 `user` 消息传递文件的内容。
 

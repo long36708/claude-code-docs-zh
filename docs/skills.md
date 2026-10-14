@@ -31,7 +31,7 @@ Claude Code 包含一组捆绑技能，例如 `/doctor`、`/code-review`、`/bat
 要关闭捆绑技能，请使用 [`disableBundledSkills`](/docs/zh-CN/settings-reference#disablebundledskills) 设置。
 
 <Note>
-  在 Claude Code v2.1.205 及更高版本中，当 `disableBundledSkills` 打开时，[`/doctor`](/docs/zh-CN/commands#all-commands) 设置检查仍然可以输入。要隐藏它，请设置 `DISABLE_DOCTOR_COMMAND` 环境变量或 [`skillOverrides`](#override-skill-visibility-from-settings) 条目 `"doctor": "off"`。在 v2.1.205 之前，`/doctor` 是内置命令而不是捆绑技能。
+  当 `disableBundledSkills` 打开时，[`/doctor`](/docs/zh-CN/commands#all-commands) 设置检查仍然可以输入。要隐藏它，请设置 `DISABLE_DOCTOR_COMMAND` 环境变量或 [`skillOverrides`](#override-skill-visibility-from-settings) 条目 `"doctor": "off"`。
 </Note>
 
 捆绑技能与内置命令一起列在[命令参考](/docs/zh-CN/commands)中，在"目的"列中标记为**技能**。
@@ -69,7 +69,7 @@ Claude Code 包含一组捆绑技能，例如 `/doctor`、`/code-review`、`/bat
 
 `/verify` 也可以记录自己的配方。当它必须在没有记录的配方的情况下构建和驱动您的应用时，它会将有效的内容写入存储库根目录的 `.claude/skills/verify/SKILL.md`，或在 monorepo 中的受触及的包目录中，以便后续运行和其他 Agent 遵循相同的步骤。在存储库根目录，记录的 skill 替换随附的 `/verify`。
 
-Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命令或缺少的步骤，因此您可以提交文件而无需每个会话的差异。在 v2.1.205 之前，捆绑技能告诉 Claude 折叠运行学到的任何内容，这导致频繁的合并冲突。
+Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命令或缺少的步骤，因此您可以提交该文件而不会产生每个会话的 diff。
 
 <h3 id="run-your-checks-before-each-commit">
   在每次提交前运行检查
@@ -858,7 +858,9 @@ Claude Code 也会等待结果，即使技能没有设置 `background: false`，
 | 具有 `context: fork` 的技能 | 来自代理类型 | SKILL.md 内容 | CLAUDE.md，根据代理的[启动上下文](/docs/zh-CN/sub-agents#what-loads-at-startup) |
 | 具有 `skills` 字段的子代理 | 子代理的 markdown 主体 | Claude 的委派消息 | 预加载的技能 + CLAUDE.md，根据子代理的[启动上下文](/docs/zh-CN/sub-agents#what-loads-at-startup) |
 
-使用 `context: fork`，你在你的技能中编写任务并选择一个代理类型来执行它。内置的 Explore 和 Plan 代理[跳过 CLAUDE.md 和 git 状态](/docs/zh-CN/sub-agents#what-loads-at-startup)以保持其上下文较小，因此使用 `agent: Explore` 的分叉技能仅看到 SKILL.md 内容和代理自己的系统提示。对于相反的情况，你定义一个使用技能作为参考材料的自定义子代理，请参阅[子代理](/docs/zh-CN/sub-agents#preload-skills-into-subagents)。
+使用 `context: fork` 时，您在 skill 中编写任务，并选择一个 Agent 类型来执行它。内置的 Explore 和 Plan Agent [启动时不加载 CLAUDE.md 和 git 状态](/docs/zh-CN/sub-agents#what-loads-at-startup)，以保持其上下文精简。请将任务所需的一切都放在您的 SKILL.md 中。使用 `agent: Explore` 的分叉 skill 启动时只包含该内容和 Agent 自己的系统提示词，不包含您的任何 CLAUDE.md 文件。
+
+对于相反的情况，即定义一个将 skill 用作参考材料的自定义子代理，请参阅[子代理](/docs/zh-CN/sub-agents#preload-skills-into-subagents)。
 
 <h4 id="example-research-skill-using-explore-agent">
   示例：使用 Explore 代理的研究技能

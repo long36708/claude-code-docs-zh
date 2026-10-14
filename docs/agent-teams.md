@@ -270,7 +270,7 @@ Agent team 由以下部分组成：
 | **Task list** | 队友认领和完成的共享工作项列表 |
 | **Mailbox** | 代理之间通信的消息系统 |
 
-每个代理的邮箱是位于 `~/.claude/teams/{team-name}/inboxes/{agent-name}.json` 的 JSON 文件。Claude Code 在读取邮箱文件时验证每个条目。不匹配消息格式的条目被报告为错误并从文件中删除；有效的消息仍然会被传递。在 v2.1.207 之前，单个格式错误的邮箱条目会导致每秒重复出现错误，并阻止该邮箱的传递，直到你手动删除文件。
+每个 Agent 的邮箱是位于 `~/.claude/teams/{team-name}/inboxes/{agent-name}.json` 的 JSON 文件。Claude Code 在读取邮箱文件时会验证每个条目。不匹配消息格式的条目会被报告为错误并从文件中删除；有效的消息仍然会被传递。
 
 Claude Code 仅在写入收件人邮箱文件成功时才报告消息已发送，无论消息是纯文本还是结构化协议消息（如计划批准或关闭请求）。当写入失败时，例如因为磁盘已满或邮箱目录不可写，发送代理会收到错误，什么都不会被发送。有关错误消息和恢复步骤，请参阅 [Failed to write to a teammate's inbox](/docs/zh-CN/errors#failed-to-write-to-a-teammate-inbox)。
 

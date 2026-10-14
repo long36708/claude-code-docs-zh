@@ -237,6 +237,19 @@ Claude Code 永远不会自己安装具有 `command` 源的依赖，所以用户
 
 当用户卸载最后一个约束依赖的 plugin 时，依赖不再被约束到版本范围，并在下一次更新时恢复跟踪其市场条目。
 
+<h3 id="dependencies-when-your-plugin-loads-from-claude-ai">
+  当您的插件从 claude.ai 加载时的依赖
+</h3>
+
+当用户为其 claude.ai 账户启用您的插件时，Claude Code 将其加载为 `<name>@synced`，[不关联任何市场](/docs/zh-CN/plugins/loading#synced-plugins)。对于您插件的这一副本，当用户具备以下任一条件时，Claude Code 会将指定了市场的依赖条目视为已满足：
+
+* **来自其市场的依赖**：从您的条目所指定的市场安装并已启用。Claude Code 会根据已安装副本的版本检查您条目中的 `version` 范围。
+* **同名的 claude.ai 插件**：已从其 claude.ai 账户启用。Claude Code 会根据该插件的 `version` 检查您条目中的 `version` 范围，未声明 `version` 的插件会通过检查。
+
+如果您告知用户从 claude.ai 启用您的插件，请同时告知他们也在那里启用该依赖，或从其市场安装该依赖。
+
+只有当您的插件也从 claude.ai 加载时，claude.ai 插件才能满足该条目。
+
 <h2 id="see-also">
   另请参阅
 </h2>

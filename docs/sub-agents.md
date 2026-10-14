@@ -32,7 +32,7 @@ Claude 使用每个 subagent 的描述来决定何时委托任务。创建 subag
 
 Claude Code 包括内置 subagents，Claude 在适当时自动使用。每个都继承父对话的权限规则；大多数运行时工具集受限。
 
-Explore 和 Plan 会跳过您的 CLAUDE.md 文件和 git 状态快照，以保持研究快速且成本低廉。所有其他内置和[自定义 subagent](#configure-subagents) 都会加载两者，除非其定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 字段以跳过用户、项目和本地 CLAUDE.md 文件。有关到达 subagent 的内容的完整分解，请参阅[启动时加载的内容](#what-loads-at-startup)。
+Explore 和 Plan 启动时不加载您的 CLAUDE.md 文件和 git 状态快照，以保持研究快速且成本低廉。其他内置子代理和[自定义子代理](#configure-subagents)都会加载两者，除非您在自定义子代理的定义中设置 [`omitClaudeMd`](#supported-frontmatter-fields)，使其启动时不加载用户、项目和本地 CLAUDE.md 文件。有关到达子代理的内容的完整分解，请参阅[启动时加载的内容](#what-loads-at-startup)。
 
 <Tabs>
   <Tab title="Explore">
@@ -185,7 +185,7 @@ Explore 和 Plan 会跳过您的 CLAUDE.md 文件和 git 状态快照，以保�
 
 Claude Code 递归扫描 `.claude/agents/` 和 `~/.claude/agents/`，因此您可以将定义组织到子文件夹中，例如 `agents/review/` 或 `agents/research/`。子目录路径不会影响 subagent 的识别或调用方式，因为身份仅来自 `name` frontmatter 字段。
 
-在整个树中保持 `name` 值唯一：如果同一 `.claude/agents/` 目录下的两个文件（包括其子文件夹）声明相同的名称，Claude Code 仅加载其中一个，由文件系统读取顺序选择，而不是有文档记录的优先级。在嵌套项目目录中，最接近工作目录的定义获胜，如上所述。[`/doctor`](/docs/zh-CN/commands#all-commands) 设置检查报告同一目录中共享名称的文件，并建议重命名或删除除一个之外的所有文件。在 v2.1.205 之前，`/doctor` 打开一个诊断屏幕，列出重复项并显示哪个定义是活跃的。
+在整个目录树中保持 `name` 值唯一：如果同一 `.claude/agents/` 目录（包括其子文件夹）下的两个文件声明了相同的名称，Claude Code 只会加载其中一个，由文件系统读取顺序决定，而不是由有文档记录的优先级决定。在嵌套的项目目录之间，如上所述，最接近工作目录的定义优先。[`/doctor`](/docs/zh-CN/commands#all-commands) 设置检查会报告同一目录中同名的文件，并建议重命名或删除其中除一个之外的所有文件。
 
 Plugin `agents/` 目录也会被递归扫描。与项目和用户范围不同，plugin 的 `agents/` 目录内的子文件夹成为 [scoped identifier](#invoke-subagents-explicitly) 的一部分：plugin `my-plugin` 中位于 `agents/review/security.md` 的文件注册为 `my-plugin:review:security`。
 
@@ -285,7 +285,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 
 一个 subagent 在主对话的当前工作目录中启动。在 subagent 中，`cd` 命令不会在 Bash 或 PowerShell 工具调用之间持续，也不会影响主对话的工作目录。要给 subagent 一个隔离的存储库副本，请改为设置 [`isolation: worktree`](#supported-frontmatter-fields)。
 
-具有 `isolation: worktree` 的 subagent 在其 worktree 内运行其 Bash 和 PowerShell 命令。一个工作目录解析到您的主检出的命令，例如因为 worktree 目录在 subagent 运行时被删除，会失败并出现错误。在 v2.1.203 之前，这样的命令可能在主检出中运行。
+具有 `isolation: worktree` 的子代理会在其 worktree 内运行 Bash 和 PowerShell 命令。如果某个命令的工作目录解析到了您的主检出，例如因为 worktree 目录在子代理运行期间被删除，该命令会失败并报错。
 
 此工作目录检查涵盖包含您启动 Claude Code 的目录的整个存储库。当您的会话在其自己的链接 [worktree](/docs/zh-CN/worktrees) 中运行时，检查也涵盖该 worktree 链接的主检出。在 v2.1.210 之前，检查仅涵盖启动目录本身。一个工作目录解析到同一存储库中其他地方的命令，例如当您从 monorepo 子目录启动 Claude Code 时的存储库根目录，会在那里运行而不是失败。
 
@@ -322,7 +322,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 | `hooks` | 否 | [Lifecycle hooks](#define-hooks-for-subagents) 限定于此 subagent。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略 |
 | `memory` | 否 | [Persistent memory scope](#enable-persistent-memory)：`user`、`project` 或 `local`。启用跨会话学习 |
 | `background` | 否 | 设置为 `true` 以即使 Claude 要求在前台运行也保持此 subagent 在后台。其中 [fork mode](#turn-fork-mode-on-or-off) 打开时，Claude Code 已经在 [background](#run-subagents-in-foreground-or-background) 中运行 Claude 生成的 subagents |
-| `omitClaudeMd` | 否 | 设置为 `true` 以启动此 subagent 而不使用用户、项目和本地 CLAUDE.md 文件；[managed policy files](/docs/zh-CN/memory#how-claude-md-files-load) 仍然加载，除了 [managed subagents](#choose-the-subagent-scope)。对于从 [delegation prompt](#what-loads-at-startup) 获取所需一切的 subagents 使用它。当代理通过 `--agent` 或 `agent` 设置作为主会话代理运行时被忽略。需要 Claude Code v2.1.271 或更高版本 |
+| `omitClaudeMd` | 否 | 设置为 `true` 可使此子代理在启动时，其[初始上下文](#what-loads-at-startup)中不包含用户、项目和本地 CLAUDE.md 文件；[托管策略文件](/docs/zh-CN/memory#how-claude-md-files-load)仍会加载，但[托管子代理](#choose-the-subagent-scope)除外。适用于从委托提示词中获取所需一切的子代理。当该 Agent 通过 `--agent` 或 `agent` 设置作为主会话 Agent 运行时会被忽略。需要 Claude Code v2.1.271 或更高版本 |
 | `effort` | 否 | 此子代理活跃时的 effort 级别。覆盖会话的 effort 级别，但不覆盖 [`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars#variables) 环境变量。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型。请参阅[选择 effort 级别](#choose-an-effort-level) |
 | `isolation` | 否 | 设置为 `worktree` 以在临时 [git worktree](/docs/zh-CN/worktrees) 中运行 subagent，为其提供存储库的隔离副本，默认从您的 [default branch](/docs/zh-CN/worktrees#choose-the-base-branch) 分支，而不是父会话的 `HEAD`。如果 subagent 不进行任何更改，worktree 会自动清理 |
 | `color` | 否 | Subagent 在任务列表和转录中的显示颜色。接受 `red`、`blue`、`green`、`yellow`、`purple`、`orange`、`pink` 或 `cyan` |
@@ -1150,9 +1150,9 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 * **CLAUDE.md 文件**：主对话所加载的 [CLAUDE.md 层级结构](/docs/zh-CN/memory#how-claude-md-files-load)中的每一级，包括 `~/.claude/CLAUDE.md`、项目规则、`CLAUDE.local.md`、托管策略文件，以及作为项目指令加载的任何 [`AGENTS.md` 文件](/docs/zh-CN/memory#agents-md)。内置的 Explore 和 Plan Agent 会跳过这些。定义中设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 的子代理只加载托管策略文件；如果该定义来自[托管设置](#choose-the-subagent-scope)，则一个也不加载。
 * **Git 状态**：子代理启动时 Claude Code 从您的仓库读取的快照。对于在该仓库的[自有 worktree](/docs/zh-CN/worktrees#isolate-subagents-with-worktrees) 中运行的子代理，快照会显示该 worktree 的分支、状态和最近的提交。在 Git 仓库之外或快照被关闭时不存在；请参阅 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions)。Explore 和 Plan 无论如何都会跳过它。
 * **预加载的 skill**：Agent 的 [`skills` 字段](#preload-skills-into-subagents)中列出的每个 skill 的完整内容。内置 Agent 不预加载 skill。
-* **同级名单**：一条[系统提醒](/docs/zh-CN/glossary#system-reminder)，列出 `main` 以及会话中所有其他已命名的 Agent，每一个都是 [`SendMessage`](#resume-subagents) 的有效 `to` 值。需要 Claude Code v2.1.206 或更高版本。仅当子代理的工具包含 `SendMessage` 且至少有一个其他 Agent 拥有名称时才会出现该名单，无论该名称是 Claude 在生成时指定的，还是该 Agent 作为 [agent team](/docs/zh-CN/agent-teams) 队友运行。名单是子代理启动时拍摄的快照，因此之后命名的 Agent 不会出现在其中。
+* **同级名单**：一条[系统提醒](/docs/zh-CN/glossary#system-reminder)，列出 `main` 以及会话中所有其他已命名的 Agent，每一个都是 [`SendMessage`](#resume-subagents) 的有效 `to` 值。仅当子代理的工具包含 `SendMessage` 且至少有一个其他 Agent 拥有名称时才会出现该名单，无论该名称是 Claude 在生成时指定的，还是该 Agent 作为 [agent team](/docs/zh-CN/agent-teams) 队友运行。名单是子代理启动时拍摄的快照，因此之后命名的 Agent 不会出现在其中。
 
-要在不加载用户、项目和本地 CLAUDE.md 文件的情况下启动您自己的某个子代理，请在其 frontmatter 或 `--agents` JSON 中设置 [`omitClaudeMd: true`](#supported-frontmatter-fields)。
+要在不加载用户、项目和本地 CLAUDE.md 文件的情况下启动您自己的某个子代理，请在其 frontmatter 或 `--agents` JSON 中设置 [`omitClaudeMd: true`](#supported-frontmatter-fields)。对于 Explore、Plan 以及设置了 `omitClaudeMd` 的子代理，当子代理处理某个子目录中的文件时，该子目录的 `CLAUDE.md` 和匹配的[路径作用域规则](/docs/zh-CN/memory#path-specific-rules)仍会[加载](/docs/zh-CN/memory#how-claude-md-files-load)。
 
 主对话在读取这些子代理的结果时仍拥有您的完整 CLAUDE.md，因此大多数规则无需传达给子代理本身。如果某条规则必须传达，例如"忽略 `vendor/` 目录"，请在委托时给 Claude 的提示词中重新说明。
 
@@ -1196,7 +1196,7 @@ Continue that code review and now analyze the authorization logic
 
 当[该子代理所在的行仍在子代理面板中](#run-subagents-in-foreground-or-background)时，您可以在其会话记录中输入内容来亲自恢复它。此后，来自 Claude 的消息即可再次自动恢复它。
 
-恢复会在同一 ID 下启动该 Agent 的一次新运行，因此已失败或已完成的子代理会在任务列表和 Agent SDK 的任务事件中再次显示为运行中。在 v2.1.205 之前，在恢复的运行进行期间，它仍会显示之前的失败或已完成状态。
+恢复会在同一 ID 下启动该 Agent 的一次新运行，因此已失败或已完成的子代理会在任务列表和 Agent SDK 的任务事件中再次显示为运行中。
 
 `SendMessage` 会检查某个名称是否仍指向对话中先前通过该名称联系到的同一个 Agent。如果该名称已被较新的 Agent 占用（例如重新生成的后台 Agent 复用了该名称），Claude Code 会拒绝发送，而不是将消息送达错误的 Agent，并且错误会报告该名称现在指向哪个 Agent，以便 Claude 重新指定目标。要在较早的 Agent 仍在运行时联系它，Claude 会使用生成该 Agent 时收到的 Agent ID 来寻址。此检查仅限于当前对话，并会在 `/clear` 时重置。
 

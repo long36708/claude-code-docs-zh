@@ -134,6 +134,7 @@
 | `proxy refused the connection` | [网络](#the-proxy-refused-the-connection) |
 | `403` with `GitHub GraphQL is not available from Claude Code sessions` in a cloud session | [GitHub proxy](/docs/zh-CN/cloud-environments#github-proxy) |
 | `The cloud environments service returned an empty response` / `The cloud environments service returned a response in an unexpected format` | [网络](#the-cloud-environments-service-returned-an-empty-or-unexpected-response) |
+| `Failed to fetch session from Sessions API: Failed to fetch session logs` | [网络](#failed-to-fetch-session-from-sessions-api) |
 | `Couldn't reconnect to your Remote Control session` | [网络](#couldnt-reconnect-to-your-remote-control-session) |
 | `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.` | [网络](#sessions-ended-while-this-machine-was-offline) |
 | `Couldn't share the transcript.` | [网络](#couldnt-share-the-transcript) |
@@ -153,9 +154,12 @@
 | `Request too large for the API's 32MB request limit` | [请求错误](#request-too-large) |
 | `Image was too large` | [请求错误](#image-was-too-large) |
 | `Unable to resize image` | [请求错误](#unable-to-resize-image) |
+| `Request rejected as unprocessable by the model` | [请求错误](#request-rejected-as-unprocessable-by-the-model) |
 | `PDF too large` / `PDF is password protected` / `pdftoppm is not installed` | [请求错误](#pdf-errors) |
 | `Extra inputs are not permitted` | [请求错误](#extra-inputs-are-not-permitted) |
 | `API Error: 400 ... tools.N.custom.input_schema: JSON schema is invalid` / `Property keys should match pattern` | [请求错误](#tool-input-schema-is-invalid) |
+| `Tool "mcp__<server>__<tool>" is not sent to Claude: its name has <N> characters and the API accepts at most 128` | [请求错误](#mcp-tool-name-over-128-characters) |
+| `tools.N.custom.name: String should have at most 128 characters` | [请求错误](#mcp-tool-name-over-128-characters) |
 | `tool_use.name: String should have at most 200 characters` | [请求错误](#tool-use-name-over-200-characters) |
 | `There's an issue with the selected model` | [请求错误](#theres-an-issue-with-the-selected-model) |
 | `Model ... is not a recognized model id` | [请求错误](#model-is-not-a-recognized-model-id) |
@@ -198,8 +202,11 @@
 | `Error: Cannot use both --append-subagent-system-prompt and --append-subagent-system-prompt-file. Please use only one.` | [命令行错误](#conflict-between-a-system-prompt-flag-and-its-file-form) |
 | `Cloud sessions cannot be created from a --restricted session` | [命令行错误](#cloud-sessions-cannot-be-created-from-a-restricted-session) |
 | `Cloud sessions are disabled by your organization's policy` | [命令行错误](#cloud-sessions-are-disabled-by-your-organizations-policy) |
-| `Couldn't verify your organization's policy for cloud sessions` | [命令行错误](#cloud-sessions-are-disabled-by-your-organizations-policy) |
+| `Cloud sessions use your claude.ai login`，出现在指明某个凭据的策略拒绝消息末尾 | [命令行错误](#cloud-sessions-use-your-claude-ai-login) |
+| `Couldn't verify your organization's policy for cloud sessions` | [命令行错误](#couldnt-verify-your-organizations-policy-for-cloud-sessions) |
+| `Cloud sessions aren't available:`，后跟无法加载您组织策略的原因 | [命令行错误](#couldnt-verify-your-organizations-policy-for-cloud-sessions) |
 | `Cloud sessions need a claude.ai sign-in` | [无法获取组织 UUID](/docs/zh-CN/claude-code-on-the-web#unable-to-get-organization-uuid) |
+| `Nothing was stashed: "<path>" is now a folder in place of a tracked file or link` / `are now folders in place of tracked files or links` | [命令行错误](#nothing-was-stashed-because-a-folder-replaced-a-tracked-file) |
 | `Error: --json-schema is not a valid JSON Schema` | [命令行错误](#the-json-schema-value-is-not-a-valid-json-schema) |
 | `Error: Invalid --agents configuration:` | [命令行错误](#invalid-agents-configuration) |
 | `Error: --agents takes a JSON object, or a file path only with --print (-p)` | [命令行错误](#invalid-agents-configuration) |
@@ -259,6 +266,7 @@
 | `Output styles are saved to local settings (.claude/settings.local.json), which this session doesn't load` | [命令行错误](#output-styles-are-saved-to-local-settings-which-this-session-doesnt-load) |
 | `/recap only runs when you ask for it yourself in this session` | [命令行错误](#recap-only-runs-when-you-ask-for-it-yourself) |
 | `` `plugin eval` is currently in early access `` / `` `plugin eval` is currently unavailable `` | [Plugin 错误](#plugin-eval-is-currently-in-early-access) |
+| `cannot be evaluated where sessions load it` | [使用 evals 测试插件](/docs/zh-CN/plugin-evals#cannot-be-evaluated-where-sessions-load-it) |
 | `Marketplace "<name>" is registered from an untrusted source` | [Plugin 错误](#marketplace-is-registered-from-an-untrusted-source) |
 | `Claude Code refuses the marketplace name "<name>"` | [Plugin 错误](#claude-code-refuses-the-marketplace-name) |
 | `Marketplace name impersonates an official Anthropic/Claude marketplace` | [Plugin 错误](#claude-code-refuses-the-marketplace-name) |
@@ -447,6 +455,7 @@ Claude Code 不重试这些故障：
 | [`CLAUDE_CODE_RETRY_WATCHDOG`](/docs/zh-CN/env-vars) | 未设置 | 在 CI 作业等无人值守会话中设置为 `1`，以无限期重试 `429` 和 `529` 容量错误，而不是在 `CLAUDE_CODE_MAX_RETRIES` 尝试后失败。当标准速度请求获得报告支出限制或耗尽使用额度的 `429` 时，Claude Code 立即失败，即使来自 [gateway spend cap](#spend-limit-reached) 的也是如此，该上限按计划重置。在 v2.1.239 之前，看门狗无限期重试这些。对于快速模式请求，请参阅 [Handle rate limits](/docs/zh-CN/fast-mode#handle-rate-limits)。在 v2.1.199 或更高版本上，它还为其他瞬时错误（例如服务器错误、超时和断开连接）提高默认重试计数至 300，大约三小时的退避，如果您明确设置该变量，则移除 `CLAUDE_CODE_MAX_RETRIES` 的 15 上限。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS`](/docs/zh-CN/env-vars) | 未设置 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 时，每个 API 请求在等待 `429` 和 `529` 错误上所花费的最长时间（毫秒）。未设置时，等待时间没有限制。需要 Claude Code v2.1.295 或更高版本。 |
 | [`CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS`](/docs/zh-CN/env-vars) | 500 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的起始延迟（毫秒）。当 API 容量已满时，可将其提高（最高 32000），以便在更长的时间窗口内分散重试。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](/docs/zh-CN/fast-mode#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.292 或更高版本。 |
+| [`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS`](/docs/zh-CN/env-vars) | 32000 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的上限（毫秒）。当 API 容量已满时，可将其提高（最高 64000），使后续重试之间的间隔持续拉大。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](/docs/zh-CN/fast-mode#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.296 或更高版本。 |
 | [`API_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 600000 | 每个请求的超时（毫秒）。为慢速网络或代理提高它。它还限制 Claude Code 等待响应头的时间，在 [No response from API](#no-response-from-api) 中描述。 |
 | [`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES`](/docs/zh-CN/env-vars) | 未设置 | 超时的[非流式请求](#streaming-response-ended-before-any-complete-data-was-received)的重新发送次数限制。达到该限制时，请求失败。生成时间超过超时时间的 Claude 响应在每次重新发送时都会再次超时，因此请设置较低的数值（例如 `0`）以更快地失败。在本地会话中，每次非流式尝试在 300 秒后超时；当您为 `API_TIMEOUT_MS` 设置正值时，则在该值指定的时间后超时。需要 Claude Code v2.1.285 或更高版本。 |
 | [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 未设置 | 流式请求的第一个响应字节的截止时间（毫秒）。需要 Claude Code v2.1.242 或更高版本。对于当此未设置时 Claude Code 如何选择截止时间，请参阅 [No response from API](#no-response-from-api)。 |
@@ -2097,6 +2106,24 @@ The cloud environments service returned a response in an unexpected format (HTTP
 
 在 v2.1.236 之前，Claude Code 显示原始 JavaScript TypeError 而不是这些消息。
 
+<h3 id="failed-to-fetch-session-from-sessions-api">
+  Failed to fetch session from Sessions API
+</h3>
+
+此消息意味着 Claude Code 找到了[您要求拉取到终端中的云端会话](/docs/zh-CN/claude-code-on-the-web#from-cloud-to-terminal)，但无法从 Anthropic 的服务器读取其对话历史，因此没有打开它：
+
+```text theme={null}
+Failed to fetch session from Sessions API: Failed to fetch session logs
+```
+
+您会在运行 `claude --teleport`、`/teleport` 或在 [`/tasks`](/docs/zh-CN/commands) 列表中选择该会话后看到它。`claude --teleport <session-id>` 会打印此消息并以代码 1 退出。
+
+**要做什么：**
+
+* 再次运行相同的 Teleport 操作。如果以相同方式失败，请[报告该问题](#report-an-error)
+
+在 v2.1.296 之前，Claude Code 不会重试失败的读取，并且在读取失败后可能会以空对话打开该会话并报告成功，而不是打印此消息。
+
 <h3 id="couldnt-reconnect-to-your-remote-control-session">
   无法重新连接到您的 Remote Control 会话
 </h3>
@@ -2344,6 +2371,22 @@ Claude Code 通常会自动调整大型图像的大小。这些错误意味着�
 * 如果消息报告尺寸或大小限制，请在附加之前将图像调整或重新压缩到该限制以下。
 * 如果消息命名原因，例如 CMYK JPEG、动画 WebP 或可能损坏的文件，请以消息建议的格式重新保存图像并再次附加。
 
+<h3 id="request-rejected-as-unprocessable-by-the-model">
+  Request rejected as unprocessable by the model
+</h3>
+
+API 以模型无法处理为由拒绝了请求。该消息是 API 自身的消息。
+
+```text theme={null}
+API Error: 400 Request rejected as unprocessable by the model (too many or oversized images, or unsupported parameters)
+```
+
+Claude Code 可以从被拒绝的请求中移除最早的图片和文档并重新发送。在 v2.1.290 之前，Claude Code 在遇到此拒绝时不会移除图片，因此累积了数百张图片的长会话可能在每个轮次都以此错误失败。
+
+**解决方法：**
+
+* 如果该消息在包含图片或文档的对话中反复出现，请自行移除它们。按两次 Esc 回退到添加它们的轮次之前，或运行 `/clear` 重新开始。
+
 <h3 id="pdf-errors">
   PDF 错误
 </h3>
@@ -2412,6 +2455,24 @@ Claude Code [在加载服务器的工具时排除其输入 schema 会失败此�
 * 如果您的 Claude Code 版本早于 v2.1.216，运行 `claude update`。
 * 删除或[禁用](/docs/zh-CN/mcp#disable-a-server-without-removing-it)声明无效 schema 的 MCP 服务器。该错误仅按位置命名工具。在 v2.1.216 或更高版本上，检查每个服务器的日志，查找命名其输入 schema 会被拒绝的工具的行。如果没有日志命名一个，一次禁用一个服务器。
 * 如果您维护服务器，请修复工具的 `input_schema`。schema 必须是有效的 JSON Schema，顶级属性名称必须为 1 到 64 个字符长，并仅使用 ASCII 字母和数字、`_`、`.` 和 `-`。请参阅[具有无效输入 schema 的工具](/docs/zh-CN/mcp#tools-with-invalid-input-schemas)。
+
+<h3 id="mcp-tool-name-over-128-characters">
+  MCP 工具名称超过 128 个字符
+</h3>
+
+MCP 服务器列出了一个工具，其完整名称（例如 `mcp__<server>__<tool>`）超过了 API 接受的 128 个字符。Claude Code [会将该工具排除在发送给 Claude 的工具之外](/docs/zh-CN/mcp#tools-with-names-longer-than-128-characters)，该服务器的其他工具仍可正常工作。在您从 shell 中使用 `claude --debug` 启动的会话中，Claude Code 会将以下消息写入位于 `~/.claude/debug/<session-id>.txt` 的调试日志：
+
+```text theme={null}
+Tool "mcp__<server>__<tool>" is not sent to Claude: its name has <N> characters and the API accepts at most 128
+```
+
+**要做什么：**
+
+* 如果您维护该服务器，请缩短该工具的名称。
+* 如果该服务器位于您的 [MCP 配置](/docs/zh-CN/mcp#mcp-installation-scopes)中，请在那里为其指定一个更短的名称，例如用 `db` 代替 `analytics-database`。然后更新通过旧名称引用该服务器或其工具的内容，例如[权限规则](/docs/zh-CN/permissions#mcp)和 [hook 匹配器](/docs/zh-CN/hooks#match-mcp-tools)。
+* 如果[插件捆绑了该服务器](/docs/zh-CN/mcp#plugin-provided-mcp-servers)，工具的完整名称还会包含插件名称。请让插件的维护者缩短服务器或工具名称。
+
+在 v2.1.292 之前，Claude Code 仍会发送该工具，API 会拒绝包含它的每个请求，并显示 `API Error: 400 ... tools.N.custom.name: String should have at most 128 characters`。
 
 <h3 id="tool-use-name-over-200-characters">
   tool\_use.name 超过 200 个字符
@@ -3022,14 +3083,68 @@ Cloud sessions are disabled by your organization's policy. Contact your organiza
 
 当您[从终端创建云端会话](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)时，以及当您提交需要云端会话的命令（例如 `/teleport`、`/remote-env` 或 `/web-setup`）时，会出现此消息。在 v2.1.268 之前，提交这些命令之一会返回 [`Unknown command`](#unknown-command)。
 
-这是服务器端的组织策略，因此无法通过本地设置、环境变量或 CLI 标志覆盖。
-
-如果 Claude Code 尚未加载您组织的策略或无法获取该策略，这些命令会改为回复 `Couldn't verify your organization's policy for cloud sessions. Check your network connection, then restart Claude Code and try again.`。
+如果消息中改为指出此会话正在使用的某个凭据，并以 `Cloud sessions use your claude.ai login.` 结尾，请参阅 [Cloud sessions use your claude.ai login](#cloud-sessions-use-your-claude-ai-login)。如果 Claude Code 完全无法加载您组织的策略，您会看到[另一条消息](#couldnt-verify-your-organizations-policy-for-cloud-sessions)。
 
 **解决方法：**
 
 * 请您组织中的 [Owner](/docs/zh-CN/server-managed-settings#access-control) 在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 的 Claude Code 管理设置中启用云端会话
-* 如果消息提示无法验证策略，请检查您的网络连接，然后重新启动 Claude Code 并重试
+
+<h3 id="cloud-sessions-use-your-claude-ai-login">
+  Cloud sessions use your claude.ai login
+</h3>
+
+当[策略拒绝消息](#cloud-sessions-are-disabled-by-your-organizations-policy)指出此会话正在使用的某个凭据并以这句话结尾时，说明 Claude Code 检查的是签发该凭据的组织的云端会话策略。该组织可能与您的 claude.ai 登录所属的组织不同：
+
+```text theme={null}
+Cloud sessions are disabled by your organization's policy. This session is using ANTHROPIC_API_KEY, so Claude Code checked the policy for the organization that key belongs to. Cloud sessions use your claude.ai login.
+```
+
+最后一句话表示云端会话使用的是您的 claude.ai 登录，而不是该凭据。当您从 shell 启动、恢复云端会话或向其发送消息时（例如使用 `--cloud` 或 `--teleport`），会出现这种形式。在 v2.1.296 之前，这种情况下 Claude Code 也会打印提示您联系组织管理员的那种形式。
+
+<h3 id="couldnt-verify-your-organizations-policy-for-cloud-sessions">
+  Couldn't verify your organization's policy for cloud sessions
+</h3>
+
+这些消息表示 Claude Code 无法加载您组织的策略，而它在创建、恢复[云端会话](/docs/zh-CN/claude-code-on-the-web)或向其发送消息之前都会检查该策略。当策略请求尚未完成时，消息为：
+
+```text theme={null}
+Couldn't verify your organization's policy for cloud sessions. Check your network connection and try again.
+```
+
+在会话内部，需要云端会话的命令（例如 `/teleport` 或 `/web-setup`）也会给出此消息。即使您的 shell 会打印 `Cloud sessions aren't available:` 形式的消息，它也会给出此消息，并且其第二句为 `Check your network connection, then restart Claude Code and try again.`
+
+一旦策略请求失败，消息会说明失败的原因。这适用于您使用 `--cloud` 或 `--teleport` 等标志从 shell 启动、恢复云端会话或向其发送消息的情况。当无法连接到 API 时，消息为：
+
+```text theme={null}
+Cloud sessions aren't available: couldn't reach api.anthropic.com to load your organization's policy. Check your network or proxy.
+```
+
+其他失败情况以相同的开头加上各自的原因，例如代理以 HTTP 403 拒绝了请求、服务器错误，或 API 不接受的凭据。当 API 不接受此会话用来代替您的 claude.ai 登录的凭据（例如 `ANTHROPIC_API_KEY` 环境变量）时，消息还可能指出该凭据并提示您取消设置它：
+
+```text theme={null}
+Cloud sessions aren't available: api.anthropic.com didn't accept this session's credentials when Claude Code asked for your organization's policy. Cloud sessions use your claude.ai login. ANTHROPIC_API_KEY is set, so this session is using API-key auth — unset it (or run in a shell without it) to use cloud sessions.
+```
+
+在 v2.1.296 之前，这些失败情况也会打印 `Couldn't verify` 消息。
+
+**解决方法：**
+
+* 对于 `Couldn't verify` 消息，请检查网络连接后重试。如果在会话内部，请先重启 Claude Code
+* 对于 `Cloud sessions aren't available:` 消息，请根据其原因采取相应措施，例如检查代理或取消设置其指出的凭据，然后再次运行该命令
+
+<h3 id="nothing-was-stashed-because-a-folder-replaced-a-tracked-file">
+  Nothing was stashed because a folder replaced a tracked file
+</h3>
+
+此消息表示您检出中原本是 git 跟踪文件或链接的位置，现在是一个文件夹。它会在您将[云端会话](/docs/zh-CN/claude-code-on-the-web#from-cloud-to-terminal)拉取到终端（例如使用 `claude --teleport` 或 `/teleport`）时选择 stash 选项后出现。对这种状态执行 stash 可能会删除文件夹中的文件，因此 Claude Code 会拒绝 stash，并保持您的检出和索引不变：
+
+```text wrap theme={null}
+Error: Nothing was stashed: "f" is now a folder in place of a tracked file or link, and stashing could delete what's in it for good. Commit the change or move the folder somewhere else, then try again.
+```
+
+**解决方法：**
+
+* 按照消息所述，提交该更改或将文件夹移到其他位置，然后再次运行 teleport
 
 <h3 id="the-json-schema-value-is-not-a-valid-json-schema">
   `--json-schema` 的值不是有效的 JSON Schema
@@ -3427,7 +3542,7 @@ Use '--' to separate paths from revisions, like this:
 
 对于任何[注入动态上下文](/docs/zh-CN/skills#when-an-injected-command-fails)的 skill，Claude Code 都会显示相同的错误，注入的命令失败会中止该 skill 的调用。还有两条相关字符串会在命令运行之前就触发：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许其运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
 * ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
 
 **解决方法：**
@@ -3577,7 +3692,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin fetch 了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个被 fetch 的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较前从 origin fetch 了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个被 fetch 的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
 
 **解决方法：**
 
@@ -3835,7 +3950,7 @@ Cannot switch renderers in this session — it has restrictions a restart can't 
   Claude Code couldn't restart
 </h3>
 
-Claude Code 正在重启，例如在您运行 [`/tui`](/docs/zh-CN/fullscreen#enable-fullscreen-rendering) 后切换到全屏渲染或从全屏渲染切换回来。它关闭了会话，但无法启动新进程，因此打印了以下消息并以状态 1 退出：
+当此消息表示您的对话已保存时，对话已存储在磁盘上，您可以从中断处继续。Claude Code 正在重启自身，例如在您运行 [`/tui`](/docs/zh-CN/fullscreen#enable-fullscreen-rendering) 后切换到全屏渲染或从全屏渲染切换回来，但无法启动新进程，因此以状态 1 退出：
 
 ```text theme={null}
 Claude Code couldn't restart. Your conversation is saved. Start Claude Code again and run /resume to pick it up.
@@ -3845,7 +3960,7 @@ Claude Code couldn't restart. Your conversation is saved. Start Claude Code agai
 
 **解决方法：**
 
-* 在 shell 中从同一目录再次运行 `claude`。如果消息表示您的对话已保存，请在新会话中运行 [`/resume`](/docs/zh-CN/sessions#resume-a-session) 并选择该对话
+* 在 shell 中再次运行 `claude`。如果消息表示您的对话已保存，请在新会话中运行 [`/resume`](/docs/zh-CN/sessions#resume-a-session) 并选择该对话。如果它不在列表中，请[扩大会话选择器的范围](/docs/zh-CN/sessions#where-the-session-picker-looks)
 * 如果重启持续失败，请在 shell 中使用 [`claude --debug-file claude-debug.log`](/docs/zh-CN/cli-reference#cli-flags) 启动 Claude Code。如果从该会话重启失败，您启动时所在目录中的 `claude-debug.log` 会记录一行包含操作系统错误的 `Failed to relaunch:`。[报告问题](#report-an-error)时请附上该行
 
 <h3 id="couldnt-open-claude-desktop">

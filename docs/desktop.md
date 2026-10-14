@@ -546,7 +546,7 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 
 [Skills](/docs/zh-CN/skills)扩展 Claude 可以做的事情。Claude 在相关时自动加载它们，或者你可以直接调用一个：在提示框中输入 `/` 或点击 **+** 按钮并选择 **Slash commands** 来浏览可用的内容。这包括[内置命令](/docs/zh-CN/commands)、你的[自定义 skills](/docs/zh-CN/skills#create-your-first-skill)、来自你的代码库的项目 skills 以及来自任何[已安装插件](/docs/zh-CN/plugins/install)的 skills。选择一个，它会在输入字段中突出显示。在它之后输入你的任务并照常发送。
 
-你可以在 Claude 工作时发送命令，就像任何其他消息一样，会话在轮次完成后返回空闲状态。在 v2.1.206 之前，在轮次中间发送的命令可能会导致会话显示为运行状态，你之后发送的消息未被传递。
+您可以在 Claude 工作时发送命令，就像发送任何其他消息一样，会话会在该轮次完成后返回空闲状态。
 
 本地会话从 `~/.claude/skills/` 加载你的个人 skills。[SSH](#ssh-sessions) 会话从远程主机的主目录读取 `~/.claude/skills/`，而不是从你的机器。
 

@@ -491,6 +491,68 @@ Claude Code 还在多种情况下跳过单个建议，包括：
 
 要在整个组织范围内关闭提示建议，请在[托管设置](/docs/zh-CN/managed-settings)中将 `promptSuggestionEnabled` 设置为 `false`。还要在托管的 [`env`](/docs/zh-CN/settings-reference#env) 键下将 `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION` 设置为 `false`，以便用户无法使用自己的环境变量重新启用它们。
 
+<h2 id="you-should-know-suggestions">
+  You should know 建议
+</h2>
+
+"You should know" 会寻找一件您应该知道但可能遗漏了的事情，例如 Claude 做出了某项权衡却没有明确指出，或者某个结果可能有误。找到后，它会在提示词输入框上方显示一条简短的提示：
+
+```text theme={null}
+✦ Heads up · There was a change to how folder sharing starts in June, which may have bumped usage metrics artificially.
+  1: Learn more   2: Knew this already   0: Dismiss
+```
+
+它是 Claude Code 的[内置 mod](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 之一，即内置于 Claude Code 中、默认关闭的插件。需要 Claude Code v2.1.287 或更高版本。
+
+启用后，当 Claude 处理较长的任务时，一个辅助 Agent 会不时重新阅读对话。辅助 Agent 是发送给同一模型的独立请求，且没有任何工具，因此它无法读取文件、运行命令或改变 Claude 的行为。
+
+如果您的组织可以使用该 mod，那么当您使用 claude.ai 账户或 Console API 密钥直接连接 Claude API 时，`/plugin` 会列出它。当您通过 [LLM 网关](/docs/zh-CN/llm-gateway)或 [Claude apps 网关](/docs/zh-CN/claude-apps-gateway)连接，或者从 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 获取密钥时，则不会列出。即使是直接连接，以下会话也不会列出它：
+
+* [不获取该 mod 所依赖的功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话，例如设置了 `DISABLE_TELEMETRY` 的会话
+* 功能标志尚未送达的[安装或升级后的首个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)
+
+要启用它，请在 Claude Code 提示符处运行：
+
+```text theme={null}
+/plugin enable cc-plugin-you-should-know@builtin
+```
+
+在 `/plugin` 未列出该 mod 的情况下，启用命令会返回 `Plugin "cc-plugin-you-should-know@builtin" is not installed in this project`。
+
+<h3 id="cost-of-checks">
+  检查的成本
+</h3>
+
+该 mod 启用期间，检查是发送给当前会话所用同一模型的后台请求，会计入您套餐的用量限制或您的 API 费用。每次检查都会发送 Claude 上下文中已有的内容，即截至目前的对话及其工具结果，随后是该 mod 自身的指令以及您最近提示的文本。对话部分会按照与 Claude 自身下一个请求相同的条件从会话的[提示缓存](/docs/zh-CN/prompt-caching)中读取。指令部分（长达数千个 token）以及辅助 Agent 的回复在每次检查时都会全额计费。
+
+要观察检查的发生过程，请在启动 Claude Code 之前在 shell 中设置 [`CLAUDE_CODE_YOU_SHOULD_KNOW_DEBUG=1`](/docs/zh-CN/env-vars)。
+
+<h3 id="answer-a-note">
+  响应提示
+</h3>
+
+在空的提示词输入框中单独输入选项对应的数字。提示提供以下选项：
+
+* **Learn more**：在提示下方打开一段简短说明，该说明有自己的选项：
+  * **Understood**：关闭说明并将该主题标记为已知
+  * **Chat in main session**：将提示引用到您的提示词输入框中，以便您添加问题并发送给 Claude
+  * **Dismiss**：关闭说明，但不将该主题标记为已知
+* **Knew this already**：关闭提示并将该主题标记为已知。
+* **Dismiss**：关闭提示。
+
+除非您通过 **Chat in main session** 发送提示，否则主 Agent 看不到它。
+
+Claude Code 会将您最近的提示以及您标记为已知的主题保存在 `~/.claude/plugins/store/` 下一个名称以 `cc-plugin-you-should-know` 开头的文件中。在本会话及之后的会话中，每次检查都会将它们列给辅助 Agent，作为不应重复的内容。当该文件超过 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 没有被任何会话读取或写入时，Claude Code 会将其删除。要更早清除它们，请在没有会话运行时删除该文件。
+
+<h3 id="turn-off-you-should-know">
+  关闭 You should know
+</h3>
+
+要关闭 You should know，可以使用以下任一方式：
+
+* 在 Claude Code 提示符处运行 `/plugin disable cc-plugin-you-should-know@builtin`，或在 `/plugin` 的 **Installed** 标签页中将其关闭
+* 在未先打开 **Learn more** 的情况下对提示选择 **Dismiss** 后，在 `Dismissed.` 行上选择 **Turn off suggestions**，该行会在 20 秒后消失
+
 <h2 id="emoji-shortcodes">
   表情符号速记代码
 </h2>

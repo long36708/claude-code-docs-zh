@@ -134,7 +134,7 @@ Chrome 集成还需要使用 `/login` 登录。如果您使用 API 密钥或来�
 在因 [Enabled by default](#enable-chrome-by-default) 已开启而在启动时连接到您浏览器的会话中，在 Manual、Edit automatically、Auto 和 Bypass permissions 模式下，对于您尚未允许的网站，Claude Code 会在浏览器操作前询问您。在 Auto 和 Bypass permissions 模式下，这一行为持续到您在该会话中键入 `@browser` 为止。
 
 <h3 id="browser-tools-in-plan-mode">
-  Plan Mode 中的浏览器工具
+  计划模式中的浏览器工具
 </h3>
 
 在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中，在 Claude 记录 GIF、打开新标签页或运行快捷方式之前会出现权限提示。在交互式 CLI 会话中，如果[可用绕过权限模式](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)且[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)已关闭，这些调用将在没有提示的情况下运行。

@@ -718,6 +718,20 @@ git 2.30 is too old for claude plugin eval: it ignores the environment configura
 
 在 v2.1.283 之前，`claude plugin eval` 没有检查 git 版本，在较旧的 git 上，套件运行时这些程序保持打开状态。
 
+<h3 id="cannot-be-evaluated-where-sessions-load-it">
+  "cannot be evaluated where sessions load it"
+</h3>
+
+您在 shell 中运行了 `claude plugin eval`，并传入了一个插件的名称，该插件安装自您[从本地路径添加](/docs/zh-CN/plugins/loading#in-place-and-copied-plugins)的市场。目前没有任何会话能够从该市场加载此插件，因此该命令会以此消息拒绝执行，并以退出代码 1 退出。
+
+```text theme={null}
+Error: formatter@my-marketplace cannot be evaluated where sessions load it: no session could load it now. Its marketplace is a folder whose catalog could not be read, or lists it no more. Check the marketplace with `claude plugin marketplace list`, or pass ./<dir> to evaluate a directory.
+```
+
+`no session could load it now.` 之后的句子指明了失败的原因。
+
+在 shell 中运行 `claude plugin marketplace list`，并修复消息中指明的问题。例如，恢复市场目录，或将该插件的条目重新放回其目录清单中。要在不经过市场的情况下评估插件的源代码，请将其目录作为目标传入，例如 `claude plugin eval ./plugins/formatter`。
+
 <h3 id="no-eval-cases-found">
   "No eval cases found"
 </h3>

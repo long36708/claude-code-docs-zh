@@ -99,7 +99,7 @@ Claude Code 包含 `/deep-research` 作为内置工作流：
 | :- | :- |
 | `↑` / `↓` | 选择一个阶段或代理 |
 | `Enter` 或 `→` | 深入选定的阶段，然后进入代理的详情。在详情中，`Enter` 展开或折叠它 |
-| `Esc` 或 `←` | 返回一个级别。在 v2.1.203 至 v2.1.205 中，`←` 没有退出阶段或代理；在这些版本上使用 `Esc` |
+| `Esc` 或 `←` | 返回一个级别 |
 | `j` / `k` | 当代理详情溢出时在其中滚动 |
 | `f` | 按状态过滤选定阶段中的代理列表。再次按下以循环 |
 | `p` | 暂停或恢复运行 |
@@ -167,7 +167,7 @@ Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排
 /effort ultracode
 ```
 
-要启动已启用 ultracode 的会话，请使用 `claude --effort ultracode` 启动，这也会将努力级别设置为 `xhigh`。需要 Claude Code v2.1.203 或更高版本。
+要启动已启用 ultracode 的会话，请使用 `claude --effort ultracode` 启动，这也会将 effort 级别设置为 `xhigh`。
 
 要从 `/effort` 滑块启用它，按 `Tab` 翻转 **Ultracode** 切换，然后按 `Enter` 应用它。[调整努力级别](/docs/zh-CN/model-config#adjust-effort-level)列出启用 ultracode 的路由。
 
@@ -527,7 +527,7 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
   设置大小指南
 </h3>
 
-大小指南告诉 Claude 在编写动态工作流时应该针对多少个代理。Claude Code 将指南作为建议而不是上限发送给 Claude，所以调用不同规模的提示仍然会覆盖它。需要 Claude Code v2.1.202 或更高版本。
+大小指南告诉 Claude 在编写动态工作流时应以多少个 Agent 为目标。Claude Code 将指南作为建议而不是上限发送给 Claude，所以要求不同规模的提示词仍然会覆盖它。
 
 每个值映射到一个代理计数：
 

@@ -184,7 +184,7 @@ claude -p "Extract the main function names from auth.py" \
   --json-schema '{"type":"object","properties":{"functions":{"type":"array","items":{"type":"string"}}},"required":["functions"]}'
 ```
 
-如果该值不是有效的 JSON Schema，`claude` 会以 `Error: --json-schema is not a valid JSON Schema` 退出，后跟验证器的诊断。Claude Code 接受使用 `format` 关键字的 schema，例如 `"format": "email"`，但将 `format` 视为注释，不强制执行它。在 v2.1.205 之前，Claude Code 会静默忽略无效的 schema 并返回非结构化文本，并将任何包含 `format` 的 schema 视为无效。
+如果该值不是有效的 JSON Schema，`claude` 会以 `Error: --json-schema is not a valid JSON Schema` 退出，后跟验证器的诊断。Claude Code 接受使用 `format` 关键字的 schema，例如 `"format": "email"`，但将 `format` 视为注释，不强制执行它。
 
 <Tip>
   使用 [jq](https://jqlang.org/) 之类的工具来解析响应并提取特定字段：
@@ -281,9 +281,9 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
 `system/init` 事件报告会话元数据，包括模型、工具、MCP 服务器和加载的插件。它是流中的第一个事件，除非启动事件在其之前：
 
 * `plugin_install` 事件，当设置了 [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](/docs/zh-CN/env-vars) 时。
-* [`hook_started`、`hook_progress` 和 `hook_response` 事件](/docs/zh-CN/agent-sdk/typescript#sdkhookstartedmessage)，当配置的 [`SessionStart`](/docs/zh-CN/hooks#sessionstart) 或 [`Setup`](/docs/zh-CN/hooks#setup) hook 运行时。这些事件在 hook 生成时流式传输。Claude Code v2.1.169 至 v2.1.203 在 hook 完成后以一个批次传递它们，仍然在 `system/init` 之前；v2.1.204 恢复了实时传递。
+* [`hook_started`、`hook_progress` 和 `hook_response` 事件](/docs/zh-CN/agent-sdk/typescript#sdkhookstartedmessage)，当配置的 [`SessionStart`](/docs/zh-CN/hooks#sessionstart) 或 [`Setup`](/docs/zh-CN/hooks#setup) hook 运行时。这些事件在 hook 生成时流式传输。
 
-该事件还携带一个可选的 `capabilities` 字符串数组，命名此 Claude Code 版本实现的协议行为，例如 `interrupt_receipt_v1` 或 `interrupt_cancel_queued_v1`。检查它以进行功能检测，而不是比较版本字符串，并忽略您不认识的值。该字段需要 Claude Code v2.1.205 或更高版本，在早期版本中不存在。有关功能列表，请参阅 [`SDKSystemMessage`](/docs/zh-CN/agent-sdk/typescript#sdksystemmessage)。
+该事件还携带一个可选的 `capabilities` 字符串数组，命名此 Claude Code 版本实现的协议行为，例如 `interrupt_receipt_v1` 或 `interrupt_cancel_queued_v1`。检查它以进行功能检测，而不是比较版本字符串，并忽略您不认识的值。有关功能列表，请参阅 [`SDKSystemMessage`](/docs/zh-CN/agent-sdk/typescript#sdksystemmessage)。
 
 <h4 id="fail-ci-when-a-plugin-or-mcp-server-doesn’t-load">
   当插件或 MCP 服务器未加载时使 CI 失败
@@ -388,7 +388,7 @@ claude -p "Look at my staged changes and create an appropriate commit" \
 
   * 用户调用的 [skill](/docs/zh-CN/skills) 和自定义命令可以使用。在提示词字符串中包含 `/skill-name`，Claude Code 会在运行前展开它。
   * 仅在终端界面中运行的内置命令，例如 `/login`，不可用。
-  * `/model`、`/effort`、`/fast`、`/color` 和 `/rename` 接受该值作为参数，例如 `/model sonnet`，`/mcp` 不带参数时打印服务器状态的文本摘要。这些形式需要 Claude Code v2.1.205 或更高版本，并遵循每个命令的 [可用性说明](/docs/zh-CN/commands#all-commands)。
+  * `/model`、`/effort`、`/fast`、`/color` 和 `/rename` 接受该值作为参数，例如 `/model sonnet`，`/mcp` 不带参数时打印服务器状态的文本摘要。这些形式遵循每个命令的 [可用性说明](/docs/zh-CN/commands#all-commands)。
   * 要更改设置，请将 `key=value` 传递给 `/config`，例如 `/config thinking=false`。
   * `/output-style <style>` 切换 [输出样式](/docs/zh-CN/output-styles)，单独使用 `/output-style` 会列出它们。需要 Claude Code v2.1.269 或更高版本。
 </Note>

@@ -26,55 +26,55 @@ Agent view 通过 `claude agents` 打开，是所有后台会话的一个屏幕�
   快速开始
 </h2>
 
-本演练涵盖核心 agent view 循环：调度一个任务，观看其行在 Claude 工作时更新，窥视以检查它并回复，以及附加到完整对话。你调度的会话在关闭 agent view 后继续运行，所以你可以离开并稍后回到它。
+本演练涵盖 agent view 的核心循环：调度一个任务，在 Claude 工作时观察其所在行的更新，窥视以查看进展并回复，以及附加以查看完整对话。您调度的会话在关闭 agent view 后会继续运行，因此您可以离开并稍后再回来。
 
 <Steps>
   <Step title="打开 agent view">
-    从你的 shell，运行：
+    在您的 shell 中运行：
 
     ```bash theme={null}
     claude agents
     ```
 
-    如果你还没有接受该目录的[工作区信任对话框](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)，Claude Code 会在 agent view 打开前显示它，与 `claude` 显示的对话框相同。接受以保存工作区的信任并继续。如果你拒绝，Claude Code 会退出而不打开 agent view。
+    如果您尚未接受该目录的[工作区信任对话框](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)，Claude Code 会在 agent view 打开前显示该对话框，与 `claude` 显示的对话框相同。接受即可保存对该工作区的信任并继续。如果您拒绝，Claude Code 会直接退出，不会打开 agent view。
 
-    Agent view 打开，底部有一个输入框，当会话启动时表格会填充。随时按 `Esc` 返回你的 shell；如果你通过后台会话 `←` 打开了 agent view，`Esc` 会返回到该对话框。你的会话在你离开时继续运行，下次打开 agent view 时会重新出现。
+    Agent view 打开后，底部有一个输入框，表格会随着会话启动而逐步填充。按 `Esc` 返回您的 shell；如果您是通过按 `←` 将会话转入后台来打开 agent view 的，`Esc` 则会返回到该对话。您离开期间会话会继续运行，并会在您下次打开 agent view 时重新出现。
   </Step>
 
   <Step title="调度一个会话">
-    输入描述任务的提示并按 `Enter`。一个新的后台会话在该任务上启动并显示为一行，显示它是否正在工作、等待你或已完成。新会话使用 agent view 标题中显示的模型。[它启动的权限模式](#permission-mode-model-and-effort)取决于你如何打开 agent view。
+    输入描述任务的提示词并按 `Enter`。一个新的后台会话会针对该任务启动，并显示为一行，标明它是正在工作、正在等待您，还是已完成。新会话使用 agent view 标题中显示的模型。[它以哪种权限模式启动](#permission-mode-model-and-effort)取决于您打开 agent view 的方式。
 
-    你在此输入的每个提示都会启动自己的新会话。输入另一个提示并按 `Enter` 会启动第二个会话，与第一个会话并行运行，而不是向其发送后续消息。你可以通过这种方式并行运行多个会话。
+    您在此输入的每个提示词都会启动各自的新会话。输入另一个提示词并按 `Enter` 会启动第二个会话，与第一个会话并行运行，而不是向第一个会话发送后续消息。您可以通过这种方式并行运行多个会话。
 
-    每个会话独立使用你的订阅配额，所以在一次调度多个会话之前，请查看[限制](#limitations)。
+    每个会话独立消耗您的订阅配额，因此在一次调度多个会话之前，请先查看[限制](#limitations)。
   </Step>
 
   <Step title="窥视和回复">
-    用箭头键选择一行并按 `Space` 打开窥视面板。它显示会话的最近输出，或它正在等待的问题，而不是完整的记录。输入回复并按 `Enter` 发送，无需离开 agent view。
+    使用箭头键选择一行，然后按 `Space` 打开窥视面板。它显示会话的最新输出或会话正在等待回答的问题，而不是完整的会话记录。输入回复并按 `Enter` 即可发送，无需离开 agent view。
   </Step>
 
   <Step title="附加和分离">
-    在一行上按 `Enter` 或 `→` 在你想要完整对话时附加。会话接管终端，就像一个完整的交互式 Claude Code 会话。在空提示上按 `←` 分离并返回表格。
+    当您想查看完整对话时，在某一行上按 `Enter` 或 `→` 进行附加。该会话会接管终端，成为一个完整的交互式 Claude Code 会话。在空输入框中按 `←` 即可分离并返回表格。
   </Step>
 
-  <Step title="将现有会话引入">
-    这一步需要一个运行中的会话。如果你遵循了之前的步骤，你在此终端中没有打开的会话，所以在另一个终端中打开一个常规 `claude` 会话并先向其发送一条消息。
+  <Step title="引入现有会话">
+    此步骤需要一个正在运行的会话。如果您按照前面的步骤操作，此终端中并没有打开的会话，因此请先在另一个终端中打开一个常规 `claude` 会话并向其发送一条消息。
 
-    要将你已经打开的会话移入 agent view，在其中运行 `/bg`，或在空提示上按 `←` 以后台会话并在一步中打开 agent view。在没有消息的新会话中，`/bg` 会要求你先发送一条消息，而 `←` 可以立即工作。会话继续运行并显示为一行，与你调度的会话并排。
+    要将已打开的会话移入 agent view，请在该会话中运行 `/bg`，或在空输入框中按 `←`，一步完成将会话转入后台并打开 agent view。在尚无任何消息的新会话中，`/bg` 会要求您先发送一条消息，而 `←` 可立即生效。该会话会继续运行，并与您调度的会话一起显示为一行。
   </Step>
 </Steps>
 
-在常规 `claude` 会话内，提示页脚的 `←` 提示计算正在等待你的后台 agent 数量，例如 `← 2 agents`，当没有 agent 需要输入时返回 `← for agents`。超过 99 的计数显示为 `99+`。当终端获得焦点时，计数大约每十秒刷新一次，当焦点返回时立即刷新。当计数移动和 agent 完成时，它会短暂改变颜色，当后台会话完成而没有 agent 需要你的输入时，它会短暂显示完成的数量，例如 `← 2 done`。当启用了[`prefersReducedMotion` 设置](/docs/zh-CN/settings-reference#prefersreducedmotion)时，两个闪烁都关闭，并且在[屏幕阅读器模式](/docs/zh-CN/accessibility)中隐藏提示。
+在常规 `claude` 会话中，输入框页脚的 `←` 提示会统计正在等待您的后台 Agent 数量，例如 `← 2 agents`；当没有 Agent 需要输入时，则恢复为 `← for agents`。超过 99 的计数显示为 `99+`。终端处于焦点状态时，计数大约每十秒刷新一次，焦点返回时会立即刷新。计数变化以及 Agent 完成时，它会短暂改变颜色；当某个后台会话完成且没有 Agent 需要您输入时，它会短暂显示已完成的数量，例如 `← 2 done`。启用 [`prefersReducedMotion` 设置](/docs/zh-CN/settings-reference#prefersreducedmotion)时，这两种闪烁效果都会关闭；在[屏幕阅读器模式](/docs/zh-CN/accessibility)下，该提示会被隐藏。
 
 <h3 id="open-agent-view-by-default">
   默认打开 agent view
 </h3>
 
-要让 `claude` 不带参数打开 agent view 而不是新对话，请打开一个 `/config` 设置。
+要让不带参数的 `claude` 打开 agent view 而不是新对话，请启用一项 `/config` 设置。
 
 <Steps>
-  <Step title="打开设置">
-    在常规 `claude` 会话中，运行 `/config` 并打开**默认打开 agents view**。要跳过菜单，直接设置 [`defaultToAgentsView`](/docs/zh-CN/settings-reference#defaulttoagentsview) 键：
+  <Step title="启用设置">
+    在常规 `claude` 会话中，运行 `/config` 并启用 **Open agents view by default**。要跳过菜单，可直接设置 [`defaultToAgentsView`](/docs/zh-CN/settings-reference#defaulttoagentsview) 键：
 
     ```text theme={null}
     /config defaultToAgentsView=true
@@ -88,11 +88,11 @@ Agent view 通过 `claude agents` 打开，是所有后台会话的一个屏幕�
     claude
     ```
 
-    Agent view 打开，代替新对话。
+    此时将打开 agent view，而不是新对话。
   </Step>
 </Steps>
 
-要在设置打开时启动常规会话，请传递一个提示：`claude "fix the login test"`。要关闭设置，在常规会话中或在从 agent view 附加的会话中运行 `/config defaultToAgentsView=false`。
+要在启用该设置的情况下启动常规会话，请传入提示词：`claude "fix the login test"`。要关闭该设置，请在常规会话中或在从 agent view 附加的会话中运行 `/config defaultToAgentsView=false`。
 
 <h2 id="monitor-sessions-with-agent-view">
   使用 agent view 监控会话
@@ -419,7 +419,7 @@ agent view 对会话进行分组，使需要输入的会话位于顶部，`Ready
 | `@<repo>` | 提及一个仓库以在该处运行会话。请参阅 [分派到特定目录](#dispatch-to-a-specific-directory) 了解会列出哪些仓库 |
 | `/<command>` | 建议可作为提示词分派的 [skill](/docs/zh-CN/skills) 和 [命令](/docs/zh-CN/commands) |
 | `! <command>` | 将 shell 命令作为后台作业运行，而不是启动 Claude 会话。该作业显示为一行，您可以附加到它、观察它并从中分离 |
-| `#<number>` 或 Pull Request/合并请求 URL | 如果已有会话在处理该 Pull Request 或 merge request，Claude Code 会选中其行，而不是分派新会话 |
+| `#<number>` 或 Pull Request/merge request URL | 如果已有会话在处理该 Pull Request 或 merge request，Claude Code 会选中其行，而不是分派新会话 |
 
 有一小组命令在 Agent 视图本身中运行，而不是分派：
 

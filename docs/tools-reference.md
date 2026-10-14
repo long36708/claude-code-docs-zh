@@ -44,7 +44,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `ReadMcpResourceTool` | 按 URI 读取特定 MCP 资源 | 否 |
 | `RemoteTrigger` | 在 claude.ai 上创建、更新、运行和列出[例程](/docs/zh-CN/routines)。支持 `/schedule` 命令。[`RemoteTrigger` 输入参考](/docs/zh-CN/agent-sdk/typescript#remotetrigger)记录了每个操作和删除该工具的组织策略。例程位于 claude.ai 上，需要 Pro、Max、Team 或 Enterprise 计划，因此此工具无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
 | `ReportFindings` | 将代码审查发现报告为结构化列表，每个发现都有文件、摘要和失败场景，以便 Claude Code 可以呈现它们而不是将其打印为文本。当活跃的代码审查指令要求它这样做时，Claude 会调用它。发现还可以携带可选的 `category` 段，例如 `correctness` 或 `test-coverage`，显示在呈现列表中的文件位置旁边 | 否 |
-| `ScheduleWakeup` | 重新安排[自定步调 `/loop`](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)的下一次迭代。Claude 在每次迭代结束时调用此方法以选择下一次运行的时间，在一分钟到一小时之间；您不直接调用它。要改为结束循环，Claude 使用 `stop: true` 调用它，这会取消待处理的唤醒。`stop` 字段需要 Claude Code v2.1.202 或更高版本。待处理的唤醒出现在[停止 hook 输入](/docs/zh-CN/hooks#stop-input)中的 `session_crons` 中 | 否 |
+| `ScheduleWakeup` | 重新安排[自定步调 `/loop`](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)的下一次迭代。Claude 在每次迭代结束时调用此工具以选择下一次运行的时间，在一分钟到一小时之间；您不直接调用它。要改为结束循环，Claude 使用 `stop: true` 调用它，这会取消待处理的唤醒。待处理的唤醒出现在 [Stop hook 输入](/docs/zh-CN/hooks#stop-input)中的 `session_crons` 中 | 否 |
 | `SendFeedback` | 起草关于 Claude Code 的反馈报告，涵盖产品问题或 Claude 在会话中的自身行为，并将其排队在您的机器上供您审查。Claude Code 在您选择发送草稿之前不会发送任何内容。请参阅 [SendFeedback 工具行为](#sendfeedback-tool-behavior)。需要 Claude Code v2.1.238 或更高版本 | 否 |
 | `SendMessage` | 向另一个代理发送消息：[代理团队](/docs/zh-CN/agent-teams)队友、[通过代理 ID 或名称恢复的子代理](/docs/zh-CN/sub-agents#resume-subagents)，或您的其他 Claude Code 会话之一，在此机器上或超越它。消息传递其他会话需要 Claude Code v2.1.224 或更高版本。[跨会话消息传递](/docs/zh-CN/cross-session-messaging)涵盖 Claude 可以到达的会话、[消息到达时的样子](/docs/zh-CN/cross-session-messaging#what-a-message-looks-like)以及[Claude 如何在另一个会话空闲时获得通知](/docs/zh-CN/cross-session-messaging#get-a-notice-when-another-session-goes-idle)。Claude 可以包含可选的 `summary` 输入，通常为 5-10 个单词，Claude Code 显示为单行预览。当 Claude 在[纯文本消息](/docs/zh-CN/cross-session-messaging#limitations)上省略它时，Claude Code 使用消息的第一行作为摘要。Claude Code 使用省略号截断长于 200 个字符的摘要 | 否 |
 | `SendUserFile` | 从会话向您发送文件，带有可选标题，以便生成的报告、图表、屏幕截图或构建产物到达您的设备，而不仅仅在会话记录中提及。可选的 `display` 输入控制呈现方式：`render` 在客户端中内联打开文件，`attach` 仅显示下载卡，未设置时客户端按文件类型决定。在连接 [Remote Control](/docs/zh-CN/remote-control) 客户端或在[云端会话](/docs/zh-CN/claude-code-on-the-web)中时可用。传递通过 Anthropic 托管的基础设施运行，因此该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用 | 否 |
@@ -54,8 +54,8 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `TaskCreate` | 在任务列表中创建新任务。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
 | `TaskGet` | 检索特定任务的完整详细信息。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
 | `TaskList` | 列出所有任务及其当前状态。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
-| `TaskOutput` | 从后台任务检索输出。已弃用，改为在任务的输出文件路径上使用 `Read`。当没有任务与 ID 匹配时，错误按 ID 和描述列出运行的后台代理。在 v2.1.203 之前，错误仅命名缺失的 ID | 否 |
-| `TaskStop` | 按 ID 停止运行中的后台任务。它还接受 [agent team 队友](/docs/zh-CN/agent-teams)或按 Agent ID 或名称指定的命名后台 Agent。当没有任务与 ID 匹配时，错误按 ID 和描述列出运行中的后台 Agent，包括由另一个 Agent 生成的 Agent。在 v2.1.203 之前，错误列出了运行中的队友和命名 Agent，但不包括由另一个 Agent 生成的后台 Agent，因此无法从主对话中识别或停止这些 Agent | 否 |
+| `TaskOutput` | 已在 v2.1.277 中移除。之前用于从后台任务检索输出；Claude 改为使用 `Read` 读取后台任务的[输出文件](/docs/zh-CN/interactive-mode#how-backgrounding-works) | 否 |
+| `TaskStop` | 按 ID 停止运行中的后台任务。它还接受 [agent team 队友](/docs/zh-CN/agent-teams)或按 Agent ID 或名称指定的命名后台 Agent。当没有任务与 ID 匹配时，错误按 ID 和描述列出运行中的后台 Agent，包括由另一个 Agent 生成的 Agent | 否 |
 | `TaskUpdate` | 更新任务状态、依赖项、详细信息或删除任务。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
 | `TodoWrite` | 管理会话任务清单。默认禁用，改为使用 `TaskCreate`、`TaskGet`、`TaskList` 和 `TaskUpdate`。设置 `CLAUDE_CODE_ENABLE_TASKS=0` 以在[具有任务跟踪工具的会话](#task-tool-availability)中重新启用它 | 否 |
 | `ToolSearch` | 当[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)启用时，搜索并加载延迟工具 | 否 |

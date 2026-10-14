@@ -693,6 +693,7 @@ Could not move the new copy of this plugin version into /home/user/.claude/plugi
 | 消息 | 含义 | 如何解决 |
 | :- | :- | :- |
 | `Dependency "<dep>" is not installed` | 声明的依赖项未安装。 | 使用 `claude plugin install <dep>@<marketplace>` 在您的 shell 中安装它，或卸载插件。如果依赖项的市场尚未注册，请添加它并在您的会话中运行 `/reload-plugins`，它安装它可以解决的缺失依赖项。 |
+| `"<name>@synced" is loaded from your claude.ai account but meets a marketplace dependency only for other claude.ai plugins`，位于 `is not installed` 消息中 | 该依赖项指定了一个市场，而同名插件是从您的 claude.ai 账户加载的。声明该依赖项的插件不是从 claude.ai 加载的，因此该 claude.ai 插件无法满足它。 | 在您的 shell 中运行 `claude plugin install <dep>@<marketplace>`，从其市场安装该依赖项。之后将加载市场副本，而不是 claude.ai 副本。 |
 | `Dependency "<dep>" is disabled` | 依赖项已安装但关闭。 | 启用依赖项，或卸载需要它的插件。 |
 | `Requires "<dep>" <range>, installed <version>` | 已安装的依赖项的版本在插件的声明范围之外。 | 将依赖项更新到范围内的版本，或卸载插件。 |
 | `<Plugin or Dependency> "<name>" has conflicting version requirements` | 没有版本满足每个引脚它的范围。消息列出范围。 | 卸载或更新其中一个冲突的插件，或要求上游作者扩大其约束。 |
@@ -700,7 +701,7 @@ Could not move the new copy of this plugin version into /home/user/.claude/plugi
 | `... has no git tag satisfying <range>` | 依赖项的仓库在范围内没有 `<name>--v*` 标签。 | 检查上游是否使用该约定标记发布，或放宽范围。 |
 | `Dependency "<dep>" (required by <plugin>) is in <marketplace>, which is not in the allowlist` | 依赖项在不同的市场中，默认情况下跨市场解析已关闭。 | 自己在相同的作用域安装依赖项，在您的 shell 中使用 `claude plugin install <dep>@<marketplace>` 加上您安装插件的 `--scope`，然后重试。 |
 
-要以编程方式查看这些，请在您的 shell 中运行 `claude plugin list --json`。有问题的插件携带带有消息的 `errors` 字段和带有每个 `type` 的 `errorDetails` 字段：前两行是 `dependency-unsatisfied`，第三行是 `dependency-version-unsatisfied`。
+要以编程方式查看这些，请在您的 shell 中运行 `claude plugin list --json`。有问题的插件携带带有消息的 `errors` 字段和带有每个 `type` 的 `errorDetails` 字段：前三行是 `dependency-unsatisfied`，第四行是 `dependency-version-unsatisfied`。
 
 <h2 id="plugin-installed-but-not-working">
   插件已安装但不工作

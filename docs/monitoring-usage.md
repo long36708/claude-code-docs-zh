@@ -641,8 +641,8 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 
 * `prompt.id`：将用户提示词与其后直到下一个提示词之前的所有事件关联起来的 UUID。请参阅[事件关联属性](#event-correlation-attributes)。
 * `workspace.host_paths`：在桌面应用中选择的主机工作区目录，以字符串数组形式表示
-* `workflow.run_id`：运行标识符，以 `wf_` 为前缀，出现在属于 [Workflow](/docs/zh-CN/workflows) 工具运行的 Agent 所发出的 API 和工具事件上。按某个 `workflow.run_id` 过滤事件即可重建该次运行的 API 请求和工具结果。该标识符涵盖工作流脚本生成的 Agent，以及这些 Agent 进一步生成的任何 Agent（例如 skill 调用）。它与 Workflow 工具结果中报告的运行标识符相匹配。在所有其他事件上不存在。需要 Claude Code v2.1.202 或更高版本
-* `workflow.name`：工作流的名称，即其脚本的 `meta.name`，与 `workflow.run_id` 一起发出。当运行执行的是未经修改的内置脚本时，内置工作流名称按原样显示。用户编写的名称（包括内置脚本的编辑副本）会被替换为 `custom`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`。需要 Claude Code v2.1.202 或更高版本
+* `workflow.run_id`：运行标识符，以 `wf_` 为前缀，出现在属于某次 [Workflow](/docs/zh-CN/workflows) 工具运行的 Agent 所发出的 API 和工具事件上。按某个 `workflow.run_id` 过滤事件即可重建该次运行的 API 请求和工具结果。该标识符涵盖工作流脚本生成的 Agent，以及这些 Agent 进一步生成的任何 Agent，例如 skill 调用。它与 Workflow 工具结果中报告的运行标识符一致。其他所有事件上均不存在该属性。
+* `workflow.name`：工作流的名称，即其脚本的 `meta.name`，与 `workflow.run_id` 一起发出。当运行执行未经修改的内置脚本时，内置工作流名称按原样显示。用户编写的名称（包括内置脚本的编辑副本）会被替换为 `custom`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`。
 
 <h4 id="repository-attributes">
   仓库属性

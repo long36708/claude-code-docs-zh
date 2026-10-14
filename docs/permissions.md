@@ -384,6 +384,13 @@ Claude Code 解析 PowerShell AST 并独立检查复合命令中的每个命令�
 
 `Edit` 规则适用于所有编辑文件的内置工具。Claude 尽力将 `Read` 规则应用于所有读取文件的内置工具，如 Grep 和 Glob，以及您提示词中的 `@file` 提及，以及连接的 [IDE](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server) 与 Claude 共享的选择和打开文件上下文。
 
+`Read(path)` deny 规则也适用于您粘贴到提示词中的图片路径以及您 @ 提及的目录：
+
+* **图片路径**：当您在终端中将图片路径粘贴到提示词中或将图片文件拖入提示词，且规则匹配该路径时，Claude Code 不会附加该图片。如果粘贴的内容中没有其他图片，该路径将作为文本保留在您的提示词中。
+* **目录**：[Claude 收到的列表](/docs/zh-CN/common-workflows#reference-files-and-directories)会省略规则匹配的文件和目录名称。
+
+Claude Code 在 v2.1.290 及更高版本中检查粘贴的图片路径和目录列表。
+
 `Read` deny 规则也会阻止同一路径上的 [Edit 和 Write 工具](/docs/zh-CN/errors#file-is-covered-by-a-read-deny-rule)，包括在那里创建新文件。NotebookEdit 不被覆盖，因此为任何工具都不能更改的路径添加 `Edit` deny 规则。检查需要 Claude Code v2.1.208 或更高版本进行编辑，以及 v2.1.228 或更高版本进行写入。
 
 Claude Code 仅根据 `Edit(path)` 和 `Read(path)` 规则检查文件权限。如果您为 `Write`、`NotebookEdit`、`Glob` 或旧版 `MultiEdit` 工具编写路径规则，Claude Code 接受该规则但从不查询它，并在启动时[警告](/docs/zh-CN/errors#is-not-matched-by-file-permission-checks)，除了在 `--allowedTools` 中传递的 `Glob` 规则。使用 `Edit(docs/**)` 代替 `Write(docs/**)`、`NotebookEdit(docs/**)` 或 `MultiEdit(docs/**)`，以及 `Read(docs/**)` 代替 `Glob(docs/**)`。Claude Code 不会警告没有路径的工具名称规则，如 `Write` 的 deny 规则；它在任何地方在工具级别匹配该规则。需要 Claude Code v2.1.210 或更高版本。
@@ -467,7 +474,7 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
   在 gitignore 模式中，`*` 匹配单个路径段内的文本，可以出现在模式中的任何位置，而 `**` 匹配跨目录。
 </Note>
 
-当您使用"是，不再询问"批准文件路径时，Claude Code 会转义该路径中的 gitignore 模式字符，如 `[`、`]` 和 `*`，因此生成的规则仅匹配您批准的字面路径。您自己编写的规则不会被转义。在 v2.1.202 之前，Claude Code 保存未转义的路径，因此为名为 `[2024-06] Reports` 的目录生成的规则可能无法匹配其自己的路径或匹配意外的兄弟目录。
+当您使用"是，不再询问"批准文件路径时，Claude Code 会转义该路径中的 gitignore 模式字符，如 `[`、`]` 和 `*`，因此生成的规则仅匹配您批准的字面路径。您自己编写的规则不会被转义。
 
 您不需要转义路径中的括号，因此 `Edit(./Finance (2024)/**)` 匹配按拼写的 `Finance (2024)` 文件夹。
 
@@ -804,8 +811,6 @@ Claude Code 运行 git 来区分两者，并且仅在您信任该文件夹后才
 <Note>
   配置主目录例外仅跳过信任步骤。`~/.claude/settings.local.json` 仍然是[本地范围](/docs/zh-CN/settings#compare-the-scope-of-each-settings-file)，因此 Claude Code 仅在您从主目录本身启动的会话中读取它，而不是在每个项目中。要在所有项目中应用权限规则，请将它们添加到您的用户设置中：`~/.claude/settings.json`，或当设置 `CLAUDE_CONFIG_DIR` 时为 `$CLAUDE_CONFIG_DIR/settings.json`。
 </Note>
-
-在 v2.1.207 之前，Claude Code 在您接受对话框之前应用未跟踪文件的规则。
 
 <h3 id="what-runs-before-you-trust-a-folder">
   在您信任文件夹之前运行什么

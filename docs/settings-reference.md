@@ -838,25 +838,25 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`wslInheritsWindowsSettings`](#wslinheritswindowssettings) | 让 WSL 从 Windows 策略链读取[托管设置](/docs/zh-CN/managed-settings) | 企业和托管设置 | Managed |
 
 <h2 id="model-and-responses">
-  模型和响应
+  模型与回复
 </h2>
 
-选择 Claude Code 使用的模型以及它如何响应。关于这些设置如何与 `/model` 命令和环境变量交互，请参阅[模型配置](/docs/zh-CN/model-config)。
+选择 Claude Code 使用哪些模型以及它如何回复。关于这些设置如何与 `/model` 命令和环境变量相互作用，请参阅[模型配置](/docs/zh-CN/model-config)。
 
 <h3 id="advisormodel">
   `advisorModel`
 </h3>
 
-选择当 Claude 调用服务器端[顾问工具](/docs/zh-CN/advisor)时哪个模型来回答。取消设置它以关闭顾问。顾问的能力必须至少与您的主模型一样强。请参阅[选择顾问模型](/docs/zh-CN/advisor#choose-an-advisor-model)了解接受的配对以及选择未被接受的配对时会发生什么。
+选择当 Claude 调用服务器端 [advisor 工具](/docs/zh-CN/advisor)时由哪个模型作答。取消设置即可关闭 advisor。advisor 的能力必须至少与您的主模型相当。关于可接受的搭配以及选择不可接受的模型时会发生什么，请参阅[选择 advisor 模型](/docs/zh-CN/advisor#choose-an-advisor-model)。
 
-您通常不会手动编辑此键。运行 `/advisor` 打开一个选择器，显示当前选择、可以提供建议的模型和**无顾问**。Claude Code 将您的选择保存到 `~/.claude/settings.json` 中的此键。如果您从[远程控制](/docs/zh-CN/remote-control)客户端或在附加到远程工作者的会话中选择，该选择仅适用于该会话，不会更改此键。
+通常无需手动编辑此键。运行 `/advisor` 会打开一个选择器，其中显示当前选择、可担任 advisor 的模型以及 **No advisor**。Claude Code 会将您的选择保存到 `~/.claude/settings.json` 中的此键。如果您在 [Remote Control](/docs/zh-CN/remote-control) 客户端中或在连接到远程 worker 的会话中进行选择，该选择仅适用于该会话，不会更改此键。
 
-如果您的账户需要[使用额度同意](/docs/zh-CN/advisor#fable-advisor-and-usage-credits)，请先通过运行 `/model fable` 来接受它。在您这样做之前，在 `/advisor` 中选择 Fable 不会保存任何内容，Claude Code 会告诉您先运行 `/model fable`。
+如果您的账户需要[使用额度同意](/docs/zh-CN/advisor#fable-advisor-and-usage-credits)，请先运行 `/model fable` 接受该同意。在此之前，在 `/advisor` 中选择 Fable 不会保存任何内容，Claude Code 会提示您先运行 `/model fable`。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，其中一个别名 `"fable"`、`"opus"` 或 `"sonnet"`，它们解析为 Claude Code 当前默认版本的该模型系列，或完整模型 ID，如 `"claude-opus-5-5"`
-* **Default**: 未设置，因此顾问已关闭
-* **Per-session overrides**: `--advisor` 对此键优先一个会话。[`CLAUDE_CODE_DISABLE_ADVISOR_TOOL`](/docs/zh-CN/env-vars)关闭顾问，此键无法将其重新打开
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，为别名 `"fable"`、`"opus"` 或 `"sonnet"` 之一（解析为 Claude Code 当前该模型系列的默认版本），或完整的模型 ID，例如 `"claude-opus-5-5"`
+* **默认值**：未设置，因此 advisor 处于关闭状态
+* **单会话覆盖**：`--advisor` 在单个会话中优先于此键。[`CLAUDE_CODE_DISABLE_ADVISOR_TOOL`](/docs/zh-CN/env-vars) 会关闭 advisor，且此键无法将其重新打开
 
 ```json settings.json theme={null}
 {
@@ -864,22 +864,22 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 }
 ```
 
-该键对顾问[不可用](/docs/zh-CN/advisor#requirements)的提供商（如 Amazon Bedrock 和 AWS 上的 Claude Platform）没有影响。`"fable"` 需要[Fable 访问权限](/docs/zh-CN/advisor#choose-an-advisor-model)。
+在 advisor [不可用](/docs/zh-CN/advisor#requirements)的提供商（例如 Amazon Bedrock 和 Claude Platform on AWS）上，此键不起作用。`"fable"` 需要 [Fable 访问权限](/docs/zh-CN/advisor#choose-an-advisor-model)。
 
 <h3 id="alwaysthinkingenabled">
   `alwaysThinkingEnabled`
 </h3>
 
-通过将其设置为 `false` 来为每个会话关闭[扩展思考](/docs/zh-CN/model-config#extended-thinking)。默认情况下思考是打开的，所以 `true` 不会改变任何内容。大多数人通过 `/config` 而不是编辑文件来设置这个。
+将此项设置为 `false` 可在每个会话中关闭[扩展思考](/docs/zh-CN/model-config#extended-thinking)。思考默认处于开启状态，因此 `true` 不会改变任何内容。大多数人通过 `/config` 而非编辑文件来设置此项。
 
-在总是思考的模型上，如 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 模型，`false` 没有效果。在[第三方提供商](/docs/zh-CN/third-party-integrations)上，Claude Code 省略 `thinking` 参数而不是关闭思考，因此自适应推理模型可能仍然会思考。在 Anthropic API 上关闭思考时，对于 Claude Code 已知[不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off)的模型（如 Opus 5），Claude Code 会发送 effort `high` 而不是更高级别。
+在始终进行思考的模型上（例如 Opus 5.5、Sonnet 5.5、Haiku 5.5 以及 Fable 模型），`false` 不起作用。在[第三方提供商](/docs/zh-CN/third-party-integrations)上，Claude Code 会省略 `thinking` 参数而不是关闭思考，因此自适应推理模型仍可能进行思考。在 Anthropic API 上关闭思考时，对于 Claude Code 已知[不接受该组合](/docs/zh-CN/errors#effort-isnt-available-with-thinking-turned-off)的模型（例如 Opus 5），Claude Code 会发送 effort `high` 而不是更高的级别。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`: 无效果；思考已经打开
-  * `false`: Claude Code 为每个会话关闭扩展思考
-* **Default**: 未设置，因此对于支持它的模型，思考是打开的
-* **Per-session overrides**: [`MAX_THINKING_TOKENS`](/docs/zh-CN/env-vars)对此键优先一个会话：`0` 关闭思考，在与 `false` 相同的模型和提供商限制下，正值打开思考，即使此键是 `false`。在自适应推理模型上，数字本身被忽略
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：不起作用；思考已处于开启状态
+  * `false`：Claude Code 在每个会话中关闭扩展思考
+* **默认值**：未设置，因此对于支持思考的模型，思考处于开启状态
+* **单会话覆盖**：[`MAX_THINKING_TOKENS`](/docs/zh-CN/env-vars) 在单个会话中优先于此键：`0` 会关闭思考（受与 `false` 相同的模型和提供商限制），正值则会开启思考，即使此键为 `false`。在自适应推理模型上，该数值本身会被忽略
 
 ```json settings.json theme={null}
 {
@@ -891,13 +891,13 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
   `availableModels`
 </h3>
 
-限制人们可以为主会话、[subagents](/docs/zh-CN/sub-agents)、[skills](/docs/zh-CN/skills) 和[顾问](/docs/zh-CN/advisor)选择的模型。托管列表限制 `/model`、`--model` 和开发人员自己文件中的 `model` 键；列表外的模型无法选择。使用默认前缀匹配，这不会单独触及默认选项；将其与[`enforceAvailableModels`](#enforceavailablemodels)配对以实现这一点。
+限制用户可以为主会话、[子代理](/docs/zh-CN/sub-agents)、[skill](/docs/zh-CN/skills) 和 [advisor](/docs/zh-CN/advisor) 选择哪些模型。托管列表会约束 `/model`、`--model` 以及开发者自己文件中的 `model` 键；列表之外的模型无法被选择。在默认的前缀匹配下，此项本身不会影响 Default 选项；如需影响，请将其与 [`enforceAvailableModels`](#enforceavailablemodels) 搭配使用。
 
-* **Scope**: [`Any file`](#scopes)。在托管设置中部署它以为组织强制执行。
-* **Type**: 模型别名或 ID 的数组
-* **Default**: 未设置，因此每个模型都可用
+* **作用域**：[`Any file`](#scopes)。将其部署在托管设置中，可在组织范围内强制执行。
+* **类型**：模型别名或 ID 的数组
+* **默认值**：未设置，因此所有模型均可用
 
-此示例仅允许人们选择 Sonnet 和 Haiku 模型：
+此示例仅允许用户选择 Sonnet 和 Haiku 模型：
 
 ```json settings.json theme={null}
 {
@@ -905,21 +905,21 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 }
 ```
 
-模型 ID 条目（如 `"claude-opus-5"`）也允许扩展它的更高版本，如 Opus 5.5。要阻止其中一个版本，请使用[`deniedModels`](#deniedmodels)。要使每个模型 ID 条目仅允许它命名的版本，请使用[`availableModelsMatch`](#availablemodelsmatch)。请参阅[限制模型选择](/docs/zh-CN/model-config#restrict-model-selection)。
+诸如 `"claude-opus-5"` 之类的模型 ID 条目也会允许在其基础上扩展的后续版本，例如 Opus 5.5。要阻止其中某个版本，请使用 [`deniedModels`](#deniedmodels)。要使每个模型 ID 条目仅允许其所指定的版本，请使用 [`availableModelsMatch`](#availablemodelsmatch)。请参阅[限制模型选择](/docs/zh-CN/model-config#restrict-model-selection)。
 
 <h3 id="availablemodelsmatch">
   `availableModelsMatch`
 </h3>
 
-选择[`availableModels`](#availablemodels)条目如何匹配模型 ID。默认情况下，模型 ID 条目也允许扩展它的更高版本，因此 `"claude-opus-5"` 允许 Opus 5.5。使用 `"exact"`，每个模型 ID 条目仅允许它命名的版本，因此该模型的更高版本保持阻止状态，直到您列出它。需要 Claude Code v2.1.283 或更高版本。
+选择 [`availableModels`](#availablemodels) 条目如何匹配模型 ID。默认情况下，模型 ID 条目也会允许在其基础上扩展的后续版本，因此 `"claude-opus-5"` 会允许 Opus 5.5。使用 `"exact"` 时，每个模型 ID 条目仅允许其所指定的版本，因此该模型的较新版本在您将其列出之前会一直被阻止。需要 Claude Code v2.1.283 或更高版本。
 
-* **Scope**: [`Managed`](#scopes)。Claude Code 在用户、项目和本地设置以及 `--settings` 中忽略该键，并显示警告
-* **Type**: string，其中一个：
-  * `"prefix"`: 模型 ID 条目允许其版本和任何用另一个段扩展它的模型 ID
-  * `"exact"`: 模型 ID 条目仅允许它命名的版本，包括该版本的日期 ID，因此 `"claude-opus-5"` 允许 Opus 5 但不允许 `claude-opus-5-5`。系列别名如 `"opus"` 仍然允许整个系列，`best`、`opusplan` 和 `default` 条目被忽略
-* **Default**: `"prefix"`
+* **作用域**：[`Managed`](#scopes)。Claude Code 会忽略用户、项目和本地设置以及 `--settings` 中的此键，并给出警告
+* **类型**：字符串，取值之一：
+  * `"prefix"`：模型 ID 条目允许其版本以及在其基础上再扩展一个段的任何模型 ID
+  * `"exact"`：模型 ID 条目仅允许其所指定的版本（包括该版本带日期的 ID），因此 `"claude-opus-5"` 允许 Opus 5，但不允许 `claude-opus-5-5`。诸如 `"opus"` 之类的系列别名仍会允许整个系列，而 `best`、`opusplan` 和 `default` 条目会被忽略
+* **默认值**：`"prefix"`
 
-此示例允许 Opus 5 和 Sonnet 5，不允许任何更高版本：
+此示例允许 Opus 5 和 Sonnet 5，但不允许二者的任何后续版本：
 
 ```json managed-settings.json theme={null}
 {
@@ -928,23 +928,23 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 }
 ```
 
-使用 `"exact"`，当列表至少命名一个模型或系列时，默认选项也限制为列出的模型。请参阅[阻止特定模型或版本](/docs/zh-CN/model-config#block-specific-models-or-versions)。
+使用 `"exact"` 时，只要列表中至少指定了一个模型或系列，Default 选项也会被限制为列出的模型。请参阅[阻止特定模型或版本](/docs/zh-CN/model-config#block-specific-models-or-versions)。
 
 <h3 id="deniedmodels">
   `deniedModels`
 </h3>
 
-阻止特定模型，无论是否有[`availableModels`](#availablemodels)允许列表，即使该列表允许它们。Claude Code 从 `/model` 选择器中隐藏被阻止的模型，该模型无法在强制执行 `availableModels` 的任何地方选择。默认选项上的会话也不会运行被阻止的模型，如[阻止特定模型或版本](/docs/zh-CN/model-config#block-specific-models-or-versions)所述。需要 Claude Code v2.1.283 或更高版本。
+阻止特定模型，无论是否存在 [`availableModels`](#availablemodels) 允许列表，即使该列表允许这些模型也是如此。Claude Code 会在 `/model` 选择器中隐藏被阻止的模型，并且在任何强制执行 `availableModels` 的地方都无法选择该模型。如[阻止特定模型或版本](/docs/zh-CN/model-config#block-specific-models-or-versions)所述，使用 Default 选项的会话也不会运行被阻止的模型。需要 Claude Code v2.1.283 或更高版本。
 
-* **Scope**: [`Managed`](#scopes)。Claude Code 在用户、项目和本地设置以及 `--settings` 中忽略该键，并显示警告
-* **Type**: 模型别名或 ID 的数组
-  * 系列别名如 `"opus"` 阻止该系列中的每个模型
-  * 模型 ID 如 `"claude-opus-5-5"` 在每种拼写中阻止该版本，包括日期和提供商特定 ID
-  * 没有次要版本的模型 ID，如 `"claude-opus-5"`，也阻止更高的次要版本，如 Opus 5.5。写 `"claude-opus-5-0"` 仅阻止 Opus 5
-  * `best`、`opusplan` 和 `default` 条目被忽略
-* **Default**: 未设置，因此没有模型被阻止
+* **作用域**：[`Managed`](#scopes)。Claude Code 会忽略用户、项目和本地设置以及 `--settings` 中的此键，并给出警告
+* **类型**：模型别名或 ID 的数组
+  * 诸如 `"opus"` 之类的系列别名会阻止该系列中的所有模型
+  * 诸如 `"claude-opus-5-5"` 之类的模型 ID 会阻止该版本的所有写法，包括带日期的 ID 和特定于提供商的 ID
+  * 不带次版本号的模型 ID（例如 `"claude-opus-5"`）也会阻止后续的次版本，例如 Opus 5.5。要仅阻止 Opus 5，请写 `"claude-opus-5-0"`
+  * `best`、`opusplan` 和 `default` 条目会被忽略
+* **默认值**：未设置，因此不阻止任何模型
 
-此示例允许 Opus 和 Sonnet 模型并阻止 Opus 5.5：
+此示例允许 Opus 和 Sonnet 模型，并阻止 Opus 5.5：
 
 ```json managed-settings.json theme={null}
 {
@@ -959,22 +959,22 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
   `effortLevel`
 </h3>
 
-为您尚未保存级别的模型设置默认[努力级别](/docs/zh-CN/model-config#adjust-effort-level)。较低的级别在直接任务上更快且更便宜，较高的级别在复杂问题上推理更深入。
+为尚未保存级别的模型设置默认的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。较低的级别在简单任务上更快、更便宜，较高的级别则会对复杂问题进行更深入的推理。
 
-当您在您的机器上的交互式会话中运行 `/effort low`、`medium`、`high` 或 `xhigh` 时，Claude Code 将该级别保存在[`modelSettings`](#modelsettings)下的活动模型下，而不是写入此键。在 v2.1.251 之前，`/effort` 写入此键。
+当您在本机的交互式会话中运行 `/effort low`、`medium`、`high` 或 `xhigh` 时，Claude Code 会将该级别保存在 [`modelSettings`](#modelsettings) 下的当前模型中，而不是写入此键。在 v2.1.251 之前，`/effort` 会写入此键。
 
-在同一设置文件中，Claude Code 使用模型的保存级别而不是此键。[`modelSettings`](#modelsettings)说明跨文件优先级。
+在同一个设置文件中，Claude Code 会使用模型已保存的级别，而不是此键。[`modelSettings`](#modelsettings) 说明了跨文件的优先级。
 
-在附加到远程工作者的会话中、在 `-p` 运行中以及在 Agent SDK 中，`/effort` 仅适用于该会话。[调整努力级别](/docs/zh-CN/model-config#adjust-effort-level)列出也仅适用于该会话的交互式选择。`/effort` 打印的消息说明发生了什么。
+在连接到远程 worker 的会话中、在 `-p` 运行中以及在 Agent SDK 中，`/effort` 仅适用于该会话。[调整 effort 级别](/docs/zh-CN/model-config#adjust-effort-level)列出了同样仅适用于该会话的交互式选择。`/effort` 打印的消息会说明实际发生了哪种情况。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，其中一个：
-  * `"low"`: 最少推理，用于短的、范围内的、延迟敏感的、不是智能敏感的任务
-  * `"medium"`: 减少成本敏感工作的令牌使用，可以权衡一些智能
-  * `"high"`: 平衡令牌使用和智能
-  * `"xhigh"`: 更深入的推理，更高的令牌支出
-* **Default**: 未设置
-* **Per-session overrides**: `--effort` 对此键优先一个会话，[`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars)对两者都优先
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，取值之一：
+  * `"low"`：推理最少，适用于简短、范围明确、对延迟敏感且对智能要求不高的任务
+  * `"medium"`：减少 token 使用量，适用于对成本敏感、可以牺牲部分智能的工作
+  * `"high"`：在 token 使用量与智能之间取得平衡
+  * `"xhigh"`：以更高的 token 开销进行更深入的推理
+* **默认值**：未设置
+* **单会话覆盖**：`--effort` 在单个会话中优先于此键，而 [`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars) 优先于二者
 
 ```json settings.json theme={null}
 {
@@ -982,25 +982,25 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 }
 ```
 
-在您的用户设置文件 `~/.claude/settings.json` 中，此键是 `/effort` 在保存每个模型的级别之前写入的较旧形式，它继续在之前应用的地方应用，在 Opus 5、Fable 5.1 和更早的模型上。Opus 5.5 和之后发布的模型忽略它，并从它们自己的默认值开始，直到您为它们保存一个级别，`/effort` 在[`modelSettings`](#modelsettings)下写入。在项目、本地和托管设置中，以及使用 `--settings` 时，此键适用于每个模型。
+在您的用户设置文件 `~/.claude/settings.json` 中，此键是 `/effort` 在按模型保存级别之前写入的旧形式，它会继续在以前适用的地方生效，即 Opus 5、Fable 5.1 及更早的模型。Opus 5.5 及其之后发布的模型会忽略此键，并以其自身的默认值开始，直到您为其保存级别为止，`/effort` 会将该级别写入 [`modelSettings`](#modelsettings) 下。在项目、本地和托管设置中，以及使用 `--settings` 时，此键适用于所有模型。
 
 <h3 id="enforceavailablemodels">
   `enforceAvailableModels`
 </h3>
 
-`/model` 选择器有一个**默认**选项，[`default` 模型设置](/docs/zh-CN/model-config#default-model-setting)描述它解析为的模型。[`availableModels`](#availablemodels)允许列表限制您可以命名的模型，但使用默认[前缀匹配](#availablemodelsmatch)它不会单独重新映射您的账户类型的默认值，因此**默认**仍然可以解析为列表外的模型。此键关闭该间隙。需要 Claude Code v2.1.175 或更高版本。
+`/model` 选择器有一个 **Default** 选项，[`default` 模型设置](/docs/zh-CN/model-config#default-model-setting)描述了它解析到的模型。[`availableModels`](#availablemodels) 允许列表会限制您可以指定的模型，但在默认的[前缀匹配](#availablemodelsmatch)下，它不会重新映射您账户类型的默认模型，因此 **Default** 仍可能解析为列表之外的模型。此键弥补了这一漏洞。需要 Claude Code v2.1.175 或更高版本。
 
-当您的组织部署任何托管设置时，Claude Code 仅从托管源读取此键，并在您的其他文件中忽略它。
+当您的组织部署了任何托管设置时，Claude Code 只会从托管来源读取此键，并忽略您其他文件中的此键。
 
-关于此键如何应用于启动时的模型检查，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock#when-your-organization-enforces-a-model-allowlist) 和 [Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai#when-your-organization-enforces-a-model-allowlist)。
+关于此键如何应用于启动时的模型检查，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock#when-your-organization-enforces-a-model-allowlist) 和 [Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai#when-your-organization-enforces-a-model-allowlist)。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`: 当**默认**会解析为 `availableModels` 外的模型时，Claude Code 将其解析为列表中第一个可用的模型
-  * `false`: 此键不改变**默认**的解析方式
-* **Default**: `false`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：当 **Default** 将解析为 `availableModels` 之外的模型时，Claude Code 会将其解析为列表中第一个可用的模型
+  * `false`：此键不会改变 **Default** 的解析方式
+* **默认值**：`false`
 
-此示例将命名选择限制为 Sonnet 和 Haiku 模型，并使**默认**解析为其中第一个可用的：
+此示例将可指定的选择限制为 Sonnet 和 Haiku 模型，并使 **Default** 解析为其中第一个可用的模型：
 
 ```json settings.json theme={null}
 {
@@ -1009,22 +1009,22 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 }
 ```
 
-当 `availableModels` 未设置或为空时，此键没有效果。请参阅[为默认模型强制执行允许列表](/docs/zh-CN/model-config#enforce-the-allowlist-for-the-default-model)。需要 Claude Code v2.1.175 或更高版本。
+当 `availableModels` 未设置或为空时，此键不起作用。请参阅[对 Default 模型强制执行允许列表](/docs/zh-CN/model-config#enforce-the-allowlist-for-the-default-model)。需要 Claude Code v2.1.175 或更高版本。
 
 <h3 id="fallbackmodel">
   `fallbackModel`
 </h3>
 
-命名备用模型供 Claude Code 在您的主模型过载或不可用时按顺序尝试。Claude Code 为该轮的其余部分切换到链中下一个可用的模型，并显示通知。没有链的情况下，Claude Code 重试同一模型，然后显示服务器的错误，您重试或自己切换模型。
+指定当您的主模型过载或不可用时，Claude Code 按顺序尝试的备用模型。Claude Code 会在该轮次的剩余部分切换到链中下一个可用的模型，并显示通知。如果没有配置链，Claude Code 会重试同一模型，然后显示服务器的错误，由您自行重试或切换模型。
 
-切换意味着在备用模型上进行一轮冷[提示缓存](/docs/zh-CN/prompt-caching#switching-models)；您的下一条消息首先再次尝试主模型。
+一次切换意味着在备用模型上有一个轮次的[提示缓存](/docs/zh-CN/prompt-caching#switching-models)是冷的；您的下一条消息会再次优先尝试主模型。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: 模型别名或 ID 的数组；`"default"` 扩展为默认模型
-* **Default**: 未设置，因此失败的请求不会在另一个模型上重试
-* **Per-session overrides**: `--fallback-model` 对此键优先一个会话
+* **作用域**：[`Any file`](#scopes)
+* **类型**：模型别名或 ID 的数组；`"default"` 会展开为默认模型
+* **默认值**：未设置，因此失败的请求不会在其他模型上重试
+* **单会话覆盖**：`--fallback-model` 在单个会话中优先于此键
 
-此示例在您的主模型失败时首先尝试 Sonnet 5，然后尝试 Haiku 4.5：
+此示例在主模型失败时先尝试 Sonnet 5，然后尝试 Haiku 4.5：
 
 ```json settings.json theme={null}
 {
@@ -1032,20 +1032,20 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 }
 ```
 
-与大多数数组设置不同，此键不跨设置文件合并：最高优先级文件定义它提供整个链。如果您的项目文件设置 `["claude-sonnet-5"]` 而您的用户文件设置 `["claude-haiku-4-5"]`，链是 `["claude-sonnet-5"]` 仅。Claude Code 从列表中最多保留三个不同的允许模型，忽略其余的。请参阅[备用模型链](/docs/zh-CN/model-config#fallback-model-chains)。
+与大多数数组设置不同，此键不会跨设置文件合并：定义了此键的优先级最高的文件提供整个链。如果您的项目文件设置为 `["claude-sonnet-5"]`，而用户文件设置为 `["claude-haiku-4-5"]`，则链仅为 `["claude-sonnet-5"]`。Claude Code 最多保留列表中三个不同的允许模型，并忽略其余模型。请参阅[备用模型链](/docs/zh-CN/model-config#fallback-model-chains)。
 
 <h3 id="fastmode">
   `fastMode`
 </h3>
 
-为可用的会话打开[快速模式](/docs/zh-CN/fast-mode)，用于交互式工作，如快速迭代或实时调试，您希望以更高的每令牌成本获得速度。您通常不会手动编辑此键：运行 `/fast` 将 `fastMode: true` 写入 `~/.claude/settings.json`，再次运行它以关闭快速模式会删除该键。快速模式仅在 Opus 5.5、Opus 5 和 Opus 4.8 上运行：从另一个模型打开它会切换您到 Opus，切换到不支持的模型会关闭它。请参阅[在快速模式打开时切换模型](/docs/zh-CN/fast-mode#switch-models-while-fast-mode-is-on)。
+在可用的会话中开启[快速模式](/docs/zh-CN/fast-mode)，适用于快速迭代或实时调试等交互式工作，在这些场景中您希望以更高的每 token 成本换取速度。通常无需手动编辑此键：运行 `/fast` 会将 `fastMode: true` 写入 `~/.claude/settings.json`，再次运行以关闭快速模式会移除该键。快速模式仅在 Opus 5.5、Opus 5 和 Opus 4.8 上运行：从其他模型开启它会将您切换到 Opus，而切换到不支持的模型会将其关闭。请参阅[在快速模式开启时切换模型](/docs/zh-CN/fast-mode#switch-models-while-fast-mode-is-on)。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`: Claude Code 为可用的会话打开快速模式
-  * `false`: 快速模式保持关闭
-* **Default**: 未设置，因此快速模式已关闭
-* **Per-session overrides**: [`CLAUDE_CODE_DISABLE_FAST_MODE`](/docs/zh-CN/env-vars)为一个会话关闭快速模式，此键无法将其重新打开
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：Claude Code 在可用的会话中开启快速模式
+  * `false`：快速模式保持关闭
+* **默认值**：未设置，因此快速模式处于关闭状态
+* **单会话覆盖**：[`CLAUDE_CODE_DISABLE_FAST_MODE`](/docs/zh-CN/env-vars) 会在单个会话中关闭快速模式，且此键无法将其重新打开
 
 ```json settings.json theme={null}
 {
@@ -1057,15 +1057,15 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
   `fastModePerSessionOptIn`
 </h3>
 
-通常，运行 `/fast` 将[`fastMode`](#fastmode)保存到一个人的用户设置，因此快速模式在之后每个会话的开始时打开。将此键设置为 `true` 以停止这种情况：保存的 `fastMode: true` 不再在会话开始时打开快速模式，每个人必须在他们想要它的每个会话中运行 `/fast`。Claude Code 在他们的文件中保留 `fastMode` 键，因此关闭此键会恢复旧行为。
+通常，运行 `/fast` 会将 [`fastMode`](#fastmode) 保存到用户的用户设置中，因此之后的每个会话开始时快速模式都会开启。将此键设置为 `true` 可阻止这种情况：已保存的 `fastMode: true` 不再在会话开始时开启快速模式，每个人都必须在需要它的每个会话中运行 `/fast`。Claude Code 会保留其文件中的 `fastMode` 键，因此关闭此键即可恢复原有行为。
 
-Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/zh-CN/server-managed-settings)在组织范围内部署它。当托管设置设置该键时，`/fast on` 在交互式终端会话外被拒绝，并报告您的组织已禁用快速模式。这涵盖[非交互式模式](/docs/zh-CN/headless)、[VS Code 扩展](/docs/zh-CN/vs-code)和[云会话](/docs/zh-CN/claude-code-on-the-web)。
+Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/zh-CN/server-managed-settings)在组织范围内部署此项。当托管设置设置了此键时，`/fast on` 在交互式终端会话之外会被拒绝，并报告您的组织已禁用快速模式。这涵盖[非交互模式](/docs/zh-CN/headless)、[VS Code 扩展](/docs/zh-CN/vs-code)和[云端会话](/docs/zh-CN/claude-code-on-the-web)。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`: 保存的 `fastMode: true` 不再在会话开始时打开快速模式，因此每个人在他们想要它的每个会话中运行 `/fast`；使用 `--settings` 传递的 `fastMode: true` 仍然对该会话计数，除非托管设置设置此键
-  * `false`: 保存的 `fastMode: true` 在之后每个会话的开始时打开快速模式
-* **Default**: `false`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：已保存的 `fastMode: true` 不再在会话开始时开启快速模式，因此每个人需要在想要使用它的每个会话中运行 `/fast`；除非托管设置设置了此键，否则通过 `--settings` 传入的 `fastMode: true` 仍对该会话有效
+  * `false`：已保存的 `fastMode: true` 会在之后每个会话开始时开启快速模式
+* **默认值**：`false`
 
 ```json settings.json theme={null}
 {
@@ -1073,17 +1073,17 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
 }
 ```
 
-请参阅[需要每个会话的选择加入](/docs/zh-CN/fast-mode#require-per-session-opt-in)。
+请参阅[要求按会话选择启用](/docs/zh-CN/fast-mode#require-per-session-opt-in)。
 
 <h3 id="language">
   `language`
 </h3>
 
-默认情况下让 Claude 用英语以外的语言响应。响应没有固定列表：Claude Code 将值逐字传递给 Claude 作为始终用该语言响应的指令，因此任何 Claude 可以读取的语言名称都有效。Claude Code 不检查该值，因此拼写错误的名称按原样到达 Claude，而不是产生错误。相同的值为[语音听写](/docs/zh-CN/voice-dictation#change-the-dictation-language)设置语言，它有一个固定的[支持的听写语言](/docs/zh-CN/voice-dictation#change-the-dictation-language)列表，以及自动生成的会话标题。
+让 Claude 默认使用英语以外的语言回复。回复语言没有固定列表：Claude Code 会将该值原样传递给 Claude，作为始终使用该语言回复的指令，因此 Claude 能够识别的任何语言名称都可以使用。Claude Code 不会检查该值，因此拼写错误的名称会按原样传递给 Claude，而不会产生错误。同一个值也会设置[语音听写](/docs/zh-CN/voice-dictation#change-the-dictation-language)的语言（语音听写确实有固定的[支持的听写语言](/docs/zh-CN/voice-dictation#change-the-dictation-language)列表）以及自动生成的会话标题的语言。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，任何语言名称，如 `"japanese"`、`"spanish"` 或 `"french"`；Claude Code 不验证它
-* **Default**: 未设置；会话标题然后匹配您的对话语言
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，任意语言名称，例如 `"japanese"`、`"spanish"` 或 `"french"`；Claude Code 不会对其进行验证
+* **默认值**：未设置；此时会话标题会与您对话所用的语言一致
 
 ```json settings.json theme={null}
 {
@@ -1095,14 +1095,14 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
   `maxEffortLevel`
 </h3>
 
-限制会话可以使用的[努力级别](/docs/zh-CN/model-config#adjust-effort-level)，保留较低的级别可用。任何更高的级别都在上限处运行，包括来自 `/effort`、`/model` 选择器、`--effort`、[`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars)、skill 或 subagent 的 `effort` frontmatter 或模型自己的默认值。Claude Code 在每个请求之前自己应用上限，因此它在每个提供商上保持，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry。需要 Claude Code v2.1.267 或更高版本。
+限制会话可以使用的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)上限，较低的级别仍然可用。任何更高的级别都会改为以上限级别运行，包括来自 `/effort`、`/model` 选择器、`--effort`、[`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars)、skill 或子代理的 `effort` frontmatter，或模型自身默认值的级别。Claude Code 会在每个请求之前自行应用该上限，因此它在所有提供商上都有效，包括 Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry。需要 Claude Code v2.1.267 或更高版本。
 
-* **Scope**: [`Any file`](#scopes)。在托管设置中部署它以为组织强制执行。当多个范围设置上限时，最低的适用，因此在一个范围中设置的上限无法从另一个范围提高
-* **Type**: string，其中一个 `"low"`、`"medium"`、`"high"`、`"xhigh"` 或 `"max"`。`"max"` 值设置无上限
-* **Default**: 未设置，因此无上限适用
-* **Per-model caps**: 将 `maxEffortLevel` 添加到模型的[`modelSettings`](#modelsettings)条目。该条目在设置两者的设置源（如您的用户设置或一个[托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)）中仅替换该模型的此键。在那里设置 `"max"` 以豁免该模型免受该源的上限；Claude Code 仍然应用来自其他源的上限
+* **作用域**：[`Any file`](#scopes)。将其部署在托管设置中，可在组织范围内强制执行。当多个作用域设置了上限时，以最低的为准，因此在一个作用域中设置的上限无法在另一个作用域中提高
+* **类型**：字符串，为 `"low"`、`"medium"`、`"high"`、`"xhigh"` 或 `"max"` 之一。`"max"` 值表示不设上限
+* **默认值**：未设置，因此不应用任何上限
+* **按模型上限**：将 `maxEffortLevel` 添加到模型的 [`modelSettings`](#modelsettings) 条目中。该条目仅在同时设置了二者的设置来源（例如您的用户设置或某个[托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)）中，针对该模型替代此键。在此处设置 `"max"` 可使该模型免受该来源的上限约束；Claude Code 仍会应用其他来源的上限
 
-此示例将每个模型限制在 `medium`，并豁免 Sonnet 4.6：
+此示例将所有模型的上限设为 `medium`，并使 Sonnet 4.6 不受限制：
 
 ```json settings.json theme={null}
 {
@@ -1115,18 +1115,18 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
 }
 ```
 
-当您的组织也为模型设置[努力限制](/docs/zh-CN/model-config#organization-effort-limits)时，两个上限中较低的适用。
+当您的组织还为某个模型设置了 [effort 限制](/docs/zh-CN/model-config#organization-effort-limits)时，以两个上限中较低的为准。
 
 <h3 id="model">
   `model`
 </h3>
 
-设置每个新会话使用的模型，因此您不必每次都用 `/model` 选择一个。在此处设置它不会阻止您在会话中期切换。如果您的管理员设置了[组织默认模型](/docs/zh-CN/model-config#organization-default-model)以覆盖用户选择，即使您在用户、项目或本地设置中设置此键，您也会获得该模型。
+设置每个新会话使用的模型，这样您就不必每次都通过 `/model` 选择模型。在此处设置并不妨碍您在会话中途切换。如果您的管理员设置了[组织默认模型](/docs/zh-CN/model-config#organization-default-model)以覆盖用户选择，即使您在用户、项目或本地设置中设置了此键，您也会使用该模型。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，模型别名或完整模型 ID
-* **Default**: 未设置，因此 Claude Code 使用您账户的默认模型
-* **Per-session overrides**: `--model` 优先于[`ANTHROPIC_MODEL`](/docs/zh-CN/env-vars)，两者都优先于此键一个会话，包括优先于托管 `model`；[`availableModels`](#availablemodels)列表仍然适用于选择
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，模型别名或完整模型 ID
+* **默认值**：未设置，因此 Claude Code 使用您账户的默认模型
+* **单会话覆盖**：`--model` 优先于 [`ANTHROPIC_MODEL`](/docs/zh-CN/env-vars)，二者在单个会话中都优先于此键（包括托管的 `model`）；[`availableModels`](#availablemodels) 列表仍会应用于所选模型
 
 ```json settings.json theme={null}
 {
@@ -1134,19 +1134,19 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
 }
 ```
 
-此处的值优先于[`ANTHROPIC_DEFAULT_MODEL`](/docs/zh-CN/model-config#set-a-default-model-for-new-sessions)，Claude Code 仅在没有其他内容选择模型时使用。
+此处的值优先于 [`ANTHROPIC_DEFAULT_MODEL`](/docs/zh-CN/model-config#set-a-default-model-for-new-sessions)，Claude Code 仅在没有其他项选择模型时才使用后者。
 
 <h3 id="modeloverrides">
   `modelOverrides`
 </h3>
 
-将 Anthropic 模型 ID 映射到提供商特定的模型 ID，如 Amazon Bedrock 推理配置文件 ARN。每个模型选择器条目然后在调用提供商 API 时使用其映射值。管理员在[Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry](/docs/zh-CN/model-config#override-model-ids-per-version)上使用这个来将每个模型版本路由到特定的推理配置文件、版本名称或部署，以实现治理、成本分配或区域路由。
+将 Anthropic 模型 ID 映射到特定于提供商的模型 ID，例如 Amazon Bedrock 推理配置文件 ARN。这样，每个模型选择器条目在调用提供商 API 时都会使用其映射的值。管理员在 [Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry](/docs/zh-CN/model-config#override-model-ids-per-version) 上使用此项，将每个模型版本路由到特定的推理配置文件、版本名称或部署，以实现治理、成本分摊或区域路由。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: 将模型 ID 映射到提供商模型 ID 的对象
-* **Default**: 未设置
+* **作用域**：[`Any file`](#scopes)
+* **类型**：将模型 ID 映射到提供商模型 ID 的对象
+* **默认值**：未设置
 
-此示例将 Opus 4.6 的每个调用路由到命名的 Bedrock 推理配置文件：
+此示例将所有对 Opus 4.6 的调用路由到指定的 Bedrock 推理配置文件：
 
 ```json settings.json theme={null}
 {
@@ -1162,13 +1162,13 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
   `modelPicker`
 </h3>
 
-列出 `/model` 选择器提供的模型，按您写入它们的顺序和您选择的标签下，因此选择器列出您的组织运行的模型，在内置阵容之后或代替它。每行的 `model` 逐字获取，因此它接受 `--model` 接受的任何内容：别名如 `opus`、Anthropic 模型 ID 或 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 LLM 网关的提供商格式 ID。需要 Claude Code v2.1.242 或更高版本。
+列出 `/model` 选择器提供的模型，按您编写的顺序并使用您选择的标签，使选择器在内置模型列表之后或代替内置模型列表，列出您组织运行的模型。每一行的 `model` 会按原样使用，因此它接受 `--model` 接受的任何值：诸如 `opus` 之类的别名、Anthropic 模型 ID，或适用于 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 或 LLM 网关的提供商格式 ID。需要 Claude Code v2.1.242 或更高版本。
 
-* **Scope**: [`User or managed`](#scopes)。Claude Code 从托管设置、`--settings` 和用户设置读取该键，并在项目和本地设置中忽略它，因此您克隆的存储库无法重新标记选择器。这三个中最高的设置该键提供整个阵容，Claude Code 从不合并来自两个源的阵容。
-* **Type**: 带有 `options` 数组的对象和可选的 `replaceBuiltInOptions` Boolean
-* **Default**: 未设置，因此选择器显示内置阵容
+* **作用域**：[`User or managed`](#scopes)。Claude Code 从托管设置、`--settings` 和用户设置中读取此键，并忽略项目和本地设置中的此键，因此您克隆的仓库无法重新标注选择器。这三者中设置了此键的优先级最高者提供整个模型列表，Claude Code 永远不会合并来自两个来源的模型列表。
+* **类型**：包含行数组 `options` 和可选布尔值 `replaceBuiltInOptions` 的对象
+* **默认值**：未设置，因此选择器显示内置模型列表
 
-此示例在内置阵容之后添加两个 Bedrock 部署，在您的团队识别的名称下：
+此示例在内置模型列表之后添加两个 Bedrock 部署，并使用您团队熟悉的名称：
 
 ```json managed-settings.json theme={null}
 {
@@ -1193,38 +1193,38 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
   `modelPicker` 的字段
 </h4>
 
-该键有两个字段，一个用于行本身，一个用于它们是替换内置阵容还是添加到它。
+此键包含两个字段，一个用于行本身，另一个用于决定这些行是替换内置模型列表还是添加到其中。
 
-| Field | Type | What it does |
+| 字段 | 类型 | 作用 |
 | :- | :- | :- |
-| `options` | 行的数组，每个都有必需的 `model` 和可选的 `label`、`description` 和 `behavesAs` | 选择器显示的行，按此顺序，除了灰显的行移到底部。没有 `label`，Claude Code 用它知道的模型的内置名称标记行，或模型 ID 否则，没有 `description` 它写一个通用的第二行 |
-| `replaceBuiltInOptions` | Boolean，默认 `false` | 将其设置为 `true` 以仅显示这些行、**默认**和会话已在使用的模型的行。保留未设置以在内置阵容之后添加这些行 |
+| `options` | 行的数组，每行包含必需的 `model` 以及可选的 `label`、`description` 和 `behavesAs` | 选择器按此顺序显示的行，但灰显的行会移到底部。如果没有 `label`，对于 Claude Code 已知的模型，它会使用内置名称作为行标题，否则使用模型 ID；如果没有 `description`，它会写入通用的第二行 |
+| `replaceBuiltInOptions` | 布尔值，默认为 `false` | 将其设置为 `true` 可仅显示这些行、**Default** 以及会话当前正在使用的模型所对应的行。保持未设置则会将这些行添加到内置模型列表之后 |
 
-`options` 中的条目也可以在其 `model` 旁边携带可选的 `behavesAs` 字符串，需要 v2.1.257 或更高版本。将其设置为您的 Claude Code 版本已知的模型的 ID，如 `claude-opus-4-8`，在其 `model` 比您的版本更新的条目上。Claude Code 然后将该已知模型的能力和努力默认值应用于条目，而不是将其模型视为未知。条目的标签和 Claude Code 在请求中发送的模型 ID 不改变。
+`options` 中的条目还可以在其 `model` 旁边携带一个可选的 `behavesAs` 字符串，这需要 v2.1.257 或更高版本。在 `model` 比您的 Claude Code 版本更新的条目上，将其设置为您的 Claude Code 版本已知的模型 ID，例如 `claude-opus-4-8`。这样，Claude Code 会将该已知模型的能力和 effort 默认值应用于该条目，而不是将其模型视为未知模型。条目的标签以及 Claude Code 在请求中发送的模型 ID 不会改变。
 
-使用 `replaceBuiltInOptions` 打开时，Claude Code 隐藏每个其他行：内置阵容、它为[`availableModels`](#availablemodels)条目添加的行、[网关发现](/docs/zh-CN/llm-gateway-protocol#model-discovery)找到的模型和[`ANTHROPIC_CUSTOM_MODEL_OPTION`](/docs/zh-CN/model-config#add-a-custom-model-option)。关闭时，Claude Code 跳过内置阵容已覆盖的列出的模型。标签改变选择器显示的内容，而不是 Claude Code 运行的模型。
+开启 `replaceBuiltInOptions` 时，Claude Code 会隐藏所有其他行：内置模型列表、它为 [`availableModels`](#availablemodels) 条目添加的行、[网关发现](/docs/zh-CN/llm-gateway-protocol#model-discovery)找到的模型，以及 [`ANTHROPIC_CUSTOM_MODEL_OPTION`](/docs/zh-CN/model-config#add-a-custom-model-option)。关闭时，Claude Code 会跳过内置模型列表已经涵盖的列出模型。标签改变的是选择器显示的内容，而不是 Claude Code 运行哪个模型。
 
-[`availableModels`](#availablemodels)允许列表仍然适用于这些行。在将列出的模型添加到允许列表之前，请阅读[合并行为](/docs/zh-CN/model-config#merge-behavior)：特定模型 ID 缩小其系列的通配符条目。Claude Code 也在显示选择器之前检查每行与会话：
+[`availableModels`](#availablemodels) 允许列表仍适用于这些行。在将列出的模型添加到允许列表之前，请阅读[合并行为](/docs/zh-CN/model-config#merge-behavior)：特定的模型 ID 会收窄其系列的通配符条目。Claude Code 还会在显示选择器之前，根据会话检查每一行：
 
-* **Dropped**: Claude Code 无法提供的行，如已退休的模型或您的组织无权访问的模型
-* **Grayed out**: 您还无法选择的行，显示原因
-* **No row survives**: Claude Code 保留内置阵容，按允许列表过滤如常
+* **丢弃**：Claude Code 无法提供服务的行，例如已停用的模型或您的组织无权访问的模型
+* **灰显**：您暂时无法选择的行，并显示原因
+* **没有行保留**：Claude Code 保留内置模型列表，并照常按允许列表进行过滤
 
-Claude Code 删除它无法解析的行，保留其余的。请参阅[修复损坏的设置文件](/docs/zh-CN/settings#fix-a-broken-settings-file)。
+Claude Code 会丢弃无法解析的行并保留其余行。请参阅[修复损坏的设置文件](/docs/zh-CN/settings#fix-a-broken-settings-file)。
 
 <h3 id="modelpricing">
   `modelPricing`
 </h3>
 
-按您的组织支付的费率而不是列表价格报告支出。当您的组织有合同费率时设置它，因此开发人员看到的美元数字与您的账单匹配。Claude Code 在 `/usage`、[状态行](/docs/zh-CN/statusline)、Agent SDK 的 `total_cost_usd`、[`--max-budget-usd`](/docs/zh-CN/cli-reference)限制和[OpenTelemetry](/docs/zh-CN/monitoring-usage)成本指标和事件中应用费率。您提供费率：Claude Code 不从您的合同或 Claude Console 读取它们。需要 Claude Code v2.1.242 或更高版本。
+按您组织实际支付的费率而非标价报告支出。当您的组织有合同费率时设置此项，使开发者看到的美元数字与您的账单一致。Claude Code 会在 `/usage`、[状态栏](/docs/zh-CN/statusline)、Agent SDK 的 `total_cost_usd`、[`--max-budget-usd`](/docs/zh-CN/cli-reference) 限制以及 [OpenTelemetry](/docs/zh-CN/monitoring-usage) 成本指标和事件中应用这些费率。费率由您提供：Claude Code 不会从您的合同或 Claude Console 中读取费率。需要 Claude Code v2.1.242 或更高版本。
 
-* **Scope**: [`Managed`](#scopes)。通过服务器托管设置、MDM 策略、`managed-settings.json` 文件或[策略助手](/docs/zh-CN/managed-settings#compute-the-policy-with-a-helper-program)部署该键。Claude Code 在用户、项目和本地设置、`--settings` 中忽略它，在 Windows 中的用户可写[HKCU 注册表](/docs/zh-CN/managed-settings#where-each-mechanism-stores-the-policy)中忽略它。使用服务器托管设置，每个会话以列表价格报告成本，直到该会话的[设置获取](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)已确认该设置。嵌入 Claude Code 并设置[`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars)的主机应用可以通过 SDK [`managedSettings`](/docs/zh-CN/agent-sdk/typescript#options)选项提供自己的表，Claude Code 仅在没有托管源设置该键时使用，仅在 Claude Code v2.1.246 或更高版本中。
-* **Type**: 带有可选 `multiplier` 和可选 `overrides` 映射的对象
-* **Default**: 未设置，因此 Claude Code 报告列表价格，除非主机应用提供表
+* **作用域**：[`Managed`](#scopes)。通过服务器托管设置、MDM 策略、`managed-settings.json` 文件或[策略辅助程序](/docs/zh-CN/managed-settings#compute-the-policy-with-a-helper-program)部署此键。Claude Code 会忽略用户、项目和本地设置、`--settings` 以及 Windows 上用户可写的 [HKCU 注册表](/docs/zh-CN/managed-settings#where-each-mechanism-stores-the-policy)中的此键。使用服务器托管设置时，每个会话都会按标价报告成本，直到该会话的[设置获取](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)确认了该设置为止。嵌入 Claude Code 并设置了 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars) 的宿主应用程序可以通过 SDK [`managedSettings`](/docs/zh-CN/agent-sdk/typescript#options) 选项提供自己的费率表，Claude Code 仅在没有托管来源设置此键时才使用该表，且仅限 Claude Code v2.1.246 或更高版本。
+* **类型**：包含可选 `multiplier` 和可选 `overrides` 映射的对象
+* **默认值**：未设置，因此除非宿主应用程序提供了费率表，否则 Claude Code 按标价报告
 
-单独设置 `multiplier` 以获得统一折扣或加价，单独设置 `overrides` 以获得每个模型费率，或两者都设置。
+单独设置 `multiplier` 可实现统一折扣或加价，单独设置 `overrides` 可实现按模型费率，也可以同时设置二者。
 
-此示例为 Sonnet 4.6 设置合同费率，然后将每个数字（包括 Sonnet 行）减少 15%：
+此示例为 Sonnet 4.6 设置合同费率，然后将所有数字（包括 Sonnet 行）降低 15%：
 
 ```json managed-settings.json theme={null}
 {
@@ -1242,9 +1242,9 @@ Claude Code 删除它无法解析的行，保留其余的。请参阅[修复损�
 }
 ```
 
-将 `multiplier` 设置为 1 以上，最多 10，以标记每个数字。加价需要 Claude Code v2.1.271 或更高版本。更早的版本忽略 `multiplier` 高于 1 的警告，保留设置的其余部分。
+将 `multiplier` 设置为大于 1（最高 10）可对所有数字加价。加价需要 Claude Code v2.1.271 或更高版本。较早的版本会忽略大于 1 的 `multiplier` 并给出警告，同时保留该设置的其余部分。
 
-有关步骤，包括如何确认费率有效，请参阅[按您的合同费率报告支出](/docs/zh-CN/costs#report-spend-at-your-contracted-rates)。
+关于具体步骤（包括如何确认费率已生效），请参阅[按合同费率报告支出](/docs/zh-CN/costs#report-spend-at-your-contracted-rates)。
 
 <span id="modelpricing-multiplier" />
 
@@ -1254,47 +1254,47 @@ Claude Code 删除它无法解析的行，保留其余的。请参阅[修复损�
   `modelPricing` 的字段
 </h4>
 
-| Field | Type | What it does |
+| 字段 | 类型 | 作用 |
 | :- | :- | :- |
-| `multiplier` | 大于 0 且最多 10 的数字 | 缩放 Claude Code 计算的每个成本，无论 `overrides` 行是否覆盖它。低于 1 是折扣，高于 1 是加价 |
-| `overrides` | 模型 ID 到具有 `input`、`output`、`cacheRead` 和 `cacheWrite` 的费率对象的映射，每个 0 到 10000 | 该模型的美元每百万令牌费率，全部四个必需。`cacheWrite` 涵盖五分钟和一小时缓存写入。请参阅[`modelPricing` 行适用于哪些模型](#which-models-a-modelpricing-row-applies-to) |
+| `multiplier` | 大于 0 且不超过 10 的数字 | 按比例调整 Claude Code 计算的每项成本，无论是否有 `overrides` 行涵盖。小于 1 为折扣，大于 1 为加价 |
+| `overrides` | 将模型 ID 映射到费率对象的映射，费率对象包含 `input`、`output`、`cacheRead` 和 `cacheWrite`，每项为 0 到 10000 | 该模型以美元计的每百万 token 费率，四项均为必需。`cacheWrite` 同时涵盖五分钟和一小时的缓存写入。请参阅[一行适用于哪些模型](#which-models-a-modelpricing-row-applies-to) |
 
-Claude Code 完全按照您写入的方式使用行的费率，不添加快速模式附加费或[仅限美国推理费率](https://platform.claude.com/docs/en/about-claude/pricing)。如果您也设置 `multiplier`，Claude Code 在行的费率之上应用它。Claude Code 删除具有它无法解析的费率或 `multiplier` 的行，保留其余的；请参阅[修复损坏的设置文件](/docs/zh-CN/settings#fix-a-broken-settings-file)。
+Claude Code 会完全按照您编写的内容使用行中的费率，不会加上快速模式附加费或[仅限美国推理费率](https://platform.claude.com/docs/en/about-claude/pricing)。如果您还设置了 `multiplier`，Claude Code 会在行费率的基础上再应用它。Claude Code 会丢弃包含无法解析的费率的行，或无法解析的 `multiplier`，并保留其余部分；请参阅[修复损坏的设置文件](/docs/zh-CN/settings#fix-a-broken-settings-file)。
 
 <h4 id="which-models-a-modelpricing-row-applies-to">
   `modelPricing` 行适用于哪些模型
 </h4>
 
-Claude Code 从行的键决定行适用于哪些模型：
+Claude Code 根据行的键来决定该行适用于哪些模型：
 
-* **内置模型的 ID**: Claude Code 本身为内置模型使用的键，无论该键是模型自己的 ID，如 `claude-sonnet-4-6`，还是其 Bedrock、Agent Platform 或 Foundry ID。Claude Code 将行应用于该模型的每个日期快照 ID 和提供商特定 ID。
-* **任何其他键**: 不是内置模型 ID 的键，如网关模型别名。Claude Code 仅将行应用于该一个 ID。当模型 ID 完全匹配您的一个键，也落在由内置模型 ID 键的行下时，Claude Code 使用精确匹配。
-* **Bedrock 应用推理配置文件**: 一旦 Claude Code 通过您的[`modelOverrides`](#modeloverrides)映射或[`bedrock:GetInferenceProfile` 查找](/docs/zh-CN/amazon-bedrock#iam-configuration)将配置文件解析为它路由到的模型，Claude Code 将该模型的行应用于配置文件。
+* **内置模型的 ID**：Claude Code 自身为内置模型使用的键，无论该键是模型自己的 ID（例如 `claude-sonnet-4-6`），还是其 Bedrock、Agent Platform 或 Foundry ID。Claude Code 会将该行应用于该模型的每个带日期快照 ID 和特定于提供商的 ID。
+* **任何其他键**：不是内置模型 ID 的键，例如网关模型别名。Claude Code 仅将该行应用于该 ID。当某个模型 ID 与您的某个键完全匹配，同时又属于以内置模型 ID 为键的行时，Claude Code 使用完全匹配的行。
+* **Bedrock 应用程序推理配置文件**：一旦 Claude Code 通过您的 [`modelOverrides`](#modeloverrides) 映射或 [`bedrock:GetInferenceProfile` 查找](/docs/zh-CN/amazon-bedrock#iam-configuration)将配置文件解析为其路由到的模型，Claude Code 就会将该模型的行应用于该配置文件。
 
 <h3 id="modelsettings">
   `modelSettings`
 </h3>
 
-为您使用的每个模型保存[努力级别](/docs/zh-CN/model-config#adjust-effort-level)。需要 Claude Code v2.1.251 或更高版本。
+为您使用的每个模型保存一个 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。需要 Claude Code v2.1.251 或更高版本。
 
-在您机器上的交互式会话中，当您使用 `/effort` 或 `/model` 选择器的努力滑块将 `low`、`medium`、`high` 或 `xhigh` 保存为您的默认值时，Claude Code 在您使用的模型下在此处写入该级别，因此您很少自己编辑此键。当您在[VS Code 扩展的模型选择器](/docs/zh-CN/vs-code#use-the-prompt-box)中选择其中一个级别时，Claude Code 以相同的方式在此处保存它。[`effortLevel`](#effortlevel)条目列出 `/effort` 仅适用于该会话的会话。
+在本机的交互式会话中，当您通过 `/effort` 或 `/model` 选择器的 effort 滑块将 `low`、`medium`、`high` 或 `xhigh` 保存为默认值时，Claude Code 会将该级别写入此处您正在使用的模型下，因此您很少需要自己编辑此键。当您在 [VS Code 扩展的模型选择器](/docs/zh-CN/vs-code#use-the-prompt-box)中选择这些级别之一时，Claude Code 也会以同样的方式将其保存在此处。[`effortLevel`](#effortlevel) 条目列出了 `/effort` 仅适用于该会话的情况。
 
-手动编辑该键以更改或删除您保存的级别。
+手动编辑此键可更改或删除您已保存的级别。
 
-此处模型的 `effortLevel` 优先于同一设置文件中的顶级[`effortLevel`](#effortlevel)。跨文件，Claude Code 分别解析每个模型：最高优先级[设置文件](/docs/zh-CN/settings#settings-precedence)设置该模型的 `effortLevel` 或[适用于该模型](#effortlevel)的顶级 `effortLevel` 决定，因此托管设置中的 `effortLevel` 优先于您在用户设置中保存的级别。[调整努力级别](/docs/zh-CN/model-config#adjust-effort-level)列出还可以覆盖保存级别的内容，如启动时的 `--effort`。
+此处某个模型的 `effortLevel` 优先于同一设置文件中的顶层 [`effortLevel`](#effortlevel)。跨文件时，Claude Code 会分别解析每个模型：为该模型设置了 `effortLevel`，或设置了[适用于该模型](#effortlevel)的顶层 `effortLevel` 的优先级最高的[设置文件](/docs/zh-CN/settings#settings-precedence)起决定作用，因此托管设置中的 `effortLevel` 优先于您在用户设置中保存的级别。[调整 effort 级别](/docs/zh-CN/model-config#adjust-effort-level)列出了还有哪些内容可以覆盖已保存的级别，例如启动时的 `--effort`。
 
-要限制一个模型的努力而不是设置其级别，将[`maxEffortLevel`](#maxeffortlevel)字段添加到该模型的条目。该字段需要 Claude Code v2.1.267 或更高版本。
+要限制某个模型的 effort 上限而不是设置其级别，请在该模型的条目中添加 [`maxEffortLevel`](#maxeffortlevel) 字段。该字段需要 Claude Code v2.1.267 或更高版本。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: 将模型名称映射到对象的对象，该对象可包含以下任意字段：
-  * `effortLevel`: 其中一个 `"low"`、`"medium"`、`"high"` 或 `"xhigh"`
-  * [`maxEffortLevel`](#maxeffortlevel): 该模型可以运行的最高 effort 级别
-  * `autoCompactWindow`: 从 `100000` 到 `1000000` 的 token 数，或 `"auto"` 表示为该模型调优的窗口。[`/autocompact`](/docs/zh-CN/model-config#set-the-auto-compact-window) 保存到此处。对于该模型，该值优先于同一设置文件中的顶级 [`autoCompactWindow`](#autocompactwindow)。需要 Claude Code v2.1.288 或更高版本
-* **Default**: 未设置
+* **作用域**：[`Any file`](#scopes)
+* **类型**：将模型名称映射到对象的对象，该对象可包含以下任意字段：
+  * `effortLevel`：为 `"low"`、`"medium"`、`"high"` 或 `"xhigh"` 之一
+  * [`maxEffortLevel`](#maxeffortlevel)：该模型可以运行的最高 effort 级别
+  * `autoCompactWindow`：从 `100000` 到 `1000000` 的 token 数，或 `"auto"` 表示为该模型调优的窗口。[`/autocompact`](/docs/zh-CN/model-config#set-the-auto-compact-window) 会保存到此处。对于该模型，此值优先于同一设置文件中的顶层 [`autoCompactWindow`](#autocompactwindow)。需要 Claude Code v2.1.288 或更高版本
+* **默认值**：未设置
 
-Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5`，并将该模型的别名、日期后缀、`[1m]` 和识别的提供商特定 ID 匹配到同一条目。
+Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-opus-5-5`），并将该模型的别名、带日期后缀的 ID、`[1m]` ID 以及可识别的特定于提供商的 ID 匹配到同一条目。
 
-此示例将 Opus 5.5 保持在 `high`，而其他模型使用它们自己的保存或默认级别：
+此示例将 Opus 5.5 保持在 `high`，而其他模型使用各自已保存的级别或默认级别：
 
 ```json settings.json theme={null}
 {
@@ -1306,21 +1306,21 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 }
 ```
 
-运行 `/effort auto` 以清除您为正在使用的模型保存的级别。Claude Code 保留其他条目和任何顶级 `effortLevel`。
+运行 `/effort auto` 可清除您为当前所用模型保存的级别。Claude Code 会保留其他条目以及任何顶层 `effortLevel`。
 
 <h3 id="outputstyle">
   `outputStyle`
 </h3>
 
-按名称选择[输出样式](/docs/zh-CN/output-styles)。输出样式是一组保存的指令，改变 Claude 的角色、语气和输出格式，如内置的 Explanatory 和 Learning 样式或您自己写的。
+按名称选择[输出样式](/docs/zh-CN/output-styles)。输出样式是一组已保存的指令，用于改变 Claude 的角色、语气和输出格式，例如内置的 Explanatory 和 Learning 样式，或您自己编写的样式。
 
-如果您在会话期间更改此键，Claude 从您的下一条消息开始使用新样式。关于该消息在提示缓存中的成本，请参阅[更改输出样式](/docs/zh-CN/prompt-caching#changing-output-style)。在 v2.1.251 之前，编辑仅在您运行 `/clear` 或启动新会话后应用。
+如果您在会话期间更改此键，Claude 会从您的下一条消息开始使用新样式。关于该消息在提示缓存方面的成本，请参阅[更改输出样式](/docs/zh-CN/prompt-caching#changing-output-style)。在 v2.1.251 之前，编辑仅在您运行 `/clear` 或开始新会话后才生效。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，[内置](/docs/zh-CN/output-styles#built-in-output-styles)或[自定义](/docs/zh-CN/output-styles#create-a-custom-output-style)输出样式的名称
-* **Default**: 未设置，因此 Claude Code 使用默认样式
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，[内置](/docs/zh-CN/output-styles#built-in-output-styles)或[自定义](/docs/zh-CN/output-styles#create-a-custom-output-style)输出样式的名称
+* **默认值**：未设置，因此 Claude Code 使用默认样式
 
-此示例选择内置的 Explanatory 样式，它在任务之间添加教育见解：
+此示例选择内置的 Explanatory 样式，该样式会在任务之间添加教育性见解：
 
 ```json settings.json theme={null}
 {
@@ -1332,16 +1332,16 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
   `promptCacheTtl`
 </h3>
 
-选择[提示缓存](/docs/zh-CN/prompt-caching)保持主对话的时间长度。此键适用于您的交互式、`-p` 和 Agent SDK 轮，以及 Claude Code 与它们内联运行的助手。一小时的生命周期在较长的中断中保持缓存温暖，API [在五分钟生命周期的更高费率下计费每个缓存写入](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing)。需要 Claude Code v2.1.242 或更高版本。
+选择[提示缓存](/docs/zh-CN/prompt-caching)保留主对话的时长。此键适用于您的交互式、`-p` 和 Agent SDK 轮次，以及 Claude Code 随这些轮次内联运行的辅助请求。一小时的生命周期可在较长的间隔中保持缓存预热，而 API 对每次缓存写入的[计费费率](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing)高于五分钟生命周期。需要 Claude Code v2.1.242 或更高版本。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，其中一个：
-  * `"5m"`: 缓存保持五分钟
-  * `"1h"`: 缓存保持一小时
-* **Default**: 未设置，因此每个主对话请求获得[其默认生命周期](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets)
-* **Per-session overrides**: [`FORCE_PROMPT_CACHING_5M`](/docs/zh-CN/env-vars)优先于所有其他，然后[`CLAUDE_CODE_PROMPT_CACHE_TTL`](/docs/zh-CN/env-vars)，然后此键，最后[`ENABLE_PROMPT_CACHING_1H`](/docs/zh-CN/env-vars)
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，取值之一：
+  * `"5m"`：缓存保留五分钟
+  * `"1h"`：缓存保留一小时
+* **默认值**：未设置，因此每个主对话请求都会获得[其默认生命周期](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets)
+* **单会话覆盖**：[`FORCE_PROMPT_CACHING_5M`](/docs/zh-CN/env-vars) 优先于其他所有项，其次是 [`CLAUDE_CODE_PROMPT_CACHE_TTL`](/docs/zh-CN/env-vars)，然后是此键，最后是 [`ENABLE_PROMPT_CACHING_1H`](/docs/zh-CN/env-vars)
 
-此示例将主对话保持在一小时生命周期，并将 subagents 保留在五分钟：
+此示例使主对话保持一小时生命周期，并使子代理保持五分钟：
 
 ```json settings.json theme={null}
 {
@@ -1350,19 +1350,19 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 }
 ```
 
-关于每个生命周期的成本，请参阅[缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)。
+关于每种生命周期的成本，请参阅[缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)。
 
 <h3 id="showthinkingsummaries">
   `showThinkingSummaries`
 </h3>
 
-在交互式会话中查看 Claude 的[扩展思考](/docs/zh-CN/model-config#extended-thinking)摘要。如果您想在使用 `Ctrl+O` 展开思考时看到完整摘要，请设置它。未设置或 `false` 时，Anthropic API 编辑思考块，Claude Code 显示折叠的存根；第三方提供商不编辑。
+在交互式会话中查看 Claude [扩展思考](/docs/zh-CN/model-config#extended-thinking)的摘要。如果您希望在使用 `Ctrl+O` 展开思考时看到完整摘要，请设置此项。当未设置或为 `false` 时，Anthropic API 会对思考块进行编辑隐藏，Claude Code 会显示一个折叠的占位内容；第三方提供商不会进行编辑隐藏。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`: 当您使用 `Ctrl+O` 展开思考时，您看到完整的思考摘要
-  * `false`: Anthropic API 编辑思考块，Claude Code 显示折叠的存根
-* **Default**: `false`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：使用 `Ctrl+O` 展开思考时，您会看到完整的思考摘要
+  * `false`：Anthropic API 会对思考块进行编辑隐藏，Claude Code 会显示一个折叠的占位内容
+* **默认值**：`false`
 
 ```json settings.json theme={null}
 {
@@ -1370,22 +1370,22 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 }
 ```
 
-编辑仅改变您看到的内容，而不是模型生成的内容。要减少思考支出，[降低预算或禁用思考](/docs/zh-CN/model-config#extended-thinking)。
+编辑隐藏只会改变您看到的内容，而不会改变模型生成的内容。要减少思考开销，请改为[降低预算或禁用思考](/docs/zh-CN/model-config#extended-thinking)。
 
 <h3 id="subagentpromptcachettl">
   `subagentPromptCacheTtl`
 </h3>
 
-选择[提示缓存](/docs/zh-CN/prompt-caching)保持 Claude Code 在主对话外进行的请求的时间长度。此键适用于[subagents](/docs/zh-CN/sub-agents)、[workflows](/docs/zh-CN/workflows) 和 Claude Code 自己的后台和助手请求，如压缩和会话标题。一小时的生命周期在较长的中断中保持缓存温暖，API [在五分钟生命周期的更高费率下计费每个缓存写入](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing)。需要 Claude Code v2.1.242 或更高版本。
+选择[提示缓存](/docs/zh-CN/prompt-caching)保留 Claude Code 在主对话之外发出的请求的时长。此键适用于[子代理](/docs/zh-CN/sub-agents)、[工作流](/docs/zh-CN/workflows)以及 Claude Code 自身的后台和辅助请求，例如压缩和会话标题。一小时的生命周期可在较长的间隔中保持缓存预热，而 API 对每次缓存写入的[计费费率](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing)高于五分钟生命周期。需要 Claude Code v2.1.242 或更高版本。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，其中一个：
-  * `"5m"`: 缓存保持五分钟
-  * `"1h"`: 缓存保持一小时
-* **Default**: 未设置，因此这些请求中的每一个获得[其默认生命周期](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets)
-* **Per-session overrides**: [`FORCE_PROMPT_CACHING_5M`](/docs/zh-CN/env-vars)优先于所有其他，然后[`CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL`](/docs/zh-CN/env-vars)，然后此键，然后[`ENABLE_PROMPT_CACHING_1H`](/docs/zh-CN/env-vars)，它要求每个请求的一小时生命周期。关于 subagent 自己的 frontmatter 值的排名，请参阅[自己选择 TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，取值之一：
+  * `"5m"`：缓存保留五分钟
+  * `"1h"`：缓存保留一小时
+* **默认值**：未设置，因此这些请求中的每一个都会获得[其默认生命周期](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets)
+* **单会话覆盖**：[`FORCE_PROMPT_CACHING_5M`](/docs/zh-CN/env-vars) 优先于其他所有项，其次是 [`CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL`](/docs/zh-CN/env-vars)，然后是此键，再然后是 [`ENABLE_PROMPT_CACHING_1H`](/docs/zh-CN/env-vars)（它会为每个请求请求一小时生命周期）。关于子代理自身 frontmatter 值的优先级位置，请参阅[自行选择 TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)
 
-此示例为 subagents 和主对话外的其他请求提供一小时生命周期：
+此示例为子代理以及主对话之外的其他请求设置一小时生命周期：
 
 ```json settings.json theme={null}
 {
@@ -1393,19 +1393,19 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 }
 ```
 
-此键涵盖[`promptCacheTtl`](#promptcachettl)不涵盖的请求，因此设置两者以为 Claude Code 进行的每个请求选择生命周期。关于 subagent 的缓存与主对话的缓存的不同之处，请参阅[Subagents 和缓存](/docs/zh-CN/prompt-caching#subagents-and-the-cache)。
+此键涵盖 [`promptCacheTtl`](#promptcachettl) 未涵盖的请求，因此同时设置二者即可为 Claude Code 发出的每个请求选择生命周期。关于子代理的缓存与主对话缓存有何不同，请参阅[子代理与缓存](/docs/zh-CN/prompt-caching#subagents-and-the-cache)。
 
 <h3 id="switchmodelsonflag">
   `switchModelsOnFlag`
 </h3>
 
-选择当[安全分类器标记请求](/docs/zh-CN/model-config#automatic-model-fallback)时会发生什么：切换到备用模型并继续，或暂停以便您可以在切换和编辑提示之间选择。
+选择当[安全分类器标记请求](/docs/zh-CN/model-config#automatic-model-fallback)时会发生什么：切换到备用模型并继续，或暂停以便您在切换和编辑提示词之间进行选择。
 
-* **Scope**: [`Any file`](#scopes)。在 `/config` 中显示为 **Switch models when a message is flagged**，选项为 **Switch automatically** 和 **Ask each time**。
-* **Type**: Boolean
-  * `true`: Claude Code 切换到备用模型并继续
-  * `false`: 在交互式会话中，Claude Code 暂停以便您可以在切换和编辑提示之间选择；在无法显示对话框的地方，如 `-p` 运行，标记的请求以错误结束
-* **Default**: 未设置。Claude Code 会自动切换，但在交互式会话中可能会[先询问](/docs/zh-CN/model-config#ask-before-switching)
+* **作用域**：[`Any file`](#scopes)。在 `/config` 中显示为 **Switch models when a message is flagged**，选项为 **Switch automatically** 和 **Ask each time**。
+* **类型**：布尔值
+  * `true`：Claude Code 切换到备用模型并继续
+  * `false`：在交互式会话中，Claude Code 会暂停，以便您在切换和编辑提示词之间进行选择；在无法显示对话框的情况下（例如 `-p` 运行），被标记的请求会以错误结束
+* **默认值**：未设置。Claude Code 会自动切换，但在交互式会话中可能会[先询问](/docs/zh-CN/model-config#ask-before-switching)
 
 ```json settings.json theme={null}
 {
@@ -1413,20 +1413,20 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 }
 ```
 
-请参阅[在切换前询问](/docs/zh-CN/model-config#ask-before-switching)。
+请参阅[切换前询问](/docs/zh-CN/model-config#ask-before-switching)。
 
 <h3 id="ultracode">
   `ultracode`
 </h3>
 
-使用[ultracode](/docs/zh-CN/workflows#let-claude-decide-with-ultracode)启动会话。打开时，Claude 为每个实质性任务规划工作流，而不是等待您要求。Claude 仅在为您启用[动态工作流](/docs/zh-CN/workflows)且您的模型支持 `xhigh` 努力时规划工作流。该键不改变会话的努力级别：ultracode 在会话使用的任何级别处运行。Claude Code 读取此键但从不写入它：`/effort ultracode` 仅为当前会话打开 ultracode。
+以开启 [ultracode](/docs/zh-CN/workflows#let-claude-decide-with-ultracode) 的状态启动会话。开启后，Claude 会为每个实质性任务规划工作流，而不是等待您提出要求。只有当您启用了[动态工作流](/docs/zh-CN/workflows)且您的模型支持 `xhigh` effort 时，Claude 才会规划工作流。此键不会改变会话的 effort 级别：ultracode 会以会话所用的任何级别运行。Claude Code 会读取此键，但从不写入它：`/effort ultracode` 仅在当前会话中开启 ultracode。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`: 当为您启用动态工作流且您的模型支持 `xhigh` 时，会话以 ultracode 打开启动
-  * `false`: 会话以 ultracode 关闭启动
-* **Default**: 未设置，因此 ultracode 已关闭
-* **Per-session overrides**: `/effort ultracode` 在没有此键的情况下为一个会话打开 ultracode，而当此键为 `true` 时，`/effort ultracode off` 为一个会话关闭它。`--effort ultracode` 标志也为一个会话打开它，在 `xhigh` 努力处，需要 Claude Code v2.1.203 或更高版本
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：当您启用了动态工作流且您的模型支持 `xhigh` 时，会话以开启 ultracode 的状态启动
+  * `false`：会话以关闭 ultracode 的状态启动
+* **默认值**：未设置，因此 ultracode 处于关闭状态
+* **单会话覆盖**：`/effort ultracode` 可在没有此键的情况下为单个会话开启 ultracode，而当此键为 `true` 时，`/effort ultracode off` 可为单个会话关闭它。`--effort ultracode` 标志也会为单个会话开启它，并使用 `xhigh` effort
 
 ```json settings.json theme={null}
 {
@@ -1434,7 +1434,7 @@ Claude Code 在模型的规范名称下写入每个条目，如 `claude-opus-5-5
 }
 ```
 
-会话的努力级别来自[`effortLevel`](#effortlevel)、[`modelSettings`](#modelsettings) 和其他[努力源](/docs/zh-CN/model-config#adjust-effort-level)，[努力上限](/docs/zh-CN/model-config#organization-effort-limits)如[`maxEffortLevel`](#maxeffortlevel)降低该级别而不关闭 ultracode。这和 `/effort ultracode off` 形式需要 Claude Code v2.1.284 或更高版本。在 v2.1.284 之前，`ultracode: true` 在 `xhigh` 努力处运行会话，低于 `xhigh` 的努力上限使 ultracode 在上限适用的模型上不可用。Agent SDK `apply_flag_settings` 控制请求也接受该键。
+会话的 effort 级别来自 [`effortLevel`](#effortlevel)、[`modelSettings`](#modelsettings) 以及其他 [effort 来源](/docs/zh-CN/model-config#adjust-effort-level)，而诸如 [`maxEffortLevel`](#maxeffortlevel) 之类的 [effort 上限](/docs/zh-CN/model-config#organization-effort-limits)会降低该级别，但不会关闭 ultracode。此行为以及 `/effort ultracode off` 形式需要 Claude Code v2.1.284 或更高版本。在 v2.1.284 之前，`ultracode: true` 会以 `xhigh` effort 运行会话，而低于 `xhigh` 的 effort 上限会使 ultracode 保持关闭。Agent SDK 的 `apply_flag_settings` 控制请求也接受此键。
 
 <h2 id="permission-settings">
   权限设置
@@ -3134,6 +3134,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   * 改变 Claude Code 如何启动或同步的变量，例如 `CLAUDE_CODE_PROCESS_WRAPPER`、`CLAUDE_CODE_SYNC_SKILLS`、`CLAUDE_CODE_SYNC_PLUGINS`、`CLAUDE_CODE_PLUGIN_CACHE_DIR` 和 `CLAUDE_CODE_PLUGIN_SEED_DIR`。
   * 设置未应答对话框计时器的变量：[`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`、`CLAUDE_AFK_TIMEOUT_MS` 和 `CLAUDE_AFK_COUNTDOWN_MS`](/docs/zh-CN/env-vars#variables)。
   * [`CLAUDE_CODE_DISABLE_ATTACHMENTS`](/docs/zh-CN/env-vars#variables)，它会关闭附件处理。
+  * [`CLAUDE_CODE_DISABLE_FILE_MENTIONS`](/docs/zh-CN/env-vars#variables)，它会阻止 Claude Code 展开对文件和目录的 `@` 提及。
 
   在 v2.1.251 之前，项目和本地设置也可以设置此列表中选择 Claude Code 写入其文件位置或导出会话内容的变量，除了 `HOME` 和 `XDG_CONFIG_HOME`。在 v2.1.290 之前，它们还可以设置对话框计时器变量和 `CLAUDE_CODE_DISABLE_ATTACHMENTS`。
 * Claude Code 的托管环境拥有的身份变量，例如 `CLAUDE_CODE_REMOTE` 和 `CLAUDE_CODE_ACCOUNT_UUID`，从每个文件中被忽略。
@@ -5223,7 +5224,7 @@ Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该 pl
 
 内置插件在同一键下存储其选项，带 `@builtin` 后缀。例如，控制 Claude Code 是否读取 `AGENTS.md` 文件的 [**Project instructions**](/docs/zh-CN/memory#choose-which-instruction-files-load) 设置是 `pluginConfigs["cc-plugin-agents-md@builtin"].options.instructionFiles`。在 v2.1.285 之前，该插件的 ID 为 `agents-md@builtin`。更高版本会读取任一 ID 下的条目。
 
-Claude Code 忽略项目和本地条目，因为它将这些值替换到 plugin hook、MCP 和 LSP 配置中，克隆的存储库不得能够提供它们。在 v2.1.207 之前，项目和本地设置也被读取。
+Claude Code 会忽略项目和本地条目，因为它会将这些值代入插件 hook、MCP 和 LSP 配置中，而克隆的仓库不得能够提供这些值。
 
 <h3 id="prependplugins">
   `prependPlugins`
@@ -5728,7 +5729,7 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 }
 ```
 
-在 git 存储库之外，失败的 [`WorktreeCreate` hook](/docs/zh-CN/worktrees#non-git-version-control) 释放块，以便会话可以就地编辑工作目录；该释放需要 Claude Code v2.1.203 或更高版本。
+在 git 仓库之外，失败的 [`WorktreeCreate` hook](/docs/zh-CN/worktrees#non-git-version-control) 会解除阻止，以便会话可以就地编辑工作目录。
 
 <h3 id="worktree-location">
   `worktree.location`

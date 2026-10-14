@@ -257,7 +257,7 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
 
 在 `sparsePaths` 中列出目录，而不是单个文件。根级文件如 `package.json`、`tsconfig.base.json` 和锁文件始终与你列出的目录一起检出。根级目录不是，所以如果你想要存储库根目录的 `.claude/settings.json` 或 `.claude/rules/` 在 worktree 内可用，请在列表中包含 `.claude`。对于项目 skills、代理和命令，请参阅[worktrees 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
 
-Sparse checkout 需要 git 在存在 sparse worktree 时在存储库的共享 `.git/config` 中启用 `extensions.worktreeConfig`。Claude Code 在删除最后一个 worktree 后会删除该条目，但仅当 Claude Code 添加了它时。它永远不会删除你自己设置的值。在 v2.1.207 之前，该条目在删除最后一个 worktree 后仍然存在，基于 go-git 的工具（如 `tea`）无法打开存储库，直到你运行 `git config --unset extensions.worktreeConfig`。
+Sparse checkout 需要 git 在存在 sparse worktree 时在仓库的共享 `.git/config` 中启用 `extensions.worktreeConfig`。Claude Code 在删除最后一个 worktree 后会删除该条目，但仅当 Claude Code 添加了它时。它永远不会删除您自己设置的值。
 
 要避免在 worktrees 中复制大型目录如 `node_modules`，将 `sparsePaths` 与同一 `.claude/settings.json` 中的 `symlinkDirectories` 配对：
 

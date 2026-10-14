@@ -228,6 +228,7 @@ HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的
 | `--cloud`、`/teleport` 和 [Remote Control](/docs/zh-CN/remote-control) 被拒绝 | [云端会话](/docs/zh-CN/claude-code-on-the-web)和 Remote Control 已关闭 |
 | `/feedback` 和 `/bug` 不可用 | 反馈提交已关闭 |
 | Claude 无法发布 [Artifact](/docs/zh-CN/artifacts) | Artifact 发布已关闭 |
+| MCP 工具会预先加载到上下文中 | [MCP 工具搜索](/docs/zh-CN/mcp#configure-tool-search)已关闭。`ENABLE_TOOL_SEARCH` 和托管设置都无法重新打开它 |
 | 读取 `ANTHROPIC_API_KEY` 的 MCP 服务器或 hook 无法再进行身份验证 | Claude Code 会从其启动的进程中[移除 Anthropic 凭据](#anthropic-credentials-in-commands-hooks-and-mcp-servers) |
 | 通过 `/login` 切换到其他组织后限制仍然存在 | HIPAA 状态会一直持续到 Claude Code 重新启动 |
 

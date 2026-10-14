@@ -31,7 +31,7 @@ Claude Code 插件是一个目录，包含 skills、agents、hooks、MCP 服务�
 * [**Skills**](/docs/zh-CN/plugins/components#skills)：`SKILL.md` 指令，Claude 在相关时加载，您也可以作为命令运行
 * [**Agents**](/docs/zh-CN/plugins/components#agents)：Claude 可以委派给的子代理定义
 * [**Hooks**](/docs/zh-CN/plugins/components#hooks)：Claude Code 在其生命周期中的特定点运行的命令，例如每次编辑后
-* [**一个 hooks 模块**](/docs/zh-CN/plugins/mods/overview)：作为 JavaScript 函数编写的 hooks，也可以绘制窗格和添加命令。拥有一个的插件称为 mod
+* [**一个 hook 模块**](/docs/zh-CN/plugins/mods/overview)：作为 JavaScript 函数编写的 hook，也可以绘制窗格和添加命令。拥有 hook 模块的插件称为 mod。部分 mod [内置于 Claude Code](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code)。
 * [**MCP 服务器**](/docs/zh-CN/plugins/components#mcp-servers)：工具服务器，Claude Code 在启用插件时连接到
 
 此图显示了一个名为 `my-plugin` 的插件，其中包含一个 skill、一个 agent、hooks 和一个 MCP 服务器，以及插件加载后您从每个文件获得的内容。

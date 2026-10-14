@@ -170,7 +170,7 @@
 | Skill 没有出现在 `/skills` 中 | Skill 文件在 `.claude/skills/name.md` 而不是在文件夹中 | 使用包含 `SKILL.md` 的文件夹：`.claude/skills/name/SKILL.md`。 |
 | Skill 出现在 `/skills` 中但 Claude 从不调用它 | Skill 在其 frontmatter 中有 `disable-model-invocation: true`，或其描述与你表述请求的方式不匹配 | 检查 `/skills` 中的徽章：一个"user-only"标签意味着 Claude 不会自动触发它。请参阅[skill 调用](/docs/zh-CN/skills)。 |
 | 子目录 `CLAUDE.md` 指令似乎被忽略 | 子目录文件按需加载，而不是在会话开始时加载 | 要加载子目录的 `CLAUDE.md`，请让 Claude 读取该子目录中的另一个文件。请参阅[子目录文件何时加载](/docs/zh-CN/memory#how-claude-md-files-load)。 |
-| 子代理忽略 `CLAUDE.md` 指令 | 内置的 Explore 和 Plan 代理跳过 `CLAUDE.md`。自定义子代理以与主对话相同的方式加载它，除非其定义设置了 [`omitClaudeMd`](/docs/zh-CN/sub-agents#supported-frontmatter-fields) | 对于 Explore 或 Plan，在你的委派提示中重新陈述指令。对于设置 `omitClaudeMd` 的子代理，删除该字段。对于任何其他自定义子代理，将关键指令放在代理文件体中，它成为代理的系统提示。请参阅[启动时加载的内容](/docs/zh-CN/sub-agents#what-loads-at-startup)。 |
+| 子代理忽略 `CLAUDE.md` 指令 | 内置的 Explore 和 Plan Agent 在启动时跳过 `CLAUDE.md`。自定义子代理以与主对话相同的方式加载它，除非其定义设置了 [`omitClaudeMd`](/docs/zh-CN/sub-agents#supported-frontmatter-fields) | 对于 Explore 或 Plan，在您的委派提示词中重新陈述指令。对于设置 `omitClaudeMd` 的子代理，删除该字段。对于任何其他自定义子代理，将关键指令放在 Agent 文件正文中，它将成为 Agent 的系统提示词。请参阅[启动时加载的内容](/docs/zh-CN/sub-agents#what-loads-at-startup)。 |
 | 清理逻辑在会话结束时永远不运行 | 没有配置 `SessionEnd` hook | 在 `settings.json` 中添加 `SessionEnd` hook。请参阅[hook 事件列表](/docs/zh-CN/hooks#hook-events)。 |
 | `.mcp.json` 中的 MCP 服务器永远不加载 | 文件在 `.claude/` 下，或其服务器位于顶级 `servers` 键下，如 VS Code 的 `mcp.json` 中那样，而不是 `mcpServers` | 项目 MCP 配置在存储库根目录下作为 `.mcp.json`，而不是在 `.claude/` 内，服务器位于 `mcpServers` 键下。请参阅[MCP 配置](/docs/zh-CN/mcp)。 |
 | 在 `settings.json` 中的 `mcpServers` 下添加的 MCP 服务器永远不出现 | `settings.json` 不读取 `mcpServers` 键 | 在存储库根目录的 `.mcp.json` 中定义项目服务器，或运行 `claude mcp add --scope user` 来添加用户范围的服务器。请参阅[MCP 配置](/docs/zh-CN/mcp)。 |

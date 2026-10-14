@@ -827,7 +827,7 @@ hook 进程继承父环境，但 Claude Code [从它生成的每个子进程中�
 
 hook 的退出码告诉 Claude Code 是否继续执行触发该 hook 的操作，例如工具调用或提示词。运行结束时有以下三种结果之一：
 
-* **成功**：hook 以 0 退出。Claude Code 应用 hook 打印的任何 [JSON 输出](#json-output)字段，除非这些字段阻止或拒绝该操作，否则操作继续进行。
+* **成功**：hook 以 0 退出。Claude Code 应用 hook 打印的任何 [JSON 输出](#json-output)字段，除非这些字段阻止或拒绝该操作，否则操作继续进行。[启动后台进程的 hook](#hooks-that-start-a-background-process) 介绍了例外情况。
 * **阻止错误**：hook 以 2 退出。在[可以阻止的事件](#exit-code-2-behavior-per-event)上，Claude Code 停止该操作。
 * **非阻止错误**：hook 以任何其他代码退出，或以其他方式失败，例如无法启动或打印无效 JSON。操作继续进行，在 `PreToolUse` 等事件上，您会在会话记录中看到 `<hook name> hook error` 通知。如果希望失败的 hook 阻止操作，请设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。
 
@@ -931,6 +931,29 @@ Failed with non-blocking status code: something broke
 
 * 超时的 `command`、`http` 或 `mcp_tool` hook 不阻止工具调用。调用通过正常[权限流程](/docs/zh-CN/permissions)继续，因此不要指望停滞的 hook 充当关卡。要在 `command` 或 `http` hook 超时时阻止调用，请设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。
 * 超过其超时时间的 [Agent SDK 回调 hook](/docs/zh-CN/agent-sdk/hooks) 会[阻止工具调用](#pretooluse)。
+
+<h4 id="hooks-that-start-a-background-process">
+  启动后台进程的 hook
+</h4>
+
+如果您的命令 hook 在后台进程中做出决策然后退出，那么该进程在 Claude Code 停止读取之后打印的拒绝决策不会阻止工具调用。对于非[异步](#run-hooks-in-the-background)的 hook，Claude Code 会在 hook 自身进程退出后不久完成对 hook 输出的读取。
+
+请在启动后台进程之前打印决策，并重定向该进程的 stdout 和 stderr。如果您的脚本打印了允许决策，然后启动后台进程且未重定向该进程的 stdout 和 stderr，Claude Code 会阻止该工具调用。hook 错误中包含 `refusing to honor the suspect capture`。
+
+此 `PreToolUse` hook 脚本通过 `policy-check.sh` 打印决策，然后在后台上传指标：
+
+```bash theme={null}
+#!/bin/bash
+"$CLAUDE_PROJECT_DIR"/.claude/hooks/policy-check.sh || exit $?
+"$CLAUDE_PROJECT_DIR"/.claude/hooks/upload-metrics.sh >/dev/null 2>&1 &
+```
+
+脚本的其余部分作用如下：
+
+* **`|| exit $?`**：使检查的退出码成为 hook 自身的退出码，因此以 2 退出以表示拒绝的检查仍会阻止。否则 hook 会以最后一行的退出码退出，即 0。
+* **`>/dev/null 2>&1 &`**：在后台运行 `upload-metrics.sh` 并重定向其输出，使其不会让 hook 的输出保持打开状态。
+
+要测试该脚本，请让 `policy-check.sh` 以 2 退出，然后触发一个与该 hook 匹配的工具调用。该工具调用会被阻止。
 
 <h4 id="block-the-action-when-a-hook-fails">
   hook 失败时阻止操作
@@ -1530,6 +1553,8 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 除了使用 [`async: true`](#run-hooks-in-the-background) 运行的 command hook 之外，达到超时的 `UserPromptSubmit` command、HTTP 或 MCP 工具 hook 都会被取消，其输出（包括任何 `additionalContext`）会被丢弃。提示词仍会在没有该上下文的情况下传达给 Claude。若要改为阻止该提示词，请在 command 或 HTTP hook 上设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。会话记录中会显示一条通知，指明该 hook、触发的超时以及输出已被丢弃。
 
 `UserPromptSubmit` 上的 [Agent SDK 回调 hook](/docs/zh-CN/agent-sdk/hooks) 达到超时时，会阻止该提示词，并显示一条指明该 hook 和超时时间的消息，因为此处的回调可能充当不能失败放行的策略关卡。会话会继续。在 v2.1.208 之前，该事件上的回调超时会以执行错误结束该轮次。
+
+如果您在 `UserPromptSubmit` hook 仍在检查提示词时于终端中按 `Esc`，您输入的文本会回到输入框中。
 
 <h4 id="userpromptsubmit-input">
   UserPromptSubmit 输入
@@ -3477,7 +3502,7 @@ WorktreeRemove hook 的退出码决定结果。当 hook 以非零值退出，且
 | 匹配器 | 触发时机 |
 | :- | :- |
 | `manual` | `/compact` |
-| `auto` | 对话达到[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)时的自动压缩 |
+| `auto` | 对话达到[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)时的自动压缩，以及[空闲压缩](/docs/zh-CN/settings-reference#idlecompaction) |
 
 以退出码 2 退出可阻止压缩。对于手动 `/compact`，stderr 消息会显示给用户。您也可以通过返回包含 `"decision": "block"` 的 JSON 来阻止。
 
@@ -3513,7 +3538,7 @@ Claude Code 会丢弃 PreCompact hook 的 `systemMessage` 和 `continue` 字段�
 | 匹配器 | 触发时机 |
 | :- | :- |
 | `manual` | `/compact` 之后 |
-| `auto` | 对话达到[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)时的自动压缩之后 |
+| `auto` | 对话达到[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)时的自动压缩之后，以及[空闲压缩](/docs/zh-CN/settings-reference#idlecompaction)之后 |
 
 <h4 id="postcompact-input">
   PostCompact 输入
@@ -4350,7 +4375,7 @@ Claude Code 仅在会话运行时传递异步 hook 的结果：
 * **单独输出到 stdout**：当响应是 stdout 上唯一的文本时，它可以跨越多行，例如经过格式化美化的 `jq` 输出。跨越多行需要 Claude Code v2.1.295 或更高版本。
 * **单独输出在一行上**：当响应可以单独放在一行中时（例如使用 `jq -c`），异步 hook 可以向 stdout 输出其他文本。
 
-Claude Code 根据与同步 hooks 相同的[输出架构](#json-output)验证 JSON 响应，并删除任何值类型错误的字段，例如不是字符串的 `systemMessage`，而不是传递它。使用 `--debug` 运行以查看命名每个删除字段的警告。在 v2.1.202 之前，来自异步 hook 的格式错误的 JSON 输出可能会导致会话崩溃，并且每次恢复会话时崩溃都会重复发生。
+Claude Code 根据与同步 hook 相同的[输出 schema](#json-output) 验证 JSON 响应，并删除任何值类型错误的字段，例如不是字符串的 `systemMessage`，而不是传递它。使用 `--debug` 运行以查看命名每个删除字段的警告。
 
 异步 hook 完成通知默认被抑制。要查看它们，请使用 `Ctrl+O` 启用详细模式或使用 `--verbose` 启动 Claude Code。
 

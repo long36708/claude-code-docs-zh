@@ -518,7 +518,7 @@ Claude Code 仅在请求发送到凭证所属的主机时才将凭证附加到�
 
 将网关的凭证放在 `ANTHROPIC_FOUNDRY_API_KEY` 中；它作为 `x-api-key` 标头发送到网关。期望持有者令牌的网关可以改用 [`ANTHROPIC_FOUNDRY_AUTH_TOKEN`](/docs/zh-CN/env-vars)。Claude Code 将该值作为 `Authorization: Bearer` 标头发送，当两者都设置时，它优先于 `ANTHROPIC_FOUNDRY_API_KEY`。需要 Claude Code v2.1.203 或更高版本。
 
-对于注入自己的 `Authorization` 标头的网关，设置 `CLAUDE_CODE_SKIP_FOUNDRY_AUTH=1` 并将两个凭证变量都保留为未设置。Claude Code 然后发送没有 Azure 凭证的请求，并保留您提供的 `Authorization` 标头，例如通过 `ANTHROPIC_CUSTOM_HEADERS`。在 v2.1.203 之前，`CLAUDE_CODE_SKIP_FOUNDRY_AUTH` 没有 API 密钥会使 Microsoft Foundry 客户端无法发送请求。
+对于注入自己的 `Authorization` 标头的网关，设置 `CLAUDE_CODE_SKIP_FOUNDRY_AUTH=1` 并将两个凭据变量都保留为未设置。Claude Code 然后发送没有 Azure 凭据的请求，并保留您提供的 `Authorization` 标头，例如通过 `ANTHROPIC_CUSTOM_HEADERS`。
 
 <Tabs>
   <Tab title="Bash or Zsh">

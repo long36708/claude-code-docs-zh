@@ -212,7 +212,7 @@ Claude Code 在对事件采取行动之前运行您的 hook，因此由 hook 决
   Mods 在哪里运行
 </h3>
 
-Mod 的 hook 在加载该插件的每种会话中运行。绘制的范围更窄：只有终端和桌面应用会显示 mod 的窗格、带状区域和替换的行。此表列出了您可能运行 Claude Code 的每个地方：
+mod 的 hook 在加载该插件的每种会话中运行，无论由哪个提供商提供模型，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry。绘制的范围更窄：只有终端和桌面应用会显示 mod 的窗格、带状区域和替换的行。此表列出了您可能运行 Claude Code 的每个地方：
 
 | 您运行 Claude Code 的地方 | Hook 是否运行 | Mod 绘制的内容是否出现 |
 | :- | :- | :- |
@@ -263,7 +263,7 @@ Claude Code 的一些自己的功能是 mods。要查看您的会话拥有的，
 | `cc-plugin-plugin-authoring` | 给 Claude [`plugin-authoring` skill](/docs/zh-CN/plugins/mods/create#ask-claude-for-a-mod) 用于编写 mods。它持有一个 skill，没有 mod 代码。 | 除非 Anthropic 已远程关闭已安装的 mods | 在 `/plugin` 中禁用它 |
 | `cc-plugin-sec-default` | 保护您的组织管理的内容免受用户安装的 mods | [保护加载的地方](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default) | 您不能。管理员在托管设置中[设置顺序](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods) |
 | `cc-plugin-telemetry` | 发送 Claude Code 及其内置 mods 记录的分析记录 | 无论 Claude Code 自己的分析在哪里打开 | 在 `/plugin` 中禁用它，或关闭分析，例如使用 [`DISABLE_TELEMETRY`](/docs/zh-CN/env-vars) |
-| `cc-plugin-you-should-know` | 运行一个侧边 Agent，在 Claude 处理较长任务时为您留意情况。当它发现值得了解的东西而您可能会错过时，它会在提示符上方显示一条注释。 | 默认禁用。如果可用于您的组织，在 `/plugin` -> **已安装** -> **显示禁用**中列出。使用 [`/plugin enable cc-plugin-you-should-know@builtin`](/docs/zh-CN/plugins/cli-reference#plugin-in-a-session) 启用。 | 在 `/plugin` 中禁用它 |
+| `cc-plugin-you-should-know` | [You should know](/docs/zh-CN/interactive-mode#you-should-know-suggestions)：一个侧边 Agent 在发现您可能错过的内容时，会在输入框上方显示一条注释 | 默认关闭，直到您[将其打开](/docs/zh-CN/interactive-mode#you-should-know-suggestions) | 在 `/plugin` 中禁用它 |
 
 停止已安装 mods 的设置和标志，例如 `disableAllHooks`、`--bare` 和 `--safe-mode`，不会停止内置 mods。
 

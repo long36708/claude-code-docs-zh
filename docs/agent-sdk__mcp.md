@@ -855,7 +855,7 @@ Claude Code 在每个查询开始时发出一条 `system` 类型、子类型为 
 
 远程服务器的状态在报告 `"connected"` 后也可能会改变。当连接在会话中途断开时，Claude Code 会在 [重新连接](/docs/zh-CN/mcp#automatic-reconnection) 时将服务器移回 `"pending"`。之后在 TypeScript 中调用 `mcpServerStatus()`，或在 Python 中调用 [`ClaudeSDKClient.get_mcp_status()`](/docs/zh-CN/agent-sdk/python#methods)，可能会为您之前看到已连接的服务器报告 `"pending"`，而您这一方没有进行任何配置更改。
 
-在五次重新连接尝试失败后，服务器报告 `"failed"`，或在需要再次授权时报告 `"needs-auth"`。要手动重试，请在 TypeScript 中调用 [`reconnectMcpServer()`](/docs/zh-CN/agent-sdk/typescript#methods) 或在 Python 中调用 [`ClaudeSDKClient.reconnect_mcp_server()`](/docs/zh-CN/agent-sdk/python#methods)。
+在五次重新连接尝试失败后，服务器报告 `"failed"`，或在需要再次授权时报告 `"needs-auth"`。处于 `"failed"` 状态的 HTTP 或 SSE 服务器仍可能在您无需调用任何方法的情况下恢复为 `"connected"`，因为 Claude Code 在发生暂时性错误后会持续[在后台重试](/docs/zh-CN/mcp#mid-session-drops-of-a-remote-server)。要手动重试，请在 TypeScript 中调用 [`reconnectMcpServer()`](/docs/zh-CN/agent-sdk/typescript#methods) 或在 Python 中调用 [`ClaudeSDKClient.reconnect_mcp_server()`](/docs/zh-CN/agent-sdk/python#methods)。
 
 <h2 id="troubleshooting">
   故障排除

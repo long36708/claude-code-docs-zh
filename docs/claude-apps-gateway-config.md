@@ -784,7 +784,7 @@ admin:
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
-| `fail_closed_on_error` | 否 | 默认 `false`。支出强制执行在 Postgres 中断时失败开放，因此推理保持运行。设置 `true` 以失败关闭：超出上限的开发者被阻止，但如果存储无法访问，所有人都被阻止。需要 [`admin:`](#admin) 块：支出强制执行仅在配置 `admin` 时运行，如果在没有 `admin` 块的情况下设置此 `true`，网关拒绝启动。 |
+| `fail_closed_on_error` | 否 | 默认值 `false`。Postgres 中断时，支出强制执行会失败开放，因此推理服务保持可用。设置为 `true` 则失败关闭：超出上限的开发者会被阻止，但如果存储无法访问，其他所有人也会被阻止。需要 [`admin:`](#admin) 块：支出强制执行仅在配置了 `admin` 时运行，如果在没有该块的情况下将此项设置为 `true`，网关将拒绝启动。 |
 
 <h3 id="pricing">
   `pricing`
@@ -858,14 +858,14 @@ pricing:
 `models` 块是可选的管理员策划的模型列表，在 `/v1/models` 提供，用于按上游翻译模型 ID。对于非美国 Amazon Bedrock 地区、Amazon Bedrock 预配置吞吐量 ARN 和 Microsoft Foundry 部署名称是必需的。
 
 ```yaml theme={null}
-auto_include_builtin_models: true   # false: 仅公开下面的列表
+auto_include_builtin_models: true   # false: expose only the list below
 models:
   - id: claude-opus-4-8
     label: Claude Opus 4.8
-    # description: 可选文本显示在表面它的客户端中
+    # description: optional text shown in clients that surface it
     upstream_model:
       anthropic: claude-opus-4-8
-      bedrock: us.anthropic.claude-opus-4-8   # 或推理配置文件 ARN
+      bedrock: us.anthropic.claude-opus-4-8   # or an inference-profile ARN
       foundry: your-opus-deployment-name
 ```
 
@@ -1020,27 +1020,27 @@ managed:
   policies:
     - match: {}
       cli:
-        # 模型访问（也在 /v1/messages 服务器端强制执行）
+        # Model access (also enforced server-side at /v1/messages)
         availableModels: [claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5]
-        enforceAvailableModels: true              # Default 在列表内解析
+        enforceAvailableModels: true              # Default resolves inside the list
 
-        # 权限策略
+        # Permission policy
         permissions:
           deny:
             - "WebFetch"
             - "Read(./.env)"
             - "Read(./secrets/**)"
-          disableBypassPermissionsMode: disable   # 阻止 --dangerously-skip-permissions
-        allowManagedPermissionRulesOnly: true     # 忽略用户/项目权限规则
+          disableBypassPermissionsMode: disable   # blocks --dangerously-skip-permissions
+        allowManagedPermissionRulesOnly: true     # ignore user/project permission rules
 
-        # 推送到 CLI 进程的环境。DISABLE_UPDATES 阻止
-        # 后台和手动更新；DISABLE_AUTOUPDATER 仅停止
-        # 后台更新。
+        # Environment pushed into the CLI process. DISABLE_UPDATES blocks
+        # background and manual updates; DISABLE_AUTOUPDATER stops only
+        # background updates.
         env:
-          DISABLE_UPDATES: "1"                    # 通过您自己的分发固定版本
+          DISABLE_UPDATES: "1"                    # pin versions via your own distribution
 
-        # 组织范围的 hook。hook 命令在开发者机器上运行，不是
-        # 网关，因此路径必须存在于策略中每个客户端操作系统上。
+        # Org-wide hooks. Hook commands run on developer machines, not the
+        # gateway, so the path must exist on every client OS in the policy.
         hooks:
           PostToolUse:
             - matcher: "Edit|Write"
@@ -1074,7 +1074,7 @@ Claude Code 应用一些交付的 `env` 变量而不显示开发者批准对话�
 
 网关的[遥测](#telemetry)配置推送 `OTEL_EXPORTER_OTLP_ENDPOINT`，因此设置 `telemetry.forward_to` 在每个交互式客户端上触发对话框。对话框保护开发者的机器免受受损或敌对网关的影响，而不是保护组织免受开发者的影响。
 
-[非交互式运行](/docs/zh-CN/server-managed-settings#security-approval-dialogs)（例如 `claude -p`、Agent SDK 会话或 Claude Desktop Code 标签页中的会话）无法显示对话框。它仅在该次运行中应用推送的设置，且不会将其记录为已批准，因此开发者的下一个交互式会话仍会显示对话框。在 v2.1.207 之前，非交互式运行会将设置保存为已批准，之后的交互式会话不会再为这些设置显示对话框。
+[非交互式运行](/docs/zh-CN/server-managed-settings#security-approval-dialogs)（例如 `claude -p`、Agent SDK 会话或 Claude Desktop 的 Code 标签页中的会话）无法显示对话框。它仅在该次运行中应用推送的设置，不会将其记录为已批准，因此开发者的下一个交互式会话仍会显示对话框。
 
 如果开发者拒绝，Claude Code 退出该会话而不是应用策略。当您推送新 hook 或任何触发对话框的 env 变量到广泛策略时，每个匹配的开发者因此在其交互式会话中看到对话框。运行的交互式会话在下一个每小时轮询时显示它，否则它在开发者的下一个交互式启动时出现。
 
@@ -1502,8 +1502,8 @@ Claude Code 在直接导出信号之前检查端点，并在检查失败时将�
 ```yaml theme={null}
 load_test_mode:
   enabled: true
-  reply_tokens: 750     # 大约每个罐装回复携带多少 token 的文本
-  reply_seconds: 9.5    # 流回复需要多长时间
+  reply_tokens: 750     # roughly how many tokens of text each canned reply carries
+  reply_seconds: 9.5    # how long a streamed reply takes
 ```
 
 | 字段 | 必需 | 描述 |

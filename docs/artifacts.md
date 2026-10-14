@@ -188,11 +188,11 @@ Claude 只能回复或解决已激活的线程。其他线程保持打开状态�
 
 您的[权限模式](/docs/zh-CN/permission-modes)决定了当发送的评论到达时 Claude 的行为：
 
-* **Claude 自动回复**：当您的权限模式允许 Claude 在不询问您的情况下发布回复时，Claude 读取线程并回复，并在评论要求更改时编辑工件。您会看到`自动回复了工件上的评论线程：<name>`或`自动编辑了工件：<name>以响应评论线程`。
-* **Claude 等待您**：在计划模式之外，当发布回复需要您的批准时，您会看到`评论正在等待工件：<name>`。Claude 然后要求您批准读取线程，再次批准发布回复。
-* **Claude 在计划模式中暂停**：您会看到`评论正在等待工件：<name>`，Claude 不会回复，直到您离开计划模式并要求它读取和回复。
+* **Claude 自动回复**：如果您所处的权限模式允许 Claude 在不询问您的情况下发布回复，Claude 会读取线程并回复。您会看到 `Auto-replied to comment thread on Artifact: <name>`。
+* **Claude 等待您**：在计划模式之外，当发布回复需要您的批准时，您会看到 `Comments are waiting on Artifact: <name>`。Claude 然后要求您批准读取线程，再次批准发布回复。
+* **Claude 在计划模式中暂停**：您会看到 `Comments are waiting on Artifact: <name>`，Claude 不会回复，直到您离开计划模式并要求它读取和回复。
 
-Claude 还会在处理该工件上的 60 条已发送评论或线程激活后的一小时内停止自动回复该工件。您会看到`评论正在等待工件：<name>`一次，当该小时的评论过期时，Claude 会重新开始。
+如果 Claude 在一小时内处理了某个 Artifact 上的 60 条已发送评论或线程激活，它也会停止自动回复该 Artifact。您会看到一次 `Comments are waiting on Artifact: <name>`，当该小时内的评论过期后，Claude 会重新开始。
 
 运行 `/tasks` 查看您的会话正在监视的 Artifact。`/tasks` 会将 Claude Code 自行启动的监视归入 **System tasks** 行下。在该行上按 `Enter` 即可列出它们。您要求 Claude 启动的监视显示在 **Monitors** 下。
 

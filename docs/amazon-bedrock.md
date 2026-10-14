@@ -219,7 +219,7 @@ export AWS_BEARER_TOKEN_BEDROCK=your-bedrock-api-key
   凭证缓存和解析超时
 </h4>
 
-Claude Code 解析 AWS 默认凭证提供程序链一次，并将解析的凭证保存在内存中。它重复使用这些凭证，直到它们过期前五分钟，或在没有过期时间时使用一小时，因此 SSO 支持的配置文件大约每个凭证生命周期从 IAM Identity Center 请求一次凭证。来自 API 的凭证错误会清除缓存，重试会解析新凭证。需要 Claude Code v2.1.207 或更高版本。
+Claude Code 解析 AWS 默认凭据提供程序链一次，并将解析的凭据保存在内存中。它重复使用这些凭据，直到它们过期前五分钟，或在没有过期时间时使用一小时，因此 SSO 支持的配置文件大约每个凭据生命周期从 IAM Identity Center 请求一次凭据。来自 API 的凭据错误会清除缓存，重试会解析新凭据。
 
 缓存涵盖此步骤开头列出的所有凭据方法，但 Amazon Bedrock API 密钥除外，它不使用提供程序链。要在每个请求上解析链，请改为设置 [`CLAUDE_CODE_SKIP_AWS_CRED_CACHE=1`](/docs/zh-CN/env-vars)。
 
@@ -276,7 +276,7 @@ Claude Code 支持 AWS SSO 和企业身份提供程序的自动凭证刷新。�
 
 `Expiration` 是可选的。当命令返回有效的 ISO 8601 `Expiration` 时，Claude Code 会缓存凭证直到该时间前五分钟。没有它，凭证被缓存一小时。
 
-当您配置 `awsCredentialExport` 而不配置 `awsAuthRefresh` 时，Claude Code 直接使用导出的凭证，不在启动时重新解析 AWS 默认凭证提供程序链。需要 Claude Code v2.1.206 或更高版本。
+当您配置 `awsCredentialExport` 而不配置 `awsAuthRefresh` 时，Claude Code 直接使用导出的凭据，不在启动时重新解析 AWS 默认凭据提供程序链。
 
 <h3 id="3-configure-claude-code">
   3. 配置 Claude Code
@@ -285,16 +285,16 @@ Claude Code 支持 AWS SSO 和企业身份提供程序的自动凭证刷新。�
 设置以下环境变量以启用 Amazon Bedrock：
 
 ```bash theme={null}
-# 启用 Bedrock 集成
+# Enable Bedrock integration
 export CLAUDE_CODE_USE_BEDROCK=1
-export AWS_REGION=us-east-1  # 如果您的 AWS 配置文件已设置区域，则可选
+export AWS_REGION=us-east-1  # optional if your AWS profile already sets a region
 
-# 可选：覆盖小型/快速模型的 AWS 区域（Bedrock 和 Mantle）。
-# 在 Bedrock 上，没有 ANTHROPIC_DEFAULT_HAIKU_MODEL
-# 或已弃用的 ANTHROPIC_SMALL_FAST_MODEL 设置时无效。
+# Optional: Override the AWS region for the small/fast model (Bedrock and Mantle).
+# On Bedrock, has no effect without ANTHROPIC_DEFAULT_HAIKU_MODEL
+# or the deprecated ANTHROPIC_SMALL_FAST_MODEL set.
 export ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION=us-west-2
 
-# 可选：覆盖 Bedrock 端点 URL 以用于自定义端点或网关
+# Optional: Override the Bedrock endpoint URL for custom endpoints or gateways
 # export ANTHROPIC_BEDROCK_BASE_URL=https://bedrock-runtime.us-east-1.amazonaws.com
 ```
 
@@ -358,10 +358,10 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:
 * 要为后台任务使用 Haiku，请将 `ANTHROPIC_DEFAULT_HAIKU_MODEL` 设置为在您的账户中可用的模型 ID。
 
 <Warning>
-  Opus 模型的每令牌价格高于 Sonnet 模型，因此不固定主要模型的部署在更新到 v2.1.207 或更高版本后将按 Opus 费率计费。要将 Sonnet 4.5 保留为主要模型，请将 `ANTHROPIC_MODEL` 设置为其完整模型 ID。使用 `ANTHROPIC_DEFAULT_SONNET_MODEL` 引导默认值且不设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 的部署保留其引导的 Sonnet 模型作为默认值。
+  Opus 模型的每 token 价格高于 Sonnet 模型，因此如果您不固定主要模型，将按 Opus 费率计费。要将 Sonnet 4.5 用作主要模型，请将 `ANTHROPIC_MODEL` 设置为其完整模型 ID。使用 `ANTHROPIC_DEFAULT_SONNET_MODEL` 引导默认值且不设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 的部署保留其引导的 Sonnet 模型作为默认值。
 </Warning>
 
-在 v2.1.280 之前，Amazon Bedrock 上的主要模型默认为 Opus 5，`opus` 别名从 v2.1.219 解析为 Opus 5。在 v2.1.207 到 v2.1.218 上，Amazon Bedrock 上的主要模型默认为 Opus 4.8，`opus` 别名解析为 Opus 4.8。在 v2.1.207 之前，主要模型默认为 Sonnet 4.5，`opus` 别名解析为 Opus 4.6，后台任务始终使用主要模型。
+在 v2.1.280 之前，Amazon Bedrock 上的主要模型默认为 Opus 5，`opus` 别名从 v2.1.219 解析为 Opus 5。在 v2.1.207 到 v2.1.218 上，Amazon Bedrock 上的主要模型默认为 Opus 4.8，`opus` 别名解析为 Opus 4.8。
 
 要进一步自定义模型，请使用以下方法之一：
 

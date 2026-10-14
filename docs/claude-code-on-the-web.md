@@ -298,7 +298,7 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 
 云会话支持产生文本输出的[内置命令](/docs/zh-CN/commands)。仅在终端界面中运行的命令，如 `/plugin` 或 `/resume`，不可用。在云会话中打开选择器或面板的命令表现不同：
 
-* **`/model`、`/effort`、`/color` 和 `/rename`**：将值作为参数传递，例如 `/model sonnet`，而不是打开终端选择器或滑块。参数形式需要会话环境中的 Claude Code v2.1.205 或更高版本，并遵循每个命令的[可用性说明](/docs/zh-CN/commands#all-commands)。
+* **`/model`、`/effort`、`/color` 和 `/rename`**：将值作为参数传递，例如 `/model sonnet`，而不是打开终端选择器或滑块。参数形式遵循每个命令的[可用性说明](/docs/zh-CN/commands#all-commands)。
 * **`/fast`**：当快速模式在[你的账户上可用](/docs/zh-CN/fast-mode#requirements)时，为会话切换[快速模式](/docs/zh-CN/fast-mode#use-fast-mode-in-cloud-sessions)。需要会话环境中的 Claude Code v2.1.271 或更高版本。
 * **`/config`**：在你的浏览器中的 claude.ai/code 上，打开你的设置的 Claude Code 部分，而不是设置值，命令后的文本（包括 `key=value`）被忽略。要更改云会话的设置，请在环境上设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)，或在具有一个存储库的会话中，将该设置键提交到该存储库的 `.claude/settings.json`。[云会话中的设置](/docs/zh-CN/settings#settings-in-cloud-sessions)列出了每个会话读取的内容。
 
@@ -472,8 +472,9 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 | 消息 | 含义 |
 | - | - |
 | `Cloud sessions aren't available with <provider>. They run on Anthropic's infrastructure and require an Anthropic account.` | Claude Code 配置为使用第三方提供商。消息会使用您的配置中的标签显示提供商名称，例如 `Amazon Bedrock` 或 `Google Vertex AI`。请移除该提供商的配置（例如取消设置 `CLAUDE_CODE_USE_BEDROCK`），并使用 Anthropic 账户登录（`claude auth login`）。 |
-| `Cloud sessions are disabled by your organization's policy. Contact your organization admin to enable them.` | `allow_remote_sessions` 组织策略已关闭。 |
-| `Couldn't verify your organization's policy for cloud sessions. Check your network connection and try again.` | Claude Code 无法获取您组织的策略，因此拒绝发送，而不是假定云端会话已被允许。请检查网络连接并重试。 |
+| `Cloud sessions are disabled by your organization's policy. Contact your organization admin to enable them.` | 您组织的 `allow_remote_sessions` 策略已关闭；请参阅[Cloud sessions are disabled by your organization's policy](/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。如果消息中提到的是此会话正在使用的某个凭据，请参阅[云端会话使用您的 claude.ai 登录](/docs/zh-CN/errors#cloud-sessions-use-your-claude-ai-login)。 |
+| `Couldn't verify your organization's policy for cloud sessions. Check your network connection and try again.` | Claude Code 尚未完成加载您组织的策略，因此拒绝发送，而不是假定云端会话已被允许。请检查网络连接并重试。 |
+| `Cloud sessions aren't available:` 后跟原因 | 加载您组织的策略失败，消息的其余部分说明了失败方式。请根据其中指出的原因采取相应措施；请参阅[Couldn't verify your organization's policy for cloud sessions](/docs/zh-CN/errors#couldnt-verify-your-organizations-policy-for-cloud-sessions)。 |
 | `Attaching to an existing cloud session is not enabled for your account.` | 您在运行 `--cloud <session-id>` 时未带 `-p`。请使用 `claude -p "your message" --cloud <session-id>` 发送消息。 |
 | `Session not found: <id>` | 该 ID 或 URL 与您可以访问的任何会话都不匹配。请对照该会话的 claude.ai/code URL 进行检查。 |
 | `cloud session <id> is archived and cannot accept new messages` | 该会话已归档。请改为启动一个新会话。 |
