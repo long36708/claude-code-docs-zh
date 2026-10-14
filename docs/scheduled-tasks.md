@@ -79,7 +79,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 在[Monitor tool 可用](/docs/zh-CN/tools-reference#monitor-tool)的会话中，当您要求动态 `/loop` 计划时，Claude 可能会直接使用它。Monitor 运行后台脚本并流式传输每个输出行，这完全避免了轮询，通常比在间隔上重新运行提示词更节省令牌且响应更快。
 
-动态计划的循环出现在您的[计划任务列表](#manage-scheduled-tasks)中，就像任何其他任务一样，所以您可以以相同的方式列出或取消它。[抖动规则](#jitter)不适用于它，但[七天过期](#seven-day-expiry)适用。
+动态安排的循环会像任何其他任务一样出现在您的[定时任务列表](#manage-scheduled-tasks)中，因此您可以用相同的方式列出或取消它。该列表将其待处理的唤醒显示为一次性任务，因此安排在 `:00` 或 `:30` 的唤醒可能会[稍早运行](#when-a-one-shot-task-runs-early)。[七天过期](#seven-day-expiry)同样适用于该循环。
 
 <span id="loop-provider-differences" />
 

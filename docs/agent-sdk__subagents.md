@@ -164,6 +164,7 @@
 | `mcpServers` | `(string \| object)[]` | 否 | 此代理可用的 MCP 服务器，按名称或内联配置 |
 | `initialPrompt` | `string` | 否 | 当此代理作为主线程代理运行时自动提交为第一个用户轮次。当代理作为子代理调用时忽略 |
 | `maxTurns` | `number` | 否 | 代理停止前的最大代理轮次数。当代理达到限制时，Claude Code 返回其输出标记为部分，您可以[恢复代理](#resume-subagents)以继续。部分标记需要 Claude Code v2.1.246 或更高版本 |
+| `autoCompactWindow` | `number` | 否 | 当此 Agent 作为子代理运行时，将其[自动压缩窗口](/docs/zh-CN/sub-agents#subagent-auto-compact-window)降低到 `100000` 至 `1000000` 之间的 token 数。需要 TypeScript Agent SDK v0.3.296 或更高版本。Python SDK 的 [`AgentDefinition`](/docs/zh-CN/agent-sdk/python#agentdefinition) 没有此字段 |
 | `background` | `boolean` | 否 | 调用时将此代理作为非阻塞后台任务运行 |
 | `omitClaudeMd` | `boolean` | 否 | 将用户、项目和本地 CLAUDE.md 文件排除在此 Agent 的初始上下文之外；托管策略文件仍会加载。当该 Agent 作为主线程 Agent 运行时忽略。需要 TypeScript Agent SDK v0.3.271 或更高版本。Python SDK 的 [`AgentDefinition`](/docs/zh-CN/agent-sdk/python#agentdefinition) 没有此字段 |
 | `effort` | `'low' \| 'medium' \| 'high' \| 'xhigh' \| 'max' \| number` | 否 | 此代理的推理工作量级别 |

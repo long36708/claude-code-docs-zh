@@ -441,8 +441,8 @@ claude plugin eval . \
 
 | 退出码 | 含义 |
 | :- | :- |
-| 0 | 每个用例得分均达到或高于 `--threshold`，且每个用例文件都已加载 |
-| 1 | 用例得分低于阈值，用例文件加载失败，未找到用例，无法启动运行，插件目录不受信任且未传递 `--trust-plugin`，或选项无效 |
+| 0 | 套件通过：每个用例得分均达到或高于 `--threshold`，且没有其他原因导致运行失败 |
+| 1 | 用例得分低于阈值，用例文件加载失败，未找到用例，无法启动运行，或某次运行[因 API 错误而结束](#runs-ended-on-an-api-error)。当插件目录不受信任且未传递 `--trust-plugin`、选项无效或无法写入 `--json` 结果时，也会返回此值 |
 | 2 | 部分运行：达到了 `--max-cost-usd` 上限，或您的凭据在首次运行前或首次运行时被拒绝。`results.json` 仍会写入，并带有 `partial: true` 和原因 |
 | 130 | 已中断。部分结果已写入 |
 | 143 | 已终止，例如因 CI 超时 |
@@ -501,7 +501,7 @@ Claude Code 会话启动的运行，例如当你要求 Claude 为你运行套件
 | `cases[].name` | 用例名称 |
 | `cases[].aggregates.score` | 用例的平均 with-arm 运行分数 |
 | `cases[].aggregates.delta` | With-arm 分数减去 without-arm 分数。当 arm 不可比较时省略 |
-| `cases[].arms.with[].error` | `null`，或运行异常结束的原因，例如 `timed out after 300s`。启动但结束不好的运行仍然在它生成的内容上评分，所以非空错误不意味着分数 0 |
+| `cases[].arms.with[].error` | `null`，或运行异常结束的原因，例如 `timed out after 300s`。其中部分运行仍会根据其生成的内容进行评分，因此非空错误并不意味着分数为 0。[因 API 错误而结束](#runs-ended-on-an-api-error)的运行不经评分直接记为 0 分 |
 | `cases[].arms.with[].aborted` | 当 [mock](#mock-mcp-servers) 通过 `expect:`、`abort_when` 或 [agent-mock 调用预算](#mock-call-budget-exceeded)停止运行时出现，带有 `server`、`tool` 和 `reason`。运行分数为 0，`error` 保持 `null` |
 | `cases[].arms.with[].skippedPaidGraders` | `true` 当成本上限跳过此运行的评判评分器时，所以其分数不可比较 |
 | `costUsd`, `durationSeconds`, `claudeVersion` | 列表价格的估计成本，包括评判调用、挂钟秒数和运行套件的 Claude Code 版本 |
@@ -782,7 +782,9 @@ eval 目录下不存在 `<case>/prompt.md` 或 `<case>/case.yaml`，或你的 `-
   运行退出代码为 1，但结果看起来很好
 </h3>
 
-默认 `--threshold` 是 1.0，所以当任何案例的评分低于完美时，命令退出代码为 1。设置与你需要的评分相匹配的阈值。退出代码 1 也涵盖了无法加载的案例文件，该文件在表格上方的 stderr 上报告。
+当每个案例的评分都达到或高于 `--threshold`，而命令仍然以 1 退出时，stderr 上会有一行指明原因，即使在 `--json` 下也是如此。例如，某个案例文件加载失败，或运行[因 API 错误而结束](#runs-ended-on-an-api-error)。有关其他原因，请参阅[退出码](#run-evals-in-ci)。
+
+默认 `--threshold` 是 1.0，所以当任何案例的评分低于完美时，命令以 1 退出。设置与您要求的评分相匹配的阈值。
 
 <h3 id="json-output-path-must-end-in-json">
   `--json output path must end in .json`
@@ -796,11 +798,26 @@ eval 目录下不存在 `<case>/prompt.md` 或 `<case>/case.yaml`，或你的 `-
 
 该 grader 在设计上被排除在两臂运行的评分之外，其 `scored` 字段为 `false`。请参阅[针对无插件基线进行评分](#compare-against-a-no-plugin-baseline)。
 
+<h3 id="runs-ended-on-an-api-error">
+  "ended on an API error and scored 0 without grading"
+</h3>
+
+此 stderr 警告表示 API 对至少一次运行的最后一个请求返回了 HTTP 错误，例如速率限制或计划用量限制。此类运行评分为 0 且没有 grader 结果，并且无论评分和 `--threshold` 如何，命令都会以非零状态退出。
+
+要解决此问题，请找到每个受影响运行的错误并解决其报告的原因，然后再次运行套件：
+
+* **不使用 `--json` 时**：错误位于该运行进度行的末尾，在 `error:` 之后
+* **使用 `--json` 时**：错误位于 [JSON 结果](#json-result)中的 `cases[].arms.with[].error` 或 `cases[].arms.without[].error`
+
+该计数也包括[基线](#the-no-plugin-baseline)运行。基线运行的评分从不决定案例是否通过，因此可能每个案例都通过，而命令仍然失败。在两臂运行中，受影响案例的 `W/OUT` 和 `Δ` 会显示为 `—`。如果是用量限制或速率限制，请参阅[运行在中途因用量限制或速率限制错误而失败](#runs-fail-with-a-usage-limit-or-rate-limit-error-partway-through)。
+
+在 v2.1.299 之前，此类运行会根据它已生成的内容进行评分。
+
 <h3 id="runs-fail-with-a-usage-limit-or-rate-limit-error-partway-through">
   运行在中途失败，出现使用限制或速率限制错误
 </h3>
 
-如果你的账户在套件运行时达到了计划的使用限制或 API 速率限制，每个后续运行都会以该错误结束，根据它生成的内容进行评分，通常评分为 0。套件仍然完成，不会标记为 `partial`，所以结果看起来像是一个回归。在信任评分之前，检查 `NOTES` 列或 JSON 中的 `cases[].arms.with[].error` 中的限制消息，然后在限制重置后重新运行，如果你需要保持在限制内，使用 `--runs 1` 或 `--case` 过滤器。
+以用量限制或速率限制错误结束的运行会[评分为 0 且不进行评分检查](#runs-ended-on-an-api-error)，并且命令以非零状态退出。套件仍然会完成，且不会被标记为 `partial`。在限制重置后重新运行，如果您需要保持在限制内，请使用 `--runs 1` 或 `--case` 过滤器。
 
 <h3 id="mock-call-budget-exceeded">
   "mock call budget exceeded"

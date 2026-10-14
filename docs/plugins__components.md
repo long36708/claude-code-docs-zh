@@ -752,7 +752,7 @@ You are a security reviewer. Read the changed files and report injection, authen
 
 插件代理的 frontmatter 遵循以下规则：
 
-* **支持的字段**：`name`、`description`、`model`、`effort`、`maxTurns`、`tools`、`disallowedTools`、`skills`、`memory`、`background`、`omitClaudeMd`、`isolation`、`color` 和 `experimental` 的 `cacheTtl` 键。唯一有效的 `isolation` 值是 `"worktree"`。参见 [支持的 frontmatter 字段](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 了解每个字段的作用
+* **支持的字段**：`name`、`description`、`model`、`effort`、`maxTurns`、`autoCompactWindow`、`tools`、`disallowedTools`、`skills`、`memory`、`background`、`omitClaudeMd`、`isolation`、`color` 和 `experimental` 的 `cacheTtl` 键。唯一有效的 `isolation` 值是 `"worktree"`。参见 [支持的 frontmatter 字段](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 了解每个字段的作用
 * **忽略的字段**：`permissionMode`、`hooks`、`mcpServers` 和 `initialPrompt`。代理文件不能自己添加 hooks 或 MCP 服务器，所以改为添加为插件 [hooks](#hooks) 和 [MCP 服务器](#mcp-servers)
 * **不解析的 Frontmatter**：代理仍然加载，每个字段都被忽略。它以文件名命名，其描述读作 `Agent from my-plugin plugin`。在你的 shell 中运行 [`claude plugin validate`](/docs/zh-CN/plugins/cli-reference#plugin-validate) 来找到这些文件
 

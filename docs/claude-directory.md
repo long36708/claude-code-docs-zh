@@ -1525,7 +1525,7 @@ Skills、命令文件、subagents、输出样式和规则从文件顶部的 YAML
 | - | - | - |
 | `skills/<name>/SKILL.md` | `name`, `description`, `when_to_use`, `argument-hint`, `arguments`, `disable-model-invocation`, `user-invocable`, `allowed-tools`, `disallowed-tools`, `model`, `effort`, `context`, `agent`, `background`, `hooks`, `paths`, `shell`, `metadata`, `license`, `compatibility` | [Skill frontmatter](/docs/zh-CN/skills#frontmatter-reference) |
 | `commands/*.md` | 除 `name` 和 `paths` 外的 skill 字段 | [Skill frontmatter](/docs/zh-CN/skills#frontmatter-reference) |
-| `agents/*.md` | `name`, `description`, `tools`, `disallowedTools`, `model`, `permissionMode`, `maxTurns`, `skills`, `mcpServers`, `hooks`, `memory`, `background`, `effort`, `isolation`, `color`, `initialPrompt`, `omitClaudeMd`, `experimental` | [Subagent frontmatter](/docs/zh-CN/sub-agents#supported-frontmatter-fields) |
+| `agents/*.md` | `name`, `description`, `tools`, `disallowedTools`, `model`, `permissionMode`, `maxTurns`, `autoCompactWindow`, `skills`, `mcpServers`, `hooks`, `memory`, `background`, `effort`, `isolation`, `color`, `initialPrompt`, `omitClaudeMd`, `experimental` | [子代理 frontmatter](/docs/zh-CN/sub-agents#supported-frontmatter-fields) |
 | `output-styles/*.md` | `name`, `description`, `keep-coding-instructions`, `force-for-plugin` | [Output style frontmatter](/docs/zh-CN/output-styles#frontmatter) |
 | `rules/*.md` | `paths` | [Rule frontmatter](/docs/zh-CN/memory#rules-frontmatter-reference) |
 

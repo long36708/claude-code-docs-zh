@@ -369,7 +369,7 @@ function getSessionMessages(
 | `session_id` | `string` | 此消息所属的会话 |
 | `message` | `unknown` | 来自会话记录的原始消息负载 |
 | `parent_tool_use_id` | `string \| null` | 对于子代理消息，启动该子代理的 `Agent` 或 `Skill` 工具调用的 `tool_use_id`。对于主会话消息和较旧的会话为 `null` |
-| `parent_agent_id` | `string \| null` | 对于来自[嵌套子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)的消息，生成该消息的子代理的 `agentId`。对于主会话消息、来自顶级子代理的消息和较旧的会话为 `null`。需要 Claude Code v2.1.202 或更高版本 |
+| `parent_agent_id` | `string \| null` | 对于来自[嵌套子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)的消息，为启动该嵌套子代理的子代理的 `agentId`。对于主会话消息、来自顶级子代理的消息和较旧的会话为 `null`。需要 Claude Code v2.1.202 或更高版本 |
 
 <h4 id="example-4">
   示例
@@ -1224,6 +1224,7 @@ type AgentDefinition = {
   skills?: string[];
   initialPrompt?: string;
   maxTurns?: number;
+  autoCompactWindow?: number;
   background?: boolean;
   omitClaudeMd?: boolean;
   memory?: "user" | "project" | "local";
@@ -1244,6 +1245,7 @@ type AgentDefinition = {
 | `skills` | 否 | 要预加载到 Agent 上下文中的 skill 名称数组 |
 | `initialPrompt` | 否 | 当此 Agent 作为主线程 Agent 运行时，作为第一轮用户输入自动提交 |
 | `maxTurns` | 否 | 停止前的最大 agentic 轮次数（API 往返次数） |
+| `autoCompactWindow` | 否 | 当此 Agent 作为子代理运行时，将其[自动压缩窗口](/docs/zh-CN/sub-agents#subagent-auto-compact-window)降低到 `100000` 至 `1000000` 之间的 token 数。需要 TypeScript Agent SDK v0.3.296 或更高版本 |
 | `background` | 否 | 被调用时将此 Agent 作为非阻塞的后台任务运行 |
 | `omitClaudeMd` | 否 | 不将用户、项目和本地 CLAUDE.md 文件纳入此 Agent 的初始上下文；托管策略文件仍会加载。适用于从 Agent 工具提示词中获取所需全部信息的 Agent。当此 Agent 作为主线程 Agent 运行时忽略。需要 TypeScript Agent SDK v0.3.271 或更高版本 |
 | `memory` | 否 | 此 Agent 的记忆来源：`'user'`、`'project'` 或 `'local'` |
@@ -3270,7 +3272,7 @@ type SyncHookJSONOutput = {
   工具输入类型
 </h2>
 
-所有内置 Claude Code 工具的输入 schema 文档。这些类型从 `@anthropic-ai/claude-agent-sdk/sdk-tools` 导出，可用于类型安全的工具交互。
+内置 Claude Code 工具的输入 schema 文档。这些类型从 `@anthropic-ai/claude-agent-sdk/sdk-tools` 导出，可用于类型安全的工具交互。
 
 <h3 id="toolinputschemas">
   `ToolInputSchemas`

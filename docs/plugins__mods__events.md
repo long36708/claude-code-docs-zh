@@ -252,7 +252,7 @@ on('prompt.submit', async ($, e, next) => {
 
 要阻止提示词，请在不调用 `next` 的情况下返回 `{ drop: 'the reason' }`。文本会返回到用户的提示词输入框中，用户会看到 `Prompt dropped by a hook:` 后跟您的原因，因此请以用户为对象撰写原因。如果您的 hook 在其 `next(e)` 调用已放行提示词之后返回 `drop`，轮次仍会运行，并且该 hook 会[失败](#handle-a-hook-that-fails)，错误消息中包含 `a drop after its next() was answered`。
 
-[其他事件](/docs/zh-CN/plugins/mods/reference#prompts-and-what-claude-reads)涵盖了 Claude 读取的其余内容：`prompt.section` 用于系统提示词的每个部分，`prompt.context` 用于随第一条消息发送的上下文，`skill.prompt` 用于 skill 的文本。这些 hook 产生的文本如果在请求之间发生变化，会[使提示缓存失效](/docs/zh-CN/prompt-caching)。
+[其他事件](/docs/zh-CN/plugins/mods/reference#prompts-and-what-claude-reads)涵盖了 Claude 读取的其余内容：`prompt.section` 用于系统提示词的每个部分，`prompt.context` 用于随第一条消息发送的上下文，`skill.prompt` 用于 skill 的文本。这些 hook 产生的文本如果在请求之间发生变化，会[使提示缓存失效](/docs/zh-CN/prompt-caching)。在 `skill.prompt` hook 中，您还可以读取[该 skill 来自哪个插件或文件](/docs/zh-CN/plugins/mods/reference#skill-prompt-fields)。
 
 <h3 id="follow-a-turn">
   跟踪轮次

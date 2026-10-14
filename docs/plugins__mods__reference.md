@@ -97,6 +97,24 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | [`skill.prompt`](/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | skill 的文本为 Claude 展开时 | `{ text }` |
 | `attribution.text` | Claude Code 撰写提交或 Pull Request 的署名文本时 | `{ text }` |
 
+<h4 id="skill-prompt-fields">
+  `skill.prompt` 上的来源和 frontmatter 字段
+</h4>
+
+在 `skill.prompt` hook 中，除了 `e.skill` 中的 skill 名称和 `e.text` 中 Claude 读取的文本之外，您还可以读取以下字段：
+
+| 字段 | 类型 | 包含的内容 |
+| :- | :- | :- |
+| `e.source` | string | 提供该 skill 的来源：对于位于企业、个人或项目[位置](/docs/zh-CN/skills#where-skills-live)的 skill，分别为 `policySettings`、`userSettings` 或 `projectSettings`。其他来源给出 `plugin`、`mcp`、`syncedSkills` 或 `built-in` 之类的词。 |
+| `e.pluginName` | string | 对于 `e.source` 为 `plugin` 的 skill，为插件的名称 |
+| `e.path` | string | skill 的 `SKILL.md` 文件的绝对路径；对于以[命令文件](/docs/zh-CN/skills#where-skills-live)形式编写的 skill，则为其 `.md` 文件的绝对路径。当该 skill 在本机上没有文件时（如内置 skill）不存在。 |
+| `e.frontmatter` | object | skill 文件的 frontmatter，以纯数据形式提供 |
+| `e.frontmatterProblem` | string | `e.frontmatter` 缺少该文件的 frontmatter 或其中某个键的原因，如 `is a list or a single value, not a table`。当 `e.frontmatter` 包含完整的 frontmatter 或该 skill 没有 frontmatter 时不存在。 |
+
+hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 hook 会读取这两者，而 Claude 读取最终的 `text`。更改任何其他字段的 hook 会[失败](/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)。
+
+在 `skill.prompt` 上，`e.source`、`e.pluginName`、`e.path`、`e.frontmatter` 和 `e.frontmatterProblem` 需要 Claude Code v2.1.299 或更高版本。
+
 <h3 id="commands-and-configuration">
   命令和配置
 </h3>

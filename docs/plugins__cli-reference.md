@@ -523,8 +523,8 @@ claude plugin eval [target] [options]
 
 | 退出码 | 含义 |
 | :- | :- |
-| `0` | 所有案例都达到阈值 |
-| `1` | 存在失败的案例、加载错误或不受信任的插件目录 |
+| `0` | 套件通过：每个案例都达到阈值，且没有其他原因导致运行失败 |
+| `1` | 存在失败的案例、加载错误、不受信任的插件目录、[因 API 错误而结束](/docs/zh-CN/plugin-evals#runs-ended-on-an-api-error)的运行，或[在 CI 中运行 evals](/docs/zh-CN/plugin-evals#run-evals-in-ci) 下列出的其他原因 |
 | `2` | 部分运行 |
 | `130` | 被中断 |
 | `143` | 被终止 |

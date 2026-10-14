@@ -309,6 +309,7 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
 * **`model`**：当你的生成提示没有命名模型时，Claude Code 在任一显示模式中使用定义的 `model`。请参阅 [Claude Code 如何选择队友的模型](#specify-teammates-and-models)。
 * **`disallowedTools`**：对于进程内队友，Claude Code 会从队友的工具集中移除定义的 `disallowedTools` 中的工具。即使该列表中列出了 `SendMessage` 以及 Claude Code 添加的 Task 工具，它们仍然可用。
 * **`effort`**：对于进程内队友，Claude Code 按照 [frontmatter effort 规则](/docs/zh-CN/model-config#set-the-effort-level) 应用定义的 [`effort`](/docs/zh-CN/sub-agents#supported-frontmatter-fields)。
+* **`autoCompactWindow`**：对于进程内队友，Claude Code 按照 [该字段的规则](/docs/zh-CN/sub-agents#subagent-auto-compact-window) 应用定义的 [`autoCompactWindow`](/docs/zh-CN/sub-agents#supported-frontmatter-fields)。分割窗格队友会忽略该字段。需要 Claude Code v2.1.296 或更高版本。
 * **Body**：对于进程内队友，Claude Code 将定义的主体附加到其默认系统提示作为额外指示。对于分割窗格队友，Claude Code 使用主体代替其默认系统提示。
 * **`skills`**：Claude Code 在任一显示模式中都不将定义的 `skills` 应用于队友。队友从你的项目和用户设置加载 skills。
 * **`mcpServers`**：对于分割窗格队友，Claude Code 在 [该字段的规则](/docs/zh-CN/sub-agents#scope-mcp-servers-to-a-subagent) 下应用定义的 `mcpServers`，这些规则涵盖使用 `--agent` 启动的会话。进程内队友忽略该字段，从你的项目和用户设置加载 MCP servers。

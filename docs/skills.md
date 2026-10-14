@@ -183,6 +183,7 @@ Skill 文件夹还遵循以下规则：
 * **符号链接文件夹**：enterprise、personal 或 project 位置中的 `<skill-name>` 条目可以是指向磁盘上其他位置的目录的符号链接。Claude Code 从目标读取 `SKILL.md` 并加载 skill，即使多个位置指向同一目标也只加载一次。插件 skills [以不同方式处理符号链接](/docs/zh-CN/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks)。
 * **保留名称 `synced`**：不要将 skill 文件夹命名为 `synced`，无论大小写如何。Claude Code 使用 `~/.claude/skills/synced/` 来存放 [从 claude.ai 下载的 skills](#where-synced-skills-load)，并跳过您在 enterprise、personal 和 project 位置中以该名称创作的 skill。
 * **保留名称 `anthropic-skills`**：在插件外，名称为 `anthropic-skills` 或以 `anthropic-skills:` 开头的 skill 文件夹或命令文件不会加载。请参阅 [为同步 skills 保留的名称](#names-reserved-for-synced-skills)。
+* **名称中的字符**：在插件外，当 skill 文件夹的名称包含零宽空格或 `<` 等字符时，它不会加载。请参阅 [skill 名称不能包含的字符](#characters-a-skill-name-cant-hold)。
 * **命令文件**：`.claude/commands/` 中的 Markdown 文件是较旧的格式，仍然有效。它支持相同的 [frontmatter](#frontmatter-reference)，除了 `name` 和 `paths`。要找到您输入以调用它的名称，请参阅 [skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)。对于新工作，更倾向于使用 skill，因为 skills 还支持 [支持文件](#add-supporting-files)。
 * **Skill 文件夹作为插件**：将 `.claude-plugin/plugin.json` 添加到 skill 文件夹，它将作为 [插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository) 加载，名称为 `<name>@skills-dir`，因此它可以捆绑代理、hooks 和 MCP 服务器。在项目的 `.claude/skills/` 中，这需要首先接受工作区信任对话框。
 
@@ -494,6 +495,25 @@ Unexpected key(s) in SKILL.md frontmatter: argument-hint. Allowed properties are
 在[非交互式会话](/docs/zh-CN/headless)中，名称 `help` 和 `feedback` 不会为其仅限终端的内置命令保留，因此使用这两个名称之一的插件 skill 在此类会话中会保留其不带前缀的命令。其他所有仅限终端的内置命令的名称（例如 `/login`）仍会保留，即使该命令无法在此类会话中运行。
 
 对于插件根目录的 `SKILL.md`，没有可供获取名称的 skill 目录，因此由 `name` 提供整个最后一段。如果没有 `name` 字段，Claude Code 会回退到插件的目录名称。
+
+<h4 id="characters-a-skill-name-cant-hold">
+  skill 名称不能包含的字符
+</h4>
+
+如果某个 skill 或自定义命令没有出现在 `/` 菜单中，或者菜单未显示 skill 的 frontmatter `name`，请检查该名称。如果命令名称或 frontmatter `name` 包含以下这类字符，Claude Code 会拒绝该名称：
+
+* 零宽空格或控制字符
+* 私用区字符或未分配字符，例如图标字体中的字形
+* 会改变其周围文本方向的字符
+* 除单词之间的单个普通空格以外的空白，例如不间断空格、连续两个空格，或位于开头或结尾的空格
+* `<` 或 `>`
+
+当 Claude Code 拒绝自定义命令或 skill 的目录名或文件名时，该命令或 skill 不会加载。请重命名该文件夹或文件以移除这些字符。如果这些字符仅出现在插件 skill 文件夹的名称或其 frontmatter `name` 中，skill 仍会加载：
+
+* **插件 `skills/` 目录或其清单的 [`skills` 路径](/docs/zh-CN/plugins/components#skills)中的文件夹**：无需重命名该文件夹。这些字符在 skill 的命令名称中会变为连字符，因此输入命令时请使用连字符。
+* **Frontmatter `name`**：`/` 菜单不会显示该 `name` 值，输入它也无法调用该 skill。请编辑 `name:` 行以移除这些字符。
+
+要找出 Claude Code 拒绝了哪个名称，请在 shell 中使用 [`claude --debug`](/docs/zh-CN/cli-reference#cli-flags) 启动它，并在[调试日志](/docs/zh-CN/debug-your-config)中搜索 `[names]`。在交互式会话中，[启动通知](/docs/zh-CN/errors#skill-or-command-name-refused)也会告知您有名称被拒绝。重命名或编辑 `name:` 行后，请重新启动会话，除非该文件位于 Claude Code [监视更改](#live-change-detection)的目录中。
 
 <h4 id="available-string-substitutions">
   可用的字符串替换
@@ -1249,6 +1269,7 @@ if __name__ == '__main__':
 2. 验证 skill 是否出现在 `What skills are available?` 中
 3. 尝试重新表述你的请求以更接近描述
 4. 如果 skill 是用户可调用的，使用 `/skill-name` 直接调用它
+5. 如果 `/skill-name` 也无法被识别，请检查 Claude Code 是否[拒绝了该 skill 的名称](#characters-a-skill-name-cant-hold)
 
 如果 frontmatter YAML 格式不正确，Claude Code 会加载 skill 主体但元数据为空，所以 `/skill-name` 仍然有效，但 Claude 无法匹配你的 `description`。使用 `--debug` 运行以查看解析错误。
 

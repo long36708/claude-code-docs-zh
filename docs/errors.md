@@ -366,7 +366,9 @@
 | `Claude Code's fullscreen renderer didn't finish starting last time on this machine` / `Claude Code's fullscreen renderer has repeatedly failed to start on this machine` | [全屏渲染](/docs/zh-CN/fullscreen#fullscreen-renderer-didnt-finish-starting) |
 | `Claude Code exited after an unrecoverable interface error (...)` | [配置警告](#exited-after-an-unrecoverable-interface-error) |
 | `Agent descriptions are over the 15.0k-token limit` | [配置警告](#agent-descriptions-are-over-the-15000-token-limit) |
+| `hook needs quotes around a path with a space` | [配置警告](#hook-needs-quotes-around-a-path-with-a-space) |
 | `Not loaded: rename <path>, then restart — its name uses "<name>", a name reserved for the skills synced from your claude.ai account` | [配置警告](#a-skill-command-or-workflow-wasnt-loaded-because-its-name-is-reserved) |
+| `N skill or command names refused: run with --debug to see which ([names]), rename, then restart` | [配置警告](#skill-or-command-name-refused) |
 | `Ignoring N permissions.allow entries from ... this workspace has not been trusted` | [配置警告](#workspace-has-not-been-trusted) |
 | `is a network path, which cannot be added as a working directory` | [配置警告](#working-directory-is-a-network-path) |
 | `Remote managed settings failed to load (<cause>)` | [配置警告](#remote-managed-settings-failed-to-load) |
@@ -5481,6 +5483,22 @@ Agent descriptions are over the 15.0k-token limit (~16.2k tokens) · ask Claude 
 * 缩短您的 Agent 文件的 `description` frontmatter，或要求 Claude 为您修剪它们。
 * 删除您不再使用的 Agent 文件。
 
+<h3 id="hook-needs-quotes-around-a-path-with-a-space">
+  Hook needs quotes around a path with a space
+</h3>
+
+对话视图中的此通知表示某个 hook 的脚本未运行，因为其路径包含空格且未加引号。该 hook 是 shell 形式的 [`asyncRewake`](/docs/zh-CN/hooks#run-hooks-in-the-background) hook。在其 `command` 中，诸如 `python3` 的解释器后跟一个未加引号的路径占位符，而解析后的路径包含空格。
+
+通知以该 hook 的事件名称开头，并命名该脚本：
+
+```text theme={null}
+Stop hook needs quotes around a path with a space (check.py)
+```
+
+**要做什么：**
+
+* 在运行通知所命名脚本的 hook 的 `command` 中，用双引号将路径括起来。在 JSON 文件中，将其写为 `"command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/check.py\""`。
+
 <h3 id="a-skill-command-or-workflow-wasnt-loaded-because-its-name-is-reserved">
   skill、命令或工作流未被加载，因为其名称是保留的
 </h3>
@@ -5500,6 +5518,24 @@ Not loaded: rename .claude/skills/anthropic-skills, then restart — its name us
 * 重命名通知命名的项，或编辑它指向的 `name:` 行，然后重启会话。
 
 在 v2.1.282 之前，Claude Code 加载具有这些名称的 skill 和命令。
+
+<h3 id="skill-or-command-name-refused">
+  Skill or command name refused
+</h3>
+
+此启动通知表示 Claude Code 拒绝了至少一个 [skill 或自定义命令](/docs/zh-CN/skills)的名称，因此它未被加载，或在没有其 `name` 字段的情况下加载：
+
+```text theme={null}
+1 skill or command name refused: run with --debug to see which ([names]), rename, then restart — a name may not hold hidden, direction-changing or blank-like characters, < or >, or be over 256 characters
+```
+
+* **未加载**：Claude Code 拒绝了 skill 或命令所使用的名称，例如其目录名称，或命令文件的名称或子文件夹。它不会出现在 `/` 菜单中，Claude 也无法调用它。它在调试日志中的行显示为 `<name> is not offered`。
+* **`name` 字段被忽略**：Claude Code 拒绝了 skill 的 frontmatter `name`。该 skill 仍会加载，但 `/` 菜单不显示该 `name` 值，输入它也不会调用该 skill。它在调试日志中的行显示为 `<name value> is not shown for <skill>`。
+
+**要做什么：**
+
+* 从 shell 使用 `claude --debug` 启动 Claude Code，并在[调试日志](/docs/zh-CN/debug-your-config)中搜索 `[names]`。通知计数的每个名称在其中都有一行。该行会将某些隐藏字符写成代码，例如用 `\u{200B}` 表示零宽空格，以便您看到它们的位置。
+* 通过重命名文件夹或文件或编辑 `name:` 行来删除 [skill 名称不能包含的字符](/docs/zh-CN/skills#characters-a-skill-name-cant-hold)，或缩短超过 256 个字符的名称。然后重启会话，除非该文件位于 Claude Code [监视更改](/docs/zh-CN/skills#live-change-detection)的目录中。对于来自非您编写的插件的 skill，请要求插件作者重命名它。
 
 <h3 id="workspace-has-not-been-trusted">
   工作区尚未被信任

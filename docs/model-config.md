@@ -867,6 +867,7 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些套餐要求。�
 * **对于所有模型**：在设置文件中设置 [`autoCompactWindow`](/docs/zh-CN/settings-reference#autocompactwindow)，例如在 `~/.claude/settings.json` 中设置 `"autoCompactWindow": 200000`。对于某个模型，您使用 `/autocompact` 为该模型保存的窗口优先于同一文件中的此键。
 * **对于一次启动**：启动 Claude Code 时传递 [`--autocompact`](/docs/zh-CN/cli-reference#cli-flags)。该标志会为该次启动覆盖您保存的设置，而不会更改它，`claude --autocompact auto` 会以调整的窗口运行会话，即使您保存的设置有一个值。与 `/autocompact` 不同，该标志不会被更高优先级的设置作用域（例如托管设置）抢占。
 * **在脚本和云环境中**：设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars)。设置后，它优先于命令、标志和设置，`/autocompact` 会报告该覆盖而不是更改窗口。
+* **对于单个子代理**：请参阅[为单个子代理设置自动压缩窗口](/docs/zh-CN/sub-agents#subagent-auto-compact-window)。
 
 命令和标志接受 100K 到 1M token 的窗口大小，采用以下任何形式：
 

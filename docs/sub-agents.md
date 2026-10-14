@@ -234,7 +234,7 @@ Plugin `agents/` 目录也会被递归扫描。与项目和用户范围不同，
 JSON 中的每个顶级键是代理的名称，其值是该代理的定义。不要以 `-` 开头的名称。定义采用这些字段：
 
 * **`prompt`**：代理的系统提示，等同于基于文件的 subagents 中的 markdown 正文。`prompt` 可能为空。如果您选择一个具有空 `prompt` 且没有 `memory` 字段的代理作为会话的代理，使用 `--agent`，会话的系统提示保持不变。空 `prompt` 需要 Claude Code v2.1.281 或更高版本。
-* **[Frontmatter 字段](#supported-frontmatter-fields)**：`description`、`tools`、`disallowedTools`、`model`、`permissionMode`、`mcpServers`、`hooks`、`maxTurns`、`skills`、`initialPrompt`、`memory`、`effort`、`background`、`omitClaudeMd` 和 `isolation`。
+* **[Frontmatter 字段](#supported-frontmatter-fields)**：`description`、`tools`、`disallowedTools`、`model`、`permissionMode`、`mcpServers`、`hooks`、`maxTurns`、`autoCompactWindow`、`skills`、`initialPrompt`、`memory`、`effort`、`background`、`omitClaudeMd` 和 `isolation`。
 * **忽略的字段**：`color` 和 `experimental` 在此处不被接受，被忽略而不是拒绝。
 
 有关 Claude Code 对无法加载的值的处理，以及跳过该检查的标志和环境变量，请参阅 [`Invalid --agents configuration`](/docs/zh-CN/errors#invalid-agents-configuration)。
@@ -306,7 +306,10 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 
 配置一个 subagent 时，使用 YAML [frontmatter](/docs/zh-CN/glossary#frontmatter) 在其文件顶部的 `---` 标记之间，并在关闭 `---` 后将其系统提示写为 Markdown。只有 `name` 和 `description` 是必需的。
 
-多字段名称使用 camelCase，例如 `maxTurns` 和 `disallowedTools`，必须与表格完全匹配：Claude Code 忽略它不识别的字段而不报告错误。要找出为什么 subagent 文件没有加载，请参阅 [Subagent files Claude Code skips](#subagent-files-claude-code-skips)。
+多词字段名称使用 camelCase，例如 `maxTurns` 和 `disallowedTools`，并且必须与表格完全一致：Claude Code 会忽略它不识别的字段，且不报告错误。
+
+* 要在已加载的子代理中查找拼写错误的字段，请在 shell 中运行 [`claude --debug`](/docs/zh-CN/cli-reference#cli-flags)，并在 `~/.claude/debug/<session-id>.txt` 的调试日志中搜索 `does not recognize or apply`。调试日志会列出子代理文件中 Claude Code 不识别的最多五个顶级字段，并在存在相近的受支持字段时给出可能想要的名称。需要 Claude Code v2.1.296 或更高版本。
+* 要了解子代理文件为何未加载，请参阅[Claude Code 跳过的子代理文件](#subagent-files-claude-code-skips)。
 
 | Field | 必需 | Description |
 | :- | :- | :- |
@@ -317,6 +320,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 | `model` | 否 | [Model](#choose-a-model) 使用：`sonnet`、`opus`、`haiku`、`fable`、完整模型 ID（例如，`claude-opus-5-5`）或 `inherit`。当您省略它时，Claude Code 在 [subagent model order](#choose-a-model) 中选择模型 |
 | `permissionMode` | 否 | [权限模式](#permission-modes)：`default`、`acceptEdits`、`auto`、`dontAsk`、`bypassPermissions`、`plan`，或作为 `default` 别名的 `manual`。对[插件子代理](#choose-the-subagent-scope)会被忽略 |
 | `maxTurns` | 否 | subagent 停止前的最大代理轮数。当 subagent 达到限制时，Claude Code 返回其输出标记为部分，Claude 可以 [resume it](#resume-subagents) 继续。部分标记需要 Claude Code v2.1.246 或更高版本 |
+| `autoCompactWindow` | 否 | 将此子代理的[自动压缩窗口](#subagent-auto-compact-window)降低到 `100000` 至 `1000000` 之间的 token 数。需要 Claude Code v2.1.296 或更高版本 |
 | `skills` | 否 | [Skills](/docs/zh-CN/skills) 在启动时预加载到 subagent 的上下文中。注入完整的技能内容，而不仅仅是描述。Subagents 仍然可以通过 Skill 工具调用未列出的项目、用户和 plugin 技能 |
 | `mcpServers` | 否 | [MCP servers](/docs/zh-CN/mcp) 对此 subagent 可用。每个条目要么是引用已配置服务器的服务器名称（例如，`"slack"`），要么是内联定义，其中服务器名称为键，完整的 [MCP server config](/docs/zh-CN/mcp#installing-mcp-servers) 为值。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略 |
 | `hooks` | 否 | [Lifecycle hooks](#define-hooks-for-subagents) 限定于此 subagent。对于 [plugin subagents](#choose-the-subagent-scope) 被忽略 |
@@ -461,7 +465,7 @@ Subagents 继承主对话中可用的 [built-in tools](/docs/zh-CN/tools-referen
 * `WaitForMcpServers`
 * `Workflow`
 
-第二个过滤器适用于在后台运行的 subagents。除了 `Agent` 和 `ExitPlanMode`，它们遵循第一个过滤器的条件，无论 subagent 在哪里运行，后台 subagent 保留每个 MCP 工具但仅这些内置工具：`Read`、`Grep`、`Glob`、`LSP`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage` 和 `Artifact`，加上 [`SubagentHandback`](/docs/zh-CN/tools-reference) 用于通过它报告的 subagent。Claude Code 从后台 subagent 删除每个其他内置工具，无论继承还是在 `tools` 字段中列出，因此相同的定义可以在前台和后台解析为不同的工具。删除报告没有错误，除非它使 `tools` 列表 [resolving to nothing](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools)。
+第二个过滤器适用于在后台运行的 subagents。`Agent` 和 `ExitPlanMode` 无论 subagent 在哪里运行都遵循第一个过滤器的条件。除这两个工具外，后台 subagent 保留每个 MCP 工具，但内置工具仅保留这些：`Read`、`Grep`、`Glob`、`LSP`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage` 和 `Artifact`，加上 [`SubagentHandback`](/docs/zh-CN/tools-reference) 用于通过它报告的 subagent。Claude Code 从后台 subagent 删除每个其他内置工具，无论继承还是在 `tools` 字段中列出，因此相同的定义可以在前台和后台解析为不同的工具。删除不会报告错误，除非它使 `tools` 列表[解析为空](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools)。
 
 在 v2.1.280 之前，后台 subagents 无法使用 `LSP`。
 
@@ -1230,6 +1234,31 @@ Continue that code review and now analyze the authorization logic
 ```
 
 `preTokens` 值表示压缩发生前已使用的 token 数量。
+
+<a id="subagent-auto-compact-window" />
+
+<h5 id="set-the-auto-compact-window-for-one-subagent">
+  为单个子代理设置自动压缩窗口
+</h5>
+
+要让某个子代理比原本更早压缩，请在其 [frontmatter](#supported-frontmatter-fields) 中将 `autoCompactWindow` 设置为 `100000` 到 `1000000` 之间的 token 数。如果您将 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars#variables) 设置为正整数，子代理会改用该变量的窗口，此字段不起作用。需要 Claude Code v2.1.296 或更高版本。
+
+以下 frontmatter 为一个读取长日志文件的子代理将 `autoCompactWindow` 设置为 200,000 token：
+
+```yaml theme={null}
+---
+name: log-reader
+description: Reads long log files and reports the errors it finds
+autoCompactWindow: 200000
+---
+```
+
+请将该值写为 `200000` 这样的纯整数，因为在 frontmatter 中 Claude Code 会将 `200k` 读作 200，超出了允许范围。此时子代理仍会照常加载和压缩，就像该字段不存在一样。要检查 Claude Code 是否忽略了您的值，请在 shell 中运行 `claude --debug`，并在[调试日志](#supported-frontmatter-fields)中搜索 `invalid autoCompactWindow`。
+
+如果该值在范围内但您仍未看到任何变化，请检查以下原因：
+
+* **该值不低于子代理原本会继承的[自动压缩窗口](/docs/zh-CN/model-config#context-window-and-auto-compaction)**：要更早压缩，请设置低于该窗口的值。
+* **您通过 `--agent` 或 `agent` 设置以此子代理身份运行整个会话**：此时该字段不起作用。要设置会话的窗口，请参阅[设置自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)。
 
 <h2 id="fork-the-current-conversation">
   分叉当前对话
