@@ -146,7 +146,7 @@ The runner serves `GET /healthz` on the configured health port. The response is 
 
 Use `last_poll_age_ms` as a liveness signal in custom probes; a value that grows unbounded indicates the poll loop is stuck. Both `last_poll_at` and `last_poll_age_ms` are `null` until the first poll completes.
 
-The orchestrator serves its own `/healthz` on its health port. Its endpoint always returns `200`, and the body carries a `connected` field reporting whether the most recent poll succeeded, plus per-state spawn-queue counts in `queue_counts`. Gate readiness and alerting on `connected` rather than the status code.
+The orchestrator's own `/healthz`, on its health port, always returns `200`. The body carries a `connected` field reporting whether the most recent poll succeeded, plus per-state spawn-queue counts in `queue_counts`. To see why `connected` is `false`, read the top-level `last_error` field, which each successful poll resets to `null`. Gate readiness and alerting on `connected` rather than the status code.
 
 When the [SCM connector](#scm-connector-flags) is configured, the orchestrator's `/healthz` body also carries `scm_connector_connected` and a `scm_connector` object with `connected`, `last_connected_at`, `last_error`, `reconnects`, and `requests_forwarded`. Both fields are `null` when `--scm-connector-host` isn't set.
 

@@ -48,12 +48,15 @@ The wrapper also inherits the rest of the child's managed environment, including
 
 ### Give a default to variables that can be unset
 
-`CCR_SESSION_ACCOUNT_EMAIL`, `CLAUDE_RUNNER_CLIENT_PLATFORM`, `CLAUDE_CODE_REMOTE_SLACK_THREAD_URL`, and `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` can each be unset. If your script uses `set -u`, Bash stops with `unbound variable` when it expands one that's unset, so expand them with a default, such as `${CCR_SESSION_ACCOUNT_EMAIL:-}`.
+`CCR_SESSION_ACCOUNT_EMAIL`, `CLAUDE_RUNNER_CLIENT_PLATFORM`, `CLAUDE_CODE_REMOTE_SLACK_THREAD_URL`, and `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` can each be unset. If your script uses `set -u`, Bash stops with `unbound variable` when it expands one that's unset, so expand them with a default, such as `"${CCR_SESSION_ACCOUNT_EMAIL:-}"`.
 
-Wherever a shell expands the Slack thread link, take these precautions:
+### Quote the arguments and variables your script expands
 
-* **Quote it**: the link can contain characters a shell acts on, such as `?` and `&`, so quote the variable, as in `"${CLAUDE_CODE_REMOTE_SLACK_THREAD_URL:-}"`.
-* **Keep its value out of `eval` and `sh -c` strings**: don't substitute its value into a string that `eval` or `sh -c` runs, even inside quotes. Have that string reference the variable instead.
+Quote every argument and variable that the runner passes to your wrapper or [`command` hook](#command). Some values contain characters a shell acts on, because they hold JSON, whole sentences, or a [permission rule](/docs/en/permissions#permission-rule-syntax) such as `Bash(npm run test *)`.
+
+* **Arguments**: pass them on as `"$@"`
+* **Variables**: quote each one, as in `"${CLAUDE_CODE_REMOTE_SLACK_THREAD_URL:-}"`. The Slack thread link, for example, can contain `?` and `&`.
+* **`eval` and `sh -c` strings**: don't substitute a value into a string that `eval` or `sh -c` runs, even inside quotes. Have that string reference the variable instead.
 
 ### Keep stdin and file descriptor 3 attached
 
@@ -123,7 +126,7 @@ Runs once per repository, in place of the runner's built-in clone and fetch. Use
 | `CLAUDE_RUNNER_SESSION_ID` | Session ID in the tagged `session_...` form, for logging and correlation |
 | `CLAUDE_RUNNER_SESSION_UUID` | The same session ID in canonical UUID form |
 | `CLAUDE_RUNNER_API_BASE_URL` | Anthropic API base URL for session-scoped calls |
-| `CLAUDE_RUNNER_CLIENT_PLATFORM` | The client surface that created the session, such as `web_claude_ai`, `desktop_app`, or `ios`. Unset when the session has no recorded or recognized surface, so reference it as `${CLAUDE_RUNNER_CLIENT_PLATFORM:-}` under `set -u`. Requires Claude Code v2.1.229 or later. |
+| `CLAUDE_RUNNER_CLIENT_PLATFORM` | The client surface that created the session, such as `web_claude_ai`, `desktop_app`, or `ios`. Unset when the session has no recorded or recognized surface, so reference it as `"${CLAUDE_RUNNER_CLIENT_PLATFORM:-}"` under `set -u`. Requires Claude Code v2.1.229 or later. |
 | `CLAUDE_CODE_SESSION_ACCESS_TOKEN` | The session access token, for session-scoped API calls |
 | `GIT_CONFIG_COUNT`, `GIT_CONFIG_KEY_n`, `GIT_CONFIG_VALUE_n` | Git settings the runner fixes for the git your hook runs. [Git configuration inside lifecycle hooks](#git-configuration-inside-lifecycle-hooks) describes them. Requires Claude Code v2.1.280 or later. |
 
@@ -142,7 +145,7 @@ The runner doesn't pass a git credential to the hook. The `decode-token` subcomm
 
 The hook fails when it exits non-zero, or exits 0 without leaving a usable checkout behind:
 
-* **A repository the session pushes results to**: the runner fails the session, and on a non-zero exit surfaces the tail of the script's stderr to the user.
+* **A repository the session pushes results to**: the runner fails the session, and on a non-zero exit surfaces the tail of the script's stderr to the user. Write the reason to stderr as one short line, write it last, and then exit non-zero. Don't print secrets to stderr, and remove `set -x` before you deploy the hook.
 * **A repository the session only reads from**, such as a repository added to a running session: the runner logs a `[runner:warn]` line with the failure detail, posts a `Skipped` step to the session, removes whatever the hook left at the checkout path, and continues with the remaining repositories. If skipping leaves the session with no repository at all, the runner fails the session anyway.
 
 When the hook succeeds, the runner removes the checkout path after the session ends.
@@ -161,7 +164,7 @@ The hook fires on every session end where a child process was spawned, whatever 
 | `CLAUDE_RUNNER_WORKSPACE_PATHS` | Colon-separated absolute paths of the session's working trees. Empty for zero-repo sessions. |
 | `CLAUDE_RUNNER_DEBUG_LOG_PATH` | Path to the session's debug log, still on disk while the hook runs |
 | `CLAUDE_RUNNER_API_BASE_URL` | Anthropic API base URL for session-scoped calls |
-| `CLAUDE_RUNNER_CLIENT_PLATFORM` | The client surface that created the session, such as `web_claude_ai`, `desktop_app`, or `ios`. Unset when the session has no recorded or recognized surface, so reference it as `${CLAUDE_RUNNER_CLIENT_PLATFORM:-}` under `set -u`. Requires Claude Code v2.1.229 or later. |
+| `CLAUDE_RUNNER_CLIENT_PLATFORM` | The client surface that created the session, such as `web_claude_ai`, `desktop_app`, or `ios`. Unset when the session has no recorded or recognized surface, so reference it as `"${CLAUDE_RUNNER_CLIENT_PLATFORM:-}"` under `set -u`. Requires Claude Code v2.1.229 or later. |
 | `CLAUDE_CODE_SESSION_ACCESS_TOKEN` | The session access token, for session-scoped API calls |
 | `GIT_CONFIG_COUNT`, `GIT_CONFIG_KEY_n`, `GIT_CONFIG_VALUE_n` | Git settings the runner fixes for the git your hook runs. [Git configuration inside lifecycle hooks](#git-configuration-inside-lifecycle-hooks) describes them. Requires Claude Code v2.1.280 or later. |
 
@@ -300,7 +303,7 @@ The contract has four rules, whichever platform your hook provisions on:
 3. **Use the exit-code contract.** Exit with the status that matches the outcome:
 
    * **Exit 0**: submitted.
-   * **Exit 1**: retryable failure. The session backs off and is re-offered.
+   * **Exit 1, or still running when `--hook-timeout` ends**: retryable failure. The session backs off and is re-offered.
    * **Exit 2 or higher**: non-retryable failure. The session is blocked from spawning again until a user sends it a new message or an [Owner](/docs/en/cloud-environments#organization-shared-environments) selects **Retry** on it in the environment's **Activity** tab.
 
    On non-zero exit, the tail of the hook's stderr appears in the **Activity** tab as the failure reason, so write the actionable error to stderr and never write secrets there. In a shell hook, [keep transient failures retryable](#keep-transient-failures-retryable-in-a-shell-hook).
@@ -311,6 +314,18 @@ The contract has four rules, whichever platform your hook provisions on:
 Everything the hook writes to stdout or stderr appears in the orchestrator's log with credentials automatically redacted. If sessions stay queued, check the orchestrator's `/healthz` body for queue counts, then open your environment's **Activity** tab on the [**Cloud environments** admin page](https://claude.ai/admin-settings/cloud-environments): expand a failed session there for its spawn error, and select **Retry** to re-request it.
 
 A session that stays queued with no spawn error in the **Activity** tab can mean the hook is keyed on the session ID. To confirm, check whether your platform has a workload for that session's first spawn request and none for the re-requests. If so, key the workload on `CLAUDE_RUNNER_ORDER_ID` instead.
+
+#### Make on-demand runners exit when idle
+
+By default, a runner your hook starts doesn't exit when its session's turn finishes, so the workload you submitted keeps running. To make runners exit, have your hook pass these [runner flags](/docs/en/self-hosted-environments-reference#runner-cli-flags):
+
+| Flag, with an example value | Pass it to | What it does |
+| :- | :- | :- |
+| `--release-idle-session-min 30` | Every runner your hook starts | The runner releases its session after that many idle minutes and then exits 0. The session resumes when its user sends their next message, but [work it hadn't pushed is gone](/docs/en/self-hosted-environments-deploy#additional-limitations). |
+| `--kill-session-after-min 480` | Every runner your hook starts | Limits each session to that many minutes, as a backstop for [sessions that don't count as idle](/docs/en/self-hosted-environments-deploy#some-sessions-don’t-count-as-idle), so set it above your longest expected session |
+| `--exit-if-unused-min 60` | Standby runners, which your hook starts for pre-warming requests | A standby that never takes a session exits after that many minutes. If you set [`--min-idle`](/docs/en/self-hosted-environments-reference#orchestrator-cli-flags), you get a replacement unless the standby was surplus, so use a value well above your boot time. |
+
+Remove the workload when the runner exits, for example by setting `ttlSecondsAfterFinished` on a Kubernetes Job or by having the VM's start script delete the VM afterwards.
 
 #### Keep transient failures retryable in a shell hook
 
