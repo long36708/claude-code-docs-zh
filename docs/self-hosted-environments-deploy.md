@@ -182,7 +182,7 @@ RUN git config --system user.name "Claude" && \
 * 返回最小范围令牌的 `credential.helper`
 * `GIT_SSH_COMMAND` 指向狭义范围的密钥
 
-您配置的任何机制都必须无需提示即可工作，因为运行器的内置克隆和获取禁用 git、SSH 和 Git Credential Manager 否则会显示的提示：
+<span id="git-must-work-without-a-prompt" />您配置的任何机制都必须无需提示即可工作，因为运行器的内置克隆和获取禁用 git、SSH 和 Git Credential Manager 否则会显示的提示：
 
 * 运行器设置 `GIT_TERMINAL_PROMPT=0`，所以 git 不要求用户名或密码。
 * 运行器使用 `BatchMode=yes` 运行 SSH，如果您设置了一个，则附加到您的 `GIT_SSH_COMMAND`，所以 SSH 不要求密码短语或主机确认。
@@ -212,10 +212,10 @@ RUN git config --system --add safe.directory '*'
 * **仅限 github.com**：只有当会话的所有仓库都在 github.com 上时，Anthropic 才会为其提供服务，并且 git 代理尚不支持 GitHub Enterprise Server。在启用 git 代理的运行器上，包含其他 git 主机上仓库的会话[无法启动](#when-anthropic-doesnt-serve-a-session)。
 * **仅限会话仓库的凭据**：Anthropic 只为属于会话的仓库提供 git 凭据，而不为同一 git 主机上的其他仓库提供。私有子模块、包管理器通过 git 获取的依赖，或位于另一个仓库中的插件市场，都不会从 Anthropic 获得凭据。请让创建会话的人员在创建会话时[添加会话所需的每个仓库](/docs/zh-CN/web-quickstart#start-a-task)。
 * **仅限分支推送**：删除分支的推送会失败，推送到任何其他类型的引用（例如标签）也会失败。有关推送可以更新哪些分支，请参阅 [GitHub 代理](/docs/zh-CN/cloud-environments#github-proxy)。
-* **已连接的 GitHub 账户**：创建用户会话的人必须已在 claude.ai 上连接 GitHub，否则会话[无法启动](#creator-has-no-github-connection)。
+* **已连接的 GitHub 账户**：请让每个使用仓库创建用户会话的人[连接 GitHub](/docs/zh-CN/web-quickstart#connect-github)。如果他们没有自己的连接，这些会话[无法启动](#creator-has-no-github-connection)。
 * **`--capacity 1`**：git 代理要求每个运行器进程只有一个会话，因此请运行更多副本以获得并行性。[启用 Anthropic git 代理](#turn-the-anthropic-git-proxy-on)列出了各项要求。
 * **替换全局 git 配置**：运行器会[删除并替换其运行用户的全局 git 配置](#git-proxy-replaces-global-git-config)。请以专用用户身份或在容器中运行它。
-* **主机推送使用主机凭据**：运行器的 [`--push-outcome-on-release`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 推送以及您的 [`post-session` 钩子](/docs/zh-CN/self-hosted-environments-configuration#post-session)进行的任何推送，仍使用运行器主机自身的 git 凭据及其[到 `github.com` 的网络路径](#github-com-egress-with-the-anthropic-git-proxy)。有关这些凭据，请参阅[在镜像中提供 git 配置](#ship-git-config-in-your-image)。
+* **主机推送使用主机凭据**：运行器的 [`--push-outcome-on-release`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 推送以及您的 [`post-session` 钩子](/docs/zh-CN/self-hosted-environments-configuration#post-session)进行的任何推送，仍使用运行器主机自身的 git 凭据及其[到 `github.com` 的网络路径](#github-com-egress-with-the-anthropic-git-proxy)。请将这些凭据置于[全局 git 配置](#git-proxy-replaces-global-git-config)之外，并参阅[在镜像中提供 git 配置](#ship-git-config-in-your-image)了解提供这些凭据的方法。
 * **按会话决定**：Anthropic 会针对运行器上的每个会话决定是否为其提供 git 服务，未获服务的会话将无法启动。[在启用 git 代理的运行器上会话无法启动时](#when-anthropic-doesnt-serve-a-session)介绍了原因。
 
 <span id="git-proxy-replaces-global-git-config" />
@@ -356,7 +356,7 @@ gh api repos/{owner}/{repo}/pulls -f title='Fix' -f head='my-branch' -f base='ma
 仓库 URL 从控制平面作为 HTTPS 到达，带有您的 git 主机的主机名；对于 GitHub Enterprise，这是您在 claude.ai 上为 [GitHub Enterprise 集成](/docs/zh-CN/github-enterprise-server)配置的主机名。两个可重复的标志在克隆之前重写这些 URL：
 
 * `--git-host-rewrite <from>=<to>`：对于分割视界 DNS，其中 Anthropic 通过外部主机名到达您的 git 主机，但运行器必须使用内部主机名
-* `--git-ssh-rewrite <host>`：对于仅接受 SSH 的 git 主机，将 `https://<host>/owner/repo` 重写为 `git@<host>:owner/repo`
+* `--git-ssh-rewrite <host>`：适用于仅接受 SSH 的 git 主机，或仅有 SSH 密钥的运行器主机。例如，要通过 SSH 克隆 github.com 仓库，请将 `--git-ssh-rewrite github.com` 添加到运行器命令中。运行器随后会将 `https://github.com/owner/repo` 重写为 `git@github.com:owner/repo`。SSH 必须[无需提示即可连接](#git-must-work-without-a-prompt)。
 
 主机重写首先运行，因此如果您需要两者，请在 `--git-ssh-rewrite` 中列出内部主机名。为了完全控制检出，使用 [`checkout` 生命周期钩子](/docs/zh-CN/self-hosted-environments-configuration#checkout)。
 
@@ -578,7 +578,7 @@ secrets:
 
 给您的主机停止超时至少三个部分的总和：您配置的 `n` 分钟、发布后宽限期和 [Shutdown timing](#shutdown-timing) 描述的排空。使用默认设置，发布后宽限期为 75 秒，排空最多需要 80 秒，因此允许 `n` 分钟加 155 秒。当设置 `--defer-shutdown-max-min` 时，运行器在启动时打印此总和。
 
-如果停止超时在运行器完成前用完，主机会杀死运行器。它仍然持有的会话不会获得 `post-session` hook。运行器不会注销，控制平面会在几分钟内重新排队这些会话。如果您无法给停止超时该总和，请不设置 `--defer-shutdown-max-min`，以便运行器在第一个信号上排空。
+如果停止超时时间在运行器完成之前用完，它仍持有的会话将不会运行 `post-session` hook。运行器不会注销，因此控制平面可能需要几分钟甚至更长时间才能重新排队这些会话。如果您无法为停止超时时间预留这一总和，请不要设置 `--defer-shutdown-max-min`，让运行器在收到第一个信号时就进行排空。
 
 <h3 id="what-reaches-a-running-post-session-hook">
   什么到达运行的 post-session 钩子
@@ -720,6 +720,12 @@ claude self-hosted-runner doctor
 
 * **运行器未出现在环境中**：确认主机可以通过 HTTPS 到达 `api.anthropic.com`，环境密钥是最新的，并且主机时钟与实际时间相差在五分钟以内；更大的时间偏差会导致身份验证失败。运行器在身份验证失败时会记录 `[runner:fatal]` 和拒绝原因。
 * **运行器在启动时退出，显示 `cannot create or write to base directory`**：运行器无法创建或写入 `--base-dir`，其默认值为 `/workspace`。修复目录的所有权或将 `--base-dir` 指向可写路径，如 [保持基础目录和容量在运行器之间相同](#keep-the-base-directory-and-capacity-identical-across-runners) 中所述。如果运行器改为记录 `[runner:fatal]` 说基础目录检查超时，则该目录位于挂起的 NFS 或 CSI 挂载上。检查挂载健康状况而不是权限。运行器在打开 `--log-file` 之前将这两个启动失败打印到 stderr，因此请在终端或您的平台的容器日志中查找它们，而不是日志文件。在 v2.1.225 之前，运行器在启动时不检查基础目录，此错误配置在拾取后失败会话。
+* **运行器在启动时退出，显示 `RegisterRunner failed:` 和 TLS 证书错误**：例如，错误可能是 `self signed certificate in certificate chain`。运行器不信任其收到的证书背后的证书颁发机构（CA），在执行 TLS 检查的代理之后就会发生这种情况。在运行器的环境中将 [`NODE_EXTRA_CA_CERTS`](/docs/zh-CN/network-config#custom-ca-certificates) 设置为包含代理根 CA 的 PEM 文件。
+
+  您无需再为会话设置它，会话会继承它。Git 不读取它：对于通过该代理进行的克隆，还需设置 [`GIT_SSL_CAINFO`](#trust-a-private-certificate-authority-with-anthropic-managed-git)。
+* **编排器记录带有 TLS 证书错误的 `poll failed:` 并不断重试**：编排器不信任其收到的证书背后的 CA，在执行 TLS 检查的代理之后就会发生这种情况。在编排器的环境中将 [`NODE_EXTRA_CA_CERTS`](/docs/zh-CN/network-config#custom-ca-certificates) 设置为包含代理根 CA 的 PEM 文件。同时也为您的 `spawn-runner` hook 启动的运行器设置它。
+
+  例如，一行可能以 `poll failed: self signed certificate in certificate chain — retrying in 1s` 结尾，冒号和破折号之间是 TLS 库给出的文字。要确认修复，请检查编排器的 [`/healthz`](/docs/zh-CN/self-hosted-environments-reference#health-endpoint) 正文中 `connected` 是否为 `true`。
 * **会话保持排队**：每个在线运行器可能被锁定到不同的所有者。检查每个运行器的 `claude_code_self_hosted_runner_locked_account` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 或其 `[runner:health]` 日志行的 `locked_account` 字段，以查看谁持有它。两者仅在运行器被颁发携带 `act.email` 声明的会话令牌后才显示所有者的电子邮件，Claude Tag 代理的会话永远不会这样做。没有该声明，运行器不发出 `locked_account` 系列，并记录 `locked_account=yes`，这告诉您运行器被锁定但不知道是哪个所有者。添加副本，或等待现有运行器耗尽并重新启动。如果环境使用按需运行器，请改为检查编排器；请参阅 [按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)。
 * **会话在拾取后立即失败**：在 claude.ai/code 中打开会话以查看错误。最常见的原因是运行器镜像中缺少 [git 凭据](#configure-git) 和未安装的构建工具。对于使用 `--use-anthropic-git-proxy` 启动的运行器，请参阅 [当会话在使用 git 代理的运行器上无法启动时](#when-anthropic-doesnt-serve-a-session)。不可写的基础目录会在启动时停止运行器，而不是失败会话。请参阅此列表中的 **运行器在启动时退出，显示 `cannot create or write to base directory`** 条目。
 * **在设置了 `--use-anthropic-git-proxy` 的运行器上会话无法启动**：在运行器的日志中查找 `access denied by the git proxy`，或查找指明包含 `/git_proxy/` 的 `api.anthropic.com` 地址的 git 错误。要判断 Anthropic 是否提供了该会话并修复原因，请参阅 [当会话在使用 git 代理的运行器上无法启动时](#when-anthropic-doesnt-serve-a-session)。
@@ -741,7 +747,7 @@ claude self-hosted-runner doctor
   在 v2.1.274 之前，运行器在几次尝试后停止重试失败的获取，并等待下一个计划的获取。失败的轮次不会触发获取，因此每个轮次都会失败，显示 401，直到下一个计划的获取。
 * **Pod 在耗尽中途被杀死**：将 `terminationGracePeriodSeconds` 提高到至少运行器在启动时记录的值。请参阅 [关闭时序](#shutdown-timing)。
 
-初始化日志后，运行器将其生命周期日志（包括 `[runner:fatal]` 行）写入 stdout，将调试输出写入 stderr，全部作为纯文本行而不是 JSON。上述故障排除条目中描述的启动失败在该点之前打印到 stderr。使用 `--log-file` 捕获两个流，这也让 `self-hosted-runner doctor` 能够跟踪它们，或使用您的平台的日志收集。
+初始化日志后，运行器将其生命周期日志（包括 `[runner:fatal]` 行）写入 stdout，将调试输出写入 stderr，全部作为纯文本行而不是 JSON。上述故障排除条目中描述的基础目录失败在该点之前打印到 stderr。使用 `--log-file` 捕获两个流，这也让 `self-hosted-runner doctor` 能够跟踪它们，或使用您的平台的日志收集。
 
 每个会话的子进程写入单独的调试日志。失败时，运行器在 claude.ai/code 中将日志的尾部与会话一起显示。除非您使用 [`--remove-session-state`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动了运行器，否则它也会在磁盘上保留失败会话的日志，并在运行器日志中打印其路径。
 

@@ -804,7 +804,7 @@ claude mcp add --transport http github https://api.githubcopilot.com/mcp/ \
   --header "Authorization: Bearer YOUR_GITHUB_PAT"
 ```
 
-将 `YOUR_GITHUB_PAT` 替换为您的个人访问令牌。`claude mcp add` 命令保存配置而不验证凭据，因此此处接受占位符值，但服务器稍后无法连接。要验证连接，请运行 `/mcp` 并检查服务器是否显示 `connected`。具有错误凭据的服务器显示 `failed`，失败详情包括服务器返回的 HTTP 状态，例如 401。
+将 `YOUR_GITHUB_PAT` 替换为您的个人访问令牌。`claude mcp add` 命令保存配置而不验证凭据，因此此处接受占位符值，但服务器稍后无法连接。要验证连接，请运行 `/mcp` 并检查该服务器所在行是否显示对勾。具有错误凭据的服务器会改为显示 ✘，其[失败详情](#server-status-detail)包括服务器返回的 HTTP 状态，例如 401。
 
 然后使用 GitHub：
 
@@ -831,7 +831,7 @@ claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
   --dsn "postgresql://readonly:pass@prod.db.com:5432/analytics"
 ```
 
-要确认服务器启动，请运行 `/mcp` 并检查 `db` 是否显示 `connected`。
+要确认服务器启动，请运行 `/mcp` 并检查 `db` 所在行是否显示对勾。
 
 然后自然地查询您的数据库：
 
@@ -840,7 +840,7 @@ claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
 ```
 
 ```text wrap theme={null}
-显示订单表的架构
+显示订单表的 schema
 ```
 
 ```text wrap theme={null}

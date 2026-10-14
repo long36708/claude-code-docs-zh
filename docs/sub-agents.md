@@ -918,7 +918,7 @@ Have the code-reviewer subagent look at my recent changes
 claude --agent code-reviewer
 ```
 
-除非该 Agent 的[提示词为空](#choose-the-subagent-scope)，否则自定义子代理的系统提示词会完全替换默认的 Claude Code 系统提示词，效果与 [`--system-prompt`](/docs/zh-CN/cli-reference) 相同。`CLAUDE.md` 文件和项目记忆仍会通过正常的消息流加载，即使该 Agent 的定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 也是如此。
+除非该 Agent 的[提示词为空](#choose-the-subagent-scope)，否则自定义子代理的系统提示词会完全替换默认的 Claude Code 系统提示词，效果与 [`--system-prompt`](/docs/zh-CN/cli-reference) 相同。`CLAUDE.md` 文件和项目记忆仍会通过正常的消息流加载，即使该 Agent 的定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 也是如此。如果您使用 `-p` 以拥有自身提示词的自定义 Agent 身份运行会话，该会话启动时也不会包含 [Git 状态快照](/docs/zh-CN/settings-reference#includegitinstructions)。
 
 Agent 名称会以 `@<name>` 的形式显示在启动标题中，方便您确认其已生效。
 

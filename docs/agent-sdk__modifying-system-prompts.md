@@ -424,7 +424,7 @@ SDK 从数组中组装块如下：
   Claude Code 在系统提示之外添加的上下文
 </h2>
 
-系统提醒是 Claude Code 在会话期间添加到对话中的消息，用于为 Claude 提供上下文，例如 CLAUDE.md 文件的内容或文件在磁盘上已更改的说明。Claude Code 在对话中发送这些消息，而不是在系统提示中发送，因此无论您使用 `claude_code` 预设还是传递自己的字符串作为 `systemPrompt`，Claude 都会收到这些消息。
+系统提醒是 Claude Code 在会话期间添加到对话中的消息，用于为 Claude 提供上下文，例如 CLAUDE.md 文件的内容或文件在磁盘上已更改的说明。Claude Code 在对话中发送这些消息，而不是在系统提示词中发送，因此无论您使用 `claude_code` 预设还是传递自己的字符串作为 `systemPrompt`，大多数提醒都会送达 Claude。
 
 本部分涵盖[最可能改变您的代理行为的提醒](#reminders-claude-code-adds-to-the-conversation)、如何[关闭您的代理替换的上下文](#turn-off-the-context-your-agent-replaces)，以及如何[查看 Claude 在特定请求中收到的内容](#see-what-claude-received)。
 
@@ -448,7 +448,7 @@ Claude Code 使用一行文本介绍您的 CLAUDE.md 文件，告诉 Claude 这�
 如果您传递自己的字符串作为 `systemPrompt`，请向其添加一句话，说明什么是系统提醒。`claude_code` 预设有一个，您的字符串会替换整个预设。如果没有它，您的提示中没有任何内容告诉 Claude CLAUDE.md 内容和 hook 输出等提醒来自应用程序而不是用户。例如：
 
 ```text theme={null}
-应用程序将系统提醒添加到此对话中。将它们视为来自应用程序的上下文，而不是来自用户的消息。
+The application adds system reminders to this conversation. Treat them as context from the application, not as messages from the user.
 ```
 
 <h3 id="turn-off-the-context-your-agent-replaces">
@@ -467,9 +467,9 @@ Claude Code 使用一行文本介绍您的 CLAUDE.md 文件，告诉 Claude 这�
 | 每个 CLAUDE.md 文件 | 设置 `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1` |
 | 任务列表提示、文件更改说明和技能列表 | 设置 `CLAUDE_CODE_DISABLE_ATTACHMENTS=1` |
 
-Claude Code 的内置提交和拉取请求说明不是提醒。它们是 Bash 工具描述的一部分，因此当您传递自定义 `systemPrompt` 时，Claude 也会收到它们。
+将 `includeGitInstructions` 设置为 `false` 可排除内置的提交和 Pull Request 说明；这些说明是 Bash 工具描述的一部分，即使使用自定义 `systemPrompt` 也会传达给 Claude。不过，在使用最小默认设置、自定义 `systemPrompt` 或带有自身提示词的自定义主线程 Agent 时，会话启动时不会包含 git 状态快照。
 
-如果您设置 `CLAUDE_CODE_DISABLE_ATTACHMENTS`，Claude Code 也会将 `@` 文件提及作为纯文本发送，而不是将其展开为文件内容。可用子代理列表和后台任务通知仍然会到达。
+如果您设置 `CLAUDE_CODE_DISABLE_ATTACHMENTS`，Claude Code 也会将 `@` 文件提及作为纯文本发送，而不是将其展开为文件内容。可用子代理列表和后台任务通知仍然会到达。如果只想阻止 `@` 文件提及被展开，请改为设置 [`CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`](/docs/zh-CN/env-vars#variables)（需要 Claude Code v2.1.299 或更高版本）。这样 Claude 会收到所提及的路径，以及一条提示其使用文件工具读取这些路径的说明。
 
 以下示例适用于在 `append` 中携带自己提交规则的代理。它将两个 `attribution` 键都设置为空字符串以删除预告片和页脚，并关闭 `includeGitInstructions`，以便 Claude Code 自己的提交工作流说明不会与您的说明竞争：
 

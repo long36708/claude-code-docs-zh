@@ -38,7 +38,7 @@ Claude Code 在成功时以代码 0 退出，在运行失败时以非零代码�
   使用 bare 模式更快启动
 </h3>
 
-添加 `--bare` 可以跳过 hook、skill、自定义命令、[子代理](/docs/zh-CN/sub-agents)、已安装的插件、MCP 服务器、自动记忆和 CLAUDE.md 的自动发现，从而减少启动时间。如果不使用它，`claude -p` 会加载与交互式会话相同的 [上下文](/docs/zh-CN/how-claude-code-works#the-context-window)，包括在工作目录或 `~/.claude` 中配置的任何内容。
+添加 `--bare` 可以跳过 hook、skill、自定义命令、[子代理](/docs/zh-CN/sub-agents)、已安装的插件、MCP 服务器、自动记忆和 CLAUDE.md 的自动发现，从而减少启动时间。如果不使用它，`claude -p` 会像交互式会话一样发现并加载这些内容，包括在工作目录或 `~/.claude` 中配置的任何内容。
 
 bare 模式适用于需要在每台机器上获得相同结果的 CI 和脚本。队友的 `~/.claude` 中的 hook 或项目的 `.mcp.json` 中的 MCP 服务器不会运行，因为 bare 模式从不读取它们。您用 `--add-dir` 指定的目录是一个部分例外：bare 模式会从其 `.claude/skills/` 文件夹加载 skill，但仍然跳过其 `.claude/commands/` 和 `.claude/agents/` 文件夹。[来自其他目录的 Skills](/docs/zh-CN/skills#skills-from-additional-directories) 介绍了哪些内容会加载、哪些不会加载。
 
@@ -407,7 +407,7 @@ gh pr diff "$1" | claude -p \
 
 在脚本中，`"$1"` 代表您在命令行上传递的第一个参数。运行 `bash review.sh 123`，shell 将 `"$1"` 替换为 `123`，因此脚本获取 PR 123 的 diff。Claude Code 将审查打印为 JSON，文本在 `result` 字段中。
 
-有关更多选项（包括用于完全替换默认提示词的 `--system-prompt`），请参阅 [系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags)。
+有关更多选项（包括用于完全替换默认提示词的 `--system-prompt`），请参阅 [系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags)。如果替换默认提示词，运行启动时也不会包含 [git 状态快照](/docs/zh-CN/settings-reference#includegitinstructions)。
 
 <h3 id="continue-conversations">
   继续对话

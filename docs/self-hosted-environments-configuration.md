@@ -40,6 +40,7 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 | `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` | 对于属于某个 Slack 线程的 Claude Tag 会话，为该线程的 Slack 时间戳，例如 `1700000000.000100`。可能未设置，也可能在 `CLAUDE_CODE_REMOTE_SLACK_THREAD_URL` 未设置时被设置，因此请分别检查每个变量。 |
 | `CLAUDE_SESSION_INGRESS_TOKEN_FILE` | 绝对路径，指向保存当前会话 JWT 的按会话文件，在令牌刷新时保持最新。Shell 子进程在下载用户添加到会话的附件时从中读取其 `Authorization` 标头。`exec` 自动保留该变量；重建子进程环境的包装脚本必须携带该变量，否则附件下载会无声地停止工作。 |
 | `CLAUDE_CONFIG_DIR` | 按会话 Claude 配置目录，在会话启动时从运行器在启动时捕获的运行器主机配置快照中写入；请参阅 [Permissions and tool approval](#permissions-and-tool-approval)。此处的写入仅限于此会话。除非您使用 [`--remove-session-state`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，否则会话结束后该目录仍会保留在 `<base-dir>/_sessions/` 下；请参阅 [Reuse a pre-warmed checkout](/docs/zh-CN/self-hosted-environments-deploy#reuse-a-pre-warmed-checkout)。 |
+| `CLAUDE_CODE_REMOTE_MCP_CONFIG` | 指向 `CLAUDE_CONFIG_DIR` 中某个文件的路径，该文件保存 Anthropic 控制平面为此会话交付的 MCP 服务器定义。如果您的包装脚本重建子进程的环境，请携带此变量。如果缺少此变量，当控制平面更新交付的服务器时，子进程会关闭您的包装脚本通过 [`--mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 添加但不在更新中的任何 stdio、HTTP 或 SSE 服务器。需要 Claude Code v2.1.299 或更高版本。 |
 | `ANTHROPIC_BASE_URL` | 子进程将使用的 API 基础 URL，由控制平面按会话交付，通常为 `https://api.anthropic.com`。不要覆盖它：会话的推理凭据是 Anthropic 颁发的 OAuth 令牌，其他提供者不接受。 |
 | `CLAUDE_CODE_OAUTH_TOKEN` | 子进程用于模型推理的短期 OAuth 访问令牌，作用域仅限于模型推理和文件上传，生命周期约为 30 分钟。运行器在过期前重新生成它，并通过子进程的 stdin 交付轮换，因此不 [keep stdin attached](#keep-stdin-and-file-descriptor-3-attached) 的包装脚本只看到初始值。不要依赖您的组织 IP 允许列表来限制此令牌的使用：将其视为持有者凭据，如果泄露，大约 30 分钟内仍可使用，不要记录它、写入磁盘或在会话容器外转发它。 |
 
@@ -51,12 +52,17 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
   为可能未设置的变量提供默认值
 </h3>
 
-`CCR_SESSION_ACCOUNT_EMAIL`、`CLAUDE_RUNNER_CLIENT_PLATFORM`、`CLAUDE_CODE_REMOTE_SLACK_THREAD_URL` 和 `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` 都可能未设置。如果您的脚本使用 `set -u`，Bash 在展开其中未设置的变量时会以 `unbound variable` 停止，因此请使用默认值展开它们，例如 `${CCR_SESSION_ACCOUNT_EMAIL:-}`。
+`CCR_SESSION_ACCOUNT_EMAIL`、`CLAUDE_RUNNER_CLIENT_PLATFORM`、`CLAUDE_CODE_REMOTE_SLACK_THREAD_URL` 和 `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` 都可能未设置。如果您的脚本使用 `set -u`，Bash 在展开其中未设置的变量时会以 `unbound variable` 停止，因此请使用默认值展开它们，例如 `"${CCR_SESSION_ACCOUNT_EMAIL:-}"`。
 
-在 shell 展开 Slack 线程链接的任何位置，请采取以下预防措施：
+<h3 id="quote-the-arguments-and-variables-your-script-expands">
+  为脚本展开的参数和变量加引号
+</h3>
 
-* **为其加引号**：该链接可能包含 shell 会处理的字符，例如 `?` 和 `&`，因此请为变量加引号，如 `"${CLAUDE_CODE_REMOTE_SLACK_THREAD_URL:-}"`。
-* **不要将其值放入 `eval` 和 `sh -c` 字符串**：不要将其值替换到 `eval` 或 `sh -c` 运行的字符串中，即使在引号内也不行。应让该字符串引用该变量。
+为运行器传递给您的包装脚本或 [`command` hook](#command) 的每个参数和变量加引号。某些值包含 shell 会处理的字符，因为它们包含 JSON、完整的句子或[权限规则](/docs/zh-CN/permissions#permission-rule-syntax)，例如 `Bash(npm run test *)`。
+
+* **参数**：以 `"$@"` 的形式传递它们
+* **变量**：为每个变量加引号，如 `"${CLAUDE_CODE_REMOTE_SLACK_THREAD_URL:-}"`。例如，Slack 线程链接可能包含 `?` 和 `&`。
+* **`eval` 和 `sh -c` 字符串**：不要将值替换到 `eval` 或 `sh -c` 运行的字符串中，即使在引号内也不行。应让该字符串引用该变量。
 
 <h3 id="keep-stdin-and-file-descriptor-3-attached">
   保持 stdin 和文件描述符 3 的连接
@@ -136,7 +142,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 | `CLAUDE_RUNNER_SESSION_ID` | 会话 ID，采用标记的 `session_...` 形式，用于日志记录和关联 |
 | `CLAUDE_RUNNER_SESSION_UUID` | 相同的会话 ID，采用规范 UUID 形式 |
 | `CLAUDE_RUNNER_API_BASE_URL` | Anthropic API 基础 URL，用于会话范围的调用 |
-| `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端使用入口，例如 `web_claude_ai`、`desktop_app` 或 `ios`。当会话没有记录或可识别的使用入口时未设置，因此在 `set -u` 下请以 `${CLAUDE_RUNNER_CLIENT_PLATFORM:-}` 的形式引用它。需要 Claude Code v2.1.229 或更高版本。 |
+| `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端使用入口，例如 `web_claude_ai`、`desktop_app` 或 `ios`。当会话没有记录或可识别的使用入口时未设置，因此在 `set -u` 下请以 `"${CLAUDE_RUNNER_CLIENT_PLATFORM:-}"` 的形式引用它。需要 Claude Code v2.1.229 或更高版本。 |
 | `CLAUDE_CODE_SESSION_ACCESS_TOKEN` | 会话访问令牌，用于会话范围的 API 调用 |
 | `GIT_CONFIG_COUNT`、`GIT_CONFIG_KEY_n`、`GIT_CONFIG_VALUE_n` | 运行器为您的 hook 所运行的 git 固定的 Git 设置。[生命周期 hook 中的 Git 配置](#git-configuration-inside-lifecycle-hooks)对其进行了说明。需要 Claude Code v2.1.280 或更高版本。 |
 
@@ -159,7 +165,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 
 当 hook 以非零状态退出，或以 0 退出但没有留下可用的检出时，hook 即为失败：
 
-* **会话推送结果的存储库**：运行器失败会话，在非零退出时将脚本的 stderr 尾部呈现给用户。
+* **会话向其推送结果的仓库**：运行器会使会话失败，并在非零退出时将脚本 stderr 的末尾部分呈现给用户。请将原因以简短的一行写入 stderr，将其放在最后写入，然后以非零状态退出。请勿将机密信息打印到 stderr，并在部署 hook 之前移除 `set -x`。
 * **会话仅从中读取的仓库**，例如添加到正在运行的会话中的仓库：运行器记录一行带有失败详情的 `[runner:warn]`，向会话发布一个 `Skipped` 步骤，删除 hook 在检出路径处留下的任何内容，并继续处理其余仓库。如果跳过后会话完全没有仓库，运行器仍然会使会话失败。
 
 当 hook 成功时，运行器会在会话结束后删除检出路径。
@@ -180,7 +186,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 | `CLAUDE_RUNNER_WORKSPACE_PATHS` | 会话工作树的冒号分隔绝对路径。对于零存储库会话为空。 |
 | `CLAUDE_RUNNER_DEBUG_LOG_PATH` | 会话的调试日志的路径，在钩子运行时仍在磁盘上 |
 | `CLAUDE_RUNNER_API_BASE_URL` | Anthropic API 基础 URL，用于会话范围的调用 |
-| `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端使用入口，例如 `web_claude_ai`、`desktop_app` 或 `ios`。当会话没有记录或可识别的使用入口时未设置，因此在 `set -u` 下请以 `${CLAUDE_RUNNER_CLIENT_PLATFORM:-}` 的形式引用它。需要 Claude Code v2.1.229 或更高版本。 |
+| `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端使用入口，例如 `web_claude_ai`、`desktop_app` 或 `ios`。当会话没有记录或可识别的使用入口时未设置，因此在 `set -u` 下请以 `"${CLAUDE_RUNNER_CLIENT_PLATFORM:-}"` 的形式引用它。需要 Claude Code v2.1.229 或更高版本。 |
 | `CLAUDE_CODE_SESSION_ACCESS_TOKEN` | 会话访问令牌，用于会话范围的 API 调用 |
 | `GIT_CONFIG_COUNT`、`GIT_CONFIG_KEY_n`、`GIT_CONFIG_VALUE_n` | 运行器为您的 hook 所运行的 git 固定的 Git 设置。[生命周期 hook 中的 Git 配置](#git-configuration-inside-lifecycle-hooks)对其进行了说明。需要 Claude Code v2.1.280 或更高版本。 |
 
@@ -329,7 +335,7 @@ claude self-hosted-runner orchestrator \
 3. **使用退出码约定。** 以与结果相匹配的状态退出：
 
    * **退出 0**：已提交。
-   * **退出 1**：可重试失败。会话退避并被重新提供。
+   * **退出 1，或在 `--hook-timeout` 结束时仍在运行**：可重试失败。会话退避并被重新提供。
    * **退出 2 或更高**：不可重试失败。会话被阻止再次生成，直到用户向其发送新消息，或 [Owner](/docs/zh-CN/cloud-environments#organization-shared-environments) 在环境的 **Activity** 标签中对其选择 **Retry**。
 
    在非零退出时，hook 的 stderr 尾部会作为失败原因出现在 **Activity** 标签中，因此请将可操作的错误写入 stderr，并且永远不要在其中写入密钥。在 shell hook 中，请[保持暂时性失败可重试](#keep-transient-failures-retryable-in-a-shell-hook)。
@@ -340,6 +346,20 @@ claude self-hosted-runner orchestrator \
 hook 写入 stdout 或 stderr 的所有内容都出现在编排器的日志中，凭据会自动脱敏。如果会话保持排队，检查编排器的 `/healthz` 正文以获取队列计数，然后在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments) 上打开您的环境的 **Activity** 标签：在那里展开失败的会话以获取其生成错误，并选择 **Retry** 以重新请求它。
 
 如果会话保持排队，且 **Activity** 标签中没有生成错误，可能意味着 hook 以会话 ID 作为键。要确认这一点，请检查您的平台是否存在该会话第一次生成请求对应的工作负载，而重新请求却没有对应的工作负载。如果是这样，请改为以 `CLAUDE_RUNNER_ORDER_ID` 作为工作负载的键。
+
+<h4 id="make-on-demand-runners-exit-when-idle">
+  让按需运行器在空闲时退出
+</h4>
+
+默认情况下，您的 hook 启动的运行器不会在其会话的轮次结束时退出，因此您提交的工作负载会持续运行。要让运行器退出，请让您的 hook 传递以下[运行器标志](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)：
+
+| 标志及示例值 | 传递给 | 作用 |
+| :- | :- | :- |
+| `--release-idle-session-min 30` | 您的 hook 启动的每个运行器 | 运行器在空闲达到该分钟数后释放其会话，然后以 0 退出。当会话的用户发送下一条消息时，会话会恢复，但[其尚未推送的工作将会丢失](/docs/zh-CN/self-hosted-environments-deploy#additional-limitations)。 |
+| `--kill-session-after-min 480` | 您的 hook 启动的每个运行器 | 将每个会话限制为该分钟数，作为[不计为空闲的会话](/docs/zh-CN/self-hosted-environments-deploy#some-sessions-don’t-count-as-idle)的兜底措施，因此请将其设置为高于您预期的最长会话时长 |
+| `--exit-if-unused-min 60` | 待命运行器，即您的 hook 为预热请求启动的运行器 | 从未接收会话的待命运行器会在该分钟数后退出。如果您设置了 [`--min-idle`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags)，除非该待命运行器是多余的，否则您会获得替代运行器，因此请使用远高于启动时间的值。 |
+
+在运行器退出时移除工作负载，例如在 Kubernetes Job 上设置 `ttlSecondsAfterFinished`，或让 VM 的启动脚本在之后删除该 VM。
 
 <h4 id="keep-transient-failures-retryable-in-a-shell-hook">
   在 shell hook 中保持暂时性失败可重试
@@ -484,6 +504,7 @@ Claude Code 还会从其他来源加载 MCP 服务器：
 * 位于标准系统路径的企业作用域[托管 MCP 文件](/docs/zh-CN/managed-mcp)：Linux 运行器主机上为 `/etc/claude-code/managed-mcp.json`，macOS 主机上为 `/Library/Application Support/ClaudeCode/managed-mcp.json`。适用于只允许加载管理员列出的服务器的锁定机群。有关优先级规则，请参阅[使用 managed-mcp.json 进行独占控制](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json)。当运行器主机上存在此文件时，Claude Code 会跳过 Anthropic 控制平面下发给会话的 MCP 服务器（包括 claude.ai 连接器），并在会话子进程的 stderr 上以警告形式列出它们的名称，运行器会以 `debug` 日志级别记录这些警告。在 v2.1.229 之前，这些会话会在启动时退出并显示 `You cannot dynamically configure MCP servers when an enterprise MCP config is present`。
 * 运行器主机上[托管设置](/docs/zh-CN/managed-settings)中的 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 键：提供 HTTP 和 SSE 服务器，但不进行独占控制，因此来自其他来源的服务器仍会加载。需要 Claude Code v2.1.259 或更高版本。
 * `<repo>/.mcp.json`：项目作用域。将该文件提交到仓库；其中的服务器在云端会话中会被自动批准。在包含多个仓库的会话中，[最多只会加载一个仓库的该文件](#repository-settings-in-sessions-with-several-repositories)。
+* 来自您的包装脚本的 [`--mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 文件：将该标志追加在 `"$@"` 之后，例如 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --mcp-config /etc/claude/mcp.json`。为了在会话中途更新会话所下发的服务器时让该文件中的服务器保持运行，请让您的包装脚本将[完整环境](#wrapper-scripts)传递给子进程，就像 `exec` 所做的那样。在 v2.1.299 之前，该文件中的 stdio、HTTP 和 SSE 服务器会在第一次未指明它们的此类更新时关闭。
 
 当您的组织启用了连接器下发时，Anthropic 的控制平面会通过服务器提供的 MCP 配置，将您在 claude.ai 上配置的连接器下发到以交互方式创建的会话，请求经由 `api.anthropic.com` 路由。以编程方式创建的会话（例如 [CLI 调度](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)）不会接收连接器下发；请改为通过本节列出的任何其他来源为它们提供 MCP 服务器。子进程的 OAuth 令牌不带有直接获取连接器的作用域，因此子进程本身不会尝试获取；下发由服务器驱动。
 

@@ -174,7 +174,7 @@ cancel the deploy check job
 | 工具 | 目的 |
 | :- | :- |
 | `CronCreate` | 计划新任务。接受 5 字段 cron 表达式、要运行的提示词以及是否重复或仅触发一次。 |
-| `CronList` | 列出所有计划任务及其 ID、计划和提示词。 |
+| `CronList` | 列出定时任务及其 ID、计划、[下次运行时间](#jitter)和提示词。 |
 | `CronDelete` | 按 ID 取消任务。 |
 
 每个计划任务都有一个 8 字符的 ID，您可以将其传递给 `CronDelete`。一个会话最多可以同时保存 50 个计划任务。
@@ -192,6 +192,8 @@ cancel the deploy check job
 </h3>
 
 定时任务的实际运行时间可能与其计划时间不同。如果每个会话的任务都严格按计划运行，许多任务会在同一时刻调用 API，因此 Claude Code 会调整每个任务的运行时间。重复任务会延后运行，但每五分钟运行一次的任务（写作 `*/5 * * * *`）除外。安排在整点或半点的一次性任务会稍微提前运行。
+
+要查看任务下次到期的时间，请查看终端中 Claude 的 `CronCreate` 调用下方的行。该行会在计划之后显示该时间，例如 `next run 10:21 AM`。之后如需再次查看，请[让 Claude 列出您的任务](#manage-scheduled-tasks)，并在 `CronList` 调用下方的行中查找 `next run`。这些行中的下次运行时间需要 Claude Code v2.1.299 或更高版本。
 
 <h4 id="how-late-a-recurring-task-runs">
   重复任务会延后多久运行

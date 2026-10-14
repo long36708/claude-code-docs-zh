@@ -146,7 +146,9 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 
 <Steps>
   <Step title="选择仓库和分支">
-    从 [claude.ai/code](https://claude.ai/code) 或 Claude 移动应用中的 Code 选项卡，单击输入框下方的仓库选择器，并为 Claude 选择要在其中工作的仓库。每个仓库都显示一个分支选择器。更改它以从功能分支而不是默认分支启动 Claude。您可以添加多个仓库以在一个会话中跨它们工作。
+    从 [claude.ai/code](https://claude.ai/code) 或 Claude 移动应用中的 Code 选项卡，单击输入框下方的仓库选择器，并为 Claude 选择要在其中工作的仓库。您可以添加多个仓库以在一个会话中跨它们工作。
+
+    在 claude.ai/code 中，若要从功能分支而不是默认分支启动 Claude，请在仓库选择器后面的控件中更改分支。
   </Step>
 
   <Step title="选择权限模式">

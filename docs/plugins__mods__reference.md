@@ -43,7 +43,8 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | `next.origin` | 触发该事件者的 `{ plugin, tier }`。Claude Code 自身为 `{ plugin: 'engine', tier: 'core' }`。mod 的 `tier` 是它在 [mod 运行顺序](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)中的优先级组：`prepend`、`user`、`append` 或 `builtin`。 |
 | `next.budget` | hook 的时间限制（以毫秒为单位）：`next.budget.ms` 是总限制，`next.budget.remainingMs` 是当前剩余时间 |
 | `next.to(e, tier)` | 跳到后面的层级，即 `append`、`builtin` 或 `core`。`next.to(e, 'append')` 会跳过用户安装的 mod。只有 `prependPlugins` 或 `appendPlugins` 中的 mod 才能调用它。 |
-| `next.error` | 仅在 `.catch` 处理程序中可用。hook 失败时，`kind` 为 `throw` 或 `timeout`，`message` 是错误文本。当 hook 因事件来自其自身某个 mods API 调用内部而被跳过时，`kind` 为 `re-entry`；如果触发该事件的是另一个 mod 添加到 mods API 的方法，则 `cause` 为 `lent`。`re-entry` 和 `cause` 需要 Claude Code v2.1.292 或更高版本。 |
+| `next.error` | 仅在 `.catch` 处理程序中可用。hook 失败时，`kind` 为 `throw` 或 `timeout`，`message` 是错误文本。当 hook 因事件来自该 hook 或您的 mod 在其 hook 之外的代码所发起的 mods API 调用内部而被跳过时，`kind` 为 `re-entry`。`re-entry` 需要 Claude Code v2.1.292 或更高版本。 |
+| `next.error.cause` | 仅当 `kind` 为 `re-entry` 时设置。如果 `tool.call` 或 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) hook 更改了该事件所来自的 mods API 调用，或者 `agent.spawn` hook 更改了由该调用启动的 Agent，则为 `rewritten`。当触发该事件的是另一个 mod 添加到 mods API 的方法时，为 `lent`，除非同时适用 `rewritten`。`lent` 需要 Claude Code v2.1.292 或更高版本，`rewritten` 需要 v2.1.300 或更高版本。 |
 | `next.called` | 仅在 `.catch` 处理程序中可用。当 hook 已调用 `next` 时为 `true`。 |
 
 <h2 id="events">

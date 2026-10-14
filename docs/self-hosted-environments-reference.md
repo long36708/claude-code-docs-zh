@@ -54,7 +54,7 @@
 | `--retire-at <epoch-seconds>` | `SELF_HOSTED_RUNNER_RETIRE_AT` | 未设置 | 在绝对 Unix 时间戳（以秒为单位）处退休运行器，用于在已知时间杀死运行器的基础设施；[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle)描述释放序列以及如何调整边距。2001 年之前或 5138 年之后的值被标志拒绝，被环境变量忽略。 |
 | `--server-auto-mode-lists <mode>` | `SELF_HOSTED_RUNNER_SERVER_AUTO_MODE_LISTS` | `no-allow` | 控制平面随会话发送的[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器规则列表中，哪些可以到达该会话：`all`、`no-allow` 或 `none`。请参阅[自动模式规则列表](#auto-mode-rule-lists)了解每个值应用的内容。无效值会使运行器在启动时停止。需要 Claude Code v2.1.295 或更高版本。 |
 | `--session-stop-grace-sec <n>` | `SELF_HOSTED_RUNNER_SESSION_STOP_GRACE_MS` | `5` | 会话结束后等待 Claude 进程干净退出的时间，然后强制杀死它。如果子进程自己的 `SessionEnd` 钩子需要更多时间，请提高该值。 |
-| `--startup-timeout-min <n>` | `SELF_HOSTED_RUNNER_STARTUP_TIMEOUT_MS` | `15` | 如果子进程在生成后 N 分钟内未发出已完成初始化的信号，则释放会话槽。克隆发生在生成之前，因此克隆时间不计入。由子进程在[活动频道](/docs/zh-CN/self-hosted-environments-configuration#keep-stdin-and-file-descriptor-3-attached)上的初始化信号清除，而不是由普通输出清除，之后 `--release-idle-session-min` 接管。`0` 禁用。 |
+| `--startup-timeout-min <n>` | `SELF_HOSTED_RUNNER_STARTUP_TIMEOUT_MS` | `15` | 如果子进程在 N 分钟内未在[活动频道](/docs/zh-CN/self-hosted-environments-configuration#keep-stdin-and-file-descriptor-3-attached)上发出已完成初始化的信号，则释放会话槽。这 N 分钟从生成（克隆之后）开始计时，并在子进程完成初始化或报告其状态之前每发出一条 `user` 或 `assistant` 消息时重新开始计时。在 v2.1.299 之前，此超时在会话出现第一条此类消息时即不再适用。有关初始化信号之后的释放，请参阅 `--release-idle-session-min`。`0` 禁用。 |
 | `--trust-workspace [bool]` | `SELF_HOSTED_RUNNER_TRUST_WORKSPACE` | 开启 | 为每个会话的存储库路径播种持久化信任，以便遵守存储库提交的 `permissions.allow` 和 `additionalDirectories`。设置 `false` 以删除存储库提交的权限授予，并在主机配置的 `settings.json` 中配置允许规则；无论如何，存储库提交的 `sandbox.*` 设置仍然适用，这就是为什么[存储库设置保护](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)无论此标志如何都扫描它们。 |
 | `--use-anthropic-git-proxy` | `CLAUDE_RUNNER_USE_GIT_PROXY=1` | 关闭 | 通过 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)而不是客户管理的 git 身份验证克隆 github.com 上的仓库。需要 `--capacity 1` 和 git 2.32 或更高版本；运行器否则拒绝启动。取代重写标志。 |
 
@@ -160,7 +160,7 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 
 在自定义探针中使用 `last_poll_age_ms` 作为活跃信号；无限增长的值表示轮询循环卡住。`last_poll_at` 和 `last_poll_age_ms` 都是 `null`，直到第一次轮询完成。
 
-编排器在其健康端口上提供自己的 `/healthz`。其端点始终返回 `200`，正文携带报告最近一次轮询是否成功的 `connected` 字段，加上 `queue_counts` 中的每个状态生成队列计数。在自定义探针中使用 `connected` 而不是状态代码来控制就绪和警报。
+编排器自己的 `/healthz`（位于其健康端口上）始终返回 `200`。正文携带报告最近一次轮询是否成功的 `connected` 字段，加上 `queue_counts` 中的每个状态生成队列计数。要了解 `connected` 为何是 `false`，请读取顶层 `last_error` 字段，每次成功轮询都会将其重置为 `null`。使用 `connected` 而不是状态代码来控制就绪和警报。
 
 当[SCM 连接器](#scm-connector-flags)被配置时，编排器的 `/healthz` 正文也携带 `scm_connector_connected` 和一个 `scm_connector` 对象，包含 `connected`、`last_connected_at`、`last_error`、`reconnects` 和 `requests_forwarded`。当未设置 `--scm-connector-host` 时，两个字段都是 `null`。
 

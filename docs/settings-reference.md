@@ -4258,6 +4258,11 @@ Claude Code 向 Claude 提供两个与 git 相关的上下文片段：其内置�
 }
 ```
 
+如果您在[非交互模式](/docs/zh-CN/headless)或 Agent SDK 中替换系统提示词，即使此键为 `true`，会话启动时也不会包含快照：
+
+* **`-p` 运行**：当您传递 [`--system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags) 或 `--system-prompt-file` 时，即替换了提示词。当您运行带有自己提示词的自定义 Agent（通过 [`--agent`](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 或 [`agent`](#agent) 设置选择）时，也会替换提示词。在 [bare 模式](/docs/zh-CN/headless#start-faster-with-bare-mode)之外，要保留快照，请不使用自定义 Agent 运行，并使用 [`--append-system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags) 添加您的说明，而不是替换提示词。
+* **[Agent SDK](/docs/zh-CN/agent-sdk/modifying-system-prompts)**：当您使用自定义系统提示词或自定义主线程 Agent 时，即替换了提示词。如果您未设置系统提示词，SDK 会使用其最小默认值，会话启动时同样不包含快照。在 [bare 模式](/docs/zh-CN/headless#start-faster-with-bare-mode)之外，要保留快照，请使用 `claude_code` 预设且不使用自定义 `agent`。
+
 <h3 id="prurltemplate">
   `prUrlTemplate`
 </h3>

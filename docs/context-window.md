@@ -1602,7 +1602,7 @@ Claude Code 的上下文窗口包含 Claude 在您的会话中了解的所有内
 | 系统提示词和输出样式 | 两者仍然适用 |
 | 项目根目录 CLAUDE.md 和无范围规则 | 从磁盘重新注入 |
 | 自动记忆 | 从磁盘重新注入 |
-| [Git 状态快照](/docs/zh-CN/settings-reference#includegitinstructions) | Claude Code 从您的仓库读取一个新的 |
+| [Git 状态快照](/docs/zh-CN/settings-reference#includegitinstructions) | 如果会话开始时包含快照，Claude Code 会从您的仓库读取一个新的 |
 | Claude 在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中编写的计划 | 从磁盘重新注入 |
 | 带有 `paths:` frontmatter 的规则 | Claude Code [按需](/docs/zh-CN/memory#path-specific-rules)重新加载它们 |
 | 子目录中的嵌套 CLAUDE.md | Claude Code [按需](/docs/zh-CN/memory#how-claude-md-files-load)重新加载它们 |

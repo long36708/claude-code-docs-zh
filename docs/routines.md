@@ -83,7 +83,7 @@ Routines 属于您的个人 claude.ai 账户。它们不与队友共享，并且
     为例程选择一个 [cloud environment](/docs/zh-CN/cloud-environments)。环境控制云会话可以访问的内容：
 
     * **Network access**：设置每次运行期间可用的互联网访问级别
-    * **Environment variables**：提供 Claude 在每次运行期间可以使用的值。它们[对使用该环境的任何人都可见](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)，因此在 Pro 和 Max 计划上，请改为将 Claude 在运行期间调用的 API 的密钥存储为[网络密钥](/docs/zh-CN/cloud-environments#add-network-secrets)。该部分还列出了永远不会获得密钥的请求
+    * **Environment variables**：提供 Claude 在每次运行期间可以使用的值。它们[对使用该环境的任何人都可见](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)，因此在 Anthropic 托管的环境中，请改为将 Claude 在运行期间调用的 API 的密钥存储为[网络密钥](/docs/zh-CN/cloud-environments#add-network-secrets)。该部分还列出了永远不会获得密钥的请求
     * **Setup script**：安装例程需要的依赖项和工具。结果是 [cached](/docs/zh-CN/cloud-environments#environment-caching)，因此脚本不会在每个会话上重新运行
 
     提供了一个 **Default** 环境，具有 **Trusted** 网络访问，允许仅通过会话网络的 [default allowlist](/docs/zh-CN/cloud-environments#default-allowed-domains) 的包注册表、云提供商 API、容器注册表和常见开发域。您添加到例程的 Connectors 通过 Anthropic 的服务器到达其服务，因此不需要更改允许列表。如果您的例程需要直接到达您自己的服务或该列表之外的域，请在运行前编辑环境的 [network access](/docs/zh-CN/cloud-environments#network-access)。要使用单独的环境，请先 [create one](/docs/zh-CN/cloud-environments#configure-your-environment)。
@@ -416,7 +416,7 @@ Routine 可以在每次运行期间使用您已连接的 MCP 连接器来读取�
   </Step>
 
   <Step title="更改网络访问级别">
-    在 **Edit environment** 对话框中，将 **Network access** 更改为 **Custom**，并在 **Allowed domains** 中输入您的域名。勾选 **Also include default list of common package managers**，以便在自定义域名之外保留[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)。如需不受限制的访问，请改为选择 **Full**。
+    在 **Edit cloud environment** 对话框中，将 **Network access** 更改为 **Custom**，并在 **Allowed domains** 中输入您的域名。勾选 **Also include default list of common package managers**，以便在自定义域名之外保留[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)。如需不受限制的访问，请改为选择 **Full**。
   </Step>
 
   <Step title="保存">

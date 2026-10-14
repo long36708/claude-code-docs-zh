@@ -419,6 +419,8 @@ Claude Code 可以在任何目录中工作。在笔记库、文档文件夹或�
   * 您可以在单个消息中引用多个文件（例如，"@file1.js and @file2.js"）
 </Tip>
 
+若要阻止 `@` 引用在消息中包含文件内容和目录列表，请在 shell 或用户设置中设置 [`CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`](/docs/zh-CN/env-vars#variables)。随后 Claude 会收到您引用的路径，并附带一条说明，提示它使用其文件工具读取这些路径。该变量需要 Claude Code v2.1.299 或更高版本，并且 Claude Code 会在项目设置和本地设置中忽略它。
+
 ***
 
 <h3 id="run-claude-on-a-schedule">

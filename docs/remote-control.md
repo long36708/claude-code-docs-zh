@@ -261,7 +261,7 @@ Remote Control 连接时，会话记录（包括您的消息、Claude 的响应�
 
 生物识别检查通过操作系统或浏览器在设备上运行，与通行密钥登录的机制相同。Anthropic 从不接收或存储指纹、面部数据或任何其他生物识别信息。仅存储设备的公钥和基本元数据，如显示名称、平台和注册时间。
 
-该设置同时适用于 Claude Code 和 [Cowork](https://claude.com/docs/cowork/overview) 中的 Remote Control。本页介绍 Claude Code 方面的内容。常规 Claude 聊天、终端中的 Claude Code 和 API 使用不受影响。
+该设置适用于 Claude Code 中的 Remote Control 以及 [Cowork](https://claude.com/docs/cowork/overview) 中的计算机访问。本页介绍 Claude Code 方面的内容。常规 Claude 聊天、终端中的 Claude Code 和 API 使用不受影响。
 
 <h3 id="enable-trusted-devices-for-your-organization">
   为 Team 或 Enterprise 组织启用受信任的设备

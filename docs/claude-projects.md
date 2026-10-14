@@ -414,7 +414,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 * skill、子代理和命令：将它们提交到您已添加到项目的仓库，例如位于 `.claude/skills/<skill-name>/SKILL.md` 的 skill。每个云线程会克隆项目中的每个仓库，并从每个仓库加载 `.claude/skills/`、`.claude/agents/` 和 `.claude/commands/`，因此提交到一个仓库的 skill 在每个云线程中都可用。云线程还会加载[您为 claude.ai 账户启用的 skill](/docs/zh-CN/skills#skills-in-cowork-and-cloud-sessions)。
 * 插件：在 **Project settings > Plugins** 中添加它们；它们会加载到每个新云线程中。仓库在其 `.claude/settings.json` 中声明的插件[不会在云线程中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
-* MCP 服务器：云线程从您 claude.ai 账户上的连接器获取 MCP 工具，这些连接器是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 或通过 **Project settings > Environment** 中的 **Manage connectors** 链接一次性连接的 MCP 服务器。每个云线程都可以使用所有这些连接器，无需按项目设置。项目对话本身没有连接器，因此请将需要连接器的工作作为任务发送给云线程。在只有一个仓库的项目中，云线程还会从该仓库的 [`.mcp.json`](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup) 加载 MCP 服务器。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code) 列出了云端会话的规则以及关闭连接器的设置。
+* MCP 服务器：云线程从您 claude.ai 账户上的连接器获取 MCP 工具，这些连接器是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 一次性连接的 MCP 服务器。每个云线程都可以使用所有这些连接器，无需按项目设置。项目对话本身没有连接器，因此请将需要连接器的工作作为任务发送给云线程。在只有一个仓库的项目中，云线程还会从该仓库的 [`.mcp.json`](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup) 加载 MCP 服务器。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code) 列出了云端会话的规则以及关闭连接器的设置。
 * 命令行工具和包：在环境的[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)中安装它们。
 
 要在 claude.ai/code 查看正在运行的云线程拥有哪些连接器，请打开该线程，并从其消息框旁的 **+** 菜单中选择 **Connectors**。在那里关闭某个连接器会将其从该线程中移除，并将此保存为您的账户默认值，因此在您重新打开它之前，新线程和 claude.ai 聊天启动时都不会带有它。在您向云线程发送下一条消息后，它才会获取您新添加或重新连接的连接器。
@@ -435,7 +435,6 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 | 项目说明 | Memory | [常规规则](#give-a-project-standing-context)每个新线程接收 |
 | 项目代码库 | Environment | 新线程克隆的代码库 |
 | 云环境 | Environment | 新线程运行的[云环境](#choose-an-environment-for-threads) |
-| Connectors | Environment | 管理 claude.ai connectors 线程获取的链接 |
 | Plugins | Plugins | 加载到每个新线程的 plugins |
 | Usage | Usage | 按线程和按模型的[令牌使用](#usage-and-cost) |
 | Memory | Memory | 项目的[记忆文件](#give-a-project-standing-context) |

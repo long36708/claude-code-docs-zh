@@ -22,7 +22,7 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
 
 | 功能 | GHES 支持 | 备注 |
 | :- | :- | :- |
-| 云会话 | ✅ 支持 | 所有者连接 GHES 实例一次；开发人员像往常一样使用 `claude --cloud` 或 [claude.ai/code](https://claude.ai/code) |
+| 云端会话 | ✅ 支持 | 所有者连接 GHES 实例一次；开发人员使用 `claude --cloud` 或 [claude.ai/code](https://claude.ai/code) |
 | 代码审查 | ✅ 支持 | 与 github.com 相同的自动化 PR 审查 |
 | Claude Security | ✅ 支持 | 在 [claude.ai/security](https://claude.ai/security) 为 Enterprise 计划提供公开测试版 |
 | Teleport 会话 | ✅ 支持 | 使用 `--teleport` 在云和终端之间移动会话 |
@@ -35,7 +35,7 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
   管理员设置
 </h2>
 
-所有者只需将您的 GHES 实例连接到 Claude Code 一次。之后，您组织中的开发人员可以使用 GHES 仓库，无需任何额外配置。您需要在 Claude 组织中具有所有者或主要所有者角色，以及在 GHES 实例上创建 GitHub App 的权限。
+所有者只需将您的 GHES 实例连接到 Claude Code 一次。您需要在 Claude 组织中具有所有者或主要所有者角色，以及在 GHES 实例上创建 GitHub App 的权限。
 
 引导式设置会生成 GitHub App 清单，并将您重定向到 GHES 实例以一键创建应用。如果您的环境阻止重定向流程，可以使用[替代手动设置](#manual-setup)。
 
@@ -103,7 +103,7 @@ Claude 会在您保存连接时生成应用的 webhook URL。点击 **Add config
   开发人员工作流
 </h2>
 
-一旦所有者连接了 GHES 实例，就不需要开发人员端的配置。Claude Code 从您工作目录中的 git 远程自动检测您的 GHES 主机名。
+Claude Code 从您工作目录中的 git 远程自动检测您的 GHES 主机名。
 
 像往常一样从您的 GHES 实例克隆存储库，将 `github.example.com` 和存储库路径替换为您的 GHES 主机名和存储库：
 
@@ -227,6 +227,8 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
 </h3>
 
 如果 `claude --cloud` 因克隆错误而失败，请验证 Owner 已完成您的 GHES 实例的设置，并且 GitHub App 已安装在您正在处理的存储库上。与连接该实例的 Owner 确认在 Claude 设置中注册的主机名与您的 git 远程中的主机名匹配。
+
+如果会话因"Authentication failed while accessing the repository"而停止，您可能尚未连接自己的 GitHub Enterprise 账户。请从 [claude.ai/code](https://claude.ai/code) 上的仓库选择器进行连接，然后启动新会话。
 
 <h3 id="marketplace-add-fails-with-a-policy-error">
   市场添加因策略错误而失败

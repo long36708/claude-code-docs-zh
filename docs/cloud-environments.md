@@ -10,7 +10,7 @@
   云环境适用于[云端会话](/docs/zh-CN/claude-code-on-the-web)，这些会话在 Pro、Max 和 Team 计划上可用，以及具有[高级席位或 Chat + Claude Code 席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)的 Enterprise 用户。
 </Note>
 
-每个[云端会话](/docs/zh-CN/claude-code-on-the-web)都在云环境中运行。您可以配置环境以允许或拒绝[网络访问](#access-levels)、为会话[设置环境变量](#set-environment-variables)、在 Pro 和 Max 计划上存储会话使用但无法看到的[网络密钥](#add-network-secrets)，以及在 Claude 开始工作前运行[设置脚本](#setup-scripts)。
+每个[云端会话](/docs/zh-CN/claude-code-on-the-web)都在云环境中运行。您可以配置环境以允许或拒绝[网络访问](#access-levels)、为会话[设置环境变量](#set-environment-variables)、存储会话使用但无法看到的[网络密钥](#add-network-secrets)，以及在 Claude 开始工作前运行[设置脚本](#setup-scripts)。
 
 相同的环境适用于您启动云端会话的任何地方：[Desktop 应用](/docs/zh-CN/desktop)、[Claude 移动应用](/docs/zh-CN/mobile)、浏览器中的 [claude.ai/code](https://claude.ai/code)、终端中搭配 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)、[Routine](/docs/zh-CN/routines) 和 [Claude Tag](https://claude.com/docs/claude-tag/overview)。这些使用入口中的每一个也可以路由到[自托管环境](/docs/zh-CN/self-hosted-environments)。[可用性和限制](/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖了当 Claude Tag 会话在其中运行时 Claude 还不能使用的内容。
 
@@ -44,25 +44,20 @@
   配置您的环境
 </h2>
 
-在环境选择器中创建、编辑和归档环境。完成[网页快速入门](/docs/zh-CN/web-quickstart)后，您可以在 [claude.ai/code](https://claude.ai/code) 访问该选择器，也可以从[桌面应用](/docs/zh-CN/desktop#cloud-sessions)的输入框中访问。您创建的环境是您账户的个人环境；由所有者创建的[共享环境](#organization-shared-environments)会出现在同一个选择器中。查看[已安装的工具](#installed-tools)，了解无需任何配置即可使用的工具。
+在 [claude.ai/code](https://claude.ai/code) 上启动新会话的页面中，通过消息框下方的环境选择器添加、编辑和归档环境。要进入该页面，请完成[网页入门引导](/docs/zh-CN/web-quickstart)。对于桌面应用，请参阅[云端会话](/docs/zh-CN/desktop#cloud-sessions)。您创建的环境是您账户的个人环境；由所有者创建的[共享环境](#organization-shared-environments)会与它们一起出现在选择器中。查看[已安装的工具](#installed-tools)，了解无需任何配置即可使用的工具。
+
+选择器仅在您发送新会话的第一条消息之前显示。要编辑您自己正在运行的云端会话的环境，请选择顶部会话标题后的插入符号，然后选择 **Edit cloud environment**。
 
 <Steps>
   <Step title="打开环境选择器">
-    在 [claude.ai/code](https://claude.ai/code) 上，选择显示当前环境名称的云图标，它位于消息框上方的行中。选择器没有设置页面或直接 URL。
-
-    <Frame>
-      <img src="https://mintcdn.com/claude-code/ZFId6l95856c5LSw/images/cloud-environment-selector.png?fit=max&auto=format&n=ZFId6l95856c5LSw&q=85&s=cc2813a5664519eaf5a89d793ce5af26" alt="环境选择器在 claude.ai/code 的消息框上方打开。显示环境名称 Default 的云按钮位于消息框上方的行中。打开的菜单列出了一个带有 Download 和 Desktop only 标签的 Local 行、一个 Cloud 部分（其中 Default 环境被选中并显示复选标记，悬停时显示设置齿轮图标）、一个 Add cloud environment 选项，以及一个带有设置说明的 Remote Control 部分。" width="1672" height="682" data-path="images/cloud-environment-selector.png" />
-    </Frame>
+    在新会话页面上，选择消息框下方行中的第一个控件。
   </Step>
 
   <Step title="添加或编辑环境">
-    选择 **Cloud** 来列出您的环境。然后选择 **Add cloud environment**，或悬停在现有环境上并选择右侧出现的设置图标。
+    * **添加环境**：选择菜单底部的 **New environment** 以打开 **New environment** 对话框。填写表单并选择 **Add environment**。随后您的新会话将使用您添加的环境。
+    * **编辑环境**：在 **Cloud** 下找到该环境所在的行。如果 **Cloud** 只是单独一行，请选择它以打开列表。如果您的环境未列在 **Cloud** 下，请选择该标题下的 **More** 行。悬停在该环境的行上，然后选择其右侧出现的设置图标以打开其对话框。
 
-    对话框包括名称、网络访问级别、环境变量和设置脚本。当您在 Pro 或 Max 计划上编辑现有的云环境时，对话框还包括[网络机密](#add-network-secrets)。
-
-    <Frame>
-      <img src="https://mintcdn.com/claude-code/ZFId6l95856c5LSw/images/cloud-environment-dialog.png?fit=max&auto=format&n=ZFId6l95856c5LSw&q=85&s=30d4478b31d1f879f7ee287ddab32505" alt="New cloud environment 对话框。一个占位符为 Default 的 Name 字段；一个设置为 Trusted 的 Network access 选择器，带有网络策略和访问级别的链接；一个 Environment variables 框，显示 .env 格式的占位符文本，并注明值对使用该环境的任何人都可见；一个 Setup script 框，描述为在新会话启动时、Claude Code 启动之前运行的 Bash 脚本；以及 Cancel 和 Create environment 按钮。" width="874" height="1372" data-path="images/cloud-environment-dialog.png" />
-    </Frame>
+    对话框包括名称、网络访问级别、环境变量和设置脚本。要存储会话可以使用但无法看到的密钥，请参阅[添加网络机密](#add-network-secrets)。
   </Step>
 </Steps>
 
@@ -91,7 +86,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 云端会话在启动时也会自行设置一些变量。对于 [`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`](/docs/zh-CN/claude-code-on-the-web#manage-context)，会话设置的值会覆盖您在这里添加的值，因此在这里添加该键没有效果。
 
-使用该环境的任何人都可以读取这些值。在 Pro 和 Max 计划上，对于 Agent 代理可以附加到请求中的密钥，请改用[网络机密](#add-network-secrets)。[永远不会获得机密的请求](#requests-that-never-get-the-credential)在该处列出。
+使用该环境的任何人都可以读取这些值。在 Anthropic 托管的环境中，对于 Agent 代理可以附加到请求中的密钥，请改用[网络机密](#add-network-secrets)。[永远不会获得机密的请求](#requests-that-never-get-the-credential)在该处列出。
 
 <span id="add-api-credentials" />
 
@@ -101,7 +96,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 网络机密是您存储在云环境中的 API 密钥或令牌，使 Claude 可以从该环境中的任何会话调用该 API，而无需看到密钥。每个请求离开会话的 VM 后，Anthropic 的 Agent 代理会将密钥添加到发往您所列主机的请求中，因此密钥本身始终位于 VM 之外。
 
-网络机密适用于 Pro 和 Max 计划。它们目前尚不适用于 Team 或 Enterprise 计划，因此在这些计划上，环境对话框中不会出现 **Network secrets** 部分。
+网络机密适用于 Pro、Max、Team 和 Enterprise 计划。要确认您是否可以自行添加，请参阅[要求](#requirements)。
 
 <h4 id="requirements">
   要求
@@ -109,9 +104,10 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 以下要求决定您是否可以添加机密，以及添加后 Agent 代理是否可以使用它：
 
-* **Role**：您的 claude.ai 组织中的组织管理员角色
-  * 在 Team 和 Enterprise 上，所有者持有该角色，管理员（Admin）不持有
-  * 在 Pro 和 Max 上，您在自己的组织中持有该角色
+* **Role**：在 Pro、Max 和 Team 计划上，无论您的角色如何，您都可以在自己的环境中添加和删除机密。在 Team 和 Enterprise 上，所有者在您的 claude.ai 组织中持有组织管理员角色，管理员（Admin）不持有，这会改变您在以下情况下看到的内容：
+  * **Enterprise 上您自己的环境**：拥有组织管理员角色时，您可以添加和删除机密。没有该角色时，**Network secrets** 部分会在说明"Only an organization admin can add or delete network secrets"下列出机密，且没有 **Add secret** 或删除按钮。请让所有者将机密添加到[共享环境](#organization-shared-environments)，然后在该环境中运行您的会话
+  * **共享环境**：所有者从管理设置中[添加和删除其机密](#add-a-credential)。没有组织管理员角色时，请让所有者添加机密，因为该环境的对话框中没有 **Network secrets** 部分
+  * **Team 上您自己的环境**：没有组织管理员角色时，**Add secret** 会打开一个只接受一个主机的[简化表单](#add-a-secret-without-the-role)
 * **Environment type**：一个已存在的 Anthropic 托管云环境。[自托管环境](/docs/zh-CN/self-hosted-environments)没有网络机密
 * **API reachability**：API 接受来自互联网的连接，因为请求从 Anthropic 的网络发出
 * **Encryption keys**：如果您的组织使用客户管理的加密密钥，则无法保存网络机密
@@ -122,27 +118,39 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 机密需要逐个添加，添加后无法编辑。要更改机密的主机或值，请将其删除后重新添加。
 
+要向[共享环境](#organization-shared-environments)添加机密，请从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面打开该环境进行编辑，然后从 **Network secrets** 部分继续执行步骤 1。如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，请在您自己的环境中执行步骤 1，然后[填写简化表单](#add-a-secret-without-the-role)。
+
 <Steps>
   <Step title="打开环境的网络机密">
-    在 [claude.ai/code](https://claude.ai/code) [打开环境进行编辑](#configure-your-environment)。在 **Edit environment** 对话框中，找到 **Network secrets** 部分。您会看到环境中已有的机密，每个机密都附有其适用的主机。
+    在 [claude.ai/code](https://claude.ai/code) [打开环境进行编辑](#configure-your-environment)。在 **Edit cloud environment** 对话框中，找到 **Network secrets** 部分。您会看到环境中已有的机密，每个机密都附有其适用的主机。
   </Step>
 
   <Step title="添加机密">
-    选择 **Add secret** 并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Credential type**，即 **Bearer**，并填写以下字段：
+    选择 **Add secret** 并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Secret type**，即 **Bearer**，并填写以下字段：
 
     * **Name**：机密的标签，例如 `Internal billing API`
     * **Allowed websites**：API 的主机，例如 `api.example.com`。前导 `*.` 匹配所有子域
     * **Custom headers**：用于携带密钥的请求头占一行。该行默认以 `Authorization` 作为请求头的 **Name**，以 `Bearer` 作为其 **Prefix**；将密钥本身粘贴为 **Value**。对于接受裸值的请求头（如 `X-Api-Key`），请更改名称并清除前缀
 
-    对于以其他方式进行身份验证的 API，请选择不同的 **Credential type**。该列表与 [Claude Tag](https://claude.com/docs/claude-tag/overview)（适用于 Team 和 Enterprise 计划的 Slack 集成）为 [connections](https://claude.com/docs/claude-tag/admins/add-connections) 提供的列表相同。
+    对于以其他方式进行身份验证的 API，请选择不同的 **Secret type**。该列表与 [Claude Tag](https://claude.com/docs/claude-tag/overview)（适用于 Team 和 Enterprise 计划的 Slack 集成）为 [connections](https://claude.com/docs/claude-tag/admins/add-connections) 提供的列表相同。
   </Step>
 
   <Step title="保存机密">
-    选择 **Connect**。机密会连同其主机一起出现在列表中，无需点击对话框的 **Save changes** 按钮即已保存。保存后您无法再次查看该值。
+    选择 **Add**。机密会连同其主机一起出现在列表中，无需点击对话框的 **Save changes** 按钮即已保存。保存后您无法再次查看该值。
   </Step>
 </Steps>
 
 要确认机密是否有效，请在该环境中启动会话并让 Claude 调用 API，例如使用 `curl`。API 的响应就如同请求中带有密钥一样，而密钥不会出现在会话的环境变量或任何文件中。如果列表将某个机密标记为 **Not sent**，其下方的说明会解释原因和处理方法。两个主机重叠但不完全匹配的机密不会显示标记，而 Agent 代理只会发送其中一个。
+
+<h4 id="add-a-secret-without-the-role">
+  在没有组织管理员角色的 Team 计划上添加机密
+</h4>
+
+如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，**Add secret** 表单只接受针对一个主机的一个机密。在您环境的 [**Network secrets** 部分](#add-a-credential)中选择 **Add secret**，填写以下字段，然后选择表单中的 **Add secret** 按钮：
+
+* **Host**：获得该机密的唯一主机，例如 `api.example.com`。该表单不接受 `*.` 通配符
+* **Name**：机密的可选标签
+* **Secret type**：对于在请求头中传输的密钥选择 **Token**，或选择 **Username and password**。对于令牌，请将密钥粘贴为 **Value**
 
 <h4 id="which-requests-get-the-credential">
   哪些请求会获得机密
@@ -175,7 +183,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
   归档环境
 </h3>
 
-要归档您自己的某个环境，请打开它进行编辑并选择 **Archive**。所有者从管理设置中的 **Cloud environments** 页面归档[共享环境](#organization-shared-environments)。您无法删除环境，只能归档它。
+要归档您自己的某个环境，请打开它进行编辑，选择 **Archive environment** 并确认。如果该环境已[与您的组织共享](#organization-shared-environments)，则改由所有者从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面将其归档，因此除非您本身就是所有者，否则请联系所有者。您无法删除环境，只能归档它。
 
 归档影响新会话，不影响运行中的会话：
 
@@ -199,7 +207,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 所有者在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 单独选择组织的[默认环境](#the-default-environment)。
 
-每个成员在共享环境中的会话都会读取其变量，因此请勿在其中包含机密信息。[网络机密](#add-network-secrets)可以为会话提供其无法读取的密钥，但目前尚不适用于 Team 或 Enterprise 计划。
+要为共享环境的会话提供其无法读取的密钥，请在 **Cloud environments** 页面编辑该环境时添加[网络机密](#add-network-secrets)。请勿在其变量中包含机密信息，因为每个成员的会话都会读取这些变量。
 
 <h3 id="set-the-environment-a-claude-tag-channel-uses">
   设置 Claude Tag 频道使用的环境
@@ -216,7 +224,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 每个环境都设置一个网络访问级别，控制其会话可以进行的出站连接。默认级别 **Trusted** 允许包注册表和其他[允许列表中的域](#default-allowed-domains)；**Custom** 采用您自己的域列表。
 
-要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的云图标出现在[Default 环境](#the-default-environment)下列出的应用使用入口上，以及 [Routine 编辑器](/docs/zh-CN/routines#environments-and-network-access)中；个人环境在您的 claude.ai 账户设置中没有单独的页面。
+要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的控件出现在[Default 环境](#the-default-environment)下列出的应用使用入口上，以及 [Routine 编辑器](/docs/zh-CN/routines#environments-and-network-access)中；个人环境在您的 claude.ai 账户设置中没有单独的页面。
 
 当您更改 Anthropic 托管环境的网络访问时，其现有会话在约一分钟内遵循新设置，用于通过会话的[网络允许列表](#access-levels)的请求。您无需启动新会话。
 
@@ -318,12 +326,12 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 | 仅在您的用户设置中启用的插件 | 否 | 用户作用域的 `enabledPlugins` 位于您机器上的 `~/.claude/settings.json` |
 | 您使用 `claude mcp add` 在默认本地作用域或用户作用域添加的 MCP 服务器 | 否 | 这些写入您机器上的 `~/.claude.json`，而不是仓库。请使用 `claude mcp add --scope project` 添加服务器，它会写入仓库的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope)，并提交该文件。具有一个仓库的会话会加载它 |
 | 您的仓库的 `.claude/settings.json` `env` 块中的传输变量，例如 `NODE_EXTRA_CA_CERTS` 和 [mTLS 客户端证书变量](/docs/zh-CN/network-config#mtls-authentication) | 否 | 托管环境管理会话的 API 连接，因此 Claude Code 忽略这些键，并在会话的调试日志中记录每个被忽略的键 |
-| Claude 调用的服务的 API 密钥和令牌 | 在 Pro 和 Max 计划中，作为[网络密钥](#add-network-secrets) | 您在环境中添加一次密钥，Agent 代理会将其附加到发往您列出的主机的请求。Agent 代理[无法附加](#requests-that-never-get-the-credential)的密钥，或 Team 或 Enterprise 计划中的任何密钥，保留在环境变量中 |
+| Claude 调用的服务的 API 密钥和令牌 | 在 Anthropic 托管的环境中，作为[网络密钥](#add-network-secrets) | 您在环境中添加一次密钥，Agent 代理会将其附加到发往您列出的主机的请求。Agent 代理[无法附加](#requests-that-never-get-the-credential)的密钥保留在环境变量中 |
 | 交互式身份验证，例如 AWS SSO | 否 | 不支持。SSO 需要基于浏览器的登录，无法在云端会话中执行 |
 
 要在云端会话中提供您自己的配置，请将其提交到仓库。
 
-任何使用环境的人都可以读取其环境变量和设置脚本。对话框在**环境变量**下的注释说明了这一点，并警告不要在那里放置密钥。在 Pro 和 Max 计划中，请改为将 Agent 代理可以附加的密钥存储为[网络密钥](#add-network-secrets)。
+任何使用环境的人都可以读取其环境变量和设置脚本。对话框在**环境变量**下的注释说明了这一点，并警告不要在那里放置密钥。在 Anthropic 托管的环境中，请改为将 Agent 代理可以附加的密钥存储为[网络密钥](#add-network-secrets)。
 
 <h4 id="add-personal-preferences-without-committing-to-the-repo">
   添加个人偏好而无需提交到仓库

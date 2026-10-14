@@ -25,7 +25,7 @@
 claude.ai 端需要：
 
 * **Allow self-hosted environments** 由[所有者](/docs/zh-CN/cloud-environments#organization-shared-environments)在[**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments)上启用；在启用之前，**New** 按钮不会出现。如果您不拥有该角色，拥有该角色的人可以创建环境并将其密钥交给您；本页面上的运行器和终端步骤不需要 claude.ai 角色，当步骤在管理 UI 中检查状态时，运行器自己的日志行会给您相同的信号。
-* 您的组织的 [GitHub 连接](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)，以便开发人员在启动会话时可以选择存储库。
+* 由所有者启用的 [GitHub 连接器](https://claude.ai/admin-settings/connectors)，以及每位开发人员自己的 [GitHub 连接](/docs/zh-CN/web-quickstart#connect-github)，以便他们在启动会话时可以选择 github.com 仓库。
 
 <h3 id="host-and-network">
   主机和网络
@@ -34,7 +34,7 @@ claude.ai 端需要：
 运行器主机需要：
 
 * 一个 Linux 或 macOS 主机或容器，具有到 `api.anthropic.com` 的出站 HTTPS、到 `claude.ai` 和下面安装步骤重定向到的下载主机的出站 HTTPS，以及到您的 git 主机的出站 HTTPS 用于克隆；[网络要求表](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)有完整列表。Windows 不支持作为运行器主机；改为在 Linux 容器中运行运行器。开发人员工作站不受影响，因为会话从浏览器中的 claude.ai 启动。
-* 一个用于测试会话的仓库：可以是公共仓库，也可以是此主机已能通过其 HTTPS URL 克隆且无需提供凭据的仓库。
+* 一个用于测试会话的仓库：可以是公共仓库，也可以是此主机已能通过其 HTTPS URL 克隆且无需提供凭据的仓库。仅有 SSH 密钥是不够的，因为运行器克隆的是仓库的 `https://` URL。要改为通过 SSH 克隆，请参阅[为私有网络重写 git URL](/docs/zh-CN/self-hosted-environments-deploy#rewrite-git-urls-for-private-networks)。
 * 与实时同步的时钟，例如使用 NTP。当时钟偏离超过五分钟时，身份验证失败；请参阅[故障排除](/docs/zh-CN/self-hosted-environments-deploy#troubleshooting)。
 
 <h3 id="software-on-the-runner-host">
@@ -105,7 +105,11 @@ claude self-hosted-runner setup
 
     选择一个基目录，将下面运行器命令中的 `<writable-dir>` 替换为运行器可以写入或创建的绝对路径。运行器在启动时创建目录，然后检查存储库并在其下创建每个会话的目录。没有 `--base-dir`，它使用 `/workspace`，这仅在该目录已存在且可写或您以 root 身份启动运行器时有效。
 
-    如果运行器无法创建或写入路径，它在启动时以命名目录的错误退出，而不是注册。请参阅[故障排除](/docs/zh-CN/self-hosted-environments-deploy#troubleshooting)。
+    <Warning>
+      请使用专供运行器使用的目录，而不是您的主目录或存放您自己克隆的目录。运行器会将它在 `<writable-dir>/<repo-owner>/<repo>` 处找到的任何内容视为它自己的克隆，并可能重置它以及覆盖或删除其中的文件。
+    </Warning>
+
+    如果运行器无法创建或写入基目录，它会在启动时退出并显示指明该目录的错误，而不是进行注册。请参阅[故障排除](/docs/zh-CN/self-hosted-environments-deploy#troubleshooting)。
 
     然后使用 `--environment-secret-file` 和 `--base-dir` 启动运行器：
 
@@ -113,7 +117,7 @@ claude self-hosted-runner setup
     claude self-hosted-runner --environment-secret-file '/etc/claude/environment-secret' --base-dir '<writable-dir>'
     ```
 
-    运行器向您的环境注册后会记录 `Registered: runner_id=<runner-id>`，然后开始轮询工作。如果运行器之后退出，请手动重新启动它。有关何时会发生这种情况，请参阅[如果运行器退出](#if-the-runner-exits)。
+    运行器向您的环境注册后会记录 `Registered: runner_id=<runner-id>`，然后开始轮询工作。使用此命令启动时，运行器按设计会在服务完一个会话后退出，而不是在每个轮次之后退出。要服务更多会话，请在每次运行器退出时再次启动它。有关何时会发生这种情况以及运行器会记录什么，请参阅[如果运行器退出](#if-the-runner-exits)。
   </Step>
 
   <Step title="验证运行器出现">
@@ -121,14 +125,16 @@ claude self-hosted-runner setup
   </Step>
 
   <Step title="将会话路由到环境">
-    <span id="route-a-session" />在 claude.ai/code 启动会话，并从环境选择器中选择您的环境，其中自托管环境与 Anthropic 托管的环境一起出现。对于仓库，请选择[前提条件](#host-and-network)中的仓库：公共仓库，或此主机已可以克隆的仓库。运行器使用主机已有的任何 git 凭据进行克隆。
+    <span id="route-a-session" />在 claude.ai/code 启动会话，并从环境选择器中选择您的环境，其中自托管环境与 Anthropic 托管的环境一起出现。对于仓库，请选择[前提条件](#host-and-network)中的仓库：公共仓库，或此主机已可以通过其 HTTPS URL 克隆且不会被要求提供凭据的仓库。
 
     下一个可用的运行器拾取排队的会话并记录 `Picked up session <session-id>` 以及其活跃计数和容量，因此您可以从运行器自己的输出中确认哪个主机接收了会话。在 [claude.ai/code](https://claude.ai/code) 观看会话工作并阅读 Claude 的回复。
 
-    如果会话没有开始工作，请对照您看到的情况：
+    <span id="session-doesnt-start" />如果会话没有开始工作，请对照您看到的情况：
 
     * **会话保持排队状态**：请参阅[故障排除](/docs/zh-CN/self-hosted-environments-deploy#troubleshooting)。
-    * **会话因 git 错误而无法启动**：错误会显示在会话和运行器的日志中。如果错误包含 git 的 `could not read Username for`，后跟您的 git 主机的 URL，则说明运行器没有该主机的 HTTPS 凭据。请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)，其中还介绍了生产环境中私有仓库的凭据选项。
+    * **会话因 git 错误而无法启动**：如果错误包含 git 的 `could not read Username for`，后跟您的 git 主机的 URL，则说明运行器没有该主机的 HTTPS 凭据。
+      * **提供 HTTPS 凭据**：请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)
+      * **改为通过 SSH 克隆**：如果运行器主机已有 SSH 密钥，请参阅[为私有网络重写 git URL](/docs/zh-CN/self-hosted-environments-deploy#rewrite-git-urls-for-private-networks)
   </Step>
 </Steps>
 
@@ -136,9 +142,11 @@ claude self-hosted-runner setup
   如果运行器退出
 </h3>
 
-如果运行器在本快速入门期间退出，请使用相同的命令再次启动它。运行器可能会自行退出：
+如果运行器在本快速入门期间退出，请再次启动它。运行器可能会自行退出：
 
-* **会话已完成**：日志显示 `[runner:exit] account workload drained — exiting`。运行器在其活跃会话完成后按设计退出。请参阅[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle)。
+* **没有仍在运行的内容**：日志显示 `[runner:exit] account workload drained — exiting`。运行器在不再运行任何会话时会[按设计退出](/docs/zh-CN/self-hosted-environments#runner-lifecycle)，例如：
+  * **您归档或删除了会话**：再次启动运行器
+  * **会话启动失败**：[修复原因](#session-doesnt-start)，然后再次启动运行器
 * **失去联系**：日志显示一行包含 `runner record gone server-side` 或 `poll auth failed` 的 `[runner:fatal]`。如果运行器与 Anthropic 失去联系一段时间（例如因为主机休眠），它可能会在下次连接到 Anthropic 时退出。
 
 一个轮次结束并不会结束您的测试会话。第一轮之后，会话仍处于连接状态，运行器也仍在运行，因此您可以[向会话发送后续消息](#send-a-follow-up-message-to-a-running-session)，而无需先重新启动运行器。

@@ -2056,7 +2056,7 @@ x-deny-reason: host_not_allowed
 这些步骤更改您自己的环境之一。[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)在选择器中以只读方式打开，因此请要求所有者从[管理设置](https://claude.ai/admin-settings)中的**云环境**页面更改其网络访问。
 
 * 打开您的环境进行编辑，可以从[例程的表单](/docs/zh-CN/routines#environments-and-network-access)或从[环境选择器](/docs/zh-CN/cloud-environments#configure-your-environment)启动云会话。
-* 在 **Edit environment** 对话框中，将 **Network access** 从 **Trusted** 更改为 **Custom**，然后将被阻止的域添加到 **Allowed domains**。每行输入一个域。勾选 **Also include default list of common package managers** 以将[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)与您的自定义域保持在一起。如果您想要不受限制的访问，请改为选择 **Full**。
+* 在 **Edit cloud environment** 对话框中，将 **Network access** 从 **Trusted** 更改为 **Custom**，然后将被阻止的域添加到 **Allowed domains**。每行输入一个域。勾选 **Also include default list of common package managers** 以将[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)与您的自定义域一起保留。如果您想要不受限制的访问，请改为选择 **Full**。
 * 单击**保存更改**。下一次运行使用更新的允许列表。对于已打开的云会话，请参阅[网络访问更改何时到达现有会话](/docs/zh-CN/cloud-environments#network-access)。
 
 有关访问级别和默认允许列表，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。本地 CLI 会话不受此策略影响。
