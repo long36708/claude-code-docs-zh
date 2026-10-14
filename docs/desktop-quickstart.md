@@ -72,7 +72,7 @@ Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介�
     您也可以选择：
 
     * **云**：在云中运行会话，即使关闭应用也能继续。请参阅 [在云中使用 Claude Code](/docs/zh-CN/claude-code-on-the-web) 了解云会话的工作原理。
-    * **SSH**：通过 SSH 连接到远程机器，例如您自己的服务器、云虚拟机或开发容器。桌面版在您第一次连接时会自动在远程机器上安装 Claude Code。
+    * **SSH**：通过 SSH 连接到远程机器，例如您自己的服务器、云虚拟机或开发容器。桌面版在您第一次连接时会自动在远程机器上安装 Claude Code。正在运行的任务可以[在桌面版断开连接时继续运行](/docs/zh-CN/desktop#keep-a-task-running-while-desktop-is-disconnected)，但如果使用 Claude 账户，任务可能会在其登录过期时停止。
     * **WSL**（Windows）：在 [WSL 2 发行版](/docs/zh-CN/desktop-wsl) 内运行会话；Claude Code、工具和 git 在 Linux 端执行，使用本机路径。
   </Step>
 

@@ -328,6 +328,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_IDE_HOST_OVERRIDE` | 覆盖用于连接 IDE 扩展的主机地址。默认情况下，Claude Code 会自动检测正确的地址，包括 WSL 到 Windows 的路由 |
 | `CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL` | 设置为 `1` 可跳过 IDE 扩展的自动安装。等同于将 [`autoInstallIdeExtension`](/docs/zh-CN/settings-reference#autoinstallideextension) 设置为 `false` |
 | `CLAUDE_CODE_IDE_SKIP_VALID_CHECK` | 设置为 `1` 可在连接时跳过对 IDE 锁文件条目的验证。当 IDE 正在运行但自动连接仍找不到它时使用 |
+| `CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS` | 对对话应用[空闲压缩](/docs/zh-CN/settings-reference#idlecompaction)的上下文大小（以 token 计）（默认值：`200000`）。接受正整数，其他值会被忽略。低于 `100000` 的值会被提高到最低阈值 `100000`。对于满足条件的对话，空闲压缩默认开启。要关闭它，请将 `idleCompaction` 设置为 `false`。需要 Claude Code v2.1.290 或更高版本 |
 | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` | 一个会话中最多可同时运行多少个[子代理](/docs/zh-CN/sub-agents#concurrent-subagent-limit)，超过后 Agent 工具将拒绝再生成新的子代理（默认：20）。接受以纯数字表示的正整数；其他值会被忽略，因此此变量可以调整上限，但不能禁用它。需要 Claude Code v2.1.217 或更高版本 |
 | `CLAUDE_CODE_MAX_CONTEXT_TOKENS` | 覆盖 Claude Code 为当前模型假定的上下文窗口大小。从 v2.1.193 起，其应用方式取决于 Claude Code 如何解析模型 ID；请参阅[为网关或自定义模型 ID 更正窗口大小](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id)。当通过 `ANTHROPIC_BASE_URL` 路由到某个模型，而其上下文窗口与其名称对应的内置大小不匹配时使用 |
 | `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` | Claude Code 发送给模型的每个 MCP 工具描述和每个 MCP 服务器指令的最大长度（字符数，默认：2048）。Claude Code 会[截断更长的文本](/docs/zh-CN/mcp#for-mcp-server-authors)。接受以纯数字表示的正整数。其他值会被忽略并应用默认值。需要 Claude Code v2.1.280 或更高版本 |
@@ -452,7 +453,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_SUBAGENT_BG_SHELL_MAX_MS` | 已在 v2.1.260 中移除，现在不起任何作用。此前用于限制[子代理](/docs/zh-CN/sub-agents)启动的[后台 shell 命令](/docs/zh-CN/interactive-mode#background-bash-commands)可运行的时长（毫秒），默认为 60 分钟。请参阅[后台命令生命周期规则](/docs/zh-CN/tools-reference#background-commands) |
 | `DEBUG` | 设置为 `1` 可启用调试模式，等同于使用 [`--debug`](/docs/zh-CN/cli-reference#cli-flags) 启动。调试日志会写入 `~/.claude/debug/<session-id>.txt`，或写入 `CLAUDE_CODE_DEBUG_LOGS_DIR` 设置的路径。只有真值 `1`、`true`、`yes` 和 `on` 才会启用调试模式，因此为其他工具设置的命名空间模式（如 `DEBUG=express:*`）不会触发它 |
 | `DISABLE_AUTOUPDATER` | 设置为 `1` 可禁用自动后台更新。手动 `claude update` 仍然有效。使用 `DISABLE_UPDATES` 可同时阻止两者 |
-| `DISABLE_AUTO_COMPACT` | 设置为 `1` 可禁用接近上下文限制时的自动压缩。手动 `/compact` 命令仍然可用。适用于您希望明确控制何时进行压缩的情况。覆盖 [`autoCompactEnabled`](/docs/zh-CN/settings-reference#autocompactenabled) 设置 |
+| `DISABLE_AUTO_COMPACT` | 设置为 `1` 可禁用接近上下文限制时的自动压缩，以及[空闲压缩](/docs/zh-CN/settings-reference#idlecompaction)。手动 `/compact` 命令仍然可用。适用于您希望明确控制何时进行压缩的情况。覆盖 [`autoCompactEnabled`](/docs/zh-CN/settings-reference#autocompactenabled) 设置 |
 | `DISABLE_COMPACT` | 设置为 `1` 可禁用所有压缩：包括自动压缩和手动 `/compact` 命令 |
 | `DISABLE_COST_WARNINGS` | 设置为 `1` 可禁用费用警告消息 |
 | `DISABLE_DOCTOR_COMMAND` | 设置为 `1` 可隐藏 [`/doctor`](/docs/zh-CN/commands#all-commands) 设置检查 skill 及其 `/checkup` 别名。适用于不应让用户在会话中运行设置诊断的托管部署。不影响 `claude doctor` 终端命令。在 v2.1.205 之前，此变量会隐藏 `/doctor` 诊断界面命令 |
@@ -600,6 +601,7 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 * 获得 [Claude 起草的反馈](/docs/zh-CN/tools-reference#sendfeedback-tool-behavior)，该功能由 Claude Code 通过获取的标志启用
 * 让 Claude [将大段粘贴内容视为粘贴而非键入的文本](/docs/zh-CN/terminal-config#how-claude-treats-pasted-text)；`[Pasted text #N]` 占位符背后的内容将以无标记形式传给 Claude
 * 让 Claude Code [排除其输入 schema 会被 API 拒绝的 MCP 工具](/docs/zh-CN/mcp#tools-with-invalid-input-schemas)；它仍会发送该 schema，包含该 schema 的请求会失败，并返回[按位置指明该工具的 400 错误](/docs/zh-CN/errors#tool-input-schema-is-invalid)
+* 让 Claude Code [在终端会话空闲时压缩较长的对话](/docs/zh-CN/settings-reference#idlecompaction)，时机为一小时的提示词缓存即将过期前不久
 
 <h3 id="first-session-after-an-install-or-upgrade">
   安装或升级后的首个会话

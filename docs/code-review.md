@@ -155,8 +155,6 @@ gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID \
 * 您必须对存储库具有写入、维护或管理员权限
 * PR 必须打开
 
-如果存储库属于某个组织，且您在该组织中的成员身份是私密的（这是 GitHub 的默认设置），GitHub 不会将您标识为 Claude 的成员。Claude 可能仍会用 👀 对您的评论做出反应，但除非您被直接添加到存储库作为协作者，否则它不会启动审查，即使团队或组织的基础权限给予您写入访问权限。要解决此问题，[公开您的组织成员身份](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/publicizing-or-hiding-organization-membership)或要求存储库管理员将您添加到存储库作为协作者。
-
 与自动触发不同，手动触发在草稿 PR 上运行，因为显式请求表示您想要现在的审查，无论草稿状态如何。
 
 如果该 PR 上已有审查正在运行，请求将排队等待进行中的审查完成。您可以通过 PR 上的检查运行监控进度。

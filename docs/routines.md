@@ -182,7 +182,7 @@ CLI 中的 `/schedule` 创建计划例程。要添加 API 触发器，请在 Web
 
 API 触发器为例程提供专用的 HTTP 端点。使用例程的持有者令牌 POST 到端点会启动新会话并返回会话 URL。使用此功能将 Claude Code 连接到警报系统、部署管道、内部工具或任何可以进行身份验证 HTTP 请求的地方。
 
-API 触发器从 Web 添加到现有例程。CLI 目前无法创建或撤销令牌。
+API 触发器从 Web 添加到现有 Routine。CLI 目前无法创建、重新生成或删除令牌。
 
 <Steps>
   <Step title="打开例程进行编辑">
@@ -202,7 +202,10 @@ API 触发器从 Web 添加到现有例程。CLI 目前无法创建或撤销令�
   </Step>
 </Steps>
 
-每个例程都有自己的令牌，仅限于触发该例程。要轮换或撤销它，请返回同一模态并单击 **Regenerate** 或 **Revoke**。
+每个 Routine 都有自己的令牌，仅限于触发该 Routine。要关闭 API 访问或轮换令牌，请返回同一模态：
+
+* **关闭 API 访问**：单击 **Delete token**，即 **Regenerate** 旁边的垃圾桶图标
+* **轮换令牌**：单击 **Regenerate**
 
 <h4 id="trigger-a-routine">
   触发例程

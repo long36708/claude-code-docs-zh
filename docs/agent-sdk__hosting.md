@@ -405,7 +405,7 @@ Anthropic 令牌成本通常比容器基础设施成本高一个数量级或更�
 </h2>
 
 * [Hosting cookbook](https://github.com/anthropics/claude-cookbooks/blob/main/claude_agent_sdk/07_Hosting_the_agent.ipynb)：包含 Docker、Modal 和 Kubernetes 的[可部署代码](https://github.com/anthropics/claude-cookbooks/tree/main/claude_agent_sdk/hosting)的笔记本演练。
-* [Session storage](/docs/zh-CN/agent-sdk/session-storage)：使用 `SessionStore` 适配器在主机间持久化记录。
+* [会话存储](/docs/zh-CN/agent-sdk/session-storage)：使用 `SessionStore` 适配器在主机间持久化记录。
 * [Observability](/docs/zh-CN/agent-sdk/observability)：将 OTEL 跟踪、指标和日志导出到您的收集器。
 * [Secure deployment](/docs/zh-CN/agent-sdk/secure-deployment)：网络控制、凭证管理和隔离加固。
 * [Cost tracking](/docs/zh-CN/agent-sdk/cost-tracking)：按会话的令牌和成本计费。

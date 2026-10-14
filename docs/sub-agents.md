@@ -1214,7 +1214,7 @@ Continue that code review and now analyze the authorization logic
   上下文自动压缩
 </h4>
 
-子代理支持使用与主对话相同的逻辑进行自动压缩。压缩在相同条件下触发，`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 同样适用于子代理。有关该覆盖何时生效，请参阅[环境变量](/docs/zh-CN/env-vars)。
+子代理支持自动压缩。压缩会在子代理自身的上下文窗口逐渐填满时触发，`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 同样适用于子代理。有关该覆盖何时生效，请参阅[环境变量](/docs/zh-CN/env-vars)。
 
 压缩事件会记录在子代理会话记录文件中：
 

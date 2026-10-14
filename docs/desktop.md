@@ -46,7 +46,7 @@ Claude Desktop 应用有三个选项卡：**Chat** 用于对话，**Cowork** 用
 
 在发送第一条消息之前，在提示区域配置四件事：
 
-* **环境**：选择 Claude 运行的位置。选择 **Local** 用于你的机器，**Cloud** 用于[云会话](#cloud-sessions)，该会话在你关闭应用后继续运行，[**SSH 连接**](#ssh-sessions)用于你管理的远程机器，或在 Windows 上选择 [**WSL 发行版**](/docs/zh-CN/desktop-wsl)。请参阅[环境配置](#environment-configuration)。
+* **环境**：选择 Claude 运行的位置。选择 **Local** 在您的机器上运行，选择 **Cloud** 使用[云端会话](#cloud-sessions)，该会话在您关闭应用后仍会继续运行；选择 [**SSH 连接**](#ssh-sessions)使用您管理的远程机器；或在 Windows 上选择 [**WSL 发行版**](/docs/zh-CN/desktop-wsl)。SSH 会话中的任务可以[在 Desktop 断开连接时继续运行](#keep-a-task-running-while-desktop-is-disconnected)，但如果使用 Claude 账户，任务可能会在登录过期时停止。请参阅[环境配置](#environment-configuration)。
 * **项目文件夹**：选择 Claude 工作的文件夹或存储库。对于云会话，你可以添加[多个存储库](#run-long-running-tasks-in-the-cloud)。
 * **模型**：从发送按钮旁的下拉菜单中选择一个[模型](/docs/zh-CN/model-config#available-models)。你可以在会话期间更改此设置。
 * **权限模式**：从[模式选择器](#choose-a-permission-mode)中选择 Claude 拥有多少自主权。你可以在会话期间更改此设置。
@@ -236,7 +236,9 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
   在终端中运行命令
 </h3>
 
-集成终端让您无需切换到另一个应用即可在会话旁运行命令。点击会话标题栏中的 **Terminal**，或在 macOS 或 Windows 上按 **Ctrl+\`**。终端在您的会话工作目录中打开，并与 Claude 共享相同的环境，因此 `npm test` 或 `git status` 等命令看到 Claude 正在编辑的相同文件。要打开第二个终端选项卡，点击终端窗格标题中的 **+** 或右键点击聊天中的文件夹来选择 **Open in terminal**。终端在本地和 [SSH](#ssh-sessions) 会话中可用。
+集成终端让您无需切换到另一个应用即可在会话旁运行命令。点击会话标题栏中的 **Terminal**，或在 macOS 或 Windows 上按 **Ctrl+\`**。终端在您的会话工作目录中打开，并与 Claude 共享相同的环境，因此 `npm test` 或 `git status` 等命令看到 Claude 正在编辑的相同文件。要打开第二个终端选项卡，点击终端窗格标题中的 **+** 或右键点击聊天中的文件夹来选择 **Open in terminal**。
+
+终端在本地和 [SSH](#ssh-sessions) 会话中可用，但在 [Windows 远程机器](#windows-remote-machines)上存在限制。
 
 <h3 id="open-and-edit-files">
   打开和编辑文件
@@ -467,6 +469,10 @@ Claude 还可以建议新会话。当它注意到值得修复但超出当前任�
 云端会话还支持多个仓库。选择云端环境后，点击所选仓库旁边的 **+** 按钮即可向会话添加更多仓库。每个仓库都有自己的分支选择器。这对于跨越多个代码库的任务很有用，例如更新共享库及其使用方。
 
 有关云端会话工作方式的更多信息，请参阅[在云端使用 Claude Code](/docs/zh-CN/claude-code-on-the-web)。当一项工作需要许多云端会话时，请在侧边栏中选择 **Projects** 创建一个[项目](/docs/zh-CN/claude-projects)，Claude 会在一个对话中为您启动并跟踪这些会话。
+
+<Note>
+  [SSH 会话](#ssh-sessions)中的任务也可以[在 Desktop 断开连接时继续运行](#keep-a-task-running-while-desktop-is-disconnected)，但如果使用 Claude 账户，该任务可能会在登录过期时停止。
+</Note>
 
 <h3 id="continue-in-another-surface">
   在另一个使用入口继续
@@ -772,7 +778,7 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 * **Local**：在你的机器上运行，直接访问你的文件
 * **Cloud**：在 Anthropic 管理的基础设施上运行。即使你关闭应用，会话也会继续。
-* **SSH**：在你通过 SSH 连接的远程机器上运行，例如你自己的服务器、云虚拟机或开发容器
+* **SSH**：在您通过 SSH 连接的远程机器上运行，例如您自己的服务器、云虚拟机或开发容器。正在运行的任务可以[在 Desktop 断开连接时继续运行](#keep-a-task-running-while-desktop-is-disconnected)，但如果使用 Claude 账户，任务可能会在其登录过期时停止。
 * **WSL**（Windows）：在你的机器上的 [WSL 2 发行版](/docs/zh-CN/desktop-wsl)内运行，使用其 Linux 工具链和本地路径
 
 <h3 id="local-sessions">
@@ -826,7 +832,7 @@ SSH 会话让你在远程机器上运行 Claude Code，同时使用桌面应用�
 
 添加后，该连接会出现在环境下拉菜单的 **SSH** 下。选择它即可在该机器上启动会话。Claude 在远程机器上运行，可以访问其文件和工具。
 
-远程机器必须运行 Linux 或 macOS。Desktop 在你第一次连接时会自动在远程机器上安装 Claude Code。连接后，SSH 会话支持权限模式、connectors、plugins 和 MCP servers。
+远程机器可以运行 Linux、macOS 或 [Windows](#windows-remote-machines)。Desktop 在您第一次连接时会自动在远程机器上安装 Claude Code。连接后，SSH 会话支持权限模式、连接器、插件和 MCP 服务器。
 
 <h4 id="remote-machine-requirements-for-ssh-sessions">
   SSH 会话的远程机器要求
@@ -888,6 +894,172 @@ Host devbox
 
 `ssh` 会使用它为某个主机找到的第一个值，因此请将该条目放在任何设置了 `ConnectTimeout` 的 `Host *` 条目之前。要进行确认，请在您计算机的终端中运行 `ssh -G devbox`，其输出应包含 `connecttimeout 120`。更改该值后，请退出并重新打开 Desktop。
 
+<h4 id="windows-remote-machines">
+  Windows 远程机器
+</h4>
+
+Windows 远程机器需要 Claude Desktop v2.31226.0 或更高版本。
+
+请使用 Microsoft 的 OpenSSH Server。该机器可以是 x64 或 ARM64。SSH 服务器启动的 shell 可以是 `cmd.exe`、Windows PowerShell 5.1 或 Git Bash。
+
+Windows 远程机器获得的测试少于 Linux 远程机器。在依赖它之前，请先在上面试运行您自己的工作。
+
+在 Windows 远程机器上，预计会有以下限制（以及其他限制）：
+
+* **终端**：在文件夹为 Windows 路径（例如 `C:/projects/app`）的会话中，[终端](#run-commands-in-the-terminal)无法打开
+* **沙箱**：Claude Code 在那里以原生 Windows 方式运行，此时它会在没有沙箱的情况下运行命令。请参阅[沙箱的运行位置](/docs/zh-CN/sandboxing)。
+* **插件**：如果插件包含 Windows 无法存储的文件名或文件夹名（例如含有 `:` 的名称），Desktop 不会复制该插件。会话会列出 Desktop 省略的插件。
+* **MCP 服务器**：在某些 Windows 远程机器上，Claude 对 `claude_desktop_config.json` 中 MCP 服务器的调用会经过 Desktop，因此 Claude 无法[在 Desktop 断开连接时](#limits-while-desktop-is-disconnected)调用它们的工具。在 Claude Desktop v2.37337.0 之前，所有 Windows 远程机器都是如此。
+* **Worktree**：worktree 位于 `<project-root>/.claude/worktrees/`。如果您[选择了其他文件夹](#choose-where-ssh-session-worktrees-go)，Desktop 会忽略它。
+* **早先的消息**：如果 SSH 服务器的 shell 是 `cmd.exe` 或 Windows PowerShell，您可能需要先连接才能看到会话中早先的消息
+* **分叉**：如果 SSH 服务器的 shell 是 `cmd.exe` 或 Windows PowerShell，您只能在会话的第一条消息处分叉该会话
+* **断开连接时继续运行**：只有当 SSH 服务器允许程序在启动它的连接关闭后继续存在时，任务才会[在 Desktop 断开连接时继续运行](#keep-a-task-running-while-desktop-is-disconnected)。要了解是否如此，请[测试远程机器](#prepare-a-long-task)。
+* **残留进程**：会话结束后，请检查机器上是否有 Claude Code 启动的程序，因为它们可能会继续运行。Desktop 在那里安装的[后台辅助程序](#keep-a-task-running-while-desktop-is-disconnected)不会自行停止。
+
+<h4 id="keep-a-task-running-while-desktop-is-disconnected">
+  在 Desktop 断开连接时保持任务运行
+</h4>
+
+如果您的计算机进入睡眠、网络断开或您退出 Desktop，任务会继续进行，直到完成、需要您处理，或达到某项[限制](#limits-while-desktop-is-disconnected)。合上盖子算作睡眠。重启 Desktop 或计算机（包括为了更新而重启）算作退出。
+
+Claude Code 作为远程机器上的一个进程运行，由 Desktop 在那里安装的后台辅助程序托管，因此它不需要您的 SSH 连接即可继续运行。本节所述行为需要 Claude Desktop v2.31226.0 或更高版本。
+
+<Warning>
+  如果您使用 Claude 账户登录 Desktop，请不要指望任务能通宵运行。Desktop 只有在运行且已连接时才会为任务续期该登录，因此任务的登录可能在您断开连接后过期，任务随之停止。断开连接时剩余的时间不固定。
+
+  到目前为止完成的工作会保留在远程机器上，您回来后可以发送一条消息继续。
+
+  如果任务必须通宵运行：
+
+  * [保持计算机唤醒](/docs/zh-CN/desktop-scheduled-tasks#how-scheduled-tasks-run)并在线，盖子打开且 Desktop 保持运行
+  * 对远程机器以及途中的任何跳板主机，使用无需提示即可完成的登录方式，例如由您的 SSH agent 持有的密钥。这样 Desktop 就可以在连接中断后自行重新连接。
+
+  对于必须在计算机睡眠或关机时运行的任务，请改为启动[云端会话](#run-long-running-tasks-in-the-cloud)。
+</Warning>
+
+* **睡眠或网络断开后**：如果进程[仍在运行](#limits-while-desktop-is-disconnected)且 Desktop 无需提示即可登录，您就能取回正在运行的任务。否则，请[发送一条消息](#reconnect-after-sleep-or-a-network-loss)。
+* **退出后，Desktop 在 macOS 或 Linux 上且使用 Claude 账户**：如果 Desktop 能够[重新接入该进程](#reopen-a-session-after-you-quit-desktop)，您就能取回正在运行的任务。否则，任务会停止。如果任务一直处于停止状态，请发送一条消息。
+* **退出后，Desktop 在 Windows 上或使用[第三方提供商](/docs/zh-CN/third-party-integrations)**：您会失去正在运行的任务，因为 Desktop 会在会话打开时结束该进程。请发送一条消息继续。
+
+当您回来而任务尚未完成时，请检查是否有 Desktop 无法重新连接的提示、身份验证错误或正在等待的请求：
+
+* **Desktop 无法重新连接**：会话会说明原因，也可能会有通知说明。Desktop 可能[需要您登录](#reconnect-after-sleep-or-a-network-loss)。
+* **身份验证错误**：[登录令牌或凭据](#limits-while-desktop-is-disconnected)可能已过期。使用 Claude 账户时，发送一条消息即可继续。使用第三方提供商时，请参阅 [SSH remote sessions in Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
+* **正在等待的请求**：[回应它](#handle-requests-that-arrive-while-you-are-away)
+* **以上都不是**：发送一条消息继续
+
+<a id="prepare-a-long-task" />
+
+<h5 id="prepare-a-long-task">
+  准备长时间任务
+</h5>
+
+* **先更新**：在开始长时间任务之前更新 Desktop。在 macOS 和 Windows 上，Desktop 可能会自行重启以安装已下载的更新。当 Claude 正在处理 SSH 任务时，该重启会等待。在 macOS 上使用 Claude 账户时，默认情况下，更新等待 72 小时后，重启仍可能会进行。
+* **不要退出 Desktop**：如果 Desktop 在 Windows 上运行或使用第三方提供商，请在长时间任务运行期间保持其打开。退出后，它会在会话打开时[结束正在运行的任务](#reopen-a-session-after-you-quit-desktop)。保持打开并不能保护[等待您处理](#handle-requests-that-arrive-while-you-are-away)的请求。
+* **减少请求**：选择能够[让任务更少等待您](#handle-requests-that-arrive-while-you-are-away)的权限模式、规则或 hook
+* **检查跳板主机**：如果您的跳板主机要求登录（例如向手机推送通知），请改用无需提示的登录方式。否则，Desktop 每次尝试重新连接时都可能再发送一次推送。
+* **测试远程机器**：启动一个短任务，在任务仍在运行时退出 Desktop，并在任务应该完成之后过一段时间再打开该会话。如果任务尚未完成且会话没有显示身份验证错误，请检查远程机器上[可能结束任务的因素](#limits-while-desktop-is-disconnected)。
+* **不要在 Desktop 的终端中运行命令**：如果远程机器会[注销空闲终端](#limits-while-desktop-is-disconnected)，请从 Desktop 之外的 SSH 登录运行您自己的命令
+
+<a id="limits-while-desktop-is-disconnected" />
+
+<h5 id="limits-while-desktop-is-disconnected">
+  Desktop 断开连接时的限制
+</h5>
+
+您让其继续运行的任务可能会在其登录过期、远程机器结束它，或辅助程序停止或被替换时结束：
+
+* **登录令牌或凭据**：使用 Claude 账户时，令牌过期后任务会因身份验证错误而停止。使用第三方提供商时，会过期的凭据（例如来自单点登录或凭据辅助程序的凭据）也是如此。请参阅 [SSH remote sessions in Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。使用 Claude 账户时，请[保持 Desktop 运行并连接](#keep-a-task-running-while-desktop-is-disconnected)，以便它能续期登录。
+* **远程机器**：如果远程机器重启，或在您的 SSH 连接关闭时结束您的进程，正在运行的任务就会结束。在 Desktop 断开连接期间，没有任何东西会重新启动它。systemd-logind 的 `KillUserProcesses` 为 `yes` 且适用于您的用户的 Linux 机器会以这种方式结束您的进程。要让任务在那里继续运行，请让管理员将您的用户排除在外，例如使用 `KillExcludeUsers`。
+* **空闲终端**：某些 Linux 远程机器会在终端无人输入达到设定时间后将其注销（systemd-logind 的 `StopIdleSessionSec`）。在 macOS 或 Linux 上使用 Desktop 时，会话的[终端](#run-commands-in-the-terminal)和 `!` 命令默认共享 Desktop 的 SSH 连接。这样一来，该注销会在 Desktop 已连接时结束连接，正在运行的任务也可能随之结束。关闭终端窗格并不能防止这种情况，因此请[不要在该终端中运行命令](#prepare-a-long-task)。
+* **Desktop 更新**：如果某次更新带来了新的辅助程序，Desktop 会在之后的某次连接时替换远程机器上的辅助程序，这可能会结束仍在运行的任务
+* **长时间离开**：在 Linux 或 macOS 远程机器上，如果 Desktop 30 天未连接，辅助程序会停止，并结束在其下运行的每个 Claude Code 进程。请在此之前进行连接。
+
+在 Desktop 断开连接期间，文件编辑和某些工具可能会失败。如果任务需要它们，请保持 Desktop 连接：
+
+* **Worktree**：在使用 [worktree](#work-in-parallel-with-sessions) 的会话中，Desktop 会在 Claude 进行每次文件编辑之前对其进行检查。在 Desktop 断开连接期间，每次编辑会等待约 30 秒然后失败。shell 命令仍会运行。在 Linux 或 macOS 远程机器上，[编辑可以继续正常工作](#worktree-edits-while-disconnected)。如果不确定，请在不使用 worktree 的情况下启动会话。
+* **文件夹限制**：如果您的组织限制了会话可以使用的文件夹，无论是否使用 worktree，Desktop 都会检查每次文件读取、搜索和编辑。在 Desktop 断开连接期间，每项操作会等待最多 10 分钟然后失败。
+* **连接器**：[连接器](#connect-external-tools)和 Desktop 提供的其他工具通过 Desktop 运行，因此在其断开连接期间，每次调用会在约 30 秒后失败
+* **工作流**：Desktop 会在每个新[工作流](/docs/zh-CN/workflows)启动前对其进行检查，因此在 Desktop 断开连接期间，新工作流会等待最多 10 分钟然后失败
+* **MCP 服务器**：Claude Code 在远程机器上启动的 MCP 服务器不经过 Desktop 运行，因此 Claude 仍可以调用它们的工具。只有当 Desktop 不使用其[内置 SSH 客户端](#worktree-edits-while-disconnected)时，来自 `claude_desktop_config.json` 的服务器才属于此类。否则，以及在[某些 Windows 远程机器](#windows-remote-machines)上，Claude 在 Desktop 断开连接期间无法调用它们的工具。
+
+<span id="worktree-edits-while-disconnected" />
+
+<Accordion title="worktree 中的编辑何时可以继续正常工作">
+  在 Linux 或 macOS 远程机器上，该检查不经过 Desktop，因此在 Desktop 断开连接期间，worktree 内的编辑可以继续正常工作。在 Claude Desktop v2.37337.0 之前，仅在 Linux 远程机器上如此。
+
+  在某些情况下编辑仍会失败，包括以下情况：
+
+  * **内置 SSH 客户端**：Desktop 使用了它，例如在 Microsoft Store 安装版中、在没有 Microsoft OpenSSH 9.4 或更高版本的 Windows 计算机上，或在 Windows 上使用第三方提供商时的默认情况
+  * **仓库位置**：仓库是您的主目录、其上级文件夹或 `~/.claude`
+  * **macOS 路径**：在 macOS 远程机器上，仓库位于 `/Volumes` 下，或者仓库或 worktree 路径中的某个文件夹名称包含 `~` 或非 ASCII 字符
+  * **文件夹限制**：您的组织限制了会话可以使用的文件夹
+  * **企业启动器**：在 Claude Desktop v2.37337.0 之前，您使用 Claude 账户登录，并且您的组织通过[企业启动器](/docs/zh-CN/corporate-launcher)在远程机器上启动 Claude Code
+
+  不使用 worktree 的会话没有此类检查，除非您的组织限制了会话可以使用的文件夹。
+</Accordion>
+
+<a id="handle-requests-that-arrive-while-you-are-away" />
+
+<h5 id="handle-requests-that-arrive-while-you-are-away">
+  处理您离开期间到达的请求
+</h5>
+
+如果 Claude 在 Desktop 断开连接期间需要您的批准或向您提问，Claude 会在远程机器上等待。该等待本身没有时间限制。当 Desktop 重新接入该进程时，会向您显示该请求。如果 Desktop 改为启动一个新进程，您会失去该请求。
+
+在任务等待您期间，Desktop 可能会自行重启，例如为了安装更新。如果 Desktop 在 Windows 上运行或使用第三方提供商，您会在该重启后失去该请求。
+
+如果您失去了某个请求，请发送一条消息继续。
+
+为了减少任务停下来等待您的次数，并在您离开时收到它的消息，请在离开之前设置以下任意一项：
+
+* **自动模式**：如果[您可以使用自动模式](#auto-mode-availability)，请选择[自动模式](#choose-a-permission-mode)。在多次被阻止后，会[再次询问您](/docs/zh-CN/permission-modes#when-auto-mode-falls-back)。
+* **允许规则**：在远程机器上的用户设置文件 `~/.claude/settings.json` 中，为任务所需的命令添加[允许规则](/docs/zh-CN/permissions#manage-permissions)。如果您的组织[仅接受来自托管设置的权限规则](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly)，请让管理员将它们添加到作用于该远程机器的[托管设置](#managed-settings)中。有关项目 `.claude/settings.json` 中的允许规则，请参阅[项目允许规则和工作区信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)。
+* **代为回应的 hook**：在远程机器上的 `~/.claude/settings.json` 中配置 [`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest)，代替您允许或拒绝请求
+* **提醒您的 hook**：在同一文件中配置带有 `permission_prompt` 匹配器的 [`Notification` hook](/docs/zh-CN/hooks#notification)，在有请求等待时给自己发送消息
+* **在 Claude 完成时通知您的 hook**：在同一文件中配置 [`Stop` hook](/docs/zh-CN/hooks#stop)，在 Claude 完成响应时给自己发送消息。当 API 错误结束该轮次时，它不会运行。对于这种情况，请配置 [`StopFailure` hook](/docs/zh-CN/hooks#stopfailure)。
+
+如果您的组织[仅运行托管 hook](/docs/zh-CN/settings-reference#allowmanagedhooksonly)，请让管理员将该 hook 添加到作用于该远程机器的[托管设置](#managed-settings)中。
+
+在任何权限模式下（包括 Bypass permissions），Claude Code 都不会自动批准[少数几种操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)。根据权限模式的不同，Claude Code 会拒绝此类操作或询问您，任务随后会等待您的回应。
+
+<a id="reconnect-after-sleep-or-a-network-loss" />
+
+<h5 id="reconnect-after-sleep-or-a-network-loss">
+  睡眠或网络断开后重新连接
+</h5>
+
+如果您回来时 Desktop 尚未重新连接，请在会话中发送一条消息。Desktop 只有在无需提示即可登录时才会自行重新连接，例如使用由您的 SSH agent 持有的密钥。
+
+* **已记住的密码**：您让 Desktop 记住的密码也无需提示即可使用，但对于长时间离开，请优先使用由您的 SSH agent 持有的密钥。如果使用该密码的登录中断或挂起，Desktop 可能会停止重新连接并等待您。
+* **任何其他提示**：如果远程机器提示输入其他任何内容（例如一次性验证码），您可能会在计算机上收到通知。点击该通知，或在会话中发送一条消息，Desktop 就会显示该提示。
+
+<Accordion title="如果跳板主机要求登录、中断时间较长、输出缺失或进程已消失">
+  - **跳板主机，您离开期间推送停止**：当 Desktop 在 macOS 或 Linux 上运行，且无人回应跳板主机的登录（例如向手机推送通知）时，可能会发生这种情况。此时，在无人使用您的计算机期间，Desktop 会停止重新连接。当您解锁或使用计算机时，您可能会收到另一次推送，因为 Desktop 可能会再次尝试。在三次尝试均无人回应后，它会等待您重试或发送消息。
+  - **跳板主机，推送不断到来**：在 Desktop 无法判断是否无人回应的情况下（例如 Desktop 在 Windows 上运行时），只要它有可重新接入的进程，无论该进程是否仍在运行，它都会持续尝试。每次尝试您都可能收到另一次推送。要结束这些尝试，请退出 Desktop，但这[可能会让您失去正在运行的任务](#reopen-a-session-after-you-quit-desktop)。
+  - **长时间中断**：Desktop 会放慢到大约每五分钟尝试一次。要更快地重新连接，请在会话中重试或发送一条消息，Desktop 会在连接后递送该消息。
+  - **输出缺失**：在 Desktop 断开连接期间，辅助程序会将每个会话最近的 Claude Code 输出保存在 16 MiB 的缓冲区中，并丢弃较早的输出。Desktop 重新连接后，会话可能会显示 `Loading recent output from <host>…`。如果 Desktop 无法加载全部输出，您会看到 `Some output produced while you were disconnected may be missing here.` 这一行。该行并不表示任务已停止。
+  - **进程已消失**：如果 Desktop 重新连接时进程已消失，Desktop 可以根据对话保存的历史记录启动一个新进程，并告诉 Claude 继续该任务。如果进程不断结束，或 Desktop 使用第三方提供商，Desktop 不会自行继续该任务。请发送一条消息继续。
+</Accordion>
+
+<a id="reopen-a-session-after-you-quit-desktop" />
+
+<h5 id="reopen-a-session-after-you-quit-desktop">
+  退出 Desktop 后重新打开会话
+</h5>
+
+退出 Desktop 后，任务会在远程机器上继续运行，直到完成、需要您处理，或达到某项[限制](#limits-while-desktop-is-disconnected)。
+
+* **Desktop 在 macOS 或 Linux 上，使用 Claude 账户**：启动 Desktop 并打开该会话。当 Desktop 能够重新接入该进程时，您就能取回正在运行的任务。它并不总能重新接入，例如在某些 Desktop 更新之后，或在您的组织更改其托管设置之后。
+* **在 macOS 或 Linux 上，Desktop 无法重新接入时**：Desktop 会结束该进程，并根据对话保存的历史记录启动一个新进程。您正在运行的任务会停止，并且您会失去任何正在等待您的批准或问题。更新之后，Desktop 随后可以告诉 Claude 继续。如果任务一直处于停止状态，请发送一条消息。
+* **Desktop 在 Windows 上，或在任何平台上使用第三方提供商**：请仅在您预计任务已完成时再次启动 Desktop。您无法取回正在运行的任务，因为 Desktop 在退出后从不重新接入。它会在会话打开时结束该进程，而这可能在 Desktop 启动时就发生。请发送一条消息继续。
+
+对于第三方部署，请参阅 [SSH remote sessions in Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
+
+<Warning>
+  当某个对话的 Claude Code 进程仍在运行时，请不要在远程机器上为其运行 [`claude --resume`](/docs/zh-CN/cli-reference#cli-flags)。Claude Code 不会阻止您，之后两个进程都会写入同一个对话。如果不确定，请添加 `--fork-session`，它会在对话的副本中继续，但两个进程仍会处理相同的文件。
+</Warning>
+
 <h4 id="choose-where-ssh-session-worktrees-go">
   选择 SSH 会话 worktree 的位置
 </h4>
@@ -898,7 +1070,7 @@ Host devbox
 2. 远程机器上 `~/.claude/settings.json` 中的 [`worktree.location`](/docs/zh-CN/settings-reference#worktree-location)
 3. `<project-root>/.claude/worktrees/`，即默认位置
 
-每个项目在您设置的文件夹中都有自己的子文件夹，因此使用 `~/worktrees` 时，worktree 的路径为 `~/worktrees/<project>-<id>/<worktree-name>`。如果您设置的文件夹位于项目内部，Desktop 会对该项目忽略它并使用默认位置。
+每个项目在您设置的文件夹中都有自己的子文件夹，因此使用 `~/worktrees` 时，worktree 的路径为 `~/worktrees/<project>-<id>/<worktree-name>`。如果您设置的文件夹位于项目内部，Desktop 会对该项目忽略它并使用默认位置。在 [Windows 远程机器](#windows-remote-machines)上，Desktop 始终使用默认位置。
 
 要为您之前添加的连接或由您的组织管理的连接设置 **Worktree folder**，请在环境下拉菜单中将鼠标悬停在该连接上，然后点击齿轮图标。
 

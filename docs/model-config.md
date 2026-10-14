@@ -888,6 +888,8 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些套餐要求。�
 * 使用原生 1M 窗口运行的模型在窗口填满之前进行压缩，默认情况下约为 967K token。这些模型包括 Fable 模型、Sonnet 5 及更高版本、Haiku 5.5 以及 Opus 4.7 及更高版本。在自定义 `ANTHROPIC_BASE_URL` 后面，请参阅[网关后面的上下文窗口](#context-window-behind-a-gateway)
 * 在 Claude Code 不识别的模型 ID（例如 [LLM 网关](/docs/zh-CN/llm-gateway)别名）上的会话在 Claude Code 为该 ID 假设的上下文窗口处进行压缩；请参阅[为网关或自定义模型 ID 更正窗口](#correct-the-window-for-a-gateway-or-custom-model-id)
 
+关于 Claude Code 何时还会压缩您闲置的对话，请参阅 [`idleCompaction`](/docs/zh-CN/settings-reference#idlecompaction) 设置。
+
 <h3 id="correct-the-window-for-a-gateway-or-custom-model-id">
   为网关或自定义模型 ID 更正窗口
 </h3>

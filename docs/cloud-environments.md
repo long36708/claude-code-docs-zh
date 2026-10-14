@@ -274,7 +274,7 @@ registry.example.com
 * **Git 凭据**：VM 内的 git 客户端使用范围受限的凭据，代理验证并将其交换为您的实际 GitHub 令牌。
 * **API 请求**：来自内置 GitHub 工具的请求，以及来自 [`proxy-injected` 占位符](#work-with-github-issues-and-pull-requests)下的 `gh` 的请求，会在替换为您的真实凭据后发出。
 * **推送限制**：代理会拒绝分支删除，以及推送分支以外的任何内容（例如标签）。它不限制推送可以更新哪些分支。如需限制，请在 GitHub 上使用分支保护规则或规则集。
-* **仓库范围**：代理为附加到会话的仓库处理 GitHub API 请求。针对其他仓库的 API 请求会收到 403，其消息以 `GitHub access to` 开头并包含 `is not enabled for this session`。
+* **仓库范围**：代理为附加到会话的仓库处理 GitHub API 请求。针对其他仓库的 API 请求会收到 403，其消息以 `GitHub access to` 开头并包含 `is not enabled for this session`。当仓库未附加时，您通过 `github.com/{owner}/{repo}/archive/` 或 `codeload.github.com` URL 获取的源代码归档也会收到相同的 403，即使是公开仓库也是如此。
 * **GraphQL 限制**：代理会拒绝发往 GitHub GraphQL 端点的请求，返回 403，其消息以 `GitHub GraphQL is not available from Claude Code sessions` 开头，并指明 REST 回退方式 `gh api repos/{owner}/{repo}/...`。使用 GraphQL 的 `gh` 子命令（例如 `gh pr` 和 `gh issue`）也会收到相同的 403。无论您提供的凭据如何，限制都适用于通过代理的每个请求，因此您设置的 `GH_TOKEN` 会收到相同的 403。Claude 无法通过代理访问仅存在于 GraphQL 中的 GitHub API，例如 Projects v2。
 
 来自公开仓库的已提交文件通过 `raw.githubusercontent.com` 到达，改由[安全代理](#security-proxy)处理。该域在默认 [Trusted 列表](#default-allowed-domains)中，因此除非环境的[访问级别](#access-levels)排除它，否则这些文件保持可访问。

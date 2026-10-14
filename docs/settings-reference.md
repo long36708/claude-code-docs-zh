@@ -692,6 +692,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`gcpAuthRefresh`](#gcpauthrefresh) | 使用您自己的命令刷新 [Google Cloud 凭证](/docs/zh-CN/google-vertex-ai#advanced-credential-configuration) | 身份验证和提供商 | Any file |
 | [`hooks`](#hooks) | 在 Claude Code 生命周期中的点运行您自己的命令作为 [hooks](/docs/zh-CN/hooks) | Hooks 和自动化 | Any file |
 | [`httpHookAllowedEnvVars`](#httphookallowedenvvars) | 限制[HTTP hooks](/docs/zh-CN/hooks)可以在标头中放入的环境变量 | Hooks 和自动化 | Any file |
+| [`idleCompaction`](#idlecompaction) | 阻止 Claude Code 在您的终端会话空闲时压缩较长的对话 | 记忆和上下文 | Any file |
 | [`includeCoAuthoredBy`](#includecoauthoredby) | 已弃用；使用 `attribution` 隐藏或更改提交和 PR 属性 | Git 和属性 | Any file |
 | [`includeGitInstructions`](#includegitinstructions) | 从 Claude 的上下文中删除内置的提交和 PR 指令 | Git 和属性 | Any file |
 | [`inputNeededNotifEnabled`](#inputneedednotifenabled) | 当 Claude 在等待您时获得[推送通知](/docs/zh-CN/remote-control#mobile-push-notifications) | 远程、桌面和通知 | Any file |
@@ -2952,7 +2953,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-手动 `/compact` 命令在自动压缩关闭时继续工作。
+手动 `/compact` 命令在自动压缩关闭时继续工作。如果您关闭自动压缩，[空闲压缩](#idlecompaction)也会随之关闭。
 
 <h3 id="autocompactwindow">
   `autoCompactWindow`
@@ -3162,6 +3163,53 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 ```
 
 在 `-p` 运行或 Agent SDK 会话中，Claude Code 忽略此键。SDK 使用其 `enableFileCheckpointing` 选项打开检查点，裸 `-p` 运行需要 `CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true`。请参阅 [Agent SDK 中的文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing)。
+
+<h3 id="idlecompaction">
+  `idleCompaction`
+</h3>
+
+空闲压缩会在提示缓存过期前不久，[压缩](/docs/zh-CN/context-window#what-survives-compaction)您已离开的长对话。这样您的下一条消息发送的是摘要，而不是整个对话。当您回来时，对话会显示 `Compacted while idle, before the prompt cache expired`。
+
+对于满足以下所有条件的对话，空闲压缩默认处于开启状态：
+
+* **会话**：您处于交互式终端会话中
+* **提示缓存**：该对话使用[一小时提示缓存 TTL](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets)
+* **功能标志**：Claude Code 可以[从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)
+* **大小**：对话的上下文已达到 token 阈值，您可以将该阈值从默认的 200,000 [进行更改](#change-the-idle-compaction-threshold)
+* **空闲时间**：自上次请求以来已过去约 54 分钟，且此时您的计算机处于唤醒状态
+
+要关闭空闲压缩，请将此键设置为 `false`。
+
+* **Scope**: [`Any file`](#scopes)
+* **Type**: Boolean
+  * `true`: Claude Code 压缩满足条件的空闲对话
+  * `false`: Claude Code 在您的会话空闲时不进行压缩
+* **Default**: `true`
+* **Per-session overrides**: [`DISABLE_AUTO_COMPACT`](/docs/zh-CN/env-vars) 会在关闭自动压缩的同时关闭空闲压缩
+
+```json settings.json theme={null}
+{
+  "idleCompaction": false
+}
+```
+
+此键需要 Claude Code v2.1.290 或更高版本。在会忽略此键的早期版本上，请关闭 [`autoCompactEnabled`](#autocompactenabled) 以停止空闲压缩。
+
+<h4 id="change-the-idle-compaction-threshold">
+  更改空闲压缩阈值
+</h4>
+
+将 [`CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS`](/docs/zh-CN/env-vars) 设置为对话上下文必须达到的 token 数，达到后空闲压缩才会应用于该对话。请使用正整数。低于 `100000` 的值会被提高到最低阈值 `100000`。
+
+在默认值下，使用 200K 上下文窗口的对话会在达到 200,000 个 token 之前自动压缩。此示例将阈值降低到 150,000，使这些对话符合条件：
+
+```json settings.json theme={null}
+{
+  "env": {
+    "CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS": "150000"
+  }
+}
+```
 
 <h3 id="plansdirectory">
   `plansDirectory`

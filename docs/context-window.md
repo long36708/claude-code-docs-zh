@@ -1622,7 +1622,7 @@ skill 主体在压缩后重新注入，但大型 skill 会被截断以适应每�
   当您的上下文填满时
 </h2>
 
-Claude Code 在您接近限制时自动压缩，因此完整的上下文窗口不会结束您的会话。自动传递的工作方式与时间线中的 `/compact` 步骤相同。有关它保留的内容，请参阅[当上下文填满时](/docs/zh-CN/how-claude-code-works#when-context-fills-up)。
+Claude Code 在您接近限制时自动压缩，因此完整的上下文窗口不会结束您的会话。自动传递的工作方式与时间线中的 `/compact` 步骤相同。有关它保留的内容，请参阅[当上下文填满时](/docs/zh-CN/how-claude-code-works#when-context-fills-up)。有关 Claude Code 何时还会压缩您闲置的对话，请参阅[空闲压缩](/docs/zh-CN/settings-reference#idlecompaction)。
 
 您也可以在自动传递运行之前采取行动：
 
