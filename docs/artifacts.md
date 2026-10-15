@@ -75,7 +75,6 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 | 会话处于[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) | 在每个 Artifact 首次发布前询问 |
 | 该发布声明了页面的运行时功能，例如[连接器调用](#pull-live-data-with-mcp-connectors)或[文件下载](#offer-a-file-download) | 在该次发布前询问 |
 | 您已公开共享该 Artifact | 每个对话中在更改它之前询问一次 |
-| 您关闭了[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) | 在每个 Artifact 首次发布前询问 |
 | Claude 在由会话中触发的[定时任务](/docs/zh-CN/scheduled-tasks)（而非您输入的提示词）启动的轮次中发布 | 在每个 Artifact 首次发布前询问 |
 | Claude 未经您批准无法读取该文件 | 在发布前询问。针对 `Artifact` 工具的允许规则不会跳过此提示 |
 | 在 [Manual](/docs/zh-CN/permission-modes) 或 `acceptEdits` 模式下，Claude 对某个未经您批准无法编辑的 Artifact 文件进行小幅更改，例如 Manual 模式下的项目文件 | 在发布该更改前询问。即使有允许规则涵盖 `Artifact` 工具，也会询问您，因为对该文件的编辑需要您的批准 |
@@ -152,7 +151,7 @@ Claude 读取他人编写的页面的方式与它读取网页的方式相同，�
 * **没有网络访问权限的云端会话**：对于[云环境](/docs/zh-CN/cloud-environments#access-levels)，即 **None** 级别。在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下，可以改由分类器进行批准；在 [Cowork](https://claude.com/product/cowork) 会话中，只能由您本人批准。
 * **其他组织的公开 Artifact**：即使在自动模式下，Claude Code 也会先询问您。在 Claude Code 无法询问您的情况下（例如在 `bypassPermissions` 模式下），Claude 无法读取该 Artifact。只有在[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)开启时，Claude 才能读取这些 Artifact。
 * **无法确认所有者或网络设置**：当 Claude Code 无法确认 Artifact 的创建者，或无法确认云端会话的网络设置时，它会进行询问，且您的批准仅适用于该次请求。
-* **计划模式，或已关闭功能标志获取**：在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)下，或者如果您关闭了[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，Claude Code 会在 Artifact 工具读取您组织中其他人创建的 Artifact 之前进行询问。
+* **计划模式**：在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)下，Claude Code 会在 Artifact 工具读取您组织中其他人创建的 Artifact 之前进行询问。
 
 当 Claude 使用 WebFetch 读取 Artifact 时，WebFetch 自身的[提示规则](/docs/zh-CN/tools-reference#webfetch-tool-behavior)仍然适用。
 

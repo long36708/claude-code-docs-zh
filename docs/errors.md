@@ -72,6 +72,7 @@
 | `Claude.ai login was rejected — run /login, then /remote-control` | [身份验证](#remote-control-couldnt-refresh-your-login) |
 | `OAuth token unavailable — run /login to restore Remote Control` | [身份验证](#remote-control-couldnt-refresh-your-login) |
 | `Signed out of Claude — run /login, then /remote-control` | [身份验证](#remote-control-couldnt-refresh-your-login) |
+| `Remote Control could not renew this computer's connection` | [身份验证](#remote-control-could-not-renew-this-computers-connection) |
 | `signed-in claude.ai account or organization changed on this machine` | [身份验证](#remote-control-stopped-because-the-signed-in-account-changed) |
 | `Remote Control stopped — the app running this session is now signed in to a different Claude account` | [身份验证](#remote-control-stopped-because-the-app-running-the-session-signed-out-or-switched-accounts) |
 | `Remote Control stopped — the app running this session is signed out of Claude` | [身份验证](#remote-control-stopped-because-the-app-running-the-session-signed-out-or-switched-accounts) |
@@ -217,6 +218,7 @@
 | `couldn't be resolved to a real location, so its skills, commands, and agents weren't loaded` | [命令行错误](#directory-couldnt-be-resolved-to-a-real-location) |
 | `Error: Workspace not trusted` when starting Remote Control | [命令行错误](#workspace-not-trusted-when-starting-remote-control) |
 | `` `<flag>` before `remote-control` is not carried over to the sessions Remote Control starts `` | [命令行错误](#not-carried-over-to-the-sessions-remote-control-starts) |
+| `--sandbox is not supported by claude remote-control` / `--no-sandbox is not supported by claude remote-control` | [命令行错误](#sandbox-is-not-supported-by-claude-remote-control) |
 | `` `claude import` is not yet available in this build `` | [命令行错误](#claude-import-is-not-yet-available-in-this-build) |
 | `Could not read Claude Code config` | [命令行错误](#could-not-read-claude-code-config) |
 | `Could not import <server>: <reason>` | [命令行错误](#could-not-import-a-server-from-claude-desktop) |
@@ -233,6 +235,7 @@
 | `Shell command failed for pattern "..."`, from `/security-review` or any skill that injects dynamic context | [命令行错误](#security-review-fails-without-origin-head) |
 | `Shell command permission check failed for pattern "..."`, from a skill that injects dynamic context | [命令行错误](#security-review-fails-without-origin-head) |
 | ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`` | [命令行错误](#security-review-fails-without-origin-head) |
+| `No shell command in <name> was run, because the <tool> tool does not accept one of them` | [命令行错误](#no-shell-command-was-run) |
 | `Input must be provided either through stdin or as a prompt argument when using --print` | [命令行错误](#input-must-be-provided-when-using-print) |
 | `Claude Code can't read the keyboard here: stdin is not a terminal` | [命令行错误](#claude-code-cant-read-the-keyboard-here) |
 | `Error: Input contained only whitespace` | [命令行错误](#input-contained-only-whitespace) |
@@ -367,6 +370,7 @@
 | `Claude Code exited after an unrecoverable interface error (...)` | [配置警告](#exited-after-an-unrecoverable-interface-error) |
 | `Agent descriptions are over the 15.0k-token limit` | [配置警告](#agent-descriptions-are-over-the-15000-token-limit) |
 | `hook needs quotes around a path with a space` | [配置警告](#hook-needs-quotes-around-a-path-with-a-space) |
+| `Instruction file not loaded` | [配置警告](#instruction-file-not-loaded) |
 | `Not loaded: rename <path>, then restart — its name uses "<name>", a name reserved for the skills synced from your claude.ai account` | [配置警告](#a-skill-command-or-workflow-wasnt-loaded-because-its-name-is-reserved) |
 | `N skill or command names refused: run with --debug to see which ([names]), rename, then restart` | [配置警告](#skill-or-command-name-refused) |
 | `Ignoring N permissions.allow entries from ... this workspace has not been trusted` | [配置警告](#workspace-has-not-been-trusted) |
@@ -377,6 +381,7 @@
 | `Your organization's managed settings allow Claude Code to use: <providers>` | [配置警告](#managed-settings-dont-allow-this-api-provider) |
 | `Your organization's managed settings allow Claude Code to use no API provider at all` | [配置警告](#managed-settings-dont-allow-this-api-provider) |
 | `MCP server <name> is blocked by enterprise managed policy` | [配置警告](#mcp-server-is-blocked-by-enterprise-managed-policy) |
+| `"<name>" is a reserved MCP server name and was not loaded` | [配置警告](#mcp-server-name-is-reserved) |
 | `Managed settings document could not be parsed as a JSON object; none of its settings are in effect. Fix or remove it.` | [配置警告](#managed-settings-document-could-not-be-parsed) |
 | `Managed settings drop-in directory could not be read` | [配置警告](#managed-settings-document-could-not-be-parsed) |
 | `Unable to read managed policy settings` | [配置警告](#unable-to-read-managed-policy-settings) |
@@ -390,6 +395,7 @@
 | `Denying Bash also turns off the PowerShell tool, so Claude has neither` | [配置警告](#denying-bash-also-turns-off-the-powershell-tool) |
 | `CLAUDE_CODE_DISABLE_1M_CONTEXT is set, but the 200K limit isn't enforced` | [配置警告](#the-200k-limit-isnt-enforced) |
 | `[claude-code:unrecognized_model]` | [配置警告](#unrecognized-model-id-on-a-request) |
+| `is ignored — managed settings set allowManagedReadPathsOnly` / `is ignored — managed settings set allowManagedDomainsOnly` | [配置警告](#sandbox-allow-entries-are-ignored-under-a-managed-lock) |
 | `Stale sandbox mask files left by a killed session` | [配置警告](#stale-sandbox-mask-files-left-by-a-killed-session) |
 | 响应质量似乎比平时低 | [响应质量](#responses-seem-lower-quality-than-usual) |
 
@@ -1208,6 +1214,21 @@ Claude Code 会在消息中间部分说明原因：
 在 v2.1.224 之前，`OAuth token refresh failed — run /login to re-authenticate` 显示为 `OAuth token refresh failed — re-authenticate, then re-enable Remote Control`，`JWT refresh failed: no OAuth token — run /login` 显示为 `no OAuth token available for recovery (code <N>)`。`Claude.ai login expired`、`Claude.ai login was rejected` 和 `OAuth token unavailable` 消息是在 v2.1.225 中添加的。
 
 在 v2.1.238 之前，Claude Code 将现在显示为 `Signed out of Claude` 的情况报告为 `JWT refresh failed: no OAuth token — run /login`，并且只要有一次登录刷新未得到响应，就会以 `Claude.ai login expired — run /login to restore Remote Control` 停止 Remote Control。
+
+<h3 id="remote-control-could-not-renew-this-computers-connection">
+  Remote Control could not renew this computer's connection
+</h3>
+
+当服务器无法在连接凭据过期之前使用您的 claude.ai 登录对其续期时，运行 [`claude remote-control`](/docs/zh-CN/remote-control#start-a-remote-control-session) 的终端中会出现此警告。警告的最后一句会说明当前凭据还能使用多长时间，或者说明它已经过期：
+
+```text theme={null}
+Remote Control could not renew this computer's connection: claude.ai did not accept the sign-in it uses. Run `claude /login` to sign in again. The connection keeps working for about 26 hours; if it still cannot sign in then, it stops.
+```
+
+**解决方法：**
+
+* 如果警告提示您运行 `claude /login`，请在运行服务器的机器上打开另一个终端，在其中运行 `claude /login`，并使用您的 claude.ai 账户登录
+* 如果连接的凭据过期后服务器仍然无法登录，它会输出一条包含 `Poll: Authentication failed (401)` 的错误并停止。请按照警告第二句话的说明重新登录，然后在服务器停止的终端中再次运行 `claude remote-control`。
 
 <h3 id="remote-control-stopped-because-the-signed-in-account-changed">
   由于登录账户已更改，Remote Control 已停止
@@ -2055,7 +2076,7 @@ x-deny-reason: host_not_allowed
 
 这些步骤更改您自己的环境之一。[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)在选择器中以只读方式打开，因此请要求所有者从[管理设置](https://claude.ai/admin-settings)中的**云环境**页面更改其网络访问。
 
-* 打开您的环境进行编辑，可以从[例程的表单](/docs/zh-CN/routines#environments-and-network-access)或从[环境选择器](/docs/zh-CN/cloud-environments#configure-your-environment)启动云会话。
+* 从[例程的表单](/docs/zh-CN/routines#environments-and-network-access)或从您启动云会话的[环境选择器](/docs/zh-CN/cloud-environments#configure-your-environment)打开您的环境进行编辑。
 * 在 **Edit cloud environment** 对话框中，将 **Network access** 从 **Trusted** 更改为 **Custom**，然后将被阻止的域添加到 **Allowed domains**。每行输入一个域。勾选 **Also include default list of common package managers** 以将[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)与您的自定义域一起保留。如果您想要不受限制的访问，请改为选择 **Full**。
 * 单击**保存更改**。下一次运行使用更新的允许列表。对于已打开的云会话，请参阅[网络访问更改何时到达现有会话](/docs/zh-CN/cloud-environments#network-access)。
 
@@ -3296,6 +3317,24 @@ Error: `--settings` before `remote-control` is not carried over to the sessions 
 
 在 v2.1.248 之前，当全局标志在前时，`claude remote-control` 不接受其自身的标志，命令会以 `unknown option` 错误失败。
 
+<h3 id="sandbox-is-not-supported-by-claude-remote-control">
+  `--sandbox` or `--no-sandbox` is not supported by claude remote-control
+</h3>
+
+此错误表示启动您 [Remote Control](/docs/zh-CN/remote-control) 服务器的命令在 `remote-control` 之后传入了 `--sandbox` 或 `--no-sandbox`，而 `claude remote-control` 不接受这两个标志中的任何一个。服务器以退出码 1 退出，而不会启动：
+
+```text theme={null}
+Error: --sandbox is not supported by claude remote-control. The flag had no effect and was removed. To sandbox sessions, set sandbox.enabled to true in settings.
+Error: --no-sandbox is not supported by claude remote-control. The flag had no effect and was removed. Remove it from the command.
+```
+
+**解决方法：**
+
+* 从命令中移除该标志（包括为您启动服务器的脚本或服务定义中的命令），然后再次运行
+* 如果要将服务器启动的会话置于沙箱中，请在[设置文件](/docs/zh-CN/settings#where-settings-live)中将 [`sandbox.enabled`](/docs/zh-CN/settings-reference#sandbox-enabled) 设置为 `true`，以启用[沙箱隔离](/docs/zh-CN/sandboxing)
+
+这两个标志已在 v2.1.300 中从 `claude remote-control` 移除，因此为早期版本编写的命令可能仍带有其中一个。
+
 <h3 id="claude-import-is-not-yet-available-in-this-build">
   claude import 在此版本中尚不可用
 </h3>
@@ -3542,16 +3581,36 @@ Use '--' to separate paths from revisions, like this:
 * 服务器端 HEAD 指向一个从未有人推送过的分支的远程
 * 没有 `origin` 远程的仓库，或您从未执行过 fetch 的仓库
 
-对于任何[注入动态上下文](/docs/zh-CN/skills#when-an-injected-command-fails)的 skill，Claude Code 都会显示相同的错误，注入的命令失败会中止该 skill 的调用。还有两条相关字符串会在命令运行之前就触发：
+对于任何[注入动态上下文](/docs/zh-CN/skills#when-an-injected-command-fails)的 skill，Claude Code 都会显示相同的错误，并且注入命令失败会中止该 skill 的调用。
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+以下相关消息会在命令运行之前就出现：
+
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查不允许它运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
 * ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
+* `No shell command in <name> was run`：文件中的某个 `!` 命令包含除制表符或换行符之外的原始控制字符，因此所有命令都不会运行。请参阅[如何找到并删除该字符](#no-shell-command-was-run)
 
 **解决方法：**
 
 * 通过指定远程的默认分支来创建该引用：`git remote set-head origin <default-branch>`。只要本地跟踪引用 `origin/<default-branch>` 存在，此方法就有效。如果它不存在（例如在单分支克隆中），请先 fetch 该分支：运行 `git remote set-branches --add origin <branch>`，然后运行 `git fetch origin`，再重新运行 set-head 命令。然后重新运行 `/security-review`。
 * 如果您不想指定分支名，请运行 `git fetch origin`，然后运行 `git remote set-head origin --auto`，它会向远程询问哪个分支是默认分支。当远程未公布默认分支时（因为远程为空或其 HEAD 指向从未有人推送过的分支），它会以 `error: Cannot determine remote HEAD` 失败；此时请显式指定分支名。当您的克隆不 fetch 该分支时，它会以 `error: Not a valid ref` 失败；请先按上述方法扩大 refspec。
 * 如果仓库没有远程，请使用 `git remote add origin <url>` 添加一个，并在创建引用之前执行 fetch。如果远程为空，请先使用 `git push -u origin HEAD` 推送您的分支，并在 set-head 命令中指定该分支；此后 `origin/HEAD` 指向您刚推送的分支，因此在该分支与其产生分歧之前，`/security-review` 看到的 diff 为空。
+
+<h3 id="no-shell-command-was-run">
+  skill 或命令中的 shell 命令均未运行
+</h3>
+
+skill 或自定义命令文件中的某个 `` !`<command>` `` [动态上下文命令](/docs/zh-CN/skills#inject-dynamic-context)包含除制表符或换行符之外的原始控制字符。Claude Code 会在文件中的任何命令运行之前拒绝整个调用。
+
+消息会指出本应运行这些命令的 shell 工具（Bash 或 PowerShell），并以被拒绝的命令结尾。每个此类字符都会被替换为 `�`，以便您看到它的位置：
+
+```text theme={null}
+No shell command in /my-skill was run, because the Bash tool does not accept one of them: command contains control characters that would be hidden in the approval dialog. Unprintable characters are shown as � below: remove them from the skill or command file, or from the arguments or options substituted into it.
+build.sh --target�dist
+```
+
+**解决方法：**
+
+* 在消息末尾引用的命令中找到每个 `�`。从 skill 或命令文件中，或从代入文件的参数或选项中，删除它所代表的字符。
 
 <h3 id="input-must-be-provided-when-using-print">
   使用 `--print` 时必须提供输入
@@ -3694,7 +3753,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较前从 origin fetch 了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个被 fetch 的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了它。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整的克隆上，该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
 
 **解决方法：**
 
@@ -5499,6 +5558,34 @@ Stop hook needs quotes around a path with a space (check.py)
 
 * 在运行通知所命名脚本的 hook 的 `command` 中，用双引号将路径括起来。在 JSON 文件中，将其写为 `"command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/check.py\""`。
 
+<h3 id="instruction-file-not-loaded">
+  Instruction file not loaded
+</h3>
+
+交互式会话的对话视图中的此通知表示某个已存在的[记忆文件](/docs/zh-CN/memory#how-claude-md-files-load)未被加载。某项读取限制正在生效。
+
+```text theme={null}
+Instruction file not loaded (a Read deny rule covers it):
+path: .claude/rules/shared.md
+```
+
+括号内容说明原因，例如：
+
+* **`a Read deny rule covers it`**：某条 `Read` [拒绝规则](/docs/zh-CN/permissions#read-and-edit)与该文件按原样书写的路径或其链接指向的位置匹配
+* **`it's read from outside your working directories, where reads are blocked`**：在 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 开启时，该文件解析到[工作目录](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories)之外
+* **`where it leads couldn't be worked out`**：例如，该文件是一个直接或通过其他链接指回自身的链接
+
+当 Claude 处理某个子目录中的文件时，若该子目录自身的记忆文件无法加载，相同的行会在该轮次中出现在对话里。当被扣留的文件多于这些行所列出的文件时，最后一行会对其余文件计数，例如 `and 3 more instruction files not loaded`。
+
+**要做什么：**
+
+* 如果该限制是有意为之，则无需操作：会话在没有该文件指令的情况下运行。
+* 要加载因 `a Read deny rule covers it` 而被扣留的文件，请[删除或缩小该规则](/docs/zh-CN/permissions#manage-permissions)。然后启动新会话。
+* 要加载因 `it's read from outside your working directories, where reads are blocked` 而被扣留的文件，请将该文件或其链接目标移到工作目录内。然后启动新会话。
+* 要加载因 `where it leads couldn't be worked out` 而被扣留的文件，请检查该文件是否是指回自身的链接。如果是，请将链接指向一个存在的文件，或用常规文件替换它。然后启动新会话。
+
+在 v2.1.292 之前，该通知在同一行中原因之后的末尾命名文件。
+
 <h3 id="a-skill-command-or-workflow-wasnt-loaded-because-its-name-is-reserved">
   skill、命令或工作流未被加载，因为其名称是保留的
 </h3>
@@ -5682,6 +5769,21 @@ MCP server <name> is blocked by enterprise managed policy
 * 如果您自己的设置都不能解释该阻止，请询问您的管理员哪个托管设置阻止了服务器
 
 在 v2.1.257 之前，`/mcp` 中的**重新连接**和重新启用可以连接被会话中途策略更新阻止的服务器。
+
+<h3 id="mcp-server-name-is-reserved">
+  MCP 服务器名称是保留的
+</h3>
+
+此消息命名您的某个 MCP 服务器，其名称属于 Claude Code 保留的名称，例如其内置服务器的名称：
+
+```text theme={null}
+"workspace" is a reserved MCP server name and was not loaded
+```
+
+**要做什么：**
+
+* 在定义该服务器的位置重命名它，例如从 `workspace` 改为 `my-workspace`
+* 有关其他需要避免的保留名称，请参阅 [MCP 配置警告](/docs/zh-CN/mcp#configuration-warnings)
 
 <h3 id="managed-settings-document-could-not-be-parsed">
   托管设置文档无法解析
@@ -5954,6 +6056,24 @@ Claude Code 每个进程为每个模型字符串写入该行一次。对于每�
 * 如果该 ID 是拼写错误，请在包含它的[可设置模型的位置](/docs/zh-CN/model-config#setting-your-model)或[别名变量](/docs/zh-CN/model-config#environment-variables)中修复它。如果 `query_source` 以 `agent:` 开头，请改为在您设置[子代理模型](/docs/zh-CN/sub-agents#choose-a-model)的地方修复它。
 
 在 v2.1.233 之前，Claude Code 在为无法识别的模型 ID 发送请求时不写入任何行。
+
+<h3 id="sandbox-allow-entries-are-ignored-under-a-managed-lock">
+  托管锁定下沙箱允许条目被忽略
+</h3>
+
+`/status` 和 `claude doctor` 中的此警告表示托管设置设置了 [`allowManagedReadPathsOnly`](/docs/zh-CN/settings-reference#sandbox-filesystem-allowmanagedreadpathsonly) 或 [`allowManagedDomainsOnly`](/docs/zh-CN/settings-reference#sandbox-network-allowmanageddomainsonly)，因此该警告所命名文件中的 [`allowRead`](/docs/zh-CN/settings-reference#sandbox-filesystem-allowread) 或 [`allowedDomains`](/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 条目不适用：
+
+```text wrap theme={null}
+sandbox.filesystem.allowRead is ignored — managed settings set allowManagedReadPathsOnly, so only allowRead paths from managed settings are honored. The 3 entries in /home/you/.claude/settings.json will NOT apply (see https://code.claude.com/docs/en/settings#sandbox-settings).
+```
+
+对于网络锁定，警告命名 `sandbox.network.allowedDomains` 和 `allowManagedDomainsOnly`，并显示 `only allowed domains (and WebFetch domain rules) from managed settings are honored`。
+
+**要做什么：**
+
+* 您不必对该警告采取行动
+* 如果您需要这些路径或域，而您组织的托管设置设置了该锁定，请要求您的管理员将它们添加到这些设置中。在您同时从所命名的文件中删除这些条目之前，警告会一直存在。
+* 要清除警告，请从所命名的文件中删除这些条目。对于您共享的文件，例如项目的 `.claude/settings.json`，您可以为没有该锁定的团队成员保留这些条目，并让警告继续显示。
 
 <h3 id="stale-sandbox-mask-files-left-by-a-killed-session">
   被终止的会话留下的陈旧沙箱掩码文件

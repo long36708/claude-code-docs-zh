@@ -949,9 +949,9 @@ Claude Code 将 agent view 中列出的每个会话都视为后台会话，无�
   后台处理显示 `Background this session?` 对话框
 </h3>
 
-如果您按 `←` 来后台处理当前会话，而 Claude Code 显示 `Background this session?` 对话框，说明该会话有正在进行的工作，后台处理会停止、重新启动或让其无人值守地运行，Claude Code 在执行这些操作之前会询问：
+如果您按 `←` 来后台处理当前会话，而 Claude Code 显示 `Background this session?` 对话框，说明该会话有正在进行的后台工作，后台处理会停止、重新启动或让其无人值守地运行，Claude Code 在执行这些操作之前会询问：
 
-* **无法移动的工作**：该会话有无法移动到后台会话的工作，例如正在运行的[监视器](/docs/zh-CN/tools-reference#monitor-tool)。对话框命名 Claude Code 会停止的工作，并分别计算转移的任务数。
+* **无法移动的工作**：该会话有无法移动到后台会话的工作，例如正在运行的[监视器](/docs/zh-CN/tools-reference#monitor-tool)。对话框列出 Claude Code 会停止的后台工作，并另外计算会转移的任务数。
 * **具有运行子代理的工作流**：[动态工作流](/docs/zh-CN/workflows)仍然有子代理在运行。工作流本身会转移，但其运行的子代理从头开始重新启动，对话框会说明有多少个。
 * **自动 Artifact 回复**：Claude [自动回复 Artifact 上的评论](/docs/zh-CN/artifacts#let-claude-reply-to-comments-on-its-own)。这些回复在后台会话中继续，对话框会说明这一点。
 
@@ -1175,7 +1175,7 @@ Agent view 在研究预览期间发展迅速。如果您使用的是较旧的 Cl
 | v2.1.199 | 在低内存主机上，后台会话的进程在完成启动前退出时，其行状态会显示 `possibly low memory — free some up and retry`，而不仅仅是简单的退出原因。使用 `←` 或 `/background` 将会话移到后台时，会将其 `/color` 带到新行。 |
 | v2.1.198 | 当后台会话需要输入、完成或失败时，Agent view 会通过 `preferredNotifChannel` 发送通知，并以 `agent_needs_input` 或 `agent_completed` 类型触发 `Notification` hook。在 `claude attach <id>` 中，`←` 和 `/exit` 会返回 agent view，而不是退出到 shell；`Ctrl+Z` 会返回 shell。在 worktree 中隔离其工作的后台会话完成时，会提交、推送其自己的隔离分支（绝不会推送 `main` 或 `master`），并打开一个草稿 Pull Request，而不是先询问。`/login` 可在 agent view 中运行并打开登录对话框。`Background work is running` 退出对话框提供 `Move to background and exit`。退出交接也涵盖后台子代理，它们会在下次唤醒时从其会话记录恢复，而不是被报告为失败。`claude --bg` 与 `-p` 或 `--print` 组合使用时会被拒绝并报错。后台会话主机会在首次访问局域网时请求 macOS 本地网络权限，而不是以 `connect: no route to host` 失败。 |
 | v2.1.196 | 按一次 `←` 即可将前台会话移到后台；早期版本需要按两次，并带有页脚提示和确认。传递给 `claude agents` 的 `--dangerously-skip-permissions` 会显示绕过免责声明，而不是在不提示的情况下被丢弃。您从未命名的交互式会话在会话列表和 `claude agents --json` 中会带有默认名称，例如 `my-app-3f`。后台 shell 命令和动态工作流在会话进程被停止、重启或更新时仍能继续存在，包括在 Windows 上；设置 `CLAUDE_CODE_DISABLE_BG_EXIT_HANDOFF=1` 可关闭此交接。在重启时被误读为空的会话记录会被重命名并加上 `.orphaned-` 后缀，而不是被删除。 |
-| v2.1.195 | 在 Windows 上将会话移到后台时，进行中的工作也会转移；设置 `CLAUDE_DISABLE_ADOPT=1` 可改为停止它。`Completed` 组会填满剩余的垂直空间，标题在较矮的终端上会压缩显示。较旧的 Claude Code 版本不再丢弃较新会话的 `state.json` 字段，也不再在 `claude agents` 中隐藏这些会话。附加到已停止的会话会立即切换，而不是显示最多五秒的空白屏幕。无法接受连接的监督进程会自行退出并释放其锁。 |
+| v2.1.195 | 在 Windows 上将会话移到后台时，进行中的后台工作也会转移；设置 `CLAUDE_DISABLE_ADOPT=1` 可改为停止它。`Completed` 组会填满剩余的垂直空间，标题在较矮的终端上会压缩显示。较旧的 Claude Code 版本不再丢弃较新会话的 `state.json` 字段，也不再在 `claude agents` 中隐藏这些会话。附加到已停止的会话会立即切换，而不是显示最多五秒的空白屏幕。无法接受连接的监督进程会自行退出并释放其锁。 |
 | v2.1.191 | 如果 `claude --bg` 使用的 `--agent` 名称与您的任何子代理都不匹配，启动会失败：会话会立即退出并显示 `--agent '<name>' not found` 错误，而不是使用默认 Agent 运行。 |
 | v2.1.174 | 后台会话不再从监督进程的启动 shell 继承 `ANTHROPIC_BASE_URL` 等网关端点变量；监督进程会向预热的工作进程提供新的凭据快照，修复了虚假的 `Could not resolve authentication method` 错误。 |
 | v2.1.172 | 调度输入框中的 `/model` 会设置仅限当前会话的调度模型覆盖。 |

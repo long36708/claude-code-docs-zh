@@ -1632,7 +1632,7 @@ MCP Apps UI 资源是具有 `ui://` URI 或 `text/html;profile=mcp-app` 媒体�
 
 在 v2.1.296 之前，较短的限制为 2,048 个字符；在 v2.1.295 之前，该限制适用于每个工具描述，包括通过工具搜索加载的工具描述。
 
-要更改会话中每个 MCP 服务器的限制，请将 [`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH`](/docs/zh-CN/env-vars#variables) 设置为字符数。您设置的数值会同时替换这两个限制：例如，`8192` 会提高较短的限制并降低较长的限制。此变量需要 Claude Code v2.1.280 或更高版本。
+Anthropic 在 `api.anthropic.com` 托管的部分 MCP 服务器，其描述和说明会完整地传达给 Claude。要更改会话中其他 MCP 服务器的限制，请将 [`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH`](/docs/zh-CN/env-vars#variables) 设置为字符数。您设置的数值会同时替换这两个限制：例如，`8192` 会提高较短的限制并降低较长的限制。此变量需要 Claude Code v2.1.280 或更高版本。
 
 <h4 id="per-tool-alwaysload">
   将工具标记为预先加载或保持延迟

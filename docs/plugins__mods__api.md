@@ -234,6 +234,8 @@ on('session.start', async ($, e, next) => {
 | `$.ui.toast(text)` | 一条带有 mod 名称的 toast 通知，几秒后消失。在[全屏渲染](/docs/zh-CN/fullscreen)中，它是右上角的一个框；在经典渲染器中，它是提示下右侧的一行。 |
 | `$.ui.log(text)` | 成绩单中的一条暗线，Claude 不读取。它以 `●` 和 mod 的名称开头，如 `● my-mod: build finished`。 |
 
+在 [VS Code 扩展](/docs/zh-CN/plugins/mods/interface#draw-in-the-vs-code-extension)中，状态栏和 toast 改为显示在输入框上方，日志行则显示在对话中。
+
 <h3 id="start-a-turn-from-a-background-job">
   从后台工作启动轮次
 </h3>

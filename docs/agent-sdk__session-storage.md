@@ -92,7 +92,7 @@
 
 因为 `projectKey` 编码了工作目录，请从与原始运行的工作目录匹配的工作目录中从存储恢复或继续。在 TypeScript 中，如果在查询的 [`env` 选项](/docs/zh-CN/agent-sdk/typescript#options)中在 `CLAUDE_CONFIG_DIR` 旁边设置 [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/sessions#name-the-project-directory-yourself)，SDK 会按该名称对该查询的条目以及其 `resume` 和 `continue` 查找进行键控。因为 `listSessions` 和 `deleteSession` 等独立帮助程序不接受 `env` 并读取进程环境，也要在主机进程环境中设置 `CLAUDE_CONFIG_DIR` 和相同的名称。需要 Agent SDK v0.3.234 或更高版本。
 
-将 `subpath` 视为不透明的密钥后缀；它遵循磁盘上的布局，例如 `subagents/agent-<id>`。当 `subpath` 未定义时，密钥指的是主记录。
+将 `subpath` 视为不透明的键后缀；它遵循磁盘上的布局，例如 `subagents/agent-<id>`。当 `subpath` 未定义时，该键指的是主记录。
 
 | 方法 | 必需 | 调用时机 |
 | :- | :- | :- |
@@ -100,12 +100,12 @@
 | `load` | 是 | 在子进程生成之前，当设置 `resume` 时，以及在列表从 `listSessionSummaries` 回退时每个会话一次。如果会话未知，返回 `null`。 |
 | `listSessions` | 否 | 由 `listSessions({ sessionStore })` 和 `query()`/`startup()` 与 `continue: true` 调用。如果未定义，`continue: true` 会抛出异常，`listSessions({ sessionStore })` 会抛出异常，除非实现了 `listSessionSummaries`。 |
 | `listSessionSummaries` | 否 | 由 `listSessions({ sessionStore })` 在一次调用中读取所有会话的元数据。在 `append` 中维护摘要。如果未定义，列表会回退到 `listSessions` 加上每个会话的 `load`。 |
-| `delete` | 否 | 由 `deleteSession({ sessionStore })` 调用。删除主密钥（无 `subpath`）必须级联到该会话的所有子密钥，并且还要删除会话的摘要条目，以便删除的会话停止出现在 `listSessionSummaries` 中。如果未定义，删除是无操作的，这适合仅追加的后端。 |
+| `delete` | 否 | 由 `deleteSession({ sessionStore })` 调用。删除主键（无 `subpath`）必须级联到该会话的所有子键，并且还要删除会话的摘要条目，以便删除的会话停止出现在 `listSessionSummaries` 中。如果未定义，删除是无操作的，这适合仅追加的后端。 |
 | `listSubkeys` | 否 | 在恢复期间，发现子代理记录。如果未定义，仅恢复主记录。 |
 
 在 `SessionSummaryEntry` 中，`mtime` 是边车的存储写入时间，必须与 `listSessions` 返回的 `mtime` 值共享一个时钟源。`data` 是不透明的 SDK 拥有的状态；按原样持久化它，不要解释它。
 
-通过在 `append` 中的每个批次上调用导出的 `foldSessionSummary` 帮助程序（Python 中为 `fold_session_summary`）来构建条目。跳过其密钥具有 `subpath` 的批次；子代理记录不得对主会话的摘要做出贡献。折叠永远不会设置 `mtime`：在持久化时通过 TypeScript 中的 `options.mtime` 参数或通过在 Python 中覆盖返回条目上的字段来标记它。同一会话的并发 `append` 调用可能在边车上竞争，因此使用事务、比较交换或每个会话的锁来序列化读取-折叠-写入；折叠本身是纯的。
+通过在 `append` 中的每个批次上调用导出的 `foldSessionSummary` 帮助程序（Python 中为 `fold_session_summary`）来构建条目。跳过其键具有 `subpath` 的批次；子代理记录不得对主会话的摘要做出贡献。折叠永远不会设置 `mtime`：在持久化时通过 TypeScript 中的 `options.mtime` 参数或通过在 Python 中覆盖返回条目上的字段来标记它。同一会话的并发 `append` 调用可能在边车上竞争，因此使用事务、比较交换或每个会话的锁来序列化读取-折叠-写入；折叠本身是纯的。
 
 有关 SDK 对记录 `load` 返回的处理，请参阅[从存储恢复](#resume-from-the-store)。
 
@@ -266,7 +266,7 @@ async def test_my_store_conformance():
     await run_session_store_conformance(MyRedisStore)
 ```
 
-按照此示例传递 `MyRedisStore` 类本身，当构造函数不带参数时有效。对于采用预配置客户端的适配器，改为传递构造存储的 lambda。由于契约重用相同的会话密钥，工厂返回的每个存储必须以空存储开始，因此让 lambda 为每次调用配置隔离的后端存储，例如新的内存中伪造、唯一的密钥前缀或新的测试数据库。
+按照此示例传递 `MyRedisStore` 类本身，当构造函数不带参数时有效。对于采用预配置客户端的适配器，改为传递构造存储的 lambda。由于契约重用相同的会话键，工厂返回的每个存储必须以空存储开始，因此让 lambda 为每次调用配置隔离的后端存储，例如新的内存中伪造、唯一的键前缀或新的测试数据库。
 
 <h2 id="behavior-notes">
   行为说明
@@ -303,7 +303,7 @@ Claude Code 子进程始终首先将每批转录条目写入本地磁盘，然�
 
 SDK 还使用来自您真实配置目录的文件为临时目录提供种子。它复制的内容因语言而异：
 
-* **TypeScript**：凭证、`.claude.json` 和您的用户 `settings.json`。从 `settings.json` 中，它删除在临时配置目录下表现不佳的密钥：`enabledPlugins`、`extraKnownMarketplaces`、其 [`additionalMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 别名，以及文件 `env` 块中的任何 `CLAUDE_CONFIG_DIR`。在 Agent SDK v0.3.232 之前，SDK 没有删除别名。在设置中配置的身份验证，例如 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper)，在从存储恢复时有效。在 Agent SDK v0.3.222 之前，TypeScript SDK 仅复制凭证和 `.claude.json`。
+* **TypeScript**：凭证、`.claude.json` 和您的用户 `settings.json`。从 `settings.json` 中，它删除在临时配置目录下表现不佳的键：`enabledPlugins`、`extraKnownMarketplaces`、其 [`additionalMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 别名，以及文件 `env` 块中的任何 `CLAUDE_CONFIG_DIR`。在 Agent SDK v0.3.232 之前，SDK 没有删除别名。在设置中配置的身份验证，例如 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper)，在从存储恢复时有效。在 Agent SDK v0.3.222 之前，TypeScript SDK 仅复制凭证和 `.claude.json`。
 * **Python**：仅凭证和 `.claude.json`，因此通过用户 `settings.json` 中的 `apiKeyHelper` 进行身份验证的应用在从存储恢复时失败并显示 `Not logged in`。托管或项目设置中的 `apiKeyHelper` 仍然有效，因为 Claude Code 从 `CLAUDE_CONFIG_DIR` 不影响的位置读取这些文件。
 
 当存储对该会话没有任何内容时，SDK 改为在您的真实配置目录下运行，结果取决于您传递的选项：
@@ -330,7 +330,7 @@ SDK 还使用来自您真实配置目录的文件为临时目录提供种子。�
   `forkSession` 不是字节副本
 </h3>
 
-`forkSession({ sessionStore })` 读取源条目，重写每个 `sessionId` 字段并重新映射消息 UUID，然后在新密钥下追加转换后的条目。适配器级别的副本或 `CopyObject` 快捷方式会产生仍然引用旧会话 ID 的转录，因此 SDK 不使用它。
+`forkSession({ sessionStore })` 读取源条目，重写每个 `sessionId` 字段并重新映射消息 UUID，然后在新键下追加转换后的条目。适配器级别的副本或 `CopyObject` 快捷方式会产生仍然引用旧会话 ID 的转录，因此 SDK 不使用它。
 
 <h3 id="subagent-transcripts">
   子代理转录

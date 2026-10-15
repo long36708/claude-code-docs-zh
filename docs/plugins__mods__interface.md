@@ -226,6 +226,8 @@ Claude Code 自己绘制大部分界面：消息、工具调用行、加载指�
 | `Spinner`, `ToolProgress`, `TurnDuration` | 轮次的状态栏：Claude 工作时显示动画的行、正在运行的工具的实时进度行，以及结束轮次的行 |
 | `InfoNotice`, `SessionMode`, `PromptHint` | 徽标下方的状态栏、页脚中的模式标签，以及输入框下方的提示行 |
 
+`Pane`、`AskUserQuestion`、`Spinner`、`UserMessage`、`AssistantMessage` 以及工具调用位置在终端、Desktop 应用和 VS Code 扩展中均有效。[渲染位置表](/docs/zh-CN/plugins/mods/reference#render-sites) 列出了其他每个位置在哪里触发。
+
 在 Claude Code 已经绘制的站点上，您的 hook 可以更改某个细节、替换绘制内容，或保持不变。选择一个选项卡，查看每种方式应用于加载指示器的效果。这些示例读取由另一个 hook 计数的 `calls` 变量，如[教程 mod](/docs/zh-CN/plugins/mods/create#write-a-mod-yourself) 中所示。
 
 <Tabs>
@@ -297,8 +299,6 @@ on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
 
 权限提示不是渲染站点，因此 mod 无法更改它显示的内容。问题对话框 `AskUserQuestion` 是渲染站点，因此 mod 可以更改它。为该对话框返回的树必须恰好包含一次该引用，并将您的元素放在它的上方。否则，Claude Code 会绘制它自己的对话框。
 
-终端和桌面应用不会触发所有相同的站点。`Pane`、`AbovePrompt`、`Spinner` 和会话记录站点在两者中都有效。其他一些状态栏仅在终端中触发。[渲染站点表](/docs/zh-CN/plugins/mods/reference#render-sites) 列出了每个站点在哪里触发。
-
 <h3 id="open-a-pane-at-the-right-time">
   在正确的时间打开窗格
 </h3>
@@ -328,6 +328,8 @@ await $.ui.close({ id: 'hello-tabs' })
 | `rows` | 当窗格位于输入框上方时请求的高度。默认值为空间的三分之一。 |
 | `columns` | 当窗格位于会话记录旁边时请求的宽度 |
 
+[VS Code 扩展](#draw-in-the-vs-code-extension)会忽略 `rows` 和 `columns`，并自行确定窗格的大小。
+
 `focus`、`closeOnEscape` 和 `holdToasts` 是可选的，且仅接受 `true`。要不设置其中某一项，请直接省略。传递 `false` 会抛出错误，例如 `ui.open: focus is true or left out`。要有条件地设置其中某一项，请仅在条件成立时添加该字段。此调用仅在 `items` 不为空时请求键盘焦点：
 
 ```javascript theme={null}
@@ -356,11 +358,28 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 
 当窗格出现时，`$.ui.open` 解析为 `{ isPlaced: true }`。当窗格处于等待状态时，`isPlaced` 为 `false`，`reason` 是一个说明原因的字符串。等待中的窗格会在用户打开它或拓宽终端时出现。要在不打开窗格的情况下告知某些内容可用，请调用 `$.ui.toast('Your message')`，它会显示一条 toast 通知。
 
+<h3 id="draw-in-the-vs-code-extension">
+  在 VS Code 扩展中绘制
+</h3>
+
+在 VS Code 扩展中，当扩展版本为 2.1.299 或更高，且会话会[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)时，mod 绘制的内容会显示在聊天面板中。在面板的 `ui.render` hook 中，`e.surface` 为 `vscode`。要查看面板会绘制哪些位置和元素，以及会忽略哪些 prop，请参阅[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)表和[元素](/docs/zh-CN/plugins/mods/reference#elements)表。
+
+要让 mod 既能在终端中运行，也能在面板中运行，请考虑以下差异：
+
+* **窗格**：在宽度为 800 像素或以上的面板中，窗格停靠在对话旁边，`e.props.placement` 为 `'dock'`，`e.viewport.isFullscreen` 为 `true`。在较窄的面板中，窗格绘制在输入框上方，`placement` 为 `'inline'`，窗格显示 12 行后开始滚动。
+* **Toast 和状态栏**：它们位于输入框正上方的同一个堆叠区域中，面板较窄时窗格也在其中，每个 mod 有一个状态栏。当显示权限请求或对话框时，该堆叠区域会被隐藏。
+* **标签**：面板会为 mod 绘制或改写的内容加上边框，并用插件的名称标注，例如 **From the token-chart plugin** 或 **Edited by the token-chart plugin**。
+* **键盘**：按钮没有快捷键，因此用户需点击按钮，或在按钮获得焦点后按 Enter。
+* **键盘焦点**：只有当面板拥有焦点、Claude 处于空闲状态且没有待回答的问题，并且输入框为空时，面板才会批准窗格的 `focus: true` 请求。
+* **问题对话框**：在 `AskUserQuestion` 处，面板会保留其自己的问题卡片，并在其上方绘制您的元素。您传递给 `next` 的 prop 不会更改该卡片。
+* **提示词建议**：`$.prompt.suggest` 会以 `isShown: false` 解析且不显示任何内容，因为面板将输入框中的灰色建议文本保留给 Claude 自己的建议。
+* **文本限制**：面板会将状态栏截断为 200 个字符或两行，将 toast 截断为 500 个字符。
+
 <h2 id="build-a-tree-from-elements">
   从元素构建树
 </h2>
 
-`ui.render` hook 返回的是一个元素树：对要绘制的内容的描述，由相互嵌套的框、文本和控件组成。您描述绘制，Claude Code 在终端或桌面应用中呈现它。
+`ui.render` hook 返回的是一个元素树：对要绘制的内容的描述，由相互嵌套的框、文本和控件组成。您描述绘制，Claude Code 会在用户打开的任一应用中呈现它：终端、桌面应用或 VS Code 扩展。
 
 要获取元素，请在您的 hook 中调用 `$.ui.resolve(e)`，如 `const { Box, Text, Button } = $.ui.resolve(e)`。每个元素都是一个函数。您向它传递属性，并把放在其中的元素和字符串放在 `children` 中。
 
@@ -440,8 +459,8 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 | `Text` | 样式化文本。接受 `color`、`bold`、`dimColor`、`italic` 和 `wrap`。`color` 是主题键或颜色，如 `'red'`。`wrap` 是 `'wrap'`、`'truncate'`、`'truncate-start'`、`'truncate-middle'` 或 `'truncate-end'`。 | 到处 |
 | `Button` | 调用 `onPress` 的控件 | 到处 |
 | `Link`, `Code`, `Markdown` | 带有 `href` 和可选 `label` 的链接、代码块和格式化为 Claude 回复方式的文本。`Markdown` 在 `text` 属性中而不是在 `children` 中获取其内容，当您传递 `onLinkPress` 时需要 `key`。 | 到处 |
-| `Input`, `Select` | 文本字段和下拉列表 | 终端、桌面 |
-| `Svg` | SVG 文档 | 桌面 |
+| `Input`, `Select` | 文本字段和下拉列表 | 终端、桌面、VS Code |
+| `Svg` | SVG 文档 | 桌面、VS Code |
 | `Client` | 由您的第二个文件绘制的区域，用于动画和指针输入。该文件没有 mod API。它通过发布数据到达您的 hook，该数据作为 `ui.message` 事件到达。如果它加载、绘制或运行失败，您的 hook 会收到 [`ui.fault`](/docs/zh-CN/plugins/mods/reference#interface) 事件。 | 终端、桌面 |
 | `Raster`, `Image` | [彩色单元格网格](#draw-a-grid-of-colored-cells)和图片 | 终端 |
 
@@ -452,10 +471,10 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 在使用 `--plugin-dir` 启动的会话中，会话记录中会有一行说明这一点，例如 `ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew its own`。[调试日志](/docs/zh-CN/plugins/mods/troubleshoot#read-the-debug-log) 将其记录为 `ui.render (Pane): a hook returned a tree that does not validate` 并带有相同的原因。会话中没有其他内容出现，所以当绘制不显示时，请检查该行或日志。
 
 <h3 id="link-in-the-desktop-app">
-  桌面应用中的 `Link`
+  桌面应用和 VS Code 中的 `Link`
 </h3>
 
-在桌面应用中，除非 `Link` 的 `href` 满足以下要求，否则它会绘制为纯文本：
+在桌面应用和 VS Code 扩展中，除非 `Link` 的 `href` 满足以下要求，否则它会绘制为纯文本：
 
 * **协议和主机**：`https:` URL，或 `http://localhost` URL，例如 `http://localhost:3000`
 * **不含 `@`**：将路径或查询中的 `@` 写为 `%40`
@@ -477,7 +496,7 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 
 对于热力图、迷你图或终端中的游戏板，绘制一个 `Raster`，而不是为每个单元格绘制一个 `Box`。`Raster` 接受 `key`、其大小（以 `columns` 和 `rows` 为单位）和 `cells`，后者是一个打包了所有单元格的 base64 字符串。每个单元格是三个数字：字符的代码点、其颜色和其背景颜色。颜色是十六进制的 24 位 RGB 值，例如 `0xc62828` 表示红色。值 `0x01000000` 比该范围大一，表示终端的默认值。
 
-桌面应用没有 `Raster`，所以请检查 `e.surface` 并在那里绘制文本。此窗格主体绘制一个三乘二的热力图：
+终端以外的应用没有 `Raster`，所以请检查 `e.surface` 并在那里绘制文本。此窗格主体绘制一个三乘二的热力图：
 
 ```javascript theme={null}
 // 表示"使用终端的默认颜色"的值
@@ -535,6 +554,8 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 
 您的 mod 永远不会自己读取键盘。用户按下一个键，Claude Code 决定它属于您的哪个控件，然后该控件的回调运行。除了[条带上的数字快捷键](/docs/zh-CN/plugins/mods/reference#elements)，这仅在您的窗格或条带拥有键盘焦点时发生。其余时间，按键进入输入框。
 
+在 [VS Code 扩展](#draw-in-the-vs-code-extension)中，按钮没有快捷键：用户点击按钮或在按钮上按 Enter，并在字段中输入。
+
 <h4 id="how-a-pane-gets-keyboard-focus">
   窗格如何获得键盘焦点
 </h4>
@@ -570,17 +591,15 @@ mod 无法将 Tab 或方向键绑定到其他任何功能，因此游戏使用 `
   设置快捷键和初始焦点
 </h4>
 
-控件上的以下属性决定了键盘如何到达它：
-
 * **`hotkey`**：要让用户用一个键按下 `Button`，请为它指定一个 `hotkey`，值为一个数字或一个小写字母，如 `hotkey: 'a'`
-* **`autoFocus`**：要选择窗格打开时哪个控件拥有焦点，请向它添加 `autoFocus: true`。该属性只接受 `true`，因此请在其他控件上省略它。
+* **`autoFocus`**：要选择窗格打开时哪个控件拥有焦点，请向它添加 `autoFocus: true`。在 [VS Code 扩展](#draw-in-the-vs-code-extension)中，`autoFocus` 不起作用：控件的绘制方式与省略它时相同，您无需做任何更改。该 prop 只接受 `true`，因此请在其他控件上省略它。
 
 快捷键的显示方式取决于按钮和应用：
 
-| 按钮 | 在终端中 | 在桌面应用中 |
-| :- | :- | :- |
-| 带括号（默认） | `[ Add one ]`，不显示快捷键 | 标签，旁边有一个小键 |
-| 使用 `plain: true` | `1: One` | 标签，旁边有一个小键 |
+| 按钮 | 在终端中 | 在桌面应用中 | 在 VS Code 扩展中 |
+| :- | :- | :- | :- |
+| 带括号（默认） | `[ Add one ]`，不显示快捷键 | 标签，旁边有一个小键 | 标签，快捷键不起作用 |
+| 使用 `plain: true` | `1: One` | 标签，旁边有一个小键 | 标签，快捷键不起作用 |
 
 在终端中，请在带括号按钮的标签中写明按键，或使用 `plain: true`，以便用户知道要按什么。[元素参考](/docs/zh-CN/plugins/mods/reference#elements)包含其他 `Button` 规则：`action`、条带上的数字快捷键，以及同一快捷键上的两个按钮。
 

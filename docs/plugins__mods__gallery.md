@@ -177,7 +177,7 @@ Link({ href: 'https://code.claude.com/docs', label: 'Claude Code docs' })
   显示代码和更改
 </h2>
 
-`Code` 使用 Claude Code 自己的语法配色绘制源代码文本或 diff。
+`Code` 使用 Claude Code 自己的语法配色绘制源代码文本或 diff。在 VS Code 扩展中，`Code` 将其 `source` 显示为纯文本，不带这些截图中的配色、行号或 diff 底纹。
 
 <h3 id="code">
   `Code`
@@ -259,7 +259,7 @@ Box({
 
 `Button`、`Input` 和 `Select` 是控件：用户通过 Tab 键在它们之间移动，并操作获得焦点的那个控件。[键盘焦点和快捷键](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive)介绍了哪些按键会传递给它们。
 
-使用 `focus: true` 打开窗格会让该窗格获得键盘焦点。`Input` 获得焦点后才能接收键入的字母，因此对于应在窗格打开后立即接收输入的输入框，请添加 `autoFocus: true`。
+使用 `focus: true` 打开窗格可为该窗格请求键盘焦点。`Input` 获得焦点后即可接收键入的字母。要选择窗格打开时哪个输入框获得焦点，请参阅[设置快捷键和初始焦点](/docs/zh-CN/plugins/mods/interface#set-a-hotkey-and-the-first-focus)。
 
 <h3 id="button">
   `Button`
@@ -395,7 +395,7 @@ Raster({
   `Svg`
 </h3>
 
-`Svg` 在 Desktop 应用中绘制 SVG 文档：
+`Svg` 在 Desktop 应用和 VS Code 扩展中绘制 SVG 文档：
 
 ```javascript theme={null}
 Svg({

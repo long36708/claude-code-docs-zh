@@ -24,7 +24,7 @@ Mod 是一个[插件](/docs/zh-CN/plugins/overview)，它改变 Claude Code 的�
 * **在命令上运行自己的代码**：一个 `/command`，立即运行你的函数，没有 Claude 转折，即使 Claude 正在工作。请参阅[添加命令或工具](/docs/zh-CN/plugins/mods/api#add-a-command-or-a-tool)。
 * **在 hooks 之间共享数据**：mod 的 hooks 共享其文件中的变量，所以一个 hook 记录的内容，另一个可以显示。例如，一个 hook 可以计算工具调用，而另一个在微调器旁边显示计数，或者一个可以读取每个请求的令牌使用情况，而另一个在窗格中绘制它。请参阅[对事件做出反应](/docs/zh-CN/plugins/mods/events)。
 
-Mods 在 Claude Code CLI 和 Claude Desktop 应用的代码选项卡中工作。请参阅[Mods 在哪里运行](#where-mods-run)以了解它们在其他地方的行为，例如在 VS Code 扩展、`claude -p` 和云会话中。如果设置 hook、skill 或 MCP 服务器已经做了你需要的事情，在编写 mod 之前[比较它们](#compare-mods-settings-hooks-skills-and-mcp-servers)。要为组织管理 mods，请参阅[为你的组织管理 mods](/docs/zh-CN/plugins/mods/admin)。
+mod 可在 Claude Code CLI、Claude Desktop 应用的 Code 选项卡以及 VS Code 扩展中工作。请参阅[mod 在哪里运行](#where-mods-run)以了解它们在其他地方的行为，例如在 `claude -p` 和云端会话中。如果设置 hook、skill 或 MCP 服务器已经能满足您的需要，请在编写 mod 之前先[比较它们](#compare-mods-settings-hooks-skills-and-mcp-servers)。要为组织管理 mod，请参阅[为您的组织管理 mod](/docs/zh-CN/plugins/mods/admin)。
 
 <h2 id="get-a-mod">
   获取 mod
@@ -212,14 +212,14 @@ Claude Code 在对事件采取行动之前运行您的 hook，因此由 hook 决
   Mods 在哪里运行
 </h3>
 
-mod 的 hook 在加载该插件的每种会话中运行，无论由哪个提供商提供模型，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry。绘制的范围更窄：只有终端和桌面应用会显示 mod 的窗格、带状区域和替换的行。此表列出了您可能运行 Claude Code 的每个地方：
+mod 的 hook 在加载该插件的每种会话中运行，无论由哪个提供商提供模型，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry。绘制的范围更窄：mod 绘制的内容会出现在终端、桌面应用和 VS Code 扩展中。此表列出了您可能运行 Claude Code 的每个地方：
 
 | 您运行 Claude Code 的地方 | Hook 是否运行 | Mod 绘制的内容是否出现 |
 | :- | :- | :- |
 | 终端中的 `claude`，包括编辑器的集成终端和 JetBrains 插件 | 是 | 是 |
 | 桌面应用的代码选项卡，WSL 会话除外 | 是 | 是，[元素表](/docs/zh-CN/plugins/mods/reference#elements)标记为仅限终端的元素除外 |
 | 桌面应用中的 [WSL 会话](/docs/zh-CN/desktop-wsl) | 否，因为插件在 WSL 会话中不可用 | 否 |
-| VS Code 扩展的聊天面板 | 是 | 否 |
+| VS Code 扩展的聊天面板 | 是 | 是，需使用扩展版本 2.1.299 或更高版本，并且在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中。[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)表和[元素](/docs/zh-CN/plugins/mods/reference#elements)表标出了该面板绘制的内容。 |
 | `claude -p` 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview) | 是 | 否 |
 | 从 claude.ai 或移动应用使用 [Remote Control](/docs/zh-CN/remote-control) | 是，在您机器上的会话中 | 在您机器上的终端中 |
 | [云端会话](/docs/zh-CN/claude-code-on-the-web) | 是，适用于[可进入云端会话](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)的插件 | 否 |

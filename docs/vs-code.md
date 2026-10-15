@@ -464,6 +464,24 @@ GitHub README、问题和某些其他 Markdown 主机会删除其方案不是 `h
 
 有关插件系统的更多信息，请参阅 [Plugins](/docs/zh-CN/plugins/overview) 和 [Plugin marketplaces](/docs/zh-CN/plugins/overview)。
 
+<h3 id="plugins-that-draw-in-the-panel">
+  在面板中绘制内容的插件
+</h3>
+
+包含 [mod](/docs/zh-CN/plugins/mods/overview) 的插件可以在聊天面板中绘制内容。绘制需要扩展版本 2.1.299 或更高版本，以及一个[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话。对于此类插件，您可以看到：
+
+* 对话旁边或输入框上方的窗格
+* 输入框上方的 toast 或状态栏
+* 以插件自己的方式绘制的消息或工具调用
+
+当您安装的插件在面板中添加或更改内容时，会有一个标签注明该插件，措辞如下：
+
+* **来自 token-chart 插件**：该插件绘制或输出了此内容，或者此卡片是该插件在向您询问某些事情
+* **由 token-chart 插件编辑**：该插件更改了 Claude Code 绘制的某些内容，例如工具调用
+* **来自 token-chart 插件的提示词**：该插件代表您发送了此消息
+
+要阻止插件绘制内容，请在[插件对话框](#install-plugins)中关闭该插件。
+
 <h2 id="automate-browser-tasks-with-chrome">
   使用 Chrome 自动化浏览器任务
 </h2>

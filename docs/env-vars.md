@@ -333,7 +333,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS` | 对对话应用[空闲压缩](/docs/zh-CN/settings-reference#idlecompaction)的上下文大小（以 token 计）（默认值：`200000`）。接受正整数，其他值会被忽略。低于 `100000` 的值会被提高到最低阈值 `100000`。对于满足条件的对话，空闲压缩默认开启。要关闭它，请将 `idleCompaction` 设置为 `false`。需要 Claude Code v2.1.290 或更高版本 |
 | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` | 一个会话中最多可同时运行多少个[子代理](/docs/zh-CN/sub-agents#concurrent-subagent-limit)，超过后 Agent 工具将拒绝再生成新的子代理（默认：20）。接受以纯数字表示的正整数；其他值会被忽略，因此此变量可以调整上限，但不能禁用它。需要 Claude Code v2.1.217 或更高版本 |
 | `CLAUDE_CODE_MAX_CONTEXT_TOKENS` | 覆盖 Claude Code 为当前模型假定的上下文窗口大小。从 v2.1.193 起，其应用方式取决于 Claude Code 如何解析模型 ID；请参阅[为网关或自定义模型 ID 更正窗口大小](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id)。当通过 `ANTHROPIC_BASE_URL` 路由到某个模型，而其上下文窗口与其名称对应的内置大小不匹配时使用 |
-| `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` | Claude Code 发送给模型的每个 MCP 工具描述以及每个 MCP 服务器说明的最大长度（字符）。您设置的值会替换两个[默认限制](/docs/zh-CN/mcp#for-mcp-server-authors)：4096，以及 Claude 通过工具搜索加载的工具描述所用的 16384。Claude Code 会截断更长的文本。接受纯数字形式的正整数。其他值将被忽略并应用默认值。需要 Claude Code v2.1.280 或更高版本 |
+| `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` | Claude Code 发送给模型的 MCP 工具描述和 MCP 服务器说明的最大长度（字符）。您设置的值会替换两个[默认限制](/docs/zh-CN/mcp#for-mcp-server-authors)：4096，以及 Claude 通过工具搜索加载的工具描述的 16384。接受纯数字形式的正整数。其他任何值都会被忽略并应用默认值。需要 Claude Code v2.1.280 或更高版本 |
 | `CLAUDE_CODE_MAX_OUTPUT_TOKENS` | 设置大多数请求的最大输出 token 数。默认值和上限因模型而异；请参阅[最大输出 token](https://platform.claude.com/docs/en/about-claude/models/overview#latest-models-comparison)。如果设置的值超过模型上限，Claude Code 会将其降至上限。对于 Claude Code 无法解析为已知模型的模型 ID，默认值为 32000，上限为 128000。增大此值会减少触发[自动压缩](/docs/zh-CN/costs#reduce-token-usage)之前可用的有效上下文窗口 |
 | `CLAUDE_CODE_MAX_RETRIES` | 覆盖失败 API 请求的重试次数（默认：10）。从 v2.1.186 起上限为 15；从 v2.1.199 起，`CLAUDE_CODE_RETRY_WATCHDOG` 会提高默认值并取消上限。对于需要等待更长时间服务中断的无人值守会话，请改为设置 `CLAUDE_CODE_RETRY_WATCHDOG` |
 | `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` | 已在 v2.1.224 中移除，现在不起作用。此前用于限制 Claude 在一个会话中可通过 Agent 工具生成的[子代理](/docs/zh-CN/sub-agents)总数（默认：200）；超过上限时生成会失败并显示 `Subagent spawn limit reached`。[并发子代理限制](/docs/zh-CN/sub-agents#concurrent-subagent-limit)和[深度限制](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)仍然适用 |
@@ -599,6 +599,7 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 * 运行 [`/skill-doctor`](/docs/zh-CN/skills#find-unused-skills) 或在 `/plugin` 的 **Stats** 选项卡中打开其报告
 * 将您的 claude.ai 账户中启用的 [skill](/docs/zh-CN/skills#where-synced-skills-load) 和[插件](/docs/zh-CN/plugins/loading#synced-plugins)同步到终端会话中
 * 启用 [You should know mod](/docs/zh-CN/interactive-mode#you-should-know-suggestions)
+* 查看 [mod](/docs/zh-CN/plugins/mods/overview#where-mods-run) 在 VS Code 扩展聊天面板中绘制的内容；该 mod 的 hook 仍会运行
 * 使用 [advisor 工具](/docs/zh-CN/advisor#requirements)
 * 阅读或回复 [Artifact 上的评论](/docs/zh-CN/artifacts#collect-comments-on-an-artifact)
 * 让 Claude 读取[其他组织的公开 Artifact](/docs/zh-CN/artifacts#read-an-artifact-shared-with-you)

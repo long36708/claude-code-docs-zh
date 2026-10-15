@@ -648,6 +648,7 @@ CLAUDE.md 内容作为用户消息在系统提示词之后传递，而不是系�
 要调试：
 
 * 运行 `/context` 并检查 **Memory files** 下的列表，以验证应在启动时加载的 CLAUDE.md 和 CLAUDE.local.md 文件。如果其中某个文件不在列表中，Claude 就看不到它。使用 `/memory` 打开和编辑文件。
+* 如果出现 `Instruction file not loaded` 提示，请参阅[其含义及处理方法](/docs/zh-CN/errors#instruction-file-not-loaded)。
 * 工作目录的子目录中的 `CLAUDE.md` 不会出现在 **Memory files** 下，因为它是按需加载而不是在启动时加载的。加载时，终端中会出现一行带有其路径的 `Loaded`。要测试新建的此类文件，请从 shell 中创建它，而不是让 Claude 编写它，然后让 Claude 读取该子目录中的某个文件。
 * 检查相关 CLAUDE.md 是否在为您的会话加载的位置（参见 [选择 CLAUDE.md 文件的位置](#choose-where-to-put-claude-md-files)）。
 * 使指令更具体。"使用 2 空格缩进"比"格式化代码很好"效果更好。

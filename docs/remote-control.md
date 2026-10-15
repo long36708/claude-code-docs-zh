@@ -72,6 +72,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
     | `-d`, `--debug[=<filter>]` | 为服务器打开调试日志记录，可选择按类别过滤。仅以 `=` 形式传递过滤器，例如 `--debug=api,hooks`。需要 Claude Code v2.1.282 或更高版本。 |
     | `--debug-file <path>` | 将调试日志写入给定文件。 |
     | `--verbose` | 显示详细的连接和会话日志。 |
+    | `--sandbox`, `--no-sandbox` | 已在 v2.1.300 中移除。如果您传递任一标志，服务器会[报错退出](/docs/zh-CN/errors#sandbox-is-not-supported-by-claude-remote-control)而不是启动。 |
 
     如果您在 `remote-control` 之前传递全局 `claude` 标志，或包装脚本添加了一个，Claude Code 不会将该标志转移到服务器创建的会话。Claude Code 仅在已知删除该标志不会改变这些会话可以执行的操作时才允许该标志通过，例如 `--verbose` 或 `--model`。对于任何其他标志，例如 `--settings`，Claude Code [拒绝启动](/docs/zh-CN/errors#not-carried-over-to-the-sessions-remote-control-starts)并命名要删除的标志。
 

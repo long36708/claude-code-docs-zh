@@ -378,6 +378,8 @@ Claude Code 第一次看到项目范围的服务器时，它会要求您批准�
     ```powershell theme={null}
     $env:MCP_TIMEOUT = "60000"; claude
     ```
+
+    在 v2.1.299 之前，某些到已启动的 HTTP 服务器的连接会在启动时超时，与 `MCP_TIMEOUT` 无关。如果您使用的是这些版本之一，并且在提高限制后已启动的 HTTP 服务器仍然超时，请[更新 Claude Code](/docs/zh-CN/setup#update-claude-code)。
   </Accordion>
 
   <Accordion title="服务器已存在">

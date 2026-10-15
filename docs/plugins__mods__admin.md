@@ -84,9 +84,12 @@ Mods 不会替换您已有的控制：
 * **网络策略涵盖 `$.http.fetch`。**
 
   * **您的组织策略不允许 WebFetch**：Claude Code 也会拒绝每个 mod 的 `$.http.fetch` 请求。请参阅 [WebFetch 可用性](/docs/zh-CN/tools-reference#webfetch-availability)。
+  * **您在托管设置或任何其他设置文件中使用 [`CLAUDE_CODE_DISABLE_WEB_FETCH`](/docs/zh-CN/env-vars#variables) 或 `WebFetch` [拒绝规则](/docs/zh-CN/permissions#tool-specific-permission-rules)关闭了 WebFetch 工具**：mod 仍然可以发出 `$.http.fetch` 请求。
+
+    要为您的用户安装的每个 mod 阻止这些请求，请[防止用户安装的 mod 加载](#stop-user-installed-mods-from-loading)，或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中 hook `http.fetch` 并拒绝来自用户 mod 的请求。还要为该 hook 提供一个同样会拒绝请求的 [`.catch` 处理程序](/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)，因为 Claude Code 会跳过失败的 hook，届时请求将继续进行。如果您只[限制用户可以安装的插件](/docs/zh-CN/plugins/org#restrict-what-users-can-install)，加载的 mod 会减少，但您允许的 mod 仍然可以发出这些请求。
   * **您设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars)**：您或您的用户安装的 mod 仍然可以发出这些请求。该变量仅阻止 [Claude Code 内置的 mod](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code)，以及任何携带会话 Anthropic 凭据的 `$.http.fetch` 请求。在 v2.1.288 之前，该变量会阻止每个 mod 的 `$.http.fetch` 请求。
 
-  两者都不涵盖 mod 使用 `$.process.run` 启动的程序，该程序使用用户自己的访问权限访问网络。
+  这些都不涵盖 mod 使用 `$.process.run` 启动的程序，该程序使用用户自己的访问权限访问网络。
 * **插件控制涵盖 mods。** Mod 是一个插件，因此[限制用户可以安装的内容的设置](/docs/zh-CN/plugins/org#restrict-what-users-can-install)，例如 `strictKnownMarketplaces`，决定它是否可以被安装。
 * **Mods 无法更改权限提示。** Mod 可以重新设置 Claude Code 界面的大部分样式，但不能更改权限提示，因此它无法更改提示显示的内容。Mod 仍然可以在提示出现之前批准或拒绝工具调用，如[了解默认情况下会发生什么](#know-what-happens-by-default)所述。
 * **信任提示首先出现。** 在用户尚未信任的目录中的交互式会话中，在他们回答信任提示之前，没有 mod 加载。

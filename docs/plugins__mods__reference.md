@@ -6,7 +6,7 @@
 
 > Claude Code mod 的完整参考：hook 模块布局、事件、mods API 方法、渲染位置、按使用入口划分的元素、限制和设置。
 
-查阅 [mod](/docs/zh-CN/plugins/mods/overview) 可以处理的任何事件、可以调用的任何 mods API 方法，或可以在其中绘制的任何渲染位置，适用于 v2.1.290 起的 Claude Code CLI 和 Desktop 应用。每个条目给出名称和一行描述，如有相应的指南章节，还会链接到该章节。
+查阅 [mod](/docs/zh-CN/plugins/mods/overview) 可以处理的任何事件、可以调用的任何 mods API 方法，或可以在其中绘制的任何渲染位置。条目涵盖 v2.1.290 起的 Claude Code CLI 和 Desktop 应用，以及 v2.1.299 起的 VS Code 扩展。每个条目给出名称和一行描述，如有相应的指南章节，还会链接到该章节。
 
 <Note>
   完整的参考是 Claude Code 的 [mod TypeScript 声明](https://github.com/anthropics/claude-code/blob/main/mods/types/claude-code.d.ts)，其中描述了每个事件、方法和元素，并附有示例。GitHub 上的副本可能比您安装的 Claude Code 版本更旧。两者不一致时，请以 [Claude Code 为您的版本写入的副本](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)为准。
@@ -255,31 +255,33 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
   渲染位置
 </h2>
 
-渲染位置是 Claude Code 界面中的扩展点。每一行是 `ui.render` hook 中 `e.component` 的一个值，并列出了 `e.props` 的字段以及渲染它的应用。`e.surface` 为 `terminal` 或 `desktop`。[更改 Claude Code 已绘制的内容](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws)展示了 hook 在某个位置可以做什么，并为每种选择提供了示例。
+渲染位置是 Claude Code 界面中的扩展点。每一行是 `ui.render` hook 中 `e.component` 的一个值，并列出了 `e.props` 的字段以及渲染它的应用。`e.surface` 指明正在绘制的应用，例如 `terminal`、`desktop` 或 `vscode`。[更改 Claude Code 已绘制的内容](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws)展示了 hook 在某个位置可以做什么，并为每种选择提供了示例。
+
+在 VS Code 扩展中进行渲染需要扩展版本 2.1.299 或更高版本，并且需要一个[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话。[在 VS Code 扩展中绘制](/docs/zh-CN/plugins/mods/interface#draw-in-the-vs-code-extension)列出了该扩展在绘制上的不同之处。
 
 | 位置 | `e.props` | `e.requestId` | 渲染于 |
 | :- | :- | :- | :- |
-| [`Pane`](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `title`、`isFocused`、`bodyColumns`、`placement`、`scroll`、`view` | 窗格的 `id` | 终端、Desktop |
+| [`Pane`](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `title`、`isFocused`、`bodyColumns`、`placement`、`scroll`、`view` | 窗格的 `id` | 终端、Desktop、VS Code |
 | [`AbovePrompt`](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `hasSurvey`、`isWorking`、`maxRows`、`bodyColumns`、`scroll`、`view` | 单一实例 | 终端、Desktop |
-| `UserMessage` | `text`、`origin`、`isExpanded`，以及视来源而定的 `task` 或 `from` | 消息 id | 终端、Desktop |
-| `AssistantMessage` | 回复的文本 | 消息 id | 终端、Desktop |
-| `ToolUse`, `ToolResult`, `ToolGroup` | 工具的名称、输入和结果 | 工具调用 id | 终端、Desktop |
+| `UserMessage` | `text`、`origin`、`isExpanded`，以及视来源而定的 `task` 或 `from` | 消息 id | 终端、Desktop、VS Code |
+| `AssistantMessage` | 回复的文本 | 消息 id | 终端、Desktop、VS Code |
+| `ToolUse`, `ToolResult`, `ToolGroup` | 工具的名称、输入和结果 | 工具调用 id | 终端、Desktop、VS Code |
 | `CommandOutput` | `command`、`text` | 消息 id | 终端、Desktop |
-| [`AskUserQuestion`](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) | 问题和选项 | 工具调用 id | 终端、Desktop |
+| [`AskUserQuestion`](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) | 问题和选项 | 工具调用 id | 终端、Desktop、VS Code |
 | `ToolProgress` | `kind` | 工具调用 id | 终端 |
-| [`Spinner`](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) | `word`、`message`、`suffix`、`mode` | Agent id | 终端、Desktop |
+| [`Spinner`](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) | `word`、`message`、`suffix`、`mode` | Agent id | 终端、Desktop、VS Code |
 | `TurnDuration` | `word`、`durationMs` | 消息 id | 终端 |
 | `InfoNotice` | `text`、`command` | 消息 id | 终端 |
 | `SessionMode` | `modes` | 单一实例 | 终端、Desktop |
 | `PromptHint` | `isDraft`、`isWorking`、`hint` | 单一实例 | 终端、Desktop |
 
-`e.viewport` 包含 `columns`、`rows` 和 `isFullscreen`。在应用测量其窗口之前，它不存在。它的 `rows` 是整个窗口的高度，而不是您的窗格的高度。
+`e.viewport` 包含 `columns`、`rows` 和 `isFullscreen`。在终端和 Desktop 应用中，在应用测量其窗口之前，它不存在。在这两处，它的 `rows` 是整个窗口的高度，而不是您的窗格的高度。在 VS Code 扩展中，它始终存在。
 
 要使树适配其所在位置，请在 hook 中读取以下 prop：
 
 * **`Pane` 或横栏的宽度**：按 `e.props.bodyColumns` 绘制
 * **会话记录旁的 `Pane` 的高度**：当 `e.props.placement` 为 `'dock'` 时，`e.props.scroll.bodyRows` 是该窗格可供您的树使用的行数
-* **输入框上方的 `Pane` 的高度**：当 `e.props.placement` 为 `'inline'` 时，窗格会随您的树增高，直到达到上限，而 `bodyRows` 就是该上限。[`$.ui.open` 的 `rows` 字段](/docs/zh-CN/plugins/mods/interface#open-a-pane-at-the-right-time)可请求不同的上限。
+* **输入框上方的 `Pane` 的高度**：当 `e.props.placement` 为 `'inline'` 时，窗格会随您的树增高，直到达到上限，而 `bodyRows` 就是该上限。如需请求不同的上限，请参阅 [`$.ui.open` 的 `rows` 字段](/docs/zh-CN/plugins/mods/interface#open-a-pane-at-the-right-time)。
 
 比窗格更高的树会整体滚动。
 
@@ -289,22 +291,29 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 
 元素是 `ui.render` hook 所返回的树的构建块，您可以从 `$.ui.resolve(e)` 获取它们。[用元素构建树](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)展示了常用元素以及终端如何绘制它们，[界面图库](/docs/zh-CN/plugins/mods/gallery)提供了大多数元素的截图。对勾表示该应用可以绘制该元素。
 
-| 元素 | 主要 prop | 终端 | Desktop |
-| :- | :- | :-: | :-: |
-| [`Box`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `key`、flex 布局、`gap`、`padding`、`margin`、`width`、`height`、[`borderStyle`](#box-border-styles)、`backgroundColor`、`position`、`hover` | ✓ | ✓ |
-| [`Text`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `color`、`backgroundColor`、`bold`、`italic`、`underline`、`dimColor`、`inverse`、`wrap` | ✓ | ✓ |
-| [`Button`](/docs/zh-CN/plugins/mods/interface#respond-to-presses-and-typing) | `key`、`label`、`onPress`、`hotkey`、`plain`、`dimColor`、`autoFocus`、`action` | ✓ | ✓ |
-| [`Link`](/docs/zh-CN/plugins/mods/interface#link-in-the-desktop-app) | `href`、`label`。请参阅[限制](#limits)。 | ✓ | ✓ |
-| [`Code`](/docs/zh-CN/plugins/mods/gallery#show-code-and-changes) | `source`、`language`、`path`、`startLine`、`format`、`wrap` | ✓ | ✓ |
-| `Markdown` | `text`、`key`、`dimColor`、`onLinkPress`、`pressableLinks` | ✓ | ✓ |
-| [`Input`](/docs/zh-CN/plugins/mods/interface#take-typed-input-and-draw-a-row-for-each-item) | `key`、`label`、`placeholder`、`value`、`submitLabel`、`onSubmit`、`onInput`、`autoFocus` | ✓ | ✓ |
-| `Select` | `key`、`label`、`options`、`value`、`onSelect`、`autoFocus` | ✓ | ✓ |
-| `Svg` | 一个 SVG 文档，最多 131,072 个字符 | | ✓ |
-| [`Client`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `module`、`key` | ✓ | ✓ |
-| [`Raster`](/docs/zh-CN/plugins/mods/interface#draw-a-grid-of-colored-cells) | `key`、`columns`（最多 512）、`rows`（最多 256）、`cells`。请参阅[绘制彩色单元格网格](/docs/zh-CN/plugins/mods/interface#draw-a-grid-of-colored-cells)。 | ✓ | |
-| `Image` | 最多 2 MiB 的 PNG 或 RGBA 字节，或文件路径，`columns` 和 `rows`（最多 255），以及 `alt` 文本。 | ✓ | |
+| 元素 | 主要 prop | 终端 | Desktop | VS Code |
+| :- | :- | :-: | :-: | :-: |
+| [`Box`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `key`、flex 布局、`gap`、`padding`、`margin`、`width`、`height`、[`borderStyle`](#box-border-styles)、`backgroundColor`、`position`、`hover` | ✓ | ✓ | ✓ |
+| [`Text`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `color`、`backgroundColor`、`bold`、`italic`、`underline`、`dimColor`、`inverse`、`wrap` | ✓ | ✓ | ✓ |
+| [`Button`](/docs/zh-CN/plugins/mods/interface#respond-to-presses-and-typing) | `key`、`label`、`onPress`、`hotkey`、`plain`、`dimColor`、`autoFocus`、`action` | ✓ | ✓ | ✓ |
+| [`Link`](/docs/zh-CN/plugins/mods/interface#link-in-the-desktop-app) | `href`、`label`。请参阅[限制](#limits)。 | ✓ | ✓ | ✓ |
+| [`Code`](/docs/zh-CN/plugins/mods/gallery#show-code-and-changes) | `source`、`language`、`path`、`startLine`、`format`、`wrap` | ✓ | ✓ | ✓ |
+| `Markdown` | `text`、`key`、`dimColor`、`onLinkPress`、`pressableLinks` | ✓ | ✓ | ✓ |
+| [`Input`](/docs/zh-CN/plugins/mods/interface#take-typed-input-and-draw-a-row-for-each-item) | `key`、`label`、`placeholder`、`value`、`submitLabel`、`onSubmit`、`onInput`、`autoFocus` | ✓ | ✓ | ✓ |
+| `Select` | `key`、`label`、`options`、`value`、`onSelect`、`autoFocus` | ✓ | ✓ | ✓ |
+| `Svg` | 一个 SVG 文档，最多 131,072 个字符 | | ✓ | ✓ |
+| [`Client`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `module`、`key` | ✓ | ✓ | |
+| [`Raster`](/docs/zh-CN/plugins/mods/interface#draw-a-grid-of-colored-cells) | `key`、`columns`（最多 512）、`rows`（最多 256）、`cells`。请参阅[绘制彩色单元格网格](/docs/zh-CN/plugins/mods/interface#draw-a-grid-of-colored-cells)。 | ✓ | | |
+| `Image` | 最多 2 MiB 的 PNG 或 RGBA 字节，或文件路径，`columns` 和 `rows`（最多 255），以及 `alt` 文本。 | ✓ | | |
 
 更多 `Button` 规则：`action` 指定 Claude Code 自身的某个[快捷键操作](/docs/zh-CN/keybindings)，当用户为该操作设置的绑定是组合键或带修饰键的按键时，该绑定会按下此按钮。当用户在空的输入框中只输入某个数字并停顿时，横栏中设置了该数字 `hotkey` 的按钮也会触发。当同一次绘制中的两个按钮指定相同的 `hotkey` 时，由后一个按钮获得它。`autoFocus` 在任何控件上都只接受 `true`，因此要关闭它，请省略该 prop。
+
+VS Code 扩展会忽略某些元素 prop，并像您省略了这些 prop 一样绘制该元素：
+
+* **`Box`**：`position` 和 `hover`
+* **`Button`**：`hotkey`、`plain`、`autoFocus` 和 `action`，因此用户在其中通过点击来按下按钮，或在按钮获得焦点后按 Enter
+* **`Code`**：`language`、`path`、`startLine`、`format` 和 `wrap`，因此代码绘制时不带颜色或行号，而 `format: 'diff'` 代码块会显示 diff 的原始文本
+* **`Input` 和 `Select`**：`autoFocus`
 
 <h3 id="box-border-styles">
   `Box` 边框样式

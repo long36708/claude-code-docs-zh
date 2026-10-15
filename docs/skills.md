@@ -832,6 +832,12 @@ PowerShell 工具对它运行的命令应用相同的超时、后台化和输出
 
 使用默认的 `bash` shell，将 `|| true` 附加到任何你期望退出非零的其他命令。一个在发现问题时退出 1 的检查脚本就是一个例子。
 
+<h4 id="control-characters-in-injected-commands">
+  注入命令中的控制字符
+</h4>
+
+`No shell command in <name> was run` 表示该文件中的某个 `!` 命令包含制表符或换行符以外的原始控制字符，因此其中所有命令都不会运行。请参阅[如何查找并删除该字符](/docs/zh-CN/errors#no-shell-command-was-run)。
+
 <h4 id="permission-checks-on-injected-commands">
   注入命令的权限检查
 </h4>

@@ -1926,7 +1926,7 @@ class ResultMessage:
 | `costUSD` | `float` | 此模型的估计成本（美元），客户端计算。见[跟踪成本和使用](/docs/zh-CN/agent-sdk/cost-tracking)了解计费注意事项。 |
 | `contextWindow` | `int` | 此模型的上下文窗口大小。 |
 | `maxOutputTokens` | `int` | 此模型的最大输出 token 限制。 |
-| `canonicalModel` | `str` | 用于定价查询的规范模型 ID。可能与条目键入的原始模型字符串不同，例如特定于提供商的 ID 或别名。并非总是存在。 |
+| `canonicalModel` | `str` | 用于定价查询的规范模型 ID。可能与用作条目键的原始模型字符串不同，例如特定于提供商的 ID 或别名。并非总是存在。 |
 | `provider` | `str` | 提供此模型的 API 提供商，例如 `firstParty`、`bedrock`、`vertex`、`foundry`、`anthropicAws`、`mantle` 或 `gateway`。并非总是存在。 |
 | `costBasis` | `str` | 为此模型最新请求定价的价格表：`list` 表示标价，`managed` 表示 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 表，`unknown` 表示两者都与模型 ID 不匹配。并非总是存在，并且未在 TypedDict 上声明，因此使用 `.get()` 读取它。需要 Claude Code v2.1.246 或更高版本。 |
 

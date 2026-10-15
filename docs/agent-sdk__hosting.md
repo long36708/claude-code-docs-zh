@@ -235,7 +235,7 @@ Agent SDK 生成并监督一个 `claude` CLI 子进程，该子进程拥有一�
   网络
 </h3>
 
-SDK 需要对 `api.anthropic.com` 的出站 HTTPS，或在 Amazon Bedrock 或 Google Cloud 的 Agent Platform 上运行时对您的提供商的区域端点的出站 HTTPS。如果您的代理使用 [MCP servers](/docs/zh-CN/agent-sdk/mcp) 或外部工具，它们还需要对这些端点的出站访问。对于生产环境，通过强制执行域允许列表、注入凭据和记录请求的出站代理路由出站流量。有关完整模式，请参阅 [Secure Deployment](/docs/zh-CN/agent-sdk/secure-deployment)。
+SDK 需要对 `api.anthropic.com` 的出站 HTTPS，或在 Amazon Bedrock 或 Google Cloud 的 Agent Platform 上运行时对您的提供商的区域端点的出站 HTTPS。如果您的代理使用 [MCP servers](/docs/zh-CN/agent-sdk/mcp) 或外部工具，它们还需要对这些端点的出站访问。对于生产环境，通过强制执行域允许列表、注入凭据和记录请求的出站代理路由出站流量。有关完整模式，请参阅 [安全部署](/docs/zh-CN/agent-sdk/secure-deployment)。
 
 对于入站流量，在容器上公开 HTTP 或 WebSocket 端口。您的应用程序在该端口上处理客户端请求并在内部调用 SDK；子进程本身不在网络上侦听。
 
@@ -398,14 +398,14 @@ Anthropic 令牌成本通常比容器基础设施成本高一个数量级或更�
 
 * **服务启动时找不到 CLI**：在 Python 中，容器或服务管理器运行您的应用程序时使用的 `PATH` 与您的 shell 不同，因此在本地有效的安装对该进程不可见。在 TypeScript 中，镜像构建跳过了 SDK 的可选依赖项，或者 `pathToClaudeCodeExecutable` 指向镜像中不存在的文件。请参阅 [Claude Code not found](/docs/zh-CN/agent-sdk/troubleshooting#clinotfounderror-claude-code-not-found)。
 * **CLI 在镜像中存在但无法启动**：Claude Code 无法从与容器架构或 libc 不匹配的二进制文件启动，或者从在镜像构建中失去执行权限的文件启动。请参阅 [Failed to start Claude Code](/docs/zh-CN/agent-sdk/troubleshooting#cliconnectionerror-failed-to-start-claude-code)。
-* **Claude Code 进程在运行中途退出**：您的应用程序收到的错误取决于 SDK 语言以及 CLI 是否首先报告了错误结果。[CLI process exit](/docs/zh-CN/agent-sdk/troubleshooting#cli-process-exit) 下的条目涵盖了每条消息。
+* **Claude Code 进程在运行中途退出**：您的应用程序收到的错误取决于 SDK 语言以及 CLI 是否首先报告了错误结果。[CLI 进程退出](/docs/zh-CN/agent-sdk/troubleshooting#cli-process-exit) 下的条目涵盖了每条消息。
 
 <h2 id="next-steps">
   后续步骤
 </h2>
 
-* [Hosting cookbook](https://github.com/anthropics/claude-cookbooks/blob/main/claude_agent_sdk/07_Hosting_the_agent.ipynb)：包含 Docker、Modal 和 Kubernetes 的[可部署代码](https://github.com/anthropics/claude-cookbooks/tree/main/claude_agent_sdk/hosting)的笔记本演练。
+* [托管指南](https://github.com/anthropics/claude-cookbooks/blob/main/claude_agent_sdk/07_Hosting_the_agent.ipynb)：包含 Docker、Modal 和 Kubernetes 的[可部署代码](https://github.com/anthropics/claude-cookbooks/tree/main/claude_agent_sdk/hosting)的笔记本演练。
 * [会话存储](/docs/zh-CN/agent-sdk/session-storage)：使用 `SessionStore` 适配器在主机间持久化记录。
-* [Observability](/docs/zh-CN/agent-sdk/observability)：将 OTEL 跟踪、指标和日志导出到您的收集器。
-* [Secure deployment](/docs/zh-CN/agent-sdk/secure-deployment)：网络控制、凭证管理和隔离加固。
-* [Cost tracking](/docs/zh-CN/agent-sdk/cost-tracking)：按会话的令牌和成本计费。
+* [可观测性](/docs/zh-CN/agent-sdk/observability)：将 OTEL 跟踪、指标和日志导出到您的收集器。
+* [安全部署](/docs/zh-CN/agent-sdk/secure-deployment)：网络控制、凭证管理和隔离加固。
+* [成本跟踪](/docs/zh-CN/agent-sdk/cost-tracking)：按会话的令牌和成本核算。

@@ -289,17 +289,20 @@ mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期�
   热键不起作用
 </h3>
 
-您的窗格没有键盘焦点。
+您的窗格没有键盘焦点，或者绘图位于 VS Code 扩展中，而该扩展中的按钮没有热键。请按对应的情况操作：
 
-按 Ctrl+X 然后 Tab，或单击窗格。使用 `focus: true` 从命令打开它。
+* **没有键盘焦点**：按 Ctrl+X 然后 Tab，或单击窗格。要让窗格在打开时获得焦点，请从命令中使用 `focus: true` 打开它。
+* **在 VS Code 扩展中**：单击按钮，或在按钮获得焦点后按 Enter
 
-<h3 id="a-drawing-works-in-the-terminal-and-not-in-the-desktop-app">
-  绘图在终端中有效，在桌面应用中无效
+<h3 id="a-drawing-works-in-the-terminal-and-not-in-the-desktop-app-or-vs-code">
+  绘图在终端中有效，在桌面应用或 VS Code 中无效
 </h3>
 
-该位置或元素在那里不可用。
+要么该应用不绘制该位置或元素，要么该会话属于 VS Code 扩展不为 mod 绘制任何内容的会话。该 mod 的其他 hook 仍会运行。请检查以下原因：
 
-检查 [渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites) 和 [元素](/docs/zh-CN/plugins/mods/reference#elements) 表。
+* **该位置或元素在该应用中不会被绘制**：在[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)表中查找您的位置，并在[元素](/docs/zh-CN/plugins/mods/reference#elements)表中查找您的元素。对于该应用不具备的元素，请在 hook 中检查 `e.surface`，并返回该应用可以绘制的树。
+* **VS Code 扩展版本低于 2.1.299**：从[扩展版本](/docs/zh-CN/vs-code#install-the-extension) 2.1.299 起，聊天面板才会为 mod 进行绘制。请在 VS Code 的扩展视图中检查版本，并在该处更新扩展。
+* **该 VS Code 会话不获取功能标志**：在聊天面板中绘制需要获取功能标志。在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上的会话，或通过 [Claude apps 网关](/docs/zh-CN/claude-apps-gateway)的会话，以及[需要获取功能标志的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)中列出的其他会话，都会跳过此步骤。要在此类会话中查看绘图，请改为在终端（例如 VS Code 的集成终端）中运行 `claude`。
 
 <h2 id="an-edit-or-a-value-is-lost">
   编辑或值丢失
