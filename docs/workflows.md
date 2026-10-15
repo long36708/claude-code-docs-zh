@@ -205,10 +205,10 @@ Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排
 
 在 `claude -p` 和 Agent SDK 中，Claude Code 从不显示此提示。它通过与会话其余部分相同的[权限评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)运行 Workflow 工具调用，所以拒绝规则、询问规则和 `dontAsk` 模式适用于启动，就像它们适用于每个工具调用一样。要让工作流在这些运行中启动，使用以下之一：
 
-* **权限规则**：您的允许规则中的 `Workflow` 批准每个工作流，`Workflow(<name>)` 按名称批准一个保存的工作流。
-* **自动权限模式**：[分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)审查调用并可以批准它。
-* **绕过权限模式**：Claude Code 批准调用。
-* **一个 hook**：一个允许该调用的 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) hook 会批准它。
+* **权限规则**：将 `Workflow` 添加到您的允许规则中以批准每个工作流，或添加 `Workflow(<name>)` 以按名称批准一个保存的工作流。
+* **自动权限模式**：在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下运行，分类器会审查调用并可以批准它。
+* **绕过权限模式**：在绕过权限模式下运行。
+* **一个 hook**：从 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) hook 为该调用返回 `"allow"`。在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)下，仅凭 hook 的批准工作流不会启动，因此在该模式下请改用权限规则或您的主机的批准。
 * **您的主机**：一个 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)，或者在使用 Agent SDK 时，一个 [`canUseTool`](/docs/zh-CN/agent-sdk/permissions) 回调批准它。
 
 在桌面应用中，批准卡显示工作流名称、阶段列表和令牌使用警告，带有**一次**、**总是**和**拒绝**操作。进度视图出现在"后台任务"侧窗格中。

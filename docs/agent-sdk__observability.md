@@ -17,6 +17,10 @@ Agent SDK 可以将此数据作为 OpenTelemetry 跟踪、指标和日志事件�
 
 本指南说明了 SDK 如何发出遥测数据、如何配置导出，以及如何在数据到达后端后对其进行标记和过滤。要直接从 SDK 响应流读取令牌使用情况和成本，而不是导出到后端，请参阅[跟踪成本和使用情况](/docs/zh-CN/agent-sdk/cost-tracking)。
 
+<Note>
+  有关 Claude API 或 Managed Agents，请参阅[适用于 Claude API 的 OpenTelemetry](https://platform.claude.com/docs/en/manage-claude/opentelemetry)。
+</Note>
+
 <h2 id="how-telemetry-flows-from-the-sdk">
   遥测如何从 SDK 流动
 </h2>

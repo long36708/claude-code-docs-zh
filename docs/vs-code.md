@@ -226,7 +226,7 @@ Claude Code 还会从您粘贴到输入框中的文本以及您发送的任何�
 
 点击 Claude Code 面板顶部的 **Session history** 按钮即可访问您的对话历史。您可以按关键字搜索或按时间浏览。
 
-点击任意对话即可带着完整的消息历史恢复它。如果该对话已在当前窗口的另一个标签页中打开，点击它会切换到该标签页。有关恢复会话的更多信息，请参阅[管理会话](/docs/zh-CN/sessions)。
+点击任意对话即可带着完整的消息历史恢复它。如果该对话已在当前窗口的另一个标签页中打开，点击它会切换到该标签页。如果消息一开始显示为空白，请参阅[为什么消息为空白以及何时出现](#a-resumed-conversation-is-blank-at-first)。有关恢复会话的更多信息，请参阅[管理会话](/docs/zh-CN/sessions)。
 
 * **会话标题**：新会话会根据您的第一条消息获得 AI 生成的标题。
 * **重命名和归档**：将鼠标悬停在会话上即可显示这些操作。重命名可为其设置描述性标题，归档则会将其移到列表底部的 **Archived sessions** 组中。
@@ -321,7 +321,7 @@ Web 标签页还会列出您的 [Remote Control](/docs/zh-CN/remote-control) 会
 * **编辑器选项卡**：对话会随其选项卡返回。
 * **侧边栏**：如果您在过去 10 分钟内发送了消息或 Claude 在其中做出了响应，对话会返回。如果它没有返回，请从 [Session history](#resume-past-conversations) 恢复对话。
 
-如果另一个 Claude Code 进程仍打开着该对话，在此处打开之前会先询问您，显示的 **Open here anyway** 通知与您[从会话历史记录恢复对话](#resume-past-conversations)时相同。
+如果另一个 Claude Code 进程仍打开着该对话，在此处打开之前会先询问您，显示的 **Open here anyway** 通知与您[从会话历史记录恢复对话](#resume-past-conversations)时相同。如果消息起初显示为空白，请参阅[它们为何为空白以及何时显示](#a-resumed-conversation-is-blank-at-first)。
 
 如果重新加载中断了 Claude 的中间步骤，当对话返回时 Claude 会继续该步骤，聊天中的通知会标记该继续。需要 Claude Code v2.1.274 或更高版本。如果步骤在一小时前被中断或会话在其他地方打开，对话会返回为空闲状态。
 
@@ -897,6 +897,14 @@ hook 和权限规则将聊天面板的诊断工具视为 `mcp__claude-vscode__ge
 3. 清除游戏覆盖复选框
 
 或者，将扩展程序重新绑定到不同的键：打开 VS Code [键盘快捷键编辑器](https://code.visualstudio.com/docs/configure/keybindings)（`Cmd+K Cmd+S`），搜索 `Claude Code: Focus input`，并分配新的绑定。
+
+<h3 id="a-resumed-conversation-is-blank-at-first">
+  恢复的对话起初显示为空白
+</h3>
+
+当您[恢复过去的对话](#resume-past-conversations)，或某个对话[在重新加载后恢复](#continue-conversations-after-a-reload)时，在该对话的 Claude Code 进程启动期间，其消息可能会保持空白。大约一秒后，空白区域中会出现 `Waiting for your plugins…`。
+
+您无需执行任何操作。进程启动并确认没有插件需要先检查这些消息后，消息就会出现；如果启动时间较长，则会在 20 秒后出现。
 
 <h3 id="claude-code-never-responds">
   Claude Code 从不响应

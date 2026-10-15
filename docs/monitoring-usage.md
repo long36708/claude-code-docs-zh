@@ -6,7 +6,11 @@
 
 > 了解如何为 Claude Code 启用和配置 OpenTelemetry。
 
-通过 OpenTelemetry (OTel) 导出遥测数据，跨组织跟踪 Claude Code 使用情况、成本和工具活动。Claude Code 通过标准指标协议导出指标作为时间序列数据，通过日志/事件协议导出事件，以及可选地通过 [traces 协议](#traces-beta) 导出分布式跟踪。
+通过 OpenTelemetry (OTel) 导出遥测数据，跨组织跟踪 Claude Code 使用情况、成本和工具活动。Claude Code 通过标准指标协议导出指标作为时间序列数据，通过日志/事件协议导出事件，并可选地导出[通过 OpenTelemetry 的分布式跟踪](#traces-beta)。
+
+<Note>
+  如需了解 Claude API 或 Managed Agents，请参阅 [Claude API 的 OpenTelemetry](https://platform.claude.com/docs/en/manage-claude/opentelemetry)。
+</Note>
 
 <h2 id="quick-start">
   快速开始

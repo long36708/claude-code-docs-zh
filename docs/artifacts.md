@@ -78,8 +78,11 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 | 您关闭了[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) | 在每个 Artifact 首次发布前询问 |
 | Claude 在由会话中触发的[定时任务](/docs/zh-CN/scheduled-tasks)（而非您输入的提示词）启动的轮次中发布 | 在每个 Artifact 首次发布前询问 |
 | Claude 未经您批准无法读取该文件 | 在发布前询问。针对 `Artifact` 工具的允许规则不会跳过此提示 |
+| 在 [Manual](/docs/zh-CN/permission-modes) 或 `acceptEdits` 模式下，Claude 对某个未经您批准无法编辑的 Artifact 文件进行小幅更改，例如 Manual 模式下的项目文件 | 在发布该更改前询问。即使有允许规则涵盖 `Artifact` 工具，也会询问您，因为对该文件的编辑需要您的批准 |
 
-Claude 可以无需询问即读取会话[工作目录](/docs/zh-CN/permissions#working-directories)中的文件，以及它写入页面所用的临时目录中的文件。要让 Claude 从其他文件夹发布而不弹出提示，请在启动时使用 [`--add-dir`](/docs/zh-CN/cli-reference#cli-flags) 或在会话期间使用 `/add-dir` 将该文件夹添加为工作目录。
+要让 Claude 无需您批准即可读取[工作目录](/docs/zh-CN/permissions#working-directories)之外的文件，请在启动时使用 [`--add-dir`](/docs/zh-CN/cli-reference#cli-flags) 或在会话期间使用 `/add-dir` 将其所在文件夹添加为工作目录。Claude 本就可以无需询问即读取这些目录中的文件，以及它写入页面所用的临时目录中的文件。
+
+如果发布提示中包含诸如 `Also makes 1 edit to that file on disk.` 的句子，说明 Claude 正在一步完成对 Artifact 文件的更改和发布。当您批准该提示后，Claude Code 会先发布页面，然后将更改写入您的文件。
 
 <h2 id="update-an-artifact">
   更新一个 artifact
