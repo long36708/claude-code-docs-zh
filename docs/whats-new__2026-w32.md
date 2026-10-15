@@ -84,19 +84,19 @@
   <p className="digest-wins-title">其他改进</p>
 
   <div className="digest-wins-grid">
-    <div>VS Code 扩展获得 <a href="/docs/zh-CN/vs-code#extension-settings">焦点视图</a>，它在每个轮次后面隐藏一个可展开行中的工具活动；从命令菜单或使用 <code>Ctrl+Alt+F</code>（Mac 上为 <code>Ctrl+Option+F</code>）切换它</div>
-    <div>沙箱凭证文件在 Linux 和 WSL2 上接受 <a href="/docs/zh-CN/sandboxing#mask-credential-files"><code>mode: "mask"</code></a>，因此沙箱命令读取哨兵副本，而沙箱代理在出口时替换真实值；凭证掩蔽还获得 <code>extract</code>、JWT 感知的 <code>decode</code> 和 AWS SigV4 重新签名选项</div>
-    <div>市场可以使用新的 <code>archive</code> 源将插件分发为 <a href="/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source">zip 存档</a>，通过 HTTPS 下载，带有可选的 SHA-256 引脚，因此安装无需 git 或 npm</div>
-    <div><code>/review</code> 现在是 <a href="/docs/zh-CN/code-review#review-a-diff-locally"><code>/code-review</code></a> 的别名，<code>/code-review</code> 不带努力级别会重用您上次输入的级别</div>
-    <div>您使用 <a href="/docs/zh-CN/agent-view#copy-the-session-with-%2Ffork"><code>/fork</code></a> 复制的会话现在在其自己的 worktree 中进行代码更改，而不是原始会话的检出</div>
-    <div>您从 <a href="/docs/zh-CN/plugins/install#install-a-plugin"><code>/plugin</code></a> 安装的插件在当前会话中激活，当这样做是安全的时；安装摘要报告 <code>Plugin is now active.</code> 或告诉您运行 <code>/reload-plugins</code></div>
-    <div><a href="/docs/zh-CN/agent-view#how-file-edits-are-isolated">后台会话</a> 在 worktree 中更改代码现在在完成前提交和推送，仅当任务需要时才打开草稿拉取请求，并遵循您的 <code>CLAUDE.md</code> 中的 git 指令</div>
+    <div>VS Code 扩展获得 <a href="/docs/zh-CN/vs-code#extension-settings">焦点视图</a>，它将工具活动隐藏在每轮一个可展开行之后；从命令菜单或使用 <code>Ctrl+Alt+F</code>（Mac 上为 <code>Ctrl+Option+F</code>）切换它</div>
+    <div>沙箱凭据文件在 Linux 和 WSL2 上接受 <a href="/docs/zh-CN/sandboxing#mask-credential-files"><code>mode: "mask"</code></a>，因此沙箱中的命令读取哨兵副本，而沙箱代理在出口时替换真实值；凭据掩蔽还获得 <code>extract</code>、JWT 感知的 <code>decode</code> 和 AWS SigV4 重新签名选项</div>
+    <div>市场可以使用新的 <code>archive</code> 源将插件分发为 <a href="/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source">zip 存档</a>，通过 HTTPS 下载，带有可选的 SHA-256 固定校验，因此安装无需 git 或 npm</div>
+    <div><code>/review</code> 现在是 <a href="/docs/zh-CN/code-review-local"><code>/code-review</code></a> 的别名，<code>/code-review</code> 不带 effort 级别时会重用您上次输入的级别</div>
+    <div>您使用 <a href="/docs/zh-CN/agent-view#copy-the-session-with-%2Ffork"><code>/fork</code></a> 复制的会话现在在其自己的 worktree 中进行代码更改，而不是在原始会话的检出中</div>
+    <div>您从 <a href="/docs/zh-CN/plugins/install#install-a-plugin"><code>/plugin</code></a> 安装的插件在安全的情况下会在当前会话中激活；安装摘要会报告 <code>Plugin is now active.</code> 或告诉您运行 <code>/reload-plugins</code></div>
+    <div>在 worktree 中更改了代码的<a href="/docs/zh-CN/agent-view#how-file-edits-are-isolated">后台会话</a>现在会在完成前提交和推送，仅当任务需要时才打开草稿 Pull Request，并遵循您的 <code>CLAUDE.md</code> 中的 git 指令</div>
     <div>每个会话 200 个子代理的上限被移除，因此长时间运行的会话不再拒绝新的子代理；<a href="/docs/zh-CN/sub-agents#concurrent-subagent-limit">并发</a> 和深度限制仍然适用</div>
-    <div>存储库的签入设置不再能打开 <a href="/docs/zh-CN/remote-control#enable-remote-control-for-all-sessions">远程控制自动连接</a>；改为在您的用户或托管设置中设置 <code>remoteControlAtStartup</code>，项目和本地设置只能将其关闭</div>
-    <div><a href="/docs/zh-CN/worktrees#how-claude-code-enforces-isolation">Worktree 隔离</a> 现在不仅阻止文件编辑，还阻止 Bash 命令和 git 重定向到达主检出，在每种会话类型和会话的子代理中</div>
+    <div>仓库中签入的设置不再能打开 <a href="/docs/zh-CN/remote-control#enable-remote-control-for-all-sessions">Remote Control 自动连接</a>；改为在您的用户或托管设置中设置 <code>remoteControlAtStartup</code>，项目和本地设置只能将其关闭</div>
+    <div><a href="/docs/zh-CN/worktrees#how-claude-code-enforces-isolation">Worktree 隔离</a> 现在不仅阻止文件编辑，还阻止到达主检出的 Bash 命令和 git 重定向，适用于每种会话类型以及会话的子代理</div>
     <div>Bash 命令不再能从权限检查中隐藏其自身的一部分，制表符或不可见的 Unicode 填充不再从批准对话框中隐藏命令的一部分</div>
-    <div>PreToolUse 自动允许钩子不再绕过 Claude Code 内部侧任务（如摘要和压缩）中的工具限制</div>
-    <div><a href="/docs/zh-CN/ultraplan">Ultraplan</a> 研究预览被移除，包括 <code>/ultraplan</code> 命令和 <code>ultraplan</code> 关键字；改为使用计划模式或网络上的 Claude Code</div>
+    <div>PreToolUse 自动允许 hook 不再绕过 Claude Code 内部侧任务（如摘要和压缩）中的工具限制</div>
+    <div><a href="/docs/zh-CN/ultraplan">Ultraplan</a> 研究预览版被移除，包括 <code>/ultraplan</code> 命令和 <code>ultraplan</code> 关键字；改为使用计划模式或 Web 版 Claude Code</div>
   </div>
 </div>
 

@@ -1,0 +1,169 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# 阅读和请求 Pull Request 上的审查
+
+> 阅读 GitHub Pull Request 上的 Code Review 发现，回复或忽略这些发现，并使用 `@claude review` 请求审查。
+
+Code Review 是一项托管服务，由您的 Claude 组织中的 Owner 为一组 GitHub 仓库启用。启用后，Claude 会审查这些仓库中的 Pull Request，并将其发现以内联评论、审查正文中的摘要以及名为 **Claude Code Review** 的检查运行的形式发布。审查永远不会批准或阻止您的 Pull Request，检查运行也永远不会以失败结束。
+
+Owner 可以为每个仓库控制[审查何时运行](/docs/zh-CN/code-review-setup#set-when-reviews-run)以及[审查的详尽程度](/docs/zh-CN/code-review-setup#set-the-default-review-level)。
+
+<Note>
+  如果您的套餐不包含 Code Review，您仍然可以在 Claude Code 会话中让 Claude 审查您的分支：请参阅[使用 `/code-review` 在本地审查](/docs/zh-CN/code-review-local)。
+</Note>
+
+<h2 id="severity-levels">
+  严重程度级别
+</h2>
+
+Claude 将每个发现作为内联评论发布在相关代码行上，并用以下三种严重程度级别之一进行标记：
+
+| 标记 | 严重程度 | 含义 |
+| :- | :- | :- |
+| 🔴 | Important | 应在合并前修复的 bug |
+| 🟡 | Nit | 小问题，值得修复但不阻塞合并 |
+| 🟣 | Pre-existing | 代码库中已存在、但并非由此 PR 引入的 bug |
+
+如果审查记录了其推理过程，该发现会带有一个折叠的 **Why this was flagged** 部分。展开它即可了解 Claude 为何标记该问题以及如何验证该问题。
+
+要更改 Claude 在您的仓库中标记的内容或其对严重程度的判定方式，请参阅[自定义 Code Review](/docs/zh-CN/code-review-customize)。
+
+<h2 id="respond-to-findings">
+  回应发现
+</h2>
+
+除非您的仓库自身规则有要求，否则您无需回应发现即可合并。如果仓库的分支保护[要求解决对话](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches#require-conversation-resolution-before-merging)，请在合并前解决每个发现的讨论串。
+
+要清除某个发现，请解决其讨论串或推送修复。
+
+* **不修改代码直接忽略**：在 GitHub 上自行解决该讨论串。仅回复并不会忽略发现。
+* **修复问题**：修改代码并推送。当下一次对该 Pull Request 的审查判断问题已修复时，会解决之前的讨论串，无论该审查是在您推送时自动运行还是由您请求的。
+* **解释或提出异议**：回复该评论。Claude 不会立即回复，回复也不会启动审查。下一次对该 Pull Request 的审查会读取对其之前发现的回复，并可以解决该讨论串或发布一条后续回复。如果同类发现反复出现，请让维护者在 [`REVIEW.md`](/docs/zh-CN/code-review-customize#choose-what-to-write-in-review-md) 中添加规则。
+
+要在不推送的情况下获得下一次审查，请以[顶层 Pull Request 评论](#comment-commands)的形式发表 `@claude review`。
+
+<h2 id="check-run-output">
+  检查运行输出
+</h2>
+
+**Claude Code Review** 检查运行上的 **Details** 链接会在一个按严重程度排序的表格中打开所有发现，包括 GitHub 未接受其行内评论的发现：
+
+| 严重程度 | 文件:行 | 问题 |
+| - | - | - |
+| 🔴 Important | `src/auth/session.ts:142` | token 刷新与登出之间存在竞争条件，导致本应失效的陈旧会话仍保持活动状态 |
+| 🟡 Nit | `src/auth/session.ts:88` | `parseExpiry` 在输入格式错误时静默返回 0 |
+
+对于有对应行号但未作为行内评论发布的发现，会以注释的形式显示在 **Files changed** 标签页中的相关行上。Important 发现显示为红色，nit 显示为黄色，已存在的 bug 显示为灰色。
+
+检查运行的结论为 neutral；如果因推送未更改任何文件而未运行自动审查，则结论为 skipped。它的结论永远不会是 failure，因此已完成的审查不会导致必需检查失败。如果您没有看到发现，或者审查未运行，请参阅[排查 Code Review 问题](/docs/zh-CN/code-review-troubleshooting)。
+
+<h3 id="read-the-result-from-a-script">
+  通过脚本读取结果
+</h3>
+
+要在您自己的 CI 中控制合并或发布摘要，请使用 `gh` 和 jq 解析 Details 文本的最后一行。该行是一条机器可读的注释。
+
+<Steps>
+  <Step title="查找检查运行 ID">
+    在您的 shell 中，列出该提交的检查运行，并获取 `Claude Code Review` 运行的 `id`。将 `OWNER` 和 `REPO` 替换为您的仓库所有者和名称，将 `<commit-sha>` 替换为 Pull Request 的头部提交：
+
+    ```bash theme={null}
+    gh api repos/OWNER/REPO/commits/<commit-sha>/check-runs --jq '.check_runs[] | {id, name}'
+    ```
+  </Step>
+
+  <Step title="读取严重程度计数">
+    从该检查运行中读取计数，将 `CHECK_RUN_ID` 替换为该 ID：
+
+    ```bash theme={null}
+    gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID \
+      --jq '.output.text | split("bughunter-severity: ")[1] | split(" -->")[0] | fromjson'
+    ```
+
+    这会输出一个 JSON 对象，其中包含每种严重程度的计数，键按字母顺序排列，例如 `{"nit": 1, "normal": 2, "pre_existing": 0}`。计数包括该 Pull Request 早期审查中讨论串仍处于打开状态的发现。
+  </Step>
+
+  <Step title="根据结果采取行动">
+    让您的脚本处理以下情况：
+
+    * **`normal` 大于零**：如果您希望控制合并，请让作业失败。`normal` 键保存的是 Important 发现的数量，这意味着 Claude 至少发现了一个值得在合并前修复的 bug。
+    * **该行缺失**：将其视为没有结论，而不是零个发现。对于失败、超时、被取消或被更新审查取代的审查，其检查运行中没有此行，某些已完成的审查也没有此行。
+  </Step>
+</Steps>
+
+<h2 id="request-a-review">
+  请求审查
+</h2>
+
+如果您的 Pull Request 是草稿或来自 fork，自动审查会跳过它，因此请[使用评论命令请求审查](#review-drafts-and-pull-requests-from-forks)。要让您的 Pull Request 获得审查，请执行以下操作之一：
+
+* **打开或标记为就绪**：在设置为 **Once after PR creation** 或 **After every push** 的仓库中，当您打开或重新打开 Pull Request，或将草稿标记为可供审查时，会启动审查。
+* **发表命令评论**：在 Pull Request 上发布 [`@claude review`](#comment-commands)。
+* **推送提交**：在设置为 **After every push** 的仓库中，或在您使用 `@claude review always` 订阅的 Pull Request 上，推送会启动审查。
+* **点击 Re-run**：在非 fork 的 Pull Request 上审查失败或超时后，从检查运行中[再次运行](/docs/zh-CN/code-review-troubleshooting#retrigger-a-failed-or-timed-out-review)。
+* **等待自动重试**：会话中断的审查会自动重试一次。[检查运行的摘要](/docs/zh-CN/code-review-troubleshooting#retrigger-a-failed-or-timed-out-review)会显示何时正在进行重试。
+
+<h3 id="comment-commands">
+  评论命令
+</h3>
+
+在 Pull Request 上以评论形式发布以下命令之一：
+
+| 命令 | 作用 | 使用时机 |
+| :- | :- | :- |
+| `@claude review` | 启动一次审查，但不为 PR 订阅后续推送 | 您现在需要一次审查，例如在设置为 Manual 的仓库中的 Pull Request 上，或在其他模式下立即再进行一次审查 |
+| `@claude review always` | 启动审查，并为 PR 订阅此后由推送触发的审查 | 您希望之后的每次推送都启动新的审查，例如在设置为 Manual 的仓库中的高优先级 PR 上 |
+| `@claude review once` | 与 `@claude review` 相同：启动一次审查而不订阅 | 与 `@claude review` 的情况相同 |
+
+要让这些命令中的任何一个启动审查，必须满足以下所有条件：
+
+* 将其作为新的顶层 Pull Request 评论发布，而不是 diff 行上的内联评论，也不是审查的正文。编辑之前的评论不算数。
+* 将命令放在评论开头，并且 `always` 需与命令的其余部分位于同一行。大小写无关紧要。
+* 您需要拥有该仓库的 write、maintain 或 admin 权限。Claude 会向 GitHub 核实每位评论者的权限，来自 bot 的评论不会启动审查。
+* Pull Request 必须处于打开状态。
+
+命令被接受后，Pull Request 上会出现一个标题为 **Code review queued...** 的 **Claude Code Review** 检查运行。审查开始时，标题会变为 **Code review in progress...**。Claude 也可能会用 👀 回应您的评论，但即使没有启动审查，该回应也可能出现，因此请以检查运行为准。
+
+如果 Pull Request 的最新提交上已有审查正在运行，新的请求不会启动第二次审查。
+
+<Note>
+  在 2026 年 7 月的更新之前，`@claude review` 会为 PR 订阅由推送触发的审查。如果您依赖该行为，请改为评论 `@claude review always`。
+</Note>
+
+<h3 id="what-a-later-review-covers">
+  后续审查涵盖的内容
+</h3>
+
+自行启动的后续审查（例如推送后）会侧重于自上次审查以来的更改，并发布较少的 nit 和已存在问题的发现。其摘要会统计被省略的内容，相应行以 "found and not posted" 或 "outside the scope of this re-review and not posted." 结尾。
+
+要获得不省略任何这些内容的审查，请评论 [`@claude review`](#comment-commands)。它会再次涵盖整个 Pull Request。
+
+<h3 id="review-drafts-and-pull-requests-from-forks">
+  审查草稿和来自 fork 的 Pull Request
+</h3>
+
+自动审查会跳过这两种情况，因此请使用评论命令请求审查：
+
+* **草稿 Pull Request**：评论命令可以在草稿上运行，因此您可以在将 Pull Request 标记为就绪之前请求审查。即使使用了 `@claude review always`，推送到草稿也不会启动审查。订阅会在您将 Pull Request 标记为就绪后生效。
+* **来自 fork 的 Pull Request**：无论仓库的 **Review runs** 设置如何，Claude 都不会自动审查来自 fork 的 Pull Request。要启动审查，请在 Pull Request 上评论 `@claude review`。[评论命令的条件](#comment-commands)仍然适用，并且您需要的是对基础仓库而非 fork 的写入权限。
+
+在来自 fork 的 Pull Request 上，`@claude review always` 同样有效，但不会为该 Pull Request 订阅后续推送的审查。在那里点击检查运行上的 **Re-run** 不会启动审查。
+
+<h3 id="use-code-review-alongside-the-claude-code-github-action">
+  将 Code Review 与 Claude Code GitHub Action 一起使用
+</h3>
+
+如果仓库还以交互模式运行 [Claude Code GitHub Action](/docs/zh-CN/github-actions)，并使用其默认的 `@claude` 触发短语，那么 `@claude review` 评论也会启动该 Action。要将两者区分开，请将该 Action 的 `trigger_phrase` 输入设置为其他短语。
+
+<h2 id="related-resources">
+  相关资源
+</h2>
+
+* [Code Review 故障排除](/docs/zh-CN/code-review-troubleshooting)：未启动、失败或因预算而被跳过的审查
+* [Code Review](/docs/zh-CN/code-review)：该服务是什么以及审查如何运行
+* [设置 Code Review](/docs/zh-CN/code-review-setup)：供 Owner 使用，启用 Code Review 并选择审查的运行时机和级别
+* [自定义 Code Review](/docs/zh-CN/code-review-customize)：使用 `REVIEW.md` 和 `CLAUDE.md` 更改 Claude 标记的内容
+* [Code Review 费用和用量](/docs/zh-CN/code-review-costs)：审查如何计费以及在何处设置支出限额
+* [使用 `/code-review` 在本地审查](/docs/zh-CN/code-review-local)：从 Claude Code 会话中对您的分支运行审查

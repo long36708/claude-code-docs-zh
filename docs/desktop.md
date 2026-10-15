@@ -207,7 +207,7 @@ Claude 读取您的评论并进行请求的更改，这些更改显示为您可�
 * 点击 **Walk through in diff** 打开 diff 视图，逐条查看结果。当前 diff 中的结果会显示在其对应的行上，您可以在那里点击 **Fix this one** 或忽略它。
 * 点击 **Apply fixes** 让 Claude 修复仍未处理的结果。
 
-在任何会话中，您也可以在输入框中要求 Claude 修复审查发现的问题。有关 `/code-review` 检查的内容及其接受的参数，请参阅[在本地审查 diff](/docs/zh-CN/code-review#review-a-diff-locally)。
+在任何会话中，您也可以在输入框中要求 Claude 修复审查发现的问题。有关 `/code-review` 检查的内容及其接受的参数，请参阅[使用 `/code-review` 在本地审查](/docs/zh-CN/code-review-local)。
 
 <h3 id="monitor-pull-request-status">
   监控 Pull Request 状态

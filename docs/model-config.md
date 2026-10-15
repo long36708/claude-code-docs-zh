@@ -895,6 +895,26 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些套餐要求。�
   为网关或自定义模型 ID 更正窗口
 </h3>
 
+以下任一启动警告都表示 Claude Code 无法识别您会话的模型 ID，因此无法得知该模型的上下文窗口，并假设其为 200K token：
+
+```text theme={null}
+⚠ Model "my-gateway-opus" isn't recognized · context assumed to be 200k tokens · ...
+Claude Code doesn't recognize the model "my-gateway-opus", so it assumes a context window of 200k tokens. Update Claude Code, or see https://code.claude.com/docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id to set the window.
+```
+
+Claude Code 会在假设的 200K 处[自动压缩](#default-auto-compact-thresholds)对话，因此如果模型的实际上下文窗口为 200K，则无需更正。否则，请根据您的 ID 选择以下适用的方式，将实际窗口告知 Claude Code：
+
+* **比您的 Claude Code 版本更新的模型**：在 shell 中运行 `claude update`。如果更新后 Claude Code 能识别该 ID，则无需再配置其他内容。
+* **您的网关或提供商为 Claude Code 已知模型使用的名称**：添加一个 [`modelOverrides`](#override-model-ids-per-version) 条目，将 Anthropic 模型 ID 映射到您的 ID，例如 `"claude-opus-4-8": "my-gateway-opus"`。您也可以改为在 [`modelPicker`](/docs/zh-CN/settings-reference#fields-for-modelpicker) 行中列出您的 ID，并将 `behavesAs` 设置为该模型。无论采用哪种方式，Claude Code 随后都会将该 ID 视为该模型。
+* **具有 1M 窗口的模型**：在设置模型的位置为 ID 追加 `[1m]`，例如在 shell 中运行 `claude --model 'my-gateway-opus[1m]'`。如果您[关闭了 1M 上下文](#turn-off-1m-context)，则无论是否带有该后缀，您获得的窗口都相同。
+* **任何其他窗口**：在启动 Claude Code 的环境中将 [`CLAUDE_CODE_MAX_CONTEXT_TOKENS`](/docs/zh-CN/env-vars) 设置为以 token 为单位的窗口大小，例如 `CLAUDE_CODE_MAX_CONTEXT_TOKENS=400000`。对于不以 `claude-` 开头且没有 `[1m]` 后缀的无法识别的 ID，该变量会单独生效。对于任何其他 ID，请先查看[它适用于哪些 ID](#which-ids-claude_code_max_context_tokens-applies-to)。
+
+一旦 Claude Code 识别了该 ID 或使用了您提供的窗口，在该 ID 上启动会话时就不会再出现该警告。
+
+<h4 id="which-ids-claude_code_max_context_tokens-applies-to">
+  `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 适用于哪些 ID
+</h4>
+
 在 [LLM 网关](/docs/zh-CN/llm-gateway)或其他自定义部署上，Claude Code 可能会为模型 ID 假设一个与模型实际窗口不同的上下文窗口，无论它是否将 ID 解析为 Claude 模型。设置 [`CLAUDE_CODE_MAX_CONTEXT_TOKENS`](/docs/zh-CN/env-vars) 为 Claude Code 应该假设的窗口。
 
 变量的应用方式取决于 ID。当 ID 不以 `claude-`（任何大小写）开头时，或当它携带 Claude Code 在读取 ID 时剥离的后缀（例如 Google Cloud 的 Agent Platform 上使用的 `@YYYYMMDD` 日期）时，Claude Code 将 ID 视为提供商或自定义拼写。在 v2.1.259 之前，Claude Code 没有计算剥离的后缀，所以带有日期后缀的无法识别的 `claude-` ID 被视为裸 `claude-` 名称。

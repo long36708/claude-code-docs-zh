@@ -74,15 +74,15 @@
   <p className="digest-wins-title">其他改进</p>
 
   <div className="digest-wins-grid">
-    <div><a href="/docs/zh-CN/code-review#review-a-diff-locally"><code>/code-review</code></a> 现在作为具有自己上下文窗口的后台子代理运行，因此审查工作不会进入您的对话，发现会在完成时到达</div>
+    <div><a href="/docs/zh-CN/code-review-local"><code>/code-review</code></a> 现在作为具有自己上下文窗口的后台子代理运行，因此审查工作不会进入您的对话，发现会在完成时到达</div>
     <div><code>/verify</code>、<code>/code-review</code> 和 <code>/deep-research</code> 仅在您调用时运行；Claude 不再自动启动它们</div>
-    <div><a href="/docs/zh-CN/interactive-mode#emoji-shortcodes">Emoji 快捷代码</a>在提示输入中自动完成：输入 <code>:heart:</code> 以插入 emoji，或在 <code>:</code> 后输入两个或更多字符以获得建议；使用 <code>emojiCompletionEnabled</code> 关闭它</div>
-    <div>具有 <code>context: fork</code> 的 Skills <a href="/docs/zh-CN/skills#run-skills-in-a-subagent">默认在后台运行</a>，skill 的 frontmatter 中的 <code>background: false</code> 在同一轮中等待结果</div>
+    <div><a href="/docs/zh-CN/interactive-mode#emoji-shortcodes">Emoji 快捷代码</a>在提示词输入框中自动补全：输入 <code>:heart:</code> 以插入 emoji，或在 <code>:</code> 后输入两个或更多字符以获得建议；使用 <code>emojiCompletionEnabled</code> 关闭它</div>
+    <div>具有 <code>context: fork</code> 的 skill <a href="/docs/zh-CN/skills#run-skills-in-a-subagent">默认在后台运行</a>，skill 的 frontmatter 中的 <code>background: false</code> 在同一轮次中等待结果</div>
     <div>会话默认运行最多 20 个子代理并发；使用 <code>CLAUDE\_CODE\_MAX\_CONCURRENT\_SUBAGENTS</code> 更改 <a href="/docs/zh-CN/sub-agents#concurrent-subagent-limit">限制</a></div>
     <div>`--max-budget-usd` 现在对子代理强制执行上限：一旦支出达到上限，Claude 无法启动更多，运行中的后台子代理会停止</div>
     <div>新的 <a href="/docs/zh-CN/sandboxing#disable-filesystem-isolation"><code>sandbox.filesystem.disabled</code></a> 设置跳过文件系统隔离，同时保持网络出口控制</div>
     <div>在自动模式下，对危险 <code>rm</code> 命令、后台作业和可疑 Windows 路径的检查不再打开权限对话框；自动模式分类器会对其进行判决</div>
-    <div>Bash 权限检查在更多 shell 形式上失败关闭，包括文件描述符重定向、<code>\[\[</code> 比较中的 Zsh 变量下标、可能运行不安全选项的 <code>help</code> 和 <code>man</code> 调用，以及超过 10,000 个字符的命令</div>
+    <div>Bash 权限检查在更多 shell 形式上失败关闭，包括文件描述符重定向、<code>\[\[ ]]</code> 比较中的 Zsh 变量下标、可能运行不安全选项的 <code>help</code> 和 <code>man</code> 调用，以及超过 10,000 个字符的命令</div>
     <div><a href="/docs/zh-CN/fast-mode">快速模式</a>不再支持 Opus 4.7：<code>/fast</code> 现在适用于 Opus 5 和 Opus 4.8</div>
     <div>长时间运行的工具调用会发出定期进度心跳，而不是保持沉默</div>
   </div>

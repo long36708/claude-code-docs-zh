@@ -720,7 +720,7 @@ Fix GitHub issue $ARGUMENTS following our coding standards.
 
 您还可以在一条消息的开头叠加多个 skill。输入 `/write-tests /fix-issue 123` 会加载这两个 skill，并将末尾的文本 `123` 作为 `$ARGUMENTS` 传递给每个 skill。
 
-Claude Code 会展开第一个 skill 以及其后叠加的最多五个 skill。展开会在第一个不是内联用户可调用 skill 的标记处停止，因此以[分叉子代理](#run-skills-in-a-subagent)方式运行的 skill（例如 [`/code-review`](/docs/zh-CN/code-review#review-a-diff-locally)），或其参数本身可能以斜杠命令开头的 skill（例如 `/loop`），也会在该处终止叠加。该标记及其后的所有内容会成为每个已展开 skill 的参数文本。从 v2.1.218 起，`/code-review` 以分叉子代理方式运行；在更早的版本中，它以内联方式运行并可叠加。
+Claude Code 会展开第一个 skill 以及其后叠加的最多五个 skill。展开会在第一个不是内联用户可调用 skill 的标记处停止，因此以[分叉子代理](#run-skills-in-a-subagent)方式运行的 skill（例如 [`/code-review`](/docs/zh-CN/code-review-local)），或其参数本身可能以斜杠命令开头的 skill（例如 `/loop`），也会在该处终止叠加。该标记及其后的所有内容会成为每个已展开 skill 的参数文本。从 v2.1.218 起，`/code-review` 以分叉子代理方式运行；在更早的版本中，它以内联方式运行并可叠加。
 
 要按位置访问单个参数，请使用 `$ARGUMENTS[N]` 或更简短的 `$N`：
 
@@ -871,7 +871,7 @@ Claude Code 也会等待结果，即使技能没有设置 `background: false`，
 
 后台化的分叉也使用[适用于后台子代理的更窄工具集](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)运行：技能的子代理是常规代理类型，因此分叉对话的子代理的豁免不适用于它。如果你的技能的步骤依赖于该集合之外的工具，请设置 `background: false` 以保持完整的工具集。
 
-在后台运行的分叉技能在你的会话的[检查点](/docs/zh-CN/checkpointing)之外应用其编辑，因此 `/rewind` 不会撤销它们；使用 git 来恢复它们。
+在后台运行的分叉 skill 会在您会话的[检查点](/docs/zh-CN/checkpointing#subagent-edits-not-restored)之外应用其编辑。此后，`/rewind` 只会恢复 Claude 已在您的对话中编辑过的文件。该 skill 对其他文件的编辑会保留，因此请使用 git 来还原它们。
 
 <Warning>
   `context: fork` 仅对具有明确说明的技能有意义。如果你的技能包含"使用这些 API 约定"之类的指南而没有任务，子代理会收到指南但没有可操作的提示，并返回而没有有意义的输出。

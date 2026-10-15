@@ -220,6 +220,19 @@ Claude Code 还会从您粘贴到输入框中的文本以及您发送的任何�
 * 如果粘贴时出现 `Removed 3 invisible characters from the pasted text` 之类的提示，说明文本已在去除这些字符后输入。
 * 如果发送时出现有关已移除字符的提示，说明没有发送任何内容。清理后的文本已回到输入框中。再次发送即可按所示内容发送文本。
 
+<h3 id="latex-math-in-responses">
+  回复中的 LaTeX 数学公式
+</h3>
+
+聊天面板会将 Claude 回复中的 LaTeX 数学公式显示为排版后的公式。数学公式渲染需要 Claude Code v2.1.301 或更高版本。在[终端模式](#switch-to-terminal-mode)下，数学公式不会被排版。面板会同时排版行间公式和行内公式：
+
+* **行间公式**：单独占据一行或多行的 `$$ … $$` 或 `\[ … \]` 块，以及语言为 `math` 的围栏代码块
+* **行内公式**：在同一行内开始和结束的 `$…$` 或 `\(…\)`，例如 `$E = mc^2$` 或 `\(a^2 + b^2 = c^2\)`
+
+面板会尝试将数学公式与相同字符的其他用法区分开来，因此 `$HOME`、像 `$5` 这样的价格或 `sed 's/\(foo\)/\1/'` 之类的文本不会被排版。代码片段内的文本，以及除围栏 `math` 块之外的任何代码块内的文本，也都不会被排版。如果某个公式在您期望被排版时仍按原样显示，请参阅[公式显示为原始 LaTeX](#a-formula-shows-as-raw-latex)。
+
+当您选择并复制包含已排版公式的文本时，得到的是以 `$…$` 或 `$$…$$` 分隔符包裹的公式 TeX 源码，而不是绘制出的符号。[**Copy response**](#use-the-prompt-box) 和 `/copy` 会按 Claude 编写的原样提供回复，包括 TeX 源码。
+
 <h3 id="resume-past-conversations">
   恢复过去的对话
 </h3>
@@ -326,6 +339,21 @@ Web 标签页还会列出您的 [Remote Control](/docs/zh-CN/remote-control) 会
 如果重新加载中断了 Claude 的中间步骤，当对话返回时 Claude 会继续该步骤，聊天中的通知会标记该继续。需要 Claude Code v2.1.274 或更高版本。如果步骤在一小时前被中断或会话在其他地方打开，对话会返回为空闲状态。
 
 要关闭继续功能，请打开 [Continue After Reload setting](vscode://settings/claudeCode.continueAfterReload) 并取消勾选它。在 VS Code 的环境中或在 [`environmentVariables` 设置](#extension-settings)中设置 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars#variables) 或任何其他 `CLAUDE_CODE_RESUME_` 变量在面板中不起作用，因为扩展会在启动面板的会话之前移除这些变量。
+
+<h4 id="a-conversation-was-not-reopened">
+  对话未被重新打开
+</h4>
+
+重新加载后，如果出现一个新聊天，且其输入框上方显示类似如下的通知，则表示面板让您的对话保持关闭状态，因为该对话最近两次打开均未完成：
+
+```text theme={null}
+“Fix the login bug” was not reopened. It did not finish opening the last 2 times, and opening it again may stop Claude Code from responding here.
+```
+
+当面板在加载对话时崩溃或停止响应，或者您在对话打开后约三秒内重新加载或关闭窗口时，打开操作就不会完成。不会丢失任何内容：对话保持不变，并保留在 [Session history](#resume-past-conversations) 中。
+
+* **仍要打开它**：单击 **Open it anyway** 或从 Session history 中选择该对话。如果它成功打开且面板继续正常工作，之后重新加载时它会照常返回。如果面板再次停止响应，请重新加载窗口，以返回到带有该通知的新聊天。
+* **让它保持关闭**：继续在新聊天中工作。发送提示词后，该通知即会消失。
 
 <h3 id="run-multiple-conversations">
   运行多个对话
@@ -923,6 +951,26 @@ hook 和权限规则将聊天面板的诊断工具视为 `mcp__claude-vscode__ge
 当您[恢复过去的对话](#resume-past-conversations)，或某个对话[在重新加载后恢复](#continue-conversations-after-a-reload)时，在该对话的 Claude Code 进程启动期间，其消息可能会保持空白。大约一秒后，空白区域中会出现 `Waiting for your plugins…`。
 
 您无需执行任何操作。进程启动并确认没有插件需要先检查这些消息后，消息就会出现；如果启动时间较长，则会在 20 秒后出现。
+
+<h3 id="the-panel-stops-responding-each-time-a-reload-reopens-a-conversation">
+  每次重新加载重新打开对话时面板都停止响应
+</h3>
+
+如果每次重新加载后对话恢复时，整个面板都会崩溃、冻结或仅显示 `Something went wrong`，请将扩展程序更新到 v2.1.301 或更高版本。然后再次重新加载窗口或重启 VS Code。当对话连续两次未能完成打开后，您会得到一个新的聊天来替代它，并附有一条说明[该对话未被重新打开](#a-conversation-was-not-reopened)的通知。
+
+<h3 id="a-formula-shows-as-raw-latex">
+  公式显示为原始 LaTeX
+</h3>
+
+如果 Claude 回复中的所有数学公式都没有被排版，请在扩展视图中检查扩展程序的版本，因为[数学渲染](#latex-math-in-responses)需要 2.1.301 或更高版本。如果您使用的是[终端模式](#switch-to-terminal-mode)（无论版本如何，该模式都不会排版数学公式），请取消选中 [Use Terminal 设置](vscode://settings/claudeCode.useTerminal)，以便 Claude Code 改为在聊天面板中打开。
+
+如果某个公式按原样显示，而其附近的其他公式已被排版，请检查是否存在以下原因：
+
+* **它被识别为数学公式以外的内容**：读起来像单词的 `$…$` 文本会按原样保留，例如 `$O(n log n)$`。以数字开头的 `$…$` 文本（例如 `$30$` 或 `$1/N$`）也会按原样保留，除非有 `=`、`+` 或 `^` 等字符将其标记为数学公式。请改为让 Claude 使用独占一行的 `$$` 块，面板会跳过此检查直接排版。
+* **它带有填充空格、过长或跨行**：美元符号内带有空格的 `$ x^2 $`、超过 60 个字符的 `$…$` 内容，以及跨两行的 `$…$` 或 `\(…\)` 都不会被排版。请改为让 Claude 使用独占一行的 `$$` 块，它不受这些限制。
+* **TeX 无法排版**：包含语法错误、宏定义（例如 `\newcommand` 或 `\def`）或未转义 `%` 的公式会按原样显示。请让 Claude 重写该公式，修正错误、去掉宏，或使用 `\%` 表示百分号。
+* **它过大**：长度超过 8,192 个字符的公式，或绘制后会远大于其源文本的公式，会按原样显示。请让 Claude 将其拆分为较小的公式，或以更紧凑的方式编写。
+* **它位于大量数学公式之后**：在回复中的同一文本块内，面板会按顺序排版公式，直到达到上限。之后超出上限的公式会按原样显示。请让 Claude 单独再次发送您需要的公式。
 
 <h3 id="claude-code-never-responds">
   Claude Code 从不响应

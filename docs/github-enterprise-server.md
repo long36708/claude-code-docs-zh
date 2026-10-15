@@ -57,7 +57,7 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
   </Step>
 
   <Step title="启用 Code Review">
-    转到 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)，使用与 github.com 相同的配置为您的 GHES 仓库启用 [Code Review](/docs/zh-CN/code-review#set-up-code-review)。
+    转到 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)，使用与 github.com 相同的配置为您的 GHES 仓库启用 [Code Review](/docs/zh-CN/code-review-setup)。
   </Step>
 </Steps>
 

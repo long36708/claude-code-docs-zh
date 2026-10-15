@@ -559,7 +559,7 @@ apt update && apt install -y shellcheck
 
 `matcher` 将 hook 限制为 `startup` 和 `resume` 事件，`$CLAUDE_PROJECT_DIR` 解析为存储库根目录，因此无论会话的工作目录是什么，hook 都能找到脚本。
 
-接下来，在 `scripts/install_pkgs.sh` 创建脚本。它在云端之外立即退出，否则安装您的依赖项：
+接下来，在 `scripts/install_pkgs.sh` 创建脚本。它在云端之外立即退出，否则安装您的依赖项。当 `package.json`、`package-lock.json` 和脚本本身自上次成功安装以来均未更改时，它会跳过 `npm install`：
 
 ```bash theme={null}
 #!/bin/bash
@@ -568,14 +568,29 @@ if [ "$CLAUDE_CODE_REMOTE" != "true" ]; then
   exit 0
 fi
 
-npm install
+cd "$CLAUDE_PROJECT_DIR" || exit 1
+hashes=node_modules/.install_pkgs.sha256
+
+if ! sha256sum --check --status "$hashes" 2>/dev/null; then
+  # Delete the old hashes first, so a failed install runs again next time
+  rm -f "$hashes"
+  if npm install; then
+    sha256sum scripts/install_pkgs.sh package.json package-lock.json > "$hashes" || rm -f "$hashes"
+  fi
+fi
+
+# pip skips requirements that are already satisfied
 pip install -r requirements.txt
 exit 0
 ```
 
 `CLAUDE_CODE_REMOTE` 检查是将安装限制在云会话的关键：会话 VM 的环境将该变量设置为 `true`，在本地永远不会是 `true`，因此在您的笔记本电脑上，脚本会在安装任何内容之前退出。
 
-这两个文件一起使每个云会话在启动时获得全新的 `npm install` 和 `pip install`，同时保持本地会话不受影响。
+要确认 `npm install` 已成功，请启动一个云端会话，并让 Claude 显示 `node_modules/.install_pkgs.sha256`。该文件列出了这三个文件各自的哈希值。如果该文件不存在，请让 Claude 运行 `npm install` 并报告错误。
+
+<Note>
+  如果 `npm install` 会读取其他文件，例如工作区的 `package.json`、`.npmrc` 或您的 `postinstall` 脚本的输入，请将它们添加到保存哈希值的 `sha256sum` 命令中。否则，在其中某个文件更改后，您仍会保留旧的包。
+</Note>
 
 <h4 id="limitations-in-cloud-sessions">
   云会话中的限制
@@ -587,7 +602,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 * **没有仅云端的范围**：hooks 在本地和云会话中都运行。要跳过本地运行，请在 `CLAUDE_CODE_REMOTE` 环境变量不为 `true` 时提前退出，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
 * **需要网络访问**：安装命令需要连接到包注册表。如果您的环境使用 **None** 网络访问，这些 hooks 会失败。**Trusted** 下的[默认允许列表](#default-allowed-domains)涵盖 npm、PyPI、RubyGems 和 crates.io。
 * **代理兼容性**：在 Anthropic 托管环境中，所有出站流量都经过[安全代理](#security-proxy)，某些包管理器无法与此代理正确配合工作；Bun 是一个已知的例子。在[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#default-deny-egress)中，出站流量改为经过您自己的网络边界。
-* **增加启动延迟**：hooks 在每次会话启动或恢复时运行，不同于受益于[环境缓存](#environment-caching)的设置脚本。请通过在重新安装之前检查依赖项是否已存在来保持安装脚本快速。
+* **增加启动延迟**：hook 在每次会话启动或恢复时运行，不同于受益于[环境缓存](#environment-caching)的设置脚本。请通过跳过已完成的工作来保持安装脚本快速，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
 
 要自定义基础镜像，请使用设置脚本在[提供的镜像](#installed-tools)上安装您需要的内容，或使用 `docker compose` 将您自己的镜像作为 Claude 旁边的容器运行。目前不支持完全替换基础镜像。
 

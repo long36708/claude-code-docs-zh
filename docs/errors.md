@@ -154,6 +154,7 @@
 | `Request too large` | [请求错误](#request-too-large) |
 | `Request too large for the API's 32MB request limit` | [请求错误](#request-too-large) |
 | `Image was too large` | [请求错误](#image-was-too-large) |
+| `API Error: an image in the conversation could not be processed and was removed` | [请求错误](#image-was-too-large) |
 | `Unable to resize image` | [请求错误](#unable-to-resize-image) |
 | `Request rejected as unprocessable by the model` | [请求错误](#request-rejected-as-unprocessable-by-the-model) |
 | `PDF too large` / `PDF is password protected` / `pdftoppm is not installed` | [请求错误](#pdf-errors) |
@@ -180,6 +181,7 @@
 | `Effort '<level>' isn't available with thinking turned off on this model` | [请求错误](#effort-isnt-available-with-thinking-turned-off) |
 | `effort '<level>' is not supported when thinking is disabled` | [请求错误](#effort-isnt-available-with-thinking-turned-off) |
 | `max_tokens must be greater than thinking.budget_tokens` | [请求错误](#thinking-budget-exceeds-output-limit) |
+| `Claude's response exceeded the ... output token maximum` | [请求错误](#response-exceeded-the-output-token-maximum) |
 | `API Error: 400 due to tool use concurrency issues` | [请求错误](#tool-use-or-thinking-block-mismatch) |
 | `API Error: 400 orphaned tool_result in conversation history` | [请求错误](#tool-use-or-thinking-block-mismatch) |
 | `API Error: 400 duplicate tool_use ID in conversation history` | [请求错误](#tool-use-or-thinking-block-mismatch) |
@@ -200,6 +202,7 @@
 | `The connection dropped while downloading the update` | [安装和登录故障排除](/docs/zh-CN/troubleshoot-install#the-connection-dropped-while-downloading-the-update) |
 | `Download timed out: exceeded the total deadline` | [安装和登录故障排除](/docs/zh-CN/troubleshoot-install#the-connection-dropped-while-downloading-the-update) |
 | `--bg and --print conflict` | [命令行错误](#conflict-between-bg-and-print) |
+| `Couldn't tell whether --bg is a flag or text here, so nothing was started` | [命令行错误](#couldnt-tell-whether-bg-is-a-flag-or-text) |
 | `Error: Cannot use both --append-subagent-system-prompt and --append-subagent-system-prompt-file. Please use only one.` | [命令行错误](#conflict-between-a-system-prompt-flag-and-its-file-form) |
 | `Cloud sessions cannot be created from a --restricted session` | [命令行错误](#cloud-sessions-cannot-be-created-from-a-restricted-session) |
 | `Cloud sessions are disabled by your organization's policy` | [命令行错误](#cloud-sessions-are-disabled-by-your-organizations-policy) |
@@ -385,6 +388,7 @@
 | `Managed settings document could not be parsed as a JSON object; none of its settings are in effect. Fix or remove it.` | [配置警告](#managed-settings-document-could-not-be-parsed) |
 | `Managed settings drop-in directory could not be read` | [配置警告](#managed-settings-document-could-not-be-parsed) |
 | `Unable to read managed policy settings` | [配置警告](#unable-to-read-managed-policy-settings) |
+| `Managed settings contain invalid entries, including PreToolUse/PermissionRequest hooks that are NOT loaded; fix or remove each entry:` | [配置警告](#managed-settings-hooks-not-loaded) |
 | `otelHeadersHelper failed; telemetry is not being exported. See /status: ...` | [配置警告](#otelheadershelper-failed) |
 | `"crossSessionInbound" must be one of "accept", "hold", "refuse"` | [配置警告](#crosssessioninbound-must-be-one-of-accept-hold-refuse) |
 | `API Error: ANTHROPIC_FOUNDRY_RESOURCE must be a Foundry resource name` | [配置警告](#anthropic-foundry-resource-must-be-a-foundry-resource-name) |
@@ -394,6 +398,8 @@
 | `... has a wildcard before the rest of the command` | [配置警告](#has-a-wildcard-before-the-rest-of-the-command) |
 | `Denying Bash also turns off the PowerShell tool, so Claude has neither` | [配置警告](#denying-bash-also-turns-off-the-powershell-tool) |
 | `CLAUDE_CODE_DISABLE_1M_CONTEXT is set, but the 200K limit isn't enforced` | [配置警告](#the-200k-limit-isnt-enforced) |
+| `Model "<model>" isn't recognized · context assumed to be 200k tokens` | [更正网关或自定义模型 ID 的窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id) |
+| `Claude Code doesn't recognize the model "<model>", so it assumes a context window of 200k tokens` | [更正网关或自定义模型 ID 的窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id) |
 | `[claude-code:unrecognized_model]` | [配置警告](#unrecognized-model-id-on-a-request) |
 | `is ignored — managed settings set allowManagedReadPathsOnly` / `is ignored — managed settings set allowManagedDomainsOnly` | [配置警告](#sandbox-allow-entries-are-ignored-under-a-managed-lock) |
 | `Stale sandbox mask files left by a killed session` | [配置警告](#stale-sandbox-mask-files-left-by-a-killed-session) |
@@ -2300,6 +2306,7 @@ Prompt is too long · the request is ~<request tokens> tokens (limit <limit>) bu
 * 使用 `/mcp disable <name>` 禁用您未使用的 MCP 服务器，以从上下文中删除其工具定义
 * 修剪大型 `CLAUDE.md` 记忆文件，或将说明移到仅在相关时加载的[路径范围规则](/docs/zh-CN/memory#path-specific-rules)中
 * 自动压缩默认开启，通常可防止此错误。如果您在 `/config` 中或使用 [`DISABLE_AUTO_COMPACT`](/docs/zh-CN/env-vars) 关闭了它，请将其重新打开。如果您保持关闭，请在窗口填满之前自己运行 `/compact`。
+* 如果在支持更大窗口的模型上于接近 200K token 时出现此错误，一个原因是 Claude Code 无法识别该模型 ID。Claude Code 会为此类 ID 假定 200K 的窗口，因此若要在超过该点后继续工作，请[为其提供模型的实际上下文窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id)。
 
 有关上下文如何填满的交互式视图，请参阅[探索上下文窗口](/docs/zh-CN/context-window)。
 
@@ -2361,9 +2368,16 @@ Request too large (max 32MB). Accumulated images and attachments in the conversa
 ```text theme={null}
 Image was too large. Double press esc to go back and try again with a smaller image.
 API Error: 400 ... image dimensions exceed max allowed size
+API Error: an image in the conversation could not be processed and was removed.
 ```
 
-Claude Code 用文本占位符替换无法处理的图像并重试，因此后续消息成功。在 2.1.142 之前的版本上，粘贴的图像可能保留在对话中，并在每个后续消息上重复相同的错误。要在这些版本上恢复，按 Esc 两次并回退到添加图像的轮次之前。
+`could not be processed and was removed` 行表示 API 拒绝了对话中的某张图片，例如超出大小或尺寸限制的图片。
+
+如果其中某个错误反复出现，请更新 Claude Code。在较旧的版本中，图片错误可能由于以下原因而重复出现：
+
+* 在 v2.1.299 之前，在包含许多图片的长对话中，Claude Code 可能会移除您最后附加的图片，而不是超出限制的那张。于是 `was removed` 行会在每一轮重复出现，且 Claude 看不到您新添加的图片。
+* 在 v2.1.299 之前，在 VS Code、Desktop 应用和 Agent SDK 中，您在 Claude 工作期间附加的图片不会像其他附加图片那样被调整大小。它们以原始大小到达 API，导致长对话中反复出现图片错误。
+* 在 v2.1.166 之前，粘贴的图片可能会留在对话中，之后的每条消息都会重复出现同一错误
 
 **要做什么：**
 
@@ -2821,6 +2835,25 @@ API Error: 400 ... max_tokens must be greater than thinking.budget_tokens
 * 将 [`CLAUDE_CODE_MAX_OUTPUT_TOKENS`](/docs/zh-CN/env-vars) 提高到思考预算以上
 * 请参阅[扩展思考](/docs/zh-CN/model-config#extended-thinking)以了解预算如何与输出长度交互
 
+<h3 id="response-exceeded-the-output-token-maximum">
+  Response exceeded the output token maximum
+</h3>
+
+Claude 的回复达到了请求允许的最大输出 token 数，并在该处被截断：
+
+```text theme={null}
+API Error: Claude's response exceeded the ... output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.
+API Error: Claude's response exceeded the 64000 output token maximum for a request sent without streaming. The CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable cannot raise this limit.
+```
+
+提及 `a request sent without streaming` 的形式表示某个流式请求失败，Claude Code 以非流式方式重新发送了该请求，这会将回复限制在 64,000 个输出 token 以内。在 v2.1.299 之前，此类重新发送的请求上被截断的回复会在不显示此消息的情况下结束轮次，就像回复已经完整一样。
+
+**解决方法：**
+
+* 如果 Claude 在回复被截断之前已写了一些文本，请在交互式会话中回复 `continue` 以请求其余内容。该文本会保留在对话中。
+* 如果消息提示设置 `CLAUDE_CODE_MAX_OUTPUT_TOKENS`，请参阅 [`CLAUDE_CODE_MAX_OUTPUT_TOKENS`](/docs/zh-CN/env-vars) 了解该值的上限，并参阅[设置环境变量](/docs/zh-CN/env-vars#set-environment-variables)了解在何处设置
+* 若要使每次回复都不超过限制，请让 Claude 分成更小的部分输出，例如每次回复一个文件或一个章节
+
 <h3 id="tool-use-or-thinking-block-mismatch">
   工具使用或思考块不匹配
 </h3>
@@ -2957,7 +2990,7 @@ Send feedback with /feedback or learn more: https://www.anthropic.com/legal/aup
 模型的安全措施将对话中的内容标记为网络安全主题。消息命名标记请求的模型：
 
 ```text theme={null}
-API Error: Opus 4.8's safeguards flagged this message. Our intentionally broad safeguards allow us to deliver more capabilities faster, but can sometimes flag legitimate cybersecurity work. Apply to the Cyber Verification Program to reduce these interruptions. Send feedback with /feedback or learn more: https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude
+API Error: Opus 4.8's safeguards flagged this message. Our intentionally broad safeguards allow us to deliver more capabilities faster, but can sometimes flag legitimate cybersecurity work. Send feedback with /feedback or learn more: https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude
 ```
 
 如果消息包含 `` Details: `[reasoning_extraction]` `` 行，请参阅[保护措施标记了索取 Claude 推理过程的请求](#safeguards-flagged-a-request-for-claudes-reasoning)。
@@ -2966,15 +2999,17 @@ API Error: Opus 4.8's safeguards flagged this message. Our intentionally broad s
 
 在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 和 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 上，网络安全标记会改为产生[使用政策拒绝](#usage-policy-refusal)消息。
 
-保护措施本身是服务器端的，早于 v2.1.203；自那以后的客户端版本仅更改了消息的措辞。
-从 v2.1.203 到 v2.1.218，消息读取 `<model> has safety measures that flagged this message for a cybersecurity topic. To learn about the Cyber Verification Program and apply for access, visit our help center:` 后跟相同的帮助中心链接，交互式会话附加 `If you were not engaging in a cybersecurity topic, please send feedback via /feedback.`
-在 v2.1.203 之前，它读取 `<model>'s safeguards flagged this message for a cybersecurity topic. If your work requires this access, you can apply for an exemption:` 后跟豁免表单链接。
-
 **要做什么：**
 
 * 如果您的工作需要此内容，通过[网络安全验证计划](https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude)申请访问权限
 * 如果您的请求不是关于网络安全主题，运行 `/feedback` 报告误报
 * 要继续在同一会话中工作，按 Esc 两次或运行 `/rewind` 回退到触发标记的轮次之前的检查点，然后采取不同的方法。请参阅[检查点](/docs/zh-CN/checkpointing)。
+
+如果您看到的消息措辞与以下某一项相同，则说明这是早期 Claude Code 版本中的同一判定：
+
+* 在 v2.1.219 至 v2.1.296 版本中，消息还可能在结尾句之前包含 `Apply to the Cyber Verification Program to reduce these interruptions.`
+* 在 v2.1.203 至 v2.1.218 版本中，消息内容为 `<model> has safety measures that flagged this message for a cybersecurity topic. To learn about the Cyber Verification Program and apply for access, visit our help center:`，后跟相同的帮助中心链接。在交互式会话中，其后还会接着显示 `If you were not engaging in a cybersecurity topic, please send feedback via /feedback.`
+* 在 v2.1.203 之前，消息内容为 `<model>'s safeguards flagged this message for a cybersecurity topic. If your work requires this access, you can apply for an exemption:`，后跟豁免申请表链接
 
 <h3 id="safeguards-flagged-a-request-for-claudes-reasoning">
   保护措施标记了索取 Claude 推理过程的请求
@@ -3032,6 +3067,22 @@ API Error: Output blocked by content filtering policy
 
 * 去掉 `-p` 或 `--print`。`--bg` 将提示词作为其位置参数，因此 `claude --bg "<task>"` 就是完整的命令。请参阅[从 shell 中 Dispatch 新的 Agent](/docs/zh-CN/agent-view#from-your-shell)。
 * 若要以非交互方式运行提示词并打印结果，而不是创建后台会话，请去掉 `--bg` 并运行 `claude -p "<task>"`
+
+<h3 id="couldnt-tell-whether-bg-is-a-flag-or-text">
+  Couldn't tell whether `--bg` is a flag or text
+</h3>
+
+您运行 `claude` 时，`--bg` 或 `--background` 所在的位置让 Claude Code 无法判断您是想将其用作后台标志还是文本。该命令没有启动任何内容，打印了下面这一行，并以退出码 1 退出：
+
+```text theme={null}
+Couldn't tell whether --bg is a flag or text here, so nothing was started. To start a background session put it first: claude --bg <prompt>
+```
+
+如果您输入的是 `--background`，这一行中显示的将是 `--background`。
+
+**解决方法：**
+
+* 要启动[后台会话](/docs/zh-CN/agent-view#from-your-shell)，请在 shell 中将该标志放在最前面重新运行命令：`claude --bg --name nightly-audit "<task>"`
 
 <h3 id="conflict-between-a-system-prompt-flag-and-its-file-form">
   系统提示词标志与其文件形式冲突
@@ -3585,9 +3636,9 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查不允许它运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
-* `No shell command in <name> was run`：文件中的某个 `!` 命令包含除制表符或换行符之外的原始控制字符，因此所有命令都不会运行。请参阅[如何找到并删除该字符](#no-shell-command-was-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许其执行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，而机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
+* `No shell command in <name> was run`：该文件的某个 `!` 命令包含除制表符或换行符之外的原始控制字符，因此所有命令都不会运行。请参阅[如何找到并删除该字符](#no-shell-command-was-run)
 
 **解决方法：**
 
@@ -3753,7 +3804,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了它。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整的克隆上，该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
+* **您传递的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin fetch 了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个 fetch 来的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
 
 **解决方法：**
 
@@ -5838,6 +5889,27 @@ Detail: <source>: <reason>
 * 如果您不管理，请将消息发送给您的管理员。您自己的设置文件中的任何内容都不会导致或清除此错误
 
 在 v2.1.285 之前，仅使用 claude.ai 或 Claude Console 凭据登录的会话以此消息退出，并且操作系统拒绝的读取也会产生它。
+
+<h3 id="managed-settings-hooks-not-loaded">
+  Managed settings contain invalid entries, including PreToolUse/PermissionRequest hooks that are NOT loaded
+</h3>
+
+`-p` 运行中的此 stderr 块表示某个[托管设置](/docs/zh-CN/managed-settings)源包含 Claude Code 无法加载的 hook 条目。该 hook 不会运行；当某行将该源的 `hooks` 字段列为已忽略时，该源的所有 hook 都不会运行。
+
+每行命名源、字段（如有）以及问题，例如未知的 hook `type` 或在 `hooks` 键之外声明的 hook：
+
+```text theme={null}
+Managed settings contain invalid entries, including PreToolUse/PermissionRequest hooks that are NOT loaded; fix or remove each entry:
+  <source> (<field>): <message>
+```
+
+**要做什么：**
+
+* 如果您管理该源，请修复或删除该块列出的每个条目。[Hook 配置](/docs/zh-CN/hooks#configuration)展示了 Claude Code 在 `hooks` 下期望的结构。
+* 如果某行的源是 `parent managed settings`，则表示启动 Claude Code 的应用程序将该条目作为[父设置](/docs/zh-CN/managed-settings#parent-settings-from-embedding-hosts)传入，因此请向该应用程序的开发者报告
+* 否则，请将该块发送给您的管理员
+
+在 v2.1.300 之前，`-p` 运行会将此情况列在 `Managed settings failed to load; policies from the failed source are NOT in effect:` 标题下。
 
 <h3 id="otelheadershelper-failed">
   otelHeadersHelper 失败

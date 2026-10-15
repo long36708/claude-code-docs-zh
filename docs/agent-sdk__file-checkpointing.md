@@ -636,7 +636,7 @@ File checkpointing跟踪在agent会话期间通过[Write](/docs/zh-CN/tools-refe
 | 限制 | 描述 |
 | - | - |
 | 仅Write/Edit/NotebookEdit工具 | 通过Bash命令进行的更改不被跟踪 |
-| Subagent编辑 | [Subagent](/docs/zh-CN/agent-sdk/subagents)应用的编辑不被跟踪或恢复，除了在前台运行的具有`context: fork`的skill；使用git来恢复未跟踪的编辑 |
+| 子代理编辑 | [子代理](/docs/zh-CN/agent-sdk/subagents)应用的编辑不被跟踪，但在前台运行的具有`context: fork`的skill除外。回滚仅会在主对话已编辑过的文件中撤销这些编辑；其余编辑请使用git来恢复 |
 | 相同会话 | Checkpoint与创建它们的会话相关联 |
 | 仅文件内容 | 创建、移动或删除目录不会通过回滚撤销 |
 | 本地文件 | 远程或网络文件不被跟踪 |

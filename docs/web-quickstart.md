@@ -103,7 +103,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 如果您已经在浏览器中连接了 GitHub，`/web-setup` 会警告您继续将替换您的云会话的该连接。
 
 <Note>
-  启用了[零数据保留](/docs/zh-CN/zero-data-retention)或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织无法使用 `/web-setup` 或其他云端会话功能。如果未安装 GitHub CLI 或未进行身份验证，Claude Code 会打开浏览器入门流程。
+  启用了[零数据保留](/docs/zh-CN/zero-data-retention)或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织无法使用 `/web-setup` 或其他云端会话功能。使用[客户管理的加密密钥](https://platform.claude.com/docs/en/manage-claude/cmek)（CMEK）的组织也无法启动云端会话。如果未安装 GitHub CLI 或未进行身份验证，Claude Code 会打开浏览器入门流程。
 </Note>
 
 <Steps>
