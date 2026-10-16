@@ -652,8 +652,8 @@
     "interactive-mode.md": {
       "original_url": "https://code.claude.com/docs/en/interactive-mode",
       "original_md_url": "https://code.claude.com/docs/en/interactive-mode.md",
-      "hash": "9c45cebdde1c3a9e4698e0b2dab53c1a5382066efce6005e3cbf3fb9efde2b35",
-      "last_updated": "2026-10-14T05:38:57.738496"
+      "hash": "c5c6c87891f9cb427800ffaf72770c72dd9effe82a4cf25d2d67b944ea193aac",
+      "last_updated": "2026-10-15T23:59:20.955564"
     },
     "jetbrains.md": {
       "original_url": "https://code.claude.com/docs/en/jetbrains",
@@ -1365,8 +1365,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-10-15T21:54:38.627210",
-    "fetch_duration_seconds": 154.785902,
+    "last_fetch_completed": "2026-10-16T00:00:40.541480",
+    "fetch_duration_seconds": 150.04526,
     "total_pages_discovered": 227,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1376,7 +1376,7 @@
     "total_files": 227,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-10-15T21:54:38.627225",
+  "last_updated": "2026-10-16T00:00:40.541509",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
