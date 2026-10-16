@@ -645,8 +645,8 @@
     "interactive-mode.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/interactive-mode",
       "original_md_url": "https://code.claude.com/docs/zh-CN/interactive-mode.md",
-      "hash": "d3d7ac2710ae0a81b28960d2e447722c4e2e6f519c556dba8266ba28bd329a02",
-      "last_updated": "2026-10-14T06:25:10.513342"
+      "hash": "06e78f069bab40efb684cdaf1bab5a77a11d9b093b3a3aeb7bcae4cedfecc015",
+      "last_updated": "2026-10-16T06:04:08.824628"
     },
     "jetbrains.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/jetbrains",
@@ -879,8 +879,8 @@
     "plugins__mods__admin.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/plugins/mods/admin",
       "original_md_url": "https://code.claude.com/docs/zh-CN/plugins/mods/admin.md",
-      "hash": "d31ef6eb51b736dd055d62c3d71d49cc87e92c5a82da5ba6d9cc46675e7faeed",
-      "last_updated": "2026-10-15T17:52:26.072976"
+      "hash": "4dbe37adb2bf4292a93a7b278d710bcbb687af5bc157b2138b4355b236a9943b",
+      "last_updated": "2026-10-16T06:04:35.670696"
     },
     "plugins__mods__api.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/plugins/mods/api",
@@ -1372,8 +1372,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-10-15T22:36:19.467823",
-    "fetch_duration_seconds": 226.534388,
+    "last_fetch_completed": "2026-10-16T06:05:29.902747",
+    "fetch_duration_seconds": 156.162865,
     "total_pages_discovered": 226,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1383,7 +1383,7 @@
     "total_files": 228,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-10-15T22:36:19.467843",
+  "last_updated": "2026-10-16T06:05:29.902779",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

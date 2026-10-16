@@ -78,7 +78,7 @@
 
 Mods 不会替换您已有的控制：
 
-* **设置 hooks 继续工作。** 设置文件和插件的 `hooks/hooks.json` 中的命令、HTTP、提示和代理 hooks 照常运行，与 mods 一起。关于它们的任何内容都没有被弃用。
+* **设置 hook 继续工作。** 设置文件和插件的 `hooks/hooks.json` 中的命令、HTTP、提示词和 Agent hook 照常运行，与 mod 一起。
 * **拒绝规则在保护程序加载的地方优先。** 用户的 mod 无法批准 `deny` 规则拒绝的调用，除非您设置 [`allowModsToOverrideDenyRules`](#set-options-on-the-built-in-guard)。
 * **托管 hooks 首先运行。** 托管设置中的 `PreToolUse` hook 在任何 mod 看到工具调用之前运行，其块是最终的。如果 mod 随后重写调用，您的托管 hooks 在重写的调用上再次运行，因此块仍然适用。来自其他设置文件和插件的 `PreToolUse` hooks 在最后一个 mod 之后运行，因此返回自己结果代替运行工具的 mod 会阻止这些运行。请参阅[mods 运行的顺序](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)。
 * **网络策略涵盖 `$.http.fetch`。**
