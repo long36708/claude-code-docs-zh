@@ -718,10 +718,6 @@ Fix GitHub issue $ARGUMENTS following our coding standards.
 
 如果您在调用 skill 时传递了参数，但 skill 内容中没有占位符接收参数，Claude Code 会将 `ARGUMENTS: <your input>` 附加到 skill 内容的末尾，以便 Claude 仍能看到您输入的内容。占位符是指 `$ARGUMENTS`、索引形式（例如 `$1`）或命名参数。在其位置上没有参数的索引占位符会保留为字面文本，不算作接收了参数。命名占位符即使在其位置上没有参数也算作接收了参数，因为它会展开为空字符串。
 
-您还可以在一条消息的开头叠加多个 skill。输入 `/write-tests /fix-issue 123` 会加载这两个 skill，并将末尾的文本 `123` 作为 `$ARGUMENTS` 传递给每个 skill。
-
-Claude Code 会展开第一个 skill 以及其后叠加的最多五个 skill。展开会在第一个不是内联用户可调用 skill 的标记处停止，因此以[分叉子代理](#run-skills-in-a-subagent)方式运行的 skill（例如 [`/code-review`](/docs/zh-CN/code-review-local)），或其参数本身可能以斜杠命令开头的 skill（例如 `/loop`），也会在该处终止叠加。该标记及其后的所有内容会成为每个已展开 skill 的参数文本。从 v2.1.218 起，`/code-review` 以分叉子代理方式运行；在更早的版本中，它以内联方式运行并可叠加。
-
 要按位置访问单个参数，请使用 `$ARGUMENTS[N]` 或更简短的 `$N`：
 
 ```yaml theme={null}
@@ -745,6 +741,14 @@ description: Migrate a component from one language to another
 Migrate the $0 component from $1 to $2.
 Preserve all existing behavior and tests.
 ```
+
+<h4 id="stack-several-skills-in-one-message">
+  在一条消息中叠加多个 skill
+</h4>
+
+在终端的 Claude Code 输入框中输入时，您可以在一条消息的开头叠加多个 skill。通过 Agent SDK 或 `claude -p` 时，Claude Code 只会加载第一个 skill，并将该行的其余部分作为其参数。在终端输入框中，输入 `/write-tests /fix-issue 123` 会加载这两个 skill，并将末尾的文本 `123` 作为 `$ARGUMENTS` 传递给每个 skill。
+
+Claude Code 会展开第一个 skill 以及其后叠加的最多五个 skill。展开会在第一个不是内联用户可调用 skill 的标记处停止。如果您叠加了以[分叉子代理](#run-skills-in-a-subagent)方式运行的 skill（例如 [`/code-review`](/docs/zh-CN/code-review-local)），或其参数可能以另一个命令开头的 skill（例如 `/loop`），展开会在该处终止。该标记及其后的所有内容会成为每个已展开 skill 的参数文本。
 
 <h2 id="advanced-patterns">
   高级模式
@@ -1044,7 +1048,7 @@ Claude Code 仅针对技能自己的名称和 Claude 调用中的名称匹配 `a
 如果安装失败，请匹配 Claude Code 报告的消息：
 
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* [插件在市场中找不到](/docs/zh-CN/plugins/install#install-a-plugin)：检查插件名称。
+* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后仍显示相同的消息，请参阅[插件在市场中找不到](/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace)。
 
 如果安装摘要报告 `Run /reload-plugins to apply.`，Claude Code 随后会为您执行该重新加载。如果重新加载警告您的下一条消息会重新读取对话，请运行 `/reload-plugins --force`，使插件的 skill 在当前会话中可用。然后让 Claude 评估现有 skill，例如 `evaluate my summarize-changes skill with skill-creator`。该插件会引导您编写测试用例并运行循环：
 

@@ -3881,8 +3881,10 @@ class SandboxSettings(TypedDict, total=False):
 <Note>
   沙箱取决于平台支持，在 Linux 上，需要 `bubblewrap` 和 `socat` 等工具。默认情况下，当 `enabled` 为 `True` 但沙箱无法启动时，命令在沙箱外运行，并在 stderr 上显示警告。此默认值与 TypeScript SDK 不同，后者中 `failIfUnavailable` 默认为 `true`。
 
-  在沙箱设置中设置 `"failIfUnavailable": True` 以改为停止。该键尚未在 `SandboxSettings` 上声明，但 SDK 会将其转发给 Claude Code，后者会遵守它。然后 `query()` 报告一个 `ResultMessage`，其 `subtype="error_during_execution"` 和 `errors` 中的原因。因为这是一个单次 `query()` 调用，SDK 在生成该错误结果后会引发，所以将循环包装在 try 块中以继续通过它。有关错误合约，请参阅 [处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
+  在沙箱设置中设置 `"failIfUnavailable": True` 以改为停止。SDK 会将 `failIfUnavailable` 与已声明的 `SandboxSettings` 字段一起转发给 Claude Code。然后 `query()` 报告一个 `ResultMessage`，其 `subtype="error_during_execution"`，原因在 `errors` 中。因为这是一个单次 `query()` 调用，SDK 在生成该错误结果后会引发异常，所以请将循环包装在 try 块中以继续执行。有关错误约定，请参阅 [处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
 </Note>
+
+要阻止沙箱化命令写入某个文件，请在沙箱设置中将其绝对路径列在 [`denyWrite`](/docs/zh-CN/settings-reference#sandbox-filesystem-denywrite) 下，例如 `"filesystem": {"denyWrite": ["/home/user/project/.env"]}`。SDK 会将 `filesystem` 与已声明的 `SandboxSettings` 字段一起转发给 Claude Code。沙箱启动后，会阻止对每个所列路径的写入。如果您列出的是 `.env` 或 `./.env`，沙箱化命令仍可以写入会话工作目录中的 `.env` 文件。
 
 <h4 id="example-usage">
   示例用法

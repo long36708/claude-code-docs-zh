@@ -772,7 +772,7 @@ Claude Code 导出以下指标。"单位"列显示附加到每个指标的 OpenT
 **属性**：
 
 * 所有[标准属性](#standard-attributes)
-* `type`：（`"input"`、`"output"`、`"cacheRead"`、`"cacheCreation"`）。`"input"` 类型不包括从提示词缓存读取或写入提示词缓存的 token，这些 token 计入 `"cacheRead"` 和 `"cacheCreation"`
+* `type`：（`"input"`、`"output"`、`"cacheRead"`、`"cacheCreation"`）。`"input"` 类型不包括从提示缓存读取或写入提示缓存的 token，这些 token 计入 `"cacheRead"` 和 `"cacheCreation"`。`"cacheCreation"` 类型将五分钟和一小时[缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)的缓存写入合并计数。
 * `model`：模型标识符（例如 "claude-sonnet-5"）
 * `query_source`：发出请求的子系统类别。取值为 `"main"`、`"subagent"` 或 `"auxiliary"` 之一
 * `speed`：当请求使用快速模式时为 `"fast"`。否则不存在
@@ -826,7 +826,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
 要追踪由单个提示词触发的所有活动，请按特定的 `prompt.id` 值过滤您的事件。这会返回处理该提示词期间发生的 user\_prompt 事件、所有 api\_request 事件以及所有 tool\_result 事件。
 
-每次 Claude Code 进程启动时，`event.sequence` 从 0 开始，并在该进程的生命周期内递增。它在 `/clear` 之后继续计数，`/clear` 会分配一个新的 `session.id`。如果您[在不分叉的情况下恢复会话](/docs/zh-CN/how-claude-code-works#resume-or-fork-sessions)，会话会保留其 `session.id`，但其 `event.sequence` 值来自恢复它的进程，因此在同一会话中，较晚的事件可能携带比较早事件更低的值，或者重复某个值。要对会话的事件排序，请按 `event.timestamp` 排序，并使用 `event.sequence` 对共享同一时间戳的事件进行排序。
+`event.sequence` 在每次 Claude Code 进程启动时从 0 开始，并在该进程的生命周期内递增。它在 `/clear`（会分配新的 `session.id`）之后继续计数。如果您[在不分叉的情况下恢复会话](/docs/zh-CN/how-claude-code-works#resume-or-fork-sessions)，会话会保留其 `session.id`，但其 `event.sequence` 值取自恢复它的进程，因此在同一会话中，较晚的事件可能携带比较早事件更小的值，或者重复某个值。要对会话的事件进行排序，请按 `event.timestamp` 排序，并使用 `event.sequence` 对共享同一时间戳的事件进行排序。
 
 为了进行消息级别的重建，每类事件都携带一个与会话记录中某个字段匹配的键。会话记录的条目格式[属于 Claude Code 内部实现](/docs/zh-CN/sessions#where-transcripts-are-stored)，并且会在版本之间变化，因此基于这些字段进行关联的管道可能在任何版本发布时失效；请将这些关联视为特定于版本的，而不是稳定的约定：
 

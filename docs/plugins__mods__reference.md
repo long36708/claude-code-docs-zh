@@ -293,8 +293,8 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 
 | 元素 | 主要 prop | 终端 | Desktop | VS Code |
 | :- | :- | :-: | :-: | :-: |
-| [`Box`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `key`、flex 布局、`gap`、`padding`、`margin`、`width`、`height`、[`borderStyle`](#box-border-styles)、`backgroundColor`、`position`、`hover` | ✓ | ✓ | ✓ |
-| [`Text`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `color`、`backgroundColor`、`bold`、`italic`、`underline`、`dimColor`、`inverse`、`wrap` | ✓ | ✓ | ✓ |
+| [`Box`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `key`、flex 布局、[`gap`、`padding`、`margin`](#box-spacing-steps)、`width`、`height`、[`borderStyle`](#box-border-styles)、`backgroundColor`、`position`、`hover` | ✓ | ✓ | ✓ |
+| [`Text`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `color`、`backgroundColor`、[`bold`](#text-bold)、`italic`、`underline`、`dimColor`、`inverse`、`wrap`、[`size`、`weight`、`mono`、`tabular`](#text-typography) | ✓ | ✓ | ✓ |
 | [`Button`](/docs/zh-CN/plugins/mods/interface#respond-to-presses-and-typing) | `key`、`label`、`onPress`、`hotkey`、`plain`、`dimColor`、`autoFocus`、`action` | ✓ | ✓ | ✓ |
 | [`Link`](/docs/zh-CN/plugins/mods/interface#link-in-the-desktop-app) | `href`、`label`。请参阅[限制](#limits)。 | ✓ | ✓ | ✓ |
 | [`Code`](/docs/zh-CN/plugins/mods/gallery#show-code-and-changes) | `source`、`language`、`path`、`startLine`、`format`、`wrap` | ✓ | ✓ | ✓ |
@@ -311,6 +311,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 VS Code 扩展会忽略某些元素 prop，并像您省略了这些 prop 一样绘制该元素：
 
 * **`Box`**：`position` 和 `hover`
+* **`Text`**：`size`、`mono` 和 `tabular`
 * **`Button`**：`hotkey`、`plain`、`autoFocus` 和 `action`，因此用户在其中通过点击来按下按钮，或在按钮获得焦点后按 Enter
 * **`Code`**：`language`、`path`、`startLine`、`format` 和 `wrap`，因此代码绘制时不带颜色或行号，而 `format: 'diff'` 代码块会显示 diff 的原始文本
 * **`Input` 和 `Select`**：`autoFocus`
@@ -335,6 +336,47 @@ VS Code 扩展会忽略某些元素 prop，并像您省略了这些 prop 一样�
 | `'quote'` | 左侧一条竖条 `▎`，其他三边为空白单元格 | 空白 |
 
 如果 `Box` 的 `borderStyle` 指定的是其他名称（例如 `'rounded'`），则绘制时不带边框。
+
+<h3 id="box-spacing-steps">
+  `Box` 间距步长
+</h3>
+
+`Box` 的间距 prop 包括 `gap`、`columnGap`、`rowGap`、`padding`、`margin`，以及 `padding` 和 `margin` 的单边和单轴形式，例如 `paddingX` 和 `marginTop`。每个 prop 都接受以终端单元格为单位的数字（例如 `gap: 1`），或步长名称（例如 `gap: 'md'`）。在终端和 VS Code 扩展中，每个步长对应的单元格数如下：
+
+| 步长 | 横向单元格数 | 纵向单元格数 |
+| :- | :- | :- |
+| `'xs'` | 1 | 0 |
+| `'sm'` | 1 | 0 |
+| `'md'` | 2 | 1 |
+| `'lg'` | 3 | 1 |
+| `'xl'` | 4 | 2 |
+
+如果将 `gap`、`padding` 或 `margin` 设置为某个步长，该步长会同时应用于横向和纵向。例如，在终端和 VS Code 扩展中，`padding: 'md'` 表示左右两侧各两个单元格，上下各一行。
+
+步长名称需要 Claude Code v2.1.299 或更高版本。在更早的版本中，对于使用了步长名称的树，Claude Code 会[绘制它自己版本的该位置内容](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)来代替。
+
+<h3 id="text-typography">
+  `Text` 排版 prop
+</h3>
+
+在 `Text` 上设置 `size`、`weight`、`mono` 或 `tabular`，可以请求绘制您的树的应用使用某种文字大小、字重、等宽字体或等宽数字。在依赖某个 prop 之前，请先确认终端和 VS Code 扩展如何处理它。如果某个应用忽略了您设置的 prop，您的树仍会在其中绘制，文本显示效果与您省略该 prop 时相同。
+
+| Prop | 取值 | 在终端中 | 在 VS Code 扩展中 |
+| :- | :- | :- | :- |
+| `size` | `'caption'`、`'footnote'`、`'body'`、`'heading'` 或 `'title'` | 忽略：终端只有一种文字大小 | 忽略 |
+| `weight` | `'regular'`、`'medium'`、`'semibold'` 或 `'bold'` | `semibold` 和 `bold` 绘制为粗体文本 | `semibold` 和 `bold` 绘制为粗体文本 |
+| `mono` | `true`，请求使用应用的等宽字体 | 忽略：终端始终是等宽的 | 忽略，因此文本保持扩展自身的字体 |
+| `tabular` | `true`，请求使用等宽数字，使原地更新的数字或一列数字保持对齐 | 忽略：终端中的数字本来就占一个单元格宽 | 忽略 |
+
+这四个 prop 需要 Claude Code v2.1.299 或更高版本。在更早的版本中，对于设置了 `size`、`weight`、`mono` 或 `tabular` 的树，Claude Code 会[绘制它自己版本的该位置内容](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)来代替。
+
+<h4 id="text-bold">
+  用 `weight` 替换 `bold`
+</h4>
+
+`Text` 上的 `bold` 已弃用，建议改用 `weight`，但它仍然可用。要在未设置 `weight` 的 `Text` 上替换它，请将 `bold: true` 改为 `weight: 'semibold'`，在 Claude Code v2.1.299 或更高版本上效果相同。
+
+在早于 v2.1.299 的版本中，设置了 `weight` 的树不会绘制，Claude Code 会改为[绘制它自己版本的该位置内容](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)。如果您在 `Text` 上同时设置了 `bold` 和 `weight`，则 `bold` 不起作用。
 
 <h2 id="limits">
   限制

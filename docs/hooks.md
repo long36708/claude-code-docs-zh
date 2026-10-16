@@ -1832,7 +1832,7 @@ MessageDisplay hook 没有决策控制。它们无法阻止消息，也无法更
 
 使用 [PreToolUse 决策控制](#pretooluse-decision-control)来允许、拒绝、询问或延迟工具调用。
 
-`PreToolUse` 上的 [Agent SDK 回调 hook](/docs/zh-CN/agent-sdk/hooks) 超过其超时时间时，会阻止该工具调用，Claude 会收到一个指明该超时的错误结果。另一个 hook 返回的显式拒绝仍然优先。
+`PreToolUse` 上的 [Agent SDK 回调 hook](/docs/zh-CN/agent-sdk/hooks) 超过其超时时间时，会阻止工具调用，Claude 会收到一个注明该超时的错误结果。
 
 <h4 id="pretooluse-input">
   PreToolUse 输入
@@ -3428,7 +3428,7 @@ Claude Code 会拒绝包含 `.` 或 `..` 片段的绝对路径，以及任何经
 * 您删除在该 worktree 中运行的[后台会话](/docs/zh-CN/agent-view#what-deleting-a-session-removes)
 * 您在会话期间要求 Claude 退出并删除 worktree，Claude 使用 [`ExitWorktree`](/docs/zh-CN/tools-reference) 工具将其删除
 * 由 [`claude remote-control`](/docs/zh-CN/remote-control#start-a-remote-control-session) 以 `worktree` 模式启动的会话在未崩溃的情况下结束，并且 Claude Code 在其 worktree 中未发现已更改或未跟踪的文件，也没有新的提交
-* 您在由 `claude remote-control` 以 `worktree` 模式启动的会话仍在运行时停止 `claude remote-control`，并且 Claude Code 在它们的 worktree 中未发现已更改或未跟踪的文件，也没有新的提交
+* 您在由 `claude remote-control` 以 `worktree` 模式启动的会话仍在运行时停止它，并且 Claude Code 在这些会话的 worktree 中未发现已更改或未跟踪的文件，也没有新的提交
 
 当子代理或工作流 Agent 完成时，Claude Code 会保留您的 WorktreeCreate hook 为其创建的 worktree，并且不会运行您的 WorktreeRemove hook。工作完成后，请自行删除这些 worktree。
 

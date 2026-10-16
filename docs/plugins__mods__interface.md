@@ -455,8 +455,8 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 
 | 元素 | 它绘制什么 | 位置 |
 | :- | :- | :- |
-| `Box` | 一个 flex 容器。接受布局 prop，如 `flexDirection`、`columnGap`、`padding`、[`borderStyle`](/docs/zh-CN/plugins/mods/reference#box-border-styles) 和 `width`。 | 到处 |
-| `Text` | 样式化文本。接受 `color`、`bold`、`dimColor`、`italic` 和 `wrap`。`color` 是主题键或颜色，如 `'red'`。`wrap` 是 `'wrap'`、`'truncate'`、`'truncate-start'`、`'truncate-middle'` 或 `'truncate-end'`。 | 到处 |
+| `Box` | 一个 flex 容器。接受布局 prop，如 `flexDirection`、[`borderStyle`](/docs/zh-CN/plugins/mods/reference#box-border-styles) 和 `width`。`columnGap` 和 `padding` 等间距 prop 接受一个数字，或从 `'xs'` 到 `'xl'` 的[步长名称](/docs/zh-CN/plugins/mods/reference#box-spacing-steps)。 | 到处 |
+| `Text` | 样式化文本。接受 `color`、`bold`、`dimColor`、`italic`、`wrap` 以及 [`weight`](/docs/zh-CN/plugins/mods/reference#text-typography) 等其他 prop。`color` 是主题键或颜色，如 `'red'`。`wrap` 是 `'wrap'`、`'truncate'`、`'truncate-start'`、`'truncate-middle'` 或 `'truncate-end'`。 | 到处 |
 | `Button` | 调用 `onPress` 的控件 | 到处 |
 | `Link`, `Code`, `Markdown` | 带有 `href` 和可选 `label` 的链接、代码块和格式化为 Claude 回复方式的文本。`Markdown` 在 `text` 属性中而不是在 `children` 中获取其内容，当您传递 `onLinkPress` 时需要 `key`。 | 到处 |
 | `Input`, `Select` | 文本字段和下拉列表 | 终端、桌面、VS Code |

@@ -118,7 +118,7 @@
 在 effort 级别和标志之后，Claude Code 会将该行的其余部分读取为审查目标。`ultra` 参数会改变这种解读方式：
 
 * **使用 `ultra` 时**：Claude Code 会将单个单词读取为基础分支或 PR 编号。未指明分支或 PR 的较长文本会成为[附加到审查的备注](/docs/zh-CN/ultrareview#pass-a-request-in-plain-words)。`/code-review ultra check my auth changes` 会审查您的当前分支，Claude 会将发现的问题与您的备注关联起来。
-* **不使用 `ultra` 时**：剩余的所有内容都是审查目标，即使它以另一个命令名称开头。`/code-review /fix-issue 123` 会以 `/fix-issue 123` 作为目标文本进行审查，而不是将 `/fix-issue` 作为第二个[叠加的 skill](/docs/zh-CN/skills#pass-arguments-to-skills) 加载。在 v2.1.218 之前，叠加在 `/code-review` 之后的命令会作为其自身的 skill 展开。
+* **不使用 `ultra` 时**：剩余的所有内容都是审查目标，即使它以另一个命令名称开头。`/code-review /fix-issue 123` 会以 `/fix-issue 123` 作为目标文本进行审查，而不是将 `/fix-issue` 作为第二个[叠加的 skill](/docs/zh-CN/skills#stack-several-skills-in-one-message) 加载。在 v2.1.218 之前，叠加在 `/code-review` 之后的命令会作为其自身的 skill 展开。
 
 <h2 id="run-in-the-foreground">
   在前台运行

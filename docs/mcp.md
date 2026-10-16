@@ -49,8 +49,8 @@ Claude Code 可以通过 [Model Context Protocol (MCP)](https://modelcontextprot
 
     如果安装失败，请匹配 Claude Code 报告的消息：
 
-    * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加 marketplace，然后重试安装。
-    * plugin [在 marketplace 中找不到](/docs/zh-CN/plugins/install#install-a-plugin)：检查 plugin 名称。
+    * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加该市场，然后重试安装。
+    * `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后显示相同的消息，请参阅 [Plugin not found in marketplace](/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace)。
 
     如果安装摘要报告 `Run /reload-plugins to apply.`，Claude Code 会为您运行该重新加载。如果重新加载警告您的下一条消息会重新读取对话，请运行 `/reload-plugins --force`。
   </Step>

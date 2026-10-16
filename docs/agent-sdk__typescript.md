@@ -6246,7 +6246,7 @@ class AbortError extends Error {}
   `SandboxSettings`
 </h3>
 
-沙箱行为的配置。使用此选项以编程方式启用命令沙箱和配置网络限制。
+沙箱行为的配置。使用它以编程方式启用命令沙箱并配置网络限制。
 
 ```typescript theme={null}
 type SandboxSettings = {
@@ -6266,24 +6266,24 @@ type SandboxSettings = {
 | 属性 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
 | `enabled` | `boolean` | `false` | 为命令执行启用沙箱模式 |
-| `failIfUnavailable` | `boolean` | `true` | 如果 `enabled` 为 `true` 但沙箱无法启动，则在启动时停止。设置为 `false` 以回退到沙箱外执行，并在 stderr 上显示警告 |
+| `failIfUnavailable` | `boolean` | `true` | 如果 `enabled` 为 `true` 但沙箱无法启动，则在启动时停止。设置为 `false` 可回退到非沙箱执行，并在 stderr 上输出警告 |
 | `autoAllowBashIfSandboxed` | `boolean` | `true` | 启用沙箱时自动批准 Bash 命令 |
-| `excludedCommands` | `string[]` | `[]` | 绕过沙箱限制的命令，例如 `['docker *']`。这些自动运行在沙箱外，无需模型参与；[`sandbox.excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands) 涵盖何时应用条目 |
-| `allowUnsandboxedCommands` | `boolean` | `true` | 允许模型请求在沙箱外运行命令。当为 `true` 时，模型可以在工具输入中设置 `dangerouslyDisableSandbox`，这会回退到[权限系统](#permissions-fallback-for-unsandboxed-commands) |
-| `network` | [`SandboxNetworkConfig`](#sandboxnetworkconfig) | `undefined` | 网络特定的沙箱配置 |
-| `filesystem` | [`SandboxFilesystemConfig`](#sandboxfilesystemconfig) | `undefined` | 用于读/写限制的文件系统特定沙箱配置 |
-| `ignoreViolations` | `Record<string, string[]>` | `undefined` | 命令子字符串或 `*` 的映射（用于每个命令）到要忽略的违规文本的子字符串，例如 `{ "*": ['/etc/hosts'] }`；请参阅 [`sandbox.ignoreViolations`](/docs/zh-CN/settings-reference#sandbox-ignoreviolations) |
+| `excludedCommands` | `string[]` | `[]` | 绕过沙箱限制的命令，例如 `['docker *']`。这些命令会自动在沙箱外运行，无需模型参与；有关条目何时适用，请参阅 [`sandbox.excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands) |
+| `allowUnsandboxedCommands` | `boolean` | `true` | 允许模型请求在沙箱外运行命令。为 `true` 时，模型可以在工具输入中设置 `dangerouslyDisableSandbox`，此时将回退到[权限系统](#permissions-fallback-for-unsandboxed-commands) |
+| `network` | [`SandboxNetworkConfig`](#sandboxnetworkconfig) | `undefined` | 网络相关的沙箱配置 |
+| `filesystem` | [`SandboxFilesystemConfig`](#sandboxfilesystemconfig) | `undefined` | 用于读/写限制的文件系统相关沙箱配置 |
+| `ignoreViolations` | `Record<string, string[]>` | `undefined` | 从命令子字符串（或表示所有命令的 `*`）到要忽略的违规文本子字符串的映射，例如 `{ "*": ['/etc/hosts'] }`；请参阅 [`sandbox.ignoreViolations`](/docs/zh-CN/settings-reference#sandbox-ignoreviolations) |
 | `enableWeakerNestedSandbox` | `boolean` | `false` | 为兼容性启用较弱的嵌套沙箱 |
-| `ripgrep` | `{ command: string; args?: string[] }` | `undefined` | 沙箱环境中的自定义 ripgrep 二进制配置 |
+| `ripgrep` | `{ command: string; args?: string[] }` | `undefined` | 用于沙箱环境的自定义 ripgrep 二进制文件配置 |
 
 <Note>
-  沙箱取决于平台支持，在 Linux 上，还需要 `bubblewrap` 和 `socat` 等工具。当 `enabled` 为 `true` 且沙箱无法启动时，`query()` 报告一条 `result` 消息，其中 `subtype: "error_during_execution"`，原因在 `errors` 中。对于单个消息 `query()` 调用，SDK 在生成该错误结果后抛出异常，因此将循环包装在 try 块中以继续通过它。有关错误合约，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
+  沙箱依赖于平台支持，在 Linux 上还依赖 `bubblewrap` 和 `socat` 等工具。当 `enabled` 为 `true` 且沙箱无法启动时，`query()` 会报告一条 `subtype: "error_during_execution"` 的 `result` 消息，并在 `errors` 中给出原因。对于单消息 `query()` 调用，SDK 会在产出该错误结果后抛出异常，因此请将循环包裹在 try 块中以便继续执行。有关错误约定，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
 
-  要改为运行沙箱外的命令，请设置 `failIfUnavailable: false`。
+  如需改为在沙箱外运行，请设置 `failIfUnavailable: false`。
 </Note>
 
 <h4 id="example-usage">
-  示例用法
+  使用示例
 </h4>
 
 ```typescript theme={null}
@@ -6305,21 +6305,21 @@ try {
     if ("result" in message) console.log(message.result);
   }
 } catch (error) {
-  // 单个 query() 调用在生成错误结果后抛出异常，
-  // 例如当沙箱无法启动时（failIfUnavailable 默认为 true）。
+  // A single-shot query() throws after yielding an error result,
+  // such as when the sandbox can't start (failIfUnavailable defaults to true).
   console.log(`Session ended with an error: ${error}`);
 }
 ```
 
 <Warning>
-  **Unix socket 安全性：** `allowUnixSockets` 选项可以授予对系统服务的访问权限，这些服务可能会到达沙箱外。例如，允许 `/var/run/docker.sock` 实际上通过 Docker API 授予对主机系统的完全访问权限，绕过沙箱隔离。仅允许严格必要的 Unix sockets 并了解每个的安全含义。
+  **Unix 套接字安全：** `allowUnixSockets` 选项可能会授予对可触及沙箱外部的系统服务的访问权限。例如，允许 `/var/run/docker.sock` 实际上会通过 Docker API 授予对主机系统的完全访问权限，从而绕过沙箱隔离。请仅允许确实必要的 Unix 套接字，并了解每个套接字的安全影响。
 </Warning>
 
 <h3 id="sandboxnetworkconfig">
   `SandboxNetworkConfig`
 </h3>
 
-沙箱模式的网络特定配置。这些设置适用于当父级 [`SandboxSettings`](#sandboxsettings) 中的 `enabled` 为 `true` 时的沙箱化 Bash 命令。它们不限制 WebFetch 工具，该工具改用[权限规则](/docs/zh-CN/permissions#webfetch)。
+沙箱模式的网络相关配置。当父级 [`SandboxSettings`](#sandboxsettings) 中的 `enabled` 为 `true` 时，这些设置适用于在沙箱中运行的 Bash 命令。它们不会限制 WebFetch 工具，该工具改为使用[权限规则](/docs/zh-CN/permissions#webfetch)。
 
 ```typescript theme={null}
 type SandboxNetworkConfig = {
@@ -6337,25 +6337,25 @@ type SandboxNetworkConfig = {
 
 | 属性 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
-| `allowedDomains` | `string[]` | `[]` | 沙箱进程可以访问的域名 |
-| `deniedDomains` | `string[]` | `[]` | 沙箱进程无法访问的域名。优先于 `allowedDomains` |
-| `strictAllowlist` | `boolean` | `false` | 拒绝沙箱化命令访问[网络允许列表](/docs/zh-CN/sandboxing#network-isolation)之外的主机，而不是提示。仅对沙箱化命令强制执行；WebFetch 等进程内工具不受其限制。仅从用户、托管或 CLI `--settings` 设置中遵守；项目设置被忽略。需要 Claude Code v2.1.219 或更高版本 |
-| `allowManagedDomainsOnly` | `boolean` | `false` | 仅限管理设置。在[管理设置](/docs/zh-CN/managed-settings)中设置时，仅遵守来自管理设置的 `allowedDomains` 条目和来自管理设置的 `WebFetch(domain:...)` 允许规则，来自用户、项目或本地设置的允许条目被忽略。从 SDK 中，通过 [`managedSettings`](#options) 选项传递它 |
-| `allowLocalBinding` | `boolean` | `false` | 允许进程绑定到本地端口（例如，用于开发服务器） |
-| `allowUnixSockets` | `string[]` | `[]` | 进程可以访问的 Unix socket 路径（例如，Docker socket） |
-| `allowAllUnixSockets` | `boolean` | `false` | 允许访问所有 Unix sockets |
-| `httpProxyPort` | `number` | `undefined` | 网络请求的 HTTP 代理端口 |
-| `socksProxyPort` | `number` | `undefined` | 网络请求的 SOCKS 代理端口 |
+| `allowedDomains` | `string[]` | `[]` | 沙箱内进程可以访问的域名 |
+| `deniedDomains` | `string[]` | `[]` | 沙箱内进程无法访问的域名。优先于 `allowedDomains` |
+| `strictAllowlist` | `boolean` | `false` | 拒绝沙箱内命令访问[网络允许列表](/docs/zh-CN/sandboxing#network-isolation)之外的主机，而不是进行提示。仅对沙箱内命令强制执行；WebFetch 等进程内工具不受其限制。仅在用户设置、托管设置或 CLI `--settings` 设置中生效；项目设置中的该项会被忽略。需要 Claude Code v2.1.219 或更高版本 |
+| `allowManagedDomainsOnly` | `boolean` | `false` | 仅限托管设置。在[托管设置](/docs/zh-CN/managed-settings)中设置时，仅采用托管设置中的 `allowedDomains` 条目和 `WebFetch(domain:...)` 允许规则，而用户、项目或本地设置中的允许条目将被忽略。在 SDK 中，请通过 [`managedSettings`](#options) 选项传入 |
+| `allowLocalBinding` | `boolean` | `false` | 允许进程绑定到本地端口（例如用于开发服务器） |
+| `allowUnixSockets` | `string[]` | `[]` | 进程可以访问的 Unix 套接字路径（例如 Docker 套接字） |
+| `allowAllUnixSockets` | `boolean` | `false` | 允许访问所有 Unix 套接字 |
+| `httpProxyPort` | `number` | `undefined` | 用于网络请求的 HTTP 代理端口 |
+| `socksProxyPort` | `number` | `undefined` | 用于网络请求的 SOCKS 代理端口 |
 
 <Note>
-  内置沙箱代理基于请求的主机名强制执行 `allowedDomains`，不会终止或检查 TLS 流量，因此[域前置](https://en.wikipedia.org/wiki/Domain_fronting)等技术可能会绕过它。有关详细信息，请参阅[沙箱安全限制](/docs/zh-CN/sandboxing#security-limitations)，以及[安全部署](/docs/zh-CN/agent-sdk/secure-deployment#traffic-forwarding)以配置 TLS 终止代理。
+  内置沙箱代理根据请求的主机名强制执行 `allowedDomains`，不会终止或检查 TLS 流量，因此[域前置](https://en.wikipedia.org/wiki/Domain_fronting)等技术可能会绕过它。有关详细信息，请参阅[沙箱隔离的安全限制](/docs/zh-CN/sandboxing#security-limitations)；有关配置 TLS 终止代理，请参阅[安全部署](/docs/zh-CN/agent-sdk/secure-deployment#traffic-forwarding)。
 </Note>
 
 <h3 id="sandboxfilesystemconfig">
   `SandboxFilesystemConfig`
 </h3>
 
-沙箱模式的文件系统特定配置。
+沙箱模式的文件系统相关配置。
 
 ```typescript theme={null}
 type SandboxFilesystemConfig = {
@@ -6368,18 +6368,18 @@ type SandboxFilesystemConfig = {
 | 属性 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
 | `allowWrite` | `string[]` | `[]` | 允许写入访问的文件路径模式 |
-| `denyWrite` | `string[]` | `[]` | 拒绝写入访问的文件路径模式 |
+| `denyWrite` | `string[]` | `[]` | 拒绝写入访问的文件路径模式。要阻止沙箱内对会话工作目录中某个文件的写入，请列出其绝对路径。如果列出的是 `.env` 或 `./.env`，沙箱内命令可以写入会话工作目录中的 `.env` 文件 |
 | `denyRead` | `string[]` | `[]` | 拒绝读取访问的文件路径模式 |
 
 <h3 id="permissions-fallback-for-unsandboxed-commands">
-  沙箱外命令的权限回退
+  非沙箱命令的权限回退
 </h3>
 
-当 `allowUnsandboxedCommands` 启用时，模型可以通过在工具输入中设置 `dangerouslyDisableSandbox: true` 来请求在沙箱外运行命令。这些请求回退到现有权限系统，意味着您的 `canUseTool` 处理程序被调用，允许您实现自定义授权逻辑。
+启用 `allowUnsandboxedCommands` 后，模型可以通过在工具输入中设置 `dangerouslyDisableSandbox: true` 来请求在沙箱外运行命令。这些请求会回退到现有的权限系统，这意味着您的 `canUseTool` 处理程序会被调用，从而允许您实现自定义授权逻辑。
 
-您的 `excludedCommands` 条目改为自动绕过沙箱，无需模型参与；[`sandbox.excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands) 涵盖何时应用条目。
+而您的 `excludedCommands` 条目会在无需模型参与的情况下将调用移出沙箱；有关条目何时适用，请参阅 [`sandbox.excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands)。
 
-在下面的示例中，`isCommandAuthorized` 代表您定义的授权检查。
+在下面的示例中，`isCommandAuthorized` 代表您自行定义的授权检查。
 
 ```typescript theme={null}
 import { query } from "@anthropic-ai/claude-agent-sdk";
@@ -6389,13 +6389,13 @@ for await (const message of query({
   options: {
     sandbox: {
       enabled: true,
-      allowUnsandboxedCommands: true // 模型可以请求沙箱外执行
+      allowUnsandboxedCommands: true // Model can request unsandboxed execution
     },
     permissionMode: "default",
     canUseTool: async (tool, input) => {
-      // 检查模型是否请求绕过沙箱
+      // Check if the model is requesting to bypass the sandbox
       if (tool === "Bash" && input.dangerouslyDisableSandbox) {
-        // 模型请求在沙箱外运行此命令
+        // The model is requesting to run this command outside the sandbox
         console.log(`Unsandboxed command requested: ${input.command}`);
 
         if (isCommandAuthorized(input.command)) {
@@ -6415,9 +6415,9 @@ for await (const message of query({
 ```
 
 <Warning>
-  使用 `dangerouslyDisableSandbox: true` 运行的命令具有完整的系统访问权限。确保您的 `canUseTool` 处理程序仔细验证这些请求。
+  以 `dangerouslyDisableSandbox: true` 运行的命令拥有完全的系统访问权限。请确保您的 `canUseTool` 处理程序仔细验证这些请求。
 
-  如果 `permissionMode` 设置为 `bypassPermissions` 且 `allowUnsandboxedCommands` 启用，模型可以自主执行沙箱外的命令，无需批准提示，除了[操作无模式自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)。此组合实际上允许模型以静默方式逃离沙箱隔离。
+  如果 `permissionMode` 设置为 `bypassPermissions` 且启用了 `allowUnsandboxedCommands`，模型可以在没有批准提示的情况下自主执行沙箱外的命令，[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)除外。这种组合实际上允许模型悄无声息地逃逸沙箱隔离。
 </Warning>
 
 <h2 id="see-also">

@@ -68,6 +68,7 @@ ZDR 不适用于以下内容，即使对于启用了 ZDR 的组织也是如此�
 | 功能 | 原因 |
 | - | - |
 | [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)，包括从 [Desktop 应用](/docs/zh-CN/desktop#cloud-sessions)启动的应用 | 需要服务器端存储会话数据，包括包含提示和完成的对话历史。 |
+| [Chat 和 Cowork 统一体验](https://support.claude.com/en/articles/17444462-set-up-and-manage-the-new-unified-claude-experience-for-your-enterprise-organization) | 需要云端会话。 |
 | [Claude Tag](https://claude.com/docs/claude-tag) | 保留频道内存和会话记录。 |
 | [Artifacts](/docs/zh-CN/artifacts) | 需要在 Anthropic 运营的基础设施上存储已发布的页面内容。 |
 | 反馈提交（`/feedback`、`/bug`、`/share`） | 提交反馈会将对话数据发送给 Anthropic。 |

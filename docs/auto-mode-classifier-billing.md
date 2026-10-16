@@ -12,7 +12,9 @@
 We're changing auto mode to no longer charge for classifier requests in Claude Code. However, this session isn't eligible.
 ```
 
-在提示符处，Claude Code 会暂停它要以这种方式检查的第一个操作，直到您回答。没有任何问题：auto mode 继续工作，其分类器请求按之前的方式计费。最常见的原因是 Claude Code 和 API 之间存在 LLM gateway 或代理，当 Claude Code 能够识别一个时，通知会将其命名。按 **Enter** 继续，或参阅 [使会话符合条件](#make-the-session-eligible) 以防止其在新会话中出现。
+在该提示处，Claude Code 会暂停它要以这种方式检查的第一个操作，直到您回答。自动模式继续工作，其分类器请求按之前的方式计费。
+
+最常见的原因是 Claude Code 和 API 之间存在 LLM 网关或代理，当 Claude Code 能够识别出它时，通知会将其名称显示出来。按 **Enter** 继续，或参阅[使会话符合条件](#make-the-session-eligible)以防止其在新会话中出现。
 
 <h2 id="respond-to-the-notice">
   响应通知

@@ -235,6 +235,19 @@ mod 已加载，其 hooks 运行，它接触的工具调用被拒绝。
 
 mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期。
 
+<h3 id="another-mods-band-shows-and-yours-doesnt">
+  显示了另一个 mod 的带，而您的带没有显示
+</h3>
+
+输入框上方只有一个带，所有 mod 共用它。在[您的 mod 之前](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)运行的 mod 如果返回的树中不包含 `next(e)` 的结果，就会替换您的带。要同时显示两个带，请修改该 mod 的 hook，或请其作者修改：
+
+* **保留其后的带**：将 `await next(e)` 的结果放入其树中某个 `Box` 的子元素中，如[选择绘制位置](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw)中“输入框上方的带”选项卡所示
+* **保持树有效**：不要为该 `Box` 或其外层的任何 `Box` 设置 `width`、`height`、`minWidth`、`minHeight`、`position`、`top`、`left`、`right`、`bottom`、`display` 或 `overflow` prop
+
+要找到该 mod，请[写入调试日志](#read-the-debug-log)并在其中搜索 `answered ui.render without next()`。诸如 `other-mod (user) answered ui.render without next()` 的行会指明一个返回了树但未调用 `next(e)` 的 mod。该行不会指明[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)，因此仅绘制窗格的 mod 也可能出现在其中。调用了 `next(e)` 但丢弃其结果的 mod 不会产生该行，因此也请检查在您的 mod 之前运行的 hook。
+
+进行更改后，如果任一 mod 返回的树未通过验证，带中将不显示任何内容。要了解原因，请在 `--plugin-dir` 会话的会话记录中查找 `ui.render (AbovePrompt) refused:` 行，或在调试日志中搜索 `does not validate`。当带中有多个 mod 时，这两行都不会指明具体的 mod，因此请检查每个 mod 的树。
+
 <h3 id="a-pane-or-band-is-empty-or-shows-claude-code’s-usual-content">
   窗格或带为空或显示 Claude Code 的常规内容
 </h3>

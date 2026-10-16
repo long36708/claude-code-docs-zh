@@ -199,8 +199,8 @@ Claude Code 提供两种沙箱模式。在这两种模式下，沙箱都会强�
 
 即使在自动允许模式下，以下规则仍然适用：
 
-* 始终遵守明确的[拒绝规则](/docs/zh-CN/permissions)
-* 针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)的 `rm` 或 `rmdir` 命令仍会经过常规权限流程
+* 采用 [`Bash` 拒绝规则所匹配的形式](/docs/zh-CN/permissions#bash-rule-limits)的命令仍会被阻止
+* 被识别为针对[关键路径](/docs/zh-CN/permission-modes#which-paths-are-critical)的 `rm` 或 `rmdir` 命令仍会经过常规权限流程
 * 限定内容范围的[询问规则](/docs/zh-CN/permissions)（如 `Bash(git push *)`）即使对沙箱命令也仍会强制提示
 * 单独的 `Bash` 询问规则或等效的 `Bash(*)` 形式，对于在沙箱中运行的命令会被跳过；对于在沙箱外运行的命令仍然适用。在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)下，该规则不会被跳过：它同样会对沙箱命令进行提示，包括只读命令
 * [Monitor 工具](/docs/zh-CN/tools-reference#monitor-tool)的命令不会被自动批准，但仍会在沙箱中运行。要跳过提示，请添加与该命令匹配的[允许规则](/docs/zh-CN/permissions#bash)，例如 `Bash(npm run *)`

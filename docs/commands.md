@@ -10,7 +10,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 
 输入 `/` 查看可用的命令，或输入 `/` 后跟字母来筛选。[命令菜单如何匹配你输入的内容](#how-the-command-menu-matches-what-you-type)涵盖了高亮显示、拼写错误以及 Claude Code 在你输入完整名称之前隐藏的少数命令。
 
-命令只在您的消息开头被识别。命令名称后面的文本成为其参数。[Skills](/docs/zh-CN/skills#pass-arguments-to-skills) 是例外：一个 skill 调用后跟更多 skill，例如 `/skill-a /skill-b do XYZ`，会加载开头命名的 skill，并将尾部文本作为参数传递给每个 skill。最多可以链接六个 skill。
+命令只在您的消息开头被识别。命令名称后面的文本成为其参数。在终端提示符处，您可以在一条消息的开头使用多个 [skill](/docs/zh-CN/skills#stack-several-skills-in-one-message)：输入 `/skill-a /skill-b do XYZ` 会加载这两个 skill，并将尾部文本作为参数传递给每个 skill。最多可以链接六个 skill。
 
 如果你在 Claude 响应时发送命令，Claude Code 会将其排队，并在当前轮次完成后运行。Claude Code 会立即运行某些命令而不中断响应，例如 `/status`、`/tasks` 和 `/usage`。在[全屏渲染](/docs/zh-CN/fullscreen)中，Claude Code 也会立即打开对话命令，例如 `/theme` 和 `/help`。在 v2.1.234 之前，Claude Code 会将这些对话排队直到轮次完成。
 

@@ -9,7 +9,7 @@
 Hooks 是回调函数，用于响应代理事件（如工具被调用、会话启动或执行停止）运行您的代码。使用 hooks，您可以：
 
 * **阻止危险操作**在执行前进行，如破坏性 shell 命令或未授权的文件访问
-* **记录和审计**每个工具调用，用于合规性、调试或分析
+* **记录和审计**工具调用，用于合规性、调试或分析
 * **转换输入和输出**以清理数据、注入凭证或重定向文件路径
 * **要求人工批准**敏感操作，如数据库写入或 API 调用
 * **跟踪会话生命周期**以管理状态、清理资源或发送通知
@@ -40,7 +40,7 @@ Hooks 是回调函数，用于响应代理事件（如工具被调用、会话�
   </Step>
 </Steps>
 
-以下示例将这些步骤组合在一起。它注册一个 `PreToolUse` hook（步骤 1），带有 `"Write|Edit"` 匹配器（步骤 3），因此回调仅对文件写入工具触发。触发时，回调接收工具的输入（步骤 4），检查文件路径是否针对 `.env` 文件，并返回 `permissionDecision: "deny"` 以阻止操作（步骤 5）：
+此示例注册一个 `PreToolUse` hook（步骤 1），带有 `"Write|Edit"` 匹配器（步骤 3），因此回调会针对 Write 和 Edit 工具触发。触发时，回调接收工具的输入（步骤 4），检查文件路径是否针对 `.env` 文件，并返回 `permissionDecision: "deny"` 以阻止操作（步骤 5）：
 
 <CodeGroup>
   ```python Python theme={null}
@@ -61,7 +61,7 @@ Hooks 是回调函数，用于响应代理事件（如工具被调用、会话�
       file_name = file_path.split("/")[-1]
 
       # 如果针对 .env 文件，阻止操作
-      if file_name == ".env":
+      if file_name.lower() == ".env":
           return {
               "hookSpecificOutput": {
                   "hookEventName": input_data["hook_event_name"],
@@ -108,7 +108,7 @@ Hooks 是回调函数，用于响应代理事件（如工具被调用、会话�
     const fileName = filePath?.split("/").pop();
 
     // 如果针对 .env 文件，阻止操作
-    if (fileName === ".env") {
+    if (fileName?.toLowerCase() === ".env") {
       return {
         hookSpecificOutput: {
           hookEventName: preInput.hook_event_name,
@@ -140,7 +140,11 @@ Hooks 是回调函数，用于响应代理事件（如工具被调用、会话�
   ```
 </CodeGroup>
 
-当您运行任一脚本时，Claude 尝试创建 `.env` 文件，hook 拒绝该工具调用。
+该 hook 会拒绝 `file_path` 以 `/.env` 结尾的 Write 或 Edit 调用，不区分字母大小写。在 Windows 上，`file_path` 使用反斜杠，例如 `C:\project\.env`，此时该 hook 会允许对 `C:\project\.env` 的 Write 或 Edit 调用。
+
+<Warning>
+  `Write|Edit` 匹配器将此 hook 限制为仅作用于 Write 和 Edit 工具。如果 Claude 通过 Bash 命令写入 `.env`，该 hook 不会运行。要在[沙箱运行](/docs/zh-CN/sandboxing)的情况下阻止 Bash 写入某个文件，请参阅 [Python](/docs/zh-CN/agent-sdk/python#sandbox-configuration) 或 [TypeScript](/docs/zh-CN/agent-sdk/typescript#sandbox-configuration) 的沙箱配置。
+</Warning>
 
 <h2 id="available-hooks">
   可用的 hooks
@@ -151,7 +155,7 @@ SDK 为代理执行的不同阶段提供 hooks。某些 hooks 在两个 SDK 中�
 | Hook 事件 | Python SDK | TypeScript SDK | 触发条件 | 示例用例 |
 | - | - | - | - | - |
 | `PreToolUse` | 是 | 是 | 工具调用请求（可以阻止或修改） | 阻止危险的 shell 命令 |
-| `PostToolUse` | 是 | 是 | 工具执行结果 | 将所有文件更改记录到审计跟踪 |
+| `PostToolUse` | 是 | 是 | 工具执行结果 | 将文件更改记录到审计跟踪 |
 | `PostToolUseFailure` | 是 | 是 | 工具执行失败 | 处理或记录工具错误 |
 | `PostToolBatch` | 否 | 是 | 一整批工具调用解决，每批一次，在下一个模型调用之前 | 为整个批次注入约定 |
 | [`UserPromptSubmit`](/docs/zh-CN/hooks#userpromptsubmit) | 是 | 是 | 提交提示词，包括 Claude Code 自行发起的轮次 | 将额外上下文注入到提示词中 |
@@ -235,7 +239,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 | `hooks` | `HookCallback[]` | - | 必需。当模式匹配时执行的回调函数数组 |
 | `timeout` | `number` | `undefined` | 超时时间（秒）。省略时，Claude Code 应用[事件的默认超时](#hook-timeout)。您的 SDK 回调遵循 `command` hook 默认值 |
 
-尽可能使用 `matcher` 模式来针对特定工具。带有 `'Bash'` 的匹配器仅对 Bash 命令运行，而省略模式会为事件的每次出现运行您的回调。故意省略它以记录您的会话进行的每个工具调用。
+尽可能使用 `matcher` 模式来针对特定工具。带有 `'Bash'` 的匹配器仅对 Bash 命令运行，而省略模式会为事件的每次出现运行您的回调。
 
 <h3 id="callback-functions">
   回调函数
@@ -268,7 +272,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 返回 `{}` 以允许操作而不进行更改。SDK 回调 hook 使用与 [Claude Code shell 命令 hook](/docs/zh-CN/hooks#json-output) 相同的 JSON 输出格式，其中记录了每个字段和事件特定的选项。对于 SDK 类型定义，请参阅 [TypeScript](/docs/zh-CN/agent-sdk/typescript#synchookjsonoutput) 和 [Python](/docs/zh-CN/agent-sdk/python#synchookjsonoutput) SDK 参考。
 
 <Note>
-  当多个 hook 或权限规则适用时，`deny` 优先于 `defer`，`defer` 优先于 `ask`，`ask` 优先于 `allow`。如果任何 hook 返回 `deny`，操作将被阻止，无论其他 hook 如何。
+  当多个 `PreToolUse` hook 返回不同的[决策](/docs/zh-CN/hooks#pretooluse-decision-control)时，`deny` 优先于 `defer`，`defer` 优先于 `ask`，`ask` 优先于 `allow`。
 </Note>
 
 <h4 id="asynchronous-output">
@@ -313,7 +317,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
   修改工具输入
 </h3>
 
-此示例拦截 Write 工具调用并重写 `file_path` 参数以添加 `/sandbox` 前缀，将所有文件写入重定向到沙箱目录。回调返回带有修改路径的 `updatedInput` 和 `permissionDecision: 'allow'` 以自动批准重写的操作：
+此示例拦截 Write 工具调用并重写 `file_path` 参数以添加 `/sandbox` 前缀。回调返回带有修改路径的 `updatedInput` 和 `permissionDecision: 'allow'` 以自动批准重写的操作：
 
 <CodeGroup>
   ```python Python theme={null}
@@ -370,10 +374,10 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
   添加上下文并阻止工具
 </h3>
 
-此示例阻止写入 `/etc` 目录的操作，并向模型和用户解释原因：
+此示例拒绝 `file_path` 以 `/etc` 开头的工具调用，并向模型和用户解释原因：
 
 * `permissionDecision: 'deny'` 停止工具调用。
-* `permissionDecisionReason` 告诉模型原因，以便它避免重试。
+* `permissionDecisionReason` 告诉模型原因。
 * `systemMessage` 向用户显示发生了什么。
 
 <CodeGroup>
@@ -468,9 +472,9 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
   注册多个 hooks
 </h3>
 
-当事件触发时，所有匹配的 hooks 并行运行。对于权限决策，最严格的结果获胜：单个 `deny` 会阻止工具调用，无论其他 hooks 返回什么。由于完成顺序是不确定的，请编写每个 hook 以独立行动，而不是依赖另一个 hook 已运行。
+当事件触发时，匹配的 hook 并行运行。对于权限决策，以最严格的结果为准。任一 hook 返回的 `deny` 都会阻止工具调用。由于完成顺序是不确定的，请编写每个 hook 以独立行动，而不是依赖另一个 hook 已先运行。
 
-下面的示例为每个工具调用注册三个独立检查。其中的 hook 名称，例如 Python 中的 `audit_logger` 或 TypeScript 中的 `auditLogger`，代表您定义的回调：
+下面的示例注册三个独立检查，每个检查都[省略了匹配器](/docs/zh-CN/hooks#matcher-patterns)。其中的 hook 名称，例如 Python 中的 `audit_logger` 或 TypeScript 中的 `auditLogger`，代表您定义的回调：
 
 <CodeGroup>
   ```python Python theme={null}
@@ -504,9 +508,9 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 
 使用多工具匹配器在相关工具间共享一个回调。此示例注册三个具有不同范围的匹配器，其中每个 hook 名称代表您定义的回调：
 
-* 管道分隔的精确列表（`Write|Edit|NotebookEdit`）仅对文件修改工具触发 `file_security_hook`。
+* 管道分隔的精确列表（`Write|Edit|NotebookEdit`）对 Write、Edit 和 NotebookEdit 工具触发 `file_security_hook`。
 * 正则表达式（`^mcp__`）对任何名称以 `mcp__` 开头的 MCP 工具触发 `mcp_audit_hook`。
-* 省略的匹配器对每个工具调用（无论名称如何）触发 `global_logger`。
+* 省略的匹配器触发 `global_logger`，不按工具名称过滤。
 
 <CodeGroup>
   ```python Python theme={null}
@@ -832,9 +836,9 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 
 当回调超过其超时时间时，Claude Code 会取消它并丢弃其输出，会话继续而不是挂起。接下来发生的情况取决于事件：
 
-* `PreToolUse`: Claude Code 不运行工具调用，Claude 收到一个工具结果，说明 hook 未在超时前响应，轮次继续。如果另一个 `PreToolUse` hook 返回了明确的拒绝，Claude 会收到该拒绝而不是超时错误。在 v2.1.210 之前，Claude Code 将超时报告给 Claude 作为用户拒绝，这使得无人值守会话停止并等待输入。
+* `PreToolUse`: Claude Code 阻止该工具调用。作为替代，Claude 收到一个工具结果，说明 hook 未在超时前响应，轮次继续。在 v2.1.210 之前，Claude Code 将超时报告给 Claude 作为用户拒绝，这使得无人值守会话停止并等待输入。
 * `PostToolUse` 和 `PostToolUseFailure`：Claude Code 保留工具结果，轮次继续。
-* `UserPromptSubmit` 和 [`UserPromptExpansion`](/docs/zh-CN/hooks#userpromptexpansion)：Claude Code 使用指明 hook 和超时的消息阻止该提示词，会话继续。因为这些事件上的回调可以充当策略门，Claude Code 永远不会让超时的提示词未经筛选就通过。在 v2.1.208 之前，当这些事件上的回调超时时，Claude Code 以 `error_during_execution` 结束查询。
+* `UserPromptSubmit` 和 [`UserPromptExpansion`](/docs/zh-CN/hooks#userpromptexpansion)：Claude Code 使用指明 hook 和超时的消息阻止该提示词，会话继续。在 v2.1.208 之前，当这些事件上的回调超时时，Claude Code 以 `error_during_execution` 结束查询。
 * `Stop` 和 `SubagentStop`：超时的回调计为不返回任何决定。Agent 或子代理停止，就像该回调已允许它一样，您在该事件上的其他 hook 的决定仍然适用。在 Claude Code v2.1.273 之前，超时的 `Stop` 或 `SubagentStop` 回调计为失败的 hook 运行，Claude Code 丢弃了您在该事件上的其他 hook 的决定。
 * `SessionStart`：超时的回调计为不返回任何输出，会话继续使用您的其他 `SessionStart` hook 的输出。
 * `PreModelSwitch`：Claude Code 阻止模型切换。未回答的 hook 尚未批准切换。

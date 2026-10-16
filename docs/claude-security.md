@@ -48,10 +48,10 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代�
 
 该命令打开插件的详细信息，您可以在其中选择[安装范围](/docs/zh-CN/plugins/install#install-a-plugin)来开始安装。
 
-如果安装失败，修复方法取决于 Claude Code 报告的消息：
+如果安装失败，请对照 Claude Code 报告的消息进行处理：
 
-* 如果它报告 `Marketplace "claude-plugins-official" not found`，使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* 如果它报告[在市场中找不到该插件](/docs/zh-CN/plugins/install#install-a-plugin)，检查插件名称是否有拼写错误。
+* `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
+* `Plugin "claude-security" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试时输出相同的消息，请参阅[在市场中找不到插件](/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace)。
 
 检查安装摘要。如果它报告 `Run /reload-plugins to apply.`，请参阅[应用插件更改而无需重启](/docs/zh-CN/plugins/cli-reference#reload-plugins)以在当前会话中激活插件。
 

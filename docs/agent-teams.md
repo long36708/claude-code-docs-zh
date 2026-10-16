@@ -231,7 +231,7 @@ Ask the researcher teammate to shut down
 
 负责人发送关闭请求。队友可以批准，优雅地退出，或拒绝并提供解释。
 
-团队的共享目录在会话结束时自动清理，因此没有单独的清理步骤。请参阅[架构](#architecture)了解哪些目录被删除以及哪些目录为恢复的会话保留。
+团队的共享目录在会话结束时自动清理，因此没有单独的清理步骤。请参阅[架构](#architecture)了解哪些目录会被删除，以及哪些目录会保留在磁盘上。
 
 <h3 id="enforce-quality-gates-with-hooks">
   使用 hooks 强制质量门
@@ -278,10 +278,10 @@ Claude Code 自动管理任务依赖关系：当队友完成其他任务依赖�
 
 团队和任务存储在本地，名称来自会话派生的名称。名称是 `session-` 后跟会话 ID 的前八个字符：
 
-* **Team config**：`~/.claude/teams/{team-name}/config.json`
-* **Task list**：`~/.claude/tasks/{team-name}/`
+* **Team config**：`~/.claude/teams/{team-name}/config.json`。Claude Code 会在会话结束时删除团队配置目录。
+* **Task list**：`~/.claude/tasks/{team-name}/`。此目录在会话结束后仍保留在磁盘上。要更改 [Claude Code 保留它的时长](/docs/zh-CN/claude-directory#cleaned-up-automatically)，请设置 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays)。
 
-Claude Code 在会话启动时自动生成这两个，并在队友加入、空闲或离开时更新它们。团队配置目录在会话结束时被删除。任务列表目录在本地持久化，永远不会上传，所以恢复的会话会保留它们的任务。保留期由你已经为会话记录控制的相同 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 管理，遵循 [retention sweep rules](/docs/zh-CN/claude-directory#cleaned-up-automatically)。
+Claude Code 在会话启动时自动生成这两项，并在队友加入、空闲或离开时更新它们。
 
 团队配置保存运行时状态，例如会话 ID 和 tmux 窗格 ID，所以不要手动编辑它或预先编写它：你的更改会在下一次状态更新时被覆盖。
 

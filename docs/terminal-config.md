@@ -281,7 +281,7 @@ Claude Code 监视 `~/.claude/themes/` 并在添加或更改文件时重新加�
     全屏模式
   </h4>
 
-  Claude Code 在默认和全屏渲染器中都绘制 `userMessageBackground`、`bashMessageBackgroundColor` 和 `memoryBackgroundColor`。它仅在[全屏渲染模式](/docs/zh-CN/fullscreen)中使用 `userMessageBackgroundHover` 和 `selectionBg`。
+  Claude Code 仅在[全屏渲染模式](/docs/zh-CN/fullscreen)中使用 `userMessageBackgroundHover`、`selectionBg` 和 `composerSidebarBackground`。它在默认和全屏渲染器中都绘制 `userMessageBackground`、`bashMessageBackgroundColor` 和 `memoryBackgroundColor`。
 
   | 令牌 | 控制 |
   | :- | :- |
@@ -290,6 +290,7 @@ Claude Code 监视 `~/.claude/themes/` 并在添加或更改文件时重新加�
   | `bashMessageBackgroundColor` | 成绩单中 `!` shell 命令条目后面的背景 |
   | `memoryBackgroundColor` | 成绩单中 `#` 内存条目后面的背景 |
   | `selectionBg` | 用鼠标选择的文本的背景 |
+  | `composerSidebarBackground` | 对话旁边面板的背景，例如 [diff 面板](/docs/zh-CN/fullscreen#watch-your-changes-in-the-diff-panel)或 [mod 的窗格](/docs/zh-CN/plugins/mods/interface) |
 
   <h4 id="usage-meter-and-speaker-labels">
     使用量计量表和说话者标签

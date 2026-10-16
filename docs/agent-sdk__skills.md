@@ -557,7 +557,7 @@ ls ~/.claude/skills/*/SKILL.md
 [Claude Code skills 指南](/docs/zh-CN/skills) 深入涵盖编写。其指导适用于 SDK 会话。从这些部分开始：
 
 * [Frontmatter 参考](/docs/zh-CN/skills#frontmatter-reference)：每个支持的字段
-* [将参数传递给 skills](/docs/zh-CN/skills#pass-arguments-to-skills)：`$ARGUMENTS`、`$0`、`$1` 和 skill 堆叠。[完整替换表](/docs/zh-CN/skills#available-string-substitutions) 添加命名参数和 `${CLAUDE_*}` 变量
+* [将参数传递给 skill](/docs/zh-CN/skills#pass-arguments-to-skills)：`$ARGUMENTS`、`$0` 和 `$1`。[完整替换表](/docs/zh-CN/skills#available-string-substitutions) 添加命名参数和 `${CLAUDE_*}` 变量
 * [注入动态上下文](/docs/zh-CN/skills#inject-dynamic-context)：`` !`command` `` 行在 Claude 看到 skill 内容前运行
 * [选择 skills 加载的位置](/docs/zh-CN/skills#where-skills-live)：每个 skill 位置、插件命名空间和两个共享名称时哪一个运行
 

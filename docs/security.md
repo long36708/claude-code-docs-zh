@@ -112,7 +112,7 @@
   IDE 安全性
 </h2>
 
-有关在 IDE 中运行 Claude Code 的更多信息，请参阅 [VS Code security and privacy](/docs/zh-CN/vs-code#security-and-privacy)。
+有关在 IDE 中运行 Claude Code 的更多信息，请参阅[内置 IDE MCP 服务器](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server)。
 
 <h2 id="cloud-execution-security">
   云执行安全性

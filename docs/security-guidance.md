@@ -42,7 +42,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 如果安装失败，请匹配 Claude Code 报告的消息：
 
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* 插件[在市场中未找到](/docs/zh-CN/plugins/install#install-a-plugin)：检查插件名称。
+* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过时。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后仍显示相同的消息，请参阅[插件在市场中未找到](/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace)。
 
 检查安装摘要。如果它报告 `Run /reload-plugins to apply.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference#reload-plugins)以在当前会话中激活插件。
 

@@ -1137,8 +1137,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 </Warning>
 
 * **睡眠或网络中断后**：如果进程[仍在运行](#limits-while-desktop-is-disconnected)且 Desktop 可以无需提示登录，您会重新获得正在运行的任务。如果无法登录，请[发送消息](#reconnect-after-sleep-or-a-network-loss)。
-* **退出后，macOS 或 Linux 上的 Desktop 并使用 Claude 账户**：如果 Desktop 能够[重新接入进程](#reopen-a-session-after-you-quit-desktop)，您会重新获得正在运行的任务。如果无法重新接入，任务会停止。如果任务一直处于停止状态，请发送消息。
-* **退出后，Windows 上的 Desktop 或使用[第三方提供商](/docs/zh-CN/third-party-integrations)**：您会失去正在运行的任务，因为 Desktop 会在会话打开时结束该进程。请发送消息以继续。
+* **退出之后**：任务会继续运行，但除非 Desktop 能重新接入其进程，否则当会话再次打开时您会失去该任务。退出之前，请查看 [Desktop 何时可以重新接入](#reopen-a-session-after-you-quit-desktop)。如果您失去了任务，请发送消息以继续。
 
 当您回来而任务尚未完成时，请检查是否有 Desktop 无法重新连接的提示、身份验证错误或等待中的请求：
 
@@ -1154,7 +1153,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 </h5>
 
 * **先更新**：在开始长时间任务之前更新 Desktop。在 macOS 和 Windows 上，Desktop 可能会自行重启以安装已下载的更新。当 Claude 正在处理 SSH 任务时，该重启会等待。在使用 Claude 账户的 macOS 上，默认情况下，更新等待 72 小时后，重启仍可能进行。
-* **不要退出 Desktop**：如果 Desktop 在 Windows 上运行或使用第三方提供商，请在长时间任务运行期间保持其打开。退出后，它会在会话打开时[结束正在运行的任务](#reopen-a-session-after-you-quit-desktop)。保持打开并不能保护[等待您处理](#handle-requests-that-arrive-while-you-are-away)的请求。
+* **在 Windows 上，或在 v2.42304.0 之前使用第三方提供商时，不要退出**：在这些情况下，退出后您会失去正在运行的任务，因此请在任务期间保持 Desktop 打开。在其他任何情况下，退出之前请查看[您能找回什么](#reopen-a-session-after-you-quit-desktop)。
 * **减少请求**：选择[让任务更少等待您](#handle-requests-that-arrive-while-you-are-away)的权限模式、规则或 hook
 * **检查跳板机**：如果您的跳板机要求登录（例如向手机发送推送），请改用无需提示即可工作的登录方式。否则，Desktop 每次尝试重新连接时都可能发送另一条推送。
 * **测试远程计算机**：启动一个短任务，在任务仍在运行时退出 Desktop，并在任务应该完成很久之后再次打开会话。如果任务尚未完成且会话未显示身份验证错误，请检查远程计算机上[可能结束任务的因素](#limits-while-desktop-is-disconnected)。
@@ -1206,7 +1205,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 
 如果 Claude 在 Desktop 断开连接期间需要您的批准或向您提问，Claude 会在远程计算机上等待。该等待本身没有时间限制。当 Desktop 重新接入进程时，它会向您显示该请求。如果 Desktop 改为启动新进程，您将失去该请求。
 
-在任务等待您期间，Desktop 可能会自行重启，例如为了安装更新。如果 Desktop 在 Windows 上运行或使用第三方提供商，重启后您将失去该请求。
+如果您回来时发现一个等待您的请求不见了，原因之一是 Desktop 自行重启了，例如为了安装更新。只有当 Desktop 能重新接入进程时，请求才能在重启后保留，因此在让任务保持运行之前，请查看 [Desktop 何时可以重新接入](#reopen-a-session-after-you-quit-desktop)。
 
 如果您失去了请求，请发送消息以继续。
 
@@ -1238,7 +1237,7 @@ Claude Code 在任何权限模式（包括 Bypass permissions）下都不会自�
   - **跳板机，推送持续不断**：在 Desktop 无法判断无人响应的情况下（例如 Windows 上的 Desktop），只要有可重新接入的进程，无论该进程是否仍在运行，它都会持续尝试。每次尝试您都可能收到另一条推送。若要结束尝试，请退出 Desktop，但这[可能会让您失去正在运行的任务](#reopen-a-session-after-you-quit-desktop)。
   - **长时间中断**：Desktop 会放慢到大约每五分钟尝试一次。若要更快重新连接，请在会话中重试或发送消息，Desktop 会在连接后投递该消息。
   - **输出缺失**：在 Desktop 断开连接期间，辅助程序会在 16 MiB 缓冲区中保留每个会话最近的 Claude Code 输出，并丢弃较早的输出。Desktop 重新连接后，会话可能会显示 `Loading recent output from <host>…`。如果 Desktop 无法加载全部输出，您会看到一行 `Some output produced while you were disconnected may be missing here.`。该行并不表示任务已停止。
-  - **进程已不存在**：如果 Desktop 重新连接时进程已不存在，Desktop 可以根据对话已保存的历史记录启动新进程，并让 Claude 继续该任务。如果进程不断结束，或 Desktop 使用第三方提供商，Desktop 不会自行继续该任务。请发送消息以继续。
+  - **进程已不存在**：进程在 Desktop 断开连接期间结束了，例如远程机器重启时。Desktop 随后可以根据对话保存的历史记录启动一个新进程，并让 Claude 继续该任务。如果任务仍处于停止状态，请发送消息。使用第三方提供商时，请更新到 Claude Desktop v2.42304.0 或更高版本，因为较早的版本从不会自行继续任务。
 </Accordion>
 
 <a id="reopen-a-session-after-you-quit-desktop" />
@@ -1247,11 +1246,13 @@ Claude Code 在任何权限模式（包括 Bypass permissions）下都不会自�
   退出 Desktop 后重新打开会话
 </h5>
 
-退出 Desktop 后，任务会继续在远程计算机上运行，直到完成、需要您处理或达到某项[限制](#limits-while-desktop-is-disconnected)。
+退出 Desktop 后，任务会在远程机器上继续运行，但除非 Desktop 能重新接入其进程，否则会话再次打开时任务会停止。在 Desktop 关闭期间，任务会一直运行，直到完成、需要您介入或达到某项[限制](#limits-while-desktop-is-disconnected)。
 
-* **macOS 或 Linux 上的 Desktop，使用 Claude 账户**：启动 Desktop 并打开会话。当 Desktop 能够重新接入进程时，您会重新获得正在运行的任务。它并不总能重新接入，例如在某些 Desktop 更新之后，或在您的组织更改其托管设置之后。
-* **在 macOS 或 Linux 上，Desktop 无法重新接入时**：Desktop 会结束该进程，并根据对话已保存的历史记录启动新进程。您正在运行的任务会停止，并且您会失去任何正在等待您处理的批准或问题。更新后，Desktop 随后可能会让 Claude 继续。如果任务一直处于停止状态，请发送消息。
-* **Windows 上的 Desktop，或在任何平台上使用第三方提供商**：仅在您预计任务已完成时再启动 Desktop。您无法重新获得正在运行的任务，因为 Desktop 退出后从不重新接入。它会在会话打开时结束该进程，而这可能在 Desktop 启动时就发生。请发送消息以继续。
+* **Windows 上的 Desktop**：您无法找回正在运行的任务，因为 Desktop 在退出后从不重新接入。请仅在您预计任务已完成时再次启动 Desktop，因为会话可能会在 Desktop 启动时打开。
+* **第三方提供商，来自较早版本的任务**：如果您在 v2.42304.0 之前的 Desktop 版本中启动了任务，在 macOS 或 Linux 上也无法找回它。请仅在您预计任务已完成时再次启动 Desktop。
+* **其他任何任务，在 macOS 或 Linux 上的 Desktop 中**：启动 Desktop 并打开会话，如果 Desktop 重新接入，任务就会继续。它并不总能重新接入，例如在某些 Desktop 更新之后，因此请[在长时间任务之前更新](#prepare-a-long-task)。
+
+当 Desktop 无法重新接入时，您也会失去任何正在等待您的批准或问题。如果任务没有自行继续，请发送消息，Claude 会根据对话保存的历史记录继续。
 
 有关第三方部署，请参阅 [3P 上 Claude Desktop 中的 SSH 远程会话](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
 
