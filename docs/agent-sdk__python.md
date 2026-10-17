@@ -610,7 +610,7 @@ class ClaudeSDKClient:
 | `receive_response()` | 接收消息直到并包括 ResultMessage |
 | `interrupt()` | 发送中断信号（仅在流式模式下工作） |
 | `set_permission_mode(mode)` | 更改当前会话的权限模式 |
-| `set_model(model)` | 更改当前会话的模型。传递 `None` 以重置为 [Claude Code 的默认模型](/docs/zh-CN/model-config) |
+| `set_model(model)` | 更改当前会话的模型。传递 `None` 以重置为 [Claude Code 的默认模型](/docs/zh-CN/model-config)。如果新模型不支持自动模式，处于 `auto` 模式的会话将[切换到 `default` 模式](/docs/zh-CN/agent-sdk/permissions#auto-mode-auto) |
 | `rewind_files(user_message_id)` | 将文件恢复到指定用户消息时的状态。需要 `enable_file_checkpointing=True`。见 [文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing) |
 | `get_mcp_status()` | 获取所有配置的 MCP 服务器的状态。返回 [`McpStatusResponse`](#mcpstatusresponse) |
 | `get_context_usage()` | 获取按类别、技能和工具分类的上下文窗口使用情况的详细信息。这与 `/context` 在交互式会话中显示的数据相同。返回 [`ContextUsageResponse`](#contextusageresponse)。为了计算详细信息，Claude Code 会发出几个不出现在消息流中的令牌计数 API 请求；见[这些请求如何处理](#contextusageresponse) |
@@ -3884,7 +3884,7 @@ class SandboxSettings(TypedDict, total=False):
   在沙箱设置中设置 `"failIfUnavailable": True` 以改为停止。SDK 会将 `failIfUnavailable` 与已声明的 `SandboxSettings` 字段一起转发给 Claude Code。然后 `query()` 报告一个 `ResultMessage`，其 `subtype="error_during_execution"`，原因在 `errors` 中。因为这是一个单次 `query()` 调用，SDK 在生成该错误结果后会引发异常，所以请将循环包装在 try 块中以继续执行。有关错误约定，请参阅 [处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
 </Note>
 
-要阻止沙箱化命令写入某个文件，请在沙箱设置中将其绝对路径列在 [`denyWrite`](/docs/zh-CN/settings-reference#sandbox-filesystem-denywrite) 下，例如 `"filesystem": {"denyWrite": ["/home/user/project/.env"]}`。SDK 会将 `filesystem` 与已声明的 `SandboxSettings` 字段一起转发给 Claude Code。沙箱启动后，会阻止对每个所列路径的写入。如果您列出的是 `.env` 或 `./.env`，沙箱化命令仍可以写入会话工作目录中的 `.env` 文件。
+要阻止沙箱化命令写入某个文件，请在沙箱设置中将其绝对路径列在 [`denyWrite`](/docs/zh-CN/settings-reference#sandbox-filesystem-denywrite) 下，例如 `"filesystem": {"denyWrite": ["/home/user/project/.env"]}`。SDK 会将 `filesystem` 与已声明的 `SandboxSettings` 字段一起转发给 Claude Code。沙箱启动后，会阻止对您所列的每个绝对路径的写入。
 
 <h4 id="example-usage">
   示例用法

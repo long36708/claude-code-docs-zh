@@ -627,7 +627,7 @@ claude --permission-mode bypassPermissions
 
 Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) 启动的会话中拒绝 `bypassPermissions`。`--restricted` 需要 Claude Code v2.1.248 或更高版本。
 
-第一次使用此模式启动交互式会话时，Claude Code 会显示一个警告对话框，要求您接受对在没有权限检查的情况下执行的操作的责任：
+<span id="bypass-permissions-acceptance" />第一次使用此模式启动交互式会话时，Claude Code 会显示一个警告对话框，要求您接受对在没有权限检查的情况下执行的操作的责任：
 
 * **如果您接受**：Claude Code 在 `~/.claude/settings.json` 中将 `skipDangerousModePermissionPrompt` 设置为 `true`，因此后续会话会跳过对话框。要再次看到对话框，请从该文件中删除该键或将其设置为 `false`。[`skipDangerousModePermissionPrompt` 参考](/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)列出了您或您的组织可以设置它的其他设置文件。
 * **如果您拒绝**：Claude Code 退出。
@@ -635,9 +635,11 @@ Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) �
 在[非交互模式](/docs/zh-CN/headless)中不显示对话框。当您的接受记录在用户设置或托管设置中时，[后台会话](/docs/zh-CN/agent-view)会遵循该接受：
 
 * 如果没有记录接受，`claude --bg --permission-mode bypassPermissions` 会被拒绝，直到您在交互式会话中接受对话框。
-* 如果 `skipDangerousModePermissionPrompt` 仅在 `.claude/settings.local.json` 中设置，后台会话启动时会忽略绕过请求，并固定显示通知 `Bypass permissions was requested at launch and ignored · if that was you, ~/.claude/settings.json needs "skipDangerousModePermissionPrompt": true`。要使绕过生效，请将该键添加到 `~/.claude/settings.json`，然后启动新的后台会话。
+* 如果 `skipDangerousModePermissionPrompt` 仅在 `.claude/settings.local.json` 中设置，后台会话启动时会忽略绕过请求，并固定显示通知 `Bypass permissions was requested at launch and ignored · if that was you, ~/.claude/settings.json needs "skipDangerousModePermissionPrompt": true`。请将该键添加到 `~/.claude/settings.json`，然后启动新的后台会话。显示该通知的会话仍会运行：
+  * 如果 `--allow-dangerously-skip-permissions` 被忽略，`bypassPermissions` 不会出现在其 `Shift+Tab` 循环中。
+  * 如果 `--permission-mode bypassPermissions` 或 `--dangerously-skip-permissions` 被忽略，会话改为以手动模式启动。
 
-在 Linux 和 macOS 上，当以 root 身份或在 `sudo` 下运行时，Claude Code 拒绝以此模式启动：
+在 Linux 和 macOS 上，当以 root 身份或在 `sudo` 下运行时，Claude Code 拒绝以 `bypassPermissions` 模式启动：
 
 ```text theme={null}
 --dangerously-skip-permissions cannot be used with root/sudo privileges for security reasons
@@ -692,6 +694,7 @@ Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) �
   * 在未使用 `--restricted` 启动的会话中，项目[自动记忆](/docs/zh-CN/memory#storage-location)目录（例如 `~/.claude/projects/<project>/memory/`）中的 markdown 文件
   * 在未使用 `--restricted` 启动的会话中，[子代理记忆](/docs/zh-CN/sub-agents#enable-persistent-memory)目录（例如 `.claude/agent-memory/`）中的 markdown 文件
 * 使用 [`--plugin-dir`](/docs/zh-CN/plugins/mods/create#change-a-mod-with-claude) 加载的目录，因为当文件发生更改时，Claude Code 会从该目录重新加载并运行 mod 的代码
+* `~/.claude/dev-mods/`，或 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 所指向目录中的 `dev-mods/`，Claude 会将[为您编写的 mod](/docs/zh-CN/plugins/mods/create#ask-claude-for-a-mod) 保存在此处
 
 受保护的文件：
 

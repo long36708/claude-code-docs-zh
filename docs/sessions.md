@@ -102,20 +102,6 @@ Claude Code 以何种权限模式启动恢复的会话取决于您如何恢复�
 * 运行不是通过[频道](/docs/zh-CN/channels)启动的
 * 没有[拒绝规则](/docs/zh-CN/permissions#manage-permissions)移除 `ExitPlanMode` 工具
 
-<h3 id="resume-from-a-summary">
-  从摘要恢复
-</h3>
-
-在 Pro 或 Max 计划上，当您恢复已不活跃超过约一小时且超过 100,000 个 token 的会话时，Claude Code 会恢复对话，然后在您发送第一条消息之前打开一个对话框。到那时，会话的[提示缓存](/docs/zh-CN/prompt-caching#cache-lifetime)已过期，因此无论您选择对话框的哪个选项，下一个请求都会处理一次完整历史。
-
-对话框提供三种继续会话的方式：
-
-* **从摘要恢复**：立即运行 [`/compact`](/docs/zh-CN/context-window#what-survives-compaction)。后续请求携带摘要而不是完整历史。
-* **按原样恢复完整会话**：加载未更改的对话。
-* **不再询问**：恢复完整会话，并在以后所有恢复中不再显示该对话框。
-
-按原样恢复会保持对话的每个细节可用，每个请求的成本随对话的大小而增长。从摘要恢复在每个后续请求上成本更低，因为它携带摘要而不是完整历史，但摘要遗漏的任何内容都不再位于 Claude 的上下文中。请参阅[为什么长会话中的使用量会增加](/docs/zh-CN/costs#why-usage-climbs-in-a-long-session)了解该每个请求成本的来源。
-
 <h3 id="where-the-session-picker-looks">
   会话选择器查看的位置
 </h3>

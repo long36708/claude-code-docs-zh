@@ -196,7 +196,16 @@ MCP 工具需要明确的权限才能让 Claude 使用它们。没有权限的�
   工具命名约定
 </h3>
 
-MCP 工具遵循命名模式 `mcp__<server-name>__<tool-name>`。例如，一个名为 `"github"` 的 GitHub 服务器，其中有一个 `list_issues` 工具，会变成 `mcp__github__list_issues`。
+MCP 工具的命名格式为 `mcp__<server-name>__<tool-name>`，其中 `<server-name>` 是您注册服务器时使用的名称，例如它在 `mcpServers` 中的键。
+
+服务器名称中的 `.` 和空格等字符会被替换为 `_`。下表显示了两个服务器键下 `list_issues` 工具的完整名称：
+
+| `mcpServers` 中的键 | 完整工具名称 |
+| :- | :- |
+| `github` | `mcp__github__list_issues` |
+| `my.server` | `mcp__my_server__list_issues` |
+
+在 `allowedTools` 和 [MCP 权限规则](/docs/zh-CN/permissions#mcp)中使用完整的工具名称。对于由[插件](/docs/zh-CN/agent-sdk/plugins)提供的服务器，`<server-name>` 采用[插件作用域形式](/docs/zh-CN/mcp#plugin-provided-mcp-servers)，并以 `plugin_` 开头。
 
 <h3 id="auto-approve-with-allowedtools">
   使用 allowedTools 自动批准

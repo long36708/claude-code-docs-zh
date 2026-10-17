@@ -346,6 +346,7 @@
 | `Can't open — this session is running in another terminal` | [后台会话错误](#this-session-is-running-in-another-terminal) |
 | `This conversation is already open in another running Claude session` | [后台会话错误](#this-session-is-running-in-another-terminal) |
 | `This session's saved conversation is no longer on disk` | [后台会话错误](#this-sessions-saved-conversation-is-no-longer-on-disk) |
+| `Bypass permissions was requested at launch and ignored` | [使用 bypassPermissions 模式跳过所有检查](/docs/zh-CN/permission-modes#bypass-permissions-acceptance) |
 | `kept <id> — its worktree is still at <path>` | [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere) |
 | `kept <id> — <n> unpushed commits on <branch>` | [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere) |
 | `kept <id> — worktree has commits that are not pushed anywhere` | [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere) |
@@ -418,7 +419,7 @@ Claude Code 重试这些故障：
 * 连接断开。当连接在请求过程中途断开，且 Claude 尚未完成其响应的任何部分（包括其思考过程）时，Claude Code 会使用相同的退避重新发送请求，轮次继续进行，即使某些文本已经开始流式传输。当连接在 Claude 完成思考之后但在开始任何文本或工具调用之前断开时，Claude Code 改为快速连续重新发送请求最多两次，如果连接在该点继续断开，则以 `Connection lost before a response was produced` 结束轮次。
 * Claude Code 检测到的连接在您的计算机进入睡眠状态时在请求过程中途被破坏。Claude Code 将其计为上述规则下的断开连接；一旦重试标签命名了具体原因，它会读作 `Connection lost while your computer was asleep`，如果轮次在 Claude 完成思考之后但在任何文本或工具调用之前结束，消息会读作 `Your computer went to sleep before a response was produced`。
 * 停滞的响应流，当响应头已到达但 Claude 响应的任何部分都未到达，或当 Claude 完成思考但尚未开始任何文本或工具调用时：Claude Code 中止停滞连接，并最多再以流式方式发送一次请求。如果响应在 Claude 完成思考之后但在任何文本或工具调用之前第二次停滞，Claude Code 以 `The response stalled before a response was produced` 结束轮次。
-* 流式请求 API 从未用响应头回答，在 [first-byte deadline runs](/docs/zh-CN/network-config#streaming-idle-watchdogs) 的连接上：Claude Code 在截止时间中止它，并在重试预算内每个模型请求最多重新发送一次，然后如果该尝试也未得到回答，则以 [No response from API](#no-response-from-api) 结束轮次。在其他连接上，请求等待 `API_TIMEOUT_MS`。当您设置 `CLAUDE_CODE_RETRY_WATCHDOG` 时，一次重试上限不适用。
+* 流式请求 API 从未用响应头回答，在 [first-byte deadline runs](/docs/zh-CN/network-config#streaming-idle-watchdogs) 的连接上：Claude Code 在截止时间中止它，并在重试预算内每个模型请求最多重新发送一次，然后如果该尝试也未得到回答，则以 [No response from API](#no-response-from-api) 结束轮次。当您设置 `CLAUDE_CODE_RETRY_WATCHDOG` 时，一次重试上限不适用。
 * 在 Claude 完成思考或开始任何文本或工具调用之前，被 API 输出内容过滤器拦截的流式响应。Claude Code 会在重试预算内重新发送一次请求，如果过滤器也拦截了第二次响应，则显示 [Output blocked by content filtering policy](#output-blocked-by-content-filtering-policy)。
 * 临时 429 节流，但不是网关的支出限制 `429`，这不是节流；请参阅 [Spend limit reached](#spend-limit-reached)。
   * 当您使用 claude.ai 订阅登录时，这包括不携带您套餐配额头的 429 节流。在 v2.1.199 之前，Claude Code 仅对 API 密钥和企业登录重试这些节流。
@@ -4552,6 +4553,7 @@ Agent 'code-reviewer' would be spawned with zero tools — refusing. Its tools l
 
 * 根据[子代理可用的工具](/docs/zh-CN/sub-agents#available-tools)纠正错误命名的每个条目
 * 删除会话没有的工具条目，例如来自未连接的服务器的 MCP 工具
+* 如果该条目指向一个已连接的 MCP 服务器，请将该条目与该服务器的名称进行比较，以该服务器[工具名称](/docs/zh-CN/permissions#mcp)中的拼写为准，例如 `mcp__reports__v2__get_totals` 中的 `reports__v2`。对于该服务器，请写 `mcp__reports__v2__*`，即 `mcp__` 后跟完整名称和 `__*`。如果使用较短的 `mcp__reports`（它指向名为 `reports` 的服务器），子代理将得不到任何 `reports__v2` 工具
 * 对于[后台子代理删除](/docs/zh-CN/sub-agents#available-tools)的工具（例如 `CronCreate`），删除该条目。要保留该工具，[关闭 fork 模式](/docs/zh-CN/sub-agents#turn-fork-mode-on-or-off)并要求 Claude 在前台运行子代理
 * 删除 `tools` 字段而不是列出工具，以给子代理每个[子代理可用的工具](/docs/zh-CN/sub-agents#available-tools)
 * 对于仅包含 `Agent` 的 `tools` 列表，提高[深度限制](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)或给该 Agent 至少一个其他工具：Claude Code 在该限制处保留 `Agent`，因此列表中没有其他内容会解析为零个工具

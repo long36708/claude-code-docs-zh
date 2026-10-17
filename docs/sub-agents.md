@@ -316,7 +316,7 @@ Frontmatter 定义了 subagent 的元数据和配置。正文成为指导 subage
 | `name` | 是 | 最多 256 个字符的唯一标识符，例如 `code-reviewer` 或 `reviewer-v2`。[Hook](/docs/zh-CN/hooks#subagentstart) 以 `agent_type` 的形式接收此值。文件名不必与之一致。名称不能包含 `:`，该字符保留用于[插件作用域标识符](/docs/zh-CN/plugins/overview)，例如 `my-plugin:reviewer` |
 | `description` | 是 | Claude 何时应该委托给此 subagent |
 | `tools` | 否 | [Tools](#available-tools) subagent 可以使用，作为逗号分隔的字符串，例如 `Read, Grep, Bash` 或 YAML 列表。如果省略，继承 subagents 可用的每个工具。如果列表中没有条目解析为工具，subagent 通常 [fails to launch](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools) 并出现错误，命名条目。要将 Skills 预加载到上下文中，请使用 `skills` 字段而不是在此处列出 `Skill` |
-| `disallowedTools` | 否 | 要拒绝的工具，从继承或指定的列表中删除。格式与 `tools` 相同。带有说明符的条目，例如 `Bash(git push *)`，仍然 [removes the whole tool](#available-tools) |
+| `disallowedTools` | 否 | 要拒绝的工具，会从继承的或指定的列表中移除。格式与 `tools` 相同。带有说明符的条目（例如 `Bash(git push *)`）仍会[移除整个工具](#restrict-which-tools-a-subagent-can-use) |
 | `model` | 否 | [Model](#choose-a-model) 使用：`sonnet`、`opus`、`haiku`、`fable`、完整模型 ID（例如，`claude-opus-5-5`）或 `inherit`。当您省略它时，Claude Code 在 [subagent model order](#choose-a-model) 中选择模型 |
 | `permissionMode` | 否 | [权限模式](#permission-modes)：`default`、`acceptEdits`、`auto`、`dontAsk`、`bypassPermissions`、`plan`，或作为 `default` 别名的 `manual`。对[插件子代理](#choose-the-subagent-scope)会被忽略 |
 | `maxTurns` | 否 | subagent 停止前的最大代理轮数。当 subagent 达到限制时，Claude Code 返回其输出标记为部分，Claude 可以 [resume it](#resume-subagents) 继续。部分标记需要 Claude Code v2.1.246 或更高版本 |
@@ -475,7 +475,13 @@ Subagents 继承主对话中可用的 [built-in tools](/docs/zh-CN/tools-referen
 
 在 [session without the Task tools](/docs/zh-CN/tools-reference#task-tool-availability) 中，Claude Code 也不向 subagents 提供任务工具，即使 subagent 运行不同的模型。进程内队友遵循您的会话相同的方式，而在其自己的 [split pane](/docs/zh-CN/agent-teams#choose-a-display-mode) 中的队友作为单独的 Claude Code 进程运行，因此其自己的模型决定。
 
-要限制工具，使用 `tools` 字段作为允许列表或 `disallowedTools` 字段作为拒绝列表。此示例使用 `tools` 来仅允许 Read、Grep、Glob 和 Bash。Subagent 无法编辑文件、写入文件或使用任何 MCP 工具：
+<h4 id="restrict-which-tools-a-subagent-can-use">
+  限制子代理可以使用的工具
+</h4>
+
+要限制工具，请使用 `tools` 字段作为允许列表，或使用 `disallowedTools` 字段作为拒绝列表。如果两者都设置了，会先应用 `disallowedTools`，然后针对剩余的工具池解析 `tools`。同时列在两者中的工具会被移除。
+
+此示例使用 `tools` 仅允许 Read、Grep、Glob 和 Bash。该子代理无法编辑文件、写入文件或使用任何 MCP 工具：
 
 ```yaml theme={null}
 ---
@@ -495,11 +501,17 @@ disallowedTools: Write, Edit
 ---
 ```
 
-如果两者都设置，`disallowedTools` 首先应用，然后 `tools` 针对剩余的池进行解析。同时列在两者中的工具被删除。
-
 当 `tools` 列表中没有任何内容解析为工具时，例如因为每个条目都拼写错误或命名了对 subagents 不可用的工具，Claude Code 通常拒绝启动 subagent，Agent 工具返回一个错误，命名未解析的条目；请参阅 [Agent would be spawned with zero tools](/docs/zh-CN/errors#agent-would-be-spawned-with-zero-tools) 了解消息和如何修复每个条目。在 v2.1.208 之前，该 subagent 启动时没有工具，可能返回空的或令人困惑的结果。
 
-除了精确的工具名称之外，两个字段还接受 MCP 服务器级别的模式：`mcp__<server>` 或 `mcp__<server>__*` 授予或删除来自命名服务器的每个工具。在 `disallowedTools` 中，`mcp__*` 也删除来自任何服务器的每个 MCP 工具。此示例删除来自 `github` MCP 服务器的每个工具，同时保留来自其他服务器的工具和其池中的内置工具：
+`tools` 和 `disallowedTools` 字段也接受针对整个 MCP 服务器的条目：
+
+| 目标 | 字段 | 示例条目 |
+| :- | :- | :- |
+| 为子代理提供某个服务器的所有工具 | `tools` | `mcp__github__*` |
+| 排除某个服务器的工具 | `disallowedTools` | `mcp__github` 或 `mcp__github__*` |
+| 排除来自任何服务器的所有 MCP 工具 | `disallowedTools` | `mcp__*` |
+
+此示例移除来自 `github` MCP 服务器的所有工具，同时保留子代理工具池中来自其他服务器的工具和内置工具：
 
 ```yaml theme={null}
 ---

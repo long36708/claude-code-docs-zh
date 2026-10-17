@@ -1080,6 +1080,20 @@ git remote set-url origin https://git.example.com/example-org/example-repo.git
 * **`Command line arguments`**：如果您使用 [`--settings`](/docs/zh-CN/settings#change-a-setting-for-one-session) 启动了 Claude Code，请检查您传入的文件或 JSON 是否设置了上述某个键。如果是，请在那里更改该值，或在不带这些键的情况下重新启动 Claude Code。
 * **`Enterprise managed settings`**：已加载您的组织的托管设置。如果它们设置了上述某个键，您无法通过 `/sandbox` 或您控制的任何设置文件更改该键，因此请联系您的管理员。
 
+<h3 id="/sandbox-prints-sandbox-settings-not-changed">
+  `/sandbox` 打印 `Sandbox settings not changed`
+</h3>
+
+此行表示 `/sandbox` 无法将您在其面板中所做的选择保存到项目的 `.claude/settings.local.json`：
+
+```text theme={null}
+✗ Sandbox settings not changed: /home/you/project/.claude/settings.local.json couldn't be updated (EACCES). Start Claude Code in a project folder you can write to.
+```
+
+如果括号中的原因是 `EACCES`、`EPERM` 或 `EROFS`，请在您可以写入的项目文件夹中启动 Claude Code，然后在该会话中再次运行 `/sandbox`。
+
+如果原因以 `Invalid JSON syntax in settings file` 开头，请更正项目的 `.claude/settings.local.json` 中的 JSON，然后再次运行 `/sandbox`。
+
 <h2 id="limitations">
   限制
 </h2>

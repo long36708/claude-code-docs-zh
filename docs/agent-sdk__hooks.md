@@ -235,7 +235,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 
 | 选项 | 类型 | 默认值 | 描述 |
 | - | - | - | - |
-| `matcher` | `string` | `undefined` | 针对事件的过滤字段匹配的模式，遵循[设置文件中匹配器的规则](/docs/zh-CN/hooks#matcher-patterns)。对于工具 hook，这是工具名称。内置工具包括 `Bash`、`Read`、`Write`、`Edit`、`Glob`、`Grep`、`WebFetch`、`Agent` 等（请参阅[工具输入类型](/docs/zh-CN/agent-sdk/typescript#tool-input-types)以获取完整列表）。MCP 工具使用模式 `mcp__<server>__<action>`，其中 `<server>` 是您在 `mcpServers` 配置中使用的键。 |
+| `matcher` | `string` | `undefined` | 针对事件的过滤字段匹配的模式，遵循[设置文件中匹配器的规则](/docs/zh-CN/hooks#matcher-patterns)。对于工具 hook，该字段是工具名称。内置工具包括 `Bash`、`Read`、`Write`、`Edit`、`Glob`、`Grep`、`WebFetch`、`Agent` 等。请参阅[工具输入类型](/docs/zh-CN/agent-sdk/typescript#tool-input-types)以获取完整列表。MCP 工具使用模式 `mcp__<server>__<action>`，其中 `<server>` 是您在 `mcpServers` 配置中使用的键，其拼写方式遵循[工具命名约定](/docs/zh-CN/agent-sdk/mcp#tool-naming-convention)中的说明。 |
 | `hooks` | `HookCallback[]` | - | 必需。当模式匹配时执行的回调函数数组 |
 | `timeout` | `number` | `undefined` | 超时时间（秒）。省略时，Claude Code 应用[事件的默认超时](#hook-timeout)。您的 SDK 回调遵循 `command` hook 默认值 |
 

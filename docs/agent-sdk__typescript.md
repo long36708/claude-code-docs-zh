@@ -736,7 +736,7 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 | `interrupt()` | 中断查询。仅在流式输入模式下可用。当 CLI 在 [`SDKSystemMessage.capabilities`](#sdksystemmessage) 中声明了 `interrupt_receipt_v1` 能力时，会以一个 [`SDKControlInterruptResponse`](#sdkcontrolinterruptresponse) 完成，其中列出中断到达时仍处于待处理状态的消息。在 v2.1.205 之前的 CLI 上以 `undefined` 完成 |
 | `rewindFiles(userMessageId, options?)` | 将文件恢复到指定用户消息时的状态。传递 `{ dryRun: true }` 可预览更改。需要 `enableFileCheckpointing: true`。请参阅[文件检查点功能](/docs/zh-CN/agent-sdk/file-checkpointing) |
 | `setPermissionMode()` | 更改权限模式（仅在流式输入模式下可用） |
-| `setModel()` | 更改模型（仅在流式输入模式下可用）。传递 `undefined` 或字符串 `"default"` 会重置为 [Claude Code 的默认模型](/docs/zh-CN/model-config) |
+| `setModel()` | 更改模型（仅在流式输入模式下可用）。传递 `undefined` 或字符串 `"default"` 会重置为 [Claude Code 的默认模型](/docs/zh-CN/model-config)。如果新模型不支持自动模式，处于 `auto` 模式的会话会[切换到 `default` 模式](/docs/zh-CN/agent-sdk/permissions#auto-mode-auto) |
 | `setMaxThinkingTokens()` | *已弃用：* 请改用 `thinking` 选项。更改最大思考 token 数。传递 `null` 会将思考重置为会话默认值：会话中途的覆盖会被清除，对于禁用了思考的会话，思考保持关闭 |
 | `applyFlagSettings(settings)` | 在运行时将设置合并到会话的标志设置层（仅在流式输入模式下可用）。请参阅 [`applyFlagSettings()`](#applyflagsettings) |
 | `updateSettings(source, settings)` | 将一个允许列表中的键写入项目的本地设置文件或您的用户设置文件，使该值在之后的会话中保持有效。请参阅 [`updateSettings()`](#updatesettings)。需要 TypeScript SDK v0.3.257 或更高版本，其捆绑了 Claude Code v2.1.257 |
@@ -6368,7 +6368,7 @@ type SandboxFilesystemConfig = {
 | 属性 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
 | `allowWrite` | `string[]` | `[]` | 允许写入访问的文件路径模式 |
-| `denyWrite` | `string[]` | `[]` | 拒绝写入访问的文件路径模式。要阻止沙箱内对会话工作目录中某个文件的写入，请列出其绝对路径。如果列出的是 `.env` 或 `./.env`，沙箱内命令可以写入会话工作目录中的 `.env` 文件 |
+| `denyWrite` | `string[]` | `[]` | 拒绝写入访问的文件路径模式。要阻止沙箱内对会话工作目录中某个文件的写入，请列出其绝对路径。 |
 | `denyRead` | `string[]` | `[]` | 拒绝读取访问的文件路径模式 |
 
 <h3 id="permissions-fallback-for-unsandboxed-commands">

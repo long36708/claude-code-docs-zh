@@ -595,11 +595,17 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
   MCP
 </h3>
 
-MCP 规则使用在 Claude Code 中配置的服务器名称，可选地后跟该服务器提供的工具的名称。
+要匹配某个 MCP 服务器的所有工具，请编写 `mcp__<server>__*`。要匹配单个工具，请编写其完整名称 `mcp__<server>__<tool>`。
 
 * `mcp__puppeteer` 匹配由 `puppeteer` 服务器提供的任何工具
 * `mcp__puppeteer__*` 使用通配符语法，也匹配来自 `puppeteer` 服务器的所有工具
 * `mcp__puppeteer__puppeteer_navigate` 匹配由 `puppeteer` 服务器提供的 `puppeteer_navigate` 工具
+
+对于 `<server>`，请按照服务器名称在该服务器工具名称中出现的形式编写。以下示例展示了对于包含特殊字符的名称、来自插件的服务器，以及包含 `__` 或以 `_` 结尾的名称应编写的规则：
+
+* **包含 `.` 或空格等字符的名称**：这些字符会变为 `_`，因此对于您配置为 `my.server` 的服务器，请编写 `mcp__my_server__*`
+* **由插件提供的服务器**：`<server>` 采用[插件作用域形式](/docs/zh-CN/mcp#plugin-provided-mcp-servers)，因此对于名为 `my-plugin` 的插件中的 `database-tools` 服务器，请编写 `mcp__plugin_my-plugin_database-tools__*`
+* **包含 `__` 或以 `_` 结尾的 `<server>`**：使用完整名称编写通配符形式 `mcp__<server>__*`。对于名为 `reports__v2` 的服务器，请编写 `mcp__reports__v2__*`。裸 `mcp__reports__v2` 和更短的 `mcp__reports` 作为 allow 规则都不匹配其工具，因为 Claude Code 会将两者都读作名为 `reports` 的服务器的规则
 
 如果您的组织已设置[claude.ai 连接器](/docs/zh-CN/mcp#organization-controls-on-connector-tools)工具为 `ask`，该设置在您的会话中到达 Claude Code，该工具的 allow 规则不会生效：Claude Code 在每次调用时都会提示，即使在 `auto` 和 `bypassPermissions` 模式下。在 `dontAsk` 模式下（从不提示），Claude Code 会拒绝调用。Claude Code 自己获取的连接器工具显示为 `mcp__claude_ai_<server>__<tool>`。
 
@@ -649,9 +655,13 @@ MCP 规则使用在 Claude Code 中配置的服务器名称，可选地后跟该
 
 [Claude Code hooks](/docs/zh-CN/hooks-guide) 让您可以注册自定义 shell 命令，在运行时评估权限。当 Claude Code 进行工具调用时，PreToolUse hooks 在权限提示之前运行，适用于除了 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 之外的每个工具。hook 输出可以拒绝工具调用、强制提示或跳过提示以让调用继续。
 
+<h3 id="precedence-among-rules-hooks-and-mods">
+  规则、hook 和 mod 之间的优先级
+</h3>
+
 PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask 规则，无论 PreToolUse hook 返回什么：匹配的 deny 规则会阻止调用，匹配的 ask 规则即使在 hook 返回 `"allow"` 或 `"ask"` 时仍然会提示。这保留了[管理权限](#manage-permissions)中描述的 deny 优先级，包括在托管设置中设置的 deny 规则。
 
-该优先级涵盖设置文件中的 hooks 和插件的 `hooks/hooks.json` 中的 hooks。您安装的处理 `tool.check` 的[模块](/docs/zh-CN/plugins/mods/overview)会在规则和 `PreToolUse` hooks 已经决定之后回答，其答案可以替代它们的答案：
+该优先级涵盖设置文件中的 hook 和插件的 `hooks/hooks.json` 中的 hook。您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 会在规则和 `PreToolUse` hook 已经决定之后回答。在[计划模式](#hook-approvals-in-plan-mode)之外，或对于只读调用，其答案可以替代它们的答案：
 
 * **Ask 规则**：模块可以批准 ask 规则会提示的调用
 * **来自 `PreToolUse` hook 的阻止**：模块可以批准调用，除非 hook 在托管设置中
@@ -663,6 +673,14 @@ PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask
 对于[需要用户交互的工具](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)，例如 `AskUserQuestion` 或标记为 `requiresUserInteraction` 的 MCP 工具，mod 的 `tool.check` 批准不会跳过提示。需要 Claude Code v2.1.292 或更高版本。标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具在 hook 返回 `"allow"` 时也仍然会提示，从[网络路径](#network-paths)进行的读取，以及在该设置到达 Claude Code 的会话中[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具也是如此。
 
 阻止 hook 也优先于 allow 规则。以退出代码 2 退出的 hook 在权限规则被评估之前停止工具调用，因此即使 allow 规则会让调用继续，阻止也适用。要运行所有 Bash 命令而无需提示，除了您想要阻止的少数几个，将 `"Bash"` 添加到您的 allow 列表，并注册一个 PreToolUse hook 来拒绝那些特定命令。请参见[阻止对受保护文件的编辑](/docs/zh-CN/hooks-guide#block-edits-to-protected-files)以获取您可以调整的 hook 脚本。
+
+<h3 id="hook-approvals-in-plan-mode">
+  计划模式中的 hook 批准
+</h3>
+
+在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中，除 `ExitPlanMode` 外，您的 `PreToolUse` hook 返回的 `"allow"` 对文件编辑或其他非只读调用不起作用。您会得到与没有 hook 时该调用相同的提示、阻止或批准，并且 Claude Code 仍会应用 hook 返回的任何 `updatedInput`。如果 hook 以 `"allow"` 和 `updatedInput` 响应 [`ExitPlanMode`](/docs/zh-CN/hooks#allow-with-updatedinput)，该工具仍会在无提示的情况下运行。
+
+在计划模式中，处理 `tool.check` 的 mod 同样无法批准文件编辑或其他非只读调用，但它仍然可以阻止此类调用。要解除对 hook 和 mod 批准的这一限制，请[批准计划](/docs/zh-CN/permission-modes#review-and-approve-a-plan)或切换到其他权限模式。
 
 <h2 id="working-directories">
   工作目录

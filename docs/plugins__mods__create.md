@@ -30,7 +30,7 @@ Mod 是一个 Claude Code [插件](/docs/zh-CN/plugins/overview)，具有一个�
     用你自己的话请求 mod，例如 `make a mod that shows the current git branch above the prompt`。Claude 在会话的 mods 文件夹中的自己的目录中编写 mod，该文件夹是 `~/.claude/dev-mods/` 后跟会话的 ID。mod 的完整路径看起来像 `~/.claude/dev-mods/3f2a9c1e-5b7d-4e8a-9c21-6d0f4b8a7e13/git-branch/`。
 
     <Note>
-      在 `default` 和 `acceptEdits` [权限模式](/docs/zh-CN/permission-modes#protected-paths)中，Claude Code 在 Claude 创建 mod 的每个文件之前都会询问，因为 `~/.claude` 是一个受保护的路径。在每个文件出现时批准它。
+      在 `default` 和 `acceptEdits` [权限模式](/docs/zh-CN/permission-modes)中，Claude Code 会在 Claude 创建 mod 的每个文件之前进行询问，因为 mods 文件夹是一个[受保护的路径](/docs/zh-CN/permission-modes#protected-paths)。请在每个文件出现时批准它。
     </Note>
   </Step>
 

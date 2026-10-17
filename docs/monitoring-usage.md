@@ -1091,7 +1091,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.sequence`：用于对事件排序的按进程计数器，详见[事件关联属性](#event-correlation-attributes)
 * `from_mode`：先前的权限模式，例如 `"default"`、`"plan"`、`"acceptEdits"`、`"auto"` 或 `"bypassPermissions"`
 * `to_mode`：新的权限模式
-* `trigger`：引起变更的原因。取值为 `"shift_tab"`、`"exit_plan_mode"`、`"auto_gate_denied"` 或 `"auto_opt_in"` 之一。当转换源自 SDK 或 bridge 时不存在
+* `trigger`：导致更改的原因。为 `"shift_tab"`、`"exit_plan_mode"`、`"auto_gate_denied"` 或 `"auto_opt_in"` 之一。某些更改不存在此属性，例如 SDK 通过 [`setPermissionMode()`](/docs/zh-CN/agent-sdk/typescript#query-object) 设置权限模式时
 
 <h4 id="auth-event">
   身份验证事件

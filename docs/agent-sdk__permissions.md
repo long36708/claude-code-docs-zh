@@ -16,7 +16,7 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 
 <Steps>
   <Step title="Hooks">
-    首先运行 [hooks](/docs/zh-CN/agent-sdk/hooks)。Hook 可以直接拒绝调用或将其传递下去。返回 `allow` 的 hook 不会跳过下面的拒绝和询问规则；无论 hook 结果如何，这些规则都会被评估。`PreToolUse` hook 允许也不能批准针对 [关键路径](/docs/zh-CN/permission-modes#critical-paths) 的 `rm` 或 `rmdir` 删除。
+    首先运行 [hooks](/docs/zh-CN/agent-sdk/hooks)。Hook 可以直接拒绝调用或将其传递下去。返回 `allow` 的 hook 不会跳过下面的拒绝和询问规则；无论 hook 结果如何，这些规则都会被评估。返回 `allow` 的 `PreToolUse` hook 也不能批准针对 [关键路径](/docs/zh-CN/permission-modes#critical-paths) 的 `rm` 或 `rmdir` 删除。关于该 `allow` 在计划模式下的作用，请参阅 [计划模式下的 hook 批准](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)。
   </Step>
 
   <Step title="拒绝规则">
@@ -161,7 +161,7 @@ SDK 支持以下权限模式：
 
 <Tabs>
   <Tab title="在查询时">
-    在创建查询时传递 `permission_mode`（Python）或 `permissionMode`（TypeScript）。此模式适用于整个会话，除非动态更改。
+    在创建查询时传递 `permission_mode`（Python）或 `permissionMode`（TypeScript）。
 
     <CodeGroup>
       ```python Python theme={null}
@@ -173,7 +173,7 @@ SDK 支持以下权限模式：
           async for message in query(
               prompt="Help me refactor this code",
               options=ClaudeAgentOptions(
-                  permission_mode="default",  # 在此设置模式
+                  permission_mode="default",  # Set the mode here
               ),
           ):
               if hasattr(message, "result"):
@@ -190,7 +190,7 @@ SDK 支持以下权限模式：
         for await (const message of query({
           prompt: "Help me refactor this code",
           options: {
-            permissionMode: "default" // 在此设置模式
+            permissionMode: "default" // Set the mode here
           }
         })) {
           if ("result" in message) {
@@ -216,15 +216,15 @@ SDK 支持以下权限模式：
       async def main():
           async with ClaudeSDKClient(
               options=ClaudeAgentOptions(
-                  permission_mode="default",  # 以默认模式开始
+                  permission_mode="default",  # Start in default mode
               )
           ) as client:
               await client.query("Help me refactor this code")
 
-              # 在会话中途动态更改模式
+              # Change mode dynamically mid-session
               await client.set_permission_mode("acceptEdits")
 
-              # 使用新权限模式处理消息
+              # Process messages with the new permission mode
               async for message in client.receive_response():
                   if hasattr(message, "result"):
                       print(message.result)
@@ -240,14 +240,14 @@ SDK 支持以下权限模式：
         const q = query({
           prompt: "Help me refactor this code",
           options: {
-            permissionMode: "default" // 以默认模式开始
+            permissionMode: "default" // Start in default mode
           }
         });
 
-        // 在会话中途动态更改模式
+        // Change mode dynamically mid-session
         await q.setPermissionMode("acceptEdits");
 
-        // 使用新权限模式处理消息
+        // Process messages with the new permission mode
         for await (const message of q) {
           if ("result" in message) {
             console.log(message.result);
@@ -314,13 +314,26 @@ SDK 支持以下权限模式：
 
 Claude 探索代码库并生成计划，而不编辑您的源文件。只读工具的运行方式与 `default` 权限模式相同。
 
-在规划模式下，文件编辑永远不会自动批准，即使允许规则匹配。它们会通过您的 `canUseTool` 回调提示。 在 Claude Code v2.1.212 或更高版本上，修改文件的 shell 命令（如 `touch` 和 `rm`）会以相同方式到达您的 `canUseTool` 回调。
+在计划模式下，文件编辑永远不会自动批准，即使允许规则匹配或 `PreToolUse` hook 返回 `allow`。它们会通过您的 `canUseTool` 回调提示。 在 Claude Code v2.1.212 或更高版本上，修改文件的 shell 命令（如 `touch` 和 `rm`）会以相同方式到达您的 `canUseTool` 回调。
 
 在 TypeScript SDK 中，如果您在 `permissionMode: 'plan'` 旁边设置 `allowDangerouslySkipPermissions: true`，文件编辑和修改文件的 shell 命令仍然会到达您的 `canUseTool` 回调。该选项让您稍后可以使用 `setPermissionMode()` 切换到 `bypassPermissions`。
 
 Claude 可能会使用 `AskUserQuestion` 在最终确定计划之前澄清需求。有关处理这些提示的信息，请参阅[处理批准和用户输入](/docs/zh-CN/agent-sdk/user-input#handle-clarifying-questions)。
 
 **使用场景：** 您希望 Claude 提议更改而不执行它们，例如在代码审查期间或当您需要在进行更改之前批准更改时。
+
+<h4 id="auto-mode-auto">
+  自动模式（`auto`）
+</h4>
+
+分类器模型会在 shell 命令和网络请求等操作运行之前对其进行审查，并允许或阻止它审查的每一个操作。有关自动模式所需的模型和提供商以及它评估操作的顺序，请参阅[使用自动模式消除权限提示](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。
+
+如果您使用 [`set_model()`](/docs/zh-CN/agent-sdk/python#claudesdkclient)、[`setModel()`](/docs/zh-CN/agent-sdk/typescript#query-object) 或 [`applyFlagSettings()`](/docs/zh-CN/agent-sdk/typescript#applyflagsettings) 将处于自动模式的会话切换到自动模式不支持的模型，会话将更改为 `default` 模式：
+
+* **您会看到的内容**：一条子类型为 `status`、`permissionMode` 设置为 `"default"` 的 `system` 消息，TypeScript SDK 将其类型定义为 [`SDKStatusMessage`](/docs/zh-CN/agent-sdk/typescript#sdkstatusmessage)。此后，需要批准且不匹配任何允许规则的调用会到达您的 `canUseTool` 回调。
+* **返回自动模式**：切换到受支持的模型，然后调用 `set_permission_mode("auto")` 或 `setPermissionMode("auto")`。如果您切换回原模型但未进行该调用，会话将保持在 `default` 模式。当不受支持的模型处于活动状态时，该调用会失败并显示 `Cannot set permission mode to auto: auto mode unavailable for this model`。
+
+在调用 `set_model()`、`setModel()` 或 `applyFlagSettings()` 之后更改为 `default` 模式需要 Claude Code v2.1.299 或更高版本。
 
 <h2 id="related-resources">
   相关资源

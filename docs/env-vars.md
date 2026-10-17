@@ -196,7 +196,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `ANTHROPIC_VERTEX_PROJECT_ID` | Google Cloud's Agent Platform 请求所指向的 GCP 项目 ID。请参阅[配置 GCP 凭据](/docs/zh-CN/google-vertex-ai#3-configure-gcp-credentials) |
 | `ANTHROPIC_WORKSPACE_ID` | [工作负载身份联合](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation)的工作区 ID。当您的联合规则的范围涵盖多个工作区时设置此变量，以便令牌交换知道要定位哪个工作区 |
 | `API_FORCE_IDLE_TIMEOUT` | 覆盖 5 分钟的响应体空闲超时，该超时会在没有字节到达时中止流式模型响应。设置为 `0` 可关闭该超时，例如当缓慢的[网关](/docs/zh-CN/llm-gateway)或本地模型在数据块之间暂停超过 5 分钟时；设置为 `1` 可对所有提供商保持启用。未设置时，该超时在直接 Anthropic API、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 以及设置了 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1` 的 Amazon Bedrock 以外的提供商上处于启用状态。[流式看门狗](/docs/zh-CN/network-config#streaming-idle-watchdogs)独立于它运行，即使您在此处设置 `0`，也会中止长时间的静默暂停 |
-| `API_TIMEOUT_MS` | API 请求的超时时间，以毫秒为单位（默认值：600000，即 10 分钟；最大值：2147483647）。当请求在慢速网络上超时或通过代理路由时，请增大此值。超过最大值的值会使底层计时器溢出，导致请求立即失败 |
+| `API_TIMEOUT_MS` | API 请求的超时时间，以毫秒为单位（默认：600000，即 10 分钟；最大值：2147483647）。流式请求必须在此时间内收到响应头。当请求在慢速网络上或通过代理路由时超时，请增大此值 |
 | `AWS_BEARER_TOKEN_BEDROCK` | 用于身份验证的 Amazon Bedrock API 密钥（请参阅 [Amazon Bedrock API 密钥](https://aws.amazon.com/blogs/machine-learning/accelerate-ai-development-with-amazon-bedrock-api-keys/)） |
 | `BASH_DEFAULT_TIMEOUT_MS` | 前台 Bash 或 PowerShell 工具命令的默认超时时间，以毫秒为单位（默认值：120000，即 2 分钟）。高于[后台命令默认时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)的值会在无人值守会话中替换该默认值。后台时间限制需要 Claude Code v2.1.285 或更高版本 |
 | `BASH_MAX_OUTPUT_LENGTH` | Claude Code 读回到命令结果中的 bash 输出的最大字符数（默认值：30000；最大值：150000）。如果您设置了 [`bashOutputMaxChars`](/docs/zh-CN/settings-reference#bashoutputmaxchars) 设置，Claude Code 会忽略此变量。请参阅[输出限制](/docs/zh-CN/tools-reference#output-limits) |
