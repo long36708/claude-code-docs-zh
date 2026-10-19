@@ -566,7 +566,7 @@ upstreams:
 | `auth.aws_access_key_id` / `auth.aws_secret_access_key` | 否 | 显式 SigV4 凭据。在没有另一个的情况下设置一个在启动时失败。`auth.aws_session_token` 在它们旁边被接受。 |
 | `base_url` | 否 | 覆盖派生的端点 |
 
-因为平台解析第一方模型 ID，内置目录路由到它而不带 [`models:`](#models) 块。当您策划 `models:` 列表时，使用第一方 ID 键入条目 `anthropicAws:`。
+因为平台解析第一方模型 ID，内置目录路由到它而不带 [`models:`](#models) 块。当您策划 `models:` 列表时，使用第一方 ID 作为 `anthropicAws:` 条目的值。
 
 <h4 id="google-cloud-agent-platform">
   Google Cloud Agent Platform
@@ -716,7 +716,7 @@ upstreams:
     auth:
       api_key: ${ANTHROPIC_API_KEY}
 
-# 按上游模型 ID 在上游的 `name:` 上键入。
+# 每个上游的模型 ID 以上游的 `name:` 为键。
 models:
   - id: claude-opus-4-8
     label: Claude Opus 4.8

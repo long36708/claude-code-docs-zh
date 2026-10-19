@@ -153,10 +153,6 @@ Claude Code 在您的输入中突出显示该关键字，Claude 为任务编写�
 * 计划任务提示
 * 中继到对话中的 webhook 有效负载或拉取请求评论
 
-<Note>
-  在 v2.1.210 之前，该关键字也从这些路由中的任何一个启动工作流，包括中继到对话中的 webhook 有效负载或拉取请求评论。
-</Note>
-
 <h3 id="let-claude-decide-with-ultracode">
   让 Claude 使用 ultracode 决定
 </h3>

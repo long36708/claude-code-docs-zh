@@ -15,6 +15,7 @@
 | 登录循环、OAuth 错误、`403 Forbidden`、"organization disabled"、Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 凭据 | [故障排除安装和登录](/docs/zh-CN/troubleshoot-install#login-and-authentication) |
 | 设置未应用、hooks 未触发、MCP 服务器未加载 | [调试您的配置](/docs/zh-CN/debug-your-config) |
 | 会话以自动模式启动，或 Claude 编辑文件并运行命令而不询问 | [会话启动的模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in) |
+| 更新 Claude Code 或 Agent SDK 后，在未传递 `--permission-mode`、`permissionMode` 或 `permission_mode` 的 `claude -p` 或 SDK 运行中，工具调用被拒绝 | [`claude -p` 和 Agent SDK 运行中的工具调用被拒绝](/docs/zh-CN/permission-modes#which-mode-a-non-interactive-run-starts-in) |
 | `API Error: 5xx`、`529 Overloaded`、`429`、请求验证错误 | [错误参考](/docs/zh-CN/errors) |
 | `model not found` 或 `you may not have access to it` | [错误参考](/docs/zh-CN/errors#theres-an-issue-with-the-selected-model) |
 | Claude 运行的命令失败，显示 `Your disk quota is full`、`is full (ENOSPC)` 或 `Command output was lost` | [错误参考](/docs/zh-CN/errors#disk-quota-or-temp-filesystem-is-full) |

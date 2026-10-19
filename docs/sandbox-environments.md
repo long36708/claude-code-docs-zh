@@ -122,13 +122,19 @@ Sandboxed Bash tool 内置于 Claude Code 中。它使用操作系统原语来�
 mkdir -p ~/.claude && { [ -f ~/.claude.json ] || echo '{}' > ~/.claude.json; }
 ```
 
-设置文件就位后，使用 `npx` 启动 Claude Code 并传递 `claude` 作为要包装的命令：
+全局安装运行时，安装前缀应位于您允许写入的所有路径之外：
 
 ```bash theme={null}
-npx @anthropic-ai/sandbox-runtime claude
+npm install -g @anthropic-ai/sandbox-runtime
 ```
 
-Claude Code 在沙箱内启动，具有您配置的文件系统和网络边界。相同的命令适用于沙箱化独立 MCP 服务器或其他辅助进程。
+设置文件就位后，从您的项目目录通过运行时启动 Claude Code：
+
+```bash theme={null}
+srt claude
+```
+
+Claude Code 在沙箱内启动，具有您配置的文件系统和网络边界。相同的 `srt` 命令适用于沙箱化独立 MCP 服务器或其他辅助进程。
 
 <h3 id="what-the-runtime-blocks-on-its-own">
   运行时自身阻止的内容

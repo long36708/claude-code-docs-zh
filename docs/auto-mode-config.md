@@ -317,7 +317,7 @@ Claude Code 将来自 [managed settings](/docs/zh-CN/server-managed-settings) �
 claude auto-mode defaults
 ```
 
-要读取一条规则的完整措辞而不通过 `jq` 管道，请传递 `--label` 和规则标签的开头，例如 `claude auto-mode defaults --label 'Git Destructive'`。匹配是对每条规则标签的不区分大小写的前缀，没有匹配的部分将打印为空列表。需要 Claude Code v2.1.208 或更高版本。
+要读取一条规则的完整措辞而不通过 `jq` 管道，请传递 `--label` 和规则标签的开头，例如 `claude auto-mode defaults --label 'Git Destructive'`。匹配是对每条规则标签的不区分大小写的前缀，没有匹配的部分将打印为空列表。
 
 打印分类器实际使用的内容为 JSON，其中应用了您的设置（如果已设置）或使用默认值：
 
@@ -355,7 +355,7 @@ claude auto-mode critique
 
 如果您编写了自定义规则，`claude auto-mode critique` 会审查它们并标记模糊、冗余或可能导致误报的条目。
 
-要放弃您的自定义设置并返回内置默认值，请运行 reset 子命令。它需要 Claude Code v2.1.212 或更高版本，并从您的用户设置文件中删除 `autoMode` 部分：
+要放弃您的自定义设置并返回内置默认值，请运行 reset 子命令，该命令会从您的用户设置文件中删除 `autoMode` 部分：
 
 ```bash theme={null}
 claude auto-mode reset

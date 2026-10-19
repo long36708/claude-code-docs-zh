@@ -26,7 +26,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `CronDelete` | 按 ID 取消计划任务 | 否 |
 | `CronList` | 列出会话中的所有计划任务 | 否 |
 | `Edit` | 对特定文件进行有针对性的编辑。请参阅 [Edit 工具行为](#edit-tool-behavior) | 是 |
-| `EndConversation` | 结束会话，在持续滥用输入的罕见情况下或当您要求 Claude 演示该工具时。需要 Claude Code v2.1.213 或更高版本。请参阅 [EndConversation 工具行为](#endconversation-tool-behavior) | 否 |
+| `EndConversation` | 结束会话，在持续滥用输入的罕见情况下或当您要求 Claude 演示该工具时。请参阅 [EndConversation 工具行为](#endconversation-tool-behavior) | 否 |
 | `EnterPlanMode` | 切换到 Plan Mode 以在编码前设计方法 | 否 |
 | `EnterWorktree` | 创建一个隔离的 [git worktree](/docs/zh-CN/worktrees) 并切换到它。传递 `path` 以切换到现有 worktree，而不是创建新的。首次进入时，目标可能是当前存储库的 worktree，或在多存储库工作区中，是嵌套在其中的存储库的 worktree。在 v2.1.203 之前，嵌套存储库的 worktree 被拒绝。`.claude/worktrees/` 之外的 `path` 会在进入前提示您的批准，因为它会移动会话的工作目录和对该位置的写入访问权限。新 worktree 创建和 `.claude/worktrees/` 下的路径不会提示。在 v2.1.206 之前，Claude 进入 `.claude/worktrees/` 之外的路径而不提示。从 worktree 会话内，或从具有固定工作目录的子代理（例如 [`isolation: worktree`](/docs/zh-CN/sub-agents#supported-frontmatter-fields)），只有 `path` 形式可用，目标必须在会话存储库的 `.claude/worktrees/` 下 | 是 |
 | `ExitPlanMode` | 呈现计划以供批准并退出 Plan Mode | 是 |
@@ -92,7 +92,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 
 此处未列出的工具，例如 `ExitPlanMode` 或 `ShareOnboardingGuide`，仅接受不带 specifier 的裸工具名称。
 
-`Edit(...)` 允许规则也授予对相同路径的读取访问权限，因此您不需要匹配的 `Read(...)` 规则。`Read(...)` 拒绝规则也会阻止同一路径上的 Edit 和 Write 工具，包括在该处创建新文件，因为两个工具都会更改 Claude 必须能够读回的内容。`Read` 拒绝检查需要 Claude Code v2.1.208 或更高版本用于编辑，以及 v2.1.228 或更高版本用于写入。
+`Edit(...)` 允许规则也授予对相同路径的读取访问权限，因此您不需要匹配的 `Read(...)` 规则。`Read(...)` 拒绝规则也会阻止同一路径上的 Edit 和 Write 工具，包括在该处创建新文件，因为两个工具都会更改 Claude 必须能够读回的内容。对于 Write 工具，`Read` 拒绝检查需要 Claude Code v2.1.228 或更高版本。
 
 Hook `matcher` 字段使用裸工具名称，而不是带括号的规则格式。有关匹配规则，请参阅 [matcher 模式](/docs/zh-CN/hooks#matcher-patterns)。有关每个工具在 hooks 中传递给 `tool_input` 的字段名称，请参阅 [PreToolUse 输入参考](/docs/zh-CN/hooks#pretooluse-input)。
 
@@ -203,7 +203,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
   后台命令何时停止
 </h4>
 
-[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)启动的命令在该子代理的运行结束时停止，无论它是完成、失败还是被中断。主对话或后台子代理启动的命令在最终响应后继续运行，直到它退出、被停止或达到其[时间限制](#time-limit-for-background-commands)。
+[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)启动的命令在该子代理的运行结束时停止，无论它是完成、失败还是被中断。主对话或后台子代理启动的命令在最终回复后继续运行，直到它退出、被停止或达到其[时间限制](#time-limit-for-background-commands)。
 
 当主对话启动的命令仍在运行时，使用 `-p` 标志的非交互模式运行会[在其结果之后保持打开](/docs/zh-CN/headless#background-tasks-at-exit)，直到该命令退出或达到其时间限制。后台子代理启动的命令会在运行退出时被停止。
 
@@ -255,7 +255,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 * 将大小写为字节数或带有 `K`、`M`、`G` 或 `T` 后缀。设置 `0`、`off`、`false`、`no` 或 `none` 以关闭上限。Claude Code 忽略任何其他无法读取为大小的值，例如 `4e9`。
 * Claude Code 将会话的所有 Bash、PowerShell 和 Monitor 命令计入一个上限，而不是每个命令各自计入。
 * Claude Code 使用内存 cgroup 应用上限。当它无法设置 cgroup 时，命令在没有上限的情况下运行，来自 `claude --debug` 的调试日志说明原因。
-* 在 Claude Code 启动的第一个进程打开上限后，或因为关闭值或失败的 cgroup 设置而关闭它后，Claude Code 保持该结果直到您重新启动。要应用更改或删除的值，或固定的设置，再次启动 `claude`。
+* 在 Claude Code 启动的第一个进程打开上限后，或因为关闭值或失败的 cgroup 设置而关闭它后，Claude Code 保持该结果直到您重新启动。要应用更改或删除的值，或修复后的设置，再次启动 `claude`。
 * 当命令无法保持在上限以下时，内核杀死命令，其结果中没有任何内容命名上限。
 
 Claude Code 也可以将它启动的其他类型的进程计入同一限制。设置 [`CLAUDE_CODE_TOOL_MEMORY_CGROUP_EXCLUDE`](/docs/zh-CN/env-vars#variables) 为逗号分隔的类型列表以豁免上限；Claude Code 对不在您列表中的每种类型应用上限。设置为 `none` 以限制每种类型，或设置为 `all-new` 以仅限制 Bash、PowerShell 和 Monitor 工具命令。需要 Claude Code v2.1.246 或更高版本。您可以命名的类型：
@@ -279,13 +279,13 @@ Claude Code 也可以将它启动的其他类型的进程计入同一限制。�
 
 Edit 工具执行精确字符串替换。它接受一个 `old_string` 和一个 `new_string`，并用后者替换前者。它不使用正则表达式或模糊匹配。
 
-编辑应用必须通过以下检查。在任何检查之前，与 [`Read` 拒绝规则](/docs/zh-CN/permissions#tool-specific-permission-rules)匹配的路径会被拒绝，包括在该路径创建新文件。此拒绝需要 Claude Code v2.1.208 或更高版本。
+编辑应用必须通过以下检查。在任何检查之前，与 [`Read` 拒绝规则](/docs/zh-CN/permissions#tool-specific-permission-rules)匹配的路径会被拒绝，包括在该路径创建新文件。
 
 * **编辑前读取**：Claude 在编辑文件前在当前对话中读取该文件，并且以 [`PARTIAL view` 通知](#large-files)中断的读取不计数。Claude Opus 4.6、Claude Haiku 4.5 和更早的模型始终需要读取。较新的模型可以在读取不需要权限提示且 Read 工具可用时编辑未读文件。
 * **匹配**：`old_string` 必须在文件中完全按照编写的方式出现。单个空格或缩进差异足以导致不匹配。
 * **唯一性**：`old_string` 必须恰好出现一次。当它出现多次时，Claude 要么提供一个更长的字符串，其周围上下文足以确定一个出现位置，要么设置 `replace_all: true` 来替换所有出现位置。
 
-当 `old_string` 与当前内容完全匹配且明确无误，且 Claude Code 可以在不提示的情况下读取文件时，在 Claude 最后读取后在磁盘上更改的文件仍然可以编辑。针对文件的当前内容进行匹配可以保持安全，结果会注明该文件包含其他更改，以便 Claude 在依赖周围内容的编辑前重新读取它。在任何其他情况下，例如过时的 `old_string` 或在没有 `replace_all` 的情况下匹配多次的情况，Claude 在编辑前再次读取文件。对未读和已更改文件的宽松处理需要 Claude Code v2.1.208 或更高版本；在此之前，Claude Code 拒绝对它在对话中未读过或在读取后在磁盘上更改的任何文件进行编辑。
+当 `old_string` 与当前内容完全匹配且明确无误，且 Claude Code 可以在不提示的情况下读取文件时，在 Claude 最后读取后在磁盘上更改的文件仍然可以编辑。针对文件的当前内容进行匹配可以保持安全，结果会注明该文件包含其他更改，以便 Claude 在依赖周围内容的编辑前重新读取它。在任何其他情况下，例如过时的 `old_string` 或在没有 `replace_all` 的情况下匹配多次的情况，Claude 在编辑前再次读取文件。
 
 Claude 使用 `cat` 或 `grep` 等 Bash 命令查看文件后，也可以在不单独执行 Read 的情况下编辑该文件。这些命令是 `cat`、`nl`、`bat`、`batcat`、`head`、`tail`、`sed -n 'X,Yp'`、`grep`、`egrep`、`fgrep` 和 `rg`，且每个命令都需在单个文件上运行，没有管道或重定向。没有输出任何匹配的搜索不算作读取，此列表之外的任何命令也不算。
 
@@ -322,7 +322,6 @@ Claude 结束交互式会话后，会话被锁定。新提示和大多数命令�
 
 该工具仅在以下所有条件都满足时出现：
 
-* **版本**：Claude Code v2.1.213 或更高版本。
 * **模型**：会话的模型是 Claude Opus 4.8、Claude Sonnet 5、Claude Fable 5 或这些系列之一的更高版本。
 * **界面**：交互式终端会话，包括 IDE 集成终端中的 `claude` 会话，这是[JetBrains 插件](/docs/zh-CN/jetbrains)运行它的方式。其他界面不包括该工具，例如：
   * 非交互式 `-p` 运行
@@ -337,13 +336,13 @@ Claude 结束交互式会话后，会话被锁定。新提示和大多数命令�
   Glob 工具行为
 </h2>
 
-Glob 工具通过名称模式查找文件。在 Windows 上，它是默认工具集的一部分。在 macOS、Linux 和 WSL 上，Claude Code 将 Glob 和 [Grep](#grep-tool-behavior) 排除在默认工具集之外，Claude 改为通过 Bash 工具使用 `find` 和 `grep` 进行搜索。在 Claude 的 shell 中，这两个命令运行 `bfs` 和 `ugrep` 的嵌入式版本，搜索通过 `Bash` 调用到达你的 hooks 和权限规则。
+Glob 工具通过名称模式查找文件。在 Windows 上，它是默认工具集的一部分。在 macOS、Linux 和 WSL 上，Claude Code 将 Glob 和 [Grep](#grep-tool-behavior) 排除在默认工具集之外，Claude 改为通过 Bash 工具使用 `find` 和 `grep` 进行搜索。在 Claude 的 shell 中，这两个命令运行 `bfs` 和 `ugrep` 的嵌入式版本，搜索以 `Bash` 调用的形式到达您的 hook 和权限规则。
 
-在 macOS、Linux 和 WSL 上，你可以在以下情况下恢复 Glob 和 Grep 工具：
+在 macOS、Linux 和 WSL 上，在以下情况下可以恢复 Glob 和 Grep 工具：
 
-* 你在启动会话时在 [`--tools` 或 `--allowedTools`](/docs/zh-CN/cli-reference#cli-flags) 中命名 `Glob` 或 `Grep`，或在等效的 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 选项中命名。使用 `--tools` 时，你会获得列出的工具，在 `--allowedTools` 中命名任一工具会恢复两者。设置文件中的允许规则没有这种效果。
+* 您在启动会话时在 [`--tools` 或 `--allowedTools`](/docs/zh-CN/cli-reference#cli-flags) 中指定 `Glob` 或 `Grep`，或在等效的 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 选项中指定。使用 `--tools` 时，您会获得列出的工具；在 `--allowedTools` 中指定任一工具会恢复两者。设置文件中的允许规则没有这种效果。
 * 权限 [拒绝规则](/docs/zh-CN/permissions#match-all-uses-of-a-tool)、`--disallowedTools` 标志或 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) 从会话中移除 `Bash`。
-* [子代理](/docs/zh-CN/sub-agents#available-tools) 在其 `tools` 字段中列出 `Glob` 或 `Grep` 并排除 `Bash`。列出的工具仅对该子代理返回，或在通过 [`--agent`](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 或 `agent` 设置作为主会话代理运行时对整个会话返回。
+* [子代理](/docs/zh-CN/sub-agents#available-tools) 在其 `tools` 字段中列出 `Glob` 或 `Grep` 并排除 `Bash`。列出的工具仅对该子代理恢复；当它通过 [`--agent`](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 或 `agent` 设置作为主会话 Agent 运行时，则对整个会话恢复。
 
 Glob 支持标准 glob 语法，包括用于递归目录匹配的 `**`：
 
@@ -373,7 +372,7 @@ ripgrep 拒绝的模式、glob 或文件类型会返回一个包含 ripgrep 诊�
 
 * `files_with_matches`：仅文件路径，无行内容。这是默认值。
 * `content`：匹配的行及其文件和行号。当工具的 `offset` 参数指向某个有匹配项的模式的最后一个匹配项之后时，Grep 返回 `No entries at this offset`，因此 Claude 会扩大或重置偏移量，而不是得出模式不匹配的结论。
-* `count`：每个文件的匹配计数，后跟所有匹配文件的总计数。总计覆盖每个匹配项，即使工具的 `head_limit` 或 `offset` 参数截断了列出的每个文件的条目。在 v2.1.208 之前，总计仅对列出的条目求和。
+* `count`：每个文件的匹配计数，后跟所有匹配文件的总计数。即使工具的 `head_limit` 或 `offset` 参数截断了列出的每个文件的条目，总计仍覆盖每个匹配项。
 
 Claude 可以使用 `glob` 参数（如 `**/*.tsx`）按文件范围限制结果，或使用 `type` 参数（如 `py` 或 `rust`）按语言限制结果。默认情况下，模式在单行内匹配。Claude 可以设置 `multiline: true` 以跨行边界匹配。
 
@@ -536,15 +535,11 @@ PowerShell 命令还会接收 hook 通过 `CLAUDE_ENV_FILE` 持久化的变量�
   Windows 编码和退出代码
 </h3>
 
-在 Windows 上，以下 PowerShell 编码和退出代码行为需要 Claude Code v2.1.214 或更高版本：
-
 * 使用 `>` 和 `>>` 的重定向在 PowerShell 5.1 上写入 UTF-8 文件
 * Claude Code 将管道传输到本机命令标准输入的文本编码为 UTF-8
 * Claude Code 捕获没有 ANSI 转义序列的错误输出
 * 其子进程等待标准输入的命令接收文件结束而不是挂起
 * 来自 `where.exe` 的退出代码 1 表示没有匹配，来自 `fc.exe` 和 `diff.exe` 的退出代码 1 表示文件不同，因此当命令产生输出时，Claude Code 将该退出代码视为有效的否定答案而不是命令错误。Claude Code 仍然将静默形式（例如 `where.exe /Q` 或重定向到 `$null`）报告为退出代码 1 上的失败
-
-在 v2.1.214 之前，PowerShell 5.1 上的 `>` 写入 UTF-16LE 文件，非 ASCII 管道输入显示为 `?`，Python 脚本在打印非 ASCII 字符时可能会因 `UnicodeEncodeError` 而崩溃。
 
 <h3 id="preview-limitations">
   预览限制
@@ -561,7 +556,7 @@ PowerShell 工具在预览期间有以下已知限制：
 
 Read 工具接收文件路径并返回带有行号的文件内容。Claude 被指示始终传递绝对路径。
 
-读取空文件会返回一个通知，说明文件存在但内容为空，而 `offset` 超过最后一行会返回一个通知，给出文件的行数。在 v2.1.208 之前，读取空文件会返回超过末尾的通知。
+读取空文件会返回一个通知，说明文件存在但内容为空，而 `offset` 超过最后一行会返回一个通知，给出文件的行数。
 
 Read 处理多种文件类型，不仅仅是纯文本：
 
@@ -691,7 +686,7 @@ WebFetch 接收一个 URL 和一个描述要提取内容的提示词。它获取
 * WebFetch 默认缓存每个响应 15 分钟，所以重复获取同一 URL 会快速返回。在 Claude Code v2.1.233 或更高版本上，设置 [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](/docs/zh-CN/env-vars#variables) 以更改 WebFetch 保留每个响应的时长。
 * 一个页面如果在五分钟内未完成下载，包括 WebFetch 跟随的任何重定向，则会因截止期限错误而失败。在 Claude Code v2.1.268 或更高版本上，设置 [`CLAUDE_CODE_WEBFETCH_DEADLINE_MS`](/docs/zh-CN/env-vars#variables) 以更改限制，或设置为 `0` 以移除它。
 * 当 URL 重定向到不同的主机时，WebFetch 返回一个文本结果，命名原始 URL 和重定向目标，而不是跟随它。Claude 然后使用第二个 WebFetch 调用获取新 URL。
-* 当提取步骤遇到过载的 API 时，Claude Code 会使用退避重试它；仍然失败的获取会返回错误结果。在 v2.1.212 之前，API 错误文本可能会作为提取的页面内容到达 Claude。
+* 当提取步骤遇到过载的 API 时，Claude Code 会使用退避重试它；仍然失败的获取会返回错误结果。
 
 在 Manual 和 `acceptEdits` [权限模式](/docs/zh-CN/permission-modes)中，WebFetch 在获取前提示，除了您的[权限规则](/docs/zh-CN/permissions#manage-permissions)已允许或拒绝的域以及一组内置的预批准文档域，这些域无需提示即可获取。无论您的规则允许什么，获取也必须首先通过 [WebFetch 域安全检查](/docs/zh-CN/data-usage#webfetch-domain-safety-check)；该部分涵盖检查发送的内容和跳过它的设置。提示提供三个选项：
 
@@ -727,7 +722,7 @@ WebSearch 针对 Anthropic 的[网络搜索](https://platform.claude.com/docs/en
 
 该工具每次调用最多可以发出八个后端搜索，在返回结果之前在内部优化搜索。Claude 可以使用 `allowed_domains` 限制结果范围以仅包含某些主机，或使用 `blocked_domains` 排除它们。这两个列表不能在单次调用中组合。
 
-当搜索请求命中过载的 API 时，Claude Code 会使用退避策略重试；仍然失败的调用会返回错误结果。在 v2.1.212 之前，API 错误文本可能会作为搜索结果传递给 Claude。
+当搜索请求命中过载的 API 时，Claude Code 会使用退避策略重试；仍然失败的调用会返回错误结果。
 
 WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebSearch` 条目是唯一的形式。
 
@@ -741,7 +736,7 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
   会话搜索限制
 </h3>
 
-一个交互式终端会话最多可以进行 200 次 WebSearch 调用。来自主对话和[子代理](/docs/zh-CN/sub-agents)的搜索（例如并行研究扇出）计入同一限制。该限制需要 Claude Code v2.1.212 或更高版本。
+一个交互式终端会话最多可以进行 200 次 WebSearch 调用。来自主对话和[子代理](/docs/zh-CN/sub-agents)的搜索（例如并行研究扇出）计入同一限制。
 
 当会话达到限制时，搜索在对话中显示为未执行任何操作的调用。Claude 会收到一个通知，告诉它继续使用已经收集的信息，如果需要更多搜索，则要求您提高限制。
 

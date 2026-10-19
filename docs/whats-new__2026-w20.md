@@ -78,12 +78,12 @@
   <p className="digest-wins-title">其他改进</p>
 
   <div className="digest-wins-grid">
-    <div><code>claude agents</code> 获得了分派标志（<code>--add-dir</code>、<code>--settings</code>、<code>--mcp-config</code>、<code>--plugin-dir</code>、<code>--permission-mode</code>、<code>--model</code>、<code>--effort</code>、<code>--dangerously-skip-permissions</code>）来配置后台会话，<code>claude agents --cwd \<path></code> 将会话列表范围限制在一个目录</div>
+    <div><code>claude agents</code> 获得了分派标志（`--add-dir`、`--settings`、`--mcp-config`、`--plugin-dir`、`--permission-mode`、`--model`、`--effort`、`--dangerously-skip-permissions`）来配置后台会话，`claude agents --cwd <path>` 将会话列表范围限制在一个目录</div>
     <div>新的 hook <code>args: string\[]</code> exec 形式直接生成命令而不使用 shell，因此路径占位符永远不需要引用</div>
     <div>新的 <code>continueOnBlock</code> 配置选项用于 <code>PostToolUse</code> hooks，将 hook 的拒绝原因反馈给 Claude 并继续该回合，而不是结束它</div>
     <div>hook JSON 输出中的新 <code>terminalSequence</code> 字段让 hooks 发出桌面通知、窗口标题和铃声，无需控制终端</div>
     <div>Rewind 菜单添加了"总结到此处"以压缩早期上下文，同时保持最近的回合完整</div>
-    <div>当设置 <code>ANTHROPIC\_API\_KEY</code>、<code>apiKeyHelper</code> 或 <code>ANTHROPIC\_AUTH\_TOKEN</code> 时，Remote Control、<code>/schedule</code>、Claude.ai MCP 连接器和通知首选项现在被禁用，即使与 Claude.ai 登录一起使用；取消设置 API 密钥以使用这些功能</div>
+    <div>当设置 <code>ANTHROPIC\_API\_KEY</code>、<code>apiKeyHelper</code> 或 <code>ANTHROPIC\_AUTH\_TOKEN</code> 时，Remote Control、<code>/schedule</code>、claude.ai MCP 连接器和通知首选项现在被禁用，即使与 claude.ai 登录一起使用；取消设置 API 密钥以使用这些功能</div>
     <div>MCP stdio 服务器现在在其环境中接收 <code>CLAUDE\_PROJECT\_DIR</code>，与 hooks 匹配，插件配置可以在命令中引用 <code>\${"{"}CLAUDE\_PROJECT\_DIR{"}"}</code></div>
     <div><code>claude plugin details \<name></code> 显示插件的组件清单和预计的每个会话令牌成本，<code>/plugin</code> 详细信息窗格现在也列出了插件提供的 LSP 服务器</div>
     <div>具有根级 <code>SKILL.md</code> 且没有 <code>skills/</code> 子目录的插件现在被显示为一个 skill</div>

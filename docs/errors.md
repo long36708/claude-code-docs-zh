@@ -41,6 +41,7 @@
 | `Auto mode classifier transcript exceeded context window` | [服务器错误](#auto-mode-cannot-determine-the-safety-of-an-action) |
 | `Agent aborted: auto mode classifier request refused by the safety safeguard` | [服务器错误](#auto-mode-cannot-determine-the-safety-of-an-action) |
 | `The server-side auto mode classifier gave no verdict` | [服务器错误](#the-server-returned-no-safety-verdict) |
+| `<tool> was not reviewed and did not run: the conversation is too long for auto mode's classifier` | [服务器错误](#was-not-reviewed-and-did-not-run) |
 | `Auto mode is unavailable — the server returned no safety verdict for the last 10 responses` | [服务器错误](#the-server-returned-no-safety-verdict) |
 | `Agent terminated early due to an API error` | [服务器错误](#agent-terminated-early-due-to-an-api-error) |
 | `You've hit your session limit` / `You've hit your weekly limit` / `You've hit your Opus limit` / `You've hit your Sonnet limit` | [使用限制](#youve-hit-your-session-limit) |
@@ -627,7 +628,7 @@ API Error: The response stream was malformed. The response above may be incomple
 <model> is temporarily unavailable, so auto mode cannot determine the safety of <tool> right now. Wait a moment and then try this action again.
 ```
 
-在交互式会话中，工具调用下方会显示一行暗色的 `Not run · auto mode's check had no usable answer`，而不是此消息。按 `Ctrl+O` 可在[会话记录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)中阅读该消息。[The server returned no safety verdict](#the-server-returned-no-safety-verdict) 下的拒绝也显示同样的一行。在 v2.1.296 之前，该消息以红色错误的形式显示在调用下方。
+在交互式会话中，工具调用下方会显示一行暗色的 `Not run · auto mode's check had no usable answer`，而不是此消息。按 `Ctrl+O` 可在[会话记录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)中阅读该消息。[The server returned no safety verdict](#the-server-returned-no-safety-verdict) 下的 `gave no verdict` 拒绝也显示同样的一行。在 v2.1.296 之前，该消息以红色错误的形式显示在调用下方。
 
 当 Claude Code 可以确定故障类别时，它在 `temporarily unavailable` 后的括号中指出该类别，例如 `<model> is temporarily unavailable (rate-limited), so auto mode cannot determine the safety of <tool> right now`。类别为 `(rate-limited)`、`(overloaded)`、`(server error)`、`(timed out)` 和 `(connection failed)`。如果 `(timed out)` 或 `(connection failed)` 重复出现，请检查您的连接；请参阅[无法连接到 API](#unable-to-connect-to-api)。在 v2.1.229 之前，消息从不指出类别，读作 `Wait briefly and then try this action again`。
 
@@ -638,6 +639,7 @@ API Error: The response stream was malformed. The response above may be incomple
 * 几秒后重试；Claude 看到相同的消息，通常会自动重试。暂时故障与[自动模式资格](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)无关；您不需要更改设置
 * 如果重试持续失败，继续进行只读任务，稍后回到被阻止的操作
 * 在 Amazon Bedrock 上，如果消息在每次重试时返回，请检查您的账户是否可以调用它指出的模型：对于标准 Amazon Bedrock 模型，确认您的 [IAM 策略](/docs/zh-CN/amazon-bedrock#iam-configuration)允许调用它；对于 Mantle 模型 ID，[联系您的 AWS 账户团队](/docs/zh-CN/amazon-bedrock#mantle-endpoint-errors)
+* 如果消息在每次重试时返回，并且指出的是您在 [`CLAUDE_CODE_AUTO_MODE_MODEL`](/docs/zh-CN/permission-modes#choose-the-classifier-model) 中设置的模型，请检查您的会话所运行的 API 或云提供商是否提供该模型 ID。如果不提供，请将该变量设置为其提供的模型 ID，或取消设置该变量以使用[默认分类器模型](/docs/zh-CN/permission-modes#default-classifier-model)。
 
 当分类器请求失败是因为您的 OAuth 令牌过期或被另一个会话轮换时，Claude Code 刷新令牌并重试请求一次，因此常规的令牌过期不会显示为此消息。在 v2.1.216 之前，过期或轮换的令牌会导致每个分类器请求失败，自动模式会以此消息拒绝每个检查的操作，直到令牌被刷新。
 
@@ -672,7 +674,7 @@ Claude Code 拒绝该操作，但告诉 Claude 这不是对该操作不安全的
 * 在交互式会话中，切换到不同的[权限模式](/docs/zh-CN/permission-modes)，以便您可以在提示时批准该操作
 * 开始一个新对话，不包含触发内容
 
-当对话增长到超过分类器的上下文窗口时：
+当对话对于 Claude Code 的分类器请求来说过长，且 Claude Code 无法[自行压缩对话](#was-not-reviewed-and-did-not-run)时：
 
 ```text theme={null}
 Auto mode classifier transcript exceeded context window — falling back to manual approval (try /compact to reduce conversation size)
@@ -715,12 +717,36 @@ Auto mode is unavailable — the server returned no safety verdict for the last 
 
 **应该做什么：**
 
+* 在交互式会话中，按 `Ctrl+O` 在[会话记录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)中阅读拒绝文本。
+* 如果拒绝指出 `(the conversation is too long for the check)`，请在 Claude Code 提示符处运行 `/compact` 以缩短对话。在对话变短之前，发送另一条消息会得到相同的拒绝。如果您关闭了[自动压缩](/docs/zh-CN/settings-reference#autocompactenabled)，请重新启用它，以便 Claude Code 下次自行压缩。
 * 发送另一条消息以让 Claude 重试。响应计数重新开始。
 * 如果停止重复且您的请求通过[LLM 网关或代理](/docs/zh-CN/llm-gateway)，检查它是否截断流式响应或重写它们。[服务器端分类器审查](/docs/zh-CN/permission-modes#server-side-classifier-review)说明哪种网关行为会导致拒绝，[网关兼容性指南](/docs/zh-CN/llm-gateway-protocol#feature-pass-through)列出了要保持不变的内容。
 * 在启动 Claude Code 之前设置 `CLAUDE_CODE_AUTO_MODE_SERVER=0` 以改用其自己的分类器请求。在 v2.1.281 之前，Claude Code 在直接连接到 Anthropic API 时不读取该变量。
 * 要自己批准操作，请改为[切换出自动模式](/docs/zh-CN/permission-modes#switch-permission-modes)
 
 在 v2.1.280 之前，Claude Code 立即拒绝来自没有判决的响应的每个操作，从不停止轮次。
+
+在 v2.1.302 之前，在直接连接到 Anthropic API 时，Claude Code 不会压缩已增长到对服务器检查而言过长的对话。
+
+<h3 id="was-not-reviewed-and-did-not-run">
+  Was not reviewed and did not run
+</h3>
+
+`was not reviewed and did not run` 拒绝表示对话过长，[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器无法检查该操作，因此该操作没有运行。Claude Code 向 Claude 返回以下消息：
+
+```text theme={null}
+<tool> was not reviewed and did not run: the conversation is too long for auto mode's classifier. Claude Code will try to compact the conversation before the next request; if this action is still needed after that, issue it again and it will be reviewed normally.
+```
+
+如果压缩失败，分类器无法检查的后续操作会收到以下两种消息之一：
+
+* [`gave no verdict (the conversation is too long for the check)`](#the-server-returned-no-safety-verdict) 拒绝
+* [`Auto mode classifier transcript exceeded context window`](#auto-mode-cannot-determine-the-safety-of-an-action) 消息
+
+**应该做什么：**
+
+* 如果消息中宣布的压缩成功，您无需执行任何操作。
+* 如果您看到这两种消息中的任何一种，请在 Claude Code 提示符处运行 `/compact` 自行缩短对话。如果您关闭了[自动压缩](/docs/zh-CN/settings-reference#autocompactenabled)，请重新启用它，以便 Claude Code 下次自行压缩。
 
 <h3 id="agent-terminated-early-due-to-an-api-error">
   Agent terminated early due to an API error

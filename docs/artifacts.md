@@ -105,7 +105,7 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
   再次查找一个artifact
 </h2>
 
-在Claude Code中运行`/artifacts`，以列出您拥有的Artifact以及与您共享的Artifact。当前会话的Artifact排在最前面，位于**This session**下。需要Claude Code v2.1.208或更高版本。
+在Claude Code中运行`/artifacts`，以列出您拥有的Artifact以及与您共享的Artifact。当前会话的Artifact排在最前面，位于**This session**下。
 
 选择一个Artifact，然后按以下任一按键：
 

@@ -490,7 +490,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `Marketplace must have a name` | 错误 | `name` 为空 |
 | `Marketplace name cannot contain spaces. Use kebab-case (e.g., "my-marketplace")` | 错误 | `name` |
 | `Marketplace name cannot contain path separators (/ or \), ".." sequences, or be "."` | 错误 | `name` |
-| `Marketplace name impersonates an official Anthropic/Claude marketplace` | 错误 | `name`。请参阅 [Reserved names](#reserved-names) |
+| `Marketplace name impersonates an official Anthropic/Claude marketplace` | 错误 | `name`。请参阅 [保留名称](#reserved-names) |
 | `Marketplace name cannot contain control or bidirectional-formatting characters` | 错误 | `name` 包含控制字符，例如转义或换行符，或 Unicode 双向格式化字符 |
 | `Marketplace name "inline" is reserved for --plugin-dir session plugins`, and the `builtin`, `skills-dir`, `synced`, `claude-plugin-test`, `npm`, `pip`, `uv`, `cargo`, `github`, and `gh` variants | 错误 | `name` |
 | `Author name cannot be empty` | 错误 | `owner.name` |

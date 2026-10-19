@@ -154,7 +154,7 @@ Claude 可能会跳过非常短或单步骤请求的待办事项。
   实时显示进度
 </h3>
 
-以下示例监视助手流中的 `TaskCreate` 和 `TaskUpdate` `tool_use` 块，并在 `TaskTracker` 类中保持由任务 ID 键入的任务映射，在每次更改时重新呈现进度摘要。摘要计算已完成和进行中的任务，并显示每个活跃项目的 `activeForm` 标签代替其 `subject`。当您的应用程序维护进度显示而不是记录每个事件时，请使用此形状。
+以下示例监视助手流中的 `TaskCreate` 和 `TaskUpdate` `tool_use` 块，并在 `TaskTracker` 类中保持以任务 ID 为键的任务映射，在每次更改时重新呈现进度摘要。摘要计算已完成和进行中的任务，并显示每个活跃项目的 `activeForm` 标签代替其 `subject`。当您的应用程序维护进度显示而不是记录每个事件时，请使用此形状。
 
 分配的任务 ID 不在 `TaskCreate` 输入中。Claude Code 在携带其 `tool_result` 块的用户消息上传递每个工具的结构化输出，在 `tool_use_result` 字段中。对于 `TaskCreate`，该对象在 TypeScript 中记录为[工具输出类型](/docs/zh-CN/agent-sdk/typescript#tool-output-types)下的 `TaskCreateOutput`，在 Python 中该字段是相同形状的普通字典。跟踪器通过 `tool_use_id` 将每个 `tool_result` 块与其 `tool_use` 调用配对，并从配对消息的 `tool_use_result` 中读取 `task.id`。Claude 可以使用 `TaskList` 读取列表，使用 `TaskGet` 读取一个任务的完整详细信息。
 

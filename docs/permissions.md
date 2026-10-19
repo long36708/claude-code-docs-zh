@@ -391,9 +391,9 @@ Claude Code 解析 PowerShell AST 并独立检查复合命令中的每个命令�
 
 Claude Code 在 v2.1.290 及更高版本中检查粘贴的图片路径和目录列表。
 
-`Read` deny 规则也会阻止同一路径上的 [Edit 和 Write 工具](/docs/zh-CN/errors#file-is-covered-by-a-read-deny-rule)，包括在那里创建新文件。NotebookEdit 不被覆盖，因此为任何工具都不能更改的路径添加 `Edit` deny 规则。检查需要 Claude Code v2.1.208 或更高版本进行编辑，以及 v2.1.228 或更高版本进行写入。
+`Read` deny 规则也会阻止同一路径上的 [Edit 和 Write 工具](/docs/zh-CN/errors#file-is-covered-by-a-read-deny-rule)，包括在那里创建新文件。NotebookEdit 不被覆盖，因此为任何工具都不能更改的路径添加 `Edit` deny 规则。对于 Write 工具，该检查需要 Claude Code v2.1.228 或更高版本。
 
-Claude Code 仅根据 `Edit(path)` 和 `Read(path)` 规则检查文件权限。如果您为 `Write`、`NotebookEdit`、`Glob` 或旧版 `MultiEdit` 工具编写路径规则，Claude Code 接受该规则但从不查询它，并在启动时[警告](/docs/zh-CN/errors#is-not-matched-by-file-permission-checks)，除了在 `--allowedTools` 中传递的 `Glob` 规则。使用 `Edit(docs/**)` 代替 `Write(docs/**)`、`NotebookEdit(docs/**)` 或 `MultiEdit(docs/**)`，以及 `Read(docs/**)` 代替 `Glob(docs/**)`。Claude Code 不会警告没有路径的工具名称规则，如 `Write` 的 deny 规则；它在任何地方在工具级别匹配该规则。需要 Claude Code v2.1.210 或更高版本。
+Claude Code 仅根据 `Edit(path)` 和 `Read(path)` 规则检查文件权限。如果您为 `Write`、`NotebookEdit`、`Glob` 或旧版 `MultiEdit` 工具编写路径规则，Claude Code 接受该规则但从不查询它，并在启动时[警告](/docs/zh-CN/errors#is-not-matched-by-file-permission-checks)，除了在 `--allowedTools` 中传递的 `Glob` 规则。使用 `Edit(docs/**)` 代替 `Write(docs/**)`、`NotebookEdit(docs/**)` 或 `MultiEdit(docs/**)`，以及 `Read(docs/**)` 代替 `Glob(docs/**)`。Claude Code 不会警告没有路径的工具名称规则，如 `Write` 的 deny 规则；它在任何地方在工具级别匹配该规则。
 
 <Warning>
   Read 和 Edit deny 规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail`、`sed` 和 `tee`）以及 Bash [重定向](#redirections)的目标（如 `> file` 和 `< file`）。它们不适用于读取文件而不命名它们的命令，如从保存文件的目录运行的 `grep -r pattern .`，或间接读取或写入文件的任意子进程，如打开文件本身的 Python 或 Node 脚本。对于阻止所有进程访问路径的 OS 级别强制执行，请[启用沙箱](/docs/zh-CN/sandboxing)。
@@ -762,7 +762,7 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 
 当您启用沙箱并将 `autoAllowBashIfSandboxed` 保留为其默认值 `true` 时，沙箱化的 Bash 命令无需提示即可运行，即使您的权限包括裸 `Bash` ask 规则，或[等效的 `Bash(*)` 形式](#match-all-uses-of-a-tool)：沙箱边界替代了该整体工具提示。
 
-在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中，Claude Code 跳过此替代。没有 ask 规则时，[内置只读命令](#read-only-commands)仍然无需提示即可运行，任何其他 shell 命令在您仍在计划时通过常规权限流程；请参见[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)了解 Claude Code 如何在那里控制命令。使用裸 `Bash` ask 规则时，每个 Bash 命令都会提示，包括沙箱化的只读命令，与沙箱外相同。在 v2.1.212 之前，替代也适用于计划模式。
+在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中，Claude Code 跳过此替代。没有 ask 规则时，[内置只读命令](#read-only-commands)仍然无需提示即可运行，任何其他 shell 命令在您仍在计划时通过常规权限流程；请参见[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)了解 Claude Code 如何在那里控制命令。使用裸 `Bash` ask 规则时，每个 Bash 命令都会提示，包括沙箱化的只读命令，与沙箱隔离之外相同。
 
 这些检查仍然适用：
 

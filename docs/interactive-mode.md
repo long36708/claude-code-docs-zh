@@ -183,7 +183,7 @@ Claude Code 在你使用 `Ctrl+O` 切换[文字记录查看器](#transcript-view
   重新映射 INSERT 模式快捷键序列
 </h3>
 
-[`vimInsertModeRemaps`](/docs/zh-CN/settings-reference#viminsertmoderemaps) 设置将两个按键的 INSERT 模式序列映射到 Escape，因此像 `jj` 这样的映射会让你返回 NORMAL 模式。需要 Claude Code v2.1.208 或更高版本。
+[`vimInsertModeRemaps`](/docs/zh-CN/settings-reference#viminsertmoderemaps) 设置将两个按键的 INSERT 模式序列映射到 Escape，因此像 `jj` 这样的映射会让您返回 NORMAL 模式。
 
 以下 `~/.claude/settings.json` 示例打开 vim 模式并将 `jj` 映射到 Escape：
 
@@ -248,8 +248,8 @@ Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](/
 | `cc` | 更改行 |
 | `C` | 更改到行尾 |
 | `cw`/`ce`/`cb` | 更改单词/到末尾/向后 |
-| `s` | 替换字符：删除光标下的字符并进入 INSERT 模式。需要 Claude Code v2.1.211 或更高版本 |
-| `S` | 替换行：清除行并进入 INSERT 模式。需要 Claude Code v2.1.211 或更高版本 |
+| `s` | 替换字符：删除光标下的字符并进入 INSERT 模式 |
+| `S` | 替换行：清除行并进入 INSERT 模式 |
 | `yy`/`Y` | 复制行 |
 | `yw`/`ye`/`yb` | 复制单词/到末尾/向后 |
 | `p` | 在光标后粘贴 |
@@ -471,7 +471,7 @@ Claude Code 还在多种情况下跳过单个建议，包括：
 * 在对话的第一轮之后，在某些会话中
 * 前一个响应以错误结束
 * 当你处于 Plan Mode 时
-* 你的账户接近或已达到使用限制。要在达到限制之前保持建议开启，请将 [`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](/docs/zh-CN/env-vars) 设置为 `true`。在 v2.1.238 之前，Claude Code 即使将变量设置为 `true` 也会在接近限制时跳过建议
+* 您的账户接近或已达到用量限制。要使此跳过在达到限制之前不生效，请将 [`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](/docs/zh-CN/env-vars) 设置为 `true`。在 v2.1.238 之前，即使将该变量设置为 `true`，Claude Code 也会在接近限制时跳过建议
 * 在[代理团队](/docs/zh-CN/agent-teams)中，默认情况下在队友的会话中。主导的会话显示建议
 
 提示 `Showing fewer prompt suggestions · use one to bring them back` 表示由于您连续多次未使用建议，Claude Code 正在降低显示建议的频率。要恢复正常频率，请使用一个建议，或将 [`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](/docs/zh-CN/env-vars) 设置为 `true`。
@@ -759,7 +759,7 @@ Claude 从对话中已有的内容回答附加问题：你的消息、它的回�
 
 你最新的五个之前的附加问题以暗淡的列表形式出现在当前答案上方，并显示任何较旧问题的计数。它们不会进入对话历史记录。
 
-要在关闭覆盖层后返回到它，运行不带问题的 `/btw`。覆盖层在你最近的交换处重新打开。在 v2.1.212 之前，不带问题的 `/btw` 会打印使用消息。
+要在关闭覆盖层后返回到它，运行不带问题的 `/btw`。覆盖层在您最近的交换处重新打开。
 
 答案出现后，覆盖层接受这些按键。
 

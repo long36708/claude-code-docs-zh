@@ -90,7 +90,7 @@
 
 `SessionKey` 寻址一个记录。`projectKey` 是工作目录的稳定的、文件系统安全的编码，`sessionId` 是会话 UUID，`subpath` 在条目属于子代理记录或边车文件而不是主对话时设置。
 
-因为 `projectKey` 编码了工作目录，请从与原始运行的工作目录匹配的工作目录中从存储恢复或继续。在 TypeScript 中，如果在查询的 [`env` 选项](/docs/zh-CN/agent-sdk/typescript#options)中在 `CLAUDE_CONFIG_DIR` 旁边设置 [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/sessions#name-the-project-directory-yourself)，SDK 会按该名称对该查询的条目以及其 `resume` 和 `continue` 查找进行键控。因为 `listSessions` 和 `deleteSession` 等独立帮助程序不接受 `env` 并读取进程环境，也要在主机进程环境中设置 `CLAUDE_CONFIG_DIR` 和相同的名称。需要 Agent SDK v0.3.234 或更高版本。
+因为 `projectKey` 编码了工作目录，请从与原始运行的工作目录匹配的工作目录中从存储恢复或继续。在 TypeScript 中，如果在查询的 [`env` 选项](/docs/zh-CN/agent-sdk/typescript#options)中在 `CLAUDE_CONFIG_DIR` 旁边设置 [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/sessions#name-the-project-directory-yourself)，SDK 会改用该名称作为该查询的条目及其 `resume` 和 `continue` 查找的键。因为 `listSessions` 和 `deleteSession` 等独立帮助程序不接受 `env` 并读取进程环境，也要在主机进程环境中设置 `CLAUDE_CONFIG_DIR` 和相同的名称。需要 Agent SDK v0.3.234 或更高版本。
 
 将 `subpath` 视为不透明的键后缀；它遵循磁盘上的布局，例如 `subagents/agent-<id>`。当 `subpath` 未定义时，该键指的是主记录。
 

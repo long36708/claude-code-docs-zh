@@ -3397,7 +3397,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 ```json settings.json theme={null}
 {
   "companyAnnouncements": [
-    "欢迎来到 Acme Corp！请在 docs.example.com 查看我们的代码指南"
+    "Welcome to Acme Corp! Review our code guidelines at docs.example.com"
   ]
 }
 ```
@@ -3775,7 +3775,7 @@ your-repo-file-index --query "$query" | head -20
 
 | 字段 | 必需 | 描述 |
 | :- | :- | :- |
-| `id` | 是 | 最多 64 个字母、数字、`.`、`_` 或 `-`。Claude Code 在其上键入提示的显示历史，因此提示的冷却期在重新排序列表后仍然存在。在两个具有相同 id 的条目中，Claude Code 使用第一个 |
+| `id` | 是 | 最多 64 个字母、数字、`.`、`_` 或 `-`。Claude Code 以其作为提示显示历史的键，因此提示的冷却期在重新排序列表后仍然存在。在两个具有相同 id 的条目中，Claude Code 使用第一个 |
 | `text` | 是 | 提示，最多 500 个字符的一行。Claude Code 剥离 ANSI 转义和控制字符，并折叠空格 |
 | `cooldownSessions` | 否 | Claude Code 在再次显示提示之前等待的会话数，`0` 到 `1000`，默认 `0` |
 | `priority` | 否 | 在未显示时间相同的提示中的顺序，较高的优先，`-10` 到 `10`，默认 `0` |
@@ -3799,10 +3799,10 @@ Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调�
   "spinnerTipsOverride": {
     "label": "Acme tip",
     "tips": [
-      "在打开 PR 之前运行 /review",
+      "Run /review before opening a PR",
       {
         "id": "gateway-errors",
-        "text": "看到 5xx 错误？首先检查网关状态页面",
+        "text": "Seeing 5xx errors? Check the gateway status page first",
         "cooldownSessions": 5,
         "priority": 2
       }
@@ -3815,11 +3815,11 @@ Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调�
 
 * `label`：Claude Code 将两个提示显示为 `Acme tip: ...` 而不是 `Tip: ...`。
 * 纯字符串：Claude Code 给它默认值，所以它可以在下一个会话中再次出现。
-* `id`：Claude Code 在 `gateway-errors` 上键入第二个提示的显示历史，因此其冷却期在添加或重新排序提示后仍然适用。
+* `id`：Claude Code 以 `gateway-errors` 作为第二个提示显示历史的键，因此其冷却期在添加或重新排序提示后仍然适用。
 * `cooldownSessions`：在 Claude Code 显示 `gateway-errors` 提示后，它在五个会话后才再次显示该提示。
 * `priority`：当 `gateway-errors` 提示和另一个提示未显示相同数量的会话时，例如当两者都尚未显示时，Claude Code 首先显示 `gateway-errors`。纯字符串具有默认优先级 `0`。
 
-当 Claude 工作时，Claude Code 在加载动画中显示您的提示，带有您的前缀，如 `Acme tip: 在打开 PR 之前运行 /review`。
+当 Claude 工作时，Claude Code 在加载动画中显示您的提示，带有您的前缀，如 `Acme tip: Run /review before opening a PR`。
 
 <h3 id="spinnerverbs">
   `spinnerVerbs`
@@ -4096,7 +4096,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
   `vimInsertModeRemaps`
 </h3>
 
-在 [vim 编辑器模式](/docs/zh-CN/interactive-mode#vim-editor-mode)中将两键 INSERT 模式序列映射到 Escape。每个键恰好是按顺序键入的两个可打印字符，`"<Esc>"` 是唯一支持的目标；Claude Code 忽略其他条目。需要 Claude Code v2.1.208 或更高版本。
+在 [vim 编辑器模式](/docs/zh-CN/interactive-mode#vim-editor-mode)中将两键 INSERT 模式序列映射到 Escape。每个键恰好是按顺序键入的两个可打印字符，`"<Esc>"` 是唯一支持的目标；Claude Code 忽略其他条目。
 
 * **Scope**: [`User or managed`](#scopes)。存储库不能重新映射您的按键。
 * **Type**: 对象，将两字符序列映射到 `"<Esc>"`
@@ -4110,7 +4110,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-除非 `editorMode` 是 `"vim"`，否则无效。请参阅[重新映射 INSERT 模式快捷键序列](/docs/zh-CN/interactive-mode#remap-insert-mode-key-sequences)。需要 Claude Code v2.1.208 或更高版本。
+除非 `editorMode` 是 `"vim"`，否则无效。请参阅[重新映射 INSERT 模式快捷键序列](/docs/zh-CN/interactive-mode#remap-insert-mode-key-sequences)。
 
 <h3 id="voice">
   `voice`
@@ -5068,7 +5068,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
   `enabledPlugins`
 </h3>
 
-打开或关闭单个 [plugins](/docs/zh-CN/plugins/overview)，由 `plugin-name@marketplace-name` 键控。在任何范围内没有条目的 plugin 回退到其 [`defaultEnabled`](/docs/zh-CN/plugins/manifest-reference#fields) 值。当您使用 `/plugin` 或 `claude plugin enable` 启用或禁用 plugin 时，Claude Code 为您写入此键。
+打开或关闭单个 [plugins](/docs/zh-CN/plugins/overview)，以 `plugin-name@marketplace-name` 为键。在任何范围内没有条目的 plugin 回退到其 [`defaultEnabled`](/docs/zh-CN/plugins/manifest-reference#fields) 值。当您使用 `/plugin` 或 `claude plugin enable` 启用或禁用 plugin 时，Claude Code 为您写入此键。
 
 * **Scope**: [`Any file`](#scopes)
 * **Type**: 对象，将 `plugin-name@marketplace-name` 映射到 Boolean
@@ -5207,7 +5207,7 @@ Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该 pl
   `pluginConfigs`
 </h3>
 
-存储您给 plugin 的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 配置对话框的非敏感答案，由 plugin ID 键控。当您填写对话框时，Claude Code 将此键写入您的用户设置，因此您无需手动编辑它。Claude Code 将敏感选项存储在 macOS Keychain 中，当 Keychain 拒绝写入时回退到 `~/.claude/.credentials.json`；在没有支持的 keychain 的平台上，它将它们存储在 `~/.claude/.credentials.json` 中。
+存储您给 plugin 的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 配置对话框的非敏感答案，以 plugin ID 为键。当您填写对话框时，Claude Code 将此键写入您的用户设置，因此您无需手动编辑它。Claude Code 将敏感选项存储在 macOS Keychain 中，当 Keychain 拒绝写入时回退到 `~/.claude/.credentials.json`；在没有支持的 keychain 的平台上，它将它们存储在 `~/.claude/.credentials.json` 中。
 
 * **Scope**: [`User or managed`](#scopes)
 * **Type**: 对象，将 plugin ID 映射到具有 `options` 字段的对象，将每个选项名称映射到字符串、数字、Boolean 或字符串数组，以及可选的 `mcpServers` 字段，以相同形状保存每个服务器的用户配置值

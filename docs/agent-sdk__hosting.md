@@ -212,7 +212,7 @@ Agent SDK 生成并监督一个 `claude` CLI 子进程，该子进程拥有一�
 * **定价模式**：按秒、按请求或按小时固定计费。按秒定价适合突发的临时工作负载。按小时定价适合长期运行的会话。
 * **网络**：支持自定义出站规则、出站代理和私有 VPC 对等互联，用于受管制的环境。
 
-有关自托管选项（如 Docker、gVisor 和 Firecracker）以及详细的隔离配置，请参阅 [Isolation Technologies](/docs/zh-CN/agent-sdk/secure-deployment#isolation-technologies)。
+有关自托管选项（如 Docker、gVisor 和 Firecracker）以及详细的隔离配置，请参阅 [隔离技术](/docs/zh-CN/agent-sdk/secure-deployment#isolation-technologies)。
 
 <h3 id="runtime-dependencies">
   运行时依赖项
@@ -229,13 +229,13 @@ Agent SDK 生成并监督一个 `claude` CLI 子进程，该子进程拥有一�
   资源
 </h3>
 
-对于新启动的实例，每个代理 1 GiB RAM、5 GiB 磁盘和 1 个 CPU 是一个合理的起点。内存使用量随会话长度和工具活动而增长，因此应根据您实际需要的会话长度和并发性进行调整，而不是根据空闲基线。有关如何计算每个主机的代理数，请参阅 [Scaling and concurrency](#scaling-and-concurrency)。
+对于新启动的实例，每个代理 1 GiB RAM、5 GiB 磁盘和 1 个 CPU 是一个合理的起点。内存使用量随会话长度和工具活动而增长，因此应根据您实际需要的会话长度和并发性进行调整，而不是根据空闲基线。有关如何计算每个主机的代理数，请参阅 [扩展和并发](#scaling-and-concurrency)。
 
 <h3 id="network">
   网络
 </h3>
 
-SDK 需要对 `api.anthropic.com` 的出站 HTTPS，或在 Amazon Bedrock 或 Google Cloud 的 Agent Platform 上运行时对您的提供商的区域端点的出站 HTTPS。如果您的代理使用 [MCP servers](/docs/zh-CN/agent-sdk/mcp) 或外部工具，它们还需要对这些端点的出站访问。对于生产环境，通过强制执行域允许列表、注入凭据和记录请求的出站代理路由出站流量。有关完整模式，请参阅 [安全部署](/docs/zh-CN/agent-sdk/secure-deployment)。
+SDK 需要对 `api.anthropic.com` 的出站 HTTPS，或在 Amazon Bedrock 或 Google Cloud 的 Agent Platform 上运行时对您的提供商的区域端点的出站 HTTPS。如果您的代理使用 [MCP 服务器](/docs/zh-CN/agent-sdk/mcp) 或外部工具，它们还需要对这些端点的出站访问。对于生产环境，通过强制执行域允许列表、注入凭据和记录请求的出站代理路由出站流量。有关完整模式，请参阅 [安全部署](/docs/zh-CN/agent-sdk/secure-deployment)。
 
 对于入站流量，在容器上公开 HTTP 或 WebSocket 端口。您的应用程序在该端口上处理客户端请求并在内部调用 SDK；子进程本身不在网络上侦听。
 

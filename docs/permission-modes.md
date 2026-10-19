@@ -86,11 +86,9 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 | 您如何运行 Claude Code | 内置起始权限模式 |
 | :- | :- |
 | 任何设置文件将 `disableAutoMode` 设置为 `"disable"` | `default` |
-| `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/permissions#permission-modes) | 在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中为 `default`。在不获取功能标志的会话中，例如在第三方提供商上或关闭遥测的情况下，Claude Code v2.1.285 或更高版本中为 `auto`，较早版本中为 `default`。组织策略禁止 `auto` 默认值的会话改为以 `default` 启动 |
+| `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/permissions#permission-modes) | `default` |
 | 您的组织已应用 [HIPAA 配置](#hipaa-configuration)，且该会话[符合其适用条件](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect) | Claude Code v2.1.285 或更高版本中为 `default`；仍可切换到自动模式 |
 | 在终端或通过 [VS Code 扩展](/docs/zh-CN/vs-code) | Claude Code v2.1.283 或更高版本中为 `auto`；在较早的版本上，在 Pro、Max 或 Team 计划中为 `auto`（在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中），否则为 `default` |
-
-在您[安装或升级后的第一个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)中，Claude Code 可以在其功能标志到达之前选择起始权限模式。该会话可能以与表格不同的权限模式启动。
 
 当标志、设置文件或内置默认值选择 `auto` 但自动模式对会话不可用时，Claude Code 以 Manual 启动会话。自动模式在会话不满足[可用性要求](#eliminate-prompts-with-auto-mode)时不可用，例如设置文件关闭它或不支持它的模型，或当 Anthropic 已在服务器端临时关闭它时。
 
@@ -100,6 +98,45 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 * 在 VS Code 扩展中，作为新对话屏幕上的卡片，保留直到您关闭它
 
 如果您的 `~/.claude/settings.json` 将 `defaultMode` 设置为 `auto` 以外的值，且没有其他设置文件设置它，您的会话继续以该模式启动。在 Pro、Max 和 Team 计划上，以及在[不获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中，Claude Code 在终端或 VS Code 扩展中询问一次是否将设置更改为自动模式。如果您拒绝，您的设置保持原样。
+
+<h3 id="which-mode-a-non-interactive-run-starts-in">
+  在 `claude -p` 和 Agent SDK 运行中被拒绝的工具调用
+</h3>
+
+在 Claude Code v2.1.302 或更高版本中，[未设置权限模式](#which-mode-a-session-starts-in)的 `claude -p` 和 [Agent SDK](/docs/zh-CN/agent-sdk/permissions#permission-modes) 运行以 Manual 模式启动。此模式在 SDK 选项和设置中显示为 `default`。需要批准的调用会被拒绝，除非您通过允许规则、hook、`canUseTool` 回调或 `--permission-prompt-tool` 批准它们。
+
+要让这些调用获得批准，请添加允许规则或以自动模式启动：
+
+* **[添加允许规则](/docs/zh-CN/permissions#manage-permissions)**：Claude 运行您列出的调用。向 `claude -p` 传递 [`--allowedTools "Bash(npm test)"`](/docs/zh-CN/headless#auto-approve-tools)，或设置您 SDK 的[允许工具选项](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules)。
+* **以[自动模式](#eliminate-prompts-with-auto-mode)启动**：由分类器模型审查调用，因此您无需预先列出任何内容。向 `claude -p` 传递 `--permission-mode auto`，或设置您 SDK 的[权限模式选项](/docs/zh-CN/agent-sdk/permissions#set-permission-mode)。
+
+以下示例展示了 CLI 和每个 SDK 的自动模式写法：
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash theme={null}
+    claude -p "Run the test suite and fix any failures" --permission-mode auto
+    ```
+  </Tab>
+
+  <Tab title="TypeScript">
+    ```typescript theme={null}
+    const options = {
+      permissionMode: "auto"
+    };
+    ```
+  </Tab>
+
+  <Tab title="Python">
+    ```python theme={null}
+    from claude_agent_sdk import ClaudeAgentOptions
+
+    options = ClaudeAgentOptions(permission_mode="auto")
+    ```
+  </Tab>
+</Tabs>
+
+在 v2.1.302 之前，如果这些运行不[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，例如在[第三方提供商](/docs/zh-CN/third-party-integrations)上或设置了 `DISABLE_TELEMETRY` 时，它们可能以自动模式启动。
 
 <h3 id="start-in-a-different-mode">
   以不同的权限模式启动
@@ -345,7 +382,10 @@ claude --permission-mode plan
   Bedrock、Agent Platform 或 Foundry 上的自动模式
 </h3>
 
-在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai)、[Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 以及已登录的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中，自动模式默认可用。当没有其他内容设置权限模式时，在该部分表格所列的版本上，它也是[内置初始权限模式](#which-mode-a-session-starts-in)。要自行选择初始权限模式，请按照[以不同的权限模式启动](#start-in-a-different-mode)中的说明设置 `permissions.defaultMode`，或从 VS Code 扩展的模式指示器中选择权限模式。
+在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai)、[Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 以及已登录的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中，自动模式默认可用。如果您未在这些环境中设置权限模式，交互式会话将以自动模式启动，而 `claude -p` 或 Agent SDK 运行将以 Manual 模式启动，其配置值为 `default`：
+
+* **交互式终端和 VS Code 会话**：要以自动模式以外的权限模式启动它们，请按照[以不同的权限模式启动](#start-in-a-different-mode)中的说明设置 `permissions.defaultMode`，或从 VS Code 扩展的[模式指示器](#switch-permission-modes)中选择一种。[会话以哪种模式启动](#which-mode-a-session-starts-in)列出了以自动模式启动这些会话的 Claude Code 版本。
+* **`claude -p` 和 Agent SDK 运行**：要以自动模式启动，请向 `claude -p` 传递 `--permission-mode auto`，或在 TypeScript 中传递 `permissionMode: "auto"`、在 Python 中传递 `permission_mode="auto"`。如果您未传递权限模式，请参阅[`claude -p` 和 Agent SDK 运行中的工具调用被拒绝](#which-mode-a-non-interactive-run-starts-in)，其中也介绍了较早的 Claude Code 版本。
 
 在这些提供商上，仅支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型。在任何其他模型上，会话将改为以 Manual 模式启动。在这些提供商上将自动模式与 Haiku 5.5 一起使用需要 Claude Code v2.1.293 或更高版本。
 
@@ -368,6 +408,65 @@ claude --permission-mode plan
 
 要跳过请求服务器审查并始终使用 Claude Code 自身的分类器请求，请设置 [`CLAUDE_CODE_AUTO_MODE_SERVER=0`](/docs/zh-CN/env-vars)。在直接连接到 Anthropic API 时，该变量需要 Claude Code v2.1.281 或更高版本。在这种连接上将其设置为 `1`，会在尚未启用服务器审查的会话中启用它，除非您同时设置了 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`。如果您设置了 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 且未设置 `CLAUDE_CODE_AUTO_MODE_SERVER`，Claude Code 也会停止请求服务器审查，[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities)中描述的情况除外。
 
+<h3 id="default-classifier-model">
+  默认分类器模型
+</h3>
+
+默认情况下，分类器请求会发送到 Claude Sonnet 5。如果 `/status` 将 `Auto mode server` 显示为 `Enabled`，则仅针对[服务器审查](#server-side-classifier-review)范围之外的调用发送这些请求。
+
+在下表中找到与您的会话匹配的第一行。您将使用该行的模型，而不是 Sonnet 5。
+
+| 您的会话 | 分类器模型 |
+| - | - |
+| 具有 Anthropic 配置的分类器模型 | 所配置的模型。[查看调试日志](#classifier-model-check)以确定是哪个模型 |
+| 在 Claude Sonnet 4.6 上运行 | Sonnet 4.6 |
+| 设置了 [`ANTHROPIC_DEFAULT_SONNET_MODEL`](/docs/zh-CN/model-config#environment-variables) | 其值；如果其值为 Claude Sonnet 5.5 或 Claude Opus 5.5，则为 Sonnet 5 |
+
+如果 Sonnet 5 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的模型无法从您的提供商获得，或被您组织的[模型策略](/docs/zh-CN/model-config#restrict-model-selection)排除，Claude Code 会使用备用模型。该备用模型是您会话的模型，在 [Fable 会话](/docs/zh-CN/model-config#work-with-fable)中则是 Opus 模型。
+
+<h3 id="choose-the-classifier-model">
+  选择分类器模型
+</h3>
+
+在 Claude Code v2.1.302 或更高版本中，将 [`CLAUDE_CODE_AUTO_MODE_MODEL`](/docs/zh-CN/env-vars) 设置为完整的模型 ID，即可在[默认模型](#default-classifier-model)以外的模型上运行分类器。您的云提供商自己的完整模型 ID 也可以使用。以下 `~/.claude/settings.json` 示例设置了 Claude Sonnet 4.6：
+
+```json theme={null}
+{
+  "env": {
+    "CLAUDE_CODE_AUTO_MODE_MODEL": "claude-sonnet-4-6"
+  }
+}
+```
+
+<h4 id="classifier-model-not-reviewing">
+  当审查的并非您设置的模型时
+</h4>
+
+| 情况 | 会发生什么 | 处理方法 |
+| - | - | - |
+| 在会话中，`/status` 将 [`Auto mode server`](#server-side-classifier-review) 显示为 `Enabled` | 您的模型仅审查服务器不审查的内容 | 无需处理 |
+| 您设置了 Claude Opus 5、Claude Sonnet 5.5、Claude Opus 5.5，或被您组织的[模型策略](/docs/zh-CN/model-config#restrict-model-selection)排除的模型 | 由[默认分类器模型](#default-classifier-model)进行审查 | 设置其他模型 |
+| Anthropic 为您的会话配置了分类器模型 | 由该模型进行审查 | 无需处理 |
+| 您的提供商无法提供该模型 | 请求失败，Claude Code 会[拒绝每个需审查的操作](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action) | 设置该提供商可提供的模型，或移除该变量 |
+
+<h4 id="classifier-model-check">
+  查看分类器使用了哪个模型
+</h4>
+
+在 shell 中，使用 [`--debug-file`](/docs/zh-CN/cli-reference#cli-flags) 启动一个自动模式会话：
+
+```bash theme={null}
+claude --permission-mode auto --debug-file classifier-debug.log
+```
+
+让 Claude 运行一个非只读的 shell 命令，然后在日志中搜索 `classifier_request_started`：
+
+* **`model=` 之后是您的模型**：该变量已生效
+* **`model=` 之后是其他模型**：在日志中搜索 `ignoring CLAUDE_CODE_AUTO_MODE_MODEL`，其中会给出原因以及需要采取的步骤
+* **没有这样的行**：在 Claude Code 提示符下查看 `/status` 中的 `Auto mode server`：
+  * **`Enabled`**：[服务器](#server-side-classifier-review)已设置为审查此会话的调用。无需更改。
+  * **`Disabled`**：确保[权限模式](#switch-permission-modes)为 auto，然后让 Claude 再运行一个非只读的命令。
+
 <h3 id="what-the-classifier-blocks-by-default">
   分类器默认阻止的内容
 </h3>
@@ -384,7 +483,7 @@ claude --permission-mode plan
 * 修改共享基础设施
 * 不可逆地销毁会话开始前已存在的文件
 * 强制推送
-* 提交或推送一项更改，该更改在运行时会将密钥或敏感数据发送到仓库之外，或扩大部署所暴露的内容。这包括将密钥传递给尚未接收它的目标的 CI 工作流或部署配置、读取密钥存储并将数据发送出去的脚本或设置步骤，以及扩大部署发布内容的配置更改，例如注册表、可见性、制品或 sourcemap 设置。该检查适用于任何分支，即使仓库是公开的也同样适用，并在更改被提交或推送时触发，无论该提交或推送是否会触发流水线；要解除阻止，需要说明其执行效果，而不仅仅是提交或推送本身。在 v2.1.211 之前，该检查改为限定于默认分支：当推送到默认分支的内容包含敏感内容、相对于您的要求隐瞒或错误描述的更改、从仓库外部移植的内容，或绕过了您要求的审查时，该推送会被阻止
+* 提交或推送一项更改，该更改在运行时会将密钥或敏感数据发送到仓库之外，或扩大部署所暴露的内容。这包括将密钥传递给尚未接收它的目标的 CI 工作流或部署配置、读取密钥存储并将数据发送出去的脚本或设置步骤，以及扩大部署发布内容的配置更改，例如注册表、可见性、制品或 sourcemap 设置。该检查适用于任何分支，即使仓库是公开的也同样适用，并在更改被提交或推送时触发，无论该提交或推送是否会触发流水线；要解除阻止，需要说明其执行效果，而不仅仅是提交或推送本身
 * `git reset --hard`、`git checkout -- .`、`git restore .`、`git clean -fd`、`git stash drop` 或 `git stash clear`，分类器会假定这些命令会丢弃未提交的更改
 * 当 HEAD 处的提交并非在本会话中创建时执行 `git commit --amend`
 * 从 v2.1.198 起，当 HEAD 处的提交已被推送时执行 `git commit --amend`。仅修改提交信息的改写不会被阻止：即在 Claude 于本会话中创建的提交上，不暂存任何新内容的情况下执行 `--amend -m`
@@ -568,9 +667,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
   </Accordion>
 
   <Accordion title="成本和延迟">
-    分类器默认在 Claude Sonnet 5 上运行，而不是在您通过 `/model` 选择的模型上运行。Anthropic 在服务器端配置的分类器模型优先于该默认值。当您会话的模型是 Claude Sonnet 4.6，或者 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 排除了 Sonnet 5 时，分类器会改为在会话的模型上运行；当会话在 [Fable 模型](/docs/zh-CN/model-config#work-with-fable)上运行时，则在 Opus 模型上运行。在 Anthropic API 以外的提供商上，该备用 Opus 模型是您在 [`ANTHROPIC_DEFAULT_OPUS_MODEL`](/docs/zh-CN/model-config#environment-variables) 中设置的模型，如果您未设置，则为 Opus 5。
-
-    会话的第一个自动模式请求会验证 Sonnet 5 默认值：如果请求成功，Sonnet 5 将保持为该会话的分类器模型；如果因模型不可用而失败，该会话将改用备用模型。
+    Claude Code 的分类器请求可以在您通过 `/model` 选择的模型以外的模型上运行。请参阅[它们在哪个模型上运行](#default-classifier-model)。
 
     在 Enterprise 计划以及使用 Claude API、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 的账户上，分类器调用会计入您的 token 用量。每次检查都会发送部分会话记录以及待执行的操作，从而在执行前增加一次往返。受保护路径之外的读取和工作目录编辑会跳过分类器，因此开销主要来自 shell 命令和网络操作。当服务器在会话的模型请求中审查操作时，不存在需要计算的单独分类器调用；请参阅[服务器端分类器审查](#server-side-classifier-review)。
 

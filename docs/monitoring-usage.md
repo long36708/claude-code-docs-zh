@@ -137,11 +137,11 @@ Claude Code 不会删除您在托管设置中自己设置的每信号变量，�
 | `OTEL_LOG_TOOL_CONTENT` | 在 [`tool.output` 跨度事件](#tool-output-span-event)中启用工具内容的日志记录（默认值：禁用）。跨度属性在[其自己的门](#new-context-gates)下携带工具内容。需要[跟踪](#traces-beta)。内容在内容限制处截断（默认值 60 KB） | `1` 启用 |
 | `OTEL_LOG_MANAGED_SETTINGS` | 将编辑的托管设置和编辑前设置的 SHA-256 摘要添加到[托管设置已解决](#managed-settings-resolved-event)事件（默认值：禁用）。项目或本地设置中的值不会将其打开。需要 Claude Code v2.1.274 或更高版本 | `1` 启用 |
 | `OTEL_LOG_RAW_API_BODIES` | 将完整的 Anthropic Messages API 请求和响应 JSON 作为 `api_request_body` / `api_response_body` 日志事件发出（默认值：禁用）。正文包括整个对话历史记录。启用此选项意味着同意 `OTEL_LOG_USER_PROMPTS`、`OTEL_LOG_TOOL_DETAILS` 和 `OTEL_LOG_TOOL_CONTENT` 会揭示的所有内容 | `1` 表示在内容限制处截断的内联正文（默认值 60 KB），或 `file:<dir>` 表示磁盘上的未截断正文，事件中有 `body_ref` 指针 |
-| `CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH` | 内容限制：内容承载属性（如模型响应、工具内容、系统提示和原始 API 正文）的最大长度，包括截断标记，以 UTF-16 代码单位为单位（默认值：61440，即 60 KB）。默认值针对将属性值上限设为 64 KB 的后端进行了调整；仅当您的后端接受更大的值时才提高它，或降低它以减少遥测量。当设置了 OpenTelemetry SDK 属性限制 `OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT` 或其日志记录和跨度变体之一时，Claude Code 在该较小的值处截断，以便 `[TRUNCATED ...]` 标记保持在 SDK 限制内。需要 Claude Code v2.1.214 或更高版本 | `262144` |
+| `CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH` | 内容限制：内容承载属性（如模型响应、工具内容、系统提示词和原始 API 正文）的最大长度，包括截断标记，以 UTF-16 代码单位为单位（默认值：61440，即 60 KB）。默认值针对将属性值上限设为 64 KB 的后端进行了调整；仅当您的后端接受更大的值时才提高它，或降低它以减少遥测量。当设置了 OpenTelemetry SDK 属性限制 `OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT` 或其日志记录和跨度变体之一且其值更低时，Claude Code 在该较小的值处截断，以便 `[TRUNCATED ...]` 标记保持在 SDK 限制内 | `262144` |
 | `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` | 指标时间性偏好（默认值：`delta`）。如果您的后端期望累积时间性，请设置为 `cumulative` | `delta`、`cumulative` |
 | `CLAUDE_CODE_OTEL_HEADERS_HELPER_DEBOUNCE_MS` | 刷新动态标头的间隔（默认值：1740000ms / 29 分钟） | `900000` |
 
-对于 `http/protobuf` 和 `http/json` 协议，Claude Code 使用 `Content-Length` 标头发送每个导出请求。在 v2.1.212 之前，v2.1.191 及更高版本的 Claude Code 版本使用分块传输编码发送这些请求；Azure Monitor 和其他需要声明长度的端点以 `411 Length Required` 或 `400` 错误拒绝它们。
+对于 `http/protobuf` 和 `http/json` 协议，Claude Code 使用 `Content-Length` 标头发送每个导出请求。
 
 <h3 id="mtls-authentication">
   mTLS 身份验证
@@ -202,7 +202,7 @@ Claude Code 不会删除您在托管设置中自己设置的每信号变量，�
 
 入站跟踪上下文也适用于[事件](#events)。在设置了 `TRACEPARENT` 的 Agent SDK 和 `-p` 会话中，每个 OTLP 事件日志记录都携带 `trace_id` 和 `span_id` 值，将其加入您的应用程序跟踪，即使未配置跟踪导出器，您的日志后端也可以将事件与跟踪的其余部分关联。
 
-在交互处于活动状态时发出的记录携带交互跨度的 ID，即使 Claude Code 在跨度的异步上下文之外发出它，例如在权限提示回调中或对在启动期间缓冲并稍后导出的记录。在没有活动交互跨度的情况下发出的记录直接携带入站 `TRACEPARENT` ID。在 v2.1.214 之前，在跨度的异步上下文之外发出的记录携带入站 `TRACEPARENT` ID 而不是跨度的 ID。在 v2.1.212 之前，在活动跨度之外发出的事件记录不携带 `trace_id` 或 `span_id`。
+在交互处于活动状态时发出的记录携带交互跨度的 ID，即使 Claude Code 在跨度的异步上下文之外发出它，例如在权限提示回调中或对在启动期间缓冲并稍后导出的记录。在没有活动交互跨度的情况下发出的记录直接携带入站 `TRACEPARENT` ID。
 
 <h4 id="span-hierarchy">
   跨度层次结构
@@ -820,9 +820,9 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 | - | - |
 | `prompt.id` | UUID v4 标识符，关联处理单个用户提示词期间产生的所有事件 |
 | `event.sequence` | 用于对事件排序的从 0 开始的计数器，按 Claude Code 进程计数，而不是按会话计数 |
-| `message.uuid` | 持久保存在会话记录（即 `~/.claude/projects/*/*.jsonl` 文件）中的消息的 UUID。出现在 `assistant_response`、`api_response_body` 和 `user_prompt` 上，但命令分派除外，因为命令分派可能产生零条或多条消息。在 `assistant_response` 和 `api_response_body` 上，这是响应的最后一个会话记录条目，下一轮次的 `parentUuid` 从它链接。需要 Claude Code v2.1.214 或更高版本，在 `api_response_body` 上需要 v2.1.274 或更高版本 |
+| `message.uuid` | 持久保存在会话记录（`~/.claude/projects/*/*.jsonl` 文件）中的消息的 UUID。出现在 `assistant_response`、`api_response_body` 以及 `user_prompt` 上，但命令分派除外，因为命令分派可能产生零条或多条消息。在 `assistant_response` 和 `api_response_body` 上，这是该响应的最后一条会话记录条目，下一轮的 `parentUuid` 从它链接。在 `api_response_body` 上需要 Claude Code v2.1.274 或更高版本 |
 | `request_id` | 服务器分配的 API 请求 ID，从 `request-id` 响应头读取，例如 `req_011...`。对于没有 `request-id` 头的响应（如在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 上），该值改为来自 `x-amzn-requestid` 头。当响应携带任一头时，出现在 `api_request`、`api_error`、`api_refusal`、`assistant_response` 和 `api_response_body` 上。与 `llm_request` 追踪 span 上的同名属性相匹配。`x-amzn-requestid` 来源需要 Claude Code v2.1.282 或更高版本 |
-| `client_request_id` | 客户端生成的 UUID，作为 `x-client-request-id` 请求头发送。在第一方 API 连接上出现在 `api_request` 和 `api_error` 上；在第三方提供商后端上，以及请求通过非流式回退进行重试时不存在。它将请求与其响应配对，并且对于从未产生服务器 `request_id` 的失败（例如超时）仍然可用。与 `llm_request` 追踪 span 上的同名属性相匹配。需要 Claude Code v2.1.214 或更高版本 |
+| `client_request_id` | 客户端生成的 UUID，作为 `x-client-request-id` 请求头发送。在第一方 API 连接上出现于 `api_request` 和 `api_error`；在第三方提供商后端上，以及当请求通过非流式回退方式重试时不存在。它将请求与其响应配对，并且对于超时等从未产生服务器 `request_id` 的失败仍然可用。与 `llm_request` 追踪 span 上的同名属性一致 |
 
 要追踪由单个提示词触发的所有活动，请按特定的 `prompt.id` 值过滤您的事件。这会返回处理该提示词期间发生的 user\_prompt 事件、所有 api\_request 事件以及所有 tool\_result 事件。
 
@@ -851,7 +851,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `prompt_length`：提示词的长度
 * `prompt`：提示词内容。默认已编辑。设置 `OTEL_LOG_USER_PROMPTS=1` 以包含它
 * `prompt_text`：与 `prompt` 相同的值，在相同的条件下编辑。将带点的属性名称存储为嵌套对象的后端会将 `prompt.id` 读取为名为 `prompt` 的对象中的 `id`，从而可能丢失提示词字符串。在这种情况下请改为读取 `prompt_text`。需要 Claude Code v2.1.287 或更高版本
-* `message.uuid`：生成的用户消息的 UUID，与持久保存的会话记录条目相匹配。在命令分派上不存在，因为命令分派可能产生零条或多条消息。需要 Claude Code v2.1.214 或更高版本
+* `message.uuid`：生成的用户消息的 UUID，与持久保存的会话记录条目一致。在命令分派上不存在，因为命令分派可能产生零条或多条消息。
 * `command_name`：当提示词调用命令时的命令名称。内置和捆绑的命令名称（例如 `compact` 或 `debug`）按原样发出；别名（例如 `reset`）按输入的形式发出，而不是规范名称。自定义、插件和 MCP 命令名称会折叠为 `custom` 或 `mcp`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`
 * `command_source`：存在命令时命令的来源：`builtin`、`custom` 或 `mcp`。插件提供的命令报告为 `custom`
 
@@ -873,7 +873,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `response`：回复文本，在内容限制处截断（默认 60 KB）。默认编辑为 `<REDACTED>`。设置 `OTEL_LOG_ASSISTANT_RESPONSES=1` 以包含它。当未设置 `OTEL_LOG_ASSISTANT_RESPONSES` 时，改由 `OTEL_LOG_USER_PROMPTS` 控制，因此如果要在启用提示词日志记录的同时保持回复被编辑，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=0`
 * `model`：模型标识符（例如 "claude-sonnet-5"）
 * `request_id`：API 请求 ID，详见[事件关联属性](#event-correlation-attributes)
-* `message.uuid`：响应的最后一个会话记录条目的 UUID。API 响应按每个内容块一个会话记录条目进行持久保存；这是最后一个条目，下一轮次的 `parentUuid` 从它链接。需要 Claude Code v2.1.214 或更高版本
+* `message.uuid`：该响应最后一条会话记录条目的 UUID。API 响应按每个内容块一条会话记录条目的方式持久保存；这是最后一条，下一轮的 `parentUuid` 从它链接。
 * `query_source`：发出请求的子系统，例如 `"repl_main_thread"`、`"compact"` 或子代理名称
 
 <h4 id="tool-result-event">
@@ -902,9 +902,9 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `tool_result_size_bytes`：工具结果的大小（以字节为单位）
 * `mcp_server_scope`：MCP 服务器作用域标识符（针对 MCP 工具）
 * `vcs.ref.head.revision`、`vcs.ref.head.name`、`vcs.ref.head.type`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：由 Bash 或 PowerShell 工具运行的成功 `git commit` 的提交身份。`vcs.ref.head.revision` 是提交 SHA，`vcs.ref.head.name` 是提交所在的分支，`vcs.ref.head.type` 为 `branch`。当提交是在分离的 HEAD 上进行时，名称和类型会被省略。需要 Claude Code v2.1.269 或更高版本
-* `tool_parameters`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：包含工具特定参数的 JSON 字符串。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，即使标志关闭也会包含 `mcp_server_name`/`mcp_tool_name` 对，这与[工具决策事件](#tool-decision-event)中由主机编写的例外情况相同，需要 Claude Code v2.1.214 或更高版本。参数因工具而异：
-  * 对于 Bash 工具：包括 `bash_command`、`full_command`、`timeout`、`description` 和 `dangerouslyDisableSandbox`，并在 `git commit` 命令成功时包括 `git_commit_id` 和 `git_branch`。当该提交是会话工作目录的 HEAD 时，`git_commit_id` 是完整的提交 SHA，否则是 git 的缩写 SHA。`git_branch` 是提交所在的分支，在分离的 HEAD 上省略
-  * 对于桌面应用的工作区 Bash 工具（它也将 `tool_name` 报告为 `Bash`）：仅包括 `bash_command`、`full_command` 和 `timeout`
+* `tool_parameters`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：包含工具特定参数的 JSON 字符串。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，即使该标志关闭，也会包含 `mcp_server_name`/`mcp_tool_name` 对，这与[工具决策事件](#tool-decision-event)中由宿主定义的例外情况相同。参数因工具而异：
+  * 对于 Bash 工具：包括 `bash_command`、`full_command`、`timeout`、`description` 和 `dangerouslyDisableSandbox`，当 `git commit` 命令成功时还包括 `git_commit_id` 和 `git_branch`。当该提交是会话工作目录的 HEAD 时，`git_commit_id` 是完整的提交 SHA，否则是 git 的缩写 SHA。`git_branch` 是提交所在的分支，在分离的 HEAD 上省略
+  * 对于桌面应用的工作区 Bash 工具（它同样将 `tool_name` 报告为 `Bash`）：仅包括 `bash_command`、`full_command` 和 `timeout`
   * 对于 MCP 工具：包括 `mcp_server_name`、`mcp_tool_name`
   * 对于 Skill 工具：包括 `skill_name`
   * 对于 Agent 工具或旧版 Task 工具：包括 `subagent_type`
@@ -933,7 +933,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `cache_read_tokens`：从缓存读取的 token 数量
 * `cache_creation_tokens`：用于创建缓存的 token 数量
 * `request_id`：API 请求 ID，例如 `"req_011..."`，详见[事件关联属性](#event-correlation-attributes)。
-* `client_request_id`：客户端生成的 UUID，作为 `x-client-request-id` 请求头发送；有关它何时存在，请参阅[事件关联属性](#event-correlation-attributes)表。需要 Claude Code v2.1.214 或更高版本
+* `client_request_id`：客户端生成的 UUID，作为 `x-client-request-id` 请求头发送；有关其出现的条件，请参阅[事件关联属性](#event-correlation-attributes)表
 * `speed`：`"fast"` 或 `"normal"`，表示快速模式是否处于活跃状态
 * `query_source`：发出请求的子系统，例如 `"repl_main_thread"`、`"compact"` 或子代理名称
 * `effort`：应用于请求的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)：`"low"`、`"medium"`、`"high"`、`"xhigh"` 或 `"max"`。当 Claude Code 未发送 effort 级别时不存在，例如在不支持 effort 的模型上。
@@ -959,7 +959,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `duration_ms`：请求持续时间（以毫秒为单位）
 * `attempt`：已进行的尝试次数，包括初始请求。[检测重试耗尽](#detect-retry-exhaustion)说明了计数何时重新开始
 * `request_id`：API 请求 ID，例如 `"req_011..."`，详见[事件关联属性](#event-correlation-attributes)。
-* `client_request_id`：客户端生成的 UUID，作为 `x-client-request-id` 请求头发送。即使超时或连接错误等失败从未产生服务器 `request_id`，它也可用；有关它何时存在，请参阅[事件关联属性](#event-correlation-attributes)表。需要 Claude Code v2.1.214 或更高版本
+* `client_request_id`：客户端生成的 UUID，作为 `x-client-request-id` 请求头发送。即使超时或连接错误等失败从未产生服务器 `request_id`，它也可用；有关其出现的条件，请参阅[事件关联属性](#event-correlation-attributes)表。
 * `speed`：`"fast"` 或 `"normal"`，表示快速模式是否处于活跃状态
 * `query_source`：发出请求的子系统，例如 `"repl_main_thread"`、`"compact"` 或子代理名称
 * `effort`：应用于请求的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。当 Claude Code 未发送 effort 级别时不存在，例如在不支持 effort 的模型上。
@@ -1057,10 +1057,10 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `tool_name`：工具的名称（例如 "Read"、"Edit"、"Write"、"NotebookEdit"）
 * `tool_use_id`：此次工具调用的唯一标识符。与传递给 hook 的 `tool_use_id` 相匹配，从而可以在 OTel 事件和 hook 捕获的数据之间建立关联。
 * `decision`：`"accept"` 或 `"reject"`
-* `tool_source`：始终存在。工具的来源，取值为由 CLI 定义的封闭值集合。需要 Claude Code v2.1.214 或更高版本
+* `tool_source`：始终存在。工具的来源，是由 CLI 定义的封闭值集合：
   * `"builtin"`：CLI 自身的工具
   * `"mcp"`：一般的 MCP 服务器
-  * `"sdk_host_builtin_mcp"`：内置于 Claude Desktop 本身的进程内服务器，位于 Claude Desktop 拥有的会话中。当会话是 Claude Desktop 从其自身的入口点之一（`claude-desktop`、`claude-desktop-3p` 或 `local-agent`）启动的，且不是嵌套子会话时，Claude Desktop 拥有该会话；嵌套会话（包括 Claude Code 自身生成的会话）将这些服务器报告为 `"mcp"`
+  * `"sdk_host_builtin_mcp"`：内置于 Claude Desktop 本身的进程内服务器，位于 Claude Desktop 拥有的会话中。当 Claude Desktop 从其自身的某个入口点（`claude-desktop`、`claude-desktop-3p` 或 `local-agent`）启动会话，且该会话不是嵌套子会话时，Claude Desktop 拥有该会话；嵌套会话（包括 Claude Code 自身生成的会话）将这些服务器报告为 `"mcp"`
 * `source`：决策的来源：
   * `"config"`：无需询问即自动决定，依据为项目设置、用户个人设置中的允许或拒绝规则、企业托管策略、`--allowedTools` 或 `--disallowedTools` 标志、当前的权限模式、同一交互式 CLI 会话中先前提示所授予的会话作用域权限，或者因为该工具本身是安全的。该事件不会指明匹配的是这些来源中的哪一个。当权限提示请求本身失败时，Claude Code 也会报告 `"config"`，例如当 Agent SDK 的 [`canUseTool`](/docs/zh-CN/agent-sdk/typescript#canusetool) 回调或 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 工具返回无效结果时，或者当请求挂起期间输入流关闭时。在 v2.1.216 之前，Claude Code 将这些失败报告为 `"user_reject"`。
   * `"hook"`：由 `PreToolUse` 或 `PermissionRequest` hook 返回了决策。
@@ -1068,9 +1068,9 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   * `"user_temporary"`：当用户在权限提示中选择 "Yes" 进行一次性批准，或在文件编辑或读取提示中选择授予本会话剩余时间访问权限的选项时发出。在交互式 CLI 中，仅针对该选择本身发出；之后由该会话作用域授权允许的调用改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，该选择和之后的匹配都会发出 `"user_temporary"`。视为接受。
   * `"user_abort"`：当用户未作答便关闭权限提示时发出。在 Agent SDK 和非交互式 `-p` 会话中，这包括在 `canUseTool` 或 `--permission-prompt-tool` 权限请求挂起期间中断轮次；在 v2.1.216 之前，Claude Code 将这种中断报告为 `"user_reject"`。视为拒绝。
   * `"user_reject"`：当用户在被询问时选择 "No" 时发出。在交互式 CLI 中，仅针对该选择本身发出；匹配用户个人设置中拒绝规则的调用改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，匹配个人设置中拒绝规则的调用会发出 `"user_reject"`。视为拒绝。
-* `tool_parameters`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：包含工具特定参数的 JSON 字符串。形式与[工具结果事件](#tool-result-event)相同，但不含执行后的字段，例如 `git_commit_id`。如果权限决策通过 `updatedInput` 重写了工具输入，则对于被接受的调用，其值可能与 `tool_result` 不同。当 `decision` 为 `"reject"` 时，可使用此属性查看被拒绝的是哪个命令。
-  * 对于 `"sdk_host_builtin_mcp"` 工具：即使 `OTEL_LOG_TOOL_DETAILS` 关闭，也会包含 `mcp_server_name` 和 `mcp_tool_name`，因为这些名称由主机应用程序定义；如果没有它们，在默认流中将无法对这些内置服务器的被拒绝调用进行归因。对于用户配置的 MCP 服务器，事件的 `tool_name` 始终是字面量 `"mcp_tool"`，并且服务器和工具名称仅在标志开启时出现在 `tool_parameters` 中；参数内容在任何情况下都需要该标志。需要 Claude Code v2.1.214 或更高版本
-  * 对于 Bash 工具：包括 `bash_command`、`full_command`、`timeout`、`description`、`dangerouslyDisableSandbox`。桌面应用的工作区 bash 工具也将 `tool_name` 报告为 `Bash`，但仅包括 `bash_command`、`full_command` 和 `timeout`
+* `tool_parameters`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：包含工具特定参数的 JSON 字符串。结构与[工具结果事件](#tool-result-event)相同，但不含 `git_commit_id` 等执行后字段。如果权限决策通过 `updatedInput` 重写了工具输入，对于被接受的调用，其值可能与 `tool_result` 不同。当 `decision` 为 `"reject"` 时，可使用此属性查看哪个命令被拒绝。
+  * 对于 `"sdk_host_builtin_mcp"` 工具：即使 `OTEL_LOG_TOOL_DETAILS` 关闭，也会包含 `mcp_server_name` 和 `mcp_tool_name`，因为这些名称由宿主应用定义；如果没有它们，对这些内置服务器之一的被拒绝调用在默认数据流中将无法归属。对于用户配置的 MCP 服务器，事件的 `tool_name` 始终为字面值 `"mcp_tool"`，服务器和工具名称仅在启用该标志时出现在 `tool_parameters` 中；参数内容在任何情况下都需要该标志。
+  * 对于 Bash 工具：包括 `bash_command`、`full_command`、`timeout`、`description`、`dangerouslyDisableSandbox`。桌面应用的工作区 bash 工具同样将 `tool_name` 报告为 `Bash`，但仅包括 `bash_command`、`full_command` 和 `timeout`
   * 对于 MCP 工具：包括 `mcp_server_name`、`mcp_tool_name`
   * 对于 Skill 工具：包括 `skill_name`
   * 对于 Agent 工具或旧版 Task 工具：包括 `subagent_type`
@@ -1402,8 +1402,8 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `total_tool_uses`：子代理在整个运行过程中进行的工具调用次数
 * `duration_ms`：运行时间（毫秒）
 * `model`：子代理被解析为运行的模型
-* `final_model`：生成子代理最终回复的模型；在运行中途发生切换（例如回退）后，该值与 `model` 不同。需要 Claude Code v2.1.212 或更高版本
-* `model_swapped`：是否有多个模型处理了该子代理的请求。需要 Claude Code v2.1.212 或更高版本
+* `final_model`：生成子代理最终响应的模型；在运行中途发生切换（例如回退）后，它会与 `model` 不同
+* `model_swapped`：是否有多个模型处理了该子代理的请求
 * `plugin_id_hash`、`plugin.name`：对于由插件提供的 Agent 存在。官方市场插件名称会原样显示；除非设置了 `OTEL_LOG_TOOL_DETAILS=1`，否则其他插件名称会被替换为 `"third-party"`
 
 <h4 id="feedback-survey-event">
@@ -1548,7 +1548,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   成本指标是近似值。有关官方计费数据，请参阅您的 API 提供商（Claude 控制台、Amazon Bedrock 或 Google Cloud 的 Agent Platform）。
 </Note>
 
-Claude Code 将每个流式响应计入成本和令牌指标，恰好一次，包括当网关或代理在 `ANTHROPIC_BASE_URL` 后面跨多个帧逐步流式传输使用情况时。在 v2.1.214 之前，在多个帧中携带使用情况的流会使 `claude_code.cost.usage` 和 `claude_code.token.usage` 膨胀，大约每个额外帧增加一个完整请求。
+Claude Code 将每个流式响应计入成本和 token 指标，恰好一次，包括当网关或代理在 `ANTHROPIC_BASE_URL` 后面跨多个帧逐步流式传输使用情况时。
 
 <h3 id="alerting-and-segmentation">
   警报和分段
@@ -1570,7 +1570,7 @@ Claude Code 将每个流式响应计入成本和令牌指标，恰好一次，�
 
 Claude Code 在内部重试失败的 API 请求，仅在放弃后才发出单个 `claude_code.api_error` 事件，因此事件本身是该请求的终端信号。中间重试尝试不会作为单独的事件记录。
 
-事件上的 `attempt` 属性记录尝试次数。`CLAUDE_CODE_MAX_RETRIES` 默认为 10，上限为 15。在 v2.1.199 或更高版本上，您可以设置 `CLAUDE_CODE_RETRY_WATCHDOG` 来提高默认值并移除上限。
+事件上的 `attempt` 属性记录尝试次数。`CLAUDE_CODE_MAX_RETRIES` 默认为 10，上限为 15；如果设置了 [`CLAUDE_CODE_RETRY_WATCHDOG`](/docs/zh-CN/env-vars)，默认值会更高，并且没有上限。
 
 当请求在瞬时错误上耗尽所有重试时，`attempt` 最多等于该有效限制加一：默认为 11。
 
@@ -1646,8 +1646,8 @@ export OTEL_RESOURCE_ATTRIBUTES="enduser.id=jdoe@example.com,enduser.directory_i
 
 没有 `OTEL_LOG_TOOL_DETAILS`，这些事件会丢弃识别详情：
 
-* `tool_result`：保留 `mcp_server_scope` 和一个对用户配置的服务器编辑为字面值 `"mcp_tool"` 的 `tool_name`，省略参数内容。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，它还保留 `tool_parameters` 内的 `mcp_server_name`/`mcp_tool_name` 对，与 `tool_decision` 相同的主机编写异常，需要 Claude Code v2.1.214 或更高版本
-* `tool_decision`：保留 `tool_source` 和一个对用户配置的服务器编辑为字面值 `"mcp_tool"` 的 `tool_name`，省略参数内容。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，它还保留 `tool_parameters` 内的 `mcp_server_name`/`mcp_tool_name` 对；`tool_source` 和名称对都需要 Claude Code v2.1.214 或更高版本
+* `tool_result`：保留 `mcp_server_scope` 和一个对用户配置的服务器编辑为字面值 `"mcp_tool"` 的 `tool_name`，省略参数内容。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，它还保留 `tool_parameters` 内的 `mcp_server_name`/`mcp_tool_name` 对，与 `tool_decision` 相同的主机编写异常
+* `tool_decision`：保留 `tool_source` 和一个对用户配置的服务器编辑为字面值 `"mcp_tool"` 的 `tool_name`，省略参数内容。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，它还保留 `tool_parameters` 内的 `mcp_server_name`/`mcp_tool_name` 对
 * `mcp_server_connection`：省略 `server_name` 和错误消息，但保留 `is_plugin`、`plugin_id_hash` 和 `plugin.name`，非 Anthropic 插件名称被编辑为字面值 `"third-party"`，因此插件提供的服务器在没有详细日志的情况下仍然可以区分
 
 <h3 id="map-security-questions-to-events">
@@ -1824,7 +1824,7 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 
   * 在详细的 beta 追踪下，spans 还会携带每个请求发送的新用户消息、工具结果和系统提醒、系统提示词文本以及模型输出。[详细 beta 追踪下的内容属性](#new-context-gates)列出了每个属性。`claude_code.system_prompt` 事件携带完整的系统提示词
 * 默认情况下不收集助手响应文本。仅记录响应长度。要包含响应文本，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=1`。与来自 Claude Code 的所有 OpenTelemetry 数据一样，响应文本仅发送到您配置的 OTel 端点，永远不会发送到 Anthropic。当此变量未设置时，会回退到 `OTEL_LOG_USER_PROMPTS`，因此如果您希望事件中包含提示词内容而不包含响应内容，请设置 `OTEL_LOG_ASSISTANT_RESPONSES=0`。在详细的 beta 追踪下，`claude_code.llm_request` span 仍会在 [`response.model_output`](#new-context-gates) 中携带模型输出，该属性遵循 `OTEL_LOG_USER_PROMPTS` 而非此变量
-* 默认情况下不记录工具输入参数和参数。要包含它们，请设置 `OTEL_LOG_TOOL_DETAILS=1`。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，`tool_decision` 和 `tool_result` 携带 `mcp_server_name`/`mcp_tool_name` 对，即主机编写的名称而非参数内容，即使关闭该标志也是如此。此异常需要 Claude Code v2.1.214 或更高版本。此数据仅发送到您配置的 OTEL 端点，永远不会发送到 Anthropic。参数仍可能包含敏感值，因此请根据需要配置您的遥测后端以过滤或编辑这些属性。启用后：
+* 默认情况下不记录工具输入参数和参数。要包含它们，请设置 `OTEL_LOG_TOOL_DETAILS=1`。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，`tool_decision` 和 `tool_result` 携带 `mcp_server_name`/`mcp_tool_name` 对，即主机编写的名称而非参数内容，即使关闭该标志也是如此。此数据仅发送到您配置的 OTEL 端点，永远不会发送到 Anthropic。参数仍可能包含敏感值，因此请根据需要配置您的遥测后端以过滤或编辑这些属性。启用后：
   * `tool_result` 和 `tool_decision` 事件包含 `tool_parameters` 属性，其中包含 Bash 命令、MCP 服务器和工具名称以及 skill 名称。`full_command` 等字段以未截断的形式发出
   * `tool_result` 事件另外包含 `tool_input` 属性，其中包含文件路径、URL、搜索模式和其他参数。超过 512 个字符的单个值被截断，总数限制为约 4 K 字符
   * `user_prompt` 事件包含自定义、插件和 MCP 命令的逐字 `command_name`

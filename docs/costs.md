@@ -67,7 +67,7 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 
 * **Attribution（归属）**：最近使用情况归属于 skills、subagents、plugins 和各个 MCP 服务器，每个都显示为总数的百分比。MCP 服务器的份额仅计算消耗其工具结果之一的请求。在 v2.1.222 之前，在调用 MCP 服务器一次后，Claude Code 将每个后续请求归属于该服务器，高估了其份额。
 * **Behavior flags（行为标志）**：行为，例如长上下文或缓存未命中，当其占最近使用情况的 10% 或更多时标记。
-* **Loops（循环）**：最近运行的每个最重的 [`/loop` 或其他计划任务](/docs/zh-CN/scheduled-tasks) 的行，按总令牌排序，其余的计数。Claude Code 报告每个任务触发的频率、运行次数、其总令牌和每次运行令牌，以及最后一次运行的时间。Claude Code 通过任务的提示键入行，因此您停止并重新创建的循环保持为一行。需要 Claude Code v2.1.242 或更高版本。
+* **Loops（循环）**：最近运行的每个最重的 [`/loop` 或其他计划任务](/docs/zh-CN/scheduled-tasks) 的行，按总令牌排序，其余的计数。Claude Code 报告每个任务触发的频率、运行次数、其总令牌和每次运行令牌，以及最后一次运行的时间。Claude Code 以任务的提示作为行的键，因此您停止并重新创建的循环保持为一行。需要 Claude Code v2.1.242 或更高版本。
 
 按 `d` 或 `w` 在过去 24 小时和过去 7 天之间切换。这些数据是近似值，从此机器上的本地会话历史记录计算，因此不包括来自其他设备或 claude.ai 的使用情况。
 

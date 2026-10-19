@@ -230,6 +230,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_AUTO_BACKGROUND_WORKER_CHECKIN_SECONDS` | 已在 v2.1.283 中移除。请改用 `CLAUDE_CODE_WORKER_CHECKIN_SCHEDULE` |
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | 以 token 为单位设置[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)，范围为 `100000` 到 `1000000`。仅接受纯整数，例如 `500000`：像 `500k` 这样的值会被读取为 `500`，并被限制为 100K 的最小值。有效窗口的上限还受模型上下文窗口限制。优先于 `/autocompact` 命令、`--autocompact` 标志和 `autoCompactWindow` 设置。状态栏的 `used_percentage` 始终以模型的完整上下文窗口为基准进行衡量，因此一旦设置此变量，该百分比将不再指示何时会运行压缩 |
 | `CLAUDE_CODE_AUTO_CONNECT_IDE` | 覆盖自动 [IDE 连接](/docs/zh-CN/vs-code)。默认情况下，在受支持 IDE 的集成终端中启动时，Claude Code 会自动连接。设置为 `false` 可阻止此行为。设置为 `true` 可在自动检测失败时强制尝试连接，例如当 tmux 遮蔽了父终端时。优先于 [`autoConnectIde`](/docs/zh-CN/settings-reference#autoconnectide) 全局配置设置 |
+| `CLAUDE_CODE_AUTO_MODE_MODEL` | 设置 Claude Code 在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下发送的分类器请求所使用的模型。请使用完整的模型 ID，例如 `claude-sonnet-4-6`。有关 Claude Code 会忽略它的情况，请参阅[选择分类器模型](/docs/zh-CN/permission-modes#choose-the-classifier-model)。需要 Claude Code v2.1.302 或更高版本 |
 | `CLAUDE_CODE_AUTO_MODE_SERVER` | 控制 Claude Code 是否请求服务器[审查自动模式操作](/docs/zh-CN/permission-modes#server-side-classifier-review)。设置为 `0` 可改用 Claude Code 自身的分类器请求。在直接连接到 Anthropic API 时，需要 v2.1.281 或更高版本。链接的章节列出了在未设置该变量时哪些会话会请求服务器，以及从哪个版本开始。需要 Claude Code v2.1.271 或更高版本 |
 | `CLAUDE_CODE_AWS_CHAIN_RESOLVE_TIMEOUT_MS` | Claude Code 等待 AWS 默认凭据提供程序链生成凭据的时间（毫秒），超时后请求将失败并显示 [`AWS default-chain credential resolve timed out`](/docs/zh-CN/errors#aws-default-chain-credential-resolve-timed-out)（默认值：`60000`）。当链中的某个步骤确实需要更长时间时（例如通过 `aws-vault` 等包装器进行带 MFA 的基于浏览器的 SSO 登录），请提高此值。适用于 Amazon Bedrock、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 和 [Mantle 端点](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)。请参阅[凭据缓存和解析超时](/docs/zh-CN/amazon-bedrock#credential-caching-and-resolution-timeout)。需要 Claude Code v2.1.207 或更高版本 |
 | `CLAUDE_CODE_BASH_EDIT_DIFF` | 设置为 `0` 可关闭 [Bash 命令运行期间更改的文件的 diff](/docs/zh-CN/hooks#bash)，设置为 `1` 可在每种权限模式下记录该 diff。优先于 [`bashEditDiffEnabled`](/docs/zh-CN/settings-reference#basheditdiffenabled) 设置。需要 Claude Code v2.1.269 或更高版本 |
@@ -304,7 +305,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_ENABLE_FINE_GRAINED_TOOL_STREAMING` | 控制工具调用输入是否在 Claude 生成时从 API 流式传输。关闭此功能时，较大的工具输入（例如较长的文件写入）只有在 Claude 完成生成后才会到达，这看起来可能像是卡住了。在 Anthropic API 上默认启用。在 Amazon Bedrock 和 Google Cloud's Agent Platform 上，会在已部署容器支持时按模型启用。设置为 `0` 可选择退出。通过 `ANTHROPIC_BASE_URL`、`ANTHROPIC_VERTEX_BASE_URL` 或 `ANTHROPIC_BEDROCK_BASE_URL` 经代理路由时，设置为 `1` 可强制开启。在 Microsoft Foundry 和[网关](/docs/zh-CN/llm-gateway)连接上默认关闭 |
 | `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY` | 当 `ANTHROPIC_BASE_URL` 指向与 Anthropic 兼容的网关（例如 LiteLLM、Kong 或内部代理）时，设置为 `1` 可从网关的 `/v1/models` 端点填充 `/model` 选择器。默认关闭，因为否则由共享 API 密钥支持的网关会向每个用户显示该密钥可访问的所有模型。发现的模型仍会按会话收到的 [`availableModels`](/docs/zh-CN/settings-reference#availablemodels) 允许列表进行过滤；请通过 [MDM 或托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)下发该列表，因为[服务器托管下发在网关配置上不可用](/docs/zh-CN/server-managed-settings#platform-availability) |
 | `CLAUDE_CODE_ENABLE_OPUS_4_7_FAST_MODE` | 已在 v2.1.142 中移除，当时[快速模式](/docs/zh-CN/fast-mode)的默认模型从 Opus 4.6 改为 Opus 4.7 |
-| `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION` | 设置为 `false` 可关闭提示词建议，即输入框中显示的灰色预测内容。优先于 [`promptSuggestionEnabled`](/docs/zh-CN/settings-reference#promptsuggestionenabled) 设置，`/config` 中的 **Prompt suggestions** 开关写入的正是该设置。当您的账户接近或达到用量限制时，Claude Code 也会[暂停建议](/docs/zh-CN/interactive-mode#when-claude-code-skips-suggestions)。设置为 `true` 可让建议保持开启，直到达到限制。需要 Claude Code v2.1.238 或更高版本。请参阅[提示词建议](/docs/zh-CN/interactive-mode#prompt-suggestions) |
+| `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION` | 设置为 `false` 可关闭提示词建议，即输入框中显示的灰色预测内容。优先于 [`promptSuggestionEnabled`](/docs/zh-CN/settings-reference#promptsuggestionenabled) 设置，`/config` 中的 **Prompt suggestions** 开关写入的就是该设置。当您的账户接近或达到用量限制时，Claude Code 也会[暂停建议](/docs/zh-CN/interactive-mode#when-claude-code-skips-suggestions)。设置为 `true` 可使该暂停在您达到限制之前不生效。需要 Claude Code v2.1.238 或更高版本。请参阅[提示词建议](/docs/zh-CN/interactive-mode#prompt-suggestions) |
 | `CLAUDE_CODE_ENABLE_TASKS` | 选择 Claude Code 在[具备任务跟踪工具的会话](/docs/zh-CN/tools-reference#task-tool-availability)中提供哪些任务跟踪工具。默认情况下，Claude Code 提供 Task 工具 `TaskCreate`、`TaskUpdate`、`TaskGet` 和 `TaskList`。设置为 `0` 可改为使用旧版 `TodoWrite` 工具。请参阅[任务列表](/docs/zh-CN/interactive-mode#task-list) |
 | `CLAUDE_CODE_ENABLE_TELEMETRY` | 设置为 `1` 可启用用于指标和日志的 OpenTelemetry 数据收集。配置 OTel 导出器之前必须设置此变量。请在 shell、用户设置或托管设置中设置。在[项目设置和本地设置](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)中会被忽略。请参阅[监控](/docs/zh-CN/monitoring-usage) |
 | `CLAUDE_CODE_ENABLE_TODO_TOOLS` | 设置为 `1` 可在所有模型上获得任务跟踪工具。如果不设置，Claude Code 默认仅在 [Task 工具可用性](/docs/zh-CN/tools-reference#task-tool-availability)中列出的模型上提供这些工具。`CLAUDE_CODE_ENABLE_TASKS` 仍然决定使用 Task 工具还是 `TodoWrite`。需要 Claude Code v2.1.233 或更高版本 |
@@ -613,16 +614,12 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
   安装或升级后的首个会话
 </h3>
 
-在您安装 Claude Code 后，或升级到新增某项功能的版本后，首个会话中可能缺少[受标志控制的功能](#features-that-need-feature-flag-fetching)。该会话启动时的[权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)也可能与之后的会话不同。Claude Code 在该会话期间获取标志后，会将其保存在本机上，因此您在该机器上的下一个会话将具备该功能，并以通常的起始权限模式启动。
-
-全新安装后，在非交互式会话（例如 `claude -p`、Agent SDK 或 VS Code 扩展）中，Claude Code 可能会在[选择起始权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)之前获取到标志，但并不总是会等待这些标志。
+在您安装 Claude Code 后，或升级到新增某项功能的版本后，首个会话中可能缺少[受标志控制的功能](#features-that-need-feature-flag-fetching)。Claude Code 在该会话期间获取功能标志后，会将其保存在本机上，因此您在该机器上的下一个会话将具备该功能。
 
 在以下这类设置中，首个会话之后的会话同样会在没有新获取标志的情况下启动：
 
 * **每次运行都是全新环境**：如果每次运行都在 CI 容器中启动，或在任何没有先前会话所保存标志的其他环境中启动，那么每次运行都是首个会话
 * **使用网关令牌且没有 API 密钥**：如果您使用 `ANTHROPIC_AUTH_TOKEN` 进行身份验证且没有 API 密钥，并且 `ANTHROPIC_BASE_URL` 指向 Anthropic 以外的主机（例如 [LLM 网关](/docs/zh-CN/llm-gateway)），Claude Code 将没有可用于获取标志的凭据
-
-要选择这些设置中会话启动时使用的权限模式，请参阅[以不同的权限模式启动](/docs/zh-CN/permission-modes#start-in-a-different-mode)。
 
 <h2 id="see-also">
   另请参阅

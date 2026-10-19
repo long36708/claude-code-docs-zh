@@ -199,7 +199,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `workspace.added_dirs` | 通过 `/add-dir` 或 `--add-dir` 添加的其他目录。如果未添加任何目录，则为空数组 |
 | `workspace.git_worktree` | 当前目录在使用 `git worktree add` 创建的链接 worktree 内时的 Git worktree 名称。在主工作树中不存在。对于任何 git worktree 都会填充，不同于仅在 [worktree 会话](/docs/zh-CN/worktrees) 期间出现的 `worktree.*` |
 | `workspace.repo.host`, `workspace.repo.owner`, `workspace.repo.name` | 从 `origin` 远程解析的存储库标识，例如 `"github.com"`、`"anthropics"`、`"claude-code"`。在 git 存储库外或未配置 `origin` 远程时不存在。对于嵌套在子组中的 gitlab.com 项目，`owner` 是带有斜杠的完整命名空间路径，例如 `"group/subgroup"`。在 v2.1.260 之前，这些项目的 `workspace.repo` 不存在 |
-| `cost.total_cost_usd` | 以美元计的估计会话成本，在客户端按列表价格计算，除非有 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 表生效。可能与你的实际账单不同。当 `/clear` 启动新会话时重置为 \$0。在 v2.1.211 之前，总计在 `/clear` 后继续累积 |
+| `cost.total_cost_usd` | 以美元计的估计会话成本，在客户端按列表价格计算，除非有 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 表生效。可能与您的实际账单不同。当 `/clear` 启动新会话时重置为 \$0 |
 | `cost.total_duration_ms` | 自会话开始以来的总挂钟时间（毫秒） |
 | `cost.total_api_duration_ms` | 等待 API 响应的总时间（毫秒） |
 | `cost.total_lines_added`, `cost.total_lines_removed` | 更改的代码行数 |
@@ -432,7 +432,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `miss_recache_tokens` | 由计为未命中的请求写入缓存的令牌 |
 | `last_miss_at` | 最后一次未命中发生时，以纪元秒为单位。当会话没有未命中时为 `null` |
 | `last_miss_cause` | Claude Code 识别为最后一次未命中可能原因的内容，在 [最后一次未命中原因](#last-miss-cause) 下描述。需要 Claude Code v2.1.260 或更高版本 |
-| `miss_causes` | 此会话的诊断未命中中有多少具有每个原因，由与 `last_miss_cause` 相同的原因名称键入。需要 Claude Code v2.1.260 或更高版本 |
+| `miss_causes` | 此会话的诊断未命中中有多少具有每个原因，以与 `last_miss_cause` 相同的原因名称为键。需要 Claude Code v2.1.260 或更高版本 |
 | `recache_tokens_if_cold` | 如果缓存到那时已变冷，下一个请求重新缓存的令牌。在压缩或清除旧工具结果后为 `null`，直到下一个请求记录重写对话的大小 |
 
 Claude Code 在终端上显示相同的统计信息，在 [`/usage` 命令的 `Prompt cache (main)` 行](/docs/zh-CN/costs#prompt-cache-statistics) 上。
@@ -1199,7 +1199,7 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 | `label` | string | Claude Code 提供的任务简短进度摘要（如果有），否则与 `description` 文本相同 |
 | `startTime` | number | 任务开始时间，以自 Unix 纪元以来的毫秒数表示 |
 | `model` | string，可选 | 任务运行所用的已解析模型 ID。在模型解析之前省略 |
-| `effort` | string 或 number，可选 | 在子代理的[定义 frontmatter](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 中或单次调用时为其设置的推理 effort：`low`、`medium`、`high`、`xhigh`、`max` 或数字 token 预算。这是所配置的值，当模型不支持该级别时，Claude Code 实际应用的 effort 可能会有所不同。未设置 effort 时省略。需要 Claude Code v2.1.213 或更高版本 |
+| `effort` | string 或 number，可选 | 在子代理的[定义 frontmatter](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 中或单次调用时为其设置的推理 effort：`low`、`medium`、`high`、`xhigh`、`max` 或数字 token 预算。这是所配置的值，当模型不支持该级别时，Claude Code 实际应用的 effort 可能会有所不同。未设置 effort 时省略 |
 | `contextWindowSize` | number，可选 | `model` 的上下文窗口（以 token 计），计算方式与主状态栏的 [`context_window.context_window_size`](#context-window-fields) 相同，因此您可以根据 `tokenCount` 渲染每行百分比。当 `model` 被省略时也会省略 |
 | `tokenCount` | number | 子代理的累计 token 数，即默认行中显示的数值 |
 | `tokenSamples` | array of numbers | 最近最多 16 个 `tokenCount` 读数，每个刷新周期一个，按从旧到新排列，最后一个为当前值 |

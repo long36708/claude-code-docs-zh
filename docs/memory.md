@@ -521,7 +521,7 @@ ln -s AGENTS.md CLAUDE.md
 * `.github/copilot-instructions.md` 中的 Copilot 规则
 * 设置 `CLAUDE_CODE_NEW_INIT=1` 时：`AGENTS.md`、`.devin/rules/`、`.windsurf/rules/` 或 `.windsurfrules`，以及 `.clinerules`
 
-您也可以运行 [`/import`](/docs/zh-CN/commands) 将支持的编码代理的配置引入 Claude Code，这会将 `AGENTS.md` 等说明文件的一次性副本追加到匹配的 `CLAUDE.md`，并携带 MCP 服务器、命令、子代理和 skills。需要 Claude Code v2.1.213 或更高版本。
+您也可以运行 [`/import`](/docs/zh-CN/commands) 将支持的编码 Agent 的配置引入 Claude Code，这会将 `AGENTS.md` 等说明文件的一次性副本追加到匹配的 `CLAUDE.md`，并携带 MCP 服务器、命令、子代理和 skill。
 
 <h2 id="auto-memory">
   自动记忆
@@ -587,10 +587,10 @@ Claude 不会每个会话都保存内容。它根据信息在未来对话中是�
 
 ```text theme={null}
 ~/.claude/projects/<project>/memory/
-├── MEMORY.md           # 索引，每个记忆一行，加载到每个会话
-├── user_role.md        # 一个记忆
-├── feedback_testing.md # 一个记忆
-└── ...                 # Claude 创建的任何其他主题文件
+├── MEMORY.md           # Index, one line per memory, loaded into every session
+├── user_role.md        # One memory
+├── feedback_testing.md # One memory
+└── ...                 # Any other topic files Claude creates
 ```
 
 `MEMORY.md` 充当记忆目录的索引。Claude 在你的会话中读取和写入此目录中的文件，使用 `MEMORY.md` 跟踪存储的内容。
@@ -615,7 +615,7 @@ Claude Code 在启动时不加载主题文件，例如 `user_role.md` 或 `feedb
 
 Claude 在你的会话中读取和写入记忆文件。当你在 Claude Code 界面中看到"Saved 2 memories"或"Recalled 2 memories"之类的消息时，Claude 正在主动更新或读取 `~/.claude/projects/<project>/memory/`。
 
-当 Claude 写入以 YAML frontmatter 开头的记忆文件时，Claude Code 在 `modified` frontmatter 字段中记录写入时间为 ISO 8601 时间戳。时间戳显示事实有多新，对你和 Claude 读取记忆时都有用。任何有 frontmatter 的文件在 Claude 下次写入时都会获得该字段，包括在早期版本上创建的文件；Claude Code 永远不会向没有 frontmatter 的文件添加 frontmatter。`modified` 字段需要 Claude Code v2.1.214 或更高版本。
+当 Claude 写入以 YAML frontmatter 开头的记忆文件时，Claude Code 在 `modified` frontmatter 字段中记录写入时间为 ISO 8601 时间戳。时间戳显示事实有多新，对您和 Claude 读取记忆时都有用。
 
 <h3 id="audit-and-edit-your-memory">
   审计和编辑你的记忆

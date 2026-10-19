@@ -324,7 +324,7 @@ Claude Code 也应用来自未跟踪的 `.claude/settings.local.json` 的批准�
 * 对于本地、项目或用户 [作用域](#mcp-installation-scopes) 中的服务器或托管 MCP 配置中的服务器，来源显示该配置中写入的主机，因此主机中的 `${VAR}` 引用在消息中不会展开。
 * 对于没有状态或错误代码的失败，Claude Code 显示错误文本而不显示来源。
 
-配置为空 `url` 的远程服务器在 `/mcp`、`claude mcp list` 和 [`/plugin`](/docs/zh-CN/plugins/install) 管理器中显示为 `not configured`，Claude Code 不尝试连接到它。插件可以包含这样的占位符条目，用于您稍后配置的连接器，因此 Claude Code 不将其报告为错误或设置问题。`/mcp` 中的服务器详情视图显示 `No URL configured for this server`；设置条目的 `url` 以连接它。在 v2.1.208 之前，Claude Code 将空 `url` 报告为配置问题，并提示重新连接。
+配置为空 `url` 的远程服务器在 `/mcp`、`claude mcp list` 和 [`/plugin`](/docs/zh-CN/plugins/install) 管理器中显示为 `not configured`，Claude Code 不尝试连接到它。插件可以包含这样的占位符条目，用于您稍后配置的连接器，因此 Claude Code 不将其报告为错误或设置问题。`/mcp` 中的服务器详情视图显示 `No URL configured for this server`；设置条目的 `url` 以连接它。
 
 <h4 id="configuration-warnings">
   配置警告
@@ -403,7 +403,7 @@ MCP 服务器可以在连接期间更改其提供的工具、提示词或资源�
 * **在交互式终端会话中**，Claude Code 从该服务器获取更新后的列表，因此您无需重新连接它。
 * **在使用 `-p` 标志的 [非交互模式](/docs/zh-CN/headless) 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 中**，Claude Code 在收到这些通知时仅刷新工具列表。
 
-如果刷新请求失败，Claude Code 保留服务器之前发现的工具、提示词和资源，直到稍后的刷新成功。在 v2.1.214 之前，刷新期间的瞬时错误将服务器的工具、提示词和资源替换为空列表。
+如果刷新请求失败，Claude Code 保留服务器之前发现的工具、提示词和资源，直到稍后的刷新成功。
 
 <h4 id="notification-streams-on-the-v2-runtime">
   v2 运行时上的通知流
@@ -502,7 +502,7 @@ Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道
   长工具调用的自动后台处理
 </h3>
 
-主对话中的 MCP 工具调用在两分钟后仍在运行时会移到后台任务，而不是阻塞会话。Claude 立即收到任务 ID 并继续工作，结果在调用完成时作为任务通知到达。自动后台处理需要 Claude Code v2.1.212 或更高版本。
+主对话中的 MCP 工具调用在两分钟后仍在运行时会移到后台任务，而不是阻塞会话。Claude 立即收到任务 ID 并继续工作，结果在调用完成时作为任务通知到达。
 
 任务出现在 [`/tasks`](/docs/zh-CN/commands#all-commands) 中，您也可以在其中停止它，退出会话后它不会保留。任务的条目显示服务器报告的最新进度。如果您停止任务，Claude Code 会取消调用并告知 Claude 不会有结果返回。停止并不保证服务器停止：服务器可能已经完成了部分工作，或者仍可能完成它。
 
@@ -1531,7 +1531,7 @@ Claude Code 会在每次调用时显示该工具的权限提示，即使在 `acc
 
 某些使用入口，例如 [Remote Control](/docs/zh-CN/remote-control) 和基于 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 构建的应用程序，通常允许您通过一次点击来批准工具调用。对于使用此注解标记的工具，Claude Code 会禁用一次点击操作并显示工具的完整权限提示，因此批准仍然来自回答提示的人，而不是点击。
 
-Claude Code 对任何只有终端对话框才能完整呈现的权限请求（例如带有安全警告或远程使用入口无法显示的始终允许选项的请求）也会以相同方式禁用一次点击批准。您需要在终端对话框中回答该请求，而不是从 Remote Control 中回答。需要 Claude Code v2.1.214 或更高版本。
+Claude Code 对任何只有终端对话框才能完整呈现的权限请求（例如带有安全警告或远程使用入口无法显示的始终允许选项的请求）也会以相同方式禁用一次点击批准。您需要在终端对话框中回答该请求，而不是从 Remote Control 中回答。
 
 <h2 id="respond-to-mcp-elicitation-requests">
   响应 MCP 引出请求

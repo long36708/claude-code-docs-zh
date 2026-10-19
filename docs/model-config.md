@@ -274,6 +274,7 @@ Claude Code 根据模型的设置位置处理任何其他被阻止的选择：
 * **skill 或命令覆盖**：Claude Code 忽略覆盖，包括被阻止的系列别名，skill 或命令在会话模型上运行。[在子代理中运行](/docs/zh-CN/skills#run-skills-in-a-subagent)的 skill 或命令遵循上面的子代理行为
 * **`advisorModel` 设置**：顾问对会话禁用
 * **`--advisor` 标志**：Claude Code 在启动时以错误退出。在[后台会话](/docs/zh-CN/agent-view)中，它改为在没有顾问的情况下启动会话，而不是退出
+* **`CLAUDE_CODE_AUTO_MODE_MODEL`**：Claude Code 忽略该变量，并像您未设置它一样为其[自动模式分类器请求](/docs/zh-CN/permission-modes#default-classifier-model)选择模型
 
 Claude Code 从 `/model` 选择器中隐藏排除的模型。您列出的模型 ID 是否也会获得自己的一行，因提供商而异：
 
@@ -285,7 +286,7 @@ Claude Code 代表您进行的模型更改以相同的方式检查：
 * **[备用模型链](#fallback-model-chains)**：允许列表外的条目被删除
 * **计划模式升级**：在 Anthropic API 和 AWS 上的 Claude Platform 上，升级（如 [`opusplan`](#opusplan-model-setting)）到排除的模型使用升级系列允许的最新版本。在具有提供商特定模型 ID 的提供商上，以及当不允许任何版本时，升级被跳过，规划继续在会话的模型上进行
 * **[自动模型回退](#automatic-model-fallback)**：目标被排除的回退不运行，因此标记的请求以拒绝结束
-* **[自动模式分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)**：分类器的 Claude Sonnet 5 默认值仅在允许列表允许 Sonnet 5 时适用。当它被排除时，分类器在会话的模型上运行，允许列表已经管理该模型，或在会话运行 [Fable 模型](#work-with-fable)时在 Opus 模型上运行。在 Anthropic API 以外的提供商上，该 Opus 回退在您于 `ANTHROPIC_DEFAULT_OPUS_MODEL` 中设置的模型上运行，否则在 Opus 5 上运行，不咨询允许列表。需要 Claude Code v2.1.210 或更高版本
+* **[自动模式分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)**：当允许列表排除[默认分类器模型](/docs/zh-CN/permission-modes#default-classifier-model)时，原本会使用该模型的分类器请求改为在会话模型上运行，或在 [Fable](#work-with-fable) 会话中在 Opus 模型上运行。在 Anthropic API 以外的提供商上，该 Opus 回退在您于 `ANTHROPIC_DEFAULT_OPUS_MODEL` 中设置的模型上运行，否则在 Opus 5 上运行，不咨询允许列表。需要 Claude Code v2.1.210 或更高版本
 * **[快速模式](/docs/zh-CN/fast-mode)**：当会话之后运行的模型在允许列表外时，启用快速模式被拒绝
 * **Amazon Bedrock 和 Google Cloud 的 Agent Platform 上的可用性回退**：当您的帐户在会话中途失去对某个模型的访问权限时，切换到其他模型时会跳过被排除的模型。[Amazon Bedrock](/docs/zh-CN/amazon-bedrock#when-your-organization-enforces-a-model-allowlist) 和 [Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai#when-your-organization-enforces-a-model-allowlist) 上的启动模型检查仅在托管设置同时设置了 [`enforceAvailableModels`](#enforce-the-allowlist-for-the-default-model) 时才跳过被排除的模型
 

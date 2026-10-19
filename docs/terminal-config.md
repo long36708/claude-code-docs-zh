@@ -58,11 +58,11 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 
     如果您接受了 Claude Code 的首次运行终端设置提示，这已经完成。该提示为您运行 `/terminal-setup`，它启用 Option 作为 Meta 并在您的 Apple Terminal 配置文件中关闭可听见的铃声。
 
-    在[屏幕阅读器模式](/docs/zh-CN/accessibility)中，`/terminal-setup` 保持铃声设置不变，以便终端铃声保持可听见。在 v2.1.211 之前，`/terminal-setup` 即使在屏幕阅读器模式下也会关闭铃声。如果较早的运行关闭了铃声，请在"设置"→"配置文件"→"高级"→"可听见的铃声"下将其重新打开。
+    在[屏幕阅读器模式](/docs/zh-CN/accessibility)中，`/terminal-setup` 保持铃声设置不变，以便终端铃声保持可听见。如果较早的运行关闭了铃声，请在"设置"→"描述文件"→"高级"→"可听见的铃声"下将其重新打开。
   </Tab>
 
   <Tab title="iTerm2">
-    打开"设置"→"配置文件"→"键"→"常规"并将"Left Option key"和"Right Option key"设置为"Esc+"。
+    打开"设置"→"描述文件"→"键"→"常规"并将"Left Option key"和"Right Option key"设置为"Esc+"。
 
     在 iTerm2 中运行 `/terminal-setup` 会在"设置"→"常规"→"选择"下启用"Applications in terminal may access clipboard"，以便 `/copy` 命令可以写入您的系统剪贴板。该命令即使在 tmux 内运行时也能检测到 iTerm2。重启 iTerm2 以使更改生效。
   </Tab>

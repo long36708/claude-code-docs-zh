@@ -627,15 +627,13 @@ fi
 exit 0  # exit 0 = no decision; the normal permission flow applies
 ```
 
-退出代码确定接下来会发生什么：
+当退出码既不是 0 也不是 2，且没有有效的 JSON 输出时，对于大多数事件，操作会继续进行，除非该 hook 属于 [失败时会阻止操作](/docs/zh-CN/hooks#block-the-action-when-a-hook-fails) 的 hook。将 `onFailure` 设置为 `"block"` 的 hook 就是一个例子。以 0 退出表示没有异议，以 2 退出则阻止操作：
 
-* **退出 0**：你的 hook 通过其退出代码报告没有异议。
-  * 对于 `PreToolUse` hook，这不会批准工具调用：正常的 [权限流程](/docs/zh-CN/permissions) 仍然适用。
-  * 对于 `UserPromptSubmit`、`UserPromptExpansion`、`SessionStart` 和 `PostModelSwitch` hooks，Claude Code 将 stdout [视为纯文本](/docs/zh-CN/hooks#exit-code-0) 添加到 Claude 的上下文中。
-* **退出 2**：Claude Code 阻止操作。写入原因到 stderr。它的去向取决于事件：某些事件将其反馈给 Claude，以便它可以调整，其他事件向用户显示它，还有一些（如 `ConfigChange` 和 `Elicitation`）不显示任何消息。某些事件无法被阻止：对于 `SessionStart` 和其他事件，退出 2 向用户显示 stderr，执行继续。有关每个事件的退出代码 2 行为的完整列表，请参阅 [每个事件的退出代码 2 行为](/docs/zh-CN/hooks#exit-code-2-behavior-per-event)。
-* **任何其他退出码**：对于大多数事件，操作会作为 [非阻止错误](/docs/zh-CN/hooks#exit-code-output) 继续进行，除非该 hook 属于 [失败时会阻止操作](/docs/zh-CN/hooks#block-the-action-when-a-hook-fails) 的 hook，或其 JSON 输出通过了验证：
-  * 通过 schema 验证的已解析对象：Claude Code 忽略退出码，仅由 JSON 决定结果，hook 不会被报告为错误。每个事件的例外（如 `WorktreeCreate` 在任何非零退出时失败）列在参考的 [退出码输出](/docs/zh-CN/hooks#exit-code-output) 部分中。
-  * 未通过 schema 验证的已解析对象，或 Claude Code [尝试解析为 JSON](/docs/zh-CN/hooks#exit-code-0) 但不是有效 JSON 的 stdout：非阻止错误；通知包含验证或解析消息。
+* **退出 0**：如果从 `PreToolUse` hook 以 0 退出，工具调用仍会经过正常的 [权限流程](/docs/zh-CN/permissions)，因为退出 0 并不会批准它。对于 `UserPromptSubmit`、`UserPromptExpansion`、`SessionStart` 和 `PostModelSwitch` hook，Claude Code 会将其 [视为纯文本](/docs/zh-CN/hooks#exit-code-0) 的 stdout 添加到 Claude 的上下文中。
+* **退出 2**：将原因写入 stderr。根据事件的不同，Claude 会将其作为反馈接收以便进行调整，或者向用户显示，或者不显示任何消息（如 `ConfigChange` 和 `Elicitation`）。某些事件无法被阻止：对于 `SessionStart` 等事件，退出 2 会向用户显示 stderr，并继续执行。有关完整列表，请参阅 [每个事件的退出码 2 行为](/docs/zh-CN/hooks#exit-code-2-behavior-per-event)。
+* **任何其他退出码**：有关每个事件的例外情况（例如 `WorktreeCreate` 在任何非零退出时都会失败），请参阅 [退出码输出](/docs/zh-CN/hooks#exit-code-output)。对于其他事件，除非该 hook 属于失败时会阻止操作的 hook，否则请根据 hook 打印到 stdout 的内容找到对应的情况：
+  * 通过 schema 验证的已解析对象：Claude Code 忽略退出码，仅由 JSON 决定结果，hook 不会被报告为错误。
+  * 未通过 schema 验证的已解析对象，或 Claude Code [尝试解析为 JSON](/docs/zh-CN/hooks#exit-code-0) 但不是有效 JSON 的 stdout：操作作为非阻止错误继续进行。请查看 `<hook name> hook error` 通知中的验证或解析消息。
   * Claude Code [视为纯文本](/docs/zh-CN/hooks#exit-code-0) 的 stdout，或空 stdout：操作作为非阻止错误继续进行。会话记录显示 `<hook name> hook error` 通知，然后是 stderr 的第一行，前缀为 `Failed with non-blocking status code:`。要捕获完整的 stderr，请使用 `claude --debug` 或在会话中运行 `/debug` 启用 [调试日志](/docs/zh-CN/hooks#debug-hooks)。
 
 <h4 id="structured-json-output">
@@ -662,17 +660,13 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 
 使用 `"deny"`，Claude Code 取消工具调用并将 `permissionDecisionReason` 反馈给 Claude。
 
-在 `PreToolUse` 上，Claude Code 处理每个 `permissionDecision` 值如下：
+在 `PreToolUse` 上，还可以返回 `"ask"` 以向用户显示正常的权限提示，或返回 `"allow"` 以跳过交互式权限提示。使用 `"allow"` 时，拒绝和询问规则（包括企业托管拒绝列表）仍然适用，以下情况的提示也仍然适用：
 
-* `"allow"`：跳过交互式权限提示。拒绝和询问规则（包括企业托管拒绝列表）仍然适用，以下情况的提示也仍然适用：
-
-  * 从 [网络路径](/docs/zh-CN/permissions#network-paths) 读取
-  * 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具
-  * 在该设置到达 Claude Code 的会话中，[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具
+* 从 [网络路径](/docs/zh-CN/permissions#network-paths) 读取
+* 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具
+* 在该设置到达 Claude Code 的会话中，[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具
 
   有关 `"allow"` 在计划模式下的作用，请参阅 [计划模式下的 hook 批准](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)。
-* `"deny"`：取消工具调用并将原因发送给 Claude
-* `"ask"`：照常向用户显示权限提示
 
 第四个值 `"defer"` 在 [非交互模式](/docs/zh-CN/headless) 中使用 `-p` 标志时可用。它以保留的工具调用退出进程，以便 Agent SDK 包装器可以收集输入并恢复。请参阅参考中的 [延迟工具调用以供稍后使用](/docs/zh-CN/hooks#defer-a-tool-call-for-later)。
 
@@ -892,10 +886,10 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 
 * `"ok": true`：操作继续
 * `"ok": false`：发生的情况取决于事件：
-  * `Stop` 和 `SubagentStop`：`reason` 被反馈给 Claude，以便它继续工作，除非响应也设置 `"impossible": true` 来标记该条件为永远无法满足的条件，在这种情况下 Claude Code 允许停止并且回合结束
-  * `PreToolUse`：工具调用被拒绝；默认情况下回合结束，拒绝 `reason` 在聊天中显示为警告行。在 hook 上设置 `continueOnBlock: true` 以改为将 `reason` 作为工具错误返回给 Claude，以便它可以调整并继续。在 v2.1.210 之前，拒绝 `reason` 被作为工具错误返回给 Claude，回合继续
-  * `PostToolUse`：默认情况下回合结束，`reason` 在聊天中显示为警告行。设置 `continueOnBlock: true` 以将 `reason` 反馈给 Claude 并继续回合
-  * `PostToolBatch`、`UserPromptSubmit` 和 `UserPromptExpansion`：回合结束，`reason` 在聊天中显示为警告行
+  * `Stop` 和 `SubagentStop`：`reason` 被反馈给 Claude，以便它继续工作，除非响应也设置 `"impossible": true` 来标记该条件为永远无法满足的条件，在这种情况下 Claude Code 允许停止并且该轮次结束
+  * `PreToolUse`：工具调用被拒绝；默认情况下该轮次结束，拒绝 `reason` 在聊天中显示为警告行。在 hook 上设置 `continueOnBlock: true` 以改为将 `reason` 作为工具错误返回给 Claude，以便它可以调整并继续
+  * `PostToolUse`：默认情况下该轮次结束，`reason` 在聊天中显示为警告行。设置 `continueOnBlock: true` 以将 `reason` 反馈给 Claude 并继续该轮次
+  * `PostToolBatch`、`UserPromptSubmit` 和 `UserPromptExpansion`：该轮次结束，`reason` 在聊天中显示为警告行
 
 此示例使用 `Stop` hook 询问模型是否所有请求的任务都已完成。如果模型返回 `"ok": false` 因为条件尚未满足，Claude 继续工作并使用 `reason` 作为其下一条指令：
 
@@ -1019,15 +1013,16 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
   Hooks 和权限模式
 </h3>
 
-`PreToolUse` hooks 在任何权限模式检查之前触发，在每个[权限模式](/docs/zh-CN/permission-modes)中，包括 `dontAsk`。返回 `permissionDecision: "deny"` 的 hook 会阻止工具，即使在 `bypassPermissions` 模式或使用 `--dangerously-skip-permissions` 时也是如此。这让你强制执行用户无法通过更改其权限模式来绕过的策略。
+通过设置文件或插件的 `hooks/hooks.json` 中的 hook，您无法将限制放宽到超出权限规则允许的范围，而 hook 的 `"deny"` 在每种权限模式下都有效：
 
-反过来则不成立：设置文件和插件的 `hooks/hooks.json` 中的 hook 可以收紧限制，但不能放宽到超出权限规则允许的范围。返回 `"allow"` 的 hook 不会绕过设置中的拒绝规则，并且在以下情况下也无法抑制提示：
-
-* 从[网络路径](/docs/zh-CN/permissions#network-paths)读取
-* 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具
-* 在该设置会传达到 Claude Code 的会话中，[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具
+* **对 `"allow"` 仍然有效的限制**：返回 `"allow"` 的 hook 不会绕过设置中的拒绝规则，并且在以下情况下也无法抑制提示：
+  * 从[网络路径](/docs/zh-CN/permissions#network-paths)读取
+  * 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具
+  * 在该设置会传达到 Claude Code 的会话中，[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具
 
 在[计划模式](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)中，如果您的 `PreToolUse` hook 对文件编辑返回 `"allow"`，您得到的提示、阻止或批准与没有 hook 时该编辑所得到的相同。要解除对 hook 批准的这一限制，请[批准计划](/docs/zh-CN/permission-modes#review-and-approve-a-plan)或切换到其他权限模式。
+
+* **`"deny"` 在每种权限模式下都有效**：返回 `permissionDecision: "deny"` 的 hook 会阻止工具，即使在 `bypassPermissions` 模式或使用 `--dangerously-skip-permissions` 时也是如此。`PreToolUse` hook 在任何权限模式检查之前触发，在每个[权限模式](/docs/zh-CN/permission-modes)中，包括 `dontAsk`。这让您能够强制执行用户无法通过更改其权限模式来绕过的策略。
 
 您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 可以批准被您的 `PreToolUse` hook 阻止的调用，除非该 hook 位于托管设置中。在计划模式中，当此类调用为只读时，mod 可以批准它，但不能批准文件编辑或其他非只读调用。[使用 hooks 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)列出了哪些规则优先于 mod。
 

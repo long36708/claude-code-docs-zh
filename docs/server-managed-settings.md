@@ -201,7 +201,7 @@ Claude Code 在启动时从 Anthropic 的服务器获取设置，并在活动会
 * 缓存的设置通过网络故障持久化。如果启动获取失败，Claude Code 在交互式会话中警告缓存的策略有效
 * 在某次获取成功之前，启动时被暂扣的值保持暂扣状态
 
-Claude Code 会暂扣缓存的 `env` 块中的多个变量类别，直到服务器确认该会话的有效负载。这可以防止缓存的代理、证书颁发机构、端点或凭证值重定向、拦截或重新身份验证确认有效负载的设置获取。加固仅适用于服务器获取的设置缓存：通过 MDM 或 `managed-settings.json` 部署的[端点管理的设置](/docs/zh-CN/managed-settings#delivery-mechanisms)不受影响。该暂扣机制需要 Claude Code v2.1.198 或更高版本；在 v2.1.198 之前，整个缓存的 `env` 块在启动时应用。被暂扣的类别包括：
+Claude Code 会暂扣缓存的 `env` 块中的多个变量类别，直到服务器确认该会话的负载。这可以防止缓存的代理、证书颁发机构、端点或凭据值重定向、拦截或重新身份验证确认负载的设置获取。加固仅适用于服务器获取的设置缓存：通过 MDM 或 `managed-settings.json` 部署的[端点管理的设置](/docs/zh-CN/managed-settings#delivery-mechanisms)不受影响。被暂扣的类别包括：
 
 * 代理和 TLS 配置，例如 `HTTPS_PROXY`、`NODE_EXTRA_CA_CERTS` 以及 mTLS 客户端证书变量 `CLAUDE_CODE_CLIENT_CERT` 和 `CLAUDE_CODE_CLIENT_KEY`
 * API 路由和提供商选择，包括 `ANTHROPIC_BASE_URL`、提供商选择变量（例如 `CLAUDE_CODE_USE_BEDROCK` 和 `CLAUDE_CODE_USE_VERTEX`）以及提供商端点 URL（例如 `ANTHROPIC_BEDROCK_BASE_URL`）
@@ -312,7 +312,7 @@ Claude Code 在您的配置目录 `~/.claude` 中记录您的批准，除非您�
 
 Claude Code 无法始终显示对话框。下面的每种情况说明当它无法显示时哪些设置适用，以及您何时下次看到对话框：
 
-* **无法显示对话框的交互式会话**：Claude Code 不应用传递的设置，保留最后批准的设置。对话框在下一个可以显示它的会话中出现。需要 Claude Code v2.1.211 或更高版本。
+* **无法显示对话框的交互式会话**：Claude Code 不应用传递的设置，保留最后批准的设置。对话框在下一个可以显示它的会话中出现。
 * **`claude install` 或 `claude update`**：Claude Code 在任何命令期间都不显示对话框。该命令使用最后批准的设置运行，对话框在您的下一个交互式会话中出现。如果 Claude Code 在启动时等待设置获取，例如设置了 [`forceRemoteSettingsRefresh`](#enforce-fail-closed-startup) 或在[Claude 应用网关](/docs/zh-CN/claude-apps-gateway)部署上，它会在命令期间显示对话框，从管道运行的安装失败；请参阅[安装期间 `Raw mode is not supported`](/docs/zh-CN/troubleshoot-install#raw-mode-is-not-supported-during-install)。在 v2.1.246 之前，Claude Code 也尝试在这些命令期间显示对话框。
 * **错误在您回答前关闭对话框**：Claude Code 不应用传递的设置，保留最后批准的设置。它在下一个可以显示它的会话中再次显示对话框。
 * **非交互式运行**，例如 `claude -p`、Agent SDK 会话或 VS Code 扩展的聊天面板或桌面应用的代码选项卡中的会话：Claude Code 无法显示对话框，因此当传递的设置需要批准时，它仅为该运行应用它们。它不将它们记录为已批准或写入[本地缓存](#fetch-and-caching-behavior)，下一个交互式会话会显示对话框。在用户在交互式会话中批准之前，每个非交互式运行都会在启动时再次获取设置。在 v2.1.207 之前，非交互式运行会将设置保存为已批准，因此后来的交互式会话永远不会为它们显示对话框。

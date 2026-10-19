@@ -610,7 +610,7 @@ console.log(`Set by: ${provenance.cleanupPeriodDays?.source}`);
 | `outputFormat` | `{ type: 'json_schema', schema: JSONSchema }` | `undefined` | 定义 Agent 结果的输出格式。详情请参阅[结构化输出](/docs/zh-CN/agent-sdk/structured-outputs) |
 | `outputStyle` | `string` | `undefined` | 不是 `Options` 字段。请改为在内联 [`settings`](/docs/zh-CN/settings) 对象或设置文件中设置 `outputStyle`。请参阅[激活输出样式](/docs/zh-CN/agent-sdk/modifying-system-prompts#activate-an-output-style) |
 | `pathToClaudeCodeExecutable` | `string` | 从捆绑的原生二进制文件自动解析 | Claude Code 可执行文件的路径。仅当安装期间跳过了可选依赖或您的平台不在支持范围内时才需要 |
-| `permissionMode` | [`PermissionMode`](#permissionmode) | `undefined` | 会话的权限模式。如果省略，会话可能以自动模式启动。有关 Claude Code 如何选择初始权限模式，请参阅[权限模式](/docs/zh-CN/agent-sdk/permissions#permission-modes) |
+| `permissionMode` | [`PermissionMode`](#permissionmode) | `undefined` | 会话的权限模式。如果省略它且没有其他内容设置权限模式（例如 [`permissions.defaultMode`](/docs/zh-CN/settings-reference#permissions-defaultmode) 设置），会话将以 `default` 启动。请参阅[权限模式](/docs/zh-CN/agent-sdk/permissions#permission-modes) |
 | `permissionPromptToolName` | `string` | `undefined` | 用于权限提示的 MCP 工具名称 |
 | `permissionPrompts` | `'host' \| 'none'` | `'host'` | 由谁回答权限提示：`'host'` 将其路由到您的 [`canUseTool`](#canusetool) 回调或 `permissionPromptToolName` 工具，`'none'` 则[拒绝本应触发提示的调用](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)。需要 Claude Code v2.1.259 或更高版本 |
 | `persistSession` | `boolean` | `true` | 为 `false` 时，禁用会话持久化到磁盘。会话之后将无法恢复 |

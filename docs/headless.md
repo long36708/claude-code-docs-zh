@@ -138,7 +138,7 @@ cat build-error.txt | claude -p 'concisely explain the root cause of this build 
   管道 stdin 的上限为 10MB。如果超过上限，Claude Code 会以清晰的错误和非零状态退出。要处理更大的输入，请将内容写入文件并在提示词中引用文件路径，而不是管道传输它。
 </Note>
 
-如果 Claude Code 无法读取 stdin，例如因为启动它的进程断开了其端点，Claude Code 会向 stderr 打印警告并继续使用命令行中的提示词。在 v2.1.211 之前，Windows 上不可读的 stdin 会导致会话崩溃或无输出地静默退出。
+如果 Claude Code 无法读取 stdin，例如因为启动它的进程断开了其端点，Claude Code 会向 stderr 打印警告并继续使用命令行中的提示词。
 
 <h3 id="add-claude-to-a-build-script">
   将 Claude 添加到构建脚本
@@ -213,7 +213,7 @@ claude -p "Explain recursion" --output-format stream-json --verbose --include-pa
 
 流的最后一行是包含最终响应文本、成本和会话元数据的 `result` 消息。
 
-如果您的消费者缓慢读取流，Claude Code 会等待队列中的输出排空后再退出，根据仍然队列中的数量缩放等待时间，上限为 30 秒。在 v2.1.214 之前，退出等待的上限约为两秒，这可能会截断大型响应的末尾。
+如果您的消费者缓慢读取流，Claude Code 会等待队列中的输出排空后再退出，根据仍然队列中的数量缩放等待时间，上限为 30 秒。
 
 以下示例使用 [jq](https://jqlang.org/) 过滤文本增量，仅显示流式文本。`-r` 标志输出原始字符串（无引号），`-j` 不带换行符地连接，以便 token 连续流式输出：
 
@@ -249,7 +249,6 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
 
 如果流中缺少其中某些消息，请将您的 Claude Code 版本与以下最低版本进行对照：
 
-* **`--forward-subagent-text` 和 `CLAUDE_CODE_FORWARD_SUBAGENT_TEXT`**：v2.1.211 或更高版本
 * **在每个嵌套深度转发**：v2.1.219 或更高版本
 * **Claude 从主对话使用 Skill 工具启动的 forked skill**：其 `tool_use` 和 `tool_result` 块需要 v2.1.86 或更高版本，其第一条 `user` 消息以及文本和思考块需要 v2.1.265 或更高版本
 * **forked skill 生成的子代理的消息，以及在子代理或另一个 forked skill 内启动的 forked skill 的消息**：v2.1.275 或更高版本
@@ -336,7 +335,9 @@ claude -p "Run the test suite and fix any failures" \
   --allowedTools "Bash,Read,Edit"
 ```
 
-要为整个会话设置基线而不是列出单个工具，请传递 [权限模式](/docs/zh-CN/permission-modes)。对于不设置权限模式的运行，采用 [内置启动权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)，可能是 `auto`，因此请传递您想要的权限模式：
+对未列出工具的调用如果无需批准，则会运行。在 [Manual 模式](/docs/zh-CN/permission-modes#available-modes) 的 `claude -p` 运行中，需要批准的调用会被拒绝，除非有机制批准它，例如 [`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest) 或 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)。在 Claude Code v2.1.302 或更高版本中，当 [没有任何设置指定权限模式](/docs/zh-CN/permission-modes#which-mode-a-non-interactive-run-starts-in) 时，`claude -p` 运行以 Manual 模式启动。
+
+要为整个会话设置基线而不是列出单个工具，请使用 `--permission-mode` 传递 [权限模式](/docs/zh-CN/permission-modes)，例如 `auto`、`dontAsk` 或 `acceptEdits`：
 
 * **`auto`**：传递 `--permission-mode auto` 以让分类器代替您审查大多数操作
 * **`dontAsk`**：Claude Code 拒绝每个原本会提示的调用，这对于锁定的 CI 运行很有用。在 Manual 模式下无需批准的操作仍会运行，例如工作目录中的文件读取和 [只读命令集](/docs/zh-CN/permissions#read-only-commands)，您的 `--allowedTools` 条目或 `permissions.allow` 规则涵盖的操作也是如此。`AskUserQuestion`、[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及 [从网络路径读取](/docs/zh-CN/permissions#network-paths) 即使在允许规则匹配时也会被拒绝

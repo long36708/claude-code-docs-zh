@@ -157,8 +157,8 @@ claude plugin validate ./my-plugin
 | [`commands`](#commands) | Path, array of paths, or object | 平面 `.md` 命令文件、它们的目录或命令名称到 `source` 或 `content` 的对象映射。替换默认 `commands/` 扫描 |
 | `agents` | Path, or array of paths | Agent `.md` 文件。不接受目录。替换默认 `agents/` 扫描 |
 | [`hooks`](#hooks) | Path, object, or array of either | `.json` hook 文件或内联 hook 配置。与 `hooks/hooks.json` 一起加载 |
-| [`mcpServers`](#mcpservers) | Path, object, or array of either | `.json` MCP 配置文件、`.mcpb` 或 `.dxt` 包，或按名称键入的内联服务器配置。与 `.mcp.json` 一起加载；稍后声明的服务器名称替换较早的名称 |
-| [`lspServers`](#lspservers) | Path, object, or array of either | `.json` LSP 配置文件或按名称键入的内联服务器配置。与 `.lsp.json` 一起加载 |
+| [`mcpServers`](#mcpservers) | Path, object, or array of either | `.json` MCP 配置文件、`.mcpb` 或 `.dxt` 包，或以名称为键的内联服务器配置。与 `.mcp.json` 一起加载；稍后声明的服务器名称替换较早的名称 |
+| [`lspServers`](#lspservers) | Path, object, or array of either | `.json` LSP 配置文件或以名称为键的内联服务器配置。与 `.lsp.json` 一起加载 |
 | `outputStyles` | Path, or array of paths | 输出样式文件或目录。替换默认 `output-styles/` 扫描 |
 | `workflows` | Path, or array of paths | [Workflow](/docs/zh-CN/workflows#distribute-a-workflow-in-a-plugin) `.js` 文件或目录。替换默认 `workflows/` 扫描 |
 | `experimental` | Object | `themes`、`monitors` 和 `evals` 的容器，其 manifest 形式可能仍会改变 |
@@ -345,7 +345,7 @@ Claude Code 首先加载 plugin 根目录处的 `.mcp.json`，然后按顺序加
 | `.json` 文件路径 | `"./mcp/servers.json"` | 将文件读取为 `mcpServers` 映射 |
 | MCP 包路径 | `"./bundle.mcpb"` | 将 `.mcpb` 或 `.dxt` 包提取到 plugin 根目录下的 `.mcpb-cache/` 并读取其服务器配置 |
 | MCP 包 URL | `"https://example.com/server.mcpb"` | 将包下载到 `.mcpb-cache/`，然后读取它 |
-| 内联映射 | `{ "deploy-api": { "command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/server.js"] } }` | 使用映射作为按名称键入的服务器配置 |
+| 内联映射 | `{ "deploy-api": { "command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/server.js"] } }` | 使用映射作为以名称为键的服务器配置 |
 
 包路径或 URL 必须以 `.mcpb` 或 `.dxt` 结尾。任何其他扩展名验证失败。
 

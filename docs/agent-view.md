@@ -479,7 +479,7 @@ Skill、您自己的命令以及会展开为提示词的内置命令（如 `/ini
 
 fork 之后，两个对话彼此独立：副本所做的任何事情都不会自行进入原始对话，不过在启用了 [跨会话消息](/docs/zh-CN/cross-session-messaging) 的会话中，任一会话的 Claude 都可以显式地向另一个发送消息。
 
-复制会话需要 Claude Code v2.1.212 或更高版本；在 v2.1.161 到 v2.1.211 上，`/fork` 启动的是 [fork 出的子代理](/docs/zh-CN/sub-agents#fork-the-current-conversation)，该功能现在为 `/subtask`。当 [Agent 视图已关闭](#turn-off-agent-view) 时，`/fork` 保持 fork 子代理的行为，且 `/subtask` 不可用。
+当 [Agent 视图已关闭](#turn-off-agent-view) 时，`/fork` 会启动一个 [fork 出的子代理](/docs/zh-CN/sub-agents#fork-the-current-conversation)，而不是复制会话。
 
 传递一个提示词，例如 `/fork open a draft pull request with the work so far`，副本会立即开始处理。不带提示词时，副本会等待第一条指令：在 `claude agents` 中选择其行并按 `Space` 发送一条，或运行 `claude attach <id>`。等待期间，所选行会显示 `space to send it a prompt`。
 
