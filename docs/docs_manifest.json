@@ -1366,14 +1366,14 @@
     "changelog.md": {
       "original_url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
       "original_raw_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-      "hash": "ed947e0adade89cadfcebedf7fc0017158f2e1c2dd3bef7ff8fcc2246b16459e",
-      "last_updated": "2026-10-16T22:12:00.866814",
+      "hash": "effcdc3cdb124ed73f1eca761ee25df036cd2163247b5addf1604eafedf561c5",
+      "last_updated": "2026-10-19T00:21:37.956736",
       "source": "claude-code-repository"
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-10-18T21:41:11.495348",
-    "fetch_duration_seconds": 154.903457,
+    "last_fetch_completed": "2026-10-19T00:21:37.956781",
+    "fetch_duration_seconds": 141.473364,
     "total_pages_discovered": 226,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1383,7 +1383,7 @@
     "total_files": 228,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-10-18T21:41:11.495382",
+  "last_updated": "2026-10-19T00:21:37.956801",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
