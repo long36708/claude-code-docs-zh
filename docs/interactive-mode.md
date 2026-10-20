@@ -6,19 +6,15 @@
 
 > Claude Code 会话中键盘快捷键、输入模式和交互功能的完整参考。
 
-<h2 id="keyboard-shortcuts">
-  快捷键
-</h2>
+## 快捷键
 
-<Note>
-  快捷键可能因平台和终端而异。在[全屏渲染](/docs/zh-CN/fullscreen)中，在记录查看器中按 `?` 查看可用的快捷键。
+> [!NOTE]
+>
+> 快捷键可能因平台和终端而异。在[全屏渲染](/docs/zh-CN/fullscreen)中，在记录查看器中按 `?` 查看可用的快捷键。
+>
+> **macOS 用户**：Option/Alt 键快捷键（`Alt+B`、`Alt+F`、`Alt+D`、`Alt+Y`、`Alt+P`）需要在终端中将 Option 配置为 Meta。请参阅[在 macOS 上启用 Option 键快捷键](/docs/zh-CN/terminal-config#enable-option-key-shortcuts-on-macos)了解每个终端中的设置。
 
-  **macOS 用户**：Option/Alt 键快捷键（`Alt+B`、`Alt+F`、`Alt+D`、`Alt+Y`、`Alt+P`）需要在终端中将 Option 配置为 Meta。请参阅[在 macOS 上启用 Option 键快捷键](/docs/zh-CN/terminal-config#enable-option-key-shortcuts-on-macos)了解每个终端中的设置。
-</Note>
-
-<h3 id="general-controls">
-  常规控制
-</h3>
+### 常规控制
 
 | 快捷键 | 描述 | 上下文 |
 | :- | :- | :- |
@@ -45,9 +41,7 @@
 | `Option+T`（macOS）或 `Alt+T`（Windows/Linux） | 切换扩展思考 | 启用或禁用扩展思考模式。对 Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 模型无效，它们始终使用扩展思考。在 macOS 上无需配置 Option 为 Meta 即可工作 |
 | `Option+O`（macOS）或 `Alt+O`（Windows/Linux） | 切换快速模式 | 启用或禁用[快速模式](/docs/zh-CN/fast-mode) |
 
-<h3 id="text-editing">
-  文本编辑
-</h3>
+### 文本编辑
 
 | 快捷键 | 描述 | 上下文 |
 | :- | :- | :- |
@@ -63,9 +57,7 @@
 | `Alt+D` | 删除到单词末尾 | 删除到当前单词的末尾，或当光标在单词之间时删除到下一个单词的末尾。存储删除的文本以供粘贴。在 macOS 上需要[Option 作为 Meta](#keyboard-shortcuts) |
 | `Ctrl+_` 或 `Ctrl+Shift+-` | 撤销最后一次输入编辑 | 恢复上一个输入文本和光标位置 |
 
-<h3 id="make-ctrl-w-delete-back-to-whitespace">
-  编辑快捷键中的单词边界
-</h3>
+### 编辑快捷键中的单词边界
 
 单词快捷键 `Alt+B`、`Alt+F`、`Alt+D`、`Option+Delete` 和 `Ctrl+Backspace` 将单词视为字母和数字的运行，因此标点符号（如 `_`、`.` 和 `/`）分隔单词。在提示中有 `src/utils/foo.ts` 时，重复按 `Alt+B` 会在 `ts`、`foo`、`utils` 和 `src` 的开始处停止。
 
@@ -77,17 +69,13 @@
 
 您无法在[快捷键配置文件](/docs/zh-CN/keybindings)中重新映射这些快捷键，该文件没有这些操作的操作。
 
-<h3 id="theme-and-display">
-  主题和显示
-</h3>
+### 主题和显示
 
 | 快捷键 | 描述 | 上下文 |
 | :- | :- | :- |
 | `Ctrl+T` | 切换代码块的语法突出显示 | 仅在 `/theme` 选择器菜单内工作。控制 Claude 响应中的代码是否使用语法着色 |
 
-<h3 id="multiline-input">
-  多行输入
-</h3>
+### 多行输入
 
 | 方法 | 快捷键 | 上下文 |
 | :- | :- | :- |
@@ -97,9 +85,7 @@
 | 控制序列 | `Ctrl+J` | 在任何终端中无需配置即可工作 |
 | 粘贴模式 | 直接粘贴 | 对于代码块、日志 |
 
-<h3 id="quick-commands">
-  快速命令
-</h3>
+### 快速命令
 
 | 快捷键 | 描述 | 注释 |
 | :- | :- | :- |
@@ -109,9 +95,7 @@
 | `:` | 表情符号简码 | 键入完整的 `:name:` 以插入表情符号，或键入两个或更多字符以获取建议。请参阅[表情符号简码](#emoji-shortcodes)。需要 Claude Code v2.1.217 或更高版本 |
 | `?` 在空输入上 | 切换快捷键帮助面板 | 当输入已包含文本时键入 `?` 会插入该字符 |
 
-<h3 id="transcript-viewer">
-  记录查看器
-</h3>
+### 记录查看器
 
 当记录查看器打开时（使用 `Ctrl+O` 切换），这些快捷键可用。运行不带参数的 `/tui` 以检查哪个渲染器处于活动状态。`Ctrl+E` 可以通过 [`transcript:toggleShowAll`](/docs/zh-CN/keybindings) 重新绑定。
 
@@ -124,17 +108,13 @@
 | `v` | 将对话写入临时文件并在 `$VISUAL` 或 `$EDITOR` 中打开它。需要[全屏渲染](/docs/zh-CN/fullscreen) |
 | `q`、`Ctrl+C`、`Esc` | 退出记录查看。所有三个都可以通过 [`transcript:exit`](/docs/zh-CN/keybindings) 重新绑定 |
 
-<h3 id="voice-input">
-  语音输入
-</h3>
+### 语音输入
 
 | 快捷键 | 描述 | 注释 |
 | :- | :- | :- |
 | 按住或点击 `Space` | 语音听写 | 需要启用[语音听写](/docs/zh-CN/voice-dictation)。按住以录制，或运行 `/voice tap` 以进行点击切换。[可重新绑定](/docs/zh-CN/voice-dictation#rebind-the-dictation-key) |
 
-<h2 id="commands">
-  命令
-</h2>
+## 命令
 
 在 Claude Code 中输入 `/` 可以查看可用的命令，或输入 `/` 后跟任何字母来筛选。`/` 菜单列出了内置命令、捆绑的和用户编写的 [skills](/docs/zh-CN/skills)，以及由 [plugins](/docs/zh-CN/plugins/overview) 和 [MCP servers](/docs/zh-CN/mcp#use-mcp-prompts-as-commands) 贡献的命令。并非所有内置命令对每个用户都可见，因为某些命令取决于您的平台或计划，而且 [少数可用命令在设计上从菜单中隐藏](/docs/zh-CN/commands#how-the-command-menu-matches-what-you-type)，当您输入其全名时运行。
 
@@ -142,9 +122,7 @@
 
 有关 Claude Code 中包含的命令的完整列表，请参阅 [commands reference](/docs/zh-CN/commands)。
 
-<h3 id="complete-a-command-mid-prompt">
-  在提示中途完成命令
-</h3>
+### 在提示中途完成命令
 
 命令完成也适用于提示的中途：在空格后输入 `/`，然后输入名称的前几个字母，如 `run the tests, then /com`。只有名称以这些字母开头的命令才会匹配，因此文件路径（如 `/tmp/notes.md`）不会保持列表打开。Claude Code 仅在命令 [starts your message](/docs/zh-CN/commands) 时自己运行命令。
 
@@ -155,17 +133,13 @@
 
 插件 skill 也会在其裸露名称上匹配，因此 `/deploy` 会找到名为 `myplugin:deploy-app` 的 skill。当您插入匹配项时，Claude Code 会写入完整的 `/myplugin:deploy-app`。
 
-<h2 id="vim-editor-mode">
-  Vim 编辑器模式
-</h2>
+## Vim 编辑器模式
 
 通过 `/config` → Editor mode 启用 vim 风格编辑。
 
 Claude Code 在你使用 `Ctrl+O` 切换[文字记录查看器](#transcript-viewer)或打开和关闭面板（如 `/config`）时保持你的 vim 模式和光标位置。如果你在 NORMAL 模式下离开提示符，当你返回时它仍然处于 NORMAL 模式，光标位置与你离开时相同。
 
-<h3 id="mode-switching">
-  模式切换
-</h3>
+### 模式切换
 
 | 命令 | 操作 | 来自模式 |
 | :- | :- | :- |
@@ -179,9 +153,7 @@ Claude Code 在你使用 `Ctrl+O` 切换[文字记录查看器](#transcript-view
 | `v` | 开始字符级可视选择 | NORMAL |
 | `V` | 开始行级可视选择 | NORMAL |
 
-<h3 id="remap-insert-mode-key-sequences">
-  重新映射 INSERT 模式快捷键序列
-</h3>
+### 重新映射 INSERT 模式快捷键序列
 
 [`vimInsertModeRemaps`](/docs/zh-CN/settings-reference#viminsertmoderemaps) 设置将两个按键的 INSERT 模式序列映射到 Escape，因此像 `jj` 这样的映射会让您返回 NORMAL 模式。
 
@@ -200,9 +172,7 @@ Claude Code 在你使用 `Ctrl+O` 切换[文字记录查看器](#transcript-view
 
 Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](/docs/zh-CN/managed-settings)读取此设置。项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目会被忽略，因此已检出的存储库无法重新映射你的按键。
 
-<h3 id="navigation-normal-mode">
-  导航（NORMAL 模式）
-</h3>
+### 导航（NORMAL 模式）
 
 | 命令 | 操作 |
 | :- | :- |
@@ -225,13 +195,11 @@ Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](/
 | `%` | 跳转到匹配的 `()`、`[]` 或 `{}` 括号；当光标不在括号上时，从当前行的下一个括号开始。需要 Claude Code v2.1.301 或更高版本 |
 | `/` | 打开反向历史搜索，与 `Ctrl+R` 相同。空搜索提示显示提示：按 `Esc` 然后 `i` 然后 `/` 来打开命令菜单 |
 
-<Note>
-  在 vim NORMAL 模式中，如果光标在输入的开始或结束处且无法进一步移动，`j`/`k` 和 `↑`/`↓` 会导航命令历史。在空提示符上按 `←` 也会从 NORMAL 模式和 INSERT 模式打开[代理视图](/docs/zh-CN/agent-view)；在 v2.1.219 之前，在空提示符上按 `←` 在 NORMAL 模式下不执行任何操作。
-</Note>
+> [!NOTE]
+>
+> 在 vim NORMAL 模式中，如果光标在输入的开始或结束处且无法进一步移动，`j`/`k` 和 `↑`/`↓` 会导航命令历史。在空提示符上按 `←` 也会从 NORMAL 模式和 INSERT 模式打开[代理视图](/docs/zh-CN/agent-view)；在 v2.1.219 之前，在空提示符上按 `←` 在 NORMAL 模式下不执行任何操作。
 
-<h3 id="editing-normal-mode">
-  编辑（NORMAL 模式）
-</h3>
+### 编辑（NORMAL 模式）
 
 | 命令 | 操作 |
 | :- | :- |
@@ -260,9 +228,7 @@ Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](/
 | `u` | 撤销 |
 | `.` | 重复上一个更改 |
 
-<h3 id="text-objects-normal-mode">
-  文本对象（NORMAL 模式）
-</h3>
+### 文本对象（NORMAL 模式）
 
 文本对象与 `d`、`c` 和 `y` 等运算符一起使用：
 
@@ -276,9 +242,7 @@ Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](/
 | `i[`/`a[` | 内部/周围方括号 |
 | `i{`/`a{` | 内部/周围花括号 |
 
-<h3 id="visual-mode">
-  可视模式
-</h3>
+### 可视模式
 
 按 `v` 进行字符级选择或按 `V` 进行行级选择。动作扩展选择，运算符直接作用于它。
 
@@ -298,9 +262,7 @@ Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](/
 
 不支持使用 `Ctrl+V` 的块级可视模式。
 
-<h2 id="command-history">
-  命令历史
-</h2>
+## 命令历史
 
 Claude Code 保留了你输入的提示词的历史记录，上箭头回调可以从同一项目的过去会话中获取提示词：
 
@@ -310,9 +272,7 @@ Claude Code 保留了你输入的提示词的历史记录，上箭头回调可�
 * 当你回调包含粘贴文本的提示词时，Claude Code 在你重新提交时会再次发送完整的粘贴内容。如果内容已被[自动清理](/docs/zh-CN/claude-directory#cleaned-up-automatically)，Claude Code 不会发送字面上的 `[Pasted text #N]` 字符串；有关提示词发生的情况，请参阅[粘贴大型内容](/docs/zh-CN/terminal-config#paste-large-content)
 * 使用 `!` 的历史扩展默认被禁用
 
-<h3 id="reverse-search-with-ctrl-r">
-  使用 Ctrl+R 进行反向搜索
-</h3>
+### 使用 Ctrl+R 进行反向搜索
 
 按 `Ctrl+R` 以交互方式搜索你的命令历史。在[全屏渲染](/docs/zh-CN/fullscreen)中，`Ctrl+R` 打开搜索对话框：输入以过滤，按 `Up` 和 `Down` 在匹配项中移动，按 `Ctrl+S` 循环切换范围（此会话、此项目和所有项目）。按 `Enter` 或 `Tab` 将匹配项放在提示词输入中，或按 `Esc` 取消。下面的步骤描述经典渲染器的内联搜索：
 
@@ -331,15 +291,11 @@ Claude Code 保留了你输入的提示词的历史记录，上箭头回调可�
 
 接受匹配项或取消搜索立即生效，即使 Claude Code 仍在加载历史记录。
 
-<h2 id="background-bash-commands">
-  后台 Bash 命令
-</h2>
+## 后台 Bash 命令
 
 Claude Code 支持在后台运行 Bash 命令，允许你在长时间运行的进程执行时继续工作。
 
-<h3 id="how-backgrounding-works">
-  后台运行的工作原理
-</h3>
+### 后台运行的工作原理
 
 当 Claude Code 在后台运行命令时，它会异步运行该命令并立即返回一个后台任务 ID。Claude Code 可以在命令继续在后台执行时响应新的提示。
 
@@ -373,9 +329,7 @@ Claude Code 支持在后台运行 Bash 命令，允许你在长时间运行的�
 * 开发服务器
 * 长时间运行的进程（docker、terraform）
 
-<h3 id="shell-mode-with-prefix">
-  使用 `!` 前缀的 Shell 模式
-</h3>
+### 使用 `!` 前缀的 Shell 模式
 
 通过在输入前加 `!` 前缀直接运行 shell 命令，无需通过 Claude：
 
@@ -400,9 +354,7 @@ Shell 模式：
 
 一旦命令输出出现在会话记录中，Claude 会自动对其进行回复，因此您可以运行 `! npm test` 并获得失败原因的解释，无需再发送提示词。该回复的成本与发送普通提示词相同。若要改为仅将输出添加到上下文而不回复，请在 `settings.json` 中将 [`respondToBashCommands`](/docs/zh-CN/settings-reference#respondtobashcommands) 设置为 `false`。
 
-<h2 id="queue-messages-while-claude-works">
-  在 Claude 工作时排队消息
-</h2>
+## 在 Claude 工作时排队消息
 
 在 Claude 工作时输入消息并按 `Enter`。Claude Code 会将消息排队而不是中断当前轮次，并在对话中列出排队的条目，直到发送它们。您可以以相同的方式排队 `!` [shell 命令](#shell-mode-with-prefix)和大多数[命令](/docs/zh-CN/commands)，除了 `/status` 等 Claude Code 在您发送时立即运行的命令。
 
@@ -410,9 +362,7 @@ Shell 模式：
 
 如果您排队的消息附带了来自[连接的 IDE](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server)的选择，它会保留您按 `Enter` 时的选择，无论您之后选择什么。
 
-<h3 id="when-claude-code-sends-what-you-queued">
-  Claude Code 何时发送您排队的内容
-</h3>
+### Claude Code 何时发送您排队的内容
 
 排队条目何时到达 Claude 取决于您排队的内容。
 
@@ -436,9 +386,7 @@ Claude Code 在您发送某些命令时立即运行它们，而不是排队它�
 * [`/effort`](/docs/zh-CN/model-config#adjust-effort-level)：一旦您确认[缓存警告](/docs/zh-CN/prompt-caching#changing-effort-level)（如果 Claude Code 显示），Claude Code 会将您的更改应用于该轮次中它发出的下一个请求
 * [`/fast`](/docs/zh-CN/fast-mode#toggle-fast-mode)：Claude Code 保持轮次开始时活跃的快速模式设置，因此您的速度更改从您的下一轮次应用。如果您当前的模型不支持快速模式，打开它也会[切换您的模型](/docs/zh-CN/prompt-caching#turning-on-fast-mode)，Claude Code 会在该轮次中从其下一个请求使用新模型
 
-<h3 id="take-back-what-you-queued">
-  取回您排队的内容
-</h3>
+### 取回您排队的内容
 
 从输入框的第一行按 `Up` 以取回排队的消息和命令。Claude Code 将其从队列中移除并将其放在输入框中，每行一个，位于您输入的任何文本之前。编辑文本并按 `Enter` 以将其再次排队为一个条目，或清除输入框以丢弃它。
 
@@ -446,9 +394,7 @@ Claude Code 仅在输入框为空且您没有其他排队内容时才取回排�
 
 如果您在 `←` [等待将会话转入后台](/docs/zh-CN/agent-view#switch-sessions-without-leaving-the-terminal)时取回排队的文本，文本会保留在输入框中，Claude Code 会取消切换。如果您恰好在会话移动的那一刻取回文本，文本会随前台屏幕一起消失：它并未被发送。您取回的每条消息都会作为单独的条目保存在[命令历史记录](#command-history)中。要恢复某条消息，请重新打开该会话，并在提示词为空且没有排队内容时按 `Up`。
 
-<h2 id="prompt-suggestions">
-  提示建议
-</h2>
+## 提示建议
 
 当你首次打开一个会话时，Claude Code 会在提示输入框中显示一个灰显的示例命令来帮助你开始。它从你的项目的 git 历史记录中选择这个示例，所以该示例反映了你最近一直在处理的文件。
 
@@ -459,9 +405,7 @@ Claude Code 仅在输入框为空且您没有其他排队内容时才取回排�
 
 Claude Code 使用后台请求生成这些下一个提示建议，该请求使用你的会话正在使用的同一模型。该请求计入你的计划使用限制或你的 API 成本。因为它重用对话的提示缓存，所以主要是缓存读取加上少量输出令牌，因此额外成本很小。
 
-<h3 id="when-claude-code-skips-suggestions">
-  当 Claude Code 跳过建议时
-</h3>
+### 当 Claude Code 跳过建议时
 
 在交互模式下，Claude Code 默认关闭提示建议，并在 `/config` 中隐藏 **Prompt suggestions** 切换，在[不获取功能标志的会话](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)中（例如在第三方提供商上或通过 Claude 应用网关），以及在[安装或升级后的首个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)中（其标志尚未到达）。
 
@@ -478,9 +422,7 @@ Claude Code 还在多种情况下跳过单个建议，包括：
 
 在打印模式下，Claude Code 默认不生成建议。使用 [`--prompt-suggestions`](/docs/zh-CN/cli-reference#cli-flags) 与 `-p "<prompt>" --output-format stream-json --verbose` 一起传递，以使 Claude Code 在生成建议的每一轮之后发出 `prompt_suggestion` 消息。生成器在这里也会跳过非常短的对话和冷提示缓存，因此单个短的 `-p` 查询可能不会发出任何建议。
 
-<h3 id="turn-prompt-suggestions-off">
-  关闭提示建议
-</h3>
+### 关闭提示建议
 
 要完全禁用提示建议，请使用以下任何一种方法：
 
@@ -493,9 +435,7 @@ Claude Code 还在多种情况下跳过单个建议，包括：
 
 要在整个组织范围内关闭提示建议，请在[托管设置](/docs/zh-CN/managed-settings)中将 `promptSuggestionEnabled` 设置为 `false`。还要在托管的 [`env`](/docs/zh-CN/settings-reference#env) 键下将 `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION` 设置为 `false`，以便用户无法使用自己的环境变量重新启用它们。
 
-<h2 id="you-should-know-suggestions">
-  You should know 建议
-</h2>
+## You should know 建议
 
 "You should know" 会寻找一件您应该知道但可能遗漏了的事情，例如 Claude 做出了某项权衡却没有明确指出，或者某个结果可能有误。找到后，它会在提示词输入框上方显示一条简短的提示：
 
@@ -521,17 +461,13 @@ Claude Code 还在多种情况下跳过单个建议，包括：
 
 在 `/plugin` 未列出该 mod 的情况下，启用命令会返回 `Plugin "cc-plugin-you-should-know@builtin" is not installed in this project`。
 
-<h3 id="cost-of-checks">
-  检查的成本
-</h3>
+### 检查的成本
 
 该 mod 启用期间，检查是发送给当前会话所用同一模型的后台请求，会计入您套餐的用量限制或您的 API 费用。每次检查都会发送 Claude 上下文中已有的内容，即截至目前的对话及其工具结果，随后是该 mod 自身的指令以及您最近提示的文本。对话部分会按照与 Claude 自身下一个请求相同的条件从会话的[提示缓存](/docs/zh-CN/prompt-caching)中读取。指令部分（长达数千个 token）以及辅助 Agent 的回复在每次检查时都会全额计费。
 
 要观察检查的发生过程，请在启动 Claude Code 之前在 shell 中设置 [`CLAUDE_CODE_YOU_SHOULD_KNOW_DEBUG=1`](/docs/zh-CN/env-vars)。
 
-<h3 id="answer-a-note">
-  响应提示
-</h3>
+### 响应提示
 
 在空的提示词输入框中单独输入选项对应的数字。提示提供以下选项：
 
@@ -546,18 +482,14 @@ Claude Code 还在多种情况下跳过单个建议，包括：
 
 Claude Code 会将您最近的提示以及您标记为已知的主题保存在 `~/.claude/plugins/store/` 下一个名称以 `cc-plugin-you-should-know` 开头的文件中。在本会话及之后的会话中，每次检查都会将它们列给辅助 Agent，作为不应重复的内容。当该文件超过 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 没有被任何会话读取或写入时，Claude Code 会将其删除。要更早清除它们，请在没有会话运行时删除该文件。
 
-<h3 id="turn-off-you-should-know">
-  关闭 You should know
-</h3>
+### 关闭 You should know
 
 要关闭 You should know，可以使用以下任一方式：
 
 * 在 Claude Code 提示符处运行 `/plugin disable cc-plugin-you-should-know@builtin`，或在 `/plugin` 的 **Installed** 标签页中将其关闭
 * 在未先打开 **Learn more** 的情况下对提示选择 **Dismiss** 后，在 `Dismissed.` 行上选择 **Turn off suggestions**，该行会在 20 秒后消失
 
-<h2 id="emoji-shortcodes">
-  表情符号速记代码
-</h2>
+## 表情符号速记代码
 
 在提示输入中输入 `:` 后跟表情符号速记代码来插入表情符号。需要 Claude Code v2.1.217 或更高版本。
 
@@ -568,64 +500,56 @@ Claude Code 会将您最近的提示以及您标记为已知的主题保存在 `
 
 要关闭此功能，请在 `settings.json` 中将 [`emojiCompletionEnabled`](/docs/zh-CN/settings-reference#emojicompletionenabled) 设置为 `false`。这会禁用建议弹出窗口和内联替换。
 
-<h2 id="check-spelling-as-you-type">
-  在输入时检查拼写
-</h2>
+## 在输入时检查拼写
 
 Claude Code 可以在您输入时在提示输入框中为拼写错误的单词加下划线。它仅检查输入框中的文本，从不检查 Claude 的回复或您的文件。它也不会在输入框处于[shell 模式](#shell-mode-with-prefix)、`Ctrl+R` 历史搜索或[语音听写](/docs/zh-CN/voice-dictation)时检查任何内容。
 
 拼写检查默认关闭，Claude Code 在[屏幕阅读器模式](/docs/zh-CN/accessibility)下不检查任何内容。需要 Claude Code v2.1.235 或更高版本。
 
-<h3 id="prerequisites">
-  前置条件
-</h3>
+### 前置条件
 
 * 安装 [aspell](https://github.com/GNUAspell/aspell)、[hunspell](https://github.com/hunspell/hunspell) 或 [ispell](https://en.wikipedia.org/wiki/Ispell)，并确保它在您的 `PATH` 中。Claude Code 在每个平台上运行它找到的前三个中的第一个，包括包管理器在 Windows 上安装的 `.cmd` shim。
 * 要检查程序是否在您的 `PATH` 中，请在您的终端中运行 `aspell --version`、`hunspell --version` 或 `ispell -v`。"command not found" 错误意味着它还不在您的 `PATH` 中。
 
-<h3 id="turn-spell-checking-on-or-off">
-  打开或关闭拼写检查
-</h3>
+### 打开或关闭拼写检查
 
 Claude Code 从三个地方读取 [`spellcheck`](/docs/zh-CN/settings-reference#spellcheck) 设置，并在项目的 `.claude/settings.json` 和 `.claude/settings.local.json` 中忽略它。从您使用的任何一个地方打开它：
 
-<Tabs>
-  <Tab title="用户设置">
-    将 `spellcheck` 添加到 `~/.claude/settings.json`。它适用于您打开的每个项目，就像您的其他[用户设置](/docs/zh-CN/settings#where-settings-live)一样：
+**用户设置**
 
-    ```json theme={null}
-    {
-      "spellcheck": { "enabled": true }
-    }
-    ```
-  </Tab>
+将 `spellcheck` 添加到 `~/.claude/settings.json`。它适用于您打开的每个项目，就像您的其他[用户设置](/docs/zh-CN/settings#where-settings-live)一样：
 
-  <Tab title="命令行">
-    将 `spellcheck` 保存在 JSON 文件中，例如 `spellcheck.json`：
+```json theme={null}
+{
+  "spellcheck": { "enabled": true }
+}
+```
 
-    ```json theme={null}
-    {
-      "spellcheck": { "enabled": true }
-    }
-    ```
+**命令行**
 
-    然后将文件传递给 `--settings`。它仅适用于该会话：
+将 `spellcheck` 保存在 JSON 文件中，例如 `spellcheck.json`：
 
-    ```bash theme={null}
-    claude --settings spellcheck.json
-    ```
-  </Tab>
+```json theme={null}
+{
+  "spellcheck": { "enabled": true }
+}
+```
 
-  <Tab title="托管设置">
-    将 `spellcheck` 添加到您的组织的[托管设置源](/docs/zh-CN/permissions#managed-settings)之一。它适用于接收这些设置的每个用户，他们无法关闭它：
+然后将文件传递给 `--settings`。它仅适用于该会话：
 
-    ```json theme={null}
-    {
-      "spellcheck": { "enabled": true }
-    }
-    ```
-  </Tab>
-</Tabs>
+```bash theme={null}
+claude --settings spellcheck.json
+```
+
+**托管设置**
+
+将 `spellcheck` 添加到您的组织的[托管设置源](/docs/zh-CN/permissions#managed-settings)之一。它适用于接收这些设置的每个用户，他们无法关闭它：
+
+```json theme={null}
+{
+  "spellcheck": { "enabled": true }
+}
+```
 
 要检查拼写检查是否打开，请输入一个拼写错误的单词和一个空格。Claude Code 会为该单词加下划线。如果没有，请参阅[当 Claude Code 不加下划线时](#when-claude-code-underlines-nothing)。要再次关闭拼写检查，请在同一位置将 `enabled` 设置为 `false`，或删除 `spellcheck`。
 
@@ -650,9 +574,7 @@ Claude Code 从三个地方读取 [`spellcheck`](/docs/zh-CN/settings-reference#
 
 如果三个地方中有多个具有 `spellcheck` 设置，Claude Code 仅使用其中一个：首先是托管设置，然后是 `--settings`，然后是用户设置。它不会组合来自两个地方的字段。例如，当 `--settings` 设置 `spellcheck` 时，您的用户设置中的 `language` 无效。
 
-<h3 id="what-claude-code-underlines">
-  Claude Code 加下划线的内容
-</h3>
+### Claude Code 加下划线的内容
 
 在您暂停输入后不久，Claude Code 会为字典不知道的单词加下划线。它会将您仍在输入的单词单独留下，直到您越过它，并且它永远不会更改您的文本。它也会跳过看起来像代码的文本：
 
@@ -663,9 +585,7 @@ Claude Code 也会跳过中文、日文、韩文、泰文、老挝文、高棉�
 
 Claude Code 没有自己的单词列表：当您的检查器说一个单词拼写错误时，它就是拼写错误的。要停止 Claude Code 为单词加下划线，请按照检查器自己的文档将该单词添加到您的检查器的个人字典中。Claude Code 在您重新启动它后会获取新单词。
 
-<h3 id="when-claude-code-underlines-nothing">
-  当 Claude Code 不加下划线时
-</h3>
+### 当 Claude Code 不加下划线时
 
 当 Claude Code 无法保持检查器运行时，它不加下划线：
 
@@ -675,9 +595,7 @@ Claude Code 没有自己的单词列表：当您的检查器说一个单词拼�
 
 要找出发生了哪种情况，请使用 `claude --debug` 启动拼写检查并输入一个单词。然后在 `~/.claude/debug/<session-id>.txt` 的调试日志中查找 `[spellcheck]` 行。一行命名 Claude Code 启动的程序，或列出它查找但未找到的程序。后面的行说明它为什么停止。那里的缺少字典错误意味着检查器没有您的 `language` 值的字典，或当 `language` 未设置时没有默认字典。安装一个，或将 `language` 设置为您拥有的字典。
 
-<h2 id="invisible-characters-in-prompts">
-  提示词中的隐形字符
-</h2>
+## 提示词中的隐形字符
 
 粘贴的文本可能包含 Unicode 字符，这些字符在终端中显示为空白，例如标签字符、双向控制字符和零宽空格，因此提示词可能包含您看不到的文本。为了防止复制的文本携带终端无法显示的指令，Claude Code 在您按 Enter 时会移除这些字符，然后再发送任何内容。它会清理提示词和提示词包含的任何折叠的[粘贴文本引用](/docs/zh-CN/terminal-config#paste-large-content)的内容。Claude Code 会保留波斯语和印度文字使用的连接符以及表情符号序列中的选择器。
 
@@ -685,9 +603,7 @@ Claude Code 没有自己的单词列表：当您的检查器说一个单词拼�
 
 当您在命令行上传递提示词时，例如 `claude "fix the login bug"`，Claude Code 不会等待第二次 Enter。它会移除这些字符，显示通知，并发送清理后的提示词。如果清理后的提示词将以 `/` 开头，Claude Code 会改为将其放在输入框中供您审查和发送。
 
-<h2 id="review-changes-with-/diff">
-  使用 /diff 查看更改
-</h2>
+## 使用 /diff 查看更改
 
 运行 `/diff` 可以在不离开 Claude Code 的情况下查看工作树中的更改。您可以看到 Claude 迄今为止所做的编辑以及您尚未提交的任何其他内容。`/diff` 打开的内容取决于当前启用的渲染器：
 
@@ -698,9 +614,7 @@ Claude Code 没有自己的单词列表：当您的检查器说一个单词拼�
 
 在 `/diff` 从 git 读取的更改中，子模块显示为单个条目，仅当它指向的提交发生更改时才会出现；对子模块内文件的编辑不会显示在那里。一旦 Claude 编辑了文件，面板和对话框还会提供每个轮次编辑的视图。这些轮次视图来自 Claude 的文件编辑而不是 git，因此 Claude 通过 shell 命令所做的更改仅显示在 `Current`（即工作树视图）下。
 
-<h3 id="diff-panel">
-  Diff panel
-</h3>
+### Diff panel
 
 diff 面板列出了更改的文件及其添加和删除的行数，并在列表下方显示每个文件的 diff。Claude Code 在 Claude 编辑文件或运行 shell 命令时刷新它。要关闭面板，请再次运行 `/diff` 或单击其标题中的 `✕`。
 
@@ -723,9 +637,7 @@ diff 面板列出了更改的文件及其添加和删除的行数，并在列表
 
 要重新绑定用于滚动文件列表或更改比较内容的快捷键，请参阅 [Diff panel actions](/docs/zh-CN/keybindings#diff-panel-actions)。
 
-<h3 id="diff-dialog">
-  Diff dialog
-</h3>
+### Diff dialog
 
 diff 对话框以带边框的区块形式在输入框上方打开，列出您更改的文件及其添加和删除的行数。它将这些文件与 `HEAD` 进行比较，或者与您上次为此仓库[在 diff 面板中选择](#diff-panel)的内容进行比较。
 
@@ -738,9 +650,7 @@ diff 对话框以带边框的区块形式在输入框上方打开，列出您更
 * **Esc**：从文件的 diff 返回到列表，或从列表关闭对话框。
 * **Tab**：移动到 `source` 选择器，然后使用上和下选择 `Current` 或某个轮次视图并按 Enter。在文件的 diff 中，Tab 会移动到 `ask` 按钮。按 Enter 可将该文件的 diff 附加到您的下一个提示词。
 
-<h2 id="side-questions-with-/btw">
-  使用 /btw 提出附加问题
-</h2>
+## 使用 /btw 提出附加问题
 
 使用 `/btw` 提出关于当前工作的问题，而不将其添加到对话历史记录中。
 
@@ -776,9 +686,7 @@ Claude 从对话中已有的内容回答附加问题：你的消息、它的回�
 
 `/btw` 可以看到你的完整对话，但没有工具。[子代理](/docs/zh-CN/sub-agents)有工具，从它接收的提示开始，或者对于 [分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)，从此对话的副本开始。使用 `/btw` 询问 Claude 从此会话中已知的内容；使用子代理去发现新的东西。
 
-<h2 id="task-list">
-  任务列表
-</h2>
+## 任务列表
 
 任务列表是 Claude 的待办事项清单：Claude 创建的用于规划多步骤工作的项目，带有指示器显示待处理、进行中或已完成的状态。它与后台任务视图分开。要查看运行中的 shell 和子代理，请改用 [`/tasks`](/docs/zh-CN/commands)。
 
@@ -790,9 +698,7 @@ Claude 从对话中已有的内容回答附加问题：你的消息、它的回�
 * 任务在上下文压缩中保持，帮助 Claude 在较大的项目中保持组织
 * 要在会话间共享任务列表，设置 `CLAUDE_CODE_TASK_LIST_ID` 以使用 `~/.claude/tasks/` 中的命名目录：`CLAUDE_CODE_TASK_LIST_ID=my-project claude`
 
-<h2 id="session-recap">
-  会话回顾
-</h2>
+## 会话回顾
 
 当你离开终端后返回时，Claude Code 会显示一行简短的回顾，说明到目前为止会话中发生了什么。一旦距离上次完成的轮次至少过了三分钟，且终端处于未聚焦状态，回顾就会在后台生成，这样当你切换回来时就已准备好。只有当会话至少有三个轮次时，回顾才会出现，且永远不会连续出现两次。
 
@@ -800,9 +706,7 @@ Claude 从对话中已有的内容回答附加问题：你的消息、它的回�
 
 会话回顾在所有计划和提供商上默认启用。要关闭自动回顾，请打开 `/config` 并关闭**会话回顾**。自动回顾永远不会在非交互模式下出现。Claude Code 将自动回顾和 `/recap` 输出都限制在 400 个字符以内。
 
-<h2 id="wait-for-a-usage-limit-to-reset">
-  等待使用限制重置
-</h2>
+## 等待使用限制重置
 
 当 claude.ai [使用限制](/docs/zh-CN/errors#youve-hit-your-session-limit) 在任务中途停止 Claude 时，Claude Code 会在打开的会话中等待，并在限制重置后自动继续该任务。在使用 claude.ai 订阅登录的交互式会话中，自动继续功能默认处于启用状态。需要 Claude Code v2.1.234 或更高版本。
 
@@ -823,9 +727,7 @@ Continuing automatically at 3:45pm · esc to cancel
 
 继续的任务像任何其他轮次一样运行。Claude Code 仍然照常要求 [权限](/docs/zh-CN/permissions)，因此任务可能在您离开时在提示处停止。如果再次达到限制，Claude Code 最多会自动重新启动等待两次，然后停止并显示 `Automatic continue stopped after repeated usage-limit hits · /rate-limit-options to try again`。
 
-<h3 id="cancel-the-wait">
-  取消等待
-</h3>
+### 取消等待
 
 在显示这些行时，于输入框为空时按 `Esc` 或按 `Ctrl+C`，或运行 [`/rate-limit-options`](/docs/zh-CN/commands#all-commands) 并选择 **Don't continue automatically**。Claude Code 会显示一行以 `Automatic continue cancelled` 开头的消息进行确认。
 
@@ -839,9 +741,7 @@ Continuing automatically at 3:45pm · esc to cancel
 * **设置关闭，或重置超过 24 小时**：这仅结束 Claude Code 自动启动的等待。您从 `/rate-limit-options` 中选择的等待会继续倒计时。
 * **继续被阻止**：一个阻止继续提示的 [`UserPromptSubmit` hook](/docs/zh-CN/hooks#userpromptsubmit)，或在到达模型之前的失败，会结束等待。Claude Code 会告诉您继续没有运行。发送提示以继续。
 
-<h3 id="start-a-wait-yourself">
-  自己启动等待
-</h3>
+### 自己启动等待
 
 Claude Code 在这些情况下不会自动启动等待：
 
@@ -857,15 +757,11 @@ Claude Code 在这些情况下根本不提供等待：
 * **API 密钥、云提供商和基于使用情况的计费**：那里的使用情况按请求计量，因此没有重置可等待。
 * **没有保存的 claude.ai 登录的 [LLM gateway](/docs/zh-CN/llm-gateway#subscriptions-and-gateways)**：Claude Code 仅在保存的 claude.ai 登录是活跃凭证时才提供等待。
 
-<h3 id="turn-automatic-continue-off">
-  关闭自动继续
-</h3>
+### 关闭自动继续
 
 在 `/config` 中，关闭 **Continue automatically at usage limit**，或在您的用户设置中将 [`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit) 设置为 `false`。`/config autoContinueAtUsageLimit=false` 也有效，包括使用 `-p`，但 `key=value` 形式无法将其重新打开，因为该设置授予无人值守执行。Claude Code 为此密钥读取的设置文件在 [settings reference](/docs/zh-CN/settings-reference#autocontinueatusagelimit) 中。
 
-<h2 id="pr-review-status">
-  PR 审查状态
-</h2>
+## PR 审查状态
 
 在处理具有开放拉取请求的分支时，Claude Code 在页脚显示可点击的 PR 链接，例如"PR #446"。该链接有一个彩色下划线，指示审查状态：
 
@@ -884,17 +780,15 @@ Claude Code 将徽章呈现为超链接，即使它无法在您的终端中检�
 
 当您设置 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars) 时，Claude Code 不会检查拉取请求或合并请求状态。
 
-<Note>
-  GitHub 仓库的 PR 状态需要 GitHub 令牌。Claude Code 根据远程主机查找令牌：
+> [!NOTE]
+>
+> GitHub 仓库的 PR 状态需要 GitHub 令牌。Claude Code 根据远程主机查找令牌：
+>
+> * **github.com**：`GH_TOKEN` 或 `GITHUB_TOKEN`，或由 `gh auth login` 保存的令牌。没有令牌时，当未安装 `gh` CLI 时页脚显示 `install gh for PR status`，或当已安装时显示 `gh auth login for PR status`
+> * **设置为 `GH_HOST` 的 GitHub Enterprise 主机**：`GH_ENTERPRISE_TOKEN` 或 `GITHUB_ENTERPRISE_TOKEN`，或由 `gh auth login --hostname <host>` 保存的令牌。没有令牌时，页脚显示相同的提示
+> * **任何其他 GitHub 主机**：由 `gh auth login --hostname <host>` 保存的令牌。没有令牌时，Claude Code 不显示徽章和提示
 
-  * **github.com**：`GH_TOKEN` 或 `GITHUB_TOKEN`，或由 `gh auth login` 保存的令牌。没有令牌时，当未安装 `gh` CLI 时页脚显示 `install gh for PR status`，或当已安装时显示 `gh auth login for PR status`
-  * **设置为 `GH_HOST` 的 GitHub Enterprise 主机**：`GH_ENTERPRISE_TOKEN` 或 `GITHUB_ENTERPRISE_TOKEN`，或由 `gh auth login --hostname <host>` 保存的令牌。没有令牌时，页脚显示相同的提示
-  * **任何其他 GitHub 主机**：由 `gh auth login --hostname <host>` 保存的令牌。没有令牌时，Claude Code 不显示徽章和提示
-</Note>
-
-<h3 id="gitlab-merge-requests">
-  GitLab 合并请求
-</h3>
+### GitLab 合并请求
 
 当您在具有开放 GitLab 合并请求的分支上工作时，Claude Code 在页脚槽中显示可点击的 `MR !N` 徽章，该槽位通常保存 GitHub PR 链接。`!N` 是 GitLab 自己的合并请求编号 N 的参考语法。彩色下划线显示合并请求的状态：
 
@@ -914,9 +808,7 @@ Claude Code 将徽章呈现为超链接，即使它无法在您的终端中检�
 
 Claude Code 在检查状态时忽略 `glab` 的令牌环境变量（例如 `GITLAB_TOKEN`），因此您无法仅从导出的令牌获得徽章。Claude Code 还每个会话查找一次 `glab` 及其登录信息，因此在安装 `glab` 或运行 `glab auth login` 后重启 Claude Code。
 
-<h2 id="issue-reference-links">
-  问题参考链接
-</h2>
+## 问题参考链接
 
 当 Claude 以 `owner/repo#123` 的形式提到一个问题时，只要您的终端支持超链接，您就可以点击该参考来打开它。如果 Claude Code 没有检测到您的终端支持超链接，请将 [`FORCE_HYPERLINK`](/docs/zh-CN/env-vars) 设置为 `1` 来启用链接，或设置为 `0` 来保持参考为纯文本。
 
@@ -935,9 +827,7 @@ Claude Code 根据它从您的 git remote 识别出的仓库主机来构建链�
 | gitlab.com | `https://gitlab.com/owner/repo/-/issues/123` |
 | bitbucket.org、codeberg.org 或 gitea.com | 无链接；参考保持为纯文本 |
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 * [Skills](/docs/zh-CN/skills) - 自定义提示和工作流
 * [Checkpointing](/docs/zh-CN/checkpointing) - 回退 Claude 的编辑并恢复以前的状态

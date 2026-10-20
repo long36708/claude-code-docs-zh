@@ -10,28 +10,24 @@
 
 此页面适用于管理员，此处的设置管理 Claude Code。
 
-<Note>
-  这些情况在其他页面上有介绍：
-
-  * **为自己安装 plugins**：从[安装 plugins](/docs/zh-CN/plugins/install)开始
-  * **控制成员在 claude.ai 和 Cowork 中可以使用的 plugins**：请参阅 claude.com 上的[为您的组织管理 plugins](https://claude.com/docs/plugins/admin)
-  * **将一个 plugin 同时推出到 claude.ai、Cowork 和 Claude Code**：请参阅 claude.com 上的[选择推出路线](https://claude.com/docs/plugins/org-rollout#choose-a-rollout-route)
-  * **claude.ai 管理员设置中的 plugins 页面**：[**组织设置 > Plugins & skills**](https://claude.ai/admin-settings/skills?tab=inventory)为成员的 claude.ai 账户启用 plugins，这些会作为[同步的 plugins](/docs/zh-CN/plugins/loading#synced-plugins)到达 Claude Code。它不设置此页面上的任何键
-</Note>
+> [!NOTE]
+>
+> 这些情况在其他页面上有介绍：
+>
+> * **为自己安装 plugins**：从[安装 plugins](/docs/zh-CN/plugins/install)开始
+> * **控制成员在 claude.ai 和 Cowork 中可以使用的 plugins**：请参阅 claude.com 上的[为您的组织管理 plugins](https://claude.com/docs/plugins/admin)
+> * **将一个 plugin 同时推出到 claude.ai、Cowork 和 Claude Code**：请参阅 claude.com 上的[选择推出路线](https://claude.com/docs/plugins/org-rollout#choose-a-rollout-route)
+> * **claude.ai 管理员设置中的 plugins 页面**：[**组织设置 > Plugins & skills**](https://claude.ai/admin-settings/skills?tab=inventory)为成员的 claude.ai 账户启用 plugins，这些会作为[同步的 plugins](/docs/zh-CN/plugins/loading#synced-plugins)到达 Claude Code。它不设置此页面上的任何键
 
 这些部分遵循大多数推出采取的顺序：为所有人或按存储库[要求 plugins](#pre-install-and-require-plugins)，[为容器和 CI 提供种子](#seed-containers-and-ci)，[限制](#restrict-what-users-can-install)用户可以自己添加的内容，[设置更新策略](#set-update-policy)，然后[审计](#audit-and-review)已安装的内容。要在一个地方查看每个策略键，请参阅[控制矩阵](#control-matrix)。
 
-<h2 id="pre-install-and-require-plugins">
-  预安装和要求插件
-</h2>
+## 预安装和要求插件
 
 市场是 Claude Code 从 git 存储库、URL 或本地路径获取的插件目录。在机器上注册市场后，Claude Code 可以从中安装插件。
 
 要为整个车队安装插件，请在[托管设置](/docs/zh-CN/managed-settings)、策略文件或组织中每台机器读取的服务器交付策略中一起设置两个键：`extraKnownMarketplaces` 在每台机器上注册市场，`enabledPlugins` 命名要从中安装和启用的插件。[选择交付机制](#choose-a-delivery-mechanism)涵盖托管设置如何到达每台机器。
 
-<h3 id="choose-a-delivery-mechanism">
-  选择交付机制
-</h3>
+### 选择交付机制
 
 托管设置通过以下三种交付机制之一到达机器：
 
@@ -41,9 +37,7 @@
 
 如果您在 claude.ai 上有 Claude for Teams 或 Enterprise 组织，并且您的设备不都在 MDM 下，请使用服务器托管设置。否则使用 MDM 策略或托管设置文件。有关权衡，请参阅[在服务器托管和端点托管设置之间选择](/docs/zh-CN/server-managed-settings#choose-between-server-managed-and-endpoint-managed-settings)。
 
-<h4 id="which-managed-source-applies-on-a-machine">
-  哪个托管源在机器上应用
-</h4>
+#### 哪个托管源在机器上应用
 
 默认情况下，这三个源中只有一个在机器上应用。Claude Code 使用首先交付策略键的源，首先检查服务器托管设置，然后是 MDM 策略，然后是托管设置文件。如果服务器托管设置交付甚至一个不相关的策略键，Claude Code 会忽略该机器上 MDM 策略或托管设置文件中的插件键，除了[它从每个源读取的键](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)。
 
@@ -51,9 +45,7 @@
 
 [Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)也在两种模式中列出 Claude Code 从每个源读取的键。
 
-<h3 id="require-a-marketplace-and-its-plugins">
-  要求市场及其插件
-</h3>
+### 要求市场及其插件
 
 在 `extraKnownMarketplaces` 下添加市场，使用市场自己的 `marketplace.json` 中的 `name` 作为键。然后在 `enabledPlugins` 下添加每个插件作为 `plugin-name@marketplace-name`。每个市场条目都带有一个 `source` 对象，其中 `source` 字段命名类型，例如 `github`。此托管设置示例注册一个组织市场并强制启用来自它的两个插件：
 
@@ -90,9 +82,7 @@
 
 Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其一个插件设置为 `true` 时不需要 `extraKnownMarketplaces` 条目。该 `name@claude-plugins-official` 条目在这些键应用的任何地方声明市场。如果您不启用其任何插件但仍想在每台机器上注册它，请给它一个显式条目，如[允许官方市场和您自己的](#allow-the-official-marketplace-and-your-own)所做的那样。
 
-<h3 id="require-plugins-per-repository">
-  按存储库要求插件
-</h3>
+### 按存储库要求插件
 
 要覆盖一个存储库的贡献者而不是整个车队，请在该存储库的 `.claude/settings.json` 中设置 `extraKnownMarketplaces` 和 `enabledPlugins`。`extraKnownMarketplaces` 条目仅在贡献者已信任的文件夹中应用，在不受信任的文件夹中 Claude Code 会无声地忽略它们：
 
@@ -105,9 +95,7 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 
 要推出具有依赖关系的插件包，请将包插件放在 `enabledPlugins` 中，如[插件依赖关系](/docs/zh-CN/plugins/dependencies)所述。
 
-<h3 id="when-each-surface-applies-the-plugin-keys">
-  每个表面何时应用插件键
-</h3>
+### 每个表面何时应用插件键
 
 该表显示每种 Claude Code 会话何时从托管设置和存储库的 `.claude/settings.json` 应用 `extraKnownMarketplaces` 和 `enabledPlugins`。对于 Desktop 应用和 IDE 扩展，请参阅[安装插件](/docs/zh-CN/plugins/install#install-a-plugin)。
 
@@ -119,47 +107,41 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 
 在 `-p` 或 CI 运行中，市场和插件在后台安装，因此插件可能在第一轮中丢失。设置 `CLAUDE_CODE_SYNC_PLUGIN_INSTALL=1` 使运行在其第一个查询之前等待安装。
 
-<h3 id="confirm-the-rollout">
-  确认推出
-</h3>
+### 确认推出
 
 检查市场和插件是否到达机器或 CI 运行：
 
 * **在一台机器上**：启动 Claude Code 并运行 `/plugin`。市场和插件被列出。
 * **在 CI 中**：使用 `--output-format stream-json --verbose` 运行 `claude -p`。`init` 事件在 `plugins` 下列出加载的插件。
 
-<h2 id="seed-containers-and-ci">
-  为容器和 CI 播种
-</h2>
+## 为容器和 CI 播种
 
 对于无法在运行时克隆的容器镜像和 CI 运行器，在构建时预填充插件目录并在 `CLAUDE_CODE_PLUGIN_SEED_DIR` 处指向它。Claude Code 在启动时注册播种的市场并从播种加载插件缓存，无需克隆。
 
 播种也为没有 git 主机账户的用户服务。
 
-<Note>
-  在 CI/CD 环境中，在从私有存储库安装插件之前配置 git 凭证助手。在 GitHub Actions 上，导出具有市场存储库读取权限的令牌作为 `GH_TOKEN`，然后运行 `gh auth setup-git`。默认工作流令牌只能访问工作流自己的存储库，因此另一个存储库中的私有市场需要个人访问令牌或应用令牌。
-</Note>
+> [!NOTE]
+>
+> 在 CI/CD 环境中，在从私有存储库安装插件之前配置 git 凭证助手。在 GitHub Actions 上，导出具有市场存储库读取权限的令牌作为 `GH_TOKEN`，然后运行 `gh auth setup-git`。默认工作流令牌只能访问工作流自己的存储库，因此另一个存储库中的私有市场需要个人访问令牌或应用令牌。
 
-<Steps>
-  <Step title="在构建时安装到播种中">
-    设置 `CLAUDE_CODE_PLUGIN_CACHE_DIR` 为播种路径，以便市场和插件安装在那里而不是 `~/.claude/plugins`：
+**1. 在构建时安装到播种中**
 
-    ```bash theme={null}
-    CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin marketplace add your-org/your-marketplace
-    CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin install code-formatter@your-marketplace
-    ```
+设置 `CLAUDE_CODE_PLUGIN_CACHE_DIR` 为播种路径，以便市场和插件安装在那里而不是 `~/.claude/plugins`：
 
-    播种的布局与 `~/.claude/plugins` 相同：`known_marketplaces.json`、`marketplaces/<name>/` 和 `cache/<marketplace>/<plugin>/<version>/`。您可以在与构建它不同的路径处挂载播种。
-  </Step>
+```bash theme={null}
+CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin marketplace add your-org/your-marketplace
+CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin install code-formatter@your-marketplace
+```
 
-  <Step title="在运行时指向播种">
-    在容器的环境中设置 `CLAUDE_CODE_PLUGIN_SEED_DIR=/opt/claude-seed`。要使用多个播种，在 Unix 上用 `:` 分隔其路径，在 Windows 上用 `;` 分隔。Claude Code 使用包含给定市场或插件缓存的第一个播种。
-  </Step>
+播种的布局与 `~/.claude/plugins` 相同：`known_marketplaces.json`、`marketplaces/<name>/` 和 `cache/<marketplace>/<plugin>/<version>/`。您可以在与构建它不同的路径处挂载播种。
 
-  <Step title="启用插件">
-    播种中的插件不会自动启用。为每个要加载的播种插件在托管设置或存储库的 `.claude/settings.json` 中设置 `enabledPlugins`。
-  </Step>
-</Steps>
+**2. 在运行时指向播种**
+
+在容器的环境中设置 `CLAUDE_CODE_PLUGIN_SEED_DIR=/opt/claude-seed`。要使用多个播种，在 Unix 上用 `:` 分隔其路径，在 Windows 上用 `;` 分隔。Claude Code 使用包含给定市场或插件缓存的第一个播种。
+
+**3. 启用插件**
+
+播种中的插件不会自动启用。为每个要加载的播种插件在托管设置或存储库的 `.claude/settings.json` 中设置 `enabledPlugins`。
 
 要验证播种，在镜像中使用 `--output-format stream-json --verbose` 运行 `claude -p`。在 `init` 事件的 `plugins` 列表中，每个加载的插件的 `path` 在播种下，例如 `/opt/claude-seed/cache/your-marketplace/code-formatter/1.0.0`。
 
@@ -172,9 +154,7 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 
 对于没有出站 git 访问的车队，将播种与共享挂载上的 `directory` 或 `file` 市场源结合。也设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`，这也关闭[插件自动更新](/docs/zh-CN/plugins/loading#when-auto-update-runs)。如果代理可用，请参阅[代理配置](/docs/zh-CN/network-config#proxy-configuration)了解要设置的变量。
 
-<h2 id="restrict-what-users-can-install">
-  限制用户可以安装的内容
-</h2>
+## 限制用户可以安装的内容
 
 托管 `strictKnownMarketplaces` 允许列表和 `blockedMarketplaces` 阻止列表决定插件可能来自哪些市场源。市场的源是 Claude Code 从中获取它的 git 存储库、URL 或本地路径。两个列表都匹配插件来自的市场的源，而不是该市场内的插件自己的条目。
 
@@ -192,9 +172,7 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 
 虽然设置了任何允许列表，或阻止列表命名除[`skills-dir`](#blocklist-with-blockedmarketplaces)之外的任何源，Claude Code 找不到的市场的插件不加载。`/plugin` 为其显示策略错误而不是未找到错误。常见情况是市场的陈旧 `enabledPlugins` 条目，没有人注册。
 
-<h3 id="control-matrix">
-  控制矩阵
-</h3>
+### 控制矩阵
 
 该表列出每个插件策略键、它执行的内容以及它无法做的内容。
 
@@ -223,18 +201,14 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 
 此处的每个设置键在[设置参考](/docs/zh-CN/settings-reference)中都有条目。
 
-<h4 id="aliases-for-the-marketplace-keys">
-  市场键的别名
-</h4>
+#### 市场键的别名
 
 `strictKnownMarketplaces` 也可以拼写为 `allowedMarketplaces`，`extraKnownMarketplaces` 也可以拼写为 `additionalMarketplaces`。
 
 * **版本**：别名需要 Claude Code v2.1.232 或更高版本，较旧的客户端忽略它们。在混合车队读取的文件中，保持规范名称。
 * **两个拼写都设置**：当文件设置两个拼写时，规范键的值应用。
 
-<h3 id="allowlist-with-strictknownmarketplaces">
-  使用 `strictKnownMarketplaces` 的允许列表
-</h3>
+### 使用 `strictKnownMarketplaces` 的允许列表
 
 将允许列表设置为这些源对象的列表。大多数条目完全匹配，`hostPattern` 和 `pathPattern` 条目作为正则表达式匹配，`github` 所有者通配符按所有者匹配：
 
@@ -247,9 +221,7 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 * **`pathPattern`**：`{ "source": "pathPattern", "pathPattern": "^/opt/approved/" }`，与 `file` 和 `directory` 源的 `path` 匹配。该模式在路径中的任何地方匹配，因此以 `^` 开头以固定目录前缀。`".*"` 允许每个本地路径。
 * **`skills-dir`**：`{ "source": "skills-dir" }` 在设置允许列表时保持[技能目录插件](#keep-skills-directory-plugins-loading)加载，并不匹配任何市场。
 
-<h4 id="how-entries-match">
-  条目如何匹配
-</h4>
+#### 条目如何匹配
 
 `url` 条目在其 `url` 值上匹配；`headers` 不被比较。对于 `github` 和 `git` 条目，`repo` 或 `url`、`ref` 和 `path` 必须都匹配，或在两侧都不存在：
 
@@ -259,29 +231,21 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 
 所有者通配符条目遵循 `ref` 的确切规则，并匹配存储库内的任何 `path`，除非条目固定一个。通配符匹配在允许列表上区分大小写。
 
-<h4 id="keep-skills-directory-plugins-loading">
-  保持技能目录插件加载
-</h4>
+#### 保持技能目录插件加载
 
 技能目录插件是用户在 `~/.claude/skills/` 或项目的 `.claude/skills/` 下保持的插件，在带有 `.claude-plugin/plugin.json` 的文件夹中。如果您设置任何没有 `{ "source": "skills-dir" }` 条目的允许列表，它们停止加载。普通[技能](/docs/zh-CN/skills)，意思是没有该清单的 `SKILL.md`，继续加载。
 
-<h4 id="marketplaces-hosted-on-claude-ai">
-  在 claude.ai 上托管的市场
-</h4>
+#### 在 claude.ai 上托管的市场
 
 允许列表和阻止列表通过其主机匹配[在 claude.ai 上托管的市场](/docs/zh-CN/plugins/install#add-from-claude-ai)。要允许或阻止一个，将与 `claude.ai` 匹配的 `hostPattern` 条目添加到 `strictKnownMarketplaces` 或 `blockedMarketplaces`。在允许列表上，这样的条目允许您组织的 claude.ai 市场和 claude.ai 默认市场，但不允许由成员自己的 claude.ai 上传组成的市场或其范围 claude.ai 未声明的市场。需要 Claude Code v2.1.273 或更高版本。
 
-<h4 id="lock-every-source-out">
-  锁定每个源
-</h4>
+#### 锁定每个源
 
 空允许列表 `[]` 锁定每个市场源，包括官方市场。
 
 此锁定不覆盖[从 claude.ai 同步](/docs/zh-CN/plugins/loading#synced-plugins)的插件，Claude Code 从每个用户的账户而不是从市场下载。要也停止那些，请在托管设置中将[`syncClaudeAiPlugins`](/docs/zh-CN/settings-reference#syncclaudeaiplugins)设置为 `false`，或在 claude.ai 上为您的组织关闭技能。
 
-<h3 id="blocklist-with-blockedmarketplaces">
-  使用 `blockedMarketplaces` 的阻止列表
-</h3>
+### 使用 `blockedMarketplaces` 的阻止列表
 
 `blockedMarketplaces` 采用与[`strictKnownMarketplaces`](#allowlist-with-strictknownmarketplaces)相同的源对象，并首先检查，因此两个列表上的源被阻止。阻止列表匹配比允许列表匹配更宽：
 
@@ -306,9 +270,7 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 
 仅命名该条目的阻止列表不计为活跃限制，因此它不[停止 Claude Code 找不到其市场的插件](#restrict-what-users-can-install)加载。
 
-<h3 id="allow-the-official-marketplace-and-your-own">
-  允许官方市场和您自己的
-</h3>
+### 允许官方市场和您自己的
 
 大多数组织允许官方市场和他们自己的，并注册两者，以便每台机器都有它们。此托管设置策略允许两个市场，注册两者，强制启用两个插件，并拒绝 `--plugin-dir`：
 
@@ -345,24 +307,18 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 * **官方市场仅在交互式终端会话中注册自己**：即使在那里，它也仅在允许列表允许时注册。`-p` 运行或附加到云会话的终端从不注册它。
 * **阻止的尝试被记住**：如果机器曾在阻止官方市场的策略下运行，Claude Code 记录阻止的尝试，并在策略更改后不重试。`[]` 锁定是一个这样的策略。该机器仅通过 `extraKnownMarketplaces` 条目（例如此策略中的条目）、其一个插件的 `enabledPlugins` 条目或手动 `/plugin marketplace add` 再次注册它。
 
-<h2 id="set-update-policy">
-  设置更新策略
-</h2>
+## 设置更新策略
 
 您可以按市场、整个车队或通过发布频道按用户组设置更新策略。
 
-<h3 id="turn-auto-update-on-or-off-per-marketplace">
-  按市场打开或关闭自动更新
-</h3>
+### 按市场打开或关闭自动更新
 
 插件自动更新在启动后在后台为打开它的市场运行。有关默认打开哪些市场，请参阅[自动更新何时运行](/docs/zh-CN/plugins/loading#when-auto-update-runs)。要为车队决定，在托管 `extraKnownMarketplaces` 条目上设置 `"autoUpdate": true` 或 `false`：
 
 * 如果托管条目设置字段，Claude Code 拒绝用户的 `/plugin` 切换，错误以 `Auto-update for '<name>' is set by` 开头。
 * 如果托管条目保留字段未设置，用户的切换持续。
 
-<h3 id="turn-updates-off-for-the-whole-fleet">
-  关闭整个车队的更新
-</h3>
+### 关闭整个车队的更新
 
 要关闭每个市场的插件自动更新，在托管 `env` 块中设置 `DISABLE_AUTOUPDATER`，如此示例所做的那样。相同的变量也停止 Claude Code 自己的更新：
 
@@ -378,9 +334,7 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 
 `DISABLE_AUTOUPDATER` 不覆盖具有[`command` 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)的插件。Claude Code 每个会话重新运行每个启用的命令，并在其更改时安装输出。有关停止那些运行的内容，请参阅[命令源何时重新运行](/docs/zh-CN/plugins/loading#when-a-command-source-re-runs)。
 
-<h3 id="assign-release-channels-to-user-groups">
-  为用户组分配发布频道
-</h3>
+### 为用户组分配发布频道
 
 要运行稳定和早期访问频道，托管两个指向相同插件的不同 ref 的市场。然后通过单独的端点托管设置或网关策略为每个用户组提供自己的市场。来自管理控制台的服务器托管设置[应用于组织中的每个用户](/docs/zh-CN/server-managed-settings#current-limitations)，因此它们无法为不同的组分配不同的设置。
 
@@ -401,37 +355,27 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 
 早期访问组接收 `latest-tools` 代替。要设置两个市场，请参阅[运行发布频道](/docs/zh-CN/plugins/host-marketplace#run-release-channels)。
 
-<h2 id="recommend-plugins">
-  推荐插件
-</h2>
+## 推荐插件
 
 市场所有者可以将 `relevance` 信号附加到条目，以便 Claude Code 在项目匹配时建议插件。
 
 来自市场的建议仅在其在用户的机器上注册、您在托管设置中的 `pluginSuggestionMarketplaces` 中列出其名称，并且您在相同策略中声明其源时出现。声明源作为市场的 `extraKnownMarketplaces` 条目或允许列表条目。官方市场仅需要名称。请参阅[在托管设置中启用建议](/docs/zh-CN/plugins/relevance#enable-suggestions-in-managed-settings)。
 
-<h2 id="audit-and-review">
-  审计和审查
-</h2>
+## 审计和审查
 
 OpenTelemetry 事件和 Analytics API 告诉您您的车队安装和运行什么。
 
 有关插件可以在机器上运行什么以及每个信任层允许什么，在批准市场之前阅读[插件安全](/docs/zh-CN/plugins/security)。
 
-<h3 id="opentelemetry-events">
-  OpenTelemetry 事件
-</h3>
+### OpenTelemetry 事件
 
 `claude_code.plugin_installed` 记录每次安装，`claude_code.plugin_loaded` 记录每个启用的插件在会话开始时。除非您设置 `OTEL_LOG_TOOL_DETAILS=1`，否则两个事件都删除或省略第三方插件和市场名称，如[您的后端中的删除插件名称](/docs/zh-CN/plugins/measure#redacted-plugin-names-in-your-backend)所示。字段列表在[插件已安装事件](/docs/zh-CN/monitoring-usage#plugin-installed-event)和[插件已加载事件](/docs/zh-CN/monitoring-usage#plugin-loaded-event)下。
 
-<h3 id="analytics-api">
-  Analytics API
-</h3>
+### Analytics API
 
 在 Enterprise 计划上，`GET /v1/organizations/analytics/plugins` 返回跨 Claude Code 和 Cowork 的每个插件、每天的安装和调用计数。您可以按用户或 RBAC 组对计数进行分组。到达 Anthropic 而没有插件名称的插件活动出现在一个聚合 `third-party` 行中。请参阅[端点参考](https://platform.claude.com/docs/en/api/admin/analytics/plugins/list)和[以编程方式访问数据](/docs/zh-CN/analytics#access-data-programmatically)了解它需要的键。
 
-<h2 id="plan-for-what-managed-settings-can’t-enforce">
-  规划托管设置无法执行的内容
-</h2>
+## 规划托管设置无法执行的内容
 
 这些来自安全审查的请求在当前设置架构中没有专用键。最接近的现有控制是：
 
@@ -441,9 +385,7 @@ OpenTelemetry 事件和 Analytics API 告诉您您的车队安装和运行什么
 * **通过允许列表门控 `--plugin-dir`**：允许列表不覆盖 `--plugin-dir`。`disableSideloadFlags` 覆盖。
 * **通过这些键执行 claude.ai 插件切换**：[**组织设置 > 插件和技能**](https://claude.ai/admin-settings/skills?tab=inventory)不设置此页面上的键。成员和您的组织在那里打开的内容作为[同步插件](/docs/zh-CN/plugins/loading#synced-plugins)到达 CLI，它们有自己的控制。
 
-<h2 id="troubleshoot-policy">
-  策略故障排除
-</h2>
+## 策略故障排除
 
 如果插件策略在机器上的行为不符合预期，首先检查这些症状：
 
@@ -452,9 +394,7 @@ OpenTelemetry 事件和 Analytics API 告诉您您的车队安装和运行什么
 * **用户报告 `blocked by enterprise policy`**：消息命名市场或其源。对于允许列表，它也列出允许的源。面向用户的条目在[插件故障排除](/docs/zh-CN/plugins/troubleshooting)上。
 * **用户在 `~/.claude/settings.json` 中禁用的插件仍然加载**：另一个设置源重新启用它，例如强制启用它的托管 `enabledPlugins` 条目。`/plugin` 和 `claude plugin list` 显示 `Disabled in ~/.claude/settings.json but still loads` 与该设置源。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [市场参考](/docs/zh-CN/plugins/marketplace-reference#marketplace-sources)：`extraKnownMarketplaces`、`strictKnownMarketplaces` 和 `blockedMarketplaces` 接受的 `source` 值
 * [托管和维护市场](/docs/zh-CN/plugins/host-marketplace)：运行您的策略指向的市场

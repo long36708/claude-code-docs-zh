@@ -6,19 +6,13 @@
 
 > 了解 Claude Code 的安全防护措施和安全使用的最佳实践。
 
-<h2 id="how-we-approach-security">
-  我们如何处理安全性
-</h2>
+## 我们如何处理安全性
 
-<h3 id="security-foundation">
-  安全基础
-</h3>
+### 安全基础
 
 您的代码安全至关重要。Claude Code 以安全为核心构建，按照 Anthropic 的全面安全计划开发。在 [Anthropic Trust Center](https://trust.anthropic.com) 了解更多信息并访问资源（SOC 2 Type 2 报告、ISO 27001 证书等）。
 
-<h3 id="permission-based-architecture">
-  基于权限的架构
-</h3>
+### 基于权限的架构
 
 会话的权限模式决定了 Claude 无需先询问您即可执行哪些操作。自动模式是交互式终端和 VS Code 会话的内置初始权限模式。[会话以哪种模式启动](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)介绍了早期版本、其他使用入口以及可更改初始权限模式的设置。
 
@@ -27,9 +21,7 @@
 
 您和您的组织可以直接配置这些权限。有关详细的权限配置，请参阅 [Permissions](/docs/zh-CN/permissions)。
 
-<h3 id="built-in-protections">
-  内置保护
-</h3>
+### 内置保护
 
 为了降低代理系统中的风险：
 
@@ -40,28 +32,20 @@
 * **提示疲劳缓解**：支持按用户、按代码库或按组织的白名单常用安全命令
 * **Accept Edits 模式**：自动批准文件编辑和一组固定的文件系统 Bash 命令，如 `mkdir`、`touch`、`rm`、`mv`、`cp` 和 `sed`，用于工作目录中的路径。其他 Bash 命令和超出范围的路径仍然会提示
 
-<h3 id="user-responsibility">
-  用户责任
-</h3>
+### 用户责任
 
 您负责在批准前审查建议的代码和命令的安全性。
 
-<h2 id="protect-against-prompt-injection">
-  防止提示注入
-</h2>
+## 防止提示注入
 
 提示注入是一种攻击者试图通过插入恶意文本来覆盖或操纵 AI 助手指令的技术。Claude Code 包括针对这些攻击的多项防护措施：
 
-<h3 id="core-protections">
-  核心保护
-</h3>
+### 核心保护
 
 * **权限系统**：在手动模式下，敏感操作需要明确批准
 * **网络命令批准**：从网络获取内容的命令，如 `curl` 和 `wget`，默认不会自动批准。在手动模式下，它们会像任何其他非只读 Bash 命令一样提示，因此您仍然可以批准一次或添加显式允许规则，如 `Bash(curl *)`。要阻止 Claude 运行它们，请将其添加到 [`permissions.deny`](/docs/zh-CN/permissions#tool-specific-permission-rules)。拒绝规则匹配[按照编写的命令](/docs/zh-CN/permissions#bash-rule-limits)；对于不依赖命令文本的网络强制执行，请参阅[沙箱网络隔离](/docs/zh-CN/sandboxing#network-isolation)
 
-<h3 id="privacy-safeguards">
-  隐私保护
-</h3>
+### 隐私保护
 
 我们实施了多项保护措施来保护您的数据，包括：
 
@@ -71,9 +55,7 @@
 
 有关完整详情，请查看我们的 [Commercial Terms of Service](https://www.anthropic.com/legal/commercial-terms)（适用于 Team、Enterprise 和 API 用户）或 [Consumer Terms](https://www.anthropic.com/legal/consumer-terms)（适用于 Free、Pro 和 Max 用户）以及 [Privacy Policy](https://www.anthropic.com/legal/privacy)。
 
-<h3 id="additional-safeguards">
-  其他保护措施
-</h3>
+### 其他保护措施
 
 * **网络请求批准**：在手动模式下，进行网络请求的大多数工具默认需要用户批准
 * **网页摘要**：对于大多数获取操作，WebFetch 会针对页面运行一次单独的模型调用，Claude 接收的是该调用的回答，而不是原始页面。请参阅 [WebFetch 工具行为](/docs/zh-CN/tools-reference#webfetch-tool-behavior)
@@ -84,9 +66,9 @@
 * **故障关闭匹配**：在手动模式下，不匹配的命令默认需要批准
 * **安全凭据存储**：API 密钥和令牌在可用时存储在 macOS Keychain 中。在 Linux 上，它们存储在模式为 `0600` 的文件中；在 Windows 上，它们存储在继承您用户配置文件目录访问控制的文件中。请参阅 [Credential Management](/docs/zh-CN/authentication#credential-management)
 
-<Warning>
-  **Windows WebDAV 安全风险**：在 Windows 上运行 Claude Code 时，我们建议不要启用 WebDAV 或允许 Claude Code 访问可能包含 WebDAV 子目录的路径，如 `\\*`。[WebDAV 已被 Microsoft 弃用](https://learn.microsoft.com/en-us/windows/whats-new/deprecated-features#:~:text=The%20Webclient%20\(WebDAV\)%20service%20is%20deprecated)，原因是安全风险。启用 WebDAV 可能允许 Claude Code 触发对远程主机的网络请求，绕过权限系统。
-</Warning>
+> [!WARNING]
+>
+> **Windows WebDAV 安全风险**：在 Windows 上运行 Claude Code 时，我们建议不要启用 WebDAV 或允许 Claude Code 访问可能包含 WebDAV 子目录的路径，如 `\\*`。[WebDAV 已被 Microsoft 弃用](https://learn.microsoft.com/en-us/windows/whats-new/deprecated-features#:~:text=The%20Webclient%20\(WebDAV\)%20service%20is%20deprecated)，原因是安全风险。启用 WebDAV 可能允许 Claude Code 触发对远程主机的网络请求，绕过权限系统。
 
 **处理不受信任内容的最佳实践**：
 
@@ -96,27 +78,21 @@
 4. 使用虚拟机 (VM) 运行脚本并进行工具调用，特别是在与外部 Web 服务交互时
 5. 使用 `/feedback` 报告可疑行为
 
-<Warning>
-  虽然这些保护措施大大降低了风险，但没有系统完全免疫所有攻击。在使用任何 AI 工具时，始终保持良好的安全实践。
-</Warning>
+> [!WARNING]
+>
+> 虽然这些保护措施大大降低了风险，但没有系统完全免疫所有攻击。在使用任何 AI 工具时，始终保持良好的安全实践。
 
-<h2 id="mcp-security">
-  MCP 安全性
-</h2>
+## MCP 安全性
 
 您可以将 Claude Code 连接到 Model Context Protocol (MCP) 服务器。项目作用域的服务器在 `.mcp.json` 中定义，您可以将该文件检入源代码控制。[其他作用域](/docs/zh-CN/mcp#mcp-installation-scopes)的服务器和 [claude.ai 连接器](/docs/zh-CN/mcp#how-connectors-reach-claude-code)是在仓库之外配置的，插件也可以添加服务器，因此查看 `.mcp.json` 并不能看到会话可能加载的所有服务器。要限制您的组织中可以运行哪些服务器，请参阅[托管 MCP 配置](/docs/zh-CN/managed-mcp)。
 
 我们鼓励编写您自己的 MCP servers 或使用来自您信任的提供商的 MCP servers。您能够为 MCP servers 配置 Claude Code 权限。Anthropic 在将连接器添加到 [Anthropic Directory](https://claude.ai/directory) 之前，会根据其 [列表标准](https://claude.com/docs/connectors/building/review-criteria) 审查连接器，但不对任何 MCP server 进行安全审计或管理。
 
-<h2 id="ide-security">
-  IDE 安全性
-</h2>
+## IDE 安全性
 
 有关在 IDE 中运行 Claude Code 的更多信息，请参阅[内置 IDE MCP 服务器](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server)。
 
-<h2 id="cloud-execution-security">
-  云执行安全性
-</h2>
+## 云执行安全性
 
 使用 [cloud sessions](/docs/zh-CN/claude-code-on-the-web) 时，会实施额外的安全控制。您的组织路由到 [自托管环境](/docs/zh-CN/self-hosted-environments) 的会话在您自己的基础设施上运行，其中隔离、网络出口和 git 凭证是您部署的责任。在 Anthropic 托管的环境中：
 
@@ -132,22 +108,16 @@
 
 [Remote Control](/docs/zh-CN/remote-control) 会话的工作方式不同：Web 界面连接到在您本地机器上运行的 Claude Code 进程。所有代码执行和文件访问都保持本地，会话流量通过 TLS 上的 Anthropic API 传输；连接时，会话记录存储在 Anthropic 服务器上以跨设备同步对话，如 [Connection and security](/docs/zh-CN/remote-control#connection-and-security) 中所述。不涉及云 VM 或沙箱。连接使用多个短期的、范围狭窄的凭证，每个凭证限制于特定目的并独立过期，以限制任何单个受损凭证的影响范围。
 
-<h2 id="security-best-practices">
-  安全最佳实践
-</h2>
+## 安全最佳实践
 
-<h3 id="working-with-sensitive-code">
-  处理敏感代码
-</h3>
+### 处理敏感代码
 
 * 在批准前审查所有建议的更改
 * 为敏感存储库使用项目特定的权限设置
 * 如需额外隔离，请在 [沙箱运行时](/docs/zh-CN/sandbox-environments#sandbox-runtime) 或 [dev container](/docs/zh-CN/devcontainer) 中运行整个 Claude Code（本地模式）进程
 * 使用 `/permissions` 定期审计您的权限设置
 
-<h3 id="team-security">
-  团队安全
-</h3>
+### 团队安全
 
 * 使用 [managed settings](/docs/zh-CN/settings#where-settings-live) 来强制执行组织标准
 * 通过版本控制共享批准的权限配置
@@ -155,9 +125,7 @@
 * 通过 [OpenTelemetry metrics](/docs/zh-CN/monitoring-usage) 监控 Claude Code 使用情况
 * 使用 [`ConfigChange` hooks](/docs/zh-CN/hooks#configchange) 审计或阻止会话期间的设置更改
 
-<h3 id="reporting-security-issues">
-  报告安全问题
-</h3>
+### 报告安全问题
 
 如果您在 Claude Code 中发现安全漏洞：
 
@@ -166,9 +134,7 @@
 3. 包括详细的复现步骤
 4. 在公开披露前给我们时间来解决问题
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [Security guidance plugin](/docs/zh-CN/security-guidance)：让 Claude 在会话期间审查和修复其自身代码更改中的漏洞
 * [`/security-review`](/docs/zh-CN/commands#all-commands)：对当前分支上的更改运行按需安全检查

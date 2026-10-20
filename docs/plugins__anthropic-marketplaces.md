@@ -10,21 +10,19 @@ Anthropic 为 Claude Code 发布了三个通用插件市场：[官方](https://g
 
 使用此页面来区分这三个市场，并找到检查官方市场是否包含给定插件的位置。
 
-<Note>
-  这些情况在其他页面上有介绍：
-
-  * **如何安装插件**：请参阅[安装插件](/docs/zh-CN/plugins/install)
-  * **安装失败**：请参阅[插件故障排除](/docs/zh-CN/plugins/troubleshooting)
-</Note>
+> [!NOTE]
+>
+> 这些情况在其他页面上有介绍：
+>
+> * **如何安装插件**：请参阅[安装插件](/docs/zh-CN/plugins/install)
+> * **安装失败**：请参阅[插件故障排除](/docs/zh-CN/plugins/troubleshooting)
 
 转到你需要的页面部分：
 
 * 要按存储库、市场名称和获取方式来区分这三个市场，请参阅 [Anthropic 的插件市场](#anthropic%E2%80%99s-marketplaces)。
 * 要在官方市场中查找插件，请参阅[在官方市场中查找插件](#find-plugins-in-the-official-marketplace)。
 
-<h2 id="anthropic’s-marketplaces">
-  Anthropic 的插件市场
-</h2>
+## Anthropic 的插件市场
 
 市场是一个插件目录，由存储库在其 `.claude-plugin/marketplace.json` 文件中定义。官方、社区和演示市场各自来自自己的 GitHub 存储库。Anthropic 还发布主题特定的市场，例如 `anthropics/skills` 和 `anthropics/knowledge-work-plugins`，你可以在 Claude Code 会话中使用 `/plugin marketplace add <owner>/<repo>` 添加。
 
@@ -39,25 +37,19 @@ Anthropic 为 Claude Code 发布了三个通用插件市场：[官方](https://g
 
 如果你编写了插件并希望其他人安装它，请参阅[发布插件](/docs/zh-CN/plugins/publish)，其中涵盖了你自己的市场和提交到 Anthropic 的目录。
 
-<h3 id="the-demo-marketplace-in-anthropics/claude-code">
-  `anthropics/claude-code` 中的演示市场
-</h3>
+### `anthropics/claude-code` 中的演示市场
 
 如果教程或较旧的说明告诉你运行 `/plugin marketplace add anthropics/claude-code`，这会添加演示市场，名为 `claude-code-plugins`。它不是官方市场。
 
 演示市场的大多数插件也在官方市场中以相同的名称存在。例如，`code-review`、`feature-dev`、`commit-commands` 和 `security-guidance` 都在两者中。从 `claude-plugins-official` 安装这些，这样你就不会安装两个副本。
 
-<h2 id="find-plugins-in-the-official-marketplace">
-  在官方市场中查找插件
-</h2>
+## 在官方市场中查找插件
 
 默认情况下，Claude Code 为你添加了官方市场 `claude-plugins-official`。它列出的大部分内容来自合作伙伴和其他作者，而不是来自 Anthropic：工具供应商发布连接 Claude Code 到其服务的插件，Anthropic 维护一个较小的自己的插件集，例如 `commit-commands`、`code-review`、`feature-dev` 和[语言服务器插件](/docs/zh-CN/plugins/code-intelligence)。目录经常变化，所以此页面不列出它。
 
 要查看其中的内容，请在 Claude Code 会话中使用 `/plugin` 的 **Discover** 选项卡（你可以搜索），或在网络上浏览 [Claude Marketplace](https://claude.com/marketplace/plugins)。
 
-<h2 id="browse-and-install-from-anthropic’s-marketplaces">
-  从 Anthropic 的市场浏览和安装
-</h2>
+## 从 Anthropic 的市场浏览和安装
 
 你可以在 Claude Code、网络或 GitHub 上搜索 Anthropic 的市场中的插件：
 
@@ -70,9 +62,7 @@ Anthropic 的目录与这些市场分开。该目录是 claude.ai 上的目录�
 
 要从桌面应用或脚本安装，或查看云会话加载的内容，请参阅[安装插件](/docs/zh-CN/plugins/install)。
 
-<h3 id="add-the-community-or-demo-marketplace">
-  添加社区或演示市场
-</h3>
+### 添加社区或演示市场
 
 社区和演示市场在你在 Claude Code 会话中添加它们之前不会注册：
 
@@ -83,9 +73,7 @@ Anthropic 的目录与这些市场分开。该目录是 claude.ai 上的目录�
 
 对于 `not found` 错误和无法添加的市场，请参阅[插件故障排除](/docs/zh-CN/plugins/troubleshooting#install-a-plugin)。
 
-<h2 id="third-party-marketplaces">
-  第三方市场
-</h2>
+## 第三方市场
 
 许多流行的插件不在任何 Anthropic 市场中。它们在其作者自己的市场中，通常是一个 GitHub 存储库，其根目录中有 `.claude-plugin/marketplace.json`。
 
@@ -95,9 +83,7 @@ Anthropic 不审查第三方市场，所以在添加一个之前，请阅读[插
 
 有关添加市场的其他方式，请参阅[添加市场](/docs/zh-CN/plugins/install#add-a-marketplace)。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [安装和管理插件](/docs/zh-CN/plugins/install)：从这些市场之一安装插件并选择范围
 * [插件安全和信任](/docs/zh-CN/plugins/security)：插件可以在你的机器上做什么，以及在安装前如何审查插件

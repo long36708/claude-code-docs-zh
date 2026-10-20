@@ -8,15 +8,15 @@
 
 HIPAA 配置是 Claude Enterprise 计划中的一项组织设置，适用于处理受保护健康信息（PHI）并与 Anthropic 签订了[业务伙伴协议（BAA）](https://support.claude.com/en/articles/8114513-business-associate-agreements-baa-for-commercial-customers)的组织。它适用于 Claude Code（本地模式）和 Cowork（本地模式），并会限制这两款产品中的功能。
 
-<Note>
-  "（本地模式）"指的是本地会话，而不是[云端会话](/docs/zh-CN/claude-code-on-the-web)。本地会话在以下位置之一运行：
-
-  * 终端中的 Claude Code
-  * Claude Desktop 的 Code 标签页中的 Claude Code
-  * Claude Desktop 中的 Cowork
-
-  适用于 VS Code 和 JetBrains 的 Claude Code 扩展不属于（本地模式）。应用 HIPAA 配置后，这些扩展仍可继续使用，但您的 BAA 不涵盖它们。有关合格服务的完整列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
-</Note>
+> [!NOTE]
+>
+> "（本地模式）"指的是本地会话，而不是[云端会话](/docs/zh-CN/claude-code-on-the-web)。本地会话在以下位置之一运行：
+>
+> * 终端中的 Claude Code
+> * Claude Desktop 的 Code 标签页中的 Claude Code
+> * Claude Desktop 中的 Cowork
+>
+> 适用于 VS Code 和 JetBrains 的 Claude Code 扩展不属于（本地模式）。应用 HIPAA 配置后，这些扩展仍可继续使用，但您的 BAA 不涵盖它们。有关合格服务的完整列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
 
 本页面面向负责为开发人员准备计算机的 IT 或安全管理员。配置本身由您的 Claude 组织的主要所有者（Primary Owner）应用。[在符合 HIPAA 要求的 Enterprise 计划中使用 Claude Code（本地模式）和 Cowork（本地模式）](https://support.claude.com/en/articles/17318731)说明了您的 BAA 包含的内容、配置的应用方式，以及如何安排应用配置的日期。
 
@@ -30,15 +30,11 @@ HIPAA 配置是 Claude Enterprise 计划中的一项组织设置，适用于处�
 | 应用配置之后 | Code 标签页处于关闭状态，直到所有者将其重新打开。[在计算机上确认配置](#confirm-the-configuration-on-a-computer) |
 | 持续进行 | [管理本地会话数据](#manage-local-session-data) |
 
-<h2 id="prepare-computers-before-the-hipaa-configuration-is-applied">
-  在应用 HIPAA 配置之前准备计算机
-</h2>
+## 在应用 HIPAA 配置之前准备计算机
 
 我们建议您从本节中的任务开始，并在应用配置之前完成这些任务。
 
-<h3 id="check-how-developers-sign-in-and-connect">
-  检查开发人员的登录和连接方式
-</h3>
+### 检查开发人员的登录和连接方式
 
 只有当开发人员使用 Claude Enterprise 账户登录且 Claude Code 直接连接到 Claude API 时，HIPAA 配置才会在会话中生效。通过其他任何连接方式，开发人员仍可继续使用 Claude Code，但不会应用 [HIPAA 配置](#what-developers-see-in-claude-code)。
 
@@ -52,9 +48,7 @@ HIPAA 配置是 Claude Enterprise 计划中的一项组织设置，适用于处�
 | 在未登录 Claude Enterprise 的计算机上使用 `ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` | 否 |
 | Claude Console API 密钥或[联合凭据](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials) | 否。这些会话属于 Claude Console 组织，该组织有自己的协议和设置 |
 
-<h4 id="check-how-a-computer-connects">
-  检查计算机的连接方式
-</h4>
+#### 检查计算机的连接方式
 
 在计算机上打开终端，运行 `claude`，然后在输入框中输入 `/status`。**Status** 标签页会显示以下各行：
 
@@ -66,9 +60,7 @@ HIPAA 配置是 Claude Enterprise 计划中的一项组织设置，适用于处�
 
 如果计算机使用的连接方式不符合 HIPAA 配置的条件，您可以使用[托管设置](#deploy-managed-settings)来阻止云提供商、网关以及通过 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 设置的凭据。
 
-<h3 id="update-claude-code-and-claude-desktop">
-  更新 Claude Code 和 Claude Desktop
-</h3>
+### 更新 Claude Code 和 Claude Desktop
 
 HIPAA 配置要求 Claude Code v2.1.285 或更高版本，以及 Claude Desktop v2.19675.0 或更高版本。如果您的组织同时使用终端和 [Claude Desktop 应用](/docs/zh-CN/desktop)，请同时更新两者。
 
@@ -82,9 +74,7 @@ claude --version
 
 要查看已安装的 Claude Desktop 版本，请参阅[检查您的版本](/docs/zh-CN/desktop#check-your-version)。
 
-<h4 id="what-developers-see-on-an-older-version">
-  开发人员在旧版本上会看到什么
-</h4>
+#### 开发人员在旧版本上会看到什么
 
 对于具有 HIPAA 配置的组织，Anthropic 的服务器会拒绝来自低于最低版本的请求。Anthropic 会随时间提高最低版本，您无需进行任何配置。
 
@@ -95,9 +85,7 @@ claude --version
 
 要让开发人员保持使用受支持的版本，请[保持 Claude Code 为最新版本](/docs/zh-CN/setup#update-claude-code)。对于 Claude Desktop，请参阅[更新 Claude Desktop](https://claude.com/docs/cowork/hipaa-setup#update-claude-desktop)。
 
-<h3 id="allow-network-access">
-  允许网络访问
-</h3>
+### 允许网络访问
 
 请通过您的代理和防火墙允许下表中的主机，使用 HTTPS 端口 443。请允许整个主机，而不是单个路径。
 
@@ -120,9 +108,7 @@ Claude Code 通过从 `api.anthropic.com` 获取您组织的策略来得知您�
 
 要检查某台计算机是否已获取策略，请参阅[在计算机上确认配置](#confirm-the-configuration-on-a-computer)。
 
-<h3 id="deploy-managed-settings">
-  部署托管设置
-</h3>
+### 部署托管设置
 
 您可以使用[托管设置](/docs/zh-CN/managed-settings)引导开发人员使用 Claude Enterprise 账户登录、阻止云提供商和网关，并设置每台计算机保留本地会话数据的天数。无论 HIPAA 配置是否生效，这些设置都会生效。
 
@@ -141,9 +127,7 @@ Claude Code 通过从 `api.anthropic.com` 获取您组织的策略来得知您�
 
 如需包含沙箱隔离、网络允许列表、凭据保护和本地数据保留的更完整 `managed-settings.json`，请参阅[设置示例仓库](https://github.com/anthropics/claude-code/tree/main/examples/settings)中的 `settings-hipaa.json` 和 `README-hipaa.md`。
 
-<h4 id="what-each-key-does">
-  每个键的作用
-</h4>
+#### 每个键的作用
 
 下表显示了每个键应设置的值，以及 Claude Code 对其强制执行的内容。
 
@@ -154,23 +138,19 @@ Claude Code 通过从 `api.anthropic.com` 获取您组织的策略来得知您�
 | [`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) | `["anthropic"]` | Claude Code 拒绝在云提供商或网关上启动 |
 | [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) | 您的记录策略允许计算机保留会话数据的天数 | 每台计算机在相同天数后删除旧的会话数据 |
 
-<Warning>
-  部署前请检查 `forceLoginOrgUUID` 的值。如果它与您的组织 ID 不匹配，则每个使用 claude.ai 账户登录的开发人员在启动 Claude Code 时都会退出。
-</Warning>
+> [!WARNING]
+>
+> 部署前请检查 `forceLoginOrgUUID` 的值。如果它与您的组织 ID 不匹配，则每个使用 claude.ai 账户登录的开发人员在启动 Claude Code 时都会退出。
 
 HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的设置中提高该值。当您在托管设置中设置它时，Claude Code 会忽略开发人员的值。
 
 设置 `forceLoginMethod` 或 `forceLoginOrgUUID` 后，Claude Code 还会拒绝使用 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 进行身份验证的会话。
 
-<h4 id="confirm-the-settings-loaded">
-  确认设置已加载
-</h4>
+#### 确认设置已加载
 
 在已具有这些设置的计算机上，运行 `claude`，使用 Claude Enterprise 账户登录，然后输入 `/status`。`Setting sources` 行会列出 `Enterprise managed settings`，后跟括号中的来源，例如 `(file)`，并且 `Allowed providers` 行显示为 `Anthropic API (managed allowedProviders)`。如果 `Setting sources` 中未列出它，或者缺少 `Allowed providers` 行，请参阅[检查策略是否生效](/docs/zh-CN/managed-settings#check-that-a-policy-is-in-force)。
 
-<h4 id="sessions-the-managed-settings-keys-don’t-block">
-  托管设置键无法阻止的会话
-</h4>
+#### 托管设置键无法阻止的会话
 
 即使部署了这些键，某些会话仍可能在没有 HIPAA 配置的情况下运行：
 
@@ -180,35 +160,31 @@ HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的
 
 要了解您的 BAA 是否涵盖在没有 HIPAA 配置的情况下运行的会话，请参阅[在符合 HIPAA 要求的 Enterprise 计划中使用 Claude Code（本地模式）和 Cowork（本地模式）](https://support.claude.com/en/articles/17318731)。
 
-<h2 id="confirm-the-configuration-on-a-computer">
-  在计算机上确认配置
-</h2>
+## 在计算机上确认配置
 
 在为您的组织应用配置后，请在一台托管计算机上运行此检查。
 
-<Steps>
-  <Step title="重新启动 Claude Code">
-    退出所有正在运行的会话，打开终端，然后运行 `claude`。正在使用中的会话无需重新启动，会在大约一小时内获取配置。重新启动时，Claude Code 会立即获取配置。
-  </Step>
+**1. 重新启动 Claude Code**
 
-  <Step title="检查启动通知">
-    确认 Claude Code 启动时输出 `Per your organization's policy, some features are limited · /status for details`。
-  </Step>
+退出所有正在运行的会话，打开终端，然后运行 `claude`。正在使用中的会话无需重新启动，会在大约一小时内获取配置。重新启动时，Claude Code 会立即获取配置。
 
-  <Step title="检查页脚">
-    确认输入框下方页脚的右侧出现 `HIPAA configured` 标签。在 v2.1.286 之前，该标签显示为 `HIPAA`。
-  </Step>
+**2. 检查启动通知**
 
-  <Step title="运行 /status">
-    在输入框中输入 `/status`。确认 **Status** 标签页的 `Organization configuration` 行中列出了 `HIPAA`。
-  </Step>
+确认 Claude Code 启动时输出 `Per your organization's policy, some features are limited · /status for details`。
 
-  <Step title="检查 Claude Desktop">
-    应用 HIPAA 配置会为您的组织关闭 Code 标签页。如果您的组织使用它，请让所有者前往 [**Organization settings > Claude Code**](https://claude.ai/admin-settings/claude-code) 并打开 **Desktop** 开关。对于 Cowork，请参阅[在 Claude Desktop 中确认 HIPAA 配置](https://claude.com/docs/cowork/hipaa-setup#confirm-the-hipaa-configuration-in-claude-desktop)。
+**3. 检查页脚**
 
-    重新加载 Claude Desktop 或重新登录。确认标题栏显示 **HIPAA configured** 标签。在 Mac 上，需要打开侧边栏才能看到它。
-  </Step>
-</Steps>
+确认输入框下方页脚的右侧出现 `HIPAA configured` 标签。在 v2.1.286 之前，该标签显示为 `HIPAA`。
+
+**4. 运行 /status**
+
+在输入框中输入 `/status`。确认 **Status** 标签页的 `Organization configuration` 行中列出了 `HIPAA`。
+
+**5. 检查 Claude Desktop**
+
+应用 HIPAA 配置会为您的组织关闭 Code 标签页。如果您的组织使用它，请让所有者前往 [**Organization settings > Claude Code**](https://claude.ai/admin-settings/claude-code) 并打开 **Desktop** 开关。对于 Cowork，请参阅[在 Claude Desktop 中确认 HIPAA 配置](https://claude.com/docs/cowork/hipaa-setup#confirm-the-hipaa-configuration-in-claude-desktop)。
+
+重新加载 Claude Desktop 或重新登录。确认标题栏显示 **HIPAA configured** 标签。在 Mac 上，需要打开侧边栏才能看到它。
 
 如果 `/status` 中缺少 `HIPAA`，请按顺序检查以下原因：
 
@@ -216,9 +192,7 @@ HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的
 2. **策略获取被阻止**：在 `/status` 中查找 `Organization policy` 行，该行会给出原因。在会话之外，运行 `claude doctor` 并查看同一行，该行会说明 Claude Code 从何处加载了策略或策略未加载的原因。请通过您的代理允许 `api.anthropic.com`，然后重新启动 Claude Code。
 3. **配置尚未应用**：询问主要所有者是否已应用配置。
 
-<h2 id="what-developers-see-in-claude-code">
-  开发人员在 Claude Code 中会看到什么
-</h2>
+## 开发人员在 Claude Code 中会看到什么
 
 应用 HIPAA 配置后，终端中的某些 Claude Code 功能会被关闭或行为有所不同。下表列出了开发人员最有可能向您询问的变化。[HIPAA 功能可用性表](https://support.claude.com/en/articles/8114513-business-associate-agreements-baa-for-commercial-customers)列出了所有 Claude Code 和 Cowork 功能，包括所有者可以重新打开的功能。
 
@@ -232,9 +206,7 @@ HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的
 | 读取 `ANTHROPIC_API_KEY` 的 MCP 服务器或 hook 无法再进行身份验证 | Claude Code 会从其启动的进程中[移除 Anthropic 凭据](#anthropic-credentials-in-commands-hooks-and-mcp-servers) |
 | 通过 `/login` 切换到其他组织后限制仍然存在 | HIPAA 状态会一直持续到 Claude Code 重新启动 |
 
-<h3 id="anthropic-credentials-in-commands-hooks-and-mcp-servers">
-  命令、hook 和 MCP 服务器中的 Anthropic 凭据
-</h3>
+### 命令、hook 和 MCP 服务器中的 Anthropic 凭据
 
 应用 HIPAA 配置后，Claude Code 会从其启动的 shell 命令、hook 和 MCP 服务器的环境中移除其用于访问 Anthropic 的凭据，例如 `ANTHROPIC_API_KEY` 和 `ANTHROPIC_AUTH_TOKEN`。
 
@@ -242,23 +214,17 @@ HIPAA 配置不会移除云提供商或 GitHub 凭据，因此推送到 GitHub �
 
 要限制 Claude 可以使用的命令和主机，请参阅[权限规则](/docs/zh-CN/permissions)和[沙箱](/docs/zh-CN/sandboxing)。
 
-<h2 id="manage-local-session-data">
-  管理本地会话数据
-</h2>
+## 管理本地会话数据
 
 Claude Code（本地模式）和 Cowork（本地模式）会在每位开发人员的计算机上存储会话数据。保护和删除这些数据是您组织的责任。
 
-<h3 id="claude-code-data">
-  Claude Code 数据
-</h3>
+### Claude Code 数据
 
 [应用程序数据](/docs/zh-CN/claude-directory#application-data)列出了 Claude Code（本地模式）在计算机上存储的内容、其保留清理在 `cleanupPeriodDays` 之后删除的内容，以及在有人删除之前一直保留的内容。该页面还说明了在已应用 HIPAA 配置的组织中有何不同。
 
 保留清理仅在有人启动 Claude Code 时运行，因此无人启动 Claude Code 的计算机会保留其数据。
 
-<h3 id="code-tab-data">
-  Code 标签页数据
-</h3>
+### Code 标签页数据
 
 Code 标签页将数据存储在以下位置：
 
@@ -269,15 +235,11 @@ Code 标签页将数据存储在以下位置：
 
 在 Windows 上，`~` 表示 `%USERPROFILE%`。
 
-<h3 id="cowork-data">
-  Cowork 数据
-</h3>
+### Cowork 数据
 
 [管理每台计算机上的 Cowork 数据](https://claude.com/docs/cowork/hipaa-setup#manage-cowork-data-on-each-computer)列出了 Cowork（本地模式）存储数据的位置以及 Claude Desktop 删除的内容。
 
-<h3 id="delete-session-data-right-away">
-  立即删除会话数据
-</h3>
+### 立即删除会话数据
 
 如果您的组织需要在保留清理删除之前移除某位开发人员的会话数据，您可以使用一条命令移除其中的大部分数据。以该开发人员的身份登录计算机，打开任意 shell，然后运行与已安装的 Claude Code 版本对应的命令。
 
@@ -297,15 +259,11 @@ claude project purge --all --yes
 
 清除操作会保留其他可能包含会话内容的路径，例如 `paste-cache/` 中粘贴的文本。[清除本地数据](/docs/zh-CN/claude-directory#clear-local-data)列出了您可以手动删除的路径。要彻底清理一台计算机（例如在重新分配之前），请[擦除它](#offboard-a-developer)。
 
-<h3 id="offboard-a-developer">
-  开发人员离职处理
-</h3>
+### 开发人员离职处理
 
 移除开发人员的席位或账户不会删除其计算机上的任何内容，`/logout` 也不会删除会话数据。要移除所有数据，您可以使用设备管理工具擦除计算机。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [为符合 HIPAA 要求的组织设置 Cowork（本地模式）](https://claude.com/docs/cowork/hipaa-setup)
 * [部署托管设置](/docs/zh-CN/managed-settings)

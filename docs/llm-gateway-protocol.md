@@ -10,10 +10,10 @@
 
 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 是 Anthropic 的自托管网关，在 `GET /protocol` 处提供自己的端点参考，涵盖该网关的登录、推理、托管设置、模型发现和遥测端点。这是一份与本指南分开的文档。
 
-<Note>
-  * 要为您的组织推出现有或第三方网关，请参阅[推出 LLM 网关](/docs/zh-CN/llm-gateway-rollout)
-  * 如果您是使用给定的凭证向网关验证 Claude Code 的个人开发者，请参阅[将 Claude Code 连接到 LLM 网关](/docs/zh-CN/llm-gateway-connect)
-</Note>
+> [!NOTE]
+>
+> * 要为您的组织推出现有或第三方网关，请参阅[推出 LLM 网关](/docs/zh-CN/llm-gateway-rollout)
+> * 如果您是使用给定的凭证向网关验证 Claude Code 的个人开发者，请参阅[将 Claude Code 连接到 LLM 网关](/docs/zh-CN/llm-gateway-connect)
 
 本页面涵盖：
 
@@ -32,9 +32,7 @@
 
 任何未标记为转发不变的内容都可以由您使用或忽略。
 
-<h2 id="api-formats">
-  API 格式
-</h2>
+## API 格式
 
 网关必须向 Claude Code 客户端公开以下至少一种 API 格式。客户端选择一种格式，并通过下表"选择方式"列中的变量将 Claude Code 指向您的网关。
 
@@ -46,15 +44,11 @@ Google Cloud 的 Agent Platform 是 Google Cloud 的 Claude 端点，原名为 V
 | Amazon Bedrock InvokeModel | `ANTHROPIC_BEDROCK_BASE_URL` 配合 `CLAUDE_CODE_USE_BEDROCK=1` | `/model/{model}/invoke`, `/model/{model}/invoke-with-response-stream`, `/model/{model}/count-tokens`（可选） | `anthropic_beta` 和 `anthropic_version` 请求体字段 |
 | Google Cloud's Agent Platform rawPredict | `ANTHROPIC_VERTEX_BASE_URL` 配合 `CLAUDE_CODE_USE_VERTEX=1` | `:rawPredict`, `:streamRawPredict`, `count-tokens:rawPredict`（可选） | `anthropic-beta` 和 `anthropic-version` 请求头，以及 `anthropic_version` 请求体字段 |
 
-<h3 id="foundry-and-claude-platform-on-aws">
-  Foundry 和 AWS 上的 Claude Platform
-</h3>
+### Foundry 和 AWS 上的 Claude Platform
 
 Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 实现了 Anthropic Messages 格式。Claude Code 通过它们自己的变量 `ANTHROPIC_FOUNDRY_BASE_URL` 和 `ANTHROPIC_AWS_BASE_URL` 路由到它们，但网关在任一前面实现上述 Anthropic Messages 行。在 AWS 上的 Claude Platform 前面的网关还必须转发 `anthropic-workspace-id` 头，[该平台在每个请求上都需要](/docs/zh-CN/claude-platform-on-aws)。
 
-<h3 id="optional-endpoints-and-startup-traffic">
-  可选端点和启动流量
-</h3>
+### 可选端点和启动流量
 
 令牌计数端点是唯一可选的：当它们不存在时，Claude Code 会回退到基于字符的上下文使用估计。
 
@@ -69,9 +63,7 @@ Microsoft Foundry 和 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-o
 
 [快速模式](/docs/zh-CN/fast-mode)可用性检查永远不会出现在网关日志中：它直接调用 `api.anthropic.com` 而不是遵循 `ANTHROPIC_BASE_URL`，因此在阻止直接出站到 `api.anthropic.com` 的网络上，快速模式可能会报告连接错误，而通过网关的推理继续工作。[WebFetch 域安全检查](/docs/zh-CN/data-usage#webfetch-domain-safety-check)也直接调用 `api.anthropic.com`。[在代理和 LLM 网关后面使用快速模式](/docs/zh-CN/fast-mode#use-fast-mode-behind-proxies-and-llm-gateways)涵盖了恢复它的变量。
 
-<h3 id="streaming">
-  流式传输
-</h3>
+### 流式传输
 
 Claude Code 会在每个流式推理响应到达时逐个事件地读取它，因此您的网关中继流的方式会影响用户看到的内容：
 
@@ -81,9 +73,7 @@ Claude Code 会在每个流式推理响应到达时逐个事件地读取它，�
 * 一旦超过其[流式空闲超时时间](/docs/zh-CN/network-config#streaming-idle-watchdogs)仍没有任何字节到达，Claude Code 就会中止流式响应。在长时间的思考暂停期间，上游的 SSE `ping` 事件可能是流上唯一的字节，因此剥离或缓冲这些事件的网关可能会在响应中途触发该超时。从不发送 ping 的上游（如 Amazon Bedrock 的二进制事件流）进行转换的网关也存在同样的间隙，除非它发出自己的 `ping` 事件。
 * 在 [Amazon Bedrock InvokeModel 格式](#api-formats)下，Claude Code 会将 `/model/{model}/invoke-with-response-stream` 响应作为 Bedrock 返回的二进制 `application/vnd.amazon.eventstream` 正文来读取，一旦网关将其转换为服务器发送事件或重写该 `Content-Type` 头，Claude Code 就无法解析它。[网关或代理后面的流式传输错误](/docs/zh-CN/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy)描述了此时用户看到的内容。
 
-<h3 id="format-mismatch-with-the-upstream">
-  与上游的格式不匹配
-</h3>
+### 与上游的格式不匹配
 
 客户端使用的格式决定了您的网关接收的内容。常见的失败模式是客户端发送到您的网关的格式与其后面的上游提供商接受的格式不匹配。
 
@@ -94,9 +84,7 @@ Claude Code 会在每个流式推理响应到达时逐个事件地读取它，�
 
 如果您的上游是 Amazon Bedrock 或 Google Cloud 的 Agent Platform，您可以通过公开该提供商的格式来避免桥接。[通过网关路由到云提供商](/docs/zh-CN/llm-gateway-connect#route-to-a-cloud-provider-through-a-gateway)显示了该格式的客户端配置。
 
-<h2 id="how-the-connection-method-changes-client-behavior">
-  连接方法如何改变客户端行为
-</h2>
+## 连接方法如何改变客户端行为
 
 开发者连接到网关的方式决定了 Claude Code 发送的模型 ID、`anthropic-beta` 值和请求字段，以及它应用的默认值。您的网关会看到以下三种客户端行为之一：
 
@@ -104,9 +92,7 @@ Claude Code 会在每个流式推理响应到达时逐个事件地读取它，�
 * **Anthropic Messages 格式**：开发者将 `ANTHROPIC_BASE_URL` 设置为您的网关。Claude Code 将网关视为 Claude API，无法判断您转发到哪个上游。
 * **Claude apps gateway 登录**：开发者登录到 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway)。该网关使用 Anthropic Messages 格式，但可以路由到任何上游，因此 Claude Code 仅发送 Amazon Bedrock 和 Agent Platform 也接受的 `anthropic-beta` 值和模型能力假设。
 
-<h3 id="requests-and-defaults-by-connection-method">
-  按连接方法的请求和默认值
-</h3>
+### 按连接方法的请求和默认值
 
 下表比较了三种连接方法，每行一个行为。它省略了 Microsoft Foundry 和 Claude Platform on AWS，它们也使用 Anthropic Messages 格式，但 Claude Code 通过它们自己的变量访问。有关这些，请参阅 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 和 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 页面。
 
@@ -120,18 +106,14 @@ Claude Code 会在每个流式推理响应到达时逐个事件地读取它，�
 
 有关每个连接支持的功能以及它默认发送给 Anthropic 的遥测，请参阅 [功能可用性](/docs/zh-CN/feature-availability#availability-by-model-provider) 和 [按 API 提供商的默认行为](/docs/zh-CN/data-usage#default-behaviors-by-api-provider)。
 
-<h3 id="settings-for-unrecognized-model-ids">
-  未识别模型 ID 的设置
-</h3>
+### 未识别模型 ID 的设置
 
 两个客户端设置改变了 Claude Code 对它无法识别的模型 ID 的假设，无论开发者使用哪种连接方法：
 
 * **上下文窗口**：Claude Code 假设 200K，或当 ID 包含 `[1m]` 时为 1M。要声明真实窗口，请参阅 [为网关或自定义模型 ID 更正窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id)
 * **能力**：要给网关别名赋予其后面模型的能力，请使用您分发的设置中的 [`modelOverrides`](/docs/zh-CN/errors#unrecognized-model-id-on-a-request) 条目将该模型的 Anthropic ID 映射到您的别名。有关 `ANTHROPIC_DEFAULT_*_MODEL_SUPPORTED_CAPABILITIES` 变量适用的位置，请参阅 [功能传递](#feature-pass-through)
 
-<h2 id="request-headers">
-  请求头
-</h2>
+## 请求头
 
 Claude Code 在 API 请求中包含这些头。头名称在网络上不区分大小写。转发 `anthropic-version` 和 `anthropic-beta` 不变，以及当上游是 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 时的 `anthropic-workspace-id`；其余的网关可能会用于路由、归属和追踪，不需要转发。
 
@@ -148,9 +130,7 @@ Claude Code 在 API 请求中包含这些头。头名称在网络上不区分大
 
 如果您的开发者设置了 `ANTHROPIC_CUSTOM_HEADERS`，这些头也会出现在请求上。
 
-<h3 id="gateway-hint-headers">
-  网关提示头
-</h3>
+### 网关提示头
 
 Claude Code 也可以发送路由提示：网关或路由器可以用来调度、缓存或归属请求的每个请求事实。需要 Claude Code v2.1.273 或更高版本。
 
@@ -182,9 +162,7 @@ Claude Code 也可以发送路由提示：网关或路由器可以用来调度�
 * 缺失：压缩调用、侧面请求和新提示的第一个请求永远不会携带它。不要将缺失的头读作运行无工具的回合
 * 时间：每个都排除权限提示和钩子，并行工具调用各自报告自己的时间，因此条目不会加起来等于请求之间的间隙
 
-<h3 id="forward-as-open-lists">
-  作为开放列表转发
-</h3>
+### 作为开放列表转发
 
 将头和请求体字段视为开放列表，而不是封闭列表。Claude Code 在版本中获得能力，它们作为新的 `anthropic-beta` 值、新的请求体字段，以及偶尔新的 `anthropic-*` 或 `x-claude-code-*` 头到达。
 
@@ -192,9 +170,7 @@ Claude Code 也可以发送路由提示：网关或路由器可以用来调度�
 
 例外是非 Anthropic 上游，如 Amazon Bedrock 或 Google Cloud 的 Agent Platform，其中桥接模式差异是网关的工作；请参阅 [功能传递](#feature-pass-through)。
 
-<h2 id="response-headers">
-  响应头
-</h2>
+## 响应头
 
 Claude Code 读取这些响应头来检测停滞的流、决定是否以及何时重试，以及显示使用限制。该表列出了每个响应头应返回的内容。同时转发错误响应体不做修改，以便 Claude Code 的[能力拒绝恢复](#automatic-retry-and-error-forwarding)可以匹配上游的错误措辞。
 
@@ -205,9 +181,7 @@ Claude Code 读取这些响应头来检测停滞的流、决定是否以及何�
 | `x-should-retry` | 原样转发上游的值。Claude Code 在决定是否重试失败的请求时将此头部作为一个输入来读取：`true` 标记响应可重试，`false` 标记响应不可重试。有关重试次数、退避和 Claude Code 重试的失败情况，请参阅[自动重试](/docs/zh-CN/errors#automatic-retries) |
 | `anthropic-ratelimit-unified-*` | 在每个响应上原样转发上游的值。Claude Code 在成功响应上读取它们以向使用 claude.ai 登录的开发人员显示针对计划限制的使用情况，在 `429` 上读取它们以区分计划限制或支出上限与临时限流；请参阅[使用限制](/docs/zh-CN/errors#usage-limits) |
 
-<h2 id="system-prompt-attribution-block">
-  系统提示归属块
-</h2>
+## 系统提示归属块
 
 Claude Code 在系统提示前面加上一个短的归属块，其中包含客户端版本和从对话派生的指纹。`api.anthropic.com` 端点在处理前删除该块，因此它不会影响第一方提示缓存。任何其他上游都会将其作为提示的一部分接收。
 
@@ -229,9 +203,7 @@ Claude Code 在系统提示前面加上一个短的归属块，其中包含客�
 * 实现以请求体为键的提示缓存。
 * 将请求转发到第三方提供商，例如 Amazon Bedrock、Microsoft Foundry 或 Google Cloud 的 Agent Platform，采用 Anthropic Messages 格式或提供商自己的格式，其中变化的前缀会减少该提供商上的提示缓存重用。
 
-<h2 id="feature-pass-through">
-  功能传递
-</h2>
+## 功能传递
 
 Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并向其发送它发送到 `api.anthropic.com` 的 beta 请求头和请求体字段，除了为直接连接保留的一小组诊断和默认值，例如下面涵盖的细粒度工具流式传输默认值。该集合因版本而异，因此不要依赖其内容。
 
@@ -251,9 +223,7 @@ Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并
 
 `ANTHROPIC_DEFAULT_*_MODEL_SUPPORTED_CAPABILITIES` [变量](/docs/zh-CN/model-config)仅在提供商配置中声明模型功能：`CLAUDE_CODE_USE_BEDROCK`、`CLAUDE_CODE_USE_VERTEX`、`CLAUDE_CODE_USE_FOUNDRY` 和 [`CLAUDE_CODE_USE_MANTLE`](/docs/zh-CN/amazon-bedrock#use-the-mantle-endpoint)。它们在 `ANTHROPIC_BASE_URL` gateway 后面没有效果。
 
-<h3 id="automatic-retry-and-error-forwarding">
-  自动重试和错误转发
-</h3>
+### 自动重试和错误转发
 
 Claude Code 在上游拒绝后的操作取决于被拒绝的内容：
 
@@ -267,9 +237,7 @@ Claude Code 在上游拒绝后的操作取决于被拒绝的内容：
 
 重试逻辑与上游的错误措辞匹配，因此原封不动地转发错误响应体。将上游错误包装在自己的信封中的 gateway 会破坏恢复路径，即使它保留了状态代码，除非信封的消息携带稳定的 `capability_rejected:` 令牌。[Claude apps gateway 为云提供商的错误措辞替换这些令牌](/docs/zh-CN/claude-apps-gateway-config#upstream-error-messages)，例如 `capability_rejected: prompt_too_long`。
 
-<h3 id="disable-pre-release-capabilities">
-  禁用预发布功能
-</h3>
+### 禁用预发布功能
 
 当您的网关或其上游拒绝预发布的 `anthropic-beta` 值或与之配对的请求体字段，并且您无法同时转发两个部分时，请让开发者设置 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`。设置该变量后，Claude Code 将停止发送预发布功能以及与之配对的 `anthropic-beta` 值，包括：
 
@@ -297,17 +265,13 @@ Claude Code 在上游拒绝后的操作取决于被拒绝的内容：
 
 Claude Code 发送的功能集随版本增长。有关当前 beta 请求头字符串，请参阅 [beta 请求头参考](https://platform.claude.com/docs/en/api/beta-headers)；针对新的 Claude Code 版本测试您的 gateway，而不是固定到观察列表。
 
-<h2 id="model-discovery">
-  模型发现
-</h2>
+## 模型发现
 
 当 `ANTHROPIC_BASE_URL` 指向公开 Anthropic Messages 格式的 gateway 时，Claude Code 可以在启动时查询 gateway 的 `/v1/models` 端点，并将返回的模型添加到 `/model` 选择器。如果您或您的管理员在 [`modelPicker`](/docs/zh-CN/settings-reference#modelpicker) 配置中设置了 `replaceBuiltInOptions`，Claude Code 会从选择器中隐藏发现的模型。
 
 开发者通过在自己的环境中或通过托管设置设置 [`CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1`](/docs/zh-CN/env-vars) 来启用它。发现默认关闭，以便由共享 API 密钥支持的 gateway 不会向每个用户公开密钥可以访问的每个模型。
 
-<h3 id="when-discovery-runs">
-  发现何时运行
-</h3>
+### 发现何时运行
 
 发现仅适用于 Anthropic Messages 格式。在以下情况下不运行：
 
@@ -316,9 +280,7 @@ Claude Code 发送的功能集随版本增长。有关当前 beta 请求头字�
 
 当[非必要流量被禁用](/docs/zh-CN/llm-gateway-connect#turn-off-traffic-outside-the-gateway-path)时，发现仍然运行，因为请求仅发送到您的 gateway。在 v2.1.257 之前，非必要流量被禁用时发现不运行。
 
-<h3 id="request-and-response">
-  请求和响应
-</h3>
+### 请求和响应
 
 请求是 `GET /v1/models?limit=1000`，超时为 3 秒，任何重定向都被视为失败，因此凭证不会泄露到重定向目标。响应缓慢或重定向 `/v1/models` 的 gateway，即使是 `http` 到 `https`，也会无声地失败发现；在配置的基础 URL 处直接提供端点。
 
@@ -350,9 +312,7 @@ Claude Code 从响应的 `data` 数组中的每个条目读取 `id`、可选的 
 
 Claude Code 在其 `id` 中任何位置包含 `claude` 或 `anthropic` 的条目会被保留，不区分大小写，其余的会被忽略。提供商前缀的 ID，例如 `vertex_ai/claude-sonnet-4-6` 或 `bedrock/anthropic.claude-sonnet-4-5` 会通过过滤器；不包含任何一个子字符串的 ID 则不会。在 v2.1.223 之前，Claude Code 仅在其 `id` 以 `claude` 或 `anthropic` 开头时保留条目，这隐藏了提供商前缀的 ID。
 
-<h3 id="picker-entries-and-caching">
-  选择器条目和缓存
-</h3>
+### 选择器条目和缓存
 
 选择器是当开发者在 Claude Code 中运行 `/model` 时打开的交互式模型列表。每个发现的条目在 gateway 发送与 `id` 不同的 `display_name` 时使用 `display_name` 作为其名称。否则，当 Claude Code [识别 `id`](/docs/zh-CN/model-config#customize-pinned-model-display-and-capabilities) 时，条目显示模型的名称，当不识别时显示 `id`。例如，具有 `id` `my-gateway-claude-sonnet-4-6` 且没有 `display_name` 的条目显示为 `Sonnet 4.6`。
 
@@ -367,9 +327,7 @@ Claude Code 在其 `id` 中任何位置包含 `claude` 或 `anthropic` 的条目
 
 结果被缓存到 `~/.claude/cache/gateway-models.json`，或在 Windows 上 `%USERPROFILE%\.claude\cache\gateway-models.json`，并在每次启动时刷新。如果您设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)，缓存会改为位于该目录下。如果请求失败或 gateway 未实现 `/v1/models`，选择器会回退到上次启动的缓存列表或内置模型列表。如果您的 gateway 在不匹配发现过滤器的别名下提供 Claude 模型，开发者可以使用[模型配置](/docs/zh-CN/model-config)变量手动添加这些别名。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 有关 gateway 文档集的其余部分和基础 API 参考：
 

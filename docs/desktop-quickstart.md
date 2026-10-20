@@ -8,28 +8,26 @@
 
 桌面应用为您提供具有图形界面的 Claude Code，因此您可以要求 Claude 处理计算机上文件夹中的代码，并查看其更改，而无需使用终端。本页面将指导您安装应用并在 **Code** 选项卡中开始您的第一个会话。Claude Code 需要 [Pro、Max、Team 或 Enterprise 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_pricing)。
 
-<CardGroup cols={3}>
-  <Card title="下载 macOS 版本" icon="apple" href="https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs">
-    适用于 Intel 和 Apple Silicon 的通用版本
-  </Card>
+> **[下载 macOS 版本](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)**
+>
+> 适用于 Intel 和 Apple Silicon 的通用版本
 
-  <Card title="下载 Windows 版本" icon="windows" href="https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs">
-    适用于 x64 处理器
-  </Card>
+> **[下载 Windows 版本](https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)**
+>
+> 适用于 x64 处理器
 
-  <Card title="获取 Claude for Linux（测试版）" icon="linux" href="/docs/zh-CN/desktop-linux">
-    Ubuntu 和 Debian 的 apt 或 .deb
-  </Card>
-</CardGroup>
+> **[获取 Claude for Linux（测试版）](/docs/zh-CN/desktop-linux)**
+>
+> Ubuntu 和 Debian 的 apt 或 .deb
 
 对于 Windows ARM64，请下载 [ARM64 安装程序](https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)。在 Linux 上，使用 apt 安装；请参阅 [Claude Desktop on Linux](/docs/zh-CN/desktop-linux)。
 
-<Note>
-  这些情况在其他页面中有介绍：
-
-  * **已经设置完成**：请参阅[使用 Claude Code Desktop](/docs/zh-CN/desktop)了解 Code 选项卡可以执行的所有操作
-  * **想在您的终端中使用 `claude`**：[单独安装 CLI](/docs/zh-CN/quickstart)
-</Note>
+> [!NOTE]
+>
+> 这些情况在其他页面中有介绍：
+>
+> * **已经设置完成**：请参阅[使用 Claude Code Desktop](/docs/zh-CN/desktop)了解 Code 选项卡可以执行的所有操作
+> * **想在您的终端中使用 `claude`**：[单独安装 CLI](/docs/zh-CN/quickstart)
 
 桌面应用有三个选项卡：
 
@@ -39,76 +37,66 @@
 
 Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介绍；安装和部署桌面应用在 [Claude Desktop 支持文章](https://support.claude.com/en/collections/16163169-claude-desktop)中有介绍。本页面重点关注 **Code** 选项卡。
 
-<h2 id="install">
-  安装
-</h2>
+## 安装
 
-<Steps>
-  <Step title="安装并登录">
-    在 macOS 和 Windows 上，从上面的链接下载安装程序并运行它。在 Linux 上，请按照 [Linux 上的 Claude Desktop](/docs/zh-CN/desktop-linux) 中的安装步骤进行操作。在 macOS 上从应用程序文件夹启动 Claude，在 Windows 上从开始菜单启动，或在 Linux 上从应用程序启动器启动，然后使用您的 Anthropic 账户登录。
-  </Step>
+**1. 安装并登录**
 
-  <Step title="打开 Code 选项卡">
-    点击顶部中心的 **Code** 选项卡。如果点击 Code 提示您升级，您需要先[订阅付费计划](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_upgrade)。如果提示您在线登录，请完成登录并重启应用。如果您看到 403 错误，请参阅[身份验证故障排除](/docs/zh-CN/desktop#403-or-authentication-errors-in-the-code-tab)。
-  </Step>
-</Steps>
+在 macOS 和 Windows 上，从上面的链接下载安装程序并运行它。在 Linux 上，请按照 [Linux 上的 Claude Desktop](/docs/zh-CN/desktop-linux) 中的安装步骤进行操作。在 macOS 上从应用程序文件夹启动 Claude，在 Windows 上从开始菜单启动，或在 Linux 上从应用程序启动器启动，然后使用您的 Anthropic 账户登录。
+
+**2. 打开 Code 选项卡**
+
+点击顶部中心的 **Code** 选项卡。如果点击 Code 提示您升级，您需要先[订阅付费计划](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_upgrade)。如果提示您在线登录，请完成登录并重启应用。如果您看到 403 错误，请参阅[身份验证故障排除](/docs/zh-CN/desktop#403-or-authentication-errors-in-the-code-tab)。
 
 桌面应用包含 Claude Code，因此您无需安装 Node.js 或 CLI 即可使用 Code 选项卡。
 
-<h2 id="start-your-first-session">
-  开始您的第一个会话
-</h2>
+## 开始您的第一个会话
 
 打开代码选项卡，选择一个项目，并告诉 Claude 要做什么。
 
-<Steps>
-  <Step title="选择环境和文件夹">
-    在[输入框下方的一行](/docs/zh-CN/desktop#start-a-session)中，点击第一个控件（即环境选择器），然后选择**本地**分组中的第一项。接着点击环境选择器旁边的项目文件夹控件，选择**打开文件夹…**，并选择您的项目目录。
+**1. 选择环境和文件夹**
 
-    如果输入框下方没有出现环境选择器，说明您使用的是早期布局。请参阅[检查您使用的布局](/docs/zh-CN/desktop#check-which-layout-you-have)。
+在[输入框下方的一行](/docs/zh-CN/desktop#start-a-session)中，点击第一个控件（即环境选择器），然后选择**本地**分组中的第一项。接着点击环境选择器旁边的项目文件夹控件，选择**打开文件夹…**，并选择您的项目目录。
 
-    <Tip>
-      从一个您熟悉的小项目开始。这是查看 Claude Code 能做什么的最快方式。
-    </Tip>
+如果输入框下方没有出现环境选择器，说明您使用的是早期布局。请参阅[检查您使用的布局](/docs/zh-CN/desktop#check-which-layout-you-have)。
 
-    您也可以选择：
+> [!TIP]
+>
+> 从一个您熟悉的小项目开始。这是查看 Claude Code 能做什么的最快方式。
 
-    * **云**：在云中运行会话，即使关闭应用也能继续。请参阅 [在云中使用 Claude Code](/docs/zh-CN/claude-code-on-the-web) 了解云会话的工作原理。
-    * **SSH**：通过 SSH 连接到远程机器，例如您自己的服务器、云虚拟机或开发容器。请先[添加连接](/docs/zh-CN/desktop#ssh-sessions)。桌面版在您第一次连接时会自动在远程机器上安装 Claude Code。正在运行的任务可以[在桌面版断开连接时继续运行](/docs/zh-CN/desktop#keep-a-task-running-while-desktop-is-disconnected)，但如果使用 Claude 账户，任务可能会在其登录过期时停止。
-    * **WSL**（Windows）：在 [WSL 2 发行版](/docs/zh-CN/desktop-wsl) 内运行会话；Claude Code、工具和 git 在 Linux 端执行，使用本机路径。
-  </Step>
+您也可以选择：
 
-  <Step title="选择模型">
-    从输入框下方一行靠右侧的模型选择器中选择一个模型。请参阅 [模型](/docs/zh-CN/model-config#available-models) 以比较可用的模型。您可以稍后从模型选择器更改模型。
-  </Step>
+* **云**：在云中运行会话，即使关闭应用也能继续。请参阅 [在云中使用 Claude Code](/docs/zh-CN/claude-code-on-the-web) 了解云会话的工作原理。
+* **SSH**：通过 SSH 连接到远程机器，例如您自己的服务器、云虚拟机或开发容器。请先[添加连接](/docs/zh-CN/desktop#ssh-sessions)。桌面版在您第一次连接时会自动在远程机器上安装 Claude Code。正在运行的任务可以[在桌面版断开连接时继续运行](/docs/zh-CN/desktop#keep-a-task-running-while-desktop-is-disconnected)，但如果使用 Claude 账户，任务可能会在其登录过期时停止。
+* **WSL**（Windows）：在 [WSL 2 发行版](/docs/zh-CN/desktop-wsl) 内运行会话；Claude Code、工具和 git 在 Linux 端执行，使用本机路径。
 
-  <Step title="告诉 Claude 要做什么">
-    输入您想让 Claude 做的事情：
+**2. 选择模型**
 
-    * `Find a TODO comment and fix it`
-    * `Add tests for the main function`
-    * `Create a CLAUDE.md with instructions for this codebase`
+从输入框下方一行靠右侧的模型选择器中选择一个模型。请参阅 [模型](/docs/zh-CN/model-config#available-models) 以比较可用的模型。您可以稍后从模型选择器更改模型。
 
-    [会话](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 是与 Claude 关于您的代码的对话。每个会话跟踪自己的上下文和更改。
-  </Step>
+**3. 告诉 Claude 要做什么**
 
-  <Step title="审查并接受更改">
-    查看输入框下方一行中的[权限模式](/docs/zh-CN/desktop#choose-a-permission-mode)，了解 Claude 是否会等待您的批准：
+输入您想让 Claude 做的事情：
 
-    * **自动或接受编辑**：Claude 应用其文件更改，并显示一个指示器（如 `+12 -1`），以便您可以在差异视图中审查它们
-    * **手动**：Claude 提议每项更改，并在应用前等待您的批准
+* `Find a TODO comment and fix it`
+* `Add tests for the main function`
+* `Create a CLAUDE.md with instructions for this codebase`
 
-    在手动模式下，您将看到：
+[会话](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 是与 Claude 关于您的代码的对话。每个会话跟踪自己的上下文和更改。
 
-    1. 一个 [差异视图](/docs/zh-CN/desktop#review-changes-with-diff-view)，显示每个文件中将发生的确切更改
-    2. 接受/拒绝按钮以批准或拒绝每项更改
-    3. Claude 处理您的请求时的实时更新
-  </Step>
-</Steps>
+**4. 审查并接受更改**
 
-<h2 id="now-what">
-  接下来呢？
-</h2>
+查看输入框下方一行中的[权限模式](/docs/zh-CN/desktop#choose-a-permission-mode)，了解 Claude 是否会等待您的批准：
+
+* **自动或接受编辑**：Claude 应用其文件更改，并显示一个指示器（如 `+12 -1`），以便您可以在差异视图中审查它们
+* **手动**：Claude 提议每项更改，并在应用前等待您的批准
+
+在手动模式下，您将看到：
+
+1. 一个 [差异视图](/docs/zh-CN/desktop#review-changes-with-diff-view)，显示每个文件中将发生的确切更改
+2. 接受/拒绝按钮以批准或拒绝每项更改
+3. Claude 处理您的请求时的实时更新
+
+## 接下来呢？
 
 您已经进行了第一次编辑。有关 Desktop 可以执行的所有操作的完整参考，请参阅 [使用 Claude Code Desktop](/docs/zh-CN/desktop)。以下是一些可以尝试的操作。
 
@@ -139,9 +127,7 @@ Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介�
 
 **准备好时扩展。** 从侧边栏打开 [并行会话](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 以同时处理多个任务，可选择每个任务都在其自己的 Git worktree 中，并打开 [任务窗格](/docs/zh-CN/desktop#watch-background-tasks) 以观看会话正在运行的子代理和后台命令。打开 [侧边聊天](/docs/zh-CN/desktop#ask-a-side-question-without-derailing-the-session) 以提出问题而不偏离主线程。将 [长时间运行的工作发送到云端](/docs/zh-CN/desktop#run-long-running-tasks-in-the-cloud) 以便即使关闭应用也能继续，或 [将您已开始的会话移至云端](/docs/zh-CN/desktop#continue-in-another-surface)（如果任务花费的时间比预期长）。[连接外部工具](/docs/zh-CN/desktop#extend-claude-code)（如 GitHub、Slack 和 Linear）以整合您的工作流。
 
-<h2 id="what’s-next">
-  接下来
-</h2>
+## 接下来
 
 * [使用 Claude Code Desktop](/docs/zh-CN/desktop)：权限模式、并行会话、差异视图、连接器和企业配置
 * [从 CLI 迁移过来？](/docs/zh-CN/desktop#coming-from-the-cli)：在同一项目上运行 Desktop 和 CLI，并比较功能、标志等效项以及 Desktop 中不可用的功能

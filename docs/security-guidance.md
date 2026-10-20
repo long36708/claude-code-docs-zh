@@ -12,18 +12,14 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 该插件是 [Code Review](/docs/zh-CN/code-review) 的会话内伴侣，Code Review 在拉取请求上运行。该插件减少了进入 PR 的内容。Code Review 捕获遗漏的内容。有关该插件如何与按需审查和 CI 扫描配合使用的信息，或者要扫描您已有的代码而不是 Claude 正在编写的更改，请参阅 [此插件如何与其他安全工具配合](#how-this-fits-with-other-security-tools)。
 
-<h2 id="prerequisites">
-  前置条件
-</h2>
+## 前置条件
 
 * Python 3.7 或更高版本在您的 `PATH` 中。代理提交审查需要 Python 3.10 或更高版本，当 Claude Code 使用第三方提供商（如 Amazon Bedrock 或 Google Cloud 的 Agent Platform）时，所有模型支持的审查也需要 Python 3.10 或更高版本。该插件优先使用版本化解释器 `python3.13` 到 `python3.10`，然后回退到 `python3`、`python` 和 `py -3`
 * 您工作目录的 git 存储库。回合结束和提交审查针对 git 状态进行 diff，在存储库外会静默跳过。每次编辑模式检查在任何地方都有效
 
 首次运行时，该插件在 `~/.claude/security/` 下创建虚拟环境，并将 Claude Agent SDK 安装到其中，这需要 `pip` 和网络访问。如果该安装失败，或可用的 Python 版本早于 3.10，则在第一方身份验证上的提交审查会回退到单次审查而不是代理审查；在第三方提供商（如 Amazon Bedrock 或 Google Cloud 的 Agent Platform）上，模型支持的审查需要 SDK 本身，因此会跳过。当较旧的 Python 是原因时，该插件会显示一次性通知。
 
-<h2 id="install-the-plugin">
-  安装插件
-</h2>
+## 安装插件
 
 在终端 Claude Code 会话中，从[官方 Anthropic 市场](/docs/zh-CN/plugins/anthropic-marketplaces)安装：
 
@@ -46,9 +42,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 检查安装摘要。如果它报告 `Run /reload-plugins to apply.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference#reload-plugins)以在当前会话中激活插件。
 
-<h3 id="enable-for-your-team-in-local-sessions">
-  在本地会话中为您的团队启用
-</h3>
+### 在本地会话中为您的团队启用
 
 要在您的团队成员在存储库中启动的本地会话中打开插件，请在项目的已检入设置中声明它：
 
@@ -62,9 +56,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 管理员可以通过在[托管设置](/docs/zh-CN/admin-setup)中设置 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 来在整个组织范围内启用插件。
 
-<h2 id="what-the-plugin-checks">
-  插件检查的内容
-</h2>
+## 插件检查的内容
 
 该插件在三个点审查 Claude 的工作，每个点的深度不同：
 
@@ -74,11 +66,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 您可以通过 [添加自己的规则](#add-your-own-rules) 来扩展每一层。内置检查无法单独删除，但您可以 [独立禁用每一层](#disable-or-uninstall)。
 
-<span id="on-each-file-edit" />
-
-<h3 id="checks-on-each-file-edit">
-  每次文件编辑时的检查
-</h3>
+### 每次文件编辑时的检查
 
 当 Claude 写入文件时，该插件会扫描新内容中的已知危险模式。这是一个没有模型调用的模式匹配，因此不会增加使用成本。
 
@@ -93,11 +81,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 您可以使用 `security-patterns.yaml` 文件 [向此层添加自己的模式](#add-custom-per-edit-patterns)。
 
-<span id="at-the-end-of-each-turn" />
-
-<h3 id="checks-at-the-end-of-each-turn">
-  每个轮次结束时的检查
-</h3>
+### 每个轮次结束时的检查
 
 一个回合是 Claude 响应的一轮：您发送消息，Claude 工作并回复，回合结束。在每个回合之后，该插件计算工作树中在回合期间更改的所有内容的 git diff，包括来自 Claude 的编辑工具、Bash 命令和子代理的更改，并将其发送到专注于安全的单独 Claude 审查。审查在后台运行，因此 Claude 的回复不会延迟。如果审查发现问题，Claude 会被重新提示发现的问题并作为后续行动解决它们。
 
@@ -111,33 +95,23 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 您可以在会话中直接看到发现和 Claude 的解决方案。审查涵盖每个回合最多 30 个更改的文件，在最多连续三次后才会让步给您。
 
-<span id="on-each-commit-or-push-claude-makes" />
-
-<h3 id="checks-on-each-commit-or-push-claude-makes">
-  Claude 每次提交或推送时的检查
-</h3>
+### Claude 每次提交或推送时的检查
 
 当 Claude 通过其 Bash 工具运行 `git commit` 或 `git push` 时，该插件在后台运行对更改的更深层代理审查。此审查读取周围代码，包括调用者、清理程序和相关文件，以决定发现是否真实，然后再报告它。额外的上下文可以降低在隔离时看起来危险但在您的代码库中是安全的模式上的误报。
 
 此层仅在 Claude 通过其 Bash 工具进行的提交和推送时触发。您从自己的 shell 运行的提交，包括会话内的 `!` shell 转义，不会被审查。提交和推送审查的上限为每滚动小时 20 次。如果提交审查的发现重复了回合结束审查已经报告的内容，Claude 不会被重新提示，因此干净的提交不会从此层产生可见的输出。
 
-<h3 id="review-independence-and-limits">
-  审查独立性和限制
-</h3>
+### 审查独立性和限制
 
 该插件不会要求编写代码的同一 Claude 实例对自己进行评分。每次编辑检查是一个确定性的字符串匹配，不涉及模型。回合结束和提交审查作为单独的 Claude 调用运行，具有新鲜的上下文和以安全为重点的提示：审查者从 diff 开始，对原始方法没有投入，仅被指示查找问题。
 
 这些层都不会阻止写入或提交。发现作为指令到达编写 Claude，Claude 在对话中解决它们，审查模型可能会遗漏问题。将该插件视为深度防御的一层，而不是完整的安全解决方案。请参阅 [此插件如何与其他安全工具配合](#how-this-fits-with-other-security-tools)。
 
-<h2 id="add-your-own-rules">
-  添加您自己的规则
-</h2>
+## 添加您自己的规则
 
 该插件有两个扩展点：用于模型支持的审查的 Markdown 指导文件，以及用于每次编辑字符串匹配的 YAML 或 JSON 模式文件。两者都是附加的。您可以添加检查，但无法从这些文件中禁用内置检查。
 
-<h3 id="add-guidance-for-the-model-backed-reviews">
-  为模型支持的审查添加指导
-</h3>
+### 为模型支持的审查添加指导
 
 在您的项目中创建 `.claude/claude-security-guidance.md`，并用纯语言描述您的威胁模型和审查清单。模型支持的审查将其作为附加上下文加载，与内置漏洞清单一起。
 
@@ -153,9 +127,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 这些规则是审查者的指导，而不是确定性的护栏。该插件将违规作为发现呈现给 Claude 以修复，但它不会阻止写入或保证捕获每个违规。指导仅是附加的：说要忽略漏洞类别的规则不会抑制这些发现。对于硬执行，将该插件与 [阻止编辑受保护文件的钩子](/docs/zh-CN/hooks-guide#block-edits-to-protected-files) 或 CI 检查配对。
 
-<h3 id="add-custom-per-edit-patterns">
-  添加自定义的每次编辑模式
-</h3>
+### 添加自定义的每次编辑模式
 
 创建 `.claude/security-patterns.yaml` 以向 [每次编辑模式检查](#on-each-file-edit) 添加正则表达式或子字符串规则。这些作为确定性字符串匹配与内置模式一起运行：
 
@@ -181,9 +153,7 @@ patterns:
 
 该插件还读取 `.claude/security-patterns.yml` 和 `.claude/security-patterns.json`，具有相同的架构。JSON 适用于任何 Python 安装。YAML 形式需要 PyYAML 可导入，该插件不会为您安装。该插件加载最多 50 个自定义规则，并跳过看起来容易发生灾难性回溯的正则表达式。
 
-<h3 id="rule-file-lookup-locations">
-  规则文件查找位置
-</h3>
+### 规则文件查找位置
 
 该插件在相同位置查找 `claude-security-guidance.md` 和 `security-patterns.yaml`，与插件的启用方式无关：
 
@@ -195,9 +165,7 @@ patterns:
 
 该插件加载所有存在的位置并连接它们，指导文件的组合上限为 8 KB。管理员可以通过设备管理将用户范围文件推送到 `~/.claude/` 来分发组织范围的规则。相同的路径适用于 `security-patterns.yaml`。
 
-<h2 id="usage-cost">
-  使用成本
-</h2>
+## 使用成本
 
 [每次编辑模式检查](#on-each-file-edit) 不进行模型调用，不增加成本。[回合结束](#at-the-end-of-each-turn) 和 [提交](#on-each-commit-or-push-claude-makes) 审查各自花费额外的模型使用，计入您的 [使用](/docs/zh-CN/costs)，就像任何其他 Claude 请求一样。提交审查是代理性的，每次提交可能需要多个模型回合。预期大约每个更改文件的回合有一次审查调用，每次提交有一次更深层审查，两者都受上述上限的约束。
 
@@ -205,9 +173,7 @@ patterns:
 
 该插件在所有计划上都可用。
 
-<h2 id="disable-or-uninstall">
-  禁用或卸载
-</h2>
+## 禁用或卸载
 
 要关闭单个层同时保持其余部分，请设置匹配的环境变量：
 
@@ -233,9 +199,7 @@ patterns:
 
 如果插件通过项目的 `.claude/settings.json` 启用，从 `/plugin` 卸载它会将覆盖写入您的 `.claude/settings.local.json`，而不是编辑已检入的文件，因此该插件对您保持关闭，而不影响队友。同一对话框还提供了通过从共享的 `.claude/settings.json` 中删除插件来为所有人卸载该插件的选项。如果它通过 [托管设置](/docs/zh-CN/admin-setup) 启用，只有管理员可以禁用它。
 
-<h2 id="how-the-plugin-integrates-with-claude-code">
-  插件如何与 Claude Code 集成
-</h2>
+## 插件如何与 Claude Code 集成
 
 该插件完全基于 [hooks](/docs/zh-CN/hooks)，这是在 Claude 循环中的特定点运行您自己的代码的机制。它注册：
 
@@ -249,9 +213,7 @@ patterns:
 
 如果您构建自己的 hooks，[插件的源代码](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/security-guidance) 是从 hook 运行单独模型调用并将结果反馈给会话的工作示例。
 
-<h2 id="how-this-fits-with-other-security-tools">
-  此插件如何与其他安全工具配合
-</h2>
+## 此插件如何与其他安全工具配合
 
 该插件是深度防御方法中的一层。它最早捕获问题，当代码仍在编辑器中时，但它不是保证，也不能替代后来的检查。典型的堆栈：
 
@@ -265,9 +227,7 @@ patterns:
 
 要查找您已有的代码中的安全问题，而不是 Claude 正在编写的更改中的问题，请在会话中要求 Claude 审查特定文件或目录以查找漏洞，或使用 [Claude Security 插件](/docs/zh-CN/claude-security) 对整个存储库进行更深入的多代理扫描；[`/security-review`](/docs/zh-CN/commands#all-commands) 仅覆盖当前分支上的更改。无论哪种方式，审查都会读取您检出中的源代码，而不是运行的站点或已部署的服务。
 
-<h2 id="troubleshooting">
-  故障排除
-</h2>
+## 故障排除
 
 该插件将运行时诊断写入 `~/.claude/security/log.txt`。如果审查未出现，请先检查那里。
 
@@ -277,9 +237,7 @@ patterns:
 * 会话没有 Anthropic 身份验证且没有配置第三方提供商：模型支持的审查跳过，仅每次编辑模式检查运行
 * `security-patterns.yaml` 文件存在但 PyYAML 不可导入：文件被忽略。改用 `security-patterns.json`
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 要深入了解此页面涉及的部分：
 

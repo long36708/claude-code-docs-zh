@@ -6,399 +6,19 @@
 
 > 更改 Claude Code 设置，选择键所属的作用域，验证更改，并了解当键在多个位置设置时 Claude Code 使用哪个值。
 
-export const SettingsPrecedence = () => {
-  const LEVELS = [{
-    n: 1,
-    name: 'Managed settings',
-    file: 'managed-settings.json, MDM, or the claude.ai console',
-    who: 'Your organization',
-    w: 390
-  }, {
-    n: 2,
-    name: 'Command line',
-    file: 'claude --settings',
-    who: 'You, this session',
-    w: 420
-  }, {
-    n: 3,
-    name: 'Project local',
-    file: '.claude/settings.local.json',
-    who: 'You, this project',
-    w: 480
-  }, {
-    n: 4,
-    name: 'Shared project',
-    file: '.claude/settings.json',
-    who: 'Everyone in the project',
-    w: 540
-  }, {
-    n: 5,
-    name: 'User',
-    file: '~/.claude/settings.json',
-    who: 'You, every project',
-    w: 600
-  }];
-  const W = 760;
-  const ROW = 58;
-  const GAP = 8;
-  const TOP = 34;
-  const H = TOP + LEVELS.length * (ROW + GAP) + 30;
-  const cx = W / 2;
-  const mono = 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)';
-  const sans = 'var(--font-sans, system-ui, -apple-system, sans-serif)';
-  return <div className="sp-root not-prose" role="img" aria-label="Settings precedence, highest first: managed settings, command line, project local, shared project, user. A key set at a higher level overrides the same key set lower down.">
-      <style>{`
-        .sp-root { --sp-text: #1A1918; --sp-sub: #5E5D59; --sp-faint: #8A8880; --sp-fill: #F5F4EF; --sp-stroke: rgba(0,0,0,0.12); --sp-top: #D97757; --sp-top-fill: rgba(217,119,87,0.14); --sp-arrow: #8A8880; margin: 1.25rem 0; }
-        .dark .sp-root { --sp-text: #F1EFE9; --sp-sub: #B8B5AD; --sp-faint: #8A8880; --sp-fill: #24231F; --sp-stroke: rgba(255,255,255,0.12); --sp-top-fill: rgba(217,119,87,0.22); --sp-arrow: #8A8880; }
-        .sp-root svg { width: 100%; height: auto; display: block; max-width: ${W}px; margin: 0 auto; }
-      `}</style>
-      <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg">
-        <text x={cx} y={18} textAnchor="middle" fontFamily={sans} fontSize="12.5" fontWeight="600" fill="var(--sp-sub)">Highest precedence</text>
-        {LEVELS.map((l, i) => {
-    const y = TOP + i * (ROW + GAP);
-    const x = cx - l.w / 2;
-    const top = i === 0;
-    return <g key={l.n}>
-              <rect x={x} y={y} width={l.w} height={ROW} rx={10} fill={top ? 'var(--sp-top-fill)' : 'var(--sp-fill)'} stroke={top ? 'var(--sp-top)' : 'var(--sp-stroke)'} strokeWidth={top ? 1.5 : 1} />
-              <text x={x + 14} y={y + 24} fontFamily={sans} fontSize="14" fontWeight="600" fill="var(--sp-text)">{l.n}. {l.name}</text>
-              <text x={x + 14} y={y + 43} fontFamily={mono} fontSize="11.5" fill="var(--sp-sub)">{l.file}</text>
-              <text x={x + l.w - 14} y={y + 24} textAnchor="end" fontFamily={sans} fontSize="12" fill="var(--sp-faint)">{l.who}</text>
-            </g>;
-  })}
-        <text x={cx} y={H - 10} textAnchor="middle" fontFamily={sans} fontSize="12.5" fontWeight="600" fill="var(--sp-sub)">Lowest precedence</text>
-        <g stroke="var(--sp-arrow)" strokeWidth="1.5" fill="none">
-          <line x1={W - 40} y1={TOP + 10} x2={W - 40} y2={H - 38} />
-          <path d={`M ${W - 46} ${TOP + 18} L ${W - 40} ${TOP + 10} L ${W - 34} ${TOP + 18}`} />
-        </g>
-        <text x={W - 40} y={H - 22} textAnchor="middle" fontFamily={sans} fontSize="10.5" fill="var(--sp-faint)">overrides</text>
-      </svg>
-    </div>;
-};
-
-export const SettingsScope = ({defaultSelected = 'project'}) => {
-  const FILES = [{
-    id: 'user',
-    path: '~/.claude/settings.json'
-  }, {
-    id: 'project',
-    path: 'acme-app/.claude/settings.json'
-  }, {
-    id: 'local',
-    path: 'acme-app/.claude/settings.local.json'
-  }, {
-    id: 'managed',
-    path: 'Managed settings',
-    ring: 'managed-settings.json, MDM, or the claude.ai console'
-  }];
-  const SHORT = {
-    user: '~/.claude/settings.json',
-    project: 'acme-app/.claude/settings.json',
-    local: 'acme-app/.claude/settings.local.json',
-    managed: 'managed-settings.json, MDM, or the claude.ai console'
-  };
-  const TILE_MARK = {
-    project: 'settings.json',
-    local: 'settings.local.json'
-  };
-  const initial = FILES.some(f => f.id === defaultSelected) ? defaultSelected : 'project';
-  const [sel, setSel] = useState(initial);
-  const [scale, setScale] = useState(1);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const rootRef = useRef(null);
-  const frameRef = useRef(null);
-  const CANVAS_W = 862;
-  const CANVAS_H = 240;
-  useEffect(() => {
-    const el = frameRef.current;
-    if (!el) return;
-    const measure = () => setScale(Math.min(1, el.clientWidth / CANVAS_W));
-    measure();
-    if (typeof ResizeObserver === 'undefined') {
-      window.addEventListener('resize', measure);
-      return () => window.removeEventListener('resize', measure);
-    }
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  useEffect(() => {
-    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', onFsChange);
-    return () => document.removeEventListener('fullscreenchange', onFsChange);
-  }, []);
-  const toggleFullscreen = () => {
-    if (!rootRef.current) return;
-    if (document.fullscreenElement) document.exitFullscreen(); else rootRef.current.requestFullscreen().catch(() => {});
-  };
-  const COVERAGE = {
-    user: ['website', 'api', 'yacme'],
-    project: ['yacme', 'tacme', 'cacme'],
-    local: ['yacme'],
-    managed: ['website', 'api', 'yacme', 'tacme', 'cacme']
-  };
-  const RINGS = {
-    local: {
-      l: 282,
-      t: 50,
-      w: 142,
-      h: 124
-    },
-    project: {
-      l: 282,
-      t: 50,
-      w: 560,
-      h: 124
-    },
-    user: {
-      l: 2,
-      t: 34,
-      w: 446,
-      h: 198
-    },
-    managed: {
-      l: 0,
-      t: 32,
-      w: 862,
-      h: 204
-    }
-  };
-  const TILES = [{
-    id: 'website',
-    name: 'website/',
-    left: 30,
-    caption: ''
-  }, {
-    id: 'api',
-    name: 'api/',
-    left: 160,
-    caption: ''
-  }, {
-    id: 'yacme',
-    name: 'acme-app/',
-    left: 290,
-    caption: ''
-  }, {
-    id: 'tacme',
-    name: 'acme-app/',
-    left: 497,
-    caption: sel === 'project' ? 'their clone, once you commit the file' : 'their clone'
-  }, {
-    id: 'cacme',
-    name: 'acme-app/',
-    left: 704,
-    caption: sel === 'project' ? 'fresh clone, once you commit the file' : sel === 'managed' ? 'server-managed only' : 'fresh clone'
-  }];
-  const FILE_AT = {
-    user: {
-      machine: 'you',
-      tiles: []
-    },
-    project: {
-      machine: null,
-      tiles: ['yacme', 'tacme', 'cacme']
-    },
-    local: {
-      machine: null,
-      tiles: ['yacme']
-    },
-    managed: {
-      machine: null,
-      tiles: []
-    }
-  };
-  const fileAt = FILE_AT[sel];
-  const coverage = COVERAGE[sel];
-  const ring = RINGS[sel];
-  const selFile = FILES.find(f => f.id === sel);
-  const FolderIcon = ({open}) => <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
-      <path d="M1.5 4.5a1 1 0 0 1 1-1h3.2l1.3 1.5h6a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1h-10.5a1 1 0 0 1-1-1z" />
-      {open && <path d="M1.5 7.5h13" />}
-    </svg>;
-  const FileIcon = () => <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 1.5h5.5L13 5v9.5H4z" />
-      <path d="M9.5 1.5V5H13" />
-    </svg>;
-  const CloudIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4.5 12.5h7a2.5 2.5 0 0 0 .4-4.97A3.5 3.5 0 0 0 5.2 6.6 3 3 0 0 0 4.5 12.5z" />
-    </svg>;
-  const LaptopIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
-      <rect x="2.5" y="3" width="11" height="7.5" rx="1" />
-      <path d="M1 12.5h14" />
-    </svg>;
-  return <div ref={rootRef} className={'ssc-root not-prose' + (isFullscreen ? ' ssc-fs' : '')}>
-      <style>{`
-        .ssc-root {
-          --ssc-bg: #FFFFFF;
-          --ssc-text: #1A1918;
-          --ssc-sub: #5E5D59;
-          --ssc-faint: #8A8880;
-          --ssc-border: rgba(0,0,0,0.12);
-          --ssc-panel: #F5F4EF;
-          --ssc-tile: #FAFAF8;
-          --ssc-clay: #D97757;
-          --ssc-clay-bg: rgba(217,119,87,0.14);
-          --ssc-label: #B0562F;
-          --ssc-hover: rgba(115,114,108,0.10);
-          font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
-          background: var(--ssc-bg);
-          color: var(--ssc-text);
-          border: 1px solid var(--ssc-border);
-          border-radius: 16px;
-          padding: 20px 24px 24px;
-          margin: 1.5rem 0;
-          box-sizing: border-box;
-        }
-        .dark .ssc-root {
-          --ssc-bg: #1B1A18;
-          --ssc-text: #F1EFE9;
-          --ssc-sub: #B8B5AD;
-          --ssc-faint: #8A8880;
-          --ssc-border: rgba(255,255,255,0.12);
-          --ssc-panel: #24231F;
-          --ssc-tile: #2A2925;
-          --ssc-clay-bg: rgba(217,119,87,0.20);
-          --ssc-label: #EBC9B7;
-        }
-        .ssc-fs { display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0; border-radius: 0; height: 100vh; }
-        .ssc-fs .ssc-head { width: 100%; max-width: ${CANVAS_W}px; }
-        .ssc-fs .ssc-frame { width: 100%; }
-        .ssc-mono { font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace); }
-        .ssc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-        .ssc-files { display: flex; gap: 8px; flex-wrap: wrap; }
-        .ssc-file {
-          font-size: 12.5px; font-weight: 430; padding: 8px 13px; border-radius: 10px; cursor: pointer;
-          border: 0.5px solid var(--ssc-border); background: var(--ssc-tile); color: var(--ssc-text);
-          white-space: nowrap; transition: background 0.2s, border-color 0.2s;
-        }
-        .ssc-file:hover { filter: brightness(0.97); }
-        .ssc-file[aria-pressed="true"] { font-weight: 600; border: 1.5px solid var(--ssc-clay); background: var(--ssc-clay-bg); }
-        .ssc-fsbtn {
-          display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; flex-shrink: 0;
-          border: none; background: none; border-radius: 6px; cursor: pointer; color: var(--ssc-faint); font-size: 15px;
-        }
-        .ssc-fsbtn:hover { background: var(--ssc-hover); }
-        .ssc-frame { width: 100%; max-width: ${CANVAS_W}px; margin: 0 auto; }
-        .ssc-canvas { position: relative; width: ${CANVAS_W}px; height: ${CANVAS_H}px; transform-origin: top left; }
-        .ssc-machine { position: absolute; top: 42px; height: 182px; background: var(--ssc-panel); border-radius: 16px; }
-        .ssc-machine-label { position: absolute; top: 192px; display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; }
-        .ssc-tile {
-          position: absolute; top: 58px; width: 126px; height: 108px; border-radius: 12px; padding: 11px 12px; box-sizing: border-box;
-          background: var(--ssc-tile); border: 0.5px solid var(--ssc-border); opacity: 0.6;
-          transition: background 0.25s, border-color 0.25s, opacity 0.25s;
-        }
-        .ssc-tile.ssc-on { background: var(--ssc-clay-bg); border: 1px solid var(--ssc-clay); opacity: 1; }
-        .ssc-tile-name { display: flex; align-items: center; gap: 6px; color: var(--ssc-faint); }
-        .ssc-tile.ssc-on .ssc-tile-name { color: var(--ssc-clay); }
-        .ssc-tile-name span { font-size: 12px; font-weight: 430; white-space: nowrap; color: var(--ssc-text); }
-        .ssc-tile.ssc-on .ssc-tile-name span { font-weight: 600; }
-        .ssc-tile-caption { font-size: 10.5px; color: var(--ssc-sub); margin-top: 5px; line-height: 1.35; }
-        .ssc-filemark {
-          position: absolute; left: 5px; right: 5px; bottom: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 2px;
-          font-size: 8.5px; color: var(--ssc-label); background: var(--ssc-bg); border: 1px solid var(--ssc-clay);
-          border-radius: 6px; padding: 2px 3px; white-space: nowrap; overflow: hidden;
-        }
-        .ssc-filemark svg { flex-shrink: 0; }
-        .ssc-machine-filemark { display: inline-flex; align-items: center; gap: 4px; margin-left: 10px; font-size: 10.5px; font-weight: 500; color: var(--ssc-label); }
-        .ssc-ring {
-          position: absolute; border: 2px solid var(--ssc-clay); border-radius: 18px; pointer-events: none;
-          transition: left 0.35s ease, top 0.35s ease, width 0.35s ease, height 0.35s ease;
-        }
-        .ssc-ring-label {
-          position: absolute; font-size: 12px; font-weight: 600; color: var(--ssc-label); white-space: nowrap; pointer-events: none;
-          transition: left 0.35s ease, top 0.35s ease;
-        }
-      `}</style>
-
-      <div className="ssc-head">
-        <div className="ssc-files" role="group" aria-label="Settings file">
-          {FILES.map(f => <button key={f.id} type="button" className="ssc-file ssc-mono" aria-pressed={f.id === sel} onClick={() => setSel(f.id)}>{f.path}</button>)}
-        </div>
-        <button type="button" className="ssc-fsbtn" onClick={toggleFullscreen} aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'} title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}>{isFullscreen ? '⤡' : '⛶'}</button>
-      </div>
-
-      <div ref={frameRef} className="ssc-frame" style={{
-    height: CANVAS_H * scale + 'px'
-  }}>
-        <div className="ssc-canvas" style={{
-    transform: 'scale(' + scale + ')'
-  }}>
-          <div className="ssc-machine" style={{
-    left: '10px',
-    width: '430px'
-  }} />
-          <span className="ssc-machine-label" style={{
-    left: '30px'
-  }}><LaptopIcon />Your machine{fileAt.machine === 'you' && <span className="ssc-machine-filemark ssc-mono"><FileIcon />{selFile.path}</span>}</span>
-          <div className="ssc-machine" style={{
-    left: '460px',
-    width: '200px'
-  }} />
-          <span className="ssc-machine-label" style={{
-    left: '470px'
-  }}><LaptopIcon />A teammate’s machine</span>
-          <div className="ssc-machine" style={{
-    left: '682px',
-    width: '170px'
-  }} />
-          <span className="ssc-machine-label" style={{
-    left: '692px'
-  }}><CloudIcon />A cloud session</span>
-
-          {TILES.map(t => {
-    const on = coverage.includes(t.id);
-    return <div key={t.id} className={'ssc-tile' + (on ? ' ssc-on' : '')} style={{
-      left: t.left + 'px'
-    }}>
-                <div className="ssc-tile-name"><FolderIcon open={on} /><span className="ssc-mono">{t.name}</span></div>
-                {t.caption && <div className="ssc-tile-caption">{t.caption}</div>}
-                {fileAt.tiles.includes(t.id) && <span className="ssc-filemark ssc-mono" title={SHORT[sel]}><FileIcon />{TILE_MARK[sel]}</span>}
-              </div>;
-  })}
-
-          <div className="ssc-ring" style={{
-    left: ring.l + 'px',
-    top: ring.t + 'px',
-    width: ring.w + 'px',
-    height: ring.h + 'px'
-  }} />
-          <span className="ssc-ring-label ssc-mono" style={{
-    left: ring.l + 14 + 'px',
-    top: ring.t - 26 + 'px'
-  }}>{selFile.ring || selFile.path}</span>
-        </div>
-      </div>
-    </div>;
-};
-
 设置是改变 Claude Code 行为方式的 JSON 键：它启动时使用的模型、它可以在不询问的情况下运行的内容、它无法读取的文件、它在终端中的外观，以及您的组织强制执行的内容。
 
-<Tip>
-  要查找特定键，请转到[所有设置](/docs/zh-CN/settings-reference)，其中列出了每个键、设置它的文件、其默认值和示例。
-</Tip>
+> [!TIP]
+>
+> 要查找特定键，请转到[所有设置](/docs/zh-CN/settings-reference)，其中列出了每个键、设置它的文件、其默认值和示例。
 
 Claude Code 从 JSON 设置文件（如 `~/.claude/settings.json`）读取设置。它在几个位置查找它们，[它读取设置的文件决定了设置适用于谁](#settings-files-and-who-they-affect)。本页涵盖这些文件：将设置放在哪个文件中、如何更改设置并确认它已应用，以及当同一键在多个文件中设置时 Claude Code 使用哪个值。[配置权限](/docs/zh-CN/permissions)涵盖 Claude Code 可以在不询问的情况下运行的内容以及如何编写 `allow`、`ask` 和 `deny` 规则。
 
-<Note>
-  本页涵盖在您的机器上运行的 Claude Code：终端、[VS Code](/docs/zh-CN/vs-code) 和 [JetBrains](/docs/zh-CN/jetbrains) 扩展，以及[桌面应用](/docs/zh-CN/desktop)，它们都读取相同的设置文件。[Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) 上的云会话在不同的机器上运行并仅读取其中一些；请参阅[云会话中的设置](#settings-in-cloud-sessions)。
-</Note>
+> [!NOTE]
+>
+> 本页涵盖在您的机器上运行的 Claude Code：终端、[VS Code](/docs/zh-CN/vs-code) 和 [JetBrains](/docs/zh-CN/jetbrains) 扩展，以及[桌面应用](/docs/zh-CN/desktop)，它们都读取相同的设置文件。[Claude Code on the web](/docs/zh-CN/claude-code-on-the-web) 上的云会话在不同的机器上运行并仅读取其中一些；请参阅[云会话中的设置](#settings-in-cloud-sessions)。
 
-<span id="settings-files" />
-
-<span id="configuration-scopes" />
-
-<span id="available-scopes" />
-
-<span id="when-to-use-each-scope" />
-
-<span id="what-uses-scopes" />
-
-<span id="subagent-configuration" />
-
-<span id="where-settings-live" />
-
-<h2 id="settings-files-and-who-they-affect">
-  设置文件及其影响范围
-</h2>
+## 设置文件及其影响范围
 
 Claude Code 从四个文件读取设置，组织也可以从 claude.ai 控制台提供托管设置。每个来源都有一个作用域：保存在其中的设置所适用的人员和项目范围，可能是仅限于您、项目中的所有人，或组织中的所有人。
 
@@ -411,30 +31,26 @@ Claude Code 从四个文件读取设置，组织也可以从 claude.ai 控制台
 
 在"文件"列中，`~/.claude` 是您主目录中的 `.claude` 文件夹，而单独的 `.claude` 是项目内的 `.claude` 文件夹。
 
-<span id="where-each-file-applies" />
-
-<span id="compare-what-each-file-reaches" />
-
-<h3 id="compare-the-scope-of-each-settings-file">
-  比较每个设置文件的作用域
-</h3>
+### 比较每个设置文件的作用域
 
 假设您的机器上有三个项目：`website/`、`api/` 和 `acme-app/`，一位队友有自己的 `acme-app/` 克隆，并且您在 `acme-app/` 上启动了一个[云端会话](#settings-in-cloud-sessions)。
 
 下图显示了当您从这些文件夹启动 Claude Code 时，设置会在哪些文件夹中生效。点击某个设置文件即可查看它覆盖到的文件夹。
 
-<SettingsScope />
+Settings file
+
+Your machine
+
+A teammate’s machine
+
+A cloud session
 
 * **`~/.claude/settings.json`**：您机器上的每个项目，而队友的机器上和云端会话中都不会生效
 * **`acme-app/.claude/settings.json`**：您的 `acme-app/`。只有当您将该文件提交到版本控制后，它才会覆盖到队友的克隆和云端会话；在此之前，它只是您磁盘上的一个普通文件，其他人都没有它
 * **`acme-app/.claude/settings.local.json`**：仅您的 `acme-app/`。Claude Code 第一次写入该文件时会将其添加到您的全局 git 排除项中，因此它不会进入您的提交；如果您手动创建该文件，请[自行将其添加到 `.gitignore`](#keep-personal-settings-out-of-a-repository)
 * **托管设置**，无论是 `managed-settings.json` 文件、MDM 策略，还是来自 claude.ai 控制台的[服务器托管设置](/docs/zh-CN/server-managed-settings)：您的组织部署到的每台机器上的每个项目，或您使用组织账户登录的每台机器上的每个项目。只有服务器托管设置会覆盖到云端会话
 
-<span id="which-files-you-have" />
-
-<h3 id="find-or-create-your-settings-files">
-  查找或创建设置文件
-</h3>
+### 查找或创建设置文件
 
 安装 Claude Code 不会创建任何设置文件。如果您的机器或项目中已经有设置文件，它来自以下来源之一：
 
@@ -442,31 +58,19 @@ Claude Code 从四个文件读取设置，组织也可以从 claude.ai 控制台
 * **共享项目**：已经使用 Claude Code 的项目可能已提交了该文件。如果没有，请在项目文件夹中的 `.claude/settings.json` 创建它。
 * **用户**和**项目本地**：您可以自行创建，也可以让 Claude Code 创建。当您第一次在 `/config` 菜单中更改存储在用户设置中的选项（例如主题）时，它会写入 `~/.claude/settings.json`；当您第一次在权限提示上给予常设批准（例如对 Bash 命令选择"Yes, and don't ask again"）时，它会写入 `.claude/settings.local.json`。少数 `/config` 选项（包括 **Show tips**）会保存到 `.claude/settings.local.json`，而不是用户文件。
 
-<Info>
-  在 Windows 上，`~/.claude` 表示 `%USERPROFILE%\.claude`。要将主目录中的文件保存在其他位置，请设置 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)；Claude Code 随后会将您的设置、会话历史和插件存储在该位置。
-</Info>
+> [!NOTE]
+>
+> 在 Windows 上，`~/.claude` 表示 `%USERPROFILE%\.claude`。要将主目录中的文件保存在其他位置，请设置 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)；Claude Code 随后会将您的设置、会话历史和插件存储在该位置。
 
 Claude Code 还会保留第五个文件 [`~/.claude.json`](/docs/zh-CN/claude-directory#ce-claude-json)，由它自行写入；您无需编辑它。该文件保存您的登录会话、[MCP 服务器](/docs/zh-CN/mcp)配置、每个项目的状态（例如信任决定），以及 `/config` 为您写入的[全局配置键](/docs/zh-CN/settings-reference#global-config-settings)。
 
-<h3 id="share-settings-with-your-team">
-  与团队共享设置
-</h3>
+### 与团队共享设置
 
 提交 `.claude/settings.json`，以便克隆仓库的每个人都获得相同的权限、hook 和插件。每位队友仍可以在自己的 `.claude/settings.local.json` 中为自己覆盖它，因此个人例外无需提交。有关完整的团队文件，请参阅[团队的共享设置](/docs/zh-CN/settings-example#a-teams-shared-settings)。
 
 您提交的部分内容要等到每位队友[信任该文件夹](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)后才会生效，还有少数键永远不会从仓库文件中生效；[排查不生效的设置](#common-cases)涵盖了这两种情况。
 
-<span id="local-settings-file" />
-
-<span id="where-claude-code-saves-the-project-local-file" />
-
-<span id="the-project-local-file" />
-
-<span id="keep-personal-settings-out-of-the-repository" />
-
-<h3 id="keep-personal-settings-out-of-a-repository">
-  将个人设置保留在仓库之外
-</h3>
+### 将个人设置保留在仓库之外
 
 要在某个项目中仅为自己更改设置而不影响队友，请将其保存在项目内的 `.claude/settings.local.json` 中。Claude Code 会在已提交的 `.claude/settings.json` 之上应用该文件，因此如果团队文件设置了 `"model": "claude-sonnet-5"` 而您想使用 Opus，请在本地文件中放入 `"model": "claude-opus-5-5"`，这样只有您的会话会发生变化。
 
@@ -476,15 +80,7 @@ Claude Code 也会写入此文件，将其排除在您的提交之外，并且�
 * **您无需自行将其加入 gitignore，除非您是手动创建的。** Claude Code 第一次在尚未忽略该文件的 git 仓库中写入它时，会将 `**/.claude/settings.local.json` 添加到您的全局 git 排除文件中，因此该文件在每个仓库中都不会进入您的提交。当您的全局 git 配置将 `core.excludesFile` 设置为绝对路径或以 `~` 开头的路径时，该排除文件就是 `core.excludesFile`；否则为 `$XDG_CONFIG_HOME/git/ignore`，或在未设置 `XDG_CONFIG_HOME` 时为 `~/.config/git/ignore`。如果您手动创建了该文件且 Claude Code 尚未写入它，请自行将其添加到 `.gitignore`。
 * **只要文件保持未跟踪状态，其允许规则就无需等待信任。** 由于该文件属于您而不属于仓库，Claude Code 会应用其 `allow` 规则，而无需经过已提交文件所要求的[工作区信任](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)步骤。如果该文件被 git 跟踪，信任步骤同样适用于它；请参阅[本地设置文件何时需要信任](/docs/zh-CN/permissions#when-your-local-settings-file-needs-trust)。
 
-<span id="where-claude-code-looks-for-each-file" />
-
-<span id="how-claude-code-keeps-the-local-file-out-of-git" />
-
-<span id="local-allow-rules-dont-wait-for-workspace-trust" />
-
-<h4 id="where-claude-code-keeps-the-local-file-in-a-git-repository">
-  Claude Code 在 git 仓库中保存本地文件的位置
-</h4>
+#### Claude Code 在 git 仓库中保存本地文件的位置
 
 当 Claude 请求运行 Bash 命令的权限而您选择"Yes, and don't ask again"时，Claude Code 会将该批准作为 `allow` 规则保存在 `.claude/settings.local.json` 中。如果您在 git 仓库的子目录中启动 Claude Code，它会在仓库根目录读取和写入该文件，并在整个仓库中应用该批准。在 [worktree](/docs/zh-CN/worktrees) 中，它使用主检出根目录下的文件。
 
@@ -497,19 +93,7 @@ Claude Code 也会写入此文件，将其排除在您的提交之外，并且�
 
 Claude Code 从会话的[主工作目录](/docs/zh-CN/permissions#working-directories)读取共享的 `.claude/settings.json`，因此要使用提交在仓库根目录的文件，请从那里启动 Claude Code。在您[使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory)后，Claude Code 会改为从新目录读取这两个项目文件，并按相同规则放置本地文件。从您移动到的目录读取它们需要 Claude Code v2.1.246 或更高版本。对于从桌面应用启动的 worktree 会话，请参阅[worktree 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
 
-<span id="managed-settings-delivery" />
-
-<span id="precedence-within-the-managed-tier" />
-
-<span id="parent-settings-from-embedding-hosts" />
-
-<span id="enforce-settings-for-an-organization" />
-
-<span id="settings-your-organization-manages" />
-
-<h3 id="check-what-your-organization-enforces">
-  检查组织强制执行的内容
-</h3>
+### 检查组织强制执行的内容
 
 如果您的组织管理 Claude Code，某些设置已由组织为您决定，您在自己的文件中放入的任何内容都无法更改它们。要查看是哪些设置，请运行 `/status`：`Setting sources` 行会列出适用于您的托管来源。托管设置在这台机器上 Claude Code 运行的任何位置都会生效；[开发人员可以更改的内容](/docs/zh-CN/managed-settings#what-a-developer-can-change)介绍了本地管理员权限以及 Claude Code 以外的工具。
 
@@ -523,19 +107,13 @@ Claude Code 从会话的[主工作目录](/docs/zh-CN/permissions#working-direct
 
 如果您是管理员，[为组织设置 Claude Code](/docs/zh-CN/admin-setup) 将引导您选择要强制执行的内容，[部署托管设置](/docs/zh-CN/managed-settings)介绍了交付方式以及如何确认策略已生效。有关 claude.ai 管理控制台中托管设置编辑器可能显示的警告，请参阅[配置服务器托管设置](/docs/zh-CN/server-managed-settings#configure-server-managed-settings)。
 
-<h2 id="change-a-setting">
-  更改设置
-</h2>
+## 更改设置
 
 您可以从 `/config` 菜单、通过编辑设置文件或对一个会话从命令行更改设置。
 
-<span id="system-prompt" />
-
 Claude Code 的系统提示未发布。要给 Claude 常设指令，使用 [`CLAUDE.md` 文件](/docs/zh-CN/memory)或 `--append-system-prompt` 标志。
 
-<h3 id="use-the-/config-menu">
-  使用 /config 菜单
-</h3>
+### 使用 /config 菜单
 
 在 Claude Code 内运行 `/config` 并打开**配置**选项卡。它列出了一小组个人选项，如主题、编辑器模式和详细输出，而不是每个设置键。选择一个选项来更改它；Claude Code 为您保存它：
 
@@ -545,13 +123,11 @@ Claude Code 的系统提示未发布。要给 Claude 常设指令，使用 [`CLA
 
 要设置一个选项而不使用菜单，传递 `key=value`，例如 `/config verbose=true`。
 
-<Note>
-  `/config` 是终端界面的一部分。[VS Code](/docs/zh-CN/vs-code) 聊天面板和[桌面应用](/docs/zh-CN/desktop)不打开它；通过编辑设置文件或通过这些应用自己的设置在那里更改设置。
-</Note>
+> [!NOTE]
+>
+> `/config` 是终端界面的一部分。[VS Code](/docs/zh-CN/vs-code) 聊天面板和[桌面应用](/docs/zh-CN/desktop)不打开它；通过编辑设置文件或通过这些应用自己的设置在那里更改设置。
 
-<h3 id="edit-a-settings-file">
-  编辑设置文件
-</h3>
+### 编辑设置文件
 
 在您的编辑器中打开您想要的作用域的设置文件并添加或更改键。设置文件是严格的 JSON：`//` 注释或尾部逗号是语法错误，Claude Code 在下次启动时将文件报告为[设置错误](#fix-a-broken-settings-file)。例如，要让 Claude Code 在不询问的情况下运行您的 lint 和测试命令并阻止它读取 `.env` 文件，将此添加到 `~/.claude/settings.json`：
 
@@ -577,11 +153,7 @@ Claude Code 的系统提示未发布。要给 Claude 常设指令，使用 [`CLA
 
 有关完整的个人文件、团队文件和组织文件，每个都带有每个键的注释，请参阅[示例设置文件](/docs/zh-CN/settings-example)。
 
-<span id="pass-settings-for-one-session" />
-
-<h3 id="change-a-setting-for-one-session">
-  为一个会话更改设置
-</h3>
+### 为一个会话更改设置
 
 要尝试一个值而不保存它，在启动 Claude Code 时设置它。该值适用于该会话，您的设置文件保持原样。您有三种方式做到：
 
@@ -601,9 +173,7 @@ Claude Code 的系统提示未发布。要给 Claude 常设指令，使用 [`CLA
 claude --settings '{"model": "claude-opus-5-5"}'
 ```
 
-<h3 id="when-edits-take-effect">
-  编辑何时生效
-</h3>
+### 编辑何时生效
 
 Claude Code 监视您的设置文件并在它们更改时重新加载它们，因此它在运行的会话中应用大多数编辑而不需要重启，包括对 `permissions`、`hooks` 和凭证助手（如 `apiKeyHelper`）的编辑。Claude Code 也在会话中期加载您创建的设置文件，如果其文件夹在会话启动时存在。对于项目的 `.claude/` 文件夹，即使您在同一会话中创建文件夹，它也加载文件。
 
@@ -614,21 +184,13 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 * [`model`](/docs/zh-CN/settings-reference#model)：使用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 在会话中期切换。每个模型有自己的提示缓存，因此切换后的第一个请求重新读取整个对话未缓存；请参阅[切换模型](/docs/zh-CN/prompt-caching#switching-models)
 * [`effortLevel`](/docs/zh-CN/settings-reference#effortlevel) 和 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings)：使用 [`/effort`](/docs/zh-CN/model-config#adjust-effort-level) 在会话中期更改努力
 
-<span id="verify-active-settings" />
-
-<span id="check-what-loaded" />
-
-<h3 id="confirm-what-loaded">
-  确认已加载的内容
-</h3>
+### 确认已加载的内容
 
 在 Claude Code 内运行 `/status` 以查看哪些设置来源处于活跃状态。**状态**选项卡包含一个 `Setting sources` 行，列出 Claude Code 为当前会话加载的每个设置文件，如 `User settings` 或 `Project local settings`。当[托管设置](/docs/zh-CN/admin-setup#decide-how-settings-reach-devices)生效时，托管设置条目在括号中显示它们如何到达您的机器。
 
 该行确认 Claude Code 读取了哪些文件；它不显示哪个文件提供了每个键。要列出 Claude Code 拒绝的条目，运行 [`claude doctor`](/docs/zh-CN/debug-your-config)；对于项目或托管设置设置的模型，启动标头命名设置它的文件。`/status` 和 `/config` 在不同选项卡上打开相同的对话框，**配置**选项卡不是您的 `settings.json` 内容的视图。
 
-<h3 id="fix-a-broken-settings-file">
-  修复损坏的设置文件
-</h3>
+### 修复损坏的设置文件
 
 如果您拼错 JSON 或将键设置为 Claude Code 不接受的值，Claude Code 在交互式会话启动时告诉您。它显示的内容取决于文件受影响的程度：
 
@@ -641,21 +203,11 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 
 `-p` 运行显示无对话框。除非[托管设置文档无法解析](/docs/zh-CN/errors#managed-settings-document-could-not-be-parsed)，Claude Code 跳过损坏的文件或值并继续其余的，因此在忽略设置的 `-p` 运行后，运行 `claude doctor` 以查看它删除了什么。
 
-<span id="how-scopes-interact" />
-
-<span id="key-points-about-the-configuration-system" />
-
-<span id="which-value-claude-code-uses" />
-
-<span id="which-value-wins" />
-
-<h2 id="settings-precedence">
-  设置优先级
-</h2>
+## 设置优先级
 
 当同一键出现在多个位置时，Claude Code 使用设置它的最高级别的值。下面的堆栈显示级别，最高在顶部；更高级别的键覆盖它在下面任何地方的相同键。
 
-<SettingsPrecedence />
+Settings precedence, highest first: managed settings, command line, project local, shared project, user. A key set at a higher level overrides the same key set lower down.
 
 按顺序，最高优先级优先：
 
@@ -669,9 +221,7 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 
 对于少数安全敏感的键，Claude Code 尊重来自较低级别的更严格值而不是托管值；[托管设置优先级的例外](#exceptions-to-managed-settings-precedence)列出它们。
 
-<h3 id="lists-merge-instead-of-overriding">
-  列表合并而不是覆盖
-</h3>
+### 列表合并而不是覆盖
 
 当您在多个文件中设置相同的列表键（如 `permissions.allow`）时，Claude Code 组合列表而不是选择一个，因此每个文件可以添加条目而不删除另一个文件的。四个保存模型列表或每个模型条目的键遵循自己的规则：
 
@@ -680,63 +230,39 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 * [`availableModels`](/docs/zh-CN/settings-reference#availablemodels)：当 Claude Code 应用的托管设置定义它时，Claude Code 按原样应用该列表并忽略您在用户、项目或本地设置中添加的条目，除非嵌入 Claude Code 的应用提供自己的模型列表；请参阅[托管设置优先级的例外](#exceptions-to-managed-settings-precedence)。跨托管来源列表也永远不会合并；[Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说哪个来源的列表适用。跨非托管作用域 Claude Code 照常合并数组。
 * [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings)：Claude Code 一次解决它一个模型，与 [`effortLevel`](/docs/zh-CN/settings-reference#effortlevel) 一起。`modelSettings` 条目说明哪个文件的值适用于模型。
 
-<span id="examples" />
-
-<h3 id="precedence-examples">
-  优先级示例
-</h3>
+### 优先级示例
 
 当 Claude 工作时，Claude Code 在微调器下显示一行提示，如"使用 /config 更改您的默认权限模式（包括 Plan Mode）"。假设您想关闭这些提示，因此您在 `~/.claude/settings.json` 中将 [`spinnerTipsEnabled`](/docs/zh-CN/settings-reference#spinnertipsenabled) 设置为 `false`。下面的每个场景是可以打开它们的东西，以及您可以做什么。
 
-<h4 id="team-settings-override-personal-settings">
-  团队设置覆盖个人设置
-</h4>
+#### 团队设置覆盖个人设置
 
 您的团队的 `.claude/settings.json` 将其设置为 `true`。Claude Code 使用项目值，因为共享项目位于用户上方，因此您在该项目中看到提示，其他地方都没有。
 
 您可以恢复您的值：在该项目中的 `.claude/settings.local.json` 中添加 `"spinnerTipsEnabled": false`。项目本地位于共享项目上方，因此您的会话停止显示提示，您队友的会话不改变。
 
-<h4 id="organization-settings-override-everything">
-  组织设置覆盖一切
-</h4>
+#### 组织设置覆盖一切
 
 您的组织的托管设置将其设置为 `true`。您在用户、项目或本地设置中放入的任何内容都不会关闭提示，`--settings` 也不会。托管是最高级别。
 
 您无法恢复您的值。运行 `/status` 以查看哪个托管来源适用，并询问您的管理员策略是否应改变。
 
-<h4 id="the-command-line-overrides-your-files-for-one-session">
-  命令行为一个会话覆盖您的文件
-</h4>
+#### 命令行为一个会话覆盖您的文件
 
 您使用 `claude --settings '{"spinnerTipsEnabled": true}'` 启动了会话。命令行位于除托管外的每个文件上方，因此该会话显示提示，即使您的文件说 `false`。
 
 您在下一个会话上恢复您的值；`--settings` 持续一个会话并不写入任何文件。
 
-<h4 id="a-flag-or-environment-variable-sets-the-same-thing">
-  标志或环境变量设置相同的东西
-</h4>
+#### 标志或环境变量设置相同的东西
 
 某些键有命令行标志或环境变量，无论哪个文件设置它都覆盖设置值：`ANTHROPIC_MODEL` 覆盖 [`model`](/docs/zh-CN/settings-reference#model) 设置，`--model` 为一个会话覆盖两者。
 
 您是否可以恢复您的值取决于键：取消设置变量或删除标志，并检查[设置参考](/docs/zh-CN/settings-reference)上的键条目和[环境变量参考](/docs/zh-CN/env-vars)上的变量行，了解 Claude Code 使用哪个。
 
-<span id="keys-ignored-in-a-repository-file" />
-
-<span id="keys-only-you-or-your-organization-can-set" />
-
-<span id="common-cases" />
-
-<span id="which-value-applies-in-common-situations" />
-
-<h3 id="troubleshoot-a-setting-that-doesn’t-apply">
-  排除不适用的设置
-</h3>
+### 排除不适用的设置
 
 当您设置键而 Claude Code 不表现得好像您有时，从 `/status` 开始以查看它加载了哪些文件，然后在下面找到您的症状。[调试您的配置](/docs/zh-CN/debug-your-config)涵盖更广泛的检查，包括干净配置测试。
 
-<h4 id="a-value-you-set-is-ignored">
-  您设置的值被忽略
-</h4>
+#### 您设置的值被忽略
 
 其他东西设置相同的键，文件无法设置该值，或文件没有加载：
 
@@ -747,23 +273,17 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
   [`env`](/docs/zh-CN/settings-reference#env) 块中的遥测导出变量也不从项目或本地设置生效，除了少数关闭值。[Claude Code 在 `env` 中忽略的变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)列出变量和这些值。
 * **文件损坏。** 无效的 JSON 或拒绝的值使 Claude Code 跳过文件或条目；请参阅[修复损坏的设置文件](#fix-a-broken-settings-file)。
 
-<h4 id="a-change-you-made-in-claude-code-is-lost-in-new-sessions">
-  您在 Claude Code 中所做的更改在新会话中丢失
-</h4>
+#### 您在 Claude Code 中所做的更改在新会话中丢失
 
 当您从 Claude Code 内保存新会话的选择时，如使用 `/model` 的默认模型，Claude Code 将其写入您的用户设置文件 `~/.claude/settings.json`。如果您无法写入该文件，例如因为另一个工具生成它或将其链接到只读副本，更改适用于当前会话并在下一个会话中消失。在生成文件的工具中设置键，或用您可以写入的文件替换文件。
 
 如果您可以写入文件而更改仍然不持续，检查更改是否[仅用于一个会话](#change-a-setting-for-one-session)或[更高级别设置相同的键](#a-value-you-set-is-ignored)。对于 `model` 键，[新会话在与您选择的不同的模型上启动](/docs/zh-CN/model-config#a-new-session-starts-on-a-different-model-than-you-picked)列出更多原因。
 
-<h4 id="a-managed-change-hasn’t-reached-you">
-  托管更改还没有到达您
-</h4>
+#### 托管更改还没有到达您
 
 托管来源按[传递表](/docs/zh-CN/managed-settings#choose-a-delivery-mechanism)中的计划到达运行的会话，因此首先重启会话。如果 `/status` 然后命名与您的管理员更改的不同的来源，更高优先级的来源适用；[Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)给出顺序。
 
-<h4 id="a-committed-key-doesn’t-reach-teammates">
-  提交的键不到达队友
-</h4>
+#### 提交的键不到达队友
 
 两件事阻止 `.claude/settings.json` 中的键为克隆它的每个人应用：
 
@@ -772,18 +292,12 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
   在 `env` 键内，遥测导出变量也永远不会从共享文件应用，除了少数关闭值；请参阅[Claude Code 在 `env` 中忽略的变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)。
 * **键等待信任。** `permissions.allow` 规则、`permissions.additionalDirectories`、`extraKnownMarketplaces` 和大多数 [`env`](/docs/zh-CN/settings-reference#env) 值仅在每个队友[信任文件夹](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)后应用。在那之前他们仍然看到提示并不从文件声明的市场获得插件。`deny` 和 `ask` 规则立即应用。
 
-<h4 id="permission-rules-combine-differently-than-you-expected">
-  权限规则组合方式与您预期不同
-</h4>
+#### 权限规则组合方式与您预期不同
 
 * **您在权限提示上选择了"是的，不要再问"但仍然为相同的工具获得提示。** 该选择将 `allow` 规则保存到您的本地文件，本地的 `allow` 规则不优先于项目或托管文件中的 `ask` 规则；[权限规则如何组合](/docs/zh-CN/permissions#settings-precedence)解释顺序。在 VS Code 扩展中，批准卡让您选择目标文件，包括项目的共享文件，这改变了每个人的规则；在 CLI 中，Claude Code 仅写入您的本地文件。
 * **您的组织的允许规则仍然与您的一起应用。** 这是预期的：Claude Code 跨作用域合并 [`permissions.allow`](/docs/zh-CN/settings-reference#permissions-allow)，除非您的组织设置 [`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly)。
 
-<span id="security-keys-where-the-stricter-value-applies" />
-
-<h3 id="exceptions-to-managed-settings-precedence">
-  托管设置优先级的例外
-</h3>
+### 托管设置优先级的例外
 
 对于少数几个值限制会话的键，Claude Code 尊重来自否则无法覆盖托管设置的作用域的限制值。在此表中找到键以查看它尊重哪个值以及从哪里。
 
@@ -803,9 +317,7 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 
 运行 Claude Code 的应用并设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars) 也是例外。Claude Code 从该应用的模型配置优先于来自每个托管来源的 `model`、`fallbackModel`、`modelPicker` 和 `modelOverrides` 键，以及托管 `env` 块中的模型选择变量，如 `ANTHROPIC_MODEL` 和 `ANTHROPIC_DEFAULT_*_MODEL` 系列。Claude Code 保持托管 [`availableModels`](/docs/zh-CN/settings-reference#availablemodels) 允许列表生效，除非应用提供自己的。
 
-<h2 id="settings-in-cloud-sessions">
-  云会话中的设置
-</h2>
+## 云会话中的设置
 
 [云会话](/docs/zh-CN/claude-code-on-the-web)在[云环境](/docs/zh-CN/cloud-environments)中运行在您的存储库的新克隆上，而不是在您的机器上。这改变了哪些设置到达它：
 
@@ -816,9 +328,7 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 
 [从您的设置中携带什么](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)列出其余的：`CLAUDE.md`、skills、MCP 服务器、plugins 和凭证。
 
-<h2 id="what’s-next">
-  接下来是什么
-</h2>
+## 接下来是什么
 
 * [所有设置](/docs/zh-CN/settings-reference)：每个键，以及您在哪里设置它和示例
 * [示例设置文件](/docs/zh-CN/settings-example)：个人文件、团队文件和组织的托管文件

@@ -6,588 +6,13 @@
 
 > Claude Code settings.json 的完整参考：每个键的位置、类型和默认值，以及可直接粘贴的示例，包含每个键的索引。
 
-export const BackToIndex = ({href = '#all-settings', label = 'Back to index'}) => {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > window.innerHeight);
-    onScroll();
-    window.addEventListener('scroll', onScroll, {
-      passive: true
-    });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-  return <div className="not-prose">
-      <style>{`
-        .bti-btn {
-          position: fixed; right: 20px; bottom: 20px; z-index: 40;
-          display: inline-flex; align-items: center; gap: 6px;
-          padding: 8px 12px; border-radius: 999px;
-          font-size: 13px; font-weight: 500; line-height: 1; text-decoration: none;
-          color: #1f1f1f; background: #ffffff; border: 1px solid #d9d9d9;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-          opacity: 0; pointer-events: none; transform: translateY(6px);
-          transition: opacity 160ms ease, transform 160ms ease;
-        }
-        .bti-btn.bti-show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        .bti-btn:hover { border-color: #b3b3b3; }
-        .dark .bti-btn { color: #ececec; background: #1e1e1e; border-color: #3a3a3a; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
-        .dark .bti-btn:hover { border-color: #5a5a5a; }
-        @media (max-width: 1279px) { .bti-btn { bottom: 112px; } }
-        @media print { .bti-btn { display: none; } }
-      `}</style>
-      <a className={'bti-btn' + (show ? ' bti-show' : '')} href={href} aria-hidden={!show} tabIndex={show ? 0 : -1}>
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" /></svg>
-        {label}
-      </a>
-    </div>;
-};
-
-export const ReferenceFilter = ({placeholder, noun, facets, facetOrder, columnHelp, children}) => {
-  const useLive = init => {
-    const [v, setV] = useState(init);
-    const ref = useRef(init);
-    return [v, ref, x => {
-      ref.current = x;
-      setV(x);
-    }];
-  };
-  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-  const plural = s => s.endsWith('y') ? s.slice(0, -1) + 'ies' : s + 's';
-  const facetNames = facets || ['category', 'topic', 'scope', 'where'];
-  const orderOf = {};
-  Object.keys(facetOrder || ({})).forEach(k => {
-    orderOf[k] = facetOrder[k].map(x => String(x).toLowerCase());
-  });
-  const rankIn = (col, v) => {
-    const list = orderOf[col];
-    if (!list) return -1;
-    const i = list.indexOf(String(v).toLowerCase());
-    return i < 0 ? list.length : i;
-  };
-  const cmpValues = col => (a, b) => {
-    const ra = rankIn(col, a);
-    const rb = rankIn(col, b);
-    if (ra !== rb) return ra - rb;
-    return a < b ? -1 : a > b ? 1 : 0;
-  };
-  const help = columnHelp || ({});
-  const FIRST_COL_HELP = 'Click an entry to open it.';
-  const optionLabel = (f, c) => c === 'All' ? 'All ' + plural(f.label.toLowerCase()) : c;
-  const nounText = noun || 'entries';
-  const placeholderText = placeholder || 'Filter this reference';
-  const rootRef = useRef(null);
-  const tablesRef = useRef(null);
-  const searchRef = useRef(null);
-  const menuRef = useRef({});
-  const [q, qRef, setQ] = useLive('');
-  const [sel, selRef, setSel] = useLive({});
-  const [sortBy, sortRef, setSortBy] = useLive(null);
-  const [menuOpen, menuOpenRef, setMenu] = useLive(null);
-  const [facetList, setFacetList] = useState([]);
-  const [firstHead, setFirstHead] = useState('');
-  const [counts, setCounts] = useState({
-    shown: 0,
-    total: 0
-  });
-  const [disabled, setDisabled] = useState(false);
-  const menuBtn = name => menuRef.current[name] ? menuRef.current[name].querySelector(':scope > button') : null;
-  const menuList = name => menuRef.current[name] ? menuRef.current[name].querySelector('[role="listbox"]') : null;
-  const closeMenu = name => {
-    setMenu(null);
-    const btn = menuBtn(name);
-    if (btn) btn.focus();
-  };
-  const focusSelected = name => {
-    const list = menuList(name);
-    if (!list) return;
-    const btn = list.querySelector('button[aria-selected="true"]') || list.querySelector('button');
-    if (btn) btn.focus();
-  };
-  const setFacet = (name, value) => {
-    setSel(Object.assign({}, selRef.current, {
-      [name]: value
-    }));
-    apply(qRef.current);
-    closeMenu(name);
-  };
-  const sortTables = by => {
-    (tablesRef.current || []).forEach(tab => {
-      const t = tab.el;
-      const idx = tab.heads.indexOf(by);
-      const body = t.querySelector('tbody');
-      if (idx < 0 || !body) return;
-      const rows = [...body.querySelectorAll('tr')];
-      const keyOf = r => r.children[idx] ? r.children[idx].textContent.trim().toLowerCase() : '';
-      const cmp = cmpValues(by);
-      rows.map((r, i) => ({
-        r,
-        i: Number(r.dataset.sfIndex !== undefined ? r.dataset.sfIndex : i),
-        k: keyOf(r)
-      })).sort((a, b) => cmp(a.k, b.k) || a.i - b.i).forEach(x => body.appendChild(x.r));
-      [...t.querySelectorAll('thead th')].forEach((h, i) => {
-        const sortable = tab.heads[i] === tab.heads[0] || facetNames.indexOf(tab.heads[i]) > -1;
-        if (sortable) h.setAttribute('aria-sort', i === idx ? 'ascending' : 'none'); else h.removeAttribute('aria-sort');
-      });
-    });
-  };
-  const scan = () => {
-    const tables = [];
-    let el = rootRef.current ? rootRef.current.nextElementSibling : null;
-    while (el) {
-      if (el.tagName === 'H2' || el.querySelector(':scope > h2')) break;
-      const found = el.tagName === 'TABLE' ? [el] : [...el.querySelectorAll('table')];
-      found.forEach(t => {
-        const headCells = [...t.querySelectorAll('thead th, thead td')];
-        const heads = headCells.map(h => h.textContent.trim().toLowerCase());
-        if (heads.length === 0) return;
-        const facetIdx = {};
-        heads.forEach((h, i) => {
-          if (facetNames.indexOf(h) > -1) facetIdx[h] = i;
-        });
-        if (!t.dataset.sfDecorated) {
-          t.dataset.sfDecorated = '1';
-          headCells.forEach((h, i) => {
-            const text = i === 0 ? help[heads[0]] || FIRST_COL_HELP : help[heads[i]];
-            if (text) h.title = text;
-          });
-        }
-        const rows = [...t.querySelectorAll('tbody tr')].map((r, i) => {
-          if (r.dataset.sfIndex === undefined) r.dataset.sfIndex = String(i);
-          const cells = r.querySelectorAll('td');
-          const fv = {};
-          Object.keys(facetIdx).forEach(h => {
-            fv[h] = cells[facetIdx[h]] ? cells[facetIdx[h]].textContent.trim() : '';
-          });
-          return {
-            el: r,
-            text: [...cells].map(c => c.textContent).join(' ').toLowerCase(),
-            facets: fv,
-            anchors: [...r.querySelectorAll('a[href^="#"]')].map(a => a.getAttribute('href').slice(1)),
-            ids: [...r.querySelectorAll('[id]')].map(n => n.id)
-          };
-        });
-        tables.push({
-          el: t,
-          box: t.closest('[data-table-wrapper]') || t,
-          rows,
-          heads
-        });
-      });
-      el = el.nextElementSibling;
-    }
-    tablesRef.current = tables;
-    if (sortRef.current) sortTables(sortRef.current);
-    return tables;
-  };
-  const apply = query => {
-    let tables = tablesRef.current || scan();
-    if (tables.some(t => !t.el.isConnected)) tables = scan();
-    const needle = query.trim().toLowerCase();
-    const sel = selRef.current;
-    const activeFacets = Object.keys(sel).filter(h => sel[h] && sel[h] !== 'All');
-    const show = (el, on) => {
-      const want = on ? '' : 'none';
-      if (el.style.display !== want) el.style.display = want;
-    };
-    let total = 0;
-    let shown = 0;
-    const visibleTargets = new Set();
-    tables.forEach(t => {
-      let tableVisible = 0;
-      t.rows.forEach(row => {
-        total += 1;
-        const catOk = activeFacets.every(h => {
-          const v = row.facets[h];
-          return v === sel[h] || v === '' || v === undefined;
-        });
-        const match = catOk && (needle === '' || row.text.includes(needle));
-        show(row.el, match);
-        if (match) {
-          tableVisible += 1;
-          row.anchors.forEach(a => visibleTargets.add(a));
-        }
-      });
-      show(t.box, !(t.rows.length > 0 && tableVisible === 0));
-      shown += tableVisible;
-    });
-    if (shown < total && visibleTargets.size > 0) {
-      tables.forEach(t => {
-        t.rows.forEach(row => {
-          if (row.el.style.display === 'none' && row.ids.some(id => visibleTargets.has(id))) {
-            show(row.el, true);
-            show(t.box, true);
-            shown += 1;
-          }
-        });
-      });
-    }
-    setCounts({
-      shown,
-      total
-    });
-    return total;
-  };
-  const deriveFacets = tables => {
-    const seen = {};
-    tables.forEach(t => t.rows.forEach(r => {
-      Object.keys(r.facets).forEach(h => {
-        if (!seen[h]) seen[h] = [];
-        if (r.facets[h] && seen[h].indexOf(r.facets[h]) === -1) seen[h].push(r.facets[h]);
-      });
-    }));
-    const list = facetNames.filter(h => seen[h] && seen[h].length > 0).map(h => ({
-      name: h,
-      label: cap(h),
-      values: seen[h].sort(cmpValues(h))
-    }));
-    setFacetList(list);
-    const first = tables[0] ? tables[0].heads[0] : '';
-    setFirstHead(first);
-    if (!sortRef.current && first) {
-      setSortBy(first);
-      sortTables(first);
-    }
-    const init = {};
-    list.forEach(f => {
-      init[f.name] = selRef.current[f.name] || 'All';
-    });
-    setSel(init);
-  };
-  const onChange = value => {
-    setQ(value);
-    apply(value);
-  };
-  const clearAll = () => {
-    const next = {};
-    Object.keys(selRef.current).forEach(k => {
-      next[k] = 'All';
-    });
-    setSel(next);
-    setQ('');
-    apply('');
-    if (searchRef.current) searchRef.current.focus();
-  };
-  useEffect(() => {
-    const tables = scan();
-    deriveFacets(tables);
-    const total = apply('');
-    let retryTimer;
-    if (total === 0) {
-      retryTimer = setTimeout(() => {
-        tablesRef.current = null;
-        if (apply(qRef.current) > 0) deriveFacets(tablesRef.current); else setDisabled(true);
-      }, 500);
-    }
-    const onKey = e => {
-      if (e.key === 'Escape' && menuOpenRef.current !== null) closeMenu(menuOpenRef.current);
-      if (!searchRef.current) return;
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const active = document.activeElement;
-      const tag = active && active.tagName;
-      const editable = active && active.isContentEditable;
-      const interactive = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON' || tag === 'A' || editable || active && active.getAttribute && active.getAttribute('role');
-      if (e.key === '/' && !interactive) {
-        const r = rootRef.current ? rootRef.current.getBoundingClientRect() : null;
-        if (r && r.bottom > 0 && r.top < (window.innerHeight || 0)) {
-          e.preventDefault();
-          setMenu(null);
-          searchRef.current.focus();
-        }
-      }
-      if (e.key === 'Escape' && menuOpenRef.current === null && active === searchRef.current) {
-        onChange('');
-        searchRef.current.blur();
-      }
-    };
-    const onDocClick = e => {
-      const open = menuOpenRef.current;
-      if (open !== null && menuRef.current[open] && !menuRef.current[open].contains(e.target)) setMenu(null);
-    };
-    window.addEventListener('keydown', onKey);
-    document.addEventListener('mousedown', onDocClick);
-    return () => {
-      if (retryTimer) clearTimeout(retryTimer);
-      window.removeEventListener('keydown', onKey);
-      document.removeEventListener('mousedown', onDocClick);
-      (tablesRef.current || []).forEach(t => {
-        t.box.style.display = '';
-        t.rows.forEach(row => {
-          row.el.style.display = '';
-        });
-      });
-    };
-  }, []);
-  useEffect(() => {
-    if (menuOpen !== null) focusSelected(menuOpen);
-  }, [menuOpen]);
-  if (disabled) return null;
-  const facetActive = Object.keys(sel).some(h => sel[h] && sel[h] !== 'All');
-  const sortOptions = [firstHead].concat(facetList.map(f => f.name)).filter((h, i, a) => h && a.indexOf(h) === i);
-  return <>
-      <style>{`
-        .sf-root {
-          --sf-accent: #D97757;
-          --sf-bg: #fff;
-          --sf-border: #E8E6DC;
-          --sf-text: #141413;
-          --sf-text-3: #73726C;
-          --sf-text-4: #9C9A92;
-        }
-        .dark .sf-root {
-          --sf-bg: #1a1918;
-          --sf-border: #3a3936;
-          --sf-text: #e8e6dc;
-          --sf-text-3: #9c9a92;
-          --sf-text-4: #73726c;
-        }
-        .sf-root .sf-end {
-          position: absolute;
-          right: 10px;
-          top: 50%;
-          transform: translateY(-50%);
-        }
-        .sf-root .sf-x {
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: var(--sf-text-3);
-          font-size: 14px;
-          padding: 2px 4px;
-          line-height: 1;
-        }
-      `}</style>
-      <div ref={rootRef} className="sf-root" style={{
-    margin: '16px 0 8px'
-  }}>
-        <div style={{
-    display: 'flex',
-    gap: '8px',
-    flexWrap: 'wrap',
-    alignItems: 'center'
-  }}>
-        <div style={{
-    position: 'relative',
-    flex: '1 1 260px',
-    maxWidth: '480px'
-  }}>
-          <input ref={searchRef} value={q} onChange={e => onChange(e.target.value)} placeholder={placeholderText} aria-label={placeholderText} style={{
-    width: '100%',
-    padding: '8px 56px 8px 12px',
-    borderRadius: '8px',
-    border: '1px solid var(--sf-border)',
-    background: 'var(--sf-bg)',
-    color: 'var(--sf-text)',
-    fontSize: '14px',
-    outline: 'none',
-    boxSizing: 'border-box'
-  }} />
-          {q ? <button type="button" onClick={() => {
-    onChange('');
-    if (searchRef.current) searchRef.current.focus();
-  }} aria-label="Clear text" className="sf-end sf-x">
-              ×
-            </button> : <span className="sf-end" style={{
-    fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-    fontSize: '11px',
-    color: 'var(--sf-text-4)',
-    border: '1px solid var(--sf-border)',
-    borderRadius: '3px',
-    padding: '0 5px',
-    pointerEvents: 'none'
-  }}>
-              /
-            </span>}
-        </div>
-        {facetList.map(f => {
-    const cur = sel[f.name] || 'All';
-    const isOpen = menuOpen === f.name;
-    return <div key={f.name} ref={el => {
-      menuRef.current[f.name] = el;
-    }} style={{
-      position: 'relative'
-    }}>
-            <button type="button" onClick={() => setMenu(isOpen ? null : f.name)} onKeyDown={e => {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        if (!isOpen) setMenu(f.name); else focusSelected(f.name);
-      }
-    }} aria-haspopup="listbox" aria-expanded={isOpen} style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      padding: cur !== 'All' ? '8px 30px 8px 12px' : '8px 12px',
-      borderRadius: '8px',
-      border: '1px solid ' + (cur !== 'All' ? 'var(--sf-accent)' : 'var(--sf-border)'),
-      background: 'var(--sf-bg)',
-      color: cur === 'All' ? 'var(--sf-text-3)' : 'var(--sf-text)',
-      fontSize: '13.5px',
-      cursor: 'pointer',
-      whiteSpace: 'nowrap',
-      maxWidth: '260px'
-    }}>
-              <span style={{
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    }}>
-                {f.label + ': ' + optionLabel(f, cur)}
-              </span>
-              <span aria-hidden="true" style={{
-      fontSize: '9px',
-      color: 'var(--sf-text-4)',
-      transform: isOpen ? 'rotate(180deg)' : 'none',
-      transition: 'transform 120ms'
-    }}>
-                ▼
-              </span>
-            </button>
-            {cur !== 'All' && <button type="button" onClick={() => setFacet(f.name, 'All')} aria-label={'Clear ' + f.label + ' filter'} title={'Clear ' + f.label + ' filter'} className="sf-end sf-x">
-                ×
-              </button>}
-            {isOpen && <div role="listbox" aria-label={f.label} onKeyDown={e => {
-      const items = [...e.currentTarget.querySelectorAll('button')];
-      const idx = items.indexOf(document.activeElement);
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        (items[idx + 1] || items[0]).focus();
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        (items[idx - 1] || items[items.length - 1]).focus();
-      } else if (e.key === 'Home') {
-        e.preventDefault();
-        if (items[0]) items[0].focus();
-      } else if (e.key === 'End') {
-        e.preventDefault();
-        if (items[items.length - 1]) items[items.length - 1].focus();
-      } else if (e.key === 'Tab') {
-        closeMenu(f.name);
-      }
-    }} style={{
-      position: 'absolute',
-      top: 'calc(100% + 6px)',
-      left: 0,
-      zIndex: 1000,
-      minWidth: '260px',
-      maxHeight: '340px',
-      overflowY: 'auto',
-      background: 'var(--sf-bg)',
-      border: '1px solid var(--sf-border)',
-      borderRadius: '10px',
-      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-      padding: '5px'
-    }}>
-                {['All'].concat(f.values).map(c => {
-      const selected = cur === c;
-      return <button key={c} role="option" aria-selected={selected} tabIndex={-1} onClick={() => setFacet(f.name, c)} style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        width: '100%',
-        textAlign: 'left',
-        padding: '7px 10px',
-        borderRadius: '6px',
-        border: 'none',
-        background: 'transparent',
-        color: selected ? 'var(--sf-accent)' : 'var(--sf-text)',
-        fontWeight: selected ? 600 : 400,
-        fontSize: '13.5px',
-        cursor: 'pointer'
-      }}>
-                      <span aria-hidden="true" style={{
-        width: '14px',
-        color: 'var(--sf-accent)',
-        flexShrink: 0
-      }}>
-                        {selected ? '✓' : ''}
-                      </span>
-                      {optionLabel(f, c)}
-                    </button>;
-    })}
-              </div>}
-          </div>;
-  })}
-        {sortOptions.length > 1 && <div role="group" aria-label="Sort by" style={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-    fontSize: '13px',
-    color: 'var(--sf-text-3)',
-    whiteSpace: 'nowrap'
-  }}>
-            <span style={{
-    marginRight: '4px'
-  }}>Sort by</span>
-            {sortOptions.map(o => {
-    const on = sortBy === o;
-    return <button key={o} type="button" aria-pressed={on} onClick={() => {
-      setSortBy(o);
-      sortTables(o);
-    }} style={{
-      padding: '6px 10px',
-      borderRadius: '8px',
-      border: '1px solid ' + (on ? 'var(--sf-accent)' : 'var(--sf-border)'),
-      background: 'var(--sf-bg)',
-      color: on ? 'var(--sf-text)' : 'var(--sf-text-3)',
-      fontSize: '13px',
-      cursor: 'pointer'
-    }}>
-                  {o.charAt(0).toUpperCase() + o.slice(1)}
-                </button>;
-  })}
-          </div>}
-        </div>
-        <div aria-live="polite" style={{
-    margin: '8px 0 0',
-    fontSize: '13px',
-    color: 'var(--sf-text-3)',
-    minHeight: '1px'
-  }}>
-          {q.trim() === '' && !facetActive ? <>{counts.total} {nounText}</> : counts.shown === 0 ? <>
-                {q.trim() === '' ? 'No ' + nounText + ' match the selected filters.' : facetActive ? 'No ' + nounText + ' match \u201c' + q + '\u201d with the selected filters.' : 'No ' + nounText + ' match \u201c' + q + '\u201d.'}{' '}
-                <button type="button" onClick={clearAll} style={{
-    background: 'none',
-    border: 'none',
-    padding: 0,
-    color: 'var(--sf-accent)',
-    cursor: 'pointer',
-    font: 'inherit',
-    textDecoration: 'underline'
-  }}>
-                  Clear filters
-                </button>
-                {children ? <> {children}</> : null}
-              </> : <>
-                Showing {counts.shown} of {counts.total} {nounText}
-              </>}
-        </div>
-      </div>
-    </>;
-};
-
-<BackToIndex href="#all-settings" label="返回索引" />
+[返回索引](#all-settings)
 
 本参考页面列出了 Claude Code 从设置文件读取的每个键，以及它保存在 `~/.claude.json` 中的[短键组](#global-config-settings)。要选择文件或检查优先级，请从[设置文件和优先级](/docs/zh-CN/settings)开始。
 
-<span id="available-settings" />
-
-<span id="scopes" />
-
-<span id="all-settings" />
-
-<h2 id="settings-index">
-  设置索引
-</h2>
+## 设置索引
 
 下面的每个键都链接到其条目。范围列出了[文件](/docs/zh-CN/settings#settings-files-and-who-they-affect)，其中可以使用该键：`User` 是 `~/.claude/settings.json`，`Project` 是 `.claude/settings.json`，`Local` 是 `.claude/settings.local.json`，`Managed` 是[您的组织部署的内容](/docs/zh-CN/managed-settings)。`Any file` 表示所有四个文件，`Global config` 表示 [`~/.claude.json`](#global-config-settings)。
-
-<ReferenceFilter
-  noun="settings"
-  placeholder="按键或用途筛选设置"
-  facetOrder={{ scope: ["Any file", "User, local, or managed", "User or managed", "User", "Managed", "Global config"] }}
-  columnHelp={{
-topic: "本页面中包含该条目的部分。使用排序方式按主题对表格进行分组。",
-scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)、项目 (.claude/settings.json)、本地 (.claude/settings.local.json) 或托管（由您的组织部署）。全局配置键位于 ~/.claude.json 中。",
-}}
-/>
 
 | 键 | 描述 | 主题 | 范围 |
 | :- | :- | :- | :- |
@@ -724,7 +149,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`permissions.disableBypassPermissionsMode`](#permissions-disablebypasspermissionsmode) | 防止任何人进入 [bypassPermissions 模式](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode) | 权限设置 | Any file |
 | [`plansDirectory`](#plansdirectory) | 选择[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)写入计划文件的位置 | 内存和上下文 | Any file |
 | [`pluginConfigs`](#pluginconfigs) | 存储您给[插件](/docs/zh-CN/plugins/overview)的配置对话框的答案 | 插件和技能 | User or managed |
-| [`pluginSuggestionMarketplaces`](#pluginsuggestionmarketplaces) | 选择哪些[市场](/docs/zh-CN/plugins/overview)可以在 `/plugin` 中显示插件安装建议 | 插件和技能 | Managed |
+| [`pluginSuggestionMarketplaces`](#pluginsuggestionmarketplaces) | 选择哪些[市场](/docs/zh-CN/plugins/org#restrict-what-users-can-install)可以在 `/plugin` 中显示插件安装建议 | 插件和技能 | Managed |
 | [`pluginTrustMessage`](#plugintrustmessage) | 向[插件](/docs/zh-CN/plugins/overview)信任警告添加您自己的文本 | 插件和技能 | Managed |
 | [`policyHelper`](#policyhelper) | 运行在启动时计算[托管设置](/docs/zh-CN/managed-settings#compute-the-policy-with-a-helper-program)的可执行文件 | 企业和托管设置 | Managed |
 | [`policyHelper.path`](#policyhelper-path) | 命名 Claude Code 运行的[辅助可执行文件](/docs/zh-CN/managed-settings#compute-the-policy-with-a-helper-program) | 企业和托管设置 | Managed |
@@ -837,15 +262,11 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`worktree.symlinkDirectories`](#worktree-symlinkdirectories) | 将大型目录符号链接到每个[worktree](/docs/zh-CN/worktrees)中，而不是复制它们 | 代理、会话和工作树 | Any file |
 | [`wslInheritsWindowsSettings`](#wslinheritswindowssettings) | 让 WSL 从 Windows 策略链读取[托管设置](/docs/zh-CN/managed-settings) | 企业和托管设置 | Managed |
 
-<h2 id="model-and-responses">
-  模型与回复
-</h2>
+## 模型与回复
 
 选择 Claude Code 使用哪些模型以及它如何回复。关于这些设置如何与 `/model` 命令和环境变量相互作用，请参阅[模型配置](/docs/zh-CN/model-config)。
 
-<h3 id="advisormodel">
-  `advisorModel`
-</h3>
+### `advisorModel`
 
 选择当 Claude 调用服务器端 [advisor 工具](/docs/zh-CN/advisor)时由哪个模型作答。取消设置即可关闭 advisor。advisor 的能力必须至少与您的主模型相当。关于可接受的搭配以及选择不可接受的模型时会发生什么，请参阅[选择 advisor 模型](/docs/zh-CN/advisor#choose-an-advisor-model)。
 
@@ -866,9 +287,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 
 在 advisor [不可用](/docs/zh-CN/advisor#requirements)的提供商（例如 Amazon Bedrock 和 Claude Platform on AWS）上，此键不起作用。`"fable"` 需要 [Fable 访问权限](/docs/zh-CN/advisor#choose-an-advisor-model)。
 
-<h3 id="alwaysthinkingenabled">
-  `alwaysThinkingEnabled`
-</h3>
+### `alwaysThinkingEnabled`
 
 将此项设置为 `false` 可在每个会话中关闭[扩展思考](/docs/zh-CN/model-config#extended-thinking)。思考默认处于开启状态，因此 `true` 不会改变任何内容。大多数人通过 `/config` 而非编辑文件来设置此项。
 
@@ -887,9 +306,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 }
 ```
 
-<h3 id="availablemodels">
-  `availableModels`
-</h3>
+### `availableModels`
 
 限制用户可以为主会话、[子代理](/docs/zh-CN/sub-agents)、[skill](/docs/zh-CN/skills) 和 [advisor](/docs/zh-CN/advisor) 选择哪些模型。托管列表会约束 `/model`、`--model` 以及开发者自己文件中的 `model` 键；列表之外的模型无法被选择。在默认的前缀匹配下，此项本身不会影响 Default 选项；如需影响，请将其与 [`enforceAvailableModels`](#enforceavailablemodels) 搭配使用。
 
@@ -907,9 +324,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 
 诸如 `"claude-opus-5"` 之类的模型 ID 条目也会允许在其基础上扩展的后续版本，例如 Opus 5.5。要阻止其中某个版本，请使用 [`deniedModels`](#deniedmodels)。要使每个模型 ID 条目仅允许其所指定的版本，请使用 [`availableModelsMatch`](#availablemodelsmatch)。请参阅[限制模型选择](/docs/zh-CN/model-config#restrict-model-selection)。
 
-<h3 id="availablemodelsmatch">
-  `availableModelsMatch`
-</h3>
+### `availableModelsMatch`
 
 选择 [`availableModels`](#availablemodels) 条目如何匹配模型 ID。默认情况下，模型 ID 条目也会允许在其基础上扩展的后续版本，因此 `"claude-opus-5"` 会允许 Opus 5.5。使用 `"exact"` 时，每个模型 ID 条目仅允许其所指定的版本，因此该模型的较新版本在您将其列出之前会一直被阻止。需要 Claude Code v2.1.283 或更高版本。
 
@@ -930,9 +345,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 
 使用 `"exact"` 时，只要列表中至少指定了一个模型或系列，Default 选项也会被限制为列出的模型。请参阅[阻止特定模型或版本](/docs/zh-CN/model-config#block-specific-models-or-versions)。
 
-<h3 id="deniedmodels">
-  `deniedModels`
-</h3>
+### `deniedModels`
 
 阻止特定模型，无论是否存在 [`availableModels`](#availablemodels) 允许列表，即使该列表允许这些模型也是如此。Claude Code 会在 `/model` 选择器中隐藏被阻止的模型，并且在任何强制执行 `availableModels` 的地方都无法选择该模型。如[阻止特定模型或版本](/docs/zh-CN/model-config#block-specific-models-or-versions)所述，使用 Default 选项的会话也不会运行被阻止的模型。需要 Claude Code v2.1.283 或更高版本。
 
@@ -955,9 +368,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 
 请参阅[阻止特定模型或版本](/docs/zh-CN/model-config#block-specific-models-or-versions)。
 
-<h3 id="effortlevel">
-  `effortLevel`
-</h3>
+### `effortLevel`
 
 为尚未保存级别的模型设置默认的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。较低的级别在简单任务上更快、更便宜，较高的级别则会对复杂问题进行更深入的推理。
 
@@ -984,9 +395,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 
 在您的用户设置文件 `~/.claude/settings.json` 中，此键是 `/effort` 在按模型保存级别之前写入的旧形式，它会继续在以前适用的地方生效，即 Opus 5、Fable 5.1 及更早的模型。Opus 5.5 及其之后发布的模型会忽略此键，并以其自身的默认值开始，直到您为其保存级别为止，`/effort` 会将该级别写入 [`modelSettings`](#modelsettings) 下。在项目、本地和托管设置中，以及使用 `--settings` 时，此键适用于所有模型。
 
-<h3 id="enforceavailablemodels">
-  `enforceAvailableModels`
-</h3>
+### `enforceAvailableModels`
 
 `/model` 选择器有一个 **Default** 选项，[`default` 模型设置](/docs/zh-CN/model-config#default-model-setting)描述了它解析到的模型。[`availableModels`](#availablemodels) 允许列表会限制您可以指定的模型，但在默认的[前缀匹配](#availablemodelsmatch)下，它不会重新映射您账户类型的默认模型，因此 **Default** 仍可能解析为列表之外的模型。此键弥补了这一漏洞。需要 Claude Code v2.1.175 或更高版本。
 
@@ -1011,9 +420,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 
 当 `availableModels` 未设置或为空时，此键不起作用。请参阅[对 Default 模型强制执行允许列表](/docs/zh-CN/model-config#enforce-the-allowlist-for-the-default-model)。需要 Claude Code v2.1.175 或更高版本。
 
-<h3 id="fallbackmodel">
-  `fallbackModel`
-</h3>
+### `fallbackModel`
 
 指定当您的主模型过载或不可用时，Claude Code 按顺序尝试的备用模型。Claude Code 会在该轮次的剩余部分切换到链中下一个可用的模型，并显示通知。如果没有配置链，Claude Code 会重试同一模型，然后显示服务器的错误，由您自行重试或切换模型。
 
@@ -1034,9 +441,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 
 与大多数数组设置不同，此键不会跨设置文件合并：定义了此键的优先级最高的文件提供整个链。如果您的项目文件设置为 `["claude-sonnet-5"]`，而用户文件设置为 `["claude-haiku-4-5"]`，则链仅为 `["claude-sonnet-5"]`。Claude Code 最多保留列表中三个不同的允许模型，并忽略其余模型。请参阅[备用模型链](/docs/zh-CN/model-config#fallback-model-chains)。
 
-<h3 id="fastmode">
-  `fastMode`
-</h3>
+### `fastMode`
 
 在可用的会话中开启[快速模式](/docs/zh-CN/fast-mode)，适用于快速迭代或实时调试等交互式工作，在这些场景中您希望以更高的每 token 成本换取速度。通常无需手动编辑此键：运行 `/fast` 会将 `fastMode: true` 写入 `~/.claude/settings.json`，再次运行以关闭快速模式会移除该键。快速模式仅在 Opus 5.5、Opus 5 和 Opus 4.8 上运行：从其他模型开启它会将您切换到 Opus，而切换到不支持的模型会将其关闭。请参阅[在快速模式开启时切换模型](/docs/zh-CN/fast-mode#switch-models-while-fast-mode-is-on)。
 
@@ -1053,9 +458,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 }
 ```
 
-<h3 id="fastmodepersessionoptin">
-  `fastModePerSessionOptIn`
-</h3>
+### `fastModePerSessionOptIn`
 
 通常，运行 `/fast` 会将 [`fastMode`](#fastmode) 保存到用户的用户设置中，因此之后的每个会话开始时快速模式都会开启。将此键设置为 `true` 可阻止这种情况：已保存的 `fastMode: true` 不再在会话开始时开启快速模式，每个人都必须在需要它的每个会话中运行 `/fast`。Claude Code 会保留其文件中的 `fastMode` 键，因此关闭此键即可恢复原有行为。
 
@@ -1075,9 +478,7 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
 
 请参阅[要求按会话选择启用](/docs/zh-CN/fast-mode#require-per-session-opt-in)。
 
-<h3 id="language">
-  `language`
-</h3>
+### `language`
 
 让 Claude 默认使用英语以外的语言回复。回复语言没有固定列表：Claude Code 会将该值原样传递给 Claude，作为始终使用该语言回复的指令，因此 Claude 能够识别的任何语言名称都可以使用。Claude Code 不会检查该值，因此拼写错误的名称会按原样传递给 Claude，而不会产生错误。同一个值也会设置[语音听写](/docs/zh-CN/voice-dictation#change-the-dictation-language)的语言（语音听写确实有固定的[支持的听写语言](/docs/zh-CN/voice-dictation#change-the-dictation-language)列表）以及自动生成的会话标题的语言。
 
@@ -1091,9 +492,7 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
 }
 ```
 
-<h3 id="maxeffortlevel">
-  `maxEffortLevel`
-</h3>
+### `maxEffortLevel`
 
 限制会话可以使用的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)上限，较低的级别仍然可用。任何更高的级别都会改为以上限级别运行，包括来自 `/effort`、`/model` 选择器、`--effort`、[`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars)、skill 或子代理的 `effort` frontmatter，或模型自身默认值的级别。Claude Code 会在每个请求之前自行应用该上限，因此它在所有提供商上都有效，包括 Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry。需要 Claude Code v2.1.267 或更高版本。
 
@@ -1117,9 +516,7 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
 
 当您的组织还为某个模型设置了 [effort 限制](/docs/zh-CN/model-config#organization-effort-limits)时，以两个上限中较低的为准。
 
-<h3 id="model">
-  `model`
-</h3>
+### `model`
 
 设置每个新会话使用的模型，这样您就不必每次都通过 `/model` 选择模型。在此处设置并不妨碍您在会话中途切换。如果您的管理员设置了[组织默认模型](/docs/zh-CN/model-config#organization-default-model)以覆盖用户选择，即使您在用户、项目或本地设置中设置了此键，您也会使用该模型。
 
@@ -1136,9 +533,7 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
 
 此处的值优先于 [`ANTHROPIC_DEFAULT_MODEL`](/docs/zh-CN/model-config#set-a-default-model-for-new-sessions)，Claude Code 仅在没有其他项选择模型时才使用后者。
 
-<h3 id="modeloverrides">
-  `modelOverrides`
-</h3>
+### `modelOverrides`
 
 将 Anthropic 模型 ID 映射到特定于提供商的模型 ID，例如 Amazon Bedrock 推理配置文件 ARN。这样，每个模型选择器条目在调用提供商 API 时都会使用其映射的值。管理员在 [Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry](/docs/zh-CN/model-config#override-model-ids-per-version) 上使用此项，将每个模型版本路由到特定的推理配置文件、版本名称或部署，以实现治理、成本分摊或区域路由。
 
@@ -1158,9 +553,7 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
 
 请参阅[按版本覆盖模型 ID](/docs/zh-CN/model-config#override-model-ids-per-version)。
 
-<h3 id="modelpicker">
-  `modelPicker`
-</h3>
+### `modelPicker`
 
 列出 `/model` 选择器提供的模型，按您编写的顺序并使用您选择的标签，使选择器在内置模型列表之后或代替内置模型列表，列出您组织运行的模型。每一行的 `model` 会按原样使用，因此它接受 `--model` 接受的任何值：诸如 `opus` 之类的别名、Anthropic 模型 ID，或适用于 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 或 LLM 网关的提供商格式 ID。需要 Claude Code v2.1.242 或更高版本。
 
@@ -1185,13 +578,7 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
 }
 ```
 
-<span id="modelpicker-options" />
-
-<span id="modelpicker-replacebuiltinoptions" />
-
-<h4 id="fields-for-modelpicker">
-  `modelPicker` 的字段
-</h4>
+#### `modelPicker` 的字段
 
 此键包含两个字段，一个用于行本身，另一个用于决定这些行是替换内置模型列表还是添加到其中。
 
@@ -1212,9 +599,7 @@ Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](/docs/
 
 Claude Code 会丢弃无法解析的行并保留其余行。请参阅[修复损坏的设置文件](/docs/zh-CN/settings#fix-a-broken-settings-file)。
 
-<h3 id="modelpricing">
-  `modelPricing`
-</h3>
+### `modelPricing`
 
 按您组织实际支付的费率而非标价报告支出。当您的组织有合同费率时设置此项，使开发者看到的美元数字与您的账单一致。Claude Code 会在 `/usage`、[状态栏](/docs/zh-CN/statusline)、Agent SDK 的 `total_cost_usd`、[`--max-budget-usd`](/docs/zh-CN/cli-reference) 限制以及 [OpenTelemetry](/docs/zh-CN/monitoring-usage) 成本指标和事件中应用这些费率。费率由您提供：Claude Code 不会从您的合同或 Claude Console 中读取费率。需要 Claude Code v2.1.242 或更高版本。
 
@@ -1246,13 +631,7 @@ Claude Code 会丢弃无法解析的行并保留其余行。请参阅[修复损�
 
 关于具体步骤（包括如何确认费率已生效），请参阅[按合同费率报告支出](/docs/zh-CN/costs#report-spend-at-your-contracted-rates)。
 
-<span id="modelpricing-multiplier" />
-
-<span id="modelpricing-overrides" />
-
-<h4 id="fields-for-modelpricing">
-  `modelPricing` 的字段
-</h4>
+#### `modelPricing` 的字段
 
 | 字段 | 类型 | 作用 |
 | :- | :- | :- |
@@ -1261,9 +640,7 @@ Claude Code 会丢弃无法解析的行并保留其余行。请参阅[修复损�
 
 Claude Code 会完全按照您编写的内容使用行中的费率，不会加上快速模式附加费或[仅限美国推理费率](https://platform.claude.com/docs/en/about-claude/pricing)。如果您还设置了 `multiplier`，Claude Code 会在行费率的基础上再应用它。Claude Code 会丢弃包含无法解析的费率的行，或无法解析的 `multiplier`，并保留其余部分；请参阅[修复损坏的设置文件](/docs/zh-CN/settings#fix-a-broken-settings-file)。
 
-<h4 id="which-models-a-modelpricing-row-applies-to">
-  `modelPricing` 行适用于哪些模型
-</h4>
+#### `modelPricing` 行适用于哪些模型
 
 Claude Code 根据行的键来决定该行适用于哪些模型：
 
@@ -1271,9 +648,7 @@ Claude Code 根据行的键来决定该行适用于哪些模型：
 * **任何其他键**：不是内置模型 ID 的键，例如网关模型别名。Claude Code 仅将该行应用于该 ID。当某个模型 ID 与您的某个键完全匹配，同时又属于以内置模型 ID 为键的行时，Claude Code 使用完全匹配的行。
 * **Bedrock 应用程序推理配置文件**：一旦 Claude Code 通过您的 [`modelOverrides`](#modeloverrides) 映射或 [`bedrock:GetInferenceProfile` 查找](/docs/zh-CN/amazon-bedrock#iam-configuration)将配置文件解析为其路由到的模型，Claude Code 就会将该模型的行应用于该配置文件。
 
-<h3 id="modelsettings">
-  `modelSettings`
-</h3>
+### `modelSettings`
 
 为您使用的每个模型保存一个 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。需要 Claude Code v2.1.251 或更高版本。
 
@@ -1308,9 +683,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 运行 `/effort auto` 可清除您为当前所用模型保存的级别。Claude Code 会保留其他条目以及任何顶层 `effortLevel`。
 
-<h3 id="outputstyle">
-  `outputStyle`
-</h3>
+### `outputStyle`
 
 按名称选择[输出样式](/docs/zh-CN/output-styles)。输出样式是一组已保存的指令，用于改变 Claude 的角色、语气和输出格式，例如内置的 Explanatory 和 Learning 样式，或您自己编写的样式。
 
@@ -1328,9 +701,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 }
 ```
 
-<h3 id="promptcachettl">
-  `promptCacheTtl`
-</h3>
+### `promptCacheTtl`
 
 选择[提示缓存](/docs/zh-CN/prompt-caching)保留主对话的时长。此键适用于您的交互式、`-p` 和 Agent SDK 轮次，以及 Claude Code 随这些轮次内联运行的辅助请求。一小时的生命周期可在较长的间隔中保持缓存预热，而 API 对每次缓存写入的[计费费率](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing)高于五分钟生命周期。需要 Claude Code v2.1.242 或更高版本。
 
@@ -1352,9 +723,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 关于每种生命周期的成本，请参阅[缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)。
 
-<h3 id="showthinkingsummaries">
-  `showThinkingSummaries`
-</h3>
+### `showThinkingSummaries`
 
 在交互式会话中查看 Claude [扩展思考](/docs/zh-CN/model-config#extended-thinking)的摘要。如果您希望在使用 `Ctrl+O` 展开思考时看到完整摘要，请设置此项。当未设置或为 `false` 时，Anthropic API 会对思考块进行编辑隐藏，Claude Code 会显示一个折叠的占位内容；第三方提供商不会进行编辑隐藏。
 
@@ -1372,9 +741,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 编辑隐藏只会改变您看到的内容，而不会改变模型生成的内容。要减少思考开销，请改为[降低预算或禁用思考](/docs/zh-CN/model-config#extended-thinking)。
 
-<h3 id="subagentpromptcachettl">
-  `subagentPromptCacheTtl`
-</h3>
+### `subagentPromptCacheTtl`
 
 选择[提示缓存](/docs/zh-CN/prompt-caching)保留 Claude Code 在主对话之外发出的请求的时长。此键适用于[子代理](/docs/zh-CN/sub-agents)、[工作流](/docs/zh-CN/workflows)以及 Claude Code 自身的后台和辅助请求，例如压缩和会话标题。一小时的生命周期可在较长的间隔中保持缓存预热，而 API 对每次缓存写入的[计费费率](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing)高于五分钟生命周期。需要 Claude Code v2.1.242 或更高版本。
 
@@ -1395,9 +762,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 此键涵盖 [`promptCacheTtl`](#promptcachettl) 未涵盖的请求，因此同时设置二者即可为 Claude Code 发出的每个请求选择生命周期。关于子代理的缓存与主对话缓存有何不同，请参阅[子代理与缓存](/docs/zh-CN/prompt-caching#subagents-and-the-cache)。
 
-<h3 id="switchmodelsonflag">
-  `switchModelsOnFlag`
-</h3>
+### `switchModelsOnFlag`
 
 选择当[安全分类器标记请求](/docs/zh-CN/model-config#automatic-model-fallback)时会发生什么：切换到备用模型并继续，或暂停以便您在切换和编辑提示词之间进行选择。
 
@@ -1415,9 +780,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 请参阅[切换前询问](/docs/zh-CN/model-config#ask-before-switching)。
 
-<h3 id="ultracode">
-  `ultracode`
-</h3>
+### `ultracode`
 
 以开启 [ultracode](/docs/zh-CN/workflows#let-claude-decide-with-ultracode) 的状态启动会话。开启后，Claude 会为每个实质性任务规划工作流，而不是等待您提出要求。只有当您启用了[动态工作流](/docs/zh-CN/workflows)且您的模型支持 `xhigh` effort 时，Claude 才会规划工作流。此键不会改变会话的 effort 级别：ultracode 会以会话所用的任何级别运行。Claude Code 会读取此键，但从不写入它：`/effort ultracode` 仅在当前会话中开启 ultracode。
 
@@ -1436,15 +799,11 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 会话的 effort 级别来自 [`effortLevel`](#effortlevel)、[`modelSettings`](#modelsettings) 以及其他 [effort 来源](/docs/zh-CN/model-config#adjust-effort-level)，而诸如 [`maxEffortLevel`](#maxeffortlevel) 之类的 [effort 上限](/docs/zh-CN/model-config#organization-effort-limits)会降低该级别，但不会关闭 ultracode。此行为以及 `/effort ultracode off` 形式需要 Claude Code v2.1.284 或更高版本。在 v2.1.284 之前，`ultracode: true` 会以 `xhigh` effort 运行会话，而低于 `xhigh` 的 effort 上限会使 ultracode 保持关闭。Agent SDK 的 `apply_flag_settings` 控制请求也接受此键。
 
-<h2 id="permission-settings">
-  权限设置
-</h2>
+## 权限设置
 
 决定 Claude 在不询问的情况下可以做什么、会话以哪种权限模式启动，以及自动模式的分类器允许什么。有关规则语法和权限模型，请参阅[配置权限](/docs/zh-CN/permissions)。
 
-<h3 id="allowmanagedpermissionrulesonly">
-  `allowManagedPermissionRulesOnly`
-</h3>
+### `allowManagedPermissionRulesOnly`
 
 使托管设置成为权限规则的唯一设置来源。Claude Code 随后会忽略用户、项目、本地和 `--settings` 文件中的 `allow`、`ask` 和 `deny` 规则，忽略 `--allowedTools`，隐藏权限提示中的始终允许选项，并停止保存新规则。
 
@@ -1477,9 +836,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 此键不会锁定 MCP 服务器允许列表；为此，请设置 [`allowManagedMcpServersOnly`](#allowmanagedmcpserversonly)。请参阅[仅托管设置](/docs/zh-CN/managed-settings#managed-only-settings)。
 
-<h3 id="automode">
-  `autoMode`
-</h3>
+### `autoMode`
 
 添加您自己的规则到[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器阻止和允许的内容。使用它告诉分类器您的组织信任哪些仓库、存储桶和域，以便它停止阻止常规内部操作。分类器附带[内置允许和拒绝规则](/docs/zh-CN/auto-mode-config#inspect-the-defaults-and-your-effective-config)。在数组中包含字面字符串 `"$defaults"` 以在该位置保留这些内置规则并在其周围添加您的规则；省略它以用您的规则替换它们。
 
@@ -1499,9 +856,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 当多个文件设置相同的数组时，Claude Code 会连接这些条目。有关规则格式以及如何应用每个数组，请参阅[配置自动模式](/docs/zh-CN/auto-mode-config)。
 
-<h3 id="automode-classifyallshell">
-  `autoMode.classifyAllShell`
-</h3>
+### `autoMode.classifyAllShell`
 
 在自动模式处于活动状态时，将每个 Bash 和 PowerShell 命令通过自动模式分类器。默认情况下，自动模式仅暂停可以运行任意代码的允许规则：工具范围和通配符规则（如 `Bash(*)`）以及解释器或 shell 包装器前缀（如 `Bash(python *)`）。任何其他允许规则匹配的命令（如 `Bash(npm test)`）会跳过分类器，除非它携带[每个命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)。当它跳过时，规则前缀未预期的破坏性参数可能会通过而不被看到。设置此键会为会话暂停每个 shell 允许规则，以便分类器看到每个命令。需要 Claude Code v2.1.193 或更高版本。
 
@@ -1521,9 +876,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 请参阅[将所有 shell 命令路由通过分类器](/docs/zh-CN/auto-mode-config#route-all-shell-commands-through-the-classifier)。
 
-<h3 id="disableautomode">
-  `disableAutoMode`
-</h3>
+### `disableAutoMode`
 
 从 `Shift+Tab` 循环中删除[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。任何本应[以自动模式启动](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)的会话，无论是来自 `--permission-mode auto`、设置文件还是内置默认值，都改为以 `default` 启动。管理员在托管设置中设置它以防止其组织中的开发人员使用自动模式。
 
@@ -1537,9 +890,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 }
 ```
 
-<h3 id="permissions">
-  `permissions`
-</h3>
+### `permissions`
 
 控制 Claude 在不询问的情况下可以使用哪些工具、哪些工具始终提示，以及哪些工具被阻止，并设置会话启动的[权限模式](/docs/zh-CN/permission-modes)。下面的每个 `permissions.*` 键都嵌套在此对象下。
 
@@ -1562,9 +913,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 三个规则数组共享一个语法；请参阅 `permissions.allow` 下的[权限规则语法](#permission-rule-syntax)。有关来自不同文件的权限规则如何组合，请参阅[权限规则如何跨作用域合并](/docs/zh-CN/permissions#settings-precedence)；有关设置键如何组合，请参阅设置指南上的[设置优先级](/docs/zh-CN/settings#settings-precedence)。
 
-<h3 id="useautomodeduringplan">
-  `useAutoModeDuringPlan`
-</h3>
+### `useAutoModeDuringPlan`
 
 选择 Claude Code 是否使用自动模式分类器在计划模式下审查 shell 命令。使用默认值 `true`，当自动模式可用且您看不到提示时，分类器在规划期间审查每个命令，除了[关键路径删除](/docs/zh-CN/permission-modes#critical-paths)。设置 `false` 以获得对内置只读集之外的每个命令的权限提示。在 `/config` 中显示为**在计划期间使用自动模式**。
 
@@ -1580,9 +929,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 }
 ```
 
-<h3 id="permissions-allow">
-  `permissions.allow`
-</h3>
+### `permissions.allow`
 
 列出 Claude Code 在不询问您的情况下批准的工具使用。在 MCP 规则中，`*` 只能出现在 `mcp__<server>__` 前缀之后的工具名称中，如 `mcp__github__get_*`；它不能出现在服务器名称中。
 
@@ -1603,9 +950,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)后，才应用项目的 `.claude/settings.json` 中的 `allow` 规则。
 
-<h4 id="permission-rule-syntax">
-  权限规则语法
-</h4>
+#### 权限规则语法
 
 权限规则遵循格式 `Tool` 或 `Tool(specifier)`。Claude Code 首先评估 `deny` 规则，然后是 `ask`，然后是 `allow`，第一个匹配决定，无论每个规则的具体程度如何；请参阅[权限规则评估顺序](/docs/zh-CN/permissions#manage-permissions)。
 
@@ -1620,9 +965,7 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
 
 有关完整的规则语法，包括通配符行为、Read、Edit、WebFetch、MCP 和 Agent 规则的工具特定模式，以及 Bash 模式的安全限制，请参阅[权限规则语法](/docs/zh-CN/permissions#permission-rule-syntax)。
 
-<h3 id="permissions-ask">
-  `permissions.ask`
-</h3>
+### `permissions.ask`
 
 列出提示您确认的工具使用，即使在本应批准它们的权限模式中，如 `acceptEdits` 或 `bypassPermissions`。在 `dontAsk` 模式中，Claude Code 拒绝匹配的工具使用而不是提示。
 
@@ -1638,11 +981,7 @@ Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN
 }
 ```
 
-<span id="exclude-sensitive-files" />
-
-<h3 id="permissions-deny">
-  `permissions.deny`
-</h3>
+### `permissions.deny`
 
 列出 Claude Code 阻止的工具使用。将其用于保存 API 密钥、机密或环境值的文件：Claude Code 从文件发现和搜索结果中排除匹配的文件，拒绝读取它们，并在匹配的路径上阻止 [Edit 和 Write 工具](/docs/zh-CN/permissions#read-and-edit)。
 
@@ -1671,9 +1010,7 @@ Read 和 Edit 拒绝规则适用于 Claude 的内置文件工具、Claude Code �
 
 工具名称接受 glob 模式，因此 `"*"` 拒绝每个工具，`"mcp__*"` 拒绝每个 MCP 工具。只要任何其他工具仍然可用于 Claude，Claude Code 就会忽略 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 工具的拒绝规则。`Bash` 拒绝规则与 Claude 编写的命令匹配，因此 `Bash(curl *)` 不会停止 `/usr/bin/curl` 或 `sh -c 'curl …'`；请参阅 [Bash 规则不匹配的内容](/docs/zh-CN/permissions#bash-rule-limits)。此键替换已弃用的 `ignorePatterns` 配置。
 
-<h3 id="permissions-additionaldirectories">
-  `permissions.additionalDirectories`
-</h3>
+### `permissions.additionalDirectories`
 
 给予 Claude 对您启动的目录之外的目录的文件访问权限，作为额外的[工作目录](/docs/zh-CN/permissions#working-directories)。大多数 `.claude/` 配置[不会从这些目录中发现](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。
 
@@ -1692,9 +1029,7 @@ Read 和 Edit 拒绝规则适用于 Claude 的内置文件工具、Claude Code �
 
 与 `allow` 规则一样，项目的 `.claude/settings.json` 中的条目仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)后才生效。
 
-<h3 id="permissions-blockreadsoutsideworkingdirectories">
-  `permissions.blockReadsOutsideWorkingDirectories`
-</h3>
+### `permissions.blockReadsOutsideWorkingDirectories`
 
 使 Claude 的文件工具在每种权限模式下拒绝在[工作目录](/docs/zh-CN/permissions#working-directories)之外的读取，包括 `bypassPermissions`。Claude Code 拒绝这些路径上的 `Read`、`Grep`、`Glob` 和 `LSP` 调用，并告诉 Claude 要求您使用 `/add-dir` 添加目录。Claude Code 本身需要的文件保持可读，如您的技能、插件、规则、代理、命令以及 `~/.claude/` 下的 `CLAUDE.md` 内存文件。需要 Claude Code v2.1.257 或更高版本。
 
@@ -1727,9 +1062,7 @@ Claude Code 还在您选择在[自动模式的提示中阻止此类读取（在�
 
 要解除块，从设置它的每个设置文件中删除该键，然后启动新会话。
 
-<h4 id="sandboxed-commands-under-the-block">
-  块下的沙箱命令
-</h4>
+#### 块下的沙箱命令
 
 当[沙箱](/docs/zh-CN/sandboxing)打开时，块也涵盖沙箱命令。Claude Code 拒绝它们对您的主目录和保存用户文件的其他根的读取访问：`/Users`、`/home`、`/root`、`/Volumes`、`/mnt`、`/media`、`/run/media` 和 `/srv`。然后它重新打开工作目录、[Claude Code 在会话中创建的 worktrees](/docs/zh-CN/worktrees)、会话临时目录以及命令需要的 `~/.claude` 部分，如技能和插件。当块生效时，来自存储库设置的 `allowRead` 和 `allowWrite` 条目不计。
 
@@ -1753,9 +1086,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 
 如果重新打开的文件保存机密，如 `http.extraHeader` 令牌，请将其路径添加到 [`sandbox.filesystem.denyRead`](#sandbox-filesystem-denyread)。覆盖此重新打开的 `denyRead` 条目始终优先。
 
-<h3 id="permissions-defaultmode">
-  `permissions.defaultMode`
-</h3>
+### `permissions.defaultMode`
 
 设置新会话启动的[权限模式](/docs/zh-CN/permission-modes)。当您将其留空时，会话以您的表面的[内置默认值](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)启动。
 
@@ -1781,9 +1112,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 
 权限规则分层在每种模式之上：`deny` 规则在每种模式中阻止，包括 `bypassPermissions`。请参阅[权限模式](/docs/zh-CN/permission-modes)。在云端会话中，Claude Code 仅从此键中遵守 `acceptEdits`、`plan`、`default` 和 `auto`。对于 VS Code 扩展启动的对话，请参阅[扩展为启动权限模式读取的设置](/docs/zh-CN/permission-modes#switch-permission-modes)。
 
-<h3 id="permissions-disablebypasspermissionsmode">
-  `permissions.disableBypassPermissionsMode`
-</h3>
+### `permissions.disableBypassPermissionsMode`
 
 防止任何人进入 `bypassPermissions` 模式。Claude Code 随后拒绝 `--dangerously-skip-permissions` 标志，并忽略[代理定义的](/docs/zh-CN/sub-agents#permission-modes) `permissionMode: bypassPermissions`，因此子代理以父会话的权限模式运行。
 
@@ -1802,9 +1131,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 
 在 v2.1.223 之前，Claude Code 即使禁用绕过也应用了 frontmatter 权限模式。
 
-<h3 id="skipautopermissionprompt">
-  `skipAutoPermissionPrompt`
-</h3>
+### `skipAutoPermissionPrompt`
 
 跳过 Claude Code 在您自己首次进入自动模式时显示的一次性通知，描述[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)，例如通过您自己的设置或模式选择器，而不是当内置默认值在其中启动会话时。Claude Code 显示该通知一次，然后记录它已显示，因此此键仅在通知尚未出现的地方重要。
 
@@ -1820,9 +1147,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 }
 ```
 
-<h3 id="skipdangerousmodepermissionprompt">
-  `skipDangerousModePermissionPrompt`
-</h3>
+### `skipDangerousModePermissionPrompt`
 
 跳过 Claude Code 在会话进入 `bypassPermissions` 模式之前显示的确认对话框，无论是来自 `--dangerously-skip-permissions` 还是来自 `defaultMode: "bypassPermissions"`。当您接受该对话框一次时，Claude Code 在您的用户设置中写入 `true`。
 
@@ -1838,15 +1163,11 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 }
 ```
 
-<h2 id="sandbox-settings">
-  Sandbox 设置
-</h2>
+## Sandbox 设置
 
 将 Claude 运行的命令与您的文件系统、网络和凭证隔离。有关沙箱工作原理和平台要求，请参阅 [Sandboxing](/docs/zh-CN/sandboxing)。
 
-<h3 id="sandbox">
-  `sandbox`
-</h3>
+### `sandbox`
 
 使用 [sandboxing](/docs/zh-CN/sandboxing) 将 Claude 运行的 Bash 命令与您的文件系统和网络隔离。使用 `enabled` 打开沙箱，然后使用 `filesystem`、`network` 和 `credentials` 子对象缩小或扩大沙箱命令可以接触的内容。沙箱在 macOS、Linux 和 WSL2 上运行。
 
@@ -1875,9 +1196,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 
 当托管设置设置了 `enabled` 或 `failIfUnavailable` 等布尔键时，该值会覆盖开发人员设置的任何内容。Claude Code 在会话加载的各个设置作用域中合并数组键，因此开发人员可以追加条目；请参阅 [Keep developers from widening the policy](/docs/zh-CN/sandboxing#keep-developers-from-widening-the-policy) 了解仅限托管的锁。要为组织强制执行沙箱，请参阅 [Enforce sandboxing with managed settings](/docs/zh-CN/sandboxing#enforce-sandboxing-with-managed-settings)。
 
-<h3 id="sandbox-enabled">
-  `sandbox.enabled`
-</h3>
+### `sandbox.enabled`
 
 为 Bash 命令打开 [sandboxing](/docs/zh-CN/sandboxing)。当您在 `/sandbox` 面板中选择一个模式时，Claude Code 会将此键写入当前项目的 `.claude/settings.local.json`；在 `~/.claude/settings.json` 中设置它以对每个项目进行沙箱处理。
 
@@ -1897,9 +1216,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 
 在 Linux 和 WSL2 上，沙箱需要 `bubblewrap` 和 `socat`；请参阅 [Set up Linux and WSL2](/docs/zh-CN/sandboxing#set-up-linux-and-wsl2)。当沙箱无法启动时，除非您同时设置了 [`failIfUnavailable`](#sandbox-failifunavailable)，否则 Claude Code 会在没有沙箱的情况下运行命令。
 
-<h3 id="sandbox-failifunavailable">
-  `sandbox.failIfUnavailable`
-</h3>
+### `sandbox.failIfUnavailable`
 
 当 `sandbox.enabled` 为 `true` 但沙箱无法启动时（因为缺少依赖项或不支持该平台），使 Claude Code 在启动时以错误退出。没有此键时，Claude Code 会在没有沙箱的情况下运行命令。将沙箱作为安全关卡强制要求的托管部署可以使用此设置。
 
@@ -1924,9 +1241,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 
 请参阅 [Enforce sandboxing with managed settings](/docs/zh-CN/sandboxing#enforce-sandboxing-with-managed-settings)。
 
-<h3 id="sandbox-autoallowbashifsandboxed">
-  `sandbox.autoAllowBashIfSandboxed`
-</h3>
+### `sandbox.autoAllowBashIfSandboxed`
 
 让 Claude Code 运行沙箱化的 Bash 命令而无需权限提示。无法在沙箱中运行的命令仍会通过常规权限流程，`deny` 规则和内容范围的 `ask` 规则（如 `Bash(git push *)` ）仍然适用；对于沙箱化命令，裸 `Bash` ask 规则被跳过。将其设置为 `false` 以也通过常规权限流程发送沙箱化命令，`/sandbox` **Mode** 选项卡称之为常规权限模式。
 
@@ -1949,9 +1264,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
 
 请参阅 [Auto-allow mode](/docs/zh-CN/sandboxing#auto-allow-mode) 了解自动允许模式仍会提示什么以及它在计划模式中的行为。
 
-<h3 id="sandbox-excludedcommands">
-  `sandbox.excludedCommands`
-</h3>
+### `sandbox.excludedCommands`
 
 指定 Claude Code 在沙箱外运行的命令，例如在沙箱下无法工作的工具。每个条目使用与 `Bash(...)` [permission rule](/docs/zh-CN/permissions#permission-rule-syntax) 内容相同的语法：精确命令、前缀（如 `docker *` ）或通配符模式。不含通配符的模式是精确匹配，因此 `docker` 仅匹配不带参数的 `docker`。
 
@@ -1984,9 +1297,7 @@ Claude Code 在具有以下形式之一时保持 Bash 调用沙箱化，以及�
 
 除非沙箱是[管理员强制要求的](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)，否则来自会话加载的各个设置作用域的条目会合并为一个列表。在管理员强制要求沙箱期间，Claude Code 会忽略 `.claude/settings.json` 和 `.claude/settings.local.json` 中的条目，因此克隆的仓库无法将命令移出沙箱。托管设置、`--settings` 和您的 `~/.claude/settings.json` 中的条目仍然适用，并且此列表没有仅限托管的锁。
 
-<h3 id="sandbox-allowunsandboxedcommands">
-  `sandbox.allowUnsandboxedCommands`
-</h3>
+### `sandbox.allowUnsandboxedCommands`
 
 让 Claude 在沙箱阻止命令后，使用 `dangerouslyDisableSandbox` 参数在沙箱外重试该命令。当其为 `false` 时，Claude Code 会忽略该参数。此时在沙箱运行期间，Claude 运行的命令都会进行沙箱处理，除非它们匹配 [`excludedCommands`](#sandbox-excludedcommands) 条目。`/sandbox` **Overrides** 选项卡将该状态显示为 **Strict sandbox mode**。托管设置中的 `false` 会为其覆盖的开发人员打开严格沙箱模式。
 
@@ -2013,9 +1324,7 @@ Claude Code 在具有以下形式之一时保持 Bash 调用沙箱化，以及�
 
 要查看您在 [`!` shell-mode prompt](/docs/zh-CN/interactive-mode#shell-mode-with-prefix) 处自己输入的命令何时以沙箱化方式运行，请参阅 [strict sandbox mode](/docs/zh-CN/sandboxing#turn-off-the-retry-with-strict-sandbox-mode)。
 
-<h3 id="sandbox-filesystem">
-  `sandbox.filesystem`
-</h3>
+### `sandbox.filesystem`
 
 控制沙箱化命令可以读取和写入的路径。默认情况下，它们可以写入工作目录、会话临时目录以及使用 `--add-dir`、`/add-dir` 或 `permissions.additionalDirectories` 添加的目录，并可以读取文件系统的其余部分，包括凭证文件。使用四个路径列表扩大或缩小范围，或使用 `disabled` 关闭文件系统层。请参阅 [Filesystem isolation](/docs/zh-CN/sandboxing#filesystem-isolation) 了解默认边界。
 
@@ -2042,9 +1351,7 @@ Claude Code 在操作系统沙箱边界强制执行这些列表，因此它们�
 
 [Configure sandboxing](/docs/zh-CN/sandboxing#configure-sandboxing) 涵盖您使用 `--setting-sources` 排除的源。当您在会话期间编辑列表时，Claude Code [applies the change to the running session](/docs/zh-CN/settings#when-edits-take-effect)。
 
-<h4 id="sandbox-path-prefixes">
-  Sandbox 路径前缀
-</h4>
+#### Sandbox 路径前缀
 
 `allowWrite`、`denyWrite`、`denyRead`、`allowRead` 和 [`credentials.files`](#sandbox-credentials-files) 中的路径按其前缀解析：
 
@@ -2063,9 +1370,7 @@ Claude Code 也删除尾部 `/**`，因此 `~/build/**` 和 `~/build` 覆盖同�
 * **`allowWrite` 和 `denyWrite`**: 在 macOS 上，通配符有效。在 Linux 和 WSL2 上，沙箱挂载具体路径，因此 Claude Code 在删除尾部 `/**` 后跳过包含 `*`、`?` 或 `[` 的条目，该条目无效。Claude Code 将您的 `Edit` 权限规则中的路径添加到这些列表中，因此相同的限制适用于它们，`/sandbox` 的 **Config** 选项卡警告包含通配符的 `Edit` 和 `Read` 权限规则。
 * **`denyRead` 和 `allowRead`**: 通配符在每个平台上都有效。在 Linux 和 WSL2 上，Claude Code 将读取条目扩展到它匹配的具体路径，对写入列表不执行此操作。
 
-<h3 id="sandbox-filesystem-allowwrite">
-  `sandbox.filesystem.allowWrite`
-</h3>
+### `sandbox.filesystem.allowWrite`
 
 添加沙箱化命令可以写入的路径，超出工作目录、会话临时目录以及使用 `--add-dir`、`/add-dir` 或 `permissions.additionalDirectories` 添加的目录。当子进程（如 `kubectl` 或构建工具）需要在项目外写入时使用它。
 
@@ -2087,9 +1392,7 @@ Claude Code 也删除尾部 `/**`，因此 `~/build/**` 和 `~/build` 覆盖同�
 
 Claude Code 在会话加载的各个设置作用域中合并 `allowWrite` 条目和您的 `Edit(...)` 允许权限规则中的路径，在 [`permissions.blockReadsOutsideWorkingDirectories`](#sandboxed-commands-under-the-block) 打开时排除来自仓库设置的条目。[仓库锁](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)也可能排除仓库的条目。`allowWrite` 条目不能解除 [protected path](/docs/zh-CN/sandboxing#protected-paths)。
 
-<h3 id="sandbox-filesystem-denywrite">
-  `sandbox.filesystem.denyWrite`
-</h3>
+### `sandbox.filesystem.denyWrite`
 
 阻止沙箱化命令写入特定路径，包括在其他可写目录内的路径。
 
@@ -2111,9 +1414,7 @@ Claude Code 在会话加载的各个设置作用域中合并 `allowWrite` 条目
 
 Claude Code 在会话加载的每个设置范围中合并条目，并添加您的 `Edit(...)` 拒绝权限规则中的路径。
 
-<h3 id="sandbox-filesystem-denyread">
-  `sandbox.filesystem.denyRead`
-</h3>
+### `sandbox.filesystem.denyRead`
 
 阻止沙箱化命令读取特定路径，例如默认读取策略会公开的凭证文件。要保护凭证文件并使其可通过沙箱代理使用，请改为参阅 [`sandbox.credentials`](#sandbox-credentials)。
 
@@ -2133,9 +1434,7 @@ Claude Code 在会话加载的每个设置范围中合并条目，并添加您�
 
 Claude Code 在会话加载的每个设置范围中合并条目，并添加您的 `Read(...)` 拒绝权限规则中的路径。当 [`filesystem.disabled`](#sandbox-filesystem-disabled) 为 `true` 时，Claude Code 不强制执行这些条目。
 
-<h3 id="sandbox-filesystem-allowread">
-  `sandbox.filesystem.allowRead`
-</h3>
+### `sandbox.filesystem.allowRead`
 
 重新打开 [`denyRead`](#sandbox-filesystem-denyread) 阻止的区域内特定路径的读取，以构建仅工作区读取访问。精确或通配符 `denyRead` 条目在更广泛的 `allowRead` 内保持阻止，如 [overlap table](/docs/zh-CN/sandboxing#configure-sandboxing) 所示。当通配符 `denyRead` 条目（如 `~/**/.env` ）匹配目录时，Claude Code 也会阻止其内容的读取。在 v2.1.236 之前的 macOS 上，Claude Code 在更广泛的 `allowRead` 条目覆盖它们的任何地方重新打开通配符 `denyRead` 条目匹配的路径，并保持匹配目录的内容可读。
 
@@ -2158,9 +1457,7 @@ Claude Code 在会话加载的每个设置范围中合并条目，并添加您�
 
 Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户设置中解析为 `~/.claude`。Claude Code 在会话加载的设置文件中合并条目，除非设置了 [`allowManagedReadPathsOnly`](#sandbox-filesystem-allowmanagedreadpathsonly)，并在 [`permissions.blockReadsOutsideWorkingDirectories`](#sandboxed-commands-under-the-block) 打开时排除来自仓库设置的条目。[仓库锁](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)也可能排除仓库的条目。
 
-<h3 id="sandbox-filesystem-allowmanagedreadpathsonly">
-  `sandbox.filesystem.allowManagedReadPathsOnly`
-</h3>
+### `sandbox.filesystem.allowManagedReadPathsOnly`
 
 仅遵守来自托管设置的 [`allowRead`](#sandbox-filesystem-allowread) 条目，以便开发人员无法重新打开对您的组织阻止的路径的读取访问。Claude Code 仍然从会话加载的每个设置范围合并 `denyRead` 条目。
 
@@ -2186,9 +1483,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 请参阅 [Keep developers from widening the policy](/docs/zh-CN/sandboxing#keep-developers-from-widening-the-policy)。
 
-<h3 id="sandbox-filesystem-disabled">
-  `sandbox.filesystem.disabled`
-</h3>
+### `sandbox.filesystem.disabled`
 
 跳过文件系统隔离，同时保持网络隔离。沙箱化命令获得对主机文件系统的无限制读写访问，其网络出口仍限制在 [`network.allowedDomains`](#sandbox-network-alloweddomains)。当您沙箱化以控制命令连接的位置而不是它们写入的内容时使用它。需要 Claude Code v2.1.216 或更高版本。
 
@@ -2216,9 +1511,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 关闭该层后，Claude Code 不强制执行 `denyRead` 或 `credentials.files` `deny` 条目，而 `credentials.envVars` 条目和应用的 `mask` 条目保持工作。[`autoAllowBashIfSandboxed`](#sandbox-autoallowbashifsandboxed) 仍默认为 `true`，因此将其设置为 `false` 以保持提示。请参阅 [Disable filesystem isolation](/docs/zh-CN/sandboxing#disable-filesystem-isolation) 了解可以设置它的完整源列表以及隔离关闭时的变化。需要 Claude Code v2.1.216 或更高版本。
 
-<h3 id="sandbox-ignoreviolations">
-  `sandbox.ignoreViolations`
-</h3>
+### `sandbox.ignoreViolations`
 
 沉默沙箱违规报告，针对您期望命令探测并被拒绝的路径，例如在启动时检查 `/etc/hosts` 的工具，因此这些拒绝不会显示为违规或在 Claude 看到的内容中。沙箱仍然阻止访问；只有报告被抑制。键是与命令匹配的子字符串，`*` 匹配每个命令，值是该命令要忽略的违规子字符串，例如文件系统路径。
 
@@ -2236,9 +1529,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-<h3 id="sandbox-enableweakernestedsandbox">
-  `sandbox.enableWeakerNestedSandbox`
-</h3>
+### `sandbox.enableWeakerNestedSandbox`
 
 在无特权 Docker 容器内运行 Linux 沙箱，其中 bubblewrap 无法挂载新的 `/proc`。相反，内部沙箱绑定挂载容器的现有 `/proc`，这暴露了新挂载会隐藏的进程信息。这降低了安全性；仅当外部容器已提供您需要的隔离时才使用它。
 
@@ -2259,9 +1550,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 仅限 Linux 和 WSL2。请参阅 [Bubblewrap fails to start inside a container](/docs/zh-CN/sandboxing#bubblewrap-fails-to-start-inside-a-container)。
 
-<h3 id="sandbox-enableweakernetworkisolation">
-  `sandbox.enableWeakerNetworkIsolation`
-</h3>
+### `sandbox.enableWeakerNetworkIsolation`
 
 让 macOS 上的沙箱化命令到达系统 TLS 信任服务 `com.apple.trustd.agent`。基于 Go 的工具（如 `gh`、`gcloud` 和 `terraform` ）在您使用 [`network.httpProxyPort`](#sandbox-network-httpproxyport) 与 MITM 代理和自定义 CA 时需要它来验证 TLS 证书。这通过打开通过信任服务的潜在数据泄露路径来降低安全性。
 
@@ -2282,9 +1571,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 如果您不使用 MITM 代理，请改为在 [`excludedCommands`](#sandbox-excludedcommands) 中列出失败的工具；请参阅 [Go-based CLIs fail TLS verification on macOS](/docs/zh-CN/sandboxing#go-based-clis-fail-tls-verification-on-macos)。
 
-<h3 id="sandbox-allowappleevents">
-  `sandbox.allowAppleEvents`
-</h3>
+### `sandbox.allowAppleEvents`
 
 让 macOS 上的沙箱化命令发送 Apple Events，`open`、`osascript` 和在浏览器中打开 URL 的工具需要它；没有它们会失败，错误为 `-600`。这删除了代码执行隔离：沙箱化命令可以在没有用户提示的情况下启动其他应用程序，并可以向运行的应用程序（如 Terminal）发送 AppleScript 命令，受每个应用程序的 macOS 自动化同意提示 (TCC) 约束。
 
@@ -2305,9 +1592,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 要保持隔离并仍然运行一个这样的工具，请改为将其添加到 [`excludedCommands`](#sandbox-excludedcommands)。请参阅 [Apple Events on macOS](/docs/zh-CN/sandboxing#security-limitations)。
 
-<h3 id="sandbox-ripgrep">
-  `sandbox.ripgrep`
-</h3>
+### `sandbox.ripgrep`
 
 将沙箱指向您自己的 ripgrep 二进制文件，而不是 Claude Code 使用的，例如当您的平台需要不同构建的 `rg` 时。
 
@@ -2325,9 +1610,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-<h3 id="sandbox-bwrappath">
-  `sandbox.bwrapPath`
-</h3>
+### `sandbox.bwrapPath`
 
 将沙箱指向安装在 `PATH` 外的 bubblewrap 二进制文件，例如在气隙主机上的供应商副本。Claude Code 在启动依赖项检查和包装每个沙箱化命令时都使用该路径。
 
@@ -2346,9 +1629,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 仅限 Linux 和 WSL2。
 
-<h3 id="sandbox-socatpath">
-  `sandbox.socatPath`
-</h3>
+### `sandbox.socatPath`
 
 将沙箱网络代理指向安装在 `PATH` 外的 `socat` 二进制文件。
 
@@ -2367,9 +1648,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 仅限 Linux 和 WSL2。
 
-<h3 id="sandbox-credentials">
-  `sandbox.credentials`
-</h3>
+### `sandbox.credentials`
 
 声明凭证文件和环境变量以 [protect from sandboxed commands](/docs/zh-CN/sandboxing#protect-credentials)。每个条目命名文件 `path` 或变量 `name` 和 `mode`：`deny` 在沙箱内隐藏凭证，`mask` 向沙箱化命令显示占位符，同时 [sandbox proxy](/docs/zh-CN/sandboxing#mask-credentials) 在出站请求上替换真实值。Claude Code 仅保护您列出的条目；没有内置凭证拒绝列表。
 
@@ -2392,9 +1671,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 `deny` 文件保护是文件系统层的一部分，因此当您 [disable filesystem isolation](/docs/zh-CN/sandboxing#disable-filesystem-isolation) 时不适用；环境变量保护仍然适用。
 
-<h4 id="invalid-credential-entries-in-managed-settings">
-  托管设置中的无效凭证条目
-</h4>
+#### 托管设置中的无效凭证条目
 
 当托管 `sandbox.credentials` 条目验证失败时，Claude Code 在可能的地方保持保护凭证：
 
@@ -2404,9 +1681,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 适用于 v2.1.191 及更高版本；在 v2.1.221 之前，每个无效条目都被删除。对于其他具有每字段处理的托管键，请参阅 [Invalid entries in managed settings](/docs/zh-CN/managed-settings#invalid-entries-in-managed-settings)。
 
-<h3 id="sandbox-credentials-files">
-  `sandbox.credentials.files`
-</h3>
+### `sandbox.credentials.files`
 
 保护凭证文件或目录免受沙箱化命令。使用 `"mode": "deny"`，Claude Code 阻止在沙箱内读取路径，与 [`sandbox.filesystem.denyRead`](#sandbox-filesystem-denyread) 相同的读取块。使用 `"mode": "mask"`，Linux 和 WSL2 上的沙箱化命令读取文件的哨兵副本，沙箱代理在对该条目的 `injectHosts` 的出站请求上替换真实值；在 macOS 上，文件在沙箱内不可读。`"mode": "mask"` 需要 Claude Code v2.1.221 或更高版本。
 
@@ -2433,21 +1708,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 `mask` 替换仅通过沙箱代理运行，因此请设置 [`sandbox.network.tlsTerminate`](#sandbox-network-tlsterminate)，或针对纯 HTTP 测试网络设置 [`allowPlaintextInject`](#sandbox-credentials-allowplaintextinject)。`mask` 适用于单个文件，因此请单独列出每个凭据文件。Claude Code 接受但忽略 `deny` 条目上的 `mask` 字段。[Mask credentials](/docs/zh-CN/sandboxing#mask-credentials) 涵盖遵守哪些设置源，[Mask credential files](/docs/zh-CN/sandboxing#mask-credential-files) 涵盖条目何时回退到 `deny`。
 
-<span id="sandbox-credentials-files-extract" />
-
-<span id="sandbox-credentials-files-onextractnomatch" />
-
-<span id="sandbox-credentials-files-decode" />
-
-<span id="sandbox-credentials-files-maskclaims" />
-
-<span id="sandbox-credentials-files-maskduplicates" />
-
-<span id="sandbox-credentials-files-injecthosts" />
-
-<h4 id="mask-fields-for-files">
-  文件的掩盖字段
-</h4>
+#### 文件的掩盖字段
 
 `mask` 条目接受这些可选字段。没有 `extract` 或 `decode`，Claude Code 用一个哨兵替换整个文件内容。在启用文件系统隔离的 macOS 上，Claude Code 在 `extract` 或 `decode` 运行之前将 `mask` 条目应用为 `deny`；请参阅 [Mask credential files](/docs/zh-CN/sandboxing#mask-credential-files)。
 
@@ -2481,9 +1742,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-<h3 id="sandbox-credentials-envvars">
-  `sandbox.credentials.envVars`
-</h3>
+### `sandbox.credentials.envVars`
 
 保护环境变量免受沙箱化命令。使用 `"mode": "deny"`，Claude Code 从沙箱化命令的环境中删除变量。使用 `"mode": "mask"`，沙箱化命令看到每个会话的哨兵值，沙箱代理在对该条目的 `injectHosts` 的出站请求上替换真实值，因此 `gh` 和 `npm` 等工具保持身份验证而无需持有真实凭据。
 
@@ -2510,19 +1769,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 `mask` 替换仅通过沙箱代理运行，因此请设置 [`sandbox.network.tlsTerminate`](#sandbox-network-tlsterminate)，或针对纯 HTTP 测试网络设置 [`allowPlaintextInject`](#sandbox-credentials-allowplaintextinject)；请参阅 [Mask credentials](/docs/zh-CN/sandboxing#mask-credentials)。Claude Code 接受但忽略 `deny` 条目上的 `mask` 字段。
 
-<span id="sandbox-credentials-envvars-extract" />
-
-<span id="sandbox-credentials-envvars-onextractnomatch" />
-
-<span id="sandbox-credentials-envvars-decode" />
-
-<span id="sandbox-credentials-envvars-maskclaims" />
-
-<span id="sandbox-credentials-envvars-injecthosts" />
-
-<h4 id="mask-fields-for-environment-variables">
-  环境变量的掩盖字段
-</h4>
+#### 环境变量的掩盖字段
 
 `mask` 条目接受这些可选字段。没有 `extract` 或 `decode`，Claude Code 用一个哨兵替换整个值。`extract` 和 `decode` 不能在同一条目上组合。
 
@@ -2559,9 +1806,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-<h3 id="sandbox-credentials-allowplaintextinject">
-  `sandbox.credentials.allowPlaintextInject`
-</h3>
+### `sandbox.credentials.allowPlaintextInject`
 
 允许 `mask` 替换在纯 HTTP 请求以及 TLS 终止的 HTTPS 上。在纯 HTTP 上，上游身份未验证，凭据以明文形式传输，因此在受信任的测试网络外保持关闭。
 
@@ -2581,9 +1826,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-<h3 id="sandbox-credentials-awspairs">
-  `sandbox.credentials.awsPairs`
-</h3>
+### `sandbox.credentials.awsPairs`
 
 分组掩盖的环境变量，形成一个 AWS 凭证用于 [SigV4 re-signing](/docs/zh-CN/sandboxing#re-sign-aws-requests)，当您的凭证存在于具有非标准名称的变量中时。Claude Code 在您掩盖其整个值时自动链接常规 `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY` 和 `AWS_SESSION_TOKEN` 三元组，因此您仅在其他名称时需要此键。需要 Claude Code v2.1.224 或更高版本。
 
@@ -2615,9 +1858,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 * 设置 `sessionTokenVar` 时，代理在重新签名的请求上将真实令牌作为 `x-amz-security-token` 发送
 * 在配对中指定任何常规变量都会替换自动配对
 
-<h3 id="sandbox-credentials-sigv4">
-  `sandbox.credentials.sigv4`
-</h3>
+### `sandbox.credentials.sigv4`
 
 选择沙箱代理对 AWS 请求形式的处理，它 [can't re-sign](/docs/zh-CN/sandboxing#re-sign-aws-requests)：`streaming` 用于 aws-chunked 流上传，`presigned` 用于预签名 URL，`sigv4a` 用于 SigV4A 非对称签名。这仅适用于使用掩盖对的占位符访问密钥 ID 签名的请求。需要 Claude Code v2.1.224 或更高版本。
 
@@ -2643,9 +1884,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 使用 `deny`，代理失败请求。使用 `passthrough`，代理转发使用掩盖占位符计算的签名的请求，因此 AWS 拒绝它，调用工具接收 AWS 自己的响应而不是代理错误。
 
-<h3 id="sandbox-network">
-  `sandbox.network`
-</h3>
+### `sandbox.network`
 
 控制沙箱化命令可以到达的主机、端口和套接字。沙箱通过强制执行这些列表的代理路由出站流量；请参阅 [Network isolation](/docs/zh-CN/sandboxing#network-isolation) 了解代理如何决定以及何时提示。
 
@@ -2669,9 +1908,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 Claude Code 在各个设置作用域中合并数组子键，因此项目可以向您的用户列表添加域，除非有[仓库锁](/docs/zh-CN/sandboxing#repository-settings-under-an-admin-required-sandbox)适用。`WebFetch(domain:...)` 允许和拒绝 [permission rules](/docs/zh-CN/sandboxing#permission-rules) 会填充相同的允许和拒绝列表。
 
-<h3 id="sandbox-network-allowunixsockets">
-  `sandbox.network.allowUnixSockets`
-</h3>
+### `sandbox.network.allowUnixSockets`
 
 列出 macOS 上沙箱化命令可以连接到的 Unix 套接字路径。Claude Code 在 Linux 和 WSL2 上忽略此列表，其中 seccomp 过滤器无法检查套接字路径；改为在那里使用 [`allowAllUnixSockets`](#sandbox-network-allowallunixsockets)。
 
@@ -2691,9 +1928,7 @@ Claude Code 在各个设置作用域中合并数组子键，因此项目可以�
 
 套接字路径可以授予广泛的访问权限：例如，允许 `/var/run/docker.sock` 让沙箱化命令控制 Docker 守护程序。请参阅 [Security limitations](/docs/zh-CN/sandboxing#security-limitations)。
 
-<h3 id="sandbox-network-allowallunixsockets">
-  `sandbox.network.allowAllUnixSockets`
-</h3>
+### `sandbox.network.allowAllUnixSockets`
 
 让沙箱化命令连接到每个 Unix 套接字。在 Linux 和 WSL2 上，沙箱的 [seccomp filter](/docs/zh-CN/sandboxing#set-up-linux-and-wsl2) 阻止 `socket(AF_UNIX, ...)` 调用，因此这是在那里允许 Unix 套接字的唯一方式。当过滤器缺失时，`/sandbox` 在其 Dependencies 选项卡上报告，沙箱不阻止 Unix 套接字调用。请参阅 [Set up Linux and WSL2](/docs/zh-CN/sandboxing#set-up-linux-and-wsl2) 了解过滤器来自何处。
 
@@ -2715,9 +1950,7 @@ Claude Code 在各个设置作用域中合并数组子键，因此项目可以�
 
 在 WSL2 上，`true` 也重新打开启动 Windows 二进制文件（如 `cmd.exe` 和 `powershell.exe` ）的互操作套接字。
 
-<h3 id="sandbox-network-allowlocalbinding">
-  `sandbox.network.allowLocalBinding`
-</h3>
+### `sandbox.network.allowLocalBinding`
 
 让 macOS 上的沙箱化命令监听网络端口（例如启动开发服务器），并连接到 localhost 上的任何端口。监听非回环地址的命令会接受来自其他机器的连接。该键在 Linux 和 WSL2 上无效，因为那里每个沙箱化命令都有自己的回环接口。要从 Linux 或 WSL2 访问主机上的服务器，请参阅 [A command fails to reach a server on localhost](/docs/zh-CN/sandboxing#a-command-fails-to-reach-a-server-on-localhost)。
 
@@ -2737,9 +1970,7 @@ Claude Code 在各个设置作用域中合并数组子键，因此项目可以�
 }
 ```
 
-<h3 id="sandbox-network-allowmachlookup">
-  `sandbox.network.allowMachLookup`
-</h3>
+### `sandbox.network.allowMachLookup`
 
 列出 macOS 沙箱可能查找的其他 XPC 和 Mach 服务名称。通过 XPC 通信的工具，例如 iOS Simulator 或 Playwright，需要在此处列出其服务。
 
@@ -2759,9 +1990,7 @@ Claude Code 在各个设置作用域中合并数组子键，因此项目可以�
 }
 ```
 
-<h3 id="sandbox-network-alloweddomains">
-  `sandbox.network.allowedDomains`
-</h3>
+### `sandbox.network.allowedDomains`
 
 预先允许来自沙箱化命令的出站流量的域，因此沙箱不会为它们提示。通配符（如 `*.example.com` ）匹配子域，可选的 `:port` 后缀将条目限制为一个端口；没有端口的条目匹配每个端口。
 
@@ -2783,9 +2012,7 @@ Claude Code 在各个设置作用域中合并数组子键，因此项目可以�
 
 将 IPv6 文字写成括号形式，带有可选端口：`"[::1]"` 允许每个端口，`"[::1]:443"` 一个端口。括号形式需要 Claude Code v2.1.229 或更高版本。请参阅 [IPv6 addresses in domain lists](/docs/zh-CN/sandboxing#ipv6-addresses-in-domain-lists)。
 
-<h3 id="sandbox-network-denieddomains">
-  `sandbox.network.deniedDomains`
-</h3>
+### `sandbox.network.deniedDomains`
 
 阻止来自沙箱化命令的出站流量的域，使用与 [`allowedDomains`](#sandbox-network-alloweddomains) 相同的通配符、端口和 IPv6 语法。被拒绝的域即使 `allowedDomains` 条目也匹配它也保持阻止。
 
@@ -2807,9 +2034,7 @@ Claude Code 从会话加载的每个设置源合并此列表，即使设置了 `
 
 使用标记完全限定域名的尾部点编写的条目，例如 `example.com.`，阻止与 `example.com` 相同的连接。
 
-<h3 id="sandbox-network-strictallowlist">
-  `sandbox.network.strictAllowlist`
-</h3>
+### `sandbox.network.strictAllowlist`
 
 拒绝沙箱化命令访问允许列表外的主机，而不是提示批准。允许列表是 [`allowedDomains`](#sandbox-network-alloweddomains) 加上来自 `WebFetch(domain:...)` 允许规则的域，或者当设置了 [`allowManagedDomainsOnly`](#sandbox-network-allowmanageddomainsonly) 时仅为托管设置条目。[Locks that apply without an admin-required sandbox](/docs/zh-CN/sandboxing#locks-that-apply-without-an-admin-required-sandbox) 涵盖仓库的条目。需要 Claude Code v2.1.219 或更高版本。
 
@@ -2831,9 +2056,7 @@ Claude Code 从会话加载的每个设置源合并此列表，即使设置了 `
 
 Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFetch` ）仍然遵循其 [permission rules](/docs/zh-CN/sandboxing#permission-rules)。当任何遵守的源将其设置为 `true` 时，它保持打开。请参阅 [Network isolation](/docs/zh-CN/sandboxing#network-isolation)。需要 Claude Code v2.1.219 或更高版本。
 
-<h3 id="sandbox-network-allowmanageddomainsonly">
-  `sandbox.network.allowManagedDomainsOnly`
-</h3>
+### `sandbox.network.allowManagedDomainsOnly`
 
 将网络允许列表锁定到托管设置定义的内容。Claude Code 然后仅遵守来自托管设置的 `allowedDomains` 和 `WebFetch(domain:...)` 允许规则，忽略来自用户、项目、本地和 `--settings` 设置的域，并自动阻止非允许的域而不是提示。
 
@@ -2860,9 +2083,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 被拒绝的域仍然从会话加载的每个源合并。请参阅 [Keep developers from widening the policy](/docs/zh-CN/sandboxing#keep-developers-from-widening-the-policy)。
 
-<h3 id="sandbox-network-httpproxyport">
-  `sandbox.network.httpProxyPort`
-</h3>
+### `sandbox.network.httpProxyPort`
 
 将沙箱指向您自己的 HTTP 代理，而不是 Claude Code 运行的代理。组织这样做是为了检查 HTTPS 流量、应用自己的过滤规则或记录请求日志。您的代理将接管过滤，Claude Code 不再对发送到那里的流量应用其域列表和网络提示。未设置时，Claude Code 为 HTTP 流量启动自己的代理。
 
@@ -2882,9 +2103,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 如果您的代理也应该携带 SOCKS 流量，也设置 [`socksProxyPort`](#sandbox-network-socksproxyport)；仅设置其中一个，Claude Code 仍然为另一个协议运行自己的代理。请参阅 [Custom proxy configuration](/docs/zh-CN/sandboxing#custom-proxy-configuration)。
 
-<h3 id="sandbox-network-socksproxyport">
-  `sandbox.network.socksProxyPort`
-</h3>
+### `sandbox.network.socksProxyPort`
 
 将沙箱指向您自己的 SOCKS5 代理，而不是 Claude Code 运行的代理。您的代理将接管过滤，Claude Code 不再对发送到那里的流量应用其域列表和网络提示。未设置时，Claude Code 为 SOCKS 流量启动自己的代理。
 
@@ -2904,9 +2123,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 请参阅 [Custom proxy configuration](/docs/zh-CN/sandboxing#custom-proxy-configuration)。
 
-<h3 id="sandbox-network-tlsterminate">
-  `sandbox.network.tlsTerminate`
-</h3>
+### `sandbox.network.tlsTerminate`
 
 使沙箱代理终止 TLS，以便它可以读取 HTTPS 请求的内容。这是实验性的，`mask` [credential substitution](/docs/zh-CN/sandboxing#mask-credentials) 需要它。设置 `{}` 为会话生成临时证书颁发机构，或设置 `caCertPath` 和 `caKeyPath` 以使用您自己的。
 
@@ -2926,17 +2143,11 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 当多个遵守的源设置它时，Claude Code 使用来自最高优先级源的值：托管设置，然后是 `--settings` 标志，然后是用户设置。
 
-<span id="context-and-memory" />
-
-<h2 id="memory-and-context">
-  内存和上下文
-</h2>
+## 内存和上下文
 
 控制 Claude Code 加载到上下文中的内容、如何压缩以及在何处保存内存和计划。请参阅[管理上下文](/docs/zh-CN/context-window)和[内存](/docs/zh-CN/memory)。
 
-<h3 id="autocompactenabled">
-  `autoCompactEnabled`
-</h3>
+### `autoCompactEnabled`
 
 当上下文接近限制时，让 Claude Code [自动压缩对话](/docs/zh-CN/context-window#when-your-context-fills-up)。在 `/config` 中显示为**自动压缩**，在那里切换它会将此键写入您的用户设置。
 
@@ -2955,9 +2166,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 手动 `/compact` 命令在自动压缩关闭时继续工作。如果您关闭自动压缩，[空闲压缩](#idlecompaction)也会随之关闭。
 
-<h3 id="autocompactwindow">
-  `autoCompactWindow`
-</h3>
+### `autoCompactWindow`
 
 设置在 Claude Code [自动压缩](/docs/zh-CN/context-window#when-your-context-fills-up)之前上下文窗口的填充程度。
 
@@ -2974,9 +2183,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 [`/autocompact`](/docs/zh-CN/commands#all-commands) 命令会在 [`modelSettings`](#modelsettings) 下为当前模型保存一个窗口，对于该模型，它优先于同一文件中的此键。[设置自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)涵盖了命令、标志、变量和设置如何相互作用。
 
-<h3 id="automemorydirectory">
-  `autoMemoryDirectory`
-</h3>
+### `autoMemoryDirectory`
 
 将[自动内存](/docs/zh-CN/memory#storage-location)存储在您选择的目录中，而不是每个项目的默认值。
 
@@ -2992,9 +2199,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 从项目或本地设置中，Claude Code 在与 [hooks 相同的工作区信任规则](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)下遵守此键，因为克隆的存储库可以提供这些文件。
 
-<h3 id="automemoryenabled">
-  `autoMemoryEnabled`
-</h3>
+### `autoMemoryEnabled`
 
 打开或关闭[自动内存](/docs/zh-CN/memory#enable-or-disable-auto-memory)。当为 `false` 时，Claude 不会从自动内存目录读取或写入。您也可以在会话期间使用 `/memory` 切换它，这会将此键写入您的用户设置。
 
@@ -3011,9 +2216,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-<h3 id="bashoutputmaxchars">
-  `bashOutputMaxChars`
-</h3>
+### `bashOutputMaxChars`
 
 设置成功的 Bash 或 PowerShell 命令的[输出 Claude 内联接收](/docs/zh-CN/tools-reference#output-limits)的字符数。当输出超过限制时，Claude Code 将其保存到文件，Claude 接收简短预览加文件路径。当命令输出（例如详细构建或完整测试套件日志）经常超过默认值且您希望 Claude 在不打开文件的情况下读取它时，提高限制。需要 Claude Code v2.1.261 或更高版本。
 
@@ -3029,9 +2232,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 设置此键时，Claude Code 忽略 [`BASH_MAX_OUTPUT_LENGTH`](/docs/zh-CN/env-vars) 环境变量。
 
-<h3 id="claudemd">
-  `claudeMd`
-</h3>
+### `claudeMd`
 
 注入 CLAUDE.md 风格的说明作为组织管理的内存，无需部署单独的文件。Claude Code 将文本作为托管内存条目加载，位于用户和项目 CLAUDE.md 文件之前。
 
@@ -3049,9 +2250,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 请参阅[部署组织范围的 CLAUDE.md](/docs/zh-CN/memory#deploy-organization-wide-claude-md)。
 
-<h3 id="claudemdexcludes">
-  `claudeMdExcludes`
-</h3>
+### `claudeMdExcludes`
 
 当 Claude Code 加载[内存](/docs/zh-CN/memory#exclude-specific-claude-md-files)时跳过特定的 `CLAUDE.md` 文件。在大型单体仓库中，使用它跳过来自与您的工作无关的其他团队的 CLAUDE.md 文件；大型代码库指南中的[排除无关的 CLAUDE.md 文件](/docs/zh-CN/large-codebases#exclude-irrelevant-claude-md-files)演示了该情况。模式与绝对文件路径匹配。
 
@@ -3067,11 +2266,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 排除仅适用于用户、项目和本地内存文件；托管策略 CLAUDE.md 文件无法被排除。
 
-<span id="environment-variables" />
-
-<h3 id="env">
-  `env`
-</h3>
+### `env`
 
 为每个会话和 Claude Code 从中启动的子进程设置环境变量。[环境变量参考](/docs/zh-CN/env-vars)中的大多数变量都可以放在这里，这是如何将其应用于每个会话或向您的团队推出的方式。项目和本地设置无法设置[其中一些](#variables-claude-code-ignores-in-env)。
 
@@ -3090,9 +2285,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-<h4 id="how-env-values-interact-with-your-shell">
-  `env` 值如何与您的 shell 交互
-</h4>
+#### `env` 值如何与您的 shell 交互
 
 * 此处的值覆盖在您的 shell 中导出的相同变量，当多个设置文件设置一个变量时，[最高优先级](/docs/zh-CN/settings#settings-precedence)的值适用。[Claude Code 在 `env` 中忽略的变量](#variables-claude-code-ignores-in-env)列出了项目和本地设置的例外。
 * 当 Claude Desktop 应用或[自托管环境](/docs/zh-CN/self-hosted-environments)运行器启动会话时，它构建的启动环境优先：Claude Code 忽略任何设置文件中的 `env` 值，用于启动环境已经设置的变量。[调试日志](/docs/zh-CN/debug-your-config)命名每个被忽略的变量。
@@ -3100,18 +2293,14 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 * `NO_COLOR` 和 `FORCE_COLOR` 在此处设置仅到达子进程。要更改 Claude Code 自己的界面颜色，请在启动 `claude` 之前在您的 shell 中设置它们。
 * 此处的值是设置文件中的纯文本，到达 Claude Code 启动的每个子进程。对于轮换的 OTLP 承载令牌，使用 [`otelHeadersHelper`](#otelheadershelper)；对于 API 凭证，使用 [`apiKeyHelper`](#apikeyhelper)。
 
-<h4 id="when-claude-code-applies-env-values">
-  Claude Code 何时应用 `env` 值
-</h4>
+#### Claude Code 何时应用 `env` 值
 
 * 从用户设置、`--settings` 和托管设置：在启动时，以及在运行会话中当保存的更改改变合并的 `env` 时。
 * 从项目和本地设置：在您信任工作区后，或在 `-p` 模式下启动时（从不显示信任对话），以及当保存的更改改变合并的 `env` 时。
 * Claude Code 分类为安全的变量，例如模型选择、超时和限制、功能切换：在启动时从每个设置文件，除了[项目和本地设置无法设置的变量](#variables-claude-code-ignores-in-env)。
 * 在 v2.1.246 或更高版本上使用 `/cd` [移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory)后：新目录的项目和本地 `env` 值，在前一个目录的基础上。
 
-<h4 id="variables-claude-code-ignores-in-env">
-  Claude Code 在 `env` 中忽略的变量
-</h4>
+#### Claude Code 在 `env` 中忽略的变量
 
 * 项目和本地设置无法设置已检出的仓库不应控制的变量；改为在您的 shell、用户设置或托管设置中设置这些变量。除少数关闭遥测的值外，Claude Code 删除每个变量并记录您可以使用 `claude --debug` 看到的警告。它们包括：
 
@@ -3144,9 +2333,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 * [`CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY`](/docs/zh-CN/env-vars#variables)，Claude Code 仅从启动环境读取，从每个文件中被忽略。该变量需要 Claude Code v2.1.283 或更高版本。
 * [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`、`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`、`CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT` 和 `CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT`](/docs/zh-CN/env-vars#variables)，Claude Code 仅从启动环境读取，从每个文件中被忽略。
 
-<h3 id="filecheckpointingenabled">
-  `fileCheckpointingEnabled`
-</h3>
+### `fileCheckpointingEnabled`
 
 让 Claude Code 在每次编辑前快照文件，以便 [`/rewind`](/docs/zh-CN/checkpointing) 可以恢复它们。在 `/config` 中显示为**回退代码（检查点）**，在那里切换它会将此键写入您的用户设置。
 
@@ -3165,9 +2352,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 在 `-p` 运行或 Agent SDK 会话中，Claude Code 忽略此键。SDK 使用其 `enableFileCheckpointing` 选项打开检查点，裸 `-p` 运行需要 `CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true`。请参阅 [Agent SDK 中的文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing)。
 
-<h3 id="idlecompaction">
-  `idleCompaction`
-</h3>
+### `idleCompaction`
 
 空闲压缩会在提示缓存过期前不久，[压缩](/docs/zh-CN/context-window#what-survives-compaction)您已离开的长对话。这样您的下一条消息发送的是摘要，而不是整个对话。当您回来时，对话会显示 `Compacted while idle, before the prompt cache expired`。
 
@@ -3196,9 +2381,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 此键需要 Claude Code v2.1.290 或更高版本。在会忽略此键的早期版本上，请关闭 [`autoCompactEnabled`](#autocompactenabled) 以停止空闲压缩。
 
-<h4 id="change-the-idle-compaction-threshold">
-  更改空闲压缩阈值
-</h4>
+#### 更改空闲压缩阈值
 
 将 [`CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS`](/docs/zh-CN/env-vars) 设置为对话上下文必须达到的 token 数，达到后空闲压缩才会应用于该对话。请使用正整数。低于 `100000` 的值会被提高到最低阈值 `100000`。
 
@@ -3212,9 +2395,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-<h3 id="plansdirectory">
-  `plansDirectory`
-</h3>
+### `plansDirectory`
 
 选择 Claude Code 在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中写入的计划文件的存储位置。Claude Code 相对于项目根目录解析路径。
 
@@ -3233,9 +2414,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 * **位于项目根目录之外**：路径解析到项目根目录之外，例如 `"../plans"`。
 * **在 macOS、Linux 和 WSL 上包含反斜杠**：解析后的路径包含反斜杠，例如 Windows 风格的 `"docs\\plans"`。请写成 `"docs/plans"`，它在 Windows 上同样适用。
 
-<h3 id="skilllistingbudgetfraction">
-  `skillListingBudgetFraction`
-</h3>
+### `skillListingBudgetFraction`
 
 每个回合，Claude 看到[您的技能列表](/docs/zh-CN/skills#skill-descriptions-are-cut-short)及其描述，Claude Code 将该列表限制在上下文窗口的一部分。当列表超过上限时，Claude Code 保留每个技能的名称，但删除使用最少的技能的描述，因此 Claude 仍然可以调用这些技能，但不太可能自己选择一个。提高此键以保持更多描述可见，代价是每个回合更多上下文。
 
@@ -3251,9 +2430,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 要查看列表使用多少上下文以及哪些技能贡献最多，请运行 `/doctor`。
 
-<h3 id="skilllistingmaxdescchars">
-  `skillListingMaxDescChars`
-</h3>
+### `skillListingMaxDescChars`
 
 每个回合，Claude 看到[您的技能列表](/docs/zh-CN/skills#skill-descriptions-are-cut-short)，显示每个技能的 `description` 和 `when_to_use` 文本。此键限制 Claude Code 每个技能显示多少字符的该文本；较长的文本在上限处被切割。
 
@@ -3269,25 +2446,19 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 提高它以保持长描述完整，代价是每个回合更多上下文；降低它以在 [`skillListingBudgetFraction`](#skilllistingbudgetfraction) 下适应更多技能。
 
-<h3 id="taskoutputmaxchars">
-  `taskOutputMaxChars`
-</h3>
+### `taskOutputMaxChars`
 
-<Warning>
-  在 v2.1.277 中删除，连同它调整大小的 `TaskOutput` 工具一起。设置它对当前版本没有影响。Claude 使用 `Read` 读取后台任务的[输出文件](/docs/zh-CN/tools-reference#background-commands)。
-</Warning>
+> [!WARNING]
+>
+> 在 v2.1.277 中删除，连同它调整大小的 `TaskOutput` 工具一起。设置它对当前版本没有影响。Claude 使用 `Read` 读取后台任务的[输出文件](/docs/zh-CN/tools-reference#background-commands)。
 
 通过 v2.1.276，您将此键设置为[后台任务](/docs/zh-CN/tools-reference#background-commands)的输出字符数，当 Claude 使用 `TaskOutput` 工具读取任务时 Claude 内联接收。
 
-<h2 id="interface-and-terminal">
-  界面和终端
-</h2>
+## 界面和终端
 
 改变 Claude Code 在终端中的外观和行为：主题、编辑器模式、状态行、加载动画、会话内通知和无障碍功能。请参阅[终端配置](/docs/zh-CN/terminal-config)。
 
-<h3 id="askuserquestiontimeout">
-  `askUserQuestionTimeout`
-</h3>
+### `askUserQuestionTimeout`
 
 让未回答的 [`AskUserQuestion`](/docs/zh-CN/tools-reference) 对话框在空闲一段时间后自动继续，提交您已选择的任何选项。当您离开时设置此项，让 Claude 在没有您的情况下继续。使用默认设置时，问题会等待您回答。关于计时器何时暂停或从不启动，请参阅[问题自动继续超时](/docs/zh-CN/tools-reference#question-auto-continue-timeout)。
 
@@ -3304,9 +2475,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 在 `/config` 中显示为**问题自动继续超时**，它将此键写入用户设置；当托管设置或 `--settings` 标志设置此键时，Claude Code 会隐藏该行。
 
-<h3 id="autocontinueatusagelimit">
-  `autoContinueAtUsageLimit`
-</h3>
+### `autoContinueAtUsageLimit`
 
 在 claude.ai 使用限制停止您的会话后，在打开的会话中等待，并在重置后自动继续任务。请参阅[关闭自动继续](/docs/zh-CN/interactive-mode#turn-automatic-continue-off)。需要 Claude Code v2.1.234 或更高版本。
 
@@ -3324,9 +2493,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 在 `/config` 中显示为**在使用限制时自动继续**，它将此键写入用户设置；当托管设置或 `--settings` 标志设置此键时，Claude Code 会隐藏该行。
 
-<h3 id="autoscrollenabled">
-  `autoScrollEnabled`
-</h3>
+### `autoScrollEnabled`
 
 在[全屏渲染](/docs/zh-CN/fullscreen)中跟随新输出到对话底部。关闭它以在 Claude 继续工作时保持您滚动的位置；权限提示仍会滚动到视图中。
 
@@ -3344,9 +2511,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 在全屏渲染打开时，在 `/config` 中显示为**自动滚动**，它将此键写入用户设置。
 
-<h3 id="axscreenreader">
-  `axScreenReader`
-</h3>
+### `axScreenReader`
 
 渲染屏幕阅读器友好的输出：没有装饰性边框或动画的平面文本。屏幕阅读器模式使用经典渲染器，因此在它处于活动状态时 `tui` 设置无效；附加的[后台会话](/docs/zh-CN/agent-view)仍会全屏渲染。
 
@@ -3363,9 +2528,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-<h3 id="basheditdiffenabled">
-  `bashEditDiffEnabled`
-</h3>
+### `bashEditDiffEnabled`
 
 选择 Claude Code 是否记录 Bash 命令运行期间 Git 存储库中发生更改的文件。当它记录它们时，您会在命令后在终端中看到它们的差异，您的 [PostToolUse Bash hooks](/docs/zh-CN/hooks#bash) 会接收更改的文件列表。
 
@@ -3384,9 +2547,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-<h3 id="companyannouncements">
-  `companyAnnouncements`
-</h3>
+### `companyAnnouncements`
 
 在启动时向用户显示您组织的公告。当您列出多个公告时，Claude Code 为每个会话随机选择一个；在某人的首次启动时，它显示第一个条目。
 
@@ -3402,9 +2563,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-<h3 id="defaultshell">
-  `defaultShell`
-</h3>
+### `defaultShell`
 
 选择 Bash 或 PowerShell 是否运行您在输入框中使用 [`!` 前缀](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)键入的 shell 命令，以及 Claude Code 直接运行并添加到会话的命令。
 
@@ -3424,9 +2583,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 如果您指定的 shell 不可用，Claude Code 会使用另一个：当 PowerShell 工具关闭时 `"powershell"` 回退到 Bash，当 Bash 未安装时 `"bash"` 回退到 PowerShell。
 
-<h3 id="dialogexpiry">
-  `dialogExpiry`
-</h3>
+### `dialogExpiry`
 
 为 Claude Code [转发给远程客户端](/docs/zh-CN/remote-control#limitations)的对话框（例如远程控制或 SDK 主机）以及[保留的跨会话消息](/docs/zh-CN/cross-session-messaging#control-inbound-messages)的批准对话框设置截止时间。在 Claude Code v2.1.236 或更高版本上，相同的截止时间限制了会话中可能没有人在终端的中期 [Fable 使用额度同意提示](/docs/zh-CN/model-config#fable-and-usage-credits)。当在截止时间前没有答案到达时，Claude Code 取消对话框并继续使用其无操作默认值。需要 Claude Code v2.1.224 或更高版本。
 
@@ -3443,9 +2600,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 权限提示和 [`AskUserQuestion`](/docs/zh-CN/tools-reference#askuserquestion-tool-behavior) 问题使用它们自己的流程，不受此截止时间管制。在 `/config` 中显示为**对话框过期**，它将此键写入用户设置；该行需要 Claude Code v2.1.232 或更高版本，当托管设置或 `--settings` 标志设置此键时，Claude Code 会隐藏它。
 
-<h3 id="editormode">
-  `editorMode`
-</h3>
+### `editorMode`
 
 为输入提示选择快捷键绑定模式。
 
@@ -3463,9 +2618,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 在 `/config` 中显示为**编辑器模式**，它将此键写入用户设置。
 
-<h3 id="emojicompletionenabled">
-  `emojiCompletionEnabled`
-</h3>
+### `emojiCompletionEnabled`
 
 当您在提示输入中键入 `:` 加上速记代码时显示表情符号建议，并将完成的速记代码（如 `:heart:`）替换为其表情符号。将其设置为 `false` 以关闭两者。
 
@@ -3483,11 +2636,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 请参阅[表情符号速记代码](/docs/zh-CN/interactive-mode#emoji-shortcodes)。需要 Claude Code v2.1.217 或更高版本。
 
-<span id="file-suggestion-settings" />
-
-<h3 id="filesuggestion">
-  `fileSuggestion`
-</h3>
+### `fileSuggestion`
 
 运行您自己的命令来提供 `@` 文件路径自动完成，而不是使用内置文件建议。内置建议使用快速文件系统遍历；大型单体仓库可能会通过项目特定的索引（如预构建的文件索引）做得更好。
 
@@ -3506,9 +2655,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 保存后，在提示中键入 `@` 后跟部分路径：建议来自您命令的输出。
 
-<h4 id="command-input-and-output">
-  命令输入和输出
-</h4>
+#### 命令输入和输出
 
 Claude Code 使用与 [hooks](/docs/zh-CN/hooks) 相同的环境变量运行命令，包括 `CLAUDE_PROJECT_DIR`，并在五秒后停止等待。该命令在 stdin 上接收 JSON，其中 `query` 字段包含您到目前为止键入的内容：
 
@@ -3533,11 +2680,7 @@ query=$(cat | jq -r '.query')
 your-repo-file-index --query "$query" | head -20
 ```
 
-<span id="footer-link-badges" />
-
-<h3 id="footerlinksregexes">
-  `footerLinksRegexes`
-</h3>
+### `footerLinksRegexes`
 
 当正则表达式匹配转向输出时在输入框下方的页脚中渲染额外的可点击徽章：工具结果，包括文件内容和获取的页面，以及 Claude 自己的响应。使用它将项目 CLI 打印的 ID（如审查工具和问题跟踪器）转换为会话链接。
 
@@ -3562,9 +2705,7 @@ your-repo-file-index --query "$query" | head -20
 
 配置此项后，当 `PROJ-1234` 出现在工具结果或 Claude 的回复中时，页脚中会出现一个 `PROJ-1234` 徽章，链接到 `https://issues.example.com/browse/PROJ-1234`。
 
-<h4 id="badge-constraints">
-  徽章约束
-</h4>
+#### 徽章约束
 
 每个条目的 URL、标签和徽章计数受以下限制：
 
@@ -3580,13 +2721,11 @@ your-repo-file-index --query "$query" | head -20
 
 页脚徽章与[自定义状态行](/docs/zh-CN/statusline)一起渲染（当配置了一个时）；两者都不替换另一个。使用状态行来获得从会话数据计算自己内容的脚本驱动行，使用页脚徽章将对话中的 ID 转换为链接而无需脚本。
 
-<h3 id="keybindingflavor">
-  `keybindingFlavor`
-</h3>
+### `keybindingFlavor`
 
-<Warning>
-  自 v2.1.261 起已弃用，无效。提示的单词编辑键始终[遵循 readline 约定](/docs/zh-CN/interactive-mode#make-ctrl-w-delete-back-to-whitespace)，如在 Bash 中一样。Claude Code 仍然接受 `keybindingFlavor`，因此设置它的设置文件保持有效。
-</Warning>
+> [!WARNING]
+>
+> 自 v2.1.261 起已弃用，无效。提示的单词编辑键始终[遵循 readline 约定](/docs/zh-CN/interactive-mode#make-ctrl-w-delete-back-to-whitespace)，如在 Bash 中一样。Claude Code 仍然接受 `keybindingFlavor`，因此设置它的设置文件保持有效。
 
 在 v2.1.238 到 v2.1.260 中，将其设置为 `"readline"` 使 `Ctrl+W` 删除回到前一个空格而不仅仅是前一个单词。
 
@@ -3594,9 +2733,7 @@ your-repo-file-index --query "$query" | head -20
 * **Type**: string，`"classic"` 或 `"readline"`
 * **Default**: unset
 
-<h3 id="maxprosewidth">
-  `maxProseWidth`
-</h3>
+### `maxProseWidth`
 
 限制 Claude 响应中散文的宽度，使行在宽终端中保持可读性。段落、标题、列表和块引用在此列数内换行，而表格和代码块保持完整的终端宽度。需要 Claude Code v2.1.282 或更高版本。
 
@@ -3610,9 +2747,7 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-<h3 id="prefersreducedmotion">
-  `prefersReducedMotion`
-</h3>
+### `prefersReducedMotion`
 
 减少或关闭界面动画，如加载动画、闪烁和闪光效果。在 `/config` 中显示为**减少动画**。
 
@@ -3628,9 +2763,7 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-<h3 id="promptsuggestionenabled">
-  `promptSuggestionEnabled`
-</h3>
+### `promptSuggestionEnabled`
 
 显示或隐藏[提示建议](/docs/zh-CN/interactive-mode#prompt-suggestions)，即在您的提示输入中出现的灰显预测。将其设置为 `false`，或在 `/config` 中关闭**提示建议**，以隐藏它们。
 
@@ -3649,9 +2782,7 @@ your-repo-file-index --query "$query" | head -20
 
 提示建议需要启用了遥测的 claude.ai 或 Console 账户。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，或关闭遥测时（如通过 [`DISABLE_TELEMETRY`](/docs/zh-CN/env-vars)），此键无效，仅 `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=1` 打开它们。
 
-<h3 id="respectgitignore">
-  `respectGitignore`
-</h3>
+### `respectGitignore`
 
 控制 `@` 文件选择器是否排除与 `.gitignore` 模式匹配的文件。在 `/config` 中显示为**在文件选择器中尊重 .gitignore**。
 
@@ -3667,9 +2798,7 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-<h3 id="respondtobashcommands">
-  `respondToBashCommands`
-</h3>
+### `respondToBashCommands`
 
 选择在您使用输入框中的 [`!` 前缀](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)运行 shell 命令后 Claude 是否响应。默认情况下，Claude Code 将命令的输出添加到对话中，Claude 对其进行回复。将此键设置为 `false` 以将输出添加到上下文而不进行回复，以便您可以运行多个命令并一起询问它们。
 
@@ -3687,9 +2816,7 @@ your-repo-file-index --query "$query" | head -20
 
 请参阅[使用 `!` 前缀的 Shell 模式](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)。
 
-<h3 id="showclearcontextonplanaccept">
-  `showClearContextOnPlanAccept`
-</h3>
+### `showClearContextOnPlanAccept`
 
 当 Claude 在[计划模式](/docs/zh-CN/permission-modes#review-and-approve-a-plan)中完成计划时，它显示一个批准菜单。规划可能会使用大量上下文，因此此键向该菜单添加第一个选项**是的，清除上下文并…**，它批准计划、清除对话上下文并仅从计划开始实施。标签的其余部分命名会话继续的权限模式，并显示规划使用了多少上下文。
 
@@ -3705,9 +2832,7 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-<h3 id="showturnduration">
-  `showTurnDuration`
-</h3>
+### `showTurnDuration`
 
 显示或隐藏每个响应后的转向持续时间消息，如"Cooked for 1m 6s · done 6:05 PM"。"done"后的时钟显示转向何时完成；[`timeFormat`](#timeformat) 和 [`timeZone`](#timezone) 控制其格式和区域。在 `/config` 中显示为**显示转向持续时间**。
 
@@ -3723,9 +2848,7 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-<h3 id="spellcheck">
-  `spellcheck`
-</h3>
+### `spellcheck`
 
 在您键入时在提示输入中为拼写错误的单词加下划线，使用您安装的拼写检查器。Claude Code 仅检查输入框中的文本。[在您键入时检查拼写](/docs/zh-CN/interactive-mode#check-spelling-as-you-type)涵盖安装 aspell、hunspell 或 ispell 以及检查器涵盖的内容。需要 Claude Code v2.1.235 或更高版本。
 
@@ -3739,9 +2862,7 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-<h3 id="spinnertipsenabled">
-  `spinnerTipsEnabled`
-</h3>
+### `spinnerTipsEnabled`
 
 当 Claude 工作时，加载动画行轮换显示关于 Claude Code 功能的短提示，如"使用计划模式为复杂请求做准备，然后再进行更改。按 Shift+Tab 两次以启用。"将此键设置为 `false` 以隐藏它们。在 `/config` 中显示为**显示提示**。
 
@@ -3757,9 +2878,7 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-<h3 id="spinnertipsoverride">
-  `spinnerTipsOverride`
-</h3>
+### `spinnerTipsOverride`
 
 将您自己的提示添加到 Claude Code 在 Claude 工作时显示的[加载动画提示](#spinnertipsenabled)，或用您的提示替换内置提示。Claude Code 将您的提示放在与内置提示相同的轮换中。
 
@@ -3821,9 +2940,7 @@ Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调�
 
 当 Claude 工作时，Claude Code 在加载动画中显示您的提示，带有您的前缀，如 `Acme tip: Run /review before opening a PR`。
 
-<h3 id="spinnerverbs">
-  `spinnerVerbs`
-</h3>
+### `spinnerVerbs`
 
 当转向进行中时，加载动画显示轮换的动词，如"Accomplishing"、"Architecting"或"Baking"。使用此键将您自己的动词添加到该轮换或用您的替换内置列表。
 
@@ -3846,9 +2963,7 @@ Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调�
 
 在 `"replace"` 模式下使用空 `verbs` 数组，Claude Code 保持内置动词。
 
-<h3 id="statusline">
-  `statusLine`
-</h3>
+### `statusLine`
 
 运行您自己的命令来渲染提示下方的[状态行](/docs/zh-CN/statusline)，包含模型、成本或 git 分支等上下文。可选字段调整间距、添加定期重新运行，并在您的脚本自己渲染 `vim.mode` 时隐藏内置 vim 模式指示器。
 
@@ -3870,9 +2985,7 @@ Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调�
 
 示例需要安装 [`jq`](https://jqlang.org/) 并在 shell 中运行。对于 PowerShell 和 Git Bash 等效项，请参阅[Windows 配置](/docs/zh-CN/statusline#windows-configuration)；对于完整设置，请参阅[手动配置状态行](/docs/zh-CN/statusline#manually-configure-a-status-line)。
 
-<h3 id="subagentstatusline">
-  `subagentStatusLine`
-</h3>
+### `subagentStatusLine`
 
 当 Claude 运行[子代理](/docs/zh-CN/sub-agents)时，Claude Code 在提示下方的任务显示中列出它们，每个子代理一行显示 `name · description · token count`。此键让您运行自己的命令来重写这些行，例如显示每个子代理的上下文使用情况百分比。在每次刷新时，Claude Code 将可见行作为一个 JSON 对象发送到 stdin，其中 `tasks` 数组包含每个子代理的 `id`、`name`、`status`、`model`、`tokenCount` 等，并将您写回的每个 `id` 的行替换为 `{"id", "content"}` 行。您不写回的行保持默认渲染。
 
@@ -3891,9 +3004,7 @@ Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调�
 
 请参阅[子代理状态行](/docs/zh-CN/statusline#subagent-status-lines)。
 
-<h3 id="syntaxhighlightingdisabled">
-  `syntaxHighlightingDisabled`
-</h3>
+### `syntaxHighlightingDisabled`
 
 Claude Code 使用其内置高亮器按语言为它在终端中显示的差异、代码块和文件预览着色；不涉及插件或语言服务器。将此键设置为 `true` 以改为将它们显示为纯文本，例如如果颜色与您的终端主题冲突或减慢屏幕阅读器。
 
@@ -3909,9 +3020,7 @@ Claude Code 使用其内置高亮器按语言为它在终端中显示的差异�
 }
 ```
 
-<h3 id="terminalprogressbarenabled">
-  `terminalProgressBarEnabled`
-</h3>
+### `terminalProgressBarEnabled`
 
 某些终端可以在选项卡或任务栏中为在其中运行的程序显示进度指示器。当 Claude 工作时，Claude Code 向终端报告进行中状态，因此您可以从另一个选项卡或窗口看到会话是否仍然繁忙。指示器在转向结束后保持可见，同时[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)或[动态工作流](/docs/zh-CN/workflows)仍在运行，并在会话空闲后清除。
 
@@ -3929,9 +3038,7 @@ Claude Code 仅在支持指示器的终端中报告它：ConEmu、Ghostty 1.2.0 
 }
 ```
 
-<h3 id="terminaltitlefromrename">
-  `terminalTitleFromRename`
-</h3>
+### `terminalTitleFromRename`
 
 Claude Code 设置您的终端选项卡的标题。默认情况下，它使用从对话生成的标题，一旦您使用 `/rename` 或 `--name` 给会话[命名](/docs/zh-CN/sessions#name-your-sessions)，选项卡会改为显示该名称。将此键设置为 `false` 以在您命名会话后保持生成的标题在选项卡上。名称本身仍然适用，因此 `/resume <name>` 和会话选择器找到它。
 
@@ -3949,9 +3056,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 要停止 Claude Code 完全更新终端标题，请改为将 [`CLAUDE_CODE_DISABLE_TERMINAL_TITLE`](/docs/zh-CN/env-vars) 设置为 `1`。
 
-<h3 id="theme">
-  `theme`
-</h3>
+### `theme`
 
 为界面选择颜色主题。在 `/config` 中显示为**主题**。
 
@@ -3975,9 +3080,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 请参阅[创建自定义主题](/docs/zh-CN/terminal-config#create-a-custom-theme)。
 
-<h3 id="timeformat">
-  `timeFormat`
-</h3>
+### `timeFormat`
 
 选择 Claude Code 如何写入它在界面中显示的时间，如每个转向持续时间消息末尾的 `done 6:05 PM` 和[记录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)中的时间戳。要选择预设，运行 `/config` 并设置**时间格式**。需要 Claude Code v2.1.257 或更高版本。
 
@@ -4014,9 +3117,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 相同的表面然后显示时间，如 `2026-09-01 18:05`。
 
-<h3 id="timezone">
-  `timeZone`
-</h3>
+### `timeZone`
 
 在不同于您系统的时区中显示界面中的时间。将其设置为 [IANA 时区名称](https://www.iana.org/time-zones)，如 `"UTC"` 或 `"Europe/Dublin"`。[`timeFormat`](#timeformat) 控制的时间然后在此区域中显示。如果 `timeFormat` 是 `"24-hour-utc"`，时间保持在 UTC 中，Claude Code 忽略此键。`/config` 对此键没有行，因此在设置文件中设置它。需要 Claude Code v2.1.257 或更高版本。
 
@@ -4030,9 +3131,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-<h3 id="tui">
-  `tui`
-</h3>
+### `tui`
 
 选择终端 UI 渲染器。使用 `"fullscreen"` 获得无闪烁的[替代屏幕渲染器](/docs/zh-CN/fullscreen)，具有虚拟化滚动条，或使用 `"default"` 获得经典主屏幕渲染器。运行 `/tui fullscreen` 或 `/tui default` 为您写入此键。
 
@@ -4051,9 +3150,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 在 tmux `-CC` 下或通过 SSH 到 Windows，Claude Code 保持经典渲染器，除非您设置 `CLAUDE_CODE_NO_FLICKER=1`。从[代理视图](/docs/zh-CN/agent-view)打开的后台会话始终使用全屏渲染器，无论此设置如何。
 
-<h3 id="verbose">
-  `verbose`
-</h3>
+### `verbose`
 
 默认情况下，记录将每个工具调用折叠为简短摘要，如 Claude 运行的命令和其输出的行数，您按 `Ctrl+O` 在需要详细信息时将整个记录切换到展开视图。将此键设置为 `true` 以在发生时内联显示每个工具调用的完整输入和输出，这在您调试 hook、MCP 服务器或长 shell 命令时很有用。在 `/config` 中显示为**详细输出**。
 
@@ -4072,9 +3169,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 [`viewMode`](#viewmode) 值或粘性 `/focus` 选择在每个会话中覆盖此键。
 
-<h3 id="viewmode">
-  `viewMode`
-</h3>
+### `viewMode`
 
 设置 Claude Code 启动的记录视图：`"default"`、`"verbose"` 或 `"focus"`。设置时，它覆盖粘性 `/focus` 选择和 [`verbose`](#verbose) 设置。
 
@@ -4092,9 +3187,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-<h3 id="viminsertmoderemaps">
-  `vimInsertModeRemaps`
-</h3>
+### `vimInsertModeRemaps`
 
 在 [vim 编辑器模式](/docs/zh-CN/interactive-mode#vim-editor-mode)中将两键 INSERT 模式序列映射到 Escape。每个键恰好是按顺序键入的两个可打印字符，`"<Esc>"` 是唯一支持的目标；Claude Code 忽略其他条目。
 
@@ -4112,9 +3205,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 除非 `editorMode` 是 `"vim"`，否则无效。请参阅[重新映射 INSERT 模式快捷键序列](/docs/zh-CN/interactive-mode#remap-insert-mode-key-sequences)。
 
-<h3 id="voice">
-  `voice`
-</h3>
+### `voice`
 
 打开[语音听写](/docs/zh-CN/voice-dictation)并选择听写键的行为方式。当您运行 `/voice` 时，Claude Code 为您写入此对象。
 
@@ -4137,13 +3228,11 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 `autoSubmit` 在保持模式中释放键时发送提示。语音听写需要 claude.ai 账户。
 
-<h3 id="voiceenabled">
-  `voiceEnabled`
-</h3>
+### `voiceEnabled`
 
-<Warning>
-  自 v2.1.92 起已弃用，当 [`voice`](#voice) 对象替换它时。Claude Code 仍然读取它，因此较旧的设置文件保持工作，但新配置应设置 `voice.enabled`。
-</Warning>
+> [!WARNING]
+>
+> 自 v2.1.92 起已弃用，当 [`voice`](#voice) 对象替换它时。Claude Code 仍然读取它，因此较旧的设置文件保持工作，但新配置应设置 `voice.enabled`。
 
 使用在 `voice` 对象之前的单个 Boolean 形式打开语音听写。当两者都设置时，`voice.enabled` 适用。
 
@@ -4159,9 +3248,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-<h3 id="wheelscrollaccelerationenabled">
-  `wheelScrollAccelerationEnabled`
-</h3>
+### `wheelScrollAccelerationEnabled`
 
 在[全屏渲染](/docs/zh-CN/fullscreen#mouse-wheel-scrolling)中快速滚动期间加速鼠标滚轮滚动速度。将其设置为 `false` 以获得每个滚轮凹口的恒定滚动速率。
 
@@ -4177,17 +3264,11 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-<h2 id="git-and-attribution">
-  Git 和归属
-</h2>
+## Git 和归属
 
 控制 Claude Code 添加到提交和拉取请求的归属，以及它如何与 git 配合使用。
 
-<span id="attribution-settings" />
-
-<h3 id="attribution">
-  `attribution`
-</h3>
+### `attribution`
 
 自定义 Claude Code 添加到 git 提交和拉取请求的归属。提交默认获得 [git trailer](https://git-scm.com/docs/git-interpret-trailers)，例如 `Co-Authored-By`；拉取请求描述获得纯文本。使用下面的子键分别设置每个部分。
 
@@ -4213,13 +3294,11 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 Claude Code 告诉 Claude，您自己关于归属的说明（例如 CLAUDE.md 或 [memory](/docs/zh-CN/memory) 规则）优先于这些提交和 PR 行，除非该行在 [managed settings](/docs/zh-CN/managed-settings) 中设置。
 
-<h3 id="includecoauthoredby">
-  `includeCoAuthoredBy`
-</h3>
+### `includeCoAuthoredBy`
 
-<Warning>
-  自 v2.0.62 起已弃用，当 [`attribution`](#attribution) 替换它时。Claude Code 仍然读取它，但新配置应设置 `attribution`。
-</Warning>
+> [!WARNING]
+>
+> 自 v2.0.62 起已弃用，当 [`attribution`](#attribution) 替换它时。Claude Code 仍然读取它，但新配置应设置 `attribution`。
 
 改用 [`attribution`](#attribution)，它替换此键，让您可以分别更改或隐藏提交 trailer、拉取请求文本和会话链接。Claude Code 仍然遵守来自早于 `attribution` 的设置文件中的 `includeCoAuthoredBy: false`，但一旦设置 `attribution.commit` 或 `attribution.pr`，就会忽略它。
 
@@ -4237,9 +3316,7 @@ Claude Code 告诉 Claude，您自己关于归属的说明（例如 CLAUDE.md �
 
 要隐藏所有归属，请参阅 [`attribution`](#attribution)。
 
-<h3 id="includegitinstructions">
-  `includeGitInstructions`
-</h3>
+### `includeGitInstructions`
 
 Claude Code 向 Claude 提供两个与 git 相关的上下文片段：其内置的关于如何编写提交和拉取请求的说明（在 Bash 工具的描述中），以及您的存储库的 git 状态快照。快照包含当前分支、主分支、`git status` 输出和最近的提交。Claude Code 在会话开始时读取它。
 
@@ -4263,9 +3340,7 @@ Claude Code 向 Claude 提供两个与 git 相关的上下文片段：其内置�
 * **`-p` 运行**：当您传递 [`--system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags) 或 `--system-prompt-file` 时，即替换了提示词。当您运行带有自己提示词的自定义 Agent（通过 [`--agent`](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 或 [`agent`](#agent) 设置选择）时，也会替换提示词。在 [bare 模式](/docs/zh-CN/headless#start-faster-with-bare-mode)之外，要保留快照，请不使用自定义 Agent 运行，并使用 [`--append-system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags) 添加您的说明，而不是替换提示词。
 * **[Agent SDK](/docs/zh-CN/agent-sdk/modifying-system-prompts)**：当您使用自定义系统提示词或自定义主线程 Agent 时，即替换了提示词。如果您未设置系统提示词，SDK 会使用其最小默认值，会话启动时同样不包含快照。在 [bare 模式](/docs/zh-CN/headless#start-faster-with-bare-mode)之外，要保留快照，请使用 `claude_code` 预设且不使用自定义 `agent`。
 
-<h3 id="prurltemplate">
-  `prUrlTemplate`
-</h3>
+### `prUrlTemplate`
 
 将 Claude Code 呈现的 PR 链接（在页脚徽章和工具结果摘要中）指向内部代码审查工具而不是 `github.com`。Claude Code 从 PR URL 替换 `{host}`、`{owner}`、`{repo}`、`{number}` 和 `{url}`。[GitLab 合并请求](/docs/zh-CN/interactive-mode#gitlab-merge-requests) 两个表面上的链接保持其 GitLab URL。
 
@@ -4281,9 +3356,7 @@ Claude Code 向 Claude 提供两个与 git 相关的上下文片段：其内置�
 
 Claude Code 仅将模板应用于它自己呈现的链接；Claude 在消息中编写的 PR 号（例如 `#123`）保持 Claude 编写的样子。没有 `/pull/<number>` 形状的 URL 保持不变。
 
-<h3 id="attribution-commit">
-  `attribution.commit`
-</h3>
+### `attribution.commit`
 
 设置 Claude Code 添加到 git 提交的归属文本，包括任何 trailer。将其设置为空字符串以隐藏提交归属。
 
@@ -4303,9 +3376,7 @@ Claude Code 仅将模板应用于它自己呈现的链接；Claude 在消息中�
 }
 ```
 
-<h3 id="attribution-pr">
-  `attribution.pr`
-</h3>
+### `attribution.pr`
 
 设置 Claude Code 添加到拉取请求描述的归属文本。将其设置为空字符串以隐藏拉取请求归属。
 
@@ -4321,9 +3392,7 @@ Claude Code 仅将模板应用于它自己呈现的链接；Claude 在消息中�
 }
 ```
 
-<h3 id="attribution-sessionurl">
-  `attribution.sessionUrl`
-</h3>
+### `attribution.sessionUrl`
 
 选择 Claude Code 在从 [cloud](/docs/zh-CN/claude-code-on-the-web) 或 [Remote Control](/docs/zh-CN/remote-control) 会话提交或打开拉取请求时是否附加 claude.ai 会话链接。Claude Code 在提交上添加链接作为 `Claude-Session` trailer，在拉取请求描述中添加链接。将其设置为 `false` 以省略链接。
 
@@ -4341,19 +3410,11 @@ Claude Code 仅将模板应用于它自己呈现的链接；Claude 在消息中�
 }
 ```
 
-<span id="hook-configuration" />
-
-<span id="hook-and-skill-settings" />
-
-<h2 id="hooks-and-automation">
-  Hooks 和自动化
-</h2>
+## Hooks 和自动化
 
 注册 hooks，限制哪些 hooks 运行，以及控制工作流。有关 hook 事件和有效负载，请参阅 [hooks 参考](/docs/zh-CN/hooks)。
 
-<h3 id="allowedhttphookurls">
-  `allowedHttpHookUrls`
-</h3>
+### `allowedHttpHookUrls`
 
 限制 [HTTP hooks](/docs/zh-CN/hooks#http-hook-fields) 可以针对的 URL。定义此键时，Claude Code 仅在 HTTP hook 的 URL 与某个模式匹配时才运行该 hook，并阻止其余的而不运行它们；空数组会阻止每个 HTTP hook。
 
@@ -4371,9 +3432,7 @@ Claude Code 仅将模板应用于它自己呈现的链接；Claude 在消息中�
 
 主机名匹配不区分大小写，并将 `hooks.example.com.`（带有标记完全限定域名的尾部点）视为与 `hooks.example.com` 相同，这是 DNS 的处理方式。允许列表适用于来自每个源的 hooks，包括托管设置。
 
-<h3 id="allowmanagedhooksonly">
-  `allowManagedHooksOnly`
-</h3>
+### `allowManagedHooksOnly`
 
 限制 hook 执行仅限于您的组织部署的 hooks。
 
@@ -4389,9 +3448,7 @@ Claude Code 仅将模板应用于它自己呈现的链接；Claude 在消息中�
 }
 ```
 
-<h4 id="what-runs-under-allowmanagedhooksonly">
-  在 `allowManagedHooksOnly` 下运行什么
-</h4>
+#### 在 `allowManagedHooksOnly` 下运行什么
 
 将其设置为 `true` 时，Claude Code 会更改加载的 hooks 和类似 hook 的命令：
 
@@ -4404,9 +3461,7 @@ Claude Code 仅将模板应用于它自己呈现的链接；Claude 在消息中�
 
 设置此键时，[`/goal`](/docs/zh-CN/goal) 命令无法运行，因为它依赖于 hooks。
 
-<h3 id="disableallhooks">
-  `disableAllHooks`
-</h3>
+### `disableAllHooks`
 
 关闭 [hooks](/docs/zh-CN/hooks#disable-or-remove-hooks)、任何自定义 [状态行](/docs/zh-CN/statusline) 和任何自定义 [文件建议](#filesuggestion) 命令。使用它可以临时关闭所有这些，而无需从设置中删除它们。
 
@@ -4438,9 +3493,7 @@ Claude Code 内置的 mods 在这两种情况下都会继续运行。每个内�
 
 当 hooks 被禁用时，[`/goal`](/docs/zh-CN/goal) 命令无法运行，`/hooks` 菜单显示通知而不是您的 hooks。
 
-<h4 id="status-line-and-file-suggestion-gates">
-  状态行和文件建议门
-</h4>
+#### 状态行和文件建议门
 
 Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此顺序做出两个决定：
 
@@ -4449,9 +3502,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 在缩小范围下，如果部署了托管值，Claude Code 会运行它。否则它会跳过您的值而不发出警告：状态行被禁用，`@` 自动完成回退到内置文件建议。
 
-<h3 id="disableworkflows">
-  `disableWorkflows`
-</h3>
+### `disableWorkflows`
 
 关闭 [动态工作流](/docs/zh-CN/workflows#turn-workflows-off) 和您的设置所涉及的每个人的捆绑工作流命令，例如通过托管设置的组织。要仅为自己打开或关闭工作流，请改用 [`enableWorkflows`](#enableworkflows)，这是 `/config` 中的 **动态工作流** 切换写入您的用户设置的内容。
 
@@ -4468,9 +3519,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-<h3 id="enableworkflows">
-  `enableWorkflows`
-</h3>
+### `enableWorkflows`
 
 当您的计划默认值不是您想要的时，为自己打开或关闭 [动态工作流](/docs/zh-CN/workflows)。在 `/config` 中显示为 **动态工作流**，它将此键写入您的用户设置，并在您切换回计划默认值时再次删除它。要从托管设置为每个人关闭工作流，请改用 [`disableWorkflows`](#disableworkflows)。
 
@@ -4489,9 +3538,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 [`disableWorkflows`](#disableworkflows) 和您的组织的工作流策略也优先：`enableWorkflows: true` 在任何源关闭工作流时无法将其打开。当除您的用户设置之外的源设置 `enableWorkflows` 或将 `disableWorkflows` 设置为 `true` 时，Claude Code 隐藏 `/config` 行。
 
-<h3 id="hooks">
-  `hooks`
-</h3>
+### `hooks`
 
 在 Claude Code 的生命周期中的某些点（例如在工具调用之前或会话启动时）运行您自己的命令、提示、代理、HTTP 请求或 MCP 工具作为 [hooks](/docs/zh-CN/hooks)；[hooks 参考](/docs/zh-CN/hooks#hook-events) 列出每个事件、其有效负载和其退出代码。每个事件映射到匹配器组列表，每个组列出在匹配器应用时运行的处理程序。
 
@@ -4518,9 +3565,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 对于每个事件、匹配器模式和处理程序字段，请参阅 [hooks 参考](/docs/zh-CN/hooks#configuration)。要关闭 hooks，请参阅 [`disableAllHooks`](#disableallhooks)；要将 hooks 限制为您的组织部署的 hooks，请参阅 [`allowManagedHooksOnly`](#allowmanagedhooksonly)。
 
-<h3 id="httphookallowedenvvars">
-  `httpHookAllowedEnvVars`
-</h3>
+### `httpHookAllowedEnvVars`
 
 [HTTP hook](/docs/zh-CN/hooks#http-hook-fields) 可以将环境变量的值放入请求标头中，例如 `Authorization: Bearer $HOOK_TOKEN` 标头，但仅限于 hook 在其自己的 `allowedEnvVars` 中列出的变量。此键为每个 HTTP hook 的该列表设置外部限制：hook 只能使用变量（如果其自己的 `allowedEnvVars` 和此键都命名它）。使用它可以防止 hook 读取它不应该读取的秘密，即使 hook 的定义要求它。
 
@@ -4538,9 +3583,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 允许列表适用于来自每个源的 hooks，包括托管设置。
 
-<h3 id="workflowkeywordtriggerenabled">
-  `workflowKeywordTriggerEnabled`
-</h3>
+### `workflowKeywordTriggerEnabled`
 
 选择在提示中键入关键字 `ultracode` 是否触发 [动态工作流](/docs/zh-CN/workflows#ask-for-a-workflow-in-your-prompt)。将其设置为 `false` 以在不触发工作流的情况下键入该词。
 
@@ -4558,9 +3601,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 `ultracode` 工作量设置、`/workflows` 和保存的工作流命令不受影响。
 
-<h3 id="workflowsizeguideline">
-  `workflowSizeGuideline`
-</h3>
+### `workflowSizeGuideline`
 
 设置 [Claude 在其编写的动态工作流中针对的代理计数](/docs/zh-CN/workflows#set-a-size-guideline)。Claude Code 将值作为建议而不是强制上限发送给 Claude：`"small"` 要求少于 5 个代理，`"medium"` 少于 10 个，`"large"` 少于 50 个。当您想限制工作流花费的内容时，选择 `"small"`。需要 Claude Code v2.1.219 或更高版本。
 
@@ -4580,21 +3621,11 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 需要 Claude Code v2.1.219 或更高版本；在 v2.1.202 到 v2.1.218 上，改为在 `/config` 中设置指导。
 
-<span id="plugin-configuration" />
-
-<span id="manage-plugins" />
-
-<span id="plugin-settings" />
-
-<h2 id="plugins-and-skills">
-  Plugins 和 skills
-</h2>
+## Plugins 和 skills
 
 启用 plugins，注册 marketplaces，限制组织允许的 plugin 源，并控制哪些 skills 加载。有关安装和构建 plugins，请参阅 [Plugins](/docs/zh-CN/plugins/overview)。
 
-<h3 id="disablebundledskills">
-  `disableBundledSkills`
-</h3>
+### `disableBundledSkills`
 
 关闭 Claude Code 附带的 [skills](/docs/zh-CN/skills) 和工作流。Claude Code 完全删除捆绑的 skills 和工作流，而内置命令（如 `/init`）仍可输入但对模型隐藏。
 
@@ -4613,9 +3644,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 来自 plugins、`.claude/skills/` 和 `.claude/commands/` 的 skills 不受影响。`/doctor` 与内置命令一样仍可输入；要隐藏它，请改为设置 [`DISABLE_DOCTOR_COMMAND`](/docs/zh-CN/env-vars)。
 
-<h3 id="disableskillshellexecution">
-  `disableSkillShellExecution`
-</h3>
+### `disableSkillShellExecution`
 
 关闭 [skills](/docs/zh-CN/skills) 和来自用户、项目、plugin 或附加目录源的自定义命令中 `` !`...` `` 和 ` ```! ` 块的内联 shell 执行。Claude Code 用 `[shell command execution disabled by policy]` 替换每个命令，而不是运行它。
 
@@ -4633,9 +3662,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 捆绑的 skills 和通过托管设置部署的 skills 不受影响。
 
-<h3 id="skilloverrides">
-  `skillOverrides`
-</h3>
+### `skillOverrides`
 
 隐藏或折叠 [skill](/docs/zh-CN/skills#override-skill-visibility-from-settings)，无需编辑其 `SKILL.md`。Claude Code 将每个 skill 名称下的值应用于 Claude 看到的 skill 列表和您的 `/` 自动完成。
 
@@ -4662,9 +3689,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 在托管设置和使用 `--settings` 传递的文件中，捆绑 skill 的别名上的键（如 `/doctor` 的 `checkup`）也适用于该 skill；请参阅 [别名键如何与 skill 自身名称上的键结合](/docs/zh-CN/skills#override-skill-visibility-from-settings)。
 
-<h3 id="syncclaudeaiskills">
-  `syncClaudeAiSkills`
-</h3>
+### `syncClaudeAiSkills`
 
 关闭 [为您的 claude.ai 账户启用的 skills](/docs/zh-CN/skills#how-synced-skills-behave) 的下载。Claude Code 在 [您使用 claude.ai 账户登录的终端会话](/docs/zh-CN/skills#where-synced-skills-load)（交互式或非交互式）以及 Cowork 和云会话中将它们下载到 `~/.claude/skills/synced/`。设置 `false` 以停止该下载并停止加载已同步的 skills。Claude Code 仅接受 `false`：`true` 与未设置相同，不会在其他情况下关闭的地方打开同步。
 
@@ -4682,9 +3707,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-<h3 id="syncclaudeaiplugins">
-  `syncClaudeAiPlugins`
-</h3>
+### `syncClaudeAiPlugins`
 
 关闭 [为您的 claude.ai 账户启用的 plugins](/docs/zh-CN/plugins/loading#synced-plugins) 的下载。Claude Code 在您使用 claude.ai 账户登录的终端会话开始时和 Cowork 会话中将它们下载到 `~/.claude/plugins/synced/`，并将每个加载为 `<name>@synced`。设置 `false` 以停止该下载并停止加载已同步的 plugins。Claude Code 仅接受 `false`：`true` 与未设置相同，不会在其他情况下关闭的地方打开同步。需要 Claude Code v2.1.273 或更高版本。
 
@@ -4704,9 +3727,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-<h3 id="allowedchannelplugins">
-  `allowedChannelPlugins`
-</h3>
+### `allowedChannelPlugins`
 
 选择哪些 [channel](/docs/zh-CN/channels) plugins 可以将消息推送到您组织中的会话。设置后，Claude Code 使用您的列表代替默认的 Anthropic 允许列表；每个条目命名一个 plugin 和它来自的 marketplace。
 
@@ -4729,9 +3750,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 此键在 channels 通过账户的 [`channelsEnabled`](#channelsenabled) 门控后生效：在 Team 和 Enterprise 计划上，以及在具有托管设置的 Console 账户上，这意味着 `channelsEnabled: true`。请参阅 [限制哪些 channel plugins 可以运行](/docs/zh-CN/channels#restrict-which-channel-plugins-can-run)。
 
-<h3 id="blockedmarketplaces">
-  `blockedMarketplaces`
-</h3>
+### `blockedMarketplaces`
 
 阻止您组织的 plugin marketplace 源。Claude Code 在 marketplace 添加以及 plugin 安装、更新、刷新和自动更新时检查阻止列表，因此在您设置策略之前添加的 marketplace 也无法用于获取 plugins。阻止的源在下载前被检查，因此它们永远不会接触文件系统。
 
@@ -4753,9 +3772,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 一个 `github` 条目可能使用 [owner-wildcard 形式](#owner-wildcards) `"owner/*"` 来阻止该 GitHub owner 下的每个存储库，这需要 Claude Code v2.1.223 或更高版本。添加 `{ "source": "skills-dir" }` 以停止 Claude Code 从 `~/.claude/skills/` 加载 [`@skills-dir` plugins](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)，而不限制任何 marketplace。请参阅 [托管 marketplace 限制](/docs/zh-CN/plugins/org#restrict-what-users-can-install)。
 
-<h3 id="channelsenabled">
-  `channelsEnabled`
-</h3>
+### `channelsEnabled`
 
 为您的组织允许 [channels](/docs/zh-CN/channels)。在 claude.ai Team 和 Enterprise 计划上，Claude Code 阻止 channels 直到您将其设置为 `true`。对于使用 API 密钥进行身份验证的 [Anthropic Console](/docs/zh-CN/authentication#claude-console-authentication) 账户，channels 默认被允许。如果您的组织部署托管设置，Claude Code 也会在这些账户上阻止 channels，直到您将此键设置为 `true`。
 
@@ -4773,9 +3790,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 要限制哪些 plugins 可以在启用后注册为 channels，请设置 [`allowedChannelPlugins`](#allowedchannelplugins)。请参阅 [企业控制](/docs/zh-CN/channels#enterprise-controls)。
 
-<h3 id="disablecommandpluginsources">
-  `disableCommandPluginSources`
-</h3>
+### `disableCommandPluginSources`
 
 阻止 [`command` plugin 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)，它通过在用户的机器上运行 marketplace 声明的命令来安装 plugin。当您将其设置为 `true` 时，Claude Code 永远不会运行该命令，不会安装或更新命令源的 plugins，并停止加载已安装的 plugins。设置为 `false` 以明确允许它们。每当它阻止命令源时，无论您将其设置为 `true` 还是在 [`allowManagedHooksOnly`](#allowmanagedhooksonly) 下保持未设置，它也会阻止 marketplace [`headersHelper` 命令](/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads)，除了托管设置本身声明的 marketplace。需要 Claude Code v2.1.229 或更高版本，`headersHelper` 阻止需要 v2.1.238 或更高版本。
 
@@ -4793,9 +3808,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 需要 Claude Code v2.1.229 或更高版本。
 
-<h3 id="pluginsuggestionmarketplaces">
-  `pluginSuggestionMarketplaces`
-</h3>
+### `pluginSuggestionMarketplaces`
 
 命名其 plugins 可以作为上下文安装建议出现的 marketplaces，在 spinner 提示和 `/plugin` **Discover** 标签顶部固定。内置的第一方前端设计提示不受影响。建议来自每个 plugin 在其 marketplace 条目中的 `relevance` 声明。
 
@@ -4811,9 +3824,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 一个名称仅在 marketplace 在机器上注册且其注册源也在同一托管设置中声明时生效，要么作为该名称的 [`extraKnownMarketplaces`](#extraknownmarketplaces) 条目，要么作为 [`strictKnownMarketplaces`](#strictknownmarketplaces) 的条目。Claude Code 忽略从不同源注册的 marketplace，即使在允许列表名称下。官方 marketplace 豁免源要求：仅允许列表其名称就足够了，因为该名称只能从官方 Anthropic 源注册。请参阅 [按上下文建议 plugins](/docs/zh-CN/plugins/relevance)。
 
-<h3 id="plugintrustmessage">
-  `pluginTrustMessage`
-</h3>
+### `pluginTrustMessage`
 
 在安装前向 Claude Code 显示的 plugin 信任警告中添加您组织自己的文本，例如确认来自您内部 marketplace 的 plugins 已被审查。
 
@@ -4827,9 +3838,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-<h3 id="strictknownmarketplaces">
-  `strictKnownMarketplaces`
-</h3>
+### `strictKnownMarketplaces`
 
 限制您组织中的人员可以添加和安装 plugins 的 plugin marketplace 源。Claude Code 在 marketplace 添加以及 plugin 安装、更新、刷新和自动更新时强制执行允许列表，在任何网络或文件系统操作之前，因此在您设置策略之前添加的 marketplace 一旦其源不再匹配就无法用于获取 plugins。被阻止的用户会看到一个错误，命名托管策略。
 
@@ -4853,9 +3862,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 您也可以将此键写为 `allowedMarketplaces`；[Marketplace 键别名](#marketplace-key-aliases) 描述 Claude Code 如何处理别名以及哪个版本接受它。此键是一个策略门控：它控制用户可能添加什么，但不注册任何内容。要在一个文件中限制和预注册，请参阅 [与 `extraKnownMarketplaces` 结合](#combine-with-extraknownmarketplaces)。对于用户面向的视图，请参阅 [托管 marketplace 限制](/docs/zh-CN/plugins/org#restrict-what-users-can-install)。
 
-<h4 id="allowed-source-types">
-  允许的源类型
-</h4>
+#### 允许的源类型
 
 下面每个条目显示每个源类型的一个允许列表条目及其接受的字段。大多数类型精确匹配；`hostPattern` 和 `pathPattern` 按正则表达式匹配，`github` 条目可以使用 [owner 通配符](#owner-wildcards)。
 
@@ -4884,9 +3891,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 任何允许列表，即使是空的，也会停止 Claude Code 从 `~/.claude/skills/` 加载 [`@skills-dir` plugins](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)。添加 `{ "source": "skills-dir" }` 条目以继续加载它们；该条目在此键和 `blockedMarketplaces` 之外没有意义。
 
-<h4 id="owner-wildcards">
-  Owner 通配符
-</h4>
+#### Owner 通配符
 
 一个 `github` 条目，其 `repo` 值为 `"<owner>/*"`，匹配该 GitHub owner 下的每个存储库。Owner 通配符需要 Claude Code v2.1.223 或更高版本，仅在 `strictKnownMarketplaces` 和 `blockedMarketplaces` 中工作。在 `github` 源出现的其他地方，如 `extraKnownMarketplaces` 或 `/plugin marketplace add`，`repo` 值必须命名单个存储库。在 v2.1.223 之前，Claude Code 按字面比较条目，因此允许列表条目不匹配任何存储库，阻止列表条目不阻止任何内容；单存储库条目在每个版本上强制执行。
 
@@ -4911,9 +3916,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 | `ref` | 遵循精确条目规则：带 `ref` 的条目仅匹配具有该精确 ref 的源，没有的条目仅匹配不指定 ref 的源 | 没有 `ref` 的条目阻止它匹配的存储库的所有 refs |
 | `path` | 比精确条目规则更宽松：带 `path` 的条目需要该精确值，而没有的条目匹配存储库内的任何路径 | 没有 `path` 的条目阻止它匹配的存储库的所有路径 |
 
-<h4 id="exact-matching">
-  精确匹配
-</h4>
+#### 精确匹配
 
 对于除 owner-wildcard `github` 条目和正则表达式匹配的 `hostPattern` 和 `pathPattern` 条目之外的每个源类型，Claude Code 仅在 marketplace 源与条目精确匹配时允许用户的添加。对于基于 git 的源 `github` 和 `git`，精确匹配包括可选字段：
 
@@ -4926,9 +3929,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 * `{ "source": "github", "repo": "acme-corp/plugins" }` 和 `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main" }`
 * `{ "source": "github", "repo": "acme-corp/plugins", "path": "marketplace" }` 和 `{ "source": "github", "repo": "acme-corp/plugins" }`
 
-<h4 id="allow-only-the-official-marketplace">
-  仅允许官方 marketplace
-</h4>
+#### 仅允许官方 marketplace
 
 要仅允许官方 Anthropic marketplace，列出其存储库：
 
@@ -4948,9 +3949,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 在这些机器上，将 marketplace 添加到同一 `managed-settings.json` 中的 [`extraKnownMarketplaces`](#extraknownmarketplaces)，以便 Claude Code 自动注册它，或运行 `claude plugin marketplace add anthropics/claude-plugins-official`。
 
-<h4 id="combine-with-extraknownmarketplaces">
-  与 `extraKnownMarketplaces` 结合
-</h4>
+#### 与 `extraKnownMarketplaces` 结合
 
 两个键做不同的工作。此表比较它们：
 
@@ -4980,9 +3979,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 仅设置 `strictKnownMarketplaces` 时，用户仍可以使用 `/plugin marketplace add` 自己添加允许的 marketplace。官方 Anthropic marketplace 是唯一 Claude Code 自动注册的，仅当允许列表允许时。[仅允许官方 marketplace](#allow-only-the-official-marketplace) 列出它遗漏的机器。
 
-<h3 id="strictpluginonlycustomization">
-  `strictPluginOnlyCustomization`
-</h3>
+### `strictPluginOnlyCustomization`
 
 阻止 skills、agents、hooks 和 MCP 服务器来自用户和项目源，因此它们只能来自 plugins 或托管设置。将其与 [`strictKnownMarketplaces`](#strictknownmarketplaces) 结合以控制完整的自定义供应链：marketplace 允许列表控制用户可以安装哪些 plugins。
 
@@ -5000,9 +3997,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 下面的四个子键条目列出每个表面阻止什么以及什么仍然加载。Claude Code 忽略它不识别的表面名称，而不是使设置文件失败，因此您可以在每个客户端更新之前添加新的表面名称。
 
-<h3 id="strictpluginonlycustomization-skills">
-  `strictPluginOnlyCustomization.skills`
-</h3>
+### `strictPluginOnlyCustomization.skills`
 
 锁定 `skills` 表面。Claude Code 停止从 `~/.claude/skills/` 和 `.claude/skills/` 加载 skills，从 `~/.claude/commands/` 和 `.claude/commands/` 加载自定义命令，从 `--add-dir` 目录加载 skills 和命令，从您的 claude.ai 账户同步的 skills。它继续加载 plugin skills、捆绑的 skills 和托管策略目录中的 skills。
 
@@ -5016,9 +4011,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-<h3 id="strictpluginonlycustomization-agents">
-  `strictPluginOnlyCustomization.agents`
-</h3>
+### `strictPluginOnlyCustomization.agents`
 
 锁定 `agents` 表面。Claude Code 停止从 `~/.claude/agents/`、`.claude/agents/` 和 `--add-dir` 目录加载 agents。它继续加载 plugin agents、内置 agents 和托管策略目录中的 agents。
 
@@ -5032,9 +4025,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-<h3 id="strictpluginonlycustomization-hooks">
-  `strictPluginOnlyCustomization.hooks`
-</h3>
+### `strictPluginOnlyCustomization.hooks`
 
 锁定 `hooks` 表面。Claude Code 停止运行来自用户、项目和本地 `settings.json` 的 hooks，并继续运行 plugin hooks 和托管设置中的 hooks。
 
@@ -5048,9 +4039,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-<h3 id="strictpluginonlycustomization-mcp">
-  `strictPluginOnlyCustomization.mcp`
-</h3>
+### `strictPluginOnlyCustomization.mcp`
 
 锁定 `mcp` 表面。Claude Code 停止从 `~/.claude.json` 和 `.mcp.json` 加载 MCP 服务器，并继续加载 plugin MCP 服务器、[`managed-mcp.json`](/docs/zh-CN/managed-mcp) 服务器和来自 [`managedMcpServers`](#managedmcpservers) 的服务器。
 
@@ -5064,9 +4053,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 }
 ```
 
-<h3 id="enabledplugins">
-  `enabledPlugins`
-</h3>
+### `enabledPlugins`
 
 打开或关闭单个 [plugins](/docs/zh-CN/plugins/overview)，以 `plugin-name@marketplace-name` 为键。在任何范围内没有条目的 plugin 回退到其 [`defaultEnabled`](/docs/zh-CN/plugins/manifest-reference#fields) 值。当您使用 `/plugin` 或 `claude plugin enable` 启用或禁用 plugin 时，Claude Code 为您写入此键。
 
@@ -5097,9 +4084,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 在项目的 `.claude/settings.json` 中启用来自外部源（如 GitHub 存储库或 npm 包）的 plugin 不会为其他人安装它。在加载 plugins 的每条路径上，Claude Code 报告 plugin 未安装，直到每个用户 [自己安装它](/docs/zh-CN/plugins/org#require-plugins-per-repository)。
 
-<h3 id="extraknownmarketplaces">
-  `extraKnownMarketplaces`
-</h3>
+### `extraKnownMarketplaces`
 
 按名称注册其他 plugin marketplaces，以便打开存储库的人或您的托管设置到达的每个人都获得 marketplace，而无需自己添加它。Claude Code 注册它还不知道的每个 marketplace。[`enabledPlugins`](#enabledplugins) 从它命名的 plugin 是否安装取决于 plugin 的源和哪个文件启用它；该条目有规则。
 
@@ -5134,9 +4119,7 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 当多个设置文件在同一名称下定义 marketplace 条目时，Claude Code 使用来自 [最高优先级文件](/docs/zh-CN/settings#settings-precedence) 的条目。该条目替换较低优先级的条目，不继承其任何字段，因此重新定义无法将一个文件的 `source.headers` 凭证与另一个文件控制的 URL 结合。在 v2.1.228 之前，Claude Code 逐字段合并同名条目，因此较高优先级文件中的条目可以继承它未设置的字段，包括另一个文件的 `headers`。
 
-<h4 id="marketplace-source-types">
-  Marketplace 源类型
-</h4>
+#### Marketplace 源类型
 
 `source` 对象采用以下形式之一：
 
@@ -5192,9 +4175,7 @@ Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该 pl
 * **Folder trust**: 对于项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目，Claude Code 仅在用户也 [信任该文件夹](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 后运行命令。
 * **Header filter**: Claude Code 从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目删除 [请求路由和客户端身份标头名称](/docs/zh-CN/plugins/host-marketplace#when-claude-code-skips-a-headershelper-command-or-drops-its-output)，因为存储库可以提供这些文件。Claude Code 对目录条目和 `--add-dir` 目录的设置中的条目应用相同的过滤器，对您的用户设置、`--settings` 文件或托管设置中的条目不应用过滤器。
 
-<h4 id="marketplace-key-aliases">
-  Marketplace 键别名
-</h4>
+#### Marketplace 键别名
 
 在 Claude Code v2.1.232 或更高版本上，您可以将 `extraKnownMarketplaces` 写为 `additionalMarketplaces`，将 `strictKnownMarketplaces` 写为 `allowedMarketplaces`。Claude Code 按如下方式处理每个别名：
 
@@ -5203,9 +4184,7 @@ Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该 pl
 * Claude Code 可能在更新文件时将 `additionalMarketplaces` 重写为 `extraKnownMarketplaces`。
 * 如果您在一个文件中同时设置两个拼写，Claude Code 使用规范值并忽略别名。
 
-<h3 id="pluginconfigs">
-  `pluginConfigs`
-</h3>
+### `pluginConfigs`
 
 存储您给 plugin 的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 配置对话框的非敏感答案，以 plugin ID 为键。当您填写对话框时，Claude Code 将此键写入您的用户设置，因此您无需手动编辑它。Claude Code 将敏感选项存储在 macOS Keychain 中，当 Keychain 拒绝写入时回退到 `~/.claude/.credentials.json`；在没有支持的 keychain 的平台上，它将它们存储在 `~/.claude/.credentials.json` 中。
 
@@ -5231,9 +4210,7 @@ Claude Code 发送条目的 `headers` 和命令打印的任何内容，与该 pl
 
 Claude Code 会忽略项目和本地条目，因为它会将这些值代入插件 hook、MCP 和 LSP 配置中，而克隆的仓库不得能够提供这些值。
 
-<h3 id="prependplugins">
-  `prependPlugins`
-</h3>
+### `prependPlugins`
 
 列出托管插件，其 [mod](/docs/zh-CN/plugins/mods/overview) 会按列出的顺序在用户安装的所有 mod 之前运行。当您在托管设置中设置此键时，请在列表中包含 `sec-default@builtin` 以保留内置防护。在托管设置中，如果某个 ID 对应的插件不被视为您组织的插件，Claude Code 会跳过它。有关这些条件以及两个排序键如何协同工作，请参阅[安装您组织的 mod 并设置顺序](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)。
 
@@ -5253,9 +4230,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 }
 ```
 
-<h3 id="appendplugins">
-  `appendPlugins`
-</h3>
+### `appendPlugins`
 
 列出托管插件，其 [mod](/docs/zh-CN/plugins/mods/overview) 会按列出的顺序在用户安装的所有 mod 之后运行。同时列在 `prependPlugins` 和 `appendPlugins` 中的 ID 会被前置。在托管设置中，如果某个 ID 对应的插件不[被视为您组织的插件](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)，Claude Code 会跳过它。
 
@@ -5275,15 +4250,11 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 }
 ```
 
-<h2 id="mcp">
-  MCP
-</h2>
+## MCP
 
 控制 Claude Code 连接到哪些 MCP 服务器以及组织允许哪些服务器。请参阅[使用 MCP 连接到外部工具](/docs/zh-CN/mcp)和[托管 MCP 配置](/docs/zh-CN/managed-mcp)。
 
-<h3 id="allowallclaudeaimcps">
-  `allowAllClaudeAiMcps`
-</h3>
+### `allowAllClaudeAiMcps`
 
 加载 [claude.ai 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)，Claude Code 会在部署的 `managed-mcp.json` 旁边自行获取这些连接器。如果没有此密钥，`managed-mcp.json` 将对 MCP 服务器拥有独占控制权并禁止这些连接器。
 
@@ -5301,9 +4272,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 [`allowedMcpServers`](#allowedmcpservers) 和 [`deniedMcpServers`](#deniedmcpservers) 仍然适用于此密钥加载的连接器。传递到[云会话](/docs/zh-CN/claude-code-on-the-web)的连接器，其主机携带 `managed-mcp.json`（例如自托管运行器），仍然会被禁止。请参阅[在托管集合旁边允许 claude.ai 连接器](/docs/zh-CN/managed-mcp#allow-claude-ai-connectors-alongside-the-managed-set)。
 
-<h3 id="allowclaudeinchromewithmanagedmcp">
-  `allowClaudeInChromeWithManagedMcp`
-</h3>
+### `allowClaudeInChromeWithManagedMcp`
 
 让内置的 [Chrome 中的 Claude](/docs/zh-CN/chrome) 服务器在部署的 `managed-mcp.json` 旁边运行。如果没有此密钥，部署的 `managed-mcp.json` 会在终端会话中阻止 Chrome 中的 Claude。需要 Claude Code v2.1.282 或更高版本。
 
@@ -5321,9 +4290,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 [`deniedMcpServers`](#deniedmcpservers) 中的 `claude-in-chrome` 条目仍然会在此密钥打开时阻止服务器。请参阅[在托管集合旁边允许 Chrome 中的 Claude](/docs/zh-CN/managed-mcp#allow-claude-in-chrome-alongside-the-managed-set)。
 
-<h3 id="allowedmcpservers">
-  `allowedMcpServers`
-</h3>
+### `allowedMcpServers`
 
 允许列表化人们可以添加的 MCP 服务器。Claude Code 会阻止任何不匹配条目的服务器，无论在何处定义，包括插件服务器、使用 `--mcp-config` 传递的服务器以及来自 claude.ai 的服务器。
 
@@ -5347,9 +4314,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 [`deniedMcpServers`](#deniedmcpservers) 条目优先，因此同时在两个列表中的服务器会被阻止。一旦列表包含任何 `serverCommand` 条目，stdio 服务器必须匹配 `serverCommand` 条目，一旦它包含任何 `serverUrl` 条目，远程服务器必须匹配 `serverUrl` 条目：`serverName` 匹配不再允许该类型的服务器。请参阅[使用允许列表和拒绝列表进行基于策略的控制](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists)。
 
-<h3 id="allowmanagedmcpserversonly">
-  `allowManagedMcpServersOnly`
-</h3>
+### `allowManagedMcpServersOnly`
 
 使托管允许列表成为唯一适用的列表。Claude Code 随后仅从托管设置中读取 [`allowedMcpServers`](#allowedmcpservers)，并忽略用户、项目和本地设置中的允许列表；[`deniedMcpServers`](#deniedmcpservers) 仍然从每个设置作用域合并，因此用户仍然可以为自己阻止服务器。管理员设置它，以便用户自己的设置无法扩展托管允许列表允许的内容。
 
@@ -5372,9 +4337,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 用户仍然可以添加自己的 MCP 服务器；只有与托管允许列表匹配的服务器才会加载。请参阅[将允许列表限制为仅托管设置](/docs/zh-CN/managed-mcp#restrict-the-allowlist-to-managed-settings-only)。
 
-<h3 id="deniedmcpservers">
-  `deniedMcpServers`
-</h3>
+### `deniedMcpServers`
 
 阻止特定的 MCP 服务器。Claude Code 拒绝加载匹配的服务器，无论在何处定义，包括插件服务器、使用 `--mcp-config` 传递的服务器、来自 `managed-mcp.json` 的服务器、来自 [`managedMcpServers`](#managedmcpservers) 的服务器，以及 [它自行获取](/docs/zh-CN/mcp#how-connectors-reach-claude-code)的 claude.ai 连接器。进程内 `type: "sdk"` 服务器不受限制；启动会话的应用会注册它们。
 
@@ -5392,9 +4355,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 拒绝列表优先于 [`allowedMcpServers`](#allowedmcpservers)，因此同时在两个列表中的服务器会被阻止。请参阅[使用允许列表和拒绝列表进行基于策略的控制](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists)。
 
-<h3 id="disableclaudeaiconnectors">
-  `disableClaudeAiConnectors`
-</h3>
+### `disableClaudeAiConnectors`
 
 关闭 [claude.ai MCP 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai) [Claude Code 自行获取](/docs/zh-CN/mcp#how-connectors-reach-claude-code)，因此它既不获取也不连接它们。任何设置文件中的 `true` 都适用：签入的项目 `.claude/settings.json` 可以选择退出存储库中的这些连接器，但项目级别的 `false` 无法覆盖用户级别或托管级别的 `true`。
 
@@ -5413,9 +4374,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 您使用 `--mcp-config` 显式传递的服务器不受影响。要阻止单个连接器而不是全部，请使用 [`deniedMcpServers`](#deniedmcpservers)。请参阅[禁用 claude.ai 连接器](/docs/zh-CN/mcp#disable-claude-ai-connectors)。
 
-<h3 id="disabledmcpjsonservers">
-  `disabledMcpjsonServers`
-</h3>
+### `disabledMcpjsonServers`
 
 拒绝项目 `.mcp.json` 文件中定义的特定服务器，以便 Claude Code 永远不会连接它们或要求您批准它们。任何设置文件中的拒绝都适用，包括签入存储库的项目 `.claude/settings.json`。
 
@@ -5431,9 +4390,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 当您在批准对话框中拒绝服务器时，Claude Code 会将此密钥写入 `.claude/settings.local.json`。`claude mcp get <name>` 将被拒绝的服务器显示为 `✘ Rejected (see disabledMcpjsonServers in settings)`。拒绝优先于 [`enabledMcpjsonServers`](#enabledmcpjsonservers) 和 [`enableAllProjectMcpServers`](#enableallprojectmcpservers)。
 
-<h3 id="enableallprojectmcpservers">
-  `enableAllProjectMcpServers`
-</h3>
+### `enableAllProjectMcpServers`
 
 批准项目 `.mcp.json` 文件中定义的每个 MCP 服务器，无需提示。当您在批准对话框中选择批准所有服务器时，Claude Code 会将此密钥写入 `.claude/settings.local.json`。
 
@@ -5451,9 +4408,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 [`disabledMcpjsonServers`](#disabledmcpjsonservers) 条目仍然会拒绝服务器。
 
-<h3 id="enabledmcpjsonservers">
-  `enabledMcpjsonServers`
-</h3>
+### `enabledMcpjsonServers`
 
 批准项目 `.mcp.json` 文件中定义的特定服务器，以便 Claude Code 连接它们而无需询问。当您在批准对话框中批准服务器时，Claude Code 会将此密钥写入 `.claude/settings.local.json`。
 
@@ -5471,9 +4426,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 [`disabledMcpjsonServers`](#disabledmcpjsonservers) 条目仍然会拒绝服务器。
 
-<h3 id="managedmcpservers">
-  `managedMcpServers`
-</h3>
+### `managedMcpServers`
 
 从托管设置向每个用户提供远程 MCP 服务器。用户保留他们自己添加的服务器，无法编辑或删除您提供的服务器。需要 Claude Code v2.1.259 或更高版本。
 
@@ -5496,15 +4449,11 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 有关优先级、提供的服务器如何与 `managed-mcp.json` 以及允许和拒绝列表结合、用户看到的内容，请参阅[通过托管设置提供服务器](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)。
 
-<h2 id="agents-sessions-and-worktrees">
-  代理、会话和工作树
-</h2>
+## 代理、会话和工作树
 
 设置默认代理、控制团队成员和跨会话消息传递，以及配置工作树。请参阅 [Subagents](/docs/zh-CN/sub-agents) 和 [Worktrees](/docs/zh-CN/worktrees)。
 
-<h3 id="agent">
-  `agent`
-</h3>
+### `agent`
 
 将主线程作为命名的 [subagent](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 运行，以便 Claude Code 将该 subagent 的系统提示、工具限制和模型应用于您的会话。同一密钥为从 `claude agents` 分派的会话设置默认代理。
 
@@ -5521,9 +4470,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 插件自己的 `settings.json` 也可以提供此密钥；请参阅 [Ship default settings with your plugin](/docs/zh-CN/plugins/components#default-settings)。
 
-<h3 id="crosssessioninbound">
-  `crossSessionInbound`
-</h3>
+### `crossSessionInbound`
 
 选择此会话如何处理 [来自您其他 Claude Code 会话的消息](/docs/zh-CN/cross-session-messaging#control-inbound-messages)。当没有值适用时，Claude Code 根据两个会话的权限模式类从每条消息中决定。需要 Claude Code v2.1.224 或更高版本。
 
@@ -5546,9 +4493,7 @@ Claude Code [warns](/docs/zh-CN/errors#crosssessioninbound-must-be-one-of-accept
 
 当无法识别的值在 [managed settings](/docs/zh-CN/managed-settings) 中时，Claude Code 改为将其视为 `refuse`，直到管理员修复它。在 v2.1.248 之前，Claude Code 忽略无法识别的值而不发出警告。
 
-<h3 id="disableagentview">
-  `disableAgentView`
-</h3>
+### `disableAgentView`
 
 关闭 [background agents and agent view](/docs/zh-CN/agent-view)：`claude agents`、`--bg`、`/background` 和按需主管。在 [managed settings](/docs/zh-CN/managed-settings) 中设置它以为组织强制执行。
 
@@ -5565,9 +4510,7 @@ Claude Code [warns](/docs/zh-CN/errors#crosssessioninbound-must-be-one-of-accept
 }
 ```
 
-<h3 id="isolatepeermachines">
-  `isolatePeerMachines`
-</h3>
+### `isolatePeerMachines`
 
 在 Claude 的 `SendMessage` 到达此机器之外的您的会话之前，需要您的明确批准；请参阅 [Require approval for cross-machine messages](/docs/zh-CN/cross-session-messaging#require-approval-for-cross-machine-messages)。即使在 [`bypassPermissions` mode](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode) 中，批准提示也会出现。
 
@@ -5585,9 +4528,7 @@ Claude Code [warns](/docs/zh-CN/errors#crosssessioninbound-must-be-one-of-accept
 
 跨机器 `SendMessage` 批准需要 Claude Code v2.1.224 或更高版本。
 
-<h3 id="processwrapper">
-  `processWrapper`
-</h3>
+### `processWrapper`
 
 在 macOS 和 Linux 上，在 [Claude Code 启动的后台进程](/docs/zh-CN/corporate-launcher#what-the-launcher-covers) 前面放置公司启动器命令。Claude Code 使用其自己的命令行附加运行启动器，因此启动器必须执行到 Claude Code；请参阅 [Run Claude Code behind a corporate launcher](/docs/zh-CN/corporate-launcher) 了解启动器合约。需要 Claude Code v2.1.210 或更高版本。
 
@@ -5604,9 +4545,7 @@ Claude Code [warns](/docs/zh-CN/errors#crosssessioninbound-must-be-one-of-accept
 
 Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需要 Claude Code v2.1.210 或更高版本。
 
-<h3 id="teammatemode">
-  `teammateMode`
-</h3>
+### `teammateMode`
 
 选择 Claude Code 显示 [agent team](/docs/zh-CN/agent-teams) 队友的位置：在您的主终端窗格内，或在您的终端支持时在分割窗格中。请参阅 [Choose a display mode](/docs/zh-CN/agent-teams#choose-a-display-mode)。
 
@@ -5625,11 +4564,7 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 }
 ```
 
-<span id="worktree-settings" />
-
-<h3 id="worktree">
-  `worktree`
-</h3>
+### `worktree`
 
 配置 Claude Code 如何为 `--worktree`、`EnterWorktree` 工具以及隔离的 subagents 和后台会话创建和管理 [git worktrees](/docs/zh-CN/worktrees)。
 
@@ -5650,9 +4585,7 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 
 要将 gitignored 文件（如 `.env`）复制到新工作树中，请改为在项目根目录中添加 [`.worktreeinclude` file](/docs/zh-CN/worktrees#copy-gitignored-files-into-worktrees)，而不是设置。
 
-<h3 id="worktree-baseref">
-  `worktree.baseRef`
-</h3>
+### `worktree.baseRef`
 
 选择新工作树从哪个 ref 分支。`"fresh"` 从 `origin/<default-branch>` 分支以获得与远程匹配的干净树；`"head"` 从您当前的本地 `HEAD` 分支，因此未推送的提交和功能分支状态存在于工作树中。
 
@@ -5672,9 +4605,7 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 
 在链接的工作树内，`"head"` 解析为该工作树的 `HEAD`，而不是主检出的。
 
-<h3 id="worktree-symlinkdirectories">
-  `worktree.symlinkDirectories`
-</h3>
+### `worktree.symlinkDirectories`
 
 将目录从主存储库符号链接到每个工作树中，以便您不会在磁盘上复制大型目录。
 
@@ -5692,9 +4623,7 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 }
 ```
 
-<h3 id="worktree-sparsepaths">
-  `worktree.sparsePaths`
-</h3>
+### `worktree.sparsePaths`
 
 通过 git sparse-checkout 在每个工作树中仅检出列出的目录。Claude Code 仅将这些目录加上根级文件写入磁盘，这在大型 monorepos 中更快；请参阅 [Check out only the directories you need](/docs/zh-CN/large-codebases#check-out-only-the-directories-you-need)。
 
@@ -5714,9 +4643,7 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 
 当稀疏工作树存在时，git 在存储库的共享 `.git/config` 中启用 `extensions.worktreeConfig`。
 
-<h3 id="worktree-bgisolation">
-  `worktree.bgIsolation`
-</h3>
+### `worktree.bgIsolation`
 
 选择[后台会话](/docs/zh-CN/agent-view#how-file-edits-are-isolated)如何隔离其文件编辑。如果您是通过 `←` 或 `/background` 将会话移至后台的，则无论此键如何设置，该会话都会就地编辑文件。使用 `"worktree"` 时，Claude Code 会在会话调用 `EnterWorktree` 之前阻止在主检出中使用 `Edit` 和 `Write`；使用 `"none"` 时，后台作业直接编辑工作副本。对于不适合使用 git worktree 的仓库，请设置 `"none"`。
 
@@ -5736,9 +4663,7 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 
 在 git 仓库之外，失败的 [`WorktreeCreate` hook](/docs/zh-CN/worktrees#non-git-version-control) 会解除阻止，以便会话可以就地编辑工作目录。
 
-<h3 id="worktree-location">
-  `worktree.location`
-</h3>
+### `worktree.location`
 
 选择 [Desktop SSH 会话](/docs/zh-CN/desktop#choose-where-ssh-session-worktrees-go) 在远程机器上创建 worktree 的文件夹，以替代 `<project-root>/.claude/worktrees/`。只有桌面应用会读取此键：`--worktree`、`EnterWorktree` 工具、隔离的子代理和后台会话都会忽略它。需要 Claude Desktop v1.44121.0 或更高版本。
 
@@ -5758,15 +4683,11 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 
 在 Desktop 中为 SSH 连接设置的 **Worktree folder** 优先于此键。如果您的组织限制了会话可以使用的文件夹，Desktop 会将 worktree 保留在项目内。
 
-<h2 id="remote-desktop-and-notifications">
-  远程、桌面和通知
-</h2>
+## 远程、桌面和通知
 
 配置远程控制、云环境、桌面应用和 Claude Code 在需要你时发送的通知。请参阅[远程控制](/docs/zh-CN/remote-control)。
 
-<h3 id="agentpushnotifenabled">
-  `agentPushNotifEnabled`
-</h3>
+### `agentPushNotifEnabled`
 
 允许 Claude 在认为值得发送时向你的手机发送推送通知，例如当长任务完成时。Claude Code 将此选择同步到你的账户，推送在[远程控制](/docs/zh-CN/remote-control)连接时到达。在 `/config` 中显示为**Claude 决定时推送**。
 
@@ -5784,9 +4705,7 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 
 请参阅[移动推送通知](/docs/zh-CN/remote-control#mobile-push-notifications)。
 
-<h3 id="awaysummaryenabled">
-  `awaySummaryEnabled`
-</h3>
+### `awaySummaryEnabled`
 
 当你离开终端几分钟后返回时，显示一行会话摘要。将其设置为 `false`，或在 `/config` 中关闭**会话摘要**，以停止摘要。
 
@@ -5805,13 +4724,11 @@ Claude Code 在 Windows 上忽略启动器并启动每个进程不包装。需�
 
 Claude Code 在非交互模式下永远不会显示摘要。
 
-<h3 id="disableartifact">
-  `disableArtifact`
-</h3>
+### `disableArtifact`
 
-<Warning>
-  已弃用，已被 [`enableArtifact`](#enableartifact) 替代。Claude Code 仍然将 `disableArtifact: true` 视为等同于 `enableArtifact: false`，并忽略 `disableArtifact: false`。
-</Warning>
+> [!WARNING]
+>
+> 已弃用，已被 [`enableArtifact`](#enableartifact) 替代。Claude Code 仍然将 `disableArtifact: true` 视为等同于 `enableArtifact: false`，并忽略 `disableArtifact: false`。
 
 改用 [`enableArtifact`](#enableartifact) 来关闭 [Artifact](/docs/zh-CN/artifacts) 工具，该工具将会话输出发布为 claude.ai 上的私有网页。当你在 `/config` 中关闭**Artifacts** 行时，Claude Code 会将 `enableArtifact` 写入你的用户设置并清除此键。
 
@@ -5830,9 +4747,7 @@ Claude Code 在非交互模式下永远不会显示摘要。
 
 [禁用 artifacts](/docs/zh-CN/artifacts#disable-artifacts) 列出了关闭工具的每种方式。
 
-<h3 id="disabledeeplinkregistration">
-  `disableDeepLinkRegistration`
-</h3>
+### `disableDeepLinkRegistration`
 
 阻止 Claude Code 向操作系统注册 `claude-cli://` 协议处理程序，否则在你发送交互式会话的第一个提示后会进行注册。[深链接](/docs/zh-CN/deep-links)允许外部工具使用预填充的提示打开 Claude Code 会话。在协议处理程序注册受限或单独管理的环境中设置此项。
 
@@ -5846,9 +4761,7 @@ Claude Code 在非交互模式下永远不会显示摘要。
 }
 ```
 
-<h3 id="disabledesktoplocalsessions">
-  `disableDesktopLocalSessions`
-</h3>
+### `disableDesktopLocalSessions`
 
 在[桌面应用](/docs/zh-CN/desktop#local-sessions-on-managed-devices)中关闭在设备上运行的 Code 会话，适用于开发人员应通过 SSH 在远程机器上工作的部署。将此键设置为 `true` 后，用户会在 Code 选项卡中看到以下情况：
 
@@ -5875,9 +4788,7 @@ Claude Code 在非交互模式下永远不会显示摘要。
 
 Claude Desktop 为 Code 会话提供从你的桌面配置派生的策略，例如出口允许列表、文件系统沙箱和第三方部署中的 MCP 限制。每当存在[管理员源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)时，Claude Code 忽略这些父设置：服务器管理的设置、MDM 或操作系统级别的策略或托管设置文件。通过其中一个在之前没有的设备上部署此键（如在第三方部署中），因此会停止桌面派生的策略应用。[让嵌入主机添加策略](/docs/zh-CN/managed-settings#let-an-embedding-host-add-policy)涵盖了父设置何时仍可合并；这适用于你以这种方式部署的任何键，不仅仅是这个。
 
-<h3 id="disableremotecontrol">
-  `disableRemoteControl`
-</h3>
+### `disableRemoteControl`
 
 关闭[远程控制](/docs/zh-CN/remote-control)：Claude Code 随后拒绝 `claude remote-control`、`--remote-control` 标志、自动启动和会话内切换，并报告你的组织的策略已禁用它。将其放在[托管设置](/docs/zh-CN/managed-settings)中以进行每个设备的 MDM 强制执行。
 
@@ -5893,9 +4804,7 @@ Claude Desktop 为 Code 会话提供从你的桌面配置派生的策略，例�
 }
 ```
 
-<h3 id="enableartifact">
-  `enableArtifact`
-</h3>
+### `enableArtifact`
 
 关闭 [Artifact](/docs/zh-CN/artifacts) 工具，该工具将会话输出发布为 claude.ai 上的私有网页。当您在 `/config` 中关闭**Artifacts** 行时，Claude Code 会将此键写入您的用户设置，因此通常不需要手动编辑它。
 
@@ -5913,9 +4822,7 @@ Claude Desktop 为 Code 会话提供从你的桌面配置派生的策略，例�
 
 当除你自己的用户设置之外的源保持工具关闭时，Claude Code 在 `/config` 中隐藏**Artifacts** 行，因为在那里打开它不会改变任何东西。[禁用 artifacts](/docs/zh-CN/artifacts#disable-artifacts) 列出了关闭工具的每种方式。
 
-<h3 id="inputneedednotifenabled">
-  `inputNeededNotifEnabled`
-</h3>
+### `inputNeededNotifEnabled`
 
 当权限提示或问题等待你的输入时，在你的手机上获得推送通知。Claude Code 仅在[远程控制](/docs/zh-CN/remote-control)连接时发送这些通知。在 `/config` 中显示为**需要操作时推送**。
 
@@ -5933,9 +4840,7 @@ Claude Desktop 为 Code 会话提供从你的桌面配置派生的策略，例�
 
 请参阅[移动推送通知](/docs/zh-CN/remote-control#mobile-push-notifications)。
 
-<h3 id="preferrednotifchannel">
-  `preferredNotifChannel`
-</h3>
+### `preferredNotifChannel`
 
 选择 Claude Code 在任务完成或权限提示等待时如何通知你。在 `/config` 中显示为**本地通知**。
 
@@ -5958,9 +4863,7 @@ Claude Desktop 为 Code 会话提供从你的桌面配置派生的策略，例�
 
 使用 `"auto"` 时，Claude Code 在 iTerm2、Ghostty 和 Kitty 中发送桌面通知。在 Terminal.app 中，仅当你关闭了 Terminal 的可听铃声时才响铃字符，在其他终端中不执行任何操作。设置 `"terminal_bell"` 以在任何终端中响铃字符。请参阅[获取终端铃声或通知](/docs/zh-CN/terminal-config#get-a-terminal-bell-or-notification)。
 
-<h3 id="remote-defaultenvironmentid">
-  `remote.defaultEnvironmentId`
-</h3>
+### `remote.defaultEnvironmentId`
 
 为你从 CLI 创建的云会话（例如使用 `claude --cloud`）选择默认[云环境](/docs/zh-CN/cloud-environments)。当你使用 [`/remote-env`](/docs/zh-CN/cloud-environments#select-an-environment-from-the-cli) 选择环境时，Claude Code 会将此键写入你的用户设置。
 
@@ -5979,9 +4882,7 @@ Claude Desktop 为 Code 会话提供从你的桌面配置派生的策略，例�
 
 Anthropic 托管的环境 ID（以 `env_` 开头）遵循标准设置优先级，因此存储库的项目设置中的值会覆盖你的用户级别选择。[自托管环境](/docs/zh-CN/self-hosted-environments) ID（以 `ccpool_` 开头）仅从用户设置、托管设置和 `--settings` 标志中获得尊重；Claude Code 忽略存储库的项目或本地设置中的一个，`/remote-env` 显示它忽略了哪个值，因此签入的文件无法将会话引导到你未选择的自托管环境。
 
-<h3 id="remotecontrolatstartup">
-  `remoteControlAtStartup`
-</h3>
+### `remoteControlAtStartup`
 
 当每个交互式会话启动时自动连接[远程控制](/docs/zh-CN/remote-control)，而不是等待 `/remote-control`。将其设置为 `true` 以打开自动连接，`false` 以关闭。在 `/config` 中显示为**为所有会话启用远程控制**。
 
@@ -6000,9 +4901,7 @@ Anthropic 托管的环境 ID（以 `env_` 开头）遵循标准设置优先级�
 
 Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为其检出关闭自动连接，但无法打开。有关完整的每个作用域行为，请参阅[为所有会话启用远程控制](/docs/zh-CN/remote-control#enable-remote-control-for-all-sessions)和[应用更严格值的安全键](/docs/zh-CN/settings#security-keys-where-the-stricter-value-applies)。
 
-<h3 id="sshconfigs">
-  `sshConfigs`
-</h3>
+### `sshConfigs`
 
 将 SSH 连接添加到[桌面](/docs/zh-CN/desktop#pre-configure-ssh-connections-for-your-team)环境选择器。管理员使用 `sshConfigs` 向团队分发共享连接。用户可以选择托管连接，并为其[设置自己的 **Worktree folder**](/docs/zh-CN/desktop#set-the-worktree-folder-on-an-existing-connection)。他们无法在应用中编辑其其他字段或删除它。
 
@@ -6024,9 +4923,7 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
 }
 ```
 
-<h3 id="sshhostallowlist">
-  `sshHostAllowlist`
-</h3>
+### `sshHostAllowlist`
 
 限制[桌面 SSH 会话](/docs/zh-CN/desktop#restrict-which-ssh-hosts-users-can-connect-to)可以连接到的主机。仅桌面应用读取此键；CLI 不读取。模式不区分大小写：`*` 匹配任何主机，`*.example.com` 匹配 `example.com` 和每个子域，其他任何内容都是针对 `~/.ssh/config` 解析后的主机名的精确匹配。空数组关闭 SSH 会话。
 
@@ -6046,17 +4943,11 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
 
 如果您在优先级最高的源中将 [`managedSourcesBehavior`](#managedsourcesbehavior) 设置为 `"merge"`，桌面应用会合并来自每个[管理员源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)的列表，并允许与其中任意一个列表匹配的主机。如果您在某个源中设置了空数组，对于另一个源列出的主机，SSH 会话仍保持开启。
 
-<span id="authentication-and-login" />
-
-<h2 id="authentication-and-providers">
-  身份验证和提供商
-</h2>
+## 身份验证和提供商
 
 通过辅助脚本提供凭据，对于组织，强制使用登录方法或组织。请参阅[身份验证](/docs/zh-CN/authentication)。
 
-<h3 id="allowedproviders">
-  `allowedProviders`
-</h3>
+### `allowedProviders`
 
 列出机器可以通过其访问 Claude 的服务，例如 Anthropic API、Amazon Bedrock 或 LLM 网关。使用未列出的提供商的会话会在启动时、登录时以及下次联系 API 时被拒绝，因此在会话中途切换到未列出的提供商也会被拒绝。[拒绝消息](/docs/zh-CN/errors#managed-settings-dont-allow-this-api-provider)会指明是什么选择了该提供商以及继续操作的步骤。需要 Claude Code v2.1.285 或更高版本。
 
@@ -6082,9 +4973,7 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
 
 Claude Code 无法识别为提供商名称的条目会被删除并报告，列表的其余部分仍保持强制执行。如果列表为空，或其每个条目都无法识别，Claude Code 会拒绝所有提供商，并且不会在该机器上启动。
 
-<h4 id="endpoints-that-need-a-pin-in-managed-env">
-  需要在托管 `env` 中固定的端点
-</h4>
+#### 需要在托管 `env` 中固定的端点
 
 固定值是在托管 [`env`](#env) 块中设置的端点变量的值。当会话将提供商的流量发送到该提供商自己的服务以外的地方时，Claude Code 仅在会话的值与固定值相同时才允许它。以下端点需要固定值：
 
@@ -6099,9 +4988,7 @@ Claude Code 无法识别为提供商名称的条目会被删除并报告，列�
 
 该列表不评判云提供商的凭据和租户变量或网络路径，例如 `HTTPS_PROXY` 和证书设置。请在托管 `env` 块中为所有机器设置这些内容。
 
-<h3 id="apikeyhelper">
-  `apiKeyHelper`
-</h3>
+### `apiKeyHelper`
 
 运行您自己的命令来生成 Claude Code 随模型请求发送的凭据。Claude Code 通过系统 shell 运行该命令，在 macOS 和 Linux 上为 `/bin/sh`，在 Windows 上为 `cmd`，并将其输出同时作为 `X-Api-Key` 和 `Authorization: Bearer` 标头发送。将其用于动态或轮换的凭据，例如从保管库获取的短期令牌。
 
@@ -6125,9 +5012,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 在交互式会话中，当命令来自项目或本地设置时，Claude Code 在您接受工作区信任提示之前不会运行它。请参阅[凭据管理](/docs/zh-CN/authentication#credential-management)。
 
-<h3 id="awsauthrefresh">
-  `awsAuthRefresh`
-</h3>
+### `awsAuthRefresh`
 
 运行您自己的命令（例如 `aws sso login`），以在 Claude Code 用于 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 的凭据失效时刷新 `.aws` 目录中的凭据。Claude Code 首先通过 STS 检查当前凭据，仅在该检查失败时运行该命令，然后读取刷新后的 `.aws` 目录。
 
@@ -6145,9 +5030,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 当您的刷新流程写入 `.aws` 时使用此设置项；当它打印凭据时改用 [`awsCredentialExport`](#awscredentialexport)。请参阅[高级凭据配置](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)。
 
-<h3 id="awscredentialexport">
-  `awsCredentialExport`
-</h3>
+### `awsCredentialExport`
 
 运行您自己的命令，该命令将 AWS 凭据打印为 JSON，以便 Claude Code 可以使用不存放在 `.aws` 目录中的凭据调用 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)。Claude Code 接受 `aws sts` 输出格式和扁平的 `aws configure export-credentials` 格式，并将凭据限定于其自己的 Bedrock 客户端，因此 Claude 运行的 shell 命令仍然看到您的环境凭据。
 
@@ -6163,9 +5046,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 与 [`awsAuthRefresh`](#awsauthrefresh) 不同，只要设置了此命令，Claude Code 就始终运行它，而不会先检查环境凭据。请参阅[高级凭据配置](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)。
 
-<h3 id="forceloginmethod">
-  `forceLoginMethod`
-</h3>
+### `forceLoginMethod`
 
 限制人们可以使用哪种帐户登录。设置 `"claudeai"` 以仅允许 claude.ai 帐户，设置 `"console"` 以仅允许 Claude Console 帐户，或设置 `"gateway"` 以将人们引导至 [cloud gateway](/docs/zh-CN/claude-apps-gateway) 而不是第一方登录。管理员在托管设置中设置它，并将其与 [`forceLoginOrgUUID`](#forceloginorguuid) 配合使用，以将开发人员的 claude.ai 登录限制在一个组织内。如果您在任何设置文件中将其设置为 `"claudeai"` 或 `"console"`，Claude Code 也会在该文件适用的会话中停止提供[无密钥 Console 登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)。
 
@@ -6186,9 +5067,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 当机器上的托管源设置 `"gateway"` 时，Claude Code 不会使用遗留的登录、API 密钥或 `apiKeyHelper` 凭据。请参阅[管理员策略需要 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)，了解每种情况生成的消息。如果您通过 `CLAUDE_CODE_USE_BEDROCK` 或类似的环境变量选择云提供商，该会话不需要网关登录。在 v2.1.261 之前，Claude Code 在这些机器上会使用遗留的登录。
 
-<h3 id="forcelogingatewayurl">
-  `forceLoginGatewayUrl`
-</h3>
+### `forceLoginGatewayUrl`
 
 设置 `/login` Cloud gateway 屏幕连接到的网关 URL，以便人们无需输入地址即可访问您的 [cloud gateway](/docs/zh-CN/claude-apps-gateway)。该屏幕没有 URL 字段：设置此设置项后，它会显示您的网关 URL，并在用户按 Enter 时连接；未设置时，它会告诉用户联系其 IT 管理员。
 
@@ -6206,9 +5085,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 如果该值不是有效的 URL，登录屏幕会报告该问题，托管设置文件的其余部分仍然适用。请参阅[设置网关 URL](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url)。
 
-<h3 id="forceloginorguuid">
-  `forceLoginOrgUUID`
-</h3>
+### `forceLoginOrgUUID`
 
 在托管源中，要求 claude.ai 帐户登录属于某一个 Anthropic 组织（以单个 UUID 给出），或属于多个组织中的任意一个（以数组给出）。在任何设置文件中，Claude Code 还会使用单个 UUID 在 claude.ai 或 Claude Console 登录期间预先选择该组织，而对于数组则不预选任何组织。如果您在任何设置文件中设置此设置项，Claude Code 也会在该文件适用的会话中停止提供[无密钥 Console 登录](/docs/zh-CN/authentication#sign-in-without-an-api-key)，并改为创建 API 密钥。
 
@@ -6228,9 +5105,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 请参阅[限制登录到您的组织](/docs/zh-CN/authentication#restrict-login-to-your-organization)，了解 Claude Code 如何处理 Claude Console 登录、其他登录路径和环境凭据。
 
-<h3 id="gatewayinternalnetworks">
-  `gatewayInternalNetworks`
-</h3>
+### `gatewayInternalNetworks`
 
 声明您的组织用于为其内部网络编址的公共 IPv4 地址块，以便 `/login` 接受位于其中的 [cloud gateway](/docs/zh-CN/claude-apps-gateway)。需要 Claude Code v2.1.268 或更高版本。
 
@@ -6250,9 +5125,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 如果某个条目无效，或该值不是字符串列表，`/login` 会指明问题，并拒绝该机器上的所有新网关登录，直到您修复该值。现有登录继续有效。请参阅[允许网关在您拥有的公共地址空间上](/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)，了解完整规则以及开发人员看到的内容。
 
-<h3 id="gcpauthrefresh">
-  `gcpAuthRefresh`
-</h3>
+### `gcpAuthRefresh`
 
 运行您自己的命令，以在 Claude Code 发现 Google Cloud Application Default Credentials 已过期或无法加载时刷新它们，以便 [Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 请求继续正常工作，而无需您手动重新进行身份验证。
 
@@ -6270,9 +5143,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 请参阅[高级凭据配置](/docs/zh-CN/google-vertex-ai#advanced-credential-configuration)。
 
-<h3 id="otelheadershelper">
-  `otelHeadersHelper`
-</h3>
+### `otelHeadersHelper`
 
 运行您自己的命令以生成 Claude Code 随 OpenTelemetry 导出发送的标头，适用于令牌会轮换的后端。Claude Code 在启动时运行它，之后定期运行，并期望在 stdout 上获得由字符串标头值组成的 JSON 对象。
 
@@ -6288,15 +5159,11 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 使用 [`CLAUDE_CODE_OTEL_HEADERS_HELPER_DEBOUNCE_MS`](/docs/zh-CN/env-vars) 设置刷新间隔。请参阅[动态标头](/docs/zh-CN/monitoring-usage#dynamic-headers)，了解脚本要求以及辅助程序失败时会发生什么。
 
-<h2 id="updates-and-versioning">
-  更新和版本控制
-</h2>
+## 更新和版本控制
 
 选择更新渠道，对于组织，可以固定人们可以运行的版本。请参阅[更新 Claude Code](/docs/zh-CN/setup#update-claude-code)。
 
-<h3 id="autoupdateschannel">
-  `autoUpdatesChannel`
-</h3>
+### `autoUpdatesChannel`
 
 选择[发布渠道](/docs/zh-CN/setup#configure-release-channel)，背景自动更新和 `claude update` 遵循该渠道。设置 `"stable"` 以获得通常约一周前的版本，并跳过有重大回归的发布，或设置 `"latest"` 以获得最新发布。
 
@@ -6314,9 +5181,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 当您在 `/config` 中的**自动更新渠道**下选择它时，Claude Code 会将 `"stable"` 写入您的用户设置，当您在那里切换回最新版本时会删除该键。`claude install stable` 和 `claude install latest` 也会保存您命名的渠道。在 `/config` 中从 `"latest"` 切换到 `"stable"` 会询问是否允许降级或保持当前版本；保持设置 [`minimumVersion`](#minimumversion)。Homebrew 安装会忽略此键：`claude-code` cask 跟踪稳定版，`claude-code@latest` 跟踪最新版，`claude update` 遵循 `brew upgrade`。要完全关闭自动更新，请在 `env` 中设置 [`DISABLE_AUTOUPDATER`](/docs/zh-CN/setup#disable-auto-updates)。
 
-<h3 id="minimumversion">
-  `minimumVersion`
-</h3>
+### `minimumVersion`
 
 防止背景自动更新和 `claude update` 安装低于此版本的任何版本，因此移动到 `"stable"` 渠道不会从较新的 `"latest"` 构建中降级您。当您在 `/config` 中选择在切换渠道时保持当前版本时，Claude Code 会为您写入此键，当您切换回 `"latest"` 时会清除它。
 
@@ -6335,9 +5200,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 此键仅约束更新。要使 Claude Code 拒绝在版本以下启动，请改用 [`requiredMinimumVersion`](#requiredminimumversion)。请参阅[固定最小版本](/docs/zh-CN/setup#pin-a-minimum-version)。
 
-<h3 id="requiredmaximumversion">
-  `requiredMaximumVersion`
-</h3>
+### `requiredMaximumVersion`
 
 设置您的组织允许启动的最新 Claude Code 版本。当运行版本较新时，Claude Code 在启动时退出，并告诉用户通过您组织的批准方法安装批准的版本；`claude install <version>` 也可能有效。需要 Claude Code v2.1.163 或更高版本。
 
@@ -6353,9 +5216,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 背景自动更新和 `claude update` 跳过上限以上的版本，因此范围内的安装保持在范围内。`claude update`、`claude install` 和 `claude doctor` 在上限以上继续工作，以便用户可以恢复。将其与 [`requiredMinimumVersion`](#requiredminimumversion) 配对以强制执行范围。
 
-<h3 id="requiredminimumversion">
-  `requiredMinimumVersion`
-</h3>
+### `requiredMinimumVersion`
 
 设置您的组织允许启动的最旧 Claude Code 版本。当运行版本较旧时，Claude Code 在启动时退出，并告诉用户通过您组织的批准方法进行更新。检查仅在启动时运行，因此已在运行的会话会继续。需要 Claude Code v2.1.163 或更高版本。
 
@@ -6371,15 +5232,11 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 `claude update`、`claude install` 和 `claude doctor` 在下限以下继续工作，以便用户可以恢复。与仅防止降级的 [`minimumVersion`](#minimumversion) 不同，此键会阻止启动。将其与 [`requiredMaximumVersion`](#requiredmaximumversion) 配对以强制执行范围。
 
-<h2 id="tools">
-  Tools
-</h2>
+## Tools
 
 在 [Claude Code 桌面应用](/docs/zh-CN/desktop) 中关闭特定工具。终端 CLI 会忽略这些密钥。有关工具本身，请参阅 [Claude 可用的工具](/docs/zh-CN/tools-reference)。
 
-<h3 id="browserexternalpagetools">
-  `browserExternalPageTools`
-</h3>
+### `browserExternalPageTools`
 
 阻止 Claude 在桌面应用的 [浏览器窗格](/docs/zh-CN/desktop#browse-external-sites) 中使用其工具读取或作用于外部页面。您组织中的人员仍然可以自己打开外部网站，本地开发服务器预览继续与 Claude 的工具一起工作。桌面应用读取此密钥；终端 CLI 会忽略它。
 
@@ -6395,9 +5252,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 任何其他值都会使 Claude 的工具保持打开状态，非空字符串如果不是两个接受的值之一，则会记录警告。要同时阻止人员和 Claude 访问外部网站，请改为设置 [`disableBrowserExternalNavigation`](#disablebrowserexternalnavigation)。请参阅 [为您的组织限制外部浏览](/docs/zh-CN/desktop#restrict-external-browsing-for-your-organization)。
 
-<h3 id="disablebrowserexternalnavigation">
-  `disableBrowserExternalNavigation`
-</h3>
+### `disableBrowserExternalNavigation`
 
 在桌面应用的 [浏览器窗格](/docs/zh-CN/desktop#browse-external-sites) 中为人员和 Claude 关闭外部浏览。Localhost 开发服务器预览继续工作。桌面应用读取此密钥；终端 CLI 会忽略它。
 
@@ -6415,9 +5270,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 桌面应用会忽略任何其他值，非 Boolean 的值（例如字符串 `"true"` 或 `1`）也会记录警告。要保持外部浏览打开但在外部页面上关闭 Claude 的工具，请改为设置 [`browserExternalPageTools`](#browserexternalpagetools)。请参阅 [为您的组织限制外部浏览](/docs/zh-CN/desktop#restrict-external-browsing-for-your-organization)。
 
-<h3 id="disablemobilesimulatortools">
-  `disableMobileSimulatorTools`
-</h3>
+### `disableMobileSimulatorTools`
 
 阻止 Claude 的工具用于桌面应用的 [iOS 模拟器窗格](/docs/zh-CN/desktop-ios-simulator#turn-off-simulator-access)。人员保持对窗格的手动使用；仅移除 Claude 的访问权限，任何人都无法从应用内部将其重新打开。桌面应用读取此密钥；终端 CLI 会忽略它。
 
@@ -6435,17 +5288,11 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 桌面应用会忽略任何其他值，非 Boolean 的值（例如字符串 `"true"` 或 `1`）也会记录警告。
 
-<span id="data-and-privacy" />
-
-<h2 id="privacy-and-telemetry">
-  隐私和遥测
-</h2>
+## 隐私和遥测
 
 控制 Claude Code 保留会话数据的时间以及它发送的内容。关闭使用指标和错误报告的开关是环境变量，而不是设置键：在 [`env`](#env) 键中或在 shell 中设置 `DISABLE_TELEMETRY`、`DISABLE_ERROR_REPORTING` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`。[遥测服务](/docs/zh-CN/data-usage#telemetry-services)说明了每个变量的作用。两个例外可以从设置文件中关闭：下面的 [`feedbackDrafts`](#feedbackdrafts) 用于 Claude 起草的反馈，下面的 [`feedbackSurveyRate`](#feedbacksurveyrate) 用于会话调查。
 
-<h3 id="cleanupperioddays">
-  `cleanupPeriodDays`
-</h3>
+### `cleanupPeriodDays`
 
 设置 Claude Code 在删除之前保留[会话记录和其他应用程序数据](/docs/zh-CN/claude-directory#cleaned-up-automatically)的天数。Claude Code 在会话开始后作为后台扫描运行删除，只要它能够安全地确定保留期。扫描删除记录时不显示消息，因此您未使用超过保留期的会话不再出现在 [`/resume`](/docs/zh-CN/sessions#resume-a-session) 选择器中。
 
@@ -6461,9 +5308,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 设置 `0` 会导致验证失败，因此请选择一个较大的值，例如 `3650` 以实现长期保留。要停止 Claude Code 完全写入记录，请参阅[纯文本存储](/docs/zh-CN/claude-directory#plaintext-storage)。
 
-<h3 id="desktopsessioncleanupperioddays">
-  `desktopSessionCleanupPeriodDays`
-</h3>
+### `desktopSessionCleanupPeriodDays`
 
 为您在 Claude Desktop 或 Cowork 中启动或最近继续的会话的会话记录设置天数年龄限制。没有此键，Claude Code [会无限期地保留这些会话记录](/docs/zh-CN/claude-directory#cleaned-up-automatically)。Claude Code 在每个会话记录的年龄超过此限制和 [`cleanupPeriodDays`](#cleanupperioddays) 时删除它，因此当 `cleanupPeriodDays` 处于其默认值 30 时，值 `7` 仍会保留它们 30 天。[自动清理](/docs/zh-CN/claude-directory#cleaned-up-automatically)列出了改为适用 `cleanupPeriodDays` 且 Claude Code 忽略此键的情况。需要 Claude Code v2.1.248 或更高版本。
 
@@ -6477,9 +5322,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 }
 ```
 
-<h3 id="feedbackdrafts">
-  `feedbackDrafts`
-</h3>
+### `feedbackDrafts`
 
 控制 [Claude 起草的反馈](/docs/zh-CN/tools-reference#sendfeedback-tool-behavior)：Claude 是否可以为您排队反馈草稿以供审查，以及 Claude Code 在 Claude 排队时是否显示卡片。
 
@@ -6499,9 +5342,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 在 `/config` 中显示为**Claude 起草的反馈**，它将此键写入您的用户设置。您只在 Claude 可以起草反馈的[会话中](/docs/zh-CN/tools-reference#sessions-without-claude-drafted-feedback)看到 `/config` 行；设置 `"off"` 不会隐藏它，因此您可以从同一行重新打开此功能。托管设置中的值优先于您的用户设置，因此当管理员设置此键时，该行显示托管值，更改它无效。Claude Code 在项目和本地设置中忽略此键。
 
-<h3 id="feedbacksurveyrate">
-  `feedbackSurveyRate`
-</h3>
+### `feedbackSurveyRate`
 
 设置[会话质量调查](/docs/zh-CN/data-usage#session-quality-surveys)在会话符合条件时出现的概率。设置 `0` 以防止调查出现。
 
@@ -6518,9 +5359,7 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 相同的速率适用于 VS Code 扩展中的调查。
 
-<h3 id="skipwebfetchpreflight">
-  `skipWebFetchPreflight`
-</h3>
+### `skipWebFetchPreflight`
 
 跳过 [WebFetch 域安全检查](/docs/zh-CN/data-usage#webfetch-domain-safety-check)，该检查在获取之前将每个请求的主机名发送到 `api.anthropic.com`。在阻止到 Anthropic 的流量的环境中设置 `true`，例如 Amazon Bedrock、Google Cloud 的 Agent Platform 或具有限制性出站的 Microsoft Foundry 部署。
 
@@ -6538,17 +5377,11 @@ Claude Code 缓存该值并在以下情况下重新运行该命令：
 
 跳过检查后，WebFetch 尝试任何 URL 而不查询阻止列表，因此如果您需要限制 Claude 可以访问的域，请将其与 [`WebFetch` 权限规则](/docs/zh-CN/permissions#webfetch)配对。
 
-<span id="managed-policy" />
-
-<h2 id="enterprise-and-managed-settings">
-  企业和托管设置
-</h2>
+## 企业和托管设置
 
 组织用来计算、刷新和合并托管设置的密钥。请参阅[设置托管设置](/docs/zh-CN/admin-setup)。
 
-<h3 id="disablesideloadflags">
-  `disableSideloadFlags`
-</h3>
+### `disableSideloadFlags`
 
 在启动时拒绝 `--plugin-dir`、`--plugin-url`、`--agents` 和 `--mcp-config` CLI 标志，用户可能会传递这些标志来绕过 [`strictKnownMarketplaces`](#strictknownmarketplaces) 进行单次运行。Claude Code 会以错误退出并命名被拒绝的标志。在[云会话](/docs/zh-CN/claude-code-on-the-web)中，Claude Code 会启动会话并删除服务器通过 `--mcp-config` 传递的每个条目，除了进程内 `type: "sdk"` 条目和 [Claude Tag](/docs/zh-CN/claude-tag) 会话的 Slack 工具。需要 Claude Code v2.1.193 或更高版本。
 
@@ -6575,9 +5408,7 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 * **[用户机器上的代码会话](/docs/zh-CN/desktop#environment-configuration)**: 它们也启动时不启用用户 claude.ai 账户的技能。Claude Code 从您的托管设置中的市场安装的插件仍然加载。在 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview) 中，您部署到设备 `org-plugins` 目录的插件中的 MCP 服务器仍然可用，因为桌面应用自己连接到它们。在 Claude Desktop v1.37937.0 之前，这些会话在启动时失败。
 * **[用户机器上的协作会话](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)**: 这些插件内的技能和为用户 claude.ai 账户启用的技能保持可用。在 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview) 中，您部署到设备 `org-plugins` 目录的插件中的 MCP 服务器仍然可用，因为桌面应用自己连接到它们。在 Claude Desktop v1.44121.0 之前，这些会话在启动时失败。
 
-<h3 id="forceremotesettingsrefresh">
-  `forceRemoteSettingsRefresh`
-</h3>
+### `forceRemoteSettingsRefresh`
 
 阻止 CLI 启动，直到 Claude Code 已经新鲜获取[服务器管理的设置](/docs/zh-CN/server-managed-settings)。如果获取失败，Claude Code 会退出而不是继续使用缓存或无设置。当您的环境无法接受即使是短暂的窗口（在该窗口中会话运行而没有其托管策略）时，设置它。
 
@@ -6597,9 +5428,7 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 
 在 MDM 配置文件或托管设置文件中设置它以在第一个服务器有效负载到达之前强制执行故障关闭启动。Claude Code 仅在获取服务器管理的设置的会话中应用检查，因此[不获取它们](/docs/zh-CN/server-managed-settings#platform-availability)的会话启动时不会等待。`claude auth` 子命令是豁免的，因此用户可以在过期凭证是获取失败原因时重新身份验证。请参阅[强制执行故障关闭启动](/docs/zh-CN/server-managed-settings#enforce-fail-closed-startup)。
 
-<h3 id="managedsourcesbehavior">
-  `managedSourcesBehavior`
-</h3>
+### `managedSourcesBehavior`
 
 选择 Claude Code 是仅应用您的组织提供的最高优先级[托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)，还是合并它提供的每个管理员源。默认情况下，Claude Code 采用携带[策略密钥](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)的最高优先级源并忽略其余的。策略密钥是除了这个和 `wslInheritsWindowsSettings` 之外的任何设置密钥。在该默认值下，一旦服务器管理的设置或 MDM 策略传递策略密钥，`managed-settings.json` 文件仅贡献 [Claude Code 从每个管理员源读取的密钥](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)。使用 `"merge"`，您提供的每个管理员源都将其密钥贡献给一个合并的策略。需要 Claude Code v2.1.242 或更高版本。
 
@@ -6643,9 +5472,7 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 
 要确认机器上合并了哪些源，请运行 `/status` 并[读取 `Setting sources` 行](/docs/zh-CN/managed-settings#read-the-source-in-/status)。
 
-<h3 id="parentsettingsbehavior">
-  `parentSettingsBehavior`
-</h3>
+### `parentSettingsBehavior`
 
 选择 Claude Code 是否应用由嵌入主机进程（例如 Agent SDK 或 IDE 扩展）提供的托管设置，当管理员部署的托管层也存在时。使用 `"first-wins"`，Claude Code 删除主机提供的设置；使用 `"merge"`，它通过限制性过滤器在管理员层下应用它们。当主机需要将其自己的限制传递给它启动的会话时，设置 `"merge"`，例如 Claude Desktop 传递网关的出口允许列表。
 
@@ -6663,11 +5490,7 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 
 当不存在管理员部署的托管层时，此密钥无效：主机的设置然后应用为唯一的托管层，仍然被过滤为限制性值。对于过滤器的限制以及托管源如何交互，请参阅[来自嵌入主机的父设置](/docs/zh-CN/managed-settings#parent-settings-from-embedding-hosts)和[限制父设置](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings)。
 
-<span id="compute-managed-settings-with-a-policy-helper" />
-
-<h3 id="policyhelper">
-  `policyHelper`
-</h3>
+### `policyHelper`
 
 运行您部署的可执行文件，在启动时计算托管设置，以便您可以从设备状态、身份或远程服务而不是静态文件派生策略。Claude Code 在接受第一个提示之前运行帮助程序，并将其发出的设置视为会话的托管设置。
 
@@ -6691,9 +5514,7 @@ Claude Code 仍然接受其服务器都是进程内 `type: "sdk"` 条目的 `--m
 }
 ```
 
-<h4 id="write-the-helper-output">
-  Write the helper output
-</h4>
+#### Write the helper output
 
 Claude Code 不带参数运行帮助程序，在其环境中设置 `CLAUDE_CODE_VERSION`，并从 stdout 读取 JSON 信封，上限为 1 MiB。
 
@@ -6711,9 +5532,7 @@ Claude Code 不带参数运行帮助程序，在其环境中设置 `CLAUDE_CODE_
 
 启动 `forceRemoteSettingsRefresh` 检查在帮助程序之前运行并读取任何管理员源。以 0 退出且信封省略 `managedSettings` 的帮助程序不贡献托管设置，其他源照常应用。
 
-<h4 id="helper-failures">
-  Helper failures
-</h4>
+#### Helper failures
 
 帮助程序运行失败时：
 
@@ -6735,9 +5554,7 @@ Claude Code 将无效的 `policyHelper` 值报告为[删除的条目](/docs/zh-C
 
 要关闭帮助程序，请从设置它的源中删除密钥。
 
-<h3 id="policyhelper-path">
-  `policyHelper.path`
-</h3>
+### `policyHelper.path`
 
 命名 Claude Code 运行的帮助程序可执行文件。有关路径违反以下规则时发生的情况，请参阅[帮助程序失败](#helper-failures)。
 
@@ -6753,9 +5570,7 @@ Claude Code 将无效的 `policyHelper` 值报告为[删除的条目](/docs/zh-C
 }
 ```
 
-<h3 id="policyhelper-timeoutms">
-  `policyHelper.timeoutMs`
-</h3>
+### `policyHelper.timeoutMs`
 
 设置 Claude Code 在将运行视为失败之前等待帮助程序的时间。超时的运行失败方式与非零退出相同，因此在启动时 Claude Code 拒绝启动。
 
@@ -6772,9 +5587,7 @@ Claude Code 将无效的 `policyHelper` 值报告为[删除的条目](/docs/zh-C
 }
 ```
 
-<h3 id="policyhelper-refreshintervalms">
-  `policyHelper.refreshIntervalMs`
-</h3>
+### `policyHelper.refreshIntervalMs`
 
 让 Claude Code 在后台按间隔重新运行帮助程序，以便策略更改到达运行中的会话。当刷新成功时，其输出替换之前的托管设置而不重启；当刷新失败时，Claude Code 保持它已有的策略。
 
@@ -6793,9 +5606,7 @@ Claude Code 将无效的 `policyHelper` 值报告为[删除的条目](/docs/zh-C
 }
 ```
 
-<h3 id="wslinheritswindowssettings">
-  `wslInheritsWindowsSettings`
-</h3>
+### `wslInheritsWindowsSettings`
 
 让 WSL 上的 Claude Code 从 Windows 策略链读取托管设置，HKLM 和 Windows 托管设置文件优先于下面的 `/etc/claude-code` 和 HKCU。当链打开时，Claude Code 仅在 [HKLM 注册表值或 `C:\Program Files\ClaudeCode\` 文件夹中不存在 Windows 管理员文档](/docs/zh-CN/managed-settings#present-admin-documents)时才读取 `/etc/claude-code`。设置它以将您已在 Windows 上部署的策略扩展到同一机器上的 WSL 会话，以便它们遵循与主机会话相同的规则。Claude Code 仅在 HKLM 注册表密钥或托管设置文件或 `C:\Program Files\ClaudeCode\` 下的放入中设置时才接受它，两者都需要 Windows 管理员才能写入。
 
@@ -6815,15 +5626,11 @@ Claude Code 将无效的 `policyHelper` 值报告为[删除的条目](/docs/zh-C
 
 Claude Code 读取带或不带引号的 `true` 和 `false`，并将 `null` 读取为删除密钥。包含任何其他值的管理员控制的 Windows 源计为[存在的管理员文档](/docs/zh-CN/managed-settings#present-admin-documents)，链打开：既不应用 `/etc/claude-code` 也不应用 HKCU，启动警告命名密钥。无法读取的 HKLM 值或 Windows 文件夹文件也会阻止 `/etc/claude-code` 应用，无论链是否打开。需要 Claude Code v2.1.282 或更高版本。
 
-<h2 id="global-config-settings">
-  全局配置设置
-</h2>
+## 全局配置设置
 
 将这些键保存在 `~/.claude.json` 中，而不是在设置文件中。Claude Code 在其他任何地方都会忽略它们。Claude Code 和 `/config` 会为你写入大部分设置，你也可以手动编辑它们。
 
-<h3 id="autoconnectide">
-  `autoConnectIde`
-</h3>
+### `autoConnectIde`
 
 当你从外部终端启动 Claude Code 时，自动连接到正在运行的 IDE。当你在 VS Code 或 JetBrains 终端外运行 Claude Code 时，在 `/config` 中显示为**自动连接到 IDE（外部终端）**。
 
@@ -6842,9 +5649,7 @@ Claude Code 读取带或不带引号的 `true` 和 `false`，并将 `null` 读�
 
 Claude Code 在 `settings.json` 中忽略此键。
 
-<h3 id="autoinstallideextension">
-  `autoInstallIdeExtension`
-</h3>
+### `autoInstallIdeExtension`
 
 当你从 VS Code 终端运行 Claude Code 时，自动安装 Claude Code IDE 扩展。当你在 VS Code 或 JetBrains 终端内运行 Claude Code 时，在 `/config` 中显示为**自动安装 IDE 扩展**。
 
@@ -6863,9 +5668,7 @@ Claude Code 在 `settings.json` 中忽略此键。
 
 Claude Code 在 `settings.json` 中忽略此键。
 
-<h3 id="claudeinchromedefaultenabled">
-  `claudeInChromeDefaultEnabled`
-</h3>
+### `claudeInChromeDefaultEnabled`
 
 启动每个交互式 CLI 会话时默认打开 [Chrome 集成](/docs/zh-CN/chrome)，无需每次都传递 `--chrome`。如果您运行 [`claude remote-control`](/docs/zh-CN/remote-control)，它为您的某个[项目](/docs/zh-CN/claude-projects)线程启动的会话也遵循此键，但 `bypassPermissions` 模式除外。在 Claude Code v2.1.287 或更高版本中，此键也适用于 [VS Code 扩展](/docs/zh-CN/vs-code#automate-browser-tasks-with-chrome)中的会话：请参阅[默认启用 Chrome](/docs/zh-CN/chrome#enable-chrome-by-default)。
 
@@ -6886,9 +5689,7 @@ Claude Code 在 `settings.json` 中忽略此键。
 
 Claude Code 在 `settings.json` 中忽略此键。
 
-<h3 id="copyfullresponse">
-  `copyFullResponse`
-</h3>
+### `copyFullResponse`
 
 使 [`/copy`](/docs/zh-CN/commands) 每次都复制完整回复，而不显示选择器。在该选择器中选择**始终复制完整回复**会将此键设置为 `true`。在 `/config` 中显示为**跳过 /copy 选择器**。
 
@@ -6906,9 +5707,7 @@ Claude Code 在 `settings.json` 中忽略此键。
 
 Claude Code 在 `settings.json` 中忽略此键。
 
-<h3 id="copyonselect">
-  `copyOnSelect`
-</h3>
+### `copyOnSelect`
 
 当你在[全屏渲染](/docs/zh-CN/fullscreen#use-the-mouse)或[代理视图](/docs/zh-CN/agent-view)中用鼠标完成文本选择时，自动将文本复制到剪贴板。在全屏渲染打开时，在 `/config` 中显示为**选择时复制**。
 
@@ -6926,9 +5725,7 @@ Claude Code 在 `settings.json` 中忽略此键。
 
 Claude Code 在 `settings.json` 中忽略此键。
 
-<h3 id="defaulttoagentsview">
-  `defaultToAgentsView`
-</h3>
+### `defaultToAgentsView`
 
 当你运行不带参数的 `claude` 时，打开[代理视图](/docs/zh-CN/agent-view)而不是新对话。在 `/config` 中显示为**默认打开代理视图**，除非代理视图被[关闭](#disableagentview)。
 
@@ -6946,9 +5743,7 @@ Claude Code 在 `settings.json` 中忽略此键。
 
 Claude Code 在 `settings.json` 中忽略此键。
 
-<h3 id="difftool">
-  `diffTool`
-</h3>
+### `diffTool`
 
 选择 Claude Code 在连接[VS Code](/docs/zh-CN/vs-code)或[JetBrains](/docs/zh-CN/jetbrains#features) IDE 时显示其提议的 `Edit` 或 `Write` 更改的 diff 的位置：`"auto"` 在 IDE 的 diff 查看器中打开它，`"terminal"` 将其保留在终端中。仅当 Claude Code 连接到 VS Code 或 JetBrains IDE 时，在 `/config` 中显示为**Diff 工具**。
 
@@ -6966,9 +5761,7 @@ Claude Code 在 `settings.json` 中忽略此键。
 
 Claude Code 在 `settings.json` 中忽略此键。
 
-<h3 id="externaleditorcontext">
-  `externalEditorContext`
-</h3>
+### `externalEditorContext`
 
 当你按 `Ctrl+G` 时，Claude Code 在你的[外部编辑器](/docs/zh-CN/interactive-mode#general-controls)中打开你正在输入的提示。启用此键后，编辑器缓冲区以 Claude 的上一个响应作为 `#` 注释行开始，因此你可以在写入时读取它，Claude Code 在你保存时删除这些行。在 `/config` 中显示为**在外部编辑器中显示最后响应**。
 
@@ -7000,9 +5793,7 @@ Claude Code 保留响应的最后 50 行，并用 `# … (earlier output truncat
 
 Claude Code 在 `settings.json` 中忽略此键。
 
-<h3 id="leftarrowopensagents">
-  `leftArrowOpensAgents`
-</h3>
+### `leftArrowOpensAgents`
 
 在空提示上按 `←` 以[后台会话并打开代理视图](/docs/zh-CN/agent-view#switch-sessions-without-leaving-the-terminal)。将此键设置为 `false` 以关闭快捷键。当代理视图可用时，在 `/config` 中显示为\*\*← 打开代理\*\*。
 
@@ -7020,13 +5811,11 @@ Claude Code 在 `settings.json` 中忽略此键。
 
 Claude Code 在 `settings.json` 中忽略此键。
 
-<h3 id="permissionexplainerenabled">
-  `permissionExplainerEnabled`
-</h3>
+### `permissionExplainerEnabled`
 
-<Warning>
-  在 v2.1.257 中删除，以及 Bash 和 PowerShell 权限提示上的 `Ctrl+E` 命令说明。在当前版本中设置它没有效果。
-</Warning>
+> [!WARNING]
+>
+> 在 v2.1.257 中删除，以及 Bash 和 PowerShell 权限提示上的 `Ctrl+E` 命令说明。在当前版本中设置它没有效果。
 
 在 v2.1.256 及更早版本中，你可以在 Bash 或 PowerShell 权限提示上按 `Ctrl+E` 查看模型生成的命令说明，并将此键设置为 `false` 以关闭该快捷键。
 
@@ -7034,9 +5823,7 @@ Claude Code 在 `settings.json` 中忽略此键。
 * **类型**: 布尔值
 * **默认值**: `true`
 
-<h3 id="prstatusfooterenabled">
-  `prStatusFooterEnabled`
-</h3>
+### `prStatusFooterEnabled`
 
 在提示页脚中显示当前分支的开放拉取请求或合并请求的徽章，带有显示其[状态](/docs/zh-CN/interactive-mode#pr-review-status)的彩色下划线。在 `/config` 中显示为**显示 PR 状态页脚**。
 
@@ -7054,13 +5841,11 @@ Claude Code 在 `settings.json` 中忽略此键。
 
 Claude Code 在 `settings.json` 中忽略此键。
 
-<h3 id="teammatedefaultmodel">
-  `teammateDefaultModel`
-</h3>
+### `teammateDefaultModel`
 
-<Warning>
-  在 v2.1.234 中删除，以及其 `/config` 行**默认队友模型**。在当前版本中设置它没有效果。
-</Warning>
+> [!WARNING]
+>
+> 在 v2.1.234 中删除，以及其 `/config` 行**默认队友模型**。在当前版本中设置它没有效果。
 
 在 v2.1.233 及更早版本中，你将此键设置为[代理团队](/docs/zh-CN/agent-teams#specify-teammates-and-models)队友的模型，你的提示没有为其命名模型：一个别名如 `"sonnet"`，或 `null` 以遵循主导的模型。有关 Claude Code 现在为此类队友选择的模型，请参阅[指定队友和模型](/docs/zh-CN/agent-teams#specify-teammates-and-models)。
 
@@ -7068,9 +5853,7 @@ Claude Code 在 `settings.json` 中忽略此键。
 * **类型**: 字符串，模型别名或完整模型 ID，或 `null`
 * **默认值**: 未设置
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 * [配置权限](/docs/zh-CN/permissions)：规则语法、权限模式和工作区信任
 * [环境变量](/docs/zh-CN/env-vars)：Claude Code 读取的每个 `CLAUDE_*`、`ANTHROPIC_*` 和提供商变量

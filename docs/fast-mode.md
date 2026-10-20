@@ -6,9 +6,9 @@
 
 > 通过切换快速模式在 Claude Code 中获得更快的 Opus 响应。
 
-<Note>
-  快速模式处于[研究预览](#research-preview)阶段。该功能、定价和可用性可能会根据反馈而改变。
-</Note>
+> [!NOTE]
+>
+> 快速模式处于[研究预览](#research-preview)阶段。该功能、定价和可用性可能会根据反馈而改变。
 
 快速模式是 Claude Opus 的高速配置，使模型速度提高最多 2.5 倍，但每个令牌的成本更高。当您需要速度进行交互式工作（如快速迭代或实时调试）时，使用 `/fast` 将其打开，当成本比延迟更重要时，将其关闭。
 
@@ -23,9 +23,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 * 可供订阅计划（Pro/Max/Team/Enterprise）上的 Claude Code 用户和 Claude 控制台使用。Team 和 Enterprise 组织需要所有者先启用它，Console 组织需要先配置访问权限，两者都在[要求](#requirements)下描述。
 * 对于订阅计划（Pro/Max/Team/Enterprise）上的 Claude Code 用户，快速模式仅通过使用额度提供，不包含在订阅速率限制中。
 
-<h2 id="toggle-fast-mode">
-  切换快速模式
-</h2>
+## 切换快速模式
 
 在 CLI 中，通过以下任一方式切换快速模式：
 
@@ -51,9 +49,7 @@ Opus 5.5 是 Claude Code v2.1.280 及更高版本中的快速模式默认值。�
 
 当您再次使用 `/fast` 禁用快速模式时，您仍然保持在 Opus 上。要切换到不同的模型，请使用 `/model`。
 
-<h3 id="switch-models-while-fast-mode-is-on">
-  在快速模式打开时切换模型
-</h3>
+### 在快速模式打开时切换模型
 
 快速模式在两个方向上都遵循您的模型切换：
 
@@ -64,9 +60,7 @@ Opus 5.5 是 Claude Code v2.1.280 及更高版本中的快速模式默认值。�
 
 Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fast-mode-behind-proxies-and-llm-gateways)后，会将会话的快速模式状态重新发送到通过远程控制连接的设备。
 
-<h3 id="use-fast-mode-in-cloud-sessions">
-  在云会话中使用快速模式
-</h3>
+### 在云会话中使用快速模式
 
 当快速模式在您的账户上可用时，快速模式在[云会话](/docs/zh-CN/claude-code-on-the-web)中工作，无论会话是在 Anthropic 管理的基础设施还是[自托管运行器](/docs/zh-CN/self-hosted-environments)上运行。需要会话环境中的 Claude Code v2.1.271 或更高版本。
 
@@ -74,9 +68,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 在浏览器中访问 [claude.ai/code](https://claude.ai/code)，您也可以从消息框上的模型菜单打开和关闭快速模式。当您的计划包含快速模式且所选模型支持它时，菜单会显示该开关。
 
-<h2 id="understand-the-cost-tradeoff">
-  了解成本权衡
-</h2>
+## 了解成本权衡
 
 快速模式的每个令牌定价高于标准 Opus：
 
@@ -90,9 +82,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 在对话中首次启用快速模式时，您需要为整个对话上下文支付完整的快速模式未缓存输入 token 价格。对话进行得越深入，成本就越高，因此在对话开始时启用快速模式的费用最低。该成本每个对话只应用一次，因此稍后关闭快速模式再打开不会重复收费。有关机制，请参阅 [快速模式如何与提示缓存交互](/docs/zh-CN/prompt-caching#turning-on-fast-mode)。
 
-<h3 id="see-where-fast-mode-spend-appears">
-  查看快速模式支出出现的位置
-</h3>
+### 查看快速模式支出出现的位置
 
 您看到快速模式支出的位置取决于您如何登录，因此首先运行 [`/status`](/docs/zh-CN/commands) 来检查。如果它显示 `Login method` 行（例如 `Claude Max account`），则您使用 Claude 订阅登录。如果它显示 `API key` 行，则您的请求计费到 Claude Console 组织。
 
@@ -100,9 +90,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 * **Team 和 Enterprise**：您的组织从其使用额度中支付您的快速模式使用费用。要查看您自己的使用额度支出，运行 [`/usage`](/docs/zh-CN/costs#check-your-usage-credits-spend)。有关您的组织在哪里看到该支出，请参阅 [Claude for Teams and Enterprise](/docs/zh-CN/costs#claude-for-teams-and-enterprise)。
 * **Claude Console**：您的组织使用其 API 使用的其余部分支付快速模式费用。在 Console [Usage](https://platform.claude.com/usage) 和 [Cost](https://platform.claude.com/cost) 页面上，在 **Group by** 菜单中选择 **Speed (Research Preview)** 以将快速模式与标准速度使用分开。只有当选定的日期范围包括快速模式使用时，您才会看到该选项。
 
-<h2 id="decide-when-to-use-fast-mode">
-  决定何时使用快速模式
-</h2>
+## 决定何时使用快速模式
 
 快速模式最适合响应延迟比成本更重要的交互式工作：
 
@@ -116,9 +104,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 * 批处理或 CI/CD 管道
 * 成本敏感的工作负载
 
-<h3 id="fast-mode-vs-effort-level">
-  快速模式与努力级别
-</h3>
+### 快速模式与努力级别
 
 快速模式和努力级别都会影响响应速度，但方式不同：
 
@@ -129,9 +115,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 您可以结合两者：在直接任务上使用快速模式和较低的[努力级别](/docs/zh-CN/model-config#adjust-effort-level)以获得最大速度。
 
-<h2 id="requirements">
-  要求
-</h2>
+## 要求
 
 快速模式需要以下所有条件：
 
@@ -140,25 +124,23 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
   * 在 Pro 和 Max 上，在 claude.ai 上的[**Settings > Usage**](https://claude.ai/settings/usage)的**Usage credits**部分中启用它们，或运行 `/usage-credits` 来打开该页面。
   * 在 Team 和 Enterprise 上，具有计费访问权限的成员在[**Organization settings > Usage**](https://claude.ai/admin-settings/usage)处为组织启用它们，没有访问权限的成员运行 `/usage-credits` 向组织的管理员发送请求。
 
-<Note>
-  快速模式使用直接计入使用额度，即使您的计划上还有剩余使用量。
-</Note>
+> [!NOTE]
+>
+> 快速模式使用直接计入使用额度，即使您的计划上还有剩余使用量。
 
 * **付费控制台组织**：Claude 控制台账户不使用使用额度，您的组织按令牌为快速模式付费，与其余 API 使用量一起。在控制台的免费 Evaluation 计划上，`/fast` 显示"Fast mode unavailable during evaluation. Please purchase credits."。要清除它，在您的[控制台计费设置](https://platform.claude.com/settings/billing)中购买额度。
 * **团队和企业的所有者启用**：快速模式默认对团队和企业组织禁用。所有者必须明确[启用快速模式](#enable-fast-mode-for-your-organization)，用户才能访问它。
 
-<Note>
-  四个组织设置可以阻止使用 `/fast` 启用快速模式：
+> [!NOTE]
+>
+> 四个组织设置可以阻止使用 `/fast` 启用快速模式：
+>
+> * **快速模式未启用**：如果您的组织尚未启用快速模式，使用 `/fast` 启用快速模式会显示"Fast mode has been disabled by your organization."。
+> * **快速模式被托管设置关闭**：如果您的组织部署[托管设置](/docs/zh-CN/managed-settings)，设置 [`fastMode: false`](/docs/zh-CN/settings-reference#fastmode)，使用 `/fast` 启用快速模式会显示相同的"Fast mode has been disabled by your organization"消息。
+> * **需要每个会话选择加入**：托管设置设置 [`fastModePerSessionOptIn: true`](#require-per-session-opt-in) 在除交互式终端会话外的任何地方都拒绝 `/fast on`，显示相同的消息。
+> * **快速模式模型不允许**：如果您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了快速模式 Opus 模型，启用它会被拒绝，显示"is not in your organization's allowed models"。在已在支持快速模式的允许 Opus 模型上运行的会话中，`/fast` 改为在您当前的模型上启用快速模式，而不是切换模型。
 
-  * **快速模式未启用**：如果您的组织尚未启用快速模式，使用 `/fast` 启用快速模式会显示"Fast mode has been disabled by your organization."。
-  * **快速模式被托管设置关闭**：如果您的组织部署[托管设置](/docs/zh-CN/managed-settings)，设置 [`fastMode: false`](/docs/zh-CN/settings-reference#fastmode)，使用 `/fast` 启用快速模式会显示相同的"Fast mode has been disabled by your organization"消息。
-  * **需要每个会话选择加入**：托管设置设置 [`fastModePerSessionOptIn: true`](#require-per-session-opt-in) 在除交互式终端会话外的任何地方都拒绝 `/fast on`，显示相同的消息。
-  * **快速模式模型不允许**：如果您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了快速模式 Opus 模型，启用它会被拒绝，显示"is not in your organization's allowed models"。在已在支持快速模式的允许 Opus 模型上运行的会话中，`/fast` 改为在您当前的模型上启用快速模式，而不是切换模型。
-</Note>
-
-<h3 id="enable-fast-mode-for-your-organization">
-  为您的组织启用快速模式
-</h3>
+### 为您的组织启用快速模式
 
 您启用快速模式的位置取决于您的组织使用的产品：
 
@@ -169,9 +151,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 另一个完全禁用快速模式的选项是设置 `CLAUDE_CODE_DISABLE_FAST_MODE=1`。请参阅[环境变量](/docs/zh-CN/env-vars)。
 
-<h3 id="use-fast-mode-behind-proxies-and-llm-gateways">
-  在代理和 LLM 网关后面使用快速模式
-</h3>
+### 在代理和 LLM 网关后面使用快速模式
 
 在提供快速模式之前，Claude Code 会通过直接请求 `api.anthropic.com` 来检查您的组织的快速模式可用性。该检查不遵循 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential)，因此在通过 [LLM 网关](/docs/zh-CN/llm-gateway)路由 Claude 流量并阻止直接出站到 `api.anthropic.com` 的网络上，即使推理请求有效，检查也会失败。该检查确实使用配置的 [HTTP 代理](/docs/zh-CN/network-config#proxy-configuration)，因此网络块仅在 `api.anthropic.com` 即使通过代理也无法到达的地方才会导致检查失败。
 
@@ -195,9 +175,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 也会抑制可用性检查。没有之前缓存的成功检查，`/fast` 报告"Fast mode is currently unavailable"；两个跳过变量在该配置中也会恢复快速模式。
 
-<h3 id="require-per-session-opt-in">
-  要求每个会话选择加入
-</h3>
+### 要求每个会话选择加入
 
 默认情况下，用户在交互式会话中启用的快速模式会在会话之间保持。要更改此行为，在任何[设置文件](/docs/zh-CN/settings#where-settings-live)中将 `fastModePerSessionOptIn` 设置为 `true`，这会导致每个会话以快速模式关闭开始，并要求用户使用 `/fast` 明确启用它。[Team](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=fast_mode_teams#team-&-enterprise) 或 [Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=fast_mode_enterprise) 计划上的所有者可以通过[服务器托管设置](/docs/zh-CN/server-managed-settings)在组织范围内部署它。
 
@@ -211,9 +189,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 当托管设置设置该密钥时，`/fast on` 仅在交互式终端会话中有效。在其他任何地方，包括[非交互式模式](/docs/zh-CN/headless)、[VS Code 扩展](/docs/zh-CN/vs-code)和[云会话](#use-fast-mode-in-cloud-sessions)，它会被拒绝，显示您的组织已禁用快速模式的消息。
 
-<h2 id="handle-rate-limits">
-  处理速率限制
-</h2>
+## 处理速率限制
 
 快速模式与标准 Opus 有单独的速率限制。所有支持的 Opus 模型共享一个快速模式速率限制池：任何模型上的使用都会从相同的限制中扣除。当您达到快速模式速率限制时：
 
@@ -229,9 +205,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 * 在交互式会话中，Claude Code 显示"快速模式已禁用 · 使用额度已耗尽"通知，并在会话的其余部分关闭快速模式。您保存的快速模式偏好设置不会改变；运行 `/fast` 以重新打开快速模式。
 * 在[非交互式模式](/docs/zh-CN/headless)中使用 `--output-format stream-json`，以及通过 Agent SDK，Claude Code 在消息流上作为 `system` 消息发出相同的文本，子类型为 `notification`，在您用完使用额度时每轮一次。快速模式保持打开。需要 Claude Code v2.1.221 或更高版本。
 
-<h2 id="research-preview">
-  研究预览
-</h2>
+## 研究预览
 
 快速模式是一个研究预览功能。这意味着：
 
@@ -241,9 +215,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 通过您通常的 Anthropic 支持渠道报告问题或反馈。
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 * [模型配置](/docs/zh-CN/model-config)：切换模型并调整努力级别
 * [有效管理成本](/docs/zh-CN/costs)：跟踪令牌使用情况并降低成本

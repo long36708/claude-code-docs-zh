@@ -8,13 +8,11 @@
 
 服务器管理的设置允许组织所有者通过 claude.ai 控制台中的 [**Organization settings > Claude Code > Managed settings**](https://claude.ai/admin-settings/claude-code) 集中配置 Claude Code。Claude Code 客户端在用户使用符合条件的凭据在支持服务器管理交付的平台上进行身份验证时自动获取这些设置。请参阅[平台可用性](#platform-availability)了解符合条件的凭据和平台。
 
-<Note>
-  服务器管理的设置可供 [Claude for Teams](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=server_settings_teams#team-&-enterprise) 和 [Claude for Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=server_settings_enterprise) 客户使用。
-</Note>
+> [!NOTE]
+>
+> 服务器管理的设置可供 [Claude for Teams](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=server_settings_teams#team-&-enterprise) 和 [Claude for Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=server_settings_enterprise) 客户使用。
 
-<h2 id="requirements">
-  要求
-</h2>
+## 要求
 
 要使用服务器管理的设置，您需要：
 
@@ -22,9 +20,7 @@
 * 您的 Claude 组织中的所有者或主要所有者角色，以查看和编辑配置
 * 对 `api.anthropic.com` 的网络访问
 
-<h2 id="choose-between-server-managed-and-endpoint-managed-settings">
-  在服务器管理和端点管理的设置之间选择
-</h2>
+## 在服务器管理和端点管理的设置之间选择
 
 Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthropic 的服务器传递配置。[端点管理的设置](/docs/zh-CN/managed-settings#delivery-mechanisms)通过本机操作系统策略（macOS 托管首选项、Windows 注册表）或托管设置文件直接部署到设备。
 
@@ -35,73 +31,67 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
 
 如果您的设备已在 MDM 或端点管理解决方案中注册，端点管理的设置提供更强的安全保证，因为设置文件可以在操作系统级别受到保护，防止用户修改。端点管理的设置不会到达 Anthropic 托管环境中的[云会话](/docs/zh-CN/model-config#surface-coverage)，因此在网络上使用 Claude Code 的组织也应该配置服务器管理的设置。[自托管环境](/docs/zh-CN/self-hosted-environments)中的会话也会读取运行器镜像中的托管设置文件。下面的[设置优先级](#settings-precedence)说明了该文件何时适用。
 
-<h2 id="configure-server-managed-settings">
-  配置服务器管理的设置
-</h2>
+## 配置服务器管理的设置
 
-<Steps>
-  <Step title="打开管理控制台">
-    在 claude.ai 控制台中，转到 [**Organization settings > Claude Code > Managed settings**](https://claude.ai/admin-settings/claude-code)。
+**1. 打开管理控制台**
 
-    在 Team 或 Enterprise 组织中，如果页面显示您没有访问权限，请让 [Owner 或 Primary Owner](#access-control) 进行更改。
-  </Step>
+在 claude.ai 控制台中，转到 [**Organization settings > Claude Code > Managed settings**](https://claude.ai/admin-settings/claude-code)。
 
-  <Step title="定义您的设置">
-    将您的配置添加为 JSON。支持 [`settings.json` 中可用的所有设置](/docs/zh-CN/settings-reference#all-settings)，除了限制于操作系统级别策略传递的设置外；有关该简短列表，请参阅[当前限制](#current-limitations)。这包括 [hooks](/docs/zh-CN/hooks)、[环境变量](/docs/zh-CN/env-vars) 和[仅限托管的设置](/docs/zh-CN/managed-settings#managed-only-settings)，如 `allowManagedPermissionRulesOnly`。
+在 Team 或 Enterprise 组织中，如果页面显示您没有访问权限，请让 [Owner 或 Primary Owner](#access-control) 进行更改。
 
-    此示例强制执行权限拒绝列表，防止用户绕过权限，并将权限规则限制为在托管设置中定义的规则。`Bash(curl *)` 规则匹配 `curl` [如 Claude 编写的那样](/docs/zh-CN/permissions#bash-rule-limits)，而不是 `/usr/bin/curl` 或 `sh -c 'curl …'`；对于不依赖于命令文本的网络强制，添加一个[带有 `allowManagedDomainsOnly` 的 `sandbox` 块](/docs/zh-CN/sandboxing#configure-the-sandbox-for-your-organization)。
+**2. 定义您的设置**
 
-    ```json theme={null}
-    {
-      "permissions": {
-        "deny": [
-          "Bash(curl *)",
-          "Read(./.env)",
-          "Read(./.env.*)",
-          "Read(./secrets/**)"
-        ],
-        "disableBypassPermissionsMode": "disable"
-      },
-      "allowManagedPermissionRulesOnly": true
-    }
-    ```
+将您的配置添加为 JSON。支持 [`settings.json` 中可用的所有设置](/docs/zh-CN/settings-reference#all-settings)，除了限制于操作系统级别策略传递的设置外；有关该简短列表，请参阅[当前限制](#current-limitations)。这包括 [hooks](/docs/zh-CN/hooks)、[环境变量](/docs/zh-CN/env-vars) 和[仅限托管的设置](/docs/zh-CN/managed-settings#managed-only-settings)，如 `allowManagedPermissionRulesOnly`。
 
-    Hooks 使用与 `settings.json` 中相同的格式。
+此示例强制执行权限拒绝列表，防止用户绕过权限，并将权限规则限制为在托管设置中定义的规则。`Bash(curl *)` 规则匹配 `curl` [如 Claude 编写的那样](/docs/zh-CN/permissions#bash-rule-limits)，而不是 `/usr/bin/curl` 或 `sh -c 'curl …'`；对于不依赖于命令文本的网络强制，添加一个[带有 `allowManagedDomainsOnly` 的 `sandbox` 块](/docs/zh-CN/sandboxing#configure-the-sandbox-for-your-organization)。
 
-    此示例在整个组织中每次文件编辑后运行审计脚本：
+```json theme={null}
+{
+  "permissions": {
+    "deny": [
+      "Bash(curl *)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)"
+    ],
+    "disableBypassPermissionsMode": "disable"
+  },
+  "allowManagedPermissionRulesOnly": true
+}
+```
 
-    ```json theme={null}
-    {
-      "hooks": {
-        "PostToolUse": [
-          {
-            "matcher": "Edit|Write",
-            "hooks": [
-              { "type": "command", "command": "/usr/local/bin/audit-edit.sh" }
-            ]
-          }
+Hooks 使用与 `settings.json` 中相同的格式。
+
+此示例在整个组织中每次文件编辑后运行审计脚本：
+
+```json theme={null}
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "/usr/local/bin/audit-edit.sh" }
         ]
       }
-    }
-    ```
+    ]
+  }
+}
+```
 
-    由于 hooks 执行 shell 命令，交互式会话中的用户在 Claude Code 应用它们之前会看到[安全批准对话框](#security-approval-dialogs)。
+由于 hooks 执行 shell 命令，交互式会话中的用户在 Claude Code 应用它们之前会看到[安全批准对话框](#security-approval-dialogs)。
 
-    要配置[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器，使其了解您的组织信任的存储库、存储桶和域，以相同的方式传递 `autoMode` 块；有关 `autoMode` 条目如何影响分类器阻止的内容以及关于 `environment`、`allow`、`soft_deny` 和 `hard_deny` 字段的重要警告，请参阅[配置自动模式](/docs/zh-CN/auto-mode-config)。
-  </Step>
+要配置[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器，使其了解您的组织信任的存储库、存储桶和域，以相同的方式传递 `autoMode` 块；有关 `autoMode` 条目如何影响分类器阻止的内容以及关于 `environment`、`allow`、`soft_deny` 和 `hard_deny` 字段的重要警告，请参阅[配置自动模式](/docs/zh-CN/auto-mode-config)。
 
-  <Step title="保存并部署">
-    保存您的更改。Claude Code 客户端在下次启动或每小时轮询周期时接收更新的设置。
+**3. 保存并部署**
 
-    编辑器会根据已发布的 Claude Code 设置 JSON schema 检查您的 JSON。如果在可解析的 JSON 中发现问题，它会显示警告并更改保存按钮的标签。当已保存设置时，标签为 **Update with errors**；当尚未保存任何设置时，标签为 **Add with errors**。该按钮仍然会保存，因为 schema 警告不会阻止保存。
+保存您的更改。Claude Code 客户端在下次启动或每小时轮询周期时接收更新的设置。
 
-    该 schema [可能落后于最新版本](/docs/zh-CN/settings#edit-a-settings-file)，因此编辑器可能会标记[设置参考](/docs/zh-CN/settings-reference#all-settings)中已记录的键或值。Claude Code 会接收您保存的键和值，并在加载它们时运行[自己的验证](#invalid-entries-in-delivered-settings)。
-  </Step>
-</Steps>
+编辑器会根据已发布的 Claude Code 设置 JSON schema 检查您的 JSON。如果在可解析的 JSON 中发现问题，它会显示警告并更改保存按钮的标签。当已保存设置时，标签为 **Update with errors**；当尚未保存任何设置时，标签为 **Add with errors**。该按钮仍然会保存，因为 schema 警告不会阻止保存。
 
-<h3 id="verify-settings-delivery">
-  验证设置传递
-</h3>
+该 schema [可能落后于最新版本](/docs/zh-CN/settings#edit-a-settings-file)，因此编辑器可能会标记[设置参考](/docs/zh-CN/settings-reference#all-settings)中已记录的键或值。Claude Code 会接收您保存的键和值，并在加载它们时运行[自己的验证](#invalid-entries-in-delivered-settings)。
+
+### 验证设置传递
 
 要确认设置正在被应用，请要求用户重新启动 Claude Code。如果配置包含触发[安全批准对话框](#security-approval-dialogs)的设置，用户会在 Claude Code 下次获取它们时看到描述托管设置的提示：在下次启动时，或在运行的交互式会话中的一小时内。您还可以通过让用户运行 `/permissions` 来验证托管权限规则是否处于活动状态，以查看其有效的权限规则。
 
@@ -116,9 +106,7 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
 
 在运行的会话中，`/status` 在获取失败后显示相同的行，对于某些跳过获取的原因，例如第三方提供商变量或用户 shell 中导出的自定义 `ANTHROPIC_BASE_URL`。
 
-<h3 id="access-control">
-  访问控制
-</h3>
+### 访问控制
 
 以下角色可以管理服务器管理的设置：
 
@@ -127,15 +115,11 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
 
 限制对受信任人员的访问，因为设置更改适用于组织中的所有用户。
 
-<h3 id="managed-only-settings">
-  仅限托管的设置
-</h3>
+### 仅限托管的设置
 
 大多数[设置键](/docs/zh-CN/settings-reference#all-settings)可在任何范围内工作。少数几个键仅从托管设置中读取，当放置在用户或项目设置文件中时无效。有关权限和插件控制，请参阅[仅限托管的设置](/docs/zh-CN/managed-settings#managed-only-settings)，或读取[所有设置](/docs/zh-CN/settings-reference#all-settings)索引的 Scope 列以获取完整集合。
 
-<h3 id="current-limitations">
-  当前限制
-</h3>
+### 当前限制
 
 服务器管理的设置有以下限制：
 
@@ -145,13 +129,9 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
   Claude Code 在其[系统路径](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json)处部署的 `managed-mcp.json` 与托管设置层分开读取，因此当服务器管理的设置生效时，该文件仍然适用。
 * 限制于操作系统级别策略源的设置，如 `policyHelper` 和 `wslInheritsWindowsSettings`，不被遵守。改为通过 MDM 或系统 `managed-settings.json` 文件部署它们。在[托管层内的优先级](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)下选择的源是该源时，以这种方式部署的 `policyHelper` 仅运行。
 
-<h2 id="settings-delivery">
-  设置传递
-</h2>
+## 设置传递
 
-<h3 id="settings-precedence">
-  设置优先级
-</h3>
+### 设置优先级
 
 服务器管理的设置和[端点管理的设置](/docs/zh-CN/managed-settings#delivery-mechanisms)都占据 Claude Code [设置层次结构](/docs/zh-CN/settings#settings-precedence)中的最高层。您在此处设置的键优先于用户自己的设置文件中或 `--settings` 值中的同一键，[托管设置优先级的例外](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)除外。
 
@@ -163,9 +143,7 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
 
 如果您在管理控制台中清除服务器管理的配置，意图回退到端点管理的 plist 或注册表策略，请注意[缓存的设置](#fetch-and-caching-behavior)在客户端机器上持久化，直到下次成功获取，而[仅在下次启动时应用](#fetch-and-caching-behavior)的键（例如 `model`）保持有效，直到每个客户端重新启动。运行 `/status` 查看哪个托管源处于活动状态。
 
-<h3 id="per-key-exceptions-across-managed-sources">
-  跨托管源的每键例外
-</h3>
+### 跨托管源的每键例外
 
 这些键是无合并规则的例外：
 
@@ -178,9 +156,7 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
 * **`allowedProviders`**：机器上设置的列表和服务器管理的列表按照[其条目的范围说明](/docs/zh-CN/settings-reference#allowedproviders)所述进行组合。需要 Claude Code v2.1.285 或更高版本
 * **网关登录键**：Claude Code 永远不会从服务器管理的设置中读取 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl)、[`gatewayInternalNetworks`](/docs/zh-CN/settings-reference#gatewayinternalnetworks) 或 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值，因此服务器管理的设置中的值既不适用也不隐藏在 MDM 策略或托管设置文件中设置的值。[`managedSourcesBehavior` 条目](/docs/zh-CN/settings-reference#managedsourcesbehavior)说明机器上的哪个管理员源提供它们。
 
-<h3 id="fetch-and-caching-behavior">
-  获取和缓存行为
-</h3>
+### 获取和缓存行为
 
 Claude Code 在启动时从 Anthropic 的服务器获取设置，并在活动会话期间每小时轮询一次更新。
 
@@ -217,9 +193,7 @@ Claude Code 仅在启动时读取工作负载身份联合变量以及 `ANTHROPIC
 
 Claude Code 将大多数设置更新应用于运行的会话而无需重新启动。某些更新仅在下次启动时应用，包括 OpenTelemetry 导出器配置、`model` 键以及从 `env` 块中移除变量。
 
-<h3 id="invalid-entries-in-delivered-settings">
-  已传递设置中的无效条目
-</h3>
+### 已传递设置中的无效条目
 
 当有效负载的一部分未通过架构验证时，Claude Code 会显示验证错误并应用每个剩余的有效设置；[托管设置中的无效条目](/docs/zh-CN/managed-settings#invalid-entries-in-managed-settings)说明它删除了什么以及哪些键回退到更严格的值。需要 Claude Code v2.1.169 或更高版本。
 
@@ -240,9 +214,7 @@ Claude Code 将大多数设置更新应用于运行的会话而无需重新启�
 
 要调试传递问题，请运行 `claude --debug-file <path>` 并在日志中搜索 `Remote settings`。在向组织推出有效负载更改之前，使用 `claude doctor` 在测试机器上验证有效负载更改。
 
-<h3 id="enforce-fail-closed-startup">
-  强制执行故障关闭启动
-</h3>
+### 强制执行故障关闭启动
 
 默认情况下，如果远程设置获取在启动时失败，CLI 继续运行，使用从上次成功获取缓存的设置，但 [Claude Code 在获取成功前暂扣的值](#fetch-and-caching-behavior)除外。在从未获取过它们的机器上，CLI 继续运行而不使用服务器管理的设置，仍然应用设备上的任何[端点管理的设置](/docs/zh-CN/managed-settings#delivery-mechanisms)。
 
@@ -273,9 +245,7 @@ Claude Code 将大多数设置更新应用于运行的会话而无需重新启�
 
 `claude auth` 子命令（例如 `claude auth login`）不受此检查和网关启动退出的限制，因此用户可以在过期的凭证是设置获取失败的原因时重新身份验证。
 
-<h3 id="security-approval-dialogs">
-  安全批准对话框
-</h3>
+### 安全批准对话框
 
 某些可能带来安全风险的设置在 Claude Code 在交互式会话中应用它们之前需要明确的用户批准：
 
@@ -289,9 +259,7 @@ Claude Code 将大多数设置更新应用于运行的会话而无需重新启�
 
 通过 [`claudeMd`](/docs/zh-CN/settings-reference#claudemd) 键传递的托管 CLAUDE.md 不需要批准，因为它是 Claude 的指令文本，而不是 Claude Code 运行的命令。Claude Code 仍然检查 Claude 在遵循这些指令时使用的工具的[权限](/docs/zh-CN/permissions)。在 v2.1.260 之前，`claudeMd` 值需要批准。
 
-<h4 id="approval-memory">
-  批准记忆
-</h4>
+#### 批准记忆
 
 Claude Code 在您的配置目录 `~/.claude` 中记录您的批准，除非您设置 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)。它记录的内容取决于设置获取使用的凭证：
 
@@ -317,9 +285,7 @@ Claude Code 无法始终显示对话框。下面的每种情况说明当它无�
 * **错误在您回答前关闭对话框**：Claude Code 不应用传递的设置，保留最后批准的设置。它在下一个可以显示它的会话中再次显示对话框。
 * **非交互式运行**，例如 `claude -p`、Agent SDK 会话或 VS Code 扩展的聊天面板或桌面应用的代码选项卡中的会话：Claude Code 无法显示对话框，因此当传递的设置需要批准时，它仅为该运行应用它们。它不将它们记录为已批准或写入[本地缓存](#fetch-and-caching-behavior)，下一个交互式会话会显示对话框。在用户在交互式会话中批准之前，每个非交互式运行都会在启动时再次获取设置。在 v2.1.207 之前，非交互式运行会将设置保存为已批准，因此后来的交互式会话永远不会为它们显示对话框。
 
-<h4 id="environment-variables-and-the-approval-dialog">
-  环境变量和批准对话框
-</h4>
+#### 环境变量和批准对话框
 
 Claude Code 应用某些传递的 `env` 变量而不显示用户批准对话框，包括：
 
@@ -339,9 +305,7 @@ Claude Code 也根据传递的值决定 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/e
 
 [`ENABLE_BETA_TRACING_DETAILED`](/docs/zh-CN/env-vars#variables) 或 [`OTEL_LOG_RAW_API_BODIES`](/docs/zh-CN/env-vars#variables) 的假值（例如 `0` 或 `false`）应用而无需对话框，因为它仅关闭详细跟踪或原始 API 主体捕获。任何其他非空值对于任一变量都需要批准。
 
-<h2 id="platform-availability">
-  平台可用性
-</h2>
+## 平台可用性
 
 服务器管理的设置需要直接连接到 `api.anthropic.com`。交付还需要会话使用以下凭证之一进行身份验证：
 
@@ -367,17 +331,13 @@ Claude Code 也根据传递的值决定 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/e
 
 对于 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 部署，自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 提供等效的远程管理设置交付：网关登录的客户端从网关而不是 `api.anthropic.com` 获取管理设置。启动时的失败语义不同：无法到达网关的网关客户端以错误退出，而不是回退到缓存的设置，而每小时的后台刷新在两个通道上都是故障开放的。
 
-<h2 id="audit-logging">
-  审计日志
-</h2>
+## 审计日志
 
 设置更改的审计日志事件可通过合规 API 或审计日志导出获得。请联系您的 Anthropic 账户团队以获取访问权限。
 
 审计事件包括执行的操作类型、执行操作的账户和设备，以及对先前值和新值的引用。
 
-<h2 id="security-considerations">
-  安全考虑
-</h2>
+## 安全考虑
 
 服务器管理的设置提供集中的策略强制执行，但它们作为客户端控制运行，而不是安全边界。在非托管设备上，用户不需要管理员或 sudo 访问权限来绕过它们。
 
@@ -396,9 +356,7 @@ Claude Code 也根据传递的值决定 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/e
 
 要限制用户可以使用客户端提供的凭证访问的组织，请参阅 Claude 帮助中心中的[使用租户限制强制执行网络级访问控制](https://support.claude.com/en/articles/13198485-enforce-network-level-access-control-with-tenant-restrictions)。为了获得更强的强制执行保证，请在已在 MDM 解决方案中注册的设备上使用[端点管理的设置](/docs/zh-CN/managed-settings#delivery-mechanisms)。
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 用于管理 Claude Code 配置的相关页面：
 

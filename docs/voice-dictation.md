@@ -10,9 +10,7 @@
 
 在[按住模式](#hold-to-record)下，听写功能也适用于 [Agent 视图](/docs/zh-CN/agent-view#peek-and-reply)。在 Dispatch 输入框或窥视面板回复获得焦点时，按住您的按键通话键，即可向后台会话进行听写。
 
-<h2 id="requirements">
-  要求
-</h2>
+## 要求
 
 语音听写将你录制的音频流传输到 Anthropic 的服务器进行转录。音频不在本地处理。它需要以下所有条件：
 
@@ -26,9 +24,7 @@
 
 Claude Code [VS Code 扩展](/docs/zh-CN/vs-code)也支持语音听写，具有相同的 Claude.ai 账户要求。它在 VS Code Remote 会话中不可用，包括 SSH、Dev Containers 和 Codespaces，因为麦克风在你的本地机器上，而扩展在远程主机上运行。
 
-<h2 id="enable-voice-dictation">
-  启用语音听写
-</h2>
+## 启用语音听写
 
 运行 `/voice` 启用听写。启用时，Claude Code 会运行麦克风检查。在 macOS 上，如果之前从未授予过权限，这会触发终端的系统麦克风权限提示。
 
@@ -61,9 +57,7 @@ Voice mode enabled (hold). Hold space to record. Dictation language: en (/config
 
 转录在两种模式中都针对编码词汇进行了调整。常见的开发术语如 `regex`、`OAuth`、`JSON` 和 `localhost` 被正确识别，你当前的项目名称和 git 分支名称会自动添加为识别提示。
 
-<h2 id="hold-to-record">
-  按住录音
-</h2>
+## 按住录音
 
 按住模式是按键通话：当你按住键时录制运行，释放时停止。这是默认模式。
 
@@ -73,9 +67,9 @@ Voice mode enabled (hold). Hold space to record. Dictation language: en (/config
 
 按住或点击 `Space` 仅在按键会输入到提示词的地方开始听写。在[转录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)中，`Space` 翻页浏览对话，在[vim 模式](/docs/zh-CN/interactive-mode#vim-editor-mode)的非 INSERT 状态下它是一个命令。[重新绑定的修饰符组合](#rebind-the-dictation-key)（如 `meta+k`）永远不会输入文本，所以它也可以从这些地方开始听写。
 
-<Tip>
-  要跳过预热，使用 `/voice tap` 切换到[点击模式](#tap-to-record-and-send)，或[重新绑定到修饰符组合](#rebind-the-dictation-key)，如 `meta+k`。修饰符组合在第一次按键时开始录制。
-</Tip>
+> [!TIP]
+>
+> 要跳过预热，使用 `/voice tap` 切换到[点击模式](#tap-to-record-and-send)，或[重新绑定到修饰符组合](#rebind-the-dictation-key)，如 `meta+k`。修饰符组合在第一次按键时开始录制。
 
 你的语音在你说话时出现在提示词中，在转录最终确定之前会变暗。释放 `Space` 停止录制并最终确定文本。转录被插入到你的光标位置，光标保持在插入文本的末尾，所以你可以以任何顺序混合输入和听写。再次按住 `Space` 追加另一个录制，或先移动光标以在提示词中的其他地方插入语音：
 
@@ -87,9 +81,7 @@ Voice mode enabled (hold). Hold space to record. Dictation language: en (/config
 
 默认情况下，释放键会插入转录并等待你按 `Enter`。在 `voice` 设置对象中设置 `"autoSubmit": true` 以在释放键时自动发送提示词，只要转录至少有三个单词。
 
-<h2 id="tap-to-record-and-send">
-  点击录音并发送
-</h2>
+## 点击录音并发送
 
 点击模式使用单个按键切换录制：点击一次开始，说话，然后再点击一次发送提示词。没有预热，你不需要保持键被按住。
 
@@ -101,9 +93,7 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 
 第一次点击仅在提示词输入为空时开始录制，所以你仍然可以在撰写消息时正常输入空格。第二次点击停止录制，无论输入内容如何。录制也会在 15 秒无声或总共两分钟后自动停止。
 
-<h2 id="cancel-a-recording">
-  取消录音
-</h2>
+## 取消录音
 
 按 `Esc` 或 `Ctrl+C` 可以取消听写，而不是完成它。Claude Code 会停止麦克风，丢弃转录文本，并将提示恢复到录音开始前的状态。
 
@@ -111,36 +101,34 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 
 这两个键在取消的按键中不执行任何其他操作：`Esc` 不会中断 Claude 的响应，`Ctrl+C` 不会清除提示或计为 [退出 Claude Code 的两次按键中的第一次](/docs/zh-CN/interactive-mode#general-controls)。
 
-<h2 id="change-the-dictation-language">
-  更改听写语言
-</h2>
+## 更改听写语言
 
 语音听写使用与控制 Claude 响应语言相同的[`language` 设置](/docs/zh-CN/settings-reference#language)。如果该设置为空，听写默认为英语。在 VS Code 扩展中，如果 `language` 为空，听写在默认为英语之前使用 VS Code 的 `accessibility.voice.speechLanguage` 设置。
 
-<Accordion title="支持的听写语言">
-  | 语言 | 代码 |
-  | :- | :- |
-  | 捷克语 | `cs` |
-  | 丹麦语 | `da` |
-  | 荷兰语 | `nl` |
-  | 英语 | `en` |
-  | 法语 | `fr` |
-  | 德语 | `de` |
-  | 希腊语 | `el` |
-  | 印地语 | `hi` |
-  | 印度尼西亚语 | `id` |
-  | 意大利语 | `it` |
-  | 日语 | `ja` |
-  | 韩语 | `ko` |
-  | 挪威语 | `no` |
-  | 波兰语 | `pl` |
-  | 葡萄牙语 | `pt` |
-  | 俄语 | `ru` |
-  | 西班牙语 | `es` |
-  | 瑞典语 | `sv` |
-  | 土耳其语 | `tr` |
-  | 乌克兰语 | `uk` |
-</Accordion>
+> **支持的听写语言**
+>
+> | 语言 | 代码 |
+> | :- | :- |
+> | 捷克语 | `cs` |
+> | 丹麦语 | `da` |
+> | 荷兰语 | `nl` |
+> | 英语 | `en` |
+> | 法语 | `fr` |
+> | 德语 | `de` |
+> | 希腊语 | `el` |
+> | 印地语 | `hi` |
+> | 印度尼西亚语 | `id` |
+> | 意大利语 | `it` |
+> | 日语 | `ja` |
+> | 韩语 | `ko` |
+> | 挪威语 | `no` |
+> | 波兰语 | `pl` |
+> | 葡萄牙语 | `pt` |
+> | 俄语 | `ru` |
+> | 西班牙语 | `es` |
+> | 瑞典语 | `sv` |
+> | 土耳其语 | `tr` |
+> | 乌克兰语 | `uk` |
 
 在 `/config` 中或直接在设置中设置语言。你可以使用 [BCP 47 语言代码](https://en.wikipedia.org/wiki/IETF_language_tag)或语言名称：
 
@@ -152,9 +140,7 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 
 如果你的 `language` 设置不在支持的列表中，`/voice` 在启用时会警告你，并为听写回退到英语。Claude 的文本响应不受此回退的影响。
 
-<h2 id="rebind-the-dictation-key">
-  重新绑定听写键
-</h2>
+## 重新绑定听写键
 
 听写键在 `Chat` 上下文中绑定到 `voice:pushToTalk`，默认为 `Space`。相同的绑定控制按住和点击模式。在 [`~/.claude/keybindings.json`](/docs/zh-CN/keybindings) 中重新绑定它：
 
@@ -178,9 +164,7 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 
 某些键不会传递到终端应用程序，根本无法绑定。例如，如果你尝试绑定 `Caps Lock`，会显示错误。有关完整的快捷键语法和保留快捷键列表，请参阅[自定义键盘快捷键](/docs/zh-CN/keybindings)。
 
-<h2 id="troubleshooting">
-  故障排除
-</h2>
+## 故障排除
 
 语音听写不激活或不录制时的常见问题：
 
@@ -200,33 +184,27 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 * **`No speech detected`**：音频到达转录服务但未识别任何单词。靠近麦克风说话，减少背景噪音，并确认你的[听写语言](#change-the-dictation-language)与你说话的语言匹配。
 * **转录是乱码或使用了错误的语言**：听写默认为英语。如果你用另一种语言听写，请先在 `/config` 中设置它。请参阅[更改听写语言](#change-the-dictation-language)。
 
-<h3 id="terminal-not-listed-in-macos-microphone-settings">
-  终端未在 macOS 麦克风设置中列出
-</h3>
+### 终端未在 macOS 麦克风设置中列出
 
 如果你的终端应用未出现在系统设置 → 隐私和安全 → 麦克风下，则没有你可以启用的切换。重置你的终端的权限状态，以便下一次 `/voice` 运行触发新的 macOS 权限提示。
 
-<Steps>
-  <Step title="重置你的终端的麦克风权限">
-    运行 `tccutil reset Microphone <bundle-id>`，将 `<bundle-id>` 替换为你的终端的标识符：内置终端为 `com.apple.Terminal`，或 iTerm2 为 `com.googlecode.iterm2`。对于其他终端，使用 `osascript -e 'id of app "AppName"'` 查找标识符。
+**1. 重置你的终端的麦克风权限**
 
-    <Warning>
-      你可以运行 `tccutil reset Microphone` 而不带 bundle ID，但这会撤销 Mac 上每个应用的麦克风访问权限，包括 Zoom 或 Slack 等应用。每个应用在下次使用时都需要重新请求访问权限，所以不要在活跃通话期间运行它。
-    </Warning>
-  </Step>
+运行 `tccutil reset Microphone <bundle-id>`，将 `<bundle-id>` 替换为你的终端的标识符：内置终端为 `com.apple.Terminal`，或 iTerm2 为 `com.googlecode.iterm2`。对于其他终端，使用 `osascript -e 'id of app "AppName"'` 查找标识符。
 
-  <Step title="退出并重新启动你的终端">
-    macOS 不会重新提示已在运行的进程。使用 Cmd+Q 退出终端应用，而不仅仅是关闭其窗口，然后再次打开它。
-  </Step>
+> [!WARNING]
+>
+> 你可以运行 `tccutil reset Microphone` 而不带 bundle ID，但这会撤销 Mac 上每个应用的麦克风访问权限，包括 Zoom 或 Slack 等应用。每个应用在下次使用时都需要重新请求访问权限，所以不要在活跃通话期间运行它。
 
-  <Step title="触发新的提示">
-    启动 Claude Code 并运行 `/voice`。macOS 提示输入麦克风访问权限；允许它。
-  </Step>
-</Steps>
+**2. 退出并重新启动你的终端**
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+macOS 不会重新提示已在运行的进程。使用 Cmd+Q 退出终端应用，而不仅仅是关闭其窗口，然后再次打开它。
+
+**3. 触发新的提示**
+
+启动 Claude Code 并运行 `/voice`。macOS 提示输入麦克风访问权限；允许它。
+
+## 另请参阅
 
 * [自定义键盘快捷键](/docs/zh-CN/keybindings)：重新绑定 `voice:pushToTalk` 和其他 CLI 键盘操作
 * [所有设置](/docs/zh-CN/settings-reference#voice)：`voice`、`language` 和其他设置键

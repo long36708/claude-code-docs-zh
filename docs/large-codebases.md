@@ -10,15 +10,11 @@
 
 本指南向个人开发者和工程团队展示如何将 Claude 的范围限制在任务涉及的代码库部分。每个部分都说明该设置是个人的还是提交到存储库的。
 
-<h2 id="what-this-guide-covers">
-  本指南涵盖的内容
-</h2>
+## 本指南涵盖的内容
 
 下面的[表格](#settings-on-this-page)列出了每个设置及其作用。[之后的文件树](#the-example-monorepo)是本页面每个代码示例所引用的示例 monorepo。
 
-<h3 id="settings-on-this-page">
-  本页面的设置
-</h3>
+### 本页面的设置
 
 下面的每个设置都是独立的。它们相互叠加而不是相互替换，因此应用适合你的存储库的任何设置。[选择从哪里启动 Claude](#choose-where-to-start-claude) 决定了你的设置文件的位置，所以先阅读它。[将其整合在一起](#put-it-together) 展示了所有这些设置的组合。
 
@@ -33,13 +29,11 @@
 | 给 Claude 特定于一个区域的程序，仅在相关时加载 | 按目录的 [skills](#add-per-directory-skills) |
 | 用一套每个人都安装的约定替换许多按目录的 CLAUDE.md 文件 | 内部市场中的 [plugin](#centralize-conventions-when-layering-stops-scaling) |
 
-<Tip>
-  有关在任何存储库中保持上下文较小的工作流技术，例如[在子代理中运行探索](/docs/zh-CN/best-practices#use-subagents-for-investigation)以使文件读取不会进入主对话，请参阅 [Claude Code 的最佳实践](/docs/zh-CN/best-practices)。要向组织中的每个开发者推出基线配置，请参阅[为你的组织设置 Claude Code](/docs/zh-CN/admin-setup)。
-</Tip>
+> [!TIP]
+>
+> 有关在任何存储库中保持上下文较小的工作流技术，例如[在子代理中运行探索](/docs/zh-CN/best-practices#use-subagents-for-investigation)以使文件读取不会进入主对话，请参阅 [Claude Code 的最佳实践](/docs/zh-CN/best-practices)。要向组织中的每个开发者推出基线配置，请参阅[为你的组织设置 Claude Code](/docs/zh-CN/admin-setup)。
 
-<h3 id="the-example-monorepo">
-  示例 monorepo
-</h3>
+### 示例 monorepo
 
 本页面的示例引用了一个包含三个包的 monorepo。相同的模式适用于大型单树代码库：其中示例使用 `packages/api/`，替换为你自己的子系统目录，例如 `src/backend/` 或 `lib/core/`。
 
@@ -60,9 +54,7 @@ monorepo/
       src/
 ```
 
-<h2 id="choose-where-to-start-claude">
-  选择从哪里启动 Claude
-</h2>
+## 选择从哪里启动 Claude
 
 你启动 `claude` 的位置决定了 Claude 可以读取和编辑哪些文件而无需额外权限授予、在启动时加载哪些 CLAUDE.md 文件，以及哪些项目设置适用。
 
@@ -75,9 +67,7 @@ monorepo/
 
 下面的每个部分都说明其设置文件应该位于存储库根目录还是你启动的子目录中，以及它是提交的还是保持本地的。
 
-<h2 id="layer-claude-md-files-by-directory">
-  按目录分层 CLAUDE.md 文件
-</h2>
+## 按目录分层 CLAUDE.md 文件
 
 在大型代码库中，存储库根目录的单个 CLAUDE.md 往往要么增长到覆盖每个子系统的约定，在与当前任务无关的指令上浪费上下文，要么保持太通用而无用。将指令分散在按目录的文件中意味着 Claude 加载存储库范围的规则加上仅你正在处理的代码的约定。
 
@@ -116,9 +106,7 @@ Claude Code 在启动时从您的工作目录和每个父目录加载每个 [CLA
 
 有关 CLAUDE.md 文件如何加载和交互的更多信息，请参阅[内存和项目指令](/docs/zh-CN/memory)。
 
-<h3 id="choose-between-per-directory-claude-md-and-path-scoped-rules">
-  在按目录 CLAUDE.md 和路径范围规则之间选择
-</h3>
+### 在按目录 CLAUDE.md 和路径范围规则之间选择
 
 按目录的 `CLAUDE.md` 文件和 `.claude/rules/` 下的[路径范围规则](/docs/zh-CN/memory#path-specific-rules)都允许你将指令定向到树的一部分。它们在文件位置和加载时间上有所不同。
 
@@ -129,9 +117,7 @@ Claude Code 在启动时从您的工作目录和每个父目录加载每个 [CLA
 
 有关也涵盖 skills 的比较，请参阅[比较相似功能](/docs/zh-CN/features-overview#compare-similar-features)。
 
-<h3 id="exclude-irrelevant-claude-md-files">
-  排除不相关的 CLAUDE.md 文件
-</h3>
+### 排除不相关的 CLAUDE.md 文件
 
 当您从仓库根目录启动 Claude 时，每个子目录的 CLAUDE.md 都可能在会话期间[按需加载](/docs/zh-CN/memory#how-claude-md-files-load)。`claudeMdExcludes` 设置按路径或 glob 模式跳过特定文件，以便它们永远不会加载。
 
@@ -159,15 +145,11 @@ Claude Code 在启动时从您的工作目录和每个父目录加载每个 [CLA
 
 有关完整的排除文档，请参阅[排除特定 CLAUDE.md 文件](/docs/zh-CN/memory#exclude-specific-claude-md-files)。
 
-<h2 id="reduce-what-claude-reads">
-  减少 Claude 读取的内容
-</h2>
+## 减少 Claude 读取的内容
 
 指令只是最终进入 Claude 上下文的一部分。文件读取是另一个随着代码库增长而增加的成本。下面的设置阻止读取不相关的路径，并用语言服务器查找替换详尽的文件扫描。
 
-<h3 id="block-reads-of-generated-and-vendored-code">
-  阻止读取生成的和供应商代码
-</h3>
+### 阻止读取生成的和供应商代码
 
 Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径，例如 `node_modules/`、`dist/` 和 `build/`，无需额外配置就会保持在搜索结果之外。
 
@@ -198,9 +180,7 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
 
 拒绝规则不涵盖自己打开文件的子进程。有关完整的模式语法，请参阅 [Read 和 Edit 权限规则](/docs/zh-CN/permissions#read-and-edit)。
 
-<h3 id="reduce-file-reads-with-code-intelligence">
-  使用代码智能减少文件读取
-</h3>
+### 使用代码智能减少文件读取
 
 在大型代码库中，查找符号的定义或使用位置可能需要许多文件读取和 grep 调用。[代码智能插件](/docs/zh-CN/plugins/code-intelligence)将 Claude 连接到语言服务器，以便它可以跳转到定义、查找引用和直接显示类型错误，而不是扫描树。
 
@@ -221,15 +201,11 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
 
 这与上面的 `claudeMdExcludes` 和 `Read` 拒绝规则配对良好。那些保持不相关的内容不进入上下文，代码智能保持 Claude 不读取剩余的内容来定位定义。
 
-<h2 id="scope-worktrees-and-file-access">
-  范围 worktrees 和文件访问
-</h2>
+## 范围 worktrees 和文件访问
 
 这些设置控制 worktrees 中磁盘上的内容以及 Claude 可以读取和写入的超出启动点的目录。
 
-<h3 id="check-out-only-the-directories-you-need">
-  仅检出你需要的目录
-</h3>
+### 仅检出你需要的目录
 
 `--worktree` 标志在新的 git worktree 中启动会话，以便更改与主检出隔离。默认情况下，它检出整个存储库。在大型存储库中，`worktree.sparsePaths` 设置使用 git sparse-checkout 仅将列出的目录加上根级文件写入磁盘，以便 worktrees 启动更快并使用更少空间。
 
@@ -278,15 +254,13 @@ Sparse checkout 需要 git 在存在 sparse worktree 时在仓库的共享 `.git
 
 这创建了一个从每个 worktree 的 `node_modules/` 回到主存储库副本的符号链接，而不是在磁盘上复制它。
 
-<Note>
-  `sparsePaths` 和 `symlinkDirectories` 设置在创建 worktree 之前从你的启动目录读取。创建后，会话的工作目录是 worktree 根，而不是你启动的子目录。因此，worktree 内的项目设置从 worktree 根的 `.claude/settings.json`（存储库根文件的检出副本）加载。将你在 worktrees 内需要的任何其他设置（例如权限规则或 hooks）放在存储库根的 `.claude/settings.json` 中。
-</Note>
+> [!NOTE]
+>
+> `sparsePaths` 和 `symlinkDirectories` 设置在创建 worktree 之前从你的启动目录读取。创建后，会话的工作目录是 worktree 根，而不是你启动的子目录。因此，worktree 内的项目设置从 worktree 根的 `.claude/settings.json`（存储库根文件的检出副本）加载。将你在 worktrees 内需要的任何其他设置（例如权限规则或 hooks）放在存储库根的 `.claude/settings.json` 中。
 
 有关完整的 worktree 设置参考，请参阅 [Worktree 设置](/docs/zh-CN/settings-reference#worktree)。
 
-<h3 id="grant-access-across-packages-or-repositories">
-  跨包或存储库授予访问权限
-</h3>
+### 跨包或存储库授予访问权限
 
 当你从子目录启动 Claude 时，或当任务跨越多个检出时，本部分适用。如果你在单个大型树中从存储库根目录启动，Claude 已经可以访问每个文件，你可以跳过此部分。
 
@@ -330,9 +304,7 @@ CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 claude --add-dir ../shared
 
 对于此区域中的每个人都需要的同级目录，将 `additionalDirectories` 提交到 `.claude/settings.json`。对于个人选择或一次性访问，使用 `.claude/settings.local.json` 或在启动时传递 `--add-dir`。
 
-<h2 id="add-per-directory-skills">
-  添加按目录 skills
-</h2>
+## 添加按目录 skills
 
 任何子目录都可以定义[skills](/docs/zh-CN/skills)范围限于其自己的堆栈。skill 在 Claude 确定其相关时按需加载，所以 API 特定的工具在前端工作期间不会消耗上下文。
 
@@ -381,9 +353,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 
 有关创建和组织 skills 的更多信息，请参阅 [Skills](/docs/zh-CN/skills)。
 
-<h3 id="keep-skills-discoverable">
-  保持 skills 可发现
-</h3>
+### 保持 skills 可发现
 
 随着 skills 分散在许多目录中，Claude 选择的列表可能会增长很大。Claude 通过读取每个发现的 skill 的名称和描述来选择 skill，只有选定的 skill 的完整内容加载到上下文中。本部分涵盖如何保持该列表较小。
 
@@ -399,9 +369,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 
 要查找哪些 skills 未被使用，启用 OpenTelemetry [日志导出器](/docs/zh-CN/monitoring-usage)并设置 `OTEL_LOG_TOOL_DETAILS=1` 以便 skill 名称被逐字记录而不是被编辑。[`skill_activated` 事件](/docs/zh-CN/monitoring-usage#skill-activated-event)在其 `skill.name` 属性中记录每个调用，`invocation_trigger` 记录命令、Claude 或嵌套 skill 是否调用它，这告诉你要合并或停用什么。
 
-<h2 id="centralize-conventions-when-layering-stops-scaling">
-  当分层停止扩展时集中约定
-</h2>
+## 当分层停止扩展时集中约定
 
 随着代码库的增长，按目录的 CLAUDE.md 文件可能变得难以管理。约定漂移，文件变得陈旧，没有人拥有根目录。解决这个问题通常落在维护存储库 Claude Code 设置的团队身上，而不是在自己的区域中工作的每个开发者。
 
@@ -413,17 +381,13 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 
 有关平台团队如何集中强制这些的信息，请参阅[服务器管理或端点管理的设置](/docs/zh-CN/server-managed-settings#choose-between-server-managed-and-endpoint-managed-settings)。
 
-<h3 id="recommend-the-right-plugin-at-session-start">
-  在会话启动时推荐正确的插件
-</h3>
+### 在会话启动时推荐正确的插件
 
 一旦约定位于插件中，在树的陌生部分启动 Claude 的队友就没有关于该区域所有者维护哪个插件的信号。[`SessionStart` hook](/docs/zh-CN/hooks#sessionstart) 可以弥补这个差距，因为 hook 打印到 stdout 的任何内容都会在第一个提示之前添加到 Claude 的上下文中。
 
 例如，你可以编写一个脚本，从[hook 输入](/docs/zh-CN/hooks#common-input-fields)读取启动目录，在提交到存储库的路径到插件映射中查找它，并打印建议供 Claude 在其第一个回复中中继。查看[使用 hooks 自动化操作](/docs/zh-CN/hooks-guide)来编写和注册 hook。
 
-<h2 id="put-it-together">
-  将其整合在一起
-</h2>
+## 将其整合在一起
 
 下面的组合配置使用 monorepo 布局。相同的文件适用于大型单树中的任何子目录。每个子目录的 `.claude/settings.json` 必须是自包含的而不是分层在根文件上。
 
@@ -494,9 +458,7 @@ monorepo/
 * 有 api-testing skill 按需可用
 * 创建包含 `.claude/`、`packages/api/`、`packages/shared/` 和根级文件的 worktrees，拒绝规则从根设置文件应用于整个 worktree
 
-<h2 id="scope-and-plan-changes-that-span-packages">
-  范围和计划跨包的更改
-</h2>
+## 范围和计划跨包的更改
 
 上面的配置控制 Claude 看到的内容。当单个更改涉及多个包时，例如更新共享类型以及使用它的每个调用站点，你如何范围和排序任务也会影响结果。
 
@@ -505,9 +467,7 @@ monorepo/
 * **在一个会话中给 Claude 整个更改**：将共享编辑及其调用站点一起交付保持每个编辑背后的决策一致，而不是按包重新推导它们
 * **在编辑前计划**：[先计划](/docs/zh-CN/best-practices#explore-first-then-plan-then-code)在 [plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中，Claude 将计划写入文件。长的跨包会话[在进行中压缩其上下文](/docs/zh-CN/context-window#what-survives-compaction)。Claude Code 在每次压缩后重新注入计划文件，所以计划在对话历史可能不会的地方幸存
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 一旦此配置就位，你可以细化它：
 

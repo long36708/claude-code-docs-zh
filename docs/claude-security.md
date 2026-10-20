@@ -12,9 +12,7 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代�
 
 该插件也不同于 Claude Code 中已有的审查工具：[security guidance plugin](/docs/zh-CN/security-guidance) 在 Claude 编写代码时审查代码，[`/security-review`](/docs/zh-CN/commands#all-commands) 对您的分支运行单次扫描，[Code Review](/docs/zh-CN/code-review) 审查拉取请求。有关这些层如何堆叠的信息，请参阅[插件如何与其他安全工具配合](#how-the-plugin-fits-with-other-security-tools)。
 
-<h2 id="prerequisites">
-  前置条件
-</h2>
+## 前置条件
 
 要运行该插件，您需要：
 
@@ -23,9 +21,7 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代�
 * Linux、macOS 或 Windows。
 * Git，用于变更扫描和将发现结果转换为补丁；这些任务不支持其他版本控制系统。完整扫描可在任何目录中工作，无论是否有版本控制。
 
-<h2 id="models-and-providers">
-  模型和提供商
-</h2>
+## 模型和提供商
 
 扫描在您的 Claude Code 会话中运行。该插件本身不进行模型调用，因此没有单独的 API 密钥或提供商设置需要配置。
 
@@ -36,9 +32,7 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代�
 
 [自动模型回退](/docs/zh-CN/model-config#automatic-model-fallback)重新运行被模型的安全防护标记的请求。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，根据[您的部署设置方式](/docs/zh-CN/model-config#enable-fallback-on-bedrock-agent-platform-and-foundry)，请求可能以拒绝消息结束。
 
-<h2 id="install-the-plugin">
-  安装插件
-</h2>
+## 安装插件
 
 在 VS Code 扩展或桌面应用中，请按照[安装插件](/docs/zh-CN/plugins/install#install-a-plugin)进行安装。在终端中，运行 `claude` 启动 Claude Code，然后在其输入框中输入以下内容，从[官方 Anthropic 市场](/docs/zh-CN/plugins/anthropic-marketplaces)安装：
 
@@ -57,63 +51,51 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代�
 
 一旦插件处于活跃状态，您已准备好[扫描和修复您的代码库](#scan-and-fix-your-codebase)。
 
-<h3 id="uninstall-the-plugin">
-  卸载插件
-</h3>
+### 卸载插件
 
 要删除该插件，从 `/plugin` 菜单卸载它，或在您的终端中运行 `claude plugin uninstall claude-security`。
 
-<h2 id="scan-and-fix-your-codebase">
-  扫描和修复您的代码库
-</h2>
+## 扫描和修复您的代码库
 
 该插件添加了一个命令 `/claude-security`，它打开其三个任务的菜单：扫描代码库、扫描一组更改和建议补丁。标准流程运行完整扫描，然后将其发现转化为补丁：
 
-<Steps>
-  <Step title="打开 Claude Security 菜单">
-    运行 `/claude-security` 并选择 **Scan codebase**。
-  </Step>
+**1. 打开 Claude Security 菜单**
 
-  <Step title="选择要扫描的内容">
-    该插件首先读取您的存储库，然后提供整个存储库或聚焦区域，每个选项都说明了文件计数和相对成本。选择整个存储库，或回答"我不知道"，插件会为您的存储库大小选择一个合理的默认值。
-  </Step>
+运行 `/claude-security` 并选择 **Scan codebase**。
 
-  <Step title="确认运行">
-    扫描可能需要一段时间，可能使用大量令牌，并需要在完成期间保持 Claude Code 打开。在您确认之前，不会运行任何内容。
-  </Step>
+**2. 选择要扫描的内容**
 
-  <Step title="阅读报告">
-    扫描运行时，它会在每个阶段开始时报告，详细信息可在 [`/workflows`](/docs/zh-CN/workflows) 下获得。结果进入您的存储库中的时间戳目录，在[阅读扫描结果](#read-the-scan-results)中描述。
-  </Step>
+该插件首先读取您的存储库，然后提供整个存储库或聚焦区域，每个选项都说明了文件计数和相对成本。选择整个存储库，或回答"我不知道"，插件会为您的存储库大小选择一个合理的默认值。
 
-  <Step title="将发现转化为补丁">
-    再次运行 `/claude-security` 并选择 **Suggest patches**，然后选择要解决的发现。审查过的补丁进入报告的 `patches/` 文件夹；[修复发现](#fix-findings)涵盖了每个补丁如何构建和审查。
-  </Step>
+**3. 确认运行**
 
-  <Step title="应用您接受的补丁">
-    从您的 shell 中使用 `git apply` 应用每个补丁，在其自己的拉取请求中。补丁永远不会自动应用。
-  </Step>
-</Steps>
+扫描可能需要一段时间，可能使用大量令牌，并需要在完成期间保持 Claude Code 打开。在您确认之前，不会运行任何内容。
+
+**4. 阅读报告**
+
+扫描运行时，它会在每个阶段开始时报告，详细信息可在 [`/workflows`](/docs/zh-CN/workflows) 下获得。结果进入您的存储库中的时间戳目录，在[阅读扫描结果](#read-the-scan-results)中描述。
+
+**5. 将发现转化为补丁**
+
+再次运行 `/claude-security` 并选择 **Suggest patches**，然后选择要解决的发现。审查过的补丁进入报告的 `patches/` 文件夹；[修复发现](#fix-findings)涵盖了每个补丁如何构建和审查。
+
+**6. 应用您接受的补丁**
+
+从您的 shell 中使用 `git apply` 应用每个补丁，在其自己的拉取请求中。补丁永远不会自动应用。
 
 您不必从菜单开始：直接要求一个任务，作为命令的参数，例如 `/claude-security scan my branch`，或用纯语言，例如"scan commit abc1234"。该插件在[自动模式](/docs/zh-CN/permission-modes)中效果最佳，这允许扫描的代理在每一步都无需权限提示地进行。
 
-<h3 id="scan-only-your-changes">
-  仅扫描您的更改
-</h3>
+### 仅扫描您的更改
 
 当您的分支有其基础没有的提交时，`/claude-security` 菜单会提供仅扫描该差异的选项，以便您可以在合并前检查分支。您也可以扫描您的一个开放拉取请求，或通过要求它来扫描单个提交，例如"scan commit abc1234"。仅扫描已提交的更改：首先提交或 stash 进行中的编辑，或运行完整扫描，它读取工作树。
 
 更改扫描需要 git 存储库；未版本化目录的完整扫描仍然有效。查找您的开放拉取请求是唯一到达网络的步骤，仅当您的会话已有权限运行 GitHub CLI 且 `gh` 已登录时才提供。
 
-<h3 id="scope-large-repositories">
-  限制大型存储库的范围
-</h3>
+### 限制大型存储库的范围
 
 在大型存储库上，一次扫描一个区域而不是整个树。选择插件提供的聚焦范围之一，例如您的 API 层或您的身份验证代码，运行会根据您选择的内容调整大小。报告的覆盖部分说明了什么被检查了，什么没有。随时在不同区域运行另一次扫描。
 
-<h3 id="read-the-scan-results">
-  阅读扫描结果
-</h3>
+### 阅读扫描结果
 
 每次扫描都会将其结果写入您的存储库中的时间戳 `CLAUDE-SECURITY-<timestamp>/` 目录：
 
@@ -126,17 +108,13 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代�
 
 发现仅在独立验证代理分析它们后才出现在报告中，这使报告简短且值得阅读。扫描是非确定性的：同一代码的两次扫描可能会发现不同的发现。定期运行扫描，并使用修订戳将每个报告归属于它覆盖的确切代码和设置。
 
-<h2 id="fix-findings">
-  修复发现
-</h2>
+## 修复发现
 
 通过从 `/claude-security` 菜单选择 **Suggest patches** 开始修复流程，或用纯语言要求，例如"fix finding F3"，然后选择要解决的报告中的哪些发现。补丁是针对已提交的代码构建的，报告必须仍然描述您拥有的代码：其代码已更改的发现会被跳过并附注，插件会提供新扫描而不是从陈旧报告修补。每个补丁都在您的存储库的临时副本中起草，因此您的源文件保持不变，直到您自己应用补丁。
 
 在交付前，每个补丁都由独立于编写它的代理的代理审查，当代码有测试时它会针对更改运行您的项目测试，并自行读取差异以查看它可能引入的任何新内容。仅当该审查可以保证更改解决了一个发现、不引入新漏洞并保持其他行为不变时，才会编写补丁。当它无法保证所有三个时，您会得到一个简短的注释解释原因，而不是补丁。
 
-<h3 id="patches-are-never-applied-automatically">
-  补丁永远不会自动应用
-</h3>
+### 补丁永远不会自动应用
 
 应用补丁始终是您的决定。补丁进入报告的 `patches/` 文件夹，每个发现一个 `F<n>.patch`，旁边有一个注释解释更改。从您的 shell 应用一个，或要求 Claude 应用它并打开拉取请求：
 
@@ -146,9 +124,7 @@ git apply CLAUDE-SECURITY-<timestamp>/patches/F1.patch
 
 当修补的代码没有测试时，补丁的注释会说明这一点，因此您知道其审查在没有测试通过的情况下运行。在其自己的拉取请求中应用每个补丁，以便可以独立审查和测试。
 
-<h2 id="how-the-plugin-fits-with-other-security-tools">
-  该插件如何与其他安全工具配合
-</h2>
+## 该插件如何与其他安全工具配合
 
 Claude Security 插件是深度扫描层，在纵深防御堆栈中，与[security guidance 插件](/docs/zh-CN/security-guidance)、[`/security-review`](/docs/zh-CN/commands#all-commands)、[Code Review](/docs/zh-CN/code-review)、托管的 [Claude Security](https://claude.com/product/claude-security) 产品和您现有的扫描器一起：
 
@@ -163,17 +139,13 @@ Claude Security 插件是深度扫描层，在纵深防御堆栈中，与[securi
 
 该插件不会替换您现有的源代码安全工具。与静态分析、依赖扫描和代码审查一起运行它：它以人类安全研究人员的方式推理您的代码，这补充了这些工具提供的确定性检查。
 
-<h2 id="troubleshooting">
-  故障排除
-</h2>
+## 故障排除
 
 **`/claude-security` 菜单打开时出现 Python 警告。** 该插件需要 `python3` 3.9 或更高版本在您的 `PATH` 上。当它根本找不到 `python3` 时，菜单警告 Claude Security 在安装一个之前不会工作；当您的 `PATH` 上的第一个 `python3` 较旧时，警告会命名它找到的版本。安装 Python 3，或在您的 `PATH` 上放置一个较新的 `python3`，然后启动一个新会话。
 
 **使用 Fable 模型扫描时，您可能会看到"safeguards flagged this message"通知。** 该消息命名您正在运行的模型。Fable 的网络安全安全分类器标记某些请求，Claude Code 通过[自动模型回退](/docs/zh-CN/model-config#automatic-model-fallback)在 Opus 模型上重新运行标记的请求。这是预期的。当请求重新运行时，扫描应该仍然成功完成。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 要深入了解此页面涉及的部分：
 

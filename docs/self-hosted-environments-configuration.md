@@ -6,17 +6,15 @@
 
 > 使用包装脚本在自托管环境会话中自定义每个会话的凭据、生命周期 hook 和按需运行程序生成。
 
-<Note>
-  自托管环境在 Team 和 Enterprise 计划中处于公开测试阶段；[Owner](/docs/zh-CN/cloud-environments#organization-shared-environments) 通过在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments) 上打开 **Allow self-hosted environments** 来启用它们。本页面假设您已有一个正常运行的运行程序；有关设置，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)，有关集群部署方案，请参阅[部署到生产环境](/docs/zh-CN/self-hosted-environments-deploy)。
-</Note>
+> [!NOTE]
+>
+> 自托管环境在 Team 和 Enterprise 计划中处于公开测试阶段；[Owner](/docs/zh-CN/cloud-environments#organization-shared-environments) 通过在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments) 上打开 **Allow self-hosted environments** 来启用它们。本页面假设您已有一个正常运行的运行程序；有关设置，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)，有关集群部署方案，请参阅[部署到生产环境](/docs/zh-CN/self-hosted-environments-deploy)。
 
 [自托管环境](/docs/zh-CN/self-hosted-environments)在您自己的基础设施上运行 Claude Code [云端会话](/docs/zh-CN/claude-code-on-the-web)，由您部署的运行程序进程执行。在没有配置的情况下，该运行程序克隆会话的仓库，生成 Claude Code，然后进行清理。本页面适用于操作运行程序的平台工程师：它涵盖了当这些默认值不适用时的扩展点，从每个会话的凭据配置到完全替换检出。包装脚本和 hook 作为运行程序主机上的可执行文件运行，该主机是 Linux 或 macOS，本页面上的示例假设使用 POSIX shell。
 
 本页面上的一些 hook 环境变量仍然使用 `pool`，例如 `CLAUDE_RUNNER_POOL_ID`；CLI 标志和环境变量名称使用 `environment`，例如 `--environment-secret-file`。
 
-<h2 id="wrapper-scripts">
-  包装脚本
-</h2>
+## 包装脚本
 
 当每个会话需要运行器无法自行完成的设置时，使用包装脚本：为会话创建者配置作用域的短期凭据、导出特定于环境的密钥、准备语言工具链或围绕子进程应用资源限制。运行器每个会话启动一次您的包装脚本，而不是 Claude Code 二进制文件。通过 `exec` 进入 `$CLAUDE_RUNNER_CLAUDE_BIN`（运行器自己的二进制文件）来结束包装脚本，以便信号和退出码正确传播。
 
@@ -48,15 +46,11 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 
 `CLAUDE_CODE_REMOTE_SLACK_THREAD_URL` 和 `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` 会传递到您的包装脚本或 [`command` hook](#command)。它们也会传递到会话运行的内容，例如 shell 命令、git 钩子和 Claude Code hook。`checkout`、`post-session` 和 `spawn-runner` hook 不会接收它们。
 
-<h3 id="give-a-default-to-variables-that-can-be-unset">
-  为可能未设置的变量提供默认值
-</h3>
+### 为可能未设置的变量提供默认值
 
 `CCR_SESSION_ACCOUNT_EMAIL`、`CLAUDE_RUNNER_CLIENT_PLATFORM`、`CLAUDE_CODE_REMOTE_SLACK_THREAD_URL` 和 `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` 都可能未设置。如果您的脚本使用 `set -u`，Bash 在展开其中未设置的变量时会以 `unbound variable` 停止，因此请使用默认值展开它们，例如 `"${CCR_SESSION_ACCOUNT_EMAIL:-}"`。
 
-<h3 id="quote-the-arguments-and-variables-your-script-expands">
-  为脚本展开的参数和变量加引号
-</h3>
+### 为脚本展开的参数和变量加引号
 
 为运行器传递给您的包装脚本或 [`command` hook](#command) 的每个参数和变量加引号。某些值包含 shell 会处理的字符，因为它们包含 JSON、完整的句子或[权限规则](/docs/zh-CN/permissions#permission-rule-syntax)，例如 `Bash(npm run test *)`。
 
@@ -64,9 +58,7 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 * **变量**：为每个变量加引号，如 `"${CLAUDE_CODE_REMOTE_SLACK_THREAD_URL:-}"`。例如，Slack 线程链接可能包含 `?` 和 `&`。
 * **`eval` 和 `sh -c` 字符串**：不要将值替换到 `eval` 或 `sh -c` 运行的字符串中，即使在引号内也不行。应让该字符串引用该变量。
 
-<h3 id="keep-stdin-and-file-descriptor-3-attached">
-  保持 stdin 和文件描述符 3 的连接
-</h3>
+### 保持 stdin 和文件描述符 3 的连接
 
 子进程的 stdin 是运行器的控制通道。令牌轮换和会话结束信号在其上到达。运行器还在文件描述符 3 上打开一个管道，并从中读取子进程的活动信号以驱动空闲和启动超时。普通的 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"` 自动保留两者。
 
@@ -85,9 +77,7 @@ wait "$CHILD"
 * **文件描述符 3**：将子进程的活动信号传送给运行器。不要在包装脚本中关闭或重用它。
 * **stderr**：当包装脚本或子进程以非零状态退出时，运行器会将 stderr 的最后几行发布到会话中，并在其自身日志中打印这些行。会话的用户会看到这些行，因此不要将密钥打印到 stderr，并在部署包装脚本之前移除 `set -x`。如果您重定向 stderr，会话仍会运行，但运行器仅以退出码报告失败。
 
-<h3 id="pass-the-system-prompt-flags-through">
-  透传系统提示词标志
-</h3>
+### 透传系统提示词标志
 
 Anthropic 控制平面为会话发送的系统提示词和追加系统提示词以文件路径的形式（而不是内联文本）到达您的包装脚本。运行器将每个提示词写入会话配置目录 `CLAUDE_CONFIG_DIR` 中的文件，并在您的包装脚本接收的参数中传递其路径，形式为 [`--system-prompt-file <path>` 或 `--append-system-prompt-file <path>`](/docs/zh-CN/cli-reference#system-prompt-flags)。
 
@@ -98,9 +88,7 @@ Claude Code v2.1.281 或更高版本上的运行器以文件形式传递提示�
 * **透传它们**：使用 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"` 结束包装脚本，这会将文件标志与其他所有参数一起转发。不要丢弃或改写它们。如果会话丢失了某个提示词文件标志，它将在没有控制平面为其发送的指令的情况下运行。
 * **在 v2.1.281 或更高版本的运行器上，您追加的文件标志会替换服务器的标志，而不会叠加**：每个提示词文件标志只接受单个值，Claude Code 保留最后一次出现的值，因此如果您在 `"$@"` 之后追加 `--append-system-prompt-file <path>`，您文件的内容将替换服务器追加的指令。要在服务器指令之上添加指令，请将其放入运行器镜像的 `CLAUDE.md` 中，运行器会将其[植入每个会话的用户级配置](#how-each-session’s-config-is-assembled)。
 
-<h3 id="provision-credentials-scoped-to-the-session-creator">
-  配置作用域限定为会话创建者的凭据
-</h3>
+### 配置作用域限定为会话创建者的凭据
 
 使用 `decode-token` 子命令从会话 JWT 读取声明。它从参数、`CLAUDE_CODE_SESSION_ACCESS_TOKEN` 或 stdin 读取令牌，按该顺序；请参阅 [Verify the token inside the session](/docs/zh-CN/self-hosted-environments-identity#verify-the-token-inside-the-session) 了解它检查的内容。下面的示例解码创建者身份，将其交换为短期 AWS 凭据，并 exec 进入 Claude Code：
 
@@ -120,17 +108,13 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 
 在提取的声明控制身份验证决策时，使用 `jq -re` 而不是 `jq -r`，以便缺失的声明以非零状态退出，而不是将字面字符串 `null` 传递给下游。由组织服务身份（例如机器人和 Agent 会话）创建的会话携带 `agent:` 主题而不是 `user:`，因此此示例拒绝它们；如果您的环境为这些会话提供服务，请明确决定包装脚本是否为它们回退到默认凭据，而不是退出。当您的凭据交换改为需要电子邮件时，读取 `.act.email` 并处理其缺失：令牌仅在创建会话的使用入口记录了电子邮件时才携带它，[CLI 分派的会话](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop) 可能缺少它。有关完整的声明参考和来自运行器外部服务的验证，请参阅 [Verify session identity](/docs/zh-CN/self-hosted-environments-identity)。
 
-<h2 id="lifecycle-hooks">
-  生命周期钩子
-</h2>
+## 生命周期钩子
 
 生命周期钩子用您自己的脚本替换运行器按会话管道的阶段。使用 `--hooks-dir <path>` 或 `SELF_HOSTED_RUNNER_HOOKS_DIR` 将运行器指向钩子目录。运行器查找具有众所周知名称的可执行文件；任何不存在的钩子都会回退到内置行为，因此您只需编写需要的钩子。钩子以运行器自己的权限运行，会话子进程共享该 UID，因此请以只读方式挂载钩子目录，或将其烘焙到镜像中，以便会话代码无法修改它；请参阅 [hardening section](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)。
 
 这些钩子不同于 [Claude Code hooks](/docs/zh-CN/hooks)，后者在会话内运行；生命周期钩子在运行器上运行，围绕会话。
 
-<h3 id="checkout">
-  checkout
-</h3>
+### checkout
 
 每个仓库运行一次，代替运行器的内置克隆和获取。使用此 hook 从您通过 HTTPS 或 SSH 访问的读通镜像克隆、从存档为工作树设置种子，或应用按会话的 git 身份验证。运行器设置以下变量，并且可能设置表中未列出的其他 `CLAUDE_RUNNER_` 变量：
 
@@ -150,18 +134,14 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 
 在您的 hook 返回后，运行器会验证 `CLAUDE_RUNNER_CHECKOUT_PATH` 包含 `.git`。如果您的 hook 具体化的是非 git 源（例如 Perforce 或解包的 tarball），请在运行器的环境中设置 `CLAUDE_RUNNER_SKIP_GIT_VERIFY=1` 以跳过该检查。基于 Git 的流程（例如工作分支创建和推送结果）需要 git 检出，因此请使用 [`post-session` hook](#post-session) 从非 git 树导出结果。
 
-<h4 id="get-git-credentials-in-the-hook">
-  在 hook 中获取 git 凭据
-</h4>
+#### 在 hook 中获取 git 凭据
 
 运行器不会将 git 凭据传递给 hook。`decode-token` 子命令在此处同样不可用，因为 `CLAUDE_RUNNER_CLAUDE_BIN` 未在 checkout-hook 环境中设置。请改为从会话的身份生成按会话的克隆凭据，或回退到主机自身的 git 身份验证：
 
 * **按会话的克隆凭据**：使用标准 JWT 库，针对 `CLAUDE_RUNNER_API_BASE_URL` 下的 JWKS 端点验证 `CLAUDE_CODE_SESSION_ACCESS_TOKEN`，如[从您的服务验证令牌](/docs/zh-CN/self-hosted-environments-identity#verify-the-token-from-your-service)中所述。然后让您的凭据服务为令牌 `act` 声明中的身份发放短期克隆凭据。请以 `act.sub` 作为该凭据的键，不要依赖 `act.email`。
 * **主机 git 身份验证**：使用主机已有的任何 git 身份验证，例如 SSH agent、凭据助手或 `.netrc`。
 
-<h4 id="when-the-hook-fails">
-  hook 失败时
-</h4>
+#### hook 失败时
 
 当 hook 以非零状态退出，或以 0 退出但没有留下可用的检出时，hook 即为失败：
 
@@ -170,9 +150,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 
 当 hook 成功时，运行器会在会话结束后删除检出路径。
 
-<h3 id="post-session">
-  post-session
-</h3>
+### post-session
 
 每个会话运行一次，在 Claude Code 子进程退出后和运行器拆卸工作区之前。此钩子是保存未提交工作的唯一机会：在 `--capacity` 高于 1 时，运行器在钩子返回后立即删除按会话工作树，在 `--capacity 1` 时重用的 [canonical clone](/docs/zh-CN/self-hosted-environments-deploy#reuse-a-pre-warmed-checkout) 在下一个会话启动时硬重置，因此未提交的跟踪更改在两条路径上都不会存活。典型用途是推送未提交更改的快照分支、存档日志或向您自己的系统发出会话结束事件。
 
@@ -236,9 +214,7 @@ hook 使用运行器主机上其自身环境中可用的任何 git 凭据进行�
 
 请将您的 hook 提供给 git 的任何凭据都视为会话可以获取的凭据，并在生成时使其只能完成此次推送。hook 中的 git 会读取会话可以写入的配置文件，而其中某个文件指定的凭据助手或过滤器驱动程序会以您的 hook 的权限运行。无论您指定哪个远程，这些文件中的设置还可能改变推送的目标位置。有关运行器在您的 hook 中固定的 git 设置以及留给这些文件决定的设置，请参阅[生命周期 hook 中的 Git 配置](#git-configuration-inside-lifecycle-hooks)。
 
-<h4 id="hook-timing-when-the-runner-releases-a-session">
-  运行器释放会话时的钩子时序
-</h4>
+#### 运行器释放会话时的钩子时序
 
 已释放的会话可以在另一个运行器上恢复。在 v2.1.236 或更高版本的运行器上，会话在释放时所做的事情决定了它是否可以在此钩子完成前在另一个运行器上恢复：
 
@@ -249,9 +225,7 @@ hook 使用运行器主机上其自身环境中可用的任何 git 凭据进行�
 
 在 `SIGTERM` 排空期间，运行器持有会话租约直到钩子完成；请参阅 [Shutdown timing](/docs/zh-CN/self-hosted-environments-deploy#shutdown-timing)。
 
-<h3 id="git-configuration-inside-lifecycle-hooks">
-  生命周期 hook 中的 Git 配置
-</h3>
+### 生命周期 hook 中的 Git 配置
 
 `checkout` 和 `post-session` hook 运行时，其环境中包含会话的访问令牌，而它们运行的 git 会读取会话可以写入的配置文件，例如 `~/.gitconfig` 和检出目录中的 `.git/config`。在任一 hook 运行之前，运行器会在 hook 的环境中以 `GIT_CONFIG_COUNT`/`GIT_CONFIG_KEY_n`/`GIT_CONFIG_VALUE_n` 对和 git 环境变量的形式设置 git 设置，包括以下各项。Git 将这些设置的优先级排在所有配置文件之上，并且它们仅适用于您的 hook 运行的 git，而不适用于会话自己的 git。启动时，运行器会打印一行 `[runner:git] lifecycle hooks:`，显示当前生效的钩子路径、允许的协议、gpg 程序和签名模式。需要 Claude Code v2.1.280 或更高版本。
 
@@ -272,17 +246,13 @@ hook 中的 git 仍会从每个配置文件（包括会话可以写入的配置�
 
 在 v2.1.280 之前，运行器不设置这些设置中的任何一项，并且在 `--configure-git` 下，从 hook 中进行的提交会失败，除非 hook 传递了 `-c commit.gpgsign=false`。
 
-<h3 id="command">
-  command
-</h3>
+### command
 
 每个会话在检出后运行一次，代替内置子进程生成。钩子接收与 [wrapper script](#wrapper-scripts) 相同的环境，应该以相同的方式 `exec` 进入 `"$CLAUDE_RUNNER_CLAUDE_BIN"`。使用 `command` 钩子将所有自定义保留在一个钩子目录中；当包装脚本在其他地方时使用 `--exec-path`。如果也设置了 `--exec-path`，标志优先，`command` 钩子被忽略。
 
 始终 `exec` 运行器自己的二进制文件，而不是 PATH 解析的 `claude`；否则您会破坏 [version pinning](/docs/zh-CN/self-hosted-environments-deploy#pin-the-version)。
 
-<h2 id="on-demand-runners">
-  按需运行器
-</h2>
+## 按需运行器
 
 您可以为每个会话启动一个运行器，而不是运行固定的队列。编排器是一个单独的、无状态的子命令，它轮询 Anthropic 以获取生成请求（每个没有可用运行器的排队会话一个），并为每个请求运行您的 `spawn-runner` hook。您的 hook 向您的平台提交工作负载：Kubernetes Job、EC2 实例、Nomad dispatch。
 
@@ -298,9 +268,7 @@ claude self-hosted-runner orchestrator \
 
 编排器在轮询之间保持无状态，因此您可以针对同一环境运行两个或多个副本以实现可用性。每个生成请求由服务器端的恰好一个副本声称。所有副本必须使用相同的 `--expected-spawn-seconds` 值；请参阅 [hook 约定](#the-spawn-runner-hook)。
 
-<h3 id="the-spawn-runner-hook">
-  spawn-runner hook
-</h3>
+### spawn-runner hook
 
 编排器为每个生成请求运行一次 `${hooks-dir}/spawn-runner`。hook 必须异步提交工作，不等待运行器启动，并在 `--hook-timeout`（默认 60 秒）内返回。hook 接收：
 
@@ -347,9 +315,7 @@ hook 写入 stdout 或 stderr 的所有内容都出现在编排器的日志中�
 
 如果会话保持排队，且 **Activity** 标签中没有生成错误，可能意味着 hook 以会话 ID 作为键。要确认这一点，请检查您的平台是否存在该会话第一次生成请求对应的工作负载，而重新请求却没有对应的工作负载。如果是这样，请改为以 `CLAUDE_RUNNER_ORDER_ID` 作为工作负载的键。
 
-<h4 id="make-on-demand-runners-exit-when-idle">
-  让按需运行器在空闲时退出
-</h4>
+#### 让按需运行器在空闲时退出
 
 默认情况下，您的 hook 启动的运行器不会在其会话的轮次结束时退出，因此您提交的工作负载会持续运行。要让运行器退出，请让您的 hook 传递以下[运行器标志](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)：
 
@@ -361,9 +327,7 @@ hook 写入 stdout 或 stderr 的所有内容都出现在编排器的日志中�
 
 在运行器退出时移除工作负载，例如在 Kubernetes Job 上设置 `ttlSecondsAfterFinished`，或让 VM 的启动脚本在之后删除该 VM。
 
-<h4 id="keep-transient-failures-retryable-in-a-shell-hook">
-  在 shell hook 中保持暂时性失败可重试
-</h4>
+#### 在 shell hook 中保持暂时性失败可重试
 
 在使用 `set -e` 的 shell hook 中，本可通过重试解决的失败可能会导致会话被阻止。hook 会在失败的命令处停止，并以该命令自身的状态退出，而编排器会对该状态应用退出码约定。许多失败返回 2 或更高的状态，例如命令未安装时返回的 `127`，以及 `curl --fail` 遇到 HTTP 错误时返回的 `22`，因此它们会在第一次失败时就阻止会话。
 
@@ -390,9 +354,7 @@ trap 'rc=$?; [ "$rc" -eq 0 ] || [ -n "${PERMANENT:-}" ] || exit 1' EXIT
 
 要确认 trap 是否生效，请在 `trap` 行正下方添加一行，调用一个不存在的命令，例如 `no-such-command`。从您的 shell 运行 hook 文件，检查 `echo $?` 是否输出 `1`，然后删除该行。
 
-<h2 id="send-model-requests-to-bedrock-or-agent-platform">
-  将模型请求发送到 Bedrock 或 Agent Platform
-</h2>
+## 将模型请求发送到 Bedrock 或 Agent Platform
 
 如果您的组织需要模型请求通过其自己的 AWS 或 Google Cloud 账户，请为 runner 配置 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 或 [Google Cloud 的 Agent Platform（前身为 Vertex AI）](/docs/zh-CN/google-vertex-ai)。之后，该 runner 启动的每个会话都会使用您的云凭据在您的云账户中调用模型。如果没有此配置，会话会将模型请求发送到 Anthropic API。
 
@@ -400,80 +362,74 @@ runner 仍会向 Anthropic 轮询会话，且每个会话仍会将其事件流�
 
 会话是路由到环境而非 runner 的，重新排队或恢复的会话可能会在不同的 runner 上运行。请以相同方式配置环境中的每个 runner。开始之前，请阅读[这些提供商的不同之处](#what-differs-from-sessions-on-the-anthropic-api)。
 
-<Steps>
-  <Step title="准备云账户和出站规则">
-    设置模型访问权限、范围严格受限的策略或角色以及网络访问：
+**1. 准备云账户和出站规则**
 
-    * **Amazon Bedrock**：[提交用例详情](/docs/zh-CN/amazon-bedrock#1-submit-use-case-details)，然后按照 [IAM 配置](/docs/zh-CN/amazon-bedrock#iam-configuration)创建策略，将 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream` 限制为您的会话所使用的推理配置文件及其背后的基础模型
-    * **Agent Platform**：[启用 API](/docs/zh-CN/google-vertex-ai#1-enable-agent-platform-api) 并[申请模型访问权限](/docs/zh-CN/google-vertex-ai#2-request-model-access)，然后创建 [IAM 配置](/docs/zh-CN/google-vertex-ai#iam-configuration)中所述的自定义角色，仅包含 `aiplatform.endpoints.predict`
-    * **出站流量**：在出站规则中放行您的提供商的端点。请参阅[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)。如果会话无法访问这些端点，Claude Code 可能会持续重试数小时，之后会话才会显示错误。
-  </Step>
+设置模型访问权限、范围严格受限的策略或角色以及网络访问：
 
-  <Step title="为会话提供范围严格受限的凭据">
-    将步骤 1 中的策略或角色附加到一个不能执行任何其他操作的身份。有关 Claude Code 接受的方法，请参阅[配置 AWS 凭据](/docs/zh-CN/amazon-bedrock#2-configure-aws-credentials)和[配置 GCP 凭据](/docs/zh-CN/google-vertex-ai#3-configure-gcp-credentials)。
+* **Amazon Bedrock**：[提交用例详情](/docs/zh-CN/amazon-bedrock#1-submit-use-case-details)，然后按照 [IAM 配置](/docs/zh-CN/amazon-bedrock#iam-configuration)创建策略，将 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream` 限制为您的会话所使用的推理配置文件及其背后的基础模型
+* **Agent Platform**：[启用 API](/docs/zh-CN/google-vertex-ai#1-enable-agent-platform-api) 并[申请模型访问权限](/docs/zh-CN/google-vertex-ai#2-request-model-access)，然后创建 [IAM 配置](/docs/zh-CN/google-vertex-ai#iam-configuration)中所述的自定义角色，仅包含 `aiplatform.endpoints.predict`
+* **出站流量**：在出站规则中放行您的提供商的端点。请参阅[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)。如果会话无法访问这些端点，Claude Code 可能会持续重试数小时，之后会话才会显示错误。
 
-    <Warning>
-      任何能够让代码在会话中运行的人（包括通过提示词注入）都可以在这些凭据有效期间使用它们，费用由您承担。Claude Code 在会话内部运行，因此它调用模型所用的凭据必须在会话中可读。
+**2. 为会话提供范围严格受限的凭据**
 
-      Claude 运行的 shell 命令、您的 [Claude Code hook](/docs/zh-CN/hooks) 以及 stdio MCP 服务器都会继承会话的环境，并以与 Claude Code 相同的用户身份运行。因此，它们可以读取凭据变量和凭据文件。
+将步骤 1 中的策略或角色附加到一个不能执行任何其他操作的身份。有关 Claude Code 接受的方法，请参阅[配置 AWS 凭据](/docs/zh-CN/amazon-bedrock#2-configure-aws-credentials)和[配置 GCP 凭据](/docs/zh-CN/google-vertex-ai#3-configure-gcp-credentials)。
 
-      当您[加固部署](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)时，可以让主机凭据远离会话，但无法将此凭据排除在外。请确保其背后的身份除步骤 1 中的策略或角色外不具备任何其他权限。
-    </Warning>
+> [!WARNING]
+>
+> 任何能够让代码在会话中运行的人（包括通过提示词注入）都可以在这些凭据有效期间使用它们，费用由您承担。Claude Code 在会话内部运行，因此它调用模型所用的凭据必须在会话中可读。
+>
+> Claude 运行的 shell 命令、您的 [Claude Code hook](/docs/zh-CN/hooks) 以及 stdio MCP 服务器都会继承会话的环境，并以与 Claude Code 相同的用户身份运行。因此，它们可以读取凭据变量和凭据文件。
+>
+> 当您[加固部署](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)时，可以让主机凭据远离会话，但无法将此凭据排除在外。请确保其背后的身份除步骤 1 中的策略或角色外不具备任何其他权限。
 
-    请对照以下 runner 行为检查您选择的方法：
+请对照以下 runner 行为检查您选择的方法：
 
-    * **元数据端点**：如果您完全禁止会话访问[云元数据端点](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)，则由该端点提供的凭据（例如实例配置文件）也无法到达 Claude Code。基于文件的 Web 身份（例如 Amazon EKS 上的 IAM Roles for Service Accounts (IRSA) 或 Workload Identity Federation 凭据文件）不依赖于该端点。
-    * **续期**：会话的持续时间可能超过凭据的有效期，因此请使用能够自动续期的方法，例如基于文件的 Web 身份
-    * **包装脚本**：runner 每个会话只启动一次您的[包装脚本](#provision-credentials-scoped-to-the-session-creator)，因此它导出的凭据不会续期。Claude Code 会从其环境中读取 AWS 凭据，因此如果您的包装脚本已为其他工作导出了 AWS 凭据，Claude Code 可能会使用这些凭据对模型请求进行签名。
-  </Step>
+* **元数据端点**：如果您完全禁止会话访问[云元数据端点](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)，则由该端点提供的凭据（例如实例配置文件）也无法到达 Claude Code。基于文件的 Web 身份（例如 Amazon EKS 上的 IAM Roles for Service Accounts (IRSA) 或 Workload Identity Federation 凭据文件）不依赖于该端点。
+* **续期**：会话的持续时间可能超过凭据的有效期，因此请使用能够自动续期的方法，例如基于文件的 Web 身份
+* **包装脚本**：runner 每个会话只启动一次您的[包装脚本](#provision-credentials-scoped-to-the-session-creator)，因此它导出的凭据不会续期。Claude Code 会从其环境中读取 AWS 凭据，因此如果您的包装脚本已为其他工作导出了 AWS 凭据，Claude Code 可能会使用这些凭据对模型请求进行签名。
 
-  <Step title="在 runner 的环境中设置一个提供商的变量">
-    在设置 runner 其他环境变量的位置（例如容器规范或服务单元）中，只设置一个提供商的变量，然后重启 runner。示例中以 shell export 的形式展示这些变量。使用[按需 runner](#on-demand-runners) 时，请在您的 `spawn-runner` hook 启动的工作负载上设置它们。
+**3. 在 runner 的环境中设置一个提供商的变量**
 
-    使用 [`--confine-repo-settings enforce`](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment) 启动这些 runner。它会拒绝那些已提交设置被其标记的仓库上的会话，因此请先在默认的 `warn` 模式下运行，并清理其记录的问题。
+在设置 runner 其他环境变量的位置（例如容器规范或服务单元）中，只设置一个提供商的变量，然后重启 runner。示例中以 shell export 的形式展示这些变量。使用[按需 runner](#on-demand-runners) 时，请在您的 `spawn-runner` hook 启动的工作负载上设置它们。
 
-    <Tabs>
-      <Tab title="Amazon Bedrock">
-        将区域替换为您自己的区域：
+使用 [`--confine-repo-settings enforce`](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment) 启动这些 runner。它会拒绝那些已提交设置被其标记的仓库上的会话，因此请先在默认的 `warn` 模式下运行，并清理其记录的问题。
 
-        ```bash theme={null}
-        export CLAUDE_CODE_USE_BEDROCK=1
-        export AWS_REGION=us-east-1
-        ```
+**Amazon Bedrock**
 
-        有关 Claude Code 如何解析区域，请参阅[配置 Claude Code](/docs/zh-CN/amazon-bedrock#3-configure-claude-code)。有关 Claude Code 针对您的区域使用哪个推理配置文件前缀，请参阅[跨区域推理配置文件前缀](/docs/zh-CN/amazon-bedrock#cross-region-inference-profile-prefixes)。
-      </Tab>
+将区域替换为您自己的区域：
 
-      <Tab title="Google Cloud's Agent Platform">
-        将区域和项目 ID 替换为您自己的值：
+```bash theme={null}
+export CLAUDE_CODE_USE_BEDROCK=1
+export AWS_REGION=us-east-1
+```
 
-        ```bash theme={null}
-        export CLAUDE_CODE_USE_VERTEX=1
-        export CLOUD_ML_REGION=global
-        export ANTHROPIC_VERTEX_PROJECT_ID=YOUR-PROJECT-ID
-        ```
+有关 Claude Code 如何解析区域，请参阅[配置 Claude Code](/docs/zh-CN/amazon-bedrock#3-configure-claude-code)。有关 Claude Code 针对您的区域使用哪个推理配置文件前缀，请参阅[跨区域推理配置文件前缀](/docs/zh-CN/amazon-bedrock#cross-region-inference-profile-prefixes)。
 
-        要选择区域，请参阅[区域配置](/docs/zh-CN/google-vertex-ai#region-configuration)。
-      </Tab>
-    </Tabs>
-  </Step>
+**Google Cloud's Agent Platform**
 
-  <Step title="检查变量是否已传递到会话">
-    您在主机上自己的 shell 是另一个进程，因此请从会话内部进行检查。在该环境中启动一个会话，并让 Claude 运行以下命令：
+将区域和项目 ID 替换为您自己的值：
 
-    ```bash theme={null}
-    env | grep -E 'CLAUDE_CODE_USE_(BEDROCK|VERTEX)'
-    ```
+```bash theme={null}
+export CLAUDE_CODE_USE_VERTEX=1
+export CLOUD_ML_REGION=global
+export ANTHROPIC_VERTEX_PROJECT_ID=YOUR-PROJECT-ID
+```
 
-    如果有一行将 `CLAUDE_CODE_USE_BEDROCK` 或 `CLAUDE_CODE_USE_VERTEX` 设置为 `1`，则表示该变量已传递到会话。如果两者都出现，Claude Code 将使用 Amazon Bedrock。如果没有输出，则表示两者都未传递到会话。
+要选择区域，请参阅[区域配置](/docs/zh-CN/google-vertex-ai#region-configuration)。
 
-    该命令显示的是配置，而非流量。要确认请求本身，请在您云账户自身的指标或请求日志中查找这些请求。如果第一条消息失败，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock#troubleshooting) 或 [Agent Platform](/docs/zh-CN/google-vertex-ai#troubleshooting) 的故障排除。
-  </Step>
-</Steps>
+**4. 检查变量是否已传递到会话**
 
-<h3 id="what-differs-from-sessions-on-the-anthropic-api">
-  与 Anthropic API 上的会话的不同之处
-</h3>
+您在主机上自己的 shell 是另一个进程，因此请从会话内部进行检查。在该环境中启动一个会话，并让 Claude 运行以下命令：
+
+```bash theme={null}
+env | grep -E 'CLAUDE_CODE_USE_(BEDROCK|VERTEX)'
+```
+
+如果有一行将 `CLAUDE_CODE_USE_BEDROCK` 或 `CLAUDE_CODE_USE_VERTEX` 设置为 `1`，则表示该变量已传递到会话。如果两者都出现，Claude Code 将使用 Amazon Bedrock。如果没有输出，则表示两者都未传递到会话。
+
+该命令显示的是配置，而非流量。要确认请求本身，请在您云账户自身的指标或请求日志中查找这些请求。如果第一条消息失败，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock#troubleshooting) 或 [Agent Platform](/docs/zh-CN/google-vertex-ai#troubleshooting) 的故障排除。
+
+### 与 Anthropic API 上的会话的不同之处
 
 将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform 的会话与 Anthropic API 上的会话存在以下不同：
 
@@ -486,9 +442,7 @@ runner 仍会向 Anthropic 轮询会话，且每个会话仍会将其事件流�
 * **您的账户不提供的模型**：会话可能在某条消息上失败，并显示指明该模型的错误。请启用您的开发人员可以选择的模型、"固定模型版本"中所述的后台模型，以及[自动模式](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry)使用的分类器模型。在 Amazon Bedrock 上，请在策略中允许其中的每一个模型。
 * **Web 搜索和快速模式**：[Web 搜索](/docs/zh-CN/tools-reference#websearch-tool-behavior)在 Amazon Bedrock 上不可用，[快速模式](/docs/zh-CN/fast-mode)在这两个提供商上均不可用。有关因提供商而异的其他功能，请参阅[因提供商而异的 CLI 功能](/docs/zh-CN/feature-availability#cli-capabilities-that-vary-by-provider)。
 
-<h2 id="mcp-servers">
-  MCP 服务器
-</h2>
+## MCP 服务器
 
 要让 [MCP 服务器](/docs/zh-CN/mcp)在每个会话中都可用，请在镜像构建时使用与桌面安装相同的 `claude mcp add` 命令添加它们。如果您的运行器是裸进程而非容器，请在主机上以运行器的用户身份运行相同的命令，然后重启运行器：运行器仅在启动时读取一次主机配置。必须使用 `--scope user` 标志；默认的 local 作用域会写入按目录区分的键下，而运行器不会将该键注入会话。例如，在您的 Dockerfile 中：
 
@@ -512,11 +466,7 @@ Claude Code 还会从其他来源加载 MCP 服务器：
 
 会话会继承运行器的环境，因此请在运行器环境中设置 [`ENABLE_TOOL_SEARCH`](/docs/zh-CN/mcp#scale-with-mcp-tool-search)，以控制该运行器生成的每个会话的 MCP 工具搜索；MCP 页面介绍了可用的值。
 
-<a id="connection-timing" />
-
-<h3 id="wait-for-mcp-servers-before-the-first-turn">
-  在第一轮之前等待 MCP 服务器
-</h3>
+### 在第一轮之前等待 MCP 服务器
 
 自托管会话会在两个不同的时间点短暂等待仍在连接中的 MCP 服务器。错过等待的服务器，其工具在第一轮开始时不可用，之后会自动变为可用，无需您进行任何操作。这两次等待分别是：
 
@@ -531,9 +481,7 @@ RUN claude mcp add-json core '{"type":"http","url":"https://mcp.example.com/mcp"
 
 如果某个服务器的工具在后续轮次中也没有出现，请按照 [MCP 服务器](#mcp-servers)中的说明，检查该服务器是否到达了会话。
 
-<h3 id="turn-off-built-in-session-tools">
-  关闭内置会话工具
-</h3>
+### 关闭内置会话工具
 
 Anthropic 的控制平面会将其自己的 MCP 服务器（名为 Claude Code Remote）附加到云端会话。Claude 使用该服务器的工具来创建[云端定时任务](/docs/zh-CN/routines)、启动和引导其他云端会话、附加更多仓库，以及跟踪 Pull Request 活动。
 
@@ -557,9 +505,7 @@ Anthropic 的控制平面会将其自己的 MCP 服务器（名为 Claude Code R
 
 要确认规则已生效，请在该环境上启动一个会话，并让 Claude 列出其 MCP 工具。Claude Code 会从 Claude 的上下文中移除被拒绝的工具，因此被拒绝的工具不会出现在其回答中。
 
-<h2 id="prompt-sessions-to-push-their-work">
-  提示会话推送其工作
-</h2>
+## 提示会话推送其工作
 
 Anthropic 托管的会话运行 [`Stop` hook](/docs/zh-CN/hooks#stop)，Claude Code 钩子在 Claude 完成响应时运行，提示 Claude 提交并推送其工作。运行器不安装一个。没有它，以未提交更改结束的会话仅在运行器的磁盘上留下该工作，claude.ai/code 中的 **Create PR** 按钮保持不活跃，直到分支存在于远程。
 
@@ -664,15 +610,13 @@ exit 0
 
 该 hook 在会话结束前提示 Claude 提交并推送，当目录不是 git 仓库或没有远程时保持沉默。对于包含多个仓库的会话，请参阅 [`$CLAUDE_PROJECT_DIR` 指向的内容](#repository-settings-in-sessions-with-several-repositories)。
 
-<h2 id="permissions-and-tool-approval">
-  权限和工具批准
-</h2>
+## 权限和工具批准
 
 自托管会话没有连接的终端，因此未回答的权限提示会使当前轮次停滞，直到用户在 UI 中响应。Anthropic 的控制平面随工作负载一起发送每个会话的工具列表和权限规则；默认配置预批准常规工具调用（包括 `Bash`），并且云端会话[无论处于何种模式都会预批准文件编辑](/docs/zh-CN/permission-modes#switch-permission-modes)。任何未被预批准的调用都会通过会话 UI 进行提示。
 
-<Note>
-  仅在会话容器运行时启用了[默认拒绝网络出口](/docs/zh-CN/self-hosted-environments-deploy#default-deny-egress)并落实了[加固部分](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)中其余措施的环境上固定自动模式。在默认预批准工具集和自动模式下，常规工具调用（包括 `Bash` 网络请求）都会在无人参与的情况下运行，因此网络边界才是限制这些调用可访问范围的关键。
-</Note>
+> [!NOTE]
+>
+> 仅在会话容器运行时启用了[默认拒绝网络出口](/docs/zh-CN/self-hosted-environments-deploy#default-deny-egress)并落实了[加固部分](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)中其余措施的环境上固定自动模式。在默认预批准工具集和自动模式下，常规工具调用（包括 `Bash` 网络请求）都会在无人参与的情况下运行，因此网络边界才是限制这些调用可访问范围的关键。
 
 要无论控制平面发送什么都将提示保持在最低限度，请从您的包装脚本或 [`command` hook](#command) 固定[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)。自动模式让会话无需常规权限提示即可运行：单独的分类器模型在操作运行前对其进行审查，并阻止它拒绝的操作，而显式的询问规则仍会强制提示；权限模式页面介绍了分类器检查的内容。运行器在调用包装脚本前追加服务器计算的标志，对于单值标志（如 `--permission-mode`），解析器以最后一次出现的值为准，因此您在 `"$@"` 之后追加的标志会覆盖服务器发送的值：
 
@@ -683,9 +627,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 
 要改为预批准特定工具，请追加 `--allowed-tools` 和您的规则，例如 `--allowed-tools "Bash(bazel *) Bash(yarn *) mcp__internal__*"`。列表标志（如 `--allowed-tools` 和 `--disallowed-tools`）会在多次出现时累积而不是覆盖，因此您的规则会叠加在控制平面发送的任何规则之上。要缩小范围，请追加 `--disallowed-tools`，即使其他规则允许某些工具，它也会拒绝这些工具。
 
-<h3 id="how-each-session’s-config-is-assembled">
-  每个会话的配置如何组装
-</h3>
+### 每个会话的配置如何组装
 
 运行器为每个会话提供自己的配置目录，该目录以运行器在启动时一次性捕获的主机 `~/.claude/` 快照为初始内容：您的运行器镜像中的 `settings.json`、`CLAUDE.md`、hook、Agent、命令和 skill 会作为用户级基线应用于每个会话。如果您更改正在运行的主机上的配置，更改仅在您重启运行器后生效。
 
@@ -710,9 +652,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 
 运行器对主机 `~/.claude/` 的快照不包含 `projects/` 目录。自动记忆的默认存储位置就在该目录下。如果您将记忆文件放在那里，运行器不会将它们填充到会话中，它们也不会启用自动记忆。
 
-<h3 id="repository-settings-in-sessions-with-several-repositories">
-  包含多个仓库的会话中的仓库设置
-</h3>
+### 包含多个仓库的会话中的仓库设置
 
 在包含多个仓库的会话中，Claude Code 从会话启动所在的目录读取项目设置，因此最多只有一个仓库的 `.claude/settings.json` 作为项目设置生效。在其他仓库的文件中定义的 hook 不会运行，其中的拒绝规则不会生效，其 `env` 也不会被设置。
 
@@ -723,9 +663,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 
 要在每个会话中运行某个 hook 或应用某条权限规则，请将其放在运行器主机上的 `~/.claude/settings.json` 中。无论会话在何处启动，运行器都会[将该主机文件填充到每个会话中](#how-each-session’s-config-is-assembled)。在 `Read` 或 `Edit` 规则中，请将路径写为以 `//` 开头的绝对路径或以 `~/` 开头的相对于主目录的[模式](/docs/zh-CN/permissions#read-and-edit)，因为其他模式会以设置来源或当前目录为锚点。
 
-<h3 id="repository-committed-permission-rules">
-  仓库中提交的权限规则
-</h3>
+### 仓库中提交的权限规则
 
 不要在仓库中提交的 `permissions.allow` 中放置不带限定的 `"Edit"`、`"Write"` 或 `"NotebookEdit"` 条目。不带限定的文件工具规则会匹配该工具而不论路径如何，从而授予在主机上任意位置写入的权限，而不仅限于工作区，因此运行器的写入范围限制守卫会标记该会话；使用 [`--confine-repo-settings enforce`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 时，它会拒绝生成该会话，而不是记录日志后继续。请参阅[加固部分](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)。
 
@@ -733,9 +671,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 
 `defaultMode` 为 `auto` 的设置仅在来自镜像范围或用户级设置文件时才会生效，因此检出的仓库无法为自己授予自动模式。有关云端会话接受哪些模式以及完整的规则语法，请参阅[权限模式](/docs/zh-CN/permission-modes)。
 
-<h2 id="what’s-next">
-  接下来
-</h2>
+## 接下来
 
 * [Reference](/docs/zh-CN/self-hosted-environments-reference)：每个 CLI 标志、环境变量和指标
 * [Verify session identity](/docs/zh-CN/self-hosted-environments-identity)：从运行器外部的服务验证会话令牌

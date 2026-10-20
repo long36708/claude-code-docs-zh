@@ -8,13 +8,11 @@
 
 查阅 [mod](/docs/zh-CN/plugins/mods/overview) 可以处理的任何事件、可以调用的任何 mods API 方法，或可以在其中绘制的任何渲染位置。条目涵盖 v2.1.290 起的 Claude Code CLI 和 Desktop 应用，以及 v2.1.299 起的 VS Code 扩展。每个条目给出名称和一行描述，如有相应的指南章节，还会链接到该章节。
 
-<Note>
-  完整的参考是 Claude Code 的 [mod TypeScript 声明](https://github.com/anthropics/claude-code/blob/main/mods/types/claude-code.d.ts)，其中描述了每个事件、方法和元素，并附有示例。GitHub 上的副本可能比您安装的 Claude Code 版本更旧。两者不一致时，请以 [Claude Code 为您的版本写入的副本](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)为准。
-</Note>
+> [!NOTE]
+>
+> 完整的参考是 Claude Code 的 [mod TypeScript 声明](https://github.com/anthropics/claude-code/blob/main/mods/types/claude-code.d.ts)，其中描述了每个事件、方法和元素，并附有示例。GitHub 上的副本可能比您安装的 Claude Code 版本更旧。两者不一致时，请以 [Claude Code 为您的版本写入的副本](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)为准。
 
-<h2 id="files">
-  文件
-</h2>
+## 文件
 
 mod 是一个包含以下文件的插件目录：
 
@@ -28,9 +26,7 @@ mod 是一个包含以下文件的插件目录：
 
 `register` 接收 `on` 和 `options`。`options` 包含清单所声明的 [`userConfig`](/docs/zh-CN/plugins/components#user-configuration) 字段的值，并已填入默认值。
 
-<h2 id="the-hook-function">
-  hook 函数
-</h2>
+## hook 函数
 
 mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件处理程序）。`on` 接受事件名称、一个可选的[匹配器](/docs/zh-CN/plugins/mods/events#filter-which-events-a-hook-handles)（即对事件字段的过滤条件）以及 hook，如 `on('tool.call', { tool: 'Bash' }, async ($, e, next) => next(e))`。`on` 返回一个注册对象，它只有一个方法 `.catch(handler)`，用于设置该 hook 的[错误处理程序](/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)。
 
@@ -47,17 +43,13 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | `next.error.cause` | 仅当 `kind` 为 `re-entry` 时设置。如果 `tool.call` 或 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) hook 更改了该事件所来自的 mods API 调用，或者 `agent.spawn` hook 更改了由该调用启动的 Agent，则为 `rewritten`。当触发该事件的是另一个 mod 添加到 mods API 的方法时，为 `lent`，除非同时适用 `rewritten`。`lent` 需要 Claude Code v2.1.292 或更高版本，`rewritten` 需要 v2.1.300 或更高版本。 |
 | `next.called` | 仅在 `.catch` 处理程序中可用。当 hook 已调用 `next` 时为 `true`。 |
 
-<h2 id="events">
-  事件
-</h2>
+## 事件
 
 事件按其涉及的内容分组，每个事件都列出了触发时机以及其上的 hook 可以返回的内容。`turn.step` 和 `process.spawn` 上的 hook 是异步生成器，其他 hook 是异步函数。
 
 每个表格的最后一列使用简写。`next(e)` 原样传递事件。`next({ ...e, text })` 传递一个更改了指定字段的副本，如 `next({ ...e, text: e.text.trim() })`。对象表示不调用 `next` 而直接应答该事件，而 `reason` 之类的词代表您编写的字符串，如 `{ deny: 'Use the file tools.' }`。
 
-<h3 id="tools">
-  工具
-</h3>
+### 工具
 
 工具事件围绕 Claude 发出的每个工具调用触发，涵盖从 Claude 读取的描述到是否运行该调用的决定：
 
@@ -67,9 +59,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | [`tool.check`](/docs/zh-CN/plugins/mods/events#where-settings-hooks-run-in-the-order) | Claude Code 在 `tool.call` 和 `PreToolUse` hook 之后决定是否允许运行某个工具调用。`next(e)` 解析为规则、权限模式和这些 hook 得出的决定。 | `{ decision }`，其值为 `allow`、`ask` 或 `deny` |
 | `tool.describe` | 每个工具一次，在其描述首次发送给 Claude 时。对于 MCP 工具，当 Claude 通过[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)加载它时会再触发一次，此时 `e.description` 设为 Claude 针对已加载工具读取的文本。 | `{ description }`，可选择将 `isDeferred` 设为 `true` 以将该工具置于工具搜索之后，或设为 `false` 以预先加载它 |
 
-<h4 id="agent-and-organization-fields-on-tool-check">
-  `tool.check` 上的 Agent 和组织字段
-</h4>
+#### `tool.check` 上的 Agent 和组织字段
 
 在 `tool.check` hook 中，读取以下字段可区分子代理的调用与主对话的调用，并查看您的组织是否要求对某个连接器工具进行批准：
 
@@ -78,9 +68,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 
 在 `tool.check` 上，`e.agentId` 和 `e.ceiling` 需要 Claude Code v2.1.290 或更高版本。
 
-<h3 id="prompts-and-what-claude-reads">
-  提示词以及 Claude 读取的内容
-</h3>
+### 提示词以及 Claude 读取的内容
 
 提示词事件涵盖用户输入的文本，以及 Claude Code 自行发送给 Claude 的文本，例如系统提示词和提醒：
 
@@ -98,9 +86,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | [`skill.prompt`](/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | skill 的文本为 Claude 展开时 | `{ text }` |
 | `attribution.text` | Claude Code 撰写提交或 Pull Request 的署名文本时 | `{ text }` |
 
-<h4 id="skill-prompt-fields">
-  `skill.prompt` 上的来源和 frontmatter 字段
-</h4>
+#### `skill.prompt` 上的来源和 frontmatter 字段
 
 在 `skill.prompt` hook 中，除了 `e.skill` 中的 skill 名称和 `e.text` 中 Claude 读取的文本之外，您还可以读取以下字段：
 
@@ -116,9 +102,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 
 在 `skill.prompt` 上，`e.source`、`e.pluginName`、`e.path`、`e.frontmatter` 和 `e.frontmatterProblem` 需要 Claude Code v2.1.299 或更高版本。
 
-<h3 id="commands-and-configuration">
-  命令和配置
-</h3>
+### 命令和配置
 
 命令和配置事件在命令运行或被列出时，以及 `/config` 行显示或更改时触发：
 
@@ -129,9 +113,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | `config.set` | `/config` 行即将更改 | `next({ ...e, value })` 或 `{ deny: reason }` |
 | `config.describe` | 每个 `/config` 行一次 | `{ label, description, isHidden }` |
 
-<h3 id="turns">
-  轮次
-</h3>
+### 轮次
 
 轮次事件从头到尾跟踪一次回答，包括其中每个发往模型的请求：
 
@@ -141,9 +123,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | [`turn.step`](/docs/zh-CN/plugins/mods/events#follow-a-turn) | 一个请求即将发往模型 | `yield* next(e)`，或 `next({ ...e, model })`、`next({ ...e, effort })` |
 | [`turn.complete`](/docs/zh-CN/plugins/mods/events#follow-a-turn) | 轮次结束 | `next(e)`，或 `{ text }` 以在回答下方显示一行 |
 
-<h3 id="session">
-  会话
-</h3>
+### 会话
 
 会话事件标记会话的开始、结束、压缩，以及与其他会话交换消息：
 
@@ -157,9 +137,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | `session.attach`, `session.detach` | 另一个应用连接到会话或从会话断开 | `next(e)` |
 | `session.measure` | 每个轮次之后，以及套餐限制的已用百分比发生变化时 | `next(e)` |
 
-<h3 id="subagents">
-  子代理
-</h3>
+### 子代理
 
 子代理事件在向 Claude 提供某个子代理类型时，以及子代理或 agent team 队友即将启动时触发：
 
@@ -170,9 +148,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 
 当 Claude 使用 [`SendMessage`](/docs/zh-CN/sub-agents#resume-subagents) 工具恢复子代理时，您的 `agent.spawn` hook 不会再次运行。要拒绝恢复子代理的 `SendMessage` 调用，请在 [`tool.call`](/docs/zh-CN/plugins/mods/events#guard-or-change-a-tool-call) hook 中匹配该工具。
 
-<h3 id="interface">
-  界面
-</h3>
+### 界面
 
 界面事件在 Claude Code 绘制渲染位置时，以及用户使用 mod 绘制的控件时触发。[在界面中绘制](/docs/zh-CN/plugins/mods/interface)展示了 `ui.render` hook 返回的内容：
 
@@ -186,9 +162,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | [`ui.message`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `Client` 元素向其 mod 发送数据 |
 | [`ui.fault`](/docs/zh-CN/plugins/mods/interface#redraw-when-something-changes) | 您的 mod 绘制的 `Client` 元素加载、绘制或运行失败。`e.phase` 为 `load`、`render` 或 `run`，`e.reason` 是错误消息。需要 Claude Code v2.1.289 或更高版本。 |
 
-<h3 id="other-mods">
-  其他 mod
-</h3>
+### 其他 mod
 
 这些事件让 mod 在其他 mod 加载时对其进行操作，以拒绝某个 mod 或更改它收到的 mods API：
 
@@ -199,9 +173,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 
 当另一个 mod 的 hook 调用您在 `engine.create` 中添加的命名空间上的方法时，在该事件上的所有 hook 返回之前，您的方法发出的 `$` 调用都在该 hook 的上下文中运行。例如，相对路径基于该 hook 的工作目录解析，而当轮次正在等待该 hook 时，`$.prompt.submit` 会被拒绝。在此之后您的方法发出的调用将在您的 mod 自身的上下文中运行。
 
-<h3 id="telemetry">
-  遥测
-</h3>
+### 遥测
 
 遥测事件针对 Claude Code 记录的使用情况记录触发：
 
@@ -209,21 +181,15 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | :- | :- | :- |
 | `telemetry.log`, `telemetry.mark` | 一条遥测记录即将被记录，或标记某项功能的一次使用。在您安装的 mod 中，请为遥测 hook 设置过滤条件 `{ to: 'collector' }`，如 `on('telemetry.log', { to: 'collector' }, hook)`。如果没有该过滤条件，mod 将无法通过 `claude plugin validate`。`*` 不匹配这些事件。 | `next(e)` 或 `{ deny: reason }` |
 
-<h3 id="settings-hook-events">
-  设置 hook 事件
-</h3>
+### 设置 hook 事件
 
 每个[设置 hook 事件](/docs/zh-CN/hooks#hook-events)都是一个名为 `classic.<Event>` 的事件，如 `classic.Stop` 或 `classic.PostToolUse`。`e` 是该 hook 的 stdin JSON。
 
-<h3 id="mods-api-calls">
-  mods API 调用
-</h3>
+### mods API 调用
 
 每个 [mods API 方法](#mods-api-methods)也是一个事件，以其命名空间和方法命名，如 `fs.read`、`model.complete` 或 `ui.open`。其上的 hook 会拦截在它之后运行的 mod 发出的调用，并可以返回 `next(e)`、`{ deny: reason }` 或 `{ value }`。
 
-<h2 id="mods-api-methods">
-  mods API 方法
-</h2>
+## mods API 方法
 
 mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组，例如 `$.ui`。此表按名称列出每个命名空间的方法，因此 `$.ui` 行中的 `open` 就是调用 `$.ui.open(...)`。指南展示了常用方法的用法，而[您的构建版本的类型](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)记录了每个方法并附有示例。
 
@@ -251,9 +217,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | `$.audio` | `play`、`speak` |
 | `$.telemetry` | `log`、`mark`。仅当由 Claude Code 或内置 mod 发出调用时，才会发送记录。 |
 
-<h2 id="render-sites">
-  渲染位置
-</h2>
+## 渲染位置
 
 渲染位置是 Claude Code 界面中的扩展点。每一行是 `ui.render` hook 中 `e.component` 的一个值，并列出了 `e.props` 的字段以及渲染它的应用。`e.surface` 指明正在绘制的应用，例如 `terminal`、`desktop` 或 `vscode`。[更改 Claude Code 已绘制的内容](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws)展示了 hook 在某个位置可以做什么，并为每种选择提供了示例。
 
@@ -285,9 +249,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 
 比窗格更高的树会整体滚动。
 
-<h2 id="elements">
-  元素
-</h2>
+## 元素
 
 元素是 `ui.render` hook 所返回的树的构建块，您可以从 `$.ui.resolve(e)` 获取它们。[用元素构建树](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)展示了常用元素以及终端如何绘制它们，[界面图库](/docs/zh-CN/plugins/mods/gallery)提供了大多数元素的截图。对勾表示该应用可以绘制该元素。
 
@@ -316,9 +278,7 @@ VS Code 扩展会忽略某些元素 prop，并像您省略了这些 prop 一样�
 * **`Code`**：`language`、`path`、`startLine`、`format` 和 `wrap`，因此代码绘制时不带颜色或行号，而 `format: 'diff'` 代码块会显示 diff 的原始文本
 * **`Input` 和 `Select`**：`autoFocus`
 
-<h3 id="box-border-styles">
-  `Box` 边框样式
-</h3>
+### `Box` 边框样式
 
 要在 `Box` 周围绘制边框，请将其 `borderStyle` 设置为以下名称之一，例如 `borderStyle: 'round'`。每一行说明终端针对该名称绘制的内容，并展示边框的上边缘。
 
@@ -337,9 +297,7 @@ VS Code 扩展会忽略某些元素 prop，并像您省略了这些 prop 一样�
 
 如果 `Box` 的 `borderStyle` 指定的是其他名称（例如 `'rounded'`），则绘制时不带边框。
 
-<h3 id="box-spacing-steps">
-  `Box` 间距步长
-</h3>
+### `Box` 间距步长
 
 `Box` 的间距 prop 包括 `gap`、`columnGap`、`rowGap`、`padding`、`margin`，以及 `padding` 和 `margin` 的单边和单轴形式，例如 `paddingX` 和 `marginTop`。每个 prop 都接受以终端单元格为单位的数字（例如 `gap: 1`），或步长名称（例如 `gap: 'md'`）。在终端和 VS Code 扩展中，每个步长对应的单元格数如下：
 
@@ -355,9 +313,7 @@ VS Code 扩展会忽略某些元素 prop，并像您省略了这些 prop 一样�
 
 步长名称需要 Claude Code v2.1.299 或更高版本。在更早的版本中，对于使用了步长名称的树，Claude Code 会[绘制它自己版本的该位置内容](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)来代替。
 
-<h3 id="text-typography">
-  `Text` 排版 prop
-</h3>
+### `Text` 排版 prop
 
 在 `Text` 上设置 `size`、`weight`、`mono` 或 `tabular`，可以请求绘制您的树的应用使用某种文字大小、字重、等宽字体或等宽数字。在依赖某个 prop 之前，请先确认终端和 VS Code 扩展如何处理它。如果某个应用忽略了您设置的 prop，您的树仍会在其中绘制，文本显示效果与您省略该 prop 时相同。
 
@@ -370,17 +326,13 @@ VS Code 扩展会忽略某些元素 prop，并像您省略了这些 prop 一样�
 
 这四个 prop 需要 Claude Code v2.1.299 或更高版本。在更早的版本中，对于设置了 `size`、`weight`、`mono` 或 `tabular` 的树，Claude Code 会[绘制它自己版本的该位置内容](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)来代替。
 
-<h4 id="text-bold">
-  用 `weight` 替换 `bold`
-</h4>
+#### 用 `weight` 替换 `bold`
 
 `Text` 上的 `bold` 已弃用，建议改用 `weight`，但它仍然可用。要在未设置 `weight` 的 `Text` 上替换它，请将 `bold: true` 改为 `weight: 'semibold'`，在 Claude Code v2.1.299 或更高版本上效果相同。
 
 在早于 v2.1.299 的版本中，设置了 `weight` 的树不会绘制，Claude Code 会改为[绘制它自己版本的该位置内容](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)。如果您在 `Text` 上同时设置了 `bold` 和 `weight`，则 `bold` 不起作用。
 
-<h2 id="limits">
-  限制
-</h2>
+## 限制
 
 hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出时间限制的 hook。
 
@@ -409,9 +361,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | 命令、工具、子代理类型和窗格名称 | 字母、数字、`_` 和 `-`，最多 64 个字符 |
 | 单个 `claude plugin test` 测试 | 5 秒，除非该测试设置了 `timeoutMs` |
 
-<h2 id="settings-and-environment-variables">
-  设置和环境变量
-</h2>
+## 设置和环境变量
 
 以下是影响 mod 的设置和环境变量。“位置”列说明每一项从哪个设置文件或环境中读取：
 
@@ -431,9 +381,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 
 其源代码位于 [Claude Code 仓库的 `mods/sec-default` 目录](https://github.com/anthropics/claude-code/tree/main/mods/sec-default)中。
 
-<h2 id="commands">
-  命令
-</h2>
+## 命令
 
 这些命令和标志用于加载、检查和测试 mod。`claude` 命令在您的 shell 中运行，`/` 命令在 Claude Code 输入框中运行。表中的 `<directory>` 代表您输入的路径，如 `claude plugin validate ./first-mod`。方括号表示可选参数。
 

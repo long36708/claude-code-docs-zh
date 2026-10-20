@@ -8,13 +8,13 @@
 
 Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或打开位于 `~/.claude/keybindings.json` 的配置文件。
 
-<h2 id="configuration-file">
-  配置文件
-</h2>
+## 配置文件
 
 快捷键配置文件是一个包含 `bindings` 数组的对象。每个块指定一个上下文和一个按键映射到操作的映射。
 
-<Note>快捷键文件的更改会自动检测并应用，无需重启 Claude Code。</Note>
+> [!NOTE]
+>
+> 快捷键文件的更改会自动检测并应用，无需重启 Claude Code。
 
 | 字段 | 描述 |
 | :- | :- |
@@ -40,9 +40,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 }
 ```
 
-<h2 id="contexts">
-  上下文
-</h2>
+## 上下文
 
 每个绑定块指定一个**上下文**，其中绑定适用：
 
@@ -78,15 +76,11 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 在 v2.1.205 之前，`/doctor` 诊断屏幕存在 `Doctor` 上下文和 `doctor:fix` 操作。
 
-<h2 id="available-actions">
-  可用操作
-</h2>
+## 可用操作
 
 操作遵循 `namespace:action` 格式，例如 `chat:submit` 用于发送消息或 `app:toggleTodos` 用于显示任务列表。每个上下文都有特定的可用操作。
 
-<h3 id="app-actions">
-  App 操作
-</h3>
+### App 操作
 
 在 `Global` 上下文中可用的操作：
 
@@ -98,9 +92,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `app:toggleTodos` | Ctrl+T | 切换 Claude 待办事项清单的可见性。这不是 [`/tasks`](/docs/zh-CN/commands) 后台任务视图 |
 | `app:toggleTranscript` | Ctrl+O | 切换详细记录 |
 
-<h3 id="history-actions">
-  History 操作
-</h3>
+### History 操作
 
 用于导航命令历史的操作：
 
@@ -110,9 +102,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `history:previous` | Up | 上一个历史项 |
 | `history:next` | Down | 下一个历史项 |
 
-<h3 id="chat-actions">
-  Chat 操作
-</h3>
+### Chat 操作
 
 在 `Chat` 上下文中可用的操作：
 
@@ -137,9 +127,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 \*在没有 VT 模式的 Windows 上 (Node \<24.2.0/\<22.17.0, Bun \<1.2.23)，默认为 Meta+M。
 
-<h3 id="autocomplete-actions">
-  Autocomplete 操作
-</h3>
+### Autocomplete 操作
 
 在 `Autocomplete` 上下文中可用的操作：
 
@@ -150,9 +138,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `autocomplete:previous` | Up | 上一个建议 |
 | `autocomplete:next` | Down | 下一个建议 |
 
-<h3 id="confirmation-actions">
-  Confirmation 操作
-</h3>
+### Confirmation 操作
 
 在 `Confirmation` 上下文中可用的操作：
 
@@ -195,9 +181,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 在 v2.1.280 之前，`y` 也默认绑定到 `confirm:yes`，`n` 绑定到 `confirm:no`。如果您在 v2.1.280 之前使用 `/keybindings` 创建了 `keybindings.json`，该文件会列出两个绑定，它们会保持有效，直到您删除这两行。
 
-<h3 id="permission-actions">
-  Permission 操作
-</h3>
+### Permission 操作
 
 在 `Confirmation` 上下文中可用的权限对话框操作：
 
@@ -205,9 +189,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | :- | :- | :- |
 | `permission:toggleDebug` | (未绑定) | Claude Code 不响应此操作，命名该操作的 `keybindings.json` 仍然有效 |
 
-<h3 id="transcript-actions">
-  Transcript 操作
-</h3>
+### Transcript 操作
 
 在 `Transcript` 上下文中可用的操作：
 
@@ -218,9 +200,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 `transcript:toggleShowAll` 仅在经典渲染器中应用；在 [全屏渲染](/docs/zh-CN/fullscreen) 中，记录查看器不提供显示全部切换。
 
-<h3 id="history-search-actions">
-  History search 操作
-</h3>
+### History search 操作
 
 在 `HistorySearch` 上下文中可用的操作：
 
@@ -234,9 +214,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 `historySearch:next`、`historySearch:accept`、`historySearch:cancel` 和 `historySearch:execute` 默认值适用于经典渲染器中的内联历史搜索，它始终搜索来自所有项目的提示。`historySearch:cycleScope` 仅在 [全屏渲染](/docs/zh-CN/fullscreen) 中生效，其中 `Ctrl+R` 打开搜索对话框，`Ctrl+S` 循环其范围。对话框的其他键是固定的，无法重新绑定：`Enter` 或 `Tab` 将突出显示的匹配项放在提示输入中，`Esc` 取消。
 
-<h3 id="task-actions">
-  Task 操作
-</h3>
+### Task 操作
 
 在 `Task` 上下文中可用的操作：
 
@@ -244,9 +222,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | :- | :- | :- |
 | `task:background` | Ctrl+B, Ctrl+X Ctrl+B | 将当前任务转入后台 |
 
-<h3 id="theme-actions">
-  Theme 操作
-</h3>
+### Theme 操作
 
 在 `ThemePicker` 上下文中可用的操作：
 
@@ -254,9 +230,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | :- | :- | :- |
 | `theme:toggleSyntaxHighlighting` | Ctrl+T | 切换语法高亮 |
 
-<h3 id="help-actions">
-  Help 操作
-</h3>
+### Help 操作
 
 在 `Help` 上下文中可用的操作：
 
@@ -264,9 +238,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | :- | :- | :- |
 | `help:dismiss` | Escape | 关闭帮助菜单 |
 
-<h3 id="tabs-actions">
-  Tabs 操作
-</h3>
+### Tabs 操作
 
 在 `Tabs` 上下文中可用的操作：
 
@@ -279,9 +251,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 `Up` 和 `Down` 在选项卡行和选项卡的内容之间移动焦点，内容中的列表仅在有焦点时才响应键。
 
-<h3 id="attachments-actions">
-  Attachments 操作
-</h3>
+### Attachments 操作
 
 在 `Attachments` 上下文中可用的操作：
 
@@ -292,9 +262,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `attachments:remove` | Backspace, Delete | 移除选定的附件 |
 | `attachments:exit` | Down, Escape | 退出附件导航 |
 
-<h3 id="footer-actions">
-  Footer 操作
-</h3>
+### Footer 操作
 
 在 `Footer` 上下文中可用的操作：
 
@@ -313,9 +281,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 `Chat` 绑定在 `Footer` 上下文未绑定的键上（例如 `Shift+Tab` 用于 `chat:cycleMode`）在选定项时继续工作。
 
-<h3 id="message-selector-actions">
-  Message selector 操作
-</h3>
+### Message selector 操作
 
 在 [rewind 菜单](/docs/zh-CN/checkpointing) 的消息列表中，您可以通过 [Select 操作](#select-actions) 及其默认键在消息中移动并选择一条。您的 `Select` 绑定对这些操作也适用于那里。`MessageSelector` 上下文没有自己的操作或默认绑定。使用它通过在 `MessageSelector` 块中绑定 Select 操作（例如 `select:accept`）来仅为此列表更改键。
 
@@ -336,9 +302,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 在 v2.1.283 之前，此列表忽略 `Select` 绑定，并有自己的操作：`messageSelector:up`、`messageSelector:down`、`messageSelector:top`、`messageSelector:bottom` 和 `messageSelector:select`。如果您的 `keybindings.json` 绑定了其中一个名称，绑定在此列表中继续工作作为执行相同操作的 Select 操作。`Home` 和 `End` 跳到列表的任一端；在 v2.1.283 之前，`Shift+K` 和 `Shift+J` 等键默认执行此操作。
 
-<h3 id="diff-actions">
-  Diff 操作
-</h3>
+### Diff 操作
 
 这些操作仅作用于 Claude Code 早期的 diff 查看器：在您于 `/plugin` 中禁用 [`cc-plugin-diff` mod](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 后，`/diff` 会在 [全屏渲染](/docs/zh-CN/fullscreen) 之外打开该查看器。启用该 mod 时，`/diff` 会改为打开 [diff 对话框](/docs/zh-CN/interactive-mode#diff-dialog)。无论哪种情况，命名这些操作的 `keybindings.json` 都能正常加载而不会报错。
 
@@ -368,9 +332,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `scroll:top` | G, Home | 跳到顶部 |
 | `scroll:bottom` | Shift+G, End | 跳到底部 |
 
-<h3 id="diff-panel-actions">
-  Diff panel 操作
-</h3>
+### Diff panel 操作
 
 用于 [diff 面板](/docs/zh-CN/interactive-mode#diff-panel) 的操作，`/diff` 在全屏渲染中打开。`app:cycleDiffBase` 在 `DiffPanel` 上下文中，在面板打开时处于活动状态；其他的在 `Global` 中。
 
@@ -385,9 +347,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `app:toggleDiffNoiseFilter` | (未绑定) | 在面板中显示或隐藏测试和生成的文件 |
 | `app:toggleDiffPreSession` | (未绑定) | 展开或折叠此会话之前的更改 |
 
-<h3 id="model-picker-actions">
-  Model picker 操作
-</h3>
+### Model picker 操作
 
 在 `ModelPicker` 上下文中可用的操作：
 
@@ -397,9 +357,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `modelPicker:increaseEffort` | Right | 提高努力级别 |
 | `modelPicker:thisSessionOnly` | s | 仅将突出显示的模型应用于此会话 |
 
-<h3 id="effort-slider-actions">
-  Effort slider 操作
-</h3>
+### Effort slider 操作
 
 在 `EffortSlider` 上下文中可用的操作，当您运行不带参数的 `/effort` 时打开的滑块。滑块的 Enter 和 Escape 键无法重新绑定。
 
@@ -410,9 +368,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `effortSlider:toggleUltracode` | Tab | 为此会话打开或关闭 [ultracode](/docs/zh-CN/workflows#let-claude-decide-with-ultracode)，当滑块 [提供它](/docs/zh-CN/model-config#when-ultracode-is-available) 时。需要 v2.1.284 或更高版本 |
 | `effortSlider:thisSessionOnly` | s | 仅将焦点 [努力级别](/docs/zh-CN/model-config#adjust-effort-level) 应用于此会话。需要 v2.1.257 或更高版本 |
 
-<h3 id="select-actions">
-  Select 操作
-</h3>
+### Select 操作
 
 在 `Select` 上下文中可用的操作：
 
@@ -433,9 +389,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 
 在 v2.1.283 之前，`/mcp` 工具列表使用固定的 PageUp 和 PageDown 键进行分页，无论您的绑定如何。
 
-<h3 id="plugin-actions">
-  Plugin 操作
-</h3>
+### Plugin 操作
 
 在 `Plugin` 上下文中可用的操作：
 
@@ -445,9 +399,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `plugin:install` | I | 安装选定的插件 |
 | `plugin:favorite` | F | 收藏选定的插件，使其在"已安装"标签页附近排序 |
 
-<h3 id="above-prompt-actions">
-  Above-prompt 操作
-</h3>
+### Above-prompt 操作
 
 用于输入框上方区域的操作，该区域是 [mod](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) 绘制按钮、输入字段和选择框的共享条带。`abovePrompt:toggle` 和 `abovePrompt:focus` 在 `Chat` 上下文中适用。其他操作在该区域或窗格中拥有键盘焦点的元素所在的 [上下文](#contexts) 中适用。
 
@@ -466,9 +418,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 
 `AbovePrompt` 上下文还将 Up、Down、PageUp、PageDown、Home 和 End 绑定到 [窗格滚动操作](#pane-actions) `pane:scrollUp` 至 `pane:bottom`，因此要为该区域更改其中某个键，请在 `AbovePrompt` 块中绑定相应的滚动操作。
 
-<h3 id="pane-actions">
-  Pane 操作
-</h3>
+### Pane 操作
 
 用于由 [mod](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive) 绘制的窗格的操作。滚动、调整大小和关闭操作在 `Pane` [上下文](#contexts) 中适用。`pane:close` 也在 `PaneField` 上下文中适用，因此当窗格的某个字段拥有焦点时它也能生效。当打开的窗格多于一个时，`pane:next` 和 `pane:previous` 在 `Global` 上下文中适用。
 
@@ -488,9 +438,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 
 `Pane` 上下文还将 Tab、Shift+Tab、Enter 和 Escape 绑定到与该区域相同的 [Above-prompt 操作](#above-prompt-actions)，窗格中的输入字段和选择框使用 `AbovePromptInput` 和 `AbovePromptSelect` 上下文。[键盘焦点和快捷键](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive) 列出了每个键在窗格中的作用。
 
-<h3 id="settings-actions">
-  Settings 操作
-</h3>
+### Settings 操作
 
 在 `Settings` 上下文中可用的操作。`select:accept` 和 `confirm:no` 操作从 [Select](#select-actions) 和 [Confirmation](#confirmation-actions) 上下文重用，具有特定于设置的行为：更改在您更改时立即应用于每个设置，因此 Escape 关闭面板并保存您的更改，而不是拒绝。
 
@@ -501,9 +449,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `select:accept` | Enter, Space | 更改选定的设置或打开其子菜单 |
 | `confirm:no` | Escape | 关闭面板。更改已保存 |
 
-<h3 id="agents-actions">
-  Agents 操作
-</h3>
+### Agents 操作
 
 在 `Agents` 上下文中可用的操作，适用于 [agent 视图](/docs/zh-CN/agent-view)，使用 `claude agents` 打开。需要 v2.1.257 或更高版本。
 
@@ -522,9 +468,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 
 绑定在 agent 视图中的单个按键上触发，因此绑定到 `chat:externalEditor` 的 Ctrl+X Ctrl+E 弦不会在那里打开编辑器。
 
-<h3 id="voice-actions">
-  Voice 操作
-</h3>
+### Voice 操作
 
 当 [语音听写](/docs/zh-CN/voice-dictation) 启用时，在 `Chat` 上下文中可用的操作：
 
@@ -532,9 +476,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | :- | :- | :- |
 | `voice:pushToTalk` | Space | 听写提示。根据 `/voice` 模式按住或点击 |
 
-<h3 id="scroll-actions">
-  Scroll 操作
-</h3>
+### Scroll 操作
 
 当 [全屏渲染](/docs/zh-CN/fullscreen) 启用时，在 `Scroll` 上下文中可用的操作：
 
@@ -559,13 +501,9 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `selection:extendLineStart` | Shift+Home | 将活动选择扩展到行的开始 |
 | `selection:extendLineEnd` | Shift+End | 将活动选择扩展到行的结束 |
 
-<h2 id="keystroke-syntax">
-  按键语法
-</h2>
+## 按键语法
 
-<h3 id="modifiers">
-  修饰符
-</h3>
+### 修饰符
 
 使用修饰符键和 `+` 分隔符：
 
@@ -585,15 +523,11 @@ meta+p          macOS 上的 Option + P，其他地方的 Alt + P
 ctrl+shift+c    多个修饰符
 ```
 
-<h3 id="uppercase-letters">
-  大写字母
-</h3>
+### 大写字母
 
 Claude Code 不区分大小写地解析按键名称，因此 `K` 与 `k` 的绑定相同，`ctrl+K` 与 `ctrl+k` 相同。要绑定 Shift 和一个字母，请写 `shift+k`。
 
-<h3 id="non-us-keyboard-layouts">
-  非美国键盘布局
-</h3>
+### 非美国键盘布局
 
 即使您的活动键盘布局输入其他字符，也要将 Ctrl 快捷键的按键名称写成拉丁字符。
 
@@ -602,9 +536,7 @@ Claude Code 如何将您按下的按键与绑定匹配取决于布局的类型�
 * 在非拉丁布局（如西里尔字母）下，当终端使用 Kitty 键盘协议并报告该位置时，Claude Code 通过按键的美国布局位置来匹配 Ctrl 快捷键。在这样的终端中，使用俄语布局时，按下 Ctrl 和物理 W 键会触发 `ctrl+w`。在不报告位置的终端中，Claude Code 匹配终端为按键发送的任何内容：ASCII 控制代码触发拉丁快捷键，作为西里尔字符到达的按键不匹配任何绑定
 * 在重新排列拉丁字母的布局（如 AZERTY）下，Claude Code 匹配按键输入的字母，因此按下 Ctrl 和标记为 A 的按键会触发 `ctrl+a`
 
-<h3 id="chords">
-  和弦
-</h3>
+### 和弦
 
 和弦是由空格分隔的按键序列：
 
@@ -614,9 +546,7 @@ ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
 
 在前一个按键的 3 秒内按下每个按键。如果您等待更长时间，Claude Code 会取消和弦并显示一条简短通知。
 
-<h3 id="special-keys">
-  特殊键
-</h3>
+### 特殊键
 
 * `escape` 或 `esc` - Escape 键
 * `enter` 或 `return` - Enter 键
@@ -628,9 +558,7 @@ ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
 * `backspace`、`delete` - 删除键
 * `wheelup`、`wheeldown` - 鼠标滚轮滚动事件
 
-<h2 id="unbind-default-shortcuts">
-  取消绑定默认快捷键
-</h2>
+## 取消绑定默认快捷键
 
 将操作设置为 `null` 以取消绑定默认快捷键：
 
@@ -710,9 +638,7 @@ Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
 
 如果您取消绑定前缀上的某些但不是全部和弦，按下前缀仍会进入和弦等待模式以处理剩余的绑定。
 
-<h2 id="reserved-shortcuts">
-  保留的快捷键
-</h2>
+## 保留的快捷键
 
 这些快捷键无法重新绑定：
 
@@ -726,9 +652,7 @@ Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
 | Ctrl+H | 发送 ASCII 退格字节。[Claude Code 在 Windows 上如何读取它](/docs/zh-CN/terminal-config#fix-backspace-deleting-a-whole-word-on-windows)取决于您的终端和 [`CLAUDE_CODE_BS_AS_CTRL_BACKSPACE`](/docs/zh-CN/env-vars) 环境变量 |
 | Caps Lock | 不传递到终端应用程序 |
 
-<h2 id="terminal-conflicts">
-  终端冲突
-</h2>
+## 终端冲突
 
 某些快捷键可能与终端多路复用器冲突：
 
@@ -738,9 +662,7 @@ Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
 | Ctrl+A | GNU screen 前缀 |
 | Ctrl+Z | Unix 进程暂停（SIGTSTP） |
 
-<h2 id="text-fields">
-  文本字段
-</h2>
+## 文本字段
 
 如果你绑定一个裸字母、数字或空格，你仍然可以在对话框或面板内的文本字段中输入该字符。其中一个字段是 Claude 提出问题的 `Other` 答案。当该字段获得焦点时，你按下的不带 Ctrl、Alt 或 Cmd 的可打印键会进入该字段，Claude Code 不会根据你的绑定来匹配它。
 
@@ -752,9 +674,7 @@ Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
 
 在主提示符处，Claude Code 根据活跃的上下文（例如 `Chat`）匹配每个键，仅当没有绑定接受该键时才输入该键。
 
-<h2 id="vim-mode-interaction">
-  Vim 模式交互
-</h2>
+## Vim 模式交互
 
 启用 vim 模式（通过 `/config` → 编辑器模式）时，快捷键和 vim 模式独立运行：
 
@@ -768,9 +688,7 @@ Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
 
 在 Claude 提出的问题的 `Other` 行中，vim 模式下按 Escape 不会立即取消该问题。除[屏幕阅读器模式](/docs/zh-CN/accessibility)外，每次聚焦该行时，它都会以 INSERT 模式开始。在 `Other` 行中按 Escape 时，该行会切换到 NORMAL 模式或丢弃输入到一半的 vim 命令，问题仍保持打开状态。在 NORMAL 模式下再次按 Escape 即可取消该问题。
 
-<h2 id="validation">
-  验证
-</h2>
+## 验证
 
 Claude Code 验证您的快捷键并向调试日志写入以下警告：
 

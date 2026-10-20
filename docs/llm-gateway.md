@@ -8,17 +8,15 @@
 
 本部分涵盖使用您的组织已运行的网关产品，而不是 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway)。有关网关是什么、它如何位于 Claude Code 和您的提供商之间，以及如何在 Claude apps gateway 和其他产品之间进行选择，请参阅[网关概述](/docs/zh-CN/gateways)。
 
-<Note>
-  * 如果您是连接到现有网关的开发人员：[将 Claude Code 连接到您的网关](/docs/zh-CN/llm-gateway-connect)
-  * 如果您是为组织部署网关的管理员：[部署和分发网关](/docs/zh-CN/llm-gateway-rollout)
-  * 如果您正在配置网关产品：[网关兼容性指南](/docs/zh-CN/llm-gateway-protocol)
-</Note>
+> [!NOTE]
+>
+> * 如果您是连接到现有网关的开发人员：[将 Claude Code 连接到您的网关](/docs/zh-CN/llm-gateway-connect)
+> * 如果您是为组织部署网关的管理员：[部署和分发网关](/docs/zh-CN/llm-gateway-rollout)
+> * 如果您正在配置网关产品：[网关兼容性指南](/docs/zh-CN/llm-gateway-protocol)
 
 任何公开[支持的 API 格式](/docs/zh-CN/llm-gateway-protocol#api-formats)的网关都可以工作。Anthropic 不认可、维护或审计第三方网关产品，也不支持通过任何网关将 Claude Code 路由到非 Claude 模型。按照网关自己的文档部署网关，然后使用下面的[部署步骤](#roll-out-a-gateway)完成 Claude Code 端的部署。
 
-<h2 id="what-a-gateway-provides">
-  网关提供的功能
-</h2>
+## 网关提供的功能
 
 网关为您的组织提供一个地方来管理：
 
@@ -32,9 +30,7 @@
 
 权衡是网关成为您的组织运营的基础设施。Claude Code 在每个版本中添加功能，不转发这些功能的网关会破坏相应的功能，因此网关产品需要随着 Claude Code 的发展而保持更新。[网关兼容性指南](/docs/zh-CN/llm-gateway-protocol)涵盖要转发的内容。
 
-<h2 id="roll-out-a-gateway">
-  部署网关
-</h2>
+## 部署网关
 
 当您准备好为组织部署 LLM 网关时，无论您选择哪个网关产品，顺序都是相同的：
 
@@ -47,17 +43,13 @@
 
 要使通过 `ANTHROPIC_BASE_URL` 访问的网关成为托管机器唯一可以使用的目标，请在同一托管设置文件中将 [`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) 设置为 `["customEndpoint"]`，并将网关的 `ANTHROPIC_BASE_URL` 放在该文件的 `env` 块中。Claude Code 随后会拒绝指向其他任何地方的会话，包括直接指向 Anthropic 或开发人员自己的代理，并仅接受您在那里设置的值的 `ANTHROPIC_BASE_URL`。对于通过提供商特定端点变量（如 `ANTHROPIC_BEDROCK_BASE_URL`）访问的网关，`allowedProviders` 条目指定要固定的变量。需要 Claude Code v2.1.285 或更高版本。
 
-<h2 id="subscriptions-and-gateways">
-  订阅和网关
-</h2>
+## 订阅和网关
 
 当[网关凭证变量](/docs/zh-CN/llm-gateway-connect#set-the-credential-variable)或 `apiKeyHelper` 处于活动状态时，请求会使用该凭证代替开发人员的 claude.ai 订阅登录，订阅的使用限制不适用于这些请求。Claude Code 在机器上保存了 claude.ai 登录信息，但不会在这些请求中发送它。该流量按令牌计费给拥有网关转发的凭证的人，例如您的组织的 Anthropic Console 账户，或当网关路由到那里时您的 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 账户。
 
 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential)是指向 Claude Code 网关的变量。仅设置该变量，不设置网关凭证，不会替换订阅。请求仍然通过网关路由，但保存的 claude.ai 登录保持活动凭证，因此其使用限制和计费适用。将此流量转发给 Anthropic 的网关必须转发 `anthropic-beta` 中的 OAuth 功能；请参阅[请求头参考](/docs/zh-CN/llm-gateway-protocol#request-headers)。
 
-<h2 id="related-pages">
-  相关页面
-</h2>
+## 相关页面
 
 * [网关概述](/docs/zh-CN/gateways)：网关如何工作以及如何在 Claude apps gateway 和其他产品之间进行选择
 * [Claude apps gateway](/docs/zh-CN/claude-apps-gateway)：Anthropic 的自托管网关，具有 SSO 登录和 OTLP 遥测

@@ -10,40 +10,36 @@
 
 该命令适用于任何套餐。审查在您自己的会话中运行，因此与会话中的其他部分一样，计入您套餐的用量或 API 计费。
 
-<Note>
-  如需在 GitHub 上自动审查仓库中的每个 Pull Request，请参阅 [Code Review](/docs/zh-CN/code-review)，这是一项由 Owner 为您的组织启用的托管服务。
-</Note>
+> [!NOTE]
+>
+> 如需在 GitHub 上自动审查仓库中的每个 Pull Request，请参阅 [Code Review](/docs/zh-CN/code-review)，这是一项由 Owner 为您的组织启用的托管服务。
 
 `/review` 是 `/code-review` 的别名。在 v2.1.223 之前，`/review` 是一个单独的命令，对 GitHub Pull Request 执行单次、只读的审查。
 
-<Steps>
-  <Step title="运行 /code-review">
-    运行命令：
+**1. 运行 /code-review**
 
-    ```text theme={null}
-    /code-review
-    ```
+运行命令：
 
-    不指定目标时，审查涵盖当前分支上的变更。如需将审查指向 Pull Request、其他分支、路径或提交范围，请参阅[选择审查内容](#choose-what-to-review)。
+```text theme={null}
+/code-review
+```
 
-    您还可以添加标志：
+不指定目标时，审查涵盖当前分支上的变更。如需将审查指向 Pull Request、其他分支、路径或提交范围，请参阅[选择审查内容](#choose-what-to-review)。
 
-    * `--fix`：在审查后还要求 Claude 将发现的问题修复应用到您的工作树。其编辑会经过您的[权限模式](/docs/zh-CN/permission-modes)。
-    * `--comment`：将发现的问题以行内评论形式发布到 GitHub Pull Request 上，或以单条备注形式发布到 [GitLab 合并请求](#post-findings-to-a-gitlab-merge-request)上
-  </Step>
+您还可以添加标志：
 
-  <Step title="继续工作">
-    审查作为后台[子代理](/docs/zh-CN/sub-agents)运行，拥有自己的上下文窗口，因此不会占满您的对话。审查完成后，发现的问题会出现在您的对话中。
-  </Step>
+* `--fix`：在审查后还要求 Claude 将发现的问题修复应用到您的工作树。其编辑会经过您的[权限模式](/docs/zh-CN/permission-modes)。
+* `--comment`：将发现的问题以行内评论形式发布到 GitHub Pull Request 上，或以单条备注形式发布到 [GitLab 合并请求](#post-findings-to-a-gitlab-merge-request)上
 
-  <Step title="处理发现的问题">
-    让 Claude 修复审查发现的问题。使用 `--fix` 或 `--comment` 时，Claude 会在审查过程中应用或发布发现的问题，系统可能会请您批准其编辑。
-  </Step>
-</Steps>
+**2. 继续工作**
 
-<h2 id="choose-what-to-review">
-  选择审查内容
-</h2>
+审查作为后台[子代理](/docs/zh-CN/sub-agents)运行，拥有自己的上下文窗口，因此不会占满您的对话。审查完成后，发现的问题会出现在您的对话中。
+
+**3. 处理发现的问题**
+
+让 Claude 修复审查发现的问题。使用 `--fix` 或 `--comment` 时，Claude 会在审查过程中应用或发布发现的问题，系统可能会请您批准其编辑。
+
+## 选择审查内容
 
 如需审查当前分支以外的内容，请在 effort 级别和任何标志之后输入目标。Claude 会将该文本作为审查目标接收。目标可以是 Pull Request 编号、分支名称、文件路径或 Git 修订范围。在第一列中找到您要审查的内容，然后输入第二列所示的内容：
 
@@ -60,9 +56,7 @@
 
 使用 `ultra` 时，Claude Code 会以不同方式解读目标，详见 [effort 级别和标志之后的文本](#text-after-the-effort-level-and-flags)。
 
-<h2 id="what-the-review-reads-and-edits">
-  审查读取和编辑的内容
-</h2>
+## 审查读取和编辑的内容
 
 在运行审查之前，尤其是使用 `--fix` 时，请检查以下内容：
 
@@ -70,9 +64,7 @@
 * **回退**：后台审查在会话的[检查点](/docs/zh-CN/checkpointing#subagent-edits-not-restored)之外应用其 `--fix` 编辑。在此之后，`/rewind` 只会恢复 Claude 此前已在您的对话中编辑过的文件。审查对其他文件的编辑会保留，因此请使用 git 撤销这些编辑。当审查[在前台运行](#run-in-the-foreground)时，它会在您自己的轮次中编辑工作树，因此 `/rewind` 会照常恢复其编辑。
 * **指令**：审查会遵循您的 `CLAUDE.md`，包括在非交互的 `-p` 运行中。它不会读取 `REVIEW.md`。该文件用于配置 GitHub Pull Request 上的托管 [Code Review 服务](/docs/zh-CN/code-review-customize#use-review-md-for-review-only-rules)。
 
-<h2 id="how-findings-are-reported">
-  如何报告发现的问题
-</h2>
+## 如何报告发现的问题
 
 在以下两种运行中，Claude 都会在回复中以文本形式报告发现的问题：
 
@@ -83,9 +75,7 @@
 
 当 Claude 在会话后续修复已报告的问题时，会再次报告这些问题。Claude Code 随后会在更新后的发现列表中将每个问题标记为已修复、已跳过或无需更改。
 
-<h2 id="tune-effort-and-arguments">
-  调整 effort 和参数
-</h2>
+## 调整 effort 和参数
 
 除了 `--fix` 和 `--comment` 之外，该命令还接受以下标志：
 
@@ -103,26 +93,20 @@
 
 在 v2.1.223 之前，不带级别的 `/code-review` 始终使用会话当前的 effort。
 
-<h3 id="post-findings-to-a-gitlab-merge-request">
-  将发现的问题发布到 GitLab 合并请求
-</h3>
+### 将发现的问题发布到 GitLab 合并请求
 
 当您为 GitLab 合并请求传入 `--comment` 时，Claude Code 会通过 GitLab 的 `glab` CLI 发布发现的问题。需要 Claude Code v2.1.257 或更高版本。如果未安装 `glab`，Claude 会改为在终端中打印发现的问题。
 
 请以 URL 或 `!123` 引用的形式传入合并请求。仅当检出的 origin 位于 `gitlab.com` 上时，Claude Code 才会将单独的数字或分支名称视为合并请求。在自托管的 GitLab 实例上，请传入 URL 或 `!123` 形式。
 
-<h3 id="text-after-the-effort-level-and-flags">
-  effort 级别和标志之后的文本
-</h3>
+### effort 级别和标志之后的文本
 
 在 effort 级别和标志之后，Claude Code 会将该行的其余部分读取为审查目标。`ultra` 参数会改变这种解读方式：
 
 * **使用 `ultra` 时**：Claude Code 会将单个单词读取为基础分支或 PR 编号。未指明分支或 PR 的较长文本会成为[附加到审查的备注](/docs/zh-CN/ultrareview#pass-a-request-in-plain-words)。`/code-review ultra check my auth changes` 会审查您的当前分支，Claude 会将发现的问题与您的备注关联起来。
 * **不使用 `ultra` 时**：剩余的所有内容都是审查目标，即使它以另一个命令名称开头。`/code-review /fix-issue 123` 会以 `/fix-issue 123` 作为目标文本进行审查，而不是将 `/fix-issue` 作为第二个[叠加的 skill](/docs/zh-CN/skills#stack-several-skills-in-one-message) 加载。在 v2.1.218 之前，叠加在 `/code-review` 之后的命令会作为其自身的 skill 展开。
 
-<h2 id="run-in-the-foreground">
-  在前台运行
-</h2>
+## 在前台运行
 
 如需让审查在前台运行，请执行以下操作之一：
 
@@ -132,9 +116,7 @@
 
 在 v2.1.218 之前，审查在您的对话内部运行。
 
-<h2 id="let-claude-start-the-review">
-  让 Claude 启动审查
-</h2>
+## 让 Claude 启动审查
 
 Claude 可以自行启动 `/code-review`，无需您输入命令：
 
@@ -155,9 +137,7 @@ Claude 可以自行启动 `/code-review`，无需您输入命令：
 
 在 v2.1.246 之前，只有在从 Anthropic 获取的功能标志启用了该功能时，Claude 才会自行启动 `/code-review`。在[不获取功能标志的会话](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)中，`/code-review` 仅在您输入时运行，而定时的 `/code-review` 会作为纯文本发送给 Claude。
 
-<h2 id="escalate-to-ultrareview">
-  升级到 ultrareview
-</h2>
+## 升级到 ultrareview
 
 `/code-review ultra --fix` 会在云端运行更深入的 [ultrareview](/docs/zh-CN/ultrareview)，然后在发现的问题返回到您的会话时，要求 Claude 将其修复应用到您的工作树。
 
@@ -169,15 +149,13 @@ Ultrareview 使用自己的范围：
 
 当目标是 `github.com` Pull Request 时，您可以让 Claude 以您的 GitHub 账户身份[将最终发现的问题作为评论发布到 PR](/docs/zh-CN/ultrareview#post-findings-to-the-pull-request)。需要 Claude Code v2.1.227 或更高版本。
 
-<Note>
-  Ultrareview 需要使用 claude.ai 账户进行身份验证。它不适用于 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry，也不适用于启用了零数据保留或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织。在这些情况下，`/code-review ultra` 会改为在您的会话中运行本地审查。使用[客户管理的加密密钥](https://platform.claude.com/docs/en/manage-claude/cmek)（CMEK）的组织无法运行 ultrareview。如需在本地审查您的变更，请运行 `/code-review`。
-</Note>
+> [!NOTE]
+>
+> Ultrareview 需要使用 claude.ai 账户进行身份验证。它不适用于 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry，也不适用于启用了零数据保留或应用了 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织。在这些情况下，`/code-review ultra` 会改为在您的会话中运行本地审查。使用[客户管理的加密密钥](https://platform.claude.com/docs/en/manage-claude/cmek)（CMEK）的组织无法运行 ultrareview。如需在本地审查您的变更，请运行 `/code-review`。
 
 如需从脚本或 CI 作业运行云端审查，请使用 [`claude ultrareview` 子命令](/docs/zh-CN/ultrareview#run-ultrareview-non-interactively)，它会等待发现的问题并将其打印到 stdout。
 
-<h2 id="change-or-build-on-the-review">
-  修改或基于审查进行构建
-</h2>
+## 修改或基于审查进行构建
 
 `/code-review` 是一个[随附 skill](/docs/zh-CN/skills#bundled-skills)：其指令内置于 Claude Code 中，因此磁盘上没有可打开或编辑的 `SKILL.md` 文件。如需为每次审查提供需遵循的项目规则，请将其添加到您的 `CLAUDE.md` 中。如需更进一步，请从以下页面之一开始：
 
@@ -187,9 +165,7 @@ Ultrareview 使用自己的范围：
 
 在 v2.1.147 之前，该命令名为 `/simplify`，当时它默认会应用修复。如果您曾编写脚本使用 `/simplify` 查找 bug，请改用 `/code-review --fix`。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [Code Review](/docs/zh-CN/code-review)：为您的组织审查 GitHub 上每个 Pull Request 的托管服务
 * [Ultrareview](/docs/zh-CN/ultrareview)：更深入的云端审查的设置、限制和费用

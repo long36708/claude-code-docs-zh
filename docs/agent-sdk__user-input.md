@@ -16,54 +16,48 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 
 本指南向您展示如何检测每种类型的请求并做出适当的响应。
 
-<h2 id="detect-when-claude-needs-input">
-  检测 Claude 何时需要输入
-</h2>
+## 检测 Claude 何时需要输入
 
 在您的查询选项中传递 `canUseTool` 回调。每当 Claude 需要用户输入时，回调就会触发，接收工具名称和输入作为参数：
 
-<CodeGroup>
-  ```python Python theme={null}
-  from claude_agent_sdk import ClaudeAgentOptions
+```python Python theme={null}
+from claude_agent_sdk import ClaudeAgentOptions
 
 
-  async def handle_tool_request(tool_name, input_data, context):
-      # 提示用户并返回允许或拒绝
-      ...
+async def handle_tool_request(tool_name, input_data, context):
+    # 提示用户并返回允许或拒绝
+    ...
 
 
-  options = ClaudeAgentOptions(can_use_tool=handle_tool_request)
-  ```
+options = ClaudeAgentOptions(can_use_tool=handle_tool_request)
+```
 
-  ```typescript TypeScript theme={null}
-  import type { CanUseTool } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import type { CanUseTool } from "@anthropic-ai/claude-agent-sdk";
 
-  const handleToolRequest: CanUseTool = async (toolName, input, options) => {
-    // options includes { signal: AbortSignal, suggestions?: PermissionUpdate[] }
-    // 在此提示用户，然后返回允许或拒绝
-    return { behavior: "deny", message: "User declined" };
-  };
+const handleToolRequest: CanUseTool = async (toolName, input, options) => {
+  // options includes { signal: AbortSignal, suggestions?: PermissionUpdate[] }
+  // 在此提示用户，然后返回允许或拒绝
+  return { behavior: "deny", message: "User declined" };
+};
 
-  const options = { canUseTool: handleToolRequest };
-  ```
-</CodeGroup>
+const options = { canUseTool: handleToolRequest };
+```
 
 回调在两种情况下触发：
 
 1. **工具需要批准**：Claude 想要使用不被[权限规则](/docs/zh-CN/agent-sdk/permissions)或权限模式自动批准的工具。检查 `tool_name` 以获取工具（例如 `"Bash"`、`"Write"`）。
 2. **Claude 提出问题**：Claude 调用 `AskUserQuestion` 工具。检查 `tool_name == "AskUserQuestion"` 以不同方式处理它。如果您指定 `tools` 数组，请包含 `AskUserQuestion` 以使其工作。有关详细信息，请参阅[处理澄清问题](#handle-clarifying-questions)。
 
-<Warning>
-  **回调永远不会对自动批准的工具触发。** [权限评估流程](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)中任何较早的批准、允许规则或 `acceptEdits` 或 `bypassPermissions` 等模式会在咨询 `canUseTool` 之前解决调用。如果您在 `allowed_tools` 中列出一个工具，仅当[评估流程](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)将调用路由回提示（例如询问规则或 `plan` 模式）时，该工具的 `canUseTool` 检查才会运行。对于必须应用于每个工具调用的逻辑，请使用 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它在流程的其余部分之前执行，可以允许、拒绝或修改请求。
-
-  允许规则不会预先批准[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)；有关其中哪些到达回调以及在 `dontAsk` 和 `auto` 模式下发生的情况，请参阅[权限如何评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)。
-</Warning>
+> [!WARNING]
+>
+> **回调永远不会对自动批准的工具触发。** [权限评估流程](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)中任何较早的批准、允许规则或 `acceptEdits` 或 `bypassPermissions` 等模式会在咨询 `canUseTool` 之前解决调用。如果您在 `allowed_tools` 中列出一个工具，仅当[评估流程](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)将调用路由回提示（例如询问规则或 `plan` 模式）时，该工具的 `canUseTool` 检查才会运行。对于必须应用于每个工具调用的逻辑，请使用 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它在流程的其余部分之前执行，可以允许、拒绝或修改请求。
+>
+> 允许规则不会预先批准[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)；有关其中哪些到达回调以及在 `dontAsk` 和 `auto` 模式下发生的情况，请参阅[权限如何评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)。
 
 您还可以使用 [`PermissionRequest` hook](/docs/zh-CN/agent-sdk/hooks#available-hooks) 在 Claude 等待批准时发送外部通知（Slack、电子邮件、推送）。
 
-<h2 id="handle-tool-approval-requests">
-  处理工具批准请求
-</h2>
+## 处理工具批准请求
 
 一旦您在查询选项中传递了 `canUseTool` 回调，当 Claude 想要使用不被权限流中较早步骤批准的工具时，它就会触发。在某些配置中，例如 `dontAsk` 模式，Claude Code 不会调用它；[权限如何被评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)的最后一步列出了它们并说明了调用会发生什么。
 
@@ -90,128 +84,124 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 
 以下示例要求 Claude 创建和删除测试文件。当 Claude 尝试每个操作时，回调会将工具请求打印到终端并提示进行 y/n 批准。
 
-<CodeGroup>
-  ```python Python theme={null}
-  import asyncio
+```python Python theme={null}
+import asyncio
 
-  from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
-  from claude_agent_sdk.types import (
-      HookMatcher,
-      PermissionResultAllow,
-      PermissionResultDeny,
-      ToolPermissionContext,
-  )
-
-
-  async def can_use_tool(
-      tool_name: str, input_data: dict, context: ToolPermissionContext
-  ) -> PermissionResultAllow | PermissionResultDeny:
-      # 显示工具请求
-      print(f"\nTool: {tool_name}")
-      if tool_name == "Bash":
-          print(f"Command: {input_data.get('command')}")
-          if input_data.get("description"):
-              print(f"Description: {input_data.get('description')}")
-      else:
-          print(f"Input: {input_data}")
-
-      # 获取用户批准
-      response = input("Allow this action? (y/n): ")
-
-      # 根据用户的响应返回允许或拒绝
-      if response.lower() == "y":
-          # 允许：工具使用原始（或修改的）输入执行
-          return PermissionResultAllow(updated_input=input_data)
-      else:
-          # 拒绝：工具不执行，Claude 看到该消息
-          return PermissionResultDeny(message="User denied this action")
+from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
+from claude_agent_sdk.types import (
+    HookMatcher,
+    PermissionResultAllow,
+    PermissionResultDeny,
+    ToolPermissionContext,
+)
 
 
-  # 必需的解决方法：虚拟 hook 保持流打开以供 can_use_tool 使用
-  async def dummy_hook(input_data, tool_use_id, context):
-      return {"continue_": True}
+async def can_use_tool(
+    tool_name: str, input_data: dict, context: ToolPermissionContext
+) -> PermissionResultAllow | PermissionResultDeny:
+    # 显示工具请求
+    print(f"\nTool: {tool_name}")
+    if tool_name == "Bash":
+        print(f"Command: {input_data.get('command')}")
+        if input_data.get("description"):
+            print(f"Description: {input_data.get('description')}")
+    else:
+        print(f"Input: {input_data}")
+
+    # 获取用户批准
+    response = input("Allow this action? (y/n): ")
+
+    # 根据用户的响应返回允许或拒绝
+    if response.lower() == "y":
+        # 允许：工具使用原始（或修改的）输入执行
+        return PermissionResultAllow(updated_input=input_data)
+    else:
+        # 拒绝：工具不执行，Claude 看到该消息
+        return PermissionResultDeny(message="User denied this action")
 
 
-  async def prompt_stream():
-      yield {
-          "type": "user",
-          "message": {
-              "role": "user",
-              "content": "Create a test file in /tmp and then delete it",
-          },
+# 必需的解决方法：虚拟 hook 保持流打开以供 can_use_tool 使用
+async def dummy_hook(input_data, tool_use_id, context):
+    return {"continue_": True}
+
+
+async def prompt_stream():
+    yield {
+        "type": "user",
+        "message": {
+            "role": "user",
+            "content": "Create a test file in /tmp and then delete it",
+        },
+    }
+
+
+async def main():
+    async for message in query(
+        prompt=prompt_stream(),
+        options=ClaudeAgentOptions(
+            can_use_tool=can_use_tool,
+            hooks={"PreToolUse": [HookMatcher(matcher=None, hooks=[dummy_hook])]},
+        ),
+    ):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(message.result)
+
+
+asyncio.run(main())
+```
+
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
+import * as readline from "readline";
+
+// 帮助程序在终端中提示用户输入
+function prompt(question: string): Promise<string> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  return new Promise((resolve) =>
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer);
+    })
+  );
+}
+
+for await (const message of query({
+  prompt: "Create a test file in /tmp and then delete it",
+  options: {
+    canUseTool: async (toolName, input) => {
+      // 显示工具请求
+      console.log(`\nTool: ${toolName}`);
+      if (toolName === "Bash") {
+        console.log(`Command: ${input.command}`);
+        if (input.description) console.log(`Description: ${input.description}`);
+      } else {
+        console.log(`Input: ${JSON.stringify(input, null, 2)}`);
       }
 
+      // 获取用户批准
+      const response = await prompt("Allow this action? (y/n): ");
 
-  async def main():
-      async for message in query(
-          prompt=prompt_stream(),
-          options=ClaudeAgentOptions(
-              can_use_tool=can_use_tool,
-              hooks={"PreToolUse": [HookMatcher(matcher=None, hooks=[dummy_hook])]},
-          ),
-      ):
-          if isinstance(message, ResultMessage) and message.subtype == "success":
-              print(message.result)
-
-
-  asyncio.run(main())
-  ```
-
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
-  import * as readline from "readline";
-
-  // 帮助程序在终端中提示用户输入
-  function prompt(question: string): Promise<string> {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-    return new Promise((resolve) =>
-      rl.question(question, (answer) => {
-        rl.close();
-        resolve(answer);
-      })
-    );
-  }
-
-  for await (const message of query({
-    prompt: "Create a test file in /tmp and then delete it",
-    options: {
-      canUseTool: async (toolName, input) => {
-        // 显示工具请求
-        console.log(`\nTool: ${toolName}`);
-        if (toolName === "Bash") {
-          console.log(`Command: ${input.command}`);
-          if (input.description) console.log(`Description: ${input.description}`);
-        } else {
-          console.log(`Input: ${JSON.stringify(input, null, 2)}`);
-        }
-
-        // 获取用户批准
-        const response = await prompt("Allow this action? (y/n): ");
-
-        // 根据用户的响应返回允许或拒绝
-        if (response.toLowerCase() === "y") {
-          // 允许：工具使用原始（或修改的）输入执行
-          return { behavior: "allow", updatedInput: input };
-        } else {
-          // 拒绝：工具不执行，Claude 看到该消息
-          return { behavior: "deny", message: "User denied this action" };
-        }
+      // 根据用户的响应返回允许或拒绝
+      if (response.toLowerCase() === "y") {
+        // 允许：工具使用原始（或修改的）输入执行
+        return { behavior: "allow", updatedInput: input };
+      } else {
+        // 拒绝：工具不执行，Claude 看到该消息
+        return { behavior: "deny", message: "User denied this action" };
       }
     }
-  })) {
-    if ("result" in message) console.log(message.result);
   }
-  ```
-</CodeGroup>
+})) {
+  if ("result" in message) console.log(message.result);
+}
+```
 
 此示例使用 y/n 流，其中除 `y` 之外的任何输入都被视为拒绝。在实践中，您可能会构建一个更丰富的 UI，让用户修改请求、提供反馈或完全重定向 Claude。有关所有响应方式，请参阅[响应工具请求](#respond-to-tool-requests)。
 
-<h3 id="respond-to-tool-requests">
-  响应工具请求
-</h3>
+### 响应工具请求
 
 您的回调返回两种响应类型之一：
 
@@ -235,328 +225,304 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 
 以下代码片段中的 `ask_user` 和 `askUser` 帮助程序代表您应用程序自己的提示 UI。
 
-<Tabs>
-  <Tab title="批准">
-    用户按原样批准该操作。从您的回调中传递 `input` 不变，工具完全按 Claude 请求的方式执行。
+**批准**
 
-    <CodeGroup>
-      ```python Python theme={null}
-      async def can_use_tool(tool_name, input_data, context):
-          print(f"Claude wants to use {tool_name}")
-          approved = await ask_user("Allow this action?")
+用户按原样批准该操作。从您的回调中传递 `input` 不变，工具完全按 Claude 请求的方式执行。
 
-          if approved:
-              return PermissionResultAllow(updated_input=input_data)
-          return PermissionResultDeny(message="User declined")
-      ```
+```python Python theme={null}
+async def can_use_tool(tool_name, input_data, context):
+    print(f"Claude wants to use {tool_name}")
+    approved = await ask_user("Allow this action?")
 
-      ```typescript TypeScript theme={null}
-      canUseTool: async (toolName, input) => {
-        console.log(`Claude wants to use ${toolName}`);
-        const approved = await askUser("Allow this action?");
+    if approved:
+        return PermissionResultAllow(updated_input=input_data)
+    return PermissionResultDeny(message="User declined")
+```
 
-        if (approved) {
-          return { behavior: "allow", updatedInput: input };
-        }
-        return { behavior: "deny", message: "User declined" };
-      };
-      ```
-    </CodeGroup>
-  </Tab>
+```typescript TypeScript theme={null}
+canUseTool: async (toolName, input) => {
+  console.log(`Claude wants to use ${toolName}`);
+  const approved = await askUser("Allow this action?");
 
-  <Tab title="批准并进行更改">
-    用户批准但想先修改请求。您可以在工具执行前更改输入。Claude 会看到结果，但不会被告知您更改了任何内容。对于清理参数、添加约束或限制访问范围很有用。
+  if (approved) {
+    return { behavior: "allow", updatedInput: input };
+  }
+  return { behavior: "deny", message: "User declined" };
+};
+```
 
-    <CodeGroup>
-      ```python Python theme={null}
-      async def can_use_tool(tool_name, input_data, context):
-          if tool_name == "Bash":
-              # 用户批准，但将所有命令限制在沙箱中
-              sandboxed_input = {**input_data}
-              sandboxed_input["command"] = input_data["command"].replace(
-                  "/tmp", "/tmp/sandbox"
-              )
-              return PermissionResultAllow(updated_input=sandboxed_input)
-          return PermissionResultAllow(updated_input=input_data)
-      ```
+**批准并进行更改**
 
-      ```typescript TypeScript theme={null}
-      canUseTool: async (toolName, input) => {
-        if (toolName === "Bash") {
-          // 用户批准，但将所有命令限制在沙箱中
-          const sandboxedInput = {
-            ...input,
-            command: input.command.replace("/tmp", "/tmp/sandbox")
-          };
-          return { behavior: "allow", updatedInput: sandboxedInput };
-        }
-        return { behavior: "allow", updatedInput: input };
-      };
-      ```
-    </CodeGroup>
-  </Tab>
+用户批准但想先修改请求。您可以在工具执行前更改输入。Claude 会看到结果，但不会被告知您更改了任何内容。对于清理参数、添加约束或限制访问范围很有用。
 
-  <Tab title="批准并记住">
-    用户批准并且不想再被询问此类调用。第三个回调参数携带 `suggestions`，一个现成的 [`PermissionUpdate`](/docs/zh-CN/agent-sdk/typescript#permissionupdate) 条目数组。在 `updatedPermissions` 中回显其中一个以应用它。带有 `localSettings` 目标的建议会将规则写入 `.claude/settings.local.json`，以便将来的会话跳过匹配调用的提示。
+```python Python theme={null}
+async def can_use_tool(tool_name, input_data, context):
+    if tool_name == "Bash":
+        # 用户批准，但将所有命令限制在沙箱中
+        sandboxed_input = {**input_data}
+        sandboxed_input["command"] = input_data["command"].replace(
+            "/tmp", "/tmp/sandbox"
+        )
+        return PermissionResultAllow(updated_input=sandboxed_input)
+    return PermissionResultAllow(updated_input=input_data)
+```
 
-    在 TypeScript 中，跳过选项携带 [`suppressAlwaysAllowRule: true`](/docs/zh-CN/agent-sdk/typescript#canusetool) 的请求的始终允许选择。该提示需要 Agent SDK v0.3.268 或更高版本，Python `context` 不携带它。
+```typescript TypeScript theme={null}
+canUseTool: async (toolName, input) => {
+  if (toolName === "Bash") {
+    // 用户批准，但将所有命令限制在沙箱中
+    const sandboxedInput = {
+      ...input,
+      command: input.command.replace("/tmp", "/tmp/sandbox")
+    };
+    return { behavior: "allow", updatedInput: sandboxedInput };
+  }
+  return { behavior: "allow", updatedInput: input };
+};
+```
 
-    Python 示例需要 `claude-agent-sdk` 0.1.80 或更高版本。
+**批准并记住**
 
-    <CodeGroup>
-      ```python Python theme={null}
-      async def can_use_tool(tool_name, input_data, context):
-          choice = await ask_user(f"Allow {tool_name}?", ["once", "always", "no"])
+用户批准并且不想再被询问此类调用。第三个回调参数携带 `suggestions`，一个现成的 [`PermissionUpdate`](/docs/zh-CN/agent-sdk/typescript#permissionupdate) 条目数组。在 `updatedPermissions` 中回显其中一个以应用它。带有 `localSettings` 目标的建议会将规则写入 `.claude/settings.local.json`，以便将来的会话跳过匹配调用的提示。
 
-          if choice == "always":
-              persist = [
-                  s for s in context.suggestions if s.destination == "localSettings"
-              ]
-              return PermissionResultAllow(
-                  updated_input=input_data, updated_permissions=persist
-              )
-          if choice == "once":
-              return PermissionResultAllow(updated_input=input_data)
-          return PermissionResultDeny(message="User declined")
-      ```
+在 TypeScript 中，跳过选项携带 [`suppressAlwaysAllowRule: true`](/docs/zh-CN/agent-sdk/typescript#canusetool) 的请求的始终允许选择。该提示需要 Agent SDK v0.3.268 或更高版本，Python `context` 不携带它。
 
-      ```typescript TypeScript theme={null}
-      canUseTool: async (toolName, input, { suggestions = [] }) => {
-        const choice = await askUser(`Allow ${toolName}?`, ["once", "always", "no"]);
+Python 示例需要 `claude-agent-sdk` 0.1.80 或更高版本。
 
-        if (choice === "always") {
-          const persist = suggestions.filter(
-            (s) => s.destination === "localSettings"
-          );
-          return {
-            behavior: "allow",
-            updatedInput: input,
-            updatedPermissions: persist
-          };
-        }
-        if (choice === "once") {
-          return { behavior: "allow", updatedInput: input };
-        }
-        return { behavior: "deny", message: "User declined" };
-      };
-      ```
-    </CodeGroup>
-  </Tab>
+```python Python theme={null}
+async def can_use_tool(tool_name, input_data, context):
+    choice = await ask_user(f"Allow {tool_name}?", ["once", "always", "no"])
 
-  <Tab title="拒绝">
-    用户不希望发生此操作。阻止工具并提供说明原因的消息。Claude 会看到此消息并可能尝试不同的方法。
+    if choice == "always":
+        persist = [
+            s for s in context.suggestions if s.destination == "localSettings"
+        ]
+        return PermissionResultAllow(
+            updated_input=input_data, updated_permissions=persist
+        )
+    if choice == "once":
+        return PermissionResultAllow(updated_input=input_data)
+    return PermissionResultDeny(message="User declined")
+```
 
-    <CodeGroup>
-      ```python Python theme={null}
-      async def can_use_tool(tool_name, input_data, context):
-          approved = await ask_user(f"Allow {tool_name}?")
+```typescript TypeScript theme={null}
+canUseTool: async (toolName, input, { suggestions = [] }) => {
+  const choice = await askUser(`Allow ${toolName}?`, ["once", "always", "no"]);
 
-          if not approved:
-              return PermissionResultDeny(message="User rejected this action")
-          return PermissionResultAllow(updated_input=input_data)
-      ```
+  if (choice === "always") {
+    const persist = suggestions.filter(
+      (s) => s.destination === "localSettings"
+    );
+    return {
+      behavior: "allow",
+      updatedInput: input,
+      updatedPermissions: persist
+    };
+  }
+  if (choice === "once") {
+    return { behavior: "allow", updatedInput: input };
+  }
+  return { behavior: "deny", message: "User declined" };
+};
+```
 
-      ```typescript TypeScript theme={null}
-      canUseTool: async (toolName, input) => {
-        const approved = await askUser(`Allow ${toolName}?`);
+**拒绝**
 
-        if (!approved) {
-          return {
-            behavior: "deny",
-            message: "User rejected this action"
-          };
-        }
-        return { behavior: "allow", updatedInput: input };
-      };
-      ```
-    </CodeGroup>
-  </Tab>
+用户不希望发生此操作。阻止工具并提供说明原因的消息。Claude 会看到此消息并可能尝试不同的方法。
 
-  <Tab title="建议替代方案">
-    用户不想要此特定操作，但有不同的想法。阻止工具并在您的消息中包含指导。Claude 将阅读此内容并根据您的反馈决定如何继续。
+```python Python theme={null}
+async def can_use_tool(tool_name, input_data, context):
+    approved = await ask_user(f"Allow {tool_name}?")
 
-    <CodeGroup>
-      ```python Python theme={null}
-      async def can_use_tool(tool_name, input_data, context):
-          if tool_name == "Bash" and "rm" in input_data.get("command", ""):
-              # 用户不想删除，建议改为存档
-              return PermissionResultDeny(
-                  message="User doesn't want to delete files. They asked if you could compress them into an archive instead."
-              )
-          return PermissionResultAllow(updated_input=input_data)
-      ```
+    if not approved:
+        return PermissionResultDeny(message="User rejected this action")
+    return PermissionResultAllow(updated_input=input_data)
+```
 
-      ```typescript TypeScript theme={null}
-      canUseTool: async (toolName, input) => {
-        if (toolName === "Bash" && input.command.includes("rm")) {
-          // 用户不想删除，建议改为存档
-          return {
-            behavior: "deny",
-            message:
-              "User doesn't want to delete files. They asked if you could compress them into an archive instead."
-          };
-        }
-        return { behavior: "allow", updatedInput: input };
-      };
-      ```
-    </CodeGroup>
-  </Tab>
+```typescript TypeScript theme={null}
+canUseTool: async (toolName, input) => {
+  const approved = await askUser(`Allow ${toolName}?`);
 
-  <Tab title="完全重定向">
-    对于完全改变方向（不仅仅是轻推），使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)向 Claude 发送新指令。这绕过当前工具请求并为 Claude 提供全新指令来遵循。
-  </Tab>
-</Tabs>
+  if (!approved) {
+    return {
+      behavior: "deny",
+      message: "User rejected this action"
+    };
+  }
+  return { behavior: "allow", updatedInput: input };
+};
+```
 
-<h2 id="handle-clarifying-questions">
-  处理澄清问题
-</h2>
+**建议替代方案**
+
+用户不想要此特定操作，但有不同的想法。阻止工具并在您的消息中包含指导。Claude 将阅读此内容并根据您的反馈决定如何继续。
+
+```python Python theme={null}
+async def can_use_tool(tool_name, input_data, context):
+    if tool_name == "Bash" and "rm" in input_data.get("command", ""):
+        # 用户不想删除，建议改为存档
+        return PermissionResultDeny(
+            message="User doesn't want to delete files. They asked if you could compress them into an archive instead."
+        )
+    return PermissionResultAllow(updated_input=input_data)
+```
+
+```typescript TypeScript theme={null}
+canUseTool: async (toolName, input) => {
+  if (toolName === "Bash" && input.command.includes("rm")) {
+    // 用户不想删除，建议改为存档
+    return {
+      behavior: "deny",
+      message:
+        "User doesn't want to delete files. They asked if you could compress them into an archive instead."
+    };
+  }
+  return { behavior: "allow", updatedInput: input };
+};
+```
+
+**完全重定向**
+
+对于完全改变方向（不仅仅是轻推），使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)向 Claude 发送新指令。这绕过当前工具请求并为 Claude 提供全新指令来遵循。
+
+## 处理澄清问题
 
 当 Claude 需要在具有多个有效方法的任务上获得更多指导时，它会调用 `AskUserQuestion` 工具。这会触发您的 `canUseTool` 回调，其中 `toolName` 设置为 `AskUserQuestion`。输入包含 Claude 的问题作为多选选项，您向用户显示这些问题并返回他们的选择。
 
-<Tip>
-  澄清问题在 [`plan` 模式](/docs/zh-CN/agent-sdk/permissions#plan-mode-plan)中特别常见，其中 Claude 探索代码库并在提出计划前提出问题。这使 plan 模式非常适合交互式工作流，您希望 Claude 在进行更改前收集需求。
-</Tip>
+> [!TIP]
+>
+> 澄清问题在 [`plan` 模式](/docs/zh-CN/agent-sdk/permissions#plan-mode-plan)中特别常见，其中 Claude 探索代码库并在提出计划前提出问题。这使 plan 模式非常适合交互式工作流，您希望 Claude 在进行更改前收集需求。
 
 以下步骤显示如何处理澄清问题：
 
-<Steps>
-  <Step title="传递 canUseTool 回调">
-    在您的查询选项中传递 `canUseTool` 回调。默认情况下，`AskUserQuestion` 可用。如果您指定 `tools` 数组来限制 Claude 的功能（例如，仅具有 `Read`、`Glob` 和 `Grep` 的只读代理），请在该数组中包含 `AskUserQuestion`。否则，Claude 将无法提出澄清问题：
+**1. 传递 canUseTool 回调**
 
-    <CodeGroup>
-      ```python Python theme={null}
-      async for message in query(
-          prompt="Analyze this codebase",
-          options=ClaudeAgentOptions(
-              # 在您的工具列表中包含 AskUserQuestion
-              tools=["Read", "Glob", "Grep", "AskUserQuestion"],
-              can_use_tool=can_use_tool,
-          ),
-      ):
-          print(message)
-      ```
+在您的查询选项中传递 `canUseTool` 回调。默认情况下，`AskUserQuestion` 可用。如果您指定 `tools` 数组来限制 Claude 的功能（例如，仅具有 `Read`、`Glob` 和 `Grep` 的只读代理），请在该数组中包含 `AskUserQuestion`。否则，Claude 将无法提出澄清问题：
 
-      ```typescript TypeScript theme={null}
-      for await (const message of query({
-        prompt: "Analyze this codebase",
-        options: {
-          // 在您的工具列表中包含 AskUserQuestion
-          tools: ["Read", "Glob", "Grep", "AskUserQuestion"],
-          canUseTool: async (toolName, input) => {
-            // 批准每次调用的占位实现。"检测 AskUserQuestion"步骤会替换它。
-            return { behavior: "allow", updatedInput: input };
-          }
-        }
-      })) {
-        console.log(message);
-      }
-      ```
-    </CodeGroup>
-  </Step>
+```python Python theme={null}
+async for message in query(
+    prompt="Analyze this codebase",
+    options=ClaudeAgentOptions(
+        # 在您的工具列表中包含 AskUserQuestion
+        tools=["Read", "Glob", "Grep", "AskUserQuestion"],
+        can_use_tool=can_use_tool,
+    ),
+):
+    print(message)
+```
 
-  <Step title="检测 AskUserQuestion">
-    在您的回调中，检查 `toolName` 是否等于 `AskUserQuestion` 以不同方式处理它与其他工具：
-
-    <CodeGroup>
-      ```python Python theme={null}
-      async def can_use_tool(tool_name: str, input_data: dict, context):
-          if tool_name == "AskUserQuestion":
-              # 您从用户收集答案的实现
-              return await handle_clarifying_questions(input_data)
-          # 正常处理其他工具
-          return await prompt_for_approval(tool_name, input_data)
-      ```
-
-      ```typescript TypeScript theme={null}
-      canUseTool: async (toolName, input) => {
-        if (toolName === "AskUserQuestion") {
-          // 您从用户收集答案的实现
-          return handleClarifyingQuestions(input);
-        }
-        // 正常处理其他工具
-        return promptForApproval(toolName, input);
-      };
-      ```
-    </CodeGroup>
-  </Step>
-
-  <Step title="解析问题输入">
-    输入包含 Claude 在 `questions` 数组中的问题。每个问题都有 `question`（要显示的文本）、`options`（选择）和 `multiSelect`（是否允许多个选择）：
-
-    ```json theme={null}
-    {
-      "questions": [
-        {
-          "question": "How should I format the output?",
-          "header": "Format",
-          "options": [
-            { "label": "Summary", "description": "Brief overview" },
-            { "label": "Detailed", "description": "Full explanation" }
-          ],
-          "multiSelect": false
-        },
-        {
-          "question": "Which sections should I include?",
-          "header": "Sections",
-          "options": [
-            { "label": "Introduction", "description": "Opening context" },
-            { "label": "Conclusion", "description": "Final summary" }
-          ],
-          "multiSelect": true
-        }
-      ]
+```typescript TypeScript theme={null}
+for await (const message of query({
+  prompt: "Analyze this codebase",
+  options: {
+    // 在您的工具列表中包含 AskUserQuestion
+    tools: ["Read", "Glob", "Grep", "AskUserQuestion"],
+    canUseTool: async (toolName, input) => {
+      // 批准每次调用的占位实现。"检测 AskUserQuestion"步骤会替换它。
+      return { behavior: "allow", updatedInput: input };
     }
-    ```
+  }
+})) {
+  console.log(message);
+}
+```
 
-    有关完整字段描述，请参阅[问题格式](#question-format)。
-  </Step>
+**2. 检测 AskUserQuestion**
 
-  <Step title="从用户收集答案">
-    向用户呈现问题并收集他们的选择。您如何执行此操作取决于您的应用程序：终端提示、Web 表单、移动对话框等。
-  </Step>
+在您的回调中，检查 `toolName` 是否等于 `AskUserQuestion` 以不同方式处理它与其他工具：
 
-  <Step title="将答案返回给 Claude">
-    将 `answers` 对象构建为记录，其中每个键是 `question` 文本，每个值是所选选项的 `label`：
+```python Python theme={null}
+async def can_use_tool(tool_name: str, input_data: dict, context):
+    if tool_name == "AskUserQuestion":
+        # 您从用户收集答案的实现
+        return await handle_clarifying_questions(input_data)
+    # 正常处理其他工具
+    return await prompt_for_approval(tool_name, input_data)
+```
 
-    | 来自问题对象 | 用作 |
-    | - | - |
-    | `question` 字段（例如 `"How should I format the output?"`） | 键 |
-    | 所选选项的 `label` 字段（例如 `"Summary"`） | 值 |
+```typescript TypeScript theme={null}
+canUseTool: async (toolName, input) => {
+  if (toolName === "AskUserQuestion") {
+    // 您从用户收集答案的实现
+    return handleClarifyingQuestions(input);
+  }
+  // 正常处理其他工具
+  return promptForApproval(toolName, input);
+};
+```
 
-    对于多选问题，传递标签数组或用 `", "` 连接它们。如果您[支持自由文本输入](#support-free-text-input)，使用用户的自定义文本作为值。
+**3. 解析问题输入**
 
-    <CodeGroup>
-      ```python Python theme={null}
-      return PermissionResultAllow(
-          updated_input={
-              "questions": input_data.get("questions", []),
-              "answers": {
-                  "How should I format the output?": "Summary",
-                  "Which sections should I include?": ["Introduction", "Conclusion"],
-              },
-          }
-      )
-      ```
+输入包含 Claude 在 `questions` 数组中的问题。每个问题都有 `question`（要显示的文本）、`options`（选择）和 `multiSelect`（是否允许多个选择）：
 
-      ```typescript TypeScript theme={null}
-      return {
-        behavior: "allow",
-        updatedInput: {
-          questions: input.questions,
-          answers: {
+```json theme={null}
+{
+  "questions": [
+    {
+      "question": "How should I format the output?",
+      "header": "Format",
+      "options": [
+        { "label": "Summary", "description": "Brief overview" },
+        { "label": "Detailed", "description": "Full explanation" }
+      ],
+      "multiSelect": false
+    },
+    {
+      "question": "Which sections should I include?",
+      "header": "Sections",
+      "options": [
+        { "label": "Introduction", "description": "Opening context" },
+        { "label": "Conclusion", "description": "Final summary" }
+      ],
+      "multiSelect": true
+    }
+  ]
+}
+```
+
+有关完整字段描述，请参阅[问题格式](#question-format)。
+
+**4. 从用户收集答案**
+
+向用户呈现问题并收集他们的选择。您如何执行此操作取决于您的应用程序：终端提示、Web 表单、移动对话框等。
+
+**5. 将答案返回给 Claude**
+
+将 `answers` 对象构建为记录，其中每个键是 `question` 文本，每个值是所选选项的 `label`：
+
+| 来自问题对象 | 用作 |
+| - | - |
+| `question` 字段（例如 `"How should I format the output?"`） | 键 |
+| 所选选项的 `label` 字段（例如 `"Summary"`） | 值 |
+
+对于多选问题，传递标签数组或用 `", "` 连接它们。如果您[支持自由文本输入](#support-free-text-input)，使用用户的自定义文本作为值。
+
+```python Python theme={null}
+return PermissionResultAllow(
+    updated_input={
+        "questions": input_data.get("questions", []),
+        "answers": {
             "How should I format the output?": "Summary",
-            "Which sections should I include?": "Introduction, Conclusion"
-          }
-        }
-      };
-      ```
-    </CodeGroup>
-  </Step>
-</Steps>
+            "Which sections should I include?": ["Introduction", "Conclusion"],
+        },
+    }
+)
+```
 
-<h3 id="question-format">
-  问题格式
-</h3>
+```typescript TypeScript theme={null}
+return {
+  behavior: "allow",
+  updatedInput: {
+    questions: input.questions,
+    answers: {
+      "How should I format the output?": "Summary",
+      "Which sections should I include?": "Introduction, Conclusion"
+    }
+  }
+};
+```
+
+### 问题格式
 
 输入包含 Claude 在 `questions` 数组中生成的问题。每个问题都有这些字段：
 
@@ -585,9 +551,7 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 }
 ```
 
-<h4 id="option-previews-typescript">
-  选项预览 (TypeScript)
-</h4>
+#### 选项预览 (TypeScript)
 
 `toolConfig.askUserQuestion.previewFormat` 向每个选项添加 `preview` 字段，以便您的应用可以在标签旁显示视觉模型。没有此设置，Claude 不会生成预览，该字段不存在。
 
@@ -628,9 +592,7 @@ for await (const message of query({
 }
 ```
 
-<h3 id="response-format">
-  响应格式
-</h3>
+### 响应格式
 
 返回 `answers` 对象，将每个问题的 `question` 字段映射到所选选项的 `label`：
 
@@ -654,9 +616,7 @@ for await (const message of query({
 }
 ```
 
-<h4 id="support-free-text-input">
-  支持自由文本输入
-</h4>
+#### 支持自由文本输入
 
 Claude 的预定义选项并不总是涵盖用户想要的内容。要让用户输入自己的答案：
 
@@ -665,9 +625,7 @@ Claude 的预定义选项并不总是涵盖用户想要的内容。要让用户�
 
 有关完整实现，请参阅下面的[完整示例](#complete-example)。
 
-<h3 id="complete-example">
-  完整示例
-</h3>
+### 完整示例
 
 当 Claude 需要用户输入来继续时，它会提出澄清问题。例如，当被要求帮助为移动应用程序决定技术栈时，Claude 可能会询问跨平台与原生、后端偏好或目标平台。这些问题帮助 Claude 做出与用户偏好相匹配的决定，而不是猜测。
 
@@ -681,178 +639,170 @@ Claude 的预定义选项并不总是涵盖用户想要的内容。要让用户�
 
 将 TypeScript 版本保存为 `ask.ts` 并使用 `npx tsx ask.ts` 运行它，或将 Python 版本保存为 `ask.py` 并使用 `python ask.py` 运行它。
 
-<CodeGroup>
-  ```python Python theme={null}
-  import asyncio
+```python Python theme={null}
+import asyncio
 
-  from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
-  from claude_agent_sdk.types import HookMatcher, PermissionResultAllow
-
-
-  def parse_response(response: str, options: list) -> str:
-      """将用户输入解析为选项编号或自由文本。"""
-      try:
-          indices = [int(s.strip()) - 1 for s in response.split(",")]
-          labels = [options[i]["label"] for i in indices if 0 <= i < len(options)]
-          return ", ".join(labels) if labels else response
-      except ValueError:
-          return response
+from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
+from claude_agent_sdk.types import HookMatcher, PermissionResultAllow
 
 
-  async def handle_ask_user_question(input_data: dict) -> PermissionResultAllow:
-      """显示 Claude 的问题并收集用户答案。"""
-      answers = {}
-
-      for q in input_data.get("questions", []):
-          print(f"\n{q['header']}: {q['question']}")
-
-          options = q["options"]
-          for i, opt in enumerate(options):
-              print(f"  {i + 1}. {opt['label']} - {opt['description']}")
-          if q.get("multiSelect"):
-              print("  (Enter numbers separated by commas, or type your own answer)")
-          else:
-              print("  (Enter a number, or type your own answer)")
-
-          response = input("Your choice: ").strip()
-          answers[q["question"]] = parse_response(response, options)
-
-      return PermissionResultAllow(
-          updated_input={
-              "questions": input_data.get("questions", []),
-              "answers": answers,
-          }
-      )
+def parse_response(response: str, options: list) -> str:
+    """将用户输入解析为选项编号或自由文本。"""
+    try:
+        indices = [int(s.strip()) - 1 for s in response.split(",")]
+        labels = [options[i]["label"] for i in indices if 0 <= i < len(options)]
+        return ", ".join(labels) if labels else response
+    except ValueError:
+        return response
 
 
-  async def can_use_tool(
-      tool_name: str, input_data: dict, context
-  ) -> PermissionResultAllow:
-      # 将 AskUserQuestion 路由到我们的问题处理程序
-      if tool_name == "AskUserQuestion":
-          return await handle_ask_user_question(input_data)
-      # 为此示例自动批准其他工具
-      return PermissionResultAllow(updated_input=input_data)
+async def handle_ask_user_question(input_data: dict) -> PermissionResultAllow:
+    """显示 Claude 的问题并收集用户答案。"""
+    answers = {}
 
+    for q in input_data.get("questions", []):
+        print(f"\n{q['header']}: {q['question']}")
 
-  async def prompt_stream():
-      yield {
-          "type": "user",
-          "message": {
-              "role": "user",
-              "content": "Help me decide on the tech stack for a new mobile app",
-          },
-      }
+        options = q["options"]
+        for i, opt in enumerate(options):
+            print(f"  {i + 1}. {opt['label']} - {opt['description']}")
+        if q.get("multiSelect"):
+            print("  (Enter numbers separated by commas, or type your own answer)")
+        else:
+            print("  (Enter a number, or type your own answer)")
 
+        response = input("Your choice: ").strip()
+        answers[q["question"]] = parse_response(response, options)
 
-  # 必需的解决方法：虚拟 hook 保持流打开以供 can_use_tool 使用
-  async def dummy_hook(input_data, tool_use_id, context):
-      return {"continue_": True}
-
-
-  async def main():
-      async for message in query(
-          prompt=prompt_stream(),
-          options=ClaudeAgentOptions(
-              can_use_tool=can_use_tool,
-              hooks={"PreToolUse": [HookMatcher(matcher=None, hooks=[dummy_hook])]},
-          ),
-      ):
-          if isinstance(message, ResultMessage) and message.subtype == "success":
-              print(message.result)
-
-
-  asyncio.run(main())
-  ```
-
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
-  import type { PermissionResult } from "@anthropic-ai/claude-agent-sdk";
-  import * as readline from "readline/promises";
-
-  // 帮助程序在终端中提示用户输入
-  async function prompt(question: string): Promise<string> {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    const answer = await rl.question(question);
-    rl.close();
-    return answer;
-  }
-
-  // 将用户输入解析为选项编号或自由文本
-  function parseResponse(response: string, options: any[]): string {
-    const indices = response.split(",").map((s) => parseInt(s.trim()) - 1);
-    const labels = indices
-      .filter((i) => !isNaN(i) && i >= 0 && i < options.length)
-      .map((i) => options[i].label);
-    return labels.length > 0 ? labels.join(", ") : response;
-  }
-
-  // 显示 Claude 的问题并收集用户答案
-  async function handleAskUserQuestion(input: any): Promise<PermissionResult> {
-    const answers: Record<string, string> = {};
-
-    for (const q of input.questions) {
-      console.log(`\n${q.header}: ${q.question}`);
-
-      const options = q.options;
-      options.forEach((opt: any, i: number) => {
-        console.log(`  ${i + 1}. ${opt.label} - ${opt.description}`);
-      });
-      if (q.multiSelect) {
-        console.log("  (Enter numbers separated by commas, or type your own answer)");
-      } else {
-        console.log("  (Enter a number, or type your own answer)");
-      }
-
-      const response = (await prompt("Your choice: ")).trim();
-      answers[q.question] = parseResponse(response, options);
-    }
-
-    // 将答案返回给 Claude（必须包括原始问题）
-    return {
-      behavior: "allow",
-      updatedInput: { questions: input.questions, answers }
-    };
-  }
-
-  async function main() {
-    for await (const message of query({
-      prompt: "Help me decide on the tech stack for a new mobile app",
-      options: {
-        canUseTool: async (toolName, input) => {
-          // 将 AskUserQuestion 路由到我们的问题处理程序
-          if (toolName === "AskUserQuestion") {
-            return handleAskUserQuestion(input);
-          }
-          // 为此示例自动批准其他工具
-          return { behavior: "allow", updatedInput: input };
+    return PermissionResultAllow(
+        updated_input={
+            "questions": input_data.get("questions", []),
+            "answers": answers,
         }
-      }
-    })) {
-      if ("result" in message) console.log(message.result);
+    )
+
+
+async def can_use_tool(
+    tool_name: str, input_data: dict, context
+) -> PermissionResultAllow:
+    # 将 AskUserQuestion 路由到我们的问题处理程序
+    if tool_name == "AskUserQuestion":
+        return await handle_ask_user_question(input_data)
+    # 为此示例自动批准其他工具
+    return PermissionResultAllow(updated_input=input_data)
+
+
+async def prompt_stream():
+    yield {
+        "type": "user",
+        "message": {
+            "role": "user",
+            "content": "Help me decide on the tech stack for a new mobile app",
+        },
     }
+
+
+# 必需的解决方法：虚拟 hook 保持流打开以供 can_use_tool 使用
+async def dummy_hook(input_data, tool_use_id, context):
+    return {"continue_": True}
+
+
+async def main():
+    async for message in query(
+        prompt=prompt_stream(),
+        options=ClaudeAgentOptions(
+            can_use_tool=can_use_tool,
+            hooks={"PreToolUse": [HookMatcher(matcher=None, hooks=[dummy_hook])]},
+        ),
+    ):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(message.result)
+
+
+asyncio.run(main())
+```
+
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
+import type { PermissionResult } from "@anthropic-ai/claude-agent-sdk";
+import * as readline from "readline/promises";
+
+// 帮助程序在终端中提示用户输入
+async function prompt(question: string): Promise<string> {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await rl.question(question);
+  rl.close();
+  return answer;
+}
+
+// 将用户输入解析为选项编号或自由文本
+function parseResponse(response: string, options: any[]): string {
+  const indices = response.split(",").map((s) => parseInt(s.trim()) - 1);
+  const labels = indices
+    .filter((i) => !isNaN(i) && i >= 0 && i < options.length)
+    .map((i) => options[i].label);
+  return labels.length > 0 ? labels.join(", ") : response;
+}
+
+// 显示 Claude 的问题并收集用户答案
+async function handleAskUserQuestion(input: any): Promise<PermissionResult> {
+  const answers: Record<string, string> = {};
+
+  for (const q of input.questions) {
+    console.log(`\n${q.header}: ${q.question}`);
+
+    const options = q.options;
+    options.forEach((opt: any, i: number) => {
+      console.log(`  ${i + 1}. ${opt.label} - ${opt.description}`);
+    });
+    if (q.multiSelect) {
+      console.log("  (Enter numbers separated by commas, or type your own answer)");
+    } else {
+      console.log("  (Enter a number, or type your own answer)");
+    }
+
+    const response = (await prompt("Your choice: ")).trim();
+    answers[q.question] = parseResponse(response, options);
   }
 
-  main();
-  ```
-</CodeGroup>
+  // 将答案返回给 Claude（必须包括原始问题）
+  return {
+    behavior: "allow",
+    updatedInput: { questions: input.questions, answers }
+  };
+}
 
-<h2 id="limitations">
-  限制
-</h2>
+async function main() {
+  for await (const message of query({
+    prompt: "Help me decide on the tech stack for a new mobile app",
+    options: {
+      canUseTool: async (toolName, input) => {
+        // 将 AskUserQuestion 路由到我们的问题处理程序
+        if (toolName === "AskUserQuestion") {
+          return handleAskUserQuestion(input);
+        }
+        // 为此示例自动批准其他工具
+        return { behavior: "allow", updatedInput: input };
+      }
+    }
+  })) {
+    if ("result" in message) console.log(message.result);
+  }
+}
+
+main();
+```
+
+## 限制
 
 * **子代理**：`AskUserQuestion` 目前在通过 Agent 工具生成的子代理中不可用
 * **问题限制**：每个 `AskUserQuestion` 调用支持 1-4 个问题，每个 2-4 个选项
 
-<h2 id="other-ways-to-get-user-input">
-  获取用户输入的其他方式
-</h2>
+## 获取用户输入的其他方式
 
 `canUseTool` 回调和 `AskUserQuestion` 工具涵盖了大多数批准和澄清场景，但 SDK 提供了其他从用户获取输入的方式：
 
-<h3 id="streaming-input">
-  流输入
-</h3>
+### 流输入
 
 当您需要以下情况时，使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)：
 
@@ -862,9 +812,7 @@ Claude 的预定义选项并不总是涵盖用户想要的内容。要让用户�
 
 流输入非常适合对话式 UI，用户在整个执行过程中与代理交互，而不仅仅在批准检查点。
 
-<h3 id="custom-tools">
-  自定义工具
-</h3>
+### 自定义工具
 
 当您需要以下情况时，使用[自定义工具](/docs/zh-CN/agent-sdk/custom-tools)：
 
@@ -874,9 +822,7 @@ Claude 的预定义选项并不总是涵盖用户想要的内容。要让用户�
 
 自定义工具让您完全控制交互，但需要比使用内置 `canUseTool` 回调更多的实现工作。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [配置权限](/docs/zh-CN/agent-sdk/permissions)：设置权限模式和规则
 * [使用 hooks 控制执行](/docs/zh-CN/agent-sdk/hooks)：在代理生命周期的关键点运行自定义代码

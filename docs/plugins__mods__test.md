@@ -8,9 +8,7 @@
 
 您可以为 mod 编写自动化测试，并使用 [`claude plugin test`](/docs/zh-CN/plugins/mods/reference#commands) 从您的 shell 运行它们。测试会触发您的 hook 处理的事件并检查 hook 做了什么，这样您可以在问题到达会话之前捕获它。第一个示例测试来自 [创建 mod](/docs/zh-CN/plugins/mods/create) 的 mod。
 
-<h2 id="write-a-test">
-  编写测试
-</h2>
+## 编写测试
 
 测试加载您的 mod，通过其 hooks 发送事件，就像 Claude Code 会做的那样，并检查 hooks 做了什么，无需会话、登录或网络。您可以使用 `claude plugin test` 从 shell 运行测试，每个测试文件都导入测试工具包，这是 `claude-code/testing` 模块中的测试库。
 
@@ -56,9 +54,7 @@ Ran 1 test across 1 file. [0.19s]
 
 当测试失败时，命令以状态 1 退出，因此它在 CI 中有效。如果您自己的 mods 无法在运行它的 shell 中加载，它会打印一行以 `claude plugin test: hooks modules are turned off` 开头的行，说明原因，并以状态 1 退出。
 
-<h3 id="stub-what-claude-code-would-answer">
-  Stub Claude Code 会回答的内容
-</h3>
+### Stub Claude Code 会回答的内容
 
 在测试中没有模型、存储或工具运行，因此无论您的 mod 期望 Claude Code 回答什么，测试都会使用 stub 提供答案。测试函数为此接收两个参数：
 
@@ -117,9 +113,7 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 * **`mock.env(on, { CI: 'true' })`**：从这些变量中回答 `$.env.get`。
 * **`mock.session(on)`**：返回一个 mock 会话，其 `appended()` 方法按从旧到新的顺序列出您的 mod 通过 [`$.session.append`](/docs/zh-CN/plugins/mods/reference#session) 添加的行；需要 Claude Code v2.1.293 或更高版本。
 
-<h3 id="follow-the-test-kit’s-rules">
-  遵循测试工具包的规则
-</h3>
+### 遵循测试工具包的规则
 
 测试工具包有一些自己的规则，违反其中一个会产生新测试作者首先遇到的错误：
 
@@ -169,9 +163,7 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 
 * **使用工具的名称和参数作为字段触发工具调用**，例如 `await $.tool.call({ tool: 'Bash', command: 'ls' })`，并注册一个返回 `{ result }` 的 `tool.call` stub。
 
-<h3 id="look-up-what-a-stub-returns">
-  查看 stub 返回的内容
-</h3>
+### 查看 stub 返回的内容
 
 您的 mod 在测试中进行的每个 mods API 调用都需要一个 stub 来回答，除了工具包自己回答的少数几个：[`$.ui.invalidate`](/docs/zh-CN/plugins/mods/interface#redraw-when-something-changes)、[`$.state`](/docs/zh-CN/plugins/mods/interface#keep-state) 和 `$.session.append` 调用。对于 `$.clock` 调用，使用 `mock.clock(on)`，否则您的 mod 的 `$.clock.now()` 会失败并显示 `no implementation for clock.now`。
 
@@ -205,9 +197,7 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 
 当 `expect` 在您以普通函数（而非异步生成器）形式传给 `on` 的 stub 或 hook 中失败时，测试会失败。引擎会跳过该 hook，失败输出会指出其名称，例如 `in the test's store.set hook`。
 
-<h2 id="test-a-timer">
-  测试计时器
-</h2>
+## 测试计时器
 
 在计时器上运行工作的 mod 需要测试控制的时钟，因此测试可以向前移动时间而不是等待。`const clock = mock.clock(on)` 返回一个从 `0` 开始的 mock 时钟，仅在您的测试移动它时才移动。要在另一个时间开始，请以毫秒为单位传递它，如 `mock.clock(on, { now: 5000 })`。时钟有这些方法：
 
@@ -266,9 +256,7 @@ test('the countdown ends with a toast', async ($, on) => {
 
 第一个 `expect` 显示 toast 不会提前出现，第二个显示它出现一次。每个 `advance` 在到期的计时器运行后解析，因此下一行的检查会看到它们的效果。
 
-<h2 id="test-a-drawing">
-  测试绘图
-</h2>
+## 测试绘图
 
 测试可以绘制您的 mod 的 [render sites](/docs/zh-CN/plugins/mods/reference#render-sites) 之一，然后按下、输入和查找它绘制的元素。`$.ui.mount` 通过您的 mod 的 `ui.render` hook 绘制站点，并返回一个带有每个方法的句柄。要在一个测试中覆盖多个应用，请将 `surface` 设置为要绘制的应用。此测试打开来自 [Build a pane with tabs](/docs/zh-CN/plugins/mods/interface#build-a-pane-with-tabs) 的窗格，切换选项卡，按下按钮，并检查终端和桌面应用中的计数：
 
@@ -332,9 +320,7 @@ test('the second tab counts presses and saves the count', async ($, on) => {
 
 绘图测试检查您的 hook 返回的树以及它对该应用是否有效。它不检查应用如何绘制它，因此也在真实会话中查看新布局。
 
-<h3 id="test-a-drawing-after-clear">
-  在 `/clear` 后测试绘图
-</h3>
+### 在 `/clear` 后测试绘图
 
 每个测试都以每个 `$.state` 值在其默认值开始，这是 `/clear` 留下它们的方式。要测试您的 mod 接下来做什么，跳过 `session.start`，使用 `source: 'clear'` 触发 `classic.SessionStart`，并检查您的 mod 绘制的内容。
 
@@ -359,9 +345,7 @@ test('the saved count comes back after /clear', async ($, on) => {
 
 当您的 `classic.SessionStart` hook 在窗格绘制之前将存储的 `7` 复制到 `$.state` 时，测试通过。如果您的模块中没有该 hook，窗格绘制 `Count: 0`，`find` 返回 `undefined`，测试在 `toBeDefined` 处失败。
 
-<h2 id="test-a-mod-that-judges-other-mods">
-  测试 policy mod
-</h2>
+## 测试 policy mod
 
 您的组织在 [`prependPlugins`](/docs/zh-CN/plugins/mods/admin) 中列出的 mod 可以在另一个 mod 加载之前拒绝它。要测试一个，请设置您的 mod 的层级并给测试第二个 mod，供您的 mod 接受或拒绝：
 
@@ -421,9 +405,7 @@ test('admits a mod that starts no process', { plugins: [reader] }, async ($, on)
 
 工具包在测试对 `$` 的第一次调用时加载每个 mod。当您的 mod 拒绝一个时，该调用会抛出，消息会命名被拒绝的 mod、拒绝它的 mod 和您的原因。在第二个测试中，没有任何东西被拒绝，因此 `reader` 在到达 stub 之前回答工具调用。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [Troubleshoot a mod](/docs/zh-CN/plugins/mods/troubleshoot)：找出为什么 mod 在会话中不做任何事情
 * [Mods reference](/docs/zh-CN/plugins/mods/reference)：每个事件的输入和结果，用于编写 stubs

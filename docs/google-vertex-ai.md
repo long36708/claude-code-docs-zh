@@ -6,81 +6,12 @@
 
 > 了解如何通过 Google Cloud 的 Agent Platform（原 Vertex AI）配置 Claude Code，包括设置、IAM 配置和故障排除。
 
-export const ContactSalesCard = ({surface}) => {
-  const utm = content => `utm_source=claude_code&utm_medium=docs&utm_content=${surface}_${content}`;
-  const iconArrowRight = (size = 13) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
-    </svg>;
-  const STYLES = `
-.cc-cs {
-  --cs-slate: #141413;
-  --cs-clay: #d97757;
-  --cs-clay-deep: #c6613f;
-  --cs-gray-000: #ffffff;
-  --cs-gray-700: #3d3d3a;
-  --cs-border-default: rgba(31, 30, 29, 0.15);
-  font-family: inherit;
-}
-.dark .cc-cs {
-  --cs-slate: #f0eee6;
-  --cs-gray-000: #262624;
-  --cs-gray-700: #bfbdb4;
-  --cs-border-default: rgba(240, 238, 230, 0.14);
-}
-.cc-cs-card {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; padding: 14px 16px; margin: 0;
-  background: var(--cs-gray-000); border: 0.5px solid var(--cs-border-default);
-  border-radius: 8px; flex-wrap: wrap;
-}
-.cc-cs-text { font-size: 13px; color: var(--cs-gray-700); line-height: 1.5; flex: 1; min-width: 240px; }
-.cc-cs-text strong { font-weight: 550; color: var(--cs-slate); }
-.cc-cs-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.cc-cs-btn-clay {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--cs-clay-deep); color: #fff; border: none;
-  border-radius: 8px; padding: 8px 14px;
-  font-size: 13px; font-weight: 500;
-  transition: background-color 0.15s; white-space: nowrap;
-}
-.cc-cs-btn-clay:hover { background: var(--cs-clay); }
-.cc-cs-btn-ghost {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: transparent; color: var(--cs-gray-700);
-  border: 0.5px solid var(--cs-border-default);
-  border-radius: 8px; padding: 8px 14px;
-  font-size: 13px; font-weight: 500;
-}
-.cc-cs-btn-ghost:hover { background: rgba(0, 0, 0, 0.04); }
-.dark .cc-cs-btn-ghost:hover { background: rgba(255, 255, 255, 0.04); }
-@media (max-width: 720px) {
-  .cc-cs-actions { width: 100%; }
-}
-`;
-  return <div className="cc-cs not-prose">
-      <style>{STYLES}</style>
-      <div className="cc-cs-card">
-        <div className="cc-cs-text">
-          <strong>Deploying Claude Code across your organization?</strong> Talk to sales about enterprise plans, SSO, and centralized billing.
-        </div>
-        <div className="cc-cs-actions">
-          <a href={`https://claude.com/pricing?${utm('view_plans')}#plans-business`} className="cc-cs-btn-ghost">
-            View plans
-          </a>
-          <a href={`https://claude.com/contact-sales?${utm('contact_sales')}`} className="cc-cs-btn-clay">
-            Contact sales {iconArrowRight()}
-          </a>
-        </div>
-      </div>
-    </div>;
-};
+**Deploying Claude Code across your organization?** Talk to sales about enterprise plans, SSO, and centralized billing.
 
-<ContactSalesCard surface="vertex" />
+View plans
+Contact sales
 
-<h2 id="prerequisites">
-  前置条件
-</h2>
+## 前置条件
 
 在使用 Google Cloud 的 Agent Platform（原 Vertex AI）配置 Claude Code 之前，请确保您拥有：
 
@@ -92,47 +23,37 @@ export const ContactSalesCard = ({surface}) => {
 
 要使用您自己的 Google Cloud 的 Agent Platform 凭证登录，请按照下面的[使用 Google Cloud 的 Agent Platform 登录](#sign-in-with-agent-platform)进行操作。要在团队中部署 Claude Code，请使用[手动设置](#set-up-manually)步骤并在推出前[固定您的模型版本](#5-pin-model-versions)。
 
-<h2 id="sign-in-with-agent-platform">
-  使用 Agent Platform 登录
-</h2>
+## 使用 Agent Platform 登录
 
 如果您拥有 Google Cloud 凭证并想开始通过 Google Cloud 的 Agent Platform 使用 Claude Code，登录向导会引导您完成整个过程。您需要在每个项目中完成一次 GCP 端的前置条件；向导会处理 Claude Code 端的事务。
 
-<Steps>
-  <Step title="在您的 GCP 项目中启用 Claude 模型">
-    为您的项目[启用 Google Cloud 的 Agent Platform API](#1-enable-agent-platform-api)，然后在 [Google Cloud 的 Agent Platform Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 中请求访问您想要的 Claude 模型。有关您的账户需要的权限，请参阅 [IAM 配置](#iam-configuration)。
-  </Step>
+**1. 在您的 GCP 项目中启用 Claude 模型**
 
-  <Step title="启动 Claude Code 并选择 Google Cloud 的 Agent Platform">
-    运行 `claude`。在登录提示处，选择 **3rd-party platform**，然后选择 **Google Vertex AI**，这是登录提示仍然用于 Google Cloud 的 Agent Platform 的标签。如果您已经登录，运行 `/login` 来打开相同的菜单。
-  </Step>
+为您的项目[启用 Google Cloud 的 Agent Platform API](#1-enable-agent-platform-api)，然后在 [Google Cloud 的 Agent Platform Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 中请求访问您想要的 Claude 模型。有关您的账户需要的权限，请参阅 [IAM 配置](#iam-configuration)。
 
-  <Step title="按照向导提示进行操作">
-    选择您如何向 Google Cloud 进行身份验证：来自 `gcloud` 的应用默认凭证、服务账户密钥文件或已在您的环境中的凭证。向导会检测您的项目和区域，验证您的项目可以调用哪些 Claude 模型，并让您固定它们。它将结果保存到您的[用户设置文件](/docs/zh-CN/settings)的 `env` 块中，因此您无需自己导出环境变量。
-  </Step>
-</Steps>
+**2. 启动 Claude Code 并选择 Google Cloud 的 Agent Platform**
+
+运行 `claude`。在登录提示处，选择 **3rd-party platform**，然后选择 **Google Vertex AI**，这是登录提示仍然用于 Google Cloud 的 Agent Platform 的标签。如果您已经登录，运行 `/login` 来打开相同的菜单。
+
+**3. 按照向导提示进行操作**
+
+选择您如何向 Google Cloud 进行身份验证：来自 `gcloud` 的应用默认凭证、服务账户密钥文件或已在您的环境中的凭证。向导会检测您的项目和区域，验证您的项目可以调用哪些 Claude 模型，并让您固定它们。它将结果保存到您的[用户设置文件](/docs/zh-CN/settings)的 `env` 块中，因此您无需自己导出环境变量。
 
 登录后，您可以随时运行 `/setup-vertex` 来重新打开向导并更改您的凭证、项目、区域或模型固定。模型固定步骤从您当前固定的模型开始。向导会写入 `~/.claude/settings.json`，或在设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars#variables) 时写入 `$CLAUDE_CONFIG_DIR/settings.json`。
 
-<h2 id="region-configuration">
-  区域配置
-</h2>
+## 区域配置
 
 Claude Code 支持 Google Cloud 的 Agent Platform [全局](https://cloud.google.com/blog/products/ai-machine-learning/global-endpoint-for-claude-models-generally-available-on-vertex-ai)、多区域和区域端点。将 `CLOUD_ML_REGION` 设置为 `global`、多区域位置（如 `eu` 或 `us`）或特定区域（如 `us-east5`）。Claude Code 为每种形式选择正确的 Google Cloud 的 Agent Platform 主机名，包括多区域位置的 `aiplatform.eu.rep.googleapis.com` 和 `aiplatform.us.rep.googleapis.com` 主机。
 
-<Note>
-  Google Cloud 的 Agent Platform 可能不支持 Claude Code 默认模型在每个端点类型上。模型可用性在[特定区域](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#genai-partner-models)、多区域位置和[全局端点](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-partner-models#supported_models)之间有所不同。您可能需要切换到支持的位置或指定支持的模型。
-</Note>
+> [!NOTE]
+>
+> Google Cloud 的 Agent Platform 可能不支持 Claude Code 默认模型在每个端点类型上。模型可用性在[特定区域](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#genai-partner-models)、多区域位置和[全局端点](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-partner-models#supported_models)之间有所不同。您可能需要切换到支持的位置或指定支持的模型。
 
-<h2 id="set-up-manually">
-  手动设置
-</h2>
+## 手动设置
 
 要通过环境变量而不是向导配置 Google Cloud 的 Agent Platform，例如在 CI 或脚本化企业推出中，请按照下面的步骤进行。
 
-<h3 id="1-enable-agent-platform-api">
-  1. 启用 Agent Platform API
-</h3>
+### 启用 Agent Platform API
 
 在您的 GCP 项目中启用 Google Cloud 的 Agent Platform API。将 `YOUR-PROJECT-ID` 替换为您的 GCP 项目 ID，并在下面的配置步骤中使用：
 
@@ -144,9 +65,7 @@ gcloud config set project YOUR-PROJECT-ID
 gcloud services enable aiplatform.googleapis.com
 ```
 
-<h3 id="2-request-model-access">
-  2. 请求模型访问权限
-</h3>
+### 请求模型访问权限
 
 请求访问 Google Cloud 的 Agent Platform 中的 Claude 模型：
 
@@ -155,9 +74,7 @@ gcloud services enable aiplatform.googleapis.com
 3. 请求访问所需的 Claude 模型（例如，Claude Sonnet 4.6）
 4. 等待批准（可能需要 24-48 小时）
 
-<h3 id="3-configure-gcp-credentials">
-  3) 配置 GCP 凭证
-</h3>
+### 配置 GCP 凭证
 
 Claude Code 使用标准的 Google Cloud 身份验证。
 
@@ -165,13 +82,11 @@ Claude Code 使用标准的 Google Cloud 身份验证。
 
 Claude Code 通过相同的应用默认凭证链支持[基于 X.509 证书的工作负载身份联合](https://cloud.google.com/iam/docs/workload-identity-federation-with-x509-certificates)。将 `GOOGLE_APPLICATION_CREDENTIALS` 设置为您的凭证配置文件的路径。
 
-<Note>
-  Claude Code 将 Google Cloud 的 Agent Platform 请求寻址到 `ANTHROPIC_VERTEX_PROJECT_ID` 中的项目，即使 `GCLOUD_PROJECT`、`GOOGLE_CLOUD_PROJECT` 或 `GOOGLE_APPLICATION_CREDENTIALS` 引用的凭证文件包含不同的项目。
-</Note>
+> [!NOTE]
+>
+> Claude Code 将 Google Cloud 的 Agent Platform 请求寻址到 `ANTHROPIC_VERTEX_PROJECT_ID` 中的项目，即使 `GCLOUD_PROJECT`、`GOOGLE_CLOUD_PROJECT` 或 `GOOGLE_APPLICATION_CREDENTIALS` 引用的凭证文件包含不同的项目。
 
-<h4 id="advanced-credential-configuration">
-  高级凭证配置
-</h4>
+#### 高级凭证配置
 
 Claude Code 通过 `gcpAuthRefresh` 设置支持 GCP 的自动凭证刷新。将其添加到您的 Claude Code [设置文件](/docs/zh-CN/settings)，例如 `~/.claude/settings.json`。当 Claude Code 检测到您的 GCP 凭证已过期或无法加载时，它会运行配置的命令以在重试请求之前获取新凭证。
 
@@ -190,9 +105,7 @@ Claude Code 通过 `gcpAuthRefresh` 设置支持 GCP 的自动凭证刷新。将
 
 Claude Code 向您显示命令的输出，但无法向命令发送交互式输入。这对于基于浏览器的身份验证流程效果很好，其中 CLI 显示 URL，您在浏览器中完成身份验证。如果身份验证未在三分钟内完成，刷新命令将超时。如果您在项目设置（如 `.claude/settings.json`）中设置 `gcpAuthRefresh`，Claude Code 会在与[设置文件中的 hooks 相同的工作区信任规则](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)下运行它，其中包括您从未信任的文件夹中的 `-p` 会话。
 
-<h3 id="4-configure-claude-code">
-  4. 配置 Claude Code
-</h3>
+### 配置 Claude Code
 
 设置以下环境变量：
 
@@ -228,13 +141,11 @@ Claude Code 在 [MCP tool search](/docs/zh-CN/mcp#scale-with-mcp-tool-search) �
 
 设置 `ENABLE_TOOL_SEARCH=false` 以在每个模型上禁用工具搜索。在 v2.1.221 之前，Claude Code 在 Google Cloud 的 Agent Platform 上为所有模型禁用工具搜索，除非您设置 `ENABLE_TOOL_SEARCH=true`。
 
-<h3 id="5-pin-model-versions">
-  5. 固定模型版本
-</h3>
+### 固定模型版本
 
-<Warning>
-  在部署到多个用户时固定特定的模型版本。如果不固定，模型别名（如 `sonnet` 和 `opus`）会解析为 Claude Code 的 Google Cloud 的 Agent Platform 内置默认值，该默认值可能滞后于最新版本，并且可能尚未在您的项目中启用。Claude Code 在启动时当默认值不可用时会[回退](#startup-model-checks)到之前的版本或更低级别的模型，但固定让您可以控制用户何时迁移到新模型。
-</Warning>
+> [!WARNING]
+>
+> 在部署到多个用户时固定特定的模型版本。如果不固定，模型别名（如 `sonnet` 和 `opus`）会解析为 Claude Code 的 Google Cloud 的 Agent Platform 内置默认值，该默认值可能滞后于最新版本，并且可能尚未在您的项目中启用。Claude Code 在启动时当默认值不可用时会[回退](#startup-model-checks)到之前的版本或更低级别的模型，但固定让您可以控制用户何时迁移到新模型。
 
 将这些环境变量设置为特定的 Google Cloud 的 Agent Platform 模型 ID。
 
@@ -260,9 +171,9 @@ Claude Code 在未设置固定变量时使用这些默认模型：
 * 当您使用 `--model`、`ANTHROPIC_MODEL` 或 `model` 设置选择主模型时，后台任务使用该模型。当 Claude Code 在您使用 [`ANTHROPIC_DEFAULT_MODEL`](/docs/zh-CN/model-config#set-a-default-model-for-new-sessions) 设置的模型上启动会话时，后台任务也使用该模型。设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 而不设置 `ANTHROPIC_DEFAULT_SONNET_MODEL` 也算作一个选择，因为内置的 Sonnet 模型可能在引导自己的 Opus 的项目中未启用。
 * 要为后台任务使用 Haiku，请将 `ANTHROPIC_DEFAULT_HAIKU_MODEL` 设置为在您的项目中可用的模型 ID。
 
-<Warning>
-  Opus 模型的每 token 价格高于 Sonnet 模型，因此如果您不固定主模型，将按 Opus 费率计费。要将 Sonnet 4.5 用作主模型，请将 `ANTHROPIC_MODEL` 设置为其完整模型 ID。使用 `ANTHROPIC_DEFAULT_SONNET_MODEL` 引导默认值且不设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 的部署会保持其引导的 Sonnet 模型作为默认值。
-</Warning>
+> [!WARNING]
+>
+> Opus 模型的每 token 价格高于 Sonnet 模型，因此如果您不固定主模型，将按 Opus 费率计费。要将 Sonnet 4.5 用作主模型，请将 `ANTHROPIC_MODEL` 设置为其完整模型 ID。使用 `ANTHROPIC_DEFAULT_SONNET_MODEL` 引导默认值且不设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 的部署会保持其引导的 Sonnet 模型作为默认值。
 
 在 v2.1.280 之前，Google Cloud 的 Agent Platform 上的主模型默认为 Opus 5，`opus` 别名从 v2.1.219 起解析为 Opus 5。在 v2.1.207 到 v2.1.218 上，Google Cloud 的 Agent Platform 上的主模型默认为 Opus 4.8，`opus` 别名解析为 Opus 4.8。
 
@@ -273,15 +184,11 @@ export ANTHROPIC_MODEL='claude-opus-4-8'
 export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 ```
 
-<h3 id="6-verify-your-configuration">
-  6. 验证您的配置
-</h3>
+### 验证您的配置
 
 启动 Claude Code 并运行 `/status` 以确认设置。`API provider` 行显示 `Google Vertex AI`，`GCP project`、`Default region` 和 `Model` 行显示您的项目 ID、区域和解析的模型。如果提供程序行缺失，环境变量未到达该进程。确认它们在您启动 `claude` 的 shell 中已导出，或在您的[设置文件](/docs/zh-CN/settings)的 `env` 块中设置它们。
 
-<h2 id="startup-model-checks">
-  启动模型检查
-</h2>
+## 启动模型检查
 
 当 Claude Code 启动并配置了 Google Cloud 的 Agent Platform 时，它会验证它打算使用的模型在您的项目中是否可访问。
 
@@ -295,9 +202,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 
 当这些检查发现您的项目无法调用的模型时，Claude Code 会在这台机器上记住该拒绝长达一天，并在此期间启动时跳过记住的模型，而不再询问 Agent Platform。Claude Code 会在距离上次检查已过十分钟后，再次检查当前默认模型的记住拒绝，因此管理员重新启用的默认值会恢复。要关闭此内存，请设置 [`CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY=1`](/docs/zh-CN/env-vars)。
 
-<h3 id="when-your-organization-enforces-a-model-allowlist">
-  当您的组织强制执行模型允许列表时
-</h3>
+### 当您的组织强制执行模型允许列表时
 
 如果您在托管设置中设置了 [`enforceAvailableModels`](/docs/zh-CN/model-config#enforce-the-allowlist-for-the-default-model)，启动模型检查将仅使用您的 `availableModels` 列表允许的模型。这需要 Claude Code v2.1.287 或更高版本。没有 `enforceAvailableModels` 的列表不会限制这些检查。
 
@@ -312,9 +217,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 
 有关别名、版本前缀和 `modelOverrides` 条目，请参阅[为第三方部署固定模型](/docs/zh-CN/model-config#pin-models-for-third-party-deployments)。
 
-<h3 id="when-a-model-is-disabled-mid-session">
-  当模型在会话中途被禁用时
-</h3>
+### 当模型在会话中途被禁用时
 
 如果您的项目失去对会话正在运行的模型的访问权限，例如因为管理员在 [Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 中禁用了它，Claude Code 会将会话切换到另一个模型，而不是让每个请求都失败，并显示 `Switched to <fallback> because <model> is not available`。它尝试与启动回退相同的模型：首先尝试同一层级的早期版本，对于没有可用 Opus 版本的 Opus 会话，则使用默认 Sonnet 模型。
 
@@ -322,9 +225,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 
 您配置的[回退模型链](/docs/zh-CN/model-config#fallback-model-chains)会替换层级切换：在这些拒绝上，Claude Code 会切换到您配置的回退。要使被拒绝的请求失败而不是切换，请设置 [`CLAUDE_CODE_DISABLE_MODEL_ACCESS_FALLBACK=1`](/docs/zh-CN/env-vars)。您配置的回退链仍会在这些拒绝上切换；如果您希望每个被拒绝的请求都失败，也要移除该链。
 
-<h2 id="iam-configuration">
-  IAM 配置
-</h2>
+## IAM 配置
 
 分配 `roles/aiplatform.user` 角色，其中包括所需的权限：
 
@@ -334,13 +235,11 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 
 有关详细信息，请参阅 [Google Cloud 的 Agent Platform IAM 文档](https://cloud.google.com/vertex-ai/docs/general/access-control)。
 
-<Note>
-  为 Claude Code 创建专用的 GCP 项目，以简化成本跟踪和访问控制。
-</Note>
+> [!NOTE]
+>
+> 为 Claude Code 创建专用的 GCP 项目，以简化成本跟踪和访问控制。
 
-<h2 id="1m-token-context-window">
-  1M token context window
-</h2>
+## 1M token context window
 
 Fable 模型、Sonnet 5 及更高版本以及 Opus 4.7 及更高版本在 Google Cloud 的 Agent Platform 上默认以 [1M token 上下文窗口](https://platform.claude.com/docs/zh-CN/build-with-claude/context-windows#context-window-sizes-by-model)运行，无需 `[1m]` 后缀。如需改为保留 200K 窗口，请设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](/docs/zh-CN/model-config#turn-off-1m-context)。
 
@@ -348,9 +247,7 @@ Opus 4.6 和 Sonnet 4.6 在您选择其 `[1m]` 变体时可使用 1M 窗口。[�
 
 在 v2.1.287 之前，Fable 模型以及 Opus 4.7 及更高版本在 Google Cloud 的 Agent Platform 上默认以 200K 窗口运行，并通过 `[1m]` 后缀使用 1M 窗口。
 
-<h2 id="troubleshooting">
-  故障排除
-</h2>
+## 故障排除
 
 如果您遇到"无法加载默认凭证"错误：
 
@@ -375,9 +272,7 @@ Opus 4.6 和 Sonnet 4.6 在您选择其 `[1m]` 变体时可使用 1M 窗口。[�
 * 对于区域端点，请确保主模型和小型/快速模型在您选择的区域中受支持
 * 考虑切换到 `CLOUD_ML_REGION=global` 以获得更好的可用性
 
-<h2 id="additional-resources">
-  其他资源
-</h2>
+## 其他资源
 
 * [Google Cloud 的 Agent Platform 文档](https://cloud.google.com/vertex-ai/docs)
 * [Google Cloud 的 Agent Platform 定价](https://cloud.google.com/vertex-ai/pricing)

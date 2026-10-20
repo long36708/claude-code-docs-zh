@@ -10,27 +10,23 @@
 
 本页面适用于在 `plugin.json` 中声明依赖的插件作者和标记发布的市场维护者。
 
-<Note>
-  以下情况在其他页面中介绍：
-
-  * **安装具有依赖的插件**：请参阅 [管理已安装的插件](/docs/zh-CN/plugins/install#manage-installed-plugins)
-  * **阅读依赖错误**：请参阅 [依赖错误](/docs/zh-CN/plugins/troubleshooting#dependency-errors)
-  * **声明你的插件自身代码所需的 npm 和 Bun 包**：请参阅 [Node.js 包依赖](/docs/zh-CN/plugins/loading#node-js-package-dependencies)
-</Note>
+> [!NOTE]
+>
+> 以下情况在其他页面中介绍：
+>
+> * **安装具有依赖的插件**：请参阅 [管理已安装的插件](/docs/zh-CN/plugins/install#manage-installed-plugins)
+> * **阅读依赖错误**：请参阅 [依赖错误](/docs/zh-CN/plugins/troubleshooting#dependency-errors)
+> * **声明你的插件自身代码所需的 npm 和 Bun 包**：请参阅 [Node.js 包依赖](/docs/zh-CN/plugins/loading#node-js-package-dependencies)
 
 要添加约束，请从 [使用版本约束声明依赖](#declare-a-dependency-with-a-version-constraint) 开始。如果你维护其他人依赖的插件，请 [标记你的发布](#tag-plugin-releases-for-version-resolution) 以便他们的约束可以解析。
 
-<h2 id="declare-dependencies">
-  声明依赖
-</h2>
+## 声明依赖
 
-<span id="decide-whether-to-constrain-dependency-versions" />如果没有版本约束，依赖会在用户下次更新时移动到其市场发布的每个新版本。如果该版本重命名了你的 plugin 调用的 MCP 工具，你的 plugin 会对所有更新的用户中断。
+如果没有版本约束，依赖会在用户下次更新时移动到其市场发布的每个新版本。如果该版本重命名了你的 plugin 调用的 MCP 工具，你的 plugin 会对所有更新的用户中断。
 
 使用约束（如来自 git 支持源的依赖上的 `~2.1.0`），安装了你的 plugin 的用户会继续接收依赖的 `2.1.x` 补丁，永远不会移动到 `2.2`。要按自己的计划升级，请针对较新的版本进行测试，然后发布你的 plugin 的新版本，使用更宽松的约束。
 
-<h3 id="declare-a-dependency-with-a-version-constraint">
-  使用版本约束声明依赖
-</h3>
+### 使用版本约束声明依赖
 
 在你的 plugin 的 `.claude-plugin/plugin.json` 的 `dependencies` 数组中列出依赖。以下清单声明了一个无版本依赖和一个受约束的依赖：
 
@@ -57,9 +53,7 @@
 
 范围不匹配预发布版本，如 `2.0.0-beta.1`，除非你选择使用预发布后缀，如 `^2.0.0-0`。
 
-<h3 id="bundle-plugins-for-a-team">
-  为团队捆绑 plugin
-</h3>
+### 为团队捆绑 plugin
 
 要让工程师用一个命令安装精选的 plugin 集合，请发布一个清单包含 `name` 和 `dependencies` 数组的 plugin。Plugin 清单只需要 `name`，所以这是一个有效的 plugin，安装它会安装每个依赖。
 
@@ -88,9 +82,7 @@
 
 要将捆绑包部署给组织中的每个人，管理员将其添加到托管设置中的 `enabledPlugins`。请参阅 [预安装和要求 plugin](/docs/zh-CN/plugins/org#pre-install-and-require-plugins)。
 
-<h3 id="depend-on-a-plugin-from-another-marketplace">
-  依赖来自另一个市场的 plugin
-</h3>
+### 依赖来自另一个市场的 plugin
 
 默认情况下，Claude Code 不会从与声明 plugin 自身不同的市场安装依赖，除非用户已经在同一范围内安装并启用了该依赖。此默认值防止一个市场从用户未审查的源中静默安装 plugin。
 
@@ -119,9 +111,7 @@
 
 允许列表检查不适用于已启用的依赖。如果用户首先从 `your-shared-marketplace` 自己安装 `audit-logger`，在同一范围内，`deploy-kit` 随后安装时无需对允许列表进行任何更改。
 
-<h3 id="test-a-plugin-and-its-dependency-locally">
-  在本地测试 plugin 及其依赖
-</h3>
+### 在本地测试 plugin 及其依赖
 
 如果你同时开发一个 plugin 和它所依赖的 plugin，请从你的 shell 启动 Claude Code 并使用 [`--plugin-dir`](/docs/zh-CN/plugins/cli-reference#flags-that-load-a-plugin-for-one-session) 加载两者：
 
@@ -141,18 +131,14 @@ claude --plugin-dir ./my-dependency --plugin-dir ./my-plugin
 
 当两个 plugin 都在一个父文件夹中时，你可以将该文件夹传递给 `--plugin-dir` 一次。如果该文件夹本身不是 plugin，Claude Code 会加载每个具有 `.claude-plugin/plugin.json` 的子文件夹。需要 Claude Code v2.1.265 或更高版本。
 
-<h2 id="tag-plugin-releases-for-version-resolution">
-  发布其他人依赖的 plugin
-</h2>
+## 发布其他人依赖的 plugin
 
 如果你维护其他 plugin 使用版本约束依赖的 plugin，请标记其发布版本，以便这些约束可以解析。约束针对托管 plugin 的存储库上的 git 标签进行解析。标记 plugin 的 [plugin 源](/docs/zh-CN/plugins/marketplace-reference#plugin-sources) 在 `marketplace.json` 中指向的存储库：
 
 * **`github`、`url` 或 `git-subdir` 源**：plugin 自身的存储库，所以 plugin 的作者创建标签
 * **相对路径，如 `./plugins/secrets-vault`**：市场存储库，所以市场维护者创建标签
 
-<h3 id="create-a-release-tag">
-  创建发布标签
-</h3>
+### 创建发布标签
 
 将每个发布标记为 `<plugin-name>--v<version>`，其中 `<version>` 与该提交的 `plugin.json` 中的 `version` 字段匹配。plugin-name 前缀让一个市场存储库可以托管多个具有独立版本历史的 plugin。
 
@@ -177,9 +163,7 @@ claude plugin tag --push
 
 你也可以直接运行 `git tag secrets-vault--v2.1.0`，只要你自己保持 `plugin.json` 中的 `version` 和市场条目中的版本同步。
 
-<h3 id="constrain-a-dependency-that-has-a-non-git-source">
-  约束具有非 git 源的依赖
-</h3>
+### 约束具有非 git 源的依赖
 
 基于标签的解析仅适用于 git 支持的源。对于具有 `npm`、`archive` 或 `command` [plugin 源](/docs/zh-CN/plugins/marketplace-reference#plugin-sources) 的依赖，约束不控制获取哪个版本。它在 plugin 加载时仍会被检查，如果安装的版本不满足它，依赖的 plugin 会被禁用。
 
@@ -194,15 +178,11 @@ Claude Code 永远不会自己安装具有 `command` 源的依赖，所以用户
 * 在依赖 plugin 上重新运行 `claude plugin install`
 * `claude plugin marketplace add`
 
-<h2 id="how-dependencies-behave-for-your-users">
-  依赖如何为你的用户表现
-</h2>
+## 依赖如何为你的用户表现
 
 这些部分描述了一旦你的 plugin 与其他 plugin 一起安装，Claude Code 如何解析、检查和组合你声明的约束。
 
-<h3 id="how-a-constraint-resolves-against-tags">
-  约束如何针对标签进行解析
-</h3>
+### 约束如何针对标签进行解析
 
 当用户安装声明 `{ "name": "secrets-vault", "version": "~2.1.0" }` 的 plugin 时，依赖从满足 `~2.1.0` 的最高 `secrets-vault--v` 标签安装在托管 `secrets-vault` 的存储库上。当没有标签满足范围时，安装要么失败，要么使用市场的当前副本：
 
@@ -211,9 +191,7 @@ Claude Code 永远不会自己安装具有 `command` 源的依赖，所以用户
 
 对于市场通过相对路径引用的插件，当您添加为本地文件夹路径的市场所在文件夹是 git 仓库时，该市场也会针对该文件夹的 git 标签解析约束。不是 git 仓库的本地文件夹没有标签，所以 Claude Code 改为从文件夹的当前内容安装依赖。
 
-<h3 id="confirm-the-resolved-version">
-  确认解析的版本
-</h3>
+### 确认解析的版本
 
 要确认约束解析到哪个版本，请在你的 shell 中运行 `claude plugin list`。标签解析的依赖显示其版本，带有 12 字符的提交后缀，如 `2.1.0-8713c5b11005`。
 
@@ -221,9 +199,7 @@ Claude Code 永远不会自己安装具有 `command` 源的依赖，所以用户
 
 如果你强制移动标签到不同的提交，下一次安装会获取该提交的内容而不是重用陈旧的缓存副本。请参阅 [版本和更新](/docs/zh-CN/plugins/loading#versions-and-updates) 了解 plugin 的版本如何成为其缓存键。
 
-<h3 id="combine-constraints-from-several-plugins">
-  组合来自多个 plugin 的约束
-</h3>
+### 组合来自多个 plugin 的约束
 
 当多个已安装的 plugin 约束同一依赖时，依赖解析到满足所有范围的最高版本。常见组合解析如下：
 
@@ -237,9 +213,7 @@ Claude Code 永远不会自己安装具有 `command` 源的依赖，所以用户
 
 当用户卸载最后一个约束依赖的 plugin 时，依赖不再被约束到版本范围，并在下一次更新时恢复跟踪其市场条目。
 
-<h3 id="dependencies-when-your-plugin-loads-from-claude-ai">
-  当您的插件从 claude.ai 加载时的依赖
-</h3>
+### 当您的插件从 claude.ai 加载时的依赖
 
 当用户为其 claude.ai 账户启用您的插件时，Claude Code 将其加载为 `<name>@synced`，[不关联任何市场](/docs/zh-CN/plugins/loading#synced-plugins)。对于您插件的这一副本，当用户具备以下任一条件时，Claude Code 会将指定了市场的依赖条目视为已满足：
 
@@ -250,9 +224,7 @@ Claude Code 永远不会自己安装具有 `command` 源的依赖，所以用户
 
 只有当您的插件也从 claude.ai 加载时，claude.ai 插件才能满足该条目。
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 * [`claude plugin prune`](/docs/zh-CN/plugins/cli-reference#plugin-prune)：删除任何 plugin 不再需要的自动安装依赖
 * [托管市场](/docs/zh-CN/plugins/host-marketplace)：发布渠道和推荐其他 plugin

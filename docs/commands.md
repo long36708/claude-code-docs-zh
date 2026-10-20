@@ -14,9 +14,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 
 如果你在 Claude 响应时发送命令，Claude Code 会将其排队，并在当前轮次完成后运行。Claude Code 会立即运行某些命令而不中断响应，例如 `/status`、`/tasks` 和 `/usage`。在[全屏渲染](/docs/zh-CN/fullscreen)中，Claude Code 也会立即打开对话命令，例如 `/theme` 和 `/help`。在 v2.1.234 之前，Claude Code 会将这些对话排队直到轮次完成。
 
-<h2 id="commands-across-a-typical-workflow">
-  典型工作流程中的命令
-</h2>
+## 典型工作流程中的命令
 
 大多数命令在会话的特定阶段很有用，从设置项目到发布更改。
 
@@ -32,9 +30,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 
 **当出现问题时。** `/rewind` 将代码和对话回滚到检查点，或总结对话的一部分。`/doctor` 运行设置检查以诊断安装和配置问题并可以修复它们，`/debug` 诊断运行时问题，`/feedback` 报告附加会话上下文的错误。
 
-<h2 id="all-commands">
-  所有命令
-</h2>
+## 所有命令
 
 下表列出了 Claude Code 中包含的所有命令。大多数是内置命令，其行为编码在 CLI 中。有两类条目带有标记：
 
@@ -47,9 +43,9 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 
 在下表中，`<arg>` 表示必需参数，`[arg]` 表示可选参数。
 
-<Note>
-  并非每个命令都会对每个用户显示。可用性取决于您的平台、套餐和环境。例如，`/desktop` 仅在使用 Claude 订阅登录时才会在 macOS 和 x64 Windows 上显示，而 `/upgrade` 不会在 Enterprise 套餐上显示。
-</Note>
+> [!NOTE]
+>
+> 并非每个命令都会对每个用户显示。可用性取决于您的平台、套餐和环境。例如，`/desktop` 仅在使用 Claude 订阅登录时才会在 macOS 和 x64 Windows 上显示，而 `/upgrade` 不会在 Enterprise 套餐上显示。
 
 | 命令 | 用途 |
 | :- | :- |
@@ -173,9 +169,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/workflow-authoring` | **[Skill](/docs/zh-CN/skills#bundled-skills)。** 加载编写[动态工作流](/docs/zh-CN/workflows)脚本的参考：脚本 API、恢复行为、质量模式和完整示例。Claude 通常会在编写脚本之前自行加载它；在[手动编辑已保存的脚本](/docs/zh-CN/workflows#edit-a-saved-script)之前，请自行运行它。在启用动态工作流时可用，需要 Claude Code v2.1.248 或更高版本 |
 | `/workflows` | 打开[工作流](/docs/zh-CN/workflows#watch-the-run)进度视图，以监视、暂停、恢复或保存正在运行和已完成的工作流 |
 
-<h2 id="how-the-command-menu-matches-what-you-type">
-  命令菜单如何匹配你输入的内容
-</h2>
+## 命令菜单如何匹配你输入的内容
 
 Claude Code 在你输入时过滤 `/` 菜单。下面的每个要点涵盖了你在过滤时可能注意到的一件事：
 
@@ -184,15 +178,11 @@ Claude Code 在你输入时过滤 `/` 菜单。下面的每个要点涵盖了你
 * **你无法使用的命令**：Claude Code 将它们排除在菜单之外。当没有任何内容匹配时，Claude Code 显示 `No commands match "/name"`。大多数不可用的命令在你提交时会返回[未知命令](/docs/zh-CN/errors#unknown-command)；少数几个，例如[`/schedule` 在 Console API 密钥上](/docs/zh-CN/routines#schedule-returns-unknown-command)，会改为返回自己的可用性消息。当你的组织的策略禁用某些命令时，这些命令也会返回自己的消息。
 * **隐藏命令**：Claude Code 故意将一些可用命令（例如 `/heapdump`）排除在菜单之外。部分名称永远不会将隐藏命令带入菜单：如果部分匹配不到任何可见内容，Claude Code 会显示相同的不匹配消息。Claude Code 仅在你输入完整名称后才列出该命令，提交完整名称会运行它。
 
-<h2 id="mcp-prompts">
-  MCP prompts
-</h2>
+## MCP prompts
 
 MCP 服务器可以公开显示为命令的提示。有关详细信息，请参阅 [MCP prompts](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)。
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 * [Skills](/docs/zh-CN/skills)：创建您自己的命令
 * [Interactive mode](/docs/zh-CN/interactive-mode)：快捷键、Vim 模式和命令历史记录

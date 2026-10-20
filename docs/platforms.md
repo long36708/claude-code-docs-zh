@@ -8,9 +8,7 @@
 
 Claude Code 在任何地方运行相同的底层引擎，但每个界面都针对不同的工作方式进行了优化。本页面帮助您为工作流选择合适的平台，并连接您已经使用的工具。
 
-<h2 id="where-to-run-claude-code">
-  在哪里运行 Claude Code
-</h2>
+## 在哪里运行 Claude Code
 
 根据您喜欢的工作方式和项目所在位置选择平台。
 
@@ -27,9 +25,7 @@ CLI 是终端原生工作的最完整界面：脚本编写和 Agent SDK 仅限 C
 
 您可以在同一项目上混合使用多个界面。配置、项目内存和 MCP 服务器在本地界面之间共享。
 
-<h2 id="connect-your-tools">
-  连接您的工具
-</h2>
+## 连接您的工具
 
 集成让 Claude 与代码库外的服务协作。
 
@@ -44,9 +40,7 @@ CLI 是终端原生工作的最完整界面：脚本编写和 Agent SDK 仅限 C
 
 对于此处未列出的集成，[MCP 服务器](/docs/zh-CN/mcp)和[连接器](/docs/zh-CN/desktop#connect-external-tools)让您连接几乎任何东西：Linear、Notion、Google Drive 或您自己的内部 API。
 
-<h2 id="work-when-you-are-away-from-your-terminal">
-  远离终端时工作
-</h2>
+## 远离终端时工作
 
 Claude Code 提供了多种方式在您不在终端时进行工作。它们在触发工作的方式、Claude 运行的位置以及所需的设置量方面有所不同。
 
@@ -61,13 +55,9 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 
 如果您不确定从哪里开始，[安装 CLI](/docs/zh-CN/quickstart) 并在项目目录中运行它。如果您不想使用终端，[Desktop](/docs/zh-CN/desktop-quickstart) 为您提供相同的引擎和图形界面。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
-<h3 id="platforms">
-  平台
-</h3>
+### 平台
 
 * [CLI 快速入门](/docs/zh-CN/quickstart)：在终端中安装并运行您的第一个命令
 * [Desktop](/docs/zh-CN/desktop)：视觉 diff 审查、并行会话、计算机使用和 Dispatch
@@ -77,9 +67,7 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 * [Projects](/docs/zh-CN/claude-projects)：一个对话，Claude 在其中协调许多云会话以完成一项工作并报告结果
 * [Mobile](/docs/zh-CN/mobile)：用于在远离计算机时启动和监控任务的 [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和 [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude) 版 Claude 应用
 
-<h3 id="integrations">
-  集成
-</h3>
+### 集成
 
 * [Chrome](/docs/zh-CN/chrome)：使用您登录的会话自动化浏览器任务
 * [计算机使用](/docs/zh-CN/computer-use)：让 Claude 在 macOS 上打开应用和控制您的屏幕
@@ -89,9 +77,7 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 * [Slack](/docs/zh-CN/slack)：从团队聊天发送任务，获取 PR 返回，适用于 Pro 和 Max 计划
 * [Claude Tag](https://claude.com/docs/claude-tag)：在 Team 和 Enterprise 计划上以您组织的共享身份运行 `@Claude`
 
-<h3 id="remote-access">
-  远程访问
-</h3>
+### 远程访问
 
 * [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch)：从您的手机发送任务，它可以生成 Desktop 会话
 * [Remote Control](/docs/zh-CN/remote-control)：从您的手机或浏览器驱动运行中的会话

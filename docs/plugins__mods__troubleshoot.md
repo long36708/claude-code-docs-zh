@@ -8,9 +8,7 @@
 
 当 mod 的模块或其中一个 hook 失败时，Claude Code 会跳过它，会话继续进行，因此损坏的 mod 看起来像什么都不做的 mod。首先检查 Claude Code 从 mod 读取了什么以及它在哪里报告问题，然后找到您遇到的症状或消息。
 
-<h2 id="find-out-why-a-mod-does-nothing">
-  找出为什么 mod 不起作用
-</h2>
+## 找出为什么 mod 不起作用
 
 当 mod 不起作用时，请检查 Claude Code 从 mod 文件读取的内容，以及它在跳过某些内容时写入的行。对于第一项，在您的 shell 中运行 [`claude plugin validate`](/docs/zh-CN/plugins/mods/create#check-what-claude-code-reads-from-your-mod)，使用 mod 的目录，如 `claude plugin validate ./first-mod`。它可以捕获拼写错误的事件、错误的清单和 Claude Code 无法读取的模块，而无需启动会话。
 
@@ -20,9 +18,7 @@
 * **任何其他交互式会话，例如运行您从市场安装的 mod 的会话**：[调试日志](#read-the-debug-log) 仅。要获取一个，请使用 `claude --debug` 启动会话。
 * **带有 `--plugin-dir` 的 `claude -p` 运行**：stderr，采用默认文本输出格式。另一个 mod 的拒绝仅进入调试日志。
 
-<h2 id="check-whether-mods-can-load">
-  检查 mod 是否可以加载
-</h2>
+## 检查 mod 是否可以加载
 
 要检查您的设置是否允许 mod 加载，而无需安装一个，请在您的 shell 中从不包含 mod 的目录运行 `claude plugin test`。您不需要会话。它打印的消息告诉您状态：
 
@@ -35,21 +31,15 @@
 
 组织还可以设置 `allowManagedModsOnly` 以仅允许其自己的 mod，此命令不会报告。在这种情况下，Claude Code 会拒绝您安装的 mod，并且[会有消息说明原因](/docs/zh-CN/plugins/mods/troubleshoot#messages-from-the-built-in-guard)。
 
-<h2 id="the-mod-doesn’t-load">
-  mod 不加载
-</h2>
+## mod 不加载
 
 mod 添加的任何内容都不会出现：没有命令、没有绘图，也没有行为改变。
 
-<h3 id="your-version-is-too-old">
-  您的版本过旧
-</h3>
+### 您的版本过旧
 
 请参阅[应使用哪个版本以及如何检查您的版本](/docs/zh-CN/plugins/mods/overview#turn-mods-on-or-off)。
 
-<h3 id="the-mods-active-line-doesn’t-name-the-mod">
-  `mods active` 行不命名 mod
-</h3>
+### `mods active` 行不命名 mod
 
 mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](/docs/zh-CN/plugins/mods/overview#see-which-mods-a-session-loaded) 不命名它。hooks 模块未加载。当 Claude Code 拒绝它时，调试日志有一行以 `hooks module`、mod 的名称和 `not loaded:` 开头，如 `hooks module first-mod@inline not loaded: disableAllHooks in managed settings`，用于使用 `--plugin-dir` 加载的 mod。
 
@@ -57,17 +47,13 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 
 某些设置会阻止 mod，同时让其插件的其余部分继续工作。[启用或关闭 mod](/docs/zh-CN/plugins/mods/overview#turn-mods-on-or-off) 列出了这些设置。
 
-<h3 id="a-claude-p-run-prints-hooks-module-not-loaded">
-  `claude -p` 运行打印 `hooks module not loaded`
-</h3>
+### `claude -p` 运行打印 `hooks module not loaded`
 
 该行以 mod 的名称开头并进入 stderr。hooks 模块被拒绝。非交互式运行没有成绩单，因此消息进入 stderr。
 
 读取冒号后的原因。[拒绝消息](#refusal-messages) 部分列出了每一个。
 
-<h3 id="refusal-messages">
-  拒绝消息
-</h3>
+### 拒绝消息
 
 这些消息中的每一个都遵循调试日志中的 `hooks module`、mod 的名称和 `not loaded:`。
 
@@ -80,9 +66,7 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 | `installed plugins that are not managed load no hooks module in this mode (--bare)` | 您使用 `--bare` 启动了 Claude Code |
 | `another plugin of that name loads first` | 另一个已启用的插件与您的 mod 同名，并且[占用了该名称](/docs/zh-CN/plugins/loading#hooks-when-two-enabled-plugins-share-a-name)，因此您的 hook 模块不会加载 |
 
-<h3 id="messages-from-the-built-in-guard">
-  来自内置保护的消息
-</h3>
+### 来自内置保护的消息
 
 在具有托管设置的机器上，或在凭据为 Team 或 Enterprise `/login` 的会话中，[内置守卫](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default) 可以拒绝 mod 或其答案之一。每条消息都会指明您的组织管理员为更改该规则而设置的选项。
 
@@ -92,79 +76,59 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 | `tried to lift a deny rule in your settings` | 您的 mod 的 [`tool.check`](/docs/zh-CN/plugins/mods/reference#tools) hook 批准了 `deny` 规则拒绝的调用。该调用保持被拒绝。 | 成绩单和调试日志，会话中每个 mod 一次。在 `claude -p` 运行中，仅调试日志。 |
 | `the deny rules in your settings could not be checked for this call, so it is refused` | 保护在检查 mod 批准的调用时失败，因此它拒绝了该调用 | Claude 为被拒绝的调用读取的原因 |
 
-<h3 id="validate-passes-and-lists-no-hooks-line">
-  `validate` 通过且不列出 `hooks` 行
-</h3>
+### `validate` 通过且不列出 `hooks` 行
 
 `hooks/hooks.json` 没有 `modules` 键，或键拼写错误。
 
 添加 `"modules": ["./register.js"]`。
 
-<h3 id="hooks-module-did-not-load">
-  `hooks module did not load`
-</h3>
+### `hooks module did not load`
 
 该行以 mod 的名称开头，然后是 `hooks module did not load:` 和一个原因，当问题在您的代码中时，它给出文件和行。Claude Code 无法加载模块，例如因为其顶级代码抛出了异常。
 
 修复原因命名的错误。
 
-<h3 id="options-do-not-fit-plugin-json-userconfig">
-  `options do not fit plugin.json userConfig`
-</h3>
+### `options do not fit plugin.json userConfig`
 
 该行以 mod 的名称开头，然后是 `hooks module did not load: options do not fit plugin.json userConfig:` 和一个原因。某个选项未通过其 [`userConfig`](/docs/zh-CN/plugins/components#user-configuration) 字段的验证，例如高于字段 `max` 的数字，或必需字段没有值。
 
 设置或更改值。该行的末尾命名其在 `settings.json` 中的 `pluginConfigs` 条目。
 
-<h3 id="code-nested-too-deep-to-scan-more-than-2000-scopes">
-  `code nested too deep to scan: more than 2000 scopes`
-</h3>
+### `code nested too deep to scan: more than 2000 scopes`
 
 该行以 mod 的名称开头，然后是 `hooks module did not load:`、文件，以及 `code nested too deep to scan: more than 2000 scopes`。hook 模块中的文件不能将作用域（例如函数、块和循环）嵌套超过 [2,000 层](/docs/zh-CN/plugins/mods/reference#limits)。[`claude plugin validate`](/docs/zh-CN/plugins/mods/create#check-what-claude-code-reads-from-your-mod) 会报告相同的原因。
 
 重写代码，减少其作用域的嵌套深度。
 
-<h3 id="no-mod-loads-in-a-directory-you-opened-for-the-first-time">
-  没有 mod 在您首次打开的目录中加载
-</h3>
+### 没有 mod 在您首次打开的目录中加载
 
 您还没有回答该目录的信任提示。
 
 使用 `claude` 在该目录中启动交互式会话，并接受它打开的信任提示。
 
-<h3 id="no-installed-plugin-loads-at-all">
-  没有已安装的插件加载
-</h3>
+### 没有已安装的插件加载
 
 您使用 `--safe-mode` 启动了 Claude Code。
 
 启动时不使用该标志。
 
-<h3 id="claude-code-stops-asking-to-enable-hot-reloading">
-  Claude Code 不再询问是否启用热重载
-</h3>
+### Claude Code 不再询问是否启用热重载
 
 Claude 在交互式会话中编写了 mod，但没有任何内容加载，而且 Claude Code 不再询问[是否启用热重载](/docs/zh-CN/plugins/mods/create#ask-claude-for-a-mod)。如果该问题有三次在未选择任何答案的情况下结束，热重载将保持关闭。例如，当您设置了 [`askUserQuestionTimeout`](/docs/zh-CN/settings-reference#askuserquestiontimeout) 并且在您回答之前时间已到时，问题就会以这种方式结束。该设置在此适用，是因为 Claude Code 使用与 [`AskUserQuestion` 相同的问题对话框](/docs/zh-CN/tools-reference#question-auto-continue-timeout)进行询问。您自己关闭的问题不计入这三次。
 
 要运行该 mod，请[将其目录从 mods 文件夹中复制出来](/docs/zh-CN/plugins/mods/create#use-the-mod-in-other-sessions)，然后在 shell 中使用 `--plugin-dir` 启动新会话，例如 `claude --plugin-dir ~/mods/git-branch`。
 
-<h2 id="a-hook-is-skipped-or-a-mod-is-unloaded">
-  hook 被跳过或 mod 被卸载
-</h2>
+## hook 被跳过或 mod 被卸载
 
 mod 已加载，然后 Claude Code 跳过了其中一个 hooks 或卸载了它。
 
-<h3 id="hook-skipped">
-  `hook skipped`
-</h3>
+### `hook skipped`
 
 该行命名 mod 和事件，然后说 `hook skipped:` 和一个原因，如 `first-mod: tool.call hook skipped: threw Error: boom`。hook 抛出了异常、运行超过了其[时间限制](/docs/zh-CN/plugins/mods/reference#limits)，或返回了错误形状的结果。该行对每个事件和失败类型出现一次，直到 mod 重新加载。
 
 修复错误。调试日志对每次出现都有一行。
 
-<h3 id="no-command-run-hook-answered-it">
-  `no command.run hook answered it`
-</h3>
+### `no command.run hook answered it`
 
 您运行了 mod 添加的命令，回复命名了 mod 和命令，如 `first-mod registered /tally but no command.run hook answered it`，然后告诉您添加一个 hook。当命令到达链的末尾而没有答案时，Claude Code 会打印该回复，这发生在两种情况下：
 
@@ -173,17 +137,13 @@ mod 已加载，然后 Claude Code 跳过了其中一个 hooks 或卸载了它�
 
 如果模块已经有回复描述的 hook，请查找命名 `command.run` 的 `hook skipped` 行，它给出了原因。运行命令的 [test](/docs/zh-CN/plugins/mods/test) 失败，原因相同。
 
-<h3 id="it-crashed-the-hooks-worker">
-  `it crashed the hooks worker`
-</h3>
+### `it crashed the hooks worker`
 
 该行以 mod 的名称开头，如 `first-mod was unloaded: it crashed the hooks worker`。已安装的 mod 共享一个工作线程。工作线程停止响应或崩溃，Claude Code 将其追踪到此 mod 并卸载了它。阻止线程的 hook（例如永不等待的循环）是一个原因。
 
 修复 hook。
 
-<h3 id="its-session-start-ran-again-in-a-fresh-copy">
-  `its session.start ran again in a fresh copy`
-</h3>
+### `its session.start ran again in a fresh copy`
 
 该行以 mod 的名称开头，并指出一个 `$.prompt.submit`、`$.command.run` 或 `$.agent.spawn` 调用，如 `first-mod: its session.start ran again in a fresh copy; the $.prompt.submit call it had already made was not made again`。Claude Code 再次加载了该 mod 的模块（例如在 hooks worker 崩溃并被替换之后），新副本的 [`session.start`](/docs/zh-CN/plugins/mods/reference#session) hook 运行了。该行指出的调用以其首次运行的结果完成，而没有再次运行，因此您的 mod 不会重复提交提示词、运行命令或启动子代理。hook 的其余部分照常运行。
 
@@ -191,65 +151,47 @@ mod 已加载，然后 Claude Code 跳过了其中一个 hooks 或卸载了它�
 
 在 v2.1.292 之前，该调用会再运行一次，因此提示词会被提交两次、命令会被运行两次，或子代理会被启动两次。
 
-<h3 id="$-agent-register-refused-the-hooks-module-that-made-the-call-is-no-longer-loaded">
-  `$.agent.register refused: the hooks module that made the call is no longer loaded`
-</h3>
+### `$.agent.register refused: the hooks module that made the call is no longer loaded`
 
 该行以您的 mod 名称开头，如 `first-mod: $.agent.register refused: the hooks module that made the call is no longer loaded (it was reloaded or removed)`，且该 Agent 未被注册。您的 mod 在该调用之前被重新加载或卸载。重新加载会加载 hook 模块的新副本，而此调用来自仍在旧副本中运行的代码，例如尚未返回的 hook。
 
 如果该 hook 未捕获此拒绝，它会失败，Claude Code 会[跳过它](#hook-skipped)。要从保持加载的副本注册该 Agent，请在您的 [`session.start`](/docs/zh-CN/plugins/mods/reference#session) hook 中进行该调用，该 hook 会在重新加载后的每个新副本中再次运行。
 
-<h3 id="mods-that-run-in-the-hooks-worker-are-off-for-this-session">
-  `mods that run in the hooks worker are off for this session`
-</h3>
+### `mods that run in the hooks worker are off for this session`
 
 该行读取 `hooks: mods that run in the hooks worker are off for this session: it crashed 3 times`。工作线程停止了三次，Claude Code 无法将停止追踪到一个 mod，因此它卸载了每个不是内置的 mod，包括您的组织安装的 mod。此行在每个交互式会话中到达成绩单。
 
 运行 `/reload-plugins` 以再次加载它们。
 
-<h2 id="a-tool-call-is-denied">
-  工具调用被拒绝
-</h2>
+## 工具调用被拒绝
 
 mod 已加载，其 hooks 运行，它接触的工具调用被拒绝。
 
-<h3 id="a-hook-changed-this-call’s-input-after-the-model-wrote-it">
-  `a hook changed this call's input after the model wrote it`
-</h3>
+### `a hook changed this call's input after the model wrote it`
 
 在自动模式下，被拒绝的工具调用给出此原因。hook 在 [服务器端分类器](/docs/zh-CN/permission-modes#server-side-classifier-review) 审查后更改了工具调用的输入，因此该审查不涵盖将运行的内容。hook 可以是 mod 的 [`tool.call`](/docs/zh-CN/plugins/mods/reference#tools) 或 [`turn.step`](/docs/zh-CN/plugins/mods/reference#turns) hook，或 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) 设置 hook。消息不说明是哪一个。
 
 消息告诉 Claude 再次发出记录的调用。如果也被拒绝，hook 每次都更改输入，因此关闭 mod 或 hook，或离开自动模式并自己批准调用。
 
-<h3 id="a-message-about-the-deny-rules-in-your-settings">
-  关于您的设置中的拒绝规则的消息
-</h3>
+### 关于您的设置中的拒绝规则的消息
 
 `tried to lift a deny rule in your settings` 和 `the deny rules in your settings could not be checked for this call, so it is refused` 都来自内置保护。
 
 在 [来自内置保护的消息](#messages-from-the-built-in-guard) 中查找它们。
 
-<h2 id="a-toast-appears-after-a-turn-is-stopped">
-  停止轮次后出现提示
-</h2>
+## 停止轮次后出现提示
 
-<h3 id="stopped-type-a-message-to-continue">
-  `Stopped: type a message to continue; a mod cannot resume work after Stop`
-</h3>
+### `Stopped: type a message to continue; a mod cannot resume work after Stop`
 
 此提示表示，在您停止轮次之后（例如按下 Esc），某个 mod 试图自行开始工作，而 Claude Code 没有允许它这样做。无需进行任何修复。在您发送下一条消息后，mod 可以再次开始工作，并且[其中部分工作会自行恢复](/docs/zh-CN/plugins/mods/api#work-your-mod-started-before-the-interruption)。如果您期望从该 mod 获得的结果没有恢复，请再次提出请求，或再次运行该 mod 的命令。
 
 如果该 mod 是您编写的，请参阅[用户中断轮次后的调用和后台工作](/docs/zh-CN/plugins/mods/api#calls-and-background-work-after-the-user-interrupts-a-turn)。
 
-<h2 id="a-drawing-doesn’t-appear-or-respond">
-  绘图不出现或不响应
-</h2>
+## 绘图不出现或不响应
 
 mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期。
 
-<h3 id="another-mods-band-shows-and-yours-doesnt">
-  显示了另一个 mod 的带，而您的带没有显示
-</h3>
+### 显示了另一个 mod 的带，而您的带没有显示
 
 输入框上方只有一个带，所有 mod 共用它。在[您的 mod 之前](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)运行的 mod 如果返回的树中不包含 `next(e)` 的结果，就会替换您的带。要同时显示两个带，请修改该 mod 的 hook，或请其作者修改：
 
@@ -260,17 +202,13 @@ mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期�
 
 进行更改后，如果任一 mod 返回的树未通过验证，带中将不显示任何内容。要了解原因，请在 `--plugin-dir` 会话的会话记录中查找 `ui.render (AbovePrompt) refused:` 行，或在调试日志中搜索 `does not validate`。当带中有多个 mod 时，这两行都不会指明具体的 mod，因此请检查每个 mod 的树。
 
-<h3 id="a-pane-or-band-is-empty-or-shows-claude-code’s-usual-content">
-  窗格或带为空或显示 Claude Code 的常规内容
-</h3>
+### 窗格或带为空或显示 Claude Code 的常规内容
 
 您的 hook 返回的 [树](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) 未通过验证。使用 `--plugin-dir` 时，会话记录会显示 `ui.render (Pane) refused:` 及原因，如 `first-mod: ui.render (Pane) refused: Box prop "flexDirection" must be one of row, column, row-reverse, column-reverse; the engine drew its own`。调试日志中有 `a hook returned a tree that does not validate` 及相同的原因。
 
 读取该行上的原因。常见原因是元素不接受的 prop 和应用没有的元素。
 
-<h3 id="a-ui-render-line-says-threw-while-drawn">
-  `ui.render` 行显示 `threw while drawn`
-</h3>
+### `ui.render` 行显示 `threw while drawn`
 
 该行会指明[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)，然后显示 `threw while drawn:` 及错误，如 `first-mod: ui.render (ToolUse) threw while drawn: <error>; the engine drew its own`。Claude Code 在绘制您的 [`ui.render`](/docs/zh-CN/plugins/mods/reference#interface) hook 返回的树时，或在根据[您的 hook 传递给 `next` 的 `props`](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) 绘制该位置时，遇到了该错误。结尾的 `the engine drew its own` 表示该位置显示 Claude Code 的常规内容。
 
@@ -278,9 +216,7 @@ mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期�
 
 在 v2.1.289 之前，会话记录行中出现此错误会导致会话以 [`Claude Code exited after an unrecoverable interface error`](/docs/zh-CN/errors#exited-after-an-unrecoverable-interface-error) 结束。
 
-<h3 id="the-module-failed-without-a-message">
-  `the module failed without a message`
-</h3>
+### `the module failed without a message`
 
 某个 [`Client`](/docs/zh-CN/plugins/mods/interface#when-a-client-fails) 因一个没有消息的错误而失败，例如 `throw new Error()`。在其位置显示的行类似 `my-mod: Client client/spinner.js: the module failed without a message`。
 
@@ -288,17 +224,13 @@ mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期�
 
 在 v2.1.289 之前，该行改为显示 `Error` 作为原因。
 
-<h3 id="$-ui-open-runs-and-no-pane-appears">
-  `$.ui.open` 运行且没有窗格出现
-</h3>
+### `$.ui.open` 运行且没有窗格出现
 
 调用不是来自用户做的事情，且终端宽度小于[该窗格所需的宽度](/docs/zh-CN/plugins/mods/interface#when-a-pane-waits-for-a-wider-terminal)。
 
 从命令或按钮打开窗格，或检查调用的 `isPlaced` 结果。请参阅 [在正确的时间打开窗格](/docs/zh-CN/plugins/mods/interface#open-a-pane-at-the-right-time)。
 
-<h3 id="a-toast-doesn’t-appear">
-  toast 不出现
-</h3>
+### toast 不出现
 
 您的 mod 在交互式终端会话中调用了 [`$.ui.toast`](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn)，但您没有看到该 toast。要确认调用已运行，请在[调试日志](#read-the-debug-log)中查找包含您的 mod 名称和 toast 文本的行，如 `$.ui.toast (first-mod): build finished`。然后检查以下原因：
 
@@ -310,18 +242,14 @@ mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期�
 
 在 v2.1.290 之前，如果某个 toast 是在 Claude Code 为您的 mod 显示上一个 toast 后两秒内发出的，Claude Code 会丢弃该 toast，且调试日志中针对被丢弃 toast 的行会显示 `within 2000ms of the last; dropped`。
 
-<h3 id="hotkeys-do-nothing">
-  热键不起作用
-</h3>
+### 热键不起作用
 
 您的窗格没有键盘焦点，或者绘图位于 VS Code 扩展中，而该扩展中的按钮没有热键。请按对应的情况操作：
 
 * **没有键盘焦点**：按 Ctrl+X 然后 Tab，或单击窗格。要让窗格在打开时获得焦点，请从命令中使用 `focus: true` 打开它。
 * **在 VS Code 扩展中**：单击按钮，或在按钮获得焦点后按 Enter
 
-<h3 id="a-drawing-works-in-the-terminal-and-not-in-the-desktop-app-or-vs-code">
-  绘图在终端中有效，在桌面应用或 VS Code 中无效
-</h3>
+### 绘图在终端中有效，在桌面应用或 VS Code 中无效
 
 要么该应用不绘制该位置或元素，要么该会话属于 VS Code 扩展不为 mod 绘制任何内容的会话。该 mod 的其他 hook 仍会运行。请检查以下原因：
 
@@ -329,39 +257,29 @@ mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期�
 * **VS Code 扩展版本低于 2.1.299**：从[扩展版本](/docs/zh-CN/vs-code#install-the-extension) 2.1.299 起，聊天面板才会为 mod 进行绘制。请在 VS Code 的扩展视图中检查版本，并在该处更新扩展。
 * **扩展版本低于 2.1.304，且该会话不获取功能标志**：请更新扩展，或改为在 VS Code 的集成终端中运行 `claude`。在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上的会话会跳过此获取步骤。对于跳过此步骤的其他会话，例如 [Claude apps 网关](/docs/zh-CN/claude-apps-gateway)会话，请参阅[需要获取功能标志的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)。
 
-<h2 id="an-edit-or-a-value-is-lost">
-  编辑或值丢失
-</h2>
+## 编辑或值丢失
 
 mod 运行，您所做的更改或它保留的值不存在。
 
-<h3 id="your-edits-don’t-take-effect">
-  您的编辑不生效
-</h3>
+### 您的编辑不生效
 
 您正在编辑您安装的插件。Claude Code 运行已安装版本的缓存副本。
 
 使用指向您的工作副本的 `--plugin-dir` 进行开发，如 `claude --plugin-dir ./first-mod`，它在您保存时重新加载。
 
-<h3 id="a-value-resets-when-the-module-reloads">
-  模块重新加载时值重置
-</h3>
+### 模块重新加载时值重置
 
 模块级变量在每次重新加载时重新初始化。
 
 [将值保留在 `$.state` 或 `$.store` 中](/docs/zh-CN/plugins/mods/interface#keep-state)。
 
-<h3 id="a-value-resets-after-/clear-/resume-or-/branch">
-  值在 `/clear`、`/resume` 或 `/branch` 后重置
-</h3>
+### 值在 `/clear`、`/resume` 或 `/branch` 后重置
 
 值重置，或保存的值被其默认值替换。这些命令中的每一个都将 `$.state` 重置为其默认值，`session.start` 不再触发。
 
 [在 `classic.SessionStart` hook 中再次加载保存的值](/docs/zh-CN/plugins/mods/interface#load-a-saved-value-again-after-clear)。
 
-<h2 id="read-the-debug-log">
-  阅读调试日志
-</h2>
+## 阅读调试日志
 
 调试日志对 Claude Code 加载或拒绝的每个模块、每个失败的 hook 以及它拒绝的每个结果都有一行，因此当会话记录中没有任何显示时，这是查看的地方。要写入一个，在您的 shell 中使用 `--debug` 启动 Claude Code，或使用 `--debug-file <path>` 选择它的位置：
 
@@ -385,9 +303,7 @@ hooks module first-mod@inline loaded (worker, environment 2, tier user); events:
 
 当您编辑使用 `--plugin-dir` 加载的 mod 时，会话记录为每次重新加载显示一行，命名 mod 并列出其 hook。如果保存破坏了模块，该行会显示 `reload failed, the previous version stays loaded:` 及原因，最后一个可用版本会继续运行，直到 Claude Code 下次重新加载插件，例如当您运行 `/reload-plugins` 时。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [测试 mod](/docs/zh-CN/plugins/mods/test)：在问题到达会话之前捕获它们
 * [排查插件问题](/docs/zh-CN/plugins/troubleshooting)：与安装和加载不特定于 mod 的插件相关的问题

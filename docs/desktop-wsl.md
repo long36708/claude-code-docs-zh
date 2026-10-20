@@ -10,37 +10,29 @@
 
 当您的存储库位于发行版的文件系统内时，请使用 WSL 会话。从 Windows 处理这些文件会通过网络文件系统进行，这很慢并且会破坏文件监视；在发行版内运行会话可以避免两者。
 
-<h2 id="requirements">
-  要求
-</h2>
+## 要求
 
 * Windows 10 或 11，带有 [WSL 2](https://learn.microsoft.com/windows/wsl/install)。不支持 WSL 1。
 * 至少安装一个发行版（例如 Ubuntu）。
 * 在发行版内安装了 `git`。
 
-<h2 id="start-a-wsl-session">
-  启动 WSL 会话
-</h2>
+## 启动 WSL 会话
 
-<Steps>
-  <Step title="选择发行版">
-    在 Code 选项卡中启动新会话，然后打开输入框下方（在[早期布局](/docs/zh-CN/desktop#check-which-layout-you-have)中则位于输入框上方）的[环境选择器](/docs/zh-CN/desktop#start-a-session)。您安装的 WSL 2 发行版会出现在 **WSL** 部分中。选择一个。
-  </Step>
+**1. 选择发行版**
 
-  <Step title="选择文件夹">
-    会话在发行版的主目录中启动。使用文件夹选择器选择项目文件夹。浏览在发行版内进行，使用 Linux 路径，如 `/home/you/project`。
-  </Step>
+在 Code 选项卡中启动新会话，然后打开输入框下方（在[早期布局](/docs/zh-CN/desktop#check-which-layout-you-have)中则位于输入框上方）的[环境选择器](/docs/zh-CN/desktop#start-a-session)。您安装的 WSL 2 发行版会出现在 **WSL** 部分中。选择一个。
 
-  <Step title="信任文件夹">
-    文件夹中的第一个会话会显示工作区信任对话框。信任按发行版和文件夹授予。在一个发行版中信任的文件夹，在另一个发行版中或在 Windows 上的相同路径下不会被信任。
-  </Step>
-</Steps>
+**2. 选择文件夹**
+
+会话在发行版的主目录中启动。使用文件夹选择器选择项目文件夹。浏览在发行版内进行，使用 Linux 路径，如 `/home/you/project`。
+
+**3. 信任文件夹**
+
+文件夹中的第一个会话会显示工作区信任对话框。信任按发行版和文件夹授予。在一个发行版中信任的文件夹，在另一个发行版中或在 Windows 上的相同路径下不会被信任。
 
 发行版中的第一个会话需要稍长时间，因为 Claude 需要在其中进行设置。您也可以从普通文件夹选择器打开 `\\wsl.localhost\...` 文件夹，它会在该发行版内重新打开。
 
-<h2 id="what-works-in-a-wsl-session">
-  WSL 会话中的工作内容
-</h2>
+## WSL 会话中的工作内容
 
 并行会话、侧边聊天、可视化差异审查、分支和拉取请求状态以及 worktrees 都可以工作，由发行版内的 git 和工具链支持。"在编辑器中打开"会打开通过 [Remote - WSL](https://code.visualstudio.com/docs/remote/wsl) 连接到发行版的 VS Code。
 
@@ -51,19 +43,13 @@
 * **文件编辑**：您可以在[文件窗格](/docs/zh-CN/desktop#open-and-edit-files)中查看文件，但无法在其中编辑，因此请让 Claude 进行更改
 * **附件**：如果 **+** 菜单显示的是 **Add image** 而不是 **Add files or photos**，则您只能附加图片。请参阅[向提示词添加文件和上下文](/docs/zh-CN/desktop#add-files-and-context-to-prompts)。
 
-<a id="check-for-the-terminal-and-connectors" />
-
-<h3 id="if-the-terminal-or-connectors-are-unavailable">
-  如果终端或连接器不可用
-</h3>
+### 如果终端或连接器不可用
 
 您无法自行为 WSL 会话启用集成终端或连接器：
 
 * **Claude 账户**：这两项功能正在分别推出。请选择 **Help > Check for Updates…**，如果更新后某项功能仍然缺失，则无需进行任何操作。
 * **[第三方提供商](/docs/zh-CN/third-party-integrations)**：WSL 会话不提供终端或连接器，更新 Desktop 也不会改变这一点
 
-<h2 id="managed-devices">
-  受管设备
-</h2>
+## 受管设备
 
 在由组织管理的设备上，WSL 会话可能不可用。如果会话启动失败并显示设备受管的消息，这由您的管理员控制。管理员：请参阅部署指南中的[设置如何到达设备](/docs/zh-CN/admin-setup#decide-how-settings-reach-devices)。

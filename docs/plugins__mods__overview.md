@@ -8,13 +8,11 @@
 
 Mod 是一个[插件](/docs/zh-CN/plugins/overview)，它改变 Claude Code 的外观和行为。它由 JavaScript 或 TypeScript 事件处理程序组成：Claude Code 在事件发生时调用一个处理程序，例如工具调用、提交的提示或界面的一部分被绘制，处理程序可以观察事件、更改事件或接管事件。使用 mod 向 Claude Code 添加自己的功能，例如一个窗格，在每个请求后显示上下文有多满。有关 mod 中的文件和完整示例，请参阅[Mod 如何工作](#how-a-mod-works)。
 
-<Note>
-  Claude Code 现有的 [hooks](/docs/zh-CN/hooks) 也在事件上运行，作为 shell 命令、HTTP 请求或在设置文件中配置的提示。Mod 的处理程序是在 Claude Code 内部运行的函数。Claude Code 调用两种类型的 hooks：在这些页面上，"hook" 指的是 mod 的处理程序，而设置文件类型是"设置 hook"。
-</Note>
+> [!NOTE]
+>
+> Claude Code 现有的 [hooks](/docs/zh-CN/hooks) 也在事件上运行，作为 shell 命令、HTTP 请求或在设置文件中配置的提示。Mod 的处理程序是在 Claude Code 内部运行的函数。Claude Code 调用两种类型的 hooks：在这些页面上，"hook" 指的是 mod 的处理程序，而设置文件类型是"设置 hook"。
 
-<h2 id="what-a-mod-can-do">
-  Mod 可以做什么
-</h2>
+## Mod 可以做什么
 
 设置 hooks、skills、状态行和 MCP 服务器从 Claude Code 外部工作：每一个都运行一个脚本，或给 Claude 文本或工具。Mod 在 Claude Code 内部运行，所以它可以做他们做不了的事情：
 
@@ -26,9 +24,7 @@ Mod 是一个[插件](/docs/zh-CN/plugins/overview)，它改变 Claude Code 的�
 
 mod 可在 Claude Code CLI、Claude Desktop 应用的 Code 选项卡以及 VS Code 扩展中工作。请参阅[mod 在哪里运行](#where-mods-run)以了解它们在其他地方的行为，例如在 `claude -p` 和云端会话中。如果设置 hook、skill 或 MCP 服务器已经能满足您的需要，请在编写 mod 之前先[比较它们](#compare-mods-settings-hooks-skills-and-mcp-servers)。要为组织管理 mod，请参阅[为您的组织管理 mod](/docs/zh-CN/plugins/mods/admin)。
 
-<h2 id="get-a-mod">
-  获取 mod
-</h2>
+## 获取 mod
 
 要开始使用 mod：
 
@@ -36,13 +32,11 @@ mod 可在 Claude Code CLI、Claude Desktop 应用的 Code 选项卡以及 VS Co
 * **创建一个**：在 Claude Code 会话中描述您想要的内容，Claude 会编写 mod。请参阅[向 Claude 请求 mod](/docs/zh-CN/plugins/mods/create#ask-claude-for-a-mod)。要了解 mod 代码如何工作，[自己编写一个](/docs/zh-CN/plugins/mods/create#write-a-mod-yourself)。
 * **安装一个**：请参阅[安装或更新 mod](#install-or-update-a-mod)，或[试用示例 mod](#try-a-sample-mod)
 
-<h3 id="install-or-update-a-mod">
-  安装或更新 mod
-</h3>
+### 安装或更新 mod
 
-<Warning>
-  mod 是使用您的权限运行的代码。它可以读写您的文件、启动进程和发出网络请求。仅从您信任的作者和市场安装 mod。请参阅[决定是否信任 mod](#decide-whether-to-trust-a-mod)。
-</Warning>
+> [!WARNING]
+>
+> mod 是使用您的权限运行的代码。它可以读写您的文件、启动进程和发出网络请求。仅从您信任的作者和市场安装 mod。请参阅[决定是否信任 mod](#decide-whether-to-trust-a-mod)。
 
 mod 作为插件从市场安装。给出插件的名称、一个 `@` 和市场的名称。这些示例从名为 `your-org` 的市场安装名为 `token-chart` 的插件：
 
@@ -53,9 +47,7 @@ mod 作为插件从市场安装。给出插件的名称、一个 `@` 和市场�
 
 如果在会话打开时从 shell 安装或更新 mod，请在该会话中运行 `/reload-plugins` 以加载它。否则，它将在下次启动 Claude Code 时加载。
 
-<h3 id="try-a-sample-mod">
-  试用示例 mod
-</h3>
+### 试用示例 mod
 
 Anthropic 在 [`claude-code-playground` 仓库的 `claude-code/mods` 目录](https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods)中分享示例 mod。每个示例都是一个完整的插件，其 README 说明了它的构建方式。该仓库按原样分享这些示例，不提供支持。
 
@@ -69,15 +61,11 @@ Anthropic 在 [`claude-code-playground` 仓库的 `claude-code/mods` 目录](htt
 
 要保留某个示例，请[将克隆中的 `claude-code/mods` 目录添加为市场](/docs/zh-CN/plugins/install#add-a-marketplace)，然后从 `claude-code-playground-mods` 安装该 mod。该市场指向您的克隆，因此如果您移动或删除该克隆，mod 将停止加载。
 
-<h2 id="decide-whether-to-trust-a-mod">
-  决定是否信任 mod
-</h2>
+## 决定是否信任 mod
 
 Mod 是使用您的权限在 Claude Code 内部运行的代码。仅从您信任的作者和[市场](/docs/zh-CN/plugins/security)安装 mod。
 
-<h3 id="what-a-mod-can-reach">
-  Mod 可以访问什么
-</h3>
+### Mod 可以访问什么
 
 Mod 使用您的权限运行，所以在安装之前，请了解它可以访问什么。一旦加载，mod 可以：
 
@@ -94,9 +82,7 @@ Mod 不在沙箱中运行。如果您启用[沙箱隔离](/docs/zh-CN/sandboxing
 
 Mod 可以重新设置 Claude Code 界面的大部分样式，但不能重新设置权限提示。它无法改变权限提示向您显示的内容。
 
-<h3 id="list-what-a-mod-does-before-you-install-one">
-  在安装 mod 之前列出它做什么
-</h3>
+### 在安装 mod 之前列出它做什么
 
 在安装 mod 之前，您可以在不运行它的情况下列出它处理哪些事件以及它要求 Claude Code 做什么，例如读取文件或发出网络请求。首先获取插件的文件，例如通过克隆其仓库。然后，在您的 shell 中，对插件的目录运行 `claude plugin validate`：
 
@@ -106,9 +92,7 @@ claude plugin validate ./some-mod
 
 输出中的 `hooks:` 和 `calls:` 行列出了 mod 处理的事件以及它要求 Claude Code 做什么。[查看 mod 可以做什么](/docs/zh-CN/plugins/mods/admin#review-what-a-mod-can-do)展示了输出内容以及需要留意的调用。
 
-<h2 id="turn-mods-on-or-off">
-  打开或关闭 mods
-</h2>
+## 打开或关闭 mods
 
 mod 默认处于打开状态。在终端中，请使用 Claude Code v2.1.287 或更高版本。Desktop 应用包含其自带的 Claude Code 副本，mod 从 v2.1.286 起即可在其中使用。请在您使用 mod 的地方检查版本：
 
@@ -127,19 +111,15 @@ mod 默认处于打开状态。在终端中，请使用 Claude Code v2.1.287 或
 
 要了解 mods 是否可以为您加载，请参阅[检查 mods 是否可以加载](/docs/zh-CN/plugins/mods/troubleshoot#check-whether-mods-can-load)。
 
-<Note>
-  如果您在早期访问期间设置了 `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS`，请删除它。Claude Code v2.1.287 及更高版本忽略它，所以将其设置为 `0` 不会保持 mods 关闭。
-</Note>
+> [!NOTE]
+>
+> 如果您在早期访问期间设置了 `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS`，请删除它。Claude Code v2.1.287 及更高版本忽略它，所以将其设置为 `0` 不会保持 mods 关闭。
 
-<h3 id="see-which-mods-a-session-loaded">
-  查看会话加载了哪些 mods
-</h3>
+### 查看会话加载了哪些 mods
 
 要查看终端会话加载了哪些 mods，在 Claude Code 提示符处运行 `/plugin`。选项卡下的暗色行给出计数和名称，例如 `1 mod active · first-mod`。如果您安装的 mod 没有在那里列出，请参阅[找出为什么 mod 什么都不做](/docs/zh-CN/plugins/mods/troubleshoot#find-out-why-a-mod-does-nothing)。
 
-<h2 id="how-a-mod-works">
-  Mod 如何工作
-</h2>
+## Mod 如何工作
 
 Mod 是一个[插件](/docs/zh-CN/plugins/overview)，其代码注册事件处理程序，称为 hook。Claude Code 在相应事件发生时运行 hook，例如当 Claude 调用工具或绘制微调器时。一个小 mod 有三个文件：
 
@@ -188,15 +168,9 @@ export function register(on) {
 
 这段录屏展示了 mod 的工作过程。请观察输入框上方的微调器行：当 Claude 列出目录并读取两个文件时，它显示 `Thinking · tool calls: 1…`，然后是 `2…`，然后是 `3…`。
 
-<Frame>
-  <video autoPlay muted loop playsInline controls className="w-full dark:hidden" src="https://mintcdn.com/claude-code/dgiVO_Od1X1faduV/images/mods-overview-light.mp4?fit=max&auto=format&n=dgiVO_Od1X1faduV&q=85&s=00a18aa0743b59a700f0275ce226e6d1" aria-label="在 Claude Code 会话中，输入并发送提示词'列出此处的文件并读取 README'。当 Claude 工作时，微调器显示'Thinking · tool calls: 1'，然后是 2，然后是 3，此时 Claude 列出文件并读取其中两个。" data-path="images/mods-overview-light.mp4" />
+<video autoPlay muted loop playsInline controls src="https://mintcdn.com/claude-code/dgiVO_Od1X1faduV/images/mods-overview-light.mp4?fit=max&auto=format&n=dgiVO_Od1X1faduV&q=85&s=00a18aa0743b59a700f0275ce226e6d1" aria-label="在 Claude Code 会话中，输入并发送提示词'列出此处的文件并读取 README'。当 Claude 工作时，微调器显示'Thinking · tool calls: 1'，然后是 2，然后是 3，此时 Claude 列出文件并读取其中两个。" />
 
-  <video autoPlay muted loop playsInline controls className="w-full hidden dark:block" src="https://mintcdn.com/claude-code/dgiVO_Od1X1faduV/images/mods-overview-dark.mp4?fit=max&auto=format&n=dgiVO_Od1X1faduV&q=85&s=d5223da2fef16ceaaa214a36d72c0536" aria-label="在 Claude Code 会话中，输入并发送提示词'列出此处的文件并读取 README'。当 Claude 工作时，微调器显示'Thinking · tool calls: 1'，然后是 2，然后是 3，此时 Claude 列出文件并读取其中两个。" data-path="images/mods-overview-dark.mp4" />
-</Frame>
-
-<h3 id="what-a-hook-can-do-with-an-event">
-  Hook 可以对事件做什么
-</h3>
+### Hook 可以对事件做什么
 
 Claude Code 在对事件采取行动之前运行您的 hook，因此由 hook 决定接下来会发生什么。它可以：
 
@@ -208,9 +182,7 @@ Claude Code 在对事件采取行动之前运行您的 hook，因此由 hook 决
 
 有关每种选择背后的代码，请参阅[对事件做出反应](/docs/zh-CN/plugins/mods/events#how-a-hook-handles-an-event)。有关 hook 可以调用什么，请参阅[使用 mods API](/docs/zh-CN/plugins/mods/api)。
 
-<h3 id="where-mods-run">
-  Mods 在哪里运行
-</h3>
+### Mods 在哪里运行
 
 mod 的 hook 在加载该插件的每种会话中运行，无论由哪个提供商提供模型，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry。绘制的范围更窄：mod 绘制的内容会出现在终端、桌面应用和 VS Code 扩展中。此表列出了您可能运行 Claude Code 的每个地方：
 
@@ -226,15 +198,11 @@ mod 的 hook 在加载该插件的每种会话中运行，无论由哪个提供�
 
 会绘制内容的 mod 可以检查自己运行在哪个应用中，并在无法绘制的地方回退为会话记录中的一行或命令的文本回复。
 
-<h2 id="control-mods-for-your-organization">
-  为你的组织控制 mods
-</h2>
+## 为你的组织控制 mods
 
 管理员通过[托管设置](/docs/zh-CN/managed-settings)决定 mods 是否运行以及哪些运行。[为你的组织管理 mods](/docs/zh-CN/plugins/mods/admin)涵盖默认情况下发生的事情、如何查看 mod 以及如何使用你自己的 mod 强制执行策略。
 
-<h2 id="compare-mods-settings-hooks-skills-and-mcp-servers">
-  比较 mod、设置 hook、skill 和 MCP 服务器
-</h2>
+## 比较 mod、设置 hook、skill 和 MCP 服务器
 
 Mod、设置 hook、skill 和 MCP 服务器的功能有所重叠。此表说明每一种是什么以及何时选择它。
 
@@ -248,9 +216,7 @@ Mod、设置 hook、skill 和 MCP 服务器的功能有所重叠。此表说明�
 
 其他每一种都有自己的页面：[Hooks](/docs/zh-CN/hooks)、[Skills](/docs/zh-CN/skills) 和 [MCP](/docs/zh-CN/mcp)。一个插件可以容纳所有这些，因此 mod 可以与 skill 和 MCP 服务器放在同一个插件中发布。
 
-<h2 id="mods-built-into-claude-code">
-  内置于 Claude Code 的 Mods
-</h2>
+## 内置于 Claude Code 的 Mods
 
 Claude Code 的一些自己的功能是 mods。要查看您的会话拥有的，在 Claude Code 提示符处运行 `/plugin` 并转到**已安装**选项卡，它在**内置**下列出它们。您不能更新或卸载内置 mod，表的最后一列说明如何关闭每一个。[`mods active` 行](#see-which-mods-a-session-loaded)排除了内置 mods。
 
@@ -267,9 +233,7 @@ Claude Code 的一些自己的功能是 mods。要查看您的会话拥有的，
 
 停止已安装 mods 的设置和标志，例如 `disableAllHooks`、`--bare` 和 `--safe-mode`，不会停止内置 mods。
 
-<h3 id="read-the-source-of-built-in-mods">
-  阅读内置 mods 的源代码
-</h3>
+### 阅读内置 mods 的源代码
 
 其中一些 mods 的源代码在 [Claude Code 仓库的 `mods` 目录](https://github.com/anthropics/claude-code/tree/main/mods)中是公开的。每一个都是一个完整的插件，带有其 hooks 模块和测试：
 
@@ -278,9 +242,7 @@ Claude Code 的一些自己的功能是 mods。要查看您的会话拥有的，
 * [`sec-default`](https://github.com/anthropics/claude-code/tree/main/mods/sec-default)：[了解默认情况下发生的事情](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default)中描述的保护，一个强制执行策略的 mod 的模型
 * [`telemetry`](https://github.com/anthropics/claude-code/tree/main/mods/telemetry)：添加其他 mods 可以调用的方法，并提供其类型
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [创建 mod](/docs/zh-CN/plugins/mods/create)：构建一个计算工具调用、在微调器旁边显示计数并添加命令的 mod，并学习编辑和重新加载循环
 * [在界面中绘制](/docs/zh-CN/plugins/mods/interface)：窗格、输入框上方的带状区域、按钮、文本字段和状态

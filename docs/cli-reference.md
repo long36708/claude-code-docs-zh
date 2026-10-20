@@ -6,9 +6,7 @@
 
 > Claude Code 命令行界面的完整参考，包括命令和标志。
 
-<h2 id="cli-commands">
-  CLI 命令
-</h2>
+## CLI 命令
 
 您可以使用这些命令启动会话、管道内容、恢复对话和管理更新：
 
@@ -55,9 +53,7 @@
 
 `claude --dangerously-skip-permissions daemon <subcommand>` 会运行 `daemon` 子命令，因此当 `claude` 的别名包含该标志时，子命令仍可正常工作。只有前导的 `--dangerously-skip-permissions` 或 `--allow-dangerously-skip-permissions` 会以这种方式路由到 `daemon`；如果 `daemon` 前面有任何其他标志，子命令将不会运行。
 
-<h2 id="cli-flags">
-  CLI 标志
-</h2>
+## CLI 标志
 
 使用这些命令行标志自定义 Claude Code 的行为。`claude --help` 不会列出每个标志，因此标志在 `--help` 中不出现并不意味着它不可用。
 
@@ -110,12 +106,12 @@
 | `--max-turns` | 限制 Agent 轮次数（仅限 print 模式）。达到限制时以错误退出。默认无限制。使用 `--input-format stream-json` 时，当限制结束某一轮次时仍在排队的消息会保持排队，并以其自己的限制启动新轮次 | `claude -p --max-turns 3 "query"` |
 | `--mcp-config` | 从 JSON 文件或字符串加载 MCP 服务器（空格分隔）。当您使用 `-p` 传递此标志时，Claude Code 在运行第一轮之前等待仍待处理的服务器连接，最多等待 [`MCP_TIMEOUT`](/docs/zh-CN/env-vars) 启动超时时间，默认 30 秒；具有[缓存工具列表](/docs/zh-CN/mcp#managing-your-servers)的服务器跳过等待并在首次使用时连接。在[自托管环境](/docs/zh-CN/self-hosted-environments-configuration#connection-timing)中，则改为适用较短的等待时间。等待需要 Claude Code v2.1.221 或更高版本 | `claude --mcp-config ./mcp.json` |
 | `--model` | 使用[模型别名](/docs/zh-CN/model-config#model-aliases)（如 `sonnet`、`opus`、`haiku` 或 `fable`）或模型的完整名称为当前会话设置模型。覆盖 [`model`](/docs/zh-CN/settings-reference#model) 设置和 [`ANTHROPIC_MODEL`](/docs/zh-CN/model-config#environment-variables) | `claude --model claude-sonnet-5` |
-| `--name`, `-n` | 为会话设置显示名称，显示在 `/resume` 和终端标题中。您可以使用 `claude --resume <name>` 恢复命名会话。<br /><br />[`/rename`](/docs/zh-CN/commands) 在会话中途更改名称，并且还会在提示栏上显示它 | `claude -n "my-feature-work"` |
+| `--name`, `-n` | 为会话设置显示名称，显示在 `/resume` 和终端标题中。您可以使用 `claude --resume <name>` 恢复命名会话。 [`/rename`](/docs/zh-CN/commands) 在会话中途更改名称，并且还会在提示栏上显示它 | `claude -n "my-feature-work"` |
 | `--no-chrome` | 为此会话禁用 [Chrome 浏览器集成](/docs/zh-CN/chrome) | `claude --no-chrome` |
 | `--no-session-persistence` | 禁用会话持久性，以便会话不保存到磁盘且无法恢复。仅限 print 模式。[`CLAUDE_CODE_SKIP_PROMPT_HISTORY`](/docs/zh-CN/env-vars) 环境变量在任何模式下执行相同操作 | `claude -p --no-session-persistence "query"` |
 | `--output-format` | 为 print 模式指定输出格式（选项：`text`、`json`、`stream-json`） | `claude -p "query" --output-format json` |
 | `--permission-mode` | 在指定的[权限模式](/docs/zh-CN/permission-modes)中开始。接受 `default`、`acceptEdits`、`plan`、`auto`、`dontAsk`、`bypassPermissions` 或 `manual`（作为 `default` 的别名）。`manual` 别名选择 UI 标记为 Manual 的权限模式，需要 Claude Code v2.1.200 或更高版本；`claude --help` 列出它来代替 `default`，两个值都有效。覆盖设置文件中的 `defaultMode`。没有此标志或 `--dangerously-skip-permissions` 时，新会话以[会话以哪种权限模式启动](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)中描述的权限模式启动，该部分也涵盖了 `-p` 运行以何种模式启动 | `claude --permission-mode plan` |
-| `--permission-prompt-tool` | 指定 MCP 工具以在非交互模式下处理权限提示。传递本次运行所加载的 MCP 服务器上某个工具的完整名称，例如 `mcp__<server>__<tool>`。Claude Code 在运行第一轮之前等待该工具的 MCP 服务器连接，最多等待 [`MCP_TIMEOUT`](/docs/zh-CN/env-vars) 启动超时时间，默认 30 秒。<br /><br />该提示工具无法批准标记为[需要用户交互](/docs/zh-CN/mcp#require-approval-for-a-specific-tool)的 MCP 工具：Claude Code 会将此类工具的 `allow` 结果转换为拒绝。此限制需要 Claude Code v2.1.199 或更高版本 | `claude -p --mcp-config ./mcp.json --permission-prompt-tool mcp__permissions__approve "query"` |
+| `--permission-prompt-tool` | 指定 MCP 工具以在非交互模式下处理权限提示。传递本次运行所加载的 MCP 服务器上某个工具的完整名称，例如 `mcp__<server>__<tool>`。Claude Code 在运行第一轮之前等待该工具的 MCP 服务器连接，最多等待 [`MCP_TIMEOUT`](/docs/zh-CN/env-vars) 启动超时时间，默认 30 秒。 该提示工具无法批准标记为[需要用户交互](/docs/zh-CN/mcp#require-approval-for-a-specific-tool)的 MCP 工具：Claude Code 会将此类工具的 `allow` 结果转换为拒绝。此限制需要 Claude Code v2.1.199 或更高版本 | `claude -p --mcp-config ./mcp.json --permission-prompt-tool mcp__permissions__approve "query"` |
 | `--permission-prompts` | 在 print 模式下设置由谁回答权限提示。使用默认值 `host` 时，Claude Code 将它们发送到 Agent SDK 主机或 `--permission-prompt-tool` 工具。当没有人可以回答时传递 `none`，Claude Code 会改为拒绝它们。请参阅[在无人值守运行中关闭权限提示](/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs)。需要 Claude Code v2.1.259 或更高版本 | `claude -p --permission-prompts none "query"` |
 | `--plugin-dir` | 从目录或 `.zip` 存档加载插件，或从[插件文件夹](/docs/zh-CN/plugins/create#load-a-directory-or-archive-for-one-session)加载多个插件，仅用于此会话。每个标志接受一个路径。重复标志以传递更多路径：`--plugin-dir A --plugin-dir B.zip`。传递插件文件夹需要 Claude Code v2.1.265 或更高版本 | `claude --plugin-dir ./my-plugin` |
 | `--plugin-url` | 从 URL 获取插件 `.zip` 存档，仅用于此会话。重复标志以获取多个插件，或在单个带引号的值中传递空格分隔的 URL | `claude --plugin-url https://example.com/plugin.zip` |
@@ -144,9 +140,7 @@
 | `--version`, `-v` | 输出版本号 | `claude -v` |
 | `--worktree`, `-w` | 在位于 `<repo>/.claude/worktrees/<name>` 的隔离 [git worktree](/docs/zh-CN/worktrees) 中启动 Claude。如果您不提供名称，Claude Code 会生成一个。传递 `#<number>`、GitHub Pull Request URL 或 GitLab merge request URL 以[从 `origin` 获取该 PR 或 MR 并基于它创建 worktree 分支](/docs/zh-CN/worktrees#branch-from-a-pull-request)。基于 GitLab merge request 创建分支需要 Claude Code v2.1.233 或更高版本 | `claude -w feature-auth` |
 
-<h3 id="system-prompt-flags">
-  系统提示词标志
-</h3>
+### 系统提示词标志
 
 Claude Code 提供五个用于自定义系统提示词的标志。其中四个设置其文本，而通过 `--system-prompt-snapshot`，您可以控制对话是否保留其开始时的文本。这五个标志在交互和非交互模式下均可使用。
 
@@ -174,9 +168,7 @@ Claude 收到的是默认系统提示词，后跟 `style.md` 的内容、一个�
 
 对于可以切换并在项目中共享的持久角色，请使用[输出样式](/docs/zh-CN/output-styles)。对于 Claude 应始终遵循的项目约定，请使用 [CLAUDE.md](/docs/zh-CN/memory)。[Agent SDK 关于系统提示词的指南](/docs/zh-CN/agent-sdk/modifying-system-prompts#decide-on-a-starting-point)更深入地介绍了同样的决策。
 
-<h4 id="system-prompt-flags-in-resumed-conversations">
-  恢复对话中的系统提示词标志
-</h4>
+#### 恢复对话中的系统提示词标志
 
 默认情况下，Claude Code 在对话的第一个请求上构建一次系统提示词，应用任何系统提示词标志中的文本，并将其记录在会话中。在对话被压缩之前，之后的每个请求都使用该已记录的提示词，包括在您使用 `--resume` 或 `--continue` 返回对话之后。如果您在之后的启动中传递了不同的系统提示词标志文本，或未传递任何标志，则它会在对话被压缩后或您开始新对话时生效。
 
@@ -184,9 +176,7 @@ Claude 收到的是默认系统提示词，后跟 `style.md` 的内容、一个�
 
 要改为在每个请求上重建提示词，例如在跨多次 `--continue` 运行迭代其措辞时，请传递 `--system-prompt-snapshot off`。在 v2.1.265 之前，传递任何系统提示词标志也会关闭记录，除非您传递 `--system-prompt-snapshot on`。
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 * [Chrome 扩展](/docs/zh-CN/chrome) - 浏览器自动化和网络测试
 * [交互模式](/docs/zh-CN/interactive-mode) - 快捷键、输入模式和交互功能

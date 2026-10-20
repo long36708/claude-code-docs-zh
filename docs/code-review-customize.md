@@ -13,21 +13,17 @@
 
 在仓库根目录添加 `REVIEW.md` 并将其合并。然后[保护您的默认分支](#which-branch-review-md-is-read-from)。
 
-<Note>
-  如需更改审查的详尽程度或运行时机，请让 Owner 更改[审查级别](/docs/zh-CN/code-review-setup#set-the-default-review-level)或 [**Review runs** 设置](/docs/zh-CN/code-review-setup#set-when-reviews-run)。
-</Note>
+> [!NOTE]
+>
+> 如需更改审查的详尽程度或运行时机，请让 Owner 更改[审查级别](/docs/zh-CN/code-review-setup#set-the-default-review-level)或 [**Review runs** 设置](/docs/zh-CN/code-review-setup#set-when-reviews-run)。
 
-<h2 id="use-claude-md-for-project-wide-rules">
-  使用 CLAUDE.md 设置项目范围的规则
-</h2>
+## 使用 CLAUDE.md 设置项目范围的规则
 
 Code Review 将仓库中的 `CLAUDE.md` 文件作为项目上下文读取。违反其中某条规则的更改会成为一项发现，并按照与问题相符的[严重程度级别](/docs/zh-CN/code-review-pull-requests#severity-levels)进行标记。
 
 审查会读取仓库根目录下的 `CLAUDE.md`，以及每个已更改文件的各级父目录中的 `CLAUDE.md` 文件。当 Pull Request 更改了某个子目录路径下的文件时，会读取该子目录中的 `CLAUDE.md`。
 
-<h2 id="use-review-md-for-review-only-rules">
-  使用 REVIEW\.md 设置仅用于审查的规则
-</h2>
+## 使用 REVIEW\.md 设置仅用于审查的规则
 
 `REVIEW.md` 是位于仓库根目录的文件，用于针对您的仓库定制 Code Review。您还可以在子目录中添加 `REVIEW.md`，在根文件的基础上为该路径下的更改添加检查项。
 
@@ -46,13 +42,11 @@ your-repo/
 
 在依赖子目录文件之前，请先保护您的默认分支，并查看[针对您的分支设置，审查会读取哪些内容](#what-a-review-reads-for-each-branch-setup)。
 
-<Note>
-  Code Review 服务和本地 [`/code-review` 命令](/docs/zh-CN/code-review-local)是两个独立的工具，它们读取的文件不同。该服务会同时读取 `CLAUDE.md` 和 `REVIEW.md`。`/code-review` 命令在您自己机器上的 Claude Code 会话中运行，它读取您的 `CLAUDE.md` 文件，但不读取 `REVIEW.md`。请将希望在两处都生效的指导放在 `CLAUDE.md` 中，并将 `REVIEW.md` 留给 Pull Request 审查专用的规则。
-</Note>
+> [!NOTE]
+>
+> Code Review 服务和本地 [`/code-review` 命令](/docs/zh-CN/code-review-local)是两个独立的工具，它们读取的文件不同。该服务会同时读取 `CLAUDE.md` 和 `REVIEW.md`。`/code-review` 命令在您自己机器上的 Claude Code 会话中运行，它读取您的 `CLAUDE.md` 文件，但不读取 `REVIEW.md`。请将希望在两处都生效的指导放在 `CLAUDE.md` 中，并将 `REVIEW.md` 留给 Pull Request 审查专用的规则。
 
-<h3 id="example-review-md">
-  REVIEW\.md 示例
-</h3>
+### REVIEW\.md 示例
 
 此 `REVIEW.md` 为一个后端服务重新校准了严重程度、限制了 nit 数量、跳过了生成文件，并添加了仓库特定的检查项。
 
@@ -84,9 +78,7 @@ Report at most five Nits per review.
 - Database queries are scoped to the caller's tenant
 ```
 
-<h3 id="choose-what-to-write-in-review-md">
-  选择在 REVIEW\.md 中写入的内容
-</h3>
+### 选择在 REVIEW\.md 中写入的内容
 
 `REVIEW.md` 是格式自由的 Markdown，用于更改审查发现和报告的内容。它不会改变审查的格式。找到您遇到的问题，然后添加类似所示的指令。[示例](#example-review-md)使用了前四项。
 
@@ -100,9 +92,7 @@ Report at most five Nits per review.
 
 `REVIEW.md` 中只保留会改变审查行为的指令，并将一般项目上下文留在 `CLAUDE.md` 中。
 
-<h3 id="which-branch-review-md-is-read-from">
-  从哪个分支读取 REVIEW\.md
-</h3>
+### 从哪个分支读取 REVIEW\.md
 
 Code Review 从 Pull Request 的基础分支或默认分支读取 `REVIEW.md`，从不从 Pull Request 自身的更改中读取。如需更改审查行为，请先合并对 `REVIEW.md` 的更改。
 
@@ -112,9 +102,7 @@ Code Review 从 Pull Request 的基础分支或默认分支读取 `REVIEW.md`，
 * 排除路径、文件或问题类别
 * 限制 nit 评论数量
 
-<h4 id="what-counts-as-branch-protection">
-  哪些设置算作分支保护
-</h4>
+#### 哪些设置算作分支保护
 
 Code Review 将以下设置视为保护：
 
@@ -123,9 +111,7 @@ Code Review 将以下设置视为保护：
 
 当规则集限制更新，或要求 Pull Request 获得至少一次审批时，该规则集才算作保护。如果它要求 Pull Request，则还必须在有新推送时撤销该审批，或要求审批发生在最后一次推送之后。
 
-<h4 id="what-a-review-reads-for-each-branch-setup">
-  针对每种分支设置，审查会读取哪些内容
-</h4>
+#### 针对每种分支设置，审查会读取哪些内容
 
 在下表第一列中找到您仓库的情况。
 
@@ -138,9 +124,7 @@ Code Review 将以下设置视为保护：
 
 如果检查运行中提到了 `REVIEW.md`，请参阅[检查运行中提到 REVIEW.md](/docs/zh-CN/code-review-troubleshooting#the-check-run-mentions-review-md)。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [Code Review](/docs/zh-CN/code-review)：该服务是什么以及审查如何运行
 * [在 Pull Request 上阅读和请求审查](/docs/zh-CN/code-review-pull-requests#severity-levels)：每个严重程度级别的含义以及发现的呈现方式

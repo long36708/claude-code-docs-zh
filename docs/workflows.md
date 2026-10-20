@@ -6,17 +6,15 @@
 
 > 动态工作流从 Claude 编写的脚本中编排许多子代理，您可以重新运行。用于代码库审计、大型迁移和交叉检查研究。
 
-<Note>
-  动态工作流在所有付费计划上可用，具有 Anthropic API 访问权限，以及在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上可用。在 Pro 上，从 `/config` 中的 Dynamic workflows 行启用它们。
-</Note>
+> [!NOTE]
+>
+> 动态工作流在所有付费计划上可用，具有 Anthropic API 访问权限，以及在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上可用。在 Pro 上，从 `/config` 中的 Dynamic workflows 行启用它们。
 
 动态工作流是一个 JavaScript 脚本，可大规模编排许多[子代理](/docs/zh-CN/sub-agents)。Claude 为您描述的任务编写脚本，运行时在后台执行它，同时您的会话保持响应。
 
 当任务需要比一个对话能协调的更多代理时，或当您想将编排编纂为可以读取和重新运行的脚本时，请使用工作流。示例包括代码库范围的错误扫描、500 文件迁移、需要相互交叉检查来源的研究问题，以及在提交一个之前值得从多个独立角度起草的困难计划。
 
-<h2 id="when-to-use-a-workflow">
-  何时使用工作流
-</h2>
+## 何时使用工作流
 
 [子代理](/docs/zh-CN/sub-agents)、[skills](/docs/zh-CN/skills)、[agent teams](/docs/zh-CN/agent-teams) 和工作流都可以运行多步骤任务。区别在于谁掌握计划：
 
@@ -33,49 +31,43 @@
 
 将计划移入代码也让工作流应用可重复的质量模式，而不仅仅是运行更多代理：它可以让独立代理在报告之前对彼此的发现进行对抗性审查，或从多个角度起草计划并相互权衡，所以您获得比单次通过更可信的结果。
 
-<h2 id="run-a-bundled-workflow">
-  运行捆绑工作流
-</h2>
+## 运行捆绑工作流
 
 查看工作流运行的最快方式是运行 `/deep-research`，这是 Claude Code 包含的[内置工作流](#bundled-workflows)，用于跨许多来源调查问题。您将看到代理在后台通过一组阶段工作，同时您的会话保持空闲，最后获得一份报告而不是逐轮记录。
 
-<Steps>
-  <Step title="运行工作流">
-    使用您想要调查的问题运行 `/deep-research`。它在多个角度上扇出网络搜索，获取并交叉检查它找到的来源，并综合一份引用的报告。
+**1. 运行工作流**
 
-    ```text wrap theme={null}
-    /deep-research What changed in the Node.js permission model between v20 and v22?
-    ```
-  </Step>
+使用您想要调查的问题运行 `/deep-research`。它在多个角度上扇出网络搜索，获取并交叉检查它找到的来源，并综合一份引用的报告。
 
-  <Step title="允许工作流">
-    Claude Code 询问是否允许工作流。选择**是**继续。确切的提示取决于您的权限模式。有关每种模式的选项，请参阅[在运行前批准计划](#approve-the-plan-before-it-runs)。
-  </Step>
+```text wrap theme={null}
+/deep-research What changed in the Node.js permission model between v20 and v22?
+```
 
-  <Step title="观看进度">
-    运行在后台启动。运行 `/workflows` 打开其进度视图：
+**2. 允许工作流**
 
-    ```text wrap theme={null}
-    /workflows
-    ```
+Claude Code 询问是否允许工作流。选择**是**继续。确切的提示取决于您的权限模式。有关每种模式的选项，请参阅[在运行前批准计划](#approve-the-plan-before-it-runs)。
 
-    如果 `/workflows` 显示的是运行列表，请选择您刚启动的运行并按 Enter。该视图显示每个阶段及其 Agent 计数。深入任何阶段以查看其 Agent 及每个 Agent 发现的内容。有关完整的控制集，请参阅[观看运行](#watch-the-run)。
+**3. 观看进度**
 
-    您也可以从输入框下方的任务面板观看：运行进行时会出现一行进度摘要。按向下箭头聚焦它，然后按 Enter 展开。
-  </Step>
+运行在后台启动。运行 `/workflows` 打开其进度视图：
 
-  <Step title="阅读报告">
-    运行完成后，报告进入您的会话。它引用每个声明来自的来源，未通过交叉检查的声明已被过滤掉。
+```text wrap theme={null}
+/workflows
+```
 
-    当验证代理无法检查声明时，例如在速率限制或 API 错误之后，报告将该声明列为未验证，而不是计为被驳回。
-  </Step>
-</Steps>
+如果 `/workflows` 显示的是运行列表，请选择您刚启动的运行并按 Enter。该视图显示每个阶段及其 Agent 计数。深入任何阶段以查看其 Agent 及每个 Agent 发现的内容。有关完整的控制集，请参阅[观看运行](#watch-the-run)。
+
+您也可以从输入框下方的任务面板观看：运行进行时会出现一行进度摘要。按向下箭头聚焦它，然后按 Enter 展开。
+
+**4. 阅读报告**
+
+运行完成后，报告进入您的会话。它引用每个声明来自的来源，未通过交叉检查的声明已被过滤掉。
+
+当验证代理无法检查声明时，例如在速率限制或 API 错误之后，报告将该声明列为未验证，而不是计为被驳回。
 
 要为您自己的任务运行工作流，[让 Claude 编写一个](#have-claude-write-a-workflow)，一旦运行完成您想要的操作，您可以[保存它](#save-the-workflow-for-reuse)作为您自己的命令。
 
-<h3 id="bundled-workflows">
-  捆绑工作流
-</h3>
+### 捆绑工作流
 
 Claude Code 包含 `/deep-research` 作为内置工作流：
 
@@ -87,9 +79,7 @@ Claude Code 包含 `/deep-research` 作为内置工作流：
 
 [您自己保存的工作流](#save-the-workflow-for-reuse)以相同方式成为命令，并在 `/` 自动完成中与捆绑的工作流一起出现。
 
-<h3 id="watch-the-run">
-  观看运行
-</h3>
+### 观看运行
 
 工作流在后台运行，所以会话在 Agent 工作时保持响应。随时运行 `/workflows` 列出运行中和已完成的工作流，然后选择一个打开其进度视图。当会话只有一个运行时，`/workflows` 会跳过列表并直接打开该运行。要从列表中停止运行中的工作流而不打开它，请选择它并按 `x`。
 
@@ -111,9 +101,7 @@ Claude Code 包含 `/deep-research` 作为内置工作流：
 
 按 `Enter` 展开详情。提示和结果然后完整显示，每个列出的调用显示其输入和其结果的开始。
 
-<h2 id="have-claude-write-a-workflow">
-  让 Claude 编写工作流
-</h2>
+## 让 Claude 编写工作流
 
 您可以通过两种方式让 Claude 为您的任务编写工作流：
 
@@ -122,9 +110,7 @@ Claude Code 包含 `/deep-research` 作为内置工作流：
 
 您也可以运行已存在的工作流命令：一个[捆绑工作流](#bundled-workflows)如 `/deep-research`，或一个您已[保存](#save-the-workflow-for-reuse)的。
 
-<h3 id="ask-for-a-workflow-in-your-prompt">
-  在您的提示中请求工作流
-</h3>
+### 在您的提示中请求工作流
 
 要在不改变会话的努力级别的情况下将单个任务作为工作流运行，在您的提示中包含关键字 `ultracode`。用您自己的话提问，例如"使用工作流"或"运行工作流"，也可以工作：Claude 将直接请求视为相同的选择加入。
 
@@ -136,15 +122,11 @@ Claude Code 在您的输入中突出显示该关键字，Claude 为任务编写�
 
 如果运行完成了您想要的操作，您可以之后[将其保存为命令](#save-the-workflow-for-reuse)。如果您已经用另一种方式构建了编排器，例如子代理提示的文件夹或一个分散工作的技能，您可以指向 Claude 并要求一个执行相同操作的工作流。
 
-<h4 id="dismiss-or-turn-off-the-keyword">
-  忽略或关闭关键字
-</h4>
+#### 忽略或关闭关键字
 
 如果您不打算启动工作流，在 macOS 上按 `Option+W` 或在 Windows 和 Linux 上按 `Alt+W` 来忽略此提示的突出显示，或在突出显示的关键字后面的光标处按退格键。要完全停止该关键字触发，请在 `/config` 中关闭 Ultracode 关键字触发。
 
-<h4 id="where-the-keyword-works">
-  关键字的工作位置
-</h4>
+#### 关键字的工作位置
 
 该关键字仅在您自己输入的提示中选择加入：在交互式提示、IDE 扩展面板、[Remote Control](/docs/zh-CN/remote-control) 客户端或在 Agent SDK 应用程序中，该应用程序将您的键盘输入的 [`origin`](/docs/zh-CN/agent-sdk/typescript#sdkmessageorigin) 标记为 `{ kind: "human" }`。当它通过另一种方式到达会话时，它不会启动工作流：
 
@@ -153,9 +135,7 @@ Claude Code 在您的输入中突出显示该关键字，Claude 为任务编写�
 * 计划任务提示
 * 中继到对话中的 webhook 有效负载或拉取请求评论
 
-<h3 id="let-claude-decide-with-ultracode">
-  让 Claude 使用 ultracode 决定
-</h3>
+### 让 Claude 使用 ultracode 决定
 
 Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排，在会话运行的任何[努力级别](/docs/zh-CN/model-config#adjust-effort-level)。启用它后，Claude 为每个实质性任务规划工作流，而不是等待您要求。在 Claude Code 提示处启用它：
 
@@ -177,9 +157,7 @@ Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排
 
 `/effort ultracode` 持续当前会话；要让每个会话都以它开始，设置 [`ultracode`](/docs/zh-CN/settings-reference#ultracode) 设置。当您返回日常工作时，使用 `/effort ultracode off` 关闭它。`/effort` 滑块仅在 [ultracode 可用时](/docs/zh-CN/model-config#when-ultracode-is-available)提供切换。
 
-<h3 id="approve-the-plan-before-it-runs">
-  在运行前批准计划
-</h3>
+### 在运行前批准计划
 
 在 CLI 中，每次运行的提示显示计划的阶段和这些选项：
 
@@ -211,9 +189,7 @@ Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排
 
 工作流生成的子代理使用您的[权限规则](/docs/zh-CN/settings-reference#permission-settings)，Claude Code 按[子代理运行的权限模式](/docs/zh-CN/sub-agents#permission-modes)下的规则选择它们的权限模式。要在长时间运行中避免提示，在启动前将代理需要的工具添加到您的允许规则。
 
-<h3 id="save-the-workflow-for-reuse">
-  保存工作流以供重用
-</h3>
+### 保存工作流以供重用
 
 当 Claude 为您将重复的任务编写工作流时，您可以将该运行的脚本保存为命令。像您在每个分支上运行的审查这样的过程然后每次运行相同的编排。
 
@@ -237,17 +213,13 @@ Claude Code 在写入前检查保存位置是否有符号链接，并显示错�
 
 如果项目工作流和个人工作流共享名称，项目工作流运行。
 
-<h3 id="distribute-a-workflow-in-a-plugin">
-  在插件中分发工作流
-</h3>
+### 在插件中分发工作流
 
 要在团队或仓库中共享工作流，将其包含在[插件](/docs/zh-CN/plugins/overview)中。将脚本放在插件根目录的 `workflows/` 目录中，或使用 [`workflows` 清单字段](/docs/zh-CN/plugins/manifest-reference#fields)指向不同的位置。
 
 插件工作流由插件名称命名空间。一个名为 `acme-tools` 的插件，其 `meta.name` 为 `release-audit` 的脚本作为 `/acme-tools:release-audit` 运行。
 
-<h3 id="pass-input-to-a-saved-workflow">
-  将输入传递给保存的工作流
-</h3>
+### 将输入传递给保存的工作流
 
 保存的工作流可以通过 `args` 参数接受输入。脚本将其读取为名为 `args` 的全局变量。使用此功能在调用时提供研究问题、目标路径列表或配置对象，而不是为每次运行编辑脚本。
 
@@ -259,15 +231,11 @@ Run /triage-issues on issues 1024, 1025, and 1030
 
 Claude 将列表作为结构化数据传递，所以脚本可以直接在 `args` 上调用数组和对象方法，无需先解析它。如果省略 `args`，脚本内的全局变量为 `undefined`。
 
-<h2 id="example-workflow-prompts">
-  工作流提示示例
-</h2>
+## 工作流提示示例
 
 工作流最适合当任务大于一个代理可以在上下文中容纳的情况，或当相同的步骤需要在许多项目中运行时。下面的提示显示常见的形状。每一个都要求 Claude 为该任务编写并运行工作流；您不自己编写脚本。
 
-<h3 id="audit-many-files-for-the-same-issue">
-  审计许多文件以查找相同问题
-</h3>
+### 审计许多文件以查找相同问题
 
 扇出每个文件一个代理，然后收集并验证发现。
 
@@ -275,9 +243,7 @@ Claude 将列表作为结构化数据传递，所以脚本可以直接在 `args`
 use a workflow to audit every route handler under src/routes/ for missing authentication checks, and adversarially verify each finding before reporting it
 ```
 
-<h3 id="keep-fixing-until-a-check-passes">
-  保持修复直到检查通过
-</h3>
+### 保持修复直到检查通过
 
 运行检查器，修复失败的内容，然后重复直到通过或停止取得进展。
 
@@ -285,9 +251,7 @@ use a workflow to audit every route handler under src/routes/ for missing authen
 use a workflow to run npx tsc --noEmit and keep fixing the reported errors until the type check passes or two rounds in a row make no progress
 ```
 
-<h3 id="migrate-many-files-in-parallel">
-  并行迁移许多文件
-</h3>
+### 并行迁移许多文件
 
 发现要迁移的文件，在隔离的副本中转换每个文件，以便编辑不会冲突，并验证每个结果。
 
@@ -295,9 +259,7 @@ use a workflow to run npx tsc --noEmit and keep fixing the reported errors until
 use a workflow to migrate every component under src/components/ from JavaScript to TypeScript, working on each file in its own isolated copy
 ```
 
-<h3 id="review-every-changed-file-and-write-one-summary">
-  审查每个更改的文件并写一份摘要
-</h3>
+### 审查每个更改的文件并写一份摘要
 
 为每个文件运行审查者，然后将所有发现交给一个代理，该代理对它们进行排名和去重。
 
@@ -305,9 +267,7 @@ use a workflow to migrate every component under src/components/ from JavaScript 
 use a workflow to review every file changed in this PR for correctness issues, then merge the per-file findings into one ranked summary
 ```
 
-<h3 id="research-a-topic-across-many-sources">
-  跨许多来源研究一个主题
-</h3>
+### 跨许多来源研究一个主题
 
 在更改日志、问题和文档中扇出读者，然后综合。捆绑的 `/deep-research` 工作流执行此操作；您也可以描述一个更狭窄的版本。
 
@@ -315,9 +275,7 @@ use a workflow to review every file changed in this PR for correctness issues, t
 use a workflow to research how our three competitors handle rate limiting: read their public docs and recent changelog entries in parallel, then compare the approaches
 ```
 
-<h3 id="find-issues-until-the-list-stops-growing">
-  查找问题直到列表停止增长
-</h3>
+### 查找问题直到列表停止增长
 
 保持分轮搜索并在新轮次找不到任何新内容时停止。
 
@@ -325,9 +283,7 @@ use a workflow to research how our three competitors handle rate limiting: read 
 use a workflow to find flaky tests in this repo: run the suite repeatedly, record which tests fail intermittently, and stop once two rounds in a row find nothing new
 ```
 
-<h3 id="what-the-saved-script-looks-like">
-  保存的脚本看起来像什么
-</h3>
+### 保存的脚本看起来像什么
 
 当您[保存工作流](#save-the-workflow-for-reuse)时，`.claude/workflows/` 中的文件包含一个 `meta` 块，后跟编排子代理的脚本体。您通常不需要编辑它，但这是一个小的形状，所以您可以识别 Claude 生成的内容：
 
@@ -358,9 +314,7 @@ return audits.filter(Boolean)
 
 如果子代理的输出在五次尝试后仍然无法通过验证，调用将失败并显示一个错误，其中包括最后的验证失败。要更改尝试次数，请设置 [`MAX_STRUCTURED_OUTPUT_RETRIES`](/docs/zh-CN/env-vars)。
 
-<h3 id="edit-a-saved-script">
-  编辑保存的脚本
-</h3>
+### 编辑保存的脚本
 
 要更改[您保存的工作流](#save-the-workflow-for-reuse)，编辑其 `.js` 文件或要求 Claude 进行更改。在编辑或要求之前，运行 `/workflow-authoring` [捆绑技能](/docs/zh-CN/skills#bundled-skills)以加载 Claude 工作的脚本编写参考。该技能需要 Claude Code v2.1.248 或更高版本。
 
@@ -375,9 +329,7 @@ Claude Code 在加载和运行脚本时对文件的每个部分应用这些规�
 
 您也可以编辑[单个运行的脚本](#how-a-workflow-runs)而不是保存的副本。[在暂停后恢复](#resume-after-a-pause)涵盖当您重新启动编辑的脚本时哪些代理再次运行。有关 Workflow 工具的输入，请参阅其在 [Agent SDK 参考](/docs/zh-CN/agent-sdk/typescript#workflow)中的条目。
 
-<h2 id="how-a-workflow-runs">
-  工作流如何运行
-</h2>
+## 工作流如何运行
 
 工作流运行时在隔离的环境中执行脚本，与您的对话分离。中间结果保留在脚本变量中，而不是进入 Claude 的上下文。
 
@@ -387,9 +339,7 @@ Claude 只能从会话已允许读取的脚本文件启动工作流。要运行�
 
 运行时在运行进行时跟踪每个代理的结果，这正是使运行在同一会话内 [可恢复](#resume-after-a-pause) 的原因。
 
-<h3 id="prompt-caching-in-a-fan-out">
-  扇出中的 prompt caching
-</h3>
+### 扇出中的 prompt caching
 
 同一运行中的代理可以读取彼此的 [prompt cache](/docs/zh-CN/prompt-caching#subagents-and-the-cache)。两个使用相同模型、努力级别、代理类型、工具、输出架构和工作目录运行的代理会构建相同的工具和系统提示前缀，因此在匹配的兄弟代理响应开始后启动的代理会在其第一个请求中读取该兄弟代理的缓存。
 
@@ -397,9 +347,7 @@ Claude 只能从会话已允许读取的脚本文件启动工作流。要运行�
 
 当扇出同时启动多个匹配的代理时，Claude Code 会保留除第一个之外的所有代理，直到第一个代理的响应开始，然后一起释放保留的代理，以便它们的第一个请求读取共享前缀，而不是每个都未缓存地处理它。Claude Code 将保留限制在 [`CLAUDE_CODE_WORKFLOW_PREFIX_STAGGER_MS`](/docs/zh-CN/env-vars) 毫秒，默认为 `5000`。将其设置为 `0` 以禁用保留。
 
-<h3 id="behavior-and-limits">
-  行为和限制
-</h3>
+### 行为和限制
 
 运行时应用以下约束：
 
@@ -413,23 +361,17 @@ Claude 只能从会话已允许读取的脚本文件启动工作流。要运行�
 | 单个 `parallel()` 或 `pipeline()` 调用中最多 4,096 个项目：运行时以错误拒绝更长的列表 | 无声上限会在不告知脚本的情况下丢弃部分工作负载 |
 | 每次运行总共 1,000 个代理 | 防止失控循环 |
 
-<h2 id="manage-runs">
-  管理运行
-</h2>
+## 管理运行
 
 运行启动后，您可以从 `/workflows` 视图管理它，或通过展开输入框下方任务面板中的其进度行来管理。
 
 当您停止运行时，它会保留在任务面板中，直到其任何代理的进程仍在运行。如果您再次停止它，Claude Code 会重新向这些进程发送信号。
 
-<h3 id="resume-after-a-pause">
-  暂停后恢复
-</h3>
+### 暂停后恢复
 
 从 `/workflows` 恢复暂停的运行，选择它并按 `p`。对于您停止的运行，要求 Claude 使用相同脚本重新启动工作流。如果来自已停止运行的代理尚未退出，Claude Code 会拒绝重新启动，直到它们退出，这样这些代理的第二个副本就不会与它们并行运行。
 
-<h4 id="which-agents-run-again">
-  哪些 Agent 会再次运行
-</h4>
+#### 哪些 Agent 会再次运行
 
 Claude Code 按代理启动的顺序重放运行，每个代理要么返回其保存的结果，要么再次运行：
 
@@ -441,9 +383,7 @@ Claude Code 按代理启动的顺序重放运行，每个代理要么返回其�
 
 如果您将一个按 A、B、C、D 顺序启动的脚本编辑为按 A、C、B、D 顺序启动，那么第二个启动的 Agent 现在是 C，而之前的运行在这个位置启动的是 B。重新启动会从缓存返回 A，并再次运行 C、B 和 D。
 
-<h4 id="resume-after-you-leave-the-session">
-  离开会话后恢复
-</h4>
+#### 离开会话后恢复
 
 您可以在同一 Claude Code 会话中恢复运行。当您离开会话时，运行中的工作流会发生什么取决于您如何离开：
 
@@ -454,9 +394,7 @@ Claude Code 按代理启动的顺序重放运行，每个代理要么返回其�
 
 在本地和云会话中，当 Claude 重新启动较早的运行并且 Claude Code 根本找不到该运行的保存结果时，重新启动会失败并显示 `nothing to resume` 错误，而不是自动启动运行。要求 Claude 将工作流作为新运行启动。
 
-<h3 id="when-a-run-hits-your-usage-limit">
-  当运行达到您的使用限制时
-</h3>
+### 当运行达到您的使用限制时
 
 当代理达到您的 claude.ai [使用限制](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)时，运行会暂停而不是该代理失败：达到限制的代理会等待重置，并且不会启动新代理。限制重置后不久，等待的代理会再次运行，运行会自动继续。需要 Claude Code v2.1.271 或更高版本；在较早的版本上，受影响的代理会失败。
 
@@ -469,9 +407,7 @@ Claude Code 按代理启动的顺序重放运行，每个代理要么返回其�
 * 限制在 24 小时内重置。每周限制可能重置得更远。
 * 运行还没有等待过两次。当它第三次达到限制时，代理会失败。
 
-<h3 id="when-an-agent-stalls-and-restarts">
-  当 Agent 停滞并重启时
-</h3>
+### 当 Agent 停滞并重启时
 
 如果某个 Agent 的输出停止到达足够长的时间，它会使用相同的提示词重新开始。在 [`/workflows`](#watch-the-run) 中，其名称会添加 `(retry 1)` 后缀，其详细信息会显示 `attempt 2 (stalled)`。重启是自动的，因此您无需执行任何操作。
 
@@ -495,9 +431,7 @@ Claude Code 按代理启动的顺序重放运行，每个代理要么返回其�
 
 要重试，请要求 Claude 重新启动工作流。[暂停后恢复](#resume-after-a-pause)介绍了哪些内容会再次运行。
 
-<h3 id="cost">
-  成本
-</h3>
+### 成本
 
 工作流生成许多代理，所以单次运行可以使用比在对话中处理相同任务更多的令牌。运行计入您的计划使用和速率限制。
 
@@ -519,9 +453,7 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
 
 当您组织的 [`availableModels` 允许列表](/docs/zh-CN/model-config#restrict-model-selection)阻止脚本为某个 Agent 请求的模型时，该 Agent 会改为在替代模型上运行，遵循与[子代理相同的替代规则](/docs/zh-CN/sub-agents#choose-a-model)。
 
-<h3 id="set-a-size-guideline">
-  设置大小指南
-</h3>
+### 设置大小指南
 
 大小指南告诉 Claude 在编写动态工作流时应以多少个 Agent 为目标。Claude Code 将指南作为建议而不是上限发送给 Claude，所以要求不同规模的提示词仍然会覆盖它。
 
@@ -540,9 +472,7 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
 
 更改在下一个提示时生效。[运行时代理上限](#behavior-and-limits)仍然适用，无论设置如何。
 
-<h3 id="turn-workflows-off">
-  关闭工作流
-</h3>
+### 关闭工作流
 
 工作流在 CLI、桌面应用、IDE 扩展、[非交互模式](/docs/zh-CN/headless)与 `claude -p` 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 中可用。相同的禁用设置在每个表面上应用。
 
@@ -563,9 +493,7 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
 
 关闭工作流也会使[ultracode](#let-claude-decide-with-ultracode)不可用。没有托管设置单独排除 ultracode：无论它在哪里[可用](/docs/zh-CN/model-config#when-ultracode-is-available)，用户可以使用 `/effort ultracode` 打开它。[努力上限](/docs/zh-CN/model-config#organization-effort-limits)降低了启用 ultracode 的会话运行的努力级别，但不会关闭 ultracode。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [并行运行代理](/docs/zh-CN/agents)：比较子代理、代理视图、代理团队和工作流
 * [创建自定义子代理](/docs/zh-CN/sub-agents)：工作流编排的工作者原语

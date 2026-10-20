@@ -10,18 +10,16 @@
 
 本页面适用于插件作者和维护者。如果你为组织管理 Claude Code，[跨机队测量](#measure-across-a-fleet)涵盖了每台机器上的相同问题。
 
-<Note>
-  这些情况在其他页面上有介绍：
-
-  * **测试插件改变 Claude 行为的可靠性**：请参阅[使用 evals 测试插件](/docs/zh-CN/plugin-evals)
-  * **修剪你自己会话的上下文**：请参阅[管理已安装的插件](/docs/zh-CN/plugins/install#manage-installed-plugins)和[上下文窗口](/docs/zh-CN/context-window)页面
-</Note>
+> [!NOTE]
+>
+> 这些情况在其他页面上有介绍：
+>
+> * **测试插件改变 Claude 行为的可靠性**：请参阅[使用 evals 测试插件](/docs/zh-CN/plugin-evals)
+> * **修剪你自己会话的上下文**：请参阅[管理已安装的插件](/docs/zh-CN/plugins/install#manage-installed-plugins)和[上下文窗口](/docs/zh-CN/context-window)页面
 
 从[测量插件的成本](#measure-what-a-plugin-costs)开始。
 
-<h2 id="measure-what-a-plugin-costs">
-  测量插件的成本
-</h2>
+## 测量插件的成本
 
 要查看插件添加到 Claude 上下文的内容，请使用插件的名称运行[`claude plugin details`](/docs/zh-CN/plugins/cli-reference#plugin-details)。你在 shell 中运行它，而不是在运行的 Claude Code 会话的提示符处。插件必须被加载：已安装、在 skills 目录中，或通过同一命令中的 `--plugin-dir` 传递，如 `claude --plugin-dir ./formatter plugin details formatter`。
 
@@ -63,9 +61,7 @@ Per-component (rounded)
 * **Always-on**：插件的 skills、agents 和 commands 的名称和描述添加到启用插件的每个会话中的令牌，无论是否有任何东西运行。这是每个用户携带的数字，也是要减少的数字。
 * **Per-component**：每一行将一个 skill、agent 或 command 分成其 always-on 份额和其 on-invoke 成本，后者是仅在该组件运行时加载的主体。使用 always-on 列来找出哪个组件贡献最多。
 
-<h3 id="lower-the-always-on-figure">
-  降低 always-on 数字
-</h3>
+### 降低 always-on 数字
 
 如果你维护插件，这些更改会减少它添加到每个会话的内容。如果你只是使用它，你的选择是禁用或卸载它；请参阅[管理已安装的插件](/docs/zh-CN/plugins/install#manage-installed-plugins)。
 
@@ -78,17 +74,13 @@ skill 的描述也是 Claude 匹配请求的内容，所以较短的描述可以
 
 有关每个组件类型的贡献，请参阅[插件组件](/docs/zh-CN/plugins/components)。
 
-<h3 id="cost-shown-to-users-before-install">
-  安装前向用户显示的成本
-</h3>
+### 安装前向用户显示的成本
 
 官方市场中的插件在安装前向用户显示其成本。在 `/plugin` 中，当用户浏览市场的插件列表并选择一个插件时，详细信息窗格显示一个**Context cost**部分，其中有一个 `Every turn:` 行和一个 `When invoked:` 行。当 always-on 数字为 2,000 个令牌或更多时，`Every turn:` 行显示为突出显示。
 
 你自己市场中的插件没有**Context cost**部分。
 
-<h2 id="check-whether-a-plugin-is-used">
-  检查插件是否被使用
-</h2>
+## 检查插件是否被使用
 
 Claude Code 不会向其作者报告插件的使用情况。使用情况记录在安装插件的每个人的机器上，所以你能学到的内容取决于你与这些人的关系：
 
@@ -98,9 +90,7 @@ Claude Code 不会向其作者报告插件的使用情况。使用情况记录�
 
 有关 Anthropic 目录中列出的插件的使用情况，请参阅 claude.com 上的[跟踪已发布的插件使用情况](https://claude.com/docs/connectors/building/after-publishing#track-published-plugin-usage)。
 
-<h3 id="not-used-recently-in-/plugin">
-  `/plugin` 中最近未使用
-</h3>
+### `/plugin` 中最近未使用
 
 在 `/plugin` 的**Installed**选项卡上，用户从市场安装的插件在至少 14 天和 10 个会话未使用后，会移到**Not used recently**标题下。插件的详细信息也显示一个 `Last used:` 行。有关用户对该标题和行的处理，请参阅[查找你不再使用的插件](/docs/zh-CN/plugins/install#find-plugins-you-no-longer-use)。
 
@@ -114,38 +104,28 @@ Claude Code 不会向其作者报告插件的使用情况。使用情况记录�
 
 当用户的组织设置[`strictKnownMarketplaces`](/docs/zh-CN/plugins/org#restrict-what-users-can-install)时，标题和 `Last used:` 行都不会出现。
 
-<h3 id="find-skills-that-never-run">
-  查找永远不运行的 skills
-</h3>
+### 查找永远不运行的 skills
 
 运行 `/skill-doctor` 以查看你的每个 skill 的成本以及它被使用的频率。它标记在 Claude 的 skill 列表中但从未被调用的 skills，包括来自插件的 skills。
 
 在交互式会话中，报告在 `/plugin` 管理器的**Stats**选项卡中打开。请参阅[查找未使用的 skills](/docs/zh-CN/skills#find-unused-skills)了解报告涵盖的内容以及它在哪里可用。
 
-<h3 id="unused-plugins-in-/doctor">
-  `/doctor` 中未使用的插件
-</h3>
+### `/doctor` 中未使用的插件
 
 `/doctor` 检查列出每个用户安装的 skill、MCP 服务器和插件，并建议禁用未使用的插件。请参阅[命令参考中的 `/doctor`](/docs/zh-CN/commands#all-commands)。
 
-<h3 id="usage-share-in-/usage">
-  `/usage` 中的使用情况份额
-</h3>
+### `/usage` 中的使用情况份额
 
 在 Pro、Max、Team 或 Enterprise 计划上，`/usage` 分解将最近的使用情况归因于 skills、subagents、插件和 MCP 服务器，作为总数的份额。请参阅[使用 `/usage` 命令](/docs/zh-CN/costs#using-the-/usage-command)。
 
-<h2 id="measure-across-a-fleet">
-  跨机队测量
-</h2>
+## 跨机队测量
 
 如果你为组织管理 Claude Code，你可以从以下任一来源跨每台机器测量插件成本和使用情况：
 
 * **OpenTelemetry 事件**：Claude Code 在你[配置导出器](/docs/zh-CN/monitoring-usage)后将这些导出到你自己的后端。请参阅[插件安装和使用的 OpenTelemetry 事件](#pick-the-opentelemetry-event-for-each-question)。
 * **Analytics API**：来自 Anthropic 的记录，无需导出器。请参阅[查询 Analytics API](#query-the-analytics-api)。
 
-<h3 id="pick-the-opentelemetry-event-for-each-question">
-  插件安装和使用的 OpenTelemetry 事件
-</h3>
+### 插件安装和使用的 OpenTelemetry 事件
 
 这些 OpenTelemetry 事件和属性从你的后端回答每个插件问题：
 
@@ -157,9 +137,7 @@ Claude Code 不会向其作者报告插件的使用情况。使用情况记录�
 | 插件的 hooks 报告什么 | [`claude_code.hook_plugin_metrics`](/docs/zh-CN/monitoring-usage#hook-plugin-metrics-event)，仅为官方市场插件中的 hooks 发出 |
 | 插件在 API 支出中的成本 | [成本计数器](/docs/zh-CN/monitoring-usage#cost-counter)上的 `plugin.name` 和 `marketplace.name`，在活跃 skill 或 subagent 属于插件时设置 |
 
-<h3 id="redacted-plugin-names-in-your-backend">
-  后端中的编辑插件名称
-</h3>
+### 后端中的编辑插件名称
 
 来自官方市场的插件将其插件名称和市场名称逐字报告到你的后端。所有其他插件的名称默认被编辑或省略，包括来自你组织自己市场的插件。插件的[信任等级](/docs/zh-CN/plugins/security#find-plugins-in-telemetry)决定了哪个。
 
@@ -173,9 +151,7 @@ Claude Code 不会向其作者报告插件的使用情况。使用情况记录�
 
 在 `plugin_loaded` 上，`plugin_id_hash` 仍然默认识别每个插件，所以你可以计算不同的第三方插件。
 
-<h3 id="query-the-analytics-api">
-  查询 Analytics API
-</h3>
+### 查询 Analytics API
 
 在 Enterprise 计划上，Analytics API 从 Anthropic 的记录中回答"我的组织安装和调用哪些插件"，无需导出器。[`GET /v1/organizations/analytics/plugins`](https://platform.claude.com/docs/en/api/admin/analytics/plugins/list)返回跨 Claude Code 和 Cowork 的每个插件、每天的安装和调用计数，你可以按用户、RBAC 组或产品分组。
 
@@ -185,9 +161,7 @@ Claude Code 不会向其作者报告插件的使用情况。使用情况记录�
 
 有关参数和响应字段，请参阅[端点参考](https://platform.claude.com/docs/en/api/admin/analytics/plugins/list)。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [使用 evals 测试插件](/docs/zh-CN/plugin-evals)：测量插件引导 Claude 的可靠性，而不仅仅是它的成本
 * [降低 always-on 数字](#lower-the-always-on-figure)：在插件中更改什么以减少其每轮成本

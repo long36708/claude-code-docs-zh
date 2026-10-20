@@ -13,17 +13,15 @@
 * 要使用内置样式，请从[内置输出样式](#built-in-output-styles)中选择一个，然后[切换到它](#change-your-output-style)。
 * 要编写自己的指令，请[创建自定义输出样式](#create-a-custom-output-style)。
 
-<Note>
-  输出样式为 Claude 提供要遵循的指令。它不保证某些事情总是发生或永远不会发生。某些需求适合不同的功能：
+> [!NOTE]
+>
+> 输出样式为 Claude 提供要遵循的指令。它不保证某些事情总是发生或永远不会发生。某些需求适合不同的功能：
+>
+> * 对于 Claude 应该了解的关于你的项目的内容，请使用 [CLAUDE.md](/docs/zh-CN/memory)。
+> * 对于必须每次都发生的事情，例如每次编辑后的格式化或阻止命令，请使用 [hook](/docs/zh-CN/hooks-guide)。
+> * 对于技能、子代理和其他选项，请参阅[在输出样式和其他功能之间选择](#choose-between-an-output-style-and-other-features)。
 
-  * 对于 Claude 应该了解的关于你的项目的内容，请使用 [CLAUDE.md](/docs/zh-CN/memory)。
-  * 对于必须每次都发生的事情，例如每次编辑后的格式化或阻止命令，请使用 [hook](/docs/zh-CN/hooks-guide)。
-  * 对于技能、子代理和其他选项，请参阅[在输出样式和其他功能之间选择](#choose-between-an-output-style-and-other-features)。
-</Note>
-
-<h2 id="built-in-output-styles">
-  内置输出样式
-</h2>
+## 内置输出样式
 
 Claude Code 从[**默认**](#default)样式开始，这是其完成软件工程任务的标准指令。其他四种内置样式保留这些指令并添加各自的特定内容。
 
@@ -36,17 +34,13 @@ Claude Code 从[**默认**](#default)样式开始，这是其完成软件工程�
 | [Explanatory](#explanatory) | Claude 添加简短的 `Insight` 块，解释其编写代码背后的选择 | 你正在了解一个代码库或想要随着更改一起获得推理 |
 | [Learning](#learning) | Claude 解释其选择，并留下小段代码供你自己编写 | 你想要在完成任务的同时获得实践编码经验 |
 
-<h3 id="default">
-  默认
-</h3>
+### 默认
 
 默认意味着未选择任何输出样式。Claude Code 不添加样式指令，Claude 从 Claude Code 的标准系统提示工作，该提示是为软件工程任务编写的。
 
 `default` 出现在 `/output-style` 列表中与其他样式一起，所以你[以相同的方式选择它](#change-your-output-style)。
 
-<h3 id="proactive">
-  Proactive
-</h3>
+### Proactive
 
 在 Proactive 样式中，Claude 在你发送任务后立即开始实现。它对常规决策做出合理的假设，而不是停下来询问，除非你要求制定计划，否则不会切换到计划模式。你可以在任何时刻重定向它。
 
@@ -54,9 +48,7 @@ Claude Code 从[**默认**](#default)样式开始，这是其完成软件工程�
 
 切换到 Proactive 样式不会改变你的[权限模式](/docs/zh-CN/permission-modes)。你的权限模式仍然决定哪些工具调用在不询问你的情况下运行，所以权限提示的显示方式与你切换之前相同。
 
-<h3 id="concise">
-  Concise
-</h3>
+### Concise
 
 在 Concise 样式中，响应的第一句陈述发生了什么或答案是什么。Claude 省略了引言、逐步叙述和结尾总结，并用一到三句话回答简单问题。它以与默认样式相同的彻底程度完成工程工作。需要 Claude Code v2.1.237 或更高版本。
 
@@ -65,9 +57,7 @@ Claude 在以下情况下仍然会完整编写：
 * **你要求的任何内容**：当你要求解释或更多细节时，Claude 会完整回答。
 * **你安全行动所需的任何内容**：错误报告、失败的测试输出、安全警告和破坏性操作的确认保留其完整内容。
 
-<h3 id="explanatory">
-  Explanatory
-</h3>
+### Explanatory
 
 在 Explanatory 样式中，Claude 以与默认样式相同的方式完成任务，并添加关于其做出选择原因的简短解释。每个解释出现在对话中，在其相关代码之前或之后，在标记为 `Insight` 的块中。这些解释不会作为注释写入你的文件中。
 
@@ -80,9 +70,7 @@ Claude 在以下情况下仍然会完整编写：
 ─────────────────────────────────────────────────
 ```
 
-<h3 id="learning">
-  Learning
-</h3>
+### Learning
 
 在 Learning 样式中，Claude 添加与 [Explanatory 样式](#explanatory)相同的 `Insight` 块，并且还要求你编写一些代码。Claude 自己处理常规实现。当它到达具有真实设计决策的部分时，例如错误处理、数据结构或具有多个有效方法的业务逻辑，它会为你留下几行代码。
 
@@ -100,9 +88,7 @@ Guidance: Decide on a size limit for documents and whether the file extension ha
 
 Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，并告诉 Claude 你已完成。Claude 用一个关于你的代码的 `Insight` 进行响应并继续该任务。
 
-<h2 id="change-your-output-style">
-  更改你的输出样式
-</h2>
+## 更改你的输出样式
 
 通过命令、菜单或设置文件选择样式。命令和两个菜单都会将你的选择保存到[本地项目级别](/docs/zh-CN/settings)的 `.claude/settings.local.json`。
 
@@ -127,55 +113,49 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
 
 当你在会话中途切换样式时，Claude 从你的下一条消息开始使用新样式。关于该第一条消息在 prompt caching 中的成本，请参阅[更改输出样式](/docs/zh-CN/prompt-caching#changing-output-style)。在 v2.1.251 之前，新样式仅在你运行 `/clear` 或开始新会话后才会应用。
 
-<h2 id="create-a-custom-output-style">
-  创建自定义输出样式
-</h2>
+## 创建自定义输出样式
 
 自定义输出样式是一个 Markdown 文件：frontmatter 用于元数据，然后是 Claude 的说明。
 
 在 VS Code 扩展中，你也可以从[**输出样式**菜单](/docs/zh-CN/vs-code#use-the-prompt-box)创建文件，而不是手动编写。这需要 Claude Code v2.1.261 或更高版本。
 
-<Steps>
-  <Step title="创建一个 Markdown 文件">
-    在三个级别之一保存它。文件名成为样式名称，除非你在 frontmatter 中设置 `name`。
+**1. 创建一个 Markdown 文件**
 
-    * 用户：`~/.claude/output-styles`
-    * 项目：`.claude/output-styles`
-    * 托管策略：[托管设置目录](/docs/zh-CN/managed-settings#delivery-mechanisms)内的 `.claude/output-styles`
+在三个级别之一保存它。文件名成为样式名称，除非你在 frontmatter 中设置 `name`。
 
-    项目输出样式从工作目录和仓库根目录之间的每个 `.claude/output-styles/` 加载。当多个这样的嵌套目录定义了同名样式时，Claude Code 使用最接近工作目录的那个。
-  </Step>
+* 用户：`~/.claude/output-styles`
+* 项目：`.claude/output-styles`
+* 托管策略：[托管设置目录](/docs/zh-CN/managed-settings#delivery-mechanisms)内的 `.claude/output-styles`
 
-  <Step title="添加 frontmatter 和说明">
-    决定是否保留 Claude Code 的软件工程说明。如果你改变 Claude 的通信方式但仍希望它以相同的方式编码，请设置 `keep-coding-instructions: true`。如果 Claude 不会进行软件工程，请省略它。
+项目输出样式从工作目录和仓库根目录之间的每个 `.claude/output-styles/` 加载。当多个这样的嵌套目录定义了同名样式时，Claude Code 使用最接近工作目录的那个。
 
-    此示例在保留 Claude 编码行为的同时，在每个解释前面加上一个图表：
+**2. 添加 frontmatter 和说明**
 
-    ```markdown theme={null}
-    ---
-    name: Diagrams first
-    description: Lead every explanation with a diagram
-    keep-coding-instructions: true
-    ---
+决定是否保留 Claude Code 的软件工程说明。如果你改变 Claude 的通信方式但仍希望它以相同的方式编码，请设置 `keep-coding-instructions: true`。如果 Claude 不会进行软件工程，请省略它。
 
-    When explaining code, architecture, or data flow, start with a Mermaid diagram showing the structure, then explain in prose.
+此示例在保留 Claude 编码行为的同时，在每个解释前面加上一个图表：
 
-    ## Diagram conventions
+```markdown theme={null}
+---
+name: Diagrams first
+description: Lead every explanation with a diagram
+keep-coding-instructions: true
+---
 
-    Use `flowchart TD` for control flow and `sequenceDiagram` for request paths. Keep diagrams under 15 nodes.
-    ```
-  </Step>
+When explaining code, architecture, or data flow, start with a Mermaid diagram showing the structure, then explain in prose.
 
-  <Step title="切换到你的样式">
-    在终端中运行 `/output-style <style>`，或运行 `/config` 并在**输出样式**下选择你的样式。Claude 从你的下一条消息开始使用新样式。在终端中，Claude Code 在启动时读取样式文件，所以如果你在运行会话期间创建或编辑一个样式文件，请重启 Claude Code 以获取更改。
-  </Step>
-</Steps>
+## Diagram conventions
+
+Use `flowchart TD` for control flow and `sequenceDiagram` for request paths. Keep diagrams under 15 nodes.
+```
+
+**3. 切换到你的样式**
+
+在终端中运行 `/output-style <style>`，或运行 `/config` 并在**输出样式**下选择你的样式。Claude 从你的下一条消息开始使用新样式。在终端中，Claude Code 在启动时读取样式文件，所以如果你在运行会话期间创建或编辑一个样式文件，请重启 Claude Code 以获取更改。
 
 [Plugins](/docs/zh-CN/plugins/manifest-reference) 也可以在 `output-styles/` 目录中提供输出样式。
 
-<h3 id="frontmatter">
-  Frontmatter 参考
-</h3>
+### Frontmatter 参考
 
 使用位于文件顶部 `---` 标记之间的 YAML [frontmatter](/docs/zh-CN/glossary#frontmatter) 配置输出样式。所有字段都是可选的，字段名称使用由连字符分隔的小写单词。拼写错误的字段会被忽略而不会出现错误。如果 YAML 无法解析，样式仍会以其文件名加载，且不设置任何字段；运行 `claude --debug` 以查看解析错误。
 
@@ -186,11 +166,7 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
 | `keep-coding-instructions` | 否 | 设置为 `true` 以在您的样式之外保留 Claude Code 的内置软件工程说明部分（只有完整的系统提示词包含该部分）。请参阅[输出样式的工作原理](#how-output-styles-work)。默认值：`false` |
 | `force-for-plugin` | 否 | 仅限 Plugin 输出样式。设置为 `true` 以在启用 plugin 时自动应用此样式，无需要求用户选择它。覆盖用户的 `outputStyle` 设置。如果多个启用的 plugin 设置了此项，Claude Code 使用第一个加载的。默认值：`false` |
 
-<span id="comparisons-to-related-features" />
-
-<h2 id="choose-between-an-output-style-and-other-features">
-  在输出样式和其他功能之间选择
-</h2>
+## 在输出样式和其他功能之间选择
 
 输出样式适用于会话中的每个响应。这是 Claude 遵循的指令，所以没有任何东西强制执行它。当你想要的内容比每个响应更狭窄，或者必须无一例外地发生时，另一个功能更合适。
 
@@ -207,9 +183,7 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
 
 这些功能可以组合使用。例如，你可以使用 CLAUDE.md 来说明 Claude 应该了解的内容，使用输出样式来说明它如何响应，以及使用 hook 来保证任何必须保证的事情。[扩展 Claude Code](/docs/zh-CN/features-overview) 比较了其余的扩展功能。
 
-<h2 id="how-output-styles-work">
-  输出样式的工作原理
-</h2>
+## 输出样式的工作原理
 
 输出样式改变 Claude Code 给予 Claude 的指令。
 
@@ -222,9 +196,7 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
 
 内置的 Explanatory 和 Learning 样式按设计会产生比 Default 更长的响应，这会增加输出令牌。Concise 样式则相反，通过指示 Claude 默认保持响应简短来实现。对于自定义样式，输出令牌使用情况取决于你的指令告诉 Claude 生成什么。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [Settings](/docs/zh-CN/settings)：`outputStyle` 字段所在的位置以及设置优先级的工作原理
 * [Permission modes](/docs/zh-CN/permission-modes)：Proactive 样式与自动模式的比较方式

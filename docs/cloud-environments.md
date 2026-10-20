@@ -6,9 +6,9 @@
 
 > 为 Claude Code 云端会话配置云环境：网络访问级别、环境变量、设置脚本和环境缓存。
 
-<Note>
-  云环境适用于[云端会话](/docs/zh-CN/claude-code-on-the-web)，这些会话在 Pro、Max 和 Team 计划上可用，以及具有[高级席位或 Chat + Claude Code 席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)的 Enterprise 用户。
-</Note>
+> [!NOTE]
+>
+> 云环境适用于[云端会话](/docs/zh-CN/claude-code-on-the-web)，这些会话在 Pro、Max 和 Team 计划上可用，以及具有[高级席位或 Chat + Claude Code 席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)的 Enterprise 用户。
 
 每个[云端会话](/docs/zh-CN/claude-code-on-the-web)都在云环境中运行。您可以配置环境以允许或拒绝[网络访问](#access-levels)、为会话[设置环境变量](#set-environment-variables)、存储会话使用但无法看到的[网络密钥](#add-network-secrets)，以及在 Claude 开始工作前运行[设置脚本](#setup-scripts)。
 
@@ -23,13 +23,11 @@
 
 这些使用入口中的每一个也可以路由到[自托管环境](/docs/zh-CN/self-hosted-environments)。[可用性和限制](/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖了当 Claude Tag 会话在其中运行时 Claude 还不能使用的内容。
 
-<Info>
-  [Remote Control](/docs/zh-CN/remote-control) 会话将网页和移动界面连接到您自己机器上的会话，该会话使用您机器的网络和文件，而不是云环境。Claude Tag 频道会话仅使用组织级别的环境，即[共享环境](#organization-shared-environments)或[自托管环境](/docs/zh-CN/self-hosted-environments)。
-</Info>
+> [!NOTE]
+>
+> [Remote Control](/docs/zh-CN/remote-control) 会话将网页和移动界面连接到您自己机器上的会话，该会话使用您机器的网络和文件，而不是云环境。Claude Tag 频道会话仅使用组织级别的环境，即[共享环境](#organization-shared-environments)或[自托管环境](/docs/zh-CN/self-hosted-environments)。
 
-<h2 id="the-default-environment">
-  Default 环境
-</h2>
+## Default 环境
 
 如果您还没有环境，引导设置会为您设置 **Default** 环境。具体方式取决于您在哪里进行引导：
 
@@ -49,30 +47,24 @@
 
 当默认环境不够用时，请配置环境：当 Claude 需要访问[默认允许列表](#default-allowed-domains)之外的域、需要为其会话设置环境变量，或需要在开始工作前安装依赖项时。
 
-<h2 id="configure-your-environment">
-  配置您的环境
-</h2>
+## 配置您的环境
 
 在 [claude.ai/code](https://claude.ai/code) 上启动新会话的页面中，通过消息框下方的环境选择器添加、编辑和归档环境。要进入该页面，请完成[网页入门引导](/docs/zh-CN/web-quickstart)。对于桌面应用，请参阅[云端会话](/docs/zh-CN/desktop#cloud-sessions)。您创建的环境是您账户的个人环境；由所有者创建的[共享环境](#organization-shared-environments)会与它们一起出现在选择器中。查看[已安装的工具](#installed-tools)，了解无需任何配置即可使用的工具。
 
 选择器仅在您发送新会话的第一条消息之前显示。要编辑您自己正在运行的云端会话的环境，请选择顶部会话标题后的插入符号，然后选择 **Edit cloud environment**。
 
-<Steps>
-  <Step title="打开环境选择器">
-    在新会话页面上，选择消息框下方行中的第一个控件。
-  </Step>
+**1. 打开环境选择器**
 
-  <Step title="添加或编辑环境">
-    * **添加环境**：选择菜单底部的 **New environment** 以打开 **New environment** 对话框。填写表单并选择 **Add environment**。随后您的新会话将使用您添加的环境。
-    * **编辑环境**：在 **Cloud** 下找到该环境所在的行。如果 **Cloud** 只是单独一行，请选择它以打开列表。如果您的环境未列在 **Cloud** 下，请选择该标题下的 **More** 行。悬停在该环境的行上，然后选择其右侧出现的设置图标以打开其对话框。
+在新会话页面上，选择消息框下方行中的第一个控件。
 
-    对话框包括名称、网络访问级别、环境变量和设置脚本。要存储会话可以使用但无法看到的密钥，请参阅[添加网络机密](#add-network-secrets)。
-  </Step>
-</Steps>
+**2. 添加或编辑环境**
 
-<h3 id="set-environment-variables">
-  设置环境变量
-</h3>
+* **添加环境**：选择菜单底部的 **New environment** 以打开 **New environment** 对话框。填写表单并选择 **Add environment**。随后您的新会话将使用您添加的环境。
+* **编辑环境**：在 **Cloud** 下找到该环境所在的行。如果 **Cloud** 只是单独一行，请选择它以打开列表。如果您的环境未列在 **Cloud** 下，请选择该标题下的 **More** 行。悬停在该环境的行上，然后选择其右侧出现的设置图标以打开其对话框。
+
+对话框包括名称、网络访问级别、环境变量和设置脚本。要存储会话可以使用但无法看到的密钥，请参阅[添加网络机密](#add-network-secrets)。
+
+### 设置环境变量
 
 环境变量使用 `.env` 格式，每行一个 `KEY=value` 对。普通值不需要引号，如果您用匹配的一对引号引用一个值，引号不会成为该值的一部分。跨越多行或包含 `#` 的值需要加引号：在未加引号的值中，`#` 会开始注释，该行的其余部分会被丢弃。
 
@@ -97,19 +89,13 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 使用该环境的任何人都可以读取这些值。在 Anthropic 托管的环境中，对于 Agent 代理可以附加到请求中的密钥，请改用[网络机密](#add-network-secrets)。[永远不会获得机密的请求](#requests-that-never-get-the-credential)在该处列出。
 
-<span id="add-api-credentials" />
-
-<h3 id="add-network-secrets">
-  添加网络机密
-</h3>
+### 添加网络机密
 
 网络机密是您存储在云环境中的 API 密钥或令牌，使 Claude 可以从该环境中的任何会话调用该 API，而无需看到密钥。每个请求离开会话的 VM 后，Anthropic 的 Agent 代理会将密钥添加到发往您所列主机的请求中，因此密钥本身始终位于 VM 之外。
 
 网络机密适用于 Pro、Max、Team 和 Enterprise 计划。要确认您是否可以自行添加，请参阅[要求](#requirements)。
 
-<h4 id="requirements">
-  要求
-</h4>
+#### 要求
 
 以下要求决定您是否可以添加机密，以及添加后 Agent 代理是否可以使用它：
 
@@ -121,39 +107,33 @@ DATABASE_URL=postgres://localhost:5432/myapp
 * **API reachability**：API 接受来自互联网的连接，因为请求从 Anthropic 的网络发出
 * **Encryption keys**：如果您的组织使用客户管理的加密密钥，则无法保存网络机密
 
-<h4 id="add-a-credential">
-  添加机密
-</h4>
+#### 添加机密
 
 机密需要逐个添加，添加后无法编辑。要更改机密的主机或值，请将其删除后重新添加。
 
 要向[共享环境](#organization-shared-environments)添加机密，请从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面打开该环境进行编辑，然后从 **Network secrets** 部分继续执行步骤 1。如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，请在您自己的环境中执行步骤 1，然后[填写简化表单](#add-a-secret-without-the-role)。
 
-<Steps>
-  <Step title="打开环境的网络机密">
-    在 [claude.ai/code](https://claude.ai/code) [打开环境进行编辑](#configure-your-environment)。在 **Edit cloud environment** 对话框中，找到 **Network secrets** 部分。您会看到环境中已有的机密，每个机密都附有其适用的主机。
-  </Step>
+**1. 打开环境的网络机密**
 
-  <Step title="添加机密">
-    选择 **Add secret** 并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Secret type**，即 **Bearer**，并填写以下字段：
+在 [claude.ai/code](https://claude.ai/code) [打开环境进行编辑](#configure-your-environment)。在 **Edit cloud environment** 对话框中，找到 **Network secrets** 部分。您会看到环境中已有的机密，每个机密都附有其适用的主机。
 
-    * **Name**：机密的标签，例如 `Internal billing API`
-    * **Allowed websites**：API 的主机，例如 `api.example.com`。前导 `*.` 匹配所有子域
-    * **Custom headers**：用于携带密钥的请求头占一行。该行默认以 `Authorization` 作为请求头的 **Name**，以 `Bearer` 作为其 **Prefix**；将密钥本身粘贴为 **Value**。对于接受裸值的请求头（如 `X-Api-Key`），请更改名称并清除前缀
+**2. 添加机密**
 
-    对于以其他方式进行身份验证的 API，请选择不同的 **Secret type**。该列表与 [Claude Tag](https://claude.com/docs/claude-tag/overview)（适用于 Team 和 Enterprise 计划的 Slack 集成）为 [connections](https://claude.com/docs/claude-tag/admins/add-connections) 提供的列表相同。
-  </Step>
+选择 **Add secret** 并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Secret type**，即 **Bearer**，并填写以下字段：
 
-  <Step title="保存机密">
-    选择 **Add**。机密会连同其主机一起出现在列表中，无需点击对话框的 **Save changes** 按钮即已保存。保存后您无法再次查看该值。
-  </Step>
-</Steps>
+* **Name**：机密的标签，例如 `Internal billing API`
+* **Allowed websites**：API 的主机，例如 `api.example.com`。前导 `*.` 匹配所有子域
+* **Custom headers**：用于携带密钥的请求头占一行。该行默认以 `Authorization` 作为请求头的 **Name**，以 `Bearer` 作为其 **Prefix**；将密钥本身粘贴为 **Value**。对于接受裸值的请求头（如 `X-Api-Key`），请更改名称并清除前缀
+
+对于以其他方式进行身份验证的 API，请选择不同的 **Secret type**。该列表与 [Claude Tag](https://claude.com/docs/claude-tag/overview)（适用于 Team 和 Enterprise 计划的 Slack 集成）为 [connections](https://claude.com/docs/claude-tag/admins/add-connections) 提供的列表相同。
+
+**3. 保存机密**
+
+选择 **Add**。机密会连同其主机一起出现在列表中，无需点击对话框的 **Save changes** 按钮即已保存。保存后您无法再次查看该值。
 
 要确认机密是否有效，请在该环境中启动会话并让 Claude 调用 API，例如使用 `curl`。API 的响应就如同请求中带有密钥一样，而密钥不会出现在会话的环境变量或任何文件中。如果列表将某个机密标记为 **Not sent**，其下方的说明会解释原因和处理方法。两个主机重叠但不完全匹配的机密不会显示标记，而 Agent 代理只会发送其中一个。
 
-<h4 id="add-a-secret-without-the-role">
-  在没有组织管理员角色的 Team 计划上添加机密
-</h4>
+#### 在没有组织管理员角色的 Team 计划上添加机密
 
 如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，**Add secret** 表单只接受针对一个主机的一个机密。在您环境的 [**Network secrets** 部分](#add-a-credential)中选择 **Add secret**，填写以下字段，然后选择表单中的 **Add secret** 按钮：
 
@@ -161,15 +141,11 @@ DATABASE_URL=postgres://localhost:5432/myapp
 * **Name**：机密的可选标签
 * **Secret type**：对于在请求头中传输的密钥选择 **Token**，或选择 **Username and password**。对于令牌，请将密钥粘贴为 **Value**
 
-<h4 id="which-requests-get-the-credential">
-  哪些请求会获得机密
-</h4>
+#### 哪些请求会获得机密
 
 当请求的主机与您在某个机密上列出的主机匹配时，Agent 代理会将该机密附加到请求中。即使环境的[网络访问级别](#access-levels)原本不允许访问这些主机，会话也可以访问它们，但[永远不会获得机密的主机](#requests-that-never-get-the-credential)除外。机密适用于在该环境中运行的每个会话，无论由谁启动，直到您将其删除。
 
-<h4 id="requests-that-never-get-the-credential">
-  永远不会获得机密的请求
-</h4>
+#### 永远不会获得机密的请求
 
 Agent 代理永远不会将您添加的机密附加到以下请求：
 
@@ -178,9 +154,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 * **设置脚本请求**：Claude Code 在启动时才连接到 Agent 代理，此时[设置脚本](#setup-scripts)已经运行完毕
 * **Claude Code 的遥测导出**：Claude Code 自行发送其[遥测导出](/docs/zh-CN/monitoring-usage#telemetry-from-cloud-sessions-and-claude-tag)，而不是通过它运行的命令发送，该请求不会经过 Agent 代理
 
-<h3 id="select-an-environment-from-the-cli">
-  从 CLI 选择环境
-</h3>
+### 从 CLI 选择环境
 
 在终端中运行 `/remote-env`，为您从 CLI 创建的云端会话（例如 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)）选择默认环境。该命令会打开现有环境的选择器，并将您的选择保存到[用户设置](/docs/zh-CN/settings#where-settings-live)中的 `remote.defaultEnvironmentId` 键，因此它适用于您机器上的每个项目，直到您更改它为止，除非在更高优先级的[设置层级](/docs/zh-CN/settings#settings-precedence)（例如仓库的项目设置）中设置了相同的键。
 
@@ -188,9 +162,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 `/remote-env` 仅设置默认值：它不会启动会话，也不能添加或编辑环境。请从[环境选择器](#configure-your-environment)管理环境。
 
-<h3 id="archive-an-environment">
-  归档环境
-</h3>
+### 归档环境
 
 要归档您自己的某个环境，请打开它进行编辑，选择 **Archive environment** 并确认。如果该环境已[与您的组织共享](#organization-shared-environments)，则改由所有者从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面将其归档，因此除非您本身就是所有者，否则请联系所有者。您无法删除环境，只能归档它。
 
@@ -203,9 +175,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
   * **保存的 CLI 默认值**：如果该环境是您保存的 [CLI 默认值](#select-an-environment-from-the-cli)，当您的列表中有 Anthropic 托管的环境时，Claude Code 会在该环境中启动 CLI 云端会话。否则，会在列表中第一个不是 [Remote Control bridge 环境](#the-default-environment)的环境中启动。
   * **显式配置**：任何显式配置了该环境的内容，例如[云端定时任务](/docs/zh-CN/routines#environments-and-network-access)，都无法在其中启动新会话。请将其指向另一个环境。
 
-<h3 id="organization-shared-environments">
-  组织共享环境
-</h3>
+### 组织共享环境
 
 在 Team 和 Enterprise 计划上，所有者可以创建与组织每个成员共享的云环境。同一角色管理 **Cloud environments** 管理页面上的其他所有内容，包括[自托管环境](/docs/zh-CN/self-hosted-environments)；管理员（Admin）角色无法打开该页面。可以打开该页面的完整角色列表与[管理服务器托管设置](/docs/zh-CN/server-managed-settings#access-control)的角色列表相同。
 
@@ -220,18 +190,14 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 要为共享环境的会话提供其无法读取的密钥，请在 **Cloud environments** 页面编辑该环境时添加[网络机密](#add-network-secrets)。请勿在其变量中包含机密信息，因为每个成员的会话都会读取这些变量。
 
-<h3 id="set-the-environment-a-claude-tag-channel-uses">
-  设置 Claude Tag 频道使用的环境
-</h3>
+### 设置 Claude Tag 频道使用的环境
 
 在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 频道中，Claude 以您组织的共享身份工作，而不是以任何成员的身份工作，因此频道会话仅使用组织级别的环境，即共享环境或[自托管环境](/docs/zh-CN/self-hosted-environments)。要为频道提供未[预安装](#installed-tools)的工具链（例如 .NET），所有者可以从 **Cloud environments** 管理页面创建一个[共享环境](#organization-shared-environments)，并使用[设置脚本](#setup-scripts)安装该工具链。通过以下两种方式之一将频道指向某个环境：
 
 * 在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 将共享环境或自托管环境设置为组织的[默认环境](#the-default-environment)。
 * 在 Claude Tag 管理设置中[将某个环境固定到频道](https://claude.com/docs/claude-tag/admins/troubleshooting#channel-sessions-use-the-wrong-environment-or-can%E2%80%99t-find-one)。
 
-<h2 id="network-access">
-  网络访问
-</h2>
+## 网络访问
 
 每个环境都设置一个网络访问级别，控制其会话可以进行的出站连接。默认级别 **Trusted** 允许包注册表和其他[允许列表中的域](#default-allowed-domains)；**Custom** 采用您自己的域列表。
 
@@ -239,13 +205,11 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 当您更改 Anthropic 托管环境的网络访问时，其现有会话在约一分钟内遵循新设置，用于通过会话的[网络允许列表](#access-levels)的请求。您无需启动新会话。
 
-<Note>
-  您在会话或定时任务上启用的 MCP 连接器无需将其主机添加到 **Allowed domains**，因为连接器流量通过 Anthropic 的服务器而不是会话的网络传输。这依赖于[安全性和隔离](/docs/zh-CN/claude-code-on-the-web#security-and-isolation)下提到的同一条通往 Anthropic 的通道。关闭任何您不需要的连接器，以限制 Claude 可以访问的工具。
-</Note>
+> [!NOTE]
+>
+> 您在会话或定时任务上启用的 MCP 连接器无需将其主机添加到 **Allowed domains**，因为连接器流量通过 Anthropic 的服务器而不是会话的网络传输。这依赖于[安全性和隔离](/docs/zh-CN/claude-code-on-the-web#security-and-isolation)下提到的同一条通往 Anthropic 的通道。关闭任何您不需要的连接器，以限制 Claude 可以访问的工具。
 
-<h3 id="access-levels">
-  访问级别
-</h3>
+### 访问级别
 
 **Network access** 字段在[环境对话框](#configure-your-environment)中采用以下四个级别之一：
 
@@ -263,9 +227,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 * 您在环境的[网络密钥](#add-network-secrets)上列出的主机，除了[永远不会获得该密钥的主机](#requests-that-never-get-the-credential)
 * Anthropic API，用于 Claude Code 自己的请求，即使在 **None** 下也是如此，如[安全性和隔离](/docs/zh-CN/claude-code-on-the-web#security-and-isolation)下所述
 
-<h3 id="allow-specific-domains">
-  允许特定域
-</h3>
+### 允许特定域
 
 要允许不在 Trusted 列表中的域，请在环境的网络访问设置中选择 **Custom**，然后在 **Allowed domains** 字段中每行列出一个域。此示例允许内部项目可能需要的三个主机。
 
@@ -284,9 +246,7 @@ registry.example.com
 
 每个环境都有自己的允许域列表；没有组织级别的允许列表可供管理员推送到每个成员的环境。[服务器管理的设置](/docs/zh-CN/server-managed-settings)也不会将域添加到环境的网络允许列表。要为团队提供一个标准列表，Owner 可以创建一个具有 **Custom** 网络访问和该列表的[组织共享环境](#organization-shared-environments)。
 
-<h3 id="github-proxy">
-  GitHub 代理
-</h3>
+### GitHub 代理
 
 在 Anthropic 托管的环境中，所有 GitHub 操作都经过专用代理，使您的真实 GitHub 凭据保留在会话的 VM 之外，独立于环境的[访问级别](#access-levels)。自托管环境中的会话使用您的部署提供的凭据进行 git 操作身份验证；[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)涵盖了选项，包括按会话生成的凭据和选择加入此同一代理。代理提供：
 
@@ -298,28 +258,22 @@ registry.example.com
 
 来自公开仓库的已提交文件通过 `raw.githubusercontent.com` 到达，改由[安全代理](#security-proxy)处理。该域在默认 [Trusted 列表](#default-allowed-domains)中，因此除非环境的[访问级别](#access-levels)排除它，否则这些文件保持可访问。
 
-<h3 id="security-proxy">
-  安全代理
-</h3>
+### 安全代理
 
 Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行，用于安全和滥用防范目的；在[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#default-deny-egress)中，出站流量通过您自己的网络边界离开。来自 Anthropic 托管会话的所有出站互联网流量都经过此代理，它提供：
 
 * 防范恶意请求
 * 速率限制和滥用防范
 
-<h2 id="what’s-available-in-cloud-sessions">
-  云端会话中可用的内容
-</h2>
+## 云端会话中可用的内容
 
 在 Anthropic 托管的环境中，每个会话都会获得一台运行 Ubuntu 24.04 的全新虚拟机 (VM)（x86\_64 架构），无论您自己的操作系统和 CPU 架构是什么，您的仓库已克隆，常见的工具链已预安装。当依赖提供预编译的二进制文件（例如具有本机扩展的 Ruby gem 或预构建的 Python wheel）时，请使用其 x86\_64 Linux 构建版本以匹配 VM。本节涵盖 Anthropic 托管的默认值、内置 GitHub 工具、如何[运行测试和服务](#run-tests-start-services-and-add-packages)、每台 VM 获得的[资源限制](#resource-limits)，以及长时间运行的工作的[时间限制](#time-limits)。
 
-<Note>
-  您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您自己的运行器上运行，使用您的运行器镜像提供的工具。
-</Note>
+> [!NOTE]
+>
+> 您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您自己的运行器上运行，使用您的运行器镜像提供的工具。
 
-<h3 id="what-carries-over-from-your-setup">
-  您的设置中会保留的内容
-</h3>
+### 您的设置中会保留的内容
 
 云端会话从您仓库的全新克隆开始。您提交到仓库的任何内容都可用。您只在自己机器上安装或配置的任何内容在会话中都不可用。您组织的策略通过[服务器托管设置](/docs/zh-CN/server-managed-settings)单独到达。
 
@@ -344,9 +298,7 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 
 任何使用环境的人都可以读取其环境变量和设置脚本。对话框在**环境变量**下的注释说明了这一点，并警告不要在那里放置密钥。在 Anthropic 托管的环境中，请改为将 Agent 代理可以附加的密钥存储为[网络密钥](#add-network-secrets)。
 
-<h4 id="add-personal-preferences-without-committing-to-the-repo">
-  添加个人偏好而无需提交到仓库
-</h4>
+#### 添加个人偏好而无需提交到仓库
 
 在 Anthropic 托管的环境中，对于您不希望放入共享仓库的偏好，请添加一个写入 `~/.claude/CLAUDE.md` 的[设置脚本](#setup-scripts)。Claude Code 会在会话中将该文件作为[用户指令](/docs/zh-CN/memory#choose-where-to-put-claude-md-files)加载。以下示例设置了一项提交信息偏好：
 
@@ -362,9 +314,7 @@ EOF
 
 在下一个云端会话中运行 `/context`，并确认 `/root/.claude/CLAUDE.md` 出现在 **Memory files** 下。
 
-<h3 id="installed-tools">
-  已安装的工具
-</h3>
+### 已安装的工具
 
 云端会话预安装了常见的语言运行时、构建工具和数据库。下表按类别总结了包含的内容。
 
@@ -390,9 +340,7 @@ Node.js 版本安装在 `/opt/node20`、`/opt/node21` 和 `/opt/node22`，默认
 
 此列表之外的工具链，例如 .NET SDK，即使其包注册表在[默认允许列表](#default-allowed-domains)上也不会预安装。请使用[设置脚本](#setup-scripts)安装它们。
 
-<h3 id="work-with-github-issues-and-pull-requests">
-  使用 GitHub 问题和 Pull Request
-</h3>
+### 使用 GitHub 问题和 Pull Request
 
 云端会话包括内置 GitHub 工具，让 Claude 无需任何设置即可读取问题、列出 Pull Request、获取 diff 和发布评论。这些工具通过 [GitHub 代理](#github-proxy)，使用您在 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)下配置的任何方法进行身份验证，因此您的令牌永远不会进入容器。
 
@@ -407,9 +355,7 @@ Node.js 版本安装在 `/opt/node20`、`/opt/node21` 和 `/opt/node22`，默认
 
 GitHub 的 [`gh` CLI](https://cli.github.com) 已预安装。如果您需要内置工具未涵盖的 GitHub 操作，请让 Claude 使用 `gh api` 调用 REST API。使用 REST API 的 `gh` 子命令（例如 `gh workflow list`）也可以工作。代理会[拒绝使用 GraphQL 的子命令](#github-proxy)，例如 `gh pr` 和 `gh issue`。`gh` 会自动读取 `GH_TOKEN`，因此您不需要运行 `gh auth login`。
 
-<h3 id="link-output-back-to-the-session">
-  将输出链接回会话
-</h3>
+### 将输出链接回会话
 
 每个云端会话在 claude.ai 上都有一个会话记录 URL，会话可以从 `CLAUDE_CODE_REMOTE_SESSION_ID` 环境变量读取自己的 ID。使用它在 PR 正文、提交信息、Slack 帖子或生成的报告中放置可追溯的链接，以便审阅者可以打开生成它们的运行。
 
@@ -421,21 +367,15 @@ Claude 在云端会话中创建的提交包括 `Claude-Session: <url>` git 尾�
 echo "https://claude.ai/code/${CLAUDE_CODE_REMOTE_SESSION_ID/#cse_/session_}"
 ```
 
-<h3 id="run-tests-start-services-and-add-packages">
-  运行测试、启动服务和添加包
-</h3>
+### 运行测试、启动服务和添加包
 
 您无法进入会话 VM 的 shell。Claude 为您运行每个命令，因此请将本节中的任务表述为您提示词中的请求。
 
-<h4 id="run-tests">
-  运行测试
-</h4>
+#### 运行测试
 
 Claude 在处理任务的过程中运行测试。在您的提示词中提出要求，例如"修复 `tests/` 中的失败测试"或"在每次更改后运行 pytest"。随[预安装的工具链](#installed-tools)提供的测试运行器（例如 pytest 和 cargo test）无需额外设置即可工作。您的项目声明为依赖的运行器（例如 jest）会随您的依赖一起安装。
 
-<h4 id="start-services">
-  启动服务
-</h4>
+#### 启动服务
 
 PostgreSQL 和 Redis 已预安装但默认不运行。让 Claude 启动您需要的任何一个；它运行的命令是：
 
@@ -451,15 +391,11 @@ Docker 可用于运行容器化服务。让 Claude 运行 `docker compose up` �
 
 如果您的镜像很大或拉取速度很慢，请将 `docker compose pull` 或 `docker compose build` 添加到您的[设置脚本](#setup-scripts)。[环境缓存](#environment-caching)保留拉取的镜像，因此每个新会话的磁盘上都有它们。缓存仅保存文件，不保存运行中的进程，因此 Claude 仍然在每个会话中启动容器。
 
-<h4 id="add-packages">
-  添加包
-</h4>
+#### 添加包
 
 要添加未预安装的包，请使用[设置脚本](#setup-scripts)。[环境缓存](#environment-caching)保留脚本安装的内容，因此您在那里安装的包在每个会话开始时都可用，无需每次重新安装。您也可以让 Claude 在会话中途安装包，但这些安装不会带到其他会话。
 
-<h3 id="resource-limits">
-  资源限制
-</h3>
+### 资源限制
 
 Anthropic 托管环境中的云端会话运行时具有可能随时间变化的近似资源上限：
 
@@ -469,9 +405,7 @@ Anthropic 托管环境中的云端会话运行时具有可能随时间变化的�
 
 VM 可能会停止需要明显更多内存的任务，例如大型构建作业或内存密集型测试。对于超出这些限制的工作负载，请使用 [Remote Control](/docs/zh-CN/remote-control) 在您自己的硬件上运行 Claude Code，或在[自托管环境](/docs/zh-CN/self-hosted-environments)中运行云端会话，该环境在您的组织运营的计算资源上。
 
-<h3 id="time-limits">
-  时间限制
-</h3>
+### 时间限制
 
 在 Anthropic 托管的环境中，这些时间限制适用于云端会话中的长时间运行的工作，例如构建、安装或测试运行。每个条目链接到定义该限制的部分。
 
@@ -484,9 +418,7 @@ VM 可能会停止需要明显更多内存的任务，例如大型构建作业�
 
 要为环境的会话提高命令超时时间，请将 [`BASH_DEFAULT_TIMEOUT_MS` 和 `BASH_MAX_TIMEOUT_MS`](/docs/zh-CN/env-vars#variables) 添加到其[环境变量](#set-environment-variables)。两者都采用毫秒。例如，`BASH_DEFAULT_TIMEOUT_MS=600000` 使 10 分钟成为默认值。
 
-<h2 id="setup-scripts">
-  设置脚本
-</h2>
+## 设置脚本
 
 设置脚本是一个 Bash 脚本，在新的云会话启动时运行，在 Claude Code 启动之前运行。使用设置脚本来安装依赖项、配置工具，或获取会话需要但未预安装的任何内容。
 
@@ -501,9 +433,7 @@ VM 可能会停止需要明显更多内存的任务，例如大型构建作业�
 apt update && apt install -y shellcheck
 ```
 
-<h3 id="script-requirements">
-  脚本要求
-</h3>
+### 脚本要求
 
 设置脚本有三个需要考虑的约束：
 
@@ -511,9 +441,7 @@ apt update && apt install -y shellcheck
 * **在五分钟内完成**：将脚本的总运行时间保持在大约五分钟以内，以便[环境缓存](#environment-caching)可以建立。当设置耗时超过五分钟时，环境不会被缓存。使用 `&` 和 `wait` 并行运行独立的安装，并将任何无法容纳的单个下载移至 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks)，在后台启动它。如果新会话在设置期间停滞或失败，请参阅[新会话在设置期间挂起或超时](/docs/zh-CN/web-quickstart#new-sessions-hang-or-time-out-during-setup)。
 * **安装需要网络访问**：包安装需要连接到注册表。默认的 **Trusted** 级别涵盖[常见包注册表](#default-allowed-domains)，包括 npm、PyPI、RubyGems 和 crates.io；使用 **None** 网络访问时，安装会失败。
 
-<h3 id="environment-caching">
-  环境缓存
-</h3>
+### 环境缓存
 
 设置脚本在您第一次在环境中启动会话时运行。当设置在[大约五分钟](#script-requirements)内完成时，Anthropic 会对文件系统进行快照，并将该快照重用作后续会话的起点。新会话以您的依赖项、工具和 Docker 镜像已在磁盘上的状态开始，并跳过设置脚本步骤。即使脚本安装大型工具链或拉取容器镜像，这也能保持启动速度快。如果设置耗时超过大约五分钟，环境不会被缓存。
 
@@ -523,9 +451,7 @@ apt update && apt install -y shellcheck
 
 您不需要自己启用缓存或管理快照。
 
-<h3 id="setup-scripts-vs-sessionstart-hooks">
-  设置脚本与 SessionStart hooks
-</h3>
+### 设置脚本与 SessionStart hooks
 
 使用设置脚本来配备 VM 本身：未[预安装](#installed-tools)的工具链和 CLI 工具。使用 [SessionStart hook](/docs/zh-CN/hooks#sessionstart) 进行应在各处运行的项目设置，包括云端和本地，例如 `npm install`。
 
@@ -542,9 +468,7 @@ apt update && apt install -y shellcheck
 * **Anthropic 托管环境**：Claude Code 运行来自存储库和您组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings)的 hooks。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话不会接收服务器管理的设置，因此来自服务器管理的设置的 hooks 不会在那里运行。
 * **[自托管环境](/docs/zh-CN/self-hosted-environments-configuration#permissions-and-tool-approval)**：Claude Code 还运行运行程序主机的 `~/.claude/` 中的运行程序操作员播种的 hooks，以及运行程序镜像的托管设置文件中的 hooks，当该文件是 [Claude Code 应用的托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)之一时。
 
-<h3 id="install-dependencies-with-a-sessionstart-hook">
-  使用 SessionStart hook 安装依赖项
-</h3>
+### 使用 SessionStart hook 安装依赖项
 
 要仅在云会话中安装依赖项，请将 SessionStart hook 与检查其运行位置的脚本配对。
 
@@ -599,13 +523,11 @@ exit 0
 
 要确认 `npm install` 已成功，请启动一个云端会话，并让 Claude 显示 `node_modules/.install_pkgs.sha256`。该文件列出了这三个文件各自的哈希值。如果该文件不存在，请让 Claude 运行 `npm install` 并报告错误。
 
-<Note>
-  如果 `npm install` 会读取其他文件，例如工作区的 `package.json`、`.npmrc` 或您的 `postinstall` 脚本的输入，请将它们添加到保存哈希值的 `sha256sum` 命令中。否则，在其中某个文件更改后，您仍会保留旧的包。
-</Note>
+> [!NOTE]
+>
+> 如果 `npm install` 会读取其他文件，例如工作区的 `package.json`、`.npmrc` 或您的 `postinstall` 脚本的输入，请将它们添加到保存哈希值的 `sha256sum` 命令中。否则，在其中某个文件更改后，您仍会保留旧的包。
 
-<h4 id="limitations-in-cloud-sessions">
-  云会话中的限制
-</h4>
+#### 云会话中的限制
 
 SessionStart hooks 在云端的行为与本地相同，但有以下注意事项：
 
@@ -617,272 +539,266 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 
 要自定义基础镜像，请使用设置脚本在[提供的镜像](#installed-tools)上安装您需要的内容，或使用 `docker compose` 将您自己的镜像作为 Claude 旁边的容器运行。目前不支持完全替换基础镜像。
 
-<h2 id="default-allowed-domains">
-  默认允许的域
-</h2>
+## 默认允许的域
 
 使用 **Trusted** 网络访问，会话默认可以访问以下域。标记为 `*` 的域表示通配符子域匹配，因此 `*.gcr.io` 允许 `gcr.io` 的任何子域。
 
-<AccordionGroup>
-  <Accordion title="Anthropic 服务">
-    * api.anthropic.com
-    * docs.claude.com
-    * platform.claude.com
-    * code.claude.com
-    * claude.ai
-    * claude.com
-    * support.claude.com
-    * anthropic.com
-    * [www.anthropic.com](http://www.anthropic.com)
-  </Accordion>
+> **Anthropic 服务**
+>
+> * api.anthropic.com
+> * docs.claude.com
+> * platform.claude.com
+> * code.claude.com
+> * claude.ai
+> * claude.com
+> * support.claude.com
+> * anthropic.com
+> * [www.anthropic.com](http://www.anthropic.com)
 
-  <Accordion title="版本控制">
-    * github.com
-    * [www.github.com](http://www.github.com)
-    * api.github.com
-    * npm.pkg.github.com
-    * raw\.githubusercontent.com
-    * pkg-npm.githubusercontent.com
-    * objects.githubusercontent.com
-    * release-assets.githubusercontent.com
-    * codeload.github.com
-    * avatars.githubusercontent.com
-    * camo.githubusercontent.com
-    * gist.github.com
-    * gitlab.com
-    * [www.gitlab.com](http://www.gitlab.com)
-    * registry.gitlab.com
-    * bitbucket.org
-    * [www.bitbucket.org](http://www.bitbucket.org)
-    * api.bitbucket.org
-  </Accordion>
+> **版本控制**
+>
+> * github.com
+> * [www.github.com](http://www.github.com)
+> * api.github.com
+> * npm.pkg.github.com
+> * raw\.githubusercontent.com
+> * pkg-npm.githubusercontent.com
+> * objects.githubusercontent.com
+> * release-assets.githubusercontent.com
+> * codeload.github.com
+> * avatars.githubusercontent.com
+> * camo.githubusercontent.com
+> * gist.github.com
+> * gitlab.com
+> * [www.gitlab.com](http://www.gitlab.com)
+> * registry.gitlab.com
+> * bitbucket.org
+> * [www.bitbucket.org](http://www.bitbucket.org)
+> * api.bitbucket.org
 
-  <Accordion title="容器注册表">
-    * registry-1.docker.io
-    * auth.docker.io
-    * index.docker.io
-    * hub.docker.com
-    * [www.docker.com](http://www.docker.com)
-    * production.cloudflare.docker.com
-    * production.cloudfront.docker.com
-    * download.docker.com
-    * gcr.io
-    * \*.gcr.io
-    * ghcr.io
-    * mcr.microsoft.com
-    * \*.data.mcr.microsoft.com
-    * public.ecr.aws
-  </Accordion>
+> **容器注册表**
+>
+> * registry-1.docker.io
+> * auth.docker.io
+> * index.docker.io
+> * hub.docker.com
+> * [www.docker.com](http://www.docker.com)
+> * production.cloudflare.docker.com
+> * production.cloudfront.docker.com
+> * download.docker.com
+> * gcr.io
+> * \*.gcr.io
+> * ghcr.io
+> * mcr.microsoft.com
+> * \*.data.mcr.microsoft.com
+> * public.ecr.aws
 
-  <Accordion title="云平台">
-    * cloud.google.com
-    * accounts.google.com
-    * gcloud.google.com
-    * \*.googleapis.com
-    * storage.googleapis.com
-    * compute.googleapis.com
-    * container.googleapis.com
-    * azure.com
-    * portal.azure.com
-    * microsoft.com
-    * [www.microsoft.com](http://www.microsoft.com)
-    * \*.microsoftonline.com
-    * packages.microsoft.com
-    * dotnet.microsoft.com
-    * dot.net
-    * visualstudio.com
-    * dev.azure.com
-    * \*.amazonaws.com
-    * \*.api.aws
-    * oracle.com
-    * [www.oracle.com](http://www.oracle.com)
-    * java.com
-    * [www.java.com](http://www.java.com)
-    * java.net
-    * [www.java.net](http://www.java.net)
-    * download.oracle.com
-    * yum.oracle.com
-    * \*.r2.cloudflarestorage.com
-  </Accordion>
+> **云平台**
+>
+> * cloud.google.com
+> * accounts.google.com
+> * gcloud.google.com
+> * \*.googleapis.com
+> * storage.googleapis.com
+> * compute.googleapis.com
+> * container.googleapis.com
+> * azure.com
+> * portal.azure.com
+> * microsoft.com
+> * [www.microsoft.com](http://www.microsoft.com)
+> * \*.microsoftonline.com
+> * packages.microsoft.com
+> * dotnet.microsoft.com
+> * dot.net
+> * visualstudio.com
+> * dev.azure.com
+> * \*.amazonaws.com
+> * \*.api.aws
+> * oracle.com
+> * [www.oracle.com](http://www.oracle.com)
+> * java.com
+> * [www.java.com](http://www.java.com)
+> * java.net
+> * [www.java.net](http://www.java.net)
+> * download.oracle.com
+> * yum.oracle.com
+> * \*.r2.cloudflarestorage.com
 
-  <Accordion title="JavaScript 和 Node 包管理器">
-    * registry.npmjs.org
-    * [www.npmjs.com](http://www.npmjs.com)
-    * [www.npmjs.org](http://www.npmjs.org)
-    * npmjs.com
-    * npmjs.org
-    * yarnpkg.com
-    * registry.yarnpkg.com
-    * jsr.io
-    * npm.jsr.io
-  </Accordion>
+> **JavaScript 和 Node 包管理器**
+>
+> * registry.npmjs.org
+> * [www.npmjs.com](http://www.npmjs.com)
+> * [www.npmjs.org](http://www.npmjs.org)
+> * npmjs.com
+> * npmjs.org
+> * yarnpkg.com
+> * registry.yarnpkg.com
+> * jsr.io
+> * npm.jsr.io
 
-  <Accordion title="Python 包管理器">
-    * pypi.org
-    * [www.pypi.org](http://www.pypi.org)
-    * files.pythonhosted.org
-    * pythonhosted.org
-    * test.pypi.org
-    * pypi.python.org
-    * pypa.io
-    * [www.pypa.io](http://www.pypa.io)
-  </Accordion>
+> **Python 包管理器**
+>
+> * pypi.org
+> * [www.pypi.org](http://www.pypi.org)
+> * files.pythonhosted.org
+> * pythonhosted.org
+> * test.pypi.org
+> * pypi.python.org
+> * pypa.io
+> * [www.pypa.io](http://www.pypa.io)
 
-  <Accordion title="Ruby 包管理器">
-    * rubygems.org
-    * [www.rubygems.org](http://www.rubygems.org)
-    * api.rubygems.org
-    * index.rubygems.org
-    * ruby-lang.org
-    * [www.ruby-lang.org](http://www.ruby-lang.org)
-    * rubyforge.org
-    * [www.rubyforge.org](http://www.rubyforge.org)
-    * rubyonrails.org
-    * [www.rubyonrails.org](http://www.rubyonrails.org)
-    * rvm.io
-    * get.rvm.io
-  </Accordion>
+> **Ruby 包管理器**
+>
+> * rubygems.org
+> * [www.rubygems.org](http://www.rubygems.org)
+> * api.rubygems.org
+> * index.rubygems.org
+> * ruby-lang.org
+> * [www.ruby-lang.org](http://www.ruby-lang.org)
+> * rubyforge.org
+> * [www.rubyforge.org](http://www.rubyforge.org)
+> * rubyonrails.org
+> * [www.rubyonrails.org](http://www.rubyonrails.org)
+> * rvm.io
+> * get.rvm.io
 
-  <Accordion title="Rust 包管理器">
-    * crates.io
-    * [www.crates.io](http://www.crates.io)
-    * index.crates.io
-    * static.crates.io
-    * rustup.rs
-    * static.rust-lang.org
-    * [www.rust-lang.org](http://www.rust-lang.org)
-  </Accordion>
+> **Rust 包管理器**
+>
+> * crates.io
+> * [www.crates.io](http://www.crates.io)
+> * index.crates.io
+> * static.crates.io
+> * rustup.rs
+> * static.rust-lang.org
+> * [www.rust-lang.org](http://www.rust-lang.org)
 
-  <Accordion title="Go 包管理器">
-    * proxy.golang.org
-    * sum.golang.org
-    * index.golang.org
-    * golang.org
-    * [www.golang.org](http://www.golang.org)
-    * goproxy.io
-    * pkg.go.dev
-  </Accordion>
+> **Go 包管理器**
+>
+> * proxy.golang.org
+> * sum.golang.org
+> * index.golang.org
+> * golang.org
+> * [www.golang.org](http://www.golang.org)
+> * goproxy.io
+> * pkg.go.dev
 
-  <Accordion title="JVM 包管理器">
-    * maven.org
-    * repo.maven.org
-    * central.maven.org
-    * repo1.maven.org
-    * repo.maven.apache.org
-    * maven.google.com
-    * jcenter.bintray.com
-    * gradle.org
-    * [www.gradle.org](http://www.gradle.org)
-    * services.gradle.org
-    * plugins.gradle.org
-    * plugins-artifacts.gradle.org
-    * kotlinlang.org
-    * [www.kotlinlang.org](http://www.kotlinlang.org)
-    * spring.io
-    * repo.spring.io
-  </Accordion>
+> **JVM 包管理器**
+>
+> * maven.org
+> * repo.maven.org
+> * central.maven.org
+> * repo1.maven.org
+> * repo.maven.apache.org
+> * maven.google.com
+> * jcenter.bintray.com
+> * gradle.org
+> * [www.gradle.org](http://www.gradle.org)
+> * services.gradle.org
+> * plugins.gradle.org
+> * plugins-artifacts.gradle.org
+> * kotlinlang.org
+> * [www.kotlinlang.org](http://www.kotlinlang.org)
+> * spring.io
+> * repo.spring.io
 
-  <Accordion title="其他包管理器">
-    * packagist.org (PHP Composer)
-    * [www.packagist.org](http://www.packagist.org)
-    * repo.packagist.org
-    * nuget.org (.NET NuGet)
-    * [www.nuget.org](http://www.nuget.org)
-    * api.nuget.org
-    * pub.dev (Dart/Flutter)
-    * api.pub.dev
-    * hex.pm (Elixir/Erlang)
-    * [www.hex.pm](http://www.hex.pm)
-    * cpan.org (Perl CPAN)
-    * [www.cpan.org](http://www.cpan.org)
-    * metacpan.org
-    * [www.metacpan.org](http://www.metacpan.org)
-    * api.metacpan.org
-    * cocoapods.org (iOS/macOS)
-    * [www.cocoapods.org](http://www.cocoapods.org)
-    * cdn.cocoapods.org
-    * haskell.org
-    * [www.haskell.org](http://www.haskell.org)
-    * hackage.haskell.org
-    * swift.org
-    * [www.swift.org](http://www.swift.org)
-  </Accordion>
+> **其他包管理器**
+>
+> * packagist.org (PHP Composer)
+> * [www.packagist.org](http://www.packagist.org)
+> * repo.packagist.org
+> * nuget.org (.NET NuGet)
+> * [www.nuget.org](http://www.nuget.org)
+> * api.nuget.org
+> * pub.dev (Dart/Flutter)
+> * api.pub.dev
+> * hex.pm (Elixir/Erlang)
+> * [www.hex.pm](http://www.hex.pm)
+> * cpan.org (Perl CPAN)
+> * [www.cpan.org](http://www.cpan.org)
+> * metacpan.org
+> * [www.metacpan.org](http://www.metacpan.org)
+> * api.metacpan.org
+> * cocoapods.org (iOS/macOS)
+> * [www.cocoapods.org](http://www.cocoapods.org)
+> * cdn.cocoapods.org
+> * haskell.org
+> * [www.haskell.org](http://www.haskell.org)
+> * hackage.haskell.org
+> * swift.org
+> * [www.swift.org](http://www.swift.org)
 
-  <Accordion title="Linux 发行版">
-    * archive.ubuntu.com
-    * security.ubuntu.com
-    * ubuntu.com
-    * [www.ubuntu.com](http://www.ubuntu.com)
-    * \*.ubuntu.com
-    * ppa.launchpad.net
-    * launchpad.net
-    * [www.launchpad.net](http://www.launchpad.net)
-    * \*.nixos.org
-  </Accordion>
+> **Linux 发行版**
+>
+> * archive.ubuntu.com
+> * security.ubuntu.com
+> * ubuntu.com
+> * [www.ubuntu.com](http://www.ubuntu.com)
+> * \*.ubuntu.com
+> * ppa.launchpad.net
+> * launchpad.net
+> * [www.launchpad.net](http://www.launchpad.net)
+> * \*.nixos.org
 
-  <Accordion title="开发工具和平台">
-    * dl.k8s.io (Kubernetes)
-    * pkgs.k8s.io
-    * k8s.io
-    * [www.k8s.io](http://www.k8s.io)
-    * releases.hashicorp.com (HashiCorp)
-    * apt.releases.hashicorp.com
-    * rpm.releases.hashicorp.com
-    * archive.releases.hashicorp.com
-    * hashicorp.com
-    * [www.hashicorp.com](http://www.hashicorp.com)
-    * repo.anaconda.com (Anaconda/Conda)
-    * conda.anaconda.org
-    * anaconda.org
-    * [www.anaconda.com](http://www.anaconda.com)
-    * anaconda.com
-    * continuum.io
-    * apache.org (Apache)
-    * [www.apache.org](http://www.apache.org)
-    * archive.apache.org
-    * downloads.apache.org
-    * eclipse.org (Eclipse)
-    * [www.eclipse.org](http://www.eclipse.org)
-    * download.eclipse.org
-    * nodejs.org (Node.js)
-    * [www.nodejs.org](http://www.nodejs.org)
-    * developer.apple.com
-    * developer.android.com
-    * pkg.stainless.com
-    * binaries.prisma.sh
-  </Accordion>
+> **开发工具和平台**
+>
+> * dl.k8s.io (Kubernetes)
+> * pkgs.k8s.io
+> * k8s.io
+> * [www.k8s.io](http://www.k8s.io)
+> * releases.hashicorp.com (HashiCorp)
+> * apt.releases.hashicorp.com
+> * rpm.releases.hashicorp.com
+> * archive.releases.hashicorp.com
+> * hashicorp.com
+> * [www.hashicorp.com](http://www.hashicorp.com)
+> * repo.anaconda.com (Anaconda/Conda)
+> * conda.anaconda.org
+> * anaconda.org
+> * [www.anaconda.com](http://www.anaconda.com)
+> * anaconda.com
+> * continuum.io
+> * apache.org (Apache)
+> * [www.apache.org](http://www.apache.org)
+> * archive.apache.org
+> * downloads.apache.org
+> * eclipse.org (Eclipse)
+> * [www.eclipse.org](http://www.eclipse.org)
+> * download.eclipse.org
+> * nodejs.org (Node.js)
+> * [www.nodejs.org](http://www.nodejs.org)
+> * developer.apple.com
+> * developer.android.com
+> * pkg.stainless.com
+> * binaries.prisma.sh
 
-  <Accordion title="云服务和监控">
-    * http-intake.logs.datadoghq.com
-    * \*.datadoghq.com
-    * \*.datadoghq.eu
-    * api.honeycomb.io
-  </Accordion>
+> **云服务和监控**
+>
+> * http-intake.logs.datadoghq.com
+> * \*.datadoghq.com
+> * \*.datadoghq.eu
+> * api.honeycomb.io
 
-  <Accordion title="内容分发和镜像">
-    * sourceforge.net
-    * \*.sourceforge.net
-    * packagecloud.io
-    * \*.packagecloud.io
-    * fonts.googleapis.com
-    * fonts.gstatic.com
-  </Accordion>
+> **内容分发和镜像**
+>
+> * sourceforge.net
+> * \*.sourceforge.net
+> * packagecloud.io
+> * \*.packagecloud.io
+> * fonts.googleapis.com
+> * fonts.gstatic.com
 
-  <Accordion title="架构和配置">
-    * json-schema.org
-    * [www.json-schema.org](http://www.json-schema.org)
-    * json.schemastore.org
-    * [www.schemastore.org](http://www.schemastore.org)
-  </Accordion>
+> **架构和配置**
+>
+> * json-schema.org
+> * [www.json-schema.org](http://www.json-schema.org)
+> * json.schemastore.org
+> * [www.schemastore.org](http://www.schemastore.org)
 
-  <Accordion title="Model Context Protocol">
-    * \*.modelcontextprotocol.io
-  </Accordion>
-</AccordionGroup>
+> **Model Context Protocol**
+>
+> * \*.modelcontextprotocol.io
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [Cloud sessions reference](/docs/zh-CN/claude-code-on-the-web)：启动、管理和共享云会话
 * [Cloud sessions quickstart](/docs/zh-CN/web-quickstart)：连接 GitHub 并启动您的第一个云会话

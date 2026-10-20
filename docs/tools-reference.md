@@ -12,9 +12,9 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 
 要添加自定义工具，请连接一个 [MCP 服务器](/docs/zh-CN/mcp)。要使用可重用的基于提示的工作流扩展 Claude，请编写一个[skill](/docs/zh-CN/skills)，它通过现有的 `Skill` 工具运行，而不是添加新的工具条目。
 
-<Info>
-  在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，分类器决定大多数权限提示，而不是您。`Permission required` 列显示工具是否在[手动模式](/docs/zh-CN/permission-modes)中为工作目录内的路径提示。标记为"否"的文件访问工具，包括 `Read`、`Grep` 和 `Glob`，仍然会为[工作目录和其他目录](/docs/zh-CN/permissions#working-directories)之外的路径提示。`Bash` 标记为"是"，但运行内置的[只读命令](/docs/zh-CN/permissions#read-only-commands)而不提示。
-</Info>
+> [!NOTE]
+>
+> 在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，分类器决定大多数权限提示，而不是您。`Permission required` 列显示工具是否在[手动模式](/docs/zh-CN/permission-modes)中为工作目录内的路径提示。标记为"否"的文件访问工具，包括 `Read`、`Grep` 和 `Glob`，仍然会为[工作目录和其他目录](/docs/zh-CN/permissions#working-directories)之外的路径提示。`Bash` 标记为"是"，但运行内置的[只读命令](/docs/zh-CN/permissions#read-only-commands)而不提示。
 
 | 工具 | 描述 | 需要权限 |
 | :- | :- | :- |
@@ -65,9 +65,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `Workflow` | 运行[动态工作流](/docs/zh-CN/workflows)：在后台编排许多子代理并返回一个合并结果的脚本 | 是 |
 | `Write` | 创建或覆盖文件。请参阅 [Write 工具行为](#write-tool-behavior) | 是 |
 
-<h2 id="configure-tools-with-permission-rules-and-hooks">
-  使用权限规则和 hooks 配置工具
-</h2>
+## 使用权限规则和 hooks 配置工具
 
 在大多数情况下，Claude 会决定何时使用这些工具，您在与 Claude 交互时不需要自己命名它们。在定义权限和其他配置时，您直接引用工具名称：
 
@@ -96,9 +94,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 
 Hook `matcher` 字段使用裸工具名称，而不是带括号的规则格式。有关匹配规则，请参阅 [matcher 模式](/docs/zh-CN/hooks#matcher-patterns)。有关每个工具在 hooks 中传递给 `tool_input` 的字段名称，请参阅 [PreToolUse 输入参考](/docs/zh-CN/hooks#pretooluse-input)。
 
-<h2 id="agent-tool-behavior">
-  Agent tool 行为
-</h2>
+## Agent tool 行为
 
 Agent tool 在单独的上下文窗口中生成一个子代理。子代理自主地完成其任务，然后向父对话返回其结果。父对话看不到子代理的中间 tool 调用或输出，只能看到最终结果。同一个 tool 也可以启动 teammate 或 fork：
 
@@ -127,17 +123,13 @@ Agent tool 在单独的上下文窗口中生成一个子代理。子代理自主
 
 要 [limit what a subagent can reach](/docs/zh-CN/sub-agents#control-subagent-capabilities)，首先缩小其 `tools` 字段，例如通过将 Bash 排除在列表之外，或在您的设置中设置拒绝规则。
 
-<h2 id="askuserquestion-tool-behavior">
-  AskUserQuestion 工具行为
-</h2>
+## AskUserQuestion 工具行为
 
 Claude 使用 `AskUserQuestion` 在需要决策或澄清时向您提出多选题。通过选择一个选项来回答，或通过 `Other` 行或备注字段输入您自己的文本。
 
 当您通过输入自己的文本来回答时，Claude Code 会用中立的措辞转达答案，以便 Claude 遵循您写的内容，包括等待或先解释的请求。
 
-<h3 id="question-auto-continue-timeout">
-  问题自动继续超时
-</h3>
+### 问题自动继续超时
 
 问题保持打开状态，直到您回答。如果您想让一个未回答的问题最终关闭并让 Claude 在没有您的情况下继续，请在您的用户 `settings.json` 中或从 `/config` 中的 **Question auto-continue timeout** 行设置 [`askUserQuestionTimeout`](/docs/zh-CN/settings-reference#askuserquestiontimeout) 为 `60s`、`5m` 或 `10m`。
 
@@ -145,15 +137,11 @@ Claude 使用 `AskUserQuestion` 在需要决策或澄清时向您提出多选题
 
 对于 Claude 在[后台会话](/docs/zh-CN/agent-view)中、在[屏幕阅读器模式](/docs/zh-CN/accessibility)下，或在会话连接到 [Remote Control](/docs/zh-CN/remote-control) 时提出的问题，计时器永远不会启动。这些问题会一直等待，直到您回答。超时仅适用于 `AskUserQuestion` 的多选题；权限提示（包括计划批准）在空闲时永远不会自动解决。
 
-<h2 id="bash-tool-behavior">
-  Bash 工具行为
-</h2>
+## Bash 工具行为
 
 Bash 工具在单独的进程中运行每个命令。
 
-<h3 id="what-persists-between-commands">
-  命令之间保留的内容
-</h3>
+### 命令之间保留的内容
 
 * 当 Claude 在主会话中运行 `cd` 时，新的工作目录会传递到后续的 Bash 命令，只要它保持在项目目录内或使用 `--add-dir`、`/add-dir` 或 settings 中的 `additionalDirectories` 添加的[额外工作目录](/docs/zh-CN/permissions#working-directories)内。这包括 Claude 响应您后续消息时运行的命令。
   * 子代理会话永远不会传递工作目录更改。
@@ -164,9 +152,7 @@ Bash 工具在单独的进程中运行每个命令。
 
 在启动 Claude Code 之前激活您的 virtualenv 或 conda 环境。要使环境变量在 Bash 命令之间保留，请在启动 Claude Code 之前将 [`CLAUDE_ENV_FILE`](/docs/zh-CN/env-vars) 设置为 shell 脚本，或使用 [SessionStart hook](/docs/zh-CN/hooks#persist-environment-variables) 动态填充它。
 
-<h3 id="timeout-and-output-limits">
-  超时和输出限制
-</h3>
+### 超时和输出限制
 
 每个命令在超时下运行，Claude 管理它：当它需要比命令的默认值更长的时间时，它会传递 `timeout` 参数进行该调用。您永远不会设置每个命令的超时。
 
@@ -177,9 +163,7 @@ Bash 工具在单独的进程中运行每个命令。
 
 在具有[后台命令时间限制](#time-limit-for-background-commands)的会话中，对于 Claude 在后台启动的命令，`timeout` 改为设置命令在那里可以运行多长时间，并使用该限制单独的默认值和最大值。[PowerShell 工具](#powershell-tool)遵循相同的超时规则并读取相同的两个变量。
 
-<h4 id="output-limits">
-  输出限制
-</h4>
+#### 输出限制
 
 Claude Code 在命令运行时将命令的输出流式传输到工作文件；输出超过 5 GB 的命令会被杀死。命令完成后，Claude Code 从该文件读取输出，最多读取下面描述的读回窗口。输出中有多少到达 Claude 取决于 Claude Code 是否将结果视为失败：
 
@@ -194,23 +178,17 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 
 要更改有效结果中 Claude 接收的内联内容量，请改为设置 [`bashOutputMaxChars`](/docs/zh-CN/settings-reference#bashoutputmaxchars) 设置，最多 128,000 个字符。它同时调整内联上限和读回窗口的大小，Claude Code 然后忽略 `BASH_MAX_OUTPUT_LENGTH`。需要 Claude Code v2.1.261 或更高版本。
 
-<h3 id="background-commands">
-  后台命令
-</h3>
+### 后台命令
 
 对于长时间运行的进程（例如开发服务器或监视构建），Claude 可以设置 `run_in_background: true` 以将命令作为后台任务启动并在其运行时继续工作。使用 `/tasks` 列出和停止后台任务。在您从那里停止一个后，或从连接的客户端（例如桌面应用）停止，Claude 继续而不是等待。如果子代理启动了命令，则是该子代理继续。
 
-<h4 id="when-a-background-command-stops">
-  后台命令何时停止
-</h4>
+#### 后台命令何时停止
 
 [前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)启动的命令在该子代理的运行结束时停止，无论它是完成、失败还是被中断。主对话或后台子代理启动的命令在最终回复后继续运行，直到它退出、被停止或达到其[时间限制](#time-limit-for-background-commands)。
 
 当主对话启动的命令仍在运行时，使用 `-p` 标志的非交互模式运行会[在其结果之后保持打开](/docs/zh-CN/headless#background-tasks-at-exit)，直到该命令退出或达到其时间限制。后台子代理启动的命令会在运行退出时被停止。
 
-<h4 id="time-limit-for-background-commands">
-  后台命令的时间限制
-</h4>
+#### 后台命令的时间限制
 
 在无人值守运行的会话中，例如使用 `-p` 标志的运行、Agent SDK 应用程序、CI 作业或云端会话，后台 Bash 和 PowerShell 命令有时间限制。您在终端、桌面应用或 VS Code 扩展中使用的本地会话对后台命令没有时间限制。
 
@@ -225,18 +203,14 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 
 当后台命令达到其时间限制时，Claude Code 停止它并告诉 Claude 原因，Claude 可以使用更长的 `timeout` 重新启动命令，如果工作仍然需要的话。停止通知读作 `Background command "<description>" was stopped after reaching its background time limit`。
 
-<h4 id="raise-the-time-limit-for-background-commands">
-  提高后台命令的时间限制
-</h4>
+#### 提高后台命令的时间限制
 
 两个[环境变量](/docs/zh-CN/env-vars)提高这些限制，对于 Bash 和 PowerShell 命令都是如此。两者都采用毫秒，都不能缩短限制：较低的值保留默认值和 2 小时的最大值。
 
 * 将 `BASH_DEFAULT_TIMEOUT_MS` 设置为高于 `1800000` 以用该值替换 30 分钟的默认值，既适用于 Claude 启动的没有 `timeout` 的命令，也适用于移动的命令。在以文本形式传递提示词的 `-p` 运行中，任何高于 `600000` 的值都会替换其 10 分钟的默认值
 * 将 `BASH_MAX_TIMEOUT_MS` 设置为高于 `7200000` 以将 2 小时的最大值提高到该值。将 `BASH_DEFAULT_TIMEOUT_MS` 设置为高于 `7200000` 以相同方式提高最大值
 
-<h4 id="foreground-commands-that-move-to-the-background">
-  移到后台的前台命令
-</h4>
+#### 移到后台的前台命令
 
 当前台命令在完成前达到其超时时，Claude Code 会将其移到后台而不是停止它，除非命令以 `sleep` 开头。移动的命令的[时间限制](#time-limit-for-background-commands)从移动时开始计算，前台子代理的移动命令仍然在该子代理的运行结束时停止。
 
@@ -247,9 +221,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 * 当超时触发移动时，结果明确报告：`Command did not complete within its 120s timeout and was moved to the background`，秒数与应用的超时匹配，后跟任务 ID 和输出被写入的文件路径。
 * 移到后台的命令内的 `cd`、`pushd`、`popd` 或 `chdir` 永远不会传递：结果说明 `Session cwd remains <dir>; directory changes made by the backgrounded command do not apply to subsequent commands.`，所以 Claude 不会对没有发生的目录更改进行操作。
 
-<h3 id="memory-limit-on-linux-and-wsl">
-  Linux 和 WSL 上的内存限制
-</h3>
+### Linux 和 WSL 上的内存限制
 
 在 Linux 和 WSL 上，设置 [`CLAUDE_CODE_TOOL_MEMORY_LIMIT`](/docs/zh-CN/env-vars#variables) 为大小（例如 `4G`）以限制 Bash、PowerShell 和 [Monitor](#monitor-tool) 工具命令可以使用的内存，这样一个失控的构建就不会占用会话其余部分需要的内存。需要 Claude Code v2.1.233 或更高版本。在 v2.1.246 之前，Monitor 工具命令在上限之外运行。
 
@@ -274,9 +246,7 @@ Claude Code 也可以将它启动的其他类型的进程计入同一限制。�
 * **变量未设置**：Claude Code 从 Anthropic 从服务器传递的配置中获取其他限制类型的集合，该集合可能随时间变化，因此当您需要不变的集合时设置变量
 * **权限门控 hook**：即使每种类型都受限，Claude Code 也会从上限中排除可以阻止或更改操作结果的 hook，以及任何此类 hook 调用的 MCP 服务器，因此内核杀死权限门控 hook 不能允许它阻止的操作
 
-<h2 id="edit-tool-behavior">
-  Edit 工具行为
-</h2>
+## Edit 工具行为
 
 Edit 工具执行精确字符串替换。它接受一个 `old_string` 和一个 `new_string`，并用后者替换前者。它不使用正则表达式或模糊匹配。
 
@@ -292,9 +262,7 @@ Claude 使用 `cat` 或 `grep` 等 Bash 命令查看文件后，也可以在不�
 
 当 Claude 以这种方式查看文件时，Claude Code 还会加载适用于该文件的任何[子目录 `CLAUDE.md`](/docs/zh-CN/memory#how-claude-md-files-load) 和[路径范围规则](/docs/zh-CN/memory#path-specific-rules)。请参阅 [Read 和 Edit 权限规则](/docs/zh-CN/permissions#read-and-edit)，了解您的 `Read` 和 `Edit` 拒绝规则涵盖哪些 Bash 命令。
 
-<h3 id="non-utf-8-files">
-  非 UTF-8 文件
-</h3>
+### 非 UTF-8 文件
 
 Claude 无法对不是有效 UTF-8 的文件使用 [NotebookEdit](#notebookedit-tool-behavior)。Edit 也是如此，除非该文件以小端 UTF-16 字节顺序标记开头。当 Claude 尝试时，工具会拒绝更改，并保持文件不变。被拒绝的文件包括以 Windows-1252 或 Shift-JIS 等旧编码保存的非 ASCII 文本、二进制文件，以及包含无效字节序列的 UTF-8 文件。
 
@@ -302,9 +270,7 @@ Claude 无法对不是有效 UTF-8 的文件使用 [NotebookEdit](#notebookedit-
 
 Claude 仍然可以使用 Write 替换此类文件，除非新内容包含 `U+FFFD`，即 Read 在无法解码的字节位置向 Claude 显示的字符。这一防护措施可防止 Claude 将其读取到的乱码文本写回。当 Write 确实替换文件时，它会将新内容保存为 UTF-8，因此文件的原始编码会丢失。
 
-<h2 id="endconversation-tool-behavior">
-  EndConversation 工具行为
-</h2>
+## EndConversation 工具行为
 
 EndConversation 工具结束当前会话。Claude 仅在两种情况下使用它：
 
@@ -333,9 +299,7 @@ Claude 结束交互式会话后，会话被锁定。新提示和大多数命令�
 * **启动模式**：不是 [`--bare`](/docs/zh-CN/headless#start-faster-with-bare-mode) 会话。裸模式仅加载 shell 和文件工具，因此该工具从不在那里注册。
 * **提供商**：在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 上不可用，或在通过[云网关](/docs/zh-CN/claude-apps-gateway)登录的会话上不可用。
 
-<h2 id="glob-tool-behavior">
-  Glob 工具行为
-</h2>
+## Glob 工具行为
 
 Glob 工具通过名称模式查找文件。在 Windows 上，它是默认工具集的一部分。在 macOS、Linux 和 WSL 上，Claude Code 将 Glob 和 [Grep](#grep-tool-behavior) 排除在默认工具集之外，Claude 改为通过 Bash 工具使用 `find` 和 `grep` 进行搜索。在 Claude 的 shell 中，这两个命令运行 `bfs` 和 `ugrep` 的嵌入式版本，搜索以 `Bash` 调用的形式到达您的 hook 和权限规则。
 
@@ -359,9 +323,7 @@ Claude Code 在检查搜索目录是否存在之前决定 Glob 调用的权限�
 
 包含空字节的 `pattern` 或 `path` 值会返回错误，要求 Claude 将其删除。
 
-<h2 id="grep-tool-behavior">
-  Grep 工具行为
-</h2>
+## Grep 工具行为
 
 Grep 工具在文件内容中搜索模式。[Glob](#glob-tool-behavior) 按名称查找文件，而 Grep 在文件内部查找行。在 macOS、Linux 和 WSL 上，Grep 在与 Glob 相同的条件下默认不可用。有关两个工具何时可用的信息，请参阅 [Glob 工具行为](#glob-tool-behavior)。
 
@@ -381,9 +343,7 @@ Grep 遵守 `.gitignore`，因此被 gitignore 的文件会被跳过。要搜索
 
 Claude Code 在检查搜索 `path` 是否存在之前决定 Grep 调用的权限。它仍然对 [工作目录](/docs/zh-CN/permissions#working-directories) 之外的缺失 `path` 运行读取权限检查，因此路径的权限提示并不意味着该路径存在。
 
-<h2 id="lsp-tool-behavior">
-  LSP tool behavior
-</h2>
+## LSP tool behavior
 
 LSP tool 从运行的语言服务器为 Claude 提供代码智能。在每次文件编辑后，它会自动报告类型错误和警告，以便 Claude 可以在没有单独构建步骤的情况下修复问题。Claude 也可以直接调用它来导航代码：
 
@@ -399,9 +359,7 @@ Claude Code 会保持该工具处于非活动状态，直到您为您的语言�
 
 Claude Code 对于无法启动其语言服务器的文件上的每个 LSP 调用都会返回错误结果。
 
-<h2 id="monitor-tool">
-  Monitor 工具
-</h2>
+## Monitor 工具
 
 Monitor 工具让 Claude 在后台监视某些内容，并在其发生变化时做出反应，而无需暂停对话。您可以要求 Claude：
 
@@ -429,9 +387,7 @@ Monitor 工具让 Claude 在后台监视某些内容，并在其发生变化时�
 
 插件可以声明在插件处于活动状态时自动启动的监视，而不是要求 Claude 启动它们。请参阅 [插件监视器](/docs/zh-CN/plugins/components#monitors)。
 
-<h3 id="websocket-source">
-  WebSocket 源
-</h3>
+### WebSocket 源
 
 当服务器已经通过 WebSocket 推送事件时，Claude 可以直接连接到它，而不是编写轮询脚本。每种套接字活动要么成为一个事件，要么结束监视：
 
@@ -453,9 +409,7 @@ WebSocket 监视采用 `ws` 输入代替 `command`，单个 Monitor 调用不能
 
 Claude Code 拒绝指向私有、链接本地或云元数据地址的 URL，包括解析为其中之一的主机名。它还拒绝 `sandbox.network.deniedDomains` 中的主机，以及当在托管设置中设置了 [`allowManagedDomainsOnly`](/docs/zh-CN/settings-reference#sandbox-network-allowmanageddomainsonly) 时，任何在托管允许列表之外的主机。
 
-<h2 id="notebookedit-tool-behavior">
-  NotebookEdit 工具行为
-</h2>
+## NotebookEdit 工具行为
 
 NotebookEdit 一次修改一个 Jupyter notebook 单元格，按其 `cell_id` 定位单元格。它不像 [Edit](#edit-tool-behavior) 在纯文本文件上那样在整个 notebook 中执行字符串替换。
 
@@ -469,9 +423,7 @@ NotebookEdit 一次修改一个 Jupyter notebook 单元格，按其 `cell_id` �
 
 权限规则使用 `Edit(...)` 路径格式。像 `Edit(notebooks/**)` 这样的规则涵盖该目录中的 NotebookEdit 调用。
 
-<h2 id="powershell-tool">
-  PowerShell 工具
-</h2>
+## PowerShell 工具
 
 PowerShell 工具让 Claude 能够原生运行 PowerShell 命令。在 Windows 上，这意味着命令在 PowerShell 中运行，而不是通过 Git Bash 路由。该工具的可用性取决于您的平台：
 
@@ -483,9 +435,7 @@ PowerShell 工具让 Claude 能够原生运行 PowerShell 命令。在 Windows �
 
 在检查 shell 命令的 hooks 中匹配 `Bash|PowerShell`；[PowerShell hook 输入部分](/docs/zh-CN/hooks#powershell)解释了为什么仅匹配 `Bash` 是不够的。
 
-<h3 id="enable-the-powershell-tool">
-  启用 PowerShell 工具
-</h3>
+### 启用 PowerShell 工具
 
 在您的环境或 `settings.json` 中设置 `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`：
 
@@ -503,9 +453,7 @@ PowerShell 工具让 Claude 能够原生运行 PowerShell 命令。在 Windows �
 
 Claude Code 使用 `-ExecutionPolicy Bypass` 仅在进程范围内生成 PowerShell，因此 `.ps1` 脚本和模块导入可以在默认 Windows 安装上工作，无需更改机器的策略。进程范围的绕过不会覆盖组策略 `MachinePolicy` 或 `UserPolicy`，因此企业策略仍然适用。要改为遵守机器的有效执行策略，请设置 `CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY=1`。
 
-<h3 id="bash-deny-rules-also-turn-off-the-powershell-tool">
-  Bash 拒绝规则也会关闭 PowerShell 工具
-</h3>
+### Bash 拒绝规则也会关闭 PowerShell 工具
 
 在安装了 Git Bash 的 Windows 上，拒绝 Bash 也会在该会话中关闭 PowerShell 工具。这既适用于限定范围的规则（例如 `Bash(git push *)`），也适用于单独的 `Bash`，并且适用于来自您某个设置文件或 `--disallowedTools` 的规则。Claude Code 这样做是因为 `Bash` 规则不会限制 PowerShell 工具，后者有[自己的权限规则](/docs/zh-CN/permissions#powershell)。如果 PowerShell 保持开启，Claude 可能会在其中运行您的规则在 Bash 中所拒绝的内容。
 
@@ -516,9 +464,7 @@ Claude Code 使用 `-ExecutionPolicy Bypass` 仅在进程范围内生成 PowerSh
 
 如果没有其中任何一项，限定范围的 Bash 拒绝规则会保留 Bash 工具可用，而 Claude Code 会在不发出警告的情况下关闭 PowerShell。移除整个 Bash 工具的规则会使 Claude 在该会话中没有任何 shell 工具。
 
-<h3 id="shell-selection-in-settings-hooks-and-skills">
-  设置、hooks 和 skills 中的 shell 选择
-</h3>
+### 设置、hooks 和 skills 中的 shell 选择
 
 三个额外的设置控制 PowerShell 的使用位置：
 
@@ -532,9 +478,7 @@ PowerShell 命令还会接收 hook 通过 `CLAUDE_ENV_FILE` 持久化的变量�
 
 来自 `grep`、`rg`、`egrep`、`fgrep`、`findstr` 和 `git grep` 的退出码 1 表示没有匹配。来自 `git diff` 的退出码 1 表示存在差异。这两个结果都不会作为命令失败报告给 Claude。对于 `robocopy`，退出码 0 到 7 是信息性结果，例如复制的文件或检测到的额外文件。退出码 8 或更高被视为失败。
 
-<h3 id="windows-encoding-and-exit-codes">
-  Windows 编码和退出代码
-</h3>
+### Windows 编码和退出代码
 
 * 使用 `>` 和 `>>` 的重定向在 PowerShell 5.1 上写入 UTF-8 文件
 * Claude Code 将管道传输到本机命令标准输入的文本编码为 UTF-8
@@ -542,18 +486,14 @@ PowerShell 命令还会接收 hook 通过 `CLAUDE_ENV_FILE` 持久化的变量�
 * 其子进程等待标准输入的命令接收文件结束而不是挂起
 * 来自 `where.exe` 的退出代码 1 表示没有匹配，来自 `fc.exe` 和 `diff.exe` 的退出代码 1 表示文件不同，因此当命令产生输出时，Claude Code 将该退出代码视为有效的否定答案而不是命令错误。Claude Code 仍然将静默形式（例如 `where.exe /Q` 或重定向到 `$null`）报告为退出代码 1 上的失败
 
-<h3 id="preview-limitations">
-  预览限制
-</h3>
+### 预览限制
 
 PowerShell 工具在预览期间有以下已知限制：
 
 * PowerShell 配置文件未加载
 * 在 Windows 上，不支持沙箱化
 
-<h2 id="read-tool-behavior">
-  Read 工具行为
-</h2>
+## Read 工具行为
 
 Read 工具接收文件路径并返回带有行号的文件内容。Claude 被指示始终传递绝对路径。
 
@@ -571,9 +511,7 @@ Read 仅读取文件，不读取目录。Claude 使用 shell 命令（如 `ls`�
 
 Read 会拒绝读取其视为二进制扩展名的文件，例如 `.xlsx`、`.parquet`、`.heic` 或 `.zip`。被拒绝后 Claude 会继续工作：如果有适用于该文件类型的 skill，错误会建议使用该 skill，否则会建议使用能够读取该格式的 shell 命令或脚本。如果您 [`@` 提及](/docs/zh-CN/common-workflows#reference-files-and-directories)一个被 Read 拒绝的文件，Claude 会收到该文件的路径，但不会收到其内容。
 
-<h3 id="large-files">
-  大型文件
-</h3>
+### 大型文件
 
 Claude 可以读取大于单次 Read 调用所能返回内容的文本文件。默认情况下，单次调用最多返回 25,000 个 token，或您在 [`CLAUDE_CODE_FILE_READ_MAX_OUTPUT_TOKENS`](/docs/zh-CN/env-vars) 中设置的值，并且会拒绝读取超过 256 KB 的整个文件，因此 Claude 会使用 `offset` 和 `limit` 分页读取较大的文件。在 Claude Code v2.1.296 或更高版本中，Claude 可以在需要时（例如因为您要求读取整个文件）通过设置 `allow_large: true`，在一次调用中读取整个文件或较长的行范围。此类读取的大小依据会话[上下文窗口](/docs/zh-CN/context-window)中的剩余空间来确定，而不是依据默认限制。图像、PDF 和笔记本仍保留各自的限制。
 
@@ -582,9 +520,7 @@ Claude 可以读取大于单次 Read 调用所能返回内容的文本文件。�
 * **整个文件超过 token 限制**：文件的第一页，并附带 `PARTIAL view` 通知，说明它接收了多少文件内容以及如何使用 `offset` 和 `limit` 读取更多内容
 * **整个文件超过 256 KB，或使用 `offset` 或 `limit` 的读取超过 token 限制**：一个错误，告诉它使用 `offset` 和 `limit` 读取一部分内容，或改用 [Grep](#grep-tool-behavior) 搜索特定内容
 
-<h2 id="sendfeedback-tool-behavior">
-  SendFeedback 工具行为
-</h2>
+## SendFeedback 工具行为
 
 Claude 起草的反馈是 Claude 为您撰写的关于 Claude Code 的反馈报告。它需要 Claude Code v2.1.238 或更高版本。Claude Code 将每份草稿保存在您的机器上的 `~/.claude/feedback/drafts/` 下，在您发送之前，任何内容都不会到达 Anthropic。Claude 在以下情况下使用 SendFeedback 工具起草一份：
 
@@ -593,17 +529,13 @@ Claude 起草的反馈是 Claude 为您撰写的关于 Claude Code 的反馈报�
 * 您指出它犯的错误，或它注意到一个错误
 * 您要求它提交反馈
 
-<h3 id="what-you-see-when-claude-drafts">
-  当 Claude 起草时您看到的内容
-</h3>
+### 当 Claude 起草时您看到的内容
 
 Claude 将草稿加入队列后，您会在提示上方看到一张卡片，显示草稿的标题。按 `1` 查看草稿，按 `2` 两次按原样发送，或按 `0` 关闭它。被关闭的草稿保留在您的队列中。关闭卡片后，Claude Code 会询问是否关闭 Claude 起草的反馈。一旦您拒绝两次，它就会停止询问。
 
 默认情况下，您在一个会话中最多看到三张卡片；Anthropic 可以从服务器调整该限制，无需发布。超过限制后，以及每当您将 [`feedbackDrafts`](/docs/zh-CN/settings-reference#feedbackdrafts) 设置为 `quiet` 时，您只会在提示页脚中看到排队草稿的计数。
 
-<h3 id="review-and-edit-a-draft">
-  查看和编辑草稿
-</h3>
+### 查看和编辑草稿
 
 运行不带参数的 `/feedback` 来打开您的队列。它列出来自所有会话的每份排队草稿，包括您关闭或从未看到其卡片的草稿。选择一份草稿来打开它进行查看，您可以：
 
@@ -613,9 +545,7 @@ Claude 将草稿加入队列后，您会在提示上方看到一张卡片，显�
 
 要自己写一份报告，请按 `w` 打开标准反馈对话框。`/feedback` 后跟文本和 `/bug` 直接打开该对话框。
 
-<h3 id="send-a-draft">
-  发送草稿
-</h3>
+### 发送草稿
 
 当您发送草稿时，Claude Code 以与 `/feedback` 报告相同的方式提交它，具有相同的 [保留期](/docs/zh-CN/data-usage#feedback-using-the-%2Ffeedback-command)，并从您的机器中删除草稿。当您从卡片发送时，它显示 `✓ Sent`；当您从队列发送时，它关闭并显示收据 ID。
 
@@ -630,21 +560,15 @@ Claude Code 在本地草稿中保留您的工作目录，以便它可以找到�
 
 在 [零数据保留的组织](/docs/zh-CN/zero-data-retention#features-disabled-under-zdr) 中，以及在已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup) 的组织中，Claude Code 会省略该工具，就像它对 `/feedback` 所做的那样。如果零数据保留组织中的会话仍然提供该工具，草稿保留在您的机器上，发送失败并显示 `Feedback collection is not available for organizations with custom data retention policies.`
 
-<h3 id="discard-or-keep-a-draft">
-  丢弃或保留草稿
-</h3>
+### 丢弃或保留草稿
 
 当您丢弃草稿时，Claude Code 从您的机器中删除它。您留在队列中的草稿在 30 天后过期，或在 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 更短时过期。队列在所有会话中最多保留 10 份草稿，当 Claude 将第十一份加入队列时，Claude Code 删除最旧的。当您运行 `/exit` 且会话中的草稿仍在队列中时，Claude Code 会询问您是否在退出前查看或丢弃它们。
 
-<h3 id="turn-claude-drafted-feedback-off">
-  关闭 Claude 起草的反馈
-</h3>
+### 关闭 Claude 起草的反馈
 
 在 `/config` 中将 **Claude-drafted feedback** 设置为 `off`，这会写入 [`feedbackDrafts`](/docs/zh-CN/settings-reference#feedbackdrafts) 设置，或为一个会话设置 [`CLAUDE_CODE_SEND_FEEDBACK=0`](/docs/zh-CN/env-vars)。使用任一方式，Claude 都无法将草稿加入队列。要在没有卡片的情况下继续起草，请改为将 `feedbackDrafts` 设置为 `quiet`。管理员可以在 [托管设置](/docs/zh-CN/managed-settings) 中设置 `feedbackDrafts`，这优先于您自己的设置。
 
-<h3 id="sessions-without-claude-drafted-feedback">
-  没有 Claude 起草反馈的会话
-</h3>
+### 没有 Claude 起草反馈的会话
 
 Claude Code 在使用 Claude API 而不是云提供商的您自己机器上的交互式终端会话中包含该工具。它在以下情况下省略该工具：
 
@@ -654,9 +578,7 @@ Claude Code 在使用 Claude API 而不是云提供商的您自己机器上的�
 * 您设置 [`CLAUDE_CODE_SEND_FEEDBACK=0`](/docs/zh-CN/env-vars) 或 [`DISABLE_FEEDBACK_COMMAND=1`](/docs/zh-CN/env-vars) 的会话，将 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 设置为任何非空值，或关闭 [功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)
 * 已关闭产品反馈的组织、[零数据保留的组织](/docs/zh-CN/zero-data-retention#features-disabled-under-zdr)，以及已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup) 的组织
 
-<h2 id="task-tool-availability">
-  Task 工具可用性
-</h2>
+## Task 工具可用性
 
 Task 跟踪工具 `TaskCreate`、`TaskGet`、`TaskUpdate`、`TaskList` 和 `TodoWrite` 默认仅在 Opus 4.7、Sonnet 4.6、Haiku 4.5 及更早的模型上可用。只要这些工具可用，您就会获得四个 Task 工具，或者当您设置 [`CLAUDE_CODE_ENABLE_TASKS=0`](/docs/zh-CN/env-vars) 时改为获得 `TodoWrite`。
 
@@ -675,9 +597,7 @@ Claude Code 仅在您的会话拥有这些工具时才会将其提供给子代�
 
 此处描述的默认集合适用于 Claude Code v2.1.268 及更高版本。
 
-<h2 id="webfetch-tool-behavior">
-  WebFetch 工具行为
-</h2>
+## WebFetch 工具行为
 
 WebFetch 接收一个 URL 和一个描述要提取内容的提示词。它获取页面，当服务器返回 HTML 时将响应转换为 Markdown。对于大多数获取操作，它随后会在单独的模型调用中针对内容运行该提示词，Claude 接收的是该调用的结果，而不是原始页面。转换步骤不可配置。
 
@@ -709,9 +629,7 @@ WebFetch 设置一个以 `Claude-User` 开头的 `User-Agent` 标头，以及一
 
 沙箱化命令不继承 WebFetch 的内置预批准文档域集。要让沙箱化命令无需提示即可到达一个域，将域添加到 [`allowedDomains`](/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 或使用 `WebFetch(domain:...)` 规则允许它，[沙箱也遵守](/docs/zh-CN/sandboxing#network-isolation)该规则。WebFetch 反过来从不读取沙箱允许列表，所以将域添加到沙箱或组织网络允许列表不会阻止 WebFetch 对其进行提示。
 
-<h3 id="webfetch-availability">
-  WebFetch 可用性
-</h3>
+### WebFetch 可用性
 
 在 Claude Code v2.1.285 或更高版本上，设置 [`CLAUDE_CODE_DISABLE_WEB_FETCH`](/docs/zh-CN/env-vars#variables) 为 `1` 以关闭 WebFetch。
 
@@ -719,9 +637,7 @@ WebFetch 设置一个以 `Claude-User` 开头的 `User-Agent` 标头，以及一
 
 如果 WebFetch 在会话中缺失，在会话中运行 `/status`。如果其 `Organization policy` 行报告政策未加载并在等待它的功能中列出网络获取，Claude Code 正在保留 WebFetch，直到它可以确认您的组织允许它。在会话外，`claude doctor` 进行自己的请求并打印相同的行。一旦允许 WebFetch 的政策加载，该工具返回而无需重启。
 
-<h2 id="websearch-tool-behavior">
-  WebSearch 工具行为
-</h2>
+## WebSearch 工具行为
 
 WebSearch 针对 Anthropic 的[网络搜索](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool)后端运行查询，并返回结果标题和 URL。它不会获取结果页面。要读取 Claude 在搜索结果中找到的页面，它会跟进使用 [WebFetch](#webfetch-tool-behavior)。
 
@@ -733,13 +649,11 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
 
 搜索后端不可配置。要使用不同的提供商进行搜索，请添加一个[MCP 服务器](/docs/zh-CN/mcp)来公开搜索工具。
 
-<Note>
-  WebSearch 在 Claude API、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 和 Microsoft Foundry 上可用。在 Google Cloud 的 Agent Platform 上，它适用于 Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型。Amazon Bedrock 不公开服务器端网络搜索工具。
-</Note>
+> [!NOTE]
+>
+> WebSearch 在 Claude API、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 和 Microsoft Foundry 上可用。在 Google Cloud 的 Agent Platform 上，它适用于 Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型。Amazon Bedrock 不公开服务器端网络搜索工具。
 
-<h3 id="session-search-limit">
-  会话搜索限制
-</h3>
+### 会话搜索限制
 
 一个交互式终端会话最多可以进行 200 次 WebSearch 调用。来自主对话和[子代理](/docs/zh-CN/sub-agents)的搜索（例如并行研究扇出）计入同一限制。
 
@@ -751,9 +665,7 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
 * **等待恢复**：在 Claude Code v2.1.290 或更高版本中，交互式终端会话的限制大约每小时恢复 100 次调用。要更改该速率，请将 [`CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR`](/docs/zh-CN/env-vars#variables) 设置为每小时的调用次数，例如 `50`。
 * **开始新的对话**：在 Claude Code 提示符处运行 [`/clear`](/docs/zh-CN/commands#all-commands) 也会重置计数。如果仍然可以生成子代理的工作（例如正在运行的工作流）在清除后继续存在，计数会改为继续累计。
 
-<h2 id="write-tool-behavior">
-  Write tool 行为
-</h2>
+## Write tool 行为
 
 Write tool 创建一个新文件或用提供的完整内容覆盖现有文件。它不会追加或合并。对于字节无法解码的现有文件，Write 同样会将其覆盖，并将新内容保存为 UTF-8，详见[非 UTF-8 文件](#non-utf-8-files)。
 
@@ -769,9 +681,7 @@ Claude 是否必须在当前对话中读取现有文件后才能覆盖它取决�
 
 对于对现有文件的部分更改，Claude 使用 Edit 而不是 Write。
 
-<h2 id="check-which-tools-are-available">
-  检查哪些工具可用
-</h2>
+## 检查哪些工具可用
 
 您的确切工具集取决于您的提供商、平台和设置。要检查在运行中的会话中加载了什么，请直接询问 Claude：
 
@@ -781,13 +691,11 @@ What tools do you have access to?
 
 Claude 提供对话摘要。对于确切的 MCP 工具名称，请运行 `/mcp`。
 
-<Note>
-  [advisor tool](/docs/zh-CN/advisor) 是一个 [server tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool)，由 API 运行，而不是 Claude Code 实现的工具。它没有您可以在权限规则或 hook 匹配器中引用的名称。
-</Note>
+> [!NOTE]
+>
+> [advisor tool](/docs/zh-CN/advisor) 是一个 [server tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool)，由 API 运行，而不是 Claude Code 实现的工具。它没有您可以在权限规则或 hook 匹配器中引用的名称。
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 * [MCP servers](/docs/zh-CN/mcp)：通过连接外部服务器添加自定义工具
 * [权限](/docs/zh-CN/permissions)：权限系统、规则语法和工具特定模式

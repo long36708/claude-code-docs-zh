@@ -10,17 +10,15 @@
 
 下表列出了每个子命令的常用选项，而非全部选项。在 shell 中运行 `claude plugin --help` 可查看您的版本具有哪些子命令，运行 `claude plugin <subcommand> --help` 可查看某个子命令的完整选项列表。
 
-<Note>
-  这些情况在其他页面上有介绍：
+> [!NOTE]
+>
+> 这些情况在其他页面上有介绍：
+>
+> * **安装和管理步骤，以及 `/plugin` 运行的位置**：请参阅 [安装和管理 plugins](/docs/zh-CN/plugins/install)
+> * **命令在磁盘上更改的内容以及哪个作用域优先**：请参阅 [Plugin 加载参考](/docs/zh-CN/plugins/loading)
+> * **错误消息的含义**：请参阅 [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting)
 
-  * **安装和管理步骤，以及 `/plugin` 运行的位置**：请参阅 [安装和管理 plugins](/docs/zh-CN/plugins/install)
-  * **命令在磁盘上更改的内容以及哪个作用域优先**：请参阅 [Plugin 加载参考](/docs/zh-CN/plugins/loading)
-  * **错误消息的含义**：请参阅 [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting)
-</Note>
-
-<h2 id="claude-plugin-commands">
-  claude plugin 命令
-</h2>
+## claude plugin 命令
 
 在 Claude Code 会话外部，从 shell 或脚本运行 `claude plugin <subcommand>`。这些子命令用于安装和管理插件，无需打开 [`/plugin`](#plugin-in-a-session) 面板。
 
@@ -32,9 +30,7 @@
 * **插件参数**：`<plugin>` 参数是插件 `name` 或 `name@marketplace`。当两个市场提供相同的名称时，请使用限定形式。`configure` 仅接受限定形式。
 * **作用域**：`--scope` 接受 `user`、`project` 或 `local`，用于指定命令写入的设置文件。`update` 还接受 `managed`。
 
-<h3 id="plugin-init">
-  plugin init
-</h3>
+### plugin init
 
 在 `~/.claude/skills/<name>/` 处搭建新插件。它会在您的下一个会话中作为 `<name>@skills-dir` 加载，无需安装步骤。
 
@@ -72,9 +68,7 @@ Claude Code 会验证其写入的内容并打印 `Created plugin "my-helper" at 
 * 目标处已存在搭建内容，且未使用 `--force`
 * 某项托管设置阻止了 skills-directory 插件
 
-<h3 id="plugin-install">
-  plugin install
-</h3>
+### plugin install
 
 从您已添加的市场安装插件。`i` 是 `install` 的别名。
 
@@ -112,9 +106,7 @@ Claude Code 打印 `Successfully installed plugin: formatter@my-marketplace (sco
 * **您拒绝了命令源提示**：输出为 `Aborted.`，退出码为 `1`
 * **您拒绝了 `headersHelper` 提示，或在没有 TTY 的情况下无法确认**：输出为 `Aborted — the command was not run.`，退出码为 `1`
 
-<h4 id="plugin-json-result">
-  JSON 结果格式
-</h4>
+#### JSON 结果格式
 
 向 `plugin install` 传递 `--json` 时，stdout 的最后一行是一个 JSON 对象。请仅解析该行，因为 Claude Code 会在其之前打印市场声明的任何命令。
 
@@ -130,9 +122,7 @@ Claude Code 打印 `Successfully installed plugin: formatter@my-marketplace (sco
 
 使用错误（例如无效的 `--scope`）不会打印结果行，而是以 `1` 退出，并在 stderr 上给出原因。
 
-<h4 id="json-result-for-marketplace-commands">
-  市场命令的 JSON 结果
-</h4>
+#### 市场命令的 JSON 结果
 
 在 `plugin marketplace add`、`plugin marketplace remove` 和 `plugin marketplace update` 上，`--json` 会在 stdout 的最后一行打印一个 JSON 对象，包含 `command`、`outcome` 和 `message` 字段。以下是 `claude plugin marketplace remove your-marketplace --json` 的结果：
 
@@ -147,9 +137,7 @@ Claude Code 打印 `Successfully installed plugin: formatter@my-marketplace (sco
 
 当参数为[保留名称](/docs/zh-CN/plugins/marketplace-reference#reserved-names) `anthropic-plugin-directory` 时，`plugin marketplace add` 和 `plugin marketplace remove` 可能不打印结果行，因此对于该名称请检查退出码。
 
-<h4 id="accept-a-displayed-install-command">
-  接受显示的安装命令
-</h4>
+#### 接受显示的安装命令
 
 当 `--json` 运行显示了市场声明的命令但未运行它时，`failed` 结果还会携带一个 `shownCommand` 对象。其字段包括显示的命令、该命令所属的插件以及命令的 `sha256`。
 
@@ -159,9 +147,7 @@ Claude Code 打印 `Successfully installed plugin: formatter@my-marketplace (sco
 
 如果 `shownCommand.acceptCommandMatched` 为 `false`，则您传递的 `sha256` 与当前显示的命令不匹配。请在使用其 `sha256` 重新运行之前检查该命令。
 
-<h3 id="plugin-uninstall">
-  plugin uninstall
-</h3>
+### plugin uninstall
 
 从一个作用域移除已安装的插件。`remove` 和 `rm` 是 `uninstall` 的别名。
 
@@ -187,9 +173,7 @@ Claude Code 打印 `Successfully uninstalled plugin: formatter (scope: project)`
 
 如果失败行后接 `"formatter" was not uninstalled:` 并指出某个设置文件，说明 Claude Code 无法确认该作用域的设置已不再启用该插件，因此插件保持安装状态，其保存的所有内容也都保留。使用 `--json` 时，结果携带 `failureCode: "settings_still_on"`。此设置检查需要 Claude Code v2.1.282 或更高版本。
 
-<h4 id="what-an-uninstall-deletes-and-keeps">
-  卸载会删除和保留的内容
-</h4>
+#### 卸载会删除和保留的内容
 
 当您从插件安装所在的最后一个作用域卸载插件时，Claude Code 还会删除插件存储的[选项和密钥](/docs/zh-CN/plugins/manifest-reference#user-configuration)及其数据目录 `~/.claude/plugins/data/<id>/`。有三个例外：
 
@@ -199,9 +183,7 @@ Claude Code 打印 `Successfully uninstalled plugin: formatter (scope: project)`
 
 使用 `--json` 时，`keptData` 报告目录是否保留，目录保留时 `/plugin` 会显示 `· data preserved`。对于未使用 `--keep-data` 却保留的目录，此报告需要 Claude Code v2.1.281 或更高版本。`savedKept` 字段需要 Claude Code v2.1.282 或更高版本。
 
-<h3 id="plugin-enable">
-  plugin enable
-</h3>
+### plugin enable
 
 启用已禁用的插件。对于[从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)，请传递 `<name>@synced` 作为插件。
 
@@ -237,9 +219,7 @@ claude plugin enable formatter
 
 Claude Code 打印 `Successfully enabled plugin: formatter (scope: project)`，并指出它检测到的作用域。
 
-<h3 id="plugin-disable">
-  plugin disable
-</h3>
+### plugin disable
 
 禁用插件而不卸载它。对于[从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)，请传递 `<name>@synced` 作为插件。
 
@@ -270,9 +250,7 @@ claude plugin disable formatter
 
 Claude Code 打印 `Successfully disabled plugin: formatter (scope: project)`。
 
-<h3 id="plugin-update">
-  plugin update
-</h3>
+### plugin update
 
 将插件更新到其市场提供的最新版本。新版本会在您的下一个会话中加载，或在正在运行的会话中运行 `/reload-plugins` 后加载。
 
@@ -295,9 +273,7 @@ claude plugin update formatter@my-marketplace
 
 Claude Code 打印 `Checking for updates for plugin "formatter@my-marketplace"…`，然后打印结果。当没有更新的版本时，它会打印 `formatter is already at the latest version (1.0.0).` 并以 `0` 退出，除非它[重试插件的依赖安装](#retry-an-unfinished-dependency-install)且该安装失败。
 
-<h4 id="which-scope-the-command-updates">
-  命令更新哪个作用域
-</h4>
+#### 命令更新哪个作用域
 
 如果省略 `--scope`，命令会在当前项目中插件安装所在的最具体作用域更新插件，依次检查 local、project、user，然后是 managed。
 
@@ -305,21 +281,15 @@ Claude Code 打印 `Checking for updates for plugin "formatter@my-marketplace"�
 
 `managed` 是唯一可以更新但不能安装到的作用域。有关管理员安装的插件，请参阅[为组织管理插件](/docs/zh-CN/plugins/org)。
 
-<h4 id="update-by-bare-name">
-  按裸名称更新
-</h4>
+#### 按裸名称更新
 
 您可以传递不带市场的插件名称，命令会将其与已安装的插件进行匹配。当来自不同市场的已安装插件同名时，命令会拒绝更新，并列出应改为运行的限定 `plugin-name@marketplace-name` 命令。按裸名称更新需要 Claude Code v2.1.246 或更高版本。
 
-<h4 id="retry-an-unfinished-dependency-install">
-  重试未完成的依赖安装
-</h4>
+#### 重试未完成的依赖安装
 
 当插件已是最新版本时，该命令还可以在其缓存副本中重试未完成的依赖安装。有关该重试会运行或被跳过的情况，请参阅[其列出的软件包未安装](/docs/zh-CN/plugins/troubleshooting#the-packages-it-lists-are-not-installed)。如果重试失败，输出为 `Failed to update plugin "formatter@my-marketplace"` 及原因，退出码为 `1`。在 v2.1.287 之前，该命令会报告插件已是最新版本，而不重试安装。
 
-<h3 id="plugin-list">
-  plugin list
-</h3>
+### plugin list
 
 列出已安装的插件及其版本、作用域和状态。
 
@@ -342,9 +312,7 @@ Claude Code 按各插件的加载方式对人类可读的输出进行分组：
 
 当所有分组都为空时，Claude Code 打印 ``No plugins installed. Use `claude plugin install` to install a plugin.``
 
-<h4 id="json-output">
-  JSON 输出
-</h4>
+#### JSON 输出
 
 使用 `--json` 时，Claude Code 打印一个数组，每个安装对应一个对象。每个对象携带以下字段。`id`、`version`、`scope`、`enabled` 和 `installPath` 始终存在，其他字段仅在适用时出现。
 
@@ -382,9 +350,7 @@ Claude Code 按各插件的加载方式对人类可读的输出进行分组：
 | `version` | string | 条目的版本（如有声明） |
 | `installCount` | number | 安装次数（当 Claude Code 有该插件的安装次数时） |
 
-<h3 id="plugin-details">
-  plugin details
-</h3>
+### plugin details
 
 显示插件的组件清单及其预计 token 成本。
 
@@ -412,9 +378,7 @@ Claude Code 打印插件的名称、版本、描述和来源，然后打印以�
 
 对于未加载的插件，Claude Code 打印 ``Plugin "formatter" not found. Run `claude plugin list` to see installed plugins, or pass --plugin-dir <path> to load one from disk.`` 并以 `1` 退出。
 
-<h3 id="plugin-configure">
-  plugin configure
-</h3>
+### plugin configure
 
 显示已安装插件的 [`userConfig`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 选项及哪些已设置，或保存通过 stdin 管道传入的值。需要 Claude Code v2.1.285 或更高版本。
 
@@ -441,9 +405,7 @@ Claude Code 根据选项声明的类型验证每个值，并打印 `Configuratio
 
 有关捆绑 MCP 服务器的设置，请参阅 [`plugin install --config`](#plugin-install) 或 `/plugin` 中的 **Configure** 项。
 
-<h3 id="plugin-prune">
-  plugin prune
-</h3>
+### plugin prune
 
 移除不再被任何已安装插件需要的自动安装[依赖项](/docs/zh-CN/plugins/dependencies)。该命令永远不会移除您自己安装的插件。`autoremove` 是 `prune` 的别名。
 
@@ -477,9 +439,7 @@ Claude Code 列出孤立的依赖项，并以 `(dry run — nothing removed)` �
 | 任何终端，`-y` | 移除它们并打印 `Removed N auto-installed plugins: <names>` |
 | 非 TTY stdin 或 stdout，无 `-y` | 打印列表并显示 ``Not a TTY — run `claude plugin prune -y` to remove.``，不移除任何内容 |
 
-<h3 id="plugin-eval">
-  plugin eval
-</h3>
+### plugin eval
 
 运行插件的 [eval 案例](/docs/zh-CN/plugin-evals)并报告评分结果。需要 Claude Code v2.1.269 或更高版本。
 
@@ -529,9 +489,7 @@ claude plugin eval [target] [options]
 | `130` | 被中断 |
 | `143` | 被终止 |
 
-<h3 id="plugin-eval-init">
-  plugin eval init
-</h3>
+### plugin eval init
 
 为当前目录中的插件创建 eval 套件。需要 Claude Code v2.1.269 或更高版本。请参阅[创建您的第一个 eval 套件](/docs/zh-CN/plugin-evals#create-your-first-eval-suite)。
 
@@ -561,9 +519,7 @@ claude plugin eval init [name] [options]
 | `-i, --interactive` | 要求进行访谈。没有终端时失败，而不是写入模板 | |
 | `--eval-dir <dir>` | 当前目录下写入案例的目录 | 清单的 `experimental.evals`，否则为 `evals` |
 
-<h3 id="plugin-tag">
-  plugin tag
-</h3>
+### plugin tag
 
 为插件发布创建名为 `<name>--v<version>` 的带注释 git 标签。在打标签之前，命令会检查插件的 `plugin.json` 与列出该插件的任何市场条目在版本上是否一致。
 
@@ -605,9 +561,7 @@ Claude Code 打印计划：
 * 标签已存在
 * 工作树不干净
 
-<h3 id="plugin-test">
-  plugin test
-</h3>
+### plugin test
 
 运行 [mod](/docs/zh-CN/plugins/mods/overview) 的测试，mod 是通过代码注册事件处理程序的插件。该命令无需会话、登录或网络。有关如何编写测试，请参阅[测试 mod](/docs/zh-CN/plugins/mods/test)。
 
@@ -623,9 +577,7 @@ claude plugin test [directory]
 claude plugin test ./first-mod
 ```
 
-<h3 id="plugin-validate">
-  plugin validate
-</h3>
+### plugin validate
 
 验证插件清单、市场清单或目录中的 skill、Agent 和命令，并以 CI 作业可据此操作的退出码退出。有关创建、测试和编辑工作流，请参阅[创建插件](/docs/zh-CN/plugins/create)。有关验证器在各清单中检查的内容，请参阅[插件清单参考](/docs/zh-CN/plugins/manifest-reference)和[市场参考](/docs/zh-CN/plugins/marketplace-reference)。
 
@@ -644,9 +596,7 @@ claude plugin validate <path> [options]
 claude plugin validate ./my-plugin --strict
 ```
 
-<h4 id="validate-a-directory">
-  验证目录
-</h4>
+#### 验证目录
 
 `<path>` 是清单文件或目录。给定目录时，Claude Code 根据在其中找到的内容选择要验证的对象：
 
@@ -671,9 +621,7 @@ Claude Code 不会跟随您指定的目录内的符号链接。其行为取决�
 * **插件根目录下的 `CLAUDE.md`**：在插件运行中，Claude Code 还会对插件根目录下的 `CLAUDE.md` 发出警告
 * **市场运行中的插件文件**：从市场目录运行时，Claude Code 不会打开市场在其他目录中列出的插件的 skill、Agent、命令或 hook 文件，也不会打开它们捆绑的 MCP 服务器文件。要查找这些文件中的错误，请分别验证每个插件目录
 
-<h4 id="output-and-exit-codes">
-  输出和退出码
-</h4>
+#### 输出和退出码
 
 Claude Code 打印所验证的文件、所有错误和警告及其路径，以及一行结论。退出码与结论一致：
 
@@ -694,9 +642,7 @@ Claude Code 打印所验证的文件、所有错误和警告及其路径，以�
 
 以 `2` 退出时，命令不向 stdout 写入任何内容。错误消息输出到 stderr。
 
-<h2 id="claude-plugin-marketplace-commands">
-  claude plugin marketplace 命令
-</h2>
+## claude plugin marketplace 命令
 
 从您的 shell 运行 `claude plugin marketplace <subcommand>` 来添加、列出、刷新和移除您安装插件的市场。
 
@@ -705,9 +651,7 @@ Claude Code 打印所验证的文件、所有错误和警告及其路径，以�
 
 关于市场是什么以及 Claude Code 如何缓存它，请参阅[插件加载参考](/docs/zh-CN/plugins/loading)。
 
-<h3 id="plugin-marketplace-add">
-  plugin marketplace add
-</h3>
+### plugin marketplace add
 
 从 GitHub 仓库、git URL、托管的 `marketplace.json` 或本地路径添加市场，并在设置文件中声明它。
 
@@ -760,9 +704,7 @@ claude plugin marketplace add --claudeai claudeai-organization-library
 
 使用 `--claudeai` 时，命令拒绝 `--scope` 和 `--sparse`。市场为您的账户托管，未在设置文件中声明，因此您无法通过项目的 `.claude/settings.json` 共享它。
 
-<h3 id="plugin-marketplace-list">
-  plugin marketplace list
-</h3>
+### plugin marketplace list
 
 列出您添加的每个市场及其源。
 
@@ -796,17 +738,15 @@ Claude Code 打印 `Configured marketplaces:` 和每个市场一行 `Source:`，
 
 `--json` 输出仅覆盖已配置的市场，并排除该部分。
 
-<h3 id="plugin-marketplace-remove">
-  plugin marketplace remove
-</h3>
+### plugin marketplace remove
 
 从您的设置中移除市场的声明。`rm` 是 `remove` 的别名。
 
-<Warning>
-  当您从最后一个声明市场的作用域中移除市场时，Claude Code 也会删除其缓存并卸载您从中安装的每个插件。它也会删除它们保存的[选项和密钥](/docs/zh-CN/plugins/manifest-reference#user-configuration)和[数据](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)（如果可以的话）。
-
-  要在不丢失其插件的情况下刷新市场，请改为运行 `plugin marketplace update`。
-</Warning>
+> [!WARNING]
+>
+> 当您从最后一个声明市场的作用域中移除市场时，Claude Code 也会删除其缓存并卸载您从中安装的每个插件。它也会删除它们保存的[选项和密钥](/docs/zh-CN/plugins/manifest-reference#user-configuration)和[数据](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)（如果可以的话）。
+>
+> 要在不丢失其插件的情况下刷新市场，请改为运行 `plugin marketplace update`。
 
 ```bash theme={null}
 claude plugin marketplace remove <name> [options]
@@ -829,9 +769,7 @@ Claude Code 打印 `Successfully removed marketplace: your-marketplace`。当命
 
 如果您限定作用域到不声明市场的设置文件，命令失败，显示 `Marketplace 'your-marketplace' is not declared in project settings. Omit --scope to remove it from all scopes.`
 
-<h3 id="plugin-marketplace-update">
-  plugin marketplace update
-</h3>
+### plugin marketplace update
 
 从其源刷新一个市场或每个市场，以获取新插件和版本。使用分支或标签 `ref` 添加的市场更新到该 ref 的最新提交，而不是仓库的默认分支。
 
@@ -851,9 +789,7 @@ claude plugin marketplace update your-marketplace
 
 Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当您省略名称时，它打印计数，如 `Successfully updated 2 marketplaces`。
 
-<h2 id="plugin-in-a-session">
-  会话中的 /plugin
-</h2>
+## 会话中的 /plugin
 
 在交互式会话中，`/plugin` 打开 plugin 面板。每个子命令在选项卡上打开面板、在那里运行操作或内联打印结果。`/plugins` 和 `/marketplace` 是 `/plugin` 的别名。
 
@@ -890,9 +826,7 @@ Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当您
 
 如果您在 `/plugin enable`、`disable`、`uninstall` 或 `configure` 中命名当前项目中未安装的 plugin，Claude Code 打印 `Plugin "<plugin>" is not installed in this project` 而不是操作。
 
-<h2 id="reload-plugins">
-  /reload-plugins
-</h2>
+## /reload-plugins
 
 应用待处理的插件更改到正在运行的会话中，无需重新启动。待处理的更改是指自会话启动以来在磁盘上安装、更新、启用、禁用或编辑的插件。
 
@@ -906,9 +840,7 @@ Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当您
 | :- | :- |
 | `--force` | 应用重新加载，即使它会使 prompt 缓存失效。不带破折号的 `force` 也可以 |
 
-<h3 id="reload-summary">
-  重新加载摘要
-</h3>
+### 重新加载摘要
 
 Claude Code 重新加载每个活跃的插件并打印一行摘要，`Reloaded: N plugins · N skills · N agents · N hooks · N plugin MCP servers · N plugin LSP servers`，在没有交互式终端的会话中省略插件 MCP 服务器计数。当任何插件失败时，摘要会添加 `N errors during load. Run /plugin for details.`
 
@@ -916,15 +848,11 @@ Claude Code 重新加载每个活跃的插件并打印一行摘要，`Reloaded: 
 
 当重新加载的插件的[依赖项](/docs/zh-CN/plugins/dependencies)缺失时，Claude Code 会安装它们，再次重新加载，并在摘要中附加 `(+ N dependencies: <names>) resolved`。
 
-<h3 id="reloads-that-change-mcp-tools">
-  更改 MCP 工具的重新加载
-</h3>
+### 更改 MCP 工具的重新加载
 
 当重新加载会添加或删除插件 MCP 服务器或 `LSP` 工具时，该更改会使[prompt 缓存](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)失效，Claude Code 不会应用重新加载。它会打印一行，例如 `This reload changes MCP tools (<server>) — your next message will re-read the whole conversation instead of using the cache. Run /reload-plugins --force to apply.` 传递 `--force` 以应用它。
 
-<h3 id="sessions-without-an-interactive-terminal">
-  没有交互式终端的会话
-</h3>
+### 没有交互式终端的会话
 
 `/reload-plugins` 也在没有交互式终端的会话中运行，例如桌面应用、Agent SDK 和带有 `-p` 的[非交互模式](/docs/zh-CN/headless)。需要 Claude Code v2.1.260 或更高版本。
 
@@ -932,9 +860,7 @@ Claude Code 重新加载每个活跃的插件并打印一行摘要，`Reloaded: 
 
 这些会话中的重新加载不连接或断开插件 MCP 服务器。这些更改在你的下一个会话中生效。
 
-<h2 id="flags-that-load-a-plugin-for-one-session">
-  为一个会话加载 plugin 的标志
-</h2>
+## 为一个会话加载 plugin 的标志
 
 两个 `claude` 标志仅为一个会话加载 plugin，而不安装它。两者都是可重复的。
 
@@ -953,9 +879,7 @@ Plugin 作者使用它们在发布前测试 plugin。对于加载-编辑-重新�
 
 从 Agent SDK，[`plugins`](/docs/zh-CN/agent-sdk/plugins) 选项等同于 `--plugin-dir`。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [安装和管理 plugins](/docs/zh-CN/plugins/install)：与步骤相同的操作，带有您在每个步骤看到的内容
 * [Plugin 加载参考](/docs/zh-CN/plugins/loading)：每个命令在磁盘上更改的内容以及哪个作用域生效

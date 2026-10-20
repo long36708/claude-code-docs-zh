@@ -6,9 +6,9 @@
 
 > 在您控制的基础设施上运行 Claude Code 云会话：设置自托管环境、部署运行器，并将会话路由到您自己的计算资源。
 
-<Note>
-  自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段，默认关闭。请参阅[可用性和限制](#availability-and-limitations)了解启用路径和排除的内容。
-</Note>
+> [!NOTE]
+>
+> 自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段，默认关闭。请参阅[可用性和限制](#availability-and-limitations)了解启用路径和排除的内容。
 
 自托管环境在您的组织运营的基础设施上执行 Claude Code 云端会话。[云端会话](/docs/zh-CN/claude-code-on-the-web)是指在开发者机器以外的任何地方运行的会话。开发者可以从 claude.ai、移动和桌面应用、带有 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud) 的终端以及[云端定时任务](/docs/zh-CN/routines)启动这些会话。默认情况下，云端会话在 Anthropic 的基础设施上执行。
 
@@ -16,9 +16,7 @@
 
 如果您的团队不使用云会话，这里没有什么需要配置的：终端或 IDE 中的会话始终在开发者自己的机器上运行。如果您想在自己的常开机器上运行 Claude Code 并从其他设备驱动它，请使用[远程控制](/docs/zh-CN/remote-control)，它也可在 Pro 和 Max 计划上使用。当您准备好设置时，直接转到[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)；如果您想先审查安全态势，请从[部署到生产](/docs/zh-CN/self-hosted-environments-deploy)开始。本页的其余部分解释自托管的工作原理以及何时选择它。
 
-<h2 id="how-self-hosted-environments-work">
-  自托管环境如何工作
-</h2>
+## 自托管环境如何工作
 
 自托管有三个部分：
 
@@ -28,21 +26,13 @@
 
 当开发者启动云端会话时，会话启动 UI 显示一个环境选择器，列出 Anthropic 托管的环境以及您的组织创建的任何环境。如果他们选择您的环境，Anthropic 的控制平面将会话放在您的环境队列上，运行器认领它，克隆开发者选择的仓库，并在您的主机上启动 Claude Code 进程来运行它。运行器使用您配置的凭据向您的 git 主机进行身份验证；[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)涵盖了这些选项。会话从您网络内部到达您的内部服务，当您的 git 主机是内部的时，也以相同的方式到达它；到 Anthropic 的流量，即队列轮询、会话的事件流以及默认情况下的模型推理，是到 `api.anthropic.com` 的出站 HTTPS，会话还可以到达的其他少量主机列在[网络要求](/docs/zh-CN/self-hosted-environments-deploy#network-requirements)中。Anthropic 从不连接到您的网络。
 
-<div style={{maxWidth: "640px", margin: "0 auto"}}>
-  <Frame>
-    <img src="https://mintcdn.com/claude-code/Y0sJ2uDoOVbOVZrQ/images/self-hosted-network-paths.svg?fit=max&auto=format&n=Y0sJ2uDoOVbOVZrQ&q=85&s=8056103fc1c5564c7f0ef219d260b99d" className="dark:hidden" alt="自托管环境的架构图：您的网络边界包含一个运行器、其中的两个 Claude Code 会话进程和您的 git 主机，api.anthropic.com 在外部持有队列、会话流和推理。运行器轮询队列并到达 git 主机，每个会话进程打开自己的流、推理和 git 连接，每个连接都是从您的网络出站的，没有入站的。" width="680" height="320" data-path="images/self-hosted-network-paths.svg" />
-
-    <img src="https://mintcdn.com/claude-code/Y0sJ2uDoOVbOVZrQ/images/self-hosted-network-paths-dark.svg?fit=max&auto=format&n=Y0sJ2uDoOVbOVZrQ&q=85&s=fec6aef3b0740d80eaf6d6a7000a2233" className="hidden dark:block" alt="自托管环境的架构图：您的网络边界包含一个运行器、其中的两个 Claude Code 会话进程和您的 git 主机，api.anthropic.com 在外部持有队列、会话流和推理。运行器轮询队列并到达 git 主机，每个会话进程打开自己的流、推理和 git 连接，每个连接都是从您的网络出站的，没有入站的。" width="680" height="320" data-path="images/self-hosted-network-paths-dark.svg" />
-  </Frame>
-</div>
+![自托管环境的架构图：您的网络边界包含一个运行器、其中的两个 Claude Code 会话进程和您的 git 主机，api.anthropic.com 在外部持有队列、会话流和推理。运行器轮询队列并到达 git 主机，每个会话进程打开自己的流、推理和 git 连接，每个连接都是从您的网络出站的，没有入站的。](https://mintcdn.com/claude-code/Y0sJ2uDoOVbOVZrQ/images/self-hosted-network-paths.svg?fit=max\&auto=format\&n=Y0sJ2uDoOVbOVZrQ\&q=85\&s=8056103fc1c5564c7f0ef219d260b99d)
 
 图中的两个 Claude Code 框是会话进程：一个运行器同时执行两个会话，达到其配置的容量。运行器一次为一个[所有者](#key-concepts)服务，并在声称其第一个会话时锁定到该所有者，因此检出的代码永远不会在所有者之间混合；[运行器生命周期](#runner-lifecycle)涵盖了这个规则。
 
 您可以自己启动运行器并保持它们运行，或运行[自动扩展编排器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)，这是您托管的第二个进程，它在会话排队时启动运行器；每个运行器在其工作完成时自行退出。无论哪种方式，您都设置一次环境，它会出现在每个支持的表面上的选择器中。
 
-<h2 id="availability-and-limitations">
-  可用性和限制
-</h2>
+## 可用性和限制
 
 在规划推出之前检查这些：
 
@@ -53,9 +43,7 @@
 * **存储库**：会话从 GitHub 检出存储库；请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)。对于 GitHub Enterprise Server 主机，请参阅其[网络要求](/docs/zh-CN/github-enterprise-server#network-requirements)。
 * **计费**：自托管环境中的会话消耗您的组织的 Claude Code 使用情况，与 Anthropic 托管环境中的会话相同。
 
-<h2 id="why-self-host">
-  为什么选择自托管
-</h2>
+## 为什么选择自托管
 
 大多数团队由 Anthropic 托管的环境更好地服务，这不需要基础设施来运行或维护。自托管适用于网络、工具或合规要求要求在其控制的基础设施上保持会话执行的团队。如果是这样，请为其承载的运营所有权做好计划：您构建和维护运行器镜像、运营舰队并控制其网络。
 
@@ -65,15 +53,11 @@
 * **自定义工具**：在您的运行器镜像中预安装编译器、SDK 和内部 CLI，以便每个会话都准备好构建
 * **合规**：仓库检出和构建产物保留在您控制的基础设施上。会话内容仍然发送到 `api.anthropic.com`。
 
-<h2 id="environments-runners-and-sessions">
-  环境、运行器和会话
-</h2>
+## 环境、运行器和会话
 
 环境在 claude.ai 管理员设置中的**云环境**页面上管理；运行器是您在自己的基础设施上启动和管理的进程。
 
-<h3 id="key-concepts">
-  关键概念
-</h3>
+### 关键概念
 
 这些术语在整个自托管页面中出现：
 
@@ -93,9 +77,7 @@
 
 因此，最小舰队大小是您期望同时活跃的所有者数量，计算用户和 Claude Tag 代理。
 
-<h3 id="session-lifecycle">
-  会话生命周期
-</h3>
+### 会话生命周期
 
 当开发者启动会话并选择您的环境时，Anthropic 的控制平面将会话放在环境的队列上。从那里：
 
@@ -106,9 +88,7 @@
 
 运行器给每个轮询请求 10 秒。当请求超时、丢失或获得运行器无法解析的响应时，运行器继续为其活跃会话服务，并在一两秒后重试，而不是等待下一个计划的轮询。例如，一个拦截代理用自己的页面回答轮询会产生运行器无法解析的响应。每次另一个请求以这些方式之一失败时，运行器会将下一次重试前的间隔加倍，最多 20 秒，并在租约即将过期时缩短间隔。
 
-<h3 id="runner-lifecycle">
-  运行器生命周期
-</h3>
+### 运行器生命周期
 
 运行器拾取的第一个会话将运行器锁定到该会话的所有者，运行器为该所有者运行最多 `--capacity` 个并发会话。当运行器有活跃会话且未收到关闭信号或达到其退休时间时，运行器继续声称锁定所有者的排队工作。一旦它们完成会发生什么取决于 [`--drain-grace-sec`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)：
 
@@ -127,9 +107,7 @@
 
 超过杀死的转仍然丢失；[关闭时序](/docs/zh-CN/self-hosted-environments-deploy#shutdown-timing)涵盖了调整边距的大小。没有 `--retire-at`，无信号主机杀死与崩溃无法区分：控制平面记录丢失的工作者而不是干净释放，会话重新排队给另一个运行器。
 
-<h3 id="network-paths">
-  网络路径
-</h3>
+### 网络路径
 
 运行器及其会话进行多种出站连接，不需要来自 Anthropic 的入站连接：
 
@@ -146,17 +124,13 @@
 
 如果您的代理还需要 `Proxy-Authorization` 标头，运行器可以将其添加到它打开到代理的每个连接；请参阅[向出站代理进行身份验证](/docs/zh-CN/self-hosted-environments-deploy#authenticate-to-an-egress-proxy)。
 
-<h2 id="what-stays-on-your-infrastructure">
-  保留在您的基础设施上的内容
-</h2>
+## 保留在您的基础设施上的内容
 
 仓库检出、构建产物、密钥以及会话创建或修改的任何文件都保留在您配置的机器上。对话本身，包括提示词、回复和工具结果，会发送到 `api.anthropic.com`，Anthropic 会存储会话记录，以便您可以从另一个[受支持的使用入口](#availability-and-limitations)恢复会话。当运行器[将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform](/docs/zh-CN/self-hosted-environments-configuration#send-model-requests-to-bedrock-or-agent-platform) 时，对话仍会通过会话的事件流发送到 `api.anthropic.com`。
 
 自托管环境将会话执行移到您的网络中。控制平面仍然是 Anthropic 托管的：会话编排、队列和 claude.ai 界面继续在 Anthropic 的基础设施上运行。
 
-<h2 id="get-started">
-  开始使用
-</h2>
+## 开始使用
 
 自托管环境页面按您正在做的事情组织：
 

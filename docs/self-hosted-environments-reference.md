@@ -6,17 +6,15 @@
 
 > 自托管运行器和编排器的完整参考：CLI 标志、环境变量和 Prometheus 指标。
 
-<Note>
-  自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段；[所有者](/docs/zh-CN/cloud-environments#organization-shared-environments)通过在[**云环境**管理页面](https://claude.ai/admin-settings/cloud-environments)上打开**允许自托管环境**来启用它们。本页面是标志和指标参考；有关设置，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)，有关舰队配方，请参阅[部署到生产](/docs/zh-CN/self-hosted-environments-deploy)。
-</Note>
+> [!NOTE]
+>
+> 自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段；[所有者](/docs/zh-CN/cloud-environments#organization-shared-environments)通过在[**云环境**管理页面](https://claude.ai/admin-settings/cloud-environments)上打开**允许自托管环境**来启用它们。本页面是标志和指标参考；有关设置，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)，有关舰队配方，请参阅[部署到生产](/docs/zh-CN/self-hosted-environments-deploy)。
 
 本页面是您在[自托管环境](/docs/zh-CN/self-hosted-environments)中运行的两个进程的参考：运行器，它在您的主机上执行 Claude Code [云会话](/docs/zh-CN/claude-code-on-the-web)，以及可选的自动扩展编排器，它在会话队列时启动运行器。每个都有自己的标志表。两者都在 Linux 或 macOS 主机上运行，默认值如 `/workspace` 和 `~/.claude` 假设。运行 `claude self-hosted-runner --help` 以获取已安装版本上的权威列表。
 
 指标系列和一些 API 字段仍然使用 `pool` 来表示这些页面所称的环境；两个术语都指同一事物。环境 ID 是 `pool_id` 字段，形式为 `ccpool_...`：无论这些页面在哪里显示 `pool` 标识符，它都命名环境。CLI 标志和环境变量将其拼写为 `environment`，例如 `--environment-secret-file`；已弃用的 `pool` 拼写仍然有效，如[`--environment-secret-file` 行](#runner-cli-flags)所述。
 
-<h2 id="runner-cli-flags">
-  Runner CLI 标志
-</h2>
+## Runner CLI 标志
 
 大多数标志都有相应的环境变量。当两者都设置时，标志优先。持续时间标志在 CLI 上采用分钟或秒，但配对的环境变量始终以毫秒为单位，由 `_MS` 后缀表示，默认列显示标志的单位：`--exit-if-unused-min 10` 等同于 `SELF_HOSTED_RUNNER_IDLE_SHUTDOWN_MS=600000`，而 Helm 值如 `SELF_HOSTED_RUNNER_STARTUP_TIMEOUT_MS: "15"` 表示 15 毫秒，而不是 15 分钟的默认值。
 
@@ -63,9 +61,7 @@
 * **标志**：启动失败并出现错误。
 * **环境变量**：运行器将值夹紧到计时器上限，而不是拒绝它。
 
-<h3 id="auto-mode-rule-lists">
-  自动模式规则列表
-</h3>
+### 自动模式规则列表
 
 `--server-auto-mode-lists` 让您决定来自运行器外部的哪些[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器规则可以到达您的运行器上的会话。Anthropic 的控制平面可以随会话发送规则列表，并要求运行器应用它们。其中某些条目可能是您组织的管理员编写的规则。这些列表是 `environment`、`soft_deny` 和 `allow`：
 
@@ -81,9 +77,7 @@
 
 没有任何运行器设置能让控制平面要求运行器应用这些列表。当控制平面没有提出要求时，无论您如何设置，会话都不会收到任何列表。要查看发生了哪种情况，请使用 `--log-level debug` 启动运行器。随后，运行器会为每个会话记录一行包含 `the server asked this runner to apply` 的日志，或一行包含 `the server did not ask this runner to apply the auto mode lists it sends` 的日志。
 
-<h2 id="orchestrator-cli-flags">
-  Orchestrator CLI 标志
-</h2>
+## Orchestrator CLI 标志
 
 `self-hosted-runner orchestrator` 子命令（生成[按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)）接受 `--api-url`、`--environment-secret-file`、`--hooks-dir`、`--health-port` 和 `--log-level`，与运行器具有相同的默认值，以及运行器的标志具有的相同环境变量（除了 `--hooks-dir` 是必需的，必须包含 `spawn-runner` 钩子）。它还采用自己的标志：
 
@@ -95,9 +89,7 @@
 | `--min-idle <n>` | `0` | 通过主动生成待命运行器来保持至少 N 个空闲会话槽。`0` 禁用预热。与运行器的 `--exit-if-unused-min` 配对，以便多余的待命运行器回收自己。 |
 | `--debug-dir <path>` | 未设置 | 将每个生成请求的工作订单和钩子 stderr 写入磁盘。仅用于调试；永远不要在生产中设置。 |
 
-<h3 id="scm-connector-flags">
-  SCM 连接器标志
-</h3>
+### SCM 连接器标志
 
 SCM 连接器不可用，因此请将本部分中的标志保持未设置。如果您设置 `--scm-connector-host`，连接不会打开，编排器会继续重试。运行器仍然作为会话队列启动。
 
@@ -113,9 +105,7 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 
 在每次连接尝试时，编排器发送其现有的环境密钥，并使用指数退避自动重试，上限为 30 秒加抖动。
 
-<h2 id="environment-variable-only-settings">
-  仅环境变量设置
-</h2>
+## 仅环境变量设置
 
 这些运行器设置仅从环境读取，涵盖大多数部署保留在默认值的行为：
 
@@ -132,9 +122,7 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 | `FORCE_AUTOUPDATE_PLUGINS` | 未设置 | 当为 `1` 时，让插件市场自动更新，即使二进制文件被固定 |
 | `CLAUDE_CODE_DISABLE_ARTIFACT` | 未设置 | 当为 `1` 时，无论组织的管理员设置如何，都在会话中禁用 Artifact 工具，并删除 `*.frame.claudeusercontent.com` 出口要求 |
 
-<h2 id="telemetry">
-  遥测
-</h2>
+## 遥测
 
 会话子进程向 Anthropic 发送操作遥测，除非您关闭它。不发送代码或存储库内容。在运行器进程上设置遥测变量；运行器在应用服务器提供的环境变量后重新声明它们，因此操作员的设置始终优先。
 
@@ -142,9 +130,7 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 
 `CLAUDE_CODE_ENABLE_TELEMETRY` 无关：它启用 OpenTelemetry 导出到您自己的收集器，如[监控](/docs/zh-CN/monitoring-usage)中所述，不控制 Anthropic 的分析。
 
-<h2 id="health-endpoint">
-  健康端点
-</h2>
+## 健康端点
 
 运行器在配置的健康端口上提供 `GET /healthz`。只要进程活跃，响应就是 `200 OK`，无论轮询循环处于什么状态，因此此端点上的 HTTP 探针仅检测死进程。JSON 正文描述当前状态：
 
@@ -164,9 +150,7 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 
 当[SCM 连接器](#scm-connector-flags)被配置时，编排器的 `/healthz` 正文也携带 `scm_connector_connected` 和一个 `scm_connector` 对象，包含 `connected`、`last_connected_at`、`last_error`、`reconnects` 和 `requests_forwarded`。当未设置 `--scm-connector-host` 时，两个字段都是 `null`。
 
-<h2 id="prometheus-metrics">
-  Prometheus 指标
-</h2>
+## Prometheus 指标
 
 每个运行器在与 `/healthz` 相同的端口上的 `GET /metrics` 处提供 Prometheus 指标。关键系列：
 
@@ -318,17 +302,13 @@ groups:
           summary: "编排器 {{ $labels.pod }}：5 分钟内 >3 个 spawn-runner 钩子失败"
 ```
 
-<h3 id="pass-through-session-child-metrics">
-  传递会话子进程指标
-</h3>
+### 传递会话子进程指标
 
 每个会话在其自己的子进程中运行，具有自己的 OpenTelemetry 指标；在 `--capacity` 高于 1 时，运行器重写这些子指标的公开方式。在运行器主机上设置 `OTEL_METRICS_EXPORTER=prometheus` 和会话环境中的 `CLAUDE_CODE_ENABLE_TELEMETRY=1`（例如从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)或运行器自己的环境，会话继承），重新公开每个子进程的计数器和仪表工具在运行器自己的 `/metrics` 端点上，与运行器的系列一起。运行器将子进程的导出器重写为通过 OTLP 推送到健康端口上的仅环回接收器，用 `session_id` 和 `client_platform` 标签标记每个系列，并在该会话结束时驱逐会话的系列。直方图不通过，子指标名称与运行器自己的前缀冲突的会被删除。
 
 在默认 `--capacity 1` 处，重写不适用：会话的子进程照常在端口 9464 上绑定自己的 Prometheus 端点。
 
-<h3 id="session-lifecycle-counter-semantics">
-  会话生命周期计数器语义
-</h3>
+### 会话生命周期计数器语义
 
 `sessions_started_total`、`sessions_completed_total`、`sessions_failed_total` 和 `sessions_interrupted_total` 计数器按会话如何结束对其进行分类。每个生成的会话子进程在生成时增加 `sessions_started_total`，并且在退出时恰好增加其他三个中的一个，因此 `sessions_started_total` 减去其他三个的总和等于当前运行的会话子进程数。
 
@@ -357,9 +337,7 @@ groups:
 
 对于每个会话结果报告，改为使用 [`post-session` 钩子](/docs/zh-CN/self-hosted-environments-configuration#post-session)：它在每个会话结束处触发，其中生成了子进程，除了突然的运行器终止（例如 VM 抢占），根据[钩子自己的合同](/docs/zh-CN/self-hosted-environments-configuration#post-session)。
 
-<h2 id="what’s-next">
-  接下来
-</h2>
+## 接下来
 
 * [自托管环境](/docs/zh-CN/self-hosted-environments)：环境、运行器和会话模型；[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)和[部署到生产](/docs/zh-CN/self-hosted-environments-deploy)包含设置和操作
 * [自定义会话](/docs/zh-CN/self-hosted-environments-configuration)：包装脚本、生命周期钩子和按需运行器

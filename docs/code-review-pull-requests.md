@@ -10,13 +10,11 @@ Code Review 是一项托管服务，由您的 Claude 组织中的 Owner 为一�
 
 Owner 可以为每个仓库控制[审查何时运行](/docs/zh-CN/code-review-setup#set-when-reviews-run)以及[审查的详尽程度](/docs/zh-CN/code-review-setup#set-the-default-review-level)。
 
-<Note>
-  如果您的套餐不包含 Code Review，您仍然可以在 Claude Code 会话中让 Claude 审查您的分支：请参阅[使用 `/code-review` 在本地审查](/docs/zh-CN/code-review-local)。
-</Note>
+> [!NOTE]
+>
+> 如果您的套餐不包含 Code Review，您仍然可以在 Claude Code 会话中让 Claude 审查您的分支：请参阅[使用 `/code-review` 在本地审查](/docs/zh-CN/code-review-local)。
 
-<h2 id="severity-levels">
-  严重程度级别
-</h2>
+## 严重程度级别
 
 Claude 将每个发现作为内联评论发布在相关代码行上，并用以下三种严重程度级别之一进行标记：
 
@@ -30,9 +28,7 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 
 要更改 Claude 在您的仓库中标记的内容或其对严重程度的判定方式，请参阅[自定义 Code Review](/docs/zh-CN/code-review-customize)。
 
-<h2 id="respond-to-findings">
-  回应发现
-</h2>
+## 回应发现
 
 除非您的仓库自身规则有要求，否则您无需回应发现即可合并。如果仓库的分支保护[要求解决对话](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches#require-conversation-resolution-before-merging)，请在合并前解决每个发现的讨论串。
 
@@ -44,9 +40,7 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 
 要在不推送的情况下获得下一次审查，请以[顶层 Pull Request 评论](#comment-commands)的形式发表 `@claude review`。
 
-<h2 id="check-run-output">
-  检查运行输出
-</h2>
+## 检查运行输出
 
 **Claude Code Review** 检查运行上的 **Details** 链接会在一个按严重程度排序的表格中打开所有发现，包括 GitHub 未接受其行内评论的发现：
 
@@ -59,43 +53,37 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 
 检查运行的结论为 neutral；如果因推送未更改任何文件而未运行自动审查，则结论为 skipped。它的结论永远不会是 failure，因此已完成的审查不会导致必需检查失败。如果您没有看到发现，或者审查未运行，请参阅[排查 Code Review 问题](/docs/zh-CN/code-review-troubleshooting)。
 
-<h3 id="read-the-result-from-a-script">
-  通过脚本读取结果
-</h3>
+### 通过脚本读取结果
 
 要在您自己的 CI 中控制合并或发布摘要，请使用 `gh` 和 jq 解析 Details 文本的最后一行。该行是一条机器可读的注释。
 
-<Steps>
-  <Step title="查找检查运行 ID">
-    在您的 shell 中，列出该提交的检查运行，并获取 `Claude Code Review` 运行的 `id`。将 `OWNER` 和 `REPO` 替换为您的仓库所有者和名称，将 `<commit-sha>` 替换为 Pull Request 的头部提交：
+**1. 查找检查运行 ID**
 
-    ```bash theme={null}
-    gh api repos/OWNER/REPO/commits/<commit-sha>/check-runs --jq '.check_runs[] | {id, name}'
-    ```
-  </Step>
+在您的 shell 中，列出该提交的检查运行，并获取 `Claude Code Review` 运行的 `id`。将 `OWNER` 和 `REPO` 替换为您的仓库所有者和名称，将 `<commit-sha>` 替换为 Pull Request 的头部提交：
 
-  <Step title="读取严重程度计数">
-    从该检查运行中读取计数，将 `CHECK_RUN_ID` 替换为该 ID：
+```bash theme={null}
+gh api repos/OWNER/REPO/commits/<commit-sha>/check-runs --jq '.check_runs[] | {id, name}'
+```
 
-    ```bash theme={null}
-    gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID \
-      --jq '.output.text | split("bughunter-severity: ")[1] | split(" -->")[0] | fromjson'
-    ```
+**2. 读取严重程度计数**
 
-    这会输出一个 JSON 对象，其中包含每种严重程度的计数，键按字母顺序排列，例如 `{"nit": 1, "normal": 2, "pre_existing": 0}`。计数包括该 Pull Request 早期审查中讨论串仍处于打开状态的发现。
-  </Step>
+从该检查运行中读取计数，将 `CHECK_RUN_ID` 替换为该 ID：
 
-  <Step title="根据结果采取行动">
-    让您的脚本处理以下情况：
+```bash theme={null}
+gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID \
+  --jq '.output.text | split("bughunter-severity: ")[1] | split(" -->")[0] | fromjson'
+```
 
-    * **`normal` 大于零**：如果您希望控制合并，请让作业失败。`normal` 键保存的是 Important 发现的数量，这意味着 Claude 至少发现了一个值得在合并前修复的 bug。
-    * **该行缺失**：将其视为没有结论，而不是零个发现。对于失败、超时、被取消或被更新审查取代的审查，其检查运行中没有此行，某些已完成的审查也没有此行。
-  </Step>
-</Steps>
+这会输出一个 JSON 对象，其中包含每种严重程度的计数，键按字母顺序排列，例如 `{"nit": 1, "normal": 2, "pre_existing": 0}`。计数包括该 Pull Request 早期审查中讨论串仍处于打开状态的发现。
 
-<h2 id="request-a-review">
-  请求审查
-</h2>
+**3. 根据结果采取行动**
+
+让您的脚本处理以下情况：
+
+* **`normal` 大于零**：如果您希望控制合并，请让作业失败。`normal` 键保存的是 Important 发现的数量，这意味着 Claude 至少发现了一个值得在合并前修复的 bug。
+* **该行缺失**：将其视为没有结论，而不是零个发现。对于失败、超时、被取消或被更新审查取代的审查，其检查运行中没有此行，某些已完成的审查也没有此行。
+
+## 请求审查
 
 如果您的 Pull Request 是草稿或来自 fork，自动审查会跳过它，因此请[使用评论命令请求审查](#review-drafts-and-pull-requests-from-forks)。要让您的 Pull Request 获得审查，请执行以下操作之一：
 
@@ -105,9 +93,7 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 * **点击 Re-run**：在非 fork 的 Pull Request 上审查失败或超时后，从检查运行中[再次运行](/docs/zh-CN/code-review-troubleshooting#retrigger-a-failed-or-timed-out-review)。
 * **等待自动重试**：会话中断的审查会自动重试一次。[检查运行的摘要](/docs/zh-CN/code-review-troubleshooting#retrigger-a-failed-or-timed-out-review)会显示何时正在进行重试。
 
-<h3 id="comment-commands">
-  评论命令
-</h3>
+### 评论命令
 
 在 Pull Request 上以评论形式发布以下命令之一：
 
@@ -128,21 +114,17 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 
 如果 Pull Request 的最新提交上已有审查正在运行，新的请求不会启动第二次审查。
 
-<Note>
-  在 2026 年 7 月的更新之前，`@claude review` 会为 PR 订阅由推送触发的审查。如果您依赖该行为，请改为评论 `@claude review always`。
-</Note>
+> [!NOTE]
+>
+> 在 2026 年 7 月的更新之前，`@claude review` 会为 PR 订阅由推送触发的审查。如果您依赖该行为，请改为评论 `@claude review always`。
 
-<h3 id="what-a-later-review-covers">
-  后续审查涵盖的内容
-</h3>
+### 后续审查涵盖的内容
 
 自行启动的后续审查（例如推送后）会侧重于自上次审查以来的更改，并发布较少的 nit 和已存在问题的发现。其摘要会统计被省略的内容，相应行以 "found and not posted" 或 "outside the scope of this re-review and not posted." 结尾。
 
 要获得不省略任何这些内容的审查，请评论 [`@claude review`](#comment-commands)。它会再次涵盖整个 Pull Request。
 
-<h3 id="review-drafts-and-pull-requests-from-forks">
-  审查草稿和来自 fork 的 Pull Request
-</h3>
+### 审查草稿和来自 fork 的 Pull Request
 
 自动审查会跳过这两种情况，因此请使用评论命令请求审查：
 
@@ -151,15 +133,11 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 
 在来自 fork 的 Pull Request 上，`@claude review always` 同样有效，但不会为该 Pull Request 订阅后续推送的审查。在那里点击检查运行上的 **Re-run** 不会启动审查。
 
-<h3 id="use-code-review-alongside-the-claude-code-github-action">
-  将 Code Review 与 Claude Code GitHub Action 一起使用
-</h3>
+### 将 Code Review 与 Claude Code GitHub Action 一起使用
 
 如果仓库还以交互模式运行 [Claude Code GitHub Action](/docs/zh-CN/github-actions)，并使用其默认的 `@claude` 触发短语，那么 `@claude review` 评论也会启动该 Action。要将两者区分开，请将该 Action 的 `trigger_phrase` 输入设置为其他短语。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [Code Review 故障排除](/docs/zh-CN/code-review-troubleshooting)：未启动、失败或因预算而被跳过的审查
 * [Code Review](/docs/zh-CN/code-review)：该服务是什么以及审查如何运行

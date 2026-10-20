@@ -12,12 +12,12 @@ marketplace 源是一个单独的对象，说明 Claude Code 从哪里获取 mar
 
 本参考适用于需要确切字段名称或值的 marketplace 维护者，以及需要了解哪些 `source` 值在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces)、[`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces) 和 [`blockedMarketplaces`](/docs/zh-CN/plugins/org#restrict-what-users-can-install) 中有效的管理员。
 
-<Note>
-  这些情况在其他页面上有介绍：
-
-  * **构建或托管 marketplace**：请参阅 [创建 marketplace](/docs/zh-CN/plugins/create-marketplace) 和 [托管和维护 marketplace](/docs/zh-CN/plugins/host-marketplace)
-  * **允许列表和阻止列表配方**：请参阅 [为你的组织管理插件](/docs/zh-CN/plugins/org)
-</Note>
+> [!NOTE]
+>
+> 这些情况在其他页面上有介绍：
+>
+> * **构建或托管 marketplace**：请参阅 [创建 marketplace](/docs/zh-CN/plugins/create-marketplace) 和 [托管和维护 marketplace](/docs/zh-CN/plugins/host-marketplace)
+> * **允许列表和阻止列表配方**：请参阅 [为你的组织管理插件](/docs/zh-CN/plugins/org)
 
 查找你正在编写或读取的内容的部分：
 
@@ -26,9 +26,7 @@ marketplace 源是一个单独的对象，说明 Claude Code 从哪里获取 mar
 * **设置中的 `source` 对象**：[Marketplace 源](#marketplace-sources)
 * **来自 [`claude plugin validate <path>`](/docs/zh-CN/plugins/cli-reference) 的输出**：[验证消息](#validation-messages)，它将每条消息映射到它命名的字段
 
-<h2 id="marketplace-file">
-  Marketplace 文件
-</h2>
+## Marketplace 文件
 
 将 marketplace 文件保存在 marketplace 目录中的 `.claude-plugin/marketplace.json`。如果你将文件保存在存储库中的其他位置，用户必须在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 中声明 marketplace，并在其源上设置 `path`，因为 `claude plugin marketplace add` 没有该选项。
 
@@ -38,9 +36,7 @@ marketplace 源是一个单独的对象，说明 Claude Code 从哪里获取 mar
 
 Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，因此拼写错误会静默加载。`claude plugin validate` 将每个未知键报告为警告。
 
-<h3 id="reserved-names">
-  保留名称
-</h3>
+### 保留名称
 
 你不能给你的 marketplace 以下任何名称：
 
@@ -48,7 +44,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 * **社区 marketplace 名称**：`claude-community`、`claude-plugins-community` 和 `healthcare`。保留规则与官方名称相同。
 * **插件目录名称**：`anthropic-plugin-directory` 和 `claude-plugin-directory`。保留规则与官方名称相同。
 * **冒充官方 marketplace 的名称**：名称如 `official-claude-plugins` 或 `claude-plugins-v2`，以及任何包含非 ASCII 字符的名称。错误是 `Marketplace name impersonates an official Anthropic/Claude marketplace`。名称中的控制或双向格式化字符也会报告 `Marketplace name cannot contain control or bidirectional-formatting characters`。已在这样的名称下注册的 marketplace 停止加载，连同其插件。
-* <span id="reserved-name-spellings" />**保留名称的另一种拼写**：仅因尾部的点，或因用除下划线以外的符号代替连字符，而与保留名称不同的名称，因此 `claude.code.plugins` 计为 `claude-code-plugins`。添加 marketplace 失败，错误为 [`is another spelling of "<reserved>", a reserved marketplace name`](/docs/zh-CN/errors#marketplace-name-is-another-spelling-of-a-reserved-name)，已使用此类名称注册的 marketplace 将停止加载。此检查需要 Claude Code v2.1.280 或更高版本。
+* **保留名称的另一种拼写**：仅因尾部的点，或因用除下划线以外的符号代替连字符，而与保留名称不同的名称，因此 `claude.code.plugins` 计为 `claude-code-plugins`。添加 marketplace 失败，错误为 [`is another spelling of "<reserved>", a reserved marketplace name`](/docs/zh-CN/errors#marketplace-name-is-another-spelling-of-a-reserved-name)，已使用此类名称注册的 marketplace 将停止加载。此检查需要 Claude Code v2.1.280 或更高版本。
 * **Claude Code 用于不来自 marketplace 的插件的名称**：`inline` 用于使用 [`--plugin-dir`](/docs/zh-CN/cli-reference) 加载的插件，`builtin` 用于内置插件，`skills-dir` 用于从 [`.claude/skills/`](/docs/zh-CN/skills) 自动加载的插件，`synced` 用于从你的 claude.ai 账户同步的插件。`claude-plugin-test` 也被保留。`skills-dir` 也显示为 `{"source": "skills-dir"}`，在 `strictKnownMarketplaces` 和 `blockedMarketplaces` 中，如 [仅在策略列表中有效的源值](#source-values-valid-only-in-policy-lists) 下所述。
 * **`npm`、`pip`、`uv`、`cargo`、`github` 和 `gh`**：以任何大小写保留。此检查需要 Claude Code v2.1.275 或更高版本。
 * **每个 JavaScript 对象都具有的成员名称**：`constructor`、`hasOwnProperty`、`isPrototypeOf`、`propertyIsEnumerable`、`toLocaleString`、`toString` 和 `valueOf`。`claude plugin marketplace add` 会拒绝使用其中之一的市场，错误为 [`Claude Code reserves this name and cannot register a marketplace under it`](/docs/zh-CN/plugins/troubleshooting#claude-code-reserves-this-name)。此检查需要 Claude Code v2.1.296 或更高版本。
@@ -59,9 +55,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 如果某个设置文件以内联方式声明了该市场，该消息会提示您在删除旧名称之前先重命名其条目。有关步骤，请参阅 [Claude Code refuses the marketplace name](/docs/zh-CN/errors#claude-code-refuses-the-marketplace-name)。该消息在 Claude Code v2.1.292 或更高版本中会列出这些步骤。
 
-<h2 id="top-level-fields">
-  顶级字段
-</h2>
+## 顶级字段
 
 该表列出 Claude Code 从 `marketplace.json` 读取的每个键。`name`、`owner` 和 `plugins` 是必需的。
 
@@ -79,9 +73,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | `allowCrossMarketplaceDependenciesOn` | array of strings | 其插件可作为此 marketplace 插件的依赖项安装的 marketplace 名称。安装插件时，仅适用该插件自己的 marketplace 中的列表，用于其整个依赖链。请参阅 [插件依赖项](/docs/zh-CN/plugins/dependencies) |
 | `renames` | object | 从插件以前的 `name` 映射到其当前名称；对于已删除的插件，则映射到 `null`。请参阅 [托管和维护市场](/docs/zh-CN/plugins/host-marketplace) |
 
-<h2 id="plugin-entries">
-  插件条目
-</h2>
+## 插件条目
 
 `marketplace.json` 的顶级 `plugins` 数组中的每个对象命名一个插件并说明从哪里获取它。`name` 和 `source` 是必需的。
 
@@ -106,24 +98,18 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | `headers` | object | Claude Code 在下载此条目的 [archive](#archive-plugin-source) 时发送的 HTTP 标头。此处设置的标头替换市场源的 [`headers`](#fields-by-type) 中同名的标头。需要 Claude Code v2.1.238 或更高版本 |
 | `headersHelper` | string | 打印此条目的 archive 下载标头的命令，作为一个 JSON 对象，用于会过期的凭据。条目还必须设置 [`"strict": false`](#strict-mode)。需要 Claude Code v2.1.238 或更高版本。请参阅 [验证 archive 下载](/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads) |
 
-<h3 id="entry-and-plugin-json">
-  条目如何与 plugin.json 结合
-</h3>
+### 条目如何与 plugin.json 结合
 
 条目的字段对获取的具有自己的 `.claude-plugin/plugin.json` 的插件和没有的插件的应用方式不同：
 
 * **没有 `plugin.json`**：条目是清单，无论 `strict` 如何。条目中的每个清单字段都适用，包括 [`mcpServers`、`lspServers`、`userConfig` 和 `channels`](/docs/zh-CN/plugins/manifest-reference)。
 * **`plugin.json` 存在**：`plugin.json` 是清单。[严格模式](#strict-mode) 决定条目的六个组件字段 `commands`、`agents`、`skills`、`hooks`、`outputStyles` 和 `themes` 是与其结合还是作为冲突被拒绝。条目 `mcpServers`、`lspServers`、`userConfig` 和 `channels` 不适用。在 `plugin.json` 中声明它们。
 
-<h4 id="hooks-in-an-entry">
-  条目中的 Hooks
-</h4>
+#### 条目中的 Hooks
 
 将条目 `hooks` 写成内联对象，将 hook 事件名称映射到匹配器数组。如果您写文件路径或数组，`claude plugin validate` 会通过。这些 hook 永远不会运行，Claude Code 为插件报告 `not yet supported in a marketplace entry` 错误。将基于文件的 hook 放在插件自己的 [`hooks/hooks.json`](/docs/zh-CN/plugins/components) 或 `plugin.json` 中。
 
-<h4 id="display-fields">
-  显示字段
-</h4>
+#### 显示字段
 
 条目和插件自己的 `plugin.json` 都可以设置显示字段 `displayName`、`description`、`author`、`homepage`、`repository`、`license` 和 `keywords`。用户在插件列表和详情中看到这些值，在安装前后：
 
@@ -132,9 +118,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 在安装前，Claude Code 只能为具有 [相对路径源](#relative-path-plugin-source) 的条目读取 `plugin.json`，其插件文件在市场内。对于具有任何其他源类型的条目，用户在安装插件之前只看到条目自己的字段。
 
-<h3 id="strict-mode">
-  严格模式
-</h3>
+### 严格模式
 
 `strict` 决定当获取的插件具有自己的 `plugin.json` 且条目也声明任何 [组件字段](#entry-and-plugin-json) 时会发生什么：`commands`、`agents`、`skills`、`hooks`、`outputStyles` 或 `themes`。使用 `strict: true`（默认值），Claude Code 将条目的组件字段附加到 `plugin.json`，除了 `hooks`，其匹配器替换清单的每个事件。使用 `strict: false`，声明任何组件字段的条目是冲突，插件加载失败。该表显示 `strict`、`plugin.json` 和条目的组件字段的每个组合。
 
@@ -145,9 +129,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | `false` | present | none | `plugin.json` 是清单，与 `true` 相同 |
 | `false` | present | one or more | 冲突。插件加载失败，错误为 `Plugin <name> has conflicting manifests: both plugin.json and marketplace entry specify components` |
 
-<h2 id="plugin-sources">
-  Plugin sources
-</h2>
+## Plugin sources
 
 一个插件条目的 `source` 说明 Claude Code 从哪里获取该插件。它要么是一个相对路径字符串，要么是一个对象，其自身的 `source` 键命名类型，所以一个条目看起来像 `"source": { "source": "github", "repo": "your-org/formatter" }`。
 
@@ -174,9 +156,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 有关每种类型如何获取、缓存和版本化的信息，请参阅 [Plugin loading reference](/docs/zh-CN/plugins/loading)。
 
-<h3 id="relative-path-plugin-source">
-  Relative path plugin source
-</h3>
+### Relative path plugin source
 
 路径从 marketplace 根目录解析。`./plugins/formatter` 是 `<root>/plugins/formatter`，即使 marketplace 文件在 `<root>/.claude-plugin/` 中。
 
@@ -192,9 +172,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 * **`url`**：Claude Code 仅获取 `marketplace.json`，所以相对路径无法解析。给每个插件一个对象源，如 `github` 或 `git-subdir`。
 * **`settings`**：相对路径被直接拒绝。
 
-<h4 id="bare-names-under-pluginroot">
-  Bare names under pluginRoot
-</h4>
+#### Bare names under pluginRoot
 
 裸名是一个没有 `/` 的单个目录名，如 `"formatter"`。要写裸名而不是 `./` 路径，设置 [`metadata.pluginRoot`](#top-level-fields) 为它们解析的目录。使用 `"pluginRoot": "./plugins"`，`"source": "formatter"` 解析为 `./plugins/formatter`。需要 Claude Code v2.1.239 或更高版本。
 
@@ -204,9 +182,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 * 它对已经以 `./` 开头的源没有影响。
 * 包含 `/` 的源，如 `team-a/formatter`，不是裸名，即使设置了 `metadata.pluginRoot` 也仍然需要 `./` 前缀。
 
-<h3 id="github-plugin-source">
-  github plugin source
-</h3>
+### github plugin source
 
 `repo` 采用 `owner/repo` 格式。`ref` 和 `sha` 是可选的。
 
@@ -222,9 +198,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 }
 ```
 
-<h3 id="url-plugin-source">
-  url plugin source
-</h3>
+### url plugin source
 
 `url` 是一个完整的 git URL：`https://`、`http://`、`file://` 或 `git@`。不需要 `.git` 后缀，所以 Azure DevOps 和 AWS CodeCommit URL 可以按原样工作。此类型不采用 `owner/repo` 简写。
 
@@ -239,9 +213,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 }
 ```
 
-<h3 id="git-subdir-plugin-source">
-  git-subdir plugin source
-</h3>
+### git-subdir plugin source
 
 `url` 接受完整的 git URL 或 GitHub `owner/repo` 简写。`path` 是保存插件的子目录，Claude Code 仅检出该子目录。通过 `https` 或 SSH URL 时，Claude Code 会向服务器请求部分克隆，因此从支持部分克隆的主机获取时，大型 monorepo 中的插件无需下载仓库的其余部分即可安装。
 
@@ -256,9 +228,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 }
 ```
 
-<h3 id="npm-plugin-source">
-  npm plugin source
-</h3>
+### npm plugin source
 
 一个 `npm` 源采用这些字段：
 
@@ -288,9 +258,7 @@ Claude Code 在获取任何内容之前会检查 `package` 值。被拒绝的值
 }
 ```
 
-<h3 id="archive-plugin-source">
-  archive plugin source
-</h3>
+### archive plugin source
 
 `url` 必须使用 `https://`，不能指向环回、链接本地或云元数据主机。有关下载的大小、超时、重定向和提取限制，请参阅[保持在托管文件的下载限制内](/docs/zh-CN/plugins/host-marketplace#stay-within-the-download-limits-for-hosted-files)。
 
@@ -309,9 +277,7 @@ Claude Code 在获取任何内容之前会检查 `package` 值。被拒绝的值
 }
 ```
 
-<h3 id="command-plugin-source">
-  command plugin source
-</h3>
+### command plugin source
 
 当安装在用户机器上的工具生成插件目录时，使用 `command` 源，如一个为用户选择的工具链呈现其插件的 IDE。Claude Code 在用户安装或更新插件时运行该命令，并[每个会话再运行一次](/docs/zh-CN/plugins/loading#when-a-command-source-re-runs)，所以用户无需重新安装就能获得工具的更改输出。
 
@@ -334,9 +300,7 @@ Claude Code 在获取任何内容之前会检查 `package` 值。被拒绝的值
 
 有关用户如何接受命令的信息，请参阅 [Install from your shell](/docs/zh-CN/plugins/install#install-from-your-shell)。有关你更改它后用户看到的内容，请参阅 [Change the command of a command source](/docs/zh-CN/plugins/host-marketplace#change-the-command-of-a-command-source)。管理员使用 [`disableCommandPluginSources`](/docs/zh-CN/settings-reference#disablecommandpluginsources) 关闭命令源。
 
-<h4 id="what-the-command-must-do">
-  What the command must do
-</h4>
+#### What the command must do
 
 编写命令以满足这些要求：
 
@@ -344,9 +308,7 @@ Claude Code 在获取任何内容之前会检查 `package` 值。被拒绝的值
 * **输出**：在 stdout 上打印恰好一行，插件目录的绝对路径，并在 `timeout` 秒内退出 0。
 * **目录内容**：该目录在命令退出时保存完整的插件。路径可能因运行而异。
 
-<h4 id="output-that-fails-the-install-or-update">
-  Output that fails the install or update
-</h4>
+#### Output that fails the install or update
 
 当命令退出非零、运行时间超过 `timeout` 或打印除一个绝对路径之外的任何内容时，安装或更新失败。当打印的目录是以下之一时，它也会失败：
 
@@ -355,9 +317,7 @@ Claude Code 在获取任何内容之前会检查 `package` 值。被拒绝的值
 * **网络路径**：在 Windows 上，打印的路径是 UNC 路径。
 * **太大而无法复制**：在复制模式下，目录大于 256 MiB 或有超过 20,000 个条目。
 
-<h4 id="copy-mode-and-link-mode">
-  Copy mode and link mode
-</h4>
+#### Copy mode and link mode
 
 `mode` 决定 Claude Code 是复制打印的目录还是就地使用它：
 
@@ -373,9 +333,7 @@ Claude Code 在获取任何内容之前会检查 `package` 值。被拒绝的值
 * **在目录内启动的会话**：在打印目录或其下方任何地方启动的会话不加载插件。
 * **不在 Windows 上**：Claude Code 拒绝在 Windows 上安装链接模式插件。在那里声明 `"mode": "copy"`。
 
-<h2 id="marketplace-sources">
-  Marketplace 源
-</h2>
+## Marketplace 源
 
 marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在你添加 marketplace 时为你构建一个，你在设置中自己编写一个：
 
@@ -406,9 +364,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `hostPattern` | `hostPattern` | 未产生 | 加载失败：`Unsupported marketplace source type` | 允许主机匹配的 `github`、`git` 和 `url` 源 | 阻止这些源 |
 | `pathPattern` | `pathPattern` | 未产生 | 加载失败：`Unsupported marketplace source type` | 允许 `path` 匹配的 `file` 和 `directory` 源 | 阻止这些源 |
 
-<h3 id="fields-by-type">
-  按类型的字段
-</h3>
+### 按类型的字段
 
 该表列出每个具有默认值、约束或特定于其类型的含义的 marketplace 源字段。
 
@@ -428,9 +384,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `name` | `settings` | 必须等于 `extraKnownMarketplaces` 键，不能是 [保留名称](#reserved-names) |
 | `plugins` | `settings` | 内联目录，没有托管文件。每个项采用 `name`、`source`、`description`、`version`、`strict`、`headers` 和 `headersHelper`。将每个项的 `source` 写成对象类型，因为相对路径没有存储库来解析 |
 
-<h3 id="source-values-valid-only-in-policy-lists">
-  仅在策略列表中有效的源值
-</h3>
+### 仅在策略列表中有效的源值
 
 `hostPattern`、`pathPattern`、`skills-dir` 和 `repo` 的 `owner/*` 形式仅在两个策略列表中有效，`strictKnownMarketplaces` 和 `blockedMarketplaces`：
 
@@ -440,9 +394,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 
 有关匹配顺序、精确 `ref` 语义和配方，请参阅 [为你的组织管理插件](/docs/zh-CN/plugins/org)。
 
-<h3 id="source-objects-in-settings">
-  设置中的源对象
-</h3>
+### 设置中的源对象
 
 `extraKnownMarketplaces` 值是从 marketplace 名称到具有 `source` 的对象的映射。此条目从其 `main` 分支的 git 存储库注册 marketplace：
 
@@ -471,9 +423,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 }
 ```
 
-<h2 id="validation-messages">
-  验证消息
-</h2>
+## 验证消息
 
 `claude plugin validate <path>` 接受 marketplace 根目录或 marketplace 文件本身。它打印错误和警告。有关退出代码和 `--strict`，请参阅 [plugin validate](/docs/zh-CN/plugins/cli-reference#plugin-validate)。
 
@@ -523,9 +473,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `Marketplace name "x" is not accepted by Claude Desktop (letters, digits, ".", "_", "-"; must start alphanumeric; max 128 chars)` | 警告 | `name`。Claude Desktop 拒绝该 marketplace |
 | `Plugin name "x" is not accepted by Claude Desktop (letters, digits, ".", "_", "-"; must start alphanumeric; max 128 chars)` | 警告 | `plugins[i].name`。Claude Desktop 删除该条目 |
 
-<h3 id="invalid-input-on-a-source">
-  Invalid input on a source
-</h3>
+### Invalid input on a source
 
 `source` 上的 `Invalid input` 意味着该对象与任何源类型都不匹配。检查这些原因：
 
@@ -535,17 +483,13 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 
 不以 `./` 开头的相对路径（`"."` 或 [`metadata.pluginRoot` 下的裸名称](#relative-path-plugin-source) 除外）会失败并显示 `Invalid string: must start with "./"`。在 v2.1.285 之前，它会像上述原因一样打印 `Invalid input`。
 
-<h3 id="failures-that-validation-doesn’t-catch">
-  验证未捕获的失败
-</h3>
+### 验证未捕获的失败
 
 `claude plugin validate` 不会报告每个失败。写作文件路径或数组的条目 `hooks` 通过验证，错误仅在插件加载时出现，如 [Hooks in an entry](#hooks-in-an-entry) 所述。获取 `source` 的错误也仅在安装后出现，不在验证中出现。
 
 [`claude plugin list`](/docs/zh-CN/plugins/cli-reference) 显示加载失败的插件及其错误，[Troubleshoot plugins](/docs/zh-CN/plugins/troubleshooting) 涵盖加载时字符串。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [创建 marketplace](/docs/zh-CN/plugins/create-marketplace)：从这些字段构建 marketplace 并在本地安装
 * [托管和维护 marketplace](/docs/zh-CN/plugins/host-marketplace)：放置文件的位置以及用户如何接收更改

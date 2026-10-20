@@ -6,17 +6,15 @@
 
 > 让 Claude 列出并消息传递到您在此机器上的其他 Claude Code 会话，并到达您在其他机器或网络上的会话。
 
-<Note>
-  跨会话消息传递需要 macOS 和 Linux 上的 Claude Code v2.1.224 或更高版本，包括 WSL 2 内的 Linux。在原生 Windows 上，它需要 Claude Code v2.1.234 或更高版本。当会话满足要求时，消息传递功能默认启用，无需任何配置。请参阅[可用性](#availability)了解提供商要求以及如何确认会话具有此功能。
-</Note>
+> [!NOTE]
+>
+> 跨会话消息传递需要 macOS 和 Linux 上的 Claude Code v2.1.224 或更高版本，包括 WSL 2 内的 Linux。在原生 Windows 上，它需要 Claude Code v2.1.234 或更高版本。当会话满足要求时，消息传递功能默认启用，无需任何配置。请参阅[可用性](#availability)了解提供商要求以及如何确认会话具有此功能。
 
 跨会话消息传递让 Claude 能够将消息从您的一个 Claude Code 会话传递到另一个。当一个会话中的更改破坏了另一个会话正在构建的内容时，Claude 可以在您注意到之前警告该会话。当一个会话解决了另一个会话被阻止的问题时，Claude 可以跨会话发送答案。
 
 消息是一个 Claude 写给另一个 Claude 的文本片段，永远不包括发送者的对话历史或文件。要移动整个对话或其上下文，请[恢复会话](/docs/zh-CN/sessions#resume-a-session)。
 
-<h2 id="when-to-use-cross-session-messaging">
-  何时使用跨会话消息传递
-</h2>
+## 何时使用跨会话消息传递
 
 当您的一个会话有另一个会话在任务中期需要的内容时，使用消息传递。Claude 可以在看到需要时自动发送消息，例如在进行影响另一个会话正在进行的工作的更改后，或者您可以要求它发送一条。常见情况包括：
 
@@ -25,9 +23,7 @@
 * **获取长期运行工作的状态**：让迁移或测试运行报告回您正在观看的会话，或从那里自己询问。如果该会话在此机器上，Claude 还可以[在它下次空闲或退出时要求一条通知](#get-a-notice-when-another-session-goes-idle)。
 * **跨机器发送消息**：到达您在另一台机器或网络上的一个会话。
 
-<h2 id="message-another-session">
-  向另一个会话发送消息
-</h2>
+## 向另一个会话发送消息
 
 当你的一个会话学到另一个会话需要的东西时，比如一个发现、一个状态或一个决定，Claude 会将其传递过去，而不是让你在终端之间复制粘贴。Claude 使用 `ListAgents` 发现目标，并使用 `SendMessage` 发送，所以你永远不需要自己调用这两个工具。Claude 可以在没有被要求的情况下决定发送消息，你也可以提示它发送一条消息。
 
@@ -58,9 +54,7 @@ Claude 会自己编写实际的消息，所以你的提示可以将内容留给 
 
 关于 Claude 编写的消息到达时的样子，包括一个例子，请参见 [消息看起来像什么](#what-a-message-looks-like)。
 
-<h3 id="message-delivery">
-  消息传递
-</h3>
+### 消息传递
 
 接收 Claude 在活跃轮次中的工具调用之间读取消息，所以运行中的工具永远不会被中断。当接收会话处于空闲状态时，Claude Code 会用消息启动新的轮次。
 
@@ -83,15 +77,11 @@ Claude Code 在以下情况下拒绝消息：
 
 权限边界保持按会话。Claude 被指示永远不要要求另一个会话执行在其自己的会话中被拒绝或阻止的操作，或其自己的权限设置会阻止的操作，而是将该工作路由回你。在接收端，[接收会话自己的权限提示和规则仍然适用](#how-a-session-treats-an-incoming-message) 于消息要求的任何内容。
 
-<h3 id="get-a-notice-when-another-session-goes-idle">
-  当另一个会话变为空闲时获得通知
-</h3>
+### 当另一个会话变为空闲时获得通知
 
 Claude 可以要求你在这台机器上的一个会话在该会话下一次变为空闲或退出时发回一条通知。这里的空闲意味着会话完成了一个轮次，没有任何排队的内容。当你在另一个会话中等待长任务并想听到它完成时而不是检查时使用它。需要两个会话中都有 Claude Code v2.1.236 或更高版本。
 
-<h4 id="ask-for-a-notice">
-  请求通知
-</h4>
+#### 请求通知
 
 告诉 Claude 你在等什么。这个提示要求来自迁移会话的通知：
 
@@ -101,15 +91,11 @@ Claude 可以要求你在这台机器上的一个会话在该会话下一次变�
 
 Claude 使用 `SendMessage` 工具的 `notify_when_idle` 输入订阅，要么附加到它正在发送的消息，要么单独订阅。单独订阅时，Claude Code 订阅而不在被监视的会话中启动轮次或花费令牌，如果该会话已经空闲，会立即发送通知。附加到消息时，Claude Code 先传递消息，然后稍后发送通知。
 
-<h4 id="what-each-session-shows">
-  每个会话显示什么
-</h4>
+#### 每个会话显示什么
 
 被监视的会话显示一行说另一个进程要求在会话下一次空闲时被告知。要求会话显示通知为一行命名被监视的会话。该行可以包括该会话轮次完成的时间和该轮次的单行状态。如果要求会话处于空闲状态，Claude Code 会用通知启动新的轮次。
 
-<h4 id="limits">
-  限制
-</h4>
+#### 限制
 
 如果在 12 小时内没有通知到达，Claude Code 会删除订阅并告诉 Claude，所以它不会继续等待。
 
@@ -120,9 +106,7 @@ Claude 使用 `SendMessage` 工具的 `notify_when_idle` 输入订阅，要么�
 
 只有你主要对话中的 Claude 可以订阅，并且仅订阅你在这台机器上的会话。当 Claude 要求来自任何其他目标的通知时，例如队友、子代理或这台机器之外的会话，Claude Code 拒绝整个调用，包括附加到它的任何消息。
 
-<h3 id="see-which-sessions-claude-can-reach">
-  查看 Claude 可以到达的会话
-</h3>
+### 查看 Claude 可以到达的会话
 
 Claude 自己找到消息的目标，所以你不需要在要求它发送之前运行任何东西。要自己查看 Claude 可以到达的会话，运行 `/list-agents` 命令。第一行（如果存在）是这个会话自己的名称，你的其他会话用来向它发送消息的名称。下面的行是 Claude 可以到达的会话：
 
@@ -147,9 +131,7 @@ Claude 自己找到消息的目标，所以你不需要在要求它发送之前�
 * **一个会话响应该名称**：Claude Code 仅在名称上传递消息。
 * **多个会话共享该名称，或 Claude Code 无法检查你的会话运行的所有地方**：Claude 为其列表的每一行添加一个短标识符，并在地址中使用该标识符。
 
-<h3 id="message-sessions-on-other-machines">
-  向其他机器上的会话发送消息
-</h3>
+### 向其他机器上的会话发送消息
 
 消息如何传播，以及它是否通过 Anthropic 服务器，取决于目标会话运行的位置：
 
@@ -172,9 +154,7 @@ Claude 自己找到消息的目标，所以你不需要在要求它发送之前�
 
 要在任何消息超出这台机器之前要求你的批准，设置 [`isolatePeerMachines`](#require-approval-for-cross-machine-messages)。
 
-<h2 id="how-a-session-treats-an-incoming-message">
-  会话如何处理传入消息
-</h2>
+## 会话如何处理传入消息
 
 当会话 A 向会话 B 发送消息时，Claude Code 会告诉 B 的 Claude 该消息来自另一个会话，而不是来自您，并限制该消息可以做什么：
 
@@ -183,9 +163,7 @@ Claude 自己找到消息的目标，所以你不需要在要求它发送之前�
 * **命令不会运行**：消息文本中的命令（如 `/compact`）以纯文本形式到达。Claude Code 永远不会执行它。
 * **权限提示仍会触发**：如果处理该消息需要接收会话不具备的权限，您会看到与任何其他工作相同的提示。
 
-<h3 id="what-a-message-looks-like">
-  消息的样子
-</h3>
+### 消息的样子
 
 当消息到达时，Claude Code 会在对话中将其显示为暗淡的单行预览，该预览行之后会保留在对话中。预览包含发送者的名称和消息的第一行，消息较长时会用 `…` 截断，例如 `› Message from @api-worker: Schema migration finished (ctrl+o to expand)`。
 
@@ -206,9 +184,7 @@ Schema migration finished
 The new column is tenant_id, and rebasing on main is safe now.
 ```
 
-<h3 id="control-inbound-messages">
-  控制入站消息
-</h3>
+### 控制入站消息
 
 设置 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 以选择会话如何处理来自您其他会话的消息：
 
@@ -239,9 +215,7 @@ VS Code 扩展或 Desktop 应用中的会话无法显示该对话框。在这些
 
 Claude Code 最多保留 100 条消息，超出后会丢弃最旧的消息。
 
-<h3 id="non-interactive-sessions">
-  非交互式会话
-</h3>
+### 非交互式会话
 
 Claude Code 会像交互式会话一样为 [`claude -p`](/docs/zh-CN/headless) 会话绑定收件箱套接字，因此长期运行的 `-p` 工作进程可以接收消息并出现在列表中。当您在 [bare 模式](/docs/zh-CN/headless#start-faster-with-bare-mode)下启动会话时，Claude Code 不会绑定套接字，因此该会话无法接收消息，也不会出现在 Agent 列表中。
 
@@ -254,9 +228,7 @@ Claude Code 会像交互式会话一样为 [`claude -p`](/docs/zh-CN/headless) �
 
 要让 `-p` 工作进程在无人值守的情况下接收消息，请在其 `--settings` 值中将 `crossSessionInbound` 设置为 `accept` 来启动它。在您的用户设置中设置 `accept` 也有效，但会应用于您运行的每个会话。
 
-<h3 id="the-sessions-inbox-socket">
-  会话的收件箱套接字
-</h3>
+### 会话的收件箱套接字
 
 当您预期的会话不在 Agent 列表中、当您希望脚本或 hook 向会话发布消息，或者当沙箱中的命令无法访问套接字时，请阅读本节。
 
@@ -279,7 +251,7 @@ Claude Code 会为每个启用了跨会话消息传递的会话绑定一个收�
 
 仅在您要发布的消息准备就绪时才打开连接。Claude Code 会关闭在 30 秒内未发送完整一行的连接，因此请先捕获慢速命令的输出，然后再打开连接发送它。
 
-<span id="own-child-messages" />对于通过套接字到达的消息，Claude Code 会应用与任何其他对等消息相同的[入站控制](#control-inbound-messages)，但有一个例外和一个前提条件：
+对于通过套接字到达的消息，Claude Code 会应用与任何其他对等消息相同的[入站控制](#control-inbound-messages)，但有一个例外和一个前提条件：
 
 * **自身子进程的消息**：当没有 `crossSessionInbound` 值适用时，Claude Code 会传递经其验证来自会话自身子进程的消息，例如 hook 或 Bash 命令向其自身会话的套接字回发的消息。
   * 在 Linux 上（包括 WSL 2 内），即使子进程已经退出，Claude Code 也可以通过进程证据进行验证。在 macOS 上，它只能在发布进程仍在运行时以这种方式验证；而在 Claude Code 以进程 ID 1 运行的容器中，它完全没有进程证据。在原生 Windows 上它也没有进程证据。
@@ -287,15 +259,11 @@ Claude Code 会为每个启用了跨会话消息传递的会话绑定一个收�
   * 当 Claude Code 无法通过任何一种方式验证时，它会像对待任何其他未声明权限类别的消息一样对待该消息，因此绕过权限提示的会话会保留它以等待您的批准。
 * **沙箱中的会话**：使用沙箱的 Unix 套接字设置 [`sandbox.network.allowAllUnixSockets` 和 `sandbox.network.allowUnixSockets`](/docs/zh-CN/settings-reference#sandbox-settings) 控制 Bash 命令能否从[沙箱](/docs/zh-CN/sandboxing)内部访问套接字。
 
-<h2 id="restrict-cross-session-messaging">
-  限制跨会话消息传递
-</h2>
+## 限制跨会话消息传递
 
 除了每条消息的默认值，您可以通过两种方式缩小消息传递。在任何消息离开机器之前要求您的批准，或为会话或组织关闭消息传递。
 
-<h3 id="require-approval-for-cross-machine-messages">
-  要求批准跨机器消息
-</h3>
+### 要求批准跨机器消息
 
 设置 [`isolatePeerMachines`](/docs/zh-CN/settings-reference#isolatepeermachines) 为 `true` 以要求您的明确批准，在任何 `SendMessage` 到达超出此机器的会话之前：
 
@@ -307,9 +275,7 @@ Claude Code 会为每个启用了跨会话消息传递的会话绑定一个收�
 
 设置此项后，Claude Code 在 Claude 的消息到达超出此机器的会话之前要求您的批准，即使在 `bypassPermissions` 模式中，它跳过普通权限提示。任何设置范围中的 `true` 适用，因此检查的项目文件可以打开要求但不关闭。Claude Code 不提示同一机器上的会话之间的消息。
 
-<h3 id="turn-off-cross-session-messaging">
-  关闭跨会话消息传递
-</h3>
+### 关闭跨会话消息传递
 
 接收和发送是单独的控制，因此关闭您需要的任何方向，或两者。对到达的消息使用 `crossSessionInbound`，对 Claude 可以发送或列出的内容使用权限规则：
 
@@ -329,9 +295,7 @@ Claude Code 会为每个启用了跨会话消息传递的会话绑定一个收�
 
 设置此项后，Claude Code 仍然为每个会话绑定收件箱套接字，但删除到达它的每条消息而不向 Claude 传递任何内容。拒绝 `SendMessage` 也删除向子代理和代理团队队友的消息传递，因为相同的工具服务两者。拒绝的会话在其自己的 `/status` 或同一机器上其他会话的列表中显示无可见更改，因此要确认它，检查适用于该会话的设置文件而不是其状态。
 
-<h2 id="availability">
-  可用性
-</h2>
+## 可用性
 
 跨会话消息传递需要 macOS、Linux 和 WSL 2 上的 Claude Code v2.1.224 或更高版本，以及原生 Windows 上的 v2.1.234 或更高版本。可用性以及 Claude 可以向其发送消息的会话也取决于您的操作系统、提供商和配置：
 
@@ -357,9 +321,7 @@ Claude Code 会为每个启用了跨会话消息传递的会话绑定一个收�
 
 在具有消息传递的会话中，`/status` 也显示 `Peer address` 行，带有会话自己的收件箱地址，或 `unavailable` 和原因，当 Claude Code [无法设置收件箱](#the-sessions-inbox-socket)时。
 
-<h2 id="limitations">
-  限制
-</h2>
+## 限制
 
 这里的限制是消息传递通道本身的属性，在该功能运行的任何地方适用。对于平台和提供商差距，请改为参阅[可用性](#availability)。
 
@@ -368,9 +330,7 @@ Claude Code 会为每个启用了跨会话消息传递的会话绑定一个收�
 * **对一个会话的快速突发在发送者处被拒绝**：一旦对此机器上的会话的快速突发消息达到该会话的收件箱接受的内容，Claude Code 拒绝发送会话中的进一步发送。[拒绝命名突发](/docs/zh-CN/errors#too-many-messages-to-this-session-just-now)并告诉 Claude 将其余的批处理为一条消息或等待。
 * **消息循环被限制**：在接收会话中，Claude Code 对每个发送者的重复消息进行速率限制，删除在短窗口内到达的相同重复，并最多为 Claude 读取排队 50 条接受的消息。因此两个会话之间的消息循环自己停止。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [子代理](/docs/zh-CN/sub-agents#resume-subagents)和[代理团队](/docs/zh-CN/agent-teams#messages-between-agents)：单个会话或团队内的消息传递
 * [后台代理](/docs/zh-CN/agent-view)：分派和监控您可能向其发送消息的并行会话

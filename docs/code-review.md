@@ -10,21 +10,15 @@
 
 发现以内联评论的形式出现在相关代码行上，按[严重程度](/docs/zh-CN/code-review-pull-requests#severity-levels)排序，并在 Pull Request 上附带摘要和检查运行。审查永远不会批准或阻止 Pull Request，因此合并的决定权仍在您的团队手中。
 
-<img src="https://mintcdn.com/claude-code/gLJVaPQEgKC8ZyUD/images/code-review-pipeline.svg?fit=max&auto=format&n=gLJVaPQEgKC8ZyUD&q=85&s=0351c96df9efa3105172eb00a672f130" className="dark:hidden" alt="审查分为四个阶段的示意图。GitHub 上的 Pull Request 被交给多个 Agent，它们在 Anthropic 基础设施上并行搜索。验证步骤剔除误报，剩余的发现经过去重并按严重程度排序，然后审查将内联评论、摘要和检查运行发布回 GitHub。" width="760" height="300" data-path="images/code-review-pipeline.svg" />
+![审查分为四个阶段的示意图。GitHub 上的 Pull Request 被交给多个 Agent，它们在 Anthropic 基础设施上并行搜索。验证步骤剔除误报，剩余的发现经过去重并按严重程度排序，然后审查将内联评论、摘要和检查运行发布回 GitHub。](https://mintcdn.com/claude-code/gLJVaPQEgKC8ZyUD/images/code-review-pipeline.svg?fit=max\&auto=format\&n=gLJVaPQEgKC8ZyUD\&q=85\&s=0351c96df9efa3105172eb00a672f130)
 
-<img src="https://mintcdn.com/claude-code/gLJVaPQEgKC8ZyUD/images/code-review-pipeline-dark.svg?fit=max&auto=format&n=gLJVaPQEgKC8ZyUD&q=85&s=9cf26bde98f4e999d0d9ff5bf5bdff40" className="hidden dark:block" alt="审查分为四个阶段的示意图。GitHub 上的 Pull Request 被交给多个 Agent，它们在 Anthropic 基础设施上并行搜索。验证步骤剔除误报，剩余的发现经过去重并按严重程度排序，然后审查将内联评论、摘要和检查运行发布回 GitHub。" width="760" height="300" data-path="images/code-review-pipeline-dark.svg" />
-
-<Note>
-  Code Review 使用 AI 审查代码，可能会遗漏错误、安全漏洞或其他问题。没有发现的审查并不意味着您的代码没有错误或是安全的。
-</Note>
-
-<span id="review-a-diff-locally" />
+> [!NOTE]
+>
+> Code Review 使用 AI 审查代码，可能会遗漏错误、安全漏洞或其他问题。没有发现的审查并不意味着您的代码没有错误或是安全的。
 
 要启用 Code Review，需由您 Claude 组织的 Owner 按照[设置 Code Review](/docs/zh-CN/code-review-setup)进行操作。Claude 也可以在不使用此服务的情况下审查代码。在任何套餐上，都可以在 Claude Code 会话中运行 [`/code-review`](/docs/zh-CN/code-review-local)，或[比较所有选项](#compare-ways-to-get-a-review)。
 
-<h2 id="availability">
-  可用性
-</h2>
+## 可用性
 
 在设置 Code Review 之前，请确认您的组织符合条件：
 
@@ -34,49 +28,31 @@
 * **加密密钥**：对于使用客户管理加密密钥（CMEK）的组织，Code Review 暂不可用。
 * **云提供商**：即使您的开发人员通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 使用 Claude Code，您也需要一个使用上述套餐之一的 Claude 组织
 
-<h2 id="set-up-and-use-code-review">
-  设置和使用 Code Review
-</h2>
-
-<span id="set-up-code-review" />
-
-<span id="pricing" />
-
-<span id="manually-trigger-reviews" />
-
-<span id="customize-reviews" />
-
-<span id="troubleshooting" />
+## 设置和使用 Code Review
 
 根据您需要完成的操作选择相应页面：
 
-<CardGroup cols={2}>
-  <Card title="设置 Code Review" icon="toggle-on" href="/docs/zh-CN/code-review-setup">
-    检查要求、安装 Claude GitHub App，并选择仓库、审查级别以及审查的运行时机
-  </Card>
+> **[设置 Code Review](/docs/zh-CN/code-review-setup)**
+>
+> 检查要求、安装 Claude GitHub App，并选择仓库、审查级别以及审查的运行时机
 
-  <Card title="自定义 Code Review" icon="sliders" href="/docs/zh-CN/code-review-customize">
-    通过仓库中的 `REVIEW.md` 和 `CLAUDE.md` 文件调整标记的内容
-  </Card>
+> **[自定义 Code Review](/docs/zh-CN/code-review-customize)**
+>
+> 通过仓库中的 `REVIEW.md` 和 `CLAUDE.md` 文件调整标记的内容
 
-  <Card title="在 Pull Request 上阅读和请求审查" icon="code-pull-request" href="/docs/zh-CN/code-review-pull-requests">
-    阅读发现及其严重程度，并通过评论请求再次审查
-  </Card>
+> **[在 Pull Request 上阅读和请求审查](/docs/zh-CN/code-review-pull-requests)**
+>
+> 阅读发现及其严重程度，并通过评论请求再次审查
 
-  <Card title="Code Review 故障排除" icon="wrench" href="/docs/zh-CN/code-review-troubleshooting">
-    修复未启动、失败或因预算而被跳过的审查
-  </Card>
+> **[Code Review 故障排除](/docs/zh-CN/code-review-troubleshooting)**
+>
+> 修复未启动、失败或因预算而被跳过的审查
 
-  <Card title="Code Review 成本和使用情况" icon="chart-line" href="/docs/zh-CN/code-review-costs">
-    了解审查的计费方式、估算支出、设置每月支出上限并跟踪审查活动
-  </Card>
-</CardGroup>
+> **[Code Review 成本和使用情况](/docs/zh-CN/code-review-costs)**
+>
+> 了解审查的计费方式、估算支出、设置每月支出上限并跟踪审查活动
 
-<h2 id="how-reviews-work">
-  审查工作原理
-</h2>
-
-<span id="what-code-review-checks" />
+## 审查工作原理
 
 默认情况下，Code Review 专注于正确性：会破坏生产的错误，而不是格式偏好或缺失的测试覆盖。要更改其标记的内容，请[向仓库添加指导文件](/docs/zh-CN/code-review-customize)。
 
@@ -97,9 +73,7 @@ Code Review 会选择运行审查所用的 Claude 模型，其管理设置中不
 
 Owner 启用 Code Review 后，每个仓库都有一个设置，用于指定[审查的运行时机](/docs/zh-CN/code-review-setup#set-when-reviews-run)：在 Pull Request 打开时运行一次、每次推送后运行，或仅在请求时运行。无论选择哪一项，对仓库具有写入权限的人员都可以在 Pull Request 上评论 `@claude review` 来[启动审查](/docs/zh-CN/code-review-pull-requests#comment-commands)。
 
-<h3 id="review-levels">
-  审查级别
-</h3>
+### 审查级别
 
 审查级别决定每次审查的深入程度，审查越深入，成本越高：
 
@@ -109,9 +83,7 @@ Owner 启用 Code Review 后，每个仓库都有一个设置，用于指定[审
 
 Owner 可以[为组织选择一个级别](/docs/zh-CN/code-review-setup#set-the-default-review-level)，也可以为单个仓库指定其自己的级别，例如为常规代码库使用 Quick，为关键代码库使用 Deep。有关影响每次审查成本的其他因素，请参阅 [Code Review 成本和使用情况](/docs/zh-CN/code-review-costs)。
 
-<h3 id="what-a-review-can-access">
-  审查可以访问的内容
-</h3>
+### 审查可以访问的内容
 
 审查通过 Owner [在设置期间安装](/docs/zh-CN/code-review-setup#turn-on-code-review)的 Claude GitHub App 访问您的仓库：
 
@@ -119,16 +91,12 @@ Owner 可以[为组织选择一个级别](/docs/zh-CN/code-review-setup#set-the-
 * **读取和写入的内容**：在审查过程中，对仓库的访问是只读的，审查不会推送提交。在 Pull Request 上，它会发布评论和[检查运行](/docs/zh-CN/code-review-pull-requests#check-run-output)，解决自己之前的评论线程，并可以用 👀 回应评论命令。该应用本身拥有由其他 Claude 功能共享的[更广泛的权限集](/docs/zh-CN/github-actions#github-app-permissions)。
 * **检查代码的方式**：审查通过阅读 diff 和周围代码进行，不会构建或运行您的代码。
 
-<h3 id="who-controls-a-review">
-  谁可以控制审查
-</h3>
+### 谁可以控制审查
 
 * **谁可以启动审查**：在自动运行审查的仓库中，打开 Pull Request 或向其推送都会启动审查，[草稿和 fork 除外](/docs/zh-CN/code-review-pull-requests#review-drafts-and-pull-requests-from-forks)。[评论命令](/docs/zh-CN/code-review-pull-requests#comment-commands)只有在来自对仓库具有写入权限的人员时才会启动审查。
 * **遵循哪些指令**：来自基础分支或默认分支的 `REVIEW.md`，[绝不会来自 Pull Request 自身的更改](/docs/zh-CN/code-review-customize#which-branch-review-md-is-read-from)。
 
-<h2 id="compare-ways-to-get-a-review">
-  比较获取审查的方式
-</h2>
+## 比较获取审查的方式
 
 要找出您可以使用的选项，请根据您的套餐和代码托管平台查看 **谁可以使用** 一列：
 
@@ -140,9 +108,7 @@ Owner 可以[为组织选择一个级别](/docs/zh-CN/code-review-setup#set-the-
 | 在您自己的 CI 中运行 Claude，使用 [GitHub Actions](/docs/zh-CN/github-actions) 或 [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd) | 您的流水线事件，例如每个 Pull Request 或 merge request | 您自己的 CI 运行器 | 在 GitHub 或 GitLab 上拥有 Claude API 密钥或云提供商凭据的任何人 |
 | 您自己的审查器，作为[子代理](/docs/zh-CN/sub-agents)或 [skill](/docs/zh-CN/skills) | 您或 Claude 在会话中调用它 | 您运行 Claude Code 的任何位置 | 任何编写了审查器的人 |
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server)：在自托管 GitHub 实例上使用 Code Review
 * [GitHub App 权限](/docs/zh-CN/github-actions#github-app-permissions)：Claude GitHub App 请求的完整权限集

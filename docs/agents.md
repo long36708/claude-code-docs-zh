@@ -30,13 +30,11 @@ Claude Code 有五种方式可以同时处理多个任务：[子代理](/docs/zh
 * [分叉子代理](/docs/zh-CN/sub-agents#fork-the-current-conversation) 是一个继承您完整对话上下文而不是从头开始的子代理。它是生成子代理的一种方式，不是一个单独的界面。使用 `/subtask` 启动一个。Claude 也会在 [fork mode](/docs/zh-CN/sub-agents#turn-fork-mode-on-or-off) 打开时自己生成一个。要将整个会话复制到一个新的 [后台会话](/docs/zh-CN/agent-view#from-inside-a-session) 中，该会话与其并行运行，请使用 `/fork`。当 [agent view 关闭](/docs/zh-CN/agent-view#turn-off-agent-view) 时，分叉子代理命令是 `/fork` 而不是 `/subtask` 不可用。
 * [云端定时任务](/docs/zh-CN/routines) 在云中按计划运行会话，而不是在您的机器上并行运行。
 
-<Note>
-  同时运行多个会话或子代理会增加令牌使用量。有关使用情况和速率限制详情，请参阅 [Costs](/docs/zh-CN/costs)。
-</Note>
+> [!NOTE]
+>
+> 同时运行多个会话或子代理会增加令牌使用量。有关使用情况和速率限制详情，请参阅 [Costs](/docs/zh-CN/costs)。
 
-<h2 id="choose-an-approach">
-  选择一种方法
-</h2>
+## 选择一种方法
 
 正确的方法取决于谁协调工作、工作人员是否需要通信以及他们是否编辑相同的文件：
 
@@ -48,9 +46,7 @@ Claude Code 有五种方式可以同时处理多个任务：[子代理](/docs/zh
 * **工作人员需要相互交谈吗？** Claude 可以通过[跨会话消息传递](/docs/zh-CN/cross-session-messaging)在您自己运行的会话之间传递发现，包括您从代理视图分派的会话。子代理将结果报告回生成它们的对话，代理视图会话仅向您报告结果。代理团队中的队友直接相互发送消息，当他们[拥有 Task tools](/docs/zh-CN/tools-reference#task-tool-availability) 时，共享任务列表。
 * **任务是否接触相同的文件？** 使用 [worktrees](/docs/zh-CN/worktrees) 隔离工作。子代理和您自己运行的会话可以各自使用单独的 worktree。代理团队不会在 worktrees 中隔离队友，因此[分区工作](/docs/zh-CN/agent-teams#avoid-file-conflicts)，以便每个队友拥有不同的文件集。
 
-<h2 id="check-on-running-work">
-  检查运行中的工作
-</h2>
+## 检查运行中的工作
 
 检查运行中工作的命令取决于您使用的方法：
 
@@ -61,9 +57,7 @@ Claude Code 有五种方式可以同时处理多个任务：[子代理](/docs/zh
 
 有关所有会话的桌面视图，请参阅 [桌面应用中的并行会话](/docs/zh-CN/desktop#work-in-parallel-with-sessions)。
 
-<h2 id="learn-more">
-  了解更多
-</h2>
+## 了解更多
 
 下面的每个指南涵盖一种方法的设置和配置：
 

@@ -16,9 +16,7 @@ We're changing auto mode to no longer charge for classifier requests in Claude C
 
 最常见的原因是 Claude Code 和 API 之间存在 LLM 网关或代理，当 Claude Code 能够识别出它时，通知会将其名称显示出来。按 **Enter** 继续，或参阅[使会话符合条件](#make-the-session-eligible)以防止其在新会话中出现。
 
-<h2 id="respond-to-the-notice">
-  响应通知
-</h2>
+## 响应通知
 
 该通知会保持操作处于待处理状态，直到您回答：
 
@@ -29,9 +27,7 @@ We're changing auto mode to no longer charge for classifier requests in Claude C
 
 在无法等待答案的地方，Claude Code 报告相同的文本，会话继续以自动模式运行，除非此机器上过去 24 小时内的网关确认已将其关闭。在 [non-interactive mode](/docs/zh-CN/headless) 中使用 `-p` 时，它会将文本打印到 stderr，在 `stream-json` 输出中，它会发出 `system` 警告消息，Agent SDK 应用程序可以从消息流中读取该消息。
 
-<h2 id="make-the-session-eligible">
-  使会话符合条件
-</h2>
+## 使会话符合条件
 
 如果网关是原因，请要求您公司的管理员或网关提供商原封不动地传递请求和回复。这意味着按原样转发请求头和正文字段，包括网关不识别的字段，例如 `safeguards` 请求字段，以及返回响应和流式事件而不删除键（例如 `safeguard_results` 字段）或重写工具使用 ID，如[网关兼容性指南](/docs/zh-CN/llm-gateway-protocol#feature-pass-through)所述。以这种方式传递流量的网关可继续与此功能和未来功能配合使用。新会话随后再次使用服务器的检查。
 
@@ -45,9 +41,7 @@ export CLAUDE_CODE_AUTO_MODE_SERVER=0
 
 `CLAUDE_CODE_AUTO_MODE_SERVER` 是一个临时设置，可能在后续版本中被移除。
 
-<h2 id="why-the-notice-appears">
-  为什么会出现通知
-</h2>
+## 为什么会出现通知
 
 [服务器端分类器审查](/docs/zh-CN/permission-modes#server-side-classifier-review)列出了哪些会话向服务器请求分类器检查。Pro、Max 和 Team 计划永远不会显示该通知。当它出现时，通常的原因是：
 
@@ -58,9 +52,7 @@ export CLAUDE_CODE_AUTO_MODE_SERVER=0
 
 当网关截断响应或将结果重写为 Claude Code 无法读取的形式时，您会收到没有判决的拒绝，而不是此通知；请参阅[服务器端分类器审查](/docs/zh-CN/permission-modes#server-side-classifier-review)。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [Auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：什么是 auto mode 以及它默认阻止的内容
 * [Server-side classifier review](/docs/zh-CN/permission-modes#server-side-classifier-review)：哪些会话要求服务器检查操作，以及每个会话所需的 Claude Code 版本

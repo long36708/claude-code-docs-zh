@@ -8,12 +8,12 @@
 
 当插件未加载、加载了与预期不同的副本，或未获取更新时，使用此页面查看哪个源、设置范围或磁盘上的文件决定了这一点。它提供了 Claude Code 在会话启动时和每次运行 `/reload-plugins` 时应用的规则。您也可以要求 Claude 阅读此页面并诊断您的设置。
 
-<Note>
-  这些情况在其他页面上有介绍：
-
-  * **安装、启用、禁用和更新步骤**：请参阅[安装和管理插件](/docs/zh-CN/plugins/install)
-  * **您有特定的错误消息**：请参阅[插件故障排除](/docs/zh-CN/plugins/troubleshooting)
-</Note>
+> [!NOTE]
+>
+> 这些情况在其他页面上有介绍：
+>
+> * **安装、启用、禁用和更新步骤**：请参阅[安装和管理插件](/docs/zh-CN/plugins/install)
+> * **您有特定的错误消息**：请参阅[插件故障排除](/docs/zh-CN/plugins/troubleshooting)
 
 从[检查插件达到的阶段](#check-which-stage-a-plugin-reached)开始，了解已安装插件经过的三个阶段，或转到与您看到的情况相匹配的部分：
 
@@ -22,9 +22,7 @@
 * 您正在查看 `~/.claude/plugins/` 下的文件：[查找磁盘上的插件](#find-plugins-on-disk)
 * `--plugin-dir` 插件未加载，或加载了同名插件：[名称冲突](#name-conflicts)
 
-<h2 id="check-which-stage-a-plugin-reached">
-  检查插件达到的阶段
-</h2>
+## 检查插件达到的阶段
 
 `enabledPlugins` 条目分阶段成为您可以使用的插件：您的设置声明它，Claude Code 将其获取到磁盘，运行中的会话加载它。当插件的行为与设置文件建议的不符时，检查它达到了哪个阶段：
 
@@ -35,9 +33,7 @@
   * `cache/` 保存插件文件
 * **已加载，在运行中的会话中**：Claude Code 在启动时或最后一次 `/reload-plugins` 时加载的插件集。对设置或磁盘的更改不会到达此层，直到您运行 `/reload-plugins` 或启动新会话。这就是为什么 `claude plugin update` 以 `Restart to apply changes.` 结尾，背景更新会提示您 `Run /reload-plugins to apply`
 
-<h3 id="plugins-and-marketplaces-that-aren’t-on-disk-at-session-start">
-  会话启动时磁盘上没有的插件和市场
-</h3>
+### 会话启动时磁盘上没有的插件和市场
 
 插件在会话启动时从 `installed_plugins.json` 和缓存加载，不使用网络。会话启动后，Claude Code 在后台检查声明的市场：
 
@@ -46,9 +42,7 @@
 
 既未被任何路径获取且没有可用缓存目录的已启用插件在 `/plugin` **Errors** 选项卡中显示 `Plugin "<name>" not cached at <path>`，`claude plugin list` 在同一行添加 `— run /plugin to refresh`。有关修复，请参阅[`Plugin "<name>" not cached at <path>`](/docs/zh-CN/plugins/troubleshooting#plugin-not-cached-at)。
 
-<h2 id="find-where-a-plugin-came-from">
-  查找插件的来源
-</h2>
+## 查找插件的来源
 
 每个插件都有形式为 `<name>@<origin>` 的 id，这是您在设置文件和 `claude plugin list --json` 中看到的。`@` 之后的部分告诉您 Claude Code 在哪里找到了插件：
 
@@ -63,18 +57,14 @@
 
 此表中的源名称是保留的，因此没有市场可以命名为 `inline`、`skills-dir` 或 `synced`。
 
-<h3 id="entry-name-and-manifest-name">
-  条目名称和清单名称
-</h3>
+### 条目名称和清单名称
 
 市场插件有两个名称，它们可能不同：
 
 * **`marketplace.json` 中的条目名称**：安装和启用密钥。这是您在 `enabledPlugins` 中写入的内容，缓存目录的命名依据，以及 `claude plugin list` 显示的内容
 * **清单中的 `name`**：插件组件命名空间所在的位置，以及[名称冲突](#name-conflicts)比较的内容
 
-<h3 id="plugins-shared-through-a-repository">
-  通过存储库共享的插件
-</h3>
+### 通过存储库共享的插件
 
 要通过存储库共享插件，请在 `.claude/settings.json` 中的 `enabledPlugins` 下列出它，或将其放在 `.claude/skills/` 下。Claude Code 不扫描项目的 `.claude/plugins/` 目录。
 
@@ -96,9 +86,7 @@
 
 有关如何编写 `--plugin-dir` 和技能目录插件，请参阅[创建插件](/docs/zh-CN/plugins/create)。
 
-<h3 id="synced-plugins">
-  从 claude.ai 同步的插件
-</h3>
+### 从 claude.ai 同步的插件
 
 您为 claude.ai 账户打开的插件也会在 Claude Code 中加载，与您从市场安装的插件一起。这包括您的组织为其成员打开的插件。这些插件中的每一个都作为 `<name>@synced` 加载，没有市场，也没有[安装记录](#check-which-stage-a-plugin-reached)。
 
@@ -111,17 +99,13 @@
 * **[Cowork](https://claude.com/product/cowork)**：Claude Code 在会话启动时将它们下载到会话自己的环境中
 * **终端会话**：每次启动 Claude Code 时，它在后台同步一次，下载新的和更新的插件，并删除您或您的组织关闭的插件。终端会话中的同步需要 Claude Code v2.1.273 或更高版本
 
-<h4 id="sync-timing-in-terminal-sessions">
-  终端会话中的同步时间
-</h4>
+#### 终端会话中的同步时间
 
 因为终端同步在后台运行，它可能在您的会话启动后完成。当它在交互式会话中添加、更新或删除同步插件时，您会看到 `Plugins changed. Run /reload-plugins to activate.` 运行 `/reload-plugins` 以在该会话中加载更改，或将其留到下次启动 Claude Code 时。
 
 如果您在会话运行时在 claude.ai 上启用插件，该插件将在下次启动 Claude Code 时下载。
 
-<h4 id="sign-in-requirements-for-terminal-sync">
-  终端同步的登录要求
-</h4>
+#### 终端同步的登录要求
 
 在您的终端中，插件仅在您使用 claude.ai 账户登录的会话中同步。
 
@@ -134,9 +118,7 @@ Claude Code 在这些终端会话中既不下载也不加载同步插件，即�
 
 如果您在早期版本的 Claude Code 上登录，该登录不会覆盖插件，直到 Claude Code 在后台续期。要更快获得访问权限，请再次运行 `/login`。插件同步然后在下次启动 Claude Code 时开始。
 
-<h4 id="control-which-synced-plugins-load">
-  控制哪些同步插件加载
-</h4>
+#### 控制哪些同步插件加载
 
 您可以逐个关闭同步插件，除了您的组织要求的插件，或关闭机器上的每个同步插件：
 
@@ -146,9 +128,7 @@ Claude Code 在这些终端会话中既不下载也不加载同步插件，即�
 
 有关在 claude.ai 上删除插件，请参阅[管理已安装的插件](/docs/zh-CN/plugins/install#manage-installed-plugins)。
 
-<h2 id="find-where-a-plugin-is-enabled">
-  查找插件的启用位置
-</h2>
+## 查找插件的启用位置
 
 您可以在六个源中的任何一个中设置 `enabledPlugins` 条目。该表从最低优先级到最高优先级列出它们，以及每个适用于谁。有关设置文件本身，请参阅[设置文件及其影响的人](/docs/zh-CN/settings#where-settings-live)。
 
@@ -163,17 +143,13 @@ Claude Code 在这些终端会话中既不下载也不加载同步插件，即�
 
 这些源逐个密钥合并。对于每个插件 id，应用的值来自提及该 id 的最高优先级源。不提及该 id 的源将较低优先级源的值保留在有效状态。
 
-<h3 id="disabled-in-user-settings-but-still-loads">
-  在用户设置中禁用但仍然加载
-</h3>
+### 在用户设置中禁用但仍然加载
 
 如果您在 `~/.claude/settings.json` 中将插件设置为 `false` 并且它仍然加载，较高优先级源中的 `true` 正在覆盖它。插件在 `claude plugin list` 和 `/plugin` 中的行显示 `Disabled in ~/.claude/settings.json but still loads — project settings enable it, which overrides your user setting`。该消息命名覆盖您的源：`project`、`project, gitignored`（对于 `.claude/settings.local.json`）、`cli flag` 或 `managed`。
 
 要在您的机器上选择退出项目启用的插件，请在 `.claude/settings.local.json` 中将 id 设置为 `false`，它的优先级高于项目文件。
 
-<h3 id="enabled-in-project-settings-but-not-installed">
-  在项目设置中启用但未安装
-</h3>
+### 在项目设置中启用但未安装
 
 当插件的唯一 `true` 在项目的 `.claude/settings.json` 中时，Claude Code 不会在未安装它的机器上获取它，除非其市场条目具有[相对路径源](/docs/zh-CN/plugins/marketplace-reference#plugin-sources)或[种子目录](/docs/zh-CN/plugins/org#seed-containers-and-ci)已经保存它。相反，`/plugin` **Errors** 选项卡显示 `Plugin "<name>" is enabled in project settings but isn't installed here`。
 
@@ -186,9 +162,7 @@ Claude Code 仅当以下源之一将其设置为 `true` 时才获取具有外部
 * `--settings` 标志
 * 托管设置
 
-<h2 id="find-plugins-on-disk">
-  查找磁盘上的插件
-</h2>
+## 查找磁盘上的插件
 
 Claude Code 在一个插件根目录下保存插件文件和状态记录，该目录是 `~/.claude/plugins`，除非您设置了 [`CLAUDE_CODE_PLUGIN_CACHE_DIR`](/docs/zh-CN/env-vars)。表中的每个路径都相对于该根目录。
 
@@ -205,9 +179,7 @@ Claude Code 在一个插件根目录下保存插件文件和状态记录，该�
 
 因为 `${CLAUDE_PLUGIN_ROOT}` 指向版本目录，插件的根路径随每个版本更改。改为在 `${CLAUDE_PLUGIN_DATA}` 中保留插件的持久文件。
 
-<h3 id="in-place-and-copied-plugins">
-  就地和复制的插件
-</h3>
+### 就地和复制的插件
 
 Claude Code 根据插件的来源，从您保存它们的位置就地加载某些插件，并将其余的复制到缓存中：
 
@@ -216,9 +188,7 @@ Claude Code 根据插件的来源，从您保存它们的位置就地加载某�
 * **[链接模式](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)中的 `command` 源插件**：命令打印的目录通过缓存条目中的链接就地加载
 * **每个其他市场插件**：Claude Code 在安装时将插件复制到 `cache/<marketplace>/<plugin>/<version>/` 中，并从该副本加载。插件目录外的文件不会被复制，因此当复制的插件内的脚本读取插件根目录上方的路径（如 `../shared`）时，它找不到它们
 
-<h3 id="paths-that-escape-the-plugin-directory">
-  逃逸插件目录的路径
-</h3>
+### 逃逸插件目录的路径
 
 无论插件就地加载还是从缓存副本加载，Claude Code 都不允许它声明其自己目录外的组件。它拒绝解析到插件根目录外的组件路径，无论路径是在 `plugin.json` 还是市场条目中声明的：
 
@@ -228,25 +198,19 @@ Claude Code 根据插件的来源，从您保存它们的位置就地加载某�
 
 被拒绝的路径显示为[`path escapes plugin directory`](/docs/zh-CN/errors#path-escapes-plugin-directory)错误，插件加载时不包含该组件。
 
-<h3 id="cleanup-of-previous-versions">
-  以前版本的清理
-</h3>
+### 以前版本的清理
 
 当您更新或卸载插件时，Claude Code 将 `.orphaned_at` 标记写入以前的版本目录。它在 14 天后的后台清理中删除该目录，因此已加载旧版本的会话继续运行。
 
 扫描仅在 `installed_plugins.json` 记录至少一个安装时运行。卸载最后一个插件后，孤立目录保留到您安装另一个。
 
-<h3 id="node-js-package-dependencies">
-  Node.js 包依赖项
-</h3>
+### Node.js 包依赖项
 
 当 Claude Code 将插件复制到缓存中时，它也会在那里安装插件的 Node.js 包依赖项，以便插件的 hooks 和 MCP 服务器可以加载它们。
 
 本部分涵盖插件在其自己的 `package.json` 中声明的 npm 和 Bun 包。对于依赖其他插件的插件，请参阅[插件依赖项版本](/docs/zh-CN/plugins/dependencies)。
 
-<h4 id="when-the-dependency-install-runs">
-  依赖项安装何时运行
-</h4>
+#### 依赖项安装何时运行
 
 Claude Code 每次创建复制的版本目录时，都会将依赖项安装到其中：
 
@@ -277,9 +241,7 @@ Claude Code 每次创建复制的版本目录时，都会将依赖项安装到�
 
 对于通过 npm 源分发的插件，使用 `npm-shrinkwrap.json`，因为 npm 从已发布的包中排除 `package-lock.json`。
 
-<h4 id="limits-on-the-dependency-install">
-  依赖项安装的限制
-</h4>
+#### 依赖项安装的限制
 
 Claude Code 限制此依赖项安装，以便插件或其包中的任何代码在安装期间不执行，并限制其运行时间：
 
@@ -297,9 +259,7 @@ Claude Code 在此依赖项安装之前获取 npm 源插件，包的任何自己
 
 在受限网络中，请参阅[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)以允许的主机。
 
-<h4 id="when-the-dependency-install-fails-or-is-skipped">
-  依赖项安装失败或被跳过时
-</h4>
+#### 依赖项安装失败或被跳过时
 
 如果安装失败或被跳过，插件仍会加载，但其中需要缺失包的部分可能无法正常工作。
 
@@ -307,9 +267,7 @@ Claude Code 在此依赖项安装之前获取 npm 源插件，包的任何自己
 
 当自动安装无法提供依赖项时，从 hook 安装到[持久数据目录](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。这包括需要其生命周期脚本来构建的包、Python 依赖项、使用 Yarn 或 pnpm 锁定的插件，以及不是注册表包的依赖项（例如 git 依赖项）。
 
-<h2 id="versions-and-updates">
-  版本和更新
-</h2>
+## 版本和更新
 
 如果插件的作者推送了新提交，`claude plugin update` 打印 `<name> is already at the latest version (<version>).`，Claude Code 为插件计算的版本未更改，因此插件在磁盘上的文件不会更改。
 
@@ -321,9 +279,7 @@ Claude Code 为它安装的每个插件计算一个版本，这就是它如何�
 
 从您通过本地路径添加的市场中[就地加载](#in-place-and-copied-plugins)的插件在每次会话启动时加载其当前源文件，无论其版本字符串说什么。对于来自[托管在 claude.ai 上的市场](/docs/zh-CN/plugins/install#add-from-claude-ai)的插件，claude.ai 为插件记录的版本是其版本，清单的 `version` 不被读取。
 
-<h3 id="how-claude-code-computes-the-version">
-  Claude Code 如何计算版本
-</h3>
+### Claude Code 如何计算版本
 
 对于您添加的市场，Claude Code 按插件市场条目的 `source` 类型选择规则。[市场参考](/docs/zh-CN/plugins/marketplace-reference#plugin-sources)列出源类型。对于该列表中除 `command` 外的每个源类型：
 
@@ -345,9 +301,7 @@ Claude Code 不从包含安装路径的存储库（如 git 管理的 `~/.claude`
 
 因为清单首先出现，固定 `"version": "1.0.0"` 的清单将每个用户保留在缓存副本上，直到其作者更改字符串，无论他们推送多少提交。要让用户跟踪提交，请从清单和条目中都省略 `version`。[托管市场](/docs/zh-CN/plugins/host-marketplace)涵盖哪个选择适合哪个发布设置。
 
-<h3 id="when-claude-code-refreshes-a-marketplace-before-an-install">
-  Claude Code 在安装前何时刷新市场
-</h3>
+### Claude Code 在安装前何时刷新市场
 
 当您安装插件时，Claude Code 在其市场目录的本地副本中查找它。您可以在会话中运行 `/plugin install` 或在 shell 中运行 `claude plugin install`，并使用或不使用其市场命名插件。该表显示这些组合中哪些刷新本地副本。
 
@@ -369,17 +323,13 @@ Claude Code 在以下情况下跳过 `name@marketplace` 安装之前的刷新：
 * 您设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`
 * [托管设置](/docs/zh-CN/plugins/org#restrict-what-users-can-install)阻止市场，在这种情况下 Claude Code 也拒绝安装
 
-<h3 id="when-auto-update-runs">
-  自动更新何时运行
-</h3>
+### 自动更新何时运行
 
 在交互式会话中，在您发送第一条消息后，Claude Code 等待最多十分钟的随机延迟。然后它刷新每个启用自动更新的市场，并更新从它们安装的磁盘上的插件。
 
 运行中的会话保留它加载的版本，您会看到 `Plugin updated: <name> · Run /reload-plugins to apply`。无论您是否重新加载，新版本都会在下次启动时加载。
 
-<h4 id="which-marketplaces-and-plugins-auto-update">
-  哪些市场和插件自动更新
-</h4>
+#### 哪些市场和插件自动更新
 
 市场是否自动更新遵循首先设置的以下内容：
 
@@ -393,9 +343,7 @@ Claude Code 在以下情况下跳过 `name@marketplace` 安装之前的刷新：
 
 当复制的插件在会话中期更新时，hook 命令、监视器、MCP 服务器和 LSP 服务器继续使用以前版本的路径。运行 `/reload-plugins` 以将 hooks、MCP 服务器和 LSP 服务器切换到新路径。监视器需要会话重启。
 
-<h3 id="when-a-command-source-re-runs">
-  何时命令源重新运行
-</h3>
+### 何时命令源重新运行
 
 具有 `command` 源的插件不等待[自动更新传递](#when-auto-update-runs)。打印的目录反映工具在命令运行时的状态，因此 Claude Code 在以下时间再次运行[您接受的命令](/docs/zh-CN/plugins/host-marketplace#change-the-command-of-a-command-source)：
 
@@ -409,9 +357,7 @@ Claude Code 在以下情况下跳过 `name@marketplace` 安装之前的刷新：
 
 如果就地重新加载会使会话的提示缓存失效，Claude Code 改为提示您运行 `/reload-plugins`，它[警告缓存成本并在使用 `--force` 重新运行时应用](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)。
 
-<h2 id="name-conflicts">
-  名称冲突
-</h2>
+## 名称冲突
 
 当来自不同来源的已启用插件共享清单名称时，此顺序决定哪个加载，从最高优先级到最低：
 
@@ -425,9 +371,7 @@ Claude Code 在以下情况下跳过 `name@marketplace` 安装之前的刷新：
 
 因为顺序比较清单名称，名为 `hello-plugin` 的 `--plugin-dir` 插件在该插件的清单也说 `"name": "hello-plugin"` 时替换 `hello@example-marketplace`。
 
-<h3 id="hooks-when-two-enabled-plugins-share-a-name">
-  两个已启用插件同名时的 hook
-</h3>
+### 两个已启用插件同名时的 hook
 
 当您从不同市场安装并启用两个具有相同清单名称的插件时，两者在 `/plugin` 中都显示为已启用，但其中一个的 hook 会被略过。每个名称只有一个插件会注册其 `hooks/hooks.json` 中的 hook，每个名称也只有一个插件会加载 [hook 模块](/docs/zh-CN/plugins/mods/overview)。当您组织的托管设置启用了其中一个副本时，该副本占有此名称。否则，由 Claude Code 首先加载的副本占有此名称。
 
@@ -435,15 +379,11 @@ Claude Code 在以下情况下跳过 `name@marketplace` 安装之前的刷新：
 
 要改为运行被略过副本的 hook，请禁用或卸载占有此名称的副本，然后在会话中运行 `/reload-plugins`。重新加载会注册剩余副本的 hook 并清除该说明。当占有此名称的副本是由您的托管设置启用的副本时，您无法禁用它，只要两者都已安装，另一个副本的 hook 就会保持关闭。
 
-<h3 id="keep-a-session-only-plugin-from-loading">
-  防止会话专用插件加载
-</h3>
+### 防止会话专用插件加载
 
 要防止 `--plugin-dir` 插件遮蔽任何内容，或在父进程为您传递标志时关闭一个，请在任何设置文件中将其 id 设置为 `false`。对于清单名称为 `hello-plugin` 的插件，条目是 `"enabledPlugins": {"hello-plugin@inline": false}`。禁用的会话专用插件不遮蔽，因此市场或技能目录副本加载。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [安装和管理插件](/docs/zh-CN/plugins/install)：安装、启用、禁用和更新步骤本身
 * [插件故障排除](/docs/zh-CN/plugins/troubleshooting)：按生成它们的阶段分类的错误消息

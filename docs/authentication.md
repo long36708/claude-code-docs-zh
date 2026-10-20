@@ -8,9 +8,7 @@
 
 Claude Code 支持多种身份验证方法，具体取决于您的设置。个人用户可以使用 claude.ai 账户登录，而团队可以使用 Claude for Teams 或 Enterprise、Claude Console 或云提供商（如 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry）。
 
-<h2 id="log-in-to-claude-code">
-  登录 Claude Code
-</h2>
+## 登录 Claude Code
 
 [安装 Claude Code](/docs/zh-CN/setup#install-claude-code) 后，在终端中运行 `claude`。首次启动时，Claude Code 会打开浏览器窗口供您登录。如果您已设置 `ANTHROPIC_API_KEY` 环境变量，并在 Claude Code 询问是否使用该密钥时批准了它，Claude Code 会跳过登录提示。
 
@@ -34,9 +32,7 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 
 如果您在登录时遇到问题，请参阅 [身份验证故障排除](/docs/zh-CN/troubleshoot-install#login-and-authentication)。
 
-<h3 id="log-in-with-multiple-accounts">
-  使用多个账户登录
-</h3>
+### 使用多个账户登录
 
 要同时保持登录多个账户（例如工作和个人账户），请为每个账户提供自己的配置目录。启动 `claude` 时，将 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars#variables) 环境变量设置为您要使用的账户的目录。每个目录都有自己的设置、会话历史记录和 claude.ai 登录或 API 密钥。例如，在 Bash 或 Zsh 中，将此别名添加到 `~/.bashrc` 或 `~/.zshrc`，以便 `claude-work` 使用您的工作账户，而 `claude` 保持您的个人账户：
 
@@ -46,9 +42,7 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 
 首次打开新终端并运行 `claude-work` 后，Claude Code 会引导您完成新目录的登录和设置。单独的目录不会将两个 Claude Console 登录 [不带 API 密钥](#sign-in-without-an-api-key) 分开，因为 Claude Code 将这种类型的登录存储在配置目录之外。
 
-<h2 id="set-up-team-authentication">
-  设置团队身份验证
-</h2>
+## 设置团队身份验证
 
 对于团队和组织，您可以通过以下方式之一配置 Claude Code 访问：
 
@@ -59,67 +53,57 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 * [Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai)
 * [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)
 
-<h3 id="claude-for-teams-or-enterprise">
-  Claude for Teams 或 Enterprise
-</h3>
+### Claude for Teams 或 Enterprise
 
 [Claude for Teams](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_teams#team-&-enterprise) 和 [Claude for Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_enterprise) 为使用 Claude Code 的组织提供最佳体验。团队成员可以访问 Claude Code 和网络版 Claude，具有集中式计费和团队管理。
 
 * **Claude for Teams**：自助服务计划，具有协作功能、管理工具、SSO、计费管理和 [服务器托管设置](/docs/zh-CN/server-managed-settings)，用于组织范围的 Claude Code 配置。最适合较小的团队。
 * **Claude for Enterprise**：添加域名捕获、基于角色的权限和合规性 API。最适合具有安全和合规性要求的大型组织。
 
-<Steps>
-  <Step title="订阅">
-    订阅 [Claude for Teams](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_teams_step#team-&-enterprise) 或联系销售部门了解 [Claude for Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_enterprise_step)。
-  </Step>
+**1. 订阅**
 
-  <Step title="邀请团队成员">
-    从管理员仪表板邀请团队成员。
-  </Step>
+订阅 [Claude for Teams](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_teams_step#team-&-enterprise) 或联系销售部门了解 [Claude for Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_enterprise_step)。
 
-  <Step title="安装并登录">
-    团队成员安装 Claude Code 并使用其 claude.ai 账户登录。
-  </Step>
-</Steps>
+**2. 邀请团队成员**
 
-<h3 id="claude-console-authentication">
-  Claude Console 身份验证
-</h3>
+从管理员仪表板邀请团队成员。
+
+**3. 安装并登录**
+
+团队成员安装 Claude Code 并使用其 claude.ai 账户登录。
+
+### Claude Console 身份验证
 
 对于偏好基于 API 的计费的组织，您可以通过 Claude Console 设置访问权限。
 
-<Steps>
-  <Step title="创建或使用 Console 账户">
-    使用您现有的 Claude Console 账户或创建新账户。
-  </Step>
+**1. 创建或使用 Console 账户**
 
-  <Step title="添加用户">
-    您可以通过以下任一方法添加用户：
+使用您现有的 Claude Console 账户或创建新账户。
 
-    * 从 Console 的 Members 页面 [platform.claude.com/settings/members](https://platform.claude.com/settings/members) 批量邀请用户：点击 **Invite**
-    * [设置 SSO](https://support.claude.com/en/articles/13132885-setting-up-single-sign-on-sso)
-  </Step>
+**2. 添加用户**
 
-  <Step title="分配角色">
-    邀请用户时，分配以下角色之一：
+您可以通过以下任一方法添加用户：
 
-    * **Claude Code** 角色：用户只能创建 Claude Code API 密钥
-    * **Developer** 角色：用户可以创建任何类型的 API 密钥
-  </Step>
+* 从 Console 的 Members 页面 [platform.claude.com/settings/members](https://platform.claude.com/settings/members) 批量邀请用户：点击 **Invite**
+* [设置 SSO](https://support.claude.com/en/articles/13132885-setting-up-single-sign-on-sso)
 
-  <Step title="用户完成设置">
-    每个受邀用户需要：
+**3. 分配角色**
 
-    * 接受 Console 邀请
-    * [检查系统要求](/docs/zh-CN/setup#system-requirements)
-    * [安装 Claude Code](/docs/zh-CN/setup#install-claude-code)
-    * 使用 Console 账户凭据登录
-  </Step>
-</Steps>
+邀请用户时，分配以下角色之一：
 
-<h4 id="sign-in-without-an-api-key">
-  无需 API 密钥登录
-</h4>
+* **Claude Code** 角色：用户只能创建 Claude Code API 密钥
+* **Developer** 角色：用户可以创建任何类型的 API 密钥
+
+**4. 用户完成设置**
+
+每个受邀用户需要：
+
+* 接受 Console 邀请
+* [检查系统要求](/docs/zh-CN/setup#system-requirements)
+* [安装 Claude Code](/docs/zh-CN/setup#install-claude-code)
+* 使用 Console 账户凭据登录
+
+#### 无需 API 密钥登录
 
 您可以无需创建 API 密钥即可登录到您的 Console 账户，即使您的组织不允许开发人员创建 API 密钥。在 `/login` 提示符处选择 Anthropic Console 账户，Claude Code 会询问您想如何登录。需要 Claude Code v2.1.242 或更高版本。两种路由都会在浏览器中将您登录到 Console，但在 Claude Code 之后存储的内容不同：
 
@@ -144,29 +128,23 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 
 关于配置文件的所有其他内容都适用于此登录，包括它在您的其他凭证中的排名、您在 `/status` 中获得的 `Profile` 行，以及需要 claude.ai 登录的功能。请参阅 [Anthropic 配置文件和联合凭证](#anthropic-profiles-and-federation-credentials)。
 
-<h3 id="cloud-provider-authentication">
-  云提供商身份验证
-</h3>
+### 云提供商身份验证
 
 对于使用 Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 的团队：
 
-<Steps>
-  <Step title="遵循提供商设置">
-    遵循 [Amazon Bedrock 文档](/docs/zh-CN/amazon-bedrock)、[Google Cloud's Agent Platform 文档](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry 文档](/docs/zh-CN/microsoft-foundry)。
-  </Step>
+**1. 遵循提供商设置**
 
-  <Step title="分发配置">
-    将环境变量和生成云凭证的说明分发给您的用户。阅读有关如何 [在此处管理配置](/docs/zh-CN/settings) 的更多信息。
-  </Step>
+遵循 [Amazon Bedrock 文档](/docs/zh-CN/amazon-bedrock)、[Google Cloud's Agent Platform 文档](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry 文档](/docs/zh-CN/microsoft-foundry)。
 
-  <Step title="安装 Claude Code">
-    用户可以 [安装 Claude Code](/docs/zh-CN/setup#install-claude-code)。
-  </Step>
-</Steps>
+**2. 分发配置**
 
-<h3 id="restrict-login-to-your-organization">
-  限制登录到您的组织
-</h3>
+将环境变量和生成云凭证的说明分发给您的用户。阅读有关如何 [在此处管理配置](/docs/zh-CN/settings) 的更多信息。
+
+**3. 安装 Claude Code**
+
+用户可以 [安装 Claude Code](/docs/zh-CN/setup#install-claude-code)。
+
+### 限制登录到您的组织
 
 要求开发人员的 claude.ai 登录属于特定的 Anthropic 组织，请在 [托管设置](/docs/zh-CN/managed-settings) 中设置 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 和 [`forceLoginOrgUUID`](/docs/zh-CN/settings-reference#forceloginorguuid)。将 `forceLoginOrgUUID` 设置为您的组织 ID，该 ID 显示在 [claude.ai 管理员设置](https://claude.ai/admin-settings/organization) 中，适用于 Claude for Teams 或 Enterprise 组织。Claude Code 会为任何其他组织的 claude.ai 登录报告错误，如果使用中的 claude.ai 凭证属于未列出的组织，则在启动时退出。
 
@@ -192,9 +170,7 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 * **云提供商会话，例如 Amazon Bedrock**：仅在 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，或由早期 Claude Console 登录保存的 API 密钥仍然存在于机器上时被阻止。删除它，会话就会启动。这些会话针对您的云提供商进行身份验证，其访问策略管理它们
 * **[Anthropic 配置文件或联合凭证](#anthropic-profiles-and-federation-credentials)**：不被阻止，除非 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，或由早期 Claude Console 登录保存的 API 密钥也存在于机器上。这些密钥不检查配置文件属于哪个组织
 
-<h3 id="restrict-which-api-providers-a-machine-may-use">
-  限制机器可能使用的 API 提供商
-</h3>
+### 限制机器可能使用的 API 提供商
 
 [`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) 在 [托管设置](/docs/zh-CN/managed-settings) 中列出托管机器可能通过哪些服务访问 Claude，例如 Anthropic API、Amazon Bedrock 或 LLM 网关。它补充 `forceLoginMethod` 和 `forceLoginOrgUUID`，它们管理会话在与 Anthropic 通信时使用的账户。需要 Claude Code v2.1.285 或更高版本。
 
@@ -212,9 +188,7 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 * **在托管机器上部署**：将列表放在承载您的其余策略的托管源中。条目的 [范围说明](/docs/zh-CN/settings-reference#allowedproviders) 说明服务器托管列表如何与其结合。
 * **仅服务器托管设置**：您仅在 [服务器托管设置](/docs/zh-CN/server-managed-settings) 中设置的列表仅到达获取您的组织设置的会话，因此将其视为您无法通过设备管理到达的机器的便利，而不是强制执行。[平台可用性](/docs/zh-CN/server-managed-settings#platform-availability) 列出哪些会话获取它们。
 
-<h2 id="credential-management">
-  凭证管理
-</h2>
+## 凭证管理
 
 Claude Code 安全地管理您的身份验证凭证：
 
@@ -222,7 +196,7 @@ Claude Code 安全地管理您的身份验证凭证：
   * 在 macOS 上，凭证存储在加密的 macOS Keychain 中。当 Keychain 拒绝写入时，例如在 SSH 会话中被锁定时，Claude Code 会改为将您的登录存储在 `~/.claude/.credentials.json` 中，文件模式为 `0600`，这与它在 Linux 上使用的存储相同。使用 Console 登录创建 API 密钥的操作会失败，直到 Keychain 可写。要将您的登录移回 Keychain，请按照[恢复步骤](/docs/zh-CN/troubleshoot-install#not-logged-in-or-token-expired)进行操作。
   * 在 Linux 上，凭证存储在 `~/.claude/.credentials.json` 中，文件模式为 `0600`。
   * 在 Windows 上，凭证存储在 `%USERPROFILE%\.claude\.credentials.json` 中，并继承您的用户配置文件目录的访问控制，默认情况下将文件限制为您的用户帐户。
-  * 如果您设置了 `CLAUDE_CONFIG_DIR` 环境变量，Claude Code 会将 `.credentials.json` 文件保存在该目录下，包括 macOS 回退写入的文件，并且还会将 macOS Keychain 条目关键字设置为该目录，因此使用不同 `CLAUDE_CONFIG_DIR` 的会话会读取不同的条目。
+  * 如果您设置了 `CLAUDE_CONFIG_DIR` 环境变量，Claude Code 会将 `.credentials.json` 文件保存在该目录下，包括 macOS 回退写入的文件，并且还会将 macOS Keychain 条目绑定到该目录，因此使用不同 `CLAUDE_CONFIG_DIR` 的会话会读取不同的条目。
   * Claude Code 通过 `/login` 和 `/logout` 管理 `.credentials.json`。要通过自定义 API 端点路由请求，请改为设置 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 环境变量。
 * **支持的身份验证类型**：claude.ai 凭证、Claude API 凭证、Microsoft Foundry Auth、Bedrock Auth、Vertex Auth、Anthropic 配置文件和 [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 凭证，以及 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话令牌。
 * **自定义凭证脚本**：配置 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 设置以运行返回 API 密钥的 shell 脚本。
@@ -232,9 +206,7 @@ Claude Code 安全地管理您的身份验证凭证：
 
 `apiKeyHelper`、`ANTHROPIC_API_KEY` 和 `ANTHROPIC_AUTH_TOKEN` 适用于 CLI 和包装它的表面，包括 VS Code 扩展、Agent SDK 和 GitHub Actions。Claude Desktop 和云会话不会调用 `apiKeyHelper` 或读取这些环境变量：它们使用 OAuth，除了运行[第三方推理配置](/docs/zh-CN/llm-gateway-connect#desktop-app)的桌面会话外，这些会话使用该配置的凭证进行身份验证。
 
-<h3 id="renew-an-expiring-login">
-  续期即将过期的登录
-</h3>
+### 续期即将过期的登录
 
 当您使用 `/login` 创建的登录在过期前三天内时，Claude Code 会在启动时显示警告：`Your login expires in 3 days · run /login to renew`。
 
@@ -248,9 +220,7 @@ Claude Code 安全地管理您的身份验证凭证：
 
 对于运行无人值守的会话，提前续期最为重要。在 [agent view 中的后台会话](/docs/zh-CN/agent-view)或 [Remote Control](/docs/zh-CN/remote-control) 会话一旦凭证过期，就会停止进行，并且在您再次登录之前无法恢复。
 
-<h3 id="authentication-precedence">
-  身份验证优先级
-</h3>
+### 身份验证优先级
 
 当存在多个凭证时，Claude Code 按以下顺序选择一个：
 
@@ -272,9 +242,7 @@ Claude Code 安全地管理您的身份验证凭证：
 
 [Cloud sessions](/docs/zh-CN/claude-code-on-the-web) 始终使用您的订阅凭证。如果您在云环境中设置 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，它不会覆盖您的订阅凭证。
 
-<h4 id="anthropic-profiles-and-federation-credentials">
-  Anthropic 配置文件和联合凭证
-</h4>
+#### Anthropic 配置文件和联合凭证
 
 配置文件是您的 [Anthropic 配置目录](https://platform.claude.com/docs/en/manage-claude/wif-reference#configuration-directory)中的命名凭证配置文件，在 macOS 和 Linux 上默认为 `~/.config/anthropic`，在 Windows 上为 `%APPDATA%\Anthropic`。当您为 [Workload Identity Federation (WIF)](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 设置配置文件时，其身份验证模式为 `oidc_federation`，或当 [`ant auth login`](https://platform.claude.com/docs/en/cli-sdks-libraries/cli/authentication) 写入它或您[在没有 API 密钥的情况下登录到 Console 帐户](#sign-in-without-an-api-key)时为 `user_oauth`。
 
@@ -299,9 +267,7 @@ Claude Code 按此顺序检查三个源，并在第一个设置的源处停止�
 * **命名配置文件或联合变量**：取消设置 `ANTHROPIC_PROFILE`，或取消设置任一联合变量
 * **活跃配置文件**：对于通过[在没有 API 密钥的情况下登录到 Console 帐户](#sign-in-without-an-api-key)写入当前凭证的 `user_oauth` 配置文件运行 `/logout`，对于 `ant auth login` 写入当前凭证的配置文件运行 `ant auth logout`，或对于任一身份验证模式从您的配置目录中的 `configs/` 删除配置文件的文件
 
-<h3 id="generate-a-long-lived-token">
-  生成长期令牌
-</h3>
+### 生成长期令牌
 
 对于 CI 管道、脚本或其他不可用交互式浏览器登录的环境，使用 `claude setup-token` 生成一年期 OAuth 令牌：
 
@@ -311,25 +277,23 @@ claude setup-token
 
 该命令会打开与 `/login` 相同的浏览器授权流程，在您在浏览器中批准访问后，令牌会打印到终端。它不会将令牌保存在任何地方；复制它并将其设置为 `CLAUDE_CODE_OAUTH_TOKEN` 环境变量，无论您想在何处进行身份验证：
 
-<Tabs>
-  <Tab title="macOS, Linux, WSL">
-    ```bash theme={null}
-    export CLAUDE_CODE_OAUTH_TOKEN=your-token
-    ```
-  </Tab>
+**macOS, Linux, WSL**
 
-  <Tab title="Windows PowerShell">
-    ```powershell theme={null}
-    $env:CLAUDE_CODE_OAUTH_TOKEN = "your-token"
-    ```
-  </Tab>
+```bash theme={null}
+export CLAUDE_CODE_OAUTH_TOKEN=your-token
+```
 
-  <Tab title="Windows CMD">
-    ```batch theme={null}
-    set CLAUDE_CODE_OAUTH_TOKEN=your-token
-    ```
-  </Tab>
-</Tabs>
+**Windows PowerShell**
+
+```powershell theme={null}
+$env:CLAUDE_CODE_OAUTH_TOKEN = "your-token"
+```
+
+**Windows CMD**
+
+```batch theme={null}
+set CLAUDE_CODE_OAUTH_TOKEN=your-token
+```
 
 此令牌使用您的 Claude 订阅进行身份验证，需要 Pro、Max、Team 或 Enterprise 计划。它只能进行模型请求，因此无法建立 [Remote Control](/docs/zh-CN/remote-control) 会话或获取 [claude.ai 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。您在本地配置的 MCP 服务器仍然有效。
 

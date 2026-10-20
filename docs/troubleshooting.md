@@ -26,15 +26,11 @@
 
 如果您不确定哪个适用，请在 Claude Code 内运行 `/doctor` 以自动检查您的安装、设置、扩展和上下文使用情况；它会提议可以在您确认后应用的修复。如果 `claude` 根本无法启动，请从您的 shell 运行 `claude doctor`。运行 `/mcp` 以检查 MCP 服务器状态。
 
-<h2 id="performance-and-stability">
-  性能和稳定性
-</h2>
+## 性能和稳定性
 
 这些部分涵盖与资源使用、响应性和搜索行为相关的问题。
 
-<h3 id="high-cpu-or-memory-usage">
-  高 CPU 或内存使用
-</h3>
+### 高 CPU 或内存使用
 
 Claude Code 设计用于大多数开发环境，但在处理大型代码库时可能消耗大量资源。如果您遇到性能问题：
 
@@ -49,9 +45,9 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 
 如果内存使用在这些步骤后仍然很高，请运行 `/heapdump` 以将两个文件写入 `~/Desktop`：一个名为 `<session-id>.heapsnapshot` 的 JavaScript 堆快照和一个名为 `<session-id>-diagnostics.json` 的内存分解。Claude Code [从命令菜单中隐藏该命令](/docs/zh-CN/commands#how-the-command-menu-matches-what-you-type)；请完整输入它。在没有 Desktop 文件夹的 Linux 上，文件被写入您的主目录。
 
-<Warning>
-  `.heapsnapshot` 文件包含进程中的每个字符串，包括您的完整对话和凭证。不要将其附加到公开问题或共享。
-</Warning>
+> [!WARNING]
+>
+> `.heapsnapshot` 文件包含进程中的每个字符串，包括您的完整对话和凭证。不要将其附加到公开问题或共享。
 
 该命令还在对话中打印摘要，显示进程的总内存、其中有多少在 JS 堆中，以及有多少在堆外。摘要还列出任何泄漏指示器，例如高内存增长率或异常高的打开句柄数。摘要说明大部分内存是在 JS 堆中（快照捕获），还是在本机内存中（它不捕获）。
 
@@ -62,15 +58,11 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 
 如果摘要说大部分内存是本机内存，快照无法显示它；请在您的报告中包含摘要的泄漏指示器。
 
-<h3 id="large-tables-are-cut-off-in-the-terminal">
-  大型表格在终端中被截断
-</h3>
+### 大型表格在终端中被截断
 
 超过 200 行的 Markdown 表格呈现其前 200 行，后跟 `… N more rows not shown` 行。仅显示被限制：完整表格保留在对话中，[`/copy`](/docs/zh-CN/commands) 复制每一行。对于在终端中太大而无法读取的表格，请要求 Claude 将其写入文件。在 v2.1.208 之前，Claude Code 呈现每一行，因此恢复包含非常大表格的会话可能会在重新呈现时停滞。
 
-<h3 id="auto-compaction-stops-with-a-thrashing-error">
-  自动压缩停止并出现抖动错误
-</h3>
+### 自动压缩停止并出现抖动错误
 
 如果您看到 `Autocompact is thrashing: the context refilled to the limit...`，自动压缩成功，但文件或工具输出立即多次将上下文窗口重新填充到限制。Claude Code 停止重试以避免在没有取得进展的循环上浪费 API 调用。
 
@@ -86,9 +78,7 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 * **`Messages` 是最大的行**：新对话中的文件或工具输出正在重新填满窗口，因此请再次执行步骤 1 到 3
 * **其他行加起来更大**：会话启动时加载的内容留下的工作空间太少，因此请[精简启动时加载的内容](/docs/zh-CN/errors#prompt-is-too-long)
 
-<h3 id="command-hangs-or-freezes">
-  命令挂起或冻结
-</h3>
+### 命令挂起或冻结
 
 如果 Claude Code 似乎无响应：
 
@@ -97,23 +87,17 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 
 重新启动不会丢失您的对话。在同一目录中运行 `claude --resume` 以继续会话。
 
-<h3 id="garbled-or-corrupted-text-in-an-editor’s-integrated-terminal">
-  编辑器集成终端中的文本乱码或损坏
-</h3>
+### 编辑器集成终端中的文本乱码或损坏
 
 如果在 VS Code、Cursor 或 Devin Desktop 集成终端中运行 Claude Code 时字符呈现为方框、涂抹或错误的字形，终端的 GPU 渲染器可能是原因。在 Claude Code 中运行 `/terminal-setup` 以将 `terminal.integrated.gpuAcceleration` 设置为 `"off"`，或在编辑器设置中手动设置并重新加载窗口。有关 `/terminal-setup` 写入的其他设置，请参阅[终端配置](/docs/zh-CN/terminal-config)。
 
-<h3 id="mouse-wheel-scrolls-one-line-at-a-time-in-fullscreen-rendering">
-  全屏渲染中鼠标滚轮一次滚动一行
-</h3>
+### 全屏渲染中鼠标滚轮一次滚动一行
 
 在[全屏渲染](/docs/zh-CN/fullscreen)中，Claude Code 滚动对话本身，而不是将其留给您的终端。如果每个滚轮缺口移动的行数少于您想要的，请运行 `/scroll-speed` 以提高每个缺口的行数并保存它，或设置 `CLAUDE_CODE_SCROLL_SPEED` 环境变量，除了在 JetBrains IDE 终端中，Claude Code 应用其自己的滚动处理，两者都不起作用。有关每个接受的值，请参阅[鼠标滚轮滚动](/docs/zh-CN/fullscreen#mouse-wheel-scrolling)。
 
 要在不改变速度的情况下移动得更快，请按 `PgUp` 和 `PgDn` 一次滚动半屏。要将滚动交还给您的终端的本机滚回，请运行 `/tui default` 以切换到经典渲染器。
 
-<h3 id="clipboard-commands-such-as-pbcopy-fail-inside-the-sandbox">
-  沙箱内的剪贴板命令（如 `pbcopy`）失败
-</h3>
+### 沙箱内的剪贴板命令（如 `pbcopy`）失败
 
 当[沙箱](/docs/zh-CN/sandboxing)打开时，剪贴板实用程序（如 `pbcopy`、`xclip` 和 `wl-copy`）可能无法从沙箱化 Bash 命令内部到达系统剪贴板，在 Claude 将文本管道到它们后保持您的剪贴板不变。
 
@@ -121,9 +105,7 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 
 当 Claude 将文本管道到这些工具之一时，将 `pbcopy *`、`wl-copy *` 或 `xclip *` 添加到 [`excludedCommands`](/docs/zh-CN/settings-reference#sandbox-excludedcommands) 本身不会将该调用从沙箱中取出。
 
-<h3 id="copied-text-doesn’t-reach-your-local-clipboard-over-ssh">
-  复制的文本在 SSH 上无法到达您的本地剪贴板
-</h3>
+### 复制的文本在 SSH 上无法到达您的本地剪贴板
 
 当 Claude Code 通过 SSH 在远程机器上运行时，它无法在您的本地机器上运行剪贴板工具。在 tmux 外，当您在[全屏渲染](/docs/zh-CN/fullscreen)中选择文本或运行 `/copy` 时，Claude Code 会将文本作为 OSC 52 转义序列发送到您的终端。您的终端决定是否将其放在您的剪贴板上。`/copy` 报告 `Copied to clipboard`，无论文本是否到达，在 tmux 外，选择通知读取 `sent N chars via OSC 52`。
 
@@ -134,45 +116,41 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 * 按住您的终端的本机选择键同时拖动，然后使用您的终端的常用快捷方式复制，例如 `Cmd+C`。该键在 Terminal.app 中是 `Fn`，在 iTerm2 中是 `Option`。[保持本机文本选择](/docs/zh-CN/fullscreen#keep-native-text-selection)为其他终端列出了它。
 * 在远程机器上设置 [`CLAUDE_CODE_DISABLE_MOUSE=1`](/docs/zh-CN/env-vars)，以便您的终端为整个会话处理选择。
 
-<h3 id="search-and-discovery-issues">
-  搜索和发现问题
-</h3>
+### 搜索和发现问题
 
 如果搜索工具、`@file` 提及、自定义代理或自定义 skills 找不到文件，捆绑的 `ripgrep` 二进制文件可能无法在您的系统上运行。安装您平台的 `ripgrep` 包并告诉 Claude Code 改用它：
 
-<Tabs>
-  <Tab title="macOS">
-    ```bash theme={null}
-    brew install ripgrep
-    ```
-  </Tab>
+**macOS**
 
-  <Tab title="Ubuntu/Debian">
-    ```bash theme={null}
-    sudo apt install ripgrep
-    ```
-  </Tab>
+```bash theme={null}
+brew install ripgrep
+```
 
-  <Tab title="Alpine">
-    ```bash theme={null}
-    apk add ripgrep
-    ```
+**Ubuntu/Debian**
 
-    `ripgrep` 在 Alpine 的社区存储库中。如果 `apk` 报告包缺失，请参阅 [Alpine Linux 设置](/docs/zh-CN/setup#alpine-linux-and-musl-based-distributions)。
-  </Tab>
+```bash theme={null}
+sudo apt install ripgrep
+```
 
-  <Tab title="Arch">
-    ```bash theme={null}
-    pacman -S ripgrep
-    ```
-  </Tab>
+**Alpine**
 
-  <Tab title="Windows">
-    ```powershell theme={null}
-    winget install BurntSushi.ripgrep.MSVC
-    ```
-  </Tab>
-</Tabs>
+```bash theme={null}
+apk add ripgrep
+```
+
+`ripgrep` 在 Alpine 的社区存储库中。如果 `apk` 报告包缺失，请参阅 [Alpine Linux 设置](/docs/zh-CN/setup#alpine-linux-and-musl-based-distributions)。
+
+**Arch**
+
+```bash theme={null}
+pacman -S ripgrep
+```
+
+**Windows**
+
+```powershell theme={null}
+winget install BurntSushi.ripgrep.MSVC
+```
 
 然后在您的 shell [环境](/docs/zh-CN/env-vars)中或在您的 [`settings.json`](/docs/zh-CN/settings-reference#all-settings) 的 `env` 块中将 `USE_BUILTIN_RIPGREP` 设置为 `0`：
 
@@ -186,15 +164,13 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 
 要确认切换生效，请在您的终端中运行 `claude doctor` 并检查搜索行显示您的系统 ripgrep 的路径而不是 `OK (bundled)`。
 
-<h3 id="slow-or-incomplete-search-results-on-wsl">
-  WSL 上的搜索速度缓慢或结果不完整
-</h3>
+### WSL 上的搜索速度缓慢或结果不完整
 
 在 WSL 上[跨文件系统工作](https://learn.microsoft.com/en-us/windows/wsl/filesystems)时的磁盘读取性能损失可能导致使用 Claude Code 在 WSL 上时搜索匹配数少于预期。搜索仍然有效，但返回的结果少于本机文件系统。
 
-<Note>
-  `claude doctor` 在这种情况下将搜索显示为正常。
-</Note>
+> [!NOTE]
+>
+> `claude doctor` 在这种情况下将搜索显示为正常。
 
 **解决方案：**
 
@@ -204,9 +180,7 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 
 3. **改用本机 Windows**：考虑在 Windows 上本机运行 Claude Code 而不是通过 WSL，以获得更好的文件系统性能。
 
-<h2 id="get-more-help">
-  获取更多帮助
-</h2>
+## 获取更多帮助
 
 如果您遇到此处未涵盖的问题：
 

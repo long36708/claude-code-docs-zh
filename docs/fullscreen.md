@@ -6,21 +6,19 @@
 
 > 启用更流畅、无闪烁的渲染模式，支持鼠标操作，在长对话中保持稳定的内存使用。
 
-<Note>
-  全屏渲染是一个[研究预览](#research-preview)。无论您是[默认在全屏启动还是在经典渲染器中启动](#fullscreen-by-default)取决于您的设置。在当前对话中运行 `/tui fullscreen` 或 `/tui default` 来切换。行为可能会根据反馈而改变。
-</Note>
+> [!NOTE]
+>
+> 全屏渲染是一个[研究预览](#research-preview)。无论您是[默认在全屏启动还是在经典渲染器中启动](#fullscreen-by-default)取决于您的设置。在当前对话中运行 `/tui fullscreen` 或 `/tui default` 来切换。行为可能会根据反馈而改变。
 
 全屏渲染是 Claude Code CLI 的一种替代渲染路径，它消除了闪烁，在长对话中保持内存使用量平稳，并添加了鼠标支持。它在终端的备用屏幕缓冲区上绘制界面，就像 `vim` 或 `htop` 一样，并且只渲染当前可见的消息。这减少了每次更新时发送到终端的数据量。
 
 在渲染吞吐量是瓶颈的终端模拟器中，如 VS Code 集成终端、tmux 和 iTerm2，差异最为明显。如果您的终端滚动位置在 Claude 工作时跳到顶部，或者工具输出流入时屏幕闪烁，此模式可以解决这些问题。
 
-<Note>
-  术语"全屏"描述的是 Claude Code 如何接管终端的绘制表面，就像 `vim` 一样。它与最大化终端窗口无关，在任何窗口大小下都能工作。
-</Note>
+> [!NOTE]
+>
+> 术语"全屏"描述的是 Claude Code 如何接管终端的绘制表面，就像 `vim` 一样。它与最大化终端窗口无关，在任何窗口大小下都能工作。
 
-<h2 id="enable-fullscreen-rendering">
-  启用全屏渲染
-</h2>
+## 启用全屏渲染
 
 在任何 Claude Code 对话中运行 `/tui fullscreen`。CLI 会保存 [`tui` 设置](/docs/zh-CN/settings-reference#tui)并以您的对话完整地重新启动到全屏模式，因此您可以在会话中途切换而不会丢失上下文。运行 `/tui default` 来切换回经典渲染器，或运行不带参数的 `/tui` 来打印当前活动的渲染器。
 
@@ -50,9 +48,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 
 有关 [`tui`](/docs/zh-CN/settings-reference#tui) 设置和变量在两者都设置时如何组合的信息，请参阅该设置的条目。在[失败的全屏启动](#fullscreen-renderer-didnt-finish-starting)之后，Claude Code 仍然遵守该变量但不遵守该设置。`/tui` 命令从重新启动的进程中清除 `CLAUDE_CODE_NO_FLICKER`，以便它写入的设置生效。
 
-<h3 id="fullscreen-by-default">
-  默认全屏
-</h3>
+### 默认全屏
 
 附加的[后台会话](/docs/zh-CN/agent-view)以全屏渲染，[屏幕阅读器模式](/docs/zh-CN/accessibility)中的其他会话使用经典渲染器。否则，Claude Code 会在与您的设置匹配的此表的第一行中的渲染器中启动您：
 
@@ -76,9 +72,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 * 如果您选择**稍后**，Claude Code 不会在此机器上再次提供。
 * Claude Code 在显示对话框三次启动后停止提供，无论是否回答。
 
-<h2 id="what-changes">
-  变化内容
-</h2>
+## 变化内容
 
 全屏渲染改变了 CLI 绘制到终端的方式。输入框保持固定在屏幕底部，而不是在输出流入时移动。如果输入框在 Claude 工作时保持不动，则全屏渲染处于活动状态。只有可见的消息保留在渲染树中，因此无论对话长度如何，内存都保持恒定。
 
@@ -92,9 +86,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 
 如果鼠标捕获干扰您的工作流程，您可以[关闭它](#keep-native-text-selection)，同时保持无闪烁渲染。
 
-<h2 id="use-the-mouse">
-  使用鼠标
-</h2>
+## 使用鼠标
 
 全屏渲染会捕获鼠标事件并在 Claude Code 内处理它们：
 
@@ -133,9 +125,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 
 在[会话记录模式](#search-and-review-the-conversation)中，那里列出的导航键也会保持选择。
 
-<h2 id="scroll-the-conversation">
-  滚动对话
-</h2>
+## 滚动对话
 
 全屏渲染处理应用内的滚动。使用这些快捷键进行导航：
 
@@ -158,9 +148,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 
 当您向上滚动时，对话顶部的一个暗淡标题行显示已滚动到视图上方的最新提示。点击该行可跳转到该提示。
 
-<h3 id="auto-follow">
-  自动跟随
-</h3>
+### 自动跟随
 
 向上滚动会暂停自动跟随，以便新输出不会将您拉回到底部。当您向上滚动时，一个 `Jump to bottom` 按钮会浮动在会话记录的底部边缘，当新输出到达时会显示计数，例如 `3 new messages`。点击它、按 `Ctrl+End` 或滚动到底部以恢复跟随。
 
@@ -172,9 +160,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 
 要完全关闭自动跟随以使视图保持在您离开的位置，打开 `/config` 并将自动滚动设置为关闭。禁用自动滚动后，视图永远不会自动跳转到底部。权限提示和其他需要响应的对话框仍会根据此设置滚动到视图中。
 
-<h3 id="mouse-wheel-scrolling">
-  鼠标滚轮滚动
-</h3>
+### 鼠标滚轮滚动
 
 鼠标滚轮滚动需要您的终端将鼠标事件转发到 Claude Code。大多数终端在应用程序请求时都会执行此操作。iTerm2 将其设置为每个配置文件的设置：如果滚轮不起作用但 `PgUp` 和 `PgDn` 有效，打开设置 → 配置文件 → 终端并启用启用鼠标报告。点击展开和文本选择也需要相同的设置。
 
@@ -194,17 +180,13 @@ export CLAUDE_CODE_SCROLL_SPEED=3
 
 与基本速度分开，Claude Code 在您快速旋转滚轮时加速滚动速率，因此快速旋转覆盖的距离比相同数量的慢刻度更多。要关闭加速并保持每个刻度的恒定速率，在 [`settings.json`](/docs/zh-CN/settings-reference#all-settings) 中将 `wheelScrollAccelerationEnabled` 设置为 `false`。此设置需要 Claude Code v2.1.174 或更高版本。
 
-<h3 id="scroll-in-the-jetbrains-ide-terminal">
-  在 JetBrains IDE 终端中滚动
-</h3>
+### 在 JetBrains IDE 终端中滚动
 
 在 JetBrains IDE 终端中，Claude Code 应用其自己的滚动处理并忽略 `CLAUDE_CODE_SCROLL_SPEED`。终端以比其他模拟器高得多的速率发送滚动事件，因此在其他地方调整的乘数会在这里超调。
 
 在 2025.2 中，终端还有滚动滚轮错误，会产生虚假的箭头键和错误方向的事件。Claude Code 在运行时检测这些并自动缓解它们，因此触控板和鼠标滚轮滚动无需配置即可工作。为了获得最佳滚动体验，升级到 2025.3 或更高版本。如果 Claude Code 检测到该错误，它会在您第一次滚动时显示提示。
 
-<h2 id="search-and-review-the-conversation">
-  搜索和查看对话
-</h2>
+## 搜索和查看对话
 
 `Ctrl+o` 在普通提示和记录模式之间切换。
 
@@ -228,15 +210,11 @@ export CLAUDE_CODE_SCROLL_SPEED=3
 * **`[`**：将完整对话写入您的终端的本机滚动返回缓冲区，所有工具输出都已展开。对话现在是您的终端中的普通文本，因此 `Cmd+f`、tmux 复制模式和任何其他本机工具都可以搜索或选择它。长会话在发生这种情况时可能会暂停片刻。这会持续到您使用 `Esc` 或 `q` 退出记录模式为止，这会使您返回全屏渲染。下一个 `Ctrl+o` 重新开始。
 * **`v`**：将对话写入临时文件并在 `$VISUAL` 或 `$EDITOR` 中打开它。
 
-<h2 id="watch-your-changes-in-the-diff-panel">
-  在 diff 面板中查看你的更改
-</h2>
+## 在 diff 面板中查看你的更改
 
 在全屏渲染中，[`/diff`](/docs/zh-CN/interactive-mode#review-changes-with-%2Fdiff) 会在对话旁边打开一个面板，因此您可以在 Claude 工作时观看更改逐步累积。[Diff 面板](/docs/zh-CN/interactive-mode#diff-panel)涵盖了它显示的内容、它何时会自动打开、如何保持它关闭以及如何更改它比较的内容。
 
-<h2 id="clear-the-conversation">
-  清除对话
-</h2>
+## 清除对话
 
 运行 `/clear` 来开始新的对话。
 
@@ -244,9 +222,7 @@ export CLAUDE_CODE_SCROLL_SPEED=3
 
 `Cmd+K` 在你的终端将其传递给 Claude Code 时的作用与 `Ctrl+L` 相同。iTerm2 和 Terminal.app 自己处理 `Cmd+K` 并清除自己的屏幕，Claude Code 检测到清除的屏幕并重新绘制对话。在 v2.1.280 之前，从 v2.1.260 开始，按 `Ctrl+L` 或 `Cmd+K`（到达 Claude Code 的地方）会在全屏渲染中清除屏幕。在 v2.1.238 之前，在两秒内按两次 `Ctrl+L` 会运行 `/clear`。
 
-<h2 id="use-with-tmux">
-  与 tmux 一起使用
-</h2>
+## 与 tmux 一起使用
 
 全屏渲染在 tmux 内部可以工作，但有三个注意事项。
 
@@ -262,9 +238,7 @@ set -g mouse on
 
 tmux 3.6 系列及之前的版本不实现同步输出，所以在这些版本下，你在重绘时可能会看到比直接在终端中运行 Claude Code 时更多的闪烁。Claude Code 在启动时探测终端以获取同步输出支持，并在终端报告支持时使用它。如果你在 tmux 下看到闪烁，请升级到最新的 tmux 或在 tmux 外的自己的终端标签页中运行 Claude Code。
 
-<h2 id="keep-native-text-selection">
-  保持原生文本选择
-</h2>
+## 保持原生文本选择
 
 鼠标捕获是最常见的摩擦点，特别是在 SSH 或 tmux 内部。当 Claude Code 捕获鼠标事件时，您终端的原生选择复制功能会停止工作。您通过点击和拖动进行的选择存在于 Claude Code 内部，而不是在您终端的选择缓冲区中，因此 tmux 复制模式、Kitty hints 和类似工具看不到它。
 
@@ -301,13 +275,9 @@ CLAUDE_CODE_NO_FLICKER=1 CLAUDE_CODE_DISABLE_MOUSE=1 claude
 
 禁用点击后，Claude Code 仍然捕获鼠标，因此滚轮和触控板滚动对话，但左键点击在 Claude Code 内部不起作用。您仍然需要按住终端的键进行原生点击和拖动选择。右键点击和中键粘贴在支持它们的终端上继续工作。
 
-<h2 id="troubleshooting">
-  故障排除
-</h2>
+## 故障排除
 
-<h3 id="stale-or-misplaced-text-on-screen">
-  屏幕上出现过时或错位的文本
-</h3>
+### 屏幕上出现过时或错位的文本
 
 全屏渲染仅发送帧之间更改的单元格。某些终端（最常见的是 Windows Terminal 和其他基于 ConPTY 的主机）会错误地合并这些定位写入，并在调整窗口大小之前在屏幕上留下早期输出的片段。
 
@@ -328,9 +298,7 @@ CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1 claude
 
 在 Windows 上，Claude Code 已经为后台会话和 [agent view](/docs/zh-CN/agent-view) 自动启用了完整重绘，因此您只需要为直接启动的交互式全屏会话设置该变量。
 
-<h3 id="fullscreen-renderer-didnt-finish-starting">
-  启动时出现 `Claude Code's fullscreen renderer didn't finish starting last time`
-</h3>
+### 启动时出现 `Claude Code's fullscreen renderer didn't finish starting last time`
 
 如果此计算机上的全屏会话在成功启动之前崩溃，Claude Code 会在经典渲染器中启动您的下一个会话，并打印以下两行之一。会话在绘制其第一帧后，要么保持运行 10 秒钟，要么您使用 `/exit`、Ctrl+C 或 Ctrl+D 结束它，这样会话就已成功启动。您看到的行告诉您 Claude Code 在此会话后的操作：
 
@@ -343,18 +311,14 @@ CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1 claude
 
 在 v2.1.236 之前，Claude Code 在失败的启动后继续在全屏渲染中启动会话。
 
-<h4 id="how-claude-code-counts-failed-starts">
-  Claude Code 如何计算失败的启动
-</h4>
+#### Claude Code 如何计算失败的启动
 
 * 计数的会话：仅限因您的 `tui` 设置而在全屏渲染中启动的会话、您接受了 [启动对话框](#fullscreen-by-default)，或 Claude Code 默认以全屏启动您的会话
 * `CLAUDE_CODE_NO_FLICKER=1`：如果您设置了它，Claude Code 会在失败的启动后以全屏方式渲染该会话，并且不计数
 * 计数重置：Claude Code 按 Claude Code 版本计算失败的启动，成功的全屏启动会重置计数
 * 启动对话框：如果您接受了对话框，重新启动的会话崩溃了，Claude Code 不会打印任何行，也不会在此 Claude Code 版本上再次显示对话框
 
-<h2 id="research-preview">
-  研究预览
-</h2>
+## 研究预览
 
 全屏渲染是一项研究预览功能。它已在常见的终端模拟器上进行了测试，但您可能会在不太常见的终端或不寻常的配置上遇到渲染问题。
 

@@ -19,21 +19,15 @@
 
 这是一个[多行状态行](#display-multiple-lines)的示例，它在第一行显示 git 信息，在第二行显示颜色编码的上下文栏。
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-multiline.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=a9d0a2fe8e446d80b1abc46da3f93270" alt="一个多行状态行，显示第一行上的模型名称、目录、git 分支，第二行上的上下文使用进度条、成本和持续时间" width="1224" height="262" data-path="images/statusline-multiline.png" />
-</Frame>
+![一个多行状态行，显示第一行上的模型名称、目录、git 分支，第二行上的上下文使用进度条、成本和持续时间](https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-multiline.png?fit=max\&auto=format\&n=HDAmBwgbrZVk0pOt\&q=85\&s=a9d0a2fe8e446d80b1abc46da3f93270)
 
 本页面介绍了[设置基本状态行](#set-up-a-status-line)，解释了[数据如何从 Claude Code 流向你的脚本](#how-status-lines-work)，列出了[你可以显示的所有字段](#available-data)，并提供了[常见模式的现成示例](#examples)，如 git 状态、成本跟踪和进度条。
 
-<h2 id="set-up-a-status-line">
-  设置状态行
-</h2>
+## 设置状态行
 
 使用[`/statusline` 命令](#use-the-%2Fstatusline-command)让 Claude Code 为你生成脚本，或[手动创建脚本](#manually-configure-a-status-line)并将其添加到你的设置中。
 
-<h3 id="use-the-/statusline-command">
-  使用 /statusline 命令
-</h3>
+### 使用 /statusline 命令
 
 `/statusline` 命令接受描述你想显示的内容的自然语言指令。Claude Code 在 `~/.claude/` 中生成脚本文件并自动更新你的设置：
 
@@ -43,9 +37,7 @@
 
 如果 Claude Code 在设置过程中要求权限，请批准文件编辑提示。
 
-<h3 id="manually-configure-a-status-line">
-  手动配置状态行
-</h3>
+### 手动配置状态行
 
 将 `statusLine` 字段添加到你的用户设置（`~/.claude/settings.json`，其中 `~` 是你的主目录）或[项目设置](/docs/zh-CN/settings#where-settings-live)。将 `type` 设置为 `"command"` 并将 `command` 指向脚本路径或内联 shell 命令。有关创建脚本的完整演练，请参阅[逐步构建状态行](#build-a-status-line-step-by-step)。
 
@@ -76,83 +68,75 @@
 
 可选的 `hideVimModeIndicator` 字段会抑制提示符下方的内置 `-- INSERT --` 文本。当你的脚本自己呈现 [`vim.mode`](#available-data) 时，将此设置为 `true`，这样模式就不会显示两次。
 
-<h3 id="disable-the-status-line">
-  禁用状态行
-</h3>
+### 禁用状态行
 
 运行 `/statusline` 并要求它删除或清除你的状态行（例如，`/statusline delete`、`/statusline clear`、`/statusline remove it`）。你也可以手动从 settings.json 中删除 `statusLine` 字段。
 
-<h2 id="build-a-status-line-step-by-step">
-  逐步构建状态行
-</h2>
+## 逐步构建状态行
 
 本演练展示了 `/statusline` 为你设置的内容，通过手动创建显示当前模型、工作目录和上下文窗口使用百分比的状态行。
 
-<Note>使用[`/statusline`](#use-the-%2Fstatusline-command)和你想要的内容的描述会自动为你配置所有这些。</Note>
+> [!NOTE]
+>
+> 使用[`/statusline`](#use-the-%2Fstatusline-command)和你想要的内容的描述会自动为你配置所有这些。
 
 这些示例使用 Bash 脚本，在 macOS 和 Linux 上工作。在 Windows 上，请参阅[Windows 配置](#windows-configuration)了解 PowerShell 和 Git Bash 示例。
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-quickstart.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=88a7eab9c1038dd098ee8e284d96b7e6" alt="一个状态行，显示模型名称、目录和上下文百分比" width="1224" height="224" data-path="images/statusline-quickstart.png" />
-</Frame>
+![一个状态行，显示模型名称、目录和上下文百分比](https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-quickstart.png?fit=max\&auto=format\&n=HDAmBwgbrZVk0pOt\&q=85\&s=88a7eab9c1038dd098ee8e284d96b7e6)
 
-<Steps>
-  <Step title="创建一个读取 JSON 并打印输出的脚本">
-    Claude Code 通过 stdin 向你的脚本发送 JSON 数据。此脚本使用 [`jq`](https://jqlang.org/)，一个你可能需要安装的命令行 JSON 解析器，来提取模型名称、目录和上下文百分比，然后打印格式化的行。
+**1. 创建一个读取 JSON 并打印输出的脚本**
 
-    将其保存到 `~/.claude/statusline.sh`（其中 `~` 是你的主目录，例如 macOS 上的 `/Users/username` 或 Linux 上的 `/home/username`）：
+Claude Code 通过 stdin 向你的脚本发送 JSON 数据。此脚本使用 [`jq`](https://jqlang.org/)，一个你可能需要安装的命令行 JSON 解析器，来提取模型名称、目录和上下文百分比，然后打印格式化的行。
 
-    ```bash theme={null}
-    #!/bin/bash
-    # Read JSON data that Claude Code sends to stdin
-    input=$(cat)
+将其保存到 `~/.claude/statusline.sh`（其中 `~` 是你的主目录，例如 macOS 上的 `/Users/username` 或 Linux 上的 `/home/username`）：
 
-    # Extract fields using jq
-    MODEL=$(echo "$input" | jq -r '.model.display_name')
-    DIR=$(echo "$input" | jq -r '.workspace.current_dir')
-    # The "// 0" provides a fallback if the field is null
-    PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
+```bash theme={null}
+#!/bin/bash
+# Read JSON data that Claude Code sends to stdin
+input=$(cat)
 
-    # Output the status line - ${DIR##*/} extracts just the folder name
-    echo "[$MODEL] 📁 ${DIR##*/} | ${PCT}% context"
-    ```
-  </Step>
+# Extract fields using jq
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+DIR=$(echo "$input" | jq -r '.workspace.current_dir')
+# The "// 0" provides a fallback if the field is null
+PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
 
-  <Step title="使其可执行">
-    将脚本标记为可执行，以便你的 shell 可以运行它：
+# Output the status line - ${DIR##*/} extracts just the folder name
+echo "[$MODEL] 📁 ${DIR##*/} | ${PCT}% context"
+```
 
-    ```bash theme={null}
-    chmod +x ~/.claude/statusline.sh
-    ```
-  </Step>
+**2. 使其可执行**
 
-  <Step title="添加到设置">
-    告诉 Claude Code 运行你的脚本作为状态行。将此配置添加到 `~/.claude/settings.json`，它将 `type` 设置为 `"command"`（意思是"运行此 shell 命令"）并将 `command` 指向你的脚本：
+将脚本标记为可执行，以便你的 shell 可以运行它：
 
-    ```json theme={null}
-    {
-      "statusLine": {
-        "type": "command",
-        "command": "~/.claude/statusline.sh"
-      }
-    }
-    ```
+```bash theme={null}
+chmod +x ~/.claude/statusline.sh
+```
 
-    你的状态行出现在界面的底部。Claude Code 会自动重新加载设置，并在你保存文件后立即运行你的脚本。
-  </Step>
-</Steps>
+**3. 添加到设置**
 
-<h2 id="how-status-lines-work">
-  状态栏如何工作
-</h2>
+告诉 Claude Code 运行你的脚本作为状态行。将此配置添加到 `~/.claude/settings.json`，它将 `type` 设置为 `"command"`（意思是"运行此 shell 命令"）并将 `command` 指向你的脚本：
+
+```json theme={null}
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  }
+}
+```
+
+你的状态行出现在界面的底部。Claude Code 会自动重新加载设置，并在你保存文件后立即运行你的脚本。
+
+## 状态栏如何工作
 
 Claude Code 运行您的脚本，通过 stdin 向其传输 [JSON 会话数据](#available-data)，并显示脚本打印到 stdout 的任何内容。
 
-<Note>状态栏在本地运行，不消耗 API token。在某些 UI 交互期间，它会临时隐藏，包括帮助菜单和权限提示。</Note>
+> [!NOTE]
+>
+> 状态栏在本地运行，不消耗 API token。在某些 UI 交互期间，它会临时隐藏，包括帮助菜单和权限提示。
 
-<h3 id="when-the-status-line-updates">
-  状态栏何时更新
-</h3>
+### 状态栏何时更新
 
 脚本在会话启动时运行一次，包括恢复会话时。之后，它在以下情况下再次运行：
 
@@ -169,9 +153,7 @@ Claude Code 以 300ms 对更新进行防抖，因此快速更改会批处理在�
 
 当主会话空闲时，事件驱动的触发器可能会停止触发，例如当协调器等待后台子代理时。为了在空闲期间保持基于时间或外部来源的片段为最新状态，请设置 [`refreshInterval`](#manually-configure-a-status-line)，以便同时按固定计时器重新运行命令。
 
-<h3 id="what-your-script-can-output">
-  脚本可以输出什么
-</h3>
+### 脚本可以输出什么
 
 脚本可以打印的不仅仅是单行纯文本：
 
@@ -179,15 +161,11 @@ Claude Code 以 300ms 对更新进行防抖，因此快速更改会批处理在�
 * **颜色**：使用 [ANSI 转义码](https://en.wikipedia.org/wiki/ANSI_escape_code#Colors)，如 `\033[32m` 表示绿色（终端必须支持它们）。请参阅 [git 状态示例](#git-status-with-colors)。
 * **链接**：使用 [OSC 8 转义序列](https://en.wikipedia.org/wiki/ANSI_escape_code#OSC) 使文本可点击（macOS 上为 Cmd+click，Windows/Linux 上为 Ctrl+click）。需要支持超链接的终端，如 iTerm2、Kitty 或 WezTerm。请参阅[可点击链接示例](#clickable-links)。
 
-<h3 id="size-output-to-the-terminal">
-  调整输出大小以适应终端
-</h3>
+### 调整输出大小以适应终端
 
 Claude Code 捕获脚本的输出而不是直接将其连接到终端，因此 `tput cols` 和语言级宽度检测无法从脚本内部读取终端大小。请改为读取 `COLUMNS` 和 `LINES` 环境变量。Claude Code 在运行脚本之前会将这些变量设置为当前终端尺寸。
 
-<h2 id="available-data">
-  可用数据
-</h2>
+## 可用数据
 
 Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 
@@ -234,148 +212,146 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `worktree.original_cwd` | Claude 进入 worktree 之前所在的目录 |
 | `worktree.original_branch` | 进入 worktree 之前检出的 Git 分支。对于基于钩子的 worktree 不存在 |
 
-<Accordion title="完整 JSON 架构">
-  你的状态行命令通过 stdin 接收此 JSON 结构：
+> **完整 JSON 架构**
+>
+> 你的状态行命令通过 stdin 接收此 JSON 结构：
+>
+> ```json theme={null}
+> {
+>   "cwd": "/current/working/directory",
+>   "session_id": "abc123...",
+>   "session_name": "my-session",
+>   "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
+>   "transcript_path": "/path/to/transcript.jsonl",
+>   "model": {
+>     "id": "claude-opus-5-5",
+>     "display_name": "Opus"
+>   },
+>   "workspace": {
+>     "current_dir": "/current/working/directory",
+>     "project_dir": "/original/project/directory",
+>     "added_dirs": [],
+>     "git_worktree": "feature-xyz",
+>     "repo": {
+>       "host": "github.com",
+>       "owner": "anthropics",
+>       "name": "claude-code"
+>     }
+>   },
+>   "version": "2.1.90",
+>   "output_style": {
+>     "name": "default"
+>   },
+>   "cost": {
+>     "total_cost_usd": 0.01234,
+>     "total_duration_ms": 45000,
+>     "total_api_duration_ms": 2300,
+>     "total_lines_added": 156,
+>     "total_lines_removed": 23
+>   },
+>   "context_window": {
+>     "total_input_tokens": 15500,
+>     "total_output_tokens": 1200,
+>     "context_window_size": 200000,
+>     "used_percentage": 8,
+>     "remaining_percentage": 92,
+>     "current_usage": {
+>       "input_tokens": 8500,
+>       "output_tokens": 1200,
+>       "cache_creation_input_tokens": 5000,
+>       "cache_read_input_tokens": 2000
+>     }
+>   },
+>   "exceeds_200k_tokens": false,
+>   "prompt_cache": {
+>     "warm": true,
+>     "caching_observed": true,
+>     "ttl": "1h",
+>     "expires_at": 1738429200,
+>     "requests": 14,
+>     "misses": 2,
+>     "expected_rebuilds": 1,
+>     "hit_ratio": 0.91,
+>     "cache_write_tokens": 352000,
+>     "miss_recache_tokens": 310200,
+>     "last_miss_at": 1738425230,
+>     "last_miss_cause": {
+>       "causes": ["tools_changed"],
+>       "tools_added": 2,
+>       "tools_removed": 0
+>     },
+>     "miss_causes": {
+>       "tools_changed": 2
+>     },
+>     "recache_tokens_if_cold": 45000
+>   },
+>   "fast_mode": false,
+>   "effort": {
+>     "level": "high"
+>   },
+>   "thinking": {
+>     "enabled": true
+>   },
+>   "rate_limits": {
+>     "five_hour": {
+>       "used_percentage": 23.5,
+>       "resets_at": 1738425600
+>     },
+>     "seven_day": {
+>       "used_percentage": 41.2,
+>       "resets_at": 1738857600
+>     },
+>     "spend_limit": {
+>       "used_percentage": 62.8,
+>       "resets_at": 1740787200,
+>       "used_usd": 314.12,
+>       "limit_usd": 500,
+>       "period": "monthly"
+>     }
+>   },
+>   "vim": {
+>     "mode": "NORMAL"
+>   },
+>   "agent": {
+>     "name": "security-reviewer"
+>   },
+>   "pr": {
+>     "number": 1234,
+>     "url": "https://github.com/anthropics/claude-code/pull/1234",
+>     "review_state": "pending"
+>   },
+>   "worktree": {
+>     "name": "my-feature",
+>     "path": "/path/to/.claude/worktrees/my-feature",
+>     "branch": "worktree-my-feature",
+>     "original_cwd": "/path/to/project",
+>     "original_branch": "main"
+>   }
+> }
+> ```
+>
+> **可能不存在的字段**（不在 JSON 中）：
+>
+> * `session_name`：当使用 `--name` 或 `/rename` 设置了自定义名称时出现，或一旦存在 AI 生成的会话标题。默认显示名称（例如 `my-app-3f`）不会填充它
+> * `prompt_id`：仅在第一次用户输入后出现
+> * `workspace.git_worktree`：仅当当前目录在链接的 git worktree 内时出现
+> * `workspace.repo`：仅在 git 存储库内且配置了 `origin` 远程时出现
+> * `effort`：仅当当前模型支持推理工作量参数时出现
+> * `vim`：仅在启用 vim 模式时出现
+> * `agent`：仅在使用 `--agent` 标志或配置的代理设置运行时出现
+> * `pr`：仅在为当前分支找到开放 PR 或 GitLab merge request 时出现，一旦它合并或关闭就会被移除。`pr.review_state` 和 `pr.kind` 可能独立不存在
+> * `worktree`：仅在 [worktree 会话](/docs/zh-CN/worktrees) 期间出现。当存在时，对于基于钩子的 worktree，`branch` 和 `original_branch` 也可能不存在
+> * `rate_limits`：仅对 Claude.ai Pro 和 Max 订阅者，或在为你设置支出限制的 Claude apps gateway 后面，以及仅在会话中第一次 API 响应后出现。每个窗口（`five_hour`、`seven_day`、`spend_limit`）可能独立不存在，Claude Code 在其 `resets_at` 时间过去后删除一个窗口。使用 `jq -r '.rate_limits.five_hour.used_percentage // empty'` 来优雅地处理缺失。
+> * `prompt_cache`：在主对话的第一次 API 响应后出现。请参阅 [prompt cache 字段](#prompt-cache-fields)
+>
+> **可能为 `null` 的字段**：
+>
+> * `context_window.current_usage`：在会话中第一次 API 调用之前为 `null`，以及在 `/compact` 之后直到下一次 API 调用重新填充它为止为 `null`
+> * `context_window.used_percentage`, `context_window.remaining_percentage`：在会话早期可能为 `null`
+>
+> 在你的脚本中使用条件访问处理缺失字段，使用回退默认值处理 null 值。
 
-  ```json theme={null}
-  {
-    "cwd": "/current/working/directory",
-    "session_id": "abc123...",
-    "session_name": "my-session",
-    "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
-    "transcript_path": "/path/to/transcript.jsonl",
-    "model": {
-      "id": "claude-opus-5-5",
-      "display_name": "Opus"
-    },
-    "workspace": {
-      "current_dir": "/current/working/directory",
-      "project_dir": "/original/project/directory",
-      "added_dirs": [],
-      "git_worktree": "feature-xyz",
-      "repo": {
-        "host": "github.com",
-        "owner": "anthropics",
-        "name": "claude-code"
-      }
-    },
-    "version": "2.1.90",
-    "output_style": {
-      "name": "default"
-    },
-    "cost": {
-      "total_cost_usd": 0.01234,
-      "total_duration_ms": 45000,
-      "total_api_duration_ms": 2300,
-      "total_lines_added": 156,
-      "total_lines_removed": 23
-    },
-    "context_window": {
-      "total_input_tokens": 15500,
-      "total_output_tokens": 1200,
-      "context_window_size": 200000,
-      "used_percentage": 8,
-      "remaining_percentage": 92,
-      "current_usage": {
-        "input_tokens": 8500,
-        "output_tokens": 1200,
-        "cache_creation_input_tokens": 5000,
-        "cache_read_input_tokens": 2000
-      }
-    },
-    "exceeds_200k_tokens": false,
-    "prompt_cache": {
-      "warm": true,
-      "caching_observed": true,
-      "ttl": "1h",
-      "expires_at": 1738429200,
-      "requests": 14,
-      "misses": 2,
-      "expected_rebuilds": 1,
-      "hit_ratio": 0.91,
-      "cache_write_tokens": 352000,
-      "miss_recache_tokens": 310200,
-      "last_miss_at": 1738425230,
-      "last_miss_cause": {
-        "causes": ["tools_changed"],
-        "tools_added": 2,
-        "tools_removed": 0
-      },
-      "miss_causes": {
-        "tools_changed": 2
-      },
-      "recache_tokens_if_cold": 45000
-    },
-    "fast_mode": false,
-    "effort": {
-      "level": "high"
-    },
-    "thinking": {
-      "enabled": true
-    },
-    "rate_limits": {
-      "five_hour": {
-        "used_percentage": 23.5,
-        "resets_at": 1738425600
-      },
-      "seven_day": {
-        "used_percentage": 41.2,
-        "resets_at": 1738857600
-      },
-      "spend_limit": {
-        "used_percentage": 62.8,
-        "resets_at": 1740787200,
-        "used_usd": 314.12,
-        "limit_usd": 500,
-        "period": "monthly"
-      }
-    },
-    "vim": {
-      "mode": "NORMAL"
-    },
-    "agent": {
-      "name": "security-reviewer"
-    },
-    "pr": {
-      "number": 1234,
-      "url": "https://github.com/anthropics/claude-code/pull/1234",
-      "review_state": "pending"
-    },
-    "worktree": {
-      "name": "my-feature",
-      "path": "/path/to/.claude/worktrees/my-feature",
-      "branch": "worktree-my-feature",
-      "original_cwd": "/path/to/project",
-      "original_branch": "main"
-    }
-  }
-  ```
-
-  **可能不存在的字段**（不在 JSON 中）：
-
-  * `session_name`：当使用 `--name` 或 `/rename` 设置了自定义名称时出现，或一旦存在 AI 生成的会话标题。默认显示名称（例如 `my-app-3f`）不会填充它
-  * `prompt_id`：仅在第一次用户输入后出现
-  * `workspace.git_worktree`：仅当当前目录在链接的 git worktree 内时出现
-  * `workspace.repo`：仅在 git 存储库内且配置了 `origin` 远程时出现
-  * `effort`：仅当当前模型支持推理工作量参数时出现
-  * `vim`：仅在启用 vim 模式时出现
-  * `agent`：仅在使用 `--agent` 标志或配置的代理设置运行时出现
-  * `pr`：仅在为当前分支找到开放 PR 或 GitLab merge request 时出现，一旦它合并或关闭就会被移除。`pr.review_state` 和 `pr.kind` 可能独立不存在
-  * `worktree`：仅在 [worktree 会话](/docs/zh-CN/worktrees) 期间出现。当存在时，对于基于钩子的 worktree，`branch` 和 `original_branch` 也可能不存在
-  * `rate_limits`：仅对 Claude.ai Pro 和 Max 订阅者，或在为你设置支出限制的 Claude apps gateway 后面，以及仅在会话中第一次 API 响应后出现。每个窗口（`five_hour`、`seven_day`、`spend_limit`）可能独立不存在，Claude Code 在其 `resets_at` 时间过去后删除一个窗口。使用 `jq -r '.rate_limits.five_hour.used_percentage // empty'` 来优雅地处理缺失。
-  * `prompt_cache`：在主对话的第一次 API 响应后出现。请参阅 [prompt cache 字段](#prompt-cache-fields)
-
-  **可能为 `null` 的字段**：
-
-  * `context_window.current_usage`：在会话中第一次 API 调用之前为 `null`，以及在 `/compact` 之后直到下一次 API 调用重新填充它为止为 `null`
-  * `context_window.used_percentage`, `context_window.remaining_percentage`：在会话早期可能为 `null`
-
-  在你的脚本中使用条件访问处理缺失字段，使用回退默认值处理 null 值。
-</Accordion>
-
-<h3 id="context-window-fields">
-  上下文窗口字段
-</h3>
+### 上下文窗口字段
 
 `context_window` 对象描述来自最近一次 API 响应的实时上下文窗口。
 
@@ -397,9 +373,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 
 `current_usage` 对象在会话中第一次 API 调用之前为 `null`，以及在 `/compact` 之后直到下一次 API 调用重新填充它为止再次为 `null`。
 
-<h3 id="spend-limit-fields">
-  支出限制字段
-</h3>
+### 支出限制字段
 
 在 [设置了支出限制的 Claude apps gateway](/docs/zh-CN/claude-apps-gateway-spend-limits#usage-warnings-in-claude-code) 后面，`rate_limits.spend_limit` 对象描述适用于您的支出限制。它在会话的第一次 API 响应后出现，需要 Claude Code v2.1.251 或更高版本。您的脚本按不同的时间表接收其字段：
 
@@ -408,9 +382,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 
 即使 `spend_limit` 存在，也应将 `used_usd`、`limit_usd` 和 `period` 视为可选字段。您的脚本会先于它们收到百分比；如果您设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`（它会关闭该请求），它们将始终不存在。请在脚本中为每个字段提供备用值来读取，例如 `jq -r '.rate_limits.spend_limit.used_usd // empty'`。
 
-<h3 id="prompt-cache-fields">
-  Prompt cache 字段
-</h3>
+### Prompt cache 字段
 
 `prompt_cache` 对象总结了会话的主对话如何使用 [prompt cache](/docs/zh-CN/prompt-caching)。Claude Code 从 API 响应中的缓存令牌计数计算它，因此它适用于每个提供商。
 
@@ -437,9 +409,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 
 Claude Code 在终端上显示相同的统计信息，在 [`/usage` 命令的 `Prompt cache (main)` 行](/docs/zh-CN/costs#prompt-cache-statistics) 上。
 
-<h4 id="last-miss-cause">
-  最后一次未命中原因
-</h4>
+#### 最后一次未命中原因
 
 `last_miss_cause` 对象报告 Claude Code 识别为最近一次未命中可能原因的内容。其 `causes` 数组包含一个或多个原因名称，例如 `tools_changed`、`system_prompt_changed`、`ttl_expired_5m` 或 `likely_server_side`。该对象在会话的第一次未命中之前为 `null`，以及每当 Claude Code 无法识别最近一次未命中的原因时再次为 `null`。需要 Claude Code v2.1.260 或更高版本。
 
@@ -448,9 +418,7 @@ Claude Code 在终端上显示相同的统计信息，在 [`/usage` 命令的 `P
 * `tools_added` 和 `tools_removed`：与 `tools_changed` 一起，有多少工具被添加到或从请求中移除
 * `system_char_delta`：与 `system_prompt_changed` 一起，系统提示长度的变化，以字符为单位
 
-<h2 id="examples">
-  示例
-</h2>
+## 示例
 
 这些示例展示了常见的状态行模式。要使用任何示例：
 
@@ -460,517 +428,481 @@ Claude Code 在终端上显示相同的统计信息，在 [`/usage` 命令的 `P
 
 Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.js 具有内置的 JSON 解析。
 
-<h3 id="context-window-usage">
-  上下文窗口使用情况
-</h3>
+### 上下文窗口使用情况
 
 显示当前模型和上下文窗口使用情况，带有可视进度条。每个脚本从 stdin 读取 JSON，提取 `used_percentage` 字段，并构建一个 10 字符的栏，其中填充的块（▓）代表使用情况：
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-context-window-usage.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=f3918a549912dc47e90f2b69e68bc847" alt="一个状态行，显示模型名称和带有百分比的进度条" width="1224" height="224" data-path="images/statusline-context-window-usage.png" />
-</Frame>
+![一个状态行，显示模型名称和带有百分比的进度条](https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-context-window-usage.png?fit=max\&auto=format\&n=HDAmBwgbrZVk0pOt\&q=85\&s=f3918a549912dc47e90f2b69e68bc847)
 
-<CodeGroup>
-  ```bash Bash theme={null}
-  #!/bin/bash
-  # Read all of stdin into a variable
-  input=$(cat)
+```bash Bash theme={null}
+#!/bin/bash
+# Read all of stdin into a variable
+input=$(cat)
 
-  # Extract fields with jq, "// 0" provides fallback for null
-  MODEL=$(echo "$input" | jq -r '.model.display_name')
-  PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
+# Extract fields with jq, "// 0" provides fallback for null
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
 
-  # Build progress bar: printf -v creates a run of spaces, then
-  # ${var// /▓} replaces each space with a block character
-  BAR_WIDTH=10
-  FILLED=$((PCT * BAR_WIDTH / 100))
-  EMPTY=$((BAR_WIDTH - FILLED))
-  BAR=""
-  [ "$FILLED" -gt 0 ] && printf -v FILL "%${FILLED}s" && BAR="${FILL// /▓}"
-  [ "$EMPTY" -gt 0 ] && printf -v PAD "%${EMPTY}s" && BAR="${BAR}${PAD// /░}"
+# Build progress bar: printf -v creates a run of spaces, then
+# ${var// /▓} replaces each space with a block character
+BAR_WIDTH=10
+FILLED=$((PCT * BAR_WIDTH / 100))
+EMPTY=$((BAR_WIDTH - FILLED))
+BAR=""
+[ "$FILLED" -gt 0 ] && printf -v FILL "%${FILLED}s" && BAR="${FILL// /▓}"
+[ "$EMPTY" -gt 0 ] && printf -v PAD "%${EMPTY}s" && BAR="${BAR}${PAD// /░}"
 
-  echo "[$MODEL] $BAR $PCT%"
-  ```
+echo "[$MODEL] $BAR $PCT%"
+```
 
-  ```python Python theme={null}
-  #!/usr/bin/env python3
-  import json, sys
+```python Python theme={null}
+#!/usr/bin/env python3
+import json, sys
 
-  # json.load reads and parses stdin in one step
-  data = json.load(sys.stdin)
-  model = data['model']['display_name']
-  # "or 0" handles null values
-  pct = int(data.get('context_window', {}).get('used_percentage', 0) or 0)
+# json.load reads and parses stdin in one step
+data = json.load(sys.stdin)
+model = data['model']['display_name']
+# "or 0" handles null values
+pct = int(data.get('context_window', {}).get('used_percentage', 0) or 0)
 
-  # String multiplication builds the bar
-  filled = pct * 10 // 100
-  bar = '▓' * filled + '░' * (10 - filled)
+# String multiplication builds the bar
+filled = pct * 10 // 100
+bar = '▓' * filled + '░' * (10 - filled)
 
-  print(f"[{model}] {bar} {pct}%")
-  ```
+print(f"[{model}] {bar} {pct}%")
+```
 
-  ```javascript Node.js theme={null}
-  #!/usr/bin/env node
-  // Node.js reads stdin asynchronously with events
-  let input = '';
-  process.stdin.on('data', chunk => input += chunk);
-  process.stdin.on('end', () => {
-      const data = JSON.parse(input);
-      const model = data.model.display_name;
-      // Optional chaining (?.) safely handles null fields
-      const pct = Math.floor(data.context_window?.used_percentage || 0);
+```javascript Node.js theme={null}
+#!/usr/bin/env node
+// Node.js reads stdin asynchronously with events
+let input = '';
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+    const data = JSON.parse(input);
+    const model = data.model.display_name;
+    // Optional chaining (?.) safely handles null fields
+    const pct = Math.floor(data.context_window?.used_percentage || 0);
 
-      // String.repeat() builds the bar
-      const filled = Math.floor(pct * 10 / 100);
-      const bar = '▓'.repeat(filled) + '░'.repeat(10 - filled);
+    // String.repeat() builds the bar
+    const filled = Math.floor(pct * 10 / 100);
+    const bar = '▓'.repeat(filled) + '░'.repeat(10 - filled);
 
-      console.log(`[${model}] ${bar} ${pct}%`);
-  });
-  ```
-</CodeGroup>
+    console.log(`[${model}] ${bar} ${pct}%`);
+});
+```
 
-<h3 id="git-status-with-colors">
-  Git 状态与颜色
-</h3>
+### Git 状态与颜色
 
 显示 git 分支，带有暂存和修改文件的颜色编码指示器。此脚本使用[ANSI 转义码](https://en.wikipedia.org/wiki/ANSI_escape_code#Colors)表示终端颜色：`\033[32m` 是绿色，`\033[33m` 是黄色，`\033[0m` 重置为默认值。
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-git-context.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=f13c190724d9ec7188c17cd2f98b7bf4" alt="一个状态行，显示模型、目录、git 分支和暂存和修改文件的彩色指示器" width="1224" height="224" data-path="images/statusline-git-context.png" />
-</Frame>
+![一个状态行，显示模型、目录、git 分支和暂存和修改文件的彩色指示器](https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-git-context.png?fit=max\&auto=format\&n=HDAmBwgbrZVk0pOt\&q=85\&s=f13c190724d9ec7188c17cd2f98b7bf4)
 
 每个脚本检查当前目录是否是 git 存储库，计算暂存和修改文件，并显示颜色编码的指示器：
 
-<CodeGroup>
-  ```bash Bash theme={null}
-  #!/bin/bash
-  input=$(cat)
+```bash Bash theme={null}
+#!/bin/bash
+input=$(cat)
 
-  MODEL=$(echo "$input" | jq -r '.model.display_name')
-  DIR=$(echo "$input" | jq -r '.workspace.current_dir')
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+DIR=$(echo "$input" | jq -r '.workspace.current_dir')
 
-  GREEN='\033[32m'
-  YELLOW='\033[33m'
-  RESET='\033[0m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+RESET='\033[0m'
 
-  if git rev-parse --git-dir > /dev/null 2>&1; then
-      BRANCH=$(git branch --show-current 2>/dev/null)
-      STAGED=$(git diff --cached --numstat 2>/dev/null | wc -l | tr -d ' ')
-      MODIFIED=$(git diff --numstat 2>/dev/null | wc -l | tr -d ' ')
+if git rev-parse --git-dir > /dev/null 2>&1; then
+    BRANCH=$(git branch --show-current 2>/dev/null)
+    STAGED=$(git diff --cached --numstat 2>/dev/null | wc -l | tr -d ' ')
+    MODIFIED=$(git diff --numstat 2>/dev/null | wc -l | tr -d ' ')
 
-      GIT_STATUS=""
-      [ "$STAGED" -gt 0 ] && GIT_STATUS="${GREEN}+${STAGED}${RESET}"
-      [ "$MODIFIED" -gt 0 ] && GIT_STATUS="${GIT_STATUS}${YELLOW}~${MODIFIED}${RESET}"
+    GIT_STATUS=""
+    [ "$STAGED" -gt 0 ] && GIT_STATUS="${GREEN}+${STAGED}${RESET}"
+    [ "$MODIFIED" -gt 0 ] && GIT_STATUS="${GIT_STATUS}${YELLOW}~${MODIFIED}${RESET}"
 
-      echo -e "[$MODEL] 📁 ${DIR##*/} | 🌿 $BRANCH $GIT_STATUS"
-  else
-      echo "[$MODEL] 📁 ${DIR##*/}"
-  fi
-  ```
+    echo -e "[$MODEL] 📁 ${DIR##*/} | 🌿 $BRANCH $GIT_STATUS"
+else
+    echo "[$MODEL] 📁 ${DIR##*/}"
+fi
+```
 
-  ```python Python theme={null}
-  #!/usr/bin/env python3
-  import json, sys, subprocess, os
+```python Python theme={null}
+#!/usr/bin/env python3
+import json, sys, subprocess, os
 
-  data = json.load(sys.stdin)
-  model = data['model']['display_name']
-  directory = os.path.basename(data['workspace']['current_dir'])
+data = json.load(sys.stdin)
+model = data['model']['display_name']
+directory = os.path.basename(data['workspace']['current_dir'])
 
-  GREEN, YELLOW, RESET = '\033[32m', '\033[33m', '\033[0m'
+GREEN, YELLOW, RESET = '\033[32m', '\033[33m', '\033[0m'
 
-  try:
-      subprocess.check_output(['git', 'rev-parse', '--git-dir'], stderr=subprocess.DEVNULL)
-      branch = subprocess.check_output(['git', 'branch', '--show-current'], text=True).strip()
-      staged_output = subprocess.check_output(['git', 'diff', '--cached', '--numstat'], text=True).strip()
-      modified_output = subprocess.check_output(['git', 'diff', '--numstat'], text=True).strip()
-      staged = len(staged_output.split('\n')) if staged_output else 0
-      modified = len(modified_output.split('\n')) if modified_output else 0
+try:
+    subprocess.check_output(['git', 'rev-parse', '--git-dir'], stderr=subprocess.DEVNULL)
+    branch = subprocess.check_output(['git', 'branch', '--show-current'], text=True).strip()
+    staged_output = subprocess.check_output(['git', 'diff', '--cached', '--numstat'], text=True).strip()
+    modified_output = subprocess.check_output(['git', 'diff', '--numstat'], text=True).strip()
+    staged = len(staged_output.split('\n')) if staged_output else 0
+    modified = len(modified_output.split('\n')) if modified_output else 0
 
-      git_status = f"{GREEN}+{staged}{RESET}" if staged else ""
-      git_status += f"{YELLOW}~{modified}{RESET}" if modified else ""
+    git_status = f"{GREEN}+{staged}{RESET}" if staged else ""
+    git_status += f"{YELLOW}~{modified}{RESET}" if modified else ""
 
-      print(f"[{model}] 📁 {directory} | 🌿 {branch} {git_status}")
-  except:
-      print(f"[{model}] 📁 {directory}")
-  ```
+    print(f"[{model}] 📁 {directory} | 🌿 {branch} {git_status}")
+except:
+    print(f"[{model}] 📁 {directory}")
+```
 
-  ```javascript Node.js theme={null}
-  #!/usr/bin/env node
-  const { execSync } = require('child_process');
-  const path = require('path');
+```javascript Node.js theme={null}
+#!/usr/bin/env node
+const { execSync } = require('child_process');
+const path = require('path');
 
-  let input = '';
-  process.stdin.on('data', chunk => input += chunk);
-  process.stdin.on('end', () => {
-      const data = JSON.parse(input);
-      const model = data.model.display_name;
-      const dir = path.basename(data.workspace.current_dir);
+let input = '';
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+    const data = JSON.parse(input);
+    const model = data.model.display_name;
+    const dir = path.basename(data.workspace.current_dir);
 
-      const GREEN = '\x1b[32m', YELLOW = '\x1b[33m', RESET = '\x1b[0m';
+    const GREEN = '\x1b[32m', YELLOW = '\x1b[33m', RESET = '\x1b[0m';
 
-      try {
-          execSync('git rev-parse --git-dir', { stdio: 'ignore' });
-          const branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
-          const staged = execSync('git diff --cached --numstat', { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
-          const modified = execSync('git diff --numstat', { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
+    try {
+        execSync('git rev-parse --git-dir', { stdio: 'ignore' });
+        const branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+        const staged = execSync('git diff --cached --numstat', { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
+        const modified = execSync('git diff --numstat', { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
 
-          let gitStatus = staged ? `${GREEN}+${staged}${RESET}` : '';
-          gitStatus += modified ? `${YELLOW}~${modified}${RESET}` : '';
+        let gitStatus = staged ? `${GREEN}+${staged}${RESET}` : '';
+        gitStatus += modified ? `${YELLOW}~${modified}${RESET}` : '';
 
-          console.log(`[${model}] 📁 ${dir} | 🌿 ${branch} ${gitStatus}`);
-      } catch {
-          console.log(`[${model}] 📁 ${dir}`);
-      }
-  });
-  ```
-</CodeGroup>
+        console.log(`[${model}] 📁 ${dir} | 🌿 ${branch} ${gitStatus}`);
+    } catch {
+        console.log(`[${model}] 📁 ${dir}`);
+    }
+});
+```
 
-<h3 id="cost-and-duration-tracking">
-  成本和持续时间跟踪
-</h3>
+### 成本和持续时间跟踪
 
 跟踪你的会话的 API 成本和经过的时间。`cost.total_cost_usd` 字段累积当前会话中所有 API 调用的估计成本。`cost.total_duration_ms` 字段测量自会话开始以来的总经过时间，而 `cost.total_api_duration_ms` 仅跟踪等待 API 响应的时间。
 
 每个脚本将成本格式化为货币并将毫秒转换为分钟和秒：
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-cost-tracking.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=925f7024c3b38be0f0eca63564bfb52f" alt="一个状态行，显示模型名称、会话成本和持续时间" width="1224" height="224" data-path="images/statusline-cost-tracking.png" />
-</Frame>
+![一个状态行，显示模型名称、会话成本和持续时间](https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-cost-tracking.png?fit=max\&auto=format\&n=HDAmBwgbrZVk0pOt\&q=85\&s=925f7024c3b38be0f0eca63564bfb52f)
 
-<CodeGroup>
-  ```bash Bash theme={null}
-  #!/bin/bash
-  input=$(cat)
+```bash Bash theme={null}
+#!/bin/bash
+input=$(cat)
 
-  MODEL=$(echo "$input" | jq -r '.model.display_name')
-  COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
-  DURATION_MS=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
+DURATION_MS=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
 
-  COST_FMT=$(printf '$%.2f' "$COST")
-  DURATION_SEC=$((DURATION_MS / 1000))
-  MINS=$((DURATION_SEC / 60))
-  SECS=$((DURATION_SEC % 60))
+COST_FMT=$(printf '$%.2f' "$COST")
+DURATION_SEC=$((DURATION_MS / 1000))
+MINS=$((DURATION_SEC / 60))
+SECS=$((DURATION_SEC % 60))
 
-  echo "[$MODEL] 💰 $COST_FMT | ⏱️ ${MINS}m ${SECS}s"
-  ```
+echo "[$MODEL] 💰 $COST_FMT | ⏱️ ${MINS}m ${SECS}s"
+```
 
-  ```python Python theme={null}
-  #!/usr/bin/env python3
-  import json, sys
+```python Python theme={null}
+#!/usr/bin/env python3
+import json, sys
 
-  data = json.load(sys.stdin)
-  model = data['model']['display_name']
-  cost = data.get('cost', {}).get('total_cost_usd', 0) or 0
-  duration_ms = data.get('cost', {}).get('total_duration_ms', 0) or 0
+data = json.load(sys.stdin)
+model = data['model']['display_name']
+cost = data.get('cost', {}).get('total_cost_usd', 0) or 0
+duration_ms = data.get('cost', {}).get('total_duration_ms', 0) or 0
 
-  duration_sec = duration_ms // 1000
-  mins, secs = duration_sec // 60, duration_sec % 60
+duration_sec = duration_ms // 1000
+mins, secs = duration_sec // 60, duration_sec % 60
 
-  print(f"[{model}] 💰 ${cost:.2f} | ⏱️ {mins}m {secs}s")
-  ```
+print(f"[{model}] 💰 ${cost:.2f} | ⏱️ {mins}m {secs}s")
+```
 
-  ```javascript Node.js theme={null}
-  #!/usr/bin/env node
-  let input = '';
-  process.stdin.on('data', chunk => input += chunk);
-  process.stdin.on('end', () => {
-      const data = JSON.parse(input);
-      const model = data.model.display_name;
-      const cost = data.cost?.total_cost_usd || 0;
-      const durationMs = data.cost?.total_duration_ms || 0;
+```javascript Node.js theme={null}
+#!/usr/bin/env node
+let input = '';
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+    const data = JSON.parse(input);
+    const model = data.model.display_name;
+    const cost = data.cost?.total_cost_usd || 0;
+    const durationMs = data.cost?.total_duration_ms || 0;
 
-      const durationSec = Math.floor(durationMs / 1000);
-      const mins = Math.floor(durationSec / 60);
-      const secs = durationSec % 60;
+    const durationSec = Math.floor(durationMs / 1000);
+    const mins = Math.floor(durationSec / 60);
+    const secs = durationSec % 60;
 
-      console.log(`[${model}] 💰 $${cost.toFixed(2)} | ⏱️ ${mins}m ${secs}s`);
-  });
-  ```
-</CodeGroup>
+    console.log(`[${model}] 💰 $${cost.toFixed(2)} | ⏱️ ${mins}m ${secs}s`);
+});
+```
 
-<h3 id="display-multiple-lines">
-  显示多行
-</h3>
+### 显示多行
 
 你的脚本可以输出多行来创建更丰富的显示。
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-multiline.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=a9d0a2fe8e446d80b1abc46da3f93270" alt="一个多行状态行，显示第一行上的模型名称、目录、git 分支，第二行上的上下文使用进度条、成本和持续时间" width="1224" height="262" data-path="images/statusline-multiline.png" />
-</Frame>
+![一个多行状态行，显示第一行上的模型名称、目录、git 分支，第二行上的上下文使用进度条、成本和持续时间](https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-multiline.png?fit=max\&auto=format\&n=HDAmBwgbrZVk0pOt\&q=85\&s=a9d0a2fe8e446d80b1abc46da3f93270)
 
 此示例结合了几种技术：基于阈值的颜色（70% 以下为绿色，70-89% 为黄色，90%+ 为红色）、进度条和 git 分支信息。每个 `print` 或 `echo` 语句创建单独的行：
 
-<CodeGroup>
-  ```bash Bash theme={null}
-  #!/bin/bash
-  input=$(cat)
+```bash Bash theme={null}
+#!/bin/bash
+input=$(cat)
 
-  MODEL=$(echo "$input" | jq -r '.model.display_name')
-  DIR=$(echo "$input" | jq -r '.workspace.current_dir')
-  COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
-  PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
-  DURATION_MS=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+DIR=$(echo "$input" | jq -r '.workspace.current_dir')
+COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
+PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
+DURATION_MS=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
 
-  CYAN='\033[36m'; GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; RESET='\033[0m'
+CYAN='\033[36m'; GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; RESET='\033[0m'
 
-  # Pick bar color based on context usage
-  if [ "$PCT" -ge 90 ]; then BAR_COLOR="$RED"
-  elif [ "$PCT" -ge 70 ]; then BAR_COLOR="$YELLOW"
-  else BAR_COLOR="$GREEN"; fi
+# Pick bar color based on context usage
+if [ "$PCT" -ge 90 ]; then BAR_COLOR="$RED"
+elif [ "$PCT" -ge 70 ]; then BAR_COLOR="$YELLOW"
+else BAR_COLOR="$GREEN"; fi
 
-  FILLED=$((PCT / 10)); EMPTY=$((10 - FILLED))
-  printf -v FILL "%${FILLED}s"; printf -v PAD "%${EMPTY}s"
-  BAR="${FILL// /█}${PAD// /░}"
+FILLED=$((PCT / 10)); EMPTY=$((10 - FILLED))
+printf -v FILL "%${FILLED}s"; printf -v PAD "%${EMPTY}s"
+BAR="${FILL// /█}${PAD// /░}"
 
-  MINS=$((DURATION_MS / 60000)); SECS=$(((DURATION_MS % 60000) / 1000))
+MINS=$((DURATION_MS / 60000)); SECS=$(((DURATION_MS % 60000) / 1000))
 
-  BRANCH=""
-  git rev-parse --git-dir > /dev/null 2>&1 && BRANCH=" | 🌿 $(git branch --show-current 2>/dev/null)"
+BRANCH=""
+git rev-parse --git-dir > /dev/null 2>&1 && BRANCH=" | 🌿 $(git branch --show-current 2>/dev/null)"
 
-  echo -e "${CYAN}[$MODEL]${RESET} 📁 ${DIR##*/}$BRANCH"
-  COST_FMT=$(printf '$%.2f' "$COST")
-  echo -e "${BAR_COLOR}${BAR}${RESET} ${PCT}% | ${YELLOW}${COST_FMT}${RESET} | ⏱️ ${MINS}m ${SECS}s"
-  ```
+echo -e "${CYAN}[$MODEL]${RESET} 📁 ${DIR##*/}$BRANCH"
+COST_FMT=$(printf '$%.2f' "$COST")
+echo -e "${BAR_COLOR}${BAR}${RESET} ${PCT}% | ${YELLOW}${COST_FMT}${RESET} | ⏱️ ${MINS}m ${SECS}s"
+```
 
-  ```python Python theme={null}
-  #!/usr/bin/env python3
-  import json, sys, subprocess, os
+```python Python theme={null}
+#!/usr/bin/env python3
+import json, sys, subprocess, os
 
-  data = json.load(sys.stdin)
-  model = data['model']['display_name']
-  directory = os.path.basename(data['workspace']['current_dir'])
-  cost = data.get('cost', {}).get('total_cost_usd', 0) or 0
-  pct = int(data.get('context_window', {}).get('used_percentage', 0) or 0)
-  duration_ms = data.get('cost', {}).get('total_duration_ms', 0) or 0
+data = json.load(sys.stdin)
+model = data['model']['display_name']
+directory = os.path.basename(data['workspace']['current_dir'])
+cost = data.get('cost', {}).get('total_cost_usd', 0) or 0
+pct = int(data.get('context_window', {}).get('used_percentage', 0) or 0)
+duration_ms = data.get('cost', {}).get('total_duration_ms', 0) or 0
 
-  CYAN, GREEN, YELLOW, RED, RESET = '\033[36m', '\033[32m', '\033[33m', '\033[31m', '\033[0m'
+CYAN, GREEN, YELLOW, RED, RESET = '\033[36m', '\033[32m', '\033[33m', '\033[31m', '\033[0m'
 
-  bar_color = RED if pct >= 90 else YELLOW if pct >= 70 else GREEN
-  filled = pct // 10
-  bar = '█' * filled + '░' * (10 - filled)
+bar_color = RED if pct >= 90 else YELLOW if pct >= 70 else GREEN
+filled = pct // 10
+bar = '█' * filled + '░' * (10 - filled)
 
-  mins, secs = duration_ms // 60000, (duration_ms % 60000) // 1000
+mins, secs = duration_ms // 60000, (duration_ms % 60000) // 1000
 
-  try:
-      branch = subprocess.check_output(['git', 'branch', '--show-current'], text=True, stderr=subprocess.DEVNULL).strip()
-      branch = f" | 🌿 {branch}" if branch else ""
-  except:
-      branch = ""
+try:
+    branch = subprocess.check_output(['git', 'branch', '--show-current'], text=True, stderr=subprocess.DEVNULL).strip()
+    branch = f" | 🌿 {branch}" if branch else ""
+except:
+    branch = ""
 
-  print(f"{CYAN}[{model}]{RESET} 📁 {directory}{branch}")
-  print(f"{bar_color}{bar}{RESET} {pct}% | {YELLOW}${cost:.2f}{RESET} | ⏱️ {mins}m {secs}s")
-  ```
+print(f"{CYAN}[{model}]{RESET} 📁 {directory}{branch}")
+print(f"{bar_color}{bar}{RESET} {pct}% | {YELLOW}${cost:.2f}{RESET} | ⏱️ {mins}m {secs}s")
+```
 
-  ```javascript Node.js theme={null}
-  #!/usr/bin/env node
-  const { execSync } = require('child_process');
-  const path = require('path');
+```javascript Node.js theme={null}
+#!/usr/bin/env node
+const { execSync } = require('child_process');
+const path = require('path');
 
-  let input = '';
-  process.stdin.on('data', chunk => input += chunk);
-  process.stdin.on('end', () => {
-      const data = JSON.parse(input);
-      const model = data.model.display_name;
-      const dir = path.basename(data.workspace.current_dir);
-      const cost = data.cost?.total_cost_usd || 0;
-      const pct = Math.floor(data.context_window?.used_percentage || 0);
-      const durationMs = data.cost?.total_duration_ms || 0;
+let input = '';
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+    const data = JSON.parse(input);
+    const model = data.model.display_name;
+    const dir = path.basename(data.workspace.current_dir);
+    const cost = data.cost?.total_cost_usd || 0;
+    const pct = Math.floor(data.context_window?.used_percentage || 0);
+    const durationMs = data.cost?.total_duration_ms || 0;
 
-      const CYAN = '\x1b[36m', GREEN = '\x1b[32m', YELLOW = '\x1b[33m', RED = '\x1b[31m', RESET = '\x1b[0m';
+    const CYAN = '\x1b[36m', GREEN = '\x1b[32m', YELLOW = '\x1b[33m', RED = '\x1b[31m', RESET = '\x1b[0m';
 
-      const barColor = pct >= 90 ? RED : pct >= 70 ? YELLOW : GREEN;
-      const filled = Math.floor(pct / 10);
-      const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
+    const barColor = pct >= 90 ? RED : pct >= 70 ? YELLOW : GREEN;
+    const filled = Math.floor(pct / 10);
+    const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
 
-      const mins = Math.floor(durationMs / 60000);
-      const secs = Math.floor((durationMs % 60000) / 1000);
+    const mins = Math.floor(durationMs / 60000);
+    const secs = Math.floor((durationMs % 60000) / 1000);
 
-      let branch = '';
-      try {
-          branch = execSync('git branch --show-current', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
-          branch = branch ? ` | 🌿 ${branch}` : '';
-      } catch {}
+    let branch = '';
+    try {
+        branch = execSync('git branch --show-current', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+        branch = branch ? ` | 🌿 ${branch}` : '';
+    } catch {}
 
-      console.log(`${CYAN}[${model}]${RESET} 📁 ${dir}${branch}`);
-      console.log(`${barColor}${bar}${RESET} ${pct}% | ${YELLOW}$${cost.toFixed(2)}${RESET} | ⏱️ ${mins}m ${secs}s`);
-  });
-  ```
-</CodeGroup>
+    console.log(`${CYAN}[${model}]${RESET} 📁 ${dir}${branch}`);
+    console.log(`${barColor}${bar}${RESET} ${pct}% | ${YELLOW}$${cost.toFixed(2)}${RESET} | ⏱️ ${mins}m ${secs}s`);
+});
+```
 
-<h3 id="clickable-links">
-  可点击链接
-</h3>
+### 可点击链接
 
 此示例创建指向你的 GitHub 存储库的可点击链接。按住 Cmd（macOS）或 Ctrl（Windows/Linux）并单击以在浏览器中打开链接。
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-links.png?fit=max&auto=format&n=HDAmBwgbrZVk0pOt&q=85&s=4778a144a28cb498c99d5fa018bb374a" alt="一个状态行，显示指向 GitHub 存储库的可点击链接" width="1224" height="224" data-path="images/statusline-links.png" />
-</Frame>
+![一个状态行，显示指向 GitHub 存储库的可点击链接](https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/statusline-links.png?fit=max\&auto=format\&n=HDAmBwgbrZVk0pOt\&q=85\&s=4778a144a28cb498c99d5fa018bb374a)
 
 每个脚本获取 git 远程 URL，将 SSH 格式转换为 HTTPS，并将存储库名称包装在 OSC 8 转义码中。Bash 版本使用 `printf '%b'`，它比 `echo -e` 更可靠地跨不同 shell 解释反斜杠转义：
 
-<CodeGroup>
-  ```bash Bash theme={null}
-  #!/bin/bash
-  input=$(cat)
+```bash Bash theme={null}
+#!/bin/bash
+input=$(cat)
 
-  MODEL=$(echo "$input" | jq -r '.model.display_name')
+MODEL=$(echo "$input" | jq -r '.model.display_name')
 
-  # Convert git SSH URL to HTTPS
-  REMOTE=$(git remote get-url origin 2>/dev/null | sed 's/git@github.com:/https:\/\/github.com\//' | sed 's/\.git$//')
+# Convert git SSH URL to HTTPS
+REMOTE=$(git remote get-url origin 2>/dev/null | sed 's/git@github.com:/https:\/\/github.com\//' | sed 's/\.git$//')
 
-  if [ -n "$REMOTE" ]; then
-      REPO_NAME=$(basename "$REMOTE")
-      # OSC 8 format: \e]8;;URL\a then TEXT then \e]8;;\a
-      # printf %b interprets escape sequences reliably across shells
-      printf '%b' "[$MODEL] 🔗 \e]8;;${REMOTE}\a${REPO_NAME}\e]8;;\a\n"
-  else
-      echo "[$MODEL]"
-  fi
-  ```
+if [ -n "$REMOTE" ]; then
+    REPO_NAME=$(basename "$REMOTE")
+    # OSC 8 format: \e]8;;URL\a then TEXT then \e]8;;\a
+    # printf %b interprets escape sequences reliably across shells
+    printf '%b' "[$MODEL] 🔗 \e]8;;${REMOTE}\a${REPO_NAME}\e]8;;\a\n"
+else
+    echo "[$MODEL]"
+fi
+```
 
-  ```python Python theme={null}
-  #!/usr/bin/env python3
-  import json, sys, subprocess, re, os
+```python Python theme={null}
+#!/usr/bin/env python3
+import json, sys, subprocess, re, os
 
-  data = json.load(sys.stdin)
-  model = data['model']['display_name']
+data = json.load(sys.stdin)
+model = data['model']['display_name']
 
-  # Get git remote URL
-  try:
-      remote = subprocess.check_output(
-          ['git', 'remote', 'get-url', 'origin'],
-          stderr=subprocess.DEVNULL, text=True
-      ).strip()
-      # Convert SSH to HTTPS format
-      remote = re.sub(r'^git@github\.com:', 'https://github.com/', remote)
-      remote = re.sub(r'\.git$', '', remote)
-      repo_name = os.path.basename(remote)
-      # OSC 8 escape sequences
-      link = f"\033]8;;{remote}\a{repo_name}\033]8;;\a"
-      print(f"[{model}] 🔗 {link}")
-  except:
-      print(f"[{model}]")
-  ```
+# Get git remote URL
+try:
+    remote = subprocess.check_output(
+        ['git', 'remote', 'get-url', 'origin'],
+        stderr=subprocess.DEVNULL, text=True
+    ).strip()
+    # Convert SSH to HTTPS format
+    remote = re.sub(r'^git@github\.com:', 'https://github.com/', remote)
+    remote = re.sub(r'\.git$', '', remote)
+    repo_name = os.path.basename(remote)
+    # OSC 8 escape sequences
+    link = f"\033]8;;{remote}\a{repo_name}\033]8;;\a"
+    print(f"[{model}] 🔗 {link}")
+except:
+    print(f"[{model}]")
+```
 
-  ```javascript Node.js theme={null}
-  #!/usr/bin/env node
-  const { execSync } = require('child_process');
-  const path = require('path');
+```javascript Node.js theme={null}
+#!/usr/bin/env node
+const { execSync } = require('child_process');
+const path = require('path');
 
-  let input = '';
-  process.stdin.on('data', chunk => input += chunk);
-  process.stdin.on('end', () => {
-      const data = JSON.parse(input);
-      const model = data.model.display_name;
+let input = '';
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+    const data = JSON.parse(input);
+    const model = data.model.display_name;
 
-      try {
-          let remote = execSync('git remote get-url origin', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
-          // Convert SSH to HTTPS format
-          remote = remote.replace(/^git@github\.com:/, 'https://github.com/').replace(/\.git$/, '');
-          const repoName = path.basename(remote);
-          // OSC 8 escape sequences
-          const link = `\x1b]8;;${remote}\x07${repoName}\x1b]8;;\x07`;
-          console.log(`[${model}] 🔗 ${link}`);
-      } catch {
-          console.log(`[${model}]`);
-      }
-  });
-  ```
-</CodeGroup>
+    try {
+        let remote = execSync('git remote get-url origin', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+        // Convert SSH to HTTPS format
+        remote = remote.replace(/^git@github\.com:/, 'https://github.com/').replace(/\.git$/, '');
+        const repoName = path.basename(remote);
+        // OSC 8 escape sequences
+        const link = `\x1b]8;;${remote}\x07${repoName}\x1b]8;;\x07`;
+        console.log(`[${model}] 🔗 ${link}`);
+    } catch {
+        console.log(`[${model}]`);
+    }
+});
+```
 
-<h3 id="rate-limit-usage">
-  速率限制使用情况
-</h3>
+### 速率限制使用情况
 
 在状态栏中显示 claude.ai 订阅速率限制使用情况，或您相对于 Claude 应用网关支出限制的支出。对于订阅者，`rate_limits` 对象包含一个滚动的 `five_hour` 窗口和一个每周的 `seven_day` 窗口。每个窗口提供 `used_percentage`（从 0 到 100）和 `resets_at`（窗口重置时的 Unix 纪元秒数）。在网关后面时，请读取 `spend_limit` 对象，详见[支出限制字段](#spend-limit-fields)。
 
 `rate_limits` 对象仅对 claude.ai Pro 和 Max 订阅者或具有支出限制的 Claude 应用网关后面的用户出现，并且仅在第一次 API 响应后出现。每个脚本都会优雅地处理缺失的字段，并且在网关后面时打印 `spend: $314.12 / $500`，或在美元字段缺失时打印 `spend: 63%`：
 
-<CodeGroup>
-  ```bash Bash theme={null}
-  #!/bin/bash
-  input=$(cat)
+```bash Bash theme={null}
+#!/bin/bash
+input=$(cat)
 
-  MODEL=$(echo "$input" | jq -r '.model.display_name')
-  # "// empty" produces no output when rate_limits is absent
-  FIVE_H=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
-  WEEK=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+# "// empty" produces no output when rate_limits is absent
+FIVE_H=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
+WEEK=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
 
-  LIMITS=""
-  [ -n "$FIVE_H" ] && LIMITS="5h: $(printf '%.0f' "$FIVE_H")%"
-  [ -n "$WEEK" ] && LIMITS="${LIMITS:+$LIMITS }7d: $(printf '%.0f' "$WEEK")%"
+LIMITS=""
+[ -n "$FIVE_H" ] && LIMITS="5h: $(printf '%.0f' "$FIVE_H")%"
+[ -n "$WEEK" ] && LIMITS="${LIMITS:+$LIMITS }7d: $(printf '%.0f' "$WEEK")%"
 
-  # Behind a Claude apps gateway: dollars when the gateway reports them, else the percentage
-  SPEND_PCT=$(echo "$input" | jq -r '.rate_limits.spend_limit.used_percentage // empty')
-  SPEND_USD=$(echo "$input" | jq -r '.rate_limits.spend_limit | select(.used_usd != null) | "$\(.used_usd) / $\(.limit_usd)"')
-  [ -n "$SPEND_PCT" ] && LIMITS="${LIMITS:+$LIMITS }spend: ${SPEND_USD:-$(printf '%.0f' "$SPEND_PCT")%}"
+# Behind a Claude apps gateway: dollars when the gateway reports them, else the percentage
+SPEND_PCT=$(echo "$input" | jq -r '.rate_limits.spend_limit.used_percentage // empty')
+SPEND_USD=$(echo "$input" | jq -r '.rate_limits.spend_limit | select(.used_usd != null) | "$\(.used_usd) / $\(.limit_usd)"')
+[ -n "$SPEND_PCT" ] && LIMITS="${LIMITS:+$LIMITS }spend: ${SPEND_USD:-$(printf '%.0f' "$SPEND_PCT")%}"
 
-  [ -n "$LIMITS" ] && echo "[$MODEL] | $LIMITS" || echo "[$MODEL]"
-  ```
+[ -n "$LIMITS" ] && echo "[$MODEL] | $LIMITS" || echo "[$MODEL]"
+```
 
-  ```python Python theme={null}
-  #!/usr/bin/env python3
-  import json, sys
+```python Python theme={null}
+#!/usr/bin/env python3
+import json, sys
 
-  data = json.load(sys.stdin)
-  model = data['model']['display_name']
+data = json.load(sys.stdin)
+model = data['model']['display_name']
 
-  parts = []
-  rate = data.get('rate_limits', {})
-  five_h = rate.get('five_hour', {}).get('used_percentage')
-  week = rate.get('seven_day', {}).get('used_percentage')
+parts = []
+rate = data.get('rate_limits', {})
+five_h = rate.get('five_hour', {}).get('used_percentage')
+week = rate.get('seven_day', {}).get('used_percentage')
 
-  if five_h is not None:
-      parts.append(f"5h: {five_h:.0f}%")
-  if week is not None:
-      parts.append(f"7d: {week:.0f}%")
+if five_h is not None:
+    parts.append(f"5h: {five_h:.0f}%")
+if week is not None:
+    parts.append(f"7d: {week:.0f}%")
 
-  # Behind a Claude apps gateway: dollars when the gateway reports them, else the percentage
-  spend = rate.get('spend_limit', {})
-  if spend.get('used_percentage') is not None:
-      if spend.get('used_usd') is not None:
-          parts.append(f"spend: ${spend['used_usd']} / ${spend['limit_usd']}")
-      else:
-          parts.append(f"spend: {spend['used_percentage']:.0f}%")
+# Behind a Claude apps gateway: dollars when the gateway reports them, else the percentage
+spend = rate.get('spend_limit', {})
+if spend.get('used_percentage') is not None:
+    if spend.get('used_usd') is not None:
+        parts.append(f"spend: ${spend['used_usd']} / ${spend['limit_usd']}")
+    else:
+        parts.append(f"spend: {spend['used_percentage']:.0f}%")
 
-  if parts:
-      print(f"[{model}] | {' '.join(parts)}")
-  else:
-      print(f"[{model}]")
-  ```
+if parts:
+    print(f"[{model}] | {' '.join(parts)}")
+else:
+    print(f"[{model}]")
+```
 
-  ```javascript Node.js theme={null}
-  #!/usr/bin/env node
-  let input = '';
-  process.stdin.on('data', chunk => input += chunk);
-  process.stdin.on('end', () => {
-      const data = JSON.parse(input);
-      const model = data.model.display_name;
+```javascript Node.js theme={null}
+#!/usr/bin/env node
+let input = '';
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+    const data = JSON.parse(input);
+    const model = data.model.display_name;
 
-      const parts = [];
-      const fiveH = data.rate_limits?.five_hour?.used_percentage;
-      const week = data.rate_limits?.seven_day?.used_percentage;
+    const parts = [];
+    const fiveH = data.rate_limits?.five_hour?.used_percentage;
+    const week = data.rate_limits?.seven_day?.used_percentage;
 
-      if (fiveH != null) parts.push(`5h: ${Math.round(fiveH)}%`);
-      if (week != null) parts.push(`7d: ${Math.round(week)}%`);
+    if (fiveH != null) parts.push(`5h: ${Math.round(fiveH)}%`);
+    if (week != null) parts.push(`7d: ${Math.round(week)}%`);
 
-      // Behind a Claude apps gateway: dollars when the gateway reports them, else the percentage
-      const spend = data.rate_limits?.spend_limit;
-      if (spend?.used_percentage != null) {
-          parts.push(spend.used_usd != null
-              ? `spend: $${spend.used_usd} / $${spend.limit_usd}`
-              : `spend: ${Math.round(spend.used_percentage)}%`);
-      }
+    // Behind a Claude apps gateway: dollars when the gateway reports them, else the percentage
+    const spend = data.rate_limits?.spend_limit;
+    if (spend?.used_percentage != null) {
+        parts.push(spend.used_usd != null
+            ? `spend: $${spend.used_usd} / $${spend.limit_usd}`
+            : `spend: ${Math.round(spend.used_percentage)}%`);
+    }
 
-      console.log(parts.length ? `[${model}] | ${parts.join(' ')}` : `[${model}]`);
-  });
-  ```
-</CodeGroup>
+    console.log(parts.length ? `[${model}] | ${parts.join(' ')}` : `[${model}]`);
+});
+```
 
-<h3 id="cache-expensive-operations">
-  缓存昂贵的操作
-</h3>
+### 缓存昂贵的操作
 
 你的状态行脚本在活跃会话期间频繁运行。像 `git status` 或 `git diff` 这样的命令可能很慢，特别是在大型存储库中。此示例将 git 信息缓存到临时文件，并仅每 5 秒刷新一次。
 
@@ -978,135 +910,131 @@ Bash 示例使用 [`jq`](https://jqlang.org/) 来解析 JSON。Python 和 Node.j
 
 每个脚本在运行 git 命令之前检查缓存文件是否缺失或早于 5 秒：
 
-<CodeGroup>
-  ```bash Bash theme={null}
-  #!/bin/bash
-  input=$(cat)
+```bash Bash theme={null}
+#!/bin/bash
+input=$(cat)
 
-  MODEL=$(echo "$input" | jq -r '.model.display_name')
-  DIR=$(echo "$input" | jq -r '.workspace.current_dir')
-  SESSION_ID=$(echo "$input" | jq -r '.session_id')
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+DIR=$(echo "$input" | jq -r '.workspace.current_dir')
+SESSION_ID=$(echo "$input" | jq -r '.session_id')
 
-  CACHE_FILE="/tmp/statusline-git-cache-$SESSION_ID"
-  CACHE_MAX_AGE=5  # seconds
+CACHE_FILE="/tmp/statusline-git-cache-$SESSION_ID"
+CACHE_MAX_AGE=5  # seconds
 
-  cache_is_stale() {
-      [ ! -f "$CACHE_FILE" ] || \
-      # stat -c %Y (Linux) or stat -f %m (macOS) prints the file's last-modified
-      # time. The Linux form must run first: on Linux, the macOS form prints a
-      # filesystem report to stdout before failing, and that output would be
-      # captured by the command substitution and break the arithmetic.
-      [ $(($(date +%s) - $(stat -c %Y "$CACHE_FILE" 2>/dev/null || stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0))) -gt $CACHE_MAX_AGE ]
-  }
+cache_is_stale() {
+    [ ! -f "$CACHE_FILE" ] || \
+    # stat -c %Y (Linux) or stat -f %m (macOS) prints the file's last-modified
+    # time. The Linux form must run first: on Linux, the macOS form prints a
+    # filesystem report to stdout before failing, and that output would be
+    # captured by the command substitution and break the arithmetic.
+    [ $(($(date +%s) - $(stat -c %Y "$CACHE_FILE" 2>/dev/null || stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0))) -gt $CACHE_MAX_AGE ]
+}
 
-  if cache_is_stale; then
-      if git rev-parse --git-dir > /dev/null 2>&1; then
-          BRANCH=$(git branch --show-current 2>/dev/null)
-          STAGED=$(git diff --cached --numstat 2>/dev/null | wc -l | tr -d ' ')
-          MODIFIED=$(git diff --numstat 2>/dev/null | wc -l | tr -d ' ')
-          echo "$BRANCH|$STAGED|$MODIFIED" > "$CACHE_FILE"
-      else
-          echo "||" > "$CACHE_FILE"
-      fi
-  fi
+if cache_is_stale; then
+    if git rev-parse --git-dir > /dev/null 2>&1; then
+        BRANCH=$(git branch --show-current 2>/dev/null)
+        STAGED=$(git diff --cached --numstat 2>/dev/null | wc -l | tr -d ' ')
+        MODIFIED=$(git diff --numstat 2>/dev/null | wc -l | tr -d ' ')
+        echo "$BRANCH|$STAGED|$MODIFIED" > "$CACHE_FILE"
+    else
+        echo "||" > "$CACHE_FILE"
+    fi
+fi
 
-  IFS='|' read -r BRANCH STAGED MODIFIED < "$CACHE_FILE"
+IFS='|' read -r BRANCH STAGED MODIFIED < "$CACHE_FILE"
 
-  if [ -n "$BRANCH" ]; then
-      echo "[$MODEL] 📁 ${DIR##*/} | 🌿 $BRANCH +$STAGED ~$MODIFIED"
-  else
-      echo "[$MODEL] 📁 ${DIR##*/}"
-  fi
-  ```
+if [ -n "$BRANCH" ]; then
+    echo "[$MODEL] 📁 ${DIR##*/} | 🌿 $BRANCH +$STAGED ~$MODIFIED"
+else
+    echo "[$MODEL] 📁 ${DIR##*/}"
+fi
+```
 
-  ```python Python theme={null}
-  #!/usr/bin/env python3
-  import json, sys, subprocess, os, time
+```python Python theme={null}
+#!/usr/bin/env python3
+import json, sys, subprocess, os, time
 
-  data = json.load(sys.stdin)
-  model = data['model']['display_name']
-  directory = os.path.basename(data['workspace']['current_dir'])
-  session_id = data['session_id']
+data = json.load(sys.stdin)
+model = data['model']['display_name']
+directory = os.path.basename(data['workspace']['current_dir'])
+session_id = data['session_id']
 
-  CACHE_FILE = f"/tmp/statusline-git-cache-{session_id}"
-  CACHE_MAX_AGE = 5  # seconds
+CACHE_FILE = f"/tmp/statusline-git-cache-{session_id}"
+CACHE_MAX_AGE = 5  # seconds
 
-  def cache_is_stale():
-      if not os.path.exists(CACHE_FILE):
-          return True
-      return time.time() - os.path.getmtime(CACHE_FILE) > CACHE_MAX_AGE
+def cache_is_stale():
+    if not os.path.exists(CACHE_FILE):
+        return True
+    return time.time() - os.path.getmtime(CACHE_FILE) > CACHE_MAX_AGE
 
-  if cache_is_stale():
-      try:
-          subprocess.check_output(['git', 'rev-parse', '--git-dir'], stderr=subprocess.DEVNULL)
-          branch = subprocess.check_output(['git', 'branch', '--show-current'], text=True).strip()
-          staged = subprocess.check_output(['git', 'diff', '--cached', '--numstat'], text=True).strip()
-          modified = subprocess.check_output(['git', 'diff', '--numstat'], text=True).strip()
-          staged_count = len(staged.split('\n')) if staged else 0
-          modified_count = len(modified.split('\n')) if modified else 0
-          with open(CACHE_FILE, 'w') as f:
-              f.write(f"{branch}|{staged_count}|{modified_count}")
-      except:
-          with open(CACHE_FILE, 'w') as f:
-              f.write("||")
+if cache_is_stale():
+    try:
+        subprocess.check_output(['git', 'rev-parse', '--git-dir'], stderr=subprocess.DEVNULL)
+        branch = subprocess.check_output(['git', 'branch', '--show-current'], text=True).strip()
+        staged = subprocess.check_output(['git', 'diff', '--cached', '--numstat'], text=True).strip()
+        modified = subprocess.check_output(['git', 'diff', '--numstat'], text=True).strip()
+        staged_count = len(staged.split('\n')) if staged else 0
+        modified_count = len(modified.split('\n')) if modified else 0
+        with open(CACHE_FILE, 'w') as f:
+            f.write(f"{branch}|{staged_count}|{modified_count}")
+    except:
+        with open(CACHE_FILE, 'w') as f:
+            f.write("||")
 
-  with open(CACHE_FILE) as f:
-      branch, staged, modified = f.read().strip().split('|')
+with open(CACHE_FILE) as f:
+    branch, staged, modified = f.read().strip().split('|')
 
-  if branch:
-      print(f"[{model}] 📁 {directory} | 🌿 {branch} +{staged} ~{modified}")
-  else:
-      print(f"[{model}] 📁 {directory}")
-  ```
+if branch:
+    print(f"[{model}] 📁 {directory} | 🌿 {branch} +{staged} ~{modified}")
+else:
+    print(f"[{model}] 📁 {directory}")
+```
 
-  ```javascript Node.js theme={null}
-  #!/usr/bin/env node
-  const { execSync } = require('child_process');
-  const fs = require('fs');
-  const path = require('path');
+```javascript Node.js theme={null}
+#!/usr/bin/env node
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
-  let input = '';
-  process.stdin.on('data', chunk => input += chunk);
-  process.stdin.on('end', () => {
-      const data = JSON.parse(input);
-      const model = data.model.display_name;
-      const dir = path.basename(data.workspace.current_dir);
-      const sessionId = data.session_id;
+let input = '';
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+    const data = JSON.parse(input);
+    const model = data.model.display_name;
+    const dir = path.basename(data.workspace.current_dir);
+    const sessionId = data.session_id;
 
-      const CACHE_FILE = `/tmp/statusline-git-cache-${sessionId}`;
-      const CACHE_MAX_AGE = 5; // seconds
+    const CACHE_FILE = `/tmp/statusline-git-cache-${sessionId}`;
+    const CACHE_MAX_AGE = 5; // seconds
 
-      const cacheIsStale = () => {
-          if (!fs.existsSync(CACHE_FILE)) return true;
-          return (Date.now() / 1000) - fs.statSync(CACHE_FILE).mtimeMs / 1000 > CACHE_MAX_AGE;
-      };
+    const cacheIsStale = () => {
+        if (!fs.existsSync(CACHE_FILE)) return true;
+        return (Date.now() / 1000) - fs.statSync(CACHE_FILE).mtimeMs / 1000 > CACHE_MAX_AGE;
+    };
 
-      if (cacheIsStale()) {
-          try {
-              execSync('git rev-parse --git-dir', { stdio: 'ignore' });
-              const branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
-              const staged = execSync('git diff --cached --numstat', { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
-              const modified = execSync('git diff --numstat', { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
-              fs.writeFileSync(CACHE_FILE, `${branch}|${staged}|${modified}`);
-          } catch {
-              fs.writeFileSync(CACHE_FILE, '||');
-          }
-      }
+    if (cacheIsStale()) {
+        try {
+            execSync('git rev-parse --git-dir', { stdio: 'ignore' });
+            const branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+            const staged = execSync('git diff --cached --numstat', { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
+            const modified = execSync('git diff --numstat', { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
+            fs.writeFileSync(CACHE_FILE, `${branch}|${staged}|${modified}`);
+        } catch {
+            fs.writeFileSync(CACHE_FILE, '||');
+        }
+    }
 
-      const [branch, staged, modified] = fs.readFileSync(CACHE_FILE, 'utf8').trim().split('|');
+    const [branch, staged, modified] = fs.readFileSync(CACHE_FILE, 'utf8').trim().split('|');
 
-      if (branch) {
-          console.log(`[${model}] 📁 ${dir} | 🌿 ${branch} +${staged} ~${modified}`);
-      } else {
-          console.log(`[${model}] 📁 ${dir}`);
-      }
-  });
-  ```
-</CodeGroup>
+    if (branch) {
+        console.log(`[${model}] 📁 ${dir} | 🌿 ${branch} +${staged} ~${modified}`);
+    } else {
+        console.log(`[${model}] 📁 ${dir}`);
+    }
+});
+```
 
-<h3 id="windows-configuration">
-  Windows 配置
-</h3>
+### Windows 配置
 
 在 Windows 上，Claude Code 通过 Git Bash 运行状态行命令（如果已安装 Git Bash），或在没有 Git Bash 时通过 PowerShell 运行。
 
@@ -1114,56 +1042,50 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 
 要将 PowerShell 脚本作为状态行运行，请通过 `powershell` 调用它。无论 Claude Code 通过 Git Bash 还是 PowerShell 路由命令，这都有效：
 
-<CodeGroup>
-  ```json settings.json theme={null}
-  {
-    "statusLine": {
-      "type": "command",
-      "command": "powershell -NoProfile -File C:/Users/username/.claude/statusline.ps1"
-    }
+```json settings.json theme={null}
+{
+  "statusLine": {
+    "type": "command",
+    "command": "powershell -NoProfile -File C:/Users/username/.claude/statusline.ps1"
   }
-  ```
+}
+```
 
-  ```powershell statusline.ps1 theme={null}
-  $input_json = $input | Out-String | ConvertFrom-Json
-  $cwd = $input_json.cwd
-  $model = $input_json.model.display_name
-  $used = $input_json.context_window.used_percentage
-  $dirname = Split-Path $cwd -Leaf
+```powershell statusline.ps1 theme={null}
+$input_json = $input | Out-String | ConvertFrom-Json
+$cwd = $input_json.cwd
+$model = $input_json.model.display_name
+$used = $input_json.context_window.used_percentage
+$dirname = Split-Path $cwd -Leaf
 
-  if ($used) {
-      Write-Host "$dirname [$model] ctx: $used%"
-  } else {
-      Write-Host "$dirname [$model]"
-  }
-  ```
-</CodeGroup>
+if ($used) {
+    Write-Host "$dirname [$model] ctx: $used%"
+} else {
+    Write-Host "$dirname [$model]"
+}
+```
 
 或者，当安装了 Git Bash 时，直接运行 Bash 脚本：
 
-<CodeGroup>
-  ```json settings.json theme={null}
-  {
-    "statusLine": {
-      "type": "command",
-      "command": "~/.claude/statusline.sh"
-    }
+```json settings.json theme={null}
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
   }
-  ```
+}
+```
 
-  ```bash statusline.sh theme={null}
-  #!/usr/bin/env bash
-  input=$(cat)
-  cwd=$(echo "$input" | grep -o '"cwd":"[^"]*"' | cut -d'"' -f4)
-  model=$(echo "$input" | grep -o '"display_name":"[^"]*"' | cut -d'"' -f4)
-  dirname="${cwd##*[/\\]}"
-  echo "$dirname [$model]"
-  ```
-</CodeGroup>
+```bash statusline.sh theme={null}
+#!/usr/bin/env bash
+input=$(cat)
+cwd=$(echo "$input" | grep -o '"cwd":"[^"]*"' | cut -d'"' -f4)
+model=$(echo "$input" | grep -o '"display_name":"[^"]*"' | cut -d'"' -f4)
+dirname="${cwd##*[/\\]}"
+echo "$dirname [$model]"
+```
 
-<h2 id="subagent-status-lines">
-  子代理状态行
-</h2>
+## 子代理状态行
 
 `subagentStatusLine` 设置为代理面板中显示的每个[子代理](/docs/zh-CN/sub-agents)呈现自定义行体。使用它来替换默认的 `name · description · token count` 行为你自己的格式。
 
@@ -1182,9 +1104,7 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 
 适用于 `statusLine` 的相同信任、`disableAllHooks` 和 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly) 门控也适用于此处。插件可以在其[`settings.json`](/docs/zh-CN/plugins/manifest-reference#standard-layout)中提供默认的 `subagentStatusLine`，但与钩子不同，即使插件在托管设置 `enabledPlugins` 中被强制启用，插件值也不会在 `allowManagedHooksOnly` 下运行。
 
-<h3 id="task-fields">
-  任务字段
-</h3>
+### 任务字段
 
 `tasks` 数组中的每个条目使用以下字段描述一个子代理行。标记为可选的字段在没有值时会被省略，因此请在脚本中处理其缺失的情况。
 
@@ -1205,9 +1125,7 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 | `tokenSamples` | array of numbers | 最近最多 16 个 `tokenCount` 读数，每个刷新周期一个，按从旧到新排列，最后一个为当前值 |
 | `cwd` | string | 子代理的工作目录：如果子代理在自己的目录（例如隔离的 worktree）中运行，则为该目录，否则为会话的工作目录 |
 
-<h2 id="tips">
-  提示
-</h2>
+## 提示
 
 * **使用模拟输入测试**：`echo '{"model":{"display_name":"Opus"},"workspace":{"current_dir":"/home/user/project"},"context_window":{"used_percentage":25},"session_id":"test-session-abc"}' | ./statusline.sh`
 * **保持输出简短**：状态栏的宽度有限，所以长输出可能会被截断或换行不当
@@ -1215,15 +1133,11 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 
 社区项目如 [ccstatusline](https://github.com/sirmalloc/ccstatusline) 和 [starship-claude](https://github.com/martinemde/starship-claude) 提供带有主题和其他功能的预构建配置。
 
-<h2 id="troubleshooting">
-  故障排除
-</h2>
+## 故障排除
 
 如果状态栏为空白，请先查看[状态栏未出现](#status-line-not-appearing)。尚未信任的文件夹以及运行失败的脚本也会导致状态栏为空白，具体请参见[需要工作区信任](#workspace-trust-required)和[脚本错误或挂起](#script-errors-or-hangs)。
 
-<h3 id="status-line-not-appearing">
-  状态栏未出现
-</h3>
+### 状态栏未出现
 
 如果您已配置状态栏，但界面底部没有任何显示，请逐项进行以下检查：
 
@@ -1236,21 +1150,15 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 * 运行 `claude --debug` 以在每次状态栏调用时记录您的脚本的 stderr，以及在会话中第一次调用时的退出码
 * 要求 Claude 读取您的设置文件并直接执行 `statusLine` 命令以显示错误
 
-<h3 id="status-line-shows-or-empty-values">
-  状态栏显示 `--` 或空值
-</h3>
+### 状态栏显示 `--` 或空值
 
 在第一次 API 响应完成之前，字段可能为 `null`，因此请在脚本中使用回退处理 null 值，如 jq 中的 `// 0`。如果值在多条消息后仍然为空，请重新启动 Claude Code。
 
-<h3 id="context-percentage-shows-unexpected-values">
-  上下文百分比显示意外值
-</h3>
+### 上下文百分比显示意外值
 
 状态栏报告来自最后一次 API 响应的计数，而 `/context` 添加了自该响应以来新增消息的估计值，因此在下一次响应之前，`/context` 的读数可能更高。使用 `used_percentage` 获得最简单的准确上下文状态。有关 `used_percentage` 背后的计算公式，请参见[上下文窗口字段](#context-window-fields)。
 
-<h3 id="osc-8-links-not-clickable">
-  OSC 8 链接不可点击
-</h3>
+### OSC 8 链接不可点击
 
 链接是否可点击取决于您的终端、Claude Code 是否在其中检测到超链接支持、SSH 或 tmux 是否剥离了转义序列，以及您的脚本如何打印它：
 
@@ -1274,25 +1182,19 @@ Git Bash 将未引用的反斜杠视为转义字符，因此 Windows 风格的�
 
 * 如果转义序列显示为文字文本，如 `\e]8;;`，请使用 `printf '%b'` 而不是 `echo -e` 以获得更可靠的转义处理
 
-<h3 id="display-glitches-with-escape-sequences">
-  转义序列显示故障
-</h3>
+### 转义序列显示故障
 
 复杂的转义序列（ANSI 颜色、OSC 8 链接）如果与其他 UI 更新重叠，偶尔会导致输出混乱。带有转义码的多行状态栏比单行纯文本更容易出现渲染问题。
 
 如果您看到损坏的文本，请尝试将脚本简化为纯文本输出。
 
-<h3 id="workspace-trust-required">
-  需要工作区信任
-</h3>
+### 需要工作区信任
 
 在您接受工作区信任对话框之前，状态栏会保持空白。因为 `statusLine` 执行 shell 命令，Claude Code 在与[设置文件中的 hook 相同的工作区信任规则](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)下运行它。接受该文件夹的对话框，或接受其信任扩展到它的父目录，就足够了。
 
 在此之前，`claude --debug` 会记录 `Status line command skipped: workspace trust not accepted`。重新启动 Claude Code 并接受信任对话框以启用它。
 
-<h3 id="script-errors-or-hangs">
-  脚本错误或挂起
-</h3>
+### 脚本错误或挂起
 
 Claude Code 仅在脚本以代码 0 退出后才显示其输出：
 
@@ -1301,9 +1203,7 @@ Claude Code 仅在脚本以代码 0 退出后才显示其输出：
 * 如果在慢速脚本运行时触发新的更新，正在进行的脚本会被取消
 * 在配置之前使用模拟输入独立测试您的脚本
 
-<h3 id="notifications-share-the-status-line-row">
-  通知与状态栏共享同一行
-</h3>
+### 通知与状态栏共享同一行
 
 在[全屏渲染](/docs/zh-CN/fullscreen)之外，Claude Code 在与您的状态栏相同的行上显示通知。在全屏渲染中，Claude Code 会为通知提供单独的一行。
 

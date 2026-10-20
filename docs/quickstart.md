@@ -8,13 +8,11 @@
 
 本快速入门介绍终端中的 Claude Code：安装 CLI、在第一个会话中登录，以及在您自己的项目中使用它完成常见的开发任务。
 
-<Note>
-  默认配置下，Claude Code 需要能够访问 claude.ai 和 Anthropic API 等端点才能完成安装、登录和正常使用。在中国大陆的网络环境中，这些端点可能无法直接访问。开始前，请先确认所在网络能够连通这些服务。企业代理配置以及 Amazon Bedrock 等第三方提供商的网络要求，请参阅[网络配置](/docs/zh-CN/network-config#network-access-requirements)。
-</Note>
+> [!NOTE]
+>
+> 默认配置下，Claude Code 需要能够访问 claude.ai 和 Anthropic API 等端点才能完成安装、登录和正常使用。在中国大陆的网络环境中，这些端点可能无法直接访问。开始前，请先确认所在网络能够连通这些服务。企业代理配置以及 Amazon Bedrock 等第三方提供商的网络要求，请参阅[网络配置](/docs/zh-CN/network-config#network-access-requirements)。
 
-<h2 id="before-you-begin">
-  开始前
-</h2>
+## 开始前
 
 确保您拥有：
 
@@ -22,76 +20,72 @@
 * 一个可以使用的代码项目
 * 一个 [Claude 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_prereq)（Pro、Max、Team 或 Enterprise）、[Claude Console](https://platform.claude.com/) 账户，或通过[支持的云提供商](/docs/zh-CN/third-party-integrations)的访问权限
 
-<Note>
-  以下情况在其他页面中介绍：
+> [!NOTE]
+>
+> 以下情况在其他页面中介绍：
+>
+> * **从未使用过终端**：请从[终端指南](/docs/zh-CN/terminal-guide)开始
+> * **希望在终端以外的地方使用 Claude Code**：Claude Code 也可在[网页](https://claude.ai/code)、[桌面应用](/docs/zh-CN/desktop)、[VS Code](/docs/zh-CN/vs-code) 和 [JetBrains IDE](/docs/zh-CN/jetbrains)、[Slack](/docs/zh-CN/slack) 中使用，以及通过 [GitHub Actions](/docs/zh-CN/github-actions) 和 [GitLab](/docs/zh-CN/gitlab-ci-cd) 在 CI/CD 中使用。查看[所有界面](/docs/zh-CN/overview#use-claude-code-everywhere)。
 
-  * **从未使用过终端**：请从[终端指南](/docs/zh-CN/terminal-guide)开始
-  * **希望在终端以外的地方使用 Claude Code**：Claude Code 也可在[网页](https://claude.ai/code)、[桌面应用](/docs/zh-CN/desktop)、[VS Code](/docs/zh-CN/vs-code) 和 [JetBrains IDE](/docs/zh-CN/jetbrains)、[Slack](/docs/zh-CN/slack) 中使用，以及通过 [GitHub Actions](/docs/zh-CN/github-actions) 和 [GitLab](/docs/zh-CN/gitlab-ci-cd) 在 CI/CD 中使用。查看[所有界面](/docs/zh-CN/overview#use-claude-code-everywhere)。
-</Note>
-
-<h2 id="step-1-install-claude-code">
-  步骤 1：安装 Claude Code
-</h2>
+## 步骤 1：安装 Claude Code
 
 要安装 Claude Code，请打开终端并运行适用于您的系统的命令。如果您之前没有使用过终端，[终端指南](/docs/zh-CN/terminal-guide)会展示如何打开终端并粘贴命令。
 
-<Tabs>
-  <Tab title="原生安装（推荐）">
-    **macOS、Linux、WSL：**
+**原生安装（推荐）**
 
-    ```bash theme={null}
-    curl -fsSL https://claude.ai/install.sh | bash
-    ```
+**macOS、Linux、WSL：**
 
-    在 Windows 上，当您在 PowerShell 中时，您的提示符显示 `PS C:\`；当您在 CMD 中时，提示符显示 `C:\`（没有 `PS`）。
+```bash theme={null}
+curl -fsSL https://claude.ai/install.sh | bash
+```
 
-    **Windows PowerShell：**
+在 Windows 上，当您在 PowerShell 中时，您的提示符显示 `PS C:\`；当您在 CMD 中时，提示符显示 `C:\`（没有 `PS`）。
 
-    ```powershell theme={null}
-    irm https://claude.ai/install.ps1 | iex
-    ```
+**Windows PowerShell：**
 
-    **Windows CMD：**
+```powershell theme={null}
+irm https://claude.ai/install.ps1 | iex
+```
 
-    ```batch theme={null}
-    curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
-    ```
+**Windows CMD：**
 
-    安装命令在下载 Claude Code 期间不会显示进度。安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
+```batch theme={null}
+curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
 
-    如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。
+安装命令在下载 Claude Code 期间不会显示进度。安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
 
-    如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他任何错误，请参阅[排查安装问题](/docs/zh-CN/troubleshoot-install#find-your-error)以匹配错误并获得修复方案和替代安装方法。
+如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。
 
-    建议在原生 Windows 上安装 [Git for Windows](https://git-scm.com/downloads/win)，以便 Claude Code 可以使用 Bash 工具。如果未安装 Git for Windows，Claude Code 将使用 PowerShell 作为 shell 工具。WSL 设置不需要 Git for Windows。
+如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他任何错误，请参阅[排查安装问题](/docs/zh-CN/troubleshoot-install#find-your-error)以匹配错误并获得修复方案和替代安装方法。
 
-    <Info>
-      原生安装会在后台自动更新，以保持您使用最新版本。
-    </Info>
-  </Tab>
+建议在原生 Windows 上安装 [Git for Windows](https://git-scm.com/downloads/win)，以便 Claude Code 可以使用 Bash 工具。如果未安装 Git for Windows，Claude Code 将使用 PowerShell 作为 shell 工具。WSL 设置不需要 Git for Windows。
 
-  <Tab title="Homebrew">
-    ```bash theme={null}
-    brew install --cask claude-code
-    ```
+> [!NOTE]
+>
+> 原生安装会在后台自动更新，以保持您使用最新版本。
 
-    Homebrew 提供两个 casks。`claude-code` 跟踪稳定发布渠道，通常比最新版本晚约一周，并跳过有重大回归的版本。`claude-code@latest` 跟踪最新渠道，在新版本发布时立即接收。
+**Homebrew**
 
-    <Info>
-      Homebrew 安装不会自动更新。运行 `brew upgrade claude-code` 或 `brew upgrade claude-code@latest`（取决于您安装的 cask）以获取最新功能和安全修复。
-    </Info>
-  </Tab>
+```bash theme={null}
+brew install --cask claude-code
+```
 
-  <Tab title="WinGet">
-    ```powershell theme={null}
-    winget install Anthropic.ClaudeCode
-    ```
+Homebrew 提供两个 casks。`claude-code` 跟踪稳定发布渠道，通常比最新版本晚约一周，并跳过有重大回归的版本。`claude-code@latest` 跟踪最新渠道，在新版本发布时立即接收。
 
-    <Info>
-      WinGet 安装不会自动更新。定期运行 `winget upgrade Anthropic.ClaudeCode` 以获取最新功能和安全修复。
-    </Info>
-  </Tab>
-</Tabs>
+> [!NOTE]
+>
+> Homebrew 安装不会自动更新。运行 `brew upgrade claude-code` 或 `brew upgrade claude-code@latest`（取决于您安装的 cask）以获取最新功能和安全修复。
+
+**WinGet**
+
+```powershell theme={null}
+winget install Anthropic.ClaudeCode
+```
+
+> [!NOTE]
+>
+> WinGet 安装不会自动更新。定期运行 `winget upgrade Anthropic.ClaudeCode` 以获取最新功能和安全修复。
 
 您也可以在 Debian、Fedora、RHEL 和 Alpine 上使用 [apt、dnf 或 apk](/docs/zh-CN/setup#install-with-linux-package-managers) 进行安装。
 
@@ -103,9 +97,7 @@ claude --version
 
 该命令会打印一个版本号，后面跟着 `(Claude Code)`。
 
-<h2 id="step-2-start-your-first-session">
-  步骤 2：开始您的第一个会话
-</h2>
+## 步骤 2：开始您的第一个会话
 
 在任意项目目录中打开终端并启动 Claude Code：
 
@@ -129,9 +121,7 @@ claude
 
 随后将显示 Claude Code 提示符，其上方会显示版本、当前模型和工作目录。输入 `/help` 查看可用命令，或输入 `/resume` 继续之前的对话。如需稍后切换账户或重新进行身份验证，请在运行中的会话内输入 `/login`。
 
-<h2 id="step-3-ask-your-first-question">
-  步骤 3：提出您的第一个问题
-</h2>
+## 步骤 3：提出您的第一个问题
 
 尝试以下命令之一：
 
@@ -167,13 +157,11 @@ how do I create custom skills in Claude Code?
 can Claude Code work with Docker?
 ```
 
-<Note>
-  Claude Code 会根据需要读取您的项目文件。您无需手动添加上下文。
-</Note>
+> [!NOTE]
+>
+> Claude Code 会根据需要读取您的项目文件。您无需手动添加上下文。
 
-<h2 id="step-4-make-your-first-code-change">
-  步骤 4：进行您的第一次代码更改
-</h2>
+## 步骤 4：进行您的第一次代码更改
 
 尝试一个小任务：
 
@@ -185,9 +173,7 @@ Claude Code 会找到合适的文件并向您展示更改。如果它在进行�
 
 会话的[权限模式](/docs/zh-CN/permission-modes)决定了 Claude 可以在不事先询问您的情况下执行哪些操作。随时按 `Shift+Tab` 即可切换当前会话的权限模式。
 
-<h2 id="step-5-use-git-with-claude-code">
-  步骤 5：在 Claude Code 中使用 Git
-</h2>
+## 步骤 5：在 Claude Code 中使用 Git
 
 Claude Code 让 Git 操作变得像对话一样简单：
 
@@ -213,9 +199,7 @@ show me the last 5 commits
 help me resolve merge conflicts
 ```
 
-<h2 id="step-6-fix-a-bug-or-add-a-feature">
-  步骤 6：修复 bug 或添加功能
-</h2>
+## 步骤 6：修复 bug 或添加功能
 
 用自然语言描述您想要的内容：
 
@@ -229,9 +213,7 @@ add input validation to the user registration form
 there's a bug where users can submit empty forms - fix it
 ```
 
-<h2 id="step-7-test-out-other-common-workflows">
-  步骤 7：试用其他常见工作流
-</h2>
+## 步骤 7：试用其他常见工作流
 
 再尝试几个提示词。您可以让 Claude 重构代码、编写测试、更新文档或审查您的更改：
 
@@ -251,19 +233,15 @@ update the README with installation instructions
 review my changes and suggest improvements
 ```
 
-<Tip>
-  像与一位乐于助人的同事交流一样与 Claude 对话。描述您想要实现的目标，它会帮助您达成。
-</Tip>
+> [!TIP]
+>
+> 像与一位乐于助人的同事交流一样与 Claude 对话。描述您想要实现的目标，它会帮助您达成。
 
-<h2 id="essential-commands">
-  基本命令
-</h2>
+## 基本命令
 
 以下是日常使用中最重要的命令，按运行位置分组。
 
-<h3 id="shell-commands">
-  Shell 命令
-</h3>
+### Shell 命令
 
 从终端运行这些命令以启动或恢复 Claude Code。
 
@@ -277,9 +255,7 @@ review my changes and suggest improvements
 
 有关完整的 shell 命令列表，请参阅 [CLI 参考](/docs/zh-CN/cli-reference)。
 
-<h3 id="session-commands">
-  会话命令
-</h3>
+### 会话命令
 
 在 Claude Code 启动后，在其内部运行这些命令。
 
@@ -291,52 +267,46 @@ review my changes and suggest improvements
 
 有关完整的会话命令列表，请参阅 [命令参考](/docs/zh-CN/commands)。
 
-<h2 id="pro-tips-for-beginners">
-  初学者专业提示
-</h2>
+## 初学者专业提示
 
 有关更多信息，请参阅[最佳实践](/docs/zh-CN/best-practices)和[常见工作流](/docs/zh-CN/common-workflows)。
 
-<AccordionGroup>
-  <Accordion title="对您的请求要具体">
-    不要说："修复错误"
+> **对您的请求要具体**
+>
+> 不要说："修复错误"
+>
+> 尝试："修复登录错误，用户输入错误凭证后看到空白屏幕"
 
-    尝试："修复登录错误，用户输入错误凭证后看到空白屏幕"
-  </Accordion>
+> **使用分步说明**
+>
+> 将复杂任务分解为步骤：
+>
+> ```text wrap theme={null}
+> 1. 为用户配置文件创建新的数据库表
+> 2. 创建 API 端点以获取和更新用户配置文件
+> 3. 构建允许用户查看和编辑其信息的网页
+> ```
 
-  <Accordion title="使用分步说明">
-    将复杂任务分解为步骤：
+> **让 Claude 先探索**
+>
+> 在进行更改之前，让 Claude 理解您的代码：
+>
+> ```text wrap theme={null}
+> 分析数据库架构
+> ```
+>
+> ```text wrap theme={null}
+> 构建一个仪表板，显示英国客户最常退货的产品
+> ```
 
-    ```text wrap theme={null}
-    1. 为用户配置文件创建新的数据库表
-    2. 创建 API 端点以获取和更新用户配置文件
-    3. 构建允许用户查看和编辑其信息的网页
-    ```
-  </Accordion>
+> **使用快捷方式节省时间**
+>
+> * 输入 `/` 查看所有命令和 skills
+> * 使用 Tab 进行命令补全
+> * 按 ↑ 查看命令历史
+> * 按 `Shift+Tab` 循环切换权限模式
 
-  <Accordion title="让 Claude 先探索">
-    在进行更改之前，让 Claude 理解您的代码：
-
-    ```text wrap theme={null}
-    分析数据库架构
-    ```
-
-    ```text wrap theme={null}
-    构建一个仪表板，显示英国客户最常退货的产品
-    ```
-  </Accordion>
-
-  <Accordion title="使用快捷方式节省时间">
-    * 输入 `/` 查看所有命令和 skills
-    * 使用 Tab 进行命令补全
-    * 按 ↑ 查看命令历史
-    * 按 `Shift+Tab` 循环切换权限模式
-  </Accordion>
-</AccordionGroup>
-
-<h2 id="what’s-next">
-  接下来呢？
-</h2>
+## 接下来呢？
 
 现在您已经学习了基础知识，探索更多高级功能：
 
@@ -347,9 +317,7 @@ review my changes and suggest improvements
 
 有关安装选项、手动更新或卸载说明，请参阅[高级设置](/docs/zh-CN/setup)。
 
-<h2 id="getting-help">
-  获取帮助
-</h2>
+## 获取帮助
 
 * **在 Claude Code 中**：输入 `/help` 或询问"我如何..."
 * **文档**：浏览本站的其他指南

@@ -10,39 +10,33 @@
 
 本页面适用于通过其组织运营的网关运行 Claude Code 的开发人员。它涵盖两条路径：[检查您的管理员是否已为您配置它](#check-for-an-existing-configuration)，以及[在他们没有配置时自行配置](#configure-claude-code-yourself)。
 
-<Note>
-  * 要为您的组织部署网关，请参阅[推出 LLM 网关](/docs/zh-CN/llm-gateway-rollout)
-  * 有关 Claude Code 发送到网关的内容，请参阅[网关协议参考](/docs/zh-CN/llm-gateway-protocol)
-</Note>
+> [!NOTE]
+>
+> * 要为您的组织部署网关，请参阅[推出 LLM 网关](/docs/zh-CN/llm-gateway-rollout)
+> * 有关 Claude Code 发送到网关的内容，请参阅[网关协议参考](/docs/zh-CN/llm-gateway-protocol)
 
-<h2 id="check-for-an-existing-configuration">
-  检查现有配置
-</h2>
+## 检查现有配置
 
 管理员可以通过[托管设置](/docs/zh-CN/managed-settings)、设备管理或 [`apiKeyHelper`](#rotate-credentials-with-apikeyhelper) 分发网关地址和凭证，以便 Claude Code 在启动时自动获取，无需您进行任何设置。要检查您的组织是否已这样做：
 
-<Steps>
-  <Step title="启动 Claude Code">
-    运行 `claude`。如果它打开到登录屏幕而不是会话，则没有分发网关凭证；[自行配置](#configure-claude-code-yourself)如下。
-  </Step>
+**1. 启动 Claude Code**
 
-  <Step title="检查状态选项卡">
-    如果 Claude Code 启动了会话而没有显示登录屏幕，运行 `/status`，打开**状态**选项卡，并检查两行：
+运行 `claude`。如果它打开到登录屏幕而不是会话，则没有分发网关凭证；[自行配置](#configure-claude-code-yourself)如下。
 
-    * `Anthropic base URL`：仅当设置了网关地址时才显示此行。如果不存在，Claude Code 未指向网关；[自行配置](#configure-claude-code-yourself)如下。
-    * `Auth token` 或 `API key`：命名 `ANTHROPIC_AUTH_TOKEN`、`ANTHROPIC_API_KEY` 或 `apiKeyHelper` 的行确认网关凭证处于活动状态。命名 claude.ai 账户的 `Login method` 行意味着凭证未被分发；[自行设置](#set-the-credential-variable)。
-  </Step>
+**2. 检查状态选项卡**
 
-  <Step title="发送测试消息">
-    关闭 `/status` 菜单并在 Claude Code 中发送任何提示。来自 Claude 的正常响应，没有错误，确认网关连接有效。
-  </Step>
-</Steps>
+如果 Claude Code 启动了会话而没有显示登录屏幕，运行 `/status`，打开**状态**选项卡，并检查两行：
+
+* `Anthropic base URL`：仅当设置了网关地址时才显示此行。如果不存在，Claude Code 未指向网关；[自行配置](#configure-claude-code-yourself)如下。
+* `Auth token` 或 `API key`：命名 `ANTHROPIC_AUTH_TOKEN`、`ANTHROPIC_API_KEY` 或 `apiKeyHelper` 的行确认网关凭证处于活动状态。命名 claude.ai 账户的 `Login method` 行意味着凭证未被分发；[自行设置](#set-the-credential-variable)。
+
+**3. 发送测试消息**
+
+关闭 `/status` 菜单并在 Claude Code 中发送任何提示。来自 Claude 的正常响应，没有错误，确认网关连接有效。
 
 如果 `/status` 菜单中的两行看起来都正确，但向 Claude 的消息失败，请参阅[故障排除表](#troubleshoot-gateway-errors)。
 
-<h2 id="configure-claude-code-yourself">
-  自行配置 Claude Code
-</h2>
+## 自行配置 Claude Code
 
 要自行为网关配置 Claude Code，您需要从网关团队获得：
 
@@ -57,9 +51,7 @@
 * [配置每个界面](#configure-each-surface)：如果您使用除 Claude Code CLI 之外的界面（如 VS Code），请查看如何使用网关凭证配置它
 * [其他配置](#additional-configuration)：某些网关需要的变量超出基础 URL 和凭证，例如自定义标头、凭证助手、模型发现、提供商格式的基础 URL 或关闭网关路径外的流量。仅在您的管理员命名它们或您的网络限制出站流量时设置这些
 
-<h3 id="set-the-credential-variable">
-  设置凭证变量
-</h3>
+### 设置凭证变量
 
 要向网关验证 Claude Code，请在环境变量中设置您的凭证。哪个变量取决于您的网关团队告诉您的内容：
 
@@ -71,52 +63,44 @@
 
 如果您没有被告知是哪种类型，请使用 `ANTHROPIC_AUTH_TOKEN`；下面的[验证请求](#verify-the-connection)显示了如何判断您是否需要切换。
 
-<h3 id="set-the-base-url-and-credential">
-  设置基础 URL 和凭证
-</h3>
+### 设置基础 URL 和凭证
 
 将网关的基础 URL 和您上面选择的凭证变量设置为环境变量。示例使用 `ANTHROPIC_AUTH_TOKEN`；如果那是[您选择的变量](#set-the-credential-variable)，请将其替换为 `ANTHROPIC_API_KEY`。您可以[在您的 shell 中](#set-as-shell-environment-variables)设置它们，这仅持续一个终端会话，或[在 Claude Code 设置文件中](#set-in-a-settings-file)设置它们，这在 Claude Code 运行的任何地方都持续。
 
 对于您的第一次连接，从 shell 导出开始，并在将值移动到设置文件之前运行[验证请求](#verify-the-connection)。
 
-<h4 id="set-as-shell-environment-variables">
-  设置为 shell 环境变量
-</h4>
+#### 设置为 shell 环境变量
 
 将值替换为您的网关团队给您的值：
 
-<Tabs>
-  <Tab title="Bash or Zsh">
-    ```bash theme={null}
-    export ANTHROPIC_BASE_URL=https://llm-gateway.example.com
-    export ANTHROPIC_AUTH_TOKEN=sk-gateway-key
-    ```
-  </Tab>
+**Bash or Zsh**
 
-  <Tab title="PowerShell">
-    ```powershell theme={null}
-    $env:ANTHROPIC_BASE_URL = "https://llm-gateway.example.com"
-    $env:ANTHROPIC_AUTH_TOKEN = "sk-gateway-key"
-    ```
-  </Tab>
-</Tabs>
+```bash theme={null}
+export ANTHROPIC_BASE_URL=https://llm-gateway.example.com
+export ANTHROPIC_AUTH_TOKEN=sk-gateway-key
+```
+
+**PowerShell**
+
+```powershell theme={null}
+$env:ANTHROPIC_BASE_URL = "https://llm-gateway.example.com"
+$env:ANTHROPIC_AUTH_TOKEN = "sk-gateway-key"
+```
 
 Shell 导出仅适用于该终端会话和从它启动的程序。从 dock 或开始菜单启动的编辑器不会看到它们。要使值在新终端中持续，请将相同的行添加到您的 shell 配置文件，例如 `~/.zshrc`、`~/.bashrc` 或您的 PowerShell `$PROFILE`。
 
 如果您仅在 shell 中导出网关，它不会可靠地到达由[主管程序](/docs/zh-CN/agent-view#how-background-sessions-are-hosted)托管的后台代理；请参阅[每个后台会话如何获取其网关](/docs/zh-CN/agent-view#llm-gateway)。对于后台代理必须始终路由的任何网关，请使用设置文件。
 
-<h4 id="set-in-a-settings-file">
-  在设置文件中设置
-</h4>
+#### 在设置文件中设置
 
 要使配置在 Claude Code 运行的任何地方应用，包括[后台代理](/docs/zh-CN/agent-view#how-background-sessions-are-hosted)，请在[设置文件](/docs/zh-CN/settings)的 `env` 块中设置变量，而不是依赖您的 shell。设置文件有不同的范围：
 
 * `~/.claude/settings.json` 适用于您的所有项目。在 Windows 上，路径是 `%USERPROFILE%\.claude\settings.json`
 * `.claude/settings.local.json` 适用于一个项目。Claude Code 在保存设置时将其添加到您的全局 gitignore；如果您手动创建它或让 Claude 编写它，请首先自己将其添加到您的 gitignore，以便您不会意外提交您的凭证
 
-<Warning>
-  不要将凭证放在项目的 `.claude/settings.json` 中。该文件被提交并与克隆存储库的每个人共享。
-</Warning>
+> [!WARNING]
+>
+> 不要将凭证放在项目的 `.claude/settings.json` 中。该文件被提交并与克隆存储库的每个人共享。
 
 `env` 块在任一文件中看起来相同：
 
@@ -131,40 +115,34 @@ Shell 导出仅适用于该终端会话和从它启动的程序。从 dock 或�
 
 当 shell 导出和设置文件 `env` 块都设置相同的变量时，设置文件值适用。运行 `/status` 以查看 Claude Code 使用的基础 URL 和凭证源。
 
-<h3 id="verify-the-connection">
-  验证连接
-</h3>
+### 验证连接
 
 使用在 shell 中导出的变量，向网关直接发送一个单令牌请求。这在您打开 Claude Code 之前确认 URL 和凭证有效，因此失败指向网关而不是您的配置。下面的命令读取 shell 变量，因此即使您也将值放在设置文件中，它们也需要[shell 导出](#set-as-shell-environment-variables)。
 
-<Tabs>
-  <Tab title="Bash or Zsh">
-    ```bash theme={null}
-    curl -sS -w '\n%{http_code}\n' -X POST "$ANTHROPIC_BASE_URL/v1/messages" \
-      -H "Authorization: Bearer $ANTHROPIC_AUTH_TOKEN" \
-      -H "anthropic-version: 2023-06-01" \
-      -H "content-type: application/json" \
-      -d '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
-    ```
-  </Tab>
+**Bash or Zsh**
 
-  <Tab title="PowerShell">
-    ```powershell theme={null}
-    Invoke-RestMethod -Method Post -Uri "$env:ANTHROPIC_BASE_URL/v1/messages" `
-      -Headers @{ "Authorization" = "Bearer $env:ANTHROPIC_AUTH_TOKEN"; "anthropic-version" = "2023-06-01" } `
-      -ContentType "application/json" `
-      -Body '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
-    ```
-  </Tab>
-</Tabs>
+```bash theme={null}
+curl -sS -w '\n%{http_code}\n' -X POST "$ANTHROPIC_BASE_URL/v1/messages" \
+  -H "Authorization: Bearer $ANTHROPIC_AUTH_TOKEN" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "content-type: application/json" \
+  -d '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
+```
+
+**PowerShell**
+
+```powershell theme={null}
+Invoke-RestMethod -Method Post -Uri "$env:ANTHROPIC_BASE_URL/v1/messages" `
+  -Headers @{ "Authorization" = "Bearer $env:ANTHROPIC_AUTH_TOKEN"; "anthropic-version" = "2023-06-01" } `
+  -ContentType "application/json" `
+  -Body '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
+```
 
 如果您的网关期望 `x-api-key` 标头中的密钥，请在 Bash 命令中将 `Authorization` 标头替换为 `x-api-key: $ANTHROPIC_API_KEY`，或在 PowerShell 命令中将 `"Authorization"` 哈希表条目替换为 `"x-api-key" = "$env:ANTHROPIC_API_KEY"`。
 
 以 `{"id":"msg_` 开头并包含 `"content":[...]` 字段的 JSON 响应意味着网关可达且凭证有效。命名未知模型的错误仍然证明 URL 和凭证有效，因为网关在拒绝模型名称之前验证了请求；您不需要为此测试找到您的网关提供的模型。`401` 意味着凭证被拒绝：如果您猜测了变量，请切换到另一个并重新导出。
 
-<h4 id="confirm-in-claude-code">
-  在 Claude Code 中确认
-</h4>
+#### 在 Claude Code 中确认
 
 从同一 shell 启动 `claude`，以便它继承导出，发送消息，并运行 `/status`。
 
@@ -172,29 +150,21 @@ Shell 导出仅适用于该终端会话和从它启动的程序。从 dock 或�
 
 如果消息失败，或 `/status` 不显示网关 URL，请参阅下面的[故障排除表](#troubleshoot-gateway-errors)。
 
-<h3 id="how-the-credential-variable-maps-to-a-header">
-  凭证变量如何映射到标头
-</h3>
+### 凭证变量如何映射到标头
 
 每个变量在不同的 HTTP 标头中发送凭证：`ANTHROPIC_AUTH_TOKEN` 在 `Authorization: Bearer` 中，`ANTHROPIC_API_KEY` 在 `x-api-key` 中，`apiKeyHelper` 在两者中。错误变量中的凭证到达网关时处于它不读取的标头中，请求失败并返回 `401`。如果验证请求返回 `401`，请切换到另一个变量并重试。
 
-<h3 id="conflicts-with-an-existing-login">
-  与现有登录的冲突
-</h3>
+### 与现有登录的冲突
 
 网关凭证变量优先于保存的 claude.ai 登录或 Console 密钥。您的 claude.ai 登录在设置变量时保持保存和未使用；取消设置变量，Claude Code 返回到它。使用 `ANTHROPIC_AUTH_TOKEN`，变量立即优先。使用 `ANTHROPIC_API_KEY`，在交互模式下提示您一次以批准密钥，然后它接管。
 
 运行 `/status` 以确认哪个凭证源处于活动状态。如果启动显示命名两个源的身份验证冲突警告，请参阅[故障排除表](#troubleshoot-gateway-errors)的第一行，了解要删除哪一个。要清除保存的登录，以便仅保留网关凭证，请运行 `/logout`。
 
-<h2 id="configure-each-surface">
-  配置每个界面
-</h2>
+## 配置每个界面
 
 CLI 读取上面的环境变量和设置文件。其他界面是 VS Code 扩展、桌面应用、GitHub Actions、Agent SDK 和云界面（如 Slack 和网络）；下面的部分涵盖这些设置是否到达每一个。
 
-<h3 id="vs-code-extension">
-  VS Code 扩展
-</h3>
+### VS Code 扩展
 
 在 VS Code 自己的用户设置中的 `claudeCode.environmentVariables` 中为 [VS Code 扩展](/docs/zh-CN/vs-code)设置网关变量，使用**首选项：打开用户设置 (JSON)** 命令打开。扩展在启动前检查此设置中的凭证，因此这是网关凭证的可靠位置；`~/.claude/settings.json` 中的值到达生成的进程但不到达扩展自己的登录检查。
 
@@ -207,9 +177,7 @@ CLI 读取上面的环境变量和设置文件。其他界面是 VS Code 扩展�
 }
 ```
 
-<h3 id="desktop-app">
-  桌面应用
-</h3>
+### 桌面应用
 
 桌面应用从其[第三方推理配置](https://claude.com/docs/third-party/claude-desktop/gateway)读取网关路由，而不是从 `ANTHROPIC_BASE_URL` 或 `settings.json` 读取。该配置可以来自您的组织或来自应用本身中的表单：
 
@@ -227,9 +195,7 @@ CLI 读取上面的环境变量和设置文件。其他界面是 VS Code 扩展�
 
 如果桌面应用显示 `Gateway was unreachable`，应用在启动时无法到达配置的基础 URL；使用上面的 [curl 测试](#verify-the-connection)检查 URL 和网络路径。
 
-<h3 id="github-actions">
-  GitHub Actions
-</h3>
+### GitHub Actions
 
 [Claude Code GitHub Actions](/docs/zh-CN/github-actions) 从工作流的 `env` 块读取 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_CUSTOM_HEADERS`。将凭证作为操作的 `anthropic_api_key` 输入传递；操作将其设置为 `ANTHROPIC_API_KEY`，因此它到达网关时处于 `x-api-key` 标头中。
 
@@ -260,42 +226,36 @@ steps:
 
 对于操作的其他身份验证选项，包括 `CLAUDE_CODE_OAUTH_TOKEN` 和工作负载身份联合，请参阅 [Claude Code GitHub Actions](/docs/zh-CN/github-actions) 和操作的 [README](https://github.com/anthropics/claude-code-action#readme)。
 
-<h3 id="agent-sdk">
-  Agent SDK
-</h3>
+### Agent SDK
 
 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 没有网关特定的选项；它将环境变量传递给它生成的 Claude Code 进程。每个 SDK 接受设置生成进程环境的 `env` 选项，TypeScript 和 Python SDK 以不同方式处理它：
 
 * TypeScript：生成的进程默认继承父环境，但设置 `options.env` 完全替换环境。将 `process.env` 扩展到其中以保留您的网关变量。
 * Python：`ClaudeAgentOptions(env=...)` 合并到继承的环境之上，因此在父进程中设置的网关变量无需扩展即可通过。
 
-<CodeGroup>
-  ```ts TypeScript theme={null}
-  const result = query({
-    prompt: "...",
-    options: {
-      env: {
-        ...process.env,
-        ANTHROPIC_BASE_URL: "https://llm-gateway.example.com",
-        ANTHROPIC_AUTH_TOKEN: process.env.GATEWAY_KEY,
-      },
+```ts TypeScript theme={null}
+const result = query({
+  prompt: "...",
+  options: {
+    env: {
+      ...process.env,
+      ANTHROPIC_BASE_URL: "https://llm-gateway.example.com",
+      ANTHROPIC_AUTH_TOKEN: process.env.GATEWAY_KEY,
     },
-  })
-  ```
+  },
+})
+```
 
-  ```python Python theme={null}
-  options = ClaudeAgentOptions(
-      env={
-          "ANTHROPIC_BASE_URL": "https://llm-gateway.example.com",
-          "ANTHROPIC_AUTH_TOKEN": os.environ["GATEWAY_KEY"],
-      }
-  )
-  ```
-</CodeGroup>
+```python Python theme={null}
+options = ClaudeAgentOptions(
+    env={
+        "ANTHROPIC_BASE_URL": "https://llm-gateway.example.com",
+        "ANTHROPIC_AUTH_TOKEN": os.environ["GATEWAY_KEY"],
+    }
+)
+```
 
-<h3 id="slack-cloud-sessions-and-remote-control">
-  Slack、云会话和远程控制
-</h3>
+### Slack、云会话和远程控制
 
 [Slack 中的 Claude Code](/docs/zh-CN/slack) 和[云端会话](/docs/zh-CN/claude-code-on-the-web)不属于网关部署的一部分。在云端会话的环境配置中设置的网关变量不会生效。如果您的流量必须保持在网关上，请不要为这些用户启用这些使用入口。
 
@@ -306,31 +266,25 @@ steps:
 * 语音听写：取消设置网关凭证
 * 远程控制：取消设置网关凭证和 `ANTHROPIC_BASE_URL`
 
-<h2 id="additional-configuration">
-  其他配置
-</h2>
+## 其他配置
 
 这些设置涵盖超出基础 URL 和凭证的情况。仅在您的管理员的说明、您的网络的出站规则或[故障排除表](#troubleshoot-gateway-errors)要求一个时设置它们。
 
-<h3 id="send-additional-headers">
-  发送其他标头
-</h3>
+### 发送其他标头
 
 某些网关使用除凭证外的自定义标头来路由或标记请求，例如租户标识符或路由密钥。要发送一个，请设置 [`ANTHROPIC_CUSTOM_HEADERS`](/docs/zh-CN/env-vars)，每行一个 `Name: Value` 对。下面的示例添加了一个名为 `X-Org-Route` 的路由标头：
 
-<Tabs>
-  <Tab title="Bash or Zsh">
-    ```bash theme={null}
-    export ANTHROPIC_CUSTOM_HEADERS="X-Org-Route: prod"
-    ```
-  </Tab>
+**Bash or Zsh**
 
-  <Tab title="PowerShell">
-    ```powershell theme={null}
-    $env:ANTHROPIC_CUSTOM_HEADERS = "X-Org-Route: prod"
-    ```
-  </Tab>
-</Tabs>
+```bash theme={null}
+export ANTHROPIC_CUSTOM_HEADERS="X-Org-Route: prod"
+```
+
+**PowerShell**
+
+```powershell theme={null}
+$env:ANTHROPIC_CUSTOM_HEADERS = "X-Org-Route: prod"
+```
 
 您也可以在设置文件的 `env` 块中设置 `ANTHROPIC_CUSTOM_HEADERS`。在那里使用 `\n` 在对之间，因为 JSON 字符串不能跨多行：
 
@@ -344,9 +298,7 @@ steps:
 
 像这样的路由和租户标头名称计为[需要批准的标头](/docs/zh-CN/server-managed-settings#environment-variables-and-the-approval-dialog)。当标头来自项目设置文件时，Claude Code 在[应用 `env` 值的规则](/docs/zh-CN/settings-reference#when-claude-code-applies-env-values)下应用它们。
 
-<h3 id="add-gateway-models-to-the-model-picker">
-  将网关模型添加到模型选择器
-</h3>
+### 将网关模型添加到模型选择器
 
 启用模型发现后，Claude Code 在启动时查询网关的模型列表，并将这些名称添加到 `/model` 选择器中，与内置条目一起。如果您或您的管理员在 [`modelPicker`](/docs/zh-CN/settings-reference#modelpicker) 排列中设置了 `replaceBuiltInOptions`，Claude Code 也会隐藏发现的名称。它为会话已在使用的模型保留一行。
 
@@ -358,9 +310,7 @@ steps:
 
 要确认发现运行，启动 `claude --debug` 并在 `~/.claude/debug/<session-id>.txt` 的调试日志中查找 `[gatewayDiscovery]` 行。第一次发现成功时，Claude Code 记录它缓存了多少模型，仅当网关的列表更改时才再次记录。`404`、超时或重定向也会出现在那里。有关发现何时运行、它过滤什么以及网关提供的响应格式，请参阅[模型发现参考](/docs/zh-CN/llm-gateway-protocol#model-discovery)。
 
-<h3 id="rotate-credentials-with-apikeyhelper">
-  使用 apiKeyHelper 轮换凭证
-</h3>
+### 使用 apiKeyHelper 轮换凭证
 
 `apiKeyHelper` 是 Claude Code 运行以获取您的网关凭证的命令，而不是从静态环境变量读取它。
 
@@ -368,40 +318,38 @@ steps:
 
 助手是任何将当前凭证打印到 stdout 的 shell 命令。Claude Code 通过您的系统 shell 运行它，因此在 Windows 上它可以是可执行文件或 PowerShell 调用。使命令仅打印凭证，不打印其他内容。在 Claude Code v2.1.227 或更高版本上，与密钥一起打印的横幅或日志行会使[助手失败](/docs/zh-CN/errors#your-apikeyhelper-script-is-failing)。编写脚本，使其可执行，并从您的[设置文件](/docs/zh-CN/settings)中的 `apiKeyHelper` 引用它：
 
-<Tabs>
-  <Tab title="Bash or Zsh">
-    例如，从保管库读取的脚本：
+**Bash or Zsh**
 
-    ```bash theme={null}
-    #!/bin/bash
-    vault kv get -field=api_key secret/llm-gateway/claude-code
-    ```
+例如，从保管库读取的脚本：
 
-    在 `~/.claude/settings.json` 中引用其路径：
+```bash theme={null}
+#!/bin/bash
+vault kv get -field=api_key secret/llm-gateway/claude-code
+```
 
-    ```json theme={null}
-    {
-      "apiKeyHelper": "~/bin/get-gateway-key.sh"
-    }
-    ```
-  </Tab>
+在 `~/.claude/settings.json` 中引用其路径：
 
-  <Tab title="PowerShell">
-    例如，从保管库读取的脚本：
+```json theme={null}
+{
+  "apiKeyHelper": "~/bin/get-gateway-key.sh"
+}
+```
 
-    ```powershell theme={null}
-    vault kv get -field=api_key secret/llm-gateway/claude-code
-    ```
+**PowerShell**
 
-    在 `%USERPROFILE%\.claude\settings.json` 中引用 PowerShell 调用，转义 JSON 字符串中的反斜杠：
+例如，从保管库读取的脚本：
 
-    ```json theme={null}
-    {
-      "apiKeyHelper": "powershell -NoProfile -File C:\\scripts\\get-gateway-key.ps1"
-    }
-    ```
-  </Tab>
-</Tabs>
+```powershell theme={null}
+vault kv get -field=api_key secret/llm-gateway/claude-code
+```
+
+在 `%USERPROFILE%\.claude\settings.json` 中引用 PowerShell 调用，转义 JSON 字符串中的反斜杠：
+
+```json theme={null}
+{
+  "apiKeyHelper": "powershell -NoProfile -File C:\\scripts\\get-gateway-key.ps1"
+}
+```
 
 Claude Code 默认缓存助手的输出五分钟，并在缓存生命周期过期后重新运行助手。要更改生命周期，请以毫秒为单位设置 `CLAUDE_CODE_API_KEY_HELPER_TTL_MS`，例如 `CLAUDE_CODE_API_KEY_HELPER_TTL_MS=900000` 表示 15 分钟。
 
@@ -409,9 +357,7 @@ Claude Code 默认缓存助手的输出五分钟，并在缓存生命周期过�
 
 助手的值在 `Authorization` 和 `x-api-key` 标头中都发送，因此它适用于您的网关读取的任何标头。
 
-<h3 id="turn-off-traffic-outside-the-gateway-path">
-  关闭网关路径外的流量
-</h3>
+### 关闭网关路径外的流量
 
 网关承载模型请求，但 Claude Code 也向网关路径外发送非必要的后台流量，发送到 Anthropic 和第三方服务（如 GitHub）：版本检查、遥测、发行说明和类似请求。在仅允许出站到网关的网络上，这些请求失败，并可能在您的出站监控中显示为被阻止的连接。
 
@@ -419,19 +365,17 @@ Claude Code 仅在请求发送到凭证所属的主机时才将凭证附加到�
 
 要关闭该流量，请在与网关变量相同的 shell 导出或设置文件 `env` 块中设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`：
 
-<Tabs>
-  <Tab title="Bash or Zsh">
-    ```bash theme={null}
-    export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
-    ```
-  </Tab>
+**Bash or Zsh**
 
-  <Tab title="PowerShell">
-    ```powershell theme={null}
-    $env:CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
-    ```
-  </Tab>
-</Tabs>
+```bash theme={null}
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+```
+
+**PowerShell**
+
+```powershell theme={null}
+$env:CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
+```
 
 设置该变量具有以下效果和限制：
 
@@ -441,9 +385,7 @@ Claude Code 仅在请求发送到凭证所属的主机时才将凭证附加到�
 * WebFetch 工具的[域安全检查](/docs/zh-CN/data-usage#webfetch-domain-safety-check)不受影响，仍然调用 `api.anthropic.com`。如果您的网络阻止该主机，请在[设置](/docs/zh-CN/settings)中使用 `skipWebFetchPreflight: true` 单独关闭它。
 * 对于每个遥测流及控制它的变量，请参阅[遥测服务](/docs/zh-CN/data-usage#telemetry-services)。
 
-<h3 id="route-to-a-cloud-provider-through-a-gateway">
-  通过网关路由到云提供商
-</h3>
+### 通过网关路由到云提供商
 
 这些配置使用提供商特定的基础 URL 变量代替 `ANTHROPIC_BASE_URL` 将 Claude Code 指向通过网关的云提供商。Amazon Bedrock 和 Google Cloud 的 Agent Platform 网关接受这些提供商的本机请求格式；Microsoft Foundry 和 AWS 上的 Claude Platform 网关接受 Anthropic Messages 格式。在 Amazon Bedrock 和 Google Cloud 的 Agent Platform 路由上，Claude Code 也将它发送的 beta 标头和请求字段限制为该提供商接受的集合。有关您的网关在每条路由上接收的内容，请参阅[网关兼容性指南](/docs/zh-CN/llm-gateway-protocol)。
 
@@ -454,57 +396,49 @@ Claude Code 仅在请求发送到凭证所属的主机时才将凭证附加到�
 * **Amazon Bedrock、Google Cloud 的 Agent Platform 或 AWS 上的 Claude Platform**：在块后添加 `ANTHROPIC_AUTH_TOKEN`。Claude Code 将其作为 `Authorization: Bearer` 标头发送到网关。对于不同方案或标头中的凭证，请改用 [`ANTHROPIC_CUSTOM_HEADERS`](#send-additional-headers)。无论如何都保持跳过身份验证变量设置，因为没有它，Claude Code 会删除 `ANTHROPIC_AUTH_TOKEN`、[`apiKeyHelper`](#rotate-credentials-with-apikeyhelper) 或 `ANTHROPIC_CUSTOM_HEADERS` 会添加的任何 `Authorization` 标头。
 * **Microsoft Foundry**：使用 `ANTHROPIC_FOUNDRY_API_KEY`，如[其块](#microsoft-foundry)所示
 
-<h4 id="amazon-bedrock">
-  Amazon Bedrock
-</h4>
+#### Amazon Bedrock
 
 当网关发出自己的凭证时，将 `AWS_BEARER_TOKEN_BEDROCK` 保留为未设置。如果您设置它，Claude Code 会将该 [Amazon Bedrock API 密钥](/docs/zh-CN/amazon-bedrock#2-configure-aws-credentials)作为 `Authorization` 标头发送，而不是您的网关令牌，即使设置了 `CLAUDE_CODE_SKIP_BEDROCK_AUTH`。
 
-<Tabs>
-  <Tab title="Bash or Zsh">
-    ```bash theme={null}
-    export ANTHROPIC_BEDROCK_BASE_URL=https://llm-gateway.example.com/bedrock
-    export CLAUDE_CODE_SKIP_BEDROCK_AUTH=1
-    export CLAUDE_CODE_USE_BEDROCK=1
-    ```
-  </Tab>
+**Bash or Zsh**
 
-  <Tab title="PowerShell">
-    ```powershell theme={null}
-    $env:ANTHROPIC_BEDROCK_BASE_URL = "https://llm-gateway.example.com/bedrock"
-    $env:CLAUDE_CODE_SKIP_BEDROCK_AUTH = "1"
-    $env:CLAUDE_CODE_USE_BEDROCK = "1"
-    ```
-  </Tab>
-</Tabs>
+```bash theme={null}
+export ANTHROPIC_BEDROCK_BASE_URL=https://llm-gateway.example.com/bedrock
+export CLAUDE_CODE_SKIP_BEDROCK_AUTH=1
+export CLAUDE_CODE_USE_BEDROCK=1
+```
 
-<h4 id="google-cloud’s-agent-platform">
-  Google Cloud 的 Agent Platform
-</h4>
+**PowerShell**
+
+```powershell theme={null}
+$env:ANTHROPIC_BEDROCK_BASE_URL = "https://llm-gateway.example.com/bedrock"
+$env:CLAUDE_CODE_SKIP_BEDROCK_AUTH = "1"
+$env:CLAUDE_CODE_USE_BEDROCK = "1"
+```
+
+#### Google Cloud 的 Agent Platform
 
 将项目 ID 和区域替换为您自己的值。Claude Code 在它发送到网关的每个请求的路径中包含两者：
 
-<Tabs>
-  <Tab title="Bash or Zsh">
-    ```bash theme={null}
-    export ANTHROPIC_VERTEX_BASE_URL=https://llm-gateway.example.com/vertex
-    export ANTHROPIC_VERTEX_PROJECT_ID=your-gcp-project-id
-    export CLAUDE_CODE_SKIP_VERTEX_AUTH=1
-    export CLAUDE_CODE_USE_VERTEX=1
-    export CLOUD_ML_REGION=us-east5
-    ```
-  </Tab>
+**Bash or Zsh**
 
-  <Tab title="PowerShell">
-    ```powershell theme={null}
-    $env:ANTHROPIC_VERTEX_BASE_URL = "https://llm-gateway.example.com/vertex"
-    $env:ANTHROPIC_VERTEX_PROJECT_ID = "your-gcp-project-id"
-    $env:CLAUDE_CODE_SKIP_VERTEX_AUTH = "1"
-    $env:CLAUDE_CODE_USE_VERTEX = "1"
-    $env:CLOUD_ML_REGION = "us-east5"
-    ```
-  </Tab>
-</Tabs>
+```bash theme={null}
+export ANTHROPIC_VERTEX_BASE_URL=https://llm-gateway.example.com/vertex
+export ANTHROPIC_VERTEX_PROJECT_ID=your-gcp-project-id
+export CLAUDE_CODE_SKIP_VERTEX_AUTH=1
+export CLAUDE_CODE_USE_VERTEX=1
+export CLOUD_ML_REGION=us-east5
+```
+
+**PowerShell**
+
+```powershell theme={null}
+$env:ANTHROPIC_VERTEX_BASE_URL = "https://llm-gateway.example.com/vertex"
+$env:ANTHROPIC_VERTEX_PROJECT_ID = "your-gcp-project-id"
+$env:CLAUDE_CODE_SKIP_VERTEX_AUTH = "1"
+$env:CLAUDE_CODE_USE_VERTEX = "1"
+$env:CLOUD_ML_REGION = "us-east5"
+```
 
 该块涵盖路由和身份验证。来自 [Agent Platform 设置](/docs/zh-CN/google-vertex-ai#4-configure-claude-code)的区域覆盖和模型固定也通过网关应用：
 
@@ -512,61 +446,51 @@ Claude Code 仅在请求发送到凭证所属的主机时才将凭证附加到�
 * **模型版本**：如[固定模型版本](/docs/zh-CN/google-vertex-ai#5-pin-model-versions)中所示，固定 `ANTHROPIC_DEFAULT_OPUS_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 和 `ANTHROPIC_DEFAULT_HAIKU_MODEL`。设置 `ANTHROPIC_DEFAULT_HAIKU_MODEL` 也会将后台任务（如会话标题）移动到该模型，该部分解释了哪个模型在其他情况下运行它们。
 * **模型功能**：如果您固定您的 Claude Code 版本不识别的模型 ID，功能（如努力级别或扩展思考）可能在其上保持禁用。使用 [`ANTHROPIC_DEFAULT_OPUS_MODEL_SUPPORTED_CAPABILITIES`](/docs/zh-CN/model-config#customize-pinned-model-display-and-capabilities) 及其 Sonnet 和 Haiku 对应项声明模型支持的内容。
 
-<h4 id="microsoft-foundry">
-  Microsoft Foundry
-</h4>
+#### Microsoft Foundry
 
 将网关的凭证放在 `ANTHROPIC_FOUNDRY_API_KEY` 中；它作为 `x-api-key` 标头发送到网关。期望持有者令牌的网关可以改用 [`ANTHROPIC_FOUNDRY_AUTH_TOKEN`](/docs/zh-CN/env-vars)。Claude Code 将该值作为 `Authorization: Bearer` 标头发送，当两者都设置时，它优先于 `ANTHROPIC_FOUNDRY_API_KEY`。需要 Claude Code v2.1.203 或更高版本。
 
 对于注入自己的 `Authorization` 标头的网关，设置 `CLAUDE_CODE_SKIP_FOUNDRY_AUTH=1` 并将两个凭据变量都保留为未设置。Claude Code 然后发送没有 Azure 凭据的请求，并保留您提供的 `Authorization` 标头，例如通过 `ANTHROPIC_CUSTOM_HEADERS`。
 
-<Tabs>
-  <Tab title="Bash or Zsh">
-    ```bash theme={null}
-    export ANTHROPIC_FOUNDRY_BASE_URL=https://llm-gateway.example.com/foundry
-    export ANTHROPIC_FOUNDRY_API_KEY=sk-gateway-key
-    export CLAUDE_CODE_USE_FOUNDRY=1
-    ```
-  </Tab>
+**Bash or Zsh**
 
-  <Tab title="PowerShell">
-    ```powershell theme={null}
-    $env:ANTHROPIC_FOUNDRY_BASE_URL = "https://llm-gateway.example.com/foundry"
-    $env:ANTHROPIC_FOUNDRY_API_KEY = "sk-gateway-key"
-    $env:CLAUDE_CODE_USE_FOUNDRY = "1"
-    ```
-  </Tab>
-</Tabs>
+```bash theme={null}
+export ANTHROPIC_FOUNDRY_BASE_URL=https://llm-gateway.example.com/foundry
+export ANTHROPIC_FOUNDRY_API_KEY=sk-gateway-key
+export CLAUDE_CODE_USE_FOUNDRY=1
+```
 
-<h4 id="claude-platform-on-aws">
-  AWS 上的 Claude Platform
-</h4>
+**PowerShell**
+
+```powershell theme={null}
+$env:ANTHROPIC_FOUNDRY_BASE_URL = "https://llm-gateway.example.com/foundry"
+$env:ANTHROPIC_FOUNDRY_API_KEY = "sk-gateway-key"
+$env:CLAUDE_CODE_USE_FOUNDRY = "1"
+```
+
+#### AWS 上的 Claude Platform
 
 有关工作区 ID，请参阅 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)。
 
-<Tabs>
-  <Tab title="Bash or Zsh">
-    ```bash theme={null}
-    export ANTHROPIC_AWS_BASE_URL=https://llm-gateway.example.com/anthropic-aws
-    export ANTHROPIC_AWS_WORKSPACE_ID=wrkspc_01ABCDEFGHIJKLMN
-    export CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH=1
-    export CLAUDE_CODE_USE_ANTHROPIC_AWS=1
-    ```
-  </Tab>
+**Bash or Zsh**
 
-  <Tab title="PowerShell">
-    ```powershell theme={null}
-    $env:ANTHROPIC_AWS_BASE_URL = "https://llm-gateway.example.com/anthropic-aws"
-    $env:ANTHROPIC_AWS_WORKSPACE_ID = "wrkspc_01ABCDEFGHIJKLMN"
-    $env:CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH = "1"
-    $env:CLAUDE_CODE_USE_ANTHROPIC_AWS = "1"
-    ```
-  </Tab>
-</Tabs>
+```bash theme={null}
+export ANTHROPIC_AWS_BASE_URL=https://llm-gateway.example.com/anthropic-aws
+export ANTHROPIC_AWS_WORKSPACE_ID=wrkspc_01ABCDEFGHIJKLMN
+export CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH=1
+export CLAUDE_CODE_USE_ANTHROPIC_AWS=1
+```
 
-<h4 id="confirm-the-provider-route">
-  确认提供商路由
-</h4>
+**PowerShell**
+
+```powershell theme={null}
+$env:ANTHROPIC_AWS_BASE_URL = "https://llm-gateway.example.com/anthropic-aws"
+$env:ANTHROPIC_AWS_WORKSPACE_ID = "wrkspc_01ABCDEFGHIJKLMN"
+$env:CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH = "1"
+$env:CLAUDE_CODE_USE_ANTHROPIC_AWS = "1"
+```
+
+#### 确认提供商路由
 
 从您设置块的 shell 启动 `claude` 并运行 `/status`。使用 Amazon Bedrock 块，**Status** 标签页显示如下行：
 
@@ -578,9 +502,7 @@ AWS auth skipped
 
 其他块在其提供商的名称下产生相同的行，例如 Google Cloud 的 Agent Platform 的 `Vertex base URL` 和 `GCP auth skipped`；Microsoft Foundry 块仅在您设置 `CLAUDE_CODE_SKIP_FOUNDRY_AUTH` 时显示跳过身份验证行。如果您也通过公司代理路由，`Proxy` 行显示代理 URL。如果基础 URL 行缺失，该变量没有到达会话。
 
-<h2 id="troubleshoot-gateway-errors">
-  故障排除网关错误
-</h2>
+## 故障排除网关错误
 
 这些是通过网关运行 Claude Code 时最常见的错误，包括网关端的原因和修复：
 
@@ -607,9 +529,7 @@ AWS auth skipped
 
 如果 Claude Code 在删除网关配置后重复提示您登录，原因通常是凭证存储而不是网关；请参阅[身份验证错误](/docs/zh-CN/errors#authentication-errors)。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [LLM 网关概述](/docs/zh-CN/llm-gateway)：什么是网关以及它如何与 claude.ai 订阅交互
 * [为您的组织推出 LLM 网关](/docs/zh-CN/llm-gateway-rollout)：部署和分发网关配置的面向管理员的检查清单

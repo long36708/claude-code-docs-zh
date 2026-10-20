@@ -6,17 +6,15 @@
 
 > Claude Code hook 事件、配置架构、JSON 输入/输出格式、退出代码、异步 hooks、HTTP hooks、提示 hooks 和 MCP 工具 hooks 的参考。
 
-<Tip>
-  有关包含示例的快速入门指南，请参阅[使用 hooks 自动化工作流](/docs/zh-CN/hooks-guide)。
-</Tip>
+> [!TIP]
+>
+> 有关包含示例的快速入门指南，请参阅[使用 hooks 自动化工作流](/docs/zh-CN/hooks-guide)。
 
 Hooks 是用户定义的 shell 命令、HTTP 端点、MCP 工具调用、LLM 提示或子代理，在 Claude Code 生命周期中的特定点自动执行。Claude Code 在其运行的任何地方都会触发相同的 hook 事件：终端中的会话、IDE 扩展、[桌面应用](/docs/zh-CN/desktop-quickstart)和[云会话](/docs/zh-CN/claude-code-on-the-web)。使用此参考查找事件架构、配置选项、JSON 输入/输出格式以及异步 hooks、HTTP hooks 和 MCP 工具 hooks 等高级功能。
 
 插件也可以将 hooks 注册为 JavaScript 函数，Claude Code 在其自己的进程中调用这些函数，这些函数既可以在界面中绘制，也可以对事件进行操作。执行此操作的插件是[mod](/docs/zh-CN/plugins/mods/overview)，这些函数 hooks 在[对事件做出反应](/docs/zh-CN/plugins/mods/events)中介绍，而不是在这里。此页面上的 hooks 继续与 mods 一起工作。
 
-<h2 id="hook-lifecycle">
-  Hook 生命周期
-</h2>
+## Hook 生命周期
 
 Claude Code 在会话期间的特定点运行 hooks。当事件触发且匹配器匹配时，Claude Code 会将关于该事件的 JSON 上下文传递给您的 hook 处理程序。对于命令 hooks，输入通过 stdin 到达。对于 HTTP hooks，它作为 POST 请求体到达。您的处理程序随后可以检查输入、采取行动并可选地返回决定。
 
@@ -26,13 +24,7 @@ Claude Code 在会话期间的特定点运行 hooks。当事件触发且匹配�
 * 每轮一次：`UserPromptSubmit`、`Stop` 和 `StopFailure`
 * 代理循环内的每个工具调用：`PreToolUse` 和 `PostToolUse`，除了 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 调用，它们跳过两者
 
-<div style={{maxWidth: "500px", margin: "0 auto"}}>
-  <Frame>
-    <img src="https://mintcdn.com/claude-code/x7pO8l4XcvAXCoVc/images/hooks-lifecycle.svg?fit=max&auto=format&n=x7pO8l4XcvAXCoVc&q=85&s=81b9256c1bbe8832553485f5d9e9c746" className="dark:hidden" alt="Hook 生命周期图，显示可选的 Setup 流入 SessionStart，然后是每轮循环，包含 UserPromptSubmit、用于 slash commands 的 UserPromptExpansion、嵌套的代理循环（PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、PostToolBatch、SubagentStart/Stop、TaskCreated、TaskCompleted）和 Stop 或 StopFailure，然后是 TeammateIdle、PreCompact、PostCompact 和 SessionEnd，Elicitation 和 ElicitationResult 嵌套在 MCP 工具执行内，PermissionDenied 作为 PermissionRequest 的副分支用于自动模式拒绝，WorktreeCreate、WorktreeRemove、Notification、ConfigChange、InstructionsLoaded、CwdChanged、FileChanged 和 DirectoryAdded 作为独立异步事件，PreModelSwitch 作为独立顺序事件，在请求的模型切换之前运行，PostModelSwitch 作为独立异步事件，在会话的模型更改后运行，MessageDisplay 作为仅显示事件，在助手消息文本流式传输时运行" width="520" height="1336" data-path="images/hooks-lifecycle.svg" />
-
-    <img src="https://mintcdn.com/claude-code/x7pO8l4XcvAXCoVc/images/hooks-lifecycle-dark.svg?fit=max&auto=format&n=x7pO8l4XcvAXCoVc&q=85&s=c9b3d88487335f58cce0b52e2f9e7531" className="hidden dark:block" alt="Hook 生命周期图，显示可选的 Setup 流入 SessionStart，然后是每轮循环，包含 UserPromptSubmit、用于 slash commands 的 UserPromptExpansion、嵌套的代理循环（PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、PostToolBatch、SubagentStart/Stop、TaskCreated、TaskCompleted）和 Stop 或 StopFailure，然后是 TeammateIdle、PreCompact、PostCompact 和 SessionEnd，Elicitation 和 ElicitationResult 嵌套在 MCP 工具执行内，PermissionDenied 作为 PermissionRequest 的副分支用于自动模式拒绝，WorktreeCreate、WorktreeRemove、Notification、ConfigChange、InstructionsLoaded、CwdChanged、FileChanged 和 DirectoryAdded 作为独立异步事件，PreModelSwitch 作为独立顺序事件，在请求的模型切换之前运行，PostModelSwitch 作为独立异步事件，在会话的模型更改后运行，MessageDisplay 作为仅显示事件，在助手消息文本流式传输时运行" width="520" height="1336" data-path="images/hooks-lifecycle-dark.svg" />
-  </Frame>
-</div>
+![Hook 生命周期图，显示可选的 Setup 流入 SessionStart，然后是每轮循环，包含 UserPromptSubmit、用于 slash commands 的 UserPromptExpansion、嵌套的代理循环（PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、PostToolBatch、SubagentStart/Stop、TaskCreated、TaskCompleted）和 Stop 或 StopFailure，然后是 TeammateIdle、PreCompact、PostCompact 和 SessionEnd，Elicitation 和 ElicitationResult 嵌套在 MCP 工具执行内，PermissionDenied 作为 PermissionRequest 的副分支用于自动模式拒绝，WorktreeCreate、WorktreeRemove、Notification、ConfigChange、InstructionsLoaded、CwdChanged、FileChanged 和 DirectoryAdded 作为独立异步事件，PreModelSwitch 作为独立顺序事件，在请求的模型切换之前运行，PostModelSwitch 作为独立异步事件，在会话的模型更改后运行，MessageDisplay 作为仅显示事件，在助手消息文本流式传输时运行](https://mintcdn.com/claude-code/x7pO8l4XcvAXCoVc/images/hooks-lifecycle.svg?fit=max\&auto=format\&n=x7pO8l4XcvAXCoVc\&q=85\&s=81b9256c1bbe8832553485f5d9e9c746)
 
 下表总结了每个事件何时触发。[Hook 事件](#hook-events)部分记录了每个事件的完整输入架构和决定控制选项。
 
@@ -72,175 +64,163 @@ Claude Code 在会话期间的特定点运行 hooks。当事件触发且匹配�
 | `ElicitationResult` | 在用户响应 MCP 引出后，在响应发送回服务器之前 |
 | `SessionEnd` | 当会话终止时 |
 
-<h3 id="how-a-hook-resolves">
-  Hook 如何解析
-</h3>
+### Hook 如何解析
 
 要了解事件、匹配器和处理程序如何组合在一起，请考虑这个 `PreToolUse` hook，它阻止破坏性 shell 命令。
 
-<Tabs>
-  <Tab title="macOS/Linux">
-    `matcher` 缩小到 Bash 工具调用，`if` 条件进一步缩小到匹配 `rm *` 的 Bash 子命令，因此 `block-rm.sh` 仅在两个过滤器都匹配时生成：
+**macOS/Linux**
 
-    ```json theme={null}
-    {
-      "hooks": {
-        "PreToolUse": [
+`matcher` 缩小到 Bash 工具调用，`if` 条件进一步缩小到匹配 `rm *` 的 Bash 子命令，因此 `block-rm.sh` 仅在两个过滤器都匹配时生成：
+
+```json theme={null}
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
           {
-            "matcher": "Bash",
-            "hooks": [
-              {
-                "type": "command",
-                "if": "Bash(rm *)",
-                "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.sh",
-                "args": []
-              }
+            "type": "command",
+            "if": "Bash(rm *)",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.sh",
+            "args": []
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+该脚本从 stdin 读取 JSON 输入，提取命令，如果包含 `rm -rf`，则返回 `permissionDecision` 为 `"deny"`。将其保存到项目中的 `.claude/hooks/block-rm.sh`，并使用 `chmod +x .claude/hooks/block-rm.sh` 使其可执行，以便 Claude Code 可以运行它：
+
+```bash theme={null}
+#!/bin/bash
+# .claude/hooks/block-rm.sh
+COMMAND=$(jq -r '.tool_input.command')
+
+if echo "$COMMAND" | grep -q 'rm -rf'; then
+  jq -n '{
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "deny",
+      permissionDecisionReason: "Destructive command blocked by hook"
+    }
+  }'
+else
+  exit 0  # no decision; normal permission flow applies
+fi
+```
+
+此脚本与本页面上解析 JSON 输入的其他 Bash 示例一样，使用 `jq`，因此在尝试它们之前，请安装 `jq` 并确保它在您的 `PATH` 上。
+
+**Windows (PowerShell)**
+
+匹配器 `Bash|PowerShell` 涵盖 [PowerShell 工具](#powershell)以及 Bash。单个 `if` 规则仅匹配一个工具的调用，因此每个工具都有自己的处理程序：第一个缩小到匹配 `rm *` 的 Bash 子命令，第二个缩小到匹配 `Remove-Item *` 的 PowerShell 命令。两者都通过 `powershell.exe` 运行相同的脚本：
+
+```json theme={null}
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(rm *)",
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy",
+              "Bypass",
+              "-File",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.ps1"
+            ]
+          },
+          {
+            "type": "command",
+            "if": "PowerShell(Remove-Item *)",
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy",
+              "Bypass",
+              "-File",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.ps1"
             ]
           }
         ]
       }
+    ]
+  }
+}
+```
+
+`-NoProfile` 标志跳过加载您的 PowerShell 配置文件，以便 hook 快速启动，`-ExecutionPolicy Bypass` 让 PowerShell 运行本地脚本文件。
+
+该脚本从 stdin 读取 JSON 输入，提取命令，如果包含 `rm -rf` 或 `Remove-Item` 后跟 `-Recurse`，则返回 `permissionDecision` 为 `"deny"`。将其保存到项目中的 `.claude/hooks/block-rm.ps1`：
+
+```powershell theme={null}
+# .claude/hooks/block-rm.ps1
+$callInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
+$command = $callInput.tool_input.command
+
+if ($command -match 'rm -rf|Remove-Item.*-Recurse') {
+  @{
+    hookSpecificOutput = @{
+      hookEventName = "PreToolUse"
+      permissionDecision = "deny"
+      permissionDecisionReason = "Destructive command blocked by hook"
     }
-    ```
-
-    该脚本从 stdin 读取 JSON 输入，提取命令，如果包含 `rm -rf`，则返回 `permissionDecision` 为 `"deny"`。将其保存到项目中的 `.claude/hooks/block-rm.sh`，并使用 `chmod +x .claude/hooks/block-rm.sh` 使其可执行，以便 Claude Code 可以运行它：
-
-    ```bash theme={null}
-    #!/bin/bash
-    # .claude/hooks/block-rm.sh
-    COMMAND=$(jq -r '.tool_input.command')
-
-    if echo "$COMMAND" | grep -q 'rm -rf'; then
-      jq -n '{
-        hookSpecificOutput: {
-          hookEventName: "PreToolUse",
-          permissionDecision: "deny",
-          permissionDecisionReason: "Destructive command blocked by hook"
-        }
-      }'
-    else
-      exit 0  # no decision; normal permission flow applies
-    fi
-    ```
-
-    此脚本与本页面上解析 JSON 输入的其他 Bash 示例一样，使用 `jq`，因此在尝试它们之前，请安装 `jq` 并确保它在您的 `PATH` 上。
-  </Tab>
-
-  <Tab title="Windows (PowerShell)">
-    匹配器 `Bash|PowerShell` 涵盖 [PowerShell 工具](#powershell)以及 Bash。单个 `if` 规则仅匹配一个工具的调用，因此每个工具都有自己的处理程序：第一个缩小到匹配 `rm *` 的 Bash 子命令，第二个缩小到匹配 `Remove-Item *` 的 PowerShell 命令。两者都通过 `powershell.exe` 运行相同的脚本：
-
-    ```json theme={null}
-    {
-      "hooks": {
-        "PreToolUse": [
-          {
-            "matcher": "Bash|PowerShell",
-            "hooks": [
-              {
-                "type": "command",
-                "if": "Bash(rm *)",
-                "command": "powershell.exe",
-                "args": [
-                  "-NoProfile",
-                  "-ExecutionPolicy",
-                  "Bypass",
-                  "-File",
-                  "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.ps1"
-                ]
-              },
-              {
-                "type": "command",
-                "if": "PowerShell(Remove-Item *)",
-                "command": "powershell.exe",
-                "args": [
-                  "-NoProfile",
-                  "-ExecutionPolicy",
-                  "Bypass",
-                  "-File",
-                  "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.ps1"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    }
-    ```
-
-    `-NoProfile` 标志跳过加载您的 PowerShell 配置文件，以便 hook 快速启动，`-ExecutionPolicy Bypass` 让 PowerShell 运行本地脚本文件。
-
-    该脚本从 stdin 读取 JSON 输入，提取命令，如果包含 `rm -rf` 或 `Remove-Item` 后跟 `-Recurse`，则返回 `permissionDecision` 为 `"deny"`。将其保存到项目中的 `.claude/hooks/block-rm.ps1`：
-
-    ```powershell theme={null}
-    # .claude/hooks/block-rm.ps1
-    $callInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
-    $command = $callInput.tool_input.command
-
-    if ($command -match 'rm -rf|Remove-Item.*-Recurse') {
-      @{
-        hookSpecificOutput = @{
-          hookEventName = "PreToolUse"
-          permissionDecision = "deny"
-          permissionDecisionReason = "Destructive command blocked by hook"
-        }
-      } | ConvertTo-Json
-    } else {
-      exit 0  # no decision; normal permission flow applies
-    }
-    ```
-  </Tab>
-</Tabs>
+  } | ConvertTo-Json
+} else {
+  exit 0  # no decision; normal permission flow applies
+}
+```
 
 现在假设 Claude Code 决定针对 macOS/Linux 配置运行 `Bash "rm -rf /tmp/build"`。以下是发生的情况：
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/ikqp3_70mqIahteV/images/hook-resolution.svg?fit=max&auto=format&n=ikqp3_70mqIahteV&q=85&s=be0bf3053550c26de5f54cd64674c197" className="dark:hidden" alt="Hook 解析流程图：PreToolUse 触发，匹配器检查 Bash 匹配，然后 if 条件检查 Bash(rm *) 匹配。如果两者都匹配，hook 命令运行并返回 permissionDecision deny，因此工具调用被阻止，Claude Code 继续。如果任一检查未能匹配，hook 被跳过，工具调用被允许继续。" width="930" height="270" data-path="images/hook-resolution.svg" />
+![Hook 解析流程图：PreToolUse 触发，匹配器检查 Bash 匹配，然后 if 条件检查 Bash(rm \*) 匹配。如果两者都匹配，hook 命令运行并返回 permissionDecision deny，因此工具调用被阻止，Claude Code 继续。如果任一检查未能匹配，hook 被跳过，工具调用被允许继续。](https://mintcdn.com/claude-code/ikqp3_70mqIahteV/images/hook-resolution.svg?fit=max\&auto=format\&n=ikqp3_70mqIahteV\&q=85\&s=be0bf3053550c26de5f54cd64674c197)
 
-  <img src="https://mintcdn.com/claude-code/_xqph1dUOslCOwsj/images/hook-resolution-dark.svg?fit=max&auto=format&n=_xqph1dUOslCOwsj&q=85&s=e80af91f8507cee6bd51ac3c2dd92f63" className="hidden dark:block" alt="Hook 解析流程图：PreToolUse 触发，匹配器检查 Bash 匹配，然后 if 条件检查 Bash(rm *) 匹配。如果两者都匹配，hook 命令运行并返回 permissionDecision deny，因此工具调用被阻止，Claude Code 继续。如果任一检查未能匹配，hook 被跳过，工具调用被允许继续。" width="930" height="270" data-path="images/hook-resolution-dark.svg" />
-</Frame>
+**1. 事件触发**
 
-<Steps>
-  <Step title="事件触发">
-    `PreToolUse` 事件触发。Claude Code 将工具输入作为 JSON 通过 stdin 发送到 hook：
+`PreToolUse` 事件触发。Claude Code 将工具输入作为 JSON 通过 stdin 发送到 hook：
 
-    ```json theme={null}
-    { "tool_name": "Bash", "tool_input": { "command": "rm -rf /tmp/build" }, ... }
-    ```
-  </Step>
+```json theme={null}
+{ "tool_name": "Bash", "tool_input": { "command": "rm -rf /tmp/build" }, ... }
+```
 
-  <Step title="匹配器检查">
-    匹配器 `"Bash"` 与工具名称匹配，因此此 hook 组激活。如果您省略匹配器或使用 `"*"`，该组在事件的每次出现时激活。
-  </Step>
+**2. 匹配器检查**
 
-  <Step title="If 条件检查">
-    `if` 条件 `"Bash(rm *)"` 匹配，因为 `rm -rf /tmp/build` 是匹配 `rm *` 的子命令，因此此处理程序生成。如果命令是 `npm test`，`if` 检查会失败，`block-rm.sh` 永远不会运行，避免进程生成开销。`if` 字段是可选的；没有它，匹配组中的每个处理程序都运行。
-  </Step>
+匹配器 `"Bash"` 与工具名称匹配，因此此 hook 组激活。如果您省略匹配器或使用 `"*"`，该组在事件的每次出现时激活。
 
-  <Step title="Hook 处理程序运行">
-    脚本检查完整命令并找到 `rm -rf`，因此它将决定打印到 stdout：
+**3. If 条件检查**
 
-    ```json theme={null}
-    {
-      "hookSpecificOutput": {
-        "hookEventName": "PreToolUse",
-        "permissionDecision": "deny",
-        "permissionDecisionReason": "Destructive command blocked by hook"
-      }
-    }
-    ```
+`if` 条件 `"Bash(rm *)"` 匹配，因为 `rm -rf /tmp/build` 是匹配 `rm *` 的子命令，因此此处理程序生成。如果命令是 `npm test`，`if` 检查会失败，`block-rm.sh` 永远不会运行，避免进程生成开销。`if` 字段是可选的；没有它，匹配组中的每个处理程序都运行。
 
-    如果命令是更安全的 `rm` 变体，如 `rm file.txt`，脚本会改为执行 `exit 0`。退出代码 0 且无输出意味着 hook 没有决定要报告，因此工具调用继续通过正常的[权限流程](/docs/zh-CN/permissions)。hook 可以拒绝调用，但保持沉默不会批准它。
-  </Step>
+**4. Hook 处理程序运行**
 
-  <Step title="Claude Code 对结果采取行动">
-    Claude Code 读取 JSON 决定，阻止工具调用，并向 Claude 显示原因。
-  </Step>
-</Steps>
+脚本检查完整命令并找到 `rm -rf`，因此它将决定打印到 stdout：
+
+```json theme={null}
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Destructive command blocked by hook"
+  }
+}
+```
+
+如果命令是更安全的 `rm` 变体，如 `rm file.txt`，脚本会改为执行 `exit 0`。退出代码 0 且无输出意味着 hook 没有决定要报告，因此工具调用继续通过正常的[权限流程](/docs/zh-CN/permissions)。hook 可以拒绝调用，但保持沉默不会批准它。
+
+**5. Claude Code 对结果采取行动**
+
+Claude Code 读取 JSON 决定，阻止工具调用，并向 Claude 显示原因。
 
 下面的[配置](#configuration)部分记录了完整的架构，每个[hook 事件](#hook-events)部分记录了您的命令接收的输入以及它可以返回的输出。
 
-<h2 id="configuration">
-  配置
-</h2>
+## 配置
 
 Hooks 在 JSON 设置文件中定义。配置有三个嵌套级别：
 
@@ -250,13 +230,11 @@ Hooks 在 JSON 设置文件中定义。配置有三个嵌套级别：
 
 有关完整的演练和带注释的示例，请参阅上面的 [Hook 如何解析](#how-a-hook-resolves)。
 
-<Note>
-  本页对每个级别使用特定术语：**hook 事件**表示生命周期点，**匹配器组**表示过滤器，**hook 处理程序**表示运行的 shell 命令、HTTP 端点、MCP 工具、提示或代理。"Hook"本身指的是一般功能。
-</Note>
+> [!NOTE]
+>
+> 本页对每个级别使用特定术语：**hook 事件**表示生命周期点，**匹配器组**表示过滤器，**hook 处理程序**表示运行的 shell 命令、HTTP 端点、MCP 工具、提示或代理。"Hook"本身指的是一般功能。
 
-<h3 id="hook-locations">
-  Hook 位置
-</h3>
+### Hook 位置
 
 定义 hook 的位置决定了其范围：
 
@@ -292,9 +270,7 @@ Hook 条目在设置级别之间合并而不是相互替换：用户、项目和
 * `allowedHttpHookUrls`：在任何设置级别定义时，Claude Code 仅在其 URL 与合并的允许列表匹配时运行 HTTP hook 处理程序
 * `httpHookAllowedEnvVars`：定义时，Claude Code 仅将该列表上的环境变量插值到 hook 标头中
 
-<h3 id="matcher-patterns">
-  匹配器模式
-</h3>
+### 匹配器模式
 
 `matcher` 字段过滤何时触发 hooks。匹配器的评估方式取决于它包含的字符：
 
@@ -362,9 +338,7 @@ Hook 条目在设置级别之间合并而不是相互替换：用户、项目和
 
 对于工具事件，您可以通过在单个 hook 处理程序上设置 [`if` 字段](#common-fields) 来更狭隘地过滤。`if` 使用 [权限规则语法](/docs/zh-CN/permissions) 来匹配工具名称和参数，所以 `"Bash(git *)"` 在任何 Bash 输入的子命令匹配 `git *` 时运行，`"Edit(*.ts)"` 仅对 TypeScript 文件运行。
 
-<h4 id="match-mcp-tools">
-  匹配 MCP 工具
-</h4>
+#### 匹配 MCP 工具
 
 [MCP](/docs/zh-CN/mcp) 服务器工具在工具事件中显示为常规工具（`PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest`、`PermissionDenied`），因此您可以像匹配任何其他工具名称一样匹配它们。
 
@@ -411,9 +385,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 }
 ```
 
-<h3 id="hook-handler-fields">
-  Hook 处理程序字段
-</h3>
+### Hook 处理程序字段
 
 内部 `hooks` 数组中的每个对象都是一个 hook 处理程序：当匹配器匹配时运行的 shell 命令、HTTP 端点、MCP 工具、LLM 提示或代理。有五种类型：
 
@@ -431,9 +403,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 
 `$CLAUDE_CODE_REMOTE` 环境变量在远程 web 环境中为 `"true"`，在本地 CLI 中未设置。Claude Code v2.1.199 及更高版本在本地会话有活跃的远程控制连接时将 [`$CLAUDE_CODE_BRIDGE_SESSION_ID`](/docs/zh-CN/env-vars) 设置为 [远程控制](/docs/zh-CN/remote-control) 会话 ID。
 
-<h4 id="common-fields">
-  通用字段
-</h4>
+#### 通用字段
 
 这些字段适用于所有 hook 类型：
 
@@ -449,9 +419,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 
 在文件工具的 `if` 条件中，单段目录模式如 `"Edit(src/**)"` 仅匹配工作目录中的 `src` 目录及其下的文件。要匹配任何深度的名为 `src` 的目录，请写 `"Edit(**/src/**)"`。
 
-<h4 id="bash-if-matching">
-  `if` 模式如何匹配 Bash 命令
-</h4>
+#### `if` 模式如何匹配 Bash 命令
 
 对于 [`if` 字段](#common-fields) 中的 Bash 模式，您的 hook 命令是否运行取决于模式的形状和 Claude 调用的 Bash 命令。匹配前会剥离前导 `VAR=value` 赋值。
 
@@ -465,9 +433,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 
 当 Claude Code 无法确定 Bash 输入运行哪些命令时，它无论如何都会运行您的 hook，无论模式如何。因为 `if` 过滤是尽力而为的，使用 [权限系统](/docs/zh-CN/permissions) 而不是 hook 来强制执行硬允许或拒绝。
 
-<h4 id="command-hook-fields">
-  命令 hook 字段
-</h4>
+#### 命令 hook 字段
 
 除了 [通用字段](#common-fields) 外，命令 hooks 接受这些字段：
 
@@ -480,11 +446,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 | `shell` | 否 | 用于此 hook 的 shell。接受 `"bash"` 或 `"powershell"`。默认为 `"bash"`，或在未安装 Git Bash 时在 Windows 上默认为 `"powershell"`。设置 `"powershell"` 在 Windows 上通过 PowerShell 运行命令。不需要 `CLAUDE_CODE_USE_POWERSHELL_TOOL`，因为 hooks 直接生成 PowerShell。设置 `args` 时被忽略 |
 | `onFailure` | 否 | hook 失败时触发该 hook 的操作是否继续进行：`"continue"` 或 `"block"`。有关 `"block"` 以及不设置该字段时的行为，请参阅 [在 hook 失败时阻止操作](#block-the-action-when-a-hook-fails)。需要 Claude Code v2.1.295 或更高版本 |
 
-<a id="exec-form-and-shell-form" />
-
-<h5 id="exec-form-and-shell-form">
-  Exec 形式和 shell 形式
-</h5>
+##### Exec 形式和 shell 形式
 
 当设置 `args` 时，命令 hook 以 exec 形式运行，当省略 `args` 时以 shell 形式运行。每当 hook 引用 [路径占位符](#reference-scripts-by-path) 时设置 `args`，因为每个元素作为一个参数传递，不带引号。当您需要 shell 功能如管道或 `&&` 时省略 `args`，或当两个问题都不适用时。
 
@@ -492,9 +454,9 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 
 **Shell 形式**在省略 `args` 时运行。`command` 字符串被传递给 shell：macOS 和 Linux 上的 `sh -c`、Windows 上的 Git Bash，或未安装 Git Bash 时的 PowerShell。设置 `shell` 字段来明确选择。shell 标记化字符串、扩展变量并解释管道、`&&`、重定向和 globs。
 
-<Note>
-  在 Windows 上，exec 形式需要 `command` 解析为真实可执行文件如 `.exe`。npm、npx、eslint 和其他工具在 `node_modules/.bin` 中安装的 `.cmd` 和 `.bat` 垫片不是可执行文件，不能在没有 shell 的情况下生成。要在 exec 形式中运行它们，直接使用 `node` 调用底层脚本，例如 `"command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/node_modules/eslint/bin/eslint.js"]`。`node` 加脚本路径模式在每个平台上都有效，因为 `node.exe` 是真实二进制文件。要按名称运行 `.cmd` 或 `.bat` 垫片，使用 shell 形式。
-</Note>
+> [!NOTE]
+>
+> 在 Windows 上，exec 形式需要 `command` 解析为真实可执行文件如 `.exe`。npm、npx、eslint 和其他工具在 `node_modules/.bin` 中安装的 `.cmd` 和 `.bat` 垫片不是可执行文件，不能在没有 shell 的情况下生成。要在 exec 形式中运行它们，直接使用 `node` 调用底层脚本，例如 `"command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/node_modules/eslint/bin/eslint.js"]`。`node` 加脚本路径模式在每个平台上都有效，因为 `node.exe` 是真实二进制文件。要按名称运行 `.cmd` 或 `.bat` 垫片，使用 shell 形式。
 
 此示例运行与插件捆绑的 Node 脚本。Exec 形式将解析的脚本路径作为一个参数传递，不带引号：
 
@@ -521,13 +483,11 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 
 其 `command` 引用 `${user_config.*}` 的 shell 形式插件 hook 失败并出现 [错误](/docs/zh-CN/errors#plugin-command-references-user-config) 而不是运行。要从 shell 形式 hook 使用选项值，读取 `$CLAUDE_PLUGIN_OPTION_<KEY>` 环境变量，如 `webhook_url` 选项的 `$CLAUDE_PLUGIN_OPTION_WEBHOOK_URL`，或设置 `args` 来将 hook 切换到 exec 形式。在 v2.1.207 之前，shell 形式插件 hook 命令也替换 `${user_config.*}`。
 
-<Note>
-  在 exec 形式中，`command` 仅是可执行文件名或路径。如果 `command` 是没有路径分隔符的裸名称，并且与 `args` 一起包含空格，Claude Code 记录一个警告，因为生成将失败：没有名为 `node script.js` 的可执行文件。将额外的标记移到 `args` 中。带空格的绝对路径，如 `C:\Program Files\nodejs\node.exe`，是单个有效的可执行文件，不会触发警告。
-</Note>
+> [!NOTE]
+>
+> 在 exec 形式中，`command` 仅是可执行文件名或路径。如果 `command` 是没有路径分隔符的裸名称，并且与 `args` 一起包含空格，Claude Code 记录一个警告，因为生成将失败：没有名为 `node script.js` 的可执行文件。将额外的标记移到 `args` 中。带空格的绝对路径，如 `C:\Program Files\nodejs\node.exe`，是单个有效的可执行文件，不会触发警告。
 
-<h4 id="http-hook-fields">
-  HTTP hook 字段
-</h4>
+#### HTTP hook 字段
 
 除了 [通用字段](#common-fields) 外，HTTP hooks 接受这些字段：
 
@@ -567,9 +527,7 @@ Claude Code 将 hook 的 [JSON 输入](#hook-input-and-output) 作为 POST 请�
 }
 ```
 
-<h4 id="mcp-tool-hook-fields">
-  MCP 工具 hook 字段
-</h4>
+#### MCP 工具 hook 字段
 
 除了 [通用字段](#common-fields) 外，MCP 工具 hooks 接受这些字段：
 
@@ -601,29 +559,21 @@ Claude Code 将 hook 的 [JSON 输入](#hook-input-and-output) 作为 POST 请�
 }
 ```
 
-<h5 id="how-the-tool’s-result-is-read">
-  工具结果如何被读取
-</h5>
+##### 工具结果如何被读取
 
 Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 的方式相同，遵循 [退出代码 0 下的解析规则](#exit-code-0)。如果工具返回 `isError: true`，hook 产生非阻止错误，执行继续。
 
-<h5 id="when-the-server-is-still-connecting">
-  当服务器仍在连接时
-</h5>
+##### 当服务器仍在连接时
 
 在 hook 可以阻止或改变结果的事件上，如 `PreToolUse` 或 `Stop`，Claude Code 在调用工具前等待连接的服务器，最多 [`MCP_TIMEOUT`](/docs/zh-CN/env-vars)，在 hook 自己的 [`timeout`](#common-fields) 内。在观察事件上，如 `Notification` 或 `SessionEnd`，它不等待。
 
 显示 [`cached` 状态](/docs/zh-CN/mcp#server-status-detail) 的服务器在 hook 调用其工具时连接。如果服务器在该点未连接，hook 产生非阻止错误，执行继续。hook 永远不会启动 OAuth 流，所以 [从 `/mcp` 验证服务器](/docs/zh-CN/mcp#authenticate-with-remote-mcp-servers)。
 
-<h5 id="events-that-fire-before-mcp-servers-are-available">
-  在 MCP 服务器可用之前触发的事件
-</h5>
+##### 在 MCP 服务器可用之前触发的事件
 
 启动时的 `SessionStart`，包括使用 `--continue` 或 `--resume`，以及每个 `Setup` 事件在会话的 MCP 服务器对 hooks 可用之前触发。Claude Code 跳过其 `mcp_tool` hooks 而不调用工具，[调试日志](#debug-hooks) 记录 `mcp_tool hooks are not available for the 'SessionStart' hook event (no MCP client context)`，或相同的消息命名 `Setup`。当 `SessionStart` 稍后在会话中再次触发时，在 `/clear` 或压缩后，其 `mcp_tool` hooks 运行。对于会话在启动时需要的任何内容，改为在 `SessionStart` 上使用 `type: "command"` hook。
 
-<h4 id="prompt-and-agent-hook-fields">
-  提示和代理 hook 字段
-</h4>
+#### 提示和代理 hook 字段
 
 除了 [通用字段](#common-fields) 外，提示和代理 hooks 接受这些字段：
 
@@ -632,9 +582,7 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 的�
 | `prompt` | 是 | 发送给模型的提示文本。使用 `$ARGUMENTS` 作为 hook 输入 JSON 的占位符。用反斜杠转义以包含文字文本：`\$1.00` 呈现为 `$1.00` |
 | `model` | 否 | 用于评估的模型。默认为 Claude Code 用于 [后台功能](/docs/zh-CN/costs#background-token-usage) 的模型 |
 
-<h3 id="reference-scripts-by-path">
-  按路径引用脚本
-</h3>
+### 按路径引用脚本
 
 使用这些占位符来引用相对于项目或插件根目录的 hook 脚本，无论 hook 运行时的工作目录如何：
 
@@ -642,74 +590,70 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 的�
 * `${CLAUDE_PLUGIN_ROOT}`：插件的安装目录，用于与 [插件](/docs/zh-CN/plugins/overview) 捆绑的脚本。请参阅 [插件环境变量](/docs/zh-CN/plugins/manifest-reference#environment-variables) 了解路径在更新中的行为。
 * `${CLAUDE_PLUGIN_DATA}`：插件的 [持久数据目录](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)，用于应该在插件更新中存活的依赖项和状态。
 
-<Note>
-  **Worktrees 是不同的。** 如果 Claude 在会话期间进入 [worktree](/docs/zh-CN/worktrees)，Claude Code 保持 `${CLAUDE_PROJECT_DIR}` 在原位，并以不同的方式将 worktree 路径传递给您的 hooks：
-
-  * **`${CLAUDE_PROJECT_DIR}` 保持不变**：它仍然指向会话启动的项目根目录，所以像 `${CLAUDE_PROJECT_DIR}/.claude/hooks/check-style.sh` 这样的命令仍然在主检出中运行脚本。
-  * **`cwd` 跟随 Claude**：hook 的 [输入 JSON](#common-input-fields) 中的 `cwd` 字段在 Claude 进入 worktree 后是 worktree 根目录，在 Claude 运行 `cd` 后是新目录。当 hook 需要知道 Claude 正在哪个目录中工作时读取它。
-
-  对于从桌面应用启动的 worktree 会话，请参阅 [worktree 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout) 了解 `${CLAUDE_PROJECT_DIR}` 指向何处。
-</Note>
+> [!NOTE]
+>
+> **Worktrees 是不同的。** 如果 Claude 在会话期间进入 [worktree](/docs/zh-CN/worktrees)，Claude Code 保持 `${CLAUDE_PROJECT_DIR}` 在原位，并以不同的方式将 worktree 路径传递给您的 hooks：
+>
+> * **`${CLAUDE_PROJECT_DIR}` 保持不变**：它仍然指向会话启动的项目根目录，所以像 `${CLAUDE_PROJECT_DIR}/.claude/hooks/check-style.sh` 这样的命令仍然在主检出中运行脚本。
+> * **`cwd` 跟随 Claude**：hook 的 [输入 JSON](#common-input-fields) 中的 `cwd` 字段在 Claude 进入 worktree 后是 worktree 根目录，在 Claude 运行 `cd` 后是新目录。当 hook 需要知道 Claude 正在哪个目录中工作时读取它。
+>
+> 对于从桌面应用启动的 worktree 会话，请参阅 [worktree 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout) 了解 `${CLAUDE_PROJECT_DIR}` 指向何处。
 
 对于任何引用路径占位符的 hook，优先使用 [exec 形式](#exec-form-and-shell-form)。在 shell 形式中，用双引号包装每个占位符。
 
-<Tabs>
-  <Tab title="项目脚本">
-    此示例使用 `${CLAUDE_PROJECT_DIR}` 在任何 `Write` 或 `Edit` 工具调用后从项目的 `.claude/hooks/` 目录运行样式检查器：
+**项目脚本**
 
-    ```json theme={null}
-    {
-      "hooks": {
-        "PostToolUse": [
+此示例使用 `${CLAUDE_PROJECT_DIR}` 在任何 `Write` 或 `Edit` 工具调用后从项目的 `.claude/hooks/` 目录运行样式检查器：
+
+```json theme={null}
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
           {
-            "matcher": "Write|Edit",
-            "hooks": [
-              {
-                "type": "command",
-                "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/check-style.sh",
-                "args": []
-              }
-            ]
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/check-style.sh",
+            "args": []
           }
         ]
       }
-    }
-    ```
-  </Tab>
+    ]
+  }
+}
+```
 
-  <Tab title="插件脚本">
-    在 `hooks/hooks.json` 中定义插件 hooks，带有可选的顶级 `description` 字段。启用插件时，其 hooks 与您的用户和项目 hooks 合并。
+**插件脚本**
 
-    此示例运行与插件捆绑的格式化脚本：
+在 `hooks/hooks.json` 中定义插件 hooks，带有可选的顶级 `description` 字段。启用插件时，其 hooks 与您的用户和项目 hooks 合并。
 
-    ```json theme={null}
-    {
-      "description": "Automatic code formatting",
-      "hooks": {
-        "PostToolUse": [
+此示例运行与插件捆绑的格式化脚本：
+
+```json theme={null}
+{
+  "description": "Automatic code formatting",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
           {
-            "matcher": "Write|Edit",
-            "hooks": [
-              {
-                "type": "command",
-                "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format.sh",
-                "args": [],
-                "timeout": 30
-              }
-            ]
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format.sh",
+            "args": [],
+            "timeout": 30
           }
         ]
       }
-    }
-    ```
+    ]
+  }
+}
+```
 
-    有关创建插件 hooks 的详细信息，请参阅 [插件组件参考](/docs/zh-CN/plugins/components#hooks)。
-  </Tab>
-</Tabs>
+有关创建插件 hooks 的详细信息，请参阅 [插件组件参考](/docs/zh-CN/plugins/components#hooks)。
 
-<h3 id="hooks-in-skills-and-agents">
-  Skills 和代理中的 Hooks
-</h3>
+### Skills 和代理中的 Hooks
 
 除了设置文件和插件外，hooks 可以直接在 [skills](/docs/zh-CN/skills) 和 [subagents](/docs/zh-CN/sub-agents) 中使用 frontmatter 定义，采用与基于设置的 hooks 相同的配置格式。Claude Code 保持它们注册多长时间取决于组件：
 
@@ -737,9 +681,7 @@ Subagents 在其 YAML frontmatter 中使用相同的格式。
 
 项目子代理中的 Frontmatter hooks 仅在您接受代理文件来自的文件夹的 [工作区信任对话](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust) 后运行。`-p` 会话不计为接受它。[在您信任文件夹前运行的内容](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 将此与设置文件规则进行比较，subagents 页面列出 [哪些范围被豁免](/docs/zh-CN/sub-agents#hooks-in-subagent-frontmatter)。在 v2.1.218 之前，这些 hooks 可以从您未信任的文件夹运行。
 
-<h3 id="the-/hooks-menu">
-  `/hooks` 菜单
-</h3>
+### `/hooks` 菜单
 
 在 Claude Code 中键入 `/hooks` 来打开已配置 hook 的只读浏览器。列表为每个 hook 标注其来源，如用户设置、项目设置、本地设置、插件或当前会话。
 
@@ -747,9 +689,7 @@ Subagents 在其 YAML frontmatter 中使用相同的格式。
 
 要浏览所有 hook 事件，包括未配置任何 hook 的事件，请选择列表末尾的 `All events`。
 
-<h3 id="disable-or-remove-hooks">
-  禁用或删除 hooks
-</h3>
+### 禁用或删除 hooks
 
 要删除在设置文件中定义的 hook，请从该文件中删除其条目。
 
@@ -759,9 +699,7 @@ Subagents 在其 YAML frontmatter 中使用相同的格式。
 
 对设置文件中 hooks 的直接编辑通常由文件监视程序自动拾取。
 
-<h2 id="hook-input-and-output">
-  Hook 输入和输出
-</h2>
+## Hook 输入和输出
 
 命令 hook 通过 stdin 接收 JSON 数据，并通过退出码、stdout 和 stderr 传达结果。HTTP hook 接收与 POST 请求体相同的 JSON，并通过 HTTP 响应体传达结果。本节涵盖所有事件通用的字段和行为。[Hook 事件](#hook-events)下的每个事件部分包括其特定的输入 schema 和决策控制选项。
 
@@ -769,9 +707,7 @@ Subagents 在其 YAML frontmatter 中使用相同的格式。
 
 要在任何平台上向用户显示消息，请在 JSON 输出中返回 [`systemMessage`](#json-output)。某些事件会丢弃它或将其传递到其他地方，每个[事件部分](#hook-events)都会说明这一点。要触发桌面通知、设置窗口标题或响铃，请改为返回 [`terminalSequence`](#emit-terminal-notifications)。
 
-<h3 id="common-input-fields">
-  通用输入字段
-</h3>
+### 通用输入字段
 
 Hook 事件接收这些字段作为 JSON，除了每个 [hook 事件](#hook-events)部分中记录的事件特定字段。对于命令 hook，此 JSON 通过 stdin 到达。对于 HTTP hook，它作为 POST 请求体到达。
 
@@ -823,9 +759,7 @@ hook 进程继承父环境，但 Claude Code [从它生成的每个子进程中�
 
 `tool_name`、`tool_input` 和 `tool_use_id` 字段是事件特定的。每个 [hook 事件](#hook-events)部分记录该事件的额外字段。
 
-<h3 id="exit-code-output">
-  退出码输出
-</h3>
+### 退出码输出
 
 hook 运行结束时，Claude Code 根据其退出码决定是否继续执行触发该 hook 的操作，例如工具调用或提示词：
 
@@ -851,9 +785,7 @@ hook 打印到 stdout 的内容可能会改变结果。例如，当 `PreToolUse`
 
 要查看退出码 2 对您的事件有何作用，请参阅[每个事件的退出码 2 行为](#exit-code-2-behavior-per-event)。要查看它接受哪些决策字段，请参阅[决策控制](#decision-control)。
 
-<h4 id="exit-code-0">
-  退出码 0
-</h4>
+#### 退出码 0
 
 退出 0 表示成功，是您打印 JSON 进行结构化控制时的预期退出码。当 hook 以 0 退出但打印了无法解析或未通过 [schema 验证](#json-output)的 JSON 时，操作会继续进行，除非该 hook 是[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails)。该运行不是应用了您字段的成功，而是[非阻止错误](#exit-code-output)。
 
@@ -867,9 +799,7 @@ hook 打印到 stdout 的内容可能会改变结果。例如，当 `PreToolUse`
 
 Claude 从不看到以 0 退出的 hook 的 stderr。要在 `PreToolUse` 等事件上自己读取它，请启用[调试日志](#debug-hooks)。要从 `PostToolUse` 或 `PostToolUseFailure` hook 向 Claude 显示警告，请改为退出 2，以便 [Claude 看到 stderr](#exit-code-2-behavior-per-event)，即使工具已经运行。
 
-<h4 id="exit-code-2">
-  退出码 2
-</h4>
+#### 退出码 2
 
 以代码 2 退出以阻止操作。在[可以阻止的事件](#exit-code-2-behavior-per-event)上，Claude Code 会停止该操作：例如，`PreToolUse` hook 会阻止工具调用，`UserPromptSubmit` hook 会拒绝提示词。
 
@@ -902,9 +832,7 @@ exit 0  # No decision: the normal permission flow applies
 PreToolUse:Bash hook error: [${CLAUDE_PROJECT_DIR}/.claude/hooks/no-rm.sh]: Blocked: rm commands are not allowed
 ```
 
-<h4 id="other-exit-codes">
-  其他退出码
-</h4>
+#### 其他退出码
 
 带有 `Failed with non-blocking status code:` 的 `<hook name> hook error` 通知表示 hook 的退出码不是 0 或 2，且其 stdout 为纯文本或为空。除非该 hook 是[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails)，否则这属于[非阻止错误](#exit-code-output)，因此您的 hook 没有停止该操作。要捕获 hook 的完整 stderr，而不仅是通知中显示的第一行，请启用[调试日志](#debug-hooks)。
 
@@ -924,21 +852,17 @@ Failed with non-blocking status code: /bin/sh: /path/to/hook.sh: No such file or
 
 当您设置策略 hook 时，请在其第一次运行时留意此通知，因为 `settings.json` 中拼写错误的路径意味着该 hook 从不运行。要在 hook 无法启动时阻止操作，请设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。
 
-<Warning>
-  没有有效 JSON 输出的退出码 1 是非阻止错误，除非该 hook 是[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails)，即使 1 是传统的 Unix 失败代码。如果您的 hook 旨在强制执行策略，请使用 `exit 2`。
-</Warning>
+> [!WARNING]
+>
+> 没有有效 JSON 输出的退出码 1 是非阻止错误，除非该 hook 是[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails)，即使 1 是传统的 Unix 失败代码。如果您的 hook 旨在强制执行策略，请使用 `exit 2`。
 
-<h4 id="timeouts">
-  超时
-</h4>
+#### 超时
 
 除了您使用 [`async: true`](#run-hooks-in-the-background) 运行的命令 hook 外，Claude Code 会取消达到其 [`timeout`](#common-fields) 的 `command`、`http` 或 `mcp_tool` hook，并丢弃 hook 的输出，因此在大多数事件上，超时的 hook 不会做出决策。在 [`PreModelSwitch`](#premodelswitch) 上，因超时被取消的 hook 会阻止模型切换。
 
 在 `PreToolUse` 上，超时的 `command`、`http` 或 `mcp_tool` hook 不阻止工具调用，但[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails) 除外。调用通过正常[权限流程](/docs/zh-CN/permissions)继续，因此不要指望停滞的 hook 充当关卡。要在 `command` 或 `http` hook 超时时阻止调用，请设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。超过其超时时间的 [Agent SDK 回调 hook](/docs/zh-CN/agent-sdk/hooks) 会[阻止工具调用](#pretooluse)。
 
-<h4 id="hooks-that-start-a-background-process">
-  启动后台进程的 hook
-</h4>
+#### 启动后台进程的 hook
 
 如果您的命令 hook 在后台进程中做出决策然后退出，那么该进程在 Claude Code 停止读取之后打印的拒绝决策不会阻止工具调用。对于非[异步](#run-hooks-in-the-background)的 hook，Claude Code 会在 hook 自身进程退出后不久完成对 hook 输出的读取。
 
@@ -959,15 +883,13 @@ Failed with non-blocking status code: /bin/sh: /path/to/hook.sh: No such file or
 
 要测试该脚本，请让 `policy-check.sh` 以 2 退出，然后触发一个与该 hook 匹配的工具调用。该工具调用会被阻止。
 
-<h4 id="block-the-action-when-a-hook-fails">
-  hook 失败时阻止操作
-</h4>
+#### hook 失败时阻止操作
 
 在大多数事件上，当 hook 失败或超时时，Claude Code 仍会执行该操作。这样一来，路径错误或脚本崩溃的策略 hook 会放行一切。要改为阻止操作，请在 `command` 或 `http` hook 上设置 `"onFailure": "block"`。需要 Claude Code v2.1.295 或更高版本。
 
-<Note>
-  在未安装 Git Bash 的 Windows 上，未设置 `onFailure` 的 shell 形式 `PreToolUse` 或 `PermissionRequest` 命令 hook 失败时，可能反而会[阻止工具调用](#failed-hooks-on-windows-without-git-bash)。
-</Note>
+> [!NOTE]
+>
+> 在未安装 Git Bash 的 Windows 上，未设置 `onFailure` 的 shell 形式 `PreToolUse` 或 `PermissionRequest` 命令 hook 失败时，可能反而会[阻止工具调用](#failed-hooks-on-windows-without-git-bash)。
 
 `.claude/settings.json` 中的这个 `PreToolUse` hook 会在每个 Bash 命令之前运行一个项目脚本，如果脚本失败则阻止该命令：
 
@@ -1015,9 +937,7 @@ Error: Cannot find module '/path/to/project/.claude/hooks/check-command.js'
 * **`Stop`、`SubagentStop`、`TaskCompleted` 和 `TeammateIdle` hook**：这些事件上的退出码 2 会让 Claude 回去继续工作，而 Claude 无法修复无法运行的 hook
 * **后台命令 hook**：设置了 [`async` 或 `asyncRewake`](#run-hooks-in-the-background) 的命令 hook
 
-<h4 id="failed-hooks-on-windows-without-git-bash">
-  未安装 Git Bash 的 Windows 上失败的 hook
-</h4>
+#### 未安装 Git Bash 的 Windows 上失败的 hook
 
 如果被阻止的工具调用的错误包含以下文本，则说明某个 `PreToolUse` 或 `PermissionRequest` 命令 hook 失败或超时，并阻止了该调用：
 
@@ -1027,16 +947,14 @@ blocking because Git Bash wasn't found and this hook doesn't set "shell" to "pow
 
 未设置 `shell` 的 shell 形式 hook 在未安装 Git Bash 时会在 PowerShell 中运行，而为 Bash 编写的脚本在那里可能无法按原样运行。请选择与您的 hook 匹配的修复方法：
 
-* **hook 是为 Bash 编写的**：安装 [Git for Windows](https://git-scm.com/downloads/win)；如果 Git Bash 已安装但 Claude Code 找不到它，请设置 [`CLAUDE_CODE_GIT_BASH_PATH`](/docs/zh-CN/env-vars)，然后启动新会话
+* **hook 是为 Bash 编写的**：安装 [Git for Windows](https://git-scm.com/downloads/win)，或者（如果 Git Bash 已安装但 Claude Code 找不到它）设置 [`CLAUDE_CODE_GIT_BASH_PATH`](/docs/zh-CN/env-vars)，然后启动新会话
 * **hook 运行单个 `.exe`，而不是 `.cmd` 或 `.bat` 文件**：将程序放在 `command` 中，将其参数放在 `args` 中，以使用 [exec 形式](#exec-form-and-shell-form)，并添加 [`"onFailure": "block"`](#block-the-action-when-a-hook-fails)。这样 Claude Code 会在不使用 shell 的情况下启动该程序。如果没有 `"onFailure": "block"`，当程序失败、缺失或超时时，调用可能会继续进行
 * **hook 是为 PowerShell 编写的**：为 hook 添加 `"shell": "powershell"` 和 [`"onFailure": "block"`](#block-the-action-when-a-hook-fails)。如果没有 `"onFailure": "block"`，当 hook 仍然失败或超时时，调用可能会继续进行。要查明 hook 失败的原因，请检查[调试日志](#debug-hooks)
 * **hook 失败时操作应继续进行**：为 hook 添加 `"onFailure": "continue"`
 
 对于显示此错误的 hook，0 或 2 以外的任何退出码都算作[失败](#block-the-action-when-a-hook-fails)，即使 hook 打印了不拒绝该调用的 JSON。
 
-<h4 id="exit-code-2-behavior-per-event">
-  每个事件的退出码 2 行为
-</h4>
+#### 每个事件的退出码 2 行为
 
 退出码 2 是 hook 发出"停止，不要这样做"信号的方式。效果取决于事件，因为某些事件代表可以被阻止的操作（如尚未发生的工具调用），而其他事件代表已经发生或无法防止的事情。
 
@@ -1078,9 +996,7 @@ blocking because Git Bash wasn't found and this hook doesn't set "shell" to "pow
 
 对于 `SessionStart`、`SubagentStart` 和 `PostModelSwitch`，Claude Code 在会话记录中将退出码 2 的 stderr 呈现为 `<hook name> hook error` 通知，与呈现[非阻止错误](#exit-code-output)的方式相同。Claude 看不到它，会话或子代理继续。对于 `SubagentStart`，通知出现在子代理自己的会话记录中，而不是在父对话中。
 
-<h3 id="http-response-handling">
-  HTTP 响应处理
-</h3>
+### HTTP 响应处理
 
 HTTP hook 使用 HTTP 状态码和响应体，而不是退出码和 stdout。要在请求失败或返回非 2xx 状态时阻止操作，请设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。要阻止工具调用或拒绝权限，请返回 2xx 响应，其 JSON 响应体包含相应的[决策字段](#decision-control)。
 
@@ -1093,15 +1009,13 @@ HTTP hook 使用 HTTP 状态码和响应体，而不是退出码和 stdout。要
 * **连接失败**：非阻止错误
 * **超时**：hook 被取消，如[超时](#timeouts)下所述
 
-<h3 id="json-output">
-  JSON 输出
-</h3>
+### JSON 输出
 
 退出码只能让您阻止或保持沉默，而 JSON 输出为您提供更细粒度的控制。与其以代码 2 退出来阻止，不如退出 0 并将 JSON 对象打印到 stdout。Claude Code 从该 JSON 读取特定字段来控制行为，包括用于阻止、允许或升级给用户的[决策控制](#decision-control)。
 
-<Note>
-  每个 hook 选择一种方法：要么仅使用退出码发出信号，要么退出 0 并打印 JSON 进行结构化控制。如果您混合使用，退出 2 保持其[阻止效果](#exit-code-2-behavior-per-event)，Claude Code 仍然读取 JSON 字段，但[退出码 2](#exit-code-2) 下注明的 elicitation 例外除外。
-</Note>
+> [!NOTE]
+>
+> 每个 hook 选择一种方法：要么仅使用退出码发出信号，要么退出 0 并打印 JSON 进行结构化控制。如果您混合使用，退出 2 保持其[阻止效果](#exit-code-2-behavior-per-event)，Claude Code 仍然读取 JSON 字段，但[退出码 2](#exit-code-2) 下注明的 elicitation 例外除外。
 
 只向 stdout 打印 JSON 对象，不要打印其他任何内容。对于非[异步](#how-async-hooks-execute)的 hook，stdout 中的其他文本（例如 shell 配置文件在启动时 echo 的一行）会使 Claude Code 无法将该对象读取为 JSON，[Hook JSON 无效](/docs/zh-CN/hooks-guide#hook-json-has-no-effect)介绍了如何找到并屏蔽这类文本。
 
@@ -1133,9 +1047,7 @@ JSON 对象支持三种字段：
 
 对于 `PreToolUse` 和 `PostToolUse` hook，即使工具调用在 Claude 仍在流式输出回复时失败或完成，停止也同样适用。
 
-<h4 id="emit-terminal-notifications">
-  发出终端通知
-</h4>
+#### 发出终端通知
 
 Hook 运行时没有控制终端，因此直接将转义序列写入 `/dev/tty` 会失败。请改为在 `terminalSequence` 字段中返回转义序列，Claude Code 会通过其自己的终端写入路径为您发出它。这不存在竞争问题，可在 tmux 和 GNU screen 中工作，也可在没有 `/dev/tty` 的 Windows 上工作。
 
@@ -1168,9 +1080,7 @@ jq -nc --arg seq "$seq" '{terminalSequence: $seq}'
 
 `{ "terminalSequence": "..." }` 的结构在任何 shell 或语言中都相同。
 
-<h4 id="add-context-for-claude">
-  为 Claude 添加上下文
-</h4>
+#### 为 Claude 添加上下文
 
 `additionalContext` 字段将字符串从您的 hook 传递到 Claude 的上下文窗口。Claude Code 将字符串包装在[系统提醒](/docs/zh-CN/glossary#system-reminder)中，并在 hook 触发的位置将其插入对话。Claude 在下一次模型请求时读取提醒，但它不会作为聊天消息出现在界面中。
 
@@ -1211,9 +1121,7 @@ jq -nc --arg seq "$seq" '{terminalSequence: $seq}'
 
 Claude Code 在会话记录中保存注入的文本。对于 `PostToolUse` 或 `UserPromptSubmit` 等会话中途的事件，当您使用 `--continue` 或 `--resume` 恢复时，Claude Code 会重放保存的文本，而不是为过去的轮次重新运行 hook，因此时间戳或提交 SHA 等值会变得过时。`SessionStart` hook 在恢复时会再次运行，此时 `source` 设置为 `"resume"`，如果您添加了 `--fork-session` 则为 `"fork"`，因此它们可以刷新其上下文。
 
-<h4 id="decision-control">
-  决策控制
-</h4>
+#### 决策控制
 
 并非每个事件都支持通过 JSON 阻止或控制行为。支持的事件各自使用不同的字段集来表达该决策。在编写 hook 之前，请将此表用作快速参考：
 
@@ -1244,62 +1152,56 @@ Claude Code 在会话记录中保存注入的文本。对于 `PostToolUse` 或 `
 
 以下是每种模式的实际示例：
 
-<Tabs>
-  <Tab title="顶级 decision">
-    `decision` 的唯一值是 `"block"`。要允许操作继续，请从您的 JSON 中省略 `decision`，或退出 0 且不输出任何 JSON：
+**顶级 decision**
 
-    ```json theme={null}
-    {
-      "decision": "block",
-      "reason": "Test suite must pass before proceeding"
-    }
-    ```
-  </Tab>
+`decision` 的唯一值是 `"block"`。要允许操作继续，请从您的 JSON 中省略 `decision`，或退出 0 且不输出任何 JSON：
 
-  <Tab title="PreToolUse">
-    使用 `hookSpecificOutput` 进行更丰富的控制：允许、拒绝或升级给用户。您也可以在工具运行前修改工具输入，或为 Claude 注入额外上下文。请参阅 [PreToolUse 决策控制](#pretooluse-decision-control)了解完整的选项集。
+```json theme={null}
+{
+  "decision": "block",
+  "reason": "Test suite must pass before proceeding"
+}
+```
 
-    ```json theme={null}
-    {
-      "hookSpecificOutput": {
-        "hookEventName": "PreToolUse",
-        "permissionDecision": "deny",
-        "permissionDecisionReason": "Database writes are not allowed"
+**PreToolUse**
+
+使用 `hookSpecificOutput` 进行更丰富的控制：允许、拒绝或升级给用户。您也可以在工具运行前修改工具输入，或为 Claude 注入额外上下文。请参阅 [PreToolUse 决策控制](#pretooluse-decision-control)了解完整的选项集。
+
+```json theme={null}
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Database writes are not allowed"
+  }
+}
+```
+
+**PermissionRequest**
+
+使用 `hookSpecificOutput` 代表用户允许或拒绝权限请求。允许时，您也可以修改工具的输入或应用权限规则，使用户不会再次被询问。请参阅 [PermissionRequest 决策控制](#permissionrequest-decision-control)了解完整的选项集。
+
+```json theme={null}
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PermissionRequest",
+    "decision": {
+      "behavior": "allow",
+      "updatedInput": {
+        "command": "npm run lint"
       }
     }
-    ```
-  </Tab>
-
-  <Tab title="PermissionRequest">
-    使用 `hookSpecificOutput` 代表用户允许或拒绝权限请求。允许时，您也可以修改工具的输入或应用权限规则，使用户不会再次被询问。请参阅 [PermissionRequest 决策控制](#permissionrequest-decision-control)了解完整的选项集。
-
-    ```json theme={null}
-    {
-      "hookSpecificOutput": {
-        "hookEventName": "PermissionRequest",
-        "decision": {
-          "behavior": "allow",
-          "updatedInput": {
-            "command": "npm run lint"
-          }
-        }
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
+  }
+}
+```
 
 有关扩展示例，包括 Bash 命令验证、提示词过滤和自动批准脚本，请参阅指南中的[您可以自动化什么](/docs/zh-CN/hooks-guide#what-you-can-automate)和 [Bash 命令验证器参考实现](https://github.com/anthropics/claude-code/blob/main/examples/hooks/bash_command_validator_example.py)。
 
-<h2 id="hook-events">
-  Hook 事件
-</h2>
+## Hook 事件
 
 每个事件对应 Claude Code 生命周期中可以运行 hook 的一个时间点。以下各节按生命周期顺序排列：从会话设置，经过智能体循环，直到会话结束。每节说明事件何时触发、支持哪些匹配器、接收的 JSON 输入，以及如何通过输出控制行为。
 
-<h3 id="sessionstart">
-  SessionStart
-</h3>
+### SessionStart
 
 在 Claude Code 启动新会话或恢复现有会话时运行。适用于加载开发上下文，例如现有 issue 或代码库的近期变更，或者设置环境变量。对于不需要脚本的静态上下文，请改用 [CLAUDE.md](/docs/zh-CN/memory)。
 
@@ -1323,9 +1225,7 @@ SessionStart 在每个会话中都会运行，因此请让这些 hook 保持快�
 
 在任一等待期间，按 `Esc` 可将提示词取回到输入框而不发送。hook 会继续运行。
 
-<h4 id="sessionstart-input">
-  SessionStart 输入
-</h4>
+#### SessionStart 输入
 
 除[通用输入字段](#common-input-fields)外，SessionStart hook 还会接收 `source`，以及可选的 `model`、`agent_type` 和 `session_title`：
 
@@ -1364,9 +1264,7 @@ SessionStart 在每个会话中都会运行，因此请让这些 hook 保持快�
 }
 ```
 
-<h4 id="sessionstart-decision-control">
-  SessionStart 决策控制
-</h4>
+#### SessionStart 决策控制
 
 SessionStart hook 可以为 Claude 添加上下文、提供第一条用户消息、设置会话标题、监视文件以及重新加载 skill。除所有 hook 都可用的 [JSON 输出字段](#json-output)外，为每项功能返回相应字段：
 
@@ -1394,9 +1292,7 @@ SessionStart hook 可以为 Claude 添加上下文、提供第一条用户消息
 
 如果您插件的 SessionStart hook 提供了 `initialUserMessage` 或 `sessionTitle`，请在会话开始之前安装该插件。对于在 SessionStart hook 运行之后才完成安装的插件，Claude Code 会忽略这两个字段。
 
-<h4 id="reload-skills-that-a-hook-installs">
-  重新加载 hook 安装的 skill
-</h4>
+#### 重新加载 hook 安装的 skill
 
 要让 SessionStart hook 安装的 skill 在同一会话中可用，请返回 `reloadSkills`。skill 发现通常在 SessionStart hook 完成之前运行，因此如果不使用它，hook 写入 `~/.claude/skills/` 或 `.claude/skills/` 的文件在第一个提示词运行时可能尚不可用。
 
@@ -1413,9 +1309,7 @@ echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "reloadSkills": t
 
 仓库 URL 是一个占位符。请将其替换为您自己的 skill 仓库。
 
-<h4 id="persist-environment-variables">
-  持久化环境变量
-</h4>
+#### 持久化环境变量
 
 SessionStart hook 可以访问 `CLAUDE_ENV_FILE` 环境变量，该变量提供一个文件路径，您可以在其中为 Claude 在会话后续运行的 shell 命令持久化环境变量。
 
@@ -1454,11 +1348,7 @@ exit 0
 
 每个 Bash 命令都会在命令本身之前将该文件的内容作为 shell 代码运行，因此其中的一行可以使用 Bash 能求值的任何内容，例如 `export PATH="$PATH:./node_modules/.bin"` 中的 `$PATH` 引用。
 
-<a id="persisted-variables-in-powershell-commands" />
-
-<h5 id="persisted-variables-in-powershell-commands">
-  PowerShell 命令中的持久化变量
-</h5>
+##### PowerShell 命令中的持久化变量
 
 在 Claude Code v2.1.296 或更高版本中，[PowerShell](/docs/zh-CN/tools-reference#powershell-tool) 命令也会接收来自 `CLAUDE_ENV_FILE` 的变量，但 PowerShell 从不运行该文件。Claude Code 会从中读出赋值，并将其复制到 PowerShell 命令的环境中。只有当本会话中每个 hook 写入的内容，以及您在启动前[将 `CLAUDE_ENV_FILE` 设置为](/docs/zh-CN/env-vars)的任何脚本中，每一行都属于以下类型之一时，才会这样做：
 
@@ -1467,13 +1357,11 @@ exit 0
 
 如果有任何一行属于其他类型，例如带有未转义 `$PATH` 的 `export PATH="$PATH:./node_modules/.bin"`、`source` 命令，或 `direnv export bash` 打印的 `$'...'` 字符串，PowerShell 命令将不会接收任何变量，并且 `claude --debug` 会记录 `Session environment is not all plain assignments`。Bash 命令仍会接收所有变量。在 Windows 上，PowerShell 命令也不会接收值中包含 `/` 或 `\` 的变量，因为 Git Bash 和 Windows 的路径写法不同。[沙箱化](/docs/zh-CN/sandboxing)的 PowerShell 命令不会接收任何变量。
 
-<Note>
-  `CLAUDE_ENV_FILE` 可用于 SessionStart、[Setup](#setup)、[CwdChanged](#cwdchanged) 和 [FileChanged](#filechanged) hook。其他 hook 事件无法访问此变量，在 PowerShell 中运行的 hook 也无法访问，无论是通过 [`"shell": "powershell"`](#command-hook-fields) 还是在没有 Git Bash 的 Windows 上默认运行。
-</Note>
+> [!NOTE]
+>
+> `CLAUDE_ENV_FILE` 可用于 SessionStart、[Setup](#setup)、[CwdChanged](#cwdchanged) 和 [FileChanged](#filechanged) hook。其他 hook 事件无法访问此变量，在 PowerShell 中运行的 hook 也无法访问，无论是通过 [`"shell": "powershell"`](#command-hook-fields) 还是在没有 Git Bash 的 Windows 上默认运行。
 
-<h3 id="setup">
-  Setup
-</h3>
+### Setup
 
 仅在您使用 `--init-only` 启动 Claude Code，或在使用 `-p` 标志的[非交互模式](/docs/zh-CN/headless)下使用 `--init` 或 `--maintenance` 启动时触发。正常启动时不会触发。将其用于您从 CI 或脚本中显式触发的一次性依赖安装或定期清理，与正常的会话启动分开。对于每个会话的初始化，请改用 [SessionStart](#sessionstart)。
 
@@ -1492,9 +1380,7 @@ exit 0
 
 由于 Setup 不会在每次启动时触发，需要安装依赖的插件不能仅依赖 Setup。实用的模式是在首次使用时检查依赖，缺失时再安装，例如一个 hook 或 skill 检测 `${CLAUDE_PLUGIN_DATA}/node_modules`，如果不存在则运行 `npm install`。有关存储已安装依赖的位置，请参阅[持久化数据目录](/docs/zh-CN/plugins/components#path-variables-and-persistent-data)。如果您通过市场分发插件，可能不需要此模式：Claude Code 在缓存插件时会[自动安装符合条件的 Node.js 包依赖](/docs/zh-CN/plugins/loading#node-js-package-dependencies)。
 
-<h4 id="setup-input">
-  Setup 输入
-</h4>
+#### Setup 输入
 
 除[通用输入字段](#common-input-fields)外，Setup hook 还会接收一个 `trigger` 字段，其值为 `"init"` 或 `"maintenance"`：
 
@@ -1508,17 +1394,13 @@ exit 0
 }
 ```
 
-<h4 id="setup-decision-control">
-  Setup 决策控制
-</h4>
+#### Setup 决策控制
 
 Setup hook 无法阻止；无论退出码是什么，执行都会继续。对于任何退出码，Claude Code 都会丢弃 Setup hook 的 [JSON 输出字段](#json-output)，例如 `systemMessage`、`continue` 和 `hookSpecificOutput.additionalContext`。使用 `-p` 时，只有当您使用 `--output-format stream-json --verbose` 启动时，Setup hook 的 stdout、stderr 和退出码才会作为 [`hook_response` 事件](/docs/zh-CN/headless#read-session-metadata)出现在运行输出中。
 
 Setup hook 可以访问 `CLAUDE_ENV_FILE`。写入该文件的变量会持久化到会话后续的 Bash 命令中，与 [SessionStart hook](#persist-environment-variables) 相同。`Setup` 上只运行 `type: "command"` hook。`Setup` 上的 `type: "mcp_tool"` hook 始终会被跳过，如 [MCP 工具 hook 字段](#mcp-tool-hook-fields)中所述。
 
-<h3 id="instructionsloaded">
-  InstructionsLoaded
-</h3>
+### InstructionsLoaded
 
 在 `CLAUDE.md` 或 `.claude/rules/*.md` 文件被加载到上下文中时触发。对于预先加载的文件，此事件在会话开始时触发；之后在文件被延迟加载时会再次触发，例如当 Claude 访问包含嵌套 `CLAUDE.md` 的子目录时，或当带有 `paths:` frontmatter 的条件规则匹配时。该 hook 不支持阻止或决策控制。它出于可观测性目的异步运行。
 
@@ -1526,9 +1408,7 @@ Setup hook 可以访问 `CLAUDE_ENV_FILE`。写入该文件的变量会持久化
 
 匹配器针对 `load_reason` 运行。例如，使用 `"matcher": "session_start"` 仅对会话开始时加载的文件触发，或使用 `"matcher": "path_glob_match|nested_traversal"` 仅对延迟加载触发。
 
-<h4 id="instructionsloaded-input">
-  InstructionsLoaded 输入
-</h4>
+#### InstructionsLoaded 输入
 
 除[通用输入字段](#common-input-fields)外，InstructionsLoaded hook 还会接收以下字段：
 
@@ -1553,15 +1433,11 @@ Setup hook 可以访问 `CLAUDE_ENV_FILE`。写入该文件的变量会持久化
 }
 ```
 
-<h4 id="instructionsloaded-decision-control">
-  InstructionsLoaded 决策控制
-</h4>
+#### InstructionsLoaded 决策控制
 
 InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令加载。Claude Code 会丢弃它们的 [JSON 输出字段](#json-output)，例如 `systemMessage` 和 `continue`。将此事件用于审计日志、合规跟踪或可观测性。
 
-<h3 id="userpromptsubmit">
-  UserPromptSubmit
-</h3>
+### UserPromptSubmit
 
 在提交提示词时、Claude 处理之前运行。这使您可以
 根据提示词/对话添加额外的上下文、验证提示词，或
@@ -1579,9 +1455,7 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 
 `UserPromptSubmit` 上的 [Agent SDK 回调 hook](/docs/zh-CN/agent-sdk/hooks) 达到超时时，会以一条指明该 hook 和超时的消息阻止提示词，因为此处的回调可能充当策略关卡，不能在失败时放行。会话会继续。
 
-<h4 id="userpromptsubmit-input">
-  UserPromptSubmit 输入
-</h4>
+#### UserPromptSubmit 输入
 
 除[通用输入字段](#common-input-fields)外，UserPromptSubmit hook 还会接收包含所提交文本的 `prompt` 字段。折叠为 `[Pasted text #N]` 占位符的粘贴内容会在原位展开后传入。在 Claude Code [为 Claude 标记粘贴文本](/docs/zh-CN/terminal-config#how-claude-treats-pasted-text)的会话中，展开的内容位于 `<pasted_content id="…">` 行和 `</pasted_content id="…">` 行之间，因此如果您的 hook 解析提示词，请考虑这些行。
 
@@ -1600,9 +1474,7 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 
 当提示词是您输入的 [skill](/docs/zh-CN/skills) 或自定义命令（例如 `/deploy staging`）时，hook 会接收您输入的原始行，而不是展开后的 skill 内容。如果 hook 阻止了该提示词，命令就不会运行，因此 skill [通过 `` !`<command>` `` 注入](/docs/zh-CN/skills#inject-dynamic-context)的 shell 命令也不会运行。若要改为根据命令的名称或参数进行匹配，请使用 [UserPromptExpansion](#userpromptexpansion)。
 
-<h4 id="userpromptsubmit-decision-control">
-  UserPromptSubmit 决策控制
-</h4>
+#### UserPromptSubmit 决策控制
 
 `UserPromptSubmit` hook 可以控制是否处理所提交的提示词，并添加上下文。所有 [JSON 输出字段](#json-output)均可用。
 
@@ -1638,17 +1510,13 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 }
 ```
 
-<h4 id="what-a-blocked-prompt-leaves-behind">
-  被阻止的提示词会留下什么
-</h4>
+#### 被阻止的提示词会留下什么
 
 被阻止的提示词永远不会传达给 Claude，但其文本并不会在所有地方被移除。默认情况下，显示给用户的阻止消息以 `Original prompt:` 结尾，后跟所提交的文本，并且 Claude Code 会将该消息写入磁盘上的会话记录文件。要在消息中省略该文本，请在 `hookSpecificOutput` 中打印带有 `"suppressOriginalPrompt": true` 的 JSON。无论 hook 是通过 `decision: "block"` 还是以退出码 2 退出来阻止，此方法都有效。
 
 `suppressOriginalPrompt` 只改变阻止消息。所提交的文本仍可能出现在本地文件中，例如会话记录和您的提示词历史，因此阻止 hook 并不是防止机密写入磁盘的方法。要限制或删除这些文件，请参阅[明文存储](/docs/zh-CN/claude-directory#plaintext-storage)和[清除本地数据](/docs/zh-CN/claude-directory#clear-local-data)。
 
-<h3 id="userpromptexpansion">
-  UserPromptExpansion
-</h3>
+### UserPromptExpansion
 
 在用户输入的命令展开为提示词、传达给 Claude 之前运行。使用它可以阻止直接调用特定命令、为特定 skill 注入上下文，或记录用户调用了哪些命令。例如，匹配 `deploy` 的 hook 可以在不存在批准文件时阻止 `/deploy`，或者匹配某个审查 skill 的 hook 可以将团队的审查清单作为 `additionalContext` 追加。
 
@@ -1656,9 +1524,7 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 
 针对 `command_name` 进行匹配。将匹配器留空可在每个提示词类命令上触发。
 
-<h4 id="userpromptexpansion-input">
-  UserPromptExpansion 输入
-</h4>
+#### UserPromptExpansion 输入
 
 除[通用输入字段](#common-input-fields)外，UserPromptExpansion hook 还会接收 `expansion_type`、`command_name`、`command_args`、`command_source` 以及原始的 `prompt` 字符串。对于 skill 和自定义命令，`expansion_type` 字段为 `slash_command`；对于 MCP 服务器提示词，则为 `mcp_prompt`。
 
@@ -1677,9 +1543,7 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 }
 ```
 
-<h4 id="userpromptexpansion-decision-control">
-  UserPromptExpansion 决策控制
-</h4>
+#### UserPromptExpansion 决策控制
 
 `UserPromptExpansion` hook 可以阻止展开或添加上下文。所有 [JSON 输出字段](#json-output)均可用。
 
@@ -1702,9 +1566,7 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 }
 ```
 
-<h3 id="messagedisplay">
-  MessageDisplay
-</h3>
+### MessageDisplay
 
 在助手消息流式显示到屏幕上时运行。Claude Code 以增量方式显示消息：每当一批新完成的行准备好渲染时，hook 就会用这些行运行一次，Claude Code 会在其位置渲染 hook 返回的替换文本。长消息会产生多次调用；短消息可能只产生一次。
 
@@ -1722,9 +1584,7 @@ MessageDisplay 不支持匹配器，会对每条流式输出文本的助手消�
 
 在非交互运行中（包括 Agent SDK 查询和 `claude -p`），MessageDisplay 对每条助手消息运行一次，而不是对每批行运行一次。这一次调用在消息完成后到达，并携带完整的消息文本：`index` 为 `0`，`final` 为 `true`，`delta` 包含整条消息。收集每条消息 `delta` 文本的 hook 在两种模式下接收到的总文本相同。
 
-<h4 id="messagedisplay-input">
-  MessageDisplay 输入
-</h4>
+#### MessageDisplay 输入
 
 除[通用输入字段](#common-input-fields)外，MessageDisplay hook 还会接收轮次和消息的标识符、本次调用在消息中的位置，以及 `delta` 中的新文本。批次边界取决于文本的流式传输方式，因此请使用 `index` 和 `final` 跟踪消息的进度，而不要期望行以特定方式分组。
 
@@ -1750,9 +1610,7 @@ MessageDisplay 不支持匹配器，会对每条流式输出文本的助手消�
 }
 ```
 
-<h4 id="messagedisplay-output">
-  MessageDisplay 输出
-</h4>
+#### MessageDisplay 输出
 
 除所有 hook 都可用的 [JSON 输出字段](#json-output)外，MessageDisplay hook 还可以返回 `displayContent` 以在屏幕上替换 delta：
 
@@ -1764,106 +1622,100 @@ MessageDisplay hook 没有决策控制。它们无法阻止消息，也无法更
 
 此示例从 Claude 的回复中去除 markdown 格式，以进行纯文本显示。该脚本从 stdin 读取每一批，从 `delta` 中移除粗体标记和行内代码反引号，并将结果作为 `displayContent` 返回。
 
-<Tabs>
-  <Tab title="macOS/Linux">
-    在您的设置文件中为该事件注册一个命令 hook：
+**macOS/Linux**
 
-    ```json theme={null}
-    {
-      "hooks": {
-        "MessageDisplay": [
+在您的设置文件中为该事件注册一个命令 hook：
+
+```json theme={null}
+{
+  "hooks": {
+    "MessageDisplay": [
+      {
+        "hooks": [
           {
-            "hooks": [
-              {
-                "type": "command",
-                "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/plain-display.sh",
-                "args": []
-              }
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/plain-display.sh",
+            "args": []
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+将此脚本保存到项目中的 `.claude/hooks/plain-display.sh`，并使用 `chmod +x` 使其可执行：
+
+```bash theme={null}
+#!/bin/bash
+jq '{hookSpecificOutput: {hookEventName: "MessageDisplay", displayContent: (.delta | gsub("\\*\\*"; "") | gsub("`"; ""))}}'
+```
+
+**Windows (PowerShell)**
+
+注册一个通过 PowerShell 运行脚本的命令 hook：
+
+```json theme={null}
+{
+  "hooks": {
+    "MessageDisplay": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy",
+              "Bypass",
+              "-File",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/plain-display.ps1"
             ]
           }
         ]
       }
-    }
-    ```
+    ]
+  }
+}
+```
 
-    将此脚本保存到项目中的 `.claude/hooks/plain-display.sh`，并使用 `chmod +x` 使其可执行：
+`-NoProfile` 标志会跳过加载您的 PowerShell 配置文件，使 hook 快速启动；`-ExecutionPolicy Bypass` 则允许 PowerShell 运行本地脚本文件。
 
-    ```bash theme={null}
-    #!/bin/bash
-    jq '{hookSpecificOutput: {hookEventName: "MessageDisplay", displayContent: (.delta | gsub("\\*\\*"; "") | gsub("`"; ""))}}'
-    ```
-  </Tab>
+将此脚本保存到项目中的 `.claude/hooks/plain-display.ps1`：
 
-  <Tab title="Windows (PowerShell)">
-    注册一个通过 PowerShell 运行脚本的命令 hook：
-
-    ```json theme={null}
-    {
-      "hooks": {
-        "MessageDisplay": [
-          {
-            "hooks": [
-              {
-                "type": "command",
-                "command": "powershell.exe",
-                "args": [
-                  "-NoProfile",
-                  "-ExecutionPolicy",
-                  "Bypass",
-                  "-File",
-                  "${CLAUDE_PROJECT_DIR}/.claude/hooks/plain-display.ps1"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    }
-    ```
-
-    `-NoProfile` 标志会跳过加载您的 PowerShell 配置文件，使 hook 快速启动；`-ExecutionPolicy Bypass` 则允许 PowerShell 运行本地脚本文件。
-
-    将此脚本保存到项目中的 `.claude/hooks/plain-display.ps1`：
-
-    ```powershell theme={null}
-    $batch = [Console]::In.ReadToEnd() | ConvertFrom-Json
-    $text = $batch.delta -replace '\*\*', '' -replace '`', ''
-    @{
-      hookSpecificOutput = @{
-        hookEventName = "MessageDisplay"
-        displayContent = $text
-      }
-    } | ConvertTo-Json
-    ```
-  </Tab>
-</Tabs>
+```powershell theme={null}
+$batch = [Console]::In.ReadToEnd() | ConvertFrom-Json
+$text = $batch.delta -replace '\*\*', '' -replace '`', ''
+@{
+  hookSpecificOutput = @{
+    hookEventName = "MessageDisplay"
+    displayContent = $text
+  }
+} | ConvertTo-Json
+```
 
 不含 markdown 的批次会原样通过。如果脚本失败（例如因为缺少 `jq`），Claude Code 会显示原始文本，并且只在[调试输出](#debug-hooks)中记录该失败，而不会在会话中显示。
 
-<h3 id="pretooluse">
-  PreToolUse
-</h3>
+### PreToolUse
 
 在 Claude 创建工具参数之后、处理工具调用之前运行。匹配除 `EndConversation` 之外的任何工具名称：内置工具，如 `Bash`、`PowerShell`、`Edit`、`Write`、`Read`、`Glob`、`Grep`、`Agent`、`Workflow`、`WebFetch`、`WebSearch`、`AskUserQuestion` 和 `ExitPlanMode`，以及任何 [MCP 工具名称](#match-mcp-tools)。
 
 要在特定文件在磁盘上发生变化时运行 hook（无论由谁写入），请使用 [FileChanged](#filechanged)，而不是按名称匹配文件编辑工具。与 PreToolUse 不同，Claude Code 在变更之后运行 FileChanged hook，且它们没有决策控制，因此无法阻止写入。
 
-<Warning>
-  PreToolUse 仅在 Claude 调用工具时运行。默认情况下，您[在提示词中用 `@` 引用](/docs/zh-CN/common-workflows#reference-files-and-directories)的文件会在没有任何工具调用的情况下添加。Claude Code 在构建提示词时插入其内容，因此不会为它们触发任何 PreToolUse hook，包括匹配 `Read` 的 hook。PreToolUse 也不会为 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 触发。
-
-  您可以阻止 `@` 引用特定路径，或关闭插入功能：
-
-  * **阻止特定路径**：为这些路径添加 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)
-  * **关闭插入功能**：在您的 shell、用户设置或托管设置中设置 [`CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`](/docs/zh-CN/env-vars#variables)。这样 Claude 会获得所提及的路径以及一条说明，提示其使用文件工具读取这些路径。如果 Claude 这样做，您匹配的 PreToolUse hook 就会运行。该变量需要 Claude Code v2.1.299 或更高版本，且 Claude Code 会在项目设置和本地设置中忽略它。
-</Warning>
+> [!WARNING]
+>
+> PreToolUse 仅在 Claude 调用工具时运行。默认情况下，您[在提示词中用 `@` 引用](/docs/zh-CN/common-workflows#reference-files-and-directories)的文件会在没有任何工具调用的情况下添加。Claude Code 在构建提示词时插入其内容，因此不会为它们触发任何 PreToolUse hook，包括匹配 `Read` 的 hook。PreToolUse 也不会为 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 触发。
+>
+> 您可以阻止 `@` 引用特定路径，或关闭插入功能：
+>
+> * **阻止特定路径**：为这些路径添加 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)
+> * **关闭插入功能**：在您的 shell、用户设置或托管设置中设置 [`CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`](/docs/zh-CN/env-vars#variables)。这样 Claude 会获得所提及的路径以及一条说明，提示其使用文件工具读取这些路径。如果 Claude 这样做，您匹配的 PreToolUse hook 就会运行。该变量需要 Claude Code v2.1.299 或更高版本，且 Claude Code 会在项目设置和本地设置中忽略它。
 
 使用 [PreToolUse 决策控制](#pretooluse-decision-control)来允许、拒绝、询问或延迟工具调用。
 
 `PreToolUse` 上的 [Agent SDK 回调 hook](/docs/zh-CN/agent-sdk/hooks) 超过其超时时间时，会阻止工具调用，Claude 会收到一个注明该超时的错误结果。
 
-<h4 id="pretooluse-input">
-  PreToolUse 输入
-</h4>
+#### PreToolUse 输入
 
 除[通用输入字段](#common-input-fields)外，PreToolUse hook 还会接收 `tool_name`、`tool_input` 和 `tool_use_id`。
 
@@ -1892,11 +1744,7 @@ Windows 上的 `Write` 调用会传递：
 
 `tool_input` 字段取决于工具：
 
-<a id="bash" />
-
-<h5 id="bash">
-  Bash
-</h5>
+##### Bash
 
 执行 shell 命令。
 
@@ -1911,9 +1759,9 @@ Windows 上的 `Write` 调用会传递：
 
 然后，您的 [PostToolUse hook](#posttooluse) 会在 `tool_response.bashEditDiff` 中接收更改的文件。该列表涵盖命令运行期间仓库下发生更改的内容。Git 忽略的文件和子模块中的文件不会列出。需要 Claude Code v2.1.269 或更高版本。
 
-<Note>
-  该列表是尽力而为的，目前处于公测阶段。Claude Code 可能遗漏某个更改、包含另一个进程同时更改的文件，或在达到其大小限制时停止。字段结构可能会更改。请使用该列表来确定需要审查的内容，而不是用来执行策略。
-</Note>
+> [!NOTE]
+>
+> 该列表是尽力而为的，目前处于公测阶段。Claude Code 可能遗漏某个更改、包含另一个进程同时更改的文件，或在达到其大小限制时停止。字段结构可能会更改。请使用该列表来确定需要审查的内容，而不是用来执行策略。
 
 `changedFiles` 和 `files` 列出命令更改的内容；其余字段说明该列表的完整程度和可靠程度。
 
@@ -1926,11 +1774,7 @@ Windows 上的 `Write` 调用会传递：
 | `skipped` | boolean | `true` | 对于移动工作树的 Git 命令（如 `git checkout` 或 `git stash`）设置，此时 Claude Code 不获取 diff |
 | `shared` | boolean | `true` | 当另一个 Bash 工具调用（例如子代理的调用）同时在同一仓库中运行时设置，因此列出的部分更改可能来自该命令 |
 
-<a id="powershell" />
-
-<h5 id="powershell">
-  PowerShell
-</h5>
+##### PowerShell
 
 执行 PowerShell 命令。有关各平台的可用性，请参阅 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)。
 
@@ -1949,9 +1793,7 @@ Windows 上的 `Write` 调用会传递：
 * 在没有 Git Bash 的 Windows 上，该工具会自动启用，而 Claude Code 根本不会注册 Bash 工具。
 * 仅匹配 `Bash` 的 hook 在那里永远不会触发。
 
-<h5 id="write">
-  Write
-</h5>
+##### Write
 
 创建或覆盖文件。
 
@@ -1960,9 +1802,7 @@ Windows 上的 `Write` 调用会传递：
 | `file_path` | string | `"/path/to/file.txt"` | 要写入的文件的绝对路径 |
 | `content` | string | `"file content"` | 要写入文件的内容 |
 
-<h5 id="edit">
-  Edit
-</h5>
+##### Edit
 
 替换现有文件中的字符串。
 
@@ -1973,9 +1813,7 @@ Windows 上的 `Write` 调用会传递：
 | `new_string` | string | `"replacement text"` | 替换文本 |
 | `replace_all` | boolean | `false` | 是否替换所有匹配项 |
 
-<h5 id="read">
-  Read
-</h5>
+##### Read
 
 读取文件内容。
 
@@ -1985,9 +1823,7 @@ Windows 上的 `Write` 调用会传递：
 | `offset` | number | `10` | 可选，开始读取的行号 |
 | `limit` | number | `50` | 可选，要读取的行数 |
 
-<h5 id="glob">
-  Glob
-</h5>
+##### Glob
 
 查找与 glob 模式匹配的文件。
 
@@ -1996,9 +1832,7 @@ Windows 上的 `Write` 调用会传递：
 | `pattern` | string | `"**/*.ts"` | 用于匹配文件的 glob 模式 |
 | `path` | string | `"/path/to/dir"` | 可选，要搜索的目录。默认为当前工作目录 |
 
-<h5 id="grep">
-  Grep
-</h5>
+##### Grep
 
 使用正则表达式搜索文件内容。
 
@@ -2011,9 +1845,7 @@ Windows 上的 `Write` 调用会传递：
 | `-i` | boolean | `true` | 不区分大小写的搜索 |
 | `multiline` | boolean | `false` | 启用多行匹配 |
 
-<h5 id="webfetch">
-  WebFetch
-</h5>
+##### WebFetch
 
 获取并处理网页内容。
 
@@ -2023,9 +1855,7 @@ Windows 上的 `Write` 调用会传递：
 | `prompt` | string | `"Extract the API endpoints"` | 对获取的内容运行的提示词 |
 | `offset` | number | `100000` | 可选，从页面开头跳过的字符数。Claude 设置它以继续阅读长页面。需要 Claude Code v2.1.290 或更高版本 |
 
-<h5 id="websearch">
-  WebSearch
-</h5>
+##### WebSearch
 
 搜索网络。
 
@@ -2035,9 +1865,7 @@ Windows 上的 `Write` 调用会传递：
 | `allowed_domains` | array | `["docs.example.com"]` | 可选：仅包含来自这些域名的结果 |
 | `blocked_domains` | array | `["spam.example.com"]` | 可选：排除来自这些域名的结果 |
 
-<h5 id="agent">
-  Agent
-</h5>
+##### Agent
 
 生成一个[子代理](/docs/zh-CN/sub-agents)。
 
@@ -2068,11 +1896,7 @@ Windows 上的 `Write` 调用会传递：
 
 在 `completed` 响应中，`resolvedModel` 指明子代理启动时使用的模型，该模型可能与 `tool_input` 中的 `model` 值不同，例如当 `availableModels` 或其他覆盖生效时。在 `async_launched` 响应中，`resolvedModel` 指明 Agent 转入后台时正在使用的模型，因此在转入后台之前发生的切换会反映在其中。
 
-<a id="askuserquestion" />
-
-<h5 id="askuserquestion">
-  AskUserQuestion
-</h5>
+##### AskUserQuestion
 
 向用户提出一到四个多项选择问题。
 
@@ -2081,9 +1905,7 @@ Windows 上的 `Write` 调用会传递：
 | `questions` | array | `[{"question": "Which framework?", "header": "Framework", "options": [{"label": "React", "description": "Component library"}, {"label": "Vue", "description": "Progressive framework"}], "multiSelect": false}]` | 要呈现的问题，每个问题包含一个 `question` 字符串、简短的 `header`、`options` 数组和可选的 `multiSelect` 标志 |
 | `answers` | object | `{"Which framework?": "React"}` | 可选。将问题文本映射到所选选项的标签。多选答案用逗号连接标签。Claude 不会设置此字段；通过 `updatedInput` 提供它以编程方式作答 |
 
-<h5 id="exitplanmode">
-  ExitPlanMode
-</h5>
+##### ExitPlanMode
 
 呈现一个计划，并在 Claude 离开[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)之前请求用户批准。Claude 在调用该工具之前将计划写入磁盘上的文件，因此模型给出的原始 `tool_input` 通常为空。Claude Code 会在将输入传递给 hook 之前注入计划内容和文件路径。
 
@@ -2095,9 +1917,7 @@ Windows 上的 `Write` 调用会传递：
 
 在 `PostToolUse` 中，`tool_response` 是一个对象，其 `plan` 和 `filePath` 字段包含已批准的计划，此外还有内部状态标志。请读取 `tool_response.plan` 获取计划内容，而不是从磁盘重新读取文件。
 
-<h4 id="pretooluse-decision-control">
-  PreToolUse 决策控制
-</h4>
+#### PreToolUse 决策控制
 
 `PreToolUse` hook 可以控制工具调用是否继续。与使用顶层 `decision` 字段的其他 hook 不同，PreToolUse 在 `hookSpecificOutput` 对象中返回其决策。这为其提供了更丰富的控制：四种结果（允许、拒绝、询问或延迟），以及在执行前修改工具输入的能力。
 
@@ -2130,13 +1950,11 @@ Windows 上的 `Write` 调用会传递：
 }
 ```
 
-<Note>
-  PreToolUse 以前使用顶层的 `decision` 和 `reason` 字段，但这些字段在此事件中已弃用。请改用 `hookSpecificOutput.permissionDecision` 和 `hookSpecificOutput.permissionDecisionReason`。已弃用的值 `"approve"` 和 `"block"` 分别映射到 `"allow"` 和 `"deny"`。PostToolUse 和 Stop 等其他事件继续使用顶层 `decision` 和 `reason` 作为其当前格式。
-</Note>
+> [!NOTE]
+>
+> PreToolUse 以前使用顶层的 `decision` 和 `reason` 字段，但这些字段在此事件中已弃用。请改用 `hookSpecificOutput.permissionDecision` 和 `hookSpecificOutput.permissionDecisionReason`。已弃用的值 `"approve"` 和 `"block"` 分别映射到 `"allow"` 和 `"deny"`。PostToolUse 和 Stop 等其他事件继续使用顶层 `decision` 和 `reason` 作为其当前格式。
 
-<h4 id="allow-with-updatedinput">
-  需要用户交互的工具
-</h4>
+#### 需要用户交互的工具
 
 `AskUserQuestion` 和 `ExitPlanMode` 需要用户交互。在使用 `-p` 标志的[非交互模式](/docs/zh-CN/headless)下，只有当运行具有接收提示的[权限宿主](/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs)（例如 Agent SDK 的 `canUseTool` 回调）时，Claude Code 才会提供这些工具。
 
@@ -2172,9 +1990,7 @@ Windows 上的 `Write` 调用会传递：
 
 其服务器用 [`_meta["anthropic/requiresUserInteraction"]`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 标记的 MCP 工具要求更严格：hook 无法通过 `"allow"` 跳过其批准提示，无论是否附带 `updatedInput`，因为 Claude Code 无法确认该 hook 已完成该工具所需的交互。
 
-<h4 id="defer-a-tool-call-for-later">
-  延迟工具调用
-</h4>
+#### 延迟工具调用
 
 `"defer"` 适用于将 `claude -p` 作为子进程运行并读取其 JSON 输出的集成，例如 Agent SDK 应用或基于 Claude Code 构建的自定义 UI。它允许调用进程在某个工具调用处暂停 Claude，通过自己的界面收集输入，然后从中断处恢复。Claude Code 仅在使用 `-p` 标志的[非交互模式](/docs/zh-CN/headless)下遵守此值。在交互式会话中，它会记录一条警告并忽略该 hook 结果。
 
@@ -2208,15 +2024,13 @@ Windows 上的 `Write` 调用会传递：
 
 如果恢复时延迟的工具已不再可用，进程会在 hook 触发之前以 `stop_reason: "tool_deferred_unavailable"` 和 `is_error: true` 退出。当提供该工具的 MCP 服务器未在恢复的会话中连接时，就会发生这种情况。`deferred_tool_use` 数据仍会包含在内，以便您识别缺失的是哪个工具。
 
-<Note>
-  要在计划模式下恢复延迟的会话，请将 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 与 `--resume` 一起传入，以便 Claude Code 可以呈现计划供批准。有关其他条件，请参阅[使用 `-p` 在计划模式下恢复](/docs/zh-CN/sessions#resume-in-plan-mode-with-p)。需要 Claude Code v2.1.246 或更高版本。
+> [!NOTE]
+>
+> 要在计划模式下恢复延迟的会话，请将 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 与 `--resume` 一起传入，以便 Claude Code 可以呈现计划供批准。有关其他条件，请参阅[使用 `-p` 在计划模式下恢复](/docs/zh-CN/sessions#resume-in-plan-mode-with-p)。需要 Claude Code v2.1.246 或更高版本。
+>
+> 当您使用 `-p` 恢复时，Claude Code 不会还原任何其他已存储的权限模式。它会以新的 `claude -p` 运行所使用的权限模式启动运行，因此如果延迟的会话使用了 `--permission-mode` 或 `--dangerously-skip-permissions`，请再次传入。当您不带 `-p` 使用 `claude --resume <session-id>` 恢复时，Claude Code 会还原已存储的权限模式，但[恢复时的权限模式](/docs/zh-CN/sessions#permission-mode-on-resume)中列出的例外情况除外。
 
-  当您使用 `-p` 恢复时，Claude Code 不会还原任何其他已存储的权限模式。它会以新的 `claude -p` 运行所使用的权限模式启动运行，因此如果延迟的会话使用了 `--permission-mode` 或 `--dangerously-skip-permissions`，请再次传入。当您不带 `-p` 使用 `claude --resume <session-id>` 恢复时，Claude Code 会还原已存储的权限模式，但[恢复时的权限模式](/docs/zh-CN/sessions#permission-mode-on-resume)中列出的例外情况除外。
-</Note>
-
-<h3 id="permissionrequest">
-  PermissionRequest
-</h3>
+### PermissionRequest
 
 在 Claude Code 即将向您请求使用某个工具的权限时运行。在无法显示提示的会话中，例如[非交互模式](/docs/zh-CN/headless)下的后台子代理，Claude Code 仍会运行这些 hook；如果没有 hook 返回决策，它会拒绝该工具调用。对于到达 `--permission-prompt-tool` 或 Agent SDK [`canUseTool` 回调](/docs/zh-CN/agent-sdk/permissions)的调用，hook 会与您的宿主并行运行，以先做出决策的一方为准。
 使用 [PermissionRequest 决策控制](#permissionrequest-decision-control)代表用户允许或拒绝。
@@ -2227,9 +2041,7 @@ Claude Code 不会为沙箱化命令的[网络请求](/docs/zh-CN/sandboxing#net
 
 按工具名称匹配，取值与 PreToolUse 相同。
 
-<h4 id="permissionrequest-input">
-  PermissionRequest 输入
-</h4>
+#### PermissionRequest 输入
 
 PermissionRequest hook 与 PreToolUse hook 一样接收 `tool_name` 和 `tool_input` 字段，但不包含 `tool_use_id`。对于 MCP 工具，它们还会接收 [`mcp_server`](#pretooluse-input) 对象。可选的 `permission_suggestions` 数组包含 Claude Code 针对此请求建议的[权限更新](#permission-update-entries)，例如添加允许规则或更改权限模式。
 
@@ -2260,9 +2072,7 @@ PreToolUse hook 在每次工具调用之前运行，无论该调用是否需要�
 }
 ```
 
-<h4 id="permissionrequest-decision-control">
-  PermissionRequest 决策控制
-</h4>
+#### PermissionRequest 决策控制
 
 `PermissionRequest` hook 可以允许或拒绝权限请求。除了所有 hook 都可用的 [JSON 输出字段](#json-output)之外，您的 hook 脚本还可以返回一个包含以下事件特定字段的 `decision` 对象：
 
@@ -2290,9 +2100,7 @@ PreToolUse hook 在每次工具调用之前运行，无论该调用是否需要�
 }
 ```
 
-<h4 id="permission-update-entries">
-  权限更新条目
-</h4>
+#### 权限更新条目
 
 `updatedPermissions` 输出字段和 [`permission_suggestions` 输入字段](#permissionrequest-input)都使用相同的条目对象数组。每个条目都有一个决定其其他字段的 `type`，以及一个控制更改写入位置的 `destination`。
 
@@ -2305,11 +2113,11 @@ PreToolUse hook 在每次工具调用之前运行，无论该调用是否需要�
 | `addDirectories` | `directories`、`destination` | 添加工作目录。`directories` 是一个路径字符串数组 |
 | `removeDirectories` | `directories`、`destination` | 删除工作目录 |
 
-<Note>
-  仅当您启动会话时 bypass 模式已可用，带有 `bypassPermissions` 的 `setMode` 才会生效：即使用了 `--dangerously-skip-permissions`、`--permission-mode bypassPermissions`、`--allow-dangerously-skip-permissions`，或在[用户设置、`--settings` 或托管设置](/docs/zh-CN/settings-reference#permissions-defaultmode)中设置了 `permissions.defaultMode: "bypassPermissions"`。否则该更新不会产生任何效果。当 [`permissions.disableBypassPermissionsMode`](/docs/zh-CN/permissions#managed-settings) 禁用该模式，或会话以[受限模式](/docs/zh-CN/cli-reference#cli-flags)启动时，该更新同样不会产生任何效果。
-
-  无论 `destination` 为何值，`bypassPermissions` 都不会被持久化为 `defaultMode`。
-</Note>
+> [!NOTE]
+>
+> 仅当您启动会话时 bypass 模式已可用，带有 `bypassPermissions` 的 `setMode` 才会生效：即使用了 `--dangerously-skip-permissions`、`--permission-mode bypassPermissions`、`--allow-dangerously-skip-permissions`，或在[用户设置、`--settings` 或托管设置](/docs/zh-CN/settings-reference#permissions-defaultmode)中设置了 `permissions.defaultMode: "bypassPermissions"`。否则该更新不会产生任何效果。当 [`permissions.disableBypassPermissionsMode`](/docs/zh-CN/permissions#managed-settings) 禁用该模式，或会话以[受限模式](/docs/zh-CN/cli-reference#cli-flags)启动时，该更新同样不会产生任何效果。
+>
+> 无论 `destination` 为何值，`bypassPermissions` 都不会被持久化为 `defaultMode`。
 
 每个条目上的 `destination` 字段决定更改是仅保留在内存中，还是持久化到设置文件中。
 
@@ -2322,9 +2130,7 @@ PreToolUse hook 在每次工具调用之前运行，无论该调用是否需要�
 
 hook 可以将其收到的某个 `permission_suggestions` 原样作为自己的 `updatedPermissions` 输出返回。
 
-<h3 id="posttooluse">
-  PostToolUse
-</h3>
+### PostToolUse
 
 在工具成功完成后立即运行。
 
@@ -2335,9 +2141,7 @@ hook 可以将其收到的某个 `permission_suggestions` 原样作为自己的 
 * 要在任何工具成功完成后运行 hook，请省略 `matcher` 或将其设置为 `"*"`。然后您的 hook 可以自行发现发生了哪些更改，例如运行 `git status --porcelain`，它还会列出 `git diff` 遗漏的未跟踪文件。对于失败的工具调用，请在 [PostToolUseFailure](#posttoolusefailure) 下添加相同的 hook。
 * 要在特定文件在磁盘上发生更改时运行 hook（无论由谁写入），请使用 [FileChanged](#filechanged)。当 `Bash` 命令或 Claude Code 之外的进程重写同一文件时，Claude Code 不会运行匹配 `Edit|Write` 的 `PostToolUse` hook。
 
-<h4 id="posttooluse-input">
-  PostToolUse 输入
-</h4>
+#### PostToolUse 输入
 
 `PostToolUse` hook 在工具已成功执行后触发。输入同时包含 `tool_input`（发送给工具的参数）和 `tool_response`（工具返回的结果）。两者的确切 schema 取决于具体工具。文件工具的 `tool_input` 路径格式与 [PreToolUse](#pretooluse-input) 相同：始终为绝对路径，并使用平台原生的分隔符，因此在 Windows 上为反斜杠。对于 MCP 工具，输入还会携带 [`mcp_server`](#pretooluse-input) 对象。
 
@@ -2366,9 +2170,7 @@ hook 可以将其收到的某个 `permission_suggestions` 原样作为自己的 
 | :- | :- |
 | `duration_ms` | 可选。工具执行时间（毫秒）。不包括在权限提示和 PreToolUse hook 中花费的时间 |
 
-<h4 id="posttooluse-decision-control">
-  PostToolUse 决策控制
-</h4>
+#### PostToolUse 决策控制
 
 `PostToolUse` hook 可以在工具执行后向 Claude 提供反馈。除了所有 hook 都可用的 [JSON 输出字段](#json-output)之外，您的 hook 脚本还可以返回以下事件特定字段：
 
@@ -2398,15 +2200,13 @@ hook 可以将其收到的某个 `permission_suggestions` 原样作为自己的 
 }
 ```
 
-<Warning>
-  `updatedToolOutput` 只会改变 Claude 看到的内容。hook 触发时工具已经运行，因此任何已写入的文件、已执行的命令或已发送的网络请求都已生效。诸如 OpenTelemetry 工具 span 和分析事件之类的遥测数据也会在 hook 运行之前捕获原始输出。要在工具调用运行之前阻止或修改它，请改用 [PreToolUse](#pretooluse) hook。
+> [!WARNING]
+>
+> `updatedToolOutput` 只会改变 Claude 看到的内容。hook 触发时工具已经运行，因此任何已写入的文件、已执行的命令或已发送的网络请求都已生效。诸如 OpenTelemetry 工具 span 和分析事件之类的遥测数据也会在 hook 运行之前捕获原始输出。要在工具调用运行之前阻止或修改它，请改用 [PreToolUse](#pretooluse) hook。
+>
+> 替换值必须与工具的输出结构相匹配。内置工具返回的是结构化对象，而不是纯字符串。例如，`Bash` 返回一个包含 `stdout`、`stderr`、`interrupted` 和 `isImage` 字段的对象。对于内置工具，与工具输出 schema 不匹配的值会被忽略，并使用原始输出。MCP 工具输出会直接传递，不进行 schema 验证。删除 Claude 需要的错误详细信息可能会导致它基于错误的假设继续执行。
 
-  替换值必须与工具的输出结构相匹配。内置工具返回的是结构化对象，而不是纯字符串。例如，`Bash` 返回一个包含 `stdout`、`stderr`、`interrupted` 和 `isImage` 字段的对象。对于内置工具，与工具输出 schema 不匹配的值会被忽略，并使用原始输出。MCP 工具输出会直接传递，不进行 schema 验证。删除 Claude 需要的错误详细信息可能会导致它基于错误的假设继续执行。
-</Warning>
-
-<h4 id="annotate-a-result-for-the-auto-mode-classifier">
-  为自动模式分类器注释结果
-</h4>
+#### 为自动模式分类器注释结果
 
 返回 `classifierContext` 可将关于工具调用结果的简短说明发送给[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)分类器，而不是发送给 Claude。分类器[从不接收工具结果本身](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions)，因此该字段是在分类器审查后续操作之前，告知其某次调用返回内容的受支持方式。该字段需要 Claude Code v2.1.236 或更高版本。
 
@@ -2433,25 +2233,21 @@ Claude Code 在传递该说明时会施加以下限制：
 * **分类器不记录的调用**：分类器的会话记录会省略只读查找，例如文件读取和搜索。Claude Code 会丢弃附加到这类调用上的说明
 * **与重写的交互**：当说明描述的是您正在用 `updatedToolOutput` 替换的输出时，请在同一个 hook 响应中同时返回这两个字段。如果该重写被拒绝，或被另一个 hook 的重写替换，Claude Code 会丢弃该说明。即使另一个 hook 重写了输出，Claude Code 仍会传递您在未进行重写的情况下返回的说明
 
-<Warning>
-  分类器会将您放入 `classifierContext` 的内容视为来自托管该会话的应用程序的信息，因此请勿将不受信任的工具输出或第三方文本复制到其中。请将说明限定为关于这一次调用的简短断言，例如关于其来源的事实或用户对其所作的陈述；不要使用该字段传递无关消息或一系列事件。
-</Warning>
+> [!WARNING]
+>
+> 分类器会将您放入 `classifierContext` 的内容视为来自托管该会话的应用程序的信息，因此请勿将不受信任的工具输出或第三方文本复制到其中。请将说明限定为关于这一次调用的简短断言，例如关于其来源的事实或用户对其所作的陈述；不要使用该字段传递无关消息或一系列事件。
 
-<h3 id="posttoolusefailure">
-  PostToolUseFailure
-</h3>
+### PostToolUseFailure
 
 当已开始执行的工具失败时运行：工具抛出了错误，或 MCP 工具返回了错误结果。可用于记录失败日志、发送警报或向 Claude 提供纠正性反馈。
 
 按工具名称匹配，取值与 PreToolUse 相同。
 
-<Note>
-  对于在执行前被拒绝的工具调用，此事件不会触发：例如未知的工具名称、未通过 schema 或工具特定验证的输入，或权限拒绝。验证拒绝会以 `tool_use_error` 结果返回，且发生在 hook 运行之前，因此既不会触发 `PreToolUse`，也不会触发 `PostToolUseFailure`。权限拒绝会触发 `PreToolUse`，但不会触发此事件；请参阅 [PermissionDenied](#permissiondenied)。
-</Note>
+> [!NOTE]
+>
+> 对于在执行前被拒绝的工具调用，此事件不会触发：例如未知的工具名称、未通过 schema 或工具特定验证的输入，或权限拒绝。验证拒绝会以 `tool_use_error` 结果返回，且发生在 hook 运行之前，因此既不会触发 `PreToolUse`，也不会触发 `PostToolUseFailure`。权限拒绝会触发 `PreToolUse`，但不会触发此事件；请参阅 [PermissionDenied](#permissiondenied)。
 
-<h4 id="posttoolusefailure-input">
-  PostToolUseFailure 输入
-</h4>
+#### PostToolUseFailure 输入
 
 PostToolUseFailure hook 接收与 PostToolUse 相同的 `tool_name` 和 `tool_input` 字段，以及作为顶层字段的错误信息。对于 MCP 工具，它们还会接收 [`mcp_server`](#pretooluse-input) 对象。例如，一条失败的 `npm test` 命令可能会传递：
 
@@ -2486,9 +2282,7 @@ PostToolUseFailure hook 接收与 PostToolUse 相同的 `tool_name` 和 `tool_in
 * 当 Claude Code 无法启动 shell 进程本身时，负载也可能只携带一条不含退出码行的失败消息
 * Claude Code 会在 `... [N characters truncated] ...` 标记处对长字符串进行中间截断，并且可能插入自己的行，例如 `Command timed out after 2m 0s`
 
-<h4 id="posttoolusefailure-decision-control">
-  PostToolUseFailure 决策控制
-</h4>
+#### PostToolUseFailure 决策控制
 
 `PostToolUseFailure` hook 可以在工具失败后向 Claude 提供上下文。除了所有 hook 都可用的 [JSON 输出字段](#json-output)之外，您的 hook 脚本还可以返回以下事件特定字段：
 
@@ -2505,15 +2299,11 @@ PostToolUseFailure hook 接收与 PostToolUse 相同的 `tool_name` 和 `tool_in
 }
 ```
 
-<h3 id="posttoolbatch">
-  PostToolBatch
-</h3>
+### PostToolBatch
 
 在一批中的所有工具调用都已完成之后、Claude Code 向模型发送下一个请求之前运行一次。`PostToolUse` 对每个工具触发一次，这意味着当 Claude 进行并行工具调用时，它会并发触发。`PostToolBatch` 针对整批调用恰好触发一次，因此适合注入依赖于所运行工具集合（而非任何单个工具）的上下文。此事件没有匹配器。
 
-<h4 id="posttoolbatch-input">
-  PostToolBatch 输入
-</h4>
+#### PostToolBatch 输入
 
 除了[通用输入字段](#common-input-fields)之外，PostToolBatch hook 还会接收 `tool_calls`，这是一个描述批次中每个工具调用的数组：
 
@@ -2543,13 +2333,11 @@ PostToolUseFailure hook 接收与 PostToolUse 相同的 `tool_name` 和 `tool_in
 
 `tool_response` 包含与模型在对应 `tool_result` 块中收到的相同内容。该值是序列化字符串或内容块数组，与工具发出时完全一致。对于 `Read`，这意味着是带行号前缀的文本，而不是原始文件内容。响应可能很大，因此只解析您需要的字段。
 
-<Note>
-  `tool_response` 的结构与 `PostToolUse` 的不同。`PostToolUse` 传递的是工具的结构化 `Output` 对象，例如 `Write` 的 `{filePath: "...", type: "create"}`；`PostToolBatch` 传递的是模型看到的序列化 `tool_result` 内容。
-</Note>
+> [!NOTE]
+>
+> `tool_response` 的结构与 `PostToolUse` 的不同。`PostToolUse` 传递的是工具的结构化 `Output` 对象，例如 `Write` 的 `{filePath: "...", type: "create"}`；`PostToolBatch` 传递的是模型看到的序列化 `tool_result` 内容。
 
-<h4 id="posttoolbatch-decision-control">
-  PostToolBatch 决策控制
-</h4>
+#### PostToolBatch 决策控制
 
 `PostToolBatch` hook 可以为 Claude 注入上下文。除了所有 hook 都可用的 [JSON 输出字段](#json-output)之外，您的 hook 脚本还可以返回以下事件特定字段：
 
@@ -2568,17 +2356,13 @@ PostToolUseFailure hook 接收与 PostToolUse 相同的 `tool_name` 和 `tool_in
 
 返回 `decision: "block"` 或 `continue: false` 会在下一次模型调用之前停止智能体循环。阻止消息来自 JSON 的 `reason` 或 `stopReason`，或者来自以退出码 2 退出时的 stderr。您会在会话记录中看到它显示为警告，并且它会保留在对话中，因此当对话继续时 Claude 也会看到它。
 
-<h3 id="permissiondenied">
-  PermissionDenied
-</h3>
+### PermissionDenied
 
 当[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)拒绝工具调用时运行，包括在没有分类器判定的情况下拒绝的情形——原因是[独立于自动模式的安全检查拒绝了分类器自身的请求](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)，或分类器的响应无法解析。此 hook 仅在自动模式下触发：当您手动拒绝权限对话框、`PreToolUse` hook 阻止调用或 `deny` 规则匹配时，它不会运行。可用于记录拒绝日志、调整配置，或告知模型可以重试该工具调用。
 
 按工具名称匹配，取值与 PreToolUse 相同。
 
-<h4 id="permissiondenied-input">
-  PermissionDenied 输入
-</h4>
+#### PermissionDenied 输入
 
 除了[通用输入字段](#common-input-fields)之外，PermissionDenied hook 还会接收 `tool_name`、`tool_input`、`tool_use_id` 和 `reason`。对于 MCP 工具，它们还会接收 [`mcp_server`](#pretooluse-input) 对象。
 
@@ -2603,9 +2387,7 @@ PostToolUseFailure hook 接收与 PostToolUse 相同的 `tool_name` 和 `tool_in
 | :- | :- |
 | `reason` | 拒绝原因。对于分类器判定，在大多数会话中，它会用方括号标明匹配的规则，例如 `[Data Exfiltration]`；其他形式请参阅[查看拒绝记录](/docs/zh-CN/auto-mode-config#review-denials)。对于[无判定拒绝](#permissiondenied-decision-control)，它以 `Auto mode could not evaluate this action and is blocking it for safety` 开头。对于因分类器模型不可用而导致的拒绝，它是固定文本 `Classifier unavailable` |
 
-<h4 id="permissiondenied-decision-control">
-  PermissionDenied 决策控制
-</h4>
+#### PermissionDenied 决策控制
 
 PermissionDenied hook 可以告知模型可以重试被拒绝的工具调用。返回一个将 `hookSpecificOutput.retry` 设置为 `true` 的 JSON 对象：
 
@@ -2622,9 +2404,7 @@ PermissionDenied hook 可以告知模型可以重试被拒绝的工具调用。�
 
 当分类器[未对该操作作出判定](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)时（其响应无法解析，或独立于自动模式的安全检查拒绝了分类器自身的请求），Claude Code 会忽略 `retry: true`。对于这些拒绝，Claude Code 已经在拒绝消息中告知模型是稍后重试还是继续其他工作。
 
-<h3 id="notification">
-  Notification
-</h3>
+### Notification
 
 在 Claude Code 发送通知时运行。按通知类型匹配。省略匹配器可为所有通知类型运行 hook。
 
@@ -2651,15 +2431,15 @@ PermissionDenied hook 可以告知模型可以重试被拒绝的工具调用。�
 
 针对队友终端设置问题的 `agent_needs_input` 需要 Claude Code v2.1.248 或更高版本。
 
-<Note>
-  `permission_prompt`、`idle_prompt`、`elicitation_dialog` 和 `elicitation_url_dialog` 类型与桌面通知共享计时方式，因此在终端会话中，只有当您看起来已离开终端时才会看到它们：
-
-  * `permission_prompt` 会在您约六秒未进行输入后出现。计时器在权限提示出现时开始，每次按键都会推迟它。要在 Claude 请求使用工具的权限时立即运行 hook，请改用 [PermissionRequest](#permissionrequest)。
-  * `idle_prompt` 会在 Claude 完成回复约 60 秒后出现，且仅当此后您未进行输入，并且没有后台 Agent（例如后台[子代理](/docs/zh-CN/sub-agents)）仍在运行时。Claude Code 在等待 claude.ai 用量限制重置期间不会发送 `idle_prompt`。当等待自行结束时，会改为触发某个 `quota_auto_resume_*` 类型。
-  * 对于 elicitation 表单会出现 `elicitation_dialog`，对于浏览器 URL 请求会出现 `elicitation_url_dialog`，两者均在您约六秒未进行输入后出现。两者与 `permission_prompt` 共享相同的六秒门槛：计时器在对话框出现时开始，每次按键都会推迟它。
-
-  如果权限请求或 elicitation 在另一个对话框显示于屏幕上时到达，同样适用六秒门槛，从请求到达时开始计时。其通知可能在该请求仍排在已打开对话框之后等待时就送达您。
-</Note>
+> [!NOTE]
+>
+> `permission_prompt`、`idle_prompt`、`elicitation_dialog` 和 `elicitation_url_dialog` 类型与桌面通知共享计时方式，因此在终端会话中，只有当您看起来已离开终端时才会看到它们：
+>
+> * `permission_prompt` 会在您约六秒未进行输入后出现。计时器在权限提示出现时开始，每次按键都会推迟它。要在 Claude 请求使用工具的权限时立即运行 hook，请改用 [PermissionRequest](#permissionrequest)。
+> * `idle_prompt` 会在 Claude 完成回复约 60 秒后出现，且仅当此后您未进行输入，并且没有后台 Agent（例如后台[子代理](/docs/zh-CN/sub-agents)）仍在运行时。Claude Code 在等待 claude.ai 用量限制重置期间不会发送 `idle_prompt`。当等待自行结束时，会改为触发某个 `quota_auto_resume_*` 类型。
+> * 对于 elicitation 表单会出现 `elicitation_dialog`，对于浏览器 URL 请求会出现 `elicitation_url_dialog`，两者均在您约六秒未进行输入后出现。两者与 `permission_prompt` 共享相同的六秒门槛：计时器在对话框出现时开始，每次按键都会推迟它。
+>
+> 如果权限请求或 elicitation 在另一个对话框显示于屏幕上时到达，同样适用六秒门槛，从请求到达时开始计时。其通知可能在该请求仍排在已打开对话框之后等待时就送达您。
 
 在 Claude Code 将权限请求发送到 Agent SDK 的 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/user-input)的会话中（Claude Desktop 和 VS Code 扩展就是以这种方式托管 Claude Code 的），Claude Code 对 `permission_prompt` 的计时有所不同：
 
@@ -2698,9 +2478,7 @@ PermissionDenied hook 可以告知模型可以重试被拒绝的工具调用。�
 }
 ```
 
-<h4 id="notification-input">
-  Notification 输入
-</h4>
+#### Notification 输入
 
 除了[通用输入字段](#common-input-fields)之外，Notification hook 还会接收包含通知文本的 `message`、可选的 `title`，以及指示触发类型的 `notification_type`。
 
@@ -2718,17 +2496,13 @@ PermissionDenied hook 可以告知模型可以重试被拒绝的工具调用。�
 
 Notification hook 无法阻止或修改通知。Claude Code 会丢弃它们的 `systemMessage` 和 `continue` 字段，但仍会发出 [`terminalSequence`](#emit-terminal-notifications)，桌面通知示例正依赖于此。Notification hook 旨在用于副作用，例如将通知转发到外部服务。
 
-<h3 id="subagentstart">
-  SubagentStart
-</h3>
+### SubagentStart
 
 在 Claude 使用 Agent 工具生成子代理时、在 Claude [恢复子代理](/docs/zh-CN/sub-agents#resume-subagents)时，以及每次进程内 [agent team](/docs/zh-CN/agent-teams) 队友处理新消息时运行。支持使用匹配器按 Agent 类型名称进行过滤。对于内置 Agent，这是 Agent 名称，例如 `general-purpose`、`Explore` 或 `Plan`。对于[自定义子代理](/docs/zh-CN/sub-agents)，这是 Agent frontmatter 中的 `name` 字段，而不是文件名。
 
 对于由[插件](/docs/zh-CN/plugins/overview)提供的子代理，Agent 类型是插件作用域的标识符，例如 `my-plugin:reviewer`，而不是单纯的 frontmatter 名称。冒号会使插件作用域名称走正则表达式匹配路径，因此请用 `^` 和 `$` 锚定匹配器以实现精确匹配：`^my-plugin:reviewer$`。
 
-<h4 id="subagentstart-input">
-  SubagentStart 输入
-</h4>
+#### SubagentStart 输入
 
 除了[通用输入字段](#common-input-fields)之外，SubagentStart hook 还会接收包含子代理唯一标识符的 `agent_id`，以及包含匹配器所过滤 Agent 名称的 `agent_type`。
 
@@ -2760,15 +2534,11 @@ SubagentStart hook 无法阻止子代理的创建，但可以向子代理注入�
 
 当 hook 针对同一子代理再次运行时，只有当子代理的上下文中尚未包含之前运行的副本时，Claude Code 才会注入返回的上下文。启动时注入的副本会保留在原处，从而保持子代理的[提示缓存](/docs/zh-CN/prompt-caching#subagents-and-the-cache)不变。在[自动压缩](/docs/zh-CN/sub-agents#auto-compaction)丢弃该副本之后，Claude Code 会再次注入下一次运行的上下文。
 
-<h3 id="subagentstop">
-  SubagentStop
-</h3>
+### SubagentStop
 
 在 Claude Code 子代理完成回复时运行。按 Agent 类型匹配，取值与 SubagentStart 相同。
 
-<h4 id="subagentstop-input">
-  SubagentStop 输入
-</h4>
+#### SubagentStop 输入
 
 除了[通用输入字段](#common-input-fields)之外，SubagentStop hook 还会接收 `stop_hook_active`、`agent_id`、`agent_type`、`agent_transcript_path` 和 `last_assistant_message`。`agent_type` 字段是用于匹配器过滤的值。`transcript_path` 是主会话的会话记录，而 `agent_transcript_path` 是子代理自己的会话记录，存储在嵌套的 `subagents/` 文件夹中。`last_assistant_message` 字段包含子代理最终回复的文本内容，因此 hook 无需解析会话记录文件即可访问它。
 
@@ -2799,17 +2569,13 @@ SubagentStop hook 还会接收 [Stop 输入](#stop-input)中所述的 `backgroun
 
 SubagentStop hook 使用与 [Stop hook](#stop-decision-control) 相同的决策控制格式，包括将 `hookEventName` 设置为 `"SubagentStop"` 的 `hookSpecificOutput.additionalContext`，用于提供让子代理继续运行的非错误反馈。返回带有 `reason` 的 `decision: "block"` 会让子代理继续运行，并将 `reason` 作为其下一条指令传递给子代理。通过以退出码 2 退出来进行阻止的 hook 会以相同方式传递其 stderr 消息。要在子代理返回后向父会话注入上下文，请改为在 `Agent` 工具上使用 [`PostToolUse`](#posttooluse) hook。
 
-<h3 id="taskcreated">
-  TaskCreated
-</h3>
+### TaskCreated
 
 在通过 `TaskCreate` 工具创建任务时运行。可用于强制执行命名约定、要求提供任务描述，或阻止创建某些任务。在[没有 Task 工具的会话](/docs/zh-CN/tools-reference#task-tool-availability)中，此事件不会触发。
 
 TaskCreated hook 不支持匹配器，每次发生时都会触发。
 
-<h4 id="taskcreated-input">
-  TaskCreated 输入
-</h4>
+#### TaskCreated 输入
 
 除了[通用输入字段](#common-input-fields)之外，TaskCreated hook 还会接收 `task_id`、`task_subject`，以及可选的 `task_description`、`teammate_name` 和 `team_name`。
 
@@ -2836,9 +2602,7 @@ TaskCreated hook 不支持匹配器，每次发生时都会触发。
 | `team_name` | 已弃用。从会话派生的团队名称；将在未来版本中移除 |
 | `agent_id` | 在此事件中，该[通用输入字段](#common-input-fields)标识创建任务的子代理或[进程内队友](/docs/zh-CN/agent-teams#choose-a-display-mode)。可能不存在。需要 Claude Code v2.1.290 或更高版本 |
 
-<h4 id="taskcreated-decision-control">
-  TaskCreated 决策控制
-</h4>
+#### TaskCreated 决策控制
 
 TaskCreated hook 可以通过退出码 2 或 JSON 决策来阻止创建。无论哪种方式，Claude Code 都会删除该任务，并将您的消息作为工具错误返回给 Claude。Claude Code 会忽略此事件中的 `continue: false`，Claude 会继续工作。
 
@@ -2860,17 +2624,13 @@ fi
 exit 0
 ```
 
-<h3 id="taskcompleted">
-  TaskCompleted
-</h3>
+### TaskCompleted
 
 在任务被标记为已完成时运行。它在两种情况下触发：任何 Agent 通过 TaskUpdate 工具显式将任务标记为已完成时，或者 [agent team](/docs/zh-CN/agent-teams) 队友在仍有进行中任务的情况下结束其轮次时。可用于在任务关闭之前强制执行完成标准，例如通过测试或 lint 检查。
 
 TaskCompleted hook 不支持匹配器，每次发生时都会触发。
 
-<h4 id="taskcompleted-input">
-  TaskCompleted 输入
-</h4>
+#### TaskCompleted 输入
 
 除了[通用输入字段](#common-input-fields)之外，TaskCompleted hook 还会接收 `task_id`、`task_subject`，以及可选的 `task_description`、`teammate_name` 和 `team_name`。
 
@@ -2898,9 +2658,7 @@ TaskCompleted hook 不支持匹配器，每次发生时都会触发。
 | `team_name` | 已弃用。从会话派生的团队名称；将在未来版本中移除 |
 | `agent_id` | 在此事件中，该[通用输入字段](#common-input-fields)标识完成任务的子代理或[进程内队友](/docs/zh-CN/agent-teams#choose-a-display-mode)。可能不存在。需要 Claude Code v2.1.290 或更高版本 |
 
-<h4 id="taskcompleted-decision-control">
-  TaskCompleted 决策控制
-</h4>
+#### TaskCompleted 决策控制
 
 TaskCompleted hook 支持两种控制任务完成的方式：
 
@@ -2923,20 +2681,16 @@ fi
 exit 0
 ```
 
-<h3 id="stop">
-  Stop
-</h3>
+### Stop
 
 在 Claude Code 主 Agent 完成回复时运行。如果停止是由用户中断引起的，则不会运行。API 错误会改为触发
 [StopFailure](#stopfailure)。
 
-<Tip>
-  [`/goal`](/docs/zh-CN/goal) 命令是会话作用域、基于提示词的 Stop hook 的内置快捷方式。当您希望 Claude 持续朝某个条件工作而无需编写 hook 配置时，可以使用它。
-</Tip>
+> [!TIP]
+>
+> [`/goal`](/docs/zh-CN/goal) 命令是会话作用域、基于提示词的 Stop hook 的内置快捷方式。当您希望 Claude 持续朝某个条件工作而无需编写 hook 配置时，可以使用它。
 
-<h4 id="stop-input">
-  Stop 输入
-</h4>
+#### Stop 输入
 
 除了[通用输入字段](#common-input-fields)之外，Stop hook 还会接收 `stop_hook_active`、`last_assistant_message`、`background_tasks` 和 `session_crons`。当 Claude Code 已经因 stop hook 而继续执行时，`stop_hook_active` 字段为 `true`。请检查此值或处理会话记录，以避免因一个永远不会满足的条件而持续阻止。
 
@@ -3000,9 +2754,7 @@ Claude Code 设有连续 8 次继续的上限：在 stop hook 连续八次让轮
 }
 ```
 
-<h4 id="stop-decision-control">
-  Stop 决策控制
-</h4>
+#### Stop 决策控制
 
 `Stop` 和 `SubagentStop` hook 可以控制 Claude 是否继续。除了所有 hook 都可用的 [JSON 输出字段](#json-output)之外，您的 hook 脚本还可以返回以下事件特定字段：
 
@@ -3032,15 +2784,11 @@ Claude Code 设有连续 8 次继续的上限：在 stop hook 连续八次让轮
 }
 ```
 
-<h3 id="stopfailure">
-  StopFailure
-</h3>
+### StopFailure
 
 当轮次因 API 错误而结束时，代替 [Stop](#stop) 运行。除 [`terminalSequence`](#emit-terminal-notifications) 之外，Claude Code 会忽略该 hook 的输出和退出码。当 Claude 因速率限制、身份验证问题或其他 API 错误而无法完成回复时，可用于记录失败日志、发送警报或采取恢复操作。
 
-<h4 id="stopfailure-input">
-  StopFailure 输入
-</h4>
+#### StopFailure 输入
 
 除了[通用输入字段](#common-input-fields)之外，StopFailure hook 还会接收 `error`、可选的 `error_details` 和可选的 `last_assistant_message`。`error` 字段标识错误类型，并用于匹配器过滤。
 
@@ -3064,17 +2812,13 @@ Claude Code 设有连续 8 次继续的上限：在 stop hook 连续八次让轮
 
 StopFailure hook 没有决策控制。它们仅用于通知和日志记录目的。
 
-<h3 id="teammateidle">
-  TeammateIdle
-</h3>
+### TeammateIdle
 
 当 [agent team](/docs/zh-CN/agent-teams) 队友在结束其轮次后即将进入空闲状态时运行。可用于在队友停止工作之前强制执行质量关卡，例如要求通过 lint 检查或验证输出文件是否存在。
 
 TeammateIdle hook 不支持匹配器，每次发生时都会触发。
 
-<h4 id="teammateidle-input">
-  TeammateIdle 输入
-</h4>
+#### TeammateIdle 输入
 
 除了[通用输入字段](#common-input-fields)之外，TeammateIdle hook 还会接收 `teammate_name` 和 `team_name`。
 
@@ -3096,9 +2840,7 @@ TeammateIdle hook 不支持匹配器，每次发生时都会触发。
 | `team_name` | 已弃用。从会话派生的团队名称；将在未来版本中移除 |
 | `agent_id` | 在此事件中，该[通用输入字段](#common-input-fields)标识即将进入空闲状态的[进程内队友](/docs/zh-CN/agent-teams#choose-a-display-mode)。可能不存在。需要 Claude Code v2.1.290 或更高版本 |
 
-<h4 id="teammateidle-decision-control">
-  TeammateIdle 决策控制
-</h4>
+#### TeammateIdle 决策控制
 
 TeammateIdle hook 支持两种控制队友行为的方式：
 
@@ -3118,9 +2860,7 @@ fi
 exit 0
 ```
 
-<h3 id="configchange">
-  ConfigChange
-</h3>
+### ConfigChange
 
 在会话期间配置文件发生更改时运行。可用于审计设置更改、强制执行安全策略，或阻止对配置文件的未授权修改。
 
@@ -3156,9 +2896,7 @@ exit 0
 }
 ```
 
-<h4 id="configchange-input">
-  ConfigChange 输入
-</h4>
+#### ConfigChange 输入
 
 除了[通用输入字段](#common-input-fields)之外，ConfigChange hook 还会接收 `source` 以及可选的 `file_path`。`source` 字段指示哪种配置类型发生了更改，`file_path` 提供被修改的具体文件的路径。
 
@@ -3173,9 +2911,7 @@ exit 0
 }
 ```
 
-<h4 id="configchange-decision-control">
-  ConfigChange 决策控制
-</h4>
+#### ConfigChange 决策控制
 
 ConfigChange hook 可以阻止配置更改生效。使用退出码 2 或 JSON `decision` 来阻止更改。被阻止时，新设置不会应用到正在运行的会话。
 
@@ -3195,9 +2931,7 @@ ConfigChange hook 可以阻止配置更改生效。使用退出码 2 或 JSON `d
 
 Claude Code 会根据 ConfigChange hook JSON 输出中的阻止决策采取行动，并丢弃 `systemMessage` 和 `continue`。无论您是通过 `reason` 还是通过退出码 2 时的 stderr 进行阻止，被阻止的更改都不会向您或 Claude 显示任何消息。Claude Code 只会在调试日志中写入一行。
 
-<h3 id="cwdchanged">
-  CwdChanged
-</h3>
+### CwdChanged
 
 当主对话中的 shell 命令更改工作目录时运行，例如 Claude 执行 `cd` 命令时。可用于响应目录更改：重新加载环境变量、激活项目特定的工具链，或自动运行设置脚本。可与 [FileChanged](#filechanged) 搭配使用，以支持 [direnv](https://direnv.net/) 等按目录管理环境的工具。
 
@@ -3205,9 +2939,7 @@ CwdChanged hook 可以访问 [`CLAUDE_ENV_FILE`](#persist-environment-variables)
 
 CwdChanged 不支持匹配器，每次发生时都会触发。
 
-<h4 id="cwdchanged-input">
-  CwdChanged 输入
-</h4>
+#### CwdChanged 输入
 
 除了[通用输入字段](#common-input-fields)之外，CwdChanged hook 还会接收 `old_cwd` 和 `new_cwd`。
 
@@ -3222,9 +2954,7 @@ CwdChanged 不支持匹配器，每次发生时都会触发。
 }
 ```
 
-<h4 id="cwdchanged-output">
-  CwdChanged 输出
-</h4>
+#### CwdChanged 输出
 
 除了所有 hook 都可用的 [JSON 输出字段](#json-output)之外，CwdChanged hook 还可以返回 `watchPaths`，以动态设置 [FileChanged](#filechanged) 监视的文件路径：
 
@@ -3236,9 +2966,7 @@ CwdChanged hook 没有决策控制。它们无法阻止目录更改。
 
 Claude Code 会读取其 JSON 输出中的 `watchPaths` 和 `systemMessage`，并丢弃 `continue`。在交互式会话中，它会将 `systemMessage` 显示为简短的终端通知。该消息不会进入 SDK 消息流。
 
-<h3 id="directoryadded">
-  DirectoryAdded
-</h3>
+### DirectoryAdded
 
 在您于会话中途使用 `/add-dir` 命令添加工作目录之后，或在 SDK 客户端通过 `register_repo_root` 控制请求添加工作目录之后运行。可用于准备新添加的仓库，例如安装其依赖。
 
@@ -3259,9 +2987,7 @@ Claude Code 不会等待该 hook：添加操作会立即完成，hook 在后台�
 | `slash_command` | 您使用 `/add-dir` 添加目录 |
 | `register_repo_root` | SDK 客户端通过 `register_repo_root` 控制请求添加目录 |
 
-<h4 id="directoryadded-input">
-  DirectoryAdded 输入
-</h4>
+#### DirectoryAdded 输入
 
 除了[通用输入字段](#common-input-fields)之外，DirectoryAdded hook 还会接收 `directory` 和 `source`。
 
@@ -3286,9 +3012,7 @@ DirectoryAdded hook 没有决策控制。它们无法阻止添加操作，因为
 * `slash_command`：Claude Code 会在下一个对话轮次中将 hook 的 `systemMessage` 作为上下文传递给 Claude，而不是向您显示。会话记录中会显示失败 hook 的数量。完整的失败输出会写入调试日志
 * `register_repo_root`：Claude Code 仅将 `systemMessage` 输出和失败输出写入调试日志
 
-<h3 id="filechanged">
-  FileChanged
-</h3>
+### FileChanged
 
 当被监视的文件在磁盘上发生变化时运行。Claude Code 通过文件系统监视器检测变化，而不是通过检查工具调用，因此无论是什么更改了文件，它都会运行该 hook：`Edit` 或 `Write` 工具调用、Claude 通过 `Bash` 运行的脚本，或完全在 Claude Code 之外的进程。一个常见用途是在项目配置文件发生变化时重新加载环境变量。
 
@@ -3333,9 +3057,7 @@ fi
 
 FileChanged hook 可以访问 [`CLAUDE_ENV_FILE`](#persist-environment-variables)。写入该文件的变量会持续作用于后续的 Bash 命令，直到下一个 [CwdChanged](#cwdchanged) 事件发生时由 Claude Code 清除。
 
-<h4 id="filechanged-input">
-  FileChanged 输入
-</h4>
+#### FileChanged 输入
 
 除了[通用输入字段](#common-input-fields)之外，FileChanged hook 还会接收 `file_path` 和 `event`。
 
@@ -3355,9 +3077,7 @@ FileChanged hook 可以访问 [`CLAUDE_ENV_FILE`](#persist-environment-variables
 }
 ```
 
-<h4 id="filechanged-output">
-  FileChanged 输出
-</h4>
+#### FileChanged 输出
 
 除了所有 hook 都可用的 [JSON 输出字段](#json-output)之外，FileChanged hook 还可以返回 `watchPaths` 以动态更新要监视的文件路径：
 
@@ -3369,9 +3089,7 @@ FileChanged hook 没有决策控制。它们无法阻止文件更改的发生。
 
 Claude Code 从其 JSON 输出中读取 `watchPaths` 和 `systemMessage`，并丢弃 `continue`。在交互式会话中，它会将 `systemMessage` 显示为简短的终端通知。该消息不会进入 SDK 消息流。
 
-<h3 id="worktreecreate">
-  WorktreeCreate
-</h3>
+### WorktreeCreate
 
 在以下情况下，当 Claude Code 创建 worktree 时运行：
 
@@ -3413,9 +3131,7 @@ Claude Code 根据 hook 是否成功以及返回的路径采取行动，并丢�
 
 该 hook 从 stdin 上的 JSON 输入读取 worktree 的 `name`，将一份全新副本检出到新目录中，并打印该目录路径。最后一行的 `echo` 就是 Claude Code 读取为 worktree 路径的内容。请将其他所有输出重定向到 stderr，以免干扰路径。
 
-<h4 id="worktreecreate-input">
-  WorktreeCreate 输入
-</h4>
+#### WorktreeCreate 输入
 
 除了[通用输入字段](#common-input-fields)之外，WorktreeCreate hook 还会接收 `name` 字段。这是新 worktree 的 slug 标识符，由用户指定或自动生成，例如 `bold-oak-a3f2`。
 
@@ -3429,9 +3145,7 @@ Claude Code 根据 hook 是否成功以及返回的路径采取行动，并丢�
 }
 ```
 
-<h4 id="worktreecreate-output">
-  WorktreeCreate 输出
-</h4>
+#### WorktreeCreate 输出
 
 WorktreeCreate hook 不使用标准的允许/阻止决策模型。相反，由 hook 的成功或失败决定结果。该 hook 必须返回所创建的 worktree 目录的路径：
 
@@ -3444,9 +3158,7 @@ Claude Code 会相对于 hook 运行时所在的目录解析相对路径，并�
 
 Claude Code 会拒绝包含 `.` 或 `..` 片段的绝对路径，以及任何经过仓库根目录下符号链接的路径，因为提交到仓库中的符号链接可能会将 worktree 重定向到仓库之外。错误会指明被拒绝的组成部分。请返回一个不经过仓库内符号链接的规范化路径。在 v2.1.216 之前，worktree 创建会直接使用 hook 的路径，不进行此项检查。
 
-<h3 id="worktreeremove">
-  WorktreeRemove
-</h3>
+### WorktreeRemove
 
 当 Claude Code 清理由您的 [`WorktreeCreate`](#worktreecreate) hook 创建的 worktree 时运行。该事件在以下情况下触发：
 
@@ -3497,9 +3209,7 @@ Claude Code 会将 WorktreeCreate 返回的路径作为 hook 输入中的 `workt
 }
 ```
 
-<h4 id="worktreeremove-input">
-  WorktreeRemove 输入
-</h4>
+#### WorktreeRemove 输入
 
 除了[通用输入字段](#common-input-fields)之外，WorktreeRemove hook 还会接收 `worktree_path` 字段，即正在删除的 worktree 的绝对路径。
 
@@ -3519,9 +3229,7 @@ WorktreeRemove hook 的退出码决定结果。当 hook 以非零退出且之后
 * 如果您正在删除后台会话，该会话也会保留。[Agent 视图](/docs/zh-CN/agent-view#what-deleting-a-session-removes)中的拒绝消息会报告 hook 的结束方式（例如 `exited 1`），引用其 stderr 的开头部分，并说明再次删除该会话是否仍会删除该目录。
 * 如果 `claude remote-control` 正在清理会话的 worktree，运行它的终端会显示 `worktree removal failed, kept: <path>`。
 
-<h3 id="precompact">
-  PreCompact
-</h3>
+### PreCompact
 
 在 Claude Code 即将运行压缩操作之前运行。
 
@@ -3538,9 +3246,7 @@ WorktreeRemove hook 的退出码决定结果。当 hook 以非零退出且之后
 
 Claude Code 会丢弃 PreCompact hook 的 `systemMessage` 和 `continue` 字段。
 
-<h4 id="precompact-input">
-  PreCompact 输入
-</h4>
+#### PreCompact 输入
 
 除了[通用输入字段](#common-input-fields)之外，PreCompact hook 还会接收 `trigger` 和 `custom_instructions`。对于 `manual`，`custom_instructions` 包含用户传递给 `/compact` 的内容，如果用户未传递任何内容则为 `null`。对于 `auto`，`custom_instructions` 为 `null`。
 
@@ -3555,9 +3261,7 @@ Claude Code 会丢弃 PreCompact hook 的 `systemMessage` 和 `continue` 字段�
 }
 ```
 
-<h3 id="postcompact">
-  PostCompact
-</h3>
+### PostCompact
 
 在 Claude Code 完成压缩操作后运行。使用此事件对压缩后的新状态作出反应，例如记录生成的摘要或更新外部状态。Claude Code 会丢弃 PostCompact hook 的 `systemMessage` 和 `continue` 字段。
 
@@ -3568,9 +3272,7 @@ Claude Code 会丢弃 PreCompact hook 的 `systemMessage` 和 `continue` 字段�
 | `manual` | `/compact` 之后 |
 | `auto` | 对话达到[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)时的自动压缩之后，以及[空闲压缩](/docs/zh-CN/settings-reference#idlecompaction)之后 |
 
-<h4 id="postcompact-input">
-  PostCompact 输入
-</h4>
+#### PostCompact 输入
 
 除了[通用输入字段](#common-input-fields)之外，PostCompact hook 还会接收 `trigger` 和 `compact_summary`。`compact_summary` 字段包含压缩操作生成的对话摘要。
 
@@ -3587,9 +3289,7 @@ Claude Code 会丢弃 PreCompact hook 的 `systemMessage` 和 `continue` 字段�
 
 PostCompact hook 没有决策控制。它们无法影响压缩结果，但可以执行后续任务。
 
-<h3 id="premodelswitch">
-  PreModelSwitch
-</h3>
+### PreModelSwitch
 
 在 Claude Code 应用您或客户端请求的模型切换之前运行。使用它可以阻止切换、要求确认，或在切换发生之前显示切换的成本。
 
@@ -3609,75 +3309,71 @@ Claude Code 会将匹配器与会话将要切换到的模型的规范名称进�
 
 将匹配器写为精确名称、以 `|` 分隔的列表（例如 `claude-opus-4-6|claude-opus-5`），或正则表达式（例如 `.*opus.*`）。此示例使用精确名称匹配器，同时检查 hook 输入中的 `to_model`，因此它会通过以代码 2 退出来拒绝切换到 Opus 4.6，并允许切换到任何其他目标：
 
-<Tabs>
-  <Tab title="macOS/Linux">
-    该命令使用 `jq` 检查 `to_model`：
+**macOS/Linux**
 
-    ```json theme={null}
-    {
-      "hooks": {
-        "PreModelSwitch": [
+该命令使用 `jq` 检查 `to_model`：
+
+```json theme={null}
+{
+  "hooks": {
+    "PreModelSwitch": [
+      {
+        "matcher": "claude-opus-4-6",
+        "hooks": [
           {
-            "matcher": "claude-opus-4-6",
-            "hooks": [
-              {
-                "type": "command",
-                "command": "jq -e '.to_model | test(\"opus-4-6\")' > /dev/null && { echo 'Opus 4.6 is retired for this project. Use a newer model.' >&2; exit 2; }; exit 0"
-              }
+            "type": "command",
+            "command": "jq -e '.to_model | test(\"opus-4-6\")' > /dev/null && { echo 'Opus 4.6 is retired for this project. Use a newer model.' >&2; exit 2; }; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Windows (PowerShell)**
+
+注册一个通过 PowerShell 运行脚本的命令 hook：
+
+```json theme={null}
+{
+  "hooks": {
+    "PreModelSwitch": [
+      {
+        "matcher": "claude-opus-4-6",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy",
+              "Bypass",
+              "-File",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-opus-46.ps1"
             ]
           }
         ]
       }
-    }
-    ```
-  </Tab>
+    ]
+  }
+}
+```
 
-  <Tab title="Windows (PowerShell)">
-    注册一个通过 PowerShell 运行脚本的命令 hook：
+将此脚本保存到项目中的 `.claude/hooks/block-opus-46.ps1`：
 
-    ```json theme={null}
-    {
-      "hooks": {
-        "PreModelSwitch": [
-          {
-            "matcher": "claude-opus-4-6",
-            "hooks": [
-              {
-                "type": "command",
-                "command": "powershell.exe",
-                "args": [
-                  "-NoProfile",
-                  "-ExecutionPolicy",
-                  "Bypass",
-                  "-File",
-                  "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-opus-46.ps1"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    }
-    ```
-
-    将此脚本保存到项目中的 `.claude/hooks/block-opus-46.ps1`：
-
-    ```powershell theme={null}
-    $hookInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
-    if ($hookInput.to_model -match 'opus-4-6') {
-      [Console]::Error.WriteLine('Opus 4.6 is retired for this project. Use a newer model.')
-      exit 2
-    }
-    exit 0
-    ```
-  </Tab>
-</Tabs>
+```powershell theme={null}
+$hookInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
+if ($hookInput.to_model -match 'opus-4-6') {
+  [Console]::Error.WriteLine('Opus 4.6 is retired for this project. Use a newer model.')
+  exit 2
+}
+exit 0
+```
 
 要确认该 hook 是否正常工作，请在运行其他模型的会话中运行 `/model claude-opus-4-6`。Claude Code 会保留当前模型，并报告 PreModelSwitch hook 阻止了切换，以您的消息作为原因。
 
-<h4 id="premodelswitch-input">
-  PreModelSwitch 输入
-</h4>
+#### PreModelSwitch 输入
 
 除了[通用输入字段](#common-input-fields)之外，PreModelSwitch hook 还会接收下表中的字段。最后五个字段描述将对话重新发送到新模型的成本，因此 hook 可以在切换发生之前显示该数值。
 
@@ -3713,9 +3409,7 @@ Claude Code 会将匹配器与会话将要切换到的模型的规范名称进�
 }
 ```
 
-<h4 id="premodelswitch-decision-control">
-  PreModelSwitch 决策控制
-</h4>
+#### PreModelSwitch 决策控制
 
 `PreModelSwitch` hook 可以取消切换、要求用户确认，或允许其继续。退出码 2 或顶层的 `decision: "block"` 会取消切换。
 
@@ -3744,17 +3438,13 @@ Claude Code 会将匹配器与会话将要切换到的模型的规范名称进�
 
 无论决策如何，Claude Code 都会向用户显示您的 hook 返回的任何 `systemMessage`，因此报告成本的 hook 可以返回 `{"systemMessage": "..."}` 并以 0 退出。
 
-<h4 id="premodelswitch-timeouts-and-other-exit-codes">
-  PreModelSwitch 超时和其他退出码
-</h4>
+#### PreModelSwitch 超时和其他退出码
 
 在超时之前未响应的 PreModelSwitch hook 会阻止切换。此事件的默认超时时间为 30 秒。
 
 除 0 或 2 之外、且没有有效 JSON 输出的退出码属于[非阻止性错误](#other-exit-codes)，因此切换会继续进行，但[其失败会阻止操作](#block-the-action-when-a-hook-fails)的 hook 除外。
 
-<h3 id="postmodelswitch">
-  PostModelSwitch
-</h3>
+### PostModelSwitch
 
 在会话的模型更改后运行。使用它可以为 Claude 提供特定于模型的指导，而无需编辑每个 CLAUDE.md，例如适用于某些模型的组织范围指令。
 
@@ -3791,17 +3481,13 @@ PostModelSwitch 需要 Claude Code v2.1.251 或更高版本。它无法阻止，
 
 要确认该 hook 是否正常工作，请在运行其他模型的会话中切换到 Opus 模型，例如在 Sonnet 会话中运行 `/model opus`，然后询问 Claude 它对当前模型有什么指导。
 
-<h4 id="postmodelswitch-input">
-  PostModelSwitch 输入
-</h4>
+#### PostModelSwitch 输入
 
 PostModelSwitch hook 接收与 [PreModelSwitch](#premodelswitch-input) 相同的字段，其中 `hook_event_name` 设置为 `"PostModelSwitch"`，并且多了两个 `source` 值：`"auto"` 表示自动回退或 Claude Code 自行进行的其他更改，`"resume"` 表示恢复会话时还原的模型。
 
 当 `source` 为 `"auto"` 时，`requested_model` 为 `null`。当 `source` 为 `"resume"` 时，它是 Claude Code 还原的已保存模型设置。
 
-<h4 id="postmodelswitch-decision-control">
-  PostModelSwitch 决策控制
-</h4>
+#### PostModelSwitch 决策控制
 
 Claude Code 会在以 0 退出时获取您的 hook 的[纯文本 stdout](#exit-code-0)，或获取 JSON 输出中的 `additionalContext`，并在切换后的下一个请求中将其传递给 Claude。除了所有 hook 都可用的 [JSON 输出字段](#json-output)之外，您还可以返回：
 
@@ -3811,9 +3497,7 @@ Claude Code 会在以 0 退出时获取您的 hook 的[纯文本 stdout](#exit-c
 
 如果在您发送下一个提示词后五秒内 hook 仍未完成，Claude Code 会在不包含该输出的情况下发送该请求，并改为将其附加到后续请求中。如果模型在下一个请求之前更改了多次，Claude Code 只会传递最后一次切换的目标模型的输出。
 
-<h3 id="sessionend">
-  SessionEnd
-</h3>
+### SessionEnd
 
 在 Claude Code 会话结束时运行。适用于清理任务、记录会话统计信息或保存会话状态。支持使用匹配器按退出原因进行筛选。
 
@@ -3828,9 +3512,7 @@ hook 输入中的 `reason` 字段表示会话结束的原因：
 | `other` | 其他退出原因 |
 | `bypass_permissions_disabled` | 已在 v2.1.234 中移除；Claude Code 不会发送它。请将其从您的 `SessionEnd` 匹配器中删除 |
 
-<h4 id="sessionend-input">
-  SessionEnd 输入
-</h4>
+#### SessionEnd 输入
 
 除了[通用输入字段](#common-input-fields)之外，SessionEnd hook 还会接收一个 `reason` 字段，表示会话结束的原因。有关所有值，请参阅上面的[原因表](#sessionend)。
 
@@ -3859,9 +3541,7 @@ CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS=5000 claude
 
 在 v2.1.268 之前，`CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS` 只会提高总体预算，没有设置自己 `timeout` 的 hook 仍会在 1.5 秒后被取消。
 
-<h3 id="elicitation">
-  Elicitation
-</h3>
+### Elicitation
 
 当 MCP 服务器在任务中途请求用户输入时运行。默认情况下，Claude Code 会显示一个交互式对话框供用户响应。hook 可以拦截此请求并以编程方式响应，完全跳过对话框。
 
@@ -3869,9 +3549,7 @@ CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS=5000 claude
 
 matcher 字段与 MCP 服务器名称进行匹配。
 
-<h4 id="elicitation-input">
-  Elicitation 输入
-</h4>
+#### Elicitation 输入
 
 除了[通用输入字段](#common-input-fields)之外，Elicitation hook 还会接收 `mcp_server_name`、`message`，以及可选的 `mode`、`url`、`elicitation_id` 和 `requested_schema` 字段。
 
@@ -3910,9 +3588,7 @@ matcher 字段与 MCP 服务器名称进行匹配。
 }
 ```
 
-<h4 id="elicitation-output">
-  Elicitation 输出
-</h4>
+#### Elicitation 输出
 
 Elicitation hook 可以代替用户回答请求、拒绝或取消请求，或将其留给对话框处理。要回答、拒绝或取消，请以 0 退出并打印一个带有 `action` 的 `hookSpecificOutput` 对象。服务器会收到您的回答，且不会出现对话框。下表的每一行显示了一种结果应返回的内容以及 MCP 服务器收到的内容：
 
@@ -3954,9 +3630,7 @@ Elicitation hook 可以代替用户回答请求、拒绝或取消请求，或将
 
 无论您返回哪个 `action`，Claude Code 都会丢弃 Elicitation hook JSON 输出中的 `reason`、`systemMessage` 和 `continue`。
 
-<h4 id="other-ways-to-decline-an-elicitation">
-  拒绝 elicitation 的其他方式
-</h4>
+#### 拒绝 elicitation 的其他方式
 
 您的 hook 还可以通过以下方式拒绝。服务器收到的 `decline` 与 `"action": "decline"` 相同：
 
@@ -3978,100 +3652,94 @@ fi
 
 从 v2.1.105 到 v2.1.284 中修复之前，Claude Code 会忽略 `Elicitation` 和 `ElicitationResult` hook 的顶层 `decision`。
 
-<h4 id="answer-a-form-request-from-a-script">
-  通过脚本回答表单请求
-</h4>
+#### 通过脚本回答表单请求
 
 此示例代替用户回答一个反复出现的问题。名为 `issue-tracker` 的 MCP 服务器在表单中询问项目键，hook 会填入 `DOCS`。当 `project_key` 是表单的唯一字段时，脚本会接受。对于其他任何请求，它不打印任何内容，因此会出现对话框。
 
-<Tabs>
-  <Tab title="macOS/Linux">
-    在设置文件中为该事件注册一个命令 hook，以服务器名称作为匹配器：
+**macOS/Linux**
 
-    ```json theme={null}
-    {
-      "hooks": {
-        "Elicitation": [
+在设置文件中为该事件注册一个命令 hook，以服务器名称作为匹配器：
+
+```json theme={null}
+{
+  "hooks": {
+    "Elicitation": [
+      {
+        "matcher": "issue-tracker",
+        "hooks": [
           {
-            "matcher": "issue-tracker",
-            "hooks": [
-              {
-                "type": "command",
-                "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/answer-project-key.sh",
-                "args": []
-              }
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/answer-project-key.sh",
+            "args": []
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+将此脚本保存到项目中的 `.claude/hooks/answer-project-key.sh`，并使用 `chmod +x` 使其可执行：
+
+```bash theme={null}
+#!/bin/bash
+input=$(cat)
+fields=$(jq -c '.requested_schema.properties // {} | keys' <<<"$input")
+
+if [ "$fields" = '["project_key"]' ]; then
+  jq -n '{hookSpecificOutput: {hookEventName: "Elicitation", action: "accept", content: {project_key: "DOCS"}}}'
+fi
+```
+
+**Windows (PowerShell)**
+
+注册一个通过 PowerShell 运行脚本的命令 hook，以服务器名称作为匹配器：
+
+```json theme={null}
+{
+  "hooks": {
+    "Elicitation": [
+      {
+        "matcher": "issue-tracker",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy",
+              "Bypass",
+              "-File",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/answer-project-key.ps1"
             ]
           }
         ]
       }
+    ]
+  }
+}
+```
+
+将此脚本保存到项目中的 `.claude/hooks/answer-project-key.ps1`：
+
+```powershell theme={null}
+$request = [Console]::In.ReadToEnd() | ConvertFrom-Json
+$fields = @($request.requested_schema.properties.PSObject.Properties.Name)
+
+if ($fields.Count -eq 1 -and $fields[0] -eq 'project_key') {
+  @{
+    hookSpecificOutput = @{
+      hookEventName = "Elicitation"
+      action = "accept"
+      content = @{ project_key = "DOCS" }
     }
-    ```
-
-    将此脚本保存到项目中的 `.claude/hooks/answer-project-key.sh`，并使用 `chmod +x` 使其可执行：
-
-    ```bash theme={null}
-    #!/bin/bash
-    input=$(cat)
-    fields=$(jq -c '.requested_schema.properties // {} | keys' <<<"$input")
-
-    if [ "$fields" = '["project_key"]' ]; then
-      jq -n '{hookSpecificOutput: {hookEventName: "Elicitation", action: "accept", content: {project_key: "DOCS"}}}'
-    fi
-    ```
-  </Tab>
-
-  <Tab title="Windows (PowerShell)">
-    注册一个通过 PowerShell 运行脚本的命令 hook，以服务器名称作为匹配器：
-
-    ```json theme={null}
-    {
-      "hooks": {
-        "Elicitation": [
-          {
-            "matcher": "issue-tracker",
-            "hooks": [
-              {
-                "type": "command",
-                "command": "powershell.exe",
-                "args": [
-                  "-NoProfile",
-                  "-ExecutionPolicy",
-                  "Bypass",
-                  "-File",
-                  "${CLAUDE_PROJECT_DIR}/.claude/hooks/answer-project-key.ps1"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    }
-    ```
-
-    将此脚本保存到项目中的 `.claude/hooks/answer-project-key.ps1`：
-
-    ```powershell theme={null}
-    $request = [Console]::In.ReadToEnd() | ConvertFrom-Json
-    $fields = @($request.requested_schema.properties.PSObject.Properties.Name)
-
-    if ($fields.Count -eq 1 -and $fields[0] -eq 'project_key') {
-      @{
-        hookSpecificOutput = @{
-          hookEventName = "Elicitation"
-          action = "accept"
-          content = @{ project_key = "DOCS" }
-        }
-      } | ConvertTo-Json -Depth 3
-    }
-    ```
-  </Tab>
-</Tabs>
+  } | ConvertTo-Json -Depth 3
+}
+```
 
 要确认该 hook 是否正常工作，请使用 `claude --debug` 启动 Claude Code，并给 Claude 一个会让服务器询问项目键的任务。不会出现对话框，并且[调试日志](#debug-hooks)中会有一行以 `Elicitation resolved by hook: {"action":"accept","content":{"project_key":"DOCS"}}` 结尾。
 
-<h3 id="elicitationresult">
-  ElicitationResult
-</h3>
+### ElicitationResult
 
 在用户响应 MCP elicitation 之后运行。hook 可以在响应发送回 MCP 服务器之前观察、修改或阻止该响应。
 
@@ -4079,9 +3747,7 @@ fi
 
 matcher 字段与 MCP 服务器名称进行匹配。
 
-<h4 id="elicitationresult-input">
-  ElicitationResult 输入
-</h4>
+#### ElicitationResult 输入
 
 除了[通用输入字段](#common-input-fields)之外，ElicitationResult hook 还会接收 `mcp_server_name`、`action`，以及可选的 `mode`、`elicitation_id` 和 `content` 字段。
 
@@ -4098,9 +3764,7 @@ matcher 字段与 MCP 服务器名称进行匹配。
 }
 ```
 
-<h4 id="elicitationresult-output">
-  ElicitationResult 输出
-</h4>
+#### ElicitationResult 输出
 
 ElicitationResult hook 可以让用户的响应通过、更改其值或阻止它。要更改或阻止响应，请以 0 退出并打印一个带有 `action` 的 `hookSpecificOutput` 对象。下表的每一行显示了一种结果应返回的内容以及 MCP 服务器收到的内容：
 
@@ -4153,9 +3817,7 @@ fi
 
 无论您返回哪个 `action`，Claude Code 都会丢弃 ElicitationResult hook JSON 输出中的 `reason`、`systemMessage` 和 `continue`。
 
-<h2 id="prompt-based-hooks">
-  基于提示的 hooks
-</h2>
+## 基于提示的 hooks
 
 除了命令、HTTP 和 MCP tool hooks 外，Claude Code 还支持基于提示的 hooks（`type: "prompt"`），使用 LLM 来评估是否允许或阻止操作，以及代理 hooks（`type: "agent"`），生成具有工具访问权限的代理验证器。并非所有事件都支持每种 hook 类型。
 
@@ -4199,9 +3861,7 @@ fi
 
 `SessionStart` 和 `Setup` 支持 `command` 和 `mcp_tool` hooks，[MCP tool hook 字段](#mcp-tool-hook-fields)描述了它们的 `mcp_tool` hooks 何时运行。它们不支持 `http`、`prompt` 或 `agent` hooks。
 
-<h3 id="how-prompt-based-hooks-work">
-  基于提示的 hooks 如何工作
-</h3>
+### 基于提示的 hooks 如何工作
 
 基于提示的 hooks 不执行 Bash 命令，而是：
 
@@ -4209,9 +3869,7 @@ fi
 2. LLM 使用包含决定的结构化 JSON 响应
 3. Claude Code 自动处理决定
 
-<h3 id="prompt-hook-configuration">
-  提示 hook 配置
-</h3>
+### 提示 hook 配置
 
 将 `type` 设置为 `"prompt"` 并提供 `prompt` 字符串而不是 `command`。使用 `$ARGUMENTS` 占位符将 hook 的 JSON 输入数据注入到您的提示文本中。
 
@@ -4244,9 +3902,7 @@ fi
 | `timeout` | 否 | 超时（秒）。默认值：30 |
 | `continueOnBlock` | 否 | 在适用的事件上，`true` 将 `ok: false` 原因反馈给 Claude 并继续而不是结束转轮。默认值：`false`。有关每个事件的行为，请参阅[响应架构](#response-schema) |
 
-<h3 id="response-schema">
-  响应架构
-</h3>
+### 响应架构
 
 LLM 必须使用包含以下内容的 JSON 响应：
 
@@ -4278,9 +3934,7 @@ LLM 必须使用包含以下内容的 JSON 响应：
 
 如果您需要对任何事件进行更精细的控制，请使用[命令 hook](#command-hook-fields)，其中包含[决定控制](#decision-control)中描述的每个事件字段。
 
-<h3 id="check-multiple-conditions-before-stopping">
-  检查多个条件后再停止
-</h3>
+### 检查多个条件后再停止
 
 此 `Stop` hook 使用详细提示检查三个条件，然后允许 Claude 停止。`SubagentStop` hooks 使用相同的格式来评估[子代理](/docs/zh-CN/sub-agents)是否应该停止。如果模型因条件尚未满足而返回 `"ok": false`，Claude 继续工作，提供的原因作为其下一条指令：
 
@@ -4302,19 +3956,15 @@ LLM 必须使用包含以下内容的 JSON 响应：
 }
 ```
 
-<h2 id="agent-based-hooks">
-  基于代理的 hooks
-</h2>
+## 基于代理的 hooks
 
-<Warning>
-  代理 hooks 是实验性的。行为和配置可能在未来版本中更改。对于生产工作流，建议使用[命令 hooks](#command-hook-fields)。
-</Warning>
+> [!WARNING]
+>
+> 代理 hooks 是实验性的。行为和配置可能在未来版本中更改。对于生产工作流，建议使用[命令 hooks](#command-hook-fields)。
 
 基于代理的 hooks（`type: "agent"`）类似于基于提示的 hooks，但具有多轮工具访问。代理 hook 生成一个可以读取文件、搜索代码和检查代码库以验证条件的 subagent，而不是单个 LLM 调用。代理 hooks 支持与[基于提示的 hooks](#prompt-based-hooks) 相同的事件，除了 `PermissionRequest`。
 
-<h3 id="how-agent-hooks-work">
-  基于代理的 hooks 如何工作
-</h3>
+### 基于代理的 hooks 如何工作
 
 当代理 hook 触发时：
 
@@ -4325,9 +3975,7 @@ LLM 必须使用包含以下内容的 JSON 响应：
 
 代理 hooks 在验证需要检查实际文件或测试输出时很有用，而不仅仅是单独评估 hook 输入数据。
 
-<h3 id="agent-hook-configuration">
-  代理 hook 配置
-</h3>
+### 代理 hook 配置
 
 将 `type` 设置为 `"agent"` 并提供 `prompt` 字符串，使用 `$ARGUMENTS` 作为 hook 输入 JSON 的占位符。配置字段与[提示 hooks](#prompt-hook-configuration)相同，除了代理 hooks 具有更长的默认超时时间 60 秒，并且没有 `continueOnBlock` 字段。
 
@@ -4353,15 +4001,11 @@ LLM 必须使用包含以下内容的 JSON 响应：
 }
 ```
 
-<h2 id="run-hooks-in-the-background">
-  在后台运行 Hooks
-</h2>
+## 在后台运行 Hooks
 
 默认情况下，hooks 阻止 Claude 的执行，直到它们完成。对于长时间运行的任务，如部署、测试套件或外部 API 调用，设置 `"async": true` 以在后台运行 hook，同时 Claude 继续工作。异步 hooks 无法阻止或控制 Claude 的行为：响应字段如 `decision`、`permissionDecision` 和 `continue` 无效，因为它们会控制的操作已经完成。
 
-<h3 id="configure-an-async-hook">
-  配置异步 Hook
-</h3>
+### 配置异步 Hook
 
 将 `"async": true` 添加到命令 hook 的配置以在后台运行它而不阻止 Claude。此字段仅在 `type: "command"` hooks 上可用。
 
@@ -4393,9 +4037,7 @@ Claude Code 仅在会话运行时传递异步 hook 的结果：
 * 在[非交互模式](/docs/zh-CN/headless)中使用 `-p` 标志，Claude Code 在拆卸时杀死任何仍在运行的异步 hook，并以 `cancelled` 结果完成它
 * 如果你的 hook 的工作必须超越 `claude -p` 会话，从它启动一个完全分离的进程
 
-<h3 id="how-async-hooks-execute">
-  异步 Hooks 如何执行
-</h3>
+### 异步 Hooks 如何执行
 
 当异步 hook 触发时，Claude Code 启动 hook 进程并立即继续，不等待其完成。Hook 通过 stdin 接收与同步 hook 相同的 JSON 输入。
 
@@ -4410,9 +4052,7 @@ Claude Code 根据与同步 hook 相同的[输出 schema](#json-output) 验证 J
 
 异步 hook 完成通知默认被抑制。要查看它们，请使用 `Ctrl+O` 启用详细模式或使用 `--verbose` 启动 Claude Code。
 
-<h3 id="run-tests-after-file-changes">
-  文件更改后运行测试
-</h3>
+### 文件更改后运行测试
 
 此 hook 在 Claude 写入文件时在后台启动测试套件，然后在测试完成时将结果报告回 Claude。将此脚本保存到项目中的 `.claude/hooks/run-tests-async.sh` 并使用 `chmod +x` 使其可执行：
 
@@ -4463,30 +4103,22 @@ jq -nc --arg msg "$MSG" '{hookSpecificOutput: {hookEventName: "PostToolUse", add
 }
 ```
 
-<h3 id="limitations">
-  限制
-</h3>
+### 限制
 
 异步 hooks 与同步 hooks 相比有额外的约束：
 
 * Hook 输出在下一个对话轮次传递。如果会话空闲，响应等待直到下一个用户交互。例外：退出代码为 2 的 `asyncRewake` hook 即使在会话空闲时也会立即唤醒 Claude。
 * 每次执行创建一个单独的后台进程。
 
-<h2 id="security-considerations">
-  安全考虑
-</h2>
+## 安全考虑
 
-<h3 id="disclaimer">
-  免责声明
-</h3>
+### 免责声明
 
-<Warning>
-  命令 hooks 使用您的完整用户权限执行 shell 命令。它们可以修改、删除或访问您的用户帐户可以访问的任何文件。在将任何 hook 命令添加到您的配置之前，请审查并测试它们。
-</Warning>
+> [!WARNING]
+>
+> 命令 hooks 使用您的完整用户权限执行 shell 命令。它们可以修改、删除或访问您的用户帐户可以访问的任何文件。在将任何 hook 命令添加到您的配置之前，请审查并测试它们。
 
-<h3 id="workspace-trust">
-  工作区信任
-</h3>
+### 工作区信任
 
 Claude Code 在运行来自设置文件的任何 hook 之前会检查工作区信任。什么被视为受信任取决于会话类型：
 
@@ -4495,9 +4127,7 @@ Claude Code 在运行来自设置文件的任何 hook 之前会检查工作区�
 
 在您对存储库进行脚本化 `claude -p` 之前，如果您没有编写该存储库，请审查其 `.claude/` 设置文件，使用 [`--bare`](/docs/zh-CN/headless#start-faster-with-bare-mode) 开始，或[为该运行关闭 hooks](#disable-or-remove-hooks)，使用 `--settings '{"disableAllHooks": true}'`。项目子代理中的 Frontmatter hooks 遵循比设置文件 hooks 更严格的规则。[在您信任文件夹之前运行的内容](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder)按会话类型列出每种存储库内容。
 
-<h3 id="security-best-practices">
-  安全最佳实践
-</h3>
+### 安全最佳实践
 
 编写 hooks 时请记住这些实践：
 
@@ -4507,9 +4137,7 @@ Claude Code 在运行来自设置文件的任何 hook 之前会检查工作区�
 * **使用绝对路径**：为脚本指定完整路径。在 exec 形式中，使用 `${CLAUDE_PROJECT_DIR}` 且路径无需引用。在 shell 形式中，将其包装在双引号中
 * **跳过敏感文件**：避免 `.env`、`.git/`、密钥等
 
-<h2 id="windows-powershell-tool">
-  Windows PowerShell 工具
-</h2>
+## Windows PowerShell 工具
 
 在 Windows 上，您可以通过在命令 hook 上设置 `"shell": "powershell"` 在 PowerShell 中运行单个 hooks。Claude Code 自动检测 `pwsh.exe`（PowerShell 7 及更高版本的可执行文件），并回退到 `powershell.exe`（Windows PowerShell 5.1）。
 
@@ -4546,9 +4174,7 @@ Claude Code 在运行来自设置文件的任何 hook 之前会检查工作区�
 }
 ```
 
-<h2 id="debug-hooks">
-  调试 hooks
-</h2>
+## 调试 hooks
 
 Hook 执行详细信息被写入调试日志文件。使用 `claude --debug-file <path>` 启动 Claude Code 以将日志写入已知位置，或运行 `claude --debug` 并在 `~/.claude/debug/<session-id>.txt` 读取日志。`--debug` 标志不打印到终端。
 

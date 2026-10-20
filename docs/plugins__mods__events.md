@@ -10,15 +10,11 @@ hook 是一个事件处理程序：Claude Code 在命名事件发生时运行的
 
 在开始之前，请构建你的[第一个 mod](/docs/zh-CN/plugins/mods/create)。对于每个事件及其确切字段，请参阅[参考](/docs/zh-CN/plugins/mods/reference#events)或阅读[你的构建的类型](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)。
 
-<h2 id="how-a-hook-handles-an-event">
-  hook 如何处理事件
-</h2>
+## hook 如何处理事件
 
 hook 位于事件和 Claude Code 对其采取的行动之间，因此它可以观察事件、重写事件或自己回答事件。它接收三个参数：[mods API](/docs/zh-CN/plugins/mods/api) 作为 `$`、事件作为 `e` 和下一个处理程序作为 `next`。事件的处理程序形成中间件链。`next(e)` 调用下一个处理程序，这是另一个 mod 的 hook 或链末端的 Claude Code 自己的行为，它解析为结果。你的 hook 对 `next` 做什么决定了它做以下三件事中的哪一件。
 
-<h3 id="observe-an-event">
-  观察事件
-</h3>
+### 观察事件
 
 要观察事件而不改变它，请执行你的工作并返回 `next(e)`。此 hook 记录 Claude 即将使用的每个工具：
 
@@ -48,9 +44,7 @@ on('tool.call', async ($, e, next) => {
 
 该行现在出现在每个工具完成后。Claude 读取相同的结果，因为 hook 返回 `next(e)` 解析的内容。
 
-<h3 id="rewrite-an-event">
-  重写事件
-</h3>
+### 重写事件
 
 要更改 Claude Code 作用的内容，例如提示词的文本，请使用修改后的事件副本调用 `next`。事件本身是不可变的：它被深度冻结，对字段赋值会抛出错误。此 hook 在发送前修剪每个提示词：
 
@@ -63,9 +57,7 @@ on('prompt.submit', async ($, e, next) => {
 
 后续处理程序和 Claude Code 接收修剪后的提示，永远看不到原始提示。你也可以更改结果：`await next(e)`，然后返回替换了字段的结果副本。
 
-<h3 id="answer-an-event">
-  回答事件
-</h3>
+### 回答事件
 
 要自己处理事件，请返回结果而不调用 `next`。这会短路链，因此后续 mod 和 Claude Code 自己的行为不会运行。此 hook 拒绝每个 Bash 命令：
 
@@ -78,9 +70,7 @@ on('tool.call', { tool: 'Bash' }, async () => {
 
 当 Claude 尝试 Bash 命令时，命令不会运行，Claude 将 `deny` 文本读作工具的结果。每个事件都有自己的结果形状，[事件参考](/docs/zh-CN/plugins/mods/reference#events)列出了这些。
 
-<h3 id="filter-which-events-a-hook-handles">
-  过滤 hook 处理的事件
-</h3>
+### 过滤 hook 处理的事件
 
 要仅为某些事件运行 hook，请将过滤器作为第二个参数传递给 `on`。Claude Code 将过滤器称为 matcher。它是一个对象，其字段与事件的字段进行比较，只有当每个字段都匹配时，hook 才会运行。字段可以是值、允许值的数组或正则表达式。
 
@@ -101,15 +91,11 @@ on('tool.call', { tool: /^mcp__github__/ }, hook)
 
 为每个 matcher 注册一次事件。如果你为 `session.start` 调用 `on` 两次而没有 matcher，模块将无法加载，错误为 `on("session.start") is registered twice without a matcher`。将你的 mod 在会话启动时执行的所有操作放在一个 hook 中。
 
-<h2 id="hook-what-claude-is-doing">
-  对 Claude 正在执行的操作设置 hook
-</h2>
+## 对 Claude 正在执行的操作设置 hook
 
 处理这些事件，可以在工具调用、提示词或轮次发生时查看或更改它们。有关每个事件以及 hook 可以返回的内容，请参阅[事件参考](/docs/zh-CN/plugins/mods/reference#events)。
 
-<h3 id="guard-or-change-a-tool-call">
-  拦截或更改工具调用
-</h3>
+### 拦截或更改工具调用
 
 `tool.call` hook 会看到 Claude 即将使用的每个工具，因此可以拒绝调用、更改其参数或放行。`tool.call` 在 Claude Code 即将运行某个工具时触发，包括子代理发起的调用以及对 MCP 工具的调用。`e.tool` 是工具名称，工具的参数是 `e` 的字段，例如 Bash 的 `e.command`。调用 `next(e)` 时，Claude Code 会先运行权限检查，然后运行该工具。
 
@@ -154,9 +140,7 @@ on('tool.call', { tool: ['Edit', 'Write'] }, async ($, e, next) => {
 
 您组织的[托管设置](/docs/zh-CN/server-managed-settings)中的 hook 会在任何 mod 的 `tool.call` hook 之前运行。当托管 hook 阻止该调用时，任何 mod 的 `tool.call` hook 都不会针对该调用运行。
 
-<h4 id="hold-a-tool-call-until-the-user-decides">
-  暂缓工具调用，直到用户做出决定
-</h4>
+#### 暂缓工具调用，直到用户做出决定
 
 hook 可以暂停工具调用，并在其继续之前询问用户如何处理。`tool.call` hook 可以在调用 `next` 或返回之前执行 `await`，在此之前工具调用会一直处于挂起状态。要向用户提出问题，请调用 `$.ui.ask`。它会在 Claude 向您提问时使用的对话框中，将您的问题显示在您的选项编号列表上方，并解析为用户选择的标签。在您的选项之后，对话框会添加一行用于输入其他答案，以及一行 **Chat about this**。
 
@@ -195,9 +179,7 @@ export function register(on) {
 
 请将等待保持在诸如 `$.ui.ask` 之类的 mods API 调用内部，因为这段时间不计入 hook 的[时间限制](/docs/zh-CN/plugins/mods/reference#limits)。等待您自己的 promise 所花费的时间则会计入。Claude Code 会跳过超时的 hook，因此被暂缓的命令将会运行。
 
-<h4 id="approve-or-refuse-a-tool-call-before-the-user-is-asked">
-  在询问用户之前批准或拒绝工具调用
-</h4>
+#### 在询问用户之前批准或拒绝工具调用
 
 要决定某个工具调用是否可以运行，请处理 [`tool.check`](/docs/zh-CN/plugins/mods/reference#tools)，这是 Claude Code 做出该决定的事件。它在权限规则和设置 hook 做出决定之后触发，`next(e)` 会解析为它们的决定：`allow`、`ask` 或 `deny`。您的 hook 返回该决定或另一个决定。`e.input` 保存工具的参数，例如 Bash 的 `command`。
 
@@ -223,13 +205,11 @@ on('tool.check', { tool: 'Bash' }, async ($, e, next) => {
 
 该 hook 匹配的是命令文本，因此请将其视为对 Claude 的提醒。要为所有人阻止向 `main` 推送，请在您的 Git 托管平台上保护该分支。
 
-<Note>
-  `tool.check` hook 也可以返回 `allow` 或 `ask`。在[计划模式](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)下，对于非只读的调用（例如文件编辑），您的 hook 可以收紧 `next(e)` 返回的决定，但不能放宽它。有关您的 hook 的 `allow` 无法覆盖的权限规则和 `PreToolUse` hook 决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
-</Note>
+> [!NOTE]
+>
+> `tool.check` hook 也可以返回 `allow` 或 `ask`。在[计划模式](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)下，对于非只读的调用（例如文件编辑），您的 hook 可以收紧 `next(e)` 返回的决定，但不能放宽它。有关您的 hook 的 `allow` 无法覆盖的权限规则和 `PreToolUse` hook 决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
 
-<h3 id="rewrite-or-add-to-a-prompt">
-  改写或补充提示词
-</h3>
+### 改写或补充提示词
 
 `prompt.submit` hook 会在轮次开始之前看到每个提示词，因此可以改写文本或向其中添加内容。`e.text` 是输入的内容。
 
@@ -259,9 +239,7 @@ on('prompt.submit', async ($, e, next) => {
 
 [其他事件](/docs/zh-CN/plugins/mods/reference#prompts-and-what-claude-reads)涵盖了 Claude 读取的其余内容：`prompt.section` 用于系统提示词的每个部分，`prompt.context` 用于随第一条消息发送的上下文，`skill.prompt` 用于 skill 的文本。这些 hook 产生的文本如果在请求之间发生变化，会[使提示缓存失效](/docs/zh-CN/prompt-caching)。在 `skill.prompt` hook 中，您还可以读取[该 skill 来自哪个插件或文件](/docs/zh-CN/plugins/mods/reference#skill-prompt-fields)。
 
-<h3 id="follow-a-turn">
-  跟踪轮次
-</h3>
+### 跟踪轮次
 
 轮次是 Claude 为回应一个提示词所做的全部工作。处理 `turn.start`、`turn.step` 和 `turn.complete` 来跟踪一个轮次：
 
@@ -293,9 +271,7 @@ Claude 的回复会像没有该 mod 时一样以流式方式显示在屏幕上�
 
 要查看 API 在请求期间自行运行的工具调用（例如对 [advisor 工具](/docs/zh-CN/advisor)的调用），请读取 `result.serverToolUses`。Claude Code 不会运行这些调用，因此不会为它们触发任何 `tool.call` 或 `tool.check` hook。当响应中没有此类调用时，该字段不存在；该字段需要 Claude Code v2.1.290 或更高版本。
 
-<h3 id="hook-the-settings-hook-events">
-  处理设置 hook 事件
-</h3>
+### 处理设置 hook 事件
 
 设置 hook 是您在设置文件中配置的命令、HTTP、提示词和 Agent hook。每个[设置 hook 事件](/docs/zh-CN/hooks#hook-events)（例如 `Stop`、`SessionEnd` 或 `PostToolUse`）同时也是一个名为 `classic.` 后跟该设置 hook 事件名称的事件，例如 `classic.Stop`。`e` 是设置 hook 在 stdin 上接收的 JSON，包括 `transcript_path`。
 
@@ -312,15 +288,11 @@ on('classic.Stop', async ($, e, next) => {
 
 每次 Claude 完成回复时，会话记录中会出现一行暗色文本，给出会话记录文件的路径。该 hook 返回 `next(e)`，因此它只观察该事件，不会改变轮次结束的方式。
 
-<h2 id="run-alongside-other-mods">
-  与其他 mod 一起运行
-</h2>
+## 与其他 mod 一起运行
 
 多个 mod 可以处理同一事件，其中任何一个都可能失败。如果您的 mod 阻止工具调用，请检查它在链中的位置以及当其 hook 失败时会发生什么。
 
-<h3 id="the-order-mods-run-in">
-  mod 运行的顺序
-</h3>
+### mod 运行的顺序
 
 同一事件上的 hook 形成一个中间件链。每个 mod 的 `next` 调用下一个 mod 的 hook，最后的 `next` 到达 Claude Code 自己的行为。第一个 mod 是最外层的：它在其他 mod 之前看到事件，在它们之后看到结果，并决定其他 mod 是否运行。后续 mod 无法阻止早期 mod 看到事件。
 
@@ -333,9 +305,7 @@ Claude Code 按每个 mod 的来源对链进行排序：
 
 在您安装的 mod 中，mod 在它在清单中的 `dependencies` 下列出的 mod 之前运行。在一个模块中，hook 按 `register` 调用 `on` 的顺序运行。
 
-<h4 id="where-settings-hooks-run-in-the-order">
-  设置 hook 在顺序中运行的位置
-</h4>
+#### 设置 hook 在顺序中运行的位置
 
 在设置文件中配置的 `PreToolUse` hook 也在工具调用期间运行，位于 mod 链中的固定点：
 
@@ -344,9 +314,7 @@ Claude Code 按每个 mod 的来源对链进行排序：
 
 [`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) 在权限规则和这两组 `PreToolUse` hook 做出决定之后触发。要了解 `tool.check` hook 的 `allow` 无法替代其中哪些决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
 
-<h3 id="handle-a-hook-that-fails">
-  处理失败的 hook
-</h3>
+### 处理失败的 hook
 
 失败的 hook 不会破坏会话，您可以决定接下来会发生什么。当没有 `.catch` 处理程序的 hook 抛出、超时或返回错误形状的结果时，接下来会发生什么取决于它是否调用了 `next`：
 
@@ -383,9 +351,7 @@ on('tool.call', { tool: 'Bash' }, guard).catch(async ($, e, next) => {
 
 在 `tool.call` 中，在 `next` 解析后返回的 `deny` 会[向 Claude 隐瞒该结果](#guard-or-change-a-tool-call)。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [使用 mods API](/docs/zh-CN/plugins/mods/api)：添加命令和工具、调用模型并在计时器上运行工作
 * [在界面中绘制](/docs/zh-CN/plugins/mods/interface)：在窗格中或提示上方显示你的 hooks 收集的内容

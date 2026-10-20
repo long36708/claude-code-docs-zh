@@ -13,57 +13,49 @@ Mod 是一个 Claude Code [插件](/docs/zh-CN/plugins/overview)，具有一个�
 
 如果你还没有决定 mod 是否是合适的工具，请先阅读[概述中的比较](/docs/zh-CN/plugins/mods/overview#compare-mods-settings-hooks-skills-and-mcp-servers)。
 
-<Note>
-  请使用 Claude Code v2.1.287 或更高版本。在 shell 中运行 `claude --version` 进行检查。要查看 mod 是否可以为您加载，请参阅[检查 mod 是否可以加载](/docs/zh-CN/plugins/mods/troubleshoot#check-whether-mods-can-load)。
-</Note>
+> [!NOTE]
+>
+> 请使用 Claude Code v2.1.287 或更高版本。在 shell 中运行 `claude --version` 进行检查。要查看 mod 是否可以为您加载，请参阅[检查 mod 是否可以加载](/docs/zh-CN/plugins/mods/troubleshoot#check-whether-mods-can-load)。
 
-<h2 id="ask-claude-for-a-mod">
-  让 Claude 为你编写一个 mod
-</h2>
+## 让 Claude 为你编写一个 mod
 
 在交互式 Claude Code 会话中描述你想要的 mod，Claude 会编写它。Claude 使用一个名为 `plugin-authoring` 的内置[技能](/docs/zh-CN/skills)，它告诉 Claude 在哪里编写 mod、你的版本有哪些事件和方法，以及 mod 如何被加载。当你请求一个 mod 时，Claude 可以加载该技能，或者你可以通过在 Claude Code 提示符处运行 `/plugin-authoring` 来自己加载它。
 
 一旦你批准了 mod，它就会运行，除了在[某些会话中 Claude 编写的 mod 无法加载](#sessions-that-skip-the-approval)的情况。
 
-<Steps>
-  <Step title="描述 mod">
-    用你自己的话请求 mod，例如 `make a mod that shows the current git branch above the prompt`。Claude 在会话的 mods 文件夹中的自己的目录中编写 mod，该文件夹是 `~/.claude/dev-mods/` 后跟会话的 ID。mod 的完整路径看起来像 `~/.claude/dev-mods/3f2a9c1e-5b7d-4e8a-9c21-6d0f4b8a7e13/git-branch/`。
+**1. 描述 mod**
 
-    <Note>
-      在 `default` 和 `acceptEdits` [权限模式](/docs/zh-CN/permission-modes)中，Claude Code 会在 Claude 创建 mod 的每个文件之前请求您批准，因为 mods 文件夹是一个[受保护的路径](/docs/zh-CN/permission-modes#protected-paths)。请在每个文件出现时批准它。
-    </Note>
-  </Step>
+用你自己的话请求 mod，例如 `make a mod that shows the current git branch above the prompt`。Claude 在会话的 mods 文件夹中的自己的目录中编写 mod，该文件夹是 `~/.claude/dev-mods/` 后跟会话的 ID。mod 的完整路径看起来像 `~/.claude/dev-mods/3f2a9c1e-5b7d-4e8a-9c21-6d0f4b8a7e13/git-branch/`。
 
-  <Step title="批准 mod">
-    当 Claude 保存第一个文件时，Claude Code 会询问是否为会话启用热重新加载。热重新加载运行此会话中 Claude 编写的 mod，并在每个后续更改它们的转折处选择每个更改。
+> [!NOTE]
+>
+> 在 `default` 和 `acceptEdits` [权限模式](/docs/zh-CN/permission-modes)中，Claude Code 会在 Claude 创建 mod 的每个文件之前请求您批准，因为 mods 文件夹是一个[受保护的路径](/docs/zh-CN/permission-modes#protected-paths)。请在每个文件出现时批准它。
 
-    选择以下答案之一：
+**2. 批准 mod**
 
-    * **为此会话启用**：会话的 mods 文件夹中的 mod 在转折结束时加载，并在每个更改它们的转折结束时重新加载。你的答案在整个会话中持续，包括在你恢复它之后。
-    * **暂时不**：现在什么都不加载。文件保留在 Claude 编写的位置，mod 在该会话下次启动时加载。要防止 mod 加载，请删除其目录。
-  </Step>
+当 Claude 保存第一个文件时，Claude Code 会询问是否为会话启用热重新加载。热重新加载运行此会话中 Claude 编写的 mod，并在每个后续更改它们的转折处选择每个更改。
 
-  <Step title="检查 mod 是否已加载">
-    在 Claude Code 提示符处运行 `/plugin`，然后按 Tab 直到选中**已安装**选项卡。它列出了 mod，你可以在那里关闭它。
-  </Step>
+选择以下答案之一：
 
-  <Step title="尝试 mod">
-    使用你请求的内容。对于示例提示，当前分支名称出现在提示框上方。如果 mod 没有做你想要的，告诉 Claude 要改变什么。mod 在每个更改其文件的转折结束时重新加载，所以你可以在 Claude 完成后立即尝试更改。
-  </Step>
-</Steps>
+* **为此会话启用**：会话的 mods 文件夹中的 mod 在转折结束时加载，并在每个更改它们的转折结束时重新加载。你的答案在整个会话中持续，包括在你恢复它之后。
+* **暂时不**：现在什么都不加载。文件保留在 Claude 编写的位置，mod 在该会话下次启动时加载。要防止 mod 加载，请删除其目录。
 
-<h3 id="use-the-mod-in-other-sessions">
-  在其他会话中使用 mod
-</h3>
+**3. 检查 mod 是否已加载**
+
+在 Claude Code 提示符处运行 `/plugin`，然后按 Tab 直到选中**已安装**选项卡。它列出了 mod，你可以在那里关闭它。
+
+**4. 尝试 mod**
+
+使用你请求的内容。对于示例提示，当前分支名称出现在提示框上方。如果 mod 没有做你想要的，告诉 Claude 要改变什么。mod 在每个更改其文件的转折结束时重新加载，所以你可以在 Claude 完成后立即尝试更改。
+
+### 在其他会话中使用 mod
 
 Claude 编写的 mod 仅在创建它的会话中加载，一旦 Claude Code 的会话比 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 更旧，它就会删除该会话的 mods 文件夹。要保留 mod，请将其目录从 mods 文件夹复制到你自己的位置，例如 `~/mods/git-branch`。然后选择如何加载它：
 
 * **在你启动的会话中**：在你的 shell 中，运行 `claude --plugin-dir ~/mods/git-branch`
 * **对于其他人**：[将其添加到市场](#share-your-mod)，以便他们可以安装它
 
-<h3 id="sessions-that-skip-the-approval">
-  Claude 编写的 mod 无法加载的会话
-</h3>
+### Claude 编写的 mod 无法加载的会话
 
 Claude 编写的 mod 仅在你批准它后加载，在允许 mod 运行的受信任工作区中。在这些会话中它不会加载：
 
@@ -71,19 +63,13 @@ Claude 编写的 mod 仅在你批准它后加载，在允许 mod 运行的受信
 * **工作区不受信任**：你还没有接受目录的信任提示
 * **mod 已被禁用**：您使用 `--safe-mode` 或 `--bare` 启动，您设置了 `disableAllHooks`，或者您组织的[托管设置阻止了它](/docs/zh-CN/plugins/mods/admin#choose-how-much-to-allow)
 
-<h2 id="write-a-mod-yourself">
-  自己编写一个 mod
-</h2>
+## 自己编写一个 mod
 
 在本教程中，你构建一个名为 `first-mod` 的 mod，它计算 Claude 进行的工具调用，在 Claude 工作时在微调器旁边显示计数，并添加一个 `/tally` 命令来打印它。然后你读取 Claude Code 在你的 mod 旁边写入的类型声明，并运行 `claude plugin validate`。它们一起向你展示你的版本提供的事件和方法，以及 Claude Code 从你的代码中读取的内容。
 
 这个录制显示了完成的 mod。微调器计算工具调用，`/tally` 打印计数，对代码的编辑在会话运行时生效：
 
-<Frame>
-  <video autoPlay muted loop playsInline controls className="w-full dark:hidden" src="https://mintcdn.com/claude-code/dgiVO_Od1X1faduV/images/mods-first-mod-light.mp4?fit=max&auto=format&n=dgiVO_Od1X1faduV&q=85&s=eb561134afa90375777408453ba51c77" aria-label="In a Claude Code session, the prompt 'list the files here and read the README' is typed and sent. The spinner reads 'Thinking · tool calls: 1' and the count rises as Claude works. The /tally command prints 'first-mod: Claude has made 3 tool calls since this mod loaded'. A line says first-mod reloaded and lists its four hooks. On the next prompt the spinner reads 'Thinking · tools used: 1'." data-path="images/mods-first-mod-light.mp4" />
-
-  <video autoPlay muted loop playsInline controls className="w-full hidden dark:block" src="https://mintcdn.com/claude-code/dgiVO_Od1X1faduV/images/mods-first-mod-dark.mp4?fit=max&auto=format&n=dgiVO_Od1X1faduV&q=85&s=09779dadc7ef66c2b1e2da0c2e31ac72" aria-label="In a Claude Code session, the prompt 'list the files here and read the README' is typed and sent. The spinner reads 'Thinking · tool calls: 1' and the count rises as Claude works. The /tally command prints 'first-mod: Claude has made 3 tool calls since this mod loaded'. A line says first-mod reloaded and lists its four hooks. On the next prompt the spinner reads 'Thinking · tools used: 1'." data-path="images/mods-first-mod-dark.mp4" />
-</Frame>
+<video autoPlay muted loop playsInline controls src="https://mintcdn.com/claude-code/dgiVO_Od1X1faduV/images/mods-first-mod-light.mp4?fit=max&auto=format&n=dgiVO_Od1X1faduV&q=85&s=eb561134afa90375777408453ba51c77" aria-label="In a Claude Code session, the prompt 'list the files here and read the README' is typed and sent. The spinner reads 'Thinking · tool calls: 1' and the count rises as Claude works. The /tally command prints 'first-mod: Claude has made 3 tool calls since this mod loaded'. A line says first-mod reloaded and lists its four hooks. On the next prompt the spinner reads 'Thinking · tools used: 1'." />
 
 你编写三个文件：
 
@@ -100,148 +86,142 @@ first-mod/
 * **`hooks.json`**：[指向你的代码文件](/docs/zh-CN/plugins/mods/reference#files)
 * **`register.js`**：你的代码，称为 hooks 模块
 
-<Steps>
-  <Step title="创建插件目录">
-    创建保存文件的两个目录：
+**1. 创建插件目录**
 
-    <Tabs>
-      <Tab title="Bash or Zsh">
-        ```bash theme={null}
-        mkdir -p first-mod/.claude-plugin first-mod/hooks
-        ```
-      </Tab>
+创建保存文件的两个目录：
 
-      <Tab title="PowerShell">
-        ```powershell theme={null}
-        New-Item -ItemType Directory -Force first-mod\.claude-plugin, first-mod\hooks
-        ```
-      </Tab>
-    </Tabs>
-  </Step>
+**Bash or Zsh**
 
-  <Step title="编写清单">
-    Mod 是一个插件，mod 需要一个[清单](/docs/zh-CN/plugins/manifest-reference)。这个 mod 的清单没有特殊字段。将其保存为 `first-mod/.claude-plugin/plugin.json`：
+```bash theme={null}
+mkdir -p first-mod/.claude-plugin first-mod/hooks
+```
 
-    ```json first-mod/.claude-plugin/plugin.json theme={null}
-    {
-      "name": "first-mod",
-      "version": "0.1.0",
-      "description": "Counts Claude's tool calls, shows the count beside the spinner, and adds a /tally command",
-      "author": { "name": "Your Name" }
-    }
-    ```
-  </Step>
+**PowerShell**
 
-  <Step title="告诉 Claude Code 你的代码在哪里">
-    当 Claude Code 加载一个插件时，它读取插件的 `hooks/hooks.json`。该文件中的 `modules` 键给出你的代码的路径，拥有它是使插件成为 mod 的原因。列出一个路径，相对于 `hooks.json`。这里它指向 `register.js`，你在下一步中编写。
+```powershell theme={null}
+New-Item -ItemType Directory -Force first-mod\.claude-plugin, first-mod\hooks
+```
 
-    将其保存为 `first-mod/hooks/hooks.json`：
+**2. 编写清单**
 
-    ```json first-mod/hooks/hooks.json theme={null}
-    {
-      "description": "The first-mod hooks module",
-      "modules": ["./register.js"]
-    }
-    ```
-  </Step>
+Mod 是一个插件，mod 需要一个[清单](/docs/zh-CN/plugins/manifest-reference)。这个 mod 的清单没有特殊字段。将其保存为 `first-mod/.claude-plugin/plugin.json`：
 
-  <Step title="编写代码">
-    这个文件是 mod 的代码，称为 hooks 模块。当 mod 加载时，Claude Code 调用文件导出的 `register` 函数，并传递一个名为 [`on`](/docs/zh-CN/plugins/mods/reference#the-hook-function) 的函数。每次调用 `on` 都会为它命名的事件注册一个事件处理程序，称为 hook。
+```json first-mod/.claude-plugin/plugin.json theme={null}
+{
+  "name": "first-mod",
+  "version": "0.1.0",
+  "description": "Counts Claude's tool calls, shows the count beside the spinner, and adds a /tally command",
+  "author": { "name": "Your Name" }
+}
+```
 
-    将其保存为 `first-mod/hooks/register.js`：
+**3. 告诉 Claude Code 你的代码在哪里**
 
-    ```javascript first-mod/hooks/register.js theme={null}
-    // The count, shared by the hooks below
-    let calls = 0
+当 Claude Code 加载一个插件时，它读取插件的 `hooks/hooks.json`。该文件中的 `modules` 键给出你的代码的路径，拥有它是使插件成为 mod 的原因。列出一个路径，相对于 `hooks.json`。这里它指向 `register.js`，你在下一步中编写。
 
-    // Claude Code calls this once when the mod loads
-    export function register(on) {
-      // Runs when the session starts, before your first prompt
-      on('session.start', async ($, e, next) => {
-        // Add the /tally command
-        await $.command.register({
-          name: 'tally',
-          description: 'Show how many tool calls Claude has made',
-        })
-        // Let the session start as usual
-        return next(e)
-      })
+将其保存为 `first-mod/hooks/hooks.json`：
 
-      // Runs each time Claude is about to use a tool
-      on('tool.call', async ($, e, next) => {
-        calls += 1
-        // Ask Claude Code to draw the interface again, so the new count shows
-        $.ui.invalidate('ui.render')
-        // Let the tool run as usual
-        return next(e)
-      })
+```json first-mod/hooks/hooks.json theme={null}
+{
+  "description": "The first-mod hooks module",
+  "modules": ["./register.js"]
+}
+```
 
-      // Runs when you type /tally, and only then, because of the matcher
-      on('command.run', { command: 'tally' }, async () => {
-        // The text to print in the transcript
-        return { text: 'Claude has made ' + calls + ' tool calls since this mod loaded' }
-      })
+**4. 编写代码**
 
-      // Runs each time Claude Code draws the spinner
-      on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
-        // Keep Claude Code's spinner, with the count added after its word
-        return next({ ...e, props: { ...e.props, suffix: ' · tool calls: ' + calls + '…' } })
-      })
-    }
-    ```
+这个文件是 mod 的代码，称为 hooks 模块。当 mod 加载时，Claude Code 调用文件导出的 `register` 函数，并传递一个名为 [`on`](/docs/zh-CN/plugins/mods/reference#the-hook-function) 的函数。每次调用 `on` 都会为它命名的事件注册一个事件处理程序，称为 hook。
 
-    该文件在 `calls` 中保持计数，并注册四个 hook：
+将其保存为 `first-mod/hooks/register.js`：
 
-    * **[`session.start`](/docs/zh-CN/plugins/mods/reference#session)** 在会话启动时运行，在你的第一个提示之前，以及每次 mod 重新加载时。它将 `/tally` 命令添加到 Claude Code。
-    * **[`tool.call`](/docs/zh-CN/plugins/mods/reference#tools)** 每次 Claude 即将使用工具时运行。它将 1 添加到 `calls` 并要求 Claude Code 再次绘制界面。
-    * **[`command.run`](/docs/zh-CN/plugins/mods/reference#commands-and-configuration)** 当你键入 `/tally` 时运行。它返回要打印的文本。
-    * **[`ui.render`](/docs/zh-CN/plugins/mods/reference#interface)** 每次 Claude Code 绘制微调器时运行。它在微调器的单词后添加计数。
+```javascript first-mod/hooks/register.js theme={null}
+// The count, shared by the hooks below
+let calls = 0
 
-    [示例 mod 如何工作](#how-the-example-mod-works)解释了每个 hook 采用的三个参数以及每个参数返回的内容。
-  </Step>
+// Claude Code calls this once when the mod loads
+export function register(on) {
+  // Runs when the session starts, before your first prompt
+  on('session.start', async ($, e, next) => {
+    // Add the /tally command
+    await $.command.register({
+      name: 'tally',
+      description: 'Show how many tool calls Claude has made',
+    })
+    // Let the session start as usual
+    return next(e)
+  })
 
-  <Step title="加载 mod">
-    使用 `--plugin-dir` 标志启动 Claude Code，它为一个会话加载一个插件目录而不安装它：
+  // Runs each time Claude is about to use a tool
+  on('tool.call', async ($, e, next) => {
+    calls += 1
+    // Ask Claude Code to draw the interface again, so the new count shows
+    $.ui.invalidate('ui.render')
+    // Let the tool run as usual
+    return next(e)
+  })
 
-    ```bash theme={null}
-    claude --plugin-dir ./first-mod
-    ```
-  </Step>
+  // Runs when you type /tally, and only then, because of the matcher
+  on('command.run', { command: 'tally' }, async () => {
+    // The text to print in the transcript
+    return { text: 'Claude has made ' + calls + ' tool calls since this mod loaded' }
+  })
 
-  <Step title="尝试 mod">
-    要求 Claude 做一些需要几个工具调用的事情，例如 `list the files here and read the README`。当 Claude 工作时，微调器的单词后跟一个上升的计数，如 `Thinking · tool calls: 2…`。当 Claude 完成时，键入 `/tally` 并按 Enter。转录显示 `first-mod: Claude has made 2 tool calls since this mod loaded`，带有你自己的计数。Claude Code 将插件的名称放在命令的文本前面。
+  // Runs each time Claude Code draws the spinner
+  on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
+    // Keep Claude Code's spinner, with the count added after its word
+    return next({ ...e, props: { ...e.props, suffix: ' · tool calls: ' + calls + '…' } })
+  })
+}
+```
 
-    要在非交互模式下检查命令，请运行它：
+该文件在 `calls` 中保持计数，并注册四个 hook：
 
-    ```bash theme={null}
-    claude -p "/tally" --plugin-dir ./first-mod
-    ```
+* **[`session.start`](/docs/zh-CN/plugins/mods/reference#session)** 在会话启动时运行，在你的第一个提示之前，以及每次 mod 重新加载时。它将 `/tally` 命令添加到 Claude Code。
+* **[`tool.call`](/docs/zh-CN/plugins/mods/reference#tools)** 每次 Claude 即将使用工具时运行。它将 1 添加到 `calls` 并要求 Claude Code 再次绘制界面。
+* **[`command.run`](/docs/zh-CN/plugins/mods/reference#commands-and-configuration)** 当你键入 `/tally` 时运行。它返回要打印的文本。
+* **[`ui.render`](/docs/zh-CN/plugins/mods/reference#interface)** 每次 Claude Code 绘制微调器时运行。它在微调器的单词后添加计数。
 
-    ```text theme={null}
-    first-mod: Claude has made 0 tool calls since this mod loaded
-    ```
+[示例 mod 如何工作](#how-the-example-mod-works)解释了每个 hook 采用的三个参数以及每个参数返回的内容。
 
-    如果 `/tally` 不在命令列表中，则模块未加载。请参阅[找出为什么 mod 什么都不做](/docs/zh-CN/plugins/mods/troubleshoot#find-out-why-a-mod-does-nothing)。
-  </Step>
+**5. 加载 mod**
 
-  <Step title="在会话运行时更改代码">
-    保持会话打开。在 `register.js` 中，在 `ui.render` hook 中将 `' · tool calls: '` 更改为 `' · tools used: '` 并保存。突出显示的行是更改的行：
+使用 `--plugin-dir` 标志启动 Claude Code，它为一个会话加载一个插件目录而不安装它：
 
-    ```javascript first-mod/hooks/register.js {4} theme={null}
-      // Runs each time Claude Code draws the spinner
-      on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
-        // Keep Claude Code's spinner, with the count added after its word
-        return next({ ...e, props: { ...e.props, suffix: ' · tools used: ' + calls + '…' } })
-      })
-    ```
+```bash theme={null}
+claude --plugin-dir ./first-mod
+```
 
-    转录中的一行说 `first-mod` 重新加载并列出其 hook，下一个微调器使用新文本，如 `Thinking · tools used: 1…`。
-  </Step>
-</Steps>
+**6. 尝试 mod**
 
-<h3 id="how-the-example-mod-works">
-  示例 mod 如何工作
-</h3>
+要求 Claude 做一些需要几个工具调用的事情，例如 `list the files here and read the README`。当 Claude 工作时，微调器的单词后跟一个上升的计数，如 `Thinking · tool calls: 2…`。当 Claude 完成时，键入 `/tally` 并按 Enter。转录显示 `first-mod: Claude has made 2 tool calls since this mod loaded`，带有你自己的计数。Claude Code 将插件的名称放在命令的文本前面。
+
+要在非交互模式下检查命令，请运行它：
+
+```bash theme={null}
+claude -p "/tally" --plugin-dir ./first-mod
+```
+
+```text theme={null}
+first-mod: Claude has made 0 tool calls since this mod loaded
+```
+
+如果 `/tally` 不在命令列表中，则模块未加载。请参阅[找出为什么 mod 什么都不做](/docs/zh-CN/plugins/mods/troubleshoot#find-out-why-a-mod-does-nothing)。
+
+**7. 在会话运行时更改代码**
+
+保持会话打开。在 `register.js` 中，在 `ui.render` hook 中将 `' · tool calls: '` 更改为 `' · tools used: '` 并保存。突出显示的行是更改的行：
+
+```javascript first-mod/hooks/register.js {4} theme={null}
+  // Runs each time Claude Code draws the spinner
+  on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
+    // Keep Claude Code's spinner, with the count added after its word
+    return next({ ...e, props: { ...e.props, suffix: ' · tools used: ' + calls + '…' } })
+  })
+```
+
+转录中的一行说 `first-mod` 重新加载并列出其 hook，下一个微调器使用新文本，如 `Thinking · tools used: 1…`。
+
+### 示例 mod 如何工作
 
 你传递给 `on` 的每个函数都是一个 hook，它是一个事件处理程序。Claude Code 将相同的三个参数传递给每个 hook：
 
@@ -257,15 +237,11 @@ first-mod/
 
 Claude Code 监视使用 `--plugin-dir` 加载的目录，并在其中的文件更改时热重新加载 hooks 模块。每次重新加载都会再次运行 `register`，所以 `calls` 回到 `0`，`/tally` 开始重新计数。要在重新加载中保持值，请参阅[保持状态](/docs/zh-CN/plugins/mods/interface#keep-state)。
 
-<h2 id="keep-working-on-a-mod">
-  继续处理 mod
-</h2>
+## 继续处理 mod
 
 一旦 mod 加载，你可以让 Claude 更改它，根据你的版本的类型定义检查你的代码，列出 Claude Code 在其中找到的事件和调用，并测试它。
 
-<h3 id="change-a-mod-with-claude">
-  使用 Claude 更改 mod
-</h3>
+### 使用 Claude 更改 mod
 
 要更改你已有的 mod，使用 `--plugin-dir` 指向 mod 的目录启动会话，以便 Claude 编写的内容在同一会话中加载：
 
@@ -277,9 +253,7 @@ claude --plugin-dir ./first-mod
 
 Claude 在其转折期间保存的文件在转折结束时重新加载，所以你可以在 Claude 完成后立即尝试 `/tally-reset`。
 
-<h3 id="get-the-types-for-your-build">
-  获取你的版本的类型定义
-</h3>
+### 获取你的版本的类型定义
 
 当 Claude Code 在交互式会话中从 `--plugin-dir` 加载 mod，或加载 [Claude 为您编写](#ask-claude-for-a-mod)的 mod 时，它会将 TypeScript 声明文件写入 mod 的 `.claude-plugin/types/` 目录。这些文件描述了您正在运行的 Claude Code 版本中的确切事件、mods API 方法和元素，因此您的编辑器可以对您的 hook 进行自动补全和类型检查。该目录包含以下文件：
 
@@ -297,9 +271,7 @@ Claude 在其转折期间保存的文件在转折结束时重新加载，所以�
 
 `claude-code/index.d.ts` 是你的构建的最完整的参考，每个 mods API 方法都有注释和示例。要查找某些内容，请在文件中搜索其名称，例如 `'tool.call'`。
 
-<h3 id="check-what-claude-code-reads-from-your-mod">
-  检查 Claude Code 从你的 mod 中读取的内容
-</h3>
+### 检查 Claude Code 从你的 mod 中读取的内容
 
 要以 Claude Code 看到的方式查看你的 mod，而不运行你的代码或启动会话，请使用 `claude plugin validate`。它检查清单并对 hooks 模块的源运行相同的静态分析，Claude Code 在加载 mod 时运行。在你的 shell 中，在 mod 的目录上运行它：
 
@@ -329,9 +301,7 @@ claude plugin validate ./first-mod
 * 在文件顶部使用 `import` 声明，如 `import { name } from './file.js'`。动态 `import()` 失败，出现 `a dynamic import(); a hooks module imports its own files with an import declaration`。
 * 将每个文件写为 ES 模块，使用 `import` 而不是 `require`。[参考](/docs/zh-CN/plugins/mods/reference#files)列出 Claude Code 加载的文件扩展名。
 
-<h3 id="test-the-mod">
-  测试 mod
-</h3>
+### 测试 mod
 
 您可以为 mod 编写自动化测试，并在 shell 中使用 `claude plugin test` 运行，无需会话、登录或网络。测试会触发您的 hook 所处理的事件，并检查 hook 执行了哪些操作。
 
@@ -373,9 +343,7 @@ Ran 1 test across 1 file. [0.19s]
 
 [测试 mod](/docs/zh-CN/plugins/mods/test)涵盖存根模型调用或存储，以及测试计时器和绘图。
 
-<h2 id="share-your-mod">
-  分享你的 mod
-</h2>
+## 分享你的 mod
 
 mod 是一个插件，所以您在清单中对其进行版本控制，人们使用 `/plugin` 命令安装和更新它。如何分享取决于分享对象：
 
@@ -388,9 +356,7 @@ mod 是一个插件，所以您在清单中对其进行版本控制，人们使�
 
 继续针对目录使用 `--plugin-dir` 进行开发，而不是针对已安装的副本。Claude Code 按版本缓存已安装的插件，所以在您提高版本并再次安装之前，您的编辑不会到达已安装的副本。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [在界面中绘制](/docs/zh-CN/plugins/mods/interface)：打开一个窗格，在提示上方绘制，并添加按钮和文本字段
 * [对事件做出反应](/docs/zh-CN/plugins/mods/events)：hook 工具调用、提示和转折

@@ -10,12 +10,12 @@ Plugin manifest 是 plugin 的 `.claude-plugin/` 目录中的 `plugin.json` 文�
 
 本参考适用于 plugin 创建者，以及将组件字段放在 marketplace 条目中的 marketplace 所有者。
 
-<Note>
-  这些情况在其他页面上有介绍：
-
-  * **学习构建 plugin**：从[创建 plugin](/docs/zh-CN/plugins/create)开始
-  * **每个组件在运行时的作用**：参见[Plugin 组件](/docs/zh-CN/plugins/components)
-</Note>
+> [!NOTE]
+>
+> 这些情况在其他页面上有介绍：
+>
+> * **学习构建 plugin**：从[创建 plugin](/docs/zh-CN/plugins/create)开始
+> * **每个组件在运行时的作用**：参见[Plugin 组件](/docs/zh-CN/plugins/components)
 
 从与您要查找的内容相匹配的部分开始：
 
@@ -25,9 +25,7 @@ Plugin manifest 是 plugin 的 `.claude-plugin/` 目录中的 `plugin.json` 文�
 * 每个组件的文件位置：[标准布局](#standard-layout)
 * 来自 `claude plugin validate` 的消息：[故障排除页面](/docs/zh-CN/plugins/troubleshooting)列出每条消息及其修复，并链接到本页的相关部分
 
-<h2 id="manifest-file">
-  Manifest 文件
-</h2>
+## Manifest 文件
 
 manifest 是可选的。没有它，Claude Code 会加载它在[标准布局](#standard-layout)中找到的组件。然后 plugin 名称来自 marketplace 条目，或者当您使用 `--plugin-dir` 加载 plugin 时来自目录名称。
 
@@ -91,18 +89,14 @@ manifest 是可选的。没有它，Claude Code 会加载它在[标准布局](#s
 }
 ```
 
-<h3 id="unrecognized-fields">
-  无法识别的字段
-</h3>
+### 无法识别的字段
 
 无法识别的顶级键被剥离，`userConfig` 选项、`channels` 条目、`lspServers` 配置或 `monitors` 条目内的无法识别的键被拒绝：
 
 * **顶级字段**：字段被剥离，plugin 加载。`claude plugin validate` 将每个无法识别的顶级字段报告为警告
 * **严格对象**：`userConfig` 选项、`channels` 条目、`lspServers` 配置和 `monitors` 条目是严格的。其中的未知键是错误，plugin 不加载
 
-<h3 id="validate-the-manifest">
-  验证 manifest
-</h3>
+### 验证 manifest
 
 `claude plugin validate` 是 manifest 的权威检查。从您的 shell 针对 plugin 目录运行它：
 
@@ -121,9 +115,7 @@ claude plugin validate ./my-plugin
 * **错误**：Claude Code 在加载 plugin 时会丢弃的条目、对 manifest 未声明的选项的 `${user_config.KEY}` 引用，以及不是有效绝对 URL 的远程 `url`
 * **警告**：到非环回主机的 `http://` 或 `ws://` URL，以及看起来像字面凭证的标头值
 
-<h2 id="fields">
-  字段
-</h2>
+## 字段
 
 该表列出了 `plugin.json` 中的顶级键。`name` 是唯一必需的键。如果字段名称是链接，链接的部分有其完整规则。
 
@@ -168,9 +160,7 @@ claude plugin validate ./my-plugin
 
 在"类型"列中，路径是相对于 plugin 根目录的字符串，例如 `"./custom/commands"`。
 
-<h3 id="name">
-  `name`
-</h3>
+### `name`
 
 plugin 标识符。它必须非空，没有空格、`@`、`:`、路径分隔符、控制字符或双向格式字符；使用 kebab-case。
 
@@ -187,29 +177,21 @@ Claude Code 在其下命名空间每个组件，因此 plugin `deploy-tools` 中
 
 错误读作 `Plugin name "<name>" is reserved: it passes as one of Anthropic's own`，警告读作 `Plugin name "<name>" reads as one of Anthropic's own`。`claude plugin init` 和 `claude plugin tag` 拒绝引发错误的名称。Claude Code 仍然安装和加载其名称被拒绝的插件。
 
-<h3 id="displayname">
-  `displayName`
-</h3>
+### `displayName`
 
 在 UI 中显示的名称，代替 `name`。它可能包含空格和任何大小写，它不用于命名空间或查找。
 
 对于 marketplace 安装的 plugin，[marketplace 条目](/docs/zh-CN/plugins/marketplace-reference#plugin-entries)上的 `displayName` 优先于此值。
 
-<h3 id="version">
-  `version`
-</h3>
+### `version`
 
 版本字符串，不针对 semver 检查。设置它会将插件固定到该版本，直到您更改它；参见[版本和更新](/docs/zh-CN/plugins/loading#versions-and-updates)。具有[`command` 源](/docs/zh-CN/plugins/marketplace-reference)的插件、来自[托管在 claude.ai 上的市场](/docs/zh-CN/plugins/install#add-from-claude-ai)的插件以及从通过本地路径添加的市场[就地加载](/docs/zh-CN/plugins/loading#find-plugins-on-disk)的插件不由此字段固定。
 
-<h3 id="metadata">
-  `metadata`
-</h3>
+### `metadata`
 
 用于您自己数据的自由形式对象，例如目录或权利字段。Claude Code 不读取它。需要 Claude Code v2.1.222 或更高版本。
 
-<h3 id="directory-listing-fields">
-  目录列表字段
-</h3>
+### 目录列表字段
 
 当您[提交插件](/docs/zh-CN/plugins/publish#submit-to-anthropics-directory)时，Anthropic 的目录会从 `plugin.json` 中读取 `icon`、`documentationUrl`、`supportUrl`、`privacyPolicyUrl` 和 `termsOfServiceUrl` 字段，用于您插件的列表。Claude Code 在加载时忽略它们。请仅在 `plugin.json` 中设置它们。在[市场条目](#marketplace-entries-and-the-manifest)中，`claude plugin validate` 会将它们逐一报告为未知字段。
 
@@ -217,35 +199,25 @@ Claude Code 在其下命名空间每个组件，因此 plugin `deploy-tools` 中
 
 在 Claude Code v2.1.281 或更高版本上，`claude plugin validate` 接受这些字段且不发出警告。更早的版本会为每个字段打印一条 `Unknown field` 警告，因此在这些版本上使用 `--strict` 运行会失败。
 
-<h3 id="defaultenabled">
-  `defaultEnabled`
-</h3>
+### `defaultEnabled`
 
 当用户未在 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 中设置时，plugin 是否在启用时启动。默认为 `true`。启用的 plugin 依赖的 plugin 无论如何都会启用启动。marketplace 条目中的相同字段覆盖此字段。
 
 一旦用户的 `enabledPlugins` 条目被写入，它在 plugin 更新中持续存在，因此在后续版本中更改 `defaultEnabled` 不会更改现有用户的设置。
 
-<h3 id="dependencies">
-  `dependencies`
-</h3>
+### `dependencies`
 
 必须为此 plugin 启用的 plugin。每个条目是 `"name"`、`"name@marketplace"` 或 `{ "name": "...", "marketplace": "...", "version": "..." }`。裸名称针对此 plugin 自己的 marketplace 解析。参见[依赖约束](/docs/zh-CN/plugins/dependencies)。
 
-<h3 id="settings">
-  `settings`
-</h3>
+### `settings`
 
 Claude Code 在 plugin 启用时应用的设置。仅 `agent` 和 `subagentStatusLine` 生效；其他键在加载时被删除。plugin 根目录处的 `settings.json` 优先于此键。参见[默认设置](/docs/zh-CN/plugins/components#default-settings)。
 
-<h2 id="component-path-forms">
-  组件路径形式
-</h2>
+## 组件路径形式
 
 每个组件键接受相对于 plugin 根目录的路径。`hooks`、`mcpServers`、`lspServers` 和 `experimental.monitors` 也接受内联配置，`commands` 也接受对象映射，`mcpServers` 也接受 MCP 包路径和 URL。以下示例显示每个接受的形式一次。有关每个组件在运行时的作用，参见[Plugin 组件](/docs/zh-CN/plugins/components)。
 
-<h3 id="path-only-fields">
-  仅路径字段
-</h3>
+### 仅路径字段
 
 `agents`、`skills`、`outputStyles`、`workflows` 和 `experimental.themes` 采用一个路径或路径数组。`agents` 条目必须是 `.md` 文件，`skills` 条目必须是目录。其他三个接受目录或文件。
 
@@ -257,9 +229,7 @@ Claude Code 在 plugin 启用时应用的设置。仅 `agent` 和 `subagentStatu
 }
 ```
 
-<h3 id="commands">
-  `commands`
-</h3>
+### `commands`
 
 `commands` 采用路径、路径数组或对象映射。路径命名平面 `.md` 命令文件或目录。在对象映射中，每个键在 plugin 前缀后成为命令名称。例如，plugin `deploy-tools` 中的 `"about"` 运行为 `/deploy-tools:about`。
 
@@ -285,9 +255,7 @@ Claude Code 在 plugin 启用时应用的设置。仅 `agent` 和 `subagentStatu
 }
 ```
 
-<h3 id="hooks">
-  `hooks`
-</h3>
+### `hooks`
 
 `hooks` 采用 `.json` 文件路径、与 [`settings.json` 中的 `hooks`](/docs/zh-CN/hooks#configuration)相同形状的内联 hooks 对象，或混合两者的数组。有关 hook 事件和处理程序字段，参见[hooks 参考](/docs/zh-CN/hooks#hook-events)。
 
@@ -330,9 +298,7 @@ Claude Code 在该文件存在时将您声明的内容与 `hooks/hooks.json` 合
 }
 ```
 
-<h3 id="mcpservers">
-  `mcpServers`
-</h3>
+### `mcpServers`
 
 `mcpServers` 采用 `.json` 文件路径、MCP 包路径或 URL、内联映射或混合它们的数组。有关服务器配置字段，参见[plugin 提供的 MCP 服务器](/docs/zh-CN/mcp#plugin-provided-mcp-servers)。
 
@@ -349,9 +315,7 @@ Claude Code 首先加载 plugin 根目录处的 `.mcp.json`，然后按顺序加
 
 包路径或 URL 必须以 `.mcpb` 或 `.dxt` 结尾。任何其他扩展名验证失败。
 
-<h3 id="lspservers">
-  `lspServers`
-</h3>
+### `lspServers`
 
 `lspServers` 采用 `.json` 文件路径、服务器名称到配置的内联映射，或两者的数组。
 
@@ -392,9 +356,7 @@ Claude Code 首先加载 plugin 根目录处的 `.lsp.json`，然后按顺序加
 
 有关 Anthropic 作为 plugin 发布的语言服务器以及服务器在运行时的行为，参见[代码智能](/docs/zh-CN/plugins/code-intelligence)。
 
-<h3 id="monitors">
-  `monitors`
-</h3>
+### `monitors`
 
 `experimental.monitors` 采用 `.json` 文件路径或内联数组。当您省略该键时，Claude Code 加载 `monitors/monitors.json`（如果存在）。
 
@@ -426,9 +388,7 @@ Claude Code 首先加载 plugin 根目录处的 `.lsp.json`，然后按顺序加
 
 monitor `command` 不能引用 `${user_config.*}`。参见[通过 shell 运行的字段](#fields-that-run-through-a-shell)。
 
-<h2 id="path-rules">
-  路径规则
-</h2>
+## 路径规则
 
 manifest 中的每个组件路径相对于 plugin 根目录，必须以 `./` 开头。路径如 `commands/foo.md` 验证失败。`skills` 和 `mcpServers` 各接受该规则之外的一种形式：
 
@@ -437,9 +397,7 @@ manifest 中的每个组件路径相对于 plugin 根目录，必须以 `./` 开
 
 `experimental.evals` 不是组件路径，因此本节中的规则不适用于它，而是由 `claude plugin eval` 在运行时检查该值。它指定插件根目录下的一个目录，例如 `"quality/evals"`，可以带或不带 `./` 前缀。如果是数组，则仅使用第一个条目。有关该值接受的内容以及值不可用时会发生什么，请参阅[使用不同的 eval 目录](/docs/zh-CN/plugin-evals#use-a-different-eval-directory)。
 
-<h3 id="containment-and-existence">
-  包含和存在
-</h3>
+### 包含和存在
 
 每个组件路径必须在 plugin 根目录内解析并且必须存在。`claude plugin validate` 检查每个组件键下的路径：
 
@@ -448,9 +406,7 @@ manifest 中的每个组件路径相对于 plugin 根目录，必须以 `./` 开
 
 对于 `outputStyles`、`lspServers`、`monitors` 和 `themes` 路径，`claude plugin validate` 检查需要 Claude Code v2.1.283 或更高版本。
 
-<h3 id="how-each-key-combines-with-its-default-location">
-  每个键如何与其默认位置结合
-</h3>
+### 每个键如何与其默认位置结合
 
 每个组件键要么替换其默认位置，要么添加到它，要么与它合并：
 
@@ -462,9 +418,7 @@ manifest 中的每个组件路径相对于 plugin 根目录，必须以 `./` 开
 
 要避免警告，将键设置为该文件夹内的路径：`"commands": ["./commands/deploy.md"]` 命名默认文件夹中的文件，不产生警告。
 
-<h2 id="user-configuration">
-  用户配置
-</h2>
+## 用户配置
 
 `userConfig` 声明 Claude Code 在 plugin 启用时提示用户输入的值，因此用户不自己编辑 `settings.json`。
 
@@ -506,9 +460,7 @@ manifest 中的每个组件路径相对于 plugin 根目录，必须以 `./` 开
 }
 ```
 
-<h3 id="limit-a-field-to-fixed-options">
-  将字段限制为固定选项
-</h3>
+### 将字段限制为固定选项
 
 在 `userConfig` 字段上设置 `options` 以使用户从固定列表中选择其值。
 
@@ -532,24 +484,18 @@ manifest 中的每个组件路径相对于 plugin 根目录，必须以 `./` 开
 
 `options` 适用于不是 `multiple` 或 `sensitive` 的 `string` 字段。将 `default` 设置为列出的值之一，或设置 `required: true` 以便用户必须选择一个。每个选项是 1 到 64 个字符的纯标签，您在 shell 中运行的 `claude plugin validate` 报告它拒绝的任何其他内容。其 `options` 违反这些规则的 plugin 无法加载。
 
-<h3 id="where-values-are-stored">
-  值的存储位置
-</h3>
+### 值的存储位置
 
 非敏感值保存在用户 `settings.json` 中的 [`pluginConfigs`](/docs/zh-CN/settings-reference#pluginconfigs) 下。敏感值转到平台的安全凭证存储。[设置页面](/docs/zh-CN/settings-reference#pluginconfigs)列出从哪些设置文件读取 `pluginConfigs`。
 
-<h3 id="reference-a-saved-value">
-  引用保存的值
-</h3>
+### 引用保存的值
 
 在 plugin 需要的地方引用保存的值，采用以下两种形式之一：
 
 * **`${user_config.KEY}`**：在 MCP 服务器配置、LSP 服务器配置、[exec 形式](/docs/zh-CN/hooks#exec-form-and-shell-form) hook `args` 以及 skill 和 agent 内容中替换。在 skill 和 agent 内容中，仅替换非敏感值，敏感值变成占位符
 * **`CLAUDE_PLUGIN_OPTION_<KEY>`**：导出到每个选项的 hook 进程，`<KEY>` 大写。shell 形式 hook 为 `api_token` 读取 `$CLAUDE_PLUGIN_OPTION_API_TOKEN`
 
-<h3 id="fields-that-run-through-a-shell">
-  通过 shell 运行的字段
-</h3>
+### 通过 shell 运行的字段
 
 Shell 形式 hook 命令、monitor 命令和 MCP [`headersHelper`](/docs/zh-CN/mcp#use-dynamic-headers-for-custom-authentication) 拒绝 `${user_config.*}`。引用它的组件在这些字段之一中失败，出现[错误](/docs/zh-CN/errors#plugin-command-references-user-config)而不是运行，因为字段的值被传递到会重新解析替换值的 shell。
 
@@ -561,9 +507,7 @@ Shell 形式 hook 命令、monitor 命令和 MCP [`headersHelper`](/docs/zh-CN/m
 | Monitor 命令 | 不通过 Claude Code。Monitor 进程不接收 `CLAUDE_PLUGIN_OPTION_<KEY>`，因此 monitor 脚本必须自己获取值 |
 | MCP `headersHelper` | 不通过 Claude Code。helper 的环境携带 `CLAUDE_PLUGIN_ROOT`、`CLAUDE_CODE_MCP_SERVER_NAME` 和 `CLAUDE_CODE_MCP_SERVER_URL` 但没有选项值，因此 helper 脚本必须自己获取值 |
 
-<h2 id="channels">
-  频道
-</h2>
+## 频道
 
 `channels` 声明 plugin 提供的消息频道，例如到聊天应用的桥接。当您声明一个时，Claude Code 可以在 plugin 启用时提示频道的配置。有关服务器如何注入消息，参见[频道参考](/docs/zh-CN/channels-reference#package-as-a-plugin)。
 
@@ -603,9 +547,7 @@ Shell 形式 hook 命令、monitor 命令和 MCP [`headersHelper`](/docs/zh-CN/m
 }
 ```
 
-<h2 id="environment-variables">
-  环境变量
-</h2>
+## 环境变量
 
 Claude Code 为 plugin 组件提供三个路径变量。在[每个变量解析的位置](#where-each-variable-resolves)下列出的字段中将它们引用为 `${NAME}`，并在接收它们的进程中将它们读取为环境变量。
 
@@ -619,9 +561,7 @@ Claude Code 为 plugin 组件提供三个路径变量。在[每个变量解析�
 
 默认情况下，当您从最后一个安装它的地方卸载 plugin 时，Claude Code 会删除 `${CLAUDE_PLUGIN_DATA}` 目录。有关 `--keep-data` 和其他保留它的情况，参见 [plugin 卸载](/docs/zh-CN/plugins/cli-reference#plugin-uninstall)。
 
-<h3 id="where-each-variable-resolves">
-  每个变量解析的位置
-</h3>
+### 每个变量解析的位置
 
 在每个 plugin 组件中，`${...}` 引用在特定字段中内联解析，某些组件也在其进程环境中接收变量：
 
@@ -636,9 +576,7 @@ Claude Code 为 plugin 组件提供三个路径变量。在[每个变量解析�
 
 变量不存在于 Claude 通过 Bash 工具在主会话或子代理中运行的命令的环境中。在 skill、command 和 agent 内容中，在 Markdown 体中写入 `${...}` 引用，Claude Code 在加载内容时内联替换路径。
 
-<h3 id="quoting-and-path-separators">
-  引用和路径分隔符
-</h3>
+### 引用和路径分隔符
 
 保持每个替换的路径为单个参数：
 
@@ -668,9 +606,7 @@ Claude Code 为 plugin 组件提供三个路径变量。在[每个变量解析�
 
 在 Windows 上，替换的路径使用正斜杠，因此 shell 不会将反斜杠读取为转义。
 
-<h2 id="standard-layout">
-  标准布局
-</h2>
+## 标准布局
 
 每个组件类型在 plugin 根目录下有默认位置，当 manifest 不指向其他位置时使用。
 
@@ -726,17 +662,13 @@ deploy-tools/
 
 plugin 根目录处的 `CLAUDE.md` 不作为上下文加载，`claude plugin validate` 在找到一个时发出警告。要包含加载到 Claude 上下文中的说明，将它们放在 skill 中。
 
-<h2 id="marketplace-entries-and-the-manifest">
-  Marketplace 条目和 manifest
-</h2>
+## Marketplace 条目和 manifest
 
 [市场条目](/docs/zh-CN/plugins/marketplace-reference)接受[其自己的字段](/docs/zh-CN/plugins/marketplace-reference#plugin-entries)（包括 `strict`），以及此页面上除[目录列表字段](#directory-listing-fields)之外的每个字段。
 
 `strict` 字段决定条目是否可以向具有自己 `plugin.json` 的 plugin 添加组件。它默认为 `true`。
 
-<h3 id="how-entry-fields-combine-with-plugin-json">
-  条目字段如何与 `plugin.json` 结合
-</h3>
+### 条目字段如何与 `plugin.json` 结合
 
 条目要么充当 manifest，要么向其添加组件，要么与其冲突：
 
@@ -746,9 +678,7 @@ plugin 根目录处的 `CLAUDE.md` 不作为上下文加载，`claude plugin val
 
 当[其 `source` 是 marketplace 根目录的 marketplace 条目](/docs/zh-CN/plugins/marketplace-reference)列出特定 `skills` 子目录时，仅这些子目录加载，plugin 的默认 `skills/` 目录不被扫描。manifest 中的 `skills` 键改为[添加到默认值](#how-each-key-combines-with-its-default-location)。
 
-<h3 id="metadata-precedence">
-  元数据优先级
-</h3>
+### 元数据优先级
 
 某些元数据字段有固定的优先级，无论 `strict` 如何：
 
@@ -758,9 +688,7 @@ plugin 根目录处的 `CLAUDE.md` 不作为上下文加载，`claude plugin val
 
 有关完整的优先级表，参见[严格模式](/docs/zh-CN/plugins/marketplace-reference)。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [向 plugin 添加组件](/docs/zh-CN/plugins/components)：每个组件在运行时的作用，带有验证的示例
 * [Marketplace 参考](/docs/zh-CN/plugins/marketplace-reference)：marketplace 可以为您的 plugin 设置的条目字段

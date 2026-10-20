@@ -10,17 +10,13 @@ Prompt caching 使 Claude Code 更快、更经济高效。没有缓存，API 会
 
 Claude Code 为您处理 prompt caching，除非您[禁用它](#disable-prompt-caching)。了解 prompt caching 的工作原理仍然很有用，因为某些操作会使缓存失效，使下一个响应更慢、更昂贵，同时它重建缓存。本页涵盖哪些操作会这样做、为什么某些设置等待重启才能应用，以及当使用量看起来很高时如何检查缓存性能。
 
-<h2 id="how-the-cache-is-organized">
-  缓存的组织方式
-</h2>
+## 缓存的组织方式
 
 每次在 Claude Code 中发送消息时，它都会发出一个新的 API 请求。模型在请求之间不会记住任何内容，因此 Claude Code 会重新发送完整的上下文：系统提示词、您的项目上下文、所有之前的消息和工具结果，以及您的新消息。新内容被附加在末尾，这意味着每个请求的大部分内容与前一个请求相同。提示缓存是 API 避免重新处理未更改部分的方式。
 
 API 通过将每个请求的开始部分（称为前缀）与最近处理的内容进行匹配来进行缓存。在正常的轮次中，前缀是整个前一个请求，只有最新的交互是新的。匹配是精确的，因此前缀中任何地方的更改都会重新计算其后的所有内容。没有按文件或按段的缓存。有关底层机制，请参阅 API 参考中的[提示缓存的工作原理](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#how-prompt-caching-works)。
 
-<img src="https://mintcdn.com/claude-code/VbDJw--l6T9a9Wvm/images/prompt-caching-prefix.svg?fit=max&auto=format&n=VbDJw--l6T9a9Wvm&q=85&s=f2e8f0b8298a50305fe428ca3f1d1594" className="dark:hidden" alt="四个轮次显示为逐渐增长的水平条。每个轮次的请求包含上一轮次的所有内容，并在末尾附加最新的交互。在第二轮和第三轮中，未更改的前缀从缓存中读取，只有新的交互被处理。在第四轮中，系统提示词发生了更改，因此前缀不再匹配，整个请求被重新处理并写入。" width="720" height="454" data-path="images/prompt-caching-prefix.svg" />
-
-<img src="https://mintcdn.com/claude-code/_xqph1dUOslCOwsj/images/prompt-caching-prefix-dark.svg?fit=max&auto=format&n=_xqph1dUOslCOwsj&q=85&s=297dc1c639f0915cae858d0c4b6f3be5" className="hidden dark:block" alt="四个轮次显示为逐渐增长的水平条。每个轮次的请求包含上一轮次的所有内容，并在末尾附加最新的交互。在第二轮和第三轮中，未更改的前缀从缓存中读取，只有新的交互被处理。在第四轮中，系统提示词发生了更改，因此前缀不再匹配，整个请求被重新处理并写入。" width="720" height="454" data-path="images/prompt-caching-prefix-dark.svg" />
+![四个轮次显示为逐渐增长的水平条。每个轮次的请求包含上一轮次的所有内容，并在末尾附加最新的交互。在第二轮和第三轮中，未更改的前缀从缓存中读取，只有新的交互被处理。在第四轮中，系统提示词发生了更改，因此前缀不再匹配，整个请求被重新处理并写入。](https://mintcdn.com/claude-code/VbDJw--l6T9a9Wvm/images/prompt-caching-prefix.svg?fit=max\&auto=format\&n=VbDJw--l6T9a9Wvm\&q=85\&s=f2e8f0b8298a50305fe428ca3f1d1594)
 
 为了充分利用前缀匹配，Claude Code 对每个请求进行排序，使得在轮次之间很少更改的内容首先出现：
 
@@ -39,13 +35,11 @@ API 通过将每个请求的开始部分（称为前缀）与最近处理的内�
 * **模型**：每个模型都有自己的缓存。切换模型会重新计算整个请求，即使内容相同。请参阅下面的[切换模型](#switching-models)。
 * **effort 级别**：在大多数模型上，每个 effort 级别都有自己的缓存，因此在会话中途更改 effort 级别会重新计算整个请求。在使用 API 密钥或 Claude 订阅的 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 5.1 上，缓存默认保持完整。请参阅下面的[更改 effort 级别](#changing-effort-level)。
 
-<Tip>
-  在会话开始时选择您的模型和 effort 级别，然后将 `/compact` 留到任务之间的自然间歇时使用。在任务中途进行的更改越少，缓存命中率就越高。
-</Tip>
+> [!TIP]
+>
+> 在会话开始时选择您的模型和 effort 级别，然后将 `/compact` 留到任务之间的自然间歇时使用。在任务中途进行的更改越少，缓存命中率就越高。
 
-<h3 id="where-the-cache-lives">
-  缓存的位置
-</h3>
+### 缓存的位置
 
 缓存发生在服务器端，在为您的模型提供服务的基础设施中。具体位置取决于您的身份验证方式：
 
@@ -66,9 +60,7 @@ Claude Code 还会在对话中途附加系统上下文，例如文件更改通�
 
 有关每个提供商存储和处理的内容，请参阅[数据使用](/docs/zh-CN/data-usage)。无论缓存位于何处，条目都会在一段时间不活动后过期，下面的[缓存生命周期](#cache-lifetime)涵盖了 TTL 以及如何延长它。
 
-<h2 id="actions-that-invalidate-the-cache">
-  使缓存失效的操作
-</h2>
+## 使缓存失效的操作
 
 这些操作可能导致下一个请求部分或全部缓存未命中。您会看到一次速度较慢、成本更高的轮次，之后新的前缀会被缓存。一旦您了解它们的成本，大多数操作都可以在任务中途避免。模型切换可能看起来没有成本，直到您注意到随后速度较慢的轮次。
 
@@ -82,9 +74,7 @@ Claude Code 还会在对话中途附加系统上下文，例如文件更改通�
 * [积累许多图像](#accumulating-many-images)
 * [升级 Claude Code](#upgrading-claude-code)
 
-<h3 id="switching-models">
-  切换模型
-</h3>
+### 切换模型
 
 每个模型都有自己的缓存。使用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 切换意味着下一个请求会读取整个对话历史记录而没有缓存命中，即使内容相同。
 
@@ -100,9 +90,7 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 上的[自动模型回退](/docs
 
 当 skill 或命令的 frontmatter 指定的 [`model`](/docs/zh-CN/skills#frontmatter-reference) 不同于会话当前模型时，该轮次也是一次模型切换：下一个请求读取整个对话历史记录而没有缓存命中。会话模型在您的下一个提示词时恢复。`context: fork` skill 则设置的是[分叉子代理的模型](/docs/zh-CN/skills#run-skills-in-a-subagent)。
 
-<h3 id="changing-effort-level">
-  更改 effort 级别
-</h3>
+### 更改 effort 级别
 
 在大多数模型上，在会话中途更改 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)意味着下一个请求会读取整个对话历史记录而没有缓存命中。当缓存仍然温暖时，Claude Code 会要求您先确认更改。
 
@@ -110,17 +98,13 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 上的[自动模型回退](/docs
 
 在 v2.1.260 之前，在 Fable 5.1 上使用 API 密钥或 Claude 订阅更改 effort 也会使缓存失效。
 
-<h3 id="turning-on-fast-mode">
-  启用快速模式
-</h3>
+### 启用快速模式
 
 启用[快速模式](/docs/zh-CN/fast-mode)会添加一个请求标头，该标头是缓存键的一部分，因此 Claude Code 在启用快速模式后发送的第一个请求会读取整个对话历史记录而没有缓存命中。Claude Code 在轮次开始时设置该标头一次，并在整个轮次中保持它，因此当您在 Claude 工作时启用快速模式，标头导致的缓存未命中会发生在您下一轮次的第一个请求上。这些未缓存的输入 token 按[快速模式费率](/docs/zh-CN/fast-mode#understand-the-cost-tradeoff)计费，这就是为什么在会话开始时启用它比在长会话的后段启用它成本更低。如果您当前的模型不支持快速模式，启用快速模式也会[切换您的模型](#switching-models)，该切换本身会从当前运行轮次中的下一个请求开始启动新的缓存。
 
 该成本每个对话只产生一次。在第一个快速模式轮次之后，Claude Code 会继续发送该标头，仅改变请求的速度设置，而速度设置不是缓存键的一部分。关闭快速模式、[速率限制后自动回退到标准速度](/docs/zh-CN/fast-mode#handle-rate-limits)以及稍后重新启用它都会保持缓存。如果您在会话中途[用完使用额度](/docs/zh-CN/fast-mode#handle-rate-limits)，Claude Code 会以相同的方式在标准速度下重试每个被拒绝的快速模式请求，因此此回退也会保持缓存。`/clear` 和 `/compact` 会重置此状态，因为它们无论如何都会在这些时间点重建缓存。
 
-<h3 id="connecting-or-removing-an-mcp-server">
-  连接或移除 MCP 服务器
-</h3>
+### 连接或移除 MCP 服务器
 
 工具定义位于系统提示词层，因此当请求中的工具定义集在轮次之间发生变化时，缓存会失效。切换[顾问工具](/docs/zh-CN/advisor)是一个例外：其定义位于缓存断点之后，因此启用或禁用 `/advisor` 会保持缓存的前缀完整。[MCP 服务器](/docs/zh-CN/mcp)的更改是否会导致缓存失效，取决于[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)是否延迟加载会话的 MCP 工具，这是受支持模型上的默认行为：
 
@@ -140,33 +124,23 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 上的[自动模型回退](/docs
 
 编辑您的 MCP 配置本身不会改变缓存。新配置仅在重启后生效，届时服务器才会连接或断开连接。
 
-<h3 id="enabling-or-disabling-a-plugin">
-  启用或禁用插件
-</h3>
+### 启用或禁用插件
 
 当您启用或禁用[插件](/docs/zh-CN/plugins/overview)时，更改的成本取决于插件提供的组件类型。下面的情况涵盖每种组件类型、Claude Code 何时应用更改，以及在同一会话中再次禁用插件时会发生什么。
 
-<h4 id="plugin-components-that-keep-the-cache">
-  保持缓存的插件组件
-</h4>
+#### 保持缓存的插件组件
 
 Claude Code 永远不会因插件的 skill、命令、Agent、hook、监视器或主题而使缓存失效。它会将这些内容附加在现有对话之后，因此下一个请求只需为这些内容付费，其之前的所有内容仍从缓存中读取。
 
-<h4 id="plugins-that-provide-mcp-servers">
-  提供 MCP 服务器的插件
-</h4>
+#### 提供 MCP 服务器的插件
 
 当您启用或禁用提供 [MCP 服务器](/docs/zh-CN/plugins/components#mcp-servers)的插件时，Claude Code 遵循与[连接或移除 MCP 服务器](#connecting-or-removing-an-mcp-server)相同的规则。
 
-<h4 id="code-intelligence-plugins">
-  代码智能插件
-</h4>
+#### 代码智能插件
 
 当您启用[代码智能插件](/docs/zh-CN/plugins/code-intelligence)时，Claude 会获得 [LSP 工具](/docs/zh-CN/tools-reference#lsp-tool-behavior)。
 
-<h4 id="when-plugin-changes-apply">
-  插件更改何时应用
-</h4>
+#### 插件更改何时应用
 
 您在 `/plugin` 菜单中所做的更改会通过 [`/reload-plugins`](/docs/zh-CN/plugins/cli-reference#reload-plugins) 应用，Claude Code 会在您关闭菜单时为您运行它。无论是附加公告还是完整重新读取，您都会在更改应用后的第一个轮次中支付该成本。Claude Code 也可以自行应用更改：
 
@@ -181,15 +155,11 @@ Claude Code 永远不会因插件的 skill、命令、Agent、hook、监视器�
 
 在这些会话中，重新加载会应用除插件 MCP 服务器更改之外的所有内容，插件 MCP 服务器更改会[在您的下一个会话中生效](/docs/zh-CN/plugins/cli-reference#reload-plugins)，因此永远不会在会话中途导致完整重新读取的成本。
 
-<h4 id="plugins-you-enable-and-then-disable-in-one-session">
-  您在一个会话中启用然后禁用的插件
-</h4>
+#### 您在一个会话中启用然后禁用的插件
 
 当您禁用在会话中较早启用的插件时，Claude Code 会恢复之前的请求形状。如果该前缀仍在其[缓存生命周期](#cache-lifetime)内，下一个请求会读取较旧的缓存条目而不是重建。
 
-<h3 id="denying-an-entire-tool">
-  拒绝整个工具
-</h3>
+### 拒绝整个工具
 
 如果您将 `Bash` 或 `WebFetch` 这样的裸工具名称添加为[拒绝规则](/docs/zh-CN/permissions#manage-permissions)，从您的下一个请求开始，Claude 将无法调用该工具，无论您是通过 `/permissions` 添加规则，还是[直接编辑设置文件](/docs/zh-CN/settings#when-edits-take-effect)。这也包括您在轮次中途通过 `/permissions` 添加的规则。
 
@@ -197,9 +167,7 @@ Claude Code 永远不会因插件的 skill、命令、Agent、hook、监视器�
 
 只有在工具名称位置匹配的拒绝规则才会以这种方式阻止工具：裸工具名称、等效的 `Bash(*)` 形式，或 `"*"` 这样的[工具名称 glob](/docs/zh-CN/permissions#tool-name-wildcards)。仅匹配 MCP 工具的 glob（例如 `"mcp__*"`）会以相同的方式阻止这些工具。`Bash(rm *)` 这样的限定范围拒绝规则，以及所有允许和询问规则，不会改变 Claude 看到的工具。Claude Code 会在 Claude 尝试调用时检查它们，保持前缀完整。
 
-<h3 id="compacting-the-conversation">
-  压缩对话
-</h3>
+### 压缩对话
 
 [压缩](/docs/zh-CN/context-window#what-survives-compaction)会用摘要替换您的消息历史记录。按照设计，这会使对话层失效，因为下一个请求拥有一个新的、更短的历史记录，与旧的历史记录不共享前缀。Claude Code 会重用系统提示词层，除非该对话是[在保留了原本会改变的系统提示词的情况下恢复的](#resuming-a-session)；在这种情况下，第一次压缩会切换到当前的提示词，该层会重建一次。它会从磁盘重新加载项目上下文，仅当 CLAUDE.md 和记忆自会话开始以来未改变时才会命中缓存。
 
@@ -207,15 +175,13 @@ Claude Code 永远不会因插件的 skill、命令、Agent、hook、监视器�
 
 在超过[缓存生命周期](#cache-lifetime)的中断之后，已没有缓存可读，因此摘要请求会将完整历史记录作为未缓存的输入重新处理。这就是为什么在您[恢复旧会话](/docs/zh-CN/sessions#resume-a-session)时 `/compact` 的成本最高。无论缓存温暖还是已冷，压缩后的轮次都只需为短得多的摘要重建对话缓存，因此该轮次并不是耗时的部分。
 
-<Tip>
-  当您丢弃的上下文是您不再需要的内容时，压缩对您有利。要选择其开销发生的时间，请在工作中的自然间歇处（例如任务之间）运行 `/compact`，而不是等待自动压缩在任务中途触发。如果您走上了一条想要完全放弃的路径，请改用 [`/rewind`](#rewinding-the-conversation) 回退到较早的轮次。回退会截断回到一个已缓存的前缀，而不是像压缩那样构建新的前缀。
-</Tip>
+> [!TIP]
+>
+> 当您丢弃的上下文是您不再需要的内容时，压缩对您有利。要选择其开销发生的时间，请在工作中的自然间歇处（例如任务之间）运行 `/compact`，而不是等待自动压缩在任务中途触发。如果您走上了一条想要完全放弃的路径，请改用 [`/rewind`](#rewinding-the-conversation) 回退到较早的轮次。回退会截断回到一个已缓存的前缀，而不是像压缩那样构建新的前缀。
 
 如果您在终端会话中让一个长对话处于空闲状态，且该对话使用的是[一小时 TTL](#which-ttl-each-request-gets)，Claude Code 可能会在缓存过期前不久对其进行压缩。要关闭空闲压缩，请将 [`idleCompaction`](/docs/zh-CN/settings-reference#idlecompaction) 设置为 `false`，这需要 Claude Code v2.1.290 或更高版本。
 
-<h3 id="accumulating-many-images">
-  积累许多图像
-</h3>
+### 积累许多图像
 
 API 限制每个请求可以携带的图像和 PDF 数量。有关当前数值，请参阅 API 文档中的[请求限制](https://platform.claude.com/docs/en/build-with-claude/vision#request-limits)。Claude Code 还会限制请求中图像和 PDF 的总大小，因此大型屏幕截图会比小型屏幕截图以更少的数量达到限制。
 
@@ -223,19 +189,15 @@ API 限制每个请求可以携带的图像和 PDF 数量。有关当前数值�
 
 移除图像会改变包含它们的消息，因此下一个请求会从这些消息中最早的一条开始重新处理对话。由于 Claude Code 每次移除一批，您会看到每批一个较慢的轮次，而不是每张新屏幕截图一个。
 
-<h3 id="upgrading-claude-code">
-  升级 Claude Code
-</h3>
+### 升级 Claude Code
 
 新的 Claude Code 版本通常会更新系统提示词或工具定义，因此升级后您开始的第一个对话会从头构建其缓存。[自动更新](/docs/zh-CN/setup#auto-updates)会在后台下载新版本，但在下一次启动时才应用，从不在会话中途应用，因此您会在重启后看到一个未缓存的首个轮次，而不会在会话中途遇到意外。设置 `DISABLE_AUTOUPDATER=1` 以控制何时应用升级。
 
-<Note>
-  有关恢复您在升级前开始的对话的成本，请参阅[恢复会话](#resuming-a-session)。
-</Note>
+> [!NOTE]
+>
+> 有关恢复您在升级前开始的对话的成本，请参阅[恢复会话](#resuming-a-session)。
 
-<h2 id="actions-that-keep-the-cache">
-  保持缓存的操作
-</h2>
+## 保持缓存的操作
 
 这些操作要么追加到对话的末尾，要么根本不触及请求。其中一些操作（例如编辑 CLAUDE.md）保持缓存的原因与该更改在运行会话中不会生效直到 `/clear`、`/compact` 或重启的原因相同。
 
@@ -248,73 +210,53 @@ API 限制每个请求可以携带的图像和 PDF 数量。有关当前数值�
 * [回溯对话](#rewinding-the-conversation)
 * [生成子代理](#subagents-and-the-cache)
 
-<h3 id="editing-files-in-your-repository">
-  编辑仓库中的文件
-</h3>
+### 编辑仓库中的文件
 
 文件内容仅在 Claude 读取文件时进入上下文，而读取操作会追加到对话中。编辑 Claude 之前读过的文件不会追溯性地改变历史记录中的早期读取。相反，Claude Code 会追加一条 [`<system-reminder>`](/docs/zh-CN/glossary#system-reminder) 注明文件已更改，Claude 会在需要时重新读取该文件。
 
-<h3 id="editing-claude-md-mid-session">
-  在会话中编辑 CLAUDE.md
-</h3>
+### 在会话中编辑 CLAUDE.md
 
 您的项目根目录和用户级 CLAUDE.md 文件在会话开始时读取一次并保存在内存中。在会话中编辑它们不会使缓存失效，但编辑也不会应用。Claude 继续使用在会话开始时加载的版本。新内容在下一次 `/clear`、`/compact` 或重启时加载。
 
 [子目录中的嵌套 CLAUDE.md 文件](/docs/zh-CN/memory)和[带有 `paths:` frontmatter 的规则](/docs/zh-CN/memory#path-specific-rules)稍后按需加载。在其加载前自行编辑确实会生效。加载后，内容成为对话历史的一部分，所以中途编辑不会追溯性地改变它。
 
-<h3 id="changing-permission-mode">
-  更改权限模式
-</h3>
+### 更改权限模式
 
 在[权限模式](/docs/zh-CN/permission-modes)之间切换，例如从手动模式切换到接受编辑，不会改变系统提示词或工具定义，所以模式更改是缓存安全的。例外是使用 [`opusplan`](/docs/zh-CN/model-config#opusplan-model-setting) 模型设置的计划模式，它在您进入或离开计划模式时在 Opus 和 Sonnet 之间切换模型。这使得模式切换成为[模型切换](#switching-models)。
 
-<h3 id="changing-output-style">
-  更改输出样式
-</h3>
+### 更改输出样式
 
 当您在会话中使用 [`/output-style`](/docs/zh-CN/output-styles#change-your-output-style)、`/config` 或 `outputStyle` 设置切换[输出样式](/docs/zh-CN/output-styles)时，Claude 从您的下一条消息开始使用新样式。Claude Code 将新样式的指令作为对话中的消息传递，所以该请求仍然从缓存中读取系统提示词和早期对话。
 
 在 v2.1.251 之前，中途样式切换保持缓存但直到您运行 `/clear` 或启动新会话时才应用。
 
-<h3 id="invoking-skills-and-commands">
-  调用 skill 和命令
-</h3>
+### 调用 skill 和命令
 
 [Skills](/docs/zh-CN/skills) 和[命令](/docs/zh-CN/commands)在调用点将其指令作为用户消息注入。对话中早期的任何内容都不会改变。frontmatter 中命名 `model` 的 skill 或命令可以是该轮的[模型切换](#switching-models)。
 
-<h3 id="running-/recap">
-  运行 `/recap`
-</h3>
+### 运行 `/recap`
 
 [`/recap`](/docs/zh-CN/interactive-mode#session-recap) 生成一个摘要以在您的终端中显示。与 `/compact` 不同，它将摘要作为命令输出追加而不是替换您的消息历史，所以缓存的前缀保持完整。
 
-<h3 id="rewinding-the-conversation">
-  回溯对话
-</h3>
+### 回溯对话
 
 [`/rewind`](/docs/zh-CN/checkpointing) 将您的对话截断回到较早的轮次。剩余的历史是缓存在该点构建时的相同内容，系统提示词和项目上下文层保持不变，所以下一个请求会命中较早的缓存条目。从那时起的每一轮都读过该前缀，即使原始轮次比 TTL 更久远，也保持了该条目的活跃。
 
 恢复文件检查点与对话一起对缓存没有单独的影响。文件内容仅在 Claude 读取文件时进入上下文，与[编辑仓库中的文件](#editing-files-in-your-repository)相同。
 
-<h2 id="resuming-a-session">
-  恢复会话
-</h2>
+## 恢复会话
 
 当你[恢复会话](/docs/zh-CN/sessions#resume-a-session)时，Claude Code 会重新发送整个对话，请求会从缓存中读取其前缀中未更改且仍在[缓存生命周期](#cache-lifetime)内的任何部分。本页顶部的层表说明了每一层的变化。
 
 系统提示词会在[Claude Code 升级](#upgrading-claude-code)后或在恢复时使用不同的[`--append-system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags)文本时发生变化。默认情况下，恢复的对话会保持其启动时的系统提示词，因此其历史记录仍然位于相同的提示词后面，更改会在对话被压缩或在新对话中生效。[恢复的对话中的系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)涵盖了系统提示词标志在恢复的对话中的情况。
 
-<h2 id="cache-lifetime">
-  缓存生命周期
-</h2>
+## 缓存生命周期
 
 缓存的前缀在不活动期间后过期。每个命中缓存的请求都会重置计时器，所以只要您继续工作，缓存就保持温暖。在足够长的间隙之后，下一个请求重新计算完整输入并重新建立缓存，这就是为什么步开后的第一个回合可能明显更慢。
 
 生存时间 (TTL) 控制缓存存活的间隙有多长。API 提供两个：五分钟 TTL 和[一小时 TTL](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#1-hour-cache-duration)，它通过更长的中断保持缓存温暖，但[以更高的速率计费缓存写入](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing)。较长的 TTL 在您让会话空闲并返回到它时很有帮助，因为您跳过了过期前缀成本的重新处理。对于从不空闲超过五分钟的短工作突发，它成本更高，其中更高的写入速率适用，较长的缓存生命周期未被使用。
 
-<h3 id="which-ttl-each-request-gets">
-  每个请求获得哪个 TTL
-</h3>
+### 每个请求获得哪个 TTL
 
 Claude Code 按请求决定 TTL，每个请求都属于以下两个固定桶之一：
 
@@ -330,9 +272,7 @@ Claude Code 按请求决定 TTL，每个请求都属于以下两个固定桶之�
 
 一旦您超过套餐的用量限制，Claude Code 开始使用[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，您需要为该用量付费，所以 Claude Code 将主对话降低到五分钟 TTL，其缓存写入费率更低。要在那里保持一小时 TTL，[自己选择 TTL](#choose-the-ttl-yourself)。
 
-<h3 id="choose-the-ttl-yourself">
-  自己选择 TTL
-</h3>
+### 自己选择 TTL
 
 您可以为任一桶设置 TTL。每个控制采用 `5m` 或 `1h`，Claude Code 忽略任何其他值。
 
@@ -356,9 +296,7 @@ Claude Code 按请求决定 TTL，每个请求都属于以下两个固定桶之�
 
 通过您使用 `ANTHROPIC_BASE_URL` 设置的 LLM 网关，部分一小时请求在 `anthropic-beta` 标头中传输，所以配置网关以[原样转发该标头](/docs/zh-CN/llm-gateway-protocol#request-headers)。一小时 TTL 在[Claude 应用网关](/docs/zh-CN/claude-apps-gateway#availability-and-limitations)上不可用。在 Amazon Bedrock 上，prompt caching 支持、最小可缓存前缀长度和一小时 TTL 可用性都因模型而异。如果缓存令牌计数保持为零，请检查 Amazon Bedrock 文档中的[支持的模型、区域和限制](https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html#prompt-caching-models)。
 
-<h2 id="cache-scope">
-  缓存范围
-</h2>
+## 缓存范围
 
 在 Claude Code 中，缓存有效地限定在一台机器和目录。系统提示嵌入了您的自动内存路径，对话以工作目录、平台、shell 和 OS 版本的公告开始。因此，两个不同目录中的会话构建不同的前缀并错过彼此的缓存。
 
@@ -366,9 +304,7 @@ Claude Code 按请求决定 TTL，每个请求都属于以下两个固定桶之�
 
 底层 API 缓存更广泛。缓存在组织之间隔离，在某些提供商上，[在组织内的工作区之间隔离](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#cache-storage-and-sharing)。在这些边界内，任何两个具有相同模型和前缀的请求读取相同的缓存。对于运行自动化流程队列的 Agent SDK 调用者，请参阅[改进跨用户和机器的 prompt caching](/docs/zh-CN/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines)以将自动内存位置移出系统提示并跨用户和机器共享系统提示的缓存条目。
 
-<h2 id="check-cache-performance">
-  检查缓存性能
-</h2>
+## 检查缓存性能
 
 缓存性能显示为 API 在每个响应上报告的两个令牌计数。实时观看它们的最直接方式是读取 `current_usage` 对象的[状态行脚本](/docs/zh-CN/statusline)：
 
@@ -385,9 +321,7 @@ Claude Code 按请求决定 TTL，每个请求都属于以下两个固定桶之�
 
 为了在整个组织中获得可见性，OpenTelemetry 导出器报告每个用户和会话的缓存读取和创建令牌。有关指标和事件属性参考，请参阅[监控使用](/docs/zh-CN/monitoring-usage)。
 
-<h2 id="subagents-and-the-cache">
-  子代理和缓存
-</h2>
+## 子代理和缓存
 
 [子代理](/docs/zh-CN/sub-agents)启动自己的对话，具有自己的系统提示和工具集，与父代的分开。它的第一个请求不读取父代的缓存，因为两个前缀不同，并在自己的回合中预热自己的缓存。子代理不在主对话[TTL 桶](#which-ttl-each-request-gets)之内，所以即使在订阅上也能获得五分钟，直到你[选择更长的时间](#choose-the-ttl-yourself)。
 
@@ -402,9 +336,7 @@ Claude Code 按请求决定 TTL，每个请求都属于以下两个固定桶之�
 * **恢复的子代理**：当 Claude [恢复子代理](/docs/zh-CN/sub-agents#resume-subagents)时，恢复运行的第一个请求可以读取原始运行预热的缓存。
 * **工作流扇出**：在[工作流扇出](/docs/zh-CN/workflows#prompt-caching-in-a-fan-out)中，相同前缀的代理，Claude Code 默认将除第一个外的所有代理保留最多 5 秒，所以它们的第一个请求可以读取第一个代理缓存的前缀。
 
-<h2 id="disable-prompt-caching">
-  禁用 prompt caching
-</h2>
+## 禁用 prompt caching
 
 禁用缓存在使用特定模型或提供商调试缓存行为时偶尔很有用。要关闭它，请将以下环境变量之一设置为 `1`：
 
@@ -426,9 +358,7 @@ Claude Code 按请求决定 TTL，每个请求都属于以下两个固定桶之�
 
 要在整个组织中设置缓存策略，请将这些或[TTL 变量](#cache-lifetime)中的任何一个放在[托管设置](/docs/zh-CN/managed-settings)的 `env` 块中。对于正常使用，保持缓存启用。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [从构建 Claude Code 中学到的经验：Prompt caching 就是一切](https://claude.com/blog/lessons-from-building-claude-code-prompt-caching-is-everything)：Plan Mode、延迟工具加载和压缩的设计原理
 * [探索上下文窗口](/docs/zh-CN/context-window)：什么加载到上下文中以及何时加载

@@ -8,9 +8,7 @@
 
 Claude Code 支持细粒度权限，因此您可以精确指定代理允许执行的操作和不允许执行的操作。权限设置可以检入版本控制并分发给组织中的所有开发人员，也可以由个别开发人员自定义。
 
-<h2 id="permission-system">
-  权限系统
-</h2>
+## 权限系统
 
 Claude Code 使用分层权限系统来平衡功能和安全性。该表显示了对于每种工具类型，手动模式是否在操作运行前询问。其他[权限模式](#permission-modes)改变了这些提示中的哪些会询问您；在自动模式中，分类器会审查操作而不是您，[分类器如何评估操作](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions)列出了它看到的操作。
 
@@ -24,11 +22,7 @@ Claude Code 使用分层权限系统来平衡功能和安全性。该表显示�
 
 权限提示会显示 Claude 即将执行的操作，然后列出您的选项。以下示例是手动模式会话中 Bash 命令的提示：
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-prompt-bash-light.png?fit=max&auto=format&n=oa7CKjMeIChox26S&q=85&s=87585d008a29304873466399f7b476f6" className="dark:hidden" alt="一个标题为 Bash command 的 Claude Code 权限提示。在一条关于自动模式的提示下方，它显示了描述&#x22;Run the test suite&#x22;、命令 npm test 以及&#x22;This command requires approval&#x22;这一行，然后询问&#x22;Do you want to proceed?&#x22;并提供四个选项：Yes；Yes, and don't ask again for: npm test *；Yes, and switch to auto mode；以及 No。页脚列出了两个按键：Esc 用于取消，Tab 用于修改。" width="1512" height="680" data-path="images/permission-prompt-bash-light.png" />
-
-  <img src="https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-prompt-bash-dark.png?fit=max&auto=format&n=oa7CKjMeIChox26S&q=85&s=dd25688056898df1d1e4f1b5542bc978" className="hidden dark:block" alt="一个标题为 Bash command 的 Claude Code 权限提示。在一条关于自动模式的提示下方，它显示了描述&#x22;Run the test suite&#x22;、命令 npm test 以及&#x22;This command requires approval&#x22;这一行，然后询问&#x22;Do you want to proceed?&#x22;并提供四个选项：Yes；Yes, and don't ask again for: npm test *；Yes, and switch to auto mode；以及 No。页脚列出了两个按键：Esc 用于取消，Tab 用于修改。" width="1512" height="680" data-path="images/permission-prompt-bash-dark.png" />
-</Frame>
+![一个标题为 Bash command 的 Claude Code 权限提示。在一条关于自动模式的提示下方，它显示了描述"Run the test suite"、命令 npm test 以及"This command requires approval"这一行，然后询问"Do you want to proceed?"并提供四个选项：Yes；Yes, and don't ask again for: npm test \*；Yes, and switch to auto mode；以及 No。页脚列出了两个按键：Esc 用于取消，Tab 用于修改。](https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-prompt-bash-light.png?fit=max\&auto=format\&n=oa7CKjMeIChox26S\&q=85\&s=87585d008a29304873466399f7b476f6)
 
 第三个选项 **是，并切换到自动模式**，[并非在每个提示中都会出现](/docs/zh-CN/permission-modes#switch-permission-modes)。
 
@@ -38,9 +32,7 @@ Claude Code 使用分层权限系统来平衡功能和安全性。该表显示�
 
 有时权限提示仅提供一次性批准，没有"不再询问"选项，也没有允许操作在会话的其余部分进行的选项。Claude Code 仅在提示可以向您显示它们允许的所有内容时才提供这些选项，因此您从提示保存的规则仅涵盖其选项命名的内容。当提示仅提供一次性批准时，批准该操作一次，或在 [`/permissions`](#manage-permissions) 中自己添加规则。要停止针对以 `watch` 等 exec 包装器开头的命令的提示，或针对带有 `-delete` 等操作的 `find` 命令的提示，请参阅 [Exec 包装器和 `find` 操作](#exec-wrappers-and-find-actions)。
 
-<h3 id="add-a-comment-when-you-answer-a-permission-prompt">
-  在回答权限提示时添加注释
-</h3>
+### 在回答权限提示时添加注释
 
 您可以在批准或拒绝单个操作时向 Claude 附加注释。在大多数权限提示上，包括 Bash、PowerShell、文件和 MCP 工具提示，移动到**是**或**否**并按 `Tab` 在该选项上打开注释字段。WebFetch 和浏览器提示不提供该字段。允许操作在会话的其余部分进行或保存规则的选项也不接受注释。
 
@@ -55,9 +47,7 @@ Claude Code 根据您的回答方式以不同的方式传递注释：
 * **是**：Claude Code 运行操作，然后在结果后将您的注释发送给 Claude。
 * **否**：Claude Code 将您的注释作为拒绝原因发送给 Claude，Claude 继续工作。如果您在来自主对话的提示上选择**否**而不附加注释，Claude Code 会停止该轮。
 
-<h2 id="manage-permissions">
-  管理权限
-</h2>
+## 管理权限
 
 您可以使用 `/permissions` 查看和管理 Claude Code 的工具权限。此对话框列出所有权限规则和它们来自的 `settings.json` 文件。您可以在 Claude 工作时打开此对话框：当您添加或删除规则时，Claude Code 会从 Claude 在同一轮中的下一个工具调用开始应用更改。在 v2.1.234 之前，Claude Code 会将命令排队直到轮次完成。
 
@@ -73,15 +63,13 @@ Deny 规则的行为取决于它们是命名工具还是在工具内范围化模
 
 裸名称移除适用于除了 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 之外的每个工具：当任何其他工具仍然存在时，deny 规则无法移除它，ask 规则永远不会为其提示。
 
-<Note>
-  权限规则由 Claude Code 强制执行，而不是由模型强制执行。您的提示或 `CLAUDE.md` 中的说明会影响 Claude 尝试执行的操作，但它们不会改变 Claude Code 允许的操作。要授予或撤销访问权限，请使用 `/permissions`、此处描述的规则、[权限模式](/docs/zh-CN/permission-modes) 或 [PreToolUse hook](#extend-permissions-with-hooks)。
-</Note>
+> [!NOTE]
+>
+> 权限规则由 Claude Code 强制执行，而不是由模型强制执行。您的提示或 `CLAUDE.md` 中的说明会影响 Claude 尝试执行的操作，但它们不会改变 Claude Code 允许的操作。要授予或撤销访问权限，请使用 `/permissions`、此处描述的规则、[权限模式](/docs/zh-CN/permission-modes) 或 [PreToolUse hook](#extend-permissions-with-hooks)。
 
 当 [auto mode](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 对您的会话可用时，此对话框还包括 [auto mode 分类器规则](/docs/zh-CN/auto-mode-config#edit-rules-from-permissions)。选择 **Auto mode** 选项卡以查看它们。
 
-<h2 id="permission-modes">
-  权限模式
-</h2>
+## 权限模式
 
 Claude Code 支持多种权限模式来控制工具调用的批准方式。请参阅[权限模式](/docs/zh-CN/permission-modes)了解何时使用每种模式。要更改会话启动时的模式，请在您的[设置文件](/docs/zh-CN/settings#where-settings-live)中设置 `defaultMode`。[会话启动时的模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)涵盖了每个计划的内置默认值以及 VS Code 扩展读取的内容。
 
@@ -94,21 +82,17 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 | `dontAsk` | 自动拒绝每个会导致提示的调用，但您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍可以批准其中的部分调用。您的工作目录中的文件读取和其他不需要批准的操作仍会运行，通过 `/permissions` 或 `permissions.allow` 规则预先批准的工具也会运行。`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](#network-paths)，以及[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，在该设置到达 Claude Code 的会话中即使您已允许它们也会被拒绝 |
 | `bypassPermissions` | 跳过权限提示，除了[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) |
 
-<Warning>
-  在 `bypassPermissions` 模式中，Claude Code 跳过权限提示，包括对[受保护路径](/docs/zh-CN/permission-modes#protected-paths)（例如 `.git` 和 `.claude`）的写入。[跨会话消息传递保护措施](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)仍然适用。仅在隔离环境（如容器或虚拟机）中使用此模式，其中 Claude Code 无法造成损害。
-</Warning>
+> [!WARNING]
+>
+> 在 `bypassPermissions` 模式中，Claude Code 跳过权限提示，包括对[受保护路径](/docs/zh-CN/permission-modes#protected-paths)（例如 `.git` 和 `.claude`）的写入。[跨会话消息传递保护措施](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)仍然适用。仅在隔离环境（如容器或虚拟机）中使用此模式，其中 Claude Code 无法造成损害。
 
 为了防止 `bypassPermissions` 或 `auto` 模式被使用，在任何[设置文件](/docs/zh-CN/settings#where-settings-live)中将 `permissions.disableBypassPermissionsMode` 或 `permissions.disableAutoMode` 设置为 `"disable"`。这些在[托管设置](#managed-settings)中最有用，因为它们无法被覆盖。
 
-<h2 id="permission-rule-syntax">
-  权限规则语法
-</h2>
+## 权限规则语法
 
 权限规则遵循格式 `Tool` 或 `Tool(specifier)`。括号内的说明符是字面意思，因此包含括号的命令或路径不需要转义。
 
-<h3 id="match-all-uses-of-a-tool">
-  匹配工具的所有使用
-</h3>
+### 匹配工具的所有使用
 
 要匹配工具的所有使用，只需使用工具名称而不带括号：
 
@@ -120,9 +104,7 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 
 `Bash(*)` 等同于 `Bash` 并匹配所有 Bash 命令。作为拒绝规则，两种形式都会从 Claude 的上下文中移除该工具。
 
-<h3 id="use-specifiers-for-fine-grained-control">
-  使用说明符进行细粒度控制
-</h3>
+### 使用说明符进行细粒度控制
 
 在括号中添加说明符以匹配特定的工具使用：
 
@@ -132,9 +114,7 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 | `Read(./.env)` | 匹配读取当前目录中的 `.env` 文件 |
 | `WebFetch(domain:example.com)` | 匹配对 example.com 的获取请求 |
 
-<h3 id="match-by-input-parameter">
-  按输入参数匹配
-</h3>
+### 按输入参数匹配
 
 拒绝和询问规则可以使用 `Tool(param:value)` 匹配任何内置工具上的顶级输入参数。
 
@@ -161,15 +141,13 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 
 您不能以这种方式匹配工具的主要内容字段：Bash 和 PowerShell 的 `command`、Read、Edit 和 Write 的 `file_path`、Grep 和 Glob 的 `path`、NotebookEdit 的 `notebook_path` 和 WebFetch 的 `url`。像 `Bash(command:rm *)` 这样的规则可以通过复合命令绕过，因此 Claude Code 会忽略它并在启动时发出警告。改用 `Bash(rm *)`、`Read(./path)` 或 `WebFetch(domain:host)`。
 
-<h3 id="wildcard-patterns">
-  通配符模式
-</h3>
+### 通配符模式
 
 Bash 规则中的 `*` 匹配任何文本，包括空格，因此一个规则涵盖一系列命令。没有 `*` 的规则匹配一个确切的命令。
 
-<Warning>
-  将 `*` 放在子命令之后。在 `git log --oneline main` 中，`git` 是程序，`log` 是子命令，是确定程序执行什么操作的词。Claude Code 按照编写的方式匹配第一个 `*` 之前的所有内容，因此这些词是限制规则的内容：`Bash(git log *)` 仅允许 `git log` 命令，`Bash(git *)` 允许每个 git 命令。Claude Code [在启动时警告](/docs/zh-CN/errors#has-a-wildcard-before-the-rest-of-the-command)关于在子命令之前有 `*` 的允许规则，例如 `Bash(git * main)`。
-</Warning>
+> [!WARNING]
+>
+> 将 `*` 放在子命令之后。在 `git log --oneline main` 中，`git` 是程序，`log` 是子命令，是确定程序执行什么操作的词。Claude Code 按照编写的方式匹配第一个 `*` 之前的所有内容，因此这些词是限制规则的内容：`Bash(git log *)` 仅允许 `git log` 命令，`Bash(git *)` 允许每个 git 命令。Claude Code [在启动时警告](/docs/zh-CN/errors#has-a-wildcard-before-the-rest-of-the-command)关于在子命令之前有 `*` 的允许规则，例如 `Bash(git * main)`。
 
 编写您希望 Claude 运行而不询问的命令，并用 `*` 替换变化的部分。使用此配置，Claude Code 运行 npm 脚本和 git 提交而不询问，并拒绝以 `git push` 开头的命令。以另一种方式编写的推送，例如 `git -C . push`，不匹配；请参阅[Bash 规则不匹配的内容](#bash-rule-limits)。
 
@@ -210,9 +188,7 @@ Bash 规则中的 `*` 匹配任何文本，包括空格，因此一个规则涵�
 
 当您为命令前缀选择"是，不再询问"时，权限对话框会写入空格分隔的形式。`:*` 形式仅在模式末尾被识别。在像 `Bash(git:* push)` 这样的模式中，冒号被视为文字字符，不会匹配 git 命令。
 
-<h3 id="tool-name-wildcards">
-  工具名称通配符
-</h3>
+### 工具名称通配符
 
 拒绝和询问规则也接受工具名称位置中的 glob 模式。该模式必须匹配完整的工具名称：`"*"` 匹配每个工具，`"mcp__*"` 匹配所有服务器中的每个 MCP 工具。由裸名称 glob 拒绝规则匹配的工具会从 Claude 的上下文中移除，与裸工具名称相同，包括 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 例外：glob 拒绝在任何其他工具保留时无法移除它，glob 询问永远不会提示它。此配置拒绝每个 MCP 工具：
 
@@ -232,23 +208,17 @@ Bash 规则中的 `*` 匹配任何文本，包括空格，因此一个规则涵�
 
 转录本和权限对话框中为工具显示的标签可能与其规范名称不同。例如，转录本中标记为 `Stop Task` 的工具具有规范名称 `TaskStop`。权限规则和 [hook 匹配器](/docs/zh-CN/hooks) 不匹配标签，因此写作为 `Stop Task` 的规则不匹配。对于拒绝和询问规则，上面的启动警告会捕获不匹配。使用[工具参考](/docs/zh-CN/tools-reference)中列出的规范名称。
 
-<h2 id="tool-specific-permission-rules">
-  工具特定的权限规则
-</h2>
+## 工具特定的权限规则
 
-<h3 id="bash">
-  Bash
-</h3>
+### Bash
 
 Bash 规则匹配整个命令文本，其中 `*` 代表任何文本。[通配符模式](#wildcard-patterns)显示每个规则形状匹配的命令以及在哪里放置 `*`。本节的其余部分涵盖 Claude Code 如何匹配复合命令和包装器、哪些包装器和 `find` 操作无法通过前缀规则批准、规则不匹配的内容、只读命令和重定向。
 
-<h4 id="compound-commands">
-  复合命令
-</h4>
+#### 复合命令
 
-<Tip>
-  Claude Code 知道 shell 运算符，所以像 `Bash(safe-cmd *)` 这样的规则不会给它权限运行命令 `safe-cmd && other-cmd`。识别的命令分隔符是 `&&`、`||`、`;`、`|`、`|&`、`&` 和换行符。规则必须独立匹配每个子命令。
-</Tip>
+> [!TIP]
+>
+> Claude Code 知道 shell 运算符，所以像 `Bash(safe-cmd *)` 这样的规则不会给它权限运行命令 `safe-cmd && other-cmd`。识别的命令分隔符是 `&&`、`||`、`;`、`|`、`|&`、`&` 和换行符。规则必须独立匹配每个子命令。
 
 Deny 和 ask 规则在任何子命令匹配它们时适用，包括嵌套在子 shell 中的命令、命令替换或控制流体（如 `for` 循环）中的命令。像 `Bash(git clean *)` 这样的 ask 规则仍然会提示您 `cd /tmp && git clean -f` 或 `echo "$(git clean -f)"`，即使在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中。
 
@@ -256,9 +226,7 @@ Deny 和 ask 规则在任何子命令匹配它们时适用，包括嵌套在子 
 
 当您使用"是，不再询问"批准复合命令时，Claude Code 会为需要批准的每个子命令保存一个单独的规则，而不是为完整的复合字符串保存单个规则。例如，批准 `git status && npm test` 会为 `npm test` 保存一个规则，因此将来的 `npm test` 调用被识别，无论 `&&` 前面是什么。诸如 `cd` 进入工作目录之外的目录之类的子命令会为该路径生成自己的 Read 规则。单个复合命令最多可能保存 5 个规则。
 
-<h4 id="process-wrappers">
-  包装器
-</h4>
+#### 包装器
 
 在匹配 Bash 规则之前，Claude Code 会剥离一组固定的包装器，因此像 `Bash(npm test *)` 这样的规则也匹配 `timeout 30 npm test`。被剥离的包装器是 `timeout`、`time`、`nice`、`nohup` 和 `stdbuf`，加上 shell 内置命令 `command` 和 `builtin`，以及 zsh 的 `noglob`。每个都将其参数作为实际命令运行。两个相关的形式不被剥离：查询形式 `command -v`，它查找命令而不是运行命令，以及 zsh 的 `nocorrect`。
 
@@ -268,9 +236,7 @@ Claude Code 也会剥离某些已知安全的环境变量的前导赋值，因�
 
 此包装器列表是内置的，不可配置。开发环境运行器，如 `direnv exec`、`devbox run`、`mise exec`、`npx` 和 `docker exec` 不在列表中。因为这些工具将其参数作为命令执行，像 `Bash(devbox run *)` 这样的规则匹配 `run` 之后的任何内容，包括 `devbox run rm -rf .`。要批准环境运行器内的工作，请编写一个包含运行器和内部命令的特定规则，如 `Bash(devbox run npm test)`。为您想要允许的每个内部命令添加一个规则。
 
-<h4 id="exec-wrappers-and-find-actions">
-  Exec 包装器和 `find` 操作
-</h4>
+#### Exec 包装器和 `find` 操作
 
 像 `Bash(watch *)` 或 `Bash(find *)` 这样的前缀规则无法自动批准以下命令，因此在 Manual 模式下它们会提示：
 
@@ -281,9 +247,7 @@ Claude Code 也会剥离某些已知安全的环境变量的前导赋值，因�
 
 当命令包含 `*` 时，如 `find . -name '*.tmp' -delete`，Claude Code 会将规则读作[通配符模式](#wildcard-patterns)而不是精确匹配，因此该命令仍然会提示。请在每次提示时批准它，或使用为其返回 `"allow"` 的 [PreToolUse hook](/docs/zh-CN/hooks#pretooluse-decision-control)。
 
-<h4 id="bash-rule-limits">
-  Bash 规则不匹配的内容
-</h4>
+#### Bash 规则不匹配的内容
 
 Bash 规则匹配 Claude 编写的命令文本，在 Claude Code 分割[复合命令](#compound-commands)和剥离[包装器](#process-wrappers)之后。它不匹配以不同形式调用的同一程序，因此 deny 或 ask 规则涵盖 Claude 通常产生的调用，而不是围绕程序的安全边界。`deny` 或 `ask` 中的这些规则停止第一种形式，而不是其他形式：
 
@@ -297,9 +261,7 @@ Bash 规则匹配 Claude 编写的命令文本，在 Claude Code 分割[复合�
 
 对于不依赖于命令文本的文件系统和网络强制执行，使用[沙箱](/docs/zh-CN/sandboxing)。要在运行前使用您自己的逻辑检查完整的命令文本，使用[PreToolUse hook](#extend-permissions-with-hooks)。
 
-<h4 id="read-only-commands">
-  只读命令
-</h4>
+#### 只读命令
 
 Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下无需权限提示即可运行它们，但 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 会改变工作目录之外路径的行为。该集合包括 `ls`、`cat`、`echo`、`pwd`、`head`、`tail`、`grep`、`find`、`wc`、`which`、`diff`、`stat`、`du`、`cd` 和 `git` 的只读形式。该集合不可配置；要对其中一个命令要求提示，请为其添加 `ask` 或 `deny` 规则。在自动模式下，这些命令也可以等待分类器的审查；请参阅[分类器如何评估操作](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions)。
 
@@ -322,26 +284,24 @@ Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下�
 * **`cd` 与 `git`**：当 `cd` 改变到不同目录时提示，因为在新目录中运行 `git` 可以执行该目录的钩子。`cd` 的目标解析到当前工作目录是无操作的，不会触发提示。
 * **`cd` 与重定向**：当 Claude Code 无法确定在 `cd` 运行后重定向目标解析到哪个目录时提示。仅重定向目标为 `/dev/null` 的命令，如 `cd app; grep -r pattern . 2>/dev/null`，不提示，因为 `/dev/null` 不依赖于工作目录。
 
-<Warning>
-  尝试约束命令参数的 Bash 权限模式很脆弱。例如，`Bash(curl http://github.com/ *)` 旨在将 curl 限制为 GitHub URL，但不会匹配以下变体：
+> [!WARNING]
+>
+> 尝试约束命令参数的 Bash 权限模式很脆弱。例如，`Bash(curl http://github.com/ *)` 旨在将 curl 限制为 GitHub URL，但不会匹配以下变体：
+>
+> * URL 前的选项：`curl -X GET http://github.com/...`
+> * 不同的协议：`curl https://github.com/...`
+> * 重定向：`curl -L http://short.example.com/xyz`，重定向到 GitHub
+> * 变量：`URL=http://github.com && curl $URL`
+>
+> 为了更可靠的 URL 过滤，请考虑：
+>
+> * **限制 Bash 网络工具**：使用 deny 规则阻止 `curl`、`wget` 和类似命令，然后对允许的域使用带有 `WebFetch(domain:github.com)` 权限的 WebFetch 工具。Deny 规则不匹配按路径调用的同一程序或在 `sh -c` 内部调用的程序，因此当限制必须成立时，将其与[沙箱网络允许列表](/docs/zh-CN/sandboxing#network-isolation)配对；请参阅[Bash 规则不匹配的内容](#bash-rule-limits)
+> * **使用 PreToolUse hook**：实现一个 hook 来验证 Bash 命令中的 URL 并阻止不允许的域
+> * **添加 CLAUDE.md 指导**：在 `CLAUDE.md` 中描述您允许的 curl 模式。这会影响 Claude 尝试的内容，但不会强制执行边界，因此请将其与上述选项之一配对
+>
+> 请注意，仅使用 WebFetch 不会阻止网络访问。如果允许 Bash，Claude 仍然可以使用 `curl`、`wget` 或其他工具来访问任何 URL。
 
-  * URL 前的选项：`curl -X GET http://github.com/...`
-  * 不同的协议：`curl https://github.com/...`
-  * 重定向：`curl -L http://short.example.com/xyz`，重定向到 GitHub
-  * 变量：`URL=http://github.com && curl $URL`
-
-  为了更可靠的 URL 过滤，请考虑：
-
-  * **限制 Bash 网络工具**：使用 deny 规则阻止 `curl`、`wget` 和类似命令，然后对允许的域使用带有 `WebFetch(domain:github.com)` 权限的 WebFetch 工具。Deny 规则不匹配按路径调用的同一程序或在 `sh -c` 内部调用的程序，因此当限制必须成立时，将其与[沙箱网络允许列表](/docs/zh-CN/sandboxing#network-isolation)配对；请参阅[Bash 规则不匹配的内容](#bash-rule-limits)
-  * **使用 PreToolUse hook**：实现一个 hook 来验证 Bash 命令中的 URL 并阻止不允许的域
-  * **添加 CLAUDE.md 指导**：在 `CLAUDE.md` 中描述您允许的 curl 模式。这会影响 Claude 尝试的内容，但不会强制执行边界，因此请将其与上述选项之一配对
-
-  请注意，仅使用 WebFetch 不会阻止网络访问。如果允许 Bash，Claude 仍然可以使用 `curl`、`wget` 或其他工具来访问任何 URL。
-</Warning>
-
-<h4 id="redirections">
-  重定向
-</h4>
+#### 重定向
 
 当命令重定向输出或输入时，Claude Code 会根据您的文件规则检查重定向目标，就像 Claude 直接写入或读取该文件一样：
 
@@ -352,9 +312,7 @@ Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下�
 
 Claude Code 也检查 `tee` 命令写入的文件，包括在管道中，如 `make | tee build.log`。检查涵盖您的 `Edit` allow 和 deny 规则、[受保护的路径](/docs/zh-CN/permission-modes#protected-paths)和[工作目录](#working-directories)。像 `Bash(tee *)` 这样的 allow 规则不涵盖工作目录外的目标。Claude Code 在 v2.1.269 及更高版本中检查 `tee` 目标。
 
-<h3 id="powershell">
-  PowerShell
-</h3>
+### PowerShell
 
 PowerShell 权限规则使用与 Bash 规则相同的形式。带有 `*` 的通配符可以在任何位置匹配，`:*` 后缀等同于尾部 ` *`，而裸 `PowerShell` 或 `PowerShell(*)` 匹配每个命令。此配置允许 `Get-ChildItem` 和 `git commit` 命令，同时阻止 `Remove-Item`：
 
@@ -376,9 +334,7 @@ PowerShell 权限规则使用与 Bash 规则相同的形式。带有 `*` 的通�
 
 Claude Code 解析 PowerShell AST 并独立检查复合命令中的每个命令。管道运算符 `|`、语句分隔符 `;` 和 PowerShell 7+ 上的链运算符 `&&` 和 `||` 将复合命令分割为子命令。规则必须匹配每个子命令才能允许复合命令。
 
-<h3 id="read-and-edit">
-  Read 和 Edit
-</h3>
+### Read 和 Edit
 
 要阻止 Claude 的文件工具读取文件或目录，请为其路径添加 `Read` deny 规则，如 `Read(./.env)` 或 `Read(./secrets/**)`；[排除敏感文件](/docs/zh-CN/settings-reference#exclude-sensitive-files)有一个粘贴就用的示例。如果您的项目有 `.claudeignore` 文件，它不会产生任何效果，因此请将其条目移到 `Read` deny 规则中。
 
@@ -395,9 +351,9 @@ Claude Code 在 v2.1.290 及更高版本中检查粘贴的图片路径和目录�
 
 Claude Code 仅根据 `Edit(path)` 和 `Read(path)` 规则检查文件权限。如果您为 `Write`、`NotebookEdit`、`Glob` 或旧版 `MultiEdit` 工具编写路径规则，Claude Code 接受该规则但从不查询它，并在启动时[警告](/docs/zh-CN/errors#is-not-matched-by-file-permission-checks)，除了在 `--allowedTools` 中传递的 `Glob` 规则。使用 `Edit(docs/**)` 代替 `Write(docs/**)`、`NotebookEdit(docs/**)` 或 `MultiEdit(docs/**)`，以及 `Read(docs/**)` 代替 `Glob(docs/**)`。Claude Code 不会警告没有路径的工具名称规则，如 `Write` 的 deny 规则；它在任何地方在工具级别匹配该规则。
 
-<Warning>
-  Read 和 Edit deny 规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail`、`sed` 和 `tee`）以及 Bash [重定向](#redirections)的目标（如 `> file` 和 `< file`）。它们不适用于读取文件而不命名它们的命令，如从保存文件的目录运行的 `grep -r pattern .`，或间接读取或写入文件的任意子进程，如打开文件本身的 Python 或 Node 脚本。对于阻止所有进程访问路径的 OS 级别强制执行，请[启用沙箱](/docs/zh-CN/sandboxing)。
-</Warning>
+> [!WARNING]
+>
+> Read 和 Edit deny 规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail`、`sed` 和 `tee`）以及 Bash [重定向](#redirections)的目标（如 `> file` 和 `< file`）。它们不适用于读取文件而不命名它们的命令，如从保存文件的目录运行的 `grep -r pattern .`，或间接读取或写入文件的任意子进程，如打开文件本身的 Python 或 Node 脚本。对于阻止所有进程访问路径的 OS 级别强制执行，请[启用沙箱](/docs/zh-CN/sandboxing)。
 
 Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模式语法，具有四种不同的模式类型；对于单段目录模式，匹配深度也取决于规则类型，本节后面描述：
 
@@ -408,9 +364,9 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 | `/path` | 相对于设置源的路径 | `Edit(/src/**/*.ts)` | 项目设置中的 `<primary working directory>/src/**/*.ts` |
 | `path` 或 `./path` | 相对于当前目录的路径 | `Read(*.env)` | `<cwd>/*.env` |
 
-<Warning>
-  像 `/Users/alice/file` 这样的模式不是绝对路径。单个前导斜杠锚定在设置源，而不是文件系统根目录。对于绝对路径，使用 `//Users/alice/file`。
-</Warning>
+> [!WARNING]
+>
+> 像 `/Users/alice/file` 这样的模式不是绝对路径。单个前导斜杠锚定在设置源，而不是文件系统根目录。对于绝对路径，使用 `//Users/alice/file`。
 
 `/path` 模式锚定在与定义它的设置源关联的目录，因此相同的规则根据您放置它的位置匹配不同的位置：
 
@@ -470,9 +426,9 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 | `Edit(/src/**)` 在任何规则类型中 | 是 | 否 |
 | `Edit(**/src/**)` 在任何规则类型中 | 是 | 是 |
 
-<Note>
-  在 gitignore 模式中，`*` 匹配单个路径段内的文本，可以出现在模式中的任何位置，而 `**` 匹配跨目录。
-</Note>
+> [!NOTE]
+>
+> 在 gitignore 模式中，`*` 匹配单个路径段内的文本，可以出现在模式中的任何位置，而 `**` 匹配跨目录。
 
 当您使用"是，不再询问"批准文件路径时，Claude Code 会转义该路径中的 gitignore 模式字符，如 `[`、`]` 和 `*`，因此生成的规则仅匹配您批准的字面路径。您自己编写的规则不会被转义。
 
@@ -489,15 +445,11 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 * Claude Code 读取 `!` 模式相对于当前目录，即使 `/`、`~/` 或 `//` 跟随 `!`，因此模式无法到达用其中一个前缀锚定的规则。`Read(!~/notes/public/**)` 从 `Read(~/notes/**)` 中切割不出任何内容。
 * 切割不能重新打开规则作为整体阻止的目录内的文件。使用 `Read(secrets/**)` 和 `Read(!secrets/public/**)`，Claude Code 仍然阻止 `secrets/public` 以及 `secrets` 的其余部分。
 
-<h4 id="symlinks">
-  符号链接
-</h4>
+#### 符号链接
 
 当 Claude 请求的文件路径通过符号链接时，权限检查涵盖两个路径：Claude 请求的路径和它解析到的文件。这适用于 macOS、Linux 和 Windows 上的符号链接，以及 Windows 上的目录连接。
 
-<h5 id="how-rules-match-a-symlinked-path">
-  规则如何匹配符号链接路径
-</h5>
+##### 规则如何匹配符号链接路径
 
 Allow 和 deny 规则对请求的路径和它解析到的文件的处理方式不同：
 
@@ -508,9 +460,7 @@ Allow 和 deny 规则对请求的路径和它解析到的文件的处理方式�
 
 Grep 和 Glob 搜索 `path` 参数解析到的目录。Claude Code 将 `Read` deny 规则应用于该目录。
 
-<h5 id="writes-through-a-symlink">
-  通过符号链接的写入
-</h5>
+##### 通过符号链接的写入
 
 如果 Claude 要求编辑或写入的路径本身是符号链接，Edit 和 Write 工具[拒绝写入并指导 Claude 到链接的目标](/docs/zh-CN/errors#refusing-after-a-symlink-changed)。
 
@@ -519,17 +469,13 @@ Grep 和 Glob 搜索 `path` 参数解析到的目录。Claude Code 将 `Read` de
 * **解析到工作目录外**：当请求的路径在您的工作目录内，而它解析到的文件不在时，在[`acceptEdits` 模式](/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)中写入不会自动批准。在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，除非 allow 规则批准写入，否则您会被提示而不是分类器决定。提示命名写入解析到的路径。
 * **解析到请求的路径不命名的受保护路径**：[受保护的路径表](/docs/zh-CN/permission-modes#protected-paths)给出每个权限模式的结果，除了表将写入路由到分类器的地方，此写入改为提示您。
 
-<h5 id="paths-that-can’t-be-resolved-or-that-change">
-  无法解析或改变的路径
-</h5>
+##### 无法解析或改变的路径
 
 当 Claude Code 无法确定路径在磁盘上的位置时，例如因为路径上的符号链接形成循环，Read、Edit 和 Write 工具[拒绝操作](/docs/zh-CN/errors#refusing-after-a-symlink-changed)。
 
 当工具随后打开已批准的文件时，它[确认路径仍然解析到权限检查批准的位置](/docs/zh-CN/errors#refusing-after-a-symlink-changed)。
 
-<h4 id="network-paths">
-  网络路径
-</h4>
+#### 网络路径
 
 当 Claude 的文件读取工具（如 Read、Grep 和 Glob）从网络路径读取时，该读取会经过单独的权限检查。网络路径是可以访问另一台计算机的路径：在 Windows 上是 UNC 路径，如 `\\server\share\file`；在 macOS 和 Linux 上是 `/net` 自动挂载路径，如 `/net/fileserver/notes.txt`。查找此类路径可能会联系它命名的主机，而在 Windows 上，这种联系可能会将您的凭据发送给该主机。Shell 命令有自己的检查：在 Manual 模式下，参数中包含 UNC 路径的只读 Bash 或 PowerShell 命令[在 Windows 上仍然会提示](#read-only-commands)。
 
@@ -546,9 +492,7 @@ Grep 和 Glob 搜索 `path` 参数解析到的目录。Claude Code 将 `Read` de
 * **Windows**：将共享映射到驱动器号，并在启动 Claude Code 时使用 `--add-dir` 传递该驱动器，如[工作目录](#working-directories)中所述
 * **macOS 和 Linux**：将共享挂载到本地路径（如 `/mnt` 或 `/Volumes` 下的目录），并从那里读取文件，如[工作目录是网络路径](/docs/zh-CN/errors#working-directory-is-a-network-path)中所述
 
-<h3 id="webfetch">
-  WebFetch
-</h3>
+### WebFetch
 
 WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行匹配。匹配不区分大小写，支持 `*` 通配符，并从规则和主机名中剥离尾部 `.`，因此 `example.com.` 和 `example.com` 被视为相同。
 
@@ -560,9 +504,7 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 
 `WebFetch` 规则中的通配符需要 Claude Code v2.1.172 或更高版本来匹配获取。
 
-<h4 id="allow-or-deny-every-fetch">
-  允许或拒绝每次获取
-</h4>
+#### 允许或拒绝每次获取
 
 裸 `WebFetch` 规则是没有 `domain:` 部分的工具名称，如 `"deny": ["WebFetch"]`。它和 `WebFetch(domain:*)` 都涵盖每个 URL，但 Claude Code 以不同方式应用它们，只有 `domain:` 形式也将其域添加到沙箱的[允许或拒绝的域列表](/docs/zh-CN/sandboxing#network-isolation)。该部分列出沙箱支持的通配符形式和添加裸 `*` 的版本。
 
@@ -591,9 +533,7 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 
 在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，Claude 改为在命令的[每个命令允许的域](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)中命名主机以供分类器审查。
 
-<h3 id="mcp">
-  MCP
-</h3>
+### MCP
 
 要匹配某个 MCP 服务器的所有工具，请编写 `mcp__<server>__*`。要匹配单个工具，请编写其完整名称 `mcp__<server>__<tool>`。
 
@@ -611,9 +551,7 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 
 在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，Claude 通过 Cowork 的 `mcp__workspace__bash` 工具而不是内置 `Bash` 工具运行 shell 命令，Cowork 同样为 web 获取提供 `mcp__workspace__web_fetch`。Claude Code 也将命名整个 `Bash` 或 `WebFetch` 工具的 deny 规则应用于这些 Cowork 工具，因此托管的 `Bash` deny 规则阻止 Claude 在 Cowork 中运行 shell 命令。当 Claude Code 阻止此类调用时，消息命名 Cowork 工具：`Permission to use mcp__workspace__bash has been denied.` Allow 规则不会转移：Claude Code 从不将 `Bash` allow 规则应用于 `mcp__workspace__bash`。
 
-<h3 id="agent-subagents">
-  Agent（子代理）
-</h3>
+### Agent（子代理）
 
 使用 `Agent(AgentName)` 规则来控制 Claude 可以使用哪些[子代理](/docs/zh-CN/sub-agents)：
 
@@ -631,9 +569,7 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 }
 ```
 
-<h3 id="cd">
-  Cd
-</h3>
+### Cd
 
 `Cd` 规则控制 [`/cd` 命令](/docs/zh-CN/commands)可以将会话移动到哪些目录。`Cd` 不是模型可调用的工具：Claude 无法调用它，规则仅在您自己运行 `/cd` 时适用。
 
@@ -649,15 +585,11 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 | `Cd(~/code/**)` | `~/code` 和其下的任何目录 | `~/code` 外的目录 |
 | `Cd(**/node_modules)` | 当前目录下任何深度的任何 `node_modules` 目录 | `node_modules/pkg` |
 
-<h2 id="extend-permissions-with-hooks">
-  使用 hooks 扩展权限
-</h2>
+## 使用 hooks 扩展权限
 
 [Claude Code hooks](/docs/zh-CN/hooks-guide) 让您可以注册自定义 shell 命令，在运行时评估权限。当 Claude Code 进行工具调用时，PreToolUse hooks 在权限提示之前运行，适用于除了 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior) 之外的每个工具。hook 输出可以拒绝工具调用、强制提示或跳过提示以让调用继续。
 
-<h3 id="precedence-among-rules-hooks-and-mods">
-  规则、hook 和 mod 之间的优先级
-</h3>
+### 规则、hook 和 mod 之间的优先级
 
 PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask 规则，无论 PreToolUse hook 返回什么：匹配的 deny 规则会阻止调用，匹配的 ask 规则即使在 hook 返回 `"allow"` 或 `"ask"` 时仍然会提示。这保留了[管理权限](#manage-permissions)中描述的 deny 优先级，包括在托管设置中设置的 deny 规则。
 
@@ -683,17 +615,13 @@ PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask
 
 阻止 hook 也优先于 allow 规则。以退出代码 2 退出的 hook 在权限规则被评估之前停止工具调用，因此即使 allow 规则会让调用继续，阻止也适用。要运行所有 Bash 命令而无需提示，除了您想要阻止的少数几个，将 `"Bash"` 添加到您的 allow 列表，并注册一个 PreToolUse hook 来拒绝那些特定命令。请参见[阻止对受保护文件的编辑](/docs/zh-CN/hooks-guide#block-edits-to-protected-files)以获取您可以调整的 hook 脚本。
 
-<h3 id="hook-approvals-in-plan-mode">
-  计划模式中的 hook 批准
-</h3>
+### 计划模式中的 hook 批准
 
 在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中，除 `ExitPlanMode` 外，您的 `PreToolUse` hook 返回的 `"allow"` 对文件编辑或其他非只读调用不起作用。您会得到与没有 hook 时该调用相同的提示、阻止或批准，并且 Claude Code 仍会应用 hook 返回的任何 `updatedInput`。如果 hook 以 `"allow"` 和 `updatedInput` 响应 [`ExitPlanMode`](/docs/zh-CN/hooks#allow-with-updatedinput)，该工具仍会在无提示的情况下运行。
 
 在计划模式中，处理 `tool.check` 的 mod 同样无法批准文件编辑或其他非只读调用，但它仍然可以阻止此类调用。要解除对 hook 和 mod 批准的这一限制，请[批准计划](/docs/zh-CN/permission-modes#review-and-approve-a-plan)或切换到其他权限模式。
 
-<h2 id="working-directories">
-  工作目录
-</h2>
+## 工作目录
 
 默认情况下，Claude 可以访问启动它的目录中的文件。该目录是会话的主工作目录，直到您[使用 `/cd` 移动会话](#move-the-session-to-another-directory)。您可以扩展此访问：
 
@@ -709,9 +637,7 @@ PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask
 
 在 macOS 上的后台会话中，会话主机会单独从您的终端请求访问受保护的文件夹（如 `~/Desktop`、`~/Documents` 和 `~/Downloads`），当 Claude 需要在那里读取或写入文件时；如果读取失败并显示 `Operation not permitted`，请参阅[如何向后台会话授予文件夹访问权限](/docs/zh-CN/agent-view#background-sessions-can%E2%80%99t-read-desktop-documents-or-downloads-on-macos)。
 
-<h3 id="move-the-session-to-another-directory">
-  将会话移动到另一个目录
-</h3>
+### 将会话移动到另一个目录
 
 要将会话移动到不同的主工作目录，而不是[在当前目录旁添加目录](#working-directories)，请运行 `/cd <path>`。Claude Code 保持对话，加载新目录的 `CLAUDE.md`，如果您之前未在其中工作过，会提示您[信任工作区](#project-allow-rules-and-workspace-trust)。之后，当您从新目录运行 `--resume` 时，Claude Code [找到移动的会话](/docs/zh-CN/sessions#where-the-session-picker-looks)。
 
@@ -728,9 +654,7 @@ Claude Code 还断开前一个目录的项目和[本地范围](/docs/zh-CN/mcp#l
 
 使用 [`Cd` 权限规则](#cd)限制或禁用 `/cd` 目标。
 
-<h3 id="additional-directories-grant-file-access-not-configuration">
-  其他目录授予文件访问权限，而不是配置
-</h3>
+### 其他目录授予文件访问权限，而不是配置
 
 添加目录扩展 Claude 可以读取和编辑文件的位置。它不会使该目录成为完整的配置根目录：大多数 `.claude/` 配置不是从其他目录发现的，尽管有几种类型作为例外被加载。
 
@@ -758,9 +682,7 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 * **Plugins**：将配置打包并分发为[插件](/docs/zh-CN/plugins/overview)，团队可以安装
 * **从配置目录启动**：从包含您想要的 `.claude/` 配置的目录运行 Claude Code
 
-<h2 id="how-permissions-interact-with-sandboxing">
-  权限如何与沙箱交互
-</h2>
+## 权限如何与沙箱交互
 
 权限和[沙箱](/docs/zh-CN/sandboxing)是互补的安全层：
 
@@ -780,11 +702,7 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 
 不会在沙箱中运行的命令（如排除的命令）按照通常的方式遵守裸 `Bash` ask 规则。请参见[沙箱模式](/docs/zh-CN/sandboxing#sandbox-modes)以更改此行为。
 
-<span id="managed-only-settings" />
-
-<h2 id="managed-settings">
-  托管设置
-</h2>
+## 托管设置
 
 对于需要集中控制的组织，管理员部署托管设置，用户和项目设置无法覆盖，除了少数[安全敏感的密钥](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)。[部署托管设置](/docs/zh-CN/managed-settings)涵盖传递机制、托管层内的优先级以及[仅托管设置可以设置的密钥](/docs/zh-CN/managed-settings#managed-only-settings)。
 
@@ -792,9 +710,7 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 
 `disableBypassPermissionsMode`通常放在托管设置中以强制执行组织策略，但它可以从任何范围工作。用户可以在自己的设置中设置它以将自己锁定在绕过模式之外。
 
-<h2 id="settings-precedence">
-  设置优先级
-</h2>
+## 设置优先级
 
 权限规则遵循与所有其他 Claude Code 设置相同的[设置优先级](/docs/zh-CN/settings#settings-precedence)，托管设置最高：没有其他级别（包括命令行参数）可以覆盖托管权限规则。
 
@@ -806,9 +722,7 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 
 嵌入主机可以通过 SDK `managedSettings` 选项提供额外的托管策略，包括权限允许规则，除非管理员设置了 `allowManaged*Only` 锁；[向 Claude Desktop 会话传递策略](/docs/zh-CN/claude-apps-gateway#deliver-policy-to-claude-desktop-sessions)涵盖了嵌入器策略何时适用。
 
-<h2 id="project-allow-rules-and-workspace-trust">
-  项目允许规则和工作区信任
-</h2>
+## 项目允许规则和工作区信任
 
 项目的 `.claude/settings.json` 中的 `permissions.allow` 规则和 `permissions.additionalDirectories` 条目授予功能，因此 Claude Code 仅在您接受该文件夹的[工作区信任对话框](/docs/zh-CN/security#additional-safeguards)后才应用它们。对话框列出了该文件夹将授予的规则和目录，以便您可以先查看它们。`deny` 和 `ask` 规则不受影响，因为它们仅限制。
 
@@ -822,9 +736,7 @@ Claude Code 仅在交互式会话中显示信任对话框。`claude -p` 运行�
 
 在启动或重启[后台会话](/docs/zh-CN/agent-view)之前，Claude Code 还会检查会话运行所在目录的工作区信任。如果您从您尚未信任的目录中的终端运行 `claude --bg`，信任对话框会首先出现，一旦您接受它，会话就会启动。在无法出现对话框的地方（如脚本中），命令会改为以[`Workspace not trusted`](/docs/zh-CN/errors#workspace-not-trusted-when-dispatching-a-background-session)错误退出。
 
-<h3 id="when-your-local-settings-file-needs-trust">
-  当您的本地设置文件需要信任时
-</h3>
+### 当您的本地设置文件需要信任时
 
 `.claude/settings.local.json` 通常是您自己的文件，因此 Claude Code 应用其允许规则和其他目录而无需信任步骤。当该文件在 git 中被跟踪，或 `.claude` 是符号链接时，Claude Code 将其视为存储库提供的文件，并暂不应用其规则，直到您信任该文件夹为止。
 
@@ -833,13 +745,11 @@ Claude Code 运行 git 来区分两者，并且仅在您信任该文件夹后才
 * **在您的配置主目录中：** Claude Code 立即应用该文件夹的 `.claude/settings.local.json` 而无需运行 git。您的配置主目录是您的主目录，或一个您已将其 `.claude` 子目录设置为 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars#variables) 的目录。如果该 `CLAUDE_CONFIG_DIR` 目录位于 git 存储库内，并且 Claude Code 改为[将您的本地设置保留在存储库根目录](/docs/zh-CN/settings#where-claude-code-looks-for-each-file)，它会像在其他任何地方一样暂不应用这些规则。
 * **其他任何地方：** Claude Code 像对待项目设置一样暂不应用该文件的规则。一旦检查运行，Claude Code 应用未跟踪文件的规则，或位于任何 git 存储库外的目录中的文件的规则，即使您尚未信任该确切文件夹。
 
-<Note>
-  配置主目录例外仅跳过信任步骤。`~/.claude/settings.local.json` 仍然是[本地范围](/docs/zh-CN/settings#compare-the-scope-of-each-settings-file)，因此 Claude Code 仅在您从主目录本身启动的会话中读取它，而不是在每个项目中。要在所有项目中应用权限规则，请将它们添加到您的用户设置中：`~/.claude/settings.json`，或当设置 `CLAUDE_CONFIG_DIR` 时为 `$CLAUDE_CONFIG_DIR/settings.json`。
-</Note>
+> [!NOTE]
+>
+> 配置主目录例外仅跳过信任步骤。`~/.claude/settings.local.json` 仍然是[本地范围](/docs/zh-CN/settings#compare-the-scope-of-each-settings-file)，因此 Claude Code 仅在您从主目录本身启动的会话中读取它，而不是在每个项目中。要在所有项目中应用权限规则，请将它们添加到您的用户设置中：`~/.claude/settings.json`，或当设置 `CLAUDE_CONFIG_DIR` 时为 `$CLAUDE_CONFIG_DIR/settings.json`。
 
-<h3 id="what-runs-before-you-trust-a-folder">
-  在您信任文件夹之前运行什么
-</h3>
+### 在您信任文件夹之前运行什么
 
 每一行是存储库可以提供的一种内容。列是两种您尚未信任该文件夹本身的情况：您仅信任了父文件夹，或您在那里运行了 `claude -p` 或 SDK，这永远不会显示信任对话框。父文件夹列不适用于[嵌套存储库](#project-allow-rules-and-workspace-trust)内：在交互式会话中 Claude Code 为其显示信任对话框，`claude -p` 或 SDK 运行遵循 `claude -p` 列。
 
@@ -861,15 +771,11 @@ Claude Code 运行 git 来区分两者，并且仅在您信任该文件夹后才
 * 传递 `--settings '{"disableAllHooks": true}'` 以[关闭该运行的 hooks](/docs/zh-CN/hooks#disable-or-remove-hooks)。仅在您的用户设置中设置它是不够的，因为存储库的项目设置优先于您的设置，可以将其设置回 `false`
 * 添加 [`disabledMcpjsonServers`](/docs/zh-CN/settings-reference#disabledmcpjsonservers) 条目以在每个会话类型中按名称拒绝 `.mcp.json` 服务器
 
-<h2 id="example-configurations">
-  示例配置
-</h2>
+## 示例配置
 
 此[存储库](https://github.com/anthropics/claude-code/tree/main/examples/settings)包括常见部署场景的启动设置配置。将这些用作起点并根据您的需要调整它们。
 
-<h2 id="see-also">
-  另请参见
-</h2>
+## 另请参见
 
 * [所有设置](/docs/zh-CN/settings-reference#permission-settings)：每个设置键，包括权限键
 * [配置自动模式](/docs/zh-CN/auto-mode-config)：告诉自动模式分类器您的组织信任哪些基础设施

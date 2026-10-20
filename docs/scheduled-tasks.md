@@ -8,18 +8,16 @@
 
 会话范围的定时任务让 Claude 在 Claude Code 会话中按间隔自动重新运行提示词。使用它们来轮询部署、监督 PR、检查长时间运行的构建，或在会话中稍后提醒自己做某事。
 
-<Note>
-  以下情况在其他页面中介绍：
-
-  * **对事件进行实时反应而不是轮询**：请参阅 [Channels](/docs/zh-CN/channels)。您的 CI 可以直接将失败推送到会话中。
-  * **让会话逐轮次持续工作直到满足某个条件，而不是按间隔运行**：请参阅 [`/goal`](/docs/zh-CN/goal)。
-</Note>
+> [!NOTE]
+>
+> 以下情况在其他页面中介绍：
+>
+> * **对事件进行实时反应而不是轮询**：请参阅 [Channels](/docs/zh-CN/channels)。您的 CI 可以直接将失败推送到会话中。
+> * **让会话逐轮次持续工作直到满足某个条件，而不是按间隔运行**：请参阅 [`/goal`](/docs/zh-CN/goal)。
 
 任务是会话范围的。当您使用 `--resume` 或 `--continue` 恢复时，Claude Code 会恢复尚未[过期](#seven-day-expiry)的任务，除了[限制](#limitations)下列出的任务。对于独立于任何会话而存在的调度，请创建[云端定时任务](/docs/zh-CN/routines)、设置 [Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks)，或使用 [GitHub Actions](/docs/zh-CN/github-actions)。
 
-<h2 id="compare-scheduling-options">
-  比较调度选项
-</h2>
+## 比较调度选项
 
 Claude Code 提供三种方式来安排定期或一次性工作：
 
@@ -35,13 +33,11 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 | 可自定义的计划 | 通过 CLI 中的 `/schedule` | 是 | 是 |
 | 最小间隔 | 1 小时 | 1 分钟 | 1 分钟 |
 
-<Tip>
-  对于应该在没有您的机器的情况下可靠运行的工作，使用**云任务**。当您需要访问本地文件和工具时，使用**桌面任务**。对于会话期间的快速轮询，使用 **`/loop`**。
-</Tip>
+> [!TIP]
+>
+> 对于应该在没有您的机器的情况下可靠运行的工作，使用**云任务**。当您需要访问本地文件和工具时，使用**桌面任务**。对于会话期间的快速轮询，使用 **`/loop`**。
 
-<h2 id="run-a-prompt-repeatedly-with-/loop">
-  使用 /loop 重复运行提示词
-</h2>
+## 使用 /loop 重复运行提示词
 
 `/loop` [bundled skill](/docs/zh-CN/commands) 是在会话保持打开时重复运行提示词的最快方式。间隔和提示词都是可选的，您提供的内容决定了循环的行为方式。
 
@@ -58,9 +54,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 * 由 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 设置或 `Skill` [deny rule](/docs/zh-CN/skills#restrict-claude%E2%80%99s-skill-access) 从 Claude 扣留的 skill
 * [MCP prompts](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)，例如 `/mcp__github__list_prs`
 
-<h3 id="run-on-a-fixed-interval">
-  在固定间隔上运行
-</h3>
+### 在固定间隔上运行
 
 当您提供间隔时，Claude 将其转换为 cron 表达式，计划作业，并确认频率和作业 ID。
 
@@ -72,9 +66,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 秒数向上舍入到最近的分钟，因为 cron 的粒度为一分钟。不能均匀映射到干净 cron 步长的间隔，例如 `7m` 或 `90m`，会舍入到最近的间隔，Claude 会告诉您它选择了什么。
 
-<h3 id="let-claude-choose-the-interval">
-  让 Claude 选择间隔
-</h3>
+### 让 Claude 选择间隔
 
 当您省略间隔时，Claude 会动态选择一个，而不是在固定 cron 计划上运行。在每次迭代后，它会根据观察到的情况选择一个一分钟到一小时之间的延迟：在构建完成或 PR 活跃时等待较短时间，当没有待处理项时等待较长时间。选择的延迟和原因会在每次迭代结束时打印。
 
@@ -88,15 +80,11 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 动态安排的循环会像任何其他任务一样出现在您的[定时任务列表](#manage-scheduled-tasks)中，因此您可以用相同的方式列出或取消它。该列表将其待处理的唤醒显示为一次性任务，因此安排在 `:00` 或 `:30` 的唤醒可能会[稍早运行](#when-a-one-shot-task-runs-early)。[七天过期](#seven-day-expiry)同样适用于该循环。
 
-<span id="loop-provider-differences" />
+> [!NOTE]
+>
+> 动态选择的间隔和[内置维护提示词](#run-the-built-in-maintenance-prompt)在每个提供商上都有效，并且[特性标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)已关闭。在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，或关闭获取时，两者都需要 Claude Code v2.1.248 或更高版本。
 
-<Note>
-  动态选择的间隔和[内置维护提示词](#run-the-built-in-maintenance-prompt)在每个提供商上都有效，并且[特性标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)已关闭。在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，或关闭获取时，两者都需要 Claude Code v2.1.248 或更高版本。
-</Note>
-
-<h3 id="run-the-built-in-maintenance-prompt">
-  运行内置维护提示词
-</h3>
+### 运行内置维护提示词
 
 当您省略提示词时，Claude 使用内置维护提示词而不是您提供的提示词。在每次迭代中，它按顺序处理以下内容：
 
@@ -112,9 +100,7 @@ Claude 不会启动该范围之外的新举措，不可逆的操作（如推送�
 
 裸 `/loop` 在[动态选择的间隔](#let-claude-choose-the-interval)上运行此提示词。添加间隔，例如 `/loop 15m`，以在固定计划上运行它。要用您自己的默认值替换内置提示词，请参阅[使用 loop.md 自定义默认提示词](#customize-the-default-prompt-with-loop-md)。
 
-<h3 id="customize-the-default-prompt-with-loop-md">
-  使用 loop.md 自定义默认提示词
-</h3>
+### 使用 loop.md 自定义默认提示词
 
 创建 `loop.md` 文件以用您自己的说明替换[内置维护提示词](#run-the-built-in-maintenance-prompt)。它为裸 `/loop` 定义单个默认提示词，而不是单独计划任务的列表，并且在您在命令行上提供提示词时被忽略。要在其旁边计划其他提示词，请使用 `/loop <prompt>` 或[直接询问 Claude](#manage-scheduled-tasks)。
 
@@ -136,9 +122,7 @@ quiet, say so in one line.
 
 对 `loop.md` 的编辑在下一次迭代时生效，所以您可以在循环运行时优化说明。当任一位置都不存在 `loop.md` 时，循环回退到内置维护提示词。保持文件简洁：超过 25,000 字节的内容会被截断。
 
-<h3 id="stop-a-loop">
-  停止循环
-</h3>
+### 停止循环
 
 要在[自主进行 `/loop`](#let-claude-choose-the-interval) 等待下一次迭代时停止它，请按 `Esc`。这会清除待处理的唤醒，所以循环不会再次触发。您通过[直接询问 Claude](#manage-scheduled-tasks)计划的任务不受 `Esc` 影响，会保留在原位，直到您删除它们。
 
@@ -146,9 +130,7 @@ quiet, say so in one line.
 
 固定间隔上的循环会一直运行，直到您[像任何其他计划任务一样取消它们](#manage-scheduled-tasks)或[七天过去](#seven-day-expiry)。
 
-<h2 id="set-a-one-time-reminder">
-  设置一次性提醒
-</h2>
+## 设置一次性提醒
 
 对于一次性提醒，用自然语言描述您想要的内容，而不是使用 `/loop`。Claude 计划一个单次触发的任务，该任务在运行后删除自己。
 
@@ -162,11 +144,7 @@ in 45 minutes, check whether the integration tests passed
 
 Claude 使用 cron 表达式将触发时间固定到特定的分钟和小时，并确认何时触发。
 
-<span id="manage-scheduled-tasks" />
-
-<h2 id="manage-session-scoped-scheduled-tasks">
-  管理会话范围的定时任务
-</h2>
+## 管理会话范围的定时任务
 
 用自然语言要求 Claude 列出或取消任务，或直接引用底层工具。
 
@@ -188,27 +166,19 @@ cancel the deploy check job
 
 每个计划任务都有一个 8 字符的 ID，您可以将其传递给 `CronDelete`。一个会话最多可以同时保存 50 个计划任务。
 
-<span id="how-scheduled-tasks-run" />
-
-<h2 id="how-session-scoped-scheduled-tasks-run">
-  会话范围的定时任务如何运行
-</h2>
+## 会话范围的定时任务如何运行
 
 调度程序每秒检查一次到期的任务，并以低优先级将其加入队列。计划的提示词在您的回合之间触发，而不是在 Claude 正在响应时。如果 Claude 在任务到期时忙碌，提示词会等到当前回合结束。
 
 所有时间都在您的本地时区中解释。像 `0 9 * * *` 这样的 cron 表达式意味着 9am 在您运行 Claude Code 的任何地方，而不是 UTC。
 
-<h3 id="jitter">
-  抖动
-</h3>
+### 抖动
 
 定时任务的实际运行时间可能与其计划时间不同。如果每个会话的任务都严格按计划运行，许多任务会在同一时刻调用 API，因此 Claude Code 会调整每个任务的运行时间。重复任务会延后运行，但每五分钟运行一次的任务（写作 `*/5 * * * *`）除外。安排在整点或半点的一次性任务会稍微提前运行。
 
 要查看任务下次到期的时间，请查看终端中 Claude 的 `CronCreate` 调用下方的行。该行会在计划之后显示该时间，例如 `next run 10:21 AM`。之后如需再次查看，请[让 Claude 列出您的任务](#manage-scheduled-tasks)，并在 `CronList` 调用下方的行中查找 `next run`。这些行中的下次运行时间需要 Claude Code v2.1.299 或更高版本。
 
-<h4 id="how-late-a-recurring-task-runs">
-  重复任务会延后多久运行
-</h4>
+#### 重复任务会延后多久运行
 
 除非每五分钟运行一次，否则重复任务的每次运行都会延后开始，延后时长最多为距下一次运行间隔的一半，且最多不超过 30 分钟。您的任务属于以下三种情况之一：
 
@@ -227,21 +197,15 @@ cancel the deploy check job
 
 例如，`7,37 * * * *` 将任务安排在 `:07` 和 `:37` 运行，两者相隔 30 分钟，因此其延迟介于 0 到 15 分钟之间。如果该任务的延迟为 14 分钟，它会在每小时的 `:21` 和 `:51` 运行。将计划更改为其他分钟会改变运行时间，但仍会在其基础上添加延迟。
 
-<h4 id="when-a-one-shot-task-runs-early">
-  一次性任务何时提前运行
-</h4>
+#### 一次性任务何时提前运行
 
 安排在 `:00` 或 `:30` 的一次性任务最多会提前 90 秒运行。Claude Code 不会调整安排在其他任何分钟的一次性任务，因此当时间很重要时，请避开整点和半点进行安排：使用 `3 9 * * *` 而不是 `0 9 * * *`。
 
-<h3 id="seven-day-expiry">
-  七天过期
-</h3>
+### 七天过期
 
 重复任务在创建后 7 天自动过期。任务最后触发一次，然后删除自己。这限制了被遗忘的循环可以运行多长时间。如果您需要重复任务持续更长时间，请在过期前取消并重新创建它，或使用[云端定时任务](/docs/zh-CN/routines)或 [Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks)进行持久调度。
 
-<h2 id="cron-expression-reference">
-  Cron 表达式参考
-</h2>
+## Cron 表达式参考
 
 `CronCreate` 接受标准 5 字段 cron 表达式：`minute hour day-of-month month day-of-week`。所有字段都支持通配符 (`*`)、单个值 (`5`)、步长 (`*/15`)、范围 (`1-5`) 和逗号分隔的列表 (`1,15,30`)。
 
@@ -258,17 +222,11 @@ cancel the deploy check job
 
 当月份日期和星期几都受到限制时，如果任一字段匹配，日期就匹配。这遵循标准的 vixie-cron 语义。
 
-<span id="disable-scheduled-tasks" />
-
-<h2 id="disable-session-scoped-scheduled-tasks">
-  禁用会话范围的定时任务
-</h2>
+## 禁用会话范围的定时任务
 
 在您的环境中设置 `CLAUDE_CODE_DISABLE_CRON=1` 以完全禁用调度程序。cron 工具和 `/loop` 变得不可用，任何已计划的任务都停止触发。有关禁用标志的完整列表，请参阅[环境变量](/docs/zh-CN/env-vars)。
 
-<h2 id="limitations">
-  限制
-</h2>
+## 限制
 
 会话范围的调度有固有的限制：
 

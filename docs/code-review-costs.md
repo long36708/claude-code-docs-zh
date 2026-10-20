@@ -11,15 +11,11 @@
 * **每次审查的费用**：随[审查级别](/docs/zh-CN/code-review-setup#set-the-default-review-level)、变更的大小、相关代码的复杂度以及需要验证的候选问题数量而变化
 * **审查次数**：由每个仓库中[审查的运行频率](#how-often-reviews-run)决定
 
-<h2 id="pricing">
-  定价
-</h2>
+## 定价
 
 Code Review 通过[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)按 token 用量计费，与您套餐中包含的用量分开计算。审查费用计入您的组织，而不是计入开启 PR 或请求审查的开发者。无论您的组织是否将 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 用于其他 Claude Code 功能，费用都会显示在您的 Anthropic 账单上。
 
-<h3 id="how-often-reviews-run">
-  审查的运行频率
-</h3>
+### 审查的运行频率
 
 从管理页面添加的仓库默认设为 **After every push**，这种模式运行的审查次数最多。每个仓库的 [**Review runs** 设置](/docs/zh-CN/code-review-setup#set-when-reviews-run)决定一个 Pull Request 会获得多少次审查：
 
@@ -34,9 +30,7 @@ Code Review 通过[使用额度](https://support.claude.com/en/articles/12429409
 * **`@claude review`**：运行一次审查，但不订阅后续推送
 * **草稿和来自 fork 的 Pull Request**：[自动审查会跳过这两者](/docs/zh-CN/code-review-pull-requests#review-drafts-and-pull-requests-from-forks)，因此向它们推送不会增加审查次数
 
-<h2 id="estimate-your-spend">
-  估算您的支出
-</h2>
+## 估算您的支出
 
 在大范围推广之前，先进行小规模试点，根据您自己的 Pull Request 估算每月支出。
 
@@ -47,9 +41,7 @@ Code Review 通过[使用额度](https://support.claude.com/en/articles/12429409
 
 仓库的平均费用会随其 Pull Request 的大小以及您选择的审查级别而变化。
 
-<h2 id="limit-your-spend">
-  限制您的支出
-</h2>
+## 限制您的支出
 
 要为 Code Review 设置每月支出上限，请前往 [claude.ai/admin-settings/usage](https://claude.ai/admin-settings/usage)，为 Claude Code Review 服务配置上限。该上限适用于整个组织。
 
@@ -63,9 +55,7 @@ Code Review 通过[使用额度](https://support.claude.com/en/articles/12429409
 
 要监控支出，请使用[分析仪表板](#view-usage)。
 
-<h2 id="view-usage">
-  查看用量
-</h2>
+## 查看用量
 
 前往 [claude.ai/analytics/code-review](https://claude.ai/analytics/code-review) 查看整个组织的 Code Review 活动。
 
@@ -78,9 +68,7 @@ Code Review 通过[使用额度](https://support.claude.com/en/articles/12429409
 
 仅当选择当前月份时，Code Review cost 卡片才会显示金额。分析中的费用数据可能与您的发票不同。Repository breakdown 中的费用按标价估算，未计入任何折扣或额度，并且仅涵盖 Claude 在 Pull Request 上发布的审查。如需与发票一致的支出数据，请参阅您的 Anthropic 账单。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [设置 Code Review](/docs/zh-CN/code-review-setup)：在每个仓库中选择审查级别以及审查的运行时机
 * [在 Pull Request 上阅读和请求审查](/docs/zh-CN/code-review-pull-requests)：评论命令、来自 fork 的 Pull Request，以及审查被跳过时开发者看到的预算消息

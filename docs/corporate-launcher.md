@@ -12,15 +12,13 @@
 
 在您的 `PATH` 上包装 `claude` 命令的启动器无法到达这些进程，因为它们从二进制文件的直接路径启动，不查询 `claude`。
 
-<Note>
-  `CLAUDE_CODE_PROCESS_WRAPPER` 需要 Claude Code v2.1.208 或更高版本。早期版本忽略该变量并启动每个未包装的进程。等效的 [`processWrapper` 设置](/docs/zh-CN/settings-reference#processwrapper) 需要 v2.1.210 或更高版本。早期版本将其忽略为未知密钥，不应用启动器，并且不报告错误。
+> [!NOTE]
+>
+> `CLAUDE_CODE_PROCESS_WRAPPER` 需要 Claude Code v2.1.208 或更高版本。早期版本忽略该变量并启动每个未包装的进程。等效的 [`processWrapper` 设置](/docs/zh-CN/settings-reference#processwrapper) 需要 v2.1.210 或更高版本。早期版本将其忽略为未知密钥，不应用启动器，并且不报告错误。
+>
+> 部署任一形式后，使用 [验证步骤](#set-up-the-launcher) 来确认运行的版本应用了它。
 
-  部署任一形式后，使用 [验证步骤](#set-up-the-launcher) 来确认运行的版本应用了它。
-</Note>
-
-<h2 id="what-the-launcher-covers">
-  启动器覆盖的内容
-</h2>
+## 启动器覆盖的内容
 
 设置 `CLAUDE_CODE_PROCESS_WRAPPER` 后，Claude Code 通过您的启动器启动以下每个进程：
 
@@ -33,9 +31,7 @@
 
 在 Windows 上，该变量被忽略：启动器契约取决于 `exec`，Windows 不支持。设置了该变量的 Windows 机器运行每个未包装的进程并继续工作，唯一的信号是 [debug log](/docs/zh-CN/troubleshooting) 中的警告。如果您的启动器策略涵盖 Windows，该变量在那里不满足它：在规划推出时将 Windows 机器计为未包装。
 
-<h3 id="processes-that-start-outside-the-launcher">
-  在启动器外启动的进程
-</h3>
+### 在启动器外启动的进程
 
 以下进程不通过启动器启动：
 
@@ -44,78 +40,70 @@
 * `--worktree` 与 `--tmux` 结合执行的重新启动：终端多路复用器启动该窗格，而不是 Claude Code 的二进制文件。
 * [Claude in Chrome](/docs/zh-CN/chrome) 注册的本机消息主机：浏览器启动它，而不是 Claude Code 的二进制文件。
 
-<h3 id="helper-process-names-in-process-monitors">
-  进程监视器中的辅助进程名称
-</h3>
+### 进程监视器中的辅助进程名称
 
 配置了启动器后，`ps` 和 Activity Monitor 不再显示后台辅助进程的 Claude Code 的 `claude bg-pty-host` 和 `claude bg-spare` 标签，因为启动器的 `exec` 重建了参数列表。丢失标签是副作用，而不是隐瞒：进程在其他方面保持不变，Claude Code 通过二进制路径识别自己的进程，从不通过显示名称。
 
-<h2 id="set-up-the-launcher">
-  设置启动器
-</h2>
+## 设置启动器
 
-<Steps>
-  <Step title="编写启动器脚本">
-    在绝对路径（例如 `/opt/corp/launcher`）创建可执行脚本。Claude Code 使用完整的 Claude Code 命令作为其参数运行它，脚本必须以调用 `exec "$@"` 结尾，以便它用 Claude Code 替换自己：
+**1. 编写启动器脚本**
 
-    ```bash theme={null}
-    #!/bin/sh
-    # 您组织的设置：进入沙箱、应用
-    # 网络控制或注入凭证。
-    exec "$@"
-    ```
+在绝对路径（例如 `/opt/corp/launcher`）创建可执行脚本。Claude Code 使用完整的 Claude Code 命令作为其参数运行它，脚本必须以调用 `exec "$@"` 结尾，以便它用 Claude Code 替换自己：
 
-    使用 `chmod +x` 使其可执行。设置部分是启动器在 Claude Code 运行前必须做的任何事情；下面的 [启动器契约](#the-launcher-contract) 列出脚本必须遵循的规则。
+```bash theme={null}
+#!/bin/sh
+# 您组织的设置：进入沙箱、应用
+# 网络控制或注入凭证。
+exec "$@"
+```
 
-    <Note>
-      如果您之前用启动器替换了 `~/.local/bin/claude` 符号链接，请在同一更改中恢复原始符号链接。替换的符号链接会导致第一个包装的会话同时通过两个启动器启动后台服务，并将安装置于外部管理状态：`/doctor` 报告它，自动更新保留文件，旧版本的清理保持禁用，直到安装程序再次管理该路径。
-    </Note>
-  </Step>
+使用 `chmod +x` 使其可执行。设置部分是启动器在 Claude Code 运行前必须做的任何事情；下面的 [启动器契约](#the-launcher-contract) 列出脚本必须遵循的规则。
 
-  <Step title="在设置中设置 CLAUDE_CODE_PROCESS_WRAPPER">
-    在设置文件的 `env` 块中设置变量，以便分离的后台服务继承它。shell `export` 不够：后台服务按需启动，超过您的 shell 生命周期，并且从不重新读取 shell 配置文件。
+> [!NOTE]
+>
+> 如果您之前用启动器替换了 `~/.local/bin/claude` 符号链接，请在同一更改中恢复原始符号链接。替换的符号链接会导致第一个包装的会话同时通过两个启动器启动后台服务，并将安装置于外部管理状态：`/doctor` 报告它，自动更新保留文件，旧版本的清理保持禁用，直到安装程序再次管理该路径。
 
-    对于一台机器，将其添加到 `~/.claude/settings.json`。要将其部署到组织中的每台机器，请在 [托管设置](/docs/zh-CN/managed-settings) 中放置相同的块：
+**2. 在设置中设置 CLAUDE\_CODE\_PROCESS\_WRAPPER**
 
-    ```json theme={null}
-    {
-      "env": {
-        "CLAUDE_CODE_PROCESS_WRAPPER": "/opt/corp/launcher"
-      }
-    }
-    ```
+在设置文件的 `env` 块中设置变量，以便分离的后台服务继承它。shell `export` 不够：后台服务按需启动，超过您的 shell 生命周期，并且从不重新读取 shell 配置文件。
 
-    当多个源设置变量时，托管设置值覆盖 `~/.claude/settings.json` 和 shell 中导出的值，因此用户无法将自生成指向不同的启动器。
+对于一台机器，将其添加到 `~/.claude/settings.json`。要将其部署到组织中的每台机器，请在 [托管设置](/docs/zh-CN/managed-settings) 中放置相同的块：
 
-    [`processWrapper` 设置](/docs/zh-CN/settings-reference#processwrapper) 与命名的顶级设置键具有相同的值。当您的组织将设置作为单个键而不是 `env` 块推送时，请设置它。`processWrapper` 设置需要 Claude Code v2.1.210 或更高版本。以下设置文件通过该键设置相同的启动器：
+```json theme={null}
+{
+  "env": {
+    "CLAUDE_CODE_PROCESS_WRAPPER": "/opt/corp/launcher"
+  }
+}
+```
 
-    ```json theme={null}
-    {
-      "processWrapper": "/opt/corp/launcher"
-    }
-    ```
+当多个源设置变量时，托管设置值覆盖 `~/.claude/settings.json` 和 shell 中导出的值，因此用户无法将自生成指向不同的启动器。
 
-    当两者都设置时，`CLAUDE_CODE_PROCESS_WRAPPER` 优先。
+[`processWrapper` 设置](/docs/zh-CN/settings-reference#processwrapper) 与命名的顶级设置键具有相同的值。当您的组织将设置作为单个键而不是 `env` 块推送时，请设置它。`processWrapper` 设置需要 Claude Code v2.1.210 或更高版本。以下设置文件通过该键设置相同的启动器：
 
-    因为 `processWrapper` 是一个命名设置，通过 [远程托管设置](/docs/zh-CN/managed-settings#delivery-mechanisms) 提供它的组织会在 [安全批准对话框](/docs/zh-CN/server-managed-settings#security-approval-dialogs) 上看到它与运行管理员提供的可执行文件的其他设置一起列出。
+```json theme={null}
+{
+  "processWrapper": "/opt/corp/launcher"
+}
+```
 
-    项目和本地设置无法配置启动器。提交到仓库的文件不能在机器上的每个 Claude Code 进程前放置二进制文件，因此 Claude Code 在 `.claude/settings.json` 或 `.claude/settings.local.json` 中忽略 `CLAUDE_CODE_PROCESS_WRAPPER`，并在 [调试日志](/docs/zh-CN/troubleshooting) 中发出警告，并且从不从这些文件中读取 `processWrapper` 键。
-  </Step>
+当两者都设置时，`CLAUDE_CODE_PROCESS_WRAPPER` 优先。
 
-  <Step title="重新启动后台服务和您的会话">
-    运行的后台服务和任何打开的 `claude` 会话在启动时读取变量一次，因此它们继续启动未包装的进程，直到重新启动。运行 `claude daemon stop --any` 停止按需服务。下一个需要它的命令（例如 `claude agents`）会启动一个包装的服务。然后重新启动您打开的 `claude` 会话。
+因为 `processWrapper` 是一个命名设置，通过 [远程托管设置](/docs/zh-CN/managed-settings#delivery-mechanisms) 提供它的组织会在 [安全批准对话框](/docs/zh-CN/server-managed-settings#security-approval-dialogs) 上看到它与运行管理员提供的可执行文件的其他设置一起列出。
 
-    在您无法手动重新启动的机器上，设置推送后启动的第一个会话会自动停用剩余的未包装按需服务。没有新会话启动的机器会保持其未包装的后台服务，直到有新会话启动。
-  </Step>
+项目和本地设置无法配置启动器。提交到仓库的文件不能在机器上的每个 Claude Code 进程前放置二进制文件，因此 Claude Code 在 `.claude/settings.json` 或 `.claude/settings.local.json` 中忽略 `CLAUDE_CODE_PROCESS_WRAPPER`，并在 [调试日志](/docs/zh-CN/troubleshooting) 中发出警告，并且从不从这些文件中读取 `processWrapper` 键。
 
-  <Step title="验证">
-    在会话中运行 `/status`：Self-exec 条目显示已解析的启动命令，并在运行的后台服务与其不匹配时发出警告。`claude daemon status` 从 shell 打印相同的信息，包括在您取消设置变量后，当 `/status` 不再显示条目时。
-  </Step>
-</Steps>
+**3. 重新启动后台服务和您的会话**
 
-<h2 id="the-launcher-contract">
-  启动器契约
-</h2>
+运行的后台服务和任何打开的 `claude` 会话在启动时读取变量一次，因此它们继续启动未包装的进程，直到重新启动。运行 `claude daemon stop --any` 停止按需服务。下一个需要它的命令（例如 `claude agents`）会启动一个包装的服务。然后重新启动您打开的 `claude` 会话。
+
+在您无法手动重新启动的机器上，设置推送后启动的第一个会话会自动停用剩余的未包装按需服务。没有新会话启动的机器会保持其未包装的后台服务，直到有新会话启动。
+
+**4. 验证**
+
+在会话中运行 `/status`：Self-exec 条目显示已解析的启动命令，并在运行的后台服务与其不匹配时发出警告。`claude daemon status` 从 shell 打印相同的信息，包括在您取消设置变量后，当 `/status` 不再显示条目时。
+
+## 启动器契约
 
 当启动器无法运行时，Claude Code 拒绝启动进程，而不是启动它未包装。在 Windows 上，[该变量被忽略](#what-the-launcher-covers)并且进程启动未包装。Claude Code 对脚本持有这些规则：
 
@@ -132,9 +120,7 @@
 * **不要读取标准输入。** 在 `exec` 之前读取标准输入的命令（例如要求输入密码的命令）可能会等待永远不会到来的输入，导致会话卡住。它还可能取走本应传给 Claude Code 的输入，之后会话可能在缺少该输入的情况下运行且不报告任何错误。请将此类命令的输入重定向自 `/dev/null`。
 * **通过绝对路径调用其他程序。** 启动器启动时的 `PATH` 可能不包含您的 shell 配置文件所添加的目录。
 
-<h3 id="format-of-the-launcher-value">
-  启动器值的格式
-</h3>
+### 启动器值的格式
 
 `CLAUDE_CODE_PROCESS_WRAPPER` 和 `processWrapper` 设置采用相同的格式。对于大多数启动器，该值是脚本的绝对路径，例如 `/opt/corp/launcher`。
 
@@ -148,9 +134,7 @@
 
 在设置文件中，请将数组形式写在 JSON 字符串内并转义其中的引号：`"[\"/opt/corp/launcher\", \"--profile\", \"cc\"]"`。
 
-<h3 id="pass-arguments-to-the-launcher">
-  向启动器传递参数
-</h3>
+### 向启动器传递参数
 
 在[该值](#format-of-the-launcher-value)中将启动器自身的参数写在其路径之后，并在脚本中于 `exec` 调用之前将其移除。这些参数会最先到达脚本，排在 Claude Code 命令之前。以下脚本针对值 `/opt/corp/launcher --profile cc` 编写，它保存配置档案名称，然后使用 `shift` 移除这两个参数：
 
@@ -166,15 +150,11 @@ exec "$@"
 
 使用[验证步骤](#set-up-the-launcher)查看 Claude Code 根据该值解析出的启动命令。
 
-<h2 id="relationship-to-claude_code_shell_prefix">
-  与 `CLAUDE_CODE_SHELL_PREFIX` 的关系
-</h2>
+## 与 `CLAUDE_CODE_SHELL_PREFIX` 的关系
 
 `CLAUDE_CODE_PROCESS_WRAPPER` 包装 Claude Code 自己的进程，并将命令作为单独的 argv 令牌传递给启动器以 `exec`。[`CLAUDE_CODE_SHELL_PREFIX`](/docs/zh-CN/env-vars) 包装 Claude 代表您运行的 shell 命令，例如 Bash 工具调用、hooks 和启动 stdio MCP 服务器的命令，并将每个作为单个 shell 引用的字符串在 `$1` 中传递给包装器以重新评估。为一个编写的启动器不能作为另一个工作。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [Agent view](/docs/zh-CN/agent-view)：启动器覆盖的后台会话和监督进程
 * [Environment variables](/docs/zh-CN/env-vars)：`CLAUDE_CODE_PROCESS_WRAPPER` 参考条目

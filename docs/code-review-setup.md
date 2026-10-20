@@ -10,9 +10,7 @@
 
 设置完成后，您可以为每个仓库选择审查的细致程度及运行时机。审查级别越高、审查运行越频繁，花费就越多。请参阅 [Code Review 费用](/docs/zh-CN/code-review-costs#pricing)。
 
-<h2 id="what-you-need-to-turn-on-code-review">
-  启用 Code Review 所需的条件
-</h2>
+## 启用 Code Review 所需的条件
 
 首先确认您的组织[符合 Code Review 的使用条件](/docs/zh-CN/code-review#availability)。然后确保您拥有以下访问权限，或有拥有这些权限的人员协助：
 
@@ -22,62 +20,54 @@
 | GitHub 组织的所有者 | 安装 Claude GitHub App 并[将其关联到您的 Claude 组织](/docs/zh-CN/admin-setup#connected-github-accounts)。如果您不是所有者，请在开始前让一位所有者安装并关联该应用 |
 | 从您连接到 Claude 的 GitHub 账户对要添加的每个仓库拥有写入权限 | 添加仓库 |
 
-<h2 id="turn-on-code-review">
-  启用 Code Review
-</h2>
+## 启用 Code Review
 
-<Steps>
-  <Step title="点击 Allow code review 开关">
-    前往 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code#code-review) 的 **Code review** 部分，点击 **Allow code review** 开关。
+**1. 点击 Allow code review 开关**
 
-    如果 Code Review 立即启用且没有弹出对话框，说明您的组织已经关联了 Claude GitHub App 或已添加了仓库。请前往[添加更多仓库](#add-more-repositories)，然后再返回完成最后一步。
-  </Step>
+前往 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code#code-review) 的 **Code review** 部分，点击 **Allow code review** 开关。
 
-  <Step title="连接您的 GitHub 账户">
-    如果打开了 **Connect GitHub** 对话框，请点击 **Connect**。如果您的组织使用 GitHub Enterprise Server，请先在对话框中选择您的实例。GitHub 会要求您授权 Claude，然后将您带回管理页面，并打开 **Add a repository** 对话框。
+如果 Code Review 立即启用且没有弹出对话框，说明您的组织已经关联了 Claude GitHub App 或已添加了仓库。请前往[添加更多仓库](#add-more-repositories)，然后再返回完成最后一步。
 
-    如果直接打开了 **Add a repository**，说明您的账户已经连接，请继续下一步。
-  </Step>
+**2. 连接您的 GitHub 账户**
 
-  <Step title="安装 Claude GitHub App">
-    如果所需的仓库已列在 **Add a repository** 对话框中，或者您可以在其中搜索到它们，请继续下一步。只有 Claude GitHub App 能够访问的仓库才会出现在该对话框中，因此如果找不到这些仓库，请安装该应用：
+如果打开了 **Connect GitHub** 对话框，请点击 **Connect**。如果您的组织使用 GitHub Enterprise Server，请先在对话框中选择您的实例。GitHub 会要求您授权 Claude，然后将您带回管理页面，并打开 **Add a repository** 对话框。
 
-    * 点击 **Install GitHub App**。当没有列出任何仓库时，它是对话框中的一个按钮；否则，它位于对话框中 GitHub 组织筛选菜单的底部。GitHub 的安装页面会在新标签页中打开。
-    * 选择拥有这些仓库的 GitHub 组织。
-    * 选择该应用可以访问的仓库。
-    * 批准所请求的权限。这组权限比审查实际使用的范围更广，并由其他 Claude 功能共享，例如 [GitHub Actions](/docs/zh-CN/github-actions)。请参阅[审查可以访问的内容](/docs/zh-CN/code-review#what-a-review-can-access)以及[完整权限列表](/docs/zh-CN/github-actions#github-app-permissions)。
-    * 安装完成后，该标签页会返回 Claude。如果显示 **Finish connecting GitHub** 按钮，请点击它，将此次安装关联到您的 Claude 组织。
-    * 返回管理页面所在的标签页，对话框中的列表会随之刷新。
-  </Step>
+如果直接打开了 **Add a repository**，说明您的账户已经连接，请继续下一步。
 
-  <Step title="选择仓库">
-    选择需要审查的仓库，然后点击 **Continue**。添加仓库需要您连接的 GitHub 账户对该仓库拥有写入权限。您可以稍后[添加更多仓库](#add-more-repositories)。
-  </Step>
+**3. 安装 Claude GitHub App**
 
-  <Step title="点击 Finish">
-    随后会出现 **Code review is set up** 对话框。点击 **Finish** 以启用 Code Review。如果您以其他方式关闭该对话框，仓库仍会保持已添加状态，但 **Allow code review** 会保持关闭，您需要通过该开关将其启用。
+如果所需的仓库已列在 **Add a repository** 对话框中，或者您可以在其中搜索到它们，请继续下一步。只有 Claude GitHub App 能够访问的仓库才会出现在该对话框中，因此如果找不到这些仓库，请安装该应用：
 
-    每个仓库初始设置为每次推送后都进行审查，这会运行最多的审查。如需减少审查次数，请[设置审查的运行时机](#set-when-reviews-run)。
-  </Step>
+* 点击 **Install GitHub App**。当没有列出任何仓库时，它是对话框中的一个按钮；否则，它位于对话框中 GitHub 组织筛选菜单的底部。GitHub 的安装页面会在新标签页中打开。
+* 选择拥有这些仓库的 GitHub 组织。
+* 选择该应用可以访问的仓库。
+* 批准所请求的权限。这组权限比审查实际使用的范围更广，并由其他 Claude 功能共享，例如 [GitHub Actions](/docs/zh-CN/github-actions)。请参阅[审查可以访问的内容](/docs/zh-CN/code-review#what-a-review-can-access)以及[完整权限列表](/docs/zh-CN/github-actions#github-app-permissions)。
+* 安装完成后，该标签页会返回 Claude。如果显示 **Finish connecting GitHub** 按钮，请点击它，将此次安装关联到您的 Claude 组织。
+* 返回管理页面所在的标签页，对话框中的列表会随之刷新。
 
-  <Step title="通过测试 Pull Request 进行验证">
-    在您添加的某个仓库中打开一个测试 Pull Request，且不要将其标为草稿。几分钟内会出现一个名为 **Claude Code Review** 的检查运行。如果您已将该仓库设置为 **Manual (@claude review)**，请在 Pull Request 上评论 `@claude review` 以启动首次审查。
+**4. 选择仓库**
 
-    如果没有出现检查运行，请参阅[测试 Pull Request 上没有出现检查运行](/docs/zh-CN/code-review-troubleshooting#no-check-run-appears-on-the-test-pull-request)。
+选择需要审查的仓库，然后点击 **Continue**。添加仓库需要您连接的 GitHub 账户对该仓库拥有写入权限。您可以稍后[添加更多仓库](#add-more-repositories)。
 
-    审查结果出现后，请将[在 Pull Request 上阅读和请求审查](/docs/zh-CN/code-review-pull-requests)发送给您的开发人员，其中介绍了严重级别、评论命令以及如何处理审查发现的问题。
-  </Step>
-</Steps>
+**5. 点击 Finish**
 
-<h2 id="set-defaults-for-your-organization">
-  为组织设置默认值
-</h2>
+随后会出现 **Code review is set up** 对话框。点击 **Finish** 以启用 Code Review。如果您以其他方式关闭该对话框，仓库仍会保持已添加状态，但 **Allow code review** 会保持关闭，您需要通过该开关将其启用。
+
+每个仓库初始设置为每次推送后都进行审查，这会运行最多的审查。如需减少审查次数，请[设置审查的运行时机](#set-when-reviews-run)。
+
+**6. 通过测试 Pull Request 进行验证**
+
+在您添加的某个仓库中打开一个测试 Pull Request，且不要将其标为草稿。几分钟内会出现一个名为 **Claude Code Review** 的检查运行。如果您已将该仓库设置为 **Manual (@claude review)**，请在 Pull Request 上评论 `@claude review` 以启动首次审查。
+
+如果没有出现检查运行，请参阅[测试 Pull Request 上没有出现检查运行](/docs/zh-CN/code-review-troubleshooting#no-check-run-appears-on-the-test-pull-request)。
+
+审查结果出现后，请将[在 Pull Request 上阅读和请求审查](/docs/zh-CN/code-review-pull-requests)发送给您的开发人员，其中介绍了严重级别、评论命令以及如何处理审查发现的问题。
+
+## 为组织设置默认值
 
 作为 Owner，您可以决定审查的细致程度和运行频率。这两项都位于 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code#code-review) 的 **Code review** 部分。
 
-<h3 id="set-the-default-review-level">
-  设置默认审查级别
-</h3>
+### 设置默认审查级别
 
 审查级别决定每次审查的细致程度，审查越细致，费用越高。您可以为组织设置一个默认值，并为单个仓库覆盖该值。
 
@@ -92,9 +82,7 @@
 
 新级别适用于更改之后开始的审查。有关影响每次审查费用的其他因素，请参阅 [Code Review 费用和用量](/docs/zh-CN/code-review-costs)。
 
-<h3 id="set-when-reviews-run">
-  设置审查的运行时机
-</h3>
+### 设置审查的运行时机
 
 每个仓库都有各自的 **Review runs** 设置，用于决定何时审查该仓库的 Pull Request。
 
@@ -109,9 +97,7 @@
 * **草稿以及来自复刻的 Pull Request**：无论您选择哪个选项，[自动审查都会跳过这两类](/docs/zh-CN/code-review-pull-requests#review-drafts-and-pull-requests-from-forks)
 * **新仓库**：从 **Add a repository** 对话框添加的仓库初始设置为 **After every push**。如果其所属 GitHub 组织已[整体覆盖](#cover-a-whole-github-organization)，则改为采用该组织行的设置。
 
-<h3 id="turn-tip-comments-on-or-off">
-  开启或关闭提示评论
-</h3>
+### 开启或关闭提示评论
 
 提示评论是在未启动审查时 Claude 在 Pull Request 上发布的简短评论，用于说明原因以及下一步该怎么做。**Show tips on pull requests** 默认开启。开启后，Claude 会在以下每种情况下发布提示，说明：
 
@@ -122,36 +108,28 @@
 
 关闭此设置即可停止发布这些评论。
 
-<h3 id="what-developers-can-change">
-  开发人员可以更改的内容
-</h3>
+### 开发人员可以更改的内容
 
 开发人员如需更改审查级别、**Review runs** 设置或接受审查的仓库，需要联系您。在没有 Owner 角色的情况下，他们可以在 GitHub 上执行以下操作：
 
 * **请求审查**：在 Pull Request 上评论 [`@claude review`](/docs/zh-CN/code-review-pull-requests#comment-commands)。这需要对仓库拥有写入权限，并且适用于自动审查会跳过的[草稿以及来自复刻的 Pull Request](/docs/zh-CN/code-review-pull-requests#review-drafts-and-pull-requests-from-forks)。
-* **让单个 Pull Request 在每次推送时接受审查**：在非[草稿或非复刻来源](/docs/zh-CN/code-review-pull-requests#review-drafts-and-pull-requests-from-forks)的 Pull Request 上评论 `@claude review always`，例如在设置为 Manual 的仓库中
+* **让单个 Pull Request 在每次推送时接受审查**：在[既非草稿也非来自复刻](/docs/zh-CN/code-review-pull-requests#review-drafts-and-pull-requests-from-forks)的 Pull Request 上评论 `@claude review always`，例如在设置为 Manual 的仓库中
 * **更改审查所指出的内容**：向仓库提交 [`REVIEW.md` 和 `CLAUDE.md` 文件](/docs/zh-CN/code-review-customize)，例如添加一项检查
 
 开发人员请求的审查会[计费到您的组织](/docs/zh-CN/code-review-costs#pricing)。要限制 Code Review 每月的花费，请参阅[限制您的花费](/docs/zh-CN/code-review-costs#limit-your-spend)。
 
-<h2 id="manage-repositories">
-  管理仓库
-</h2>
+## 管理仓库
 
 您可以逐个添加仓库，也可以一次性覆盖整个 GitHub 组织，并在不需要的地方停止审查。
 
-<h3 id="add-more-repositories">
-  添加更多仓库
-</h3>
+### 添加更多仓库
 
 要在设置完成后添加仓库，请点击 **Code review** 部分中 **Repositories** 表上方的 **Add**。**Add a repository** 对话框随即打开。选择仓库并点击 **Continue**。
 
 * **某个仓库未列出**：请参阅[某个仓库未在 Add a repository 中列出](/docs/zh-CN/code-review-troubleshooting#a-repository-isn’t-listed-in-add-a-repository)。
 * **您希望包含某个 GitHub 组织中的所有仓库**：请[覆盖整个组织](#cover-a-whole-github-organization)，而不是逐个选择仓库
 
-<h3 id="cover-a-whole-github-organization">
-  覆盖整个 GitHub 组织
-</h3>
+### 覆盖整个 GitHub 组织
 
 要为某个 GitHub 组织中的所有仓库启用 Code Review，请在 **Repositories** 表中该组织所在行设置 **Review runs**。这会覆盖该组织中 Claude GitHub App 可以访问的所有仓库，包括之后添加的仓库。这可能会显著增加花费。需要同时满足以下所有条件：
 
@@ -168,9 +146,7 @@
 * **之后的单独更改**：之后设置得与其所属组织不同的仓库，会在表中标注为 **Custom**。
 * **审查级别**：组织行本身没有审查级别。
 
-<h3 id="turn-off-code-review-or-remove-a-repository">
-  关闭 Code Review 或移除仓库
-</h3>
+### 关闭 Code Review 或移除仓库
 
 在 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code#code-review) 的 **Code review** 部分，根据您要停止的内容选择相应的控件：
 
@@ -179,9 +155,7 @@
 * **整个 GitHub 组织**：点击该组织所在行的 **Edit**，然后选择 **Off**。这也会关闭该组织中您逐个添加的仓库。
 * **全部**：关闭 **Allow code review**。所有仓库都不会再启动新的审查，您的仓库列表会被保留，以便日后重新启用。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [Code Review 费用和用量](/docs/zh-CN/code-review-costs)：审查级别和审查运行时机如何影响花费、如何设置花费上限，以及在哪里查看用量
 * [在 Pull Request 上阅读和请求审查](/docs/zh-CN/code-review-pull-requests)：开发人员在 Pull Request 上看到的内容以及评论命令

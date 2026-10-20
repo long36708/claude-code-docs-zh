@@ -10,9 +10,7 @@
 
 在 Claude Code v2.1.283 或更高版本中，自动模式是交互式终端和 VS Code 会话的内置起始权限模式。在早期版本中，它仅在 Pro、Max 和 Team 计划上是内置的起始权限模式。[会话在哪个模式下启动](#which-mode-a-session-starts-in)涵盖了改变起始权限模式的表面和设置。您也可以随时更改正在运行的会话的权限模式。
 
-<h2 id="available-modes">
-  可用的模式
-</h2>
+## 可用的模式
 
 每种模式在便利性和监督之间做出不同的权衡。下表显示了在每种模式下 Claude 无需权限提示即可执行的操作。手动模式显示在其配置值 `default` 下。
 
@@ -31,9 +29,7 @@
 
 模式设置基线。在顶部分层 [权限规则](/docs/zh-CN/permissions#manage-permissions) 以预批准或阻止特定工具。拒绝规则在每种模式下都会阻止，包括 `bypassPermissions`。拒绝和询问规则不适用于 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)，只要 Claude 仍然至少有一个其他工具可以调用。允许规则在 `bypassPermissions` 中无效。
 
-<h3 id="actions-no-mode-auto-approves">
-  任何模式都不会自动批准的操作
-</h3>
+### 任何模式都不会自动批准的操作
 
 Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypassPermissions`。每个项目符号链接到说明在每种模式下会发生什么的部分：
 
@@ -46,9 +42,7 @@ Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypass
 
   shell 解析器无法追踪的命令，例如更改目录多次或运行子 shell 的命令，即使在未命名任何外部路径时也会以相同方式提示。当命令在 [沙箱](/docs/zh-CN/sandboxing) 中运行且沙箱强制执行该块时，此提示不适用。
 
-<h2 id="common-setups">
-  常见设置
-</h2>
+## 常见设置
 
 权限模式决定 Claude 在执行操作之前是否询问，而 [Bash 沙箱](/docs/zh-CN/sandboxing)和外层[隔离边界](/docs/zh-CN/sandbox-environments)决定操作运行后能够访问哪些内容。下表每一行都将一个目标与实现该目标的标志或设置以及所需的隔离配对，可作为起点。[可用模式](#available-modes)列出了每种模式下无需提示即可运行的操作。
 
@@ -63,9 +57,7 @@ Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypass
 
 Bash 沙箱和自动模式彼此独立运作，也可以组合使用，例外情况列于[沙箱模式](/docs/zh-CN/sandboxing#sandbox-modes)中。有关完整的交互方式，请参阅[沙箱隔离与权限及权限模式的关系](/docs/zh-CN/sandboxing#how-sandboxing-relates-to-permissions-and-permission-modes)和[隔离与权限模式的关系](/docs/zh-CN/sandbox-environments#how-isolation-relates-to-permission-modes)。
 
-<h2 id="which-mode-a-session-starts-in">
-  会话在哪个模式下启动
-</h2>
+## 会话在哪个模式下启动
 
 当您在终端中启动新会话时，Claude Code 从以下第一个适用的获取权限模式：
 
@@ -99,9 +91,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 
 如果您的 `~/.claude/settings.json` 将 `defaultMode` 设置为 `auto` 以外的值，且没有其他设置文件设置它，您的会话继续以该模式启动。在 Pro、Max 和 Team 计划上，以及在[不获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中，Claude Code 在终端或 VS Code 扩展中询问一次是否将设置更改为自动模式。如果您拒绝，您的设置保持原样。
 
-<h3 id="which-mode-a-non-interactive-run-starts-in">
-  在 `claude -p` 和 Agent SDK 运行中被拒绝的工具调用
-</h3>
+### 在 `claude -p` 和 Agent SDK 运行中被拒绝的工具调用
 
 在 Claude Code v2.1.302 或更高版本中，[未设置权限模式](#which-mode-a-session-starts-in)的 `claude -p` 和 [Agent SDK](/docs/zh-CN/agent-sdk/permissions#permission-modes) 运行以 Manual 模式启动。此模式在 SDK 选项和设置中显示为 `default`。需要批准的调用会被拒绝，除非您通过允许规则、hook、`canUseTool` 回调或 `--permission-prompt-tool` 批准它们。
 
@@ -112,35 +102,31 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 
 以下示例展示了 CLI 和每个 SDK 的自动模式写法：
 
-<Tabs>
-  <Tab title="CLI">
-    ```bash theme={null}
-    claude -p "Run the test suite and fix any failures" --permission-mode auto
-    ```
-  </Tab>
+**CLI**
 
-  <Tab title="TypeScript">
-    ```typescript theme={null}
-    const options = {
-      permissionMode: "auto"
-    };
-    ```
-  </Tab>
+```bash theme={null}
+claude -p "Run the test suite and fix any failures" --permission-mode auto
+```
 
-  <Tab title="Python">
-    ```python theme={null}
-    from claude_agent_sdk import ClaudeAgentOptions
+**TypeScript**
 
-    options = ClaudeAgentOptions(permission_mode="auto")
-    ```
-  </Tab>
-</Tabs>
+```typescript theme={null}
+const options = {
+  permissionMode: "auto"
+};
+```
+
+**Python**
+
+```python theme={null}
+from claude_agent_sdk import ClaudeAgentOptions
+
+options = ClaudeAgentOptions(permission_mode="auto")
+```
 
 在 v2.1.302 之前，如果这些运行不[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，例如在[第三方提供商](/docs/zh-CN/third-party-integrations)上或设置了 `DISABLE_TELEMETRY` 时，它们可能以自动模式启动。
 
-<h3 id="start-in-a-different-mode">
-  以不同的权限模式启动
-</h3>
+### 以不同的权限模式启动
 
 您可以为一个会话设置起始权限模式，或作为机器、项目或组织中每个会话的默认值。当多个设置文件设置 `permissions.defaultMode` 时，[设置优先级](/docs/zh-CN/settings#settings-precedence)决定，因此项目或托管值优先于 `~/.claude/settings.json`。要更改已运行会话的权限模式，请参阅[切换权限模式](#switch-permission-modes)。
 
@@ -163,9 +149,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 
 您启动的下一个会话在状态栏中显示 `⏸ manual mode on`。
 
-<h3 id="hipaa-configuration">
-  HIPAA 配置下的权限模式
-</h3>
+### HIPAA 配置下的权限模式
 
 在已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织中，内置 `auto` 默认值不适用。当没有其他方式选择起始权限模式时，终端或 VS Code 会话以 Manual 模式启动。终端会话还会显示 `Auto mode isn't the default for your organization · Shift+Tab to switch`，而 VS Code 扩展不显示任何通知。[检查开发人员如何登录和连接](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)列出了适用此规则的会话。
 
@@ -178,116 +162,106 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 
 需要 Claude Code v2.1.285 或更高版本，即 [HIPAA 配置的最低版本](/docs/zh-CN/hipaa-setup#update-claude-code-and-claude-desktop)。
 
-<h2 id="switch-permission-modes">
-  切换权限模式
-</h2>
+## 切换权限模式
 
 每个界面都有自己的控件用于在会话期间切换权限模式，以及自己的方式来选择新会话启动的权限模式。选择您的界面以查看其控件。
 
-<Tabs>
-  <Tab title="CLI">
-    **在会话期间**：按 `Shift+Tab` 循环权限模式。从 `auto` 开始，第一次按下会切换到 `default`，之后循环依次为 `default` → `acceptEdits` → `plan`。可选模式在 `plan` 之后插入。状态栏显示活动模式为灰色 `⏸ manual mode on`（对于 `default`），或为 `⏵⏵ accept edits on`、`⏸ plan mode on`、`⏵⏵ auto mode on`、`⏵⏵ don't ask on` 或 `⏵⏵ bypass permissions on`。
+**CLI**
 
-    请观察此片段中状态栏的变化，该会话以自动模式启动。每次按下 `Shift+Tab`，状态栏都会从 `auto mode on` 依次变为 `manual mode on`、`accept edits on`、`plan mode on`，然后回到 `auto mode on`。
+**在会话期间**：按 `Shift+Tab` 循环权限模式。从 `auto` 开始，第一次按下会切换到 `default`，之后循环依次为 `default` → `acceptEdits` → `plan`。可选模式在 `plan` 之后插入。状态栏显示活动模式为灰色 `⏸ manual mode on`（对于 `default`），或为 `⏵⏵ accept edits on`、`⏸ plan mode on`、`⏵⏵ auto mode on`、`⏵⏵ don't ask on` 或 `⏵⏵ bypass permissions on`。
 
-    <Frame>
-      <video autoPlay muted loop playsInline className="w-full dark:hidden" style={{aspectRatio: "1440 / 264"}} src="https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-modes-cycle-light.mp4?fit=max&auto=format&n=oa7CKjMeIChox26S&q=85&s=198ca90aeb2e3675b3d01b7d686aab0b" aria-label="每次按下 Shift+Tab，Claude Code 输入框下方的状态栏都会变化：auto mode on、manual mode on、accept edits on、plan mode on，然后再次变为 auto mode on。" data-path="images/permission-modes-cycle-light.mp4" />
+请观察此片段中状态栏的变化，该会话以自动模式启动。每次按下 `Shift+Tab`，状态栏都会从 `auto mode on` 依次变为 `manual mode on`、`accept edits on`、`plan mode on`，然后回到 `auto mode on`。
 
-      <video autoPlay muted loop playsInline className="w-full hidden dark:block" style={{aspectRatio: "1440 / 264"}} src="https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-modes-cycle-dark.mp4?fit=max&auto=format&n=oa7CKjMeIChox26S&q=85&s=994cdeec4e99d2f474d236c1087d6e63" aria-label="每次按下 Shift+Tab，Claude Code 输入框下方的状态栏都会变化：auto mode on、manual mode on、accept edits on、plan mode on，然后再次变为 auto mode on。" data-path="images/permission-modes-cycle-dark.mp4" />
-    </Frame>
+<video autoPlay muted loop playsInline src="https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-modes-cycle-light.mp4?fit=max&auto=format&n=oa7CKjMeIChox26S&q=85&s=198ca90aeb2e3675b3d01b7d686aab0b" aria-label="每次按下 Shift+Tab，Claude Code 输入框下方的状态栏都会变化：auto mode on、manual mode on、accept edits on、plan mode on，然后再次变为 auto mode on。" />
 
-    并非每个模式都在默认循环中：
+并非每个模式都在默认循环中：
 
-    * `auto`：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现；循环到它会在没有确认提示的情况下切换权限模式
-    * `bypassPermissions`：在您使用 `--permission-mode bypassPermissions`、`--dangerously-skip-permissions`、`--allow-dangerously-skip-permissions` 或[用户、`--settings` 或托管设置](/docs/zh-CN/settings-reference#permissions-defaultmode)中的 `permissions.defaultMode: "bypassPermissions"` 启动后出现。`--allow-` 变体将权限模式添加到循环中而不激活它
-    * `dontAsk`：永远不会在循环中出现；使用 `--permission-mode dontAsk` 设置它
+* `auto`：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现；循环到它会在没有确认提示的情况下切换权限模式
+* `bypassPermissions`：在您使用 `--permission-mode bypassPermissions`、`--dangerously-skip-permissions`、`--allow-dangerously-skip-permissions` 或[用户、`--settings` 或托管设置](/docs/zh-CN/settings-reference#permissions-defaultmode)中的 `permissions.defaultMode: "bypassPermissions"` 启动后出现。`--allow-` 变体将权限模式添加到循环中而不激活它
+* `dontAsk`：永远不会在循环中出现；使用 `--permission-mode dontAsk` 设置它
 
-    启用的可选模式在 `plan` 之后插入，`bypassPermissions` 优先，`auto` 最后。如果您同时启用了两者，您将在循环到 `auto` 的途中循环通过 `bypassPermissions`。
+启用的可选模式在 `plan` 之后插入，`bypassPermissions` 优先，`auto` 最后。如果您同时启用了两者，您将在循环到 `auto` 的途中循环通过 `bypassPermissions`。
 
-    **从 Bash 权限提示**：在 Manual 和 `acceptEdits` 权限模式下，当[自动模式](#eliminate-prompts-with-auto-mode)可用时，Claude Code 将**是的，并切换到自动模式**添加到 Bash 命令的权限提示。选择它以批准命令并将会话切换到自动模式。[PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)提示不提供该选项。需要 Claude Code v2.1.247 或更高版本。
+**从 Bash 权限提示**：在 Manual 和 `acceptEdits` 权限模式下，当[自动模式](#eliminate-prompts-with-auto-mode)可用时，Claude Code 将**是的，并切换到自动模式**添加到 Bash 命令的权限提示。选择它以批准命令并将会话切换到自动模式。[PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)提示不提供该选项。需要 Claude Code v2.1.247 或更高版本。
 
-    Claude Code 不会将该选项添加到由您的[`ask` 规则](/docs/zh-CN/permissions#manage-permissions)之一或[hook](/docs/zh-CN/hooks#pretooluse-decision-control)强制的提示，因为自动模式仍然向您显示这些提示，所以切换不会移除它们。
+Claude Code 不会将该选项添加到由您的[`ask` 规则](/docs/zh-CN/permissions#manage-permissions)之一或[hook](/docs/zh-CN/hooks#pretooluse-decision-control)强制的提示，因为自动模式仍然向您显示这些提示，所以切换不会移除它们。
 
-    **在启动时**：将权限模式作为标志传递。
+**在启动时**：将权限模式作为标志传递。
 
-    ```bash theme={null}
-    claude --permission-mode plan
-    ```
+```bash theme={null}
+claude --permission-mode plan
+```
 
-    **作为默认值**：在您想要的范围设置 `permissions.defaultMode`，如[以不同的权限模式启动](#start-in-a-different-mode)中所述。
+**作为默认值**：在您想要的范围设置 `permissions.defaultMode`，如[以不同的权限模式启动](#start-in-a-different-mode)中所述。
 
-    相同的 `--permission-mode` 标志适用于 `-p` 用于[非交互式运行](/docs/zh-CN/headless)。
-  </Tab>
+相同的 `--permission-mode` 标志适用于 `-p` 用于[非交互式运行](/docs/zh-CN/headless)。
 
-  <Tab title="VS Code">
-    **在会话期间**：点击提示框底部的模式指示器。它为此页面上的模式使用这些标签：
+**VS Code**
 
-    | UI 标签 | 模式 |
-    | :- | :- |
-    | Manual | `default` |
-    | Edit automatically | `acceptEdits` |
-    | Plan | `plan` |
-    | Auto | `auto` |
-    | Bypass permissions | `bypassPermissions` |
+**在会话期间**：点击提示框底部的模式指示器。它为此页面上的模式使用这些标签：
 
-    **作为默认值**：要固定对话启动的权限模式，请在您的 VS Code 用户设置中将 `claudeCode.initialPermissionMode` 设置为 `default`、`manual`、`acceptEdits`、`plan` 或 `bypassPermissions`。该设置不接受 `auto`；要以 Auto 启动，请将其保留未设置并从模式指示器中选择**Auto**一次，如下面的第 2 项所述。扩展在以下第一个适用的中启动每个新对话：
+| UI 标签 | 模式 |
+| :- | :- |
+| Manual | `default` |
+| Edit automatically | `acceptEdits` |
+| Plan | `plan` |
+| Auto | `auto` |
+| Bypass permissions | `bypassPermissions` |
 
-    1. `claudeCode.initialPermissionMode`
-    2. 您从模式指示器最后选择的模式，如果它是 Manual、Edit automatically 或 Auto。选择 Plan 或 Bypass permissions 仅适用于该对话
-    3. 来自[托管设置](/docs/zh-CN/managed-settings)或 `~/.claude/settings.json` 的 `permissions.defaultMode`
-    4. 您的计划、提供商和组织设置的[内置默认值](#which-mode-a-session-starts-in)
+**作为默认值**：要固定对话启动的权限模式，请在您的 VS Code 用户设置中将 `claudeCode.initialPermissionMode` 设置为 `default`、`manual`、`acceptEdits`、`plan` 或 `bypassPermissions`。该设置不接受 `auto`；要以 Auto 启动，请将其保留未设置并从模式指示器中选择**Auto**一次，如下面的第 2 项所述。扩展在以下第一个适用的中启动每个新对话：
 
-    扩展永远不会从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 读取起始权限模式。当 `claudeCode.claudeProcessWrapper` 被设置时，第 3 和 4 项不适用：这些对话以 Manual 启动，除非第 1 或第 2 项设置权限模式。
+1. `claudeCode.initialPermissionMode`
+2. 您从模式指示器最后选择的模式，如果它是 Manual、Edit automatically 或 Auto。选择 Plan 或 Bypass permissions 仅适用于该对话
+3. 来自[托管设置](/docs/zh-CN/managed-settings)或 `~/.claude/settings.json` 的 `permissions.defaultMode`
+4. 您的计划、提供商和组织设置的[内置默认值](#which-mode-a-session-starts-in)
 
-    在 v2.1.283 之前，第 3 项仅在 Pro、Max 和 Team 计划上应用，在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中。
+扩展永远不会从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 读取起始权限模式。当 `claudeCode.claudeProcessWrapper` 被设置时，第 3 和 4 项不适用：这些对话以 Manual 启动，除非第 1 或第 2 项设置权限模式。
 
-    当[自动模式可用](#eliminate-prompts-with-auto-mode)时，Auto 出现在模式指示器中。
+在 v2.1.283 之前，第 3 项仅在 Pro、Max 和 Team 计划上应用，在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中。
 
-    Bypass permissions 需要扩展设置中的**Allow dangerously skip permissions**切换。没有它，权限模式不会出现在指示器中，来自第 1 或第 3 项的 `bypassPermissions` 值以 Manual 启动对话。来自任何项的 Auto 同样在自动模式不可用时以 Manual 启动对话。
+当[自动模式可用](#eliminate-prompts-with-auto-mode)时，Auto 出现在模式指示器中。
 
-    有关扩展特定的详细信息，请参阅 [VS Code 指南](/docs/zh-CN/vs-code)。
-  </Tab>
+Bypass permissions 需要扩展设置中的**Allow dangerously skip permissions**切换。没有它，权限模式不会出现在指示器中，来自第 1 或第 3 项的 `bypassPermissions` 值以 Manual 启动对话。来自任何项的 Auto 同样在自动模式不可用时以 Manual 启动对话。
 
-  <Tab title="JetBrains">
-    JetBrains 插件在 IDE 终端中运行 Claude Code，因此切换权限模式的工作方式与 CLI 中相同：按 `Shift+Tab` 循环，或在启动时传递 `--permission-mode`。
-  </Tab>
+有关扩展特定的详细信息，请参阅 [VS Code 指南](/docs/zh-CN/vs-code)。
 
-  <Tab title="Desktop">
-    **在会话期间**：在 Code 选项卡中，使用输入框下方那一行中的模式选择器。并非每个模式都出现在选择器中：
+**JetBrains**
 
-    * **Auto**：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现
-    * **Bypass permissions**：在 Pro 和 Max 计划上需要 Desktop 设置中的**Allow bypass permissions mode**切换；在 Team 和 Enterprise 计划上，组织策略控制它
+JetBrains 插件在 IDE 终端中运行 Claude Code，因此切换权限模式的工作方式与 CLI 中相同：按 `Shift+Tab` 循环，或在启动时传递 `--permission-mode`。
 
-    Cowork 选项卡不使用这些模式。Cowork 有自己的权限模式，单独启用，Cowork 选项卡在为您的账户启用超出其默认值的模式之前不显示模式选择器。请参阅 [Cowork 文档](https://claude.com/docs/cowork/overview)。
+**Desktop**
 
-    有关 desktop 特定的详细信息，请参阅 Desktop 指南中的[选择权限模式](/docs/zh-CN/desktop#choose-a-permission-mode)。
+**在会话期间**：在 Code 选项卡中，使用输入框下方那一行中的模式选择器。并非每个模式都出现在选择器中：
 
-    **作为默认值**：在[设置](/docs/zh-CN/settings#where-settings-live)中设置 `defaultMode`。桌面应用读取与 CLI 相同的设置文件，并将权限模式应用于新的本地会话。
+* **Auto**：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现
+* **Bypass permissions**：在 Pro 和 Max 计划上需要 Desktop 设置中的**Allow bypass permissions mode**切换；在 Team 和 Enterprise 计划上，组织策略控制它
 
-    您在模式选择器中选择的模式会按文件夹记住，并对该文件夹优先于 `defaultMode`。Plan 是例外：选择它仅适用于当前会话。
+Cowork 选项卡不使用这些模式。Cowork 有自己的权限模式，单独启用，Cowork 选项卡在为您的账户启用超出其默认值的模式之前不显示模式选择器。请参阅 [Cowork 文档](https://claude.com/docs/cowork/overview)。
 
-    有关 `defaultMode` 在设置文件中的位置，请参阅[以不同的权限模式启动](#start-in-a-different-mode)下的示例。
-  </Tab>
+有关 desktop 特定的详细信息，请参阅 Desktop 指南中的[选择权限模式](/docs/zh-CN/desktop#choose-a-permission-mode)。
 
-  <Tab title="Web and mobile">
-    在 [claude.ai/code](https://claude.ai/code) 上，使用输入框旁边的模式下拉菜单。在移动应用中，点击输入框中的 **+** 按钮，然后点击 **Permission**。云端会话和 Remote Control 会话提供不同的权限模式：
+**作为默认值**：在[设置](/docs/zh-CN/settings#where-settings-live)中设置 `defaultMode`。桌面应用读取与 CLI 相同的设置文件，并将权限模式应用于新的本地会话。
 
-    * **[云端会话](/docs/zh-CN/claude-code-on-the-web)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云端会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。Auto 模式仅在您的组织允许且所选模型支持时出现。Bypass permissions 不可用。
-    * 您本地机器上的 **[Remote Control](/docs/zh-CN/remote-control) 会话**：Manual、Accept edits、Plan 和 Auto（对于您自己启动的会话），您无法从应用中选择 Bypass permissions。要使用 Auto，会话必须满足自动模式的[可用性要求](#eliminate-prompts-with-auto-mode)。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](/docs/zh-CN/claude-projects#run-a-thread-on-your-own-computer)。
-      * 除了 Bypass permissions，下拉菜单显示本地会话所在的权限模式，包括从终端设置的模式。它在应用或终端中权限模式更改时更新。
-      * 由[桌面应用](/docs/zh-CN/desktop)或 [VS Code 扩展](/docs/zh-CN/vs-code)托管的会话在权限模式更改时向 claude.ai 报告，与在终端中托管的会话相同。
+您在模式选择器中选择的模式会按文件夹记住，并对该文件夹优先于 `defaultMode`。Plan 是例外：选择它仅适用于当前会话。
 
-    对于 Remote Control，运行会话的本地机器必须使用您的 claude.ai 账户登录；不支持 API 密钥。您也可以在启动该本地会话时设置起始权限模式：
+有关 `defaultMode` 在设置文件中的位置，请参阅[以不同的权限模式启动](#start-in-a-different-mode)下的示例。
 
-    ```bash theme={null}
-    claude remote-control --permission-mode acceptEdits
-    ```
-  </Tab>
-</Tabs>
+**Web and mobile**
 
-<h2 id="auto-approve-file-edits-with-acceptedits-mode">
-  使用 acceptEdits 模式自动批准文件编辑
-</h2>
+在 [claude.ai/code](https://claude.ai/code) 上，使用输入框旁边的模式下拉菜单。在移动应用中，点击输入框中的 **+** 按钮，然后点击 **Permission**。云端会话和 Remote Control 会话提供不同的权限模式：
+
+* **[云端会话](/docs/zh-CN/claude-code-on-the-web)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云端会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。Auto 模式仅在您的组织允许且所选模型支持时出现。Bypass permissions 不可用。
+* 您本地机器上的 **[Remote Control](/docs/zh-CN/remote-control) 会话**：Manual、Accept edits、Plan 和 Auto（对于您自己启动的会话），您无法从应用中选择 Bypass permissions。要使用 Auto，会话必须满足自动模式的[可用性要求](#eliminate-prompts-with-auto-mode)。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](/docs/zh-CN/claude-projects#run-a-thread-on-your-own-computer)。
+  * 除了 Bypass permissions，下拉菜单显示本地会话所在的权限模式，包括从终端设置的模式。它在应用或终端中权限模式更改时更新。
+  * 由[桌面应用](/docs/zh-CN/desktop)或 [VS Code 扩展](/docs/zh-CN/vs-code)托管的会话在权限模式更改时向 claude.ai 报告，与在终端中托管的会话相同。
+
+对于 Remote Control，运行会话的本地机器必须使用您的 claude.ai 账户登录；不支持 API 密钥。您也可以在启动该本地会话时设置起始权限模式：
+
+```bash theme={null}
+claude remote-control --permission-mode acceptEdits
+```
+
+## 使用 acceptEdits 模式自动批准文件编辑
 
 `acceptEdits` 模式让 Claude 在您的工作目录中创建和编辑文件而无需提示。当此模式处于活动状态时，状态栏显示 `⏵⏵ accept edits on`。
 
@@ -305,9 +279,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 claude --permission-mode acceptEdits
 ```
 
-<h2 id="analyze-before-you-edit-with-plan-mode">
-  使用 plan mode 在编辑前进行分析
-</h2>
+## 使用 plan mode 在编辑前进行分析
 
 Plan mode 告诉 Claude 研究并提议更改而不进行编辑。Claude 读取文件、运行 shell 命令进行探索并编写计划，但不编辑您的源代码。除了在[绕过权限可用](#skip-all-checks-with-bypasspermissions-mode)的交互式终端会话中，编辑保持阻止状态，直到您批准计划。
 
@@ -325,9 +297,7 @@ claude --permission-mode plan
 
 再次按 `Shift+Tab` 以退出 plan mode 而不批准计划。
 
-<h3 id="review-and-approve-a-plan">
-  审查并批准计划
-</h3>
+### 审查并批准计划
 
 当计划准备好时，Claude 会呈现它并询问如何继续。从该提示中，您可以选择：
 
@@ -341,15 +311,11 @@ claude --permission-mode plan
 
 接受计划也会根据计划为会话提供[生成的标题](/docs/zh-CN/sessions#name-your-sessions)，除非您已经命名了会话。
 
-<h3 id="set-plan-mode-as-the-default">
-  将 plan mode 设置为默认值
-</h3>
+### 将 plan mode 设置为默认值
 
 要使 plan mode 成为项目的终端会话的默认值，请在 `.claude/settings.json` 中将 `defaultMode` 设置为 `plan`，如[以不同的权限模式启动](#start-in-a-different-mode)下的示例所示。[VS Code 扩展](/docs/zh-CN/vs-code)启动的对话不读取项目设置以获取起始权限模式。在那里，改为在您的 VS Code 用户设置中将 `claudeCode.initialPermissionMode` 设置为 `plan`。
 
-<h2 id="eliminate-prompts-with-auto-mode">
-  使用自动模式消除权限提示
-</h2>
+## 使用自动模式消除权限提示
 
 自动模式让 Claude 无需经过常规权限提示即可执行操作。一个独立的分类器模型会在操作运行前对其进行审查，阻止任何超出您请求范围、针对无法识别的基础设施，或看起来受 Claude 读取的恶意内容驱动的操作。显式的 [ask 规则](/docs/zh-CN/permissions#manage-permissions)仍会强制弹出提示。
 
@@ -361,9 +327,9 @@ claude --permission-mode plan
 
 自动模式还会促使 Claude 持续工作，而不停下来提出澄清性问题，不过当您的提示词或某个 skill 明确依赖提问时，Claude 仍会提问。如果希望在仍会向您提示的模式下获得更强的自主行为，请改为设置 [Proactive 输出样式](/docs/zh-CN/output-styles)。
 
-<Warning>
-  自动模式可以减少权限提示，但不能保证安全。请将其用于您信任总体方向的任务，而不是作为敏感操作审查的替代品。
-</Warning>
+> [!WARNING]
+>
+> 自动模式可以减少权限提示，但不能保证安全。请将其用于您信任总体方向的任务，而不是作为敏感操作审查的替代品。
 
 只有当您的账户满足以下所有要求时，才能使用自动模式：
 
@@ -378,9 +344,7 @@ claude --permission-mode plan
 
 如果您在[设置](/docs/zh-CN/settings-reference#all-settings)中设置了 `defaultMode: "auto"`，而终端会话却以 Manual 模式启动且没有报错，那么该设置很可能位于 `.claude/settings.json` 或 `.claude/settings.local.json` 中。`auto` 在这些文件中不会生效。请将其移至 `~/.claude/settings.json`。对于由 VS Code 扩展启动的对话，请改为查看[切换权限模式](#switch-permission-modes)中该扩展自己的列表。
 
-<h3 id="enable-auto-mode-on-bedrock-agent-platform-or-foundry">
-  Bedrock、Agent Platform 或 Foundry 上的自动模式
-</h3>
+### Bedrock、Agent Platform 或 Foundry 上的自动模式
 
 在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai)、[Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 以及已登录的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中，自动模式默认可用。如果您未在这些环境中设置权限模式，交互式会话将以自动模式启动，而 `claude -p` 或 Agent SDK 运行将以 Manual 模式启动，其配置值为 `default`：
 
@@ -391,9 +355,7 @@ claude --permission-mode plan
 
 要阻止开发者使用自动模式，请在[托管设置](/docs/zh-CN/managed-settings)中将 `disableAutoMode` 设置为 `"disable"`。这会将 `auto` 从 `Shift+Tab` 循环中移除，并且使用 `--permission-mode auto` 启动的会话将改为以 Manual 模式启动。当该设置从[管理员部署的来源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)到达一个已在自动模式下运行的会话时，该会话会退出自动模式，并显示 `auto mode disabled by settings`。在 v2.1.251 之前，正在运行的会话会保持自动模式直到会话结束。
 
-<h3 id="server-side-classifier-review">
-  服务器端分类器审查
-</h3>
+### 服务器端分类器审查
 
 在自动模式下，Claude Code 可以在会话的模型请求中请求服务器检查由[决策顺序](#how-the-classifier-evaluates-actions)送交审查的操作，以代替发送其自身的分类器请求。以下会话会请求服务器审查：
 
@@ -408,9 +370,7 @@ claude --permission-mode plan
 
 要跳过请求服务器审查并始终使用 Claude Code 自身的分类器请求，请设置 [`CLAUDE_CODE_AUTO_MODE_SERVER=0`](/docs/zh-CN/env-vars)。在直接连接到 Anthropic API 时，该变量需要 Claude Code v2.1.281 或更高版本。在这种连接上将其设置为 `1`，会在尚未启用服务器审查的会话中启用它，除非您同时设置了 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`。如果您设置了 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 且未设置 `CLAUDE_CODE_AUTO_MODE_SERVER`，Claude Code 也会停止请求服务器审查，[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities)中描述的情况除外。
 
-<h3 id="default-classifier-model">
-  默认分类器模型
-</h3>
+### 默认分类器模型
 
 默认情况下，分类器请求会发送到 Claude Sonnet 5。如果 `/status` 将 `Auto mode server` 显示为 `Enabled`，则仅针对[服务器审查](#server-side-classifier-review)范围之外的调用发送这些请求。
 
@@ -424,9 +384,7 @@ claude --permission-mode plan
 
 如果 Sonnet 5 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的模型无法从您的提供商获得，或被您组织的[模型策略](/docs/zh-CN/model-config#restrict-model-selection)排除，Claude Code 会使用备用模型。该备用模型是您会话的模型，在 [Fable 会话](/docs/zh-CN/model-config#work-with-fable)中则是 Opus 模型。
 
-<h3 id="choose-the-classifier-model">
-  选择分类器模型
-</h3>
+### 选择分类器模型
 
 在 Claude Code v2.1.302 或更高版本中，将 [`CLAUDE_CODE_AUTO_MODE_MODEL`](/docs/zh-CN/env-vars) 设置为完整的模型 ID，即可在[默认模型](#default-classifier-model)以外的模型上运行分类器。您的云提供商自己的完整模型 ID 也可以使用。以下 `~/.claude/settings.json` 示例设置了 Claude Sonnet 4.6：
 
@@ -438,9 +396,7 @@ claude --permission-mode plan
 }
 ```
 
-<h4 id="classifier-model-not-reviewing">
-  当审查的并非您设置的模型时
-</h4>
+#### 当审查的并非您设置的模型时
 
 | 情况 | 会发生什么 | 处理方法 |
 | - | - | - |
@@ -451,9 +407,7 @@ claude --permission-mode plan
 
 如果同时符合多种情况，以最先列出的为准。
 
-<h4 id="classifier-model-check">
-  查看分类器使用了哪个模型
-</h4>
+#### 查看分类器使用了哪个模型
 
 在 shell 中，使用 [`--debug-file`](/docs/zh-CN/cli-reference#cli-flags) 启动一个自动模式会话：
 
@@ -469,9 +423,7 @@ claude --permission-mode auto --debug-file classifier-debug.log
   * **`Enabled`**：[服务器](#server-side-classifier-review)已设置为审查此会话的调用。
   * **`Disabled`**：确保[权限模式](#switch-permission-modes)为 auto，然后让 Claude 再运行一个非只读的命令。
 
-<h3 id="what-the-classifier-blocks-by-default">
-  分类器默认阻止的内容
-</h3>
+### 分类器默认阻止的内容
 
 分类器信任您的工作目录以及会话启动时为其配置的远程仓库。在会话期间通过 `git remote add` 或 `git remote set-url` 添加或重新指向的远程仓库不受信任，其他所有内容都被视为外部内容，直到您[配置受信任的基础设施](/docs/zh-CN/auto-mode-config)。
 
@@ -556,9 +508,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 推送到您正在处理的仓库的任何分支，以及创建与您的请求相符的 Pull Request，都会在无提示的情况下运行，除非该推送或 Pull Request 属于[阻止列表](#what-the-classifier-blocks-by-default)中的情况，例如密钥或敏感数据离开仓库，或 Pull Request 针对的是其他仓库或组织。如果要在保持自动模式的同时，要求在这些命令执行前进行人工确认，请添加 `permissions.ask` 规则，这些规则按[命令的书写形式](/docs/zh-CN/permissions#bash-rule-limits)进行匹配：请参阅[常见边界](/docs/zh-CN/auto-mode-config#common-boundaries)。
 
-<h3 id="first-read-outside-the-working-directories">
-  首次读取工作目录之外的内容
-</h3>
+### 首次读取工作目录之外的内容
 
 当 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 关闭时，在自动模式下，除[从网络路径读取](/docs/zh-CN/permissions#network-paths)之外的文件读取无需提示即可运行，包括读取[工作目录](/docs/zh-CN/permissions#working-directories)之外的内容。当 Claude 首次对工作目录之外的路径使用 Read、Grep 或 Glob 工具时，Claude Code 会询问是否允许该读取。
 
@@ -571,17 +521,13 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 * **否，下次再询问**：读取会被拒绝，下一次读取工作目录之外的内容时会再次提示
 * **是，但下次再询问**：读取会运行，不会保存任何内容，下一次读取工作目录之外的内容时会再次提示
 
-<h3 id="boundaries-you-state-in-conversation">
-  您在对话中声明的边界
-</h3>
+### 您在对话中声明的边界
 
 分类器会将您在对话中声明的边界视为阻止信号。如果您告诉 Claude "不要推送"或"在部署前等我审查"，即使默认规则允许，分类器也会阻止相应的操作。边界会一直有效，直到您在后续消息中解除它。Claude 自己判断某个条件已满足并不能解除边界。
 
 边界不会作为规则存储。分类器在每次检查时都会从会话记录中重新读取这些边界，因此如果[上下文压缩](/docs/zh-CN/costs#reduce-token-usage)移除了声明边界的消息，该边界可能会丢失。如需硬性保证，请改为添加 [deny 规则](/docs/zh-CN/permissions#permission-rule-syntax)。
 
-<h3 id="approvals-you-state-in-conversation">
-  您在对话中声明的批准
-</h3>
+### 您在对话中声明的批准
 
 如果您告诉 Claude 某个被阻止的操作是允许的，分类器会将其视为您的批准，并可以解除阻止。您的措辞决定了该操作是否会运行，以及批准的覆盖范围：
 
@@ -589,9 +535,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 * **预期它仅涵盖一个操作**：批准涵盖您所指明的破坏性操作，因此之后的操作会再次被阻止，除非您授予的是持续性批准。如果不想逐个操作地批准某种常规模式，请将其添加到 [`autoMode.allow`](/docs/zh-CN/auto-mode-config#override-the-block-and-allow-rules)。
 * **有些阻止会保持不变**：[分类器的优先级顺序](/docs/zh-CN/auto-mode-config#override-the-block-and-allow-rules)规定了您的批准可以解除哪些阻止。要运行它不会解除阻止的步骤，请[退出自动模式](#switch-permission-modes)并回应权限提示。
 
-<h3 id="when-auto-mode-falls-back">
-  自动模式回退时
-</h3>
+### 自动模式回退时
 
 当自动模式无法批准您会话中的操作时，具体情况取决于以下场景：
 
@@ -601,9 +545,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 * **服务器未给出裁决**：在[服务器端分类器审查](#server-side-classifier-review)下，Claude Code 会拒绝服务器未给出裁决的操作，并在连续十个响应均无裁决后停止当前轮次。请参阅[服务器未返回安全裁决](/docs/zh-CN/errors#the-server-returned-no-safety-verdict)。
 * **检查期间切换模式**：如果您在分类器检查尚未完成时切换权限模式，Claude Code 会丢弃新模式本不会请求的裁决。此时会改为提示您批准，或者在 [`dontAsk` 模式](#allow-only-pre-approved-tools-with-dontask-mode)下自动拒绝该操作。
 
-<h4 id="repeated-block-thresholds">
-  反复阻止阈值
-</h4>
+#### 反复阻止阈值
 
 连续 3 次阻止和累计 20 次阻止的阈值不可配置。累计计数器在整个会话期间持续存在，仅当其自身的限制触发回退时才会重置。当独立于自动模式的安全检查拒绝了分类器自身的请求时，Claude Code 不会将该拒绝计入任一阈值。
 
@@ -611,77 +553,69 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 反复阻止通常意味着分类器缺少有关您基础设施的上下文。请使用 `/feedback` 报告误报，或请管理员[配置受信任的基础设施](/docs/zh-CN/auto-mode-config)。
 
-<h3 id="how-auto-mode-evaluates-actions">
-  自动模式如何评估操作
-</h3>
+### 自动模式如何评估操作
 
 以下各节介绍 Claude Code 评估操作的顺序、分类器如何审查子代理的工作，以及分类器调用在成本和延迟方面带来的额外开销。
 
-<span id="how-the-classifier-evaluates-actions" />
+> **分类器如何评估操作**
+>
+> 每个操作都会经过固定的决策顺序。第一个匹配的步骤生效：
+>
+> 1. 与您的 [allow、ask 或 deny 规则](/docs/zh-CN/permissions#manage-permissions)匹配的操作会立即得到处理，但以下情况除外：
+>    * 对[受保护路径](#protected-paths)的写入即使匹配了 allow 规则，也会交由分类器处理。当受保护路径是某个符号链接形式的设置文件所指向的文件时，该写入可能会改为提示您，如[受保护路径](#protected-paths)列表所述
+>    * 任何 allow 规则都不会批准针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除操作
+>    * 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使匹配了 allow 规则，也会直接提示您；在[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具上也是如此（在该设置传达到 Claude Code 的会话中）
+>    * 携带[按命令允许的域名](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)的 shell 命令即使匹配了 allow 规则，也会交由分类器处理，因为规则批准的是命令，而不是其主机
+>    * 基于命令内容进行匹配的 ask 规则（例如 `Bash(git push *)`）会回退为权限提示
+>    * 当 Claude 请求的路径本身不受保护，但[符号链接检查](/docs/zh-CN/permissions#symlinks)将写入解析到受保护路径时，会提示您
+>    * 从[网络路径](/docs/zh-CN/permissions#network-paths)读取即使匹配了 allow 规则，也会提示您
+> 2. 工作目录中的只读操作和文件编辑会被自动批准，但对[受保护路径](#protected-paths)的写入以及[首次读取工作目录之外的内容](#first-read-outside-the-working-directories)除外，后者会提示您
+>    * 在启用了[服务器端分类器审查](#server-side-classifier-review)的会话中，只读和[沙箱化](/docs/zh-CN/sandboxing#sandbox-modes)的 shell 命令会等待该审查，如果审查标记了它们，则会被阻止
+>    * 当[符号链接检查](/docs/zh-CN/permissions#symlinks)将工作目录内的写入解析到工作目录之外的位置时，会提示您
+>    * 当 Claude 读取[他人制作的 Artifact](/docs/zh-CN/artifacts#read-an-artifact-shared-with-you) 时，适用该部分列出的批准情况
+>    * 从[网络路径](/docs/zh-CN/permissions#network-paths)读取会提示您
+> 3. 其他所有操作都会交给分类器处理，按默认方式处理的[关键路径删除](#critical-paths)除外。在第 1 步中直接提示您的连接器工具和 `requiresUserInteraction` MCP 工具也永远不会到达分类器，因此组织要求的批准和同意步骤都不会被自动批准
+> 4. 如果分类器阻止了操作，Claude 会收到原因。在大多数会话中，原因会指明分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[查看拒绝记录](/docs/zh-CN/auto-mode-config#review-denials)
+>
+> 您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 也可以批准操作。有关其批准无法越过您的规则和 hook 的情况，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+>
+> 在 VS Code 扩展中，[Claude in Chrome](/docs/zh-CN/chrome) 浏览器操作如何获得批准取决于会话连接到浏览器的方式：请参阅 [VS Code 会话中的权限提示](/docs/zh-CN/chrome#permission-prompts-in-vs-code-sessions)。
+>
+> 进入自动模式时，授予任意代码执行能力的宽泛 allow 规则会被丢弃：
+>
+> * 通配的 `Bash(*)` 或 `PowerShell(*)`
+> * 带通配符的解释器，例如 `Bash(python*)`
+> * 包管理器的 run 命令
+> * `Agent` allow 规则
+> * [`Monitor`](/docs/zh-CN/tools-reference#monitor-tool) allow 规则，因为 Claude Code 通过 shell 运行 Monitor 命令
+>
+> 像 `Bash(npm test)` 这样的窄范围规则会保持有效。当您退出自动模式时，Claude Code 会恢复被丢弃的规则。在 v2.1.236 之前，Claude Code 在自动模式下保留了 `Monitor` allow 规则，因此匹配整个工具的规则会在没有分类器审查的情况下批准 Monitor 命令。
+>
+> 在执行会丢弃未提交工作的命令（例如 `git reset --hard` 或 `rm -rf`）之前，Claude Code 还会自行运行 `git status`，并向分类器显示是否存在已暂存、已修改或未跟踪的工作。即使仓库的 git 配置设置了 `status.showUntrackedFiles=no`，Claude Code 也会在该检查中报告未跟踪的文件。
+>
+> 在 Claude Code 自身发送的分类器请求中，分类器可以看到用户消息、除只读查询（例如文件读取和搜索）以外的工具调用，以及您的 CLAUDE.md 内容。工具结果会从这些请求中剥离，因此文件或网页中的恶意内容无法直接操纵分类器。
+>
+> 您可以使用 [PostToolUse hook 的 `classifierContext` 字段](/docs/zh-CN/hooks#annotate-a-result-for-the-auto-mode-classifier)为调用结果添加注释，分类器会将其作为应用提供的上下文读取。该字段需要 Claude Code v2.1.236 或更高版本。
+>
+> 一个独立的服务器端探测器会扫描传入的工具结果，并在 Claude 读取之前标记可疑内容。有关这些层如何协同工作的更多信息，请参阅[自动模式公告](https://claude.com/blog/auto-mode)和[工程深度解析](https://www.anthropic.com/engineering/claude-code-auto-mode)。
 
-<AccordionGroup>
-  <Accordion title="分类器如何评估操作">
-    每个操作都会经过固定的决策顺序。第一个匹配的步骤生效：
+> **自动模式如何处理子代理**
+>
+> 分类器会在三个时间点检查[子代理](/docs/zh-CN/sub-agents)的工作：
+>
+> 1. 在子代理启动之前，会评估委派的任务描述，因此看起来危险的任务会在生成时被阻止。
+> 2. 在子代理运行期间，它的每个操作都会经过与父会话相同的[决策顺序](#how-the-classifier-evaluates-actions)，并使用相同的阻止和允许规则。子代理 frontmatter 中的任何 `permissionMode` 都会被忽略。
+> 3. 当子代理完成时，分类器会在父级读取报告之前审查其工作和最终报告。当分类器标记了子代理的工作或报告，或者独立的 API 安全检查拒绝了该审查时，报告仍会被送达，但会在前面附加安全警告。当分类器无法进行审查时，报告送达时会附带一条说明，提醒您在据此采取行动之前先核实子代理的工作。
 
-    1. 与您的 [allow、ask 或 deny 规则](/docs/zh-CN/permissions#manage-permissions)匹配的操作会立即得到处理，但以下情况除外：
-       * 对[受保护路径](#protected-paths)的写入即使匹配了 allow 规则，也会交由分类器处理。当受保护路径是某个符号链接形式的设置文件所指向的文件时，该写入可能会改为提示您，如[受保护路径](#protected-paths)列表所述
-       * 任何 allow 规则都不会批准针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除操作
-       * 标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使匹配了 allow 规则，也会直接提示您；在[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具上也是如此（在该设置传达到 Claude Code 的会话中）
-       * 携带[按命令允许的域名](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)的 shell 命令即使匹配了 allow 规则，也会交由分类器处理，因为规则批准的是命令，而不是其主机
-       * 基于命令内容进行匹配的 ask 规则（例如 `Bash(git push *)`）会回退为权限提示
-       * 当 Claude 请求的路径本身不受保护，但[符号链接检查](/docs/zh-CN/permissions#symlinks)将写入解析到受保护路径时，会提示您
-       * 从[网络路径](/docs/zh-CN/permissions#network-paths)读取即使匹配了 allow 规则，也会提示您
-    2. 工作目录中的只读操作和文件编辑会被自动批准，但对[受保护路径](#protected-paths)的写入以及[首次读取工作目录之外的内容](#first-read-outside-the-working-directories)除外，后者会提示您
-       * 在启用了[服务器端分类器审查](#server-side-classifier-review)的会话中，只读和[沙箱化](/docs/zh-CN/sandboxing#sandbox-modes)的 shell 命令会等待该审查，如果审查标记了它们，则会被阻止
-       * 当[符号链接检查](/docs/zh-CN/permissions#symlinks)将工作目录内的写入解析到工作目录之外的位置时，会提示您
-       * 当 Claude 读取[他人制作的 Artifact](/docs/zh-CN/artifacts#read-an-artifact-shared-with-you) 时，适用该部分列出的批准情况
-       * 从[网络路径](/docs/zh-CN/permissions#network-paths)读取会提示您
-    3. 其他所有操作都会交给分类器处理，按默认方式处理的[关键路径删除](#critical-paths)除外。在第 1 步中直接提示您的连接器工具和 `requiresUserInteraction` MCP 工具也永远不会到达分类器，因此组织要求的批准和同意步骤都不会被自动批准
-    4. 如果分类器阻止了操作，Claude 会收到原因。在大多数会话中，原因会指明分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[查看拒绝记录](/docs/zh-CN/auto-mode-config#review-denials)
+> **成本和延迟**
+>
+> Claude Code 的分类器请求可以在您通过 `/model` 选择的模型以外的模型上运行。请参阅[它们在哪个模型上运行](#default-classifier-model)。
+>
+> 在 Enterprise 计划以及使用 Claude API、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 的账户上，分类器调用会计入您的 token 用量。每次检查都会发送部分会话记录以及待执行的操作，从而在执行前增加一次往返。受保护路径之外的读取和工作目录编辑会跳过分类器，因此开销主要来自 shell 命令和网络操作。当服务器在会话的模型请求中审查操作时，不存在需要计算的单独分类器调用；请参阅[服务器端分类器审查](#server-side-classifier-review)。
+>
+> 沙箱化的网络访问不会为每个连接增加分类器请求。分类器会在一次审查中将[命令所指明的主机](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)与命令一起判断，Claude Code 会根据获批的列表检查每个连接，而无需再次调用分类器。
 
-    您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 也可以批准操作。有关其批准无法越过您的规则和 hook 的情况，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
-
-    在 VS Code 扩展中，[Claude in Chrome](/docs/zh-CN/chrome) 浏览器操作如何获得批准取决于会话连接到浏览器的方式：请参阅 [VS Code 会话中的权限提示](/docs/zh-CN/chrome#permission-prompts-in-vs-code-sessions)。
-
-    进入自动模式时，授予任意代码执行能力的宽泛 allow 规则会被丢弃：
-
-    * 通配的 `Bash(*)` 或 `PowerShell(*)`
-    * 带通配符的解释器，例如 `Bash(python*)`
-    * 包管理器的 run 命令
-    * `Agent` allow 规则
-    * [`Monitor`](/docs/zh-CN/tools-reference#monitor-tool) allow 规则，因为 Claude Code 通过 shell 运行 Monitor 命令
-
-    像 `Bash(npm test)` 这样的窄范围规则会保持有效。当您退出自动模式时，Claude Code 会恢复被丢弃的规则。在 v2.1.236 之前，Claude Code 在自动模式下保留了 `Monitor` allow 规则，因此匹配整个工具的规则会在没有分类器审查的情况下批准 Monitor 命令。
-
-    在执行会丢弃未提交工作的命令（例如 `git reset --hard` 或 `rm -rf`）之前，Claude Code 还会自行运行 `git status`，并向分类器显示是否存在已暂存、已修改或未跟踪的工作。即使仓库的 git 配置设置了 `status.showUntrackedFiles=no`，Claude Code 也会在该检查中报告未跟踪的文件。
-
-    在 Claude Code 自身发送的分类器请求中，分类器可以看到用户消息、除只读查询（例如文件读取和搜索）以外的工具调用，以及您的 CLAUDE.md 内容。工具结果会从这些请求中剥离，因此文件或网页中的恶意内容无法直接操纵分类器。
-
-    您可以使用 [PostToolUse hook 的 `classifierContext` 字段](/docs/zh-CN/hooks#annotate-a-result-for-the-auto-mode-classifier)为调用结果添加注释，分类器会将其作为应用提供的上下文读取。该字段需要 Claude Code v2.1.236 或更高版本。
-
-    一个独立的服务器端探测器会扫描传入的工具结果，并在 Claude 读取之前标记可疑内容。有关这些层如何协同工作的更多信息，请参阅[自动模式公告](https://claude.com/blog/auto-mode)和[工程深度解析](https://www.anthropic.com/engineering/claude-code-auto-mode)。
-  </Accordion>
-
-  <Accordion title="自动模式如何处理子代理">
-    分类器会在三个时间点检查[子代理](/docs/zh-CN/sub-agents)的工作：
-
-    1. 在子代理启动之前，会评估委派的任务描述，因此看起来危险的任务会在生成时被阻止。
-    2. 在子代理运行期间，它的每个操作都会经过与父会话相同的[决策顺序](#how-the-classifier-evaluates-actions)，并使用相同的阻止和允许规则。子代理 frontmatter 中的任何 `permissionMode` 都会被忽略。
-    3. 当子代理完成时，分类器会在父级读取报告之前审查其工作和最终报告。当分类器标记了子代理的工作或报告，或者独立的 API 安全检查拒绝了该审查时，报告仍会被送达，但会在前面附加安全警告。当分类器无法进行审查时，报告送达时会附带一条说明，提醒您在据此采取行动之前先核实子代理的工作。
-  </Accordion>
-
-  <Accordion title="成本和延迟">
-    Claude Code 的分类器请求可以在您通过 `/model` 选择的模型以外的模型上运行。请参阅[它们在哪个模型上运行](#default-classifier-model)。
-
-    在 Enterprise 计划以及使用 Claude API、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws)、Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 的账户上，分类器调用会计入您的 token 用量。每次检查都会发送部分会话记录以及待执行的操作，从而在执行前增加一次往返。受保护路径之外的读取和工作目录编辑会跳过分类器，因此开销主要来自 shell 命令和网络操作。当服务器在会话的模型请求中审查操作时，不存在需要计算的单独分类器调用；请参阅[服务器端分类器审查](#server-side-classifier-review)。
-
-    沙箱化的网络访问不会为每个连接增加分类器请求。分类器会在一次审查中将[命令所指明的主机](/docs/zh-CN/sandboxing#per-command-allowed-domains-in-auto-mode)与命令一起判断，Claude Code 会根据获批的列表检查每个连接，而无需再次调用分类器。
-  </Accordion>
-</AccordionGroup>
-
-<h2 id="allow-only-pre-approved-tools-with-dontask-mode">
-  使用 dontAsk 模式仅允许预先批准的工具
-</h2>
+## 使用 dontAsk 模式仅允许预先批准的工具
 
 如果您设置 `dontAsk` 模式，Claude Code 会自动拒绝所有原本会提示您的工具调用，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍然可以批准其中部分调用。要查看 mod 可以批准哪些调用，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
 
@@ -699,9 +633,7 @@ Claude Code 拒绝与您的显式 [`ask` 规则](/docs/zh-CN/permissions#manage-
 claude --permission-mode dontAsk
 ```
 
-<h2 id="skip-all-checks-with-bypasspermissions-mode">
-  使用 bypassPermissions 模式跳过所有检查
-</h2>
+## 使用 bypassPermissions 模式跳过所有检查
 
 `bypassPermissions` 模式禁用权限提示和安全检查，以便工具调用立即执行，包括对[受保护路径](#protected-paths)的写入。
 
@@ -716,9 +648,9 @@ claude --permission-mode dontAsk
 
 在 Claude Code 没有交互式终端运行的任何地方，计划模式都会保留其阻止，包括[非交互式运行](/docs/zh-CN/headless)（带 `-p`）、[Agent SDK](/docs/zh-CN/agent-sdk/permissions#plan-mode-plan) 会话和 [VS Code 扩展](/docs/zh-CN/vs-code)的聊天面板中的对话。在这些环境中，`--allow-dangerously-skip-permissions` 使 `bypassPermissions` 稍后可选。
 
-<Warning>
-  仅在隔离环境（如容器、虚拟机或没有互联网访问的开发容器）中使用此模式，其中 Claude Code 无法损害您的主机系统。
-</Warning>
+> [!WARNING]
+>
+> 仅在隔离环境（如容器、虚拟机或没有互联网访问的开发容器）中使用此模式，其中 Claude Code 无法损害您的主机系统。
 
 您无法从未启用此模式的会话进入 `bypassPermissions`。在启动时使用 [`permissions.defaultMode: "bypassPermissions"`](/docs/zh-CN/settings-reference#permissions-defaultmode) 或使用启用标志启用它：
 
@@ -730,7 +662,7 @@ claude --permission-mode bypassPermissions
 
 Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) 启动的会话中拒绝 `bypassPermissions`。`--restricted` 需要 Claude Code v2.1.248 或更高版本。
 
-<span id="bypass-permissions-acceptance" />第一次使用此模式启动交互式会话时，Claude Code 会显示一个警告对话框，要求您接受对在没有权限检查的情况下执行的操作的责任：
+第一次使用此模式启动交互式会话时，Claude Code 会显示一个警告对话框，要求您接受对在没有权限检查的情况下执行的操作的责任：
 
 * **如果您接受**：Claude Code 在 `~/.claude/settings.json` 中将 `skipDangerousModePermissionPrompt` 设置为 `true`，因此后续会话会跳过对话框。要再次看到对话框，请从该文件中删除该键或将其设置为 `false`。[`skipDangerousModePermissionPrompt` 参考](/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)列出了您或您的组织可以设置它的其他设置文件。
 * **如果您拒绝**：Claude Code 退出。
@@ -752,13 +684,11 @@ Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) �
 
 [云端会话](/docs/zh-CN/claude-code-on-the-web)不遵守来自您的设置文件的 `defaultMode: "bypassPermissions"` 或 `"dontAsk"`，因此仓库中签入的设置无法以绕过权限模式启动云端会话。该设置会被静默忽略，会话改为以模式下拉菜单中显示的权限模式启动。有关云端会话提供哪些模式，请参阅[切换权限模式](#switch-permission-modes)。
 
-<Warning>
-  `bypassPermissions` 不提供针对提示词注入或意外操作的保护。对于权限提示少得多的后台安全检查，请改用[自动模式](#eliminate-prompts-with-auto-mode)。管理员可以通过在[托管设置](/docs/zh-CN/managed-settings)中将 `permissions.disableBypassPermissionsMode` 设置为 `"disable"` 来阻止此模式。
-</Warning>
+> [!WARNING]
+>
+> `bypassPermissions` 不提供针对提示词注入或意外操作的保护。对于权限提示少得多的后台安全检查，请改用[自动模式](#eliminate-prompts-with-auto-mode)。管理员可以通过在[托管设置](/docs/zh-CN/managed-settings)中将 `permissions.disableBypassPermissionsMode` 设置为 `"disable"` 来阻止此模式。
 
-<h2 id="protected-paths">
-  受保护的路径
-</h2>
+## 受保护的路径
 
 对一小组路径的写入永远不会自动批准，唯一的例外是 `bypassPermissions` 模式，以及可使用[绕过权限](#skip-all-checks-with-bypasspermissions-mode)的 plan 模式交互式终端会话。这可以防止意外损坏存储库状态和 Claude 自己的配置。
 
@@ -812,9 +742,7 @@ Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) �
 * `.mcp.json`、`.claude.json`
 * 当您的用户、项目或本地[设置文件](/docs/zh-CN/settings#settings-files-and-who-they-affect)本身是符号链接（例如指向 dotfiles 仓库）时，该设置文件所指向的文件。在将受保护路径写入路由到分类器的模式中，对此文件的写入会改为提示您，即使有允许规则匹配也是如此。如果该文件自身的路径同时也是某个设置文件的路径，例如另一个文件夹中的 `.claude/settings.json`，则该写入会像其他受保护路径写入一样交由分类器处理
 
-<h2 id="critical-paths">
-  关键路径
-</h2>
+## 关键路径
 
 关键路径是 Claude Code 保护的目录，防止 `rm` 和 `rmdir` 命令，例如文件系统根目录、您的主目录和您的工作目录。
 
@@ -822,9 +750,7 @@ Claude Code 永远不会让 [`permissions.allow`](/docs/zh-CN/permissions#manage
 
 会发生什么取决于您的权限模式（[见下文](#critical-path-removals-in-each-permission-mode)）。`Remove-Item` 和 `cmd` 移除内置命令有自己的检查，详见 [PowerShell 中的 Remove-Item](#remove-item-in-powershell)。
 
-<h3 id="which-paths-are-critical">
-  哪些路径是关键路径
-</h3>
+### 哪些路径是关键路径
 
 Claude Code 将 `rm` 或 `rmdir` 目标视为关键路径，当它是以下任何一个时：
 
@@ -839,9 +765,7 @@ Claude Code 将 `rm` 或 `rmdir` 目标视为关键路径，当它是以下任�
 
 对主目录 8.3 短名称以及 `\\?\C:\` 和 `\\localhost\C$` 写法的检查需要 Claude Code v2.1.292 或更高版本。
 
-<h3 id="other-targets-that-count-as-critical-paths">
-  计为关键路径的其他目标
-</h3>
+### 计为关键路径的其他目标
 
 Claude Code 也将以下 `rm` 和 `rmdir` 目标视为关键路径。最后一列说明每个目标为什么计为关键路径。
 
@@ -859,9 +783,7 @@ Claude Code 也将以下 `rm` 和 `rmdir` 目标视为关键路径。最后一�
 
 要关闭仅命令替换输出的目标上的检查，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT=1`](/docs/zh-CN/env-vars#variables)。
 
-<h3 id="removals-inside-nested-commands-and-inline-scripts">
-  嵌套命令和内联脚本中的移除
-</h3>
+### 嵌套命令和内联脚本中的移除
 
 Claude Code 也查看这些构造内部：
 
@@ -872,9 +794,7 @@ Claude Code 也查看这些构造内部：
 
 要关闭对直接写在 `-c` 脚本中的关键路径（如 `~`）的检查，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT=1`](/docs/zh-CN/env-vars#variables)。
 
-<h3 id="rewrite-a-flagged-command">
-  重写被标记的命令
-</h3>
+### 重写被标记的命令
 
 如何重写命令以通过检查取决于它使用的[其他目标](#other-targets-that-count-as-critical-paths)：
 
@@ -885,17 +805,13 @@ Claude Code 也查看这些构造内部：
 
 对于变量下的 glob 或尾部斜杠，提示命名被标记的 `rm` 并说明如何重写它以便检查通过。
 
-<h3 id="the-mounted-drive-prompt">
-  挂载驱动器提示
-</h3>
+### 挂载驱动器提示
 
 在 macOS、Linux 和 WSL 上，当递归 `rm` 的目标是所列的[挂载驱动器路径](#paths-that-get-the-mounted-drive-prompt)（如 `/mnt/c` 或 `/Volumes/USB/build`）时，会出现挂载驱动器提示。其原因显示为 `Dangerous rm operation on mounted drive path: <path>`。`/*` 目标即使没有递归标志也会出现该提示，因为 Claude Code 将 `rm /Volumes/USB/build/*` 视为对 `/Volumes/USB/build` 的移除。
 
 即使存在针对 `rm` 的允许规则，Claude Code 也会将该命令作为[关键路径移除](#critical-paths)处理：[根据您的权限模式](#critical-path-removals-in-each-permission-mode)进行提示或拒绝。批准该提示即可让 `rm` 运行，或者[关闭该提示](#turn-off-the-mounted-drive-prompt)。
 
-<h4 id="paths-that-get-the-mounted-drive-prompt">
-  会出现挂载驱动器提示的路径
-</h4>
+#### 会出现挂载驱动器提示的路径
 
 将递归 `rm` 或 `/*` 移除的目标与以下路径形式进行匹配，其中每个占位符（如 `<drive>` 或 `<name>`）恰好代表一个路径段：
 
@@ -911,9 +827,7 @@ Claude Code 也查看这些构造内部：
 
 相对目标从您的工作目录开始计算，因此当您在 `/Volumes/USB` 中工作时，`rm -rf build` 的目标是 `/Volumes/USB/build`，会出现该提示。
 
-<h4 id="turn-off-the-mounted-drive-prompt">
-  关闭挂载驱动器提示
-</h4>
+#### 关闭挂载驱动器提示
 
 要停止出现挂载驱动器提示，同时保留[其他原因引起的提示](#removals-that-still-prompt-with-the-mounted-drive-prompt-off)，请在环境中设置 [`CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT=1`](/docs/zh-CN/env-vars#variables) 后启动 Claude Code。例如，在[您的 shell](/docs/zh-CN/env-vars#set-variables-in-your-shell) 中设置该变量，然后从中启动 `claude`：
 
@@ -929,9 +843,7 @@ claude
 * **变量位于设置文件中**：无论哪种设置文件，Claude Code 都会[忽略设置文件 `env` 块中的该变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)，因此请改为在启动 `claude` 的位置设置该变量
 * **会话启动时没有该变量**：请从已设置该变量的环境中重新启动 `claude`，因为正在运行的会话不会读取它
 
-<h4 id="removals-that-still-prompt-with-the-mounted-drive-prompt-off">
-  关闭挂载驱动器提示后仍会提示的移除
-</h4>
+#### 关闭挂载驱动器提示后仍会提示的移除
 
 在 Manual 模式下且存在针对 `rm` 的允许规则时，对挂载驱动器路径的 `rm` 仍可能提示，但原因不是 `Dangerous rm operation on mounted drive path`：
 
@@ -939,9 +851,7 @@ claude
 * **目标包含 `*`**：`rm -rf build/*` 会提示。批准该提示即可运行命令，或者让 Claude 不使用 `*` 逐一指明每个目标
 * **目标是关键路径**：`/mnt` 本身和您的工作目录本身仍然是[关键路径](#which-paths-are-critical)，因此对其中任一执行 `rm -rf` 都会提示。批准该提示即可让 `rm` 运行
 
-<h3 id="critical-path-removals-in-each-permission-mode">
-  每个权限模式中的关键路径移除
-</h3>
+### 每个权限模式中的关键路径移除
 
 Claude Code 对关键路径移除的处理取决于您的权限模式：
 
@@ -955,9 +865,7 @@ Claude Code 对关键路径移除的处理取决于您的权限模式：
 
 如果显式[询问规则](/docs/zh-CN/permissions#manage-permissions)与命令匹配，Claude Code 即使在 `auto` 模式下也会询问您，且没有时间限制。在询问的模式中，[`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest) 可以回答提示。
 
-<h3 id="time-limits-and-denials-in-auto-and-bypasspermissions-modes">
-  auto 和 bypassPermissions 模式中的时间限制和拒绝
-</h3>
+### auto 和 bypassPermissions 模式中的时间限制和拒绝
 
 在 `auto` 和 `bypassPermissions` 模式下，关键路径移除的终端提示显示两分钟倒计时：
 
@@ -969,9 +877,7 @@ Claude Code 对关键路径移除的处理取决于您的权限模式：
 
 `auto` 和 `bypassPermissions` 处理需要 Claude Code v2.1.281 或更高版本。要关闭它，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT=1`](/docs/zh-CN/env-vars#variables)。在 `auto` 模式下，关键路径移除随后转到分类器，在 `bypassPermissions` 模式下提示没有时间限制。
 
-<h3 id="remove-item-in-powershell">
-  PowerShell 中的 Remove-Item
-</h3>
+### PowerShell 中的 Remove-Item
 
 当您启用 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)时，Claude Code 给 `Remove-Item` 和 `cmd` 内置命令 `rd`、`rmdir`、`del` 和 `erase` 自己的检查，与 `rm` 关键路径列表分开。对于 `Remove-Item`，结果取决于目标，第一个匹配的情况适用：
 
@@ -985,9 +891,7 @@ Claude Code 对关键路径移除的处理取决于您的权限模式：
 
 要关闭 `cmd` 检查，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY=1`](/docs/zh-CN/env-vars#variables)。Claude Code 在设置文件的 `env` 块中忽略此变量。系统路径上的 `Remove-Item` 无论如何都保持被拒绝。
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 * [权限](/docs/zh-CN/permissions)：允许、询问和拒绝规则；托管策略
 * [配置自动模式](/docs/zh-CN/auto-mode-config)：告诉分类器您的组织信任哪些基础设施

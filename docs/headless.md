@@ -16,9 +16,7 @@ claude -p "Find and fix the bug in auth.py" --allowedTools "Read,Edit,Bash"
 
 本页面涵盖通过 CLI (`claude -p`) 使用 Agent SDK。对于具有结构化输出、工具批准回调和原生消息对象的 Python 和 TypeScript SDK 包，请参阅 [完整 Agent SDK 文档](/docs/zh-CN/agent-sdk/overview)。
 
-<h2 id="basic-usage">
-  基本用法
-</h2>
+## 基本用法
 
 在任何 `claude` 命令中添加 `-p`（或 `--print`）标志以非交互方式运行它。并非每个 [CLI 选项](/docs/zh-CN/cli-reference) 都能与 `-p` 组合使用。Claude Code 会拒绝 `--bg`，也会拒绝带有任务描述的 `--cloud`，并报错说明冲突；而 `--cloud` 与会话 ID 和 `-p` 一起使用时，会 [将消息排队到该云端会话](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli) 并退出。经常与 `-p` 结合使用的选项包括：
 
@@ -34,9 +32,7 @@ claude -p "What does the auth module do?"
 
 Claude Code 在成功时以代码 0 退出，在运行失败时以非零代码退出，因此您的脚本可以根据退出状态进行分支。如果您传递无效标志，Claude Code 会在运行开始前向 stderr 报告错误。当运行内部发生故障（例如缺少身份验证）时，Claude Code 会将故障作为结果打印到 stdout。
 
-<h3 id="start-faster-with-bare-mode">
-  使用 bare 模式更快启动
-</h3>
+### 使用 bare 模式更快启动
 
 添加 `--bare` 可以跳过 hook、skill、自定义命令、[子代理](/docs/zh-CN/sub-agents)、已安装的插件、MCP 服务器、自动记忆和 CLAUDE.md 的自动发现，从而减少启动时间。如果不使用它，`claude -p` 会像交互式会话一样发现并加载这些内容，包括在工作目录或 `~/.claude` 中配置的任何内容。
 
@@ -70,13 +66,11 @@ bare 模式还会限制会话运行期间发生的事情：
 
 在 v2.1.286 之前，这些限制只部分生效：交互式 `--bare` 会话会连接普通会话会连接的 MCP 服务器，每个 `--bare` 会话都会发送系统提醒，并且后台任务仍然可用。
 
-<Note>
-  `--bare` 是脚本和 SDK 调用的推荐模式，将在未来版本中成为 `-p` 的默认值。
-</Note>
+> [!NOTE]
+>
+> `--bare` 是脚本和 SDK 调用的推荐模式，将在未来版本中成为 `-p` 的默认值。
 
-<h3 id="background-tasks-at-exit">
-  退出时的后台任务
-</h3>
+### 退出时的后台任务
 
 在 Claude 完成其轮次且 stdin 关闭后，`claude -p` 运行可以保持打开状态，以等待 Claude 启动的后台工作。
 
@@ -95,9 +89,7 @@ bare 模式还会限制会话运行期间发生的事情：
 
 当后台工作启动新的轮次时，使用默认的 `text` 输出时运行会打印每一轮的结果，使用 `json` 输出时则打印最后一轮的结果。在 v2.1.295 之前，使用 `text` 输出时运行也只打印最后一轮的结果。
 
-<h3 id="stop-a-run-with-sigterm">
-  使用 SIGTERM 停止运行
-</h3>
+### 使用 SIGTERM 停止运行
 
 如果您使用 SIGTERM 停止 `claude -p` 运行（例如使用 `kill` 或通过进程监督程序），Claude Code 会以代码 143 退出。Claude Code 会让正在进行的轮次保持未完成状态，并且不为其记录任何结果。如果要结束该轮次，请在停止进程之前发送 SIGINT，或调用 Agent SDK 的 `interrupt()`。
 
@@ -108,21 +100,15 @@ bare 模式还会限制会话运行期间发生的事情：
 
 当您 [恢复会话](#continue-conversations) 时，Claude Code 会保留被中断的轮次原样，由您的下一个提示词推动对话。如果希望 Claude Code 在恢复时继续被中断的轮次，请设置 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN=1`](/docs/zh-CN/env-vars)。
 
-<h3 id="if-the-working-directory-is-deleted">
-  如果工作目录被删除
-</h3>
+### 如果工作目录被删除
 
 如果 `claude -p` 或 Agent SDK 会话的工作目录在会话进行中被删除，会话会继续运行。当某个轮次在目录缺失时开始，Claude Code 会在 `stream-json` 输出中发出 [警告消息](/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage)，并且 shell 命令会失败，直到该目录重新存在。
 
-<h2 id="examples">
-  示例
-</h2>
+## 示例
 
 这些示例突出了常见的 CLI 模式。对于命名文件（如 `auth.py` 或 `build-error.txt`）的命令，请替换为您自己项目中的文件。在 CI 或其他脚本环境中，添加 [`--bare`](#start-faster-with-bare-mode)，以便 Claude Code 启动时不加载主机的 hook、插件、自动记忆或 `CLAUDE.md`。
 
-<h3 id="pipe-data-through-claude">
-  通过 Claude 管道传输数据
-</h3>
+### 通过 Claude 管道传输数据
 
 非交互模式读取 stdin，因此您可以像任何其他命令行工具一样管道传输数据并重定向响应。
 
@@ -134,15 +120,13 @@ cat build-error.txt | claude -p 'concisely explain the root cause of this build 
 
 使用 `--output-format json` 时，响应的 JSON 数据包括 `total_cost_usd` 和按模型的成本分解，因此脚本调用者可以跟踪支出而无需查询 [使用情况仪表板](/docs/zh-CN/costs)。当您使用 `--continue` 或 `--resume` 继续较早的对话时，运行报告对话的整体总计，[包括较早运行的支出](/docs/zh-CN/agent-sdk/cost-tracking#accumulate-costs-across-multiple-calls)。两个数字都是 [客户端估计](/docs/zh-CN/agent-sdk/cost-tracking)，可能与您的实际账单不同。
 
-<Note>
-  管道 stdin 的上限为 10MB。如果超过上限，Claude Code 会以清晰的错误和非零状态退出。要处理更大的输入，请将内容写入文件并在提示词中引用文件路径，而不是管道传输它。
-</Note>
+> [!NOTE]
+>
+> 管道 stdin 的上限为 10MB。如果超过上限，Claude Code 会以清晰的错误和非零状态退出。要处理更大的输入，请将内容写入文件并在提示词中引用文件路径，而不是管道传输它。
 
 如果 Claude Code 无法读取 stdin，例如因为启动它的进程断开了其端点，Claude Code 会向 stderr 打印警告并继续使用命令行中的提示词。
 
-<h3 id="add-claude-to-a-build-script">
-  将 Claude 添加到构建脚本
-</h3>
+### 将 Claude 添加到构建脚本
 
 您可以在脚本中包装非交互调用，以将 Claude 用作项目特定的 linter 或审查者。
 
@@ -158,9 +142,7 @@ cat build-error.txt | claude -p 'concisely explain the root cause of this build 
 
 使用 `npm run lint:claude` 运行它。
 
-<h3 id="get-structured-output">
-  获取结构化输出
-</h3>
+### 获取结构化输出
 
 使用 `--output-format` 控制响应的返回方式：
 
@@ -186,24 +168,22 @@ claude -p "Extract the main function names from auth.py" \
 
 如果该值不是有效的 JSON Schema，`claude` 会以 `Error: --json-schema is not a valid JSON Schema` 退出，后跟验证器的诊断。Claude Code 接受使用 `format` 关键字的 schema，例如 `"format": "email"`，但将 `format` 视为注释，不强制执行它。
 
-<Tip>
-  使用 [jq](https://jqlang.org/) 之类的工具来解析响应并提取特定字段：
+> [!TIP]
+>
+> 使用 [jq](https://jqlang.org/) 之类的工具来解析响应并提取特定字段：
+>
+> ```bash theme={null}
+> # Extract the text result
+> claude -p "Summarize this project" --output-format json | jq -r '.result'
+>
+> # Extract structured output
+> claude -p "Extract function names from auth.py" \
+>   --output-format json \
+>   --json-schema '{"type":"object","properties":{"functions":{"type":"array","items":{"type":"string"}}},"required":["functions"]}' \
+>   | jq '.structured_output'
+> ```
 
-  ```bash theme={null}
-  # Extract the text result
-  claude -p "Summarize this project" --output-format json | jq -r '.result'
-
-  # Extract structured output
-  claude -p "Extract function names from auth.py" \
-    --output-format json \
-    --json-schema '{"type":"object","properties":{"functions":{"type":"array","items":{"type":"string"}}},"required":["functions"]}' \
-    | jq '.structured_output'
-  ```
-</Tip>
-
-<h3 id="stream-responses">
-  流式传输响应
-</h3>
+### 流式传输响应
 
 使用 `--output-format stream-json` 与 `--verbose` 和 `--include-partial-messages` 来接收生成的 token。每一行都是代表一个事件的 JSON 对象：
 
@@ -224,9 +204,7 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
 
 对于具有回调和消息对象的编程流式传输，请参阅 Agent SDK 文档中的 [实时流式传输响应](/docs/zh-CN/agent-sdk/streaming-output)。
 
-<h4 id="follow-subagent-messages">
-  跟踪子代理消息
-</h4>
+#### 跟踪子代理消息
 
 来自[子代理](/docs/zh-CN/sub-agents)以及[在子代理中运行](/docs/zh-CN/skills#run-skills-in-a-subagent)的 skill 的消息在流中显示为 `assistant` 和 `user` 消息。其 `parent_tool_use_id` 字段表明每条消息属于哪次运行。来自主对话的消息在该字段中为 `null`。
 
@@ -254,9 +232,7 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
 * **forked skill 生成的子代理的消息，以及在子代理或另一个 forked skill 内启动的 forked skill 的消息**：v2.1.275 或更高版本
 * **通过将 `/<skill-name>` 作为提示词传递而启动的 forked skill 的消息**：v2.1.287 或更高版本
 
-<h4 id="handle-api-retries">
-  处理 API 重试
-</h4>
+#### 处理 API 重试
 
 当 API 请求因可重试错误而失败时，Claude Code 在重试前发出 `system/api_retry` 事件。在 v2.1.246 或更高版本上，当 `401` 或 `403` 拒绝 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper) 凭据时，Claude Code 会静默进行前两次重试，没有事件，然后从第三次连续重试开始照常发出事件。静默重试仍然计入 `attempt`。您可以使用该事件在您自己的界面中显示重试进度。
 
@@ -273,9 +249,7 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
 | `uuid` | 字符串 | 唯一事件标识符 |
 | `session_id` | 字符串 | 事件所属的会话 |
 
-<h4 id="read-session-metadata">
-  读取会话元数据
-</h4>
+#### 读取会话元数据
 
 `system/init` 事件报告会话元数据，包括模型、工具、MCP 服务器和加载的插件。它是流中的第一个事件，除非启动事件在其之前：
 
@@ -284,9 +258,7 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
 
 该事件还携带一个可选的 `capabilities` 字符串数组，命名此 Claude Code 版本实现的协议行为，例如 `interrupt_receipt_v1` 或 `interrupt_cancel_queued_v1`。检查它以进行功能检测，而不是比较版本字符串，并忽略您不认识的值。有关功能列表，请参阅 [`SDKSystemMessage`](/docs/zh-CN/agent-sdk/typescript#sdksystemmessage)。
 
-<h4 id="fail-ci-when-a-plugin-or-mcp-server-doesn’t-load">
-  当插件或 MCP 服务器未加载时使 CI 失败
-</h4>
+#### 当插件或 MCP 服务器未加载时使 CI 失败
 
 使用 `system/init` 事件中的插件字段来捕获未加载的插件：
 
@@ -308,9 +280,7 @@ Claude Code 在启动时验证每个 `--mcp-config` 条目并跳过验证失败�
 
 当您在终端中手动运行命令时，Claude Code 也会向 stderr 打印启动警告，例如 `Warning: 1 MCP server skipped due to invalid config:`，后跟每个跳过条目的原因。当您重定向 stderr 或当 CI 运行器或 SDK 主机等程序捕获它时，Claude Code 不打印警告，仅在 `mcp_server_errors` 字段中报告跳过的条目。警告需要 Claude Code v2.1.219 或更高版本。
 
-<h4 id="track-plugin-installs">
-  跟踪插件安装
-</h4>
+#### 跟踪插件安装
 
 当设置了 [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](/docs/zh-CN/env-vars) 时，Claude Code 在第一轮之前安装市场插件时发出 `system/plugin_install` 事件。使用这些事件在您自己的 UI 中显示安装进度。
 
@@ -324,9 +294,7 @@ Claude Code 在启动时验证每个 `--mcp-config` 条目并跳过验证失败�
 | `uuid` | 字符串 | 唯一事件标识符 |
 | `session_id` | 字符串 | 事件所属的会话 |
 
-<h3 id="auto-approve-tools">
-  自动批准工具
-</h3>
+### 自动批准工具
 
 使用 `--allowedTools` 让 Claude 使用某些工具而无需提示。列出 `Read` 和 `Edit` 让 Claude 读取和编辑文件而无需请求权限，但从 [网络路径](/docs/zh-CN/permissions#network-paths) 读取除外。列出 `Bash` 对 shell 命令执行相同操作，但在 [自动模式](/docs/zh-CN/permission-modes#how-auto-mode-evaluates-actions) 中启动的运行除外，此时 Claude Code 会将裸 `Bash` 条目作为宽泛的允许规则丢弃，改由自动模式评估每个命令。此示例运行测试套件并修复失败，列出了这三个工具：
 
@@ -351,9 +319,7 @@ claude -p "Run the test suite and fix any failures" \
 claude -p "Apply the lint fixes" --permission-mode acceptEdits
 ```
 
-<h3 id="turn-off-permission-prompts-in-unattended-runs">
-  在无人值守运行中关闭权限提示
-</h3>
+### 在无人值守运行中关闭权限提示
 
 当没有人可用来回答权限提示时，传递 `--permission-prompts none`，例如在计划的作业中。当您的运行有权限主机时，该标志最重要：具有 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/user-input) 的 Agent SDK 应用，或您使用 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 传递的 MCP 工具。没有该标志，您的运行会等待该主机回答每个权限请求。
 
@@ -369,13 +335,11 @@ claude -p "Update the dependency pins and run the tests" --permission-mode auto 
 
 使用 `--output-format stream-json`，拒绝显示为 `permission_denied` 系统消息，最终结果消息在 `permission_denials` 中列出它们。
 
-<Note>
-  `--permission-prompts` 标志需要 Claude Code v2.1.259 或更高版本。早期版本以未知选项错误拒绝它。
-</Note>
+> [!NOTE]
+>
+> `--permission-prompts` 标志需要 Claude Code v2.1.259 或更高版本。早期版本以未知选项错误拒绝它。
 
-<h3 id="create-a-commit">
-  创建提交
-</h3>
+### 创建提交
 
 此示例审查暂存的更改并创建具有适当提交信息的提交：
 
@@ -386,19 +350,17 @@ claude -p "Look at my staged changes and create an appropriate commit" \
 
 `--allowedTools` 标志使用 [权限规则语法](/docs/zh-CN/settings-reference#permission-rule-syntax)。尾部的 ` *` 启用前缀匹配，因此 `Bash(git diff *)` 允许任何以 `git diff` 开头的命令。`*` 之前的空格很重要：没有它，`Bash(git diff*)` 也会匹配 `git diff-index`。
 
-<Note>
-  命令支持在 `-p` 模式下有所不同：
+> [!NOTE]
+>
+> 命令支持在 `-p` 模式下有所不同：
+>
+> * 用户调用的 [skill](/docs/zh-CN/skills) 和自定义命令可以使用。在提示词字符串中包含 `/skill-name`，Claude Code 会在运行前展开它。
+> * 仅在终端界面中运行的内置命令，例如 `/login`，不可用。
+> * `/model`、`/effort`、`/fast`、`/color` 和 `/rename` 接受该值作为参数，例如 `/model sonnet`，`/mcp` 不带参数时打印服务器状态的文本摘要。这些形式遵循每个命令的 [可用性说明](/docs/zh-CN/commands#all-commands)。
+> * 要更改设置，请将 `key=value` 传递给 `/config`，例如 `/config thinking=false`。
+> * `/output-style <style>` 切换 [输出样式](/docs/zh-CN/output-styles)，单独使用 `/output-style` 会列出它们。需要 Claude Code v2.1.269 或更高版本。
 
-  * 用户调用的 [skill](/docs/zh-CN/skills) 和自定义命令可以使用。在提示词字符串中包含 `/skill-name`，Claude Code 会在运行前展开它。
-  * 仅在终端界面中运行的内置命令，例如 `/login`，不可用。
-  * `/model`、`/effort`、`/fast`、`/color` 和 `/rename` 接受该值作为参数，例如 `/model sonnet`，`/mcp` 不带参数时打印服务器状态的文本摘要。这些形式遵循每个命令的 [可用性说明](/docs/zh-CN/commands#all-commands)。
-  * 要更改设置，请将 `key=value` 传递给 `/config`，例如 `/config thinking=false`。
-  * `/output-style <style>` 切换 [输出样式](/docs/zh-CN/output-styles)，单独使用 `/output-style` 会列出它们。需要 Claude Code v2.1.269 或更高版本。
-</Note>
-
-<h3 id="customize-the-system-prompt">
-  自定义系统提示词
-</h3>
+### 自定义系统提示词
 
 使用 `--append-system-prompt` 添加指令同时保持 Claude Code 的默认行为。此示例将 PR diff 传递给 Claude 并指示它审查安全漏洞。将其保存为 shell 脚本，例如 `review.sh`：
 
@@ -412,9 +374,7 @@ gh pr diff "$1" | claude -p \
 
 有关更多选项（包括用于完全替换默认提示词的 `--system-prompt`），请参阅 [系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags)。如果替换默认提示词，运行启动时也不会包含 [git 状态快照](/docs/zh-CN/settings-reference#includegitinstructions)。
 
-<h3 id="continue-conversations">
-  继续对话
-</h3>
+### 继续对话
 
 使用 `--continue` 继续最近的对话，或使用 `--resume` 与会话 ID 继续特定对话。在 Claude Code v2.1.257 或更高版本上，当您传递 `--continue` 时，Claude Code 会打开已完成的 [后台会话](/docs/zh-CN/sessions#where-the-session-picker-looks)，但不会打开仍在运行的后台会话。此示例运行审查，然后发送后续提示词：
 
@@ -438,9 +398,7 @@ claude -p "Continue that review" --resume "$session_id"
 
 您可以向 `--resume` 传递会话的 `.jsonl` [会话记录文件](/docs/zh-CN/sessions#where-transcripts-are-stored) 的绝对路径来代替会话 ID，Claude Code 会继续存储在该文件中的对话。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [Agent SDK 快速入门](/docs/zh-CN/agent-sdk/quickstart)：使用 Python 或 TypeScript 构建您的第一个 agent
 * [CLI 参考](/docs/zh-CN/cli-reference)：所有 CLI 标志和选项

@@ -10,9 +10,7 @@
 
 默认情况下，Claude 应用网关通过一个共享的上游凭证转发所有推理，因此你的提供商的账单将所有内容归属于该凭证，而不是单个开发者。在 Amazon Bedrock 上，[按开发者的 AWS 成本归属](/docs/zh-CN/claude-apps-gateway-config#per-developer-aws-cost-attribution) 改变了这一点。没有按开发者的限制，一个失控的代理群可能会花费组织的整个承诺。支出限制是网关在该共享账单之上的按开发者视图和断路器。
 
-<h2 id="set-a-cap">
-  设置上限
-</h2>
+## 设置上限
 
 配置了 [`admin:`](/docs/zh-CN/claude-apps-gateway-config#admin) 块在 `gateway.yaml` 中后，网关在 `/v1/organizations/spend_limits` 处提供一个 admin API，并在每个推理请求上实时执行上限。上限本身通过该 API 设置，而不是在 `gateway.yaml` 中；每个 `POST /v1/organizations/spend_limits` 请求从 `{scope, amount, period}` 创建或替换一个上限。该 API 镜像了 Anthropic 的公共 [Admin API](https://platform.claude.com/docs/en/manage-claude/admin-api) 支出限制端点的线路形状，因此针对该契约编写的 HTTP 客户端可以通过更改其基础 URL 来针对网关。
 
@@ -42,18 +40,14 @@ curl -sS https://claude-gateway.internal.example.com/v1/organizations/spend_limi
 
 组或组织上限是每个成员继承的按座位默认值，而不是共享池。每个时期，开发者的有效上限按以下顺序解决：按用户覆盖，然后是其组上限中最严格的，然后是组织默认值，然后是无限制。[`admin.group_limit_mode: max`](/docs/zh-CN/claude-apps-gateway-config#admin) 将多组平局打破翻转为最不严格的。
 
-<h3 id="authenticate-to-the-admin-api">
-  向 admin API 进行身份验证
-</h3>
+### 向 admin API 进行身份验证
 
 发送以下之一：
 
 * 一个 `x-api-key` 标头，匹配 [`admin.write_keys`](/docs/zh-CN/claude-apps-gateway-config#admin) 中的一个密钥以获得完全访问权限，或 `admin.read_keys` 以获得仅 `GET` 访问权限。每个密钥都有一个 `id`，在审计日志中显示为 `admin-key:<id>`，因此为 Terraform、CI 和每个自动化提供自己的密钥。
 * 一个网关承载令牌，其 `groups` 声明包括 [`admin.admin_groups`](/docs/zh-CN/claude-apps-gateway-config#admin) 中的一个。这是完全访问权限，审计为 `oidc:<sub>`，因此对人类管理员更好。
 
-<h2 id="how-enforcement-works">
-  执行如何工作
-</h2>
+## 执行如何工作
 
 在每个 `/v1/messages` 请求上，网关在一个 Postgres 查询中查找开发者的上限和期间至今的支出。超过任何上限的开发者会获得 `429` 和 `error.type: billing_error` 以及标头 `x-should-retry: false`。
 
@@ -63,9 +57,7 @@ curl -sS https://claude-gateway.internal.example.com/v1/organizations/spend_limi
 
 上限在 UTC 日历边界重置：每天在 00:00 UTC、周一和每月的第一天。网关从不阻止 `/v1/messages/count_tokens`，因为令牌计数是免费的。
 
-<h3 id="how-requests-are-priced">
-  请求如何定价
-</h3>
+### 请求如何定价
 
 在每个响应之后，使用计量器读取令牌计数并将成本添加到每日、每周和每月计数器。它从不接触发送给客户端的字节，因此计量失败无法破坏响应。这些金额是美元估计值，是断路器而不是发票；对于计费，请根据你的提供商的使用报告进行协调。
 
@@ -80,17 +72,13 @@ curl -sS https://claude-gateway.internal.example.com/v1/organizations/spend_limi
 
 客户端中止也被计费。当流在没有上游最终使用帧的情况下结束时，计量器为已发送给客户端的文本计费约每输出令牌四个字符的下限估计，因此提前中止请求不会规避上限。
 
-<h3 id="postgres-availability">
-  Postgres 可用性
-</h3>
+### Postgres 可用性
 
 预检查使用两秒超时查询 Postgres。如果存储无法访问或超时，执行默认情况下失败打开：请求继续，网关记录警告，响应不包含 `anthropic-ratelimit-unified-*` 标头。设置 [`enforcement.fail_closed_on_error: true`](/docs/zh-CN/claude-apps-gateway-config#enforcement) 改为失败关闭，它返回相同的 `429 billing_error`，但消息为 `spend limit unavailable`，没有期间、重置时间或 `retry-after` 标头。失败打开防止存储中断成为推理中断；失败关闭保证没有无计量支出。
 
 失败打开仅在你的负载均衡器或编排器仍然将流量路由到网关时有帮助。有关 `store.readiness_grace_seconds` 的信息，请参阅 [Outage behavior](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)，它使副本在短暂中断期间通过其就绪检查。
 
-<h3 id="usage-warnings-in-claude-code">
-  Claude Code 中的使用警告
-</h3>
+### Claude Code 中的使用警告
 
 Claude Code 在开发者接近其上限时向其发出警告：一旦利用率超过 75% 时警告一次，超过其消耗最多的上限的 95% 时再次警告。当网关阻止请求时，Claude Code 按原样显示网关的 `429` 消息，包括您的 `admin.blocked_message`。它还会在 `/usage` 中显示该上限，并将其传递给开发者的[状态栏](/docs/zh-CN/statusline#spend-limit-fields)脚本。
 
@@ -106,9 +94,7 @@ Claude Code 在开发者接近其上限时向其发出警告：一旦利用率�
 
 开发者看到的支出是网关自身的[估计值](#how-requests-are-priced)，即网关用于执行上限的同一数值，而不是来自您的提供商账单的金额。Claude Code 通过向网关发送单独的请求来读取美元金额。如果您按照 [Compliance posture](/docs/zh-CN/claude-apps-gateway-deploy#compliance-posture) 的建议在开发者的机器上设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`，Claude Code 会跳过该请求。设置了该变量时，或者网关服务器版本早于 v2.1.284 时，该栏和状态栏仅显示百分比。
 
-<h2 id="admin-api-reference">
-  Admin API 参考
-</h2>
+## Admin API 参考
 
 下面的端点在 `/v1/organizations/spend_limits` 下提供。
 
@@ -133,9 +119,7 @@ Claude Code 在开发者接近其上限时向其发出警告：一旦利用率�
 
 网关仅提供支出限制端点。其他 Admin API 表面，例如 `spend_limit_increase_requests` 队列，不是网关 Admin API 的一部分。
 
-<h3 id="/effective">
-  `/effective`
-</h3>
+### `/effective`
 
 `GET /v1/organizations/spend_limits/effective` 返回 Anthropic 的 `SpendSummary` 模式：每行是一个主体的一个时期，具有已解决的上限、期间至今的支出和一个 `actor` 对象。网关特定的差异：
 
@@ -154,25 +138,19 @@ Claude Code 在开发者接近其上限时向其发出警告：一旦利用率�
 | `q` | 对 OIDC `sub`、最后看到的电子邮件和最后看到的显示名称的不区分大小写的子字符串过滤。 |
 | `limit` / `page` | 页面大小（1–1000，默认 20）和前一个响应的 `next_page` 中的不透明游标。 |
 
-<Warning>
-  `q=` 和 `user_ids[]=` 乘坐 GET 查询字符串，因此任何前置代理或负载均衡器在其访问日志中捕获它们。如果你的 PII 日志策略很严格，请在那里清理这些参数。
-</Warning>
+> [!WARNING]
+>
+> `q=` 和 `user_ids[]=` 乘坐 GET 查询字符串，因此任何前置代理或负载均衡器在其访问日志中捕获它们。如果你的 PII 日志策略很严格，请在那里清理这些参数。
 
-<h3 id="/audit">
-  `/audit`
-</h3>
+### `/audit`
 
 返回支出限制变更跟踪：谁更改了哪个上限，具有前/后快照，最新优先。`has_more` 是精确的。此端点遵循本地 Admin API 约定，而不是第一方线路形状。
 
-<h3 id="pagination">
-  分页
-</h3>
+### 分页
 
 原始列表按 `after_id` 和 `before_id` 分页，它们是互斥的 `spl_…` ID；结果按创建排序，`has_more` 反映遍历方向。`/effective` 按传回的不透明 `next_page` 令牌分页为 `?page=`，主体按升序排序，因此在记录支出时页面保持稳定。`limit` 在两者上都是 1–1000，默认 20，在 `/audit` 上按 `after_id`（前一页上最后一个事件的数字 `id`）分页，其 `limit` 默认为 100。
 
-<h2 id="data-lifecycle">
-  数据生命周期
-</h2>
+## 数据生命周期
 
 网关保持四个支出相关的表；每小时扫描执行保留窗口：
 
@@ -185,9 +163,7 @@ Claude Code 在开发者接近其上限时向其发出警告：一旦利用率�
 
 当开发者离开时，通过 `DELETE /v1/organizations/spend_limits/{id}` 删除任何按用户上限；他们的支出和身份行按上面的保留窗口老化。要立即擦除一个人，用于离职或数据主体访问请求 (DSAR)，直接针对网关数据库运行 `DELETE FROM principal_emails WHERE principal = '<sub>'`。这删除了唯一保存其电子邮件、名称和组的表。`spend` 和 `admin_audit` 行仅引用伪匿名 OIDC `sub`，并按其自己的窗口老化。
 
-<h2 id="related">
-  相关
-</h2>
+## 相关
 
 * [`admin` 和 `enforcement` 配置](/docs/zh-CN/claude-apps-gateway-config#admin)：启用 admin API 和调整保留
 * [部署指南](/docs/zh-CN/claude-apps-gateway-deploy#postgres)：Postgres 模式和备份指导

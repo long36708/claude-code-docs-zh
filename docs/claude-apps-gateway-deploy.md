@@ -6,13 +6,13 @@
 
 > 向身份提供商注册网关，构建容器，在 Kubernetes 或 Cloud Run 上部署，并运维它：健康检查、密钥轮换、升级和安全。
 
-<Info>
-  **请先规划网关的网络。** 登录时，如果 Claude 应用网关的主机名解析为公共 IP 地址，Claude Code 会拒绝连接，即使该地址无法从互联网访问也是如此。
-
-  Claude 应用网关可以向用户的机器推送设置，包括运行 shell 命令的 hook。此检查有助于防止用户意外登录到公共互联网上的恶意网关。也请不要让您自己的网关暴露在互联网上。
-
-  在选择网关的运行位置之前，请先选择网关的地址。通常这是一个私有地址，用户可以在内部网络上或通过 VPN 访问。如果您的内部网络使用公共 IPv4 地址段，您可以列出一个同时包含网关和用户机器的地址段。Claude Code 会将该匹配视为网关位于您内部网络上的标志。请参阅 [为网关选择地址](#choose-an-address-for-the-gateway)。如果以上两种方式都不适合您的网络，请联系您的 Anthropic 客户团队。
-</Info>
+> [!NOTE]
+>
+> **请先规划网关的网络。** 登录时，如果 Claude 应用网关的主机名解析为公共 IP 地址，Claude Code 会拒绝连接，即使该地址无法从互联网访问也是如此。
+>
+> Claude 应用网关可以向用户的机器推送设置，包括运行 shell 命令的 hook。此检查有助于防止用户意外登录到公共互联网上的恶意网关。也请不要让您自己的网关暴露在互联网上。
+>
+> 在选择网关的运行位置之前，请先选择网关的地址。通常这是一个私有地址，用户可以在内部网络上或通过 VPN 访问。如果您的内部网络使用公共 IPv4 地址段，您可以列出一个同时包含网关和用户机器的地址段。Claude Code 会将该匹配视为网关位于您内部网络上的标志。请参阅 [为网关选择地址](#choose-an-address-for-the-gateway)。如果以上两种方式都不适合您的网络，请联系您的 Anthropic 客户团队。
 
 本页面涵盖运行 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 的运维方面：在身份提供商 (IdP) 中注册 OAuth 客户端、将网关部署为容器，以及日常运行。关于网关在启动时读取的 `gateway.yaml` 文件中的每个选项，请参阅 [配置参考](/docs/zh-CN/claude-apps-gateway-config)。
 
@@ -25,9 +25,7 @@
 
 如果在此过程中登录或启动失败，请直接转到 [故障排除](#troubleshooting)，该部分按您看到的错误进行索引。
 
-<h2 id="identity-provider-setup">
-  身份提供商设置
-</h2>
+## 身份提供商设置
 
 向身份提供商注册一个机密 OAuth/OpenID Connect (OIDC) Web 应用程序，使用单个重定向 URI `https://<gateway>/oauth/callback`，并将其分配给应该有网关访问权限的用户或组。网关使用该注册的客户端密钥向 IdP 进行身份验证；如果您的 IdP 改用[证书凭据](/docs/zh-CN/claude-apps-gateway-config#certificate-client-authentication)，则使用您上传到该注册的证书进行身份验证。
 
@@ -45,15 +43,13 @@
 * **Microsoft Entra ID**：`issuer` = `https://login.microsoftonline.com/<tenant-id>/v2.0`。Entra 发出组对象 ID 而不是名称，因此在 `managed.policies.match.groups` 中使用 GUID，或使用应用角色获得人类可读的名称。如果您的租户在 `roles` 而不是 `groups` 下发出角色，设置 `oidc.groups_claim: roles`。
 * **Google Workspace**：`issuer` = `https://accounts.google.com`。Google 的 id\_token 不包含组。要在 Google 作为 IdP 时使用基于组的 `allowed_groups` 或 `managed.policies`，配置 [`oidc.google_groups`](/docs/zh-CN/claude-apps-gateway-config#oidc)，它使用具有域范围委派的服务账户通过 Admin SDK Directory API 查找每个用户的组。没有它，使用 `oidc.allowed_email_domains` 进行成员资格门控，使用 `managed.policies.match.email_domain` 进行策略分配。Google 也忽略标准 `offline_access` 作用域。对于刷新令牌，设置 `oidc.scopes: [openid, profile, email]` 和 `oidc.extra_auth_params: { access_type: offline, prompt: consent }`。
 
-<Warning>
-  刷新令牌让网关可以在不将开发者发送回浏览器的情况下无声地续订开发者的会话。它们也驱动取消配置，因为当 IdP 禁用用户时，下一次刷新失败，会话在 `ttl_hours` 内结束。网关默认请求 `offline_access` 以获取刷新令牌。如果您的 IdP 需要明确同意离线访问，配置 OAuth 客户端以允许它。
+> [!WARNING]
+>
+> 刷新令牌让网关可以在不将开发者发送回浏览器的情况下无声地续订开发者的会话。它们也驱动取消配置，因为当 IdP 禁用用户时，下一次刷新失败，会话在 `ttl_hours` 内结束。网关默认请求 `offline_access` 以获取刷新令牌。如果您的 IdP 需要明确同意离线访问，配置 OAuth 客户端以允许它。
+>
+> 如果您的 IdP 根本无法发出刷新令牌，网关仍然可以工作，但没有无声续订，因此开发者在会话过期时重新运行浏览器登录。为了防止每小时都发生这种情况，将 [`session.ttl_hours`](/docs/zh-CN/claude-apps-gateway-config#session) 提高到 `8` 或 `12`。权衡是取消配置延迟，因为没有刷新令牌，禁用的用户在更长的 TTL 过期之前保持访问权限。
 
-  如果您的 IdP 根本无法发出刷新令牌，网关仍然可以工作，但没有无声续订，因此开发者在会话过期时重新运行浏览器登录。为了防止每小时都发生这种情况，将 [`session.ttl_hours`](/docs/zh-CN/claude-apps-gateway-config#session) 提高到 `8` 或 `12`。权衡是取消配置延迟，因为没有刷新令牌，禁用的用户在更长的 TTL 过期之前保持访问权限。
-</Warning>
-
-<h2 id="deployment">
-  部署
-</h2>
+## 部署
 
 网关是一个单一的无状态 Linux 二进制文件，通过 Postgres 进行协调，因此按照您在环境中部署任何其他无状态服务的方式部署它。将其保持在您的网络内，让您的开发者可以通过 HTTPS 到达它，且它可以到达您的 IdP，并将网关视为任何持有生产凭据的服务。
 
@@ -75,9 +71,7 @@
 
 默认值（如 ALB 的 60 秒）足以保持安静的流打开。[AWS 工作示例](/docs/zh-CN/claude-apps-gateway-on-aws#troubleshooting) 无论如何将其提高到一小时，其故障排除行涵盖早于 v2.1.229 的网关，这些网关在现在获得 ping 的上游上的安静期间没有发送任何内容。
 
-<h3 id="choose-an-address-for-the-gateway">
-  为网关选择地址
-</h3>
+### 为网关选择地址
 
 Claude Code 通过以下两种方式之一接受网关的地址：
 
@@ -86,9 +80,7 @@ Claude Code 通过以下两种方式之一接受网关的地址：
 
 如果没有单个地址块能同时包含两者，请改为给网关分配私有地址。
 
-<h3 id="container-image">
-  容器镜像
-</h3>
+### 容器镜像
 
 围绕标准 Claude Code 版本中的本机 `claude` 二进制文件构建您自己的镜像：
 
@@ -104,9 +96,7 @@ Claude Code 通过以下两种方式之一接受网关的地址：
 * **可写状态目录**：网关以任何用户身份运行，但最小镜像没有可写的主目录。将 `CLAUDE_CONFIG_DIR` 设置为可写路径，如 `/tmp/.claude`。
 * **容器命令**：`claude gateway --config /etc/claude/gateway.yaml`，配置文件以只读方式挂载，密钥作为环境变量提供；网关在 `listen.port` 上监听，默认为 `8080`。
 
-<h3 id="kubernetes">
-  Kubernetes
-</h3>
+### Kubernetes
 
 将网关作为 Deployment 运行，就像任何无状态服务一样：
 
@@ -118,9 +108,7 @@ Claude Code 通过以下两种方式之一接受网关的地址：
 
 优先使用平台的工作负载身份而不是静态密钥；[`upstreams` 参考](/docs/zh-CN/claude-apps-gateway-config#upstreams) 有每个平台的设置详情。对于跨云配对，如 GKE 上的 Amazon Bedrock 上游，在上游的 `auth` 块中设置显式凭证。
 
-<h3 id="cloud-run">
-  Cloud Run
-</h3>
+### Cloud Run
 
 按如下方式配置服务：
 
@@ -131,9 +119,7 @@ Claude Code 通过以下两种方式之一接受网关的地址：
 
 有关 Google Cloud 上的完整工作示例，涵盖 Cloud Run 或 GKE、Cloud SQL 和 Secret Manager，请参阅 [在 Google Cloud 上部署](/docs/zh-CN/claude-apps-gateway-on-gcp)。
 
-<h3 id="push-the-gateway-url-to-developer-machines">
-  将网关 URL 推送到开发者机器
-</h3>
+### 将网关 URL 推送到开发者机器
 
 一旦网关开始提供服务，通过托管设置、MDM 或直接写入每个操作系统的 `managed-settings.json` 将 `forceLoginMethod`、`forceLoginGatewayUrl` 和 `parentSettingsBehavior: "merge"` 推送到每个开发者的机器。
 
@@ -141,9 +127,7 @@ Claude Code 通过以下两种方式之一接受网关的地址：
 
 请参阅 [每个机制存储策略的位置](/docs/zh-CN/managed-settings#where-each-mechanism-stores-the-policy) 了解文件路径，以及 [客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings) 了解 Claude Desktop `bootstrapUrl` 等效项。
 
-<h3 id="large-rollouts">
-  大规模推出
-</h3>
+### 大规模推出
 
 登录按客户端 IP 地址进行速率限制，默认值适合小团队。每个地址每 10 分钟获得 30 次登录开始和 10 次代码提交。向数千名开发者的推出可能在第一个早上达到这些限制，原因有两个：
 
@@ -166,15 +150,11 @@ rate_limits:
 
 当达到限制时，Claude Code v2.1.274 或更高版本显示 `The gateway is limiting sign-in attempts right now`。v2.1.274 或更高版本的网关在验证页面上显示 `Too many attempts came from your network address`，并提供要检查的设置。它还写入一条 `sign-in refused` 日志行，命名要更改的设置。
 
-<h2 id="operations">
-  运维
-</h2>
+## 运维
 
 一旦网关开始提供流量，日常运维就是读取其日志、探测其健康状况，以及按您的计划轮换其密钥。下面的小节涵盖每一个，加上 Postgres 持有的内容以及升级和回滚的行为。
 
-<h3 id="logs">
-  日志
-</h3>
+### 日志
 
 网关向 stderr 写入两个流，都是 JSON 友好的：
 
@@ -192,9 +172,7 @@ rate_limits:
   * `admin.denied` 记录被拒绝的管理员 API 身份验证尝试，包括客户端 IP、方法、路径和原因，不包括呈现的密钥材料：当呈现了 `x-api-key` 但与配置的密钥不匹配时为 `invalid_key`，当仅呈现了 `Authorization` 标头且其未验证为 `admin.admin_groups` 中的网关会话时为 `bearer_rejected`，或当两个标头都未呈现时为 `no_credentials`
 * **运维日志**：人类可读的 `[gateway]` 前缀行，用于启动、警告和上游错误。`CLAUDE_GATEWAY_LOG_LEVEL` 环境变量控制详细程度，接受 `debug`、`info`、`warn` 或 `error`，默认为 `info`。在 `debug` 时，每次登录和刷新也记录 id\_token 中声明的名称（不是值），加上当 `userinfo_fallback` 提供任何时 userinfo 声明的名称，因此您可以诊断 `email_claim` 和 `groups_claim` 设置而不记录 PII。它不影响审计事件，这些事件总是被发出。
 
-<h3 id="health">
-  健康
-</h3>
+### 健康
 
 网关提供 `GET /healthz` 作为活跃探针和 `GET /readyz` 作为就绪探针。`/readyz` 验证存储是否可达。如果您设置了 [`store.readiness_grace_seconds`](/docs/zh-CN/claude-apps-gateway-config#store)，`/readyz` 在存储停止应答后最多继续报告就绪达到那么多秒。
 
@@ -202,9 +180,7 @@ rate_limits:
 
 `/.well-known/oauth-authorization-server` 处的 OAuth 发现文档也仅在配置加载、OIDC 发现、上游客户端构造和 Postgres 迁移全部成功后才返回 `200`，因此它也充当端到端启动检查。
 
-<h3 id="concurrent-upstream-requests">
-  并发上游请求
-</h3>
+### 并发上游请求
 
 默认情况下，每个网关副本最多同时向上游发送 256 个请求。流式响应在流结束前计入限制。
 
@@ -221,13 +197,11 @@ rate_limits:
 
 如果您在 CPU 上自动扩展，限制处的副本排队请求而不触发扩展，因此将目标设置在副本在记录 `client requests are open` 警告时显示的 CPU 级别以下。
 
-<Warning>
-  每个打开的请求在网关进程中持有内存，同时它流式传输，同时它等待一个槽位。如果您将限制保持在 256，过载副本上的内存仍然增长，因为等待请求保持其请求体。根据峰值时打开的请求数调整容器的内存，当您更改限制时观察内存。耗尽内存的副本被杀死并丢弃它持有的每个流。
-</Warning>
+> [!WARNING]
+>
+> 每个打开的请求在网关进程中持有内存，同时它流式传输，同时它等待一个槽位。如果您将限制保持在 256，过载副本上的内存仍然增长，因为等待请求保持其请求体。根据峰值时打开的请求数调整容器的内存，当您更改限制时观察内存。耗尽内存的副本被杀死并丢弃它持有的每个流。
 
-<h3 id="outage-behavior">
-  中断行为
-</h3>
+### 中断行为
 
 如果 Postgres 宕机，网关本身继续为已登录的开发者提供服务，新登录失败。开发者是否真的继续工作取决于您的编排器如何处理就绪：
 
@@ -238,9 +212,7 @@ rate_limits:
 
 如果您的 IdP 宕机，现有会话工作直到 `ttl_hours`，新登录失败。会话刷新获得重试答案并在 IdP 恢复后成功。如果您的 IdP 有频繁的维护窗口，设置更长的 `ttl_hours`。
 
-<h4 id="readiness-grace-period">
-  就绪宽限期
-</h4>
+#### 就绪宽限期
 
 要让已登录的开发者在短 Postgres 中断（如数据库故障转移）期间继续工作，将 [`store.readiness_grace_seconds`](/docs/zh-CN/claude-apps-gateway-config#store) 设置为比故障转移花费的时间更长，例如 `300`。启用支出限制并使用默认失败开放行为，通过保持就绪的副本的请求在 Postgres 恢复前无计量，因此将值保持为低至覆盖您的故障转移。如果您设置了 [`enforcement.fail_closed_on_error: true`](/docs/zh-CN/claude-apps-gateway-config#enforcement)，网关拒绝已登录开发者的推理，带有 `429` `spend limit unavailable` 消息，直到 Postgres 恢复，即使副本仍然通过其就绪检查。
 
@@ -248,9 +220,7 @@ rate_limits:
 
 如果您将就绪探针指向 `/healthz` 而不是，副本也在中断期间继续通过它，但 `/healthz` 永远不报告未就绪，因此 Postgres 连接未恢复的副本继续通过。
 
-<h3 id="jwt-secret-rotation">
-  JWT 密钥轮换
-</h3>
+### JWT 密钥轮换
 
 通过三个步骤轮换签名密钥，以便现有会话保持有效：
 
@@ -260,9 +230,7 @@ rate_limits:
 
 轮换也是在过期前强制会话退出的唯一方式：持有者令牌针对 JWT 密钥在本地验证，因此没有按会话撤销。直接替换密钥，不在数组中保留旧密钥，一次使每个未完成的会话失效。对于个人离职，在您的 IdP 中取消配置用户；他们的会话在 `ttl_hours` 内结束。
 
-<h3 id="postgres">
-  Postgres
-</h3>
+### Postgres
 
 网关将其状态存储在 PostgreSQL 数据库中：
 
@@ -283,9 +251,7 @@ rate_limits:
 
 使用支出限制，丢失的数据库意味着丢失支出跟踪和上限，不仅仅是开发者重新登录，因此运行定期备份。要立即删除一个离职的开发者而不是等待保留，直接运行 `DELETE FROM principal_emails WHERE principal = '<sub>'`；这移除了唯一持有其电子邮件、名称和组的表。`spend` 和 `admin_audit` 行仅引用伪匿名 OIDC `sub`。
 
-<h3 id="upgrades">
-  升级
-</h3>
+### 升级
 
 副本是无状态的，因此滚动重启不会丢失任何网关状态。网关在启动时运行架构迁移，这意味着部署新二进制文件会自动迁移数据库。并发副本在 Postgres 咨询锁上序列化，因此只有一个应用每个迁移。
 
@@ -309,15 +275,11 @@ rate_limits:
 
 因为您在自己的镜像中固定网关的版本，新 Claude Code 版本中的修复，包括安全修复，仅在您更新固定并重新部署时才到达您的部署。在您用于持有生产凭证的其他服务的相同修补周期中包括网关。
 
-<h2 id="security">
-  安全
-</h2>
+## 安全
 
 本部分回答安全审查提出的问题：什么数据流经网关以及它去哪里，设计防御哪些攻击，以及哪些答案属于合规性问卷。
 
-<h3 id="data-flow">
-  数据流
-</h3>
+### 数据流
 
 | 数据 | 路径 | 由网关发送给 Anthropic |
 | - | - | - |
@@ -327,9 +289,7 @@ rate_limits:
 | 托管设置 | 您的网关 YAML → CLI | 从不 |
 | 审计日志 | 网关 stderr → 您的聚合器 | 从不 |
 
-<h3 id="threat-model-summary">
-  威胁模型摘要
-</h3>
+### 威胁模型摘要
 
 网关位于您的网络周边内，但个别开发者笔记本电脑不被视为受信任。设计通过三种方式考虑这一点：
 
@@ -348,17 +308,13 @@ rate_limits:
 * **受损的网关主机**：主机既持有上游凭证，又向每个连接的开发者分发 [托管设置](/docs/zh-CN/claude-apps-gateway-config#managed)，因此对网关配置的控制与对您的 MDM 的控制相当。CLI 的 [批准对话框](/docs/zh-CN/server-managed-settings#approval-memory) 用于 shell 能力设置限制无声更改，但不替代主机安全。
 * **恶意 OIDC 提供商**：提供商签署网关信任的 id\_tokens，因此它可以声称任何身份。审查和保护您的 IdP 是您的责任。
 
-<h3 id="user-code-brute-force-resistance">
-  用户代码暴力破解抵抗
-</h3>
+### 用户代码暴力破解抵抗
 
 开发者在 `/device` 验证页面中输入的 `user_code` 是从 20 字符字母表中抽取的 8 个字符，产生 20⁸ 或约 2.56×10¹⁰ 个组合，在 10 分钟后过期。
 
 网关在设备授权端点上应用按 IP 速率限制，可通过 [`rate_limits`](/docs/zh-CN/claude-apps-gateway-config#http-tuning) 配置。如果许多开发者从单个共享公司 NAT 地址登录，提高限制。[大规模推出](#large-rollouts) 显示如何调整它们的大小。限制仅适用于登录流，不适用于推理。
 
-<h3 id="compliance-posture">
-  合规性态势
-</h3>
+### 合规性态势
 
 * **数据驻留**：网关自己的数据平面除非 Anthropic API 是配置的上游，否则不向 Anthropic 发送任何内容；当它是时，您现有的数据处理协议适用于推理路径。遥测、审计、身份和设置仅去往您配置的目的地。
 * **主机进程流量**：主机进程是 Claude Code CLI。`claude gateway` 在与 Amazon Bedrock 和 Google Cloud 的 Agent Platform 部署相同的第三方规则下运行，不向 Anthropic 发送任何内容。在 v2.1.227 之前，主机进程发送启动遥测，例如产品版本和平台，在容器环境中设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 关闭。这些版本也在启动时发送一个 `HEAD` 请求，没有正文或凭证，到 `https://api.anthropic.com` 上的 `/api/hello`，或在环境设置时的 `ANTHROPIC_BASE_URL` 上，除非环境也设置了代理变量（如 `HTTPS_PROXY`）或 mTLS 客户端证书。它们忽略了响应，因此在出口防火墙处阻止该请求不影响网关。
@@ -371,9 +327,7 @@ rate_limits:
 * **TLS**：在生产中通过 HTTPS 提供 `public_url`，要么从网关自己的监听器通过 `listen.tls`，要么从 TLS 终止入口在普通 HTTP 副本前面，在两种情况下都设置 `listen.public_url`。网关不拒绝普通 HTTP。IdP 必须在生产中提供 HTTPS，Postgres 支持 `?sslmode=require`。在您的入口处设置 `Strict-Transport-Security`。
 * **漏洞披露**：遵循 [报告安全问题](/docs/zh-CN/security#reporting-security-issues)
 
-<h3 id="plugin-marketplace-requests">
-  插件市场请求
-</h3>
+### 插件市场请求
 
 Claude Code 直接从每位开发者的机器获取插件市场，而不是通过网关。[网络访问要求](/docs/zh-CN/network-config#network-access-requirements) 列出了相关主机。
 
@@ -386,9 +340,7 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 
 首次注册可能在开发者登录网关之前运行，此时尚未收到任何网关策略。为覆盖首次启动，请在 [客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings) 以及网关策略的 [`cli` 或 `code` 块](/docs/zh-CN/claude-apps-gateway-config#what-goes-in-cli) 中同时传递您的选择。
 
-<h2 id="troubleshooting">
-  故障排除
-</h2>
+## 故障排除
 
 如有问题和反馈，请使用 [Claude Code 支持](https://support.claude.com/en/collections/14445694-claude-code)，或在 [Claude Code GitHub 仓库](https://github.com/anthropics/claude-code/issues)上提交问题。您也可以联系您的 Anthropic 客户团队。报告问题时，请包括：
 
@@ -442,9 +394,7 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 
 如果 Claude Code 在网关登录后报告 `couldn't load your organization's managed settings`，Claude Code 会命名原因、就地重启并恢复对话。如果 Claude Code 无法重启，例如在后台会话中，Claude Code 会结束会话并保留登录。
 
-<h3 id="request-headers-too-large-after-sign-in">
-  登录后请求头过大
-</h3>
+### 登录后请求头过大
 
 当开发者属于许多 IdP 组时，其请求可能在登录后失败并返回 `431` 错误。
 
@@ -463,9 +413,7 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 * **[`managed.policies`](/docs/zh-CN/claude-apps-gateway-config#managed) 中的 `match.groups`**：决定哪个策略适用于开发者
 * **`rbac_group` [支出上限](/docs/zh-CN/claude-apps-gateway-spend-limits)**：决定哪些组上限适用于开发者
 
-<h2 id="related">
-  相关
-</h2>
+## 相关
 
 * [Claude 应用网关概述](/docs/zh-CN/claude-apps-gateway)：快速入门和开发者连接
 * [配置参考](/docs/zh-CN/claude-apps-gateway-config)：每个 `gateway.yaml` 选项

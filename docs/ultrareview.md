@@ -6,9 +6,9 @@
 
 > 使用 /code-review ultra 在云中运行深度多代理代码审查，在合并前查找和验证错误。
 
-<Note>
-  Ultrareview 是一个研究预览功能。该功能、定价和可用性可能会根据反馈而改变。该命令是 `/code-review ultra`。当 ultrareview 对您的账户可用时，`/ultrareview` 是一个别名。
-</Note>
+> [!NOTE]
+>
+> Ultrareview 是一个研究预览功能。该功能、定价和可用性可能会根据反馈而改变。该命令是 `/code-review ultra`。当 ultrareview 对您的账户可用时，`/ultrareview` 是一个别名。
 
 Ultrareview 是在 Anthropic 基础设施上运行的[云会话](/docs/zh-CN/claude-code-on-the-web)中进行的深度代码审查。当您运行 `/code-review ultra` 时，Claude Code 在云沙箱中启动一队审查代理来查找您的分支或拉取请求中的错误。
 
@@ -20,9 +20,7 @@ Ultrareview 是在 Anthropic 基础设施上运行的[云会话](/docs/zh-CN/cla
 
 Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthropic 基础设施上作为云端会话运行。如果您仅使用 API 密钥登录，请先运行 `/login` 并使用 claude.ai 进行身份验证。当使用 Claude Code 与 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 时，Ultrareview 不可用；对于已启用零数据保留或已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup)的组织也不可用。在这些情况下，`/code-review ultra` 会改为在您的会话中运行本地审查。使用[客户管理的加密密钥](https://platform.claude.com/docs/en/manage-claude/cmek)（CMEK）的组织无法运行 ultrareview。要在本地审查您的更改，请运行 `/code-review`。
 
-<h2 id="run-ultrareview-from-the-cli">
-  从 CLI 运行 ultrareview
-</h2>
+## 从 CLI 运行 ultrareview
 
 从任何 git 存储库启动审查：
 
@@ -38,9 +36,7 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthr
 
 该命令仅在您使用 `/code-review ultra` 调用时运行；Claude 不会自动启动 ultrareview。
 
-<h3 id="review-against-a-different-base">
-  针对不同的基础进行审查
-</h3>
+### 针对不同的基础进行审查
 
 要与默认分支以外的基础进行比较，请传递分支名称。此示例针对 `develop` 而不是默认分支审查您的当前分支：
 
@@ -52,9 +48,7 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthr
 
 提交 id 或标签也可以作为基础，审查将涵盖您的分支自该提交以来的更改。
 
-<h3 id="review-a-pull-request">
-  审查拉取请求
-</h3>
+### 审查拉取请求
 
 要审查 `github.com` 上的拉取请求而不是本地分支，请传递 PR 编号：
 
@@ -70,9 +64,7 @@ PR 模式需要 `github.com` 上的仓库。对于 [GitHub Enterprise Server](/d
 
 运行 [`/web-setup`](/docs/zh-CN/web-quickstart#connect-from-your-terminal) 将您的 GitHub CLI 登录连接到您的 Claude 账户。
 
-<h3 id="post-findings-to-the-pull-request">
-  将发现发布到拉取请求
-</h3>
+### 将发现发布到拉取请求
 
 在 Claude Code v2.1.227 或更高版本上，当您在 `github.com` 上审查拉取请求时，您可以让 Claude 将完成的发现作为来自您自己 GitHub 账户的单个纯文本评论发布到 PR。该评论不是审查或批准，并以"由 Claude Code 生成"的说明结尾。当您审查分支时，Claude Code 仅在您的会话中显示发现。
 
@@ -91,9 +83,7 @@ Claude Code 不会从您的计算机发布。它将审查的会话 ID 发送到 
 * **已发布**：同一审查的早期发布已将评论放在 PR 上，因此 Claude 会链接您到拉取请求，而不是再次发布。
 * **失败**：Claude 会告诉您原因，发现会保留在您的终端中，以便您可以手动发布。
 
-<h3 id="pass-a-request-in-plain-words">
-  用纯文本传递请求
-</h3>
+### 用纯文本传递请求
 
 在 Claude Code v2.1.218 或更高版本上，您也可以用纯文本描述您正在处理的内容：
 
@@ -105,13 +95,11 @@ Claude Code 不会从您的计算机发布。它将审查的会话 ID 发送到 
 
 当 Claude Code 的文本超过一个单词且不是分支名称或 PR 引用时，它将您的文本视为说明。它将单个单词读取为分支名称或 PR 引用，因此拼写错误的分支名称会从[针对不同的基础进行审查](#review-against-a-different-base)获得最接近分支的错误，而不是使用说明启动。如果您的文本将 PR 引用与其他单词结合，如 `check PR 123 again`，Claude Code 也不会启动；它会要求您重新运行仅使用 PR 编号来审查该 PR，或不使用引用来审查您的当前分支。
 
-<Tip>
-  如果您的仓库太大而无法捆绑，Claude Code 会提示您改用 PR 模式。对于 `github.com` 上的仓库，推送您的分支并打开草稿 PR，然后运行 `/code-review ultra <PR-number>`。
-</Tip>
+> [!TIP]
+>
+> 如果您的仓库太大而无法捆绑，Claude Code 会提示您改用 PR 模式。对于 `github.com` 上的仓库，推送您的分支并打开草稿 PR，然后运行 `/code-review ultra <PR-number>`。
 
-<h3 id="diff-limits-and-fallbacks">
-  差异限制和回退
-</h3>
+### 差异限制和回退
 
 Ultrareview 在任何审查工作运行之前检查差异，并在无法按原样审查时告诉您：
 
@@ -124,9 +112,7 @@ Ultrareview 在任何审查工作运行之前检查差异，并在无法按原�
 
   在没有分支或其他引用的检出上，例如通过在获取 URL 后检出 `FETCH_HEAD` 创建的分离 HEAD，Claude Code [拒绝审查](/docs/zh-CN/errors#your-checkout-has-no-branches)并建议首先创建分支
 
-<h2 id="pricing-and-free-runs">
-  定价和免费运行
-</h2>
+## 定价和免费运行
 
 Ultrareview 是一项高级功能，按额外使用量而不是您计划的包含使用量计费。
 
@@ -145,9 +131,7 @@ Ultrareview 是一项高级功能，按额外使用量而不是您计划的包�
 
 Claude Code 在每次对话中要求您确认一次使用额度计费：例如，当您使用 `/clear` 启动新对话时，Claude Code 会在下一次付费审查时再次显示确认。
 
-<h2 id="track-a-running-review">
-  跟踪正在运行的审查
-</h2>
+## 跟踪正在运行的审查
 
 审查通常需要 15 到 25 分钟。审查作为后台任务运行，因此您可以继续在会话中工作或启动其他命令。如果您选择了[将发现发布到拉取请求](#post-findings-to-the-pull-request)，请保持会话打开直到审查完成；如果会话先结束，Claude Code 将不会发布任何内容。
 
@@ -161,9 +145,7 @@ Claude 还可以告诉您审查已停止或其会话未找到：
 
 审查完成后，Claude Code 会在您的会话中将验证的发现显示为通知。每个发现都包括文件位置和问题的解释，因此您可以要求 Claude 直接修复它。
 
-<h2 id="run-ultrareview-non-interactively">
-  以非交互方式运行 ultrareview
-</h2>
+## 以非交互方式运行 ultrareview
 
 使用 `claude ultrareview` 子命令，可以在 CI 或脚本中启动 ultrareview，而无需交互式会话。该子命令启动的审查与 `/code-review ultra` 相同，会一直阻塞到远程审查完成，然后将发现的问题输出到 stdout。
 
@@ -205,9 +187,7 @@ claude ultrareview origin/main
 
 如需对 GitHub Pull Request 进行自动审查，[Code Review](/docs/zh-CN/code-review) 可直接与您的仓库集成，并以 PR 行内评论的形式发布发现结果，无需 CLI 步骤。
 
-<h2 id="how-ultrareview-compares-to-/code-review">
-  ultrareview 与 /code-review 的比较
-</h2>
+## ultrareview 与 /code-review 的比较
 
 两个审查都检查代码，但您在工作流的不同阶段使用它们。
 
@@ -222,9 +202,7 @@ claude ultrareview origin/main
 
 使用 `/code-review` 获得工作时的快速反馈，或传递 PR 编号以在批准前审查团队成员的 pull request。在合并重大更改前使用 `/code-review ultra`，当您想要更深入的审查来捕捉本地审查可能遗漏的问题时。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [在云端使用 Claude Code](/docs/zh-CN/claude-code-on-the-web)：了解云会话和云沙箱如何工作
 * [有效管理成本](/docs/zh-CN/costs)：跟踪使用情况并设置支出限制

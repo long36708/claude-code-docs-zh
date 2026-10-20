@@ -12,19 +12,17 @@
 
 如果您正在决定是否安装插件，或者您在审查工具以供您的团队使用，请阅读本页。
 
-<Note>
-  这些情况在其他页面上有介绍：
-
-  * **Claude Code 自己的安全模型**：请参阅[安全](/docs/zh-CN/security)
-  * **为组织限制或要求插件**：请参阅[为您的组织管理插件](/docs/zh-CN/plugins/org)
-  * **`security-guidance` 或 `claude-security` 插件**：本页不是关于它们的。请参阅[`security-guidance`](/docs/zh-CN/security-guidance) 和 [`claude-security`](/docs/zh-CN/claude-security)
-</Note>
+> [!NOTE]
+>
+> 这些情况在其他页面上有介绍：
+>
+> * **Claude Code 自己的安全模型**：请参阅[安全](/docs/zh-CN/security)
+> * **为组织限制或要求插件**：请参阅[为您的组织管理插件](/docs/zh-CN/plugins/org)
+> * **`security-guidance` 或 `claude-security` 插件**：本页不是关于它们的。请参阅[`security-guidance`](/docs/zh-CN/security-guidance) 和 [`claude-security`](/docs/zh-CN/claude-security)
 
 首先从[插件可以做什么](#understand-what-a-plugin-can-do)和[哪些市场是 Anthropic 的](#marketplace-tiers)开始，然后[在安装前审查插件](#review-a-plugin-before-you-install)。
 
-<h2 id="understand-what-a-plugin-can-do">
-  了解插件可以做什么
-</h2>
+## 了解插件可以做什么
 
 插件可以包含在您的机器上使用您的用户权限运行代码的内容，以及作为指令进入 Claude 上下文的内容，所以[在安装前审查插件](#review-a-plugin-before-you-install)。以下是已安装的插件可以做的事情：
 
@@ -45,9 +43,7 @@ Claude Code 的[权限规则](/docs/zh-CN/permissions)和[沙箱](/docs/zh-CN/sa
 
 要删除您不再信任的插件，请参阅[删除您不再信任的插件](#remove-a-plugin-you-no-longer-trust)。
 
-<h2 id="marketplace-tiers">
-  按名称识别 Anthropic 的市场
-</h2>
+## 按名称识别 Anthropic 的市场
 
 市场的名称将其分为三个层级之一：官方、社区或第三方。Claude Code 仅接受来自 `github.com/anthropics/` 存储库的官方和社区名称用于市场，所以第三方市场不能将自己呈现为 Anthropic 的。同事或您的组织发布的市场是第三方的。
 
@@ -61,9 +57,7 @@ Claude Code 的[权限规则](/docs/zh-CN/permissions)和[沙箱](/docs/zh-CN/sa
 
 当 `claude-community` 目录将插件固定到提交 SHA 时（几乎每个条目都这样做），Claude Code 拒绝安装不同的提交。
 
-<h3 id="official-marketplace-names">
-  官方市场名称
-</h3>
+### 官方市场名称
 
 这些市场名称构成官方层级：
 
@@ -84,39 +78,33 @@ Claude Code 的[权限规则](/docs/zh-CN/permissions)和[沙箱](/docs/zh-CN/sa
 
 有关官方、社区和演示市场的区别以及在哪里浏览每个市场列出的内容，请参阅 [Anthropic 的市场](/docs/zh-CN/plugins/anthropic-marketplaces)。
 
-<h2 id="review-a-plugin-before-you-install">
-  在安装前审查插件
-</h2>
+## 在安装前审查插件
 
 在安装插件之前，查看它添加的内容以及它来自哪里。
 
-<Steps>
-  <Step title="检查市场的来源">
-    在您的 shell 中，运行 `claude plugin marketplace list` 以打印每个市场添加来源的信息，例如 GitHub 存储库或目录。
-  </Step>
+**1. 检查市场的来源**
 
-  <Step title="阅读详情窗格">
-    在 Claude Code 会话中，运行 `/plugin` 并选择插件。详情窗格显示一个**将安装**部分，列出插件的 commands、agents、skills、hooks 和 MCP 及 LSP 服务器。对于 Anthropic 没有发布组件数据的插件，该部分显示市场条目声明的内容，或一个注释：`Components will be discovered at installation` 用于存储在市场内的插件，或 `Component summary not available for remote plugin` 用于从其他地方获取的插件。
-  </Step>
+在您的 shell 中，运行 `claude plugin marketplace list` 以打印每个市场添加来源的信息，例如 GitHub 存储库或目录。
 
-  <Step title="阅读插件的源代码">
-    在详情窗格中，选择安装选项下方的**打开主页**或**在 GitHub 上查看**。如果窗格都不提供，请打开您在第一步中找到的市场存储库。在那里找到插件的目录。**将安装**部分显示 hook 存在但不显示它运行的内容，所以请阅读插件目录中的这些文件：
+**2. 阅读详情窗格**
 
-    * **`hooks/hooks.json`**：每个 hook 运行的命令
-    * **`.mcp.json`**：每个服务器的命令或 URL
-    * **`bin/`**：目录中的每个文件
-  </Step>
+在 Claude Code 会话中，运行 `/plugin` 并选择插件。详情窗格显示一个**将安装**部分，列出插件的 commands、agents、skills、hooks 和 MCP 及 LSP 服务器。对于 Anthropic 没有发布组件数据的插件，该部分显示市场条目声明的内容，或一个注释：`Components will be discovered at installation` 用于存储在市场内的插件，或 `Component summary not available for remote plugin` 用于从其他地方获取的插件。
 
-  <Step title="列出插件包含的内容">
-    克隆保存插件目录的存储库，然后在您的 shell 中运行 `claude --plugin-dir <plugin directory> plugin details <plugin name>` 以查看 Claude Code 在其中找到的内容。该命令读取插件的文件而不启动会话，并打印一个 `Component inventory` 列出插件的 skills 和 commands、agents、带有每个 hook 事件的 hooks，以及 MCP 和 LSP 服务器。
-  </Step>
-</Steps>
+**3. 阅读插件的源代码**
+
+在详情窗格中，选择安装选项下方的**打开主页**或**在 GitHub 上查看**。如果窗格都不提供，请打开您在第一步中找到的市场存储库。在那里找到插件的目录。**将安装**部分显示 hook 存在但不显示它运行的内容，所以请阅读插件目录中的这些文件：
+
+* **`hooks/hooks.json`**：每个 hook 运行的命令
+* **`.mcp.json`**：每个服务器的命令或 URL
+* **`bin/`**：目录中的每个文件
+
+**4. 列出插件包含的内容**
+
+克隆保存插件目录的存储库，然后在您的 shell 中运行 `claude --plugin-dir <plugin directory> plugin details <plugin name>` 以查看 Claude Code 在其中找到的内容。该命令读取插件的文件而不启动会话，并打印一个 `Component inventory` 列出插件的 skills 和 commands、agents、带有每个 hook 事件的 hooks，以及 MCP 和 LSP 服务器。
 
 安装插件后，在您的 shell 中运行 `claude plugin details <plugin name>` 以为 `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` 下的已安装副本打印相同的 `Component inventory`。
 
-<h3 id="remove-a-plugin-you-no-longer-trust">
-  删除您不再信任的插件
-</h3>
+### 删除您不再信任的插件
 
 在您的 shell 中，使用您安装它的 `--scope` 运行 [`claude plugin uninstall <plugin>`](/docs/zh-CN/plugins/cli-reference#plugin-uninstall)。然后检查卸载删除了什么以及留下了什么：
 
@@ -124,15 +112,11 @@ Claude Code 的[权限规则](/docs/zh-CN/permissions)和[沙箱](/docs/zh-CN/sa
 * **缓存文件**：插件的文件在 `~/.claude/plugins/cache/` 下保留在磁盘上 14 天，然后[后台扫描将其删除](/docs/zh-CN/plugins/loading#cleanup-of-previous-versions)。卸载最后一个插件后，孤立目录保留到您安装另一个。要立即删除文件，请自己删除 `~/.claude/plugins/cache/<marketplace>/<plugin>/` 下的插件目录。
 * **市场**：如果您也不信任市场的所有者，[也删除市场](/docs/zh-CN/plugins/install#manage-marketplaces)，这会卸载您从它安装的每个插件。
 
-<h2 id="recognize-when-claude-code-refuses-or-warns">
-  识别 Claude Code 何时拒绝或警告
-</h2>
+## 识别 Claude Code 何时拒绝或警告
 
 您从 `/plugin` 中的**发现**或**市场**选项卡打开的详情窗格为每个插件显示相同的信任警告。Claude Code 在[不受信任的市场来源和失败的完整性检查](#untrusted-marketplace-sources-and-failed-integrity-checks)下的情况下拒绝而不是警告。
 
-<h3 id="trust-warning-before-you-install">
-  安装前的信任警告
-</h3>
+### 安装前的信任警告
 
 警告读起来与插件来自的市场相同：
 
@@ -142,9 +126,7 @@ Make sure you trust a plugin before installing, updating, or using it. Anthropic
 
 如果您的组织在[托管设置](/docs/zh-CN/plugins/org)中设置了 `pluginTrustMessage`，Claude Code 会将该文本附加到警告中。
 
-<h3 id="untrusted-marketplace-sources-and-failed-integrity-checks">
-  不受信任的市场来源和失败的完整性检查
-</h3>
+### 不受信任的市场来源和失败的完整性检查
 
 Claude Code 在这些情况下拒绝加载市场或安装插件，每种情况都有自己的错误消息：
 
@@ -153,9 +135,7 @@ Claude Code 在这些情况下拒绝加载市场或安装插件，每种情况�
 
 `sha256` 固定与社区目录的提交 SHA 固定分开，后者选择要检出的 git 提交。
 
-<h2 id="enforce-plugin-controls-for-your-organization">
-  为您的组织强制执行插件控制
-</h2>
+## 为您的组织强制执行插件控制
 
 使用[托管设置](/docs/zh-CN/plugins/org)，管理员可以强制执行这些插件控制：
 
@@ -167,9 +147,7 @@ Claude Code 在这些情况下拒绝加载市场或安装插件，每种情况�
 
 [控制矩阵](/docs/zh-CN/plugins/org#control-matrix)说明每个键的作用和不涵盖的内容。
 
-<h2 id="find-plugins-in-telemetry">
-  在遥测中查找插件
-</h2>
+## 在遥测中查找插件
 
 如果您的组织将 Claude Code 的 [OpenTelemetry 事件](/docs/zh-CN/monitoring-usage)导出到其自己的后端，[市场层级](#marketplace-tiers)决定哪些插件名称出现在那里：
 
@@ -178,9 +156,7 @@ Claude Code 在这些情况下拒绝加载市场或安装插件，每种情况�
 * **[插件安装事件](/docs/zh-CN/monitoring-usage#plugin-installed-event)**：除非您设置 `OTEL_LOG_TOOL_DETAILS=1`，否则事件省略非官方插件的名称字段，而不是报告 `third-party`。
 * **[Claude Code Analytics API](https://platform.claude.com/docs/en/api/admin/analytics/plugins/list)**：Claude Code 按名称报告来自官方和社区层级的插件，并将所有其他插件报告为 `third-party`。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [为您的组织管理插件](/docs/zh-CN/plugins/org)：限制用户可以从哪些市场安装，并要求您信任的市场
 * [安装和管理插件](/docs/zh-CN/plugins/install)：在选择范围之前审查插件的详情窗格

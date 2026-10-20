@@ -15,76 +15,62 @@
 * [查找 Claude Code 读取的变量](#variables)
 * [查看当变量关闭功能标志获取时，哪些功能停止工作](#features-that-need-feature-flag-fetching)
 
-<h2 id="set-environment-variables">
-  设置环境变量
-</h2>
+## 设置环境变量
 
 在 shell 中设置的变量仅在该终端会话期间有效，而在设置文件中的变量每次运行 `claude` 时都会应用。
 
-<span id="in-your-shell" />
-
-<h3 id="set-variables-in-your-shell">
-  在 shell 中设置变量
-</h3>
+### 在 shell 中设置变量
 
 在启动 `claude` 之前设置变量：
 
-<Tabs>
-  <Tab title="macOS, Linux, WSL">
-    ```bash theme={null}
-    export API_TIMEOUT_MS="1200000"
-    claude
-    ```
+**macOS, Linux, WSL**
 
-    要为每个会话设置它，请将 `export` 行添加到 `~/.bashrc`、`~/.zshrc` 或您的 shell 配置文件中。
-  </Tab>
+```bash theme={null}
+export API_TIMEOUT_MS="1200000"
+claude
+```
 
-  <Tab title="Windows PowerShell">
-    ```powershell theme={null}
-    $env:API_TIMEOUT_MS = "1200000"
-    claude
-    ```
+要为每个会话设置它，请将 `export` 行添加到 `~/.bashrc`、`~/.zshrc` 或您的 shell 配置文件中。
 
-    要为每个会话设置它，请运行 `[Environment]::SetEnvironmentVariable("API_TIMEOUT_MS", "1200000", "User")` 并打开一个新终端。
-  </Tab>
+**Windows PowerShell**
 
-  <Tab title="Windows CMD">
-    ```batch theme={null}
-    set API_TIMEOUT_MS=1200000
-    claude
-    ```
+```powershell theme={null}
+$env:API_TIMEOUT_MS = "1200000"
+claude
+```
 
-    要为每个会话设置它，请运行 `setx API_TIMEOUT_MS "1200000"` 并打开一个新终端。
-  </Tab>
-</Tabs>
+要为每个会话设置它，请运行 `[Environment]::SetEnvironmentVariable("API_TIMEOUT_MS", "1200000", "User")` 并打开一个新终端。
+
+**Windows CMD**
+
+```batch theme={null}
+set API_TIMEOUT_MS=1200000
+claude
+```
+
+要为每个会话设置它，请运行 `setx API_TIMEOUT_MS "1200000"` 并打开一个新终端。
 
 赋值行在成功时不会打印任何内容。要确认变量已设置，请在同一 shell 中打印它：
 
-<Tabs>
-  <Tab title="macOS, Linux, WSL">
-    ```bash theme={null}
-    echo $API_TIMEOUT_MS
-    ```
-  </Tab>
+**macOS, Linux, WSL**
 
-  <Tab title="Windows PowerShell">
-    ```powershell theme={null}
-    echo $env:API_TIMEOUT_MS
-    ```
-  </Tab>
+```bash theme={null}
+echo $API_TIMEOUT_MS
+```
 
-  <Tab title="Windows CMD">
-    ```batch theme={null}
-    echo %API_TIMEOUT_MS%
-    ```
-  </Tab>
-</Tabs>
+**Windows PowerShell**
 
-<span id="in-settings-files" />
+```powershell theme={null}
+echo $env:API_TIMEOUT_MS
+```
 
-<h3 id="set-variables-in-settings-files">
-  在设置文件中设置变量
-</h3>
+**Windows CMD**
+
+```batch theme={null}
+echo %API_TIMEOUT_MS%
+```
+
+### 在设置文件中设置变量
 
 在 `settings.json` 文件中的 `env` 键下添加变量，如果文件不存在则创建它。Claude Code 直接从文件中读取它们，因此无论如何启动 `claude`，它们都会生效。运行中的会话在您保存文件时会将新值和更改的值应用到其环境中，但在启动时读取其变量一次的功能（例如 [OpenTelemetry 监控](/docs/zh-CN/monitoring-usage)）会保持其启动值，直到您重新启动。从文件中删除变量不会在运行中的会话中取消设置它；删除在您下次启动 `claude` 时生效。
 
@@ -110,9 +96,7 @@ Claude Code 会按原样将这些值复制到其环境中。这些值不经过�
 
 请参阅 [设置文件](/docs/zh-CN/settings#where-settings-live) 了解每个文件的位置，以及 [设置优先级](/docs/zh-CN/settings#settings-precedence) 了解当多个文件设置相同变量时它们如何组合。
 
-<h2 id="precedence">
-  优先级
-</h2>
+## 优先级
 
 某些行为同时具有环境变量和专用设置键，Claude Code 读取哪一个的顺序因键而异。对于 `ANTHROPIC_MODEL` 和 `CLAUDE_CODE_AUTO_CONNECT_IDE`，Claude Code 首先读取变量，仅当变量未设置时才使用 `model` 或 `autoConnectIde` 设置。对于您正在设置的对，请检查下面变量的行和 [设置参考](/docs/zh-CN/settings-reference) 上的键条目。
 
@@ -126,26 +110,24 @@ Claude Code 会按原样将这些值复制到其环境中。这些值不经过�
 
 Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在您下次启动 `claude` 时生效。在设置文件中 `env` 键下设置的变量在文件更改时重新应用到运行中的会话，但 [在设置文件中设置变量](#in-settings-files) 中描述的仅启动时例外除外。
 
-<h2 id="variables">
-  变量
-</h2>
+## 变量
 
 数值型变量（例如超时时间、token 预算和重试次数）除了接受纯数字外，还接受科学计数法和数字分隔符写法，除非某个变量所在行注明仅接受纯数字。例如，Claude Code 会将 `2e3` 读取为 2000，将 `64_000` 读取为 64000。在 v2.1.211 之前，这些写法可能会静默地设置一个小得多的值，例如 `1e6` 会将超时时间设置为 1。
 
-<Note>
-  对于启用或关闭某项行为的变量，设置为 `1`、`true`、`yes` 或 `on` 即可启用，设置为 `0`、`false`、`no` 或 `off` 即可关闭，不区分大小写。
-
-  某些变量只读取您是否设置了它们，因此任何非空值（包括 `0`）都会启用该行为；要关闭该行为，请取消设置该变量或将其设置为空值。以下变量按这种方式工作：
-
-  * `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`
-  * `DISABLE_TELEMETRY`
-  * `DISABLE_ERROR_REPORTING`
-  * `CLAUDE_CODE_TMUX_TRUECOLOR`
-  * `FALLBACK_FOR_ALL_PRIMARY_MODELS`
-  * `IS_DEMO`
-
-  另有一个变量有其自己的规则：`FORCE_HYPERLINK` 读取一个数字，因此只有 `0` 会将其关闭。每个变量所在行也会说明其自身的规则。
-</Note>
+> [!NOTE]
+>
+> 对于启用或关闭某项行为的变量，设置为 `1`、`true`、`yes` 或 `on` 即可启用，设置为 `0`、`false`、`no` 或 `off` 即可关闭，不区分大小写。
+>
+> 某些变量只读取您是否设置了它们，因此任何非空值（包括 `0`）都会启用该行为；要关闭该行为，请取消设置该变量或将其设置为空值。以下变量按这种方式工作：
+>
+> * `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`
+> * `DISABLE_TELEMETRY`
+> * `DISABLE_ERROR_REPORTING`
+> * `CLAUDE_CODE_TMUX_TRUECOLOR`
+> * `FALLBACK_FOR_ALL_PRIMARY_MODELS`
+> * `IS_DEMO`
+>
+> 另有一个变量有其自己的规则：`FORCE_HYPERLINK` 读取一个数字，因此只有 `0` 会将其关闭。每个变量所在行也会说明其自身的规则。
 
 | 变量 | 用途 |
 | :- | :- |
@@ -552,9 +534,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 
 请在 shell、用户设置或托管设置中设置 `CLAUDE_CODE_ENABLE_TELEMETRY` 以及用于开启导出、选择导出目标或捕获内容的 OpenTelemetry 变量。Claude Code [会在项目和本地设置中忽略它们](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)，但该部分所述的关闭值除外。`OTEL_RESOURCE_ATTRIBUTES` 以及导出间隔、超时和压缩相关变量（例如 `OTEL_METRIC_EXPORT_INTERVAL`）在项目和本地设置中仍然适用。
 
-<h2 id="what-the-subprocess-environment-scrub-removes">
-  子进程环境清理会移除哪些内容
-</h2>
+## 子进程环境清理会移除哪些内容
 
 当您将 [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](#variables) 设置为 `1` 时，Claude Code 会从其启动的子进程（例如 Bash 命令、hook 和 stdio MCP 服务器）的环境中移除凭据。这可以减少提示词注入攻击所能读取的内容。Claude Code 进程本身会保留这些凭据，用于其自身的 API 调用。
 
@@ -582,9 +562,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 
 在 v2.1.251 之前，清理功能会移除 `ANTHROPIC_API_KEY` 和 `AWS_SECRET_ACCESS_KEY`，而表中的其他示例变量保持不变。
 
-<h2 id="features-that-need-feature-flag-fetching">
-  需要获取功能标志的功能
-</h2>
+## 需要获取功能标志的功能
 
 Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在以下会话中，Claude Code 会跳过该获取操作：
 
@@ -610,9 +588,7 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 * 让 Claude Code [排除其输入 schema 会被 API 拒绝的 MCP 工具](/docs/zh-CN/mcp#tools-with-invalid-input-schemas)；它仍会发送该 schema，包含该 schema 的请求会失败，并返回[按位置指明该工具的 400 错误](/docs/zh-CN/errors#tool-input-schema-is-invalid)
 * 让 Claude Code [在终端会话空闲时压缩较长的对话](/docs/zh-CN/settings-reference#idlecompaction)，时机为一小时的提示词缓存即将过期前不久
 
-<h3 id="first-session-after-an-install-or-upgrade">
-  安装或升级后的首个会话
-</h3>
+### 安装或升级后的首个会话
 
 在您安装 Claude Code 后，或升级到新增某项功能的版本后，首个会话中可能缺少[受标志控制的功能](#features-that-need-feature-flag-fetching)。Claude Code 在该会话期间获取功能标志后，会将其保存在本机上，因此您在该机器上的下一个会话将具备该功能。
 
@@ -621,9 +597,7 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 * **每次运行都是全新环境**：如果每次运行都在 CI 容器中启动，或在任何没有先前会话所保存标志的其他环境中启动，那么每次运行都是首个会话
 * **使用网关令牌且没有 API 密钥**：如果您使用 `ANTHROPIC_AUTH_TOKEN` 进行身份验证且没有 API 密钥，并且 `ANTHROPIC_BASE_URL` 指向 Anthropic 以外的主机（例如 [LLM 网关](/docs/zh-CN/llm-gateway)），Claude Code 将没有可用于获取标志的凭据
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 * [设置](/docs/zh-CN/settings)：所有 `settings.json` 配置，包括 `env` 键
 * [CLI 参考](/docs/zh-CN/cli-reference)：启动时标志

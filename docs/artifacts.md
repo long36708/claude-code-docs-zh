@@ -6,19 +6,15 @@
 
 > Artifacts 将 Claude Code 的工作转化为 claude.ai 上的实时交互式页面，您可以将其保持私密、与您的组织共享或发布到公开链接。
 
-<Note>
-  Artifacts 在 Pro、Max、Team 和 Enterprise 计划中可用，需要使用 [`/login`](/docs/zh-CN/setup#authenticate) 登录的会话。有关完整的要求集，请参阅 [可用性](#availability)。
-</Note>
+> [!NOTE]
+>
+> Artifacts 在 Pro、Max、Team 和 Enterprise 计划中可用，需要使用 [`/login`](/docs/zh-CN/setup#authenticate) 登录的会话。有关完整的要求集，请参阅 [可用性](#availability)。
 
 [Artifact](https://claude.com/features/artifacts) 是一个实时交互式网页，Claude Code 从您的会话发布到 claude.ai 上的私密 URL。您在浏览器中打开它，随着会话的继续，它会实时更新。当您希望其他人也看到它时，可以从页面标题中共享它。
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/kaHIYYMIYMYPxQg9/images/artifacts-viewer.png?fit=max&auto=format&n=kaHIYYMIYMYPxQg9&q=85&s=dbfd671cdb0d15f49f808b9e89778fe1" alt="一个 artifact 在浏览器中打开，位于 claude.ai/code/artifact。查看器标题显示 artifact 标题 acme-funnel-fix、一个共享按钮和作者头像。共享菜单已打开，显示&#x22;始终共享最新版本&#x22;切换、显示&#x22;共享版本 2&#x22;的版本选择器、&#x22;Acme 中的所有人&#x22;受众选择器和复制链接按钮。标题下方，artifact 页面显示两个并排的移动设备模型、一个漏斗图表和一行指标卡片。" width="2511" height="1890" data-path="images/artifacts-viewer.png" />
-</Frame>
+![一个 artifact 在浏览器中打开，位于 claude.ai/code/artifact。查看器标题显示 artifact 标题 acme-funnel-fix、一个共享按钮和作者头像。共享菜单已打开，显示"始终共享最新版本"切换、显示"共享版本 2"的版本选择器、"Acme 中的所有人"受众选择器和复制链接按钮。标题下方，artifact 页面显示两个并排的移动设备模型、一个漏斗图表和一行指标卡片。](https://mintcdn.com/claude-code/kaHIYYMIYMYPxQg9/images/artifacts-viewer.png?fit=max\&auto=format\&n=kaHIYYMIYMYPxQg9\&q=85\&s=dbfd671cdb0d15f49f808b9e89778fe1)
 
-<h2 id="when-to-use-an-artifact">
-  何时使用 artifact
-</h2>
+## 何时使用 artifact
 
 当终端文本不是 Claude 生成内容的合适媒介时，请使用 artifact：输出内容更容易查看和交互，而不是逐行阅读。Claude 从您的会话可以访问的任何内容构建页面，包括您的代码库和通过您的[连接工具](/docs/zh-CN/mcp)拉取的数据，因此页面可以显示需要段落才能描述的内容。例如，要求 Claude：
 
@@ -31,15 +27,11 @@
 
 有关与这些相匹配的提示，请参阅[您可以构建的内容](#what-you-can-build)，有关连接器支持的板的提示，请参阅[使用 MCP 连接器拉取实时数据](#pull-live-data-with-mcp-connectors)。
 
-<h3 id="what-an-artifact-is-not">
-  artifact 不是什么
-</h3>
+### artifact 不是什么
 
 artifact 是工作的捕获：一个自包含的页面，没有后端，因此无法提供多个路由。对于具有后端的托管内部工具，请改为在您自己的基础设施上部署它。有关完整的限制集，请参阅[页面约束](#page-constraints)。
 
-<h2 id="create-an-artifact">
-  创建工件
-</h2>
+## 创建工件
 
 Claude 可能会在输出适合作为页面时自动发布工件，或者你可以直接请求创建一个。要请求创建，请用简洁的语言命名该功能或描述你想要的视觉输出。任何比以文本形式阅读更容易看到的内容都是很好的候选，例如带有内联注释的 diff、图表或一组选项的比较。下面的提示是两个示例；有关更多模式，请参阅[你可以构建的内容](#what-you-can-build)。
 
@@ -64,9 +56,7 @@ Claude 会为 Artifact 选择标题，以及与页面内容相匹配的浏览器
 
 如果 Claude 回复说无法发布，或者写入了本地 HTML 文件但没有提供链接，则说明您的会话未启用 Artifact。请检查[可用性](#availability)要求。如果终端显示 `Artifacts need a claude.ai login`，请参阅[该错误的条目](/docs/zh-CN/errors#artifacts-need-a-claude-ai-login)了解如何登录。
 
-<h3 id="when-claude-code-asks-before-publishing">
-  Claude Code 何时会在发布前询问
-</h3>
+### Claude Code 何时会在发布前询问
 
 Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需权限提示或分类器审查。在以下情况下，Claude Code 会先询问您，或在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下让分类器审查该发布：
 
@@ -83,9 +73,7 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 
 如果发布提示中包含诸如 `Also makes 1 edit to that file on disk.` 的句子，说明 Claude 正在一步完成对 Artifact 文件的更改和发布。当您批准该提示后，Claude Code 会先发布页面，然后将更改写入您的文件。
 
-<h2 id="update-an-artifact">
-  更新一个 artifact
-</h2>
+## 更新一个 artifact
 
 要求 Claude 修改页面，或让长时间运行的任务在进行过程中重新发布。Claude 编辑底层文件并重新发布到相同的 URL。
 
@@ -101,9 +89,7 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 使用今天的数字更新 https://claude.ai/code/artifact/5fbea6f3-...
 ```
 
-<h2 id="find-an-artifact-again">
-  再次查找一个artifact
-</h2>
+## 再次查找一个artifact
 
 在Claude Code中运行`/artifacts`，以列出您拥有的Artifact以及与您共享的Artifact。当前会话的Artifact排在最前面，位于**This session**下。
 
@@ -115,9 +101,7 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 
 Claude Code从您的claude.ai账户读取列表，因此它在新会话中以及在`/clear`之后都能工作，即使链接已从终端滚出也能使用。
 
-<h2 id="share-an-artifact">
-  分享一个artifact
-</h2>
+## 分享一个artifact
 
 新创建的artifact只有你能看到。要分享它，请在浏览器中打开该artifact，并使用页面标题中的**分享**控件。标题还链接到你的库，位置在[claude.ai/code/artifacts](https://claude.ai/code/artifacts)，其中列出了你创建的每个artifact。
 
@@ -128,9 +112,7 @@ Claude Code从您的claude.ai账户读取列表，因此它在新会话中以及
 * **在你的组织内**：在Team和Enterprise计划上，向组织中的特定人员或所有人授予访问权限。查看者以组织成员身份登录claude.ai以查看该页面。
 * **公开**：分享一个链接，互联网上的任何人都可以打开，无需claude.ai登录。在Team和Enterprise计划上，公开分享处于关闭状态，直到所有者[为组织启用它](#control-public-sharing)。
 
-<h3 id="let-someone-edit-with-you">
-  让某人与你一起编辑
-</h3>
+### 让某人与你一起编辑
 
 与你分享的人默认是查看者：他们可以看到你发布的每个版本，但无法更改页面。在Team和Enterprise计划上，你也可以让某人成为编辑者。在分享对话框中，添加一个人并将其角色从**查看者**切换到**编辑者**。
 
@@ -138,9 +120,7 @@ Claude Code从您的claude.ai账户读取列表，因此它在新会话中以及
 
 如果编辑者发布时Claude持有的是该页面的旧副本，Claude Code会拒绝基于该副本的发布。随后Claude会将其更改合并到较新的版本上并再次发布。
 
-<h2 id="read-an-artifact-shared-with-you">
-  阅读与你共享的工件
-</h2>
+## 阅读与你共享的工件
 
 当有人与你共享一个工件时，你可以让 Claude 阅读它：给 Claude 提供其 URL，或从 [`/artifacts`](#find-an-artifact-again) 附加它。
 
@@ -155,9 +135,7 @@ Claude 读取他人编写的页面的方式与它读取网页的方式相同，�
 
 当 Claude 使用 WebFetch 读取 Artifact 时，WebFetch 自身的[提示规则](/docs/zh-CN/tools-reference#webfetch-tool-behavior)仍然适用。
 
-<h2 id="collect-comments-on-an-artifact">
-  收集工件上的评论
-</h2>
+## 收集工件上的评论
 
 当您在组织内共享工件时，与您共享的人可以在页面上留下评论，您可以让 Claude 读取这些评论并回复。您需要 Claude Code v2.1.221 或更高版本。Claude 在两种情况下读取评论：
 
@@ -180,9 +158,7 @@ Claude 只能回复或解决已激活的线程。其他线程保持打开状态�
 * 您不在安装 Claude Code 或从 v2.1.221 之前的版本升级后的第一个会话中。在[安装或升级后的第一个会话](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)中，Claude 可能还无法读取评论；启动新会话并再次询问。
 * 您没有关闭功能标志获取。
 
-<h3 id="let-claude-reply-to-comments-on-its-own">
-  让 Claude 自动回复评论
-</h3>
+### 让 Claude 自动回复评论
 
 在您的会话发布 Artifact 后，Claude Code 会监视该 Artifact 的评论。当可以编辑 Artifact 的人向 Claude 发送评论时，它会立即到达您的会话，Claude 可以读取线程并回复，而无需您询问。
 
@@ -208,9 +184,7 @@ Claude 只能回复或解决已激活的线程。其他线程保持打开状态�
 
 如果传递评论的服务变得不可用或停止响应，Claude Code 会尝试重新连接一段时间，然后停止监视您的会话正在监视的每个工件。
 
-<h2 id="pull-live-data-with-mcp-connectors">
-  使用 MCP 连接器拉取实时数据
-</h2>
+## 使用 MCP 连接器拉取实时数据
 
 artifact 可以在每次有人查看它时调用 [MCP 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)，因此页面显示的是当前数据而不是构建它的会话中的快照。来自 artifact 的连接器调用在 Pro、Max、Team 和 Enterprise 计划上可用，需要 Claude Code v2.1.209 或更高版本。在早期版本上，Claude 会发布该页面，其中包含会话在构建时收集的任何数据。
 
@@ -224,9 +198,7 @@ Claude 声明该页面可能调用哪些连接器作为发布的一部分，该�
 
 页面在加载时获取数据，可以按间隔刷新或当查看者在页面上使用刷新控件时刷新。响应缓存在查看者的浏览器中，因此重新打开的页面会立即从缓存的响应呈现，然后使用新结果更新。
 
-<h3 id="how-connector-calls-work-for-viewers">
-  连接器调用如何为查看者工作
-</h3>
+### 连接器调用如何为查看者工作
 
 当已发布的页面调用连接器时，该调用使用查看页面的人的账户，而不是发布它的人的账户：
 
@@ -238,9 +210,7 @@ Claude 声明该页面可能调用哪些连接器作为发布的一部分，该�
 
 您可以在您的组织内或公开[共享一个由连接器支持的页面](#share-an-artifact)，如您的计划和组织设置所允许的那样。连接器调用不会为未登录 claude.ai 的查看者或来自您组织外部的查看者运行。该查看者看到的页面没有其实时部分。
 
-<h3 id="the-page-shows-no-live-data-for-a-viewer">
-  页面对查看者显示没有实时数据
-</h3>
+### 页面对查看者显示没有实时数据
 
 当由连接器支持的页面呈现但其实时部分对您组织中的查看者保持为空时，请解决这些原因：
 
@@ -251,9 +221,7 @@ Claude 声明该页面可能调用哪些连接器作为发布的一部分，该�
 
   当 Claude 发布页面且该连接器的工具在您的会话中可用时，Claude Code 会检查页面声明的工具名称与它们的对比，警告 Claude 不匹配的名称，并在没有任何名称匹配时拒绝发布。在 v2.1.265 之前，它会在不检查它们的情况下发布页面。
 
-<h2 id="offer-a-file-download">
-  提供文件下载
-</h2>
+## 提供文件下载
 
 artifact 可以向查看者提供页面生成的文件，例如表格的 CSV 导出或图表的 PNG。查看者通过页面上的下载控制（例如按钮）保存文件。文件下载是 claude.ai 启用的运行时功能，按账户提供，因此 Claude 在构建控制之前会检查您的账户是否具有此功能。
 
@@ -267,15 +235,11 @@ Add a button that downloads this table as a CSV file.
 
 Claude 将下载功能声明为发布的一部分，与[声明连接器](#pull-live-data-with-mcp-connectors)的方式相同。
 
-<h2 id="what-you-can-build">
-  您可以构建的内容
-</h2>
+## 您可以构建的内容
 
 Artifact 是单个 HTML 页面，因此您可以用 HTML、CSS 和内联 JavaScript 表达的任何内容都在范围内。下面的模式最常出现。
 
-<h3 id="walk-through-a-change">
-  逐步讲解更改
-</h3>
+### 逐步讲解更改
 
 要求一个页面，在相关行旁边呈现 diff 或设计更改并带有注释，以便审阅者可以在代码旁边阅读您的推理，而不是从描述中重建它。
 
@@ -283,9 +247,7 @@ Artifact 是单个 HTML 页面，因此您可以用 HTML、CSS 和内联 JavaScr
 Make an artifact that walks through this PR. Render the diff with margin annotations and color-code findings by severity.
 ```
 
-<h3 id="compare-alternatives">
-  比较替代方案
-</h3>
+### 比较替代方案
 
 要求在一个页面上有多个变体，以便您可以相互评估它们。这适用于布局、文案、API 形状或实现计划。
 
@@ -293,9 +255,7 @@ Make an artifact that walks through this PR. Render the diff with margin annotat
 Make an artifact with four distinctly different layouts for the settings panel. Vary density and grouping, and lay them out as a grid with a one-line tradeoff under each.
 ```
 
-<h3 id="tune-with-interactive-controls">
-  使用交互式控件进行调整
-</h3>
+### 使用交互式控件进行调整
 
 要求滑块、切换或输入字段绑定到您正在调整的任何内容，以便您可以直接探索值，而不是描述它们。
 
@@ -303,9 +263,7 @@ Make an artifact with four distinctly different layouts for the settings panel. 
 Build an artifact with sliders for the easing curve, duration, and delay so I can try values on this transition. Show the animation live as I move them.
 ```
 
-<h3 id="bring-the-result-back-to-your-session">
-  将结果带回您的会话
-</h3>
+### 将结果带回您的会话
 
 Artifact 可以充当您随后交给 Claude 的决定的轻量级编辑器。要求一个导出控件，生成您可以粘贴到终端的文本，以便与页面交互的结果流回会话，而不是停留在页面上。
 
@@ -313,9 +271,7 @@ Artifact 可以充当您随后交给 Claude 的决定的轻量级编辑器。要
 Make a triage board artifact with each open issue as a draggable card across Now, Next, Later, and Cut columns. Add a "Copy as prompt" button that gives me the final ordering to paste back here.
 ```
 
-<h3 id="track-work-in-progress">
-  跟踪进行中的工作
-</h3>
+### 跟踪进行中的工作
 
 要求 Claude 在长任务运行时保持 artifact 最新，以便任何拥有链接的人都可以跟随，而无需阅读终端。
 
@@ -323,9 +279,7 @@ Make a triage board artifact with each open issue as a draggable card across Now
 Turn this migration plan into a checklist artifact. Check items off as you complete them and add a note for anything you skip.
 ```
 
-<h2 id="improve-the-visual-design">
-  改进视觉设计
-</h2>
+## 改进视觉设计
 
 Claude 在构建工件时应用内置设计技能，因此页面获得精心设计的调色板、排版和布局，无需额外提示。该技能还会在选择自己的设计之前查找项目中是否存在现有设计系统。设计令牌是设计系统重复使用的命名颜色、排版和间距值。为了保持工件与产品品牌的一致性，请将它们记录在 Claude 可以找到的地方，例如项目的 [CLAUDE.md](/docs/zh-CN/memory) 或存储库中的主题文件：
 
@@ -341,21 +295,17 @@ Claude 将您的设计系统视为比其自己的选择更高的优先级，您�
 
 对于排版，Claude 可以从 Google Fonts 加载字体，这是工件页面可以加载的唯一外部字体源。Claude 将任何其他字体内联为 `@font-face` 数据 URI，并为每个字体提供后备堆栈，因此即使字体未加载，页面仍会呈现。要使用特定字体，请在提示或设计系统中命名它。
 
-<h2 id="start-from-a-slides-design-or-docs-template">
-  从幻灯片、设计或文档模板开始
-</h2>
+## 从幻灯片、设计或文档模板开始
 
 Claude 可以从您的 claude.ai 账户上的模板开始创建工件，而不是从头开始构建页面：[Claude Slides](https://support.claude.com/en/articles/17153992-what-are-artifacts-and-how-do-i-use-them#h_11d5a9a5fa) 用于演示文稿，[Claude Design](https://support.claude.com/en/articles/14604416-get-started-with-claude-design) 用于视觉设计，或 [Claude Docs](https://support.claude.com/en/articles/16923645-get-started-with-claude-docs) 用于其他人将阅读和编辑的文档。每个都在 claude.ai 上的自己的编辑器中打开，您和您的团队成员可以直接更改它或要求 Claude 更改，并将其导出为 PowerPoint、PDF 或 Word 等格式。
 
 要从模板开始，请描述您想要的内容，例如"将迁移说明转换为周四审查的演示文稿"或"将此计划作为文档写给团队"。Claude 选择匹配的模板，从您的请求和会话已有的内容填充它，并给您链接。对于演示文稿或设计，您也可以运行 `/slides` 或 `/design` 并提供简要说明。
 
-<Note>
-  模板处于测试阶段。它们在 Pro、Max 和 Team 计划上默认启用。在 Enterprise 计划上，所有者在**组织设置 > 工件**下[启用每个模板](https://support.claude.com/en/articles/16994751-artifacts-admin-guide-for-team-and-enterprise-plans)。如果您的组织关闭了 Slides 模板，`/slides` 不会出现；如果关闭了 Design 模板，`/design` 不会草拟设计。两个命令都需要 Claude Code v2.1.265 或更高版本以及一个[工件可用](#availability)的会话。
-</Note>
+> [!NOTE]
+>
+> 模板处于测试阶段。它们在 Pro、Max 和 Team 计划上默认启用。在 Enterprise 计划上，所有者在**组织设置 > 工件**下[启用每个模板](https://support.claude.com/en/articles/16994751-artifacts-admin-guide-for-team-and-enterprise-plans)。如果您的组织关闭了 Slides 模板，`/slides` 不会出现；如果关闭了 Design 模板，`/design` 不会草拟设计。两个命令都需要 Claude Code v2.1.265 或更高版本以及一个[工件可用](#availability)的会话。
 
-<h3 id="make-a-slide-deck">
-  制作幻灯片演示文稿
-</h3>
+### 制作幻灯片演示文稿
 
 运行 `/slides` 并提供简要说明，说明演示文稿涵盖的内容以及针对的对象：
 
@@ -365,9 +315,7 @@ Claude 可以从您的 claude.ai 账户上的模板开始创建工件，而不�
 
 Claude 创建一个 Claude Slides 工件并给您链接。在桌面浏览器中打开它以编辑或演示演示文稿。如果您运行 `/slides` 而不提供简要说明，Claude 会在创建任何内容之前询问演示文稿应该是关于什么的。
 
-<h3 id="draft-a-design-canvas">
-  草拟设计画布
-</h3>
+### 草拟设计画布
 
 要模拟 UI、屏幕流、登陆页面或海报，而不是构建页面，请运行 `/design` 并提供简要说明。Claude 将设计作为一个画布上的画板草拟，并将画布发布为一个 Claude Design 工件。简要说明命名您想要绘制的内容：
 
@@ -377,9 +325,7 @@ Claude 创建一个 Claude Slides 工件并给您链接。在桌面浏览器中�
 
 在桌面浏览器中打开已发布的工件以查看画板。在画板上选择一个元素并更改它，您的编辑会自动保存。您可以将每个画板导出为 PNG 或 PDF。
 
-<h3 id="write-a-document-with-claude-docs">
-  使用 Claude Docs 编写文档
-</h3>
+### 使用 Claude Docs 编写文档
 
 Claude Docs 作为 claude.ai [连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)而不是命令到达 Claude Code。连接后，`/mcp` 将其列为 `claude.ai Claude Docs`。针对供其他人使用的文档的请求随后转到 Claude Docs 而不是工件页面：规范、提案或您在会话中完成的计划的写入。Claude 在草拟文档时给您文档的链接。
 
@@ -387,9 +333,7 @@ Claude Docs 作为 claude.ai [连接器](/docs/zh-CN/mcp#use-mcp-servers-from-cl
 
 要关闭连接器，请将 `claude.ai Claude Docs` 添加到 `deniedMcpServers` 或使用 `/mcp` 切换，两者都在[禁用 claude.ai 连接器](/docs/zh-CN/mcp#disable-claude-ai-connectors)中描述。
 
-<h2 id="page-constraints">
-  页面约束
-</h2>
+## 页面约束
 
 每个工件都是一个独立的页面。Claude Code 将您发布的文件包装在 HTML 文档外壳中，并在严格的内容安全策略 (CSP) 下提供服务，这决定了页面可以执行的操作。
 
@@ -409,9 +353,7 @@ Claude Docs 作为 claude.ai [连接器](/docs/zh-CN/mcp#use-mcp-servers-from-cl
 * 省略您不需要的交互性
 * 让页面汇总大型数据集，而不是完整地内联它们
 
-<h2 id="availability">
-  可用性
-</h2>
+## 可用性
 
 Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入本地 HTML 文件或说它无法发布。
 
@@ -427,9 +369,7 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
 
 如果涉及代理、VPN 或网络过滤器，请要求您的 IT 管理员允许 `api.anthropic.com` 通过。Claude Code 会在后台继续重试，一旦策略加载并允许，artifacts 就会变得可用。
 
-<h2 id="disable-artifacts">
-  禁用 artifacts
-</h2>
+## 禁用 artifacts
 
 要为您自己的会话关闭 artifacts，无论您的组织设置如何，请使用以下任何一种方法：
 
@@ -446,45 +386,31 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
 
 如果您添加了没有 `domain:` 部分的 `WebFetch` deny 或 ask 规则，它不会关闭 artifacts 或阻止 artifact 读取。[`permissions` 中 `deny` 或 `ask` 中的 `WebFetch(domain:claude.ai)` 规则确实适用于 artifact 读取](/docs/zh-CN/permissions#allow-or-deny-every-fetch)。
 
-<h2 id="manage-artifacts-for-your-organization">
-  为您的组织管理 artifacts
-</h2>
+## 为您的组织管理 artifacts
 
 Team 和 Enterprise 计划上的所有者从 [claude.ai 管理设置](https://claude.ai/admin-settings/artifacts) 控制 artifacts。Artifact 内容存储在 Anthropic 运营的基础设施上，仅对发布组织的经过身份验证的成员可见，除非该 artifact 是[公开共享](#control-public-sharing)的。
 
-<h3 id="enable-or-disable-artifacts">
-  启用或禁用 artifacts
-</h3>
+### 启用或禁用 artifacts
 
 要为整个组织启用或禁用 artifacts，请转到 [**Organization settings > Artifacts**](https://claude.ai/admin-settings/artifacts) 并使用 **Artifacts** 切换。在具有基于角色的访问控制的 Enterprise 计划上，您还可以将 artifacts 限制到特定角色：转到 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles)，编辑角色，并设置 **Artifacts** 权限。
 
-<h3 id="control-connector-calls-from-artifacts">
-  控制来自 artifacts 的连接器调用
-</h3>
+### 控制来自 artifacts 的连接器调用
 
 [来自 artifacts 的连接器调用](#pull-live-data-with-mcp-connectors)有自己的切换，与打开或关闭 artifacts 的 **Artifacts** 切换分开。转到 [**Organization settings > Capabilities**](https://claude.ai/admin-settings/capabilities) 并使用 **Enable artifact connectors** 切换。同一切换控制在 claude.ai 对话中创建的 artifacts 的连接器调用。
 
-<h3 id="control-public-sharing">
-  控制公开共享
-</h3>
+### 控制公开共享
 
 在 Team 和 Enterprise 计划上，公开共享默认处于关闭状态。要让成员将 artifacts 发布到任何人都可以查看而无需登录的公开链接，请转到 [**Organization settings > Artifacts**](https://claude.ai/admin-settings/artifacts) 并在 **Artifacts** 切换下打开 **External sharing**。将其关闭会阻止通过现有公开链接的访问，而不会更改每个 artifact 的受众；如果您重新启用它，访问将恢复。
 
-<h3 id="set-a-retention-policy">
-  设置保留策略
-</h3>
+### 设置保留策略
 
 要设置在自动删除之前保留 artifacts 的时间长度，请转到 [**Organization settings > Data and privacy**](https://claude.ai/admin-settings/data-privacy-controls)。您可以为仍然对其作者私有的 artifacts 和已共享的 artifacts 设置单独的保留期。
 
-<h3 id="review-the-audit-log">
-  查看审计日志
-</h3>
+### 查看审计日志
 
 发布、共享和删除 artifact 各自出现在您组织的审计日志中，位于 `claude_artifact_*` 事件类型下，这是用于在 claude.ai 对话中创建的 artifacts 的同一系列。
 
-<h3 id="allowlist-the-viewer-domain">
-  将查看器域列入允许列表
-</h3>
+### 将查看器域列入允许列表
 
 claude.ai 上的查看器从沙箱 `*.claudeusercontent.com` 源加载每个 artifact。如果您的组织限制出站网络访问，请将该域添加到您的允许列表中，与 `claude.ai` 一起。有关完整列表，请参阅 [网络访问要求](/docs/zh-CN/network-config#network-access-requirements)。
 
@@ -492,9 +418,7 @@ claude.ai 上的查看器从沙箱 `*.claudeusercontent.com` 源加载每个 art
 
 Artifacts 还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwindcss.com`、`code.jquery.com` 和 `unpkg.com` 加载 JavaScript 库（如 React 或图表包），而不能从任何其他外部主机加载。如果您阻止这些主机，artifact 中依赖库的部分将无法工作，与被阻止的字体不同，被阻止的库没有备用方案。在这里也使用快速拒绝，以便被阻止的库请求立即失败，而不是挂起直到超时。
 
-<h3 id="list-and-delete-artifacts-with-the-compliance-api">
-  使用 Compliance API 列出和删除 artifacts
-</h3>
+### 使用 Compliance API 列出和删除 artifacts
 
 [Compliance API](https://docs.claude.com/en/api/compliance) 提供端点来列出组织的 artifacts、检索特定版本的内容和删除 artifact：
 
@@ -506,9 +430,7 @@ Artifacts 还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwi
 
 有关请求和响应架构，请参阅 [Compliance API 参考](https://docs.claude.com/en/api/compliance/code/artifacts)。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * 浏览与 artifacts 配对的 [提示模式和工作流](/docs/zh-CN/prompt-library)
 * 将您重复使用的 artifact 提示转换为 [skill](/docs/zh-CN/skills)，以便您可以将其作为命令调用

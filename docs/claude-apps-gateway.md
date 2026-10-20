@@ -6,11 +6,11 @@
 
 > 通过自托管网关在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 或 Microsoft Foundry 上运行 Claude Code，支持 SSO 登录、按组模型访问和 OTLP 遥测。
 
-<Note>
-  Claude 应用网关专为必须或倾向于通过自己的云提供商路由推理的组织设计，例如满足[数据驻留](/docs/zh-CN/claude-apps-gateway-deploy#compliance-posture)要求。如果您没有此要求，并且想要访问其他功能，例如 SCIM 配置或 Claude Code 网页和移动版本，Claude Enterprise 可能更适合。请参阅[功能可用性](/docs/zh-CN/feature-availability)页面，了解所有部署方法的完整比较。
-
-  Claude Code 一次只使用一种登录方式：网关登录会取代 Claude for Teams 或 Enterprise 登录。网关会话不会获取您在 claude.ai 管理控制台中设置的[服务器托管设置](/docs/zh-CN/server-managed-settings)，因此请通过网关的 [`managed` 块](/docs/zh-CN/claude-apps-gateway-config#managed)下发这些设置。请勿在该块中包含 `forceLoginMethod` 和 `forceLoginOrgUUID`，否则[部分已登录的会话会在启动时退出](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)。请参阅[可用性和限制](#availability-and-limitations)，了解网关会话会失去哪些功能。
-</Note>
+> [!NOTE]
+>
+> Claude 应用网关专为必须或倾向于通过自己的云提供商路由推理的组织设计，例如满足[数据驻留](/docs/zh-CN/claude-apps-gateway-deploy#compliance-posture)要求。如果您没有此要求，并且想要访问其他功能，例如 SCIM 配置或 Claude Code 网页和移动版本，Claude Enterprise 可能更适合。请参阅[功能可用性](/docs/zh-CN/feature-availability)页面，了解所有部署方法的完整比较。
+>
+> Claude Code 一次只使用一种登录方式：网关登录会取代 Claude for Teams 或 Enterprise 登录。网关会话不会获取您在 claude.ai 管理控制台中设置的[服务器托管设置](/docs/zh-CN/server-managed-settings)，因此请通过网关的 [`managed` 块](/docs/zh-CN/claude-apps-gateway-config#managed)下发这些设置。请勿在该块中包含 `forceLoginMethod` 和 `forceLoginOrgUUID`，否则[部分已登录的会话会在启动时退出](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)。请参阅[可用性和限制](#availability-and-limitations)，了解网关会话会失去哪些功能。
 
 Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 客户端和模型提供商之间。开发人员使用您的企业身份提供商 (IdP) 登录，而不是持有 API 密钥或云凭证。网关持有上游凭证，按 IdP 组强制执行模型访问和[托管设置](/docs/zh-CN/managed-settings)，并将使用情况遥测转发到您自己的可观测性堆栈。
 
@@ -25,9 +25,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 
 配套页面深入讲解。[配置参考](/docs/zh-CN/claude-apps-gateway-config)涵盖快速入门编写的 YAML 文件中的每个选项，[部署指南](/docs/zh-CN/claude-apps-gateway-deploy)涵盖每个 IdP 的设置、Kubernetes 和 Cloud Run 部署以及操作。
 
-<h2 id="why-claude-apps-gateway">
-  为什么使用 Claude apps gateway
-</h2>
+## 为什么使用 Claude apps gateway
 
 [网关概述](/docs/zh-CN/gateways)涵盖网关的功能以及为什么要运行它。Claude apps gateway 是 Anthropic 自己的网关，内置于 `claude` 二进制文件中，并与每个 Claude Code 版本一起测试，因此它转发 Claude Code 发送的 `anthropic-beta` 值和请求字段，无需操作员维护单独的允许列表。部署后，它为您提供：
 
@@ -37,19 +35,15 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 * **遥测**：每个配置的目标接收[OpenTelemetry Protocol (OTLP) 指标](/docs/zh-CN/monitoring-usage)，默认包含 token 计数、模型、用户身份和延迟，日志和跟踪作为按目标的选择加入。
 * **上游路由**：客户端向网关发送 Anthropic Messages API，网关为每个上游进行转换，无论是 Amazon Bedrock、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Google Cloud 的 Agent Platform、Microsoft Foundry 还是 Anthropic API，并在它们之间进行故障转移。您可以更改区域、提供商或故障转移顺序，而开发人员无需注意或重新配置。
 
-<Frame>
-  <img src="https://mintcdn.com/claude-code/VbyXug8hBU9UK6oT/images/claude-gateway-architecture.svg?fit=max&auto=format&n=VbyXug8hBU9UK6oT&q=85&s=9e4f1190fc56718144190a3db61c63af" alt="显示 Claude Code 客户端和 Claude Desktop 的 Chat、Cowork 和 Code 选项卡通过 HTTPS 和持有者令牌连接到基础设施内自托管的 Claude apps gateway 的图表，网关通过您的 IdP 让用户登录，在 PostgreSQL 中存储身份验证状态，将遥测转发到您的 OTLP 收集器，并将推理转发到 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud、Microsoft Foundry 或 Anthropic API" width="760" height="320" data-path="images/claude-gateway-architecture.svg" />
-</Frame>
+![显示 Claude Code 客户端和 Claude Desktop 的 Chat、Cowork 和 Code 选项卡通过 HTTPS 和持有者令牌连接到基础设施内自托管的 Claude apps gateway 的图表，网关通过您的 IdP 让用户登录，在 PostgreSQL 中存储身份验证状态，将遥测转发到您的 OTLP 收集器，并将推理转发到 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud、Microsoft Foundry 或 Anthropic API](https://mintcdn.com/claude-code/VbyXug8hBU9UK6oT/images/claude-gateway-architecture.svg?fit=max\&auto=format\&n=VbyXug8hBU9UK6oT\&q=85\&s=9e4f1190fc56718144190a3db61c63af)
 
-<Note>
-  网关自己的数据平面不会向 Anthropic 基础设施发送任何内容，除非 Anthropic API 是配置的上游。您控制遥测、审计日志、托管设置和开发人员的 IdP 身份的去向，网关不会将它们中的任何一个发送给 Anthropic。对于其余流量，CLI 进程可以发送什么以及如何关闭它，请参阅[合规态势](/docs/zh-CN/claude-apps-gateway-deploy#compliance-posture)。
-</Note>
+> [!NOTE]
+>
+> 网关自己的数据平面不会向 Anthropic 基础设施发送任何内容，除非 Anthropic API 是配置的上游。您控制遥测、审计日志、托管设置和开发人员的 IdP 身份的去向，网关不会将它们中的任何一个发送给 Anthropic。对于其余流量，CLI 进程可以发送什么以及如何关闭它，请参阅[合规态势](/docs/zh-CN/claude-apps-gateway-deploy#compliance-posture)。
 
 有关哪些 Claude Code 功能通过网关工作以及服务器本身支持什么，请参阅下面的[可用性和限制](#availability-and-limitations)。有关成本、绕过、运行多个网关和无服务器平台等决策，请参阅[部署指南](/docs/zh-CN/claude-apps-gateway-deploy#deployment)。
 
-<h3 id="other-gateway-implementations">
-  其他网关实现
-</h3>
+### 其他网关实现
 
 如果您已经运行满足您需求的 LLM 网关或 API 网关，请继续使用它；[其他 LLM 网关](/docs/zh-CN/llm-gateway)涵盖针对它配置 Claude Code。
 
@@ -57,23 +51,19 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 
 协议的重大更改会提前宣布，但不保证无限期的向后兼容性。
 
-<Note>
-  网关登录令牌标识的是批准该登录的开发人员，而不是使用它的程序。Claude Code 登录时不使用自己的客户端 ID 或密钥，因此网关无法验证是哪个程序在登录。任何客户端都可以设置 `User-Agent` 和其他请求字段，因此请将它们用于路由或指标，而不是作为请求来自 Claude Code 的证明。
-</Note>
+> [!NOTE]
+>
+> 网关登录令牌标识的是批准该登录的开发人员，而不是使用它的程序。Claude Code 登录时不使用自己的客户端 ID 或密钥，因此网关无法验证是哪个程序在登录。任何客户端都可以设置 `User-Agent` 和其他请求字段，因此请将它们用于路由或指标，而不是作为请求来自 Claude Code 的证明。
 
-<h2 id="quickstart">
-  快速入门
-</h2>
+## 快速入门
 
 本快速入门演示最小路径：在您的 IdP 中注册 OAuth 客户端，编写 `gateway.yaml`，使用 Docker Compose 运行网关和 Postgres，并端到端验证登录。它使用 Amazon Bedrock 上游；Claude Platform on AWS、Google Cloud 的 Agent Platform、Microsoft Foundry 和 Anthropic API 同样受支持，只需交换[配置参考](/docs/zh-CN/claude-apps-gateway-config#upstreams)中所示的 `upstreams` 块。最后，您有一个开发人员可以 `/login` 的网关。
 
-<Note>
-  **在您的私有网络上部署。** Claude Code 仅连接到地址为私有的网关。这是一个安全防护，因为受信任的网关可以推送在开发人员机器上运行命令的设置。将网关放在内部负载均衡器或 VPN 后面，并给它一个仅解析为私有 IP 的主机名。如果您的内部网络使用您的组织拥有的公共 IPv4 空间编号，请参阅[允许网关在您拥有的公共地址空间上](#allow-a-gateway-on-public-address-space-you-own)。
-</Note>
+> [!NOTE]
+>
+> **在您的私有网络上部署。** Claude Code 仅连接到地址为私有的网关。这是一个安全防护，因为受信任的网关可以推送在开发人员机器上运行命令的设置。将网关放在内部负载均衡器或 VPN 后面，并给它一个仅解析为私有 IP 的主机名。如果您的内部网络使用您的组织拥有的公共 IPv4 空间编号，请参阅[允许网关在您拥有的公共地址空间上](#allow-a-gateway-on-public-address-space-you-own)。
 
-<h3 id="prerequisites">
-  前提条件
-</h3>
+### 前提条件
 
 在开始之前，请准备好以下内容：
 
@@ -87,187 +77,181 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 | 私有网络地址 | 在 `/login` 处，Claude Code 要求网关的主机名或 IP 地址仅解析为私有地址：RFC 1918、链路本地、CGNAT `100.64.0.0/10`、IPv6 ULA `fc00::/7` 或环回。对于您托管的网关，任何不在您所声明地址块内的公共地址都会被拒绝；请参阅部署指南中的[威胁模型](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)。如果开发人员机器通过公司代理路由 HTTPS，登录还要求代理主机解析为私有地址；如果不是，将网关主机添加到 `NO_PROXY`，以便 CLI 直接连接。如果您的内部网络使用您的组织拥有的公共 IPv4 空间编号，[声明这些块](#allow-a-gateway-on-public-address-space-you-own)，以便 `/login` 接受那里的网关。 |
 | Linux 运行时 | 网关服务器仅在本机 Linux 二进制文件上运行。macOS 适用于本地开发。Windows 不支持作为服务器平台。 |
 
-<h3 id="steps">
-  步骤
-</h3>
+### 步骤
 
-<Steps>
-  <Step title="在您的 IdP 中注册 OAuth 客户端">
-    首先决定网关的主机名，因为重定向 URI 必须与其匹配。创建新的 OIDC Web 应用程序并将重定向 URI 设置为 `https://claude-gateway.<your-domain>/oauth/callback`，其中主机是您在步骤 3 中设置为 [`listen.public_url`](/docs/zh-CN/claude-apps-gateway-config#listen) 的相同值。记下 `client_id` 和 `client_secret`。每个 IdP 的说明在[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy#identity-provider-setup)中。
-  </Step>
+**1. 在您的 IdP 中注册 OAuth 客户端**
 
-  <Step title="配置 PostgreSQL 数据库">
-    使用 PostgreSQL 11 或更高版本。最小的托管层级就足够了。网关在启动时运行自己的 schema 迁移，因此数据库角色需要创建和修改表的权限；请参阅 [`store`](/docs/zh-CN/claude-apps-gateway-config#store)。
-  </Step>
+首先决定网关的主机名，因为重定向 URI 必须与其匹配。创建新的 OIDC Web 应用程序并将重定向 URI 设置为 `https://claude-gateway.<your-domain>/oauth/callback`，其中主机是您在步骤 3 中设置为 [`listen.public_url`](/docs/zh-CN/claude-apps-gateway-config#listen) 的相同值。记下 `client_id` 和 `client_secret`。每个 IdP 的说明在[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy#identity-provider-setup)中。
 
-  <Step title="编写 gateway.yaml">
-    通过 `${ENV_VAR}` 扩展读取机密，因此文件本身可以存在于版本控制中。使用在您的网络上解析为私有 IP 的 `public_url` 主机名，因为 `/login` 拒绝公共地址。最小配置有五个部分，其他所有字段都有默认值：
+**2. 配置 PostgreSQL 数据库**
 
-    ```yaml gateway.yaml theme={null}
-    listen:
-      host: 0.0.0.0
-      port: 8080
-      # 除非主机是环回地址，否则必需。用于 IdP
-      # redirect_uri 和发现文档。
-      public_url: https://claude-gateway.internal.example.com
+使用 PostgreSQL 11 或更高版本。最小的托管层级就足够了。网关在启动时运行自己的 schema 迁移，因此数据库角色需要创建和修改表的权限；请参阅 [`store`](/docs/zh-CN/claude-apps-gateway-config#store)。
 
-    oidc:
-      issuer: https://login.example.com        # 必须提供 /.well-known/openid-configuration
-      client_id: 0oa1example2
-      client_secret: ${OIDC_CLIENT_SECRET}
-      allowed_email_domains: [example.com]        # 拒绝组织外的 id_tokens
-      userinfo_fallback: true                  # 对于 id_token 省略 email/groups 的 IdP；否则无害
+**3. 编写 gateway.yaml**
 
-    session:
-      jwt_secret: ${GATEWAY_JWT_SECRET}        # openssl rand -base64 32
-      ttl_hours: 1                             # 也限制 IdP 取消配置时的撤销延迟
+通过 `${ENV_VAR}` 扩展读取机密，因此文件本身可以存在于版本控制中。使用在您的网络上解析为私有 IP 的 `public_url` 主机名，因为 `/login` 拒绝公共地址。最小配置有五个部分，其他所有字段都有默认值：
 
-    store:
-      postgres_url: ${GATEWAY_POSTGRES_URL}    # 为托管 Postgres 添加 ?sslmode=require
+```yaml gateway.yaml theme={null}
+listen:
+  host: 0.0.0.0
+  port: 8080
+  # 除非主机是环回地址，否则必需。用于 IdP
+  # redirect_uri 和发现文档。
+  public_url: https://claude-gateway.internal.example.com
 
-    upstreams:
-      - provider: bedrock
-        region: us-east-1
-        auth: {} # 空：AWS 默认凭据链
-    # (IRSA, EC2/ECS task role, env vars, ~/.aws)
+oidc:
+  issuer: https://login.example.com        # 必须提供 /.well-known/openid-configuration
+  client_id: 0oa1example2
+  client_secret: ${OIDC_CLIENT_SECRET}
+  allowed_email_domains: [example.com]        # 拒绝组织外的 id_tokens
+  userinfo_fallback: true                  # 对于 id_token 省略 email/groups 的 IdP；否则无害
 
-    # 模型会自动按上游转换。内置目录
-    # 将 claude-opus-4-8 映射到 us.anthropic.claude-opus-4-8 等，
-    # 对于每个 Bedrock 支持的 Claude 模型。设置为 false 并添加 `models:` 列表以
-    # 仅公开特定模型。
-    auto_include_builtin_models: true
-    ```
+session:
+  jwt_secret: ${GATEWAY_JWT_SECRET}        # openssl rand -base64 32
+  ttl_hours: 1                             # 也限制 IdP 取消配置时的撤销延迟
 
-    此配置足以使用默认 Amazon Bedrock 模型目录进行工作登录循环。运行后，通过 [`managed.policies`](/docs/zh-CN/claude-apps-gateway-config#managed) 添加按组 RBAC 和托管设置，通过 [`telemetry`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 添加遥测扇出，以及通过 [`models`](/docs/zh-CN/claude-apps-gateway-config#models) 添加多上游故障转移、预配置吞吐量 ARN 或非美国地区。
+store:
+  postgres_url: ${GATEWAY_POSTGRES_URL}    # 为托管 Postgres 添加 ?sslmode=require
 
-    <Note>
-      Amazon Bedrock 上游需要一个 AWS 主体，具有对 `inference-profile/us.anthropic.*` ARN 和底层 `foundation-model/anthropic.*` ARN 的 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream` 权限。它还需要在 Bedrock 控制台的模型目录中为该账户提交 Anthropic 的一次性用例表单。
+upstreams:
+  - provider: bedrock
+    region: us-east-1
+    auth: {} # 空：AWS 默认凭据链
+# (IRSA, EC2/ECS task role, env vars, ~/.aws)
 
-      使用 EKS 上的 IRSA、ECS 任务角色或 EC2 实例配置文件提供凭据，而不是静态密钥。[`upstreams` 参考](/docs/zh-CN/claude-apps-gateway-config#upstreams)具有完整的 IAM 详情、跨云凭据矩阵以及其他提供商的 `auth` 块。
-    </Note>
-  </Step>
+# 模型会自动按上游转换。内置目录
+# 将 claude-opus-4-8 映射到 us.anthropic.claude-opus-4-8 等，
+# 对于每个 Bedrock 支持的 Claude 模型。设置为 false 并添加 `models:` 列表以
+# 仅公开特定模型。
+auto_include_builtin_models: true
+```
 
-  <Step title="运行它">
-    围绕满足[镜像要求](/docs/zh-CN/claude-apps-gateway-deploy#container-image)的 `claude` 二进制文件构建容器镜像，然后将其与 Postgres 一起运行。Compose 文件将镜像引用为 `registry.example.com/claude-gateway:2.1.198`；替换为您自己的注册表和镜像标签：
+此配置足以使用默认 Amazon Bedrock 模型目录进行工作登录循环。运行后，通过 [`managed.policies`](/docs/zh-CN/claude-apps-gateway-config#managed) 添加按组 RBAC 和托管设置，通过 [`telemetry`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 添加遥测扇出，以及通过 [`models`](/docs/zh-CN/claude-apps-gateway-config#models) 添加多上游故障转移、预配置吞吐量 ARN 或非美国地区。
 
-    ```yaml docker-compose.yaml theme={null}
-    services:
-      gateway:
-        image: registry.example.com/claude-gateway:2.1.198
-        ports: ["8080:8080"]
-        volumes: ["./gateway.yaml:/etc/claude/gateway.yaml:ro"]
-        environment:
-          OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
-          GATEWAY_JWT_SECRET: ${GATEWAY_JWT_SECRET}
-          GATEWAY_POSTGRES_URL: postgres://gw:pw@postgres/gateway
-          # AWS 凭据：在生产中，省略这些并使用实例
-          # 角色。对于本地 Compose 测试，传递您自己的：
-          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
-        depends_on:
-          postgres:
-            condition: service_healthy
+> [!NOTE]
+>
+> Amazon Bedrock 上游需要一个 AWS 主体，具有对 `inference-profile/us.anthropic.*` ARN 和底层 `foundation-model/anthropic.*` ARN 的 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream` 权限。它还需要在 Bedrock 控制台的模型目录中为该账户提交 Anthropic 的一次性用例表单。
+>
+> 使用 EKS 上的 IRSA、ECS 任务角色或 EC2 实例配置文件提供凭据，而不是静态密钥。[`upstreams` 参考](/docs/zh-CN/claude-apps-gateway-config#upstreams)具有完整的 IAM 详情、跨云凭据矩阵以及其他提供商的 `auth` 块。
+
+**4. 运行它**
+
+围绕满足[镜像要求](/docs/zh-CN/claude-apps-gateway-deploy#container-image)的 `claude` 二进制文件构建容器镜像，然后将其与 Postgres 一起运行。Compose 文件将镜像引用为 `registry.example.com/claude-gateway:2.1.198`；替换为您自己的注册表和镜像标签：
+
+```yaml docker-compose.yaml theme={null}
+services:
+  gateway:
+    image: registry.example.com/claude-gateway:2.1.198
+    ports: ["8080:8080"]
+    volumes: ["./gateway.yaml:/etc/claude/gateway.yaml:ro"]
+    environment:
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      GATEWAY_JWT_SECRET: ${GATEWAY_JWT_SECRET}
+      GATEWAY_POSTGRES_URL: postgres://gw:pw@postgres/gateway
+      # AWS 凭据：在生产中，省略这些并使用实例
+      # 角色。对于本地 Compose 测试，传递您自己的：
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
+    depends_on:
       postgres:
-        image: postgres:16-alpine
-        environment: { POSTGRES_USER: gw, POSTGRES_PASSWORD: pw, POSTGRES_DB: gateway }
-        healthcheck:
-          test: ["CMD-SHELL", "pg_isready -U gw"]
-          interval: 5s
-        volumes: ["pgdata:/var/lib/postgresql/data"]
-    volumes: { pgdata: }
-    ```
+        condition: service_healthy
+  postgres:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: gw, POSTGRES_PASSWORD: pw, POSTGRES_DB: gateway }
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gw"]
+      interval: 5s
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+volumes: { pgdata: }
+```
 
-    网关是一个单一的 Linux 二进制文件，读取配置，连接到 Postgres 并应用其 schema 迁移，针对您的 IdP 运行 OIDC 发现，构建上游客户端，并开始侦听。
+网关是一个单一的 Linux 二进制文件，读取配置，连接到 Postgres 并应用其 schema 迁移，针对您的 IdP 运行 OIDC 发现，构建上游客户端，并开始侦听。
 
-    启动对配置、Postgres 连接、OIDC 发现和上游客户端构造是失败关闭的。如果其中任何一个无法访问或配置错误，网关会以错误退出，而不是以降级状态提供流量。
+启动对配置、Postgres 连接、OIDC 发现和上游客户端构造是失败关闭的。如果其中任何一个无法访问或配置错误，网关会以错误退出，而不是以降级状态提供流量。
 
-    成功启动不会验证推理路径，因为 Amazon Bedrock 和 Google Cloud 的 Agent Platform 实例凭据在第一个请求时解析，而不是在启动时。
+成功启动不会验证推理路径，因为 Amazon Bedrock 和 Google Cloud 的 Agent Platform 实例凭据在第一个请求时解析，而不是在启动时。
 
-    监视 stderr 以获取启动序列。日志行使用格式 `[gateway] <timestamp> <level> <message>`，审计事件是带有 `evt` 字段的单行 JSON，启动横幅（下面省略）在迁移和侦听行之间打印。新数据库每个 schema 迁移打印一行 `migration N applied`；已迁移的数据库不打印任何内容。您应该按顺序看到：
+监视 stderr 以获取启动序列。日志行使用格式 `[gateway] <timestamp> <level> <message>`，审计事件是带有 `evt` 字段的单行 JSON，启动横幅（下面省略）在迁移和侦听行之间打印。新数据库每个 schema 迁移打印一行 `migration N applied`；已迁移的数据库不打印任何内容。您应该按顺序看到：
 
-    ```text theme={null}
-    {"ts":"2026-06-10T17:03:21.114Z","evt":"config.load","path":"/etc/claude/gateway.yaml","sha256":"…"}
-    [gateway] 2026-06-10T17:03:21.395Z info waiting for migration lock (another replica may be migrating; check pg_locks for key 6775156 if this persists)
-    [gateway] 2026-06-10T17:03:21.408Z info migration 1 applied
-    …
-    [gateway] 2026-06-10T17:03:21.431Z info migration 6 applied
-    [gateway] 2026-06-10T17:03:21.512Z info claude gateway listening on http://0.0.0.0:8080
-    ```
+```text theme={null}
+{"ts":"2026-06-10T17:03:21.114Z","evt":"config.load","path":"/etc/claude/gateway.yaml","sha256":"…"}
+[gateway] 2026-06-10T17:03:21.395Z info waiting for migration lock (another replica may be migrating; check pg_locks for key 6775156 if this persists)
+[gateway] 2026-06-10T17:03:21.408Z info migration 1 applied
+…
+[gateway] 2026-06-10T17:03:21.431Z info migration 6 applied
+[gateway] 2026-06-10T17:03:21.512Z info claude gateway listening on http://0.0.0.0:8080
+```
 
-    网关还会记录一个警告，`access_control.allow_cidrs` 为空。这在这里是预期的，因为在您设置允许列表之前，没有任何东西限制网关提供的客户端地址。[`access_control` 参考](/docs/zh-CN/claude-apps-gateway-config#http-tuning)有推荐的范围。
+网关还会记录一个警告，`access_control.allow_cidrs` 为空。这在这里是预期的，因为在您设置允许列表之前，没有任何东西限制网关提供的客户端地址。[`access_control` 参考](/docs/zh-CN/claude-apps-gateway-config#http-tuning)有推荐的范围。
 
-    如果启动在 `claude gateway listening on` 行之前退出，stderr 的最后一行命名问题：
+如果启动在 `claude gateway listening on` 行之前退出，stderr 的最后一行命名问题：
 
-    * 无法访问的 Postgres
-    * 没有 DDL 权限的 Postgres 角色
-    * 无法访问或无效的 OIDC 发现文档
-    * 配置 schema 违规，带有违规字段路径
+* 无法访问的 Postgres
+* 没有 DDL 权限的 Postgres 角色
+* 无法访问或无效的 OIDC 发现文档
+* 配置 schema 违规，带有违规字段路径
 
-    修复它并重新启动。
+修复它并重新启动。
 
-    如果您已经有 TLS 终止入口，请跳过 Compose 并直接使用 `claude gateway --config gateway.yaml` 运行二进制文件。将 `public_url` 设置为入口源，并将 `listen` 绑定到环回或集群内部地址。
-  </Step>
+如果您已经有 TLS 终止入口，请跳过 Compose 并直接使用 `claude gateway --config gateway.yaml` 运行二进制文件。将 `public_url` 设置为入口源，并将 `listen` 绑定到环回或集群内部地址。
 
-  <Step title="验证身份验证表面">
-    三个检查确认网关可以在将其交给开发人员之前对真实用户进行身份验证。
+**5. 验证身份验证表面**
 
-    示例使用网关的公共 URL；对于没有入口的本地 Compose 设置，在前两个检查中替换 `http://localhost:8080`。第三个检查打开 `verification_uri_complete`，它从 `public_url` 构建，因此对于本地 Compose，在 `gateway.yaml` 中设置 `public_url: http://localhost:8080`，并在步骤 1 的 OAuth 客户端上添加 `http://localhost:8080/oauth/callback` 作为第二个重定向 URI，因为网关从 `public_url` 构建 IdP `redirect_uri`。验证链接然后在您的本地浏览器中打开。
+三个检查确认网关可以在将其交给开发人员之前对真实用户进行身份验证。
 
-    在 Windows PowerShell 中，运行 `curl.exe`；裸 `curl` 是 `Invoke-WebRequest` 的别名，拒绝这些标志。
+示例使用网关的公共 URL；对于没有入口的本地 Compose 设置，在前两个检查中替换 `http://localhost:8080`。第三个检查打开 `verification_uri_complete`，它从 `public_url` 构建，因此对于本地 Compose，在 `gateway.yaml` 中设置 `public_url: http://localhost:8080`，并在步骤 1 的 OAuth 客户端上添加 `http://localhost:8080/oauth/callback` 作为第二个重定向 URI，因为网关从 `public_url` 构建 IdP `redirect_uri`。验证链接然后在您的本地浏览器中打开。
 
-    首先，获取发现文档，确认网关已启动，配置有效，所有启动检查都通过：
+在 Windows PowerShell 中，运行 `curl.exe`；裸 `curl` 是 `Invoke-WebRequest` 的别名，拒绝这些标志。
 
-    ```bash theme={null}
-    curl -s https://claude-gateway.internal.example.com/.well-known/oauth-authorization-server | jq
-    ```
+首先，获取发现文档，确认网关已启动，配置有效，所有启动检查都通过：
 
-    ```json theme={null}
-    {
-      "issuer": "https://claude-gateway.internal.example.com",
-      "device_authorization_endpoint": "…/oauth/device_authorization",
-      "token_endpoint": "…/oauth/token",
-      "grant_types_supported": ["urn:ietf:params:oauth:grant-type:device_code", "refresh_token"]
-    }
-    ```
+```bash theme={null}
+curl -s https://claude-gateway.internal.example.com/.well-known/oauth-authorization-server | jq
+```
 
-    响应包括其他字段，如 `response_types_supported` 和 `scopes_supported`。
+```json theme={null}
+{
+  "issuer": "https://claude-gateway.internal.example.com",
+  "device_authorization_endpoint": "…/oauth/device_authorization",
+  "token_endpoint": "…/oauth/token",
+  "grant_types_supported": ["urn:ietf:params:oauth:grant-type:device_code", "refresh_token"]
+}
+```
 
-    其次，请求设备授权，确认设备登录流工作且 Postgres 可访问且可写：
+响应包括其他字段，如 `response_types_supported` 和 `scopes_supported`。
 
-    ```bash theme={null}
-    curl -s -X POST https://claude-gateway.internal.example.com/oauth/device_authorization | jq
-    ```
+其次，请求设备授权，确认设备登录流工作且 Postgres 可访问且可写：
 
-    ```json theme={null}
-    {
-      "device_code": "…",
-      "user_code": "WDJB-MJHT",
-      "verification_uri": "https://claude-gateway.internal.example.com/device",
-      "verification_uri_complete": "https://claude-gateway.internal.example.com/device?user_code=WDJB-MJHT",
-      "expires_in": 600,
-      "interval": 5
-    }
-    ```
+```bash theme={null}
+curl -s -X POST https://claude-gateway.internal.example.com/oauth/device_authorization | jq
+```
 
-    第三，通过在浏览器中打开 `verification_uri_complete` 并确认代码来测试浏览器部分。您应该被重定向到您的 IdP 的登录页面，登录后，返回网关并显示已登录确认。
+```json theme={null}
+{
+  "device_code": "…",
+  "user_code": "WDJB-MJHT",
+  "verification_uri": "https://claude-gateway.internal.example.com/device",
+  "verification_uri_complete": "https://claude-gateway.internal.example.com/device?user_code=WDJB-MJHT",
+  "expires_in": 600,
+  "interval": 5
+}
+```
 
-    使用第一个失败的检查来定位问题：
+第三，通过在浏览器中打开 `verification_uri_complete` 并确认代码来测试浏览器部分。您应该被重定向到您的 IdP 的登录页面，登录后，返回网关并显示已登录确认。
 
-    * **第一个检查失败**：启动未完成；检查 stderr
-    * **第二个检查失败**：Postgres 无法从网关访问或角色无法写入；检查连接字符串和授予
-    * **第三个检查未到达 IdP**：检查 IdP 的重定向 URI 是否与 `https://<gateway>/oauth/callback` 完全匹配
-    * **第三个检查到达 IdP 但以错误反弹**：读取网关的审计日志，它记录每个身份验证拒绝及其原因，例如 `email domain not allowed`
-  </Step>
+使用第一个失败的检查来定位问题：
 
-  <Step title="登录开发人员">
-    最后一步发生在开发人员机器上，而不是服务器上。在该机器的[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)中将 `forceLoginMethod` 设置为 `"gateway"`，将 `forceLoginGatewayUrl` 设置为您的网关的 `public_url`，并将 `parentSettingsBehavior` 设置为 `"merge"`，然后运行 `/login`，在**Cloud gateway** 屏幕上按 Enter，并完成浏览器登录。下面的[设置网关 URL](#set-the-gateway-url)介绍这三个键以及如何将它们分发到每台开发人员机器。
-  </Step>
-</Steps>
+* **第一个检查失败**：启动未完成；检查 stderr
+* **第二个检查失败**：Postgres 无法从网关访问或角色无法写入；检查连接字符串和授予
+* **第三个检查未到达 IdP**：检查 IdP 的重定向 URI 是否与 `https://<gateway>/oauth/callback` 完全匹配
+* **第三个检查到达 IdP 但以错误反弹**：读取网关的审计日志，它记录每个身份验证拒绝及其原因，例如 `email domain not allowed`
 
-<h2 id="connect-developers">
-  连接开发人员
-</h2>
+**6. 登录开发人员**
+
+最后一步发生在开发人员机器上，而不是服务器上。在该机器的[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)中将 `forceLoginMethod` 设置为 `"gateway"`，将 `forceLoginGatewayUrl` 设置为您的网关的 `public_url`，并将 `parentSettingsBehavior` 设置为 `"merge"`，然后运行 `/login`，在**Cloud gateway** 屏幕上按 Enter，并完成浏览器登录。下面的[设置网关 URL](#set-the-gateway-url)介绍这三个键以及如何将它们分发到每台开发人员机器。
+
+## 连接开发人员
 
 开发人员在自己的笔记本电脑上使用企业工作账户，通过一次浏览器登录即可连接。他们不需要 claude.ai 账户、API 密钥或订阅，因为发往模型的请求会通过网关，使用组织的上游凭据。连接由您通过 MDM 推送的[客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)驱动，本节介绍管理员需要配置的内容。
 
@@ -289,9 +273,7 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 
 会话会在 `ttl_hours` 到期前静默刷新。当 IdP 取消配置后刷新失败时，Claude Code 会提示开发人员重新登录。
 
-<h3 id="set-the-gateway-url">
-  设置网关 URL
-</h3>
+### 设置网关 URL
 
 以下三个键需放入您通过 MDM 或直接在磁盘上部署的各操作系统对应的[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)中。对于没有托管设置的机器，请改为参阅[在用户设置中设置网关 URL](#set-the-gateway-url-in-user-settings)。`forceLoginMethod` 和 `forceLoginGatewayUrl` 会让 `/login` 直接在 **Cloud gateway** 界面打开并填入 URL，而 `parentSettingsBehavior: "merge"` 允许 Claude Desktop 将网关的出站允许列表传递给它启动的 Claude Code 会话，详见[向 Claude Desktop 会话传递策略](#deliver-policy-to-claude-desktop-sessions)：
 
@@ -307,9 +289,7 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 
 登录选择器中没有网关选项，而在托管设置中只设置 `forceLoginMethod` 而不设置 URL，会让开发人员停留在“Contact your IT administrator”消息处。登录相关的键应放在您推送到机器的文件中，而不是网关的 `managed.policies[].cli` 块中，后者只会到达已连接的客户端。
 
-<h4 id="set-the-gateway-url-in-user-settings">
-  在用户设置中设置网关 URL
-</h4>
+#### 在用户设置中设置网关 URL
 
 在没有托管设置的机器上，请让每位开发人员将 `forceLoginMethod` 和 `forceLoginGatewayUrl` 添加到自己的用户设置文件 `~/.claude/settings.json` 中。这要求开发人员机器上的 Claude Code 为 v2.1.295 或更高版本。以下示例指定了位于 `claude-gateway.internal.example.com` 的网关：
 
@@ -325,17 +305,15 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 * **仅限用户设置**：Claude Code 从 `~/.claude/settings.json` 读取这两个键，而不会从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 读取。
 * **托管设置会使其失效**：一旦管理员的设置通过托管设置文件、macOS plist 或 Windows HKLM 策略，或[策略帮助程序](/docs/zh-CN/settings-reference#policyhelper)到达该机器，Claude Code 就会忽略用户设置中指定的网关。
 
-<h3 id="allow-a-gateway-on-public-address-space-you-own">
-  允许位于您自有公网地址空间的网关
-</h3>
+### 允许位于您自有公网地址空间的网关
 
 有些组织使用自己拥有的公网 IPv4 地址块为内部网络编址，例如运营商自己的地址空间或遗留的 `/8`，因此其网关没有私有地址。请在 `gatewayInternalNetworks` 托管设置中列出这些地址块。之后，当开发人员的机器从某个已列出地址块内的地址连接到位于同一地址块内的网关时，`/login` 会接受该网关。这要求开发人员机器上的 Claude Code 为 v2.1.268 或更高版本；更早的版本会忽略该键并应用私有地址规则。
 
-<Warning>
-  `gatewayInternalNetworks` 适用于恰好使用公网地址空间编址的内部网络。它并不能让网关暴露在互联网上变得安全：受信任的网关可以推送在开发人员机器上运行命令的设置。
-
-  请通过防火墙或负载均衡器规则，确保从您的网络外部无法访问网关。将网关的 [`access_control.allow_cidrs`](/docs/zh-CN/claude-apps-gateway-config#http-tuning) 设置为您在此处声明的相同地址块，使网关本身拒绝来自其他任何地方的客户端。如果网关位于负载均衡器或入口之后，还需将 `listen.trusted_proxies` 设置为该前端，否则网关会用前端自身的地址而不是开发人员的地址来匹配 `allow_cidrs`。
-</Warning>
+> [!WARNING]
+>
+> `gatewayInternalNetworks` 适用于恰好使用公网地址空间编址的内部网络。它并不能让网关暴露在互联网上变得安全：受信任的网关可以推送在开发人员机器上运行命令的设置。
+>
+> 请通过防火墙或负载均衡器规则，确保从您的网络外部无法访问网关。将网关的 [`access_control.allow_cidrs`](/docs/zh-CN/claude-apps-gateway-config#http-tuning) 设置为您在此处声明的相同地址块，使网关本身拒绝来自其他任何地方的客户端。如果网关位于负载均衡器或入口之后，还需将 `listen.trusted_proxies` 设置为该前端，否则网关会用前端自身的地址而不是开发人员的地址来匹配 `allow_cidrs`。
 
 请将该键添加到与登录键相同的托管设置来源中：托管设置文件、MDM 配置描述文件或注册表策略。Claude Code 会忽略用户设置、项目设置和服务器托管设置中的该键。
 
@@ -370,9 +348,7 @@ Claude Code 会在 `/login` 联系任何网关之前验证该列表：
 
 已声明的地址块会缩小可登录的范围，但无法证明机器所在的位置，因此请只声明您的组织所控制的地址空间。与其他租户共享的地址块（例如云提供商的公网范围）会让其中的任何人都能通过同样的检查。
 
-<h3 id="deliver-policy-to-claude-desktop-sessions">
-  向 Claude Desktop 会话传递策略
-</h3>
+### 向 Claude Desktop 会话传递策略
 
 Claude Desktop 在嵌入式 Claude Code 会话上运行其 Cowork 和 Code 标签页（以及在您启用时的 Chat 标签页），并通过网关发送这些会话的模型请求。它会向每个这样的会话传递策略，该策略基于网关在 `/user/bootstrap` 提供给它的配置构建：模型允许列表、已禁用的工具，以及从匹配策略的 `cli` 或 `code` 块派生的出站允许列表，外加 [`desktop` 覆盖层](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)。
 
@@ -380,9 +356,7 @@ Claude Desktop 在嵌入式 Claude Code 会话上运行其 Cowork 和 Code 标�
 
 由启动进程传递的设置称为父设置。在任何具有管理员部署的托管来源的机器上，Claude Code 都会忽略父设置，除非[传递策略的来源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)设置了 `parentSettingsBehavior: "merge"`。
 
-<h4 id="which-machines-need-the-opt-in">
-  哪些机器需要启用该选项
-</h4>
+#### 哪些机器需要启用该选项
 
 仅运行 Claude Desktop 的机器需要启用。Claude Desktop 会自行将模型列表和已禁用工具列表应用于嵌入式会话，但出站允许列表只能以父设置的形式到达这些会话，形式为 `WebFetch` 域规则和沙箱网络规则。如果不启用该选项，这些会话将在没有出站限制的情况下运行，而且不会有任何警告。网关仍会拒绝针对策略未授予的模型的推理请求。
 
@@ -392,33 +366,27 @@ Claude Desktop 在嵌入式 Claude Code 会话上运行其 Cowork 和 Code 标�
 
 由 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 提供托管设置的机器群无法使用该选项：在这些机器群上，Claude Code 从不合并父设置，因为它仅从帮助程序的输出中读取托管设置。
 
-<h4 id="set-the-opt-in">
-  启用该选项
-</h4>
+#### 启用该选项
 
 部署[设置网关 URL](#set-the-gateway-url) 中的托管设置片段，将其同步到任何优先级高于该文件的客户端来源，然后进行验证。
 
-<Steps>
-  <Step title="在托管设置文件中部署该选项">
-    [上方的片段](#set-the-gateway-url)已包含 `parentSettingsBehavior: "merge"`，因此您推送到机器的文件会带有该选项。
-  </Step>
+**1. 在托管设置文件中部署该选项**
 
-  <Step title="将片段同步到任何优先级高于该文件的来源">
-    Claude Code 只从[选定的来源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)读取 `parentSettingsBehavior`。向某个来源添加任何策略键都可能使该来源成为选定来源，因此在客户端来源中，请同步整个片段，而不仅仅是 `parentSettingsBehavior`。[客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)介绍了通过组策略或配置描述文件传递策略的机器群。macOS 上的托管偏好设置 plist 或 Windows 上的 HKLM 策略优先级高于 `managed-settings.json` 文件，而网关自身的远程托管设置优先级高于这两者，因此在登录网关的机器上，还需在网关策略的 [`cli` 或 `code` 块](/docs/zh-CN/claude-apps-gateway-config#managed)中设置 `parentSettingsBehavior`。
-  </Step>
+[上方的片段](#set-the-gateway-url)已包含 `parentSettingsBehavior: "merge"`，因此您推送到机器的文件会带有该选项。
 
-  <Step title="检查选定的来源">
-    在仅运行 Claude Desktop 的机器上，调用 Agent SDK 的 [`resolveSettings()`](/docs/zh-CN/agent-sdk/typescript#resolvesettings)，并读取其 `sources` 列表中 `managed` 条目上的 `policyOrigin`。该值指明选定的客户端来源：`plist`、`hklm` 或 `file`，即必须包含该片段的来源。
+**2. 将片段同步到任何优先级高于该文件的来源**
 
-    Cowork 和 Chat 会话不会获取网关策略，因此对它们而言，网关的块不是选定来源。
+Claude Code 只从[选定的来源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)读取 `parentSettingsBehavior`。向某个来源添加任何策略键都可能使该来源成为选定来源，因此在客户端来源中，请同步整个片段，而不仅仅是 `parentSettingsBehavior`。[客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)介绍了通过组策略或配置描述文件传递策略的机器群。macOS 上的托管偏好设置 plist 或 Windows 上的 HKLM 策略优先级高于 `managed-settings.json` 文件，而网关自身的远程托管设置优先级高于这两者，因此在登录网关的机器上，还需在网关策略的 [`cli` 或 `code` 块](/docs/zh-CN/claude-apps-gateway-config#managed)中设置 `parentSettingsBehavior`。
 
-    当策略的设置位于 `code` 下且满足 [Code 标签页的条件](/docs/zh-CN/claude-apps-gateway-config#apply-code-settings-in-the-code-tab)时，Code 标签页会话会获取网关策略。此时网关的 `code` 设置就是该会话的选定来源。
-  </Step>
-</Steps>
+**3. 检查选定的来源**
 
-<h3 id="restrict-parent-settings">
-  限制父设置
-</h3>
+在仅运行 Claude Desktop 的机器上，调用 Agent SDK 的 [`resolveSettings()`](/docs/zh-CN/agent-sdk/typescript#resolvesettings)，并读取其 `sources` 列表中 `managed` 条目上的 `policyOrigin`。该值指明选定的客户端来源：`plist`、`hklm` 或 `file`，即必须包含该片段的来源。
+
+Cowork 和 Chat 会话不会获取网关策略，因此对它们而言，网关的块不是选定来源。
+
+当策略的设置位于 `code` 下且满足 [Code 标签页的条件](/docs/zh-CN/claude-apps-gateway-config#apply-code-settings-in-the-code-tab)时，Code 标签页会话会获取网关策略。此时网关的 `code` 设置就是该会话的选定来源。
+
+### 限制父设置
 
 部署 `parentSettingsBehavior: "merge"` 后，任何启动 Claude Code 的宿主进程都可以提供父设置，不仅是 Claude Desktop，还包括 Agent SDK 应用程序或 IDE 扩展。
 
@@ -431,9 +399,7 @@ Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](/
 * **使用 `mode: mask` 的 `envVars` 条目**：不转发。`deny` 是父通道通过 `envVars` 条目可以表达的唯一限制。
 * **[`awsPairs` 和 `sigv4`](/docs/zh-CN/sandboxing#re-sign-aws-requests)**：仅以限制形式转发。对于 `sigv4`，只保留 `deny` 值，只要父进程定义了 `sigv4` 块，就会将全部三种请求形式 `streaming`、`presigned` 和 `sigv4a` 固定为 `deny`。`awsPairs` 中的配对绝不会以可重新签名的形式转发；指明某个常规 AWS 变量的配对会被替换为一个无效条目，该条目会继续抑制 `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY` 和 `AWS_SESSION_TOKEN` 的自动配对。
 
-<h4 id="deploy-the-locks">
-  部署锁定
-</h4>
+#### 部署锁定
 
 为了让父设置在过滤器支持的范围内尽可能接近纯限制性，请将全部五个 `allowManaged*Only` 锁定及其管控的允许列表添加到与合并选项相同的来源中：
 
@@ -462,9 +428,7 @@ Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](/
 
 操作系统策略（例如 HKLM 注册表策略或托管偏好设置 plist）的优先级高于该文件，因此请通过它而不是该文件传递整个片段。网关的远程托管设置优先级高于操作系统策略和文件来源，但只能到达已连接的客户端。请将锁定、允许列表和合并选项同步到策略的 [`cli` 或 `code` 块](/docs/zh-CN/claude-apps-gateway-config#managed)中，并保留此文件的部署，因为从未连接的机器只能从该文件获取策略。
 
-<h4 id="lock-behavior-across-sources">
-  跨来源的锁定行为
-</h4>
+#### 跨来源的锁定行为
 
 设置某个锁定不会限制其他锁定；每个键都记录在[设置参考](/docs/zh-CN/settings-reference#all-settings)中。
 
@@ -478,9 +442,7 @@ Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](/
 * **MCP 服务器**：如果任何管理员来源或父进程提供的设置中都没有 `allowedMcpServers`，进行锁定会加载所有未被 `deniedMcpServers` 阻止的服务器。
 * **读取路径**：`allowRead` 条目只会重新允许 `denyRead` 区域内的路径，因此请将它们与托管的 `denyRead` 搭配使用。
 
-<h4 id="settings-the-locks-don’t-cover">
-  锁定未覆盖的设置
-</h4>
+#### 锁定未覆盖的设置
 
 即使设置了全部五个锁定，以下父进程提供的设置仍会通过过滤器：
 
@@ -494,9 +456,7 @@ Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](/
 
 在默认的“先到先得”设置下，只有当管理员值位于最高优先级管理员来源中时，才会阻止父进程的值，但在 [MCP 服务器锁定](#lock-behavior-across-sources)开启期间的 `allowedMcpServers` 除外。在 `managedSourcesBehavior` 合并选项下，改由 [Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明应用哪个来源的值。
 
-<h3 id="connect-claude-desktop">
-  连接 Claude Desktop
-</h3>
+### 连接 Claude Desktop
 
 [Claude Desktop](/docs/zh-CN/desktop) 通过另一个 MDM 键连接到同一网关：在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中将 `bootstrapUrl` 设置为 `<listen.public_url>/user/bootstrap`，并通过 `desktop` 键让用户的策略启用该功能。[Claude Desktop 覆盖层](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)介绍了这两部分。需要网关服务器上的 Claude Code 为 v2.1.203 或更高版本。
 
@@ -504,9 +464,7 @@ Claude Desktop 通过网关的身份提供商、使用相同的浏览器 SSO 步
 
 连接后，Claude Desktop 会通过网关发送来自每个已启用标签页的模型请求。它默认显示 Cowork 和 Code 标签页。要同时启用 Chat 标签页，请在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中将 `chatTabEnabled` 设置为 `true`，或者在运行 Claude Code v2.1.227 或更高版本的网关上，在策略的 [`desktop` 块](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)中进行设置。
 
-<h3 id="ci-pipelines-and-remote-machines">
-  CI 流水线和远程机器
-</h3>
+### CI 流水线和远程机器
 
 没有面向无人值守流水线的服务令牌流程。网关登录始终运行浏览器设备流程，因此没有开发人员批准登录的 CI 作业无法完成身份验证；请将这些作业直接配置为使用您的提供商。请将 `forceLoginMethod` 和 `forceLoginGatewayUrl` 部署到开发人员机器上，不要部署到 CI 运行器上。在托管设置中设置了这两个键的机器上，使用 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 进行身份验证的会话会[在启动时退出](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。
 
@@ -514,9 +472,7 @@ Claude Desktop 通过网关的身份提供商、使用相同的浏览器 SSO 步
 
 设备流程将轮询的 CLI 与进行批准的浏览器分离开来，因此没有显示器的远程开发机也能正常使用：开发人员通过 SSH 在远程机器上运行 `/login`，然后在笔记本电脑的浏览器中打开验证链接。
 
-<h3 id="whats-enforced-on-developers">
-  对开发人员强制执行的内容
-</h3>
+### 对开发人员强制执行的内容
 
 以下保证适用于通过 `/login` 登录的每个会话。Claude Desktop 启动的嵌入式会话按照[向 Claude Desktop 会话传递策略](#deliver-policy-to-claude-desktop-sessions)中所述的方式获取策略，遥测一项说明了它们的导出数据发往何处。
 
@@ -534,15 +490,11 @@ Claude Desktop 通过网关的身份提供商、使用相同的浏览器 SSO 步
   * 当网关的发现文档在与网关 URL 相同的协议、主机和端口上公布了 `revocation_endpoint` 时，`/logout` 还会将存储的令牌发送到该端点，以便网关在其一侧终止会话。该请求为尽力而为，因此无论端点是否响应，开发人员机器上的注销都会完成。该撤销功能要求开发人员机器上的 Claude Code 为 v2.1.275 或更高版本。
   * `claude` 二进制文件中的网关服务器不公布任何撤销端点，因此从它注销只会终止开发人员机器上的会话。要在服务器端强制终止会话，请参阅 [JWT 密钥轮换](/docs/zh-CN/claude-apps-gateway-deploy#jwt-secret-rotation)。
 
-<h3 id="what-the-organization-can-see">
-  组织可以看到的内容
-</h3>
+### 组织可以看到的内容
 
 使用遥测会将开发人员的身份、token 数量、模型和延迟传送到组织的收集器。网关不会记录或存储提示词或补全内容。是否收集更丰富的遥测数据（例如日志和追踪，其中可能包含命令和文件路径）由组织[按目标自行选择](/docs/zh-CN/claude-apps-gateway-config#telemetry)。
 
-<h2 id="availability-and-limitations">
-  可用性和限制
-</h2>
+## 可用性和限制
 
 该表涵盖当开发人员通过网关连接时哪些 Claude Code 功能有效，以及网关服务器本身支持什么。如果不支持某些内容，Notes 列给出替代方案。
 
@@ -572,9 +524,7 @@ Claude Desktop 通过网关的身份提供商、使用相同的浏览器 SSO 步
 | Helm 图表 | 不可用 | 网关作为标准无状态 Deployment 运行；请参阅[部署指南](/docs/zh-CN/claude-apps-gateway-deploy#kubernetes) |
 | 管理员 UI | 不可用 | 配置是 YAML 文件；重新部署以更改它 |
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 快速入门让您在 Docker Compose 下运行最小配置。要进一步进行：
 

@@ -6,28 +6,20 @@
 
 > Claude Code 的法律协议、合规认证和安全信息。
 
-<h2 id="legal-agreements">
-  法律协议
-</h2>
+## 法律协议
 
-<h3 id="license">
-  许可证
-</h3>
+### 许可证
 
 您对 Claude Code 的使用受以下条款约束：
 
 * [商业条款](https://www.anthropic.com/legal/commercial-terms) - 适用于 Team、Enterprise 和 Claude API 用户
 * [消费者服务条款](https://www.anthropic.com/legal/consumer-terms) - 适用于 Free、Pro 和 Max 用户
 
-<h3 id="commercial-agreements">
-  商业协议
-</h3>
+### 商业协议
 
 无论您是直接使用 Claude API（1P）还是通过 Amazon Bedrock 或 Google Cloud 的 Agent Platform（3P）访问，您现有的商业协议将适用于 Claude Code 的使用，除非我们已相互同意另行安排。
 
-<h3 id="can-customers-offer-claude-code-in-their-products">
-  客户可以在其产品中提供 Claude Code 吗？
-</h3>
+### 客户可以在其产品中提供 Claude Code 吗？
 
 除非我们已相互同意另行安排，否则在您的产品或服务中预安装或运行 Claude Code（例如在托管沙箱或其他代理基础设施中）需要同意我们的[商业条款](https://www.anthropic.com/legal/commercial-terms)并遵守以下条件：
 
@@ -38,13 +30,9 @@
 
 Claude Code 仍然受 Anthropic 的标准条款管制（请参阅上面的许可证和商业协议部分），无论通过哪个平台访问。
 
-<h2 id="compliance">
-  合规
-</h2>
+## 合规
 
-<h3 id="healthcare-compliance-baa">
-  医疗保健合规（BAA）
-</h3>
+### 医疗保健合规（BAA）
 
 如果客户与 Anthropic 签订了业务关联协议（BAA），该 BAA 将在以下两种配置中扩展到 Claude Code，具体取决于您的组织可用的选项：
 
@@ -53,19 +41,13 @@ Claude Code 仍然受 Anthropic 的标准条款管制（请参阅上面的许可
 
 在 HIPAA 配置下，云端会话、Remote Control、Claude 移动应用中的 Claude Code，以及通过第三方云提供商或网关路由的 Claude Code 均不在涵盖范围内。请查阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)，了解符合条件的服务的完整列表。
 
-<h2 id="usage-policy">
-  使用政策
-</h2>
+## 使用政策
 
-<h3 id="acceptable-use">
-  可接受的使用
-</h3>
+### 可接受的使用
 
 Claude Code 的使用受 [Anthropic 使用政策](https://www.anthropic.com/legal/aup) 约束。Pro 和 Max 计划的公布使用限制假设 Claude Code 和 Agent SDK 的普通个人使用。
 
-<h3 id="authentication-and-credential-use">
-  身份验证和凭证使用
-</h3>
+### 身份验证和凭证使用
 
 Claude Code 使用 OAuth 令牌或 API 密钥与 Anthropic 的服务器进行身份验证。这些身份验证方法有不同的用途：
 
@@ -78,19 +60,13 @@ Anthropic 保留采取措施执行这些限制的权利，并可能在不事先�
 
 如果您对您的使用案例的允许身份验证方法有疑问，请 [联系销售](https://www.anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=legal_compliance_contact_sales)。
 
-<h2 id="security-and-trust">
-  安全和信任
-</h2>
+## 安全和信任
 
-<h3 id="trust-and-safety">
-  信任和安全
-</h3>
+### 信任和安全
 
 您可以在 [Anthropic 信任中心](https://trust.anthropic.com) 和 [透明度中心](https://www.anthropic.com/transparency) 中找到更多信息。
 
-<h3 id="security-vulnerability-reporting">
-  安全漏洞报告
-</h3>
+### 安全漏洞报告
 
 Anthropic 通过 HackerOne 管理我们的安全计划。[使用此表单报告漏洞](https://hackerone.com/4f1f16ba-10d3-4d09-9ecc-c721aad90f24/embedded_submissions/new)。
 

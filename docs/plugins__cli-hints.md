@@ -10,13 +10,11 @@
 
 本页仅适用于您的插件是否列在 `claude-plugins-official` 或其他市场中，该市场具有 Anthropic 的[官方市场名称](/docs/zh-CN/plugins/security#official-marketplace-names)之一。社区市场 `claude-community` 不是其中之一。
 
-<Note>
-  要发布插件，请参阅[发布和分发插件](/docs/zh-CN/plugins/publish)。
-</Note>
+> [!NOTE]
+>
+> 要发布插件，请参阅[发布和分发插件](/docs/zh-CN/plugins/publish)。
 
-<h2 id="emit-the-hint">
-  发出提示
-</h2>
+## 发出提示
 
 仅当设置了 `CLAUDECODE` 或 `CLAUDE_CODE_CHILD_SESSION` 时才发出标签，以便当人员直接运行您的 CLI 时它不会出现。
 
@@ -29,38 +27,36 @@ Claude Code 在通过 Bash 和 PowerShell 工具运行的命令以及 hook 命�
 
 以下示例在 `CLAUDECODE` 上进行门控以获得最广泛的覆盖范围，并为官方市场中名为 `example-cli` 的插件发出提示：
 
-<CodeGroup>
-  ```javascript Node.js theme={null}
-  if (process.env.CLAUDECODE) {
-    process.stderr.write(
-      '<claude-code-hint v="1" type="plugin" value="example-cli@claude-plugins-official" />\n',
+```javascript Node.js theme={null}
+if (process.env.CLAUDECODE) {
+  process.stderr.write(
+    '<claude-code-hint v="1" type="plugin" value="example-cli@claude-plugins-official" />\n',
+  )
+}
+```
+
+```python Python theme={null}
+import os, sys
+
+if os.environ.get("CLAUDECODE"):
+    print(
+        '<claude-code-hint v="1" type="plugin" value="example-cli@claude-plugins-official" />',
+        file=sys.stderr,
     )
-  }
-  ```
+```
 
-  ```python Python theme={null}
-  import os, sys
+```go Go theme={null}
+if os.Getenv("CLAUDECODE") != "" {
+    fmt.Fprintln(os.Stderr,
+        `<claude-code-hint v="1" type="plugin" value="example-cli@claude-plugins-official" />`)
+}
+```
 
-  if os.environ.get("CLAUDECODE"):
-      print(
-          '<claude-code-hint v="1" type="plugin" value="example-cli@claude-plugins-official" />',
-          file=sys.stderr,
-      )
-  ```
-
-  ```go Go theme={null}
-  if os.Getenv("CLAUDECODE") != "" {
-      fmt.Fprintln(os.Stderr,
-          `<claude-code-hint v="1" type="plugin" value="example-cli@claude-plugins-official" />`)
-  }
-  ```
-
-  ```shell Shell theme={null}
-  if [ -n "$CLAUDECODE" ]; then
-    printf '%s\n' '<claude-code-hint v="1" type="plugin" value="example-cli@claude-plugins-official" />' >&2
-  fi
-  ```
-</CodeGroup>
+```shell Shell theme={null}
+if [ -n "$CLAUDECODE" ]; then
+  printf '%s\n' '<claude-code-hint v="1" type="plugin" value="example-cli@claude-plugins-official" />' >&2
+fi
+```
 
 将 `example-cli` 替换为您的插件在官方市场中的名称。
 
@@ -68,9 +64,7 @@ Claude Code 在通过 Bash 和 PowerShell 工具运行的命令以及 hook 命�
 
 要检查发出器，请在终端中运行 `CLAUDECODE=1 example-cli` 并确认标签行出现在 stderr 上，然后在没有变量的情况下运行 `example-cli` 并确认没有额外的内容打印。
 
-<h2 id="hint-format">
-  提示格式
-</h2>
+## 提示格式
 
 标签必须占据自己的行；Claude Code 忽略嵌入在行中间的标签。
 
@@ -86,9 +80,7 @@ Claude Code 在通过 Bash 和 PowerShell 工具运行的命令以及 hook 命�
 
 即使 `v` 或 `type` 无法识别，Claude Code 也会从输出中删除该行。
 
-<h2 id="check-when-the-prompt-appears">
-  检查提示何时出现
-</h2>
+## 检查提示何时出现
 
 提示仅在交互式终端会话中出现。在 `claude -p` 运行中、在子代理运行中以及在 hook 命令输出中，标签被剥离且不显示提示。所有这些检查也必须通过：
 
@@ -98,9 +90,7 @@ Claude Code 在通过 Bash 和 PowerShell 工具运行的命令以及 hook 命�
 * **未关闭**：用户未选择**否，不再显示插件安装提示**
 * **本地、有人值守的会话**：会话的工作区是本地的而不是在云或远程机器上，会话不是无人值守运行的。例如，使用 `--cloud` 启动的会话、提供远程控制的会话或代理团队队友永远不会提示
 
-<h2 id="preview-what-the-user-sees">
-  预览用户看到的内容
-</h2>
+## 预览用户看到的内容
 
 当[检查提示何时出现](#check-when-the-prompt-appears)中的检查通过时，Claude Code 显示一个**插件推荐**对话框，如下所示：
 
@@ -128,9 +118,7 @@ Claude Code 在通过 Bash 和 PowerShell 工具运行的命令以及 hook 命�
 * **否，不再显示插件安装提示**：为该用户关闭未来的提示提示
 * **30 秒内无答案**：计为**否**
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 * [发布和分发插件](/docs/zh-CN/plugins/publish)：进入每个市场的路由，包括提示所需的官方市场
 * [插件命令参考](/docs/zh-CN/plugins/cli-reference#plugin-install)：在会话外安装相同插件的 shell 命令

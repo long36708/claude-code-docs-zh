@@ -10,9 +10,7 @@
 
 对于安装、身份验证和连接问题，请参阅[故障排除安装和登录](/docs/zh-CN/troubleshoot-install)。
 
-<h2 id="see-what-loaded-into-context">
-  查看加载到上下文中的内容
-</h2>
+## 查看加载到上下文中的内容
 
 `/context` 命令会显示当前会话中占用上下文窗口的所有内容，并按类别细分：系统提示词、系统工具、MCP 工具、自定义子代理（及其各自的加载来源）、记忆文件、skill 以及对话消息。请首先运行此命令，以确认您的 `CLAUDE.md`、规则或 skill 描述是否已加载。`/context` 中的 skill 部分还包括 [随附 skill](/docs/zh-CN/skills#bundled-skills)，而 `/skills` 不会列出这些内容。
 
@@ -35,13 +33,11 @@
 
 当指令含糊到可以有多种理解方式、两个文件给出相互冲突的指示，或者文件变得过长以致单条规则得到的关注减少时，遵循度就会下降。[编写有效的指令](/docs/zh-CN/memory#write-effective-instructions)介绍了有助于保持高遵循度的具体性、篇幅和结构模式。
 
-<Note>
-  CLAUDE.md 和权限解决的是不同的问题。CLAUDE.md 告诉 Claude 您的项目如何运作，以便其做出良好的决策。[权限](/docs/zh-CN/permissions)和 [hook](/docs/zh-CN/hooks) 则无论 Claude 做出何种决定都会强制执行限制。请将 CLAUDE.md 用于"我们这里是这样做的"这类内容。对于安全边界以及任何绝不能发生的事情，即您需要的是保证而非指导的情况，请使用权限或 hook。
-</Note>
+> [!NOTE]
+>
+> CLAUDE.md 和权限解决的是不同的问题。CLAUDE.md 告诉 Claude 您的项目如何运作，以便其做出良好的决策。[权限](/docs/zh-CN/permissions)和 [hook](/docs/zh-CN/hooks) 则无论 Claude 做出何种决定都会强制执行限制。请将 CLAUDE.md 用于"我们这里是这样做的"这类内容。对于安全边界以及任何绝不能发生的事情，即您需要的是保证而非指导的情况，请使用权限或 hook。
 
-<h2 id="check-resolved-settings">
-  检查已解析的设置
-</h2>
+## 检查已解析的设置
 
 设置在托管、用户、项目和本地范围内合并。当存在时，托管设置总是优先。在其余的中，更接近的范围按本地、项目、用户的顺序覆盖更广泛的范围。某些设置也可以由命令行标志或[环境变量](/docs/zh-CN/env-vars)设置，它们充当另一个覆盖层。当设置似乎不适用时，你设置的值通常被另一个范围或环境变量覆盖。
 
@@ -49,9 +45,7 @@
 
 运行 `/status` 来查看哪些设置源是活跃的，包括是否启用了托管设置。要了解 Claude Code 对给定键使用哪个范围，请参阅[设置优先级](/docs/zh-CN/settings#settings-precedence)。
 
-<h2 id="check-mcp-servers">
-  检查 MCP 服务器
-</h2>
+## 检查 MCP 服务器
 
 运行 `/mcp` 来查看每个配置的服务器、其连接状态以及你是否为当前项目批准了它。服务器可以定义正确但仍然不提供工具，原因有几个常见的：
 
@@ -61,9 +55,7 @@
 
 对于配置位置和范围规则，请参阅 [MCP](/docs/zh-CN/mcp)。
 
-<h2 id="check-hooks">
-  检查 hook
-</h2>
+## 检查 hook
 
 运行 `/hooks` 来列出当前会话注册的每个 hook，按事件分组。如果您定义的 hook 没有出现，说明 Claude Code 没有加载它。请检查以下原因：
 
@@ -81,9 +73,7 @@
 
 如果 `/hooks` 显示 hook 但它仍然没有触发，下一步是实时观察 hook 评估。使用 `claude --debug` 启动会话并触发工具调用。调试日志记录每个事件、检查了哪些匹配器以及 hook 的退出码和输出。有关日志格式，请参阅[调试 hook](/docs/zh-CN/hooks#debug-hooks)，有关常见失败模式，请参阅[hook 故障排除](/docs/zh-CN/hooks-guide#limitations-and-troubleshooting)。
 
-<h2 id="test-against-a-clean-configuration">
-  针对干净配置进行测试
-</h2>
+## 针对干净配置进行测试
 
 首先使用 [`claude --safe-mode`](/docs/zh-CN/cli-reference#cli-flags)，它会启动一个禁用您的自定义内容的会话，包括：
 
@@ -100,62 +90,54 @@
 
 如果问题在安全模式下仍然存在，或您的设置本身可疑，请启动一个不包含您任何自有配置的会话，检查问题是否仍然出现。
 
-<Steps>
-  <Step title="创建一个空目录并切换到该目录">
-    在没有运行 Claude Code 会话的 shell 中，创建该目录并进入其中：
+**1. 创建一个空目录并切换到该目录**
 
-    <Tabs>
-      <Tab title="Bash or Zsh">
-        ```bash theme={null}
-        mkdir -p ~/claude-clean/empty && cd ~/claude-clean/empty
-        ```
-      </Tab>
+在没有运行 Claude Code 会话的 shell 中，创建该目录并进入其中：
 
-      <Tab title="PowerShell">
-        ```powershell theme={null}
-        New-Item -ItemType Directory -Force "$HOME/claude-clean/empty" | Out-Null
-        Set-Location "$HOME/claude-clean/empty"
-        ```
-      </Tab>
-    </Tabs>
-  </Step>
+**Bash or Zsh**
 
-  <Step title="使用干净的配置目录启动 Claude Code">
-    在同一个 shell 中，将 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 设置为一个新目录以替代 `~/.claude`，并传入 [`--setting-sources user`](/docs/zh-CN/cli-reference#cli-flags) 以关闭项目配置，例如 `.claude/settings.json`、`CLAUDE.md` 和 `.mcp.json`：
+```bash theme={null}
+mkdir -p ~/claude-clean/empty && cd ~/claude-clean/empty
+```
 
-    <Tabs>
-      <Tab title="Bash or Zsh">
-        该变量仅对本次启动生效。
+**PowerShell**
 
-        ```bash theme={null}
-        CLAUDE_CONFIG_DIR=~/claude-clean/config claude --setting-sources user
-        ```
-      </Tab>
+```powershell theme={null}
+New-Item -ItemType Directory -Force "$HOME/claude-clean/empty" | Out-Null
+Set-Location "$HOME/claude-clean/empty"
+```
 
-      <Tab title="PowerShell">
-        该变量在此 PowerShell 会话的剩余时间内保持设置，因此之后在同一窗口中启动的 `claude` 会继续使用这个干净目录。要恢复使用您的常用目录，请在下次启动前运行 `Remove-Item Env:CLAUDE_CONFIG_DIR`。
+**2. 使用干净的配置目录启动 Claude Code**
 
-        ```powershell theme={null}
-        $env:CLAUDE_CONFIG_DIR = "$HOME/claude-clean/config"
-        claude --setting-sources user
-        ```
-      </Tab>
-    </Tabs>
+在同一个 shell 中，将 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 设置为一个新目录以替代 `~/.claude`，并传入 [`--setting-sources user`](/docs/zh-CN/cli-reference#cli-flags) 以关闭项目配置，例如 `.claude/settings.json`、`CLAUDE.md` 和 `.mcp.json`：
 
-    首次启动时，您会再次经历首次运行设置屏幕，这表明干净配置目录已生效。托管设置仍然适用；如果您使用 claude.ai 账户登录，[连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)仍会加载。
-  </Step>
+**Bash or Zsh**
 
-  <Step title="重现问题">
-    在干净会话中重复触发问题的操作：
+该变量仅对本次启动生效。
 
-    * **问题消失**：原因在您的用户或项目配置中。将 `~/.claude.json` 和 `~/.claude` 中的文件逐个复制到 `~/claude-clean/config`。如果没有任何文件使问题重新出现，请在同一个 shell 中进入您的项目目录，并在不带 `--setting-sources user` 的情况下启动 Claude Code。在 Bash 或 Zsh 中，运行 `CLAUDE_CONFIG_DIR=~/claude-clean/config claude`。在 PowerShell 中，该变量仍处于设置状态，因此运行 `claude` 即可。
-    * **问题仍然存在**：原因在您的用户和项目配置之外。在会话中运行 `/status` 以检查托管设置，检查您的 shell 中的[环境变量](/docs/zh-CN/env-vars)，然后参阅[故障排除](/docs/zh-CN/troubleshooting)。
-  </Step>
-</Steps>
+```bash theme={null}
+CLAUDE_CONFIG_DIR=~/claude-clean/config claude --setting-sources user
+```
 
-<h2 id="check-common-causes">
-  检查常见原因
-</h2>
+**PowerShell**
+
+该变量在此 PowerShell 会话的剩余时间内保持设置，因此之后在同一窗口中启动的 `claude` 会继续使用这个干净目录。要恢复使用您的常用目录，请在下次启动前运行 `Remove-Item Env:CLAUDE_CONFIG_DIR`。
+
+```powershell theme={null}
+$env:CLAUDE_CONFIG_DIR = "$HOME/claude-clean/config"
+claude --setting-sources user
+```
+
+首次启动时，您会再次经历首次运行设置屏幕，这表明干净配置目录已生效。托管设置仍然适用；如果您使用 claude.ai 账户登录，[连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)仍会加载。
+
+**3. 重现问题**
+
+在干净会话中重复触发问题的操作：
+
+* **问题消失**：原因在您的用户或项目配置中。将 `~/.claude.json` 和 `~/.claude` 中的文件逐个复制到 `~/claude-clean/config`。如果没有任何文件使问题重新出现，请在同一个 shell 中进入您的项目目录，并在不带 `--setting-sources user` 的情况下启动 Claude Code。在 Bash 或 Zsh 中，运行 `CLAUDE_CONFIG_DIR=~/claude-clean/config claude`。在 PowerShell 中，该变量仍处于设置状态，因此运行 `claude` 即可。
+* **问题仍然存在**：原因在您的用户和项目配置之外。在会话中运行 `/status` 以检查托管设置，检查您的 shell 中的[环境变量](/docs/zh-CN/env-vars)，然后参阅[故障排除](/docs/zh-CN/troubleshooting)。
+
+## 检查常见原因
 
 大多数配置意外可以追溯到一小组位置和语法规则。在假设存在错误之前检查这些：
 
@@ -179,9 +161,7 @@
 | MCP 服务器启动时没有预期的环境变量 | 服务器的配置条目没有设置它们，它们不在 Claude Code 传递给 stdio 服务器的环境中：它自己的环境，减去[它从子进程中剥离的变量](/docs/zh-CN/monitoring-usage#administrator-configuration) | 在服务器的 `.mcp.json` 条目内设置每个服务器的 `env`，这不依赖于启动环境或工作区信任。 |
 | `Bash(rm *)` 拒绝规则不阻止 `/bin/rm` 或 `find -delete` | Bash 规则匹配字面命令字符串，而不是底层可执行文件；请参阅[Bash 规则不匹配的内容](/docs/zh-CN/permissions#bash-rule-limits) | 使用[PreToolUse hook](/docs/zh-CN/hooks-guide)或[sandbox](/docs/zh-CN/sandboxing)来获得硬保证。 |
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 有关每个配置表面的完整参考，请参阅专用页面：
 
