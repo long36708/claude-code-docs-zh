@@ -329,6 +329,7 @@ Chrome 扩展程序的 service worker 在扩展会话期间可能会进入空闲
 | 扩展程序在 `/chrome` 中显示"未检测到" | Chrome 扩展程序未安装或已禁用 | 在 `chrome://extensions` 中安装或启用扩展程序 |
 | "没有可用的标签页" | Claude 在标签页准备好之前尝试操作 | 要求 Claude 创建新标签页并重试 |
 | "接收端不存在" | 扩展程序 service worker 进入空闲状态 | 运行 `/chrome` 并选择"重新连接扩展程序" |
+| "没有已连接的浏览器" | Chrome 未打开，或扩展程序登录的 claude.ai 账户和组织与 Claude Code 不同，或 Claude Code 无法访问 `bridge.claudeusercontent.com` | 确认 Chrome 已打开，且扩展程序登录的 claude.ai 账户和[组织](#extension-signed-in-to-a-different-organization)与 Claude Code 相同。如果是这样，请检查您的网络是否允许 Claude Code 访问 `bridge.claudeusercontent.com`，该地址列于[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)中 |
 
 ## 另请参阅
 

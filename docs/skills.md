@@ -86,6 +86,7 @@ Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命�
 | `managed-agents-onboard` | 逐步完成创建新的托管代理 | 早于 v2.1.221 |
 | `managed-agents-onboard <url>` | 构建该 URL 所指页面描述的 Managed Agent，例如 [Managed Agents 文档](https://platform.claude.com/docs/en/managed-agents/overview)中的某个页面 | v2.1.290 或更高版本 |
 | `managed-agents-onboard <quickstart-name>` | 构建 Console 的某个快速入门模板，例如 `deep-researcher`。如果您提供的单个词不是模板名称，Claude 会列出有效的名称 | v2.1.290 或更高版本 |
+| `managed-agents-secure [<agent-id>]` | 读取某个 Managed Agent 的设置，并报告其中哪些与[保护您的 Managed Agents 部署](https://platform.claude.com/docs/en/managed-agents/secure-deployment)指南相符、哪些与之不同。需要 [`ant` CLI](https://platform.claude.com/docs/en/cli-sdks-libraries/cli/quickstart) | v2.1.304 或更高版本 |
 | `prompt-audit` | 标记为旧模型编写的指令在您的提示、技能和工具描述中，并提议修复作为差异 | v2.1.221 或更高版本 |
 | `cost-optimize` | 分析您的项目的 Claude API 支出去向，并提议从提示缓存、修剪不需要的输入和输出令牌、批处理、工作量和模型选择等选项中节省成本，一次一个更改 | v2.1.247 或更高版本 |
 | `build-eval` | 为您的 Claude 驱动的应用构建评估集 | v2.1.259 或更高版本 |
@@ -787,7 +788,7 @@ Claude Code 也会等待结果，即使技能没有设置 `background: false`，
 * 当你在同一技能的早期调用仍在运行时调用分叉技能时
 * 当以该 skill 作为提示词的[会话范围定时任务](/docs/zh-CN/scheduled-tasks)触发时
 
-当[动态工作流](/docs/zh-CN/workflows)中的 Agent 调用分叉 skill 时，即使该 skill 没有设置 `background: false`，该 Agent 也会等待并接收结果。在 v2.1.295 之前，Claude Code 在这种情况下不会等待，并且当 skill 在后台运行时，其结果会出现在您的主对话中，而不会到达该 Agent。
+当[动态工作流](/docs/zh-CN/workflows)中的 Agent 调用分叉 skill 时，即使该 skill 没有设置 `background: false`，该 Agent 也会等待并接收结果。在 v2.1.295 之前，当 skill 在后台运行时，该 Agent 不会等待它。skill 的结果随后会出现在您的主对话中，而不会到达该 Agent。
 
 后台化的分叉也使用[适用于后台子代理的更窄工具集](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)运行：技能的子代理是常规代理类型，因此分叉对话的子代理的豁免不适用于它。如果你的技能的步骤依赖于该集合之外的工具，请设置 `background: false` 以保持完整的工具集。
 

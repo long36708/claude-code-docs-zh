@@ -91,6 +91,18 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 
 如果在 VS Code、Cursor 或 Devin Desktop 集成终端中运行 Claude Code 时字符呈现为方框、涂抹或错误的字形，终端的 GPU 渲染器可能是原因。在 Claude Code 中运行 `/terminal-setup` 以将 `terminal.integrated.gpuAcceleration` 设置为 `"off"`，或在编辑器设置中手动设置并重新加载窗口。有关 `/terminal-setup` 写入的其他设置，请参阅[终端配置](/docs/zh-CN/terminal-config)。
 
+### 启动时出现多余的 `>0q` 或退出后出现 `>4m`
+
+这些字符由基于 0.53 之前版本 VTE 库构建的终端打印，是两个 Claude Code 控制序列的末尾部分。要消除这些文本，请将 Claude Code [更新](/docs/zh-CN/setup#update-claude-code)到 v2.1.301 或更高版本，该版本在识别出此类终端时会跳过这两个序列。
+
+如果文本仍然存在，请在终端的 shell 中打印 VTE 版本：
+
+```bash theme={null}
+echo $VTE_VERSION
+```
+
+在基于 VTE 的终端上，结果低于 `5300` 表示库版本早于 0.53：请更新或更换终端以获取 VTE 0.53 或更高版本。否则，请参阅[获取更多帮助](#get-more-help)。
+
 ### 全屏渲染中鼠标滚轮一次滚动一行
 
 在[全屏渲染](/docs/zh-CN/fullscreen)中，Claude Code 滚动对话本身，而不是将其留给您的终端。如果每个滚轮缺口移动的行数少于您想要的，请运行 `/scroll-speed` 以提高每个缺口的行数并保存它，或设置 `CLAUDE_CODE_SCROLL_SPEED` 环境变量，除了在 JetBrains IDE 终端中，Claude Code 应用其自己的滚动处理，两者都不起作用。有关每个接受的值，请参阅[鼠标滚轮滚动](/docs/zh-CN/fullscreen#mouse-wheel-scrolling)。

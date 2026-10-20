@@ -12,7 +12,7 @@ Claude Code 可以在多种隔离环境中运行，从轻量级的按命令沙�
 
 > [!NOTE]
 >
-> 有关更广泛的安全模型，请参阅 [Security](/docs/zh-CN/security)。有关 Agent SDK 部署，请参阅 [Secure deployment](/docs/zh-CN/agent-sdk/secure-deployment)。
+> 有关更广泛的安全模型，请参阅 [安全性](/docs/zh-CN/security)。有关 Agent SDK 部署，请参阅 [安全部署](/docs/zh-CN/agent-sdk/secure-deployment)。
 
 ## 比较沙箱方法
 

@@ -6,17 +6,15 @@
 
 > 协调多个 Claude Code 实例作为一个团队一起工作，具有共享任务、代理间消息传递和集中管理。
 
-<Warning>
-  Agent teams 是实验性功能，默认禁用。通过在你的 [settings.json](/docs/zh-CN/settings) 或环境中设置 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 来启用它们。如果没有该变量，会话启动时不会设置任何团队，不会写入团队目录，Claude 也不会生成或提议队友。Agent teams 在 [已知限制](#limitations) 中存在关于会话恢复、任务协调和关闭行为的问题。
-</Warning>
+> [!WARNING]
+>
+> Agent teams 是实验性功能，默认禁用。通过在你的 [settings.json](/docs/zh-CN/settings) 或环境中设置 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 来启用它们。如果没有该变量，会话启动时不会设置任何团队，不会写入团队目录，Claude 也不会生成或提议队友。Agent teams 在 [已知限制](#limitations) 中存在关于会话恢复、任务协调和关闭行为的问题。
 
 Agent teams 让你协调多个 Claude Code 实例一起工作。一个会话充当团队负责人，协调工作、分配任务和综合结果。队友独立工作，每个都在自己的 context window 中，并直接相互通信。你也可以直接与任何队友互动，无需通过负责人。
 
 在设置团队之前，请检查是否有更轻量级的选项可以完成工作。[Subagents](/docs/zh-CN/sub-agents) 在单个会话中工作，通过 [跨会话消息传递](/docs/zh-CN/cross-session-messaging)，Claude 可以在你自己运行的会话之间传递发现。
 
-<h2 id="when-to-use-agent-teams">
-  何时使用 agent teams
-</h2>
+## 何时使用 agent teams
 
 Agent teams 最适合用于并行探索能增加真实价值的任务。有关完整场景，请参阅 [用例示例](#use-case-examples)。最强的用例是：
 
@@ -27,17 +25,11 @@ Agent teams 最适合用于并行探索能增加真实价值的任务。有关�
 
 Agent teams 增加了协调开销，使用的令牌数量明显多于单个会话。当队友可以独立运作时，它们效果最好。对于顺序任务、同一文件编辑或有许多依赖关系的工作，单个会话或 [subagents](/docs/zh-CN/sub-agents) 更有效。
 
-<h3 id="compare-with-subagents">
-  与 subagents 比较
-</h3>
+### 与 subagents 比较
 
 Agent teams 和 [subagents](/docs/zh-CN/sub-agents) 都让你并行化工作，但它们的运作方式不同。对于不带团队的独立会话，这些会话相互传递消息，请参阅 [跨会话消息传递](/docs/zh-CN/cross-session-messaging)。
 
-<Frame caption="Subagents 向主代理报告结果。在 agent teams 中，队友共享任务列表、认领工作并直接相互通信。">
-  <img src="https://mintcdn.com/claude-code/nsvRFSDNfpSU5nT7/images/subagents-vs-agent-teams-light.png?fit=max&auto=format&n=nsvRFSDNfpSU5nT7&q=85&s=2f8db9b4f3705dd3ab931fbe2d96e42a" className="dark:hidden" alt="比较 subagent 和 agent team 架构的图表。Subagents 由主代理生成、执行工作并报告结果。Agent teams 通过共享任务列表进行协调，队友彼此直接通信。" width="4245" height="1615" data-path="images/subagents-vs-agent-teams-light.png" />
-
-  <img src="https://mintcdn.com/claude-code/nsvRFSDNfpSU5nT7/images/subagents-vs-agent-teams-dark.png?fit=max&auto=format&n=nsvRFSDNfpSU5nT7&q=85&s=d573a037540f2ada6a9ae7d8285b46fd" className="hidden dark:block" alt="比较 subagent 和 agent team 架构的图表。Subagents 由主代理生成、执行工作并报告结果。Agent teams 通过共享任务列表进行协调，队友彼此直接通信。" width="4245" height="1615" data-path="images/subagents-vs-agent-teams-dark.png" />
-</Frame>
+![比较 subagent 和 agent team 架构的图表。Subagents 由主代理生成、执行工作并报告结果。Agent teams 通过共享任务列表进行协调，队友彼此直接通信。](https://mintcdn.com/claude-code/nsvRFSDNfpSU5nT7/images/subagents-vs-agent-teams-light.png?fit=max\&auto=format\&n=nsvRFSDNfpSU5nT7\&q=85\&s=2f8db9b4f3705dd3ab931fbe2d96e42a)
 
 | | Subagents | Agent teams |
 | :- | :- | :- |
@@ -49,9 +41,7 @@ Agent teams 和 [subagents](/docs/zh-CN/sub-agents) 都让你并行化工作，�
 
 当你需要快速、专注的工作人员报告结果时，使用 subagents。当队友需要分享发现、相互质疑和自我协调时，使用 agent teams。
 
-<h2 id="enable-agent-teams">
-  启用 agent teams
-</h2>
+## 启用 agent teams
 
 Agent teams 默认禁用。通过将 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` 环境变量设置为 `1`，在你的 shell 环境中或通过 [settings.json](/docs/zh-CN/settings) 来启用它：
 
@@ -67,9 +57,7 @@ Agent teams 默认禁用。通过将 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` 环�
 
 生成队友也需要交互式会话。在[非交互模式](/docs/zh-CN/headless)中使用 `-p` 标志，包括 Agent SDK 会话，Claude 不会生成队友，即使启用了 agent teams，Claude 命名的子代理也会作为普通[子代理](/docs/zh-CN/sub-agents)运行。
 
-<h2 id="start-your-first-agent-team">
-  启动你的第一个 agent team
-</h2>
+## 启动你的第一个 agent team
 
 启用 agent teams 后，用自然语言描述你想要的任务和队友。Claude 会生成他们并根据你的提示协调工作。
 
@@ -97,24 +85,20 @@ Claude 有时可能会使用 [subagents](/docs/zh-CN/sub-agents) 而不是创建
 
 如果你想让每个队友在自己的分割窗格中，请参阅 [选择显示模式](#choose-a-display-mode)。
 
-<h2 id="control-your-agent-team">
-  控制你的 agent team
-</h2>
+## 控制你的 agent team
 
 用自然语言告诉负责人你想要什么。它根据你的指示处理团队协调、任务分配和委派。
 
-<h3 id="choose-a-display-mode">
-  选择显示模式
-</h3>
+### 选择显示模式
 
 Agent teams 支持两种显示模式：
 
 * **In-process**：所有队友在你的主终端内运行。在 agent 面板中使用上下箭头键选择队友，然后按 Enter 查看它并输入以直接向它发送消息。在任何终端中工作，无需额外设置。
 * **Split panes**：每个队友获得自己的窗格。你可以同时看到每个人的输出，并点击窗格直接交互。需要 tmux 或 iTerm2。
 
-<Note>
-  `tmux` 在某些操作系统上有已知限制，传统上在 macOS 上效果最好。在 iTerm2 中使用 `tmux -CC` 是进入 `tmux` 的建议入口点。
-</Note>
+> [!NOTE]
+>
+> `tmux` 在某些操作系统上有已知限制，传统上在 macOS 上效果最好。在 iTerm2 中使用 `tmux -CC` 是进入 `tmux` 的建议入口点。
 
 默认值是 `"in-process"`。设置 `"auto"` 以在你已经在 tmux 会话中运行，或你的终端是安装了 `it2` CLI 的 iTerm2 时启用分割窗格，否则回退到 in-process。`"tmux"` 设置启用分割窗格模式，并根据你的终端自动检测是使用 tmux 还是 iTerm2。
 
@@ -141,9 +125,7 @@ claude --teammate-mode auto
 * **tmux**：通过你的系统包管理器安装。有关特定于平台的说明，请参阅 [tmux wiki](https://github.com/tmux/tmux/wiki/Installing)。
 * **iTerm2**：安装 [`it2` CLI](https://github.com/mkusaka/it2)，然后在 **iTerm2 → Settings → General → Magic → Enable Python API** 中启用 Python API。
 
-<h3 id="specify-teammates-and-models">
-  指定队友和模型
-</h3>
+### 指定队友和模型
 
 Claude 根据你的任务决定要生成的队友数量，或者你可以指定你想要的确切内容：
 
@@ -165,9 +147,9 @@ Claude Code 从以下第一个适用的来源为每个队友选择模型：
 
 在 v2.1.251 之前，`CLAUDE_CODE_SUBAGENT_MODEL` 在此顺序中排在第一位。
 
-<Note>
-  `teammateDefaultModel` 在 v2.1.234 中被移除；Claude Code 忽略任何剩余值。在你的提示中命名模型。
-</Note>
+> [!NOTE]
+>
+> `teammateDefaultModel` 在 v2.1.234 中被移除；Claude Code 忽略任何剩余值。在你的提示中命名模型。
 
 Claude Code 检查为队友选择的模型是否符合你的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表。当允许列表阻止一个值时，Claude Code 替换另一个模型：
 
@@ -176,9 +158,7 @@ Claude Code 检查为队友选择的模型是否符合你的组织的 [`availabl
 
 默认情况下，队友继承负责人的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。在分割窗格模式中，这从 v2.1.186 开始适用；较早的版本不会将负责人会话的 effort 传递给分割窗格队友。
 
-<h3 id="have-teammates-plan-before-implementing">
-  让队友在实施前进行规划
-</h3>
+### 让队友在实施前进行规划
 
 对于复杂或有风险的任务，你可以让队友在实施前进行规划。当负责人处于 [plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 时，Claude 生成的队友在只读计划模式下工作，直到其计划准备好。首先将负责人切换到计划模式，然后要求队友：
 
@@ -188,9 +168,7 @@ Spawn an architect teammate to refactor the authentication module.
 
 当队友完成规划时，它向负责人发送计划批准请求。Claude Code 在请求到达时立即在负责人的会话中批准计划，无需负责人审查。队友的编辑和命令仍然会通过[权限](#permissions)中描述的权限提示。一旦批准，队友退出计划模式并开始实施。
 
-<h3 id="talk-to-teammates-directly">
-  直接与队友交谈
-</h3>
+### 直接与队友交谈
 
 每个队友都是一个完整的、独立的 Claude Code 会话。你可以直接向任何队友发送消息，以提供额外的指示、提出后续问题或改变他们的方法。
 
@@ -204,9 +182,7 @@ Spawn an architect teammate to refactor the authentication module.
 
 队友的模型和快速模式在其生成时即已固定。
 
-<h3 id="assign-and-claim-tasks">
-  分配和认领任务
-</h3>
+### 分配和认领任务
 
 共享任务列表协调整个团队的工作。负责人创建任务，队友完成它们。任务有三种状态：待处理、进行中和已完成。任务也可以依赖其他任务：具有未解决依赖关系的待处理任务在这些依赖关系完成之前无法被认领。
 
@@ -219,9 +195,7 @@ Spawn an architect teammate to refactor the authentication module.
 
 任务认领使用文件锁定来防止多个队友同时尝试认领同一任务时的竞态条件。
 
-<h3 id="shut-down-teammates">
-  关闭队友
-</h3>
+### 关闭队友
 
 要优雅地结束队友的会话，按名称引用它。例如，对于一个名为 researcher 的队友：
 
@@ -233,9 +207,7 @@ Ask the researcher teammate to shut down
 
 团队的共享目录在会话结束时自动清理，因此没有单独的清理步骤。请参阅[架构](#architecture)了解哪些目录会被删除，以及哪些目录会保留在磁盘上。
 
-<h3 id="enforce-quality-gates-with-hooks">
-  使用 hooks 强制质量门
-</h3>
+### 使用 hooks 强制质量门
 
 使用 [hooks](/docs/zh-CN/hooks) 在队友完成工作或任务创建或完成时强制执行规则：
 
@@ -243,23 +215,17 @@ Ask the researcher teammate to shut down
 * [`TaskCreated`](/docs/zh-CN/hooks#taskcreated)：当任务被创建时运行。以代码 2 退出以防止创建并发送反馈。
 * [`TaskCompleted`](/docs/zh-CN/hooks#taskcompleted)：当任务被标记为完成时运行。以代码 2 退出以防止完成并发送反馈。
 
-<h2 id="how-agent-teams-work">
-  Agent teams 如何工作
-</h2>
+## Agent teams 如何工作
 
 本部分涵盖 agent teams 背后的架构和机制。如果你想开始使用它们，请参阅上面的 [控制你的 agent team](#control-your-agent-team)。
 
-<h3 id="how-claude-starts-agent-teams">
-  Claude 如何启动 agent teams
-</h3>
+### Claude 如何启动 agent teams
 
 要启动一个团队，请向 Claude 请求队友。当 Claude 在启用 agent teams 的情况下调用 [Agent tool](/docs/zh-CN/tools-reference) 并使用 [`name`](/docs/zh-CN/sub-agents#subagent-names) 时，除非该调用是一个 [fork](/docs/zh-CN/sub-agents#fork-the-current-conversation) 或在调用本身上传递 `isolation`，否则 Claude 会启动一个队友。Claude Code 不会要求你确认启动。
 
 Claude 也会自动为普通 subagents 命名，以便稍后可以向它们发送消息。这些调用遵循相同的规则，所以即使你没有请求，团队也可能形成。如果你想要 subagents 而不是 agent teams，请 [关闭 agent teams](#claude-spawns-teammates-instead-of-subagents)。
 
-<h3 id="architecture">
-  架构
-</h3>
+### 架构
 
 Agent team 由以下部分组成：
 
@@ -291,9 +257,7 @@ Claude Code 在会话启动时自动生成这两项，并在队友加入、空�
 
 没有项目级别的团队配置等效项。项目目录中的 `.claude/teams/teams.json` 之类的文件不被识别为配置；Claude 将其视为普通文件。
 
-<h3 id="use-subagent-definitions-for-teammates">
-  为队友使用 subagent 定义
-</h3>
+### 为队友使用 subagent 定义
 
 当在任一显示模式中生成队友时，您可以引用来自项目、用户、托管或插件 [子代理作用域](/docs/zh-CN/sub-agents#choose-the-subagent-scope) 的 [子代理](/docs/zh-CN/sub-agents) 类型。这让您只需定义一次角色，例如安全审查员或测试运行器，并将其同时重用为委派的子代理和 agent team 队友。
 
@@ -318,17 +282,13 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
 
 对于它恢复的队友，Claude Code 重新应用来自项目的 `.claude/agents/` 目录或 `--add-dir` 目录的定义，仅当你 [信任了代理文件所在的文件夹](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 时。信任父文件夹不算数。在那之前，队友会恢复时不带定义的任何工具或指示，仅保留 Claude Code 添加到每个进程内队友的工具。请参阅 [the teammate's agent definition was not restored](/docs/zh-CN/errors#teammate-agent-definition-not-restored) 了解通知文本。
 
-<h3 id="permissions">
-  权限
-</h3>
+### 权限
 
 队友从负责人的权限模式开始，除了 [`dontAsk` 模式](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)，他们不继承该模式。如果负责人使用 `--dangerously-skip-permissions` 运行，所有队友也会这样做。生成后，你可以更改个别队友的权限模式，但在生成时无法设置每个队友的权限模式。
 
 队友权限提示出现在负责人会话中，所以请在那里自己批准它们。[Plan approval](#have-teammates-plan-before-implementing) 是设计的例外：负责人会话授予队友计划批准，无需向你单独提示。
 
-<h4 id="messages-between-agents">
-  代理之间的消息
-</h4>
+#### 代理之间的消息
 
 当一个代理通过 `SendMessage` 向另一个代理发送消息时，Claude Code 告诉接收代理消息来自另一个 Claude 会话，而不是来自你。队友无法批准权限提示或代表你提供同意，被拒绝某项操作的队友无法将其转发给另一个队友以绕过检查。相同的规则适用于来自 [你的其他 Claude Code 会话](/docs/zh-CN/cross-session-messaging#how-a-session-treats-an-incoming-message) 的消息，完全在团队之外。
 
@@ -337,9 +297,7 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
 * 它将从另一个代理转发的批准声明视为不受信任的输入，而不是来自你的确认。
 * 它在 Claude Code 传递消息之前审查每条消息，无论是纯消息还是结构化协议消息（如关闭请求或计划批准响应）。它阻止的消息永远不会到达收件人。
 
-<h3 id="context-and-communication">
-  Context 和通信
-</h3>
+### Context 和通信
 
 每个队友都有自己的 context window。生成时，队友加载与常规会话相同的项目 context：CLAUDE.md、MCP servers 和 skills。如果你使用 [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags) 启动负责人，队友会从相同的受限源列表加载。在 v2.1.281 之前，[split-pane](#choose-a-display-mode) 队友加载每个设置源。
 
@@ -354,23 +312,17 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
 
 负责人在生成队友时为其分配一个名称，任何队友都可以按该名称向任何其他队友发送消息。要获得可预测的名称，你可以在后续提示中引用，在你的生成指令中告诉负责人如何称呼每个队友。
 
-<h3 id="token-usage">
-  令牌使用
-</h3>
+### 令牌使用
 
 Agent teams 使用的令牌数量明显多于单个会话。每个队友都有自己的 context window，令牌使用量随活跃队友数量而增加。对于研究、审查和新功能工作，额外的令牌通常是值得的。对于日常任务，单个会话更具成本效益。有关使用指导，请参阅 [agent team 令牌成本](/docs/zh-CN/costs#agent-team-token-costs)。
 
 进程内队友的请求落在主对话的 [cache TTL bucket](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets) 之外，所以其缓存默认保持五分钟，包括在 Claude 订阅上。要将其保持一小时，请将 [`subagentPromptCacheTtl`](/docs/zh-CN/settings-reference#subagentpromptcachettl) 设置为 `1h`。API 以更高的速率计费 1 小时缓存写入。
 
-<h2 id="use-case-examples">
-  用例示例
-</h2>
+## 用例示例
 
 这些示例展示了 agent teams 如何处理并行探索增加价值的任务。
 
-<h3 id="run-a-parallel-code-review">
-  运行并行代码审查
-</h3>
+### 运行并行代码审查
 
 单个审查者往往一次只关注一种类型的问题。将审查标准分解为独立的领域意味着安全性、性能和测试覆盖都同时获得彻底的关注。提示为每个队友分配一个不同的视角，以便他们不重叠：
 
@@ -384,9 +336,7 @@ Have them each review and report findings.
 
 每个审查者从同一个 PR 工作，但应用不同的过滤器。负责人在他们完成后综合所有三个的发现。
 
-<h3 id="investigate-with-competing-hypotheses">
-  使用竞争假设进行调查
-</h3>
+### 使用竞争假设进行调查
 
 当根本原因不清楚时，单个代理往往会找到一个看似合理的解释并停止寻找。提示通过让队友明确对抗来对抗这一点：每个队友的工作不仅是调查自己的理论，还要质疑其他队友的理论。
 
@@ -401,13 +351,9 @@ debate. Update the findings doc with whatever consensus emerges.
 
 有多个独立的调查者积极尝试相互反驳，存活下来的理论更有可能是实际的根本原因。
 
-<h2 id="best-practices">
-  最佳实践
-</h2>
+## 最佳实践
 
-<h3 id="give-teammates-enough-context">
-  给队友足够的 context
-</h3>
+### 给队友足够的 context
 
 队友自动加载项目 context，包括 CLAUDE.md、MCP servers 和 skills，但他们不继承负责人的对话历史。有关详细信息，请参阅 [Context 和通信](#context-and-communication)。在生成提示中包含特定于任务的详细信息：
 
@@ -418,9 +364,7 @@ management, and input validation. The app uses JWT tokens stored in
 httpOnly cookies. Report any issues with severity ratings."
 ```
 
-<h3 id="choose-an-appropriate-team-size">
-  选择适当的团队规模
-</h3>
+### 选择适当的团队规模
 
 队友数量没有硬限制，但实际限制适用：
 
@@ -432,21 +376,17 @@ httpOnly cookies. Report any issues with severity ratings."
 
 仅当工作真正受益于队友同时工作时才扩展。三个专注的队友通常胜过五个分散的队友。
 
-<h3 id="size-tasks-appropriately">
-  适当调整任务大小
-</h3>
+### 适当调整任务大小
 
 * **太小**：协调开销超过收益
 * **太大**：队友长时间工作而不进行检查，增加浪费努力的风险
 * **恰到好处**：自包含的单位，产生清晰的可交付成果，例如函数、测试文件或审查
 
-<Tip>
-  负责人将工作分解为任务并自动分配给队友。如果它没有创建足够的任务，要求它将工作分成更小的部分。每个队友有 5-6 个任务可以让每个人保持生产力，并让负责人在有人卡住时重新分配工作。
-</Tip>
+> [!TIP]
+>
+> 负责人将工作分解为任务并自动分配给队友。如果它没有创建足够的任务，要求它将工作分成更小的部分。每个队友有 5-6 个任务可以让每个人保持生产力，并让负责人在有人卡住时重新分配工作。
 
-<h3 id="wait-for-teammates-to-finish">
-  等待队友完成
-</h3>
+### 等待队友完成
 
 有时负责人开始自己实施任务，而不是等待队友。如果你注意到这一点：
 
@@ -454,31 +394,21 @@ httpOnly cookies. Report any issues with severity ratings."
 Wait for your teammates to complete their tasks before proceeding
 ```
 
-<h3 id="start-with-research-and-review">
-  从研究和审查开始
-</h3>
+### 从研究和审查开始
 
 如果你是 agent teams 的新手，从具有明确边界且不需要编写代码的任务开始：审查 PR、研究库或调查错误。这些任务展示了并行探索的价值，而不会带来并行实施所带来的协调挑战。
 
-<h3 id="avoid-file-conflicts">
-  避免文件冲突
-</h3>
+### 避免文件冲突
 
 两个队友编辑同一文件会导致覆盖。分解工作，使每个队友拥有不同的文件集。
 
-<h3 id="monitor-and-steer">
-  监控和指导
-</h3>
+### 监控和指导
 
 检查队友的进度，重定向不起作用的方法，并在发现时综合发现。让团队无人值守运行太长时间会增加浪费努力的风险。
 
-<h2 id="troubleshooting">
-  故障排除
-</h2>
+## 故障排除
 
-<h3 id="teammates-not-appearing">
-  队友未出现
-</h3>
+### 队友未出现
 
 如果在你要求 Claude 创建队友后队友没有出现：
 
@@ -491,9 +421,7 @@ Wait for your teammates to complete their tasks before proceeding
   ```
 * 对于 iTerm2，验证 `it2` CLI 已安装，并在 iTerm2 偏好设置中启用了 Python API。
 
-<h3 id="claude-spawns-teammates-instead-of-subagents">
-  Claude 生成队友而不是子代理
-</h3>
+### Claude 生成队友而不是子代理
 
 启用代理团队时，Claude 在负责人的会话中命名的子代理会作为队友启动。Claude [可以自己命名子代理](#how-claude-starts-agent-teams)，所以这可能在你从未将其框架化为团队工作的委派过程中发生。
 
@@ -516,15 +444,11 @@ Wait for your teammates to complete their tasks before proceeding
 
 更改后，Claude 可能仍会命名子代理，该名称继续作为 [`SendMessage` 地址](/docs/zh-CN/sub-agents#resume-subagents)工作。Claude 在每个子代理完成时接收其结果。
 
-<h3 id="too-many-permission-prompts">
-  过多权限提示
-</h3>
+### 过多权限提示
 
 队友权限请求冒泡到负责人，这可能会造成摩擦。在生成队友之前，在你的 [权限设置](/docs/zh-CN/permissions) 中预批准常见操作，以减少中断。
 
-<h3 id="agents-stopping-early">
-  代理提前停止
-</h3>
+### 代理提前停止
 
 队友可能在遇到错误后停止，而不是恢复。通过在代理面板中选择队友并在 in-process 模式中按 Enter 键，或在分割模式中点击窗格来检查他们的输出，然后：
 
@@ -535,9 +459,7 @@ Wait for your teammates to complete their tasks before proceeding
 
 负责人也可能提前停止，在所有任务实际完成之前决定团队已完成。如果发生这种情况，告诉它继续。
 
-<h3 id="orphaned-tmux-sessions">
-  孤立的 tmux 会话
-</h3>
+### 孤立的 tmux 会话
 
 如果 tmux 会话在 Claude Code 会话结束后仍然存在，它可能没有被完全清理。列出会话并杀死由团队创建的会话：
 
@@ -546,9 +468,7 @@ tmux ls
 tmux kill-session -t <session-name>
 ```
 
-<h2 id="limitations">
-  限制
-</h2>
+## 限制
 
 Agent teams 是实验性的。需要注意的当前限制：
 
@@ -562,9 +482,7 @@ Agent teams 是实验性的。需要注意的当前限制：
 * **权限在生成时设置**：队友从 [权限](#permissions) 下描述的权限模式开始。你可以在生成后更改个别队友的权限模式，但在生成时无法设置每个队友的权限模式。
 * **分割窗格需要 tmux 或 iTerm2**：默认 in-process 模式在任何终端中工作。VS Code 的集成终端、Windows Terminal 或 Ghostty 不支持分割窗格模式。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 探索用于并行工作和委派的相关方法：
 

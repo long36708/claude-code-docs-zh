@@ -8,9 +8,7 @@
 
 系统提示词定义了 Claude 的行为、能力和响应风格。从用于 CLI 或 IDE 类编码工具的 `claude_code` 预设开始，其中人类观察并指导工作。为具有不同界面、身份或权限模型的代理编写自己的提示词。
 
-<h2 id="how-system-prompts-work">
-  系统提示词的工作原理
-</h2>
+## 系统提示词的工作原理
 
 系统提示词是初始指令集，它塑造了 Claude 在整个对话中的行为方式。Agent SDK 有三个起点：
 
@@ -18,9 +16,7 @@
 * **`claude_code` 预设**：Claude Code CLI 使用的系统提示词，包含工具使用说明和安全和安全指令。在 TypeScript 中设置 `systemPrompt: { type: "preset", preset: "claude_code" }`，或在 Python 中设置 `system_prompt={"type": "preset", "preset": "claude_code"}`，可选择使用 `append` 在末尾添加你自己的指令。
 * **自定义字符串**：你自己编写的提示词。SDK 仅发送你提供的内容。
 
-<h3 id="decide-on-a-starting-point">
-  决定起点
-</h3>
+### 决定起点
 
 决定因素是你的代理与 Claude Code 的相似程度：一个在存储库中运行的编码代理，有人类观看流式输出并指导工作。你的产品离这个越远，你就越想编写自己的提示词。
 
@@ -40,89 +36,77 @@
 
 [比较表](#compare-the-four-approaches)显示了每种自定义方法保留的内容。
 
-<h2 id="customize-agent-behavior">
-  自定义代理行为
-</h2>
+## 自定义代理行为
 
 `append` 和自定义提示字符串各自直接改变系统提示，输出样式改变 Claude Code 为每个响应给 Claude 的指令。CLAUDE.md 采用不同的路径：SDK 读取它并将其内容注入到对话中作为项目上下文，因此它与你选择的任何系统提示一起塑造行为。[Skills](/docs/zh-CN/agent-sdk/skills)、[hooks](/docs/zh-CN/agent-sdk/hooks) 和 [permissions](/docs/zh-CN/agent-sdk/permissions) 也在系统提示之外塑造行为，并在各自的页面上介绍。
 
-<h3 id="claude-md-files-for-project-level-instructions">
-  用于项目级指令的 CLAUDE.md 文件
-</h3>
+### 用于项目级指令的 CLAUDE.md 文件
 
 CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其内容注入到对话中并保持系统提示不变，因此它们与任何系统提示配置一起工作。关于在 CLAUDE.md 中放什么、放在哪里以及如何编写有效的指令，请参阅 [When to add to CLAUDE.md](/docs/zh-CN/memory#when-to-add-to-claude-md) 和 [How Claude remembers your project](/docs/zh-CN/memory) 的其余部分。本节涵盖 SDK 特定的内容：CLAUDE.md 如何加载。
 
 SDK 在匹配的设置源启用时读取 CLAUDE.md：`'project'` 从工作目录加载 `CLAUDE.md` 或 `.claude/CLAUDE.md`，`'user'` 加载 `~/.claude/CLAUDE.md`。默认 `query()` 选项启用两个源，因此 CLAUDE.md 自动加载。如果你在 TypeScript 中显式设置 `settingSources` 或在 Python 中设置 `setting_sources`，请包含你需要的源。CLAUDE.md 加载由设置源控制，而不是由 `claude_code` 预设控制。
 
-<h4 id="load-claude-md-with-the-sdk">
-  使用 SDK 加载 CLAUDE.md
-</h4>
+#### 使用 SDK 加载 CLAUDE.md
 
 要加载 CLAUDE.md，请设置 `settingSources` 以包含你保存 CLAUDE.md 的级别。下面的示例加载项目级 CLAUDE.md 以及 `claude_code` 预设，因此 Claude 既有编码代理提示，也有你的项目约定：
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  const messages = [];
+const messages = [];
 
-  for await (const message of query({
-    prompt: "Add a new React component for user profiles",
-    options: {
-      systemPrompt: {
-        type: "preset",
-        preset: "claude_code" // Use Claude Code's system prompt
-      },
-      settingSources: ["project"] // Loads CLAUDE.md from project
-    }
-  })) {
-    messages.push(message);
+for await (const message of query({
+  prompt: "Add a new React component for user profiles",
+  options: {
+    systemPrompt: {
+      type: "preset",
+      preset: "claude_code" // Use Claude Code's system prompt
+    },
+    settingSources: ["project"] // Loads CLAUDE.md from project
   }
+})) {
+  messages.push(message);
+}
 
-  // Now Claude has access to your project guidelines from CLAUDE.md
-  ```
+// Now Claude has access to your project guidelines from CLAUDE.md
+```
 
-  ```python Python theme={null}
-  import asyncio
+```python Python theme={null}
+import asyncio
 
-  from claude_agent_sdk import query, ClaudeAgentOptions
+from claude_agent_sdk import query, ClaudeAgentOptions
 
-  messages = []
-
-
-  async def main():
-      async for message in query(
-          prompt="Add a new React component for user profiles",
-          options=ClaudeAgentOptions(
-              system_prompt={
-                  "type": "preset",
-                  "preset": "claude_code",  # Use Claude Code's system prompt
-              },
-              setting_sources=["project"],  # Loads CLAUDE.md from project
-          ),
-      ):
-          messages.append(message)
+messages = []
 
 
-  asyncio.run(main())
+async def main():
+    async for message in query(
+        prompt="Add a new React component for user profiles",
+        options=ClaudeAgentOptions(
+            system_prompt={
+                "type": "preset",
+                "preset": "claude_code",  # Use Claude Code's system prompt
+            },
+            setting_sources=["project"],  # Loads CLAUDE.md from project
+        ),
+    ):
+        messages.append(message)
 
-  # Now Claude has access to your project guidelines from CLAUDE.md
-  ```
-</CodeGroup>
+
+asyncio.run(main())
+
+# Now Claude has access to your project guidelines from CLAUDE.md
+```
 
 当你运行任一示例时，SDK 在 Claude 工作时流式传输消息：系统初始化消息、助手消息、携带工具结果的用户消息，以及包含会话结果的最终结果消息。
 
 CLAUDE.md 在项目中的所有会话中持久存在，通过 git 与你的团队共享，并自动发现而无需代码更改。如果你传递空的 `settingSources` 数组，它不会被加载。
 
-<h3 id="output-styles-for-persistent-configurations">
-  用于持久配置的输出样式
-</h3>
+### 用于持久配置的输出样式
 
 输出样式是改变 Claude 的角色、语气和输出格式的已保存指令集。它们存储为 markdown 文件，可以在会话和项目中重复使用。
 
-<h4 id="create-an-output-style">
-  创建输出样式
-</h4>
+#### 创建输出样式
 
 输出样式是一个 markdown 文件，包含用于元数据的 [frontmatter](/docs/zh-CN/output-styles#frontmatter)，后跟提示内容。将其保存到 `~/.claude/output-styles/` 以获得在每个项目中可用的用户级样式，或保存到你的存储库中的 `.claude/output-styles/` 以获得可以提交并与你的团队共享的项目级样式。
 
@@ -146,9 +130,7 @@ For every code submission:
 4. Rate code quality (1-10)
 ```
 
-<h4 id="activate-an-output-style">
-  激活输出样式
-</h4>
+#### 激活输出样式
 
 创建后，通过以下方式激活输出样式：
 
@@ -164,66 +146,60 @@ For every code submission:
 
 **SDK 用户注意：** 当你包含 `settingSources: ['user']` 或 `settingSources: ['project']`（TypeScript）/ `setting_sources=["user"]` 或 `setting_sources=["project"]`（Python）在你的选项中时，输出样式会被加载。
 
-<h3 id="append-to-the-claude_code-preset">
-  追加到 `claude_code` 预设
-</h3>
+### 追加到 `claude_code` 预设
 
 你可以使用带有 `append` 属性的 Claude Code 预设来添加你的自定义指令，同时保留所有内置功能。
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  const messages = [];
+const messages = [];
 
-  for await (const message of query({
-    prompt: "Help me write a Python function to calculate fibonacci numbers",
-    options: {
-      systemPrompt: {
-        type: "preset",
-        preset: "claude_code",
-        append: "Always include detailed docstrings and type hints in Python code."
-      }
-    }
-  })) {
-    messages.push(message);
-    if (message.type === "assistant") {
-      console.log(message.message.content);
+for await (const message of query({
+  prompt: "Help me write a Python function to calculate fibonacci numbers",
+  options: {
+    systemPrompt: {
+      type: "preset",
+      preset: "claude_code",
+      append: "Always include detailed docstrings and type hints in Python code."
     }
   }
-  ```
+})) {
+  messages.push(message);
+  if (message.type === "assistant") {
+    console.log(message.message.content);
+  }
+}
+```
 
-  ```python Python theme={null}
-  import asyncio
+```python Python theme={null}
+import asyncio
 
-  from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage
+from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage
 
-  messages = []
-
-
-  async def main():
-      async for message in query(
-          prompt="Help me write a Python function to calculate fibonacci numbers",
-          options=ClaudeAgentOptions(
-              system_prompt={
-                  "type": "preset",
-                  "preset": "claude_code",
-                  "append": "Always include detailed docstrings and type hints in Python code.",
-              }
-          ),
-      ):
-          messages.append(message)
-          if isinstance(message, AssistantMessage):
-              print(message.content)
+messages = []
 
 
-  asyncio.run(main())
-  ```
-</CodeGroup>
+async def main():
+    async for message in query(
+        prompt="Help me write a Python function to calculate fibonacci numbers",
+        options=ClaudeAgentOptions(
+            system_prompt={
+                "type": "preset",
+                "preset": "claude_code",
+                "append": "Always include detailed docstrings and type hints in Python code.",
+            }
+        ),
+    ):
+        messages.append(message)
+        if isinstance(message, AssistantMessage):
+            print(message.content)
 
-<h4 id="improve-prompt-caching-across-users-and-machines">
-  改进跨用户和机器的提示缓存
-</h4>
+
+asyncio.run(main())
+```
+
+#### 改进跨用户和机器的提示缓存
 
 默认情况下，两个使用相同 `claude_code` 预设和 `append` 文本的会话仍然无法共享提示缓存条目，当它们的自动内存位置不同时。预设在你的 `append` 文本之前在系统提示中嵌入了该位置。该位置默认为 `~/.claude/projects/` 下的绝对路径，以存储库在磁盘上的路径命名，因此在用户、机器和检出之间不同。
 
@@ -231,134 +207,126 @@ CLAUDE.md 内容和环境详情（如工作目录、平台、shell 和 OS 版本
 
 要使系统提示在会话中相同，请在 TypeScript 中设置 `excludeDynamicSections: true` 或在 Python 中设置 `"exclude_dynamic_sections": True`。每个用户的上下文移动到第一条用户消息中，仅在系统提示中保留静态预设和你的 `append` 文本，因此相同的配置在用户和机器之间共享缓存条目。
 
-<Note>
-  `excludeDynamicSections` 需要 `@anthropic-ai/claude-agent-sdk` v0.2.98 或更高版本，或 Python 的 `claude-agent-sdk` v0.1.58 或更高版本。仅在预设对象形式上设置它。当你传递自定义提示而不是预设时，SDK 会忽略它；要在 TypeScript SDK 中保持自定义提示的指令缓存，请参阅 [Cache the static part of a custom prompt](#cache-the-static-part-of-a-custom-prompt)。
-</Note>
+> [!NOTE]
+>
+> `excludeDynamicSections` 需要 `@anthropic-ai/claude-agent-sdk` v0.2.98 或更高版本，或 Python 的 `claude-agent-sdk` v0.1.58 或更高版本。仅在预设对象形式上设置它。当你传递自定义提示而不是预设时，SDK 会忽略它；要在 TypeScript SDK 中保持自定义提示的指令缓存，请参阅 [Cache the static part of a custom prompt](#cache-the-static-part-of-a-custom-prompt)。
 
 以下示例将共享的 `append` 块与 `excludeDynamicSections` 配对，以便代理队列可以重复使用相同的缓存系统提示：
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  for await (const message of query({
-    prompt: "Triage the open issues in this repo",
-    options: {
-      systemPrompt: {
-        type: "preset",
-        preset: "claude_code",
-        append: "You operate Acme's internal triage workflow. Label issues by component and severity.",
-        excludeDynamicSections: true
-      }
+for await (const message of query({
+  prompt: "Triage the open issues in this repo",
+  options: {
+    systemPrompt: {
+      type: "preset",
+      preset: "claude_code",
+      append: "You operate Acme's internal triage workflow. Label issues by component and severity.",
+      excludeDynamicSections: true
     }
-  })) {
-    // ...
   }
-  ```
+})) {
+  // ...
+}
+```
 
-  ```python Python theme={null}
-  import asyncio
+```python Python theme={null}
+import asyncio
 
-  from claude_agent_sdk import query, ClaudeAgentOptions
-
-
-  async def main():
-      async for message in query(
-          prompt="Triage the open issues in this repo",
-          options=ClaudeAgentOptions(
-              system_prompt={
-                  "type": "preset",
-                  "preset": "claude_code",
-                  "append": "You operate Acme's internal triage workflow. Label issues by component and severity.",
-                  "exclude_dynamic_sections": True,
-              },
-          ),
-      ):
-          ...
+from claude_agent_sdk import query, ClaudeAgentOptions
 
 
-  asyncio.run(main())
-  ```
-</CodeGroup>
+async def main():
+    async for message in query(
+        prompt="Triage the open issues in this repo",
+        options=ClaudeAgentOptions(
+            system_prompt={
+                "type": "preset",
+                "preset": "claude_code",
+                "append": "You operate Acme's internal triage workflow. Label issues by component and severity.",
+                "exclude_dynamic_sections": True,
+            },
+        ),
+    ):
+        ...
+
+
+asyncio.run(main())
+```
 
 **权衡：** 移出系统提示的文本仍然到达 Claude，但在用户消息中。该文本至少是自动内存目录的位置，通常是整个自动内存部分。用户消息中的指令比系统提示中的相同文本的权重略低，因此 Claude 可能会更少一致地遵循其自动内存指导。当跨会话缓存重复使用比最大化权威环境上下文更重要时，启用此选项。
 
 对于非交互式 CLI 模式中的等效标志，请参阅 [`--exclude-dynamic-system-prompt-sections`](/docs/zh-CN/cli-reference)。
 
-<h3 id="custom-system-prompts">
-  自定义系统提示
-</h3>
+### 自定义系统提示
 
 你可以提供自定义字符串作为 `systemPrompt` 以完全替换默认值为你自己的指令。
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  const customPrompt = `You are a Python coding specialist.
-  Follow these guidelines:
-  - Write clean, well-documented code
-  - Use type hints for all functions
-  - Include comprehensive docstrings
-  - Prefer functional programming patterns when appropriate
-  - Always explain your code choices`;
+const customPrompt = `You are a Python coding specialist.
+Follow these guidelines:
+- Write clean, well-documented code
+- Use type hints for all functions
+- Include comprehensive docstrings
+- Prefer functional programming patterns when appropriate
+- Always explain your code choices`;
 
-  const messages = [];
+const messages = [];
 
-  for await (const message of query({
-    prompt: "Create a data processing pipeline",
-    options: {
-      systemPrompt: customPrompt
-    }
-  })) {
-    messages.push(message);
-    if (message.type === "assistant") {
-      console.log(message.message.content);
-    }
+for await (const message of query({
+  prompt: "Create a data processing pipeline",
+  options: {
+    systemPrompt: customPrompt
   }
-  ```
+})) {
+  messages.push(message);
+  if (message.type === "assistant") {
+    console.log(message.message.content);
+  }
+}
+```
 
-  ```python Python theme={null}
-  import asyncio
+```python Python theme={null}
+import asyncio
 
-  from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage
+from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage
 
-  custom_prompt = """You are a Python coding specialist.
-  Follow these guidelines:
-  - Write clean, well-documented code
-  - Use type hints for all functions
-  - Include comprehensive docstrings
-  - Prefer functional programming patterns when appropriate
-  - Always explain your code choices"""
+custom_prompt = """You are a Python coding specialist.
+Follow these guidelines:
+- Write clean, well-documented code
+- Use type hints for all functions
+- Include comprehensive docstrings
+- Prefer functional programming patterns when appropriate
+- Always explain your code choices"""
 
-  messages = []
-
-
-  async def main():
-      async for message in query(
-          prompt="Create a data processing pipeline",
-          options=ClaudeAgentOptions(system_prompt=custom_prompt),
-      ):
-          messages.append(message)
-          if isinstance(message, AssistantMessage):
-              print(message.content)
+messages = []
 
 
-  asyncio.run(main())
-  ```
-</CodeGroup>
+async def main():
+    async for message in query(
+        prompt="Create a data processing pipeline",
+        options=ClaudeAgentOptions(system_prompt=custom_prompt),
+    ):
+        messages.append(message)
+        if isinstance(message, AssistantMessage):
+            print(message.content)
+
+
+asyncio.run(main())
+```
 
 在 Python 中，使用 `system_prompt={"type": "file", "path": "..."}` 从文件加载大型自定义提示，而不是将其作为字符串传递。Python SDK 将字符串提示作为一个命令行参数传递给 CLI 子进程，因此超过 OS 参数长度限制的提示在任何 API 请求发送之前在进程生成时失败。在 Linux 上，错误是 `Argument list too long`。请参阅 [`SystemPromptFile`](/docs/zh-CN/agent-sdk/python#systempromptfile) 了解平台阈值和 Windows 行为。
 
-<h4 id="cache-the-static-part-of-a-custom-prompt">
-  缓存自定义提示的静态部分
-</h4>
+#### 缓存自定义提示的静态部分
 
 在 TypeScript SDK 中，你可以将自定义提示作为字符串数组而不是一个字符串传递，在静态部分和其余部分之间使用 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 标记。当你的提示结合在每个请求上相同的指令与每个请求变化的上下文（如代理处理的客户或工单）时，使用此方法。当你将两部分作为一个字符串传递时，对每个请求部分的更改会改变整个系统提示，因此静态指令也会错过缓存。数组形式在 Python SDK 中不可用；[`ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 列出 `system_prompt` 接受的形式。
 
-<Note>
-  Claude Code 仅在直接调用 Claude API 或在 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上运行时拆分提示。在所有其他配置中，例如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [LLM gateway](/docs/zh-CN/llm-gateway-connect)，它将整个提示作为一个块发送，与传递一个字符串相同。每当你设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 时也会发生这种情况。
-</Note>
+> [!NOTE]
+>
+> Claude Code 仅在直接调用 Claude API 或在 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 上运行时拆分提示。在所有其他配置中，例如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [LLM gateway](/docs/zh-CN/llm-gateway-connect)，它将整个提示作为一个块发送，与传递一个字符串相同。每当你设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 时也会发生这种情况。
 
 要拆分提示，从 `@anthropic-ai/claude-agent-sdk` 导入 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 并将其作为自己的数组元素在两部分之间传递。SDK 将标记之前的字符串作为一个文本块发送，将标记之后的字符串作为第二个块发送，每个都有自己的缓存断点。在下面的示例中，支持代理从文件加载其分类指令，并在每个请求上接收有关一个工单的详细信息，因此指令保持缓存，而工单详细信息改变：
 
@@ -393,24 +361,18 @@ SDK 从数组中组装块如下：
 
 在 SDK 中，更喜欢数组形式，它不带标记行地携带边界。
 
-<h3 id="change-the-prompt-of-an-existing-session">
-  更改现有会话的提示
-</h3>
+### 更改现有会话的提示
 
 默认情况下，如果你在使用 `resume` 或 `continue` 返回会话时传递不同的 `append` 或自定义提示，Claude 在下一轮不会看到它。Claude Code 在会话的第一个请求上记录系统提示，并重复使用该记录直到会话被压缩。新文本在该压缩之后或在新会话中生效。
 
-<h4 id="update-claude’s-instructions-mid-session">
-  在会话中更新 Claude 的指令
-</h4>
+#### 在会话中更新 Claude 的指令
 
 如果你在系统提示中放置的指令需要在会话运行时改变，例如因为你的用户将代理切换到只读模式或在你的应用中编辑其配置，请在对话中发送新指令，而不是改变 `systemPrompt`：
 
 * **在你的下一条消息中**：在你发送的下一条用户消息中包含新指令。
 * **从 hook 中**：从 `UserPromptSubmit` 或 `PostToolUse` [hook 回调](/docs/zh-CN/agent-sdk/hooks#outputs) 返回 [`additionalContext`](/docs/zh-CN/hooks#add-context-for-claude)，写成事实陈述，如"工作区现在是只读的"。SDK 在 hook 触发的点将文本插入到对话中，因此记录的提示保持不变。
 
-<h4 id="turn-recording-off-while-you-iterate-on-wording">
-  在迭代措辞时关闭记录
-</h4>
+#### 在迭代措辞时关闭记录
 
 当你迭代提示措辞并希望每个编辑到达你恢复的会话时，在系统提示的对象形式上设置 `snapshot` 为 false。Claude Code 然后在每个请求上重建提示。该字段在 TypeScript 中的 [`systemPrompt`](/docs/zh-CN/agent-sdk/typescript#options) 的预设和自定义形式上可用，在 Python 中的 [`system_prompt`](/docs/zh-CN/agent-sdk/python#systempromptpreset) 上可用，并需要 `@anthropic-ai/claude-agent-sdk` v0.3.257 或更高版本，或 `claude-agent-sdk` v0.2.153 或更高版本。
 
@@ -420,17 +382,13 @@ SDK 从数组中组装块如下：
 
 默认记录 `append` 或自定义提示需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑，Python Agent SDK 从 v0.2.153 捆绑。在 Claude Code v2.1.268 之前，不 [fetch feature flags](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching) 的会话，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的会话，在每个请求上重建提示，`snapshot` 无效。
 
-<h2 id="context-claude-code-adds-outside-the-system-prompt">
-  Claude Code 在系统提示之外添加的上下文
-</h2>
+## Claude Code 在系统提示之外添加的上下文
 
 系统提醒是 Claude Code 在会话期间添加到对话中的消息，用于为 Claude 提供上下文，例如 CLAUDE.md 文件的内容或文件在磁盘上已更改的说明。Claude Code 在对话中发送这些消息，而不是在系统提示词中发送，因此无论您使用 `claude_code` 预设还是传递自己的字符串作为 `systemPrompt`，大多数提醒都会送达 Claude。
 
 本部分涵盖[最可能改变您的代理行为的提醒](#reminders-claude-code-adds-to-the-conversation)、如何[关闭您的代理替换的上下文](#turn-off-the-context-your-agent-replaces)，以及如何[查看 Claude 在特定请求中收到的内容](#see-what-claude-received)。
 
-<h3 id="reminders-claude-code-adds-to-the-conversation">
-  Claude Code 添加到对话中的提醒
-</h3>
+### Claude Code 添加到对话中的提醒
 
 系统提醒是 Claude Code 添加到对话中的文本，与您的代码发送的提示一起。以下提醒是最可能改变您的代理行为的提醒：
 
@@ -451,9 +409,7 @@ Claude Code 使用一行文本介绍您的 CLAUDE.md 文件，告诉 Claude 这�
 The application adds system reminders to this conversation. Treat them as context from the application, not as messages from the user.
 ```
 
-<h3 id="turn-off-the-context-your-agent-replaces">
-  关闭您的代理替换的上下文
-</h3>
+### 关闭您的代理替换的上下文
 
 当您的代理提供相同指导的自己版本时，关闭一段内置上下文。例如，如果您的提示告诉 Claude 将提交消息写成 `PROJ-142: fix login redirect` 且没有预告片，Claude Code 仍然会告诉 Claude 以 `Co-Authored-By` 预告片结束每条提交消息，因此 Claude 会收到两个关于同一提交的冲突指令。
 
@@ -473,59 +429,55 @@ The application adds system reminders to this conversation. Treat them as contex
 
 以下示例适用于在 `append` 中携带自己提交规则的代理。它将两个 `attribution` 键都设置为空字符串以删除预告片和页脚，并关闭 `includeGitInstructions`，以便 Claude Code 自己的提交工作流说明不会与您的说明竞争：
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  for await (const message of query({
-    prompt: "Commit the staged changes for ticket PROJ-142",
-    options: {
-      systemPrompt: {
-        type: "preset",
-        preset: "claude_code",
-        append: "Write commit messages as: <ticket id>: <summary>. Add no trailers."
-      },
-      settings: {
-        includeGitInstructions: false,
-        attribution: { commit: "", pr: "" }
-      },
-      allowedTools: ["Bash(git *)"]
-    }
-  })) {
-    if (message.type === "result") console.log(message.subtype);
+for await (const message of query({
+  prompt: "Commit the staged changes for ticket PROJ-142",
+  options: {
+    systemPrompt: {
+      type: "preset",
+      preset: "claude_code",
+      append: "Write commit messages as: <ticket id>: <summary>. Add no trailers."
+    },
+    settings: {
+      includeGitInstructions: false,
+      attribution: { commit: "", pr: "" }
+    },
+    allowedTools: ["Bash(git *)"]
   }
-  ```
+})) {
+  if (message.type === "result") console.log(message.subtype);
+}
+```
 
-  ```python Python theme={null}
-  import asyncio
-  from claude_agent_sdk import query, ClaudeAgentOptions
-
-
-  async def main():
-      async for message in query(
-          prompt="Commit the staged changes for ticket PROJ-142",
-          options=ClaudeAgentOptions(
-              system_prompt={
-                  "type": "preset",
-                  "preset": "claude_code",
-                  "append": "Write commit messages as: <ticket id>: <summary>. Add no trailers.",
-              },
-              settings='{"includeGitInstructions": false, "attribution": {"commit": "", "pr": ""}}',
-              allowed_tools=["Bash(git *)"],
-          ),
-      ):
-          print(message)
+```python Python theme={null}
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions
 
 
-  asyncio.run(main())
-  ```
-</CodeGroup>
+async def main():
+    async for message in query(
+        prompt="Commit the staged changes for ticket PROJ-142",
+        options=ClaudeAgentOptions(
+            system_prompt={
+                "type": "preset",
+                "preset": "claude_code",
+                "append": "Write commit messages as: <ticket id>: <summary>. Add no trailers.",
+            },
+            settings='{"includeGitInstructions": false, "attribution": {"commit": "", "pr": ""}}',
+            allowed_tools=["Bash(git *)"],
+        ),
+    ):
+        print(message)
+
+
+asyncio.run(main())
+```
 
 要确认更改，请在具有暂存更改的存储库中运行示例，并使用 `git log -1` 检查新提交。消息以没有 `Co-Authored-By` 预告片结尾。
 
-<h3 id="see-what-claude-received">
-  查看 Claude 收到的内容
-</h3>
+### 查看 Claude 收到的内容
 
 SDK 消息流不包括系统提醒，因此读取您的代码接收的消息不会显示 Claude 看到的内容。要查看它们，请记录 Claude Code 发送的请求：
 
@@ -534,9 +486,7 @@ SDK 消息流不包括系统提醒，因此读取您的代码接收的消息不�
 
 在记录的请求中，查看 `messages` 数组。提醒出现在用 `<system-reminder>` 标签包装的用户消息内，或在某些模型上，作为具有 `system` 角色的单独消息。
 
-<h2 id="compare-the-four-approaches">
-  比较四种方法
-</h2>
+## 比较四种方法
 
 这四种自定义方法在存储位置、共享方式以及从 `claude_code` 预设保留的内容方面有所不同。
 
@@ -553,81 +503,73 @@ SDK 消息流不包括系统提醒，因此读取您的代码接收的消息不�
 
 "带有追加"是指在 TypeScript 中使用 `systemPrompt: { type: "preset", preset: "claude_code", append: "..." }`，或在 Python 中使用 `system_prompt={"type": "preset", "preset": "claude_code", "append": "..."}`。CLAUDE.md 不会改变系统提示本身：SDK 将其内容作为项目上下文注入到对话中。
 
-<h2 id="combine-approaches">
-  组合方法
-</h2>
+## 组合方法
 
 这些方法可以组合使用。持久化的输出样式或 CLAUDE.md 设置长期行为，而 `append` 在不触及保存配置的情况下在顶部分层会话特定的指令。
 
-<h3 id="combine-an-output-style-with-session-specific-additions">
-  将输出样式与会话特定的添加内容组合
-</h3>
+### 将输出样式与会话特定的添加内容组合
 
 下面的示例假设已经激活了代码审查员输出样式。`append` 块在角色的基础上分层会话特定的关注领域，因此单个审查会话可以优先考虑 OAuth 和令牌存储，而无需更改保存的输出样式：
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  // Assuming "Code Reviewer" output style is active (via /config or settings)
-  // Add session-specific focus areas
-  const messages = [];
+// Assuming "Code Reviewer" output style is active (via /config or settings)
+// Add session-specific focus areas
+const messages = [];
 
-  for await (const message of query({
-    prompt: "Review this authentication module",
-    options: {
-      systemPrompt: {
-        type: "preset",
-        preset: "claude_code",
-        append: `
-          For this review, prioritize:
-          - OAuth 2.0 compliance
-          - Token storage security
-          - Session management
-        `
-      }
+for await (const message of query({
+  prompt: "Review this authentication module",
+  options: {
+    systemPrompt: {
+      type: "preset",
+      preset: "claude_code",
+      append: `
+        For this review, prioritize:
+        - OAuth 2.0 compliance
+        - Token storage security
+        - Session management
+      `
     }
-  })) {
-    messages.push(message);
   }
-  ```
+})) {
+  messages.push(message);
+}
+```
 
-  ```python Python theme={null}
-  import asyncio
+```python Python theme={null}
+import asyncio
 
-  from claude_agent_sdk import query, ClaudeAgentOptions
+from claude_agent_sdk import query, ClaudeAgentOptions
 
-  # Assuming "Code Reviewer" output style is active (via /config or settings)
-  # Add session-specific focus areas
-  messages = []
-
-
-  async def main():
-      async for message in query(
-          prompt="Review this authentication module",
-          options=ClaudeAgentOptions(
-              system_prompt={
-                  "type": "preset",
-                  "preset": "claude_code",
-                  "append": """
-                  For this review, prioritize:
-                  - OAuth 2.0 compliance
-                  - Token storage security
-                  - Session management
-                  """,
-              }
-          ),
-      ):
-          messages.append(message)
+# Assuming "Code Reviewer" output style is active (via /config or settings)
+# Add session-specific focus areas
+messages = []
 
 
-  asyncio.run(main())
-  ```
-</CodeGroup>
+async def main():
+    async for message in query(
+        prompt="Review this authentication module",
+        options=ClaudeAgentOptions(
+            system_prompt={
+                "type": "preset",
+                "preset": "claude_code",
+                "append": """
+                For this review, prioritize:
+                - OAuth 2.0 compliance
+                - Token storage security
+                - Session management
+                """,
+            }
+        ),
+    ):
+        messages.append(message)
 
-<h2 id="see-also">
-  另请参阅
-</h2>
+
+asyncio.run(main())
+```
+
+## 另请参阅
 
 * [输出样式](/docs/zh-CN/output-styles)：为 CLI 创建、管理和共享输出样式，包括文件格式和存储位置
 * [Claude 如何记住您的项目](/docs/zh-CN/memory)：CLAUDE.md 中应放入的内容、放置位置以及如何编写有效的项目说明

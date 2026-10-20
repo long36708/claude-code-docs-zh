@@ -13,9 +13,7 @@
 * **上下文效率：** 工具定义可能会消耗上下文窗口的大部分（50个工具可能使用10-20K个令牌），留下较少的空间用于实际工作。
 * **工具选择准确性：** 一次加载超过30-50个工具时，工具选择准确性会下降。
 
-<h2 id="how-tool-search-works">
-  工具搜索的工作原理
-</h2>
+## 工具搜索的工作原理
 
 工具搜索默认处于启用状态，[配置工具搜索](#configure-tool-search)中列出的情况除外。
 
@@ -25,13 +23,11 @@
 
 有关底层API机制的详细信息，请参阅[API中的工具搜索](https://platform.claude.com/docs/zh-CN/agents-and-tools/tool-use/tool-search-tool)。
 
-<Note>
-  Microsoft Foundry上的工具搜索不受支持，[部署在Azure上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)的部署会在服务器端拒绝它：SDK检测到拒绝并为该部署改为预先加载工具定义。[`ENABLE_TOOL_SEARCH`](#configure-tool-search)无法覆盖此行为，因为拒绝来自部署本身。
-</Note>
+> [!NOTE]
+>
+> Microsoft Foundry上的工具搜索不受支持，[部署在Azure上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)的部署会在服务器端拒绝它：SDK检测到拒绝并为该部署改为预先加载工具定义。[`ENABLE_TOOL_SEARCH`](#configure-tool-search)无法覆盖此行为，因为拒绝来自部署本身。
 
-<h2 id="configure-tool-search">
-  配置工具搜索
-</h2>
+## 配置工具搜索
 
 工具搜索默认启用。对于SDK的不支持模型列表中的模型，SDK会改为预先加载工具定义，任何`ENABLE_TOOL_SEARCH`值都无法覆盖此行为。在Google Cloud的Agent Platform上，SDK根据模型代数决定：
 
@@ -56,122 +52,112 @@
 
 在`query()`上的`env`选项中设置值。在TypeScript中，`env`替换子进程环境，因此展开`...process.env`以保持继承的变量。在Python中，`env`合并到继承的环境之上。此示例连接到公开许多工具的远程MCP 服务器，使用通配符预先批准所有工具，并使用`auto:5`，以便当工具搜索可以延迟的定义达到上下文窗口的5%时激活工具搜索：
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  try {
-    for await (const message of query({
-      prompt: "Find and run the appropriate database query",
-      options: {
-        mcpServers: {
-          "enterprise-tools": {
-            // Connect to a remote MCP server
-            type: "http",
-            url: "https://tools.example.com/mcp"
-          }
-        },
-        allowedTools: ["mcp__enterprise-tools__*"], // Wildcard pre-approves all tools from this server
-        env: {
-          ...process.env, // env replaces the subprocess environment, so keep inherited variables
-          ENABLE_TOOL_SEARCH: "auto:5" // Activate tool search when deferrable definitions reach 5% of context
+try {
+  for await (const message of query({
+    prompt: "Find and run the appropriate database query",
+    options: {
+      mcpServers: {
+        "enterprise-tools": {
+          // Connect to a remote MCP server
+          type: "http",
+          url: "https://tools.example.com/mcp"
         }
-      }
-    })) {
-      if (message.type === "result" && message.subtype === "success") {
-        console.log(message.result);
+      },
+      allowedTools: ["mcp__enterprise-tools__*"], // Wildcard pre-approves all tools from this server
+      env: {
+        ...process.env, // env replaces the subprocess environment, so keep inherited variables
+        ENABLE_TOOL_SEARCH: "auto:5" // Activate tool search when deferrable definitions reach 5% of context
       }
     }
-  } catch (error) {
-    // A single-shot query() throws after yielding an error result
-    console.log(`Session ended with an error: ${error}`);
+  })) {
+    if (message.type === "result" && message.subtype === "success") {
+      console.log(message.result);
+    }
   }
-  ```
+} catch (error) {
+  // A single-shot query() throws after yielding an error result
+  console.log(`Session ended with an error: ${error}`);
+}
+```
 
-  ```python Python theme={null}
-  import asyncio
-  from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
-
-
-  async def main():
-      options = ClaudeAgentOptions(
-          mcp_servers={
-              "enterprise-tools": {
-                  "type": "http",
-                  "url": "https://tools.example.com/mcp",
-              }
-          },
-          allowed_tools=[
-              "mcp__enterprise-tools__*"
-          ],  # Wildcard pre-approves all tools from this server
-          env={
-              "ENABLE_TOOL_SEARCH": "auto:5"  # Activate tool search when deferrable definitions reach 5% of context
-          },
-      )
-
-      try:
-          async for message in query(
-              prompt="Find and run the appropriate database query",
-              options=options,
-          ):
-              if isinstance(message, ResultMessage) and message.subtype == "success":
-                  print(message.result)
-      except Exception as error:
-          # A single-shot query() raises after yielding an error result
-          print(f"Session ended with an error: {error}")
+```python Python theme={null}
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
 
 
-  asyncio.run(main())
-  ```
-</CodeGroup>
+async def main():
+    options = ClaudeAgentOptions(
+        mcp_servers={
+            "enterprise-tools": {
+                "type": "http",
+                "url": "https://tools.example.com/mcp",
+            }
+        },
+        allowed_tools=[
+            "mcp__enterprise-tools__*"
+        ],  # Wildcard pre-approves all tools from this server
+        env={
+            "ENABLE_TOOL_SEARCH": "auto:5"  # Activate tool search when deferrable definitions reach 5% of context
+        },
+    )
+
+    try:
+        async for message in query(
+            prompt="Find and run the appropriate database query",
+            options=options,
+        ):
+            if isinstance(message, ResultMessage) and message.subtype == "success":
+                print(message.result)
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result
+        print(f"Session ended with an error: {error}")
+
+
+asyncio.run(main())
+```
 
 要运行此示例，请将`https://tools.example.com/mcp`替换为您自己的MCP 服务器的URL。成功时，结果文本会打印到控制台。
 
 因为这是一个单次`query()`调用，SDK在产生错误结果后会抛出异常，所以该示例将循环包装在try块中。要查看运行失败的原因，请检查循环内结果消息的`subtype`，例如`error_during_execution`。有关结果消息的更多信息，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
 
-<h2 id="optimize-tool-discovery">
-  优化工具发现
-</h2>
+## 优化工具发现
 
 搜索机制将查询与工具名称和描述进行匹配。像`search_slack_messages`这样的名称比`query_slack`更广泛地出现在各种请求中。具有特定关键字的描述（"按关键字、频道或日期范围搜索Slack消息"）比通用描述（"查询Slack"）匹配更多查询。
 
 您还可以添加一个系统提示部分，列出可用的工具类别。这为代理提供了关于可以搜索什么类型工具的上下文。通过 TypeScript 中的 `systemPrompt` 选项或 Python 中的 `system_prompt` 传递文本，使用带有 `append` 的 `claude_code` 预设，这会将您的文本添加到预设的提示中，而不是替换它：
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  options: {
-    systemPrompt: {
-      type: "preset",
-      preset: "claude_code",
-      append: "You can search for tools to interact with Slack, GitHub, and Jira."
-    }
+```typescript TypeScript theme={null}
+options: {
+  systemPrompt: {
+    type: "preset",
+    preset: "claude_code",
+    append: "You can search for tools to interact with Slack, GitHub, and Jira."
   }
-  ```
+}
+```
 
-  ```python Python theme={null}
-  options = ClaudeAgentOptions(
-      system_prompt={
-          "type": "preset",
-          "preset": "claude_code",
-          "append": "You can search for tools to interact with Slack, GitHub, and Jira.",
-      }
-  )
-  ```
-</CodeGroup>
+```python Python theme={null}
+options = ClaudeAgentOptions(
+    system_prompt={
+        "type": "preset",
+        "preset": "claude_code",
+        "append": "You can search for tools to interact with Slack, GitHub, and Jira.",
+    }
+)
+```
 
 有关完整的系统提示选项集，请参阅[修改系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts)。
 
-<h2 id="limits">
-  限制
-</h2>
+## 限制
 
 * **最大工具数：** 您的目录中最多10,000个工具
 * **搜索结果：** 默认每次搜索返回最多五个最相关的工具
 * **模型支持：** Opus 4、Sonnet 4、Haiku 4.5及更新的模型；在Google Cloud的Agent Platform上为Opus 4.5、Sonnet 4.5、Haiku 4.5及更新的模型。在更早的模型上，SDK会预先加载工具定义，如[配置工具搜索](#configure-tool-search)中所述。
 
-<h2 id="related-documentation">
-  相关文档
-</h2>
+## 相关文档
 
 * [API中的工具搜索](https://platform.claude.com/docs/zh-CN/agents-and-tools/tool-use/tool-search-tool)：工具搜索的完整API文档，包括自定义实现
 * [连接MCP服务器](/docs/zh-CN/agent-sdk/mcp)：通过MCP服务器连接到外部工具

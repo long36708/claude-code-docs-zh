@@ -10,9 +10,9 @@ Claude Code 通过托管设置强制执行组织策略，这些设置优先于�
 
 本页按顺序介绍部署决策。每一行都链接到下面的部分和该区域的参考页面。
 
-<Note>
-  SSO、SCIM 预配和座位分配在 Claude 账户级别配置。有关这些步骤，请参阅 [Claude 企业管理员指南](https://claude.com/resources/tutorials/claude-enterprise-administrator-guide) 和 [座位分配](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)。
-</Note>
+> [!NOTE]
+>
+> SSO、SCIM 预配和座位分配在 Claude 账户级别配置。有关这些步骤，请参阅 [Claude 企业管理员指南](https://claude.com/resources/tutorials/claude-enterprise-administrator-guide) 和 [座位分配](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)。
 
 | 决策 | 您的选择 | 参考 |
 | :- | :- | :- |
@@ -22,9 +22,7 @@ Claude Code 通过托管设置强制执行组织策略，这些设置优先于�
 | [设置使用情况可见性](#set-up-usage-visibility) | 如何跟踪支出和采用情况 | [Analytics](/docs/zh-CN/analytics)、[Monitoring](/docs/zh-CN/monitoring-usage)、[Costs](/docs/zh-CN/costs) |
 | [审查数据处理](#review-data-handling) | 数据保留和合规性态势 | [Data usage](/docs/zh-CN/data-usage)、[Security](/docs/zh-CN/security) |
 
-<h2 id="choose-your-api-provider">
-  选择您的 API 提供商
-</h2>
+## 选择您的 API 提供商
 
 Claude Code 通过多个 API 提供商之一连接到 Claude。您的选择会影响计费、身份验证、您继承的合规性态势，以及您的开发人员可以使用的 Claude Code 功能。
 
@@ -42,17 +40,15 @@ Claude Code 通过多个 API 提供商之一连接到 Claude。您的选择会�
 
 [Network configuration](/docs/zh-CN/network-config) 中的代理和防火墙要求适用于所有提供商。如果您想要在多个提供商前面有单个端点或集中式请求日志记录，请参阅 [LLM gateway](/docs/zh-CN/llm-gateway)。
 
-<h2 id="decide-how-settings-reach-devices">
-  决定设置如何到达设备
-</h2>
+## 决定设置如何到达设备
 
 托管设置定义组织策略。Claude Code 按优先级顺序检查下表中的四个来源。[Claude Code 如何合并托管来源](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)说明其中哪些适用、策略助手更改什么，以及如何组合每个来源。该表是决策地图。
 
 | 机制 | 传递 | 优先级 | 平台 |
 | :- | :- | :- | :- |
 | Server-managed | claude.ai 管理控制台，或用于网关登录的自托管 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) | 最高 | 全部 |
-| plist / registry policy | macOS: `com.anthropic.claudecode` plist<br />Windows: `HKLM\SOFTWARE\Policies\ClaudeCode` | 高 | macOS、Windows |
-| File-based managed | macOS: `/Library/Application Support/ClaudeCode/managed-settings.json`<br />Linux 和 WSL: `/etc/claude-code/managed-settings.json`<br />Windows: `C:\Program Files\ClaudeCode\managed-settings.json` | 中 | 全部 |
+| plist / registry policy | macOS: `com.anthropic.claudecode` plist Windows: `HKLM\SOFTWARE\Policies\ClaudeCode` | 高 | macOS、Windows |
+| File-based managed | macOS: `/Library/Application Support/ClaudeCode/managed-settings.json` Linux 和 WSL: `/etc/claude-code/managed-settings.json` Windows: `C:\Program Files\ClaudeCode\managed-settings.json` | 中 | 全部 |
 | Windows user registry | `HKCU\SOFTWARE\Policies\ClaudeCode` | 最低 | 仅 Windows |
 
 Claude Code 在启动时获取 server-managed 设置，并在会话期间每小时刷新一次，无需部署端点基础设施。通过 claude.ai 管理控制台传递需要 Claude for Teams 或 Enterprise 计划。在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上的部署可以通过运行 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 获得相同的远程传递，或改用基于文件或操作系统级别的机制之一。
@@ -65,9 +61,7 @@ plist 和 HKLM 注册表位置适用于任何提供商，并且由于需要管�
 
 无论您选择哪种机制，托管值都优先于用户和项目设置，除了一些安全敏感的[例外](/docs/zh-CN/settings#exceptions-to-managed-settings-precedence)。数组设置（如 `permissions.allow` 和 `permissions.deny`）合并来自所有源的条目，因此开发人员可以扩展托管列表但不能从中删除。对于 `fallbackModel`、`availableModels` 和 [`modelPicker`](/docs/zh-CN/settings-reference#modelpicker)，托管值替换较低层而不是合并。
 
-<h3 id="wsl-sessions-in-claude-code-desktop">
-  WSL 会话在 Claude Code Desktop 中
-</h3>
+### WSL 会话在 Claude Code Desktop 中
 
 在 Windows 上，[Claude Code Desktop 可以在 WSL 2 发行版内运行 Code 会话](/docs/zh-CN/desktop-wsl)。会话的 Claude Code 进程在发行版内运行，因此它通过上述 WSL 发现路径解析托管设置：除非部署了 `wslInheritsWindowsSettings: true`，否则仅限 Windows 的来源无法到达它。
 
@@ -87,9 +81,7 @@ Desktop 在每次 WSL 会话启动时读取策略，因此在部署后无需重�
 
 WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见。要观察发行版内的进程和文件活动，请查看您的端点检测供应商的 WSL 指南，了解您可以在发行版内运行的 Linux 传感器及其需要的排除项。Claude Code 的 [OpenTelemetry 工具执行遥测](/docs/zh-CN/monitoring-usage) 对 WSL 和本机会话的发出方式相同。
 
-<h2 id="decide-what-to-enforce">
-  决定要强制执行的内容
-</h2>
+## 决定要强制执行的内容
 
 托管设置可以锁定工具、沙箱执行、限制 MCP 服务器和插件源，以及控制哪些 hooks 运行。每一行都是一个控制表面，具有驱动它的设置键。
 
@@ -133,9 +125,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 
 有关这些控制防御的威胁模型，请参阅[安全性](/docs/zh-CN/security)。
 
-<h3 id="connected-github-accounts">
-  已关联的 GitHub 账户
-</h3>
+### 已关联的 GitHub 账户
 
 在 Team 和 Enterprise 计划中，[**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) 的 GitHub 部分列出了通过 [Claude GitHub App](https://github.com/apps/claude) 关联到您的 Claude 组织的 GitHub 组织和个人账户。Claude Code、[Claude Tag](https://claude.com/docs/claude-tag/admins/configure-github) 和 Claude Security 共享此列表。打开该页面需要在您的 Claude 组织中拥有管理员角色。
 
@@ -150,9 +140,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 
 在 Enterprise 计划中，用于关联和取消关联的 [Compliance API](https://platform.claude.com/docs/en/api/compliance/activities/list) 活动类型分别为 `github_app_installation_linked` 和 `github_app_installation_unlinked`。
 
-<h2 id="set-up-usage-visibility">
-  设置使用情况可见性
-</h2>
+## 设置使用情况可见性
 
 根据您需要报告的内容选择监控。仪表板、API 和支出控制在 Claude for Teams 或 Enterprise 计划与 Claude Console 组织之间有所不同，因此在围绕某项功能规划报告之前，请检查"可用性"列。
 
@@ -165,9 +153,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 
 在 Teams 和 Enterprise 上，每用户使用情况和支出数字来自您组织的分析设置中的[支出报告](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans)，而不是分析仪表板。云提供商通过 AWS Cost Explorer、GCP Billing 或 Azure Cost Management 公开支出。有关跨 Claude chat、Claude Code 和 Cowork 规划企业预算的信息，请参阅 [Claude Enterprise consumption guide](https://support.claude.com/en/articles/14782391-claude-enterprise-consumption-guide)。
 
-<h2 id="review-data-handling">
-  审查数据处理
-</h2>
+## 审查数据处理
 
 在 Team、Enterprise、Claude API 和云提供商计划上，Anthropic 不会在您的代码或提示上训练模型。您的 API 提供商决定保留和合规性态势。
 
@@ -180,9 +166,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 
 如果您需要请求级别的审计日志或按数据敏感性路由流量，我们建议您在开发人员和您的提供商之间放置网关：自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 记录带有 IdP 身份的每个请求审计日志，或者您也可以使用另一个 [LLM gateway](/docs/zh-CN/llm-gateway)。通过网关的会话不符合 HIPAA 配置的条件。[Check how developers sign in and connect](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect) 列出了哪些登录和连接方式符合条件。有关监管要求和认证，请参阅 [Legal and compliance](/docs/zh-CN/legal-and-compliance)。
 
-<h2 id="verify-and-onboard">
-  验证和入职
-</h2>
+## 验证和入职
 
 配置托管设置后，让开发人员在 Claude Code 中运行 `/status`。在 **Status** 选项卡上，`Setting sources` 行显示 `Enterprise managed settings` 后跟括号中的源；[验证执行](/docs/zh-CN/managed-settings#verify-enforcement) 列出了标签。
 
@@ -200,9 +184,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 
 如果开发人员看到"您还没有被添加到您的组织"，他们的座位不包括 Claude Code 访问权限，需要在管理控制台中更新。
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 选择提供商和传递机制后，继续进行详细配置：
 

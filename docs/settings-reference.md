@@ -2354,7 +2354,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 ### `idleCompaction`
 
-空闲压缩会在提示缓存过期前不久，[压缩](/docs/zh-CN/context-window#what-survives-compaction)您已离开的长对话。这样您的下一条消息发送的是摘要，而不是整个对话。当您回来时，对话会显示 `Compacted while idle, before the prompt cache expired`。
+空闲压缩会在提示缓存过期前不久，[压缩](/docs/zh-CN/context-window#what-survives-compaction)您已离开的长对话。这样您的下一条消息发送的是摘要，而不是整个对话。当您回来时，对话会显示一行以 `Compacted while idle, before the prompt cache expired` 开头的内容。
 
 对于满足以下所有条件的对话，空闲压缩默认处于开启状态：
 
@@ -2378,6 +2378,11 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
   "idleCompaction": false
 }
 ```
+
+要在会话内关闭或打开空闲压缩，请运行 `/config` 并更改**空闲压缩**行。您的选择会保存到您的用户设置中，并立即生效。该行需要 Claude Code v2.1.302 或更高版本。如果您运行的是这些版本之一，而 `/config` 未显示该行，请检查以下原因：
+
+* **其他设置来源设置了该键**：托管设置、`--settings` 标志或项目或本地设置文件中的值会覆盖您的用户设置。请改为在该来源中更改此键
+* **功能标志不可用**：在 Claude Code 无法[从 Anthropic 获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的情况下，空闲压缩不会运行，因此没有可关闭的内容
 
 此键需要 Claude Code v2.1.290 或更高版本。在会忽略此键的早期版本上，请关闭 [`autoCompactEnabled`](#autocompactenabled) 以停止空闲压缩。
 
@@ -4027,7 +4032,14 @@ Claude Code 为 `statusLine`、`fileSuggestion` 和 `subagentStatusLine` 按此�
 
 ### `strictPluginOnlyCustomization.hooks`
 
-锁定 `hooks` 表面。Claude Code 停止运行来自用户、项目和本地 `settings.json` 的 hooks，并继续运行 plugin hooks 和托管设置中的 hooks。
+锁定 `hooks` 表面：
+
+* **停止运行**：
+  * 来自用户、项目和本地 `settings.json` 的 hook
+  * skill、自定义命令和 Agent 中的 frontmatter hook，其来源为 [`skills`](#strictpluginonlycustomization-skills) 或 [`agents`](#strictpluginonlycustomization-agents) 锁定会阻止的源
+* **继续运行**：插件 hook 和托管设置中的 hook
+
+frontmatter hook 停止运行的 skill、自定义命令和 Agent，只要其自身所属的表面未被锁定，仍会加载。
 
 * **Scope**: [`Managed`](#scopes)
 * **Type**: [`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 数组中的字符串 `"hooks"`

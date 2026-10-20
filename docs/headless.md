@@ -168,6 +168,8 @@ claude -p "Extract the main function names from auth.py" \
 
 如果该值不是有效的 JSON Schema，`claude` 会以 `Error: --json-schema is not a valid JSON Schema` 退出，后跟验证器的诊断。Claude Code 接受使用 `format` 关键字的 schema，例如 `"format": "email"`，但将 `format` 视为注释，不强制执行它。
 
+如果运行结束时没有有效的结构化输出，例如因为 Claude 拒绝了该请求，则响应中没有 `structured_output` 字段。在脚本使用 `structured_output` 之前，请检查该字段是否存在。
+
 > [!TIP]
 >
 > 使用 [jq](https://jqlang.org/) 之类的工具来解析响应并提取特定字段：

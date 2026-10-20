@@ -14,79 +14,75 @@
 * **持久性。** 本地容器是临时的。外部存储可以在重启和重新部署后继续存在。
 * **合规性和审计。** 将记录保存在您已经管理的存储中，使用您自己的保留规则、加密和访问控制。
 
-<h2 id="the-sessionstore-interface">
-  `SessionStore` 接口
-</h2>
+## `SessionStore` 接口
 
 `SessionStore` 是一个对象，具有两个必需的方法 `append` 和 `load`，以及四个可选方法。SDK 调用 `append` 在查询期间写入记录条目，调用 `load` 读取它们以便恢复。
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  // Exported from @anthropic-ai/claude-agent-sdk as
-  // SessionStore, SessionKey, SessionStoreEntry, SessionSummaryEntry.
+```typescript TypeScript theme={null}
+// Exported from @anthropic-ai/claude-agent-sdk as
+// SessionStore, SessionKey, SessionStoreEntry, SessionSummaryEntry.
 
-  type SessionKey = {
+type SessionKey = {
+  projectKey: string;
+  sessionId: string;
+  subpath?: string;
+};
+
+type SessionStore = {
+  // Required
+  append(key: SessionKey, entries: SessionStoreEntry[]): Promise<void>;
+  load(key: SessionKey): Promise<SessionStoreEntry[] | null>;
+
+  // Optional
+  listSessions?(
+    projectKey: string,
+  ): Promise<Array<{ sessionId: string; mtime: number }>>;
+  listSessionSummaries?(projectKey: string): Promise<SessionSummaryEntry[]>;
+  delete?(key: SessionKey): Promise<void>;
+  listSubkeys?(key: {
     projectKey: string;
     sessionId: string;
-    subpath?: string;
-  };
+  }): Promise<string[]>;
+};
 
-  type SessionStore = {
-    // Required
-    append(key: SessionKey, entries: SessionStoreEntry[]): Promise<void>;
-    load(key: SessionKey): Promise<SessionStoreEntry[] | null>;
+type SessionSummaryEntry = {
+  sessionId: string;
+  mtime: number;
+  data: Record<string, unknown>;
+};
+```
 
-    // Optional
-    listSessions?(
-      projectKey: string,
-    ): Promise<Array<{ sessionId: string; mtime: number }>>;
-    listSessionSummaries?(projectKey: string): Promise<SessionSummaryEntry[]>;
-    delete?(key: SessionKey): Promise<void>;
-    listSubkeys?(key: {
-      projectKey: string;
-      sessionId: string;
-    }): Promise<string[]>;
-  };
+```python Python theme={null}
+# Exported from claude_agent_sdk as
+# SessionStore, SessionKey, SessionStoreEntry, SessionSummaryEntry.
 
-  type SessionSummaryEntry = {
-    sessionId: string;
-    mtime: number;
-    data: Record<string, unknown>;
-  };
-  ```
+class SessionKey(TypedDict):
+    project_key: str
+    session_id: str
+    subpath: NotRequired[str]
 
-  ```python Python theme={null}
-  # Exported from claude_agent_sdk as
-  # SessionStore, SessionKey, SessionStoreEntry, SessionSummaryEntry.
+class SessionStore(Protocol):
+    # Required
+    async def append(
+        self, key: SessionKey, entries: list[SessionStoreEntry]
+    ) -> None: ...
+    async def load(self, key: SessionKey) -> list[SessionStoreEntry] | None: ...
 
-  class SessionKey(TypedDict):
-      project_key: str
-      session_id: str
-      subpath: NotRequired[str]
+    # Optional — omit or raise NotImplementedError
+    async def list_sessions(
+        self, project_key: str
+    ) -> list[SessionStoreListEntry]: ...
+    async def list_session_summaries(
+        self, project_key: str
+    ) -> list[SessionSummaryEntry]: ...
+    async def delete(self, key: SessionKey) -> None: ...
+    async def list_subkeys(self, key: SessionListSubkeysKey) -> list[str]: ...
 
-  class SessionStore(Protocol):
-      # Required
-      async def append(
-          self, key: SessionKey, entries: list[SessionStoreEntry]
-      ) -> None: ...
-      async def load(self, key: SessionKey) -> list[SessionStoreEntry] | None: ...
-
-      # Optional — omit or raise NotImplementedError
-      async def list_sessions(
-          self, project_key: str
-      ) -> list[SessionStoreListEntry]: ...
-      async def list_session_summaries(
-          self, project_key: str
-      ) -> list[SessionSummaryEntry]: ...
-      async def delete(self, key: SessionKey) -> None: ...
-      async def list_subkeys(self, key: SessionListSubkeysKey) -> list[str]: ...
-
-  class SessionSummaryEntry(TypedDict):
-      session_id: str
-      mtime: int
-      data: dict[str, Any]
-  ```
-</CodeGroup>
+class SessionSummaryEntry(TypedDict):
+    session_id: str
+    mtime: int
+    data: dict[str, Any]
+```
 
 `SessionKey` 寻址一个记录。`projectKey` 是工作目录的稳定的、文件系统安全的编码，`sessionId` 是会话 UUID，`subpath` 在条目属于子代理记录或边车文件而不是主对话时设置。
 
@@ -109,99 +105,91 @@
 
 有关 SDK 对记录 `load` 返回的处理，请参阅[从存储恢复](#resume-from-the-store)。
 
-<h2 id="quick-start">
-  快速开始
-</h2>
+## 快速开始
 
 SDK 附带一个 `InMemorySessionStore` 用于开发和测试。下面的示例使用附加的存储运行查询，从结果消息中捕获会话 ID，然后在第二个 `query()` 调用中从存储恢复。第二个调用传递相同的存储实例加上 `resume`，因此 SDK 从存储而不是本地文件系统加载记录：
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  import { query, InMemorySessionStore } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query, InMemorySessionStore } from "@anthropic-ai/claude-agent-sdk";
 
-  const store = new InMemorySessionStore();
+const store = new InMemorySessionStore();
 
-  let sessionId: string | undefined;
-  try {
-    for await (const message of query({
-      prompt: "List the TypeScript files under src/",
-      options: { sessionStore: store },
-    })) {
-      if (message.type === "result") {
-        sessionId = message.session_id;
-      }
-    }
-  } catch (error) {
-    // A single-shot query() throws after yielding an error result. If the
-    // failure was an error result, sessionId was already captured by the loop
-    // above; connection or process failures yield no result message.
-    console.error(`Session ended with an error: ${error}`);
-  }
-
-  // Resume from the store. The agent has full context from the first call.
+let sessionId: string | undefined;
+try {
   for await (const message of query({
-    prompt: "Summarize what those files do",
-    options: { sessionStore: store, resume: sessionId },
+    prompt: "List the TypeScript files under src/",
+    options: { sessionStore: store },
   })) {
-    if (message.type === "result" && message.subtype === "success") {
-      console.log(message.result);
+    if (message.type === "result") {
+      sessionId = message.session_id;
     }
   }
-  ```
+} catch (error) {
+  // A single-shot query() throws after yielding an error result. If the
+  // failure was an error result, sessionId was already captured by the loop
+  // above; connection or process failures yield no result message.
+  console.error(`Session ended with an error: ${error}`);
+}
 
-  ```python Python theme={null}
-  import asyncio
-  from claude_agent_sdk import (
-      ClaudeAgentOptions,
-      InMemorySessionStore,
-      ResultMessage,
-      query,
-  )
+// Resume from the store. The agent has full context from the first call.
+for await (const message of query({
+  prompt: "Summarize what those files do",
+  options: { sessionStore: store, resume: sessionId },
+})) {
+  if (message.type === "result" && message.subtype === "success") {
+    console.log(message.result);
+  }
+}
+```
 
-  store = InMemorySessionStore()
+```python Python theme={null}
+import asyncio
+from claude_agent_sdk import (
+    ClaudeAgentOptions,
+    InMemorySessionStore,
+    ResultMessage,
+    query,
+)
 
-
-  async def main():
-      session_id = None
-      try:
-          async for message in query(
-              prompt="List the Python files under src/",
-              options=ClaudeAgentOptions(session_store=store),
-          ):
-              if isinstance(message, ResultMessage):
-                  session_id = message.session_id
-      except Exception as error:
-          # A single-shot query() raises after yielding an error result. If the
-          # failure was an error result, session_id was already captured by the
-          # loop above; connection or process failures yield no result message.
-          print(f"Session ended with an error: {error}")
-
-      # Resume from the store. The agent has full context from the first call.
-      async for message in query(
-          prompt="Summarize what those files do",
-          options=ClaudeAgentOptions(session_store=store, resume=session_id),
-      ):
-          if isinstance(message, ResultMessage) and message.subtype == "success":
-              print(message.result)
+store = InMemorySessionStore()
 
 
-  asyncio.run(main())
-  ```
-</CodeGroup>
+async def main():
+    session_id = None
+    try:
+        async for message in query(
+            prompt="List the Python files under src/",
+            options=ClaudeAgentOptions(session_store=store),
+        ):
+            if isinstance(message, ResultMessage):
+                session_id = message.session_id
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result. If the
+        # failure was an error result, session_id was already captured by the
+        # loop above; connection or process failures yield no result message.
+        print(f"Session ended with an error: {error}")
+
+    # Resume from the store. The agent has full context from the first call.
+    async for message in query(
+        prompt="Summarize what those files do",
+        options=ClaudeAgentOptions(session_store=store, resume=session_id),
+    ):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(message.result)
+
+
+asyncio.run(main())
+```
 
 第二个查询打印来自第一个查询的文件摘要，这表明代理从存储中恢复了完整的上下文。
 
-<h2 id="write-your-own-adapter">
-  编写您自己的适配器
-</h2>
+## 编写您自己的适配器
 
 针对您的后端实现 `append` 和 `load`。如果您希望 `listSessions()`、一次调用元数据读取、`deleteSession()` 和子代理恢复针对存储工作，请添加 `listSessions`、`listSessionSummaries`、`delete` 和 `listSubkeys`。
 
 传递给 `append` 的条目类型为 `SessionStoreEntry`（一个 `{ type: string; ... }` 对象）。将它们视为不透明的 JSON 安全值：按顺序持久化它们，并从 `load` 以相同的顺序返回它们。`load` 必须返回与追加的条目深度相等的条目；不需要字节相等的序列化，因此像重新排序对象键的二进制 JSON 列类型这样的后端是可以的。
 
-<h2 id="reference-implementations">
-  参考实现
-</h2>
+## 参考实现
 
 两个 SDK 存储库在 TypeScript 的 [`examples/session-stores/`](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores) 和 Python 的 [`examples/session_stores/`](https://github.com/anthropics/claude-agent-sdk-python/tree/main/examples/session_stores) 下都包含可运行的参考适配器。每种存储类型都有一个适配器，每个都展示了 `append` 和 `load` 如何映射到该类型的后端。它们不作为包发布；将最接近您后端的类型的适配器复制到您的项目中，安装您后端的客户端，并进行调整。
 
@@ -242,9 +230,7 @@ for await (const message of query({
 }
 ```
 
-<h3 id="validate-your-adapter">
-  验证您的适配器
-</h3>
+### 验证您的适配器
 
 两个 SDK 都附带一个一致性套件，该套件断言 `append`、`load` 和可选方法必须满足的行为契约。当未实现这些方法时，可选方法的测试会自动跳过。
 
@@ -268,13 +254,9 @@ async def test_my_store_conformance():
 
 按照此示例传递 `MyRedisStore` 类本身，当构造函数不带参数时有效。对于采用预配置客户端的适配器，改为传递构造存储的 lambda。由于契约重用相同的会话键，工厂返回的每个存储必须以空存储开始，因此让 lambda 为每次调用配置隔离的后端存储，例如新的内存中伪造、唯一的键前缀或新的测试数据库。
 
-<h2 id="behavior-notes">
-  行为说明
-</h2>
+## 行为说明
 
-<h3 id="dual-write-architecture">
-  双写架构
-</h3>
+### 双写架构
 
 Claude Code 子进程始终首先将每批转录条目写入本地磁盘，然后 SDK 将同一批转发到您的存储的 `append()`，因此存储是本地转录的镜像而不是替代品。哪个副本在运行后保留取决于运行的启动方式：
 
@@ -290,9 +272,7 @@ Claude Code 子进程始终首先将每批转录条目写入本地磁盘，然�
 * **`persistSession: false`** 在 TypeScript 中：关闭镜像所基于的本地写入。Python SDK 没有等效选项。
 * **文件检查点**，TypeScript 中的 `enableFileCheckpointing` 或 Python 中的 `enable_file_checkpointing`：将其文件备份直接写入本地磁盘，SDK 不会将其镜像到存储。
 
-<h3 id="resume-from-the-store">
-  从存储恢复
-</h3>
+### 从存储恢复
 
 当您传递 `resume`，或 TypeScript 中的 `continue: true` 或 Python 中的 `continue_conversation=True`，以及存储时，SDK 在生成子进程之前向存储请求转录：
 
@@ -312,41 +292,29 @@ SDK 还使用来自您真实配置目录的文件为临时目录提供种子。�
 * **TypeScript 中的 `continue: true`**：SDK 启动新会话。
 * **Python 中的 `continue_conversation=True`**：SDK 从最新的本地会话继续。
 
-<h3 id="mirror-writes-are-best-effort">
-  镜像写入是尽力而为的
-</h3>
+### 镜像写入是尽力而为的
 
 如果 `append()` 拒绝，SDK 会以短退避重试该批次最多两次，总共最多三次尝试。超时的调用不会重试，因为原始调用可能仍然会成功。如果批次仍然失败，SDK 记录错误，向迭代器发出 `{ type: "system", subtype: "mirror_error" }` 消息，丢弃批次，并继续查询。因为重试的批次可以重新传递已经成功的条目，请在您的 `append()` 实现中按 `entry.uuid` 进行去重。
 
 存储中断不会中断代理，因为子进程首先在本地写入。如果您需要检测存储数据丢失，请监视 `mirror_error`。在[从存储恢复](#resume-from-the-store)的运行上，丢弃的批次在运行结束后没有幸存的副本。
 
-<h3 id="getsessionmessages-returns-the-post-compaction-chain">
-  `getSessionMessages` 返回后压缩链
-</h3>
+### `getSessionMessages` 返回后压缩链
 
 `getSessionMessages({ sessionStore })` 返回代理在恢复时会看到的链接消息链。自动压缩后，早期的轮次被摘要替换，因此存储中包含 503 个原始条目的会话可能从 `getSessionMessages` 返回 18 条消息。对于完整的原始历史记录，包括压缩前的轮次和元数据条目，直接调用 `store.load(key)`。
 
-<h3 id="forksession-is-not-a-byte-copy">
-  `forkSession` 不是字节副本
-</h3>
+### `forkSession` 不是字节副本
 
 `forkSession({ sessionStore })` 读取源条目，重写每个 `sessionId` 字段并重新映射消息 UUID，然后在新键下追加转换后的条目。适配器级别的副本或 `CopyObject` 快捷方式会产生仍然引用旧会话 ID 的转录，因此 SDK 不使用它。
 
-<h3 id="subagent-transcripts">
-  子代理转录
-</h3>
+### 子代理转录
 
 子代理转录在 `subpath: "subagents/agent-<id>"` 下镜像。`listSubagents({ sessionStore })` 要求适配器实现 `listSubkeys`；`getSubagentMessages({ sessionStore })` 在可用时使用它，但在未定义时回退到直接子路径。恢复也调用 `listSubkeys` 来恢复子代理文件；没有它，仅实现主转录。
 
-<h3 id="retention">
-  保留
-</h3>
+### 保留
 
 SDK 永远不会自行从您的存储中删除。保留是适配器的责任：根据您的合规要求实现 TTL、S3 生命周期策略或计划清理。`CLAUDE_CONFIG_DIR` 下的本地转录由 `cleanupPeriodDays` 设置独立清理，遵循[保留清理规则](/docs/zh-CN/claude-directory#cleaned-up-automatically)。[从存储恢复](#resume-from-the-store)的运行不留下本地转录，因此对于这些运行，您的存储保留是唯一的保留。
 
-<h2 id="supported-on">
-  支持的功能
-</h2>
+## 支持的功能
 
 以下 TypeScript SDK 函数接受 `sessionStore` 选项，当提供时针对存储而不是本地文件系统操作：
 
@@ -364,9 +332,7 @@ SDK 永远不会自行从您的存储中删除。保留是适配器的责任：�
 
 在 Python SDK 中，在 [`ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 中设置 `session_store` 以针对存储运行 `query()`。其余操作各有一个接受存储作为参数的存储支持的 Python 函数：`list_sessions_from_store()`、`get_session_info_from_store()`、`get_session_messages_from_store()`、`list_subagents_from_store()`、`get_subagent_messages_from_store()`、`rename_session_via_store()`、`tag_session_via_store()`、`delete_session_via_store()` 和 `fork_session_via_store()`。`startup()` 没有 Python 等效项。[Python SDK 参考](/docs/zh-CN/agent-sdk/python#functions)中记录的独立函数（如 `list_sessions()`）读取本地会话文件。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [使用会话](/docs/zh-CN/agent-sdk/sessions)：在没有自定义存储的情况下继续、恢复和分叉
 * [托管 SDK](/docs/zh-CN/agent-sdk/hosting)：多主机环境的部署模式

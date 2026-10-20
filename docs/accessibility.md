@@ -10,9 +10,7 @@ Claude Code 具有屏幕阅读器模式，可将其视觉终端界面替换为�
 
 屏幕阅读器模式是可选的。如果您使用屏幕放大镜、减少动画或色盲友好主题而不是屏幕阅读器，请从[辅助功能设置](#accessibility-settings)表中设置 `CLAUDE_CODE_ACCESSIBILITY`、`prefersReducedMotion` 或 `theme`。屏幕阅读器模式仅调整终端界面，因此您不需要在 VS Code 扩展的聊天面板中使用它。在 Claude Code v2.1.236 或更高版本上，该扩展[在不需要任何设置的情况下向您的屏幕阅读器宣布对话活动](/docs/zh-CN/vs-code#use-a-screen-reader)。
 
-<h2 id="turn-on-screen-reader-mode">
-  打开屏幕阅读器模式
-</h2>
+## 打开屏幕阅读器模式
 
 选择与您使用屏幕阅读器频率相匹配的方法：
 
@@ -26,15 +24,11 @@ Claude Code 具有屏幕阅读器模式，可将其视觉终端界面替换为�
 
 Claude Code 打印的第一行确认该模式：`[Screen Reader Mode: on via flag]`、`[Screen Reader Mode: on via env]` 或 `[Screen Reader Mode: on via settings]`。
 
-<h2 id="turn-off-screen-reader-mode">
-  关闭屏幕阅读器模式
-</h2>
+## 关闭屏幕阅读器模式
 
 反转打开模式的任何方法：启动时不使用标志、取消设置环境变量或将 `axScreenReader` 设置为 `false`。如果将 `CLAUDE_AX_SCREEN_READER` 设置为 `0`，Claude Code 即使在设置为 `true` 时也会保持模式关闭。
 
-<h2 id="accessibility-settings">
-  无障碍设置
-</h2>
+## 无障碍设置
 
 该表列出了每个无障碍选项、您是将其设置为标志、环境变量还是设置，以及它改变的内容。
 
@@ -50,9 +44,7 @@ Claude Code 打印的第一行确认该模式：`[Screen Reader Mode: on via fla
 | [`theme`](/docs/zh-CN/settings-reference#theme) | 设置 | 界面颜色，包括色盲友好的 `dark-daltonized` 和 `light-daltonized` 主题。您也可以使用 [`/theme`](/docs/zh-CN/commands#all-commands) 选择一个。 |
 | [`preferredNotifChannel`](/docs/zh-CN/settings-reference#preferrednotifchannel) | 设置 | 当值为 `"terminal_bell"` 时，在屏幕阅读器模式外，当 Claude 等待您时发出终端铃声。 |
 
-<h2 id="what-your-screen-reader-hears">
-  屏幕阅读器听到的内容
-</h2>
+## 屏幕阅读器听到的内容
 
 在屏幕阅读器模式中，Claude Code 写入平面文本：
 
@@ -92,17 +84,13 @@ Claude Code 将终端光标保持在输入插入符上，因此屏幕阅读器�
 
 当您使用 `Shift+Tab` 循环[权限模式](/docs/zh-CN/permission-modes)时，Claude Code 宣布您切换到的权限模式，例如 `[plan mode on]` 或 `[accept edits on]`。Claude Code 打印公告一次，不会在以后的重绘中重复。
 
-<h3 id="read-earlier-output-without-losing-your-place">
-  阅读之前的输出而不丢失位置
-</h3>
+### 阅读之前的输出而不丢失位置
 
 如果您在阅读之前的输出时屏幕阅读器跳回到输入框，说明它正在跟随终端光标。Claude Code 每次写入新文本时都会将终端光标移回输入框。
 
 要在阅读时保持位置，请让屏幕阅读器停止跟随终端光标。在 NVDA 中，按 `NVDA+6` 可让浏览光标停止跟随终端光标。再次按 `NVDA+6` 可重新开启跟随。
 
-<h3 id="jump-between-turns">
-  在轮次之间跳转
-</h3>
+### 在轮次之间跳转
 
 Claude Code 在轮次边界处发出 OSC 133 shell-integration 标记，因此您的终端的跳转到上一个提示符键可在轮次之间移动，而无需阅读整个会话记录：
 
@@ -113,9 +101,7 @@ Claude Code 在轮次边界处发出 OSC 133 shell-integration 标记，因此�
 
 macOS Terminal 不对标记进行操作，Claude Code 在 WezTerm 中不发出它们。在这些终端中，请改为在滚动缓冲区中搜索 `you:` 标签。
 
-<h2 id="answer-menus-and-prompts">
-  回答菜单和提示
-</h2>
+## 回答菜单和提示
 
 在屏幕阅读器模式中，您通常使用箭头键导航的菜单（包括权限提示）会变成编号列表。Claude Code 将每个选项宣布为编号行，然后是一个 `Select with numbers` 提示，该提示命名有效范围。输入您想要的选项的编号，然后按 Enter。
 
@@ -126,9 +112,7 @@ macOS Terminal 不对标记进行操作，Claude Code 在 WezTerm 中不发出�
 
 是或否提示要求输入类型的答案，而不是两选项菜单。回答 `y` 或 `n` 并按 Enter。`yes` 和 `no` 也可以。
 
-<h2 id="hear-when-claude-code-needs-you">
-  听取 Claude Code 何时需要你
-</h2>
+## 听取 Claude Code 何时需要你
 
 在屏幕阅读器模式下，当 Claude Code 需要你的注意时，它会响起终端铃声，这样你就不必一直检查记录。铃声在以下情况下响起：
 
@@ -138,9 +122,7 @@ macOS Terminal 不对标记进行操作，Claude Code 在 WezTerm 中不发出�
 
 铃声是你的终端的标准警报。要使其静音，请更改你的终端应用程序中的铃声设置。在屏幕阅读器模式之外，设置 [`preferredNotifChannel`](/docs/zh-CN/settings-reference#preferrednotifchannel) 为 `"terminal_bell"` 以在 Claude 等待你时获得[类似的铃声](/docs/zh-CN/terminal-config#get-a-terminal-bell-or-notification)。
 
-<h2 id="known-limitations">
-  已知限制
-</h2>
+## 已知限制
 
 某些行为不适应屏幕阅读器模式：
 
@@ -150,8 +132,6 @@ macOS Terminal 不对标记进行操作，Claude Code 在 WezTerm 中不发出�
 * Claude Code 在退出时打印的摘要中宣布成本，而不是每轮。
 * 屏幕阅读器模式不改变带有 `-p` 标志的[非交互模式](/docs/zh-CN/headless)。非交互模式已经写入纯文本，并且仍然是脚本编写的替代方案。
 
-<h2 id="report-an-issue">
-  报告问题
-</h2>
+## 报告问题
 
 如果屏幕阅读器、放大镜或终端出现问题，请在 [Claude Code 问题跟踪器](https://github.com/anthropics/claude-code/issues)上打开问题，并在标题中提及您的辅助技术。在报告中包括您的操作系统、终端应用程序以及辅助技术名称和版本。

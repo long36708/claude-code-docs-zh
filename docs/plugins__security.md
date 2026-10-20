@@ -30,7 +30,7 @@
 * **Monitors**：插件的 [monitors](/docs/zh-CN/plugins/components#monitors) 作为后台 shell 命令运行，Claude Code 会在会话开始时、您重新加载插件时，或某个指定的 skill 首次运行时自行启动它们。
 * **Mods**：插件的 [mod](/docs/zh-CN/plugins/mods/overview) 在 Claude Code 内使用您的权限运行 JavaScript。要在安装前列出 mod 的功能，请参阅[决定是否信任 mod](/docs/zh-CN/plugins/mods/overview#decide-whether-to-trust-a-mod)。
 * **MCP 和 LSP 服务器**：Claude Code 连接到启用的插件声明的 [MCP 服务器](/docs/zh-CN/mcp)，并为 Claude 提供它们的工具。stdio MCP 服务器作为 Claude Code 在您的机器上启动的进程运行。Claude Code 也启动插件声明的语言服务器。
-* **`bin/` 目录**：Claude Code 将每个启用的插件的 `bin/` 目录添加到 Bash 工具 shell 的 `PATH` 中，所以 Claude 的 Bash 命令可以运行那里的任何可执行文件。
+* **`bin/` 目录**：Claude Code 将每个启用的插件的 `bin/` 目录添加到 Bash 工具 shell 的 `PATH` 中，所以 Claude 的 Bash 命令可以运行那里的任何可执行文件。Claude 通过 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)运行的命令在[沙箱](/docs/zh-CN/sandboxing)外运行时，其 `PATH` 中会包含这些目录；在沙箱内运行时则不包含。
 * **Skills、commands 和 agents**：这些作为指令进入 Claude 的上下文，所以它们影响 Claude 对它已有的工具的使用。
 * **更新**：当您安装插件的市场启用自动更新时，Claude Code 在后台更新该插件，所以您审查的文件可能会在磁盘上更改。[自动更新何时运行](/docs/zh-CN/plugins/loading#when-auto-update-runs)有时间安排。要按市场打开或关闭自动更新，请参阅[保持插件更新](/docs/zh-CN/plugins/install#keep-plugins-updated)。
 

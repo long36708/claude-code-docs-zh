@@ -364,6 +364,8 @@ Claude Code 第一次看到项目范围的服务器时，它会要求您批准�
 > 在会话内运行 `/mcp` 并选择服务器以查看其工具列表。如果列表为空，服务器启动但没有注册任何工具，这通常意味着它缺少必需的环境变量，例如 API 密钥。
 >
 > 在 `claude mcp add` 上使用 `--env KEY=value` 传递变量，或在服务器的 `.mcp.json` 条目的 `env` 字段中传递。服务器的文档列出了它需要的变量。
+>
+> 在 v2.1.302 之前，对于使用[协议修订版 2026-07-28](/docs/zh-CN/mcp#mcp-client-runtimes) 且在其响应中省略了 `resultType`、`ttlMs` 或 `cacheScope` 的服务器，`/mcp` 会显示状态 `tools fetch failed`。如果您使用的是这些版本之一，并且服务器显示该状态，请[更新 Claude Code](/docs/zh-CN/setup#update-claude-code)。
 
 > **.mcp.json 的更改不生效**
 >

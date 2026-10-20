@@ -1020,6 +1020,8 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   * 对于 Skill 工具：包括 `skill_name`
   * 对于 Agent 工具或旧版 Task 工具：包括 `subagent_type`
 
+如果您将 OpenTelemetry SDK 的 `OTEL_LOGRECORD_ATTRIBUTE_COUNT_LIMIT` 调低到低于 `tool_decision` 事件上的属性数量，SDK 会丢弃 Claude Code 最后设置的属性。SDK 会首先丢弃 `permission_mode`，其次是 `classifier_category`，再次是 `classifier_verdict`，只有在丢弃这三个属性之后才会丢弃事件的其他属性。此顺序需要 Claude Code v2.1.302 或更高版本。
+
 #### 权限模式变更事件
 
 在权限模式发生变化时记录，例如通过 `Shift+Tab` 循环切换、退出计划模式或自动模式门控检查。

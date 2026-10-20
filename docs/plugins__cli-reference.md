@@ -376,7 +376,17 @@ Claude Code 打印插件的名称、版本、描述和来源，然后打印以�
 
 有关这两个成本数字的含义，请参阅[衡量插件成本和使用情况](/docs/zh-CN/plugins/measure)。
 
-对于未加载的插件，Claude Code 打印 ``Plugin "formatter" not found. Run `claude plugin list` to see installed plugins, or pass --plugin-dir <path> to load one from disk.`` 并以 `1` 退出。
+对于未加载的插件，Claude Code 打印以下消息并以 `1` 退出：
+
+```text theme={null}
+Plugin "formatter" not found. Run `claude plugin list` to see installed plugins, or pass --plugin-dir <path> to load one from disk.
+```
+
+以 `@builtin` 结尾的 ID 指代某个 [Claude Code 内置插件](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code)。如果您传递此类 ID 而 Claude Code 找不到该插件，消息将改为：
+
+```text theme={null}
+Plugin "<name>@builtin" not found. Built-in plugins don't appear in `claude plugin list`. To see the ones available in a session, run /plugin in Claude Code and open the Installed tab.
+```
 
 ### plugin configure
 

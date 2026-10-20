@@ -350,6 +350,8 @@ Claude Code 保留被拒绝的目录，因为它可能保留工作。将消息�
 * **说 `it cannot be resumed or re-entered`**：此会话中没有任何东西从您启动的地方为 worktree 担保。重新创建它；目录及其工作保留在磁盘上以供手动恢复，当 worktree 有父检出时，从那里恢复也有效。
 * **说 `it contains the protected checkout`**：被拒绝的目录是您主检出的父目录，例如您的主目录。不要删除它。更改 worktree 路径，例如您的 `WorktreeCreate` hook 返回的路径或 `EnterWorktree` 目标，以便 worktree 不包含检出。
 * **说 `the protected checkout <path> has a .git entry that could not be examined` 或 `has git metadata that could not be resolved`**：问题是主检出的 git 元数据，而不是 worktree 的。不要删除 worktree，忽略消息的尾部建议重新创建它，这不适用于这两个结尾。修复主检出，例如权限问题或 git 对其 `.git` 的 `dubious ownership` 拒绝，并重试。
+
+  在 v2.1.302 之前，使用 git 2.56 或更高版本时，如果 `the protected checkout` 之后的 `<path>` 中存在一个游离的 `.git` 文件，也会出现 `could not be resolved` 结尾。此处的"游离"是指该文件 `gitdir:` 行中的路径未指向有效的 git 仓库。要恢复，请[更新 Claude Code](/docs/zh-CN/setup#update-claude-code) 并重试。当该 `gitdir:` 路径已不存在时，您也可以删除该 `.git` 文件并重试。
 * **说 `its recorded path has a network spelling`**：Claude Code 永远不会恢复到网络路径上的 worktree。在本地路径重新创建 worktree。
 * **任何其他结尾**：消息命名问题及其修复，例如删除 `core.worktree` 重定向或重新创建 worktree；遵循它。在删除消息说其 git 身份无法验证的目录之前，首先解决命名的原因，例如 worktree 路径中的符号链接或 git 本身无法运行，因为目录可能是健康的。当您确实重新创建时，从旧目录中拯救您需要的任何更改；它保留在磁盘上。
 

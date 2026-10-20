@@ -237,7 +237,7 @@ on('session.start', async ($, e, next) => {
 * **`the session was stopped and nobody has sent input since`**：调用被拒绝
 * **`was removed from the queue before it ran`**：提示词或命令未运行就离开了队列并被丢弃，例如当用户停止了轮次时
 
-在此示例中，从您的后台工作中调用 `submitPrompt` 来代替 [`$.prompt.submit`](#start-a-turn-from-a-background-job)。当结果或错误带有上述字符串之一时，`submitPrompt` 会将文本保存在 `pendingText` 中，供 `turn.complete` hook 再次提交：
+在此示例中，从您的后台工作中调用 `submitPrompt` 来代替 [`$.prompt.submit`](#start-a-turn-from-a-background-job)。将 `pendingText` 变量和 `submitPrompt` 函数放在 [`register`](/docs/zh-CN/plugins/mods/reference#files) 之上，并将 `turn.complete` hook 放在其内部，因为[验证](/docs/zh-CN/plugins/mods/create#check-what-claude-code-reads-from-your-mod)会拒绝传递给在 `register` 内部声明的函数的 `$`。当结果或错误带有上述字符串之一时，`submitPrompt` 会将文本保存在 `pendingText` 中，供 `turn.complete` hook 再次提交：
 
 ```javascript theme={null}
 // The text of the last refused or dropped prompt, or null

@@ -14,141 +14,133 @@ Hooks 是回调函数，用于响应代理事件（如工具被调用、会话�
 * **要求人工批准**敏感操作，如数据库写入或 API 调用
 * **跟踪会话生命周期**以管理状态、清理资源或发送通知
 
-<h2 id="how-hooks-work">
-  hook 如何工作
-</h2>
+## hook 如何工作
 
-<Steps>
-  <Step title="事件触发">
-    Agent 执行期间发生某事，SDK 触发事件：工具即将被调用（`PreToolUse`）、工具返回结果（`PostToolUse`）、子代理启动或停止、Agent 空闲或执行完成。请参阅[完整事件列表](#available-hooks)。
-  </Step>
+**1. 事件触发**
 
-  <Step title="SDK 收集已注册的 hook">
-    SDK 检查为该事件类型注册的 hook。这包括您在 `options.hooks` 中传递的回调 hook 和来自设置文件的 shell 命令 hook，当相应的 [`settingSources`](/docs/zh-CN/agent-sdk/typescript#settingsource) 或 [`setting_sources`](/docs/zh-CN/agent-sdk/python#settingsource) 条目启用时（默认 `query()` 选项就是这样）。
-  </Step>
+Agent 执行期间发生某事，SDK 触发事件：工具即将被调用（`PreToolUse`）、工具返回结果（`PostToolUse`）、子代理启动或停止、Agent 空闲或执行完成。请参阅[完整事件列表](#available-hooks)。
 
-  <Step title="匹配器过滤哪些 hook 运行">
-    如果 hook 有 [`matcher`](#matchers) 模式（如 `"Write|Edit"`），SDK 会针对事件的目标（例如工具名称）测试它。没有匹配器的 hook 对该类型的每个事件都运行。
-  </Step>
+**2. SDK 收集已注册的 hook**
 
-  <Step title="回调函数执行">
-    每个匹配的 hook 的[回调函数](#callback-functions)接收有关正在发生的事情的输入：工具名称、其参数、会话 ID 和其他事件特定的详细信息。
-  </Step>
+SDK 检查为该事件类型注册的 hook。这包括您在 `options.hooks` 中传递的回调 hook 和来自设置文件的 shell 命令 hook，当相应的 [`settingSources`](/docs/zh-CN/agent-sdk/typescript#settingsource) 或 [`setting_sources`](/docs/zh-CN/agent-sdk/python#settingsource) 条目启用时（默认 `query()` 选项就是这样）。
 
-  <Step title="您的回调返回决定">
-    执行任何操作（日志记录、API 调用、验证）后，您的回调返回一个[输出对象](#outputs)，告诉 Agent 该做什么：允许操作、阻止它、修改输入或将上下文注入到对话中。
-  </Step>
-</Steps>
+**3. 匹配器过滤哪些 hook 运行**
+
+如果 hook 有 [`matcher`](#matchers) 模式（如 `"Write|Edit"`），SDK 会针对事件的目标（例如工具名称）测试它。没有匹配器的 hook 对该类型的每个事件都运行。
+
+**4. 回调函数执行**
+
+每个匹配的 hook 的[回调函数](#callback-functions)接收有关正在发生的事情的输入：工具名称、其参数、会话 ID 和其他事件特定的详细信息。
+
+**5. 您的回调返回决定**
+
+执行任何操作（日志记录、API 调用、验证）后，您的回调返回一个[输出对象](#outputs)，告诉 Agent 该做什么：允许操作、阻止它、修改输入或将上下文注入到对话中。
 
 此示例注册一个 `PreToolUse` hook（步骤 1），带有 `"Write|Edit"` 匹配器（步骤 3），因此回调会针对 Write 和 Edit 工具触发。触发时，回调接收工具的输入（步骤 4），检查文件路径是否针对 `.env` 文件，并返回 `permissionDecision: "deny"` 以阻止操作（步骤 5）：
 
-<CodeGroup>
-  ```python Python theme={null}
-  import asyncio
-  from claude_agent_sdk import (
-      AssistantMessage,
-      ClaudeSDKClient,
-      ClaudeAgentOptions,
-      HookMatcher,
-      ResultMessage,
-  )
+```python Python theme={null}
+import asyncio
+from claude_agent_sdk import (
+    AssistantMessage,
+    ClaudeSDKClient,
+    ClaudeAgentOptions,
+    HookMatcher,
+    ResultMessage,
+)
 
 
-  # 定义一个接收工具调用详细信息的 hook 回调
-  async def protect_env_files(input_data, tool_use_id, context):
-      # 从工具的输入参数中提取文件路径
-      file_path = input_data["tool_input"].get("file_path", "")
-      file_name = file_path.split("/")[-1]
+# 定义一个接收工具调用详细信息的 hook 回调
+async def protect_env_files(input_data, tool_use_id, context):
+    # 从工具的输入参数中提取文件路径
+    file_path = input_data["tool_input"].get("file_path", "")
+    file_name = file_path.split("/")[-1]
 
-      # 如果针对 .env 文件，阻止操作
-      if file_name.lower() == ".env":
-          return {
-              "hookSpecificOutput": {
-                  "hookEventName": input_data["hook_event_name"],
-                  "permissionDecision": "deny",
-                  "permissionDecisionReason": "Cannot modify .env files",
-              }
-          }
-
-      # 返回空对象以允许操作
-      return {}
-
-
-  async def main():
-      options = ClaudeAgentOptions(
-          hooks={
-              # 为 PreToolUse 事件注册 hook
-              # 匹配器仅过滤 Write 和 Edit 工具调用
-              "PreToolUse": [HookMatcher(matcher="Write|Edit", hooks=[protect_env_files])]
-          }
-      )
-
-      async with ClaudeSDKClient(options=options) as client:
-          await client.query("使用标准本地开发数据库配置创建 .env 文件")
-          async for message in client.receive_response():
-              # 过滤助手和结果消息
-              if isinstance(message, (AssistantMessage, ResultMessage)):
-                  print(message)
-
-
-  asyncio.run(main())
-  ```
-
-  ```typescript TypeScript theme={null}
-  import { query, HookCallback, PreToolUseHookInput } from "@anthropic-ai/claude-agent-sdk";
-
-  // 使用 HookCallback 类型定义 hook 回调
-  const protectEnvFiles: HookCallback = async (input, toolUseID, { signal }) => {
-    // 将输入转换为特定 hook 类型以获得类型安全
-    const preInput = input as PreToolUseHookInput;
-
-    // 转换 tool_input 以访问其属性（在 SDK 中类型为 unknown）
-    const toolInput = preInput.tool_input as Record<string, unknown>;
-    const filePath = toolInput?.file_path as string;
-    const fileName = filePath?.split("/").pop();
-
-    // 如果针对 .env 文件，阻止操作
-    if (fileName?.toLowerCase() === ".env") {
-      return {
-        hookSpecificOutput: {
-          hookEventName: preInput.hook_event_name,
-          permissionDecision: "deny",
-          permissionDecisionReason: "Cannot modify .env files"
+    # 如果针对 .env 文件，阻止操作
+    if file_name.lower() == ".env":
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": input_data["hook_event_name"],
+                "permissionDecision": "deny",
+                "permissionDecisionReason": "Cannot modify .env files",
+            }
         }
-      };
-    }
 
-    // 返回空对象以允许操作
-    return {};
-  };
+    # 返回空对象以允许操作
+    return {}
 
-  for await (const message of query({
-    prompt: "使用标准本地开发数据库配置创建 .env 文件",
-    options: {
-      hooks: {
-        // 为 PreToolUse 事件注册 hook
-        // 匹配器仅过滤 Write 和 Edit 工具调用
-        PreToolUse: [{ matcher: "Write|Edit", hooks: [protectEnvFiles] }]
+
+async def main():
+    options = ClaudeAgentOptions(
+        hooks={
+            # 为 PreToolUse 事件注册 hook
+            # 匹配器仅过滤 Write 和 Edit 工具调用
+            "PreToolUse": [HookMatcher(matcher="Write|Edit", hooks=[protect_env_files])]
+        }
+    )
+
+    async with ClaudeSDKClient(options=options) as client:
+        await client.query("使用标准本地开发数据库配置创建 .env 文件")
+        async for message in client.receive_response():
+            # 过滤助手和结果消息
+            if isinstance(message, (AssistantMessage, ResultMessage)):
+                print(message)
+
+
+asyncio.run(main())
+```
+
+```typescript TypeScript theme={null}
+import { query, HookCallback, PreToolUseHookInput } from "@anthropic-ai/claude-agent-sdk";
+
+// 使用 HookCallback 类型定义 hook 回调
+const protectEnvFiles: HookCallback = async (input, toolUseID, { signal }) => {
+  // 将输入转换为特定 hook 类型以获得类型安全
+  const preInput = input as PreToolUseHookInput;
+
+  // 转换 tool_input 以访问其属性（在 SDK 中类型为 unknown）
+  const toolInput = preInput.tool_input as Record<string, unknown>;
+  const filePath = toolInput?.file_path as string;
+  const fileName = filePath?.split("/").pop();
+
+  // 如果针对 .env 文件，阻止操作
+  if (fileName?.toLowerCase() === ".env") {
+    return {
+      hookSpecificOutput: {
+        hookEventName: preInput.hook_event_name,
+        permissionDecision: "deny",
+        permissionDecisionReason: "Cannot modify .env files"
       }
-    }
-  })) {
-    // 过滤助手和结果消息
-    if (message.type === "assistant" || message.type === "result") {
-      console.log(message);
+    };
+  }
+
+  // 返回空对象以允许操作
+  return {};
+};
+
+for await (const message of query({
+  prompt: "使用标准本地开发数据库配置创建 .env 文件",
+  options: {
+    hooks: {
+      // 为 PreToolUse 事件注册 hook
+      // 匹配器仅过滤 Write 和 Edit 工具调用
+      PreToolUse: [{ matcher: "Write|Edit", hooks: [protectEnvFiles] }]
     }
   }
-  ```
-</CodeGroup>
+})) {
+  // 过滤助手和结果消息
+  if (message.type === "assistant" || message.type === "result") {
+    console.log(message);
+  }
+}
+```
 
 该 hook 会拒绝 `file_path` 以 `/.env` 结尾的 Write 或 Edit 调用，不区分字母大小写。在 Windows 上，`file_path` 使用反斜杠，例如 `C:\project\.env`，此时该 hook 会允许对 `C:\project\.env` 的 Write 或 Edit 调用。
 
-<Warning>
-  `Write|Edit` 匹配器将此 hook 限制为仅作用于 Write 和 Edit 工具。如果 Claude 通过 Bash 命令写入 `.env`，该 hook 不会运行。要在[沙箱运行](/docs/zh-CN/sandboxing)的情况下阻止 Bash 写入某个文件，请参阅 [Python](/docs/zh-CN/agent-sdk/python#sandbox-configuration) 或 [TypeScript](/docs/zh-CN/agent-sdk/typescript#sandbox-configuration) 的沙箱配置。
-</Warning>
+> [!WARNING]
+>
+> `Write|Edit` 匹配器将此 hook 限制为仅作用于 Write 和 Edit 工具。如果 Claude 通过 Bash 命令写入 `.env`，该 hook 不会运行。要在[沙箱运行](/docs/zh-CN/sandboxing)的情况下阻止 Bash 写入某个文件，请参阅 [Python](/docs/zh-CN/agent-sdk/python#sandbox-configuration) 或 [TypeScript](/docs/zh-CN/agent-sdk/typescript#sandbox-configuration) 的沙箱配置。
 
-<h2 id="available-hooks">
-  可用的 hooks
-</h2>
+## 可用的 hooks
 
 SDK 为代理执行的不同阶段提供 hooks。某些 hooks 在两个 SDK 中都可用，而其他 hooks 仅在 TypeScript 中可用。
 
@@ -188,46 +180,40 @@ SDK 为代理执行的不同阶段提供 hooks。某些 hooks 在两个 SDK 中�
 | `FileChanged` | 否 | 是 | 监视的文件被修改、创建或删除 | 项目文件更改时重新加载配置 |
 | `DirectoryAdded` | 否 | 是 | 会话期间添加工作目录 | 为中途添加的存储库安装依赖项 |
 
-<h2 id="configure-hooks">
-  配置 hook
-</h2>
+## 配置 hook
 
 要配置 hook，请在您的 Agent 选项的 `hooks` 字段中传递它（Python 中的 `ClaudeAgentOptions`，TypeScript 中的 `options` 对象）。此代码段假设您已经定义了一个 hook 回调，例如上面示例中 Python 中的 `protect_env_files` 或 TypeScript 中的 `protectEnvFiles`：
 
-<CodeGroup>
-  ```python Python theme={null}
-  options = ClaudeAgentOptions(
-      hooks={"PreToolUse": [HookMatcher(matcher="Bash", hooks=[my_callback])]}
-  )
+```python Python theme={null}
+options = ClaudeAgentOptions(
+    hooks={"PreToolUse": [HookMatcher(matcher="Bash", hooks=[my_callback])]}
+)
 
-  async with ClaudeSDKClient(options=options) as client:
-      await client.query("Your prompt")
-      async for message in client.receive_response():
-          print(message)
-  ```
+async with ClaudeSDKClient(options=options) as client:
+    await client.query("Your prompt")
+    async for message in client.receive_response():
+        print(message)
+```
 
-  ```typescript TypeScript theme={null}
-  for await (const message of query({
-    prompt: "Your prompt",
-    options: {
-      hooks: {
-        PreToolUse: [{ matcher: "Bash", hooks: [myCallback] }]
-      }
+```typescript TypeScript theme={null}
+for await (const message of query({
+  prompt: "Your prompt",
+  options: {
+    hooks: {
+      PreToolUse: [{ matcher: "Bash", hooks: [myCallback] }]
     }
-  })) {
-    console.log(message);
   }
-  ```
-</CodeGroup>
+})) {
+  console.log(message);
+}
+```
 
 `hooks` 选项是一个字典（Python）或对象（TypeScript），其中：
 
 * **键**是 [hook 事件名称](#available-hooks)（例如 `'PreToolUse'`、`'PostToolUse'`、`'Stop'`）
 * **值**是[匹配器](#matchers)数组，每个包含可选的过滤模式和您的[回调函数](#callback-functions)
 
-<h3 id="matchers">
-  匹配器
-</h3>
+### 匹配器
 
 使用匹配器来过滤您的回调何时触发。`matcher` 字段根据 hook 事件类型匹配不同的值。例如，基于工具的 hook 匹配工具名称，而 `Notification` hook 匹配通知类型。
 
@@ -241,13 +227,9 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 
 尽可能使用 `matcher` 模式来针对特定工具。带有 `'Bash'` 的匹配器仅对 Bash 命令运行，而省略模式会为事件的每次出现运行您的回调。
 
-<h3 id="callback-functions">
-  回调函数
-</h3>
+### 回调函数
 
-<h4 id="inputs">
-  输入
-</h4>
+#### 输入
 
 每个 hook 回调接收三个参数：
 
@@ -257,9 +239,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 * **工具使用 ID**（`str | None` / `string | undefined`）：关联同一工具调用的 `PreToolUse` 和 `PostToolUse` 事件。
 * **上下文：** 在 TypeScript 中，包含用于取消的 `signal` 属性（`AbortSignal`）。在 Python 中，此参数保留供将来使用。
 
-<h4 id="outputs">
-  输出
-</h4>
+#### 输出
 
 您的回调返回一个具有两类字段的对象：
 
@@ -271,108 +251,96 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 
 返回 `{}` 以允许操作而不进行更改。SDK 回调 hook 使用与 [Claude Code shell 命令 hook](/docs/zh-CN/hooks#json-output) 相同的 JSON 输出格式，其中记录了每个字段和事件特定的选项。对于 SDK 类型定义，请参阅 [TypeScript](/docs/zh-CN/agent-sdk/typescript#synchookjsonoutput) 和 [Python](/docs/zh-CN/agent-sdk/python#synchookjsonoutput) SDK 参考。
 
-<Note>
-  当多个 `PreToolUse` hook 返回不同的[决策](/docs/zh-CN/hooks#pretooluse-decision-control)时，`deny` 优先于 `defer`，`defer` 优先于 `ask`，`ask` 优先于 `allow`。
-</Note>
+> [!NOTE]
+>
+> 当多个 `PreToolUse` hook 返回不同的[决策](/docs/zh-CN/hooks#pretooluse-decision-control)时，`deny` 优先于 `defer`，`defer` 优先于 `ask`，`ask` 优先于 `allow`。
 
-<h4 id="asynchronous-output">
-  异步输出
-</h4>
+#### 异步输出
 
 默认情况下，Agent 在您的 hook 返回前等待。如果您的 hook 执行副作用，例如日志记录或发送 webhook，并且不需要影响 Agent 的行为，您可以改为返回异步输出。这告诉 Agent 立即继续，而不等待 hook 完成。在此代码段中，Python 中的 `send_to_logging_service` 和 TypeScript 中的 `sendToLoggingService` 代表您定义的任何日志记录函数：
 
-<CodeGroup>
-  ```python Python theme={null}
-  async def async_hook(input_data, tool_use_id, context):
-      # 启动后台任务，然后立即返回
-      asyncio.create_task(send_to_logging_service(input_data))
-      return {"async_": True, "asyncTimeout": 30000}
-  ```
+```python Python theme={null}
+async def async_hook(input_data, tool_use_id, context):
+    # 启动后台任务，然后立即返回
+    asyncio.create_task(send_to_logging_service(input_data))
+    return {"async_": True, "asyncTimeout": 30000}
+```
 
-  ```typescript TypeScript theme={null}
-  const asyncHook: HookCallback = async (input, toolUseID, { signal }) => {
-    // 启动后台任务，然后立即返回
-    sendToLoggingService(input).catch(console.error);
-    return { async: true, asyncTimeout: 30000 };
-  };
-  ```
-</CodeGroup>
+```typescript TypeScript theme={null}
+const asyncHook: HookCallback = async (input, toolUseID, { signal }) => {
+  // 启动后台任务，然后立即返回
+  sendToLoggingService(input).catch(console.error);
+  return { async: true, asyncTimeout: 30000 };
+};
+```
 
 | 字段 | 类型 | 描述 |
 | - | - | - |
 | `async` | `true` | 表示异步模式。Agent 继续而不等待。在 Python 中，使用 `async_` 以避免保留关键字。 |
 | `asyncTimeout` | `number` | 后台操作的可选超时时间（毫秒） |
 
-<Note>
-  异步输出无法阻止、修改或将上下文注入到操作中，因为 Agent 已经继续。仅将它们用于日志记录、指标或通知等副作用。
-</Note>
+> [!NOTE]
+>
+> 异步输出无法阻止、修改或将上下文注入到操作中，因为 Agent 已经继续。仅将它们用于日志记录、指标或通知等副作用。
 
-<h2 id="examples">
-  示例
-</h2>
+## 示例
 
 本节中的几个示例仅显示回调函数。要运行一个示例，请在选项的 `hooks` 字段中的匹配事件下注册回调，如 [配置 hooks](#configure-hooks) 中所示。
 
-<h3 id="modify-tool-input">
-  修改工具输入
-</h3>
+### 修改工具输入
 
 此示例拦截 Write 工具调用并重写 `file_path` 参数以添加 `/sandbox` 前缀。回调返回带有修改路径的 `updatedInput` 和 `permissionDecision: 'allow'` 以自动批准重写的操作：
 
-<CodeGroup>
-  ```python Python theme={null}
-  async def redirect_to_sandbox(input_data, tool_use_id, context):
-      if input_data["hook_event_name"] != "PreToolUse":
-          return {}
+```python Python theme={null}
+async def redirect_to_sandbox(input_data, tool_use_id, context):
+    if input_data["hook_event_name"] != "PreToolUse":
+        return {}
 
-      if input_data["tool_name"] == "Write":
-          original_path = input_data["tool_input"].get("file_path", "")
-          return {
-              "hookSpecificOutput": {
-                  "hookEventName": input_data["hook_event_name"],
-                  "permissionDecision": "allow",
-                  "updatedInput": {
-                      **input_data["tool_input"],
-                      "file_path": f"/sandbox{original_path}",
-                  },
-              }
-          }
-      return {}
-  ```
-
-  ```typescript TypeScript theme={null}
-  const redirectToSandbox: HookCallback = async (input, toolUseID, { signal }) => {
-    if (input.hook_event_name !== "PreToolUse") return {};
-
-    const preInput = input as PreToolUseHookInput;
-    const toolInput = preInput.tool_input as Record<string, unknown>;
-    if (preInput.tool_name === "Write") {
-      const originalPath = toolInput.file_path as string;
-      return {
-        hookSpecificOutput: {
-          hookEventName: preInput.hook_event_name,
-          permissionDecision: "allow",
-          updatedInput: {
-            ...toolInput,
-            file_path: `/sandbox${originalPath}`
-          }
+    if input_data["tool_name"] == "Write":
+        original_path = input_data["tool_input"].get("file_path", "")
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": input_data["hook_event_name"],
+                "permissionDecision": "allow",
+                "updatedInput": {
+                    **input_data["tool_input"],
+                    "file_path": f"/sandbox{original_path}",
+                },
+            }
         }
-      };
-    }
-    return {};
-  };
-  ```
-</CodeGroup>
+    return {}
+```
 
-<Note>
-  将 `updatedInput` 与 `permissionDecision: 'allow'` 配对以自动批准修改的输入，或使用 `permissionDecision: 'ask'` 将其显示给用户。如果省略 `permissionDecision`，修改的输入仍然适用并流经正常的权限评估。使用 `'defer'` 时，`updatedInput` 会被忽略。始终返回新对象而不是改变原始 `tool_input`。
-</Note>
+```typescript TypeScript theme={null}
+const redirectToSandbox: HookCallback = async (input, toolUseID, { signal }) => {
+  if (input.hook_event_name !== "PreToolUse") return {};
+
+  const preInput = input as PreToolUseHookInput;
+  const toolInput = preInput.tool_input as Record<string, unknown>;
+  if (preInput.tool_name === "Write") {
+    const originalPath = toolInput.file_path as string;
+    return {
+      hookSpecificOutput: {
+        hookEventName: preInput.hook_event_name,
+        permissionDecision: "allow",
+        updatedInput: {
+          ...toolInput,
+          file_path: `/sandbox${originalPath}`
+        }
+      }
+    };
+  }
+  return {};
+};
+```
+
+> [!NOTE]
+>
+> 将 `updatedInput` 与 `permissionDecision: 'allow'` 配对以自动批准修改的输入，或使用 `permissionDecision: 'ask'` 将其显示给用户。如果省略 `permissionDecision`，修改的输入仍然适用并流经正常的权限评估。使用 `'defer'` 时，`updatedInput` 会被忽略。始终返回新对象而不是改变原始 `tool_input`。
 
 要确认重定向，请将前缀设置为您可以写入的路径，例如 `./sandbox` 或 `/tmp/sandbox`（macOS 不允许创建根级 `/sandbox` 目录），然后要求代理写入文件：Write 工具在消息流中的结果会显示带有您的沙箱前缀的路径，而不是 Claude 请求的路径。
 
-<h3 id="add-context-and-block-a-tool">
-  添加上下文并阻止工具
-</h3>
+### 添加上下文并阻止工具
 
 此示例拒绝 `file_path` 以 `/etc` 开头的工具调用，并向模型和用户解释原因：
 
@@ -380,131 +348,119 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 * `permissionDecisionReason` 告诉模型原因。
 * `systemMessage` 向用户显示发生了什么。
 
-<CodeGroup>
-  ```python Python theme={null}
-  async def block_etc_writes(input_data, tool_use_id, context):
-      file_path = input_data["tool_input"].get("file_path", "")
+```python Python theme={null}
+async def block_etc_writes(input_data, tool_use_id, context):
+    file_path = input_data["tool_input"].get("file_path", "")
 
-      if file_path.startswith("/etc"):
-          return {
-              # 顶级字段：显示给用户的消息
-              "systemMessage": "Remember: system directories like /etc are protected.",
-              # hookSpecificOutput：阻止操作
-              "hookSpecificOutput": {
-                  "hookEventName": input_data["hook_event_name"],
-                  "permissionDecision": "deny",
-                  "permissionDecisionReason": "Writing to /etc is not allowed",
-              },
-          }
-      return {}
-  ```
-
-  ```typescript TypeScript theme={null}
-  const blockEtcWrites: HookCallback = async (input, toolUseID, { signal }) => {
-    const preInput = input as PreToolUseHookInput;
-    const toolInput = preInput.tool_input as Record<string, unknown>;
-    const filePath = toolInput?.file_path as string;
-
-    if (filePath?.startsWith("/etc")) {
-      return {
-        // 顶级字段：显示给用户的消息
-        systemMessage: "Remember: system directories like /etc are protected.",
-        // hookSpecificOutput：阻止操作
-        hookSpecificOutput: {
-          hookEventName: preInput.hook_event_name,
-          permissionDecision: "deny",
-          permissionDecisionReason: "Writing to /etc is not allowed"
+    if file_path.startswith("/etc"):
+        return {
+            # 顶级字段：显示给用户的消息
+            "systemMessage": "Remember: system directories like /etc are protected.",
+            # hookSpecificOutput：阻止操作
+            "hookSpecificOutput": {
+                "hookEventName": input_data["hook_event_name"],
+                "permissionDecision": "deny",
+                "permissionDecisionReason": "Writing to /etc is not allowed",
+            },
         }
-      };
-    }
-    return {};
-  };
-  ```
-</CodeGroup>
+    return {}
+```
+
+```typescript TypeScript theme={null}
+const blockEtcWrites: HookCallback = async (input, toolUseID, { signal }) => {
+  const preInput = input as PreToolUseHookInput;
+  const toolInput = preInput.tool_input as Record<string, unknown>;
+  const filePath = toolInput?.file_path as string;
+
+  if (filePath?.startsWith("/etc")) {
+    return {
+      // 顶级字段：显示给用户的消息
+      systemMessage: "Remember: system directories like /etc are protected.",
+      // hookSpecificOutput：阻止操作
+      hookSpecificOutput: {
+        hookEventName: preInput.hook_event_name,
+        permissionDecision: "deny",
+        permissionDecisionReason: "Writing to /etc is not allowed"
+      }
+    };
+  }
+  return {};
+};
+```
 
 要确认阻止，请在 `PreToolUse` 下注册回调，使用 `Write|Edit` 匹配器，并要求代理在 `/etc` 下创建文件：Write 工具在消息流中的结果包含 `Writing to /etc is not allowed`，并且不会创建任何文件。
 
-<h3 id="auto-approve-specific-tools">
-  自动批准特定工具
-</h3>
+### 自动批准特定工具
 
 默认情况下，Agent 可能在使用某些工具前请求权限。此示例通过返回 `permissionDecision: 'allow'` 自动批准只读文件系统工具（Read、Glob、Grep），让它们无需用户确认即可运行（从[网络路径](/docs/zh-CN/permissions#network-paths)读取的操作除外），同时让所有其他工具受到正常权限检查：
 
-<CodeGroup>
-  ```python Python theme={null}
-  async def auto_approve_read_only(input_data, tool_use_id, context):
-      if input_data["hook_event_name"] != "PreToolUse":
-          return {}
+```python Python theme={null}
+async def auto_approve_read_only(input_data, tool_use_id, context):
+    if input_data["hook_event_name"] != "PreToolUse":
+        return {}
 
-      read_only_tools = ["Read", "Glob", "Grep"]
-      if input_data["tool_name"] in read_only_tools:
-          return {
-              "hookSpecificOutput": {
-                  "hookEventName": input_data["hook_event_name"],
-                  "permissionDecision": "allow",
-                  "permissionDecisionReason": "Read-only tool auto-approved",
-              }
-          }
-      return {}
-  ```
-
-  ```typescript TypeScript theme={null}
-  const autoApproveReadOnly: HookCallback = async (input, toolUseID, { signal }) => {
-    if (input.hook_event_name !== "PreToolUse") return {};
-
-    const preInput = input as PreToolUseHookInput;
-    const readOnlyTools = ["Read", "Glob", "Grep"];
-    if (readOnlyTools.includes(preInput.tool_name)) {
-      return {
-        hookSpecificOutput: {
-          hookEventName: preInput.hook_event_name,
-          permissionDecision: "allow",
-          permissionDecisionReason: "Read-only tool auto-approved"
+    read_only_tools = ["Read", "Glob", "Grep"]
+    if input_data["tool_name"] in read_only_tools:
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": input_data["hook_event_name"],
+                "permissionDecision": "allow",
+                "permissionDecisionReason": "Read-only tool auto-approved",
+            }
         }
-      };
-    }
-    return {};
-  };
-  ```
-</CodeGroup>
+    return {}
+```
 
-<h3 id="register-multiple-hooks">
-  注册多个 hooks
-</h3>
+```typescript TypeScript theme={null}
+const autoApproveReadOnly: HookCallback = async (input, toolUseID, { signal }) => {
+  if (input.hook_event_name !== "PreToolUse") return {};
+
+  const preInput = input as PreToolUseHookInput;
+  const readOnlyTools = ["Read", "Glob", "Grep"];
+  if (readOnlyTools.includes(preInput.tool_name)) {
+    return {
+      hookSpecificOutput: {
+        hookEventName: preInput.hook_event_name,
+        permissionDecision: "allow",
+        permissionDecisionReason: "Read-only tool auto-approved"
+      }
+    };
+  }
+  return {};
+};
+```
+
+### 注册多个 hooks
 
 当事件触发时，匹配的 hook 并行运行。对于权限决策，以最严格的结果为准。任一 hook 返回的 `deny` 都会阻止工具调用。由于完成顺序是不确定的，请编写每个 hook 以独立行动，而不是依赖另一个 hook 已先运行。
 
 下面的示例注册三个独立检查，每个检查都[省略了匹配器](/docs/zh-CN/hooks#matcher-patterns)。其中的 hook 名称，例如 Python 中的 `audit_logger` 或 TypeScript 中的 `auditLogger`，代表您定义的回调：
 
-<CodeGroup>
-  ```python Python theme={null}
-  options = ClaudeAgentOptions(
-      hooks={
-          "PreToolUse": [
-              HookMatcher(hooks=[authorization_check]),
-              HookMatcher(hooks=[input_validator]),
-              HookMatcher(hooks=[audit_logger]),
-          ]
-      }
-  )
-  ```
-
-  ```typescript TypeScript theme={null}
-  const options = {
-    hooks: {
-      PreToolUse: [
-        { hooks: [authorizationCheck] },
-        { hooks: [inputValidator] },
-        { hooks: [auditLogger] }
-      ]
+```python Python theme={null}
+options = ClaudeAgentOptions(
+    hooks={
+        "PreToolUse": [
+            HookMatcher(hooks=[authorization_check]),
+            HookMatcher(hooks=[input_validator]),
+            HookMatcher(hooks=[audit_logger]),
+        ]
     }
-  };
-  ```
-</CodeGroup>
+)
+```
 
-<h3 id="filter-with-multi-tool-matchers">
-  使用多工具匹配器过滤
-</h3>
+```typescript TypeScript theme={null}
+const options = {
+  hooks: {
+    PreToolUse: [
+      { hooks: [authorizationCheck] },
+      { hooks: [inputValidator] },
+      { hooks: [auditLogger] }
+    ]
+  }
+};
+```
+
+### 使用多工具匹配器过滤
 
 使用多工具匹配器在相关工具间共享一个回调。此示例注册三个具有不同范围的匹配器，其中每个 hook 名称代表您定义的回调：
 
@@ -512,183 +468,171 @@ SDK 匹配器遵循与[设置文件中的匹配器](/docs/zh-CN/hooks#matcher-pa
 * 正则表达式（`^mcp__`）对任何名称以 `mcp__` 开头的 MCP 工具触发 `mcp_audit_hook`。
 * 省略的匹配器触发 `global_logger`，不按工具名称过滤。
 
-<CodeGroup>
-  ```python Python theme={null}
-  options = ClaudeAgentOptions(
-      hooks={
-          "PreToolUse": [
-              # 匹配文件修改工具
-              HookMatcher(matcher="Write|Edit|NotebookEdit", hooks=[file_security_hook]),
-              # 匹配所有 MCP 工具
-              HookMatcher(matcher="^mcp__", hooks=[mcp_audit_hook]),
-              # 匹配所有内容（无匹配器）
-              HookMatcher(hooks=[global_logger]),
-          ]
-      }
-  )
-  ```
-
-  ```typescript TypeScript theme={null}
-  const options = {
-    hooks: {
-      PreToolUse: [
-        // 匹配文件修改工具
-        { matcher: "Write|Edit|NotebookEdit", hooks: [fileSecurityHook] },
-
-        // 匹配所有 MCP 工具
-        { matcher: "^mcp__", hooks: [mcpAuditHook] },
-
-        // 匹配所有内容（无匹配器）
-        { hooks: [globalLogger] }
-      ]
+```python Python theme={null}
+options = ClaudeAgentOptions(
+    hooks={
+        "PreToolUse": [
+            # 匹配文件修改工具
+            HookMatcher(matcher="Write|Edit|NotebookEdit", hooks=[file_security_hook]),
+            # 匹配所有 MCP 工具
+            HookMatcher(matcher="^mcp__", hooks=[mcp_audit_hook]),
+            # 匹配所有内容（无匹配器）
+            HookMatcher(hooks=[global_logger]),
+        ]
     }
-  };
-  ```
-</CodeGroup>
+)
+```
 
-<h3 id="track-subagent-activity">
-  跟踪子代理活动
-</h3>
+```typescript TypeScript theme={null}
+const options = {
+  hooks: {
+    PreToolUse: [
+      // 匹配文件修改工具
+      { matcher: "Write|Edit|NotebookEdit", hooks: [fileSecurityHook] },
+
+      // 匹配所有 MCP 工具
+      { matcher: "^mcp__", hooks: [mcpAuditHook] },
+
+      // 匹配所有内容（无匹配器）
+      { hooks: [globalLogger] }
+    ]
+  }
+};
+```
+
+### 跟踪子代理活动
 
 使用 `SubagentStop` hooks 监控子代理何时完成其工作。请参阅 [TypeScript](/docs/zh-CN/agent-sdk/typescript#hookinput) 和 [Python](/docs/zh-CN/agent-sdk/python#hookinput) SDK 参考中的完整输入类型。此示例在每次子代理完成时记录摘要：
 
-<CodeGroup>
-  ```python Python theme={null}
-  async def subagent_tracker(input_data, tool_use_id, context):
-      # 子代理完成时记录子代理详细信息
-      print(f"[SUBAGENT] Completed: {input_data['agent_id']}")
-      print(f"  Transcript: {input_data['agent_transcript_path']}")
-      print(f"  Tool use ID: {tool_use_id}")
-      print(f"  Stop hook active: {input_data.get('stop_hook_active')}")
-      return {}
+```python Python theme={null}
+async def subagent_tracker(input_data, tool_use_id, context):
+    # 子代理完成时记录子代理详细信息
+    print(f"[SUBAGENT] Completed: {input_data['agent_id']}")
+    print(f"  Transcript: {input_data['agent_transcript_path']}")
+    print(f"  Tool use ID: {tool_use_id}")
+    print(f"  Stop hook active: {input_data.get('stop_hook_active')}")
+    return {}
 
 
-  options = ClaudeAgentOptions(
-      hooks={"SubagentStop": [HookMatcher(hooks=[subagent_tracker])]}
-  )
-  ```
+options = ClaudeAgentOptions(
+    hooks={"SubagentStop": [HookMatcher(hooks=[subagent_tracker])]}
+)
+```
 
-  ```typescript TypeScript theme={null}
-  import { HookCallback, SubagentStopHookInput } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { HookCallback, SubagentStopHookInput } from "@anthropic-ai/claude-agent-sdk";
 
-  const subagentTracker: HookCallback = async (input, toolUseID, { signal }) => {
-    // 转换为 SubagentStopHookInput 以访问子代理特定字段
-    const subInput = input as SubagentStopHookInput;
+const subagentTracker: HookCallback = async (input, toolUseID, { signal }) => {
+  // 转换为 SubagentStopHookInput 以访问子代理特定字段
+  const subInput = input as SubagentStopHookInput;
 
-    // 子代理完成时记录子代理详细信息
-    console.log(`[SUBAGENT] Completed: ${subInput.agent_id}`);
-    console.log(`  Transcript: ${subInput.agent_transcript_path}`);
-    console.log(`  Tool use ID: ${toolUseID}`);
-    console.log(`  Stop hook active: ${subInput.stop_hook_active}`);
-    return {};
-  };
+  // 子代理完成时记录子代理详细信息
+  console.log(`[SUBAGENT] Completed: ${subInput.agent_id}`);
+  console.log(`  Transcript: ${subInput.agent_transcript_path}`);
+  console.log(`  Tool use ID: ${toolUseID}`);
+  console.log(`  Stop hook active: ${subInput.stop_hook_active}`);
+  return {};
+};
 
-  const options = {
-    hooks: {
-      SubagentStop: [{ hooks: [subagentTracker] }]
-    }
-  };
-  ```
-</CodeGroup>
+const options = {
+  hooks: {
+    SubagentStop: [{ hooks: [subagentTracker] }]
+  }
+};
+```
 
 要确认 hook 触发，请注册回调并要求代理将小任务委派给子代理，例如列出当前目录中的文件：当子代理完成时，回调会打印 `[SUBAGENT] Completed:` 行，其中包含子代理的 ID 和脚本路径。
 
-<h3 id="make-http-requests-from-hooks">
-  从 hooks 发出 HTTP 请求
-</h3>
+### 从 hooks 发出 HTTP 请求
 
 Hooks 可以执行异步操作，如 HTTP 请求。在您的 hook 内捕获错误，而不是让它们传播。
 
 此示例在每个工具完成后发送 webhook，记录哪个工具运行以及何时运行。hook 捕获来自失败 webhook 的错误：
 
-<CodeGroup>
-  ```python Python theme={null}
-  import asyncio
-  import json
-  import urllib.request
-  from datetime import datetime
+```python Python theme={null}
+import asyncio
+import json
+import urllib.request
+from datetime import datetime
 
 
-  def _send_webhook(tool_name):
-      """同步辅助函数，将工具使用数据 POST 到外部 webhook。"""
-      data = json.dumps(
-          {
-              "tool": tool_name,
-              "timestamp": datetime.now().isoformat(),
-          }
-      ).encode()
-      req = urllib.request.Request(
-          "https://api.example.com/webhook",
-          data=data,
-          headers={"Content-Type": "application/json"},
-          method="POST",
-      )
-      urllib.request.urlopen(req)
+def _send_webhook(tool_name):
+    """同步辅助函数，将工具使用数据 POST 到外部 webhook。"""
+    data = json.dumps(
+        {
+            "tool": tool_name,
+            "timestamp": datetime.now().isoformat(),
+        }
+    ).encode()
+    req = urllib.request.Request(
+        "https://api.example.com/webhook",
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    urllib.request.urlopen(req)
 
 
-  async def webhook_notifier(input_data, tool_use_id, context):
-      # 仅在工具完成后触发（PostToolUse），而不是之前
-      if input_data["hook_event_name"] != "PostToolUse":
-          return {}
+async def webhook_notifier(input_data, tool_use_id, context):
+    # 仅在工具完成后触发（PostToolUse），而不是之前
+    if input_data["hook_event_name"] != "PostToolUse":
+        return {}
 
-      try:
-          # 在线程中运行阻塞 HTTP 调用以避免阻塞事件循环
-          await asyncio.to_thread(_send_webhook, input_data["tool_name"])
-      except Exception as e:
-          # 记录错误但不抛出
-          print(f"Webhook request failed: {e}")
+    try:
+        # 在线程中运行阻塞 HTTP 调用以避免阻塞事件循环
+        await asyncio.to_thread(_send_webhook, input_data["tool_name"])
+    except Exception as e:
+        # 记录错误但不抛出
+        print(f"Webhook request failed: {e}")
 
-      return {}
-  ```
+    return {}
+```
 
-  ```typescript TypeScript theme={null}
-  import { query, HookCallback, PostToolUseHookInput } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query, HookCallback, PostToolUseHookInput } from "@anthropic-ai/claude-agent-sdk";
 
-  const webhookNotifier: HookCallback = async (input, toolUseID, { signal }) => {
-    // 仅在工具完成后触发（PostToolUse），而不是之前
-    if (input.hook_event_name !== "PostToolUse") return {};
+const webhookNotifier: HookCallback = async (input, toolUseID, { signal }) => {
+  // 仅在工具完成后触发（PostToolUse），而不是之前
+  if (input.hook_event_name !== "PostToolUse") return {};
 
-    try {
-      await fetch("https://api.example.com/webhook", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tool: (input as PostToolUseHookInput).tool_name,
-          timestamp: new Date().toISOString()
-        }),
-        // 传递 signal 以便在 hook 超时时请求取消
-        signal
-      });
-    } catch (error) {
-      // 分别处理取消和其他错误
-      if (error instanceof Error && error.name === "AbortError") {
-        console.log("Webhook request cancelled");
-      }
-      // 不重新抛出
+  try {
+    await fetch("https://api.example.com/webhook", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tool: (input as PostToolUseHookInput).tool_name,
+        timestamp: new Date().toISOString()
+      }),
+      // 传递 signal 以便在 hook 超时时请求取消
+      signal
+    });
+  } catch (error) {
+    // 分别处理取消和其他错误
+    if (error instanceof Error && error.name === "AbortError") {
+      console.log("Webhook request cancelled");
     }
-
-    return {};
-  };
-
-  // 注册为 PostToolUse hook
-  for await (const message of query({
-    prompt: "Refactor the auth module",
-    options: {
-      hooks: {
-        PostToolUse: [{ hooks: [webhookNotifier] }]
-      }
-    }
-  })) {
-    console.log(message);
+    // 不重新抛出
   }
-  ```
-</CodeGroup>
+
+  return {};
+};
+
+// 注册为 PostToolUse hook
+for await (const message of query({
+  prompt: "Refactor the auth module",
+  options: {
+    hooks: {
+      PostToolUse: [{ hooks: [webhookNotifier] }]
+    }
+  }
+})) {
+  console.log(message);
+}
+```
 
 要确认 hook 触发，请将 webhook URL 指向您可以监视的端点并发送使用工具的提示：hook 在每个工具完成后发送带有工具名称和时间戳的 POST。
 
-<h3 id="forward-notifications-to-slack">
-  将通知转发到 Slack
-</h3>
+### 将通知转发到 Slack
 
 使用 `Notification` hooks 从代理接收系统通知并将其转发到外部服务。在 SDK 会话中，Claude Code 为以下通知类型运行此 hook：
 
@@ -701,109 +645,103 @@ Claude Code 从 SDK 会话不运行的交互式 UI 发出其他类型，例如 `
 
 此示例将每个通知转发到 Slack 频道。它需要一个 [Slack 传入 webhook URL](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/)，您可以通过将应用添加到您的 Slack 工作区并启用传入 webhooks 来创建：
 
-<CodeGroup>
-  ```python Python theme={null}
-  import asyncio
-  import json
-  import urllib.request
+```python Python theme={null}
+import asyncio
+import json
+import urllib.request
 
-  from claude_agent_sdk import ClaudeSDKClient, ClaudeAgentOptions, HookMatcher
-
-
-  def _send_slack_notification(message):
-      """同步辅助函数，通过传入 webhook 向 Slack 发送消息。"""
-      data = json.dumps({"text": f"Agent status: {message}"}).encode()
-      req = urllib.request.Request(
-          "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
-          data=data,
-          headers={"Content-Type": "application/json"},
-          method="POST",
-      )
-      urllib.request.urlopen(req)
+from claude_agent_sdk import ClaudeSDKClient, ClaudeAgentOptions, HookMatcher
 
 
-  async def notification_handler(input_data, tool_use_id, context):
-      try:
-          # 在线程中运行阻塞 HTTP 调用以避免阻塞事件循环
-          await asyncio.to_thread(_send_slack_notification, input_data.get("message", ""))
-      except Exception as e:
-          print(f"Failed to send notification: {e}")
-
-      # 返回空对象。通知 hooks 不修改代理行为
-      return {}
-
-
-  async def main():
-      options = ClaudeAgentOptions(
-          hooks={
-              # 为通知事件注册 hook（不需要匹配器）
-              "Notification": [HookMatcher(hooks=[notification_handler])],
-          },
-      )
-
-      async with ClaudeSDKClient(options=options) as client:
-          await client.query("Analyze this codebase")
-          async for message in client.receive_response():
-              print(message)
+def _send_slack_notification(message):
+    """同步辅助函数，通过传入 webhook 向 Slack 发送消息。"""
+    data = json.dumps({"text": f"Agent status: {message}"}).encode()
+    req = urllib.request.Request(
+        "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    urllib.request.urlopen(req)
 
 
-  asyncio.run(main())
-  ```
+async def notification_handler(input_data, tool_use_id, context):
+    try:
+        # 在线程中运行阻塞 HTTP 调用以避免阻塞事件循环
+        await asyncio.to_thread(_send_slack_notification, input_data.get("message", ""))
+    except Exception as e:
+        print(f"Failed to send notification: {e}")
 
-  ```typescript TypeScript theme={null}
-  import { query, HookCallback, NotificationHookInput } from "@anthropic-ai/claude-agent-sdk";
+    # 返回空对象。通知 hooks 不修改代理行为
+    return {}
 
-  // 定义一个将通知发送到 Slack 的 hook 回调
-  const notificationHandler: HookCallback = async (input, toolUseID, { signal }) => {
-    // 转换为 NotificationHookInput 以访问消息字段
-    const notification = input as NotificationHookInput;
 
-    try {
-      // 将通知消息 POST 到 Slack 传入 webhook
-      await fetch("https://hooks.slack.com/services/YOUR/WEBHOOK/URL", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: `Agent status: ${notification.message}`
-        }),
-        // 传递 signal 以便在 hook 超时时请求取消
-        signal
-      });
-    } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
-        console.log("Notification cancelled");
-      } else {
-        console.error("Failed to send notification:", error);
-      }
+async def main():
+    options = ClaudeAgentOptions(
+        hooks={
+            # 为通知事件注册 hook（不需要匹配器）
+            "Notification": [HookMatcher(hooks=[notification_handler])],
+        },
+    )
+
+    async with ClaudeSDKClient(options=options) as client:
+        await client.query("Analyze this codebase")
+        async for message in client.receive_response():
+            print(message)
+
+
+asyncio.run(main())
+```
+
+```typescript TypeScript theme={null}
+import { query, HookCallback, NotificationHookInput } from "@anthropic-ai/claude-agent-sdk";
+
+// 定义一个将通知发送到 Slack 的 hook 回调
+const notificationHandler: HookCallback = async (input, toolUseID, { signal }) => {
+  // 转换为 NotificationHookInput 以访问消息字段
+  const notification = input as NotificationHookInput;
+
+  try {
+    // 将通知消息 POST 到 Slack 传入 webhook
+    await fetch("https://hooks.slack.com/services/YOUR/WEBHOOK/URL", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: `Agent status: ${notification.message}`
+      }),
+      // 传递 signal 以便在 hook 超时时请求取消
+      signal
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      console.log("Notification cancelled");
+    } else {
+      console.error("Failed to send notification:", error);
     }
-
-    // 返回空对象。通知 hooks 不修改代理行为
-    return {};
-  };
-
-  // 为通知事件注册 hook（不需要匹配器）
-  for await (const message of query({
-    prompt: "Analyze this codebase",
-    options: {
-      hooks: {
-        Notification: [{ hooks: [notificationHandler] }]
-      }
-    }
-  })) {
-    console.log(message);
   }
-  ```
-</CodeGroup>
+
+  // 返回空对象。通知 hooks 不修改代理行为
+  return {};
+};
+
+// 为通知事件注册 hook（不需要匹配器）
+for await (const message of query({
+  prompt: "Analyze this codebase",
+  options: {
+    hooks: {
+      Notification: [{ hooks: [notificationHandler] }]
+    }
+  }
+})) {
+  console.log(message);
+}
+```
 
 当 `Notification` 事件触发时，hook 将通知的 `message` 发送到您的 webhook 目标的频道，前缀为 `Agent status:`。
 
-<h2 id="fix-common-issues">
-  修复常见问题
-</h2>
+## 修复常见问题
 
-<h3 id="hook-not-firing">
-  Hook 未触发
-</h3>
+### Hook 未触发
 
 * 验证 hook 事件名称正确且区分大小写（`PreToolUse`，而不是 `preToolUse`）
 * 检查您的匹配器模式是否与工具名称完全匹配
@@ -811,9 +749,7 @@ Claude Code 从 SDK 会话不运行的交互式 UI 发出其他类型，例如 `
 * 对于支持匹配器的非工具 hook，如 `Notification` 和 `SubagentStop`，匹配器匹配不同的字段，而 `Stop` 完全忽略匹配器（请参阅[匹配器模式](/docs/zh-CN/hooks#matcher-patterns)）
 * 当 Agent 达到 [`max_turns`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 限制时，hook 可能不会触发，因为会话在 hook 可以执行前结束
 
-<h3 id="matcher-not-filtering-as-expected">
-  匹配器未按预期过滤
-</h3>
+### 匹配器未按预期过滤
 
 匹配器仅匹配工具名称，而不是文件路径或其他参数。要按文件路径过滤，请在您的 hook 内检查 `tool_input.file_path`：
 
@@ -828,9 +764,7 @@ const myHook: HookCallback = async (input, toolUseID, { signal }) => {
 };
 ```
 
-<h3 id="hook-timeout">
-  Hook 超时
-</h3>
+### Hook 超时
 
 Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatcher` 上使用 `timeout` 字段（以秒为单位）设置。当您未设置时，Claude Code 使用事件的默认值：大多数事件为 600 秒，`UserPromptSubmit`、`PreModelSwitch` 和 `PostModelSwitch` 为 30 秒，`MessageDisplay` 为 10 秒。Claude Code 在关闭期间运行 `SessionEnd` 回调时使用较短的 [SessionEnd 超时预算](/docs/zh-CN/hooks#sessionend-input)，默认为 1.5 秒。
 
@@ -850,17 +784,13 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 
 如果您的回调需要更多时间，请在其 `HookMatcher` 上设置更高的 `timeout`。在 TypeScript 中，使用第三个回调参数中的 `AbortSignal` 来在超时触发时优雅地处理取消。
 
-<h3 id="tool-blocked-unexpectedly">
-  工具意外被阻止
-</h3>
+### 工具意外被阻止
 
 * 检查所有 `PreToolUse` hook 是否返回 `permissionDecision: 'deny'`
 * 向您的 hook 添加日志记录以查看它们返回的 `permissionDecisionReason`
 * 验证匹配器模式不会太宽泛：空匹配器匹配所有工具
 
-<h3 id="modified-input-not-applied">
-  修改的输入未应用
-</h3>
+### 修改的输入未应用
 
 * 确保 `updatedInput` 在 `hookSpecificOutput` 内，而不是在顶级：
 
@@ -878,46 +808,36 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 
 * 在 `hookSpecificOutput` 中包括 `hookEventName` 以识别输出针对的 hook 类型
 
-<h3 id="session-hooks-not-available-in-python">
-  Python 中不可用会话 hook
-</h3>
+### Python 中不可用会话 hook
 
 `SessionStart` 和 `SessionEnd` 可以在 TypeScript 中注册为 SDK 回调 hook，但在 Python SDK 中不可用，因为其 `HookEvent` 类型省略了它们。在 Python 中，它们仅作为在设置文件（例如 `.claude/settings.json`）中定义的 [shell 命令 hook](/docs/zh-CN/hooks#hook-events) 可用。您的 SDK 应用程序加载哪些设置文件取决于 [`setting_sources`](/docs/zh-CN/agent-sdk/python#settingsource) 或 [`settingSources`](/docs/zh-CN/agent-sdk/typescript#settingsource)。如果您设置了该选项，请包括包含这些 hook 的设置源：
 
-<CodeGroup>
-  ```python Python theme={null}
-  options = ClaudeAgentOptions(
-      setting_sources=["project"],  # 加载 .claude/settings.json 包括 hooks
-  )
-  ```
+```python Python theme={null}
+options = ClaudeAgentOptions(
+    setting_sources=["project"],  # 加载 .claude/settings.json 包括 hooks
+)
+```
 
-  ```typescript TypeScript theme={null}
-  const options = {
-    settingSources: ["project"] // 加载 .claude/settings.json 包括 hooks
-  };
-  ```
-</CodeGroup>
+```typescript TypeScript theme={null}
+const options = {
+  settingSources: ["project"] // 加载 .claude/settings.json 包括 hooks
+};
+```
 
 要改为运行初始化逻辑作为 Python SDK 回调，请使用 `client.receive_response()` 的第一条消息作为您的触发器。
 
-<h3 id="subagent-permission-prompts-multiplying">
-  子代理权限提示倍增
-</h3>
+### 子代理权限提示倍增
 
 生成多个子代理时，每个子代理可能会单独请求其自身工具调用的权限。要避免重复提示，请使用 `PreToolUse` hook 自动批准特定工具，或配置权限规则，子代理[从父对话继承](/docs/zh-CN/sub-agents#permission-modes)这些规则。
 
-<h3 id="recursive-hook-loops-with-subagents">
-  子代理的递归 hook 循环
-</h3>
+### 子代理的递归 hook 循环
 
 生成子代理的 `UserPromptSubmit` hook 如果这些子代理触发相同的 hook，可能会创建无限循环。要防止这种情况：
 
 * 使用共享变量或会话状态来跟踪您是否已在子代理内
 * 将 hook 限定为仅对顶级 Agent 会话运行
 
-<h3 id="systemmessage-not-appearing-in-output">
-  systemMessage 未出现在输出中
-</h3>
+### systemMessage 未出现在输出中
 
 `systemMessage` 字段向用户显示消息，而不是模型。在 Claude Code v2.1.227 或更高版本上，hook 的 `systemMessage` 可以在消息流中显示为 [`SDKInformationalMessage`](/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage)。它是否显示取决于事件。hooks 页面上每个[事件的部分](/docs/zh-CN/hooks#hook-events)说明输出如何显示。要改为将上下文传递给模型，请返回 [`additionalContext`](/docs/zh-CN/hooks#add-context-for-claude)。
 
@@ -925,9 +845,7 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 
 如果您需要可靠地将 hook 决定呈现给您的应用程序，请单独记录它们或使用专用输出通道。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [Claude Code hooks 参考](/docs/zh-CN/hooks)：完整的 JSON 输入/输出架构、事件文档和匹配器模式
 * [Claude Code hooks 指南](/docs/zh-CN/hooks-guide)：shell 命令 hook 示例和演练

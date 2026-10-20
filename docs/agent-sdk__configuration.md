@@ -10,9 +10,7 @@ Agent SDK 会话从设置文件、环境变量和启动时传递的 `options` �
 
 有关每个选项的类型和默认值，请参阅 [`Options`](/docs/zh-CN/agent-sdk/typescript#options)（TypeScript）和 [`ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions)（Python）参考。
 
-<h2 id="pass-options-to-a-session">
-  将选项传递给会话
-</h2>
+## 将选项传递给会话
 
 每个 `query()` 调用都接受一个选项对象：TypeScript 中的 `Options`，Python 中的 `ClaudeAgentOptions`。每个字段都是可选的，使用无选项启动的会话以 SDK 的默认值运行。下面的示例配置了一个只读会话，用于总结项目的开放 TODO。对中读作 TypeScript / Python，其中拼写不同：
 
@@ -21,56 +19,52 @@ Agent SDK 会话从设置文件、环境变量和启动时传递的 `options` �
 * **`maxTurns` / `max_turns`**：限制轮次数
 * **`cwd`**：设置工作目录
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  for await (const message of query({
-    prompt: "Summarize the open TODOs in this repo",
-    options: {
-      model: "claude-sonnet-5",
-      allowedTools: ["Read", "Glob", "Grep"],
-      maxTurns: 8,
-      cwd: "/path/to/repo",
-    },
-  })) {
-    if (message.type === "result" && message.subtype === "success" && !message.is_error) {
-      console.log(message.result);
-    }
+for await (const message of query({
+  prompt: "Summarize the open TODOs in this repo",
+  options: {
+    model: "claude-sonnet-5",
+    allowedTools: ["Read", "Glob", "Grep"],
+    maxTurns: 8,
+    cwd: "/path/to/repo",
+  },
+})) {
+  if (message.type === "result" && message.subtype === "success" && !message.is_error) {
+    console.log(message.result);
   }
-  ```
+}
+```
 
-  ```python Python theme={null}
-  import asyncio
+```python Python theme={null}
+import asyncio
 
-  from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
+from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
 
-  async def main():
-      options = ClaudeAgentOptions(
-          model="claude-sonnet-5",
-          allowed_tools=["Read", "Glob", "Grep"],
-          max_turns=8,
-          cwd="/path/to/repo",
-      )
+async def main():
+    options = ClaudeAgentOptions(
+        model="claude-sonnet-5",
+        allowed_tools=["Read", "Glob", "Grep"],
+        max_turns=8,
+        cwd="/path/to/repo",
+    )
 
-      async for message in query(
-          prompt="Summarize the open TODOs in this repo",
-          options=options,
-      ):
-          if isinstance(message, ResultMessage) and not message.is_error:
-              print(message.result)
+    async for message in query(
+        prompt="Summarize the open TODOs in this repo",
+        options=options,
+    ):
+        if isinstance(message, ResultMessage) and not message.is_error:
+            print(message.result)
 
-  asyncio.run(main())
-  ```
-</CodeGroup>
+asyncio.run(main())
+```
 
 将 `cwd` 指向你自己的一个项目并运行示例。该项目的开放 TODO 的摘要在结果消息到达时打印。
 
 `allowedTools`（TypeScript）或 `allowed_tools`（Python）预先批准列出的工具，因此对它们的调用无需停止等待批准即可运行。列表外的工具保持可用。当 Claude 调用未列出的工具时，权限模式决定调用是否运行。有关更多信息，请参阅[允许和拒绝规则](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules)。
 
-<h2 id="load-settings-files">
-  加载设置文件
-</h2>
+## 加载设置文件
 
 设置文件提供超出选项对象的配置。两个选项控制它们的加载方式：
 
@@ -79,9 +73,7 @@ Agent SDK 会话从设置文件、环境变量和启动时传递的 `options` �
 
 传递 `[]` 以禁用用户、项目和本地设置。有关更多信息，请参阅[在 SDK 中使用 Claude Code 功能](/docs/zh-CN/agent-sdk/claude-code-features)。
 
-<h2 id="choose-a-model">
-  选择模型
-</h2>
+## 选择模型
 
 除非 `model` 选项、你的设置或你的环境选择了模型，否则新会话在[Claude Code 的默认模型](/docs/zh-CN/model-config#default-model-setting)上启动。有关这些源的顺序，请参阅[设置你的模型](/docs/zh-CN/model-config#setting-your-model)。设置 `model` 以固定特定模型，或选择较小的模型以获得更快、更便宜的代理。该值采用模型别名或完整模型名称；别名及其解析到的版本列在[模型别名](/docs/zh-CN/model-config#model-aliases)下。
 
@@ -91,31 +83,25 @@ Agent SDK 会话从设置文件、环境变量和启动时传递的 `options` �
 
 下面的示例显示 TypeScript 中的备用列表和 Python 中的单个备用：
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  const options = {
-    model: "claude-fable-5",
-    fallbackModel: "claude-opus-5,claude-sonnet-5",
-  };
-  ```
+```typescript TypeScript theme={null}
+const options = {
+  model: "claude-fable-5",
+  fallbackModel: "claude-opus-5,claude-sonnet-5",
+};
+```
 
-  ```python Python theme={null}
-  options = ClaudeAgentOptions(
-      model="claude-fable-5",
-      fallback_model="claude-opus-5",
-  )
-  ```
-</CodeGroup>
+```python Python theme={null}
+options = ClaudeAgentOptions(
+    model="claude-fable-5",
+    fallback_model="claude-opus-5",
+)
+```
 
-<span id="sampling-parameters" />
+> [!NOTE]
+>
+> [Messages API](https://platform.claude.com/docs/en/api/messages) 请求参数 `temperature`、`top_p` 和 `max_tokens` 在任一语言的选项对象上都没有字段。改为设置[努力级别](/docs/zh-CN/agent-sdk/agent-loop#effort-level)或[支出上限](#limit-turns-and-spend)，或在需要这些参数时直接调用 Messages API。
 
-<Note>
-  [Messages API](https://platform.claude.com/docs/en/api/messages) 请求参数 `temperature`、`top_p` 和 `max_tokens` 在任一语言的选项对象上都没有字段。改为设置[努力级别](/docs/zh-CN/agent-sdk/agent-loop#effort-level)或[支出上限](#limit-turns-and-spend)，或在需要这些参数时直接调用 Messages API。
-</Note>
-
-<h2 id="set-environment-variables">
-  设置环境变量
-</h2>
+## 设置环境变量
 
 `env` 选项为运行你的会话的 Claude Code 进程设置环境变量。你的值是替换继承的环境还是合并到它上面因语言而异：
 
@@ -126,25 +112,21 @@ Agent SDK 会话从设置文件、环境变量和启动时传递的 `options` �
 
 该示例通过设置 `ANTHROPIC_BASE_URL` 将 API 流量路由通过网关。
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  const options = {
-    env: { ...process.env, ANTHROPIC_BASE_URL: "https://gateway.example.com" },
-  };
-  ```
+```typescript TypeScript theme={null}
+const options = {
+  env: { ...process.env, ANTHROPIC_BASE_URL: "https://gateway.example.com" },
+};
+```
 
-  ```python Python theme={null}
-  options = ClaudeAgentOptions(
-      env={"ANTHROPIC_BASE_URL": "https://gateway.example.com"},
-  )
-  ```
-</CodeGroup>
+```python Python theme={null}
+options = ClaudeAgentOptions(
+    env={"ANTHROPIC_BASE_URL": "https://gateway.example.com"},
+)
+```
 
 你传递的变量也可以配置 Claude Code 本身。有关 Claude Code 进程读取的变量，请参阅[环境变量](/docs/zh-CN/env-vars)。要以这种方式调整 API 超时和停滞检测，请按照[TypeScript 参考](/docs/zh-CN/agent-sdk/typescript#handle-slow-or-stalled-api-responses)或[Python 参考](/docs/zh-CN/agent-sdk/python#handle-slow-or-stalled-api-responses)中的处理缓慢或停滞的 API 响应部分进行操作。
 
-<h2 id="set-the-working-directory">
-  设置工作目录
-</h2>
+## 设置工作目录
 
 设置 `cwd` 以在特定目录中运行会话。当你不设置 `cwd` 时，会话在你的进程的工作目录中运行。两个 SDK 都没有 `cwd` 的设置器。要在不同目录中运行，请使用该 `cwd` 启动另一个会话。
 
@@ -156,9 +138,7 @@ Claude Code 读取工作目录以确定：
 
 要让工具访问工作目录外的文件，请使用 `additionalDirectories`（TypeScript）或 `add_dirs`（Python）添加路径。有关该授予的范围，请参阅[其他目录授予文件访问权限，而不是配置](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration)。
 
-<h2 id="limit-turns-and-spend">
-  限制轮次和支出
-</h2>
+## 限制轮次和支出
 
 使用 `maxTurns` / `max_turns` 和 `maxBudgetUsd` / `max_budget_usd` 限制轮次和支出。当未设置时，两个上限都关闭。当会话达到上限时，运行以结果消息结束，其子类型命名上限，`error_max_turns` 或 `error_max_budget_usd`。接下来发生的事情因输入模式而异：
 
@@ -172,9 +152,7 @@ Claude Code 读取工作目录以确定：
 
 有关两个上限的更多信息，包括子代理支出，请参阅[轮次和预算](/docs/zh-CN/agent-sdk/agent-loop#turns-and-budget)。
 
-<h2 id="change-configuration-mid-session">
-  在会话中途更改配置
-</h2>
+## 在会话中途更改配置
 
 当你使用[流式输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)启动会话时，你可以在它运行时切换其模型和权限模式。你调用设置器的位置因语言而异：
 
@@ -195,94 +173,90 @@ TypeScript 还有 `applyFlagSettings()` 和 `updateSettings()`：
 
 下面的示例运行一个两轮会话，在轮次之间更改配置，并打印回答每轮的模型。在 TypeScript 中，提示流保持第二条消息，直到设置器运行，第二轮在新模型上运行。
 
-<CodeGroup>
-  ```typescript TypeScript theme={null}
-  import { query, type SDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query, type SDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
 
-  function userMessage(text: string): SDKUserMessage {
-    return { type: "user", message: { role: "user", content: text }, parent_tool_use_id: null };
-  }
+function userMessage(text: string): SDKUserMessage {
+  return { type: "user", message: { role: "user", content: text }, parent_tool_use_id: null };
+}
 
-  // Hold the second prompt until the setters have run.
-  let startSecondTurn!: () => void;
-  const secondTurnReady = new Promise<void>((resolve) => {
-    startSecondTurn = resolve;
-  });
+// Hold the second prompt until the setters have run.
+let startSecondTurn!: () => void;
+const secondTurnReady = new Promise<void>((resolve) => {
+  startSecondTurn = resolve;
+});
 
-  async function* turnPrompts(): AsyncGenerator<SDKUserMessage, void> {
-    yield userMessage("Reply with exactly: ready");
-    await secondTurnReady;
-    yield userMessage("Reply with exactly: done");
-  }
+async function* turnPrompts(): AsyncGenerator<SDKUserMessage, void> {
+  yield userMessage("Reply with exactly: ready");
+  await secondTurnReady;
+  yield userMessage("Reply with exactly: done");
+}
 
-  const session = query({
-    prompt: turnPrompts(),
-    options: {
-      model: "claude-sonnet-5",
-    },
-  });
+const session = query({
+  prompt: turnPrompts(),
+  options: {
+    model: "claude-sonnet-5",
+  },
+});
 
-  let turnModel = "";
-  let completedTurns = 0;
+let turnModel = "";
+let completedTurns = 0;
 
-  for await (const message of session) {
-    if (message.type === "assistant") {
-      turnModel = message.message.model;
-    } else if (message.type === "result") {
-      completedTurns += 1;
-      if (completedTurns === 1) {
-        console.log(`First turn model: ${turnModel}`);
-        await session.setModel("claude-opus-5");
-        await session.setPermissionMode("acceptEdits");
-        startSecondTurn();
-      } else {
-        console.log(`Second turn model: ${turnModel}`);
-        break;
-      }
+for await (const message of session) {
+  if (message.type === "assistant") {
+    turnModel = message.message.model;
+  } else if (message.type === "result") {
+    completedTurns += 1;
+    if (completedTurns === 1) {
+      console.log(`First turn model: ${turnModel}`);
+      await session.setModel("claude-opus-5");
+      await session.setPermissionMode("acceptEdits");
+      startSecondTurn();
+    } else {
+      console.log(`Second turn model: ${turnModel}`);
+      break;
     }
   }
-  ```
+}
+```
 
-  ```python Python theme={null}
-  import asyncio
+```python Python theme={null}
+import asyncio
 
-  from claude_agent_sdk import AssistantMessage, ClaudeAgentOptions, ClaudeSDKClient
+from claude_agent_sdk import AssistantMessage, ClaudeAgentOptions, ClaudeSDKClient
 
-  async def main():
-      options = ClaudeAgentOptions(model="claude-sonnet-5")
+async def main():
+    options = ClaudeAgentOptions(model="claude-sonnet-5")
 
-      async with ClaudeSDKClient(options=options) as client:
-          await client.query("Reply with exactly: ready")
-          first_model = ""
-          async for message in client.receive_response():
-              if isinstance(message, AssistantMessage):
-                  first_model = message.model
+    async with ClaudeSDKClient(options=options) as client:
+        await client.query("Reply with exactly: ready")
+        first_model = ""
+        async for message in client.receive_response():
+            if isinstance(message, AssistantMessage):
+                first_model = message.model
 
-          await client.set_model("claude-opus-5")
-          await client.set_permission_mode("acceptEdits")
+        await client.set_model("claude-opus-5")
+        await client.set_permission_mode("acceptEdits")
 
-          await client.query("Reply with exactly: done")
-          second_model = ""
-          async for message in client.receive_response():
-              if isinstance(message, AssistantMessage):
-                  second_model = message.model
+        await client.query("Reply with exactly: done")
+        second_model = ""
+        async for message in client.receive_response():
+            if isinstance(message, AssistantMessage):
+                second_model = message.model
 
-      print(f"First turn model: {first_model}")
-      print(f"Second turn model: {second_model}")
+    print(f"First turn model: {first_model}")
+    print(f"Second turn model: {second_model}")
 
-  asyncio.run(main())
-  ```
-</CodeGroup>
+asyncio.run(main())
+```
 
 在 Claude API 上，程序打印 `First turn model: claude-sonnet-5`，然后在切换后打印 `Second turn model: claude-opus-5`。
 
-<Note>
-  每个模型都有自己的提示缓存，因此在会话中途切换后，下一个请求以新模型的费率重新计算完整对话而不缓存。有关更多信息，请参阅[切换模型](/docs/zh-CN/prompt-caching#switching-models)。
-</Note>
+> [!NOTE]
+>
+> 每个模型都有自己的提示缓存，因此在会话中途切换后，下一个请求以新模型的费率重新计算完整对话而不缓存。有关更多信息，请参阅[切换模型](/docs/zh-CN/prompt-caching#switching-models)。
 
-<h2 id="configure-specific-features">
-  配置特定功能
-</h2>
+## 配置特定功能
 
 下表将每个选项映射到它配置的功能。有关本页面未涵盖的选项，请参阅[TypeScript](/docs/zh-CN/agent-sdk/typescript#options) 和 [Python](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 参考。如果你知道你的目标但不知道哪个选项服务于它，请从[选择正确的功能](/docs/zh-CN/agent-sdk/claude-code-features#choose-the-right-feature)开始。
 
@@ -306,9 +280,7 @@ TypeScript 还有 `applyFlagSettings()` 和 `updateSettings()`：
 | `effort` | `effort` | Claude 在响应中投入多少工作 | [努力级别](/docs/zh-CN/agent-sdk/agent-loop#effort-level) |
 | `sandbox` | `sandbox` | 工具执行的沙箱行为 | [TypeScript](/docs/zh-CN/agent-sdk/typescript#sandbox-configuration) 和 [Python](/docs/zh-CN/agent-sdk/python#sandbox-configuration) 参考，部署上下文在[安全部署](/docs/zh-CN/agent-sdk/secure-deployment)中 |
 
-<h2 id="next-steps">
-  后续步骤
-</h2>
+## 后续步骤
 
 要查看配置组合成工作代理：
 

@@ -10,66 +10,62 @@ Agent SDK 建立在与 Claude Code 相同的基础之上，这意味着您的 SD
 
 当您省略 `settingSources` 时，`query()` 读取与 Claude Code CLI 相同的文件系统设置：用户、项目和本地设置、CLAUDE.md 文件以及 `.claude/` skills、代理和命令。要在没有这些的情况下运行，请传递 `settingSources: []`，这会将代理限制为您以编程方式配置的内容。无论此选项如何，都会读取托管策略设置和全局 `~/.claude.json` 配置。请参阅 [settingSources 不控制的内容](#what-settingsources-does-not-control)。
 
-<h2 id="control-filesystem-settings-with-settingsources">
-  使用 settingSources 控制文件系统设置
-</h2>
+## 使用 settingSources 控制文件系统设置
 
 设置源选项（Python 中的 [`setting_sources`](/docs/zh-CN/agent-sdk/python#claudeagentoptions)、TypeScript 中的 [`settingSources`](/docs/zh-CN/agent-sdk/typescript#settingsource)）控制 SDK 加载哪些基于文件系统的设置。传递显式列表以选择加入特定源，或传递空数组以禁用用户、项目和本地设置。
 
 此示例通过将 `settingSources` 设置为 `["user", "project"]` 来加载用户级和项目级设置：
 
-<CodeGroup>
-  ```python Python theme={null}
-  from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
-  import asyncio
+```python Python theme={null}
+from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
+import asyncio
 
 
-  async def main():
-      async for message in query(
-          prompt="Help me refactor the auth module",
-          options=ClaudeAgentOptions(
-              # "user" loads from ~/.claude/, "project" loads from ./.claude/ in cwd.
-              # Together they give the agent access to CLAUDE.md, skills, hooks, and
-              # permissions from both locations.
-              setting_sources=["user", "project"],
-              allowed_tools=["Read", "Edit", "Bash"],
-          ),
-      ):
-          if isinstance(message, AssistantMessage):
-              for block in message.content:
-                  if hasattr(block, "text"):
-                      print(block.text)
-          if isinstance(message, ResultMessage) and message.subtype == "success":
-              print(f"\nResult: {message.result}")
+async def main():
+    async for message in query(
+        prompt="Help me refactor the auth module",
+        options=ClaudeAgentOptions(
+            # "user" loads from ~/.claude/, "project" loads from ./.claude/ in cwd.
+            # Together they give the agent access to CLAUDE.md, skills, hooks, and
+            # permissions from both locations.
+            setting_sources=["user", "project"],
+            allowed_tools=["Read", "Edit", "Bash"],
+        ),
+    ):
+        if isinstance(message, AssistantMessage):
+            for block in message.content:
+                if hasattr(block, "text"):
+                    print(block.text)
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(f"\nResult: {message.result}")
 
 
-  asyncio.run(main())
-  ```
+asyncio.run(main())
+```
 
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  for await (const message of query({
-    prompt: "Help me refactor the auth module",
-    options: {
-      // "user" loads from ~/.claude/, "project" loads from ./.claude/ in cwd.
-      // Together they give the agent access to CLAUDE.md, skills, hooks, and
-      // permissions from both locations.
-      settingSources: ["user", "project"],
-      allowedTools: ["Read", "Edit", "Bash"]
-    }
-  })) {
-    if (message.type === "assistant") {
-      for (const block of message.message.content) {
-        if (block.type === "text") console.log(block.text);
-      }
-    }
-    if (message.type === "result" && message.subtype === "success") {
-      console.log(`\nResult: ${message.result}`);
+for await (const message of query({
+  prompt: "Help me refactor the auth module",
+  options: {
+    // "user" loads from ~/.claude/, "project" loads from ./.claude/ in cwd.
+    // Together they give the agent access to CLAUDE.md, skills, hooks, and
+    // permissions from both locations.
+    settingSources: ["user", "project"],
+    allowedTools: ["Read", "Edit", "Bash"]
+  }
+})) {
+  if (message.type === "assistant") {
+    for (const block of message.message.content) {
+      if (block.type === "text") console.log(block.text);
     }
   }
-  ```
-</CodeGroup>
+  if (message.type === "result" && message.subtype === "success") {
+    console.log(`\nResult: ${message.result}`);
+  }
+}
+```
 
 当此代码运行时，助手的响应会打印到标准输出，然后在运行完成后打印最终结果行。
 
@@ -85,9 +81,7 @@ Agent SDK 建立在与 Claude Code 相同的基础之上，这意味着您的 SD
 
 `cwd` 选项确定 SDK 查找项目级输入的位置。项目 `settings.json` 和 hooks 仅从 `<cwd>/.claude/` 加载，没有父目录回退。
 
-<h3 id="what-settingsources-does-not-control">
-  settingSources 不控制的内容
-</h3>
+### settingSources 不控制的内容
 
 `settingSources` 涵盖用户、项目和本地设置。无论其值如何，都会读取一些输入：
 
@@ -99,19 +93,15 @@ Agent SDK 建立在与 Claude Code 相同的基础之上，这意味着您的 SD
 | [claude.ai MCP 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai) | 当会话使用您的 claude.ai 登录进行身份验证时加载。当 `CLAUDE_CODE_OAUTH_TOKEN` 持有来自 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 的令牌时不加载，该令牌只能进行模型请求。传递 `mcpServers: {}` 不会抑制连接器 | 设置 `strictMcpConfig: true`、[`disableClaudeAiConnectors: true`](/docs/zh-CN/mcp#disable-claude-ai-connectors) 在设置中，或在 `env` 中设置 `ENABLE_CLAUDEAI_MCP_SERVERS=false` |
 | [`sandbox.credentials`](/docs/zh-CN/sandboxing#protect-credentials) `deny` 条目和 `~/.claude/settings.json` 中的文件 `mask` 条目 | 当[命令沙箱](/docs/zh-CN/sandboxing)运行时，Claude Code 应用 `deny` 条目，并将 `credentials.files` `mask` 条目保持为限制，即使 `settingSources` 排除用户设置。Claude Code 仅使用这些条目来缩小沙箱命令可以访问的内容 | 从 `~/.claude/settings.json` 中删除条目 |
 
-<Warning>
-  不要依赖默认 `query()` 选项进行多租户隔离。因为上述输入无论 `settingSources` 如何都会被读取，SDK 进程可能会获取主机级配置和按目录内存。对于多租户部署，在自己的文件系统中运行每个租户，并设置 `settingSources: []` 加上 `env` 中的 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`。[服务器管理的设置](/docs/zh-CN/server-managed-settings)在进程使用组织凭证进行身份验证时获取；文件系统隔离不会删除它们。请参阅[安全部署](/docs/zh-CN/agent-sdk/secure-deployment)。
-</Warning>
+> [!WARNING]
+>
+> 不要依赖默认 `query()` 选项进行多租户隔离。因为上述输入无论 `settingSources` 如何都会被读取，SDK 进程可能会获取主机级配置和按目录内存。对于多租户部署，在自己的文件系统中运行每个租户，并设置 `settingSources: []` 加上 `env` 中的 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`。[服务器管理的设置](/docs/zh-CN/server-managed-settings)在进程使用组织凭证进行身份验证时获取；文件系统隔离不会删除它们。请参阅[安全部署](/docs/zh-CN/agent-sdk/secure-deployment)。
 
-<h2 id="project-instructions-claude-md-and-rules">
-  项目说明（CLAUDE.md 和规则）
-</h2>
+## 项目说明（CLAUDE.md 和规则）
 
 `CLAUDE.md` 文件和 `.claude/rules/*.md` 文件为您的代理提供关于您的项目的持久上下文：编码约定、构建命令、架构决策和说明。当 `settingSources` 包含 `"project"`（如 [`settingSources` 示例](#control-filesystem-settings-with-settingsources)中所示）时，SDK 在会话开始时将这些文件加载到上下文中。然后代理遵循您的项目约定，而无需在每个提示中重复它们。
 
-<h3 id="claude-md-load-locations">
-  CLAUDE.md 加载位置
-</h3>
+### CLAUDE.md 加载位置
 
 | 级别 | 位置 | 加载时间 |
 | :- | :- | :- |
@@ -125,71 +115,65 @@ Agent SDK 建立在与 Claude Code 相同的基础之上，这意味着您的 SD
 
 所有级别都是累加的：如果项目和用户 CLAUDE.md 文件都存在，代理会看到两者。级别之间没有硬优先级规则；如果说明冲突，结果取决于 Claude 如何解释它们。编写不冲突的规则，或在更具体的文件中明确说明优先级（"这些项目说明覆盖任何冲突的用户级默认值"）。
 
-<Tip>
-  您也可以通过 `systemPrompt` 直接注入上下文，而无需使用 CLAUDE.md 文件。请参阅 [修改系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts)。当您希望在交互式 Claude Code 会话和 SDK 代理之间共享相同的上下文时，使用 CLAUDE.md。
-</Tip>
+> [!TIP]
+>
+> 您也可以通过 `systemPrompt` 直接注入上下文，而无需使用 CLAUDE.md 文件。请参阅 [修改系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts)。当您希望在交互式 Claude Code 会话和 SDK 代理之间共享相同的上下文时，使用 CLAUDE.md。
 
 有关如何构建和组织 CLAUDE.md 内容，请参阅 [管理 Claude 的内存](/docs/zh-CN/memory)。
 
-<h2 id="skills">
-  Skills
-</h2>
+## Skills
 
 Skills 是 markdown 文件，为您的代理提供专业知识和可调用的工作流。与 `CLAUDE.md`（每个会话都加载）不同，skills 按需加载。代理在启动时接收 skill 描述，并在相关时加载完整内容。
 
 Skills 通过 `settingSources` 从文件系统中发现。当 `query()` 上的 `skills` 选项被省略时，发现的用户和项目 skills 会被启用，Skill 工具可用，与 CLI 行为相匹配。要控制启用哪些 skills，请将 `skills` 作为 `"all"`、skill 名称列表或 `[]` 传递以禁用所有。当设置 `skills` 时，SDK 会自动将 Skill 工具添加到 `allowedTools`。如果您还传递了显式的 `tools` 列表，请在该列表中包含 `"Skill"`，以便 Claude 可以调用 skills。
 
-<CodeGroup>
-  ```python Python theme={null}
-  from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
-  import asyncio
+```python Python theme={null}
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+import asyncio
 
 
-  # Skills in .claude/skills/ are discovered automatically
-  # when settingSources includes "project"
-  async def main():
-      async for message in query(
-          prompt="Review this PR using our code review checklist",
-          options=ClaudeAgentOptions(
-              setting_sources=["user", "project"],
-              skills="all",
-              allowed_tools=["Read", "Grep", "Glob"],
-          ),
-      ):
-          if isinstance(message, ResultMessage) and message.subtype == "success":
-              print(message.result)
+# Skills in .claude/skills/ are discovered automatically
+# when settingSources includes "project"
+async def main():
+    async for message in query(
+        prompt="Review this PR using our code review checklist",
+        options=ClaudeAgentOptions(
+            setting_sources=["user", "project"],
+            skills="all",
+            allowed_tools=["Read", "Grep", "Glob"],
+        ),
+    ):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(message.result)
 
 
-  asyncio.run(main())
-  ```
+asyncio.run(main())
+```
 
-  ```typescript TypeScript theme={null}
-  import { query } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-  // Skills in .claude/skills/ are discovered automatically
-  // when settingSources includes "project"
-  for await (const message of query({
-    prompt: "Review this PR using our code review checklist",
-    options: {
-      settingSources: ["user", "project"],
-      skills: "all",
-      allowedTools: ["Read", "Grep", "Glob"]
-    }
-  })) {
-    if (message.type === "result" && message.subtype === "success") {
-      console.log(message.result);
-    }
+// Skills in .claude/skills/ are discovered automatically
+// when settingSources includes "project"
+for await (const message of query({
+  prompt: "Review this PR using our code review checklist",
+  options: {
+    settingSources: ["user", "project"],
+    skills: "all",
+    allowedTools: ["Read", "Grep", "Glob"]
   }
-  ```
-</CodeGroup>
+})) {
+  if (message.type === "result" && message.subtype === "success") {
+    console.log(message.result);
+  }
+}
+```
 
-<Note>
-  Skills 必须创建为文件系统工件（`.claude/skills/<name>/SKILL.md`）。SDK 没有用于注册 skills 的编程 API。有关完整详情，请参阅 [SDK 中的 Agent Skills](/docs/zh-CN/agent-sdk/skills)。
-</Note>
+> [!NOTE]
+>
+> Skills 必须创建为文件系统工件（`.claude/skills/<name>/SKILL.md`）。SDK 没有用于注册 skills 的编程 API。有关完整详情，请参阅 [SDK 中的 Agent Skills](/docs/zh-CN/agent-sdk/skills)。
 
-<h2 id="hooks">
-  Hooks
-</h2>
+## Hooks
 
 SDK 支持两种定义 hooks 的方式，它们并行运行：
 
@@ -198,107 +182,101 @@ SDK 支持两种定义 hooks 的方式，它们并行运行：
 
 Hook 回调接收工具输入并返回决策字典。返回 `{}` 意味着允许工具继续。要阻止执行，返回一个 `hookSpecificOutput` 对象，其中包含 `permissionDecision: "deny"` 和 `permissionDecisionReason`。原因会作为工具结果发送给 Claude。请参阅 [hooks 指南](/docs/zh-CN/agent-sdk/hooks) 了解完整的回调签名和返回类型。
 
-<CodeGroup>
-  ```python Python theme={null}
-  from claude_agent_sdk import query, ClaudeAgentOptions, HookMatcher, ResultMessage
-  import asyncio
+```python Python theme={null}
+from claude_agent_sdk import query, ClaudeAgentOptions, HookMatcher, ResultMessage
+import asyncio
 
 
-  # PreToolUse hook callback. Positional args:
-  #   input_data: HookInput dict with tool_name, tool_input, hook_event_name
-  #   tool_use_id: str | None, the ID of the tool call being intercepted
-  #   context: HookContext, reserved for future abort-signal support
-  async def audit_bash(input_data, tool_use_id, context):
-      command = input_data.get("tool_input", {}).get("command", "")
-      if "rm -rf" in command:
-          return {
-              "hookSpecificOutput": {
-                  "hookEventName": "PreToolUse",
-                  "permissionDecision": "deny",
-                  "permissionDecisionReason": "Destructive command blocked",
-              }
-          }
-      return {}  # Empty dict: allow the tool to proceed
+# PreToolUse hook callback. Positional args:
+#   input_data: HookInput dict with tool_name, tool_input, hook_event_name
+#   tool_use_id: str | None, the ID of the tool call being intercepted
+#   context: HookContext, reserved for future abort-signal support
+async def audit_bash(input_data, tool_use_id, context):
+    command = input_data.get("tool_input", {}).get("command", "")
+    if "rm -rf" in command:
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",
+                "permissionDecisionReason": "Destructive command blocked",
+            }
+        }
+    return {}  # Empty dict: allow the tool to proceed
 
 
-  # Filesystem hooks from .claude/settings.json run automatically
-  # when settingSources loads them. You can also add programmatic hooks:
-  async def main():
-      async for message in query(
-          prompt="Refactor the auth module",
-          options=ClaudeAgentOptions(
-              setting_sources=["project"],  # Loads hooks from .claude/settings.json
-              hooks={
-                  "PreToolUse": [
-                      HookMatcher(matcher="Bash", hooks=[audit_bash]),
-                  ]
-              },
-          ),
-      ):
-          if isinstance(message, ResultMessage) and message.subtype == "success":
-              print(message.result)
+# Filesystem hooks from .claude/settings.json run automatically
+# when settingSources loads them. You can also add programmatic hooks:
+async def main():
+    async for message in query(
+        prompt="Refactor the auth module",
+        options=ClaudeAgentOptions(
+            setting_sources=["project"],  # Loads hooks from .claude/settings.json
+            hooks={
+                "PreToolUse": [
+                    HookMatcher(matcher="Bash", hooks=[audit_bash]),
+                ]
+            },
+        ),
+    ):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(message.result)
 
 
-  asyncio.run(main())
-  ```
+asyncio.run(main())
+```
 
-  ```typescript TypeScript theme={null}
-  import { query, type HookInput, type HookJSONOutput } from "@anthropic-ai/claude-agent-sdk";
+```typescript TypeScript theme={null}
+import { query, type HookInput, type HookJSONOutput } from "@anthropic-ai/claude-agent-sdk";
 
-  // PreToolUse hook callback. HookInput is a discriminated union on
-  // hook_event_name, so narrowing on it gives TypeScript the right
-  // tool_input shape for this event.
-  const auditBash = async (input: HookInput): Promise<HookJSONOutput> => {
-    if (input.hook_event_name !== "PreToolUse") return {};
-    const toolInput = input.tool_input as { command?: string };
-    if (toolInput.command?.includes("rm -rf")) {
-      return {
-        hookSpecificOutput: {
-          hookEventName: "PreToolUse",
-          permissionDecision: "deny",
-          permissionDecisionReason: "Destructive command blocked",
-        },
-      };
-    }
-    return {}; // Empty object: allow the tool to proceed
-  };
+// PreToolUse hook callback. HookInput is a discriminated union on
+// hook_event_name, so narrowing on it gives TypeScript the right
+// tool_input shape for this event.
+const auditBash = async (input: HookInput): Promise<HookJSONOutput> => {
+  if (input.hook_event_name !== "PreToolUse") return {};
+  const toolInput = input.tool_input as { command?: string };
+  if (toolInput.command?.includes("rm -rf")) {
+    return {
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "deny",
+        permissionDecisionReason: "Destructive command blocked",
+      },
+    };
+  }
+  return {}; // Empty object: allow the tool to proceed
+};
 
-  // Filesystem hooks from .claude/settings.json run automatically
-  // when settingSources loads them. You can also add programmatic hooks:
-  for await (const message of query({
-    prompt: "Refactor the auth module",
-    options: {
-      settingSources: ["project"], // Loads hooks from .claude/settings.json
-      hooks: {
-        PreToolUse: [{ matcher: "Bash", hooks: [auditBash] }]
-      }
-    }
-  })) {
-    if (message.type === "result" && message.subtype === "success") {
-      console.log(message.result);
+// Filesystem hooks from .claude/settings.json run automatically
+// when settingSources loads them. You can also add programmatic hooks:
+for await (const message of query({
+  prompt: "Refactor the auth module",
+  options: {
+    settingSources: ["project"], // Loads hooks from .claude/settings.json
+    hooks: {
+      PreToolUse: [{ matcher: "Bash", hooks: [auditBash] }]
     }
   }
-  ```
-</CodeGroup>
+})) {
+  if (message.type === "result" && message.subtype === "success") {
+    console.log(message.result);
+  }
+}
+```
 
-<h3 id="when-to-use-which-hook-type">
-  何时使用哪种 hook 类型
-</h3>
+### 何时使用哪种 hook 类型
 
 | Hook 类型 | 最适合 |
 | :- | :- |
 | **文件系统**（`settings.json`） | 在 CLI 和 SDK 会话之间共享 hooks。支持 `"command"`（shell 脚本）、`"http"`（POST 到端点）、`"mcp_tool"`（调用连接的 MCP 服务器的工具）、`"prompt"`（LLM 评估提示）和 `"agent"`（生成验证器代理）。这些在主代理和它生成的任何子代理中触发。 |
 | **编程**（`query()` 中的回调） | 应用程序特定的逻辑、结构化决策和进程内集成。这些也在子代理内触发。hook 输入（回调的第一个参数）携带 `agent_id` 和 `agent_type` 字段，用于识别哪个代理触发了 hook。 |
 
-<Note>
-  TypeScript SDK 支持超出 Python 的其他 hook 事件，包括 `SessionStart`、`SessionEnd`、`TeammateIdle` 和 `TaskCompleted`。有关完整的事件兼容性表，请参阅 [hooks 指南](/docs/zh-CN/agent-sdk/hooks)。
-</Note>
+> [!NOTE]
+>
+> TypeScript SDK 支持超出 Python 的其他 hook 事件，包括 `SessionStart`、`SessionEnd`、`TeammateIdle` 和 `TaskCompleted`。有关完整的事件兼容性表，请参阅 [hooks 指南](/docs/zh-CN/agent-sdk/hooks)。
 
 有关编程 hooks 的完整详情，请参阅 [使用 hooks 控制执行](/docs/zh-CN/agent-sdk/hooks)。有关文件系统 hook 语法，请参阅 [Hooks](/docs/zh-CN/hooks)。
 
-<h2 id="choose-the-right-feature">
-  选择正确的功能
-</h2>
+## 选择正确的功能
 
 Agent SDK 为您提供了多种方式来扩展代理的行为。如果您不确定使用哪种，此表将常见目标映射到正确的方法。
 
@@ -314,9 +292,7 @@ Agent SDK 为您提供了多种方式来扩展代理的行为。如果您不确�
 
 您启用的每个功能都会增加代理的上下文窗口。有关每个功能的成本以及这些功能如何分层组合，请参阅 [扩展 Claude Code](/docs/zh-CN/features-overview#understand-context-costs)。
 
-<h2 id="related-resources">
-  相关资源
-</h2>
+## 相关资源
 
 * [扩展 Claude Code](/docs/zh-CN/features-overview)：所有扩展功能的概念概述，包含比较表和上下文成本分析
 * [SDK 中的 Skills](/docs/zh-CN/agent-sdk/skills)：使用 skills 的完整指南

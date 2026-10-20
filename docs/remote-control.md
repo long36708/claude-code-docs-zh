@@ -74,11 +74,11 @@ claude remote-control
 
 要对服务器启动的会话进行沙箱处理，请在设置文件中打开[沙箱](/docs/zh-CN/sandboxing)。
 
-Claude Code 在打印帮助之前检查远程控制资格，因此当您未使用符合条件的帐户登录时，`claude remote-control --help` 返回错误而不是此标志列表。
+要在终端中打印 `remote-control` 标志，请运行 `claude remote-control --help`。在 v2.1.302 之前，如果没有符合条件的登录，该命令会改为返回[故障排除](#troubleshooting)下列出的错误之一。
 
 **交互式会话**
 
-要启动启用了远程控制的普通交互式 Claude Code 会话，请使用 `--remote-control` 标志（或 `--rc`）：
+要启动启用了 Remote Control 的普通交互式 Claude Code 会话，请使用 `--remote-control` 标志（或 `--rc`）：
 
 ```bash theme={null}
 claude --remote-control
@@ -174,7 +174,7 @@ claude --remote-control "My Project"
 * **压缩和 `/clear`**：当 Claude Code [压缩对话](/docs/zh-CN/context-window#what-survives-compaction)时，连接的设备显示进度，然后显示对话被压缩的位置。当您运行 `/clear` 时，对话也在连接的设备上重置。
 * **使用 `/resume` 切换对话**：连接的设备不接收切换到的对话的标题或早期历史，但双向的新消息进出您终端中打开的任何对话。要从设备再次处理原始对话，请在您的终端中运行 `/resume` 并切换回它。
 * **使用 `/teleport` 拉取会话**：当您使用 `/teleport` 将[云会话](/docs/zh-CN/claude-code-on-the-web#from-cloud-to-terminal)拉入您的终端时，连接的设备不接收拉取的对话的早期历史。双向的新消息进出拉取的对话，该对话现在是您终端中打开的对话。
-* **来自您其他会话的消息**：使用[跨会话消息传递](/docs/zh-CN/cross-session-messaging)，相同的连接在您不同机器上的自己的会话之间以及来自您的[云会话](/docs/zh-CN/claude-code-on-the-web)传递消息。
+* **来自您其他会话的消息**：借助[跨会话消息传递](/docs/zh-CN/cross-session-messaging)，同一连接会在您位于不同机器上的自己的会话之间传递消息。
 * **您的更改的差异**：当会话的目录在 git 存储库中时，连接的设备的差异窗格显示您的更改。在具有超过存储库默认分支的提交的分支上，窗格显示自分支从它分离以来的更改，包括您未提交的编辑。在默认分支本身上，或在不超过它的分支上，窗格仅显示您未提交的更改。
 * **模型**：当您从连接的设备选择[模型](/docs/zh-CN/model-config)时，Claude Code 在该模型上运行会话。需要 Claude Code v2.1.238 或更高版本。您从设备的模型控制中选择的模型仅适用于当前会话。当您从设备向交互式会话发送 `/model <name>` 时，Claude Code 也会为新会话设置您的默认值。
 * **努力级别**：当您从连接的设备设置[努力级别](/docs/zh-CN/model-config#adjust-effort-level)时，使用 `/effort` 或设备的努力控制，Claude Code 将其应用于您机器上的会话。如果您使用 `CLAUDE_CODE_EFFORT_LEVEL` 固定了一个级别，会话保持该级别，Claude Code 拒绝从努力控制中选择不同的级别。从努力控制中选择级别需要您机器上的 Claude Code v2.1.234 或更高版本。
@@ -186,7 +186,7 @@ claude --remote-control "My Project"
 
 * **`true`**：当交互式会话启动时自动连接。
 * **`false`**：关闭自动连接，尽管来自[托管设置](/docs/zh-CN/managed-settings)的 `true` 会优先，因为 Claude Code 将选择保存到您的用户设置。项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中的 `false` 即使在托管 `true` 上也会关闭自动连接。
-* **`default`**：清除您的选择并遵循您组织的管理员默认值（如果已设置），否则遵循 Claude Code 的当前默认值。
+* **`default`**：清除您的选择并遵循您组织的管理员默认值（如果已设置），否则遵循 Claude Code 的当前默认值。如果您设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK`，请参阅[设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 时的自动连接](#auto-connect-with-disable-telemetry-or-do-not-track)。
 
 VS Code 扩展和 Desktop 应用也有自动连接开关：
 
@@ -198,6 +198,15 @@ VS Code 扩展和 Desktop 应用也有自动连接开关：
 自动连接使用您自己的 claude.ai 帐户登录，因此它启动的会话仅出现在您自己帐户的 Claude 应用中，并且不向任何其他人授予访问权限。
 
 启用此设置后，每个交互式 Claude Code 进程注册一个远程会话。如果您运行多个实例，每个实例都获得自己的远程会话。要从单个进程运行多个并发会话，请改为使用[服务器模式](#start-a-remote-control-session)。
+
+#### 设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 时的自动连接
+
+如果仅设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK`，您的会话不会通过您组织的管理员默认值或 Claude Code 自身的默认值自动连接。如果有其他因素导致 Remote Control 对您不可用，例如 `DISABLE_GROWTHBOOK` 或 LLM 网关，请改为从[要求](#requirements)开始。
+
+在仅设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 的情况下打开自动连接需要 Claude Code v2.1.283 或更高版本。要自动连接，请检查您的组织是否要求[受信任设备](#trusted-devices)：
+
+* **不要求**：在 `/config` 中将 **Enable Remote Control for all sessions** 设置为 `true`。
+* **要求**：设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 时，Remote Control 不可用。取消设置您所设置的这两个变量中的任意一个。如果您的会话仍未自动连接，请在 `/config` 中将 **Enable Remote Control for all sessions** 设置为 `true`。
 
 ### 停止服务器后恢复会话
 

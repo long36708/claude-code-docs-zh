@@ -91,7 +91,7 @@
 claude --cloud "Fix the authentication bug in src/auth/login.ts"
 ```
 
-这会在 claude.ai 上创建新的云会话。云 VM 会在您当前分支克隆您当前目录的 GitHub 远程，而不是您的本地检出，因此如果您有本地提交，请先推送。有关 Claude Code 上传本地存储库而不是克隆的情况，请参阅 [发送没有 GitHub 的本地存储库](#send-local-repositories-without-github)。
+这会在 claude.ai 上创建新的云会话。云 VM 会在您当前分支克隆您当前目录的 GitHub 远程，而不是您的本地检出，因此如果您有本地提交，请先推送。有关 Claude Code 上传本地仓库而不是克隆的情况，请参阅 [发送没有 GitHub 的本地仓库](#send-local-repositories-without-github)。如果终端打印 `Branch <name> is not on GitHub`，请参阅 [Branch is not on GitHub](#branch-is-not-on-github)。
 
 `--cloud` 一次只能与单个存储库配合使用。任务在云中运行，而您继续在本地工作。较旧的 `--remote` 拼写仍然可以作为 `--cloud` 的已弃用别名使用。
 
@@ -392,6 +392,12 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 在 shell 中运行 [`claude auth login`](/docs/zh-CN/cli-reference#cli-commands) 以使用您的 claude.ai 账户登录，然后重试该命令。在正在运行的会话中，`/login` 的作用相同。如果错误中提到的是您的提供商，请参阅[错误表](#errors-when-sending-to-a-cloud-session)：云端会话无法通过第三方提供商使用。
 
 在 v2.1.274 至 v2.1.289 版本中，登录消息为 `Claude Code cloud sessions require authentication with a Claude.ai account. API key authentication is not sufficient. Please run /login to authenticate, or check your authentication status with /status.`
+
+### 分支不在 GitHub 上
+
+当 `claude --cloud` 打印以 `Branch <name> is not on GitHub` 开头的一行时，云端会话仍会启动，但不是从您的分支启动。该行会指出会话改为从何处启动：您分支历史中一个已推送的提交，或仓库的默认分支。仅存在于您本机上的提交以及未提交的更改不会出现在会话中。
+
+例如，当您从未推送该分支，或者 GitHub 在其 Pull Request 合并后删除了该分支时，您会看到这一行。如果该行指出的起点包含您的任务所需的内容，请直接使用该会话。否则，请推送该分支并启动一个新会话，使其克隆您的分支。
 
 ### Remote Control 会话已过期或访问被拒绝
 

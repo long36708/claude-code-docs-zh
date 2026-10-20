@@ -6,23 +6,19 @@
 
 > TypeScript Agent SDK 的完整 API 参考，包括所有函数、类型和接口。
 
-<h2 id="installation">
-  安装
-</h2>
+## 安装
 
 ```bash theme={null}
 npm install @anthropic-ai/claude-agent-sdk
 ```
 
-<Note>
-  SDK 为您的平台捆绑了一个本地 Claude Code 二进制文件，作为可选依赖项，例如 `@anthropic-ai/claude-agent-sdk-darwin-arm64`。大多数安装无需单独安装 Claude Code。SDK 版本跟踪捆绑的 Claude Code 版本。SDK v0.3.191 捆绑 Claude Code v2.1.191，因此本页面上需要特定 Claude Code 版本的功能需要具有相同补丁号或更高版本的 SDK 版本。如果您的包管理器跳过可选依赖项，SDK 会抛出 `Native CLI binary for <platform>-<arch> not found`；改为将 [`pathToClaudeCodeExecutable`](#options) 设置为单独安装的 `claude` 二进制文件。
+> [!NOTE]
+>
+> SDK 为您的平台捆绑了一个本地 Claude Code 二进制文件，作为可选依赖项，例如 `@anthropic-ai/claude-agent-sdk-darwin-arm64`。大多数安装无需单独安装 Claude Code。SDK 版本跟踪捆绑的 Claude Code 版本。SDK v0.3.191 捆绑 Claude Code v2.1.191，因此本页面上需要特定 Claude Code 版本的功能需要具有相同补丁号或更高版本的 SDK 版本。如果您的包管理器跳过可选依赖项，SDK 会抛出 `Native CLI binary for <platform>-<arch> not found`；改为将 [`pathToClaudeCodeExecutable`](#options) 设置为单独安装的 `claude` 二进制文件。
+>
+> 如果您的包管理器不应用 npm 的 `libc` 字段（如 Yarn 1.x 不应用），您会在 Linux 上同时获得 glibc 和 musl 平台包，大约使安装大小翻倍。在 Agent SDK v0.2.141 或更高版本上，SDK 仍然会启动正确的变体。要在容器镜像中回收空间，请删除与您的应用运行的 libc 不匹配的平台包；对于 x64 上的 glibc 运行时，即 `rm -rf node_modules/@anthropic-ai/claude-agent-sdk-linux-x64-musl`。在开发机器上删除是临时的，因为 Yarn 会在下一次依赖项更改时重新安装该包。
 
-  如果您的包管理器不应用 npm 的 `libc` 字段（如 Yarn 1.x 不应用），您会在 Linux 上同时获得 glibc 和 musl 平台包，大约使安装大小翻倍。在 Agent SDK v0.2.141 或更高版本上，SDK 仍然会启动正确的变体。要在容器镜像中回收空间，请删除与您的应用运行的 libc 不匹配的平台包；对于 x64 上的 glibc 运行时，即 `rm -rf node_modules/@anthropic-ai/claude-agent-sdk-linux-x64-musl`。在开发机器上删除是临时的，因为 Yarn 会在下一次依赖项更改时重新安装该包。
-</Note>
-
-<h3 id="compile-to-a-single-executable">
-  编译为单个可执行文件
-</h3>
+### 编译为单个可执行文件
 
 当您使用 `bun build --compile` 将应用程序编译为单文件可执行文件时，SDK 无法在运行时解析捆绑的 CLI 二进制文件。`require.resolve` 在编译后的可执行文件的 `$bunfs` 虚拟文件系统内不起作用，因此 SDK 会抛出 `Native CLI binary for <platform>-<arch> not found`。
 
@@ -52,9 +48,7 @@ for await (const message of query({
 * 要进行交叉编译，请安装不匹配的平台包，例如 `npm install @anthropic-ai/claude-agent-sdk-linux-x64 --force`。
 * 在 Windows 上，二进制文件子路径是 `claude.exe`，例如 `@anthropic-ai/claude-agent-sdk-win32-x64/claude.exe`。
 
-<h3 id="import-the-/core-entry-when-you-bundle-the-agent-sdk">
-  在捆绑 Agent SDK 时导入 `/core` 入口
-</h3>
+### 在捆绑 Agent SDK 时导入 `/core` 入口
 
 如果您的应用程序将 Agent SDK 与其自己的依赖项一起捆绑，请从 `@anthropic-ai/claude-agent-sdk/core` 而不是包根目录导入。`/core` 入口需要 TypeScript Agent SDK v0.3.282 或更高版本，其类型需要 TypeScript 5.0 或更高版本。
 
@@ -62,13 +56,9 @@ for await (const message of query({
 
 根入口内联了自己的 `zod` 和 `@modelcontextprotocol/sdk` 副本。`/core` 入口从您的 `node_modules` 按照 Agent SDK 的 `peerDependencies` 声明的范围导入它们，因此已经包含它们的捆绑包不会携带第二个副本。在给定的进程中从根或 `/core` 导入，而不是两者：它们是单独的捆绑包，加载两者会给您两个 Agent SDK 类和状态的副本。
 
-<h2 id="functions">
-  函数
-</h2>
+## 函数
 
-<h3 id="query">
-  `query()`
-</h3>
+### `query()`
 
 与 Claude Code 交互的主要函数。创建一个异步生成器，在消息到达时流式传输消息。
 
@@ -82,24 +72,18 @@ function query({
 }): Query;
 ```
 
-<h4 id="parameters">
-  参数
-</h4>
+#### 参数
 
 | 参数 | 类型 | 描述 |
 | :- | :- | :- |
 | `prompt` | `string \| AsyncIterable<`[`SDKUserMessage`](#sdkusermessage)`>` | 输入提示，可以是字符串或异步可迭代对象（用于流式模式） |
 | `options` | [`Options`](#options) | 可选配置对象（请参阅下面的 Options 类型） |
 
-<h4 id="returns">
-  返回值
-</h4>
+#### 返回值
 
 返回一个 [`Query`](#query-object) 对象，该对象扩展 `AsyncGenerator<`[`SDKMessage`](#sdkmessage)`, void>`，并具有其他方法。
 
-<h3 id="startup">
-  `startup()`
-</h3>
+### `startup()`
 
 通过生成 CLI 子进程并在提示可用之前完成初始化握手来预热 CLI 子进程。返回的 [`WarmQuery`](#warmquery) 句柄稍后接受提示并将其写入已准备好的进程，因此第一个 `query()` 调用解析时无需支付子进程生成和初始化成本。如果您还不知道会话的工作目录，请改用 [`prewarm()`](#prewarm)。
 
@@ -110,24 +94,18 @@ function startup(params?: {
 }): Promise<WarmQuery>;
 ```
 
-<h4 id="parameters-2">
-  参数
-</h4>
+#### 参数
 
 | 参数 | 类型 | 描述 |
 | :- | :- | :- |
 | `options` | [`Options`](#options) | 可选配置对象。与 `query()` 的 `options` 参数相同 |
 | `initializeTimeoutMs` | `number` | 等待子进程初始化的最长时间（毫秒）。默认为 `60000`。如果初始化未在规定时间内完成，promise 将以超时错误拒绝 |
 
-<h4 id="returns-2">
-  返回值
-</h4>
+#### 返回值
 
 返回一个 `Promise<`[`WarmQuery`](#warmquery)`>`，在子进程生成并完成其初始化握手后解析。
 
-<h4 id="example">
-  示例
-</h4>
+#### 示例
 
 早期调用 `startup()`，例如在应用程序启动时，然后在提示准备好后在返回的句柄上调用 `.query()`。这会将子进程生成和初始化移出关键路径。
 
@@ -143,9 +121,7 @@ for await (const message of warm.query("What files are here?")) {
 }
 ```
 
-<h3 id="prewarm">
-  `prewarm()`
-</h3>
+### `prewarm()`
 
 *Alpha。* 在您知道它将服务哪个会话之前启动 Claude Code 进程作为备用，以便您稍后可以使用 [`claim()`](#spareprocess) 将其绑定到会话。在应用程序启动之前用户选择文件夹的应用程序中使用它。需要 TypeScript Agent SDK v0.3.282 或更高版本。
 
@@ -160,9 +136,7 @@ function prewarm(params?: {
 
 `options` 和 `initializeTimeoutMs` 的含义与 `startup()` 相同，除了 `options.cwd` 仅设置备用进程等待的目录。promise 在进程完成其初始化握手后使用 [`SpareProcess`](#spareprocess) 解析。如果 `options` 设置 `resume`、`continue` 或 `forkSession`，`prewarm()` 会抛出错误，因为备用进程还没有会话。声明无法设置的所有内容，例如 `mcpServers`、`hooks`、`canUseTool`、`settingSources`、`systemPrompt` 和 `plugins`，在备用进程的生命周期内是固定的，因此为每个不同的选项集保留一个备用进程，并在它们更改时再次预热。
 
-<h4 id="example-2">
-  示例
-</h4>
+#### 示例
 
 在应用程序启动时预热，然后在用户启动会话时声明备用进程：
 
@@ -194,9 +168,7 @@ try {
 }
 ```
 
-<h3 id="tool">
-  `tool()`
-</h3>
+### `tool()`
 
 为与 SDK MCP 服务器一起使用创建类型安全的 MCP 工具定义。
 
@@ -210,9 +182,7 @@ function tool<Schema extends AnyZodRawShape>(
 ): SdkMcpToolDefinition<Schema>;
 ```
 
-<h4 id="parameters-3">
-  参数
-</h4>
+#### 参数
 
 | 参数 | 类型 | 描述 |
 | :- | :- | :- |
@@ -222,9 +192,7 @@ function tool<Schema extends AnyZodRawShape>(
 | `handler` | `(args, extra) => Promise<`[`CallToolResult`](#calltoolresult)`>` | 执行工具逻辑的异步函数 |
 | `extras` | `{ annotations?: `[`ToolAnnotations`](#toolannotations)`; searchHint?: string; alwaysLoad?: boolean }` | 可选的 extras。`annotations` 为客户端提供 MCP 行为提示。`searchHint` 是当[工具搜索](/docs/zh-CN/agent-sdk/tool-search)处于活动状态时在延迟工具列表中显示的单行功能短语。`alwaysLoad: true` 将此工具的完整 schema 保留在初始提示中，而不是延迟它 |
 
-<h4 id="toolannotations">
-  `ToolAnnotations`
-</h4>
+#### `ToolAnnotations`
 
 在 `@modelcontextprotocol/sdk/types.js` 中定义。所有字段都是可选提示；客户端不应依赖它们做出安全决策。
 
@@ -251,9 +219,7 @@ const searchTool = tool(
 );
 ```
 
-<h3 id="createsdkmcpserver">
-  `createSdkMcpServer()`
-</h3>
+### `createSdkMcpServer()`
 
 创建在与应用程序相同的进程中运行的 MCP 服务器实例。
 
@@ -268,9 +234,7 @@ function createSdkMcpServer(options: {
 }): McpSdkServerConfigWithInstance;
 ```
 
-<h4 id="parameters-4">
-  参数
-</h4>
+#### 参数
 
 | 参数 | 类型 | 描述 |
 | :- | :- | :- |
@@ -281,9 +245,7 @@ function createSdkMcpServer(options: {
 | `options.alwaysLoad` | `boolean` | 当为 `true` 时，此服务器的工具保留在初始提示词中，而不是被延迟到[工具搜索](/docs/zh-CN/agent-sdk/tool-search)之后。与 [`tool()`](#tool) 中的每个工具 `alwaysLoad` 结合 |
 | `options.timeout` | `number` | 此服务器的工具调用超时时间（毫秒）。Claude Code 将其应用于此服务器以代替 [`MCP_TOOL_TIMEOUT`](/docs/zh-CN/env-vars)。传递至少 1000 的整数。Claude Code 忽略其他值。需要 TypeScript Agent SDK v0.3.248 或更高版本 |
 
-<h3 id="listsessions">
-  `listSessions()`
-</h3>
+### `listSessions()`
 
 发现并列出具有轻量级元数据的过去会话。按项目目录筛选或列出所有项目中的会话。
 
@@ -291,9 +253,7 @@ function createSdkMcpServer(options: {
 function listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]>;
 ```
 
-<h4 id="parameters-5">
-  参数
-</h4>
+#### 参数
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
@@ -301,9 +261,7 @@ function listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]>;
 | `options.limit` | `number` | `undefined` | 要返回的最大会话数 |
 | `options.includeWorktrees` | `boolean` | `true` | 当 `dir` 在 git 仓库内时，包括来自所有 worktree 路径的会话 |
 
-<h4 id="return-type-sdksessioninfo">
-  返回类型：`SDKSessionInfo`
-</h4>
+#### 返回类型：`SDKSessionInfo`
 
 | 属性 | 类型 | 描述 |
 | :- | :- | :- |
@@ -318,9 +276,7 @@ function listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]>;
 | `tag` | `string \| undefined` | 用户设置的会话标签（请参阅 [`tagSession()`](#tagsession)） |
 | `createdAt` | `number \| undefined` | 创建时间（自纪元以来的毫秒数），来自第一个条目的时间戳 |
 
-<h4 id="example-3">
-  示例
-</h4>
+#### 示例
 
 打印项目的 10 个最近会话。结果按 `lastModified` 降序排序，因此第一项是最新的。省略 `dir` 以搜索所有项目。
 
@@ -334,9 +290,7 @@ for (const session of sessions) {
 }
 ```
 
-<h3 id="getsessionmessages">
-  `getSessionMessages()`
-</h3>
+### `getSessionMessages()`
 
 从过去的会话记录中读取用户和助手消息。
 
@@ -347,9 +301,7 @@ function getSessionMessages(
 ): Promise<SessionMessage[]>;
 ```
 
-<h4 id="parameters-6">
-  参数
-</h4>
+#### 参数
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
@@ -358,9 +310,7 @@ function getSessionMessages(
 | `options.limit` | `number` | `undefined` | 要返回的最大消息数 |
 | `options.offset` | `number` | `undefined` | 从开始跳过的消息数 |
 
-<h4 id="return-type-sessionmessage">
-  返回类型：`SessionMessage`
-</h4>
+#### 返回类型：`SessionMessage`
 
 | 属性 | 类型 | 描述 |
 | :- | :- | :- |
@@ -371,9 +321,7 @@ function getSessionMessages(
 | `parent_tool_use_id` | `string \| null` | 对于子代理消息，启动该子代理的 `Agent` 或 `Skill` 工具调用的 `tool_use_id`。对于主会话消息和较旧的会话为 `null` |
 | `parent_agent_id` | `string \| null` | 对于来自[嵌套子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)的消息，为启动该嵌套子代理的子代理的 `agentId`。对于主会话消息、来自顶级子代理的消息和较旧的会话为 `null`。需要 Claude Code v2.1.202 或更高版本 |
 
-<h4 id="example-4">
-  示例
-</h4>
+#### 示例
 
 ```typescript theme={null}
 import { listSessions, getSessionMessages } from "@anthropic-ai/claude-agent-sdk";
@@ -392,9 +340,7 @@ if (latest) {
 }
 ```
 
-<h3 id="getsessioninfo">
-  `getSessionInfo()`
-</h3>
+### `getSessionInfo()`
 
 按 ID 读取单个会话的元数据，无需扫描完整项目目录。
 
@@ -405,9 +351,7 @@ function getSessionInfo(
 ): Promise<SDKSessionInfo | undefined>;
 ```
 
-<h4 id="parameters-7">
-  参数
-</h4>
+#### 参数
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
@@ -416,9 +360,7 @@ function getSessionInfo(
 
 返回 [`SDKSessionInfo`](#return-type-sdksessioninfo)，如果找不到会话，则返回 `undefined`。
 
-<h3 id="renamesession">
-  `renameSession()`
-</h3>
+### `renameSession()`
 
 通过附加自定义标题条目来重命名会话。重复调用是安全的；以最新的标题为准。
 
@@ -430,9 +372,7 @@ function renameSession(
 ): Promise<void>;
 ```
 
-<h4 id="parameters-8">
-  参数
-</h4>
+#### 参数
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
@@ -440,9 +380,7 @@ function renameSession(
 | `title` | `string` | 必需 | 新标题。修剪空格后必须非空 |
 | `options.dir` | `string` | `undefined` | 项目目录路径。省略时，搜索所有项目目录 |
 
-<h3 id="tagsession">
-  `tagSession()`
-</h3>
+### `tagSession()`
 
 标记会话。传递 `null` 以清除标签。重复调用是安全的；以最新的标签为准。
 
@@ -454,9 +392,7 @@ function tagSession(
 ): Promise<void>;
 ```
 
-<h4 id="parameters-9">
-  参数
-</h4>
+#### 参数
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
@@ -464,9 +400,7 @@ function tagSession(
 | `tag` | `string \| null` | 必需 | 标签字符串，或 `null` 以清除 |
 | `options.dir` | `string` | `undefined` | 项目目录路径。省略时，搜索所有项目目录 |
 
-<h3 id="forksession">
-  `forkSession()`
-</h3>
+### `forkSession()`
 
 将会话的会话记录复制到新会话中，以便您可以将对话引向另一个方向，同时保持原始会话不变。要从对话中较早的某个点分支，请传递 `upToMessageId`。
 
@@ -477,9 +411,7 @@ function forkSession(
 ): Promise<ForkSessionResult>;
 ```
 
-<h4 id="parameters-10">
-  参数
-</h4>
+#### 参数
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
@@ -496,15 +428,13 @@ function forkSession(
 * 找不到会话，或会话没有消息
 * `upToMessageId` 与会话记录中的任何消息都不匹配
 
-<h3 id="resolvesettings">
-  `resolveSettings()`
-</h3>
+### `resolveSettings()`
 
 使用与 CLI 相同的合并引擎为给定目录解析有效的 Claude Code 设置，无需生成 Claude CLI。在调用 `query()` 之前使用它来检查 `query()` 调用将看到的配置。
 
-<Note>
-  此函数处于 alpha 阶段，其 API 在稳定之前可能会更改。
-</Note>
+> [!NOTE]
+>
+> 此函数处于 alpha 阶段，其 API 在稳定之前可能会更改。
 
 快照与实时 `query()` 会话应用的内容不同：
 
@@ -518,9 +448,7 @@ function resolveSettings(
 ): Promise<ResolvedSettings>;
 ```
 
-<h4 id="parameters-11">
-  参数
-</h4>
+#### 参数
 
 `resolveSettings()` 接受单个选项对象。所有字段都是可选的。
 
@@ -531,9 +459,7 @@ function resolveSettings(
 | `options.managedSettings` | `Settings` | `undefined` | 由嵌入主机提供的策略层设置。遵循与 [`managedSettings` in `Options`](#options) 相同的规则，除了 `resolveSettings()` 不执行配置的 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper)，因此快照可以包括实时会话删除的设置 |
 | `options.serverManagedSettings` | `Settings` | `undefined` | 来自 `/api/claude_code/settings` 的服务器管理设置负载。非限制性键不经过滤地通过 |
 
-<h4 id="return-type-resolvedsettings">
-  返回类型：`ResolvedSettings`
-</h4>
+#### 返回类型：`ResolvedSettings`
 
 `resolveSettings()` 返回一个对象，描述合并的设置和为每个键提供值的源。
 
@@ -543,9 +469,7 @@ function resolveSettings(
 | `provenance` | `Partial<Record<keyof Settings, ProvenanceEntry>>` | 对于 `effective` 中的每个顶级键，哪个源提供了该值 |
 | `sources` | `Array<{ source, settings, path?, policyOrigin? }>` | 每个源的原始设置，按从最低到最高优先级排序 |
 
-<h4 id="example-5">
-  示例
-</h4>
+#### 示例
 
 下面的示例为项目目录解析设置并打印控制清理周期的源。在没有设置文件设置 `cleanupPeriodDays` 的机器上，两条打印的行都显示 `undefined` 作为值，这是预期的输出而不是错误。
 
@@ -561,13 +485,9 @@ console.log(`Cleanup period: ${effective.cleanupPeriodDays} days`);
 console.log(`Set by: ${provenance.cleanupPeriodDays?.source}`);
 ```
 
-<h2 id="types">
-  类型
-</h2>
+## 类型
 
-<h3 id="options">
-  `Options`
-</h3>
+### `Options`
 
 `query()` 函数的配置对象。
 
@@ -640,9 +560,7 @@ console.log(`Set by: ${provenance.cleanupPeriodDays?.source}`);
 | `tools` | `string[] \| { type: 'preset'; preset: 'claude_code' }` | `undefined` | 工具配置。传递工具名称数组，或使用预设以获取 Claude Code 的默认工具 |
 | `verbatimPrompts` | `boolean` | `false` | 按原样传递每条提示词。SDK 会以 `client_composed: true` 发送每条用户消息。有关 Claude Code 对这些消息跳过的处理，请参阅 [`client_composed`](#sdkusermessage)。当您的提示词文本包含并非最终用户输入的内容时，请使用此选项。如需按轮次控制，请保持其关闭，并改为在单条流式消息上设置 `client_composed`。需要 TypeScript Agent SDK v0.3.280 或更高版本以及 Claude Code v2.1.248 或更高版本；这些 SDK 版本捆绑的 Claude Code 版本满足 Claude Code 的版本要求 |
 
-<h4 id="handle-slow-or-stalled-api-responses">
-  处理缓慢或停滞的 API 响应
-</h4>
+#### 处理缓慢或停滞的 API 响应
 
 CLI 子进程会读取若干控制 API 超时和停滞检测的环境变量。请通过 `env` 选项传递它们：
 
@@ -673,9 +591,7 @@ const result = query({
 
   当看门狗等待一个由 `ANTHROPIC_BASE_URL` 背后的网关通过 keep-alive ping 保持打开的响应时，设置了 `includePartialMessages` 的宿主会持续收到 `ping` [流事件](#sdkpartialassistantmessage)，因此请将这些帧视为存活信号，而不是因为静默而使会话超时。在 v2.1.257 之前，这些帧会在最后一个真实流事件 5 分钟后停止。
 
-<h3 id="query-object">
-  `Query` 对象
-</h3>
+### `Query` 对象
 
 `query()` 函数返回的接口。
 
@@ -727,9 +643,7 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 }
 ```
 
-<h4 id="methods">
-  方法
-</h4>
+#### 方法
 
 | 方法 | 描述 |
 | :- | :- |
@@ -760,9 +674,7 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 | `stopTask(taskId)` | 按 ID 停止正在运行的后台任务 |
 | `close()` | 关闭查询并终止底层进程。强制结束查询并清理所有资源 |
 
-<h4 id="applyflagsettings">
-  `applyFlagSettings()`
-</h4>
+#### `applyFlagSettings()`
 
 在不重启查询的情况下更改正在运行的会话的[设置](/docs/zh-CN/settings)。当某个没有专用设置方法的设置需要在会话中途更改时使用它，例如在 Agent 读取不受信任的输入后收紧 `permissions`。`setModel()` 和 `setPermissionMode()` 是针对这两个键的专用设置方法；`applyFlagSettings()` 是通用形式，接受设置键的任意子集，在此处传递 `model` 的行为与 `setModel()` 相同。
 
@@ -802,13 +714,11 @@ await q.applyFlagSettings({ model: "claude-opus-4-6" });
 await q.applyFlagSettings({ model: null });
 ```
 
-<Note>
-  `applyFlagSettings()` 仅适用于 TypeScript。Python SDK 未提供等效方法。
-</Note>
+> [!NOTE]
+>
+> `applyFlagSettings()` 仅适用于 TypeScript。Python SDK 未提供等效方法。
 
-<h4 id="updatesettings">
-  `updateSettings()`
-</h4>
+#### `updateSettings()`
 
 将一个允许列表中的键写入磁盘上的设置文件，使该值在之后加载该来源的会话中保持有效。每个来源接受一个键，值为字符串：
 
@@ -817,18 +727,14 @@ await q.applyFlagSettings({ model: null });
 
 当请求携带任何其他键、会话通过远程传输运行，或会话的 [`settingSources`](#options) 排除了您指定的来源时，调用会被拒绝。不支持删除键。
 
-<h4 id="togglemcpserver">
-  `toggleMcpServer()`
-</h4>
+#### `toggleMcpServer()`
 
 禁用服务器会断开其连接并从会话中移除其工具。对于您在会话中途添加的服务器和进程内服务器，这取决于您的 Claude Code 版本：
 
 * 您在会话中途通过 `setMcpServers()` 添加的 stdio、SSE 或 HTTP 服务器：移除其工具需要 Claude Code v2.1.285 或更高版本。
 * 您通过 [`createSdkMcpServer()`](#createsdkmcpserver) 创建的进程内服务器，无论是通过 `mcpServers` 还是 `setMcpServers()` 传递：断开其连接并移除其工具需要 Claude Code v2.1.286 或更高版本。禁用此类服务器还会使其仍在运行的工具调用失败，因此 Claude 会立即收到每个调用的错误结果，而无需等待您的处理程序返回。
 
-<h3 id="warmquery">
-  `WarmQuery`
-</h3>
+### `WarmQuery`
 
 由 [`startup()`](#startup) 返回的句柄。子进程已经生成并完成初始化，因此在此句柄上调用 `query()` 会将提示词直接写入已就绪的进程，没有启动延迟。
 
@@ -839,9 +745,7 @@ interface WarmQuery extends AsyncDisposable {
 }
 ```
 
-<h4 id="methods-2">
-  方法
-</h4>
+#### 方法
 
 | 方法 | 描述 |
 | :- | :- |
@@ -850,9 +754,7 @@ interface WarmQuery extends AsyncDisposable {
 
 `WarmQuery` 实现了 `AsyncDisposable`，因此可以与 `await using` 一起使用以实现自动清理。
 
-<h3 id="spareprocess">
-  `SpareProcess`
-</h3>
+### `SpareProcess`
 
 *Alpha。* 由 [`prewarm()`](#prewarm) 返回的句柄：一个已启动但尚未绑定到会话的 Claude Code 进程，可以被认领一次。需要 TypeScript Agent SDK v0.3.282 或更高版本。
 
@@ -868,9 +770,7 @@ interface SpareProcess extends AsyncDisposable {
 }
 ```
 
-<h4 id="members">
-  成员
-</h4>
+#### 成员
 
 | 成员 | 描述 |
 | :- | :- |
@@ -883,9 +783,7 @@ interface SpareProcess extends AsyncDisposable {
 
 Claude Code 可能会拒绝认领，例如针对不存在的文件夹，或其项目设置设置了 `env`、`agent` 或 `model` 的文件夹。被拒绝后，`claim()` 已发送的提示词会收到一个文本以 `not_claimed` 开头的错误结果，随后返回的查询会抛出异常。请将查询的循环包裹在 try 块中，以便在抛出异常后继续。当 `claimed` 以 `option_not_applied` 开头的消息拒绝时，表示会话在未使用您所请求的 `model` 或 `maxThinkingTokens` 的情况下运行。在任何其他拒绝之后，您的提示词都尚未运行，因此请改用 `query()` 启动会话。
 
-<h3 id="sdkcontrolinitializeresponse">
-  `SDKControlInitializeResponse`
-</h3>
+### `SDKControlInitializeResponse`
 
 `initializationResult()` 的返回类型。包含会话初始化数据。
 
@@ -936,9 +834,7 @@ type SDKControlInitializeResponse = {
 
 该数组在成功的 `initialize` 响应中始终存在，当此进程没有未解决的权限请求时为空。需要 Claude Code v2.1.268 或更高版本。更早的版本可能会省略该字段，因此如果您自行解析线路协议，请将缺失该字段视为较旧的 CLI，而不是视为没有待处理请求的证据。
 
-<h3 id="sdkcontrolinterruptresponse">
-  `SDKControlInterruptResponse`
-</h3>
+### `SDKControlInterruptResponse`
 
 中断回执：在 [`SDKSystemMessage.capabilities`](#sdksystemmessage) 中声明了 `interrupt_receipt_v1` 能力的 CLI 上，[`interrupt()`](#query-object) 完成时返回的值。需要 Claude Code v2.1.205 或更高版本。更早的 CLI 会以空的成功负载响应中断，因此 `interrupt()` 会以 `undefined` 完成。
 
@@ -965,9 +861,7 @@ type SDKControlInterruptResponse = {
 
 回执是在处理中断时拍摄的快照，在干净的中断中，它会在被中断轮次的 [`SDKResultMessage`](#sdkresultmessage) 之前到达。请读取回执，而不是在该结果之后检查队列：循环会立即开始下一个排队的轮次，因此您在结果之后检查的队列已经发生了变化。
 
-<h3 id="sdkcontrolgetcontextusageresponse">
-  `SDKControlGetContextUsageResponse`
-</h3>
+### `SDKControlGetContextUsageResponse`
 
 [`getContextUsage()`](#query-object) 的返回类型。使用默认的 `detail` 时，这与 Claude Code 在交互式会话中为 `/context` 命令渲染的负载相同，因此除 token 计数外，它还携带 `color` 和 `gridRows` 等显示字段，Claude Code 使用这些字段绘制 `/context` 用量网格。
 
@@ -1084,9 +978,7 @@ type SDKControlGetContextUsageResponse = {
 
 Claude Code 不会设置可选的 `deferredBuiltinTools`、`systemTools` 和 `systemPromptSections` 诊断字段，因此即使类型中声明了它们，也应预期它们不存在。
 
-<h3 id="sdkcontrolreadfileresponse">
-  `SDKControlReadFileResponse`
-</h3>
+### `SDKControlReadFileResponse`
 
 [`readFile()`](#query-object) 的返回类型。
 
@@ -1101,9 +993,7 @@ type SDKControlReadFileResponse = {
 
 `contents` 保存文件文本；当您请求 `encoding: 'base64'` 时则保存 base64 数据，此时响应的 `encoding` 字段会被设置为 `'base64'`。`absPath` 是解析后的绝对路径。当文件长度超过 `maxBytes` 上限且内容在该限制处被截断时，会设置 `truncated`。
 
-<h4 id="what-readfile-can-read">
-  `readFile()` 可以读取的内容
-</h4>
+#### `readFile()` 可以读取的内容
 
 `readFile()` 提供的文件范围比 Read 工具更窄：
 
@@ -1112,9 +1002,7 @@ type SDKControlReadFileResponse = {
 
 `Read` 的拒绝和询问规则仍会阻止匹配的路径，而宽泛的 `Read` 允许规则不会向 `readFile()` 开放文件系统的其余部分。对于其他任何内容，调用都会以 `null` 完成。
 
-<h3 id="sdkcontrolreloadpluginsresponse">
-  `SDKControlReloadPluginsResponse`
-</h3>
+### `SDKControlReloadPluginsResponse`
 
 [`reloadPlugins()`](#query-object) 的返回类型。
 
@@ -1155,9 +1043,7 @@ type SDKControlReloadPluginsResponse = {
 
 `cache_impact` 仅与 `held: true` 一同出现。`mcp_servers_added` 和 `mcp_servers_removed` 以限定的 `plugin:<plugin>:<server>` 名称列出重新加载将注册或移除的插件 MCP 服务器。这些名称由插件作者编写，因此在显示之前请先验证。`lsp_tool_change` 说明应用后是否会添加或移除 LSP 工具，如果两者都不会发生则为 `null`。`may-` 形式表示检查无法完全看到待处理的插件集合。
 
-<h3 id="sdkcontrolreloadskillsresponse">
-  `SDKControlReloadSkillsResponse`
-</h3>
+### `SDKControlReloadSkillsResponse`
 
 [`reloadSkills()`](#query-object) 的返回类型。
 
@@ -1169,9 +1055,7 @@ type SDKControlReloadSkillsResponse = {
 
 `skills` 以与 `supportedCommands()` 返回的相同 [`SlashCommand`](#slashcommand) 结构列出重新加载后可用的 skill。
 
-<h3 id="sdkcontrolreloadoutputstylesresponse">
-  `SDKControlReloadOutputStylesResponse`
-</h3>
+### `SDKControlReloadOutputStylesResponse`
 
 [`reloadOutputStyles()`](#query-object) 的返回类型。
 
@@ -1183,9 +1067,7 @@ type SDKControlReloadOutputStylesResponse = {
 
 `available_output_styles` 列出重新加载后可用的内置和自定义输出样式的名称。
 
-<h3 id="sdkcontrolmcpreadresourceresponse">
-  `SDKControlMcpReadResourceResponse`
-</h3>
+### `SDKControlMcpReadResourceResponse`
 
 [`readMcpResource()`](#query-object) 的返回类型，携带 MCP 服务器的 `resources/read` 结果。需要 TypeScript Agent SDK v0.3.280 或更高版本。
 
@@ -1207,9 +1089,7 @@ type SDKControlMcpReadResourceResponse = {
 
 这些内容是不受信任的第三方 HTML，因此请在沙箱中渲染它们。
 
-<h3 id="agentdefinition">
-  `AgentDefinition`
-</h3>
+### `AgentDefinition`
 
 以编程方式定义的子代理的配置。
 
@@ -1253,9 +1133,7 @@ type AgentDefinition = {
 | `permissionMode` | 否 | 此 Agent 内工具执行的权限模式。[子代理继承规则](/docs/zh-CN/agent-sdk/permissions#available-modes)决定其何时生效。请参阅 [`PermissionMode`](#permissionmode) |
 | `criticalSystemReminder_EXPERIMENTAL` | 否 | 实验性：添加到系统提示词中的关键提醒 |
 
-<h3 id="agentmcpserverspec">
-  `AgentMcpServerSpec`
-</h3>
+### `AgentMcpServerSpec`
 
 指定子代理可用的 MCP 服务器。可以是服务器名称（引用父级 `mcpServers` 配置中某个服务器的字符串），也可以是将服务器名称映射到配置的内联服务器配置记录。
 
@@ -1265,9 +1143,7 @@ type AgentMcpServerSpec = string | Record<string, McpServerConfigForProcessTrans
 
 其中 `McpServerConfigForProcessTransport` 为 `McpStdioServerConfig | McpSSEServerConfig | McpHttpServerConfig | McpSdkServerConfig`。
 
-<h3 id="settingsource">
-  `SettingSource`
-</h3>
+### `SettingSource`
 
 控制 SDK 从哪些基于文件系统的配置来源加载设置。
 
@@ -1281,15 +1157,11 @@ type SettingSource = "user" | "project" | "local";
 | `'project'` | 共享项目设置（纳入版本控制） | `.claude/settings.json` |
 | `'local'` | 本地项目设置，当 Claude Code 向其中保存设置时会被加入 gitignore | `.claude/settings.local.json` |
 
-<h4 id="default-behavior">
-  默认行为
-</h4>
+#### 默认行为
 
 当省略 `settingSources` 或其为 `undefined` 时，`query()` 会加载与 Claude Code CLI 相同的文件系统设置：用户、项目和本地设置。有关无论此选项如何都会读取的输入以及如何禁用它们，请参阅 [settingSources 不控制的内容](/docs/zh-CN/agent-sdk/claude-code-features#what-settingsources-does-not-control)。
 
-<h4 id="why-use-settingsources">
-  为什么使用 settingSources
-</h4>
+#### 为什么使用 settingSources
 
 **禁用文件系统设置：**
 
@@ -1319,9 +1191,7 @@ const result = query({
 
 要加载 CLAUDE.md 项目指令，请在 `settingSources` 中包含 `"project"`。有关 CLAUDE.md 加载如何与系统提示词选项交互，请参阅[修改系统提示词](/docs/zh-CN/agent-sdk/modifying-system-prompts#claude-md-files-for-project-level-instructions)。
 
-<h4 id="settings-precedence">
-  设置优先级
-</h4>
+#### 设置优先级
 
 当加载多个来源时，设置按以下优先级合并（从高到低）：
 
@@ -1331,9 +1201,7 @@ const result = query({
 
 `agents`、`allowedTools` 和 `settings` 等编程选项会覆盖用户、项目和本地文件系统设置。托管策略设置优先于编程选项。
 
-<h3 id="permissionmode">
-  `PermissionMode`
-</h3>
+### `PermissionMode`
 
 ```typescript theme={null}
 type PermissionMode =
@@ -1345,9 +1213,7 @@ type PermissionMode =
   | "auto"; // A model classifier reviews actions such as shell commands and network requests
 ```
 
-<h3 id="canusetool">
-  `CanUseTool`
-</h3>
+### `CanUseTool`
 
 用于控制工具使用的自定义权限函数类型。
 
@@ -1391,9 +1257,7 @@ type CanUseTool = (
 
 `requestId` 选项和 `null` 返回值需要 Claude Code v2.1.199 或更高版本。
 
-<h3 id="permissionresult">
-  `PermissionResult`
-</h3>
+### `PermissionResult`
 
 权限检查的结果。
 
@@ -1413,9 +1277,7 @@ type PermissionResult =
     };
 ```
 
-<h3 id="toolconfig">
-  `ToolConfig`
-</h3>
+### `ToolConfig`
 
 内置工具行为的配置。
 
@@ -1431,9 +1293,7 @@ type ToolConfig = {
 | :- | :- | :- |
 | `askUserQuestion.previewFormat` | `'markdown' \| 'html'` | 启用 [`AskUserQuestion`](/docs/zh-CN/agent-sdk/user-input#question-format) 选项上的 `preview` 字段并设置其内容格式。未设置时，Claude 不会生成预览 |
 
-<h3 id="mcpserverconfig">
-  `McpServerConfig`
-</h3>
+### `McpServerConfig`
 
 MCP 服务器的配置。
 
@@ -1445,9 +1305,7 @@ type McpServerConfig =
   | McpSdkServerConfigWithInstance;
 ```
 
-<h4 id="mcpstdioserverconfig">
-  `McpStdioServerConfig`
-</h4>
+#### `McpStdioServerConfig`
 
 ```typescript theme={null}
 type McpStdioServerConfig = {
@@ -1458,9 +1316,7 @@ type McpStdioServerConfig = {
 };
 ```
 
-<h4 id="mcpsseserverconfig">
-  `McpSSEServerConfig`
-</h4>
+#### `McpSSEServerConfig`
 
 ```typescript theme={null}
 type McpSSEServerConfig = {
@@ -1470,9 +1326,7 @@ type McpSSEServerConfig = {
 };
 ```
 
-<h4 id="mcphttpserverconfig">
-  `McpHttpServerConfig`
-</h4>
+#### `McpHttpServerConfig`
 
 ```typescript theme={null}
 type McpHttpServerConfig = {
@@ -1482,9 +1336,7 @@ type McpHttpServerConfig = {
 };
 ```
 
-<h4 id="mcpsdkserverconfigwithinstance">
-  `McpSdkServerConfigWithInstance`
-</h4>
+#### `McpSdkServerConfigWithInstance`
 
 ```typescript theme={null}
 type McpSdkServerConfigWithInstance = {
@@ -1495,9 +1347,7 @@ type McpSdkServerConfigWithInstance = {
 };
 ```
 
-<h4 id="mcpclaudeaiproxyserverconfig">
-  `McpClaudeAIProxyServerConfig`
-</h4>
+#### `McpClaudeAIProxyServerConfig`
 
 ```typescript theme={null}
 type McpClaudeAIProxyServerConfig = {
@@ -1507,9 +1357,7 @@ type McpClaudeAIProxyServerConfig = {
 };
 ```
 
-<h3 id="sdkpluginconfig">
-  `SdkPluginConfig`
-</h3>
+### `SdkPluginConfig`
 
 在 SDK 中加载插件的配置。
 
@@ -1538,13 +1386,9 @@ plugins: [
 
 有关创建和使用插件的完整信息，请参阅[插件](/docs/zh-CN/agent-sdk/plugins)。
 
-<h2 id="message-types">
-  消息类型
-</h2>
+## 消息类型
 
-<h3 id="sdkmessage">
-  `SDKMessage`
-</h3>
+### `SDKMessage`
 
 查询返回的所有可能消息的联合类型。
 
@@ -1588,9 +1432,7 @@ type SDKMessage =
   | SDKConversationResetMessage;
 ```
 
-<h3 id="sdkassistantmessage">
-  `SDKAssistantMessage`
-</h3>
+### `SDKAssistantMessage`
 
 助手响应消息。
 
@@ -1642,9 +1484,7 @@ Claude Code 会在满足 [`user_message_uuid`](#user_message_uuid) 中所述条�
 
 以 `CLAUDE_CODE_OAUTH_TOKEN` 传入的 `claude setup-token` 令牌默认不符合条件，因为它只携带 `user:inference` 作用域。其他会话（例如使用 API 密钥的会话）交付的文本不带该字段，较早的版本也是如此。当该字段存在时请从中读取报告，不存在时再回退到文本。
 
-<h3 id="sdkusermessage">
-  `SDKUserMessage`
-</h3>
+### `SDKUserMessage`
 
 用户输入消息。
 
@@ -1710,9 +1550,7 @@ const message: SDKUserMessage = {
   * 来自[进程内 SDK 服务器](/docs/zh-CN/agent-sdk/custom-tools)的工具不受此限制，会完整交付该对象。
   * 在 `tools/list` 条目中声明了 [MCP Apps `ui://` 资源](#mcpserverstatus)的工具，在 Claude Code v2.1.295 或更高版本上的上限为 8,388,608 个字符，而 v2.1.295 之前的版本对其不设限制。
 
-<h3 id="sdkusermessagereplay">
-  `SDKUserMessageReplay`
-</h3>
+### `SDKUserMessageReplay`
 
 带有必需 UUID 的重放用户消息。
 
@@ -1733,9 +1571,7 @@ type SDKUserMessageReplay = {
 
 从会话外部注入的用户轮，其 [`origin`](#sdkmessageorigin) 类型为 `peer` 或 `channel`，无论是在活跃轮期间传递还是在会话空闲时启动新轮，都作为重放到达流。在 v2.1.207 之前，在会话空闲时传递的注入轮在流上不产生消息，仅在您重新读取会话记录时出现。
 
-<h3 id="sdkresultmessage">
-  `SDKResultMessage`
-</h3>
+### `SDKResultMessage`
 
 最终结果消息。
 
@@ -1867,9 +1703,7 @@ type SDKResultMessage =
 
 当 `PreToolUse` hook 返回 `permissionDecision: "defer"` 时，结果具有 `stop_reason: "tool_deferred"` 和 `deferred_tool_use` 携带待处理工具的 `id`、`name` 和 `input`。读取此字段以在您自己的 UI 中显示请求，然后使用相同的 `session_id` 恢复以继续。请参阅[延迟工具调用以供稍后使用](/docs/zh-CN/hooks#defer-a-tool-call-for-later)了解完整往返。
 
-<h4 id="user_message_uuid">
-  `user_message_uuid`
-</h4>
+#### `user_message_uuid`
 
 轮回答的 [`SDKUserMessage`](#sdkusermessage) 的 `uuid`，回显以便您可以将 Claude Code 的回复与您发送的消息匹配。Claude Code 仅在您在消息上设置 uuid 时回显 `uuid`。该字段在 `SDKUserMessage` 上是可选的，传递给 `query()` 的字符串提示词不携带任何。
 
@@ -1893,9 +1727,7 @@ Claude Code 在这些情况下省略该字段：
 * 不回答您任何消息的轮，或回答您发送的没有 `uuid` 的消息的轮
 * 不回答您发送的任何消息的结果，例如崩溃的工作进程后的零化结果
 
-<h4 id="user_message_uuids">
-  `user_message_uuids`
-</h4>
+#### `user_message_uuids`
 
 Claude Code 在该轮中回答的您发送的每条消息的 `uuid`。当您一起发送多条消息时，Claude Code 可以将它们合并为一轮，`user_message_uuid` 然后仅命名其中的最后一个。要将回复与任何合并的消息匹配，在此列表中的任何位置查找该消息的 `uuid`。需要 Agent SDK v0.3.259 或更高版本。
 
@@ -1905,9 +1737,7 @@ Claude Code 在携带 `user_message_uuid` 的每个回复帧和结果上，与�
 
 当第一个回复或结果携带 `user_message_uuid` 而没有列表时，它来自早期的 Claude Code 版本，因此回退到单个字段。
 
-<h4 id="resume_reason">
-  `resume_reason`
-</h4>
+#### `resume_reason`
 
 本轮次为何是继续一个被重启中断的轮次。Claude Code 会在 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars) 下继续被中断轮次的轮次上设置此字段，以便您将继续轮次的回复和结果与被中断尝试的回复和结果区分开来。需要 Agent SDK v0.3.268 或更高版本。
 
@@ -1918,9 +1748,7 @@ Claude Code 在两种帧上设置该字段：
 
 其值是一个简短的小写标记，例如 `interrupted_turn`。
 
-<h4 id="queued_turn_count">
-  `queued_turn_count`
-</h4>
+#### `queued_turn_count`
 
 您发送的带有 [`origin: { kind: "human" }`](#sdkmessageorigin) 的消息数，在 Claude Code 产生结果时仍在命令队列中等待。需要 Agent SDK v0.3.242 或更高版本。
 
@@ -1929,9 +1757,7 @@ Claude Code 在两种帧上设置该字段：
 * **`0`**：Claude Code 不计算您发送的没有该 `origin` 的消息，也不计算任务通知，因此轮仍然可以跟随。
 * **缺失**：Claude Code 在崩溃或致命启动错误后发出的最终结果省略该字段，并[可能携带零化总计](/docs/zh-CN/agent-sdk/cost-tracking#recover-totals-after-a-session-crash)。
 
-<h4 id="startup_failure_reason">
-  `startup_failure_reason`
-</h4>
+#### `startup_failure_reason`
 
 Claude Code 拒绝启动的原因，以便您的应用程序可以提供修复而不是重试。Claude Code 在它在已知启动失败时退出前写入的 `error_during_execution` 结果上设置它。该结果携带零化总计，其 `errors` 数组携带与 stderr 相同的文本。该字段在所有其他结果上不存在。需要 Agent SDK v0.3.274 或更高版本。
 
@@ -1987,9 +1813,7 @@ type SDKStartupFailureReason =
 | `org_config_required_unavailable` | 会话在启动前需要组织的策略和托管设置，但无法加载它们，例如由于网络故障或 Anthropic 服务器错误。需要 Agent SDK v0.3.293 或更高版本 |
 | `org_config_refused` | Anthropic 拒绝为此次登录提供组织的策略和托管设置，例如因为登录已过期或被吊销，或组织不允许此账户使用 Claude Code。需要 Agent SDK v0.3.293 或更高版本 |
 
-<h3 id="sdksystemmessage">
-  `SDKSystemMessage`
-</h3>
+### `SDKSystemMessage`
 
 系统初始化消息。
 
@@ -2059,9 +1883,7 @@ type SDKSystemMessage = {
 | `message` | `string` | 描述失败的显示文本 |
 | `path` | `string` | 仅当插件目录或存档本身无法加载时存在。其绝对路径，相对路径从您的 `plugins` 选项针对 [`cwd`](#options) 选项解析 |
 
-<h3 id="sdkpartialassistantmessage">
-  `SDKPartialAssistantMessage`
-</h3>
+### `SDKPartialAssistantMessage`
 
 流式部分消息（仅当 `includePartialMessages` 为 true 时）。
 
@@ -2083,9 +1905,7 @@ type SDKPartialAssistantMessage = {
 
 Claude Code 会在满足 [`user_message_uuid`](#user_message_uuid) 中所述条件时，在该轮次的第一个非 ping 流事件上设置 `user_message_uuid` 和 `user_message_uuids`，并在轮次所回答的消息发生变化时再次设置。当该轮次是继续一个被重启中断的轮次时，携带这些字段的流事件还会携带 [`resume_reason`](#resume_reason)。
 
-<h3 id="sdkcompactboundarymessage">
-  `SDKCompactBoundaryMessage`
-</h3>
+### `SDKCompactBoundaryMessage`
 
 指示对话压缩边界的消息。
 
@@ -2102,9 +1922,7 @@ type SDKCompactBoundaryMessage = {
 };
 ```
 
-<h3 id="sdkinformationalmessage">
-  `SDKInformationalMessage`
-</h3>
+### `SDKInformationalMessage`
 
 循环发出的通用文本横幅。携带 Claude Code 引发的警告、通知和其他非错误状态行，以及 hook 反馈，例如 `UserPromptSubmit` hook 的阻止原因。
 
@@ -2125,9 +1943,7 @@ type SDKInformationalMessage = {
 };
 ```
 
-<h3 id="sdkworkershuttingdownmessage">
-  `SDKWorkerShuttingDownMessage`
-</h3>
+### `SDKWorkerShuttingDownMessage`
 
 在优雅的工作进程拆卸上发出，以便远程客户端可以显示工作进程退出的原因，而不是等待心跳超时。`reason` 是由主机 CLI 设置的短 snake\_case 字符串，例如 `"host_exit"` 或 `"remote_control_disabled"`。仅在实时流式传输时对此采取行动。恢复的会话重放此消息的过去实例，因此在这种情况下忽略它们。
 
@@ -2141,9 +1957,7 @@ type SDKWorkerShuttingDownMessage = {
 };
 ```
 
-<h3 id="sdkplugininstallmessage">
-  `SDKPluginInstallMessage`
-</h3>
+### `SDKPluginInstallMessage`
 
 插件安装进度事件。在设置 [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](/docs/zh-CN/env-vars) 时发出，以便您的 Agent SDK 应用程序可以在第一轮之前跟踪市场插件安装。`started` 和 `completed` 状态括住整体安装。`installed` 和 `failed` 状态报告单个市场并包含 `name`。
 
@@ -2159,9 +1973,7 @@ type SDKPluginInstallMessage = {
 };
 ```
 
-<h3 id="sdkpermissiondeniedmessage">
-  `SDKPermissionDeniedMessage`
-</h3>
+### `SDKPermissionDeniedMessage`
 
 当权限系统在没有交互式提示的情况下拒绝工具调用时发出的流事件。使用它在您的 UI 中实时呈现拒绝，而不是仅观察随后的 `is_error` 工具结果。它报告的拒绝取决于运行如何处理权限提示：
 
@@ -2196,9 +2008,7 @@ type SDKPermissionDeniedMessage = {
 | `decision_reason` | `string` | 来自决定组件的人类可读原因，当可用时 |
 | `message` | `string` | 在 `tool_result` 中返回给模型的拒绝消息 |
 
-<h3 id="sdkpermissiondenial">
-  `SDKPermissionDenial`
-</h3>
+### `SDKPermissionDenial`
 
 关于被拒绝的工具使用的信息。
 
@@ -2210,9 +2020,7 @@ type SDKPermissionDenial = {
 };
 ```
 
-<h3 id="sdkcontextusage">
-  `SDKContextUsage`
-</h3>
+### `SDKContextUsage`
 
 `/context` 报告的结构化形式，作为 `context_usage` 在传递 `/context` 结果的 [`SDKAssistantMessage`](#sdkassistantmessage) 上携带。Agent SDK v0.3.232 及更高版本导出该类型。与 [`SDKControlGetContextUsageResponse`](#sdkcontrolgetcontextusageresponse) 不同，它仅携带呈现使用情况分解所需的数据，不包含 `color` 和 `gridRows` 等显示字段。Claude Code 使用不出现在消息流中的 token 计数 API 请求计算报告；请参阅[这些请求如何处理](#sdkcontrolgetcontextusageresponse)。
 
@@ -2273,9 +2081,7 @@ type SDKContextUsage = {
 
 Claude Code 以加法方式演进该类型，添加新数据作为可选字段而不是重塑现有字段。读取您知道的字段并忽略您不认识的任何字段。
 
-<h3 id="sdkcontextusagecategory">
-  `SDKContextUsageCategory`
-</h3>
+### `SDKContextUsageCategory`
 
 `/context` 使用情况按类别分解的一行。
 
@@ -2302,9 +2108,7 @@ type SDKContextUsageCategory = {
 * `buffer`：压缩保留
 * `deferred`：Claude Code 保留在窗口外的工具 schema，从使用情况计算中排除，列出以供了解
 
-<h3 id="sdkusagereport">
-  `SDKUsageReport`
-</h3>
+### `SDKUsageReport`
 
 `/usage` 报告的结构化形式，作为 `usage_report` 携带在交付 `/usage` 结果的 [`SDKAssistantMessage`](#sdkassistantmessage) 上。Agent SDK v0.3.273 及更高版本导出此类型。此类型为实验性的：其结构可能会发生变化。
 
@@ -2375,9 +2179,7 @@ Claude Code 根据 token 数在本地计算 `session.total_cost_usd`，因此它
 * 当此账户没有自己的支出上限时，`monthly_limit` 为 `null`。在 Team 和 Enterprise 套餐上，不要将 `null` 渲染为无限制。
 * 当使用额度无法用于支付请求时，`is_enabled` 为 `false`。
 
-<h3 id="sdkmessageorigin">
-  `SDKMessageOrigin`
-</h3>
+### `SDKMessageOrigin`
 
 用户角色消息的来源。这在 [`SDKUserMessage`](#sdkusermessage) 上显示为 `origin`，并转发到相应的 [`SDKResultMessage`](#sdkresultmessage)，以便您可以告诉什么触发了给定的轮。
 
@@ -2416,9 +2218,7 @@ type SDKMessageOrigin =
 | `auto-continuation` | 当会话在没有新鲜用户输入的情况下继续时注入的合成轮，例如触发后续提示词的命令结果。 |
 | `unclassified` | 无法确定来源的注入轮。需要 Claude Code v2.1.223 或更高版本。当 Claude Code 接收带有 `isSynthetic: true` 的 [`SDKUserMessage`](#sdkusermessage) 并无法将其分类为任何其他 `kind` 时，它在消息到达时设置此类型，并将轮作为非用户来源呈现给模型，而不是将其视为人类输入。您的应用程序不应设置此值。 |
 
-<h3 id="task-notification-subkinds">
-  任务通知子类型
-</h3>
+### 任务通知子类型
 
 当 Claude Code 将任务通知传递到会话中时，如果 Anthropic 服务器验证了该通知的来源，它会在通知的 `origin` 上设置 `subkind`。当您的应用程序[自己声明消息为定时运行](#declare-a-scheduled-run)时，它也设置 `subkind`，这需要 TypeScript Agent SDK v0.3.280 或更高版本。`subkind` 需要 Claude Code v2.1.213 或更高版本，它采用两个值之一：
 
@@ -2431,17 +2231,13 @@ type SDKMessageOrigin =
 
 一个后台任务可以在同一个 `task_id` 下运行多次，例如当 Claude [恢复子代理](/docs/zh-CN/agent-sdk/subagents#resume-subagents)时。每次运行都有自己的 [`run_id`](#sdktaskstartedmessage)。当某次运行的通知作为用户消息到达您的会话时，该消息 `task-notification` origin 上的 `runId` 持有相同的值。通知可能在任务的下一次运行开始后才到达，但它仍然带有较早那次运行的 ID。要判断某个轮次属于哪次运行，请比较 `runId`，而不是 `task_id`。需要 TypeScript Agent SDK v0.3.292 或更高版本。
 
-<h4 id="declare-a-scheduled-run">
-  声明定时运行
-</h4>
+#### 声明定时运行
 
 如果您的应用程序按自己的计划运行提示词，声明每个运行，以便 Claude Code 将轮作为定时任务而不是来自用户的实时输入呈现给模型。使用 [`env`](#options) 中设置为 `1` 的 `CLAUDE_CODE_HOST_SCHEDULED_RUN` 启动会话，然后发送运行的 [`SDKUserMessage`](#sdkusermessage)，其中 `origin: { kind: "task-notification", subkind: "scheduled-trigger", fireReason: "scheduled" }` 且没有 `isSynthetic`。Claude Code 忽略在没有该变量启动的进程中的声明。它也在进程的环境携带 [`CLAUDECODE`](/docs/zh-CN/env-vars) 或 `CLAUDE_CODE_CHILD_SESSION` 时忽略它。Claude Code 仅在值为 1 到 32 个小写字母或下划线时保留 `fireReason`。需要 TypeScript Agent SDK v0.3.280 或更高版本。
 
-<h3 id="peer-origin-fields">
-  对等体来源字段
-</h3>
+### 对等体来源字段
 
-`peer` 来源标识哪个 Agent 发送了消息：进程内[队友](/docs/zh-CN/agent-teams)使用 `SendMessage` 发送到 `main`，或[跨会话对等体](/docs/zh-CN/cross-session-messaging)，您的另一个 Claude Code 会话。跨会话对等体在 macOS 和 Linux 上需要 Claude Code v2.1.224 或更高版本；请参阅[跨会话消息传递可用性](/docs/zh-CN/cross-session-messaging#availability)了解本机 Windows 要求。跨会话对等体可以在同一机器上运行，或在其消息通过 Remote Control 到达时，在[您的另一台机器](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)上或[云中](/docs/zh-CN/claude-code-on-the-web)运行。两种发送者类型填充字段的方式不同：
+`peer` 来源标识发送消息的 Agent：使用 `SendMessage` 向 `main` 发送消息的进程内[队友](/docs/zh-CN/agent-teams)，或[跨会话对等方](/docs/zh-CN/cross-session-messaging)（即您的另一个 Claude Code 会话）。在 macOS 和 Linux 上，跨会话对等方需要 Claude Code v2.1.224 或更高版本；有关原生 Windows 的要求，请参阅[跨会话消息的可用性](/docs/zh-CN/cross-session-messaging#availability)。跨会话对等方可以在同一台机器上运行，也可以在[您的另一台机器](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)上运行，此时其消息通过 [Remote Control](/docs/zh-CN/remote-control) 到达。
 
 * `from`：队友的名称，或跨会话对等体的发送者地址。对于[单向跨机器消息](/docs/zh-CN/cross-session-messaging#message-sessions-on-other-machines)，发送者没有回复地址，`from` 是 `"unknown"`。该值由发送者创作；`verifiedPeerPid` 是验证的身份。
 * `fromMode`：发送会话的权限类，`bypass` 或 `prompting`，由在您的会话之间中继对等消息的主机声明，例如[桌面应用](/docs/zh-CN/desktop#work-across-sessions)。Claude Code 在接收会话中应用[入站控制](/docs/zh-CN/cross-session-messaging#control-inbound-messages)时读取它。需要 Agent SDK v0.3.234 或更高版本。
@@ -2451,15 +2247,11 @@ type SDKMessageOrigin =
 * `fromSession`：发送者的主机可打开会话 ID，由发送者的主机设置，以便您的 UI 可以链接回发送会话。像 `from` 一样，它是发送者声称的：仅将其用作导航目标，不要将其视为发送者身份的证明。需要 Claude Code v2.1.216 或更高版本。
 * `verifiedPeerPid`：连接到此会话的跨会话消息传递套接字的进程的进程 ID，由内核验证并从连接本身读取，从不从负载读取。使用它，而不是 `from`，来标识发送者：`from` 可由任何同用户进程伪造。当 Claude Code 无法验证它时，该字段不存在，例如在 Windows 或非套接字入口上，因此缺失值意味着发送者未验证。对于中继流量，它标识中继而不是消息的作者，进程 ID 是可回收的，因此将其视为来源而不是身份验证令牌。需要 Claude Code v2.1.216 或更高版本。
 
-<h2 id="hook-types">
-  Hook 类型
-</h2>
+## Hook 类型
 
 有关使用 hook 的指南，包括示例和常见模式，请参阅 [Hooks 指南](/docs/zh-CN/agent-sdk/hooks)。
 
-<h3 id="hookevent">
-  `HookEvent`
-</h3>
+### `HookEvent`
 
 可用的 hook 事件。
 
@@ -2500,9 +2292,7 @@ type HookEvent =
   | "MessageDisplay";
 ```
 
-<h3 id="hookcallback">
-  `HookCallback`
-</h3>
+### `HookCallback`
 
 Hook 回调函数类型。
 
@@ -2514,9 +2304,7 @@ type HookCallback = (
 ) => Promise<HookJSONOutput>;
 ```
 
-<h3 id="hookcallbackmatcher">
-  `HookCallbackMatcher`
-</h3>
+### `HookCallbackMatcher`
 
 带有可选匹配器的 Hook 配置。
 
@@ -2528,9 +2316,7 @@ interface HookCallbackMatcher {
 }
 ```
 
-<h3 id="hookinput">
-  `HookInput`
-</h3>
+### `HookInput`
 
 所有 hook 输入类型的联合类型。
 
@@ -2571,9 +2357,7 @@ type HookInput =
   | MessageDisplayHookInput;
 ```
 
-<h3 id="basehookinput">
-  `BaseHookInput`
-</h3>
+### `BaseHookInput`
 
 所有 hook 输入类型扩展的基本接口。
 
@@ -2592,9 +2376,7 @@ type BaseHookInput = {
 
 `prompt_id` 字段是一个 UUID，用于标识当前正在处理的用户提示。它与 [OpenTelemetry 事件上的 `prompt.id` 属性](/docs/zh-CN/monitoring-usage#event-correlation-attributes)匹配，在第一个用户输入之前不存在。需要 Claude Code v2.1.196 或更高版本。
 
-<h4 id="pretoolusehookinput">
-  `PreToolUseHookInput`
-</h4>
+#### `PreToolUseHookInput`
 
 ```typescript theme={null}
 type PreToolUseHookInput = BaseHookInput & {
@@ -2608,9 +2390,7 @@ type PreToolUseHookInput = BaseHookInput & {
 
 当工具来自 MCP 服务器时，`mcp_server` 存在；请参阅 [`McpServerProvenance`](#mcpserverprovenance)。`PostToolUse`、`PostToolUseFailure`、`PermissionRequest` 和 `PermissionDenied` 输入携带相同的字段。该字段需要 Agent SDK v0.3.274 或更高版本。
 
-<h4 id="posttoolusehookinput">
-  `PostToolUseHookInput`
-</h4>
+#### `PostToolUseHookInput`
 
 ```typescript theme={null}
 type PostToolUseHookInput = BaseHookInput & {
@@ -2624,9 +2404,7 @@ type PostToolUseHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="posttoolusefailurehookinput">
-  `PostToolUseFailureHookInput`
-</h4>
+#### `PostToolUseFailureHookInput`
 
 ```typescript theme={null}
 type PostToolUseFailureHookInput = BaseHookInput & {
@@ -2641,9 +2419,7 @@ type PostToolUseFailureHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="posttoolbatchhookinput">
-  `PostToolBatchHookInput`
-</h4>
+#### `PostToolBatchHookInput`
 
 在批处理中的每个工具调用都已解决后触发一次，在下一个模型请求之前。`tool_response` 携带序列化的 `tool_result` 内容，模型会看到该内容；其形状与 `PostToolUseHookInput` 的结构化 `Output` 对象不同。
 
@@ -2661,9 +2437,7 @@ type PostToolBatchToolCall = {
 };
 ```
 
-<h4 id="permissiondeniedhookinput">
-  `PermissionDeniedHookInput`
-</h4>
+#### `PermissionDeniedHookInput`
 
 ```typescript theme={null}
 type PermissionDeniedHookInput = BaseHookInput & {
@@ -2676,9 +2450,7 @@ type PermissionDeniedHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="notificationhookinput">
-  `NotificationHookInput`
-</h4>
+#### `NotificationHookInput`
 
 ```typescript theme={null}
 type NotificationHookInput = BaseHookInput & {
@@ -2689,9 +2461,7 @@ type NotificationHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="userpromptsubmithookinput">
-  `UserPromptSubmitHookInput`
-</h4>
+#### `UserPromptSubmitHookInput`
 
 ```typescript theme={null}
 type UserPromptSubmitHookInput = BaseHookInput & {
@@ -2701,9 +2471,7 @@ type UserPromptSubmitHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="userpromptexpansionhookinput">
-  `UserPromptExpansionHookInput`
-</h4>
+#### `UserPromptExpansionHookInput`
 
 ```typescript theme={null}
 type UserPromptExpansionHookInput = BaseHookInput & {
@@ -2716,9 +2484,7 @@ type UserPromptExpansionHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="sessionstarthookinput">
-  `SessionStartHookInput`
-</h4>
+#### `SessionStartHookInput`
 
 ```typescript theme={null}
 type SessionStartHookInput = BaseHookInput & {
@@ -2730,9 +2496,7 @@ type SessionStartHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="sessionendhookinput">
-  `SessionEndHookInput`
-</h4>
+#### `SessionEndHookInput`
 
 ```typescript theme={null}
 type SessionEndHookInput = BaseHookInput & {
@@ -2741,9 +2505,7 @@ type SessionEndHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="stophookinput">
-  `StopHookInput`
-</h4>
+#### `StopHookInput`
 
 ```typescript theme={null}
 type StopHookInput = BaseHookInput & {
@@ -2755,9 +2517,7 @@ type StopHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="stopfailurehookinput">
-  `StopFailureHookInput`
-</h4>
+#### `StopFailureHookInput`
 
 ```typescript theme={null}
 type StopFailureHookInput = BaseHookInput & {
@@ -2768,9 +2528,7 @@ type StopFailureHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="subagentstarthookinput">
-  `SubagentStartHookInput`
-</h4>
+#### `SubagentStartHookInput`
 
 ```typescript theme={null}
 type SubagentStartHookInput = BaseHookInput & {
@@ -2780,9 +2538,7 @@ type SubagentStartHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="subagentstophookinput">
-  `SubagentStopHookInput`
-</h4>
+#### `SubagentStopHookInput`
 
 ```typescript theme={null}
 type SubagentStopHookInput = BaseHookInput & {
@@ -2816,9 +2572,7 @@ type SessionCronSummary = {
 };
 ```
 
-<h4 id="precompacthookinput">
-  `PreCompactHookInput`
-</h4>
+#### `PreCompactHookInput`
 
 ```typescript theme={null}
 type PreCompactHookInput = BaseHookInput & {
@@ -2828,9 +2582,7 @@ type PreCompactHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="postcompacthookinput">
-  `PostCompactHookInput`
-</h4>
+#### `PostCompactHookInput`
 
 ```typescript theme={null}
 type PostCompactHookInput = BaseHookInput & {
@@ -2840,9 +2592,7 @@ type PostCompactHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="premodelswitchhookinput">
-  `PreModelSwitchHookInput`
-</h4>
+#### `PreModelSwitchHookInput`
 
 在请求的模型切换生效之前触发。`context_tokens` 和之后的字段估计向新模型重新发送对话的成本。有关完整的字段描述和阻止语义，请参阅 [PreModelSwitch](/docs/zh-CN/hooks#premodelswitch)。
 
@@ -2861,9 +2611,7 @@ type PreModelSwitchHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="postmodelswitchhookinput">
-  `PostModelSwitchHookInput`
-</h4>
+#### `PostModelSwitchHookInput`
 
 在会话的模型更改后触发。它携带与 `PreModelSwitchHookInput` 相同的字段，另外还有两个 `source` 值。请参阅 [PostModelSwitch](/docs/zh-CN/hooks#postmodelswitch)。
 
@@ -2882,9 +2630,7 @@ type PostModelSwitchHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="permissionrequesthookinput">
-  `PermissionRequestHookInput`
-</h4>
+#### `PermissionRequestHookInput`
 
 ```typescript theme={null}
 type PermissionRequestHookInput = BaseHookInput & {
@@ -2896,9 +2642,7 @@ type PermissionRequestHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="setuphookinput">
-  `SetupHookInput`
-</h4>
+#### `SetupHookInput`
 
 ```typescript theme={null}
 type SetupHookInput = BaseHookInput & {
@@ -2907,9 +2651,7 @@ type SetupHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="teammateidlehookinput">
-  `TeammateIdleHookInput`
-</h4>
+#### `TeammateIdleHookInput`
 
 ```typescript theme={null}
 type TeammateIdleHookInput = BaseHookInput & {
@@ -2920,9 +2662,7 @@ type TeammateIdleHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="taskcreatedhookinput">
-  `TaskCreatedHookInput`
-</h4>
+#### `TaskCreatedHookInput`
 
 ```typescript theme={null}
 type TaskCreatedHookInput = BaseHookInput & {
@@ -2936,9 +2676,7 @@ type TaskCreatedHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="taskcompletedhookinput">
-  `TaskCompletedHookInput`
-</h4>
+#### `TaskCompletedHookInput`
 
 ```typescript theme={null}
 type TaskCompletedHookInput = BaseHookInput & {
@@ -2952,9 +2690,7 @@ type TaskCompletedHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="elicitationhookinput">
-  `ElicitationHookInput`
-</h4>
+#### `ElicitationHookInput`
 
 ```typescript theme={null}
 type ElicitationHookInput = BaseHookInput & {
@@ -2968,9 +2704,7 @@ type ElicitationHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="elicitationresulthookinput">
-  `ElicitationResultHookInput`
-</h4>
+#### `ElicitationResultHookInput`
 
 ```typescript theme={null}
 type ElicitationResultHookInput = BaseHookInput & {
@@ -2983,9 +2717,7 @@ type ElicitationResultHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="configchangehookinput">
-  `ConfigChangeHookInput`
-</h4>
+#### `ConfigChangeHookInput`
 
 ```typescript theme={null}
 type ConfigChangeHookInput = BaseHookInput & {
@@ -3000,9 +2732,7 @@ type ConfigChangeHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="instructionsloadedhookinput">
-  `InstructionsLoadedHookInput`
-</h4>
+#### `InstructionsLoadedHookInput`
 
 ```typescript theme={null}
 type InstructionsLoadedHookInput = BaseHookInput & {
@@ -3021,9 +2751,7 @@ type InstructionsLoadedHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="directoryaddedhookinput">
-  `DirectoryAddedHookInput`
-</h4>
+#### `DirectoryAddedHookInput`
 
 ```typescript theme={null}
 type DirectoryAddedHookInput = BaseHookInput & {
@@ -3035,9 +2763,7 @@ type DirectoryAddedHookInput = BaseHookInput & {
 
 `directory` 是被添加的目录的绝对路径。当 `/add-dir` 添加它时，`source` 是 `"slash_command"`，当 SDK 控制请求添加它时，`source` 是 `"register_repo_root"`。
 
-<h4 id="worktreecreatehookinput">
-  `WorktreeCreateHookInput`
-</h4>
+#### `WorktreeCreateHookInput`
 
 ```typescript theme={null}
 type WorktreeCreateHookInput = BaseHookInput & {
@@ -3046,9 +2772,7 @@ type WorktreeCreateHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="worktreeremovehookinput">
-  `WorktreeRemoveHookInput`
-</h4>
+#### `WorktreeRemoveHookInput`
 
 ```typescript theme={null}
 type WorktreeRemoveHookInput = BaseHookInput & {
@@ -3057,9 +2781,7 @@ type WorktreeRemoveHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="cwdchangedhookinput">
-  `CwdChangedHookInput`
-</h4>
+#### `CwdChangedHookInput`
 
 ```typescript theme={null}
 type CwdChangedHookInput = BaseHookInput & {
@@ -3069,9 +2791,7 @@ type CwdChangedHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="filechangedhookinput">
-  `FileChangedHookInput`
-</h4>
+#### `FileChangedHookInput`
 
 ```typescript theme={null}
 type FileChangedHookInput = BaseHookInput & {
@@ -3081,9 +2801,7 @@ type FileChangedHookInput = BaseHookInput & {
 };
 ```
 
-<h4 id="messagedisplayhookinput">
-  `MessageDisplayHookInput`
-</h4>
+#### `MessageDisplayHookInput`
 
 ```typescript theme={null}
 type MessageDisplayHookInput = BaseHookInput & {
@@ -3096,9 +2814,7 @@ type MessageDisplayHookInput = BaseHookInput & {
 };
 ```
 
-<h3 id="hookjsonoutput">
-  `HookJSONOutput`
-</h3>
+### `HookJSONOutput`
 
 Hook 返回值。
 
@@ -3106,9 +2822,7 @@ Hook 返回值。
 type HookJSONOutput = AsyncHookJSONOutput | SyncHookJSONOutput;
 ```
 
-<h4 id="asynchookjsonoutput">
-  `AsyncHookJSONOutput`
-</h4>
+#### `AsyncHookJSONOutput`
 
 ```typescript theme={null}
 type AsyncHookJSONOutput = {
@@ -3117,9 +2831,7 @@ type AsyncHookJSONOutput = {
 };
 ```
 
-<h4 id="synchookjsonoutput">
-  `SyncHookJSONOutput`
-</h4>
+#### `SyncHookJSONOutput`
 
 ```typescript theme={null}
 type SyncHookJSONOutput = {
@@ -3273,15 +2985,11 @@ type SyncHookJSONOutput = {
 };
 ```
 
-<h2 id="tool-input-types">
-  工具输入类型
-</h2>
+## 工具输入类型
 
 内置 Claude Code 工具的输入 schema 文档。这些类型从 `@anthropic-ai/claude-agent-sdk/sdk-tools` 导出，可用于类型安全的工具交互。
 
-<h3 id="toolinputschemas">
-  `ToolInputSchemas`
-</h3>
+### `ToolInputSchemas`
 
 从 `@anthropic-ai/claude-agent-sdk/sdk-tools` 导出的工具输入类型的联合；成员包括：
 
@@ -3327,15 +3035,13 @@ type ToolInputSchemas =
   | WorkflowInput;
 ```
 
-<h3 id="agent">
-  Agent
-</h3>
+### Agent
 
 **工具名称：** `Agent`。之前的名称 `Task` 仍然被接受作为别名，[`SDKSystemMessage`](#sdksystemmessage) 初始化消息中的 `tools` 数组目前为了向后兼容仍将此工具列为 `Task`。
 
-<Note>
-  在 Claude Code v2.1.212 或更高版本上，`mode` 字段已弃用且被忽略。子代理在父会话的权限模式或其定义的 [`permissionMode`](#agentdefinition) 中运行，[子代理继承规则](/docs/zh-CN/agent-sdk/permissions#available-modes)决定使用哪一个。
-</Note>
+> [!NOTE]
+>
+> 在 Claude Code v2.1.212 或更高版本上，`mode` 字段已弃用且被忽略。子代理在父会话的权限模式或其定义的 [`permissionMode`](#agentdefinition) 中运行，[子代理继承规则](/docs/zh-CN/agent-sdk/permissions#available-modes)决定使用哪一个。
 
 ```typescript theme={null}
 type AgentInput = {
@@ -3354,9 +3060,7 @@ type AgentInput = {
 
 启动新的 Agent 以自主处理复杂的多步骤任务。
 
-<h3 id="askuserquestion">
-  AskUserQuestion
-</h3>
+### AskUserQuestion
 
 **工具名称：** `AskUserQuestion`
 
@@ -3376,9 +3080,7 @@ type AskUserQuestionInput = {
 
 在执行期间向用户提出澄清问题。请参阅[处理批准和用户输入](/docs/zh-CN/agent-sdk/user-input#handle-clarifying-questions)了解使用详情。
 
-<h3 id="bash">
-  Bash
-</h3>
+### Bash
 
 **工具名称：** `Bash`
 
@@ -3394,9 +3096,7 @@ type BashInput = {
 
 执行 Bash 命令，支持可选超时和后台执行。工作目录在命令之间保持不变，包括多轮会话后续轮次中运行的命令；shell 状态（如导出的环境变量）不保持。有关哪些目录更改会保持的限制，请参阅[命令之间保持什么](/docs/zh-CN/tools-reference#what-persists-between-commands)。有关设置前台上限的内容，请参阅[超时和输出限制](/docs/zh-CN/tools-reference#timeout-and-output-limits)。有关后台时间限制，请参阅[后台命令的时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)。
 
-<h3 id="monitor">
-  Monitor
-</h3>
+### Monitor
 
 **工具名称：** `Monitor`
 
@@ -3420,17 +3120,13 @@ type MonitorInput = {
 
 当 Monitor 运行命令时，它遵循与 Bash 相同的权限规则；WebSocket 监视会单独提示批准。请参阅 [Monitor 工具参考](/docs/zh-CN/tools-reference#monitor-tool)了解行为和提供商可用性。
 
-<h3 id="taskoutput">
-  TaskOutput
-</h3>
+### TaskOutput
 
 在 Claude Code v2.1.277 中移除，连同其 `TaskOutputInput` 类型一起。之前从运行中或已完成的后台任务检索输出；Claude 改为使用 `Read` 读取后台任务的输出文件。
 
 仍然命名 `TaskOutput` 的 `disallowedTools` 条目或拒绝规则会被忽略，不会发出警告。
 
-<h3 id="edit">
-  Edit
-</h3>
+### Edit
 
 **工具名称：** `Edit`
 
@@ -3445,9 +3141,7 @@ type FileEditInput = {
 
 在文件中执行精确字符串替换。
 
-<h3 id="read">
-  Read
-</h3>
+### Read
 
 **工具名称：** `Read`
 
@@ -3468,9 +3162,7 @@ type FileReadInput = {
 
 对于 PDF，Claude 在 Read 调用的 `tool_result` 内容中接收文件的内容。返回 `pdf` [输出](#tool-output-types)的读取操作包含一个摘要 `text` 块，后跟一个 `document` 块。返回 `parts` 输出的读取操作包含摘要 `text` 块，后跟每个提取页面的一个块：一个 `image` 块，或当 Claude Code 无法将其呈现为图像时命名该页面的 `text` 块。在 Agent SDK v0.3.242 之前，Claude Code 在工具结果后作为单独的 `user` 消息传递文件的内容。
 
-<h3 id="write">
-  Write
-</h3>
+### Write
 
 **工具名称：** `Write`
 
@@ -3483,9 +3175,7 @@ type FileWriteInput = {
 
 将文件写入本地文件系统，如果存在则覆盖。
 
-<h3 id="glob">
-  Glob
-</h3>
+### Glob
 
 **工具名称：** `Glob`
 
@@ -3498,9 +3188,7 @@ type GlobInput = {
 
 快速文件模式匹配，适用于任何代码库大小。
 
-<h3 id="grep">
-  Grep
-</h3>
+### Grep
 
 **工具名称：** `Grep`
 
@@ -3526,9 +3214,7 @@ type GrepInput = {
 
 基于 ripgrep 的搜索工具，支持正则表达式。
 
-<h3 id="taskstop">
-  TaskStop
-</h3>
+### TaskStop
 
 **工具名称：** `TaskStop`
 
@@ -3541,9 +3227,7 @@ type TaskStopInput = {
 
 按 ID 停止运行的后台任务或 shell。自 v2.1.198 起，`task_id` 也接受 agent team 队友，或按 Agent ID 或名称指定的命名后台 Agent。
 
-<h3 id="notebookedit">
-  NotebookEdit
-</h3>
+### NotebookEdit
 
 **工具名称：** `NotebookEdit`
 
@@ -3559,9 +3243,7 @@ type NotebookEditInput = {
 
 编辑 Jupyter 笔记本文件中的单元格。
 
-<h3 id="webfetch">
-  WebFetch
-</h3>
+### WebFetch
 
 **工具名称：** `WebFetch`
 
@@ -3577,9 +3259,7 @@ type WebFetchInput = {
 
 `offset` 是从页面开头跳过的字符数。Claude 设置它以继续读取较长的页面。该字段需要 Agent SDK v0.3.290 或更高版本。
 
-<h3 id="websearch">
-  WebSearch
-</h3>
+### WebSearch
 
 **工具名称：** `WebSearch`
 
@@ -3593,9 +3273,7 @@ type WebSearchInput = {
 
 搜索网络并返回格式化的结果。
 
-<h3 id="workflow">
-  Workflow
-</h3>
+### Workflow
 
 **工具名称：** `Workflow`
 
@@ -3623,9 +3301,7 @@ type WorkflowInput = {
 | `title` | `string` | 被忽略；脚本的 `meta` 块设置标题 |
 | `description` | `string` | 被忽略；脚本的 `meta` 块设置描述 |
 
-<h3 id="todowrite">
-  TodoWrite
-</h3>
+### TodoWrite
 
 **工具名称：** `TodoWrite`
 
@@ -3641,25 +3317,23 @@ type TodoWriteInput = {
 
 创建和管理结构化任务列表以跟踪进度。
 
-<Note>
-  以下工具仅在 Claude Opus 4.7、Claude Sonnet 4.6、Claude Haiku 4.5 及更早的模型上默认可用。在所有其他模型上，包括 Claude Code 无法识别的模型 ID，除非您选择加入，否则它们不可用：
+> [!NOTE]
+>
+> 以下工具仅在 Claude Opus 4.7、Claude Sonnet 4.6、Claude Haiku 4.5 及更早的模型上默认可用。在所有其他模型上，包括 Claude Code 无法识别的模型 ID，除非您选择加入，否则它们不可用：
+>
+> * `TodoWrite`
+> * `TaskCreate`
+> * `TaskGet`
+> * `TaskUpdate`
+> * `TaskList`
+>
+> 无论工具在何处可用，Claude Code 都提供四个 Task 工具，或者当你设置 `CLAUDE_CODE_ENABLE_TASKS=0` 时改为提供 `TodoWrite`。
+>
+> 此默认集合适用于 Claude Code v2.1.268 及更高版本，TypeScript Agent SDK 从 v0.3.268 开始捆绑此版本。
+>
+> 请参阅[模型可用性](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)以选择加入。
 
-  * `TodoWrite`
-  * `TaskCreate`
-  * `TaskGet`
-  * `TaskUpdate`
-  * `TaskList`
-
-  无论工具在何处可用，Claude Code 都提供四个 Task 工具，或者当你设置 `CLAUDE_CODE_ENABLE_TASKS=0` 时改为提供 `TodoWrite`。
-
-  此默认集合适用于 Claude Code v2.1.268 及更高版本，TypeScript Agent SDK 从 v0.3.268 开始捆绑此版本。
-
-  请参阅[模型可用性](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)以选择加入。
-</Note>
-
-<h3 id="taskcreate">
-  TaskCreate
-</h3>
+### TaskCreate
 
 **工具名称：** `TaskCreate`
 
@@ -3674,9 +3348,7 @@ type TaskCreateInput = {
 
 创建单个任务并返回其分配的 ID。
 
-<h3 id="taskupdate">
-  TaskUpdate
-</h3>
+### TaskUpdate
 
 **工具名称：** `TaskUpdate`
 
@@ -3696,9 +3368,7 @@ type TaskUpdateInput = {
 
 按 ID 修补一个任务。将 `status` 设置为 `"deleted"` 以删除它。
 
-<h3 id="taskget">
-  TaskGet
-</h3>
+### TaskGet
 
 **工具名称：** `TaskGet`
 
@@ -3710,9 +3380,7 @@ type TaskGetInput = {
 
 返回一个任务的完整详情，或在找不到 ID 时返回 `null`。
 
-<h3 id="tasklist">
-  TaskList
-</h3>
+### TaskList
 
 **工具名称：** `TaskList`
 
@@ -3722,9 +3390,7 @@ type TaskListInput = {};
 
 返回当前列表中所有任务的快照。
 
-<h3 id="exitplanmode">
-  ExitPlanMode
-</h3>
+### ExitPlanMode
 
 **工具名称：** `ExitPlanMode`
 
@@ -3741,9 +3407,7 @@ type ExitPlanModeInput = {
 
 退出计划模式。`allowedPrompts` 字段已弃用且被忽略；Claude Code 仍然接受它，以便现有调用者和会话记录能够通过验证。在 v2.1.205 之前，它请求基于提示词的 Bash 权限以实现计划。
 
-<h3 id="listmcpresources">
-  ListMcpResources
-</h3>
+### ListMcpResources
 
 **工具名称：** `ListMcpResourcesTool`
 
@@ -3755,9 +3419,7 @@ type ListMcpResourcesInput = {
 
 列出来自连接服务器的可用 MCP 资源。
 
-<h3 id="readmcpresource">
-  ReadMcpResource
-</h3>
+### ReadMcpResource
 
 **工具名称：** `ReadMcpResourceTool`
 
@@ -3770,9 +3432,7 @@ type ReadMcpResourceInput = {
 
 从服务器读取特定的 MCP 资源。
 
-<h3 id="enterworktree">
-  EnterWorktree
-</h3>
+### EnterWorktree
 
 **工具名称：** `EnterWorktree`
 
@@ -3785,9 +3445,7 @@ type EnterWorktreeInput = {
 
 创建并进入临时 git worktree 以进行隔离工作。传递 `path` 以切换到现有 worktree 而不是创建新的。在首次进入时，目标必须是当前仓库的已注册 worktree，或在多仓库工作区中，必须是嵌套在其中的仓库的已注册 worktree；从 worktree 会话内进入时，必须在会话仓库的 `.claude/worktrees/` 下。`name` 和 `path` 互斥。
 
-<h3 id="exitworktree">
-  ExitWorktree
-</h3>
+### ExitWorktree
 
 **工具名称：** `ExitWorktree`
 
@@ -3800,9 +3458,7 @@ type ExitWorktreeInput = {
 
 退出当前 git worktree 并返回到原始工作目录。`keep` 操作将 worktree 和分支保留在磁盘上，而 `remove` 删除两者。当删除具有未提交文件或未合并提交的 worktree 时，`discard_changes` 必须为 `true`。
 
-<h3 id="enterplanmode">
-  EnterPlanMode
-</h3>
+### EnterPlanMode
 
 **工具名称：** `EnterPlanMode`
 
@@ -3812,9 +3468,7 @@ type EnterPlanModeInput = {};
 
 进入计划模式，Claude 在其中研究并呈现计划，然后再进行更改。
 
-<h3 id="croncreate">
-  CronCreate
-</h3>
+### CronCreate
 
 **工具名称：** `CronCreate`
 
@@ -3831,9 +3485,7 @@ type CronCreateInput = {
 
 将 `durable` 设置为 `true` 请求持久化到 `.claude/scheduled_tasks.json`，以便作业在重启后继续存在。持久化调度并非在每个会话中都可用：当不可用时，Claude Code 接受 `durable: true` 但创建仅会话的作业。读取输出的 `durable` 字段以查看作业是否已持久化。
 
-<h3 id="crondelete">
-  CronDelete
-</h3>
+### CronDelete
 
 **工具名称：** `CronDelete`
 
@@ -3845,9 +3497,7 @@ type CronDeleteInput = {
 
 按从 `CronCreate` 返回的 ID 删除计划的 cron 作业。
 
-<h3 id="cronlist">
-  CronList
-</h3>
+### CronList
 
 **工具名称：** `CronList`
 
@@ -3857,9 +3507,7 @@ type CronListInput = {};
 
 列出计划的 cron 作业：来自 `.claude/scheduled_tasks.json` 的持久化作业和来自当前会话的仅会话作业。
 
-<h3 id="schedulewakeup">
-  ScheduleWakeup
-</h3>
+### ScheduleWakeup
 
 **工具名称：** `ScheduleWakeup`
 
@@ -3875,9 +3523,7 @@ type ScheduleWakeupInput = {
 
 安排一次性唤醒，在延迟后触发给定的提示词。此工具支持自定步调的 `/loop` 命令。运行时将 `delaySeconds` 限制在 60 到 3600 秒之间。除非 `stop` 为 true，否则 `delaySeconds`、`reason`、`prompt` 和 `noop` 字段是必需的。`noop: true` 报告没有任何更改的唤醒。设置 `stop: true` 取消待处理的唤醒并结束自定步调的 `/loop`。`stop` 字段需要 Claude Code v2.1.202 或更高版本。请参阅[工具参考中的 ScheduleWakeup 行](/docs/zh-CN/tools-reference)。
 
-<h3 id="remotetrigger">
-  RemoteTrigger
-</h3>
+### RemoteTrigger
 
 **工具名称：** `RemoteTrigger`
 
@@ -3910,9 +3556,7 @@ type RemoteTriggerInput = {
 
 此工具仅在会话使用启用了云端定时任务的计划的 claude.ai 账户进行身份验证时可用。当您的组织的策略禁用[云端会话](/docs/zh-CN/claude-code-on-the-web)时，该工具不存在。在 Claude Code v2.1.227 或更高版本上，当所有者[为组织关闭定时任务](/docs/zh-CN/routines#routines-are-disabled-by-your-organizations-policy)时，该工具也不存在。
 
-<h3 id="pushnotification">
-  PushNotification
-</h3>
+### PushNotification
 
 **工具名称：** `PushNotification`
 
@@ -3925,15 +3569,11 @@ type PushNotificationInput = {
 
 向用户发送主动推送通知。将 `message` 保持在 200 个字符以下，因为移动操作系统会截断较长的文本。请参阅[工具参考中的 PushNotification 行](/docs/zh-CN/tools-reference)了解提供商可用性；推送传递通过 Anthropic 托管的基础设施进行，该基础设施无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问。
 
-<h3 id="repl">
-  REPL
-</h3>
+### REPL
 
 在 v2.1.275 中移除。在 v2.1.274 及之前，可以通过在 [`env` 选项](#options)中设置 `CLAUDE_CODE_REPL=1` 来打开实验性 `REPL` 工具。
 
-<h3 id="reportfindings">
-  ReportFindings
-</h3>
+### ReportFindings
 
 **工具名称：** `ReportFindings`
 
@@ -3966,9 +3606,7 @@ type ReportFindingsInput = {
 * `verdict`：在验证通过运行时设置；在仅内联审查中不存在。
 * `outcome`：仅在应用修复后重新报告时设置。
 
-<h3 id="artifact">
-  Artifact
-</h3>
+### Artifact
 
 **工具名称：** `Artifact`
 
@@ -4008,9 +3646,7 @@ type ArtifactInput = {
 
 这些类型已导出，但该工具在 Agent SDK 会话中默认处于关闭状态。发布还需要满足 [Artifact 可用性表](/docs/zh-CN/artifacts#availability)中的每个条件，使用 API 密钥进行身份验证的会话不满足这些条件。
 
-<h3 id="projects">
-  Projects
-</h3>
+### Projects
 
 **工具名称：** `Projects`
 
@@ -4039,9 +3675,7 @@ type ProjectsInput = {
 * `project_write`：从 `content`（包含内联文本）或 `local_path`（命名工作目录内的文件）中的恰好一个在 `path` 处创建或替换文档。`present_to_user: true` 将写入的文档标记为用户需要看到的可交付成果。
 * `project_delete`：按 `path` 删除文档。
 
-<h3 id="readmcpresourcedir">
-  ReadMcpResourceDir
-</h3>
+### ReadMcpResourceDir
 
 **工具名称：** `ReadMcpResourceDirTool`
 
@@ -4054,9 +3688,7 @@ type ReadMcpResourceDirInput = {
 
 列出 MCP 服务器上目录资源的直接子项。仅可用于已声明支持目录列表的服务器；列表不是递归的。目录列表并非在每个会话中都启用：当关闭时，调用返回空的 `resources` 列表，`error` 字段报告目录列表未启用。
 
-<h3 id="refreshmcptools">
-  RefreshMcpTools
-</h3>
+### RefreshMcpTools
 
 **工具名称：** `RefreshMcpTools`
 
@@ -4068,9 +3700,7 @@ type RefreshMcpToolsInput = {
 
 重新查询连接的 MCP 服务器的工具列表并应用任何更改。这些类型已导出，但 Claude Code 仅在您在 [`env` 选项](#options)中设置 `CLAUDE_CODE_ENABLE_REFRESH_MCP_TOOLS=1` 时注册该工具，并且仅在至少有一个 MCP 服务器的会话中。需要 Claude Code v2.1.211 或更高版本。
 
-<h3 id="showonboardingrolepicker">
-  ShowOnboardingRolePicker
-</h3>
+### ShowOnboardingRolePicker
 
 **工具名称：** `ShowOnboardingRolePicker`
 
@@ -4080,9 +3710,7 @@ type ShowOnboardingRolePickerInput = {};
 
 在 Cowork 入职期间呈现可点击的角色选择器芯片行，以便用户可以选择其角色并安装匹配的插件。不需要参数；角色列表由客户端定义。调用会阻塞直到用户响应。
 
-<h3 id="mcpinput">
-  McpInput
-</h3>
+### McpInput
 
 **工具名称：** 形式为 `mcp__<server>__<tool>` 的动态 MCP 工具名称
 
@@ -4094,15 +3722,11 @@ type McpInput = {
 
 MCP 工具参数是开放对象：每个服务器定义自己的参数，因此类型对字段名称或值不施加任何约束。请查阅服务器自己的工具 schema 以了解特定工具接受的字段。
 
-<h2 id="tool-output-types">
-  工具输出类型
-</h2>
+## 工具输出类型
 
 内置 Claude Code 工具的输出 schema 文档。这些类型从 `@anthropic-ai/claude-agent-sdk/sdk-tools` 导出，代表每个工具返回的实际响应数据。
 
-<h3 id="tooloutputschemas">
-  `ToolOutputSchemas`
-</h3>
+### `ToolOutputSchemas`
 
 从 `@anthropic-ai/claude-agent-sdk/sdk-tools` 导出的工具输出类型的联合；成员包括：
 
@@ -4148,9 +3772,7 @@ type ToolOutputSchemas =
   | WorkflowOutput;
 ```
 
-<h3 id="agent-2">
-  Agent
-</h3>
+### Agent
 
 **工具名称：** `Agent`。之前的名称 `Task` 仍然被接受作为别名，[`SDKSystemMessage`](#sdksystemmessage) 初始化消息中的 `tools` 数组目前为了向后兼容仍将此工具列为 `Task`。
 
@@ -4237,9 +3859,7 @@ Claude Code 从子代理的最终 API 请求而不是整个运行中填充 `usag
 
 在 v2.1.207 之前，发布的类型更窄。它省略了 `worktreePath`、`worktreeBranch`、`citations`、`toolStats.frameCount` 和 `inference_geo`、`speed` 和 `iterations` 使用字段，并将 `service_tier` 类型化为 `"standard" | "priority" | "batch"`。类型标记为可选的字段可能在早期版本记录的结果中不存在。
 
-<h3 id="askuserquestion-2">
-  AskUserQuestion
-</h3>
+### AskUserQuestion
 
 **工具名称：** `AskUserQuestion`
 
@@ -4260,9 +3880,7 @@ type AskUserQuestionOutput = {
 
 返回提出的问题和用户的答案。当用户输入自由形式的回复而不是回答结构化问题时，`response` 被设置；当存在时，Claude 会收到"用户回复：…"而不是每个问题的答案列表。
 
-<h3 id="bash-2">
-  Bash
-</h3>
+### Bash
 
 **工具名称：** `Bash`
 
@@ -4313,9 +3931,7 @@ type BashOutput = {
 
 Claude Code 将 `gitOperation.commit.branch` 设置为 git 提交摘要行中命名的分支，对于在分离 HEAD 上进行的提交则省略它。该字段需要 Agent SDK v0.3.227 或更高版本。Claude Code 将 `gh pr reopen` 命令报告为 `reopened` PR 操作，这需要 Agent SDK v0.3.234 或更高版本。
 
-<h3 id="monitor-2">
-  Monitor
-</h3>
+### Monitor
 
 **工具名称：** `Monitor`
 
@@ -4329,9 +3945,7 @@ type MonitorOutput = {
 
 返回运行监视器的后台任务 ID。使用此 ID 与 `TaskStop` 一起提前取消监视。
 
-<h3 id="edit-2">
-  Edit
-</h3>
+### Edit
 
 **工具名称：** `Edit`
 
@@ -4364,9 +3978,7 @@ type FileEditOutput = {
 
 返回编辑操作的结构化 diff。
 
-<h3 id="read-2">
-  Read
-</h3>
+### Read
 
 **工具名称：** `Read`
 
@@ -4442,9 +4054,7 @@ type FileReadOutput =
 
 返回适合文件类型的格式的文件内容。在 `type` 字段上进行区分。
 
-<h3 id="write-2">
-  Write
-</h3>
+### Write
 
 **工具名称：** `Write`
 
@@ -4480,9 +4090,7 @@ type FileWriteOutput = {
 * 在覆盖时，`originalFile` 携带之前的内容，除非该内容大于约 10 MB：Claude Code 则跳过 diff 并返回 `originalFile` null 和 `structuredPatch` 空
 * 当写入未更改任何内容或 diff 超时时，`structuredPatch` 也为空
 
-<h3 id="glob-2">
-  Glob
-</h3>
+### Glob
 
 **工具名称：** `Glob`
 
@@ -4501,9 +4109,7 @@ type GlobOutput = {
 
 `totalMatches` 和 `countIsComplete` 需要 Claude Code v2.1.191 或更高版本。`totalMatches` 报告截断前的匹配文件数。当 `countIsComplete` 为 false 时，`totalMatches` 是一个下界，因为底层搜索截断了其自己的输出。
 
-<h3 id="grep-2">
-  Grep
-</h3>
+### Grep
 
 **工具名称：** `Grep`
 
@@ -4526,9 +4132,7 @@ type GrepOutput = {
 
 `totalFiles` 需要 Claude Code v2.1.208 或更高版本，并在 `files_with_matches` 模式下报告 `head_limit` 和 `offset` 分页前的总结果数。`totalLines` 需要 Claude Code v2.1.210 或更高版本，并在 `content` 模式下报告分页前的总行数。
 
-<h3 id="taskstop-2">
-  TaskStop
-</h3>
+### TaskStop
 
 **工具名称：** `TaskStop`
 
@@ -4543,9 +4147,7 @@ type TaskStopOutput = {
 
 停止后台任务后返回确认。
 
-<h3 id="notebookedit-2">
-  NotebookEdit
-</h3>
+### NotebookEdit
 
 **工具名称：** `NotebookEdit`
 
@@ -4566,9 +4168,7 @@ type NotebookEditOutput = {
 
 返回笔记本编辑的结果，包含原始和更新的文件内容。
 
-<h3 id="webfetch-2">
-  WebFetch
-</h3>
+### WebFetch
 
 **工具名称：** `WebFetch`
 
@@ -4592,9 +4192,7 @@ type WebFetchOutput = {
 
 `artifactRead` 是 Claude Code 自己的 Artifact 读取记录，仅当 Claude 获取会话可以发布的 Artifact 时出现。Claude Code 在会话恢复时读取它回来，以便稍后的发布基于正确的版本；您的代码不需要对其采取行动。`slug` 命名 Artifact，`ver` 是读取记录的版本，当它未记录任何内容时不存在，`seeded: false` 标记其完整源未到达 Claude 的读取。`seeded` 字段需要 Agent SDK v0.3.239 或更高版本。
 
-<h3 id="websearch-2">
-  WebSearch
-</h3>
+### WebSearch
 
 **工具名称：** `WebSearch`
 
@@ -4615,9 +4213,7 @@ type WebSearchOutput = {
 
 返回来自网络的搜索结果。
 
-<h3 id="workflow-2">
-  Workflow
-</h3>
+### Workflow
 
 **工具名称：** `Workflow`
 
@@ -4653,9 +4249,7 @@ type WorkflowOutput = {
 | `warning` | `string` | 非阻塞性提示，例如本地 git 状态与云端会话将克隆的推送分支不同 |
 | `error` | `string` | 当脚本语法检查失败时设置。存在时，尽管启动状态，运行未启动 |
 
-<h3 id="todowrite-2">
-  TodoWrite
-</h3>
+### TodoWrite
 
 **工具名称：** `TodoWrite`
 
@@ -4676,25 +4270,23 @@ type TodoWriteOutput = {
 
 返回之前和更新的任务列表。
 
-<Note>
-  以下工具仅在 Claude Opus 4.7、Claude Sonnet 4.6、Claude Haiku 4.5 及更早的模型上默认可用。在所有其他模型上，包括 Claude Code 无法识别的模型 ID，除非您选择加入，否则它们不可用：
+> [!NOTE]
+>
+> 以下工具仅在 Claude Opus 4.7、Claude Sonnet 4.6、Claude Haiku 4.5 及更早的模型上默认可用。在所有其他模型上，包括 Claude Code 无法识别的模型 ID，除非您选择加入，否则它们不可用：
+>
+> * `TodoWrite`
+> * `TaskCreate`
+> * `TaskGet`
+> * `TaskUpdate`
+> * `TaskList`
+>
+> 无论工具在何处可用，Claude Code 都提供四个 Task 工具，或者当你设置 `CLAUDE_CODE_ENABLE_TASKS=0` 时改为提供 `TodoWrite`。
+>
+> 此默认集合适用于 Claude Code v2.1.268 及更高版本，TypeScript Agent SDK 从 v0.3.268 开始捆绑此版本。
+>
+> 请参阅[模型可用性](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)以选择加入。
 
-  * `TodoWrite`
-  * `TaskCreate`
-  * `TaskGet`
-  * `TaskUpdate`
-  * `TaskList`
-
-  无论工具在何处可用，Claude Code 都提供四个 Task 工具，或者当你设置 `CLAUDE_CODE_ENABLE_TASKS=0` 时改为提供 `TodoWrite`。
-
-  此默认集合适用于 Claude Code v2.1.268 及更高版本，TypeScript Agent SDK 从 v0.3.268 开始捆绑此版本。
-
-  请参阅[模型可用性](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)以选择加入。
-</Note>
-
-<h3 id="taskcreate-2">
-  TaskCreate
-</h3>
+### TaskCreate
 
 **工具名称：** `TaskCreate`
 
@@ -4709,9 +4301,7 @@ type TaskCreateOutput = {
 
 返回创建的任务及其分配的 ID。
 
-<h3 id="taskupdate-2">
-  TaskUpdate
-</h3>
+### TaskUpdate
 
 **工具名称：** `TaskUpdate`
 
@@ -4730,9 +4320,7 @@ type TaskUpdateOutput = {
 
 返回更新结果，包括哪些字段已更改。
 
-<h3 id="taskget-2">
-  TaskGet
-</h3>
+### TaskGet
 
 **工具名称：** `TaskGet`
 
@@ -4751,9 +4339,7 @@ type TaskGetOutput = {
 
 返回完整的任务记录，或在找不到 ID 时返回 `null`。
 
-<h3 id="tasklist-2">
-  TaskList
-</h3>
+### TaskList
 
 **工具名称：** `TaskList`
 
@@ -4771,9 +4357,7 @@ type TaskListOutput = {
 
 返回当前列表中所有任务的快照。
 
-<h3 id="exitplanmode-2">
-  ExitPlanMode
-</h3>
+### ExitPlanMode
 
 **工具名称：** `ExitPlanMode`
 
@@ -4791,9 +4375,7 @@ type ExitPlanModeOutput = {
 
 返回退出计划模式后的计划状态。
 
-<h3 id="listmcpresources-2">
-  ListMcpResources
-</h3>
+### ListMcpResources
 
 **工具名称：** `ListMcpResourcesTool`
 
@@ -4809,9 +4391,7 @@ type ListMcpResourcesOutput = Array<{
 
 返回可用 MCP 资源的数组。
 
-<h3 id="readmcpresource-2">
-  ReadMcpResource
-</h3>
+### ReadMcpResource
 
 **工具名称：** `ReadMcpResourceTool`
 
@@ -4829,9 +4409,7 @@ type ReadMcpResourceOutput = {
 
 返回请求的 MCP 资源的内容。
 
-<h3 id="enterworktree-2">
-  EnterWorktree
-</h3>
+### EnterWorktree
 
 **工具名称：** `EnterWorktree`
 
@@ -4845,9 +4423,7 @@ type EnterWorktreeOutput = {
 
 返回有关 git worktree 的信息。
 
-<h3 id="exitworktree-2">
-  ExitWorktree
-</h3>
+### ExitWorktree
 
 **工具名称：** `ExitWorktree`
 
@@ -4866,9 +4442,7 @@ type ExitWorktreeOutput = {
 
 返回采取的操作和有关退出的 worktree 的详细信息。
 
-<h3 id="enterplanmode-2">
-  EnterPlanMode
-</h3>
+### EnterPlanMode
 
 **工具名称：** `EnterPlanMode`
 
@@ -4880,9 +4454,7 @@ type EnterPlanModeOutput = {
 
 返回进入计划模式的确认。
 
-<h3 id="croncreate-2">
-  CronCreate
-</h3>
+### CronCreate
 
 **工具名称：** `CronCreate`
 
@@ -4897,9 +4469,7 @@ type CronCreateOutput = {
 
 返回作业 ID 和计划的人类可读描述。
 
-<h3 id="crondelete-2">
-  CronDelete
-</h3>
+### CronDelete
 
 **工具名称：** `CronDelete`
 
@@ -4911,9 +4481,7 @@ type CronDeleteOutput = {
 
 返回已删除作业的 ID。
 
-<h3 id="cronlist-2">
-  CronList
-</h3>
+### CronList
 
 **工具名称：** `CronList`
 
@@ -4932,9 +4500,7 @@ type CronListOutput = {
 
 返回计划的 cron 作业：来自 `.claude/scheduled_tasks.json` 的持久作业和来自当前会话的仅会话作业。仅会话作业携带 `durable: false`；从磁盘读取的作业省略该字段。
 
-<h3 id="schedulewakeup-2">
-  ScheduleWakeup
-</h3>
+### ScheduleWakeup
 
 **工具名称：** `ScheduleWakeup`
 
@@ -4950,9 +4516,7 @@ type ScheduleWakeupOutput = {
 
 返回唤醒将触发的时间作为纪元毫秒时间戳、实际使用的延迟以及请求的延迟是否被限制。`stopped` 字段在调用以 `stop: true` 结束循环时为 `true`。它需要 Claude Code v2.1.202 或更高版本。`cancelledWakeups` 字段计算 `stop: true` 调用取消了多少待处理唤醒。值为 0 表示没有待处理，重复 `/loop` cron 不会被 `stop: true` 取消。它需要 Claude Code v2.1.206 或更高版本。
 
-<h3 id="remotetrigger-2">
-  RemoteTrigger
-</h3>
+### RemoteTrigger
 
 **工具名称：** `RemoteTrigger`
 
@@ -4966,9 +4530,7 @@ type RemoteTriggerOutput = {
 
 返回触发操作的 API 响应状态和正文。
 
-<h3 id="pushnotification-2">
-  PushNotification
-</h3>
+### PushNotification
 
 **工具名称：** `PushNotification`
 
@@ -4984,9 +4546,7 @@ type PushNotificationOutput = {
 
 返回传递详细信息，包括是否发送了推送或本地通知以及跳过传递的原因。
 
-<h3 id="reportfindings-2">
-  ReportFindings
-</h3>
+### ReportFindings
 
 **工具名称：** `ReportFindings`
 
@@ -5009,9 +4569,7 @@ type ReportFindingsOutput = {
 
 返回报告的发现数、Claude 传入的 `level` 值以及为结果正文回显的发现。需要 Claude Code v2.1.196 或更高版本。回显的 `short_summary` 字段需要 Claude Code v2.1.212 或更高版本。
 
-<h3 id="artifact-2">
-  Artifact
-</h3>
+### Artifact
 
 **工具名称：** `Artifact`
 
@@ -5050,9 +4608,7 @@ type ArtifactOutput =
 
 列表结果还会报告 `total`，即与所列作用域匹配的 Artifact 数量，包括超出 `limit` 的部分。设置 `total_at_least` 时，该数字是下界，可能还存在更多 Artifact。这两个字段都需要 Agent SDK v0.3.292 或更高版本。
 
-<h3 id="projects-2">
-  Projects
-</h3>
+### Projects
 
 **工具名称：** `Projects`
 
@@ -5114,9 +4670,7 @@ type ProjectsOutput =
 
 在 `method` 字段上进行区分，镜像输入。`project_read` 在 `content` 中内联返回小文本文档，并将较大的文档写入 `local_file` 路径；`project_search` 当项目的索引可用时返回 RAG `hits` 且 `rag: true`，否则回退到 `docs` 路径列表。
 
-<h3 id="readmcpresourcedir-2">
-  ReadMcpResourceDir
-</h3>
+### ReadMcpResourceDir
 
 **工具名称：** `ReadMcpResourceDirTool`
 
@@ -5133,9 +4687,7 @@ type ReadMcpResourceDirOutput = {
 
 返回目录资源的直接子项。子目录显示为 mimeType `"inode/directory"`；`error` 在服务器无法列出目录时携带人类可读的消息。
 
-<h3 id="refreshmcptools-2">
-  RefreshMcpTools
-</h3>
+### RefreshMcpTools
 
 **工具名称：** `RefreshMcpTools`
 
@@ -5152,9 +4704,7 @@ type RefreshMcpToolsOutput = Array<{
 
 返回每个服务器一个条目：`refreshed` 表示重新查询的工具列表已应用，`error` 表示重新查询失败且保留了之前的工具集，`not_connected` 表示服务器没有实时连接来查询。
 
-<h3 id="showonboardingrolepicker-2">
-  ShowOnboardingRolePicker
-</h3>
+### ShowOnboardingRolePicker
 
 **工具名称：** `ShowOnboardingRolePicker`
 
@@ -5167,9 +4717,7 @@ type ShowOnboardingRolePickerOutput = {
 
 返回用户的选择：当他们选择角色芯片或输入一个时为 `role`，当他们关闭选择器时为 `dismissed: true`。空对象表示用户批准了调用而未选择角色。
 
-<h3 id="mcpoutput">
-  McpOutput
-</h3>
+### McpOutput
 
 **工具名称：** 形式为 `mcp__<server>__<tool>` 的动态 MCP 工具名称
 
@@ -5187,13 +4735,9 @@ type McpOutput =
 
 MCP 工具结果作为字符串或内容块数组返回，取决于服务器。导出类型中的尾部纯对象分支是 schema 生成过程的产物。对于同时携带 `structuredContent` 或资源链接的结果，请参阅 [`tool_use_result`](#sdkusermessage)，它在其 `content` 成员中保存此值。在运行时值也可能是 `undefined`，尽管导出的类型不对此建模。
 
-<h2 id="permission-types">
-  权限类型
-</h2>
+## 权限类型
 
-<h3 id="permissionupdate">
-  `PermissionUpdate`
-</h3>
+### `PermissionUpdate`
 
 用于更新权限的操作。
 
@@ -5234,17 +4778,13 @@ type PermissionUpdate =
     };
 ```
 
-<h3 id="permissionbehavior">
-  `PermissionBehavior`
-</h3>
+### `PermissionBehavior`
 
 ```typescript theme={null}
 type PermissionBehavior = "allow" | "deny" | "ask";
 ```
 
-<h3 id="permissionupdatedestination">
-  `PermissionUpdateDestination`
-</h3>
+### `PermissionUpdateDestination`
 
 ```typescript theme={null}
 type PermissionUpdateDestination =
@@ -5255,9 +4795,7 @@ type PermissionUpdateDestination =
   | "cliArg"; // CLI 参数
 ```
 
-<h3 id="permissionrulevalue">
-  `PermissionRuleValue`
-</h3>
+### `PermissionRuleValue`
 
 ```typescript theme={null}
 type PermissionRuleValue = {
@@ -5266,13 +4804,9 @@ type PermissionRuleValue = {
 };
 ```
 
-<h2 id="other-types">
-  其他类型
-</h2>
+## 其他类型
 
-<h3 id="apikeysource">
-  `ApiKeySource`
-</h3>
+### `ApiKeySource`
 
 会话请求所用 API 密钥的来源，在 [`SDKSystemMessage`](#sdksystemmessage) init 消息中以 `apiKeySource` 报告。
 
@@ -5300,9 +4834,7 @@ Claude Code 会报告以下四个值之一：
 
 Agent SDK v0.3.234 及更高版本在该类型中列出这四个值。该类型还保留了 `user`、`project`、`org`、`temporary` 和 `oauth`，以便旧代码仍能编译，但 Claude Code 不会报告它们。
 
-<h3 id="sdkbeta">
-  `SdkBeta`
-</h3>
+### `SdkBeta`
 
 可通过 `betas` 选项启用的 beta 功能。有关更多信息，请参阅 [Beta headers](https://platform.claude.com/docs/en/api/beta-headers)。
 
@@ -5310,13 +4842,11 @@ Agent SDK v0.3.234 及更高版本在该类型中列出这四个值。该类型�
 type SdkBeta = "context-1m-2025-08-07";
 ```
 
-<Warning>
-  在 Claude API 上，`context-1m-2025-08-07` beta 已针对 Claude Sonnet 4.5 和 Claude Sonnet 4 停用。如果您仍在这两个模型中的任一个上传递它，超出标准 200K token 上下文窗口的请求将返回错误，因此请将其从 `betas` 中移除。要以 1M token 上下文窗口运行会话，请将 `model` 设置为[默认以 1M 窗口运行](/docs/zh-CN/model-config#extended-context)的模型，例如 `claude-sonnet-5-5` 或 `claude-opus-5-5`。对于只能通过其 `[1m]` 变体达到 1M 的模型，请在模型 ID 后附加该后缀，例如 `claude-opus-4-6[1m]`。
-</Warning>
+> [!WARNING]
+>
+> 在 Claude API 上，`context-1m-2025-08-07` beta 已针对 Claude Sonnet 4.5 和 Claude Sonnet 4 停用。如果您仍在这两个模型中的任一个上传递它，超出标准 200K token 上下文窗口的请求将返回错误，因此请将其从 `betas` 中移除。要以 1M token 上下文窗口运行会话，请将 `model` 设置为[默认以 1M 窗口运行](/docs/zh-CN/model-config#extended-context)的模型，例如 `claude-sonnet-5-5` 或 `claude-opus-5-5`。对于只能通过其 `[1m]` 变体达到 1M 的模型，请在模型 ID 后附加该后缀，例如 `claude-opus-4-6[1m]`。
 
-<h3 id="slashcommand">
-  `SlashCommand`
-</h3>
+### `SlashCommand`
 
 有关可用命令的信息。
 
@@ -5332,9 +4862,7 @@ type SlashCommand = {
 
 当某条命令是 Claude Code 自身的命令且输入 `/name` 即可运行它时，该行的 `builtin` 为 `true`。对于由用户、项目、插件或 MCP 服务器定义的命令，以及被上述某一来源[按名称替换](/docs/zh-CN/skills#resolve-skills-that-share-a-name)的内置命令，该字段不存在。需要 Agent SDK v0.3.277 或更高版本。
 
-<h3 id="modelinfo">
-  `ModelInfo`
-</h3>
+### `ModelInfo`
 
 有关可用模型的信息。
 
@@ -5364,9 +4892,7 @@ type ModelInfo = {
 | `supportsFastMode` | `boolean \| undefined` | 此模型是否支持快速模式 |
 | `supportsAutoMode` | `boolean \| undefined` | 此模型是否支持自动模式 |
 
-<h3 id="agentinfo">
-  `AgentInfo`
-</h3>
+### `AgentInfo`
 
 有关可通过 Agent 工具调用的可用子代理的信息。
 
@@ -5384,9 +4910,7 @@ type AgentInfo = {
 | `description` | `string` | 何时使用此 Agent 的描述 |
 | `model` | `string \| undefined` | 此 Agent 使用的模型：别名或模型 ID，或 `'inherit'` 表示使用父级的模型。当其为 `undefined` 时，Claude Code 按照[子代理模型顺序](/docs/zh-CN/sub-agents#choose-a-model)选择模型 |
 
-<h3 id="mcpserverprovenance">
-  `McpServerProvenance`
-</h3>
+### `McpServerProvenance`
 
 提供某个 `mcp__*` 工具的 MCP 服务器，以及该服务器定义的来源。[`PreToolUse`](#pretoolusehookinput)、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest` 和 `PermissionDenied` hook 输入以 `mcp_server` 携带它，[`CanUseTool`](#canusetool) 选项以 `mcpServer` 携带它。对于并非来自 MCP 服务器的工具，两者都会省略它。
 
@@ -5412,9 +4936,7 @@ type McpServerProvenance = {
 
 `McpServerProvenance` 及携带它的字段需要 Agent SDK v0.3.274 或更高版本。
 
-<h3 id="mcpserverstatus">
-  `McpServerStatus`
-</h3>
+### `McpServerStatus`
 
 已连接 MCP 服务器的状态。
 
@@ -5447,9 +4969,7 @@ type McpServerStatus = {
 
 `tools` 条目上的 `_meta` 携带该工具 `_meta` 中的 MCP Apps 成员，以便您的应用程序找到要通过 [`readMcpResource()`](#query-object) 渲染的 `ui://` 资源。Claude Code 会透传 `ui` 对象和已弃用的扁平 `ui/resourceUri` 字符串，并扣留所有其他键，不予透传。在 `ui` 内部，当服务器设置了 `resourceUri` 和 `visibility` 时，`resourceUri` 为 `ui://` 字符串，`visibility` 为由 `"model"` 和 `"app"` 组成的数组，其他任何成员原样透传。当值格式错误时，Claude Code 会丢弃相应的键；对于两者都未声明的工具，则省略 `_meta`。仅当 init 消息的 [`capabilities`](#sdksystemmessage) 包含 `mcp_tool_ui_meta_v1` 时，该字段才会出现，并且需要 TypeScript Agent SDK v0.3.280 或更高版本。
 
-<h3 id="mcpserverstatusconfig">
-  `McpServerStatusConfig`
-</h3>
+### `McpServerStatusConfig`
 
 由 `mcpServerStatus()` 报告的 MCP 服务器配置。这是所有 MCP 服务器传输类型的联合类型。
 
@@ -5464,9 +4984,7 @@ type McpServerStatusConfig =
 
 有关每种传输类型的详细信息，请参阅 [`McpServerConfig`](#mcpserverconfig)。
 
-<h3 id="accountinfo">
-  `AccountInfo`
-</h3>
+### `AccountInfo`
 
 已通过身份验证用户的账户信息。
 
@@ -5480,9 +4998,7 @@ type AccountInfo = {
 };
 ```
 
-<h3 id="modelusage">
-  `ModelUsage`
-</h3>
+### `ModelUsage`
 
 在结果消息中返回的按模型统计的使用情况。`costUSD` 值是客户端估算值。有关计费注意事项，请参阅[跟踪成本和使用情况](/docs/zh-CN/agent-sdk/cost-tracking)。
 
@@ -5511,17 +5027,13 @@ type ModelUsage = {
 
 `costBasis` 指明为该模型最近一次请求定价所使用的价格表：`list` 表示标价，`managed` 表示 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 表，`unknown` 表示两者都未匹配该模型 ID。该字段需要 Claude Code v2.1.246 或更高版本。
 
-<h3 id="configscope">
-  `ConfigScope`
-</h3>
+### `ConfigScope`
 
 ```typescript theme={null}
 type ConfigScope = "local" | "user" | "project";
 ```
 
-<h3 id="nonnullableusage">
-  `NonNullableUsage`
-</h3>
+### `NonNullableUsage`
 
 [`Usage`](#usage) 的一个版本，其中除 `fallback_credit`（仍可为 `null`）外，所有可为空的字段都变为不可为空。
 
@@ -5533,9 +5045,7 @@ type NonNullableUsage = {
 };
 ```
 
-<h3 id="usage">
-  `Usage`
-</h3>
+### `Usage`
 
 token 使用统计信息。这是来自 `@anthropic-ai/sdk` 的 `BetaUsage` 类型。
 
@@ -5570,9 +5080,7 @@ type Usage = {
 
 `Usage` 是否携带 `fallback_credit` 取决于您安装的 `@anthropic-ai/sdk`，该字段在 0.115.0 中添加。
 
-<h3 id="calltoolresult">
-  `CallToolResult`
-</h3>
+### `CallToolResult`
 
 MCP 工具结果类型（来自 `@modelcontextprotocol/sdk/types.js`）。`structuredContent` 是一个 JSON 对象，可以与 `content`（包括图像块）一起返回。请参阅[返回结构化数据](/docs/zh-CN/agent-sdk/custom-tools#return-structured-data)。
 
@@ -5587,9 +5095,7 @@ type CallToolResult = {
 };
 ```
 
-<h3 id="sdkmcpresourcelink">
-  `SDKMcpResourceLink`
-</h3>
+### `SDKMcpResourceLink`
 
 MCP 工具以引用方式返回的一个文件。Claude Code 根据工具结果中的 `resource_link` 块构建每个条目，并将列表作为 [`SDKUserMessage.tool_use_result`](#sdkusermessage) 上的 `resourceLinks` 传递；当调用在后台完成时，则作为 [`SDKTaskNotificationMessage`](#sdktasknotificationmessage) 上的 `resource_links` 传递。需要 Agent SDK v0.3.257 或更高版本。
 
@@ -5617,9 +5123,7 @@ Claude Code 会丢弃 `uri` 或 `name` 不是字符串的块，并省略值不�
 | `size` | `number \| undefined` | 以字节为单位的大小，当服务器设置了时 |
 | `annotations` | `Record<string, unknown> \| undefined` | 该块的 MCP annotations 对象，当服务器设置了时 |
 
-<h3 id="thinkingconfig">
-  `ThinkingConfig`
-</h3>
+### `ThinkingConfig`
 
 控制 Claude 的思考/推理行为。优先于已弃用的 `maxThinkingTokens`。
 
@@ -5634,9 +5138,7 @@ type ThinkingConfig =
 
 可选的 `display` 字段控制思考文本以 `"summarized"` 还是 `"omitted"` 方式返回。在 Claude Opus 4.7 及更高版本上，API 默认值为 `"omitted"`，因此请设置 `"summarized"` 以在 `thinking` 块中接收思考内容。Claude Code 不会将您的 `display` 值传递给某些提供商，例如 Amazon Bedrock 和 Google Cloud 的 Agent Platform。在这些提供商上，即使您将 `display` 设置为 `"summarized"`，Opus 4.7 及更高版本也会返回空的 `thinking` 块。
 
-<h3 id="spawnedprocess">
-  `SpawnedProcess`
-</h3>
+### `SpawnedProcess`
 
 用于自定义进程生成的接口（与 `spawnClaudeCodeProcess` 选项一起使用）。`ChildProcess` 已满足此接口。
 
@@ -5665,9 +5167,7 @@ interface SpawnedProcess {
 }
 ```
 
-<h3 id="spawnoptions">
-  `SpawnOptions`
-</h3>
+### `SpawnOptions`
 
 传递给自定义 spawn 函数的选项。
 
@@ -5681,15 +5181,13 @@ interface SpawnOptions {
 }
 ```
 
-<Note>
-  `signal` 字段告诉您的 spawn 函数何时拆除进程。请将其作为 `signal` 选项传递给 Node 的 `spawn()`，或将其传递给您的 VM 或容器拆除处理程序。
+> [!NOTE]
+>
+> `signal` 字段告诉您的 spawn 函数何时拆除进程。请将其作为 `signal` 选项传递给 Node 的 `spawn()`，或将其传递给您的 VM 或容器拆除处理程序。
+>
+> 此信号不会在 [`Options.abortController`](#options) 中止的瞬间触发。SDK 会先关闭进程的 stdin 并等待约两秒，以便 CLI 能够干净地关闭，然后再中止此信号。如果要在调用方中止的那一刻立即作出反应，请监听您自己的 `Options.abortController.signal`，您的 spawn 函数可以从其外围作用域引用它。
 
-  此信号不会在 [`Options.abortController`](#options) 中止的瞬间触发。SDK 会先关闭进程的 stdin 并等待约两秒，以便 CLI 能够干净地关闭，然后再中止此信号。如果要在调用方中止的那一刻立即作出反应，请监听您自己的 `Options.abortController.signal`，您的 spawn 函数可以从其外围作用域引用它。
-</Note>
-
-<h3 id="mcpsetserversresult">
-  `McpSetServersResult`
-</h3>
+### `McpSetServersResult`
 
 `setMcpServers()` 操作的结果。
 
@@ -5711,9 +5209,7 @@ Promise 会在新添加的 stdio、HTTP 和 SSE 服务器连接成功或失败�
 
 `added` 列出 Claude Code 添加或替换的服务器，无论它们是否已连接。连接失败的服务器会同时出现在 `added` 和 `errors` 中，失败文本位于 `errors` 下，并在 [`mcpServerStatus()`](#methods) 中有一行 `failed`。在 Claude Code v2.1.257 之前，连接尝试抛出异常的服务器只会在 `errors` 下报告。
 
-<h3 id="rewindfilesresult">
-  `RewindFilesResult`
-</h3>
+### `RewindFilesResult`
 
 `rewindFiles()` 操作的结果。
 
@@ -5730,9 +5226,7 @@ type RewindFilesResult = {
 
 `skippedLinks` 统计回退出于链接安全考虑而拒绝恢复或删除的被跟踪路径：被跟踪路径上的符号链接、硬链接或其他非常规文件，不再解析到创建检查点时所指向位置的父目录，或无法安全读取的备份。该字段需要 Claude Code v2.1.216 或更高版本。使用 `rewindFiles(userMessageId, { dryRun: true })` 的预览调用永远不会设置它。
 
-<h3 id="sdkstatusmessage">
-  `SDKStatusMessage`
-</h3>
+### `SDKStatusMessage`
 
 状态更新消息（例如压缩中）。
 
@@ -5747,9 +5241,7 @@ type SDKStatusMessage = {
 };
 ```
 
-<h3 id="sdktasknotificationmessage">
-  `SDKTaskNotificationMessage`
-</h3>
+### `SDKTaskNotificationMessage`
 
 后台任务完成、失败或被停止时的通知。后台任务包括 `run_in_background` Bash 命令、[Monitor](#monitor) 监视以及后台子代理。有关 `run_id` 和 `ambient` 字段，请参阅 [`SDKTaskStartedMessage`](#sdktaskstartedmessage)，其中定义了这些字段及其版本要求。
 
@@ -5784,9 +5276,7 @@ Claude Code 会在其发送给模型的每个任务通知前添加一条提示�
 
 要检测任务通知轮次，请检查 [`SDKUserMessage`](#sdkusermessage) 或 [`SDKResultMessage`](#sdkresultmessage) 上的 `origin.kind === "task-notification"`，而不是匹配提示文本。如果需要知道是什么触发了它，请从同一字段读取 `subkind`。在 v2.1.205 之前，Claude Code 不会在会话空闲时到达的通知上添加该提示。
 
-<h3 id="sdktoolusesummarymessage">
-  `SDKToolUseSummaryMessage`
-</h3>
+### `SDKToolUseSummaryMessage`
 
 对话中工具使用情况的摘要。
 
@@ -5800,9 +5290,7 @@ type SDKToolUseSummaryMessage = {
 };
 ```
 
-<h3 id="sdkhookstartedmessage">
-  `SDKHookStartedMessage`
-</h3>
+### `SDKHookStartedMessage`
 
 在 hook 开始执行时发出。
 
@@ -5820,9 +5308,7 @@ type SDKHookStartedMessage = {
 };
 ```
 
-<h3 id="sdkhookprogressmessage">
-  `SDKHookProgressMessage`
-</h3>
+### `SDKHookProgressMessage`
 
 在 hook 运行期间发出，包含 stdout/stderr 输出。
 
@@ -5841,9 +5327,7 @@ type SDKHookProgressMessage = {
 };
 ```
 
-<h3 id="sdkhookresponsemessage">
-  `SDKHookResponseMessage`
-</h3>
+### `SDKHookResponseMessage`
 
 在 hook 执行完成时发出。
 
@@ -5864,9 +5348,7 @@ type SDKHookResponseMessage = {
 };
 ```
 
-<h3 id="sdktoolprogressmessage">
-  `SDKToolProgressMessage`
-</h3>
+### `SDKToolProgressMessage`
 
 在工具执行期间定期发出，以指示进度。
 
@@ -5903,9 +5385,7 @@ type SDKToolProgressMessage = {
 * 当同一 `parent_tool_use_id` 的后续 `tool_progress` 到达且既没有 `subagent_retry` 也没有 `heartbeat: true` 时，或当工具的结果消息到达时，清除指示器。带有 `heartbeat: true` 的帧仅报告存活状态，因此在收到此类帧时请保留指示器。在持续重试下，`attempt` 可能超过 `max_retries`，因此不要根据计数器来判断是否清除。
 * 将 `error_category` 视为用于选择您自己的消息文本的标记，而不是显示文本。其取值为 `rate_limit`、`overloaded`、`authentication_failed`、`server_error`、`cloud_credential_error` 和 `unknown`。请以处理 `unknown` 的方式处理无法识别的值，因为后续版本可能会添加新值。
 
-<h3 id="sdkauthstatusmessage">
-  `SDKAuthStatusMessage`
-</h3>
+### `SDKAuthStatusMessage`
 
 在身份验证流程中发出。
 
@@ -5920,9 +5400,7 @@ type SDKAuthStatusMessage = {
 };
 ```
 
-<h3 id="sdktaskstartedmessage">
-  `SDKTaskStartedMessage`
-</h3>
+### `SDKTaskStartedMessage`
 
 在任务开始时发出。对于 Bash 命令和 [Monitor](#monitor) 监视，`task_type` 字段为 `"local_bash"`；对于子代理为 `"local_agent"`；否则为 `"remote_agent"`。
 
@@ -5977,9 +5455,7 @@ type SDKTaskStartedMessage = {
 
 父任务可能是前台任务，也可能是已经结束的任务，因此请将无法识别的 ID 视为没有父任务。
 
-<h3 id="sdktaskprogressmessage">
-  `SDKTaskProgressMessage`
-</h3>
+### `SDKTaskProgressMessage`
 
 在子代理或后台任务运行期间定期发出。有关 `run_id` 字段，请参阅 [`SDKTaskStartedMessage`](#sdktaskstartedmessage)，其中定义了该字段及其版本要求。
 
@@ -6006,9 +5482,7 @@ type SDKTaskProgressMessage = {
 };
 ```
 
-<h3 id="sdktaskupdatedmessage">
-  `SDKTaskUpdatedMessage`
-</h3>
+### `SDKTaskUpdatedMessage`
 
 在后台任务状态发生变化时发出，例如从 `running` 转换为 `completed` 时。请将 `patch` 合并到以 `task_id` 为键的本地任务映射中。`end_time` 字段是以毫秒为单位的 Unix 纪元时间戳，可与 `Date.now()` 比较。有关 `run_id` 字段，请参阅 [`SDKTaskStartedMessage`](#sdktaskstartedmessage)，其中定义了该字段及其版本要求。
 
@@ -6031,9 +5505,7 @@ type SDKTaskUpdatedMessage = {
 };
 ```
 
-<h3 id="sdkbackgroundtaskschangedmessage">
-  `SDKBackgroundTasksChangedMessage`
-</h3>
+### `SDKBackgroundTasksChangedMessage`
 
 每当活动后台任务集合发生变化时发出：任务启动、完成、被终止、前台 Agent 被移到后台，或任务的 `description`、`ambient` 或 `parent_task_id` 字段发生变化。有关每个条目上的 `run_id` 和 `parent_task_id` 字段，请参阅 [`SDKTaskStartedMessage`](#sdktaskstartedmessage)，其中定义了这些字段及其版本要求。
 
@@ -6067,9 +5539,7 @@ type SDKBackgroundTasksChangedMessage = {
 
 在 [`task_type`](#sdktaskstartedmessage) 为 `"local_agent"` 的条目上，`subagent_type` 指明子代理类型，例如 `general-purpose` 或自定义子代理的名称。该字段需要 Agent SDK v0.3.293 或更高版本。
 
-<h3 id="sdkthinkingtokensmessage">
-  `SDKThinkingTokensMessage`
-</h3>
+### `SDKThinkingTokensMessage`
 
 在 Claude 生成思考块（包括经过编辑隐去的思考块）期间发出。`estimated_tokens` 是当前块中迄今为止生成的思考 token 的累计估算值，`estimated_tokens_delta` 是此帧携带的增量。请将这些估算值用于进度显示。
 
@@ -6089,9 +5559,7 @@ type SDKThinkingTokensMessage = {
 };
 ```
 
-<h3 id="sdksessionstatechangedmessage">
-  `SDKSessionStateChangedMessage`
-</h3>
+### `SDKSessionStateChangedMessage`
 
 在 Claude Code 报告会话状态时发出。要接收这些消息，请设置 [`CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS=1`](/docs/zh-CN/env-vars#variables)。Claude Code 可能会多次报告相同的状态，因此请将消息理解为会话的当前状态，而不是状态转换。
 
@@ -6113,9 +5581,7 @@ type SDKSessionStateChangedMessage = {
 };
 ```
 
-<h3 id="sdkfilespersistedevent">
-  `SDKFilesPersistedEvent`
-</h3>
+### `SDKFilesPersistedEvent`
 
 在文件检查点持久化到磁盘时发出。
 
@@ -6131,9 +5597,7 @@ type SDKFilesPersistedEvent = {
 };
 ```
 
-<h3 id="sdkratelimitevent">
-  `SDKRateLimitEvent`
-</h3>
+### `SDKRateLimitEvent`
 
 在会话遇到速率限制时发出。
 
@@ -6155,9 +5619,7 @@ type SDKRateLimitEvent = {
 
 当 `errorCode` 为 `"credits_required"` 时，表示拒绝来自已用尽所含用量的 claude.ai 订阅，在用户购买使用额度之前，会话无法继续。`canUserPurchaseCredits` 表示已通过身份验证的用户是否可以为该账户购买额度，`hasChargeableSavedPaymentMethod` 表示是否存有已保存的付款方式。在不属于 credits-required 拒绝的速率限制事件上，这三个字段都不存在。需要 Claude Code v2.1.181 或更高版本。
 
-<h3 id="sdklocalcommandoutputmessage">
-  `SDKLocalCommandOutputMessage`
-</h3>
+### `SDKLocalCommandOutputMessage`
 
 Claude Code 不会发出此消息类型。当您将 `/context` 或 `/usage` 等命令作为提示词发送时，其输出会以 [`SDKAssistantMessage`](#sdkassistantmessage) 的形式到达。
 
@@ -6171,9 +5633,7 @@ type SDKLocalCommandOutputMessage = {
 };
 ```
 
-<h3 id="sdkcommandschangedmessage">
-  `SDKCommandsChangedMessage`
-</h3>
+### `SDKCommandsChangedMessage`
 
 在会话中途可用命令集合发生变化时发出，例如当 Agent 进入子目录时 Claude Code 发现了 skill。`commands` 数组是完整的更新列表，因此请用此负载替换任何缓存的命令列表。在此消息之后调用 [`supportedCommands()`](#query-object) 会返回相同的更新列表，因为该方法会跟踪最新的推送；这需要 Agent SDK v0.3.216 或更高版本。在更早的 SDK 版本中，`supportedCommands()` 返回初始化时捕获的快照，永远不会反映会话中途的变化。
 
@@ -6189,9 +5649,7 @@ type SDKCommandsChangedMessage = {
 };
 ```
 
-<h3 id="sdkpromptsuggestionmessage">
-  `SDKPromptSuggestionMessage`
-</h3>
+### `SDKPromptSuggestionMessage`
 
 在启用 [`promptSuggestions`](#options) 且 Claude Code 为某个轮次生成了建议时，于该轮次之后发出。包含预测的下一个用户提示词。有关不会获得建议的轮次，请参阅 [Claude Code 何时跳过建议](/docs/zh-CN/interactive-mode#when-claude-code-skips-suggestions)。
 
@@ -6204,9 +5662,7 @@ type SDKPromptSuggestionMessage = {
 };
 ```
 
-<h3 id="sdkconversationresetmessage">
-  `SDKConversationResetMessage`
-</h3>
+### `SDKConversationResetMessage`
 
 在会话的对话被替换但会话未结束时发出。在 `query()` 调用中，只有 `/clear` 及其别名会产生此消息。请在 `new_conversation_id` 下挂载一个空的会话记录，并丢弃任何缓存的会话标题。
 
@@ -6232,9 +5688,7 @@ type SDKConversationResetMessage = {
 
 在 Claude Code v2.1.203 及更高版本中，SDK 发布的类型定义声明了 `SDKConversationResetMessage`。在 v2.1.203 之前，`SDKMessage` 引用了该类型却未声明它，因此在禁用 `skipLibCheck` 时，基于 `type === "conversation_reset"` 的类型收窄无法通过类型检查。
 
-<h3 id="aborterror">
-  `AbortError`
-</h3>
+### `AbortError`
 
 用于中止操作的自定义错误类。
 
@@ -6244,13 +5698,9 @@ class AbortError extends Error {}
 
 `AbortError` 是 SDK 类型化 API 中唯一的错误类。其他失败（例如 Claude Code 进程退出或启动失败）会以不带任何可匹配 SDK 类的错误拒绝消息迭代。[故障排除](/docs/zh-CN/agent-sdk/troubleshooting)按消息列出了这些错误，并给出了每种错误的原因和修复方法。
 
-<h2 id="sandbox-configuration">
-  沙箱配置
-</h2>
+## 沙箱配置
 
-<h3 id="sandboxsettings">
-  `SandboxSettings`
-</h3>
+### `SandboxSettings`
 
 沙箱行为的配置。使用它以编程方式启用命令沙箱并配置网络限制。
 
@@ -6282,15 +5732,13 @@ type SandboxSettings = {
 | `enableWeakerNestedSandbox` | `boolean` | `false` | 为兼容性启用较弱的嵌套沙箱 |
 | `ripgrep` | `{ command: string; args?: string[] }` | `undefined` | 用于沙箱环境的自定义 ripgrep 二进制文件配置 |
 
-<Note>
-  沙箱依赖于平台支持，在 Linux 上还依赖 `bubblewrap` 和 `socat` 等工具。当 `enabled` 为 `true` 且沙箱无法启动时，`query()` 会报告一条 `subtype: "error_during_execution"` 的 `result` 消息，并在 `errors` 中给出原因。对于单消息 `query()` 调用，SDK 会在产出该错误结果后抛出异常，因此请将循环包裹在 try 块中以便继续执行。有关错误约定，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
+> [!NOTE]
+>
+> 沙箱依赖于平台支持，在 Linux 上还依赖 `bubblewrap` 和 `socat` 等工具。当 `enabled` 为 `true` 且沙箱无法启动时，`query()` 会报告一条 `subtype: "error_during_execution"` 的 `result` 消息，并在 `errors` 中给出原因。对于单消息 `query()` 调用，SDK 会在产出该错误结果后抛出异常，因此请将循环包裹在 try 块中以便继续执行。有关错误约定，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
+>
+> 如需改为在沙箱外运行，请设置 `failIfUnavailable: false`。
 
-  如需改为在沙箱外运行，请设置 `failIfUnavailable: false`。
-</Note>
-
-<h4 id="example-usage">
-  使用示例
-</h4>
+#### 使用示例
 
 ```typescript theme={null}
 import { query } from "@anthropic-ai/claude-agent-sdk";
@@ -6317,13 +5765,11 @@ try {
 }
 ```
 
-<Warning>
-  **Unix 套接字安全：** `allowUnixSockets` 选项可能会授予对可触及沙箱外部的系统服务的访问权限。例如，允许 `/var/run/docker.sock` 实际上会通过 Docker API 授予对主机系统的完全访问权限，从而绕过沙箱隔离。请仅允许确实必要的 Unix 套接字，并了解每个套接字的安全影响。
-</Warning>
+> [!WARNING]
+>
+> **Unix 套接字安全：** `allowUnixSockets` 选项可能会授予对可触及沙箱外部的系统服务的访问权限。例如，允许 `/var/run/docker.sock` 实际上会通过 Docker API 授予对主机系统的完全访问权限，从而绕过沙箱隔离。请仅允许确实必要的 Unix 套接字，并了解每个套接字的安全影响。
 
-<h3 id="sandboxnetworkconfig">
-  `SandboxNetworkConfig`
-</h3>
+### `SandboxNetworkConfig`
 
 沙箱模式的网络相关配置。当父级 [`SandboxSettings`](#sandboxsettings) 中的 `enabled` 为 `true` 时，这些设置适用于在沙箱中运行的 Bash 命令。它们不会限制 WebFetch 工具，该工具改为使用[权限规则](/docs/zh-CN/permissions#webfetch)。
 
@@ -6353,13 +5799,11 @@ type SandboxNetworkConfig = {
 | `httpProxyPort` | `number` | `undefined` | 用于网络请求的 HTTP 代理端口 |
 | `socksProxyPort` | `number` | `undefined` | 用于网络请求的 SOCKS 代理端口 |
 
-<Note>
-  内置沙箱代理根据请求的主机名强制执行 `allowedDomains`，不会终止或检查 TLS 流量，因此[域前置](https://en.wikipedia.org/wiki/Domain_fronting)等技术可能会绕过它。有关详细信息，请参阅[沙箱隔离的安全限制](/docs/zh-CN/sandboxing#security-limitations)；有关配置 TLS 终止代理，请参阅[安全部署](/docs/zh-CN/agent-sdk/secure-deployment#traffic-forwarding)。
-</Note>
+> [!NOTE]
+>
+> 内置沙箱代理根据请求的主机名强制执行 `allowedDomains`，不会终止或检查 TLS 流量，因此[域前置](https://en.wikipedia.org/wiki/Domain_fronting)等技术可能会绕过它。有关详细信息，请参阅[沙箱隔离的安全限制](/docs/zh-CN/sandboxing#security-limitations)；有关配置 TLS 终止代理，请参阅[安全部署](/docs/zh-CN/agent-sdk/secure-deployment#traffic-forwarding)。
 
-<h3 id="sandboxfilesystemconfig">
-  `SandboxFilesystemConfig`
-</h3>
+### `SandboxFilesystemConfig`
 
 沙箱模式的文件系统相关配置。
 
@@ -6377,9 +5821,7 @@ type SandboxFilesystemConfig = {
 | `denyWrite` | `string[]` | `[]` | 拒绝写入访问的文件路径模式。要阻止沙箱内对会话工作目录中某个文件的写入，请列出其绝对路径。 |
 | `denyRead` | `string[]` | `[]` | 拒绝读取访问的文件路径模式 |
 
-<h3 id="permissions-fallback-for-unsandboxed-commands">
-  非沙箱命令的权限回退
-</h3>
+### 非沙箱命令的权限回退
 
 启用 `allowUnsandboxedCommands` 后，模型可以通过在工具输入中设置 `dangerouslyDisableSandbox: true` 来请求在沙箱外运行命令。这些请求会回退到现有的权限系统，这意味着您的 `canUseTool` 处理程序会被调用，从而允许您实现自定义授权逻辑。
 
@@ -6420,15 +5862,13 @@ for await (const message of query({
 }
 ```
 
-<Warning>
-  以 `dangerouslyDisableSandbox: true` 运行的命令拥有完全的系统访问权限。请确保您的 `canUseTool` 处理程序仔细验证这些请求。
+> [!WARNING]
+>
+> 以 `dangerouslyDisableSandbox: true` 运行的命令拥有完全的系统访问权限。请确保您的 `canUseTool` 处理程序仔细验证这些请求。
+>
+> 如果 `permissionMode` 设置为 `bypassPermissions` 且启用了 `allowUnsandboxedCommands`，模型可以在没有批准提示的情况下自主执行沙箱外的命令，[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)除外。这种组合实际上允许模型悄无声息地逃逸沙箱隔离。
 
-  如果 `permissionMode` 设置为 `bypassPermissions` 且启用了 `allowUnsandboxedCommands`，模型可以在没有批准提示的情况下自主执行沙箱外的命令，[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)除外。这种组合实际上允许模型悄无声息地逃逸沙箱隔离。
-</Warning>
-
-<h2 id="see-also">
-  另请参阅
-</h2>
+## 另请参阅
 
 * [SDK 概述](/docs/zh-CN/agent-sdk/overview) - 常规 SDK 概念
 * [Python SDK 参考](/docs/zh-CN/agent-sdk/python) - Python SDK 文档

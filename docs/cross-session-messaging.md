@@ -30,19 +30,19 @@
 要自己提示一条消息，告诉 Claude 你想让另一个会话知道或做什么。这个例子是你输入的提示，而不是 Claude 发送的消息：
 
 ```text wrap theme={null}
-询问在我的另一个终端中运行的会话迁移是否完成
+Ask the session running in my other terminal whether the migration finished
 ```
 
 Claude 会自己编写实际的消息，所以你的提示可以将内容留给 Claude。这个提示要求一个摘要而不指定其措辞，Claude 发送的内容会有所不同：
 
 ```text wrap theme={null}
-向处理支付 API 的会话解释我们刚刚做了什么
+Explain what we just did to the session working on the payments API
 ```
 
 要自己命名目标，在你的提示中提及会话：输入 `@` 后跟会话名称的首字母，然后从类型提示中选择会话，方式与 [@-提及子代理](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 相同。需要 Claude Code v2.1.232 或更高版本。Claude Code 会插入提及，例如 `@api-worker`，并告诉 Claude 它命名的是哪个会话，这样 Claude 可以向该会话发送消息而无需先列出你的会话。这个提示用提及命名目标：
 
 ```text wrap theme={null}
-让 @api-worker 知道 schema 迁移已完成
+Let @api-worker know the schema migration finished
 ```
 
 类型提示列出你在这台机器上的其他活跃会话。两种情况需要超过名称的首字母：
@@ -73,7 +73,7 @@ Claude Code 在以下情况下拒绝消息：
 * **已保留**：Claude Code 将消息搁置未传递。保留的消息仅在你批准它或稍后的模式或设置更改允许它时才到达 Claude。
 * **已拒绝**：Claude Code 丢弃消息而不传递它。
 
-一旦传递，消息计入 [使用情况](/docs/zh-CN/costs)，就像你输入的提示一样，接收 Claude 可以以相同的方式回复发送者，除了 [单向跨机器情况](#message-sessions-on-other-machines)。
+消息传递后，会像您输入的提示词一样计入[使用量](/docs/zh-CN/costs)。接收方 Claude 可以使用 `SendMessage` 回复发送者，但[来自其他机器和云端会话的回复](#replies-from-other-machines-and-cloud-sessions)和[关闭跨会话消息](#turn-off-cross-session-messaging)中所述的情况除外。
 
 权限边界保持按会话。Claude 被指示永远不要要求另一个会话执行在其自己的会话中被拒绝或阻止的操作，或其自己的权限设置会阻止的操作，而是将该工作路由回你。在接收端，[接收会话自己的权限提示和规则仍然适用](#how-a-session-treats-an-incoming-message) 于消息要求的任何内容。
 
@@ -86,7 +86,7 @@ Claude 可以要求你在这台机器上的一个会话在该会话下一次变�
 告诉 Claude 你在等什么。这个提示要求来自迁移会话的通知：
 
 ```text wrap theme={null}
-告诉我迁移会话何时完成它正在处理的工作
+Tell me when the migration session finishes what it's working on
 ```
 
 Claude 使用 `SendMessage` 工具的 `notify_when_idle` 输入订阅，要么附加到它正在发送的消息，要么单独订阅。单独订阅时，Claude Code 订阅而不在被监视的会话中启动轮次或花费令牌，如果该会话已经空闲，会立即发送通知。附加到消息时，Claude Code 先传递消息，然后稍后发送通知。
@@ -150,9 +150,13 @@ Claude 自己找到消息的目标，所以你不需要在要求它发送之前�
 
 容器内的会话和主机上的会话无法相互到达。同一容器内的两个会话仍然可以相互发送消息，包括在 [自托管运行器](/docs/zh-CN/self-hosted-environments) 上。WSL 2 内的会话和同一计算机上的本机 Windows 会话也无法相互到达。
 
-如果此会话在 Claude 发送到这台机器之外的会话时未连接到远程控制，消息仍然通过，但没有 [回复地址](#what-a-message-looks-like)，所以接收 Claude 无法回答它。
-
 要在任何消息超出这台机器之前要求你的批准，设置 [`isolatePeerMachines`](#require-approval-for-cross-machine-messages)。
+
+#### 来自其他机器和云端会话的回复
+
+[云端会话](/docs/zh-CN/claude-code-on-the-web)（包括在[自托管运行器](/docs/zh-CN/self-hosted-environments)上运行的云端会话）无法使用 `SendMessage` 回复来自另一台机器的消息，即使该消息带有[回复地址](#what-a-message-looks-like)也不行。消息仍然会到达。您可以在 [claude.ai/code](https://claude.ai/code) 上该云端会话的会话记录中查看其回复。
+
+如果 Claude 向这台机器之外的会话发送消息时，此会话未连接到 Remote Control，消息仍然会发出，但不带[回复地址](#what-a-message-looks-like)。接收方 Claude 无法回复该消息。
 
 ## 会话如何处理传入消息
 

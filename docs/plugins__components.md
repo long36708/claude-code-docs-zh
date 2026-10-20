@@ -470,7 +470,7 @@ Claude Code 断开超过任一限制或向 stdout 写入非协议输出的服务
 
 ### Executables
 
-插件根目录中 `bin/` 中的文件在启用插件时位于 Bash 工具的 shell 的 `PATH` 上，所以 Claude 可以将它们作为裸命令运行。添加一个可执行脚本：
+插件根目录中 `bin/` 中的文件在启用插件时位于 Bash 工具的 shell 的 `PATH` 上，所以 Claude 可以将它们作为裸命令运行。Claude 在 [沙箱](/docs/zh-CN/sandboxing) 之外使用 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool) 运行的命令也能在其 `PATH` 上找到它们，而在沙箱中运行的 PowerShell 命令则不能。添加一个可执行脚本：
 
 ```bash bin/hello-plugin theme={null}
 #!/bin/bash

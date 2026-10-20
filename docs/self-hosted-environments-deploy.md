@@ -189,6 +189,8 @@ RUN git config --system --add safe.directory '*'
 
 * **仅限 github.com**：只有当会话的所有仓库都在 github.com 上时，Anthropic 才会为其提供服务，并且 git 代理尚不支持 GitHub Enterprise Server。在启用 git 代理的运行器上，包含其他 git 主机上仓库的会话[无法启动](#when-anthropic-doesnt-serve-a-session)。
 * **仅限会话仓库的凭据**：Anthropic 只为属于会话的仓库提供 git 凭据，而不为同一 git 主机上的其他仓库提供。私有子模块、包管理器通过 git 获取的依赖，或位于另一个仓库中的插件市场，都不会从 Anthropic 获得凭据。请让创建会话的人员在创建会话时[添加会话所需的每个仓库](/docs/zh-CN/web-quickstart#start-a-task)。
+
+  [云端定时任务](/docs/zh-CN/routines)的每次运行都是一个包含该任务仓库的会话，因此请让每个任务的所有者[添加其运行所需的每个仓库](/docs/zh-CN/routines#edit-and-control-routines)。
 * **仅限分支推送**：删除分支的推送会失败，推送到任何其他类型的引用（例如标签）也会失败。有关推送可以更新哪些分支，请参阅 [GitHub 代理](/docs/zh-CN/cloud-environments#github-proxy)。
 * **已连接的 GitHub 账户**：请让每个使用仓库创建用户会话的人[连接 GitHub](/docs/zh-CN/web-quickstart#connect-github)。如果他们没有自己的连接，这些会话[无法启动](#creator-has-no-github-connection)。
 * **`--capacity 1`**：git 代理要求每个运行器进程只有一个会话，因此请运行更多副本以获得并行性。[启用 Anthropic git 代理](#turn-the-anthropic-git-proxy-on)列出了各项要求。
@@ -567,7 +569,8 @@ secrets:
 
   默认情况下，运行器在会话结束时将这些保留在原地，因此在持久化的磁盘上它们会累积。每个会话都以运行器自己的用户身份运行，因此该磁盘服务的任何后续会话都可以读取它们。如果保持持久的 `--base-dir`，请为该增长调整卷的大小。同样适用于在同一文件系统上重启运行器的任何设置，包括 [Docker Compose 配方](#docker-compose)。
 * **使用 `--remove-session-state` 时，按会话目录不会保留**：使用 [`--remove-session-state`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，以便在会话结束时删除每个会话的按会话目录。删除是尽力而为的：当运行器在清理运行前被杀死时，目录保留。规范克隆和会话在主机上其他地方写入的文件，例如临时目录，无论如何都会保留。
-* **使用 git 代理时，重置变成检出**：使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)，运行器在每个会话前清理克隆的 `.git/`，保留对象存储、引用和浅层状态，但删除索引，因此每个会话需要进行完整的工作树检出而不是近乎瞬间的重置；它仍然永远不会重新克隆。代理下不支持子模块预热。
+* **使用 git 代理时，重置变成检出**：使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 时，运行器在每个会话前清理克隆的 `.git/`。它保留对象存储和浅层状态，并删除索引。没有索引，每个会话都以完整的工作树检出开始，而不是近乎瞬间的重置。运行器仍然获取到现有克隆中，而不是再次克隆仓库。代理下不支持子模块预热。
+* **使用 git 代理时，`reftable` 预热会丢失其引用**：当运行器在每个会话前清理 `.git/` 时，它会保留 `.git/refs/` 并删除 `.git/reftable/` 目录。以 git 的 `reftable` 引用格式预热的克隆会因此丢失其引用，因此请改为以 git 的 `files` 引用格式预热克隆。
 * **长克隆不需要解决方法**：运行器使用 120 秒无进度监视器和 30 分钟硬上限来限制每个 git 操作，而不是平面超时，因此保持报告进度的缓慢冷克隆会完成。
 
 ## 固定版本
@@ -665,6 +668,9 @@ claude self-hosted-runner doctor
   运行器仅跳过明确的拒绝：主机回答存储库未找到，git 找不到主机的凭证，或身份验证失败。网络故障、超时或 HTTP `403` 仍会导致会话启动失败，对于会话推送结果的存储库的拒绝也是如此。运行器仍会失败一个会话，跳过会导致它完全没有存储库。使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)，运行器仅跳过 git 代理本身拒绝的存储库。
 
   访问检查在每次会话在运行器上启动时再次运行，因此一旦运行器的 git 身份具有读取访问权限，下一次启动就会克隆存储库。在 v2.1.274 之前，这些拒绝中的每一个都导致会话启动失败。
+* **会话启动失败，显示 `This runner couldn't read`**：运行器使用其 [git 凭据](#configure-git) 向 git 主机请求某个仓库，但得到了未找到的答复。该仓库不存在，或者这些凭据无法访问该仓库。
+  * **如果您管理该运行器**：为其 git 凭据授予该仓库的读取权限，然后启动新会话。
+  * **如果您启动了该会话**：如果该仓库不存在，请使用正确的仓库启动新会话。如果运行器无法访问该仓库，请让运行器的管理员授予访问权限，然后启动新会话。
 * **会话需要数分钟才能启动**：初始克隆通常占主导地位。观察 `claude_code_self_hosted_runner_session_init_duration_seconds` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 以确认，并使用 [预热检出](#reuse-a-pre-warmed-checkout) 或更小的 `CLAUDE_RUNNER_FETCH_DEPTH` 减少克隆。
 * **轮次以 401 失败**：当轮次以来自 Anthropic API 的 401 或 403 结束时，运行器从 Anthropic 获取新的 [`CLAUDE_CODE_OAUTH_TOKEN`](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts) 并将其传递给会话。失败的轮次不会重试。此令牌是短期的，运行器通过会话的 stdin 轮换它。
 

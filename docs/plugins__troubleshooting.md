@@ -774,6 +774,52 @@ claude plugin uninstall <name>@<marketplace> --scope project
 
 在 v2.1.295 之前，第二次运行会失败并显示 `Plugin "<name>" is not installed in project scope`。请运行 `claude update`，然后再次运行卸载。
 
+### 从 git 仓库安装的插件显示版本 `unknown`
+
+`claude plugin list` 中的 `Version: unknown` 可能意味着 Claude Code 无法读取它用作 git 来源插件版本的提交。该插件可能有自己的仓库，也可能位于 git 托管的市场中。
+
+在您的 shell 中运行以下命令，将 `formatter@my-marketplace` 替换为 `claude plugin list` 中该插件的 `name@marketplace` 行：
+
+**1. 更新 Claude Code**
+
+[将 Claude Code 更新](/docs/zh-CN/setup#update-claude-code)到 v2.1.302 或更高版本，该版本会以能够从中读取提交的格式进行克隆：
+
+```shell theme={null}
+claude update
+```
+
+**2. 更新市场**
+
+更新 Claude Code 的市场副本，其中保存了市场仓库内插件的提交：
+
+```shell theme={null}
+claude plugin marketplace update my-marketplace
+```
+
+**3. 更新插件**
+
+更新插件以重写其记录的版本：
+
+```shell theme={null}
+claude plugin update formatter@my-marketplace
+```
+
+**4. 检查版本**
+
+检查 `Version:` 行是否显示诸如 [12 字符提交 ID](/docs/zh-CN/plugins/loading#how-claude-code-computes-the-version) 之类的值：
+
+```shell theme={null}
+claude plugin list
+```
+
+`claude plugin update` [每次运行只更改一个作用域的块](/docs/zh-CN/plugins/cli-reference#which-scope-the-command-updates)。对于仍显示 `unknown` 的块，请使用该块的 `Scope:` 值重新运行：
+
+```shell theme={null}
+claude plugin update formatter@my-marketplace --scope project
+```
+
+如果重新运行后该块仍显示 `unknown`，请参阅 [获取更多帮助](/docs/zh-CN/troubleshooting#get-more-help)。
+
 ### `Failed to load hooks from <path>` 和不触发的 hooks
 
 插件的 hooks 不运行，或一个阻止了一个操作。要么 **Errors** 选项卡显示它们的加载失败，hooks 加载且您在成绩单中看到 `<Event> hook error` 通知或阻止错误，要么 hook 加载无错误且永远不触发。
