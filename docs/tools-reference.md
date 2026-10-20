@@ -48,7 +48,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `SendFeedback` | 起草关于 Claude Code 的反馈报告，涵盖产品问题或 Claude 在会话中的自身行为，并将其排队在您的机器上供您审查。Claude Code 在您选择发送草稿之前不会发送任何内容。请参阅 [SendFeedback 工具行为](#sendfeedback-tool-behavior)。需要 Claude Code v2.1.238 或更高版本 | 否 |
 | `SendMessage` | 向另一个代理发送消息：[代理团队](/docs/zh-CN/agent-teams)队友、[通过代理 ID 或名称恢复的子代理](/docs/zh-CN/sub-agents#resume-subagents)，或您的其他 Claude Code 会话之一，在此机器上或超越它。消息传递其他会话需要 Claude Code v2.1.224 或更高版本。[跨会话消息传递](/docs/zh-CN/cross-session-messaging)涵盖 Claude 可以到达的会话、[消息到达时的样子](/docs/zh-CN/cross-session-messaging#what-a-message-looks-like)以及[Claude 如何在另一个会话空闲时获得通知](/docs/zh-CN/cross-session-messaging#get-a-notice-when-another-session-goes-idle)。Claude 可以包含可选的 `summary` 输入，通常为 5-10 个单词，Claude Code 显示为单行预览。当 Claude 在[纯文本消息](/docs/zh-CN/cross-session-messaging#limitations)上省略它时，Claude Code 使用消息的第一行作为摘要。Claude Code 使用省略号截断长于 200 个字符的摘要 | 否 |
 | `SendUserFile` | 从会话向您发送文件，带有可选标题，以便生成的报告、图表、屏幕截图或构建产物到达您的设备，而不仅仅在会话记录中提及。可选的 `display` 输入控制呈现方式：`render` 在客户端中内联打开文件，`attach` 仅显示下载卡，未设置时客户端按文件类型决定。在连接 [Remote Control](/docs/zh-CN/remote-control) 客户端或在[云端会话](/docs/zh-CN/claude-code-on-the-web)中时可用。传递通过 Anthropic 托管的基础设施运行，因此该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用 | 否 |
-| `ShareOnboardingGuide` | 上传 `ONBOARDING.md` 并返回队友可以在 Claude Code 中打开的共享链接。在编写指南后从 `/team-onboarding` 调用。适用于 Pro、Max、Team 和 Enterprise 计划上的 claude.ai 订阅者 | 是 |
+| `ShareOnboardingGuide` | 上传 `ONBOARDING.md` 并返回队友可以在 Claude Code 中打开的共享链接。在编写指南后从 `/team-onboarding` 调用。适用于 Team 和 Enterprise 计划上的 claude.ai 订阅者 | 是 |
 | `Skill` | 在主对话中执行[skill](/docs/zh-CN/skills#control-who-invokes-a-skill) | 是 |
 | `SubagentHandback` | 将子代理的最终报告传递给接收该子代理结果的任何对话。仅在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中提供，给 Agent 工具在本地运行的子代理，除了[分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)，并在终端 CLI、IDE 扩展、网络版会话和 Agent SDK 中可用；分类器在传递报告前审查它。需要 Claude Code v2.1.271 或更高版本 | 否 |
 | `TaskCreate` | 在任务列表中创建新任务。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
@@ -100,11 +100,12 @@ Hook `matcher` 字段使用裸工具名称，而不是带括号的规则格式�
   Agent tool 行为
 </h2>
 
-Agent tool 在单独的上下文窗口中生成一个子代理。子代理自主地完成其任务，然后向父对话返回其结果。父对话看不到子代理的中间 tool 调用或输出，只能看到最终结果。启用 [agent teams](/docs/zh-CN/agent-teams) 后，携带 `name` 的调用可以启动一个 [teammate](/docs/zh-CN/agent-teams#how-claude-starts-agent-teams)，它通过团队消息而不是返回结果来报告。
+Agent tool 在单独的上下文窗口中生成一个子代理。子代理自主地完成其任务，然后向父对话返回其结果。父对话看不到子代理的中间 tool 调用或输出，只能看到最终结果。同一个 tool 也可以启动 teammate 或 fork：
+
+* **Teammate**：启用 [agent teams](/docs/zh-CN/agent-teams) 后，携带 `name` 的调用可以改为启动一个 [teammate](/docs/zh-CN/agent-teams#how-claude-starts-agent-teams)，它通过团队消息而不是返回结果来报告
+* **Fork**：在 [fork mode](/docs/zh-CN/sub-agents#turn-fork-mode-on-or-off) 打开的任何地方，该 tool 都可以启动一个 [forked subagent](/docs/zh-CN/sub-agents#fork-the-current-conversation)，它继承完整的父对话，而不是从头开始
 
 要限制子代理运行的轮数，请在 [subagent definition](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 中设置 `maxTurns`。当子代理达到限制时，Claude Code 将返回的结果标记为部分输出，Claude 可以 [resume the subagent](/docs/zh-CN/sub-agents#resume-subagents) 来继续。
-
-同一个 Agent tool 也会在 [fork mode](/docs/zh-CN/sub-agents#turn-fork-mode-on-or-off) 打开的地方启动 [forked subagents](/docs/zh-CN/sub-agents#fork-the-current-conversation)。fork 继承完整的父对话而不是从头开始，在后台运行，除了 [cases that stay in the foreground](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)，并且仍然在您的终端中显示权限提示。本节的其余部分描述非 fork 子代理。
 
 非 fork 子代理可以使用哪些 tools 取决于 [subagent definition](/docs/zh-CN/sub-agents) 中的 `tools` 和 `disallowedTools` 字段：
 
@@ -560,11 +561,15 @@ Read 工具接收文件路径并返回带有行号的文件内容。Claude 被�
 
 Read 处理多种文件类型，不仅仅是纯文本：
 
-* **图像**：PNG、JPG 和其他图像格式作为 Claude 可以看到的视觉内容返回，而不是原始字节。Claude Code 在发送大型图像之前会调整大小并重新压缩，以适应模型的图像大小限制，因此 Claude 可能会看到大型屏幕截图的缩小版本。在调整大小后仍然大于 500KB 的图像会被重新编码为质量降低的 JPEG，其像素尺寸保持不变。如果 Claude 在大型图像中遗漏了细微的像素级细节，请要求它先裁剪感兴趣的区域，例如通过 Bash 使用 ImageMagick。
+* **图像**：PNG、JPEG、GIF 和 WebP 文件作为 Claude 可以看到的视觉内容返回，而不是原始字节。Claude Code 在发送大型图像之前会调整大小并重新压缩，以适应模型的图像大小限制，因此 Claude 可能会看到大型屏幕截图的缩小版本。
+
+  如果 Claude 在大型图像中遗漏了细微的像素级细节，请要求它裁剪您关注的区域，例如通过 Bash 使用 ImageMagick，然后读取裁剪后的图像。
 * **PDF**：Claude 完整读取短 `.pdf` 文件。对于超过 10 页的 PDF，它使用 `pages` 参数按范围读取，例如 `"1-5"`，一次最多 20 页。页面范围读取使用 poppler-utils 中的 `pdftoppm` 呈现页面，因此在 macOS 上使用 `brew install poppler` 安装，在 Debian 和 Ubuntu 上使用 `apt-get install poppler-utils` 安装。在 Windows 和其他平台上，安装一个将 `pdftoppm` 放在 `PATH` 上的 poppler 构建。没有它，页面范围读取会失败并显示 `pdftoppm is not installed`。
 * **Jupyter 笔记本**：`.ipynb` 文件返回所有单元格及其输出，包括代码、markdown 和可视化。如果笔记本的单元格总量超过 256 KB，或超过 [token 限制](#large-files)，则会返回错误。Claude Code 拒绝读取超过 100 MB 的笔记本文件；错误会告诉 Claude 如何改为读取笔记本的一部分，例如使用 shell 命令读取单元格的一个切片。
 
 Read 仅读取文件，不读取目录。Claude 使用 shell 命令（如 `ls`）列出目录内容。
+
+Read 会拒绝读取其视为二进制扩展名的文件，例如 `.xlsx`、`.parquet`、`.heic` 或 `.zip`。被拒绝后 Claude 会继续工作：如果有适用于该文件类型的 skill，错误会建议使用该 skill，否则会建议使用能够读取该格式的 shell 命令或脚本。如果您 [`@` 提及](/docs/zh-CN/common-workflows#reference-files-and-directories)一个被 Read 拒绝的文件，Claude 会收到该文件的路径，但不会收到其内容。
 
 <h3 id="large-files">
   大型文件
@@ -738,7 +743,7 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
 
 一个交互式终端会话最多可以进行 200 次 WebSearch 调用。来自主对话和[子代理](/docs/zh-CN/sub-agents)的搜索（例如并行研究扇出）计入同一限制。
 
-当会话达到限制时，搜索在对话中显示为未执行任何操作的调用。Claude 会收到一个通知，告诉它继续使用已经收集的信息，如果需要更多搜索，则要求您提高限制。
+当会话达到限制时，搜索在对话中显示为未执行任何操作的调用。Claude 会收到一个通知，告诉它继续使用已经收集的信息，在回答中说明这一点，并且如果需要更多搜索，则要求您提高限制。
 
 要获得更多搜索次数，请提高上限、等待限制恢复，或开始新的对话：
 

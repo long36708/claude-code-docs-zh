@@ -160,7 +160,7 @@ Claude 可能没有识别出你想要运行或测试应用，或者模拟器工�
 * 确认 Xcode 和 iOS 模拟器已安装，并且你的 Xcode 版本符合[要求](#requirements)。
 * 如果你的组织管理 Claude Code，[模拟器工具可能被策略禁用](#turn-off-simulator-access)。
 * 如果你在启用了 HIPAA 配置的 Enterprise 组织中，模拟器窗格对你不可用。
-* 模拟器窗格需要 Claude Desktop v1.24012.0 或更高版本。打开**Claude → Check for Updates**，然后重启应用。
+* 模拟器窗格需要 Claude Desktop v1.24012.0 或更高版本。打开 **Claude > Check for Updates…**，然后重启应用。
 
 <h3 id="the-simulator-pane-says-no-simulators-were-found">
   模拟器窗格显示未找到模拟器
@@ -174,5 +174,5 @@ Xcode 已安装但没有 iOS 模拟器可列出。模拟器窗格显示要遵循
 
 * [Desktop 中的计算机使用](/docs/zh-CN/desktop#let-claude-use-your-computer)：没有专用窗格的应用的屏幕控制
 * [CLI 中的计算机使用](/docs/zh-CN/computer-use)：CLI 如何访问 iOS Simulator
-* [与会话并行工作](/docs/zh-CN/desktop#work-in-parallel-with-sessions)：会话如何隔离更改
+* [在独立的 worktree 中运行会话](/docs/zh-CN/desktop#run-a-session-in-its-own-worktree)：会话如何隔离更改
 * [开始使用 Claude Code Desktop](/docs/zh-CN/desktop-quickstart)

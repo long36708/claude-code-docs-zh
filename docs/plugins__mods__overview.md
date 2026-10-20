@@ -219,7 +219,7 @@ mod 的 hook 在加载该插件的每种会话中运行，无论由哪个提供�
 | 终端中的 `claude`，包括编辑器的集成终端和 JetBrains 插件 | 是 | 是 |
 | 桌面应用的代码选项卡，WSL 会话除外 | 是 | 是，[元素表](/docs/zh-CN/plugins/mods/reference#elements)标记为仅限终端的元素除外 |
 | 桌面应用中的 [WSL 会话](/docs/zh-CN/desktop-wsl) | 否，因为插件在 WSL 会话中不可用 | 否 |
-| VS Code 扩展的聊天面板 | 是 | 是，需使用扩展版本 2.1.299 或更高版本，并且在[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话中。[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)表和[元素](/docs/zh-CN/plugins/mods/reference#elements)表标出了该面板绘制的内容。 |
+| VS Code 扩展的聊天面板 | 是 | 是，需使用扩展版本 2.1.299 或更高版本。[不获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话（例如 Amazon Bedrock 上的会话）需要 2.1.304 或更高版本。[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)表和[元素](/docs/zh-CN/plugins/mods/reference#elements)表标出了该面板绘制的内容。 |
 | `claude -p` 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview) | 是 | 否 |
 | 从 claude.ai 或移动应用使用 [Remote Control](/docs/zh-CN/remote-control) | 是，在您机器上的会话中 | 在您机器上的终端中 |
 | [云端会话](/docs/zh-CN/claude-code-on-the-web) | 是，适用于[可进入云端会话](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)的插件 | 否 |

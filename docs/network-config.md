@@ -223,7 +223,7 @@ Claude Code 运行四个独立的计时器，当流式模型响应变得安静�
 * `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 设置两个监视器的超时。Claude Code 将低于 5 分钟的值提高到 5 分钟，并将字节级监视器的值上限设为 30 分钟。
 * `CLAUDE_BYTE_STREAM_IDLE_TIMEOUT_MS` 设置字节级监视器的超时，而不改变事件级监视器的超时，限制在 10 秒到 30 分钟之间，并优先于 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 用于该监视器。
 * `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` 直接设置首字节截止时间。保持未设置状态，Claude Code 使用字节级监视器的超时，因此 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 和 `CLAUDE_BYTE_STREAM_IDLE_TIMEOUT_MS` 也会改变截止时间。有关限制、上传额度、`API_TIMEOUT_MS` 上限以及重试在无响应中止后等待多长时间，请参阅 [API 无响应](/docs/zh-CN/errors#no-response-from-api)。
-* `API_TIMEOUT_MS` 限制等待响应头的时间。在首字节截止时间不运行的情况下（例如 Claude apps gateway 会话），将其设置为低于 `300000`（即 5 分钟），以便更快地重试未得到应答的请求。请将其保持在您预期的最长响应头等待时间以及最长[非流式请求](/docs/zh-CN/errors#streaming-response-ended-before-any-complete-data-was-received)所需时间之上：需要更长时间的请求会在每次重试时再次超时。
+* `API_TIMEOUT_MS` 限制等待响应头的时间，而不是响应头到达后响应可以流式传输多长时间。在首字节截止时间不运行的情况下（例如 Claude apps gateway 会话），将其设置为低于 `300000`（即 5 分钟），以便更快地重试未得到应答的请求。请将其保持在您预期的最长响应头等待时间以及最长[非流式请求](/docs/zh-CN/errors#streaming-response-ended-before-any-complete-data-was-received)所需时间之上：需要更长时间的请求会在每次重试时再次超时。
 * `API_FORCE_IDLE_TIMEOUT` 设置为 `0` 会关闭主体空闲超时，设置为 `1` 会为每个提供商打开它。监视器独立于它运行，因此要让流暂停超过其阈值，也要提高或禁用它们。
 
 当监视器中止停滞的流时，Claude Code 将中止视为中流失败，你看到的内容取决于响应已进行到多远。Claude Code 重试请求或以错误结束轮次，保留已完成的输出并显示 [不完整响应通知](/docs/zh-CN/errors#the-response-above-may-be-incomplete)，或正常结束轮次。[自动重试](/docs/zh-CN/errors#automatic-retries) 说明每个结果适用的位置。

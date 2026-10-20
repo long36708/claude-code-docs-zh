@@ -155,7 +155,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/stop` | 停止您已附加到的[后台会话](/docs/zh-CN/agent-view)，或您以[窥视回复](/docs/zh-CN/agent-view#peek-and-reply)方式发送此命令的目标会话；会话记录和任何 worktree 都会保留。要分离而不停止，请使用 `/exit` 或按 `←` |
 | `/subtask <task>` | 生成一个[分叉子代理](/docs/zh-CN/sub-agents#fork-the-current-conversation)：一个继承完整对话的后台子代理，在您继续工作的同时处理该任务。完成后，其结果会返回到此对话。要改为将对话复制到单独的后台会话中，请使用 `/fork`。当[关闭 Agent 视图](/docs/zh-CN/agent-view#turn-off-agent-view)时，`/subtask` 不可用，`/fork` 会改为生成分叉子代理 |
 | `/tasks` | 查看和管理当前会话中的后台工作，包括已完成的子代理。也可作为 `/bashes` 使用 |
-| `/team-onboarding` | 根据您的 Claude Code 使用历史生成团队入门指南。Claude 会分析您过去 30 天的会话、命令和 MCP 服务器使用情况，并生成一份 markdown 指南，队友可以将其作为第一条消息粘贴以快速完成设置。对于 Pro、Max、Team 和 Enterprise 套餐的 claude.ai 订阅者，还会返回一个分享链接，队友可以直接在 Claude Code 中打开 |
+| `/team-onboarding` | 根据您的 Claude Code 使用历史生成团队入门指南。Claude 会分析您过去 30 天的会话、命令和 MCP 服务器使用情况，并生成一份 markdown 指南，队友可以将其作为第一条消息粘贴以快速完成设置。对于 Team 和 Enterprise 套餐的 claude.ai 订阅者，还会返回一个分享链接，队友可以直接在 Claude Code 中打开 |
 | `/teleport` | 将[云端会话](/docs/zh-CN/claude-code-on-the-web#from-cloud-to-terminal)拉取到此终端。打开选择器，然后获取分支和对话。也可作为 `/tp` 使用。需要 claude.ai 订阅 |
 | `/terminal-setup` | 在 VS Code、Cursor、Devin Desktop、Alacritty 或 Zed 中[安装用于换行的 Shift+Enter 快捷键](/docs/zh-CN/terminal-config#enter-multiline-prompts)。在 Apple Terminal 中，则改为[启用 Option+Enter 换行并关闭提示音](/docs/zh-CN/terminal-config#enable-option-key-shortcuts-on-macos)。在 iTerm2 中，[开启剪贴板访问，使 `/copy` 能够正常工作](/docs/zh-CN/terminal-config#enable-option-key-shortcuts-on-macos) |
 | `/theme` | 更改颜色主题。包括与终端浅色或深色背景匹配的 `auto` 选项、浅色和深色变体、色盲友好（daltonized）主题、使用终端调色板的 ANSI 主题，以及来自 `~/.claude/themes/` 或插件的任何[自定义主题](/docs/zh-CN/terminal-config#create-a-custom-theme)。选择 **New custom theme…** 可创建一个主题 |

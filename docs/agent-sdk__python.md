@@ -1035,7 +1035,7 @@ options = ClaudeAgentOptions(
 )
 ```
 
-* `API_TIMEOUT_MS`：Anthropic 客户端上的每个请求超时时间，以毫秒为单位。默认 `600000`。适用于主循环和所有子代理。
+* [`API_TIMEOUT_MS`](/docs/zh-CN/env-vars)：每次请求尝试可以等待响应标头的时长，以毫秒为单位。它不限制标头到达后流式响应的持续时间。默认 `600000`。适用于主循环和所有子代理。
 * `CLAUDE_CODE_MAX_RETRIES`：最大 API 重试次数。默认 `10`，上限为 `15`。每次重试都有自己的 `API_TIMEOUT_MS` 窗口。
 
   对于需要等待更长时间中断的无人值守运行，设置 [`CLAUDE_CODE_RETRY_WATCHDOG=1`](/docs/zh-CN/errors#tune-retry-behavior)：它会无限期重试瞬时容量错误，并且在 Claude Code v2.1.199 或更高版本上，将其他瞬时错误的默认值提高到 `300` 并移除此变量的上限。

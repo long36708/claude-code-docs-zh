@@ -423,7 +423,9 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 * **[提示 hooks](#prompt-and-agent-hook-fields)**（`type: "prompt"`）：向 Claude 模型发送提示以进行单轮评估。模型以 JSON 形式返回其决定。请参阅 [基于提示的 hooks](#prompt-based-hooks)。
 * **[代理 hooks](#prompt-and-agent-hook-fields)**（`type: "agent"`）：生成一个子代理，可以使用 Read、Grep 和 Glob 等工具来验证条件，然后返回决定。代理 hooks 是实验性的，可能会改变。请参阅 [基于代理的 hooks](#agent-based-hooks)。
 
-所有匹配的 hooks 并行运行。如果在多个设置文件中定义相同的处理程序，它运行一次。插件或技能的相同处理程序副本保持分离。
+当事件触发时，其匹配的 hook 并行运行。如果其中超过 12 个是提示词或 Agent hook，则其中 12 个同时运行，其余的在正在运行的 hook 完成后开始。每个等待中的 hook 的 [`timeout`](#common-fields) 从该 hook 开始运行时开始计时。
+
+如果在多个设置文件中定义相同的处理程序，它运行一次。插件或 skill 的相同处理程序副本保持分离。
 
 处理程序在当前目录中使用 Claude Code 的环境运行。如果当前目录不再存在，例如另一个 shell 在会话中途删除的 worktree 或临时目录，Claude Code 从以下第一个仍然存在的目录运行命令 hook：会话启动的目录、项目根目录、您的主目录或系统临时目录。Claude Code 在 [调试日志](#debug-hooks) 中记录一个警告，命名回退目录。对于从桌面应用启动的 worktree 会话，请参阅 [worktree 与主检出共享的内容](/docs/zh-CN/worktrees#what-worktrees-share-with-the-main-checkout)。
 
@@ -2050,7 +2052,7 @@ Windows 上的 `Write` 调用会传递：
 
 | 字段 | 类型 | 示例 | 说明 |
 | :- | :- | :- | :- |
-| `status` | string | `"completed"` | 前台子代理为 `"completed"`，后台子代理为 `"async_launched"`。子代理默认在后台运行，因此省略 `run_in_background` 的 Agent 调用也会产生 `"async_launched"` |
+| `status` | string | `"completed"` | 前台子代理为 `"completed"`，后台子代理为 `"async_launched"`。有关哪些子代理以哪种方式运行，请参阅[在前台或后台运行子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background) |
 | `agentId` | string | `"a4d2c8f1e0b3a297"` | 子代理运行的标识符 |
 | `content` | array | `[{"type": "text", "text": "Found 12 endpoints..."}]` | 子代理的最终文本块；对于通过 `SubagentHandback` 提交报告的子代理，则代之以一条关于该移交的简短说明 |
 | `resolvedModel` | string | `"claude-sonnet-4-5"` | 子代理启动时使用的模型，可能与请求的模型不同 |
@@ -3687,7 +3689,7 @@ Claude Code 会将匹配器与会话将要切换到的模型的规范名称进�
 | `source` | string | 请求的来源：`"command"` 表示 `/model <name>`、`/config` 中的 Model 设置或启用快速模式；`"picker"` 表示模型选择器；`"sdk"` 表示来自 Agent SDK 宿主或 Remote Control 的 `set_model` 请求，或 `apply_flag_settings` 请求中的模型更改 |
 | `context_tokens` | number | 下一个请求作为提示词重新发送的 token 数：主对话中最后一次响应的输入、缓存读取、缓存创建和输出 token 的总和。在第一次响应之前为 `0` |
 | `prompt_cache_warm` | boolean | 当前模型的提示缓存是否可能仍处于预热状态，即切换会使其失效 |
-| `cache_ttl` | string | Claude Code 为此会话请求的[提示缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)：`"5m"` 或 `"1h"` |
+| `cache_ttl` | string | 本次切换时主对话的[提示缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)：`"5m"` 或 `"1h"` |
 | `estimated_cache_write_usd` | number | 按 `cache_ttl` 费率在 `to_model` 上将 `context_tokens` 写入提示缓存的估算成本（美元），不包括下一次响应。服务器可能不需要重新缓存整个上下文，因此请将其视为估算值 |
 | `pricing` | string | Claude Code 如何为 `estimated_cache_write_usd` 定价：`"configured"` 表示在您的组织已配置自有费率时按该费率计算，`"catalog"` 表示按标价计算，`"default"` 表示 `to_model` 没有已知价格，Claude Code 假定了默认费率 |
 

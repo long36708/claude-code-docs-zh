@@ -172,9 +172,16 @@
 
 在 Python SDK 中，多词字段名称如 `disallowedTools` 和 `mcpServers` 保持其 camelCase 拼写以匹配线路格式，而不是遵循 Python 的 snake\_case 约定。有关详细信息，请参阅[`AgentDefinition` 参考](/docs/zh-CN/agent-sdk/python#agentdefinition)。
 
-子代理默认在后台运行。省略 [`run_in_background`](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background) 输入的 Agent 工具调用启动后台子代理，当 Claude 需要结果后才继续时设置 `run_in_background: false`。设置 `background` 字段为 `true` 以强制特定代理的后台执行，无论 Claude 请求什么。在 Claude Code v2.1.198 之前，后台默认逐步推出，省略 `run_in_background` 的 Agent 工具调用可能同步运行子代理。
+<h4 id="choose-whether-claude-waits-for-subagents">
+  选择 Claude 是否等待子代理
+</h4>
 
-子代理也可以生成自己的子代理。要限制嵌套的深度、同时运行的子代理数量以及查询花费的金额，请参阅[限制子代理深度、并发和支出](#cap-subagent-depth-concurrency-and-spend)。
+默认情况下，主 Agent 生成的子代理[在后台运行](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)。Agent 工具结果包含 `status: "async_launched"`，报告会在之后的轮次中送达。
+
+当 Claude 的下一步操作需要该报告时，它会等待：调用会阻塞并返回 `status: "completed"`。要自行做出此选择：
+
+* **在提示词中**：要求 Claude 等待，例如"run the test-runner agent and wait for it"
+* **在定义中**：将 `background` 设置为 `true`，使该 Agent 保持在后台运行
 
 <h3 id="filesystem-based-definition-alternative">
   基于文件系统的定义（替代方案）
@@ -241,6 +248,30 @@ Claude 根据任务和每个子代理的 `description` 自动决定何时调用�
 ```
 
 这会绕过自动匹配，直接调用指定的子代理。
+
+<h3 id="forked-subagents">
+  分叉子代理
+</h3>
+
+[分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)是一种复制当前已有对话、而非从头开始的子代理。从 Claude Code v2.1.302 开始，无需任何配置，Claude 即可在您的应用程序中启动分叉，方法是调用 Agent 工具并传入 `subagent_type: "fork"`。
+
+要阻止 Claude 启动分叉，请添加 [`Agent(fork)` 拒绝规则](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules)：
+
+<CodeGroup>
+  ```python Python theme={null}
+  options = ClaudeAgentOptions(
+      # 仅拒绝 fork 子代理类型；其他子代理仍会运行
+      disallowed_tools=["Agent(fork)"],
+  )
+  ```
+
+  ```typescript TypeScript theme={null}
+  const options = {
+    // 仅拒绝 fork 子代理类型；其他子代理仍会运行
+    disallowedTools: ["Agent(fork)"]
+  };
+  ```
+</CodeGroup>
 
 <h3 id="dynamic-agent-configuration">
   动态代理配置

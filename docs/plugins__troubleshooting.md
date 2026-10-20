@@ -40,7 +40,7 @@
 
 从您所在的表面安装插件：
 
-* **Claude 桌面应用、本地或 SSH 会话**：点击提示旁边的 **+** 按钮，然后点击 **Plugins**，然后点击 **Add plugin** 打开 [插件浏览器](/docs/zh-CN/desktop#install-plugins)
+* **Claude 桌面应用、本地或 SSH 会话**：使用 [安装插件](/docs/zh-CN/plugins/install#install-a-plugin) 下的 **Desktop app** 选项卡
 * **VS Code 扩展**：使用 [安装插件](/docs/zh-CN/plugins/install#install-a-plugin) 下的 **VS Code** 选项卡
 * **网络上的 Claude Code 或桌面云会话**：云会话没有插件浏览器。有关云会话加载的内容，请参阅 [安装插件](/docs/zh-CN/plugins/install#install-a-plugin) 下的 **Cloud session** 选项卡
 * **您有权访问的终端**：运行 `claude` 并在那里键入 `/plugin`，或在您的 shell 中运行 `claude plugin install <plugin>@<marketplace>` 而不启动会话

@@ -957,6 +957,14 @@ Claude Code 将 agent view 中列出的每个会话都视为后台会话，无�
 
 运行 `/tasks` 来查看正在运行的所有内容，然后确认后台处理或选择 `Stay` 来让工作先完成。请参阅[后台处理时转移的内容](#what-carries-over-when-you-background)，了解哪些类型的工作会转移，哪些 Claude Code 会停止。
 
+<h3 id="carried-into-this-session-and-not-resumed">
+  对话显示某个后台 Agent `was carried into this session and not resumed`
+</h3>
+
+此通知指明了一个未在此会话中运行的后台[子代理](/docs/zh-CN/sub-agents)。
+
+Claude 会看到此通知并自行回复，因此您无需提示它。如果阅读 Claude 的回复后您仍需要该子代理的工作成果，请向 Claude 提出。
+
 <h3 id="prompt-rejected-as-too-short">
   提示词被拒绝为过短
 </h3>

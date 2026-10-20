@@ -9,7 +9,10 @@
 [git worktree](https://git-scm.com/docs/git-worktree) 是一个单独的工作目录，具有自己的文件和分支，但与主检出共享相同的仓库历史和远程。在各自的 worktree 中运行每个 Claude Code 会话，可以为其提供一份单独的文件副本用于编辑，因此一个会话可以构建功能，而第二个会话可以修复错误。
 
 <Note>
-  Worktrees 需要 git 存储库；对于其他版本控制系统，请[配置 hooks 来替换 git 逻辑](#non-git-version-control)。在[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)中，启动会话时选择 **worktree** 选项，为其提供自己的 worktree。
+  如果您使用其他版本控制系统或桌面应用，请按照适用于您环境的说明操作：
+
+  * **其他版本控制系统**：worktrees 需要 git 仓库；请[配置 hooks 来替换 git 逻辑](#non-git-version-control)
+  * **桌面应用**：请参阅[在独立的 worktree 中运行会话](/docs/zh-CN/desktop#run-a-session-in-its-own-worktree)
 </Note>
 
 Worktrees 是运行 Claude 并行的几种方式之一。它们隔离文件编辑。[子代理](/docs/zh-CN/sub-agents)在一个会话内分割工作，[跨会话消息传递](/docs/zh-CN/cross-session-messaging)让 Claude 在您的 worktrees 中的会话之间传递发现。请参阅[并行运行代理](/docs/zh-CN/agents)来比较这些方法，或跳到[使用 worktrees 隔离子代理](#isolate-subagents-with-worktrees)以同时使用 worktrees 和子代理。
@@ -270,7 +273,7 @@ Worktree 获得自己的文件和分支，但它与主检出共享以下内容�
 
 无论您是使用 `--worktree` 还是使用 `git worktree add` 创建 worktree，所有这些都适用。
 
-在从[桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions)启动的 worktree 会话中，Claude Code 从主检出的根目录而不是从 worktree 读取项目配置，例如设置、hook、skill、Agent、命令和 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 服务器。Hook 命令在该根目录中运行，`${CLAUDE_PROJECT_DIR}` 也指向该根目录。要访问 Claude 正在处理的文件，请从 hook 的 [`cwd` 输入字段](/docs/zh-CN/hooks#common-input-fields)读取 worktree 的路径。`CLAUDE.md` 文件和 `.claude/rules/` 仍从 worktree 加载。
+在从[桌面应用](/docs/zh-CN/desktop#run-a-session-in-its-own-worktree)启动的 worktree 会话中，Claude Code 从主检出的根目录读取项目配置，例如设置、hook、skill、Agent、命令和 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 服务器。Hook 命令在该根目录中运行，`${CLAUDE_PROJECT_DIR}` 也指向该根目录。要访问 Claude 正在处理的文件，请从 hook 的 [`cwd` 输入字段](/docs/zh-CN/hooks#common-input-fields)读取 worktree 的路径。`CLAUDE.md` 文件和 `.claude/rules/` 仍从 worktree 加载。
 
 <h2 id="manage-worktrees-manually">
   手动管理 worktrees
@@ -434,4 +437,4 @@ Worktrees 处理文件隔离。下面的相关页面涵盖将工作委派到这�
 * [跨会话消息传递](/docs/zh-CN/cross-session-messaging)：让您的 worktrees 中的会话相互传递发现
 * [代理团队](/docs/zh-CN/agent-teams)：自动协调多个 Claude 会话
 * [管理会话](/docs/zh-CN/sessions)：命名、恢复和在对话之间切换
-* [桌面并行会话](/docs/zh-CN/desktop#work-in-parallel-with-sessions)：桌面应用中由 worktree 支持的会话
+* [在独立的 worktree 中运行桌面会话](/docs/zh-CN/desktop#run-a-session-in-its-own-worktree)：桌面应用中由 worktree 支持的会话

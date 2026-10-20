@@ -268,7 +268,7 @@ Claude Code 还会从您粘贴到输入框中的文本以及您发送的任何�
 
 点击 Claude Code 面板顶部的 **Session history** 按钮即可访问您的对话历史记录。您可以按关键字搜索或按时间浏览。
 
-点击任意对话即可连同完整的消息历史记录一起恢复。如果该对话已在当前窗口的另一个标签页中打开，点击它会切换到该标签页。如果消息一开始显示为空白，请参阅[为什么显示为空白以及何时出现](#a-resumed-conversation-is-blank-at-first)。有关恢复会话的更多信息，请参阅[管理会话](/docs/zh-CN/sessions)。
+点击任意对话即可将其恢复。如果该对话已在当前窗口的另一个标签页中打开，点击它会切换到该标签页。如果对话打开后没有显示任何消息，请参阅[为什么恢复的对话一开始显示为空白](#a-resumed-conversation-is-blank-at-first)。有关恢复会话的更多信息，请参阅[管理会话](/docs/zh-CN/sessions)。
 
 * **会话标题**：新会话会根据您的第一条消息获得 AI 生成的标题。
 * **重命名和归档**：将鼠标悬停在会话上即可显示这些操作。重命名可为其设置描述性标题，归档则会将其移至列表底部的 **Archived sessions** 组。
@@ -414,7 +414,8 @@ VS Code 扩展支持检查点，它会跟踪 Claude 的文件编辑，并允许�
 
 当面板在加载对话时崩溃或停止响应，或者您在对话打开后约三秒内重新加载或关闭窗口时，打开操作就不会完成。该对话不会发生变化，并仍保留在[会话历史记录](#resume-past-conversations)中。
 
-* **仍要打开**：点击 **Open it anyway** 或从会话历史记录中选择该对话。如果对话成功打开且面板持续正常工作，之后重新加载时它会照常恢复。如果面板再次停止响应，请重新加载窗口，以返回带有该通知的新聊天。
+* **仍要打开**：点击 **Open it anyway** 或从会话历史记录中选择该对话。对话打开完成后，之后重新加载时它会[照常恢复](#continue-conversations-after-a-reload)。
+* **如果面板在加载对话时停止响应**：重新加载窗口。随后会打开一个新聊天。
 * **保持关闭**：继续在新聊天中工作。发送提示词后，该通知即会消失。
 
 <h3 id="run-multiple-conversations">
@@ -556,7 +557,7 @@ GitHub README、issue 以及其他一些 Markdown 托管平台会移除 scheme �
   在面板中绘制内容的插件
 </h3>
 
-包含 [mod](/docs/zh-CN/plugins/mods/overview) 的插件可以在聊天面板中绘制内容。绘制功能需要扩展版本 2.1.299 或更高版本，并且需要一个[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话。您可以从此类插件中看到：
+包含 [mod](/docs/zh-CN/plugins/mods/overview) 的插件可以在聊天面板中绘制内容。绘制功能需要扩展版本 2.1.299 或更高版本。[不获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话（例如在 Amazon Bedrock 上运行的会话）需要 2.1.304 或更高版本。您可以从此类插件中看到：
 
 * 对话旁边或输入框上方的窗格
 * 输入框上方的 toast 通知或状态栏
@@ -624,10 +625,19 @@ summarize the changes I've made to the auth module
 
 当某个命令或[子代理](/docs/zh-CN/sub-agents)让 Claude 等待的时间超出您的预期时，请点击对话中其工具调用下方的 **Run in background**。需要 Claude Code v2.1.287 或更高版本。
 
-* **时机**：命令运行约两秒后，或子代理一启动，该操作即会出现。
+* **时机**：命令运行约两秒后，或 Claude 一开始等待其从主对话中生成的[子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)，该操作即会出现。
 * **点击之后**：Claude 停止等待并继续当前轮次。命令或子代理会作为[后台任务](/docs/zh-CN/tools-reference#background-commands)继续运行，并在完成时通知 Claude。
 
 如需在此期间查看任务状态或停止任务，请在输入框中键入 `/tasks` 以打开 [Agent 地图](#use-the-prompt-box)。子代理会在其中的 Agent 树中保持其位置，而命令会列在各 Agent 下方，其卡片上显示[最新输出](#monitor-background-processes)。
+
+<h4 id="the-run-in-background-action-is-missing-under-a-subagent">
+  子代理下方缺少 Run in background 操作
+</h4>
+
+在 VS Code 中，子代理默认不显示此操作。要了解某个子代理为何不显示，请在 [Agent 地图](#use-the-prompt-box)中打开其卡片并查看 `Spawned by` 行：
+
+* **`Spawned by the main agent`**：该子代理是在后台启动的，因此 Claude 不会等待它，您无需执行任何操作。如需让 Claude 改为等待子代理，请参阅[让 Claude 等待子代理](/docs/zh-CN/sub-agents#let-claude-wait-for-a-subagent)。
+* **`Spawned by` 后为另一个子代理的名称**：该操作仅对主 Agent 生成的子代理显示，而不会对另一个子代理所等待的[嵌套子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)显示。要提前结束嵌套子代理，请点击其卡片上的 **Stop agent**。等待中的子代理随后会在没有该结果的情况下继续运行。
 
 <h3 id="monitor-background-processes">
   监控后台进程
@@ -1028,11 +1038,17 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 
 如果某个公式按原样显示，而其附近的其他公式已被排版，请检查以下原因：
 
-* **它被识别为数学以外的内容**：读起来像单词的 `$…$` 文本会保持原样，例如 `$O(n log n)$`。以数字开头的 `$…$` 文本（例如 `$30$` 或 `$1/N$`）也会保持原样，除非有 `=`、`+` 或 `^` 等字符将其标记为数学公式。请改为让 Claude 使用单独成行的 `$$` 块，面板会直接排版此类块而不进行这项检查。
-* **它带有内边距、过长或跨行**：美元符号内含空格的 `$ x^2 $`、超过 60 个字符的 `$…$` 内容，以及跨两行的 `$…$` 或 `\(…\)` 都不会被排版。请改为让 Claude 使用单独成行的 `$$` 块，该形式没有这些限制。
-* **TeX 无法排版**：包含语法错误、宏定义（例如 `\newcommand` 或 `\def`）或未转义 `%` 的公式会按原样显示。请让 Claude 重写该公式，修正错误、去掉宏，或使用 `\%` 表示百分号。
-* **它过大**：长度超过 8,192 个字符的公式，或绘制后会远大于其源文本的公式，会按原样显示。请让 Claude 将其拆分为多个较小的公式，或以更紧凑的方式书写。
-* **它位于大量数学公式之后**：在回复的同一文本块中，面板会按顺序排版公式，直至达到上限。超出上限的后续公式会按原样显示。请让 Claude 单独再次发送您需要的公式。
+* **该公式是行内公式，且面板未将其视为数学公式**：请让 Claude 以单独成行的 `$$` 块重新发送该公式。当 `$…$` 分隔符之间的文本符合以下情况时，面板会将行内公式按原样保留：
+  * 不只是简单算术，却没有 `=`、`+` 或 `^` 等字符将其标记为数学公式，例如 `$O(n log n)$`
+  * 以数字开头且没有此类字符，例如 `$30$` 和 `$1/N$`
+  * 美元符号内含空格，例如 `$ x^2 $`
+  * 超过 60 个字符
+  * 跨两行。跨两行的 `\(…\)` 公式同样不会被排版。
+* **该公式存在 TeX 语法错误**：请让 Claude 重写该公式并修正错误。
+* **该公式定义了宏**：包含宏定义（例如 `\newcommand` 或 `\def`）的公式会按原样显示。请让 Claude 重写该公式，不使用宏。
+* **该公式包含未转义的 `%`**：请让 Claude 重写该公式，使用 `\%` 表示百分号。
+* **该公式过大**：长度超过 8,192 个字符的公式，或排版输出会远大于其 TeX 源文本的公式，会按原样显示。请让 Claude 将其拆分为多个较小的公式，或以更紧凑的方式书写。
+* **该公式位于大量数学公式之后**：在回复的同一文本块中，面板会按顺序排版公式，直至达到上限。超出上限的后续公式会按原样显示。请让 Claude 单独再次发送您需要的公式。
 
 <h3 id="claude-code-never-responds">
   Claude Code 始终没有响应

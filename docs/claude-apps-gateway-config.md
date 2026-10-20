@@ -340,6 +340,10 @@ upstreams:
 
 仅在 `base_url` 是您操作的代理的上游上设置 `forward_user_identity`。网关将开发人员电子邮件发送到该 `base_url` 命名的任何服务器。如果 `base_url` 是 Anthropic API（默认），网关拒绝启动。
 
+<Note>
+  如果您在 Amazon Bedrock 上游上设置 `forward_user_identity`，网关会在启动时退出并显示 `Unrecognized key(s) in object: 'forward_user_identity'`。如果您的代理位于 Bedrock 前面，请改为将其列为 `provider: anthropic` 上游。网关向该上游发送 Anthropic Messages 格式，因此您的代理必须[为 Bedrock 转换请求](/docs/zh-CN/llm-gateway-protocol#format-mismatch-with-the-upstream)。若要改为向 AWS 标明每个开发人员，请参阅[每开发人员 AWS 成本属性](#per-developer-aws-cost-attribution)。
+</Note>
+
 <h4 id="amazon-bedrock">
   Amazon Bedrock
 </h4>
@@ -1133,7 +1137,7 @@ Claude Code 应用此变量时不会向开发者显示批准对话框。该变�
 
 * 模型列表，来自 `availableModels`。[Claude Desktop 中的扩展上下文](#extended-context-in-claude-desktop)介绍每个模型的 1M 上下文选项
 * 禁用的工具，来自裸工具名称 `permissions.deny` 条目。如果您在策略的 `desktop` 块中设置 `disabledBuiltinTools`，网关提供您的值和派生列表的并集，因此您可以通过这种方式禁用更多工具，但无法重新启用您通过 `permissions.deny` 禁用的工具
-* 出口允许列表，来自 `sandbox.network.allowedDomains`。如果您在策略的 `desktop` 块中设置 `coworkEgressAllowedHosts`，网关使用该值而不是派生列表
+* 出站允许列表，来自 `sandbox.network.allowedDomains`。如果您在策略的 `desktop` 块中设置了 `coworkEgressAllowedHosts`，网关会使用该值而不是派生列表。如果网关提供的允许列表包含 `*`，且网关未同时提供 Claude Desktop 的 [`allowedWorkspaceFolders`](https://claude.com/docs/third-party/claude-desktop/code#applied-as-managed-policy)，则 Claude Desktop 不会在 Code 标签页中启用 [Bash 沙箱](/docs/zh-CN/sandboxing)
 * 指向网关本身的 OTLP 端点，以及已登录用户的身份属性。网关将它在该端点接收的导出中继到您的 `forward_to` 目的地。当您同时设置 [`telemetry.forward_to`](#telemetry) 和 `listen.public_url` 时，它包括端点和属性。
 
   Claude Desktop 以一种编码导出每个信号：`http/protobuf`，或当您在策略的 `env` 中将 `OTEL_EXPORTER_OTLP_PROTOCOL` 或其每个信号变体设置为 `http/json` 时为 `http/json`。在网关服务器上的 Claude Code v2.1.261 之前，响应设置 `http/json` 无论如何，因此仅接受 protobuf 的收集器拒绝了 Claude Desktop 的导出
@@ -1373,6 +1377,19 @@ telemetry:
 仅在您想要跟踪的组的策略中将其设置为 `1`。不设置它的策略从您的 `match: {}` 全部捕获策略继承值，如果该策略设置一个，根据[合并规则](#managed)。要防止组的客户端发送跟踪，即使开发者本地设置变量，在该组的策略中将其设置为 `0`。
 
 protobuf 和 JSON OTLP 编码都被中继，任何 OpenTelemetry 兼容的后端都可以作为目的地。
+
+<h4 id="send-cumulative-metrics">
+  发送累积指标
+</h4>
+
+如果您的收集器仅接受累积指标，请将 [`OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE`](/docs/zh-CN/monitoring-usage#common-configuration-variables) 设置为 `cumulative`。Claude Code 默认发送增量指标，网关在转发时不会对其进行转换。请在每种会话读取该变量的位置进行设置：
+
+* **终端会话**：在策略 [`cli` 或 `code` 键](#choose-cli-or-code)下的 `env` 块中
+* **[在用户机器上运行](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)的 Cowork 会话**：在该机器上[客户端托管设置](#client-side-managed-settings)的 `env` 块中
+* **`code` 策略下的 Code 标签页会话**：在满足[`code` 设置生效的条件](#apply-code-settings-in-the-code-tab)后，在策略的 `env` 块中
+* **`cli` 策略下的 Code 标签页会话**：在运行该会话的机器上客户端托管设置的 `env` 块中。通过 SSH 时，即远程主机。
+
+如果您将该变量添加到机器的托管设置中，还需在该机器上优先级最高的来源中设置 [`parentSettingsBehavior: "merge"`](/docs/zh-CN/claude-apps-gateway#set-the-opt-in)。否则，Cowork 会话和 `cli` 策略下的 Code 标签页会话将在没有出站允许列表以及 Claude Desktop 作为父级设置传递给它们的其他策略的情况下运行。
 
 <h4 id="add-your-own-labels">
   添加您自己的标签

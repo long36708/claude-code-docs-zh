@@ -257,7 +257,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 
 渲染位置是 Claude Code 界面中的扩展点。每一行是 `ui.render` hook 中 `e.component` 的一个值，并列出了 `e.props` 的字段以及渲染它的应用。`e.surface` 指明正在绘制的应用，例如 `terminal`、`desktop` 或 `vscode`。[更改 Claude Code 已绘制的内容](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws)展示了 hook 在某个位置可以做什么，并为每种选择提供了示例。
 
-在 VS Code 扩展中进行渲染需要扩展版本 2.1.299 或更高版本，并且需要一个[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话。[在 VS Code 扩展中绘制](/docs/zh-CN/plugins/mods/interface#draw-in-the-vs-code-extension)列出了该扩展在绘制上的不同之处。
+在 VS Code 扩展中进行渲染需要扩展版本 2.1.299 或更高版本。[不获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话需要 2.1.304 或更高版本。[在 VS Code 扩展中绘制](/docs/zh-CN/plugins/mods/interface#draw-in-the-vs-code-extension)列出了该扩展在绘制上的不同之处。
 
 | 位置 | `e.props` | `e.requestId` | 渲染于 |
 | :- | :- | :- | :- |

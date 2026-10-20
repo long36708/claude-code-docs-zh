@@ -325,7 +325,7 @@ frontmatter 定义子代理的元数据和配置。正文成为指导子代理�
 | `mcpServers` | 否 | 此子代理可用的 [MCP 服务器](/docs/zh-CN/mcp)。每个条目可以是引用已配置服务器的服务器名称（例如 `"slack"`），也可以是以服务器名称为键、以完整 [MCP 服务器配置](/docs/zh-CN/mcp#installing-mcp-servers)为值的内联定义。对[插件子代理](#choose-the-subagent-scope)忽略 |
 | `hooks` | 否 | 限定于此子代理的[生命周期 hook](#define-hooks-for-subagents)。对[插件子代理](#choose-the-subagent-scope)忽略 |
 | `memory` | 否 | [持久记忆作用域](#enable-persistent-memory)：`user`、`project` 或 `local`。启用跨会话学习 |
-| `background` | 否 | 设置为 `true` 可使此子代理始终在后台运行，即使 Claude 要求在前台运行它。在启用了[分叉模式](#turn-fork-mode-on-or-off)的情况下，Claude Code 已经会[在后台](#run-subagents-in-foreground-or-background)运行 Claude 生成的子代理 |
+| `background` | 否 | 设置为 `true` 可使此子代理保持在后台运行，即使 Claude 要求等待它。默认情况下，Claude 从主对话生成的子代理已经会[在后台启动](#run-subagents-in-foreground-or-background) |
 | `omitClaudeMd` | 否 | 设置为 `true` 可使此子代理在启动时的[初始上下文](#what-loads-at-startup)中不包含用户、项目和本地 CLAUDE.md 文件；[托管策略文件](/docs/zh-CN/memory#how-claude-md-files-load)仍会加载，但[托管子代理](#choose-the-subagent-scope)除外。适用于从委派提示词中获取所需全部信息的子代理。当 Agent 通过 `--agent` 或 `agent` 设置作为主会话 Agent 运行时忽略。需要 Claude Code v2.1.271 或更高版本 |
 | `effort` | 否 | 此子代理活动时的 effort 级别。覆盖会话的 effort 级别，但不覆盖 [`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars#variables) 环境变量。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型。请参阅[选择 effort 级别](#choose-an-effort-level) |
 | `isolation` | 否 | 设置为 `worktree` 可在临时 [git worktree](/docs/zh-CN/worktrees) 中运行子代理，为其提供仓库的隔离副本，默认从您的[默认分支](/docs/zh-CN/worktrees#choose-the-base-branch)而不是父会话的 `HEAD` 创建分支。如果子代理未做任何更改，worktree 会被自动清理 |
@@ -969,14 +969,42 @@ claude --agent my-plugin:security-reviewer
 * **前台子代理**会阻塞主对话直到完成。权限提示会在出现时传递给您。
 * **后台子代理**在您继续工作时并发运行。当后台子代理遇到需要权限的工具调用时，Claude Code 会在您的主会话中显示该提示，并指明发出请求的子代理。批准即可让子代理继续；按 Esc 则拒绝该单个工具调用，而不会停止子代理。
 
-对于 Claude 使用 Agent 工具生成的每个子代理，Claude Code 会按以下情况中第一个适用的情况来决定前台还是后台：
+<h4 id="which-subagents-run-in-the-background">
+  哪些子代理在后台运行
+</h4>
 
-* 如果是进程内的 [agent team](/docs/zh-CN/agent-teams#limitations) 队友生成了该子代理，Claude Code 会在前台运行它。如果队友要生成的子代理的定义设置了 [`background: true`](#supported-frontmatter-fields)，Claude Code 会拒绝并报错。在 [fork 模式](#turn-fork-mode-on-or-off)关闭且您未[关闭后台任务](/docs/zh-CN/env-vars)的情况下，如果队友设置了 `run_in_background: true`，Claude Code 也会拒绝并报错。
-* 如果您将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 设置为 `1`，Claude Code 会在前台运行子代理，适用于所有类型的会话，且无论 fork 模式是否开启。
-* 当 [fork 模式](#turn-fork-mode-on-or-off)开启时（交互式会话中默认开启），Claude Code 会在后台运行子代理，fork 和非 fork 子代理都是如此，且 Claude 无法要求在前台运行。
-* 当 fork 模式关闭时，Claude 默认在后台运行子代理，并在需要先拿到结果才能继续时在前台运行。在使用 `-p` 的[非交互模式](/docs/zh-CN/headless)和 Agent SDK 中，fork 模式默认关闭，除非您将其开启。要让某个子代理即使在 Claude 需要其结果时也保持在后台运行，请将其 frontmatter 中的 [`background`](#supported-frontmatter-fields) 字段设置为 `true`。
+在未进行任何配置的情况下，Claude 从您的主对话生成的子代理会在后台启动。
+
+* **`claude -p` 和 Agent SDK**：Claude 可以根据自己的判断或在您要求时等待。
+* **交互式终端会话、VS Code 以及您本机上的桌面应用会话**：要让 Claude 等待子代理，请[关闭 fork 模式](#let-claude-wait-for-a-subagent)，该模式[默认开启](#turn-fork-mode-on-or-off)。
 
 对于带有 `context: fork` 的 skill，Claude Code 改为遵循[在子代理中运行 skill](/docs/zh-CN/skills#run-skills-in-a-subagent) 中的规则，无论 fork 模式是否开启。
+
+<h4 id="let-claude-wait-for-a-subagent">
+  让 Claude 等待子代理
+</h4>
+
+1. 将 `CLAUDE_CODE_FORK_SUBAGENT` 设置为 `0` 以关闭 [fork 模式](#turn-fork-mode-on-or-off)，例如在 [`settings.json`](/docs/zh-CN/settings) 中：
+
+   ```json theme={null}
+   {
+     "env": {
+       "CLAUDE_CODE_FORK_SUBAGENT": "0"
+     }
+   }
+   ```
+
+2. 从 shell 中重新运行 `claude`，或打开一个新的 VS Code 对话。
+
+3. 当您需要先拿到结果时，请让 Claude 等待，例如"run the reviewer subagent and wait for its report"。
+
+要在 Claude 等待期间继续工作，请在终端中按 **Ctrl+B**，或在 VS Code 中点击 [**Run in background**](/docs/zh-CN/vs-code#move-a-running-command-or-subagent-to-the-background)。
+
+如果您不关闭 fork 模式，而是将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 环境变量设置为 `1`，Claude 会等待每一个子代理，并且后台任务会被关闭，包括 **Ctrl+B**。
+
+<h4 id="tools-permissions-and-results-of-background-subagents">
+  后台子代理的工具、权限和结果
+</h4>
 
 后台子代理使用的[内置工具集](#available-tools)比前台子代理更小，但对话 fork 和[已恢复](#resume-subagents)的前台子代理除外。
 
@@ -986,10 +1014,9 @@ claude --agent my-plugin:security-reviewer
 
 后台子代理的结果会在之后的某个轮次中以完成通知的形式送达 Claude。Claude 会等待该通知后再报告子代理的结果；如果您先询问进度，它会告知子代理仍在运行。
 
-您也可以自行控制：
-
-* 当 fork 模式关闭时，要求 Claude 在后台或前台运行任务
-* 按 **Ctrl+B** 将正在运行的任务转到后台
+<h4 id="finished-subagents-in-the-panel-and-task-list">
+  面板和任务列表中已结束的子代理
+</h4>
 
 Claude Code 会以两种方式之一从输入框下方的子代理面板中清除后台子代理所在的行，具体取决于子代理的结束方式：
 
@@ -1105,7 +1132,10 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 
 默认情况下，子代理可以生成自己的子代理，最多可达主对话之下三层。达到深度限制时，Claude Code 会从除 [fork](#fork-the-current-conversation) 之外的所有子代理中移除 `Agent` 工具，因此处于限制层级的子代理会自己完成委托的工作并返回一份摘要。处于限制层级的 fork 在其继承的工具列表中仍保留 `Agent`，但该工具会返回错误而不是生成子代理。
 
-嵌套子代理适用于本身可拆分为并行子任务的委托任务，例如一个审查子代理为每项发现分派一个验证者。在交互式会话中，只有顶层子代理的摘要会返回给您，中间输出不会进入您的主对话：启动后台子代理的子代理会等待它们的结果后再结束。在[非交互模式](/docs/zh-CN/headless)和 Agent SDK 中，发起启动的子代理不会等待，因此如果嵌套的后台子代理在其启动者结束后才完成，它会改为向您的主对话报告。
+嵌套子代理适用于本身可拆分为并行子任务的委托任务，例如一个审查子代理为每项发现分派一个验证者。默认情况下，发起启动的子代理会等待每个嵌套子代理的报告：
+
+* **交互式终端会话**：只有顶层子代理的摘要会返回给您，因为启动后台子代理的子代理会等待它们的结果后再结束。
+* **`claude -p` 和 Agent SDK**：当 [fork 模式](#turn-fork-mode-on-or-off)开启时，发起启动的子代理会等待。如果您关闭 fork 模式，嵌套子代理会改为在[后台](#run-subagents-in-foreground-or-background)启动。发起启动的子代理不会等待后台嵌套子代理；如果该嵌套子代理在其启动者结束后仍在运行，它会向您的主对话报告。
 
 要更改该限制，请将 [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](/docs/zh-CN/env-vars) 设置为您希望在主对话之下允许的子代理层数。例如，[`settings.json`](/docs/zh-CN/settings) 中的以下条目将嵌套限制为两层：
 
@@ -1278,7 +1308,7 @@ autoCompactWindow: 200000
 
 分叉是一个 subagent，它继承到目前为止的整个对话，而不是从头开始。这消除了 subagents 通常提供的输入隔离：分叉看到与主会话相同的系统提示、工具、模型和消息历史，因此您可以将其交给一个辅助任务而无需重新解释情况。分叉自己的工具调用仍然保持在您的对话之外，只有其最终结果返回，因此您的主 context window 保持干净。当任何其他 subagent 需要太多背景才能有用时，或当您想从相同的起点并行尝试多种方法时，使用分叉。
 
-Claude 通过 Agent 工具请求 `fork` subagent 类型来启动分叉。您可以通过[分叉模式](#turn-fork-mode-on-or-off)控制是否可以这样做，在交互式会话中默认启用。
+分叉模式启用时（默认即为启用），Claude 可以自行启动分叉。要停止分叉，请参阅[关闭分叉模式](#turn-fork-mode-on-or-off)。
 
 您可以使用 `/subtask` 后跟任务自己启动分叉，无论分叉模式是否启用。Claude Code 从任务的前几个单词命名分叉。以下示例分叉对话以在您继续主会话中的实现时草拟测试用例：
 
@@ -1323,7 +1353,6 @@ Claude 通过 Agent 工具请求 `fork` subagent 类型来启动分叉。您可�
 | 上下文 | 完整的对话历史 | 新鲜上下文，带有您传递的提示 |
 | 系统提示和工具 | 与主会话相同 | 来自 subagent 的[定义文件](#write-subagent-files)，[为后台运行过滤](#available-tools) |
 | 模型 | 与主会话相同 | 来自 subagent 的 `model` 字段 |
-| 权限 | 提示在您的终端中出现 | [提示在后台运行时在您的主会话中出现](#run-subagents-in-foreground-or-background) |
 | Prompt cache | 与主会话共享 | 单独的缓存 |
 
 因为分叉的系统提示词和工具定义与父级相同，其第一个请求重用父级的[提示缓存](/docs/zh-CN/prompt-caching#subagents-and-the-cache)。由于这种重用，对于需要相同上下文的任务，分叉的成本低于新的子代理。
@@ -1331,22 +1360,15 @@ Claude 通过 Agent 工具请求 `fork` subagent 类型来启动分叉。您可�
 当 Claude 通过 Agent 工具生成分叉时，它可以传递 `isolation: "worktree"` 以便分叉的文件编辑被写入单独的 git worktree 而不是您的检出。分叉无法生成进一步的分叉。
 
 <h3 id="turn-fork-mode-on-or-off">
-  打开或关闭分叉模式
+  关闭分叉模式
 </h3>
 
-Claude Code 在交互式会话中默认打开分叉模式，在[非交互模式](/docs/zh-CN/headless)中使用 `-p` 和 Agent SDK 中默认关闭。交互式默认值需要 Claude Code v2.1.232 或更高版本。在早期版本中，设置 `CLAUDE_CODE_FORK_SUBAGENT` 为 `1` 以打开分叉模式。
+分叉模式允许 Claude 自行启动分叉。要阻止 Claude 启动分叉：
 
-您可以从 Claude Code 处理 Agent 工具的方式判断分叉模式是否打开：
+* **仅停止分叉**：在您的[设置](#disable-specific-subagents)中将 `"Agent(fork)"` 添加到 `permissions.deny`。
+* **关闭分叉模式**：按照[让 Claude 等待子代理](#let-claude-wait-for-a-subagent)中的步骤，将 `CLAUDE_CODE_FORK_SUBAGENT` 设置为 `0`。
 
-* Claude 可以通过请求 `fork` subagent 类型来生成分叉。当 Claude 不请求类型时，如果会话仍然有该类型，它会获得[通用](#built-in-subagents) subagent。从定义生成的 subagents，例如 Explore，照常工作。
-* Claude Code 在后台运行 Claude 生成的 subagents，分叉和非分叉 subagents 都是如此，除了[保持在前台的情况](#run-subagents-in-foreground-or-background)。Claude Code 也会移除 Agent 工具的 `run_in_background` 参数，因此 Claude 无法请求前台。
-
-设置 [`CLAUDE_CODE_FORK_SUBAGENT`](/docs/zh-CN/env-vars) 环境变量以覆盖默认值：
-
-* `1` 在非交互模式和 Agent SDK 中打开分叉模式
-* `0` 在每种会话中关闭分叉模式
-
-要保持分叉模式打开但阻止 Claude 生成分叉，使用 `Agent(fork)` 规则[禁用 `fork` subagent 类型](#disable-specific-subagents)。Claude Code 仍然在后台运行 Claude 生成的 subagents，除了相同的[保持在前台的情况](#run-subagents-in-foreground-or-background)。
+分叉模式启用时，在您本机上的交互式终端、VS Code 或桌面会话中，Claude 也无法[等待子代理](#run-subagents-in-foreground-or-background)。从 Claude Code v2.1.302 起默认启用分叉模式，而在交互式终端会话中则从 v2.1.232 起默认启用。
 
 <h2 id="example-subagents">
   示例 subagents

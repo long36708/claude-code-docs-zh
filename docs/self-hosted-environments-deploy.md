@@ -554,6 +554,12 @@ secrets:
 * **使用 [`--retire-at`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)**：在退休时间与主机停止时间之间留出足够的时间，以便典型轮次完成，再加上 [Runner lifecycle](/docs/zh-CN/self-hosted-environments#runner-lifecycle) 所述的后台任务等待时间，再加上记录的时间。在每次启动时计算退休时间，例如 `date +%s` 加上运行器的预期生命周期。
 * **使用 [`--defer-shutdown-max-min`](#defer-the-drain-past-the-first-signal)**：停止超时时间还必须涵盖您配置的分钟数，以及排空开始前的进一步等待时间（默认设置下为 75 秒）。[Defer the drain past the first signal](#defer-the-drain-past-the-first-signal) 对这两者都有说明。运行器同样会在启动时记录这一更长的时间。
 
+<h3 id="post-a-status-message-before-a-restart">
+  在重启前发布状态消息
+</h3>
+
+在进行会中断会话的重启之前，请让 [Owner](/docs/zh-CN/cloud-environments#organization-shared-environments) 从 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments)在该环境上发布一条状态消息。在 [claude.ai/code](https://claude.ai/code) 中，成员会在该环境内的会话中看到这条消息。请让 Owner 在发布时设置过期时间，或在运行器恢复后移除该消息。
+
 <h3 id="defer-the-drain-past-the-first-signal">
   延迟排空超过第一个信号
 </h3>
@@ -632,7 +638,7 @@ secrets:
   固定版本
 </h2>
 
-每个会话的子 Claude Code 进程运行运行器自己的二进制文件，运行器在它生成的会话内关闭自动更新，所以每个会话运行您在主机上安装或构建到镜像中的版本。主机级更新在运行器下次启动时生效。
+默认情况下，每个会话的子进程运行运行器自己的二进制文件，并且运行器会在它生成的会话内关闭自动更新。在此默认设置下，每个会话都运行您在主机上安装或构建到镜像中的版本。主机级更新在运行器下次启动时生效。
 
 选择您的会话运行哪个版本以及何时更改：
 
@@ -640,6 +646,7 @@ secrets:
 * **将队列保持在一个版本上**：使用固定版本构建镜像，或在裸主机上安装特定版本并[禁用自动更新](/docs/zh-CN/setup#disable-auto-updates)
 * **升级固定队列**：阅读您当前版本与要安装版本之间的 [changelog](/docs/en/changelog) 条目，然后安装较新版本或重建镜像，并重启运行器
 * **升级按需运行器**：阅读您当前版本与要安装版本之间的 [changelog](/docs/en/changelog) 条目，然后更改您的 [`spawn-runner` hook](/docs/zh-CN/self-hosted-environments-configuration#the-spawn-runner-hook) 启动的镜像。每个新运行器都会获得新版本。已经在运行的运行器（包括由 [`--min-idle`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 启动的备用运行器）会保持其版本，直到退出。不要重启它，因为它的工作指令是一次性的。
+* **如果会话启动的是其他二进制文件**：如果您使用 [`--exec-path`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 或 [`command` hook](/docs/zh-CN/self-hosted-environments-configuration#command) 来启动运行器自身以外的 Claude Code 二进制文件，会话将运行该二进制文件的版本。更新运行器时，请同时更新该二进制文件。
 * **插件**：插件市场也不自动更新；在运行器的环境中设置 `FORCE_AUTOUPDATE_PLUGINS=1` 以让插件自动更新，同时二进制保持固定
 
 <h2 id="scale-the-fleet">
@@ -699,6 +706,7 @@ Anthropic 从其自己的基础设施而不是从您的运行器调用连接器�
   * **启用该标志之前**：限制谁可以推送到源远程上的 `claude/*` refs。在恢复时，运行器会获取之前推送的分支，而不验证是谁推送的。
 * **会话中途添加的仓库可能无法克隆**：Claude 通过 HTTPS 使用 `git clone` 克隆它。在未启用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 的运行器上，如果主机上没有任何内容能够读取该仓库，克隆会因 git 身份验证错误而失败。如有可能，请在创建会话时选择会话所需的每个仓库。
 * **某些连接器不出现在自托管会话中**：您在 claude.ai Settings 中尚未连接的连接器不在自托管会话中列出，会话不会提示您连接它。首先在 Settings 中连接它，然后启动新会话。向已运行的会话添加连接器也不会使其工具对 Claude 可用；启动新会话以获取新添加的连接器。
+* **当有人归档或删除会话，或从会话菜单中释放其运行器时**：不要依赖 [`--push-outcome-on-release`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 的推送。要在这些情况下保存提交，请从 [`post-session` hook](/docs/zh-CN/self-hosted-environments-configuration#post-session) 将 `HEAD` 推送到一个救援分支。如果您以那里的示例为基础，请让它在没有任何未提交内容时也执行推送，因为该示例仅在创建快照提交之后才推送。
 
 <h3 id="report-an-issue">
   报告问题
@@ -745,6 +753,7 @@ claude self-hosted-runner doctor
   如果每个调用在会话大约 30 分钟后开始失败，包装脚本可能已断开会话的 stdin，因此令牌轮换无法到达它；请参阅 [保持 stdin 和文件描述符 3 附加](/docs/zh-CN/self-hosted-environments-configuration#keep-stdin-and-file-descriptor-3-attached)。
 
   在 v2.1.274 之前，运行器在几次尝试后停止重试失败的获取，并等待下一个计划的获取。失败的轮次不会触发获取，因此每个轮次都会失败，显示 401，直到下一个计划的获取。
+* **轮次在 claude.ai/code 中失败，显示 `This model needs a newer version of Claude Code`**：您的运行器用于启动会话的 Claude Code 版本低于该会话的模型所要求的版本，因此 API [拒绝了该请求](/docs/zh-CN/errors#claude-code-does-not-support-this-model)。按照 [固定版本](#pin-the-version) 中的说明，将运行器升级到消息要求的版本或更高版本。在此之前，用户可以在会话中选择其他模型。
 * **Pod 在耗尽中途被杀死**：将 `terminationGracePeriodSeconds` 提高到至少运行器在启动时记录的值。请参阅 [关闭时序](#shutdown-timing)。
 
 初始化日志后，运行器将其生命周期日志（包括 `[runner:fatal]` 行）写入 stdout，将调试输出写入 stderr，全部作为纯文本行而不是 JSON。上述故障排除条目中描述的基础目录失败在该点之前打印到 stderr。使用 `--log-file` 捕获两个流，这也让 `self-hosted-runner doctor` 能够跟踪它们，或使用您的平台的日志收集。

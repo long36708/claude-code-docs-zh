@@ -362,7 +362,7 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
   在 VS Code 扩展中绘制
 </h3>
 
-在 VS Code 扩展中，当扩展版本为 2.1.299 或更高，且会话会[获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)时，mod 绘制的内容会显示在聊天面板中。在面板的 `ui.render` hook 中，`e.surface` 为 `vscode`。要查看面板会绘制哪些位置和元素，以及会忽略哪些 prop，请参阅[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)表和[元素](/docs/zh-CN/plugins/mods/reference#elements)表。
+在 VS Code 扩展中，当扩展版本为 2.1.299 或更高时，mod 绘制的内容会显示在聊天面板中。[不获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话（例如在 Amazon Bedrock 上运行的会话）需要 2.1.304 或更高版本。在面板的 `ui.render` hook 中，`e.surface` 为 `vscode`。要查看面板会绘制哪些位置和元素，以及会忽略哪些 prop，请参阅[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)表和[元素](/docs/zh-CN/plugins/mods/reference#elements)表。
 
 要让 mod 既能在终端中运行，也能在面板中运行，请考虑以下差异：
 

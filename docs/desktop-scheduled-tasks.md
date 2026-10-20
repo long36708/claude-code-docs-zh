@@ -33,7 +33,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 </Tip>
 
 <Note>
-  默认情况下，定期任务针对您的工作目录的任何状态运行，包括未提交的更改。在创建任务时启用 worktree 切换，为每次运行提供其自己的隔离 Git worktree，与 [parallel sessions](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 的工作方式相同。
+  默认情况下，定时任务针对您的工作目录的任何状态运行，包括未提交的更改。在创建任务时启用 worktree 切换，为每次运行提供其自己的[隔离 Git worktree](/docs/zh-CN/desktop#run-a-session-in-its-own-worktree)。
 </Note>
 
 <h2 id="create-a-scheduled-task">

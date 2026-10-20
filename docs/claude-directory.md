@@ -1706,11 +1706,14 @@ claude purge ~/work/my-repo
 claude purge ~/work/my-repo --yes
 ```
 
-传递 `--all` 而不是路径以一次清除所有项目的状态，这会直接删除 `history.jsonl` 而不是过滤它。传递 `-i` 以逐项逐步执行删除计划。
+其他选项：
+
+* 传递 `--all` 而不是路径，以一次清除所有项目的状态，这会直接删除 `history.jsonl` 而不是对其进行过滤。
+* 传递 `-i` 以逐项执行删除计划。
 
 该命令不理会 `shell-snapshots/` 和 `backups/`，因为这些不是项目范围的，并在计划输出中警告它们。如果有人在该机器上运行过 [`/heapdump`](/docs/zh-CN/troubleshooting#high-cpu-or-memory-usage)，也请删除它写入的 `.heapsnapshot` 文件。堆快照包含完整的对话以及进程持有的所有凭据，保留扫描和清除都不会触及它。
 
-您也可以手动删除上面的任何应用数据路径，除了 [state files to keep](#state-files-to-keep)。新会话不受影响。下表显示您对过去会话失去的内容。
+除[需保留的状态文件](#state-files-to-keep)外，您也可以自行删除上面的任何应用数据路径。
 
 | 删除 | 您失去 |
 | - | - |
@@ -1726,7 +1729,7 @@ claude purge ~/work/my-repo --yes
 | `~/.claude/remote-settings.json` | 无。在下次启动时重新获取。 |
 | `~/.claude/cache/changelog.md` | 无。在后台刷新。 |
 | `~/.claude/policy-limits.json` | 无。自动刷新。 |
-| `~/.claude/tasks/` | 恢复的会话会拾取的任务列表 |
+| `~/.claude/tasks/` | 您的[任务列表](/docs/zh-CN/interactive-mode#task-list)，包括仍在使用中的列表 |
 | `~/.claude/skills/.trash/`、`~/.claude/plugins/.trash/` | 恢复 [synced skills](/docs/zh-CN/skills#how-synced-skills-behave) 和 [synced plugins](/docs/zh-CN/plugins/loading#synced-plugins) 的机会，Claude Code 已删除 |
 | `~/.claude/plugins/installed_plugins.set-aside.<date>.<hash>.json`、`~/.claude/plugins/installed_plugins.unreadable.<date>.<hash>.kept` | Claude Code 删除的 plugin 安装记录副本或无法读取的文件副本。没有任何内容读取它们 |
 | `~/.claude/debug/`、`~/.claude/plans/`、`~/.claude/session-env/`、`~/.claude/shell-snapshots/`、`~/.claude/backups/` | 没有面向用户的内容 |

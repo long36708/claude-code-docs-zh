@@ -291,7 +291,7 @@ Claude Code 在模型响应到达后才将支出与 `max_budget_usd` / `maxBudge
 | :- | :- | :- |
 | **系统提示** | 每个请求 | 小的固定成本，始终存在 |
 | **CLAUDE.md 文件** | 会话开始，通过 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features) | 每个请求中的完整内容（但提示缓存，所以仅第一个请求支付全部成本） |
-| **工具定义** | 每个请求；MCP 架构默认延迟 | 内置工具架构在每个请求中加载。[工具搜索](/docs/zh-CN/agent-sdk/mcp#mcp-tool-search)默认延迟 MCP 工具架构，在不支持的模型和某些平台上回退到预先加载。有关完整矩阵，请参阅[配置工具搜索](/docs/zh-CN/agent-sdk/tool-search#configure-tool-search) |
+| **工具定义** | 对于 Bash、Read 和 Edit 等核心内置工具，每个请求都会加载；对于 MCP 工具和其他内置工具则按需加载，[工具搜索](/docs/zh-CN/agent-sdk/mcp#mcp-tool-search)默认会延迟加载这些工具 | 在[配置工具搜索](/docs/zh-CN/agent-sdk/tool-search#configure-tool-search)中列出的情况下，所有 schema 都会预先加载 |
 | **对话历史** | 在轮次中累积 | 随着每个轮次增长：提示、响应、工具输入、工具输出 |
 | **技能描述** | 会话开始，通过设置源 | 简短摘要；完整内容仅在调用时加载 |
 
@@ -331,7 +331,7 @@ Claude Code 在模型响应到达后才将支出与 `max_budget_usd` / `maxBudge
 
 对于长时间运行的代理的几个策略：
 
-* **为子任务使用子代理。** 每个子代理以全新的对话开始（没有先前的消息历史，但它确实会加载自己的系统提示词和项目级上下文，如 CLAUDE.md）。它看不到父级的轮次，只有其最终回复会返回给父级。主 Agent 的上下文只会增加该摘要，而不是完整的子任务会话记录。有关详情，请参阅[子代理继承什么](/docs/zh-CN/agent-sdk/subagents#what-subagents-inherit)。
+* **为子任务使用子代理。** 子代理只返回其最终回复，因此主 Agent 的上下文只会增加一份摘要，而不是子任务的会话记录。
 * **对工具有选择性。** 每个工具定义占用上下文空间。在 [`AgentDefinition`](/docs/zh-CN/agent-sdk/subagents#agentdefinition-configuration) 上使用 `tools` 字段将子代理限制在它们需要的最小集合。
 * **监视 MCP 服务器成本。** [MCP 工具搜索](/docs/zh-CN/agent-sdk/mcp#mcp-tool-search)默认延迟 MCP 工具架构，并按需加载它们。当工具搜索关闭或已回退到预先加载时，每个 MCP 服务器将其所有工具架构添加到每个请求，因此具有许多工具的几个服务器可以在代理执行任何工作之前消耗大量上下文。有关应用回退的配置，请参阅[配置工具搜索](/docs/zh-CN/agent-sdk/tool-search#configure-tool-search)。
 * **对常规任务使用较低的努力。** 为仅需要读取文件或列出目录的代理设置[努力](#effort-level)为 `"low"`。这减少了令牌使用和成本。

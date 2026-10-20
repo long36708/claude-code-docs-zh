@@ -462,10 +462,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `abovePrompt:highlightNext` | Down | 在获得焦点的选择框中突出显示下一个选项 |
 | `abovePrompt:highlightPrevious` | Up | 在获得焦点的选择框中突出显示上一个选项 |
 
-有两个上下文默认将更多键绑定到这些操作：
-
-* **`AbovePrompt`**：Right 和 Left 也会运行 `abovePrompt:next` 和 `abovePrompt:previous`，Space 也会运行 `abovePrompt:press`
-* **`AbovePromptInput`**：Down 和 Up 也会运行 `abovePrompt:next` 和 `abovePrompt:previous`
+在 [`AbovePrompt` 上下文](#contexts) 中，Right 和 Left 默认也会运行 `abovePrompt:next` 和 `abovePrompt:previous`，Space 也会运行 `abovePrompt:press`。
 
 `AbovePrompt` 上下文还将 Up、Down、PageUp、PageDown、Home 和 End 绑定到 [窗格滚动操作](#pane-actions) `pane:scrollUp` 至 `pane:bottom`，因此要为该区域更改其中某个键，请在 `AbovePrompt` 块中绑定相应的滚动操作。
 
@@ -768,6 +765,8 @@ Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
 * Vim 键不能通过快捷键文件重新映射。要映射两键 INSERT 模式序列（如 `jj`）到 Escape，请使用 [`vimInsertModeRemaps`](/docs/zh-CN/interactive-mode#remap-insert-mode-key-sequences) 设置
 * 在 vim NORMAL 模式中，`?` 显示帮助菜单（vim 行为）
 * 在 vim NORMAL 模式中，`/` 打开历史搜索，与标准模式中的 Ctrl+R 相同
+
+在 Claude 提出的问题的 `Other` 行中，vim 模式下按 Escape 不会立即取消该问题。除[屏幕阅读器模式](/docs/zh-CN/accessibility)外，每次聚焦该行时，它都会以 INSERT 模式开始。在 `Other` 行中按 Escape 时，该行会切换到 NORMAL 模式或丢弃输入到一半的 vim 命令，问题仍保持打开状态。在 NORMAL 模式下再次按 Escape 即可取消该问题。
 
 <h2 id="validation">
   验证

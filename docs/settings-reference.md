@@ -795,7 +795,7 @@ scope: "哪些设置文件可以设置该键：用户 (~/.claude/settings.json)�
 | [`spinnerTipsEnabled`](#spinnertipsenabled) | 在 Claude 工作时隐藏旋转器中的提示 | 界面和终端 | Any file |
 | [`spinnerTipsOverride`](#spinnertipsoverride) | 向旋转器轮换添加您自己的提示，或替换内置提示 | 界面和终端 | Any file |
 | [`spinnerVerbs`](#spinnerverbs) | 添加或替换在转弯运行时显示的动词 | 界面和终端 | Any file |
-| [`sshConfigs`](#sshconfigs) | 将 [SSH 连接](/docs/zh-CN/desktop#pre-configure-ssh-connections-for-your-team)添加到桌面环境下拉列表 | 远程、桌面和通知 | User or managed |
+| [`sshConfigs`](#sshconfigs) | 将 [SSH 连接](/docs/zh-CN/desktop#pre-configure-ssh-connections-for-your-team)添加到 Desktop 环境选择器 | 远程、桌面和通知 | User or managed |
 | [`sshHostAllowlist`](#sshhostallowlist) | 限制[桌面 SSH 会话](/docs/zh-CN/desktop#restrict-which-ssh-hosts-users-can-connect-to)可以到达的主机 | 远程、桌面和通知 | Managed |
 | [`statusLine`](#statusline) | 运行您自己的命令来呈现提示下方的[状态行](/docs/zh-CN/statusline) | 界面和终端 | Any file |
 | [`strictKnownMarketplaces`](#strictknownmarketplaces) | 允许列表用户可以添加和安装的[市场](/docs/zh-CN/plugins/overview)来源 | 插件和技能 | Managed |
@@ -5850,7 +5850,14 @@ Claude Code 在非交互模式下永远不会显示摘要。
   `disableDesktopLocalSessions`
 </h3>
 
-在[桌面应用](/docs/zh-CN/desktop#local-sessions-on-managed-devices)中关闭在设备上运行的 Code 会话，用于开发人员应该通过 SSH 在远程机器上工作的部署。在 Code 选项卡中，**本地**环境保留在环境下拉列表中，但呈灰显状态且无法选择，工具提示显示你的组织已关闭它；在 Windows 上，WSL 条目以相同方式呈灰显，尽管 WSL 会话是否在托管设备上运行[由单独管理](/docs/zh-CN/admin-setup#wsl-sessions-in-claude-code-desktop)。新会话默认为第一个[SSH 连接](/docs/zh-CN/desktop#ssh-sessions)（如果已配置），应用拒绝在设备上启动或恢复会话，包括返回同一机器的 SSH 连接。到其他主机的 SSH 会话和云会话不受影响。桌面应用读取此键；终端 CLI 忽略它。需要 Claude Desktop v1.37937.0 或更高版本。
+在[桌面应用](/docs/zh-CN/desktop#local-sessions-on-managed-devices)中关闭在设备上运行的 Code 会话，适用于开发人员应通过 SSH 在远程机器上工作的部署。将此键设置为 `true` 后，用户会在 Code 选项卡中看到以下情况：
+
+* **环境选择器**：用户计算机对应的条目呈灰显状态且无法选择，工具提示显示 **Disabled by your organization**。在 Windows 上，WSL 条目以相同方式呈灰显，不过 WSL 会话是否在托管设备上运行[由单独的设置控制](/docs/zh-CN/admin-setup#wsl-sessions-in-claude-code-desktop)。
+* **新会话**：默认使用第一个 [SSH 连接](/docs/zh-CN/desktop#ssh-sessions)（如果已配置）
+* **设备上的会话**：应用拒绝在设备上启动或恢复会话，包括回连到同一机器的 SSH 连接
+* **到其他主机的 SSH 会话和云端会话**：不受影响
+
+桌面应用读取此键；终端 CLI 忽略它。需要 Claude Desktop v1.37937.0 或更高版本。
 
 * **作用域**: [`托管`](#scopes)。默认情况下，桌面应用从[一个托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)读取此键。
 * **类型**: 布尔值；仅 JSON 布尔值 `true` 生效
@@ -5997,7 +6004,7 @@ Claude Code 忽略项目或本地设置中的 `true`，因此存储库可以为�
   `sshConfigs`
 </h3>
 
-将 SSH 连接添加到[桌面](/docs/zh-CN/desktop#pre-configure-ssh-connections-for-your-team)环境下拉列表。管理员使用它向团队分发共享连接。您在托管设置中定义的连接显示为托管。用户可以选择它们，并为其[设置自己的 **Worktree folder**](/docs/zh-CN/desktop#choose-where-ssh-session-worktrees-go)，但无法在应用中编辑其他任何内容或删除它们。
+将 SSH 连接添加到[桌面](/docs/zh-CN/desktop#pre-configure-ssh-connections-for-your-team)环境选择器。管理员使用 `sshConfigs` 向团队分发共享连接。用户可以选择托管连接，并为其[设置自己的 **Worktree folder**](/docs/zh-CN/desktop#set-the-worktree-folder-on-an-existing-connection)。他们无法在应用中编辑其其他字段或删除它。
 
 * **作用域**: [`用户或托管`](#scopes)。桌面应用读取此键。默认情况下，它从[一个托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)读取托管连接。
 * **类型**: 对象数组，每个都有必需的 `id`、`name` 和 `sshHost` 以及可选的 `sshPort` 和 `sshIdentityFile`

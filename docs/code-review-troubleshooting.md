@@ -38,7 +38,7 @@
 
 * **此仓库未启用 Code Review**：Claude 不会针对该命令发布任何评论或检查运行。请让 Owner [添加该仓库](/docs/zh-CN/code-review-setup#add-more-repositories)。
 * **评论不满足某个条件**：评论是内联评论或审查正文，而不是新的顶层评论，或者命令不在评论开头。编辑先前的评论而不是发布新评论也不算数，并且 Pull Request 必须处于打开状态。请参阅[评论命令的条件](/docs/zh-CN/code-review-pull-requests#comment-commands)，并发布一条满足这些条件的新评论。
-* **您没有写入权限**：您需要拥有该仓库的 write、maintain 或 admin 权限；对于来自 fork 的 Pull Request，起作用的是基础仓库上的权限。如果您的组织启用了提示，Claude 会回复 "No review was started: manual reviews can only be requested by someone with write access to this repository."。请让具有写入权限的人来发表评论。
+* **您没有写入权限**：您需要拥有该仓库的 write、maintain 或 admin 权限；对于来自 fork 的 Pull Request，起作用的是基础仓库上的权限。除非该 Pull Request 是您自己的，否则 Claude 可能会回复一条[提示](/docs/zh-CN/code-review-setup#turn-tip-comments-on-or-off)："No review was started: manual reviews can only be requested by someone with write access to this repository."。请让具有写入权限的人来发表评论。
 * **预算已用尽**：Claude 会发布一条以 "⚠️ Code review skipped" 开头的评论。请参阅[审查未运行且 PR 显示预算消息](#review-didn’t-run-and-the-pr-shows-a-budget-message)。
 
 <h3 id="review-didn’t-run-and-the-pr-shows-a-budget-message">

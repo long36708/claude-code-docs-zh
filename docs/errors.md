@@ -472,7 +472,7 @@ Claude Code 不重试这些故障：
 | [`CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS`](/docs/zh-CN/env-vars) | 未设置 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 时，每个 API 请求在等待 `429` 和 `529` 错误上所花费的最长时间（毫秒）。未设置时，等待时间没有限制。需要 Claude Code v2.1.295 或更高版本。 |
 | [`CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS`](/docs/zh-CN/env-vars) | 500 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的起始延迟（毫秒）。当 API 容量已满时，可将其提高（最高 32000），以便在更长的时间窗口内分散重试。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](/docs/zh-CN/fast-mode#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.292 或更高版本。 |
 | [`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS`](/docs/zh-CN/env-vars) | 32000 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的上限（毫秒）。当 API 容量已满时，可将其提高（最高 64000），使后续重试之间的间隔持续拉大。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](/docs/zh-CN/fast-mode#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.296 或更高版本。 |
-| [`API_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 600000 | 每个请求的超时（毫秒）。为慢速网络或代理提高它。它还限制 Claude Code 等待响应头的时间，在 [No response from API](#no-response-from-api) 中描述。 |
+| [`API_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 600000 | 每次请求尝试接收其响应头的时限（毫秒）。它不限制流式响应在此之后持续的时长。为慢速网络或代理提高它。关于它如何限制首字节截止时间，请参阅 [No response from API](#no-response-from-api)。 |
 | [`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES`](/docs/zh-CN/env-vars) | 未设置 | 超时的[非流式请求](#streaming-response-ended-before-any-complete-data-was-received)的重新发送次数限制。达到该限制时，请求失败。生成时间超过超时时间的 Claude 响应在每次重新发送时都会再次超时，因此请设置较低的数值（例如 `0`）以更快地失败。在本地会话中，每次非流式尝试在 300 秒后超时；当您为 `API_TIMEOUT_MS` 设置正值时，则在该值指定的时间后超时。需要 Claude Code v2.1.285 或更高版本。 |
 | [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 未设置 | 流式请求的第一个响应字节的截止时间（毫秒）。需要 Claude Code v2.1.242 或更高版本。对于当此未设置时 Claude Code 如何选择截止时间，请参阅 [No response from API](#no-response-from-api)。 |
 
@@ -536,7 +536,7 @@ API 在连接截止时间之前没有响应。
 Request timed out
 ```
 
-这可能在高负载期间或模型生成非常大的响应时发生。默认请求超时时间为 10 分钟。
+默认请求超时时间为 10 分钟。
 
 **应该做什么：**
 
@@ -4580,7 +4580,8 @@ Agent 'code-reviewer' would be spawned with zero tools — refusing. Its tools l
 * 根据[子代理可用的工具](/docs/zh-CN/sub-agents#available-tools)纠正错误命名的每个条目
 * 删除会话没有的工具条目，例如来自未连接的服务器的 MCP 工具
 * 如果该条目指向一个已连接的 MCP 服务器，请将该条目与该服务器的名称进行比较，以该服务器[工具名称](/docs/zh-CN/permissions#mcp)中的拼写为准，例如 `mcp__reports__v2__get_totals` 中的 `reports__v2`。对于该服务器，请写 `mcp__reports__v2__*`，即 `mcp__` 后跟完整名称和 `__*`。如果使用较短的 `mcp__reports`（它指向名为 `reports` 的服务器），子代理将得不到任何 `reports__v2` 工具
-* 对于[后台子代理删除](/docs/zh-CN/sub-agents#available-tools)的工具（例如 `CronCreate`），删除该条目。要保留该工具，[关闭 fork 模式](/docs/zh-CN/sub-agents#turn-fork-mode-on-or-off)并要求 Claude 在前台运行子代理
+* 对于[后台子代理删除](/docs/zh-CN/sub-agents#available-tools)的工具（例如 `CronCreate`），删除该条目
+* 如果想改为保留 `CronCreate` 之类的工具，请[让 Claude 等待子代理](/docs/zh-CN/sub-agents#let-claude-wait-for-a-subagent)，因为 Claude 等待的子代理会在前台运行并保留该工具。如果定义中设置了 `background: true`，请先删除该字段，因为它会使子代理保持在后台
 * 删除 `tools` 字段而不是列出工具，以给子代理每个[子代理可用的工具](/docs/zh-CN/sub-agents#available-tools)
 * 对于仅包含 `Agent` 的 `tools` 列表，提高[深度限制](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)或给该 Agent 至少一个其他工具：Claude Code 在该限制处保留 `Agent`，因此列表中没有其他内容会解析为零个工具
 

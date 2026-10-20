@@ -253,7 +253,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
   </Tab>
 
   <Tab title="Desktop">
-    **在会话期间**：在 Code 选项卡中，使用发送按钮旁边的模式选择器。并非每个模式都出现在选择器中：
+    **在会话期间**：在 Code 选项卡中，使用输入框下方那一行中的模式选择器。并非每个模式都出现在选择器中：
 
     * **Auto**：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现
     * **Bypass permissions**：在 Pro 和 Max 计划上需要 Desktop 设置中的**Allow bypass permissions mode**切换；在 Team 和 Enterprise 计划上，组织策略控制它

@@ -196,7 +196,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `ANTHROPIC_VERTEX_PROJECT_ID` | Google Cloud's Agent Platform 请求所指向的 GCP 项目 ID。请参阅[配置 GCP 凭据](/docs/zh-CN/google-vertex-ai#3-configure-gcp-credentials) |
 | `ANTHROPIC_WORKSPACE_ID` | [工作负载身份联合](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation)的工作区 ID。当您的联合规则的范围涵盖多个工作区时设置此变量，以便令牌交换知道要定位哪个工作区 |
 | `API_FORCE_IDLE_TIMEOUT` | 覆盖 5 分钟的响应体空闲超时，该超时会在没有字节到达时中止流式模型响应。设置为 `0` 可关闭该超时，例如当缓慢的[网关](/docs/zh-CN/llm-gateway)或本地模型在数据块之间暂停超过 5 分钟时；设置为 `1` 可对所有提供商保持启用。未设置时，该超时在直接 Anthropic API、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws) 以及设置了 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1` 的 Amazon Bedrock 以外的提供商上处于启用状态。[流式看门狗](/docs/zh-CN/network-config#streaming-idle-watchdogs)独立于它运行，即使您在此处设置 `0`，也会中止长时间的静默暂停 |
-| `API_TIMEOUT_MS` | API 请求的超时时间，以毫秒为单位（默认：600000，即 10 分钟；最大值：2147483647）。流式请求必须在此时间内收到响应头。当请求在慢速网络上或通过代理路由时超时，请增大此值 |
+| `API_TIMEOUT_MS` | 每次 API 请求尝试接收其响应标头的时间，以毫秒为单位（默认值：600000，即 10 分钟；最大值：2147483647）。它不限制此后流式响应的持续时间。当您设置一个正值时，每次[非流式请求](/docs/zh-CN/errors#streaming-response-ended-before-any-complete-data-was-received)尝试都必须在该时间内完成。当请求在慢速网络上超时或通过代理路由时，请增大此值 |
 | `AWS_BEARER_TOKEN_BEDROCK` | 用于身份验证的 Amazon Bedrock API 密钥（请参阅 [Amazon Bedrock API 密钥](https://aws.amazon.com/blogs/machine-learning/accelerate-ai-development-with-amazon-bedrock-api-keys/)） |
 | `BASH_DEFAULT_TIMEOUT_MS` | 前台 Bash 或 PowerShell 工具命令的默认超时时间，以毫秒为单位（默认值：120000，即 2 分钟）。高于[后台命令默认时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)的值会在无人值守会话中替换该默认值。后台时间限制需要 Claude Code v2.1.285 或更高版本 |
 | `BASH_MAX_OUTPUT_LENGTH` | Claude Code 读回到命令结果中的 bash 输出的最大字符数（默认值：30000；最大值：150000）。如果您设置了 [`bashOutputMaxChars`](/docs/zh-CN/settings-reference#bashoutputmaxchars) 设置，Claude Code 会忽略此变量。请参阅[输出限制](/docs/zh-CN/tools-reference#output-limits) |
@@ -242,7 +242,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_CLIENT_CERT` | 用于 mTLS 身份验证的客户端证书文件路径 |
 | `CLAUDE_CODE_CLIENT_KEY` | 用于 mTLS 身份验证的客户端私钥文件路径 |
 | `CLAUDE_CODE_CLIENT_KEY_PASSPHRASE` | 加密的 CLAUDE\_CODE\_CLIENT\_KEY 的密码（可选） |
-| `CLAUDE_CODE_CONNECT_TIMEOUT_MS` | 已在 v2.1.186 中移除，现在不起任何作用。以前用于为流式 API 请求的连接、TLS 和响应标头阶段单独设置超时时间。请使用 `API_TIMEOUT_MS` 设置每个请求的超时时间。有关流式请求的响应标头阶段，请参阅 `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` |
+| `CLAUDE_CODE_CONNECT_TIMEOUT_MS` | 已在 v2.1.186 中移除，现在不起作用。以前用于为流式 API 请求的连接、TLS 和响应标头阶段设置单独的超时。请改用 `API_TIMEOUT_MS`。关于流式请求的响应标头阶段，请参阅 `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` |
 | `CLAUDE_CODE_DEBUG_LOGS_DIR` | 覆盖调试日志文件路径。尽管名称如此，这是一个文件路径，而不是目录。需要通过 `--debug`、`/debug` 或 `DEBUG` 环境变量单独启用调试模式：仅设置此变量不会启用日志记录。[`--debug-file`](/docs/zh-CN/cli-reference#cli-flags) 标志可同时完成这两项操作。默认为 `~/.claude/debug/<session-id>.txt` |
 | `CLAUDE_CODE_DEBUG_LOG_LEVEL` | 写入调试日志文件的最低日志级别。取值：`verbose`、`debug`（默认）、`info`、`warn`、`error`。设置为 `verbose` 可包含大量诊断信息，例如完整的状态栏命令输出；或提高到 `error` 以减少干扰信息 |
 | `CLAUDE_CODE_DISABLE_1M_CONTEXT` | 设置为 `1` 可关闭 [1M 上下文窗口](/docs/zh-CN/model-config#extended-context)支持。Claude Code 会从模型选择器中移除 `[1m]` 模型变体，并将默认使用 1M 窗口运行的模型限制为 200K 窗口。请参阅[关闭 1M 上下文](/docs/zh-CN/model-config#turn-off-1m-context)。适用于有合规要求的企业环境。有关其在纠正无法识别的 `[1m]` 模型 ID 的窗口方面的作用，请参阅[纠正网关或自定义模型 ID 的窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id) |
@@ -317,7 +317,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_FORCE_STRIKETHROUGH` | 当终端支持删除线但未被自动检测到时（例如通过 SSH 连接且未转发 `TERM_PROGRAM`），设置为 `1` 可强制将 Claude 回复中的 `~~text~~` 渲染为删除线。如果不设置，未被检测到的终端会显示字面的 `~~` 标记，而不是将文本渲染为删除线。需要 Claude Code v2.1.186 或更高版本 |
 | `CLAUDE_CODE_FORCE_SYNC_OUTPUT` | 当终端支持但未被自动检测到时，设置为 `1` 可强制启用 DEC 私有模式 2026 [同步输出](https://gist.github.com/christianparpart/d8a62cc1ab659194337d73e399004036)。适用于实现了 BSU/ESU 但不响应能力探测的模拟器，例如 Emacs `eat`。在 tmux 下无效。与切换到[全屏渲染](/docs/zh-CN/fullscreen)的 `CLAUDE_CODE_NO_FLICKER` 不同，此变量不会更改渲染器 |
 | `CLAUDE_CODE_FORCE_TERMINAL_IMAGES` | 当终端使用 Unicode 占位符绘制 kitty 图形协议图像但未被自动检测到时，设置为 `1` 可将 [mod `Image` 元素](/docs/zh-CN/plugins/mods/reference#elements)绘制为图片。请参阅 [Claude Code 会检测哪些终端](/docs/zh-CN/plugins/mods/gallery#image-and-client)，以及为什么它在 tmux 或 screen 中无济于事 |
-| `CLAUDE_CODE_FORK_SUBAGENT` | 控制[分叉模式](/docs/zh-CN/sub-agents#turn-fork-mode-on-or-off)，该模式允许 Claude 自行生成[分叉子代理](/docs/zh-CN/sub-agents#fork-the-current-conversation)，默认仅在交互式会话中开启。设置为 `1` 可同时在 `claude -p` 和 Agent SDK 中开启，设置为 `0` 则在所有类型的会话中关闭。无论分叉模式是否开启，您都可以运行 `/subtask`。交互式会话中的默认开启需要 Claude Code v2.1.232 或更高版本；在更早的版本中，将该变量设置为 `1` 可开启分叉模式 |
+| `CLAUDE_CODE_FORK_SUBAGENT` | 控制 fork 模式，该模式默认开启，允许 Claude 自行启动 [fork](/docs/zh-CN/sub-agents#fork-the-current-conversation)。在 fork 模式开启时，Claude 在您机器上的交互式终端、VS Code 或桌面会话中也无法[等待子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)。设置为 `0` 可关闭 fork 模式。有关版本信息，请参阅[关闭 fork 模式](/docs/zh-CN/sub-agents#turn-fork-mode-on-or-off) |
 | `CLAUDE_CODE_FORWARD_SUBAGENT_TEXT` | 设置为 `1` 可在 `claude -p --output-format stream-json` 输出中发出[子代理](/docs/zh-CN/sub-agents)的文本和思考块，行为与 [`--forward-subagent-text`](/docs/zh-CN/cli-reference#cli-flags) 标志相同。当调用 `claude` 的外部框架无法自行传递该标志时，请使用此变量。该标志在"使用 stream-json 输出的非交互模式"之外会报错退出，而此变量在这些情况下会被忽略，因此在进程范围内设置时，嵌套调用仍能正常工作。需要 Claude Code v2.1.211 或更高版本 |
 | `CLAUDE_CODE_GATEWAY_HINT_HEADERS` | 设置为 `1` 可在自定义代理或第三方提供商（例如 Amazon Bedrock 或 Claude Platform on AWS）上发送[网关提示标头](/docs/zh-CN/llm-gateway-protocol#gateway-hint-headers)，例如 `x-claude-code-request-class` 和 `x-claude-code-compaction`。设置为 `0` 可在所有连接上停止发送这些标头，包括直接连接到 Anthropic API 的情况（Claude Code 默认会在此类连接上发送这些标头）。需要 Claude Code v2.1.273 或更高版本 |
 | `CLAUDE_CODE_GATEWAY_MODEL_DISCOVERY_TIMEOUT_MS` | 由 `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY` 开启的[网关模型发现](/docs/zh-CN/llm-gateway-protocol#model-discovery)请求的超时时间（毫秒，默认：`3000`）。当您的网关在启动时需要超过三秒才能响应 `/v1/models` 时，请调高此值。仅接受纯数字；`0`、负值和其他写法会保留默认值。需要 Claude Code v2.1.269 或更高版本 |
@@ -341,7 +341,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` | 主对话之下允许的[子代理层数](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)（默认：3）。在默认值下，子代理可以生成自己的子代理，而位于第三层的子代理不能再继续生成；设置为 `1` 可关闭嵌套。在 v2.1.217 至 v2.1.218 中，默认值为 1，因此除非您提高限制，否则子代理无法生成自己的子代理；v2.1.219 将默认值提高到 3。接受以纯数字表示的正整数；其他值会被忽略，因此该限制可以调整，但不能移除。需要 Claude Code v2.1.217 或更高版本 |
 | `CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY` | 可并行执行的只读工具和子代理的最大数量（默认：10）。值越高，并行度越高，但消耗的资源也越多 |
 | `CLAUDE_CODE_MAX_TURNS` | 在未传递显式限制时，限制 agentic 轮次的数量。等同于传递 [`--max-turns`](/docs/zh-CN/cli-reference#cli-flags)，两者都设置时后者优先。非正整数的值会在启动时被拒绝并报错，而不是被视为无上限 |
-| `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION` | [WebSearch](/docs/zh-CN/tools-reference#session-search-limit) 调用次数上限（默认：200）。当 Claude 达到上限后，后续 WebSearch 调用会返回一条通知，告知它使用已收集的信息继续。接受任意正整数，没有最大值限制。其他值会被忽略并应用默认值，因此该上限可以提高，但不能关闭。需要 Claude Code v2.1.212 或更高版本 |
+| `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION` | [WebSearch](/docs/zh-CN/tools-reference#session-search-limit) 调用次数上限（默认值：200）。当 Claude 达到上限时，后续的 WebSearch 调用会返回一条通知，告诉它使用已收集的信息继续，并在回答中说明这一点。接受无上限的正整数。其他任何值都会被忽略并应用默认值，因此上限可以提高但不能关闭。需要 Claude Code v2.1.212 或更高版本 |
 | `CLAUDE_CODE_MCP_ALLOWLIST_ENV` | 设置为 `1` 可在启动 stdio MCP 服务器时仅提供安全的基线环境加上服务器配置的 `env`，而不是继承您的 shell 环境 |
 | `CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS` | 仍在运行的 MCP 工具调用在经过多长时间（毫秒）后[转为后台任务](/docs/zh-CN/mcp#automatic-backgrounding-of-long-tool-calls)（默认：120000，即 2 分钟）。设置为 `0` 可关闭自动转入后台。需要 Claude Code v2.1.212 或更高版本 |
 | `CLAUDE_CODE_MCP_STARTUP_WAIT_MS` | [非交互](/docs/zh-CN/headless)会话的第一轮等待仍在连接的 MCP 服务器的时长（毫秒），用于替代默认的[首轮等待](/docs/zh-CN/agent-sdk/mcp#connection-timing)。设置后，等待会涵盖所有待连接的服务器；在[自托管环境](/docs/zh-CN/self-hosted-environments-configuration#connection-timing)中，它只改变等待持续的时长。设置为 `0` 可跳过等待。无论该值如何，[`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 服务器都会保持其自身的 `MCP_TIMEOUT` 等待。需要 Claude Code v2.1.274 或更高版本 |
@@ -600,7 +600,6 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 * 运行 [`/skill-doctor`](/docs/zh-CN/skills#find-unused-skills) 或在 `/plugin` 的 **Stats** 选项卡中打开其报告
 * 将您的 claude.ai 账户中启用的 [skill](/docs/zh-CN/skills#where-synced-skills-load) 和[插件](/docs/zh-CN/plugins/loading#synced-plugins)同步到终端会话中
 * 启用 [You should know mod](/docs/zh-CN/interactive-mode#you-should-know-suggestions)
-* 查看 [mod](/docs/zh-CN/plugins/mods/overview#where-mods-run) 在 VS Code 扩展聊天面板中绘制的内容；该 mod 的 hook 仍会运行
 * 使用 [advisor 工具](/docs/zh-CN/advisor#requirements)
 * 阅读或回复 [Artifact 上的评论](/docs/zh-CN/artifacts#collect-comments-on-an-artifact)
 * 让 Claude 读取[其他组织的公开 Artifact](/docs/zh-CN/artifacts#read-an-artifact-shared-with-you)

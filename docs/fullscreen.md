@@ -146,7 +146,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 | `Ctrl+End` | 跳转到最新消息并重新启用自动跟随 |
 | 鼠标滚轮 | 一次滚动几行 |
 
-即使在[压缩](/docs/zh-CN/context-window#what-survives-compaction)之后，您也可以滚动回到会话开始。Claude 从压缩摘要继续工作，但 Claude Code 在重复压缩过程中在全屏滚动回放中保留每条早期消息。
+如果您关闭一个已[压缩](/docs/zh-CN/context-window#what-survives-compaction)的会话并[恢复](/docs/zh-CN/sessions#what-a-resumed-session-restores)它，向上滚动会停在 `Conversation compacted` 行，而您较早的消息仍保存在磁盘上的[会话记录文件](/docs/zh-CN/sessions#where-transcripts-are-stored)中。要获取这些消息中的某个细节，请让 Claude 在该文件中查找。
 
 在没有专用 `PgUp`、`PgDn`、`Home` 或 `End` 键的键盘上，例如 MacBook 键盘，按住 `Fn` 并使用箭头键：`Fn+↑` 发送 `PgUp`，`Fn+↓` 发送 `PgDn`，`Fn+←` 发送 `Home`，`Fn+→` 发送 `End`。`Ctrl+Fn+→` 在 macOS 上无法到达 Claude Code，因此 MacBook 键盘默认没有有效的跳转到底部快捷键。相反，使用以下选项之一：
 
@@ -162,7 +162,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
   自动跟随
 </h3>
 
-向上滚动会暂停自动跟随，以便新输出不会将您拉回到底部。当您向上滚动时，一个`跳转到底部`按钮会浮动在记录的底部边缘，当新输出到达时会显示计数，例如 `3 条新消息`。点击它、按 `Ctrl+End` 或滚动到底部以恢复跟随。
+向上滚动会暂停自动跟随，以便新输出不会将您拉回到底部。当您向上滚动时，一个 `Jump to bottom` 按钮会浮动在会话记录的底部边缘，当新输出到达时会显示计数，例如 `3 new messages`。点击它、按 `Ctrl+End` 或滚动到底部以恢复跟随。
 
 当自动跟随暂停时，当响应完成流式传输时，视图也会保持在您滚动的位置。
 

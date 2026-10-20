@@ -315,7 +315,7 @@ mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期�
 
 * **该位置或元素在该应用中不会被绘制**：在[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)表中查找您的位置，并在[元素](/docs/zh-CN/plugins/mods/reference#elements)表中查找您的元素。对于该应用不具备的元素，请在 hook 中检查 `e.surface`，并返回该应用可以绘制的树。
 * **VS Code 扩展版本低于 2.1.299**：从[扩展版本](/docs/zh-CN/vs-code#install-the-extension) 2.1.299 起，聊天面板才会为 mod 进行绘制。请在 VS Code 的扩展视图中检查版本，并在该处更新扩展。
-* **该 VS Code 会话不获取功能标志**：在聊天面板中绘制需要获取功能标志。在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上的会话，或通过 [Claude apps 网关](/docs/zh-CN/claude-apps-gateway)的会话，以及[需要获取功能标志的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)中列出的其他会话，都会跳过此步骤。要在此类会话中查看绘图，请改为在终端（例如 VS Code 的集成终端）中运行 `claude`。
+* **扩展版本低于 2.1.304，且该会话不获取功能标志**：请更新扩展，或改为在 VS Code 的集成终端中运行 `claude`。在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上的会话会跳过此获取步骤。对于跳过此步骤的其他会话，例如 [Claude apps 网关](/docs/zh-CN/claude-apps-gateway)会话，请参阅[需要获取功能标志的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)。
 
 <h2 id="an-edit-or-a-value-is-lost">
   编辑或值丢失

@@ -1301,7 +1301,7 @@ Connectors 来自 claude.ai 仅在您的活跃 [身份验证方法](/docs/zh-CN/
   Connectors 如何到达 Claude Code
 </h3>
 
-哪些设置管理 claude.ai connector 取决于您的会话在哪里运行，因为只有某些会话从 claude.ai 本身获取 connectors。下表中的每一行命名 connectors 在一种会话中的到达方式以及在那里控制它们的内容。桌面应用的 [WSL 会话](/docs/zh-CN/desktop-wsl#what-works-in-a-wsl-session) 没有行，因为 connectors 在其中尚不可用。
+哪些设置管理 claude.ai 连接器取决于您的会话在哪里运行，因为只有某些会话从 claude.ai 本身获取连接器。下表中的每一行命名连接器在一种会话中的到达方式以及在那里控制它们的内容。桌面应用的 WSL 会话没有对应的行，因为连接器[仍在逐步向其推出](/docs/zh-CN/desktop-wsl#check-for-the-terminal-and-connectors)。
 
 | 会话运行的位置 | Connectors 如何到达 | 什么管理它们 |
 | :- | :- | :- |

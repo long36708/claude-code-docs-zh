@@ -113,7 +113,7 @@ Chrome 集成还需要使用 `/login` 登录。如果您使用 API 密钥或来�
 
 启用该设置且使用 Claude Code v2.1.287 或更高版本时，每个 VS Code 会话在启动时就会连接到您的浏览器，因此 Claude 无需您键入 `@browser` 即可使用它。在更早的版本中，或在关闭该设置时，VS Code 会话会在您键入 `@browser` 时连接。
 
-当 Chrome 未运行时，Claude Code 正常启动。在 v2.1.211 之前，当启用了 Chrome 集成但 Chrome 未运行时，启动可能会挂起。
+当 Chrome 未运行时，Claude Code 正常启动。
 
 <Note>
   默认启用 Chrome 会增加上下文使用，因为浏览器工具及其说明始终被加载。如果您注意到上下文消耗增加，请关闭此设置，仅在需要时连接：在 CLI 中使用 `--chrome`，或在 VS Code 输入框中键入 [`@browser`](/docs/zh-CN/vs-code#automate-browser-tasks-with-chrome)。
@@ -192,7 +192,7 @@ Claude 读取您的本地文件、导航网络界面并为每条记录输入数�
   将文件上传到网页
 </h3>
 
-Claude 可以将您计算机中的文件附加到页面上的上传字段。Claude Code 读取文件并将其内容发送到浏览器，因此上传在本地和远程会话中都有效。需要 Claude Code v2.1.211 或更高版本。
+Claude 可以将您计算机中的文件附加到页面上的上传字段。Claude Code 读取文件并将其内容发送到浏览器，因此上传在本地和远程会话中都有效。
 
 此示例将日志文件附加到表单：
 
@@ -271,7 +271,7 @@ Claude 录制交互序列并将其保存为 GIF 文件。录制捕获浏览器�
 Take a screenshot of the checkout page and save it to disk
 ```
 
-Claude 将图像保存到磁盘并报告文件路径。在 v2.1.211 之前，屏幕截图工具的 `save_to_disk` 选项没有写入文件。
+Claude 将图像保存到磁盘并报告文件路径。
 
 <h2 id="troubleshooting">
   故障排除

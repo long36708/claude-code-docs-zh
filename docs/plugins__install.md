@@ -95,19 +95,19 @@
 
     <Steps>
       <Step title="打开插件浏览器">
-        单击提示框旁边的 **+** 按钮，选择 **Plugins**，然后选择 **Add plugin**。插件浏览器打开，显示来自您的市场的插件。
+        单击提示框旁边的 **+** 按钮，然后选择 **Add plugins**。如果 **+** 菜单显示的是 **Plugins** 而不是 **Add plugins**，请选择 **Plugins**，然后选择 **Browse plugins**。插件浏览器打开，显示来自您的市场的插件。
       </Step>
 
       <Step title="选择插件">
         找到 `commit-commands` 并选择它。
       </Step>
 
-      <Step title="选择范围">
-        选择 [scope](#choose-an-install-scope)：您的用户账户、此项目或仅本地。
+      <Step title="选择作用域">
+        选择 [作用域](#choose-an-install-scope)：您的用户账户、此项目或仅本地。
       </Step>
     </Steps>
 
-    要稍后启用、禁用或卸载，请使用 **+ > Plugins > Manage plugins**。插件浏览器在桌面应用的云会话中不可用。请参阅 [Install plugins in the desktop app](/docs/zh-CN/desktop#install-plugins)。
+    要稍后启用、禁用或卸载插件，请参阅 [Install plugins in the desktop app](/docs/zh-CN/desktop#install-plugins)。
   </Tab>
 
   <Tab title="VS Code">

@@ -261,31 +261,31 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
   连接开发人员
 </h2>
 
-开发人员从自己的笔记本电脑使用一次浏览器登录进行连接，使用他们的公司工作账户。他们不需要 claude.ai 账户、API 密钥或订阅，因为对模型的请求通过网关使用组织的上游凭据。连接由您通过 MDM 推送的[客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)驱动，本部分涵盖管理员配置的内容。
+开发人员在自己的笔记本电脑上使用企业工作账户，通过一次浏览器登录即可连接。他们不需要 claude.ai 账户、API 密钥或订阅，因为发往模型的请求会通过网关，使用组织的上游凭据。连接由您通过 MDM 推送的[客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)驱动，本节介绍管理员需要配置的内容。
 
-CLI 在首次连接时对网关的 TLS 叶证书进行指纹识别，并按主机名固定它。它在登录期间、静默会话刷新期间和托管设置获取期间再次检查该固定，而推理请求使用标准 TLS 验证而不使用固定。通过 HTTPS 代理路由的请求跳过固定检查，因此将网关主机添加到 `NO_PROXY` 以保持它们直接连接。
+CLI 在首次连接时会对网关的 TLS 叶证书生成指纹，并按主机名固定该指纹。在登录、静默会话刷新以及获取托管设置时，它会再次检查该固定指纹，而推理请求使用标准 TLS 验证，不检查固定指纹。通过 HTTPS 代理路由的请求会跳过固定指纹检查，因此请将网关主机添加到 `NO_PROXY`，使这些请求直接连接。
 
-发布预期的 SHA-256 指纹以及网关 URL，以便开发人员有东西可以比较。`/login` 提示显示指纹的前 16 个字符作为小写十六进制，无冒号。要从证书文件以该形式打印完整指纹，请运行：
+请将预期的 SHA-256 指纹与网关 URL 一起发布，以便开发人员有可比对的依据。`/login` 提示会以不带冒号的小写十六进制形式显示指纹的前 16 个字符。要从证书文件中以该形式输出完整指纹，请运行：
 
 ```bash theme={null}
 openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | tr 'A-F' 'a-f'
 ```
 
-当证书轮换时，每个开发人员都会再次看到信任提示，因此将轮换视为计划事件并重新发布指纹。如果您的网关策略包含[需要批准的设置](/docs/zh-CN/server-managed-settings#security-approval-dialogs)，开发人员在接受新证书后也会再次看到该批准对话框，因为 Claude Code 将[批准记忆](/docs/zh-CN/server-managed-settings#approval-memory)关键到固定的证书。
+证书轮换时，每位开发人员都会再次看到信任提示，因此请将轮换视为计划内事件并重新发布指纹。如果您的网关策略包含[需要批准的设置](/docs/zh-CN/server-managed-settings#security-approval-dialogs)，开发人员在接受新证书后还会再次看到该批准对话框，因为 Claude Code 将[批准记忆](/docs/zh-CN/server-managed-settings#approval-memory)与固定的证书绑定。
 
-网关可以在其令牌响应中返回可选的 `email` 字段，以命名登录使用的账户。当它这样做时，开发人员在 Claude Code 保存凭证之前确认账户。确认登录后，`/status` 显示账户。
+网关可以在其令牌响应中返回可选的 `email` 字段，以指明某次登录所使用的账户。返回该字段时，开发人员需要在 Claude Code 保存凭据之前确认该账户。确认登录后，`/status` 会显示该账户。
 
-确认需要开发人员机器上的 Claude Code v2.1.275 或更高版本；低于该版本的客户端忽略该字段。`claude` 二进制文件中的网关服务器不返回该字段，因此其登录完成时没有确认。
+该确认要求开发人员机器上的 Claude Code 为 v2.1.275 或更高版本；低于该版本的客户端会忽略此字段。`claude` 二进制文件中的网关服务器不返回该字段，因此通过它的登录会在没有确认的情况下完成。
 
-开发人员登录后，[模型选择器](/docs/zh-CN/model-config)显示其 `availableModels` 允许列表中的模型。托管设置在启动时应用并每小时刷新一次，遥测路由到您的收集器。
+开发人员登录后，[模型选择器](/docs/zh-CN/model-config)会显示其 `availableModels` 允许列表中的模型。托管设置在启动时生效并每小时刷新一次，遥测会路由到您的收集器。
 
-会话在 `ttl_hours` 过期前静默刷新。当 IdP 取消配置后刷新失败时，Claude Code 会提示开发人员重新登录。
+会话会在 `ttl_hours` 到期前静默刷新。当 IdP 取消配置后刷新失败时，Claude Code 会提示开发人员重新登录。
 
 <h3 id="set-the-gateway-url">
   设置网关 URL
 </h3>
 
-三个密钥进入您通过 MDM 或直接在磁盘上部署的每个操作系统[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)。对于没有托管设置的机器，请改为参阅[在用户设置中设置网关 URL](#set-the-gateway-url-in-user-settings)。`forceLoginMethod` 和 `forceLoginGatewayUrl` 在**Cloud gateway** 屏幕上直接打开 `/login`，URL 已填入，`parentSettingsBehavior: "merge"` 让 Claude Desktop 将网关的出口允许列表传递给它启动的 Claude Code 会话，在[将策略传递给 Claude Desktop 会话](#deliver-policy-to-claude-desktop-sessions)中解释：
+以下三个键需放入您通过 MDM 或直接在磁盘上部署的各操作系统对应的[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)中。对于没有托管设置的机器，请改为参阅[在用户设置中设置网关 URL](#set-the-gateway-url-in-user-settings)。`forceLoginMethod` 和 `forceLoginGatewayUrl` 会让 `/login` 直接在 **Cloud gateway** 界面打开并填入 URL，而 `parentSettingsBehavior: "merge"` 允许 Claude Desktop 将网关的出站允许列表传递给它启动的 Claude Code 会话，详见[向 Claude Desktop 会话传递策略](#deliver-policy-to-claude-desktop-sessions)：
 
 ```json theme={null}
 {
@@ -295,15 +295,15 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 }
 ```
 
-开发人员按 Enter 连接。[首次连接 TLS 指纹提示](#connect-developers)仍然出现。文件在机器上后，未完成网关登录的开发人员会看到[管理员策略需要 Cloud 网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)下描述的消息之一。通过环境变量（如 `CLAUDE_CODE_USE_BEDROCK`）选择云提供商的开发人员不需要网关登录。
+开发人员按 Enter 即可连接。[首次连接的 TLS 指纹提示](#connect-developers)仍会出现。文件部署到机器上后，尚未完成网关登录的开发人员会看到[管理员策略要求进行 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)中描述的某条消息。通过 `CLAUDE_CODE_USE_BEDROCK` 等环境变量选择云提供商的开发人员不需要进行网关登录。
 
-登录选择器中没有网关选项，而在托管设置中，单独的 `forceLoginMethod`（没有 URL）会将开发人员留在"联系您的 IT 管理员"消息处。登录密钥属于您推送到机器的文件中，而不是网关的 `managed.policies[].cli` 块中，该块仅到达已连接的客户端。
+登录选择器中没有网关选项，而在托管设置中只设置 `forceLoginMethod` 而不设置 URL，会让开发人员停留在“Contact your IT administrator”消息处。登录相关的键应放在您推送到机器的文件中，而不是网关的 `managed.policies[].cli` 块中，后者只会到达已连接的客户端。
 
 <h4 id="set-the-gateway-url-in-user-settings">
   在用户设置中设置网关 URL
 </h4>
 
-在没有托管设置的机器上，让每位开发人员将 `forceLoginMethod` 和 `forceLoginGatewayUrl` 添加到其自己的用户设置文件 `~/.claude/settings.json` 中。这需要开发人员机器上的 Claude Code v2.1.295 或更高版本。此示例指定位于 `claude-gateway.internal.example.com` 的网关：
+在没有托管设置的机器上，请让每位开发人员将 `forceLoginMethod` 和 `forceLoginGatewayUrl` 添加到自己的用户设置文件 `~/.claude/settings.json` 中。这要求开发人员机器上的 Claude Code 为 v2.1.295 或更高版本。以下示例指定了位于 `claude-gateway.internal.example.com` 的网关：
 
 ```json theme={null}
 {
@@ -312,26 +312,26 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 }
 ```
 
-当开发人员在 Claude Code 提示符处运行 `/login` 时，**Cloud gateway** 屏幕会以该地址打开，开发人员按 Enter 即可连接。[首次连接 TLS 指纹提示](#connect-developers)仍然出现。以这种方式设置的设置项受以下限制：
+当开发人员在 Claude Code 输入框中运行 `/login` 时，**Cloud gateway** 界面会以该地址打开，开发人员按 Enter 即可连接。[首次连接的 TLS 指纹提示](#connect-developers)仍会出现。以这种方式设置的键受以下限制：
 
-* **仅限用户设置**：Claude Code 从 `~/.claude/settings.json` 读取这两个设置项，而不是从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 读取。
-* **托管设置会使其失效**：一旦管理员的设置通过托管设置文件、macOS plist 或 Windows HKLM 策略，或[策略助手](/docs/zh-CN/settings-reference#policyhelper)到达机器，Claude Code 就会忽略用户设置中指定的网关。
+* **仅限用户设置**：Claude Code 从 `~/.claude/settings.json` 读取这两个键，而不会从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 读取。
+* **托管设置会使其失效**：一旦管理员的设置通过托管设置文件、macOS plist 或 Windows HKLM 策略，或[策略帮助程序](/docs/zh-CN/settings-reference#policyhelper)到达该机器，Claude Code 就会忽略用户设置中指定的网关。
 
 <h3 id="allow-a-gateway-on-public-address-space-you-own">
-  在您拥有的公共地址空间上允许网关
+  允许位于您自有公网地址空间的网关
 </h3>
 
-某些组织从他们拥有的公共 IPv4 块对其内部网络进行编号，例如运营商自己的地址空间或遗留的 `/8`，因此他们的网关没有私有地址。在 `gatewayInternalNetworks` 托管设置中列出这些块。当开发人员的机器从同一块内的地址连接到它时，`/login` 然后接受列出块内的网关。这需要开发人员机器上的 Claude Code v2.1.268 或更高版本；早期版本忽略该设置项并应用私有地址规则。
+有些组织使用自己拥有的公网 IPv4 地址块为内部网络编址，例如运营商自己的地址空间或遗留的 `/8`，因此其网关没有私有地址。请在 `gatewayInternalNetworks` 托管设置中列出这些地址块。之后，当开发人员的机器从某个已列出地址块内的地址连接到位于同一地址块内的网关时，`/login` 会接受该网关。这要求开发人员机器上的 Claude Code 为 v2.1.268 或更高版本；更早的版本会忽略该键并应用私有地址规则。
 
 <Warning>
-  `gatewayInternalNetworks` 用于恰好从公共地址空间编号的内部网络。它不会使将网关暴露到互联网变得安全：受信任的网关可以推送在开发人员机器上运行命令的设置。
+  `gatewayInternalNetworks` 适用于恰好使用公网地址空间编址的内部网络。它并不能让网关暴露在互联网上变得安全：受信任的网关可以推送在开发人员机器上运行命令的设置。
 
-  使用您的防火墙或负载均衡器规则将网关保持在网络外部无法访问。将网关的 [`access_control.allow_cidrs`](/docs/zh-CN/claude-apps-gateway-config#http-tuning) 设置为您在此处声明的相同块，以便网关本身拒绝来自其他任何地方的客户端。在负载均衡器或入口后面，也将 `listen.trusted_proxies` 设置为该前端，因为网关否则会针对前端自己的地址而不是开发人员的地址匹配 `allow_cidrs`。
+  请通过防火墙或负载均衡器规则，确保从您的网络外部无法访问网关。将网关的 [`access_control.allow_cidrs`](/docs/zh-CN/claude-apps-gateway-config#http-tuning) 设置为您在此处声明的相同地址块，使网关本身拒绝来自其他任何地方的客户端。如果网关位于负载均衡器或入口之后，还需将 `listen.trusted_proxies` 设置为该前端，否则网关会用前端自身的地址而不是开发人员的地址来匹配 `allow_cidrs`。
 </Warning>
 
-将密钥添加到与登录密钥相同的托管设置源：托管设置文件、MDM 配置文件或注册表策略。Claude Code 在用户、项目和服务器托管设置中忽略它。
+请将该键添加到与登录键相同的托管设置来源中：托管设置文件、MDM 配置描述文件或注册表策略。Claude Code 会忽略用户设置、项目设置和服务器托管设置中的该键。
 
-此示例声明一个块。将 `203.0.113.0/24` 替换为您自己的块。它是文档范围，Claude Code 拒绝这些。
+以下示例声明了一个地址块。请将 `203.0.113.0/24` 替换为您自己的地址块。它是文档专用范围，Claude Code 会拒绝此类范围。
 
 ```json theme={null}
 {
@@ -339,72 +339,72 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 }
 ```
 
-Claude Code 在 `/login` 处验证列表，然后再联系任何网关：
+Claude Code 会在 `/login` 联系任何网关之前验证该列表：
 
-* 每个条目是一个 IPv4 块，写成其第一个地址和从 `/8` 到 `/32` 的前缀。
-* 列表最多包含四个块，没有两个重叠。
-* 没有块与私有地址空间重叠：`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`、`127.0.0.0/8`、`169.254.0.0/16` 和 `100.64.0.0/10`。`/login` 已经在没有此密钥的情况下接受那里的网关。
-* 没有块与从不是组织网络的空间重叠：`198.18.0.0/15` 和 `192.0.0.0/24`，VPN 和 NAT64 客户端将其作为本地地址；文档范围 `192.0.2.0/24`、`198.51.100.0/24` 和 `203.0.113.0/24`；以及保留范围 `0.0.0.0/8`、`192.88.99.0/24` 和多播 `224.0.0.0/4`。您可以声明 `240.0.0.0/4` 内的块，某些大型网络将其用作内部单播空间。
+* 每个条目都是一个 IPv4 地址块，以其起始地址和 `/8` 到 `/32` 之间的前缀表示。
+* 列表最多包含四个地址块，且任意两个不得重叠。
+* 任何地址块都不得与私有地址空间重叠：`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`、`127.0.0.0/8`、`169.254.0.0/16` 和 `100.64.0.0/10`。`/login` 无需此键即可接受位于这些范围内的网关。
+* 任何地址块都不得与绝不可能是组织网络的空间重叠：VPN 和 NAT64 客户端用作本地地址的 `198.18.0.0/15` 和 `192.0.0.0/24`；文档专用范围 `192.0.2.0/24`、`198.51.100.0/24` 和 `203.0.113.0/24`；以及保留范围 `0.0.0.0/8`、`192.88.99.0/24` 和组播 `224.0.0.0/4`。您可以声明 `240.0.0.0/4` 内的地址块，一些大型网络将其用作内部单播空间。
 
-来自 `managed-settings.json` 及其 `managed-settings.d/` 插入文件的块合并为一个列表，这些限制适用于合并列表。要缩小块，请替换其条目而不是在插入中添加第二个重叠的；`/login` 拒绝重叠。
+来自 `managed-settings.json` 及其 `managed-settings.d/` 附加文件的地址块会合并为一个列表，上述限制适用于合并后的列表。要缩小某个地址块，请替换其条目，而不是在附加文件中再添加一个重叠的条目；`/login` 会拒绝重叠。
 
-如果条目违反规则，或值不是字符串列表，Claude Code 拒绝该机器上的每个新网关登录并在消息中命名问题。登录到私有地址上的网关也失败，现有登录继续工作。在部署前在一台机器上尝试该值。Claude Code 还在[它报告的无效托管设置](/docs/zh-CN/managed-settings#keys-that-fail-closed)中列出错误类型的值。
+如果某个条目违反规则，或者值不是字符串列表，Claude Code 会拒绝该机器上的所有新网关登录，并在消息中指出问题。对位于私有地址的网关的登录也会失败，而现有登录会继续有效。请先在一台机器上试用该值，再进行部署。Claude Code 还会将类型错误的值列入[其报告的无效托管设置](/docs/zh-CN/managed-settings#keys-that-fail-closed)中。
 
-使用有效列表，`/login` 对地址在列出块内的网关应用三个检查：
+在列表有效的情况下，`/login` 会对地址位于已列出地址块内的网关执行三项检查：
 
-* 网关主机名解析到的每个地址都在该块内。Claude Code 拒绝也在块外有记录的名称，包括私有和 IPv6 地址。
-* 开发人员的机器从同一块内连接。Claude Code 拒绝 NAT 后面、容器或 WSL2 内或 VPN 上的机器，其地址池位于块外，并命名机器连接的地址。
-* 连接是直接的。如果 `HTTPS_PROXY` 适用于网关主机，`/login` 拒绝并命名要添加的 `NO_PROXY` 条目。
+* 网关主机名解析到的每个地址都位于同一个地址块内。如果某个名称还有位于该地址块之外的记录（包括私有地址和 IPv6 地址），Claude Code 会拒绝它。
+* 开发人员的机器从同一地址块内进行连接。如果机器位于 NAT 之后、位于容器或 WSL2 内，或者使用地址池位于该地址块之外的 VPN，Claude Code 会拒绝，并指出该机器用于连接的地址。
+* 连接是直接的。如果 `HTTPS_PROXY` 适用于网关主机，`/login` 会拒绝，并指出需要添加的 `NO_PROXY` 条目。
 
-当所有三个通过时，[信任提示](#connect-developers)添加一行命名机器的地址、网关的地址和包含两者的声明块。
+三项检查全部通过后，[信任提示](#connect-developers)会增加一行，指明机器的地址、网关的地址以及同时包含两者的已声明地址块。
 
-该密钥对其他网关不改变任何内容：登录到私有地址上的网关像以前一样工作，登录到每个列出块外的公共地址上的网关像以前一样被拒绝。
+该键对其他网关没有任何影响：对位于私有地址的网关的登录照常有效，对位于所有已列出地址块之外的公网地址的网关的登录照常被拒绝。
 
-声明的块缩小了谁可以登录但不证明机器在哪里，因此仅声明您的组织控制的地址空间。与其他租户共享的块，例如云提供商的公共范围，让其中的任何人通过相同的检查。
+已声明的地址块会缩小可登录的范围，但无法证明机器所在的位置，因此请只声明您的组织所控制的地址空间。与其他租户共享的地址块（例如云提供商的公网范围）会让其中的任何人都能通过同样的检查。
 
 <h3 id="deliver-policy-to-claude-desktop-sessions">
-  将策略传递给 Claude Desktop 会话
+  向 Claude Desktop 会话传递策略
 </h3>
 
-Claude Desktop 在嵌入式 Claude Code 会话上运行其 Cowork 和 Code 选项卡，以及启用时的 Chat 选项卡，并通过网关发送其模型请求。它将策略传递给每个会话，从网关在 `/user/bootstrap` 处提供的配置构建：模型允许列表、禁用的工具和从匹配策略的 `cli` 或 `code` 块派生的出口允许列表，加上[`desktop` 覆盖](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)。
+Claude Desktop 在嵌入式 Claude Code 会话上运行其 Cowork 和 Code 标签页（以及在您启用时的 Chat 标签页），并通过网关发送这些会话的模型请求。它会向每个这样的会话传递策略，该策略基于网关在 `/user/bootstrap` 提供给它的配置构建：模型允许列表、已禁用的工具，以及从匹配策略的 `cli` 或 `code` 块派生的出站允许列表，外加 [`desktop` 覆盖层](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)。
 
-该块的其他设置项，例如 hook、`env` 和作用域权限规则（如 `Bash(npm *)`），会到达通过 `/login` 登录的客户端。在 `code` 下，当[Code 选项卡的条件](/docs/zh-CN/claude-apps-gateway-config#apply-code-settings-in-the-code-tab)成立时，它们也会到达 Code 选项卡的会话。它们不会到达 Cowork 或 Chat 会话。Claude Desktop 从其自己的托管配置读取网关 URL，并使用其自己的流程登录，与[设置网关 URL](#set-the-gateway-url)中的 `forceLoginMethod` 和 `forceLoginGatewayUrl` 设置项分开。
+该块中的其他键，例如 hook、`env` 以及 `Bash(npm *)` 这类限定范围的权限规则，会到达通过 `/login` 登录的客户端。在 `code` 下，当满足 [Code 标签页的条件](/docs/zh-CN/claude-apps-gateway-config#apply-code-settings-in-the-code-tab)时，它们也会到达 Code 标签页的会话。它们不会到达 Cowork 或 Chat 会话。Claude Desktop 从其自身的托管配置中读取网关 URL，并使用自己的流程登录，与[设置网关 URL](#set-the-gateway-url) 中的 `forceLoginMethod` 和 `forceLoginGatewayUrl` 键无关。
 
-由启动过程传递的设置是父设置。Claude Code 在任何具有管理员部署的托管源的机器上忽略父设置，除非[传递策略的源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)设置 `parentSettingsBehavior: "merge"`。
+由启动进程传递的设置称为父设置。在任何具有管理员部署的托管来源的机器上，Claude Code 都会忽略父设置，除非[传递策略的来源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)设置了 `parentSettingsBehavior: "merge"`。
 
 <h4 id="which-machines-need-the-opt-in">
-  哪些机器需要选择加入
+  哪些机器需要启用该选项
 </h4>
 
-仅运行 Claude Desktop 的机器需要它。Claude Desktop 将模型列表和禁用工具列表应用于嵌入式会话本身，但出口允许列表仅作为父设置到达它们，形式为 `WebFetch` 域规则和沙箱网络规则。没有选择加入，这些会话运行时没有出口限制，没有任何警告。网关仍然拒绝策略未授予的模型的推理请求。
+仅运行 Claude Desktop 的机器需要启用。Claude Desktop 会自行将模型列表和已禁用工具列表应用于嵌入式会话，但出站允许列表只能以父设置的形式到达这些会话，形式为 `WebFetch` 域规则和沙箱网络规则。如果不启用该选项，这些会话将在没有出站限制的情况下运行，而且不会有任何警告。网关仍会拒绝针对策略未授予的模型的推理请求。
 
-插件市场允许列表也仅作为父设置到达嵌入式会话。当您在 Claude Desktop 的托管配置中关闭用户添加的插件市场时，Claude Desktop 2.16120.0 或更高版本隐藏您的组织未配置的市场，并拒绝从它们安装。要停止嵌入式会话加载已从这些市场安装的插件，它将 `strictKnownMarketplaces` 列表作为父设置发送给它们。没有选择加入，Claude Code 忽略该列表，这些插件继续加载。
+插件市场允许列表也只能以父设置的形式到达嵌入式会话。当您在 Claude Desktop 的托管配置中关闭用户添加的插件市场时，Claude Desktop 2.16120.0 或更高版本会隐藏您的组织未配置的市场，并拒绝从这些市场安装。为阻止嵌入式会话加载已从这些市场安装的插件，它会以父设置的形式向这些会话发送 `strictKnownMarketplaces` 列表。如果不启用该选项，Claude Code 会忽略该列表，这些插件会继续加载。
 
-开发人员通过 `/login` 登录的机器不需要它；每个 Claude Code 会话从网关获取其策略。
+开发人员通过 `/login` 登录的机器不需要启用；每个 Claude Code 会话都会从网关获取其策略。
 
-其[`policyHelper`](/docs/zh-CN/settings-reference#policyhelper)提供托管设置的舰队无法使用它：Claude Code 从不在这些舰队上合并父设置，因为它仅从助手的输出读取托管设置。
+由 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 提供托管设置的机器群无法使用该选项：在这些机器群上，Claude Code 从不合并父设置，因为它仅从帮助程序的输出中读取托管设置。
 
 <h4 id="set-the-opt-in">
-  设置选择加入
+  启用该选项
 </h4>
 
-从[设置网关 URL](#set-the-gateway-url)部署托管设置片段，将其镜像到任何优先于文件的客户端源，然后验证。
+部署[设置网关 URL](#set-the-gateway-url) 中的托管设置片段，将其同步到任何优先级高于该文件的客户端来源，然后进行验证。
 
 <Steps>
-  <Step title="在托管设置文件中部署选择加入">
-    上面的[片段](#set-the-gateway-url)已包含 `parentSettingsBehavior: "merge"`，因此您推送到机器的文件携带它。
+  <Step title="在托管设置文件中部署该选项">
+    [上方的片段](#set-the-gateway-url)已包含 `parentSettingsBehavior: "merge"`，因此您推送到机器的文件会带有该选项。
   </Step>
 
-  <Step title="将片段镜像到任何优先于文件的源">
-    Claude Code 仅从[选定的源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)读取 `parentSettingsBehavior`。向源添加任何策略设置项可以使该源成为选定的源，因此在客户端源中，镜像整个片段而不仅仅是 `parentSettingsBehavior`。[客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)涵盖通过组策略或配置文件传递策略的舰队。macOS 上的托管首选项 plist 或 Windows 上的 HKLM 策略优先于 `managed-settings.json` 文件，网关自己的远程托管设置优先于两者，因此在登录到网关的机器上，也在网关策略的 [`cli` 或 `code` 块](/docs/zh-CN/claude-apps-gateway-config#managed)中设置 `parentSettingsBehavior`。
+  <Step title="将片段同步到任何优先级高于该文件的来源">
+    Claude Code 只从[选定的来源](/docs/zh-CN/managed-settings#which-managed-source-claude-code-uses)读取 `parentSettingsBehavior`。向某个来源添加任何策略键都可能使该来源成为选定来源，因此在客户端来源中，请同步整个片段，而不仅仅是 `parentSettingsBehavior`。[客户端托管设置](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)介绍了通过组策略或配置描述文件传递策略的机器群。macOS 上的托管偏好设置 plist 或 Windows 上的 HKLM 策略优先级高于 `managed-settings.json` 文件，而网关自身的远程托管设置优先级高于这两者，因此在登录网关的机器上，还需在网关策略的 [`cli` 或 `code` 块](/docs/zh-CN/claude-apps-gateway-config#managed)中设置 `parentSettingsBehavior`。
   </Step>
 
-  <Step title="检查选定的源">
-    在仅运行 Claude Desktop 的机器上，调用 Agent SDK 的 [`resolveSettings()`](/docs/zh-CN/agent-sdk/typescript#resolvesettings) 并在其 `sources` 列表中的 `managed` 条目上读取 `policyOrigin`。该值命名选定的客户端源，`plist`、`hklm` 或 `file`，这是必须携带片段的源。
+  <Step title="检查选定的来源">
+    在仅运行 Claude Desktop 的机器上，调用 Agent SDK 的 [`resolveSettings()`](/docs/zh-CN/agent-sdk/typescript#resolvesettings)，并读取其 `sources` 列表中 `managed` 条目上的 `policyOrigin`。该值指明选定的客户端来源：`plist`、`hklm` 或 `file`，即必须包含该片段的来源。
 
-    Cowork 和 Chat 会话不获取网关策略，因此网关的块不是它们的选定源。
+    Cowork 和 Chat 会话不会获取网关策略，因此对它们而言，网关的块不是选定来源。
 
-    当策略的设置位于 `code` 下且[Code 选项卡的条件](/docs/zh-CN/claude-apps-gateway-config#apply-code-settings-in-the-code-tab)成立时，Code 选项卡会话会获取该策略。此时网关的 `code` 设置就是该会话的选定源。
+    当策略的设置位于 `code` 下且满足 [Code 标签页的条件](/docs/zh-CN/claude-apps-gateway-config#apply-code-settings-in-the-code-tab)时，Code 标签页会话会获取网关策略。此时网关的 `code` 设置就是该会话的选定来源。
   </Step>
 </Steps>
 
@@ -412,22 +412,22 @@ Claude Desktop 在嵌入式 Claude Code 会话上运行其 Cowork 和 Code 选�
   限制父设置
 </h3>
 
-一旦您部署 `parentSettingsBehavior: "merge"`，任何启动 Claude Code 的主机进程都可以提供父设置，不仅是 Claude Desktop，还有 Agent SDK 应用程序或 IDE 扩展。
+部署 `parentSettingsBehavior: "merge"` 后，任何启动 Claude Code 的宿主进程都可以提供父设置，不仅是 Claude Desktop，还包括 Agent SDK 应用程序或 IDE 扩展。
 
-Claude Code 根据限制性密钥的允许列表过滤父设置，但某些允许的密钥可以授予访问权限而不是限制它。除非您设置 `allowManaged*Only` 锁，主机提供的权限允许规则和沙箱允许列表仍然适用。您的策略的拒绝和询问规则无论如何都保持有效；[它们在任何允许规则之前被评估](/docs/zh-CN/permissions#manage-permissions)。
+Claude Code 会根据一个限制性键的允许列表过滤父设置，但某些被允许的键可能授予访问权限而非限制访问。除非您设置了 `allowManaged*Only` 锁定，否则宿主提供的权限允许规则和沙箱允许列表仍然有效。无论哪种情况，您策略中的拒绝和询问规则都会保持有效；[它们会在任何允许规则之前进行评估](/docs/zh-CN/permissions#manage-permissions)。
 
-Claude Code 以剥离形式转发父提供的 [`sandbox.credentials`](/docs/zh-CN/settings-reference#sandbox-credentials) 条目：
+Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](/docs/zh-CN/settings-reference#sandbox-credentials) 条目：
 
-* **`deny` 条目**：仅使用其 `path` 或 `name` 和模式转发。
-* **具有 [`mode: mask`](/docs/zh-CN/sandboxing#mask-credential-files) 的文件条目**：转发为仅哨兵，作为整个文件掩码，其 `injectHosts` 是空列表，因此代理从不在任何平台上用真实值替换父提供的条目。所有结构化掩码字段也被删除，因此父提供的提取模式无法替代另一个源为同一路径设置的更严格掩码。
-* **具有 `mode: mask` 的 `envVars` 条目**：不转发。`deny` 是父通道可以通过 `envVars` 条目表达的唯一限制。
-* **[`awsPairs` 和 `sigv4`](/docs/zh-CN/sandboxing#re-sign-aws-requests)**：仅转发限制。从 `sigv4`，仅保留 `deny` 值，定义 `sigv4` 块的父将所有三种请求形式 `streaming`、`presigned` 和 `sigv4a` 固定到 `deny`。`awsPairs` 对从不以可以重新签名的形式转发；命名常规 AWS 变量之一的对被替换为保持 `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY` 和 `AWS_SESSION_TOKEN` 自动配对被抑制的惯性条目。
+* **`deny` 条目**：仅转发其 `path` 或 `name` 以及模式。
+* **使用 [`mode: mask`](/docs/zh-CN/sandboxing#mask-credential-files) 的文件条目**：仅以哨兵形式转发，作为 `injectHosts` 为空列表的整文件掩码，因此在任何平台上，代理都不会为父进程提供的条目替换真实值。所有结构化掩码字段也会被丢弃，因此父进程提供的提取模式无法取代其他来源为同一路径设置的更严格掩码。
+* **使用 `mode: mask` 的 `envVars` 条目**：不转发。`deny` 是父通道通过 `envVars` 条目可以表达的唯一限制。
+* **[`awsPairs` 和 `sigv4`](/docs/zh-CN/sandboxing#re-sign-aws-requests)**：仅以限制形式转发。对于 `sigv4`，只保留 `deny` 值，只要父进程定义了 `sigv4` 块，就会将全部三种请求形式 `streaming`、`presigned` 和 `sigv4a` 固定为 `deny`。`awsPairs` 中的配对绝不会以可重新签名的形式转发；指明某个常规 AWS 变量的配对会被替换为一个无效条目，该条目会继续抑制 `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY` 和 `AWS_SESSION_TOKEN` 的自动配对。
 
 <h4 id="deploy-the-locks">
-  部署锁
+  部署锁定
 </h4>
 
-要将父设置保持尽可能接近仅限制，将所有五个 `allowManaged*Only` 锁和它们管理的允许列表添加到与合并选择加入相同的源：
+为了让父设置在过滤器支持的范围内尽可能接近纯限制性，请将全部五个 `allowManaged*Only` 锁定及其管控的允许列表添加到与合并选项相同的来源中：
 
 ```json theme={null}
 {
@@ -452,85 +452,85 @@ Claude Code 以剥离形式转发父提供的 [`sandbox.credentials`](/docs/zh-C
 }
 ```
 
-操作系统策略（例如 HKLM 注册表策略或托管首选项 plist）优先于此文件，因此通过它而不是文件传递整个片段。网关的远程托管设置优先于操作系统策略和文件源，但仅到达已连接的客户端。将锁、允许列表和合并选择加入镜像到策略的 [`cli` 或 `code` 块](/docs/zh-CN/claude-apps-gateway-config#managed)中，并保持此文件部署，因为从不连接的机器仅从文件获取其策略。
+操作系统策略（例如 HKLM 注册表策略或托管偏好设置 plist）的优先级高于该文件，因此请通过它而不是该文件传递整个片段。网关的远程托管设置优先级高于操作系统策略和文件来源，但只能到达已连接的客户端。请将锁定、允许列表和合并选项同步到策略的 [`cli` 或 `code` 块](/docs/zh-CN/claude-apps-gateway-config#managed)中，并保留此文件的部署，因为从未连接的机器只能从该文件获取策略。
 
 <h4 id="lock-behavior-across-sources">
-  跨源的锁行为
+  跨来源的锁定行为
 </h4>
 
-设置一个锁不会限制其他锁；每个密钥都在[设置参考](/docs/zh-CN/settings-reference#all-settings)中记录。
+设置某个锁定不会限制其他锁定；每个键都记录在[设置参考](/docs/zh-CN/settings-reference#all-settings)中。
 
-从赢家下方的管理员源，两个沙箱锁仍然适用，`allowManagedPermissionRulesOnly` 仍然阻止父提供的允许规则和 `additionalDirectories`。在 Claude Code v2.1.273 或更高版本上，MCP 服务器锁也从赢家下方的源应用，当它打开时，托管 `allowedMcpServers` 列表来自设置一个的最高优先级管理员源。
+来自优先级低于胜出来源的管理员来源时，两个沙箱锁定仍然有效，`allowManagedPermissionRulesOnly` 仍会阻止父进程提供的允许规则和 `additionalDirectories`。在 Claude Code v2.1.273 或更高版本中，MCP 服务器锁定在来自优先级低于胜出来源的来源时也有效，并且在其开启期间，托管的 `allowedMcpServers` 列表来自设置了该列表的最高优先级管理员来源。
 
-hooks 锁和 `allowManagedPermissionRulesOnly` 对开发人员自己规则的影响默认需要赢家源；在[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)中的 `managedSourcesBehavior` 合并选择加入下，Claude Code 应用任何源为每个锁设置的最严格值。在 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 舰队上，锁仅从助手的输出读取。
+默认情况下，hook 锁定以及 `allowManagedPermissionRulesOnly` 对开发人员自身规则的作用需要由胜出来源设置；在 [Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)中所述的 `managedSourcesBehavior` 合并选项下，Claude Code 会对每个锁定应用任何来源所设置的最严格值。在 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 机器群上，Claude Code 仅从帮助程序的输出中读取锁定。
 
-每个锁使 Claude Code 忽略开发人员对该设置的自己条目，因此在锁旁边包含您组织的允许列表：
+每个锁定都会让 Claude Code 忽略开发人员自己针对该设置的条目，因此请在锁定旁边包含您组织的允许列表：
 
-* **网络域**：使用空托管域列表锁定会阻止所有沙箱出站流量。
-* **MCP 服务器**：使用任何管理员源或父提供的设置中都没有 `allowedMcpServers` 的锁会加载 `deniedMcpServers` 不阻止的每个服务器。
-* **读取路径**：`allowRead` 条目仅重新允许 `denyRead` 区域内的路径，因此将它们与托管 `denyRead` 配对。
+* **网络域**：使用空的托管域列表进行锁定会阻止所有沙箱化的出站流量。
+* **MCP 服务器**：如果任何管理员来源或父进程提供的设置中都没有 `allowedMcpServers`，进行锁定会加载所有未被 `deniedMcpServers` 阻止的服务器。
+* **读取路径**：`allowRead` 条目只会重新允许 `denyRead` 区域内的路径，因此请将它们与托管的 `denyRead` 搭配使用。
 
 <h4 id="settings-the-locks-don’t-cover">
-  锁不涵盖的设置
+  锁定未覆盖的设置
 </h4>
 
-即使设置了所有五个锁，这些父提供的设置也会通过过滤器：
+即使设置了全部五个锁定，以下父进程提供的设置仍会通过过滤器：
 
-* **`forceLoginOrgUUID`**：当最高优先级管理员源未设置组织 UUID 时，Claude Code 尊重父提供的值。网关登录不检查此密钥。最高优先级管理员源中的组织 UUID 阻止父的值，是 Claude Code 强制执行的值。
-* **`allowedMcpServers`**：当没有生效的管理员列表时，Claude Code 尊重父提供的允许列表。`allowManagedMcpServersOnly` 不阻止它，因为锁强制执行任何赢家列表作为托管值，包括当没有管理员源提供列表时的父提供列表。最高优先级管理员源中的列表阻止父的并是 Claude Code 强制执行的列表，因此在那里设置 `allowedMcpServers`，在锁旁边。在 v2.1.223 之前，任何管理员源中任一密钥的值都阻止父的。
-* **`availableModels`**：当赢家托管源未设置模型列表时，Claude Code 尊重父提供的模型列表。如果您的舰队限制模型，在赢家源中设置 `availableModels`。
-* **`allowedProviders`**：当赢家托管源未设置 API 提供商允许列表时，Claude Code 尊重父提供的 API 提供商允许列表。如果您的舰队限制开发人员可以使用的 API 提供商，在赢家源中设置 `allowedProviders`。需要 Claude Code v2.1.285 或更高版本。
-* **`strictKnownMarketplaces`**：当赢家托管源未设置一个时，Claude Code 尊重父提供的插件市场允许列表。Claude Desktop 2.16120.0 或更高版本在其托管配置关闭用户添加的插件市场时发送一个。如果您的舰队限制市场，在赢家源中设置 `strictKnownMarketplaces`。需要 Claude Code v2.1.282 或更高版本。
-* **`blockedMarketplaces`**：父提供的市场阻止列表通过并添加到任何托管源设置的阻止列表，因为阻止列表只能进一步限制。需要 Claude Code v2.1.282 或更高版本。
-* **`strictPluginOnlyCustomization`**：此密钥无论任何锁都通过过滤器，它使 Claude Code 忽略开发人员的自己定制，包括保护性 hooks。没有锁阻止它。
+* **`forceLoginOrgUUID`**：当最高优先级的管理员来源未设置组织 UUID 时，Claude Code 会采用父进程提供的值。网关登录不检查此键。最高优先级管理员来源中的组织 UUID 会阻止父进程的值，并成为 Claude Code 强制执行的值。
+* **`allowedMcpServers`**：当没有生效的管理员列表时，Claude Code 会采用父进程提供的允许列表。`allowManagedMcpServersOnly` 不会阻止它，因为该锁定会将胜出的列表作为托管值强制执行，在没有管理员来源提供列表时，这也包括父进程提供的列表。最高优先级管理员来源中的列表会阻止父进程的列表，并成为 Claude Code 强制执行的列表，因此请在那里、在锁定旁边设置 `allowedMcpServers`。在 v2.1.223 之前，任何管理员来源中这两个键之一的值都会阻止父进程的值。
+* **`availableModels`**：当胜出的托管来源未设置模型列表时，Claude Code 会采用父进程提供的模型列表。如果您的机器群限制模型，请在胜出来源中设置 `availableModels`。
+* **`allowedProviders`**：当胜出的托管来源未设置 API 提供商允许列表时，Claude Code 会采用父进程提供的该列表。如果您的机器群限制开发人员可以使用的 API 提供商，请在胜出来源中设置 `allowedProviders`。需要 Claude Code v2.1.285 或更高版本。
+* **`strictKnownMarketplaces`**：当胜出的托管来源未设置插件市场允许列表时，Claude Code 会采用父进程提供的该列表。当 Claude Desktop 2.16120.0 或更高版本的托管配置关闭用户添加的插件市场时，它会发送该列表。如果您的机器群限制市场，请在胜出来源中设置 `strictKnownMarketplaces`。需要 Claude Code v2.1.282 或更高版本。
+* **`blockedMarketplaces`**：父进程提供的市场拒绝列表会通过，并添加到托管来源设置的任何拒绝列表中，因为拒绝列表只会进一步增加限制。需要 Claude Code v2.1.282 或更高版本。
+* **`strictPluginOnlyCustomization`**：无论设置了何种锁定，此键都会通过过滤器，并且它会让 Claude Code 忽略开发人员自己的自定义内容，包括保护性 hook。没有任何锁定能阻止它。
 
-在默认的先赢设置下，管理员值仅当位于最高优先级管理员源中时才阻止父的值，但 [MCP 服务器锁](#lock-behavior-across-sources)打开时的 `allowedMcpServers` 除外。在 `managedSourcesBehavior` 合并选择加入下，[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明哪个源的值改为适用。
+在默认的“先到先得”设置下，只有当管理员值位于最高优先级管理员来源中时，才会阻止父进程的值，但在 [MCP 服务器锁定](#lock-behavior-across-sources)开启期间的 `allowedMcpServers` 除外。在 `managedSourcesBehavior` 合并选项下，改由 [Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说明应用哪个来源的值。
 
 <h3 id="connect-claude-desktop">
   连接 Claude Desktop
 </h3>
 
-[Claude Desktop](/docs/zh-CN/desktop)通过不同的 MDM 密钥连接到同一网关：在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中设置 `bootstrapUrl` 为 `<listen.public_url>/user/bootstrap`，并使用 `desktop` 密钥选择加入用户的策略。[Claude Desktop 覆盖](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)涵盖两个部分。需要网关服务器上的 Claude Code v2.1.203 或更高版本。
+[Claude Desktop](/docs/zh-CN/desktop) 通过另一个 MDM 键连接到同一网关：在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中将 `bootstrapUrl` 设置为 `<listen.public_url>/user/bootstrap`，并通过 `desktop` 键让用户的策略启用该功能。[Claude Desktop 覆盖层](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)介绍了这两部分。需要网关服务器上的 Claude Code 为 v2.1.203 或更高版本。
 
-Claude Desktop 通过网关的身份提供商使用相同的浏览器 SSO 步骤对开发人员进行签名，然后从网关而不是从 Anthropic 获取其配置。模型访问和策略遵循与 CLI 相同的每组规则。同时使用 CLI 和 Claude Desktop 的开发人员分别登录到每个；网关会话不在它们之间共享。
+Claude Desktop 通过网关的身份提供商、使用相同的浏览器 SSO 步骤让开发人员登录，然后从网关而不是从 Anthropic 获取其配置。模型访问和策略遵循与 CLI 相同的按组规则。同时使用 CLI 和 Claude Desktop 的开发人员需要分别登录两者；网关会话不会在它们之间共享。
 
-连接后，Claude Desktop 从每个启用的选项卡通过网关发送模型请求。它默认显示 Cowork 和 Code 选项卡。要同时打开 Chat 选项卡，在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中设置 `chatTabEnabled` 为 `true`，或在运行 Claude Code v2.1.227 或更高版本的网关上的策略的 [`desktop` 块](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)中。
+连接后，Claude Desktop 会通过网关发送来自每个已启用标签页的模型请求。它默认显示 Cowork 和 Code 标签页。要同时启用 Chat 标签页，请在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中将 `chatTabEnabled` 设置为 `true`，或者在运行 Claude Code v2.1.227 或更高版本的网关上，在策略的 [`desktop` 块](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)中进行设置。
 
 <h3 id="ci-pipelines-and-remote-machines">
-  CI 管道和远程机器
+  CI 流水线和远程机器
 </h3>
 
-没有用于无人值守管道的服务令牌流。网关登录始终运行浏览器设备流，因此没有开发人员批准登录的 CI 作业无法进行身份验证；针对您的提供商直接配置这些。
+没有面向无人值守流水线的服务令牌流程。网关登录始终运行浏览器设备流程，因此没有开发人员批准登录的 CI 作业无法完成身份验证；请将这些作业直接配置为使用您的提供商。请将 `forceLoginMethod` 和 `forceLoginGatewayUrl` 部署到开发人员机器上，不要部署到 CI 运行器上。在托管设置中设置了这两个键的机器上，使用 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 进行身份验证的会话会[在启动时退出](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。
 
-开发人员登录后，该机器上的每个 Claude Code 会话都使用网关会话，包括非交互式 `claude -p` 运行和由 Agent SDK 启动的会话。Claude Code 将[网关策略](/docs/zh-CN/claude-apps-gateway-config#managed)应用于每个会话。
+开发人员登录后，该机器上的每个 Claude Code 会话都会使用网关会话，包括非交互式 `claude -p` 运行以及由 Agent SDK 启动的会话。Claude Code 会对其中每一个应用[网关策略](/docs/zh-CN/claude-apps-gateway-config#managed)。
 
-设备流将轮询 CLI 与批准浏览器分开，因此没有显示的远程开发框仍然有效：开发人员通过 SSH 在远程机器上运行 `/login`，并在笔记本电脑上的浏览器中打开验证链接。
+设备流程将轮询的 CLI 与进行批准的浏览器分离开来，因此没有显示器的远程开发机也能正常使用：开发人员通过 SSH 在远程机器上运行 `/login`，然后在笔记本电脑的浏览器中打开验证链接。
 
 <h3 id="whats-enforced-on-developers">
   对开发人员强制执行的内容
 </h3>
 
-这些保证适用于每个通过 `/login` 登录的会话。Claude Desktop 启动的嵌入式会话按[将策略传递给 Claude Desktop 会话](#deliver-policy-to-claude-desktop-sessions)中所述获取其策略，遥测项目说明其导出的去向。
+以下保证适用于通过 `/login` 登录的每个会话。Claude Desktop 启动的嵌入式会话按照[向 Claude Desktop 会话传递策略](#deliver-policy-to-claude-desktop-sessions)中所述的方式获取策略，遥测一项说明了它们的导出数据发往何处。
 
-* **模型访问**：对策略未授予的模型的请求返回 400，`/model` 选择器被过滤到策略的 `availableModels` 允许列表。这包括开发人员选择模型之前会话启动时使用的模型；请参阅[在策略允许的模型上启动会话](/docs/zh-CN/claude-apps-gateway-config#start-sessions-on-a-model-the-policy-allows)。
-* **遥测目标**：在通过 `/login` 登录的会话中，CLI 将其 OTLP/HTTP 导出发送到网关，而不是任何本地设置的 `OTEL_EXPORTER_OTLP_ENDPOINT`，除非策略[将您的收集器命名为端点](/docs/zh-CN/claude-apps-gateway-config#export-directly-to-your-collector)。网关将它接收的导出中继到 [`telemetry.forward_to`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 中的目标。
-  * 在[Claude Desktop 启动](#connect-claude-desktop)的嵌入式会话中，CLI 将其导出发送到配置的 `OTEL_EXPORTER_OTLP_ENDPOINT`。CLI 仅当该端点指向网关本身时才将网关会话令牌附加到这些导出。
-  * 没有为信号配置目标时，网关接受并丢弃它。
-  * 如果您已直接收集 Claude Code 遥测，将您的收集器添加为 `forward_to` 目标，或在策略中命名它以跳过中继。
-* **凭证**：网关令牌是会话的唯一凭证。[Anthropic 配置文件](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)和任何早期的 claude.ai 登录在登录时被忽略，因此开发人员不需要首先从 claude.ai 注销。对于配置的 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭证，或早期 Claude Console 登录保存的 API 密钥，请参阅[管理员策略需要 Cloud 网关登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。
-* **托管设置**：锁定的密钥无法在本地覆盖。CLI 在启动时应用策略，并在每个小时轮询时应用更改，除了[仅在下一次启动时应用的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)。
-* **启动时网关无法访问**：已登录的会话在启动时约 10 秒后以错误退出，而不是在没有其设置的情况下启动。
-* **启动后网关结束会话**：请参阅[强制执行故障关闭启动](/docs/zh-CN/server-managed-settings#enforce-fail-closed-startup)，了解哪些启动从网关登出打开，哪些在网关以 `401` 应答时退出。
-* **取消配置**：用户在 IdP 中被禁用的会话在下一次刷新失败时在 `ttl_hours` 内过期。
-* **登出**：`/logout` 从开发人员的机器删除网关凭证。
-  * 当网关的发现文档在网关 URL 自己的方案、主机和端口上宣传 `revocation_endpoint` 时，`/logout` 也将存储的令牌发送到该端点，以便网关可以在其端结束会话。请求是尽力而为的，因此登出在开发人员的机器上完成，无论端点是否应答。撤销需要开发人员机器上的 Claude Code v2.1.275 或更高版本。
-  * `claude` 二进制文件中的网关服务器不宣传任何，因此从它登出仅在开发人员的机器上结束会话。要强制会话从服务器端退出，请参阅 [JWT 密钥轮换](/docs/zh-CN/claude-apps-gateway-deploy#jwt-secret-rotation)。
+* **模型访问**：针对策略未授予的模型的请求会返回 400，`/model` 选择器会被筛选为策略的 `availableModels` 允许列表。这也包括开发人员选择模型之前会话所使用的起始模型；请参阅[让会话以策略允许的模型启动](/docs/zh-CN/claude-apps-gateway-config#start-sessions-on-a-model-the-policy-allows)。
+* **遥测目标**：在通过 `/login` 登录的会话中，CLI 会将其 OTLP/HTTP 导出数据发送到网关，而不是发送到本地设置的 `OTEL_EXPORTER_OTLP_ENDPOINT`，除非策略[将您的收集器指定为端点](/docs/zh-CN/claude-apps-gateway-config#export-directly-to-your-collector)。网关会将收到的导出数据中继到 [`telemetry.forward_to`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 中的目标。
+  * 在 [Claude Desktop 启动](#connect-claude-desktop)的嵌入式会话中，CLI 会将其导出数据发送到已配置的 `OTEL_EXPORTER_OTLP_ENDPOINT`。只有当该端点指向网关本身时，CLI 才会在这些导出数据中附加网关会话令牌。
+  * 如果某个信号没有配置目标，网关会接收并丢弃它。
+  * 如果您已经在直接收集 Claude Code 遥测数据，请将您的收集器添加为 `forward_to` 目标，或者在策略中指定它以跳过中继。
+* **凭据**：网关令牌是会话唯一的凭据。登录期间，[Anthropic 配置文件](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)以及任何之前的 claude.ai 登录都会被忽略，因此开发人员无需先注销 claude.ai。对于已配置的 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 凭据，或者之前 Claude Console 登录所保存的 API 密钥，请参阅[管理员策略要求进行 Cloud gateway 登录](/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。
+* **托管设置**：已锁定的键无法在本地覆盖。CLI 在启动时应用策略，并在每小时一次的轮询中应用更改，但[仅在下次启动时生效的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)除外。
+* **网关不可达时启动**：已登录的会话会在大约 10 秒后以错误退出，而不是在没有设置的情况下启动。
+* **网关终止会话后启动**：有关以网关注销状态打开的启动，以及在网关返回 `401` 时退出的启动，请参阅[强制执行失败即关闭的启动](/docs/zh-CN/server-managed-settings#enforce-fail-closed-startup)。
+* **取消配置**：当用户在 IdP 中被禁用时，其会话会在下一次刷新失败时于 `ttl_hours` 内过期。
+* **注销**：`/logout` 会从开发人员的机器上删除网关凭据。
+  * 当网关的发现文档在与网关 URL 相同的协议、主机和端口上公布了 `revocation_endpoint` 时，`/logout` 还会将存储的令牌发送到该端点，以便网关在其一侧终止会话。该请求为尽力而为，因此无论端点是否响应，开发人员机器上的注销都会完成。该撤销功能要求开发人员机器上的 Claude Code 为 v2.1.275 或更高版本。
+  * `claude` 二进制文件中的网关服务器不公布任何撤销端点，因此从它注销只会终止开发人员机器上的会话。要在服务器端强制终止会话，请参阅 [JWT 密钥轮换](/docs/zh-CN/claude-apps-gateway-deploy#jwt-secret-rotation)。
 
 <h3 id="what-the-organization-can-see">
-  组织可以看到什么
+  组织可以看到的内容
 </h3>
 
-使用情况遥测携带开发人员的身份、令牌计数、模型和延迟到组织的收集器。网关不记录或存储提示或完成内容。是否收集更丰富的遥测（如日志和跟踪），可能包括命令和文件路径，是组织的[按目标选择](/docs/zh-CN/claude-apps-gateway-config#telemetry)。
+使用遥测会将开发人员的身份、token 数量、模型和延迟传送到组织的收集器。网关不会记录或存储提示词或补全内容。是否收集更丰富的遥测数据（例如日志和追踪，其中可能包含命令和文件路径）由组织[按目标自行选择](/docs/zh-CN/claude-apps-gateway-config#telemetry)。
 
 <h2 id="availability-and-limitations">
   可用性和限制

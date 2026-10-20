@@ -51,7 +51,8 @@
 
 当 Claude Code 从其会话记录加载对话时，恢复的会话会恢复对话以及保存在其中的状态：
 
-* 对话历史：完整历史，包括工具调用和结果。如果工具在上一个进程结束时仍在运行（例如在崩溃中），当您恢复时它不会完成或再次运行。Claude 会看到该调用被标记为在记录其结果之前被切断，并被告知在再次运行之前检查它是否已生效，除非设置了 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars#variables)。
+* 对话历史：消息、工具调用和结果。如果会话已被[压缩](/docs/zh-CN/context-window#what-survives-compaction)，对话会在 `Conversation compacted` 行处打开。Claude 会基于最后一次压缩的摘要、该次压缩未摘要的消息以及此后的每条消息继续。最后一次压缩已摘要的消息不会再次加载。
+* 中断的工具调用：如果工具在上一个进程结束时仍在运行（例如在崩溃中），当您恢复时它不会完成或重新运行。Claude 会看到该调用被标记为在记录其结果之前被切断，并被告知在再次运行之前检查它是否已生效，除非设置了 [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](/docs/zh-CN/env-vars#variables)。
 * 模型：会话继续使用它之前使用的模型，[设置模型](/docs/zh-CN/model-config#setting-your-model)中所述的情况除外。
 * Agent：使用 [`--agent`](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 或 `agent` 设置启动的会话继续作为该 Agent 运行，保持其工具限制和模型。在恢复时传递 `--agent` 以选择不同的 Agent；关于任一情况下的系统提示词，请参阅[恢复对话中的系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。Claude Code 在两个地方查找 Agent：会话的原始目录（前提是您已[信任该工作区](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)），然后是您恢复时所在的目录，因此项目范围的 Agent 在您从另一个目录恢复时仍会加载。如果 Claude Code 在任一位置都找不到该 Agent，会话会以默认工具恢复并显示[指明该 Agent 的警告](/docs/zh-CN/errors#session-agent-no-longer-available)。
 * 权限模式：如果您从终端使用 `claude --continue`、`claude --resume <session-id>` 或 `claude --resume <name>`（当名称与一个会话匹配时）恢复，且不带 `-p`，Claude Code 会恢复会话所在的权限模式，[恢复时的权限模式](#permission-mode-on-resume)中的情况除外，该部分也涵盖会话选择器、`/resume` 和使用 `claude -p` 恢复。传递 `--permission-mode` 或 `--dangerously-skip-permissions` 以覆盖恢复的模式。
@@ -162,7 +163,7 @@ Claude Code 将使用 [`claude -p`](/docs/zh-CN/headless) 或 [Agent SDK](/docs/
 | 从会话选择器 | 突出显示会话并按 `Ctrl+R` |
 | 在计划接受时 | 在 [Plan Mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 中接受计划会从计划内容命名会话，除非您已经设置了一个 |
 | 从 claude.ai 或 Claude 应用 | 重命名 [Remote Control 会话](/docs/zh-CN/remote-control#connect-from-another-device)；Claude Code 在 CLI 中应用相同的名称。需要 Claude Code v2.1.221 或更高版本 |
-| 从桌面应用 | 在 [桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 中重命名会话 |
+| 从桌面应用 | 在[桌面应用](/docs/zh-CN/desktop#organize-and-find-sessions)中重命名会话 |
 
 通过 CLI 路由或从 claude.ai 命名会话后，使用 `claude --resume <name>` 或 `/resume <name>` 返回到它；桌面应用会话在 [桌面应用](/docs/zh-CN/desktop#work-in-parallel-with-sessions) 中恢复。有关名称解析如何跨 worktrees 工作的信息，请参阅[恢复会话](#resume-a-session)。
 

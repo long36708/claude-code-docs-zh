@@ -497,7 +497,7 @@ Claude Code 将你的命令写入 stdout 的任何纯文本添加到 Claude 的�
   Hooks 如何工作
 </h2>
 
-Claude Code 在其生命周期中的特定点触发 hook 事件。当事件触发时，所有匹配的 hooks 并行运行；有关重复处理程序如何处理的信息，请参阅 [Hook 处理程序字段](/docs/zh-CN/hooks#hook-handler-fields)。下表显示每个事件及其触发时间：
+Claude Code 在其生命周期中的特定点触发 hook 事件。当事件触发时，Claude Code 会并行运行所有匹配的 hook；有关重复处理程序如何处理的信息，请参阅 [Hook 处理程序字段](/docs/zh-CN/hooks#hook-handler-fields)。下表显示每个事件及其触发时间：
 
 | 事件 | 触发时机 |
 | :- | :- |

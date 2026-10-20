@@ -328,8 +328,10 @@ Claude Code 从工具调用的成功返回时写入此事件，因此引发错�
 | 属性 | 描述 | 门控 |
 | - | - | - |
 | `duration_ms` | 等待权限决定所花费的时间 | |
-| `decision` | `accept` 或 `reject` | |
-| `source` | 决定来源，与[工具决定事件](#tool-decision-event)匹配 | |
+| `decision` | `accept`、`reject` 或 `cancelled`，其中 `cancelled` 表示 Claude Code 停止等待该工具调用的权限决定，并且未运行该工具 | |
+| `source` | 对于 `accept` 或 `reject`，表示决定的来源，例如 `config`、`hook` 或 `user_temporary`，其含义见[工具决定事件](#tool-decision-event)。对于 `cancelled`，表示在做出任何决定之前结束等待的原因，例如 `user_abort` | |
+
+`source` 为 `user_abort` 的 `cancelled` 决定表示：在权限提示或[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)检查尚未完成时，一条需要立即送达的消息中断了该轮次。例如，在自动模式检查期间，用户有一条排队的消息并[立即发送了它](/docs/zh-CN/interactive-mode#when-claude-code-sends-what-you-queued)。
 
 **`claude_code.tool.execution`**
 
@@ -1062,12 +1064,43 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   * `"mcp"`：一般的 MCP 服务器
   * `"sdk_host_builtin_mcp"`：内置于 Claude Desktop 本身的进程内服务器，位于 Claude Desktop 拥有的会话中。当 Claude Desktop 从其自身的某个入口点（`claude-desktop`、`claude-desktop-3p` 或 `local-agent`）启动会话，且该会话不是嵌套子会话时，Claude Desktop 拥有该会话；嵌套会话（包括 Claude Code 自身生成的会话）将这些服务器报告为 `"mcp"`
 * `source`：决策的来源：
-  * `"config"`：无需询问即自动决定，依据为项目设置、用户个人设置中的允许或拒绝规则、企业托管策略、`--allowedTools` 或 `--disallowedTools` 标志、当前的权限模式、同一交互式 CLI 会话中先前提示所授予的会话作用域权限，或者因为该工具本身是安全的。该事件不会指明匹配的是这些来源中的哪一个。当权限提示请求本身失败时，Claude Code 也会报告 `"config"`，例如当 Agent SDK 的 [`canUseTool`](/docs/zh-CN/agent-sdk/typescript#canusetool) 回调或 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 工具返回无效结果时，或者当请求挂起期间输入流关闭时。在 v2.1.216 之前，Claude Code 将这些失败报告为 `"user_reject"`。
-  * `"hook"`：由 `PreToolUse` 或 `PermissionRequest` hook 返回了决策。
-  * `"user_permanent"`：当用户在权限提示中选择 "Yes, and don't ask again for ..." 时发出，这会将一条允许规则保存到其个人设置中。在交互式 CLI 中，仅针对该选择本身发出；之后匹配已保存规则的调用改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，初始选择和之后的规则匹配都会发出 `"user_permanent"`。视为接受。
-  * `"user_temporary"`：当用户在权限提示中选择 "Yes" 进行一次性批准，或在文件编辑或读取提示中选择授予本会话剩余时间访问权限的选项时发出。在交互式 CLI 中，仅针对该选择本身发出；之后由该会话作用域授权允许的调用改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，该选择和之后的匹配都会发出 `"user_temporary"`。视为接受。
-  * `"user_abort"`：当用户未作答便关闭权限提示时发出。在 Agent SDK 和非交互式 `-p` 会话中，这包括在 `canUseTool` 或 `--permission-prompt-tool` 权限请求挂起期间中断轮次；在 v2.1.216 之前，Claude Code 将这种中断报告为 `"user_reject"`。视为拒绝。
-  * `"user_reject"`：当用户在被询问时选择 "No" 时发出。在交互式 CLI 中，仅针对该选择本身发出；匹配用户个人设置中拒绝规则的调用改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，匹配个人设置中拒绝规则的调用会发出 `"user_reject"`。视为拒绝。
+  * `"config"`：无需提示即自动决定，由以下来源之一决定：
+
+    * 项目设置
+    * 用户个人设置中的允许或拒绝规则
+    * 企业托管策略
+    * `--allowedTools` 或 `--disallowedTools` 标志
+    * 当前的权限模式
+    * 自动模式分类器，同一事件会在 `classifier_verdict` 中记录其判定结果
+    * 在同一交互式 CLI 会话中较早的权限提示中授予的、在会话剩余时间内有效的授权
+    * 工具本身是安全的
+
+    `source` 值不会表明匹配的是上述哪个来源。
+
+    当权限提示请求本身失败时，Claude Code 也会报告 `"config"`。例如，当 Agent SDK 的 [`canUseTool`](/docs/zh-CN/agent-sdk/typescript#canusetool) 回调或 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 工具返回无效结果时，或者当请求挂起期间输入流关闭时，该请求就会失败。在 v2.1.216 之前，Claude Code 将这些失败报告为 `"user_reject"`。
+  * `"hook"`：由 `PreToolUse` 或 `PermissionRequest` hook 返回了该决策。
+  * `"user_permanent"`：当用户在权限提示中选择 "Yes, and don't ask again for ..." 时发出，这会将一条允许规则保存到其个人设置中。在交互式 CLI 中，仅针对该选择本身发出；之后匹配所保存规则的调用会改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，初次选择以及之后的规则匹配都会发出 `"user_permanent"`。视为接受。
+  * `"user_temporary"`：当用户在权限提示中选择 "Yes" 进行一次性批准，或在文件编辑或读取提示中选择了在会话剩余时间内授予访问权限的选项时发出。在交互式 CLI 中，仅针对该选择本身发出；之后由该会话级授权允许的调用会改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，该选择以及之后的匹配都会发出 `"user_temporary"`。视为接受。
+  * `"user_abort"`：当用户未作回答即关闭权限提示时发出。在 Agent SDK 和非交互式 `-p` 会话中，这包括在 `canUseTool` 或 `--permission-prompt-tool` 权限请求挂起时中断该轮次；在 v2.1.216 之前，Claude Code 将这种中断报告为 `"user_reject"`。视为拒绝。
+  * `"user_reject"`：当用户在提示时选择 "No" 时发出。在交互式 CLI 中，仅针对该选择本身发出；匹配用户个人设置中拒绝规则的调用会改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，匹配个人设置中拒绝规则的调用会发出 `"user_reject"`。视为拒绝。
+* `classifier_verdict`：自动模式[分类器](/docs/zh-CN/permission-modes#how-the-classifier-evaluates-actions)对该调用的判定结果，或在没有判定结果时 Claude Code 拒绝该调用的原因。需要 Claude Code v2.1.301 或更高版本
+
+  * `"allow"`：分类器批准了该调用
+  * `"block"`：分类器阻止了该调用。中途失败的分类器检查也可能以 `"block"` 结束，因此分类器部分中断可能表现为阻止次数增多，而不是 `"unavailable"`
+  * `"no_verdict"`：检查已运行，但[没有给出可用的判定结果](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action)，因此 Claude Code 拒绝了该调用。该拒绝并不意味着分类器认为该调用不安全
+  * `"unavailable"`：发往分类器的请求失败，例如遇到速率限制、超时或连接错误，因此 Claude Code 拒绝了该调用。在使用[服务器端分类器审查](/docs/zh-CN/permission-modes#server-side-classifier-review)时，它还标记因[服务器未返回安全判定结果](/docs/zh-CN/errors#the-server-returned-no-safety-verdict)而被拒绝的调用
+
+  当[分类器在计划模式下审查命令](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)时，该属性也会出现在计划模式的调用上。在以下情况下该属性不存在：
+
+  * 由允许或拒绝[权限规则](/docs/zh-CN/permissions#manage-permissions)决定了该调用
+  * Claude Code 在自动模式下未询问分类器就批准了该调用
+  * 用户回答了 Claude Code 在[多次阻止](/docs/zh-CN/permission-modes#repeated-block-thresholds)后显示的提示
+  * 在不带 `--permission-prompt-tool` 的 `-p` 运行中，由于没有人可以回答提示，Claude Code 在多次阻止后拒绝了该调用。该事件将 `decision` 报告为 `"reject"`，将 `source` 报告为 `"config"`
+* `classifier_category`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：分类器阻止该调用时所指明的[内置规则](/docs/zh-CN/auto-mode-config#inspect-the-defaults-and-your-effective-config)名称，采用小写加下划线形式，例如 Data Exfiltration 规则对应 `"data_exfiltration"`。需要 Claude Code v2.1.301 或更高版本。当以下条件全部满足时，该属性存在：
+  * `classifier_verdict` 为 `"block"`
+  * 分类器请求由 Claude Code 自行发送，而不是使用[服务器端分类器审查](/docs/zh-CN/permission-modes#server-side-classifier-review)
+  * 分类器恰好指明了一条规则，且该规则是内置规则，而不是您编写的规则
+* `permission_mode`：此调用的权限检查开始时处于活动状态的[权限模式](/docs/zh-CN/permission-modes)：`"default"`、`"plan"`、`"acceptEdits"`、`"bypassPermissions"`、`"dontAsk"` 或 `"auto"`。手动模式显示为 `"default"`。[子代理](/docs/zh-CN/sub-agents#permission-modes)的调用报告的是子代理的权限模式，而不是会话的权限模式。需要 Claude Code v2.1.301 或更高版本
 * `tool_parameters`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：包含工具特定参数的 JSON 字符串。结构与[工具结果事件](#tool-result-event)相同，但不含 `git_commit_id` 等执行后字段。如果权限决策通过 `updatedInput` 重写了工具输入，对于被接受的调用，其值可能与 `tool_result` 不同。当 `decision` 为 `"reject"` 时，可使用此属性查看哪个命令被拒绝。
   * 对于 `"sdk_host_builtin_mcp"` 工具：即使 `OTEL_LOG_TOOL_DETAILS` 关闭，也会包含 `mcp_server_name` 和 `mcp_tool_name`，因为这些名称由宿主应用定义；如果没有它们，对这些内置服务器之一的被拒绝调用在默认数据流中将无法归属。对于用户配置的 MCP 服务器，事件的 `tool_name` 始终为字面值 `"mcp_tool"`，服务器和工具名称仅在启用该标志时出现在 `tool_parameters` 中；参数内容在任何情况下都需要该标志。
   * 对于 Bash 工具：包括 `bash_command`、`full_command`、`timeout`、`description`、`dangerouslyDisableSandbox`。桌面应用的工作区 bash 工具同样将 `tool_name` 报告为 `Bash`，但仅包括 `bash_command`、`full_command` 和 `timeout`
@@ -1081,6 +1114,8 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
 在权限模式发生变化时记录，例如通过 `Shift+Tab` 循环切换、退出计划模式或自动模式门控检查。
 
+要按每个工具调用接受检查时所处的权限模式对其分组，请使用[工具决策事件](#tool-decision-event)上的 `permission_mode`。
+
 **事件名称**：`claude_code.permission_mode_changed`
 
 **属性**：
@@ -1091,7 +1126,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.sequence`：用于对事件排序的按进程计数器，详见[事件关联属性](#event-correlation-attributes)
 * `from_mode`：先前的权限模式，例如 `"default"`、`"plan"`、`"acceptEdits"`、`"auto"` 或 `"bypassPermissions"`
 * `to_mode`：新的权限模式
-* `trigger`：导致更改的原因。为 `"shift_tab"`、`"exit_plan_mode"`、`"auto_gate_denied"` 或 `"auto_opt_in"` 之一。某些更改不存在此属性，例如 SDK 通过 [`setPermissionMode()`](/docs/zh-CN/agent-sdk/typescript#query-object) 设置权限模式时
+* `trigger`：导致变更的原因，例如 `"shift_tab"`、`"exit_plan_mode"` 或 `"auto_gate_denied"`。对于某些变更不存在，例如当 SDK 通过 [`setPermissionMode()`](/docs/zh-CN/agent-sdk/typescript#query-object) 设置权限模式时
 
 <h4 id="auth-event">
   身份验证事件
@@ -1230,7 +1265,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
 当 Claude Code 解析提示词中的 `@` 提及时记录。并非每个提及都会发出事件：提前退出的路径，例如权限拒绝、文件过大、PDF 引用附件以及目录列表失败，会在不记录日志的情况下返回。
 
-每次 Claude Code 读取提示词时，最多记录 100 个 `mention_type` 为 `"agent"` 的事件和 100 个 `mention_type` 为 `"mcp_resource"` 的事件。超出任一限制的提及仍会被解析，但不会发出事件。
+每次 Claude Code 读取一个提示词时，最多记录 100 个 `mention_type` 为 `"agent"` 的事件和 100 个 `"mcp_resource"` 的事件。超过任一限制的提及仍会被解析，但不会发出事件。
 
 **事件名称**：`claude_code.at_mention`
 
@@ -1658,8 +1693,10 @@ export OTEL_RESOURCE_ATTRIBUTES="enduser.id=jdoe@example.com,enduser.directory_i
 
 | 信号 | 事件 | 关键属性 |
 | - | - | - |
-| 工具调用被允许或拒绝，以及通过什么 | `tool_decision` | `decision`、`source`、`tool_name`、`tool_parameters` |
+| 工具调用被允许或拒绝，以及决策的来源，例如规则、hook 或用户 | [`tool_decision`](#tool-decision-event) | `decision`、`source`、`classifier_verdict`、`permission_mode`、`tool_name`；设置 `OTEL_LOG_TOOL_DETAILS=1` 时还有 `tool_parameters` |
+| 自动模式分类器允许或阻止了工具调用，或 Claude Code 在没有分类器判定的情况下拒绝了调用 | 存在 `classifier_verdict` 的 [`tool_decision`](#tool-decision-event)。对于没有判定的拒绝，`classifier_verdict` 为 `"no_verdict"` 或 `"unavailable"` | `classifier_verdict`、`permission_mode`、`tool_name`；设置 `OTEL_LOG_TOOL_DETAILS=1` 时还有 `classifier_category` |
 | 权限模式升级 | `permission_mode_changed` | `from_mode`、`to_mode`、`trigger` |
+| 每个工具调用在哪种权限模式下接受检查，包括子代理发起的调用 | [`tool_decision`](#tool-decision-event) | `permission_mode`、`session.id` |
 | 策略 hook 阻止了操作 | `hook_execution_complete` | `hook_event`、`num_blocking` |
 | 登录、登出和身份验证失败 | `auth` | `action`、`success`、`error_category` |
 | MCP 服务器连接或失败 | `mcp_server_connection` | `status`、`server_name`、`is_plugin`、`error_code` |

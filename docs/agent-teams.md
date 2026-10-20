@@ -557,7 +557,7 @@ Agent teams 是实验性的。需要注意的当前限制：
 * **关闭可能很慢**：队友在关闭前完成他们的当前请求或工具调用，这可能需要时间。
 * **每个会话一个团队**：一个会话恰好有一个团队，作用域限于该会话。你无法创建额外的命名团队或在会话间共享团队。
 * **没有嵌套团队**：队友无法生成自己的队友。只有负责人可以管理团队。
-* **没有来自 in-process 队友的后台子代理**：in-process 队友自己的子代理在前台运行，因为队友的后台工作无法超越负责人的进程。Claude Code 在队友生成定义设置 `background: true` 的子代理时返回错误。队友的 `run_in_background: true` 请求也会失败，要么返回错误，要么如 [Claude Code 如何选择前台或后台](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background) 中所述在前台静默运行。从主对话启动的子代理遵循[后台默认值](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)。
+* **没有来自 in-process 队友的后台子代理**：in-process 队友自己的子代理在前台运行，因为队友的后台工作无法超越负责人的进程。Claude Code 在队友生成定义设置 `background: true` 的子代理时返回错误。队友的 `run_in_background: true` 请求也会失败，要么返回错误，要么在前台静默运行。从主对话启动的子代理遵循[后台默认值](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)。
 * **负责人是固定的**：主会话在其生命周期内是其团队的负责人。你无法将队友提升为负责人或转移领导权。
 * **权限在生成时设置**：队友从 [权限](#permissions) 下描述的权限模式开始。你可以在生成后更改个别队友的权限模式，但在生成时无法设置每个队友的权限模式。
 * **分割窗格需要 tmux 或 iTerm2**：默认 in-process 模式在任何终端中工作。VS Code 的集成终端、Windows Terminal 或 Ghostty 不支持分割窗格模式。
