@@ -391,4 +391,4 @@ Channels 通过将来自非 Claude 源的事件推送到您已经运行的本地
 
 * [构建您自己的 channel](/docs/zh-CN/channels-reference)，用于尚未有插件的系统
 * [远程控制](/docs/zh-CN/remote-control)，从您的手机驱动本地会话，而不是将事件转发到其中
-* [计划任务](/docs/zh-CN/scheduled-tasks)，按计时器轮询而不是对推送事件做出反应
+* [会话范围的定时任务](/docs/zh-CN/scheduled-tasks)，按计时器轮询而不是对推送事件做出反应

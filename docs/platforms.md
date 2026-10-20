@@ -96,4 +96,4 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 * [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch)：从您的手机发送任务，它可以生成 Desktop 会话
 * [Remote Control](/docs/zh-CN/remote-control)：从您的手机或浏览器驱动运行中的会话
 * [Channels](/docs/zh-CN/channels)：将来自聊天应用或您自己的服务器的事件推送到会话中
-* [Scheduled tasks](/docs/zh-CN/scheduled-tasks)：按定期计划运行提示
+* [调度选项](/docs/zh-CN/scheduled-tasks#compare-scheduling-options)：按定期计划运行提示词

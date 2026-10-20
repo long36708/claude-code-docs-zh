@@ -49,7 +49,7 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
   </Step>
 
   <Step title="canUseTool 回调">
-    如果上述任何步骤都未解决，调用您的 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/user-input) 以获得决定。在 `dontAsk` 模式下，此步骤被跳过，工具被拒绝。
+    如果上述任何步骤都未解决，调用您的 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/user-input) 以获得决定。在 `dontAsk` 模式下，此步骤被跳过，工具被拒绝，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍然可以批准[部分此类调用](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
 
     在 TypeScript SDK 中，如果您设置了 [`permissionPrompts: 'none'`](/docs/zh-CN/agent-sdk/typescript#options)，您的回调在此步骤不会被调用。[`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest) 仍然有机会决定，如果它不决定，Claude Code 拒绝调用。该选项需要 Claude Code v2.1.259 或更高版本。
   </Step>
@@ -109,7 +109,9 @@ const options = {
 };
 ```
 
-列出的工具被批准，[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)和[从网络路径读取](/docs/zh-CN/permissions#network-paths)除外，而每个其他会提示的调用都会被拒绝。在 `default` 模式中不需要批准的调用会运行，无论您是否列出它们，例如[只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)、不在运行前询问的 `Agent` 等工具，以及工作目录内的文件读取。要将工具从请求中完全移除，请将其裸名称添加到 `disallowedTools`。
+列出的工具被批准，[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)和[从网络路径读取](/docs/zh-CN/permissions#network-paths)除外。每个其他会提示的调用则会被拒绝，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍然可以批准[其中的部分调用](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+
+在 `default` 模式中不需要批准的调用会运行，无论您是否列出它们。其中包括[只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)、不在运行前询问的 `Agent` 等工具，以及工作目录内的文件读取。要将工具从请求中完全移除，请将其裸名称添加到 `disallowedTools`。
 
 <Warning>
   **`allowed_tools` 不限制 `bypassPermissions`。** `allowed_tools` 预批准你列出的工具。其他未列出的工具不匹配任何允许规则，会进入权限模式，其中 `bypassPermissions` 批准它们。将 `allowed_tools=["Read"]` 与 `permission_mode="bypassPermissions"` 一起设置仍然会批准每个工具，包括 `Bash`、`Write` 和 `Edit`。如果你需要 `bypassPermissions` 但想要阻止特定工具，请使用 `disallowed_tools`。
@@ -134,7 +136,7 @@ SDK 支持以下权限模式：
 | 模式 | 描述 | 工具行为 |
 | :- | :- | :- |
 | `default` | 标准权限行为 | 无基于模式的自动批准；需要批准且不匹配任何允许规则的调用会触发您的 `canUseTool` 回调 |
-| `dontAsk` | 拒绝而不是提示 | 任何会提示的调用都被拒绝。由 `allowed_tools` 或规则批准的调用会运行，`default` 模式下不需要批准的调用也会运行；连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)和需要用户交互的工具即使您已预先批准也会被拒绝，[来自网络路径的读取](/docs/zh-CN/permissions#network-paths)以及 `rm` 和 `rmdir` 针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)的删除也会被拒绝。`canUseTool` 永远不会被调用 |
+| `dontAsk` | 拒绝而不是提示 | 任何原本会提示的调用都会被拒绝，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍可以批准[其中部分调用](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。由 `allowed_tools` 或规则批准的调用会运行，`default` 模式下不需要批准的调用也会运行。[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具和需要用户交互的工具即使您已预先批准也会被拒绝。[来自网络路径的读取](/docs/zh-CN/permissions#network-paths)以及针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)的 `rm` 和 `rmdir` 删除即使您已预先批准也会被拒绝。`canUseTool` 永远不会被调用 |
 | `acceptEdits` | 自动接受文件编辑 | 文件编辑和[文件系统操作](#accept-edits-mode-acceptedits)（`mkdir`、`rm`、`mv` 等）会自动批准 |
 | `bypassPermissions` | 绕过权限检查 | 工具运行时无需权限提示，除了[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)。请谨慎使用 |
 | `plan` | 规划模式 | Claude 在不编辑您的源文件的情况下探索和规划；文件编辑永远不会自动批准，而是通过您的 `canUseTool` 回调提示 |
@@ -281,7 +283,9 @@ SDK 支持以下权限模式：
   不要询问模式（`dontAsk`）
 </h4>
 
-将任何权限提示转换为拒绝，而不调用 `canUseTool`。由 `allowed_tools`、`settings.json` 允许规则或 hook 预先批准的工具会正常运行，`default` 模式下不需要批准的调用也会运行，例如在您的工作目录内的文件读取和对 `Agent` 的调用。连接器工具[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools)、需要用户交互的工具、[来自网络路径的读取](/docs/zh-CN/permissions#network-paths)，以及 `rm` 和 `rmdir` 针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)的删除即使允许规则匹配也会被拒绝。`PreToolUse` hook 允许也不会放行关键路径删除或来自网络路径的读取。
+将任何权限提示转换为拒绝，而不调用 `canUseTool`，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍可以批准[其中部分调用](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。由 `allowed_tools`、`settings.json` 允许规则或 hook 预先批准的工具会正常运行。`default` 模式下不需要批准的调用也会运行，例如在您的工作目录内的文件读取和对 `Agent` 的调用。
+
+[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、需要用户交互的工具、[来自网络路径的读取](/docs/zh-CN/permissions#network-paths)，以及针对[关键路径](/docs/zh-CN/permission-modes#critical-paths)的 `rm` 和 `rmdir` 删除即使允许规则匹配也会被拒绝。`PreToolUse` hook 允许也不会放行关键路径删除或来自网络路径的读取。
 
 **使用场景：** 您希望为无头代理提供固定的、明确的工具表面，并且更喜欢硬拒绝而不是依赖 `canUseTool` 不存在的无声依赖。
 

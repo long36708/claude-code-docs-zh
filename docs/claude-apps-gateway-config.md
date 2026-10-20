@@ -336,6 +336,8 @@ upstreams:
 
 当 IdP 令牌不携带电子邮件时，网关仅发送 `x-claude-gateway-user-id` 并省略两个电子邮件标头。如果您的 IdP 将电子邮件放在不同的声明中，将 [`oidc.email_claim`](#oidc) 设置为该声明。
 
+您的代理不会收到 Claude Code 发送的 [`x-claude-code-*` 标头](/docs/zh-CN/llm-gateway-protocol#request-headers)，例如 `x-claude-code-session-id`。网关不会将它们传递给任何上游，因此请使用上表中的标头按开发人员对请求进行分组。
+
 当您的代理对携带开发人员电子邮件的请求应答 `429` 时，网关按原样将该响应返回给开发人员而不是故障转移到下一个上游，因此您的代理的每用户预算或速率限制保持。代理的其他响应遵循普通[故障转移规则](#upstreams)。如果开发人员的 IdP 令牌不携带电子邮件，网关转发其请求而不带电子邮件标头，因此对其中一个请求的 `429` 计为上游容量并故障转移。在网关服务器上的 v2.1.267 之前，每个 `429` 都故障转移。
 
 仅在 `base_url` 是您操作的代理的上游上设置 `forward_user_identity`。网关将开发人员电子邮件发送到该 `base_url` 命名的任何服务器。如果 `base_url` 是 Anthropic API（默认），网关拒绝启动。

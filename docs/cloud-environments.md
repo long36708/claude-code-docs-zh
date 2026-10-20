@@ -12,7 +12,16 @@
 
 每个[云端会话](/docs/zh-CN/claude-code-on-the-web)都在云环境中运行。您可以配置环境以允许或拒绝[网络访问](#access-levels)、为会话[设置环境变量](#set-environment-variables)、存储会话使用但无法看到的[网络密钥](#add-network-secrets)，以及在 Claude 开始工作前运行[设置脚本](#setup-scripts)。
 
-相同的环境适用于您启动云端会话的任何地方：[Desktop 应用](/docs/zh-CN/desktop)、[Claude 移动应用](/docs/zh-CN/mobile)、浏览器中的 [claude.ai/code](https://claude.ai/code)、终端中搭配 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)、[Routine](/docs/zh-CN/routines) 和 [Claude Tag](https://claude.com/docs/claude-tag/overview)。这些使用入口中的每一个也可以路由到[自托管环境](/docs/zh-CN/self-hosted-environments)。[可用性和限制](/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖了当 Claude Tag 会话在其中运行时 Claude 还不能使用的内容。
+相同的环境适用于您启动云端会话的任何地方：
+
+* [Desktop 应用](/docs/zh-CN/desktop)
+* [Claude 移动应用](/docs/zh-CN/mobile)
+* 浏览器中的 [claude.ai/code](https://claude.ai/code)
+* 终端中搭配 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)
+* [云端定时任务](/docs/zh-CN/routines)
+* [Claude Tag](https://claude.com/docs/claude-tag/overview)
+
+这些使用入口中的每一个也可以路由到[自托管环境](/docs/zh-CN/self-hosted-environments)。[可用性和限制](/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖了当 Claude Tag 会话在其中运行时 Claude 还不能使用的内容。
 
 <Info>
   [Remote Control](/docs/zh-CN/remote-control) 会话将网页和移动界面连接到您自己机器上的会话，该会话使用您机器的网络和文件，而不是云环境。Claude Tag 频道会话仅使用组织级别的环境，即[共享环境](#organization-shared-environments)或[自托管环境](/docs/zh-CN/self-hosted-environments)。
@@ -190,7 +199,9 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 * 已经在环境中运行的会话会继续工作。
 * 环境会从选择器和 `/remote-env` 中消失，因此您无法为新会话选择它。
 * 环境中的网络机密在其正在运行的会话中仍保持附加状态。请在归档前删除不再需要的机密。
-* 在任何使用入口上都无法在已归档的环境中启动新会话。如果该环境是您保存的 [CLI 默认值](#select-an-environment-from-the-cli)，当您的列表中有 Anthropic 托管的环境时，Claude Code 会在该环境中启动 CLI 云端会话，否则会在列表中第一个不是 [Remote Control bridge 环境](#the-default-environment)的环境中启动。任何显式配置了该环境的内容，例如 [Routine](/docs/zh-CN/routines#environments-and-network-access)，都无法在其中启动新会话。请将其指向另一个环境。
+* 在任何使用入口上都无法在已归档的环境中启动新会话：
+  * **保存的 CLI 默认值**：如果该环境是您保存的 [CLI 默认值](#select-an-environment-from-the-cli)，当您的列表中有 Anthropic 托管的环境时，Claude Code 会在该环境中启动 CLI 云端会话。否则，会在列表中第一个不是 [Remote Control bridge 环境](#the-default-environment)的环境中启动。
+  * **显式配置**：任何显式配置了该环境的内容，例如[云端定时任务](/docs/zh-CN/routines#environments-and-network-access)，都无法在其中启动新会话。请将其指向另一个环境。
 
 <h3 id="organization-shared-environments">
   组织共享环境
@@ -203,7 +214,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 所有者可以通过以下两种方式之一使环境对组织可用：
 
 * **创建共享环境**：使用[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面，所有者也在该页面编辑和归档共享环境。每个共享环境都有一个名称、一个[网络访问级别](#access-levels)、`.env` 格式的[环境变量](#set-environment-variables)和一个[设置脚本](#setup-scripts)。
-* **共享个人环境**：在环境选择器中打开您自己的某个环境进行编辑，然后从 **Who can use it** 行共享它。环境会保留其 ID，因此已经使用它的会话和 Routine 不受影响，每个成员随后都可以看到它并在其中启动会话。
+* **共享个人环境**：在环境选择器中打开您自己的某个环境进行编辑，然后从 **Who can use it** 行共享它。环境会保留其 ID，因此已经使用它的会话和定时任务不受影响，每个成员随后都可以看到它并在其中启动会话。
 
 所有者在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 单独选择组织的[默认环境](#the-default-environment)。
 
@@ -224,12 +235,12 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 每个环境都设置一个网络访问级别，控制其会话可以进行的出站连接。默认级别 **Trusted** 允许包注册表和其他[允许列表中的域](#default-allowed-domains)；**Custom** 采用您自己的域列表。
 
-要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的控件出现在[Default 环境](#the-default-environment)下列出的应用使用入口上，以及 [Routine 编辑器](/docs/zh-CN/routines#environments-and-network-access)中；个人环境在您的 claude.ai 账户设置中没有单独的页面。
+要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的控件出现在[Default 环境](#the-default-environment)下列出的应用使用入口上，以及[云端定时任务编辑器](/docs/zh-CN/routines#environments-and-network-access)中。个人环境在您的 claude.ai 账户设置中没有单独的页面。
 
 当您更改 Anthropic 托管环境的网络访问时，其现有会话在约一分钟内遵循新设置，用于通过会话的[网络允许列表](#access-levels)的请求。您无需启动新会话。
 
 <Note>
-  您在会话或 Routine 上启用的 MCP 连接器无需将其主机添加到 **Allowed domains**，因为连接器流量通过 Anthropic 的服务器而不是会话的网络传输。这依赖于[安全性和隔离](/docs/zh-CN/claude-code-on-the-web#security-and-isolation)下提到的同一条通往 Anthropic 的通道。关闭任何您不需要的连接器，以限制 Claude 可以访问的工具。
+  您在会话或定时任务上启用的 MCP 连接器无需将其主机添加到 **Allowed domains**，因为连接器流量通过 Anthropic 的服务器而不是会话的网络传输。这依赖于[安全性和隔离](/docs/zh-CN/claude-code-on-the-web#security-and-isolation)下提到的同一条通往 Anthropic 的通道。关闭任何您不需要的连接器，以限制 Claude 可以访问的工具。
 </Note>
 
 <h3 id="access-levels">
@@ -876,7 +887,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 * [Cloud sessions reference](/docs/zh-CN/claude-code-on-the-web)：启动、管理和共享云会话
 * [Cloud sessions quickstart](/docs/zh-CN/web-quickstart)：连接 GitHub 并启动您的第一个云会话
 * [Claude Tag](https://claude.com/docs/claude-tag/overview)：Claude 从 Slack 启动的会话在相同的环境中运行
-* [Routines](/docs/zh-CN/routines)：计划运行使用相同的环境和网络访问级别
+* [Cloud scheduled tasks](/docs/zh-CN/routines)：定时运行使用相同的环境和网络访问级别
 * [Remote Control](/docs/zh-CN/remote-control)：改为在您自己的机器的网络和文件上运行会话
 * [Self-hosted environments](/docs/zh-CN/self-hosted-environments)：在您的组织自己的基础设施上运行云会话
 * [SessionStart hooks](/docs/zh-CN/hooks#sessionstart)：存储库提交的设置，在本地和云会话中运行

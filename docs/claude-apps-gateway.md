@@ -8,6 +8,8 @@
 
 <Note>
   Claude 应用网关专为必须或倾向于通过自己的云提供商路由推理的组织设计，例如满足[数据驻留](/docs/zh-CN/claude-apps-gateway-deploy#compliance-posture)要求。如果您没有此要求，并且想要访问其他功能，例如 SCIM 配置或 Claude Code 网页和移动版本，Claude Enterprise 可能更适合。请参阅[功能可用性](/docs/zh-CN/feature-availability)页面，了解所有部署方法的完整比较。
+
+  Claude Code 一次只使用一种登录方式：网关登录会取代 Claude for Teams 或 Enterprise 登录。网关会话不会获取您在 claude.ai 管理控制台中设置的[服务器托管设置](/docs/zh-CN/server-managed-settings)，因此请通过网关的 [`managed` 块](/docs/zh-CN/claude-apps-gateway-config#managed)下发这些设置。请勿在该块中包含 `forceLoginMethod` 和 `forceLoginOrgUUID`，否则[部分已登录的会话会在启动时退出](/docs/zh-CN/claude-apps-gateway-config#client-side-managed-settings)。请参阅[可用性和限制](#availability-and-limitations)，了解网关会话会失去哪些功能。
 </Note>
 
 Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 客户端和模型提供商之间。开发人员使用您的企业身份提供商 (IdP) 登录，而不是持有 API 密钥或云凭证。网关持有上游凭证，按 IdP 组强制执行模型访问和[托管设置](/docs/zh-CN/managed-settings)，并将使用情况遥测转发到您自己的可观测性堆栈。
@@ -27,16 +29,16 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
   为什么使用 Claude apps gateway
 </h2>
 
-[网关概述](/docs/zh-CN/gateways)涵盖网关的功能以及为什么要运行它。Claude apps gateway 是 Anthropic 自己的网关，内置于 `claude` 二进制文件中，并与每个 Claude Code 版本一起测试，因此它转发 Claude Code 发送的标头和请求字段，无需操作员维护单独的允许列表。部署后，它为您提供：
+[网关概述](/docs/zh-CN/gateways)涵盖网关的功能以及为什么要运行它。Claude apps gateway 是 Anthropic 自己的网关，内置于 `claude` 二进制文件中，并与每个 Claude Code 版本一起测试，因此它转发 Claude Code 发送的 `anthropic-beta` 值和请求字段，无需操作员维护单独的允许列表。部署后，它为您提供：
 
-* **凭证**：上游 API 密钥或云凭证仅存在于您的基础设施中。开发人员使用公司 SSO 进行身份验证并接收短期的持有者令牌，因此离职发生在您的 IdP 中。取消配置用户，其网关访问权限在会话生命周期内过期，默认为一小时。
+* **凭据**：上游 API 密钥或云凭据仅存在于您的基础设施中。开发人员使用公司 SSO 进行身份验证并接收短期的持有者令牌，因此离职发生在您的 IdP 中。取消配置用户，其网关访问权限在会话生命周期内过期，默认为一小时。
 * **访问控制**：您的 IdP 组映射到模型允许列表和[托管设置](/docs/zh-CN/managed-settings)策略。网关在服务器端强制执行模型访问，拒绝非授予模型的请求，并选择每个组的托管设置策略，CLI 在[托管设置层](/docs/zh-CN/settings#settings-precedence)应用该策略。不同的团队获得不同的模型、工具和权限，开发人员无法覆盖其策略锁定的内容。
 * **设置交付**：网关本身将托管设置交付给已登录的客户端，取代来自 claude.ai 管理员控制台的[服务器管理设置](/docs/zh-CN/server-managed-settings)。
-* **遥测**：每个配置的目标接收[OpenTelemetry Protocol (OTLP) 指标](/docs/zh-CN/monitoring-usage)，默认包含令牌计数、模型、用户身份和延迟，日志和跟踪作为按目标的选择加入。
+* **遥测**：每个配置的目标接收[OpenTelemetry Protocol (OTLP) 指标](/docs/zh-CN/monitoring-usage)，默认包含 token 计数、模型、用户身份和延迟，日志和跟踪作为按目标的选择加入。
 * **上游路由**：客户端向网关发送 Anthropic Messages API，网关为每个上游进行转换，无论是 Amazon Bedrock、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws)、Google Cloud 的 Agent Platform、Microsoft Foundry 还是 Anthropic API，并在它们之间进行故障转移。您可以更改区域、提供商或故障转移顺序，而开发人员无需注意或重新配置。
 
 <Frame>
-  <img src="https://mintcdn.com/claude-code/VbyXug8hBU9UK6oT/images/claude-gateway-architecture.svg?fit=max&auto=format&n=VbyXug8hBU9UK6oT&q=85&s=9e4f1190fc56718144190a3db61c63af" alt="显示 Claude Code 客户端和 Claude Desktop 的 Chat、Cowork 和 Code 选项卡通过 HTTPS 和持有者令牌连接到基础设施内自托管的 Claude apps gateway 的图表，网关针对您的 IdP 对用户进行签名，在 PostgreSQL 中存储身份验证状态，将遥测转发到您的 OTLP 收集器，并将推理转发到 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud、Microsoft Foundry 或 Anthropic API" width="760" height="320" data-path="images/claude-gateway-architecture.svg" />
+  <img src="https://mintcdn.com/claude-code/VbyXug8hBU9UK6oT/images/claude-gateway-architecture.svg?fit=max&auto=format&n=VbyXug8hBU9UK6oT&q=85&s=9e4f1190fc56718144190a3db61c63af" alt="显示 Claude Code 客户端和 Claude Desktop 的 Chat、Cowork 和 Code 选项卡通过 HTTPS 和持有者令牌连接到基础设施内自托管的 Claude apps gateway 的图表，网关通过您的 IdP 让用户登录，在 PostgreSQL 中存储身份验证状态，将遥测转发到您的 OTLP 收集器，并将推理转发到 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud、Microsoft Foundry 或 Anthropic API" width="760" height="320" data-path="images/claude-gateway-architecture.svg" />
 </Frame>
 
 <Note>
@@ -51,7 +53,13 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 
 如果您已经运行满足您需求的 LLM 网关或 API 网关，请继续使用它；[其他 LLM 网关](/docs/zh-CN/llm-gateway)涵盖针对它配置 Claude Code。
 
-[网关兼容性指南](/docs/zh-CN/llm-gateway-protocol)记录了 Claude Code 期望从任何网关获得的内容：它调用的端点、要转发的标头和正文字段，以及删除它们时停止工作的内容。运行中的 Claude apps gateway 在 `GET /protocol` 处提供其自己的协议参考，该参考描述了它向 Claude Code 客户端公开的端点：SSO 登录、推理、托管设置交付、模型发现和遥测。使用 `curl https://claude-gateway.internal.example.com/protocol` 从任何已部署的网关（例如下面[快速入门](#quickstart)生成的网关）获取它。协议的重大更改会提前宣布，但不保证无限期的向后兼容性。
+[网关兼容性指南](/docs/zh-CN/llm-gateway-protocol)记录了 Claude Code 期望从任何网关获得的内容：它调用的端点、要转发的标头和正文字段，以及删除它们时停止工作的内容。运行中的 Claude apps gateway 在 `GET /protocol` 处提供其自己的协议参考，该参考描述了它向 Claude Code 客户端公开的端点：SSO 登录、推理、托管设置交付、模型发现和遥测。使用 `curl https://claude-gateway.internal.example.com/protocol` 从任何已部署的网关（例如下面[快速入门](#quickstart)生成的网关）获取它。
+
+协议的重大更改会提前宣布，但不保证无限期的向后兼容性。
+
+<Note>
+  网关登录令牌标识的是批准该登录的开发人员，而不是使用它的程序。Claude Code 登录时不使用自己的客户端 ID 或密钥，因此网关无法验证是哪个程序在登录。任何客户端都可以设置 `User-Agent` 和其他请求字段，因此请将它们用于路由或指标，而不是作为请求来自 Claude Code 的证明。
+</Note>
 
 <h2 id="quickstart">
   快速入门

@@ -232,9 +232,9 @@ Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/ski
   在 Cowork 和云会话中使用 skills
 </h3>
 
-[Cowork](https://claude.com/product/cowork) 会话和 [云会话](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)（包括 [routines](/docs/zh-CN/routines)）不会读取您机器上的 `~/.claude/skills/`。交互式和计划的 Cowork 会话都加载为您的 claude.ai 账户启用的 skills，在会话启动时同步；从 Desktop 应用侧边栏中的 **Customize** 或从 claude.ai 上的 skills 设置管理它们。云会话另外加载提交到克隆存储库的 `.claude/skills/` 的项目 skills。
+[Cowork](https://claude.com/product/cowork) 会话和 [云端会话](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)（包括 [云端定时任务](/docs/zh-CN/routines)）不会读取您机器上的 `~/.claude/skills/`。交互式和定时的 Cowork 会话都加载为您的 claude.ai 账户启用的 skill，在会话启动时同步。从 Desktop 应用侧边栏中的 **Customize** 或从 claude.ai 上的 skill 设置管理它们。云端会话另外加载提交到克隆仓库的 `.claude/skills/` 的项目 skill。
 
-如果 skill 仅存在于您机器上的 `~/.claude/skills/` 中，当 [routine](/docs/zh-CN/routines) 调用它时，Claude Code 会报告找不到该 skill，因为每个 routine 运行都作为新的云会话启动。要在这些会话中使用个人 skill：
+如果 skill 仅存在于您机器上的 `~/.claude/skills/` 中，当 [云端定时任务](/docs/zh-CN/routines) 调用它时，Claude Code 会报告找不到该 skill。这是因为每次运行都作为新的云端会话启动。要在这些会话中使用个人 skill：
 
 * 对于 Cowork 和云端会话，为您的 claude.ai 账户启用该 skill。[自托管环境中的某些会话](/docs/zh-CN/self-hosted-environments-configuration#how-each-session’s-config-is-assembled) 不会加载您账户的 skill。
 * 对于云会话，您可以改为将 skill 提交到存储库的 `.claude/skills/`。在存储库的 `.claude/settings.json` 中声明的插件和仅在您的用户设置中启用的插件 [不会在云会话中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
@@ -435,7 +435,7 @@ Your skill instructions here...
 | `when_to_use` | 否 | 关于 Claude 何时应调用该 skill 的附加上下文，例如触发短语或示例请求。在 skill 列表中附加到 `description` 之后，并计入 1,536 个字符的上限。 |
 | `argument-hint` | 否 | 自动补全期间显示的提示，用于指示预期的参数。示例：`[issue-number]` 或 `[filename] [format]`。 |
 | `arguments` | 否 | 用于 skill 内容中 [`$name` 替换](#available-string-substitutions)的命名位置参数。接受以空格分隔的字符串或 YAML 列表。名称按顺序映射到参数位置。 |
-| `disable-model-invocation` | 否 | 设置为 `true` 可防止 Claude 自动加载此 skill。适用于您希望通过 `/name` 手动触发的工作流。还会阻止该 skill [预加载到子代理中](/docs/zh-CN/sub-agents#preload-skills-into-subagents)，并在以该 skill 作为提示词的[定时任务](/docs/zh-CN/scheduled-tasks)触发时阻止其运行。默认值：`false`。 |
+| `disable-model-invocation` | 否 | 设置为 `true` 可防止 Claude 自动加载此 skill。适用于您希望通过 `/name` 手动触发的工作流。还会阻止该 skill [预加载到子代理中](/docs/zh-CN/sub-agents#preload-skills-into-subagents)，并在以该 skill 作为提示词的[会话范围定时任务](/docs/zh-CN/scheduled-tasks)触发时阻止其运行。默认值：`false`。 |
 | `user-invocable` | 否 | 当只有 Claude 应调用该 skill 时设置为 `false`：Claude Code 会将其从 `/` 菜单中隐藏，并且在您输入 `/name` 时不会运行它。适用于用户不应直接调用的背景知识。默认值：`true`。 |
 | `allowed-tools` | 否 | 在调用此 skill 的轮次中，Claude 无需请求权限即可使用的工具。当您发送下一条消息时，该授予即被清除。接受以空格或逗号分隔的字符串，或 YAML 列表。请参阅[为 skill 预先批准工具](#pre-approve-tools-for-a-skill)。 |
 | `disallowed-tools` | 否 | 在此 skill 处于活动状态时，从 Claude 可用工具池中移除的工具。适用于永远不应调用某些工具的自主 skill，例如对后台循环禁用 `AskUserQuestion`。接受以空格或逗号分隔的字符串，或 YAML 列表。当您发送下一条消息时，该限制即被清除。与拒绝规则一样，只要还有其他工具存在，该字段就无法移除 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)。 |
@@ -462,7 +462,7 @@ Claude Code 接受上表中的所有字段。在 Claude Code 之外，您只能�
 | [任意级别](#where-skills-live)的 Claude Code skill，包括[插件](/docs/zh-CN/plugins/overview) skill | 上表中的所有字段 |
 | claude.ai skill 上传、Skills API，以及使用 [anthropics/skills](https://github.com/anthropics/skills) 中的 `package_skill.py` 打包 | `name`、`description`、`license`、`compatibility`、`metadata`、`allowed-tools` |
 
-当您为 claude.ai 账户启用个人 skill 时（例如在 [Cowork 和云端会话](#skills-in-cowork-and-cloud-sessions)以及 Routine 中使用），您会将其上传到 claude.ai，因此适用相同的规则。
+当您为 claude.ai 账户启用个人 skill 时（例如在 [Cowork 和云端会话](#skills-in-cowork-and-cloud-sessions)以及定时任务中使用），您会将其上传到 claude.ai。该上传同样适用相同的规则。
 
 如果您包含了规范不允许的任何字段，打包或上传将以硬错误失败，而不是忽略该字段：
 
@@ -869,7 +869,7 @@ Claude Code 也会等待结果，即使技能没有设置 `background: false`，
 * 在非交互模式中，使用 `-p` 标志或 Agent SDK
 * 当你将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 设置为 `1` 时，这也会关闭所有其他后台任务功能
 * 当你在同一技能的早期调用仍在运行时调用分叉技能时
-* 当[计划任务](/docs/zh-CN/scheduled-tasks)以技能作为其提示触发时
+* 当以该 skill 作为提示词的[会话范围定时任务](/docs/zh-CN/scheduled-tasks)触发时
 
 当[动态工作流](/docs/zh-CN/workflows)中的 Agent 调用分叉 skill 时，即使该 skill 没有设置 `background: false`，该 Agent 也会等待并接收结果。在 v2.1.295 之前，Claude Code 在这种情况下不会等待，并且当 skill 在后台运行时，其结果会出现在您的主对话中，而不会到达该 Agent。
 

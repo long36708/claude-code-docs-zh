@@ -1024,7 +1024,11 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
 
 * **`"deny"` 在每种权限模式下都有效**：返回 `permissionDecision: "deny"` 的 hook 会阻止工具，即使在 `bypassPermissions` 模式或使用 `--dangerously-skip-permissions` 时也是如此。`PreToolUse` hook 在任何权限模式检查之前触发，在每个[权限模式](/docs/zh-CN/permission-modes)中，包括 `dontAsk`。这让您能够强制执行用户无法通过更改其权限模式来绕过的策略。
 
-您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 可以批准被您的 `PreToolUse` hook 阻止的调用，除非该 hook 位于托管设置中。在计划模式中，当此类调用为只读时，mod 可以批准它，但不能批准文件编辑或其他非只读调用。[使用 hooks 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)列出了哪些规则优先于 mod。
+<Note>
+  如果您的机器上没有[托管设置](/docs/zh-CN/settings#check-what-your-organization-enforces)，并且您的会话未使用 Team 或 Enterprise 计划的 [`/login` 凭据](/docs/zh-CN/authentication#authentication-precedence)，那么 [mod](/docs/zh-CN/plugins/mods/overview) 可以批准被您的 `PreToolUse` hook 阻止的调用。改为使用 API 密钥或长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话并未使用该登录，即使该登录已存储。
+
+  在计划模式中，仅当此类被阻止的调用为只读（因此不是文件编辑）时，mod 才能批准它。有关 mod 的批准无法越过您的规则和 hook 的情况，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+</Note>
 
 <h3 id="hook-not-firing">
   Hook 未触发

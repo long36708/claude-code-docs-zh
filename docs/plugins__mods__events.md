@@ -152,7 +152,7 @@ on('tool.call', { tool: ['Edit', 'Write'] }, async ($, e, next) => {
 * **自行响应调用**：在不调用 `next` 的情况下返回一个带有 `result` 字段的对象；对于内置工具，请让 `result` 的结构与该工具自身结果在[适用于您构建版本的类型](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)中的结构一致。不会出现权限提示，工具也不会运行，因此您返回的结果就是 Claude 对所发生情况的全部了解。
 * **向 Claude 扣留结果**：在 `await next(e)` 之后返回 `{ deny: reason }`。Claude 读取的是您的原因，而不是 `next` 返回的内容。如果工具已运行，deny 会阻止 Claude 看到其结果，但不会撤销工具所做的任何操作。如果工具已运行并成功，原因会跟在诸如 `Bash ran, and a plugin withheld its result:` 的说明之后。
 
-您组织的[托管设置](/docs/zh-CN/server-managed-settings)中的 hook 会在任何 mod 的 `tool.call` hook 之前运行，并且其中任一 hook 的阻止都是最终决定。
+您组织的[托管设置](/docs/zh-CN/server-managed-settings)中的 hook 会在任何 mod 的 `tool.call` hook 之前运行。当托管 hook 阻止该调用时，任何 mod 的 `tool.call` hook 都不会针对该调用运行。
 
 <h4 id="hold-a-tool-call-until-the-user-decides">
   暂缓工具调用，直到用户做出决定
@@ -223,7 +223,9 @@ on('tool.check', { tool: 'Bash' }, async ($, e, next) => {
 
 该 hook 匹配的是命令文本，因此请将其视为对 Claude 的提醒。要为所有人阻止向 `main` 推送，请在您的 Git 托管平台上保护该分支。
 
-hook 可以返回 `allow`、`ask` 或 `deny`，因此它也可以批准被托管设置之外的 `PreToolUse` hook 阻止的调用。在[计划模式](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)下，对于非只读的调用（例如文件编辑），您的 hook 可以收紧 `next(e)` 返回的决定，但不能放宽它。[使用 hook 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)列出了哪些决定优先于 mod。
+<Note>
+  `tool.check` hook 也可以返回 `allow` 或 `ask`。在[计划模式](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)下，对于非只读的调用（例如文件编辑），您的 hook 可以收紧 `next(e)` 返回的决定，但不能放宽它。有关您的 hook 的 `allow` 无法覆盖的权限规则和 `PreToolUse` hook 决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+</Note>
 
 <h3 id="rewrite-or-add-to-a-prompt">
   改写或补充提示词
@@ -337,10 +339,10 @@ Claude Code 按每个 mod 的来源对链进行排序：
 
 在设置文件中配置的 `PreToolUse` hook 也在工具调用期间运行，位于 mod 链中的固定点：
 
-* **来自托管设置的 `PreToolUse` hook**：在第一个 mod 的 `tool.call` hook 之前运行，其中任一 hook 的阻止都是最终决定，因此没有 mod 看到调用。
+* **来自托管设置的 `PreToolUse` hook**：在第一个 mod 的 `tool.call` hook 之前运行。当托管 hook 阻止调用时，该调用不会运行任何 mod 的 `tool.call` hook。
 * **来自每个其他设置文件和插件的 `hooks/hooks.json` 的 `PreToolUse` hook**：在最后一个 mod 调用 `next` 后运行，作为 Claude Code 自己的行为的一部分。回答 `tool.call` 而不调用 `next` 的 mod 会阻止它们运行，调用 `next` 的 mod 在它返回的结果中看到它们的决定。
 
-[`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) hook 可以批准被托管设置之外的 `PreToolUse` hook 阻止的调用，因为 `tool.check` 在这些 hook 和权限规则做出决定之后触发。在计划模式下，如果此类调用是只读的，`tool.check` hook 可以批准它，但不能批准文件编辑或其他非只读的调用。
+[`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) 在权限规则和这两组 `PreToolUse` hook 做出决定之后触发。要了解 `tool.check` hook 的 `allow` 无法替代其中哪些决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
 
 <h3 id="handle-a-hook-that-fails">
   处理失败的 hook

@@ -312,6 +312,6 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
 
 * [使用 Claude Code on the web](/docs/zh-CN/claude-code-on-the-web)：完整参考，包括将会话传送到您的终端、会话共享和自动修复拉取请求
 * [配置云环境](/docs/zh-CN/cloud-environments)：网络访问级别、环境变量和云会话的设置脚本
-* [Routines](/docs/zh-CN/routines)：按计划、通过 API 调用或响应 GitHub 事件自动化工作
+* [云端定时任务](/docs/zh-CN/routines)：按计划、通过 API 调用或响应 GitHub 事件自动化工作
 * [CLAUDE.md](/docs/zh-CN/memory)：给 Claude 持久指令和上下文，在每个会话开始时加载
 * 为 [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 或 [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude) 安装 Claude 移动应用以从您的手机监控会话。从 Claude Code CLI，`/mobile` 显示 QR 码，用于 [claude.ai/mobile](https://claude.ai/mobile)，该码会为您的手机打开正确的应用商店。

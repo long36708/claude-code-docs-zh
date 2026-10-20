@@ -59,16 +59,18 @@
 如果您没有自己的 mod 设置，这就是您的用户会获得的：
 
 * **Mods 处于开启状态。** 用户可以安装包含来自您的插件设置允许的任何市场的 mod 的插件，或使用 `--plugin-dir` 从目录加载一个。
-* **内置保护程序首先运行。** Claude Code 在用户安装的每个 mod 之前加载一个名为 `sec-default@builtin` 的内置 mod。用户无法将其关闭。`/plugin` 和调试日志将其列为 `cc-plugin-sec-default`。保护程序在以下任一情况为真时加载：
+* **内置守卫首先运行。** Claude Code 在用户安装的每个 mod 之前加载一个名为 `sec-default@builtin` 的内置 mod。用户无法将其关闭。`/plugin` 和调试日志将其列为 `cc-plugin-sec-default`。内置守卫在以下任一情况为真时加载：
 
   * 机器有托管设置
-  * 用户使用 Team 或 Enterprise 计划登录到 Claude Code
+  * 会话使用 Team 或 Enterprise 计划的 [`/login` 凭据](/docs/zh-CN/authentication#authentication-precedence)运行
 
-  使用 API 密钥进行身份验证的用户，或通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry，仅在具有托管设置的机器上获得保护程序。
+  使用 API 密钥进行身份验证的用户，或通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 进行身份验证的用户，仅在具有托管设置的机器上获得内置守卫。使用长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话也不算作上述登录，即使机器上存储了 Team 或 Enterprise 登录信息。
 * **保护程序保护您管理的内容。** 用户的 mod 无法更改您的托管 hooks 接收或决定的内容、系统提示、您的托管 `CLAUDE.md` 和其他托管说明、任何 mod 读取的设置内容，或您的托管 MCP 服务器的工具和描述。
-* **允许所有其他内容。** 保护程序不添加其他限制。用户的 mod 仍然可以读写文件、启动进程、发出网络请求、重写工具调用和提示、拒绝工具调用、批准否则会提示的工具调用，以及在界面中绘制，所有这些都具有该用户的权限。
-* **拒绝规则和您的托管 hook 优先。** 保护程序加载的地方，用户的 mod 无法批准 `deny` 规则拒绝的调用，无论哪个设置文件持有该规则。来自托管设置中 `PreToolUse` hook 的阻止也是最终的。两者都适用于 Claude 的工具调用。两者都不适用于 mod 自己的 [`$.fs` 和 `$.process` 调用](/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)：即使 `Read(.env)` 被拒绝，mod 仍然可以使用 `$.fs.read` 读取该文件或启动执行此操作的程序。要限制这些调用，请防止 mod 加载或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中处理该调用。
-* **其他权限检查可以被覆盖。** 批准工具调用的用户 mod 可以批准 `ask` 规则会提示的调用，或 `PreToolUse` hook 在托管设置外阻止的调用。在自动模式下，mod 批准的调用运行时不进行分类器检查。对于 mod 的 `tool.check` 批准不会跳过的提示，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)。
+* **在您管理的内容之外，用户的 mod 以该用户身份行事。** mod 保留该用户的权限：它仍然可以读写文件、启动进程和发出网络请求。它还可以重写工具调用和提示词、拒绝工具调用，以及在界面中绘制。
+* **权限规则和 `PreToolUse` hook 优先于用户的 mod。** 加载内置守卫后，默认情况下，用户的 mod 无法批准 `deny` 规则拒绝的调用或 `ask` 规则会提示的调用，无论哪个设置文件持有该规则。mod 也无法批准任何 `PreToolUse` hook 阻止的调用。
+
+  权限规则和 `PreToolUse` hook 适用于 Claude 的工具调用，而不适用于 mod 的 [`$.fs` 和 `$.process` 调用](/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)。即使 `Read(.env)` 被拒绝，mod 仍然可以使用 `$.fs.read` 读取该文件，或启动执行此操作的程序。要限制 mod 自身的 `$.fs` 和 `$.process` 调用，请[阻止该 mod 加载](#stop-user-installed-mods-from-loading)，或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中处理这些调用。
+* **用户的 mod 仍然可以跳过某些提示。** 在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下，mod 批准的调用运行时不进行分类器检查，除非内置守卫已加载，且会话使用 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 或 Agent SDK [`canUseTool` 回调](/docs/zh-CN/agent-sdk/user-input#handle-tool-approval-requests)运行。在这种情况下，分类器会先检查该调用。对于 mod 的批准不会跳过的提示，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
 
 保护程序的源代码在 [Claude Code 存储库的 `mods/sec-default` 目录](https://github.com/anthropics/claude-code/tree/main/mods/sec-default)中是公开的。
 
@@ -80,7 +82,9 @@ Mods 不会替换您已有的控制：
 
 * **设置 hook 继续工作。** 设置文件和插件的 `hooks/hooks.json` 中的命令、HTTP、提示词和 Agent hook 照常运行，与 mod 一起。
 * **拒绝规则在保护程序加载的地方优先。** 用户的 mod 无法批准 `deny` 规则拒绝的调用，除非您设置 [`allowModsToOverrideDenyRules`](#set-options-on-the-built-in-guard)。
-* **托管 hooks 首先运行。** 托管设置中的 `PreToolUse` hook 在任何 mod 看到工具调用之前运行，其块是最终的。如果 mod 随后重写调用，您的托管 hooks 在重写的调用上再次运行，因此块仍然适用。来自其他设置文件和插件的 `PreToolUse` hooks 在最后一个 mod 之后运行，因此返回自己结果代替运行工具的 mod 会阻止这些运行。请参阅[mods 运行的顺序](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)。
+* **托管 hook 首先运行。** 托管设置中的 `PreToolUse` hook 在任何 mod 的 [`tool.call`](/docs/zh-CN/plugins/mods/reference#tools) hook 之前运行，当该托管 hook 阻止某个工具调用时，不会有任何 mod 的 `tool.call` hook 针对该调用运行。如果调用继续进行且 mod 重写了它，您的托管 hook 会在重写后的调用上再次运行，因此仍然可以阻止它。
+
+  来自其他设置文件和插件的 `PreToolUse` hook 在最后一个 mod 之后运行。如果 mod 自行应答工具调用，该工具永远不会运行，这些 hook 也不会运行。请参阅[mod 运行的顺序](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)。
 * **网络策略涵盖 `$.http.fetch`。**
 
   * **您的组织策略不允许 WebFetch**：Claude Code 也会拒绝每个 mod 的 `$.http.fetch` 请求。请参阅 [WebFetch 可用性](/docs/zh-CN/tools-reference#webfetch-availability)。
@@ -331,7 +335,7 @@ Claude Code 每次即将采取行动（例如运行工具）时都会触发一�
 
 * **列表替换默认值**：当您在托管设置中设置 `prependPlugins` 时，请在其中列出 `sec-default@builtin` 以保留内置守卫。该守卫是内置的，不需要 `enabledPlugins` 条目。
 * **您自己的 id 必须计为您的**：在托管设置中，Claude Code 会跳过其插件不满足组织 mod 条件的 id
-* **仓库无法设置它们**：Claude Code 从托管设置读取这两个设置，从不从仓库的设置文件读取。用户可以在 `~/.claude/settings.json` 中设置它们来对自己的 mod 排序，但仅限于没有托管设置的机器，并且仅当他们未使用 Team 或 Enterprise 计划登录时。在其他任何情况下，Claude Code 都会忽略用户设置中的这两个键。那里的列表既不添加也不删除内置守卫。
+* **仓库无法设置它们**：Claude Code 从托管设置读取这两个设置，从不从仓库的设置文件读取。用户可以在 `~/.claude/settings.json` 中设置它们来对自己的 mod 排序，但仅限于没有托管设置的机器，并且仅当会话的凭据不是 Team 或 Enterprise `/login` 时。在其他任何情况下，Claude Code 都会忽略用户设置中的这两个键。那里的列表既不添加也不删除内置守卫。
 
 <h3 id="enforce-a-policy-with-a-mod-of-your-own">
   使用您自己的 mod 强制执行策略

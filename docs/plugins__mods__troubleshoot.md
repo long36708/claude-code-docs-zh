@@ -84,7 +84,7 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
   来自内置保护的消息
 </h3>
 
-在具有托管设置的机器上，或对于使用 Team 或 Enterprise 计划登录的用户，[内置保护](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default) 可以拒绝 mod 或其答案之一。每条消息都命名您的组织管理员设置以更改规则的选项。
+在具有托管设置的机器上，或在凭据为 Team 或 Enterprise `/login` 的会话中，[内置守卫](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default) 可以拒绝 mod 或其答案之一。每条消息都会指明您的组织管理员为更改该规则而设置的选项。
 
 | 消息包含 | 这意味着什么 | 它出现在哪里 |
 | :- | :- | :- |
@@ -228,6 +228,18 @@ mod 已加载，其 hooks 运行，它接触的工具调用被拒绝。
 `tried to lift a deny rule in your settings` 和 `the deny rules in your settings could not be checked for this call, so it is refused` 都来自内置保护。
 
 在 [来自内置保护的消息](#messages-from-the-built-in-guard) 中查找它们。
+
+<h2 id="a-toast-appears-after-a-turn-is-stopped">
+  停止轮次后出现提示
+</h2>
+
+<h3 id="stopped-type-a-message-to-continue">
+  `Stopped: type a message to continue; a mod cannot resume work after Stop`
+</h3>
+
+此提示表示，在您停止轮次之后（例如按下 Esc），某个 mod 试图自行开始工作，而 Claude Code 没有允许它这样做。无需进行任何修复。在您发送下一条消息后，mod 可以再次开始工作，并且[其中部分工作会自行恢复](/docs/zh-CN/plugins/mods/api#work-your-mod-started-before-the-interruption)。如果您期望从该 mod 获得的结果没有恢复，请再次提出请求，或再次运行该 mod 的命令。
+
+如果该 mod 是您编写的，请参阅[用户中断轮次后的调用和后台工作](/docs/zh-CN/plugins/mods/api#calls-and-background-work-after-the-user-interrupts-a-turn)。
 
 <h2 id="a-drawing-doesn’t-appear-or-respond">
   绘图不出现或不响应

@@ -957,7 +957,7 @@ type SDKControlInterruptResponse = {
 
 * 只有带 UUID 入队的消息才会出现。空数组并不意味着不会再运行其他内容。
 * 只列出主线程消息。发送给子代理的消息不在范围内。
-* 列表可能包含您的客户端从未发送过的 UUID，例如[定时任务](/docs/zh-CN/scheduled-tasks)触发器。请忽略您无法识别的 UUID，而不是将其视为错误。
+* 该列表可能包含您的客户端从未发送过的 UUID，例如[会话作用域的定时任务](/docs/zh-CN/scheduled-tasks)触发器。请忽略您无法识别的 UUID，而不是将其视为错误。
 
 直接驱动 CLI 控制协议（而不是通过 `interrupt()`）的客户端可以在 `interrupt` 控制请求上设置 `cancel_queued: true`。Claude Code v2.1.219 及更高版本通过 [`SDKSystemMessage.capabilities`](#sdksystemmessage) 中的 `interrupt_cancel_queued_v1` 能力声明支持；较旧的 CLI 会忽略该字段，并照常运行排队的消息。这样的中断还会取消原本会列在 `still_queued` 下的每条消息：回执改为将它们列在 `cancelled` 下，`still_queued` 为空，并且这些消息都不会运行。
 
@@ -1854,7 +1854,12 @@ type SDKResultMessage =
 
 相同的字段对出现在 [`SDKSystemMessage`](#sdksystemmessage) 和 [`SDKControlInitializeResponse`](#sdkcontrolinitializeresponse) 上，因此您可以在第一轮之前读取快速模式状态。
 
-`origin` 字段转发触发此结果的用户消息的 [`SDKMessageOrigin`](#sdkmessageorigin)。当 SDK 注入合成后续轮（例如对于完成的后台任务）时，生成的 `SDKResultMessage` 携带 `origin: { kind: "task-notification" }`。触发器已触发的 Routine，以及经服务器验证、来自您其他会话的消息，到达时也带有此类型，每个都带有[任务通知子类型](#task-notification-subkinds)中描述的 `subkind`。在路由或抑制结果之前，检查 `kind` 以区分回答您提示词的结果和注入的后续轮。如果您的应用程序[声明定时运行](#declare-a-scheduled-run)，它们的结果也携带 `kind: "task-notification"`，因此不要仅凭 `kind` 进行抑制。
+`origin` 字段转发触发此结果的用户消息的 [`SDKMessageOrigin`](#sdkmessageorigin)。携带 `origin: { kind: "task-notification" }` 的结果包括：
+
+* **合成的后续轮次**：当 SDK 注入一个合成的后续轮次时（例如针对已完成的后台任务），所产生的 `SDKResultMessage` 会携带此 kind
+* **已触发的定时任务以及来自其他会话的消息**：触发器已触发的云端定时任务，以及来自您其他会话且经服务器验证的消息，也会以此 kind 到达，各自带有[任务通知 subkind](#task-notification-subkinds) 中所述的 `subkind`
+
+在路由或抑制结果之前，请检查 `kind` 以区分回答您提示词的结果和注入的后续结果。如果您的应用程序[声明了计划运行](#declare-a-scheduled-run)，其结果也会携带 `kind: "task-notification"`，因此不要仅凭 `kind` 进行抑制。
 
 当多个后台任务完成一起排队时，Claude Code 可以在一轮中回答它们，而不是每个一轮。每个完成仍然产生自己的结果与此来源。Claude Code 一起回答的完成中除最后一个外的所有完成产生空结果，其中 `num_turns: 0`，按顺序，最后一个的结果携带回答它们全部的轮。
 
@@ -2417,12 +2422,12 @@ type SDKMessageOrigin =
 
 当 Claude Code 将任务通知传递到会话中时，如果 Anthropic 服务器验证了该通知的来源，它会在通知的 `origin` 上设置 `subkind`。当您的应用程序[自己声明消息为定时运行](#declare-a-scheduled-run)时，它也设置 `subkind`，这需要 TypeScript Agent SDK v0.3.280 或更高版本。`subkind` 需要 Claude Code v2.1.213 或更高版本，它采用两个值之一：
 
-* `scheduled-trigger`：通知是 [Routine](/docs/zh-CN/routines) 的存储提示词，因为 Routine 的触发器之一触发而传递：其计划、其 [API 触发器](/docs/zh-CN/routines#add-an-api-trigger)、其 [GitHub 触发器](/docs/zh-CN/routines#add-a-github-trigger) 或**立即运行**。您的应用程序[声明为定时运行](#declare-a-scheduled-run)的提示词也携带此值。Claude Code 将这些作为会话的分配任务呈现给模型，附带的通知与[其他任务通知携带的通知](#sdktasknotificationmessage)不同。
+* `scheduled-trigger`：该通知是某个[云端定时任务](/docs/zh-CN/routines)存储的提示词，因该任务的某个触发器被触发而投递：其计划、其 [API 触发器](/docs/zh-CN/routines#add-an-api-trigger)、其 [GitHub 触发器](/docs/zh-CN/routines#add-a-github-trigger)或 **Run now**。您的应用程序[声明为定时运行](#declare-a-scheduled-run)的提示词也带有此值。Claude Code 会将这些通知作为会话被分配的任务呈现给模型，所附的说明与[其他任务通知所附的说明](#sdktasknotificationmessage)不同。
 * `peer-send-message`：该通知是您的另一个会话通过服务器端 `send_message` 工具发送的消息（[云端会话](/docs/zh-CN/claude-code-on-the-web)之间使用该工具互相发送消息），而不是[跨会话 `SendMessage` 工具](/docs/zh-CN/cross-session-messaging)，并且 Anthropic 服务器已验证两个会话属于同一个私有会话组。需要 Claude Code v2.1.224 或更高版本。服务器未以此方式验证的 `send_message` 投递不会获得子类型。
 
 每个其他任务通知都没有 `subkind`。这包括[PR 活动](/docs/zh-CN/claude-code-on-the-web#how-claude-responds-to-pr-activity)传递到会话和后台事件，例如完成的任务。来自[跨会话 `SendMessage` 工具](/docs/zh-CN/cross-session-messaging)的消息根本不是任务通知：无论它们来自同一机器上的会话还是通过 Anthropic 服务器来自另一台机器，Claude Code 都给它们 `kind: "peer"` 和[对等体来源字段](#peer-origin-fields)。
 
-`fireReason` 说明 `scheduled-trigger` 通知为什么触发，作为简短的小写标记，例如 `scheduled`、`manual`、`retry`、`catch_up` 或 `api`。Anthropic 服务器在 [Routine](/docs/zh-CN/routines) 的传递上设置它，您的应用程序在声明定时运行时设置它。当两者都未发送时不存在。需要 TypeScript Agent SDK v0.3.280 或更高版本。
+`fireReason` 说明 `scheduled-trigger` 通知被触发的原因，以简短的小写标记表示，例如 `scheduled`、`manual`、`retry`、`catch_up` 或 `api`。Anthropic 服务器会在[云端定时任务](/docs/zh-CN/routines)的投递上设置该字段，您的应用程序在声明定时运行时也会设置它。当两者都未发送时，该字段不存在。需要 TypeScript Agent SDK v0.3.280 或更高版本。
 
 一个后台任务可以在同一个 `task_id` 下运行多次，例如当 Claude [恢复子代理](/docs/zh-CN/agent-sdk/subagents#resume-subagents)时。每次运行都有自己的 [`run_id`](#sdktaskstartedmessage)。当某次运行的通知作为用户消息到达您的会话时，该消息 `task-notification` origin 上的 `runId` 持有相同的值。通知可能在任务的下一次运行开始后才到达，但它仍然带有较早那次运行的 ID。要判断某个轮次属于哪次运行，请比较 `runId`，而不是 `task_id`。需要 TypeScript Agent SDK v0.3.292 或更高版本。
 
@@ -3822,7 +3827,7 @@ type CronCreateInput = {
 };
 ```
 
-按本地时间的 5 字段 cron 计划安排提示词运行。将 `recurring` 设置为 `false` 以在下一个匹配时仅触发一次。作业默认限定于会话，使用 `--resume` 或 `--continue` 恢复时会还原尚未过期的作业。请参阅[定时任务](/docs/zh-CN/scheduled-tasks)。
+按本地时间的 5 字段 cron 计划安排提示词运行。将 `recurring` 设置为 `false` 以在下一个匹配时仅触发一次。作业默认限定于会话，使用 `--resume` 或 `--continue` 恢复时会还原尚未过期的作业。请参阅[限定于会话的定时任务](/docs/zh-CN/scheduled-tasks)。
 
 将 `durable` 设置为 `true` 请求持久化到 `.claude/scheduled_tasks.json`，以便作业在重启后继续存在。持久化调度并非在每个会话中都可用：当不可用时，Claude Code 接受 `durable: true` 但创建仅会话的作业。读取输出的 `durable` 字段以查看作业是否已持久化。
 
@@ -3896,13 +3901,14 @@ type RemoteTriggerInput = {
 };
 ```
 
-管理 [Routines](/docs/zh-CN/routines)，即在云端托管的按计划和按触发运行的 Claude Code 任务。此工具支持 `/schedule` 命令。`trigger_id` 对于 `get`、`update`、`run` 和 `list_runs` 操作是必需的。`body` 对于 `create`、`update` 和 `create_webhook_trigger` 是必需的，对于 `run` 是可选的。
+管理[云端定时任务](/docs/zh-CN/routines)（前身为 Routine）：即在云端托管的按计划和按触发运行的 Claude Code 任务。此工具支持 `/schedule` 命令。`trigger_id` 对于 `get`、`update`、`run` 和 `list_runs` 操作是必需的。`body` 对于 `create`、`update` 和 `create_webhook_trigger` 是必需的，对于 `run` 是可选的。
 
-`create_webhook_trigger` 将事件源附加到现有 Routine，例如触发它的 [GitHub 事件](/docs/zh-CN/routines#add-a-github-trigger)。`body` 命名源、事件和要触发的 Routine。需要 Claude Code v2.1.225 或更高版本。
+`create_webhook_trigger`、`list_runs` 和 `get_run_log` 各自需要最低的 Claude Code 版本：
 
-`list_runs` 列出 Routine 的最近运行，`get_run_log` 读取一次运行的日志。`session_id` 从 `list_runs` 结果中指定要读取的运行，`cursor` 分页浏览任一操作的结果。两个操作都需要 Claude Code v2.1.227 或更高版本。
+* **`create_webhook_trigger`**：将事件源附加到现有定时任务，例如触发它的 [GitHub 事件](/docs/zh-CN/routines#add-a-github-trigger)。`body` 命名源、事件和要触发的任务。需要 Claude Code v2.1.225 或更高版本。
+* **`list_runs` 和 `get_run_log`**：`list_runs` 列出定时任务的最近运行，`get_run_log` 读取一次运行的日志。`session_id` 从 `list_runs` 结果中指定要读取的运行，`cursor` 分页浏览任一操作的结果。两个操作都需要 Claude Code v2.1.227 或更高版本。
 
-此工具仅在会话使用启用了 Routines 的计划的 claude.ai 账户进行身份验证时可用，当您的组织的策略禁用[云端会话](/docs/zh-CN/claude-code-on-the-web)时不存在。在 Claude Code v2.1.227 或更高版本上，当所有者[为组织关闭 Routines](/docs/zh-CN/routines#routines-are-disabled-by-your-organizations-policy) 时，该工具也不存在。在 v2.1.227 之前，仅关闭 Routines 开关的会话仍然显示该工具，服务器拒绝其调用。
+此工具仅在会话使用启用了云端定时任务的计划的 claude.ai 账户进行身份验证时可用。当您的组织的策略禁用[云端会话](/docs/zh-CN/claude-code-on-the-web)时，该工具不存在。在 Claude Code v2.1.227 或更高版本上，当所有者[为组织关闭定时任务](/docs/zh-CN/routines#routines-are-disabled-by-your-organizations-policy)时，该工具也不存在。
 
 <h3 id="pushnotification">
   PushNotification

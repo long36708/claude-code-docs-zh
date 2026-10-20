@@ -340,7 +340,9 @@ claude -p "Run the test suite and fix any failures" \
 要为整个会话设置基线而不是列出单个工具，请使用 `--permission-mode` 传递 [权限模式](/docs/zh-CN/permission-modes)，例如 `auto`、`dontAsk` 或 `acceptEdits`：
 
 * **`auto`**：传递 `--permission-mode auto` 以让分类器代替您审查大多数操作
-* **`dontAsk`**：Claude Code 拒绝每个原本会提示的调用，这对于锁定的 CI 运行很有用。在 Manual 模式下无需批准的操作仍会运行，例如工作目录中的文件读取和 [只读命令集](/docs/zh-CN/permissions#read-only-commands)，您的 `--allowedTools` 条目或 `permissions.allow` 规则涵盖的操作也是如此。`AskUserQuestion`、[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及 [从网络路径读取](/docs/zh-CN/permissions#network-paths) 即使在允许规则匹配时也会被拒绝
+* **`dontAsk`**：Claude Code 拒绝每个原本会提示的调用，这对于锁定的 CI 运行很有用，但您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍然可以批准其中某些调用。要查看 mod 可以批准哪些调用，请参阅 [使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+
+  在 Manual 模式下无需批准的操作仍会运行，例如工作目录中的文件读取和 [只读命令集](/docs/zh-CN/permissions#read-only-commands)。您的 `--allowedTools` 条目或 `permissions.allow` 规则涵盖的操作也会运行。`AskUserQuestion`、[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及 [从网络路径读取](/docs/zh-CN/permissions#network-paths) 即使在允许规则匹配时也会被拒绝
 * **`acceptEdits`**：Claude 写入文件而无需提示，Claude Code 自动批准常见的文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp`。[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) 仍然适用。除了只读命令集，其他 shell 命令和网络请求仍然需要 `--allowedTools` 条目或 `permissions.allow` 规则。有关完整列表，请参阅 [`acceptEdits` 自动批准的内容](/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)
 
 此示例使用 `acceptEdits` 作为基线应用 lint 修复：

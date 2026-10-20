@@ -28,7 +28,7 @@ Claude Code 有五种方式可以同时处理多个任务：[子代理](/docs/zh
 
 * [后台 bash 命令](/docs/zh-CN/interactive-mode#background-bash-commands) 运行一个 shell 命令而不阻止对话。它不会生成代理。
 * [分叉子代理](/docs/zh-CN/sub-agents#fork-the-current-conversation) 是一个继承您完整对话上下文而不是从头开始的子代理。它是生成子代理的一种方式，不是一个单独的界面。使用 `/subtask` 启动一个。Claude 也会在 [fork mode](/docs/zh-CN/sub-agents#turn-fork-mode-on-or-off) 打开时自己生成一个。要将整个会话复制到一个新的 [后台会话](/docs/zh-CN/agent-view#from-inside-a-session) 中，该会话与其并行运行，请使用 `/fork`。当 [agent view 关闭](/docs/zh-CN/agent-view#turn-off-agent-view) 时，分叉子代理命令是 `/fork` 而不是 `/subtask` 不可用。
-* [routine](/docs/zh-CN/routines) 在云中按计划运行会话，而不是在您的机器上并行运行。
+* [云端定时任务](/docs/zh-CN/routines) 在云中按计划运行会话，而不是在您的机器上并行运行。
 
 <Note>
   同时运行多个会话或子代理会增加令牌使用量。有关使用情况和速率限制详情，请参阅 [Costs](/docs/zh-CN/costs)。

@@ -36,7 +36,7 @@ Claude Code 通过多个 API 提供商之一连接到 Claude。您的选择会�
 | Google Cloud's Agent Platform | 您希望继承现有的 GCP 合规控制和计费 |
 | Microsoft Foundry | 您希望继承现有的 Azure 合规控制和计费 |
 
-某些 Claude Code 功能需要 claude.ai 账户。[Cloud sessions](/docs/zh-CN/claude-code-on-the-web)、[Routines](/docs/zh-CN/routines)、[Code Review](/docs/zh-CN/code-review)、[Remote Control](/docs/zh-CN/remote-control) 和 [Chrome extension](/docs/zh-CN/chrome) 不能仅通过 Console API 密钥或云提供商凭证使用。如果您通过 Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 部署，请计划开发人员是否还需要 Claude for Teams 或 Enterprise 座位。每个功能页面都列出了其计划要求。
+某些 Claude Code 功能需要 claude.ai 账户。[云端会话](/docs/zh-CN/claude-code-on-the-web)、[云端定时任务](/docs/zh-CN/routines)、[Code Review](/docs/zh-CN/code-review)、[Remote Control](/docs/zh-CN/remote-control) 和 [Chrome 扩展](/docs/zh-CN/chrome) 不能仅通过 Console API 密钥或云提供商凭据使用。如果您通过 Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 部署，请计划开发人员是否还需要 Claude for Teams 或 Enterprise 座位。每个功能页面都列出了其套餐要求。
 
 有关涵盖身份验证、区域和功能奇偶性的完整提供商比较，请参阅 [enterprise deployment overview](/docs/zh-CN/third-party-integrations)。每个提供商的身份验证设置在 [Authentication](/docs/zh-CN/authentication) 中。
 

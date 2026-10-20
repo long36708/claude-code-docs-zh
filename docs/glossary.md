@@ -138,7 +138,9 @@ Claude Code 读取项目范围配置的目录：settings、hooks、skills、suba
   Cloud session
 </h3>
 
-一个 Claude Code 会话，在您关闭笔记本电脑后继续运行，因为它在云基础设施上运行而不是在您的机器上：默认由 Anthropic 管理，或由您的组织运营的[自托管环境](/docs/zh-CN/self-hosted-environments)。您可以从 claude.ai/code、Claude 移动应用、选择了**Cloud**的 Desktop 应用、`claude --cloud` 或[例程](/docs/zh-CN/routines)启动一个。在您的终端、IDE 或选择了**Local**的 Desktop 应用中的会话是本地会话；要从另一台设备访问本地会话，请使用[远程控制](#remote-control)。
+一个 Claude Code 会话，在您关闭笔记本电脑后继续运行，因为它在云基础设施上运行而不是在您的机器上。该基础设施默认由 Anthropic 管理，也可以是您的组织运营的[自托管环境](/docs/zh-CN/self-hosted-environments)。您可以从 claude.ai/code、Claude 移动应用、选择了 **Cloud** 的 Desktop 应用、`claude --cloud` 或[云端定时任务](/docs/zh-CN/routines)启动一个云端会话。
+
+在您的终端、IDE 或选择了 **Local** 的 Desktop 应用中的会话是本地会话；要从另一台设备访问本地会话，请使用 [Remote Control](#remote-control)。
 
 了解更多：[Use Claude Code in the cloud](/docs/zh-CN/claude-code-on-the-web)
 

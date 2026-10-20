@@ -33,7 +33,7 @@
 * **比一个会话更大的构建或迁移**："构建 `docs/spec.md` 描述的内容"或"将应用从已弃用的 ORM 迁移出去。"工作分成线程，每个处理一部分，您要求 Claude 记住的早期决定会到达后续线程，您在构建期间发现的规范更改和错误进入同一对话。
 * **非代码工作**：一个合同文件夹或支持工单导出，您不断回来提出新问题，例如"在这些工单中找到十个最常见的集成错误。"上传文档而不是添加代码库，线程将每个写作作为文件提交到项目的[**Library** 标签页](#see-what-needs-you-in-overview)。
 
-在任何情况下，您都可以发送一批任务，告诉 Claude 开始而不要求您确认，离开，并在您回来时在[**Waiting on you**](#see-what-needs-you-in-overview)下找到需要您的线程，或要求 Claude 将部分工作放在[例程](/docs/zh-CN/routines)的时间表上。如果这是您的情况，[创建项目](#create-a-project)。
+在任何情况下，您都可以发送一批任务，告诉 Claude 直接开始而无需您确认，然后离开。回来后，您可以在[**Waiting on you**](#see-what-needs-you-in-overview)下找到需要您处理的线程。您还可以要求 Claude 将部分工作作为[云端定时任务](/docs/zh-CN/routines)按计划运行。如果您属于其中一种情况，请[创建项目](#create-a-project)。
 
 <h3 id="when-something-else-fits-better">
   何时其他方式更合适
@@ -43,7 +43,7 @@
 
 * **一个适合在一个会话中完成的任务**："修复不稳定的登录测试。"自己启动一个[云会话](/docs/zh-CN/claude-code-on-the-web)。
 * **每个任务都需要您的机器的工作**：本地数据库、设备模拟器或 VPN 后面的 API。使用本地会话，或[代理视图](/docs/zh-CN/agent-view)同时运行多个。如果工作只需要本地文件，请将它们上传到项目。
-* **一个按时间表重复的任务，周围没有对话**："每周一发布依赖报告。"在其自身上创建一个[例程](/docs/zh-CN/routines)。
+* **一个按时间表重复的任务，周围没有对话**："每周一发布依赖报告。"单独创建一个[云端定时任务](/docs/zh-CN/routines)。
 * **多个人在 Slack 频道中给 Claude 工作并一起引导它**：请参阅 [Claude Tag](https://claude.com/docs/claude-tag/overview)。
 
 项目使用与您其他 Claude Code 会话相同的计划限制，并更快地使用它们。[使用和成本](#usage-and-cost)涵盖了什么使用您的计划以及如何降低成本。
@@ -61,7 +61,7 @@
   * `CLAUDE.md` 和[项目每个仓库](#what-threads-pick-up-from-your-repositories)中的 skill，以及在只有一个仓库的项目中，该仓库的权限规则和 hook
   * 您 claude.ai 账户上的[连接器](#get-skills-plugins-connectors-and-tools-into-threads)
   * 一个[云环境](#choose-an-environment-for-threads)，设置其网络访问、环境变量、网络密钥和已安装的工具
-* **Overview 窗格**：您在其中[一次看到所有线程](#see-what-needs-you-in-overview)以及哪些需要您。其他标签页是 **Library**（用于您添加的文件和线程生成的文件）、**Pull requests**（用于线程打开的拉取请求）和 **Routines**（用于项目中的计划工作）。
+* **Overview 窗格**：您在其中[一次看到所有线程](#see-what-needs-you-in-overview)以及哪些需要您。其他标签页是 **Library**（用于您添加的文件和线程生成的文件）、**Pull requests**（用于线程打开的拉取请求）和 **Scheduled tasks**（用于项目中的定时工作）。
 
 云线程不会从您自己机器上的 Claude Code 设置中获取任何内容。[将 skills、plugins、连接器和工具放入线程](#get-skills-plugins-connectors-and-tools-into-threads)涵盖了如何为它们提供它们可能缺少的内容。
 
@@ -120,8 +120,8 @@
 
     在您的第一个项目上，除非您先发送消息，否则 Claude 在项目创建后会自己进行一轮。该轮使用您的计划。在其中，Claude 可能会：
 
-    * 启动一个线程来探索代码库而不改变任何内容，并提议后续步骤，如果项目有它可以读取的代码库。
-    * 发布从您最近的云会话中提取的 **Setup recommendations**：要添加的代码库、要创建的例程和它可以启动的线程。每个推荐的代码库和例程都默认打开。关闭您不想要的，然后点击 **Update setup** 添加其余的，或忽略建议并自己描述工作。
+    * 如果项目有它可以读取的仓库，启动一个线程来探索该仓库而不更改任何内容，并提议后续步骤。
+    * 发布从您最近的云端会话中提取的 **Setup recommendations**：要添加的仓库、要创建的定时任务和它可以启动的线程。每个推荐的仓库和定时任务都默认打开。关闭您不想要的，然后点击 **Update setup** 添加其余的，或忽略建议并自己描述工作。
   </Step>
 </Steps>
 
@@ -230,7 +230,11 @@ Claude 决定你在对话中发送的每条消息的去向：
 | **空闲** | 已完成且不等待任何内容的线程 |
 | **已解决** | 标记为完成的线程：由你从线程的菜单标记，由 Claude 在你采取最后一步（例如合并其拉取请求）后标记，或在一周无活动后自动标记。你可以从同一菜单重新打开一个 |
 
-窗格的其他选项卡是**库**（用于你添加的文件和文件夹以及线程生成的文件）、**拉取请求**（一旦线程打开任何）和**例程**（用于 Claude 从此项目设置的[例程](/docs/zh-CN/routines)）。
+窗格的其他选项卡包括：
+
+* **库**：您添加的文件和文件夹，以及线程生成的文件
+* **Pull Request**：在线程创建了 Pull Request 后显示
+* **定时任务**：Claude 从此项目设置的[云端定时任务](/docs/zh-CN/routines)
 
 <h3 id="open-a-thread-when-you-need-control">
   当你需要控制时打开线程
@@ -447,9 +451,9 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 所有三个控件都在 **Project settings > General** 的底部：
 
-* **Pause**：一次停止所有东西。每个运行的线程和对话都被中断，没有新线程启动，例程不运行，项目不接受消息，直到您恢复它。点击同一地方或项目消息框上方的横幅中的 **Resume**；暂停的线程在您之后向其发送消息时继续。
-* **Archive**：从侧边栏隐藏项目并存档其线程，这停止任何正在运行或监视拉取请求的线程。项目中的例程在存档时不运行。要恢复项目，请从 Projects 页面打开它并点击 **Unarchive**。其线程保持存档，直到您从会话列表中单独取消存档它们。
-* **Delete**：永久删除项目及其线程、其记忆和其文件，并关闭项目的例程。这无法撤销。线程推送到 GitHub 的分支和拉取请求不受影响。
+* **Pause**：一次停止所有东西。每个运行的线程和对话都被中断，没有新线程启动，定时任务不运行，项目不接受消息，直到您恢复它。点击同一地方或项目消息框上方的横幅中的 **Resume**；暂停的线程在您之后向其发送消息时继续。
+* **Archive**：从侧边栏隐藏项目并存档其线程，这会停止任何正在运行或监视 Pull Request 的线程。项目中的定时任务在其存档期间不运行。要恢复项目，请从 Projects 页面打开它并点击 **Unarchive**。其线程保持存档，直到您从会话列表中单独取消存档它们。
+* **Delete**：永久删除项目及其线程、其记忆和其文件，并关闭项目的定时任务。这无法撤销。线程推送到 GitHub 的分支和 Pull Request 不受影响。
 
 <h2 id="usage-and-cost">
   使用和成本
@@ -491,7 +495,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 * **Claude Tag**：[Claude Tag](https://claude.com/docs/claude-tag/overview) 是您团队 Slack 频道中的 Claude，在 Team 和 Enterprise 计划上。频道中的任何人都可以给它工作，频道中的每个人都看到并引导它，它使用管理员为该频道设置的连接。项目是您的：您是唯一给它工作或看到其线程的人，它使用您自己的 GitHub 访问和连接器，它在 Pro 和 Max 上。[Claude Tag 与 Cowork 和 Claude Code 的不同之处](https://claude.com/docs/claude-tag/concepts/how-it-works#how-claude-tag-differs-from-cowork-and-claude-code)有并排比较。
 * **云会话**：每个线程都是一个[云会话](/docs/zh-CN/claude-code-on-the-web)，除非您要求 Claude 在您的机器上运行它。无论哪种方式，Claude 启动和跟踪它而不是您。您自己启动的云会话可以通过[**Continue as project** 或 **Move to project**](#start-from-an-existing-cloud-session)成为项目或提供一个。
-* **例程**：当您在项目中要求计划工作时，Claude 创建一个[例程](/docs/zh-CN/routines)，作为该项目中的线程运行，并出现在其 **Routines** 标签页上。您在项目外创建的例程继续自己工作。
+* **定时任务**：当您在项目中请求定时工作时，Claude 会创建一个[云端定时任务](/docs/zh-CN/routines)，它作为该项目中的线程运行，并显示在项目的 **Scheduled tasks** 标签页上。您在项目之外创建的定时任务会继续独立运行。
 * **Remote Control**：[Remote Control](/docs/zh-CN/remote-control) 连接 claude.ai 到在您的机器上运行的 Claude Code 会话。当您在项目中要求 Claude 在您的计算机上运行线程时，项目[使用 Remote Control 来执行](#run-a-thread-on-your-own-computer)。
 * **本地会话和代理视图**：您在终端、IDE 或桌面应用的本地环境中启动的会话不能添加到项目中。[代理视图](/docs/zh-CN/agent-view)是用于跟踪多个本地会话并排的屏幕，您仍然启动每个会话并自己给它分配任务。
 * **Worktrees**：一个 [worktree](/docs/zh-CN/worktrees) 为每个本地会话提供其自己的仓库工作副本。云线程不需要它们：每个线程将其仓库克隆到其自己的云沙箱中，并在其自己的分支上工作。
@@ -556,9 +560,9 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
   线程达到使用限制
 </h3>
 
-当线程或项目对话达到您计划的五小时或每周限制时，它自己保持重试并在限制重置时继续。在它等待时，线程显示 **Service is busy**，带有"Claude is still retrying and will continue automatically."。您不需要做任何事情工作就能继续。如果您宁愿它不使用您的下一个使用窗口，请点击线程中的 **Stop**，或[暂停项目](#pause-archive-or-delete-a-project)以暂停每个线程。例程启动的线程不等待：其轮停止，带有限制错误，您在限制重置后向其发送消息。
+当线程或项目对话达到您套餐的五小时或每周限制时，它会自动持续重试，并在限制重置后继续。由定时任务启动的线程不会等待：其轮次会因限制错误而停止，您需要在限制重置后向其发送消息。
 
-[使用限制错误](/docs/zh-CN/errors#youve-hit-your-session-limit)解释了限制以及何时重置。
+线程等待期间，会显示 **Service is busy** 以及"Claude is still retrying and will continue automatically."。您无需执行任何操作，工作即可继续。如果您不希望它占用您的下一个用量窗口，请点击线程中的 **Stop**，或[暂停项目](#pause-archive-or-delete-a-project)以暂停所有线程。[用量限制错误](/docs/zh-CN/errors#youve-hit-your-session-limit)解释了这些限制及其重置时间。
 
 <h3 id="additional-usage-credits-are-required">
   需要额外的使用信用
@@ -596,6 +600,6 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 
 * [在云中使用 Claude Code](/docs/zh-CN/claude-code-on-the-web)：每个云线程背后的云会话如何工作，包括 GitHub 访问选项和拉取请求上的自动修复
 * [配置云环境](/docs/zh-CN/cloud-environments)：更改云线程可以在网络上到达什么，为它们提供环境变量和网络密钥，并使用设置脚本安装工具
-* [使用例程自动化工作](/docs/zh-CN/routines)：例程的时间表、触发器和管理，包括 Claude 从项目创建的那些
+* [使用定时任务自动化工作](/docs/zh-CN/routines)：定时任务的时间表、触发器和管理，包括 Claude 从项目创建的那些
 * [使用代理视图管理多个代理](/docs/zh-CN/agent-view)：当工作需要仅您的机器可以到达的工具或服务时，在您自己的机器上运行和跟踪多个会话
 * [Projects redesigned: from folder to conversation](https://claude.com/blog/projects-redesigned)：发布公告，带有使项目成为与 Claude 对话的思考

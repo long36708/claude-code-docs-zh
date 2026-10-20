@@ -2,157 +2,188 @@
 > Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
 > Use this file to discover all available pages before exploring further.
 
-# 使用例程自动化工作
+# 使用定时任务自动化工作
 
-> 让 Claude Code 自动运行。定义在计划上运行、通过 API 调用触发或对来自云基础设施的 GitHub 事件做出反应的例程。
+> 让 Claude Code 自动运行。创建定时任务（原名 Routine），使其在云端按计划、通过 API 调用或响应 GitHub 事件运行。
 
 <Note>
-  Routines 处于研究预览阶段。行为、限制和 API 表面可能会改变。
+  定时任务目前为研究预览版。其行为、限制和 API 接口可能会发生变化。
 </Note>
 
-例程是一个保存的 Claude Code 配置：一个提示、一个或多个存储库和一组 [connectors](/docs/zh-CN/mcp)，打包一次并自动运行。例程在 Anthropic 管理的云基础设施上执行，或在您的组织的 [自托管环境](/docs/zh-CN/self-hosted-environments) 上执行（当路由到那里时），因此当您的笔记本电脑关闭时它们仍然可以工作。
+云端定时任务（原名 Routine）是一个已保存的 Claude Code 配置：包含一个提示词、一个或多个仓库以及一组[连接器](/docs/zh-CN/mcp)，一次打包后即可自动运行。定时任务在 Anthropic 管理的云基础设施上执行，或在路由到您组织的[自托管环境](/docs/zh-CN/self-hosted-environments)时在该环境中执行，因此即使您的笔记本电脑已合上，它们也能继续工作。
 
-每个例程可以附加一个或多个触发器：
+每个定时任务可以附加一个或多个触发器：
 
-* **Scheduled**：按照每小时、每晚或每周等定期节奏运行，或在特定的未来时间运行一次
-* **API**：通过向每个例程端点发送带有持有者令牌的 HTTP POST 来按需触发
-* **GitHub**：自动响应存储库事件（如拉取请求或发布）运行
+* **Schedule**：按照每小时、每晚或每周等定期节奏运行，或在未来某个特定时间运行一次
+* **API**：通过向该任务专属的端点发送带有 Bearer 令牌的 HTTP POST 请求来按需触发
+* **GitHub**：自动响应 Pull Request 或发布等仓库事件而运行
 
-单个例程可以组合触发器。例如，PR 审查例程可以每晚运行、从部署脚本触发，也可以对每个新 PR 做出反应。
+单个定时任务可以组合多个触发器。例如，一个 PR 审查任务可以每晚运行、从部署脚本触发，同时还对每个新 PR 做出响应。
 
-Routines 在 Pro、Max、Team 和 Enterprise 计划上可用。在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理它们，或从 CLI 使用 `/schedule`。
+定时任务不一定需要计划：
 
-Team 和 Enterprise 所有者可以在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 处使用 Routines 切换为所有成员禁用例程。禁用后，现有例程停止运行，成员无法创建新例程。
+* 仅有 API 触发器的任务会在您调用其端点时运行。
+* 仅有 GitHub 触发器的任务会在发生匹配的仓库事件时运行。
 
-本页涵盖创建例程、配置每种触发器类型、管理运行以及使用限制如何应用。
+定时任务适用于 Pro、Max、Team 和 Enterprise 套餐。您可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理它们，也可以在 CLI 中使用 `/schedule`。旧名称 Routine [仍会出现](#where-the-name-routines-still-appears)在网址、CLI 和 API 中。
+
+<Note>
+  另有两项功能会在您的计算机上而非云端安排工作：[Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks)和 [`/loop`](/docs/zh-CN/scheduled-tasks)。要在这三者之间进行选择，请参阅[比较调度选项](/docs/zh-CN/scheduled-tasks#compare-scheduling-options)。
+</Note>
+
+Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 中的 **Scheduled tasks (Was Routines)** 开关为所有成员关闭定时任务。关闭该开关后，现有定时任务将停止运行，成员也无法创建新的定时任务。
 
 <h2 id="example-use-cases">
   示例用例
 </h2>
 
-每个示例将触发器类型与例程适合的工作类型配对：无人值守、可重复且与明确的结果相关。
+每个示例都将一种触发器类型与适合定时任务的工作类型相匹配：无人值守、可重复且有明确结果。
 
-**积压维护。** 计划触发器每个工作日晚上针对您的问题跟踪器通过 connector 运行。例程读取自上次运行以来打开的问题，应用标签，根据引用的代码区域分配所有者，并将摘要发布到 Slack，以便团队以整理好的队列开始新的一天。
+* **积压工作维护**：一个计划触发器每个工作日晚上在您的仓库中运行，并将您的问题跟踪器添加为连接器。定时任务读取自上次运行以来新开的问题，添加标签，并根据所引用的代码区域分配负责人。然后它会将摘要发布到 Slack，让团队以整理好的队列开始新的一天。
+* **警报分诊**：当错误超过阈值时，您的监控工具会调用定时任务的 API 端点，并将警报正文作为 `text` 传入。任务的提示词指示 Claude 调查触发负载中的警报，因此它会提取堆栈跟踪，并将其与仓库中的最近提交相关联。然后它会打开一个草稿 Pull Request，其中包含建议的修复方案和指回该警报的链接。值班人员只需审查该 PR，而不必从空白终端开始。
+* **定制代码审查**：一个 GitHub 触发器在 `pull_request.opened` 时运行。定时任务应用您团队自己的审查清单，并针对安全、性能和风格问题留下行内评论。它还会添加一条摘要评论，让人工审查者可以专注于设计，而不是机械性检查。
+* **部署验证**：您的 CD 流水线在每次生产部署后调用定时任务的 API 端点。任务针对新构建运行冒烟检查，扫描错误日志以查找回归问题，并在部署窗口关闭前向发布频道发布可行或不可行的结论。
+* **文档偏差检查**：一个计划触发器每周运行。定时任务扫描自上次运行以来合并的 PR，标记引用了已更改 API 的文档，并针对文档仓库打开更新 PR 供编辑审查。
+* **库移植**：一个 GitHub 触发器在 `pull_request.closed` 时运行，并筛选为某个 SDK 仓库中已合并的 PR。定时任务将该更改移植到另一种语言的对应 SDK 中并打开一个相应的 PR，使两个库保持同步，而无需人工重新实现每项更改。
 
-**警报分类。** 您的监控工具在错误阈值被超过时调用例程的 API 端点，将警报正文作为 `text` 传递。例程的提示告诉 Claude 调查火警有效负载中的警报，因此它提取堆栈跟踪，将其与存储库中的最近提交相关联，并打开一个包含建议修复和返回警报链接的草稿拉取请求。值班人员审查 PR 而不是从空白终端开始。
+<span id="create-a-routine" />
 
-**定制代码审查。** GitHub 触发器在 `pull_request.opened` 上运行。例程应用您团队自己的审查清单，为安全性、性能和风格问题留下内联注释，并添加摘要注释，以便人工审查者可以专注于设计而不是机械检查。
-
-**部署验证。** 您的 CD 管道在每次生产部署后调用例程的 API 端点。例程针对新构建运行烟雾测试，扫描错误日志以查找回归，并在部署窗口关闭之前向发布频道发布 go 或 no-go。
-
-**文档漂移。** 计划触发器每周运行。例程扫描自上次运行以来合并的 PR，标记引用已更改 API 的文档，并针对文档存储库打开更新 PR 供编辑审查。
-
-**库移植。** GitHub 触发器在 `pull_request.closed` 上运行，筛选为一个 SDK 存储库中的合并 PR。例程将更改移植到另一种语言的并行 SDK，并打开匹配的 PR，使两个库保持同步，而无需人工重新实现每个更改。
-
-<h2 id="create-a-routine">
-  创建例程
+<h2 id="create-a-scheduled-task">
+  创建定时任务
 </h2>
 
-从 Web 在 [claude.ai/code/routines](https://claude.ai/code/routines)、从 Desktop 应用或从 CLI 创建例程。所有三个界面都写入同一个云账户，因此您在其中一个创建的例程会立即显示在其他界面中。在 Desktop 应用的 **Code** 标签页中，单击侧边栏中的 **Routines** 或侧边栏的 **More** 菜单中的 **Routines**，然后单击 **New routine**，并选择 **Cloud**；选择 **Local** 会创建一个 [Desktop scheduled task](/docs/zh-CN/desktop-scheduled-tasks)，它在您的机器上运行，而不是在云中运行。
+您可以在 Web 端的 [claude.ai/code/routines](https://claude.ai/code/routines)、Desktop 应用或 CLI 中创建定时任务。这三个使用入口都写入同一个云端账户，因此您在其中一处创建的定时任务会立即显示在其他位置。在 Desktop 应用的 **Code** 标签页中，点击侧边栏中或侧边栏 **More** 菜单中的 **Scheduled**，然后点击 **New task**，并继续按照[从 Web 创建](#create-from-the-web)进行操作。
 
-创建表单设置例程的提示、存储库、环境、connectors 和触发器。
+定时任务作为完整的 Claude Code 云端会话自主运行。您无需选择权限模式。会话会运行 shell 命令、使用提交到所克隆仓库中的 [skill](/docs/zh-CN/skills)，并调用您包含的任何连接器，所有这些都无需停下来等待批准，某些 [Artifact 操作](#when-a-run-publishes-an-artifact-without-asking)除外。
 
-Routine 作为完整的 Claude Code 云端会话自主运行：没有权限模式选择器，会话会运行 shell 命令、使用提交到克隆仓库中的 [skill](/docs/zh-CN/skills)，并调用您包含的任何连接器，所有这些都无需停下来等待批准，某些 [Artifact 操作](#when-a-run-publishes-an-artifact-without-asking)除外。
+定时任务可以访问的内容由以下各项决定：
 
-例程可以到达的内容由您选择的存储库、[environment](/docs/zh-CN/cloud-environments) 的网络访问和变量以及您包含的 connectors 决定。将每个范围限制在例程实际需要的范围内。
+* 您选择的仓库
+* [环境](/docs/zh-CN/cloud-environments)的网络访问和变量
+* 您包含的连接器
 
-Routines 属于您的个人 claude.ai 账户。它们不与队友共享，并且其运行计入您账户的 [usage and limits](#usage-and-limits)。例程通过您连接的 GitHub 身份或 connectors 所做的任何事情都显示为您：提交和拉取请求携带您的 GitHub 用户，Slack 消息、Linear 票证或其他 connector 操作使用您为这些服务链接的账户。
+请将每一项的范围限定在任务所需的内容之内。
+
+定时任务属于您的个人 claude.ai 账户。它们不会与队友共享，其运行计入您账户的[用量和限制](#usage-and-limits)。定时任务通过您已连接的 GitHub 身份或连接器执行的任何操作都会显示为由您执行。提交和 Pull Request 会带有您的 GitHub 用户，Slack 消息、Linear 工单或其他连接器操作会使用您为这些服务关联的账户。
 
 <h3 id="create-from-the-web">
   从 Web 创建
 </h3>
 
 <Steps>
-  <Step title="打开创建表单">
-    访问 [claude.ai/code/routines](https://claude.ai/code/routines) 并单击 **New routine**。
+  <Step title="打开创建对话框">
+    访问 [claude.ai/code/routines](https://claude.ai/code/routines) 并点击 **New task**。如果先打开了一个菜单，请选择 **Set up manually**。随后会打开 **New scheduled task** 对话框。该菜单中的另一个选项 **Create with Claude** 允许您在聊天中描述任务，由 Claude 为您创建。
+
+    如果对话框打开时已显示 **Repositories** 和 **Environment**，请参阅[该对话框有何不同](#dialog-with-repositories-and-environment-in-the-main-view)。否则，此对话框也可用于创建 claude.ai 聊天的定时任务。要将您的任务设为对话框中所称的 Claude Code 任务，请在后续步骤中选择一个仓库，或添加 GitHub 事件触发器或 API 触发器。此类任务会在云端会话中运行 Claude Code。
   </Step>
 
-  <Step title="命名例程并编写提示">
-    给例程一个描述性名称并编写 Claude 每次运行的提示。提示是最重要的部分：例程自主运行，因此提示必须是自包含的，并明确说明要做什么以及成功是什么样的。
+  <Step title="命名任务并编写提示词">
+    为定时任务取一个描述性名称，并编写 Claude 每次运行的提示词。提示词是最重要的部分：任务是自主运行的，因此提示词必须是自包含的，并明确说明要做什么以及怎样算成功。在提示词输入框的模型选择器中选择一个模型。Claude 在每次运行时都会使用该模型。
 
-    当触发器触发时，会话会收到例程的已保存提示作为其分配的任务并执行它，而不是将其视为在对话中途到达的不受信任的内容。触发器仅证明提示是由您账户上的授权会话提前存储的，因此触发的提示不是实时用户输入，无法充当运行期间操作的批准或同意。会话在运行期间获取的内容保持其正常处理。在 v2.1.213 之前，会话收到的相同提示被框架化为不受信任的后台通知，可能拒绝对其采取行动。
-
-    提示输入包括一个模型选择器。Claude 在每次运行时使用选定的模型。
-  </Step>
-
-  <Step title="选择仓库">
-    添加一个或多个供 Claude 在其中工作的 GitHub 仓库。每个仓库都会在运行开始时被克隆。Claude 会为其更改创建带有 `claude/` 前缀的分支。
-  </Step>
-
-  <Step title="选择环境">
-    为例程选择一个 [cloud environment](/docs/zh-CN/cloud-environments)。环境控制云会话可以访问的内容：
-
-    * **Network access**：设置每次运行期间可用的互联网访问级别
-    * **Environment variables**：提供 Claude 在每次运行期间可以使用的值。它们[对使用该环境的任何人都可见](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)，因此在 Anthropic 托管的环境中，请改为将 Claude 在运行期间调用的 API 的密钥存储为[网络密钥](/docs/zh-CN/cloud-environments#add-network-secrets)。该部分还列出了永远不会获得密钥的请求
-    * **Setup script**：安装例程需要的依赖项和工具。结果是 [cached](/docs/zh-CN/cloud-environments#environment-caching)，因此脚本不会在每个会话上重新运行
-
-    提供了一个 **Default** 环境，具有 **Trusted** 网络访问，允许仅通过会话网络的 [default allowlist](/docs/zh-CN/cloud-environments#default-allowed-domains) 的包注册表、云提供商 API、容器注册表和常见开发域。您添加到例程的 Connectors 通过 Anthropic 的服务器到达其服务，因此不需要更改允许列表。如果您的例程需要直接到达您自己的服务或该列表之外的域，请在运行前编辑环境的 [network access](/docs/zh-CN/cloud-environments#network-access)。要使用单独的环境，请先 [create one](/docs/zh-CN/cloud-environments#configure-your-environment)。
+    当触发器触发时，会话会将已保存的提示词作为其分配的任务接收并执行，而不是将其视为在对话中途到达的不受信任内容。触发器仅证明该提示词是由您账户上的授权会话预先存储的。因此，触发的提示词不是实时用户输入，不能充当运行期间操作的批准或同意。会话在运行期间获取的内容仍按正常方式处理。
   </Step>
 
   <Step title="选择触发器">
-    在 **Select a trigger** 下，选择例程如何启动。您可以选择一种触发器类型或组合多种。
+    在 **Trigger** 行中，选择任务的启动方式。要组合多个触发器，请点击该行末尾的 **+**。
 
     <Tabs>
       <Tab title="Schedule">
-        为定期运行选择预设频率，或在特定时间戳安排单次一次性运行。有关时区处理、交错、自定义 cron 间隔和一次性运行，请参阅 [Add a schedule trigger](#add-a-schedule-trigger)。
+        为定期运行选择一个预设频率。有关时区处理、延迟启动、自定义 cron 间隔和一次性运行，请参阅[添加计划触发器](#add-a-schedule-trigger)。
       </Tab>
 
       <Tab title="GitHub event">
-        选择存储库、要响应的事件和可选过滤器。有关支持的事件和过滤器字段的完整列表，请参阅 [Add a GitHub trigger](#add-a-github-trigger)。
+        选择仓库、要响应的事件以及可选的筛选条件。有关支持的事件和筛选字段的完整列表，请参阅[添加 GitHub 触发器](#add-a-github-trigger)。
       </Tab>
 
       <Tab title="API">
-        在此处选择 **API**，然后保存例程。URL 和令牌在保存例程后生成，因为它们取决于例程 ID。请参阅 [Add an API trigger](#add-an-api-trigger) 以复制 URL 并生成令牌。
+        在此处选择 **API**。当您点击 **Create** 时，**API token** 对话框会显示一次令牌，因此请在关闭对话框之前复制它。要复制 URL 或生成新令牌，请参阅[添加 API 触发器](#add-an-api-trigger)。
       </Tab>
     </Tabs>
   </Step>
 
-  <Step title="审查 connectors">
-    表单底部的 **Connectors** 下，默认包括您所有连接的 [MCP connectors](/docs/zh-CN/mcp)。删除例程不需要的任何内容：Claude 可以使用包含的 connector 中的每个工具，包括写入，无需在运行期间请求权限。
+  <Step title="选择仓库">
+    展开 **Advanced settings**。在 **General** 标签页的 **Repository** 下，选择一个或多个供 Claude 在其中工作的 GitHub 仓库。
+
+    每个仓库都会在运行开始时被克隆。Claude 会为其更改创建带有 `claude/` 前缀的分支。
   </Step>
 
-  <Step title="创建例程">
-    单击 **Create**。例程出现在列表中，并在下次其触发器之一匹配时运行。要立即启动运行，请在例程的详细信息页面上单击 **Run now**。
+  <Step title="选择环境">
+    选择仓库后，其下方会出现 **Cloud environment**。为任务选择一个[云环境](/docs/zh-CN/cloud-environments)。环境控制云端会话可以访问的内容：
 
-    每次运行都会在您的其他会话旁边创建一个新会话，您可以在其中查看 Claude 所做的工作、审查更改并创建拉取请求。
+    * **Network access**：设置每次运行期间可用的互联网访问级别
+    * **Environment variables**：提供 Claude 在每次运行期间可以使用的值。它们[对使用该环境的任何人都可见](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)，因此在 Anthropic 托管的环境中，请改为将 Claude 在运行期间调用的 API 的密钥存储为[网络密钥](/docs/zh-CN/cloud-environments#add-network-secrets)。该部分还列出了永远不会获得密钥的请求
+    * **Setup script**：安装任务所需的依赖和工具。结果会被[缓存](/docs/zh-CN/cloud-environments#environment-caching)，因此脚本不会在每个会话中重新运行
+
+    系统提供了一个 **Default** 环境，具有 **Trusted** 网络访问，仅允许[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)中的包注册表、云提供商 API、容器注册表和常见开发域名通过会话的网络。您添加到任务中的连接器通过 Anthropic 的服务器访问其服务，因此无需更改允许列表。
+
+    如果您的任务需要直接访问您自己的服务或该列表之外的域名，请在运行前编辑环境的[网络访问](/docs/zh-CN/cloud-environments#network-access)。要使用单独的环境，请先[创建一个](/docs/zh-CN/cloud-environments#configure-your-environment)。
+  </Step>
+
+  <Step title="检查连接器">
+    切换到 **Advanced settings** 的 **Connectors** 标签页。默认包含您所有已连接的 [MCP 连接器](/docs/zh-CN/mcp)。请移除任务不需要的连接器：Claude 可以使用所包含连接器中的每个工具（包括写入操作），且在运行期间不会请求权限。
+  </Step>
+
+  <Step title="创建任务">
+    点击 **Create**。对话框关闭后，新任务的详情页将打开。任务会在其某个触发器下次匹配时运行。要立即启动一次运行，请在详情页上点击 **Run now**。
+
+    每次运行都会在您的其他会话旁边创建一个新会话，您可以在其中查看 Claude 执行了哪些操作、审查更改并创建 Pull Request。
   </Step>
 </Steps>
+
+<h4 id="dialog-with-repositories-and-environment-in-the-main-view">
+  主视图中包含 Repositories 和 Environment 的对话框
+</h4>
+
+按照[从 Web 创建的步骤](#create-from-the-web)操作，并在对话框的主视图中（而不是在 **Advanced settings** 下）填写各个字段。此对话框仅创建 Claude Code 任务。
+
+请在添加 GitHub 事件触发器之前选择仓库，因为在选择仓库之前该触发器不可用。
 
 <h3 id="create-from-the-cli">
   从 CLI 创建
 </h3>
 
-在任何会话中运行 `/schedule` 以对话方式创建计划例程。您也可以直接传递描述，对于定期例程如 `/schedule daily PR review at 9am` 或一次性例程如 `/schedule clean up feature flag in one week`。Claude 会遍历 Web 表单收集的相同信息，然后将例程保存到您的账户。该命令也可在别名 `/routines` 下使用。
+在任意会话中运行 `/schedule`，即可通过对话方式创建定时任务。您也可以直接传入描述，例如定期任务 `/schedule daily PR review at 9am` 或一次性任务 `/schedule clean up feature flag in one week`。Claude 会逐步收集与 Web 对话框相同的信息，然后将任务保存到您的账户。该命令也可以通过别名 `/routines` 使用。
 
-成功启动看起来像一次对话：Claude 在保存前询问有关计划、存储库和提示的后续问题。如果 Claude 改为回复说您需要进行身份验证或无法连接到您的远程 claude.ai 账户，则未创建例程；请参阅 [Troubleshooting](#troubleshooting)。
+成功启动时看起来像一次对话：Claude 会在保存前询问有关计划、仓库和提示词的后续问题。如果 Claude 反而回复说您需要进行身份验证，或者无法连接到您的远程 claude.ai 账户，则表示未创建定时任务；请参阅[故障排除](#troubleshooting)。
 
-CLI 中的 `/schedule` 创建计划例程。要添加 API 触发器，请在 Web 上的 [claude.ai/code/routines](https://claude.ai/code/routines) 编辑例程。您可以从 Web 或从 CLI 添加 [GitHub trigger](#add-a-github-trigger)。CLI 路径需要 Claude Code v2.1.225 或更高版本。
+使用 `/schedule` 创建的任务带有计划触发器。您还可以添加其他类型的触发器：
 
-没有计划触发器的例程，例如仅由 API 调用或 GitHub 事件启动的例程，没有下次运行时间，当 Claude 保存或更新它时，CLI 不显示任何内容。在 v2.1.211 之前，CLI 为这些例程报告了第 1 年的下次运行时间。
+* **API 触发器**：在 Web 端的 [claude.ai/code/routines](https://claude.ai/code/routines) 编辑任务
+* **[GitHub 触发器](#add-a-github-trigger)**：在 Web 端编辑任务，或在 CLI 中询问 Claude。从 CLI 添加需要 Claude Code v2.1.225 或更高版本
+
+没有计划触发器的定时任务（例如仅由 API 调用或 GitHub 事件启动的任务）没有下次运行时间。当 Claude 保存或更新此类任务时，CLI 不会显示下次运行时间。在 v2.1.211 之前，CLI 会为这些任务报告一个位于公元 1 年的下次运行时间。
 
 <h2 id="configure-triggers">
   配置触发器
 </h2>
 
-当例程的触发器之一匹配时，例程启动。您可以将任何组合的计划、API 和 GitHub 触发器附加到同一例程，并随时从例程编辑表单的 **Select a trigger** 部分添加或删除它们。
+当定时任务的某个触发器匹配时，任务即会启动。您可以随时在任务[编辑对话框](#edit-and-control-scheduled-tasks)的 **Trigger** 行中添加或移除任务的触发器。
+
+当一个任务有两个或更多触发器时，每个触发器在该对话框中都有一个垃圾桶图标。要移除计划触发器或 GitHub 事件触发器，请点击其垃圾桶图标，然后点击 **Save changes**。要移除 API 触发器，请改为[删除其令牌](#add-an-api-trigger)。
 
 <h3 id="add-a-schedule-trigger">
   添加计划触发器
 </h3>
 
-计划触发器按定期节奏运行例程，或在特定的未来时间运行一次。在 **Select a trigger** 部分中选择预设频率：每小时、每天、工作日或每周。时间以您的本地时区输入并自动转换，因此例程在该挂钟时间运行，无论云基础设施位于何处。
+计划触发器按定期节奏运行任务，或在未来某个特定时间运行一次。在 Web 端任务的创建或编辑对话框中，选择一个预设频率，例如每小时、每天或每周：
 
-如果您在整点时刻（例如 9:00）安排运行，它可能会晚几分钟开始。要在接近计划时间时开始，请选择整点后的几分钟，例如 9:07。
-
-对于自定义间隔（如每两小时或每月的第一天），在表单中选择最接近的预设，然后在 CLI 中运行 `/schedule update` 以设置特定的 cron 表达式。最小间隔是一小时；运行频率更高的表达式被拒绝。
+* **时区**：时间以您的本地时区输入并自动转换，因此无论云基础设施位于何处，任务都会在该当地时间运行。
+* **整点运行**：如果您将运行安排在整点（例如 9:00），它可能会晚几分钟才开始。要在接近计划时间时开始，请选择整点后几分钟，例如 9:07。
+* **自定义间隔**：对于每两小时这样的自定义间隔，请在对话框中选择最接近的预设，然后在 CLI 中运行 `/schedule update` 以设置特定的 cron 表达式。最小间隔为一小时；运行频率更高的表达式会被拒绝。
 
 <h4 id="schedule-a-one-off-run">
-  计划一次性运行
+  安排一次性运行
 </h4>
 
-一次性计划在特定时间戳处触发例程一次。使用它来提醒自己本周晚些时候、在推出完成后打开清理 PR，或在上游更改到达时启动后续任务。例程触发后，它会自动禁用，Web UI 将其标记为 **Ran**。要再次运行它，请编辑例程并设置新的一次性时间。
+一次性计划会在特定时间戳运行任务一次。例如，您可以用它来：
 
-通过在 CLI 中自然语言描述时间来创建一次性运行。Claude 根据当前时间解析该短语并在保存前确认绝对时间戳。
+* 在本周晚些时候提醒自己
+* 在发布完成后打开一个清理 PR
+* 在上游更改发布后启动后续工作
+
+任务运行后，它会自行关闭，Web UI 会将其标记为 **Completed**。要再次运行它，请在 Web 端打开任务的编辑对话框（对于一次性任务，该对话框提供 **One-time** 选项），并设置新的时间。
+
+在 CLI 中用自然语言描述时间即可创建一次性运行。Claude 会根据当前时间解析该短语，并在保存前确认绝对时间戳。
 
 ```text theme={null}
 /schedule tomorrow at 9am, summarize yesterday's merged PRs
@@ -162,52 +193,56 @@ CLI 中的 `/schedule` 创建计划例程。要添加 API 触发器，请在 Web
 /schedule in 2 weeks, open a cleanup PR that removes the feature flag
 ```
 
-与定期计划相同的本地到 UTC 转换适用于一次性时间戳。
+与定期计划相同的本地时间到 UTC 的转换同样适用于一次性时间戳。
 
-一次性运行计入与其他计划运行相同的每小时限制。请参阅 [Usage and limits](#usage-and-limits) 了解详细信息。
+一次性运行与其他计划运行计入相同的每小时限制。详情请参阅[用量和限制](#usage-and-limits)。
 
 <h3 id="add-an-api-trigger">
   添加 API 触发器
 </h3>
 
-API 触发器为例程提供专用的 HTTP 端点。使用例程的持有者令牌 POST 到端点会启动新会话并返回会话 URL。使用此功能将 Claude Code 连接到警报系统、部署管道、内部工具或任何可以进行身份验证 HTTP 请求的地方。
+API 触发器为定时任务提供一个专用的 HTTP 端点。使用任务的 Bearer 令牌向该端点发送 POST 请求，会启动一个新会话并返回会话 URL。您可以借此将 Claude Code 接入警报系统、部署流水线、内部工具，或任何可以发出经过身份验证的 HTTP 请求的地方。
 
-API 触发器从 Web 添加到现有 Routine。CLI 目前无法创建、重新生成或删除令牌。
+您可以在 Web 端添加 API 触发器，既可以在[创建任务](#create-from-the-web)时添加，也可以稍后按照以下步骤添加。您无法在 CLI 中添加 API 触发器或管理其令牌。
 
 <Steps>
-  <Step title="打开例程进行编辑">
-    转到 [claude.ai/code/routines](https://claude.ai/code/routines)，单击您想通过 API 触发的例程，然后打开例程名称旁边的菜单并选择 **Edit**。
+  <Step title="打开任务进行编辑">
+    访问 [claude.ai/code/routines](https://claude.ai/code/routines)，点击您要通过 API 触发的定时任务，然后打开其名称旁边的菜单并选择 **Edit**。随后会打开 **Edit scheduled task** 对话框。
   </Step>
 
   <Step title="添加 API 触发器">
-    滚动到 **Instructions** 框下方的 **Select a trigger** 部分，单击 **Add another trigger**，然后选择 **API**。
+    在 **Trigger** 行中，点击 **+**，然后从打开的菜单中选择 **API**。随后会出现一个面板，显示此任务的 **Fire URL** 和 **Token**。
   </Step>
 
   <Step title="复制 URL 并生成令牌">
-    模态显示此例程的 URL 以及示例 curl 命令。复制 URL，然后单击 **Generate token** 并立即复制令牌。令牌仅显示一次，之后无法检索，因此请将其存储在安全的地方，如您的警报工具的密钥存储。
+    复制 **Fire URL**。点击 **Generate token**，然后立即从 **Token generated** 对话框中复制令牌。令牌仅显示一次，之后无法再次获取，因此请将其存储在安全的位置，例如您警报工具的密钥存储中。
+
+    生成令牌后，API 触发器即刻生效。您无需点击 **Save changes**，完成后直接关闭对话框即可。
   </Step>
 
   <Step title="调用端点">
-    POST 到 URL 时在 `Authorization: Bearer` 标头中发送令牌。下面的 [Trigger a routine](#trigger-a-routine) 部分显示了完整示例。
+    向该 URL 发送 POST 请求时，请在 `Authorization: Bearer` 标头中发送令牌。[触发定时任务](#trigger-a-scheduled-task)展示了一个完整示例。
   </Step>
 </Steps>
 
-每个 Routine 都有自己的令牌，仅限于触发该 Routine。要关闭 API 访问或轮换令牌，请返回同一模态：
+每个定时任务都有自己的令牌，仅限于触发该任务。要关闭 API 访问或轮换令牌，请再次[打开任务的 **Edit scheduled task** 对话框](#edit-and-control-scheduled-tasks)。这两个控件都位于 API 触发器面板中令牌的旁边，并会立即生效：
 
-* **关闭 API 访问**：单击 **Delete token**，即 **Regenerate** 旁边的垃圾桶图标
-* **轮换令牌**：单击 **Regenerate**
+* **关闭 API 访问**：点击 **Delete token**，即 **Regenerate** 旁边的垃圾桶图标。这会移除 API 触发器
+* **轮换令牌**：点击 **Regenerate**。之前的令牌会失效，**Token generated** 对话框会显示一次新令牌
 
-<h4 id="trigger-a-routine">
-  触发例程
+<span id="trigger-a-routine" />
+
+<h4 id="trigger-a-scheduled-task">
+  触发定时任务
 </h4>
 
-向 `/fire` 端点发送 POST 请求，在 `Authorization` 标头中包含持有者令牌。请求正文接受可选的 `text` 字段，用于运行特定的上下文，如警报正文或失败的日志，与其保存的提示一起传递给例程。该值是自由格式文本，不被解析：如果您发送 JSON 或其他结构化有效负载，例程会将其作为文字字符串接收。
+向 `/fire` 端点发送 POST 请求，并在 `Authorization` 标头中包含 Bearer 令牌。请求体接受一个可选的 `text` 字段，用于提供特定于本次运行的上下文（例如警报正文或失败日志），它会与任务已保存的提示词一起传递给任务。该值是自由格式文本，不会被解析：如果您发送 JSON 或其他结构化数据，任务会将其作为字面字符串接收。
 
-`text` 值不会作为裸消息到达例程。它到达时被包装在 `<routine-fire-payload>` 块中，该块将其标记为不受信任的数据，并告诉 Claude 不要遵循其中的指令，除非例程自己的提示说要这样做。相同的包装也适用于通过 Web UI 中的 **Run now** 提供的文本。
+`text` 值不会以裸消息的形式传递给 Routine。它会被包装在一个 `<routine-fire-payload>` 块中，该块将其标记为不受信任的数据，并告诉 Claude 不要遵循其中的指令，除非 Routine 自身的提示词要求这样做。在 Web UI 中通过 **Run now** 提供的文本也适用相同的包装。
 
-这意味着例程的保存提示必须选择对触发文本进行操作：编写提示以显式引用有效负载，例如"调查例程触发有效负载块中描述的警报"，否则例程将文本视为惯性上下文。任何持有持有者令牌的人都可以发送 `text`，因此包装使来自泄露令牌的触发文本到达时被标记为不受信任的数据，而不是作为对例程的直接指令。
+这意味着 Routine 的已保存提示词必须明确选择对触发文本采取行动：编写提示词时要显式引用该负载，例如"Investigate the alert described in the routine-fire-payload block"，否则 Routine 会将该文本视为惰性上下文。任何持有 Bearer 令牌的人都可以发送 `text`，因此该包装可确保来自泄露令牌的触发文本被标记为不受信任的数据，而不是作为对您 Routine 的直接指令。
 
-下面的示例从 shell 触发例程。显示的例程 ID 和令牌是占位符：将它们替换为您在 [添加 API 触发器](#add-an-api-trigger) 时复制的 URL 和令牌，否则请求将失败并显示 `401` 身份验证错误：
+以下示例从 shell 触发定时任务。其中显示的任务 ID 和令牌均为占位符：请将它们替换为您在[添加 API 触发器](#add-an-api-trigger)时复制的 URL 和令牌，否则请求会失败并返回 `401` 身份验证错误：
 
 ```bash theme={null}
 curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJKLMNOPQRSTUVW/fire \
@@ -218,7 +253,7 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
   -d '{"text": "Sentry alert SEN-4521 fired in prod. Stack trace attached."}'
 ```
 
-成功的请求返回包含新会话 ID 和 URL 的 JSON 正文：
+成功的请求会返回一个包含新会话 ID 和 URL 的 JSON 响应体：
 
 ```json theme={null}
 {
@@ -228,50 +263,50 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 }
 ```
 
-在浏览器中打开会话 URL 以实时观看运行、审查更改或手动继续对话。
+在浏览器中打开会话 URL，即可实时观看运行、审查更改或手动继续对话。
 
 <Warning>
-  `/fire` 端点在 `experimental-cc-routine-2026-04-01` beta 标头下发布。请求和响应形状、速率限制和令牌语义可能在功能处于研究预览阶段时改变。破坏性更改在新的日期 beta 标头版本后发布，最近的两个先前标头版本继续工作，以便调用者有时间迁移。
+  `/fire` 端点在 `experimental-cc-routine-2026-04-01` beta 标头下发布。在该功能处于研究预览阶段期间，请求和响应的结构、速率限制以及令牌语义都可能发生变化。破坏性更改会在新的带日期 beta 标头版本下发布，并且最近的两个旧标头版本会继续可用，以便调用方有时间迁移。
 </Warning>
 
 <h4 id="api-reference">
   API 参考
 </h4>
 
-有关完整的 API 参考，包括所有错误响应、验证规则和字段限制，请参阅 Claude Platform 文档中的 [Trigger a routine via API](https://platform.claude.com/docs/en/api/claude-code/routines-fire)。
+有关完整的 API 参考，包括所有错误响应、验证规则和字段限制，请参阅 Claude Platform 文档中的 [Trigger a routine through the API](https://platform.claude.com/docs/en/api/claude-code/routines-fire)。
 
-`/fire` 端点仅对 claude.ai 用户可用，不是 Claude Platform API 表面的一部分。
+`/fire` 端点仅供 claude.ai 用户使用，不属于 Claude Platform API 接口的一部分。
 
 <h3 id="add-a-github-trigger">
   添加 GitHub 触发器
 </h3>
 
-GitHub 触发器在连接的存储库上发生匹配事件时自动启动新会话。Claude Code 不会跨事件重用会话，因此两个 PR 更新会产生两个独立会话。
+当已连接的仓库上发生匹配事件时，GitHub 触发器会自动启动一个新会话。Claude Code 不会在不同事件之间复用会话，因此两次 PR 更新会产生两个独立的会话。
 
 <Note>
-  GitHub webhook 事件受每个例程和每个账户的每小时上限限制。超过限制的事件被丢弃，直到窗口重置。
+  GitHub webhook 事件受每个任务和每个账户的每小时上限约束。超出限制的事件会被丢弃，直到时间窗口重置。
 </Note>
 
-Claude GitHub App 必须安装在您想订阅的存储库上，无论您从哪个表面配置触发器。
+无论您从哪个使用入口配置触发器，都必须在要订阅的仓库上安装 Claude GitHub App。
 
-* 从 Web UI 配置 GitHub 触发器，当应用缺失时会提示您安装它。按照下面的步骤在 Web 上配置一个。
-* 从 CLI，首先从 [GitHub App 页面](https://github.com/apps/claude) 安装应用，然后要求 Claude 将 GitHub 触发器附加到现有例程，例如 `/schedule add a GitHub trigger to my nightly review for pull requests opened in acme/webapp`。CLI 路径需要 Claude Code v2.1.225 或更高版本。当 Claude 添加触发器时，它会回复一个链接到触发器触发的例程。
+* 在 Web UI 中配置 GitHub 触发器时，如果缺少该应用，系统会提示您安装。按照以下步骤在 Web 端进行配置。
+* 在 CLI 中，请先从 [GitHub App 页面](https://github.com/apps/claude)安装该应用，然后让 Claude 将 GitHub 触发器附加到现有的定时任务，例如 `/schedule add a GitHub trigger to my nightly review for pull requests opened in acme/webapp`。CLI 方式需要 Claude Code v2.1.225 或更高版本。Claude 添加触发器后，会回复一个指向该触发器所触发任务的链接。
 
 <Steps>
-  <Step title="打开例程进行编辑">
-    转到 [claude.ai/code/routines](https://claude.ai/code/routines)，单击例程，然后打开例程名称旁边的菜单并选择 **Edit**。
+  <Step title="打开任务进行编辑">
+    访问 [claude.ai/code/routines](https://claude.ai/code/routines)，点击该定时任务，然后打开其名称旁边的菜单并选择 **Edit**。随后会打开 **Edit scheduled task** 对话框。
   </Step>
 
   <Step title="添加 GitHub 事件触发器">
-    滚动到 **Select a trigger** 部分，单击 **Add another trigger**，然后选择 **GitHub event**。
+    在 **Trigger** 行中，点击 **+**，然后从打开的菜单中选择 **GitHub event**。
 
     <Note>
-      在 CLI 中运行 `/web-setup` 授予存储库访问权限以进行克隆，但它不安装 Claude GitHub App，也不启用 webhook 传递。
+      在 CLI 中运行 `/web-setup` 会授予克隆仓库所需的访问权限，但它不会安装 Claude GitHub App，也不会启用 webhook 投递。
     </Note>
   </Step>
 
   <Step title="配置触发器">
-    选择存储库，从 [supported events](#supported-events) 列表中选择事件，并可选地添加过滤器。保存触发器。
+    如有需要，更改仓库，从[支持的事件](#supported-events)列表中选择一个事件，并可选择添加筛选条件。然后点击对话框底部的 **Save changes** 以应用该触发器。
   </Step>
 </Steps>
 
@@ -279,45 +314,47 @@ Claude GitHub App 必须安装在您想订阅的存储库上，无论您从哪�
   支持的事件
 </h4>
 
-GitHub 触发器可以订阅以下事件类别之一。在每个类别中，您可以选择特定操作（如 `pull_request.opened`）或对类别中的所有操作做出反应。
+GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您可以选择特定操作（例如 `pull_request.opened`），也可以响应该类别中的所有操作。
 
-| Event | Triggers when |
+| 事件 | 触发时机 |
 | :- | :- |
-| Pull request | PR 被打开、关闭、分配、标记、同步或以其他方式更新 |
+| Pull request | PR 被打开、关闭、分配、添加标签、同步或以其他方式更新 |
 | Release | 发布被创建、发布、编辑或删除 |
 
 <h4 id="filter-pull-requests">
-  过滤拉取请求
+  筛选 Pull Request
 </h4>
 
-使用过滤器缩小哪些拉取请求启动新会话。所有过滤条件必须匹配才能触发例程。可用的过滤字段是：
+使用筛选条件来限定哪些 Pull Request 会启动新会话。所有筛选条件都必须匹配，定时任务才会触发。可用的筛选字段如下：
 
-| Filter | Matches |
+| 筛选条件 | 匹配内容 |
 | :- | :- |
 | Author | PR 作者的 GitHub 用户名 |
 | Title | PR 标题文本 |
 | Body | PR 描述文本 |
-| Base branch | PR 目标的分支 |
-| Head branch | PR 来自的分支 |
+| Base branch | PR 的目标分支 |
+| Head branch | PR 的来源分支 |
 | Labels | 应用于 PR 的标签 |
 | Is draft | PR 是否处于草稿状态 |
 | Is merged | PR 是否已合并 |
 
-每个过滤器将字段与运算符配对：equals、contains、starts with、is one of、is not one of 或 matches regex。
+每个筛选条件都将一个字段与一个运算符配对：equals、contains、starts with、is one of、is not one of 或 matches regex。
 
-`matches regex` 运算符测试整个字段值，而不是其中的子字符串。要匹配包含 `hotfix` 的任何标题，请写 `.*hotfix.*`。没有周围的 `.*`，过滤器仅匹配完全是 `hotfix` 的标题，前后没有任何内容。对于不使用 regex 语法的文字子字符串匹配，请改用 `contains` 运算符。
+`matches regex` 运算符会测试整个字段值，而不是其中的子字符串。要匹配任何包含 `hotfix` 的标题，请写成 `.*hotfix.*`。如果没有前后的 `.*`，该筛选条件只会匹配恰好为 `hotfix`、前后没有任何内容的标题。如需不使用正则表达式语法的字面子字符串匹配，请改用 `contains` 运算符。
 
-一些示例过滤器组合：
+一些筛选条件组合示例：
 
-* **Auth module review**：base branch `main`，head branch contains `auth-provider`。将任何涉及身份验证的 PR 发送给专注的审查者。
-* **Ready-for-review only**：is draft is `false`。跳过草稿，以便例程仅在 PR 准备好审查时运行。
-* **Label-gated backport**：labels include `needs-backport`。仅当维护者标记 PR 时才触发移植到另一个分支的例程。
+* **Auth module review**：base branch 为 `main`，head branch contains `auth-provider`。将任何涉及身份验证的 PR 发送给专门的审查者。
+* **Ready-for-review only**：is draft 为 `false`。跳过草稿，使任务仅在 PR 准备好审查时运行。
+* **Label-gated backport**：labels 包含 `needs-backport`。仅当维护者为 PR 添加该标签时，才触发移植到另一个分支的任务。
 
-<h2 id="manage-routines">
-  管理 Routine
+<span id="manage-routines" />
+
+<h2 id="manage-scheduled-tasks">
+  管理定时任务
 </h2>
 
-在列表中点击某个 Routine 即可打开其详情页。详情页会显示该 Routine 的仓库、连接器、提示词、计划、API 令牌、GitHub 触发器以及过往运行的列表。
+在列表中点击某个定时任务即可打开其详情页。详情页会显示该任务的仓库、连接器、提示词、计划、API 令牌、GitHub 触发器以及过往运行的列表。
 
 <h3 id="view-and-interact-with-runs">
   查看运行并与之交互
@@ -326,37 +363,45 @@ GitHub 触发器可以订阅以下事件类别之一。在每个类别中，您�
 点击任意运行即可将其作为完整会话打开。在那里，您可以查看 Claude 执行了哪些操作、审查更改、创建 Pull Request 或继续对话。每个运行会话的用法与其他会话相同：使用会话标题旁边的下拉菜单对其进行重命名、归档或删除。
 
 <Note>
-  运行列表中的绿色状态表示会话已启动并退出，且没有出现基础设施错误。这并不表示提示词中的任务已成功完成。请打开该运行阅读会话记录，确认 Claude 实际执行了哪些操作。被阻止的网络请求、缺失的连接器工具以及任务级别的失败都会显示在会话记录中，而不会体现在状态指示器中。
+  运行列表中的绿色状态表示会话已启动并退出，且没有出现基础设施错误。这并不表示提示词中描述的工作已成功完成。请打开该运行阅读会话记录，确认 Claude 实际执行了哪些操作。被阻止的网络请求、缺失的连接器工具以及工作本身的失败都会显示在会话记录中，而不会体现在状态指示器中。
 </Note>
 
-<h3 id="edit-and-control-routines">
-  编辑和控制 Routine
+<span id="edit-and-control-routines" />
+
+<h3 id="edit-and-control-scheduled-tasks">
+  编辑和控制定时任务
 </h3>
 
-在 Routine 详情页中，您可以：
+在详情页中，您可以：
 
-* 点击 **Run now** 立即启动一次运行，而无需等待下一个计划时间。您可以选择提供特定于本次运行的文本，该文本传递给 Routine 的方式与 API 触发器的 `text` 字段相同。
-* 使用页面顶部的开关暂停或恢复计划。已暂停的 Routine 会保留其配置，但在您重新启用之前不会运行。
-* 打开 Routine 名称旁边的菜单并选择 **Edit**，以更改名称、提示词、仓库、环境、连接器或 Routine 的任何触发器。您可以在 **Select a trigger** 部分添加或移除计划、API 令牌和 GitHub 事件触发器。
-* 打开同一菜单并选择 **Delete** 以删除该 Routine。
+* 点击 **Run now** 立即启动一次运行，而无需等待下一个计划时间。
+* 使用页面顶部的开关暂停或恢复计划。已暂停的任务会保留其配置，但在您重新打开之前不会运行。
+* 打开任务名称旁边的菜单并选择 **Edit**，以更改名称、提示词、仓库、环境、连接器或任务的任何触发器。随后会打开 **Edit scheduled task** 对话框，其布局与[创建对话框](#create-from-the-web)相同。要添加触发器，请点击 **Trigger** 行中的 **+**。点击 **Save changes** 以应用您的编辑。API 令牌操作会立即生效，无需点击 **Save changes**。
+* 打开同一菜单并选择 **Delete** 以删除该任务。
 
-<h3 id="manage-routines-from-the-cli">
-  从 CLI 管理 Routine
+<span id="manage-routines-from-the-cli" />
+
+<h3 id="manage-scheduled-tasks-from-the-cli">
+  从 CLI 管理定时任务
 </h3>
 
-CLI 支持管理现有的 Routine。运行 `/schedule list` 可查看所有 Routine，运行 `/schedule update` 可更改某个 Routine，运行 `/schedule run` 可立即触发它。
+运行 `/schedule list` 可查看您的定时任务，运行 `/schedule update` 可更改某个任务，运行 `/schedule run` 可立即启动某个任务。
 
-您还可以询问某个 Routine 的运行历史，例如 `/schedule why did my nightly review do nothing this morning?`。Claude 会列出该 Routine 最近的运行及其状态，并附上[在网页上打开每次运行](#view-and-interact-with-runs)的链接，还会读取运行日志来解释发生了什么，包括工具错误、权限拒绝和最终结果。需要 Claude Code v2.1.227 或更高版本。
+您还可以询问某个定时任务的运行历史，例如 `/schedule why did my nightly review do nothing this morning?`。Claude 会列出该任务最近的运行及其状态，并附上[在 Web 端打开每次运行](#view-and-interact-with-runs)的链接。它还会读取运行日志来解释发生了什么，包括工具错误、权限拒绝和最终结果。需要 Claude Code v2.1.227 或更高版本。
 
 <h3 id="repositories-and-branch-permissions">
   仓库和分支权限
 </h3>
 
-Routine 需要 GitHub 访问权限才能克隆仓库。当您在 CLI 中使用 `/schedule` 创建 Routine 时，Claude 会检查您的账户是否拥有对您运行该命令所在仓库的 GitHub 访问权限；如果没有，则会添加一条设置说明，指明如何授予访问权限。请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)，了解授予访问权限的两种方式。在 Team 和 Enterprise 计划中，必须由您 Claude 组织的 [Owner](/docs/zh-CN/server-managed-settings#access-control) 先启用每种方式，您才能使用；请参阅[连接 GitHub](/docs/zh-CN/web-quickstart#connect-github)。
+定时任务需要 GitHub 访问权限才能克隆仓库。当您在 CLI 中使用 `/schedule` 创建定时任务时，Claude 会检查您的账户是否拥有对您运行该命令所在仓库的 GitHub 访问权限。如果没有，Claude 会添加一条设置说明，指明如何授予访问权限。
 
-如果在某次运行按计划应当执行时，您的 GitHub 连接缺失或已过期，Routine 会跳过运行，直到您重新连接为止，最长持续 72 小时。在此期间内重新连接 GitHub，Routine 会自行恢复。如果 72 小时后仍未连接，Routine 将被关闭，您需要在重新连接 GitHub 后再将其重新打开。
+<Note>
+  请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)，了解授予访问权限的两种方式。在 Team 和 Enterprise 套餐中，必须由您 Claude 组织的 [Owner](/docs/zh-CN/server-managed-settings#access-control) 先启用每种方式，您才能使用；请参阅[连接 GitHub](/docs/zh-CN/web-quickstart#connect-github)。
+</Note>
 
-您添加的每个仓库都会在每次运行时被克隆。除非您的提示词另有指定，否则 Claude 会从仓库的默认分支开始。如果运行由 [GitHub Pull Request 事件](#add-a-github-trigger)触发，且该 Pull Request 所在的仓库是 Routine 中的第一个仓库，则该仓库会改为从 Pull Request 的 head 提交开始。
+如果在某次运行到期时您的 GitHub 连接缺失或已过期，定时任务会跳过运行，直到您重新连接为止，最长持续 72 小时。在此期间内重新连接 GitHub，任务会自行恢复。如果 72 小时后仍未连接，任务将被关闭，您需要在重新连接 GitHub 后再将其重新打开。
+
+您添加的每个仓库都会在每次运行时被克隆。除非您的提示词另有指定，否则 Claude 会从仓库的默认分支开始。如果运行由 [GitHub Pull Request 事件](#add-a-github-trigger)触发，且该 Pull Request 所在的仓库是任务中的第一个仓库，则该仓库会改为从 Pull Request 的 head 提交开始。
 
 除非您的提示词指示 Claude 推送到其他分支，否则 Claude 会将其工作推送到以 `claude/` 为前缀的分支。要控制运行可以推送到哪些分支，请在 GitHub 上使用分支保护规则或规则集。对于在 Anthropic 托管基础设施上的运行，以及通过 [Anthropic 的 git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)推送的自托管运行，GitHub 会将这些规则应用于您所连接的 GitHub 访问权限，因此该访问权限可以绕过的规则不会阻止运行的推送。使用您的部署所提供的 git 凭据进行推送的自托管运行，则会依据这些凭据进行检查。请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)。
 
@@ -364,19 +409,22 @@ Routine 需要 GitHub 访问权限才能克隆仓库。当您在 CLI 中使用 `
   连接器
 </h3>
 
-Routine 可以在每次运行期间使用您已连接的 MCP 连接器来读取和写入外部服务。例如，一个对支持请求进行分类的 Routine 可能会从 Slack 频道读取内容，并在 Linear 中创建问题。
+定时任务可以在每次运行期间使用您已连接的 MCP 连接器来读取和写入外部服务。例如，一个对支持请求进行分诊的任务可能会从 Slack 频道读取内容，并在 Linear 中创建问题。
 
-连接器是您账户中的 [claude.ai 集成](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。您在 CLI 中使用 `claude mcp add` 在本地添加的 MCP 服务器存储在您的计算机上，而不是您的 claude.ai 账户中，因此它们不会出现在连接器列表中。要在 Routine 中使用其中某个服务器，请在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 将其添加为连接器。对于只有一个仓库的 Routine，您也可以改为在已提交的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 中声明它，使其成为所克隆仓库的一部分。
+连接器是您账户中的 [claude.ai 集成](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。您在 CLI 中使用 `claude mcp add` 在本地添加的 MCP 服务器存储在您的计算机上，而不是您的 claude.ai 账户中，因此它们不会出现在连接器列表中。要在定时任务中使用其中某个服务器：
 
-创建 Routine 时，默认会包含您当前已连接的所有连接器。请移除不需要的连接器，以限制 Claude 在运行期间可以访问的工具。您也可以直接在 Routine 表单中添加连接器。
+* **作为连接器**：在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 将其添加为连接器
+* **在仓库中**：对于只有一个仓库的定时任务，您也可以改为在已提交的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 中声明该服务器，使其成为所克隆仓库的一部分
 
-要在 Routine 表单之外管理或添加连接器，请访问 [claude.ai/customize/connectors](https://claude.ai/customize/connectors)，或在 CLI 中使用 `/schedule update`。
+创建定时任务时，默认会包含您当前已连接的所有连接器。请移除不需要的连接器，以限制 Claude 在运行期间可以访问的工具。您也可以直接在任务的创建或编辑对话框中添加连接器。
+
+要在该对话框之外管理或添加连接器，请访问 [claude.ai/customize/connectors](https://claude.ai/customize/connectors)，或在 CLI 中使用 `/schedule update`。
 
 <h3 id="when-a-run-publishes-an-artifact-without-asking">
   运行在未询问的情况下发布 Artifact 的情形
 </h3>
 
-当 Routine 的计划或 **Run now** 启动一次运行时，Claude 可以在不询问的情况下发布新的 [Artifact](/docs/zh-CN/artifacts)。在您[共享它](/docs/zh-CN/artifacts#share-an-artifact)之前，新的 Artifact 仅对您可见。如果发布操作为页面声明了运行时能力，例如[连接器调用](/docs/zh-CN/artifacts#pull-live-data-with-mcp-connectors)或[文件下载](/docs/zh-CN/artifacts#offer-a-file-download)，Claude 会先询问。
+当定时任务的计划或 **Run now** 启动一次运行时，Claude 可以在不询问的情况下发布新的 [Artifact](/docs/zh-CN/artifacts)。在您[共享它](/docs/zh-CN/artifacts#share-an-artifact)之前，新的 Artifact 仅对您可见。如果发布操作为页面声明了运行时能力，例如[连接器调用](/docs/zh-CN/artifacts#pull-live-data-with-mcp-connectors)或[文件下载](/docs/zh-CN/artifacts#offer-a-file-download)，Claude 会先询问。
 
 在这些运行中，只有当以下所有条件都满足时，Claude 才会在不询问的情况下重新发布现有的 Artifact：
 
@@ -390,25 +438,25 @@ Routine 可以在每次运行期间使用您已连接的 MCP 连接器来读取�
 
 在所有其他情况下，包括由 API 或 GitHub 触发器启动的运行，Claude 都会先询问。
 
-如果 Routine 的任务是保持某个页面处于最新状态，请为其提供一个您已经发布的 Artifact。
+如果定时任务的工作是保持某个页面处于最新状态，请为其提供一个您已经发布的 Artifact。
 
 <h3 id="environments-and-network-access">
   环境和网络访问
 </h3>
 
-每个 Routine 都使用一个[云环境](/docs/zh-CN/cloud-environments)，用于控制网络访问、环境变量和设置脚本。Routine 在每次运行时都会继承该环境的网络策略。
+每个定时任务都使用一个[云环境](/docs/zh-CN/cloud-environments)，用于控制网络访问、环境变量和设置脚本。任务在每次运行时都会继承该环境的网络策略。
 
-**Default** 环境使用 **Trusted** 网络访问，仅允许[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)中的主机通过会话的网络。通过该路径向允许列表以外主机发出的请求会失败，并返回 `403` 和 `x-deny-reason: host_not_allowed`。MCP 连接器流量通过 Anthropic 的服务器路由，而不经过该路径，因此您添加到 Routine 的连接器无需将其主机添加到 **Allowed domains** 即可正常工作。请在[连接器](#connectors)下移除您不需要的任何连接器。
+**Default** 环境使用 **Trusted** 网络访问，仅允许[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)中的主机通过会话的网络。通过该路径向允许列表以外主机发出的请求会失败，并返回 `403` 和 `x-deny-reason: host_not_allowed`。MCP 连接器流量通过 Anthropic 的服务器路由，而不经过该路径，因此您添加到任务中的连接器无需将其主机添加到 **Allowed domains** 即可正常工作。请在[连接器](#connectors)下移除您不需要的任何连接器。
 
 要在您自己的某个环境中允许更多域名，请按照以下步骤操作。[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)在此处以只读方式打开，因此需要由 Owner 在[管理设置](https://claude.ai/admin-settings)的 **Cloud environments** 页面中更改其网络访问。
 
 <Steps>
-  <Step title="打开 Routine 进行编辑">
-    在 Routine 的详情页中，打开 Routine 名称旁边的菜单并选择 **Edit**。
+  <Step title="打开任务进行编辑">
+    访问 [claude.ai/code/routines](https://claude.ai/code/routines)，点击该定时任务，然后打开其名称旁边的菜单并选择 **Edit**。随后会打开 **Edit scheduled task** 对话框。
   </Step>
 
   <Step title="打开环境选择器">
-    在 **Instructions** 框下方，选择显示您环境名称（例如 **Default**）的云图标。
+    前往 **Advanced settings > General > Cloud environment**，如果 **Advanced settings** 处于折叠状态，请先将其展开。点击显示您环境名称（例如 **Default**）的云图标。
   </Step>
 
   <Step title="打开环境设置">
@@ -420,67 +468,78 @@ Routine 可以在每次运行期间使用您已连接的 MCP 连接器来读取�
   </Step>
 
   <Step title="保存">
-    点击 **Save changes**。新策略将从下一次运行开始生效。
+    在 **Edit cloud environment** 对话框中点击 **Save changes**，然后关闭其后方的 **Edit scheduled task** 对话框。新策略将从下一次运行开始生效。
   </Step>
 </Steps>
 
 有关访问级别和默认允许列表的详细信息，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。
 
 <h2 id="usage-and-limits">
-  使用和限制
+  用量和限制
 </h2>
 
-Routines 以与交互式会话相同的方式消耗订阅使用量。在 [claude.ai/settings/usage](https://claude.ai/settings/usage) 查看您当前的消耗。
+定时任务与交互式会话以相同的方式消耗订阅用量。您可以在 [claude.ai/settings/usage](https://claude.ai/settings/usage) 查看当前的消耗情况。
 
-除了订阅使用量外，每种启动运行的方式都有每小时限制：
+除订阅用量外，每种启动运行的方式都有每小时限制：
 
-| 操作 | 限制 | 计数对象 | 超过限制 |
+| 操作 | 限制 | 计数对象 | 超出限制时 |
 | :- | :- | :- | :- |
-| 计划运行，包括一次性运行 | 每小时 100 次 | 您的账户 | 运行等待直到限制重置 |
-| **立即运行**、API 触发和设置一次性 routine 再次运行 | 每小时 30 次 | 每个 routine，三者共享一个计数 | 操作失败直到限制重置 |
-| **立即运行**和设置一次性 routine 再次运行 | 每小时 100 次 | 您的账户 | 相同 |
-| API 触发 | 每小时 100 次 | 您的账户，与**立即运行**分开计数 | 相同 |
-| GitHub 事件 | 见 [添加 GitHub 触发器](#add-a-github-trigger) | | |
+| 计划运行，包括一次性运行 | 每小时 100 次 | 您的账户 | 运行会等待，直到限制重置 |
+| **Run now**、API 触发以及将一次性任务设置为再次运行 | 每小时 30 次 | 每个定时任务，三者共用一个计数 | 操作失败，直到限制重置 |
+| **Run now** 以及将一次性任务设置为再次运行 | 每小时 100 次 | 您的账户 | 同上 |
+| API 触发 | 每小时 100 次 | 您的账户，与 **Run now** 分开计数 | 同上 |
+| GitHub 事件 | 请参阅[添加 GitHub 触发器](#add-a-github-trigger) | | |
 
-这些每小时限制都没有超额费用。
+这些每小时限制均不提供超额使用。
 
-当 routine 达到您的订阅使用限制时，启用了使用额度的组织可以继续在计量超额上运行 routines。没有使用额度，额外运行被拒绝，直到您的使用窗口重置。在 [claude.ai/settings/usage](https://claude.ai/settings/usage) 启用使用额度。在 Team 和 Enterprise 计划上，管理员在 [claude.ai/admin-settings/usage](https://claude.ai/admin-settings/usage) 为组织启用使用额度。
+当定时任务达到您的订阅用量限制时，已启用使用额度的组织可以继续以计量超额方式运行定时任务。如果没有使用额度，额外的运行会被拒绝，直到您的用量窗口重置。请在 [claude.ai/settings/usage](https://claude.ai/settings/usage) 启用使用额度。在 Team 和 Enterprise 套餐中，由管理员在 [claude.ai/admin-settings/usage](https://claude.ai/admin-settings/usage) 为组织启用使用额度。
 
-当您的订阅暂停时，您的 routines 会被暂停并且不会运行。一旦您的订阅再次激活，请将它们重新打开。
+在您的订阅暂停期间，您的定时任务会被挂起且不会运行。订阅恢复后，请将它们重新打开。
+
+<h2 id="where-the-name-routines-still-appears">
+  Routine 名称仍出现的位置
+</h2>
+
+定时任务以前称为 Routine，以下位置仍保留这一旧名称。它们指的都是同一项功能：
+
+* **网址**：`claude.ai/code/routines`
+* **CLI**：`/schedule` 的别名 `/routines`、该命令的描述，以及 Claude 在设置任务时的回复
+* **API**：`/fire` 端点路径、其 beta 标头、其响应中的 `type`、`<routine-fire-payload>` 标签，以及 [Trigger a routine through the API](https://platform.claude.com/docs/en/api/claude-code/routines-fire) 参考页面
+* **组织设置**：**Scheduled tasks (Was Routines)** 开关
 
 <h2 id="troubleshooting">
   故障排除
 </h2>
 
 <h3 id="schedule-returns-unknown-command">
-  `/schedule` 返回"Unknown command"
+  `/schedule` 返回 "Unknown command"
 </h3>
 
-当不满足其中一个要求时，CLI 会隐藏 `/schedule`：命令菜单在您输入时显示 `No commands match "/schedule"`，提交它会返回 `Unknown command: /schedule`，除了下面注明不同答案的情况外。
+当某项要求未满足时，CLI 会隐藏 `/schedule`：您输入时命令菜单会显示 `No commands match "/schedule"`。提交该命令会返回 `Unknown command: /schedule`，但下文注明会给出不同回复的情况除外。
 
 原因通常是以下之一：
 
-* 您使用 Console API 密钥、[Anthropic 配置文件或联合凭证](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)或云提供商（如 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry）进行身份验证。`/schedule` 需要 claude.ai 订阅登录。使用 Console API 密钥或配置文件时，如果启用了功能标志获取，提交 `/schedule` 会显示 `/schedule is available with Claude for Enterprise — ask your admin about migrating from API-key access`。使用云提供商登录时，您仍然会看到 `Unknown command: /schedule`。如果在您的 shell 中设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，或在 `settings.json` 中设置了 `apiKeyHelper`，请先删除它，因为这些会优先于 claude.ai 登录。配置文件或联合凭证也会优先，所以也要关闭它
-* 您完全登出，没有 API 密钥或其他凭证。如果启用了功能标志获取，提交 `/schedule` 会显示 `/schedule requires a claude.ai subscription. Run /login to sign in with your claude.ai account.` 在 v2.1.268 之前，登出的会话显示与 Console API 密钥相同的 Claude for Enterprise 消息
-* 您在云会话中，提交 `/schedule` 会回答该命令在该环境中不可用。改为从 [web UI](https://claude.ai/code/routines) 管理例程
-* 您的组织的策略禁用了 [cloud sessions](/docs/zh-CN/claude-code-on-the-web)，例程需要这些。在这种情况下，提交 `/schedule` 会回答 [`Cloud sessions are disabled by your organization's policy`](/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。在 v2.1.268 之前，它返回 `Unknown command: /schedule`
-* Owner 为您的 Team 或 Enterprise 组织[关闭了例程](#routines-are-disabled-by-your-organizations-policy)。在 v2.1.227 之前，命令在这种情况下仍然出现，当 Claude 尝试创建或运行例程时，claude.ai 会拒绝该例程
+* 您使用 Console API 密钥、[Anthropic profile 或联合凭据](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)，或者 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 等云提供商进行身份验证。`/schedule` 需要使用 claude.ai 订阅登录。使用 Console API 密钥或 profile 且启用了功能标志获取时，提交 `/schedule` 会改为显示 `/schedule is available with Claude for Enterprise — ask your admin about migrating from API-key access`。使用云提供商登录时，您仍会看到 `Unknown command: /schedule`。如果您的 shell 中设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，或者 `settings.json` 中设置了 `apiKeyHelper`，请先将其移除，因为它们优先于 claude.ai 登录。profile 或联合凭据同样具有优先级，因此也请将其关闭
+* 您已完全退出登录，没有 API 密钥或其他凭据。启用功能标志获取时，提交 `/schedule` 会显示 `/schedule requires a claude.ai subscription. Run /login to sign in with your claude.ai account.` 在 v2.1.268 之前，已退出登录的会话会显示与 Console API 密钥相同的 Claude for Enterprise 消息
+* 您处于云端会话中，此时提交 `/schedule` 会回复该命令在该环境中不可用。请改为在 [Web UI](https://claude.ai/code/routines) 中管理定时任务
+* 您组织的策略禁用了定时任务所需的[云端会话](/docs/zh-CN/claude-code-on-the-web)。在这种情况下，提交 `/schedule` 会改为回复 [`Cloud sessions are disabled by your organization's policy`](/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。在 v2.1.268 之前，它会返回 `Unknown command: /schedule`
+* Owner 为您的 Team 或 Enterprise 组织[关闭了定时任务](#routines-are-disabled-by-your-organizations-policy)。在 v2.1.227 之前，这种情况下命令仍会显示，而当 Claude 尝试创建或运行任务时，claude.ai 会拒绝该任务
 
-除非您的组织的策略禁用了例程或 cloud sessions，否则无论 CLI 如何配置，您都可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 处创建和管理例程。
+除非您组织的策略禁用了定时任务或云端会话，否则无论 CLI 如何配置，您都可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理定时任务。
 
 <h3 id="routines-are-disabled-by-your-organizations-policy">
-  "Routines 被您的组织的策略禁用"
+  "Routines are disabled by your organization's policy"
 </h3>
 
-您的 Team 或 Enterprise 组织中的 Owner 可能已在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 处关闭了 **Routines** 切换。在 Claude Code v2.1.227 或更高版本上，同一切换也会在 CLI 中隐藏 `/schedule`。这是一个服务器端组织设置，因此无法从您的本地配置中覆盖。请联系 Owner 为您的组织启用例程。
+您 Team 或 Enterprise 组织中的 Owner 可能已在 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 关闭了 **Scheduled tasks (Was Routines)** 开关。在 Claude Code v2.1.227 或更高版本中，同一开关还会在 CLI 中隐藏 `/schedule`。这是一项服务器端的组织设置，因此无法通过您的本地配置覆盖。请联系 Owner 为您的组织重新启用定时任务。
 
 <h2 id="related-resources">
   相关资源
 </h2>
 
-* [`/loop` and in-session scheduling](/docs/zh-CN/scheduled-tasks)：在打开的 CLI 会话中计划本地任务
-* [Desktop scheduled tasks](/docs/zh-CN/desktop-scheduled-tasks)：在您的机器上运行的本地计划任务，可以访问本地文件
-* [Cloud environments](/docs/zh-CN/cloud-environments)：为云会话配置网络访问、环境变量和设置脚本
-* [Projects](/docs/zh-CN/claude-projects)：Claude 在并行云会话中协调的持续工作；从项目创建的例程会显示在其**例程**选项卡上
-* [MCP connectors](/docs/zh-CN/mcp)：连接外部服务，如 Slack、Linear 和 Google Drive
-* [GitHub Actions](/docs/zh-CN/github-actions)：在存储库事件的 CI 管道中运行 Claude
+* [`/loop` 和会话内调度](/docs/zh-CN/scheduled-tasks)：在打开的 CLI 会话中安排本地任务
+* [Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks)：在您的计算机上运行、可访问本地文件的本地定时任务
+* [云环境](/docs/zh-CN/cloud-environments)：为云端会话配置网络访问、环境变量和设置脚本
+* [Projects](/docs/zh-CN/claude-projects)：Claude 跨并行云端会话协调的持续性工作；从项目创建的定时任务会显示在其 **Scheduled tasks** 标签页上
+* [MCP 连接器](/docs/zh-CN/mcp)：连接 Slack、Linear 和 Google Drive 等外部服务
+* [GitHub Actions](/docs/zh-CN/github-actions)：在 CI 流水线中针对仓库事件运行 Claude

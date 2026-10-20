@@ -862,12 +862,16 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些套餐要求。�
   设置自动压缩窗口
 </h3>
 
+<Note>
+  如果 Claude Code 就 `CLAUDE_CODE_AUTO_COMPACT_WINDOW` 的值发出了警告，请参阅[该变量的值和警告](#claude_code_auto_compact_window-values)。
+</Note>
+
 您可以在以下位置设置自动压缩窗口：
 
 * **对于当前模型，在此会话及以后的会话中**：运行 `/autocompact` 命令并指定一个值，例如 `/autocompact 500k`。Claude Code 将其保存到您的用户设置中 [`modelSettings`](/docs/zh-CN/settings-reference#modelsettings) 下的当前模型条目，并将其应用于当前会话。如果更高优先级的[设置作用域](/docs/zh-CN/settings#settings-precedence)（例如托管设置）为该模型或所有模型设置了自己的窗口，该命令会保存您的值，但会话会保持该作用域的窗口，命令会说明这一点。运行 `/autocompact auto` 以返回为您的模型调整的窗口。在 v2.1.288 之前，该命令会为所有模型保存同一个窗口，即顶层的 `autoCompactWindow`。
 * **对于所有模型**：在设置文件中设置 [`autoCompactWindow`](/docs/zh-CN/settings-reference#autocompactwindow)，例如在 `~/.claude/settings.json` 中设置 `"autoCompactWindow": 200000`。对于某个模型，您使用 `/autocompact` 为该模型保存的窗口优先于同一文件中的此键。
 * **对于一次启动**：启动 Claude Code 时传递 [`--autocompact`](/docs/zh-CN/cli-reference#cli-flags)。该标志会为该次启动覆盖您保存的设置，而不会更改它，`claude --autocompact auto` 会以调整的窗口运行会话，即使您保存的设置有一个值。与 `/autocompact` 不同，该标志不会被更高优先级的设置作用域（例如托管设置）抢占。
-* **在脚本和云环境中**：设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars)。设置后，它优先于命令、标志和设置，`/autocompact` 会报告该覆盖而不是更改窗口。
+* **在脚本和云环境中**：将 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars) 设置为 token 数，例如 `200000`。除非 Claude Code [忽略该值](#claude_code_auto_compact_window-values)，否则该变量优先于命令、标志和 `autoCompactWindow` 设置。此时 `/autocompact` 会报告该覆盖而不保存。状态栏的 `used_percentage` 是相对于模型的完整上下文窗口计算的，因此在设置该变量时，该百分比并不表示何时会运行压缩。
 * **对于单个子代理**：请参阅[为单个子代理设置自动压缩窗口](/docs/zh-CN/sub-agents#subagent-auto-compact-window)。
 
 命令和标志接受 100K 到 1M token 的窗口大小，采用以下任何形式：
@@ -876,7 +880,23 @@ Claude Code 仅在直接连接到 Anthropic API 时检查这些套餐要求。�
 * `k` 或 `M` 后缀，例如 `500k` 或 `1M`
 * 100 到 1000 之间的裸数字，表示千位，所以 `200` 设置 200,000
 
-环境变量仅接受纯 token 计数。Claude Code 将窗口限制在模型的上下文窗口。
+无论您以哪种方式设置窗口，Claude Code 都会将其限制在模型的上下文窗口内。
+
+<h4 id="claude_code_auto_compact_window-values">
+  `CLAUDE_CODE_AUTO_COMPACT_WINDOW` 的值和警告
+</h4>
+
+如果警告中引用了您的 `CLAUDE_CODE_AUTO_COMPACT_WINDOW` 值，则表示该值超出了 100,000 到 1,000,000 的范围，或者不是 token 数。要消除该警告，请设置该范围内的数字，例如 `CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000`。在 Claude Code v2.1.304 或更高版本上，您也可以用 `k` 表示千、用 `M` 表示百万来书写该数字，例如 `200k` 或 `1M`。
+
+在第一列中找到您的警告措辞，然后横向查看会话使用的窗口以及需要更改的内容：
+
+| 您的警告包含 | 会话使用的窗口 | 需要更改的内容 |
+| :- | :- | :- |
+| `reads as <N> tokens, so Claude Code treats it as the 100k minimum` | 100,000 token 与模型上下文窗口中的较小者 | 至少设置为 `100000`，例如 `200000`；如果您的 `200` 是指千位，则设置为 `200k` |
+| `is too large, so Claude Code treats it as the 1M maximum` | 1,000,000 token 与模型上下文窗口中的较小者 | 您已经拥有最大的窗口。要消除该警告，请设置 `1M` 或 `1000000` |
+| `isn't a usable size, so Claude Code ignores it` | 来自 `--autocompact`、`/autocompact` 或 `autoCompactWindow` 的窗口；如果均未设置，则为[默认值](#default-auto-compact-thresholds) | 设置一个数字，例如 `200000`，或取消设置该变量 |
+
+不带后缀的数字会被读取为相应数量的 token，因此 `CLAUDE_CODE_AUTO_COMPACT_WINDOW=200` 表示 200 个 token，而 `/autocompact 200` 表示 200,000。
 
 <h3 id="default-auto-compact-thresholds">
   默认自动压缩阈值

@@ -559,7 +559,7 @@ claude -p "Analyze this log file" --output-format stream-json --verbose
   </Step>
 
   <Step title="先在几个文件上测试，然后在全部文件上运行">
-    根据前 2-3 个文件出现的问题改进提示词，然后在完整集合上运行。`--allowedTools` 标志预先批准迁移所需的工具，而 [`--permission-mode dontAsk`](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode) 会拒绝其他任何需要批准的操作，这在无人值守运行时非常重要。
+    根据前 2-3 个文件出现的问题改进提示词，然后在完整集合上运行。`--allowedTools` 标志预先批准迁移所需的工具。[`--permission-mode dontAsk`](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode) 会拒绝其他任何需要批准的操作，这在无人值守运行时非常重要，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍可能批准其中部分调用。
   </Step>
 </Steps>
 
@@ -594,7 +594,9 @@ Claude 无人值守工作的时间越长，在你将工作视为完成之前进�
 对于正确性检查，运行捆绑的 [`/code-review` skill](/docs/zh-CN/commands)，它在新鲜的子代理中审查当前差异以查找错误，并将发现返回到会话。要检查差异是否符合你的计划，请自己编写审查提示。命名要检查的工作、要检查的计划以及什么算作发现：
 
 ```text wrap theme={null}
-使用子代理根据 PLAN.md 审查速率限制器差异。检查每个要求是否已实现、列出的边界情况是否有测试，以及任务范围之外是否有任何更改。报告缺陷，而不是风格偏好。
+Use a subagent to review the rate limiter diff against PLAN.md. Check that
+every requirement is implemented, the listed edge cases have tests, and
+nothing outside the task's scope changed. Report gaps, not style preferences.
 ```
 
 因为审查者作为子代理运行，实现会话直接接收缺陷，可以修复它们并重新审查，而无需你在窗口之间复制发现。

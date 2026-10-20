@@ -32,7 +32,7 @@
 [Auto mode](/docs/zh-CN/auto-mode-config) 本身在单个回合内批准工具调用，但不会启动新的回合。Claude 在判断工作完成时停止。`/goal` 添加了一个单独的评估器，在每个回合后检查你的条件，因此完成由一个新鲜的模型而不是执行工作的模型决定。这两者是互补的：auto mode 消除了每个工具的提示，`/goal` 消除了每个回合的提示。
 
 <Tip>
-  上述方法保持当前会话运行。你也可以安排独立于任何打开的会话运行的工作，例如夜间测试或早晨分类。有关云例程和桌面计划任务的选项，请参阅[调度选项](/docs/zh-CN/scheduled-tasks#compare-scheduling-options)。
+  上述方法用于保持当前会话运行。您还可以安排独立于任何打开的会话运行的工作，例如夜间测试或早间分类处理。有关云端和 Desktop 定时任务，请参阅[调度选项](/docs/zh-CN/scheduled-tasks#compare-scheduling-options)。
 </Tip>
 
 <h2 id="use-/goal">

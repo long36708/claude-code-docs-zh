@@ -20,7 +20,7 @@
 * **移动设备**：[Claude 应用](/docs/zh-CN/mobile)中的 **Code** 标签页
 * **桌面应用**：当你[启动会话](/docs/zh-CN/desktop#run-long-running-tasks-in-the-cloud)时，选择 **Cloud** 而不是 **Local**
 * **终端**：[`claude --cloud`](#from-terminal-to-cloud)
-* **例程**：[计划和触发的运行](/docs/zh-CN/routines)每次都作为云会话运行
+* **云端定时任务**：[定时运行和触发运行](/docs/zh-CN/routines)每次都作为云端会话运行
 
 完成设置后，可使用本页在终端和云端之间移动工作、管理和共享会话、为 Pull Request 启用自动修复，以及进行故障排除。
 
@@ -500,7 +500,9 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 * **时间限制**：Claude 运行的命令和 SessionStart hooks 有你可以更改的默认超时，设置脚本仅在大约五分钟内完成时才被缓存。请参阅[时间限制](/docs/zh-CN/cloud-environments#time-limits)
 * **存储库身份验证**：你只能在认证到相同账户时将云会话拉入你的终端
 * **平台限制**：存储库克隆和拉取请求创建需要 GitHub。自托管[GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server) 实例支持 Team 和 Enterprise 计划。你可以通过设置 `CCR_FORCE_BUNDLE=1` 将 GitLab、Bitbucket 或其他非 GitHub 存储库作为[本地捆绑](#send-local-repositories-without-github)发送到云会话，但会话无法将结果推送回该远程
-* **组织 IP 允许列表**：云会话从 Anthropic 管理的基础设施而不是你的网络调用 Anthropic API，而[自托管环境](/docs/zh-CN/self-hosted-environments)中的会话从你自己的网络调用它。如果你的组织启用了 [IP 允许列表](https://support.claude.com/en/articles/13200993-restrict-access-to-claude-with-ip-allowlisting)，每个 Anthropic 托管的云会话都会失败，显示身份验证错误。这同样适用于[代码审查](/docs/zh-CN/code-review)和在 Anthropic 托管的环境中运行的[routines](/docs/zh-CN/routines)；路由到自托管环境的 routine 从你自己的网络调用 API。联系 [Anthropic 支持](https://support.claude.com/)以从你的组织的 IP 允许列表中豁免 Anthropic 托管的服务。
+* **组织 IP 允许列表**：云端会话从 Anthropic 管理的基础设施（而非您的网络）调用 Anthropic API，而[自托管环境](/docs/zh-CN/self-hosted-environments)中的会话则从您自己的网络调用它。如果您的组织启用了 [IP 允许列表](https://support.claude.com/en/articles/13200993-restrict-access-to-claude-with-ip-allowlisting)，每个 Anthropic 托管的云端会话都会因身份验证错误而失败。
+  * **Code Review 和定时任务**：这同样适用于 [Code Review](/docs/zh-CN/code-review) 以及在 Anthropic 托管环境中运行的[云端定时任务](/docs/zh-CN/routines)。路由到自托管环境的定时任务会从您自己的网络调用 API。
+  * **获取豁免**：请联系 [Anthropic 支持](https://support.claude.com/)，将 Anthropic 托管的服务从您组织的 IP 允许列表中豁免。
 
 <h2 id="related-resources">
   相关资源
@@ -509,7 +511,7 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 * [云环境](/docs/zh-CN/cloud-environments)：为云会话配置网络访问、环境变量和设置脚本
 * [Projects](/docs/zh-CN/claude-projects)：一个对话，Claude 在其中协调您的存储库上的并行云会话并报告结果
 * [Ultrareview](/docs/zh-CN/ultrareview)：在云沙箱中运行深度多代理代码审查
-* [Routines](/docs/zh-CN/routines)：按计划、通过 API 调用或响应 GitHub 事件自动化工作
+* [云端定时任务](/docs/zh-CN/routines)：按计划、通过 API 调用或响应 GitHub 事件自动化工作
 * [Hooks 配置](/docs/zh-CN/hooks)：在会话生命周期事件处运行脚本
 * [所有设置](/docs/zh-CN/settings-reference)：所有配置选项
 * [安全](/docs/zh-CN/security)：隔离保证和数据处理

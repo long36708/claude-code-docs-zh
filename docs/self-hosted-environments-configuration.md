@@ -535,7 +535,7 @@ RUN claude mcp add-json core '{"type":"http","url":"https://mcp.example.com/mcp"
   关闭内置会话工具
 </h3>
 
-Anthropic 的控制平面会将其自己的 MCP 服务器（名为 Claude Code Remote）附加到云端会话。Claude 使用该服务器的工具来安排 [Routine](/docs/zh-CN/routines)、启动和引导其他云端会话、附加更多仓库，以及跟踪 Pull Request 活动。
+Anthropic 的控制平面会将其自己的 MCP 服务器（名为 Claude Code Remote）附加到云端会话。Claude 使用该服务器的工具来创建[云端定时任务](/docs/zh-CN/routines)、启动和引导其他云端会话、附加更多仓库，以及跟踪 Pull Request 活动。
 
 要关闭整个服务器，请在您的设置中添加一条[服务器级拒绝规则](/docs/zh-CN/permissions#mcp)。根据会话的创建方式，控制平面会以三个名称之一注册该服务器。Claude Code 会精确匹配规则中的名称（包括大小写），因此请按如下所示为每个名称各写一条规则：
 
@@ -704,7 +704,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 * **编写者**：控制平面使用其自身部署中的固定常量填充这些脚本，绝不使用按会话或第三方的输入。
 * **仍然适用的管控**：通过 `--settings` 下发的 hook 会进入普通的合并 hook 配置，而不是托管层，因此您的托管设置仍然适用。`disableAllHooks` 会禁用它们，并且它们不属于 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly) 保持加载的类别。
 
-当某人启动自己的会话时，Claude Code 还会将[其 claude.ai 账户中启用的 skill](/docs/zh-CN/skills#skills-in-cowork-and-cloud-sessions) 下载到该会话的配置目录中。[Routine](/docs/zh-CN/routines) 运行不会获得其所有者的 skill，而[将模型请求发送到 Bedrock 或 Agent Platform](#send-model-requests-to-bedrock-or-agent-platform) 的会话不会下载任何 skill。对于这些会话需要的 skill，请将其提交到仓库的 `.claude/skills/` 中，或将其添加到您的运行器镜像中。
+当某人启动自己的会话时，Claude Code 还会将[其 claude.ai 账户中启用的 skill](/docs/zh-CN/skills#skills-in-cowork-and-cloud-sessions) 下载到该会话的配置目录中。[云端定时任务](/docs/zh-CN/routines)运行不会获得其所有者的 skill，而[将模型请求发送到 Bedrock 或 Agent Platform](#send-model-requests-to-bedrock-or-agent-platform) 的会话不会下载任何 skill。对于这些会话需要的 skill，请将其提交到仓库的 `.claude/skills/` 中，或将其添加到您的运行器镜像中。
 
 除 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话外，自托管环境中的会话默认关闭[自动记忆](/docs/zh-CN/memory#auto-memory)。对于需要跨会话保留的指令，请使用运行器镜像或仓库中的 `CLAUDE.md`。
 

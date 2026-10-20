@@ -165,7 +165,7 @@
   调用自定义工具
 </h3>
 
-通过 `mcpServers` 选项将您创建的 MCP 服务器传递给 `query`。每个工具的[完全限定名称](/docs/zh-CN/agent-sdk/mcp#tool-naming-convention)为 `mcp__{server_name}__{tool_name}`，其中 `{server_name}` 是您在 `mcpServers` 中为服务器指定的键。如果该键包含 `.` 或空格等字符，请在编写 `{server_name}` 时将其替换为 `_`。在 `allowedTools` 中列出该完全限定名称，以便工具运行而无需权限提示。
+通过 `mcpServers` 选项将您创建的 MCP 服务器传递给 `query`，并在 `allowedTools` 中列出每个工具的[完全限定名称](/docs/zh-CN/agent-sdk/mcp#tool-naming-convention)，以便工具运行而无需权限提示。该名称为 `mcp__{server_name}__{tool_name}`，其中 `{server_name}` 是您在 `mcpServers` 中为服务器指定的键。如果该键包含 `.` 或空格等字符，请在编写 `{server_name}` 时将其替换为 `_`。
 
 这些代码片段重用了[天气工具示例](#weather-tool-example)中的 `weatherServer`，以询问 Claude 特定位置的天气。
 

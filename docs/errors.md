@@ -132,7 +132,7 @@
 | `SSL certificate verification failed` | [网络](#ssl-certificate-errors) |
 | `SSL certificate error (...)` during login or startup | [网络](#ssl-certificate-errors) |
 | `unable to get local issuer certificate` | [网络](#ssl-certificate-errors) |
-| `403` with `x-deny-reason: host_not_allowed` in a cloud or routine session | [网络](#host-not-allowed-in-a-cloud-session) |
+| `403` 并带有 `x-deny-reason: host_not_allowed`，出现在云端会话或云端定时任务中 | [网络](#host-not-allowed-in-a-cloud-session) |
 | `proxy refused the connection` | [网络](#the-proxy-refused-the-connection) |
 | `403` with `GitHub GraphQL is not available from Claude Code sessions` in a cloud session | [GitHub proxy](/docs/zh-CN/cloud-environments#github-proxy) |
 | `The cloud environments service returned an empty response` / `The cloud environments service returned a response in an unexpected format` | [网络](#the-cloud-environments-service-returned-an-empty-or-unexpected-response) |
@@ -1175,7 +1175,7 @@ Agent SDK 和 `-p` 非交互模式会将其呈现为 `oauth_org_not_allowed` 错
   Routine 已被您组织的策略禁用
 </h3>
 
-您所在的 Team 或 Enterprise 组织中的 Owner 已在组织级别关闭了 Routine。当您尝试创建或运行 Routine 时（例如通过 claude.ai/code 上的 [Routines](/docs/zh-CN/routines) 界面），会出现此错误。在 Claude Code v2.1.227 或更高版本中，同一设置还会在 CLI 中[隐藏 `/schedule`](/docs/zh-CN/routines#troubleshooting)。
+您的 Team 或 Enterprise 组织中的 Owner 已在组织级别关闭了[云端定时任务](/docs/zh-CN/routines)（原 Routine）。当您尝试创建或运行定时任务时（例如在 [claude.ai/code/routines](https://claude.ai/code/routines) 上），会出现此错误。在 Claude Code v2.1.227 或更高版本中，同一设置还会在 CLI 中[隐藏 `/schedule`](/docs/zh-CN/routines#troubleshooting)。
 
 ```text theme={null}
 Routines are disabled by your organization's policy.
@@ -1185,8 +1185,7 @@ Routines are disabled by your organization's policy.
 
 **解决方法：**
 
-* 请您组织中的 Owner 在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 启用 **Routines** 开关
-* 对于不需要组织级 Routine 的一次性定时工作，请参阅[定时任务](/docs/zh-CN/scheduled-tasks)
+* 请组织中的 Owner 在 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 中打开 **Scheduled tasks (Was Routines)** 开关
 
 <h3 id="remote-control-requires-the-anthropic-api">
   Remote Control 需要 Anthropic API
@@ -1922,13 +1921,13 @@ Gateway refused the request · signing in again won't change this — check with
   网络和连接错误
 </h2>
 
-大多数这些错误意味着来自 Claude Code 的网络请求未能到达其目的地，或者 Claude Code 和 API 之间的某些东西在返回时改变了响应；如果条目还有本地原因（例如存档写入失败），其正文会说明这一点。它们通常源于您的本地网络、代理或防火墙，或云环境的网络策略。
+这些错误大多意味着 Claude Code 发出的网络请求未能到达目的地，或者 Claude Code 与 API 之间的某个环节在响应返回途中修改了响应；如果某个条目还有本地原因（例如归档写入失败），其正文中会说明。这些错误通常源于您的本地网络、代理或防火墙，或者云环境的网络策略。
 
 <h3 id="unable-to-connect-to-api">
-  无法连接到 API
+  Unable to connect to API
 </h3>
 
-到 API 的 TCP 连接失败或从未完成。对于常见的连接错误代码，消息名称指出失败的类型并在括号中保留代码：
+与 API 的 TCP 连接失败或始终未能建立。对于常见的连接错误代码，消息会说明失败类型，并在括号中保留错误代码：
 
 ```text theme={null}
 Unable to connect to API. Check your internet connection
@@ -1940,32 +1939,32 @@ Connection dropped (ECONNRESET)
 Request timed out. Check your internet connection and proxy settings
 ```
 
-Claude Code 不识别的代码显示为 `Unable to connect to API` 后跟括号中的代码。某些这些消息可以显示多个代码：`Connection refused` 可以显示 `ConnectionRefused` 或 `ECONNREFUSED`，例如，`Can't reach the API server` 可以显示 `ENOTFOUND` 或 `FailedToOpenSocket`。
+Claude Code 无法识别的错误代码会显示为 `Unable to connect to API`，后跟括号中的代码。其中部分消息可能显示不止一种代码：例如，`Connection refused` 可能显示 `ConnectionRefused` 或 `ECONNREFUSED`，`Can't reach the API server` 可能显示 `ENOTFOUND` 或 `FailedToOpenSocket`。
 
-在 v2.1.227 之前，这些编码消息中的每一个都读作 `Unable to connect to API` 后跟代码，例如 `Unable to connect to API (ECONNREFUSED)`。
+在 v2.1.227 之前，这些带代码的消息均显示为 `Unable to connect to API` 后跟代码，例如 `Unable to connect to API (ECONNREFUSED)`。
 
-常见原因包括没有互联网访问、阻止 `api.anthropic.com` 的 VPN，或未配置的必需企业代理。
+常见原因包括无法访问互联网、VPN 阻止了 `api.anthropic.com`，或者未配置所需的企业代理。
 
-**要做什么：**
+**解决方法：**
 
-* 通过从同一 shell 运行 `curl -I https://api.anthropic.com` 来确认您可以到达 API 主机。在 Windows PowerShell 上使用 `curl.exe -I https://api.anthropic.com` 以便不使用内置的 `Invoke-WebRequest` 别名。
-* 如果您在企业代理后面，在启动 Claude Code 之前设置 `HTTPS_PROXY` 并查看[网络配置](/docs/zh-CN/network-config)
-* 如果您通过 LLM 网关或中继路由，将 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 设置为其地址。有关设置，请参阅[将 Claude Code 连接到 LLM 网关](/docs/zh-CN/llm-gateway-connect)。
+* 在同一个 shell 中运行 `curl -I https://api.anthropic.com`，确认可以访问 API 主机。在 Windows PowerShell 中请使用 `curl.exe -I https://api.anthropic.com`，以避免使用内置的 `Invoke-WebRequest` 别名。
+* 如果您位于企业代理之后，请在启动 Claude Code 之前设置 `HTTPS_PROXY`，并参阅[网络配置](/docs/zh-CN/network-config)
+* 如果您通过 LLM 网关或中继进行路由，请将 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 设置为其地址。有关设置方法，请参阅[将 Claude Code 连接到 LLM 网关](/docs/zh-CN/llm-gateway-connect)。
 * 确保您的防火墙允许[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)中列出的主机
-* 间歇性故障会[自动重试](#automatic-retries)；持续故障指向本地网络问题
+* 间歇性失败会[自动重试](#automatic-retries)；持续失败则表明存在本地网络问题
 
-如果 `curl` 成功但 Claude Code 仍然失败，原因通常是运行时和网络之间的某些东西，而不是网络本身：
+如果 `curl` 成功但 Claude Code 仍然失败，原因通常在于运行时与网络之间的某个环节，而非网络本身：
 
-* 通过运行 `echo $ANTHROPIC_BASE_URL` 检查 `ANTHROPIC_BASE_URL` 是否已设置，或在 PowerShell 中运行 `echo $env:ANTHROPIC_BASE_URL`，并在您的[设置文件](/docs/zh-CN/settings)的 `env` 块中查找它。当它被设置时，Claude Code 将模型请求发送到该地址而不是 `api.anthropic.com`，因此指向不再运行的本地代理或网关的遗留值会产生 `Connection refused`，即使 `curl` 到达 API。从您的 shell 配置文件或设置中删除它，并从新终端启动 Claude Code。
-* 在 Linux 和 WSL 上，检查 `/etc/resolv.conf` 是否有无法到达的名称服务器。WSL 特别可以从主机继承损坏的解析器。
-* 在 macOS 上，已断开连接或卸载的 VPN 客户端可能会留下隧道接口或路由规则。检查 `ifconfig` 是否有陈旧的 `utun` 接口，并在系统设置中删除 VPN 的网络扩展。
-* Docker Desktop 和类似的容器运行时可以拦截出站流量。退出它们并重试以排除这种可能性。
+* 运行 `echo $ANTHROPIC_BASE_URL`（在 PowerShell 中运行 `echo $env:ANTHROPIC_BASE_URL`）检查是否设置了 `ANTHROPIC_BASE_URL`，并在[设置文件](/docs/zh-CN/settings)的 `env` 块中查找该变量。设置该变量后，Claude Code 会将模型请求发送到该地址而不是 `api.anthropic.com`，因此，如果残留的值指向一个已不再运行的本地代理或网关，即使 `curl` 能够访问 API，也会出现 `Connection refused`。请从 shell 配置文件或设置中将其删除，然后在新终端中启动 Claude Code。
+* 在 Linux 和 WSL 上，检查 `/etc/resolv.conf` 中是否有无法访问的名称服务器。尤其是 WSL，可能会从主机继承损坏的解析器。
+* 在 macOS 上，已断开或已卸载的 VPN 客户端可能会遗留隧道接口或路由规则。请使用 `ifconfig` 检查是否存在过时的 `utun` 接口，并在“系统设置”中移除该 VPN 的网络扩展。
+* Docker Desktop 及类似的容器运行时可能会拦截出站流量。请退出这些程序后重试，以排除此因素。
 
 <h3 id="unable-to-connect-to-anthropic-services">
-  无法连接到 Anthropic 服务
+  Unable to connect to Anthropic services
 </h3>
 
-在首次运行设置期间，Claude Code 检查它是否可以到达 `api.anthropic.com` 和 `platform.claude.com`，然后再显示登录步骤。当任一检查失败时，Claude Code 打印原因并退出。
+在首次运行设置期间，Claude Code 会在显示登录步骤之前检查是否能够访问 `api.anthropic.com` 和 `platform.claude.com`。任一检查失败时，Claude Code 会输出原因并退出。
 
 ```text theme={null}
 Unable to connect to Anthropic services
@@ -1974,144 +1973,147 @@ Connection to api.anthropic.com timed out after 10 seconds
 A proxy is configured via HTTPS_PROXY. Check that it allows connections to the host above.
 ```
 
-Claude Code 通过与 API 请求相同的[代理配置](/docs/zh-CN/network-config)发送检查，并给每个探针 10 秒。当失败的探针通过代理时，消息名称配置它的环境变量，例如 `HTTPS_PROXY`。在 v2.1.222 之前，检查使用不同的代理传输，没有超时：在具有 `https://` 方案的代理 URL 后面，它可能会在 `Checking connectivity...` 上无限期停滞，然后即使通过同一代理的 API 请求成功也会失败。
+Claude Code 通过与 API 请求相同的[代理配置](/docs/zh-CN/network-config)发送该检查，并为每次探测设置 10 秒的超时时间。当失败的探测经过代理时，消息会指出配置该代理的环境变量，例如 `HTTPS_PROXY`。在 v2.1.222 之前，该检查使用另一种没有超时的代理传输方式：在使用 `https://` 协议的代理 URL 之后，它可能会无限期停留在 `Checking connectivity...`，然后失败，即使通过同一代理的 API 请求能够成功。
 
-当[托管设置文件、MDM 策略或策略助手](/docs/zh-CN/managed-settings)将 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 设置为 `"gateway"` 或设置 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl) 而不设置 `forceLoginMethod` 时，Claude Code 会跳过此检查。使用任一配置，Claude Code 在**云网关**屏幕上打开登录步骤，而不是 Anthropic 登录方法。当机器上存在托管设置源但无法读取时，Claude Code 也会跳过检查，因为该源可能包含网关配置。在 v2.1.247 之前，Claude Code 在此配置下也运行检查，当 Anthropic 的端点无法到达时以此错误退出。
+当[托管设置文件、MDM 策略或策略辅助程序](/docs/zh-CN/managed-settings)将 [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) 设置为 `"gateway"`，或者设置了 [`forceLoginGatewayUrl`](/docs/zh-CN/settings-reference#forcelogingatewayurl) 但未设置 `forceLoginMethod` 时，Claude Code 会跳过此检查。在这两种配置下，Claude Code 都会在 **Cloud gateway** 界面打开登录步骤，而不是 Anthropic 登录方式。当计算机上存在托管设置来源但无法读取时，Claude Code 也会跳过该检查，因为该来源可能包含网关配置。在 v2.1.247 之前，Claude Code 在此配置下也会运行该检查，并在无法访问 Anthropic 的端点时以此错误退出。
 
-在没有托管设置的机器上，当您自己的 `~/.claude/settings.json` 通过 `forceLoginMethod` 和 `forceLoginGatewayUrl` [指定网关](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url-in-user-settings)时，Claude Code 也会跳过此检查。在 v2.1.295 之前，Claude Code 在这种情况下会运行检查。
+在没有托管设置的计算机上，当您自己的 `~/.claude/settings.json` 通过 `forceLoginMethod` 和 `forceLoginGatewayUrl` [指定网关](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url-in-user-settings)时，Claude Code 也会跳过该检查。在 v2.1.295 之前，Claude Code 在这种情况下会运行该检查。
 
-**要做什么：**
+**解决方法：**
 
-* 如果消息名称代理变量，检查其值是否指向正确的代理，并要求您的网络团队允许通过它进行 HTTPS 连接到消息中的主机。请参阅[网络配置](/docs/zh-CN/network-config)。
-* 完成[无法连接到 API](#unable-to-connect-to-api) 中的检查。那里的 `curl` 测试和防火墙指导也适用于此检查。
-* 如果您的网络是开放的，故障仍然存在，Claude Code 可能在您的国家[不可用](https://www.anthropic.com/supported-countries)
+* 如果消息指出了代理变量，请检查其值是否指向正确的代理，并请您的网络团队允许通过该代理与消息中的主机建立 HTTPS 连接。请参阅[网络配置](/docs/zh-CN/network-config)。
+* 按照 [Unable to connect to API](#unable-to-connect-to-api) 中的检查步骤逐一排查。其中的 `curl` 测试和防火墙指导同样适用于此检查。
+* 如果您的网络畅通但失败仍然存在，则 Claude Code 可能未[在您所在的国家/地区提供](https://www.anthropic.com/supported-countries)
 
 <h3 id="socket-is-closed">
-  Socket 已关闭
+  Socket is closed
 </h3>
 
-`Socket is closed` 意味着承载流式响应的连接在响应仍在到达时被关闭。最常见的原因是 Windows 上的企业代理在响应中途丢弃已建立的隧道。
+`Socket is closed` 表示承载流式响应的连接在响应仍在传输时被关闭。最常见的原因是 Windows 上的企业代理在响应中途断开了已建立的隧道。
 
-根据响应的进度，Claude Code 重试请求、保留 Claude 生成的内容或结束轮次。请参阅[自动重试](#automatic-retries)。
+根据响应已进行到的程度，Claude Code 会重试请求、保留 Claude 已生成的内容，或者结束该轮次。请参阅[自动重试](#automatic-retries)。
 
-在 v2.1.214 之前，Claude Code 不会重试此故障，轮次停止并显示包含 `Socket is closed` 的错误。
+在 v2.1.214 之前，Claude Code 不会重试此类失败，该轮次会因包含 `Socket is closed` 的错误而停止。
 
-**要做什么：**
+**解决方法：**
 
-* 如果您看到此错误，使用 `claude update` 更新到 v2.1.214 或更高版本，然后再次发送您的消息
-* 如果在更新后轮次在同一代理后面继续失败，请完成[无法连接到 API](#unable-to-connect-to-api) 并检查[网络配置](/docs/zh-CN/network-config)中的代理设置
+* 如果您看到此错误，请使用 `claude update` 更新到 v2.1.214 或更高版本，然后重新发送消息
+* 如果更新后在同一代理之后轮次仍持续失败，请按照 [Unable to connect to API](#unable-to-connect-to-api) 逐一排查，并检查[网络配置](/docs/zh-CN/network-config)中的代理设置
 
 <h3 id="api-returned-an-empty-or-malformed-response">
-  API 返回了空的或格式错误的响应
+  API returned an empty or malformed response
 </h3>
 
-Claude Code 在失败的流式请求的非流式重试获得 HTTP 成功状态但正文不是 Claude API 消息时显示此错误：通常是 HTML 错误或登录页面、空正文或其他格式的 JSON。代理、网关或网络登录页面代替 API 回答是常见的来源。Claude Code 不会重试请求，轮次以此错误结束。
+当 Claude Code 对失败的流式请求进行非流式重试时，如果收到 HTTP 成功状态码，但响应正文不是 Claude API 消息（通常是 HTML 错误页或登录页、空正文，或其他格式的 JSON），就会显示此错误。通常的来源是代理、网关或网络登录页代替 API 作出了应答。Claude Code 不会重试该请求，该轮次以此错误结束。
 
 ```text theme={null}
 API returned an empty or malformed response (HTTP 200) — check for a proxy or gateway intercepting the request.
 ```
 
-在该开头之后，消息报告返回的内容和哪个请求失败：
+在开头这句之后，消息会报告返回了什么内容以及哪个请求失败：
 
-* 一个 `Response:` 子句，包含内容类型、正文类型（例如 `body is an HTML page` 或 `empty body`）、其大小（以字节为单位）以及响应是否携带 Anthropic 请求 id。当响应名称可识别的服务器（例如 `nginx` 或 `cloudflare`）或携带中介标头（例如 `cf-ray` 或 `via`）时，子句也会列出这些。
-* 一个句子，名称失败的流式请求的 id 和触发重试的故障。当流在故障之前打开时，它也报告有多少流事件到达，如果有的话，当尝试失败时流已沉默多长时间。
+* 一个 `Response:` 子句，包含内容类型、正文类型（例如 `body is an HTML page` 或 `empty body`）、以字节为单位的大小，以及响应是否携带 Anthropic 请求 ID。当响应指明了可识别的服务器（例如 `nginx` 或 `cloudflare`），或携带中间方标头（例如 `cf-ray` 或 `via`）时，该子句也会列出这些信息。
+* 一句指出失败的流式请求 ID 以及触发重试的失败原因的句子。如果在失败之前流已经打开，它还会报告收到了多少个流事件，以及（如果收到了事件）尝试失败时流已静默了多长时间。
 
-在 v2.1.234 之前，消息在 `intercepting the request` 之后结束。
+在 v2.1.234 之前，消息在 `intercepting the request` 之后即结束。
 
-在 v2.1.271 之前，在非 JSON 内容类型（例如 `text/plain`）下携带有效 API 消息的回复也以此错误结束轮次。某些 LLM 网关对非流式回复使用该内容类型。
+在 v2.1.271 之前，如果回复以非 JSON 内容类型（例如 `text/plain`）携带有效的 API 消息，该轮次也会以此错误结束。部分 LLM 网关会对非流式回复使用该内容类型。
 
-**要做什么：**
+**解决方法：**
 
-* 阅读 `Response:` 子句以查看哪个系统回答。HTML 正文、没有 Anthropic 请求 id 或名称服务器（例如 `nginx` 或 `cloudflare`）意味着 Claude Code 和 API 之间的某些东西代替回答
-* 如果您通过[LLM 网关](/docs/zh-CN/llm-gateway-connect#troubleshoot-gateway-errors)路由，使用直接请求测试路由，并修复返回非 API 响应的跳跃
-* 在具有登录页面的网络上（例如访客 Wi-Fi），在浏览器中完成登录，然后重试
-* 如果只有通过您的网关的非流式路由被破坏，设置 [`CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK=1`](/docs/zh-CN/env-vars#variables) 以关闭此回退，除非流式端点本身返回 `404`，Claude Code 仍然会回退
+* 阅读 `Response:` 子句，查看是哪个系统作出了应答。HTML 正文、没有 Anthropic 请求 ID，或者指明了 `nginx`、`cloudflare` 等服务器，都意味着 Claude Code 与 API 之间的某个环节代替 API 作出了回复
+* 如果您通过 [LLM 网关](/docs/zh-CN/llm-gateway-connect#troubleshoot-gateway-errors)进行路由，请通过直接请求测试该路由，并修复返回非 API 响应的那一跳
+* 在有登录页的网络上（例如访客 Wi-Fi），请先在浏览器中完成登录，然后重试
+* 如果只有经过网关的非流式路由出现故障，请设置 [`CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK=1`](/docs/zh-CN/env-vars#variables) 来关闭此回退机制；但当流式端点本身返回 `404` 时，Claude Code 仍会回退
 
 <h3 id="streaming-response-ended-before-any-complete-data-was-received">
-  流式响应在接收任何完整数据之前结束
+  Streaming response ended before any complete data was received
 </h3>
 
-来自您的模型提供商的流式响应完成而没有传递任何可用数据，因此 Claude Code 重新发送了没有流式的请求以完成轮次。Claude Code 在交互式会话中每个会话显示一次警告。在 v2.1.239 之前，Claude Code 无声地重试而不流式。
+来自模型提供商的流式响应在未传送任何可用数据的情况下结束，因此 Claude Code 以非流式方式重新发送了请求以完成该轮次。Claude Code 每个会话只显示一次该警告，且仅在交互式会话中显示。在 v2.1.239 之前，Claude Code 会静默地以非流式方式重试。
 
 ```text theme={null}
 Streaming response ended before any complete data was received. Retrying without streaming. If this keeps happening, check any proxy or gateway between Claude Code and your model provider.
 ```
 
-Claude Code 发送每个受影响的请求两次：空流式尝试和重试。常见原因是在返回时消耗或转换流式响应正文的代理或网关。
+Claude Code 会将每个受影响的请求发送两次：一次是空的流式尝试，一次是重试。通常的原因是代理或网关在流式响应正文返回途中消耗或转换了它。
 
-**要做什么：**
+**解决方法：**
 
-* 配置 Claude Code 和您的模型提供商之间的任何代理或网关，以通过未修改的流式响应正文和其标头
-* 在[Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 上，请参阅[网关或代理后面的流式错误](/docs/zh-CN/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy)了解标头和正文要求
+* 将 Claude Code 与模型提供商之间的所有代理或网关配置为原样透传流式响应正文及其标头
+* 在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 上，请参阅[网关或代理之后的流式错误](/docs/zh-CN/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy)了解标头和正文的要求
 
 <h3 id="bedrock-streaming-response-has-an-unexpected-content-type">
-  Bedrock 流式响应具有意外的 content-type
+  Bedrock streaming response has an unexpected content-type
 </h3>
 
-Claude Code 和[Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 之间的网关或代理正在转换流式响应正文或其 `Content-Type` 标头。Amazon Bedrock 将响应流式传输为 `application/vnd.amazon.eventstream`。Claude Code 不会解码它无法读取的正文，而是拒绝报告不同 content-type 的成功流式响应。Claude Code 不会重试请求。
+Claude Code 与 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 之间的网关或代理正在转换流式响应正文或其 `Content-Type` 标头。Amazon Bedrock 以 `application/vnd.amazon.eventstream` 格式流式传输响应。Claude Code 不会尝试解码它无法读取的正文，而是拒绝报告了其他 content-type 的成功流式响应。Claude Code 不会重试该请求。
 
 ```text theme={null}
 Bedrock streaming response has content-type "text/event-stream"; expected "application/vnd.amazon.eventstream". A gateway or proxy between Claude Code and Bedrock is likely transforming the response body — Bedrock's binary event-stream format must be passed through unmodified. Set CLAUDE_CODE_DISABLE_BEDROCK_CONTENT_TYPE_GUARD=1 to suppress this check while the gateway is being fixed.
 ```
 
-在 v2.1.208 之前，相同的配置错误显示为 `API Error: Truncated event message received`，在整个响应被缓冲后。
+在 v2.1.208 之前，同样的配置错误会在整个响应被缓冲之后表现为 `API Error: Truncated event message received`。
 
-**要做什么：**
+**解决方法：**
 
-* 配置网关以通过未修改的 `InvokeModelWithResponseStream` 响应正文及其 `Content-Type` 标头。将流重新发出为服务器发送事件的中介是常见原因。
-* 设置 [`CLAUDE_CODE_DISABLE_BEDROCK_CONTENT_TYPE_GUARD=1`](/docs/zh-CN/env-vars) 隐藏此错误，但 Claude Code 不会在重写的标头下解码二进制正文，因此这些请求回退到较慢的非流式路径。请参阅[网关或代理后面的流式错误](/docs/zh-CN/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy)。
+* 将网关配置为原样透传 `InvokeModelWithResponseStream` 响应正文及其 `Content-Type` 标头。将流重新作为服务器发送事件（server-sent events）发出的中间方是常见原因。
+* 设置 [`CLAUDE_CODE_DISABLE_BEDROCK_CONTENT_TYPE_GUARD=1`](/docs/zh-CN/env-vars) 可以隐藏此错误，但 Claude Code 不会解码标头被改写的二进制正文，因此这些请求会回退到较慢的非流式路径。请参阅[网关或代理之后的流式错误](/docs/zh-CN/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy)。
 
 <h3 id="ssl-certificate-errors">
   SSL 证书错误
 </h3>
 
-您网络上的代理或安全设备正在用其自己的证书拦截 TLS 流量，Claude Code 不信任它。
+您网络上的代理或安全设备正在使用其自己的证书拦截 TLS 流量，而 Claude Code 不信任该证书。
 
 ```text theme={null}
 Unable to connect to API: SSL certificate verification failed (UNABLE_TO_GET_ISSUER_CERT_LOCALLY). The certificate comes from an authority Claude Code doesn't trust, usually a TLS-inspecting corporate proxy or a gateway signed by a private CA: set NODE_EXTRA_CA_CERTS to that CA bundle, or add it to the system certificate store · see https://code.claude.com/docs/en/network-config
 Unable to connect to API: Self-signed certificate detected (SELF_SIGNED_CERT_IN_CHAIN). The certificate comes from an authority Claude Code doesn't trust, usually a TLS-inspecting corporate proxy or a gateway signed by a private CA: set NODE_EXTRA_CA_CERTS to that CA bundle, or add it to the system certificate store · see https://code.claude.com/docs/en/network-config
 ```
 
-在 v2.1.273 之前，两条消息都在 `Check your proxy or corporate SSL certificates` 处结束，没有 OpenSSL 代码或 `NODE_EXTRA_CA_CERTS` 提示。
+在 v2.1.273 之前，这两条消息均以 `Check your proxy or corporate SSL certificates` 结尾，不包含 OpenSSL 代码或 `NODE_EXTRA_CA_CERTS` 提示。
 
-从 v2.1.199 开始，证书验证失败不会重试，因此此错误出现在第一次尝试而不是完整[重试预算](#automatic-retries)之后。早期版本在显示它之前花费几分钟重试。瞬时 TLS 条件（例如握手超时）仍然重试。
+从 v2.1.199 起，证书验证失败不会重试，因此此错误会在第一次尝试时出现，而不是在用完全部[重试预算](#automatic-retries)之后才出现。早期版本会先花几分钟重试，然后才显示该错误。暂时性的 TLS 状况（例如握手超时）仍会重试。
 
-在 `/login` 和启动连接检查期间，相同的故障产生不同的消息：
+在 `/login` 和启动时的连接检查期间，同样的失败会产生另一条消息：
 
 ```text theme={null}
 SSL certificate error (UNABLE_TO_GET_ISSUER_CERT_LOCALLY). If you are behind a corporate proxy or TLS-intercepting firewall, set NODE_EXTRA_CA_CERTS to your CA bundle path, or ask IT to allowlist *.anthropic.com. Run `claude doctor` for details.
 ```
 
-在[Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 上，Claude Code 本身发送给 AWS 的请求，例如 STS 和 SSO 角色凭证调用、模型发现和设置向导的检查，取决于相同的证书配置。请参阅[TLS 检查代理后面的证书错误](/docs/zh-CN/amazon-bedrock#certificate-errors-behind-a-tls-inspecting-proxy)。
+在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 上，Claude Code 自身发送给 AWS 的请求（例如 STS 和 SSO 角色凭据调用、模型发现以及设置向导的检查）都依赖于相同的证书配置。请参阅[TLS 检查代理之后的证书错误](/docs/zh-CN/amazon-bedrock#certificate-errors-behind-a-tls-inspecting-proxy)。
 
-**要做什么：**
+**解决方法：**
 
-* 导出您组织的 CA 包并使用 `NODE_EXTRA_CA_CERTS=/path/to/ca-bundle.pem` 指向 Claude Code
-* 有关完整设置说明，请参阅[网络配置](/docs/zh-CN/network-config#custom-ca-certificates)
+* 导出您组织的 CA 证书包，并通过 `NODE_EXTRA_CA_CERTS=/path/to/ca-bundle.pem` 让 Claude Code 使用它
+* 有关完整的设置说明，请参阅[网络配置](/docs/zh-CN/network-config#custom-ca-certificates)
 * 不要设置 `NODE_TLS_REJECT_UNAUTHORIZED=0`，这会完全禁用证书验证
 
 <h3 id="host-not-allowed-in-a-cloud-session">
-  云会话中不允许的主机
+  云端会话中不允许访问该主机
 </h3>
 
-来自云会话或例程的出站 HTTP 请求被环境的网络策略阻止。
+来自云端会话或云端定时任务的出站 HTTP 请求被环境的网络策略阻止。
 
 ```text theme={null}
 HTTP 403
 x-deny-reason: host_not_allowed
 ```
 
-您也可能看到与目标的真实证书不匹配的 TLS 证书。云会话通过代理路由出站流量以强制执行网络策略，因此不匹配的证书意味着代理终止了连接，而不是目标。
+您还可能看到与目标真实证书不匹配的 TLS 证书。云端会话通过一个执行网络策略的代理路由出站流量，因此证书不匹配意味着是该代理终止了连接，而不是目标主机。
 
-这不是客户端网络问题。云会话和[例程](/docs/zh-CN/routines)在沙箱 VM 内运行，其通过会话网络的出站流量被过滤到[云环境的](/docs/zh-CN/cloud-environments)允许列表；[GitHub 操作](/docs/zh-CN/cloud-environments#github-proxy)和 MCP 连接器流量使用单独的通道，这就是为什么当其他主机被阻止时它们可以继续工作。**默认**环境使用**受信任**访问，允许[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)的包注册表、云提供商 API、容器注册表和常见开发域，并阻止该路径上的其他域。
+此错误并非客户端网络问题。云端会话和[云端定时任务](/docs/zh-CN/routines)运行在沙箱虚拟机中，其经由会话网络的出站流量会按照[云环境](/docs/zh-CN/cloud-environments)的允许列表进行过滤：
 
-**要做什么：**
+* **GitHub 和连接器流量**：[GitHub 操作](/docs/zh-CN/cloud-environments#github-proxy)和 MCP 连接器流量使用独立的通道，因此在其他主机被阻止时它们仍可能正常工作
+* **默认环境**：**Default** 环境使用 **Trusted** 访问级别，该级别允许包含软件包仓库、云提供商 API、容器镜像仓库和常见开发域名的[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)，并在该路径上阻止其他域名
 
-这些步骤更改您自己的环境之一。[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)在选择器中以只读方式打开，因此请要求所有者从[管理设置](https://claude.ai/admin-settings)中的**云环境**页面更改其网络访问。
+**解决方法：**
 
-* 从[例程的表单](/docs/zh-CN/routines#environments-and-network-access)或从您启动云会话的[环境选择器](/docs/zh-CN/cloud-environments#configure-your-environment)打开您的环境进行编辑。
-* 在 **Edit cloud environment** 对话框中，将 **Network access** 从 **Trusted** 更改为 **Custom**，然后将被阻止的域添加到 **Allowed domains**。每行输入一个域。勾选 **Also include default list of common package managers** 以将[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)与您的自定义域一起保留。如果您想要不受限制的访问，请改为选择 **Full**。
-* 单击**保存更改**。下一次运行使用更新的允许列表。对于已打开的云会话，请参阅[网络访问更改何时到达现有会话](/docs/zh-CN/cloud-environments#network-access)。
+以下步骤用于更改您自己的环境。[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)在选择器中以只读方式打开，因此请让 Owner 在[管理设置](https://claude.ai/admin-settings)的 **Cloud environments** 页面中更改其网络访问。
+
+* 打开您的环境进行编辑，可以从[云端定时任务的表单](/docs/zh-CN/routines#environments-and-network-access)打开，也可以从您启动云端会话的[环境选择器](/docs/zh-CN/cloud-environments#configure-your-environment)打开。
+* 在 **Edit cloud environment** 对话框中，将 **Network access** 从 **Trusted** 更改为 **Custom**，然后将被阻止的域名添加到 **Allowed domains**。每行输入一个域名。勾选 **Also include default list of common package managers**，可在自定义域名之外保留[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)。如果您需要不受限制的访问，请改为选择 **Full**。
+* 点击 **Save changes**。下一次运行将使用更新后的允许列表。对于已经打开的云端会话，请参阅[网络访问更改何时作用于现有会话](/docs/zh-CN/cloud-environments#network-access)。
 
 有关访问级别和默认允许列表，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。本地 CLI 会话不受此策略影响。
 
@@ -2119,7 +2121,7 @@ x-deny-reason: host_not_allowed
   代理拒绝了连接
 </h3>
 
-当 Claude 通过您在 `HTTPS_PROXY` 中设置的代理或相关[代理变量](/docs/zh-CN/network-config#environment-variables)读取[工件](/docs/zh-CN/artifacts)时，您会看到此消息。工件内容来自 `*.frame.claudeusercontent.com`，因此 Claude Code 首先向代理发送 `CONNECT` 请求，要求它打开到该主机的隧道。当代理拒绝时，没有任何东西到达主机，消息携带代理的 HTTP 状态：
+当 Claude 通过您在 `HTTPS_PROXY` 或相关[代理变量](/docs/zh-CN/network-config#environment-variables)中设置的代理读取 [Artifact](/docs/zh-CN/artifacts) 时，您会看到此消息。Artifact 内容来自 `*.frame.claudeusercontent.com`，因此 Claude Code 会先向代理发送一个 `CONNECT` 请求，要求其打开到该主机的隧道。当代理拒绝时，没有任何内容到达该主机，消息中会带有代理的 HTTP 状态码：
 
 ```text theme={null}
 artifact content fetch failed (proxy refused the connection: HTTP 407)
@@ -2127,25 +2129,25 @@ artifact content fetch failed (proxy refused the connection: HTTP 403)
 the proxy refused the connection to the artifact's content host (HTTP 502)
 ```
 
-状态是代理对 `CONNECT` 的答案。主机从未回答，因此每个状态指向不同的修复：
+该状态码是代理对 `CONNECT` 的应答。主机从未作出应答，因此每种状态码对应不同的修复方法：
 
-* `HTTP 407`：代理需要它没有获得的凭证。将它们放在代理 URL 中，如[基本身份验证](/docs/zh-CN/network-config#basic-authentication)所示。
-* `HTTP 403`：代理拒绝隧道到 `*.frame.claudeusercontent.com`。要求运行代理的人允许该主机，[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)列出了该主机。
-* 任何其他状态，例如 `HTTP 502`：代理由于其自己的原因没有打开隧道，例如无法到达主机。在代理的日志中查找状态。
-* `unreadable reply` 代替状态：代理地址处的任何东西都没有用 HTTP 状态行回答。检查地址是否是 HTTP 代理。
+* `HTTP 407`：代理需要凭据，但没有收到。请按照[基本身份验证](/docs/zh-CN/network-config#basic-authentication)所示，将凭据放入代理 URL 中。
+* `HTTP 403`：代理拒绝建立到 `*.frame.claudeusercontent.com` 的隧道。请让代理的管理方允许该主机，该主机已列在[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)中。
+* 其他任何状态码，例如 `HTTP 502`：代理出于自身原因没有打开隧道，例如无法访问该主机。请在代理的日志中查找该状态码。
+* 显示 `unreadable reply` 而非状态码：代理地址上的服务没有以 HTTP 状态行作出应答。请检查该地址是否为 HTTP 代理。
 
-**要做什么：**
+**解决方法：**
 
-* 检查代理变量中的地址和凭证，如[代理配置](/docs/zh-CN/network-config#proxy-configuration)所述，然后从启动 Claude Code 的 shell 运行 `curl -x http://proxy.example.com:8080 -I https://api.anthropic.com`，使用您自己的代理 URL。在 Windows PowerShell 上，运行 `curl.exe`。如果此探针以相同方式失败，首先修复代理设置。如果成功，拒绝特定于工件主机。
-* 如果您的网络让 Claude Code 直接到达工件主机，将 `.frame.claudeusercontent.com` 添加到 [`NO_PROXY`](/docs/zh-CN/network-config#environment-variables)。保持条目狭窄：更广泛的 `.claudeusercontent.com` 条目也会绕过 `bridge.claudeusercontent.com` 的代理，具有[IP 允许列表](/docs/zh-CN/network-config#organization-ip-allowlists-and-proxy-egress)的组织需要将其保留在代理上。
+* 按照[代理配置](/docs/zh-CN/network-config#proxy-configuration)中的说明检查代理变量中的地址和凭据，然后在启动 Claude Code 的 shell 中运行 `curl -x http://proxy.example.com:8080 -I https://api.anthropic.com`，并使用您自己的代理 URL。在 Windows PowerShell 中，请运行 `curl.exe`。如果此探测以同样的方式失败，请先修复代理设置。如果探测成功，则说明该拒绝仅针对 Artifact 主机。
+* 如果您的网络允许 Claude Code 直接访问 Artifact 主机，请将 `.frame.claudeusercontent.com` 添加到 [`NO_PROXY`](/docs/zh-CN/network-config#environment-variables)。请保持该条目的范围尽可能窄：更宽泛的 `.claudeusercontent.com` 条目还会让 `bridge.claudeusercontent.com` 绕过代理，而使用 [IP 允许列表](/docs/zh-CN/network-config#organization-ip-allowlists-and-proxy-egress)的组织需要让该主机继续经过代理。
 
-在 v2.1.238 之前，Claude Code 将拒绝的隧道报告为通用网络错误。
+在 v2.1.238 之前，Claude Code 会将被拒绝的隧道报告为通用网络错误。
 
 <h3 id="the-cloud-environments-service-returned-an-empty-or-unexpected-response">
-  云环境服务返回了空的或意外的响应
+  云环境服务返回了空响应或意外响应
 </h3>
 
-Claude Code 在多个点请求您的[云环境](/docs/zh-CN/cloud-environments)列表，例如当您从 CLI 创建云会话或运行 [`/remote-env`](/docs/zh-CN/cloud-environments#select-an-environment-from-the-cli) 时。当它无法读取服务器的答案时，它显示以下消息之一：
+Claude Code 会在多个时间点请求您的[云环境](/docs/zh-CN/cloud-environments)列表，例如当您从 CLI 创建云端会话或运行 [`/remote-env`](/docs/zh-CN/cloud-environments#select-an-environment-from-the-cli) 时。当它无法读取服务器的应答时，会显示以下消息之一：
 
 ```text theme={null}
 The cloud environments service returned an empty response (HTTP 200 with no body). This is usually temporary — try again in a moment.
@@ -2153,107 +2155,107 @@ The cloud environments service returned a response in an unexpected format (HTTP
 The cloud environments service returned a response in an unexpected format (HTTP 200 without a usable environments list). This is usually temporary — try again in a moment.
 ```
 
-服务器接受了请求但用不是环境列表的正文回答：空、不是 JSON 或没有列表的 JSON。这通常伴随服务端中断，并自行清除。根据请求列表的表面，Claude Code 可能会添加前缀，例如 `/remote-env` 对话框中的 `couldn't list environments:`。
+服务器接受了请求，但应答的正文不是环境列表：为空、不是 JSON，或者是不含该列表的 JSON。这种情况通常伴随服务端故障出现，并会自行恢复。根据请求该列表的使用入口，Claude Code 可能会添加前缀，例如在 `/remote-env` 对话框中显示 `couldn't list environments:`。
 
-**要做什么：**
+**解决方法：**
 
-* 重试操作。Claude Code 每次都再次请求列表
-* 如果消息继续出现，检查 [status.claude.com](https://status.claude.com) 是否有活跃事件
+* 重试该操作。Claude Code 每次都会重新请求该列表
+* 如果该消息持续出现，请访问 [status.claude.com](https://status.claude.com) 查看是否有正在发生的事件
 
-在 v2.1.236 之前，Claude Code 显示原始 JavaScript TypeError 而不是这些消息。
+在 v2.1.236 之前，Claude Code 会显示原始的 JavaScript TypeError，而不是这些消息。
 
 <h3 id="failed-to-fetch-session-from-sessions-api">
   Failed to fetch session from Sessions API
 </h3>
 
-此消息意味着 Claude Code 找到了[您要求拉取到终端中的云端会话](/docs/zh-CN/claude-code-on-the-web#from-cloud-to-terminal)，但无法从 Anthropic 的服务器读取其对话历史，因此没有打开它：
+此消息表示 Claude Code 找到了[您要求拉取到终端中的云端会话](/docs/zh-CN/claude-code-on-the-web#from-cloud-to-terminal)，但无法从 Anthropic 的服务器读取其对话历史，因此没有打开该会话：
 
 ```text theme={null}
 Failed to fetch session from Sessions API: Failed to fetch session logs
 ```
 
-您会在运行 `claude --teleport`、`/teleport` 或在 [`/tasks`](/docs/zh-CN/commands) 列表中选择该会话后看到它。`claude --teleport <session-id>` 会打印此消息并以代码 1 退出。
+您会在执行 `claude --teleport`、`/teleport` 或在 [`/tasks`](/docs/zh-CN/commands) 列表中选择该会话之后看到此消息。`claude --teleport <session-id>` 会输出此消息并以代码 1 退出。
 
-**要做什么：**
+**解决方法：**
 
-* 再次运行相同的 Teleport 操作。如果以相同方式失败，请[报告该问题](#report-an-error)
+* 再次运行相同的 Teleport。如果以同样的方式失败，请[报告问题](#report-an-error)
 
-在 v2.1.296 之前，Claude Code 不会重试失败的读取，并且在读取失败后可能会以空对话打开该会话并报告成功，而不是打印此消息。
+在 v2.1.296 之前，Claude Code 不会重试失败的读取，并且在读取失败后可能会以空对话打开该会话并报告成功，而不是输出此消息。
 
 <h3 id="couldnt-reconnect-to-your-remote-control-session">
-  无法重新连接到您的 Remote Control 会话
+  Couldn't reconnect to your Remote Control session
 </h3>
 
 ```text theme={null}
 Couldn't reconnect to your Remote Control session. Retry, or start a fresh session without --resume.
 ```
 
-使用 `claude --resume` 或 `claude --continue` 恢复会重新连接到该对话中记录的[Remote Control](/docs/zh-CN/remote-control) 会话。此消息意味着重新连接因可能是临时的原因（例如网络中断或服务器错误）而失败，因此 Claude Code 无法确认远程会话是否仍然存在。您的本地会话继续运行而不使用 Remote Control。
+使用 `claude --resume` 或 `claude --continue` 恢复时，会重新连接到该对话中记录的 [Remote Control](/docs/zh-CN/remote-control) 会话。此消息表示重新连接由于可能是暂时性的原因（例如网络中断或服务器错误）而失败，因此 Claude Code 无法确认远程会话是否仍然存在。您的本地会话会在没有 Remote Control 的情况下继续运行。
 
-**要做什么：**
+**解决方法：**
 
 * 运行 `/remote-control` 重试连接
-* 使用 `claude --remote-control` 启动新会话以创建新的 Remote Control 会话
-* 对于其他 Remote Control 启动消息，请参阅[Remote Control 故障排除](/docs/zh-CN/remote-control#troubleshooting)
+* 使用 `claude --remote-control` 启动新会话，以创建新的 Remote Control 会话
+* 有关其他 Remote Control 启动消息，请参阅 [Remote Control 故障排除](/docs/zh-CN/remote-control#troubleshooting)
 
-如果服务器报告之前的会话已消失，您不会看到此消息。Claude Code 在其位置启动新会话或显示 [`Previous session is unavailable — run /remote-control to start a new one`](/docs/zh-CN/remote-control#previous-session-is-unavailable)。
+如果服务器改为报告之前的会话已不存在，您不会看到此消息。Claude Code 会启动一个新会话来代替它，或者显示 [`Previous session is unavailable — run /remote-control to start a new one`](/docs/zh-CN/remote-control#previous-session-is-unavailable)。
 
 <h3 id="sessions-ended-while-this-machine-was-offline">
-  此机器离线时会话已结束
+  Sessions ended while this machine was offline
 </h3>
 
-Claude Code 在运行 [`claude remote-control`](/docs/zh-CN/remote-control#start-a-remote-control-session) 的终端中显示此消息，在您的机器离线足够长的时间后，服务器清理了您的机器正在服务的 Remote Control 环境。该环境中的会话已结束，您无法恢复它们。计数是已结束的会话数。
+当您的计算机离线时间过长，导致服务器清理了该计算机所服务的 Remote Control 环境后，Claude Code 会在运行 [`claude remote-control`](/docs/zh-CN/remote-control#start-a-remote-control-session) 的终端中显示此消息。该环境中的会话已结束，无法恢复。其中的数字是已结束的会话数量。
 
 ```text theme={null}
 2 sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.
 ```
 
-**要做什么：**
+**解决方法：**
 
-* 当 Claude Code 在此消息下列出保留的 worktrees 时，从它们中拾取任何未提交的工作
+* 当 Claude Code 在此消息下方列出保留的 worktree 时，请从中取回所有未提交的工作
 * 运行 `claude remote-control` 启动新环境
 
 <h3 id="couldnt-share-the-transcript">
-  无法共享成绩单
+  Couldn't share the transcript
 </h3>
 
-在您同意从调查提示（例如[会话质量调查](/docs/zh-CN/data-usage#session-quality-surveys)）共享您的会话成绩单后，Claude Code 将其上传到 Anthropic，或在第三方提供商上、[Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上以及当没有 Anthropic 凭证可用时保存本地存档。此消息意味着共享未完成。
+当您通过调查提示（例如[会话质量调查](/docs/zh-CN/data-usage#session-quality-surveys)）同意分享会话记录后，Claude Code 会将其上传到 Anthropic；而在第三方提供商上、在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话中，以及没有可用的 Anthropic 凭据时，则会改为保存本地归档。此消息表示分享未能完成。
 
 ```text theme={null}
 Couldn't share the transcript.
 ```
 
-上传必须符合 8 MiB 限制。在长会话上，Claude Code 逐步删除共享的部分，最后一个请求的模型设置首先，然后是结构化对话和子代理成绩单，仅当没有减少的版本可以发送或网络或服务器错误停止上传时才显示此消息。当 Claude Code 保存本地存档时，消息意味着它无法写入存档。
+上传内容必须在 8 MiB 的限制以内。在较长的会话中，Claude Code 会逐步删减分享内容的部分，先删除最后一个请求的模型设置，然后删除结构化对话和子代理会话记录；当无法发送任何缩减版本，或者网络或服务器错误导致上传中止时，会显示此消息。当 Claude Code 改为保存本地归档时，此消息表示它无法写入该归档。
 
-**要做什么：**
+**解决方法：**
 
-* 运行 `/feedback` 发送成绩单并描述发生了什么。如果 `/feedback` 在您的环境中不可用，请参阅[报告错误](#report-an-error)
-* 如果其他请求也失败，检查您的网络连接并查看[无法连接到 API](#unable-to-connect-to-api)
+* 运行 `/feedback`，附上所发生情况的描述来发送会话记录。如果您的环境中无法使用 `/feedback`，请参阅[报告错误](#report-an-error)
+* 如果其他请求也在失败，请检查您的网络连接，并参阅 [Unable to connect to API](#unable-to-connect-to-api)
 
 <h3 id="couldnt-send-feedback">
-  无法发送反馈
+  Couldn't send feedback
 </h3>
 
-您从 [`/feedback`、`/bug` 或 `/share` 对话框](/docs/zh-CN/commands#all-commands)发送了报告，上传到 Anthropic 失败。对话框保留您的文本，以便您可以重试。
+您从 [`/feedback`、`/bug` 或 `/share` 对话框](/docs/zh-CN/commands#all-commands)发送了报告，但上传到 Anthropic 失败。对话框会保留您的文本，以便您重试。
 
 ```text theme={null}
 Couldn't send feedback (couldn't reach the service). If it keeps failing, you can file at https://github.com/anthropics/claude-code/issues instead.
 ```
 
-前缀后的文本名称失败的内容：
+前缀之后的文本说明了失败的原因：
 
-* **`: not signed in. Run /login, then retry.`**：对话框仅在 Claude Code 打开时找到 Anthropic 凭证且到您发送时没有可用的凭证时上传。例如，您在此期间在此机器上注销，或您的登录不再可以刷新。
-* **括号内容**：`(server returned <status>)` 是服务的响应代码；`(request timed out)` 和 `(couldn't reach the service)` 是网络故障。当 Claude Code 无法命名原因时，括号内容不存在。
+* **`: not signed in. Run /login, then retry.`**：只有当 Claude Code 在对话框打开时找到了 Anthropic 凭据，对话框才会上传，而在您发送时这些凭据已全部不可用。例如，您在此期间在这台计算机上退出了登录，或者您的登录已无法刷新。
+* **括号内容**：`(server returned <status>)` 是服务的响应代码；`(request timed out)` 和 `(couldn't reach the service)` 是网络故障。当 Claude Code 无法说明原因时，不会显示括号内容。
 
-在[反馈草稿队列](/docs/zh-CN/tools-reference#sendfeedback-tool-behavior)中，相同的故障以 `The draft is still queued. Try again later.` 结束，草稿保留在队列中以供另一次尝试。
+在[反馈草稿队列](/docs/zh-CN/tools-reference#sendfeedback-tool-behavior)中，同样的失败会改为以 `The draft is still queued. Try again later.` 结尾，草稿会保留在队列中以供再次尝试。
 
-**要做什么：**
+**解决方法：**
 
-* 对于未登录的措辞，运行 `/login` 并再次发送
-* 否则，再次发送；如果其他请求也失败，检查您的网络连接并查看[无法连接到 API](#unable-to-connect-to-api)
-* 如果它继续失败，在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交报告，如消息所说
+* 对于未登录的提示文字，请运行 `/login` 后再次发送
+* 否则，请再次发送；如果其他请求也在失败，请检查您的网络连接，并参阅 [Unable to connect to API](#unable-to-connect-to-api)
+* 如果持续失败，请按照消息所述，在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交报告
 
-在 v2.1.281 之前，每次发送在 Remote Control **Stop** 或紧急跨会话消息在对话框打开时到达后都失败并显示此消息。在这些版本上，关闭对话框，重新打开它，然后再次发送。
+在 v2.1.281 之前，如果在对话框打开期间收到了 Remote Control **Stop** 或紧急的跨会话消息，之后的每次发送都会以此消息失败。在这些版本上，请关闭对话框，重新打开，然后再次发送。
 
 <h2 id="request-errors">
   请求错误
@@ -3663,9 +3665,9 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许其执行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，而机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
-* `No shell command in <name> was run`：该文件的某个 `!` 命令包含除制表符或换行符之外的原始控制字符，因此所有命令都不会运行。请参阅[如何找到并删除该字符](#no-shell-command-was-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
+* `No shell command in <name> was run`：文件中的某个 `!` 命令包含除制表符或换行符以外的原始控制字符，因此所有命令都不会运行。请参阅[如何查找并删除该字符](#no-shell-command-was-run)
 
 **解决方法：**
 
@@ -3787,9 +3789,9 @@ Claude Code 会建议菜单在此会话中列出的最接近的命令名称或�
 * [Agent SDK](/docs/zh-CN/agent-sdk/overview) 应用程序
 * [桌面应用](/docs/zh-CN/desktop)的 Code 标签页
 * [VS Code 扩展](/docs/zh-CN/vs-code)的聊天面板
-* [云端会话](/docs/zh-CN/claude-code-on-the-web)和 [Routine](/docs/zh-CN/routines)
+* [云端会话](/docs/zh-CN/claude-code-on-the-web)和[云端定时任务](/docs/zh-CN/routines)
 
-对于无法在上述会话之一中运行的内置命令，Claude Code 仍会回复该命令不可用，而不是将其发送给 Claude。在 v2.1.274 之前，只有云端会话和 Routine 会将未匹配的名称发送给 Claude。在 v2.1.273 之前，它们也会回复 `Unknown command`。
+对于无法在这些会话中运行的内置命令，Claude Code 仍会回应该命令不可用，而不是将其发送给 Claude。在 v2.1.274 之前，只有云端会话和云端定时任务会将不匹配的名称发送给 Claude。在 v2.1.273 之前，它们也会回应 `Unknown command`。
 
 Claude Code 不会将每个以 `/` 开头的提示词都视为命令。当 `/` 之后的第一个词以标点开头（例如开启 Lean 文档注释的 `/--`），或者是一个路径（例如 `/var/log/syslog`）时，它会将该提示词作为普通消息发送给 Claude。
 
@@ -3831,7 +3833,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传递的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin fetch 了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个 fetch 来的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin fetch 了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个被 fetch 的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
 
 **解决方法：**
 
@@ -3937,7 +3939,7 @@ Not uploading this working tree: core.ignoreCase (which decides whether .gitattr
 GitHub isn't connected to your Claude account, so this repository can't be cloned in the cloud. Run /web-setup to connect with your GitHub CLI login, or connect on the web at https://claude.ai/connect-github
 ```
 
-当您使用 [`/schedule`](/docs/zh-CN/routines) 创建 Routine 时，同样的消息会以指出该仓库的设置说明形式出现；该说明不会阻止创建 Routine。
+当您使用 [`/schedule`](/docs/zh-CN/routines) 创建云端定时任务时，同样的消息会以一条指出该仓库的设置说明形式出现；该说明不会阻止创建任务。
 
 **解决方法：**
 
@@ -4197,7 +4199,7 @@ Output styles are saved to local settings (.claude/settings.local.json), which t
   /recap 仅在您亲自请求时运行
 </h3>
 
-该 [`/recap`](/docs/zh-CN/interactive-mode#session-recap) 请求并非来自您自己的输入。它出现在从 Slack、Teams 或[项目](/docs/zh-CN/claude-projects)线程转发到会话中的消息里，或出现在 [Routine](/docs/zh-CN/routines) 或其他程序发送的提示词中。
+该 [`/recap`](/docs/zh-CN/interactive-mode#session-recap) 请求并非来自您自己的输入。它来自从 Slack、Teams 或[项目](/docs/zh-CN/claude-projects)线程转发到会话中的消息，或者来自由[云端定时任务](/docs/zh-CN/routines)或其他程序发送的提示词。
 
 即使转发的消息是您本人撰写的，也会收到此通知。Claude Code 无法判断转发或自动化的消息是否来自运行该会话的账户所有者，因此会以此通知代替摘要进行回复：
 
@@ -4210,7 +4212,7 @@ Output styles are saved to local settings (.claude/settings.local.json), which t
 **解决方法：**
 
 * 亲自打开该会话并在其中运行 `/recap`：在其终端中、在 [Desktop 应用](/docs/zh-CN/desktop)或[移动应用](/docs/zh-CN/mobile)中、在 [claude.ai/code](https://claude.ai/code) 上，或通过 [Remote Control](/docs/zh-CN/remote-control)
-* 如果是 Routine 或其他程序发送的，请从该提示词中删除 `/recap`
+* 如果是云端定时任务或其他程序发送的，请从该提示词中删除 `/recap`
 
 <h2 id="plugin-errors">
   插件错误

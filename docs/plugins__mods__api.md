@@ -248,6 +248,97 @@ on('session.start', async ($, e, next) => {
 
 当模块重新加载时，计时器停止。对于 hook 内的长时间运行工作，[`next.signal`](/docs/zh-CN/plugins/mods/reference#the-hook-function) 是一个 `AbortSignal`，当您的 hook 处理的事件被放弃时中止，例如当用户中断时，因此将其传递给任何长时间运行的内容。
 
+<h3 id="calls-and-background-work-after-the-user-interrupts-a-turn">
+  用户中断轮次后的调用和后台工作
+</h3>
+
+结果或错误中的原因 `the session was stopped and nobody has sent input since` 表示用户停止了正在运行的轮次，例如通过 Esc 或 **Stop**。在该中断之后，在会话中启动新工作的调用会被拒绝，直到用户的下一次输入，例如在输入框中输入的一条消息。
+
+除 `$.prompt.submit` 和 `$.command.run` 外，这种中断后对调用和后台工作的处理需要 Claude Code v2.1.304 或更高版本。
+
+<h4 id="retry-a-refused-or-dropped-call">
+  重试被拒绝或被丢弃的调用
+</h4>
+
+从 [`turn.complete`](/docs/zh-CN/plugins/mods/events#follow-a-turn) hook 中再次发起被拒绝或被丢弃的调用。调用会一直被拒绝，直到用户的下一次输入，并且不会有任何机制替您将其排队或重复执行。
+
+当调用的结果或错误包含以下字符串之一时，保留其参数以便稍后重试：
+
+* **`the session was stopped and nobody has sent input since`**：调用被拒绝
+* **`was removed from the queue before it ran`**：提示词或命令未运行就离开了队列并被丢弃，例如当用户停止了轮次时
+
+在此示例中，从您的后台工作中调用 `submitPrompt` 来代替 [`$.prompt.submit`](#start-a-turn-from-a-background-job)。当结果或错误带有上述字符串之一时，`submitPrompt` 会将文本保存在 `pendingText` 中，供 `turn.complete` hook 再次提交：
+
+```javascript theme={null}
+// The text of the last refused or dropped prompt, or null
+let pendingText = null
+
+async function submitPrompt($, text) {
+  let reason
+  try {
+    const result = await $.prompt.submit({ text })
+    reason = result?.drop ?? ''
+  } catch (error) {
+    reason = String(error?.message ?? error)
+  }
+  if (reason.includes('the session was stopped and nobody has sent input since') ||
+      reason.includes('was removed from the queue before it ran')) {
+    pendingText = text
+  }
+  // Any other result or error isn't retried
+}
+
+on('turn.complete', async ($, e, next) => {
+  if (pendingText !== null) {
+    const text = pendingText
+    // Empty pendingText before retrying, so that a second run of this hook
+    // doesn't submit the same text.
+    pendingText = null
+    // Not awaited: the hook would stay open until the new turn starts
+    submitPrompt($, text)
+  }
+  return next(e)
+})
+```
+
+在用户的下一次输入之前，`turn.complete` 可能会为被中断的轮次本身以及子代理的轮次触发，此时发起的调用会再次被拒绝。在这种情况下，`submitPrompt` 会保留文本，留给之后的 `turn.complete`。
+
+对于会 reject 的调用，例如 `$.command.run`，请捕获错误，并以 `submitPrompt` 测试 `reason` 的方式测试其消息。
+
+<h4 id="what-refused-calls-return">
+  被拒绝的调用返回什么
+</h4>
+
+在结果中，`<reason>` 代表 `the session was stopped and nobody has sent input since`：
+
+| 部分被拒绝的调用 | 用户下一次输入之前的结果 |
+| :- | :- |
+| `$.prompt.submit` | 解析为 `{ drop: '<reason>' }`，且不会将任何提示词排队 |
+| `$.command.run` | 以一个消息以 `<reason>` 结尾的错误 reject |
+| [`$.agent.spawn`](/docs/zh-CN/plugins/mods/reference#mods-api-methods) | 解析为 `{ deny: '<reason>' }`，且不会启动子代理 |
+| 向已完成的子代理调用 `$.session.send` | 解析为 `{ isDelivered: false, reason: 'Agent "<id>" was not resumed: <reason>.' }`，其中 `<id>` 是子代理的 id。仍在运行的子代理会收到该消息。 |
+| 向 [agent team](/docs/zh-CN/agent-teams) 队友调用 `$.session.send` | 解析为 `{ isDelivered: false, reason: 'Teammate "<name>" was not messaged: <reason>.' }`，其中 `<name>` 是队友的名称 |
+| 对带有 `run_in_background: true` 的 Bash、Monitor 或 CronCreate 调用 [`$.tool.call`](/docs/zh-CN/plugins/mods/reference#mods-api-methods) | 解析为 `{ deny: '<tool> was not run: it starts background work, a schedule or a goal, and <reason>' }`，其中 `<tool>` 是工具的名称 |
+
+伴随这些 `$.session.send` 和 `$.tool.call` 结果，用户可能会看到 [`Stopped:` toast](/docs/zh-CN/plugins/mods/troubleshoot#stopped-type-a-message-to-continue)。
+
+<h4 id="work-your-mod-started-before-the-interruption">
+  您的 mod 在中断前启动的工作
+</h4>
+
+用户停止正在运行的轮次后（例如通过 Esc），您的 mod 已经启动的部分工作会被丢弃，部分工作会等待用户的下一次输入。
+
+| 工作 | 用户下一次输入之前会发生什么 | 如何处理 |
+| :- | :- | :- |
+| 来自 `$.prompt.submit` 且仍在队列中的提示词 | 被丢弃。调用解析为 `{ drop: 'the prompt was removed from the queue before it ran' }`。 | 按照[重试被拒绝或被丢弃的调用](#retry-a-refused-or-dropped-call)所示再次提交 |
+| 来自 `$.command.run` 且仍在队列中的命令 | 被丢弃。调用以一个消息包含 `the command was removed from the queue before it ran` 的错误 reject。 | 按照[重试被拒绝或被丢弃的调用](#retry-a-refused-or-dropped-call)所示再次运行 |
+| 使用 CronCreate 等工具安排、在用户下一次输入之前到期的一次性作业 | 此时不启动轮次，并在该输入之后运行 | 无需处理 |
+| 使用 CronCreate 等工具安排、在用户下一次输入之前到期的周期性作业 | 此时不启动轮次。该作业会错过这次运行，并保留其计划。 | 无需处理 |
+| 来自您的 mod 启动的监视器的事件 | 监视器继续运行。监视器在用户下一次输入之前触发的事件会被丢弃，但监视器结束的通知除外，该通知会在该输入之后到达。 | 无法处理 |
+| 您的 mod 生成并随后通过 `$.session.send` 恢复、在用户下一次输入之前完成的子代理 | 其完成通知会等待，并在该输入之后到达对话 | 无需处理 |
+
+当计划作业到期或监视器在用户下一次输入之前触发事件时，用户可能会看到 [`Stopped:` toast](/docs/zh-CN/plugins/mods/troubleshoot#stopped-type-a-message-to-continue)。
+
 <h2 id="send-and-receive-messages-between-sessions">
   在会话之间发送和接收消息
 </h2>

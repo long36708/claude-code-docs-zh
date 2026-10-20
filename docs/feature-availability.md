@@ -54,7 +54,7 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 * [云端会话](/docs/zh-CN/claude-code-on-the-web)和移动设备上的 Claude Code
 * [Slack 中的 Claude Code](/docs/zh-CN/slack)：Pro 和 Max 计划
 * [Claude Code Desktop](/docs/zh-CN/desktop)
-* [Routines](/docs/zh-CN/routines)（`/schedule`）
+* [云端定时任务](/docs/zh-CN/routines)（`/schedule`）
 * [Ultrareview](/docs/zh-CN/ultrareview)
 * [Code Review](/docs/zh-CN/code-review)：Team 和 Enterprise 计划
 * [Remote Control](/docs/zh-CN/remote-control)
@@ -308,7 +308,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 | 功能 | Pro | Max | Team | Enterprise |
 | :- | :- | :- | :- | :- |
 | [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) | ✓ | ✓ | ✓ | ✓ <sup><a href="#fn6">6</a></sup> |
-| [Routines](/docs/zh-CN/routines) | ✓ | ✓ | ✓ | ✓ |
+| [云端定时任务](/docs/zh-CN/routines) | ✓ | ✓ | ✓ | ✓ |
 | [Remote Control](/docs/zh-CN/remote-control) | ✓ | ✓ | Admin-enabled | Admin-enabled |
 | [Channels](/docs/zh-CN/channels) | ✓ | ✓ | Admin-enabled | Admin-enabled |
 | [Computer use](/docs/zh-CN/computer-use) | ✓ | ✓ | ✗ | ✗ |

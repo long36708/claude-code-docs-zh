@@ -75,7 +75,7 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 | 会话处于[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) | 在每个 Artifact 首次发布前询问 |
 | 该发布声明了页面的运行时功能，例如[连接器调用](#pull-live-data-with-mcp-connectors)或[文件下载](#offer-a-file-download) | 在该次发布前询问 |
 | 您已公开共享该 Artifact | 每个对话中在更改它之前询问一次 |
-| Claude 在由会话中触发的[定时任务](/docs/zh-CN/scheduled-tasks)（而非您输入的提示词）启动的轮次中发布 | 在每个 Artifact 首次发布前询问 |
+| Claude 在由您会话中触发的[会话级定时任务](/docs/zh-CN/scheduled-tasks)（而非您输入的提示词）启动的轮次中发布 | 在每个 Artifact 首次发布前询问 |
 | Claude 未经您批准无法读取该文件 | 在发布前询问。针对 `Artifact` 工具的允许规则不会跳过此提示 |
 | 在 [Manual](/docs/zh-CN/permission-modes) 或 `acceptEdits` 模式下，Claude 对某个未经您批准无法编辑的 Artifact 文件进行小幅更改，例如 Manual 模式下的项目文件 | 在发布该更改前询问。即使有允许规则涵盖 `Artifact` 工具，也会询问您，因为对该文件的编辑需要您的批准 |
 

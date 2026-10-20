@@ -28,7 +28,7 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
       <Tab title="原生安装（推荐）">
         **macOS、Linux、WSL：**
 
-        ```bash theme={null}
+        ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
         curl -fsSL https://claude.ai/install.sh | bash
         ```
 
@@ -36,13 +36,13 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
 
         **Windows PowerShell：**
 
-        ```powershell theme={null}
+        ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
         irm https://claude.ai/install.ps1 | iex
         ```
 
         **Windows CMD：**
 
-        ```batch theme={null}
+        ```batch theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
         curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
         ```
 
@@ -60,7 +60,7 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
       </Tab>
 
       <Tab title="Homebrew">
-        ```bash theme={null}
+        ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
         brew install --cask claude-code
         ```
 
@@ -72,7 +72,7 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
       </Tab>
 
       <Tab title="WinGet">
-        ```powershell theme={null}
+        ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
         winget install Anthropic.ClaudeCode
         ```
 
@@ -210,13 +210,13 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
   <Accordion title="安排定期任务" icon="clock">
     按计划运行 Claude 以自动化重复的工作：早晨 PR 审查、夜间 CI 失败分析、每周依赖项审计或在 PR 合并后同步文档。
 
-    * [Routines](/docs/zh-CN/routines) 在云中运行，因此即使你的计算机关闭，它们也会继续运行。它们也可以在 API 调用或 GitHub 事件上触发。从网络、桌面应用或通过在 CLI 中运行 `/schedule` 来创建它们。
-    * [桌面计划任务](/docs/zh-CN/desktop-scheduled-tasks)在你的机器上运行，可直接访问你的本地文件和工具
-    * [`/loop`](/docs/zh-CN/scheduled-tasks) 在 CLI 会话中重复提示以进行快速轮询
+    * [云端定时任务](/docs/zh-CN/routines)（以前称为 Routine）在云中运行，因此即使您的计算机关闭，它们也会继续运行。它们也可以在 API 调用或 GitHub 事件上触发。从网页、Desktop 应用或通过在 CLI 中运行 `/schedule` 来创建它们。
+    * [Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks)在您的机器上运行，可直接访问您的本地文件和工具
+    * [`/loop`](/docs/zh-CN/scheduled-tasks) 在 CLI 会话中重复提示词以进行快速轮询
   </Accordion>
 
   <Accordion title="从任何地方工作" icon="globe">
-    会话不受限于单一界面。当你的上下文改变时，在环境之间移动工作：
+    会话不受限于单一使用入口。当您的上下文改变时，在它们之间移动工作：
 
     * 离开你的办公桌，使用[远程控制](/docs/zh-CN/remote-control)从你的手机或任何浏览器继续工作
     * 向 [Dispatch](/docs/zh-CN/desktop#sessions-from-dispatch) 发送来自你手机的任务，并打开它创建的桌面会话
@@ -239,7 +239,7 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
 | 从我的手机或另一台设备继续本地会话 | [远程控制](/docs/zh-CN/remote-control) |
 | 从 Telegram、Discord、iMessage 或我自己的 webhook 推送事件到会话中 | [Channels](/docs/zh-CN/channels) |
 | 在本地启动任务，在移动设备上继续 | [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)，然后使用 [Claude 移动应用](/docs/zh-CN/mobile) |
-| 按定期计划运行 Claude | [Routines](/docs/zh-CN/routines) 或[桌面计划任务](/docs/zh-CN/desktop-scheduled-tasks) |
+| 按定期计划运行 Claude | [云端定时任务](/docs/zh-CN/routines)或[桌面定时任务](/docs/zh-CN/desktop-scheduled-tasks) |
 | 自动化 PR 审查和问题分类 | [GitHub Actions](/docs/zh-CN/github-actions) 或 [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd) |
 | 在每个 PR 上获得自动代码审查 | [GitHub Code Review](/docs/zh-CN/code-review) |
 | 将 Slack 中的错误报告路由到拉取请求 | [Slack](/docs/zh-CN/slack) |

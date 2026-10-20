@@ -46,7 +46,7 @@ Claude Code 可与 Anthropic 自己的网关或您的组织已运行的网关配
 
 Claude apps gateway 是 Anthropic 的自托管网关，包含在 `claude` 二进制文件中。它路由到 Amazon Bedrock、Claude Platform on AWS、Google Cloud、Microsoft Foundry 或 Anthropic API 作为上游。开发人员通过 `/login` 使用您的企业身份提供商登录，网关按 IdP 组强制执行模型访问和 [托管设置](/docs/zh-CN/managed-settings)，并向您自己的可观测性堆栈发出 [OpenTelemetry Protocol (OTLP)](/docs/zh-CN/monitoring-usage) 使用指标。
 
-因为它与每个 Claude Code 版本一起构建和测试，所以它转发 Claude Code 发送的标头和请求字段。单独维护的网关需要在每个版本中更改这些标头和字段时 [更新其转发规则](/docs/zh-CN/llm-gateway-protocol#forward-as-open-lists)；Claude 应用网关与 CLI 一起发布，因此没有列表需要保持最新。有关在网关会话上行为不同的小功能集，请参阅 [可用性和限制](/docs/zh-CN/claude-apps-gateway#availability-and-limitations)。
+因为它与每个 Claude Code 版本一起构建和测试，所以它转发 Claude Code 发送的 `anthropic-beta` 值和请求字段。单独维护的网关需要随着这些值和字段在每个版本中发生变化而 [更新其转发规则](/docs/zh-CN/llm-gateway-protocol#forward-as-open-lists)；Claude apps gateway 与 CLI 一起发布，因此没有列表需要保持最新。有关在网关会话上行为不同的小功能集，请参阅 [可用性和限制](/docs/zh-CN/claude-apps-gateway#availability-and-limitations)。
 
 网关登录是浏览器 SSO 步骤，没有服务令牌流，因此没有开发人员批准登录的 CI 管道无法通过它进行身份验证；直接针对您的提供商配置这些。Agent SDK 会话和在开发人员已登录的机器上运行的 `claude -p` 使用该机器的网关会话，并受其策略管制。请参阅 [CI 管道和远程机器](/docs/zh-CN/claude-apps-gateway#ci-pipelines-and-remote-machines)。
 

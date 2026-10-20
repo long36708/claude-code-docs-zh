@@ -91,7 +91,7 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 | `acceptEdits` | 自动接受工作目录或 `additionalDirectories` 中路径的文件编辑和常见文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp` |
 | `plan` | Claude 读取文件并运行只读 shell 命令来探索，但不编辑您的源文件；在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)可用的情况下，分类器批准的命令也会运行。在 CLI 和 VS Code 扩展中标记为 Plan |
 | `auto` | 无需常规提示即可运行；在 shell 命令和网络请求等操作运行之前，后台[分类器](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)会检查它们是否与您的请求一致 |
-| `dontAsk` | 自动拒绝每个会导致提示的调用；您的工作目录中的文件读取和其他不需要批准的操作仍会运行，通过 `/permissions` 或 `permissions.allow` 规则预先批准的工具也会运行。`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](#network-paths)，以及[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，在该设置到达 Claude Code 的会话中即使您已允许它们也会被拒绝 |
+| `dontAsk` | 自动拒绝每个会导致提示的调用，但您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍可以批准其中的部分调用。您的工作目录中的文件读取和其他不需要批准的操作仍会运行，通过 `/permissions` 或 `permissions.allow` 规则预先批准的工具也会运行。`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](#network-paths)，以及[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，在该设置到达 Claude Code 的会话中即使您已允许它们也会被拒绝 |
 | `bypassPermissions` | 跳过权限提示，除了[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) |
 
 <Warning>
@@ -661,12 +661,21 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 
 PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask 规则，无论 PreToolUse hook 返回什么：匹配的 deny 规则会阻止调用，匹配的 ask 规则即使在 hook 返回 `"allow"` 或 `"ask"` 时仍然会提示。这保留了[管理权限](#manage-permissions)中描述的 deny 优先级，包括在托管设置中设置的 deny 规则。
 
-该优先级涵盖设置文件中的 hook 和插件的 `hooks/hooks.json` 中的 hook。您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 会在规则和 `PreToolUse` hook 已经决定之后回答。在[计划模式](#hook-approvals-in-plan-mode)之外，或对于只读调用，其答案可以替代它们的答案：
+该优先级涵盖设置文件中的 hook 和插件的 `hooks/hooks.json` 中的 hook。您安装的处理 [`tool.check`](/docs/zh-CN/plugins/mods/events#approve-or-refuse-a-tool-call-before-the-user-is-asked) 事件的 [mod](/docs/zh-CN/plugins/mods/overview) 会在权限规则和 `PreToolUse` hook 已经决定之后给出其答案。当机器上存在[托管设置](/docs/zh-CN/settings#check-what-your-organization-enforces)，或会话的凭据是团队或企业 [`/login`](/docs/zh-CN/authentication#authentication-precedence) 时，在 mod 批准调用的情况下，以下结果默认保持不变：
 
-* **Ask 规则**：模块可以批准 ask 规则会提示的调用
-* **来自 `PreToolUse` hook 的阻止**：模块可以批准调用，除非 hook 在托管设置中
-* **自动模式分类器**：在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，模块批准的调用运行时无需分类器检查
-* **Deny 规则**：在具有托管设置的机器上，或当您使用团队或企业计划登录时，deny 规则默认优先于模块，您的组织可以更改这一点。在其他任何地方，模块可以批准 deny 规则拒绝的调用。
+* deny 规则拒绝的调用仍会被拒绝，您的组织可以更改这一点。
+* ask 规则会提示的调用仍会提示您。
+* `PreToolUse` hook 或 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 会提示的调用仍会提示您。
+* `PreToolUse` hook 阻止的调用仍会被阻止，无论该 hook 来自哪个设置文件。
+* 您的 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 或 Agent SDK [`canUseTool` 回调](/docs/zh-CN/agent-sdk/user-input#handle-tool-approval-requests)会被询问的调用，仍会交由该工具或回调处理。
+
+如果既没有托管设置，会话的凭据也不是团队或企业 `/login`，mod 就可以批准 deny 规则拒绝的调用或 `PreToolUse` hook 阻止的调用。改用 API 密钥或长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话并未使用该登录，即使该登录已被存储。
+
+在这种配置下，当 mod 批准 ask 规则、`PreToolUse` hook 或 `permissions.blockReadsOutsideWorkingDirectories` 会提示的调用时，您不会收到提示。对于 mod 批准的调用，您的 `--permission-prompt-tool` 或 `canUseTool` 回调也不会被询问。在所有配置下，自动模式、计划模式和 `dontAsk` 模式各自还会带来其特有的结果：
+
+* **[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)**：mod 批准的调用运行时无需分类器检查，除非 mod 无法绕过您的权限提示工具或 Agent SDK 权限回调。在这种情况下，分类器会先检查该调用。
+* **[计划模式](#hook-approvals-in-plan-mode)**：mod 无法批准非只读调用，例如文件编辑或进行写入的 shell 命令。
+* **[`dontAsk` 模式](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)**：mod 可以批准仅会被该模式拒绝的调用。
 
 请参见[决定是否信任模块](/docs/zh-CN/plugins/mods/overview#decide-whether-to-trust-a-mod)，或如果您部署托管设置，请参见[为您的组织管理模块](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default)。
 

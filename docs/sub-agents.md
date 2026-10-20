@@ -634,7 +634,7 @@ Use the Playwright tools to navigate, screenshot, and interact with pages.
 | `default` | Manual 模式：提示请求权限 |
 | `acceptEdits` | 对于工作目录或 `additionalDirectories` 中的路径，自动接受文件编辑和常见文件系统命令 |
 | `auto` | [自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)：后台分类器审查命令和对受保护目录的写入 |
-| `dontAsk` | 自动拒绝权限提示。明确允许的工具仍可使用；`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](/docs/zh-CN/permissions#network-paths)，以及在该设置能作用到 Claude Code 的会话中[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，即使您已允许也会被拒绝 |
+| `dontAsk` | 自动拒绝会触发提示的调用，但您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍可批准[其中部分调用](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。明确允许的工具仍可使用。`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](/docs/zh-CN/permissions#network-paths)，以及在该设置能作用到 Claude Code 的会话中[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，即使您已允许也会被拒绝 |
 | `bypassPermissions` | [跳过权限提示](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)。只有当主对话处于此模式时，子代理才会以此模式运行 |
 | `plan` | 计划模式（只读探索） |
 
@@ -1279,7 +1279,7 @@ Continue that code review and now analyze the authorization logic
   为单个子代理设置自动压缩窗口
 </h5>
 
-要让某个子代理比原本更早压缩，请在其 [frontmatter](#supported-frontmatter-fields) 中将 `autoCompactWindow` 设置为 `100000` 到 `1000000` 之间的 token 数。如果您将 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars#variables) 设置为正整数，子代理会改用该变量的窗口，此字段不起作用。需要 Claude Code v2.1.296 或更高版本。
+要让某个子代理比原本更早压缩，请在其 [frontmatter](#supported-frontmatter-fields) 中将 `autoCompactWindow` 设置为 `100000` 到 `1000000` 之间的 token 数。如果您设置了 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars#variables)，子代理会改用该变量的窗口，此字段不起作用，除非 Claude Code [忽略了该变量的值](/docs/zh-CN/model-config#claude_code_auto_compact_window-values)。需要 Claude Code v2.1.296 或更高版本。
 
 以下 frontmatter 为一个读取长日志文件的子代理将 `autoCompactWindow` 设置为 200,000 token：
 

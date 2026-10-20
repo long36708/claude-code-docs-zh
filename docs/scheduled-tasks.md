@@ -6,9 +6,16 @@
 
 > 使用 /loop 和 cron 调度工具在 Claude Code 会话中重复运行提示词、轮询状态或设置一次性提醒。
 
-计划任务让 Claude 按间隔自动重新运行提示词。使用它们来轮询部署、监督 PR、检查长时间运行的构建，或在会话中稍后提醒自己做某事。要对事件进行实时反应而不是轮询，请参阅 [Channels](/docs/zh-CN/channels)：您的 CI 可以直接将失败推送到会话中。要保持会话工作转向转向直到满足条件而不是按间隔，请参阅 [`/goal`](/docs/zh-CN/goal)。
+会话范围的定时任务让 Claude 在 Claude Code 会话中按间隔自动重新运行提示词。使用它们来轮询部署、监督 PR、检查长时间运行的构建，或在会话中稍后提醒自己做某事。
 
-任务是会话范围的。当您使用 `--resume` 或 `--continue` 恢复时，Claude Code 会恢复尚未[过期](#seven-day-expiry)的任务，除了[限制](#limitations)下列出的任务。对于独立于任何会话而存在的调度，请使用 [Routines](/docs/zh-CN/routines) 在云上创建例程、设置 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks)，或使用 [GitHub Actions](/docs/zh-CN/github-actions)。
+<Note>
+  以下情况在其他页面中介绍：
+
+  * **对事件进行实时反应而不是轮询**：请参阅 [Channels](/docs/zh-CN/channels)。您的 CI 可以直接将失败推送到会话中。
+  * **让会话逐轮次持续工作直到满足某个条件，而不是按间隔运行**：请参阅 [`/goal`](/docs/zh-CN/goal)。
+</Note>
+
+任务是会话范围的。当您使用 `--resume` 或 `--continue` 恢复时，Claude Code 会恢复尚未[过期](#seven-day-expiry)的任务，除了[限制](#limitations)下列出的任务。对于独立于任何会话而存在的调度，请创建[云端定时任务](/docs/zh-CN/routines)、设置 [Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks)，或使用 [GitHub Actions](/docs/zh-CN/github-actions)。
 
 <h2 id="compare-scheduling-options">
   比较调度选项
@@ -155,8 +162,10 @@ in 45 minutes, check whether the integration tests passed
 
 Claude 使用 cron 表达式将触发时间固定到特定的分钟和小时，并确认何时触发。
 
-<h2 id="manage-scheduled-tasks">
-  管理计划任务
+<span id="manage-scheduled-tasks" />
+
+<h2 id="manage-session-scoped-scheduled-tasks">
+  管理会话范围的定时任务
 </h2>
 
 用自然语言要求 Claude 列出或取消任务，或直接引用底层工具。
@@ -179,8 +188,10 @@ cancel the deploy check job
 
 每个计划任务都有一个 8 字符的 ID，您可以将其传递给 `CronDelete`。一个会话最多可以同时保存 50 个计划任务。
 
-<h2 id="how-scheduled-tasks-run">
-  计划任务如何运行
+<span id="how-scheduled-tasks-run" />
+
+<h2 id="how-session-scoped-scheduled-tasks-run">
+  会话范围的定时任务如何运行
 </h2>
 
 调度程序每秒检查一次到期的任务，并以低优先级将其加入队列。计划的提示词在您的回合之间触发，而不是在 Claude 正在响应时。如果 Claude 在任务到期时忙碌，提示词会等到当前回合结束。
@@ -226,7 +237,7 @@ cancel the deploy check job
   七天过期
 </h3>
 
-重复任务在创建后 7 天自动过期。任务最后触发一次，然后删除自己。这限制了被遗忘的循环可以运行多长时间。如果您需要重复任务持续更长时间，请在过期前取消并重新创建它，或使用 [Routines](/docs/zh-CN/routines) 或 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks) 进行持久调度。
+重复任务在创建后 7 天自动过期。任务最后触发一次，然后删除自己。这限制了被遗忘的循环可以运行多长时间。如果您需要重复任务持续更长时间，请在过期前取消并重新创建它，或使用[云端定时任务](/docs/zh-CN/routines)或 [Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks)进行持久调度。
 
 <h2 id="cron-expression-reference">
   Cron 表达式参考
@@ -247,8 +258,10 @@ cancel the deploy check job
 
 当月份日期和星期几都受到限制时，如果任一字段匹配，日期就匹配。这遵循标准的 vixie-cron 语义。
 
-<h2 id="disable-scheduled-tasks">
-  禁用计划任务
+<span id="disable-scheduled-tasks" />
+
+<h2 id="disable-session-scoped-scheduled-tasks">
+  禁用会话范围的定时任务
 </h2>
 
 在您的环境中设置 `CLAUDE_CODE_DISABLE_CRON=1` 以完全禁用调度程序。cron 工具和 `/loop` 变得不可用，任何已计划的任务都停止触发。有关禁用标志的完整列表，请参阅[环境变量](/docs/zh-CN/env-vars)。
@@ -266,6 +279,6 @@ cancel the deploy check job
 
 对于需要无人值守运行的 cron 驱动自动化：
 
-* [Routines](/docs/zh-CN/routines)：在云上按计划运行、通过 API 调用或在 GitHub 事件上运行
+* [云端定时任务](/docs/zh-CN/routines)：在云上按计划运行、通过 API 调用或在 GitHub 事件上运行
 * [GitHub Actions](/docs/zh-CN/github-actions)：在 CI 中使用 `schedule` 触发器
 * [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks)：在您的机器上本地运行

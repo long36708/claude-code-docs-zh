@@ -1765,7 +1765,7 @@ Claude Code 单独判断每个文件。当文件位于沙箱命令可以直接�
   * `"acceptEdits"`: Claude Code 还运行文件编辑和常见文件系统命令（如 `mkdir` 和 `mv`）而不询问
   * `"plan"`: Claude Code 读取和规划但阻止编辑直到您批准计划
   * `"auto"`: Claude Code 运行而不进行常规提示；在 shell 命令和网络请求等操作运行之前，后台分类器检查它们是否与您的请求一致
-  * `"dontAsk"`: Claude Code 自动拒绝每个本应提示的调用；工作目录内的文件读取、不需要批准的其他操作以及预批准的工具仍然运行，但从[网络路径](/docs/zh-CN/permissions#network-paths)的读取除外
+  * `"dontAsk"`: Claude Code 自动拒绝每个本应提示的调用，但您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍然可以批准[其中某些调用](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。工作目录内的文件读取、不需要批准的其他操作以及预批准的工具仍然运行，但从[网络路径](/docs/zh-CN/permissions#network-paths)的读取除外
   * `"bypassPermissions"`: Claude Code 运行所有内容而不询问
   * `"manual"`: `"default"` 的别名
 * **默认值**: 未设置
@@ -2964,7 +2964,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 * **Scope**: [`Any file`](#scopes)
 * **Type**: 令牌数，从 `100000` 到 `1000000`。Claude Code 将值限制在您的模型的上下文窗口；[模型概览](https://platform.claude.com/docs/en/about-claude/models/overview)列出了每个模型的窗口
 * **Default**: 未设置，因此 Claude Code 选择为您的模型调整的窗口
-* **Per-session overrides**: [`--autocompact`](/docs/zh-CN/cli-reference#cli-flags) 对一个会话优先于此键，[`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars) 优先于两者
+* **Per-session overrides**: [`--autocompact`](/docs/zh-CN/cli-reference#cli-flags) 对一个会话优先于此键，[`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars) 优先于两者，除非 Claude Code [忽略该变量的值](/docs/zh-CN/model-config#claude_code_auto_compact_window-values)
 
 ```json settings.json theme={null}
 {
@@ -3142,7 +3142,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 * [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/sessions#name-the-project-directory-yourself)，Claude Code 仅从启动环境读取，从每个文件中被忽略；需要 v2.1.234 或更高版本。
 * [`CLAUDE_CODE_RESTRICTED`](/docs/zh-CN/env-vars#variables)，Claude Code 仅从启动环境读取，从每个文件中被忽略。
 * [`CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY`](/docs/zh-CN/env-vars#variables)，Claude Code 仅从启动环境读取，从每个文件中被忽略。该变量需要 Claude Code v2.1.283 或更高版本。
-* [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`、`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT` 和 `CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT`](/docs/zh-CN/env-vars#variables)，Claude Code 仅从启动环境读取，从每个文件中被忽略。
+* [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`、`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`、`CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT` 和 `CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT`](/docs/zh-CN/env-vars#variables)，Claude Code 仅从启动环境读取，从每个文件中被忽略。
 
 <h3 id="filecheckpointingenabled">
   `fileCheckpointingEnabled`
@@ -5237,7 +5237,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 列出托管插件，其 [mod](/docs/zh-CN/plugins/mods/overview) 会按列出的顺序在用户安装的所有 mod 之前运行。当您在托管设置中设置此键时，请在列表中包含 `sec-default@builtin` 以保留内置防护。在托管设置中，如果某个 ID 对应的插件不被视为您组织的插件，Claude Code 会跳过它。有关这些条件以及两个排序键如何协同工作，请参阅[安装您组织的 mod 并设置顺序](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)。
 
-* **Scope**: [`User or managed`](#scopes)。Claude Code 从托管设置中读取此键。仅在没有托管设置的机器上，且用户未使用 Team 或 Enterprise 计划登录时，它才会从用户设置中读取此键。它会忽略项目设置、本地设置以及 `--settings` 文件中的此键。
+* **Scope**: [`User or managed`](#scopes)。Claude Code 从托管设置中读取此键。仅在没有托管设置的机器上，且会话的凭据不是 Team 或 Enterprise 的 `/login` 时，它才会从用户设置中读取此键。它会忽略项目设置、本地设置以及 `--settings` 文件中的此键。
 * **Type**: `plugin-name@marketplace-name` 字符串数组
 * **Default**: 未设置
 
@@ -5259,7 +5259,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 列出托管插件，其 [mod](/docs/zh-CN/plugins/mods/overview) 会按列出的顺序在用户安装的所有 mod 之后运行。同时列在 `prependPlugins` 和 `appendPlugins` 中的 ID 会被前置。在托管设置中，如果某个 ID 对应的插件不[被视为您组织的插件](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)，Claude Code 会跳过它。
 
-* **Scope**: [`User or managed`](#scopes)。Claude Code 从托管设置中读取此键。仅在没有托管设置的机器上，且用户未使用 Team 或 Enterprise 计划登录时，它才会从用户设置中读取此键。它会忽略项目设置、本地设置以及 `--settings` 文件中的此键。
+* **Scope**: [`User or managed`](#scopes)。Claude Code 从托管设置中读取此键。仅在没有托管设置的机器上，且会话的凭据不是 Team 或 Enterprise 的 `/login` 时，它才会从用户设置中读取此键。它会忽略项目设置、本地设置以及 `--settings` 文件中的此键。
 * **Type**: `plugin-name@marketplace-name` 字符串数组
 * **Default**: 未设置
 

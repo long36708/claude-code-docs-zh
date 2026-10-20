@@ -419,7 +419,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | :- | :- | :- |
 | `CLAUDE_CODE_PLUGIN_DIRS` | 环境变量，或 `~/.claude/settings.json` 中的 `env` | 要像 `--plugin-dir` 那样加载的插件目录，用于无法传递标志的应用。以 `:` 分隔的绝对路径，在 Windows 上以 `;` 分隔。 |
 | `CLAUDE_CODE_PLUGIN_DIR_WATCH` | 环境变量 | `1` 使长时间运行的非交互式会话在保存时重新加载 `--plugin-dir` mod |
-| `prependPlugins`, `appendPlugins` | 托管设置。仅在没有托管设置的机器上、且用户未使用 Team 或 Enterprise 套餐登录时，才可在用户设置中使用。 | 插件 id 列表，例如 `acme-guard@acme-tools`。`prependPlugins` 中的 mod 在用户安装的每个 mod 之前运行，`appendPlugins` 中的 mod 在之后运行，均按列出的顺序。请参阅 [mod 运行顺序](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)。 |
+| `prependPlugins`, `appendPlugins` | 托管设置。仅在没有托管设置的机器上、且会话的凭据不是 Team 或 Enterprise `/login` 时，才可在用户设置中使用。 | 插件 id 列表，例如 `acme-guard@acme-tools`。`prependPlugins` 中的 mod 在用户安装的每个 mod 之前运行，`appendPlugins` 中的 mod 在之后运行，均按列出的顺序。请参阅 [mod 运行顺序](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)。 |
 | `allowManagedModsOnly` | 托管设置，作为[内置守卫的选项](/docs/zh-CN/plugins/mods/admin#set-options-on-the-built-in-guard) | 只有[算作您组织的](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods) mod 以及 Claude Code 内置的 mod 会运行其 hook。用户的设置 hook 会继续运行。 |
 | `allowModsToOverrideDenyRules` | 托管设置，作为[内置守卫的选项](/docs/zh-CN/plugins/mods/admin#set-options-on-the-built-in-guard) | 允许用户安装的 mod 批准被 `deny` 规则拒绝的工具调用 |
 | `allowManagedHooksOnly` | 托管设置 | 阻止不属于您组织的 hook 和已安装的 mod。请参阅[哪些会继续运行](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)。 |
@@ -427,7 +427,9 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | `disableSideloadFlags` | 托管设置 | 在启动时拒绝 `--plugin-dir` 和 `--plugin-url` |
 | `pluginConfigs` | 用户设置或托管设置 | 保存 mod 的 `userConfig` 值，以插件 id 为键，例如 `acme-guard@acme-tools`；对于使用 `--plugin-dir` 加载的 mod，则以其名称加 `@inline` 为键，例如 `first-mod@inline` |
 
-`sec-default@builtin` 是 Claude Code 内置的守卫，在 `/plugin` 和调试日志中显示为 `cc-plugin-sec-default`。在有托管设置的机器上，或对于使用 Team 或 Enterprise 套餐登录的用户，它会在用户安装的每个 mod 之前加载。如果设置了托管的 `prependPlugins`，则只有当该列表指定了该守卫时它才会加载，并位于列出的位置。其源代码位于 [Claude Code 仓库的 `mods/sec-default` 目录](https://github.com/anthropics/claude-code/tree/main/mods/sec-default)中。
+`sec-default@builtin` 是 Claude Code 内置的守卫，在 `/plugin` 和调试日志中显示为 `cc-plugin-sec-default`。在有托管设置的机器上，或在凭据为 Team 或 Enterprise [`/login`](/docs/zh-CN/authentication#authentication-precedence) 的会话中，它会在用户安装的每个 mod 之前加载。如果设置了托管的 `prependPlugins`，则只有当该列表指定了该守卫时它才会加载，并位于列出的位置。
+
+其源代码位于 [Claude Code 仓库的 `mods/sec-default` 目录](https://github.com/anthropics/claude-code/tree/main/mods/sec-default)中。
 
 <h2 id="commands">
   命令

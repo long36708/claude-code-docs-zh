@@ -22,9 +22,9 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `Artifact` | 将 HTML 或 Markdown 文件发布为[工件](/docs/zh-CN/artifacts)：claude.ai 上的私有交互式页面。您可以与公开链接共享它，或在 Team 和 Enterprise 计划上在您的组织内共享，其中公开共享需要所有者[启用它](/docs/zh-CN/artifacts#control-public-sharing)。需要 Pro、Max、Team 或 Enterprise 计划和 `/login` 身份验证；请参阅[可用性](/docs/zh-CN/artifacts#availability) | 是 |
 | `AskUserQuestion` | 提出多选问题以收集要求或澄清歧义。问题默认保持打开状态，直到您回答。请参阅 [AskUserQuestion 工具行为](#askuserquestion-tool-behavior) | 否 |
 | `Bash` | 在您的环境中执行 shell 命令。请参阅 [Bash 工具行为](#bash-tool-behavior) | 是 |
-| `CronCreate` | 在当前会话中安排重复或一次性提示。任务的范围是会话级别，在 `--resume` 或 `--continue` 时恢复（如果未过期）。请参阅[计划任务](/docs/zh-CN/scheduled-tasks) | 否 |
-| `CronDelete` | 按 ID 取消计划任务 | 否 |
-| `CronList` | 列出会话中的所有计划任务 | 否 |
+| `CronCreate` | 在当前会话中安排重复或一次性提示词。任务的范围是会话级别，在 `--resume` 或 `--continue` 时恢复（如果未过期）。请参阅[会话级定时任务](/docs/zh-CN/scheduled-tasks) | 否 |
+| `CronDelete` | 按 ID 取消会话级定时任务 | 否 |
+| `CronList` | 列出所有会话级定时任务 | 否 |
 | `Edit` | 对特定文件进行有针对性的编辑。请参阅 [Edit 工具行为](#edit-tool-behavior) | 是 |
 | `EndConversation` | 结束会话，在持续滥用输入的罕见情况下或当您要求 Claude 演示该工具时。请参阅 [EndConversation 工具行为](#endconversation-tool-behavior) | 否 |
 | `EnterPlanMode` | 切换到 Plan Mode 以在编码前设计方法 | 否 |
@@ -39,10 +39,10 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `Monitor` | 在后台运行命令并将每个输出行反馈给 Claude，以便它可以对日志条目、文件更改或轮询状态做出反应。还可以打开 WebSocket 并将每条传入消息视为事件。请参阅 [Monitor 工具](#monitor-tool) | 是 |
 | `NotebookEdit` | 修改 Jupyter notebook 单元格。请参阅 [NotebookEdit 工具行为](#notebookedit-tool-behavior) | 是 |
 | `PowerShell` | 本地执行 PowerShell 命令。请参阅 [PowerShell 工具](#powershell-tool)了解可用性 | 是 |
-| `PushNotification` | 发送桌面通知，以及当[远程控制](/docs/zh-CN/remote-control)连接时的手机推送，以便长时间运行的任务或[计划任务](/docs/zh-CN/scheduled-tasks)可以在您离开时联系您。推送传递通过 Anthropic 托管的基础设施运行，无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
+| `PushNotification` | 发送桌面通知，以及当 [Remote Control](/docs/zh-CN/remote-control) 连接时的手机推送，以便长时间运行的任务或[会话级定时任务](/docs/zh-CN/scheduled-tasks)可以在您离开时联系您。推送传递通过 Anthropic 托管的基础设施运行，无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
 | `Read` | 读取文件的内容。请参阅 [Read 工具行为](#read-tool-behavior) | 否 |
 | `ReadMcpResourceTool` | 按 URI 读取特定 MCP 资源 | 否 |
-| `RemoteTrigger` | 在 claude.ai 上创建、更新、运行和列出[例程](/docs/zh-CN/routines)。支持 `/schedule` 命令。[`RemoteTrigger` 输入参考](/docs/zh-CN/agent-sdk/typescript#remotetrigger)记录了每个操作和删除该工具的组织策略。例程位于 claude.ai 上，需要 Pro、Max、Team 或 Enterprise 计划，因此此工具无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
+| `RemoteTrigger` | 在 claude.ai 上创建、更新、运行和列出[云端定时任务](/docs/zh-CN/routines)（以前称为 Routine）。支持 `/schedule` 命令。[`RemoteTrigger` 输入参考](/docs/zh-CN/agent-sdk/typescript#remotetrigger)记录了每个操作和删除该工具的组织策略。云端定时任务位于 claude.ai 上，需要 Pro、Max、Team 或 Enterprise 计划，因此此工具无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
 | `ReportFindings` | 将代码审查发现报告为结构化列表，每个发现都有文件、摘要和失败场景，以便 Claude Code 可以呈现它们而不是将其打印为文本。当活跃的代码审查指令要求它这样做时，Claude 会调用它。发现还可以携带可选的 `category` 段，例如 `correctness` 或 `test-coverage`，显示在呈现列表中的文件位置旁边 | 否 |
 | `ScheduleWakeup` | 重新安排[自定步调 `/loop`](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)的下一次迭代。Claude 在每次迭代结束时调用此工具以选择下一次运行的时间，在一分钟到一小时之间；您不直接调用它。要改为结束循环，Claude 使用 `stop: true` 调用它，这会取消待处理的唤醒。待处理的唤醒出现在 [Stop hook 输入](/docs/zh-CN/hooks#stop-input)中的 `session_crons` 中 | 否 |
 | `SendFeedback` | 起草关于 Claude Code 的反馈报告，涵盖产品问题或 Claude 在会话中的自身行为，并将其排队在您的机器上供您审查。Claude Code 在您选择发送草稿之前不会发送任何内容。请参阅 [SendFeedback 工具行为](#sendfeedback-tool-behavior)。需要 Claude Code v2.1.238 或更高版本 | 否 |

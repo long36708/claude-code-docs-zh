@@ -139,9 +139,9 @@
 Claude 可以自行启动 `/code-review`，无需您输入命令：
 
 * **当您用自然语言提出请求时**：请 Claude 审查您的变更，它就可以运行该 skill
-* **通过定时任务**：以 `/code-review` 作为提示词的[定时任务](/docs/zh-CN/scheduled-tasks)会运行审查
+* **通过定时任务**：以 `/code-review` 作为提示词的[会话级定时任务](/docs/zh-CN/scheduled-tasks)会运行审查
 
-定时任务永远不会启动[云端审查](#escalate-to-ultrareview)，因此请在不带 `ultra` 参数的情况下安排 `/code-review`。
+会话级定时任务永远不会启动[云端审查](#escalate-to-ultrareview)，因此请在不带 `ultra` 参数的情况下安排 `/code-review`。
 
 如需阻止 Claude 和定时任务启动审查，同时保留 `/code-review` 供您手动输入，请在[设置文件](/docs/zh-CN/settings#where-settings-live)（例如 `~/.claude/settings.json`）中添加 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 条目：
 

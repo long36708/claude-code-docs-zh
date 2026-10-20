@@ -57,7 +57,7 @@
 * Agent：使用 [`--agent`](/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 或 `agent` 设置启动的会话继续作为该 Agent 运行，保持其工具限制和模型。在恢复时传递 `--agent` 以选择不同的 Agent；关于任一情况下的系统提示词，请参阅[恢复对话中的系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。Claude Code 在两个地方查找 Agent：会话的原始目录（前提是您已[信任该工作区](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust)），然后是您恢复时所在的目录，因此项目范围的 Agent 在您从另一个目录恢复时仍会加载。如果 Claude Code 在任一位置都找不到该 Agent，会话会以默认工具恢复并显示[指明该 Agent 的警告](/docs/zh-CN/errors#session-agent-no-longer-available)。
 * 权限模式：如果您从终端使用 `claude --continue`、`claude --resume <session-id>` 或 `claude --resume <name>`（当名称与一个会话匹配时）恢复，且不带 `-p`，Claude Code 会恢复会话所在的权限模式，[恢复时的权限模式](#permission-mode-on-resume)中的情况除外，该部分也涵盖会话选择器、`/resume` 和使用 `claude -p` 恢复。传递 `--permission-mode` 或 `--dangerously-skip-permissions` 以覆盖恢复的模式。
 * 活跃目标：会话结束时仍然活跃的[目标](/docs/zh-CN/goal#resume-with-an-active-goal)会延续；其轮次计数、计时器和 token 支出基线会重置。
-* 定时任务：[未过期的任务](/docs/zh-CN/scheduled-tasks#limitations)会被恢复。后台 Bash 和监视任务不会。
+* 会话范围的定时任务：[未过期的任务](/docs/zh-CN/scheduled-tasks#limitations)会被恢复。后台 Bash 和监视任务不会。
 * 后台工作：随上一个进程结束的[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)、后台 Bash 命令或[工作流](/docs/zh-CN/workflows)，会在恢复的会话记录中显示为未完成的注记。Claude Code 不会因这些注记启动轮次；Claude 会随您的下一个提示词读取它们。
 
 并非原始启动的每个配置标志都会被恢复。如果会话依赖于 `--mcp-config`、`--settings`、`--plugin-dir`、`--fallback-model` 或使用 `--add-dir` 添加的目录，请在恢复时再次传递它们；在会话中途使用 `/add-dir` 添加的目录也不会被恢复，尽管会话选择器仍然使用它们来定位会话。标准设置文件（如 `settings.json` 和 `settings.local.json`）会在启动时重新读取，因此存放在其中的配置不需要再次传递。关于 `--system-prompt` 和 `--append-system-prompt`，请参阅[恢复对话中的系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags-in-resumed-conversations)。

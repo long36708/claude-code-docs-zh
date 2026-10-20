@@ -139,7 +139,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/run` | **[Skill](/docs/zh-CN/skills#bundled-skills)。** 启动并操作您项目的应用，以查看更改是否实际生效，而不仅仅是通过测试。请参阅[运行并验证您的应用](/docs/zh-CN/skills#run-and-verify-your-app) |
 | `/run-skill-generator` | **[Skill](/docs/zh-CN/skills#bundled-skills)。** 通过编写一个项目专属的 [skill](/docs/zh-CN/skills#run-and-verify-your-app)，教会 `/run` 和 `/verify` 如何在干净的环境中构建、启动和操作您项目的应用 |
 | `/sandbox` | 切换[沙箱模式](/docs/zh-CN/sandboxing)。仅在支持的平台上可用 |
-| `/schedule [description]` | 创建、更新、列出或运行在云端执行的 [Routine](/docs/zh-CN/routines)。Claude 会以对话方式引导您完成设置。您还可以询问 [Routine 的最近运行情况](/docs/zh-CN/routines#manage-routines-from-the-cli)。别名：`/routines` |
+| `/schedule [description]` | 创建、更新、列出或运行[云端定时任务](/docs/zh-CN/routines)（以前称为 Routine）。Claude 会以对话方式引导您完成设置。您还可以询问[定时任务的最近运行情况](/docs/zh-CN/routines#manage-scheduled-tasks-from-the-cli)。别名：`/routines` |
 | `/scroll-speed` | 以交互方式调整鼠标滚轮[滚动速度](/docs/zh-CN/fullscreen#mouse-wheel-scrolling)。仅在[全屏渲染](/docs/zh-CN/fullscreen)中可用，在 JetBrains IDE 终端中不可用 |
 | `/security-review` | 分析当前分支上的更改是否存在安全漏洞。审查您的分支与 origin 默认分支之间的 diff，识别注入、身份验证问题和数据泄露等风险。需要 `origin` 远程；如果审查因 `ambiguous argument` 错误而失败，请参阅[错误参考](/docs/zh-CN/errors#security-review-fails-without-origin-head) |
 | `/setup-bedrock` | 通过交互式向导配置 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 身份验证、区域和模型固定。在设置 `CLAUDE_CODE_USE_BEDROCK=1` 之前[在命令菜单中隐藏](#how-the-command-menu-matches-what-you-type)；需要完整输入。首次使用 Amazon Bedrock 的用户也可以从登录屏幕访问此向导 |

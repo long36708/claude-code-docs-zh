@@ -8,7 +8,12 @@
 
 定期任务在您选择的时间和频率自动启动新会话。使用它们进行定期工作，如日常代码审查、依赖项更新检查或从您的日历和收件箱中提取信息的早晨简报。
 
-Desktop 应用的 **Routines** 页面让您可以创建本地定期任务和远程 [routines](/docs/zh-CN/routines)。本地任务在您的机器上运行，可直接访问您的文件和工具，但仅在应用打开且计算机处于唤醒状态时才会触发。远程 routine 在云中运行，即使您的计算机关闭也可以运行，还可以通过 API 调用或 GitHub 事件触发。本页面涵盖本地定期任务；有关远程 routine 及其触发选项，请参阅 [Routines](/docs/zh-CN/routines)。
+Desktop 应用的 **Scheduled tasks** 页面会同时列出本地定时任务和[云端定时任务](/docs/zh-CN/routines)（原名 Routines）：
+
+* **本地任务**：在您的机器上运行，可直接访问您的文件和工具，但仅在应用打开且计算机处于唤醒状态时才会触发
+* **云端任务**：即使您的计算机关闭也可以运行，还可以通过 API 调用或 GitHub 事件启动
+
+本页面涵盖本地定时任务；有关云端定时任务及其触发选项，请参阅[使用定时任务自动化工作](/docs/zh-CN/routines)。
 
 <h2 id="compare-scheduling-options">
   比较调度选项
@@ -33,37 +38,86 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 </Tip>
 
 <Note>
-  默认情况下，定时任务针对您的工作目录的任何状态运行，包括未提交的更改。在创建任务时启用 worktree 切换，为每次运行提供其自己的[隔离 Git worktree](/docs/zh-CN/desktop#run-a-session-in-its-own-worktree)。
+  默认情况下，本地定时任务针对您的工作目录的任何状态运行，包括未提交的更改。如需为每次运行提供其自己的[隔离 Git worktree](/docs/zh-CN/desktop#run-a-session-in-its-own-worktree)，请在创建任务后，在该任务的[**Edit** 表单](#manage-scheduled-tasks)中选择 **Worktree**。当任务的文件夹是 Git 仓库时，该复选框可用。
 </Note>
 
 <h2 id="create-a-scheduled-task">
   创建定期任务
 </h2>
 
-在 Claude Desktop 1.1.5368 之前的版本中，本地定期任务不可用。在 [**Code** 选项卡](/docs/zh-CN/desktop) 中，单击侧边栏中的 **Routines** 或侧边栏的 **More** 菜单中的 **Routines**，然后单击 **New routine** 并选择 **Local**。配置这些字段：
+本地定时任务需要 Claude Desktop 1.1.5368 或更高版本。
 
-| 字段 | 描述 |
-| - | - |
-| Name | 任务的标识符。转换为小写 kebab-case 并用作磁盘上的文件夹名称。在您的任务中必须是唯一的。 |
-| Description | 任务列表中显示的简短摘要。 |
-| Instructions | 任务运行时 Claude 应该做什么。以您在提示框中编写任何消息的相同方式编写此内容。instructions 输入包括权限模式和模型的选择器，在其下方您选择工作文件夹以及是否在隔离的 worktree 中运行。 |
-| Schedule | 任务运行的频率。请参阅下面的 [schedule options](#schedule-options)。 |
+<Steps>
+  <Step title="打开 Scheduled tasks 页面">
+    在 [**Code** 选项卡](/docs/zh-CN/desktop)中，单击侧边栏中的 **Scheduled**，或侧边栏 **More** 菜单中的 **Scheduled**。
+  </Step>
 
-在保存任务之前需要一个文件夹。如果您还没有信任该文件夹，Desktop 会在保存前提示您信任它。
+  <Step title="开始新任务">
+    单击 **New task**。如果弹出包含 **Create with Claude** 和 **Set up manually** 的菜单，请选择 **Set up manually**。此时会打开 **New scheduled task** 对话框。如果 **Only on this computer** 位于对话框顶部，请在输入任何内容之前，转到[顶部带有 Only on this computer 的对话框](#dialog-with-only-on-this-computer-at-the-top)。
+  </Step>
 
-您也可以通过在任何会话中描述您想要的内容来创建任务。例如，"设置一个每天早上 9 点运行的日常代码审查"会创建一个定期任务，"提醒我明天下午 3 点检查部署"会创建一个一次性任务，在触发后禁用自己。
+  <Step title="为任务命名">
+    在 **Name** 字段中输入名称。Desktop 会将其转换为小写 kebab-case，并将其用作磁盘上该任务的文件夹名称，因此该名称在您的所有任务中必须是唯一的。
+  </Step>
+
+  <Step title="编写指令">
+    在名称下方的输入框中，输入任务运行时 Claude 应该执行的操作。
+  </Step>
+
+  <Step title="启用 Only on this computer">
+    暂时跳过 **Trigger** 卡片，展开其下方的 **Advanced settings**。在 **General** 选项卡上，启用 **Only on this computer**。启用后，任务会在您的计算机上的本地文件夹中运行，并且 **Trigger** 卡片会提供[计划选项](#schedule-options)中列出的预设。
+
+    如果该开关不可用，请清除仓库或 GitHub 事件或 API 触发器，因为这些设置会使该任务成为[云端定时任务](/docs/zh-CN/routines)。
+  </Step>
+
+  <Step title="选择本地文件夹">
+    在 **Local folder** 行中，选择一个文件夹。在您选择文件夹之前，**Create** 将保持不可用。
+  </Step>
+
+  <Step title="设置计划">
+    返回 **Trigger** 卡片，选择一个[计划预设](#schedule-options)。
+  </Step>
+
+  <Step title="选择权限模式和模型">
+    在指令输入框的工具栏中，选择[权限模式](#permissions-for-scheduled-tasks)和模型。如果保持不变，运行时将使用您的 Claude Code 设置和默认模型。
+  </Step>
+
+  <Step title="创建任务">
+    单击 **Create**。如果您尚未信任该文件夹，Desktop 会在此时要求您信任它。随后将打开该任务的详情页面。
+  </Step>
+</Steps>
+
+在详情页面上，单击铅笔图标以打开 [**Edit** 表单](#manage-scheduled-tasks)。在该表单中，您可以更改 Desktop 根据您的指令填写的 **Description**、选择 **Worktree**，或将计划切换为 **Manual**。
+
+您也可以通过在任何会话中描述您想要的内容来创建任务。例如，"设置一个每天早上 9 点运行的日常代码审查"会创建一个周期性任务。像"提醒我明天下午 3 点检查部署"这样的请求会创建一个一次性任务，该任务在触发后会自行禁用。
+
+<h3 id="dialog-with-only-on-this-computer-at-the-top">
+  顶部带有 Only on this computer 的对话框
+</h3>
+
+如果 **New scheduled task** 对话框打开时 **Only on this computer** 位于顶部，请在输入任何内容之前先启用它。启用后，一个用于本地任务的独立空白表单将替换原表单。
+
+然后填写本地表单的字段：
+
+* **Name**：输入名称，与[创建定时任务的步骤](#create-a-scheduled-task)中相同。
+* **Description**：输入描述。在您输入描述之前，**Create** 将保持不可用。
+* **指令输入框**：输入任务运行时 Claude 应该执行的操作。从输入框中的菜单选择权限模式和模型。
+* **Working folder**：选择任务运行所在的文件夹。在您选择文件夹之前，**Create** 将保持不可用。
+* **Trigger**：选择计划。**Custom** 接受 cron 表达式。有关其他预设，请参阅[计划选项](#schedule-options)。
+
+单击 **Create**。随后将打开该任务的详情页面。
 
 <h2 id="schedule-options">
   调度选项
 </h2>
 
-从 Schedule 控件中选择一个预设：
+当您在 **Advanced settings** 下启用 **Only on this computer** 时，**Trigger** 卡片提供 Hourly、Daily、Weekdays 和 Weekly 选项。任务的 [**Edit** 表单](#manage-scheduled-tasks)还提供 **Manual** 选项。
 
-* **Manual**：无调度，仅在您单击 **Run now** 时运行。适用于保存您按需触发的提示
 * **Hourly**：每小时运行一次
 * **Daily**：每天在您选择的本地时间运行
 * **Weekdays**：与 Daily 相同，但跳过星期六和星期日
 * **Weekly**：显示时间选择器和日期选择器
+* **Manual**：无调度，仅在您单击 **Run now** 时运行。适用于保存您按需触发的提示词
 
 对于选择器不提供的间隔，例如每 15 分钟、每月的第一天或在特定未来时间的单次运行，请在任何 Desktop 会话中询问 Claude 来设置调度。使用纯语言；例如，"安排一个任务每 6 小时运行一次所有测试。"
 
@@ -71,11 +125,15 @@ Claude Code 提供三种方式来安排定期或一次性工作：
   定期任务如何运行
 </h2>
 
-定期任务在您的机器上运行。Desktop 在应用打开时每分钟检查一次调度，并在任务到期时启动一个新会话，独立于您打开的任何手动会话。每个任务在计划时间后会有几分钟的小延迟，以错开 API 流量。延迟是确定性的：同一任务总是在相同的偏移量处启动。
+本地定时任务在您的机器上运行。Desktop 在应用打开时每分钟检查一次调度，并在任务到期时启动一个新会话，独立于您打开的任何手动会话。每个任务在计划时间后会有几分钟的小延迟，以错开 API 流量。延迟是确定性的：同一任务总是在相同的偏移量处启动。
 
-当任务触发时，您会收到桌面通知，新会话会在侧边栏的 **Scheduled** 部分下出现。打开它以查看 Claude 做了什么、审查更改或响应权限提示。Claude 可以编辑文件、运行命令、创建提交和打开拉取请求，与您自己启动的会话相同，但无法通过 desktop 应用的会话界面发送或接收[您的 desktop 会话之间的消息](/docs/zh-CN/desktop#work-across-sessions)。
+任务仅在 desktop 应用运行且计算机处于唤醒状态时运行。如果您的计算机在计划时间内进入睡眠状态，该运行将被跳过。要防止空闲睡眠，请在 **Settings > This computer > System** 中启用 **Keep computer awake**。关闭笔记本电脑盖仍会使其进入睡眠状态。
 
-任务仅在 desktop 应用运行且计算机处于唤醒状态时运行。如果您的计算机在计划时间内进入睡眠状态，该运行将被跳过。要防止空闲睡眠，请在 **Settings > This computer > System** 中启用 **Keep computer awake**。关闭笔记本电脑盖仍会使其进入睡眠状态。对于需要在计算机关闭时运行或应该通过 API 调用或 GitHub 事件触发的任务，请改为创建远程 [Routine](/docs/zh-CN/routines)。
+<Note>
+  对于需要在计算机关闭时运行或应该通过 API 调用或 GitHub 事件触发的任务，请改为创建[云端定时任务](/docs/zh-CN/routines)。
+</Note>
+
+当本地任务触发时，新会话会在侧边栏的 **Scheduled** 部分下出现。打开它以查看 Claude 做了什么、审查更改或响应权限提示。Claude 可以编辑文件、运行命令、创建提交和打开 Pull Request，与您自己启动的会话相同。
 
 <h2 id="missed-runs">
   错过的运行
@@ -99,7 +157,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
   管理定期任务
 </h2>
 
-在 **Code** 选项卡中，单击 **Routines** 列表中的任务以打开其详细信息页面。从这里您可以：
+在 **Code** 选项卡中，单击侧边栏中的 **Scheduled**，然后单击列表中的任务以打开其详细信息页面。从这里您可以：
 
 * **Run now**：立即启动任务，无需等待下一个计划时间
 * **Status**：在 Active 和 Paused 之间切换，以暂停或恢复定期运行，而无需删除任务
@@ -118,7 +176,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
   相关资源
 </h2>
 
-* [Routines](/docs/zh-CN/routines)：在云端按计划、通过 API 调用或响应 GitHub 事件运行任务，即使您的计算机关闭
+* [云端定时任务](/docs/zh-CN/routines)：在云端按计划、通过 API 调用或响应 GitHub 事件运行任务，即使您的计算机关闭
 * [Run prompts on a schedule](/docs/zh-CN/scheduled-tasks)：在 CLI 中使用 `/loop` 的会话范围调度
 * [Claude Code GitHub Actions](/docs/zh-CN/github-actions)：在 CI 中按计划运行 Claude，而不是在您的机器上
 * [Use Claude Code Desktop](/docs/zh-CN/desktop)：完整的 Desktop 应用指南

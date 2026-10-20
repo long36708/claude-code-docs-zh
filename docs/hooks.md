@@ -1569,7 +1569,7 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 
 `UserPromptSubmit` hook 不仅在您输入的提示词上触发。Claude Code 还会在以下情况下运行它们：
 
-* [定时任务](/docs/zh-CN/scheduled-tasks)触发时，包括 `/loop` 的一次迭代
+* [会话作用域的定时任务](/docs/zh-CN/scheduled-tasks)触发，包括 `/loop` 迭代
 * [后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)向启动它的会话回报时
 * [另一个会话向](/docs/zh-CN/cross-session-messaging)您的主对话发送消息时
 

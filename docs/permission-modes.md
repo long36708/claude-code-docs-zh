@@ -22,7 +22,7 @@
 | [`acceptEdits`](#auto-approve-file-edits-with-acceptedits-mode) | 读取、文件编辑和常见文件系统命令（`mkdir`、`touch`、`mv`、`cp` 等） | 迭代您正在审查的代码 |
 | [`plan`](#analyze-before-you-edit-with-plan-mode) | 读取，加上当 [auto 模式](#eliminate-prompts-with-auto-mode) 可用时分类器批准的命令 | 在更改代码库之前探索它 |
 | [`auto`](#eliminate-prompts-with-auto-mode) | 一切，带有后台安全检查 | 长任务，减少提示疲劳 |
-| [`dontAsk`](#allow-only-pre-approved-tools-with-dontask-mode) | 工作目录内的文件读取和预批准的工具；任何会提示的内容都被拒绝 | 锁定的 CI 和脚本 |
+| [`dontAsk`](#allow-only-pre-approved-tools-with-dontask-mode) | 工作目录内的文件读取和预批准的工具；任何会提示的内容都被拒绝，但您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍可批准其中的部分调用 | 锁定的 CI 和脚本 |
 | [`bypassPermissions`](#skip-all-checks-with-bypasspermissions-mode) | 一切 | 仅限隔离容器和虚拟机 |
 
 审查每项操作的模式在 CLI 中名为 **Manual**，在 `claude --help` 中、在 VS Code 和 JetBrains 扩展中以及在桌面应用中也是如此。其配置值是 `default`，这是 hook 和 SDK 集成使用的。CLI 在您输入值的任何地方接受 `manual` 作为别名，例如 `claude --permission-mode manual` 或 `"defaultMode": "manual"`。
@@ -444,10 +444,12 @@ claude --permission-mode plan
 
 | 情况 | 会发生什么 | 处理方法 |
 | - | - | - |
-| 在会话中，`/status` 将 [`Auto mode server`](#server-side-classifier-review) 显示为 `Enabled` | 您的模型仅审查服务器不审查的内容 | 无需处理 |
-| 您设置了 Claude Opus 5、Claude Sonnet 5.5、Claude Opus 5.5，或被您组织的[模型策略](/docs/zh-CN/model-config#restrict-model-selection)排除的模型 | 由[默认分类器模型](#default-classifier-model)进行审查 | 设置其他模型 |
-| Anthropic 为您的会话配置了分类器模型 | 由该模型进行审查 | 无需处理 |
-| 您的提供商无法提供该模型 | 请求失败，Claude Code 会[拒绝每个需审查的操作](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action) | 设置该提供商可提供的模型，或移除该变量 |
+| [调试日志](#classifier-model-check)报告了 Anthropic 配置的分类器模型 | 由该模型进行审查 | 无需处理 |
+| 您设置了 Claude Opus 5、Sonnet 5.5、Opus 5.5，或被您组织的[模型策略](/docs/zh-CN/model-config#restrict-model-selection)排除的模型 | 由[默认分类器模型](#default-classifier-model)进行审查 | 设置其他模型 |
+| 您的提供商无法提供该模型 | 分类器检查失败，因此 Claude Code 会[拒绝它所检查的每个操作](/docs/zh-CN/errors#auto-mode-cannot-determine-the-safety-of-an-action) | 设置该提供商可提供的模型，或移除该变量 |
+| 在会话中，`/status` 将 [`Auto mode server`](#server-side-classifier-review) 显示为 `Enabled` | 由服务器进行审查，不使用您的模型 | 无需处理 |
+
+如果同时符合多种情况，以最先列出的为准。
 
 <h4 id="classifier-model-check">
   查看分类器使用了哪个模型
@@ -464,7 +466,7 @@ claude --permission-mode auto --debug-file classifier-debug.log
 * **`model=` 之后是您的模型**：该变量已生效
 * **`model=` 之后是其他模型**：在日志中搜索 `ignoring CLAUDE_CODE_AUTO_MODE_MODEL`，其中会给出原因以及需要采取的步骤
 * **没有这样的行**：在 Claude Code 提示符下查看 `/status` 中的 `Auto mode server`：
-  * **`Enabled`**：[服务器](#server-side-classifier-review)已设置为审查此会话的调用。无需更改。
+  * **`Enabled`**：[服务器](#server-side-classifier-review)已设置为审查此会话的调用。
   * **`Disabled`**：确保[权限模式](#switch-permission-modes)为 auto，然后让 Claude 再运行一个非只读的命令。
 
 <h3 id="what-the-classifier-blocks-by-default">
@@ -539,7 +541,9 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 * 安装您的锁文件或清单中声明的依赖
 * 读取 `.env` 并将凭据发送到与之匹配的 API
 * 只读 HTTP 请求
-* 推送到您正在处理的仓库的任何分支，包括默认分支。名称表明其为部署或发布目标的非默认分支（例如 `production` 或 `gh-pages`）不在此列：分类器会单独判断推送到这类分支的操作。推送的内容仍会根据其他规则进行检查，[`permissions.deny` 规则](/docs/zh-CN/permissions#manage-permissions)在所有模式下仍可按[命令的书写形式](/docs/zh-CN/permissions#bash-rule-limits)阻止推送命令，并且远程仓库自身的分支保护仍然适用。在 v2.1.211 之前，默认仅允许推送到您开始时所在的分支、Claude 创建的分支，以及对默认分支的常规推送
+* 推送到您正在处理的仓库的任何分支，包括默认分支。名称表明其为部署或发布目标的非默认分支（例如 `production` 或 `gh-pages`）不在此列：分类器会单独判断推送到这类分支的操作。
+
+  推送的内容仍会根据分类器的其他规则进行检查，[`permissions.deny` 规则](/docs/zh-CN/permissions#manage-permissions)在所有模式下仍可按[命令的书写形式](/docs/zh-CN/permissions#bash-rule-limits)阻止推送命令。远程仓库自身的分支保护仍然适用。从 v2.1.203 到 v2.1.211 之前，默认仅允许对默认分支的常规推送，以及推送到您开始时所在的分支或 Claude 创建的分支。
 * 删除 Claude 在同一会话中先前创建的确切作业
 * 作为任务的一部分，读取、审查或编写与安全相关的代码、配置和威胁模型
 * 在同一多 Agent 会话中协同工作的 Agent 之间的消息
@@ -635,7 +639,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
     3. 其他所有操作都会交给分类器处理，按默认方式处理的[关键路径删除](#critical-paths)除外。在第 1 步中直接提示您的连接器工具和 `requiresUserInteraction` MCP 工具也永远不会到达分类器，因此组织要求的批准和同意步骤都不会被自动批准
     4. 如果分类器阻止了操作，Claude 会收到原因。在大多数会话中，原因会指明分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[查看拒绝记录](/docs/zh-CN/auto-mode-config#review-denials)
 
-    您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 可以在第 3 步之前批准操作，分类器不会检查 mod 所批准的操作。请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#extend-permissions-with-hooks)。
+    您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 也可以批准操作。有关其批准无法越过您的规则和 hook 的情况，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
 
     在 VS Code 扩展中，[Claude in Chrome](/docs/zh-CN/chrome) 浏览器操作如何获得批准取决于会话连接到浏览器的方式：请参阅 [VS Code 会话中的权限提示](/docs/zh-CN/chrome#permission-prompts-in-vs-code-sessions)。
 
@@ -679,7 +683,9 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
   使用 dontAsk 模式仅允许预先批准的工具
 </h2>
 
-如果您设置 `dontAsk` 模式，Claude Code 会自动拒绝所有原本会提示的工具调用。Claude 仍然运行在 Manual 模式下不需要批准的操作，例如您工作目录内的文件读取和[只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)，以及与您的 `permissions.allow` 规则匹配的操作和由 [PreToolUse hook](/docs/zh-CN/permissions#extend-permissions-with-hooks) 批准的调用。在 CI 管道或受限环境中使用此模式，您可以预先定义 Claude 可以执行的操作；会话永远不会等待输入。当此模式处于活动状态时，状态栏显示 `⏵⏵ don't ask on`。
+如果您设置 `dontAsk` 模式，Claude Code 会自动拒绝所有原本会提示您的工具调用，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍然可以批准其中部分调用。要查看 mod 可以批准哪些调用，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+
+Claude 仍然运行在 Manual 模式下不需要批准的操作，例如您工作目录内的文件读取和[只读 Bash 命令](/docs/zh-CN/permissions#read-only-commands)。与您的 `permissions.allow` 规则匹配的操作以及由 [PreToolUse hook](/docs/zh-CN/permissions#extend-permissions-with-hooks) 批准的调用也会运行。在 CI 管道或受限环境中使用此模式，您可以预先定义 Claude 可以执行的操作；会话永远不会等待输入。在此模式下，状态栏显示 `⏵⏵ don't ask on`。
 
 Claude Code 拒绝与您的显式 [`ask` 规则](/docs/zh-CN/permissions#manage-permissions)匹配的调用，而不是提示。它还拒绝内置的 `AskUserQuestion` 工具，即使您的 allow 规则与其匹配，以及您的组织[设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具在该设置到达 Claude Code 的会话中。它以相同的方式拒绝标记为 [`_meta["anthropic/requiresUserInteraction"]`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具，因为其批准卡需要此模式永远不会收集的答案。
 
@@ -829,6 +835,8 @@ Claude Code 将 `rm` 或 `rmdir` 目标视为关键路径，当它是以下任�
 * 您的工作目录及其父目录
 * 您的额外工作目录及其父目录，但仅当移除是其下的 glob 时，如 `rm -rf <dir>/*`。`rm -rf <dir>` 在目录本身上不会触发此检查
 
+对于 `/mnt/c` 或 `/Volumes/USB` 等挂载驱动器路径，请参阅[挂载驱动器提示](#the-mounted-drive-prompt)。
+
 对主目录 8.3 短名称以及 `\\?\C:\` 和 `\\localhost\C$` 写法的检查需要 Claude Code v2.1.292 或更高版本。
 
 <h3 id="other-targets-that-count-as-critical-paths">
@@ -876,6 +884,60 @@ Claude Code 也查看这些构造内部：
 * **仅命令替换输出的目标**：首先自己运行替换，然后移除它打印的文字路径。提示告诉 Claude 做同样的事情。
 
 对于变量下的 glob 或尾部斜杠，提示命名被标记的 `rm` 并说明如何重写它以便检查通过。
+
+<h3 id="the-mounted-drive-prompt">
+  挂载驱动器提示
+</h3>
+
+在 macOS、Linux 和 WSL 上，当递归 `rm` 的目标是所列的[挂载驱动器路径](#paths-that-get-the-mounted-drive-prompt)（如 `/mnt/c` 或 `/Volumes/USB/build`）时，会出现挂载驱动器提示。其原因显示为 `Dangerous rm operation on mounted drive path: <path>`。`/*` 目标即使没有递归标志也会出现该提示，因为 Claude Code 将 `rm /Volumes/USB/build/*` 视为对 `/Volumes/USB/build` 的移除。
+
+即使存在针对 `rm` 的允许规则，Claude Code 也会将该命令作为[关键路径移除](#critical-paths)处理：[根据您的权限模式](#critical-path-removals-in-each-permission-mode)进行提示或拒绝。批准该提示即可让 `rm` 运行，或者[关闭该提示](#turn-off-the-mounted-drive-prompt)。
+
+<h4 id="paths-that-get-the-mounted-drive-prompt">
+  会出现挂载驱动器提示的路径
+</h4>
+
+将递归 `rm` 或 `/*` 移除的目标与以下路径形式进行匹配，其中每个占位符（如 `<drive>` 或 `<name>`）恰好代表一个路径段：
+
+| 位于 | 会出现提示的路径形式 | 示例 |
+| :- | :- | :- |
+| `/Volumes` | `/Volumes/<drive>`、`/Volumes/<drive>/<name>` | `/Volumes/USB`、`/Volumes/USB/build` |
+| `/System/Volumes` | `/System/Volumes`、`/System/Volumes/<volume>`、`/System/Volumes/<volume>/<name>` | `/System/Volumes/Data` |
+| `/media` | `/media/<user>`、`/media/<user>/<drive>`、`/media/<user>/<drive>/<name>` | `/media/alex` |
+| `/run/media` | `/run/media`、`/run/media/<user>`、`/run/media/<user>/<drive>`、`/run/media/<user>/<drive>/<name>` | `/run/media/alex/USB/build` |
+| `/mnt` | `/mnt/<name>`，以及在单字母挂载点（如 WSL 的 `/mnt/c`）下的 `/mnt/<letter>/<name>` | `/mnt/data`、`/mnt/c/Users` |
+
+对于 `/Volumes`、`/media` 或 `/mnt` 本身的递归或非递归 `rm`，您看到的将是[关键路径](#which-paths-are-critical)原因 `Dangerous rm operation on critical path: <path>`。
+
+相对目标从您的工作目录开始计算，因此当您在 `/Volumes/USB` 中工作时，`rm -rf build` 的目标是 `/Volumes/USB/build`，会出现该提示。
+
+<h4 id="turn-off-the-mounted-drive-prompt">
+  关闭挂载驱动器提示
+</h4>
+
+要停止出现挂载驱动器提示，同时保留[其他原因引起的提示](#removals-that-still-prompt-with-the-mounted-drive-prompt-off)，请在环境中设置 [`CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT=1`](/docs/zh-CN/env-vars#variables) 后启动 Claude Code。例如，在[您的 shell](/docs/zh-CN/env-vars#set-variables-in-your-shell) 中设置该变量，然后从中启动 `claude`：
+
+```bash theme={null}
+export CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT=1
+claude
+```
+
+在以这种方式启动的会话中，对于整个驱动器（如 `/Volumes/USB`）以及其他[所列路径](#paths-that-get-the-mounted-drive-prompt)，挂载驱动器提示都会停止。如果您允许 `Bash(rm *)`、使用 Manual 模式并在 `/Volumes/USB` 中工作，那么 `rm -rf build` 将直接运行而不提示。
+
+如果提示仍然显示 `Dangerous rm operation on mounted drive path`，说明该变量没有传递到会话：
+
+* **变量位于设置文件中**：无论哪种设置文件，Claude Code 都会[忽略设置文件 `env` 块中的该变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)，因此请改为在启动 `claude` 的位置设置该变量
+* **会话启动时没有该变量**：请从已设置该变量的环境中重新启动 `claude`，因为正在运行的会话不会读取它
+
+<h4 id="removals-that-still-prompt-with-the-mounted-drive-prompt-off">
+  关闭挂载驱动器提示后仍会提示的移除
+</h4>
+
+在 Manual 模式下且存在针对 `rm` 的允许规则时，对挂载驱动器路径的 `rm` 仍可能提示，但原因不是 `Dangerous rm operation on mounted drive path`：
+
+* **目标位于您的工作目录之外**：当您在 `/Volumes/USB/project` 中工作时，`rm -rf /Volumes/USB/other` 会提示。要停止该提示，请向会话[添加包含该目标的目录](/docs/zh-CN/permissions#working-directories)
+* **目标包含 `*`**：`rm -rf build/*` 会提示。批准该提示即可运行命令，或者让 Claude 不使用 `*` 逐一指明每个目标
+* **目标是关键路径**：`/mnt` 本身和您的工作目录本身仍然是[关键路径](#which-paths-are-critical)，因此对其中任一执行 `rm -rf` 都会提示。批准该提示即可让 `rm` 运行
 
 <h3 id="critical-path-removals-in-each-permission-mode">
   每个权限模式中的关键路径移除
