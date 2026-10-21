@@ -31,6 +31,8 @@
 | `CRYPT_E_NO_REVOCATION_CHECK` 或 `CRYPT_E_REVOCATION_OFFLINE` | [绕过被阻止的吊销检查](#tls-or-ssl-connection-errors) |
 | `Failed to fetch version` 或无法访问下载服务器 | [检查网络和代理设置](#check-network-connectivity) |
 | `The connection dropped while downloading the update` 或 `Download timed out: exceeded the total deadline` | [再次运行更新或设置您的代理](#the-connection-dropped-while-downloading-the-update) |
+| `Release verification failed for Claude Code` | [再次运行 `claude update` 或 `claude install`](#release-verification-failed) |
+| 会话页脚中以红色显示 `Auto-update failed · Run claude doctor` | [从您的 shell 运行 `claude update`](#auto-update-failed) |
 | `irm is not recognized` 或 `The token '&&' is not a valid statement separator` | [对您的 shell 使用正确的命令](#wrong-install-command-on-windows) |
 | `Cask 'claude-code' is unavailable: No Cask with this name exists` | [更新 Homebrew](#homebrew-cask-unavailable-or-outdated) |
 | `Cask 'claude-code@latest' is not installed` | [升级您已安装的 cask](#cask-is-not-installed) |
@@ -630,6 +632,27 @@ The connection dropped while downloading the update (attempt 3/3: aborted). Chec
 * 如果您的网络需要代理，请在运行安装程序或 `claude update` 之前设置 `HTTPS_PROXY`。请参阅[检查网络连接](#check-network-connectivity)。
 * 如果公司代理不断关闭传输，请要求您的网络团队允许从 `downloads.claude.ai` 完整下载。请参阅[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)。
 * 从您的 shell 运行 `claude doctor` 以获取安装诊断信息
+
+### Release verification failed for Claude Code
+
+`claude update` 或 `claude install` 发出的此消息表示 Claude Code 无法确认即将安装的版本是真实的，因此未安装任何内容。您已有的任何版本都会继续正常工作。
+
+```text theme={null}
+Release verification failed for Claude Code <version> (<reason>). The update was not installed.
+```
+
+根据消息中括号内的值采取相应的步骤：
+
+* **以 `sidecar_fetch_` 开头的值**：从您的 shell 再次运行相同的命令。如果 `claude update` 打印以 `Successfully updated from` 开头的行，则表示更新成功；如果 `claude install` 打印 `Claude Code successfully installed!`，则表示安装成功。
+* **任何其他值**：稍后再次尝试相同的命令
+
+无论是哪个值，如果该消息反复出现，请[报告问题](#still-stuck)并附上完整消息。
+
+### 会话页脚中的 `Auto-update failed · Run claude doctor`
+
+这一红色行表示 Claude Code 尝试在后台自行更新，但更新未能安装。您无需执行任何操作即可继续工作。
+
+该行引导您运行 `claude doctor`，但其 `Last update attempt: failed (install_failed)` 行只给出日期，不给出原因。要完成更新或查看失败原因，请改为在 shell 中运行 `claude update`。如果该安装也失败，请在[查找您的错误](#find-your-error)中查找 `claude update` 打印的错误。
 
 ### Windows 上的错误安装命令
 

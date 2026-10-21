@@ -80,7 +80,7 @@
 以下主机端流程确实会访问 `claude.ai`，因此请从出站流量允许访问它的主机运行这些流程，而不是扩大会话容器出站流量：
 
 * **单行安装程序**：在安装时从 `claude.ai` 获取 `install.sh`。
-* **交互式 `claude auth login`**：通过 `claude.ai`、`claude.com` 和 `platform.claude.com` 登录。[引导设置](/docs/zh-CN/self-hosted-environments-quickstart#run-the-guided-setup)、`doctor` 的已登录模式和 [CI 分派](/docs/zh-CN/self-hosted-environments-testing#authenticate-from-ci)会使用它。您用于登录的浏览器还会从 `hcaptcha.com`、`*.hcaptcha.com` 和 `challenges.cloudflare.com` 加载 claude.ai 登录页面的浏览器检查。
+* **交互式 `claude auth login`**：通过 `claude.ai`、`claude.com` 和 `platform.claude.com` 登录。[引导设置](/docs/zh-CN/self-hosted-environments-quickstart#run-the-guided-setup)、`doctor` 的已登录模式和 [CI 分派](/docs/zh-CN/self-hosted-environments-testing#authenticate-from-ci)会使用它。您用于登录的浏览器还会从 `hcaptcha.com`、`*.hcaptcha.com` 和 `challenges.cloudflare.com` 加载 claude.ai 登录页面的浏览器检查。如果您的组织使用单点登录，该浏览器还可能被重定向经过 `sso.claude.com`。
 
 ### 默认拒绝出站流量
 
@@ -654,6 +654,15 @@ claude self-hosted-runner doctor
 * **运行器在启动时退出，显示 `RegisterRunner failed:` 和 TLS 证书错误**：例如，错误可能是 `self signed certificate in certificate chain`。运行器不信任其收到的证书背后的证书颁发机构（CA），在执行 TLS 检查的代理之后就会发生这种情况。在运行器的环境中将 [`NODE_EXTRA_CA_CERTS`](/docs/zh-CN/network-config#custom-ca-certificates) 设置为包含代理根 CA 的 PEM 文件。
 
   您无需再为会话设置它，会话会继承它。Git 不读取它：对于通过该代理进行的克隆，还需设置 [`GIT_SSL_CAINFO`](#trust-a-private-certificate-authority-with-anthropic-managed-git)。
+* **您的启动脚本打印包含 `Resource temporarily unavailable` 的写入错误并退出**：您的脚本与其启动的 `claude self-hosted-runner` 或 [编排器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners) 进程共享 stdout 或 stderr，而该进程已将该共享管道或套接字切换为非阻塞模式。当管道已满时，脚本的写入会因该操作系统错误而失败，而不是等待；在 `set -e` 下，脚本会退出。
+
+  要消除该错误，请将运行器或编排器的输出发送到您脚本的用户可以创建的文件。在启动它的命令后追加 `>> "$HOME/claude-runner.log" 2>&1`，并放在任何将其置于后台运行的 `&` 之前：
+
+  ```bash theme={null}
+  claude self-hosted-runner --environment-secret-file /etc/claude/environment-secret >> "$HOME/claude-runner.log" 2>&1
+  ```
+
+  您脚本自身的输出仍然输出到原来的位置，而运行器写入 stdout 和 stderr 的内容（包括其启动错误）会写入该文件。请使用此 shell 重定向，而不是仅使用 [`--log-file`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，后者会将日志镜像到文件，同时运行器仍继续写入 stdout 和 stderr。如果您已经传递了 `--log-file`，也请保留它，因为重定向不会改变该文件接收的内容。
 * **编排器记录带有 TLS 证书错误的 `poll failed:` 并不断重试**：编排器不信任其收到的证书背后的 CA，在执行 TLS 检查的代理之后就会发生这种情况。在编排器的环境中将 [`NODE_EXTRA_CA_CERTS`](/docs/zh-CN/network-config#custom-ca-certificates) 设置为包含代理根 CA 的 PEM 文件。同时也为您的 `spawn-runner` hook 启动的运行器设置它。
 
   例如，一行可能以 `poll failed: self signed certificate in certificate chain — retrying in 1s` 结尾，冒号和破折号之间是 TLS 库给出的文字。要确认修复，请检查编排器的 [`/healthz`](/docs/zh-CN/self-hosted-environments-reference#health-endpoint) 正文中 `connected` 是否为 `true`。

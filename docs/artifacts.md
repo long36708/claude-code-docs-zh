@@ -98,8 +98,9 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 * **`Enter`**：如果它已附加到当前会话，则在浏览器中打开它；如果尚未附加，则将其附加到当前会话。在v2.1.216之前，`Enter`会在浏览器中打开它
 * **`o`**：在浏览器中打开它
 * **`c`**：复制其链接
+* **`d`**：在[云端会话](/docs/zh-CN/claude-code-on-the-web)之外，经您确认后永久删除您拥有的Artifact。其链接将对所有人失效，包括您自己
 
-Claude Code从您的claude.ai账户读取列表，因此它在新会话中以及在`/clear`之后都能工作，即使链接已从终端滚出也能使用。
+Claude Code从您的claude.ai账户读取列表，因此当Artifact的链接已从终端滚出时，`/artifacts`在新会话中以及在`/clear`之后都能使用。
 
 ## 分享一个artifact
 
@@ -386,49 +387,49 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
 
 如果您添加了没有 `domain:` 部分的 `WebFetch` deny 或 ask 规则，它不会关闭 artifacts 或阻止 artifact 读取。[`permissions` 中 `deny` 或 `ask` 中的 `WebFetch(domain:claude.ai)` 规则确实适用于 artifact 读取](/docs/zh-CN/permissions#allow-or-deny-every-fetch)。
 
-## 为您的组织管理 artifacts
+## 管理组织的 Artifact
 
-Team 和 Enterprise 计划上的所有者从 [claude.ai 管理设置](https://claude.ai/admin-settings/artifacts) 控制 artifacts。Artifact 内容存储在 Anthropic 运营的基础设施上，仅对发布组织的经过身份验证的成员可见，除非该 artifact 是[公开共享](#control-public-sharing)的。
+Team 和 Enterprise 计划的所有者可以在 [claude.ai 管理设置](https://claude.ai/admin-settings/artifacts)中管理 Artifact。Artifact 内容存储在 Anthropic 运营的基础设施上，仅对发布该 Artifact 的组织中经过身份验证的成员以及这些成员与之共享的人员可见，除非该 Artifact 已被[公开共享](#control-public-sharing)。
 
-### 启用或禁用 artifacts
+### 启用或禁用 Artifact
 
-要为整个组织启用或禁用 artifacts，请转到 [**Organization settings > Artifacts**](https://claude.ai/admin-settings/artifacts) 并使用 **Artifacts** 切换。在具有基于角色的访问控制的 Enterprise 计划上，您还可以将 artifacts 限制到特定角色：转到 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles)，编辑角色，并设置 **Artifacts** 权限。
+要为整个组织启用或禁用 Artifact，请前往 [**Organization settings > Artifacts**](https://claude.ai/admin-settings/artifacts)，然后使用 **Artifacts** 开关。在具有基于角色的访问控制的 Enterprise 计划中，您还可以将 Artifact 限定到特定角色：前往 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles)，编辑某个角色，然后设置 **Artifacts** 权限。
 
-### 控制来自 artifacts 的连接器调用
+### 控制来自 Artifact 的连接器调用
 
-[来自 artifacts 的连接器调用](#pull-live-data-with-mcp-connectors)有自己的切换，与打开或关闭 artifacts 的 **Artifacts** 切换分开。转到 [**Organization settings > Capabilities**](https://claude.ai/admin-settings/capabilities) 并使用 **Enable artifact connectors** 切换。同一切换控制在 claude.ai 对话中创建的 artifacts 的连接器调用。
+[来自 Artifact 的连接器调用](#pull-live-data-with-mcp-connectors)有其独立的开关，与用于启用或关闭 Artifact 的 **Artifacts** 开关相互独立。请前往 [**Organization settings > Capabilities**](https://claude.ai/admin-settings/capabilities)，然后使用 **Enable artifact connectors** 开关。该开关同样控制在 claude.ai 对话中创建的 Artifact 所发起的连接器调用。
 
 ### 控制公开共享
 
-在 Team 和 Enterprise 计划上，公开共享默认处于关闭状态。要让成员将 artifacts 发布到任何人都可以查看而无需登录的公开链接，请转到 [**Organization settings > Artifacts**](https://claude.ai/admin-settings/artifacts) 并在 **Artifacts** 切换下打开 **External sharing**。将其关闭会阻止通过现有公开链接的访问，而不会更改每个 artifact 的受众；如果您重新启用它，访问将恢复。
+在 Team 和 Enterprise 计划中，公开共享默认处于关闭状态。要允许成员将 Artifact 发布到任何人无需登录即可查看的公开链接，请前往 [**Organization settings > Artifacts**](https://claude.ai/admin-settings/artifacts)，然后打开 **Artifacts** 开关下方的 **External sharing**。重新关闭该选项会阻止通过现有公开链接进行访问，但不会更改各个 Artifact 的受众；如果您重新启用该选项，访问将恢复。
 
 ### 设置保留策略
 
-要设置在自动删除之前保留 artifacts 的时间长度，请转到 [**Organization settings > Data and privacy**](https://claude.ai/admin-settings/data-privacy-controls)。您可以为仍然对其作者私有的 artifacts 和已共享的 artifacts 设置单独的保留期。
+要设置 Artifact 在被自动删除之前的保留时长，请前往 [**Organization settings > Data and privacy**](https://claude.ai/admin-settings/data-privacy-controls)。您可以分别为仍仅对作者私有的 Artifact 和已被共享的 Artifact 设置不同的保留期限。
 
 ### 查看审计日志
 
-发布、共享和删除 artifact 各自出现在您组织的审计日志中，位于 `claude_artifact_*` 事件类型下，这是用于在 claude.ai 对话中创建的 artifacts 的同一系列。
+发布、共享和删除 Artifact 的操作都会以 `claude_artifact_*` 事件类型出现在组织的审计日志中，这与在 claude.ai 对话中创建的 Artifact 所使用的事件类型系列相同。
 
-### 将查看器域列入允许列表
+### 将查看器域名加入允许列表
 
-claude.ai 上的查看器从沙箱 `*.claudeusercontent.com` 源加载每个 artifact。如果您的组织限制出站网络访问，请将该域添加到您的允许列表中，与 `claude.ai` 一起。有关完整列表，请参阅 [网络访问要求](/docs/zh-CN/network-config#network-access-requirements)。
+claude.ai 上的查看器会从沙盒化的 `*.claudeusercontent.com` 源加载每个 Artifact。如果您的组织限制出站网络访问，请将该域名与 `claude.ai` 一起添加到允许列表中。有关完整列表，请参阅[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)。
 
-从 [Google Fonts](#improve-the-visual-design) 加载字体的 artifact 也会请求 `fonts.googleapis.com` 和 `fonts.gstatic.com`。两个主机都是可选的。如果您阻止它们，artifacts 将以备用字体呈现。使用快速拒绝而不是静默丢弃来阻止，以便字体请求立即失败，而不是延迟页面的首次呈现。
+从 [Google Fonts](#improve-the-visual-design) 加载字体的 Artifact 还会请求 `fonts.googleapis.com` 和 `fonts.gstatic.com`。这两个主机都是可选的。如果您阻止它们，Artifact 将使用备用字体进行渲染。请采用快速拒绝而非静默丢弃的方式进行阻止，以便字体请求立即失败，而不会延迟页面的首次渲染。
 
-Artifacts 还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwindcss.com`、`code.jquery.com` 和 `unpkg.com` 加载 JavaScript 库（如 React 或图表包），而不能从任何其他外部主机加载。如果您阻止这些主机，artifact 中依赖库的部分将无法工作，与被阻止的字体不同，被阻止的库没有备用方案。在这里也使用快速拒绝，以便被阻止的库请求立即失败，而不是挂起直到超时。
+Artifact 还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwindcss.com`、`code.jquery.com` 和 `unpkg.com` 加载 JavaScript 库（例如 React 或图表库），且不会从其他任何外部主机加载。如果您阻止这些主机，Artifact 中依赖库的部分将无法正常工作；与被阻止的字体不同，被阻止的库没有备用方案。此处同样请采用快速拒绝的方式进行阻止，以便被阻止的库请求立即失败，而不会一直挂起直至超时。
 
-### 使用 Compliance API 列出和删除 artifacts
+### 使用 Compliance API 列出和删除 Artifact
 
-[Compliance API](https://docs.claude.com/en/api/compliance) 提供端点来列出组织的 artifacts、检索特定版本的内容和删除 artifact：
+[Compliance API](https://docs.claude.com/en/api/compliance) 提供了用于列出组织的 Artifact、检索特定版本的内容以及删除 Artifact 的端点：
 
 | 方法 | 端点 |
 | :- | :- |
-| `GET` | `/v1/compliance/code/artifacts` |
-| `GET` | `/v1/compliance/code/artifacts/{artifact_id}/versions/{version_id}` |
-| `DELETE` | `/v1/compliance/code/artifacts/{artifact_id}` |
+| `GET` | `/v1/compliance/apps/code/artifacts` |
+| `GET` | `/v1/compliance/apps/code/artifacts/{artifact_id}/versions/{version_id}` |
+| `DELETE` | `/v1/compliance/apps/code/artifacts/{artifact_id}` |
 
-有关请求和响应架构，请参阅 [Compliance API 参考](https://docs.claude.com/en/api/compliance/code/artifacts)。
+有关请求和响应的 schema，请参阅 [Compliance API 参考](https://platform.claude.com/docs/en/api/compliance/apps/code/artifacts)。
 
 ## 相关资源
 

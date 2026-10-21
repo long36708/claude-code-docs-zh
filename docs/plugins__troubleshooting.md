@@ -830,6 +830,7 @@ claude plugin update formatter@my-marketplace --scope project
 
 * **`Failed to load hooks from <path>: <reason>`**：`hooks/hooks.json` 不是有效的 JSON 或失败 hooks 架构。原因命名解析或验证错误。修复文件。要在发布插件前在 `hooks/hooks.json` 中捕获 JSON 语法问题，请在您的 shell 中运行 `claude plugin validate <plugin-directory>`
 * **`hooks path not found: <path>`**：清单的 `hooks` 字段命名在该路径相对于插件根处不存在的文件。修复路径或添加文件
+* **`hooks path escapes plugin directory: <path>`**：请参阅 [Path escapes plugin directory](/docs/zh-CN/errors#path-escapes-plugin-directory)
 
 #### 成绩单中的 `hook error` 通知
 

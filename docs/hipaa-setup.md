@@ -93,6 +93,7 @@ claude --version
 | :- | :- |
 | `api.anthropic.com` | Claude API 请求、遥测，以及告知 Claude Code HIPAA 配置已开启的组织策略 |
 | `claude.ai`、`claude.com`、`platform.claude.com` | 登录和令牌刷新 |
+| `sso.claude.com` | 登录（当您的组织使用单点登录时） |
 | `downloads.claude.ai` | 原生安装程序及其更新 |
 | `mcp-proxy.anthropic.com` | [来自 claude.ai 的连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai) |
 

@@ -504,6 +504,8 @@ Read 处理多种文件类型，不仅仅是纯文本：
 * **图像**：PNG、JPEG、GIF 和 WebP 文件作为 Claude 可以看到的视觉内容返回，而不是原始字节。Claude Code 在发送大型图像之前会调整大小并重新压缩，以适应模型的图像大小限制，因此 Claude 可能会看到大型屏幕截图的缩小版本。
 
   如果 Claude 在大型图像中遗漏了细微的像素级细节，请要求它裁剪您关注的区域，例如通过 Bash 使用 ImageMagick，然后读取裁剪后的图像。
+
+  Read 会拒绝读取大于 128 MB 的图像文件，并返回一个错误，告诉 Claude 调整图像大小或导出一个较小的副本，然后读取该副本。如果 Claude 在遇到该错误后停止而没有这样做，请参阅 [File is too large to read as an image](/docs/zh-CN/errors#file-is-too-large-to-read-as-an-image)。
 * **PDF**：Claude 完整读取短 `.pdf` 文件。对于超过 10 页的 PDF，它使用 `pages` 参数按范围读取，例如 `"1-5"`，一次最多 20 页。页面范围读取使用 poppler-utils 中的 `pdftoppm` 呈现页面，因此在 macOS 上使用 `brew install poppler` 安装，在 Debian 和 Ubuntu 上使用 `apt-get install poppler-utils` 安装。在 Windows 和其他平台上，安装一个将 `pdftoppm` 放在 `PATH` 上的 poppler 构建。没有它，页面范围读取会失败并显示 `pdftoppm is not installed`。
 * **Jupyter 笔记本**：`.ipynb` 文件返回所有单元格及其输出，包括代码、markdown 和可视化。如果笔记本的单元格总量超过 256 KB，或超过 [token 限制](#large-files)，则会返回错误。Claude Code 拒绝读取超过 100 MB 的笔记本文件；错误会告诉 Claude 如何改为读取笔记本的一部分，例如使用 shell 命令读取单元格的一个切片。
 
@@ -558,7 +560,7 @@ Claude 将草稿加入队列后，您会在提示上方看到一张卡片，显�
 
 Claude Code 在本地草稿中保留您的工作目录，以便它可以找到记录，并且不发送目录。
 
-在 [零数据保留的组织](/docs/zh-CN/zero-data-retention#features-disabled-under-zdr) 中，以及在已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup) 的组织中，Claude Code 会省略该工具，就像它对 `/feedback` 所做的那样。如果零数据保留组织中的会话仍然提供该工具，草稿保留在您的机器上，发送失败并显示 `Feedback collection is not available for organizations with custom data retention policies.`
+在 [零数据保留的组织](/docs/zh-CN/zero-data-retention#features-disabled-under-zdr) 中，以及在已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup) 的组织中，Claude Code 会在您的会话中省略 SendFeedback 工具。如果零数据保留组织中的会话仍然提供该工具，草稿保留在您的机器上，发送失败并显示 `Feedback collection is not available for organizations with custom data retention policies.`
 
 ### 丢弃或保留草稿
 
@@ -664,6 +666,8 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
 * **提高上限**：将 [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](/docs/zh-CN/env-vars#variables) 环境变量设置为正整数，例如 `500`。上限可以提高但不能关闭。
 * **等待恢复**：在 Claude Code v2.1.290 或更高版本中，交互式终端会话的限制大约每小时恢复 100 次调用。要更改该速率，请将 [`CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR`](/docs/zh-CN/env-vars#variables) 设置为每小时的调用次数，例如 `50`。
 * **开始新的对话**：在 Claude Code 提示符处运行 [`/clear`](/docs/zh-CN/commands#all-commands) 也会重置计数。如果仍然可以生成子代理的工作（例如正在运行的工作流）在清除后继续存在，计数会改为继续累计。
+
+在使用 `-p` 的[非交互模式](/docs/zh-CN/headless)下以及在 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 中，该限制按轮次而非按会话计算。一个轮次从您发送一条消息开始，直到 Claude 完成响应为止。当您在此之后发送下一条消息或开始新的 `claude -p` 运行时，限制会重置，即使使用 [`--continue` 或 `--resume`](/docs/zh-CN/headless#continue-conversations) 也是如此。如需更多搜索次数，请提高 [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](/docs/zh-CN/env-vars#variables)，或使用 [`CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR`](/docs/zh-CN/env-vars#variables) 设置恢复速率。
 
 ## Write tool 行为
 

@@ -55,7 +55,13 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 
 ### 通过脚本读取结果
 
-要在您自己的 CI 中控制合并或发布摘要，请使用 `gh` 和 jq 解析 Details 文本的最后一行。该行是一条机器可读的注释。
+要在您自己的 CI 中控制合并或发布摘要，请使用 `gh` 和 jq 解析 Details 文本的最后一行。该行是一条 HTML 注释，以 JSON 形式保存各严重程度的计数：
+
+```text theme={null}
+<!-- bughunter-severity: {"nit":1,"normal":2,"pre_existing":0} -->
+```
+
+其上方的行可能包含 Pull Request 中的文件名。如果您以自己的方式解析文本，请仅从最后一行获取计数，就像以下步骤中的命令所做的那样。
 
 **1. 查找检查运行 ID**
 
@@ -67,11 +73,13 @@ gh api repos/OWNER/REPO/commits/<commit-sha>/check-runs --jq '.check_runs[] | {i
 
 **2. 读取严重程度计数**
 
-从该检查运行中读取计数，将 `CHECK_RUN_ID` 替换为该 ID：
+从检查运行的 `output.text` 字段中读取计数，该字段保存 Details 文本。将 `CHECK_RUN_ID` 替换为该 ID：
 
 ```bash theme={null}
-gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID \
-  --jq '.output.text | split("bughunter-severity: ")[1] | split(" -->")[0] | fromjson'
+gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID --jq '
+  (.output.text | split("\n") | last
+    | scan("^<!-- bughunter-severity: (.*) -->$")[0] | fromjson)?
+  // error("no severity line")'
 ```
 
 这会输出一个 JSON 对象，其中包含每种严重程度的计数，键按字母顺序排列，例如 `{"nit": 1, "normal": 2, "pre_existing": 0}`。计数包括该 Pull Request 早期审查中讨论串仍处于打开状态的发现。
@@ -80,8 +88,8 @@ gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID \
 
 让您的脚本处理以下情况：
 
-* **`normal` 大于零**：如果您希望控制合并，请让作业失败。`normal` 键保存的是 Important 发现的数量，这意味着 Claude 至少发现了一个值得在合并前修复的 bug。
-* **该行缺失**：将其视为没有结论，而不是零个发现。对于失败、超时、被取消或被更新审查取代的审查，其检查运行中没有此行，某些已完成的审查也没有此行。
+* **`normal` 大于零**：如果您希望控制合并，请让作业失败。`normal` 键保存的是 Important 发现的数量，这意味着 Claude 至少发现了一个值得在合并前修复的 bug。如果只想输出该计数，请在结尾的单引号之前添加 `| .normal`。
+* **该行缺失**：命令会输出包含 `no severity line` 的错误而不是计数，并以非零状态退出。将其视为没有结论，而不是零个发现。对于失败、超时、被取消或被更新审查取代的审查，其检查运行中没有此行，某些已完成的审查也没有此行。
 
 ## 请求审查
 
@@ -99,18 +107,22 @@ gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID \
 
 | 命令 | 作用 | 使用时机 |
 | :- | :- | :- |
-| `@claude review` | 启动一次审查，但不为 PR 订阅后续推送 | 您现在需要一次审查，例如在设置为 Manual 的仓库中的 Pull Request 上，或在其他模式下立即再进行一次审查 |
-| `@claude review always` | 启动审查，并为 PR 订阅此后由推送触发的审查 | 您希望之后的每次推送都启动新的审查，例如在设置为 Manual 的仓库中的高优先级 PR 上 |
+| `@claude review` | 启动一次审查，但不为 PR 订阅后续推送 | 您现在需要一次审查，例如在设置为 **Manual** 的仓库中的 Pull Request 上，或在其他模式下立即再进行一次审查 |
+| `@claude review always` | 启动审查，并为 PR 订阅此后由推送触发的审查 | 您希望之后的每次推送都启动新的审查，例如在设置为 **Manual** 的仓库中的高优先级 PR 上 |
 | `@claude review once` | 与 `@claude review` 相同：启动一次审查而不订阅 | 与 `@claude review` 的情况相同 |
+| `@claude review stop` | 结束 PR 对由推送触发的审查的订阅，既不启动审查，也不取消已在排队或正在运行的审查。Claude 会以评论而非检查运行进行回复。 | 您在设置为 **Manual** 或 **Once after PR creation** 的仓库中使用 `@claude review always` 订阅了某个 PR，但不再希望每次推送都启动审查 |
+| `@claude review off` 或 `@claude review pause` | 与 `@claude review stop` 相同 | 与 `@claude review stop` 的情况相同 |
 
-要让这些命令中的任何一个启动审查，必须满足以下所有条件：
+在设置为 **After every push** 的仓库中，您无法通过评论停止审查，因为在那里无论是否有订阅，推送都会启动审查。要在此类仓库中阻止推送为某个 Pull Request 启动审查，请将其转换为[草稿](#review-drafts-and-pull-requests-from-forks)。当您再次将其标记为可供审查时，会启动一次审查。
+
+要让任何评论命令生效，必须满足以下所有条件：
 
 * 将其作为新的顶层 Pull Request 评论发布，而不是 diff 行上的内联评论，也不是审查的正文。编辑之前的评论不算数。
-* 将命令放在评论开头，并且 `always` 需与命令的其余部分位于同一行。大小写无关紧要。
+* 将整个命令放在评论开头的同一行中。命令之后可以跟其他文本。如果 `always` 或 `stop` 拼写错误或位于后面的行中，Claude 会将该评论视为普通的 `@claude review` 并启动一次审查。大小写无关紧要。
 * 您需要拥有该仓库的 write、maintain 或 admin 权限。Claude 会向 GitHub 核实每位评论者的权限，来自 bot 的评论不会启动审查。
 * Pull Request 必须处于打开状态。
 
-命令被接受后，Pull Request 上会出现一个标题为 **Code review queued...** 的 **Claude Code Review** 检查运行。审查开始时，标题会变为 **Code review in progress...**。Claude 也可能会用 👀 回应您的评论，但即使没有启动审查，该回应也可能出现，因此请以检查运行为准。
+启动审查的命令被接受后，Pull Request 上会出现一个标题为 **Code review queued...** 的 **Claude Code Review** 检查运行。审查开始时，标题会变为 **Code review in progress...**。Claude 也可能会用 👀 回应您的评论，但即使没有启动审查，该回应也可能出现，因此请以检查运行为准。
 
 如果 Pull Request 的最新提交上已有审查正在运行，新的请求不会启动第二次审查。
 

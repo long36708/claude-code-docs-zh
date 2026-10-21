@@ -39,7 +39,7 @@ Claude Code 在以下平台和配置上运行：
 
 **macOS、Linux、WSL：**
 
-```bash theme={null}
+```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 curl -fsSL https://claude.ai/install.sh | bash
 ```
 
@@ -47,13 +47,13 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 **Windows PowerShell：**
 
-```powershell theme={null}
+```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 irm https://claude.ai/install.ps1 | iex
 ```
 
 **Windows CMD：**
 
-```batch theme={null}
+```batch theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 ```
 
@@ -71,7 +71,7 @@ curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del in
 
 **Homebrew**
 
-```bash theme={null}
+```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 brew install --cask claude-code
 ```
 
@@ -83,7 +83,7 @@ Homebrew 提供两个 casks。`claude-code` 跟踪稳定发布渠道，通常比
 
 **WinGet**
 
-```powershell theme={null}
+```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 winget install Anthropic.ClaudeCode
 ```
 
@@ -200,7 +200,7 @@ Claude Code 需要 Pro、Max、Team、Enterprise 或 Console 账户。免费的 
 
 Claude Code 在启动时和运行时定期检查更新。更新在后台下载和安装，然后在您下次启动 Claude Code 时生效。
 
-运行 `claude doctor` 以查看最近一次更新尝试的结果。
+在您的 shell 中运行 `claude doctor`，以查看 Claude Code 记录的最近一次更新尝试的结果。在原生安装上，如果它报告尝试失败，请参阅[会话页脚中的 `Auto-update failed`](/docs/zh-CN/troubleshoot-install#auto-update-failed)，了解后续操作。
 
 在 macOS 和 Linux 上，原生安装程序将启动器作为 `~/.local/bin/claude` 处的符号链接管理到 `~/.local/share/claude/versions/`。如果您将该启动器替换为您自己的脚本或符号链接，自动更新和 `claude update` 会将其保留在原位：新版本仍然安装在 `versions/` 目录下，您的启动器决定运行哪个版本。
 

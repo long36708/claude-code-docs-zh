@@ -12,6 +12,8 @@
 | :- | :- |
 | `command not found`、安装失败、PATH 问题、`EACCES`、TLS 错误 | [故障排除安装和登录](/docs/zh-CN/troubleshoot-install) |
 | 更新或安装下载失败，显示 `The connection dropped while downloading the update` 或 `aborted` | [故障排除安装和登录](/docs/zh-CN/troubleshoot-install#the-connection-dropped-while-downloading-the-update) |
+| 更新或安装失败，显示 `Release verification failed for Claude Code` | [故障排除安装和登录](/docs/zh-CN/troubleshoot-install#release-verification-failed) |
+| 会话页脚以红色显示 `Auto-update failed · Run claude doctor` | [故障排除安装和登录](/docs/zh-CN/troubleshoot-install#auto-update-failed) |
 | 登录循环、OAuth 错误、`403 Forbidden`、"organization disabled"、Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 凭据 | [故障排除安装和登录](/docs/zh-CN/troubleshoot-install#login-and-authentication) |
 | 设置未应用、hooks 未触发、MCP 服务器未加载 | [调试您的配置](/docs/zh-CN/debug-your-config) |
 | 会话以自动模式启动，或 Claude 编辑文件并运行命令而不询问 | [会话启动的模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in) |

@@ -660,7 +660,7 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 | `supportedModels()` | 返回可用的模型及其显示信息 |
 | `supportedAgents()` | 以 [`AgentInfo`](#agentinfo)`[]` 形式返回可用的子代理 |
 | `mcpServerStatus()` | 以 [`McpServerStatus`](#mcpserverstatus)`[]` 形式返回已连接 MCP 服务器的状态 |
-| `getContextUsage(opts?)` | 返回一个 [`SDKControlGetContextUsageResponse`](#sdkcontrolgetcontextusageresponse)，按类别、skill 和工具细分会话的上下文窗口使用情况。使用默认的 `detail` 时，其数据与交互式会话中 `/context` 显示的相同，通过不会出现在消息流中的 token 计数 API 请求计算得出；请参阅[这些请求的处理方式](#sdkcontrolgetcontextusageresponse)。[`detail` 选项](#sdkcontrolgetcontextusageresponse)需要 Agent SDK v0.3.257 或更高版本 |
+| `getContextUsage(opts?)` | 返回一个 [`SDKControlGetContextUsageResponse`](#sdkcontrolgetcontextusageresponse)，按类别、skill 和工具细分会话的上下文窗口使用情况。使用默认的 `detail` 时，它包含 `/context` 在交互式会话中显示的数据，这些数据通过不会出现在消息流中的 token 计数 API 请求计算得出；请参阅[这些请求的处理方式](#sdkcontrolgetcontextusageresponse)。[`detail` 选项](#sdkcontrolgetcontextusageresponse)需要 Agent SDK v0.3.257 或更高版本 |
 | `readFile(path, options?)` | 从会话的文件系统中读取文件。Claude Code 会相对于 `cwd` 解析路径；[`readFile()` 可以读取的内容](#what-readfile-can-read)列出了它可提供的文件。传递 `{ maxBytes }` 可更改读取上限（默认 1 MB，最大 10 MB），对于图像等二进制文件传递 `{ encoding: 'base64' }`。以 [`SDKControlReadFileResponse`](#sdkcontrolreadfileresponse) 完成；在权限被拒绝、文件不存在或传输错误时以 `null` 完成。需要 TypeScript SDK v0.2.121 或更高版本 |
 | `reloadPlugins(options?)` | 从磁盘重新加载插件，使您在会话中途安装或编辑的插件作用于正在运行的会话。以 [`SDKControlReloadPluginsResponse`](#sdkcontrolreloadpluginsresponse) 完成，其中列出会话的命令、子代理、插件和 MCP 服务器状态。需要 Agent SDK v0.2.85 或更高版本。[`holdOnCacheImpact` 选项](#sdkcontrolreloadpluginsresponse)需要 Agent SDK v0.3.268 或更高版本 |
 | `reloadSkills()` | 从磁盘重新加载 skill，使您在会话中途添加或编辑的 skill 可供正在运行的会话使用。以 [`SDKControlReloadSkillsResponse`](#sdkcontrolreloadskillsresponse) 完成，其中列出重新加载后可用的 skill。需要 Agent SDK v0.3.163 或更高版本 |
@@ -863,7 +863,7 @@ type SDKControlInterruptResponse = {
 
 ### `SDKControlGetContextUsageResponse`
 
-[`getContextUsage()`](#query-object) 的返回类型。使用默认的 `detail` 时，这与 Claude Code 在交互式会话中为 `/context` 命令渲染的负载相同，因此除 token 计数外，它还携带 `color` 和 `gridRows` 等显示字段，Claude Code 使用这些字段绘制 `/context` 用量网格。
+[`getContextUsage()`](#query-object) 的返回类型。使用默认的 `detail` 时，响应包含 Claude Code 在交互式会话中为 `/context` 命令渲染的负载。除 token 计数外，该负载还携带 `color` 和 `gridRows` 等显示字段，Claude Code 用它们绘制 `/context` 用量网格。
 
 该方法的可选 `detail` 参数决定 Claude Code 如何统计每个类别。`detail` 参数需要 Agent SDK v0.3.257 或更高版本。
 
@@ -872,9 +872,25 @@ type SDKControlInterruptResponse = {
 
 当您将 `/context` 作为提示词发送而不是调用该方法时，Claude Code 会将一个 [`SDKContextUsage`](#sdkcontextusage) 负载附加到传递结果的 assistant 消息的 `context_usage` 字段。该字段需要 Agent SDK v0.3.232 或更高版本。
 
+在 `SDKControlGetContextUsageResponse` 中，`categories[].id`、`mcpInstructions`，以及 `agents` 和 `skills.skillFrontmatter` 条目的 `pluginId` 和 `path` 字段需要 Agent SDK v0.3.304 或更高版本。
+
 ```typescript theme={null}
 type SDKControlGetContextUsageResponse = {
   categories: {
+    id?:
+      | "system_prompt"
+      | "system_tools"
+      | "mcp_tools"
+      | "mcp_instructions"
+      | "mcp_tools_deferred"
+      | "system_tools_deferred"
+      | "custom_agents"
+      | "memory_files"
+      | "skills"
+      | "messages"
+      | "autocompact_buffer"
+      | "compact_buffer"
+      | "free_space";
     name: string;
     tokens: number;
     color: string;
@@ -905,6 +921,10 @@ type SDKControlGetContextUsageResponse = {
     tokens: number;
     isLoaded?: boolean;
   }[];
+  mcpInstructions?: {
+    serverName: string;
+    tokens: number;
+  }[];
   deferredBuiltinTools?: {
     name: string;
     tokens: number;
@@ -921,6 +941,8 @@ type SDKControlGetContextUsageResponse = {
   agents: {
     agentType: string;
     source: string;
+    pluginId?: string;
+    path?: string;
     tokens: number;
   }[];
   slashCommands?: {
@@ -935,6 +957,9 @@ type SDKControlGetContextUsageResponse = {
     skillFrontmatter: {
       name: string;
       source: string;
+      pluginName?: string;
+      pluginId?: string;
+      path?: string;
       tokens: number;
     }[];
   };

@@ -509,7 +509,12 @@ Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道
 
 插件服务器在 `/mcp` 中出现，并带有表明它们来自插件的指示器。
 
-对于插件的 stdio 服务器，`claude mcp get` 打印 `Command: stdio`、空的 `Args:` 行，并将每个环境变量显示为 `NAME=[REDACTED]`。值被隐藏，因为它们可能携带凭据。
+`claude mcp get` 会隐藏为插件的 stdio 或 WebSocket 服务器配置的值，因为这些值可能携带凭据：
+
+* **stdio 服务器**：它打印 `Command: stdio`、空的 `Args:` 行，并将每个环境变量显示为 `NAME=[REDACTED]`
+* **WebSocket 服务器**：它打印 `URL: ws`，并将每个标头显示为 `<name>: [REDACTED]`，`claude mcp list` 则显示 `ws` 来代替 URL
+
+要查看插件配置了什么，请 [在磁盘上找到插件](/docs/zh-CN/plugins/loading#find-plugins-on-disk) 并阅读其 `.mcp.json` 或 `plugin.json`。
 
 **插件 MCP 工具名称**：
 

@@ -181,15 +181,20 @@ export function register(on) {
 
 #### 在询问用户之前批准或拒绝工具调用
 
-要决定某个工具调用是否可以运行，请处理 [`tool.check`](/docs/zh-CN/plugins/mods/reference#tools)，这是 Claude Code 做出该决定的事件。它在权限规则和设置 hook 做出决定之后触发，`next(e)` 会解析为它们的决定：`allow`、`ask` 或 `deny`。您的 hook 返回该决定或另一个决定。`e.input` 保存工具的参数，例如 Bash 的 `command`。
+要决定某个工具调用是否可以运行，请处理 [`tool.check`](/docs/zh-CN/plugins/mods/reference#tools)，这是 Claude Code 做出该决定的事件。
 
 对于固定的命令或路径，请使用诸如 `Bash(npm test)` 之类的[权限规则](/docs/zh-CN/permissions#permission-rule-syntax)，无需编写代码。当决定取决于当下的实际情况（例如当前的 Git 分支或另一个 hook 记录的值）时，请处理 `tool.check`。
+
+* **返回什么**：要自行决定该调用，请返回您自己的对象，例如 `{ decision: 'allow' }` 或 `{ decision: 'deny', reason }`。要保持该决定不变，请返回 `await next(e)` 给您的结果。
+* **`await next(e)` 给您什么**：Claude Code 自身的决定，形式为一个对象，其 `decision` 为 `allow`、`ask` 或 `deny`。`next(e)` 运行期间不会出现权限提示。
+* **参数**：`e.input` 保存工具的参数，例如 Bash 的 `command`
+* **`tool.check` 何时触发**：在 [`PreToolUse` hook](/docs/zh-CN/hooks#pretooluse) 运行之后，并在权限提示、[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)的分类器或 [`PermissionRequest`](/docs/zh-CN/hooks#permissionrequest) hook 之前
 
 以下 hook 会在当前分支为 `main` 时拒绝 `git push`：
 
 ```javascript theme={null}
 on('tool.check', { tool: 'Bash' }, async ($, e, next) => {
-  // What the permission rules and settings hooks decided: 'allow', 'ask', or 'deny'
+  // Claude Code's own decision
   const decided = await next(e)
   if (!e.input.command.includes('git push')) return decided
   const branch = await $.process.run(['git', 'branch', '--show-current'])
@@ -208,6 +213,35 @@ on('tool.check', { tool: 'Bash' }, async ($, e, next) => {
 > [!NOTE]
 >
 > `tool.check` hook 也可以返回 `allow` 或 `ask`。在[计划模式](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)下，对于非只读的调用（例如文件编辑），您的 hook 可以收紧 `next(e)` 返回的决定，但不能放宽它。有关您的 hook 的 `allow` 无法覆盖的权限规则和 `PreToolUse` hook 决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+
+#### 检查工具调用是否为只读
+
+在 [`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) hook 中，当工具将该调用报告为只读时，`e.isReadOnly` 为 `true`。否则该字段不存在，而不是 `false`。`e.isReadOnly` 需要 Claude Code v2.1.304 或更高版本。
+
+某些工具（例如 Read、Grep、Glob 和 WebSearch）会将每次调用都报告为只读。Bash 和 MCP 工具在以下情况下将调用报告为只读：
+
+* **Bash**：命令通过 Claude Code 内置的[只读命令检查](/docs/zh-CN/permissions#read-only-commands)
+* **MCP 工具**：服务器将该工具的 `readOnlyHint` 注解设置为 `true`
+
+该值是工具自身的报告，因此不要仅凭此字段批准调用。例如，WebFetch 和 Agent 调用会报告为只读，但 [WebFetch](/docs/zh-CN/tools-reference#webfetch-tool-behavior) 会请求一个 URL，而 [Agent](/docs/zh-CN/tools-reference#agent-tool-behavior) 会启动一个运行其自身工具的子代理。
+
+以下 hook 会为每个非只读且尚未被拒绝的 `mcp__github__` 调用返回 `ask`：
+
+```javascript theme={null}
+on('tool.check', { tool: /^mcp__github__/ }, async ($, e, next) => {
+  const decided = await next(e)
+  // Read-only calls and denied calls pass through unchanged
+  if (e.isReadOnly || decided.decision === 'deny') return decided
+  return { decision: 'ask', reason: 'This tool can change the GitHub repository' }
+})
+```
+
+#### 按调用是否为只读筛选 `tool.check` hook
+
+要按 [`e.isReadOnly`](#check-whether-a-tool-call-is-read-only) 限制您的 hook 处理哪些调用，请对只读调用使用[匹配器](#filter-which-events-a-hook-handles)，对其余调用使用 hook 主体：
+
+* **仅只读调用**：在匹配器中添加 `isReadOnly: true`，例如 `on('tool.check', { tool: 'Bash', isReadOnly: true }, hook)`
+* **非只读调用**：在 hook 主体中测试 `e.isReadOnly`，如 [`mcp__github__` 示例](#check-whether-a-tool-call-is-read-only)所示。如果您在匹配器中写入 `isReadOnly: false`，您的 hook 将永远不会运行。
 
 ### 改写或补充提示词
 
@@ -312,7 +346,7 @@ Claude Code 按每个 mod 的来源对链进行排序：
 * **来自托管设置的 `PreToolUse` hook**：在第一个 mod 的 `tool.call` hook 之前运行。当托管 hook 阻止调用时，该调用不会运行任何 mod 的 `tool.call` hook。
 * **来自每个其他设置文件和插件的 `hooks/hooks.json` 的 `PreToolUse` hook**：在最后一个 mod 调用 `next` 后运行，作为 Claude Code 自己的行为的一部分。回答 `tool.call` 而不调用 `next` 的 mod 会阻止它们运行，调用 `next` 的 mod 在它返回的结果中看到它们的决定。
 
-[`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) 在权限规则和这两组 `PreToolUse` hook 做出决定之后触发。要了解 `tool.check` hook 的 `allow` 无法替代其中哪些决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+[`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) 在 `PreToolUse` hook 运行之后触发。要了解 `tool.check` hook 的 `allow` 无法替代哪些权限规则和 `PreToolUse` hook 决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
 
 ### 处理失败的 hook
 

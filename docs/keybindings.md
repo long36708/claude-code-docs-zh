@@ -446,6 +446,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | :- | :- | :- |
 | `settings:search` | / | 进入搜索模式 |
 | `settings:retry` | R | 在错误时重试加载使用数据 |
+| `settings:fixUsage` | F | 当 `/usage` 页脚提供修复时，将 Claude Code 可以应用的 [`/usage` 建议](/docs/zh-CN/costs#apply-recommendations-with-the-fix-shortcut) 发送到您的会话。需要 v2.1.305 或更高版本 |
 | `select:accept` | Enter, Space | 更改选定的设置或打开其子菜单 |
 | `confirm:no` | Escape | 关闭面板。更改已保存 |
 
@@ -694,6 +695,7 @@ Claude Code 验证您的快捷键并向调试日志写入以下警告：
 
 * 解析错误（无效的 JSON 或结构）
 * 拼写错误的修饰符，例如 `ctl+k`。Claude Code 会删除它无法识别的部分，并将绑定应用于剩余的按键，在此示例中为 `k`。
+* 按键字符串中 `+` 旁边有空格，例如 `ctrl+ k`。Claude Code 会将该字符串解读为由 `ctrl+` 后跟 `k` 组成的[组合键序列](#chords)。没有任何按键能单独匹配 `ctrl+`，因此该绑定永远不会触发。请删除该空格。
 * 无效的上下文名称
 * 无效的操作值，例如不是字符串或 `null` 的操作
 * 未知的操作名称，例如注册操作的拼写错误。Claude Code 跳过该绑定并保持该键的任何默认绑定有效。

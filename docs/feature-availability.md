@@ -57,7 +57,7 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 * [Artifacts](/docs/zh-CN/artifacts)：Pro、Max、Team 和 Enterprise 计划
 * [Voice dictation](/docs/zh-CN/voice-dictation)
 
-Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](/docs/zh-CN/llm-gateway-connect#desktop-app)，Enterprise 部署可以通过[托管设置](https://claude.com/docs/third-party/claude-desktop/configuration)将 Desktop 路由到 Google Cloud's Agent Platform 或网关提供商，[Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview) 在 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 或自托管 LLM 网关上运行 Code 选项卡。有关这些功能的按计划可用性，请参阅[按订阅计划的可用性](#availability-by-subscription-plan)。
+Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](/docs/zh-CN/llm-gateway-connect#desktop-app)。[Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview) 还可以在 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 或自托管 LLM 网关上运行 Code 选项卡。它还可以使用 Anthropic Console API 密钥在 [Claude API](https://claude.com/docs/third-party/claude-desktop/claude-api) 上运行 Code 选项卡。有关这些功能的按计划可用性，请参阅[按订阅计划的可用性](#availability-by-subscription-plan)。
 
 ### 按提供商变化的 CLI 功能
 
@@ -286,6 +286,10 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)。
 
 [按提供商变化的 CLI 功能](#cli-capabilities-that-vary-by-provider)中的所有内容都可用，除了 [fast mode](/docs/zh-CN/fast-mode) 需要[预配置访问](/docs/zh-CN/fast-mode#enable-fast-mode-for-your-organization)。在 claude.ai Team 或 Enterprise 组织中配置的 [Server-managed settings](/docs/zh-CN/server-managed-settings) 不会作用于使用 Console API 密钥进行身份验证的会话。有关如何覆盖这些会话，请参阅[平台可用性](/docs/zh-CN/server-managed-settings#platform-availability)。
+
+**部分支持：**
+
+* [Desktop](/docs/zh-CN/desktop)：通过[结合 Claude API 使用的 Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/claude-api)
 
 ## 按订阅计划的可用性
 

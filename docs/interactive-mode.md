@@ -18,7 +18,7 @@
 
 | 快捷键 | 描述 | 上下文 |
 | :- | :- | :- |
-| `Ctrl+C` | 中断或清除输入 | 中断正在运行的操作。如果没有任何操作在运行，第一次按下会清除提示输入，第二次按下会退出 Claude Code。在提示输入仍为空时按 `Up` 可找回被清除的草稿，这需要 Claude Code v2.1.288 或更高版本 |
+| `Ctrl+C` | 中断或清除输入 | 中断正在运行的操作。如果没有任何操作在运行，第一次按下会清除提示输入，第二次按下会退出 Claude Code。要找回被清除的草稿，请参阅[找回被清除的草稿](#bring-back-a-cleared-draft) |
 | `Ctrl+X Ctrl+K` | 停止此会话中所有正在运行的[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)，并在该会话的剩余时间内关闭 [Artifact 自动回复](/docs/zh-CN/artifacts#let-claude-reply-to-comments-on-its-own)。在 3 秒内按两次以确认。后台子代理的权限提示打开时，您也可以按此快捷键 | 子代理控制 |
 | `Ctrl+D` | 退出 Claude Code 会话 | 第一次按下显示确认提示，第二次在 800ms 内按下会退出。当提示有文本时，`Ctrl+D` 会删除光标后的字符 |
 | `Ctrl+G` 或 `Ctrl+X Ctrl+E` | 在默认文本编辑器中打开 | 在默认文本编辑器中编辑您的提示或自定义响应。`Ctrl+X Ctrl+E` 是 readline 原生绑定。在 `/config` 中打开**在外部编辑器中显示最后一个响应**，以在您的提示上方将 Claude 的前一个回复作为 `#` 注释上下文预置；Claude Code 在您保存时会删除注释块 |
@@ -271,6 +271,13 @@ Claude Code 保留了你输入的提示词的历史记录，上箭头回调可�
 * 连续两次提交相同的提示词只记录一个历史条目，因此按上箭头会跳到前一个不同的提示词
 * 当你回调包含粘贴文本的提示词时，Claude Code 在你重新提交时会再次发送完整的粘贴内容。如果内容已被[自动清理](/docs/zh-CN/claude-directory#cleaned-up-automatically)，Claude Code 不会发送字面上的 `[Pasted text #N]` 字符串；有关提示词发生的情况，请参阅[粘贴大型内容](/docs/zh-CN/terminal-config#paste-large-content)
 * 使用 `!` 的历史扩展默认被禁用
+
+### 找回已清除的草稿
+
+要找回使用 `Ctrl+C` 清除的草稿，请按 `Up`，可以在清除后立即按，也可以在发送消息或命令之后按：
+
+* **清除草稿后立即找回**：在提示词输入框仍为空时按一次 `Up`。需要 Claude Code v2.1.288 或更高版本。
+* **发送消息或命令之后找回**：按 `Up` 回退到该草稿。Claude Code 会为当前会话保留最近清除的十个草稿及其粘贴的文本和图像，并在您退出时将其丢弃。需要 Claude Code v2.1.292 或更高版本。
 
 ### 使用 Ctrl+R 进行反向搜索
 

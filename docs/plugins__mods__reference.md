@@ -56,7 +56,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | 事件 | 触发时机 | hook 可以返回 |
 | :- | :- | :- |
 | [`tool.call`](/docs/zh-CN/plugins/mods/events#guard-or-change-a-tool-call) | 工具即将运行 | `next(e)`、`{ deny: reason }` 或 `{ result }` |
-| [`tool.check`](/docs/zh-CN/plugins/mods/events#where-settings-hooks-run-in-the-order) | Claude Code 在 `tool.call` 和 `PreToolUse` hook 之后决定是否允许运行某个工具调用。`next(e)` 解析为规则、权限模式和这些 hook 得出的决定。 | `{ decision }`，其值为 `allow`、`ask` 或 `deny` |
+| [`tool.check`](/docs/zh-CN/plugins/mods/events#where-settings-hooks-run-in-the-order) | Claude Code 在 `tool.call` 和 `PreToolUse` hook 之后决定是否允许运行某个工具调用。`next(e)` 解析为规则、权限模式和这些 hook 得出的决定。 | `next(e)` 或 `{ decision }`，其中 `decision` 设为 `allow`、`ask` 或 `deny`，并可附带可选的 `reason` |
 | `tool.describe` | 每个工具一次，在其描述首次发送给 Claude 时。对于 MCP 工具，当 Claude 通过[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)加载它时会再触发一次，此时 `e.description` 设为 Claude 针对已加载工具读取的文本。 | `{ description }`，可选择将 `isDeferred` 设为 `true` 以将该工具置于工具搜索之后，或设为 `false` 以预先加载它 |
 
 #### `tool.check` 上的 Agent 和组织字段
@@ -67,6 +67,12 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 * **`e.ceiling`**：对于您的组织设为 `ask` 的连接器工具，其值为 `ask`，适用于[该设置能传达到 Claude Code 的会话](/docs/zh-CN/mcp#organization-controls-on-connector-tools)
 
 在 `tool.check` 上，`e.agentId` 和 `e.ceiling` 需要 Claude Code v2.1.290 或更高版本。
+
+#### `tool.check` 上的 `e.isReadOnly` 字段
+
+在 `tool.check` hook 中，当工具报告此次调用为只读时，`e.isReadOnly` 为 `true`。否则该字段不存在，而不是 `false`。该值是工具自身的报告，因此在仅凭此字段批准某个调用之前，请先阅读[检查工具调用是否为只读](/docs/zh-CN/plugins/mods/events#check-whether-a-tool-call-is-read-only)。
+
+在 `tool.check` 上，`e.isReadOnly` 需要 Claude Code v2.1.304 或更高版本。
 
 ### 提示词以及 Claude 读取的内容
 
@@ -266,7 +272,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | `Svg` | 一个 SVG 文档，最多 131,072 个字符 | | ✓ | ✓ |
 | [`Client`](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `module`、`key` | ✓ | ✓ | |
 | [`Raster`](/docs/zh-CN/plugins/mods/interface#draw-a-grid-of-colored-cells) | `key`、`columns`（最多 512）、`rows`（最多 256）、`cells`。请参阅[绘制彩色单元格网格](/docs/zh-CN/plugins/mods/interface#draw-a-grid-of-colored-cells)。 | ✓ | | |
-| `Image` | 最多 2 MiB 的 PNG 或 RGBA 字节，或文件路径，`columns` 和 `rows`（最多 255），以及 `alt` 文本。 | ✓ | | |
+| `Image` | 最多 2 MiB 的 PNG 或 RGBA 字节，或文件路径，`columns` 和 `rows`（最多 255），以及 `alt` 文本。请参阅[哪些终端会绘制它](/docs/zh-CN/plugins/mods/gallery#image-and-client)。 | ✓ | | |
 
 更多 `Button` 规则：`action` 指定 Claude Code 自身的某个[快捷键操作](/docs/zh-CN/keybindings)，当用户为该操作设置的绑定是组合键或带修饰键的按键时，该绑定会按下此按钮。当用户在空的输入框中只输入某个数字并停顿时，横栏中设置了该数字 `hotkey` 的按钮也会触发。当同一次绘制中的两个按钮指定相同的 `hotkey` 时，由后一个按钮获得它。`autoFocus` 在任何控件上都只接受 `true`，因此要关闭它，请省略该 prop。
 

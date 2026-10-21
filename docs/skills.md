@@ -42,6 +42,7 @@ Claude Code 包含一组捆绑技能，例如 `/doctor`、`/code-review`、`/bat
 * **扩展**：未使用的 skill、MCP 服务器和插件与其上下文成本的对比，以及缓慢的 [hook](/docs/zh-CN/hooks)
 * **`CLAUDE.md` 文件**：与已签入文件重复的本地 `CLAUDE.md` 文件、已签入的 [Claude 可以从代码库推导出的 `CLAUDE.md` 内容](/docs/zh-CN/memory#my-claude-md-is-too-large)，以及其余始终加载的指导内容，Claude 会提议将其迁移到按需加载的 skill 和嵌套 `CLAUDE.md` 文件中
 * **权限**：提议将[自动模式](/docs/zh-CN/permissions#permission-modes)设为您的默认权限模式，并[预先批准](/docs/zh-CN/permissions)您经常拒绝的只读命令
+* **用量**：在 Pro、Max、Team 或 Enterprise 套餐上，检查 [`/usage` 建议的更改](/docs/zh-CN/costs#plan-usage-breakdown)以降低您的套餐用量，基于过去 7 天的数据衡量。Claude 会提议它自己可以进行的更改，并将其余部分作为建议报告，例如供您运行的命令。用量检查需要 Claude Code v2.1.305 或更高版本，并且在 [Remote Control](/docs/zh-CN/remote-control) 已连接时，`/doctor` 会跳过该检查。
 
 如需在不启动会话的情况下进行只读安装诊断，请改为在终端中运行 `claude doctor`。
 

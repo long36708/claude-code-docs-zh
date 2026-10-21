@@ -55,17 +55,36 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 
 #### 计划使用情况明细
 
-在 Pro、Max、Team 或 Enterprise 计划上，`/usage` 还显示计入您的计划限制的内容明细：
+在 Pro、Max、Team 或 Enterprise 套餐上，`/usage` 还显示计入您的套餐限制的内容明细，并附带建议：
 
 * **Attribution（归属）**：最近使用情况归属于 skills、subagents、plugins 和各个 MCP 服务器，每个都显示为总数的百分比。MCP 服务器的份额仅计算消耗其工具结果之一的请求。在 v2.1.222 之前，在调用 MCP 服务器一次后，Claude Code 将每个后续请求归属于该服务器，高估了其份额。
-* **Behavior flags（行为标志）**：行为，例如长上下文或缓存未命中，当其占最近使用情况的 10% 或更多时标记。
+* **Recommendations（建议）**：可降低用量的更改，每行一项。每行开头是该建议所针对的最近使用情况份额（至少 10%），例如 `25%  Trim ~/code/api/CLAUDE.md · 49k tokens per request`。要让 Claude Code 应用其能够应用的建议，请参阅[使用 fix 快捷键应用建议](#apply-recommendations-with-the-fix-shortcut)。
 * **Loops（循环）**：最近运行的每个最重的 [`/loop` 或其他会话范围的定时任务](/docs/zh-CN/scheduled-tasks)各占一行，按总 token 排序，其余的显示计数。需要 Claude Code v2.1.242 或更高版本。
   * **每行报告的内容**：任务触发的频率、运行次数、其总 token 和每次运行 token，以及最后一次运行的时间
   * **停止并重新创建的循环**：Claude Code 以任务的提示词作为行的键，因此您停止并重新创建的循环保持为一行
 
 按 `d` 或 `w` 在过去 24 小时和过去 7 天之间切换。这些数据是近似值，从此机器上的本地会话历史记录计算，因此不包括来自其他设备或 claude.ai 的使用情况。
 
-在 [VS Code 扩展](/docs/zh-CN/vs-code#check-account-and-usage)中，归属份额和行为标志显示在"账户和使用情况"对话框中，带有"日"和"周"切换，不包括"循环"行。
+在 [VS Code 扩展](/docs/zh-CN/vs-code#check-account-and-usage)中，归属份额和建议显示在"账户和使用情况"对话框中，带有"日"和"周"切换，不包括"循环"行。
+
+#### 使用 fix 快捷键应用建议
+
+当 `/usage` 页脚显示 `f to fix 2 of 3` 之类的提示时，按 `f` 可让 Claude Code 处理其能够处理的建议。`f` 快捷键需要 Claude Code v2.1.305 或更高版本。
+
+1. 在任何进行中的轮次结束后，Claude Code 会运行各行中显示的、前面不带 `run` 的每条 [`/effort`](/docs/zh-CN/model-config#adjust-effort-level) 命令。
+2. 然后 Claude 会收到一条提示词，其中为它能够处理的其他每一行各包含一个步骤。该提示词要求 Claude 在做出每项更改之前先向您展示该更改。
+
+要了解按 `f` 会如何处理您的每一行，请在第一列中找到该行的形式：
+
+| 行的形式 | 示例行 | 按 `f` 时 |
+| :- | :- | :- |
+| 以前面不带 `run` 的 `/effort` 命令结尾 | `40%  Switch from max to high effort · /effort high` | Claude Code 运行该命令 |
+| 以 `run` 加一条命令结尾 | `30%  Compact before you step away · run /compact` | 此行不会有任何操作。请您自己在 Claude Code 提示符处运行该命令 |
+| 以其他任何内容结尾 | `25%  Trim ~/code/api/CLAUDE.md · 49k tokens per request` | 对于其中部分行，Claude 会在提示词中获得一个步骤，其余行则不会有任何操作。如果 Claude 没有针对某一行向您展示任何更改，请您自己按照该建议操作 |
+
+在 `f to fix 2 of 3` 中，第一个数字表示按 `f` 时 Claude Code 会处理的行数，第二个数字表示显示的行数。不含 `of` 的提示（例如 `f to fix both`）表示 Claude Code 会处理显示的每一行。
+
+当 [Remote Control](/docs/zh-CN/remote-control) 已连接时，页脚不显示 `f` 提示。如果按 `f` 后 `/usage` 关闭并显示 `Nothing was sent. Turn off Remote Control to use fixes.`，说明在 `/usage` 打开期间 Remote Control 建立了连接。要再次使用 `f`，请[断开 Remote Control](/docs/zh-CN/remote-control#check-connection-status)，然后在 Claude Code 提示符处运行 `/usage` 并再次按 `f`。
 
 #### 检查您的使用额度支出
 
@@ -367,7 +386,7 @@ Claude Code 即使在空闲时也会为某些后台功能使用令牌：
 一个已经打开数小时的会话可能会使用远超你的活动量所暗示的计划限额，通常是由于以下原因之一：
 
 * **长上下文**：Claude Code 在每个请求中发送你与它的完整对话，每当 Claude 使用工具时，它会发送另一个请求，其中包含该批工具结果。使用 [prompt caching](/docs/zh-CN/prompt-caching)，Claude Code 以 [缓存令牌速率](https://platform.claude.com/docs/en/about-claude/pricing) 重新读取该历史记录，因此即使在已打开一整天的会话中提出一行问题，仍然会为整个对话消耗使用量。请参阅 [主动管理上下文](#manage-context-proactively) 了解保持上下文较小的方法
-* **缓存未命中**：在超过 [缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime) 的中断后，您的第一条消息会错过缓存并重新处理您的完整上下文。在订阅上生命周期为一小时，一旦您开始使用 [使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，生命周期会降至五分钟；在 API 密钥或云提供商上，默认为五分钟。要在使用使用额度时保持一小时的生命周期，请[自行选择 TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)
+* **缓存未命中**：在超过 [缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime) 的中断后，您的第一条消息会错过缓存并重新处理您的完整上下文。请参阅 [您的请求使用哪种生命周期](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets) 以及 [设置生命周期的控制方式](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)
 * **定时任务**：[会话范围的定时任务](/docs/zh-CN/scheduled-tasks)即使在会话处于空闲状态时也会按其间隔触发，每次都发送您的完整上下文
 * **跨会话消息**：当此会话处于空闲状态时，Claude Code 将 [来自你另一个会话的消息](/docs/zh-CN/cross-session-messaging) 作为新轮次传递，每次都发送你的完整上下文。要保留入站消息而不是传递它们，请将 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 `hold`
 * **目标检查**：当后台工作使活跃的 [目标](/docs/zh-CN/goal) 保持等待时，Claude Code [要求 Claude 检查该工作](/docs/zh-CN/goal#background-work-defers-evaluation)，即使会话处于空闲状态，启动发送你完整上下文的新轮次。Claude Code 在你的提示之间每个目标最多启动三个空闲检查。在 v2.1.246 之前，空闲检查是无限制的。要关闭检查，请将 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](/docs/zh-CN/env-vars) 设置为 `0`。空闲检查需要 Claude Code v2.1.236 或更高版本
@@ -375,7 +394,7 @@ Claude Code 即使在空闲时也会为某些后台功能使用令牌：
 * **代理队友**：每个活跃的 [队友](#agent-team-token-costs) 会继续消耗令牌，直到它退出
 * **压缩**：`/compact` 读取它总结的对话，因此 [压缩大型上下文](/docs/zh-CN/prompt-caching#compacting-the-conversation) 本身就是一个大型请求。当你想要全新开始而不是连续性时，`/clear` 不消耗任何成本
 
-在 Pro、Max、Team 或 Enterprise 计划上，`/usage` 分解会标记占你最近使用量 10% 或更多的行为，例如长上下文或缓存未命中，每个都附带减少它的提示。
+在 Pro、Max、Team 或 Enterprise 计划上，[`/usage` 分解](#plan-usage-breakdown)会针对占您最近使用量 10% 或更多的行为（例如长上下文或缓存未命中）建议相应的调整。
 
 ## 了解 Claude Code 行为的变化
 

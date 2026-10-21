@@ -535,7 +535,7 @@ class ClaudeSDKClient:
 | `set_model(model)` | 更改当前会话的模型。传递 `None` 以重置为 [Claude Code 的默认模型](/docs/zh-CN/model-config)。如果新模型不支持自动模式，处于 `auto` 模式的会话将[切换到 `default` 模式](/docs/zh-CN/agent-sdk/permissions#auto-mode-auto) |
 | `rewind_files(user_message_id)` | 将文件恢复到指定用户消息时的状态。需要 `enable_file_checkpointing=True`。见 [文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing) |
 | `get_mcp_status()` | 获取所有配置的 MCP 服务器的状态。返回 [`McpStatusResponse`](#mcpstatusresponse) |
-| `get_context_usage()` | 获取按类别、技能和工具分类的上下文窗口使用情况的详细信息。这与 `/context` 在交互式会话中显示的数据相同。返回 [`ContextUsageResponse`](#contextusageresponse)。为了计算详细信息，Claude Code 会发出几个不出现在消息流中的令牌计数 API 请求；见[这些请求如何处理](#contextusageresponse) |
+| `get_context_usage()` | 获取按类别、skill 和工具划分的上下文窗口使用情况明细。其中包含 `/context` 在交互式会话中显示的数据。返回 [`ContextUsageResponse`](#contextusageresponse)。为了计算明细，Claude Code 会发出几个不出现在消息流中的令牌计数 API 请求；见[这些请求如何处理](#contextusageresponse) |
 | `reconnect_mcp_server(server_name)` | 重试连接到失败或断开连接的 MCP 服务器 |
 | `toggle_mcp_server(server_name, enabled)` | 在会话中启用或禁用 MCP 服务器。禁用会移除其工具 |
 | `stop_task(task_id)` | 停止运行的后台任务。一个状态为 `"stopped"` 的 [`TaskNotificationMessage`](#tasknotificationmessage) 随后在消息流中出现 |
@@ -1524,7 +1524,7 @@ class McpServerStatus(TypedDict):
 
 ### `ContextUsageResponse`
 
-来自 [`ClaudeSDKClient.get_context_usage()`](#methods) 的响应。这是 Claude Code 在交互式会话中为 `/context` 命令呈现的相同负载，因此除了 token 计数外，它还携带显示字段，如 `color` 和 `gridRows`，Claude Code 使用这些字段来绘制 `/context` 使用网格。
+来自 [`ClaudeSDKClient.get_context_usage()`](#methods) 的响应。该响应包含 Claude Code 在交互式会话中为 `/context` 命令呈现的负载。除了 token 计数外，该负载还携带显示字段，如 `color` 和 `gridRows`，Claude Code 使用这些字段来绘制 `/context` 使用网格。
 
 Claude Code 通过向 [token 计数](https://platform.claude.com/docs/en/build-with-claude/token-counting) API 发送多个请求来构建此负载。这些请求不会出现在消息流中，因此读取流的成本跟踪不会看到它们。在 Anthropic API 上，token 计数不计费。
 

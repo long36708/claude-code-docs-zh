@@ -220,6 +220,7 @@ Claude Code 需要访问以下 URL。在代理配置和防火墙规则中将这�
 | `claude.ai` | claude.ai 账户身份验证 |
 | `claude.com` | claude.ai 账户登录在浏览器中打开 `claude.com` 页面，该页面重定向到 `claude.ai`；预先批准的 WebFetch 文档查询也从 CLI 访问此主机 |
 | `platform.claude.com` | Anthropic Console 账户身份验证。OAuth 令牌交换、刷新和撤销也会转到此主机以用于 claude.ai 账户，因此 Console 和 claude.ai 登录都需要它 |
+| `sso.claude.com` | 使用单点登录（SSO）的组织的浏览器登录流程的一部分。如果代理阻止此主机，这些登录可能会失败 |
 | `mcp-proxy.anthropic.com` | [来自 claude.ai 的 MCP 连接器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)，包括组织管理员配置的连接器。连接器流量通过此代理路由；对于 claude.ai 认证用户，连接器默认启用。要停止 Claude Code 获取它们，请设置 [`ENABLE_CLAUDEAI_MCP_SERVERS=false`](/docs/zh-CN/env-vars) 或 [`disableClaudeAiConnectors`](/docs/zh-CN/settings-reference#disableclaudeaiconnectors) 设置 |
 | `downloads.claude.ai` | 插件可执行文件下载；本机安装程序、本机自动更新程序和更新版本检查 |
 | `storage.googleapis.com` | `/plugin` 中显示的插件安装计数和元数据 |

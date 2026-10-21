@@ -100,7 +100,7 @@ Claude Code 会在每个流式推理响应到达时逐个事件地读取它，�
 | :- | :- | :- | :- |
 | 默认情况下请求中的模型 ID | 提供商的形式，例如 Amazon Bedrock 上的 `us.anthropic.claude-opus-4-8` | Anthropic ID，例如 `claude-opus-4-8` | Anthropic ID |
 | 发送的 `anthropic-beta` 值 | Amazon Bedrock 和 Agent Platform 接受的子集 | [功能传递](#feature-pass-through)下描述的完整集合，除非开发者设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](#disable-pre-release-capabilities) | Amazon Bedrock 和 Agent Platform 接受的子集 |
-| Claude Code 无法识别的模型 ID（例如网关别名）的请求字段 | 使用固定预算的思考而不是自适应推理，以及没有努力或上下文管理字段 | 当前 Claude 模型在 Claude API 上接受的所有内容，包括自适应推理、努力和上下文管理，Amazon Bedrock 或 Agent Platform 上游可能会拒绝 | 与 Amazon Bedrock 或 Agent Platform 格式相同 |
+| Claude Code 无法识别的模型 ID（例如网关别名）的请求字段 | 使用固定预算的思考而不是自适应推理，以及没有努力或上下文管理字段。Claude Code 仍会发送[对话中途的系统消息](#feature-pass-through) | 当前 Claude 模型在 Claude API 上接受的所有内容，包括自适应推理、努力和上下文管理，Amazon Bedrock 或 Agent Platform 上游可能会拒绝 | 与 Amazon Bedrock 或 Agent Platform 格式相同 |
 | 开发者选择加入时的一小时 [prompt cache TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself) | 通过 `cache_control` 中的 `ttl` 字段请求，没有 beta 值 | 通过 `ttl` 字段加上 `anthropic-beta` 中的 `extended-cache-ttl` 值请求，您必须转发 | 请参阅 Claude apps gateway [可用性和限制](/docs/zh-CN/claude-apps-gateway#availability-and-limitations) 表 |
 | [后台任务](/docs/zh-CN/costs#background-token-usage) 的模型，除非 `ANTHROPIC_DEFAULT_HAIKU_MODEL` 固定一个 | 默认 Sonnet 模型，或选择主模型后的主模型，如 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock#4-pin-model-versions) 和 [Agent Platform](/docs/zh-CN/google-vertex-ai#5-pin-model-versions) 页面所述 | 主模型，或当 `ANTHROPIC_API_KEY` 或 `apiKeyHelper` 提供 Anthropic Console 密钥且 `ANTHROPIC_AUTH_TOKEN` 未设置时的默认 Haiku 模型 | 主模型 |
 
@@ -218,6 +218,8 @@ Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并
 | [扩展上下文](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)和[交错思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking#interleaved-thinking) | 仅 Beta 请求头，无请求体字段 | 当请求头被删除时无声地不可用；上游永远不会看到功能请求 | 逐字转发 `anthropic-beta` |
 | Beta [工具字段](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview) | 工具相关的 beta 请求头与工具架构字段（如 `strict` 和 `defer_loading`）配对 | 当请求体通过而没有其请求头时，命名无法识别的工具架构字段的 `400` | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) |
 | [努力](https://platform.claude.com/docs/en/build-with-claude/effort)和[结构化输出](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) | `output_config` 请求体字段携带努力、结构化输出格式和任务预算设置；每个都与自己的 beta 请求头配对 | 在 Amazon Bedrock 和 Google Cloud 的 Agent Platform 上游上命名 `output_config` 的 `400`，通常是 `Extra inputs are not permitted` | 一起转发该字段及其请求头，或让开发者设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities)，这会移除格式和任务预算设置，但不会移除努力。若只想移除格式，开发者可以改为设置 [`CLAUDE_CODE_DISABLE_STRUCTURED_OUTPUTS=1`](/docs/zh-CN/env-vars)，这需要 v2.1.288 或更高版本 |
+| 对话中途的系统消息 | 无 beta 请求头。对于 Claude Opus 4.8、在其之后发布的模型以及无法识别的模型 ID，Claude Code 会将部分提醒和附件文本作为 `messages` 中的 `role: "system"` 条目发送 | `400`，例如 `Unexpected role "system"` | Claude Code 会[在不带系统消息的情况下重试](#automatic-retry-and-error-forwarding)。若要在 Claude Opus 4.8 之前发布的模型的别名上停止系统消息，请在您分发的设置中添加 [`modelOverrides` 条目](#settings-for-unrecognized-model-ids) |
+| [按轮次设置的努力](/docs/zh-CN/prompt-caching#changing-effort-level) | 在 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 5.1 上，beta 请求头与 `role: "system"` 条目上的 `output_config.effort` 配对，这些条目可以是系统消息，也可以是内容为空的条目 | 当您的网关从空条目中删除该字段时，出现带有 `messages.N: system content must contain at least one block` 的 `400` | 转发两者，或让开发者设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) 以停止发送该字段和空条目 |
 | [提示缓存](/docs/zh-CN/prompt-caching) | 无 beta 配对。Claude Code 将 `cache_control` 标记附加到 `system` 块和 `messages` 条目，包括在对话中途附加的 `role: "system"` 条目 | 无错误：对话在每个回合都作为未缓存的输入计费，在 `usage` 中可见为高 `input_tokens` 且缓存活动很少或没有 | 在任何地方原封不动地转发 `cache_control`，并且不要将块形式的 `system` 或消息内容转换为纯字符串 |
 | [令牌计数](https://platform.claude.com/docs/en/build-with-claude/token-counting) | 无 beta 配对；使用 `count_tokens` 端点 | 无错误：Claude Code 回退到基于字符的估计，因此 `/context` 显示近似计数 | 公开该端点以获得精确的令牌计数 |
 
@@ -250,8 +252,9 @@ Claude Code 在上游拒绝后的操作取决于被拒绝的内容：
 该变量不会删除所有 `anthropic-beta` 值。它保留的内容包括：
 
 * 扩展上下文、交错思考和努力的 `anthropic-beta` 值，云提供商也接受这些值
-* `output_config.effort` 字段。[自动重试和错误转发](#automatic-retry-and-error-forwarding)介绍了上游拒绝它的情况
+* 顶层的 `output_config.effort` 字段。[自动重试和错误转发](#automatic-retry-and-error-forwarding)介绍了上游拒绝它的情况
 * 自适应推理的 `thinking` 字段，它没有 beta 请求头
+* 携带[对话中途系统消息](#feature-pass-through)的 `role: "system"` 条目
 * 订阅身份验证所需的 OAuth `anthropic-beta` 值
 * 开发者通过 [`ANTHROPIC_BETAS`](/docs/zh-CN/env-vars) 或 [`CLAUDE_CODE_EXTRA_BODY`](/docs/zh-CN/env-vars) 自行添加的请求头值和请求体字段
 

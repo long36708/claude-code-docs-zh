@@ -593,7 +593,7 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 
 PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask 规则，无论 PreToolUse hook 返回什么：匹配的 deny 规则会阻止调用，匹配的 ask 规则即使在 hook 返回 `"allow"` 或 `"ask"` 时仍然会提示。这保留了[管理权限](#manage-permissions)中描述的 deny 优先级，包括在托管设置中设置的 deny 规则。
 
-该优先级涵盖设置文件中的 hook 和插件的 `hooks/hooks.json` 中的 hook。您安装的处理 [`tool.check`](/docs/zh-CN/plugins/mods/events#approve-or-refuse-a-tool-call-before-the-user-is-asked) 事件的 [mod](/docs/zh-CN/plugins/mods/overview) 会在权限规则和 `PreToolUse` hook 已经决定之后给出其答案。当机器上存在[托管设置](/docs/zh-CN/settings#check-what-your-organization-enforces)，或会话的凭据是团队或企业 [`/login`](/docs/zh-CN/authentication#authentication-precedence) 时，在 mod 批准调用的情况下，以下结果默认保持不变：
+该优先级涵盖设置文件中的 hook 和插件的 `hooks/hooks.json` 中的 hook。您安装的处理 [`tool.check`](/docs/zh-CN/plugins/mods/events#approve-or-refuse-a-tool-call-before-the-user-is-asked) 事件的 [mod](/docs/zh-CN/plugins/mods/overview) 会在 `PreToolUse` hook 运行之后给出其答案。当机器上存在[托管设置](/docs/zh-CN/settings#check-what-your-organization-enforces)，或会话的凭据是团队或企业 [`/login`](/docs/zh-CN/authentication#authentication-precedence) 时，在 mod 批准调用的情况下，以下结果默认保持不变：
 
 * deny 规则拒绝的调用仍会被拒绝，您的组织可以更改这一点。
 * ask 规则会提示的调用仍会提示您。

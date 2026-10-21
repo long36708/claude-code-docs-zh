@@ -968,6 +968,12 @@ Claude 可以在 Agent 工具调用中传递 `name` 参数来为子代理命名�
 * **前台**：如果速率限制、过载或服务器错误截断了已经产生文本输出的子代理，Agent 工具会返回该部分输出，并附注说明子代理被截断、未完成其任务。未产生任何输出、或输出仅包含工具调用的子代理会以 [`Agent terminated early due to an API error`](/docs/zh-CN/errors#agent-terminated-early-due-to-an-api-error) 失败，后跟错误详情。
 * **后台**：子代理会被标记为失败，Claude 在其结束时收到的消息会指明该 API 错误，并包含子代理的最后输出，因此部分工作不会丢失。
 
+如果子代理的报告以下面这一行开头，说明该子代理是在备用模型上完成的：
+
+```text theme={null}
+⚠ This agent switched to <model> because its earlier model could not be used.
+```
+
 当您配置了[备用模型链](/docs/zh-CN/model-config#fallback-model-chains)，且子代理遇到该链所覆盖的失败（例如其模型不可用）时，Claude Code 会将子代理切换到链中第一个接受请求的模型。子代理会继续工作，而不是因错误而结束。
 
 底层 API 错误消除后，请让 Claude 重试该任务或[恢复子代理](#resume-subagents)。

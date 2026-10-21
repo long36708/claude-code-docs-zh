@@ -252,6 +252,7 @@ Claude Code 还会从您粘贴到输入框中的文本以及您发送的任何�
 
 * **会话标题**：新会话会根据您的第一条消息获得 AI 生成的标题。
 * **重命名和归档**：将鼠标悬停在会话上即可显示这些操作。重命名可为其设置描述性标题，归档则会将其移至列表底部的 **Archived sessions** 组。
+* **设置了 [`claudeProcessWrapper`](#extension-settings) 时对话缺失**：请将扩展更新到 2.1.304 或更高版本。之后列表会包含之前缺失的对话，以及 `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 在此工作区中启动的会话。
 
 如果该对话在另一个 Claude Code 进程中打开（例如终端中的 `claude` 或另一个 VS Code 窗口），输入框的位置会显示以下通知：
 
@@ -308,7 +309,13 @@ Web 标签页还会列出您的 [Remote Control](/docs/zh-CN/remote-control) 会
 
 * **claude.ai 套餐**：显示套餐各项限额的用量条，例如当前会话和本周。每个用量条都会显示距离其限额重置还有多长时间。
 
-  对话框还会细分哪些因素在消耗您的套餐限额。它会标出占近期用量 10% 或以上的行为，例如缓存未命中、长上下文，以及大量使用子代理或高度并行的会话。每个被标出的行为都附有减少用量的建议。归因表显示每个 skill、子代理、插件和 MCP 服务器分别产生了多少用量。
+  对话框还会细分哪些因素在消耗您的套餐限额：
+
+  * **建议**：可降低用量的更改，每行一条，并附有该更改所针对的近期用量占比，例如 `Trim ~/code/api/CLAUDE.md · 49k tokens per request`
+  * **修复按钮**：要让 Claude Code 应用它能处理的建议，请点击建议下方的按钮，例如 **Fix both**。要了解该按钮作用于哪些行以及随后会在您的会话中发生什么，请参阅[使用修复快捷方式应用建议](/docs/zh-CN/costs#apply-recommendations-with-the-fix-shortcut)。需要 Claude Code v2.1.305 或更高版本。
+
+    连接 [Remote Control](/docs/zh-CN/remote-control) 期间不会显示该按钮。如果在 Remote Control 连接后出现 `The usage fix wasn’t fully sent. Open usage and try again.` 警告，请先[断开 Remote Control](/docs/zh-CN/remote-control#check-connection-status)，然后再重试。
+  * **归因**：显示每个 skill、子代理、插件和 MCP 服务器分别产生了多少用量的表格
 
   使用 Day 和 Week 切换可在过去 24 小时和过去 7 天之间切换。这些数据是近似值，根据本机上的本地会话计算得出，因此不包括来自其他设备或 claude.ai 的用量。
 * **其他登录方式**：当套餐限额不适用于您的登录方式时（例如使用[第三方提供商](#use-third-party-providers)或 API 密钥），Usage 部分会改为显示该会话自身的费用和 token 用量。CLI 的 `/usage` 会在其 [Session 区块](/docs/zh-CN/costs#track-your-costs)中显示相同的总计。活动栏中的会话列表也会在其 **Account & usage** 标题下显示当前会话的总计。需要 Claude Code v2.1.277 或更高版本。
@@ -573,6 +580,10 @@ summarize the changes I've made to the auth module
 
 对于后台 shell 命令，或运行命令的[监视器](/docs/zh-CN/tools-reference#monitor-tool)，卡片还会显示该命令的最新输出，并在命令运行期间持续刷新。
 
+#### 查看后台子代理的工具调用
+
+当某个子代理仅显示为一条状态栏而没有工具调用时，请在输入框中键入 `/tasks` 以打开 [Agent 地图](#use-the-prompt-box)，并在其中点击该子代理。该子代理正在[后台运行](#the-run-in-background-action-is-missing-under-a-subagent)，其卡片会显示其工具调用，以及一个用于打开其会话记录的按钮。
+
 ## VS Code 命令和快捷键
 
 要打开命令面板，请在 Mac 上按 `Cmd+Shift+P`，在 Windows/Linux 上按 `Ctrl+Shift+P`。在其中输入"Claude Code"即可查看 Claude Code 扩展的所有可用 VS Code 命令。
@@ -726,7 +737,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 
 * **Claude 的回复**：扩展会在每条回复完成时播报一次，在文本流式输出期间保持静默。屏幕阅读器会将代码块读作行数摘要，按标签读出链接，并逐个单元格读出表格；完整回复仍可在会话记录中阅读。
 * **权限请求和问题**：当权限提示出现时，扩展会播报该请求，并说明 Claude 想要使用的工具名称。当 Claude 向您提问，以及 Claude 完成计划并等待您审阅时，扩展也会以同样的方式播报。
-* **状态变化**：当 Claude 开始工作、Claude 准备好接收您的输入，以及 Claude Code 开始压缩对话时，扩展会进行播报。
+* **状态变化**：当 Claude 开始工作、Claude 准备好接收您的输入，以及 Claude Code 开始压缩对话时，扩展会进行播报。如果您在会话的 [SessionStart](/docs/zh-CN/hooks#sessionstart) hook 仍在运行时发送提示词，屏幕阅读器还会读出"Running start-up hooks."。
 * **排队的消息**：当您在 Claude 工作期间发送消息时，扩展会针对该消息播报"Message queued."。
 * **错误和模型提示**：扩展会播报对话中的错误，并在[使用额度同意提示](/docs/zh-CN/model-config#fable-and-usage-credits)或[标记请求提示](/docs/zh-CN/model-config#ask-before-switching)出现时进行播报。
 

@@ -2321,7 +2321,7 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
     在项目和本地设置中忽略此组需要 Claude Code v2.1.282 或更高版本。
   * 改变 Claude Code 如何启动或同步的变量，例如 `CLAUDE_CODE_PROCESS_WRAPPER`、`CLAUDE_CODE_SYNC_SKILLS`、`CLAUDE_CODE_SYNC_PLUGINS`、`CLAUDE_CODE_PLUGIN_CACHE_DIR` 和 `CLAUDE_CODE_PLUGIN_SEED_DIR`。
-  * 设置未应答对话框计时器的变量：[`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`、`CLAUDE_AFK_TIMEOUT_MS` 和 `CLAUDE_AFK_COUNTDOWN_MS`](/docs/zh-CN/env-vars#variables)。
+  * [`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`](/docs/zh-CN/env-vars#variables)，它设置未应答对话框的计时器。
   * [`CLAUDE_CODE_DISABLE_ATTACHMENTS`](/docs/zh-CN/env-vars#variables)，它会关闭附件处理。
   * [`CLAUDE_CODE_DISABLE_FILE_MENTIONS`](/docs/zh-CN/env-vars#variables)，它会阻止 Claude Code 展开对文件和目录的 `@` 提及。
 
@@ -2461,16 +2461,15 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 ## 界面和终端
 
-改变 Claude Code 在终端中的外观和行为：主题、编辑器模式、状态行、加载动画、会话内通知和无障碍功能。请参阅[终端配置](/docs/zh-CN/terminal-config)。
+更改 Claude Code 在终端中的外观和行为：主题、编辑器模式、状态栏、加载动画、会话内通知以及无障碍功能。请参阅[终端配置](/docs/zh-CN/terminal-config)。
 
 ### `askUserQuestionTimeout`
 
-让未回答的 [`AskUserQuestion`](/docs/zh-CN/tools-reference) 对话框在空闲一段时间后自动继续，提交您已选择的任何选项。当您离开时设置此项，让 Claude 在没有您的情况下继续。使用默认设置时，问题会等待您回答。关于计时器何时暂停或从不启动，请参阅[问题自动继续超时](/docs/zh-CN/tools-reference#question-auto-continue-timeout)。
+让未回答的 [`AskUserQuestion`](/docs/zh-CN/tools-reference) 对话框在空闲一段时间后自动继续，并提交您已选中的选项。当您暂时离开并希望 Claude 在没有您的情况下继续时，可以设置此项。使用默认值时，问题会一直等待，直到您回答为止。关于计时器何时暂停或从不启动，请参阅[问题自动继续超时](/docs/zh-CN/tools-reference#question-auto-continue-timeout)。
 
-* **Scope**: [`User or managed`](#scopes)
-* **Type**: string，值为 `"60s"`、`"5m"`、`"10m"` 或 `"never"` 之一
-* **Default**: `"never"`
-* **Per-session overrides**: [`CLAUDE_AFK_TIMEOUT_MS`](/docs/zh-CN/env-vars) 在单个会话中优先于此键
+* **作用域**：[`User or managed`](#scopes)
+* **类型**：字符串，取值为 `"60s"`、`"5m"`、`"10m"` 或 `"never"` 之一
+* **默认值**：`"never"`
 
 ```json settings.json theme={null}
 {
@@ -2478,17 +2477,17 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-在 `/config` 中显示为**问题自动继续超时**，它将此键写入用户设置；当托管设置或 `--settings` 标志设置此键时，Claude Code 会隐藏该行。
+在 `/config` 中显示为 **Question auto-continue timeout**，该选项会将此键写入用户设置；当托管设置或 `--settings` 标志设置了此键时，Claude Code 会隐藏该行。
 
 ### `autoContinueAtUsageLimit`
 
-在 claude.ai 使用限制停止您的会话后，在打开的会话中等待，并在重置后自动继续任务。请参阅[关闭自动继续](/docs/zh-CN/interactive-mode#turn-automatic-continue-off)。需要 Claude Code v2.1.234 或更高版本。
+当 claude.ai 用量限制使您的会话停止后，在打开的会话中等待，并在额度重置后自动继续任务。请参阅[关闭自动继续](/docs/zh-CN/interactive-mode#turn-automatic-continue-off)。需要 Claude Code v2.1.234 或更高版本。
 
-* **Scope**: [`User or managed`](#scopes)。仅从用户设置、`--settings` 和托管设置中读取。当这些都没有设置此键时，设置此键的项目或本地设置文件会关闭该功能，而不是被忽略。
-* **Type**: Boolean
-  * `true`：在 claude.ai 使用限制停止您的会话后，Claude Code 在打开的会话中等待，并在重置后自动继续任务
-  * `false`：Claude Code 不会自动启动等待。您仍然可以从使用限制选项菜单[自己启动等待](/docs/zh-CN/interactive-mode#start-a-wait-yourself)
-* **Default**: `true`
+* **作用域**：[`User or managed`](#scopes)。仅从用户设置、`--settings` 和托管设置中读取。当这些都未设置此键时，如果项目或本地设置文件设置了它，该功能会被关闭，而不是被忽略。
+* **类型**：布尔值
+  * `true`：当 claude.ai 用量限制使您的会话停止后，Claude Code 会在打开的会话中等待，并在重置后自动继续任务
+  * `false`：Claude Code 不会自行开始等待。您仍然可以从用量限制选项菜单中[自行开始等待](/docs/zh-CN/interactive-mode#start-a-wait-yourself)
+* **默认值**：`true`
 
 ```json settings.json theme={null}
 {
@@ -2496,17 +2495,17 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-在 `/config` 中显示为**在使用限制时自动继续**，它将此键写入用户设置；当托管设置或 `--settings` 标志设置此键时，Claude Code 会隐藏该行。
+在 `/config` 中显示为 **Continue automatically at usage limit**，该选项会将此键写入用户设置；当托管设置或 `--settings` 标志设置了此键时，Claude Code 会隐藏该行。
 
 ### `autoScrollEnabled`
 
-在[全屏渲染](/docs/zh-CN/fullscreen)中跟随新输出到对话底部。关闭它以在 Claude 继续工作时保持您滚动的位置；权限提示仍会滚动到视图中。
+在[全屏渲染](/docs/zh-CN/fullscreen)中，跟随新输出滚动到对话底部。关闭此项后，在 Claude 继续工作时您会停留在滚动到的位置；权限提示仍会滚动到视图中。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：对话跟随新输出到底部
-  * `false`：当 Claude 继续工作时，您保持在滚动的位置；权限提示仍会显示在记录下方
-* **Default**: `true`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：对话跟随新输出滚动到底部
+  * `false`：在 Claude 继续工作时您停留在滚动到的位置；权限提示仍会显示在会话记录下方
+* **默认值**：`true`
 
 ```json settings.json theme={null}
 {
@@ -2514,18 +2513,18 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-在全屏渲染打开时，在 `/config` 中显示为**自动滚动**，它将此键写入用户设置。
+开启全屏渲染时，在 `/config` 中显示为 **Auto-scroll**，该选项会将此键写入用户设置。
 
 ### `axScreenReader`
 
-渲染屏幕阅读器友好的输出：没有装饰性边框或动画的平面文本。屏幕阅读器模式使用经典渲染器，因此在它处于活动状态时 `tui` 设置无效；附加的[后台会话](/docs/zh-CN/agent-view)仍会全屏渲染。
+渲染适合屏幕阅读器的输出：不带装饰性边框或动画的纯文本。屏幕阅读器模式使用经典渲染器，因此启用时 `tui` 设置不起作用；附加的[后台会话](/docs/zh-CN/agent-view)仍以全屏方式渲染。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：Claude Code 使用经典渲染器渲染没有装饰性边框或动画的平面文本
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：Claude Code 使用经典渲染器，渲染不带装饰性边框或动画的纯文本
   * `false`：Claude Code 正常渲染
-* **Default**: unset，所以屏幕阅读器模式关闭
-* **Per-session overrides**: [`--ax-screen-reader`](/docs/zh-CN/cli-reference#cli-flags) 优先于 [`CLAUDE_AX_SCREEN_READER`](/docs/zh-CN/env-vars)，两者都优先于单个会话的此键
+* **默认值**：未设置，因此屏幕阅读器模式关闭
+* **单会话覆盖**：[`--ax-screen-reader`](/docs/zh-CN/cli-reference#cli-flags) 优先于 [`CLAUDE_AX_SCREEN_READER`](/docs/zh-CN/env-vars)，且两者在单个会话中都优先于此键
 
 ```json settings.json theme={null}
 {
@@ -2535,16 +2534,16 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 ### `bashEditDiffEnabled`
 
-选择 Claude Code 是否记录 Bash 命令运行期间 Git 存储库中发生更改的文件。当它记录它们时，您会在命令后在终端中看到它们的差异，您的 [PostToolUse Bash hooks](/docs/zh-CN/hooks#bash) 会接收更改的文件列表。
+选择 Claude Code 是否记录 Bash 命令运行期间 Git 仓库中哪些文件发生了更改。记录时，您会在命令执行后于终端中看到这些文件的 diff，并且您的 [PostToolUse Bash hook](/docs/zh-CN/hooks#bash) 会收到已更改文件列表。
 
-列出的文件并不总是命令更改的文件。命令运行时另一个程序或另一个 Bash 调用所做的更改也可能出现在那里。
+列出的文件不一定是该命令更改的。命令运行期间由其他程序或其他 Bash 调用所做的更改也可能出现在列表中。
 
-将键设置为 `true` 以在每个权限模式中记录它们。需要 Claude Code v2.1.269 或更高版本。
+将此键设置为 `true` 可在所有权限模式下进行记录。需要 Claude Code v2.1.269 或更高版本。
 
-* **Scope**: [`User or managed`](#scopes)。`true` 仅从您的用户设置、使用 `--settings` 传递的 JSON 或[托管设置](/docs/zh-CN/managed-settings)计数，因此存储库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `true` 无法打开记录。存储库文件中的 `false` 仍会关闭它，除非[更高优先级](/docs/zh-CN/settings#settings-precedence)的文件设置 `true`。
-* **Type**: Boolean
-* **Default**: unset，所以当 Claude Code 指导 Claude 通过 Bash 编辑文件时，Claude Code 在自动模式和 `bypassPermissions` 模式中记录更改
-* **Per-session overrides**: [`CLAUDE_CODE_BASH_EDIT_DIFF`](/docs/zh-CN/env-vars) 在单个会话中优先于此键
+* **作用域**：[`User or managed`](#scopes)。`true` 仅在来自您的用户设置、通过 `--settings` 传入的 JSON 或[托管设置](/docs/zh-CN/managed-settings)时才生效，因此仓库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `true` 无法开启记录。这两个仓库文件中的 `false` 仍会关闭记录，除非[优先级更高](/docs/zh-CN/settings#settings-precedence)的文件设置了 `true`。
+* **类型**：布尔值
+* **默认值**：未设置，因此当 Claude Code 指示 Claude 通过 Bash 编辑文件时，会在自动模式和 `bypassPermissions` 模式下记录更改
+* **单会话覆盖**：[`CLAUDE_CODE_BASH_EDIT_DIFF`](/docs/zh-CN/env-vars) 在单个会话中优先于此键
 
 ```json settings.json theme={null}
 {
@@ -2554,11 +2553,11 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 ### `companyAnnouncements`
 
-在启动时向用户显示您组织的公告。当您列出多个公告时，Claude Code 为每个会话随机选择一个；在某人的首次启动时，它显示第一个条目。
+在启动时向用户显示您组织的公告。当您列出多条公告时，Claude Code 会为每个会话随机选择一条；在用户首次启动时，它会显示第一条。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: array of strings
-* **Default**: unset，所以不显示公告
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串数组
+* **默认值**：未设置，因此不显示公告
 
 ```json settings.json theme={null}
 {
@@ -2570,15 +2569,15 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 
 ### `defaultShell`
 
-选择 Bash 或 PowerShell 是否运行您在输入框中使用 [`!` 前缀](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)键入的 shell 命令，以及 Claude Code 直接运行并添加到会话的命令。
+选择由 Bash 还是 PowerShell 来运行您在输入框中以 [`!` 前缀](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)输入的 shell 命令，即 Claude Code 直接运行并添加到会话中的那些命令。
 
-`"powershell"` 仅在 [PowerShell tool](/docs/zh-CN/tools-reference#powershell-tool) 打开时有效。该工具在没有 Git Bash 的 Windows 上默认打开，在带有 Git Bash 的 Windows 上对于 claude.ai 和 Console 账户默认打开。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 会话中，以及在 macOS、Linux 和 WSL 上，设置 `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` 以打开该工具。将该变量设置为 `0` 以关闭该工具。
+`"powershell"` 仅在 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)开启时有效。在没有 Git Bash 的 Windows 上，以及在有 Git Bash 的 Windows 上使用 claude.ai 和 Console 账户时，该工具默认开启。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 会话中，以及在 macOS、Linux 和 WSL 上，请设置 `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` 来开启该工具。将该变量设置为 `0` 可关闭该工具。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，值为以下之一：
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，取值为以下之一：
   * `"bash"`：Claude Code 在 Bash 中运行您的 `!` 命令
   * `"powershell"`：Claude Code 在 PowerShell 中运行您的 `!` 命令
-* **Default**: `"bash"`，或在 Bash 不可用时在 Windows 上为 `"powershell"`
+* **默认值**：`"bash"`，在 Bash 不可用的 Windows 上为 `"powershell"`
 
 ```json settings.json theme={null}
 {
@@ -2586,16 +2585,16 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-如果您指定的 shell 不可用，Claude Code 会使用另一个：当 PowerShell 工具关闭时 `"powershell"` 回退到 Bash，当 Bash 未安装时 `"bash"` 回退到 PowerShell。
+如果您指定的 shell 不可用，Claude Code 会使用另一个：当 PowerShell 工具关闭时，`"powershell"` 会回退到 Bash；当未安装 Bash 时，`"bash"` 会回退到 PowerShell。
 
 ### `dialogExpiry`
 
-为 Claude Code [转发给远程客户端](/docs/zh-CN/remote-control#limitations)的对话框（例如远程控制或 SDK 主机）以及[保留的跨会话消息](/docs/zh-CN/cross-session-messaging#control-inbound-messages)的批准对话框设置截止时间。在 Claude Code v2.1.236 或更高版本上，相同的截止时间限制了会话中可能没有人在终端的中期 [Fable 使用额度同意提示](/docs/zh-CN/model-config#fable-and-usage-credits)。当在截止时间前没有答案到达时，Claude Code 取消对话框并继续使用其无操作默认值。需要 Claude Code v2.1.224 或更高版本。
+为 Claude Code [转发到远程客户端](/docs/zh-CN/remote-control#limitations)（例如 Remote Control 或 SDK 主机）的对话框，以及[被暂扣的跨会话消息](/docs/zh-CN/cross-session-messaging#control-inbound-messages)的批准对话框设置截止时间。在 Claude Code v2.1.236 或更高版本中，同一截止时间也适用于可能无人值守终端的会话中途出现的 [Fable 使用额度同意提示](/docs/zh-CN/model-config#fable-and-usage-credits)。如果在截止时间之前没有收到回答，Claude Code 会取消该对话框，并以其不执行操作的默认行为继续。需要 Claude Code v2.1.224 或更高版本。
 
-* **Scope**: [`User or managed`](#scopes)
-* **Type**: string，值为 `"60s"`、`"5m"`、`"10m"` 或 `"never"` 之一，后者禁用截止时间
-* **Default**: `"5m"`
-* **Per-session overrides**: [`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`](/docs/zh-CN/env-vars) 在单个会话中优先于此键
+* **作用域**：[`User or managed`](#scopes)
+* **类型**：字符串，取值为 `"60s"`、`"5m"`、`"10m"` 或 `"never"`（禁用截止时间）之一
+* **默认值**：`"5m"`
+* **单会话覆盖**：[`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`](/docs/zh-CN/env-vars) 在单个会话中优先于此键
 
 ```json settings.json theme={null}
 {
@@ -2603,17 +2602,17 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-权限提示和 [`AskUserQuestion`](/docs/zh-CN/tools-reference#askuserquestion-tool-behavior) 问题使用它们自己的流程，不受此截止时间管制。在 `/config` 中显示为**对话框过期**，它将此键写入用户设置；该行需要 Claude Code v2.1.232 或更高版本，当托管设置或 `--settings` 标志设置此键时，Claude Code 会隐藏它。
+权限提示和 [`AskUserQuestion`](/docs/zh-CN/tools-reference#askuserquestion-tool-behavior) 问题使用各自的流程，不受此截止时间约束。在 `/config` 中显示为 **Dialog expiry**，该选项会将此键写入用户设置；该行需要 Claude Code v2.1.232 或更高版本，并且当托管设置或 `--settings` 标志设置了此键时，Claude Code 会隐藏该行。
 
 ### `editorMode`
 
-为输入提示选择快捷键绑定模式。
+选择输入框的按键绑定模式。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，值为以下之一：
-  * `"normal"`：提示输入中的标准快捷键
-  * `"vim"`：vim 风格编辑，具有 NORMAL、INSERT 和 VISUAL 模式
-* **Default**: `"normal"`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，取值为以下之一：
+  * `"normal"`：输入框中的标准按键绑定
+  * `"vim"`：具有 NORMAL、INSERT 和 VISUAL 模式的 vim 风格编辑
+* **默认值**：`"normal"`
 
 ```json settings.json theme={null}
 {
@@ -2621,17 +2620,17 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-在 `/config` 中显示为**编辑器模式**，它将此键写入用户设置。
+在 `/config` 中显示为 **Editor mode**，该选项会将此键写入用户设置。
 
 ### `emojiCompletionEnabled`
 
-当您在提示输入中键入 `:` 加上速记代码时显示表情符号建议，并将完成的速记代码（如 `:heart:`）替换为其表情符号。将其设置为 `false` 以关闭两者。
+当您在输入框中输入 `:` 加短代码时显示 emoji 建议，并将已完成的短代码（例如 `:heart:`）替换为对应的 emoji。将其设置为 `false` 可同时关闭这两项功能。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：Claude Code 在 `:` 后显示表情符号建议，并将完成的速记代码替换为其表情符号
-  * `false`：Claude Code 既不建议表情符号也不替换速记代码
-* **Default**: `true`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：Claude Code 在 `:` 之后显示 emoji 建议，并将已完成的短代码替换为对应的 emoji
+  * `false`：Claude Code 既不建议 emoji，也不替换短代码
+* **默认值**：`true`
 
 ```json settings.json theme={null}
 {
@@ -2639,15 +2638,15 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-请参阅[表情符号速记代码](/docs/zh-CN/interactive-mode#emoji-shortcodes)。需要 Claude Code v2.1.217 或更高版本。
+请参阅 [Emoji 短代码](/docs/zh-CN/interactive-mode#emoji-shortcodes)。需要 Claude Code v2.1.217 或更高版本。
 
 ### `fileSuggestion`
 
-运行您自己的命令来提供 `@` 文件路径自动完成，而不是使用内置文件建议。内置建议使用快速文件系统遍历；大型单体仓库可能会通过项目特定的索引（如预构建的文件索引）做得更好。
+运行您自己的命令来提供 `@` 文件路径自动补全，以替代内置的文件建议。内置建议使用快速的文件系统遍历；大型 monorepo 使用项目特定的索引（例如预构建的文件索引）可能效果更好。
 
-* **Scope**: [`Any file`](#scopes)。在[状态行和文件建议门](#status-line-and-file-suggestion-gates)下，Claude Code 关闭命令或仅运行托管值，并跳过您的而不发出警告。
-* **Type**: 对象，包含 `type`（始终为 `"command"`）和 `command`（要运行的 shell 命令）
-* **Default**: unset，所以 Claude Code 使用内置文件建议
+* **作用域**：[`Any file`](#scopes)。在[状态栏和文件建议限制](#status-line-and-file-suggestion-gates)下，Claude Code 会关闭该命令或仅运行托管值，并在不发出警告的情况下跳过您的命令。
+* **类型**：包含 `type`（始终为 `"command"`）和 `command`（要运行的 shell 命令）的对象
+* **默认值**：未设置，因此 Claude Code 使用内置的文件建议
 
 ```json settings.json theme={null}
 {
@@ -2658,17 +2657,17 @@ Claude Code 仅对沙箱化命令强制执行此；进程内工具（如 `WebFet
 }
 ```
 
-保存后，在提示中键入 `@` 后跟部分路径：建议来自您命令的输出。
+保存后，在输入框中输入 `@` 加上部分路径：建议将来自您命令的输出。
 
 #### 命令输入和输出
 
-Claude Code 使用与 [hooks](/docs/zh-CN/hooks) 相同的环境变量运行命令，包括 `CLAUDE_PROJECT_DIR`，并在五秒后停止等待。该命令在 stdin 上接收 JSON，其中 `query` 字段包含您到目前为止键入的内容：
+Claude Code 使用与 [hook](/docs/zh-CN/hooks) 相同的环境变量（包括 `CLAUDE_PROJECT_DIR`）运行该命令，并在五秒后停止等待。该命令通过 stdin 接收 JSON，其中 `query` 字段包含您目前已输入的内容：
 
 ```json theme={null}
 {"query": "src/comp"}
 ```
 
-将换行符分隔的文件路径打印到 stdout。Claude Code 最多显示 15 个：
+将以换行符分隔的文件路径输出到 stdout。Claude Code 最多显示 15 条：
 
 ```text theme={null}
 src/components/Button.tsx
@@ -2676,24 +2675,24 @@ src/components/Modal.tsx
 src/components/Form.tsx
 ```
 
-以下脚本读取查询并将其传递给存储库文件索引：
+以下脚本读取查询并将其传递给仓库文件索引：
 
 ```bash theme={null}
 #!/bin/bash
 query=$(cat | jq -r '.query')
-# 用您自己的文件搜索命令替换 your-repo-file-index
+# Replace your-repo-file-index with your own file search command
 your-repo-file-index --query "$query" | head -20
 ```
 
 ### `footerLinksRegexes`
 
-当正则表达式匹配转向输出时在输入框下方的页脚中渲染额外的可点击徽章：工具结果，包括文件内容和获取的页面，以及 Claude 自己的响应。使用它将项目 CLI 打印的 ID（如审查工具和问题跟踪器）转换为会话链接。
+当正则表达式匹配到轮次输出（工具结果，包括文件内容和获取的页面，以及 Claude 自己的回复）时，在输入框下方的页脚中渲染额外的可点击徽章。使用它可以将项目 CLI（例如审查工具和问题跟踪器）打印的 ID 转换为会话链接。
 
-* **Scope**: [`User or managed`](#scopes)
-* **Type**: 对象数组，每个对象的 `type` 设置为 `"regex"`、`pattern` 正则表达式、`url` 模板和可选的 `label`；`url` 和 `label` 中的 `{name}` 占位符从 `pattern` 中的命名捕获组填充
-* **Default**: unset，所以不渲染徽章
+* **作用域**：[`User or managed`](#scopes)
+* **类型**：对象数组，每个对象包含设置为 `"regex"` 的 `type`、一个 `pattern` 正则表达式、一个 `url` 模板以及可选的 `label`；`url` 和 `label` 中的 `{name}` 占位符由 `pattern` 中的命名捕获组填充
+* **默认值**：未设置，因此不渲染徽章
 
-此示例匹配问题键（如 `PROJ-1234`）并从捕获的键构建每个链接：
+此示例匹配诸如 `PROJ-1234` 之类的问题键，并根据捕获的键构建每个链接：
 
 ```json settings.json theme={null}
 {
@@ -2708,43 +2707,43 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-配置此项后，当 `PROJ-1234` 出现在工具结果或 Claude 的回复中时，页脚中会出现一个 `PROJ-1234` 徽章，链接到 `https://issues.example.com/browse/PROJ-1234`。
+配置完成后，当 `PROJ-1234` 出现在工具结果或 Claude 的回复中时，页脚中会出现一个 `PROJ-1234` 徽章，链接到 `https://issues.example.com/browse/PROJ-1234`。
 
 #### 徽章约束
 
-每个条目的 URL、标签和徽章计数受以下限制：
+每个条目的 URL、标签和徽章数量受以下限制：
 
 | 约束 | 行为 |
 | :- | :- |
-| URL 源 | 捕获的值是 URL 编码的，构造的 URL 必须共享模板的字面源。捕获可以填充路径段或查询值，但不能改变链接指向的位置 |
-| URL 长度 | 长于 2048 个字符的构造 URL 被丢弃 |
-| URL 方案 | 必须是 `https`、`http` 或公认的编辑器或工作区深层链接方案：`vscode`、`vscode-insiders`、`cursor`、`windsurf`、`zed`、`jetbrains`、`idea`、`slack`、`linear`、`notion`、`figma` |
-| 标签 | 默认为匹配的文本，截断为 28 个显示列 |
-| 徽章计数 | 最多渲染 5 个徽章。最旧的被较新的匹配替换，`/clear` 删除它们 |
+| URL 来源 | 捕获的值会经过 URL 编码，并且构建的 URL 必须与模板的字面来源相同。捕获值可以填充路径段或查询值，但不能更改链接指向的位置 |
+| URL 长度 | 超过 2048 个字符的构建 URL 会被丢弃 |
+| URL 协议 | 必须是 `https`、`http` 或可识别的编辑器或工作区深层链接协议：`vscode`、`vscode-insiders`、`cursor`、`windsurf`、`zed`、`jetbrains`、`idea`、`slack`、`linear`、`notion`、`figma` |
+| 标签 | 默认为匹配的文本，并截断为 28 个显示列 |
+| 徽章数量 | 最多渲染 5 个徽章。最旧的徽章会被较新的匹配项替换，`/clear` 会将其移除 |
 
-当转向完成时，Claude Code 在主线程上将每个条目的 `pattern` 正则表达式与转向输出匹配，因此缓慢的正则表达式会阻止 UI 直到完成。嵌套量词（如 `(a+)+$`）对某些输入可能需要指数级长的时间并冻结会话，因此保持每个 `pattern` 线性并避免嵌套 `+` 或 `*`。
+当一个轮次完成时，Claude Code 会在主线程上将每个条目的 `pattern` 正则表达式与轮次输出进行匹配，因此缓慢的正则表达式会阻塞 UI 直到其完成。诸如 `(a+)+$` 之类的嵌套量词在某些输入下可能耗时呈指数级增长并冻结会话，因此请保持每个 `pattern` 为线性，避免嵌套 `+` 或 `*`。
 
-页脚徽章与[自定义状态行](/docs/zh-CN/statusline)一起渲染（当配置了一个时）；两者都不替换另一个。使用状态行来获得从会话数据计算自己内容的脚本驱动行，使用页脚徽章将对话中的 ID 转换为链接而无需脚本。
+配置了[自定义状态栏](/docs/zh-CN/statusline)时，页脚徽章会与其一同渲染；两者互不替代。状态栏适用于由脚本驱动、根据会话数据计算自身内容的行，而页脚徽章无需脚本即可将对话中的 ID 转换为链接。
 
 ### `keybindingFlavor`
 
 > [!WARNING]
 >
-> 自 v2.1.261 起已弃用，无效。提示的单词编辑键始终[遵循 readline 约定](/docs/zh-CN/interactive-mode#make-ctrl-w-delete-back-to-whitespace)，如在 Bash 中一样。Claude Code 仍然接受 `keybindingFlavor`，因此设置它的设置文件保持有效。
+> 自 v2.1.261 起已弃用，且不再起作用。输入框的单词编辑键始终[遵循 readline 约定](/docs/zh-CN/interactive-mode#make-ctrl-w-delete-back-to-whitespace)，与 Bash 中一样。Claude Code 仍接受 `keybindingFlavor`，因此设置了它的设置文件仍然有效。
 
-在 v2.1.238 到 v2.1.260 中，将其设置为 `"readline"` 使 `Ctrl+W` 删除回到前一个空格而不仅仅是前一个单词。
+在 v2.1.238 到 v2.1.260 中，将其设置为 `"readline"` 会使 `Ctrl+W` 向后删除到上一个空白字符，而不是仅删除上一个单词。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，`"classic"` 或 `"readline"`
-* **Default**: unset
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，`"classic"` 或 `"readline"`
+* **默认值**：未设置
 
 ### `maxProseWidth`
 
-限制 Claude 响应中散文的宽度，使行在宽终端中保持可读性。段落、标题、列表和块引用在此列数内换行，而表格和代码块保持完整的终端宽度。需要 Claude Code v2.1.282 或更高版本。
+限制 Claude 回复中正文的宽度，使文本行在宽终端中保持可读。段落、标题、列表和引用块会在此列数内换行，而表格和代码块保持完整的终端宽度。需要 Claude Code v2.1.282 或更高版本。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: 终端列数，整数，最小 `40`。Claude Code 忽略任何其他值
-* **Default**: unset，所以散文在终端边缘换行
+* **作用域**：[`Any file`](#scopes)
+* **类型**：终端列数，为整数，最小值为 `40`。Claude Code 会忽略任何其他值
+* **默认值**：未设置，因此正文在终端边缘换行
 
 ```json settings.json theme={null}
 {
@@ -2754,13 +2753,13 @@ your-repo-file-index --query "$query" | head -20
 
 ### `prefersReducedMotion`
 
-减少或关闭界面动画，如加载动画、闪烁和闪光效果。在 `/config` 中显示为**减少动画**。
+减少或关闭界面动画，例如加载动画、微光和闪烁效果。在 `/config` 中显示为 **Reduce motion**。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：Claude Code 减少或关闭界面动画，如加载动画、闪烁和闪光效果
-  * `false`：与 unset 相同；Claude Code 显示其动画
-* **Default**: `false`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：Claude Code 减少或关闭界面动画，例如加载动画、微光和闪烁效果
+  * `false`：与未设置相同；Claude Code 显示其动画
+* **默认值**：`false`
 
 ```json settings.json theme={null}
 {
@@ -2770,14 +2769,14 @@ your-repo-file-index --query "$query" | head -20
 
 ### `promptSuggestionEnabled`
 
-显示或隐藏[提示建议](/docs/zh-CN/interactive-mode#prompt-suggestions)，即在您的提示输入中出现的灰显预测。将其设置为 `false`，或在 `/config` 中关闭**提示建议**，以隐藏它们。
+显示或隐藏[提示词建议](/docs/zh-CN/interactive-mode#prompt-suggestions)，即出现在输入框中的灰色预测内容。将其设置为 `false`，或在 `/config` 中关闭 **Prompt suggestions**，即可隐藏它们。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：您在提示输入中看到提示建议
-  * `false`：Claude Code 隐藏提示建议
-* **Default**: `true`
-* **Per-session overrides**: [`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](/docs/zh-CN/env-vars) 在单个会话中优先于此键
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：您会在输入框中看到提示词建议
+  * `false`：Claude Code 隐藏提示词建议
+* **默认值**：`true`
+* **单会话覆盖**：[`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](/docs/zh-CN/env-vars) 在单个会话中优先于此键
 
 ```json settings.json theme={null}
 {
@@ -2785,17 +2784,17 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-提示建议需要启用了遥测的 claude.ai 或 Console 账户。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，或关闭遥测时（如通过 [`DISABLE_TELEMETRY`](/docs/zh-CN/env-vars)），此键无效，仅 `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=1` 打开它们。
+提示词建议需要开启了遥测的 claude.ai 或 Console 账户。在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，或在遥测被关闭（例如通过 [`DISABLE_TELEMETRY`](/docs/zh-CN/env-vars)）时，此键不起作用，只有 `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=1` 能开启它们。
 
 ### `respectGitignore`
 
-控制 `@` 文件选择器是否排除与 `.gitignore` 模式匹配的文件。在 `/config` 中显示为**在文件选择器中尊重 .gitignore**。
+控制 `@` 文件选择器是否排除与 `.gitignore` 模式匹配的文件。在 `/config` 中显示为 **Respect .gitignore in file picker**。
 
-* **Scope**: [`Any file`](#scopes)。当没有设置文件设置它时，Claude Code 回退到 `~/.claude.json` 中的 `respectGitignore`，这是 `/config` 切换写入的。
-* **Type**: Boolean
+* **作用域**：[`Any file`](#scopes)。当没有设置文件设置此项时，Claude Code 会回退到 `~/.claude.json` 中的 `respectGitignore`，即 `/config` 开关所写入的值。
+* **类型**：布尔值
   * `true`：`@` 文件选择器排除与 `.gitignore` 模式匹配的文件
-  * `false`：`@` 文件选择器包括与 `.gitignore` 模式匹配的文件
-* **Default**: `true`
+  * `false`：`@` 文件选择器包含与 `.gitignore` 模式匹配的文件
+* **默认值**：`true`
 
 ```json settings.json theme={null}
 {
@@ -2805,13 +2804,13 @@ your-repo-file-index --query "$query" | head -20
 
 ### `respondToBashCommands`
 
-选择在您使用输入框中的 [`!` 前缀](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)运行 shell 命令后 Claude 是否响应。默认情况下，Claude Code 将命令的输出添加到对话中，Claude 对其进行回复。将此键设置为 `false` 以将输出添加到上下文而不进行回复，以便您可以运行多个命令并一起询问它们。
+选择在您于输入框中以 [`!` 前缀](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)运行 shell 命令后，Claude 是否进行回复。默认情况下，Claude Code 会将命令的输出添加到对话中，Claude 会对其进行回复。将此键设置为 `false` 可将输出添加到上下文中而不进行回复，这样您就可以运行多个命令并一起询问它们。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：Claude Code 将命令的输出添加到对话中，Claude 对其进行回复
-  * `false`：Claude Code 将输出添加到上下文而不进行回复
-* **Default**: `true`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：Claude Code 将命令的输出添加到对话中，Claude 会对其进行回复
+  * `false`：Claude Code 将输出添加到上下文中而不进行回复
+* **默认值**：`true`
 
 ```json settings.json theme={null}
 {
@@ -2819,17 +2818,17 @@ your-repo-file-index --query "$query" | head -20
 }
 ```
 
-请参阅[使用 `!` 前缀的 Shell 模式](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)。
+请参阅[使用 `!` 前缀的 shell 模式](/docs/zh-CN/interactive-mode#shell-mode-with-prefix)。
 
 ### `showClearContextOnPlanAccept`
 
-当 Claude 在[计划模式](/docs/zh-CN/permission-modes#review-and-approve-a-plan)中完成计划时，它显示一个批准菜单。规划可能会使用大量上下文，因此此键向该菜单添加第一个选项**是的，清除上下文并…**，它批准计划、清除对话上下文并仅从计划开始实施。标签的其余部分命名会话继续的权限模式，并显示规划使用了多少上下文。
+当 Claude 在[计划模式](/docs/zh-CN/permission-modes#review-and-approve-a-plan)中完成计划时，会显示一个批准菜单。制定计划可能会占用大量上下文，因此此键会在该菜单中添加第一个选项 **Yes, clear context and …**，用于批准计划、清除对话上下文，并仅基于计划开始实施。标签的其余部分会注明会话将继续使用的权限模式，并显示计划阶段占用了多少上下文。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：计划批准菜单获得第一个选项**是的，清除上下文并…**，它批准计划并清除对话上下文
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：计划批准菜单会出现第一个选项 **Yes, clear context and …**，用于批准计划并清除对话上下文
   * `false`：计划批准菜单不显示清除上下文选项
-* **Default**: `false`
+* **默认值**：`false`
 
 ```json settings.json theme={null}
 {
@@ -2839,13 +2838,13 @@ your-repo-file-index --query "$query" | head -20
 
 ### `showTurnDuration`
 
-显示或隐藏每个响应后的转向持续时间消息，如"Cooked for 1m 6s · done 6:05 PM"。"done"后的时钟显示转向何时完成；[`timeFormat`](#timeformat) 和 [`timeZone`](#timezone) 控制其格式和区域。在 `/config` 中显示为**显示转向持续时间**。
+显示或隐藏每次回复后的轮次耗时消息，例如 "Cooked for 1m 6s · done 6:05 PM"。"done" 后的时钟显示轮次完成的时间；[`timeFormat`](#timeformat) 和 [`timeZone`](#timezone) 控制其格式和时区。在 `/config` 中显示为 **Show turn duration**。
 
-* **Scope**: [`Any file`](#scopes)。当没有设置文件设置它时，来自较旧版本的 `~/.claude.json` 中的值适用。
-* **Type**: Boolean
-  * `true`：您在每个响应后看到转向持续时间消息
-  * `false`：Claude Code 隐藏转向持续时间消息
-* **Default**: `true`
+* **作用域**：[`Any file`](#scopes)。当没有设置文件设置此项时，来自旧版本的 `~/.claude.json` 中的值会生效。
+* **类型**：布尔值
+  * `true`：您会在每次回复后看到轮次耗时消息
+  * `false`：Claude Code 隐藏轮次耗时消息
+* **默认值**：`true`
 
 ```json settings.json theme={null}
 {
@@ -2855,11 +2854,11 @@ your-repo-file-index --query "$query" | head -20
 
 ### `spellcheck`
 
-在您键入时在提示输入中为拼写错误的单词加下划线，使用您安装的拼写检查器。Claude Code 仅检查输入框中的文本。[在您键入时检查拼写](/docs/zh-CN/interactive-mode#check-spelling-as-you-type)涵盖安装 aspell、hunspell 或 ispell 以及检查器涵盖的内容。需要 Claude Code v2.1.235 或更高版本。
+使用您安装的拼写检查器，在您输入时为输入框中的拼写错误单词添加下划线。Claude Code 仅检查输入框中的文本。[输入时检查拼写](/docs/zh-CN/interactive-mode#check-spelling-as-you-type)介绍了如何安装 aspell、hunspell 或 ispell 以及检查器的覆盖范围。需要 Claude Code v2.1.235 或更高版本。
 
-* **Scope**: [`User or managed`](#scopes)。设置它的最高层的块整体应用。
-* **Type**: 对象，包含 `enabled`（Boolean）、`checker`（`"aspell"`、`"hunspell"`、`"ispell"` 或 `"auto"`）、`language`（字符串，传递给检查器作为其字典名称）和 `color`（字符串，终端颜色名称、`#rrggbb`、`rgb(r,g,b)`、`ansi256(n)` 或 `ansi:<name>`）
-* **Default**: unset，所以拼写检查关闭；`checker` 默认为 `"auto"`，`PATH` 上找到的前三个之一；`language` 默认为检查器自己的字典；`color` 默认为主题的错误颜色
+* **作用域**：[`User or managed`](#scopes)。设置了此项的最高层级中的整个块会作为整体生效。
+* **类型**：包含 `enabled`（布尔值）、`checker`（`"aspell"`、`"hunspell"`、`"ispell"` 或 `"auto"`）、`language`（字符串，作为词典名称传递给检查器）和 `color`（字符串，终端颜色名称、`#rrggbb`、`rgb(r,g,b)`、`ansi256(n)` 或 `ansi:<name>`）的对象
+* **默认值**：未设置，因此拼写检查关闭；`checker` 默认为 `"auto"`，即在 `PATH` 中找到的三者中的第一个；`language` 默认为检查器自身的词典；`color` 默认为主题的错误颜色
 
 ```json settings.json theme={null}
 {
@@ -2869,13 +2868,13 @@ your-repo-file-index --query "$query" | head -20
 
 ### `spinnerTipsEnabled`
 
-当 Claude 工作时，加载动画行轮换显示关于 Claude Code 功能的短提示，如"使用计划模式为复杂请求做准备，然后再进行更改。按 Shift+Tab 两次以启用。"将此键设置为 `false` 以隐藏它们。在 `/config` 中显示为**显示提示**。
+在 Claude 工作时，加载动画行会轮流显示有关 Claude Code 功能的简短提示，例如 "Use Plan Mode to prepare for a complex request before making changes. Press Shift+Tab twice to enable."。将此键设置为 `false` 可隐藏它们。在 `/config` 中显示为 **Show tips**。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：当 Claude 工作时，您在加载动画中看到提示
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：在 Claude 工作时，您会在加载动画中看到提示
   * `false`：Claude Code 隐藏加载动画提示
-* **Default**: `true`
+* **默认值**：`true`
 
 ```json settings.json theme={null}
 {
@@ -2885,38 +2884,38 @@ your-repo-file-index --query "$query" | head -20
 
 ### `spinnerTipsOverride`
 
-将您自己的提示添加到 Claude Code 在 Claude 工作时显示的[加载动画提示](#spinnertipsenabled)，或用您的提示替换内置提示。Claude Code 将您的提示放在与内置提示相同的轮换中。
+向 Claude Code 在 Claude 工作时显示的[加载动画提示](#spinnertipsenabled)中添加您自己的提示，或用您的提示替换内置提示。Claude Code 会将您的提示与内置提示放入同一轮换中。
 
-如果您将 [`spinnerTipsEnabled`](#spinnertipsenabled) 设置为 `false`，Claude Code 会隐藏所有提示，包括您的。
+如果您将 [`spinnerTipsEnabled`](#spinnertipsenabled) 设置为 `false`，Claude Code 会隐藏所有提示，包括您的提示。
 
-* **Scope**: [`Any file`](#scopes)。Claude Code 从用户设置、`--settings` 标志和托管设置中尊重提示对象、`tipsFile`、`label` 和 `excludeDefault`；从项目和本地设置中，它仅读取纯字符串提示。
-* **Type**: 对象，包含 `tips`、`tipsFile`、`label` 和 `excludeDefault` 字段，每个都是可选的
-* **Default**: unset，所以 Claude Code 仅显示内置提示
+* **作用域**：[`Any file`](#scopes)。Claude Code 接受来自用户设置、`--settings` 标志和托管设置的提示对象、`tipsFile`、`label` 和 `excludeDefault`；从项目和本地设置中仅读取纯字符串提示。
+* **类型**：包含 `tips`、`tipsFile`、`label` 和 `excludeDefault` 字段的对象，每个字段均为可选
+* **默认值**：未设置，因此 Claude Code 仅显示内置提示
 
-提示对象、`tipsFile`、`label` 和 Scope 行的规则（项目和本地设置仅贡献纯字符串）需要 Claude Code v2.1.247 或更高版本。
+提示对象、`tipsFile`、`label`，以及作用域一行中"项目和本地设置仅提供纯字符串"的规则，需要 Claude Code v2.1.247 或更高版本。
 
-每个 `tips` 条目是纯字符串或具有这些字段的对象：
+每个 `tips` 条目可以是纯字符串，也可以是包含以下字段的对象：
 
 | 字段 | 必需 | 描述 |
 | :- | :- | :- |
-| `id` | 是 | 最多 64 个字母、数字、`.`、`_` 或 `-`。Claude Code 以其作为提示显示历史的键，因此提示的冷却期在重新排序列表后仍然存在。在两个具有相同 id 的条目中，Claude Code 使用第一个 |
-| `text` | 是 | 提示，最多 500 个字符的一行。Claude Code 剥离 ANSI 转义和控制字符，并折叠空格 |
-| `cooldownSessions` | 否 | Claude Code 在再次显示提示之前等待的会话数，`0` 到 `1000`，默认 `0` |
-| `priority` | 否 | 在未显示时间相同的提示中的顺序，较高的优先，`-10` 到 `10`，默认 `0` |
+| `id` | 是 | 最多 64 个字母、数字、`.`、`_` 或 `-`。Claude Code 以此为键记录提示的显示历史，因此重新排列列表后提示的冷却期仍会保留。对于 id 相同的两个条目，Claude Code 使用第一个 |
+| `text` | 是 | 提示内容，一行，最多 500 个字符。Claude Code 会去除 ANSI 转义序列和控制字符，并合并空白字符 |
+| `cooldownSessions` | 否 | Claude Code 再次显示该提示前等待的会话数，`0` 到 `1000`，默认为 `0` |
+| `priority` | 否 | 在未显示时长相同的提示之间的顺序，值越高越靠前，`-10` 到 `10`，默认为 `0` |
 
-Claude Code 将纯字符串读取为具有这些默认值和基于位置的 id 的提示，因此当您重新排序列表时其显示历史重置。给提示一个 `id` 以在编辑中保持其历史。
+Claude Code 会将纯字符串读取为使用上述默认值和基于位置的 id 的提示，因此重新排列列表时其显示历史会重置。为提示指定 `id` 可在编辑时保留其历史。
 
-Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调试警告丢弃无效条目，而不是拒绝设置文件。
+Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 条提示，并会丢弃无效条目并发出调试警告，而不是拒绝整个设置文件。
 
-使用其余字段来命名提示文件、设置前缀和隐藏内置提示：
+使用其余字段可以指定提示文件、设置前缀以及隐藏内置提示：
 
-* `tipsFile`：指向本地 JSON 文件的绝对或 `~/` 路径，该文件包含相同条目的数组，或包含 `tips` 数组的对象，最多 256 KB。Claude Code 每个进程读取一次文件，因此在下次启动时加载您的编辑。您不能通过[服务器管理的设置](/docs/zh-CN/server-managed-settings)设置它；在那里部署内联 `tips`，或在磁盘上的 `managed-settings.json` 中部署路径。
-* `label`：Claude Code 在来自用户、`--settings` 和托管设置的提示之前显示的前缀，最多 40 个字符。默认值是 `Tip`，与内置提示相同的前缀，来自项目和本地设置的提示始终使用它。
-* `excludeDefault`：将其设置为 `true` 以隐藏内置提示并仅显示您的。当 Claude Code 无法加载您的任何提示时，例如因为 `tipsFile` 不存在或每个条目都无效，它保持内置轮换而不是空加载动画。
+* `tipsFile`：本地 JSON 文件的绝对路径或 `~/` 路径，该文件包含由相同条目组成的数组，或包含 `tips` 数组的对象，最大 256 KB。Claude Code 每个进程只读取该文件一次，因此会在下次启动时加载您的编辑。您无法通过[服务器托管设置](/docs/zh-CN/server-managed-settings)设置此项；请在那里部署内联的 `tips`，或在磁盘上的 `managed-settings.json` 中部署该路径。
+* `label`：Claude Code 在来自用户设置、`--settings` 和托管设置的提示前显示的前缀，最多 40 个字符。默认为 `Tip`，与内置提示的前缀相同，来自项目和本地设置的提示始终使用此前缀。
+* `excludeDefault`：将其设置为 `true` 可隐藏内置提示，仅显示您的提示。当 Claude Code 无法加载任何您的提示时（例如 `tipsFile` 不存在或所有条目均无效），它会保留内置轮换，而不是显示空的加载动画。
 
-当多个设置文件设置此键时，Claude Code 显示来自所有这些文件的提示，并从托管设置、`--settings` 标志和用户设置中最高优先级的设置每个的 `tipsFile`、`label` 和 `excludeDefault`。
+当多个设置文件都设置了此键时，Claude Code 会显示所有这些文件中的提示，并从托管设置、`--settings` 标志和用户设置中设置了相应字段且优先级最高的那个获取 `tipsFile`、`label` 和 `excludeDefault`。
 
-此示例在您的用户设置中添加纯字符串提示和对象提示到 `Acme tip` 前缀下的轮换：
+以下示例位于您的用户设置中，以 `Acme tip` 为前缀将一条纯字符串提示和一条对象提示添加到轮换中：
 
 ```json settings.json theme={null}
 {
@@ -2935,27 +2934,27 @@ Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调�
 }
 ```
 
-示例中的每个字段改变 Claude Code 显示提示的一个方面：
+示例中的每个字段都会改变 Claude Code 显示提示的一个方面：
 
-* `label`：Claude Code 将两个提示显示为 `Acme tip: ...` 而不是 `Tip: ...`。
-* 纯字符串：Claude Code 给它默认值，所以它可以在下一个会话中再次出现。
-* `id`：Claude Code 以 `gateway-errors` 作为第二个提示显示历史的键，因此其冷却期在添加或重新排序提示后仍然适用。
-* `cooldownSessions`：在 Claude Code 显示 `gateway-errors` 提示后，它在五个会话后才再次显示该提示。
-* `priority`：当 `gateway-errors` 提示和另一个提示未显示相同数量的会话时，例如当两者都尚未显示时，Claude Code 首先显示 `gateway-errors`。纯字符串具有默认优先级 `0`。
+* `label`：Claude Code 将两条提示显示为 `Acme tip: ...`，而不是 `Tip: ...`。
+* 纯字符串：Claude Code 为其使用默认值，因此它可能在紧接着的下一个会话中再次出现。
+* `id`：Claude Code 以 `gateway-errors` 为键记录第二条提示的显示历史，因此在您添加或重新排列提示后，其冷却期仍然适用。
+* `cooldownSessions`：Claude Code 显示 `gateway-errors` 提示后，要到五个会话之后才会再次显示该提示。
+* `priority`：当 `gateway-errors` 提示和另一条提示未显示的会话数相同时（例如两者都尚未显示过），Claude Code 会先显示 `gateway-errors`。纯字符串使用默认优先级 `0`。
 
-当 Claude 工作时，Claude Code 在加载动画中显示您的提示，带有您的前缀，如 `Acme tip: Run /review before opening a PR`。
+在 Claude 工作时，Claude Code 会在加载动画中以您的前缀显示您的提示，例如 `Acme tip: Run /review before opening a PR`。
 
 ### `spinnerVerbs`
 
-当转向进行中时，加载动画显示轮换的动词，如"Accomplishing"、"Architecting"或"Baking"。使用此键将您自己的动词添加到该轮换或用您的替换内置列表。
+在轮次进行期间，加载动画会显示轮换的动词，例如 "Accomplishing"、"Architecting" 或 "Baking"。使用此键可以将您自己的动词添加到该轮换中，或用您的动词替换内置列表。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: 对象，包含 `verbs` 字符串数组和 `mode`，值为以下之一：
-  * `"append"`：Claude Code 将您的动词添加到内置集合
+* **作用域**：[`Any file`](#scopes)
+* **类型**：包含字符串数组 `verbs` 和 `mode` 的对象，`mode` 取值为以下之一：
+  * `"append"`：Claude Code 将您的动词添加到内置集合中
   * `"replace"`：Claude Code 仅显示您的动词
-* **Default**: unset，所以 Claude Code 使用内置动词
+* **默认值**：未设置，因此 Claude Code 使用内置动词
 
-此示例将两个动词添加到内置集合：
+此示例将两个动词添加到内置集合中：
 
 ```json settings.json theme={null}
 {
@@ -2966,17 +2965,17 @@ Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调�
 }
 ```
 
-在 `"replace"` 模式下使用空 `verbs` 数组，Claude Code 保持内置动词。
+在 `"replace"` 模式下，如果 `verbs` 数组为空，Claude Code 会保留内置动词。
 
 ### `statusLine`
 
-运行您自己的命令来渲染提示下方的[状态行](/docs/zh-CN/statusline)，包含模型、成本或 git 分支等上下文。可选字段调整间距、添加定期重新运行，并在您的脚本自己渲染 `vim.mode` 时隐藏内置 vim 模式指示器。
+运行您自己的命令，在输入框下方渲染一个[状态栏](/docs/zh-CN/statusline)，显示模型、成本或 git 分支等上下文信息。可选字段可调整间距、添加定期重新运行，以及在您的脚本自行渲染 `vim.mode` 时隐藏内置的 vim 模式指示器。
 
-* **Scope**: [`Any file`](#scopes)。当 [`allowManagedHooksOnly`](#allowmanagedhooksonly) 打开时，或 [`disableAllHooks`](#disableallhooks) 在托管设置外设置时，仅托管设置值运行。
-* **Type**: 对象，`type` 设置为 `"command"` 和 `command` 字符串，加上可选的 `padding` 作为字符数、`refreshInterval` 作为秒数（最少 `1`）和 `hideVimModeIndicator` 作为 Boolean
-* **Default**: unset，所以没有状态行
+* **作用域**：[`Any file`](#scopes)。当 [`allowManagedHooksOnly`](#allowmanagedhooksonly) 开启，或在托管设置之外设置了 [`disableAllHooks`](#disableallhooks) 时，仅运行托管设置中的值。
+* **类型**：包含设置为 `"command"` 的 `type` 和 `command` 字符串的对象，外加可选的 `padding`（字符数）、`refreshInterval`（秒数，最小值为 `1`）和 `hideVimModeIndicator`（布尔值）
+* **默认值**：未设置，因此没有状态栏
 
-此示例打印模型名称和上下文使用情况，并添加两个字符的水平间距：
+此示例输出模型名称和上下文使用情况，并添加两个字符的水平间距：
 
 ```json settings.json theme={null}
 {
@@ -2988,15 +2987,15 @@ Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调�
 }
 ```
 
-示例需要安装 [`jq`](https://jqlang.org/) 并在 shell 中运行。对于 PowerShell 和 Git Bash 等效项，请参阅[Windows 配置](/docs/zh-CN/statusline#windows-configuration)；对于完整设置，请参阅[手动配置状态行](/docs/zh-CN/statusline#manually-configure-a-status-line)。
+此示例需要安装 [`jq`](https://jqlang.org/) 并在 shell 中运行。有关 PowerShell 和 Git Bash 的等效写法，请参阅 [Windows 配置](/docs/zh-CN/statusline#windows-configuration)；有关完整设置，请参阅[手动配置状态栏](/docs/zh-CN/statusline#manually-configure-a-status-line)。
 
 ### `subagentStatusLine`
 
-当 Claude 运行[子代理](/docs/zh-CN/sub-agents)时，Claude Code 在提示下方的任务显示中列出它们，每个子代理一行显示 `name · description · token count`。此键让您运行自己的命令来重写这些行，例如显示每个子代理的上下文使用情况百分比。在每次刷新时，Claude Code 将可见行作为一个 JSON 对象发送到 stdin，其中 `tasks` 数组包含每个子代理的 `id`、`name`、`status`、`model`、`tokenCount` 等，并将您写回的每个 `id` 的行替换为 `{"id", "content"}` 行。您不写回的行保持默认渲染。
+当 Claude 运行[子代理](/docs/zh-CN/sub-agents)时，Claude Code 会在输入框下方的任务显示区域中列出它们，每个子代理一行，显示 `name · description · token count`。此键允许您运行自己的命令来重写这些行，例如以百分比显示每个子代理的上下文使用情况。每次刷新时，Claude Code 会通过 stdin 以一个 JSON 对象发送可见的行，其中 `tasks` 数组包含每个子代理的 `id`、`name`、`status`、`model`、`tokenCount` 等信息，并替换您以 `{"id", "content"}` 行写回的每个 `id` 对应的行。您未写回的行保持默认渲染。
 
-* **Scope**: [`Any file`](#scopes)。当 [`allowManagedHooksOnly`](#allowmanagedhooksonly) 打开时，或 [`disableAllHooks`](#disableallhooks) 在托管设置外设置时，仅托管设置值运行。
-* **Type**: 对象，`type` 设置为 `"command"` 和 `command` 字符串
-* **Default**: unset，所以 Claude Code 渲染默认行
+* **作用域**：[`Any file`](#scopes)。当 [`allowManagedHooksOnly`](#allowmanagedhooksonly) 开启，或在托管设置之外设置了 [`disableAllHooks`](#disableallhooks) 时，仅运行托管设置中的值。
+* **类型**：包含设置为 `"command"` 的 `type` 和 `command` 字符串的对象
+* **默认值**：未设置，因此 Claude Code 渲染默认行
 
 ```json settings.json theme={null}
 {
@@ -3007,17 +3006,17 @@ Claude Code 在 `tips` 和 `tipsFile` 中最多读取 200 个提示，并用调�
 }
 ```
 
-请参阅[子代理状态行](/docs/zh-CN/statusline#subagent-status-lines)。
+请参阅[子代理状态栏](/docs/zh-CN/statusline#subagent-status-lines)。
 
 ### `syntaxHighlightingDisabled`
 
-Claude Code 使用其内置高亮器按语言为它在终端中显示的差异、代码块和文件预览着色；不涉及插件或语言服务器。将此键设置为 `true` 以改为将它们显示为纯文本，例如如果颜色与您的终端主题冲突或减慢屏幕阅读器。
+Claude Code 使用其内置的高亮器，按语言为其在终端中显示的 diff、代码块和文件预览中的代码着色；不涉及任何插件或语言服务器。将此键设置为 `true` 可改为以纯文本显示它们，例如当颜色与您的终端主题冲突或拖慢屏幕阅读器时。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：Claude Code 在差异、代码块和文件预览中关闭语法高亮
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：Claude Code 关闭 diff、代码块和文件预览中的语法高亮
   * `false`：Claude Code 高亮语法
-* **Default**: `false`
+* **默认值**：`false`
 
 ```json settings.json theme={null}
 {
@@ -3027,15 +3026,15 @@ Claude Code 使用其内置高亮器按语言为它在终端中显示的差异�
 
 ### `terminalProgressBarEnabled`
 
-某些终端可以在选项卡或任务栏中为在其中运行的程序显示进度指示器。当 Claude 工作时，Claude Code 向终端报告进行中状态，因此您可以从另一个选项卡或窗口看到会话是否仍然繁忙。指示器在转向结束后保持可见，同时[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)或[动态工作流](/docs/zh-CN/workflows)仍在运行，并在会话空闲后清除。
+某些终端可以在标签页或任务栏上为其中运行的程序显示进度指示器。在 Claude 工作时，Claude Code 会向终端报告进行中状态，这样您就可以从另一个标签页或窗口看出会话是否仍在忙碌。当[后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)或[动态工作流](/docs/zh-CN/workflows)仍在运行时，指示器在轮次结束后仍保持可见，并在会话空闲后清除。
 
-Claude Code 仅在支持指示器的终端中报告它：ConEmu、Ghostty 1.2.0 或更高版本以及 iTerm2 3.6.6 或更高版本。将此键设置为 `false` 以停止 Claude Code 报告它。在 `/config` 中显示为**终端进度条**。
+Claude Code 仅在支持该指示器的终端中报告：ConEmu、Ghostty 1.2.0 或更高版本，以及 iTerm2 3.6.6 或更高版本。将此键设置为 `false` 可阻止 Claude Code 报告。在 `/config` 中显示为 **Terminal progress bar**。
 
-* **Scope**: [`Any file`](#scopes)。当没有设置文件设置它时，来自较旧版本的 `~/.claude.json` 中的值适用。
-* **Type**: Boolean
-  * `true`：您在支持它的终端中看到终端进度条
+* **作用域**：[`Any file`](#scopes)。当没有设置文件设置此项时，来自旧版本的 `~/.claude.json` 中的值会生效。
+* **类型**：布尔值
+  * `true`：您会在支持的终端中看到终端进度条
   * `false`：Claude Code 隐藏终端进度条
-* **Default**: `true`
+* **默认值**：`true`
 
 ```json settings.json theme={null}
 {
@@ -3045,13 +3044,13 @@ Claude Code 仅在支持指示器的终端中报告它：ConEmu、Ghostty 1.2.0 
 
 ### `terminalTitleFromRename`
 
-Claude Code 设置您的终端选项卡的标题。默认情况下，它使用从对话生成的标题，一旦您使用 `/rename` 或 `--name` 给会话[命名](/docs/zh-CN/sessions#name-your-sessions)，选项卡会改为显示该名称。将此键设置为 `false` 以在您命名会话后保持生成的标题在选项卡上。名称本身仍然适用，因此 `/resume <name>` 和会话选择器找到它。
+Claude Code 会设置您终端标签页的标题。默认情况下，它使用根据对话生成的标题；一旦您使用 `/rename` 或 `--name` 为会话[命名](/docs/zh-CN/sessions#name-your-sessions)，标签页就会改为显示该名称。将此键设置为 `false` 可在您为会话命名后仍在标签页上保留生成的标题。名称本身仍然有效，因此 `/resume <name>` 和会话选择器都能找到它。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：终端选项卡标题显示您设置的会话名称
-  * `false`：选项卡保持 Claude Code 从您的对话生成的标题
-* **Default**: `true`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：终端标签页标题显示您设置的会话名称
+  * `false`：标签页保留 Claude Code 根据您的对话生成的标题
+* **默认值**：`true`
 
 ```json settings.json theme={null}
 {
@@ -3059,23 +3058,23 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-要停止 Claude Code 完全更新终端标题，请改为将 [`CLAUDE_CODE_DISABLE_TERMINAL_TITLE`](/docs/zh-CN/env-vars) 设置为 `1`。
+若要完全阻止 Claude Code 更新终端标题，请改为将 [`CLAUDE_CODE_DISABLE_TERMINAL_TITLE`](/docs/zh-CN/env-vars) 设置为 `1`。
 
 ### `theme`
 
-为界面选择颜色主题。在 `/config` 中显示为**主题**。
+选择界面的颜色主题。在 `/config` 中显示为 **Theme**。
 
-* **Scope**: [`Any file`](#scopes)。当没有设置文件设置它时，来自较旧版本的 `~/.claude.json` 中的值适用。
-* **Type**: string，值为以下之一：
-  * `"auto"`：匹配您的终端的浅色或深色背景
+* **作用域**：[`Any file`](#scopes)。当没有设置文件设置此项时，来自旧版本的 `~/.claude.json` 中的值会生效。
+* **类型**：字符串，取值为以下之一：
+  * `"auto"`：匹配您终端的浅色或深色背景
   * `"dark"`：深色主题
   * `"light"`：浅色主题
-  * `"dark-daltonized"`：具有色盲友好颜色的深色主题
-  * `"light-daltonized"`：具有色盲友好颜色的浅色主题
-  * `"dark-ansi"`：仅使用您的终端 ANSI 调色板的深色主题
-  * `"light-ansi"`：仅使用您的终端 ANSI 调色板的浅色主题
+  * `"dark-daltonized"`：使用色盲友好颜色的深色主题
+  * `"light-daltonized"`：使用色盲友好颜色的浅色主题
+  * `"dark-ansi"`：仅使用您终端 ANSI 调色板的深色主题
+  * `"light-ansi"`：仅使用您终端 ANSI 调色板的浅色主题
   * `"custom:<slug>"` 或 `"custom:<plugin-name>:<slug>"`：来自 `~/.claude/themes/` 或插件的自定义主题
-* **Default**: `"dark"`
+* **默认值**：`"dark"`
 
 ```json settings.json theme={null}
 {
@@ -3087,16 +3086,16 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 ### `timeFormat`
 
-选择 Claude Code 如何写入它在界面中显示的时间，如每个转向持续时间消息末尾的 `done 6:05 PM` 和[记录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)中的时间戳。要选择预设，运行 `/config` 并设置**时间格式**。需要 Claude Code v2.1.257 或更高版本。
+选择 Claude Code 在界面中显示时间的格式，例如每条轮次耗时消息末尾的 `done 6:05 PM` 以及[会话记录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)中的时间戳。若要选择预设，请运行 `/config` 并设置 **Time format**。需要 Claude Code v2.1.257 或更高版本。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，值为以下之一：
-  * `"auto"`：与 unset 相同；每个时间保持其内置格式，在转向持续时间消息上遵循您的区域设置
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，取值为以下之一：
+  * `"auto"`：与未设置相同；每个时间保持其内置格式，轮次耗时消息中的时间遵循您的区域设置
   * `"12-hour"`：12 小时制
   * `"24-hour"`：24 小时制
-  * `"24-hour-utc"`：UTC 中的 24 小时制，分钟后带 `Z`，如 `18:05Z`；Claude Code 对此预设忽略 [`timeZone`](#timezone)
-  * strftime 模式，如 `"%H:%M"`：Claude Code 使用模式写入每个时间。任何包含 `%` 的值都是模式，任何在预设外的其他值计为 `"auto"`
-* **Default**: `"auto"`
+  * `"24-hour-utc"`：UTC 的 24 小时制，分钟后带 `Z`，例如 `18:05Z`；对于此预设，Claude Code 会忽略 [`timeZone`](#timezone)
+  * strftime 模式，例如 `"%H:%M"`：Claude Code 使用该模式写出每个时间。任何包含 `%` 的值都视为模式，而预设之外的任何其他值都视为 `"auto"`
+* **默认值**：`"auto"`
 
 ```json settings.json theme={null}
 {
@@ -3104,7 +3103,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-`/config` 仅提供预设，因此要使用 strftime 模式，请将键添加到设置文件。此示例将每个时间显示为两位数 24 小时制：
+`/config` 仅提供预设，因此若要使用 strftime 模式，请将此键添加到设置文件中。此示例将每个时间显示为两位数的 24 小时制：
 
 ```json settings.json theme={null}
 {
@@ -3112,7 +3111,7 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-转向持续时间消息和记录查看器然后显示时间，如 `18:05`。在记录查看器中，模式是整个时间戳，因此在需要日期时添加日期指令。此示例将日期放在时钟前面：
+随后，轮次耗时消息和会话记录查看器会显示诸如 `18:05` 的时间。在会话记录查看器中，该模式即为完整的时间戳，因此如果您希望在其中显示日期，请添加日期指令。此示例在时钟前加上日期：
 
 ```json settings.json theme={null}
 {
@@ -3120,15 +3119,15 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-相同的表面然后显示时间，如 `2026-09-01 18:05`。
+随后，相同位置会显示诸如 `2026-09-01 18:05` 的时间。
 
 ### `timeZone`
 
-在不同于您系统的时区中显示界面中的时间。将其设置为 [IANA 时区名称](https://www.iana.org/time-zones)，如 `"UTC"` 或 `"Europe/Dublin"`。[`timeFormat`](#timeformat) 控制的时间然后在此区域中显示。如果 `timeFormat` 是 `"24-hour-utc"`，时间保持在 UTC 中，Claude Code 忽略此键。`/config` 对此键没有行，因此在设置文件中设置它。需要 Claude Code v2.1.257 或更高版本。
+以系统时区以外的时区显示界面中的时间。将其设置为 [IANA 时区名称](https://www.iana.org/time-zones)，例如 `"UTC"` 或 `"Europe/Dublin"`。随后，由 [`timeFormat`](#timeformat) 控制的时间会以此时区显示。如果 `timeFormat` 为 `"24-hour-utc"`，时间保持为 UTC，Claude Code 会忽略此键。`/config` 中没有此键对应的行，因此请在设置文件中设置。需要 Claude Code v2.1.257 或更高版本。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，IANA 时区名称。当 Claude Code 不识别名称时，它使用您的系统时区
-* **Default**: unset，所以时间显示在您的系统时区
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，IANA 时区名称。当 Claude Code 无法识别该名称时，会使用您的系统时区
+* **默认值**：未设置，因此时间以您的系统时区显示
 
 ```json settings.json theme={null}
 {
@@ -3138,14 +3137,14 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 ### `tui`
 
-选择终端 UI 渲染器。使用 `"fullscreen"` 获得无闪烁的[替代屏幕渲染器](/docs/zh-CN/fullscreen)，具有虚拟化滚动条，或使用 `"default"` 获得经典主屏幕渲染器。运行 `/tui fullscreen` 或 `/tui default` 为您写入此键。
+选择终端 UI 渲染器。使用 `"fullscreen"` 可获得具有虚拟化回滚缓冲区的无闪烁[备用屏幕渲染器](/docs/zh-CN/fullscreen)，或使用 `"default"` 获得经典的主屏幕渲染器。运行 `/tui fullscreen` 或 `/tui default` 会为您写入此键。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，值为以下之一：
-  * `"default"`：经典主屏幕渲染器
-  * `"fullscreen"`：无闪烁的替代屏幕渲染器，具有虚拟化滚动条
-* **Default**: unset，所以 Claude Code [为您选择渲染器](/docs/zh-CN/fullscreen#fullscreen-by-default)
-* **Per-session overrides**: [`CLAUDE_CODE_NO_FLICKER`](/docs/zh-CN/env-vars) 和 [`CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN`](/docs/zh-CN/env-vars) 在单个会话中优先于此键：`CLAUDE_CODE_NO_FLICKER=1` 打开全屏，`CLAUDE_CODE_NO_FLICKER=0` 或 `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1` 关闭它；当两者都设置时，Claude Code 关闭它
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，取值为以下之一：
+  * `"default"`：经典的主屏幕渲染器
+  * `"fullscreen"`：具有虚拟化回滚缓冲区的无闪烁备用屏幕渲染器
+* **默认值**：未设置，因此 Claude Code 会[为您选择渲染器](/docs/zh-CN/fullscreen#fullscreen-by-default)
+* **单会话覆盖**：[`CLAUDE_CODE_NO_FLICKER`](/docs/zh-CN/env-vars) 和 [`CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN`](/docs/zh-CN/env-vars) 在单个会话中优先于此键：`CLAUDE_CODE_NO_FLICKER=1` 开启全屏，`CLAUDE_CODE_NO_FLICKER=0` 或 `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1` 关闭全屏；当两者都设置时，Claude Code 会关闭全屏
 
 ```json settings.json theme={null}
 {
@@ -3153,18 +3152,18 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-在 tmux `-CC` 下或通过 SSH 到 Windows，Claude Code 保持经典渲染器，除非您设置 `CLAUDE_CODE_NO_FLICKER=1`。从[代理视图](/docs/zh-CN/agent-view)打开的后台会话始终使用全屏渲染器，无论此设置如何。
+在 tmux `-CC` 下或通过 SSH 连接到 Windows 时，除非您设置 `CLAUDE_CODE_NO_FLICKER=1`，否则 Claude Code 会保持使用经典渲染器。从 [Agent 视图](/docs/zh-CN/agent-view)打开的后台会话始终使用全屏渲染器，不受此设置影响。
 
 ### `verbose`
 
-默认情况下，记录将每个工具调用折叠为简短摘要，如 Claude 运行的命令和其输出的行数，您按 `Ctrl+O` 在需要详细信息时将整个记录切换到展开视图。将此键设置为 `true` 以在发生时内联显示每个工具调用的完整输入和输出，这在您调试 hook、MCP 服务器或长 shell 命令时很有用。在 `/config` 中显示为**详细输出**。
+默认情况下，会话记录会将每个工具调用折叠为简短摘要，例如 Claude 运行的命令及其输出的行数；当您需要详细信息时，按 `Ctrl+O` 可将整个会话记录切换到展开视图。将此键设置为 `true` 可在每个工具调用发生时内联显示其完整的输入和输出，这在调试 hook、MCP 服务器或较长的 shell 命令时非常有用。在 `/config` 中显示为 **Verbose output**。
 
-* **Scope**: [`Any file`](#scopes)。当没有设置文件设置它时，来自较旧版本的 `~/.claude.json` 中的值适用。
-* **Type**: Boolean
-  * `true`：您看到完整工具输出
-  * `false`：您看到工具输出的截断摘要
-* **Default**: `false`
-* **Per-session overrides**: [`--verbose`](/docs/zh-CN/cli-reference#cli-flags) 在单个会话中优先于此键
+* **作用域**：[`Any file`](#scopes)。当没有设置文件设置此项时，来自旧版本的 `~/.claude.json` 中的值会生效。
+* **类型**：布尔值
+  * `true`：您会看到完整的工具输出
+  * `false`：您会看到截断的工具输出摘要
+* **默认值**：`false`
+* **单会话覆盖**：[`--verbose`](/docs/zh-CN/cli-reference#cli-flags) 在单个会话中优先于此键
 
 ```json settings.json theme={null}
 {
@@ -3172,19 +3171,19 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-[`viewMode`](#viewmode) 值或粘性 `/focus` 选择在每个会话中覆盖此键。
+[`viewMode`](#viewmode) 值或持久的 `/focus` 选择会在每个会话中覆盖此键。
 
 ### `viewMode`
 
-设置 Claude Code 启动的记录视图：`"default"`、`"verbose"` 或 `"focus"`。设置时，它覆盖粘性 `/focus` 选择和 [`verbose`](#verbose) 设置。
+设置 Claude Code 启动时的会话记录视图：`"default"`、`"verbose"` 或 `"focus"`。设置后，它会同时覆盖持久的 `/focus` 选择和 [`verbose`](#verbose) 设置。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: string，值为以下之一：
-  * `"default"`：具有截断工具输出的正常记录
-  * `"verbose"`：具有完整工具输出的记录
-  * `"focus"`：仅您的最后提示、工具调用的单行摘要，带编辑差异统计，和最终响应。焦点视图需要[全屏渲染器](#tui)
-* **Default**: unset，所以 `verbose` 设置和您最后的 `/focus` 选择适用
-* **Per-session overrides**: [`--verbose`](/docs/zh-CN/cli-reference#cli-flags) 在单个会话中优先于此键
+* **作用域**：[`Any file`](#scopes)
+* **类型**：字符串，取值为以下之一：
+  * `"default"`：带有截断工具输出的普通会话记录
+  * `"verbose"`：带有完整工具输出的会话记录
+  * `"focus"`：仅显示您的最后一条提示词、带有编辑 diffstat 的工具调用单行摘要以及最终回复。专注视图需要[全屏渲染器](#tui)
+* **默认值**：未设置，因此 `verbose` 设置和您上次的 `/focus` 选择生效
+* **单会话覆盖**：[`--verbose`](/docs/zh-CN/cli-reference#cli-flags) 在单个会话中优先于此键
 
 ```json settings.json theme={null}
 {
@@ -3194,11 +3193,11 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 ### `vimInsertModeRemaps`
 
-在 [vim 编辑器模式](/docs/zh-CN/interactive-mode#vim-editor-mode)中将两键 INSERT 模式序列映射到 Escape。每个键恰好是按顺序键入的两个可打印字符，`"<Esc>"` 是唯一支持的目标；Claude Code 忽略其他条目。
+在 [vim 编辑器模式](/docs/zh-CN/interactive-mode#vim-editor-mode)中，将 INSERT 模式下的两键序列映射为 Escape。每个键必须恰好是依次输入的两个可打印字符，且 `"<Esc>"` 是唯一支持的目标；Claude Code 会忽略其他条目。
 
-* **Scope**: [`User or managed`](#scopes)。存储库不能重新映射您的按键。
-* **Type**: 对象，将两字符序列映射到 `"<Esc>"`
-* **Default**: unset
+* **作用域**：[`User or managed`](#scopes)。仓库无法重新映射您的按键。
+* **类型**：将两字符序列映射到 `"<Esc>"` 的对象
+* **默认值**：未设置
 
 ```json settings.json theme={null}
 {
@@ -3208,19 +3207,19 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-除非 `editorMode` 是 `"vim"`，否则无效。请参阅[重新映射 INSERT 模式快捷键序列](/docs/zh-CN/interactive-mode#remap-insert-mode-key-sequences)。
+除非 `editorMode` 为 `"vim"`，否则此项不起作用。请参阅[重新映射 INSERT 模式按键序列](/docs/zh-CN/interactive-mode#remap-insert-mode-key-sequences)。
 
 ### `voice`
 
-打开[语音听写](/docs/zh-CN/voice-dictation)并选择听写键的行为方式。当您运行 `/voice` 时，Claude Code 为您写入此对象。
+开启[语音听写](/docs/zh-CN/voice-dictation)并选择听写键的行为方式。当您运行 `/voice` 时，Claude Code 会为您写入此对象。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: 对象，`enabled` 作为 Boolean，`autoSubmit` 作为仅在保持模式中适用的 Boolean，和 `mode`，值为以下之一：
-  * `"hold"`：您在说话时按住听写键，释放它以停止
-  * `"tap"`：您点击键一次以开始录制，再次以发送
-* **Default**: unset，所以听写关闭；当 `enabled` 是 `true` 且 `mode` 未设置时，Claude Code 使用 `"hold"`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：包含 `enabled`（布尔值）、`autoSubmit`（布尔值，仅在按住模式下生效）和 `mode` 的对象，`mode` 取值为以下之一：
+  * `"hold"`：说话时按住听写键，松开即停止
+  * `"tap"`：轻按一次开始录音，再按一次发送
+* **默认值**：未设置，因此听写关闭；当 `enabled` 为 `true` 且未设置 `mode` 时，Claude Code 使用 `"hold"`
 
-此示例打开听写并使键点击一次以开始录制，再次以发送：
+此示例开启听写，并将按键设置为轻按一次开始录音、再按一次发送：
 
 ```json settings.json theme={null}
 {
@@ -3231,21 +3230,21 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 }
 ```
 
-`autoSubmit` 在保持模式中释放键时发送提示。语音听写需要 claude.ai 账户。
+`autoSubmit` 会在按住模式下您松开按键时发送提示词。语音听写需要 claude.ai 账户。
 
 ### `voiceEnabled`
 
 > [!WARNING]
 >
-> 自 v2.1.92 起已弃用，当 [`voice`](#voice) 对象替换它时。Claude Code 仍然读取它，因此较旧的设置文件保持工作，但新配置应设置 `voice.enabled`。
+> 自 v2.1.92 起已弃用，当时被 [`voice`](#voice) 对象取代。Claude Code 仍会读取它，以便旧的设置文件继续工作，但新的配置应设置 `voice.enabled`。
 
-使用在 `voice` 对象之前的单个 Boolean 形式打开语音听写。当两者都设置时，`voice.enabled` 适用。
+使用早于 `voice` 对象的单一布尔值形式开启语音听写。当两者都设置时，以 `voice.enabled` 为准。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：当您使用 claude.ai 账户登录且您的组织政策允许语音时，语音听写打开，除非 `voice.enabled` 设置
-  * `false`：语音听写关闭，除非 `voice.enabled` 设置
-* **Default**: unset
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：当您使用 claude.ai 账户登录且您组织的策略允许语音时，语音听写开启，除非设置了 `voice.enabled`
+  * `false`：语音听写关闭，除非设置了 `voice.enabled`
+* **默认值**：未设置
 
 ```json settings.json theme={null}
 {
@@ -3255,13 +3254,13 @@ Claude Code 设置您的终端选项卡的标题。默认情况下，它使用�
 
 ### `wheelScrollAccelerationEnabled`
 
-在[全屏渲染](/docs/zh-CN/fullscreen#mouse-wheel-scrolling)中快速滚动期间加速鼠标滚轮滚动速度。将其设置为 `false` 以获得每个滚轮凹口的恒定滚动速率。
+在[全屏渲染](/docs/zh-CN/fullscreen#mouse-wheel-scrolling)中快速滚动时加快鼠标滚轮的滚动速度。将其设置为 `false` 可使每个滚轮刻度的滚动速率保持恒定。
 
-* **Scope**: [`Any file`](#scopes)
-* **Type**: Boolean
-  * `true`：Claude Code 在快速滚动期间加速鼠标滚轮滚动速度
-  * `false`：Claude Code 以每个滚轮凹口的恒定速率滚动
-* **Default**: `true`
+* **作用域**：[`Any file`](#scopes)
+* **类型**：布尔值
+  * `true`：Claude Code 在快速滚动时加快鼠标滚轮的滚动速度
+  * `false`：Claude Code 按每个滚轮刻度以恒定速率滚动
+* **默认值**：`true`
 
 ```json settings.json theme={null}
 {

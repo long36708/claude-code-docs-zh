@@ -100,6 +100,7 @@
 | `claude.ai rejected the session token` / `session token rejected` | [身份验证](#claude-ai-rejected-the-session-token) |
 | `MCP server "<name>" needs you to sign in again (run /mcp to re-authenticate)` | [身份验证](#mcp-server-needs-you-to-sign-in-again) |
 | `rejected the credential from its headersHelper` / `rejected the Authorization header in its config` | [身份验证](#mcp-server-needs-you-to-sign-in-again) |
+| `(check the helper, then start a new task or chat)` / `(update it, then start a new task or chat)` | [身份验证](#mcp-credential-rejected-in-cowork) |
 | `MCP server "<name>" needs additional permissions (scope: "<scope>") — run /mcp to re-authenticate` | [身份验证](#mcp-server-needs-you-to-sign-in-again) |
 | `MCP server "<name>" requires re-authorization (token expired)` | [身份验证](#mcp-server-needs-you-to-sign-in-again) |
 | `This server's URL is missing or not a valid URL, so sign-in can't start` | [身份验证](#mcp-server-url-is-missing-or-not-a-valid-url) |
@@ -200,6 +201,8 @@
 | `Installation was killed before it could finish (exit code 137)` | [安装和登录故障排除](/docs/zh-CN/troubleshoot-install#installation-was-killed-before-it-could-finish) |
 | `The connection dropped while downloading the update` | [安装和登录故障排除](/docs/zh-CN/troubleshoot-install#the-connection-dropped-while-downloading-the-update) |
 | `Download timed out: exceeded the total deadline` | [安装和登录故障排除](/docs/zh-CN/troubleshoot-install#the-connection-dropped-while-downloading-the-update) |
+| `Release verification failed for Claude Code <version> (<reason>). The update was not installed.` | [安装和登录故障排除](/docs/zh-CN/troubleshoot-install#release-verification-failed) |
+| `Auto-update failed · Run claude doctor` | [安装和登录故障排除](/docs/zh-CN/troubleshoot-install#auto-update-failed) |
 | `--bg and --print conflict` | [命令行错误](#conflict-between-bg-and-print) |
 | `Couldn't tell whether --bg is a flag or text here, so nothing was started` | [命令行错误](#couldnt-tell-whether-bg-is-a-flag-or-text) |
 | `Error: Cannot use both --append-subagent-system-prompt and --append-subagent-system-prompt-file. Please use only one.` | [命令行错误](#conflict-between-a-system-prompt-flag-and-its-file-form) |
@@ -270,6 +273,7 @@
 | `Custom output styles can't be selected over Remote Control or from a relayed message` | [命令行错误](#custom-output-styles-cant-be-selected-over-remote-control) |
 | `Output styles are saved to local settings (.claude/settings.local.json), which this session doesn't load` | [命令行错误](#output-styles-are-saved-to-local-settings-which-this-session-doesnt-load) |
 | `/recap only runs when you ask for it yourself in this session` | [命令行错误](#recap-only-runs-when-you-ask-for-it-yourself) |
+| `/feedback is disabled by your organization's policy`，或 `/bug` 或 `/share` 的相同消息 | [命令行错误](#feedback-is-disabled-by-your-organizations-policy) |
 | `` `plugin eval` is currently in early access `` / `` `plugin eval` is currently unavailable `` | [Plugin 错误](#plugin-eval-is-currently-in-early-access) |
 | `cannot be evaluated where sessions load it` | [使用 evals 测试插件](/docs/zh-CN/plugin-evals#cannot-be-evaluated-where-sessions-load-it) |
 | `Marketplace "<name>" is registered from an untrusted source` | [Plugin 错误](#marketplace-is-registered-from-an-untrusted-source) |
@@ -289,6 +293,7 @@
 | `The packages it lists are not installed` / `The packages it lists were not installed, because` | [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting#the-packages-it-lists-are-not-installed) |
 | `does not load (...), so Claude Code ignores the whole file` | [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting#does-not-load-so-claude-code-ignores-the-whole-file) |
 | `path escapes plugin directory` | [Plugin 错误](#path-escapes-plugin-directory) |
+| `Plugin not loaded: its manifest <path> was not read` | [Plugin 错误](#plugin-not-loaded-its-manifest-was-not-read) |
 | `path could not be checked` | [Plugin 错误](#path-could-not-be-checked) |
 | `its marketplace entry path does not stay inside the marketplace directory` | [Plugin 错误](#marketplace-entry-path-does-not-stay-inside-the-marketplace-directory) |
 | `Plugin source path refused` | [Plugin 错误](#marketplace-entry-path-does-not-stay-inside-the-marketplace-directory) |
@@ -304,6 +309,8 @@
 | `File is covered by a Read deny rule in your permission settings` | [工具错误](#file-is-covered-by-a-read-deny-rule) |
 | `cannot contain null bytes (\0)` | [工具错误](#path-cannot-contain-null-bytes) |
 | `Path contains null bytes` | [工具错误](#path-cannot-contain-null-bytes) |
+| `File is too large to read as an image (the limit is 128MB)` | [工具错误](#file-is-too-large-to-read-as-an-image) |
+| `Cannot read this as an image: <path> is a pipe or a device` | [工具错误](#file-is-too-large-to-read-as-an-image) |
 | `subagent_type is required: the general-purpose agent is not available in this session` | [工具错误](#subagent-type-is-required) |
 | `Error: this write left the memory index at MEMORY.md at ..., over its ... read limit` | [工具错误](#memory-index-is-over-its-read-limit) |
 | `pkill: refusing to run` | [工具错误](#pkill-pattern-matches-the-claude-code-process) |
@@ -329,6 +336,7 @@
 | `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `the source file has the replacement character U+FFFD` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `Not published: that file is on a network share` | [工具错误](#not-published-that-file-is-on-a-network-share) |
+| `Not published: Claude sent the same content again after a newer version of the artifact turned it away` / `Not published: Claude sent its changes again over the same file after a newer version of the artifact turned them away` | [工具错误](#not-published-a-newer-version-of-the-artifact-turned-it-away) |
 | `Reading a local file from outside this session's connected folders, or through a link, needs the approval card` | [工具错误](#reading-a-local-file-from-outside-the-connected-folders) |
 | `cannot read file_path (...) — the file could not be examined, and no one can answer the approval card` | [工具错误](#reading-a-local-file-from-outside-the-connected-folders) |
 | `WebFetch cannot fetch localhost or other hostnames without a dot` | [工具错误](#webfetch-cannot-fetch-localhost) |
@@ -354,6 +362,8 @@
 | `Session <id> was stopped while the respawn was in flight` | [后台会话错误](#session-was-stopped-while-the-respawn-was-in-flight) |
 | `This session was running agent '<name>', which is no longer available` | [后台会话错误](#session-agent-no-longer-available) |
 | `This session restarted <time> after its next /loop wakeup was due, so that wakeup will not fire` | [后台会话错误](#restarted-after-its-next-loop-wakeup-was-due) |
+| `No LLM gateway: a gateway set in your shell isn't passed to a session opened from another folder` | [后台会话错误](#no-llm-gateway-opened-from-another-folder) |
+| `No LLM gateway: opened from another folder · respawn from <folder>` | [后台会话错误](#no-llm-gateway-opened-from-another-folder) |
 | `CLAUDE_CODE_PROCESS_WRAPPER: launcher ...` | [后台会话错误](#claude_code_process_wrapper-launcher-errors) |
 | `EUNKNOWN: unknown error, uv_spawn` | [后台会话错误](#eunknown-when-starting-a-background-session) |
 | `EACCES: permission denied, posix_spawn` | [后台会话错误](#eacces-when-starting-a-background-session) |
@@ -462,6 +472,7 @@ Claude Code 不重试这些故障：
 | [`CLAUDE_CODE_MAX_RETRIES`](/docs/zh-CN/env-vars) | 10 | 重试尝试次数。从 v2.1.186 开始上限为 15；从 v2.1.199 开始 `CLAUDE_CODE_RETRY_WATCHDOG` 提高默认值并移除上限。降低它以在脚本中更快地显示故障。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG`](/docs/zh-CN/env-vars) | 未设置 | 在 CI 作业等无人值守会话中设置为 `1`，以无限期重试 `429` 和 `529` 容量错误，而不是在 `CLAUDE_CODE_MAX_RETRIES` 尝试后失败。当标准速度请求获得报告支出限制或耗尽使用额度的 `429` 时，Claude Code 立即失败，即使来自 [gateway spend cap](#spend-limit-reached) 的也是如此，该上限按计划重置。在 v2.1.239 之前，看门狗无限期重试这些。对于快速模式请求，请参阅 [Handle rate limits](/docs/zh-CN/fast-mode#handle-rate-limits)。在 v2.1.199 或更高版本上，它还为其他瞬时错误（例如服务器错误、超时和断开连接）提高默认重试计数至 300，大约三小时的退避，如果您明确设置该变量，则移除 `CLAUDE_CODE_MAX_RETRIES` 的 15 上限。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS`](/docs/zh-CN/env-vars) | 未设置 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 时，每个 API 请求在等待 `429` 和 `529` 错误上所花费的最长时间（毫秒）。未设置时，等待时间没有限制。需要 Claude Code v2.1.295 或更高版本。 |
+| [`CLAUDE_CODE_RETRY_WATCHDOG_USAGE_LIMIT_RECHECK_MS`](/docs/zh-CN/env-vars) | 未设置 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 后，当请求等待[用量限制](#youve-hit-your-session-limit)重置时，检查该限制是否已提前解除的最短间隔（毫秒）。当检查发现限制已解除时，请求会立即发出。请提供 `60000` 到 `10800000` 之间的纯数字。未设置或超出该范围时，不进行检查。关于 Claude Code 何时跳过这些检查，请参阅[环境变量参考](/docs/zh-CN/env-vars)。需要 Claude Code v2.1.305 或更高版本。 |
 | [`CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS`](/docs/zh-CN/env-vars) | 500 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的起始延迟（毫秒）。当 API 容量已满时，可将其提高（最高 32000），以便在更长的时间窗口内分散重试。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](/docs/zh-CN/fast-mode#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.292 或更高版本。 |
 | [`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS`](/docs/zh-CN/env-vars) | 32000 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的上限（毫秒）。当 API 容量已满时，可将其提高（最高 64000），使后续重试之间的间隔持续拉大。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](/docs/zh-CN/fast-mode#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.296 或更高版本。 |
 | [`API_TIMEOUT_MS`](/docs/zh-CN/env-vars) | 600000 | 每次请求尝试接收其响应头的时限（毫秒）。它不限制流式响应在此之后持续的时长。为慢速网络或代理提高它。关于它如何限制首字节截止时间，请参阅 [No response from API](#no-response-from-api)。 |
@@ -520,10 +531,11 @@ API 在连接截止时间之前没有响应。
 Request timed out
 ```
 
-默认请求超时时间为 10 分钟。
+默认请求超时时间为 10 分钟。如果您将 [`API_TIMEOUT_MS`](/docs/zh-CN/env-vars) 设置为 `0`，此请求超时将关闭。设置 `0` 时，[首字节截止时间](#no-response-from-api)和响应体空闲超时不会关闭，因此流式请求仍受[适用于您连接的那些超时](/docs/zh-CN/network-config#streaming-idle-watchdogs)约束。在本地会话中，非流式尝试保留其 300 秒的限制，仍可能以此消息结束。
 
 **应该做什么：**
 
+* 如果每个请求都以此消息失败，且您将 `API_TIMEOUT_MS` 设置为了 `0`，请检查 `claude --version`。如果版本早于 v2.1.305，请更新 Claude Code 或设置一个正值。
 * 重试请求
 * 如果是缓慢的网络或代理导致，请按照[自动重试](#automatic-retries)中的说明提高 `API_TIMEOUT_MS`
 * 如果超时频繁且您的网络状况良好，请参阅下面的[网络和连接错误](#network-and-connection-errors)
@@ -540,6 +552,8 @@ Claude Code 分别为第一次尝试的等待响应头和重试的等待设置�
 
 * **第一次尝试**：当您将其设置为 1 或更多时使用 [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](/docs/zh-CN/env-vars)，限制在 10 秒到 30 分钟之间。否则 Claude Code 使用[流式空闲监视程序](/docs/zh-CN/network-config#streaming-idle-watchdogs)中列出的字节级监视程序超时时间，因此改变该超时时间的变量也会改变此等待。无论哪种方式，Claude Code 为请求体的每 32KB 添加一秒。
 * **重试**：比 `API_TIMEOUT_MS` 少一秒，默认略低于 10 分钟，以便重试可以超过保持响应直到生成完成的代理或网关。在 Amazon Bedrock 上，重试使用与第一次尝试相同的截止时间，消息显示一个持续时间而不是两个。
+
+  除 Amazon Bedrock 外，如果您将 `API_TIMEOUT_MS` 设置为 `0`，重试将等待 10 分钟再加上每 32KB 一秒；如果第一次尝试的等待时间更长，则等待与第一次尝试相同的时长。
 
 两个等待都不超过正 `API_TIMEOUT_MS` 少一秒，正 `API_TIMEOUT_MS` 低于 11 秒会关闭截止时间。字节级监视程序仅在响应头到达后才开始，因此在此之后停止发送字节的响应遵循[停滞流规则](#automatic-retries)而不是此截止时间。
 
@@ -845,7 +859,7 @@ API Error: Request rejected (429) · this may be a temporary capacity issue. If 
 * 运行 `/status` 并确认活跃凭据是您期望的。环境中残留的 `ANTHROPIC_API_KEY` 可能会通过低层级密钥而不是您的订阅路由请求。
 * 检查您的提供商控制台以了解活跃限制，如果需要请求更高的层级
 * 对于 Anthropic API 密钥，请参阅 [rate limits reference](https://platform.claude.com/docs/en/api/rate-limits) 了解层级如何工作以及如何设置每个工作区的上限
-* 降低并发：降低 [`CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY`](/docs/zh-CN/env-vars)，避免运行许多并行子代理，或使用 `/model` 为高容量脚本运行切换到更小的模型
+* 降低并发：避免运行许多并行子代理，或使用 `/model` 为高容量脚本运行切换到更小的模型
 
 ### You've hit your monthly spend limit
 
@@ -1513,7 +1527,17 @@ MCP server "<name>" rejected the Authorization header in its config (update it, 
 
 在配置该服务器的位置更新标头值，然后从 `/mcp` 重新连接。
 
-在 v2.1.273 之前，登录过期、`headersHelper` 和 `Authorization` 标头这几种情况都显示 `MCP server "<name>" requires re-authorization (token expired)`。
+在 Claude Desktop 应用中您机器上的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，这些消息表示 MCP 服务器拒绝了提供给它的凭据。请修复消息中指出的凭据，然后在 Cowork 中启动新的任务或聊天：
+
+```text theme={null}
+MCP server "<name>" rejected the credential from its headersHelper (check the helper, then start a new task or chat)
+MCP server "<name>" rejected the Authorization header in its config (update it, then start a new task or chat)
+```
+
+* **`headersHelper` 凭据被拒绝**：检查辅助脚本返回的凭据是否能被服务器接受，然后在 Cowork 中启动新的任务或聊天
+* **`Authorization` 标头被拒绝**：更新该服务器配置中 `headers` 下的 `Authorization` 值，然后在 Cowork 中启动新的任务或聊天
+
+在 v2.1.302 之前，Cowork 会话显示的是 `run /mcp to reconnect` 结尾，尽管 `/mcp` 在那里不可用。如果您在 Cowork 中看到这样的结尾，仍然请检查辅助脚本或更新标头，然后启动新的任务或聊天。在 v2.1.273 之前，登录过期、`headersHelper` 和 `Authorization` 标头这几种情况都显示 `MCP server "<name>" requires re-authorization (token expired)`。
 
 服务器也可能以 HTTP 403 `insufficient_scope` 拒绝工具调用，要求您授权某个作用域，有时该作用域甚至已列在您的令牌中。消息会指出该作用域：
 
@@ -2310,6 +2334,8 @@ Claude Code 发送 `context_management` 等仅限测试版的字段，以及启�
 
 * 配置您的网关以转发 `anthropic-beta` 头。有关网关必须转发的内容，请参阅[功能传递](/docs/zh-CN/llm-gateway-protocol#feature-pass-through)。
 * 作为回退方案，在启动前设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](/docs/zh-CN/env-vars)。[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities)涵盖确切范围。
+
+在 v2.1.302 之前，即使不涉及网关，此错误也可能列出字段 `diagnostics`。当已经使用过 Anthropic API 的会话在未重启的情况下转到 Amazon Bedrock 或 Google Cloud's Agent Platform 时，就会出现此错误。例如，当您在另一个 Claude Code 窗口中运行 [`/setup-bedrock`](/docs/zh-CN/commands) 时，您保持打开的会话会转到 Bedrock。在这些版本中，请在该会话中运行 `/clear` 或重启会话。
 
 ### 工具输入 schema 无效
 
@@ -3361,8 +3387,8 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查不允许其运行。[注入命令的权限检查](/docs/zh-CN/skills#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，而机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](/docs/zh-CN/skills#how-injected-commands-run)
 * `No shell command in <name> was run`：文件中的某个 `!` 命令包含除制表符或换行符以外的原始控制字符，因此所有命令都不会运行。请参阅[如何查找并删除该字符](#no-shell-command-was-run)
 
 **解决方法：**
@@ -3464,7 +3490,7 @@ Unknown command: /hepl. Did you mean /help?
 Claude Code 会建议菜单在此会话中列出的最接近的命令名称或别名。如果没有接近的名称，消息会在该名称之后结束。原因通常是以下之一：
 
 * 拼写错误，例如将 `/help` 输成 `/hepl`。[命令菜单如何匹配您输入的内容](/docs/zh-CN/commands#how-the-command-menu-matches-what-you-type)介绍了如何在提交前选择一个接近的匹配项
-* 命令存在，但由于未满足某项要求（例如您的平台、套餐或身份验证方式）而在此会话中不可用。[`/web-setup`](/docs/zh-CN/web-quickstart#web-setup-shows-no-commands-match-or-unknown-command) 和 [`/schedule`](/docs/zh-CN/routines#schedule-returns-unknown-command) 的故障排除条目介绍了两种常见情况。某些命令在被您组织的策略禁用时会以自己的消息回复，例如 [`Cloud sessions are disabled by your organization's policy`](#cloud-sessions-are-disabled-by-your-organizations-policy)
+* 命令存在，但由于未满足某项要求（例如您的平台、套餐或身份验证方式）而在此会话中不可用。请参阅 [`/web-setup`](/docs/zh-CN/web-quickstart#web-setup-shows-no-commands-match-or-unknown-command)、[`/schedule`](/docs/zh-CN/routines#schedule-returns-unknown-command) 或 [`/auto-mode-setup`](/docs/zh-CN/auto-mode-config#auto-mode-setup-returns-unknown-command) 的相关条目。某些命令在被您组织的策略禁用时会返回其自身的消息，例如 [`Cloud sessions are disabled by your organization's policy`](#cloud-sessions-are-disabled-by-your-organizations-policy)
 * 来自[插件](/docs/zh-CN/plugins/overview)或 [MCP 服务器](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)的命令，而该插件或服务器在此会话中未安装或未连接
 
 只有在交互式终端会话中，Claude Code 才会以这种方式回复未匹配的 `/` 名称。在其他所有会话中，它会将该提示词作为普通消息发送给 Claude，并附上一条说明，指出该命令未运行，以及 Claude 在此会话中可以运行的命令列表。这些会话包括：
@@ -3513,7 +3539,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin fetch 了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个被 fetch 的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
+* **您传递的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin fetch 了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个被 fetch 的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
 
 **解决方法：**
 
@@ -3856,13 +3882,29 @@ Output styles are saved to local settings (.claude/settings.local.json), which t
 * 亲自打开该会话并在其中运行 `/recap`：在其终端中、在 [Desktop 应用](/docs/zh-CN/desktop)或[移动应用](/docs/zh-CN/mobile)中、在 [claude.ai/code](https://claude.ai/code) 上，或通过 [Remote Control](/docs/zh-CN/remote-control)
 * 如果是云端定时任务或其他程序发送的，请从该提示词中删除 `/recap`
 
+### /feedback is disabled by your organization's policy
+
+此消息表示您组织的策略不允许从 Claude Code 提交产品反馈，因此 `/feedback`、`/bug` 和 `/share` 不会打开反馈对话框。该消息会指明您在 Claude Code 提示符处输入的命令：
+
+```text wrap theme={null}
+/feedback is disabled by your organization's policy. To report a bug, open an issue at https://github.com/anthropics/claude-code/issues. Issues are public, so leave out anything confidential.
+```
+
+该消息也可能只有第一句。
+
+**解决方法：**
+
+* 如需报告 bug，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交 issue。那里的 issue 任何人都可以阅读，因此请勿包含代码、会话记录以及任何其他机密内容。
+
+在 v2.1.302 之前，完整消息为 `/feedback is disabled by your organization's policy. Contact your organization admin to enable it.`
+
 ## 插件错误
 
-这些错误来自[插件](/docs/zh-CN/plugins/overview)和[marketplace](/docs/zh-CN/plugins/overview)配置。对于不会产生此页面上的消息之一的插件问题，例如无法加载的 marketplace URL 或已安装但未显示的插件，请参阅[插件故障排除](/docs/zh-CN/plugins/troubleshooting)。
+这些错误来自[插件](/docs/zh-CN/plugins/overview)和[市场](/docs/zh-CN/plugins/overview)的配置。对于不会产生本页所列消息的插件问题，例如市场 URL 无法加载，或插件安装后没有出现，请参阅[插件故障排除](/docs/zh-CN/plugins/troubleshooting)。
 
-### plugin eval 目前处于早期访问阶段
+### plugin eval is currently in early access
 
-您运行了[`claude plugin eval`](/docs/zh-CN/plugin-evals)或`claude plugin eval init`，它在执行任何操作之前以退出代码 1 和以下消息之一退出：
+您运行了 [`claude plugin eval`](/docs/zh-CN/plugin-evals) 或 `claude plugin eval init`，它在执行任何操作之前就以退出码 1 退出，并显示以下消息之一：
 
 ```text theme={null}
 `plugin eval` is currently in early access
@@ -3872,288 +3914,319 @@ Output styles are saved to local settings (.claude/settings.local.json), which t
 `plugin eval` is currently unavailable
 ```
 
-第一条消息表示您的构建版本早于 v2.1.269，这是该命令正式发布的第一个版本。第二条消息表示 Anthropic 已在服务器端关闭了该命令；您的机器上没有任何东西可以将其重新打开。
+第一条消息表示您的版本早于 v2.1.269，即该命令正式可用的第一个版本。第二条消息表示 Anthropic 已在服务器端关闭了该命令；您本机上的任何操作都无法重新启用它。
 
-**要做什么：**
+**解决方法：**
 
-* 运行`claude --version`，然后运行`claude update`，并在新会话中再次运行该命令。请参阅[插件 evals 的要求](/docs/zh-CN/plugin-evals#requirements)
-* 如果您在当前构建上看到第二条消息，请在另一次`claude update`后稍后重试
+* 运行 `claude --version`，然后运行 `claude update`，并在新会话中再次运行该命令。请参阅[插件评估的要求](/docs/zh-CN/plugin-evals#requirements)
+* 如果您在最新版本上看到第二条消息，请稍后再次运行 `claude update` 后重试
 
-### Marketplace 从不受信任的来源注册
+### Marketplace is registered from an untrusted source
 
-marketplace 注册在一个名称下，该名称是[为官方 Anthropic marketplaces 保留的](/docs/zh-CN/plugins/marketplace-reference#marketplace-file)，但其注册来源不是`anthropics` GitHub 存储库。Claude Code 每次加载或刷新 marketplace 时都会重新检查保留的名称，因此 marketplace 及从中安装的插件停止加载。在 v2.1.205 之前，在其名称被保留之前注册的条目继续加载。
+该市场以一个[保留给 Anthropic 官方市场](/docs/zh-CN/plugins/marketplace-reference#marketplace-file)的名称注册，但其注册来源并不是 `anthropics` 的 GitHub 仓库。Claude Code 每次加载或刷新市场时都会重新检查保留名称，因此该市场以及从中安装的插件将停止加载。在 v2.1.205 之前，在其名称成为保留名称之前注册的条目仍会继续加载。
 
 ```text theme={null}
 Marketplace "claude-community" is registered from an untrusted source: The name 'claude-community' is reserved for official Anthropic marketplaces. Only repositories from 'github.com/anthropics/' can use this name. To fix it, remove the marketplace and re-add it from the official source.
 ```
 
-对于来源不是 GitHub 存储库或 Git URL 的 marketplace，例如本地目录，中间句子改为`can only be used with GitHub sources from the 'anthropics' organization`。`claude plugin marketplace add`运行相同的检查，并拒绝保留的名称，返回`Failed to add marketplace:`后跟相同的保留名称句子。
+对于来源不是 GitHub 仓库或 Git URL 的市场（例如本地目录），中间那句话会改为 `can only be used with GitHub sources from the 'anthropics' organization`。`claude plugin marketplace add` 会执行相同的检查，并以 `Failed to add marketplace:` 加上同样的保留名称说明来拒绝保留名称。
 
-**要做什么：**
+**解决方法：**
 
-* 如果 marketplace 已注册，运行`claude plugin marketplace remove <name>`，然后从官方`github.com/anthropics`存储库重新添加它
-* 如果您发布了在名称被保留之前使用该名称的第三方 marketplace，请重命名它并要求用户从您的来源重新添加它
-* 请参阅[Marketplace schema](/docs/zh-CN/plugins/marketplace-reference#marketplace-file)下的保留名称列表
+* 如果该市场已经注册，请运行 `claude plugin marketplace remove <name>`，然后从官方的 `github.com/anthropics` 仓库重新添加
+* 如果您发布的第三方市场在该名称成为保留名称之前就已使用它，请为市场重命名，并请用户从您的来源重新添加
+* 请参阅[市场 schema](/docs/zh-CN/plugins/marketplace-reference#marketplace-file) 下的保留名称列表
 
-### Marketplace 名称是保留名称的另一种拼写
+### 市场名称是某个保留名称的另一种拼写
 
-marketplace 的名称本身不是保留名称，但 Claude Code 将其视为保留名称的另一种拼写。[保留名称](/docs/zh-CN/plugins/marketplace-reference#reserved-name-spellings)列出了哪些拼写算作保留名称。当您添加 marketplace 时，Claude Code 拒绝这样的名称：
+该市场的名称本身并不是保留名称，但 Claude Code 将其视为某个保留名称的另一种拼写。[保留名称](/docs/zh-CN/plugins/marketplace-reference#reserved-name-spellings)列出了哪些拼写会被视为保留名称。添加市场时，Claude Code 会拒绝此类名称：
 
 ```text theme={null}
 Failed to add marketplace: "claude.code.plugins" is another spelling of "claude-code-plugins", a reserved marketplace name.
 ```
 
-当 marketplace 已在这样的名称下注册时，其条目停止加载，`/plugin`、`claude plugin install`和`claude plugin update`警告：
+如果某个市场已经以此类名称注册，其条目将停止加载，并且 `/plugin`、`claude plugin install` 和 `claude plugin update` 会发出警告：
 
 ```text wrap theme={null}
 known_marketplaces.json has an entry named "claude.code.plugins", another spelling of the reserved marketplace name "claude-code-plugins", so it is ignored. Remove it with: claude plugin marketplace remove claude.code.plugins
 ```
 
-当名称需要 shell 引用时，添加时的拒绝读作`This marketplace's name is another spelling of "<reserved>", a reserved marketplace name. It is not exactly the reserved name it appears to be.`
+当该名称需要 shell 引号时，添加时的拒绝消息为 `This marketplace's name is another spelling of "<reserved>", a reserved marketplace name. It is not exactly the reserved name it appears to be.`
 
-**要做什么：**
+**解决方法：**
 
-* 将 marketplace 重命名为不拼写保留名称的名称，然后重新添加它
-* 对于忽略的条目警告，运行它给出的`claude plugin marketplace remove`命令，或从`~/.claude/plugins/known_marketplaces.json`中删除该条目
+* 将市场重命名为一个不会拼写成保留名称的名称，然后重新添加
+* 对于条目被忽略的警告，请运行其中给出的 `claude plugin marketplace remove` 命令，或从 `~/.claude/plugins/known_marketplaces.json` 中删除该条目
 
-### Claude Code 拒绝 marketplace 名称
+### Claude Code refuses the marketplace name
 
-已注册的 marketplace 的名称[冒充官方 Anthropic marketplace](/docs/zh-CN/plugins/marketplace-reference#reserved-names)，违反了该部分列出的规则。
+某个已注册市场的名称按照该部分所列规则[冒充了 Anthropic 官方市场](/docs/zh-CN/plugins/marketplace-reference#reserved-names)。
 
-如果 marketplace 在这样的名称下注册时检查阻止了它，marketplace 及从中安装的插件停止加载，因为 Claude Code 每次读取 marketplace 的目录时都会检查名称。当名称模仿官方名称时，`claude plugin list`和`/plugin`**Errors**选项卡报告每个受影响的插件，消息开头为：
+如果某个市场在此检查开始拦截此类名称之前就已以该名称注册，那么该市场以及从中安装的插件将停止加载，因为 Claude Code 每次读取市场目录时都会检查名称。当名称模仿官方名称时，`claude plugin list` 和 `/plugin` 的 **Errors** 选项卡会为每个受影响的插件报告一条以如下内容开头的消息：
 
 ```text theme={null}
 Claude Code refuses the marketplace name "anthropic-plugins-v2"
 ```
 
-对于模仿名称，marketplace 自己的错误读作`Claude Code refuses this marketplace's name: it looks like one of Anthropic's own`。`claude plugin marketplace add`拒绝任何冒充名称，返回`Marketplace name impersonates an official Anthropic/Claude marketplace`。
+对于模仿性名称，市场本身的错误会改为 `Claude Code refuses this marketplace's name: it looks like one of Anthropic's own`。`claude plugin marketplace add` 会以 `Marketplace name impersonates an official Anthropic/Claude marketplace` 拒绝任何冒充性名称。
 
-在 v2.1.282 之前，`claude plugin list`和`/plugin`报告模仿名称的插件加载失败，但没有将 marketplace 的名称命名为原因。
+在 v2.1.282 之前，`claude plugin list` 和 `/plugin` 同样会将模仿性名称下的插件报告为加载失败，但不会指出市场名称是原因。
 
-**要做什么：**
+**解决方法：**
 
-* 要保留某个设置文件通过`"source": "settings"`内联声明的市场，请在删除旧名称之前先重命名它，因为删除市场也会从您的设置文件中删除其条目。Claude Code v2.1.292 或更高版本会在消息中列出以下步骤：
-  1. 在每个于`extraKnownMarketplaces`下列出该市场的设置文件中，为该条目的键及其`source.name`指定同一个新的纯 ASCII 名称，且该名称看起来不像官方名称。如果管理员通过您组织的托管设置添加该市场，则由管理员执行此步骤
-  2. 运行`claude plugin marketplace remove <old-name>`，或在`/plugin`的**Marketplaces**选项卡中删除旧名称。这也会卸载其插件并删除其数据、选项和机密
-  3. 再次启动 Claude Code；如果该文件是项目的设置文件，请在项目文件夹中启动。然后从重命名后的市场安装插件
-* 要保留任何其他市场，请等待其维护者重命名它，然后运行`claude plugin marketplace update <name>`
-* 要删除该市场，运行`claude plugin marketplace remove <name>`。这也会卸载从该市场安装的插件并删除其数据、选项和机密
-* 如果您发布 marketplace，在您的`marketplace.json`中重命名它；用户随后更新 marketplace 而不是删除它
+* 如果要保留某个设置文件中以 `"source": "settings"` 内联声明的市场，请在删除旧名称之前先为其重命名，因为删除市场时也会从您的设置文件中删除其条目。Claude Code v2.1.292 或更高版本会在消息中列出以下步骤：
+  1. 在每个于 `extraKnownMarketplaces` 下列出该市场的设置文件中，为该条目的键及其 `source.name` 设置同一个新的纯 ASCII 名称，且该名称看起来不像官方名称。如果管理员通过您组织的托管设置添加了该市场，则由管理员执行此步骤
+  2. 运行 `claude plugin marketplace remove <old-name>`，或在 `/plugin` 的 **Marketplaces** 选项卡中删除旧名称。这也会卸载其插件，并删除它们的数据、选项和密钥
+  3. 重新启动 Claude Code；如果该文件是项目的设置文件，请在项目文件夹中启动。然后从重命名后的市场安装插件
+* 如果要保留任何其他市场，请等待其维护者为其重命名，然后运行 `claude plugin marketplace update <name>`
+* 如果要删除该市场，请运行 `claude plugin marketplace remove <name>`。这也会卸载从该市场安装的插件，并删除它们的数据、选项和密钥
+* 如果您是该市场的发布者，请在 `marketplace.json` 中为其重命名；之后用户只需更新该市场，而无需删除它
 
-### Marketplace 已从不同的来源添加
+### Marketplace is already added from a different source
 
-您在会话中或从 shell 中，通过[安装命令上的`--marketplace <source>`](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command)指定了一个新的市场来源。Claude Code 从该来源获取的目录与您已从不同来源添加的市场同名。Claude Code 保留现有的市场而不是替换它，插件未安装。
+您在会话中或从 shell 中，通过[安装命令上的 `--marketplace <source>`](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command) 指定了一个新的市场来源。Claude Code 从该来源获取的目录与您已从其他来源添加的某个市场同名。Claude Code 会保留现有市场而不是替换它，并且插件不会被安装。
 
 ```text theme={null}
 Marketplace "acme-tools" is already added from a different source (github:acme/plugins). To use this source instead, remove that marketplace first with /plugin marketplace remove acme-tools.
 ```
 
-**要做什么：**
+**解决方法：**
 
-* 如果您已添加的 marketplace 是您想要的，按名称从中安装：`/plugin install <plugin>@<name>`
-* 要切换到新来源，运行`/plugin marketplace remove <name>`，然后重试安装
+* 如果您已添加的市场正是您想要的，请按名称从中安装：`/plugin install <plugin>@<name>`
+* 如果要切换到新来源，请运行 `/plugin marketplace remove <name>`，然后重试安装
 
-### 插件命令在 shell 命令中引用 user\_config
+### 插件命令在 shell 命令中引用了 user\_config
 
-插件 hook、[monitor](/docs/zh-CN/plugins/components#monitors)或 MCP [`headersHelper`](/docs/zh-CN/mcp#use-dynamic-headers-for-custom-authentication)命令引用`${user_config.KEY}` [插件选项](/docs/zh-CN/plugins/manifest-reference#user-configuration)，替换后的字符串将被传递到 shell。配置的值包含`$(...)` 、反引号或`;`会在那里作为代码运行，因此 Claude Code 拒绝启动该组件而不是替换该值。检查在命令模板上运行，因此即使尚未配置任何值，错误也会出现。在 v2.1.207 之前，该值被替换到 shell 命令中。
+某个插件 hook、[monitor](/docs/zh-CN/plugins/components#monitors) 或 MCP [`headersHelper`](/docs/zh-CN/mcp#use-dynamic-headers-for-custom-authentication) 命令引用了 `${user_config.KEY}` [插件选项](/docs/zh-CN/plugins/manifest-reference#user-configuration)，而替换后的字符串会被传递给 shell。配置值中若包含 `$(...)`、反引号或 `;`，就会在那里作为代码运行，因此 Claude Code 会拒绝启动该组件，而不是替换该值。此检查针对命令模板执行，因此即使尚未配置任何值，也会出现该错误。在 v2.1.207 之前，该值会被替换到 shell 命令中。
 
-措辞取决于哪个界面引用了该选项。shell 形式的 hook 报告：
+消息的措辞取决于引用该选项的组件类型。shell 形式的 hook 会报告：
 
 ```text theme={null}
 Hook from plugin formatter@acme-tools references ${user_config.*} in a shell-form command. The substituted value would be re-parsed by the shell. Use exec form instead — {"command": "<executable>", "args": ["${user_config.KEY}", ...]} — or read $CLAUDE_PLUGIN_OPTION_<KEY> from the hook's environment. Command: ./scripts/notify.sh ${user_config.webhook_url}
 ```
 
-monitor 报告：
+monitor 会报告：
 
 ```text theme={null}
 Monitor "deploy-status" from plugin deploy-tools references ${user_config.*} in its command. The substituted value would be passed to a shell. Monitor commands cannot safely reference ${user_config.*}; have the monitor script read the value from a config file or prompt instead.
 ```
 
-MCP `headersHelper`报告：
+MCP `headersHelper` 会报告：
 
 ```text theme={null}
 headersHelper for MCP server 'internal-api' references ${user_config.*}. The substituted value would be passed to a shell; read the value inside the helper script instead (e.g. from an env var set in the server's "env" block).
 ```
 
-**要做什么：**
+**解决方法：**
 
-* 对于 hook，添加`args`数组使其以[exec 形式](/docs/zh-CN/hooks#exec-form-and-shell-form)运行，其中每个`${user_config.KEY}`成为一个参数，中间没有 shell。或删除引用并读取脚本内的`$CLAUDE_PLUGIN_OPTION_<KEY>`环境变量
-* 对于 monitor，删除引用并让 monitor 脚本从配置文件读取该值
-* 对于`headersHelper`，将`${user_config.KEY}`移到服务器的`headers`字段中，该字段不被 shell 解析，或在 helper 脚本内读取该值
+* 对于 hook，添加一个 `args` 数组，使其以 [exec 形式](/docs/zh-CN/hooks#exec-form-and-shell-form)运行，此时每个 `${user_config.KEY}` 都会成为一个参数，中间不经过 shell。或者删除该引用，改为在脚本中读取 `$CLAUDE_PLUGIN_OPTION_<KEY>` 环境变量
+* 对于 monitor，删除该引用，并让 monitor 脚本从配置文件中读取该值
+* 对于 `headersHelper`，将 `${user_config.KEY}` 移到服务器的 `headers` 字段中（该字段不会经过 shell 解析），或在辅助脚本中读取该值
 
-### 插件存档完整性检查失败
+### Plugin archive integrity check failed
 
-插件的 marketplace 条目使用带有`sha256`引脚的[`archive`源](/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source)，下载文件的摘要与引脚不匹配。Claude Code 拒绝安装，因此插件缓存中没有任何更改。不匹配有三个可能的原因：
+该插件的市场条目使用了带 `sha256` 固定值的 [`archive` 来源](/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source)，而下载文件的摘要与该固定值不匹配。Claude Code 会拒绝安装，因此插件缓存中不会有任何更改。不匹配可能有三个原因：
 
-* 作者计算引脚后 URL 处的文件已更改
-* 作者在 marketplace 条目中输入了错误的摘要
-* URL 提供的文件与作者引脚的文件不同
+* 作者计算固定值之后，URL 上的文件发生了变化
+* 作者在市场条目中输入了错误的摘要
+* 该 URL 提供的文件与作者固定的文件不同
 
 ```text theme={null}
 Plugin archive integrity check failed for https://artifacts.example.com/claude-plugins/my-plugin.zip: expected sha256 6bfa50e3d2e00c052b46abe51fff89346ac803e45771f76dcf6df1ab74cca5e1, got ac52220c0914ef8ca6a602e4a7362f88d30fb021110f72a6d15b68c3fe7df2b7. The archive was not installed. Verify the sha256 in the marketplace entry, or that the URL serves the intended file.
 ```
 
-**要做什么：**
+**解决方法：**
 
-* 如果您发布插件，重新计算 URL 提供的确切文件的摘要，例如使用`shasum -a 256 my-plugin.zip`或在 PowerShell 中使用`Get-FileHash -Algorithm SHA256 my-plugin.zip`，并更新 marketplace 条目中的`sha256`
-* 如果您安装插件，运行`/plugin marketplace update <name>`以刷新目录以防条目已更正，然后重试安装
-* 如果刷新后摘要仍然不一致，请在安装前询问 marketplace 所有者他们引脚的是哪个文件
+* 如果您是该插件的发布者，请重新计算该 URL 所提供的确切文件的摘要，例如使用 `shasum -a 256 my-plugin.zip`，或在 PowerShell 中使用 `Get-FileHash -Algorithm SHA256 my-plugin.zip`，然后更新市场条目中的 `sha256`
+* 如果您是安装该插件的用户，请运行 `/plugin marketplace update <name>` 刷新目录，以防该条目已被更正，然后重试安装
+* 如果刷新后摘要仍不一致，请在安装前询问市场所有者他们固定的是哪个文件
 
-### 路径逃逸插件目录
+### Path escapes plugin directory
 
-插件组件路径在插件的`plugin.json`或其[marketplace 条目](/docs/zh-CN/plugins/marketplace-reference#plugin-entries)中声明，解析到插件自己目录之外。Claude Code 删除该路径并加载插件的其余部分。消息中的组件名称（例如`commands`或`hooks`）命名声明路径的字段。
+插件的某个组件路径指向插件目录之外，或无法确认其位于插件目录之内，因此 Claude Code 会丢弃该路径并加载插件的其余部分。对于插件在 `plugin.json` 或其[市场条目](/docs/zh-CN/plugins/marketplace-reference#plugin-entries)中声明的路径，消息中的组件名称（例如 `commands` 或 `hooks`）指明了声明该路径的字段。
 
 ```text theme={null}
 commands path escapes plugin directory: ./../shared.md
 ```
 
-在`claude plugin`命令输出中，相同的错误读作`Path escapes plugin directory: ./../shared.md (commands)`。
+在 `claude plugin` 命令的输出中，同一错误显示为 `Path escapes plugin directory: ./../shared.md (commands)`。
 
-Claude Code 拒绝指向插件外部的路径（如`../shared-utils`）和导致插件外部的符号链接，[marketplace 符号链接规则](/docs/zh-CN/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks)不允许的符号链接。对于符号链接，消息还说明路径解析的位置：
+Claude Code 既会拒绝按字面写法就指向插件之外的路径（例如 `../shared-utils`），也会拒绝指向插件之外且不在[市场符号链接规则](/docs/zh-CN/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks)允许范围内的符号链接。对于符号链接，消息还会说明该路径解析到的位置：
 
 ```text theme={null}
 commands path escapes plugin directory: ./commands/deploy.md — it resolves to /home/user/shared/deploy.md, outside the plugin directory
 ```
 
-在 macOS 和 Linux 上，Claude Code 也拒绝包含反斜杠的组件路径，即使路径保留在插件内。使用 Windows 风格分隔符的组件路径的插件在 Windows 上加载并在其他平台上触发此拒绝：
+如果消息给出的是市场插件自身某个文件（例如 `hooks/hooks.json`）的完整路径，则表示 Claude Code 跳过了该文件。当 Claude Code 无法确认该文件位于插件之内，或者对于[本地市场](/docs/zh-CN/plugins/loading#in-place-and-copied-plugins)中的插件，无法确认其位于该市场之内时，就会出现这种情况。消息会在以下所示的组件名称下报告这些文件：
+
+* `hooks/hooks.json`：`hooks`
+* `monitors/monitors.json`：`monitors`
+* `settings.json`：`settings`
+* 插件根目录下的 `SKILL.md`：`skills`
+
+例如，以下消息针对的是一个解析到插件及其本地市场之外的 `hooks/hooks.json`：
+
+```text theme={null}
+hooks path escapes plugin directory: /home/user/my-marketplace/my-plugin/hooks/hooks.json — it resolves to /home/user/dotfiles/hooks.json, outside the plugin directory and its marketplace directory
+```
+
+在 macOS 和 Linux 上，Claude Code 还会拒绝任何位置包含反斜杠的组件路径，即使该路径仍在插件之内。组件路径使用 Windows 风格分隔符的插件在 Windows 上可以加载，但在其他平台上会触发此拒绝：
 
 ```text theme={null}
 commands path escapes plugin directory: ./commands\deploy.md — its path contains a backslash, which is not resolved reliably on this platform
 ```
 
-在 v2.1.251 之前，Claude Code 加载在 marketplace 条目中声明的`commands`路径，即使它指向插件目录之外。
+在 v2.1.251 之前，即使市场条目中声明的 `commands` 路径指向插件目录之外，Claude Code 也会加载它。
 
-在 v2.1.257 之前，检查仅查看路径的拼写，而不是符号链接导向的位置。
+在 v2.1.257 之前，对插件所声明路径的检查只看路径的写法，而不看符号链接指向的位置。
 
-**要做什么：**
+**解决方法：**
 
-* 将引用的文件移到插件目录内，并使用`./`相对路径指向它
-* 如果路径是指向插件外部文件的符号链接，用文件副本替换符号链接
-* 如果消息说路径包含反斜杠，用正斜杠写路径，例如`./commands/deploy.md`
-* 要与同一 marketplace 中的其他插件共享文件，使用插件目录内的符号链接链接它们，遵循[符号链接规则](/docs/zh-CN/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks)
+* 如果您只是安装了该插件而不负责维护它，请将该消息报告给插件作者
+* 对于插件声明的路径，请将被引用的文件移到插件目录内，并使用 `./` 相对路径指向它
+* 如果该路径或其在插件内的某个上级文件夹是指向插件之外的符号链接，请用其指向内容的副本替换该符号链接
+* 如果消息指出插件声明的路径包含反斜杠，请使用正斜杠编写该路径，例如 `./commands/deploy.md`
+* 如果消息以 `EACCES` 结尾，请恢复您对通往该路径所指文件或文件夹的每个目录的执行权限。检查该路径上方的各个目录，然后跟随遇到的每个符号链接，并检查通往其指向位置的各个目录。对于任何其他错误代码，请在[无法检查路径的原因和处理步骤](#path-could-not-be-checked)中查找。
+* 如果要与同一市场中的其他插件共享文件，请按照[符号链接规则](/docs/zh-CN/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks)，在插件目录内使用符号链接链接这些文件
 
-### 路径无法检查
+### Plugin not loaded: its manifest was not read
 
-Claude Code 询问操作系统插件路径是否存在，并收到"未找到"以外的错误，因此它不加载路径命名的内容。插件加载多少取决于哪个路径失败：
+Claude Code 无法确认某个市场插件位于 `.claude-plugin/plugin.json` 的[清单](/docs/zh-CN/plugins/manifest-reference)是否在插件之内，因此不会从该插件加载任何内容。对于[本地市场](/docs/zh-CN/plugins/loading#in-place-and-copied-plugins)中的插件，Claude Code 同样无法确认该清单位于该市场之内。该消息出现在 `/plugin` 的 **Errors** 选项卡中，消息末尾的原因说明了 Claude Code 发现的情况。
 
-* 插件的[默认组件位置](/docs/zh-CN/plugins/manifest-reference#standard-layout)之一，例如`skills/`文件夹、`monitors/monitors.json`文件或[插件根目录的`SKILL.md`](/docs/zh-CN/plugins/components#skills)：插件的其他组件仍然加载
-* 插件自己的目录：该插件中没有任何内容加载
+例如，以下消息针对的是本地市场中的一个插件，其 `.claude-plugin` 文件夹是指向市场之外的符号链接：
 
-对于根本不存在的路径，您看不到此错误。在`/plugin`中，错误出现在插件下方，并命名路径和操作系统返回的代码：
+```text theme={null}
+Plugin not loaded: its manifest /home/user/my-marketplace/my-plugin/.claude-plugin/plugin.json was not read, because it resolves to /home/user/dotfiles/my-plugin/.claude-plugin/plugin.json, outside the plugin directory and its marketplace directory
+```
+
+**解决方法：**
+
+* 如果原因以 `EACCES` 结尾，请恢复您对通往该清单的每个目录的执行权限。检查清单上方的各个目录，然后跟随遇到的每个符号链接，并检查通往其指向位置的各个目录。对于任何其他错误代码，请在[无法检查路径的原因和处理步骤](#path-could-not-be-checked)中查找。
+* 如果您是该插件的维护者，且原因中说明了清单解析到的位置，则说明 `.claude-plugin` 文件夹或 `plugin.json` 本身是指向该位置的符号链接。请用其指向内容的副本替换该链接。
+* 如果您只是安装了该插件而不负责维护它，请将该消息报告给插件作者
+
+### Path could not be checked
+
+Claude Code 向操作系统询问某个插件路径是否存在时，收到了“未找到”以外的错误，因此不会加载该路径所指的内容。插件能加载多少取决于哪个路径失败：
+
+* 插件的某个[默认组件位置](/docs/zh-CN/plugins/manifest-reference#standard-layout)，例如 `skills/` 文件夹、`monitors/monitors.json` 文件或[插件根目录下的 `SKILL.md`](/docs/zh-CN/plugins/components#skills)：插件的其他组件仍会加载
+* 插件自身的目录：不会加载该插件的任何内容
+
+对于根本不存在的路径，您不会看到此错误。在 `/plugin` 中，该错误显示在插件下方，并指明路径以及操作系统返回的代码：
 
 ```text theme={null}
 skills path could not be checked: /home/user/my-plugin/skills (ELOOP)
 ```
 
-在`claude plugin list`中，相同的错误读作`Path not found: /home/user/my-plugin/skills (skills, ELOOP)`。
+在 `claude plugin list` 中，同一错误显示为 `Path not found: /home/user/my-plugin/skills (skills, ELOOP)`。
 
 产生此错误的原因包括：
 
-* `ELOOP`：路径中的符号链接指向自己或形成循环
-* `EIO`或`ESTALE`：路径在损坏或陈旧的网络挂载上
-* `EACCES`：路径上方的目录之一拒绝您遍历它的权限
+* `ELOOP`：路径中的某个符号链接指向自身或形成了循环
+* `EIO` 或 `ESTALE`：该路径位于已损坏或已失效的网络挂载上
+* `EACCES`：路径上方的某个目录拒绝了您的遍历权限
 
-**要做什么：**
+**解决方法：**
 
-* 用真实文件夹替换指向自己的符号链接，或删除它
-* 如果路径在网络挂载上，重新挂载共享
-* 如果代码是`EACCES`，恢复您对路径上方目录的执行权限
-* 修复路径后运行`/reload-plugins`，或重启 Claude Code，以加载插件或组件
+* 用真实文件夹替换指向自身的符号链接，或将其删除
+* 如果该路径位于网络挂载上，请重新挂载该共享
+* 如果代码为 `EACCES`，请恢复您对该路径上方各目录的执行权限
+* 修复路径后，运行 `/reload-plugins` 或重启 Claude Code，以加载该插件或组件
 
-在 v2.1.265 之前，Claude Code 将无法检查的默认组件文件夹视为不存在，并加载没有该组件的插件，没有错误。
+在 v2.1.265 之前，Claude Code 会将无法检查的默认组件文件夹视为不存在，并在不报任何错误的情况下加载缺少该组件的插件。
 
-### Marketplace 条目路径不保留在 marketplace 目录内
+### Marketplace entry path does not stay inside the marketplace directory
 
-插件的[marketplace 条目](/docs/zh-CN/plugins/marketplace-reference#plugin-entries)声明了一个源路径，Claude Code 无法将其解析到 marketplace 自己目录内的位置，因此插件不安装或加载。拒绝涵盖：
+插件的[市场条目](/docs/zh-CN/plugins/marketplace-reference#plugin-entries)声明的来源路径，Claude Code 无法将其解析到市场自身目录内的某个位置，因此该插件不会被安装或加载。此拒绝涵盖以下情况：
 
-* 绝对的条目路径、使用`..`爬出 marketplace 的路径或拼写为网络路径的路径
-* 在 macOS 和 Linux 上，在前导`./`之后任何地方包含反斜杠的条目路径
-* 从远程来源（例如 git 或 URL）获取的 marketplace 中的条目，通过解析到 marketplace 目录外的符号链接到达其目标
-* 从直接 URL 添加到其`marketplace.json`的 marketplace 中的相对条目：Claude Code 仅下载该文件，因此不存在本地插件文件供路径命名。请参阅[相对路径的插件在基于 URL 的 marketplace 中失败](/docs/zh-CN/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces)
+* 条目路径为绝对路径、通过 `..` 跳出市场，或写成网络路径的形式
+* 在 macOS 和 Linux 上，条目路径在开头的 `./` 之后的任何位置包含反斜杠
+* 从远程来源（例如 git 或 URL）获取的市场中的条目，通过解析到市场目录之外的符号链接到达其目标
+* 通过指向 `marketplace.json` 的直接 URL 添加的市场中的相对条目：Claude Code 只下载该文件，因此不存在可供该路径指向的本地插件文件。请参阅[在基于 URL 的市场中使用相对路径的插件会失败](/docs/zh-CN/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces)
 
-`claude plugin install`报告拒绝如下：
+`claude plugin install` 会像这样报告此拒绝：
 
 ```text theme={null}
 Cannot install my-plugin@my-marketplace: its marketplace entry path does not stay inside the marketplace directory (an absolute, climbing, network-shaped, backslash-containing or link-traversing entry, an entry of a fetched marketplace that resolves or opens outside its tree — or a relative entry in a url-catalog marketplace, which has no local directory)
 ```
 
-当已安装的插件的条目失败相同的检查时，`claude plugin list`显示插件为`failed to load`，带有：
+当某个已安装插件的条目未通过同一检查时，`claude plugin list` 会将该插件显示为 `failed to load`，并附带：
 
 ```text theme={null}
 Plugin source path refused: ./my-plugin does not stay inside its marketplace directory. Check that the marketplace entry has a plain relative path.
 ```
 
-**要做什么：**
+**解决方法：**
 
-* 如果您维护 marketplace，将条目的`source`写为带正斜杠的纯相对路径，例如`./plugins/my-plugin`，并保持它跨越的任何符号链接指向 marketplace 目录内
-* 如果您从直接 URL 添加了 marketplace，相对条目无法解析。要求 marketplace 作者使用[另一个插件源](/docs/zh-CN/plugins/marketplace-reference#plugin-sources)，或从其 git 存储库添加 marketplace
+* 如果您是该市场的维护者，请将条目的 `source` 写成使用正斜杠的普通相对路径，例如 `./plugins/my-plugin`，并确保其经过的任何符号链接都指向市场目录之内
+* 如果您通过直接 URL 添加了该市场，相对条目将无法解析。请要求市场作者使用[其他插件来源](/docs/zh-CN/plugins/marketplace-reference#plugin-sources)，或改为从其 git 仓库添加该市场
 
-### 无法加载 marketplace 配置
+### Failed to load marketplace configuration
 
-Claude Code 将您添加的插件 marketplace 保存在`~/.claude/plugins/known_marketplaces.json`的注册表文件中。当 Claude Code 无法使用该文件时，需要注册表的插件命令（例如`claude plugin install`）失败，返回两条消息之一：
+Claude Code 将您添加的插件市场保存在位于 `~/.claude/plugins/known_marketplaces.json` 的注册表文件中。当 Claude Code 无法使用该文件时，需要该注册表的插件命令（例如 `claude plugin install`）会失败，并显示以下两条消息之一：
 
-* `Failed to load marketplace configuration`：文件存在但不是有效的 JSON 或无法读取。空文件也会以这种方式失败。
-* `Marketplace configuration file is corrupted`：文件是有效的 JSON，但其内容与注册表架构不匹配。
+* `Failed to load marketplace configuration`：文件存在，但不是有效的 JSON 或无法读取。空文件也会以这种方式失败。
+* `Marketplace configuration file is corrupted`：文件是有效的 JSON，但其内容与注册表 schema 不匹配。
 
-对于空文件，`claude plugin install`报告：
+对于空文件，`claude plugin install` 会报告：
 
 ```text theme={null}
 ✘ Failed to install plugin "my-plugin": Failed to load marketplace configuration: JSON Parse error: Unexpected EOF
 ```
 
-在 v2.1.246 之前，`claude plugin install`没有报告此失败。
+在 v2.1.246 之前，`claude plugin install` 不会报告此失败。
 
-**要做什么：**
+**解决方法：**
 
-* 打开`~/.claude/plugins/known_marketplaces.json`并修复 JSON，或修复消息命名为与注册表架构不匹配的条目
-* 如果您无法修复它，删除文件或用`{}`替换其内容，然后使用`claude plugin marketplace add <source>`重新添加每个 marketplace。Claude Code 在您下次在您信任的文件夹中启动它时重新注册您的用户或托管设置在[`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces)中声明的 marketplace。
+* 打开 `~/.claude/plugins/known_marketplaces.json` 并修复其中的 JSON，或修正消息中指出的与注册表 schema 不匹配的条目
+* 如果无法修复，请删除该文件或将其内容替换为 `{}`，然后使用 `claude plugin marketplace add <source>` 重新添加每个市场。下次您在已信任的文件夹中启动 Claude Code 时，它会重新注册您的用户设置或托管设置在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 中声明的市场。
 
-### 插件由您的组织要求
+### Plugin is required by your organization
 
-您运行了`claude plugin disable`，或使用`/plugin`**Installed**选项卡关闭了从 claude.ai 同步的[插件](/docs/zh-CN/plugins/loading#synced-plugins)，您的组织将其标记为必需：
+您运行了 `claude plugin disable`，或使用 `/plugin` 的 **Installed** 选项卡，尝试关闭一个被您的组织标记为必需的[从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)：
 
 ```text theme={null}
 Plugin "<name>@synced" is required by your organization and can't be disabled here. Contact your admin to change it.
 ```
 
-Claude Code 不保存任何内容，插件保持启用。
+Claude Code 不会保存任何内容，插件保持启用状态。
 
-当您尝试禁用必需插件依赖的插件时，Claude Code 以相同的方式拒绝，消息命名需要它的必需插件。
+当您尝试禁用某个必需插件所依赖的插件时，Claude Code 会以同样的方式拒绝，并在消息中指出需要它的那个必需插件。
 
-**要做什么：**
+**解决方法：**
 
-* 要求您的 claude.ai 组织的管理员在 claude.ai 上更改插件的必需状态
+* 请您的 claude.ai 组织的管理员在 claude.ai 上更改该插件的必需状态
 
-### 插件未卸载
+### Plugin was not uninstalled
 
-您运行了[`claude plugin uninstall`](/docs/zh-CN/plugins/cli-reference#plugin-uninstall)，或在`/plugin`**Installed**选项卡中选择了**Uninstall**，卸载停止，消息开头为`"<plugin>" was not uninstalled:`。如果该冒号后的文本以`installed_plugins.json`开头而不是命名设置文件，原因是`installed_plugins.json`中的内容，此版本的 Claude Code 无法读取。对于该形式，请参阅[`installed_plugins.json`保存此版本无法读取的记录](/docs/zh-CN/plugins/troubleshooting#installed-plugins-json-holds-a-record-this-version-cannot-read)。
+您运行了 [`claude plugin uninstall`](/docs/zh-CN/plugins/cli-reference#plugin-uninstall)，或在 `/plugin` 的 **Installed** 选项卡中选择了 **Uninstall**，而卸载停止并显示一条以 `"<plugin>" was not uninstalled:` 开头的消息。如果冒号后的文本以 `installed_plugins.json` 开头，而不是指出某个设置文件，则原因是 `installed_plugins.json` 中包含当前版本的 Claude Code 无法读取的内容。对于这种形式，请参阅[`installed_plugins.json` 包含当前版本无法读取的记录](/docs/zh-CN/plugins/troubleshooting#installed-plugins-json-holds-a-record-this-version-cannot-read)。
 
-当 Claude Code 从`enabledPlugins`中删除插件的条目并读回该范围的设置文件时，要么插件仍在那里打开，要么可以打开它的文件无法读取或检查。删除插件保存的选项、机密和数据，同时设置条目可以将其打开，会丢失它们，因此卸载停止：插件保持安装，它保存的任何内容都不会被删除。
+Claude Code 从 `enabledPlugins` 中移除插件条目并重新读取该作用域的设置文件时，发现插件在其中仍处于启用状态，或者某个可能启用它的文件无法读取或检查。如果在某个设置条目仍可能重新启用插件的情况下删除插件已保存的选项、密钥和数据，这些内容就会丢失，因此卸载会停止：插件保持已安装状态，其保存的任何内容都不会被删除。
 
 ```text theme={null}
 ✘ Failed to uninstall plugin "formatter": "formatter" was not uninstalled: it is still switched on in /home/user/project/.claude/settings.local.json, although the settings change reported no error. It is still installed. Take it out of "enabledPlugins" in that file yourself, then uninstall it again.
 ```
 
-消息的中间部分命名文件和原因：
+消息的中间部分指出了文件和原因：
 
-* `it is still switched on in <file>, although the settings change reported no error`：设置写报告成功，但读回文件时条目仍在那里
-* `it is still switched on in <file>, and the settings change failed (<error>)`：文件无法保存，原因在括号中
-* `<file> is there and could not be read`：文件存在但无法作为设置读取，例如因为它不是有效的 JSON，所以它可能仍然启用插件
-* `<file> (not read: it is on a network path or is a link to one, or could not be checked)`：Claude Code 没有读取项目或本地设置文件，因为文件或保存它的`.claude`文件夹是指向网络位置的链接，或因为它无法检查该路径
+* `it is still switched on in <file>, although the settings change reported no error`：设置写入报告成功，但重新读取文件时该条目仍然存在
+* `it is still switched on in <file>, and the settings change failed (<error>)`：文件无法保存，原因见括号内
+* `<file> is there and could not be read`：文件存在，但无法作为设置读取，例如因为它不是有效的 JSON，因此它可能仍会启用该插件
+* `<file> (not read: it is on a network path or is a link to one, or could not be checked)`：Claude Code 没有读取项目或本地设置文件，因为该文件或包含它的 `.claude` 文件夹是指向网络位置的链接，或者因为它无法检查该路径
 
-`claude plugin uninstall`退出 1，使用`--json`时结果带有`failureCode: "settings_still_on"`。`/plugin`显示相同的消息。
+`claude plugin uninstall` 以退出码 1 退出，使用 `--json` 时，结果中包含 `failureCode: "settings_still_on"`。`/plugin` 会显示相同的消息。
 
-**要做什么：**
+**解决方法：**
 
-* 遵循消息的最后一句：修复或替换它命名的设置文件，或自己从该文件中的`enabledPlugins`中删除插件的条目，然后再次运行卸载
+* 按照消息最后一句操作：修复或替换其中指出的设置文件，或自行从该文件的 `enabledPlugins` 中移除该插件的条目，然后再次运行卸载
 
 ## 工具错误
 
-这些错误来自 Claude 的工具调用。Claude 通常会自动纠正大多数工具错误。当需要您进行更改时，该错误的**应该做什么**列表会说明需要更改的内容。
+这些错误来自 Claude 的工具调用。大多数工具错误 Claude 会自行纠正。如果某个错误需要您进行更改，该错误的**处理方法**列表会说明需要更改的内容。
 
-### 没有此类工具可用
+### No such tool available
 
-Claude 按名称调用了一个不在会话工具列表中的工具。Claude Code 将该错误作为工具调用的结果返回给 Claude，轮次继续。当 Claude Code 能够判断工具缺失的原因时，它会在工具名称后添加一句话，说明原因或指出应改为调用的工具，如第二行所示：
+Claude 调用的工具名称不在会话的工具列表中。Claude Code 会将该错误作为工具调用的结果返回给 Claude，轮次继续进行。当 Claude Code 能判断工具缺失的原因时，会在工具名称后追加一句话，说明原因或给出应改为调用的工具，如第二行所示：
 
 ```text theme={null}
 Error: No such tool available: <tool name>
@@ -4162,331 +4235,351 @@ Error: No such tool available: read. Tool names are case-sensitive: call Read in
 
 在您恢复会话后不久，当 Claude 调用某个 MCP 服务器的工具时，该服务器可能仍在进行首次连接尝试。此时 Claude Code 会[等待该服务器](/docs/zh-CN/mcp#tool-availability)，如果等待结束时该工具仍不可用，则返回此错误。在 v2.1.284 之前，此类调用会立即失败，而不会等待。
 
-工具名称被 Claude Code [截断为 200 个字符](#tool-use-name-over-200-characters)的调用也会以此错误失败。
+工具名称被 Claude Code [截断为 200 个字符](#tool-use-name-over-200-characters)的调用也会因此错误而失败。
 
-**应该做什么：**
+**处理方法：**
 
-* 如果只出现一次，无需执行任何操作。Claude 会读取该错误，轮次继续。
-* 如果对某个 MCP 服务器工具的调用持续以此错误失败，请在会话中运行 `/mcp` 或在 shell 中运行 `claude mcp list` 来检查该服务器的[状态](/docs/zh-CN/mcp#server-status)，并从 `/mcp` 重新连接失败的服务器。在 Agent SDK 中，请参阅[错误处理](/docs/zh-CN/agent-sdk/mcp#error-handling)。
+* 如果只出现一次，无需任何操作。Claude 会读取该错误，轮次继续进行。
+* 如果对某个 MCP 服务器工具的调用持续因此错误失败，请在会话中运行 `/mcp`，或在 shell 中运行 `claude mcp list` 来检查该服务器的[状态](/docs/zh-CN/mcp#server-status)，并从 `/mcp` 中重新连接失败的服务器。在 Agent SDK 中，请参阅[错误处理](/docs/zh-CN/agent-sdk/mcp#error-handling)。
 
-### Agent 将以零个工具生成
+### Agent would be spawned with zero tools
 
-子代理的 [`tools` 列表](/docs/zh-CN/sub-agents#supported-frontmatter-fields)中的每个条目都无法匹配可用工具，因此 Claude Code 拒绝启动子代理：没有工具，它无法行动。该消息按出错原因对您的条目进行分组：
+子代理 [`tools` 列表](/docs/zh-CN/sub-agents#supported-frontmatter-fields)中的每个条目都未能匹配到可用工具，因此 Claude Code 拒绝启动该子代理：没有任何工具，它无法执行操作。该消息按问题类型对您的条目进行分组：
 
-* **无法识别**：该条目与任何工具名称都不匹配，通常是拼写错误，例如 `Grpe` 代替 `Grep`。
-* **子代理不可用**：该条目命名了一个真实工具，但[子代理无法使用](/docs/zh-CN/sub-agents#available-tools)。后台子代理保持较小的内置工具集，因此当子代理在后台运行时（这是默认设置），只有前台子代理才能使用的条目会出现在这里。如果您列出 `Agent`，该消息会改为在下一组中报告它。
-* **在此会话中未匹配任何工具**：该条目有效，但当前会话中没有工具与其匹配，例如没有连接 GitHub MCP 服务器的 `mcp__github__*`，或子代理处于[深度限制](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)的 `Agent`。
+* **Unrecognized**：该条目不匹配任何工具名称，通常是拼写错误，例如将 `Grep` 写成 `Grpe`。
+* **Not available to subagents**：该条目指定的是一个真实存在但[子代理无法使用](/docs/zh-CN/sub-agents#available-tools)的工具。后台子代理保留的内置工具集较小，因此当子代理将在后台运行（这是默认行为）时，只有前台子代理才能使用的条目会归入此组。如果您列出了 `Agent`，消息会将其归入下一组。
+* **Matched no tools in this session**：该条目有效，但当前会话中目前没有与之匹配的工具，例如未连接 GitHub MCP 服务器时的 `mcp__github__*`，或处于[深度限制](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)的子代理的 `Agent`。
 
-省略 `tools` 字段永远不会触发此拒绝。如果您将 `tools` 列表留空，或 `disallowedTools` 删除其中的每个条目，Claude Code 也会跳过拒绝并启动没有工具的子代理。
+省略 `tools` 字段永远不会触发此拒绝。如果您将 `tools` 列表留空，或 `disallowedTools` 移除了其中的每个条目，Claude Code 同样会跳过拒绝，并在没有工具的情况下启动子代理。
 
-在 v2.1.208 之前，子代理以零个工具启动，可能返回空结果或令人困惑的结果。
+在 v2.1.208 之前，子代理会在没有工具的情况下启动，并可能返回空的或令人困惑的结果。
 
 ```text theme={null}
 Agent 'code-reviewer' would be spawned with zero tools — refusing. Its tools list resolved to nothing: unrecognized [Grpe]. Fix the agent's tools frontmatter or pass a different subagent_type.
 ```
 
-**应该做什么：**
+**处理方法：**
 
-* 根据[子代理可用的工具](/docs/zh-CN/sub-agents#available-tools)纠正错误命名的每个条目
-* 删除会话没有的工具条目，例如来自未连接的服务器的 MCP 工具
-* 如果该条目指向一个已连接的 MCP 服务器，请将该条目与该服务器的名称进行比较，以该服务器[工具名称](/docs/zh-CN/permissions#mcp)中的拼写为准，例如 `mcp__reports__v2__get_totals` 中的 `reports__v2`。对于该服务器，请写 `mcp__reports__v2__*`，即 `mcp__` 后跟完整名称和 `__*`。如果使用较短的 `mcp__reports`（它指向名为 `reports` 的服务器），子代理将得不到任何 `reports__v2` 工具
-* 对于[后台子代理删除](/docs/zh-CN/sub-agents#available-tools)的工具（例如 `CronCreate`），删除该条目
-* 如果想改为保留 `CronCreate` 之类的工具，请[让 Claude 等待子代理](/docs/zh-CN/sub-agents#let-claude-wait-for-a-subagent)，因为 Claude 等待的子代理会在前台运行并保留该工具。如果定义中设置了 `background: true`，请先删除该字段，因为它会使子代理保持在后台
-* 删除 `tools` 字段而不是列出工具，以给子代理每个[子代理可用的工具](/docs/zh-CN/sub-agents#available-tools)
-* 对于仅包含 `Agent` 的 `tools` 列表，提高[深度限制](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)或给该 Agent 至少一个其他工具：Claude Code 在该限制处保留 `Agent`，因此列表中没有其他内容会解析为零个工具
+* 对照[子代理可用的工具](/docs/zh-CN/sub-agents#available-tools)更正错误中指出的每个条目
+* 移除会话中不存在的工具条目，例如来自未连接服务器的 MCP 工具
+* 如果条目指定的是已连接的 MCP 服务器，请将该条目与该服务器[工具名称](/docs/zh-CN/permissions#mcp)中拼写的服务器名称进行比较，例如 `mcp__reports__v2__get_totals` 中的 `reports__v2`。对于该服务器，请写成 `mcp__reports__v2__*`，即 `mcp__` 后接完整名称和 `__*`。如果使用较短的 `mcp__reports`（它指定的是名为 `reports` 的服务器），子代理将得不到任何 `reports__v2` 工具
+* 对于[后台子代理会丢弃](/docs/zh-CN/sub-agents#available-tools)的工具（例如 `CronCreate`），请移除该条目
+* 如果要保留 `CronCreate` 之类的工具，请[让 Claude 等待该子代理](/docs/zh-CN/sub-agents#let-claude-wait-for-a-subagent)，因为 Claude 等待的子代理会在前台运行并保留该工具。如果定义中设置了 `background: true`，请先移除该字段，因为它会让子代理保持在后台运行
+* 删除 `tools` 字段而不是列出工具，即可让子代理获得所有[子代理可用的工具](/docs/zh-CN/sub-agents#available-tools)
+* 对于只包含 `Agent` 的 `tools` 列表，请提高[深度限制](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)，或为该 Agent 至少提供一个其他工具：达到该限制时 Claude Code 不会提供 `Agent`，因此不含其他任何内容的列表将解析为没有工具
 
-### 文件被 Read 拒绝规则覆盖
+### File is covered by a Read deny rule
 
-Edit 或 Write 工具在与 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)匹配的路径上被调用，包括在该路径创建新文件。两个工具都会更改 Claude 必须能够读回的内容，因此 Claude Code 在任何文件访问之前拒绝该调用。NotebookEdit 不受 `Read` 拒绝规则覆盖。在 v2.1.228 之前，该规则仅阻止 Edit 工具，在 v2.1.208 之前，仅 `Edit` 拒绝规则阻止编辑。
+Edit 或 Write 工具被调用于一个匹配 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)的路径，包括在该路径下创建新文件。这两个工具都会更改 Claude 必须能够回读的内容，因此 Claude Code 会在访问任何文件之前拒绝该调用。NotebookEdit 不受 `Read` 拒绝规则约束。在 v2.1.228 之前，该规则只阻止 Edit 工具；在 v2.1.208 之前，只有 `Edit` 拒绝规则会阻止编辑。
 
 ```text theme={null}
 File is covered by a Read deny rule in your permission settings and cannot be edited.
 ```
 
-当 Claude Code 拒绝 Write 工具时，消息以 `and cannot be written` 结尾。
+当 Claude Code 拒绝 Write 工具时，消息的结尾改为 `and cannot be written`。
 
-**应该做什么：**
+**处理方法：**
 
-* 如果 Claude 应该能够更改文件，请在 `/permissions` 或[设置](/docs/zh-CN/settings-reference#permission-settings)中删除或缩小 `Read` 拒绝规则
-* 如果文件必须保持不变，请保留该规则并为相同路径添加 `Edit` 拒绝规则以同时阻止 NotebookEdit 工具
+* 如果 Claude 应该能够更改该文件，请在 `/permissions` 或[设置](/docs/zh-CN/settings-reference#permission-settings)中移除或缩小该 `Read` 拒绝规则
+* 如果该文件必须保持不变，请保留该规则，并为同一路径添加 `Edit` 拒绝规则，以同时阻止 NotebookEdit 工具
 
-### 路径不能包含空字节
+### Path cannot contain null bytes
 
-文件工具调用的路径或模式参数包含空字节，文件系统和搜索工具无法接受。Read、Write、Edit、NotebookEdit、Glob 和 Grep 检查此项，消息命名工具和参数：
+文件工具调用的路径或模式参数包含空字节，而文件系统和搜索工具无法接受空字节。Read、Write、Edit、NotebookEdit、Glob 和 Grep 会检查这一点，消息会指出工具和参数：
 
 ```text theme={null}
 Read file_path cannot contain null bytes (\0). Remove the null byte and try again.
 ```
 
-工具调用失败，Claude 看到错误，轮次继续。
+该工具调用失败，Claude 会看到该错误，轮次继续进行。
 
-**应该做什么：**
+**处理方法：**
 
-* 您这边不需要做任何事：错误作为工具的结果返回给 Claude，消息本身告诉 Claude 删除空字节并重试
+* 您无需任何操作：该错误会作为工具结果返回给 Claude，且消息本身会告诉 Claude 移除空字节后重试
 
-在 v2.1.281 之前，Read、Write、Edit 或 NotebookEdit 路径中的空字节会以命名 `Path contains null bytes` 的错误结束整个轮次，工具从不运行。
+在 v2.1.281 之前，Read、Write、Edit 或 NotebookEdit 路径中的空字节会以指出 `Path contains null bytes` 的错误结束整个轮次，且工具根本不会运行。
 
-### subagent\_type 是必需的
+### File is too large to read as an image
+
+Claude 尝试使用 [Read 工具](/docs/zh-CN/tools-reference#read-tool-behavior)将文件作为图像读取，但该文件大于 128 MB，这是 Read 从图像文件加载的上限。未读取任何内容，Claude 会收到以下错误作为工具结果：
+
+```text wrap theme={null}
+File is too large to read as an image (the limit is 128MB): <path>. If it is an image, resize it or export a smaller copy, then read that.
+```
+
+当路径是管道或设备而非常规文件时，Read 会在接收到超过 128 MB 后停止，并返回以下错误：
+
+```text wrap theme={null}
+Cannot read this as an image: <path> is a pipe or a device, not a regular file, and it sent more than 128MB without ending.
+```
+
+**处理方法：**
+
+* 如果 Claude 按照 `File is too large` 消息继续调整了图像大小或读取了较小的副本，则无需任何操作
+* 如果 Claude 在该错误处停止，请自行导出一个小于 128 MB 的副本（例如降低分辨率），并让 Claude 读取该文件
+* 如果路径是管道或设备，请改为让 Claude 读取常规图像文件
+
+### subagent\_type is required
 
 ```text theme={null}
 subagent_type is required: the general-purpose agent is not available in this session. Available agents: ...
 ```
 
-Claude 调用了 [Agent 工具](/docs/zh-CN/tools-reference#agent-tool-behavior)而没有 `subagent_type`，此会话没有[通用子代理](/docs/zh-CN/sub-agents#built-in-subagents)可回退。这种情况出现在两种设置中：
+Claude 调用 [Agent 工具](/docs/zh-CN/tools-reference#agent-tool-behavior)时未提供 `subagent_type`，而此会话中没有可供回退的[通用子代理](/docs/zh-CN/sub-agents#built-in-subagents)。这种情况出现在以下两种配置中：
 
-* [`CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1`](/docs/zh-CN/env-vars)在非交互模式下设置，这会删除每个内置子代理
-* 会话的主线程 Agent 有一个 [`tools: Agent(...)` 允许列表](/docs/zh-CN/sub-agents#restrict-which-subagents-can-be-spawned)，其中不包括 `general-purpose`
+* 在非交互模式下设置了 [`CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1`](/docs/zh-CN/env-vars)，这会移除所有内置子代理
+* 会话的主线程 Agent 具有一个不包含 `general-purpose` 的 [`tools: Agent(...)` 允许列表](/docs/zh-CN/sub-agents#restrict-which-subagents-can-be-spawned)
 
-**应该做什么：**
+**处理方法：**
 
-* 通常不需要做任何事：该消息列出了会话确实拥有的子代理，因此 Claude 可以使用其中一个重试
-* 如果 Claude 继续失败，请将 `general-purpose` 添加到 `tools: Agent(...)` 允许列表，或取消设置 `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS`
+* 通常无需任何操作：消息会列出会话中实际可用的子代理，因此 Claude 可以使用其中之一重试
+* 如果 Claude 持续失败，请将 `general-purpose` 添加到 `tools: Agent(...)` 允许列表中，或取消设置 `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS`
 
-在 v2.1.235 之前，相同的调用失败并显示 `Agent type 'general-purpose' not found`。
+在 v2.1.235 之前，相同的调用会以 `Agent type 'general-purpose' not found` 失败。
 
-### 记忆索引超过其读取限制
+### Memory index is over its read limit
 
-Claude 写入了[自动记忆](/docs/zh-CN/memory#auto-memory)索引 `MEMORY.md`，并使其超过了读取限制之一：200 行或 25KB。写入成功，但会话开始时仅加载前 200 行或 25KB（以先到者为准），因此每次读取索引时，超过限制的所有内容都会被丢弃。在 v2.1.210 之前，超限索引在下次加载时被静默截断，没有写入时信号。
+Claude 写入了[自动记忆](/docs/zh-CN/memory#auto-memory)索引 `MEMORY.md`，导致其超出了某项读取限制：200 行或 25KB。写入已成功，但会话开始时只会加载前 200 行或前 25KB（以先达到者为准），因此每次读取索引时，超出限制的所有内容都会被丢弃。在 v2.1.210 之前，超出限制的索引会在下次加载时被静默截断，写入时不会发出任何提示。
 
 ```text theme={null}
 Error: this write left the memory index at MEMORY.md at 214 lines, over its 200-line read limit. The write succeeded, but everything past the limit is silently dropped each time the index is loaded — entries at the end are already invisible to readers. Rewrite it to under 140 lines now: keep one line per entry, move detail into topic files, and merge or drop stale entries.
 ```
 
-仅加载的内容计入限制。YAML frontmatter 和块级 HTML 注释在加载索引前被删除，因此它们被排除在测量之外。在 v2.1.211 之前，Claude Code 测量原始文件，frontmatter 或注释即使在加载的内容符合时也可能触发此错误。
+只有会被加载的内容才计入限制。YAML frontmatter 和块级 HTML 注释会在加载索引之前被剥离，因此不计入测量。在 v2.1.211 之前，Claude Code 测量的是原始文件，即使加载的内容在限制之内，frontmatter 或注释也可能触发此错误。
 
-Claude Code 在写入后将错误传递给 Claude，而不是在您的终端中打印为横幅，因此您可能仅在会话记录中注意到它。
+Claude Code 会在写入后将该错误传递给 Claude，而不是在您的终端中以横幅形式显示，因此您可能只会在会话记录中注意到它。
 
-当 Claude 的写入使文件接近限制但未超过时，Claude Code 返回更温和的提醒以压缩索引，而不是此错误。
+当 Claude 的写入使文件接近但未超过限制时，Claude Code 会返回一条较温和的提醒，要求压缩索引，而不是此错误。
 
-**应该做什么：**
+**处理方法：**
 
-* 让 Claude 重写 `MEMORY.md`，或要求它：每个条目保留一行，将详细信息移到主题文件中，并合并或删除过时条目
-* 要自己修剪索引，请参阅[审计和编辑您的记忆](/docs/zh-CN/memory#audit-and-edit-your-memory)
+* 让 Claude 重写 `MEMORY.md`，或要求它这样做：每个条目保留一行，将详细内容移到主题文件中，并合并或删除过时的条目
+* 如需自行精简索引，请参阅[审核和编辑您的记忆](/docs/zh-CN/memory#audit-and-edit-your-memory)
 
-### pkill 模式匹配 Claude Code 进程
+### pkill pattern matches the Claude Code process
 
-Bash 工具调用中的 `pkill` 命令使用了一个模式（通常带有 `-f`），该模式与 Claude Code 进程本身匹配，因此 Claude Code 拒绝该命令而不是让它结束会话。Claude Code 在运行 `pkill` 之前使用 `pgrep` 测试该模式，并在其自己的进程 ID 在结果中时拒绝。该检查仅在 Linux 上运行；在 macOS 上，`pkill` 不经修改地运行。在 v2.1.214 之前，该命令运行，匹配的模式在轮次中途杀死了 Claude Code 会话。
+Bash 工具调用中的 `pkill` 命令使用了一个匹配 Claude Code 进程自身的模式（通常带有 `-f`），因此 Claude Code 拒绝执行该命令，而不是让它结束会话。Claude Code 会在运行 `pkill` 之前使用 `pgrep` 测试该模式，如果结果中包含其自身的进程 ID，则拒绝执行。此检查仅在 Linux 上运行；在 macOS 上，`pkill` 会原样运行。在 v2.1.214 之前，该命令会运行，匹配的模式会在轮次进行中终止 Claude Code 会话。
 
 ```text theme={null}
 pkill: refusing to run — this pattern matches the Claude CLI process (PID 12345). Narrow the pattern, or target your own children with `pkill -P $$ ...`.
 ```
 
-拒绝出现在 Bash 工具结果中，而不是作为您终端中的横幅，Claude 通常会自动调整该命令。
+该拒绝会出现在 Bash 工具结果中，而不是在您的终端中以横幅形式显示，Claude 通常会自行调整命令。
 
-**应该做什么：**
+**处理方法：**
 
-* 缩小模式，使其仅匹配预期的进程，例如目标二进制文件的完整路径而不是短子字符串
-* 要停止由当前 shell 启动的进程，请使用 `pkill -P $$` 和该模式，这将匹配限制为 shell 自己的子进程
+* 缩小模式范围，使其仅匹配目标进程，例如使用目标二进制文件的完整路径，而不是较短的子字符串
+* 如需停止当前 shell 启动的进程，请将 `pkill -P $$` 与模式一起使用，这会将匹配范围限制在该 shell 自身的子进程内
 
-### 无法写入队友的收件箱
+### Failed to write to a teammate's inbox
 
-Claude Code 无法将消息写入 `~/.claude/teams/{team-name}/inboxes/` 下的队友邮箱文件，因此收件人没有收到任何内容。当 Claude Code 无法创建或更新文件时写入失败，例如因为磁盘已满、目录不可写或另一个 Agent 长时间持有收件箱锁。在 v2.1.224 之前，Claude Code 即使在写入失败时也报告消息已发送。
+Claude Code 无法将消息写入 `~/.claude/teams/{team-name}/inboxes/` 下队友的邮箱文件，因此接收方什么也没收到。当 Claude Code 无法创建或更新该文件时，写入就会失败，例如磁盘已满、目录不可写，或其他 Agent 持有收件箱锁的时间过长。在 v2.1.224 之前，即使写入失败，Claude Code 也会报告消息已发送。
 
-该错误出现在发送方 Agent 的工具结果中，而不是作为您终端中的横幅，其文本告诉 Claude 重试：
+该错误会出现在发送方 Agent 的工具结果中，而不是在您的终端中以横幅形式显示，其文本会告诉 Claude 重试：
 
 ```text theme={null}
 Failed to write to researcher's inbox — nothing was sent. Try again, or message the lead.
 ```
 
-结构化 [agent team](/docs/zh-CN/agent-teams) 协议消息以相同方式失败，错误命名未送达的消息：当 Claude Code 无法写入计划批准、计划拒绝、关闭请求或关闭拒绝时，错误读取 `Failed to write the <message> to <name>'s inbox — nothing was sent`。该列表中的 `plan approval` 是领导批准队友计划的决定；队友的计划提交是单独的 `plan approval request` 消息。该消息和另外两个协议消息携带自己的消息文本和后果：
+结构化的 [agent team](/docs/zh-CN/agent-teams) 协议消息也会以同样的方式失败，错误会指出未送达的消息：当 Claude Code 无法写入计划批准、计划拒绝、关闭请求或关闭拒绝时，错误内容为 `Failed to write the <message> to <name>'s inbox — nothing was sent`。该列表中的 `plan approval` 是负责人批准队友计划的决定；队友提交计划则是单独的 `plan approval request` 消息。该消息以及另外两条协议消息有各自的消息文本和后果：
 
-* `Failed to write the plan approval request to the lead's inbox — plan not submitted; try again`：队友的计划从未到达领导，队友保持计划模式直到重新提交成功
-* `The permission request could not be delivered to the team lead (mailbox write failed)`：队友的权限请求从未到达领导，因此没有人批准工具调用
-* `The confirmation could not be written to team-lead's inbox.`：关闭批准本身生效，队友退出；仅缺少对领导的确认
+* `Failed to write the plan approval request to the lead's inbox — plan not submitted; try again`：队友的计划从未送达负责人，队友会一直处于计划模式，直到重新提交成功
+* `The permission request could not be delivered to the team lead (mailbox write failed)`：队友的权限请求从未送达负责人，因此没有人批准该工具调用
+* `The confirmation could not be written to team-lead's inbox.`：关闭批准本身已生效，队友会退出；只是发给负责人的确认缺失
 
-当您自己给队友发消息时，在领导会话中输入 `@name` 后跟消息，相同的失败显示为通知 `Couldn't write to @name's inbox — message not sent. Try again.`，Claude Code 将您的文本保留在输入框中，以便您可以再次发送。
+当您自己在负责人会话中输入 `@name` 并在其后输入消息来给队友发消息时，同样的失败会以通知形式出现：`Couldn't write to @name's inbox — message not sent. Try again.`，并且 Claude Code 会将您的文本保留在输入框中，以便您再次发送。
 
-**应该做什么：**
+**处理方法：**
 
-* 要求发送者重新发送消息；收件箱锁的争用是暂时的，重试时会清除
+* 请发送方重新发送消息；收件箱锁的争用是暂时的，重试即可解决
 * 检查可用磁盘空间，并检查 `~/.claude/teams` 及其下的文件是否可由您的用户写入
 
-### 队友的 Agent 定义未被恢复
+### Teammate's agent definition was not restored
 
-Claude 给已停止的 [agent team](/docs/zh-CN/agent-teams) 队友发消息，Claude Code 将其恢复，但没有重新应用它生成时所依据的[子代理定义](/docs/zh-CN/agent-teams#use-subagent-definitions-for-teammates)。该通知跟随发送方 Agent 的工具结果中的恢复报告，并说明原因。当定义文件来自没有保存信任的文件夹时，内容如下：
+Claude 给一个已停止的 [agent team](/docs/zh-CN/agent-teams) 队友发送了消息，Claude Code 将其恢复，但没有重新应用该队友生成时所依据的[子代理定义](/docs/zh-CN/agent-teams#use-subagent-definitions-for-teammates)。该通知紧跟在发送方 Agent 工具结果中的恢复报告之后，并说明原因。当定义文件来自一个没有已保存信任的文件夹时，内容如下：
 
 ```text wrap theme={null}
 Its agent definition was not restored: the folder its definition file came from is not trusted (source: projectSettings), so the teammate is running with the team-essential tools and no custom instructions. To restore it, the user needs to run Claude Code in that folder once and accept the trust dialog (the --debug log names the folder); do not change trust settings on the user's behalf.
 ```
 
-该检查适用于项目的 `.claude/agents/` 目录或 `--add-dir` 目录中的定义，接受父文件夹的信任对话框并不能满足它。
+此检查适用于项目或 `--add-dir` 目录的 `.claude/agents/` 目录中的定义，对父文件夹接受信任对话框并不能满足此检查。
 
-**应该做什么：**
+**处理方法：**
 
-* 在[调试日志](/docs/zh-CN/debug-your-config)命名的文件夹中运行 `claude` 并接受信任对话框。下次 Claude Code 恢复队友时重新应用定义；您不需要重启领导会话
-* 或在 `~/.claude.json` 中将 `hasTrustDialogAccepted` 条目设置为 `true`，使用调试日志打印的确切 `projects["<path>"]` 键
+* 在[调试日志](/docs/zh-CN/debug-your-config)指出的文件夹中运行 `claude` 并接受信任对话框。下次 Claude Code 恢复该队友时会重新应用该定义；您无需重新启动负责人会话
+* 或者在 `~/.claude.json` 中将 `hasTrustDialogAccepted` 条目设置为 `true`，使用调试日志打印的确切 `projects["<path>"]` 键
 
-### 跨会话传递消息过大
+### Message too large for cross-session delivery
 
-Claude 发往此机器上您的另一个会话的[跨会话消息](/docs/zh-CN/cross-session-messaging)太长而无法发送。Claude Code 拒绝了它，接收会话什么都没有收到。拒绝出现在发送会话的工具结果中，而不是作为您终端中的横幅。它命名两个大小以及如何使消息符合：
+Claude 发给您在这台机器上另一个会话的[跨会话消息](/docs/zh-CN/cross-session-messaging)太长，无法发送。Claude Code 拒绝了它，接收会话什么也没收到。该拒绝出现在发送会话的工具结果中，而不是在您的终端中以横幅形式显示。它会给出两个大小，以及如何让消息符合限制：
 
 ```text wrap theme={null}
 Failed to send to api-worker: Message too large for cross-session delivery: the serialized message is 1,203,844 characters and the limit is 1,048,576. Shorten the message text — put bulk content in a file the recipient can read rather than in the message — or split it into smaller messages.
 ```
 
-重新发送相同的文本以相同方式失败。
+重新发送相同的文本也会以同样的方式失败。
 
-**应该做什么：**
+**处理方法：**
 
-* 要求 Claude 总结消息，或将大量内容放入文件并发送该文件的路径
-* 要求 Claude 将内容分成几条较短的消息
+* 请 Claude 总结该消息，或将大量内容放入文件中并发送该文件的路径
+* 请 Claude 将内容拆分为多条较短的消息
 
-在 v2.1.235 之前，Claude Code 报告超大消息已发送。接收会话未读地丢弃了它。
+在 v2.1.235 之前，Claude Code 会将过大的消息报告为已发送。接收会话会将其丢弃而不读取。
 
-### 此会话刚刚收到太多消息
+### Too many messages to this session just now
 
-Claude 向此机器上您的一个会话快速连续发送了大量[跨会话消息](/docs/zh-CN/cross-session-messaging)，达到了该会话收件箱所能接受的上限。Claude Code 拒绝了下一次发送，接收会话什么都没有收到。拒绝出现在发送会话的工具结果中，而不是作为您终端中的横幅：
+Claude 向您在这台机器上的某个会话快速连续发送了大量[跨会话消息](/docs/zh-CN/cross-session-messaging)，达到了该会话收件箱的接收上限。Claude Code 拒绝了下一次发送，接收会话没有收到该消息。该拒绝出现在发送会话的工具结果中，而不是在您的终端中以横幅形式显示：
 
 ```text wrap theme={null}
 Failed to send to api-worker: Too many messages to this session just now: 30 were sent recently and more would be dropped by its rate limit, so this one was not sent. Batch what remains into one message, or wait a little before sending more.
 ```
 
-**应该做什么：**
+**处理方法：**
 
-* 通常不需要做任何事：Claude 将剩余内容批处理为一条消息，或在发送更多内容前等待
-* 如果是您自己的提示词引发了这次突发，请要求 Claude 将剩余内容合并为单条消息
+* 通常无需任何操作：Claude 会将剩余内容合并为一条消息，或等待一段时间后再发送
+* 如果是您自己的提示词引发了这批发送，请让 Claude 将剩余内容合并为一条消息
 
-在 v2.1.236 之前，Claude Code 报告这些消息已发送。接收会话未读地丢弃了它们。
+在 v2.1.236 之前，Claude Code 会将这些发送报告为已发送。接收会话会将其丢弃而不读取。
 
-### 跨会话消息在收件人会话的收件箱处被丢弃
+### Cross-session message was dropped at the recipient session's inbox
 
-Claude 发送了[跨会话消息](/docs/zh-CN/cross-session-messaging)到此机器上您的另一个会话，该会话的收件箱在该会话中的 Claude 读取之前丢弃了它。该行命名收件人的地址，当收件人给出原因时，在破折号后添加原因：
+Claude 向您在这台机器上的另一个会话发送了一条[跨会话消息](/docs/zh-CN/cross-session-messaging)，而该会话的收件箱在该会话中的 Claude 读取之前将其丢弃了。该行会指出接收方，如果接收方给出了原因，还会在破折号后附上原因：
 
 ```text wrap theme={null}
 Cross-session message was dropped at the recipient session's inbox (recipient: uds:/tmp/cc-socks/13605.sock) and not delivered — its queue of undelivered peer messages was full. Claude was told not to resend right away.
 ```
 
-一行可以覆盖多条丢弃的消息。然后它以复数形式开始，例如 `Cross-session messages (12) were dropped`。要找到地址属于哪个会话，请将其与 `/status` 在每个会话中显示的 [`Peer address` 行](/docs/zh-CN/cross-session-messaging#the-sessions-inbox-socket)进行比较。
+一行可以涵盖多条被丢弃的消息，此时会以复数形式开头，例如 `Cross-session messages (12) were dropped`。如需查找某个地址属于哪个会话，请将其与每个会话中 `/status` 显示的 [`Peer address` 行](/docs/zh-CN/cross-session-messaging#the-sessions-inbox-socket)进行比较。
 
-在破折号后，该行给出以下一个或多个原因：
+破折号之后，该行会给出以下一个或多个原因：
 
-* `its queue of undelivered peer messages was full`：收件人持有的来自其他会话的未送达消息已达到其队列允许的上限
-* `you sent faster than that session accepts`：发送会话的消息到达速度比收件人从一个发送者接受的速度快
-* `it repeated your previous message`：该消息与发送会话不久前发送给该收件人的消息相同
-* `a relay loop between sessions was cut`：该消息延续了会话之间相互发送消息的链，且该链经过收件人的次数过多或增长过长
+* `its queue of undelivered peer messages was full`：接收方已持有其队列所允许的最大数量的来自其他会话的未送达消息
+* `you sent faster than that session accepts`：发送会话的消息到达速度超过了接收方对单个发送方的接收速度
+* `it repeated your previous message`：该消息与发送会话不久前发给此接收方的某条消息完全相同
+* `a relay loop between sessions was cut`：该消息延续了一条会话之间相互发送消息的链条，而该链条经过接收方的次数过多或变得过长
 
-**应该做什么：**
+**处理方法：**
 
-* 假设收件人从未看到丢弃的消息。Claude Code 也会这样告诉 Claude，并告诉它在稍后的一条消息中包含仍然重要的任何内容，而不是立即重新发送
-* 如果您的会话相互发送频繁更新，请要求 Claude 发送更少、更大的消息，例如在会话完成其工作时发送一份报告
-* 对于 `a relay loop between sessions was cut`，请在其中一个会话中自己输入下一条指令。Claude 为响应您自己的提示词而发送的消息会开始一条新链
+* 假定接收方从未看到被丢弃的消息。Claude Code 也会告诉 Claude 这一点，并告诉它将仍然重要的内容包含在之后的一条消息中，而不是立即重新发送
+* 如果您的会话之间频繁互发更新，请让 Claude 发送更少、更大的消息，例如在会话完成工作时发送一份报告
+* 对于 `a relay loop between sessions was cut`，请自己在其中一个会话中输入下一条指令。Claude 响应您自己的提示词而发送的消息会开始一条新的链条
 
-在 v2.1.238 之前，当收件人的收件箱丢弃消息时，发送会话没有收到报告。
+在 v2.1.238 之前，当接收方的收件箱丢弃消息时，发送会话不会收到任何报告。
 
-### 拒绝发送跨会话消息
+### Refusing to send a cross-session message
 
-在 Claude Code 将[跨会话消息](/docs/zh-CN/cross-session-messaging)写入此机器上您的另一个会话之前，它检查目标会话的收件箱套接字是否为消息寻址到的端点。当检查失败时，Claude Code 在发送会话中拒绝发送，目标会话什么都没有收到。对于 Claude 发送的消息，拒绝出现在发送会话的工具结果中：
+在 Claude Code 将[跨会话消息](/docs/zh-CN/cross-session-messaging)写入您在这台机器上的另一个会话之前，它会检查目标会话的收件箱套接字是否就是该消息所寻址的端点。如果检查失败，Claude Code 会在发送会话中拒绝发送，目标会话什么也不会收到。对于 Claude 发送的消息，该拒绝会出现在发送会话的工具结果中：
 
 ```text theme={null}
 Failed to send to api-worker: Refusing to send: reply target is a symlink
 ```
 
-`Refusing to send:` 后的文本命名失败的检查：
+`Refusing to send:` 后面的文本指出了失败的检查：
 
-* `reply target is a symlink`：符号链接位于目标会话的套接字路径。Claude Code 不通过它传递，因为那里的链接可能会将消息重定向到目标会话未创建的端点。
-* `cannot vet reply target`：Claude Code 根本无法检查目标路径，例如因为读取失败并出现权限错误。
+* `reply target is a symlink`：目标会话的套接字路径上有一个符号链接。Claude Code 不会通过它投递，因为该位置的链接可能会将消息重定向到目标会话未创建的端点。
+* `cannot vet reply target`：Claude Code 根本无法检查目标路径，例如因为读取时出现权限错误。
 
-**应该做什么：**
+**处理方法：**
 
-* 通常不需要做任何事：这些检查防止消息到达其寻址会话之外的端点，且没有发送任何内容
-* 如果 `reply target is a symlink` 对某个会话重复出现，请检查是什么在该会话的套接字路径处创建了链接，该路径显示在其 `/status` 的 `Peer address` 下
+* 通常无需任何操作：这些检查可防止消息到达其寻址会话以外的端点，且没有发送任何内容
+* 如果某个会话反复出现 `reply target is a symlink`，请检查是什么在该会话的套接字路径上创建了链接，该路径显示在该会话 `/status` 的 `Peer address` 下
 
-### 拒绝读取、写入或搜索路径
+### Refusing to read, write, or search a path
 
-Claude Code 检查文件路径的[权限规则](/docs/zh-CN/permissions#read-and-edit)，然后在工具打开文件或启动搜索时再次确认该解析。当它无法确认路径仍然导向检查批准的位置时，Claude Code 拒绝操作而不是跟随它。拒绝出现在工具结果中：
+Claude Code 会检查文件路径的[权限规则](/docs/zh-CN/permissions#read-and-edit)，然后在工具打开文件或开始搜索时再次确认该路径的解析结果。如果无法确认该路径仍然指向检查时批准的位置，Claude Code 会拒绝该操作，而不是继续执行。该拒绝出现在工具结果中：
 
 ```text wrap theme={null}
 Refusing to read /path/to/file: its symlink resolution changed after permission was checked (a link on the way now leads somewhere the check did not see). If a link in the working directory is being rewritten concurrently, stop that and retry.
 ```
 
-每个拒绝命名其原因：
+每次拒绝都会说明其原因：
 
-* `its symlink resolution changed after permission was checked`：路径上的符号链接或 Grep 或 Glob 搜索根在权限检查和操作之间被替换。在读取拒绝中，括号中的短语命名哪个比较失败。
-* `its parent-directory symlink resolution changed after permission was checked`：写入路径经过的目录不再解析到批准的位置
-* `where it leads on disk could not be determined (a link on the way could not be examined, or the links do not resolve)`：Claude Code 无法跟随路径到磁盘上的最终位置，例如因为其上的符号链接形成循环
-* `it is a symbolic link. Write to the link's target path instead`：符号链接位于请求的写入位置本身，例如 `CLAUDE.md` 是 `AGENTS.md` 的符号链接；消息指导 Claude 转向链接的目标
-* `Refusing to write through symlink: <path>. Resolve the symlink and pass the real target path explicitly.`：当另一个写入器打开文件时捕获的相同条件，例如写入符号链接的 `.mcp.json`
-* `Refusing to write into symlinked directory: <path>`：持有文件的目录本身是符号链接，例如项目的 `.claude/` 目录链接到另一个位置
-* `a path one of its Read deny rules is written through changed while the search was being prepared. Retry.`：搜索的 `Read` 拒绝规则命名了经过符号链接的路径，该链接在 Claude Code 准备搜索时发生更改
-* `it could not be opened (EACCES) — it is unreadable, or is being replaced concurrently.`：搜索根存在但无法打开；括号中的代码是操作系统错误
-* `its permission check expired before it ran (too many concurrent file operations). Retry.`：在大量同时进行的文件操作下，Claude Code 在工具使用批准记录之前将其逐出；重试会运行新的权限检查
-* `ripgrep was found only by name on PATH, and a search outside the working directory cannot apply your Read deny rules in that configuration`：Claude Code 无法将 `rg` 二进制文件解析为绝对路径，因此它拒绝工作目录外的搜索，而不是运行您的拒绝规则无法覆盖的搜索
+* `its symlink resolution changed after permission was checked`：路径上的某个符号链接，或 Grep 或 Glob 搜索根目录处的符号链接，在权限检查和操作之间被替换。在读取拒绝中，括号内的短语指出了哪项比较失败。
+* `its parent-directory symlink resolution changed after permission was checked`：写入路径所经过的某个目录不再解析到已批准的位置
+* `where it leads on disk could not be determined (a link on the way could not be examined, or the links do not resolve)`：Claude Code 无法沿该路径找到磁盘上的最终位置，例如因为路径上的符号链接形成了循环
+* `it is a symbolic link. Write to the link's target path instead`：请求写入的位置本身就是一个符号链接，例如 `CLAUDE.md` 是指向 `AGENTS.md` 的符号链接；该消息会引导 Claude 写入链接的目标
+* `Refusing to write through symlink: <path>. Resolve the symlink and pass the real target path explicitly.`：在其他写入程序打开文件时捕获到的相同情况，例如写入作为符号链接的 `.mcp.json`
+* `Refusing to write into symlinked directory: <path>`：存放该文件的目录本身是一个符号链接，例如项目的 `.claude/` 目录链接到了其他位置
+* `a path one of its Read deny rules is written through changed while the search was being prepared. Retry.`：该搜索的某条 `Read` 拒绝规则所指定的路径经过一个符号链接，而该链接在 Claude Code 准备搜索时发生了变化
+* `it could not be opened (EACCES) — it is unreadable, or is being replaced concurrently.`：搜索根目录存在但无法打开；括号内的代码是操作系统错误
+* `its permission check expired before it ran (too many concurrent file operations). Retry.`：在大量同时进行的文件操作下，Claude Code 在工具使用批准记录之前就将其逐出；重试会执行一次新的权限检查
+* `ripgrep was found only by name on PATH, and a search outside the working directory cannot apply your Read deny rules in that configuration`：Claude Code 无法将 `rg` 二进制文件解析为绝对路径，因此拒绝在工作目录之外进行搜索，而不是运行一个您的拒绝规则无法覆盖的搜索
 
-**应该做什么：**
+**处理方法：**
 
-* 通常不需要做任何事：拒绝作为工具结果到达 Claude，被拒绝的操作不会运行
-* 如果符号链接拒绝在某个路径上重复出现，请找出是什么在不断重写那里的链接，例如构建工具或文件监视程序，或要求 Claude 使用文件的解析路径而不是链接路径
-* 如果 Claude Code 在 Windows 上的 AppContainer 或受限令牌沙箱内运行时，每个文件都出现此拒绝，请升级到 v2.1.265 或更高版本
-* 如果在 macOS 上，对没有任何东西在重写的文件（例如拖入提示词的屏幕截图）出现读取拒绝，请升级到 v2.1.273 或更高版本
-* 对于 ripgrep 拒绝，使用您的包管理器安装 ripgrep，以便 `rg` 在 `PATH` 上解析为绝对路径，或将搜索保持在工作目录下
+* 通常无需任何操作：该拒绝会作为工具结果传递给 Claude，被拒绝的操作不会运行
+* 如果某个路径上反复出现符号链接拒绝，请找出是什么在不断重写该处的链接，例如构建工具或文件监视器，或者让 Claude 使用文件的解析路径，而不是链接路径
+* 如果 Claude Code 在 Windows 上于 AppContainer 或受限令牌沙箱中运行时，每个文件都出现此拒绝，请升级到 v2.1.265 或更高版本
+* 如果在 macOS 上，对于没有任何程序在重写的文件（例如拖入输入框的截图）出现读取拒绝，请升级到 v2.1.273 或更高版本
+* 对于 ripgrep 拒绝，请使用包管理器安装 ripgrep，使 `rg` 在 `PATH` 上解析为绝对路径，或者将搜索保持在工作目录之内
 
-在 v2.1.251 之前，Claude Code 仅对文件写入重新检查路径的解析，因此在权限检查后替换的链接可能会将读取或搜索重定向到不同的位置而没有消息。其中，仅父目录、通过符号链接和符号链接目录写入拒绝会出现在早期版本上。
+在 v2.1.251 之前，Claude Code 仅对文件写入重新检查路径的解析结果，因此在权限检查之后被替换的链接可能会在没有任何消息的情况下将读取或搜索重定向到其他位置。在这些拒绝中，只有父目录、通过符号链接写入和符号链接目录这几种写入拒绝会出现在早期版本中。
 
-在 v2.1.280 之前，`where it leads on disk could not be determined` 拒绝没有出现。
+在 v2.1.280 之前，不会出现 `where it leads on disk could not be determined` 拒绝。
 
-### 任务输出交换被拒绝
+### Task output swap refused
 
-Claude Code 将每个 Bash 命令的输出保存到其临时目录下的文件。每次打开其中一个文件时，它检查路径仍然导向它创建的文件，没有符号链接、额外硬链接或移动目录重定向它。此消息意味着该检查失败，因此 Claude Code 拒绝操作而不是通过该路径写入或读取输出。消息出现在 Bash 工具结果中：
+Claude Code 会将每个 Bash 命令的输出保存到其临时目录下的一个文件中。每次打开这些文件之一时，它都会检查该路径是否仍然指向它创建的文件，没有符号链接、额外的硬链接或被移动的目录将其重定向。此消息表示该检查失败，因此 Claude Code 拒绝了该操作，而不是通过该路径写入或读取输出。该消息出现在 Bash 工具结果中：
 
 ```text wrap theme={null}
 task output swap refused (tasks dir moved or linked): /private/tmp/claude-501/-Users-you-my-project/1f0e62dc-4b0a-4f5e-9c2d-8a7b6c5d4e3f/tasks/b7k2f9m3q.output. To recover: restart Claude Code with CLAUDE_CODE_TMPDIR set to a fresh directory; or, if /private/tmp/claude-501/-Users-you-my-project is a stray directory or a symbolic link that should not be there, remove that entry itself (not what it points to) and restart.
 ```
 
-括号中的文本命名失败的检查。诸如 `output symlink was re-pointed`、`output file identity changed` 和 `not a regular file` 之类的原因都报告相同的条件：输出路径上或沿途的某些东西不再是 Claude Code 创建的文件。仅某些原因携带 `To recover:` 句子。
+括号内的文本指出了失败的检查。诸如 `output symlink was re-pointed`、`output file identity changed` 和 `not a regular file` 之类的原因都报告同一种情况：输出路径上或沿途的某个东西不再是 Claude Code 创建的文件。只有部分原因带有 `To recover:` 句子。
 
-如果在命令仍在运行时检查失败，Claude Code 停止该命令，其结果报告：
+如果检查在命令仍在运行时失败，Claude Code 会停止该命令，其结果会报告：
 
 ```text theme={null}
 Command killed: its output file was replaced or could no longer be verified
 ```
 
-**应该做什么：**
+**处理方法：**
 
-* 升级到 v2.1.260 或更高版本。早期版本有时在没有链接或移动目录存在时显示此消息
-* 使用设置为新目录的 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars)重启 Claude Code
-* 或检查您的项目在 Claude Code 临时目录下的目录，示例消息中的 `/private/tmp/claude-501/-Users-you-my-project`。如果该路径是符号链接或不应该存在的目录，删除链接或目录本身而不是链接的目标，然后重启 Claude Code
-* 如果拒绝重复出现，说明有进程在会话运行时替换、链接或删除 Claude Code 临时目录下的条目。将 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars) 设置为没有其他东西管理的目录并重启
+* 升级到 v2.1.260 或更高版本。早期版本有时会在不存在链接或被移动目录的情况下显示此消息
+* 将 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars) 设置为一个新目录后重新启动 Claude Code
+* 或者检查 Claude Code 临时目录下您项目的目录，即示例消息中的 `/private/tmp/claude-501/-Users-you-my-project`。如果该路径是一个符号链接，或是一个不应该存在的目录，请删除该链接或目录本身，而不是链接的目标，然后重新启动 Claude Code
+* 如果该拒绝反复出现，说明有某个进程在会话运行期间替换、链接或删除 Claude Code 临时目录下的条目。请将 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars) 设置为一个没有其他程序管理的目录，然后重新启动
 
-### 磁盘配额或临时文件系统已满
+### Disk quota or temp filesystem is full
 
-Claude Code 将每个 Bash 和 PowerShell 命令的输出保存到其临时目录下的文件。当命令以非零代码退出且完全没有输出时，Claude Code 检查持有该文件的文件系统是否空间不足或 inode 不足，或您在其上的磁盘配额是否已用完。如果是这样，诊断出现在命令的结果中，代替空输出：
+Claude Code 会将每个 Bash 和 PowerShell 命令的输出保存到其临时目录下的一个文件中。当命令以非零代码退出且完全没有输出时，Claude Code 会检查存放该文件的文件系统是否已耗尽空间或 inode，或者您在该文件系统上的磁盘配额是否已用完。如果是，命令结果中会显示一条诊断信息，替代空输出：
 
 ```text wrap theme={null}
 Your disk quota is full on the filesystem with Claude Code's temp directory /private/tmp/claude-501/-Users-you-my-project/1f0e62dc-4b0a-4f5e-9c2d-8a7b6c5d4e3f/tasks (EDQUOT), so any output this command printed was lost, and it may have failed because it could not write. Delete files you no longer need there, or restart Claude Code with CLAUDE_CODE_TMPDIR set to a directory on another filesystem.
 ```
 
-该消息命名什么用完了：
+该消息会指出耗尽的资源：
 
-* `Your disk quota is full ... (EDQUOT)`：您在该文件系统上的配额已用完。配额可以在文件系统仍显示可用空间时已满
-* `The filesystem with Claude Code's temp directory ..., or your disk quota on it, is full (ENOSPC)`：文件系统或您在其上的配额没有剩余空间
-* `Command output was lost: the temp filesystem at ... is full` 或 `... is out of inodes`：文件系统几乎没有剩余空间，或 inode 即将用完
+* `Your disk quota is full ... (EDQUOT)`：您在该文件系统上的配额已用完。即使文件系统仍显示有可用空间，配额也可能已满
+* `The filesystem with Claude Code's temp directory ..., or your disk quota on it, is full (ENOSPC)`：该文件系统或您在其上的配额已没有剩余空间
+* `Command output was lost: the temp filesystem at ... is full` 或 `... is out of inodes`：该文件系统几乎没有剩余可用空间，或 inode 即将耗尽
 
-**应该做什么：**
+**处理方法：**
 
-* 删除您在持有 Claude Code 临时目录的文件系统上不再需要的文件。对于 `EDQUOT`，删除计入您自己配额的文件。对于 `out of inodes`，删除许多文件而不是几个大文件，因为每个文件占用一个 inode，无论其大小如何
-* 或使用设置为具有空间的文件系统上的目录的 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars)重启 Claude Code
-* 然后让 Claude 再次运行该命令。它打印的输出已丢失，未被截断
+* 删除存放 Claude Code 临时目录的文件系统上不再需要的文件。对于 `EDQUOT`，请删除计入您自己配额的文件。对于 `out of inodes`，请删除大量文件，而不是几个大文件，因为无论大小，每个文件都占用一个 inode
+* 或者将 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars) 设置为有空间的文件系统上的目录，然后重新启动 Claude Code
+* 然后让 Claude 再次运行该命令。命令打印的输出已丢失，而不是被截断
 
 ### File is not valid UTF-8
 
-Claude 对一个字节无法解码为 UTF-8 的文件使用了 Edit 或 NotebookEdit 工具，Claude Code 拒绝了该更改。没有写入任何内容，因此文件保持原样。这些工具会将整个文件以 UTF-8 保存回去，这会将它们无法解码的每个字节都变成替换字符 `U+FFFD`。消息出现在工具结果中：
+Claude 对一个字节无法按 UTF-8 解码的文件使用了 Edit 或 NotebookEdit 工具，Claude Code 拒绝了该更改。没有写入任何内容，因此文件保持原样。这些工具会将整个文件以 UTF-8 保存回去，这会把它们无法解码的每个字节都变成替换字符 `U+FFFD`。该消息出现在工具结果中：
 
 ```text wrap theme={null}
 File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary. This tool saves the whole file as UTF-8, which would replace every byte it cannot decode with U+FFFD. Nothing was written. Make the change with a shell command that reads and writes the file in its own encoding, or ask the user whether to convert the file to UTF-8 first.
 ```
 
-本应为 UTF-8 的文件只要包含哪怕一个无效字节序列，也会收到此消息，因为该检查针对的是文件的全部字节。
+本应是 UTF-8 的文件，只要包含哪怕一个无效字节序列，也会收到此消息，因为该检查针对的是文件的全部字节。
 
-**应该做什么：**
+**处理方法：**
 
-* 要保持文件当前的编码，请让 Claude 按照消息的指示，使用以该编码读写文件的 shell 命令进行更改
-* 要继续使用 Edit 工具编辑该文件，请将其转换为 UTF-8，或修复本应为 UTF-8 的文件中的无效字节，然后要求 Claude 再次进行编辑
+* 如需保持文件的当前编码，请按照消息的指示，让 Claude 使用以该编码读写文件的 shell 命令进行更改
+* 如需继续使用 Edit 工具编辑该文件，请将其转换为 UTF-8，或修复本应是 UTF-8 的文件中的无效字节，然后让 Claude 再次进行编辑
 
-在 v2.1.296 之前，Edit 和 NotebookEdit 会应用此类编辑，并将无法解码的每个字节保存为 `U+FFFD`。如果您使用的是这些版本，请更新 Claude Code。
+在 v2.1.296 之前，Edit 和 NotebookEdit 会应用此类编辑，并将它们无法解码的每个字节保存为 `U+FFFD`。在这些版本上，请更新 Claude Code。
 
-### 源文件不是有效的 UTF-8 文本
+### The source file is not valid UTF-8 text
 
-Claude 尝试从一个字节无法解码为文本、或其文本已包含替换字符 `U+FFFD` 的文件发布 [Artifact](/docs/zh-CN/artifacts)，因此 Claude Code 在上传任何内容之前拒绝了发布。消息出现在 Artifact 工具结果中并命名第一个要修复的位置：
+Claude 尝试从一个字节无法解码为文本、或其文本已包含替换字符 `U+FFFD` 的文件发布 [Artifact](/docs/zh-CN/artifacts)，因此 Claude Code 在上传任何内容之前拒绝了该发布。该消息出现在 Artifact 工具结果中，并指出需要修复的第一个位置：
 
 ```text wrap theme={null}
 file_path: the source file is not valid UTF-8 text (first invalid byte at line 12, column 40). It may be saved in another encoding or contain binary data. Rewrite it as UTF-8, then publish again. Nothing was published.
@@ -4494,41 +4587,59 @@ file_path: the source file is not valid UTF-8 text (first invalid byte at line 1
 file_path: the source file has the replacement character U+FFFD at line 12, column 40, usually left where an earlier edit or paste lost a character. Replace it with the intended text (in HTML, write an intended U+FFFD as &#xFFFD;), then publish again. Nothing was published.
 ```
 
-Claude Code 将文件解码为 UTF-8，或当它以小端 UTF-16 字节顺序标记开始时解码为 UTF-16。当这样的 UTF-16 文件无法解码时，第一条消息命名 `UTF-16` 并仍然告诉您将文件重写为 UTF-8。当命名的位置之后还有更多位置时，消息在位置后添加计数，例如 `(+2 more)`。
+Claude Code 会按 UTF-8 解码该文件；如果文件以小端序 UTF-16 字节顺序标记开头，则按 UTF-16 解码。当此类 UTF-16 文件无法解码时，第一条消息会指出 `UTF-16`，但仍会告诉您将文件重写为 UTF-8。当指出的位置之后还有更多位置时，消息会在该位置后附加一个计数，例如 `(+2 more)`。
 
-**应该做什么：**
+**处理方法：**
 
-* 通常不需要做任何事：Claude 重写文件并再次发布
-* 如果文件是您编写或导出的，请再次将其保存为 UTF-8，并将每个 `U+FFFD` 替换为早期编辑、粘贴或转换丢失的字符
-* 要在页面上显示有意的 `U+FFFD`，在 HTML 中将其写为 `&#xFFFD;` 而不是字面字符
+* 通常无需任何操作：Claude 会重写该文件并再次发布
+* 如果该文件是您编写或导出的，请将其重新保存为 UTF-8，并将每个 `U+FFFD` 替换为先前编辑、粘贴或转换中丢失的字符
+* 如需在页面上显示有意使用的 `U+FFFD`，请在 HTML 中将其写为 `&#xFFFD;`，而不是使用字面字符
 
-在 v2.1.267 之前，Claude Code 不加检查地上传这样的文件，而由服务器拒绝发布。
+在 v2.1.267 之前，Claude Code 会不经检查地上传此类文件，改由服务器拒绝发布。
 
-### 未发布：该文件位于网络共享上
+### Not published: that file is on a network share
 
-Claude 尝试从一个路径指向网络主机的文件发布 [Artifact](/docs/zh-CN/artifacts)：
+Claude 尝试从一个指定了网络主机的路径上的文件发布 [Artifact](/docs/zh-CN/artifacts)：
 
-* 在 Windows 上，不在您启动时通过 [`--add-dir`](/docs/zh-CN/cli-reference#cli-flags) 传入的映射网络驱动器下的 `\\server\share` 路径
-* 在 macOS 或 Linux 上，自动挂载路径，例如 `/net/<host>/page.html`
+* 在 Windows 上，是一个不在您启动时通过 [`--add-dir`](/docs/zh-CN/cli-reference#cli-flags) 传入的映射网络驱动器下的 `\\server\share` 路径
+* 在 macOS 或 Linux 上，是一个自动挂载路径，例如 `/net/<host>/page.html`
 
-查找此类路径会联系其指向的主机，而在 Windows 上，这种联系可能会将您的凭据发送给该主机。Claude Code 拒绝发布该文件，也不会读取它。拒绝出现在 Artifact 工具结果中：
+查找此类路径会联系它所指定的主机，而在 Windows 上，这种联系可能会将您的凭据发送给该主机。Claude Code 拒绝发布该文件，也不会读取它。该拒绝出现在 Artifact 工具结果中：
 
 ```text theme={null}
 Not published: that file is on a network share. Publish a file from this session's folders instead.
 ```
 
-**应该做什么：**
+**处理方法：**
 
-* 如果您不需要该特定文件，则无需执行任何操作：消息会告诉 Claude 改为从会话自己的文件夹发布文件
-* 要发布该特定文件，请将其复制到本地磁盘上的文件夹中，然后再次请求
-* 在 Windows 上，要让 Claude 直接从共享发布，请将其映射到驱动器号，并在启动 Claude Code 时传入该驱动器。例如，在 PowerShell 中运行 `net use Z: \\server\share`，然后运行 `claude --add-dir Z:\`。之后 Claude 就可以从该驱动器发布文件。在会话中途使用 `/add-dir` 添加驱动器是不够的。
-* 在 macOS 或 Linux 上，将共享挂载到某个目录（例如 `/mnt` 或 `/Volumes` 下的目录），并从该路径而不是自动挂载路径发布
+* 如果您不需要那个确切的文件，则无需任何操作：消息会告诉 Claude 改为从会话自己的文件夹中发布文件
+* 如需发布那个确切的文件，请将其复制到本地磁盘上的文件夹中，然后再次请求
+* 在 Windows 上，如需让 Claude 直接从共享发布，请将其映射到一个驱动器号，并在启动 Claude Code 时传入该驱动器。例如在 PowerShell 中，运行 `net use Z: \\server\share`，然后运行 `claude --add-dir Z:\`。之后 Claude 就可以从该驱动器发布文件。在会话中途使用 `/add-dir` 添加该驱动器是不够的。
+* 在 macOS 或 Linux 上，请将共享挂载到某个目录（例如 `/mnt` 或 `/Volumes` 下的目录），并从该路径而不是自动挂载路径发布
 
-### 在 Cowork 会话中从连接的文件夹外读取本地文件
+### Not published: Claude sent the same content again after a newer version of the artifact turned it away
 
-在 Claude Desktop 应用中于您的机器上运行的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，Claude 为 [Artifact](/docs/zh-CN/artifacts) 指定了一个本地文件。Claude Code 无法确认该文件是会话连接的文件夹内的普通文件：路径位于这些文件夹之外、经过符号链接，或者其写法可能指向与表面不同的文件。读取这样的文件需要您的批准，而在无法向您显示批准卡片的会话中（例如设置为跳过所有批准的会话），Claude Code 会拒绝读取。
+Artifact 调用下方的这行红色文字表示 Claude Code 阻止了一次重复发布：[Artifact](/docs/zh-CN/artifacts) 没有更新，Claude 用于发布的文件也没有写入任何内容。除非 Claude 在未发布的情况下停止，否则您无需任何操作。
 
-拒绝出现在 Artifact 工具结果中；当文件根本无法检查时，它改为命名该失败：
+在会话早些时候，由于该 Artifact 有了更新的版本，例如由某位[编辑者](/docs/zh-CN/artifacts#let-someone-edit-with-you)或您的另一个会话发布的版本，Claude Code 拒绝了一次发布。该行的结尾说明了 Claude 接下来需要做什么：
+
+```text wrap theme={null}
+Not published: Claude sent the same content again after a newer version of the artifact turned it away. Claude needs to work from that newer version first.
+Not published: Claude sent the same content again after a newer version of the artifact turned it away. The artifact hasn't changed since, so publishing it once more should go through.
+Not published: Claude sent its changes again over the same file after a newer version of the artifact turned them away. Claude needs to work from that newer version first.
+Not published: Claude sent its changes again over the same file after a newer version of the artifact turned them away. The artifact hasn't changed since, so publishing once more should go through.
+```
+
+**处理方法：**
+
+* **以 `Claude needs to work from that newer version first` 结尾**：如果 Claude 在此处停止，请让它获取该 Artifact 的当前版本，将其更改合并进去，然后再次发布
+* **以 `should go through` 结尾**：如果 Claude 在此处停止，请让它再次发布
+
+### Reading a local file from outside the connected folders in a Cowork session
+
+在 Claude Desktop 应用中于您的机器上运行的 [Cowork](https://claude.com/docs/cowork/overview) 会话里，Claude 为一个 [Artifact](/docs/zh-CN/artifacts) 指定了一个本地文件。Claude Code 无法确认该文件是会话已连接文件夹内的普通文件：该路径位于这些文件夹之外、经过了符号链接，或者其写法可能指向与表面上不同的文件。读取此类文件需要您的批准，而在无法向您显示批准卡片的会话中（例如设置为跳过所有批准的会话），Claude Code 会拒绝该读取。
+
+该拒绝出现在 Artifact 工具结果中；当文件根本无法检查时，则会改为指出该失败：
 
 ```text wrap theme={null}
 Reading a local file from outside this session's connected folders, or through a link, needs the approval card, and no one can answer it in this Cowork session. Use a plain file inside the connected folders; do not retry this file in this session.
@@ -4536,28 +4647,28 @@ Reading a local file from outside this session's connected folders, or through a
 cannot read file_path (ENOENT) — the file could not be examined, and no one can answer the approval card in this Cowork session. Check that the file exists as a plain file inside the connected folders, then retry with that path.
 ```
 
-**应该做什么：**
+**处理方法：**
 
-* 通常不需要做任何事：消息告诉 Claude 改为使用连接的文件夹内的普通文件
-* 要将该特定文件放入 Artifact，请将其作为常规文件（而非符号链接）复制到会话的某个连接文件夹中，然后再次请求
+* 通常无需任何操作：消息会告诉 Claude 改为使用已连接文件夹内的普通文件
+* 如需将那个确切的文件放入 Artifact，请将其作为常规文件（而不是符号链接）复制到会话的某个已连接文件夹中，然后再次请求
 
-### WebFetch 无法获取 localhost
+### WebFetch cannot fetch localhost
 
-Claude 调用了 [WebFetch](/docs/zh-CN/tools-reference#webfetch-tool-behavior)，其 URL 的主机名中没有点，例如 `http://localhost:3000` 或类似 `http://wiki/` 的纯内网名称。WebFetch 在发出任何请求之前拒绝这些 URL：
+Claude 调用 [WebFetch](/docs/zh-CN/tools-reference#webfetch-tool-behavior) 时使用的 URL 的主机名不含点，例如 `http://localhost:3000`，或类似 `http://wiki/` 的纯内网名称。WebFetch 会在发出任何请求之前拒绝这些 URL：
 
 ```text wrap theme={null}
 WebFetch cannot fetch localhost or other hostnames without a dot. To reach a local server, use Bash with curl instead.
 ```
 
-**应该做什么：**
+**处理方法：**
 
-* 通常不需要做任何事：消息引导 Claude 通过 Bash 工具使用 `curl`，它可以访问本地和内网服务器
+* 通常无需任何操作：该消息会引导 Claude 通过 Bash 工具使用 `curl`，它可以访问本地和内网服务器
 
-在 v2.1.268 之前，WebFetch 用通用的 `Invalid URL` 错误报告这些 URL。
+在 v2.1.268 之前，WebFetch 会以通用的 `Invalid URL` 错误报告这些 URL。
 
-### WebFetch 域名安全检查失败
+### WebFetch domain safety check failed
 
-在获取 URL 之前，WebFetch 将 URL 的主机名发送到 `api.anthropic.com`，以根据 Anthropic 的[域名安全阻止列表](/docs/zh-CN/data-usage#webfetch-domain-safety-check)检查它。如果检查无法完成，WebFetch 无法确认域名是安全的，因此它不获取页面，工具结果改为携带以下消息之一：
+在获取 URL 之前，WebFetch 会将该 URL 的主机名发送到 `api.anthropic.com`，以对照 Anthropic 的[域名安全阻止列表](/docs/zh-CN/data-usage#webfetch-domain-safety-check)进行检查。如果检查无法完成，WebFetch 就无法确认该域名是安全的，因此不会获取该页面，工具结果会改为包含以下消息之一：
 
 ```text wrap theme={null}
 The safety check for domain example.com is rate-limited (too many domain checks from this network; the limit is shared and can stay exhausted for minutes). Do not retry WebFetch in a loop or sleep to wait it out; continue without this page and report that its safety check was rate-limited. A single later attempt is fine; if that is rate-limited too, stop.
@@ -4565,11 +4676,11 @@ The safety check for domain example.com is rate-limited (too many domain checks 
 Unable to verify if domain example.com is safe to fetch. This may be due to network restrictions or enterprise security policies blocking claude.ai.
 ```
 
-* `rate-limited`：检查端点以 HTTP `429` 响应。消息告诉 Claude 在没有该页面的情况下继续，并且稍后最多再尝试一次。Claude Code 不缓存失败的检查，因此稍后获取该域名时会再次运行检查。如果您网络上的会话经常遇到这种情况，您可以在设置中使用 [`skipWebFetchPreflight: true`](/docs/zh-CN/settings-reference#skipwebfetchpreflight) 跳过检查。
-* `Unable to verify`：检查请求失败、超时或收到其他错误状态。如果您的网络阻止 `api.anthropic.com`，请将该域名加入允许列表，或在设置中使用 [`skipWebFetchPreflight: true`](/docs/zh-CN/settings-reference#skipwebfetchpreflight) 跳过检查。
+* `rate-limited`：检查端点以 HTTP `429` 响应。该消息会告诉 Claude 在没有该页面的情况下继续，并且之后最多再尝试一次。Claude Code 不会缓存失败的检查，因此之后对该域名的获取会再次运行检查。如果您网络上的会话经常遇到这种情况，可以在设置中使用 [`skipWebFetchPreflight: true`](/docs/zh-CN/settings-reference#skipwebfetchpreflight) 跳过该检查。
+* `Unable to verify`：检查请求失败、超时或收到其他错误状态。如果您的网络阻止了 `api.anthropic.com`，请将该域名加入允许列表，或在设置中使用 [`skipWebFetchPreflight: true`](/docs/zh-CN/settings-reference#skipwebfetchpreflight) 跳过该检查。
 
-在 v2.1.286 之前，速率限制消息为 `The safety check for domain example.com is temporarily rate-limited (too many domain checks from this network). Retry after about a minute; retrying sooner will fail the same way.`。
-在 v2.1.285 之前，被限流的检查改为用 `Unable to verify` 消息报告。
+在 v2.1.286 之前，速率限制消息的内容为 `The safety check for domain example.com is temporarily rate-limited (too many domain checks from this network). Retry after about a minute; retrying sooner will fail the same way.`。
+在 v2.1.285 之前，被速率限制的检查会改为以 `Unable to verify` 消息报告。
 
 ## 后台会话错误
 
@@ -4815,6 +4926,26 @@ This session restarted 12m after its next /loop wakeup was due, so that wakeup w
 
 * 要继续循环，请[回复该会话](/docs/zh-CN/agent-view#peek-and-reply)并说明这一点，例如 `keep the loop running`。Claude 会连同您的回复一起读取通知，并可以安排下一次唤醒
 * 如果您已不再需要该循环，则无需任何操作。它已经停止
+
+### No LLM gateway: a gateway set in your shell isn't passed to a session opened from another folder
+
+显示此消息的[后台会话](/docs/zh-CN/agent-view)没有使用您的 [LLM 网关](/docs/zh-CN/llm-gateway)：它没有获得网关的地址，因此其请求会失败。该消息出现在对话中原本 Claude 回复的位置，并填入您的会话 ID 和文件夹：
+
+```text wrap theme={null}
+No LLM gateway: a gateway set in your shell isn't passed to a session opened from another folder. To fix, run `claude respawn abc12345` from ~/project in another terminal where your gateway is set, or set ANTHROPIC_BASE_URL and its API key or token in a settings file's env block.
+```
+
+当您附加到该会话时，其输入框下方的通知会显示简短形式 `No LLM gateway: opened from another folder · respawn from ~/project`。
+
+您在 `ANTHROPIC_BASE_URL` 设置为您的网关时，从消息所指文件夹以外的文件夹分派、唤醒或重启了该会话。有关在 shell 中导出的网关确实能到达后台会话的情况，请参阅 [LLM 网关](/docs/zh-CN/agent-view#llm-gateway)。
+
+**要做什么：**
+
+* **您在一个由其设置指定网关的项目中使用了 Agent 视图**：将 `ANTHROPIC_BASE_URL` 及其 API 密钥或令牌放入[设置文件的 `env` 块](/docs/zh-CN/llm-gateway-connect#set-in-a-settings-file)。请使用 `~/.claude/settings.json`，或会话自身项目中的 `.claude/settings.local.json`，重新启动的会话会读取这两者。然后在 shell 中从任意文件夹运行 `claude respawn <id>`。
+* **您在终端中导出了网关**：在已导出网关变量的终端中，`cd` 到消息所指的文件夹，然后运行消息中的 `claude respawn <id>` 命令。会话会从其保存的对话重新启动。
+  * 只有当 [supervisor](/docs/zh-CN/agent-view#the-supervisor-process) 本身是从导出了相同网关的 shell 启动时，网关才会到达该会话。如果不是，请按照 [Dispatch fails with `Could not resolve authentication method`](/docs/zh-CN/agent-view#dispatch-fails-with-could-not-resolve-authentication-method) 中的说明从该终端重启 supervisor，然后再次运行 respawn 命令。
+
+在 v2.1.302 之前，处于这种情况的后台会话会改为显示登录错误，例如 [`Not logged in · Please run /login`](#not-logged-in)，且不会指出文件夹。
 
 ### CLAUDE\_CODE\_PROCESS\_WRAPPER 启动器错误
 
@@ -5678,6 +5809,7 @@ sandbox.filesystem.allowRead is ignored — managed settings set allowManagedRea
 如果此处未列出错误或建议的修复方法无法帮助：
 
 * 在 Claude Code 中运行 `/feedback` 将记录和描述发送给 Anthropic。该命令还提供打开预填充的 GitHub issue 的选项。发送到 Anthropic 需要[身份验证](/docs/zh-CN/authentication)。在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和其他第三方提供商上，或者当未配置 Anthropic 凭证时，`/feedback` 会保存一个本地存档，您可以将其发送给您的 Anthropic 账户代表。
+* 如果 `/feedback` 提示它已被您组织的策略禁用，请参阅[该消息的条目](#feedback-is-disabled-by-your-organizations-policy)
 * 从您的 shell 中运行 `claude doctor` 以获取安装的只读诊断，或在 Claude Code 中运行 `/doctor` 检查以查找和修复设置问题
 * 检查 [status.claude.com](https://status.claude.com) 以了解活跃的事件
 * 在 GitHub 上搜索[现有问题](https://github.com/anthropics/claude-code/issues)

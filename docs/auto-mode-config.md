@@ -161,7 +161,7 @@
 
 > [!NOTE]
 >
-> `/auto-mode-setup` 需要 Pro、Max 或 Team 计划，以及 Claude Code v2.1.228 或更高版本。在原生 Windows 上需要 v2.1.233 或更高版本。你无法在[网页版 Claude Code](/docs/zh-CN/claude-code-on-the-web) 中运行它。它还需要[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，所以你无法在已关闭标志获取的会话中运行它。
+> `/auto-mode-setup` 适用于 Pro、Max、Team 和 Enterprise 计划，以及使用 Claude Console API 密钥的情况。在 Pro、Max 或 Team 计划中，需要 v2.1.228 或更高版本；在原生 Windows 上需要 v2.1.233 或更高版本。在 Enterprise 计划中或使用 Claude Console API 密钥时，需要 v2.1.283 或更高版本。如果您的会话中缺少该命令，请参阅 [`/auto-mode-setup` 返回 "Unknown command"](#auto-mode-setup-returns-unknown-command)。
 
 ### `/auto-mode-setup` 读取的内容
 
@@ -201,6 +201,16 @@ Claude Code 在后台扫描，然后向你显示草稿。你可以整体接受�
 ```
 
 `/auto-mode-setup` 是一个内置命令而不是[捆绑技能](/docs/zh-CN/skills#bundled-skills)，所以这个 `skillOverrides` 条目仍然适用于它，但 [`disableBundledSkills`](/docs/zh-CN/settings-reference#disablebundledskills) 不会将其关闭。
+
+### `/auto-mode-setup` 返回 "Unknown command"
+
+如果在 Claude Code 输入框中输入 `/auto-mode-setup` 后显示 `Unknown command: /auto-mode-setup`，请检查以下原因：
+
+* **安装或升级后的首个会话**：启动一个新会话。如果该命令在新会话中仍然缺失，请参阅[后续会话同样缺少该命令的设置情况](/docs/zh-CN/env-vars#first-session-after-an-install-or-upgrade)。
+* **版本过旧**：在 shell 中运行 `claude --version`。如果版本低于[您的计划所需的最低版本](#generate-environment-entries)，请[更新 Claude Code](/docs/zh-CN/setup#update-claude-code)。
+* **遥测已关闭、第三方提供商或 Claude apps 网关**：在 v2.1.304 之前，该命令在[已关闭功能标志获取的会话](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)中不可用。如果您的会话属于这种情况，请将 Claude Code [更新](/docs/zh-CN/setup#update-claude-code)到 v2.1.304 或更高版本。
+
+在[云端会话](/docs/zh-CN/claude-code-on-the-web)中，该命令会显示 `/auto-mode-setup isn't available in this environment.`。请改为在终端的交互式会话中运行它。
 
 ## 覆盖阻止和允许规则
 

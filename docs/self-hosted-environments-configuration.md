@@ -306,7 +306,7 @@ claude self-hosted-runner orchestrator \
    * **退出 1，或在 `--hook-timeout` 结束时仍在运行**：可重试失败。会话退避并被重新提供。
    * **退出 2 或更高**：不可重试失败。会话被阻止再次生成，直到用户向其发送新消息，或 [Owner](/docs/zh-CN/cloud-environments#organization-shared-environments) 在环境的 **Activity** 标签中对其选择 **Retry**。
 
-   在非零退出时，hook 的 stderr 尾部会作为失败原因出现在 **Activity** 标签中，因此请将可操作的错误写入 stderr，并且永远不要在其中写入密钥。在 shell hook 中，请[保持暂时性失败可重试](#keep-transient-failures-retryable-in-a-shell-hook)。
+   会话退避期间，它在 **Activity** 标签中显示为 **Queued**，且没有生成错误，因此请在编排器的日志中查看 hook 的输出。会话被阻止后，会显示为 **Failed**。展开该会话即可查看生成错误，该错误取自 hook 的 stderr 的最后 512 个字符。请将可操作的错误写入 stderr，并且不要写入任何密钥。在 shell hook 中，请[保持暂时性失败可重试](#keep-transient-failures-retryable-in-a-shell-hook)。
 
    预热请求没有可失败的会话：编排器仅在本地记录非零退出，服务器在 `--expected-spawn-seconds` 租约到期后重新请求生成。
 4. **将 `--expected-spawn-seconds` 设置为至少您从生成请求到运行器注册的 p99 时间。** 从编排器收到生成请求时开始计算，并包括在您的平台上等待容量的时间以及启动时间。此值是服务器端租约，工作单也随之过期，因此工作负载耗时更长的运行器无法注册。所有编排器副本必须使用相同的值。
@@ -326,6 +326,26 @@ hook 写入 stdout 或 stderr 的所有内容都出现在编排器的日志中�
 | `--exit-if-unused-min 60` | 待命运行器，即您的 hook 为预热请求启动的运行器 | 从未接收会话的待命运行器会在该分钟数后退出。如果您设置了 [`--min-idle`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags)，除非该待命运行器是多余的，否则您会获得替代运行器，因此请使用远高于启动时间的值。 |
 
 在运行器退出时移除工作负载，例如在 Kubernetes Job 上设置 `ttlSecondsAfterFinished`，或让 VM 的启动脚本在之后删除该 VM。
+
+#### 将后台进程的输出发送到文件
+
+如果您的 `spawn-runner` hook 让某个进程在后台持续运行，请将该进程的输出发送到 hook 的用户可以创建的文件。例如，在启动该进程的命令末尾、任何 `&` 之前追加 `>> "$HOME/claude-runner.log" 2>&1`。以下 hook 行展示了重定向的位置，其中 `your-background-command` 代表您的 hook 放到后台运行的命令：
+
+```bash theme={null}
+your-background-command >> "$HOME/claude-runner.log" 2>&1 &
+```
+
+如果没有重定向，该进程会写入 hook 的 stdout 和 stderr：
+
+* hook 退出约一秒后，编排器会记录 `exited, but a process it started still has the hook's stdout or stderr open`。从该行起，它会在 `[runner:hook:spawn-runner:after-exit jti=<order id>]` 下再记录最多 64 KB 的该输出，然后丢弃其余部分。
+* 编排器退出后，该进程对这些位置的写入会失败。
+
+由您的 hook 自行启动的运行器会在编排器主机上运行会话，而该主机持有[环境密钥](/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment)。
+
+在 v2.1.305 之前，当 hook 已退出但其启动的进程仍打开着 hook 的 stdout 或 stderr 时，hook 仍会达到 [`--hook-timeout`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags)，显示如下：
+
+* **Activity 标签**，在失败会话的生成错误中：`spawn-runner hook timed out after 60000ms`，或 hook 的 stderr 上的最后几行。
+* **编排器日志**：`timed out after 60000ms, sending SIGTERM to process tree`。
 
 #### 在 shell hook 中保持暂时性失败可重试
 
@@ -461,6 +481,10 @@ Claude Code 还会从其他来源加载 MCP 服务器：
 * 来自您的包装脚本的 [`--mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 文件：将该标志追加在 `"$@"` 之后，例如 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --mcp-config /etc/claude/mcp.json`。为了在会话中途更新会话所下发的服务器时让该文件中的服务器保持运行，请让您的包装脚本将[完整环境](#wrapper-scripts)传递给子进程，就像 `exec` 所做的那样。在 v2.1.299 之前，该文件中的 stdio、HTTP 和 SSE 服务器会在第一次未指明它们的此类更新时关闭。
 
 当您的组织启用了连接器下发时，Anthropic 的控制平面会通过服务器提供的 MCP 配置，将您在 claude.ai 上配置的连接器下发到以交互方式创建的会话，请求经由 `api.anthropic.com` 路由。以编程方式创建的会话（例如 [CLI 调度](/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)）不会接收连接器下发；请改为通过本节列出的任何其他来源为它们提供 MCP 服务器。子进程的 OAuth 令牌不带有直接获取连接器的作用域，因此子进程本身不会尝试获取；下发由服务器驱动。
+
+> [!NOTE]
+>
+> 在已接收连接器的会话中，来自主机 `.claude.json` 或仓库 `.mcp.json` 的同名服务器不会被连接。要同时使用两者，请为您的服务器指定不同的名称。
 
 `settings.json` 不包含 MCP 服务器定义，设置 schema 中也没有顶层 `mcpServers` 字段。在托管设置中，请改用 [`managedMcpServers`](/docs/zh-CN/settings-reference#managedmcpservers) 键提供服务器。
 
