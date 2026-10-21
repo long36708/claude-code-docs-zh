@@ -147,7 +147,7 @@ Focus on:
 | `tools` | `string[]` | 否 | 允许的工具名称数组。如果省略，继承[子代理可用的每个工具](/docs/zh-CN/sub-agents#available-tools) |
 | `disallowedTools` | `string[]` | 否 | 要从代理工具集中移除的工具名称数组。也接受 MCP 服务器级别的模式：`mcp__server` 或 `mcp__server__*` 移除该服务器的每个工具，`mcp__*` 移除任何服务器的每个 MCP 工具 |
 | `model` | `string` | 否 | 此代理的模型覆盖。接受别名如 `'fable'`、`'opus'`、`'sonnet'`、`'haiku'`、`'inherit'` 或完整模型 ID。`'inherit'` 使用主模型。省略时，Claude Code 选择[子代理模型顺序](/docs/zh-CN/sub-agents#choose-a-model)中的模型 |
-| `skills` | `string[]` | 否 | 启动时预加载到代理上下文中的技能名称列表。未列出的技能仍可通过 Skill 工具调用 |
+| `skills` | `string[]` | 否 | 启动时预加载到 Agent 上下文中的 skill 名称列表。最多预加载列表中的[前 32 个不同名称](/docs/zh-CN/sub-agents#preload-skills-into-subagents)。未列出的 skill 仍可通过 Skill 工具调用 |
 | `memory` | `'user' \| 'project' \| 'local'` | 否 | 此代理的内存源 |
 | `mcpServers` | `(string \| object)[]` | 否 | 此代理可用的 MCP 服务器，按名称或内联配置 |
 | `initialPrompt` | `string` | 否 | 当此代理作为主线程代理运行时自动提交为第一个用户轮次。当代理作为子代理调用时忽略 |
@@ -323,7 +323,7 @@ for await (const message of query({
 
 Claude 通过 Agent 工具调用子代理。要检测何时调用子代理，请检查 `tool_use` 块，其中 `name` 为 `"Agent"`。
 
-来自子代理上下文内的消息包含 `parent_tool_use_id` 字段。在 TypeScript 中，子代理生成的每条 assistant 消息和 user 消息还带有 [`agent_id`](/docs/zh-CN/agent-sdk/typescript#sdkassistantmessage)：即该子代理的[任务事件](/docs/zh-CN/agent-sdk/typescript#sdktaskstartedmessage)中的 `task_id`。`agent_id` 需要 TypeScript Agent SDK v0.3.292 或更高版本。
+来自子代理上下文内的消息包含 `parent_tool_use_id` 字段。在 TypeScript 中，子代理生成的每条 assistant 消息和 user 消息还带有 [`agent_id`](/docs/zh-CN/agent-sdk/typescript#sdkassistantmessage)：即该子代理的[任务事件](/docs/zh-CN/agent-sdk/typescript#sdktaskstartedmessage)中的 `task_id`。当您[恢复子代理](#resume-subagents)时，`agent_id` 保持不变。`agent_id` 需要 TypeScript Agent SDK v0.3.292 或更高版本。
 
 > [!NOTE]
 >

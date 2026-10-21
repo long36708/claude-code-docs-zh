@@ -236,7 +236,7 @@ JetBrains 插件在 IDE 终端中运行 Claude Code，因此切换权限模式�
 * **Auto**：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现
 * **Bypass permissions**：在 Pro 和 Max 计划上需要 Desktop 设置中的**Allow bypass permissions mode**切换；在 Team 和 Enterprise 计划上，组织策略控制它
 
-Cowork 选项卡不使用这些模式。Cowork 有自己的权限模式，单独启用，Cowork 选项卡在为您的账户启用超出其默认值的模式之前不显示模式选择器。请参阅 [Cowork 文档](https://claude.com/docs/cowork/overview)。
+Cowork 不使用这些模式。它有自己的权限模式，需单独启用；在为您的账户启用超出其默认值的模式之前，它根本不显示模式选择器。请参阅 [Cowork 文档](https://claude.com/docs/cowork/overview)。
 
 有关 desktop 特定的详细信息，请参阅 Desktop 指南中的[选择权限模式](/docs/zh-CN/desktop#choose-a-permission-mode)。
 

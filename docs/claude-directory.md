@@ -175,7 +175,7 @@ Claude Code 在这些情况下跳过基于年龄的扫描：
 
 | `~/.claude/` 下的路径 | 内容 |
 | - | - |
-| `history.jsonl` | 您输入的每个提示词，带有时间戳和项目路径。用于向上箭头回忆、`Ctrl+R` 历史搜索和 `!` shell 命令补全。当 [HIPAA 配置适用于您的会话](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)时，每次扫描都会删除早于 `cleanupPeriodDays` 的条目。 |
+| `history.jsonl` | 您输入过的提示词，附带时间戳和项目路径。用于上箭头调取历史、`Ctrl+R` 历史搜索以及 `!` shell 命令补全。当 [HIPAA 配置适用于您的会话](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)时，每次清理都会删除早于 `cleanupPeriodDays` 的条目。 |
 | `stats-cache.json` | 由 `/usage` 显示的聚合令牌和成本计数 |
 | `remote-settings.json` | [server-managed settings](/docs/zh-CN/server-managed-settings) 的缓存副本，用于您的组织，或当您的组织未配置任何设置时为 `{}`。仅在会话 [获取它们](/docs/zh-CN/server-managed-settings#platform-availability) 时存在。Claude Code 在启动时和会话期间每小时检查更新。Claude Code 在您注销时删除它。 |
 | `cache/changelog.md` | Claude Code changelog 的缓存副本，由 `/release-notes` 显示。在后台刷新。 |

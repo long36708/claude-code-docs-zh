@@ -6,7 +6,7 @@
 
 > 充分利用 Claude Code Desktop：使用 Git 隔离的并行会话、拖放窗格布局、集成终端和文件编辑器、侧边聊天、计算机使用、从手机 Dispatch 会话、可视化 diff 审查、应用预览、PR 监控、连接器和企业配置。
 
-Claude Desktop 应用有三个选项卡：**Chat** 用于对话，**Cowork** 用于 [Dispatch 和更长的代理工作](https://claude.com/product/cowork)，**Code** 用于软件开发。本页是 Code 选项卡的参考。
+在 Claude Desktop 应用中，Claude Code 就是 **Code** 选项卡。该应用还包含聊天和 [Cowork](https://claude.com/product/cowork)，后者负责 Dispatch 和更长的代理工作。本页是 Code 选项卡的参考。
 
 > **[下载 macOS 版本](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)**
 >
@@ -214,7 +214,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 ### 查看会话详细信息
 
-会话详细信息面板是聊天旁的一组卡片，显示会话在何处运行、它更改了什么以及它正在运行什么。该面板在您启动会话后出现，前提是聊天区域足够宽。
+会话详细信息面板是聊天旁的一组卡片，显示会话在何处运行、它更改了什么、它正在运行什么以及其上下文使用情况。该面板在您启动会话后出现，前提是聊天区域足够宽。
 
 #### 隐藏或显示会话详细信息面板
 
@@ -298,7 +298,14 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 ### 检查使用情况
 
-点击模型选择器旁的使用环形图来查看您当前的上下文窗口使用情况和您的计划在该期间的使用情况。上下文使用是按会话的；计划使用在所有 Claude Code 使用入口上共享。
+要查看此会话的上下文窗口已使用了多少，请先确定您的 Code 选项卡布局：
+
+* **当前布局**：[会话详细信息面板](#see-session-details)中 **Context** 卡片的标题以百分比形式显示该值。打开该卡片可按类别查看占用上下文窗口的内容。
+* **[早期布局](#check-which-layout-you-have)**：点击模型选择器旁的使用环形图。其弹出窗口会显示您的上下文窗口使用情况。
+
+在任一布局中，在输入框中输入 `/context`，即可在聊天中打印此会话上下文窗口的按类别细分。
+
+两种布局的模型选择器旁都有使用环形图。点击它可查看您的计划使用情况，该使用情况在您所有的 Claude Code 使用入口之间共享。
 
 ## 让 Claude 使用你的计算机
 
@@ -398,7 +405,7 @@ Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。要改为将�
 
 > [!NOTE]
 >
-> 会话隔离需要 [Git](https://git-scm.com/downloads)。大多数 Mac 默认已包含 Git。在终端中运行 `git --version` 进行检查；如果输出了版本号，则说明 Git 已安装。如果遇到 Git 错误，请在 [Cowork 选项卡](https://claude.com/product/cowork)中请 Claude 帮助排查您的设置。
+> 会话隔离需要 [Git](https://git-scm.com/downloads)。大多数 Mac 默认已包含 Git。在终端中运行 `git --version` 进行检查；如果输出了版本号，则说明 Git 已安装。如果遇到 Git 错误，请在 [Cowork](https://claude.com/product/cowork) 中请 Claude 帮助排查您的设置。
 
 ### 向会话添加文件夹
 
@@ -514,7 +521,7 @@ Claude 还可以建议新会话。当它注意到值得修复但超出当前任�
 
 ### 来自 Dispatch 的会话
 
-[Dispatch](https://support.claude.com/en/articles/13947068) 是一个与 Claude 的持久对话，位于 [Cowork](https://claude.com/product/cowork) 选项卡中。您向 Dispatch 发送任务消息，由它决定如何处理。
+[Dispatch](https://support.claude.com/en/articles/13947068) 是一个与 Claude 的持久对话，位于 [Cowork](https://claude.com/product/cowork) 中。您向 Dispatch 发送任务消息，由它决定如何处理。
 
 任务可以通过两种方式成为 Code 会话：您直接提出要求，例如"打开一个 Claude Code 会话并修复登录错误"；或者 Dispatch 判断该任务属于开发工作，并自行创建一个会话。通常会路由到 Code 的任务包括修复错误、更新依赖、运行测试或创建 Pull Request。研究、文档编辑和电子表格工作则保留在 Cowork 中。
 
@@ -528,7 +535,7 @@ Dispatch 是您离开终端时与 Claude 协作的几种方式之一。有关与
 
 ## 扩展 Claude Code
 
-连接外部服务、添加可重用工作流、自定义 Claude 的行为并配置预览服务器。要在一个地方管理连接器、skills 和插件，请点击侧边栏中的**自定义**。[Cowork](https://claude.com/product/cowork) 标签页在桌面应用中从此自定义配置获取其 skills、插件和连接器，该配置通过你的 claude.ai 账户同步，而不是从 CLI 的 `~/.claude` 目录。
+连接外部服务、添加可重用工作流、自定义 Claude 的行为并配置预览服务器。要在一个地方管理连接器、skill 和插件，请点击侧边栏中的**自定义**。桌面应用中的 [Cowork](https://claude.com/product/cowork) 从此自定义配置获取其 skill、插件和连接器，该配置通过您的 claude.ai 账户同步，而不是从 CLI 的 `~/.claude` 目录获取。
 
 Claude Code 还会在你使用同一账户登录的终端会话中加载为你的 claude.ai 账户启用的 skills 和插件。请参阅[从 claude.ai 同步的 Skills](/docs/zh-CN/skills#how-synced-skills-behave) 和[从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading#synced-plugins)。
 

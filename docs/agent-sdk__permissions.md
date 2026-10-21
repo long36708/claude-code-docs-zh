@@ -69,7 +69,7 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 
 ## 允许和拒绝规则
 
-`allowed_tools` 和 `disallowed_tools`（TypeScript：`allowedTools` / `disallowedTools`）在上述评估流程中向允许和拒绝规则列表添加条目。如果你在 `allowed_tools` 中命名了某个[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)，Claude Code 也会选择加入该会话。任何其他未在 `allowed_tools` 中列出的工具仍然可供 Claude 使用，对其的调用如果需要批准，则会进入权限模式。拒绝规则的行为取决于它们是命名工具还是在工具内限定模式。
+`allowed_tools` 和 `disallowed_tools`（TypeScript：`allowedTools` / `disallowedTools`）在上述评估流程中向允许和拒绝规则列表添加条目。如果你在 `allowed_tools` 中命名了某个[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)，Claude Code 也会为该会话启用这些工具。任何其他未在 `allowed_tools` 中列出的工具仍然可供 Claude 使用，对其的调用如果需要批准，则会进入权限模式。拒绝规则的行为取决于它们是命名工具还是在工具内限定模式。
 
 | 选项 | 效果 |
 | :- | :- |

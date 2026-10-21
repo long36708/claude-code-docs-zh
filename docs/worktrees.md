@@ -58,6 +58,7 @@ Worktree 是一个新的检出，因此请在那里初始化您的开发环境�
 
 * **worktree 是干净的**：对于未命名的会话，Claude 会自动删除 worktree 及其分支。[已命名](/docs/zh-CN/sessions#name-your-sessions)的会话会先提示你，以便你可以保留 worktree 供以后使用
 * **worktree 中有工作**：Claude 会提示你保留或删除 worktree。保留会保留目录和分支。要稍后返回，请运行 Claude Code 在退出时打印的 `claude --worktree <name> --resume` 命令。删除会删除 worktree 目录及其分支，以及其中的所有工作
+* **已检出另一个分支**：如果 worktree 位于其自身分支以外的另一个分支上，且该分支包含 worktree 起始提交之后的提交，Claude 会提示您保留或删除 worktree。无论选择哪一项，都会保留该另一个分支及其提交。删除会删除 worktree 目录以及 worktree 自身的分支，即 Claude 随 worktree 一起创建的分支
 * **无法验证 worktree 的状态**：当 Claude Code 无法计算 worktree 的更改或无法检查其子模块检出时，它会提示你而不是自动删除 worktree。提示会说明它无法检查的内容
 
 使用 `-p` 的非交互式运行没有退出提示，因此 Claude 不会清理它们的 worktrees，Claude Code 会保留它在创建时对每个 worktree 所取的锁，直到稍后会话的[陈旧锁扫描](#clean-up-subagent-and-background-session-worktrees)释放它。要删除一个，请运行 `git worktree remove`；如果 git 拒绝因为 worktree 被锁定，请先在其上运行 `git worktree unlock`。

@@ -428,7 +428,10 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 从 [claude.ai/code](https://claude.ai/code) 重新打开会话以预配新的 VM：
 
 * **会恢复**：您的对话历史
-* **不会恢复**：VM 被回收时仍在运行的后台工作，例如子代理和 shell 命令，以及[自定节奏的 `/loop`](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval) 中待执行的唤醒。要重新启动该循环，请再次运行 `/loop`。
+* **不会恢复**：VM 被回收时仍在运行或待处理的后台工作，包括：
+  * **Shell 命令**：Claude Code 会告知 Claude 哪些命令已停止。请让 Claude 重新运行您仍需要的命令。
+  * **子代理**：Claude Code 会告知 Claude 哪些子代理已停止，以及其中哪些可以[恢复](/docs/zh-CN/sub-agents#resume-subagents)而无需从头开始。请让 Claude 继续它们的工作。
+  * **会话范围的定时任务**：您[在会话中安排的任务](/docs/zh-CN/scheduled-tasks)以及正在等待下一次迭代的 `/loop` 不会延续到重新打开的会话中。请让 Claude 重新安排这些任务，或再次运行 `/loop` 以重新启动循环。
 
 ## 限制
 

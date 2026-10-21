@@ -106,12 +106,22 @@ Claude Code从您的claude.ai账户读取列表，因此当Artifact的链接已�
 
 新创建的artifact只有你能看到。要分享它，请在浏览器中打开该artifact，并使用页面标题中的**分享**控件。标题还链接到你的库，位置在[claude.ai/code/artifacts](https://claude.ai/code/artifacts)，其中列出了你创建的每个artifact。
 
-你组织中的查看者可以看到谁发布了该页面：在组织内共享的artifact上，你的名字在标题菜单中；在公开artifact上，对于组织内已登录的查看者，你的名字在页面标题中。打开公开链接但未登录的查看者，或来自组织外的查看者，会看到标签`内容由用户生成且未经验证。`而不是你的名字。
+您组织中的查看者可以看到谁发布了该页面：在组织内共享的Artifact上，您的名字在标题菜单中；在公开Artifact上，对于组织内已登录的查看者，您的名字在页面标题中。打开公开链接但未登录的查看者，或来自组织外的查看者，会看到标签`Content is user-generated and unverified.`而不是您的名字。
 
 你可以与谁分享取决于你的计划：
 
 * **在你的组织内**：在Team和Enterprise计划上，向组织中的特定人员或所有人授予访问权限。查看者以组织成员身份登录claude.ai以查看该页面。
 * **公开**：分享一个链接，互联网上的任何人都可以打开，无需claude.ai登录。在Team和Enterprise计划上，公开分享处于关闭状态，直到所有者[为组织启用它](#control-public-sharing)。
+
+### 链接到特定视图
+
+如果一个页面有多个视图，例如标签页或章节，您可以直接链接到其中某一个。请让Claude提供这些链接：
+
+```text wrap theme={null}
+Give me a link to each tab of the deploy failures dashboard.
+```
+
+每个链接都是该Artifact的链接末尾加上一个锚点，例如`#overview`。
 
 ### 让某人与你一起编辑
 

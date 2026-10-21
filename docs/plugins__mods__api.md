@@ -36,7 +36,7 @@ on('command.run', { command: 'standup' }, async ($, e) => {
 
 您返回的 `text` 会打印在成绩单中，Claude 会读取它。要不打印任何内容，如仅打开[窗格](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw)的命令，请返回 `{}`。要让命令在 Claude 工作时运行，请在注册中添加 `immediate: true`。
 
-选择一个没有内置命令使用的名称。在会话中键入 `/` 以查看它们。`$.command.register` 对于已占用的名称会抛出异常，并显示诸如 `"/focus" refused: it is the built-in /focus"` 的消息。抛出异常的 hook 会被跳过，因此您的 `session.start` hook 的其余部分也不会运行。在该 hook 中最后注册命令，或将调用包装在 `try` 和 `catch` 中。
+选择一个没有内置命令使用的名称。在会话中键入 `/` 以查看它们。`$.command.register` 对于已占用的名称会抛出异常，并显示诸如 `"/focus" refused: it is the built-in /focus` 的消息。抛出异常的 hook 会被跳过，因此您的 `session.start` hook 的其余部分也不会运行。在该 hook 中最后注册命令，或将调用包装在 `try` 和 `catch` 中。
 
 ### 添加工具
 

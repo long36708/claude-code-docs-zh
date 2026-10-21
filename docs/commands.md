@@ -26,7 +26,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 
 **在你发布之前。** `/diff` 显示更改的内容。`/code-review` 检查当前 diff 是否存在正确性错误和清理，并可以使用 `--fix` 应用发现的问题；传递 PR 号码，例如 `/code-review high 1234`，以改为审查拉取请求。`/review` 是一个别名。`/code-review ultra` 在云中运行多代理审查。`/security-review` 检查 diff 是否存在安全漏洞。
 
-**会话之间。** `/clear` 在保持项目内存的同时开始新任务。`/resume` 返回到较早的对话，`/branch` 分支当前对话以尝试不同的方向，`/fork` 将其复制到新的 [background session](/docs/zh-CN/agent-view)。`/teleport` 将网络会话拉入此终端，`/remote-control` 让你从另一台设备继续此本地会话。
+**会话之间。** `/clear` 在保持项目记忆的同时开始新任务。`/resume` 返回到较早的对话，`/branch` 分支当前对话以尝试不同的方向，`/fork` 将其复制到新的 [后台会话](/docs/zh-CN/agent-view)。`/teleport` 将云端会话拉入此终端，`/remote-control` 让你从另一台设备继续此本地会话。
 
 **当出现问题时。** `/rewind` 将代码和对话回滚到检查点，或总结对话的一部分。`/doctor` 运行设置检查以诊断安装和配置问题并可以修复它们，`/debug` 诊断运行时问题，`/feedback` 报告附加会话上下文的错误。
 

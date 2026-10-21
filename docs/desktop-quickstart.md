@@ -6,7 +6,9 @@
 
 > 安装 Claude 桌面应用，打开 Code 选项卡，并在您计算机上的项目文件夹中开始您的第一个 Claude Code 会话。
 
-桌面应用为您提供具有图形界面的 Claude Code，因此您可以要求 Claude 处理计算机上文件夹中的代码，并查看其更改，而无需使用终端。本页面将指导您安装应用并在 **Code** 选项卡中开始您的第一个会话。Claude Code 需要 [Pro、Max、Team 或 Enterprise 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_pricing)。
+桌面应用为您提供具有图形界面的 Claude Code。您可以要求 Claude 处理计算机上文件夹中的代码，并查看其更改，而无需使用终端。
+
+Claude Code 位于应用侧边栏顶部的 **Code** 选项卡中。本页面将指导您安装应用并在其中开始您的第一个会话。Claude Code 需要 [Pro、Max、Team 或 Enterprise 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_pricing)。
 
 > **[下载 macOS 版本](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)**
 >
@@ -28,14 +30,8 @@
 >
 > * **已经设置完成**：请参阅[使用 Claude Code Desktop](/docs/zh-CN/desktop)了解 Code 选项卡可以执行的所有操作
 > * **想在您的终端中使用 `claude`**：[单独安装 CLI](/docs/zh-CN/quickstart)
-
-桌面应用有三个选项卡：
-
-* **Chat**：无文件访问权限的常规对话，类似于 claude.ai。
-* **Cowork**：一个自主后台代理，在您进行其他工作时独立处理任务。
-* **Code**：一个交互式编码助手，可直接访问您的本地文件。根据权限模式，您可以在 Claude 提出更改时批准每项更改，或在 Claude 进行更改后审查这些更改。
-
-Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介绍；安装和部署桌面应用在 [Claude Desktop 支持文章](https://support.claude.com/en/collections/16163169-claude-desktop)中有介绍。本页面重点关注 **Code** 选项卡。
+> * **使用 Chat 或 Cowork**：请参阅 [Claude 帮助中心](https://support.claude.com/)
+> * **需要了解有关安装或部署桌面应用的更多信息**：请参阅 [Claude Desktop 支持文章](https://support.claude.com/en/collections/16163169-claude-desktop)
 
 ## 安装
 
@@ -45,7 +41,11 @@ Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介�
 
 **2. 打开 Code 选项卡**
 
-点击顶部中心的 **Code** 选项卡。如果点击 Code 提示您升级，您需要先[订阅付费计划](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_upgrade)。如果提示您在线登录，请完成登录并重启应用。如果您看到 403 错误，请参阅[身份验证故障排除](/docs/zh-CN/desktop#403-or-authentication-errors-in-the-code-tab)。
+点击侧边栏顶部的 **Code** 选项卡。如果选项卡仅显示图标，将鼠标悬停在图标上即可查看其名称。如果点击 **Code** 后出现提示或错误，请按照对应的解决方法操作：
+
+* **提示升级**：您需要先[订阅付费计划](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_upgrade)
+* **提示在线登录**：完成登录并重启应用
+* **403 错误**：请参阅[身份验证故障排除](/docs/zh-CN/desktop#403-or-authentication-errors-in-the-code-tab)
 
 桌面应用包含 Claude Code，因此您无需安装 Node.js 或 CLI 即可使用 Code 选项卡。
 
@@ -87,13 +87,13 @@ Chat 和 Cowork 在 [Claude 帮助中心](https://support.claude.com/)中有介�
 
 查看输入框下方一行中的[权限模式](/docs/zh-CN/desktop#choose-a-permission-mode)，了解 Claude 是否会等待您的批准：
 
-* **自动或接受编辑**：Claude 应用其文件更改，并显示一个指示器（如 `+12 -1`），以便您可以在差异视图中审查它们
+* **自动或接受编辑**：Claude 应用其文件更改，并显示一个指示器（如 `+12 -1`），以便您可以在 [diff 视图](/docs/zh-CN/desktop#review-changes-with-diff-view)中审查它们
 * **手动**：Claude 提议每项更改，并在应用前等待您的批准
 
 在手动模式下，您将看到：
 
-1. 一个 [差异视图](/docs/zh-CN/desktop#review-changes-with-diff-view)，显示每个文件中将发生的确切更改
-2. 接受/拒绝按钮以批准或拒绝每项更改
+1. 一个 diff，准确显示将要发生的更改
+2. 用于批准或拒绝每项更改的按钮
 3. Claude 处理您的请求时的实时更新
 
 ## 接下来呢？

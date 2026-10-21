@@ -39,79 +39,79 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 ## 使用 /loop 重复运行提示词
 
-`/loop` [bundled skill](/docs/zh-CN/commands) 是在会话保持打开时重复运行提示词的最快方式。间隔和提示词都是可选的，您提供的内容决定了循环的行为方式。
+`/loop` [随附 skill](/docs/zh-CN/commands) 是在会话保持打开期间重复运行提示词的最快方式。间隔和提示词都是可选的，您提供的内容决定了循环的行为方式。
 
-| 您提供的内容 | 示例 | 发生的情况 |
+| 您提供的内容 | 示例 | 会发生什么 |
 | :- | :- | :- |
-| 间隔和提示词 | `/loop 5m check the deploy` | 您的提示词在[固定计划](#run-on-a-fixed-interval)上运行 |
-| 仅提示词 | `/loop check the deploy` | 您的提示词在 Claude 选择的[间隔](#let-claude-choose-the-interval)上运行，每次迭代 |
-| 仅间隔或无 | `/loop` | [内置维护提示词](#run-the-built-in-maintenance-prompt)运行，或您的 `loop.md`（如果存在） |
+| 间隔和提示词 | `/loop 5m check the deploy` | 您的提示词按[固定计划](#run-on-a-fixed-interval)运行 |
+| 仅提示词 | `/loop check the deploy` | 您的提示词在每次迭代时按 [Claude 选择的间隔](#let-claude-choose-the-interval)运行 |
+| 仅间隔，或什么都不提供 | `/loop` | 运行[内置维护提示词](#run-the-built-in-maintenance-prompt)，如果存在 `loop.md`，则运行该文件 |
 
-您也可以将 skill 作为提示词传递，例如 `/loop 20m /review-pr 1234`，以在每次迭代时重新运行该 skill。计划的触发仅运行 Claude [允许自己调用](/docs/zh-CN/skills#control-who-invokes-a-skill)的 skill。以下内容作为纯文本到达 Claude，而不是执行：
+您也可以将 skill 作为提示词传入，例如 `/loop 20m /review-pr 1234`，以便在每次迭代时重新运行该 skill。定时触发只会运行 Claude [可以自行调用](/docs/zh-CN/skills#control-who-invokes-a-skill)的 skill。以下内容会以纯文本形式传给 Claude，而不会被执行：
 
 * 内置命令，例如 `/permissions`、`/model` 或 `/clear`
-* 标记为 [`disable-model-invocation: true`](/docs/zh-CN/skills#frontmatter-reference) 的 skill，包括 bundled `/verify` skill
-* 由 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 设置或 `Skill` [deny rule](/docs/zh-CN/skills#restrict-claude%E2%80%99s-skill-access) 从 Claude 扣留的 skill
-* [MCP prompts](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)，例如 `/mcp__github__list_prs`
+* 标记为 [`disable-model-invocation: true`](/docs/zh-CN/skills#frontmatter-reference) 的 skill，包括随附的 `/verify` skill
+* 通过 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 设置或 `Skill` [拒绝规则](/docs/zh-CN/skills#restrict-claude’s-skill-access)对 Claude 隐藏的 skill
+* [MCP 提示词](/docs/zh-CN/mcp#use-mcp-prompts-as-commands)，例如 `/mcp__github__list_prs`
 
-### 在固定间隔上运行
+### 按固定间隔运行
 
-当您提供间隔时，Claude 将其转换为 cron 表达式，计划作业，并确认频率和作业 ID。
+当您提供间隔时，Claude 会将其转换为 cron 表达式，安排该任务，并确认执行频率和任务 ID。
 
 ```text theme={null}
 /loop 5m check if the deployment finished and tell me what happened
 ```
 
-间隔可以作为裸令牌（如 `30m`）在提示词前面，或作为子句（如 `every 2 hours`）在后面。支持的单位是 `s` 表示秒、`m` 表示分钟、`h` 表示小时、`d` 表示天。
+间隔可以作为单独的标记（如 `30m`）放在提示词之前，也可以作为从句（如 `every 2 hours`）放在提示词之后。支持的单位有：`s` 表示秒，`m` 表示分钟，`h` 表示小时，`d` 表示天。
 
-秒数向上舍入到最近的分钟，因为 cron 的粒度为一分钟。不能均匀映射到干净 cron 步长的间隔，例如 `7m` 或 `90m`，会舍入到最近的间隔，Claude 会告诉您它选择了什么。
+由于 cron 的粒度为一分钟，秒数会向上取整到最接近的分钟。无法映射为整齐 cron 步长的间隔（例如 `7m` 或 `90m`）会被舍入到最接近的可映射间隔，Claude 会告诉您它选择了哪个间隔。
 
 ### 让 Claude 选择间隔
 
-当您省略间隔时，Claude 会动态选择一个，而不是在固定 cron 计划上运行。在每次迭代后，它会根据观察到的情况选择一个一分钟到一小时之间的延迟：在构建完成或 PR 活跃时等待较短时间，当没有待处理项时等待较长时间。选择的延迟和原因会在每次迭代结束时打印。
+当您省略间隔时，Claude 会动态选择间隔，而不是按固定的 cron 计划运行。每次迭代后，它会根据观察到的情况选择一分钟到一小时之间的延迟：在构建即将完成或 PR 处于活跃状态时等待较短时间，在没有待处理事项时等待较长时间。所选的延迟及其原因会在每次迭代结束时输出。
 
-下面的示例检查 CI 和审查评论，Claude 在 PR 变得安静后在迭代之间等待更长时间：
+以下示例会检查 CI 和评审意见，一旦 PR 安静下来，Claude 会在迭代之间等待更长时间：
 
 ```text theme={null}
 /loop check whether CI passed and address any review comments
 ```
 
-在[Monitor tool 可用](/docs/zh-CN/tools-reference#monitor-tool)的会话中，当您要求动态 `/loop` 计划时，Claude 可能会直接使用它。Monitor 运行后台脚本并流式传输每个输出行，这完全避免了轮询，通常比在间隔上重新运行提示词更节省令牌且响应更快。
+在 [Monitor 工具可用](/docs/zh-CN/tools-reference#monitor-tool)的会话中，当您请求动态 `/loop` 计划时，Claude 可能会直接使用该工具。Monitor 会运行后台脚本并将每一行输出流式传回，从而完全避免轮询，并且通常比按间隔重新运行提示词更节省 token、响应更及时。
 
-动态安排的循环会像任何其他任务一样出现在您的[定时任务列表](#manage-scheduled-tasks)中，因此您可以用相同的方式列出或取消它。该列表将其待处理的唤醒显示为一次性任务，因此安排在 `:00` 或 `:30` 的唤醒可能会[稍早运行](#when-a-one-shot-task-runs-early)。[七天过期](#seven-day-expiry)同样适用于该循环。
+动态安排的循环会像其他任务一样出现在您的[定时任务列表](#manage-scheduled-tasks)中，因此您可以用相同的方式列出或取消它。列表将其待处理的唤醒显示为一次性任务，因此安排在 `:00` 或 `:30` 的唤醒可能会[稍早运行](#when-a-one-shot-task-runs-early)。[七天过期](#seven-day-expiry)规则同样适用于该循环。
 
 > [!NOTE]
 >
-> 动态选择的间隔和[内置维护提示词](#run-the-built-in-maintenance-prompt)在每个提供商上都有效，并且[特性标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)已关闭。在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，或关闭获取时，两者都需要 Claude Code v2.1.248 或更高版本。
+> 动态选择的间隔和[内置维护提示词](#run-the-built-in-maintenance-prompt)适用于所有提供商，并且在关闭[功能标志获取](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)时同样可用。在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，或在关闭获取的情况下，这两项功能都需要 Claude Code v2.1.248 或更高版本。
 
 ### 运行内置维护提示词
 
-当您省略提示词时，Claude 使用内置维护提示词而不是您提供的提示词。在每次迭代中，它按顺序处理以下内容：
+当您省略提示词时，Claude 会使用内置维护提示词，而不是您提供的提示词。在每次迭代中，它会按顺序处理以下事项：
 
-* 继续对话中的任何未完成工作
-* 照顾当前分支的拉取请求：审查评论、失败的 CI 运行、合并冲突
-* 运行清理通过，例如当没有其他待处理项时的错误搜索或简化
+* 继续对话中任何未完成的工作
+* 处理当前分支的 Pull Request：评审意见、失败的 CI 运行、合并冲突
+* 在没有其他待处理事项时，执行清理工作，例如查找 bug 或简化代码
 
-Claude 不会启动该范围之外的新举措，不可逆的操作（如推送或删除）仅在继续转录已授权的内容时进行。
+Claude 不会在该范围之外发起新的工作，并且推送或删除等不可逆操作只有在延续会话记录中已授权的内容时才会执行。
 
 ```text theme={null}
 /loop
 ```
 
-裸 `/loop` 在[动态选择的间隔](#let-claude-choose-the-interval)上运行此提示词。添加间隔，例如 `/loop 15m`，以在固定计划上运行它。要用您自己的默认值替换内置提示词，请参阅[使用 loop.md 自定义默认提示词](#customize-the-default-prompt-with-loop-md)。
+单独的 `/loop` 会以[动态选择的间隔](#let-claude-choose-the-interval)运行此提示词。添加间隔（例如 `/loop 15m`）即可改为按固定计划运行。要用您自己的默认提示词替换内置提示词，请参阅[使用 loop.md 自定义默认提示词](#customize-the-default-prompt-with-loop-md)。
 
 ### 使用 loop.md 自定义默认提示词
 
-创建 `loop.md` 文件以用您自己的说明替换[内置维护提示词](#run-the-built-in-maintenance-prompt)。它为裸 `/loop` 定义单个默认提示词，而不是单独计划任务的列表，并且在您在命令行上提供提示词时被忽略。要在其旁边计划其他提示词，请使用 `/loop <prompt>` 或[直接询问 Claude](#manage-scheduled-tasks)。
+创建 `loop.md` 文件，即可用您自己的指令替换[内置维护提示词](#run-the-built-in-maintenance-prompt)。它为单独的 `/loop` 定义单个默认提示词，而不是一组独立的定时任务，并且每当您在命令行中提供提示词时，Claude Code 都会忽略该文件。要在其之外安排其他提示词，请使用 `/loop <prompt>` 或[直接询问 Claude](#manage-scheduled-tasks)。
 
-Claude 在两个位置查找文件，并使用它找到的第一个。
+Claude 会在两个位置查找该文件，并使用找到的第一个文件。
 
-| 路径 | 范围 |
+| 路径 | 作用域 |
 | :- | :- |
-| `.claude/loop.md` | 项目级别。当两个文件都存在时优先。 |
-| `~/.claude/loop.md` | 用户级别。适用于任何未定义自己的项目。 |
+| `.claude/loop.md` | 项目级。两个文件都存在时优先使用。 |
+| `~/.claude/loop.md` | 用户级。适用于任何未定义自己的文件的项目。 |
 
-该文件是纯 Markdown，没有必需的结构。像您直接输入 `/loop` 提示词一样编写它。以下示例保持发布分支健康：
+该文件是纯 Markdown，没有必需的结构。像直接输入 `/loop` 提示词一样编写即可。以下示例用于保持发布分支的健康状态：
 
 ```markdown title=".claude/loop.md" theme={null}
 Check the `release/next` PR. If CI is red, pull the failing job log,
@@ -120,15 +120,18 @@ address each one and resolve the thread. If everything is green and
 quiet, say so in one line.
 ```
 
-对 `loop.md` 的编辑在下一次迭代时生效，所以您可以在循环运行时优化说明。当任一位置都不存在 `loop.md` 时，循环回退到内置维护提示词。保持文件简洁：超过 25,000 字节的内容会被截断。
+对 `loop.md` 的编辑会在下一次迭代时生效，因此您可以在循环运行期间完善指令。当两个位置都不存在 `loop.md` 时，循环会回退到内置维护提示词。请保持文件简洁：超过 25,000 字节的内容会被截断。
 
 ### 停止循环
 
-要在[自主进行 `/loop`](#let-claude-choose-the-interval) 等待下一次迭代时停止它，请按 `Esc`。这会清除待处理的唤醒，所以循环不会再次触发。您通过[直接询问 Claude](#manage-scheduled-tasks)计划的任务不受 `Esc` 影响，会保留在原位，直到您删除它们。
+* **[自定节奏的循环](#let-claude-choose-the-interval)**：在循环等待下一次迭代时，按 `Esc` 即可停止它。在 Claude 空闲时，您也可以按 `Ctrl+C` 停止它，但在[您已附加到的后台会话](#detach-without-stopping-a-loop)中除外。`Pending wakeup cancelled` 通知会确认该循环不会再次触发。
+* **[固定间隔的循环](#run-on-a-fixed-interval)**：要停止 `/loop 5m` 之类的循环，请让 Claude 取消它，例如 `cancel the deploy check loop`。`Esc` 和 `Ctrl+C` 无法停止它，也无法停止任何您[通过直接询问 Claude 安排的任务](#manage-scheduled-tasks)。未取消的循环会在[七天后](#seven-day-expiry)结束。
 
-在[自主进行模式](#let-claude-choose-the-interval)中，Claude 也可以在任务完成后通过调用 [`ScheduleWakeup` tool](/docs/zh-CN/tools-reference) 并设置 `stop: true` 来自己结束循环，这会立即取消待处理的唤醒。如果迭代结束时既没有重新计划也没有停止，Claude Code 会在大约 20 分钟后计划一个备用唤醒，并在该迭代也不重新计划时结束循环。
+在[自定节奏模式](#let-claude-choose-the-interval)下，Claude 也可以在任务完成后自行结束循环。Claude 会使用 `stop: true` 调用 [`ScheduleWakeup` 工具](/docs/zh-CN/tools-reference)，从而立即取消待处理的唤醒。如果某次迭代结束时既没有重新安排也没有停止，Claude Code 会在大约 20 分钟后安排一次备用唤醒，如果该次迭代也没有重新安排，则结束循环。
 
-固定间隔上的循环会一直运行，直到您[像任何其他计划任务一样取消它们](#manage-scheduled-tasks)或[七天过去](#seven-day-expiry)。
+#### 分离而不停止循环
+
+当您[附加到后台会话](/docs/zh-CN/agent-view#attach-to-a-session)且 Claude 处于空闲状态时，在空输入框中按两次 `Ctrl+C` 即可分离。在那里等待下一次迭代的自定节奏循环会继续运行，且该次迭代会按计划开始。如果要停止循环，请在分离之前按 `Esc`。使用 `Ctrl+C` 分离而不停止循环需要 Claude Code v2.1.295 或更高版本。
 
 ## 设置一次性提醒
 
@@ -232,7 +235,10 @@ cancel the deploy check job
 
 * 任务仅在 Claude Code 运行且空闲时触发。关闭终端或让会话退出会停止它们触发。[将会话放在后台](/docs/zh-CN/agent-view#from-inside-a-session)会将 `/loop` 任务转移到后台会话，该会话继续运行而无需终端。
 * 没有错过触发的追赶。如果任务的计划时间在 Claude 忙于长时间运行的请求时经过，它会在 Claude 变为空闲时触发一次，而不是每个错过的间隔触发一次。
-* 当您使用 `claude --resume` 或 `claude --continue` 恢复会话时，Claude Code 会恢复使用 `CronCreate` 调度的任务，除了已[过期](#seven-day-expiry)的重复任务和计划时间已经过去的一次性任务。[自定步调的 `/loop`](#let-claude-choose-the-interval)不会被恢复，因此请再次运行 `/loop` 以重新启动它。后台 Bash 和监视器任务在恢复时永远不会被恢复。
+* 在[后台会话](/docs/zh-CN/agent-view#from-inside-a-session)中，如果[自定步调的循环](#let-claude-choose-the-interval)的下一次唤醒到期时会话进程未在运行（例如发生崩溃之后），该循环会停止。当进程再次启动时，会话记录会显示一条[说明该唤醒不会触发的通知](/docs/zh-CN/errors#restarted-after-its-next-loop-wakeup-was-due)。要继续该循环，请[回复该会话](/docs/zh-CN/agent-view#peek-and-reply)并要求 Claude 保持其运行。
+* 当您使用 `claude --resume` 或 `claude --continue` 恢复会话时，Claude Code 会恢复使用 `CronCreate` 调度的任务，除了已[过期](#seven-day-expiry)的重复任务和计划时间已经过去的一次性任务。[自定步调的 `/loop`](#let-claude-choose-the-interval)不会被恢复，因此请再次运行 `/loop` 以重新启动它。
+* 恢复的重复任务不会为会话未运行期间错过的运行而触发。其下一次运行是您恢复后第一个到期的运行，并且[抖动](#jitter)适用于该次运行。
+* 当您使用 `claude --resume` 或 `claude --continue` 恢复时，Claude Code 不会重新启动会话结束时正在运行的后台 Bash 命令和监视器。如果您仍然需要其中某一个，请让 Claude 重新启动它。
 * 当[功能标志获取关闭](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)时，Claude Code 会将您要求在会话间保留的任务存储在项目的 `.claude/scheduled_tasks.json` 文件中。当 `.claude` 目录或该文件是符号链接时，Claude Code 会返回错误而不是调度任务。保存的任务仅在您创建它的项目文件夹中运行。如果您将文件复制到另一个文件夹（例如新的 worktree），那里的会话会列出复制的任务但不会运行它们，因此请在该文件夹中再次创建任务。
 
 对于需要无人值守运行的 cron 驱动自动化：

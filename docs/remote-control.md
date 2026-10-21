@@ -33,7 +33,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
   * 您通过企业 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 登录。
 * **功能标志评估**：如果您设置了[关闭功能标志评估的环境变量](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)，Remote Control 是否可用取决于您设置的是哪一个：
   * 如果您设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 或 `DISABLE_GROWTHBOOK`，Remote Control 不可用。在您的 shell 环境或 [`settings.json` 文件](/docs/zh-CN/settings-reference#all-settings)的 `env` 块中取消设置该变量，以使用 Remote Control。
-  * 如果您仅设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK`，Remote Control 保持可用，除非您的组织需要[受信任的设备](#trusted-devices)。如果需要，取消设置该变量以使用 Remote Control。使用设置了任一变量的 Remote Control 需要 Claude Code v2.1.283 或更高版本。
+  * 如果您仅设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK`，Remote Control 保持可用，除非您的组织需要[受信任的设备](#trusted-devices)。如果需要，取消设置该变量以使用 Remote Control。使用设置了任一变量的 Remote Control 需要 Claude Code v2.1.283 或更高版本，在 Claude Desktop 应用中则需要 v2.1.304 或更高版本。
 * **工作区信任**：在您尚未信任的目录中，`claude remote-control` 会打印信任该目录会启用的功能，并在启动前询问 `Trust <directory>? [y/N]`。回答 `y` 会保存该选择，但在您的主目录中除外，在主目录中信任永远不会被保存，每次运行时都会返回该问题。当其标准输入或输出不是终端时，该命令无法询问并以 [`Workspace not trusted`](/docs/zh-CN/errors#workspace-not-trusted-when-starting-remote-control) 错误退出。
 
 ## 启动远程控制会话
@@ -203,7 +203,7 @@ VS Code 扩展和 Desktop 应用也有自动连接开关：
 
 如果仅设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK`，您的会话不会通过您组织的管理员默认值或 Claude Code 自身的默认值自动连接。如果有其他因素导致 Remote Control 对您不可用，例如 `DISABLE_GROWTHBOOK` 或 LLM 网关，请改为从[要求](#requirements)开始。
 
-在仅设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 的情况下打开自动连接需要 Claude Code v2.1.283 或更高版本。要自动连接，请检查您的组织是否要求[受信任设备](#trusted-devices)：
+在仅设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 的情况下打开自动连接之前，请确认您的 Claude Code 版本满足[这些变量的要求](#requirements)。然后检查您的组织是否要求[受信任设备](#trusted-devices)：
 
 * **不要求**：在 `/config` 中将 **Enable Remote Control for all sessions** 设置为 `true`。
 * **要求**：设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 时，Remote Control 不可用。取消设置您所设置的这两个变量中的任意一个。如果您的会话仍未自动连接，请在 `/config` 中将 **Enable Remote Control for all sessions** 设置为 `true`。
@@ -435,7 +435,7 @@ Claude Code 无法访问功能标志服务来检查是否为您的账户启用�
 设置了[环境变量](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)来关闭功能标志评估，完整消息命名了 Claude Code 找到的变量。在 2.1.154 之前的版本上，相同的配置会产生"Remote Control is not yet enabled for your account"。要做什么取决于消息命名的变量：
 
 * **`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 或 `DISABLE_GROWTHBOOK`**：在设置它的任何地方取消设置变量，在您的 shell 环境或[`settings.json` 文件](/docs/zh-CN/settings-reference#all-settings)的 `env` 块中。
-* **`DISABLE_TELEMETRY` 或 `DO_NOT_TRACK`**：在 Pro、Max、Team 或 Enterprise 计划上，且 `DISABLE_GROWTHBOOK` 未设置，这些变量会保留 Remote Control 可用，除非您的组织需要[可信设备](#trusted-devices)。如果需要，在设置它的任何地方取消设置变量以使用 Remote Control。从 v2.1.154 到 v2.1.282，任一变量都会产生此消息，因此请将 Claude Code 更新到 v2.1.283 或更高版本。
+* **`DISABLE_TELEMETRY` 或 `DO_NOT_TRACK`**：在 Pro、Max、Team 或 Enterprise 计划上，且 `DISABLE_GROWTHBOOK` 未设置，这些变量会保留 Remote Control 可用，除非您的组织需要[可信设备](#trusted-devices)。如果需要，在设置它的任何地方取消设置变量以使用 Remote Control。在 v2.1.154 到 v2.1.282 上，设置任一变量都会看到此消息，因此请将 Claude Code 更新到满足[这些变量的要求](#requirements)的版本。
 
 ### "Remote Control is only available when using Claude via api.anthropic.com"
 

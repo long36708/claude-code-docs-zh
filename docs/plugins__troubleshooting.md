@@ -949,6 +949,10 @@ Claude Code 将已安装的插件复制到其缓存中，因此仅从源目录�
 
 Claude Code 根据插件根目录解析了您的 `plugin.json` 或市场条目中的路径，但在那里找不到任何内容。消息中的路径是它检查的绝对路径，因此请将其与磁盘上的内容进行比较。修复路径或创建目录，然后运行 `/reload-plugins`。
 
+> [!NOTE]
+>
+> 在 v2.1.299 之前，此消息可能会在启动时出现在带有 `synced[0]` 等标签的行上。该行对应[从 claude.ai 同步](/docs/zh-CN/plugins/loading#synced-plugins)的插件。当您计算机上的另一个 Claude Code 会话刚刚更新了该插件并移动了其文件时，就会出现此消息。要加载该插件，请重启 Claude Code。要避免因此原因出现该消息，请更新到 v2.1.299 或更高版本。
+
 清单中的路径相对于插件根目录，以 `./` 开头。解析到插件根目录外的路径会被报告为 `<component> path escapes plugin directory`，并被丢弃。
 
 ### `--plugin-dir` 在市场根目录处不会加载 `plugins/` 下的插件

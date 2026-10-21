@@ -372,7 +372,7 @@ tool(
 
 ### 配置允许的工具
 
-`tools`选项和允许/禁止列表影响两个层级：可用性（控制工具是否出现在Claude的上下文中）和权限（控制Claude尝试调用后是否批准该调用）。`tools`和裸名称`disallowedTools`条目改变可用性。`allowedTools`和作用域`disallowedTools`规则改变权限。如果您在`allowedTools`中命名其中一个[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)，Claude Code也会选择加入该会话。
+`tools`选项和允许/禁止列表影响两个层级：可用性（控制工具是否出现在Claude的上下文中）和权限（控制Claude尝试调用后是否批准该调用）。`tools`和裸名称`disallowedTools`条目改变可用性。`allowedTools`和作用域`disallowedTools`规则改变权限。如果您在`allowedTools`中命名其中一个[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)，Claude Code也会为该会话启用这些工具。
 
 | 选项 | 层级 | 效果 |
 | :- | :- | :- |

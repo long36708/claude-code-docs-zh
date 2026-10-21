@@ -164,7 +164,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 ### 归档环境
 
-要归档您自己的某个环境，请打开它进行编辑，选择 **Archive environment** 并确认。如果该环境已[与您的组织共享](#organization-shared-environments)，则改由所有者从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面将其归档，因此除非您本身就是所有者，否则请联系所有者。您无法删除环境，只能归档它。
+要归档您自己的某个环境，请打开它进行编辑，选择 **Archive environment** 并确认。如果该环境已[与您的组织共享](#organization-shared-environments)，则改由所有者从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面将其归档，因此除非您本身就是所有者，否则请联系所有者。
 
 归档影响新会话，不影响运行中的会话：
 
@@ -174,6 +174,8 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 * 在任何使用入口上都无法在已归档的环境中启动新会话：
   * **保存的 CLI 默认值**：如果该环境是您保存的 [CLI 默认值](#select-an-environment-from-the-cli)，当您的列表中有 Anthropic 托管的环境时，Claude Code 会在该环境中启动 CLI 云端会话。否则，会在列表中第一个不是 [Remote Control bridge 环境](#the-default-environment)的环境中启动。
   * **显式配置**：任何显式配置了该环境的内容，例如[云端定时任务](/docs/zh-CN/routines#environments-and-network-access)，都无法在其中启动新会话。请将其指向另一个环境。
+
+当您不再需要某个 Anthropic 托管的环境时，请将其归档。环境对话框和 **Cloud environments** 管理页面都没有删除 Anthropic 托管环境的选项。如果该环境是[自托管](/docs/zh-CN/self-hosted-environments)的，所有者可以从管理设置中的 **Cloud environments** 页面将其删除。如果您不是所有者，请联系所有者将其删除。
 
 ### 组织共享环境
 

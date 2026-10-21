@@ -21,13 +21,13 @@ Linux 上的桌面应用提供与 macOS 和 Windows 相同的 Chat、Cowork 和 
 
 ### Cowork 要求
 
-Cowork 是 [Dispatch 和更长的代理工作](https://claude.com/docs/cowork/overview) 的桌面选项卡。在 Linux 上，Cowork 在桌面应用程序使用 QEMU 和 KVM 托管的虚拟机中运行这些任务。要使用 Cowork，您的机器需要：
+Cowork 是桌面应用程序中用于 [Dispatch 和更长的代理工作](https://claude.com/docs/cowork/overview) 的部分。在 Linux 上，Cowork 在桌面应用程序使用 QEMU 和 KVM 托管的虚拟机中运行这些任务。要使用 Cowork，您的机器需要：
 
-* **硬件虚拟化**：在您的固件设置中启用。没有它，Cowork 选项卡会报告"Cowork requires hardware virtualization (KVM)"。
-* **QEMU 和 UEFI 固件**：在 x86\_64 上为 `qemu-system-x86`、`ovmf` 和 `virtiofsd`，或在 arm64 上为 `qemu-system-arm`、`qemu-efi-aarch64` 和 `virtiofsd`。`apt install claude-desktop` 默认将它们作为推荐包安装。如果您使用 `--no-install-recommends` 安装，或您的系统是跳过推荐包的最小镜像，Cowork 选项卡会报告"Cowork requires QEMU"并显示要运行的 `apt install` 命令。Ubuntu 22.04 没有 `virtiofsd` 包；应用程序在那里使用捆绑的副本。
+* **硬件虚拟化**：在您的固件设置中启用。没有它，Cowork 会报告"Cowork requires hardware virtualization (KVM)"。
+* **QEMU 和 UEFI 固件**：在 x86\_64 上为 `qemu-system-x86`、`ovmf` 和 `virtiofsd`，或在 arm64 上为 `qemu-system-arm`、`qemu-efi-aarch64` 和 `virtiofsd`。`apt install claude-desktop` 默认将它们作为推荐包安装。如果您使用 `--no-install-recommends` 安装，或您的系统是跳过推荐包的最小镜像，Cowork 会报告"Cowork requires QEMU"并显示要运行的 `apt install` 命令。Ubuntu 22.04 没有 `virtiofsd` 包；应用程序在那里使用捆绑的副本。
 * **访问 `/dev/kvm`**：使用 `sudo usermod -aG kvm $USER` 将您的用户添加到 `kvm` 组，然后注销并重新登录。某些桌面环境会向已登录的用户授予对 `/dev/kvm` 的访问权限而无需该组，但 Cowork 还需要 `/dev/vhost-vsock`，只有 `kvm` 组成员才能打开。即使 `/dev/kvm` 已经对您有效，也要加入该组。
 
-应用程序在启动时检查这些要求一次：安装包后重新启动它，加入组后注销并重新登录。如果 `/dev/vhost-vsock` 缺失且您运行的内核在 `/lib/modules` 下没有模块目录，Cowork 选项卡会报告内核不包含 Cowork 需要的虚拟化支持，并且无法手动添加。这种组合在 ChromeOS 和基于容器的 Linux 环境中很常见。
+应用程序在启动时检查这些要求一次：安装包后重新启动它，加入组后注销并重新登录。如果 `/dev/vhost-vsock` 缺失且您运行的内核在 `/lib/modules` 下没有模块目录，Cowork 会报告内核不包含 Cowork 需要的虚拟化支持，并且无法手动添加。这种组合在 ChromeOS 和基于容器的 Linux 环境中很常见。
 
 ## 安装
 
@@ -153,7 +153,7 @@ Claude Desktop 将您的登录信息保存在您桌面的密钥环中，例如 G
 
 ### Cowork 不可用
 
-如果 Cowork 选项卡显示以下消息之一，请修复它命名的要求，然后重新启动应用：
+如果 Cowork 显示以下消息之一，请修复它指出的要求，然后重新启动应用：
 
 * **Cowork 需要 QEMU**：安装消息列出的 [QEMU 和 UEFI 固件软件包](#cowork-requirements)。
 * **Cowork 需要硬件虚拟化 (KVM)**：在您的固件设置中打开[硬件虚拟化](#cowork-requirements)。

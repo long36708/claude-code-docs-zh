@@ -1120,7 +1120,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 
 每次调用子代理都会创建一个新实例，而不是延续之前的实例。要继续某个现有子代理的工作而不是从头开始，请让 Claude 恢复它。
 
-恢复的子代理会保留其完整的对话历史，包括之前所有的工具调用、结果和推理。如果该子代理生成过[自己的后台子代理](#let-subagents-spawn-their-own-subagents)，该历史还包括这些后台子代理在其运行期间交付的结果。子代理会从停止的地方继续，而不是从零开始。
+恢复的子代理会保留其完整的对话历史，包括之前所有的工具调用、结果和推理。如果该子代理生成过[自己的后台子代理](#let-subagents-spawn-their-own-subagents)，该历史还包括这些后台子代理在其运行期间交付的结果。在 v2.1.304 之前，如果 Claude 在子代理刚完成时就向其发送消息或恢复它，该子代理可能会遗忘其最近的工作。
 
 * 子代理完成时，Claude 会收到其 Agent ID。
 * 内置的 Explore 和 Plan Agent 是一次性的，不返回 Agent ID，因此 Claude 无法恢复它们。需要继续工作时，请使用 `general-purpose` 或自定义子代理。
@@ -1159,6 +1159,16 @@ Continue that code review and now analyze the authorization logic
 * **主对话压缩**：主对话压缩时，子代理会话记录不受影响。它们存储在单独的文件中。
 * **会话持久性**：子代理会话记录在其所属会话内持久保存。重启 Claude Code 后，您可以通过恢复同一会话来[恢复子代理](#resume-subagents)。
 * **自动清理**：Claude Code 会在 `cleanupPeriodDays` 保留期（默认为 30 天）过后删除子代理会话记录，遵循[保留清理规则](/docs/zh-CN/claude-directory#cleaned-up-automatically)。
+
+##### 重启后按名称向子代理发送消息
+
+> [!NOTE]
+>
+> 对于以队友身份启动的子代理，请改为参阅 [agent team 限制](/docs/zh-CN/agent-teams#limitations)。
+
+如果在您重启 Claude Code 并恢复会话后，Claude 无法按名称向某个子代理发送消息，请改为向 Claude 提供该子代理的 Agent ID。Claude 自上次[压缩](/docs/zh-CN/context-window#what-survives-compaction)以来在主对话中指定的名称在重启后仍会保留，而该次压缩之前的名称则不会保留。要查找某个名称对应的 ID，请在 `~/.claude/projects/{project}/{sessionId}/subagents/` 下的 `agent-{agentId}.meta.json` 文件中查找该名称。
+
+通过 ID 发送一条消息后，该子代理的名称即可再次使用，除非已有较新的 Agent 占用了该名称。在 v2.1.299 之前，任何名称都无法在重启后保留，即使 Agent ID 仍然有效，按名称发送也会被拒绝。
 
 #### 上下文自动压缩
 

@@ -276,9 +276,9 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 大约十秒后，Claude Code 会不再等待，直接将会话转入后台，但以下情况等除外：
 
-* **前台子代理仍在运行**：Claude Code 会继续等待，以便 Claude 启动的[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)的工作能够转移，并显示 `Still backgrounding after the current tool`。再按一次 `←` 可不等待直接转入后台，这会从头重新启动这些子代理。
+* **前台子代理仍在运行**：Claude Code 会继续等待，以便 Claude 启动的[前台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)的工作得以延续，并显示 `Still backgrounding after the current tool`。再次按 `←` 可不等待直接转入后台，这会使这些子代理从头重新开始。
 * **有权限提示或问题在等待您的回答**：当权限提示或 Claude 提出的问题处于等待状态时，Claude Code 会继续等待并显示 `Still backgrounding after the current tool — a question is waiting for your answer.` 如果您的回答让当前轮次得以继续，例如在权限提示上选择 **Yes**，Claude Code 会在当前工具完成时将会话转入后台。
-* **您在提示输入框中输入内容**：Claude Code 会取消切换，因为未发送的文本会留在终端的输入框中，不会移到后台会话。它会显示 `Backgrounding cancelled — you have unsent text in the input. Send it or clear it, then press ← again.`
+* **您在提示输入框中输入内容**：Claude Code 会取消切换，因为未发送的文本会留在终端的输入框中，不会移到后台会话。它会显示 `Backgrounding cancelled — you have unsent text in the input. Send it or clear it, then press ← again.` Claude 会继续在前台工作。
 * **您停止了当前轮次**：Claude Code 会取消切换并显示 `Backgrounding cancelled — the turn was stopped.` 例如，当您[用 `Esc` 中断 Claude](/docs/zh-CN/interactive-mode#general-controls)，在主对话的权限提示上[不添加评论](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)而选择 **No**，或在主对话中 Claude 提出的问题上按 `Esc` 时，当前轮次会停止。再按一次 `←` 即可将会话转入后台。
 * **排队的消息无法移动**：您[在 Claude 工作时排队的消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)会随对话移到后台会话。当其中某条消息无法移动时，会话会留在前台，Claude Code 会显示类似 `Cannot open agents — 1 queued message can't move to the background. Press ← again once Claude has read it.` 的通知。
 
@@ -287,6 +287,15 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 即使对话还没有任何消息，按 `←` 也会创建该会话的行，因此 `→` 仍可返回该会话。
 
 您可以在 `/config` 中通过 [`leftArrowOpensAgents`](/docs/zh-CN/settings-reference#leftarrowopensagents) 设置为前台会话关闭此快捷键。
+
+##### 会话移到后台时发送的提示词
+
+如果您在会话移到后台的那一刻输入提示词或 `!` shell 命令，它会被停止或保持未发送状态：
+
+* **在对话关闭时发送**：回复或命令会在对话关闭、agent view 打开时停止
+* **此时仍在等待 [hook](/docs/zh-CN/hooks)**：提示词不会被发送，屏幕上也不会有任何说明。这包括在 [`SessionStart` hook](/docs/zh-CN/hooks#sessionstart) 仍在运行时输入的提示词
+
+在这两种情况下，您输入的文本都会保留在[提示历史](/docs/zh-CN/interactive-mode#command-history)中。要再次发送，请打开已转入后台的会话，在其提示符处按 `↑` 找回该文本。
 
 ### 组织列表
 
@@ -362,7 +371,7 @@ agent view 对会话进行分组，使需要输入的会话位于顶部，`Ready
 | `Ctrl+X` | 停止会话；在两秒内再按一次即可删除 |
 | `Shift+↑` / `Shift+↓` | 重新排序选定的会话 |
 | `Esc` | 关闭窥视面板、清空输入框或退出。当您通过用 `←` 将会话转入后台而打开 agent view 时，最后一次 `Esc` 会返回该对话而不是退出。启用 [vim 编辑器模式](/docs/zh-CN/interactive-mode#vim-editor-mode)时，在输入框中按 `Esc` 会从 INSERT 模式切换到 NORMAL 模式并保留您的文本，与主提示输入框相同 |
-| `Ctrl+C` | 清空输入框；按两次退出 |
+| `Ctrl+C` | 清空输入框；按两次退出。当屏幕上有选中的文本时，按下该键会改为清除选区；除非[选中时已自动复制](/docs/zh-CN/settings-reference#copyonselect)，否则会先复制选区 |
 | `?` | 显示快捷键 |
 
 在 [`Agents` 上下文](/docs/zh-CN/keybindings#agents-actions)中有对应操作的快捷键遵循您的 [`keybindings.json`](/docs/zh-CN/keybindings)。`Ctrl+G` 也是如此，它通过 `Chat` 上下文的 `chat:externalEditor` 绑定进行配置。
@@ -527,6 +536,18 @@ backgrounded · 7c5dcf5d · flaky-test-fix
   claude stop 7c5dcf5d      stop this session
 ```
 
+#### 包含 `--bg` 的提示词
+
+提及 `--bg` 或 `--background` 的提示词会按输入原样传递，您发送给后台会话的 `--bg` 回复也是如此。例如，以下命令会启动一个后台会话，第二个 `--bg` 是其提示词的一部分：
+
+```bash theme={null}
+claude --bg "find out why --bg sessions are slow to start on this machine"
+```
+
+Claude Code 仅在可以出现标志的位置将整个参数读取为该标志：位于任何单独的 `--` 分隔符之前，且不在另一个标志期望其值的位置。请将该标志放在最前面，如 `claude --bg "<prompt>"`。
+
+在位置存在歧义的情况下（例如在一串组合的短标志之后），Claude Code 不会启动任何内容，而是以 [`Couldn't tell whether --bg is a flag or text here`](/docs/zh-CN/errors#couldnt-tell-whether-bg-is-a-flag-or-text) 错误退出。
+
 #### 运行 shell 命令
 
 要将 shell 命令作为后台作业而不是 Claude 会话运行，请传递 `--exec`。以下示例将 `pytest -x` 作为后台作业运行：
@@ -634,8 +655,8 @@ Claude 为会话创建的 worktree 会如何处理：
 在命令后给出值，或仅输入命令以从列表中选择：
 
 * **模型**：`/model <name>`，例如 `/model opus`
-* **[Effort 级别](/docs/zh-CN/model-config#adjust-effort-level)**：`/effort` 加 `low`、`medium`、`high`、`xhigh` 或 `max`，例如 `/effort high`
-* **快速模式**：`/fast on` 或 `/fast off`。只有当快速模式 [对您可用](/docs/zh-CN/fast-mode#requirements) 且会话的模型支持快速模式时，会话才会以快速模式启动。在不支持快速模式的模型上，会话会以关闭快速模式的状态启动，因此请先使用 `/model` 选择一个 [支持快速模式的模型](/docs/zh-CN/fast-mode)。
+* **[Effort 级别](/docs/zh-CN/model-config#adjust-effort-level)**：`/effort` 加 `low`、`medium`、`high`、`xhigh` 或 `max`，例如 `/effort high`。要以 [ultracode](/docs/zh-CN/workflows#let-claude-decide-with-ultracode) 启动会话，请改为从 shell 使用 [`claude agents --effort ultracode`](#dispatch-defaults) 打开 Agent 视图；分派输入框不接受 `/effort ultracode`
+* **快速模式**：`/fast on` 或 `/fast off`。只有当快速模式 [对您可用](/docs/zh-CN/fast-mode#requirements) 且会话的模型支持快速模式时，会话才会以快速模式启动。在不支持快速模式的模型上，会话会以关闭快速模式的状态启动，因此请先使用 `/model` 选择一个 [支持快速模式的模型](/docs/zh-CN/fast-mode)。新会话是否启用快速模式，以输入框下方的提示为准，而不是标题栏。
 
 要撤销某个选择，请将 `default` 作为值，例如 `/effort default`。
 
@@ -1027,6 +1048,11 @@ Agent view 在研究预览期间发展迅速。如果您使用的是较旧的 Cl
 | 版本 | 更改 |
 | - | - |
 | v2.1.299 | [调度输入框中的 `/effort` 和 `/fast`](#set-the-model-effort-and-fast-mode) 会为您接下来调度的会话设置 effort 级别和快速模式。键入不带值的 `/model`、`/effort` 或 `/fast` 会打开选择器。 |
+| v2.1.299 | Claude Code 仅在任何单独的 `--` 分隔符之前、且不在其他标志的值中时，才[将 `--bg` 和 `--background` 识别为该标志](#from-your-shell)，对于位置有歧义的情况会拒绝而不是猜测。在此版本之前，发送给后台会话的内容为 `--bg` 或 `--background` 的提示词或回复可能会被当作该标志。这可能会反复启动新的后台会话，而不是投递该文本。 |
+| v2.1.296 | 您[在会话移到后台时](#switch-sessions-without-leaving-the-terminal)输入的提示词或 `!` shell 命令会被停止或保持未发送状态，其文本会保留在提示词历史中。在此版本之前，回复或命令会在您看不到的地方继续运行，并且在 `←` 之后立即发送的提示词可能会在您看不到的情况下运行第二次。在 `SessionStart` hook 仍在运行时键入的提示词会丢失：既不会发送，也不会出现在提示词历史中。 |
+| v2.1.295 | 在[附加的后台会话](#attach-to-a-session)的空闲输入框中按 `Ctrl+C` 不会影响[自定节奏的 `/loop`](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval) 的待处理唤醒，因此按两次会分离，而循环会继续运行。在该输入框中按 `Esc` 会[停止自定节奏的循环](/docs/zh-CN/scheduled-tasks#stop-a-loop)并显示 `Pending wakeup cancelled` 通知。在此版本之前，第一次按 `Ctrl+C` 可能会在不提示的情况下结束自定节奏的循环，而 `Esc` 无法停止已随会话移到后台的循环。 |
+| v2.1.295 | 在 macOS 和 Linux 上，当 `claude agents` 在没有[监督进程](#keep-sessions-running-after-the-supervisor-stops)运行时退出，它不会自行启动新的监督进程。此后正在运行的会话会在大约一分钟后停止，除非您再次运行 `claude agents`，agent view 在退出时可能会打印一条说明此情况的通知。在此版本之前，退出的 `claude agents` 会启动新的监督进程。 |
+| v2.1.295 | 在使用原生安装程序的 macOS 上，更新后一起重启的后台会话会在持有您所授予的[受保护文件夹访问权限](#background-sessions-can’t-read-desktop-documents-or-downloads-on-macos)的同一 Claude Code 条目下运行。在此版本之前，这些会话可能会改为在二进制文件自身的路径下运行。macOS 会将该路径列为单独的条目，因此更新后可能会再次出现文件夹访问提示。 |
 | v2.1.290 | [`claude attach` 和 `claude logs`](#manage-sessions-from-the-shell) 可以使用会话名称的一部分来代替 ID。 |
 | v2.1.290 | `/model`、`/effort`、`/rename` 和 `/usage` 作为[窥视回复](#peek-and-reply)发送给正在工作的会话时会立即运行。 |
 | v2.1.290 | 无法投递的[窥视回复](#peek-and-reply)如果以 `/` 开头，或者在会话进程运行期间回答的是带有预定义选项的问题，则不再被保存以待下次重启时发送。 |

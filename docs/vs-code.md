@@ -174,7 +174,9 @@ Claude Code 还可以在其他编辑器和容器中运行：
 * **书签**：将鼠标悬停在回复上并点击 **Bookmark response** 即可保存该回复，或在已保存的回复上点击 **Remove bookmark** 将其移除。
 
   要查看已保存的回复，请打开 Bookmarks 面板。您可以点击 Claude Code 面板顶部的书签图标，在命令菜单的 Context 部分中选择 **Bookmarks**，或输入 `/bookmarks`。需要 Claude Code v2.1.286 或更高版本。
-* **Claude 发送给您的文件**：当会话连接到 [Remote Control](/docs/zh-CN/remote-control#start-a-remote-control-session)，且 Claude 使用 [`SendUserFile` 工具](/docs/zh-CN/tools-reference)向您发送文件时，对话中会显示一行，例如 **Sent report.md, chart.png**。点击文件名即可在编辑器中打开。
+* **Claude 发送给您的文件**：当会话连接到 [Remote Control](/docs/zh-CN/remote-control#start-a-remote-control-session)，且 Claude 使用 [`SendUserFile` 工具](/docs/zh-CN/tools-reference)向您发送文件时，对话中会显示一行，例如 **Sent report.md, chart.png**。点击文件名即可在编辑器中打开。该行在 Focus view 中保持可见。需要 Claude Code v2.1.295 或更高版本。
+
+  当文件路径指向某个网络主机时，该文件会显示为无法点击的完整路径，例如 `\\server\share\report.md`。Claude Code 不会为该文件提供链接，因为打开它会连接该主机，并且在 Windows 上[可能会将您的 Windows 凭据发送到该主机](/docs/zh-CN/permissions#read-only-commands)。
 * **上下文指示器**：输入框会显示您已使用了多少 Claude 上下文窗口。Claude 会在需要时自动压缩，您也可以手动运行 `/compact`。
 * **提示缓存时钟**：上下文指示器旁边的时钟图标会估算对话的[提示缓存](/docs/zh-CN/prompt-caching)在过期前还剩多少时间。它从缓存的五分钟或一小时[生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)开始倒计时，每次使用缓存的回复都会重新开始倒计时。除压缩外，[使缓存失效的操作](/docs/zh-CN/prompt-caching#actions-that-invalidate-the-cache)不会重置时钟，因此在您切换模型后它仍可能显示剩余的分钟数。
   * 在倒计时结束之前，图标会显示剩余分钟数，例如 **12m**。

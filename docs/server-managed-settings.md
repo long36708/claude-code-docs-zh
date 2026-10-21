@@ -321,7 +321,7 @@ Claude Code 也根据传递的值决定 [`API_FORCE_IDLE_TIMEOUT`](/docs/zh-CN/e
 * **OAuth 令牌**：使用 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 生成令牌，为您的 Team 或 Enterprise 组织授权该令牌，并在作业环境中将其设置为 `CLAUDE_CODE_OAUTH_TOKEN`。从该环境中删除任何[优先于](/docs/zh-CN/authentication#authentication-precedence)该令牌的凭据，例如 `ANTHROPIC_API_KEY`。
 * **端点管理的设置**：将[托管设置文件](/docs/zh-CN/managed-settings#delivery-mechanisms)部署到运行该作业的机器上。
 
-在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，即使用户使用 Team 或 Enterprise 账户登录，Claude Code 也不会从 claude.ai 管理控制台获取服务器管理的设置。[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies) 涵盖了哪些策略到达用户机器上的 Cowork 会话和远程 Cowork 会话。claude.ai 在 Cowork 用户从 git 存储库或从 Cowork 标签中的**自定义**添加市场时，仍然会应用您的 [`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces) 和 [`blockedMarketplaces`](/docs/zh-CN/settings-reference#blockedmarketplaces) 列表。[限制如何工作](/docs/zh-CN/plugins/org#restrict-what-users-can-install) 描述了该检查。
+在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，即使用户使用 Team 或 Enterprise 账户登录，Claude Code 也不会从 claude.ai 管理控制台获取服务器管理的设置。[策略应用的位置和时间](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies) 涵盖了哪些策略到达用户机器上的 Cowork 会话和远程 Cowork 会话。当 Cowork 用户从 claude.ai 上的 git 仓库或从 Cowork 中的**自定义**添加市场时，claude.ai 仍会自行应用您的 [`strictKnownMarketplaces`](/docs/zh-CN/settings-reference#strictknownmarketplaces) 和 [`blockedMarketplaces`](/docs/zh-CN/settings-reference#blockedmarketplaces) 列表。[限制如何工作](/docs/zh-CN/plugins/org#restrict-what-users-can-install) 描述了该检查。
 
 如果您在 shell 中导出 `CLAUDE_CODE_USE_*` 提供商变量或非默认的 `ANTHROPIC_BASE_URL`，Claude Code 将跳过您的会话的设置获取。[`claude doctor` 和 `/status` 报告跳过的获取及其原因](#verify-settings-delivery)。
 
