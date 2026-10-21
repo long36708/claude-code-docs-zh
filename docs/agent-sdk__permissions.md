@@ -78,7 +78,7 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 | `disallowed_tools=["Bash(rm *)"]` | `Bash` 保持可用。匹配 `rm *` [如所写](/docs/zh-CN/permissions#bash-rule-limits) 的调用在每种权限模式中都被拒绝，包括 `bypassPermissions`。其他 `Bash` 调用（包括 `/bin/rm`）会进入权限模式。 |
 | `disallowed_tools=["*"]` | 每个工具定义都从请求中移除。拒绝规则中支持工具名称通配符：`"*"` 匹配每个工具，`"mcp__*"` 匹配所有服务器中的每个 MCP 工具。 |
 
-允许规则仅在字面 `mcp__<server>__` 前缀之后接受工具名称通配符。服务器段必须无通配符，以便规则命名你配置的特定服务器：`mcp__puppeteer__*` 匹配来自 `puppeteer` 服务器的每个工具，`mcp__github__get_*` 匹配其 `get_` 工具。未锚定的条目（如 `allowed_tools=["*"]` 或 `allowed_tools=["mcp__*"]`）会被忽略并显示启动警告，不会自动批准任何内容。
+允许规则仅在字面 `mcp__<server>__` 前缀之后接受工具名称通配符。服务器段必须无通配符，以便规则命名您配置的特定服务器：`mcp__puppeteer__*` 匹配来自 `puppeteer` 服务器的每个工具，`mcp__github__get_*` 匹配其 `get_` 工具。未锚定的条目（如 `allowed_tools=["*"]` 或 `allowed_tools=["mcp__*"]`）会被忽略，不会自动批准任何内容。
 
 `Read` 和 `Edit` 的限定规则采用路径模式。`Edit(path)` 规则管理所有写入文件的内置工具，包括 `Write` 和 `NotebookEdit`；`Write(path)` 规则永远不会被文件权限检查匹配。
 

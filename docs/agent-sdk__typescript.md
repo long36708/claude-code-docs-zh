@@ -3014,6 +3014,8 @@ type SyncHookJSONOutput = {
 
 内置 Claude Code 工具的输入 schema 文档。这些类型从 `@anthropic-ai/claude-agent-sdk/sdk-tools` 导出，可用于类型安全的工具交互。
 
+`StructuredOutput` 工具在此处没有类型：Claude Code 根据您传递给 `outputFormat` 的 schema 构建其输入 schema，因此没有固定的内容可以导出。请参阅[识别 StructuredOutput 工具调用](/docs/zh-CN/agent-sdk/structured-outputs#recognize-the-structuredoutput-tool-call)，了解该调用在您的消息流中的样子。
+
 ### `ToolInputSchemas`
 
 从 `@anthropic-ai/claude-agent-sdk/sdk-tools` 导出的工具输入类型的联合；成员包括：

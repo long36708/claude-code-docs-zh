@@ -207,16 +207,20 @@ Claude Code 在系统提示前面加上一个短的归属块，其中包含客�
 
 Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并向其发送它发送到 `api.anthropic.com` 的 beta 请求头和请求体字段，除了为直接连接保留的一小组诊断和默认值，例如下面涵盖的细粒度工具流式传输默认值。该集合因版本而异，因此不要依赖其内容。
 
-添加请求体字段的功能将它们与 beta 请求头配对，该对一起传递。删除请求头同时传递请求体的 gateway，或将 Anthropic 格式请求体转发到具有不同架构的上游，会产生硬 `400` 错误；只有当两个部分一起缺失时，功能才会安静地关闭。重写或编辑请求体以进行内容检查的 gateway 会以与删除相同的方式破坏配对，因此在不修改的情况下检查。该表注明了功能偏离配对的位置。
-
 细粒度工具流式传输是直接连接默认值之一：每当请求通过自定义基础 URL 路由时，它默认关闭，当开发者设置 [`CLAUDE_CODE_ENABLE_FINE_GRAINED_TOOL_STREAMING=1`](/docs/zh-CN/env-vars) 时，gateway 会接收它。
+
+### Beta 请求头与请求体字段对
+
+添加请求体字段的功能将它们与 beta 请求头配对，该对一起传递。删除请求头同时传递请求体的网关，或将 Anthropic 格式请求体转发到具有不同 schema 的上游，会产生 `400` 错误。当两个部分一起缺失时，功能会安静地关闭。
+
+重写或编辑请求体以进行内容检查的网关会以与删除相同的方式破坏配对，因此请在不修改的情况下检查。该表注明了功能偏离配对的位置。
 
 | 功能 | 请求头和请求体对 | 破坏时的症状 | 补救 |
 | :- | :- | :- | :- |
 | [自适应推理](/docs/zh-CN/model-config#adjust-effort-level) | 无 beta 请求头。Claude Code 为 Claude Opus 4.6、Claude Sonnet 4.6、Claude Haiku 5.5、Claude Fable 5 及更高版本的模型发送 `thinking: {"type": "adaptive"}`，并将它不识别的模型名称（如 gateway 别名）视为接收该字段的当前模型 | 当上游模型构建不接受它时，命名 `thinking` 字段或 `adaptive` 标签的 `400` | 升级上游。在 Opus 4.6 和 Sonnet 4.6 上，开发者可以改为设置 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` |
-| [上下文管理](https://platform.claude.com/docs/en/build-with-claude/context-editing) | 上下文管理 beta 请求头与 `context_management` 请求体字段配对 | `400` 带有 `Extra inputs are not permitted`。常见于网关接受 Anthropic 格式请求但将其转发到 Amazon Bedrock 时 | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) |
+| [上下文管理](https://platform.claude.com/docs/en/build-with-claude/context-editing) | 上下文管理 beta 请求头与 `context_management` 请求体字段配对 | `400` 带有 `Extra inputs are not permitted`。常见于网关接受 Anthropic 格式请求但将其转发到 Amazon Bedrock 时。在 v2.1.304 或更高版本上，Claude Code 会[自行在不带该对的情况下重试](#automatic-retry-and-error-forwarding) | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) |
 | [扩展上下文](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)和[交错思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking#interleaved-thinking) | 仅 Beta 请求头，无请求体字段 | 当请求头被删除时无声地不可用；上游永远不会看到功能请求 | 逐字转发 `anthropic-beta` |
-| Beta [工具字段](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview) | 工具相关的 beta 请求头与工具架构字段（如 `strict` 和 `defer_loading`）配对 | 当请求体通过而没有其请求头时，命名无法识别的工具架构字段的 `400` | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) |
+| Beta [工具字段](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview) | 工具相关的 beta 请求头与工具 schema 字段（如 `strict` 和 `defer_loading`）配对 | 当请求体通过而没有其请求头时，命名无法识别的工具 schema 字段的 `400`。关于 `defer_loading`，请参阅[不带工具搜索的重试](#retry-without-tool-search) | 转发两者，或 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) |
 | [努力](https://platform.claude.com/docs/en/build-with-claude/effort)和[结构化输出](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) | `output_config` 请求体字段携带努力、结构化输出格式和任务预算设置；每个都与自己的 beta 请求头配对 | 在 Amazon Bedrock 和 Google Cloud 的 Agent Platform 上游上命名 `output_config` 的 `400`，通常是 `Extra inputs are not permitted` | 一起转发该字段及其请求头，或让开发者设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities)，这会移除格式和任务预算设置，但不会移除努力。若只想移除格式，开发者可以改为设置 [`CLAUDE_CODE_DISABLE_STRUCTURED_OUTPUTS=1`](/docs/zh-CN/env-vars)，这需要 v2.1.288 或更高版本 |
 | 对话中途的系统消息 | 无 beta 请求头。对于 Claude Opus 4.8、在其之后发布的模型以及无法识别的模型 ID，Claude Code 会将部分提醒和附件文本作为 `messages` 中的 `role: "system"` 条目发送 | `400`，例如 `Unexpected role "system"` | Claude Code 会[在不带系统消息的情况下重试](#automatic-retry-and-error-forwarding)。若要在 Claude Opus 4.8 之前发布的模型的别名上停止系统消息，请在您分发的设置中添加 [`modelOverrides` 条目](#settings-for-unrecognized-model-ids) |
 | [按轮次设置的努力](/docs/zh-CN/prompt-caching#changing-effort-level) | 在 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 5.1 上，beta 请求头与 `role: "system"` 条目上的 `output_config.effort` 配对，这些条目可以是系统消息，也可以是内容为空的条目 | 当您的网关从空条目中删除该字段时，出现带有 `messages.N: system content must contain at least one block` 的 `400` | 转发两者，或让开发者设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities) 以停止发送该字段和空条目 |
@@ -227,17 +231,26 @@ Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并
 
 ### 自动重试和错误转发
 
-Claude Code 在上游拒绝后的操作取决于被拒绝的内容：
+当上游拒绝其中某项功能时，Claude Code 可以自行重试请求，并移除或更改被拒绝的部分：
 
-* 当上游拒绝 `thinking` 字段、中途对话系统消息或这些消息之一上的 `cache_control` 标记时，Claude Code 会重试请求并为对话的其余部分禁用被拒绝的功能
+* 当 `400` 表明不支持 `thinking.type` 值 `enabled` 或 `adaptive` 时，Claude Code 会改用另一种类型重试一次，并保留 `thinking` 字段。在 Claude Code 退出之前，发往该模型的后续请求会保持切换后的类型。在 v2.1.121 之前，Claude Code 不会重试，因此 [`thinking.type.enabled is not supported`](/docs/zh-CN/errors#thinking-type-enabled-is-not-supported-for-this-model) 会到达开发者
+* 当上游拒绝 `messages` 中的 `role: "system"` 条目时，Claude Code 会在不带这些对话中途系统消息的情况下重试一次，并改为在用户消息中携带其文本。在开发者运行 `/clear` 或对话被压缩之前，该对话中的后续请求会保持这种形式
+* 当上游仅拒绝对话中途系统消息上的 `cache_control` 标记时，Claude Code 会保留系统消息，并在移动该标记后重试一次。该标记会放在 `messages` 中最后一个非系统消息的条目上，在该次重试以及 Claude Code 退出之前的后续请求中均是如此
 * 当上游拒绝[思考签名](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)时，包括带有 `400` 的拒绝，其消息说该块被 `bound to a different conversation`，Claude Code 会从请求中删除早期思考块，重试，并将其排除在每个后续请求之外。新响应仍然包括思考
 * 当 gateway 或其上游将[顾问工具](/docs/zh-CN/advisor)条目在 `tools` 中拒绝为无法识别的工具类型时，Claude Code 会重试一次请求，不包含该条目及其 `anthropic-beta` 值。对该基础 URL 的后续请求会将顾问排除在外，直到 Claude Code 退出，在该时间内 `/advisor` 对开发者不可用。Claude Code 通过 `400` 或 `422` 响应识别此拒绝，其消息在 `Input tag` 之后命名工具类型，例如 `Input tag 'advisor_20260301'`。在 v2.1.280 之前，Claude Code 没有重试此拒绝
 * 当上游拒绝 `output_config.effort` 时，Claude Code 会在不带努力的情况下重试请求，并在 Claude Code 退出之前，在发往该模型的后续请求中省略它。Claude Code 通过 `400` 响应识别此拒绝，其消息同时命名 `output_config.effort` 和 `Extra inputs are not permitted`，或说明该模型不支持 effort 参数
-* Claude Code 不重试上下文管理或工具架构字段拒绝，因此这些 `400` 错误到达开发者
+* 当上游拒绝 `context_management` 字段或其 `anthropic-beta` 值时，网关会再次收到不带它们的该请求。如果网关在后续请求中再次看到它们且上游再次拒绝，则会进行同样的重试。Claude Code 通过消息识别此拒绝，例如包含 `context_management: Extra inputs are not permitted` 的消息。在 v2.1.304 之前，Claude Code 没有重试此拒绝
+* 当上游拒绝 `defer_loading` 以外的 beta 工具字段（例如 `strict`）时，`400` 会到达开发者。在此之前，网关可能会再次收到[不带工具搜索字段](#retry-without-tool-search)的该请求。若要停止发送此类字段，请让开发者设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities)
 
 `bound to a different conversation` 拒绝来自 API 的[保留思考](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking)检查，当 `system`、`tools` 或早期 `messages` 内容与产生思考的请求不同时，该检查失败。重写任何该内容的 gateway 可能会导致拒绝本身；[库、代理和网关](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking#libraries-proxies-gateways)涵盖了要原封不动地传递的内容。
 
-重试逻辑与上游的错误措辞匹配，因此原封不动地转发错误响应体。将上游错误包装在自己的信封中的 gateway 会破坏恢复路径，即使它保留了状态代码，除非信封的消息携带稳定的 `capability_rejected:` 令牌。[Claude apps gateway 为云提供商的错误措辞替换这些令牌](/docs/zh-CN/claude-apps-gateway-config#upstream-error-messages)，例如 `capability_rejected: prompt_too_long`。
+大部分重试逻辑与上游的错误措辞匹配，因此请原封不动地转发错误响应体。将上游错误包装在自己的信封中的网关会破坏恢复路径，即使它保留了状态代码，除非信封的消息携带稳定的 `capability_rejected:` 标记。[Claude apps gateway 用这些标记替换云提供商的错误措辞](/docs/zh-CN/claude-apps-gateway-config#upstream-error-messages)，例如 `capability_rejected: prompt_too_long`。
+
+#### 不带工具搜索的重试
+
+在 v2.1.305 或更高版本上，携带 [`defer_loading` 字段和 `tool_reference` 块](/docs/zh-CN/mcp#tool-search-through-a-gateway)的请求，在出现 Claude Code 无法识别原因的 `400` 或 `422` 之后，可能会不带它们再次到达。重试成功后，后续请求也会省略它们。
+
+开发者的请求无需对网关做任何更改即可继续正常工作，其 MCP 工具会预先加载。Claude Code 稍后会再次尝试工具搜索，因此网关可能会再次看到被拒绝的请求及其后的重试。若要在所有请求中都排除这些字段，请让开发者设置 `ENABLE_TOOL_SEARCH=false`。对于工具搜索本身，Claude Code 期望网关将 `defer_loading` 字段和 `tool_reference` 块连同其 `anthropic-beta` 值一起转发。
 
 ### 禁用预发布功能
 

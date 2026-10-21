@@ -66,10 +66,14 @@
 
 ## 检查运行提到 REVIEW\.md
 
-检查运行可能携带的关于 `REVIEW.md` 的消息中，有两条与分支保护有关：
+检查运行可能携带的关于 `REVIEW.md` 的消息中，有以下三条：
 
 * **"This review applied the repository's review instructions (REVIEW\.md) from its default branch, which is not protected against direct pushes."**：该审查仅读取了根目录下的文件。请参阅[从哪个分支读取 REVIEW.md](/docs/zh-CN/code-review-customize#which-branch-review-md-is-read-from)，了解保护该分支会带来哪些变化。
 * **"were not applied to this review: branch protection could not be confirmed"**：该审查没有读取任何 `REVIEW.md`。
+* **"they link to a file this pull request modifies, or carry more links than the review checks"**：该审查跳过了根目录下的 `REVIEW.md`，或跳过了消息中给出数量的子目录 `REVIEW.md` 文件。请针对以下每种原因检查被跳过的文件。对于根目录下的 `REVIEW.md`，还需检查[它所包含的文件](/docs/zh-CN/code-review-customize#include-other-files-in-review-md)：
+  * **链接过多**：文件包含超过 64 个 Markdown 链接。请将链接削减至 [64 个或更少](/docs/zh-CN/code-review-customize#include-other-files-in-review-md)。
+  * **审查无法解析的链接**：文件中有格式错误的 Markdown 链接。请修复或删除该链接。
+  * **指向已更改文件的链接**：文件链接到此 Pull Request 更改的文件或文件夹，且审查无法仅排除包含该链接的行。请直接在 `REVIEW.md` 中编写该规则。
 
 ## 设置问题
 

@@ -172,7 +172,7 @@ options = ClaudeAgentOptions(permission_mode="auto")
 
 请观察此片段中状态栏的变化，该会话以自动模式启动。每次按下 `Shift+Tab`，状态栏都会从 `auto mode on` 依次变为 `manual mode on`、`accept edits on`、`plan mode on`，然后回到 `auto mode on`。
 
-<video autoPlay muted loop playsInline src="https://mintcdn.com/claude-code/oa7CKjMeIChox26S/images/permission-modes-cycle-light.mp4?fit=max&auto=format&n=oa7CKjMeIChox26S&q=85&s=198ca90aeb2e3675b3d01b7d686aab0b" aria-label="每次按下 Shift+Tab，Claude Code 输入框下方的状态栏都会变化：auto mode on、manual mode on、accept edits on、plan mode on，然后再次变为 auto mode on。" />
+<video autoPlay muted loop playsInline src="https://mintcdn.com/claude-code/tA-x-5L2YsYSVdee/images/permission-modes-cycle-light.mp4?fit=max&auto=format&n=tA-x-5L2YsYSVdee&q=85&s=3927dd62d59b01efd81b3578f2a6f971" aria-label="每次按下 Shift+Tab，Claude Code 输入框下方的状态栏都会变化：auto mode on、manual mode on、accept edits on、plan mode on，然后再次变为 auto mode on。" />
 
 并非每个模式都在默认循环中：
 
@@ -579,7 +579,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 >
 > 您安装的处理 `tool.check` 的 [mod](/docs/zh-CN/plugins/mods/overview) 也可以批准操作。有关其批准无法越过您的规则和 hook 的情况，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
 >
-> 在 VS Code 扩展中，[Claude in Chrome](/docs/zh-CN/chrome) 浏览器操作如何获得批准取决于会话连接到浏览器的方式：请参阅 [VS Code 会话中的权限提示](/docs/zh-CN/chrome#permission-prompts-in-vs-code-sessions)。
+> 有关在 VS Code 扩展中 [Claude in Chrome](/docs/zh-CN/chrome) 浏览器操作如何获得批准，请参阅 [VS Code 会话中的权限提示](/docs/zh-CN/chrome#permission-prompts-in-vs-code-sessions)。
 >
 > 进入自动模式时，授予任意代码执行能力的宽泛 allow 规则会被丢弃：
 >
@@ -667,12 +667,17 @@ Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) �
 * **如果您接受**：Claude Code 在 `~/.claude/settings.json` 中将 `skipDangerousModePermissionPrompt` 设置为 `true`，因此后续会话会跳过对话框。要再次看到对话框，请从该文件中删除该键或将其设置为 `false`。[`skipDangerousModePermissionPrompt` 参考](/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)列出了您或您的组织可以设置它的其他设置文件。
 * **如果您拒绝**：Claude Code 退出。
 
-在[非交互模式](/docs/zh-CN/headless)中不显示对话框。当您的接受记录在用户设置或托管设置中时，[后台会话](/docs/zh-CN/agent-view)会遵循该接受：
+在[非交互模式](/docs/zh-CN/headless)中不显示对话框。
 
-* 如果没有记录接受，`claude --bg --permission-mode bypassPermissions` 会被拒绝，直到您在交互式会话中接受对话框。
-* 如果 `skipDangerousModePermissionPrompt` 仅在 `.claude/settings.local.json` 中设置，后台会话启动时会忽略绕过请求，并固定显示通知 `Bypass permissions was requested at launch and ignored · if that was you, ~/.claude/settings.json needs "skipDangerousModePermissionPrompt": true`。请将该键添加到 `~/.claude/settings.json`，然后启动新的后台会话。显示该通知的会话仍会运行：
+当您的接受记录在用户设置或托管设置中时，[后台会话](/docs/zh-CN/agent-view)会遵循该接受：
+
+* 如果没有记录接受，`claude --bg --permission-mode bypassPermissions` 会被拒绝。请先在交互式会话中接受对话框。
+* 如果 `skipDangerousModePermissionPrompt` 仅在 `.claude/settings.local.json` 中设置，后台会话启动时会[忽略绕过请求](#bypass-permissions-ignored-in-a-background-session)：
+
   * 如果 `--allow-dangerously-skip-permissions` 被忽略，`bypassPermissions` 不会出现在其 `Shift+Tab` 循环中。
   * 如果 `--permission-mode bypassPermissions` 或 `--dangerously-skip-permissions` 被忽略，会话改为以手动模式启动。
+
+  请将 `"skipDangerousModePermissionPrompt": true` 添加到 `~/.claude/settings.json`，然后启动新的后台会话。
 
 在 Linux 和 macOS 上，当以 root 身份或在 `sudo` 下运行时，Claude Code 拒绝以 `bypassPermissions` 模式启动：
 
@@ -687,6 +692,16 @@ Claude Code 在您使用 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) �
 > [!WARNING]
 >
 > `bypassPermissions` 不提供针对提示词注入或意外操作的保护。对于权限提示少得多的后台安全检查，请改用[自动模式](#eliminate-prompts-with-auto-mode)。管理员可以通过在[托管设置](/docs/zh-CN/managed-settings)中将 `permissions.disableBypassPermissionsMode` 设置为 `"disable"` 来阻止此模式。
+
+### 后台会话中忽略了绕过权限
+
+此通知表示[后台会话](/docs/zh-CN/agent-view)未在用户设置或托管设置中找到您对[绕过权限警告](#bypass-permissions-acceptance)的接受，因此忽略了启动时发出的绕过请求：
+
+```text theme={null}
+Bypass permissions was requested at launch and ignored · if that was you, ~/.claude/settings.json needs "skipDangerousModePermissionPrompt": true
+```
+
+请将 `"skipDangerousModePermissionPrompt": true` 添加到 `~/.claude/settings.json`，然后启动新的后台会话。
 
 ## 受保护的路径
 

@@ -142,7 +142,9 @@ asyncio.run(main())
 
 ## 连接时序
 
-Claude Code 在启动时注册你在 `options.mcpServers` 中传递的服务器，并在第一轮等待（如果有的话）解决后发出 [init 消息](#error-handling)。每个 `options.mcpServers` 服务器是否延迟第一轮，以及何时连接，取决于其类型：
+Claude Code 在会话启动时开始连接您的 MCP 服务器，并在第一轮等待（如果有的话）结束后发送 [init 消息](#error-handling)。第一轮等待某个服务器的时长取决于您在何处配置它。如果您设置了 `permissionPromptToolName`，无论您在何处配置该工具的服务器，第一轮始终会等待该服务器，最多等待 `MCP_TIMEOUT`。
+
+对于 `options.mcpServers` 中的服务器，请在第一列中找到其类型，以查看第一轮等待它的时长。
 
 | 服务器类型 | 延迟第一轮？ | 第一轮等待超时 |
 | :- | :- | :- |
@@ -150,23 +152,33 @@ Claude Code 在启动时注册你在 `options.mcpServers` 中传递的服务器�
 | 具有缓存工具列表的远程服务器，由 Claude Code 从之前的连接保存 | 否；缓存的工具从第一轮开始可用 | 无；在其第一次工具调用时连接，该延迟连接有其自己的超时 |
 | 进程内 [SDK 服务器](#sdk-mcp-servers) | 是，直到连接并列出其工具 | [`MCP_TIMEOUT`](/docs/zh-CN/env-vars)，默认 30 秒，每次连接尝试；连接在该截止时间失败 |
 
-从 [settings 文件](#from-a-config-file)（如 `.mcp.json`）或从插件加载的服务器通常在 init 消息中显示 `pending`。当 `options.mcpServers` 包含 stdio、HTTP 或 SSE 服务器时，第一轮等待这些待处理的服务器，最多等待 `MCP_TIMEOUT`。当 `options.mcpServers` 为空或仅包含 SDK 服务器时，第一轮改为最多等待 2 秒：
+只有在启用 [MCP 发现缓存](/docs/zh-CN/mcp#server-status-detail)时，服务器才会有缓存的工具列表。
 
-* **使用 [tool search](/docs/zh-CN/agent-sdk/tool-search)（默认）**：等待涵盖仍待处理的服务器，这些服务器配置了 [`alwaysLoad: true`](/docs/zh-CN/mcp#exempt-a-server-from-deferral)，不包括其余的。其余的继续在后台连接。[Tool availability](/docs/zh-CN/mcp#tool-availability) 描述了 Claude 在它们连接后如何访问它们的工具。
-* **不使用 tool search**：等待涵盖每个待处理的服务器。[Configure tool search](/docs/zh-CN/agent-sdk/tool-search#configure-tool-search) 涵盖了关闭 tool search 的内容。例如，如果你通过 `disallowedTools` 从会话中排除 `ToolSearch` 工具，会话也会在没有 tool search 的情况下运行。
+来自 [设置文件](#from-a-config-file)（如 `.mcp.json`）或插件的服务器通常在 init 消息中仍显示 `pending`。第一轮等待它们的时长取决于 `options.mcpServers` 和 tool search：
 
-如果你设置了 `permissionPromptToolName`，第一轮也会在所有情况下等待该工具的服务器，最多等待 `MCP_TIMEOUT`。
+* **`options.mcpServers` 包含 stdio、HTTP 或 SSE 服务器**：第一轮也会等待待处理的设置文件服务器和插件服务器，最多等待 `MCP_TIMEOUT`。
+* **否则，当 `ANTHROPIC_BASE_URL` 指向[网关](/docs/zh-CN/mcp#tool-search-through-a-gateway)且未设置 [`ENABLE_TOOL_SEARCH`](/docs/zh-CN/mcp#configure-tool-search) 时**：第一轮最多等待 2 秒，等待每个待处理的设置文件服务器和插件服务器。
+* **否则，在启用 [tool search](/docs/zh-CN/agent-sdk/tool-search)（默认启用）时**：第一轮最多等待 2 秒，且仅等待设置了 [`alwaysLoad: true`](/docs/zh-CN/mcp#exempt-a-server-from-deferral) 或您已[指名](#named-servers)的待处理服务器。其余服务器继续在后台连接，Claude 会在它们连接后[访问其工具](/docs/zh-CN/mcp#tool-availability)。
+* **否则，在关闭 tool search 时**：第一轮最多等待 2 秒，等待每个待处理的设置文件服务器和插件服务器。当您的 [`ENABLE_TOOL_SEARCH` 值或模型](/docs/zh-CN/agent-sdk/tool-search#configure-tool-search)将其关闭，或当您排除 `ToolSearch` 工具（例如通过 `disallowedTools`）时，tool search 处于关闭状态。
 
-要自己设置第一轮等待，请将 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS` 添加到 [`env` 选项](/docs/zh-CN/agent-sdk/configuration#set-environment-variables)，例如 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS: "5000"`。第一轮然后等待最多那么多毫秒以等待每个待处理的服务器，无论 tool search 是否可用。此截止时间也替代了 `options.mcpServers` 中 stdio、HTTP 和 SSE 服务器的 `MCP_TIMEOUT` 第一轮等待。`CLAUDE_CODE_MCP_STARTUP_WAIT_MS` 需要 Claude Code v2.1.274 或更高版本。
+您可以通过在 [`allowedTools`](#allow-mcp-tools) 中或在 `settings` 选项的 `permissions.allow` 规则中列出服务器的任意工具（例如 `mcp__github__list_issues` 或 `mcp__github__*`）来指名该服务器。当您在提示提交、工具使用、权限、子代理、任务、elicitation 或 worktree 事件上配置 [`mcp_tool` hook](/docs/zh-CN/hooks#mcp-tool-hook-fields) 时，它也会指名其调用的服务器。在 v2.1.284 之前，指名服务器不会影响第一轮等待。
 
-当等待结束时仍待处理的服务器继续在后台连接。将变量设置为 `0` 以跳过等待。`permissionPromptToolName` 服务器无论该值如何都保持其自己的 `MCP_TIMEOUT` 等待。
+要自行选择第一轮等待时长，请在 [`env` 选项](/docs/zh-CN/agent-sdk/configuration#set-environment-variables)中设置 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS`，例如 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS: "5000"`。此后第一轮会最多等待该毫秒数，以等待待处理的设置文件服务器和插件服务器，无论 tool search 是否启用。同一上限也会替代 `options.mcpServers` 中 stdio、HTTP 和 SSE 服务器的 `MCP_TIMEOUT` 等待。
 
-要在发送 init 消息之前的单独的、更早的阶段阻止启动本身：
+无论您设置什么值（包括 `0`），以下三种等待都适用：
 
-* 将 [`MCP_CONNECTION_NONBLOCKING`](/docs/zh-CN/env-vars) 设置为 `0` 以阻止整个连接批次。Claude Code 默认将该等待上限设为 5 秒。使用 [`MCP_CONNECT_TIMEOUT_MS`](/docs/zh-CN/env-vars) 环境变量调整上限，单位为毫秒。在该截止时间仍待处理的服务器继续在后台连接。
-* 在服务器的配置上设置 `alwaysLoad: true` 以使其工具在第一轮时以完整架构可用，[豁免于工具搜索延迟](/docs/zh-CN/mcp#exempt-a-server-from-deferral)。Claude Code 在启动时等待该服务器的工具，上限为相同的截止时间，而其他服务器继续在后台连接；具有缓存工具列表的远程服务器根据上表提供它们而无需连接。
+* **`permissionPromptToolName` 服务器**：最多等待 `MCP_TIMEOUT`。
+* **进程内 [SDK 服务器](#sdk-mcp-servers)**：每次连接尝试最多等待 `MCP_TIMEOUT`。
+* **仍在连接中的[指名服务器](#named-servers)**：等待上限至少为 2 秒，因此低于 `2000` 的值不会缩短其等待时间。
 
-具有 `init` 子类型的 `system` 消息在发出时报告每个服务器的状态；请参阅 [错误处理](#error-handling) 以读取这些状态。
+将该变量设置为 `0` 可跳过对其他所有服务器的等待。等待结束时仍处于待处理状态的服务器会继续在后台连接。`CLAUDE_CODE_MCP_STARTUP_WAIT_MS` 需要 Claude Code v2.1.274 或更高版本。
+
+有两项设置会让启动本身在 Claude Code 发送 init 消息之前进行等待：
+
+* **将 [`MCP_CONNECTION_NONBLOCKING`](/docs/zh-CN/env-vars) 设置为 `0`**：启动会等待整个连接批次，默认最多 5 秒。设置 [`MCP_CONNECT_TIMEOUT_MS`](/docs/zh-CN/env-vars)（单位为毫秒）可更改该上限。达到上限时仍处于待处理状态的服务器会继续在后台连接。
+* **在服务器的配置上设置 `alwaysLoad: true`**：启动会在相同上限内等待该服务器的工具，使第一轮能以完整 schema 获得这些工具，[豁免于 tool search 延迟加载](/docs/zh-CN/mcp#exempt-a-server-from-deferral)。具有缓存工具列表的远程服务器无需连接或阻塞启动即可提供这些工具。
+
+init 消息报告的是 Claude Code 发送该消息时每个服务器的状态。
 
 ## 允许 MCP 工具
 

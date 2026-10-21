@@ -202,7 +202,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | 命名空间 | 方法 |
 | :- | :- |
 | `$.plugin` | `name`、`root`：此插件的名称和目录 |
-| [`$.ui`](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `resolve`、`invalidate`、`open`、`close`、`panes`、`focus`、`scroll`、`toast`、`status`、`log`、`notice`、`ask`、`copy`、`selection`、`blit` |
+| [`$.ui`](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `resolve`、`invalidate`、`open`、`close`、`panes`、`focus`、`scroll`、`toast`、`notify`、`status`、`log`、`notice`、`ask`、`copy`、`selection`、`blit` |
 | [`$.command`](/docs/zh-CN/plugins/mods/api#add-a-command) | `register`、`run`、`list` |
 | [`$.tool`](/docs/zh-CN/plugins/mods/api#add-a-tool) | `register`、`call`、`check`、`list` |
 | `$.agent` | `register`、`spawn`、`list`。`list()` 返回此会话的子代理和队友，每项都带有 `status`，其值为 `pending`、`running`、`waiting`、`idle`、`completed`、`failed` 或 `killed` 之一，其中 `idle` 和 `waiting` 需要 Claude Code v2.1.289 或更高版本。 |

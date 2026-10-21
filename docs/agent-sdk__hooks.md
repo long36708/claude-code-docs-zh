@@ -638,6 +638,7 @@ for await (const message of query({
 
 * [`permission_prompt`](/docs/zh-CN/hooks#notification) 一旦权限请求在您的 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/user-input) 上等待约六秒。需要 TypeScript Agent SDK v0.3.233 或更高版本，或 Python Agent SDK v0.2.139 或更高版本
 * `elicitation_complete` 和 `elicitation_response` 用于用户提示引导流程
+* `plugin_notification`，当 [mod](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn) 调用 `$.ui.notify` 时
 
 Claude Code 从 SDK 会话不运行的交互式 UI 发出其他类型，例如 `idle_prompt`、`auth_success` 和 `elicitation_dialog`。
 

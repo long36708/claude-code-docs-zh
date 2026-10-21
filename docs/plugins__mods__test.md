@@ -187,6 +187,7 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 | `prompt.fill` | `() => ({ isFilled: true })` |
 | `$.prompt.read` | `() => ({ value: { text: '...', cursor: 0 } })` |
 | `$.ui.copy` | `() => ({ value: { isCopied: true } })` |
+| `$.ui.notify` | `() => ({ value: { isSent: true, channel: 'terminal_bell' } })`。文本是 `e.text`，标题是 `e.title`。 |
 | `$.session.messages` | `() => ({ value: [{ role: 'assistant', text: '...', toolUses: [] }] })` |
 | `$.session.id`、`$.agent.list` | `() => ({ value: 'abc123' })`、`() => ({ value: [] })` |
 | `session.send` | `() => ({ isDelivered: true })`。`e.to` 即使您的 mod 传递 `{ sessionId }`，也作为字符串到达。 |

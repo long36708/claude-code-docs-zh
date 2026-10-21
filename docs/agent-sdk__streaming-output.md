@@ -318,7 +318,7 @@ for await (const message of query({
 
 ## 已知限制
 
-* **结构化输出**：启用部分消息时，JSON 作为工具调用的未验证 `input_json_delta` 块进行流式传输，只有验证后的结果才会到达最终的 `ResultMessage.structured_output`。有关详细信息，请参阅[结构化输出](/docs/zh-CN/agent-sdk/structured-outputs)。
+* **结构化输出**：启用部分消息时，JSON 作为工具调用的未验证 `input_json_delta` 块进行流式传输，只有验证后的结果才会到达最终的 `ResultMessage.structured_output`。[识别 StructuredOutput 工具调用](/docs/zh-CN/agent-sdk/structured-outputs#recognize-the-structuredoutput-tool-call)介绍了该调用在您的流中如何呈现。
 
 ## 后续步骤
 

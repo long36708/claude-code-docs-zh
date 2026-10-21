@@ -36,12 +36,16 @@
 
 在Claude Code v2.1.221之前，SDK会为Google Cloud的Agent Platform上的所有模型禁用工具搜索，除非您设置`ENABLE_TOOL_SEARCH`。
 
-当`ANTHROPIC_BASE_URL`指向非第一方主机时，SDK也会禁用工具搜索，因为大多数代理不转发`tool_reference`块。您可以使用`ENABLE_TOOL_SEARCH`环境变量覆盖该默认值：
+> [!NOTE]
+>
+> 在`ANTHROPIC_BASE_URL`网关后方，工具搜索默认启用，无需任何设置。如果网关拒绝它，请参阅[通过LLM网关使用工具搜索](/docs/zh-CN/mcp#tool-search-through-a-gateway)。在Claude Code v2.1.304之前，除非`ENABLE_TOOL_SEARCH`为`true`、`auto`或`auto:N`，否则SDK会在此类网关后方禁用工具搜索。
+
+您可以使用`ENABLE_TOOL_SEARCH`环境变量控制是否以及何时延迟工具定义，该变量接受以下值：
 
 | 值 | 行为 |
 | :- | :- |
-| （未设置） | 工具搜索启用。工具定义被延迟并按需发现。在早于Opus 4和Sonnet 4的模型、Google Cloud的Agent Platform上早于Opus 4.5、Sonnet 4.5和Haiku 4.5的模型、非第一方`ANTHROPIC_BASE_URL`或托管在Azure上的Microsoft Foundry部署上回退到预先加载。 |
-| `true` | 在非第一方`ANTHROPIC_BASE_URL`下工具搜索保持启用。其他（未设置）情况下的回退仍然适用。SDK通过代理发送beta标头，在不支持`tool_reference`块的代理上请求会失败。 |
+| （未设置） | 工具搜索启用，工具定义被延迟并按需发现。在早于Opus 4和Sonnet 4的模型、[早期Agent Platform模型](#configure-tool-search)以及托管在Azure上的Microsoft Foundry部署上回退到预先加载。 |
+| `true` | 工具搜索启用，回退情况与（未设置）相同。 |
 | `auto` | 计算工具搜索可以延迟的工具定义中的token，并将总数与模型的上下文窗口进行比较。当总数达到窗口的10%时，工具搜索激活。低于此值时，SDK预先将每个工具定义加载到上下文中。 |
 | `auto:N` | 与`auto`相同，但具有自定义百分比。`auto:5`在这些定义达到上下文窗口的5%时激活。较低的值更早激活。 |
 | `false` | 工具搜索关闭。所有工具定义在每个轮次上都加载到上下文中。 |

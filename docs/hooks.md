@@ -294,7 +294,7 @@ Hook 条目在设置级别之间合并而不是相互替换：用户、项目和
 | `SessionStart` | 会话如何启动 | `startup`、`resume`、`clear`、`compact`、`fork` |
 | `Setup` | 哪个 CLI 标志触发了设置 | `init`、`maintenance` |
 | `SessionEnd` | 会话为何结束 | `clear`、`resume`、`logout`、`prompt_input_exit`、`other` |
-| `Notification` | 通知类型 | `permission_prompt`、`idle_prompt`、`auth_success`、`elicitation_dialog`、`elicitation_url_dialog`、`elicitation_complete`、`elicitation_response`、`agent_needs_input`、`agent_completed`、`quota_auto_resume_fired`、`quota_auto_resume_stale`、`quota_auto_resume_disabled` |
+| `Notification` | 通知类型 | `permission_prompt`、`idle_prompt`、`auth_success`、`elicitation_dialog`、`elicitation_url_dialog`、`elicitation_complete`、`elicitation_response`、`agent_needs_input`、`agent_completed`、`quota_auto_resume_fired`、`quota_auto_resume_stale`、`quota_auto_resume_disabled`、`plugin_notification` |
 | `SubagentStart` | 代理类型 | `general-purpose`、`Explore`、`Plan`、自定义代理名称或插件范围的名称如 `^my-plugin:reviewer$` |
 | `PreCompact`、`PostCompact` | 什么触发了压缩 | `manual`、`auto` |
 | `PreModelSwitch`、`PostModelSwitch` | 会话切换到的模型的规范名称，如 [PreModelSwitch](#premodelswitch) 下所述 | `claude-opus-5`、`claude-opus-4-6\|claude-opus-5`、`.*opus.*` |
@@ -1923,7 +1923,7 @@ Windows 上的 `Write` 调用会传递：
 
 | 字段 | 说明 |
 | :- | :- |
-| `permissionDecision` | `"allow"` 会跳过权限提示，但[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)和[从网络路径读取](/docs/zh-CN/permissions#network-paths)除外。`AskUserQuestion` 和 `ExitPlanMode` 需要[将 `updatedInput` 与 `"allow"` 配合使用](#allow-with-updatedinput)。关于计划模式，请参阅[计划模式中的 hook 批准](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)。`"deny"` 会阻止工具调用。`"ask"` 会提示用户确认。`"defer"` 会正常退出，以便稍后恢复该工具。无论 hook 返回什么，[拒绝和询问规则](/docs/zh-CN/permissions#manage-permissions)仍会被评估 |
+| `permissionDecision` | `"allow"` 会跳过权限提示，但[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)和[从网络路径读取](/docs/zh-CN/permissions#network-paths)除外。`AskUserQuestion` 和 `ExitPlanMode` 需要[与 `"allow"` 配对的 `updatedInput`](#allow-with-updatedinput)。关于计划模式，请参阅[计划模式中的 hook 批准](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)。`"deny"` 会阻止工具调用。`"ask"` 会提示用户确认。`"defer"` 会结束当前轮次，以便稍后恢复该工具，并且需要使用 `-p` 标志的[非交互模式](#defer-a-tool-call-for-later)。无论 hook 返回什么，[拒绝和询问规则](/docs/zh-CN/permissions#manage-permissions)仍会被评估 |
 | `permissionDecisionReason` | 对于 `"ask"`，在权限提示中显示给用户。当 Claude Code 在无人能回应该提示的 `-p` 运行中[拒绝该调用](/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs)时，Claude 会在工具结果中读取该原因。对于 `"deny"`，显示给 Claude。对于 `"allow"` 和 `"defer"`，仅写入[调试日志](#debug-hooks) |
 | `updatedInput` | 在执行前修改工具的输入参数。会替换整个输入对象，因此请将未更改的字段与修改后的字段一起包含。Claude Code 会针对您的 hook 返回的输入（而非 Claude 发送的输入）评估权限规则以及 Bash 命令的[自动转入后台资格](/docs/zh-CN/tools-reference#foreground-commands-that-move-to-the-background)。与 `"allow"` 结合可自动批准，与 `"ask"` 结合可向用户显示修改后的输入。对于 `"defer"`，会被忽略 |
 | `additionalContext` | 与工具结果一起添加到 Claude 上下文中的字符串。当 `permissionDecision` 为 `"defer"` 时会被忽略。请参阅[为 Claude 添加上下文](#add-context-for-claude) |
@@ -1997,7 +1997,7 @@ Windows 上的 `Write` 调用会传递：
 `AskUserQuestion` 工具是典型场景：Claude 想向用户提问，但没有可供作答的终端。`-p` 运行只有在具有[权限宿主](/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs)（例如您通过 `--permission-prompt-tool` 传入的 MCP 工具）时才会提供 `AskUserQuestion`，因此请在启动运行时提供一个。完整的往返流程如下：
 
 1. Claude 调用 `AskUserQuestion`。`PreToolUse` hook 触发。
-2. hook 返回 `permissionDecision: "defer"`。工具不执行。进程以 `stop_reason: "tool_deferred"` 退出，待处理的工具调用保存在会话记录中。
+2. hook 返回 `permissionDecision: "defer"`。工具不会执行。该轮次以一个携带 `stop_reason: "tool_deferred"` 的结果结束，待处理的工具调用保留在会话记录中。
 3. 调用进程从 SDK 结果中读取 `deferred_tool_use`，在其自己的 UI 中呈现问题，并等待答案。
 4. 调用进程使用相同的权限宿主运行 `claude -p --resume <session-id>`。同一工具调用会再次触发 `PreToolUse`。
 5. hook 返回 `permissionDecision: "allow"`，并在 `updatedInput` 中附带答案。工具执行，Claude 继续。
@@ -2018,11 +2018,16 @@ Windows 上的 `Write` 调用会传递：
 }
 ```
 
-没有超时或重试限制。会话会保留在磁盘上直到您恢复它，但受 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 保留清理的约束，该清理默认在 30 天后删除会话文件，遵循[保留清理规则](/docs/zh-CN/claude-directory#cleaned-up-automatically)。如果恢复时答案尚未准备好，hook 可以再次返回 `"defer"`，进程会以同样的方式退出。调用进程通过最终从 hook 返回 `"allow"` 或 `"deny"` 来控制何时结束循环。
+没有超时或重试次数限制。会话会保留在磁盘上，直到您恢复它，但会受 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 保留期清理的影响：该清理默认在 30 天后删除会话文件，并遵循[保留期清理规则](/docs/zh-CN/claude-directory#cleaned-up-automatically)。
+
+如果在您恢复时被延迟的工具已不可用，恢复后的第一个结果会带有 `stop_reason: "tool_deferred_unavailable"` 和 `is_error: true`，且 hook 不会触发。当提供该工具的 MCP 服务器未在恢复的会话中连接时，就会发生这种情况。`deferred_tool_use` 数据仍会包含在内，以便您确定缺失的是哪个工具。
+
+* **如果您在恢复时或恢复之后没有发送提示词**，该调用仍处于待处理状态。在工具可用时再次恢复，它会首先运行。
+* **如果您在恢复时或恢复之后发送了提示词**，Claude Code 会在没有该工具结果的情况下回答它，并丢弃被延迟的调用。如果您仍需调用该工具，请在工具可用后发送新的提示词。
+
+如果在您不带提示词恢复时，您等待的答案尚未就绪，hook 可以再次返回 `"defer"`。如果您发送了提示词而 hook 再次延迟，Claude Code 会以同样的方式处理该提示词：在没有工具结果的情况下回答，并丢弃该调用。请不带提示词地恢复，直到 hook 返回 `"allow"` 或 `"deny"`，调用进程正是以此跳出循环。
 
 `"defer"` 仅在 Claude 在该轮次中进行单个工具调用时有效。如果 Claude 同时进行多个工具调用，`"defer"` 会被忽略并给出警告，工具将通过正常的权限流程继续。存在此限制是因为恢复只能重新运行一个工具：无法在不让其他调用悬而未决的情况下，从一批调用中延迟其中一个。
-
-如果恢复时延迟的工具已不再可用，进程会在 hook 触发之前以 `stop_reason: "tool_deferred_unavailable"` 和 `is_error: true` 退出。当提供该工具的 MCP 服务器未在恢复的会话中连接时，就会发生这种情况。`deferred_tool_use` 数据仍会包含在内，以便您识别缺失的是哪个工具。
 
 > [!NOTE]
 >
@@ -2424,6 +2429,7 @@ PermissionDenied hook 可以告知模型可以重试被拒绝的工具调用。�
 | `quota_auto_resume_fired` | 在 claude.ai 用量限制暂停您的任务后，Claude Code 继续执行该任务：在限制重置时，或在等待期间您在 Claude Code 中的某些操作（例如添加使用额度、升级套餐或切换模型）使用量重新可用时提前继续，但存在[模型设置例外](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset) |
 | `quota_auto_resume_stale` | claude.ai 用量限制在您的计算机休眠超过约 30 分钟期间重置。Claude Code 会等待您按下 `Enter`，而不是继续执行。如果休眠时间较短，它会继续执行并改为触发 `quota_auto_resume_fired` |
 | `quota_auto_resume_disabled` | Claude Code 结束对 claude.ai 用量限制的等待，但未继续您的任务：在 Claude Code 自行开始的等待期间，[`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit) 被关闭或重置时间推迟到 24 小时以后；继续执行的任务不断触及限制；或继续执行在到达模型之前被阻止。当您按下 `Esc` 或 `Ctrl+C`，或选择 **Don't continue automatically** 时不会触发 |
+| `plugin_notification` | 某个 [mod](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn) 通过 `$.ui.notify` 发出通知。hook 的 `title` 为该 mod 的名称，除非 mod 自行设置了标题 |
 
 `quota_auto_resume_fired`、`quota_auto_resume_stale` 和 `quota_auto_resume_disabled` 类型需要 Claude Code v2.1.234 或更高版本。
 

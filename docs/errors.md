@@ -83,6 +83,8 @@
 | `Your account does not have access to Claude. Please login again or contact your administrator.` | [身份验证](#oauth-token-revoked-or-expired) |
 | `API Error: 401 Invalid authentication credentials` | [身份验证](#api-error-401-invalid-authentication-credentials) |
 | `Login expired · Please run /login` | [身份验证](#login-expired) |
+| `The browser can't return the sign-in to Claude Code automatically` | [身份验证](#couldnt-start-the-local-sign-in-listener) |
+| `Couldn't start the local listener that receives the browser sign-in. Try again.` | [身份验证](#couldnt-start-the-local-sign-in-listener) |
 | `Failed to start OAuth callback server` | [身份验证](#failed-to-start-oauth-callback-server) |
 | `Claude login not accepted · Run /login, then try again` | [身份验证](#claude-login-not-accepted) |
 | `Artifacts need a claude.ai login` | [身份验证](#artifacts-need-a-claude-ai-login) |
@@ -332,6 +334,7 @@
 | `Your disk quota is full on the filesystem with Claude Code's temp directory <dir> (EDQUOT)` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `The filesystem with Claude Code's temp directory <dir>, or your disk quota on it, is full (ENOSPC)` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `Command output was lost: the temp filesystem at <dir> is full` / `is out of inodes` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
+| `The command was not started: this computer's disk is full (ENOSPC)` / `(EDQUOT)` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary` | [工具错误](#file-is-not-valid-utf-8) |
 | `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `the source file has the replacement character U+FFFD` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
@@ -353,7 +356,7 @@
 | `Can't open — this session is running in another terminal` | [后台会话错误](#this-session-is-running-in-another-terminal) |
 | `This conversation is already open in another running Claude session` | [后台会话错误](#this-session-is-running-in-another-terminal) |
 | `This session's saved conversation is no longer on disk` | [后台会话错误](#this-sessions-saved-conversation-is-no-longer-on-disk) |
-| `Bypass permissions was requested at launch and ignored` | [使用 bypassPermissions 模式跳过所有检查](/docs/zh-CN/permission-modes#bypass-permissions-acceptance) |
+| `Bypass permissions was requested at launch and ignored` | [后台会话中忽略了 Bypass permissions](/docs/zh-CN/permission-modes#bypass-permissions-ignored-in-a-background-session) |
 | `kept <id> — its worktree is still at <path>` | [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere) |
 | `kept <id> — <n> unpushed commits on <branch>` | [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere) |
 | `kept <id> — worktree has commits that are not pushed anywhere` | [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere) |
@@ -404,8 +407,11 @@
 | `API Error: ANTHROPIC_FOUNDRY_RESOURCE must be a Foundry resource name` | [配置警告](#anthropic-foundry-resource-must-be-a-foundry-resource-name) |
 | `headersHelper not run — this workspace has no persisted trust` | [配置警告](#headershelper-not-run) |
 | `Invalid permission rule "..." was skipped: Malformed Tool(content) rule` | [配置警告](#malformed-tool-content-rule) |
+| `matches no tool · check for typos` / `matches no known tool — check for typos` | [配置警告](#matches-no-tool) |
 | `... is not matched by file permission checks` | [配置警告](#is-not-matched-by-file-permission-checks) |
+| `Write(<path>) never matches · use Edit(<path>)` / `Glob(<path>) never matches · use Read(<path>)` | [配置警告](#is-not-matched-by-file-permission-checks) |
 | `... has a wildcard before the rest of the command` | [配置警告](#has-a-wildcard-before-the-rest-of-the-command) |
+| `allows any option at its * · use an exact value` | [配置警告](#has-a-wildcard-before-the-rest-of-the-command) |
 | `Denying Bash also turns off the PowerShell tool, so Claude has neither` | [配置警告](#denying-bash-also-turns-off-the-powershell-tool) |
 | `CLAUDE_CODE_DISABLE_1M_CONTEXT is set, but the 200K limit isn't enforced` | [配置警告](#the-200k-limit-isnt-enforced) |
 | `Model "<model>" isn't recognized · context assumed to be 200k tokens` | [更正网关或自定义模型 ID 的窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id) |
@@ -1352,20 +1358,30 @@ Couldn't save your login. Try logging in again.
 * 在其他平台上，再次运行 `/login`
 * 如果登录仍然无法保存，请参阅[未登录或令牌已过期](/docs/zh-CN/troubleshoot-install#not-logged-in-or-token-expired)，了解钥匙串解锁命令和其他凭据存储恢复步骤
 
-### 无法启动 OAuth 回调服务器
+### Couldn't start the local listener that receives the browser sign-in
 
-当 `/login`、`claude auth login` 或 `claude setup-token` 通过浏览器为您登录时，Claude Code 会在 `127.0.0.1` 上打开一个监听端口，以便浏览器将登录结果返回给它。此消息表示 Claude Code 无法打开该端口，登录会在浏览器窗口或登录 URL 出现之前停止：
+来自 `/login`、`claude auth login` 或 `claude setup-token` 的以下每条消息都表示 Claude Code 无法在 `127.0.0.1` 上打开供浏览器返回登录结果的端口。
 
-```text theme={null}
-Failed to start OAuth callback server: Failed to start server. Is port 0 in use?
+如果出现以 `The browser can't return the sign-in to Claude Code automatically` 开头的通知，登录会在不使用该端口的情况下继续进行。不会打开浏览器，该通知会显示在一个 URL 上方，您需要在该 URL 处登录：
+
+```text wrap theme={null}
+The browser can't return the sign-in to Claude Code automatically. After you sign in, paste the code shown.
 ```
 
-如果您的消息以 `Is port 0 in use?` 结尾，说明在 IPv4 回环地址 `127.0.0.1` 上监听的尝试直接失败了。由于失败发生在登录 URL 生成之前，`Paste code here if prompted` 流程无法作为变通方案使用。
+如果出现包含 `Couldn't start the local listener` 的消息，则登录已停止。例如，当您通过管道向 `claude auth login` 输入内容时就会发生这种情况：
+
+```text theme={null}
+Couldn't start the local listener that receives the browser sign-in. Try again.
+```
 
 **解决方法：**
 
-* 如需不使用本地监听器立即登录：如果您使用 claude.ai 订阅，请在可以正常登录的机器上运行 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token)，并在这台机器上将它输出的令牌设置为 `CLAUDE_CODE_OAUTH_TOKEN`。否则，请将 `ANTHROPIC_API_KEY` 设置为来自 [Claude Console](https://platform.claude.com/settings/keys) 的密钥。[身份验证优先级](/docs/zh-CN/authentication#authentication-precedence)解释了 Claude Code 如何在多个凭据之间进行选择。
-* 如果要改为在这台机器上使用浏览器登录，Claude Code 必须能够在 `127.0.0.1` 上监听。如果它在沙箱中运行，请检查沙箱策略是否允许监听本地端口，然后再次运行 `/login`。如果它本应能够监听却仍然失败，请运行 `/feedback`，以便报告中包含您的环境详细信息。
+* **`The browser can't return the sign-in to Claude Code automatically`**：您无需先修复任何问题。在浏览器中打开通知下方显示的 URL 并登录。浏览器随后会显示一个代码：将其粘贴到 Claude Code 的 `Paste code here >` 提示处，登录即可从那里继续。
+* **`Couldn't start the local listener that receives the browser sign-in`**：再次运行相同的命令。如果它以同样的方式停止，请改用令牌或 API 密钥登录，而不是浏览器。或者，如果您是通过管道向 `claude auth login` 输入内容，请在终端中运行它，以便它能接收粘贴的代码。
+* **改用令牌或 API 密钥而不是浏览器登录**：如果您使用 claude.ai 订阅，请在可以正常登录的计算机上运行 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token)，然后在此计算机上将其输出的令牌设置为 [`CLAUDE_CODE_OAUTH_TOKEN`](/docs/zh-CN/env-vars) 环境变量。否则，请将 `ANTHROPIC_API_KEY` 环境变量设置为来自 [Claude Console](https://platform.claude.com/settings/keys) 的密钥。[身份验证优先级](/docs/zh-CN/authentication#authentication-precedence)说明了 Claude Code 如何在多个凭据之间进行选择。
+* **恢复浏览器自动返回**：Claude Code 必须能够在 `127.0.0.1` 上监听。如果它在沙箱中运行，请检查沙箱的策略是否允许监听本地端口，然后重新登录。如果在该环境中监听本应可行但通知仍然出现，请运行 `/feedback`，以便报告中包含您的环境详细信息。
+
+在 v2.1.305 之前，一旦无法打开端口，登录就会立即停止，并且不会显示可用于登录的 URL。例如，消息显示为 `Failed to start OAuth callback server: Failed to start server. Is port 0 in use?`。在这些版本上，请更新 Claude Code 并重新登录，或者改用令牌或 API 密钥而不是浏览器登录。
 
 ### Claude 登录未被接受
 
@@ -2322,17 +2338,21 @@ pdftoppm is not installed. Install poppler-utils (e.g. `brew install poppler` or
 
 ### 不允许额外输入
 
-Claude Code 和 API 之间的代理或 LLM 网关删除了 `anthropic-beta` 请求头，因此 API 拒绝了依赖它的字段。
+接收请求的端点将请求中的某个字段视为其不接受的输入而拒绝，端点的消息会指出该字段。
 
 ```text theme={null}
-API Error: 400 ... Extra inputs are not permitted ... context_management
+API Error: 400 ... context_management: Extra inputs are not permitted
 ```
 
-Claude Code 发送 `context_management` 等仅限测试版的字段，以及启用它们的 `anthropic-beta` 头。当网关转发正文但删除头时，API 会看到它不识别的字段。
+Claude Code 会发送仅限 beta 的字段（例如 `context_management` 和工具搜索的 `defer_loading`），同时附带启用它们的 `anthropic-beta` 标头。当网关转发请求体但丢弃了该标头时，API 会看到它无法识别的字段。当网关将 Anthropic 格式的请求体转发到具有不同 schema 的上游时，该上游会拒绝此类字段。[Beta 标头与请求体字段对](/docs/zh-CN/llm-gateway-protocol#beta-header-and-body-field-pairs)涵盖了这两种情况。
 
 **要做什么：**
 
-* 配置您的网关以转发 `anthropic-beta` 头。有关网关必须转发的内容，请参阅[功能传递](/docs/zh-CN/llm-gateway-protocol#feature-pass-through)。
+* 如果消息包含 `context_management: Extra inputs are not permitted`，请将 [Claude Code 更新](/docs/zh-CN/setup#update-claude-code)到 v2.1.304 或更高版本。更新后，Claude Code 会在遇到此拒绝时，不带该字段再发送一次请求。在 v2.1.304 之前，Claude Code 不会针对此拒绝进行重试。
+* 如果消息指出 `defer_loading` 或 `tool_reference`，请更新 Claude Code 或关闭[工具搜索](/docs/zh-CN/mcp#tool-search-through-a-gateway)：
+  * 将 [Claude Code 更新](/docs/zh-CN/setup#update-claude-code)到 v2.1.305 或更高版本。之后 Claude Code 会在遇到此拒绝时，不带工具搜索字段再发送一次请求。
+  * 如果您无法更新，或更新后消息仍然出现，请在 shell 中或您的[设置 `env`](/docs/zh-CN/settings-reference#env) 中设置 `ENABLE_TOOL_SEARCH=false`。如果某个设置文件已设置了该变量，请在那里修改，因为该值[可能覆盖 shell 中的 export](/docs/zh-CN/settings-reference#how-env-values-interact-with-your-shell)。之后 Claude Code 会预先加载 MCP 工具。
+* 如果您的网关丢弃了该标头，请将其配置为转发 `anthropic-beta` 标头。有关网关必须转发的内容，请参阅[功能透传](/docs/zh-CN/llm-gateway-protocol#feature-pass-through)。
 * 作为回退方案，在启动前设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](/docs/zh-CN/env-vars)。[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities)涵盖确切范围。
 
 在 v2.1.302 之前，即使不涉及网关，此错误也可能列出字段 `diagnostics`。当已经使用过 Anthropic API 的会话在未重启的情况下转到 Amazon Bedrock 或 Google Cloud's Agent Platform 时，就会出现此错误。例如，当您在另一个 Claude Code 窗口中运行 [`/setup-bedrock`](/docs/zh-CN/commands) 时，您保持打开的会话会转到 Bedrock。在这些版本中，请在该会话中运行 `/clear` 或重启会话。
@@ -2616,7 +2636,7 @@ Note: Opus 4.8 is less capable than the current main model (Sonnet 5.5), so the 
 其他消息报告相同的情况：
 
 * 在交互式会话中，通知显示 `Advisor will not activate on the main model (advisor is less capable); subagents may still use it and may use more tokens · /advisor`。
-* 使用 `--advisor` 标志启动时，警告显示 `"<advisor>" cannot advise "<main model>" (the advisor must be at least as capable as the main model). The advisor will not be used for the main model.`，会话仍会启动。
+* 当您在[非交互模式](/docs/zh-CN/headless)下使用 `--advisor` 标志启动，且该运行不是[后台会话](/docs/zh-CN/agent-view)时，会向 stderr 输出一条警告，运行仍会开始。警告为 `"<advisor>" cannot advise "<main model>" (the advisor must be at least as capable as the main model). The advisor will not be used for the main model.`。交互式会话只会将该警告写入[调试日志](#configuration-warnings)。
 
 **要做什么：**
 
@@ -4542,7 +4562,15 @@ Command killed: its output file was replaced or could no longer be verified
 
 ### Disk quota or temp filesystem is full
 
-Claude Code 会将每个 Bash 和 PowerShell 命令的输出保存到其临时目录下的一个文件中。当命令以非零代码退出且完全没有输出时，Claude Code 会检查存放该文件的文件系统是否已耗尽空间或 inode，或者您在该文件系统上的磁盘配额是否已用完。如果是，命令结果中会显示一条诊断信息，替代空输出：
+Claude Code 会将每个 Bash 和 PowerShell 命令的输出保存到其临时目录下的一个文件中。命令结果中出现以下消息，表示存放该目录的文件系统或您在其上的磁盘配额已满。
+
+如果由于文件系统或您在其上的配额已满，Claude Code 无法创建该文件，您的命令将不会启动，结果内容为：
+
+```text wrap theme={null}
+The command was not started: this computer's disk is full (ENOSPC), so the file that captures command output could not be created. Nothing ran. If this is the user's own computer, tell them before deleting anything to make room.
+```
+
+当命令以非零代码退出且完全没有输出时，Claude Code 会检查存放输出文件的文件系统。如果该文件系统已耗尽空间或 inode，或者您在该文件系统上的磁盘配额已用完，命令结果中会显示一条诊断信息，替代空输出：
 
 ```text wrap theme={null}
 Your disk quota is full on the filesystem with Claude Code's temp directory /private/tmp/claude-501/-Users-you-my-project/1f0e62dc-4b0a-4f5e-9c2d-8a7b6c5d4e3f/tasks (EDQUOT), so any output this command printed was lost, and it may have failed because it could not write. Delete files you no longer need there, or restart Claude Code with CLAUDE_CODE_TMPDIR set to a directory on another filesystem.
@@ -4553,12 +4581,15 @@ Your disk quota is full on the filesystem with Claude Code's temp directory /pri
 * `Your disk quota is full ... (EDQUOT)`：您在该文件系统上的配额已用完。即使文件系统仍显示有可用空间，配额也可能已满
 * `The filesystem with Claude Code's temp directory ..., or your disk quota on it, is full (ENOSPC)`：该文件系统或您在其上的配额已没有剩余空间
 * `Command output was lost: the temp filesystem at ... is full` 或 `... is out of inodes`：该文件系统几乎没有剩余可用空间，或 inode 即将耗尽
+* `The command was not started: this computer's disk is full (ENOSPC)` 或 `... (EDQUOT)`：该文件系统已没有空间容纳输出文件，或者在 `EDQUOT` 的情况下，您在其上的配额已用完
 
 **处理方法：**
 
-* 删除存放 Claude Code 临时目录的文件系统上不再需要的文件。对于 `EDQUOT`，请删除计入您自己配额的文件。对于 `out of inodes`，请删除大量文件，而不是几个大文件，因为无论大小，每个文件都占用一个 inode
+* 删除存放 Claude Code 临时目录的文件系统上不再需要的文件。如果您的消息没有指出该目录，请在 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars) 参考中查找其默认位置。对于 `EDQUOT`，请删除计入您自己配额的文件。对于 `out of inodes`，请删除大量文件，而不是几个大文件，因为无论大小，每个文件都占用一个 inode
 * 或者将 [`CLAUDE_CODE_TMPDIR`](/docs/zh-CN/env-vars) 设置为有空间的文件系统上的目录，然后重新启动 Claude Code
-* 然后让 Claude 再次运行该命令。命令打印的输出已丢失，而不是被截断
+* 然后让 Claude 再次运行该命令
+
+在 v2.1.305 之前，因磁盘已满而无法由 Claude Code 启动的命令只会返回操作系统的错误文本。该文本例如为 `ENOSPC: no space left on device, open <path>.output`。
 
 ### File is not valid UTF-8
 
@@ -5225,7 +5256,14 @@ Transcript saving is off — inherited CLAUDE_CODE_CHILD_SESSION marker · resta
 
 ## 配置警告
 
-Claude Code 将大多数这些消息写入 stderr，而不是写入对话中，并在启动时写入大多数消息。当消息出现在其他地方（例如在调试日志中或作为对话视图中的启动通知）或在其他时间（例如[请求时的无法识别的模型诊断行](#unrecognized-model-id-on-a-request)）时，条目会说明这一点。
+要查找 Claude Code 在交互式会话启动时给出的警告，请先查看启动横幅下方，然后查看调试日志：
+
+* **启动横幅下方的行**：某些有关[权限规则](/docs/zh-CN/permissions)的警告，例如 [`⚠ Deny rule Bsh matches no tool · check for typos`](#matches-no-tool)
+* **调试日志**：Claude Code 仅在调试模式下保留此日志。要读取其中的警告，请从 shell 使用 `claude --debug-file <path>` 启动 Claude Code，然后打开该路径下的文件。
+
+在使用文本输出的[非交互模式](/docs/zh-CN/headless)中（[后台会话](/docs/zh-CN/agent-view)之外），请在 stderr 上查找启动警告。
+
+在 v2.1.305 之前，在交互式会话中也请查看 stderr，包括现在显示为横幅下方行的权限规则警告。
 
 ### Claude Code 因无法恢复的界面错误而退出
 
@@ -5345,11 +5383,15 @@ Ignoring 2 permissions.allow entries from .claude/settings.local.json: this work
 
 ### 工作目录是网络路径
 
-Claude Code 不将网络路径添加为工作目录。查找网络路径可能会联系它命名的主机，在 Windows 上该联系可能会向主机发送您的凭据，因此 Claude Code 拒绝该路径而不查找它。当您使用此类路径运行 `/add-dir` 时，或作为启动时的警告，您会看到此消息。当它在启动时出现时，Claude Code 启动时不包含该目录。
+Claude Code 不将网络路径添加为工作目录。查找网络路径可能会联系它命名的主机，在 Windows 上该联系可能会向主机发送您的凭据。因此 Claude Code 拒绝该路径而不查找它。
+
+当您使用网络路径运行 `/add-dir` 时，您会看到此消息：
 
 ```text theme={null}
 \\server\share is a network path, which cannot be added as a working directory. On Windows, map the share to a drive letter and pass it at launch with --add-dir (a drive letter added mid-session does not yet carry remote-read trust).
 ```
+
+当您改为在启动时通过 `--add-dir` 或 `permissions.additionalDirectories` 传递网络路径时，Claude Code 启动时不包含该目录。在交互式会话中，您在启动时看不到该消息，因为它与其他[启动警告](#configuration-warnings)一起写入调试日志。
 
 Claude Code 以这种方式拒绝的路径包括：
 
@@ -5596,46 +5638,92 @@ Invalid permission rule "Bash(ls) x" was skipped: Malformed Tool(content) rule. 
 
 在 v2.1.260 之前，Claude Code 将具有不匹配括号的规则报告为 `Mismatched parentheses`。
 
-### 不匹配文件权限检查
+### Matches no tool · check for typos
 
-Claude Code 在您的某个[设置文件](/docs/zh-CN/settings#where-settings-live)、[托管设置](/docs/zh-CN/managed-settings)或 `--allowedTools`、`--disallowedTools` 或 `--settings` 标志值中找到了带有路径的 `Write`、`NotebookEdit`、`MultiEdit` 或 `Glob` [权限规则](/docs/zh-CN/permissions#read-and-edit)。它仅针对 `Edit` 和 `Read` 规则检查文件权限，因此从不查询命名其他文件工具之一的路径规则。它保留该规则且不改变其他任何内容；警告命名该规则、括号中的来源以及要写入的替换内容：
+启动横幅下方的这一行命名了一条拒绝或询问[权限规则](/docs/zh-CN/permissions)，Claude Code 无法识别其工具名称，因此该规则不适用于您想要的工具。写成 `Bsh` 的拒绝规则不会应用于 Bash，使用工具在会话记录中显示的标签而非其规范名称的规则也不会。该行按您书写的原样重复该规则：
 
 ```text theme={null}
-Permission deny rule (.claude/settings.json): Write(docs/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(docs/**) instead (Edit rules cover all file-editing tools).
+⚠ Deny rule Bsh matches no tool · check for typos
 ```
+
+在使用文本输出的[非交互模式](/docs/zh-CN/headless)中，Claude Code 改为在 stderr 上打印较长形式的警告：
+
+```text theme={null}
+Permission deny rule "Bsh" matches no known tool — check for typos.
+```
+
+**要做什么：**
+
+* 更正规则中的工具名称，例如用 `Bash` 代替 `Bsh`。在[工具参考](/docs/zh-CN/tools-reference)中查找规范名称。
+* 要查找规则的定义位置，请在会话中运行 `/permissions` 并选择该规则。其详情会说明规则的来源，例如 `From project local settings`，或对于 `--disallowedTools` 值显示 `From CLI argument`。
+* 如果详情显示 `From enterprise managed settings`，请将该行转发给维护您的[托管设置](/docs/zh-CN/managed-settings)的人，因为您无法自己更改该规则。
+
+在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，Claude Code 将警告写入调试日志而不是 stderr。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。
+
+在 v2.1.305 之前，交互式会话在启动时在 stderr 上打印较长形式，而不是显示该行。
+
+### 不匹配文件权限检查
+
+Claude Code 在您的某个[设置文件](/docs/zh-CN/settings#where-settings-live)、[托管设置](/docs/zh-CN/managed-settings)或 `--allowedTools`、`--disallowedTools` 或 `--settings` 标志值中找到了带有路径的 `Write`、`NotebookEdit`、`MultiEdit` 或 `Glob` [权限规则](/docs/zh-CN/permissions#read-and-edit)。它仅针对 `Edit` 和 `Read` 规则检查文件权限，因此从不查询命名其他文件工具之一的路径规则。它保留该规则且不改变其他任何内容。
+
+* **交互式会话**：完整警告写入[调试日志](#configuration-warnings)，此形式的拒绝或询问规则还会在启动横幅下方显示为以下行：
+
+  ```text theme={null}
+  ⚠ Deny rule Write(docs/**) never matches · use Edit(docs/**)
+  ```
+
+  此形式的允许规则不会显示行。要查找规则的定义位置，请在会话中运行 `/permissions` 并选择该规则。
+* **使用文本输出的[非交互模式](/docs/zh-CN/headless)**：stderr 上的完整警告命名该规则、括号中的来源以及要写入的替换内容：
+
+  ```text theme={null}
+  Permission deny rule (.claude/settings.json): Write(docs/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(docs/**) instead (Edit rules cover all file-editing tools).
+  ```
+* **[后台会话](/docs/zh-CN/agent-view)，或使用 `--output-format json` 或 `stream-json`**：完整警告写入调试日志而不是 stderr，以保持机器读取的输出干净。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。
 
 **要做什么：**
 
 * 将 `Write(path)`、`NotebookEdit(path)` 和旧版 `MultiEdit(path)` 规则替换为 `Edit(path)`。`Edit` 规则涵盖所有文件编辑工具。
 * 除了在 `--allowedTools` 中（Claude Code 接受 `Glob` 规则而不警告），将 `Glob(path)` 规则替换为 `Read(path)`。
-* 在警告括号中命名的来源处修复规则：设置文件路径，或对于 `--allowed-tools` 和 `--disallowed-tools` 则是标志本身。磁盘上不存在的 `claude-settings-<hash>.json` 路径代表内联 `--settings` 值。请修复您传递给该标志的 JSON。
+* 在完整警告括号中命名的来源处修复规则：设置文件路径，或对于 `--allowed-tools` 和 `--disallowed-tools` 则是标志本身。磁盘上不存在的 `claude-settings-<hash>.json` 路径代表内联 `--settings` 值。请修复您传递给该标志的 JSON。
 * 将诸如 `Write` 或 `Glob` 的裸工具名称规则保留原样。Claude Code 在[工具级别](/docs/zh-CN/permissions#match-all-uses-of-a-tool)匹配它们，不对它们发出警告。
-* 如果来源显示为 `managed policy settings`，请将警告转发给维护您的托管设置的人，因为您无法自己清除它。
+* 对于来自托管设置的规则，完整警告的括号显示 `managed policy settings`，该规则在 `/permissions` 中的详情显示 `From enterprise managed settings`。请将该警告转发给维护您的托管设置的人，因为您无法自己清除它。
 
-在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，Claude Code 将警告写入调试日志而不是 stderr，以保持机器读取的输出干净。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。在 v2.1.210 之前，Claude Code 接受这些规则而不警告。
+在 v2.1.210 之前，Claude Code 接受这些规则而不警告。在 v2.1.305 之前，交互式会话在 stderr 上打印完整警告。
 
 ### 在命令的其余部分之前有通配符
 
 Claude Code 在您的某个[设置文件](/docs/zh-CN/settings#where-settings-live)、[托管设置](/docs/zh-CN/managed-settings)或 `--allowedTools` 或 `--settings` 标志值中找到了一个 `Bash` 允许规则，其 `*` 出现在决定命令类型的后续单词之前，例如 `Bash(git * main)` 或 `Bash(git -C * status *)`。`*` 匹配任何文本，包括在该位置插入的选项：`Bash(git * main)` 也会批准 `git -c core.fsmonitor=<script> diff main`，其中 `-c` 会使 git 运行命令所命名的程序。[通配符模式](/docs/zh-CN/permissions#wildcard-patterns)显示匹配规则。
 
-此警告的目的是让您缩小通配符范围超出预期的规则。Claude Code 保留该规则且不改变其匹配方式；警告命名该规则及括号中的来源：
+此警告的目的是让您缩小通配符范围超出预期的规则。Claude Code 保留该规则且不改变其匹配方式。在使用文本输出的[非交互模式](/docs/zh-CN/headless)中，stderr 上的警告命名该规则及括号中的来源：
 
 ```text theme={null}
 Permission allow rule (.claude/settings.json): Bash(git -C * status *) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. For git, options such as -c and --exec-path can run arbitrary commands. Replace that * with the exact value you mean, or only use * after the subcommand (for example Bash(git status *)).
 ```
 
+在交互式会话中，完整警告写入[调试日志](#configuration-warnings)，该规则在启动横幅下方显示为以下行：
+
+```text theme={null}
+⚠ Allow rule Bash(git -C * status *) allows any option at its * · use an exact value
+```
+
+要查找规则的定义位置，请在会话中运行 `/permissions` 并选择该规则。
+
 **要做什么：**
 
 * 将子命令前的 `*` 替换为您想要的确切值：用 `Bash(git checkout main)` 代替 `Bash(git * main)`。
 * 将每个 `*` 移到子命令后：用 `Bash(git status *)` 代替 `Bash(git -C * status *)`。为您想允许的每个子命令写一条规则。
-* 在警告括号中命名的来源处修复规则：设置文件路径，或 `--allowed-tools` 标志本身。磁盘上不存在的 `claude-settings-<hash>.json` 路径代表内联 `--settings` 值。请修复您传递给该标志的 JSON。
-* 如果来源显示为 `managed policy settings`，请将警告转发给维护您的托管设置的人，因为您无法自己清除它。
+* 在完整警告括号中命名的来源处修复规则：设置文件路径，或 `--allowed-tools` 标志本身。磁盘上不存在的 `claude-settings-<hash>.json` 路径代表内联 `--settings` 值。请修复您传递给该标志的 JSON。
+* 对于来自托管设置的规则，完整警告的括号显示 `managed policy settings`，该规则在 `/permissions` 中的详情显示 `From enterprise managed settings`。请将该警告转发给维护您的托管设置的人，因为您无法自己清除它。
 
 在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，Claude Code 将警告写入调试日志而不是 stderr，以保持机器读取的输出干净。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。在 v2.1.246 之前，Claude Code 接受这些规则而不警告。
 
+在 v2.1.305 之前，交互式会话在 stderr 上打印完整警告，而不是显示一行。
+
 ### 拒绝 Bash 也会关闭 PowerShell 工具
 
-您移除了整个 Bash 工具，例如使用 `--disallowedTools Bash`，或在您的某个设置文件中使用裸 `Bash` 或 `Bash(*)` [拒绝规则](/docs/zh-CN/permissions#match-all-uses-of-a-tool)。在安装了 Git Bash 的 Windows 上，[拒绝 Bash 也会关闭 PowerShell 工具](/docs/zh-CN/tools-reference#bash-deny-rules-also-turn-off-the-powershell-tool)，因此会话启动时没有任何 shell 工具。Claude Code 在启动时打印此警告：
+您移除了整个 Bash 工具，例如使用 `--disallowedTools Bash`，或在您的某个设置文件中使用裸 `Bash` 或 `Bash(*)` [拒绝规则](/docs/zh-CN/permissions#match-all-uses-of-a-tool)。在安装了 Git Bash 的 Windows 上，[拒绝 Bash 也会关闭 PowerShell 工具](/docs/zh-CN/tools-reference#bash-deny-rules-also-turn-off-the-powershell-tool)，因此会话启动时没有任何 shell 工具。
+
+在使用文本输出的[非交互模式](/docs/zh-CN/headless)中，Claude Code 在启动时在 stderr 上打印此警告，而交互式会话仅将其写入[调试日志](#configuration-warnings)：
 
 ```text theme={null}
 Denying Bash also turns off the PowerShell tool, so Claude has neither. To use PowerShell, set CLAUDE_CODE_USE_POWERSHELL_TOOL=1.
@@ -5647,6 +5735,8 @@ Denying Bash also turns off the PowerShell tool, so Claude has neither. To use P
 * 要阻止特定命令而不是整个工具，请在同一设置文件或标志中将裸 `Bash` 条目替换为限定范围的规则，例如 `Bash(git push *)`。Claude 会保留 Bash 工具，而 PowerShell 工具会保持关闭，直到您同时设置该变量或添加限定范围的 [`PowerShell` 权限规则](/docs/zh-CN/permissions#powershell)。
 
 在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，Claude Code 将警告写入调试日志而不是 stderr。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。在 v2.1.287 之前，Claude Code 以同样的方式关闭 PowerShell 工具，但不打印警告。
+
+在 v2.1.305 之前，交互式会话也会在启动时在 stderr 上打印该警告。
 
 ### crossSessionInbound 必须是 accept、hold 或 refuse 之一
 
@@ -5697,7 +5787,9 @@ Claude Code 会为它识别为具有原生 1M 窗口的每个模型自行强制�
 * 如果消息命名了此版本无法识别的模型 ID，请运行 `claude update`。能够将该 ID 识别为 1M 上下文模型的版本会强制执行该限制，无需进一步配置。
 * 如果您希望会话改为使用模型的完整窗口，请取消设置 `CLAUDE_CODE_DISABLE_1M_CONTEXT`；该警告仅报告 200K 限制未被强制执行
 
-在[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，Claude Code 将警告写入调试日志而不是 stderr。
+在使用文本输出的[非交互模式](/docs/zh-CN/headless)中，此警告出现在 stderr 上。在交互式会话、[后台会话](/docs/zh-CN/agent-view)中或使用 `--output-format json` 或 `stream-json` 时，它改为写入调试日志。使用 `--debug` 运行以在 `~/.claude/debug/<session-id>.txt` 处捕获它。
+
+在 v2.1.305 之前，交互式会话在启动时在 stderr 上打印该警告。
 
 ### 请求上无法识别的模型 ID
 

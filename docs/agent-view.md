@@ -681,18 +681,15 @@ Claude Code 仅将转发的网关应用于该会话正在运行的进程，绝�
 
 #### 权限模式
 
-[权限模式](/docs/zh-CN/permissions) 取决于您启动会话的方式：
-
-* **使用 `/bg` 或 `←` 转入后台**：Claude Code 保留会话原有的权限模式，因此您已切换到 `acceptEdits` 或 `auto` 的会话在分离后仍保持该模式
-* **从使用 `←` 打开的 Agent 视图分派**：Claude Code 首先从目标目录的配置获取新会话的权限模式，然后从您来源的会话获取
+* **使用 `/bg` 或 `←` 转入后台**：Claude Code 保留会话原有的 [权限模式](/docs/zh-CN/permissions)，因此您已切换到 `acceptEdits` 或 `auto` 的会话在分离后仍保持该模式
 * **从在 shell 中启动的 `claude agents` 分派，或使用 `claude --bg` 分派**：新会话的启动方式与在该目录中启动新的 `claude` 会话相同，除非您是从使用 [分派默认值](#dispatch-defaults) 打开的 Agent 视图分派的。[会话以哪种权限模式启动](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in) 列出了优先顺序
 
 对于您从使用 `←` 打开的 Agent 视图分派的会话，Claude Code 会从以下第一个适用的来源获取权限模式：
 
-1. 目标目录的 [`permissions.defaultMode`](/docs/zh-CN/settings-reference#permissions-defaultmode)。适用两条来源规则：
-   * `auto` 和 `bypassPermissions` [仅在来自托管设置、`--settings` 文件或 `~/.claude/settings.json` 时生效](/docs/zh-CN/settings-reference#permissions-defaultmode)。
-   * 如果项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `defaultMode` 选择了比您来源会话更宽松的模式，Claude Code 会拒绝它。
-2. 您来源会话的权限模式。如果该会话处于 `bypassPermissions` 模式，新会话可能会改为以手动模式启动，并显示通知 `Bypass permissions was requested at launch and ignored`。当您对绕过免责声明的接受记录仅存在于 `.claude/settings.local.json` 或 `--settings` 文件中时，就会发生这种情况。您可以继续使用手动模式，或 [将该接受记录添加到 `~/.claude/settings.json`](/docs/zh-CN/permission-modes#bypass-permissions-acceptance)。
+1. 目标目录的 [`permissions.defaultMode`](/docs/zh-CN/settings-reference#permissions-defaultmode)。`auto` 和 `bypassPermissions` [仅在来自托管设置、`--settings` 文件或 `~/.claude/settings.json` 时生效](/docs/zh-CN/settings-reference#permissions-defaultmode)。如果项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `defaultMode` 选择了比您来源会话更宽松的模式，Claude Code 会拒绝它。
+2. 您来源会话的权限模式。
+
+   如果该会话处于 `bypassPermissions` 模式，新会话可能会改为以手动模式启动，并显示通知 `Bypass permissions was requested at launch and ignored`。当您对绕过免责声明的接受记录仅存在于 `.claude/settings.local.json` 或 `--settings` 文件中时，就会发生这种情况。您可以继续使用手动模式，或 [将该接受记录添加到 `~/.claude/settings.json`](/docs/zh-CN/permission-modes#bypass-permissions-ignored-in-a-background-session)。
 
 当 Claude Code 因某个来源的模式过于宽松而拒绝它时，由列表中的下一个来源决定。例如，如果您从计划模式会话分派到一个其已签入设置要求 `acceptEdits` 的目录，新会话会以计划模式启动。如果您将该 `defaultMode` 移到 `~/.claude/settings.json`，则无论您来源会话的权限模式如何，它都会生效。
 

@@ -368,6 +368,17 @@ async def main():
 asyncio.run(main())
 ```
 
+## 识别 StructuredOutput 工具调用
+
+当您在 TypeScript 中设置 `outputFormat` 或在 Python 中设置 `output_format` 时，消息流中会出现一个名为 `StructuredOutput` 的工具调用，而您从未定义过该工具。Claude Code 会将此工具添加到会话中，Agent 通过调用它来返回答案。[系统 init 消息](/docs/zh-CN/agent-sdk/typescript#sdksystemmessage)会在 `tools` 数组中列出该工具，每次调用都以两个块的形式出现：
+
+* 一个名为 `StructuredOutput` 的 `tool_use` 块，其输入是 Agent 根据您的 schema 生成的对象
+* 一个内容为 `Structured output provided successfully` 的 `tool_result` 块
+
+当该对象与您的 schema 不匹配时，`tool_result` 会改为带有 `is_error: true`，Agent 会再次调用 `StructuredOutput`，因此一次查询的消息流中可能包含多次调用。请从结果消息的 `structured_output` 中读取经过验证的数据，而不是从 `tool_use` 块中读取；关于所有尝试均未成功时得到的结果，请参阅[错误处理](#error-handling)。
+
+如果您的应用程序会显示工具调用或将其记录到日志中，请跳过名为 `StructuredOutput` 的调用，以免这一机制显示为 Agent 自行选择的步骤。`tool_result` 块不包含工具名称，只包含其所响应调用的 `tool_use_id`，因此请将其与您跳过的每个调用的 `id` 进行匹配。
+
 ## 错误处理
 
 结构化输出生成可能会失败，当 Agent 无法生成与您的 schema 匹配的有效 JSON 时。这通常发生在 schema 对于任务来说太复杂、任务本身不明确或 Agent 在尝试修复验证错误时达到重试限制时。它也可能在没有任何验证失败的情况下发生：[模型回退](/docs/zh-CN/model-config#automatic-model-fallback)可以在流中途收回已完成的输出，如果没有重试替换它，运行将以相同的错误结束。在调试您的 schema 之前，检查错误结果消息上的 `errors` 列表以区分这两个原因。

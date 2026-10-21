@@ -193,6 +193,7 @@ Hooks 让你在 Claude Code 生命周期中的关键点运行代码：编辑后�
 | `quota_auto_resume_fired` | Claude Code 在 claude.ai 使用限制暂停后继续你的任务：在重置时，或更早当你在等待期间在 Claude Code 中做的某些事情（如添加使用额度、升级你的计划或切换模型）使使用量再次可用时，但有[模型设置例外](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset) |
 | `quota_auto_resume_stale` | claude.ai 使用限制在你的计算机睡眠超过约 30 分钟时重置。Claude Code 等待你按 `Enter` 而不是继续。在较短的睡眠后它继续并改为触发 `quota_auto_resume_fired` |
 | `quota_auto_resume_disabled` | Claude Code 结束其对 claude.ai 使用限制的等待而不继续你的任务：[`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit) 关闭或重置在 Claude Code 自己启动的等待期间移动超过 24 小时，继续的任务继续命中限制，或继续在到达模型前被阻止。当你按 `Esc` 或 `Ctrl+C` 或选择**不自动继续**时不触发 |
+| `plugin_notification` | [mod](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn) 使用 `$.ui.notify` 发出通知。除非 mod 自行设置了 `title`，否则 hook 的 `title` 为该 mod 的名称 |
 
 Claude Code 在终端和通过 Agent SDK 回答权限请求的 Claude Desktop、VS Code 扩展和其他主机中对 `permission_prompt` 的时间不同。请参阅[每个通知类型何时触发](/docs/zh-CN/hooks#notification)以了解两种时间。
 
@@ -632,7 +633,7 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 
   有关 `"allow"` 在计划模式下的作用，请参阅 [计划模式下的 hook 批准](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)。
 
-第四个值 `"defer"` 在 [非交互模式](/docs/zh-CN/headless) 中使用 `-p` 标志时可用。它以保留的工具调用退出进程，以便 Agent SDK 包装器可以收集输入并恢复。请参阅参考中的 [延迟工具调用以供稍后使用](/docs/zh-CN/hooks#defer-a-tool-call-for-later)。
+第四个值 `"defer"` 在 [非交互模式](/docs/zh-CN/headless) 中使用 `-p` 标志时可用。返回该值会结束当前轮次并保留工具调用，以便 Agent SDK 包装器可以收集输入并恢复。请参阅参考中的 [延迟工具调用以供稍后使用](/docs/zh-CN/hooks#defer-a-tool-call-for-later)。
 
 `PreModelSwitch` hook 返回相同的 `permissionDecision` 字段：`"allow"` 让模型切换进行，`"deny"` 取消它。`"ask"` 在你在交互式会话中运行 `/model` 时让你确认切换；在其他地方，Claude Code 将 `"ask"` 视为拒绝。请参阅 [PreModelSwitch 决策控制](/docs/zh-CN/hooks#premodelswitch-decision-control)。
 
@@ -686,7 +687,7 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 | `SessionStart` | 会话如何启动 | `startup`、`resume`、`clear`、`compact`、`fork` |
 | `Setup` | 哪个 CLI 标志触发了设置 | `init`、`maintenance` |
 | `SessionEnd` | 会话为什么结束 | `clear`、`resume`、`logout`、`prompt_input_exit`、`other` |
-| `Notification` | 通知类型 | `permission_prompt`、`idle_prompt`、`auth_success`、`elicitation_dialog`、`elicitation_url_dialog`、`elicitation_complete`、`elicitation_response`、`agent_needs_input`、`agent_completed`、`quota_auto_resume_fired`、`quota_auto_resume_stale`、`quota_auto_resume_disabled` |
+| `Notification` | 通知类型 | `permission_prompt`、`idle_prompt`、`auth_success`、`elicitation_dialog`、`elicitation_url_dialog`、`elicitation_complete`、`elicitation_response`、`agent_needs_input`、`agent_completed`、`quota_auto_resume_fired`、`quota_auto_resume_stale`、`quota_auto_resume_disabled`、`plugin_notification` |
 | `SubagentStart` | 代理类型 | `general-purpose`、`Explore`、`Plan` 或自定义代理名称 |
 | `PreCompact`、`PostCompact` | 什么触发了压缩 | `manual`、`auto` |
 | `PreModelSwitch`、`PostModelSwitch` | 会话切换到的模型的规范名称，如 [PreModelSwitch](/docs/zh-CN/hooks#premodelswitch) 下所述 | `claude-opus-5`、`claude-opus-4-6\|claude-opus-5`、`.*opus.*` |

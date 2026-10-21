@@ -1715,7 +1715,12 @@ class ResultMessage:
 
 多个字段携带有关对话如何结束的诊断详情：
 
-* `is_error`：当对话以错误状态结束时为 `True`。在 `error_*` 子类型上始终为 `True`。在 `subtype="success"` 上，当最终模型请求失败时为 `True`，这意味着 Agent 循环完成但最后一个 API 调用返回了错误。
+* `is_error`：当对话以错误状态结束时为 `True`。在 `error_*` 子类型上始终为 `True`。在 `subtype="success"` 上，有三种情况为 `True`。请检查 `stop_reason` 以区分它们：
+  * `"refusal"`：模型拒绝回复。请在 `result` 中读取拒绝文本；当 `result` 为空时，在前面的 `AssistantMessage` 中读取。
+  * `"tool_deferred_unavailable"`：恢复会话时，[延迟的工具](/docs/zh-CN/hooks#defer-a-tool-call-for-later)已不再可用，例如因为其 MCP 服务器未连接。在以下两种情况中，恢复后发送的提示词与随恢复一起传递的提示词效果相同：
+    * 无提示词：该调用仍处于挂起状态。使该工具可用后，再次不带提示词地恢复，该调用会首先运行。
+    * 有提示词：Claude Code 会在没有该工具结果的情况下回答它，延迟的调用将不复存在。如果仍需要调用该工具，请发送新的提示词。
+  * 任何其他值：轮次因 Claude Code 报告的错误（代替模型回复）而结束，例如 API 错误。读取 `terminal_reason` 了解原因，读取 `result` 获取消息，当 API 返回 HTTP 状态时读取 `api_error_status` 获取该状态。
 * `api_error_status`：终止 API 错误的 HTTP 状态代码。当轮次结束时没有错误时为 `None`。仅在 `subtype="success"` 上填充。
 * `result`：在 `subtype="success"` 上为最终助手消息的文本，或在 `error_*` 子类型上为 `None`。当 `subtype="success"` 且 `is_error=True` 时，如果可用，此字段保存 API 错误字符串，但可能为空，因此请检查 `api_error_status` 和前面的 `AssistantMessage` 内容以获取详情。
 * `errors`：循环级别的错误字符串，例如最大轮次消息。仅在 `error_*` 子类型上填充。
@@ -2062,12 +2067,12 @@ class ResultError(ProcessError):
     errors: list[str]  # an empty list when the result message reported none
     result: str | None
     api_error_status: int | None
-    terminal_reason: str | None  # "max_turns", "api_error", ...; check this before subtype
+    terminal_reason: str | None  # "max_turns", "api_error", ...; check after data["stop_reason"], before subtype
     session_id: str | None
     data: dict[str, Any]  # the raw result message payload
 ```
 
-要区分失败，请在检查 `subtype` 之前先检查 `terminal_reason`。当最终请求失败时，例如 API 错误，Claude Code 会报告 `subtype` 为 `"success"`，原因在 `terminal_reason` 中，例如 `"api_error"`；当您设置的限制结束运行时，例如 `max_turns` 或 `max_budget_usd`，它会报告 `error_*` 子类型。
+要区分失败，请先检查 `data["stop_reason"]`，然后检查 `terminal_reason`，最后检查 `subtype`。拒绝回答的回复的 `stop_reason` 为 `"refusal"`，`subtype` 通常为 `"success"`；其 `terminal_reason` 无法单独识别这种情况，可能为 `"completed"` 或 `"api_error"`。失败的最终请求的 `subtype` 为 `"success"`，原因在 `terminal_reason` 中，例如 API 错误对应 `"api_error"`。当运行达到您设置的限制（例如 `max_turns` 或 `max_budget_usd`）时，您会得到 `error_*` 子类型。
 
 ### `CLIJSONDecodeError`
 
@@ -3519,10 +3524,12 @@ async def main():
             "Claude Code CLI not found. Try reinstalling: pip install --force-reinstall claude-agent-sdk"
         )
     # Catch ResultError before ProcessError, which it subclasses. Its message
-    # carries the error text. A failed final request, such as an API error,
-    # arrives with subtype "success", so branch on terminal_reason first.
+    # carries the error text. A refusal and a failed final request both usually
+    # arrive with subtype "success", so check stop_reason, then terminal_reason.
     except ResultError as e:
-        if e.terminal_reason == "api_error":
+        if e.data.get("stop_reason") == "refusal":
+            print(f"Model declined to respond: {e}")
+        elif e.terminal_reason == "api_error":
             print(f"API request failed: {e}")
         else:
             print(f"Query ended with an error result ({e.terminal_reason or e.subtype}): {e}")

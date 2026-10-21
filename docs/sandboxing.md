@@ -546,6 +546,10 @@ AWS 请求携带基于请求内容的 SigV4 签名，因此请同时对 `AWS_ACC
 
 如果 `git merge` 或 `git checkout` 在这些路径之一上因 `unable to unlink old` 而失败，请参阅[git 命令因 `unable to unlink old` 而失败](#a-git-command-fails-with-unable-to-unlink-old)。
 
+#### 经过符号链接的被拒绝路径
+
+在 macOS 上，当被拒绝的路径经过符号链接时（例如 `~/.claude` 是一个指向 dotfiles 仓库的链接），沙箱也会拒绝该路径的真实位置。这涵盖沙箱自身的拒绝，以及您按字面写出的 `denyWrite` 和 `denyRead` 条目。
+
 ### 网络隔离
 
 沙箱化的命令没有直接通往网络的路径：
@@ -974,9 +978,19 @@ git remote set-url origin https://git.example.com/example-org/example-repo.git
 ✗ Sandbox settings not changed: /home/you/project/.claude/settings.local.json couldn't be updated (EACCES). Start Claude Code in a project folder you can write to.
 ```
 
-如果括号中的原因是 `EACCES`、`EPERM` 或 `EROFS`，请在您可以写入的项目文件夹中启动 Claude Code，然后在该会话中再次运行 `/sandbox`。
+如果括号中的原因是 `EACCES`、`EPERM` 或 `EROFS`，请在您可以写入的项目文件夹中启动 Claude Code，然后在该会话中再次运行 `/sandbox`。如果原因以 `Invalid JSON syntax in settings file` 开头，请更正项目的 `.claude/settings.local.json` 中的 JSON，然后再次运行 `/sandbox`。
 
-如果原因以 `Invalid JSON syntax in settings file` 开头，请更正项目的 `.claude/settings.local.json` 中的 JSON，然后再次运行 `/sandbox`。
+如果您没有可写入的项目文件夹，请改为从用户设置中启用沙箱。将以下内容添加到 `~/.claude/settings.json`：
+
+```json theme={null}
+{
+  "sandbox": {
+    "enabled": true
+  }
+}
+```
+
+这会启用[自动允许模式](#sandbox-modes)。如需使用常规权限模式，还需将 [`sandbox.autoAllowBashIfSandboxed`](/docs/zh-CN/settings-reference#sandbox-autoallowbashifsandboxed) 设置为 `false`。该更改会在 Claude 运行下一条 shell 命令时在您正在运行的会话中生效，随后 `/sandbox` 的 **Mode** 选项卡会标记当前生效的模式。
 
 ## 限制
 

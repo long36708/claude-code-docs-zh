@@ -55,7 +55,7 @@ Claude Code 还会在对话中途附加系统上下文，例如文件更改通�
 当您的请求通过 [LLM 网关](/docs/zh-CN/llm-gateway)、自定义 `ANTHROPIC_BASE_URL` 或云提供商基础 URL 覆盖（例如 [`ANTHROPIC_BEDROCK_BASE_URL`](/docs/zh-CN/env-vars)）时，缓存的内容取决于网关如何处理 Claude Code 发送的 [`cache_control` 标记](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#explicit-cache-breakpoints)：
 
 * **原样转发标记**：该块和您的对话的缓存方式与在提供商自己的端点上相同。
-* **以指明 `cache_control` 的 `400` 错误拒绝带标记的请求**：Claude Code 会重新发送请求，将标记从该块移到您的最后一条对话消息上，并在对话的其余部分保持在那里。该块作为未缓存的输入计费；您的对话保持缓存。
+* **以指明 `cache_control` 的 `400` 错误拒绝带标记的请求**：Claude Code 会重新发送请求，将标记从该块移到您的最后一条对话消息上，并一直保持在那里，直到 Claude Code 退出。该块作为未缓存的输入计费；您的对话保持缓存。
 * **删除标记但返回成功**：您的整个对话历史在每个轮次上都作为未缓存的输入计费。将块形式的系统内容转换为纯字符串的网关也会以相同的方式丢弃标记。
 
 有关每个提供商存储和处理的内容，请参阅[数据使用](/docs/zh-CN/data-usage)。无论缓存位于何处，条目都会在一段时间不活动后过期，下面的[缓存生命周期](#cache-lifetime)涵盖了 TTL 以及如何延长它。
@@ -109,7 +109,9 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 上的[自动模型回退](/docs
 工具定义位于系统提示词层，因此当请求中的工具定义集在轮次之间发生变化时，缓存会失效。切换[顾问工具](/docs/zh-CN/advisor)是一个例外：其定义位于缓存断点之后，因此启用或禁用 `/advisor` 会保持缓存的前缀完整。[MCP 服务器](/docs/zh-CN/mcp)的更改是否会导致缓存失效，取决于[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)是否延迟加载会话的 MCP 工具，这是受支持模型上的默认行为：
 
 * **工具延迟加载**：Claude Code 在整个对话中保持对话第一个请求中的工具列表，因此服务器在会话中途连接或断开连接不会干扰任何已缓存的内容。在第一个请求之后才完成连接的服务器会将其工具作为延迟定义提供，由 Claude 按需加载。
-* **工具预先加载**：添加定义会使缓存失效，有意移除定义也会。这适用于[工具搜索低于其 `auto` 阈值、被禁用或不可用](/docs/zh-CN/mcp#configure-tool-search)的情况，例如在 Google Cloud 的 Agent Platform 上使用早于 Opus 4.5、Sonnet 4.5 和 Haiku 4.5 的模型、使用自定义 `ANTHROPIC_BASE_URL` 网关，或在 Microsoft Foundry [托管于 Azure 的部署](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)上且 Claude Code 检测到该部署拒绝工具搜索时。
+* **工具预先加载**：添加定义会使缓存失效，有意移除定义也会。这适用于[工具搜索低于其 `auto` 阈值、被禁用或不可用](/docs/zh-CN/mcp#configure-tool-search)的情况，例如：
+  * Google Cloud 的 Agent Platform 上早于 Opus 4.5、Sonnet 4.5 和 Haiku 4.5 的模型
+  * Microsoft Foundry [托管于 Azure 的部署](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)，且 Claude Code 检测到该部署拒绝工具搜索时
 
 没有工具搜索时，会话中途的服务器更改是否使缓存失效取决于更改的内容。对于每种更改，下表给出缓存是否保持以及下一个请求中工具定义的变化情况。
 

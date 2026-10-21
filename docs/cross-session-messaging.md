@@ -228,7 +228,7 @@ Claude Code 会像交互式会话一样为 [`claude -p`](/docs/zh-CN/headless) �
 * **截止时间之前**：如果模式或设置的更改允许该消息，Claude Code 会传递它。
 * **截止时间之后**：Claude Code 会丢弃该消息，并向其能够联系到的发送者报告该消息已过期。
 
-将 `dialogExpiry` 设置为 `"never"` 可将默认保留的消息保留到会话结束。由显式 `hold` 设置保留的消息不会过期；仅当之后适用 `accept` 时，Claude Code 才会传递它。
+将 `dialogExpiry` 设置为 `"never"`，可将默认暂挂的消息保留到会话结束。由显式 `hold` 设置暂挂的消息不会过期；当之后有 `accept` 生效时，Claude Code 会投递该消息。
 
 要让 `-p` 工作进程在无人值守的情况下接收消息，请在其 `--settings` 值中将 `crossSessionInbound` 设置为 `accept` 来启动它。在您的用户设置中设置 `accept` 也有效，但会应用于您运行的每个会话。
 

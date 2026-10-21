@@ -281,7 +281,7 @@ claude self-hosted-runner orchestrator \
 | `CLAUDE_RUNNER_ATTEMPT` | 用于日志记录的按会话计数器。它不是重试次数，也不是请求次数。对于预热请求为 `0`，但针对某个会话的请求也可能携带 `0`。 |
 | `CLAUDE_RUNNER_ORDER_SERVER_TIME` | 来自轮询响应的 HTTP `Date` 标头的服务器时间。当 hook 验证工作单 JWT 的 `exp` 时，与此值进行比较而不是本地时钟，以容忍时钟偏差。当网关省略标头时为空。 |
 | `CLAUDE_RUNNER_POOL_ID` | 新运行器应加入的环境的 ID，采用 `ccpool_...` 形式 |
-| `CLAUDE_RUNNER_ACCOUNT_ID` | 排队会话的帐户的标记 ID，用于按帐户路由、配额或退款。当不可用时为空，对于 Claude Tag 频道会话始终为空，这些会话没有帐户排队。 |
+| `CLAUDE_RUNNER_ACCOUNT_ID` | 排队会话的帐户的标记 ID。请将其用于按帐户路由、配额或费用分摊，而不要用作去重密钥。当不可用时为空，对于 Claude Tag 频道会话始终为空，这些会话没有帐户排队。 |
 | `CLAUDE_RUNNER_ACCOUNT_EMAIL` | 排队会话的帐户的电子邮件。当不可用时为空。将电子邮件视为个人可识别信息，不要记录它。 |
 | `CLAUDE_RUNNER_PRIMARY_REPO_URL` | 会话的第一个 git 源的 URL，用于路由到已预热该仓库的运行器。当会话没有 git 源时为空。 |
 | `CLAUDE_RUNNER_PRIMARY_REPO_REVISION` | 会话的第一个 git 源的修订版本：分支、SHA、标签或完整引用名称。当未指定时为空。 |
@@ -370,7 +370,21 @@ trap 'rc=$?; [ "$rc" -eq 0 ] || [ -n "${PERMANENT:-}" ] || exit 1' EXIT
   ```bash theme={null}
   trap 'rc=$?; your-cleanup-command || true; [ "$rc" -eq 0 ] || [ -n "${PERMANENT:-}" ] || exit 1' EXIT
   ```
-* **允许失败的命令**：如果 hook 之前未使用 `set -e`，它现在会在第一条返回非零值的命令处停止，例如未找到任何结果的查找，或被您的平台拒绝的重复提交。如果 hook 会根据结果执行操作，请将该命令作为 `if` 的条件。如果 hook 忽略结果，请在该命令后加上 `|| true`。
+* **允许失败的命令**：如果 hook 之前未使用 `set -e`，它现在会在第一条返回非零值的命令处停止，例如未找到任何结果的查找。如果 hook 会根据结果执行操作，请将该命令作为 `if` 的条件。如果 hook 忽略结果，请在该命令后加上 `|| true`。
+* **提交工作负载的命令**：不要在其后加上 `|| true`。加上 `|| true` 后，即使您的平台拒绝了提交（例如超出配额），hook 也会以 0 退出，而会话会一直等待一个从未启动的运行器。
+
+  请按照 [hook 的第一条规则](#the-spawn-runner-hook)所述，以 `CLAUDE_RUNNER_ORDER_ID` 命名工作负载。这样，“已存在”的应答就是同一请求的重新交付，因此仅将该应答视为成功。对于其他任何应答，请将应答打印到 stderr 并以 1 退出；如果任何重试都无法修复，则调用 `permanent`。以下示例针对 `kubectl create` 执行此操作，其中 `job.yaml` 仅包含该工作负载：
+
+  ```bash theme={null}
+  if ! out=$(kubectl create -f job.yaml 2>&1); then
+    case "$out" in
+      *AlreadyExists*) ;;
+      *) printf '%s\n' "${out:-kubectl create failed}" >&2; exit 1 ;;
+    esac
+  fi
+  ```
+
+  随后编排器的日志中会显示该消息。如果 hook 还会创建其他对象，请以订单 ID 命名每个对象，为每个对象使用单独的命令，并以同样方式将其“已存在”应答视为成功。对于包含密钥的对象，请打印固定消息来代替命令的输出。
 
 要确认 trap 是否生效，请在 `trap` 行正下方添加一行，调用一个不存在的命令，例如 `no-such-command`。从您的 shell 运行 hook 文件，检查 `echo $?` 是否输出 `1`，然后删除该行。
 

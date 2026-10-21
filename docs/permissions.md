@@ -202,9 +202,9 @@ Bash 规则中的 `*` 匹配任何文本，包括空格，因此一个规则涵�
 }
 ```
 
-允许规则仅在文字 `mcp__<server>__` 前缀之后接受工具名称 glob。服务器段必须不含 glob，以便规则命名您配置的特定服务器。`mcp__puppeteer__*` 匹配来自 `puppeteer` 服务器的每个工具，`mcp__github__get_*` 匹配其 `get_` 工具。未锚定的允许 glob（如 `"*"`、`"B*"` 或 `"mcp__*"`）会被跳过并显示警告，不会自动批准任何内容。
+允许规则仅在文字 `mcp__<server>__` 前缀之后接受工具名称 glob。服务器段必须不含 glob，以便规则命名您配置的特定服务器。`mcp__puppeteer__*` 匹配来自 `puppeteer` 服务器的每个工具，`mcp__github__get_*` 匹配其 `get_` 工具。未锚定的允许 glob（如 `"*"`、`"B*"` 或 `"mcp__*"`）会被跳过，不会自动批准任何内容。
 
-工具名称不匹配任何已知工具的拒绝或询问规则会在启动时产生警告以捕获拼写错误。包含 `_` 或 `*` 的工具名称不受此检查的约束，已移除的工具的名称（例如 `TaskOutput`）也不受约束。
+工具名称不匹配任何已知工具的拒绝或询问规则会产生[启动警告](/docs/zh-CN/errors#matches-no-tool)以捕获拼写错误。包含 `_` 或 `*` 的工具名称不受此检查的约束，Claude Code 已移除的工具的名称（例如 `TaskOutput`）也不受约束。
 
 转录本和权限对话框中为工具显示的标签可能与其规范名称不同。例如，转录本中标记为 `Stop Task` 的工具具有规范名称 `TaskStop`。权限规则和 [hook 匹配器](/docs/zh-CN/hooks) 不匹配标签，因此写作为 `Stop Task` 的规则不匹配。对于拒绝和询问规则，上面的启动警告会捕获不匹配。使用[工具参考](/docs/zh-CN/tools-reference)中列出的规范名称。
 
@@ -241,7 +241,7 @@ Claude Code 也会剥离某些已知安全的环境变量的前导赋值，因�
 像 `Bash(watch *)` 或 `Bash(find *)` 这样的前缀规则无法自动批准以下命令，因此在 Manual 模式下它们会提示：
 
 * **Exec 包装器**：如 `watch`、`setsid`、`ionice` 和 `flock`
-* **`find`**：带有运行命令、删除文件或写入文件的操作（如 `-exec`、`-delete` 或 `-fprint`），或带有 `-files0-from`（从文件中获取要搜索的路径）
+* **`find`**：带有运行命令、删除文件或写入文件的操作（如 `-exec`、`-delete`、`-rm` 或 `-fprint`），或带有 `-files0-from`（从文件中获取要搜索的路径）
 
 要批准不含 `*` 的特定调用，请为完整命令字符串编写精确匹配规则，如 `Bash(find build -type f -delete)`。
 
@@ -460,6 +460,27 @@ Allow 和 deny 规则对请求的路径和它解析到的文件的处理方式�
 
 Grep 和 Glob 搜索 `path` 参数解析到的目录。Claude Code 将 `Read` deny 规则应用于该目录。
 
+##### 通过符号链接的附件
+
+`Read` deny 规则也涵盖以下附件，对每个附件按其指定的路径或它解析到的文件进行匹配。当规则匹配某个附件时，Claude Code 会将其排除在对话之外：
+
+* **`@` 提及**：您在提示词中提及的文件或目录。被拒绝的文件不会在对话中留下任何内容，而[目录的列表](#read-and-edit)会省略规则涵盖的名称。
+* **粘贴的图片**：您在终端中将其路径粘贴或拖入提示词的图片
+* **已更改的文件**：Claude Code 在文件于磁盘上更改后重新读取的文件
+* **IDE 上下文**：连接的 IDE 共享的选择和打开文件上下文
+
+启用 [`permissions.blockReadsOutsideWorkingDirectories`](/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 时，或在 [`--restricted`](/docs/zh-CN/cli-reference#cli-flags) 会话中，如果这些附件来自该设置或标志拒绝 Claude 文件读取的路径，它们也会被排除。
+
+如果您 `@` 提及的文件被以下这行取代，则表示 Claude Code 无法确定该路径指向何处，例如因为其符号链接形成循环：
+
+```text theme={null}
+Referenced <path> (not read: could not be examined)
+```
+
+Claude 会被告知改用其文件工具读取该路径；当 Claude Code 只是没有足够时间检查该路径时，这种读取可能会成功。
+
+当路径的符号链接无法解析时，该读取也会被[拒绝](/docs/zh-CN/errors#refusing-after-a-symlink-changed)，因此请修复磁盘上的链接，或通过可以解析的路径 `@` 提及该文件。
+
 ##### 通过符号链接的写入
 
 如果 Claude 要求编辑或写入的路径本身是符号链接，Edit 和 Write 工具[拒绝写入并指导 Claude 到链接的目标](/docs/zh-CN/errors#refusing-after-a-symlink-changed)。
@@ -489,7 +510,7 @@ Grep 和 Glob 搜索 `path` 参数解析到的目录。Claude Code 将 `Read` de
 
 要在没有此提示的情况下读取网络共享上的文件，请先为该共享提供一个本地路径：
 
-* **Windows**：将共享映射到驱动器号，并在启动 Claude Code 时使用 `--add-dir` 传递该驱动器，如[工作目录](#working-directories)中所述
+* **Windows**：将共享映射到驱动器号，并在启动 Claude Code 时使用 `--add-dir` 传递该驱动器，如[工作目录](#working-directories)中所述。之后使用 `/add-dir` 添加的驱动器，或在设置文件的 `additionalDirectories` 中列出的驱动器，其下的读取仍然会提示。要停止映射到 `Z:` 的共享的这些提示，请在 PowerShell 中使用 `claude --add-dir Z:\` 启动新会话。
 * **macOS 和 Linux**：将共享挂载到本地路径（如 `/mnt` 或 `/Volumes` 下的目录），并从那里读取文件，如[工作目录是网络路径](/docs/zh-CN/errors#working-directory-is-a-network-path)中所述
 
 ### WebFetch
@@ -545,7 +566,9 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 
 * **包含 `.` 或空格等字符的名称**：这些字符会变为 `_`，因此对于您配置为 `my.server` 的服务器，请编写 `mcp__my_server__*`
 * **由插件提供的服务器**：`<server>` 采用[插件作用域形式](/docs/zh-CN/mcp#plugin-provided-mcp-servers)，因此对于名为 `my-plugin` 的插件中的 `database-tools` 服务器，请编写 `mcp__plugin_my-plugin_database-tools__*`
-* **包含 `__` 或以 `_` 结尾的 `<server>`**：使用完整名称编写通配符形式 `mcp__<server>__*`。对于名为 `reports__v2` 的服务器，请编写 `mcp__reports__v2__*`。裸 `mcp__reports__v2` 和更短的 `mcp__reports` 作为 allow 规则都不匹配其工具，因为 Claude Code 会将两者都读作名为 `reports` 的服务器的规则
+* **包含 `__` 或以 `_` 结尾的 `<server>`**：使用完整名称编写通配符形式 `mcp__<server>__*`。对于名为 `reports__v2` 的服务器，请编写 `mcp__reports__v2__*`。裸 `mcp__reports__v2` 和更短的 `mcp__reports` 作为 allow 规则都不匹配其工具，因为 Claude Code 会将两者都读作名为 `reports` 的服务器的规则。
+
+  但是，作为 deny 或 ask 规则，这两个名称中的每一个也都涵盖 `reports__v2` 服务器的所有工具。要仅涵盖名为 `reports` 的服务器，请以 `mcp__reports__<tool>` 形式为每个工具编写一条规则，或重命名其中一个服务器。
 
 如果您的组织已设置[claude.ai 连接器](/docs/zh-CN/mcp#organization-controls-on-connector-tools)工具为 `ask`，该设置在您的会话中到达 Claude Code，该工具的 allow 规则不会生效：Claude Code 在每次调用时都会提示，即使在 `auto` 和 `bypassPermissions` 模式下。在 `dontAsk` 模式下（从不提示），Claude Code 会拒绝调用。Claude Code 自己获取的连接器工具显示为 `mcp__claude_ai_<server>__<tool>`。
 

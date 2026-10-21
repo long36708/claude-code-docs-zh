@@ -441,7 +441,11 @@ Claude Code 在启动时读取组织默认值一次，因此管理员在会话�
 
 您的组织可以通过两种方式限制[工作量级别](#adjust-effort-level)。在 Claude Enterprise 计划中，组织管理员设置按角色的工作量限制，如下所述。在任何计划和任何提供商上，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry，[`maxEffortLevel`](/docs/zh-CN/settings-reference#maxeffortlevel) 托管设置在客户端上限制工作量。当两者都适用于某个模型时，较低的限制适用。
 
-Claude Enterprise 计划上的组织管理员可以为每个自定义角色按模型设置最大[工作量级别](#adjust-effort-level)，以及角色级别的[组织模型限制](#organization-model-restrictions)。超过限制的级别不会在 `/effort` 选择器中提供，使用 `--effort` 或 `/effort` 命名更高级别会以限制级别运行。在交互式会话和纯文本 `--print` 运行中，警告会命名请求的和应用的级别；使用 `json` 或 `stream-json` 输出或在后台代理中，限制会静默应用。限制是按模型的，因此切换模型可以改变哪些级别可用。当您的多个角色授予相同的模型时，最不严格的限制适用。需要 Claude Code v2.1.195 或更高版本。
+Claude Enterprise 计划上的组织管理员可以为每个自定义角色按模型设置最大 [effort 级别](#adjust-effort-level)，以及角色级别的[组织模型限制](#organization-model-restrictions)。需要 Claude Code v2.1.195 或更高版本。
+
+* 超过限制的级别不会在 `/effort` 选择器中提供，使用 `--effort` 或 `/effort` 指定更高级别时会改为以限制级别运行。如果您使用高于限制的 `--effort` 启动纯文本 `--print` 运行，stderr 上的警告会指出请求的级别和实际应用的级别。在交互式会话中、使用 `json` 或 `stream-json` 输出时，或在后台 Agent 中，该警告会改为写入[调试日志](/docs/zh-CN/errors#configuration-warnings)。
+* 限制是按模型的，因此切换模型可能会改变哪些级别可用。
+* 当您的多个角色授予相同的模型时，最不严格的限制适用。
 
 工作量限制与[组织模型限制](#organization-model-restrictions)一起交付，并到达相同的会话。
 
@@ -843,7 +847,7 @@ Claude Code 会在假设的 200K 处[自动压缩](#default-auto-compact-thresho
 * 如果 Claude Code 无法将提供商或自定义拼写解析为它识别的模型，且 ID 不包含 `[1m]`，则变量直接应用，主动压缩在声明的窗口处继续。
 * 如果 Claude Code 无法将提供商或自定义拼写解析为它识别的模型，且 ID 包含 `[1m]`（任何大小写），Claude Code 为其假设 1M 窗口，变量本身不适用。要在保持主动压缩的同时更正窗口，还要设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](/docs/zh-CN/env-vars)。设置该变量后，Claude Code 会像相同拼写但不带 `[1m]` 一样调整 ID 的大小，所以当 `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 适用于该无标记拼写时，它就会应用。
 
-  使用声明的窗口大于 200K 时，Claude Code 会显示一个[启动警告](/docs/zh-CN/errors#the-200k-limit-isnt-enforced)，表示 200K 限制未被强制执行。此配置中的警告是预期的。
+  当声明的窗口大于 200K 时，在此配置中出现[200K 限制未被强制执行](/docs/zh-CN/errors#the-200k-limit-isnt-enforced)的警告是预期的。
 * 如果 ID 解析为 Claude Code 识别的模型，或 ID 是没有 Claude Code 要剥离的后缀的裸 `claude-` 名称（任何大小写），变量仅在您也设置 [`DISABLE_COMPACT`](/docs/zh-CN/env-vars) 时生效，这会禁用所有压缩。
 
   例如，包含 Claude Code 知道的 Claude 模型名称的 ID（例如 `anthropic/claude-opus-4-8`、`us.anthropic.claude-…-v1:0` 或带日期的 `claude-sonnet-4-5@20250929`）解析为该模型。这包括也包含 `[1m]` 的 ID：即使设置了 `CLAUDE_CODE_DISABLE_1M_CONTEXT`，Claude Code 也会将 `claude-opus-4-8[1m]` 解析为 Opus 4.8。

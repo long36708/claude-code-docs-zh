@@ -92,6 +92,44 @@ Report at most five Nits per review.
 
 `REVIEW.md` 中只保留会改变审查行为的指令，并将一般项目上下文留在 `CLAUDE.md` 中。
 
+### 在 REVIEW\.md 中包含其他文件
+
+您可以将审查指令拆分到多个文件中，再将它们引入根目录的 `REVIEW.md`。当 `REVIEW.md` 变得很长，或者您已经在其他文件中维护审查规则时，可以使用此方法。
+
+要包含某个文件，请在根目录的 `REVIEW.md` 中添加一行，该行仅包含 `@` 和文件名。Code Review 会用该文件的内容替换这一行，使其作为 `REVIEW.md` 的一部分生效。在此示例中，根文件给出了一条自己的指令，然后包含了两个规则文件：
+
+```markdown theme={null}
+# Review instructions
+
+Report at most five Nits per review.
+
+@review-security.md
+@review-api.md
+```
+
+将被包含的文件保存在仓库根目录，与 `REVIEW.md` 放在一起：
+
+```text theme={null}
+your-repo/
+├── REVIEW.md
+├── review-security.md
+└── review-api.md
+```
+
+Code Review 仅在从受保护分支读取 `REVIEW.md` 时才会包含这些文件，因此请查看[针对您的仓库，审查会读取哪个分支](#what-a-review-reads-for-each-branch-setup)：
+
+* **受保护分支**：Code Review 会用被包含的文件替换其 `@` 行
+* **未受保护的默认分支**：`@` 行会作为纯文本保留在 `REVIEW.md` 中。如果 Pull Request 更改了该行所指定的文件，则该行会被省略。
+
+当审查未应用被包含的文件时，请逐项检查以下内容：
+
+* **位置**：将文件移至仓库根目录。指向子目录的路径（例如 `@docs/review-rules.md`）不会被包含。
+* **名称**：文件名须完全匹配（包括大小写），并使用不含空格的名称。如果某行中的名称与 `REVIEW.md` 同级的任何文件都不匹配，该行会作为纯文本保留在 `REVIEW.md` 中，且检查运行不会将其报告为被跳过的包含项。
+* **仅限一层**：在根目录的 `REVIEW.md` 中列出所有文件。被包含文件或子目录 `REVIEW.md` 中的 `@` 行会保留为纯文本，而指向其他文件的 Markdown 链接不属于包含项。
+* **限制**：最多包含八个不同的文件，并使 `REVIEW.md` 及其包含的文件合计小于 150,000 字节。会达到字节上限的文件将被整体跳过，而不会被截断。检查运行会报告因任一限制而跳过了多少个包含行。
+* **链接**：`REVIEW.md` 及其包含的文件中的 Markdown 链接总数应不超过 64 个。指向 `http`、`https` 或 `mailto` 地址以及 `#` 锚点的链接不计入。超过该上限时，审查会跳过您的整个根目录 `REVIEW.md`，而不仅仅是被包含的文件。此时检查运行会[说明指令未被应用](/docs/zh-CN/code-review-troubleshooting#the-check-run-mentions-review-md)。
+* **已合并的副本**：将被包含的文件合并到[读取 `REVIEW.md` 的分支](#which-branch-review-md-is-read-from)中。审查会从同一个提交中读取两者，从不从 Pull Request 自身的更改中读取。
+
 ### 从哪个分支读取 REVIEW\.md
 
 Code Review 从 Pull Request 的基础分支或默认分支读取 `REVIEW.md`，从不从 Pull Request 自身的更改中读取。如需更改审查行为，请先合并对 `REVIEW.md` 的更改。
@@ -117,8 +155,8 @@ Code Review 将以下设置视为保护：
 
 | 分支保护 | 读取的副本 | 读取的文件 |
 | :- | :- | :- |
-| 默认分支受保护，且 Pull Request 以其为目标，或以未受任何规则集保护的分支为目标 | 默认分支 | 根文件和子目录文件 |
-| Pull Request 以另一个受规则集保护的分支为目标 | 该基础分支 | 根文件和子目录文件 |
+| 默认分支受保护，且 Pull Request 以其为目标，或以未受任何规则集保护的分支为目标 | 默认分支 | 根文件、其包含的文件和子目录文件 |
+| Pull Request 以另一个受规则集保护的分支为目标 | 该基础分支 | 根文件、其包含的文件和子目录文件 |
 | 默认分支未受保护，且基础分支没有任何一种保护规则 | 默认分支 | 根文件 |
 | Code Review 无法确认保护设置。这包括默认分支未受保护、而基础分支仅有经典规则的情况 | 无 | 无 |
 

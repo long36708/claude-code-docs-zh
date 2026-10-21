@@ -689,49 +689,49 @@ CLI 对网关应用相同的功能门控，无论哪个上游提供给定请求�
 
 ### `admin`
 
-可选。启用 `/v1/organizations/spend_limits`，它镜像 Anthropic 的公共 Admin API，以及在 `/v1/messages` 上的每个开发者支出强制执行。请参阅[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)了解如何设置和强制执行上限；本部分涵盖启用该功能并调整它的 `gateway.yaml` 键。
+可选。启用 `/v1/organizations/spend_limits`（它与 Anthropic 的公开 Admin API 一致），并在 `/v1/messages` 上按开发者执行支出限制。有关上限的设置和执行方式，请参阅[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)；本节介绍用于启用和调整该功能的 `gateway.yaml` 键。
 
 ```yaml theme={null}
 admin:
-  # 用于管理端点的命名静态 API 密钥，作为 x-api-key 发送。
-  # id 在审计日志中显示为 admin-key:<id>，因此每个密钥都是
-  # 可追踪的。数组用于轮换：添加新密钥，滚动客户端，
-  # 删除旧密钥。
+  # Named static API keys for the admin endpoints, sent as x-api-key.
+  # The id appears in the audit log as admin-key:<id> so each key is
+  # attributable. Array for rotation: add the new key, roll clients,
+  # remove the old.
   write_keys:
     - { id: terraform, key: "${GATEWAY_ADMIN_WRITE_KEY_TF}" }
     - { id: ci,        key: "${GATEWAY_ADMIN_WRITE_KEY_CI}" }
   read_keys:
     - { id: reporting, key: "${GATEWAY_ADMIN_READ_KEY}" }
-  # 通过普通网关 JWT（无 API 密钥）授予完全管理员权限的 IdP 组。
+  # IdP groups granted full admin via the normal gateway JWT (no API key).
   admin_groups: [platform-finops]
   blocked_message: request an increase at https://go.example.com/claude-limits
 ```
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
-| `write_keys` | 否 | `{id, key}` 数组。与其中一个匹配的 `x-api-key` 可以列出、设置和删除支出限制。密钥值必须至少 32 个字符；`id` 必须在 `read_keys` 和 `write_keys` 中唯一。 |
-| `read_keys` | 否 | `{id, key}` 数组。只读：每个 `GET` 端点，包括列出上限、按 ID 获取一个，以及读取 [`/effective`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Feffective) 和 [`/audit`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Faudit)。 |
-| `admin_groups` | 否 | IdP 组名称。网关 JWT 的 `groups` 声明包含其中一个的具有完全管理员访问权限（读和写），并审计为 `oidc:<sub>`。将此用于人类管理员；为机器使用 API 密钥。此列表中的空条目会在启动时停止网关。请参阅[在启动时停止网关的匹配器值](#matcher-values-that-stop-the-gateway-at-boot)。 |
-| `blocked_message` | 否 | 逐字附加到被阻止的开发者看到的 `429 billing_error`。编写完整的说明，例如 URL 或 Slack 频道。未设置时，网关仅发送默认消息。请参阅[强制执行如何工作](/docs/zh-CN/claude-apps-gateway-spend-limits#how-enforcement-works)。 |
-| `audit_retention_days` | 否 | 默认 `365`。较旧的 `admin_audit` 行被清除。 |
-| `spend_retention_months` | 否 | 默认 `13`。早于此的 `spend` 计数器行被清除。默认值保留整整一年加当前部分月份，用于年度对比报告。 |
-| `identity_retention_days` | 否 | 默认 `90`。`principal_emails` 行的最后一次看到 TTL，其中包含每个开发者的电子邮件、显示名称和组（PII）。意图上比支出保留期短，以便已取消配置的身份在其匿名支出计数器保留时过期。 |
-| `group_limit_mode` | 否 | `min`（默认）或 `max`。当开发者在多个具有上限的组中时，`min` 强制执行最严格的，`max` 强制执行最宽松的。由强制执行和 `/effective` 使用。 |
+| `write_keys` | 否 | `{id, key}` 数组。与其中之一匹配的 `x-api-key` 可以列出、设置和删除支出限制。密钥值长度至少为 32 个字符；`id` 在 `read_keys` 和 `write_keys` 中必须唯一。 |
+| `read_keys` | 否 | `{id, key}` 数组。只读：可访问所有 `GET` 端点，包括列出上限、按 ID 获取单个上限，以及读取 [`/effective`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Feffective) 和 [`/audit`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Faudit)。 |
+| `admin_groups` | 否 | IdP 组名。`groups` 声明包含其中之一的网关 JWT 拥有完整的管理员访问权限（读和写），并以 `oidc:<sub>` 记入审计。人工管理员使用此方式；机器使用 API 密钥。此列表中的空条目会导致网关在启动时停止。请参阅[会导致网关在启动时停止的匹配器值](#matcher-values-that-stop-the-gateway-at-boot)。 |
+| `blocked_message` | 否 | 原样附加到被阻止的开发者看到的 `429 billing_error` 中。请写出完整的说明，例如 URL 或 Slack 频道。未设置时，网关仅发送默认消息。请参阅[执行方式](/docs/zh-CN/claude-apps-gateway-spend-limits#how-enforcement-works)。 |
+| `audit_retention_days` | 否 | 默认值 `365`。更早的 `admin_audit` 行会被清除。 |
+| `spend_retention_months` | 否 | 默认值 `13`。早于此时间的 `spend` 计数器行会被清除。默认值保留完整一年加上当前未满的月份，以便进行同比报告。 |
+| `identity_retention_days` | 否 | 默认值 `90`。`principal_emails` 行的最后活跃 TTL，这些行保存每位开发者的电子邮件、显示名称和组（PII）。有意设置得比支出保留期短，以便已取消配置的身份过期，而其匿名支出计数器仍然保留。 |
+| `group_limit_mode` | 否 | `min`（默认）或 `max`。当开发者属于多个设有上限的组时，`min` 执行最严格的上限，`max` 执行最宽松的上限。执行和 `/effective` 都使用此设置。 |
 
 ### `enforcement`
 
-`enforcement` 块控制当存储不可用时支出限制检查的行为。
+`enforcement` 块控制存储不可用时支出限制检查的行为。
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
-| `fail_closed_on_error` | 否 | 默认值 `false`。Postgres 中断时，支出强制执行会失败开放，因此推理服务保持可用。设置为 `true` 则失败关闭：超出上限的开发者会被阻止，但如果存储无法访问，其他所有人也会被阻止。需要 [`admin:`](#admin) 块：支出强制执行仅在配置了 `admin` 时运行，如果在没有该块的情况下将此项设置为 `true`，网关将拒绝启动。 |
+| `fail_closed_on_error` | 否 | 默认值 `false`。Postgres 中断时，支出执行以失败开放方式处理，因此推理保持可用。设置为 `true` 可改为失败关闭：超出上限的开发者会被阻止，但如果存储不可达，其他所有人也会被阻止。需要 [`admin:`](#admin) 块：支出执行仅在配置了 `admin` 时运行，如果您在没有该块的情况下将此项设为 `true`，网关将拒绝启动。 |
 
 ### `pricing`
 
-`pricing` 块告诉支出计量器收费而不是美元列表价格，因此上限和 [`/effective`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Feffective) 反映您的合同费率。金额保持为美元，并保持为估计值，而不是发票。两个前提条件：
+`pricing` 块告诉支出计量器按什么价格计费，而不是使用美元标价，因此上限和 [`/effective`](/docs/zh-CN/claude-apps-gateway-spend-limits#%2Feffective) 会反映您的合同价格。金额仍以美元计，并且仍然是估算值，而不是发票。两个前提条件：
 
-* 网关服务器上的 Claude Code v2.1.227 或更高版本。早期版本在启动时拒绝未知密钥。
-* [`admin:`](#admin) 块或在 v2.1.268 或更高版本中，至少有一个策略的 [`managed:`](#managed) 块。网关拒绝在设置 `pricing` 且两个块都不存在的情况下启动，因为没有任何东西会读取它。
+* 网关服务器上的 Claude Code 为 v2.1.227 或更高版本。更早的版本会在启动时拒绝这个未知键。
+* 存在 [`admin:`](#admin) 块，或者在 v2.1.268 或更高版本中，存在至少包含一个策略的 [`managed:`](#managed) 块。如果设置了 `pricing` 但两个块都不存在，网关将拒绝启动，因为没有任何内容会读取它。
 
 ```yaml theme={null}
 pricing:
@@ -747,47 +747,47 @@ pricing:
 
 | 字段 | 必需 | 描述 |
 | - | - | - |
-| `multiplier` | 否 | 默认 `1`。计量器将每个计量金额乘以此值，无论是列表价格还是覆盖，因此 `0.85` 按价格的 85% 计费。必须大于 0 且最多 10，值大于 1 是[标记价格上升](#mark-prices-up)。 |
-| `overrides` | 否 | `{upstream, model, input, output, cache_read, cache_write}` 行，单位为每百万 token 的美元。所有四个费率都是必需的。每个必须大于 0 且最多 10000。 |
+| `multiplier` | 否 | 默认值 `1`。计量器将每笔计量金额（无论是标价还是覆盖价格）乘以此值，因此 `0.85` 按价格的 85% 计费。必须大于 0 且不超过 10，大于 1 的值表示[加价](#mark-prices-up)。 |
+| `overrides` | 否 | `{upstream, model, input, output, cache_read, cache_write}` 行，单位为每百万 token 的美元价格。四个费率都是必需的。每个费率必须大于 0 且不超过 10000。 |
 
-计量器如何匹配覆盖行：
+计量器匹配覆盖行的方式：
 
-* 一行替换 `upstream`（一个 [`upstreams[].name`](#upstreams)）为 `model` 提供的请求的列表价格。这包括更高的[快速模式](/docs/zh-CN/fast-mode#understand-the-cost-tradeoff)费率，因此快速和标准请求以相同的四个费率计量。
-* 内置 ID（如 `claude-sonnet-4-6`）匹配方式类似 [`models[].id`](#models)，涵盖计量器定价为该模型的每个日期形式、区域 Amazon Bedrock 形式或 Google Cloud 的 Agent Platform 形式。任何其他字符串（如别名或推理配置文件 ARN）匹配客户端发送的 ID 或上游发送的字符串，不区分大小写。
-* 当行重叠时，计量器选择最具体的行而不是第一行：一行其 `model` 是上游发送的确切模型字符串，然后是匹配客户端发送的确切 ID 的行，然后是命名内置模型的行。
-* 未知的上游名称会导致启动失败，两行针对一个上游命名相同模型也会导致启动失败，包括一个内置模型的两种拼写。网关在启动时警告没有可请求模型可以使用的行。
-* Web 搜索请求保持在 \$0.01 列表价格；乘数仍然适用于它们。
+* 对于 `upstream`（一个 [`upstreams[].name`](#upstreams)）为 `model` 提供服务的请求，该行会替换标价。这包括较高的[快速模式](/docs/zh-CN/fast-mode#understand-the-cost-tradeoff)费率，因此快速请求和标准请求按相同的四个费率计量。
+* 内置 ID（例如 `claude-sonnet-4-6`）的匹配方式与 [`models[].id`](#models) 相同，涵盖计量器按该模型计价的所有带日期形式、区域性 Amazon Bedrock 形式或 Google Cloud Agent Platform 形式。其他任何字符串（例如别名或推理配置文件 ARN）会不区分大小写地匹配客户端发送的 ID 或发送到上游的字符串。
+* 当多行重叠时，计量器选择最具体的行，而不是第一行：首先是 `model` 为发送到上游的确切模型字符串的行，其次是与客户端发送的确切 ID 匹配的行，最后是指定内置模型的行。
+* 未知的上游名称会导致启动失败，同一上游的两行指定相同模型（包括同一内置模型的两种写法）也会导致启动失败。对于任何可请求模型都无法使用的行，网关会在启动时发出警告。
+* 网页搜索请求保持 \$0.01 的标价；乘数仍然适用于它们。
 
-对于按地区费率，为每个地区提供自己的命名上游和每个上游一行。
+要使用按区域的费率，请为每个区域提供各自的命名上游，并为每个上游提供一行。
 
-#### 标记价格上升
+#### 加价
 
-使用网关服务器上的 v2.1.271 或更高版本，您可以将 `multiplier` 设置为 1 以上，最多 10，以计量超过提供商收费的金额，例如内部退款费率。此示例以价格的 120% 计量每个请求：
+在网关服务器上使用 v2.1.271 或更高版本时，您可以将 `multiplier` 设置为大于 1（最高 10），以高于提供商收费的价格进行计量，例如用于内部成本分摊费率。此示例将每个请求按价格的 120% 计量：
 
 ```yaml theme={null}
 pricing:
   multiplier: 1.2
 ```
 
-使用 [`admin:`](#admin) 块，标记也适用于支出限制。计量器计算价格的 120%，因此开发者更快达到其上限。网关在启动时记录一条警告，说明这一点。
+存在 [`admin:`](#admin) 块时，加价也适用于支出限制。计量器按价格的 120% 计数，因此开发者会更早达到上限。网关会在启动时记录一条说明此情况的警告。
 
-乘数不会改变上游提供商对请求的收费。
+乘数不会改变上游提供商对这些请求的收费。
 
-如果网关还[将费率发送给已登录的客户端](#send-the-rates-to-signed-in-clients)，开发者需要 Claude Code v2.1.271 或更高版本才能看到标记。早期客户端忽略 `multiplier` 大于 1 的值，并显示不带它的成本。
+如果网关还[将费率发送到已登录的客户端](#send-the-rates-to-signed-in-clients)，开发者需要 Claude Code v2.1.271 或更高版本才能看到加价。更早的客户端会忽略大于 1 的 `multiplier`，并显示不含加价的成本。
 
-早于 v2.1.271 的网关服务器如果您设置 `multiplier` 大于 1，拒绝启动。
+如果您将 `multiplier` 设置为大于 1，早于 v2.1.271 的网关服务器将拒绝启动。
 
-#### 将费率发送给已登录的客户端
+#### 将费率发送到已登录的客户端
 
-使用网关服务器上的 v2.1.268 或更高版本，网关还将 `pricing` 中的费率放入它提供的 [`managed`](#managed) 策略中，作为 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 托管设置。由策略匹配的开发者然后在 `/usage`、状态栏和 OpenTelemetry 中看到第一个为每个模型 ID 提供服务的上游的 `pricing` 费率。与任何策略不匹配的开发者不接收托管设置，因此他们的数字保持在列表价格。客户端在 Claude Code v2.1.242 或更高版本中应用该设置。
+在网关服务器上使用 v2.1.268 或更高版本时，网关还会将 `pricing` 中的费率作为 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 托管设置放入其提供的 [`managed`](#managed) 策略中。随后，被策略匹配的开发者会在 `/usage`、状态栏和 OpenTelemetry 中看到为每个模型 ID 提供服务的第一个上游的 `pricing` 费率。未匹配任何策略的开发者不会收到托管设置，因此其数据保持标价。客户端在 Claude Code v2.1.242 或更高版本中应用该设置。
 
-* 网关添加的内容：除非策略的 `cli` 块已经设置 `modelPricing`，网关添加 `multiplier` 和，对于客户端可以请求的每个模型 ID，第一个为该 ID 提供服务的上游的覆盖行。仅故障转移上游收费的费率保留在网关上。
-* 选择一个策略退出：在该策略的 `cli` 块中将 `modelPricing` 设置为 `{}`，其开发者保持在列表价格。
-* 保留策略自己的费率：策略的 `cli` 块使用其自己的 `multiplier` 或 `overrides` 设置 `modelPricing` 保留该 `modelPricing` 完整，网关不向其添加自己的费率。
+* 网关添加的内容：除非策略的 `cli` 块已设置 `modelPricing`，否则网关会添加 `multiplier`，并针对客户端可以请求的每个模型 ID，添加为该 ID 提供服务的第一个上游的覆盖行。仅由故障转移上游收取的费率保留在网关上。
+* 让某个策略退出：在该策略的 `cli` 块中将 `modelPricing` 设置为 `{}`，其开发者将保持标价。
+* 保留策略自身的费率：如果策略的 `cli` 块使用自己的 `multiplier` 或 `overrides` 设置了 `modelPricing`，则该 `modelPricing` 会完整保留，网关不会向其中添加自己的任何费率。
 
 ### `models`
 
-`models` 块是可选的管理员策划的模型列表，在 `/v1/models` 提供，用于按上游翻译模型 ID。对于非美国 Amazon Bedrock 地区、Amazon Bedrock 预配置吞吐量 ARN 和 Microsoft Foundry 部署名称是必需的。
+`models` 块是一个可选的、由管理员维护的模型列表，在 `/v1/models` 提供，并用于按上游转换模型 ID。对于非美国 Amazon Bedrock 区域、Amazon Bedrock 预置吞吐量 ARN 和 Microsoft Foundry 部署名称，此块是必需的。
 
 ```yaml theme={null}
 auto_include_builtin_models: true   # false: expose only the list below
@@ -801,74 +801,74 @@ models:
       foundry: your-opus-deployment-name
 ```
 
-`upstream_model` 下的每个键必须匹配配置的上游的 `name`，默认为提供商名称。与任何上游不匹配的键会导致启动失败，因此省略您不使用的提供商的行。
+`upstream_model` 下的每个键必须与已配置上游的 `name` 匹配，该名称默认为提供商名称。不匹配任何上游的键会导致启动失败，因此请省略您不使用的提供商对应的行。
 
 ### `managed`
 
-`managed` 块定义基于 IdP 组或电子邮件域的基于角色的访问策略。策略按顺序评估；选择第一个匹配，然后合并到 `match: {}` 全部捕获基础。它们按用户在 `GET /managed/settings` 提供，带有 ETag/304 缓存。
+`managed` 块定义基于 IdP 组或电子邮件域的基于角色的访问策略。策略按顺序评估；选中第一个匹配项，然后将其合并到 `match: {}` 兜底基础层上。这些策略按用户在 `GET /managed/settings` 提供，并使用 ETag/304 缓存。
 
 ```yaml theme={null}
 managed:
   policies:
-    # 首先是特定组。
+    # Specific groups first.
     - match: { groups: [eng-contractors] }
       cli:
         availableModels: [claude-sonnet-4-6]
         permissions: { deny: ["WebFetch", "WebSearch"] }
-    # 默认全部捕获最后：匹配每个已认证的用户。
+    # Default catch-all last: matches everyone who authenticated.
     - match: {}
       cli:
         availableModels: [claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5]
-        # 使 /model 中的 Default 选项在每个策略的
-        # 列表内解析。eng-contractors 策略继承 enforceAvailableModels。
+        # Make the Default option in /model resolve inside each policy's
+        # list. The eng-contractors policy inherits enforceAvailableModels.
         enforceAvailableModels: true
 ```
 
-`match: {}` 全部捕获，按惯例列在最后，被视为基础层。每个其他策略从全部捕获继承它不设置的任何键，因此每个角色条目只需列出与组织默认值不同的内容。合并规则取决于键类型：
+`match: {}` 兜底策略按惯例放在最后，被视为基础层。其他每个策略都会从兜底策略继承自己未设置的任何键，因此按角色的条目只需列出与组织默认值不同的内容。合并规则取决于键的类型：
 
-* **允许列表**：`availableModels` 和 `permissions.allow`。特定策略的列表完全替换基础的。
-* **拒绝列表和 hook 数组**：`permissions.deny`、`permissions.ask`、`disabledMcpjsonServers`、`deniedMcpServers`、`blockedMarketplaces` 和每个 `hooks` 事件类型数组。这些取基础和策略的并集，因此组织范围的拒绝或审计 hook 不能被每个角色覆盖意外删除。
-* **记录类型键**：`env`、`modelOverrides` 和 `skillOverrides`。这些浅合并，因此每个角色 `env` 块覆盖它设置的键并从基础继承其余的。
+* **允许列表**：`availableModels` 和 `permissions.allow`。特定策略的列表会完全替换基础层的列表。
+* **拒绝列表和 hook 数组**：`permissions.deny`、`permissions.ask`、`disabledMcpjsonServers`、`deniedMcpServers`、`blockedMarketplaces`、`deniedModels` 以及每个 `hooks` 事件类型数组。这些取基础层与策略的并集，因此组织范围的拒绝规则或审计 hook 不会被按角色的覆盖意外丢弃。
+* **记录类型的键**：`env`、`modelOverrides` 和 `skillOverrides`。这些进行浅合并，因此按角色的 `env` 块会覆盖它设置的键，并从基础层继承其余的键。
 
-`availableModels` 也在 `/v1/messages` 服务器端强制执行，因此被拒绝的模型返回 `400`，无论客户端发送什么。空列表会拒绝所有模型。该检查还涵盖开发者选择模型之前会话开始时使用的模型，因此请[让会话从策略允许的模型开始](#start-sessions-on-a-model-the-policy-allows)。
+`availableModels` 还会在 `/v1/messages` 的服务器端执行，因此无论客户端发送什么，被拒绝的模型都会返回 `400`。空列表会拒绝所有模型。该检查还涵盖开发者选择模型之前会话启动时使用的模型，因此请[让会话在策略允许的模型上启动](#start-sessions-on-a-model-the-policy-allows)。
 
-网关在中继请求之前验证 `model` 值本身，因此格式错误的值永远不会到达上游。它在两种情况下以 `400` 拒绝请求：
+网关在转发请求之前会自行验证 `model` 值，因此格式错误的值永远不会到达上游。在以下两种情况下，它会以 `400` 拒绝请求：
 
-* 当值缺失或为空时，网关以消息 `model is required` 拒绝请求。该检查需要运行 Claude Code v2.1.228 或更高版本的网关。
-* 当值存在但不是字符串时，网关以消息 `model must be a string` 拒绝请求。需要运行 Claude Code v2.1.221 或更高版本的网关。
+* 当该值缺失或为空时，网关会以消息 `model is required` 拒绝请求。该检查要求网关运行 Claude Code v2.1.228 或更高版本。
+* 当该值存在但不是字符串时，网关会以消息 `model must be a string` 拒绝请求。要求网关运行 Claude Code v2.1.221 或更高版本。
 
 | 匹配器 | 行为 |
 | - | - |
-| `match: {}` | 匹配每个已认证的用户。从其中一个开始，稍后在其上方添加组范围的策略。 |
-| `match: { groups: [a, b] }` | 如果 JWT 的 `groups` 声明包含任何列出的组，则匹配。区分大小写：组必须匹配 IdP 的确切大小写。 |
-| `match: { email_domain: example.com }` | 匹配 JWT 的 `email` 声明中最后一个 `@` 之后的部分，不区分大小写。每个策略接受一个域。 |
+| `match: {}` | 匹配每个已通过身份验证的用户。先从这样一个策略开始，之后再在其上方添加按组范围的策略。 |
+| `match: { groups: [a, b] }` | 如果 JWT 的 `groups` 声明包含所列的任一组，则匹配。区分大小写：组名必须与 IdP 中的确切大小写一致。 |
+| `match: { email_domain: example.com }` | 匹配 JWT 的 `email` 声明中最后一个 `@` 之后的部分，不区分大小写。每个策略只接受一个域。 |
 | `match: { groups: [a], email_domain: example.com }` | 两个条件都必须匹配 |
 
-与任何策略不匹配的已认证用户获得网关的默认值，这意味着目录中的每个模型和没有托管设置。如果您想要保证的默认策略，请在最后添加 `match: {}` 全部捕获。
+未匹配任何策略的已通过身份验证的用户将获得网关的默认值，即目录中的所有模型且没有托管设置。如果您希望有一个确定的默认策略，请在最后添加一个 `match: {}` 兜底策略。
 
 > [!NOTE]
 >
-> 网关不保留自己的用户目录。它从用户的 IdP 令牌授权每个请求，从令牌的 `groups` 声明读取组成员身份，并根据它评估策略。没有名册可以枚举，没有账户需要预先创建，因此没有 SCIM 端点，因为没有东西可以让 SCIM 同步到。
+> 网关本身不保存用户目录。它根据用户的 IdP 令牌对每个请求进行授权，从令牌的 `groups` 声明中读取组成员身份，并据此评估策略。没有可枚举的名单，也没有需要预先创建的账户，因此也没有 SCIM 端点，因为没有任何内容可供 SCIM 同步。
 >
-> 在真实来源处运行用户和组生命周期管理，这是您的 IdP 的本地 SCIM 配置或专用身份治理平台。在那里管理的成员身份和取消配置通过令牌自动流入网关。如果您想要 Claude 账户本身的 SCIM 配置，这是[Claude for Enterprise](/docs/zh-CN/admin-setup) 功能。
+> 请在事实来源处进行用户和组的生命周期管理，即您的 IdP 的原生 SCIM 预配或专用的身份治理平台。在那里管理的成员身份和取消预配会通过令牌自动传递到网关。如果您希望对 Claude 账户本身进行 SCIM 预配，那是 [Claude for Enterprise](/docs/zh-CN/admin-setup) 的功能。
 >
-> 两个传播时钟适用：
+> 有两个传播时钟：
 >
-> * **策略内容**：编辑策略并重新部署在连接的 Claude Code 客户端的下一个托管设置轮询中到达，在一小时内，除了[仅在下一次启动时应用的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)
-> * **组成员身份**：更改用户的组成员身份更改哪个策略匹配他们。这在下一个会话重新铸造时生效，意味着下一个静默刷新，受 `session.ttl_hours` 限制。
+> * **策略内容**：编辑策略并重新部署后，已连接的 Claude Code 客户端会在下一次托管设置轮询时（一小时内）收到更改，但[仅在下次启动时生效的更改](/docs/zh-CN/server-managed-settings#fetch-and-caching-behavior)除外
+> * **组成员身份**：更改用户的组成员身份会改变与其匹配的策略。这在下一次会话重新签发时生效，即下一次静默刷新，最长不超过 `session.ttl_hours`。
 >
-> Claude Desktop 遵循[其自己的时间表](#when-a-policy-change-reaches-claude-desktop)。
+> Claude Desktop 遵循[其自身的时间安排](#when-a-policy-change-reaches-claude-desktop)。
 
-#### 让会话从策略允许的模型开始
+#### 让会话在策略允许的模型上启动
 
-如果 `availableModels` 未包含 Claude Code 的默认模型，会话会收到 `400` 响应，直到开发者选择一个已列出的模型，例如通过 `/model`。在网关会话中，默认模型是 `opus` 别名解析到的 Opus 模型，仅设置 `availableModels` 不会改变它。
+如果 `availableModels` 未包含 Claude Code 的默认模型，会话将收到 `400` 响应，直到开发者选择一个列出的模型（例如使用 `/model`）。在网关会话中，默认模型是 `opus` 别名解析到的 Opus 模型，而单独使用 `availableModels` 不会改变它。
 
 要解决此问题，请在同一 `cli` 块中设置 [`enforceAvailableModels: true`](/docs/zh-CN/model-config#enforce-the-allowlist-for-the-default-model)，然后检查列表中包含哪种条目：
 
-* **别名（如 `sonnet`）或内置 ID（如 `claude-sonnet-4-6`）**：会话从其中一个模型开始，`/model` 中的 Default 选项解析为该模型
-* **列表中没有别名或内置 ID**：会话可能仍从内置默认模型开始，因此还要在该策略的 `cli` 块中将 [`model`](/docs/zh-CN/model-config#control-the-model-users-run-on) 设置为已列出的 ID 之一
+* **别名（例如 `sonnet`）或内置 ID（例如 `claude-sonnet-4-6`）**：会话会在其中一个模型上启动，`/model` 中的 Default 选项会解析为该模型
+* **列表中没有别名或内置 ID**：会话可能仍在内置默认模型上启动，因此还需在该策略的 `cli` 块中将 [`model`](/docs/zh-CN/model-config#control-the-model-users-run-on) 设置为列出的 ID 之一
 
-此策略列出一个由 [`models`](#models) 定义的自定义 ID，并让会话从该 ID 开始：
+此策略列出了一个由 [`models`](#models) 定义的自定义 ID，并让会话在该 ID 上启动：
 
 ```yaml theme={null}
 managed:
@@ -880,39 +880,39 @@ managed:
         model: claude-opus-restricted
 ```
 
-#### 在启动时停止网关的匹配器值
+#### 会导致网关在启动时停止的匹配器值
 
-在启动时，网关检查每个策略的 `match` 块和 [`admin_groups`](#admin) 列表。这些值中的任何一个都会停止网关，出现命名该字段的错误：
+启动时，网关会检查每个策略的 `match` 块以及 [`admin_groups`](#admin) 列表。以下任一值都会使网关停止，并显示一条指明该字段的错误：
 
-* 空 `groups` 列表
+* 空的 `groups` 列表
 * `groups` 或 `admin_groups` 中的空条目
-* 空 `email_domain`
-* 包含 `@`、空格或逗号的 `email_domain`。网关修剪值并在此检查之前删除一个前导 `@`。编写一个裸域，例如 `example.com`。
+* 空的 `email_domain`
+* 包含 `@`、空白或逗号的 `email_domain`。网关在此检查之前会修剪该值并去除一个前导 `@`。请写一个不带修饰的域，例如 `example.com`。
 
-在 v2.1.232 之前，网关以这些值启动。每个值有这个效果：
+在 v2.1.232 之前，网关会带着这些值启动。每个值的影响如下：
 
-* 空 `email_domain`：网关跳过域检查，因此具有空 `email_domain` 和没有 `groups` 列表的策略匹配每个已认证的用户
-* 空 `groups` 列表：策略与任何人都不匹配
-* 包含 `@`、空格或逗号的 `email_domain`：策略与任何人都不匹配
-* `groups` 或 `admin_groups` 中的空条目：条目仅当该用户的 IdP `groups` 声明也包含空条目时才匹配用户。在 `admin_groups` 中，该匹配授予管理员访问权限。如果您的 `admin_groups` 列表从不包含空条目，没有人以这种方式获得管理员访问权限。
+* 空的 `email_domain`：网关跳过域检查，因此 `email_domain` 为空且没有 `groups` 列表的策略会匹配每个已通过身份验证的用户
+* 空的 `groups` 列表：该策略不匹配任何人
+* 包含 `@`、空白或逗号的 `email_domain`：该策略不匹配任何人
+* `groups` 或 `admin_groups` 中的空条目：仅当用户的 IdP `groups` 声明也包含空条目时，该条目才会匹配该用户。在 `admin_groups` 中，这种匹配会授予管理员访问权限。如果您的 `admin_groups` 列表从未包含空条目，则没有人会通过这种方式获得管理员访问权限。
 
 #### 选择 `cli` 或 `code`
 
 > [!WARNING]
 >
-> 当策略使用 `code` 键时，以下每种情况都会使网关无法启动：
+> 当策略使用 `code` 键时，以下每种情况都会阻止网关启动：
 >
-> * **网关版本**：`code` 要求网关服务器上运行 Claude Code v2.1.296 或更高版本。较早的网关在发现该键时会拒绝启动。请在添加该键之前升级所有副本，并在回滚到较早版本之前将 `code` 改回 `cli`。
-> * **混合键**：同时包含 `code` 和 `cli`（或其早期写法 `settings`）的文件会使网关在启动时停止。请在一次编辑中将所有块放在同一个键下。
+> * **网关版本**：`code` 要求网关服务器上的 Claude Code 为 v2.1.296 或更高版本。更早的网关发现该键时会拒绝启动。请在添加该键之前升级每个副本，并在回滚到更早版本之前将 `code` 改回 `cli`。
+> * **混用键**：同时包含 `code` 和 `cli`（或其早期写法 `settings`）的文件会导致网关在启动时停止。请在一次编辑中将所有块放在同一个键下。
 
-策略的 Claude Code 设置（例如拒绝读取 `.env` 文件的规则）放在 `cli` 或 `code` 键下的块中。`code` 是推荐的键，`cli` 是旧版键。两个键接受相同的内容。键决定了设置在何处强制执行：
+策略的 Claude Code 设置（例如拒绝读取 `.env` 文件的规则）放在 `cli` 或 `code` 键下的块中。`code` 是推荐的键，`cli` 是旧版键。两个键接受相同的内容。键决定了设置在何处执行：
 
-* **`cli`**：终端、VS Code 和 JetBrains 扩展以及 Agent SDK。在 `cli` 下，Claude Desktop 的 Code 标签页获得的是[派生设置](#claude-desktop-overlay)，因此诸如 `Read(./.env)` 之类的限定规则在那里不会阻止用户。
-* **`code`**：相同的位置，并且也可以覆盖 Claude Desktop 的 Code 标签页。
+* **`cli`**：终端、VS Code 和 JetBrains 扩展以及 Agent SDK。在 `cli` 下，Claude Desktop 的 Code 选项卡获得的是[派生设置](#claude-desktop-overlay)，因此像 `Read(./.env)` 这样的限定范围规则不会在那里阻止用户。
+* **`code`**：相同的位置，并且也可以覆盖 Claude Desktop 的 Code 选项卡。
 
-使用 `cli` 的文件照常工作；如果网关在带有 [`desktop`](#claude-desktop-overlay) 键的策略中发现 `cli`，会在启动时发出警告，但仍会启动。请切换到 `code`，以便设置也能涵盖 Code 标签页。
+使用 `cli` 的文件照常工作；如果网关在带有 [`desktop`](#claude-desktop-overlay) 键的策略中发现 `cli`，会在启动时发出警告，但仍会启动。请切换到 `code`，以便设置也能覆盖 Code 选项卡。
 
-切换之前，请阅读[在 Code 标签页中应用 `code` 设置](#apply-code-settings-in-the-code-tab)。策略需要 `desktop` 键，用户的机器也需要进行设置后这些设置才会在那里生效，并且 Claude Desktop 中的网页搜索会被关闭。
+切换之前，请阅读[在 Code 选项卡中应用 `code` 设置](#apply-code-settings-in-the-code-tab)。策略需要 `desktop` 键，并且用户的机器需要完成设置后这些设置才会在那里生效，此外 Claude Desktop 中的网页搜索会被关闭。
 
 此策略将拒绝规则放在 `code` 下，并带有一个空的 `desktop` 键：
 
@@ -925,17 +925,17 @@ managed:
       desktop: {}
 ```
 
-切换时，请在重命名块的同一次编辑中删除所有 `serve_to_desktop` 行。凡是说明中提到 `cli` 块的地方，请使用您的 `code` 块。
+切换时，请在重命名块的同一次编辑中删除所有 `serve_to_desktop` 行。在说明中提到 `cli` 块的地方，请使用您的 `code` 块。
 
-#### `cli` 中的内容
+#### `cli` 中包含什么
 
-每个 `code` 或 `cli` 值都是一个完整的 Claude Code `managed-settings.json` 文档，其 schema 与您通过 MDM 或 `/etc/claude-code/managed-settings.json` 部署的相同，只是在此处以 YAML 表示。CLI 在托管层级（高于用户和项目设置）应用所传递的文档，取代服务器托管设置。因此，它会忽略[仅限操作系统级策略来源的设置](/docs/zh-CN/server-managed-settings#current-limitations)，例如 `policyHelper` 和 `wslInheritsWindowsSettings`。
+每个 `code` 或 `cli` 值都是一个完整的 Claude Code `managed-settings.json` 文档，与您通过 MDM 或 `/etc/claude-code/managed-settings.json` 部署的 schema 相同，只是此处以 YAML 表示。CLI 在托管层级（高于用户和项目设置）应用所交付的文档，以取代服务器托管设置。因此，它会忽略[仅限于操作系统级策略来源](/docs/zh-CN/server-managed-settings#current-limitations)的设置，例如 `policyHelper` 和 `wslInheritsWindowsSettings`。
 
-网关在启动时根据 CLI 的设置 schema 验证每个文档，因此无法识别的顶级键会导致启动失败，出现命名每个违规键的错误。schema 的故意开放部分仍然接受任意值，因为较新的客户端可能识别网关的 schema 不识别的条目。这些开放键包括 `env`、`pluginConfigs` 和 `permissions` 下嵌套的键。
+网关在启动时根据 CLI 的设置 schema 验证每个文档，因此无法识别的顶层键会导致启动失败，并显示指明每个违规键的错误。schema 中有意开放的部分仍接受任意值，因为较新的客户端可能识别网关 schema 无法识别的条目。这些开放的键包括 `env`、`pluginConfigs` 以及嵌套在 `permissions` 下的键。
 
-因为验证使用与网关的已安装版本捆绑的 schema，将较新 Claude Code 版本引入的顶级设置键放入托管配置需要首先升级网关。在一个客户端上烟雾测试新策略，然后再推出。
+由于验证使用的是网关已安装版本中捆绑的 schema，要在托管配置中放入较新 Claude Code 版本引入的顶层设置键，需要先升级网关。在推广新策略之前，请先在一个客户端上进行冒烟测试。
 
-完整的键参考在[Claude Code 设置](/docs/zh-CN/settings-reference#all-settings)中。操作员首先寻求的最常见的键：
+完整的键参考请参阅 [Claude Code 设置](/docs/zh-CN/settings-reference#all-settings)。运维人员最常首先使用的键：
 
 ```yaml theme={null}
 managed:
@@ -970,43 +970,44 @@ managed:
                 - { type: command, command: /usr/local/bin/audit-edit.sh }
 ```
 
-| 键 | 由以下强制执行 | 效果 |
+| 键 | 执行方 | 效果 |
 | - | - | - |
-| `availableModels` | 网关 + CLI | 模型允许列表。也在 `/v1/messages` 检查，因此修补的客户端无法绕过它。 |
+| `availableModels` | 网关 + CLI | 模型允许列表。还会在 `/v1/messages` 进行检查，因此打过补丁的客户端无法绕过它。 |
+| [`deniedModels`](/docs/zh-CN/settings-reference#deniedmodels)、[`availableModelsMatch`](/docs/zh-CN/settings-reference#availablemodelsmatch) | 网关 + CLI | [阻止特定模型或版本](/docs/zh-CN/model-config#block-specific-models-or-versions)，即使 `availableModels` 原本会允许它们。被阻止的模型会在 `/v1/messages` 以 `400` 被拒绝，并且不会出现在 `/v1/models` 中。网关自身的检查要求网关服务器上的 Claude Code 为 v2.1.299 或更高版本。CLI 的检查要求客户端为 v2.1.283 或更高版本，更早的客户端会忽略这两个键。 |
 | `permissions.allow` / `.deny` | CLI | 工具和命令规则。请参阅[权限](/docs/zh-CN/permissions)。 |
-| `permissions.disableBypassPermissionsMode` | CLI | 设置为 `disable` 以阻止 [`bypassPermissions`](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)，跳过权限提示的模式，以及 `--dangerously-skip-permissions` 标志 |
-| `allowManagedPermissionRulesOnly` | CLI | 当 `true` 时，托管设置成为权限规则的唯一设置来源。[`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 条目列出 Claude Code 然后忽略的每个来源。 |
-| `env` | CLI | 合并到 CLI 进程的环境变量。用于遥测、自动更新和模型名称覆盖。 |
+| `permissions.disableBypassPermissionsMode` | CLI | 设置为 `disable` 可阻止 [`bypassPermissions`](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)（跳过权限提示的模式）以及 `--dangerously-skip-permissions` 标志 |
+| `allowManagedPermissionRulesOnly` | CLI | 为 `true` 时，托管设置成为权限规则的唯一设置来源。[`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 条目列出了 Claude Code 随后会忽略的每个来源。 |
+| `env` | CLI | 合并到 CLI 进程中的环境变量。用于遥测、自动更新和模型名称覆盖。 |
 | `hooks` | CLI | 组织范围的 [hook](/docs/zh-CN/hooks) |
-| `managedMcpServers` | CLI | 远程 MCP 服务器[提供给每个匹配的开发者](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)以及他们自己添加的服务器，仅 `http` 和 `sse`。请参阅[策略中的 MCP 服务器](#mcp-servers-in-a-policy)。需要网关服务器和客户端上的 Claude Code v2.1.259 或更高版本。早期客户端忽略该键。 |
+| `managedMcpServers` | CLI | [提供给每位匹配开发者](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)的远程 MCP 服务器，与开发者自行添加的服务器并存，仅限 `http` 和 `sse`。请参阅[策略中的 MCP 服务器](#mcp-servers-in-a-policy)。要求网关服务器和客户端上的 Claude Code 为 v2.1.259 或更高版本。更早的客户端会忽略该键。 |
 
-因为这些设置通过网络到达，CLI 在应用下面列出的设置之前向每个开发者显示安全批准对话框：
+由于这些设置通过网络到达，CLI 在应用以下设置之前会向每位开发者显示安全批准对话框：
 
 * `hooks`
 * 需要开发者批准的 `env` 变量，例如代理和基础 URL 变量
 * shell 执行设置，例如 `apiKeyHelper` 和 `statusLine`
 * 沙箱二进制设置 `sandbox.bwrapPath`、`sandbox.socatPath` 和 `sandbox.ripgrep`
-* 拦截流量、注入凭据或削弱隔离的沙箱设置，例如 `sandbox.network.tlsTerminate` 和代理端口设置。[安全批准对话框](/docs/zh-CN/server-managed-settings#security-approval-dialogs)列出所有这些。
+* 拦截流量、注入凭据或削弱隔离的沙箱设置，例如 `sandbox.network.tlsTerminate` 和代理端口设置。[安全批准对话框](/docs/zh-CN/server-managed-settings#security-approval-dialogs)列出了全部此类设置。
 
-[批准记忆](/docs/zh-CN/server-managed-settings#approval-memory)涵盖批准持续多长时间以及对话框何时再次出现。
+[批准记忆](/docs/zh-CN/server-managed-settings#approval-memory)介绍了批准的有效期以及对话框何时会再次出现。
 
-Claude Code 应用一些交付的 `env` 变量而不显示开发者批准对话框，例如模型选择设置和数值限制。其他交付的变量可能需要开发者的批准才能生效；非空代理、基础 URL 或 `OTEL_EXPORTER_OTLP_ENDPOINT` 值总是这样。当交付的变量需要批准时，对话框命名它。
+Claude Code 会应用某些交付的 `env` 变量而不向开发者显示批准对话框，例如模型选择设置和数值限制。其他交付的变量可能需要开发者批准后才能生效；非空的代理、基础 URL 或 `OTEL_EXPORTER_OTLP_ENDPOINT` 值始终需要批准。当交付的变量需要批准时，对话框会指明它。
 
-[环境变量和批准对话框](/docs/zh-CN/server-managed-settings#environment-variables-and-the-approval-dialog)有详细信息，包括四个隐私切换，其交付值决定是否需要批准。在 v2.1.218 之前，Claude Code 应用更少的变量而不询问开发者，因此更多交付的变量触发对话框。
+[环境变量和批准对话框](/docs/zh-CN/server-managed-settings#environment-variables-and-the-approval-dialog)提供了详细信息，包括四个隐私开关，其交付值决定了它们是否需要批准。在 v2.1.218 之前，Claude Code 不询问开发者就应用的变量较少，因此更多交付的变量会触发对话框。
 
-网关的[遥测](#telemetry)配置推送 `OTEL_EXPORTER_OTLP_ENDPOINT`，因此设置 `telemetry.forward_to` 在每个交互式客户端上触发对话框。对话框保护开发者的机器免受受损或敌对网关的影响，而不是保护组织免受开发者的影响。
+网关的[遥测](#telemetry)配置会推送 `OTEL_EXPORTER_OTLP_ENDPOINT`，因此设置 `telemetry.forward_to` 会在每个交互式客户端上触发对话框。该对话框保护的是开发者的机器免受被入侵或恶意网关的影响，而不是保护组织免受开发者的影响。
 
-[非交互式运行](/docs/zh-CN/server-managed-settings#security-approval-dialogs)（例如 `claude -p`、Agent SDK 会话或 Claude Desktop 的 Code 标签页中的会话）无法显示对话框。它仅在该次运行中应用推送的设置，不会将其记录为已批准，因此开发者的下一个交互式会话仍会显示对话框。
+[非交互式运行](/docs/zh-CN/server-managed-settings#security-approval-dialogs)（例如 `claude -p`、Agent SDK 会话或 Claude Desktop 的 Code 选项卡中的会话）无法显示对话框。它仅在该次运行中应用推送的设置，并且不会将其记录为已批准，因此开发者的下一个交互式会话仍会显示对话框。
 
-如果开发者拒绝，Claude Code 退出该会话而不是应用策略。当您推送新 hook 或任何触发对话框的 env 变量到广泛策略时，每个匹配的开发者因此在其交互式会话中看到对话框。运行的交互式会话在下一个每小时轮询时显示它，否则它在开发者的下一个交互式启动时出现。
+如果开发者拒绝，Claude Code 会退出该会话，而不是应用策略。因此，当您向一个广泛的策略推送新的 hook 或任何会触发对话框的环境变量时，每位匹配的开发者都会在其交互式会话中看到该对话框。正在运行的交互式会话会在下一次每小时轮询时显示它，否则它会在开发者下次交互式启动时出现。
 
 `cli` 键在早期版本中名为 `settings`，网关仍接受该写法作为别名。对于新部署，请使用 [`code`](#choose-cli-or-code)。
 
 #### 终端会话中的上下文窗口
 
-通过 `/login` 登录的终端会话对 Opus 4.7 及更高版本、Sonnet 5 及更高版本以及 Fable 模型使用 1M 上下文窗口。模型 ID 无需 `[1m]` 后缀，会话在约 967K token 时压缩。在开发者机器上的 Claude Code v2.1.287 之前，除非模型 ID 以 `[1m]` 结尾，Claude Code 会将 Opus 和 Fable 模型视为具有 200K 窗口。
+通过 `/login` 登录的终端会话对 Opus 4.7 及更高版本、Sonnet 5 及更高版本以及 Fable 模型使用 1M 上下文窗口。模型 ID 不需要 `[1m]` 后缀，会话在约 967K token 时压缩。在开发者机器上的 Claude Code v2.1.287 之前，除非模型 ID 以 `[1m]` 结尾，否则 Claude Code 将 Opus 和 Fable 模型视为具有 200K 窗口。
 
-若要让终端会话改为在 200K 边界处压缩，请在策略的 `env` 中设置[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)：
+要让终端会话改为在 200K 边界处压缩，请在策略的 `env` 中设置[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)：
 
 ```yaml theme={null}
 managed:
@@ -1017,71 +1018,71 @@ managed:
           CLAUDE_CODE_AUTO_COMPACT_WINDOW: "200000"
 ```
 
-Claude Code 应用此变量时不会向开发者显示批准对话框。该变量适用于每个模型，包括以 `[1m]` 结尾的模型 ID。
+Claude Code 应用此变量时不会向开发者显示批准对话框。该变量适用于所有模型，包括以 `[1m]` 结尾的模型 ID。
 
-若要改为关闭 1M 上下文，请在同一 `env` 块中设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT: "1"`](/docs/zh-CN/model-config#extended-context)。Claude Code 随后会将每个模型视为具有 200K 窗口。在交互式会话中，每个开发者需要在[批准对话框](#what-goes-in-cli)中批准此变量后，它才会生效。
+要改为关闭 1M 上下文，请在同一 `env` 块中设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT: "1"`](/docs/zh-CN/model-config#extended-context)。Claude Code 随后将每个模型视为具有 200K 窗口。在交互式会话中，每位开发者需要在[批准对话框](#what-goes-in-cli)中批准此变量后它才会生效。
 
 #### 策略中的 MCP 服务器
 
-要向策略匹配的 Claude Code 客户端提供 MCP 服务器，在该策略的 `cli` 块中设置 [`managedMcpServers`](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)。您需要网关服务器和客户端上的 Claude Code v2.1.259 或更高版本。
+要向策略匹配的 Claude Code 客户端提供 MCP 服务器，请在该策略的 `cli` 块中设置 [`managedMcpServers`](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)。网关服务器和客户端上需要 Claude Code v2.1.259 或更高版本。
 
-网关在启动时使用[Claude Code 在客户端应用的相同规则](/docs/zh-CN/managed-mcp#what-an-entry-can-contain)检查每个条目，如果条目未通过检查，网关拒绝启动并命名该条目。
+网关在启动时使用[与 Claude Code 在客户端上应用的相同规则](/docs/zh-CN/managed-mcp#what-an-entry-can-contain)检查每个条目；如果某个条目未通过检查，网关将拒绝启动并指明该条目。
 
-如果您在 `gateway.yaml` 中编写 `${VAR}` 引用，网关在启动时通过[秘密扩展](#secret-expansion)从其环境解析它，然后运行条目检查，因此每个匹配的客户端接收文字值并可以读取它。[为提供的服务器的标头指导](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)适用于扩展值。
+如果您在 `gateway.yaml` 中写入 `${VAR}` 引用，网关会在运行条目检查之前，在启动时通过[密钥展开](#secret-expansion)从其环境中解析它，因此每个匹配的客户端都会收到字面值并可以读取它。[提供服务器的标头指南](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings)适用于展开后的值。
 
-网关拒绝 `cli` 块中的 `.mcp.json` 拼写 `mcpServers`，其启动错误命名 `managedMcpServers` 作为要使用的键。在 v2.1.259 之前，网关拒绝 `cli` 块中的任何 MCP 服务器定义。
+网关会拒绝 `cli` 块中的 `.mcp.json` 写法 `mcpServers`，其启动错误会指明应使用的键为 `managedMcpServers`。在 v2.1.259 之前，网关会拒绝 `cli` 块中的任何 MCP 服务器定义。
 
-#### Claude Desktop 覆盖
+#### Claude Desktop 叠加层
 
-如果您的组织也部署[Claude Desktop](/docs/zh-CN/desktop)，相同的网关为两个客户端提供服务。在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中指向 `bootstrapUrl` 到 `<listen.public_url>/user/bootstrap`。Claude Desktop 从该 URL 派生 OAuth 发行者，针对此网关运行相同的设备代码登录，并从响应中获取其配置。
+如果您的组织还部署了 [Claude Desktop](/docs/zh-CN/desktop)，同一个网关可以同时为两个客户端提供服务。在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中，将 `bootstrapUrl` 指向 `<listen.public_url>/user/bootstrap`。Claude Desktop 从该 URL 派生 OAuth 颁发者，针对此网关运行相同的设备代码登录，并从响应中获取其配置。
 
 > [!NOTE]
 >
-> 需要网关服务器上的 Claude Code v2.1.203 或更高版本，以及显式选择加入：`/user/bootstrap` 返回 404，除非与用户匹配的策略携带 `desktop` 键。空 `desktop: {}` 选择一个策略，`match: {}` 基础层上的 `desktop` 键选择继承它的每个策略。审计日志将每个请求记录为 `desktop_bootstrap.serve` 或 `desktop_bootstrap.denied`。
+> 要求网关服务器上的 Claude Code 为 v2.1.203 或更高版本，并且需要显式选择加入：除非与用户匹配的策略带有 `desktop` 键，否则 `/user/bootstrap` 返回 404。空的 `desktop: {}` 即可让策略选择加入，而 `match: {}` 基础层上的 `desktop` 键会让所有继承它的策略选择加入。审计日志会将每个请求记录为 `desktop_bootstrap.serve` 或 `desktop_bootstrap.denied`。
 
-如果您不部署 Claude Desktop，请完全从您的策略中省略 `desktop`；网关然后从每个用户的 `/user/bootstrap` 返回 404。
+如果您不部署 Claude Desktop，请在策略中完全省略 `desktop`；此时网关会对每个用户从 `/user/bootstrap` 返回 404。
 
 ##### 网关为 Claude Desktop 派生的设置
 
-网关从匹配策略的 `cli` 或 `code` 块以及顶层网关配置中派生 bootstrap 响应的大部分内容：
+网关从匹配策略的 `cli` 或 `code` 块以及顶层网关配置派生出 bootstrap 响应的大部分内容：
 
-* 模型列表，来自 `availableModels`。[Claude Desktop 中的扩展上下文](#extended-context-in-claude-desktop)介绍每个模型的 1M 上下文选项
-* 禁用的工具，来自裸工具名称 `permissions.deny` 条目。如果您在策略的 `desktop` 块中设置 `disabledBuiltinTools`，网关提供您的值和派生列表的并集，因此您可以通过这种方式禁用更多工具，但无法重新启用您通过 `permissions.deny` 禁用的工具
-* 出站允许列表，来自 `sandbox.network.allowedDomains`。如果您在策略的 `desktop` 块中设置了 `coworkEgressAllowedHosts`，网关会使用该值而不是派生列表。如果网关提供的允许列表包含 `*`，且网关未同时提供 Claude Desktop 的 [`allowedWorkspaceFolders`](https://claude.com/docs/third-party/claude-desktop/code#applied-as-managed-policy)，则 Claude Desktop 不会在 Code 标签页中启用 [Bash 沙箱](/docs/zh-CN/sandboxing)
-* 指向网关本身的 OTLP 端点，以及已登录用户的身份属性。网关将它在该端点接收的导出中继到您的 `forward_to` 目的地。当您同时设置 [`telemetry.forward_to`](#telemetry) 和 `listen.public_url` 时，它包括端点和属性。
+* 模型列表，来自 `availableModels`。该列表不包含策略通过 [`deniedModels` 或 `availableModelsMatch: exact`](#what-goes-in-cli) 阻止的模型。此筛选要求网关服务器上的 Claude Code 为 v2.1.299 或更高版本。[Claude Desktop 中的扩展上下文](#extended-context-in-claude-desktop)介绍了每个模型的 1M 上下文选项
+* 禁用的工具，来自仅包含工具名称的 `permissions.deny` 条目。如果您在策略的 `desktop` 块中设置了 `disabledBuiltinTools`，网关会提供您的值与派生列表的并集，因此您可以通过这种方式禁用更多工具，但无法重新启用通过 `permissions.deny` 禁用的工具
+* 出站允许列表，来自 `sandbox.network.allowedDomains`。如果您在策略的 `desktop` 块中设置了 `coworkEgressAllowedHosts`，网关会使用该值代替派生列表。如果网关提供的允许列表包含 `*`，且网关未同时提供 Claude Desktop 的 [`allowedWorkspaceFolders`](https://claude.com/docs/third-party/claude-desktop/code#applied-as-managed-policy)，Claude Desktop 不会在 Code 选项卡中启用 [Bash 沙箱](/docs/zh-CN/sandboxing)
+* 一个指向网关自身的 OTLP 端点，以及已登录用户的身份属性。网关会将其在该端点收到的导出数据转发到您的 `forward_to` 目标。当您同时设置 [`telemetry.forward_to`](#telemetry) 和 `listen.public_url` 时，网关会包含该端点和这些属性。
 
-  Claude Desktop 以一种编码导出每个信号：`http/protobuf`，或当您在策略的 `env` 中将 `OTEL_EXPORTER_OTLP_PROTOCOL` 或其每个信号变体设置为 `http/json` 时为 `http/json`。在网关服务器上的 Claude Code v2.1.261 之前，响应设置 `http/json` 无论如何，因此仅接受 protobuf 的收集器拒绝了 Claude Desktop 的导出
+  Claude Desktop 使用一种编码导出所有信号：`http/protobuf`；如果您在策略的 `env` 中将 `OTEL_EXPORTER_OTLP_PROTOCOL` 或其按信号的变体之一设置为 `http/json`，则使用 `http/json`。在网关服务器上的 Claude Code v2.1.261 之前，响应始终设置为 `http/json`，因此仅接受 protobuf 的收集器会拒绝 Claude Desktop 的导出
 
-要在策略的 `desktop` 块中设置 `disabledBuiltinTools`、`coworkEgressAllowedHosts` 或 Claude Desktop 自己的 `managedMcpServers` 设置，您需要网关服务器上的 Claude Code v2.1.232 或更高版本。Claude Desktop 的 `managedMcpServers` 采用数组值而不是对象。
+要在策略的 `desktop` 块中设置 `disabledBuiltinTools`、`coworkEgressAllowedHosts` 或 Claude Desktop 自己的 `managedMcpServers` 设置，网关服务器上需要 Claude Code v2.1.232 或更高版本。Claude Desktop 的 `managedMcpServers` 接受数组值而不是对象。
 
-网关省略没有 Claude Desktop 等效项的键，例如 `hooks` 和范围权限规则，如 `Bash(npm *)`，来自引导响应。
+网关会从 bootstrap 响应中省略没有 Claude Desktop 对应项的键，例如 `hooks` 以及像 `Bash(npm *)` 这样的限定范围权限规则。
 
-##### 在 Code 标签页中应用 `code` 设置
+##### 在 Code 选项卡中应用 `code` 设置
 
-当以下条件全部满足时，策略在其 [`code`](#choose-cli-or-code) 键下的 Claude Code 设置会在 Claude Desktop 的 Code 标签页中生效：
+当以下所有条件都满足时，策略在其 [`code`](#choose-cli-or-code) 键下保存的 Claude Code 设置会在 Claude Desktop 的 Code 选项卡中生效：
 
-* 策略同时具有 `desktop` 键，空的 `desktop: {}` 也算
+* 策略还带有 `desktop` 键，空的 `desktop: {}` 也算
 * Claude Desktop 为 2.9939.2 或更高版本
 * 机器上的 Claude Code 托管设置[指定了此网关](#client-side-managed-settings)
 * 该机器通过私有网络上的 HTTPS 访问网关
 
-后两个条件适用于为会话运行 Claude Code 的那台机器。对于本地会话，就是用户自己的计算机。对于通过 SSH 的 Code 标签页会话，则是远程主机。
+后两个条件适用于为会话运行 Claude Code 的那台机器。对于本地会话，那是用户自己的计算机。对于通过 SSH 的 Code 选项卡会话，那是远程主机。
 
-在将 `cli` 重命名为 `code` 之前，请先将[客户端托管设置](#client-side-managed-settings)部署到这些机器。当前两个条件满足而后两个条件中任一不满足时，策略匹配的用户会得到以下结果之一：
+在将 `cli` 重命名为 `code` 之前，请先将[客户端托管设置](#client-side-managed-settings)部署到这些机器。当前两个条件满足而后两个条件之一不满足时，策略匹配的用户会得到以下结果之一：
 
-* **通过 HTTPS，且 Claude Desktop 捆绑 Claude Code v2.1.296 或更高版本**：Code 标签页不会启动，对用户提示词的回复会说明原因
-* **通过 HTTPS，且 Claude Desktop 捆绑较早版本**：Code 标签页在没有您的 `code` 设置的情况下启动，会话中没有任何提示
-* **通过纯 HTTP**：无论 Claude Desktop 捆绑哪个版本，Code 标签页都会在没有您的 `code` 设置的情况下启动
+* **通过 HTTPS，且 Claude Desktop 捆绑了 Claude Code v2.1.296 或更高版本**：Code 选项卡不会启动，对用户提示词的回复会说明原因
+* **通过 HTTPS，且 Claude Desktop 捆绑了更早的版本**：Code 选项卡启动但不带您的 `code` 设置，会话中也没有任何提示
+* **通过普通 HTTP**：无论 Claude Desktop 捆绑哪个版本，Code 选项卡都会启动但不带您的 `code` 设置
 
-当网关前面的代理以其自身的 404 响应 `/managed/settings` 时，Code 标签页同样会在没有您的 `code` 设置的情况下启动，即使机器满足全部四个条件也是如此。
+当网关前面的代理用自己的 404 响应 `/managed/settings` 时，Code 选项卡同样会启动但不带您的 `code` 设置，即使在满足全部四个条件的机器上也是如此。
 
-在带有 `desktop` 键的策略中，包含设置的 `code` 块会在 Cowork、Chat 和 Code 标签页中关闭 WebSearch 工具。有关 MCP 服务器，请参阅 [`managedMcpServers` 的适用范围](/docs/zh-CN/managed-mcp#where-managedmcpservers-applies)。
+在带有 `desktop` 键的策略中，包含设置的 `code` 块会在 Cowork、Chat 和 Code 选项卡中关闭 WebSearch 工具。关于 MCP 服务器，请参阅 [`managedMcpServers` 的适用范围](/docs/zh-CN/managed-mcp#where-managedmcpservers-applies)。
 
 ##### 直接设置 Claude Desktop 设置
 
-添加可选的 `desktop` 块与 `cli` 一起直接设置 Claude Desktop 设置。从 Claude Desktop 的[托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)编写设置为平面键名。省略 Claude Desktop 仅从 MDM 或本地文件读取的键，例如 `bootstrapUrl`；网关在启动时拒绝它们。
+在 `cli` 旁边添加可选的 `desktop` 块，即可直接设置 Claude Desktop 设置。以扁平键名写入 Claude Desktop [托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)中的设置。请省略 Claude Desktop 仅从 MDM 或本地文件读取的键，例如 `bootstrapUrl`；网关会在启动时拒绝它们。
 
-此示例为 `eng-contractors` 组在其 `cli` 设置之外设置三个 Claude Desktop 键：
+此示例为 `eng-contractors` 组在其 `cli` 设置旁设置了三个 Claude Desktop 键：
 
 ```yaml theme={null}
 managed:
@@ -1096,62 +1097,62 @@ managed:
         banner: { text: "Contractor build: internal use only" }
 ```
 
-每个键都是可选的；Claude Desktop 为您省略的任何键应用其自己的默认值。
+每个键都是可选的；对于您省略的任何键，Claude Desktop 会应用自己的默认值。
 
 ##### 网关在启动时拒绝的内容
 
-网关在启动时根据 Claude Desktop 本身使用的配置 schema 验证每个 `desktop` 块，因此错误在网关启动时显示为命名该键的错误，而不是到达每个连接的桌面。网关在块包含以下内容时在启动时失败：
+网关在启动时根据 Claude Desktop 自身使用的配置 schema 验证每个 `desktop` 块，因此错误会在网关启动时以指明该键的错误形式暴露出来，而不会传递到每个已连接的桌面客户端。当块中包含以下内容时，网关会在启动时失败：
 
-* 未知键
-* 识别的键，其值 Claude Desktop 会拒绝或静默删除，例如空值或嵌套条目内的拼写错误的子键。在 v2.1.260 之前，网关静默删除 `managedMcpServers` 或 `orgPluginSettings` 条目的嵌套对象内的拼写错误字段，而不是在启动时失败。
-* 网关自己计算的键：推理连接、模型列表和 OTLP 中继。通过 [`upstreams`](#upstreams)、[`models`](#models) 和 [`telemetry`](#telemetry) 部分的 `forward_to` 配置这些。
-* 当前键的遗留别名。在启动错误中，网关命名规范键来编写。
+* 未知的键
+* 已识别的键，但其值会被 Claude Desktop 拒绝或静默丢弃，例如空值或嵌套条目中拼写错误的子键。在 v2.1.260 之前，对于 `managedMcpServers` 或 `orgPluginSettings` 条目的嵌套对象中拼写错误的字段，网关会静默丢弃，而不是在启动时失败。
+* 由网关自行计算的键：推理连接、模型列表和 OTLP 中继。请通过 [`upstreams`](#upstreams)、[`models`](#models) 以及 [`telemetry`](#telemetry) 部分的 `forward_to` 配置这些内容。
+* 当前键的旧版别名。在启动错误中，网关会指明应写入的规范键。
 
-如果您使用已弃用的值或条目形状，例如没有 `transport` 的 `managedMcpServers` 条目，网关启动并记录命名替换的警告。
+如果您使用已弃用的值或条目形式，例如不带 `transport` 的 `managedMcpServers` 条目，网关会启动并记录一条指明替代项的警告。
 
-在 v2.1.232 之前，网关接受 11 个固定的功能门键的列表，例如 `chatTabEnabled` 和 `disableAutoUpdates`，并在启动时拒绝每个其他键。在 v2.1.227 之前，网关也在启动时拒绝 `chatTabEnabled` 和 `chatAdvancedFileAnalysisEnabled`。
+在 v2.1.232 之前，网关只接受由 11 个功能开关键组成的固定列表（例如 `chatTabEnabled` 和 `disableAutoUpdates`），并在启动时拒绝其他所有键。在 v2.1.227 之前，网关还会在启动时拒绝 `chatTabEnabled` 和 `chatAdvancedFileAnalysisEnabled`。
 
-##### 需要更高版本网关或 Claude Desktop 的键
+##### 需要更新的网关或 Claude Desktop 版本的键
 
-网关根据与其已安装版本捆绑的 schema 验证 `desktop` 块，就像它对 `cli` 块所做的那样。要交付由较新 Claude Desktop 版本引入的设置，首先升级网关。例如，`userPluginMarketplacesEnabled` 和 `userPluginUploadsEnabled` 需要网关服务器上的 Claude Code v2.1.260 或更高版本以及成员机器上的 Claude Desktop 1.37937.0 或更高版本。
+网关根据其已安装版本捆绑的 schema 验证 `desktop` 块，与验证 `cli` 块的方式相同。要交付由较新 Claude Desktop 版本引入的设置，请先升级网关。例如，`userPluginMarketplacesEnabled` 和 `userPluginUploadsEnabled` 需要网关服务器上的 Claude Code v2.1.260 或更高版本，以及成员机器上的 Claude Desktop 1.37937.0 或更高版本。
 
-`blockReadsOutsideWorkingDirectories`、`disableBypassPermissionsMode`、`configRecheckIntervalMinutes` 和 `sshClientPath` 需要网关服务器上的 Claude Code v2.1.281 或更高版本。`microsoftAuthBroker` 的 `required` 值和 Microsoft 365 `managedMcpServers` 条目的 `continuousAccessEvaluation` 字段也是如此。早于 `required` 值的 Claude Desktop 版本将其读取为 `disabled`，因此仅在每个成员的 Claude Desktop 支持它后才设置 `required`。Claude Desktop 的[托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)列出首次读取每个键的版本。
+`blockReadsOutsideWorkingDirectories`、`disableBypassPermissionsMode`、`configRecheckIntervalMinutes` 和 `sshClientPath` 需要网关服务器上的 Claude Code v2.1.281 或更高版本。`microsoftAuthBroker` 的 `required` 值以及 Microsoft 365 `managedMcpServers` 条目的 `continuousAccessEvaluation` 字段也是如此。早于 `required` 值的 Claude Desktop 版本会将其读取为 `disabled`，因此请仅在每位成员的 Claude Desktop 都支持后再设置 `required`。Claude Desktop 的[托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)列出了首次读取每个键的版本。
 
-如果您在策略的 `desktop` 块中设置 `orgPluginSettings`，网关以 Claude Desktop 1.15200.0 及更高版本读取的数组形式提供它。较旧的桌面忽略数组并强制执行没有插件工具策略，因此在您依赖它之前将成员更新到 1.15200.0 或更高版本。
+如果您在策略的 `desktop` 块中设置了 `orgPluginSettings`，网关会以 Claude Desktop 1.15200.0 及更高版本读取的数组形式提供它。较旧的桌面客户端会忽略该数组且不执行任何插件工具策略，因此在依赖它之前，请将成员更新到 1.15200.0 或更高版本。
 
 ##### 角色策略如何继承基础 `desktop` 块
 
-网关从策略的 `desktop` 块不设置的 `match: {}` 全部捕获的 `desktop` 块填充键，与它填充策略的 `cli` 块的方式相同。如果您在基础和角色策略中都设置 `disabledBuiltinTools` 或 `builtinToolPolicy`，网关保留基础的限制：
+对于策略的 `desktop` 块未设置的键，网关会从 `match: {}` 兜底策略的 `desktop` 块中补充，方式与从基础层补充策略的 `cli` 块相同。如果您在基础层和角色策略中都设置了 `disabledBuiltinTools` 或 `builtinToolPolicy`，网关会保留基础层的限制：
 
-* `disabledBuiltinTools`：网关使用基础列表和策略列表的并集
-* `builtinToolPolicy`：如果您在基础中将工具设置为 `allow` 以外的值，网关保留该值，即使您在角色策略中为同一工具设置 `allow`
+* `disabledBuiltinTools`：网关使用基础层列表与策略列表的并集
+* `builtinToolPolicy`：如果您在基础层中将某个工具设置为 `allow` 以外的值，即使您在角色策略中为同一工具设置了 `allow`，网关也会保留该值
 
-对于每个其他键，如果您在角色策略中设置它，网关使用角色策略的值。网关替换数组或嵌套对象（如 `banner`）整体，因此如果您在角色策略中设置 `banner.text`，网关删除基础的 `banner.backgroundColor`。
+对于其他所有键，如果您在角色策略中设置了它，网关会使用角色策略的值。网关会整体替换数组或嵌套对象（例如 `banner`），因此如果您在角色策略中设置了 `banner.text`，网关会丢弃基础层的 `banner.backgroundColor`。
 
 ##### 策略更改何时到达 Claude Desktop
 
-在您使用更改后的策略重新部署网关后，Claude Desktop 仅在下次启动时应用大多数设置：
+使用更改后的策略重新部署网关后，Claude Desktop 大多数设置仅在下次启动时应用：
 
-* **已关闭**：Claude Desktop 在启动时获取引导响应，因此更改从下次启动起生效
-* **已打开**：Claude Desktop 默认每 10 分钟检查一次响应是否有更改，并在不重启的情况下应用少数设置。对于其余设置，例如 [`skillCreationEnabled`](https://claude.com/docs/third-party/claude-desktop/configuration#skillcreationenabled)，用户会在侧边栏中看到 **Relaunch Claude Desktop** 卡片，并在重启应用之前保留先前的配置。默认在 24 小时后，Claude Desktop 会显示重启对话框，并在 2 分钟无活动后自行重启
+* **已关闭**：Claude Desktop 在启动时获取 bootstrap 响应，因此更改从下次启动开始生效
+* **已打开**：Claude Desktop 默认每 10 分钟检查一次响应是否有更改，并在无需重启的情况下应用少数设置。对于其余设置，例如 [`skillCreationEnabled`](https://claude.com/docs/third-party/claude-desktop/configuration#skillcreationenabled)，用户会在侧边栏中看到 **Relaunch Claude Desktop** 卡片，并在重启应用之前保留之前的配置。默认 24 小时后，Claude Desktop 会显示重启对话框，并在 2 分钟无操作后自行重启
 
-要缩短这 24 小时，请在策略的 `desktop` 块中设置 [`relaunchEnforcementHours`](https://claude.com/docs/third-party/claude-desktop/configuration#relaunchenforcementhours)。您需要网关服务器上的 Claude Code v2.1.260 或更高版本，以及成员机器上的 Claude Desktop 1.40609.0 或更高版本。设置为 `0` 时，Claude Desktop 一发现更改就会显示该对话框。
+要缩短这 24 小时，请在策略的 `desktop` 块中设置 [`relaunchEnforcementHours`](https://claude.com/docs/third-party/claude-desktop/configuration#relaunchenforcementhours)。网关服务器上需要 Claude Code v2.1.260 或更高版本，成员机器上需要 Claude Desktop 1.40609.0 或更高版本。设置为 `0` 时，Claude Desktop 一发现更改就会显示对话框。
 
 #### Claude Desktop 中的扩展上下文
 
-如果您从网关为 [Claude Desktop](#claude-desktop-overlay) 提供服务，其模型选择器会为每个可以使用 1M 上下文窗口运行的已列出模型提供 1M 上下文选项。这些模型包括 Claude Opus 4.6 及更高版本、Claude Sonnet 4.6 及更高版本，以及 Fable 模型。该选项是模型的 `[1m]` 变体，[扩展上下文](/docs/zh-CN/model-config#extended-context)对此有介绍。您需要网关服务器上的 Claude Code v2.1.284 或更高版本。
+如果您通过网关提供 [Claude Desktop](#claude-desktop-overlay)，其模型选择器会为每个可以使用 1M 上下文窗口运行的已列出模型提供 1M 上下文选项。这些模型包括 Claude Opus 4.6 及更高版本、Claude Sonnet 4.6 及更高版本以及 Fable 模型。该选项即模型的 `[1m]` 变体，[扩展上下文](/docs/zh-CN/model-config#extended-context)对此有介绍。网关服务器上需要 Claude Code v2.1.284 或更高版本。
 
 在以下情况下，[`models`](#models) 条目不会获得 1M 选项：
 
 * 可以为该条目提供服务的某个上游将其映射到不支持 1M 的模型，包括网关仅在故障转移时才访问的上游
-* 其 `id` 和任何 `upstream_model` 值都没有命名 Claude 模型，例如路由到应用推理配置文件 ARN 的自定义别名
+* 其 `id` 和任何 `upstream_model` 值都没有指定 Claude 模型，例如路由到应用程序推理配置文件 ARN 的自定义别名
 
-要更改选择器提供的内容，请使用以下方法之一：
+要更改选择器提供的内容，请使用以下方式之一：
 
-* **让用户从 1M 选项开始**：在策略的 `desktop` 块中设置 `modelPrefer1mContext: true`。尚未选择模型的用户，在第一个已列出模型具有 1M 选项时，会从该选项开始。已经选择模型的用户保留其选择。
-* **手动提供该选项**：如果您的网关服务器运行的版本早于 v2.1.284，或某个条目未命名 Claude 模型，请这样做。在 `models` 中列出该模型两次，一次使用其普通 ID，一次附加 `[1m]`，两者使用相同的 `upstream_model` 映射。Claude Desktop 将这一对显示为一个带有 1M 选项的模型。网关提供 `[1m]` 条目时不会对其进行检查，因此仅为您的上游以 1M 提供服务的模型添加此类条目。
+* **让用户从 1M 选项开始**：在策略的 `desktop` 块中设置 `modelPrefer1mContext: true`。当第一个列出的模型具有 1M 选项时，尚未选择模型的用户会从该 1M 选项开始。已经选择模型的用户保留其选择。
+* **手动提供该选项**：如果您的网关服务器运行的版本早于 v2.1.284，或某个条目未指定 Claude 模型，请使用此方式。在 `models` 中将该模型列出两次，一次使用其普通 ID，一次附加 `[1m]`，两者使用相同的 `upstream_model` 映射。Claude Desktop 会将这一对显示为一个带有 1M 选项的模型。网关提供 `[1m]` 条目时不会对其进行检查，因此请仅为上游以 1M 提供服务的模型添加此类条目。
 
-此示例为路由到应用推理配置文件的自定义别名手动提供该选项，并让新用户从该选项开始：
+此示例为路由到应用程序推理配置文件的自定义别名手动提供该选项，并让新用户从该选项开始：
 
 ```yaml theme={null}
 models:
@@ -1171,37 +1172,37 @@ managed:
 
 ##### 移除 1M 选项
 
-要从选择器中移除该选项，请在策略 `cli` 键下的 `env` 块中设置 `CLAUDE_CODE_DISABLE_1M_CONTEXT: "1"`。如果您还列出了 `id` 以 `[1m]` 结尾的条目，网关仍会提供该条目，因此也请删除该条目。
+要从选择器中移除该选项，请在策略 `cli` 键下的 `env` 块中设置 `CLAUDE_CODE_DISABLE_1M_CONTEXT: "1"`。如果您还列出了 `id` 以 `[1m]` 结尾的条目，网关仍会提供它，因此也请删除该条目。
 
 该变量也会传递到策略匹配的开发者的终端会话。有关它在那里的作用，请参阅[扩展上下文](/docs/zh-CN/model-config#extended-context)。
 
 #### 与其他托管来源的优先级
 
-如果设备也有 MDM 交付的策略或本地 `managed-settings.json`，网关交付的设置排名第一。[托管层内的优先级](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)在托管设置页面上说明本地来源何时应用，并有[Claude Code 从每个管理来源读取的键](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)，无论它选择哪个来源，例如沙箱锁键、`forceRemoteSettingsRefresh` 和每个变量 `env` 合并。在 MDM 配置文件或托管设置文件中配置的 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 仅在网关不交付设置时运行；条目说明其输出替换什么。
+如果设备还有通过 MDM 交付的策略或本地 `managed-settings.json`，则网关交付的设置优先级最高。托管设置页面上的[托管层级内的优先级](/docs/zh-CN/managed-settings#precedence-within-the-managed-tier)说明了本地来源何时生效，并列出了 [Claude Code 从每个管理员来源读取的键](/docs/zh-CN/managed-settings#keys-read-from-every-admin-source)（无论它选择了哪个来源），例如沙箱锁定键、`forceRemoteSettingsRefresh` 以及按变量的 `env` 合并。在 MDM 配置文件或托管设置文件中配置的 [`policyHelper`](/docs/zh-CN/settings-reference#policyhelper) 仅在网关未交付任何设置时运行；该条目说明了其输出会替换哪些内容。
 
-嵌入主机，例如[Claude Desktop](/docs/zh-CN/desktop)，可以通过 SDK `managedSettings` 选项提供策略。[来自嵌入主机的父设置](/docs/zh-CN/managed-settings#parent-settings-from-embedding-hosts)说明 Claude Code 何时应用它，以及[限制父设置](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings)列出哪些允许方向设置仍然适用而不需要 `allowManaged*Only` 锁。
+[Claude Desktop](/docs/zh-CN/desktop) 等嵌入宿主可以通过 SDK 的 `managedSettings` 选项提供策略。[来自嵌入宿主的父级设置](/docs/zh-CN/managed-settings#parent-settings-from-embedding-hosts)说明了 Claude Code 何时应用它，[限制父级设置](/docs/zh-CN/claude-apps-gateway#restrict-parent-settings)列出了在没有 `allowManaged*Only` 锁定时仍然适用的放宽方向设置。
 
-网关策略适用于机器上的每个 Claude Code 调用，包括非交互式 `claude -p` 运行和由 Agent SDK 生成的会话。如果网关在启动时无法访问，已登录的会话退出并出现错误，而不是在没有其策略的情况下运行。
+网关策略适用于机器上的每次 Claude Code 调用，包括非交互式 `claude -p` 运行以及由 Agent SDK 生成的会话。如果启动时网关不可达，已登录的会话会以错误退出，而不是在没有其策略的情况下运行。
 
 ### `telemetry`
 
-CLI 将指标、日志和（启用时）跟踪发送到网关，网关将它们逐字中继到每个配置的目的地。导出使用 OpenTelemetry Protocol (OTLP) over HTTP。要跳过中继并让会话直接导出到您的收集器，[在策略中命名收集器](#export-directly-to-your-collector)。请参阅[监控使用](/docs/zh-CN/monitoring-usage)了解 CLI 发出的指标和事件。
+CLI 将指标、日志以及（启用时的）追踪发送到网关，网关将它们原样转发到每个已配置的目标。导出使用基于 HTTP 的 OpenTelemetry Protocol（OTLP）。要跳过中继并让会话直接导出到您的收集器，请[在策略中指定收集器](#export-directly-to-your-collector)。有关 CLI 发出的指标和事件，请参阅[监控使用情况](/docs/zh-CN/monitoring-usage)。
 
-在通过 `/login` 登录的会话中，CLI 会为每次导出加上已通过身份验证用户的身份信息，这些信息从网关签发的 JWT 中读取：`user.id`、`user.email` 和 `user.groups` 属性。因此，按开发者的成本和使用量归因无需开发者端进行任何配置。Claude Code 在开发者登录之前记录的事件[不带有此身份信息](/docs/zh-CN/monitoring-usage#standard-attributes)。要了解开发者所属组发生变化时哪个属性会随之更新，请参阅[会话打开期间的组变更](#group-changes-during-an-open-session)。
+在通过 `/login` 登录的会话中，CLI 会在每次导出中标注已通过身份验证的用户身份，该身份从网关签发的 JWT 中读取：`user.id`、`user.email` 和 `user.groups` 属性。因此，按开发者的成本和使用情况归因无需开发者端进行任何配置。Claude Code 在开发者登录之前记录的事件[不带有此身份](/docs/zh-CN/monitoring-usage#standard-attributes)。要了解开发者的组发生变化时哪个属性会随之变化，请参阅[会话打开期间的组变化](#group-changes-during-an-open-session)。
 
-[Claude Desktop](#claude-desktop-overlay) 和通过网关登录的 Cowork 会话使用 `user.email` 和 `user.groups` 以及 `enduser.id` 为其遥测加盖时间戳，因此您可以使用一个关于 `user.email` 或 `user.groups` 的查询覆盖终端、Desktop 和 Cowork 使用。`user.groups` 是逗号分隔的 IdP 组列表。
+通过网关登录的 [Claude Desktop](#claude-desktop-overlay) 和 Cowork 会话会在其遥测中同时标注 `user.email`、`user.groups` 和 `enduser.id`，因此您可以通过对 `user.email` 或 `user.groups` 进行一次查询来涵盖终端、Desktop 和 Cowork 的使用情况。`user.groups` 是以逗号分隔的 IdP 组列表。
 
-Desktop 和 Cowork 遥测也携带 `enduser.sub`，您的身份提供商为用户颁发的 `sub` 声明，当用户的电子邮件更改时保持不变。终端会话在 `user.id` 下加盖相同的值，因此与终端 `user.id` 匹配 `enduser.sub` 的查询覆盖一个用户的终端、Desktop 和 Cowork 使用。在 Desktop 和 Cowork 导出上，`user.id` 是匿名标识符，而不是主题。
+Desktop 和 Cowork 遥测还带有 `enduser.sub`，即您的身份提供商为该用户签发的 `sub` 声明，它在用户电子邮件更改时保持不变。终端会话在 `user.id` 下标注相同的值，因此将 `enduser.sub` 与终端 `user.id` 匹配的查询可以同时涵盖一个用户的终端、Desktop 和 Cowork 使用情况。在 Desktop 和 Cowork 导出中，`user.id` 是一个匿名标识符，而不是主体。
 
-与来自 Claude Code 的所有 OpenTelemetry 数据一样，这些属性仅转到您的组织配置的目的地，从不转到 Anthropic。
+与 Claude Code 的所有 OpenTelemetry 数据一样，这些属性只会发送到您的组织配置的目标，绝不会发送给 Anthropic。
 
-如果用户的组列表在百分比编码后长于 255 个字符，或组名包含逗号或等号，网关将 `user.groups` 从该用户的 Desktop 和 Cowork 遥测中删除，而不是截断它。该用户的终端会话仍然携带完整列表。
+如果用户的组列表经百分比编码后超过 255 个字符，或者某个组名包含逗号或等号，网关会在该用户的 Desktop 和 Cowork 遥测中省略 `user.groups`，而不是将其截断。该用户的终端会话仍带有完整列表。
 
-当主题在百分比编码后长于 255 个字符，或包含空格、可打印 ASCII 外的字符或 `,` `;` `=` `\` `"` `%` 之一时，网关将 `enduser.sub` 删除。该用户的 Desktop 和 Cowork 遥测保留其他属性。
+当主体经百分比编码后超过 255 个字符，或者包含空格、可打印 ASCII 之外的字符，或 `,` `;` `=` `\` `"` `%` 之一时，网关会省略 `enduser.sub`。该用户的 Desktop 和 Cowork 遥测会保留其其他属性。
 
-您需要网关服务器上的 Claude Code v2.1.265 或更高版本才能在 Desktop 和 Cowork 遥测上获得 `user.email` 和 `user.groups`，以及每个开发者机器上的 Claude Desktop 1.24012 或更高版本才能获得 `user.groups`。
+要在 Desktop 和 Cowork 遥测中包含 `user.email` 和 `user.groups`，网关服务器上需要 Claude Code v2.1.265 或更高版本；要包含 `user.groups`，每位开发者的机器上还需要 Claude Desktop 1.24012 或更高版本。
 
-您需要网关服务器上的 Claude Code v2.1.274 或更高版本才能获得 `enduser.sub`。
+要包含 `enduser.sub`，网关服务器上需要 Claude Code v2.1.274 或更高版本。
 
 ```yaml theme={null}
 telemetry:
@@ -1209,7 +1210,7 @@ telemetry:
     - url: https://otel-collector.internal.example.com
       headers:
         Authorization: ${OTLP_TOKEN}
-      # 每个信号选择加入。默认：仅指标。
+      # Per-signal opt-in. Default: metrics only.
       metrics: true
       logs: false
       traces: false
@@ -1220,68 +1221,68 @@ telemetry:
 
 > [!WARNING]
 >
-> 每个目的地独立选择加入 `metrics`、`logs` 和 `traces`，默认仅为指标。信号的敏感性不同：
+> 每个目标独立选择加入 `metrics`、`logs` 和 `traces`，默认仅为指标。这些信号的敏感程度不同：
 >
 > * **指标**：聚合计数器，例如 token 计数、请求计数和延迟
-> * **日志和跟踪**：可以携带完整的 Bash 命令、工具输入和文件路径，涵盖 Claude Code 在开发者机器上所做的任何事情
+> * **日志和追踪**：可能包含完整的 Bash 命令、工具输入和文件路径，涵盖 Claude Code 在开发者机器上所做的任何事情
 >
-> 仅在具有该数据保证的访问控制和保留策略的目的地上启用日志和跟踪。
+> 请仅在具备与这些数据相称的访问控制和保留策略的目标上启用日志和追踪。
 
-每个 `forward_to` URL 必须使用 `https://`，有一个例外，用于网关自己的环回接口上的收集器：
+每个 `forward_to` URL 必须使用 `https://`，但位于网关自身回环接口上的收集器是一个例外：
 
-* `http://localhost:<port>` 通过配置验证，但[SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)阻止每个导出，出现 `ECONNREFUSED_SSRF`，除非您在网关的环境中设置 `CLAUDE_GATEWAY_ALLOW_LOOPBACK=1`
-* `http://127.0.0.1:<port>` 或 `http://[::1]:<port>` 失败启动，除非设置了该变量
+* `http://localhost:<port>` 可以通过配置验证，但除非您在网关的环境中设置了 `CLAUDE_GATEWAY_ALLOW_LOOPBACK=1`，否则 [SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)会以 `ECONNREFUSED_SSRF` 阻止每次导出
+* 除非设置了该变量，否则 `http://127.0.0.1:<port>` 或 `http://[::1]:<port>` 会导致启动失败
 
-对于集群内收集器，在其自己的内部地址上公开它通过 HTTPS，或将其作为边车运行，设置变量。
+对于集群内的收集器，请在其自己的内部地址上通过 HTTPS 公开它，或者将其作为 sidecar 运行并设置该变量。
 
-当设置 `HTTPS_PROXY` 时，网关通过该代理发送导出。
+设置了 `HTTPS_PROXY` 时，网关会通过该代理发送导出数据。
 
-要直接到达内部收集器，通过主机名或带有前导点的域（如 `.internal.example.com`）将其添加到 `NO_PROXY`，这需要网关服务器上的 Claude Code v2.1.277 或更高版本。确保网关可以在没有代理的情况下到达收集器。没有前导点的条目仅匹配该确切名称，不匹配其下的名称。CIDR 范围不匹配。
+要直接访问内部收集器，请将其按主机名或以带前导点的域（例如 `.internal.example.com`）添加到 `NO_PROXY`，这要求网关服务器上的 Claude Code 为 v2.1.277 或更高版本。请确保网关可以不经代理访问该收集器。不带前导点的条目只匹配该确切名称，不匹配其下级名称。CIDR 范围不会匹配。
 
-启用[仅代理出口](#proxy-only-egress)后，在代理中允许收集器，因为任何 `NO_PROXY` 条目都会关闭仅代理出口。
+启用[仅代理出站](#proxy-only-egress)时，请改为在代理中允许该收集器，因为任何 `NO_PROXY` 条目都会使仅代理出站保持关闭。
 
-遥测在 CLI 中默认关闭。当您同时设置 `telemetry.forward_to` 和 `listen.public_url` 时，网关通过 `/managed/settings` 为连接的客户端打开它，推送六个环境变量：
+CLI 中的遥测默认处于关闭状态。当您同时设置 `telemetry.forward_to` 和 `listen.public_url` 时，网关会通过 `/managed/settings` 推送六个环境变量，为已连接的客户端启用遥测：
 
 * `CLAUDE_CODE_ENABLE_TELEMETRY=1`
-* `OTEL_METRICS_EXPORTER`、`OTEL_LOGS_EXPORTER` 和 `OTEL_TRACES_EXPORTER`，如果至少一个 `forward_to` 目的地启用该信号，则每个设置为 `otlp`，否则设置为 `none`
+* `OTEL_METRICS_EXPORTER`、`OTEL_LOGS_EXPORTER` 和 `OTEL_TRACES_EXPORTER`，如果至少一个 `forward_to` 目标启用了该信号，则各自设置为 `otlp`，否则设置为 `none`
 * `OTEL_EXPORTER_OTLP_ENDPOINT=<public_url>`
 * `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`
 
-当您[添加自己的标签](#add-your-own-labels)时，网关也推送 `OTEL_RESOURCE_ATTRIBUTES`。
+当您[添加自己的标签](#add-your-own-labels)时，网关还会推送 `OTEL_RESOURCE_ATTRIBUTES`。
 
-在网关服务器上的 Claude Code v2.1.265 之前，网关推送所有三个导出器选择器为 `otlp`，包括没有目的地选择加入的信号。
+在网关服务器上的 Claude Code v2.1.265 之前，网关会将全部三个导出器选择器都推送为 `otlp`，包括没有任何目标选择加入的信号。
 
-推送的端点从公共 URL 构建，因此指标和日志不需要来自开发者或策略的 OTEL 配置。
+推送的端点由公共 URL 构建，因此指标和日志不需要开发者或策略进行任何 OTEL 配置。
 
 通过 `/login` 登录的开发者无法使用自己的 OTEL 配置重定向导出：
 
-* **本地设置的变量**：Claude Code 在托管层应用推送的变量，因此每个变量覆盖开发者为其本地设置的值。
-* **本地配置的端点**：启用 OTLP/HTTP 导出后，CLI 忽略任何本地配置的端点，无论网关是否推送了遥测变量。其导出转到网关，除非策略[将您的收集器命名为端点](#export-directly-to-your-collector)。
+* **本地设置的变量**：Claude Code 在托管层级应用推送的变量，因此每个变量都会覆盖开发者在本地为其设置的值。
+* **本地配置的端点**：启用 OTLP/HTTP 导出后，无论网关是否推送了遥测变量，CLI 都会忽略任何本地配置的端点。除非策略[将您的收集器指定为端点](#export-directly-to-your-collector)，否则其导出会发送到网关。
 
-没有信号的 `forward_to` 目的地，网关接受并丢弃它。如果开发者已经将 Claude Code 遥测导出到您的一个收集器，将其添加为 `forward_to` 目的地，如果他们导出这些，启用日志或跟踪，因此在他们登录后它继续接收他们的数据。要跳过中继，请改为[在策略中命名收集器](#export-directly-to-your-collector)。
+如果某个信号没有 `forward_to` 目标，网关会接受并丢弃它。如果开发者已经将 Claude Code 遥测导出到您的某个收集器，请将其添加为 `forward_to` 目标（如果他们导出日志或追踪，则启用相应信号），以便在他们登录后该收集器继续接收其数据。要改为跳过中继，请[在策略中指定收集器](#export-directly-to-your-collector)。
 
-[跟踪](/docs/zh-CN/monitoring-usage#traces-beta)也需要每个客户端上的 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`。在托管策略的 `env` 块中设置它，因为网关不推送它。开发者在已经触发的相同[安全批准对话框](#managed)中批准它，推送的端点。
+[追踪](/docs/zh-CN/monitoring-usage#traces-beta)还要求每个客户端上设置 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`。请在托管策略的 `env` 块中设置它，因为网关不会推送它。开发者会在推送的端点已触发的同一[安全批准对话框](#managed)中批准它。
 
-仅在您想要跟踪的组的策略中将其设置为 `1`。不设置它的策略从您的 `match: {}` 全部捕获策略继承值，如果该策略设置一个，根据[合并规则](#managed)。要防止组的客户端发送跟踪，即使开发者本地设置变量，在该组的策略中将其设置为 `0`。
+请仅在您希望追踪其组的策略中将其设置为 `1`。根据[合并规则](#managed)，未设置它的策略会从您的 `match: {}` 兜底策略继承该值（如果兜底策略设置了它）。要让某个组的客户端即使在开发者本地设置了该变量时也不发送追踪，请在该组的策略中将其设置为 `0`。
 
-protobuf 和 JSON OTLP 编码都被中继，任何 OpenTelemetry 兼容的后端都可以作为目的地。
+protobuf 和 JSON 两种 OTLP 编码都会被转发，任何兼容 OpenTelemetry 的后端都可以用作目标。
 
 #### 发送累积指标
 
-如果您的收集器仅接受累积指标，请将 [`OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE`](/docs/zh-CN/monitoring-usage#common-configuration-variables) 设置为 `cumulative`。Claude Code 默认发送增量指标，网关在转发时不会对其进行转换。请在每种会话读取该变量的位置进行设置：
+如果您的收集器只接受累积指标，请将 [`OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE`](/docs/zh-CN/monitoring-usage#common-configuration-variables) 设置为 `cumulative`。Claude Code 默认发送增量指标，网关转发它们时不会进行转换。请在每种会话读取该变量的位置设置它：
 
-* **终端会话**：在策略 [`cli` 或 `code` 键](#choose-cli-or-code)下的 `env` 块中
+* **终端会话**：在策略的 [`cli` 或 `code` 键](#choose-cli-or-code)下的 `env` 块中
 * **[在用户机器上运行](/docs/zh-CN/managed-settings#where-and-when-a-policy-applies)的 Cowork 会话**：在该机器上[客户端托管设置](#client-side-managed-settings)的 `env` 块中
-* **`code` 策略下的 Code 标签页会话**：在满足[`code` 设置生效的条件](#apply-code-settings-in-the-code-tab)后，在策略的 `env` 块中
-* **`cli` 策略下的 Code 标签页会话**：在运行该会话的机器上客户端托管设置的 `env` 块中。通过 SSH 时，即远程主机。
+* **`code` 策略下的 Code 选项卡会话**：在满足[`code` 设置生效的条件](#apply-code-settings-in-the-code-tab)后，在策略的 `env` 块中
+* **`cli` 策略下的 Code 选项卡会话**：在运行该会话的机器上客户端托管设置的 `env` 块中。通过 SSH 时，那是远程主机。
 
-如果您将该变量添加到机器的托管设置中，还需在该机器上优先级最高的来源中设置 [`parentSettingsBehavior: "merge"`](/docs/zh-CN/claude-apps-gateway#set-the-opt-in)。否则，Cowork 会话和 `cli` 策略下的 Code 标签页会话将在没有出站允许列表以及 Claude Desktop 作为父级设置传递给它们的其他策略的情况下运行。
+如果您将该变量添加到机器的托管设置中，还需在该机器上优先级最高的来源中设置 [`parentSettingsBehavior: "merge"`](/docs/zh-CN/claude-apps-gateway#set-the-opt-in)。否则，Cowork 会话和 `cli` 策略下的 Code 选项卡会话在运行时将不带有 Claude Desktop 作为父级设置传递给它们的出站允许列表和其他策略。
 
-#### 添加您自己的标签
+#### 添加自己的标签
 
-要在通过网关登录的会话的遥测上放置固定标签，例如 `service.namespace` 或 `deployment.environment.name`，设置 `telemetry.resource_attributes`。每个标签是一个 OpenTelemetry 资源属性，每个目的地接收相同的标签。
+要在通过网关登录的会话的遥测上添加固定标签，例如 `service.namespace` 或 `deployment.environment.name`，请设置 `telemetry.resource_attributes`。每个标签都是一个 OpenTelemetry 资源属性，每个目标都会收到相同的标签。
 
-会话仅在您也设置 `telemetry.forward_to` 和 `listen.public_url` 时获得标签。此示例添加两个标签：
+仅当您同时设置 `telemetry.forward_to` 和 `listen.public_url` 时，会话才会获得这些标签。此示例添加了两个标签：
 
 ```yaml theme={null}
 telemetry:
@@ -1292,25 +1293,25 @@ telemetry:
     deployment.environment.name: prod
 ```
 
-当标签违反这些规则之一时，网关拒绝启动，启动错误命名标签：
+当标签违反以下规则之一时，网关会拒绝启动，启动错误会指明该标签：
 
-* 名称仅使用字母、数字、`.`、`_` 和 `-`
-* 名称不是保留的。以任何字母大小写比较，保留名称是以 `user.`、`enduser.` 或 `identity.` 开头的所有内容，加上 `service.name`、`service.version`、`claude.deployment_mode`、`host.arch`、`os.type`、`os.version` 和 `wsl.version`
-* 值是非空可打印 ASCII，没有空格和 `, ; = \ " %` 中的任何一个
-* 值在百分比编码后最多 255 个字符，如网关计算的那样，因此 `/`、`:` 和 `@` 各计为三个
-* 值是文本，因此引用数字、`true` 或 `false`
+* 名称只能使用字母、数字、`.`、`_` 和 `-`
+* 名称不能是保留名称。保留名称不区分大小写进行比较，包括所有以 `user.`、`enduser.` 或 `identity.` 开头的名称，以及 `service.name`、`service.version`、`claude.deployment_mode`、`host.arch`、`os.type`、`os.version` 和 `wsl.version`
+* 值为非空的可打印 ASCII，不含空格，也不含 `, ; = \ " %` 中的任何字符
+* 值在网关按百分比编码后计数时最多 255 个字符，因此 `/`、`:` 和 `@` 各计为三个字符
+* 值为文本，因此请为数字、`true` 或 `false` 加引号
 
-您需要网关服务器上的 Claude Code v2.1.281 或更高版本才能设置 `telemetry.resource_attributes`。早期网关在找到键时拒绝启动。在添加键之前升级每个副本，并在回滚到早期版本之前删除键。
+要设置 `telemetry.resource_attributes`，网关服务器上需要 Claude Code v2.1.281 或更高版本。更早的网关发现该键时会拒绝启动。请在添加该键之前升级每个副本，并在回滚到更早版本之前移除该键。
 
-通过 `/login` 登录的终端会话接收标签作为 `OTEL_RESOURCE_ATTRIBUTES`，与其他[遥测变量](#telemetry)一起推送。如果您在策略的 `env` 块中设置 `OTEL_RESOURCE_ATTRIBUTES`，该策略匹配的终端会话获得该值而不是标签。Claude Desktop 从网关接收标签以及 `user.email` 和其他身份属性。
+通过 `/login` 登录的终端会话会以 `OTEL_RESOURCE_ATTRIBUTES` 的形式接收标签，与其他[遥测变量](#telemetry)一起推送。如果您在策略的 `env` 块中设置了 `OTEL_RESOURCE_ATTRIBUTES`，该策略匹配的终端会话会获得该值而不是这些标签。Claude Desktop 从网关接收标签，同时接收 `user.email` 和其他身份属性。
 
-Claude Code 也将每个标签复制到每个指标数据点，因此您可以在不索引资源属性的后端中按它过滤指标。要关闭该复制，请参阅[指标基数控制](/docs/zh-CN/monitoring-usage#metrics-cardinality-control)。
+Claude Code 还会将每个标签复制到每个指标数据点上，因此您可以在不索引资源属性的后端中按标签筛选指标。要关闭此复制，请参阅[指标基数控制](/docs/zh-CN/monitoring-usage#metrics-cardinality-control)。
 
-#### 会话打开期间的组变更
+#### 会话打开期间的组变化
 
-终端会话将 `user.groups` 放在 OTLP 资源上，并再次放在每个指标数据点和事件上。如果开发者的组在会话打开期间发生变化，下一次[静默刷新](#session)之后的使用情况对应的数据点和事件会带有新的组。资源会保留旧的组，直到开发者重启 Claude Code，因此请按数据点或事件上的属性进行分组。
+终端会话将 `user.groups` 放在 OTLP 资源上，并再次放在每个指标数据点和事件上。如果开发者的组在会话打开期间发生变化，下一次[静默刷新](#session)之后的使用情况所对应的数据点和事件会带有新的组。资源会保留旧的组，直到开发者重启 Claude Code，因此请按数据点或事件上的属性进行分组。
 
-如果您在 OpenTelemetry Collector 的 Prometheus remote write 导出器中开启了 `resource_to_telemetry_conversion`，该导出器会用资源的 `user.groups` 替换每个数据点的 `user.groups`，因此每个数据点都显示旧的组。要保留数据点的值，请在该导出器之前从资源中删除 `user.groups`。
+如果您在 OpenTelemetry Collector 的 Prometheus remote write 导出器中启用了 `resource_to_telemetry_conversion`，该导出器会用资源的 `user.groups` 替换每个数据点的 `user.groups`，因此每个数据点都会显示旧的组。要保留数据点的值，请在该导出器之前从资源中删除 `user.groups`。
 
 此 OpenTelemetry Collector `resource` 处理器会在列出它的管道中删除该属性：
 
@@ -1326,69 +1327,69 @@ processors:
 
 #### 直接导出到您的收集器
 
-要让通过 `/login` 登录的会话直接将遥测发送到您的收集器而不是通过中继，在[托管策略](#managed)的 `env` 块中将 `OTEL_EXPORTER_OTLP_ENDPOINT` 设置为收集器的 `https://` 基础 URL。Claude Code 将 `/v1/metrics`、`/v1/logs` 或 `/v1/traces` 附加到您设置的 URL，例如 `https://otel-collector.example.com:4318`，并通过 OTLP/HTTP 在那里导出每个信号。需要每个开发者机器上的 Claude Code v2.1.265 或更高版本。早期客户端通过中继导出。
+要让通过 `/login` 登录的会话将遥测直接发送到您的收集器而不经过中继，请在[托管策略](#managed)的 `env` 块中将 `OTEL_EXPORTER_OTLP_ENDPOINT` 设置为收集器的 `https://` 基础 URL。Claude Code 会在您设置的 URL（例如 `https://otel-collector.example.com:4318`）后附加 `/v1/metrics`、`/v1/logs` 或 `/v1/traces`，并通过 OTLP/HTTP 将每个信号导出到那里。要求每位开发者机器上的 Claude Code 为 v2.1.265 或更高版本。更早的客户端通过中继导出。
 
-要向收集器进行身份验证，在同一 `env` 块中设置 `OTEL_EXPORTER_OTLP_HEADERS`。会话从不将开发者的网关会话令牌发送到以这种方式命名的收集器。
+要向收集器进行身份验证，请在同一 `env` 块中设置 `OTEL_EXPORTER_OTLP_HEADERS`。会话永远不会将开发者的网关会话令牌发送到以这种方式指定的收集器。
 
-当您在策略中添加或更改此端点时，Claude Code 在应用它于交互式会话之前要求每个开发者在[安全批准对话框](#managed)中批准它。
+当您在策略中添加或更改此端点时，Claude Code 会在交互式会话中应用它之前，要求每位开发者在[安全批准对话框](#managed)中批准它。
 
-Claude Code 在直接导出信号之前检查端点，并在检查失败时将该信号保留在中继上。检查包括：
+Claude Code 在直接导出信号之前会检查端点，检查失败时该信号会保留在中继上。检查包括：
 
-* 端点来自网关本身。如果您在 MDM 配置文件或本地 `managed-settings.json` 中设置相同变量，导出保留在中继上。
-* URL 使用 `https://`，或 `http://` 到环回地址
-* URL 解析为以 `/v1/<signal>` 结尾的路径，没有查询或片段。Claude Code 从通用变量本身构建该路径。它使用每个信号变量，例如 `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`，如写入的那样，因此在那里包括完整路径。
-* URL 不是网关自己的主机。寻址到网关的端点保留中继路径和其会话令牌。
-* 您和开发者都没有在任何设置来源中配置 [`otelHeadersHelper`](/docs/zh-CN/settings-reference#otelheadershelper)。配置了助手，每个信号保留在中继上。
+* 端点来自网关本身。如果您在 MDM 配置文件或本地 `managed-settings.json` 中设置了同一变量，导出会保留在中继上。
+* URL 使用 `https://`，或使用指向回环地址的 `http://`
+* URL 解析为以 `/v1/<signal>` 结尾的路径，且不带查询或片段。Claude Code 会根据通用变量自行构建该路径。对于按信号的变量（例如 `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`），它会按原样使用，因此请在其中包含完整路径。
+* URL 不是网关自己的主机。指向网关的端点会保留中继路径及其会话令牌。
+* 您和开发者都未在任何设置来源中配置 [`otelHeadersHelper`](/docs/zh-CN/settings-reference#otelheadershelper)。配置了该辅助程序时，每个信号都会保留在中继上。
 
-您命名的端点仅改变导出的去向。您仍然选择哪些信号导出，使用 `OTEL_*_EXPORTER` 选择器。
+您指定的端点只改变导出的去向。您仍然需要通过 `OTEL_*_EXPORTER` 选择器决定哪些信号要导出。
 
-端点本身不打开导出，因此也设置执行此操作的变量，除非网关已经推送它们：
+仅设置端点并不会启用导出，因此还需设置启用导出的变量，除非网关已经推送了它们：
 
-* 如果网关已经[推送遥测变量](#telemetry)，它们覆盖启用、选择器和协议，您的显式端点覆盖推送的 `<public_url>` 值。仅为没有 `forward_to` 目的地启用的信号自己设置 `OTEL_*_EXPORTER` 选择器为 `otlp`。
-* 如果它没有，也设置 `CLAUDE_CODE_ENABLE_TELEMETRY=1`、`OTEL_*_EXPORTER` 选择器和 `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`。
+* 如果网关已经[推送了遥测变量](#telemetry)，它们涵盖启用、选择器和协议，您显式设置的端点会覆盖推送的 `<public_url>` 值。仅对没有任何 `forward_to` 目标启用的信号，才需要您自行将 `OTEL_*_EXPORTER` 选择器设置为 `otlp`。
+* 如果网关没有推送，还需设置 `CLAUDE_CODE_ENABLE_TELEMETRY=1`、`OTEL_*_EXPORTER` 选择器和 `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`。
 
-当开发者登出或登入不同的网关时，对收集器的导出停止，Claude Code 删除每个剩余批次而不是发送它。
+当开发者注销或登录到其他网关时，到收集器的导出会停止，Claude Code 会丢弃每个剩余批次而不是发送它们。
 
-#### 当目的地失败时
+#### 目标失败时
 
-网关不缓冲、重试或存储遥测，因此它删除未到达目的地的导出，而不是晚期交付它。每个目的地独立成功或失败，导出客户端无论如何都接收成功响应，因此失败的交付仅在网关的日志中出现。
+网关不会缓冲、重试或存储遥测，因此对于未能到达目标的导出，它会将其丢弃，而不是延迟交付。每个目标独立成功或失败，并且无论哪种情况，导出的客户端都会收到成功响应，因此交付失败只会出现在网关的日志中。
 
-在对目的地的五次连续失败交付后，网关在 30 秒的拉伸中暂停转发到它，记录每个暂停，直到交付成功。任何错误响应、超时或连接错误都计为失败的交付，除了 `400`、`413`、`415`、`422` 和 `431`，这意味着收集器拒绝了该导出的负载为格式错误或太大。
+向某个目标连续五次交付失败后，网关会以 30 秒为间隔暂停向其转发，并记录每次暂停，直到某次交付成功。任何错误响应、超时或连接错误都计为交付失败，但 `400`、`413`、`415`、`422` 和 `431` 除外，这些表示收集器因负载格式错误或过大而拒绝了该次导出。
 
-被拒绝的负载既不推进也不重置失败计数：网关继续转发到目的地并记录警告，命名它和状态，在目的地的第一次拒绝和之后每一百次。
+被拒绝的负载既不会增加也不会重置失败计数：网关会继续向该目标转发，并在该目标第一次拒绝时以及此后每第一百次拒绝时，记录一条指明该目标和状态的警告。
 
-### HTTP 调整
+### HTTP 调优
 
-四个可选的顶级块，`access_control`、`limits`、`timeouts` 和 `rate_limits`，调整 HTTP 表面。默认值适合大多数部署。
+四个可选的顶层块 `access_control`、`limits`、`timeouts` 和 `rate_limits` 用于调优 HTTP 层面的行为。默认值适用于大多数部署。
 
-| 块 | 键 | 默认 | 描述 |
+| 块 | 键 | 默认值 | 说明 |
 | - | - | - | - |
-| `access_control` | `allow_cidrs` / `deny_cidrs` | 空 | 入站 IP 允许/拒绝，按客户端地址，在 `trusted_proxies` 解析后。`deny_cidrs` 首先检查；与它匹配的客户端被拒绝，即使 `allow_cidrs` 也匹配。如果 `allow_cidrs` 非空，网关是默认拒绝。`/healthz` 和 `/readyz` 免除 `allow_cidrs`。当受信任的代理发送不是 IP 地址的 `X-Forwarded-For` 条目时，真实客户端未知，网关记录一次警告，命名要检查的内容。其中任一列表适用于请求的地方，它以 `403` 和审计原因 `xff_unparseable` 拒绝它。其中都不适用的地方，它提供请求并使用代理自己的地址作为客户端 IP，用于每个 IP 速率限制和审计。 |
-| `limits` | `max_request_bytes` | 32 MiB | 最大入站请求体；超大请求在缓冲体之前获得 `413`。为大文件或图像请求提高。 |
-| `limits` | `max_request_header_bytes` | 未设置 | 降低网关对请求标头总大小的 256 KiB 限制。超过限制的请求返回 `431`，大于 256 KiB 的值不起作用。如果开发者在登录后收到 `431`，请参阅[登录后请求标头过大](/docs/zh-CN/claude-apps-gateway-deploy#request-headers-too-large-after-sign-in)。 |
-| `limits` | `max_url_length` | 未设置 | 设置时，过长 URL 返回 `414` |
-| `timeouts` | `upstream_ttfb_ms` | 120000 | 等待上游响应标头的最大时间（首字节时间）。响应体然后流，没有墙钟上限。适用于直接 Anthropic 上游路径；在每个其他提供商上，网关等待最多一小时以响应开始。 |
-| `rate_limits` | `device_authorization.max` / `.window_seconds` | 30 / 600 | 未认证设备授权端点上的每个 IP 速率限制。为共享出口 IP 或 NAT 后面的大型组织提高。[大型推出](/docs/zh-CN/claude-apps-gateway-deploy#large-rollouts)显示如何调整大小。这些限制仅适用于设备授予登录流，不适用于 `/v1/messages` 推理。请参阅[用户代码暴力破解抵抗](/docs/zh-CN/claude-apps-gateway-deploy#user-code-brute-force-resistance)。 |
-| `rate_limits` | `device_verify.max` / `.window_seconds` | 10 / 600 | `/device` 上 `user_code` 提交的每个 IP 速率限制。这是阻止某人猜测另一个开发者代码的原因。[大型推出](/docs/zh-CN/claude-apps-gateway-deploy#large-rollouts)显示提高多远。 |
+| `access_control` | `allow_cidrs` / `deny_cidrs` | 空 | 在完成 `trusted_proxies` 解析后，按客户端地址对入站 IP 进行允许/拒绝。会先检查 `deny_cidrs`；与其匹配的客户端会被拒绝，即使 `allow_cidrs` 也匹配。如果 `allow_cidrs` 非空，网关默认拒绝。`/healthz` 和 `/readyz` 不受 `allow_cidrs` 约束。当受信任的代理发送的 `X-Forwarded-For` 条目不是 IP 地址时，真实客户端未知，网关会记录一次警告，指明需要检查的内容。如果任一列表适用于该请求，网关将以 `403` 拒绝该请求，审计原因为 `xff_unparseable`。如果两个列表都不适用，网关会处理该请求，并使用代理自身的地址作为客户端 IP，用于按 IP 的速率限制和审计。 |
+| `limits` | `max_request_bytes` | 32 MiB | 入站请求体的最大大小；超出大小的请求会在缓冲请求体之前收到 `413`。对于大型文件或图片请求，请调高此值。 |
+| `limits` | `max_request_header_bytes` | 未设置 | 降低网关对请求头总大小的 256 KiB 限制。超出限制的请求返回 `431`，大于 256 KiB 的值不起作用。如果开发者在登录后收到 `431`，请参阅[登录后请求头过大](/docs/zh-CN/claude-apps-gateway-deploy#request-headers-too-large-after-sign-in)。 |
+| `limits` | `max_url_length` | 未设置 | 设置后，过长的 URL 返回 `414` |
+| `timeouts` | `upstream_ttfb_ms` | 120000 | 等待上游响应头的最长时间（首字节时间）。之后响应体以流式传输，不设总时长上限。适用于直连 Anthropic 的上游路径；对于其他所有提供商，网关最多等待一小时让响应开始。 |
+| `rate_limits` | `device_authorization.max` / `.window_seconds` | 30 / 600 | 对未经身份验证的设备授权端点按 IP 施加的速率限制。对于位于共享出口 IP 或 NAT 之后的大型组织，请调高此值。[大规模推广](/docs/zh-CN/claude-apps-gateway-deploy#large-rollouts)说明了如何确定其大小。这些限制仅适用于设备授权登录流程，不适用于 `/v1/messages` 推理。请参阅[用户码暴力破解防护](/docs/zh-CN/claude-apps-gateway-deploy#user-code-brute-force-resistance)。 |
+| `rate_limits` | `device_verify.max` / `.window_seconds` | 10 / 600 | 对 `/device` 处 `user_code` 提交按 IP 施加的速率限制。它用于阻止他人猜测其他开发者的码。[大规模推广](/docs/zh-CN/claude-apps-gateway-deploy#large-rollouts)说明了可以将其调高到什么程度。 |
 
-如果您将两个 `access_control` 列表都留空，这是默认值，网关为任何客户端地址提供服务，因此仅您的网络限制谁可以到达它。这很重要，因为网关可以推送[托管设置](#managed)，在开发者机器上运行命令。
+如果两个 `access_control` 列表都留空（即默认情况），网关会为任何客户端地址提供服务，因此只有您的网络能限制谁可以访问它。这一点很重要，因为网关可以推送在开发者机器上运行命令的[托管设置](#managed)。
 
-当 `allow_cidrs` 为空时，网关在两个地方警告，不改变它如何回答任何请求：
+当 `allow_cidrs` 为空时，网关会在两个地方发出警告，但不会改变其响应任何请求的方式：
 
-* **启动时**：操作日志中的警告建议仅允许私有范围 `10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`、`100.64.0.0/10`、`127.0.0.0/8`、`::1/128` 和 `fc00::/7`，加上开发者连接的任何其他内部范围。如果您将网关绑定到环回地址，并且不设置 `trusted_proxies` 或 `public_url`，如在本地开发中，警告不出现。
-* **运行时**：第一次请求从地址外的地址到达这些私有范围时，网关记录警告并发出 [`access.public_client` 审计事件](/docs/zh-CN/claude-apps-gateway-deploy#logs)，携带客户端 IP。两者每个进程触发一次。链路本地地址、`169.254.0.0/16` 和 `fe80::/10` 不计为公共。网关在此检查运行之前回答 `/healthz` 和 `/readyz`，因此来自公共范围的健康探针不触发它。
+* **启动时**：运行日志中的一条警告建议仅允许私有地址段 `10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`、`100.64.0.0/10`、`127.0.0.0/8`、`::1/128` 和 `fc00::/7`，以及开发者连接所用的其他内部地址段。如果将网关绑定到环回地址，并且既未设置 `trusted_proxies` 也未设置 `public_url`（如本地开发时），则不会出现该警告。
+* **运行时**：当首次有请求来自这些私有地址段之外的地址时，网关会记录一条警告，并发出一个携带客户端 IP 的 [`access.public_client` 审计事件](/docs/zh-CN/claude-apps-gateway-deploy#logs)。两者在每个进程中各触发一次。链路本地地址 `169.254.0.0/16` 和 `fe80::/10` 不算作公网地址。网关会在此检查运行之前响应 `/healthz` 和 `/readyz`，因此来自公网地址段的健康探测不会触发它。
 
-两个信号都使用网关解析的客户端地址。如果负载均衡器、端口转发或隧道中继流量，并且未在 `listen.trusted_proxies` 中列出，网关看到中继的地址，通常是私有的，因此既不是运行时警告也不是私有允许列表捕获通过它中继的流量。
+这两种信号都使用网关解析得到的客户端地址。如果负载均衡器、端口转发或隧道中继了流量，但未列在 `listen.trusted_proxies` 中，网关看到的将是中继的地址（通常是私有地址），因此运行时警告和私有允许列表都无法捕获经由它中继的流量。
 
-在这样的前端后面，首先设置 [`listen.trusted_proxies`](#listen)，以便网关看到真实客户端地址，并无论如何保持网关和它前面的所有东西从公共互联网无法访问。
+在此类前端之后，请先设置 [`listen.trusted_proxies`](#listen)，使网关能看到真实的客户端地址，并且无论如何都要确保网关及其前面的所有组件无法从公网访问。
 
 ### `load_test_mode`
 
-`load_test_mode` 块让您负载测试网关而不调用模型提供商。启用时，网关像往常一样构建和签署每个提供商请求，丢弃它而不是发送它，并通过其正常响应路径流回罐装回复。回复是填充文本，以说它是罐装的句子开头。
+`load_test_mode` 块可让您在不调用模型提供商的情况下对网关进行负载测试。启用后，网关会照常构建并签名每个提供商请求，但将其丢弃而不发送，并通过其正常的响应路径以流式方式返回一条预设回复。该回复是填充文本，开头有一句话说明它是预设的。
 
-需要网关服务器上的 Claude Code v2.1.282 或更高版本。早期网关在找到键时拒绝启动。在添加块之前升级每个副本，并在回滚之前删除块。
+要求网关服务器上运行 Claude Code v2.1.282 或更高版本。更早版本的网关在发现该键时会拒绝启动。请在添加该块之前升级每个副本，并在回滚之前移除该块。
 
-下面的示例以默认值打开模式，大约 750 个 token 的文本的回复，在大约 10 秒内流：
+以下示例使用默认值启用该模式，即约 750 个 token 的文本回复，在约 10 秒内以流式传输：
 
 ```yaml theme={null}
 load_test_mode:
@@ -1397,23 +1398,23 @@ load_test_mode:
   reply_seconds: 9.5    # how long a streamed reply takes
 ```
 
-| 字段 | 必需 | 描述 |
+| 字段 | 必需 | 说明 |
 | - | - | - |
-| `enabled` | 是 | `true` 打开模式。`false` 在模式关闭的情况下将您的数字保留在文件中。如果块存在而没有它，网关拒绝启动。 |
-| `reply_tokens` | 否 | 默认 `750`。大约每个罐装回复携带多少 token 的文本，从 1 到 100000 的整数。 |
-| `reply_seconds` | 否 | 默认 `9.5`。流回复需要多长时间，从 0 到 600。`0` 一次发送整个回复。对非流请求的回复总是一次回来。 |
+| `enabled` | 是 | `true` 启用该模式。`false` 会在关闭该模式的同时将您的数值保留在文件中。如果存在该块但缺少此字段，网关会拒绝启动。 |
+| `reply_tokens` | 否 | 默认 `750`。每条预设回复大约包含多少个 token 的文本，取值为 1 到 100000 之间的整数。 |
+| `reply_seconds` | 否 | 默认 `9.5`。一条流式回复所需的时间，取值为 0 到 600。`0` 会一次性发送整条回复。对非流式请求的回复始终一次性返回。 |
 
-此模式中的负载测试涵盖网关、您的 Postgres 和网关前面的所有东西。它不涵盖提供商的限制、速度或网络路径。
+此模式下的负载测试涵盖网关、您的 Postgres 以及网关前面的所有组件。它不涵盖提供商的限制、速度或网络路径。
 
-没有模型请求发送到提供商，因此副本的每个请求的 CPU 是估计值，读取低于生产，这也加密其到提供商的流量。使用小试点确认副本计数对真实提供商。在 v2.1.283 之前，估计读取低得多。
+由于不会向提供商发送模型请求，副本每个请求的 CPU 用量只是估算值，且读数低于生产环境，因为生产环境还需要加密发往提供商的流量。请针对真实提供商进行小规模试点，以确认副本数量。在 v2.1.283 之前，该估算值读数会低得多。
 
-启用模式时，请求可以携带 `x-load-test-user` 标头，保留最多七位数的整数。网关将每个数字计为单独的开发者，具有其令牌随请求而来的开发者的电子邮件和组。
+启用该模式时，请求可以携带一个 `x-load-test-user` 请求头，其值为最多七位数的整数。网关会将每个数字计为一名独立的开发者，并使用随请求附带的令牌所属开发者的电子邮件和组。
 
-为负载测试部署提供其自己的空数据库，因为网关拒绝以任何开发者已经花费任何东西的数据库启动模式。
+请为负载测试部署提供单独的空数据库，因为如果数据库中已有任何开发者产生过花费，网关在启用该模式时会拒绝启动。
 
 > [!WARNING]
 >
-> 永远不要为开发者使用的网关打开此功能。每个请求获得罐装回复，没有模型被调用。网关在启动时记录 `load_test_mode is on` 警告，并在模式启用时使用 `load_test: true` 标记每个 `inference` [审计事件](/docs/zh-CN/claude-apps-gateway-deploy#logs)。
+> 切勿在开发者使用的网关上启用此模式。每个请求都会收到预设回复，不会调用任何模型。启用该模式时，网关会在启动时记录一条 `load_test_mode is on` 警告，并在每个 `inference` [审计事件](/docs/zh-CN/claude-apps-gateway-deploy#logs)上标记 `load_test: true`。
 
 ## 完整示例
 

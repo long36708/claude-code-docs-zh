@@ -211,6 +211,42 @@ on('session.start', async ($, e, next) => {
 | `$.ui.status(text)` | 提示下的一行，保持不变直到您更改它。它以 `⚠` 和 mod 的名称开头，如 `⚠ my-mod: checks: 3 passing`。 |
 | `$.ui.toast(text)` | 一条带有 mod 名称的 toast 通知，几秒后消失。在[全屏渲染](/docs/zh-CN/fullscreen)中，它是右上角的一个框；在经典渲染器中，它是提示下右侧的一行。 |
 | `$.ui.log(text)` | 成绩单中的一条暗线，Claude 不读取。它以 `●` 和 mod 的名称开头，如 `● my-mod: build finished`。 |
+| `$.ui.notify(text)` | 来自用户终端的通知，位于 Claude Code 之外，按照用户的 [`preferredNotifChannel`](/docs/zh-CN/settings-reference#preferrednotifchannel) 设置所指定的方式发送。其标题为 mod 的名称，除非您传入非空的 `{ title }`，此时标题按您提供的内容显示。 |
+
+`$.ui.notify` 是其中唯一会返回应答的调用。当用户的频道将通知写入其终端时，它解析为 `{ isSent: true, channel }`。`channel` 是发送该通知的设置值，例如 `kitty` 或 `terminal_bell`。`terminal_bell` 频道只会响铃，既不显示您的文本，也不显示标题。
+
+否则，调用解析为 `{ isSent: false, reason }`：
+
+| `reason` | 含义 |
+| :- | :- |
+| `disabled` | 用户将 `preferredNotifChannel` 设置为 `notifications_disabled` |
+| `no-channel` | 该设置为 `auto`，且用户的终端没有 Claude Code 可以发送的通知 |
+| `no-surface` | 会话没有终端，例如 `-p` 运行、Agent SDK、桌面应用、VS Code 扩展或云端会话。对于在会话启动之前（您的 mod 正在加载时）发起的调用，以及在 Claude Code 退出时发起的调用，也返回此应答 |
+| `refused` | 另一个 mod 在 `ui.notify` 上的 hook 代替 Claude Code 作出了应答，但没有发送 |
+
+当 `text` 不是字符串、另一个 mod 在 `ui.notify` 上的 hook 返回 `{ deny }`，或写入终端失败时，调用会 reject 而不是解析。
+
+您的 mod 无法选择频道，Claude Code 也不限制 mod 发送通知的频率。用户的设置是唯一的开关。
+
+当调用到达正在运行的会话时，用户的 [`Notification` hook](/docs/zh-CN/hooks#notification) 会以类型 `plugin_notification` 运行。即使应答为 `disabled`，以及在没有终端、应答为 `no-surface` 的会话中，它们也会运行。对于在会话启动之前或 Claude Code 退出时发起的调用，不会运行任何 hook。您的 mod 调用 `$.ui.notify` 所在的那个 hook 不参与这次运行，因此发送通知的 `classic.Notification` hook 不会因其自身的通知而再次被调用。
+
+终端不会报告是否显示了通知，因此 `isSent: true` 表示通知已发送，而不代表用户看到了它。
+
+此示例在主对话的轮次未被中断而结束时发送通知，并在没有发出带文本的通知时回退到 toast。它在传递事件之前不等待通知，因为用户的 `Notification` hook 会先运行，可能需要一段时间：
+
+```javascript theme={null}
+on('turn.complete', ($, e, next) => {
+  const isMainTurn = e.agentId === undefined && !e.isAborted
+  const fallBack = () => $.ui.toast('Turn finished')
+  if (isMainTurn) {
+    $.ui.notify('Turn finished').then(sent => {
+      const hasText = sent.isSent && sent.channel !== 'terminal_bell'
+      if (!hasText) fallBack()
+    }, fallBack)
+  }
+  return next(e)
+})
+```
 
 在 [VS Code 扩展](/docs/zh-CN/plugins/mods/interface#draw-in-the-vs-code-extension)中，状态栏和 toast 改为显示在输入框上方，日志行则显示在对话中。
 

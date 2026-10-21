@@ -83,7 +83,7 @@ Claude Code 在该会话中使用该标志而不是 `advisorModel` 设置。它�
 
 如果您使用 `--advisor` 启动[后台会话](/docs/zh-CN/agent-view)，并且上述任何情况成立，Claude Code 会在没有顾问的情况下启动会话，而不是退出。
 
-如果请求的模型可以充当顾问，但[排名低于](#choose-an-advisor-model)会话的主模型，Claude Code 仍会启动会话。在后台会话之外，它还会在启动时警告该模型 `cannot advise` 主模型。
+如果您传递的模型可以充当顾问，但[排名低于您的主模型](#choose-an-advisor-model)，则无论是否为后台会话，会话都会启动。随后您的主模型将在没有顾问的情况下运行。
 
 ## 选择顾问模型
 

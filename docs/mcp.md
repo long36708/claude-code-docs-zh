@@ -302,7 +302,7 @@ Claude Code 警告以下配置问题。每个条目说明 Claude Code 检查什�
 如果您的请求需要来自仍在后台连接的服务器的工具，Claude 会在继续之前等待该服务器。等待的方式取决于您的配置：
 
 * **使用 [工具搜索](#scale-with-mcp-tool-search)（默认）**：等待发生在 `ToolSearch` 调用内。
-* **不使用工具搜索**：Claude 改为使用 `WaitForMcpServers` 工具。不使用工具搜索的配置包括自定义 `ANTHROPIC_BASE_URL`、`ENABLE_TOOL_SEARCH=false`，以及 Google Cloud 的 Agent Platform 上早于 Claude Opus 4.5、Claude Sonnet 4.5 和 Claude Haiku 4.5 的模型。
+* **不使用工具搜索**：Claude 改为使用 `WaitForMcpServers` 工具。不使用工具搜索的配置包括 `ENABLE_TOOL_SEARCH=false`，以及 Google Cloud 的 Agent Platform 上早于 Claude Opus 4.5、Claude Sonnet 4.5 和 Claude Haiku 4.5 的模型。对于 `ANTHROPIC_BASE_URL` 网关，请参阅 [通过 LLM 网关使用工具搜索](#tool-search-through-a-gateway)。
 * **在 Microsoft Foundry [部署托管在 Azure 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)**：Claude 在工具搜索路径上启动而不是使用 `WaitForMcpServers`，因为 Claude Code 仅从 API 发现部署的服务器端拒绝。Claude Code 将该部署切换到 [前期加载](#scale-with-mcp-tool-search) 后，来自完成连接的服务器的工具在 Claude 的下一个请求中变为可用。
 
 启用工具搜索后，当服务器在 Claude 工作时完成连接时，Claude Code 在同一轮次的下一个请求中将服务器的工具名称列出给 Claude。Claude 然后可以搜索和调用这些工具，而无需等待您的下一条消息。
@@ -1488,7 +1488,7 @@ Anthropic 在 `api.anthropic.com` 托管的部分 MCP 服务器，其描述和�
 
 ### 配置工具搜索
 
-工具搜索默认启用：MCP 工具被延迟并按需发现。当 `ANTHROPIC_BASE_URL` 指向非第一方主机时，Claude Code 会禁用它，因为大多数代理不转发 `tool_reference` 块。设置 `ENABLE_TOOL_SEARCH` 显式覆盖该回退。
+工具搜索默认启用：MCP 工具被延迟并按需发现。
 
 设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](/docs/zh-CN/env-vars) 保持工具搜索关闭。您无法通过自己设置 `ENABLE_TOOL_SEARCH` 来覆盖它。在 Claude Code v2.1.227 或更高版本上，您的组织可以通过[托管设置](/docs/zh-CN/managed-settings)在设置此变量的情况下保持工具搜索开启。在[获得 HIPAA 配置](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)的会话中，工具搜索处于关闭状态，`ENABLE_TOOL_SEARCH` 和托管设置都无法将其重新开启。[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 涵盖了覆盖应用的位置以及变量剥离的内容。
 
@@ -1505,8 +1505,8 @@ Claude Code 在 Claude Opus 4、Claude Sonnet 4、Claude Haiku 4.5 及更高版�
 
 | 值 | 行为 |
 | :- | :- |
-| (未设置) | 所有 MCP 工具延迟并按需加载。在早于 Opus 4 和 Sonnet 4 的模型上、在 Google Cloud 的 Agent Platform 上早于 Opus 4.5、Sonnet 4.5 和 Haiku 4.5 的模型上、当 `ANTHROPIC_BASE_URL` 是非第一方主机时，或在部署在 Azure 上的 Microsoft Foundry 部署上，回退到预先加载 |
-| `true` | 当 `ANTHROPIC_BASE_URL` 是非第一方主机时，MCP 工具保持延迟。其他（未设置）情况下的回退仍然适用。Claude Code 通过代理发送 beta 标头，在不支持 `tool_reference` 块的代理上请求失败 |
+| (未设置) | 所有 MCP 工具延迟并按需加载。在早于 Opus 4 和 Sonnet 4 的模型上、在[早期 Agent Platform 模型](#configure-tool-search)上，以及在部署在 Azure 上的 Microsoft Foundry 部署上，改为预先加载 |
+| `true` | MCP 工具延迟，回退情况与（未设置）相同 |
 | `auto` | 阈值模式：Claude Code 预先加载它本来会延迟的工具，同时它们的定义总计少于上下文窗口的 10%，一旦定义达到 10% 就延迟所有工具 |
 | `auto:N` | 具有自定义百分比的阈值模式，其中 `N` 是 0-100。例如，`auto:5` 表示 5% |
 | `false` | 所有 MCP 工具预先加载，无延迟 |
@@ -1530,6 +1530,21 @@ ENABLE_TOOL_SEARCH=false claude
   }
 }
 ```
+
+如果您拒绝 `ToolSearch` 或未将其包含在 [`--tools`](/docs/zh-CN/cli-reference#cli-flags) 中，MCP 工具会改为预先加载，但请求仍可能携带一个占位的 `defer_loading` 条目。如果网关拒绝该条目，请参阅[通过 LLM 网关使用工具搜索](#tool-search-through-a-gateway)。
+
+#### 通过 LLM 网关使用工具搜索
+
+> [!NOTE]
+>
+> 以下情况在其他地方介绍：
+>
+> * **您已设置 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`**：请参阅[它如何影响工具搜索](#configure-tool-search)
+> * **请求失败，且错误中提到 `defer_loading` 或 `tool_reference`**：请参阅 [Extra inputs are not permitted](/docs/zh-CN/errors#extra-inputs-are-not-permitted)
+
+当 `ANTHROPIC_BASE_URL` 指向网关时，工具搜索默认开启，因此请求会包含 `defer_loading` 工具字段和 `tool_reference` 块，供网关转发。工具搜索开启时，MCP 工具会被[延迟](#scale-with-mcp-tool-search)。如需改为预先加载所有工具，请在 shell 或您的 [settings `env`](/docs/zh-CN/settings-reference#env) 中设置 `ENABLE_TOOL_SEARCH=false`。在 v2.1.304 之前，在网关后面工具搜索处于关闭状态，除非 `ENABLE_TOOL_SEARCH` 为 `true`、`auto` 或 `auto:N`。
+
+在 v2.1.305 或更高版本上，当出现原因无法识别的 `400` 或 `422` 时，Claude Code 可以[在不使用工具搜索的情况下重试请求](/docs/zh-CN/llm-gateway-protocol#retry-without-tool-search)。重试成功时，屏幕上不会显示任何内容，您也无需执行任何操作：MCP 工具会改为预先加载。Claude Code 稍后会再次尝试工具搜索，代价是再产生一次被拒绝的请求。要跳过这些请求，请设置 `ENABLE_TOOL_SEARCH=false`。
 
 ### 豁免服务器不延迟
 

@@ -725,7 +725,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 ### `showThinkingSummaries`
 
-在交互式会话中查看 Claude [扩展思考](/docs/zh-CN/model-config#extended-thinking)的摘要。如果您希望在使用 `Ctrl+O` 展开思考时看到完整摘要，请设置此项。当未设置或为 `false` 时，Anthropic API 会对思考块进行编辑隐藏，Claude Code 会显示一个折叠的占位内容；第三方提供商不会进行编辑隐藏。
+在交互式会话中查看 Claude [扩展思考](/docs/zh-CN/model-config#extended-thinking)的摘要。如果您希望在使用 `Ctrl+O` 展开思考时看到完整摘要，请设置此项。当未设置或为 `false` 时，Anthropic API 会对思考块进行编辑隐藏，Claude Code 会显示一个折叠的占位内容。
 
 * **作用域**：[`Any file`](#scopes)
 * **类型**：布尔值
@@ -1369,6 +1369,8 @@ Claude Code 也删除尾部 `/**`，因此 `~/build/**` 和 `~/build` 覆盖同�
 
 * **`allowWrite` 和 `denyWrite`**: 在 macOS 上，通配符有效。在 Linux 和 WSL2 上，沙箱挂载具体路径，因此 Claude Code 在删除尾部 `/**` 后跳过包含 `*`、`?` 或 `[` 的条目，该条目无效。Claude Code 将您的 `Edit` 权限规则中的路径添加到这些列表中，因此相同的限制适用于它们，`/sandbox` 的 **Config** 选项卡警告包含通配符的 `Edit` 和 `Read` 权限规则。
 * **`denyRead` 和 `allowRead`**: 通配符在每个平台上都有效。在 Linux 和 WSL2 上，Claude Code 将读取条目扩展到它匹配的具体路径，对写入列表不执行此操作。
+
+花括号在名称中按普通字符匹配，因此 `~/data/{keys,tokens}` 覆盖的是一个字面名为 `{keys,tokens}` 的目录，而不是两个备选项。要覆盖 `~/data/keys` 和 `~/data/tokens`，请将每个路径作为单独的条目添加。
 
 ### `sandbox.filesystem.allowWrite`
 
@@ -4853,7 +4855,7 @@ Claude Desktop 为 Code 会话提供从你的桌面配置派生的策略，例�
 
 ### `preferredNotifChannel`
 
-选择 Claude Code 在任务完成或权限提示等待时如何通知你。在 `/config` 中显示为**本地通知**。
+选择 Claude Code 在任务完成或权限提示等待时如何通知您。[mod 的通知](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn)也使用同一设置。在 `/config` 中显示为**本地通知**。
 
 * **作用域**: [`任何文件`](#scopes)。Claude Code 也会读取由旧版本留在 `~/.claude.json` 中的值。
 * **类型**: 字符串，以下之一：
