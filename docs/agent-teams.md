@@ -85,26 +85,26 @@ Claude 有时可能会使用 [subagents](/docs/zh-CN/sub-agents) 而不是创建
 
 如果你想让每个队友在自己的分割窗格中，请参阅 [选择显示模式](#choose-a-display-mode)。
 
-## 控制你的 agent team
+## 控制您的 agent team
 
-用自然语言告诉负责人你想要什么。它根据你的指示处理团队协调、任务分配和委派。
+用自然语言告诉负责人（lead）您想要什么。它会根据您的指示处理团队协调、任务分配和委派。
 
 ### 选择显示模式
 
-Agent teams 支持两种显示模式：
+Agent team 支持两种显示模式：
 
-* **In-process**：所有队友在你的主终端内运行。在 agent 面板中使用上下箭头键选择队友，然后按 Enter 查看它并输入以直接向它发送消息。在任何终端中工作，无需额外设置。
-* **Split panes**：每个队友获得自己的窗格。你可以同时看到每个人的输出，并点击窗格直接交互。需要 tmux 或 iTerm2。
+* **进程内**：所有队友都在您的主终端内运行。在 Agent 面板中使用上下方向键选择一个队友，然后按 Enter 查看它，并直接输入内容向其发送消息。适用于任何终端，无需额外设置。
+* **分屏窗格**：每个队友拥有自己的窗格。您可以同时看到所有人的输出，并点击进入某个窗格直接与之交互。需要 tmux 或 iTerm2。
 
 > [!NOTE]
 >
-> `tmux` 在某些操作系统上有已知限制，传统上在 macOS 上效果最好。在 iTerm2 中使用 `tmux -CC` 是进入 `tmux` 的建议入口点。
+> `tmux` 在某些操作系统上存在已知限制，传统上在 macOS 上效果最佳。建议在 iTerm2 中使用 `tmux -CC` 作为进入 `tmux` 的方式。
 
-默认值是 `"in-process"`。设置 `"auto"` 以在你已经在 tmux 会话中运行，或你的终端是安装了 `it2` CLI 的 iTerm2 时启用分割窗格，否则回退到 in-process。`"tmux"` 设置启用分割窗格模式，并根据你的终端自动检测是使用 tmux 还是 iTerm2。
+默认值为 `"in-process"`。设置为 `"auto"` 时，如果您已在 tmux 会话中运行，或者您的终端是已安装 `it2` CLI 的 iTerm2，则启用分屏窗格，否则回退到进程内模式。`"tmux"` 设置会启用分屏窗格模式，并根据您的终端自动检测使用 tmux 还是 iTerm2。
 
-设置 `"iterm2"` 以显式使用 iTerm2 原生分割窗格。此模式需要 [`it2` CLI](https://github.com/mkusaka/it2)，如果 `it2` 缺失，会显示带有安装命令的错误。当你的终端是 iTerm2 且 tmux 可用作备选方案时，在 `"auto"` 或 `"tmux"` 下会出现提供安装 `it2` 或切换到 tmux 的设置提示。
+设置为 `"iterm2"` 可显式使用 iTerm2 原生分屏窗格。此模式需要 [`it2` CLI](https://github.com/mkusaka/it2)，如果缺少 `it2`，会显示错误并附带安装命令。当您的终端是 iTerm2 且 tmux 可作为回退选项时，在 `"auto"` 或 `"tmux"` 下会出现设置提示，询问是安装 `it2` 还是切换到 tmux。
 
-要覆盖默认值，在 `~/.claude/settings.json` 中设置 [`teammateMode`](/docs/zh-CN/settings-reference#teammatemode)：
+要覆盖默认值，请在 `~/.claude/settings.json` 中设置 [`teammateMode`](/docs/zh-CN/settings-reference#teammatemode)：
 
 ```json theme={null}
 {
@@ -112,7 +112,7 @@ Agent teams 支持两种显示模式：
 }
 ```
 
-要为单个会话设置模式，将其作为标志传递：
+要为单个会话设置模式，请将其作为标志传入：
 
 ```bash theme={null}
 claude --teammate-mode auto
@@ -120,100 +120,102 @@ claude --teammate-mode auto
 
 `--teammate-mode` 标志是实验性的，不会出现在 `claude --help` 中。
 
-分割窗格模式需要 [tmux](https://github.com/tmux/tmux/wiki) 或 iTerm2 与 [`it2` CLI](https://github.com/mkusaka/it2)。手动安装：
+分屏窗格模式需要 [tmux](https://github.com/tmux/tmux/wiki)，或者安装了 [`it2` CLI](https://github.com/mkusaka/it2) 的 iTerm2。手动安装方法：
 
-* **tmux**：通过你的系统包管理器安装。有关特定于平台的说明，请参阅 [tmux wiki](https://github.com/tmux/tmux/wiki/Installing)。
+* **tmux**：通过系统的包管理器安装。有关特定平台的说明，请参阅 [tmux wiki](https://github.com/tmux/tmux/wiki/Installing)。
 * **iTerm2**：安装 [`it2` CLI](https://github.com/mkusaka/it2)，然后在 **iTerm2 → Settings → General → Magic → Enable Python API** 中启用 Python API。
 
 ### 指定队友和模型
 
-Claude 根据你的任务决定要生成的队友数量，或者你可以指定你想要的确切内容：
+Claude 会根据您的任务决定生成的队友数量，您也可以准确指定您想要的内容：
 
 ```text wrap theme={null}
 Spawn 4 teammates to refactor these modules in parallel. Use Sonnet for
 each teammate.
 ```
 
-Claude Code 从以下第一个适用的来源为每个队友选择模型：
+Claude Code 按以下顺序，取第一个适用的来源作为每个队友的模型：
 
-1. 你的生成提示为该队友命名的模型。
-2. 对于从[子 agent 定义](#use-subagent-definitions-for-teammates)生成的队友，定义的 `model`，其中 `inherit` 选择负责人的模型。
-3. [`CLAUDE_CODE_SUBAGENT_MODEL`](/docs/zh-CN/model-config#environment-variables)，当它设置为除 `inherit` 之外的任何值时。
+1. 您的生成提示词中为该队友指定的模型。
+2. 对于从[子代理定义](#use-subagent-definitions-for-teammates)生成的队友，使用该定义的 `model`，其中 `inherit` 表示选择负责人的模型。
+3. [`CLAUDE_CODE_SUBAGENT_MODEL`](/docs/zh-CN/model-config#environment-variables)，当其设置为 `inherit` 以外的任何值时。
 4. 负责人的当前模型。
 
 如果已安装的 [mod](/docs/zh-CN/plugins/mods/overview) 在其 [`agent.spawn`](/docs/zh-CN/plugins/mods/reference#subagents) hook 中设置了模型，Claude Code 会使用该模型代替第一个来源。
 
-如果你设置 [`CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1`](/docs/zh-CN/sub-agents#run-every-subagent-on-one-model)，前两个来源不适用。当 Claude Code 设置为除 `inherit` 之外的任何值时，Claude Code 从 `CLAUDE_CODE_SUBAGENT_MODEL` 为每个队友选择模型，否则从负责人的当前模型选择。需要 Claude Code v2.1.257 或更高版本。
+如果您设置了 [`CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1`](/docs/zh-CN/sub-agents#run-every-subagent-on-one-model)，则前两个来源不适用。当 `CLAUDE_CODE_SUBAGENT_MODEL` 这个环境变量设置为 `inherit` 以外的任何值时，Claude Code 从该变量中选取每个队友的模型；否则从负责人的当前模型中选取。需要 Claude Code v2.1.257 或更高版本。
 
-在 v2.1.251 之前，`CLAUDE_CODE_SUBAGENT_MODEL` 在此顺序中排在第一位。
+在 v2.1.251 之前，`CLAUDE_CODE_SUBAGENT_MODEL` 在此顺序中排在首位。
 
 > [!NOTE]
 >
-> `teammateDefaultModel` 在 v2.1.234 中被移除；Claude Code 忽略任何剩余值。在你的提示中命名模型。
+> `teammateDefaultModel` 已在 v2.1.234 中移除；Claude Code 会忽略残留的值。请改为在提示词中指定模型。
 
-Claude Code 检查为队友选择的模型是否符合你的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表。当允许列表阻止一个值时，Claude Code 替换另一个模型：
+Claude Code 会根据您组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表检查它为队友选择的模型。当允许列表阻止某个值时，Claude Code 会替换为另一个模型：
 
-* **系列别名如 `opus`**：在 Anthropic API 和 AWS 上的 Claude Platform 上，Claude Code 在允许列表允许的该系列的最新版本上运行队友。在具有特定于提供商的模型 ID 的提供商上，其中[替换不起作用](/docs/zh-CN/model-config#restrict-model-selection)，被阻止的别名会根据下一个项目符号回退，如同任何其他被阻止的值一样
-* **任何其他被阻止的值，包括在替换不起作用的提供商上的系列别名，或其系列没有允许版本的别名**：Claude Code 在负责人的模型上运行队友。如果你设置 `CLAUDE_CODE_SUBAGENT_MODEL`，Claude Code 首先尝试该模型，遵循相同的规则
+* **系列别名，例如 `opus`**：在 Anthropic API 和 Claude Platform on AWS 上，Claude Code 会在允许列表允许的该系列最新版本上运行队友。在使用提供商特定模型 ID 的提供商上，[替换机制不起作用](/docs/zh-CN/model-config#restrict-model-selection)，被阻止的别名会像其他被阻止的值一样，按照下一条规则回退
+* **任何其他被阻止的值，包括在替换机制不起作用的提供商上的系列别名，或其系列没有允许版本的别名**：Claude Code 会改为在负责人的模型上运行队友。如果您设置了 `CLAUDE_CODE_SUBAGENT_MODEL`，Claude Code 会先尝试该模型，并遵循同样的规则
 
-默认情况下，队友继承负责人的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。在分割窗格模式中，这从 v2.1.186 开始适用；较早的版本不会将负责人会话的 effort 传递给分割窗格队友。
+默认情况下，队友继承负责人的 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)。在分屏窗格模式下，此行为从 v2.1.186 起适用；早期版本不会将负责人的会话 effort 传递给分屏窗格队友。
 
-### 让队友在实施前进行规划
+### 让队友在实施前先制定计划
 
-对于复杂或有风险的任务，你可以让队友在实施前进行规划。当负责人处于 [plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 时，Claude 生成的队友在只读计划模式下工作，直到其计划准备好。首先将负责人切换到计划模式，然后要求队友：
+对于复杂或有风险的任务，您可以让队友在实施前先制定计划。当负责人处于[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)时由 Claude 生成的队友，会在只读的计划模式下工作，直到其计划准备就绪。先将负责人切换到计划模式，然后请求生成队友：
 
 ```text wrap theme={null}
 Spawn an architect teammate to refactor the authentication module.
 ```
 
-当队友完成规划时，它向负责人发送计划批准请求。Claude Code 在请求到达时立即在负责人的会话中批准计划，无需负责人审查。队友的编辑和命令仍然会通过[权限](#permissions)中描述的权限提示。一旦批准，队友退出计划模式并开始实施。
+当该队友完成计划后，它会向负责人发送计划批准请求。如果自该队友生成以来您未更改其权限模式，Claude Code 会在请求到达后立即批准该计划，无需负责人审查。队友的编辑和命令仍需经过[权限](#permissions)中所述的权限提示。获得批准后，队友退出计划模式并开始实施。
 
-### 直接与队友交谈
+如果您在查看某个正在运行的进程内队友的会话时按 [`Shift+Tab`](/docs/zh-CN/permission-modes#switch-permission-modes) 将其置于计划模式，则该次运行的计划将由负责人审查，而不是由 Claude Code 批准。系统不会要求您批准；负责人会批准该计划或将其退回修改。
 
-每个队友都是一个完整的、独立的 Claude Code 会话。你可以直接向任何队友发送消息，以提供额外的指示、提出后续问题或改变他们的方法。
+### 直接与队友对话
 
-* **In-process 模式**：在 agent 面板中使用上下箭头键选择队友，然后按 Enter 查看其会话并输入以向其发送消息。在选定的队友上按 `x` 以停止它。按 Ctrl+T 切换任务列表。
-* **Split-pane 模式**：点击队友的窗格以直接与他们的会话交互。每个队友都有自己终端的完整视图。
+每个队友都是一个完整、独立的 Claude Code 会话。您可以直接向任何队友发送消息，以提供额外指示、询问后续问题或调整其方法。
 
-在查看 in-process 队友时，纯文本和 [skill](/docs/zh-CN/skills) 会发送给该队友，而内置命令会发送到负责人的会话，并有以下保护措施：
+* **进程内模式**：在 Agent 面板中使用上下方向键选择一个队友，然后按 Enter 查看其会话，并输入内容向其发送消息。在选中的队友上按 `x` 可将其停止。按 Ctrl+T 可切换任务列表。
+* **分屏窗格模式**：点击进入队友的窗格，直接与其会话交互。每个队友都拥有其自身终端的完整视图。
 
-* `/compact`、`/clear` 和 `/rewind` 作用于负责人的对话，因此在此视图中运行其中任一命令之前，Claude Code 会请您确认。
-* `/model` 和 `/fast` 设置的是负责人的模型和快速模式，而不是队友的，因此它们不会在此视图中运行。系统会显示一条通知说明原因。
+当您查看进程内队友时，纯文本和 [skill](/docs/zh-CN/skills) 会发送给该队友，而内置命令会发送到负责人的会话，并带有以下保护措施：
+
+* `/compact`、`/clear` 和 `/rewind` 作用于负责人的对话，因此在此视图中运行其中任何一个之前，Claude Code 会要求您确认。
+* `/model` 和 `/fast` 设置的是负责人的模型和快速模式，而不是队友的，因此它们不会在此视图中运行。系统会显示通知告知原因。
 
 队友的模型和快速模式在其生成时即已固定。
 
 ### 分配和认领任务
 
-共享任务列表协调整个团队的工作。负责人创建任务，队友完成它们。任务有三种状态：待处理、进行中和已完成。任务也可以依赖其他任务：具有未解决依赖关系的待处理任务在这些依赖关系完成之前无法被认领。
+共享任务列表用于协调整个团队的工作。负责人创建任务，队友逐一完成。任务有三种状态：待处理、进行中和已完成。任务还可以依赖其他任务：具有未解决依赖的待处理任务，在这些依赖完成之前无法被认领。
 
-[没有 Task 工具](/docs/zh-CN/tools-reference#task-tool-availability)的 Agents 通过消息而不是共享任务列表进行协调。
+[没有 Task 工具](/docs/zh-CN/tools-reference#task-tool-availability)的 Agent 改为通过消息进行协调，而不是通过共享任务列表。
 
-负责人可以显式分配任务，或队友可以自我认领：
+负责人可以显式分配任务，队友也可以自行认领：
 
-* **负责人分配**：告诉负责人将哪个任务分配给哪个队友
-* **自我认领**：完成任务后，队友自己选择下一个未分配、未阻止的任务
+* **负责人分配**：告诉负责人将哪个任务交给哪个队友
+* **自行认领**：完成一个任务后，队友会自行领取下一个未分配、未被阻塞的任务
 
-任务认领使用文件锁定来防止多个队友同时尝试认领同一任务时的竞态条件。
+任务认领使用文件锁定，以防止多个队友同时尝试认领同一任务时出现竞争条件。
 
 ### 关闭队友
 
-要优雅地结束队友的会话，按名称引用它。例如，对于一个名为 researcher 的队友：
+要正常结束某个队友的会话，请按名称指代它。例如，对于名为 researcher 的队友：
 
 ```text wrap theme={null}
 Ask the researcher teammate to shut down
 ```
 
-负责人发送关闭请求。队友可以批准，优雅地退出，或拒绝并提供解释。
+负责人会发送关闭请求。队友可以批准并正常退出，也可以拒绝并给出解释。
 
-团队的共享目录在会话结束时自动清理，因此没有单独的清理步骤。请参阅[架构](#architecture)了解哪些目录会被删除，以及哪些目录会保留在磁盘上。
+团队的共享目录会在会话结束时自动清理，因此无需单独的清理步骤。有关哪些目录会被删除、哪些会保留在磁盘上，请参阅[架构](#architecture)。
 
-### 使用 hooks 强制质量门
+### 使用 hook 强制执行质量关卡
 
-使用 [hooks](/docs/zh-CN/hooks) 在队友完成工作或任务创建或完成时强制执行规则：
+使用 [hook](/docs/zh-CN/hooks) 在队友完成工作或任务被创建或完成时强制执行规则：
 
-* [`TeammateIdle`](/docs/zh-CN/hooks#teammateidle)：当队友即将空闲时运行。以代码 2 退出以发送反馈并保持队友工作。
-* [`TaskCreated`](/docs/zh-CN/hooks#taskcreated)：当任务被创建时运行。以代码 2 退出以防止创建并发送反馈。
-* [`TaskCompleted`](/docs/zh-CN/hooks#taskcompleted)：当任务被标记为完成时运行。以代码 2 退出以防止完成并发送反馈。
+* [`TeammateIdle`](/docs/zh-CN/hooks#teammateidle)：在队友即将进入空闲状态时运行。以代码 2 退出可发送反馈并让队友继续工作。
+* [`TaskCreated`](/docs/zh-CN/hooks#taskcreated)：在任务正在创建时运行。以代码 2 退出可阻止创建并发送反馈。
+* [`TaskCompleted`](/docs/zh-CN/hooks#taskcompleted)：在任务正被标记为完成时运行。以代码 2 退出可阻止完成并发送反馈。
 
 ## Agent teams 如何工作
 
@@ -286,7 +288,7 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
 
 队友从负责人的权限模式开始，除了 [`dontAsk` 模式](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)，他们不继承该模式。如果负责人使用 `--dangerously-skip-permissions` 运行，所有队友也会这样做。生成后，你可以更改个别队友的权限模式，但在生成时无法设置每个队友的权限模式。
 
-队友权限提示出现在负责人会话中，所以请在那里自己批准它们。[Plan approval](#have-teammates-plan-before-implementing) 是设计的例外：负责人会话授予队友计划批准，无需向你单独提示。
+队友权限提示出现在负责人会话中，所以请在那里亲自批准它们。您无需批准 [队友的计划](#have-teammates-plan-before-implementing)。
 
 #### 代理之间的消息
 

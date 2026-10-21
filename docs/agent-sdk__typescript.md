@@ -1003,6 +1003,26 @@ type SDKControlGetContextUsageResponse = {
 
 Claude Code 不会设置可选的 `deferredBuiltinTools`、`systemTools` 和 `systemPromptSections` 诊断字段，因此即使类型中声明了它们，也应预期它们不存在。
 
+#### 按 ID 查找行、服务器的指令 token 或条目的插件和文件
+
+MCP 服务器指令是已连接服务器提供、由 Claude Code 添加到上下文中的使用说明，`categories` 中的 `mcp_instructions` 行统计它们的 token。使用以下 [`getContextUsage()`](#query-object) 字段，可以按 `id` 挑出某一 `categories` 行、按服务器拆分 `mcp_instructions` 的 token，或查找某个 Agent 或 skill 条目背后的插件和文件：
+
+| 字段 | 所在位置 | 包含内容 |
+| :- | :- | :- |
+| `id` | 每个 `categories` 行 | 该行的标识符，为[响应类型](#sdkcontrolgetcontextusageresponse)所列值之一，例如 `mcp_instructions`。按 `id` 匹配可挑出某一行，按 `kind` 匹配可对行进行分组。较新的 Claude Code 版本可能会发送您已安装的类型中未列出的值，因此请将无法识别的 `id` 视为不存在 |
+| `mcpInstructions` | 响应 | 每个提供指令的已连接 MCP 服务器对应一个 `{ serverName, tokens }` 条目；若没有服务器提供指令则为空数组。`tokens` 值是估算值，其总和等于 `mcp_instructions` 行的 `tokens`。`serverName` 是 [`mcpServerStatus()`](#query-object) 为该服务器报告的 `name` |
+| `pluginId` | `agents` 和 `skills.skillFrontmatter` 条目 | 以 `name@marketplace` 形式的 ID 指明条目来自的插件；对于不来自插件的条目则不存在。当插件并非来自市场时，`@` 之后的部分会改为指明[其来源](/docs/zh-CN/plugins/loading#find-where-a-plugin-came-from)，例如对于您通过 [`plugins`](#options) 选项加载的插件为 `inline` |
+| `path` | `agents` 和 `skills.skillFrontmatter` 条目 | 定义该 Agent 或 skill 的文件在运行 Claude Code 的机器上的绝对路径。当没有文件定义该条目时，该字段不存在，例如来自 [`agents`](#options) 选项的 Agent 或 Claude Code 内置的 skill |
+
+作为按 `id` 匹配的示例，以下代码查找 `mcp_instructions` 行：
+
+```typescript theme={null}
+// q is the Query object that query() returned
+const usage = await q.getContextUsage();
+// undefined if no connected server supplies instructions
+const row = usage.categories.find((c) => c.id === "mcp_instructions");
+```
+
 ### `SDKControlReadFileResponse`
 
 [`readFile()`](#query-object) 的返回类型。
@@ -5231,6 +5251,7 @@ type McpSetServersResult = {
 * **调用未指定的服务器**：在[云端会话](/docs/zh-CN/claude-code-on-the-web)之外，Claude Code 会断开先前 `setMcpServers()` 调用添加的服务器以及进程内 SDK 服务器的连接，并在 `removed` 中列出它们。其他服务器会继续运行，且不会列在 `removed` 中，其中包括来自 [`mcpServers`](#options) 选项的 stdio、HTTP 和 SSE 服务器、来自设置文件的服务器以及插件提供的服务器。
 * **调用指定的服务器**：对于先前 `setMcpServers()` 调用添加的 stdio、HTTP 或 SSE 服务器，只有当其配置与您传入的配置不同时，Claude Code 才会替换它。已以该名称注册的进程内 SDK 服务器会保持原样，因此要替换它，请在一次调用中将其省略，然后在下一次调用中添加它。
 * **CLI 在启动时启动的内置服务器**：如果调用指定了其中之一，Claude Code 会丢弃该条目并在 `errors` 中报告它。
+* **与 MCP 安装作用域（例如 `.mcp.json`）中的服务器同名的 stdio、HTTP 或 SSE 服务器**：在该名称下，会话使用您的服务器的工具，而不是[安装作用域服务器](/docs/zh-CN/mcp#mcp-installation-scopes)的工具。在 Claude Code v2.1.305 之前，当您的应用[重新加载插件](#query-object)时，Claude Code 可能会断开您的服务器的连接并改为连接安装作用域服务器。
 
 Promise 会在新添加的 stdio、HTTP 和 SSE 服务器连接成功或失败后 resolve，因此已连接服务器的工具在下一轮次即可使用。
 

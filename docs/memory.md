@@ -279,7 +279,7 @@ Claude Code 在项目规则之前加载用户级规则，因此项目规则在 C
 
 #### 部署组织范围的 CLAUDE.md
 
-组织可以部署一个集中管理的 CLAUDE.md，适用于机器上的所有用户。此文件无法通过个人设置排除。
+组织可以部署一个集中管理的 CLAUDE.md，适用于机器上的所有用户。开发者可以使用 `claudeMdExcludes` 设置[排除其他 CLAUDE.md 文件](#exclude-specific-claude-md-files)，但无法排除此文件。如果开发者在完全关闭 CLAUDE.md 加载的情况下启动会话，该会话也不会加载托管内容。请将此文件用于指导，并使用 `permissions.deny` 等[托管设置](/docs/zh-CN/managed-settings)来强制执行规则。
 
 **1. 在托管策略位置创建文件**
 
@@ -293,7 +293,7 @@ Claude Code 在项目规则之前加载用户级规则，因此项目规则在 C
 
 `claudeMd` 键允许您将托管 CLAUDE.md 内容直接放入 `managed-settings.json` 中，而不是部署单独的文件。
 
-**作用域**：机器上的每个 Claude Code 会话，在每个仓库中。对于仓库特定的指导，改为提交项目 CLAUDE.md。
+**作用域**：机器上的所有用户，在任何仓库中。对于仓库特定的指导，改为提交项目 CLAUDE.md。
 
 **优先级**：与托管 CLAUDE.md 文件相同。在用户和项目 CLAUDE.md 之前加载。
 
@@ -323,7 +323,7 @@ Claude Code 在项目规则之前加载用户级规则，因此项目规则在 C
 
 #### 排除特定的 CLAUDE.md 文件
 
-在大型 monorepos 中，祖先 CLAUDE.md 文件可能包含与您的工作无关的指令。`claudeMdExcludes` 设置允许您按路径或 glob 模式跳过特定文件。
+在大型 monorepos 中，祖先 CLAUDE.md 文件可能包含与您的工作无关的指令。`claudeMdExcludes` 设置允许您按路径或 glob 模式跳过特定文件。您无法使用 `claudeMdExcludes` 排除[托管 CLAUDE.md 文件](#deploy-organization-wide-claude-md)。
 
 此示例排除顶级 CLAUDE.md 和来自父文件夹的规则目录。将其添加到 `.claude/settings.local.json` 以使排除保持本地到您的机器：
 
@@ -339,8 +339,6 @@ Claude Code 在项目规则之前加载用户级规则，因此项目规则在 C
 模式使用 glob 语法与绝对文件路径匹配。您可以在任何 [settings layer](/docs/zh-CN/settings#where-settings-live) 配置 `claudeMdExcludes`：用户、项目、本地或托管策略。数组跨层合并。
 
 要排除您通过 [symlink](#share-rules-across-projects-with-symlinks) 到达的规则文件，无论文件还是其目录是链接，请针对任一路径编写模式：文件在 `.claude/rules/` 下的路径或其链接目标。匹配任一路径的模式排除文件。在 v2.1.239 之前，仅匹配链接目标的模式排除文件。
-
-托管策略 CLAUDE.md 文件无法排除。这确保组织范围指令始终适用，无论个人设置如何。
 
 ## AGENTS.md
 

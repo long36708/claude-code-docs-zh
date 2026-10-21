@@ -469,10 +469,9 @@ Claude 可以列出您的其他 Code 选项卡会话，读取每个会话一直�
 
 当 Claude 通过此使用入口向另一个会话发送消息时，Claude Code 会在对方会话中将其显示为一张卡片，卡片标有发送会话的标题和返回链接，因此您始终可以知道消息来自何处。如果接收会话正在执行任务，Claude Code 会暂存该消息，Claude 会在当前工作完成后读取它。接收方的 Claude 可以回复，Claude Code 会通过此使用入口将回复传回。Claude 无法向已存档的会话发送消息，并会在消息未送达时告知您。
 
-Claude Code 在跨会话时应用四项安全行为：
+Claude Code 在跨会话时应用三项安全行为：
 
 * 在 Claude 存档会话之前，您会看到一张批准卡片，但自动模式和 Bypass permissions 模式除外，在这两种模式下 Claude 可以在没有批准卡片的情况下存档会话。如需在存档前被询问，请切换到 Manual。
-* 通过此使用入口，Claude 无法从无人查看的会话（例如定时任务运行）发送跨会话消息，也无法向此类会话发送消息。
 * Claude Code 会根据接收会话的[入站控制](/docs/zh-CN/cross-session-messaging#control-inbound-messages)检查来自此使用入口的每条消息，即使接收会话本身未启用[跨会话消息传递](/docs/zh-CN/cross-session-messaging#availability)。如果您在接收会话中将 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 `refuse`，Claude Code 会丢弃来自此使用入口的消息。Claude Code 会向 Claude 桌面应用报告该拒绝。在 v2.1.234 之前，对于未启用跨会话消息传递的接收会话，Claude Code 会丢弃来自此使用入口的所有消息。
 * Claude Code 会引用每条传入消息并注明其来自哪个发送会话，且 Claude 在据此执行操作时仍遵循接收会话自身的权限设置。
 

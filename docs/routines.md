@@ -33,6 +33,8 @@
 
 Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 中的 **Scheduled tasks (Was Routines)** 开关为所有成员关闭定时任务。关闭该开关后，现有定时任务将停止运行，成员也无法创建新的定时任务。
 
+如果您的 Enterprise 组织通过[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，您还需要一个包含定时任务权限的角色。Owner 可以在 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles) 中角色的 **Remote sessions** 部分添加该权限。
+
 ## 示例用例
 
 每个示例都将一种触发器类型与适合定时任务的工作类型相匹配：无人值守、可重复且有明确结果。
@@ -452,8 +454,9 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 * 您处于云端会话中，此时提交 `/schedule` 会回复该命令在该环境中不可用。请改为在 [Web UI](https://claude.ai/code/routines) 中管理定时任务
 * 您组织的策略禁用了定时任务所需的[云端会话](/docs/zh-CN/claude-code-on-the-web)。在这种情况下，提交 `/schedule` 会改为回复 [`Cloud sessions are disabled by your organization's policy`](/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。在 v2.1.268 之前，它会返回 `Unknown command: /schedule`
 * Owner 为您的 Team 或 Enterprise 组织[关闭了定时任务](#routines-are-disabled-by-your-organizations-policy)。在 v2.1.227 之前，这种情况下命令仍会显示，而当 Claude 尝试创建或运行任务时，claude.ai 会拒绝该任务
+* 您的 Enterprise 组织通过[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，而您的所有角色都不包含 **Remote sessions** 下的定时任务权限。请联系 Owner 将该权限添加到您的某个角色中
 
-除非您组织的策略禁用了定时任务或云端会话，否则无论 CLI 如何配置，您都可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理定时任务。
+如果原因在于您的 CLI 登录方式或您处于云端会话中，您仍可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理定时任务。您需要在该处使用 Pro、Max、Team 或 Enterprise 账户。如果您的组织关闭了定时任务或云端会话，或者您的角色中缺少相应权限，您也无法在 Web 端创建定时任务。
 
 ### "Routines are disabled by your organization's policy"
 

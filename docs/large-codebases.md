@@ -83,17 +83,17 @@ Claude Code 在启动时从您的工作目录和每个父目录加载每个 [CLA
 要修剪已签入的文件，请运行 [`/doctor` 检查](/docs/zh-CN/memory#my-claude-md-is-too-large)。根 `CLAUDE.md` 包含在每个包中适用的规则：
 
 ```markdown CLAUDE.md theme={null}
-从包目录运行包脚本，而不是从 monorepo 根目录。
-提交主题前缀为包名称，例如 `api: add rate limiting`。
-永远不要编辑 packages/*/generated/ 下的文件。改为在包中运行 `npm run codegen`。
+Run package scripts from the package directory, not the monorepo root.
+Prefix commit subjects with the package name, for example `api: add rate limiting`.
+Never edit files under packages/*/generated/. Run `npm run codegen` in the package instead.
 ```
 
 每个子目录的 `CLAUDE.md`，这里是 `packages/api/CLAUDE.md`，添加特定于该区域的约定：
 
 ```markdown packages/api/CLAUDE.md theme={null}
-在运行任何内容之前，将 `.env.example` 复制到 `.env`。没有它，测试和开发服务器会失败。
-使用 Knex 查询构建器编写数据库查询。永远不要在路由处理程序中放置原始 SQL 字符串。
-永远不要在迁移合并后编辑它。改为添加新迁移。
+Copy `.env.example` to `.env` before running anything. Tests and the dev server fail without it.
+Write database queries with the Knex query builder. Never put raw SQL strings in route handlers.
+Never edit a migration after it has merged. Add a new migration instead.
 ```
 
 当你从 `packages/api/` 启动 Claude 时，它加载 `packages/api/CLAUDE.md` 和根 `CLAUDE.md`。Claude 看到本地指令与存储库范围的规则一起，上下文中没有来自 `packages/web/` 的指令。对于非 monorepo 树中的任何子目录也是如此。要确认加载了哪些文件，请运行 `/context` 并检查 **Memory files** 下的列表。
@@ -141,7 +141,7 @@ Claude Code 在启动时从您的工作目录和每个父目录加载每个 [CLA
 * `"**/packages/legacy-*/**"`：排除每个名称与 glob 匹配的包，包括规则
 * `"/home/user/monorepo/legacy/CLAUDE.md"`：按绝对路径排除一个特定文件
 
-托管策略 CLAUDE.md 文件无法排除，因此组织范围的指令始终适用。你可以在任何[设置范围](/docs/zh-CN/settings#where-settings-live)设置 `claudeMdExcludes`：用户、项目、本地或托管。数组在范围内合并，所以团队可以设置项目级别的默认值，同时个人添加本地覆盖。
+您可以在任何[设置作用域](/docs/zh-CN/settings#where-settings-live)设置 `claudeMdExcludes`：用户、项目、本地或托管。数组会跨作用域合并，因此团队可以设置项目级别的默认值，同时个人添加本地覆盖。如果您的组织部署了[托管 CLAUDE.md 文件](/docs/zh-CN/memory#deploy-organization-wide-claude-md)，则无论由哪个作用域设置模式，与其匹配的模式都不会跳过它。
 
 有关完整的排除文档，请参阅[排除特定 CLAUDE.md 文件](/docs/zh-CN/memory#exclude-specific-claude-md-files)。
 
