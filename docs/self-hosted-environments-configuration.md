@@ -327,6 +327,26 @@ By default, a runner your hook starts doesn't exit when its session's turn finis
 
 Remove the workload when the runner exits, for example by setting `ttlSecondsAfterFinished` on a Kubernetes Job or by having the VM's start script delete the VM afterwards.
 
+#### Send a background process's output to a file
+
+If your `spawn-runner` hook leaves a process running in the background, send that process's output to a file that the hook's user can create. For example, append `>> "$HOME/claude-runner.log" 2>&1` to the command that starts the process, ahead of any `&`. This hook line shows where the redirect goes, with `your-background-command` standing in for the command your hook backgrounds:
+
+```bash theme={null}
+your-background-command >> "$HOME/claude-runner.log" 2>&1 &
+```
+
+Without the redirect, the process writes to the hook's stdout and stderr:
+
+* About a second after the hook exits, the orchestrator logs `exited, but a process it started still has the hook's stdout or stderr open`. From that line on, it logs up to 64 KB more of that output under `[runner:hook:spawn-runner:after-exit jti=<order id>]` and then drops the rest.
+* Once the orchestrator exits, the process's writes there fail.
+
+A runner your hook starts itself runs sessions on the orchestrator host, which holds the [environment secret](/docs/en/self-hosted-environments-deploy#harden-your-deployment).
+
+Before v2.1.305, a hook that had exited still reached [`--hook-timeout`](/docs/en/self-hosted-environments-reference#orchestrator-cli-flags) while a process it started had the hook's stdout or stderr open, shown as:
+
+* **Activity tab**, in a failed session's spawn error: `spawn-runner hook timed out after 60000ms`, or the last lines on the hook's stderr.
+* **Orchestrator log**: `timed out after 60000ms, sending SIGTERM to process tree`.
+
 #### Keep transient failures retryable in a shell hook
 
 In a shell hook that uses `set -e`, a failure that a retry could have cleared can block the session. The hook stops at the failing command and exits with that command's own status, and the orchestrator applies the exit-code contract to that status. Many failures return a status of 2 or higher, such as `127` when a command isn't installed and `22` from `curl --fail` on an HTTP error, so they block the session at its first failure.
@@ -461,6 +481,10 @@ Claude Code also loads MCP servers from other sources:
 * A [`--mcp-config`](/docs/en/cli-reference#cli-flags) file from your wrapper script: append the flag after `"$@"`, as in `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --mcp-config /etc/claude/mcp.json`. To keep that file's servers running when the session's delivered servers are updated mid-session, have your wrapper pass the [full environment](#wrapper-scripts) to the child, as `exec` does. Before v2.1.299, the stdio, HTTP, and SSE servers in that file shut down at the first such update that didn't name them.
 
 When connector delivery is enabled for your organization, Anthropic's control plane delivers the connectors you've configured on claude.ai to interactively-created sessions through server-provided MCP configuration, routed through `api.anthropic.com`. Sessions created programmatically, such as [CLI dispatches](/docs/en/self-hosted-environments-testing#run-the-test-loop), don't receive connector delivery; give them MCP servers through any of the other sources this section lists instead. The child's OAuth token doesn't carry a scope for fetching connectors directly, so the child doesn't attempt that fetch itself; delivery is server-driven.
+
+> [!NOTE]
+>
+> In a session that received a connector, a server of the same name from the host's `.claude.json` or a repository's `.mcp.json` isn't connected. To use both, give your server a different name.
 
 `settings.json` doesn't carry MCP server definitions, and there is no top-level `mcpServers` field in the settings schema. In managed settings, provide servers with the [`managedMcpServers`](/docs/en/settings-reference#managedmcpservers) key instead.
 

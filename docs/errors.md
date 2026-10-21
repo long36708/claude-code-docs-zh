@@ -293,6 +293,7 @@ Match the message you see to a section below.
 | `The packages it lists are not installed` / `The packages it lists were not installed, because` | [Plugin troubleshooting](/docs/en/plugins/troubleshooting#the-packages-it-lists-are-not-installed) |
 | `does not load (...), so Claude Code ignores the whole file` | [Plugin troubleshooting](/docs/en/plugins/troubleshooting#does-not-load-so-claude-code-ignores-the-whole-file) |
 | `path escapes plugin directory` | [Plugin errors](#path-escapes-plugin-directory) |
+| `Plugin not loaded: its manifest <path> was not read` | [Plugin errors](#plugin-not-loaded-its-manifest-was-not-read) |
 | `path could not be checked` | [Plugin errors](#path-could-not-be-checked) |
 | `its marketplace entry path does not stay inside the marketplace directory` | [Plugin errors](#marketplace-entry-path-does-not-stay-inside-the-marketplace-directory) |
 | `Plugin source path refused` | [Plugin errors](#marketplace-entry-path-does-not-stay-inside-the-marketplace-directory) |
@@ -4042,7 +4043,7 @@ Plugin archive integrity check failed for https://artifacts.example.com/claude-p
 
 ### Path escapes plugin directory
 
-A plugin component path, declared in the plugin's `plugin.json` or in its [marketplace entry](/docs/en/plugins/marketplace-reference#plugin-entries), resolves outside the plugin's own directory. Claude Code drops that path and loads the rest of the plugin. The component name in the message, such as `commands` or `hooks`, names the field that declared the path.
+One of the plugin's component paths leads outside the plugin directory or couldn't be confirmed inside it, so Claude Code drops that path and loads the rest of the plugin. For a path the plugin declares in `plugin.json` or its [marketplace entry](/docs/en/plugins/marketplace-reference#plugin-entries), the component name in the message, such as `commands` or `hooks`, names the field that declared the path.
 
 ```text theme={null}
 commands path escapes plugin directory: ./../shared.md
@@ -4056,6 +4057,19 @@ Claude Code rejects both a path that points outside the plugin as written, such 
 commands path escapes plugin directory: ./commands/deploy.md — it resolves to /home/user/shared/deploy.md, outside the plugin directory
 ```
 
+A message that gives the full path of one of a marketplace plugin's own files, such as `hooks/hooks.json`, means Claude Code skipped that file. That happens when Claude Code can't confirm the file is inside the plugin or, for a plugin in a [local marketplace](/docs/en/plugins/loading#in-place-and-copied-plugins), inside that marketplace. The message reports each of these files under the component name shown:
+
+* `hooks/hooks.json`: `hooks`
+* `monitors/monitors.json`: `monitors`
+* `settings.json`: `settings`
+* `SKILL.md` at the plugin root: `skills`
+
+For example, this message is for a `hooks/hooks.json` that resolves outside both the plugin and its local marketplace:
+
+```text theme={null}
+hooks path escapes plugin directory: /home/user/my-marketplace/my-plugin/hooks/hooks.json — it resolves to /home/user/dotfiles/hooks.json, outside the plugin directory and its marketplace directory
+```
+
 On macOS and Linux, Claude Code also rejects a component path that contains a backslash anywhere in it, even when the path stays inside the plugin. A plugin whose component paths use Windows-style separators loads on Windows and triggers this rejection on the other platforms:
 
 ```text theme={null}
@@ -4064,14 +4078,32 @@ commands path escapes plugin directory: ./commands\deploy.md — its path contai
 
 Before v2.1.251, Claude Code loaded a `commands` path declared in a marketplace entry even when it pointed outside the plugin directory.
 
-Before v2.1.257, the check looked only at the path's spelling, not at where a symlink leads.
+Before v2.1.257, the check on paths the plugin declares looked only at the path's spelling, not at where a symlink leads.
 
 **What to do:**
 
-* Move the referenced file inside the plugin directory and point the path at it with a `./` relative path
-* If the path is a symlink to a file outside the plugin, replace the symlink with a copy of the file
-* If the message says the path contains a backslash, write the path with forward slashes, for example `./commands/deploy.md`
+* If you installed the plugin and don't maintain it, report the message to its author
+* For a path the plugin declares, move the referenced file inside the plugin directory and point the path at it with a `./` relative path
+* If the path, or a folder above it inside the plugin, is a symlink leading outside the plugin, replace the symlink with a copy of what it points to
+* If the message says a path the plugin declares contains a backslash, write the path with forward slashes, for example `./commands/deploy.md`
+* If the message ends with `EACCES`, restore your execute permission on every directory leading to the file or folder the path names. Check the directories above the path, then follow each symlink you reach and check the directories leading to where it points. For any other error code, look it up in the [causes and steps for a path that couldn't be checked](#path-could-not-be-checked).
 * To share files with other plugins in the same marketplace, link them with a symlink inside the plugin directory, following the [symlink rules](/docs/en/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks)
+
+### Plugin not loaded: its manifest was not read
+
+Claude Code couldn't confirm that a marketplace plugin's [manifest](/docs/en/plugins/manifest-reference) at `.claude-plugin/plugin.json` is inside the plugin, so it loads nothing from that plugin. For a plugin in a [local marketplace](/docs/en/plugins/loading#in-place-and-copied-plugins), Claude Code also couldn't confirm that the manifest is inside that marketplace. The message appears in the `/plugin` **Errors** tab, and the reason at its end says what Claude Code found.
+
+For example, this message is for a plugin in a local marketplace whose `.claude-plugin` folder is a symlink leading outside the marketplace:
+
+```text theme={null}
+Plugin not loaded: its manifest /home/user/my-marketplace/my-plugin/.claude-plugin/plugin.json was not read, because it resolves to /home/user/dotfiles/my-plugin/.claude-plugin/plugin.json, outside the plugin directory and its marketplace directory
+```
+
+**What to do:**
+
+* If the reason ends with `EACCES`, restore your execute permission on every directory leading to the manifest. Check the directories above the manifest, then follow each symlink you reach and check the directories leading to where it points. For any other error code, look it up in the [causes and steps for a path that couldn't be checked](#path-could-not-be-checked).
+* If you maintain the plugin and the reason says where the manifest resolves, the `.claude-plugin` folder or `plugin.json` itself is a symlink that leads there. Replace that link with a copy of what it points to.
+* If you installed the plugin and don't maintain it, report the message to its author
 
 ### Path could not be checked
 
