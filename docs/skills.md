@@ -156,8 +156,8 @@ skills 的保存位置决定了哪些会话会加载它。将其保存在主目�
 | :- | :- | :- |
 | Enterprise | `.claude/skills/<skill-name>/SKILL.md` 在 [托管设置目录](/docs/zh-CN/managed-settings#delivery-mechanisms) | 您的组织部署它的所有机器上的所有用户 |
 | Personal | `~/.claude/skills/<skill-name>/SKILL.md` | 此机器上的所有项目，但不包括 [Cowork 或云会话](#skills-in-cowork-and-cloud-sessions) |
-| Project | `.claude/skills/<skill-name>/SKILL.md` | 此存储库中的会话。提交它以便您的团队也能获得它 |
-| Nested | `<subdir>/.claude/skills/<skill-name>/SKILL.md` | 在 `<subdir>` 中或其下方启动的会话。在其上方启动的会话在 Claude 处理该处的文件时加载该 skill。请参阅 [monorepos 和子目录](#discovery-from-parent-and-nested-directories) |
+| Project | `.claude/skills/<skill-name>/SKILL.md` | 此仓库中的会话，但不包括 [项目中的云端线程](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)。提交它以便您的团队也能获得它 |
+| Nested | `<subdir>/.claude/skills/<skill-name>/SKILL.md` | 在 `<subdir>` 中或其下方启动的会话，但不包括项目中的云端线程。在这些线程之外，在其上方启动的会话会在 Claude 处理该处的文件时加载该 skill。请参阅 [monorepos 和子目录](#discovery-from-parent-and-nested-directories) |
 | Additional directory | `.claude/skills/<skill-name>/SKILL.md` 在使用 `--add-dir` 传递的目录中 | 该会话。请参阅 [项目外的目录](#skills-from-additional-directories) |
 | Plugin | `<plugin>/skills/<skill-name>/SKILL.md` | 在 [插件](/docs/zh-CN/plugins/overview) 启用的任何位置，作为 `/plugin-name:skill-name` |
 | claude.ai account | 为您的 claude.ai 账户启用的 skills | Cowork 会话、云会话和使用该账户登录的终端会话。请参阅 [从 claude.ai 同步的 Skills](#how-synced-skills-behave) |
@@ -208,12 +208,12 @@ Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/ski
 
 ### 在 Cowork 和云会话中使用 skills
 
-[Cowork](https://claude.com/product/cowork) 会话和 [云端会话](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)（包括 [云端定时任务](/docs/zh-CN/routines)）不会读取您机器上的 `~/.claude/skills/`。交互式和定时的 Cowork 会话都加载为您的 claude.ai 账户启用的 skill，在会话启动时同步。从 Desktop 应用侧边栏中的 **Customize** 或从 claude.ai 上的 skill 设置管理它们。云端会话另外加载提交到克隆仓库的 `.claude/skills/` 的项目 skill。
+[Cowork](https://claude.com/product/cowork) 会话和 [云端会话](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)（包括 [云端定时任务](/docs/zh-CN/routines)）不会读取您机器上的 `~/.claude/skills/`。交互式和定时的 Cowork 会话都加载为您的 claude.ai 账户启用的 skill，在会话启动时同步。从 Desktop 应用侧边栏中的 **Customize** 或从 claude.ai 上的 skill 设置管理它们。
 
 如果 skill 仅存在于您机器上的 `~/.claude/skills/` 中，当 [云端定时任务](/docs/zh-CN/routines) 调用它时，Claude Code 会报告找不到该 skill。这是因为每次运行都作为新的云端会话启动。要在这些会话中使用个人 skill：
 
-* 对于 Cowork 和云端会话，为您的 claude.ai 账户启用该 skill。[自托管环境中的某些会话](/docs/zh-CN/self-hosted-environments-configuration#how-each-session’s-config-is-assembled) 不会加载您账户的 skill。
-* 对于云会话，您可以改为将 skill 提交到存储库的 `.claude/skills/`。在存储库的 `.claude/settings.json` 中声明的插件和仅在您的用户设置中启用的插件 [不会在云会话中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
+* 对于 Cowork 会话、云端会话以及 [项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories) 中的云端线程，为您的 claude.ai 账户启用该 skill。在项目的云端线程中，提交到仓库 `.claude/skills/` 的 skill 不可用。[自托管环境中的某些会话](/docs/zh-CN/self-hosted-environments-configuration#how-each-session’s-config-is-assembled) 不会加载您账户的 skill。
+* 对于项目线程以外的云端会话，您可以改为将 skill 提交到仓库的 `.claude/skills/`。在仓库的 `.claude/settings.json` 中声明的插件和仅在您的用户设置中启用的插件 [不会在云端会话中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
 
 [Desktop 计划任务](/docs/zh-CN/desktop-scheduled-tasks) 在您的机器上本地运行，因此它们确实加载 `~/.claude/skills/`。
 

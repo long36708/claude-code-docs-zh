@@ -48,7 +48,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 您可以在 Web 端的 [claude.ai/code/routines](https://claude.ai/code/routines)、Desktop 应用或 CLI 中创建定时任务。这三个使用入口都写入同一个云端账户，因此您在其中一处创建的定时任务会立即显示在其他位置。在 Desktop 应用的 **Code** 标签页中，点击侧边栏中或侧边栏 **More** 菜单中的 **Scheduled**，然后点击 **New task**，并继续按照[从 Web 创建](#create-from-the-web)进行操作。
 
-定时任务作为完整的 Claude Code 云端会话自主运行。您无需选择权限模式。会话会运行 shell 命令、使用提交到所克隆仓库中的 [skill](/docs/zh-CN/skills)，并调用您包含的任何连接器，所有这些都无需停下来等待批准，某些 [Artifact 操作](#when-a-run-publishes-an-artifact-without-asking)除外。
+定时任务作为完整的 Claude Code 云端会话自主运行。您无需选择权限模式。会话会运行 shell 命令、使用 [skill](/docs/zh-CN/skills)，并调用您包含的任何连接器，所有这些都无需停下来等待批准，某些 [Artifact 操作](#when-a-run-publishes-an-artifact-without-asking)除外。在[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)之外，这些 skill 包括提交到所克隆仓库中的 skill。
 
 定时任务可以访问的内容由以下各项决定：
 
@@ -356,7 +356,7 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 连接器是您账户中的 [claude.ai 集成](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。您在 CLI 中使用 `claude mcp add` 在本地添加的 MCP 服务器存储在您的计算机上，而不是您的 claude.ai 账户中，因此它们不会出现在连接器列表中。要在定时任务中使用其中某个服务器：
 
 * **作为连接器**：在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 将其添加为连接器
-* **在仓库中**：对于只有一个仓库的定时任务，您也可以改为在已提交的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 中声明该服务器，使其成为所克隆仓库的一部分
+* **在仓库中**：对于位于[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)之外且只有一个仓库的定时任务，您也可以改为在已提交的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 中声明该服务器。项目中的定时任务不会加载 `.mcp.json`，因此请将该服务器添加为连接器
 
 创建定时任务时，默认会包含您当前已连接的所有连接器。请移除不需要的连接器，以限制 Claude 在运行期间可以访问的工具。您也可以直接在任务的创建或编辑对话框中添加连接器。
 

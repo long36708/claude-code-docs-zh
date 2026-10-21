@@ -94,7 +94,7 @@
 
 一个团队的共享设置，提交到仓库，以便克隆它的每个人都获得相同的权限、hooks 和插件市场。在仓库顶部的 `.claude/settings.json` 处保存这样的文件。在提交之前需要了解的内容：
 
-* **云会话也会读取它。** Claude Code 网页版上的 [cloud session](/docs/zh-CN/settings#settings-in-cloud-sessions) 从仓库的克隆开始，因此提交的文件也适用于那里。
+* **[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)之外的云端会话也会读取它。** 包含单个仓库的[云端会话](/docs/zh-CN/settings#settings-in-cloud-sessions)在克隆内部启动，因此提交的文件也适用于那里。
 * **遥测数据放在托管或个人设置中。** Claude Code 忽略仓库设置文件中的 [OpenTelemetry 导出器变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)，除了一些关闭遥测的值。在 [托管设置](/docs/zh-CN/monitoring-usage#administrator-configuration) 中为你的组织设置它们，或在每个人的 `~/.claude/settings.json` 中设置。
 * **Allow 规则等待信任。** Allow 规则和 `extraKnownMarketplaces` 条目在每个人 [信任此文件夹本身](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust) 后生效，而不仅仅是父文件夹；deny 和 ask 规则在每个会话中应用，无论是否受信任。
 * **hook 是仓库中的脚本。** 此文件的 hook 运行 `.claude/hooks/block-rm.sh`；[How a hook resolves](/docs/zh-CN/hooks#how-a-hook-resolves) 介绍了如何编写它。

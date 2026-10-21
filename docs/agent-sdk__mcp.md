@@ -161,7 +161,11 @@ Claude Code 在会话启动时开始连接您的 MCP 服务器，并在第一轮
 * **否则，在启用 [tool search](/docs/zh-CN/agent-sdk/tool-search)（默认启用）时**：第一轮最多等待 2 秒，且仅等待设置了 [`alwaysLoad: true`](/docs/zh-CN/mcp#exempt-a-server-from-deferral) 或您已[指名](#named-servers)的待处理服务器。其余服务器继续在后台连接，Claude 会在它们连接后[访问其工具](/docs/zh-CN/mcp#tool-availability)。
 * **否则，在关闭 tool search 时**：第一轮最多等待 2 秒，等待每个待处理的设置文件服务器和插件服务器。当您的 [`ENABLE_TOOL_SEARCH` 值或模型](/docs/zh-CN/agent-sdk/tool-search#configure-tool-search)将其关闭，或当您排除 `ToolSearch` 工具（例如通过 `disallowedTools`）时，tool search 处于关闭状态。
 
+### 指名服务器
+
 您可以通过在 [`allowedTools`](#allow-mcp-tools) 中或在 `settings` 选项的 `permissions.allow` 规则中列出服务器的任意工具（例如 `mcp__github__list_issues` 或 `mcp__github__*`）来指名该服务器。当您在提示提交、工具使用、权限、子代理、任务、elicitation 或 worktree 事件上配置 [`mcp_tool` hook](/docs/zh-CN/hooks#mcp-tool-hook-fields) 时，它也会指名其调用的服务器。在 v2.1.284 之前，指名服务器不会影响第一轮等待。
+
+### 自行设置第一轮等待
 
 要自行选择第一轮等待时长，请在 [`env` 选项](/docs/zh-CN/agent-sdk/configuration#set-environment-variables)中设置 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS`，例如 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS: "5000"`。此后第一轮会最多等待该毫秒数，以等待待处理的设置文件服务器和插件服务器，无论 tool search 是否启用。同一上限也会替代 `options.mcpServers` 中 stdio、HTTP 和 SSE 服务器的 `MCP_TIMEOUT` 等待。
 
@@ -172,6 +176,8 @@ Claude Code 在会话启动时开始连接您的 MCP 服务器，并在第一轮
 * **仍在连接中的[指名服务器](#named-servers)**：等待上限至少为 2 秒，因此低于 `2000` 的值不会缩短其等待时间。
 
 将该变量设置为 `0` 可跳过对其他所有服务器的等待。等待结束时仍处于待处理状态的服务器会继续在后台连接。`CLAUDE_CODE_MCP_STARTUP_WAIT_MS` 需要 Claude Code v2.1.274 或更高版本。
+
+### 让启动等待服务器
 
 有两项设置会让启动本身在 Claude Code 发送 init 消息之前进行等待：
 

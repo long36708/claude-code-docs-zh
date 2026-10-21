@@ -321,10 +321,12 @@ Settings precedence, highest first: managed settings, command line, project loca
 
 [云会话](/docs/zh-CN/claude-code-on-the-web)在[云环境](/docs/zh-CN/cloud-environments)中运行在您的存储库的新克隆上，而不是在您的机器上。这改变了哪些设置到达它：
 
-* **共享项目设置**（`.claude/settings.json`）：在只有一个仓库的会话中会被读取，因为该文件是克隆的一部分，且会话在其中启动。将设置提交到该文件中，即可在这些会话中应用。在 Anthropic 托管的环境中，包含多个仓库的会话会在各克隆的上层目录启动，并且只从每个仓库的 `.claude/settings.json` 中读取 `enabledPlugins` 和 `extraKnownMarketplaces` 这两个键，而不会读取权限规则、hook、`env` 或其他键。这两个键所声明的市场和插件仍然[不会在云端会话中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。对于自托管环境，请参阅[应用哪个仓库的设置](/docs/zh-CN/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories)。
+* **项目中的云端线程**：在[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)中的云端线程里，无论该项目包含多少个仓库，仓库 `.claude/settings.json` 中的权限规则、hook 和 `env` 均不适用。[线程从您的仓库中获取哪些内容](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)列出了可改用的方式。
+* **共享项目设置**（`.claude/settings.json`）：在项目之外只有一个仓库的会话中会被读取，因为该文件是克隆的一部分，且会话在其中启动。将设置提交到该文件中，即可在这些会话中应用。
+* **包含多个仓库的共享项目设置**：在 Anthropic 托管的环境中，包含多个仓库的会话会在各克隆的上层目录启动，并且只从每个仓库的 `.claude/settings.json` 中读取 `enabledPlugins` 和 `extraKnownMarketplaces` 这两个键，而不会读取权限规则、hook、`env` 或其他键。这两个键所声明的市场和插件仍然[不会在云端会话中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。对于自托管环境，请参阅[应用哪个仓库的设置](/docs/zh-CN/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories)。
 * **用户和项目本地设置** (`~/.claude/settings.json` 和 `.claude/settings.local.json`)：不读取。两者都保持在您的机器上，本地文件不在克隆中。
 * **托管设置**：您设备上的 `managed-settings.json` 文件或 MDM 配置文件不会到达云会话。您组织的[服务器管理设置](/docs/zh-CN/server-managed-settings)会；[表面覆盖](/docs/zh-CN/model-config#surface-coverage)列出哪些云会话接收它们。[自托管环境](/docs/zh-CN/self-hosted-environments)也读取其运行器镜像中的托管设置文件。[Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)说该文件何时适用。
-* **`/config`**：在您的浏览器中的 claude.ai/code，打开您的 claude.ai 设置的 Claude Code 部分而不是更改值。要为云会话更改设置，在环境上设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)，或在具有一个存储库的会话中，将键提交到该存储库的 `.claude/settings.json`。
+* **`/config`**：在您的浏览器中的 claude.ai/code，打开您的 claude.ai 设置的 Claude Code 部分而不是更改值。要为云端会话更改设置，请在环境上设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)。在项目之外只有一个仓库的会话中，您也可以改为将该键提交到该仓库的 `.claude/settings.json`。
 
 [从您的设置中携带什么](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)列出其余的：`CLAUDE.md`、skills、MCP 服务器、plugins 和凭证。
 

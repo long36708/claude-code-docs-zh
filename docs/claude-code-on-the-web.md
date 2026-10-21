@@ -264,7 +264,7 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 
 * **`/model`、`/effort`、`/color` 和 `/rename`**：将值作为参数传递，例如 `/model sonnet`，而不是打开终端选择器或滑块。参数形式遵循每个命令的[可用性说明](/docs/zh-CN/commands#all-commands)。
 * **`/fast`**：当快速模式在[你的账户上可用](/docs/zh-CN/fast-mode#requirements)时，为会话切换[快速模式](/docs/zh-CN/fast-mode#use-fast-mode-in-cloud-sessions)。需要会话环境中的 Claude Code v2.1.271 或更高版本。
-* **`/config`**：在你的浏览器中的 claude.ai/code 上，打开你的设置的 Claude Code 部分，而不是设置值，命令后的文本（包括 `key=value`）被忽略。要更改云会话的设置，请在环境上设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)，或在具有一个存储库的会话中，将该设置键提交到该存储库的 `.claude/settings.json`。[云会话中的设置](/docs/zh-CN/settings#settings-in-cloud-sessions)列出了每个会话读取的内容。
+* **`/config`**：在浏览器中的 claude.ai/code 上，打开您设置中的 Claude Code 部分，而不是设置值，命令后的文本（包括 `key=value`）会被忽略。要更改云端会话的设置，请在环境上设置[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)。在[项目](/docs/zh-CN/claude-projects)之外、只有一个仓库的会话中，则改为将该设置项提交到该仓库的 `.claude/settings.json`。[云端会话中的设置](/docs/zh-CN/settings#settings-in-cloud-sessions)列出了每个会话读取的内容。
 
 对于上下文管理特别是：
 
@@ -278,7 +278,7 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 
 要改为更改自动压缩窗口，请在你的环境变量中设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars)，或在变量未设置的会话中运行带有令牌计数的 [`/autocompact`](/docs/zh-CN/commands#all-commands)。
 
-[Subagents](/docs/zh-CN/sub-agents) 的工作方式与本地相同。Claude 可以使用 Agent 工具生成它们，以将研究或并行工作卸载到单独的上下文窗口中，保持主对话更轻。在你的存储库的 `.claude/agents/` 中定义的 Subagents 会自动被拾取。
+[子代理](/docs/zh-CN/sub-agents)的工作方式与本地相同。Claude 可以使用 Agent 工具生成子代理，将研究或并行工作分流到单独的上下文窗口中，使主对话更轻量。在[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)的线程之外，仓库 `.claude/agents/` 中定义的子代理会自动加载。
 
 [Agent teams](/docs/zh-CN/agent-teams) 默认关闭，但可以通过将 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 添加到你的[环境变量](/docs/zh-CN/cloud-environments#set-environment-variables)来启用。
 

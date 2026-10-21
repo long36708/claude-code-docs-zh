@@ -275,6 +275,10 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 
 ### 您的设置中会保留的内容
 
+> [!NOTE]
+>
+> 在此表列出的仓库配置中，[项目](/docs/zh-CN/claude-projects)中的云端线程仅加载仓库根目录的 `CLAUDE.md`、`.claude/CLAUDE.md`，以及不[特定于路径](/docs/zh-CN/memory#path-specific-rules)的 `.claude/rules/` 文件。请参阅[线程从您的仓库中获取的内容](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)。
+
 云端会话从您仓库的全新克隆开始。您提交到仓库的任何内容都可用。您只在自己机器上安装或配置的任何内容在会话中都不可用。您组织的策略通过[服务器托管设置](/docs/zh-CN/server-managed-settings)单独到达。
 
 | | 在云端会话中可用 | 原因 |
@@ -465,12 +469,12 @@ apt update && apt install -y shellcheck
 
 如果您在用户级 `~/.claude/settings.json` 中有 SessionStart hooks，不要期望它们在云端生效。用户级设置保留在您的机器上。其他 hooks 运行的位置取决于会话运行的位置：
 
-* **Anthropic 托管环境**：Claude Code 运行来自存储库和您组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings)的 hooks。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话不会接收服务器管理的设置，因此来自服务器管理的设置的 hooks 不会在那里运行。
+* **Anthropic 托管环境**：Claude Code 运行来自您组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings)的 hook，并且在[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)线程之外，还运行来自仓库的 hook。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话不会接收服务器管理的设置，因此来自服务器管理的设置的 hook 不会在那里运行。
 * **[自托管环境](/docs/zh-CN/self-hosted-environments-configuration#permissions-and-tool-approval)**：Claude Code 还运行运行程序主机的 `~/.claude/` 中的运行程序操作员播种的 hooks，以及运行程序镜像的托管设置文件中的 hooks，当该文件是 [Claude Code 应用的托管源](/docs/zh-CN/managed-settings#how-claude-code-combines-managed-sources)之一时。
 
 ### 使用 SessionStart hook 安装依赖项
 
-要仅在云会话中安装依赖项，请将 SessionStart hook 与检查其运行位置的脚本配对。
+要仅在[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)之外的云端会话中安装依赖项，请将 SessionStart hook 与检查其运行位置的脚本配对。
 
 首先，将 SessionStart hook 添加到您的存储库的 `.claude/settings.json`。此配置告诉 Claude Code 在会话启动或恢复时运行存储库中的 `scripts/install_pkgs.sh`：
 
@@ -532,6 +536,7 @@ exit 0
 SessionStart hooks 在云端的行为与本地相同，但有以下注意事项：
 
 * **每个会话一个仓库**：在 Anthropic 托管环境中，具有多个仓库的会话不会从任何仓库的 `.claude/settings.json` 加载 hook，因此您在那里定义的 SessionStart hook 不会运行。请改为使用[设置脚本](#setup-scripts)为这些会话安装依赖项。对于自托管环境，请参阅[适用哪个仓库的设置](/docs/zh-CN/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories)。
+* **不适用于项目的云端线程**：[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)中的云端线程不会运行来自仓库 `.claude/settings.json` 的 hook，无论仓库数量多少。在 Anthropic 托管环境中，请使用[设置脚本](#setup-scripts)为线程安装依赖项。在自托管环境中，请改为使用[运行程序主机设置](/docs/zh-CN/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories)中的 hook。
 * **没有仅云端的范围**：hooks 在本地和云会话中都运行。要跳过本地运行，请在 `CLAUDE_CODE_REMOTE` 环境变量不为 `true` 时提前退出，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
 * **需要网络访问**：安装命令需要连接到包注册表。如果您的环境使用 **None** 网络访问，这些 hooks 会失败。**Trusted** 下的[默认允许列表](#default-allowed-domains)涵盖 npm、PyPI、RubyGems 和 crates.io。
 * **代理兼容性**：在 Anthropic 托管环境中，所有出站流量都经过[安全代理](#security-proxy)，某些包管理器无法与此代理正确配合工作；Bun 是一个已知的例子。在[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#default-deny-egress)中，出站流量改为经过您自己的网络边界。

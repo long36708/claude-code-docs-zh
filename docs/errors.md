@@ -319,6 +319,7 @@
 | `Failed to write to <name>'s inbox — nothing was sent` | [工具错误](#failed-to-write-to-a-teammate-inbox) |
 | `Failed to write the plan approval request to the lead's inbox — plan not submitted` | [工具错误](#failed-to-write-to-a-teammate-inbox) |
 | `Its agent definition was not restored: the folder its definition file came from is not trusted` | [工具错误](#teammate-agent-definition-not-restored) |
+| `Only a teammate can approve a shutdown request` | [工具错误](#only-a-teammate-can-approve-a-shutdown-request) |
 | `Message too large for cross-session delivery` | [工具错误](#message-too-large-for-cross-session-delivery) |
 | `Too many messages to this session just now` | [工具错误](#too-many-messages-to-this-session-just-now) |
 | `Cross-session message was dropped at the recipient session's inbox` | [工具错误](#cross-session-message-dropped-at-the-inbox) |
@@ -414,6 +415,9 @@
 | `allows any option at its * · use an exact value` | [配置警告](#has-a-wildcard-before-the-rest-of-the-command) |
 | `Denying Bash also turns off the PowerShell tool, so Claude has neither` | [配置警告](#denying-bash-also-turns-off-the-powershell-tool) |
 | `CLAUDE_CODE_DISABLE_1M_CONTEXT is set, but the 200K limit isn't enforced` | [配置警告](#the-200k-limit-isnt-enforced) |
+| `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" reads as <N> tokens, so Claude Code treats it as the 100k minimum` | [`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 的值和警告](/docs/zh-CN/model-config#claude_code_auto_compact_window-values) |
+| `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" is too large, so Claude Code treats it as the 1M maximum` | [`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 的值和警告](/docs/zh-CN/model-config#claude_code_auto_compact_window-values) |
+| `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" isn't a usable size, so Claude Code ignores it` | [`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 的值和警告](/docs/zh-CN/model-config#claude_code_auto_compact_window-values) |
 | `Model "<model>" isn't recognized · context assumed to be 200k tokens` | [更正网关或自定义模型 ID 的窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id) |
 | `Claude Code doesn't recognize the model "<model>", so it assumes a context window of 200k tokens` | [更正网关或自定义模型 ID 的窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id) |
 | `[claude-code:unrecognized_model]` | [配置警告](#unrecognized-model-id-on-a-request) |
@@ -507,6 +511,7 @@ API 本身的 5xx 表示 API 内部出现了意外故障。它不是由您的提
 
 * 检查 [status.claude.com](https://status.claude.com) 或消息中指出的提供商状态页面，查看是否有活跃事件
 * 等待一分钟，然后再次发送您的消息。您的原始消息仍在对话中，因此对于较长的提示词，您可以输入 `try again` 而不是粘贴整个内容。
+* 如果 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 指向 [LLM 网关](/docs/zh-CN/llm-gateway)，并且每个请求都以这种方式失败，请检查您的网关是否拒绝了 Claude Code 默认发送的工具搜索字段。要进行检查，请按照[通过 LLM 网关使用工具搜索](/docs/zh-CN/mcp#tool-search-through-a-gateway)中的说明设置 `ENABLE_TOOL_SEARCH=false`，然后重试。在 v2.1.304 之前，除非您使用 `ENABLE_TOOL_SEARCH` 启用工具搜索，否则在网关后面工具搜索处于关闭状态。
 * 如果错误持续存在且没有发布事件，请运行 `/feedback` 以便 Anthropic 可以使用您的请求详情进行调查。如果您的环境中 `/feedback` 不可用，请参阅[报告错误](#report-an-error)。
 
 ### API Error: Repeated 529 Overloaded errors
@@ -1287,6 +1292,7 @@ Please run /login · API Error: 401 Invalid authentication credentials
 * 如果 `/status` 只显示您的登录，请运行一次 `/login`。如果凭据已被撤销，新的登录会替换它。
 * 如果同一登录账户再次出现相同消息，说明该账户或组织已不再活跃。请检查 `/status` 报告的账户和组织，并请您的组织管理员恢复访问权限。
 * 如果 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 指向 [LLM 网关](/docs/zh-CN/llm-gateway)，`401` 之后的文本是您网关的消息而不是 Anthropic 的消息，`/login` 不会改变它。请改为修正网关所需的凭据。
+* 如果在网关已获得所需凭据后，每个请求仍以 `401` 失败，请检查网关是否拒绝了 Claude Code 默认发送的工具搜索字段。要进行检查，请按照[通过 LLM 网关进行工具搜索](/docs/zh-CN/mcp#tool-search-through-a-gateway)中的说明设置 `ENABLE_TOOL_SEARCH=false`，然后重试。在 v2.1.304 之前，除非您使用 `ENABLE_TOOL_SEARCH` 启用，否则在网关后工具搜索处于关闭状态。
 
 ### 登录已过期
 
@@ -1852,8 +1858,9 @@ Claude Code 无法识别的错误代码会显示为 `Unable to connect to API`�
 * 在同一个 shell 中运行 `curl -I https://api.anthropic.com`，确认可以访问 API 主机。在 Windows PowerShell 中请使用 `curl.exe -I https://api.anthropic.com`，以避免使用内置的 `Invoke-WebRequest` 别名。
 * 如果您位于企业代理之后，请在启动 Claude Code 之前设置 `HTTPS_PROXY`，并参阅[网络配置](/docs/zh-CN/network-config)
 * 如果您通过 LLM 网关或中继进行路由，请将 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 设置为其地址。有关设置方法，请参阅[将 Claude Code 连接到 LLM 网关](/docs/zh-CN/llm-gateway-connect)。
+* 如果 `ANTHROPIC_BASE_URL` 已指向您的网关，而每个请求都以 `Connection dropped` 结束，请检查您的网关是否拒绝了 Claude Code 默认发送的工具搜索字段。要进行检查，请按照[通过 LLM 网关使用工具搜索](/docs/zh-CN/mcp#tool-search-through-a-gateway)中的说明设置 `ENABLE_TOOL_SEARCH=false`，然后重试。在 v2.1.304 之前，在网关之后工具搜索默认处于关闭状态，除非您通过 `ENABLE_TOOL_SEARCH` 将其启用。
 * 确保您的防火墙允许[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)中列出的主机
-* 间歇性失败会[自动重试](#automatic-retries)；持续失败则表明存在本地网络问题
+* 间歇性失败会[自动重试](#automatic-retries)
 
 如果 `curl` 成功但 Claude Code 仍然失败，原因通常在于运行时与网络之间的某个环节，而非网络本身：
 
@@ -2206,6 +2213,7 @@ Prompt is too long · the request is ~<request tokens> tokens (limit <limit>) bu
 * 修剪大型 `CLAUDE.md` 记忆文件，或将说明移到仅在相关时加载的[路径范围规则](/docs/zh-CN/memory#path-specific-rules)中
 * 自动压缩默认开启，通常可防止此错误。如果您在 `/config` 中或使用 [`DISABLE_AUTO_COMPACT`](/docs/zh-CN/env-vars) 关闭了它，请将其重新打开。如果您保持关闭，请在窗口填满之前自己运行 `/compact`。
 * 如果在支持更大窗口的模型上于接近 200K token 时出现此错误，一个原因是 Claude Code 无法识别该模型 ID。Claude Code 会为此类 ID 假定 200K 的窗口，因此若要在超过该点后继续工作，请[为其提供模型的实际上下文窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id)。
+* 如果错误在您于 Claude 压缩对话时将其停止后立即出现，您的对话并未改变，仍然大到需要压缩。请运行 `/compact` 并重新发送您的消息。要避免此错误再次出现，请[更新 Claude Code](/docs/zh-CN/setup#update-claude-code) 至 v2.1.304 或更高版本。在 v2.1.304 之前，在该时刻停止可能导致本轮以此错误结束。
 
 有关上下文如何填满的交互式视图，请参阅[探索上下文窗口](/docs/zh-CN/context-window)。
 
@@ -2430,6 +2438,7 @@ There's an issue with the selected model (claude-...). It may not exist or you m
 * 使用别名（如 `sonnet` 或 `opus`）而不是完整的版本化 ID。别名解析为维护的默认值，因此它们不会过时。请参阅[模型配置](/docs/zh-CN/model-config)。
 * 如果错误的模型在 CLI 中不断返回，则某处设置了过时的 ID。按[优先级顺序](/docs/zh-CN/model-config#setting-your-model)检查您可以设置模型的位置，并删除过时的值。
 * Claude Code 将过期的 claude.ai 登录报告为[登录过期](#login-expired)，而不是此错误。在 v2.1.206 之前，无法再刷新的过期登录对每个模型都失败，显示此错误；如果您在较旧版本上看到这种情况，请运行 `/login`。
+* 如果 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/env-vars) 指向 [LLM 网关](/docs/zh-CN/llm-gateway)，且所有模型都以这种方式失败，请检查您的网关是否拒绝了 Claude Code 默认发送的工具搜索字段。要进行检查，请按照[通过 LLM 网关使用工具搜索](/docs/zh-CN/mcp#tool-search-through-a-gateway)中的说明设置 `ENABLE_TOOL_SEARCH=false`，然后重试。在 v2.1.304 之前，在网关后面工具搜索默认关闭，除非您使用 `ENABLE_TOOL_SEARCH` 将其启用。
 * 对于 Google Cloud 的 Agent Platform 部署，请参阅 [Google Cloud 的 Agent Platform 故障排除](/docs/zh-CN/google-vertex-ai#troubleshooting)。
 
 ### 模型不是公认的模型 ID
@@ -4428,6 +4437,20 @@ Its agent definition was not restored: the folder its definition file came from 
 
 * 在[调试日志](/docs/zh-CN/debug-your-config)指出的文件夹中运行 `claude` 并接受信任对话框。下次 Claude Code 恢复该队友时会重新应用该定义；您无需重新启动负责人会话
 * 或者在 `~/.claude.json` 中将 `hasTrustDialogAccepted` 条目设置为 `true`，使用调试日志打印的确切 `projects["<path>"]` 键
+
+### Only a teammate can approve a shutdown request
+
+Claude Code 拒绝了一次 [agent team](/docs/zh-CN/agent-teams) 关闭批准，因为发送它的会话并未作为队友运行。没有发送任何内容，也没有任何会话被关闭。该拒绝出现在发送会话的工具结果中：
+
+```text wrap theme={null}
+Only a teammate can approve a shutdown request, and this session is not running as one. Nothing was sent. To shut down a teammate, send that teammate a shutdown_request message. The teammate is the one that approves it.
+```
+
+**处理方法：**
+
+* 如果该拒绝出现在您的负责人会话中，请先检查该队友此后是否已经关闭。该拒绝会连同改为发送 `shutdown_request` 的指示一起返回给 Claude，轮次继续进行。在交互式负责人会话中，当队友批准关闭请求时，会出现 `<name> has shut down.`。
+* 如果该队友仍在运行，请在负责人的输入框中要求它关闭该队友，例如 `Ask the researcher teammate to shut down`。请参阅[关闭队友](/docs/zh-CN/agent-teams#shut-down-teammates)。
+* 如果您自己使用 `claude --resume` 恢复的前队友收到了此拒绝，则没有发送任何内容。如需结束该会话，请在其输入框中运行 `/exit`。
 
 ### Message too large for cross-session delivery
 

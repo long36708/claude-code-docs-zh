@@ -597,7 +597,7 @@ claude mcp add --transport http shared-server --scope project https://example.co
 
 出于安全原因，Claude Code 在交互式会话中使用来自 `.mcp.json` 文件的项目范围的服务器之前会提示批准。要重置这些批准选择，请运行 `claude mcp reset-project-choices`。
 
-在 `claude -p` 运行、[Agent SDK](/docs/zh-CN/headless) 会话和[云会话](/docs/zh-CN/claude-code-on-the-web)中，Claude Code 无法显示该提示：它加载项目范围的服务器而不询问。Claude Code 还会在您以 `bypassPermissions` 模式启动的会话中跳过提示，其中用户设置或托管设置中设置了 [`skipDangerousModePermissionPrompt`](/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)。要无论如何保持服务器不加载：
+在 `claude -p` 运行、[Agent SDK](/docs/zh-CN/headless) 会话以及[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)之外的[云端会话](/docs/zh-CN/claude-code-on-the-web)中，Claude Code 无法显示该提示：它加载项目范围的服务器而不询问。Claude Code 还会在您以 `bypassPermissions` 模式启动的会话中跳过提示，其中用户设置或托管设置中设置了 [`skipDangerousModePermissionPrompt`](/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)。要无论如何保持服务器不加载：
 
 * 将其添加到 [`disabledMcpjsonServers`](/docs/zh-CN/settings-reference#disabledmcpjsonservers)，这会在每个权限模式中阻止它。
 * 使用 [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags) 或 SDK 的 `settingSources` 选项完全排除项目设置。
@@ -1507,7 +1507,7 @@ Claude Code 在 Claude Opus 4、Claude Sonnet 4、Claude Haiku 4.5 及更高版�
 | :- | :- |
 | (未设置) | 所有 MCP 工具延迟并按需加载。在早于 Opus 4 和 Sonnet 4 的模型上、在[早期 Agent Platform 模型](#configure-tool-search)上，以及在部署在 Azure 上的 Microsoft Foundry 部署上，改为预先加载 |
 | `true` | MCP 工具延迟，回退情况与（未设置）相同 |
-| `auto` | 阈值模式：Claude Code 预先加载它本来会延迟的工具，同时它们的定义总计少于上下文窗口的 10%，一旦定义达到 10% 就延迟所有工具 |
+| `auto` | 阈值模式。原本会被延迟的工具在其定义总计少于上下文窗口的 10% 时预先加载。达到 10% 或更多时，工具搜索会开启，即使总量之后降至 10% 以下，这些工具也可能[保持延迟](#tools-that-stay-deferred-below-the-threshold) |
 | `auto:N` | 具有自定义百分比的阈值模式，其中 `N` 是 0-100。例如，`auto:5` 表示 5% |
 | `false` | 所有 MCP 工具预先加载，无延迟 |
 
@@ -1545,6 +1545,10 @@ ENABLE_TOOL_SEARCH=false claude
 当 `ANTHROPIC_BASE_URL` 指向网关时，工具搜索默认开启，因此请求会包含 `defer_loading` 工具字段和 `tool_reference` 块，供网关转发。工具搜索开启时，MCP 工具会被[延迟](#scale-with-mcp-tool-search)。如需改为预先加载所有工具，请在 shell 或您的 [settings `env`](/docs/zh-CN/settings-reference#env) 中设置 `ENABLE_TOOL_SEARCH=false`。在 v2.1.304 之前，在网关后面工具搜索处于关闭状态，除非 `ENABLE_TOOL_SEARCH` 为 `true`、`auto` 或 `auto:N`。
 
 在 v2.1.305 或更高版本上，当出现原因无法识别的 `400` 或 `422` 时，Claude Code 可以[在不使用工具搜索的情况下重试请求](/docs/zh-CN/llm-gateway-protocol#retry-without-tool-search)。重试成功时，屏幕上不会显示任何内容，您也无需执行任何操作：MCP 工具会改为预先加载。Claude Code 稍后会再次尝试工具搜索，代价是再产生一次被拒绝的请求。要跳过这些请求，请设置 `ENABLE_TOOL_SEARCH=false`。
+
+#### 低于 `ENABLE_TOOL_SEARCH=auto` 阈值时仍保持延迟的工具
+
+如果 [`/context`](/docs/zh-CN/commands#all-commands) 将工具标记为 `(deferred)` 或 `(loaded on-demand)`，尽管它们的定义总计低于 `auto` 阈值，这说明工具搜索在此对话中已经开启并保持开启。总量之后可能会下降，例如在您恢复会话后 MCP 服务器重新连接期间。您无需执行任何操作：当任务需要时，Claude 会加载其中的每个工具。
 
 ### 豁免服务器不延迟
 
