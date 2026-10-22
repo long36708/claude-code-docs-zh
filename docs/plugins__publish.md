@@ -14,8 +14,8 @@
 >
 > 这些情况在其他页面上有介绍：
 >
-> * **您的插件还未完成**：从[创建插件](/docs/zh-CN/plugins/create)开始
-> * **您维护的 CLI 或 SDK 在官方市场中有插件**：请参阅[从您的 CLI 推荐您的插件](/docs/zh-CN/plugins/cli-hints)
+> * **您的插件还未完成**：从[创建插件](/docs/zh-CN/plugins/create.md)开始
+> * **您维护的 CLI 或 SDK 在官方市场中有插件**：请参阅[从您的 CLI 推荐您的插件](/docs/zh-CN/plugins/cli-hints.md)
 
 从[选择如何分发](#choose-how-to-distribute)开始，比较分发选项。如果您已经知道您的路线，请转到[为发布准备您的插件](#prepare-your-plugin-for-release)，然后按照您的路线部分了解要告诉用户什么以及他们如何接收您的更新。
 
@@ -27,7 +27,7 @@
 | :- | :- | :- | :- |
 | [无市场](#share-a-plugin-without-a-marketplace) | 您发送插件文件夹或其 `.zip` 的人 | 插件的文件夹 | 无。他们加载您发送的副本 |
 | [您自己的市场](#publish-through-your-own-marketplace) | 任何可以访问存储库的人，可以是您的团队可以克隆的私有存储库 | 一个 git 存储库或其他具有列出您的插件的 `.claude-plugin/marketplace.json` 的主机 | 关闭 |
-| [Anthropic 的目录](#submit-to-anthropics-directory) | 在 claude.ai 或 Cowork 中添加它的人。它也通过[账户同步](/docs/zh-CN/plugins/loading#synced-plugins)在他们的 Claude Code 会话中加载 | 一个包含插件的 GitHub 存储库和一个付费的 claude.ai 计划以从中提交 | 是，在您推送的版本发布后 |
+| [Anthropic 的目录](#submit-to-anthropics-directory) | 在 claude.ai 或 Cowork 中添加它的人。它也通过[账户同步](/docs/zh-CN/plugins/loading.md#synced-plugins)在他们的 Claude Code 会话中加载 | 一个包含插件的 GitHub 存储库和一个付费的 claude.ai 计划以从中提交 | 是，在您推送的版本发布后 |
 
 自动更新是用户端的每个市场设置，在后台获取新版本。
 
@@ -41,42 +41,42 @@
 
 **2. 决定如何版本化**
 
-如果您在 `plugin.json` 中设置 `version` 并稍后推送提交而不更改它，`claude plugin update` 会打印 `<name> is already at the latest version (1.0.0).`，用户保留旧副本。要么在每次发布时增加 `version`，要么在 git 托管的市场中省略它，以便 Claude Code 改用提交 SHA。请参阅[版本和更新](/docs/zh-CN/plugins/loading#versions-and-updates)。
+如果您在 `plugin.json` 中设置 `version` 并稍后推送提交而不更改它，`claude plugin update` 会打印 `<name> is already at the latest version (1.0.0).`，用户保留旧副本。要么在每次发布时增加 `version`，要么在 git 托管的市场中省略它，以便 Claude Code 改用提交 SHA。请参阅[版本和更新](/docs/zh-CN/plugins/loading.md#versions-and-updates)。
 
 **3. 验证**
 
 在您的 shell 中，运行 `claude plugin validate --strict ./your-plugin`。干净的运行会打印 `✔ Validation passed`。
 
 * **在 CI 中**：保持 `--strict`，它也会因为警告（例如未知的清单字段或缺少 `version`）而以退出代码 1 失败运行。如果您在上一步中选择省略 `version`，则删除 `--strict`。
-* **路径**：验证报告不以 `./` 开头的组件路径。在 hook 命令和 MCP 服务器配置中，将文件引用为 `${CLAUDE_PLUGIN_ROOT}/...`。请参阅[路径规则](/docs/zh-CN/plugins/manifest-reference#path-rules)。
+* **路径**：验证报告不以 `./` 开头的组件路径。在 hook 命令和 MCP 服务器配置中，将文件引用为 `${CLAUDE_PLUGIN_ROOT}/...`。请参阅[路径规则](/docs/zh-CN/plugins/manifest-reference.md#path-rules)。
 
 **4. 从本地市场安装它**
 
 在您的 shell 中，使用 `claude plugin marketplace add ./path-to-marketplace` 添加列出插件的本地市场，从中安装插件，并启动会话以确认它加载。
 
-* 对于最小的有效市场，请参阅[创建市场](/docs/zh-CN/plugins/create-marketplace)。
-* 要了解安装是加载您的源目录还是缓存副本，请参阅[就地和复制的插件](/docs/zh-CN/plugins/loading#in-place-and-copied-plugins)。
+* 对于最小的有效市场，请参阅[创建市场](/docs/zh-CN/plugins/create-marketplace.md)。
+* 要了解安装是加载您的源目录还是缓存副本，请参阅[就地和复制的插件](/docs/zh-CN/plugins/loading.md#in-place-and-copied-plugins)。
 
 **5. 填写用户看到的元数据**
 
-在 `plugin.json` 中设置 `description`、`author`、`homepage` 和 `repository`，并在插件根目录添加 `README.md`。`homepage` 必须解析为 URL。[清单参考](/docs/zh-CN/plugins/manifest-reference#fields)列出了每个字段。
+在 `plugin.json` 中设置 `description`、`author`、`homepage` 和 `repository`，并在插件根目录添加 `README.md`。`homepage` 必须解析为 URL。[清单参考](/docs/zh-CN/plugins/manifest-reference.md#fields)列出了每个字段。
 
 **6. 运行您的 eval 套件**
 
-如果您有 eval 套件，在您的 shell 中运行 `claude plugin eval`。它运行插件的测试用例并对结果进行评分，这在您更改插件时捕获回归。请参阅[使用 evals 测试插件](/docs/zh-CN/plugin-evals)。
+如果您有 eval 套件，在您的 shell 中运行 `claude plugin eval`。它运行插件的测试用例并对结果进行评分，这在您更改插件时捕获回归。请参阅[使用 evals 测试插件](/docs/zh-CN/plugin-evals.md)。
 
 ## 不使用市场共享插件
 
 如果插件在 git 存储库中，人们可以克隆它并加载检出，或从他们的 shell 启动 Claude Code，使用 `--plugin-url` 指向您附加到发布的 `.zip`。要获取您的下一个版本，他们拉取或再次下载。如果它不在存储库中，请将目录或其 `.zip` 发送给他们。他们可以通过以下两种方式之一加载它：
 
-* **对于一个会话**：他们从他们的 shell 启动 Claude Code，使用 `claude --plugin-dir ./deploy-helper`，其中路径是克隆、解压的文件夹或 `.zip` 本身。请参阅[为一个会话加载插件的标志](/docs/zh-CN/plugins/cli-reference#flags-that-load-a-plugin-for-one-session)。
-* **对于每个会话**：他们将插件目录（带有其 `.claude-plugin/plugin.json`）移到 `~/.claude/skills/` 下，以便 Claude Code [在每个会话中加载它](/docs/zh-CN/plugins/loading#find-where-a-plugin-came-from)。
+* **对于一个会话**：他们从他们的 shell 启动 Claude Code，使用 `claude --plugin-dir ./deploy-helper`，其中路径是克隆、解压的文件夹或 `.zip` 本身。请参阅[为一个会话加载插件的标志](/docs/zh-CN/plugins/cli-reference.md#flags-that-load-a-plugin-for-one-session)。
+* **对于每个会话**：他们将插件目录（带有其 `.claude-plugin/plugin.json`）移到 `~/.claude/skills/` 下。此后 Claude Code 会在启动时加载它，除非他们的管理员已[阻止 skills 目录插件](/docs/zh-CN/plugins/loading.md#skills-directory-plugins-blocked-by-managed-settings)。
 
 将 `.claude-plugin/marketplace.json` 添加到同一存储库是让人们按名称安装和使用命令更新的方式；请参阅[通过您自己的市场发布](#publish-through-your-own-marketplace)。
 
 ### 使用您自己的工具发布插件
 
-如果您维护 CLI 或 SDK，在市场中发布插件，并让您的安装程序或安装后消息运行或打印用户需要的两个命令：`claude plugin marketplace add <source>`，然后 `claude plugin install <name>@<marketplace>`。对于当某人使用您的工具时的会话内发现，请参阅[从您的 CLI 推荐您的插件](/docs/zh-CN/plugins/cli-hints)。
+如果您维护 CLI 或 SDK，在市场中发布插件，并让您的安装程序或安装后消息运行或打印用户需要的两个命令：`claude plugin marketplace add <source>`，然后 `claude plugin install <name>@<marketplace>`。对于当某人使用您的工具时的会话内发现，请参阅[从您的 CLI 推荐您的插件](/docs/zh-CN/plugins/cli-hints.md)。
 
 ## 通过您自己的市场发布
 
@@ -84,7 +84,7 @@
 
 ### 将市场文件添加到您的存储库
 
-要从插件自己的存储库发布，请在 `.claude-plugin/` 中的 `plugin.json` 旁边保存市场文件，其中一个条目的 `source` 是 `"./"` 即存储库根目录。给条目与 `plugin.json` 相同的 `name`，根据[保持条目名称和清单名称相同](/docs/zh-CN/plugins/create-marketplace#keep-the-entry-name-and-the-manifest-name-the-same)：
+要从插件自己的存储库发布，请在 `.claude-plugin/` 中的 `plugin.json` 旁边保存市场文件，其中一个条目的 `source` 是 `"./"` 即存储库根目录。给条目与 `plugin.json` 相同的 `name`，根据[保持条目名称和清单名称相同](/docs/zh-CN/plugins/create-marketplace.md#keep-the-entry-name-and-the-manifest-name-the-same)：
 
 ```json .claude-plugin/marketplace.json theme={null}
 {
@@ -96,13 +96,13 @@
 }
 ```
 
-在您的 shell 中，推送前在仓库中运行 `claude plugin validate .`。有关该运行检查的内容，请参阅[验证目录](/docs/zh-CN/plugins/cli-reference#validate-a-directory)。
+在您的 shell 中，推送前在仓库中运行 `claude plugin validate .`。有关该运行检查的内容，请参阅[验证目录](/docs/zh-CN/plugins/cli-reference.md#validate-a-directory)。
 
-[创建市场](/docs/zh-CN/plugins/create-marketplace)涵盖了一个存储库中有多个插件的布局。
+[创建市场](/docs/zh-CN/plugins/create-marketplace.md)涵盖了一个存储库中有多个插件的布局。
 
 ### 控制谁可以安装
 
-任何可以克隆存储库的人都可以从中安装，因此如果存储库是私有的，市场也是私有的。对于 git 存储库以外的主机，请参阅[托管市场](/docs/zh-CN/plugins/host-marketplace)。要到达整个公司的每个人，包括不使用 git 的人，请参阅[向整个公司推出](/docs/zh-CN/plugins/host-marketplace#roll-out-to-a-whole-company)。
+任何可以克隆存储库的人都可以从中安装，因此如果存储库是私有的，市场也是私有的。对于 git 存储库以外的主机，请参阅[托管市场](/docs/zh-CN/plugins/host-marketplace.md)。要到达整个公司的每个人，包括不使用 git 的人，请参阅[向整个公司推出](/docs/zh-CN/plugins/host-marketplace.md#roll-out-to-a-whole-company)。
 
 ### 告诉用户如何安装
 
@@ -110,7 +110,7 @@
 
 * 添加市场一次：`claude plugin marketplace add your-org/your-marketplace`，其中参数是 GitHub `owner/repo` 简写、URL 或路径
 * 安装插件：`claude plugin install deploy-helper@your-marketplace`
-* 或从会话内同时执行两者：`/plugin install deploy-helper --marketplace your-org/your-marketplace`。需要 Claude Code v2.1.275 或更高版本。请参阅[在一个命令中添加市场和安装](/docs/zh-CN/plugins/install#add-a-marketplace-and-install-in-one-command)
+* 或从会话内同时执行两者：`/plugin install deploy-helper --marketplace your-org/your-marketplace`。需要 Claude Code v2.1.275 或更高版本。请参阅[在一个命令中添加市场和安装](/docs/zh-CN/plugins/install.md#add-a-marketplace-and-install-in-one-command)
 * 或在 shell 中用一个命令同时执行两者：`claude plugin install deploy-helper --marketplace your-org/your-marketplace`。需要 Claude Code v2.1.292 或更高版本
 
 ### 向用户发布更新
@@ -118,9 +118,9 @@
 用户在请求时或为您的市场启用自动更新时接收发布：
 
 * **按请求**：用户的 shell 中的 `claude plugin update deploy-helper@your-marketplace` 刷新市场，当您的插件版本更改时安装新副本
-* **自动更新**：默认为您的市场关闭。请参阅[启用自动更新](/docs/zh-CN/plugins/host-marketplace#turn-on-auto-update)。启用后，它在会话启动后的延迟后执行与 `claude plugin update` 相同的操作
+* **自动更新**：默认为您的市场关闭。请参阅[启用自动更新](/docs/zh-CN/plugins/host-marketplace.md#turn-on-auto-update)。启用后，它在会话启动后的延迟后执行与 `claude plugin update` 相同的操作
 
-[安装插件](/docs/zh-CN/plugins/install)涵盖用户端命令，[自动更新何时运行](/docs/zh-CN/plugins/loading#when-auto-update-runs)涵盖时间。
+[安装插件](/docs/zh-CN/plugins/install.md)涵盖用户端命令，[自动更新何时运行](/docs/zh-CN/plugins/loading.md#when-auto-update-runs)涵盖时间。
 
 ## 提交到 Anthropic 的目录
 
@@ -136,7 +136,7 @@ Anthropic 的官方市场 `claude-plugins-official` 不通过目录门户接受�
 
 **2. 在本地验证插件**
 
-在您的 shell 中运行 `claude plugin validate ./your-plugin --strict`。用您的插件目录的路径替换 `./your-plugin`。该命令在本地捕获清单错误；[plugin validate](/docs/zh-CN/plugins/cli-reference#plugin-validate) 列出了每次运行读取的文件。门户应用了 CLI 不检查的额外目录规则，因此本地运行清晰并不保证门户验证清晰。
+在您的 shell 中运行 `claude plugin validate ./your-plugin --strict`。用您的插件目录的路径替换 `./your-plugin`。该命令在本地捕获清单错误；[plugin validate](/docs/zh-CN/plugins/cli-reference.md#plugin-validate) 列出了每次运行读取的文件。门户应用了 CLI 不检查的额外目录规则，因此本地运行清晰并不保证门户验证清晰。
 
 claude.com 上的 [plugin pre-submission checklist](https://claude.com/docs/plugins/pre-submission-checklist#run-the-checks-before-you-submit) 列出了提交前要运行和修复的检查。
 
@@ -157,7 +157,7 @@ claude.com 上的 [plugin pre-submission checklist](https://claude.com/docs/plug
 
 ### 列出的插件如何到达 Claude Code 用户
 
-在 claude.ai 上从目录安装您的插件的人在他们的账户上拥有它，Claude Code 将其加载为 `<name>@synced`。[Plugins synced from claude.ai](/docs/zh-CN/plugins/loading#synced-plugins) 涵盖了他们看到的内容以及他们如何关闭它。
+在 claude.ai 上从目录安装您的插件的人在他们的账户上拥有它，Claude Code 将其加载为 `<name>@synced`。[Plugins synced from claude.ai](/docs/zh-CN/plugins/loading.md#synced-plugins) 涵盖了他们看到的内容以及他们如何关闭它。
 
 ## 发布更新、重命名和删除
 
@@ -175,17 +175,17 @@ claude.com 上的 [plugin pre-submission checklist](https://claude.com/docs/plug
 
 永远不要更改已发布插件的 `name`。重命名后，已安装它的用户会丢失插件，因为他们的安装记录在旧名称下。您的市场文件中的 `renames` 条目会改为迁移它们。当您想要不同的标签时，更改 `displayName`。
 
-如果重命名是不可避免的，请使用市场文件的 `renames` 映射，以便现有安装迁移而不是因为 [`Plugin "<name>" not found in marketplace`](/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace) 而失败。要从市场中删除插件，或获取完整的 `renames` 详细信息，请参阅托管页面上的[重命名或删除插件](/docs/zh-CN/plugins/host-marketplace#rename-or-remove-a-plugin)。[市场参考](/docs/zh-CN/plugins/marketplace-reference#top-level-fields)有该字段。
+如果重命名是不可避免的，请使用市场文件的 `renames` 映射，以便现有安装迁移而不是因为 [`Plugin "<name>" not found in marketplace`](/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace) 而失败。要从市场中删除插件，或获取完整的 `renames` 详细信息，请参阅托管页面上的[重命名或删除插件](/docs/zh-CN/plugins/host-marketplace.md#rename-or-remove-a-plugin)。[市场参考](/docs/zh-CN/plugins/marketplace-reference.md#top-level-fields)有该字段。
 
 ## 声明依赖项
 
 如果您的插件需要来自同一市场的另一个插件被启用，请在 `plugin.json` 的 `dependencies` 数组中列出它。每个条目是一个裸名称或具有 semver `version` 范围的对象。当用户安装您的插件时，Claude Code 也会安装并启用依赖项。
 
-[插件依赖项](/docs/zh-CN/plugins/dependencies)涵盖范围语法、跨市场依赖项以及用户如何修剪他们不再需要的依赖项。
+[插件依赖项](/docs/zh-CN/plugins/dependencies.md)涵盖范围语法、跨市场依赖项以及用户如何修剪他们不再需要的依赖项。
 
 ## 后续步骤
 
-* [托管和维护市场](/docs/zh-CN/plugins/host-marketplace)：发布新版本并让用户保持最新
-* [插件依赖项](/docs/zh-CN/plugins/dependencies)：声明和版本化您的插件所依赖的插件
-* [从您的 CLI 推荐您的插件](/docs/zh-CN/plugins/cli-hints)：提示您的 CLI 的 Claude Code 用户安装插件
-* [测量插件成本和使用情况](/docs/zh-CN/plugins/measure)：查看您的插件在上下文中的成本以及人们是否使用它
+* [托管和维护市场](/docs/zh-CN/plugins/host-marketplace.md)：发布新版本并让用户保持最新
+* [插件依赖项](/docs/zh-CN/plugins/dependencies.md)：声明和版本化您的插件所依赖的插件
+* [从您的 CLI 推荐您的插件](/docs/zh-CN/plugins/cli-hints.md)：提示您的 CLI 的 Claude Code 用户安装插件
+* [测量插件成本和使用情况](/docs/zh-CN/plugins/measure.md)：查看您的插件在上下文中的成本以及人们是否使用它

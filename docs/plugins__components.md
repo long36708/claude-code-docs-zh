@@ -6,7 +6,7 @@
 
 > 向 Claude Code 插件添加 skills、hooks、MCP 服务器和其他所有组件类型，并提供针对每种类型的验证示例。
 
-Claude Code 插件由多个组件构建而成，例如 skills、agents、hooks 和 MCP 服务器。每个组件在插件中都有一个默认文件夹，在 `.claude-plugin/plugin.json` 中有一个可选的清单键来替换或添加到该文件夹，以及用户看到的名称。有关每个键的完整字段表，请参阅[清单参考](/docs/zh-CN/plugins/manifest-reference#fields)。
+Claude Code 插件由多个组件构建而成，例如 skills、agents、hooks 和 MCP 服务器。每个组件在插件中都有一个默认文件夹，在 `.claude-plugin/plugin.json` 中有一个可选的清单键来替换或添加到该文件夹，以及用户看到的名称。有关每个键的完整字段表，请参阅[清单参考](/docs/zh-CN/plugins/manifest-reference.md#fields)。
 
 使用此页面向已加载的插件添加组件。
 
@@ -16,8 +16,8 @@ Claude Code 插件由多个组件构建而成，例如 skills、agents、hooks �
 >
 > 这些情况在其他页面上有介绍：
 >
-> * **构建您的第一个插件**：从[创建插件](/docs/zh-CN/plugins/create)开始
-> * **安装他人的插件**：请参阅[安装插件](/docs/zh-CN/plugins/install)
+> * **构建您的第一个插件**：从[创建插件](/docs/zh-CN/plugins/create.md)开始
+> * **安装他人的插件**：请参阅[安装插件](/docs/zh-CN/plugins/install.md)
 > * **您的插件用户在 claude.ai 或 Cowork 中**：那里加载的是不同的组件集。请参阅[插件结构和测试](https://claude.com/docs/plugins/build)和[组件支持表](https://claude.com/docs/plugins/platform-support#compare-component-support-by-app)
 
 ## 浏览插件目录
@@ -46,7 +46,7 @@ my-plugin/
 
 Selected piece
 
-[清单](/docs/zh-CN/plugins/manifest-reference)是插件 `.claude-plugin/` 目录中的 `plugin.json` 文件。它包含插件的元数据和 Claude Code 提示用户的 `userConfig` 值。Claude Code 可以在没有清单的情况下加载插件。在文件中，只有 `name` 是必需的。在这个文件中，`description` 是用户在 `/plugin` 中看到的插件文本，`version` 使用户保持在该版本，直到您更改它：
+[清单](/docs/zh-CN/plugins/manifest-reference.md)是插件 `.claude-plugin/` 目录中的 `plugin.json` 文件。它包含插件的元数据和 Claude Code 提示用户的 `userConfig` 值。Claude Code 可以在没有清单的情况下加载插件。在文件中，只有 `name` 是必需的。在这个文件中，`description` 是用户在 `/plugin` 中看到的插件文本，`version` 使用户保持在该版本，直到您更改它：
 
 ```json theme={null}
 {
@@ -56,7 +56,7 @@ Selected piece
 }
 ```
 
-一个 [skill](/docs/zh-CN/skills) 是一个 `SKILL.md` 文件。将每个 skill 保存在 `skills/` 下的自己的目录中。Claude 读取每个 skill 的 `description`，当用户要求的内容与其匹配时，例如在这里要求 Claude 审查拉取请求，Claude 加载 skill 的说明并遵循它们。用户也可以直接将其作为 `/my-plugin:review` 运行：
+一个 [skill](/docs/zh-CN/skills.md) 是一个 `SKILL.md` 文件。将每个 skill 保存在 `skills/` 下的自己的目录中。Claude 读取每个 skill 的 `description`，当用户要求的内容与其匹配时，例如在这里要求 Claude 审查拉取请求，Claude 加载 skill 的说明并遵循它们。用户也可以直接将其作为 `/my-plugin:review` 运行：
 
 ```markdown theme={null}
 ---
@@ -76,7 +76,7 @@ description: Summarize the repository
 Summarize what this repository does in three sentences.
 ```
 
-一个[子代理](/docs/zh-CN/sub-agents)是一个单独的助手，拥有自己的说明和自己的上下文窗口，Claude 可以将任务委托给它并获得结果。`agents/` 下的每个 Markdown 文件定义一个：frontmatter 命名它并说明何时使用它，正文是其系统提示。这个被命名为 `my-plugin:security-reviewer`，用户可以使用 `@agent-my-plugin:security-reviewer` 调用它：
+一个[子代理](/docs/zh-CN/sub-agents.md)是一个单独的助手，拥有自己的说明和自己的上下文窗口，Claude 可以将任务委托给它并获得结果。`agents/` 下的每个 Markdown 文件定义一个：frontmatter 命名它并说明何时使用它，正文是其系统提示。这个被命名为 `my-plugin:security-reviewer`，用户可以使用 `@agent-my-plugin:security-reviewer` 调用它：
 
 ```markdown theme={null}
 ---
@@ -88,7 +88,7 @@ model: sonnet
 You are a security reviewer. Read the changed files and report injection, authentication, and secrets-handling risks.
 ```
 
-一个 [hook](/docs/zh-CN/hooks-guide) 在 Claude Code 生命周期中的某个点自动运行某些内容，例如在每次文件编辑后：shell 命令、HTTP 请求、MCP 工具调用、对模型的提示或子代理。将插件的 hooks 保存在插件根目录的 `hooks/hooks.json` 中。这个在 Claude 写入或编辑文件后运行插件的 `scripts/format.sh`：
+一个 [hook](/docs/zh-CN/hooks-guide.md) 在 Claude Code 生命周期中的某个点自动运行某些内容，例如在每次文件编辑后：shell 命令、HTTP 请求、MCP 工具调用、对模型的提示或子代理。将插件的 hooks 保存在插件根目录的 `hooks/hooks.json` 中。这个在 Claude 写入或编辑文件后运行插件的 `scripts/format.sh`：
 
 ```json theme={null}
 {
@@ -120,7 +120,7 @@ You are a security reviewer. Read the changed files and report injection, authen
 ]
 ```
 
-插件可以包含[输出样式](/docs/zh-CN/output-styles)，这改变了 Claude 如何格式化和表述其回复。将每个输出样式保存为 `output-styles/<name>.md`。这个在 `/output-style` 中显示为 `my-plugin:terse`：
+插件可以包含[输出样式](/docs/zh-CN/output-styles.md)，这改变了 Claude 如何格式化和表述其回复。将每个输出样式保存为 `output-styles/<name>.md`。这个在 `/output-style` 中显示为 `my-plugin:terse`：
 
 ```markdown theme={null}
 ---
@@ -132,7 +132,7 @@ keep-coding-instructions: true
 Keep every reply short. Skip preambles and summaries.
 ```
 
-插件可以包含 [Claude Code 界面的颜色主题](/docs/zh-CN/terminal-config#create-a-custom-theme)。将每个主题保存为 `themes/<slug>.json`。这个在 `/theme` 中显示为 `Dracula`，标记为来自 `my-plugin`：
+插件可以包含 [Claude Code 界面的颜色主题](/docs/zh-CN/terminal-config.md#create-a-custom-theme)。将每个主题保存为 `themes/<slug>.json`。这个在 `/theme` 中显示为 `Dracula`，标记为来自 `my-plugin`：
 
 ```json theme={null}
 {
@@ -145,7 +145,7 @@ Keep every reply short. Skip preambles and summaries.
 }
 ```
 
-`workflows/` 文件夹包含 [workflow](/docs/zh-CN/workflows) `.js` 文件：一个 `meta` 块，然后是协调多个子代理的脚本正文。这个作为 `/my-plugin:audit-routes` 运行：
+`workflows/` 文件夹包含 [workflow](/docs/zh-CN/workflows.md) `.js` 文件：一个 `meta` 块，然后是协调多个子代理的脚本正文。这个作为 `/my-plugin:audit-routes` 运行：
 
 ```javascript theme={null}
 export const meta = {
@@ -178,7 +178,7 @@ echo "hello from my-plugin"
 npx prettier --write .
 ```
 
-插件根目录中的 `settings.json` 包含在启用插件时应用的[设置](/docs/zh-CN/settings-reference)，因此插件可以改变会话的行为方式，而不仅仅是添加组件。只有两个键从插件生效，[`agent`](/docs/zh-CN/settings-reference#agent) 和 [`subagentStatusLine`](/docs/zh-CN/settings-reference#subagentstatusline)；所有其他键都被丢弃。请参阅[默认设置](#default-settings)。
+插件根目录中的 `settings.json` 包含在启用插件时应用的[设置](/docs/zh-CN/settings-reference.md)，因此插件可以改变会话的行为方式，而不仅仅是添加组件。只有两个键从插件生效，[`agent`](/docs/zh-CN/settings-reference#agent) 和 [`subagentStatusLine`](/docs/zh-CN/settings-reference#subagentstatusline)；所有其他键都被丢弃。请参阅[默认设置](#default-settings)。
 
 这个设置 `agent`，它将会话的主线程作为插件自己的 `security-reviewer` agent 运行，因此该 agent 的系统提示、工具限制和模型应用于整个会话：
 
@@ -188,7 +188,7 @@ npx prettier --write .
 }
 ```
 
-一个 [MCP 服务器](/docs/zh-CN/mcp)从外部系统为 Claude 提供工具。在插件根目录的 `.mcp.json` 中声明它。这个从插件内的脚本启动本地服务器，并在 `/mcp` 中显示为 `plugin:my-plugin:db`：
+一个 [MCP 服务器](/docs/zh-CN/mcp.md)从外部系统为 Claude 提供工具。在插件根目录的 `.mcp.json` 中声明它。这个从插件内的脚本启动本地服务器，并在 `/mcp` 中显示为 `plugin:my-plugin:db`：
 
 ```json theme={null}
 {
@@ -201,7 +201,7 @@ npx prettier --write .
 }
 ```
 
-LSP 服务器为 Claude 提供[诊断和代码导航](/docs/zh-CN/plugins/code-intelligence)。在插件根目录的 `.lsp.json` 中声明服务器。这个为 `.go` 文件连接 Go 语言服务器：
+LSP 服务器为 Claude 提供[诊断和代码导航](/docs/zh-CN/plugins/code-intelligence.md)。在插件根目录的 `.lsp.json` 中声明服务器。这个为 `.go` 文件连接 Go 语言服务器：
 
 ```json theme={null}
 {
@@ -221,7 +221,7 @@ LSP 服务器为 Claude 提供[诊断和代码导航](/docs/zh-CN/plugins/code-i
 
 ### Skills
 
-一个 [skill](/docs/zh-CN/skills) 是一个 `SKILL.md` 文件，当其描述与任务匹配时，Claude 可以加载它。用户也可以将其作为命令运行。将每个 skill 保存在 `skills/` 下的自己的目录中：
+一个 [skill](/docs/zh-CN/skills.md) 是一个 `SKILL.md` 文件，当其描述与任务匹配时，Claude 可以加载它。用户也可以将其作为命令运行。将每个 skill 保存在 `skills/` 下的自己的目录中：
 
 ```text theme={null}
 my-plugin/
@@ -244,19 +244,19 @@ Review the changed files. Report style problems first, then missing tests.
 
 加载插件后，`/my-plugin:review` 运行该 skill。命令名称和谁可以调用它遵循以下规则：
 
-* **命令名称**：`/<plugin>:<directory>`，所以 `my-plugin` 中的 `skills/review/SKILL.md` 是 `/my-plugin:review`。如果你在 frontmatter 中设置 `name`，它会替换最后一段，插件前缀保持不变。参见 [skill 如何获得其命令名称](/docs/zh-CN/skills#how-a-skill-gets-its-command-name)
-* **谁调用它**：Claude、用户或两者，由 frontmatter 控制。参见 [控制谁调用 skill](/docs/zh-CN/skills#control-who-invokes-a-skill)
+* **命令名称**：`/<plugin>:<directory>`，所以 `my-plugin` 中的 `skills/review/SKILL.md` 是 `/my-plugin:review`。如果你在 frontmatter 中设置 `name`，它会替换最后一段，插件前缀保持不变。参见 [skill 如何获得其命令名称](/docs/zh-CN/skills.md#how-a-skill-gets-its-command-name)
+* **谁调用它**：Claude、用户或两者，由 frontmatter 控制。参见 [控制谁调用 skill](/docs/zh-CN/skills.md#control-who-invokes-a-skill)
 
 你也可以将 skills 放在默认 `skills/` 目录之外：
 
 * **其他目录**：在 `skills` 清单键中列出它们。它们添加到默认 `skills/` 扫描中，而不是替换它，不同于 `commands` 和 `agents`
-* **插件根目录中的单个 skill**：没有 `skills/` 目录且没有 `skills` 清单键的情况下，插件根目录中的 `SKILL.md` 作为一个 skill 加载。在其 frontmatter 中设置 `name`，因为否则 marketplace 安装会根据其 [缓存目录](/docs/zh-CN/plugins/loading#find-plugins-on-disk) 而不是你的插件来命名该 skill
+* **插件根目录中的单个 skill**：没有 `skills/` 目录且没有 `skills` 清单键的情况下，插件根目录中的 `SKILL.md` 作为一个 skill 加载。在其 frontmatter 中设置 `name`，因为否则 marketplace 安装会根据其 [缓存目录](/docs/zh-CN/plugins/loading.md#find-plugins-on-disk) 而不是你的插件来命名该 skill
 
 要在插件中包含说明，将其写成 skill。Claude Code 不会在插件根目录加载 `CLAUDE.md`，`claude plugin validate` 会警告 `CLAUDE.md at the plugin root is not loaded as project context`。
 
-如果规则必须每次都成立，例如 [阻止编辑受保护的文件](/docs/zh-CN/hooks-guide#block-edits-to-protected-files)，将其添加到插件作为 [hook](#hooks) 而不是 skill。要在两者之间选择，参见 [比较相似功能](/docs/zh-CN/features-overview#compare-similar-features) 下的 Hook vs Skill 标签页。
+如果规则必须每次都成立，例如 [阻止编辑受保护的文件](/docs/zh-CN/hooks-guide.md#block-edits-to-protected-files)，将其添加到插件作为 [hook](#hooks) 而不是 skill。要在两者之间选择，参见 [比较相似功能](/docs/zh-CN/features-overview.md#compare-similar-features) 下的 Hook vs Skill 标签页。
 
-对于 frontmatter 字段和支持文件，参见 [Skills](/docs/zh-CN/skills)。
+对于 frontmatter 字段和支持文件，参见 [Skills](/docs/zh-CN/skills.md)。
 
 ### Commands
 
@@ -294,7 +294,7 @@ Review the changed files. Report style problems first, then missing tests.
 
 ### Agents
 
-一个 [subagent](/docs/zh-CN/sub-agents) 是一个单独的助手，有自己的说明和上下文窗口，Claude 可以将任务委托给它。`agents/` 下的每个 Markdown 文件定义一个：
+一个 [subagent](/docs/zh-CN/sub-agents.md) 是一个单独的助手，有自己的说明和上下文窗口，Claude 可以将任务委托给它。`agents/` 下的每个 Markdown 文件定义一个：
 
 ```markdown agents/security-reviewer.md theme={null}
 ---
@@ -306,13 +306,13 @@ model: sonnet
 You are a security reviewer. Read the changed files and report injection, authentication, and secrets-handling risks.
 ```
 
-此 Agent 名为 `my-plugin:security-reviewer`，用户可以使用 `@agent-my-plugin:security-reviewer` [显式调用它](/docs/zh-CN/sub-agents#invoke-subagents-explicitly)。名称形式是 `<plugin>:<name>`，其中 `<name>` 来自 frontmatter 的 `name` 字段，或在该字段缺失时来自文件名。
+此 Agent 名为 `my-plugin:security-reviewer`，用户可以使用 `@agent-my-plugin:security-reviewer` [显式调用它](/docs/zh-CN/sub-agents.md#invoke-subagents-explicitly)。名称形式是 `<plugin>:<name>`，其中 `<name>` 来自 frontmatter 的 `name` 字段，或在该字段缺失时来自文件名。
 
 `agents` 清单键替换 `agents/` 扫描。
 
 #### 在子文件夹中组织代理
 
-你可以将插件代理文件放在 `agents/` 的子文件夹中。Claude Code [递归加载它们](/docs/zh-CN/sub-agents#choose-the-subagent-scope)，并用冒号连接插件名称、每个子文件夹名称和文件名，以形成代理的作用域名称。例如，`my-plugin` 插件中的 `agents/review/security.md` 加载为 `my-plugin:review:security`。两个设置改变该名称：
+你可以将插件代理文件放在 `agents/` 的子文件夹中。Claude Code [递归加载它们](/docs/zh-CN/sub-agents.md#choose-the-subagent-scope)，并用冒号连接插件名称、每个子文件夹名称和文件名，以形成代理的作用域名称。例如，`my-plugin` 插件中的 `agents/review/security.md` 加载为 `my-plugin:review:security`。两个设置改变该名称：
 
 * Frontmatter `name`：它仅替换文件名，所以 `agents/review/security.md` 中的 `name: audit` 加载为 `my-plugin:review:audit`
 * 清单 [`agents`](/docs/zh-CN/plugins/manifest-reference#fields) 字段：你在那里列出的文件加载时不带子文件夹名称，所以 `"agents": "./custom/review/security.md"` 加载为 `my-plugin:security`
@@ -321,15 +321,16 @@ You are a security reviewer. Read the changed files and report injection, authen
 
 插件代理的 frontmatter 遵循以下规则：
 
-* **支持的字段**：`name`、`description`、`model`、`effort`、`maxTurns`、`autoCompactWindow`、`tools`、`disallowedTools`、`skills`、`memory`、`background`、`omitClaudeMd`、`isolation`、`color` 和 `experimental` 的 `cacheTtl` 键。唯一有效的 `isolation` 值是 `"worktree"`。参见 [支持的 frontmatter 字段](/docs/zh-CN/sub-agents#supported-frontmatter-fields) 了解每个字段的作用
+* **支持的字段**：`name`、`description`、`model`、`effort`、`maxTurns`、`autoCompactWindow`、`tools`、`disallowedTools`、`skills`、`memory`、`background`、`omitClaudeMd`、`isolation`、`color` 和 `experimental` 的 `cacheTtl` 键。唯一有效的 `isolation` 值是 `"worktree"`。参见 [支持的 frontmatter 字段](/docs/zh-CN/sub-agents.md#supported-frontmatter-fields) 了解每个字段的作用
 * **忽略的字段**：`permissionMode`、`hooks`、`mcpServers` 和 `initialPrompt`。代理文件不能自己添加 hooks 或 MCP 服务器，所以改为添加为插件 [hooks](#hooks) 和 [MCP 服务器](#mcp-servers)
+* **长度超过 256 个字符的 `name`**：Claude Code 会忽略它，并以文件名命名该 Agent，与该字段缺失时的处理方式相同
 * **不解析的 Frontmatter**：代理仍然加载，每个字段都被忽略。它以文件名命名，其描述读作 `Agent from my-plugin plugin`。在你的 shell 中运行 [`claude plugin validate`](/docs/zh-CN/plugins/cli-reference#plugin-validate) 来找到这些文件
 
-对于每个字段的作用和优先级规则，参见 [Subagents](/docs/zh-CN/sub-agents#supported-frontmatter-fields)。
+对于每个字段的作用和优先级规则，参见 [Subagents](/docs/zh-CN/sub-agents.md#supported-frontmatter-fields)。
 
 ### Hooks
 
-一个 [hook](/docs/zh-CN/hooks-guide) 在 Claude Code 生命周期中的某个点自动运行某些东西，例如在每次文件编辑后：shell 命令、HTTP 请求、MCP 工具调用、对模型的提示或 subagent。在插件根目录的 `hooks/hooks.json` 中保存插件的 hooks，在顶级 `"hooks"` 键下，形状与 `settings.json` 中的 `hooks` 对象相同。这让你可以复制现有的设置 hook 而不做任何改变。
+一个 [hook](/docs/zh-CN/hooks-guide.md) 在 Claude Code 生命周期中的某个点自动运行某些东西，例如在每次文件编辑后：shell 命令、HTTP 请求、MCP 工具调用、对模型的提示或 subagent。在插件根目录的 `hooks/hooks.json` 中保存插件的 hooks，在顶级 `"hooks"` 键下，形状与 `settings.json` 中的 `hooks` 对象相同。这让你可以复制现有的设置 hook 而不做任何改变。
 
 此 hook 在每次 `Write` 或 `Edit` 后运行一个捆绑脚本：
 
@@ -353,27 +354,27 @@ You are a security reviewer. Read the changed files and report injection, authen
 
 在 `scripts/format.sh` 保存脚本并使其可执行。
 
-加载插件并要求 Claude 编辑文件。退出 0 的 `PostToolUse` hook 在记录中不显示任何内容，所以用 [调试日志](/docs/zh-CN/hooks#debug-hooks) 或脚本本身所做的更改来确认它运行了。
+加载插件并要求 Claude 编辑文件。退出 0 的 `PostToolUse` hook 在记录中不显示任何内容，所以用 [调试日志](/docs/zh-CN/hooks.md#debug-hooks) 或脚本本身所做的更改来确认它运行了。
 
-`hooks/hooks.json` 和 `hooks` 清单键中的 hooks 都会加载。对于每个事件及其有效负载，参见 [Hook 事件](/docs/zh-CN/hooks#hook-events)。
+`hooks/hooks.json` 和 `hooks` 清单键中的 hooks 都会加载。对于每个事件及其有效负载，参见 [Hook 事件](/docs/zh-CN/hooks.md#hook-events)。
 
-当另一个已启用的插件具有相同名称时，两者中只有一个会注册其 `hooks/hooks.json` 中的 hook，另一个的 hook 会被排除。关于是哪一个，以及 `/plugin` 中告知您此情况的提示，参见 [两个已启用插件同名时的 hook](/docs/zh-CN/plugins/loading#hooks-when-two-enabled-plugins-share-a-name)。
+当另一个已启用的插件具有相同名称时，两者中只有一个会注册其 `hooks/hooks.json` 中的 hook，另一个的 hook 会被排除。关于是哪一个，以及 `/plugin` 中告知您此情况的提示，参见 [两个已启用插件同名时的 hook](/docs/zh-CN/plugins/loading.md#hooks-when-two-enabled-plugins-share-a-name)。
 
-要将 hooks 写成在 Claude Code 内运行并可以在其界面中绘制的 JavaScript 函数，在同一 `hooks/hooks.json` 中的 `modules` 键下列出一个模块文件。具有一个的插件是 mod。参见 [创建 mod](/docs/zh-CN/plugins/mods/create)。
+要将 hooks 写成在 Claude Code 内运行并可以在其界面中绘制的 JavaScript 函数，在同一 `hooks/hooks.json` 中的 `modules` 键下列出一个模块文件。具有一个的插件是 mod。参见 [创建 mod](/docs/zh-CN/plugins/mods/create.md)。
 
 #### 插件 hooks 何时触发
 
 插件的 hooks 不会等待使用插件的某个 skill 或命令。Claude Code 在会话加载插件时注册它们，从那时起它们在其事件上触发。要限制 hook 何时运行，缩小其 `matcher`。
 
-如果 hook 从不触发，参见 [不触发的 hooks](/docs/zh-CN/plugins/troubleshooting#failed-to-load-hooks-from-and-hooks-that-dont-fire)。
+如果 hook 从不触发，参见 [不触发的 hooks](/docs/zh-CN/plugins/troubleshooting.md#failed-to-load-hooks-from-and-hooks-that-dont-fire)。
 
 #### 环境、引用和匹配 MCP 工具
 
 hook 的环境、`${CLAUDE_PLUGIN_ROOT}` 的引用和插件自己的 MCP 工具的匹配器工作如下：
 
 * **环境**：每个 hook 进程在其环境中接收 `CLAUDE_PLUGIN_ROOT` 和 `CLAUDE_PLUGIN_DATA`，加上每个 [用户配置](#user-configuration) 值的 `CLAUDE_PLUGIN_OPTION_<KEY>`，所以你的脚本可以从那里读取它们
-* **引用**：当 `command` 没有 `args` 时，它通过 shell 运行，所以用双引号包装 `${CLAUDE_PLUGIN_ROOT}` 路径，如 [Hooks](#hooks) 下的 `hooks/hooks.json` 示例所做的那样，以保持展开的路径为一个 shell 单词。当你改为传递 `args` 时，每个元素作为一个参数传递，没有 shell，不需要引用。参见 [exec 形式和 shell 形式](/docs/zh-CN/hooks#exec-form-and-shell-form)
-* **匹配插件自己的 MCP 工具**：来自此插件声明的 [MCP 服务器](#mcp-servers) 的工具名为 `mcp__plugin_<plugin>_<server>__<tool>`，所以在匹配器中写入该完整名称。仅在服务器名称上的匹配器从不触发。参见 [匹配 MCP 工具](/docs/zh-CN/hooks#match-mcp-tools)
+* **引用**：当 `command` 没有 `args` 时，它通过 shell 运行，所以用双引号包装 `${CLAUDE_PLUGIN_ROOT}` 路径，如 [Hooks](#hooks) 下的 `hooks/hooks.json` 示例所做的那样，以保持展开的路径为一个 shell 单词。当你改为传递 `args` 时，每个元素作为一个参数传递，没有 shell，不需要引用。参见 [exec 形式和 shell 形式](/docs/zh-CN/hooks.md#exec-form-and-shell-form)
+* **匹配插件自己的 MCP 工具**：来自此插件声明的 [MCP 服务器](#mcp-servers) 的工具名为 `mcp__plugin_<plugin>_<server>__<tool>`，所以在匹配器中写入该完整名称。仅在服务器名称上的匹配器从不触发。参见 [匹配 MCP 工具](/docs/zh-CN/hooks.md#match-mcp-tools)
 
 ### MCP servers
 
@@ -396,7 +397,7 @@ MCP 服务器从外部系统为 Claude 提供工具。在插件根目录的 `.mc
 
 `claude plugin validate` 检查 `.mcp.json` 并报告 Claude Code 在加载时会丢弃的服务器条目为错误。需要 Claude Code v2.1.281 或更高版本。
 
-对于坏条目在加载时显示的位置，参见 [不启动的 MCP 服务器](/docs/zh-CN/plugins/troubleshooting#invalid-mcp-server-config-for-and-mcp-servers-that-dont-start)。
+对于坏条目在加载时显示的位置，参见 [不启动的 MCP 服务器](/docs/zh-CN/plugins/troubleshooting.md#invalid-mcp-server-config-for-and-mcp-servers-that-dont-start)。
 
 `mcpServers` 清单键接受内联服务器映射、JSON 文件的路径或这些的数组。当清单服务器与 `.mcp.json` 中的服务器同名时，清单服务器替换它。
 
@@ -409,9 +410,9 @@ MCP 服务器从外部系统为 Claude 提供工具。在插件根目录的 `.mc
 服务器的名称、变量替换和重新加载行为遵循以下规则：
 
 * **服务器名称**：`plugin:<plugin>:<server>`，所以 `my-plugin` 中的 `db` 服务器在 `/mcp` 中是 `plugin:my-plugin:db`。使用相同的形式在 [`mcp_tool` hook](/docs/zh-CN/hooks#mcp-tool-hook-fields) 中命名服务器
-* **工具名称**：`mcp__plugin_<plugin>_<server>__<tool>`，所以该 `db` 服务器上的 `query` 工具是 `mcp__plugin_my-plugin_db__query`。这是在 [权限规则](/docs/zh-CN/permissions) 和 [hook 匹配器](#hooks) 中使用的名称
+* **工具名称**：`mcp__plugin_<plugin>_<server>__<tool>`，所以该 `db` 服务器上的 `query` 工具是 `mcp__plugin_my-plugin_db__query`。这是在 [权限规则](/docs/zh-CN/permissions.md) 和 [hook 匹配器](#hooks) 中使用的名称
 * **替换**：`${CLAUDE_PLUGIN_ROOT}` 和其他 [路径变量](#path-variables-and-persistent-data) 在 `command`、`args` 和 `env` 中被替换。`args` 中不需要引用，因为每个元素作为一个参数传递
-* **重新加载**：当用户运行 `/reload-plugins` 且 [重新加载适用](/docs/zh-CN/plugins/cli-reference#reloads-that-change-mcp-tools) 时，配置未更改的服务器保持其连接。配置已更改的服务器重新连接，你删除的服务器断开连接
+* **重新加载**：当用户运行 `/reload-plugins` 且 [重新加载适用](/docs/zh-CN/plugins/cli-reference.md#reloads-that-change-mcp-tools) 时，配置未更改的服务器保持其连接。配置已更改的服务器重新连接，你删除的服务器断开连接
 
 #### 包含打包的 MCPB 服务器
 
@@ -433,11 +434,11 @@ MCP 服务器从外部系统为 Claude 提供工具。在插件根目录的 `.mc
 * **在 `/plugin` 中**：在 **Installed** 标签上选择插件并选择 **Configure**
 * **在安装时，从 shell**：将 [`--config <server>.<key>=<value>`](/docs/zh-CN/plugins/cli-reference#plugin-install) 传递给 `claude plugin install`。需要 Claude Code v2.1.285 或更高版本，仅适用于打包在插件内的捆绑。
 
-对于传输和身份验证，参见 [MCP](/docs/zh-CN/mcp#plugin-provided-mcp-servers)。
+对于传输和身份验证，参见 [MCP](/docs/zh-CN/mcp.md#plugin-provided-mcp-servers)。
 
 ### LSP servers
 
-LSP 服务器为 Claude 提供诊断和代码导航。如果 [官方代码智能插件](/docs/zh-CN/plugins/code-intelligence) 已经涵盖你的语言，安装那个而不是写一个。否则在插件根目录的 `.lsp.json` 中声明服务器：
+LSP 服务器为 Claude 提供诊断和代码导航。如果 [官方代码智能插件](/docs/zh-CN/plugins/code-intelligence.md) 已经涵盖你的语言，安装那个而不是写一个。否则在插件根目录的 `.lsp.json` 中声明服务器：
 
 ```json .lsp.json theme={null}
 {
@@ -470,7 +471,7 @@ Claude Code 断开超过任一限制或向 stdout 写入非协议输出的服务
 
 ### Executables
 
-插件根目录中 `bin/` 中的文件在启用插件时位于 Bash 工具的 shell 的 `PATH` 上，所以 Claude 可以将它们作为裸命令运行。Claude 在 [沙箱](/docs/zh-CN/sandboxing) 之外使用 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool) 运行的命令也能在其 `PATH` 上找到它们，而在沙箱中运行的 PowerShell 命令则不能。添加一个可执行脚本：
+插件根目录中 `bin/` 中的文件在启用插件时位于 Bash 工具的 shell 的 `PATH` 上，所以 Claude 可以将它们作为裸命令运行。Claude 在 [沙箱](/docs/zh-CN/sandboxing.md) 之外使用 [PowerShell 工具](/docs/zh-CN/tools-reference.md#powershell-tool) 运行的命令也能在其 `PATH` 上找到它们，而在沙箱中运行的 PowerShell 命令则不能。添加一个可执行脚本：
 
 ```bash bin/hello-plugin theme={null}
 #!/bin/bash
@@ -505,7 +506,7 @@ claude.ai 和 Cowork 不安装具有顶级 `bin/` 目录的插件，包括你 [�
 * **用户设置优于插件默认值**：跨设置源，插件默认值是最低层，所以用户自己在 `~/.claude/settings.json` 中的 `agent` 覆盖你的
 * **两个插件设置相同的键**：来自最后加载的插件的值适用，`claude --debug` 记录 `overrides setting`
 
-对于 `subagentStatusLine` 形状，参见 [subagent 状态行](/docs/zh-CN/statusline#subagent-status-lines)。
+对于 `subagentStatusLine` 形状，参见 [subagent 状态行](/docs/zh-CN/statusline.md#subagent-status-lines)。
 
 ### Themes and output styles
 
@@ -513,8 +514,8 @@ claude.ai 和 Cowork 不安装具有顶级 `bin/` 目录的插件，包括你 [�
 
 | 组件 | 保存为 | 格式 | 出现在 | 清单键 |
 | :- | :- | :- | :- | :- |
-| 主题 | `themes/<slug>.json` | 用户在 `~/.claude/themes/` 中写入的 [自定义主题文件](/docs/zh-CN/terminal-config#create-a-custom-theme) 格式 | `/theme`，在文件的 `name` 下 | `experimental.themes` |
-| 输出样式 | `output-styles/<name>.md` | [自定义输出样式](/docs/zh-CN/output-styles#create-a-custom-output-style) 格式，带有 `name` 和 `description` frontmatter | `/output-style`，作为 `<plugin>:<name>` | `outputStyles` |
+| 主题 | `themes/<slug>.json` | 用户在 `~/.claude/themes/` 中写入的 [自定义主题文件](/docs/zh-CN/terminal-config.md#create-a-custom-theme) 格式 | `/theme`，在文件的 `name` 下 | `experimental.themes` |
+| 输出样式 | `output-styles/<name>.md` | [自定义输出样式](/docs/zh-CN/output-styles.md#create-a-custom-output-style) 格式，带有 `name` 和 `description` frontmatter | `/output-style`，作为 `<plugin>:<name>` | `outputStyles` |
 
 插件主题是只读的，所以当用户在 `/theme` 中编辑一个时，编辑被保存为其自己的主题目录中的副本。
 
@@ -533,7 +534,7 @@ claude.ai 和 Cowork 不安装具有顶级 `bin/` 目录的插件，包括你 [�
 
 ### Channels
 
-一个 [channel](/docs/zh-CN/channels) 让外部系统（如聊天应用）将消息发送到会话中。在插件中，channel 是 MCP 服务器之一加上一个 `channels` 条目，该条目绑定到它并可以提示其自己的配置。此清单将 channel 绑定到 `telegram` 服务器并要求机器人令牌：
+一个 [channel](/docs/zh-CN/channels.md) 让外部系统（如聊天应用）将消息发送到会话中。在插件中，channel 是 MCP 服务器之一加上一个 `channels` 条目，该条目绑定到它并可以提示其自己的配置。此清单将 channel 绑定到 `telegram` 服务器并要求机器人令牌：
 
 ```json .claude-plugin/plugin.json theme={null}
 {
@@ -563,7 +564,7 @@ claude.ai 和 Cowork 不安装具有顶级 `bin/` 目录的插件，包括你 [�
 
 `server` 必须匹配 `mcpServers` 中的键。每个 channel 的 `userConfig` 采用与 [顶级 `userConfig` 键](#user-configuration) 相同的形状。
 
-对于服务器必须实现的内容以及用户如何启用 channel 插件，参见 channels 参考中的 [打包为插件](/docs/zh-CN/channels-reference#package-as-a-plugin)。对于字段表，参见 [`channels`](/docs/zh-CN/plugins/manifest-reference#channels)。
+对于服务器必须实现的内容以及用户如何启用 channel 插件，参见 channels 参考中的 [打包为插件](/docs/zh-CN/channels-reference.md#package-as-a-plugin)。对于字段表，参见 [`channels`](/docs/zh-CN/plugins/manifest-reference#channels)。
 
 ### Monitors
 
@@ -579,11 +580,11 @@ monitor 是在整个会话中在后台运行的 shell 命令。它打印的内�
 ]
 ```
 
-命令在 shell 中运行，位于会话的当前工作目录中。它以您的完整用户权限运行，并且在 [沙箱](/docs/zh-CN/sandboxing) 之外运行。
+命令在 shell 中运行，位于会话的当前工作目录中。它以您的完整用户权限运行，并且在 [沙箱](/docs/zh-CN/sandboxing.md) 之外运行。
 
 monitor 的命令在其启动位置和可以引用的内容方面受到限制：
 
-* **仅限交互式会话**：插件 monitor 在交互式会话中启动，从不在使用 `-p` 标志的非交互模式中启动。在 API 提供商或遥测设置导致 [Monitor 工具](/docs/zh-CN/tools-reference#monitor-tool) 不可用的会话中，它们也不会启动
+* **仅限交互式会话**：插件 monitor 在交互式会话中启动，从不在使用 `-p` 标志的非交互模式中启动。在 API 提供商或遥测设置导致 [Monitor 工具](/docs/zh-CN/tools-reference.md#monitor-tool) 不可用的会话中，它们也不会启动
 * **无用户配置**：`command` 从环境中获取 [路径变量](#path-variables-and-persistent-data) 和 `${ENV_VAR}`，但从不获取 `${user_config.*}`。引用一个的 monitor 不启动，monitor 进程也不接收 `CLAUDE_PLUGIN_OPTION_<KEY>`
 * **会话中期禁用**：如果你在会话中期禁用插件，Claude Code 不会停止已经运行的 monitors。它们在会话结束时停止
 
@@ -628,19 +629,19 @@ monitor 的命令在其启动位置和可以引用的内容方面受到限制：
 
 要在任何时间打开相同的对话框，用户运行 `/plugin configure <plugin>@<marketplace>`。
 
-VS Code 扩展的[管理插件对话框](/docs/zh-CN/vs-code#install-plugins)在安装后作为表单请求未设置的选项，插件行上的齿轮图标再次打开包含每个选项的表单。
+VS Code 扩展的[管理插件对话框](/docs/zh-CN/vs-code.md#install-plugins)在安装后作为表单请求未设置的选项，插件行上的齿轮图标再次打开包含每个选项的表单。
 
 `claude plugin install` shell 命令从不提示 `userConfig` 值。要从 shell 设置值，在安装时将每个值作为 `--config KEY=VALUE` 传递，或之后将 JSON 对象管道传输到 [`claude plugin configure --values-stdin`](/docs/zh-CN/plugins/cli-reference#plugin-configure)。
 
 当选项保持未设置时，`claude plugin install` 打印一个 `userConfig options not yet set` 行。有关该行的确切文本，请参阅[`userConfig` 对话框从不出现](/docs/zh-CN/plugins/troubleshooting#the-userconfig-dialog-never-appears)。
 
-对于选项字段、每个值存储的位置、组件如何引用保存的值以及哪些字段拒绝 `${user_config.*}`，请参阅[用户配置](/docs/zh-CN/plugins/manifest-reference#user-configuration)。
+对于选项字段、每个值存储的位置、组件如何引用保存的值以及哪些字段拒绝 `${user_config.*}`，请参阅[用户配置](/docs/zh-CN/plugins/manifest-reference.md#user-configuration)。
 
 ## 引用插件路径和存储数据
 
 您不知道您的插件将被安装在哪里，所以通过这些变量而不是固定路径引用其文件和数据。它们在 skill、命令和 agent 内容、hook 和监视器命令以及 MCP 和 LSP 服务器配置中被替换。它们也被导出到 hook、MCP 和 LSP 进程：
 
-* **`${CLAUDE_PLUGIN_ROOT}`**：插件的安装目录。每个版本都有自己的[缓存目录](/docs/zh-CN/plugins/loading#find-plugins-on-disk)，所以当插件更新时路径改变。不要在那里写状态
+* **`${CLAUDE_PLUGIN_ROOT}`**：插件的安装目录。每个版本都有自己的[缓存目录](/docs/zh-CN/plugins/loading.md#find-plugins-on-disk)，所以当插件更新时路径改变。不要在那里写状态
 * **`${CLAUDE_PLUGIN_DATA}`**：一个在更新中存活的目录，用于 `node_modules`、虚拟环境和缓存。它解析为 `~/.claude/plugins/data/<id>/` 并在首次引用时创建
 * **`${CLAUDE_PROJECT_DIR}`**：项目根目录，hooks 接收的相同值
 
@@ -650,7 +651,7 @@ VS Code 扩展的[管理插件对话框](/docs/zh-CN/vs-code#install-plugins)在
 
 ### 将依赖项安装到数据目录
 
-对于市场安装的插件，Claude Code 在缓存插件时自动安装符合条件的 [Node.js 包依赖项](/docs/zh-CN/plugins/loading#node-js-package-dependencies)，所以您可能不需要自己安装它们。当您这样做时，此 `SessionStart` hook 在首次运行时将 `node_modules` 安装到 `${CLAUDE_PLUGIN_DATA}` 中，并在更新改变 `package.json` 后再次安装：
+对于市场安装的插件，Claude Code 在缓存插件时自动安装符合条件的 [Node.js 包依赖项](/docs/zh-CN/plugins/loading.md#node-js-package-dependencies)，所以您可能不需要自己安装它们。当您这样做时，此 `SessionStart` hook 在首次运行时将 `node_modules` 安装到 `${CLAUDE_PLUGIN_DATA}` 中，并在更新改变 `package.json` 后再次安装：
 
 ```json hooks/hooks.json theme={null}
 {
@@ -669,11 +670,11 @@ VS Code 扩展的[管理插件对话框](/docs/zh-CN/vs-code#install-plugins)在
 }
 ```
 
-在第一个会话后，`~/.claude/plugins/data/<id>/node_modules` 存在。MCP 服务器然后可以在其 `env` 中设置 `NODE_PATH` 为 `${CLAUDE_PLUGIN_DATA}/node_modules`。对于哪些字段替换哪个变量，请参阅[环境变量](/docs/zh-CN/plugins/manifest-reference#environment-variables)。
+在第一个会话后，`~/.claude/plugins/data/<id>/node_modules` 存在。MCP 服务器然后可以在其 `env` 中设置 `NODE_PATH` 为 `${CLAUDE_PLUGIN_DATA}/node_modules`。对于哪些字段替换哪个变量，请参阅[环境变量](/docs/zh-CN/plugins/manifest-reference.md#environment-variables)。
 
 ## 后续步骤
 
-* [插件清单参考](/docs/zh-CN/plugins/manifest-reference)：`plugin.json` 字段、路径规则和标准布局
-* [使用 evals 测试插件](/docs/zh-CN/plugin-evals)：检查您添加的组件以您打算的方式改变 Claude 的行为
-* [发布和分发插件](/docs/zh-CN/plugins/publish)：版本化插件并将其放在市场中
-* [排查插件问题](/docs/zh-CN/plugins/troubleshooting)：当组件不加载或 hook 不触发时该怎么办
+* [插件清单参考](/docs/zh-CN/plugins/manifest-reference.md)：`plugin.json` 字段、路径规则和标准布局
+* [使用 evals 测试插件](/docs/zh-CN/plugin-evals.md)：检查您添加的组件以您打算的方式改变 Claude 的行为
+* [发布和分发插件](/docs/zh-CN/plugins/publish.md)：版本化插件并将其放在市场中
+* [排查插件问题](/docs/zh-CN/plugins/troubleshooting.md)：当组件不加载或 hook 不触发时该怎么办

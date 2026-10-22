@@ -8,7 +8,7 @@
 
 某些组织要求工作站上的每个进程都通过强制启动器启动。启动器应用沙箱、网络控制或凭证注入，这些是公司安全态势所依赖的，而不通过它启动的二进制文件是策略违规。
 
-`CLAUDE_CODE_PROCESS_WRAPPER` 通过您的启动器启动 Claude Code 从其自身二进制文件启动的每个进程：[后台服务](/docs/zh-CN/agent-view#the-supervisor-process)、它在 [agent view](/docs/zh-CN/agent-view) 中托管的每个会话，以及 Claude Code 在更新后的重新启动。将其设置为启动器的绝对路径，Claude Code 将使用 Claude Code 命令作为其参数运行启动器。
+`CLAUDE_CODE_PROCESS_WRAPPER` 通过您的启动器启动 Claude Code 从其自身二进制文件启动的每个进程：[后台服务](/docs/zh-CN/agent-view.md#the-supervisor-process)、它在 [agent view](/docs/zh-CN/agent-view.md) 中托管的每个会话，以及 Claude Code 在更新后的重新启动。将其设置为启动器的绝对路径，Claude Code 将使用 Claude Code 命令作为其参数运行启动器。
 
 在您的 `PATH` 上包装 `claude` 命令的启动器无法到达这些进程，因为它们从二进制文件的直接路径启动，不查询 `claude`。
 
@@ -26,19 +26,19 @@
 * 每个代理视图行内的终端主机和 Claude Code 会话，包括服务保持就绪的热备用会话。
 * 服务在更新或崩溃后重新生成的会话。
 * Claude Code 执行的自身重新启动以完成更新安装，包括代理视图的重启以更新操作。
-* [Remote Control](/docs/zh-CN/remote-control) 启动的会话进程。需要 Claude Code v2.1.210 或更高版本。
-* [agent teams](/docs/zh-CN/agent-teams) 在 tmux 或 iTerm2 中启动的分割窗格队友会话。队友窗格是交互式的而不是后台进程，但 Claude Code 从其自身二进制文件启动它们，所以启动器覆盖它们。需要 Claude Code v2.1.210 或更高版本。
+* [Remote Control](/docs/zh-CN/remote-control.md) 启动的会话进程。需要 Claude Code v2.1.210 或更高版本。
+* [agent teams](/docs/zh-CN/agent-teams.md) 在 tmux 或 iTerm2 中启动的分割窗格队友会话。队友窗格是交互式的而不是后台进程，但 Claude Code 从其自身二进制文件启动它们，所以启动器覆盖它们。需要 Claude Code v2.1.210 或更高版本。
 
-在 Windows 上，该变量被忽略：启动器契约取决于 `exec`，Windows 不支持。设置了该变量的 Windows 机器运行每个未包装的进程并继续工作，唯一的信号是 [debug log](/docs/zh-CN/troubleshooting) 中的警告。如果您的启动器策略涵盖 Windows，该变量在那里不满足它：在规划推出时将 Windows 机器计为未包装。
+在 Windows 上，该变量被忽略：启动器契约取决于 `exec`，Windows 不支持。设置了该变量的 Windows 机器运行每个未包装的进程并继续工作，唯一的信号是 [debug log](/docs/zh-CN/troubleshooting.md) 中的警告。如果您的启动器策略涵盖 Windows，该变量在那里不满足它：在规划推出时将 Windows 机器计为未包装。
 
 ### 在启动器外启动的进程
 
 以下进程不通过启动器启动：
 
 * 您自己在终端中启动的会话，它运行的方式取决于您如何调用它。要覆盖这些会话，在 `PATH` 上较早的目录中放置一个名为 `claude` 的脚本，该脚本使用真实二进制文件运行您的启动器；不要替换托管符号链接。后台服务及其会话启动时不进行 `PATH` 查询，所以两个启动器不会在那里堆叠。
-* `claude-cli://` 深层链接的第一个进程，操作系统的协议处理程序直接启动。该会话之后在后台启动的所有内容都通过启动器运行。要完全关闭此路径，请使用 `disableDeepLinkRegistration` 设置 [prevent handler registration](/docs/zh-CN/deep-links#registration-and-supported-platforms)。
+* `claude-cli://` 深层链接的第一个进程，操作系统的协议处理程序直接启动。该会话之后在后台启动的所有内容都通过启动器运行。要完全关闭此路径，请使用 `disableDeepLinkRegistration` 设置 [prevent handler registration](/docs/zh-CN/deep-links.md#registration-and-supported-platforms)。
 * `--worktree` 与 `--tmux` 结合执行的重新启动：终端多路复用器启动该窗格，而不是 Claude Code 的二进制文件。
-* [Claude in Chrome](/docs/zh-CN/chrome) 注册的本机消息主机：浏览器启动它，而不是 Claude Code 的二进制文件。
+* [Claude in Chrome](/docs/zh-CN/chrome.md) 注册的本机消息主机：浏览器启动它，而不是 Claude Code 的二进制文件。
 
 ### 进程监视器中的辅助进程名称
 
@@ -67,7 +67,7 @@ exec "$@"
 
 在设置文件的 `env` 块中设置变量，以便分离的后台服务继承它。shell `export` 不够：后台服务按需启动，超过您的 shell 生命周期，并且从不重新读取 shell 配置文件。
 
-对于一台机器，将其添加到 `~/.claude/settings.json`。要将其部署到组织中的每台机器，请在 [托管设置](/docs/zh-CN/managed-settings) 中放置相同的块：
+对于一台机器，将其添加到 `~/.claude/settings.json`。要将其部署到组织中的每台机器，请在 [托管设置](/docs/zh-CN/managed-settings.md) 中放置相同的块：
 
 ```json theme={null}
 {
@@ -89,9 +89,9 @@ exec "$@"
 
 当两者都设置时，`CLAUDE_CODE_PROCESS_WRAPPER` 优先。
 
-因为 `processWrapper` 是一个命名设置，通过 [远程托管设置](/docs/zh-CN/managed-settings#delivery-mechanisms) 提供它的组织会在 [安全批准对话框](/docs/zh-CN/server-managed-settings#security-approval-dialogs) 上看到它与运行管理员提供的可执行文件的其他设置一起列出。
+因为 `processWrapper` 是一个命名设置，通过 [远程托管设置](/docs/zh-CN/managed-settings.md#delivery-mechanisms) 提供它的组织会在 [安全批准对话框](/docs/zh-CN/server-managed-settings.md#security-approval-dialogs) 上看到它与运行管理员提供的可执行文件的其他设置一起列出。
 
-项目和本地设置无法配置启动器。提交到仓库的文件不能在机器上的每个 Claude Code 进程前放置二进制文件，因此 Claude Code 在 `.claude/settings.json` 或 `.claude/settings.local.json` 中忽略 `CLAUDE_CODE_PROCESS_WRAPPER`，并在 [调试日志](/docs/zh-CN/troubleshooting) 中发出警告，并且从不从这些文件中读取 `processWrapper` 键。
+项目和本地设置无法配置启动器。提交到仓库的文件不能在机器上的每个 Claude Code 进程前放置二进制文件，因此 Claude Code 在 `.claude/settings.json` 或 `.claude/settings.local.json` 中忽略 `CLAUDE_CODE_PROCESS_WRAPPER`，并在 [调试日志](/docs/zh-CN/troubleshooting.md) 中发出警告，并且从不从这些文件中读取 `processWrapper` 键。
 
 **3. 重新启动后台服务和您的会话**
 
@@ -130,7 +130,7 @@ exec "$@"
 * 以 `[` 开头的值被读取为 JSON 字符串数组，例如 `["/opt/corp/launcher", "--profile", "cc"]`。
 * Shell 语法不起作用：没有变量扩展或通配符，未引用的运算符（例如 `;`、`|`、`&` 或 `$(`）被拒绝为配置错误，而不是重新解释。
 
-当无法使用该值时，Claude Code 拒绝启动受影响的进程并[报告原因](/docs/zh-CN/errors#claude_code_process_wrapper-launcher-errors)。
+当无法使用该值时，Claude Code 拒绝启动受影响的进程并[报告原因](/docs/zh-CN/errors.md#claude_code_process_wrapper-launcher-errors)。
 
 在设置文件中，请将数组形式写在 JSON 字符串内并转义其中的引号：`"[\"/opt/corp/launcher\", \"--profile\", \"cc\"]"`。
 
@@ -156,7 +156,7 @@ exec "$@"
 
 ## 相关资源
 
-* [Agent view](/docs/zh-CN/agent-view)：启动器覆盖的后台会话和监督进程
-* [Environment variables](/docs/zh-CN/env-vars)：`CLAUDE_CODE_PROCESS_WRAPPER` 参考条目
-* [Managed settings](/docs/zh-CN/permissions#managed-settings)：在整个车队中传递 `env` 块
-* [Launcher error reference](/docs/zh-CN/errors#claude_code_process_wrapper-launcher-errors)：拒绝消息和如何恢复
+* [Agent view](/docs/zh-CN/agent-view.md)：启动器覆盖的后台会话和监督进程
+* [Environment variables](/docs/zh-CN/env-vars.md)：`CLAUDE_CODE_PROCESS_WRAPPER` 参考条目
+* [Managed settings](/docs/zh-CN/permissions.md#managed-settings)：在整个车队中传递 `env` 块
+* [Launcher error reference](/docs/zh-CN/errors.md#claude_code_process_wrapper-launcher-errors)：拒绝消息和如何恢复

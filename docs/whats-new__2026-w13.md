@@ -6,7 +6,7 @@
 
 > 自动模式用于免提权限、内置计算机使用、云端PR自动修复、转录搜索和Windows PowerShell工具。
 
-发布版本 [v2.1.83 → v2.1.85](/docs/en/changelog#2-1-83)
+发布版本 [v2.1.83 → v2.1.85](/docs/en/changelog.md#2-1-83)
 6项功能 · 3月23–27日
 
 自动模式
@@ -26,7 +26,7 @@
 }
 ```
 
-[权限模式指南](/docs/zh-CN/permission-modes)
+[权限模式指南](/docs/zh-CN/permission-modes.md)
 
 计算机使用
 Desktop
@@ -41,7 +41,7 @@ Claude 现在可以从 Claude Code Desktop 应用控制您的实际桌面：打�
 打开 iOS 模拟器，点击完成入门流程，并对每个步骤进行截屏
 ```
 
-[计算机使用指南](/docs/zh-CN/desktop#let-claude-use-your-computer)
+[计算机使用指南](/docs/zh-CN/desktop.md#let-claude-use-your-computer)
 
 PR 自动修复
 Web
@@ -52,7 +52,7 @@ Web
 
 在 Claude Code web 上创建 PR 后，在 CI 面板中切换自动修复。
 
-[自动修复拉取请求](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)
+[自动修复拉取请求](/docs/zh-CN/claude-code-on-the-web.md#auto-fix-pull-requests)
 
 转录搜索
 v2.1.83
@@ -68,7 +68,7 @@ n         # 下一个匹配项
 N         # 上一个匹配项
 ```
 
-[全屏指南](/docs/zh-CN/fullscreen#search-and-review-the-conversation)
+[全屏指南](/docs/zh-CN/fullscreen.md#search-and-review-the-conversation)
 
 PowerShell 工具
 预览
@@ -86,7 +86,7 @@ Windows 获得了与 Bash 并行的原生 PowerShell 工具。Claude 可以运�
 }
 ```
 
-[PowerShell 工具文档](/docs/zh-CN/tools-reference#powershell-tool)
+[PowerShell 工具文档](/docs/zh-CN/tools-reference.md#powershell-tool)
 
 条件 hooks
 v2.1.85
@@ -109,10 +109,10 @@ Hooks 现在可以使用权限规则语法声明 `if` 字段。您的 pre-commit
 }
 ```
 
-[Hooks 参考](/docs/zh-CN/hooks)
+[Hooks 参考](/docs/zh-CN/hooks.md)
 
 其他亮点
 
 Plugin `userConfig` 现已公开：在启用时提示设置，钥匙串支持的密钥粘贴的图像插入 `[Image #N]` 芯片，您可以按位置引用`managed-settings.d/` 分层策略片段的 drop-in 目录`CwdChanged` 和 `FileChanged` hook 事件用于 direnv 风格的设置Agents 可以在 frontmatter 中声明 `initialPrompt` 以自动提交第一轮`Ctrl+X Ctrl+E` 打开您的外部编辑器，匹配 readline在任何响应前中断会自动恢复您的输入`/status` 现在在 Claude 响应时也能工作深层链接在您首选的终端中打开，而不是首次检测到的离开 75+ 分钟后的空闲返回提示到 `/clear`VS Code：速率限制横幅，Esc 两次倒带选择器
 
-[v2.1.83–v2.1.85 完整更新日志 →](/docs/en/changelog#2-1-83)
+[v2.1.83–v2.1.85 完整更新日志 →](/docs/en/changelog.md#2-1-83)

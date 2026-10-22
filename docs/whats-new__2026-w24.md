@@ -6,7 +6,7 @@
 
 > 使用 /cd 将会话移动到新目录，让子代理生成自己的子代理，并使用安全模式排查损坏的配置。
 
-发布版本 [v2.1.166 → v2.1.176](/docs/en/changelog#2-1-166)
+发布版本 [v2.1.166 → v2.1.176](/docs/en/changelog.md#2-1-166)
 3 项功能 · 6月8日–12日
 
 使用 /cd 移动会话
@@ -20,7 +20,7 @@ v2.1.169
 > /cd ../other-project
 ```
 
-[命令参考](/docs/zh-CN/commands#all-commands)
+[命令参考](/docs/zh-CN/commands.md#all-commands)
 
 子代理可以生成子代理
 v2.1.172
@@ -33,7 +33,7 @@ v2.1.172
 > /agents
 ```
 
-[生成嵌套子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)
+[生成嵌套子代理](/docs/zh-CN/sub-agents.md#let-subagents-spawn-their-own-subagents)
 
 使用安全模式排查问题
 v2.1.169
@@ -46,10 +46,10 @@ v2.1.169
 claude --safe-mode
 ```
 
-[针对干净配置进行测试](/docs/zh-CN/debug-your-config#test-against-a-clean-configuration)
+[针对干净配置进行测试](/docs/zh-CN/debug-your-config.md#test-against-a-clean-configuration)
 
 其他改进
 
 [`fallbackModel`](/docs/zh-CN/model-config#fallback-model-chains) 配置最多三个备用模型，在主模型过载或不可用时按顺序尝试，`--fallback-model` 现在也适用于交互式会话会话标题现在以您的对话语言生成；使用 `language` 设置固定特定的标题`claude agents --json` 添加 `--all` 以包含已完成的会话以及新的 `id` 和 `state` 字段，不再省略被阻止或新分派的会话在 `/plugin` 中浏览市场的插件现在有搜索栏新的 `disableBundledSkills` 设置和 `CLAUDE_CODE_DISABLE_BUNDLED_SKILLS` 隐藏捆绑的 skills、工作流和内置命令不让模型看到拒绝规则在工具名称位置接受 glob，因此 `"*"` 拒绝所有工具，拒绝规则中的未知工具名称现在在启动时发出警告代理消息传递得到加强：通过 `SendMessage` 从其他代理中继的消息不再携带用户权限，自动模式会阻止它们Amazon Bedrock 在 `AWS_REGION` 未设置时从 `~/.aws` 配置文件读取 AWS 区域，`/status` 显示区域来自何处新的 `enforceAvailableModels` 托管设置使 `availableModels` 允许列表也约束默认模型Chrome 浏览器工具中的 Claude 现在在单个批处理调用中加载，而不是每个工具一个`claude update` 在下载前宣布目标版本，而不是保持沉默新的 `footerLinksRegexes` 设置将正则表达式匹配的链接徽章添加到页脚行
 
-[v2.1.166–v2.1.176 的完整更新日志 →](/docs/en/changelog#2-1-166)
+[v2.1.166–v2.1.176 的完整更新日志 →](/docs/en/changelog.md#2-1-166)

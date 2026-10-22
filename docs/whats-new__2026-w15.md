@@ -6,7 +6,7 @@
 
 > Ultraplan 云规划、具有自适应 /loop 的 Monitor 工具、用于打包设置的 /team-onboarding 以及从终端运行的 /autofix-pr。
 
-发布版本 [v2.1.92 → v2.1.101](/docs/en/changelog#2-1-92)
+发布版本 [v2.1.92 → v2.1.101](/docs/en/changelog.md#2-1-92)
 4 项功能 · 4月6–10日
 
 Ultraplan
@@ -43,7 +43,7 @@ Tail server.log in the background and tell me the moment a 5xx shows up
 /loop check CI on my PR
 ```
 
-[Monitor 工具参考](/docs/zh-CN/tools-reference#monitor-tool)
+[Monitor 工具参考](/docs/zh-CN/tools-reference.md#monitor-tool)
 
 /autofix-pr
 CLI
@@ -58,7 +58,7 @@ PR 自动修复在第 13 周登陆网络。现在您可以在不离开终端的�
 /autofix-pr
 ```
 
-[自动修复拉取请求](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)
+[自动修复拉取请求](/docs/zh-CN/claude-code-on-the-web.md#auto-fix-pull-requests)
 
 /team-onboarding
 v2.1.101
@@ -71,10 +71,10 @@ v2.1.101
 /team-onboarding
 ```
 
-[命令参考](/docs/zh-CN/commands)
+[命令参考](/docs/zh-CN/commands.md)
 
 其他亮点
 
-焦点视图：在无闪烁模式下按 `Ctrl+O` 将视图折叠到您的最后一个提示、单行工具摘要（带有 diffstats）和 Claude 的最终响应登录屏幕上的引导式 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 和 [Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 设置向导：选择"第三方平台"进行分步身份验证、区域、凭证检查和模型固定`/agents` 获得选项卡式布局：Running 选项卡显示带有 `● N running` 计数的实时子代理，以及库选项卡中的 Run agent 和 View running instance 操作默认工作量级别现在对 API 密钥、Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry、Team 和 Enterprise 用户为 `high`（使用 `/effort` 控制）`/cost` 为订阅用户显示按模型和缓存命中的分解`/release-notes` 现在是交互式版本选择器状态行：新的 `refreshInterval` 设置每 N 秒重新运行命令，JSON 输入中的 `workspace.git_worktree``CLAUDE_CODE_PERFORCE_MODE`：Edit/Write 在只读文件上失败，并显示 `p4 edit` 提示，而不是静默覆盖OS CA 证书存储现在默认受信任，因此企业 TLS 代理无需额外设置即可工作（`CLAUDE_CODE_CERT_STORE=bundled` 选择退出）由 Mantle 提供支持的 Amazon Bedrock：设置 `CLAUDE_CODE_USE_MANTLE=1`强化的 Bash 工具权限：反斜杠转义标志、环境变量前缀、`/dev/tcp` 重定向和复合命令现在正确提示`UserPromptSubmit` hooks 可以通过 `hookSpecificOutput.sessionTitle` 设置会话标题
+焦点视图：在无闪烁模式下按 `Ctrl+O` 将视图折叠到您的最后一个提示、单行工具摘要（带有 diffstats）和 Claude 的最终响应登录屏幕上的引导式 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock.md) 和 [Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai.md) 设置向导：选择"第三方平台"进行分步身份验证、区域、凭证检查和模型固定`/agents` 获得选项卡式布局：Running 选项卡显示带有 `● N running` 计数的实时子代理，以及库选项卡中的 Run agent 和 View running instance 操作默认工作量级别现在对 API 密钥、Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry、Team 和 Enterprise 用户为 `high`（使用 `/effort` 控制）`/cost` 为订阅用户显示按模型和缓存命中的分解`/release-notes` 现在是交互式版本选择器状态行：新的 `refreshInterval` 设置每 N 秒重新运行命令，JSON 输入中的 `workspace.git_worktree``CLAUDE_CODE_PERFORCE_MODE`：Edit/Write 在只读文件上失败，并显示 `p4 edit` 提示，而不是静默覆盖OS CA 证书存储现在默认受信任，因此企业 TLS 代理无需额外设置即可工作（`CLAUDE_CODE_CERT_STORE=bundled` 选择退出）由 Mantle 提供支持的 Amazon Bedrock：设置 `CLAUDE_CODE_USE_MANTLE=1`强化的 Bash 工具权限：反斜杠转义标志、环境变量前缀、`/dev/tcp` 重定向和复合命令现在正确提示`UserPromptSubmit` hooks 可以通过 `hookSpecificOutput.sessionTitle` 设置会话标题
 
-[v2.1.92–v2.1.101 的完整更改日志 →](/docs/en/changelog#2-1-92)
+[v2.1.92–v2.1.101 的完整更改日志 →](/docs/en/changelog.md#2-1-92)

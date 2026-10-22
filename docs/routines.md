@@ -10,7 +10,7 @@
 >
 > 定时任务目前为研究预览版。其行为、限制和 API 接口可能会发生变化。
 
-云端定时任务（原名 Routine）是一个已保存的 Claude Code 配置：包含一个提示词、一个或多个仓库以及一组[连接器](/docs/zh-CN/mcp)，一次打包后即可自动运行。定时任务在 Anthropic 管理的云基础设施上执行，或在路由到您组织的[自托管环境](/docs/zh-CN/self-hosted-environments)时在该环境中执行，因此即使您的笔记本电脑已合上，它们也能继续工作。
+云端定时任务（原名 Routine）是一个已保存的 Claude Code 配置：包含一个提示词、一个或多个仓库以及一组[连接器](/docs/zh-CN/mcp.md)，一次打包后即可自动运行。定时任务在 Anthropic 管理的云基础设施上执行，或在路由到您组织的[自托管环境](/docs/zh-CN/self-hosted-environments)时在该环境中执行，因此即使您的笔记本电脑已合上，它们也能继续工作。
 
 每个定时任务可以附加一个或多个触发器：
 
@@ -29,7 +29,7 @@
 
 > [!NOTE]
 >
-> 另有两项功能会在您的计算机上而非云端安排工作：[Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks)和 [`/loop`](/docs/zh-CN/scheduled-tasks)。要在这三者之间进行选择，请参阅[比较调度选项](/docs/zh-CN/scheduled-tasks#compare-scheduling-options)。
+> 另有两项功能会在您的计算机上而非云端安排工作：[Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks.md)和 [`/loop`](/docs/zh-CN/scheduled-tasks)。要在这三者之间进行选择，请参阅[比较调度选项](/docs/zh-CN/scheduled-tasks.md#compare-scheduling-options)。
 
 Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 中的 **Scheduled tasks (Was Routines)** 开关为所有成员关闭定时任务。关闭该开关后，现有定时任务将停止运行，成员也无法创建新的定时任务。
 
@@ -50,12 +50,12 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 您可以在 Web 端的 [claude.ai/code/routines](https://claude.ai/code/routines)、Desktop 应用或 CLI 中创建定时任务。这三个使用入口都写入同一个云端账户，因此您在其中一处创建的定时任务会立即显示在其他位置。在 Desktop 应用的 **Code** 标签页中，点击侧边栏中或侧边栏 **More** 菜单中的 **Scheduled**，然后点击 **New task**，并继续按照[从 Web 创建](#create-from-the-web)进行操作。
 
-定时任务作为完整的 Claude Code 云端会话自主运行。您无需选择权限模式。会话会运行 shell 命令、使用 [skill](/docs/zh-CN/skills)，并调用您包含的任何连接器，所有这些都无需停下来等待批准，某些 [Artifact 操作](#when-a-run-publishes-an-artifact-without-asking)除外。在[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)之外，这些 skill 包括提交到所克隆仓库中的 skill。
+定时任务作为完整的 Claude Code 云端会话自主运行。您无需选择权限模式。会话会运行 shell 命令、使用 [skill](/docs/zh-CN/skills.md)，并调用您包含的任何连接器，所有这些都无需停下来等待批准，某些 [Artifact 操作](#when-a-run-publishes-an-artifact-without-asking)除外。在[项目](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)的线程之外，这些 skill 包括提交到所克隆仓库中的 skill。
 
 定时任务可以访问的内容由以下各项决定：
 
 * 您选择的仓库
-* [环境](/docs/zh-CN/cloud-environments)的网络访问和变量
+* [环境](/docs/zh-CN/cloud-environments.md)的网络访问和变量
 * 您包含的连接器
 
 请将每一项的范围限定在任务所需的内容之内。
@@ -100,19 +100,19 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 **5. 选择环境**
 
-选择仓库后，其下方会出现 **Cloud environment**。为任务选择一个[云环境](/docs/zh-CN/cloud-environments)。环境控制云端会话可以访问的内容：
+选择仓库后，其下方会出现 **Cloud environment**。为任务选择一个[云环境](/docs/zh-CN/cloud-environments.md)。环境控制云端会话可以访问的内容：
 
 * **Network access**：设置每次运行期间可用的互联网访问级别
-* **Environment variables**：提供 Claude 在每次运行期间可以使用的值。它们[对使用该环境的任何人都可见](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)，因此在 Anthropic 托管的环境中，请改为将 Claude 在运行期间调用的 API 的密钥存储为[网络密钥](/docs/zh-CN/cloud-environments#add-network-secrets)。该部分还列出了永远不会获得密钥的请求
-* **Setup script**：安装任务所需的依赖和工具。结果会被[缓存](/docs/zh-CN/cloud-environments#environment-caching)，因此脚本不会在每个会话中重新运行
+* **Environment variables**：提供 Claude 在每次运行期间可以使用的值。它们[对使用该环境的任何人都可见](/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)，因此在 Anthropic 托管的环境中，请改为将 Claude 在运行期间调用的 API 的密钥存储为[网络密钥](/docs/zh-CN/cloud-environments.md#add-network-secrets)。该部分还列出了永远不会获得密钥的请求
+* **Setup script**：安装任务所需的依赖和工具。结果会被[缓存](/docs/zh-CN/cloud-environments.md#environment-caching)，因此脚本不会在每个会话中重新运行
 
-系统提供了一个 **Default** 环境，具有 **Trusted** 网络访问，仅允许[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)中的包注册表、云提供商 API、容器注册表和常见开发域名通过会话的网络。您添加到任务中的连接器通过 Anthropic 的服务器访问其服务，因此无需更改允许列表。
+系统提供了一个 **Default** 环境，具有 **Trusted** 网络访问，仅允许[默认允许列表](/docs/zh-CN/cloud-environments.md#default-allowed-domains)中的包注册表、云提供商 API、容器注册表和常见开发域名通过会话的网络。您添加到任务中的连接器通过 Anthropic 的服务器访问其服务，因此无需更改允许列表。
 
-如果您的任务需要直接访问您自己的服务或该列表之外的域名，请在运行前编辑环境的[网络访问](/docs/zh-CN/cloud-environments#network-access)。要使用单独的环境，请先[创建一个](/docs/zh-CN/cloud-environments#configure-your-environment)。
+如果您的任务需要直接访问您自己的服务或该列表之外的域名，请在运行前编辑环境的[网络访问](/docs/zh-CN/cloud-environments.md#network-access)。要使用单独的环境，请先[创建一个](/docs/zh-CN/cloud-environments.md#configure-your-environment)。
 
 **6. 检查连接器**
 
-切换到 **Advanced settings** 的 **Connectors** 标签页。默认包含您所有已连接的 [MCP 连接器](/docs/zh-CN/mcp)。请移除任务不需要的连接器：Claude 可以使用所包含连接器中的每个工具（包括写入操作），且在运行期间不会请求权限。
+切换到 **Advanced settings** 的 **Connectors** 标签页。默认包含您所有已连接的 [MCP 连接器](/docs/zh-CN/mcp.md)。请移除任务不需要的连接器：Claude 可以使用所包含连接器中的每个工具（包括写入操作），且在运行期间不会请求权限。
 
 **7. 创建任务**
 
@@ -341,22 +341,22 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 
 > [!NOTE]
 >
-> 请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)，了解授予访问权限的两种方式。在 Team 和 Enterprise 套餐中，必须由您 Claude 组织的 [Owner](/docs/zh-CN/server-managed-settings#access-control) 先启用每种方式，您才能使用；请参阅[连接 GitHub](/docs/zh-CN/web-quickstart#connect-github)。
+> 请参阅 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web.md#github-authentication-options)，了解授予访问权限的两种方式。在 Team 和 Enterprise 套餐中，必须由您 Claude 组织的 [Owner](/docs/zh-CN/server-managed-settings.md#access-control) 先启用每种方式，您才能使用；请参阅[连接 GitHub](/docs/zh-CN/web-quickstart.md#connect-github)。
 
 如果在某次运行到期时您的 GitHub 连接缺失或已过期，定时任务会跳过运行，直到您重新连接为止，最长持续 72 小时。在此期间内重新连接 GitHub，任务会自行恢复。如果 72 小时后仍未连接，任务将被关闭，您需要在重新连接 GitHub 后再将其重新打开。
 
 您添加的每个仓库都会在每次运行时被克隆。除非您的提示词另有指定，否则 Claude 会从仓库的默认分支开始。如果运行由 [GitHub Pull Request 事件](#add-a-github-trigger)触发，且该 Pull Request 所在的仓库是任务中的第一个仓库，则该仓库会改为从 Pull Request 的 head 提交开始。
 
-除非您的提示词指示 Claude 推送到其他分支，否则 Claude 会将其工作推送到以 `claude/` 为前缀的分支。要控制运行可以推送到哪些分支，请在 GitHub 上使用分支保护规则或规则集。对于在 Anthropic 托管基础设施上的运行，以及通过 [Anthropic 的 git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)推送的自托管运行，GitHub 会将这些规则应用于您所连接的 GitHub 访问权限，因此该访问权限可以绕过的规则不会阻止运行的推送。使用您的部署所提供的 git 凭据进行推送的自托管运行，则会依据这些凭据进行检查。请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy#configure-git)。
+除非您的提示词指示 Claude 推送到其他分支，否则 Claude 会将其工作推送到以 `claude/` 为前缀的分支。要控制运行可以推送到哪些分支，请在 GitHub 上使用分支保护规则或规则集。对于在 Anthropic 托管基础设施上的运行，以及通过 [Anthropic 的 git 代理](/docs/zh-CN/self-hosted-environments-deploy.md#use-the-anthropic-git-proxy)推送的自托管运行，GitHub 会将这些规则应用于您所连接的 GitHub 访问权限，因此该访问权限可以绕过的规则不会阻止运行的推送。使用您的部署所提供的 git 凭据进行推送的自托管运行，则会依据这些凭据进行检查。请参阅[配置 git](/docs/zh-CN/self-hosted-environments-deploy.md#configure-git)。
 
 ### 连接器
 
 定时任务可以在每次运行期间使用您已连接的 MCP 连接器来读取和写入外部服务。例如，一个对支持请求进行分诊的任务可能会从 Slack 频道读取内容，并在 Linear 中创建问题。
 
-连接器是您账户中的 [claude.ai 集成](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。您在 CLI 中使用 `claude mcp add` 在本地添加的 MCP 服务器存储在您的计算机上，而不是您的 claude.ai 账户中，因此它们不会出现在连接器列表中。要在定时任务中使用其中某个服务器：
+连接器是您账户中的 [claude.ai 集成](/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)。您在 CLI 中使用 `claude mcp add` 在本地添加的 MCP 服务器存储在您的计算机上，而不是您的 claude.ai 账户中，因此它们不会出现在连接器列表中。要在定时任务中使用其中某个服务器：
 
 * **作为连接器**：在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 将其添加为连接器
-* **在仓库中**：对于位于[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)之外且只有一个仓库的定时任务，您也可以改为在已提交的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 中声明该服务器。项目中的定时任务不会加载 `.mcp.json`，因此请将该服务器添加为连接器
+* **在仓库中**：对于只有一个仓库的定时任务，您也可以改为在已提交的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope) 中声明该服务器，除非该任务在[项目](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)中以线程方式运行。如果是这种情况，请将该服务器添加为连接器。
 
 创建定时任务时，默认会包含您当前已连接的所有连接器。请移除不需要的连接器，以限制 Claude 在运行期间可以访问的工具。您也可以直接在任务的创建或编辑对话框中添加连接器。
 
@@ -364,7 +364,7 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 
 ### 运行在未询问的情况下发布 Artifact 的情形
 
-当定时任务的计划或 **Run now** 启动一次运行时，Claude 可以在不询问的情况下发布新的 [Artifact](/docs/zh-CN/artifacts)。在您[共享它](/docs/zh-CN/artifacts#share-an-artifact)之前，新的 Artifact 仅对您可见。如果发布操作为页面声明了运行时能力，例如[连接器调用](/docs/zh-CN/artifacts#pull-live-data-with-mcp-connectors)或[文件下载](/docs/zh-CN/artifacts#offer-a-file-download)，Claude 会先询问。
+当定时任务的计划或 **Run now** 启动一次运行时，Claude 可以在不询问的情况下发布新的 [Artifact](/docs/zh-CN/artifacts.md)。在您[共享它](/docs/zh-CN/artifacts.md#share-an-artifact)之前，新的 Artifact 仅对您可见。如果发布操作为页面声明了运行时能力，例如[连接器调用](/docs/zh-CN/artifacts.md#pull-live-data-with-mcp-connectors)或[文件下载](/docs/zh-CN/artifacts.md#offer-a-file-download)，Claude 会先询问。
 
 在这些运行中，只有当以下所有条件都满足时，Claude 才会在不询问的情况下重新发布现有的 Artifact：
 
@@ -374,7 +374,7 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 * 如果该 Artifact 已与特定人员或您的组织共享，其查看者不会自动看到每个新版本
 * 发布操作不会强制覆盖较新的版本
 * 发布操作未为页面声明运行时能力
-* 现有页面不持有任何超出页面范围的授权，例如[连接器调用](/docs/zh-CN/artifacts#pull-live-data-with-mcp-connectors)
+* 现有页面不持有任何超出页面范围的授权，例如[连接器调用](/docs/zh-CN/artifacts.md#pull-live-data-with-mcp-connectors)
 
 在所有其他情况下，包括由 API 或 GitHub 触发器启动的运行，Claude 都会先询问。
 
@@ -382,11 +382,11 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 
 ### 环境和网络访问
 
-每个定时任务都使用一个[云环境](/docs/zh-CN/cloud-environments)，用于控制网络访问、环境变量和设置脚本。任务在每次运行时都会继承该环境的网络策略。
+每个定时任务都使用一个[云环境](/docs/zh-CN/cloud-environments.md)，用于控制网络访问、环境变量和设置脚本。任务在每次运行时都会继承该环境的网络策略。
 
-**Default** 环境使用 **Trusted** 网络访问，仅允许[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)中的主机通过会话的网络。通过该路径向允许列表以外主机发出的请求会失败，并返回 `403` 和 `x-deny-reason: host_not_allowed`。MCP 连接器流量通过 Anthropic 的服务器路由，而不经过该路径，因此您添加到任务中的连接器无需将其主机添加到 **Allowed domains** 即可正常工作。请在[连接器](#connectors)下移除您不需要的任何连接器。
+**Default** 环境使用 **Trusted** 网络访问，仅允许[默认允许列表](/docs/zh-CN/cloud-environments.md#default-allowed-domains)中的主机通过会话的网络。通过该路径向允许列表以外主机发出的请求会失败，并返回 `403` 和 `x-deny-reason: host_not_allowed`。MCP 连接器流量通过 Anthropic 的服务器路由，而不经过该路径，因此您添加到任务中的连接器无需将其主机添加到 **Allowed domains** 即可正常工作。请在[连接器](#connectors)下移除您不需要的任何连接器。
 
-要在您自己的某个环境中允许更多域名，请按照以下步骤操作。[组织共享环境](/docs/zh-CN/cloud-environments#organization-shared-environments)在此处以只读方式打开，因此需要由 Owner 在[管理设置](https://claude.ai/admin-settings)的 **Cloud environments** 页面中更改其网络访问。
+要在您自己的某个环境中允许更多域名，请按照以下步骤操作。[组织共享环境](/docs/zh-CN/cloud-environments.md#organization-shared-environments)在此处以只读方式打开，因此需要由 Owner 在[管理设置](https://claude.ai/admin-settings)的 **Cloud environments** 页面中更改其网络访问。
 
 **1. 打开任务进行编辑**
 
@@ -402,13 +402,13 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 
 **4. 更改网络访问级别**
 
-在 **Edit cloud environment** 对话框中，将 **Network access** 更改为 **Custom**，并在 **Allowed domains** 中输入您的域名。勾选 **Also include default list of common package managers**，以便在自定义域名之外保留[默认允许列表](/docs/zh-CN/cloud-environments#default-allowed-domains)。如需不受限制的访问，请改为选择 **Full**。
+在 **Edit cloud environment** 对话框中，将 **Network access** 更改为 **Custom**，并在 **Allowed domains** 中输入您的域名。勾选 **Also include default list of common package managers**，以便在自定义域名之外保留[默认允许列表](/docs/zh-CN/cloud-environments.md#default-allowed-domains)。如需不受限制的访问，请改为选择 **Full**。
 
 **5. 保存**
 
 在 **Edit cloud environment** 对话框中点击 **Save changes**，然后关闭其后方的 **Edit scheduled task** 对话框。新策略将从下一次运行开始生效。
 
-有关访问级别和默认允许列表的详细信息，请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)。
+有关访问级别和默认允许列表的详细信息，请参阅[网络访问](/docs/zh-CN/cloud-environments.md#network-access)。
 
 ## 用量和限制
 
@@ -447,10 +447,10 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 
 原因通常是以下之一：
 
-* 您使用 Console API 密钥、[Anthropic profile 或联合凭据](/docs/zh-CN/authentication#anthropic-profiles-and-federation-credentials)，或者 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 等云提供商进行身份验证。`/schedule` 需要使用 claude.ai 订阅登录。使用 Console API 密钥或 profile 且启用了功能标志获取时，提交 `/schedule` 会改为显示 `/schedule is available with Claude for Enterprise — ask your admin about migrating from API-key access`。使用云提供商登录时，您仍会看到 `Unknown command: /schedule`。如果您的 shell 中设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，或者 `settings.json` 中设置了 `apiKeyHelper`，请先将其移除，因为它们优先于 claude.ai 登录。profile 或联合凭据同样具有优先级，因此也请将其关闭
+* 您使用 Console API 密钥、[Anthropic profile 或联合凭据](/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials)，或者 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 等云提供商进行身份验证。`/schedule` 需要使用 claude.ai 订阅登录。使用 Console API 密钥或 profile 且启用了功能标志获取时，提交 `/schedule` 会改为显示 `/schedule is available with Claude for Enterprise — ask your admin about migrating from API-key access`。使用云提供商登录时，您仍会看到 `Unknown command: /schedule`。如果您的 shell 中设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，或者 `settings.json` 中设置了 `apiKeyHelper`，请先将其移除，因为它们优先于 claude.ai 登录。profile 或联合凭据同样具有优先级，因此也请将其关闭
 * 您已完全退出登录，没有 API 密钥或其他凭据。启用功能标志获取时，提交 `/schedule` 会显示 `/schedule requires a claude.ai subscription. Run /login to sign in with your claude.ai account.` 在 v2.1.268 之前，已退出登录的会话会显示与 Console API 密钥相同的 Claude for Enterprise 消息
 * 您处于云端会话中，此时提交 `/schedule` 会回复该命令在该环境中不可用。请改为在 [Web UI](https://claude.ai/code/routines) 中管理定时任务
-* 您组织的策略禁用了定时任务所需的[云端会话](/docs/zh-CN/claude-code-on-the-web)。在这种情况下，提交 `/schedule` 会改为回复 [`Cloud sessions are disabled by your organization's policy`](/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。在 v2.1.268 之前，它会返回 `Unknown command: /schedule`
+* 您组织的策略禁用了定时任务所需的[云端会话](/docs/zh-CN/claude-code-on-the-web.md)。在这种情况下，提交 `/schedule` 会改为回复 [`Cloud sessions are disabled by your organization's policy`](/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。在 v2.1.268 之前，它会返回 `Unknown command: /schedule`
 * Owner 为您的 Team 或 Enterprise 组织[关闭了定时任务](#routines-are-disabled-by-your-organizations-policy)。在 v2.1.227 之前，这种情况下命令仍会显示，而当 Claude 尝试创建或运行任务时，claude.ai 会拒绝该任务
 * 您的 Enterprise 组织通过[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，而您的所有角色都不包含 **Remote sessions** 下的定时任务权限。请联系 Owner 将该权限添加到您的某个角色中
 
@@ -463,8 +463,8 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 ## 相关资源
 
 * [`/loop` 和会话内调度](/docs/zh-CN/scheduled-tasks)：在打开的 CLI 会话中安排本地任务
-* [Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks)：在您的计算机上运行、可访问本地文件的本地定时任务
-* [云环境](/docs/zh-CN/cloud-environments)：为云端会话配置网络访问、环境变量和设置脚本
-* [Projects](/docs/zh-CN/claude-projects)：Claude 跨并行云端会话协调的持续性工作；从项目创建的定时任务会显示在其 **Scheduled tasks** 标签页上
-* [MCP 连接器](/docs/zh-CN/mcp)：连接 Slack、Linear 和 Google Drive 等外部服务
-* [GitHub Actions](/docs/zh-CN/github-actions)：在 CI 流水线中针对仓库事件运行 Claude
+* [Desktop 定时任务](/docs/zh-CN/desktop-scheduled-tasks.md)：在您的计算机上运行、可访问本地文件的本地定时任务
+* [云环境](/docs/zh-CN/cloud-environments.md)：为云端会话配置网络访问、环境变量和设置脚本
+* [Projects](/docs/zh-CN/claude-projects.md)：Claude 跨并行云端会话协调的持续性工作；从项目创建的定时任务会显示在其 **Scheduled tasks** 标签页上
+* [MCP 连接器](/docs/zh-CN/mcp.md)：连接 Slack、Linear 和 Google Drive 等外部服务
+* [GitHub Actions](/docs/zh-CN/github-actions.md)：在 CI 流水线中针对仓库事件运行 Claude

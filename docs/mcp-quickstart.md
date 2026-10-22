@@ -14,20 +14,20 @@
 >
 > 您也可以从其他界面添加 MCP 服务器，包括桌面应用、VS Code 和网络版。请参阅[从其他界面连接](#connect-from-other-surfaces)。
 
-有关在 Claude Code 中连接和配置 MCP 服务器的所有方式，请参阅 [MCP 参考](/docs/zh-CN/mcp)。
+有关在 Claude Code 中连接和配置 MCP 服务器的所有方式，请参阅 [MCP 参考](/docs/zh-CN/mcp.md)。
 
 ## 开始之前
 
 确保您拥有：
 
-* [已安装](/docs/zh-CN/quickstart)并验证了 Claude Code
+* [已安装](/docs/zh-CN/quickstart.md)并验证了 Claude Code
 * 在项目目录中打开的终端。任何目录都可以，包括空目录。
 
 ## 添加并验证服务器
 
 下面的示例连接到 [Claude Code 文档 MCP 服务器](https://code.claude.com/docs/mcp)，这是一个托管服务器，具有对 Claude Code 文档的全文搜索功能。它不需要身份验证或任何特殊配置，因此它很适合作为第一个服务器来测试设置流程。
 
-所有服务器的步骤都相同：添加它、检查连接状态，然后在会话中使用它，最后可选择清理步骤。某些服务器会添加一个步骤，例如浏览器登录，如 [其他 MCP 服务器示例](#additional-mcp-server-examples) 中所示。有关更多要连接的服务器，请浏览 [Anthropic 目录](/docs/zh-CN/mcp#find-and-build-mcp-servers)。
+所有服务器的步骤都相同：添加它、检查连接状态，然后在会话中使用它，最后可选择清理步骤。某些服务器会添加一个步骤，例如浏览器登录，如 [其他 MCP 服务器示例](#additional-mcp-server-examples) 中所示。有关更多要连接的服务器，请浏览 [Anthropic 目录](/docs/zh-CN/mcp.md#find-and-build-mcp-servers)。
 
 **1. 添加 MCP 服务器**
 
@@ -64,7 +64,7 @@ claude mcp list
 | `✘ Failed to connect` | 服务器没有响应。请参阅 [故障排除](#troubleshooting) |
 | `✘ Connection error` | 连接尝试抛出错误。请参阅 [故障排除](#troubleshooting) |
 | ``⏸ Pending approval (run `claude` to approve)`` | 您尚未批准的项目范围服务器。请参阅 [直接编辑 .mcp.json](#edit-mcp-json-directly) |
-| `⊘ Disabled for this project (re-enable via /mcp)` | 由项目的 `disabledMcpServers` 列表为此项目关闭的服务器。请参阅 [禁用服务器而不删除它](/docs/zh-CN/mcp#disable-a-server-without-removing-it) |
+| `⊘ Disabled for this project (re-enable via /mcp)` | 由项目的 `disabledMcpServers` 列表为此项目关闭的服务器。请参阅 [禁用服务器而不删除它](/docs/zh-CN/mcp.md#disable-a-server-without-removing-it) |
 
 某些旧版 Windows 控制台，例如 Windows 10 上的默认控制台，不支持这些 Unicode 字形，并显示 `√` 和 `×` 代替 `✔` 和 `✘`。
 
@@ -98,7 +98,7 @@ claude mcp remove claude-code-docs
 
 > [!NOTE]
 >
-> 每个已连接的服务器在 [Claude 的上下文窗口](/docs/zh-CN/how-claude-code-works#the-context-window) 中占用一些空间，因为其工具名称和服务器说明加载到每个会话中。删除您不再使用的服务器可以保持该空间空闲。
+> 每个已连接的服务器在 [Claude 的上下文窗口](/docs/zh-CN/how-claude-code-works.md#the-context-window) 中占用一些空间，因为其工具名称和服务器说明加载到每个会话中。删除您不再使用的服务器可以保持该空间空闲。
 
 ## 服务器保存位置
 
@@ -126,7 +126,7 @@ claude mcp remove claude-code-docs
 
 在 Windows 上，`~/.claude.json` 解析为 `%USERPROFILE%\.claude.json`，通常为 `C:\Users\YourName\.claude.json`。如果您设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)，Claude Code 会从该目录内读取 `.claude.json`。
 
-运行 `claude mcp get claude-code-docs` 以查看哪个范围保存服务器的定义。有关当同一服务器在多个范围中定义时范围如何交互，请参阅 [MCP 安装范围](/docs/zh-CN/mcp#mcp-installation-scopes)。
+运行 `claude mcp get claude-code-docs` 以查看哪个范围保存服务器的定义。有关当同一服务器在多个范围中定义时范围如何交互，请参阅 [MCP 安装范围](/docs/zh-CN/mcp.md#mcp-installation-scopes)。
 
 ## 更改服务器范围
 
@@ -208,7 +208,7 @@ Use playwright to open https://example.com and tell me the page title
 
 托管服务（如 Sentry、Linear 和 Notion）在 OAuth 后面运行其 MCP 服务器：您添加服务器的 URL，然后通过浏览器登录。
 
-下面的步骤以 Sentry 为例。要连接不同的服务，请替换其 URL，您可以在 [Anthropic 目录](/docs/zh-CN/mcp#find-and-build-mcp-servers)或服务的文档中找到。
+下面的步骤以 Sentry 为例。要连接不同的服务，请替换其 URL，您可以在 [Anthropic 目录](/docs/zh-CN/mcp.md#find-and-build-mcp-servers)或服务的文档中找到。
 
 **1. 添加服务器**
 
@@ -236,7 +236,7 @@ claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
 
 询问 Claude 需要该服务的内容，例如 `What Sentry projects do I have access to?`，并查找在其输出中标有 `sentry` 服务器名称的工具调用。
 
-使用静态令牌而不是 OAuth 进行身份验证的服务器在添加时使用 `--header "Authorization: Bearer <token>"` 获取令牌。有关已完成的版本，请参阅 [GitHub 示例](/docs/zh-CN/mcp#example-connect-to-github-for-code-reviews)。
+使用静态令牌而不是 OAuth 进行身份验证的服务器在添加时使用 `--header "Authorization: Bearer <token>"` 获取令牌。有关已完成的版本，请参阅 [GitHub 示例](/docs/zh-CN/mcp.md#example-connect-to-github-for-code-reviews)。
 
 ## 直接编辑 .mcp.json
 
@@ -275,11 +275,11 @@ Claude Code 第一次看到项目范围的服务器时，它会要求您批准�
 
 本指南使用 `claude mcp` CLI 命令，但每个 Claude Code 界面都可以连接到 MCP 服务器：
 
-* **Claude Code 桌面应用**：通过[连接器 UI](/docs/zh-CN/desktop#connect-external-tools)添加服务器。
+* **Claude Code 桌面应用**：通过[连接器 UI](/docs/zh-CN/desktop.md#connect-external-tools)添加服务器。
 * **Claude 桌面聊天应用**：与 Claude Code 不同的应用。要将其 `claude_desktop_config.json` 中的服务器复制到 CLI，请在 macOS 或 WSL 上运行 `claude mcp add-from-claude-desktop`。
-* **VS Code**：请参阅[使用 MCP 连接到外部工具](/docs/zh-CN/vs-code#connect-to-external-tools-with-mcp)。
-* **云端会话**：在[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)之外，将 `.mcp.json` 提交到您的仓库；包含一个仓库的会话会加载它。项目中的云端线程则改用您的 claude.ai 连接器。请参阅[直接编辑 .mcp.json](#edit-mcp-json-directly) 和[您的设置中保留的内容](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
-* **Claude.ai**：您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 添加的连接器在您使用该帐户登录 CLI 时自动加载。请参阅[从 Claude.ai 使用 MCP 服务器](/docs/zh-CN/mcp#use-mcp-servers-from-claude-ai)。
+* **VS Code**：请参阅[使用 MCP 连接到外部工具](/docs/zh-CN/vs-code.md#connect-to-external-tools-with-mcp)。
+* **云端会话**：在[项目](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)的线程之外，将 `.mcp.json` 提交到您的仓库；包含一个仓库的会话会加载它。项目中的云端线程则改用您的 claude.ai 连接器。请参阅[直接编辑 .mcp.json](#edit-mcp-json-directly) 和[您的设置中保留的内容](/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。
+* **Claude.ai**：您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 添加的连接器在您使用该帐户登录 CLI 时自动加载。请参阅[从 Claude.ai 使用 MCP 服务器](/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)。
 
 ## 故障排除
 
@@ -347,7 +347,7 @@ Claude Code 第一次看到项目范围的服务器时，它会要求您批准�
 > $env:MCP_TIMEOUT = "60000"; claude
 > ```
 >
-> 在 v2.1.299 之前，某些到已启动的 HTTP 服务器的连接会在启动时超时，与 `MCP_TIMEOUT` 无关。如果您使用的是这些版本之一，并且在提高限制后已启动的 HTTP 服务器仍然超时，请[更新 Claude Code](/docs/zh-CN/setup#update-claude-code)。
+> 在 v2.1.299 之前，某些到已启动的 HTTP 服务器的连接会在启动时超时，与 `MCP_TIMEOUT` 无关。如果您使用的是这些版本之一，并且在提高限制后已启动的 HTTP 服务器仍然超时，请[更新 Claude Code](/docs/zh-CN/setup.md#update-claude-code)。
 
 > **服务器已存在**
 >
@@ -365,7 +365,7 @@ Claude Code 第一次看到项目范围的服务器时，它会要求您批准�
 >
 > 在 `claude mcp add` 上使用 `--env KEY=value` 传递变量，或在服务器的 `.mcp.json` 条目的 `env` 字段中传递。服务器的文档列出了它需要的变量。
 >
-> 在 v2.1.302 之前，对于使用[协议修订版 2026-07-28](/docs/zh-CN/mcp#mcp-client-runtimes) 且在其响应中省略了 `resultType`、`ttlMs` 或 `cacheScope` 的服务器，`/mcp` 会显示状态 `tools fetch failed`。如果您使用的是这些版本之一，并且服务器显示该状态，请[更新 Claude Code](/docs/zh-CN/setup#update-claude-code)。
+> 在 v2.1.302 之前，对于使用[协议修订版 2026-07-28](/docs/zh-CN/mcp.md#mcp-client-runtimes) 且在其响应中省略了 `resultType`、`ttlMs` 或 `cacheScope` 的服务器，`/mcp` 会显示状态 `tools fetch failed`。如果您使用的是这些版本之一，并且服务器显示该状态，请[更新 Claude Code](/docs/zh-CN/setup.md#update-claude-code)。
 
 > **.mcp.json 的更改不生效**
 >
@@ -381,15 +381,15 @@ Claude Code 第一次看到项目范围的服务器时，它会要求您批准�
 
 > **OAuth 登录失败或浏览器不打开**
 >
-> 运行 `/mcp`，选择服务器，然后再次选择 `Authenticate`。如果浏览器没有自动打开，复制终端中显示的 URL 并手动打开它。有关固定回调端口和预配置凭据，请参阅[使用远程 MCP 服务器进行身份验证](/docs/zh-CN/mcp#authenticate-with-remote-mcp-servers)。
+> 运行 `/mcp`，选择服务器，然后再次选择 `Authenticate`。如果浏览器没有自动打开，复制终端中显示的 URL 并手动打开它。有关固定回调端口和预配置凭据，请参阅[使用远程 MCP 服务器进行身份验证](/docs/zh-CN/mcp.md#authenticate-with-remote-mcp-servers)。
 
 ## 后续步骤
 
 连接一个服务器后，探索 MCP 启用的其余功能：
 
-* [查找更多 MCP 服务器](/docs/zh-CN/mcp#find-and-build-mcp-servers) 在 Anthropic 目录中
-* [与您的团队共享服务器](/docs/zh-CN/mcp#mcp-installation-scopes) 使用安装范围
-* [为组织管理 MCP 访问](/docs/zh-CN/managed-mcp) 使用托管设置和策略控制
-* [在提示中引用 MCP 资源](/docs/zh-CN/mcp#use-mcp-resources) 使用 @ 提及
-* [将 MCP 提示作为命令运行](/docs/zh-CN/mcp#use-mcp-prompts-as-commands) 从 `/` 菜单
+* [查找更多 MCP 服务器](/docs/zh-CN/mcp.md#find-and-build-mcp-servers) 在 Anthropic 目录中
+* [与您的团队共享服务器](/docs/zh-CN/mcp.md#mcp-installation-scopes) 使用安装范围
+* [为组织管理 MCP 访问](/docs/zh-CN/managed-mcp.md) 使用托管设置和策略控制
+* [在提示中引用 MCP 资源](/docs/zh-CN/mcp.md#use-mcp-resources) 使用 @ 提及
+* [将 MCP 提示作为命令运行](/docs/zh-CN/mcp.md#use-mcp-prompts-as-commands) 从 `/` 菜单
 * [构建您自己的服务器](https://modelcontextprotocol.io/quickstart/server) 使用 MCP SDK

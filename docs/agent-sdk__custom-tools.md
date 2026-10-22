@@ -21,7 +21,7 @@
 | 控制 Claude 读取的错误消息 | 返回 `isError: true` 来组合消息，而不是显示原始异常。请参阅[处理错误](#handle-errors)。 |
 | 返回图像或文件 | 在内容数组中使用 `image` 或 `resource` 块。请参阅[返回图像和资源](#return-images-and-resources)。 |
 | 返回机器可读的 JSON 结果 | 在结果上设置 `structuredContent`。请参阅[返回结构化数据](#return-structured-data)。 |
-| 扩展到许多工具 | 使用[工具搜索](/docs/zh-CN/agent-sdk/tool-search)按需加载工具。 |
+| 扩展到许多工具 | 使用[工具搜索](/docs/zh-CN/agent-sdk/tool-search.md)按需加载工具。 |
 
 ## 创建自定义工具
 
@@ -145,13 +145,13 @@ const weatherServer = createSdkMcpServer({
 要使参数可选，请在 schema 中将其声明为可选，并在处理程序中应用默认值：
 
 * **TypeScript**：向 Zod 字段添加 `.optional()`。
-* **Python**：字典 schema 要求每个键都必须提供。请使用 JSON Schema 形式，将该参数从 `required` 中省略，并使用 `args.get()` 读取它。如需带有可选键的类型化 schema，请参阅 [TypedDict 类](/docs/zh-CN/agent-sdk/python#input-schema-options)。
+* **Python**：字典 schema 要求每个键都必须提供。请使用 JSON Schema 形式，将该参数从 `required` 中省略，并使用 `args.get()` 读取它。如需带有可选键的类型化 schema，请参阅 [TypedDict 类](/docs/zh-CN/agent-sdk/python.md#input-schema-options)。
 
 下面的 [`get_precipitation_chance` 工具](#add-more-tools)展示了这两种写法。
 
 ### 调用自定义工具
 
-通过 `mcpServers` 选项将您创建的 MCP 服务器传递给 `query`，并在 `allowedTools` 中列出每个工具的[完全限定名称](/docs/zh-CN/agent-sdk/mcp#tool-naming-convention)，以便工具运行而无需权限提示。该名称为 `mcp__{server_name}__{tool_name}`，其中 `{server_name}` 是您在 `mcpServers` 中为服务器指定的键。如果该键包含 `.` 或空格等字符，请在编写 `{server_name}` 时将其替换为 `_`。
+通过 `mcpServers` 选项将您创建的 MCP 服务器传递给 `query`，并在 `allowedTools` 中列出每个工具的[完全限定名称](/docs/zh-CN/agent-sdk/mcp.md#tool-naming-convention)，以便工具运行而无需权限提示。该名称为 `mcp__{server_name}__{tool_name}`，其中 `{server_name}` 是您在 `mcpServers` 中为服务器指定的键。如果该键包含 `.` 或空格等字符，请在编写 `{server_name}` 时将其替换为 `_`。
 
 这些代码片段重用了[天气工具示例](#weather-tool-example)中的 `weatherServer`，以询问 Claude 特定位置的天气。
 
@@ -318,7 +318,7 @@ const weatherServer = createSdkMcpServer({
 });
 ```
 
-[工具搜索](/docs/zh-CN/agent-sdk/tool-search)默认启用，并延迟 SDK MCP 工具：Claude 在紧凑列表中看到每个工具的名称，并按需加载其完整模式。禁用工具搜索后，此数组中的每个工具在每个回合都会消耗上下文窗口空间。在 TypeScript 中，在 [`tool()`](/docs/zh-CN/agent-sdk/typescript#tool) 的 `extras` 参数或 [`createSdkMcpServer()`](/docs/zh-CN/agent-sdk/typescript#createsdkmcpserver) 的选项中传递 `alwaysLoad: true`，以在初始提示中保持工具的完整模式。
+[工具搜索](/docs/zh-CN/agent-sdk/tool-search.md)默认启用，并延迟 SDK MCP 工具：Claude 在紧凑列表中看到每个工具的名称，并按需加载其完整模式。禁用工具搜索后，此数组中的每个工具在每个回合都会消耗上下文窗口空间。在 TypeScript 中，在 [`tool()`](/docs/zh-CN/agent-sdk/typescript#tool) 的 `extras` 参数或 [`createSdkMcpServer()`](/docs/zh-CN/agent-sdk/typescript#createsdkmcpserver) 的选项中传递 `alwaysLoad: true`，以在初始提示中保持工具的完整模式。
 
 ### 添加工具注释
 
@@ -364,7 +364,7 @@ tool(
 );
 ```
 
-在 [TypeScript](/docs/zh-CN/agent-sdk/typescript#toolannotations) 或 [Python](/docs/zh-CN/agent-sdk/python#toolannotations) 参考中查看 `ToolAnnotations`。
+在 [TypeScript](/docs/zh-CN/agent-sdk/typescript.md#toolannotations) 或 [Python](/docs/zh-CN/agent-sdk/python.md#toolannotations) 参考中查看 `ToolAnnotations`。
 
 ## 控制工具访问
 
@@ -372,16 +372,16 @@ tool(
 
 ### 配置允许的工具
 
-`tools`选项和允许/禁止列表影响两个层级：可用性（控制工具是否出现在Claude的上下文中）和权限（控制Claude尝试调用后是否批准该调用）。`tools`和裸名称`disallowedTools`条目改变可用性。`allowedTools`和作用域`disallowedTools`规则改变权限。如果您在`allowedTools`中命名其中一个[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking#model-availability)，Claude Code也会为该会话启用这些工具。
+`tools`选项和允许/禁止列表影响两个层级：可用性（控制工具是否出现在Claude的上下文中）和权限（控制Claude尝试调用后是否批准该调用）。`tools`和裸名称`disallowedTools`条目改变可用性。`allowedTools`和作用域`disallowedTools`规则改变权限。如果您在`allowedTools`中命名其中一个[任务跟踪工具](/docs/zh-CN/agent-sdk/todo-tracking.md#model-availability)，Claude Code也会为该会话启用这些工具。
 
 | 选项 | 层级 | 效果 |
 | :- | :- | :- |
 | `tools: ["Read", "Grep"]` | 可用性 | 仅列出的内置工具在Claude的上下文中。未列出的内置工具被移除。MCP工具不受影响。 |
 | `tools: []` | 可用性 | 所有内置工具都被移除。Claude只能使用您的MCP工具。 |
-| 允许的工具 | 权限 | 列出的工具无需权限提示即可运行。其他未列出的工具保持可用；调用通过[权限流程](/docs/zh-CN/agent-sdk/permissions)进行。 |
-| 禁止的工具 | 两者 | 裸工具名称如`"Bash"`从Claude的上下文中移除工具，与从`tools`中省略它的效果相同。作用域规则如`"Bash(rm *)"`将工具保留在上下文中，仅拒绝与[如所写](/docs/zh-CN/permissions#bash-rule-limits)匹配的调用。 |
+| 允许的工具 | 权限 | 列出的工具无需权限提示即可运行。其他未列出的工具保持可用；调用通过[权限流程](/docs/zh-CN/agent-sdk/permissions.md)进行。 |
+| 禁止的工具 | 两者 | 裸工具名称如`"Bash"`从Claude的上下文中移除工具，与从`tools`中省略它的效果相同。作用域规则如`"Bash(rm *)"`将工具保留在上下文中，仅拒绝与[如所写](/docs/zh-CN/permissions.md#bash-rule-limits)匹配的调用。 |
 
-要完全移除内置工具，请从`tools`中省略它或在`disallowedTools`中列出其裸名称（Python：`disallowed_tools`）；两者都将工具保留在上下文之外，以便Claude永远不会尝试它。作用域`disallowedTools`规则阻止匹配的调用但将工具保留为可见，因此Claude可能会浪费一个回合尝试它。有关完整的评估顺序，请参阅[配置权限](/docs/zh-CN/agent-sdk/permissions)。
+要完全移除内置工具，请从`tools`中省略它或在`disallowedTools`中列出其裸名称（Python：`disallowed_tools`）；两者都将工具保留在上下文之外，以便Claude永远不会尝试它。作用域`disallowedTools`规则阻止匹配的调用但将工具保留为可见，因此Claude可能会浪费一个回合尝试它。有关完整的评估顺序，请参阅[配置权限](/docs/zh-CN/agent-sdk/permissions.md)。
 
 ## 处理错误
 
@@ -632,7 +632,7 @@ return {
 
 > [!NOTE]
 >
-> Python `@tool` 装饰器仅从处理程序的返回字典中转发 `content` 和 `is_error`。要从 Python 返回 `structuredContent`，请运行[独立 MCP 服务器](/docs/zh-CN/agent-sdk/mcp)而不是进程内 SDK 服务器。
+> Python `@tool` 装饰器仅从处理程序的返回字典中转发 `content` 和 `is_error`。要从 Python 返回 `structuredContent`，请运行[独立 MCP 服务器](/docs/zh-CN/agent-sdk/mcp.md)而不是进程内 SDK 服务器。
 
 ## 示例：单位转换器
 
@@ -800,7 +800,7 @@ const converterServer = createSdkMcpServer({
 
 定义服务器后，以与天气示例相同的方式将其传递给 `query`。此示例在循环中发送三个不同的提示，以显示同一工具处理不同单位类型的情况。对于每个响应，它检查 `AssistantMessage` 对象（包含 Claude 在该轮中进行的工具调用）并在打印最终 `ResultMessage` 文本之前打印每个 `ToolUseBlock`。这让你可以看到 Claude 何时使用工具与何时从自己的知识中回答。
 
-因为 [tool search](/docs/zh-CN/agent-sdk/tool-search) 默认启用，输出也可能包括 `ToolSearch` 调用，因为 Claude 加载延迟的工具模式。
+因为 [tool search](/docs/zh-CN/agent-sdk/tool-search.md) 默认启用，输出也可能包括 `ToolSearch` 调用，因为 Claude 加载延迟的工具模式。
 
 ```python Python theme={null}
 import asyncio
@@ -887,6 +887,6 @@ for (const prompt of prompts) {
 
 从这里开始：
 
-* 如果您的服务器增长到数十个工具，请参阅[工具搜索](/docs/zh-CN/agent-sdk/tool-search)以延迟加载它们，直到 Claude 需要它们。
-* 要连接到外部 MCP 服务器（文件系统、GitHub、Slack）而不是构建自己的服务器，请参阅[连接 MCP 服务器](/docs/zh-CN/agent-sdk/mcp)。
-* 要控制哪些工具自动运行与需要批准，请参阅[配置权限](/docs/zh-CN/agent-sdk/permissions)。
+* 如果您的服务器增长到数十个工具，请参阅[工具搜索](/docs/zh-CN/agent-sdk/tool-search.md)以延迟加载它们，直到 Claude 需要它们。
+* 要连接到外部 MCP 服务器（文件系统、GitHub、Slack）而不是构建自己的服务器，请参阅[连接 MCP 服务器](/docs/zh-CN/agent-sdk/mcp.md)。
+* 要控制哪些工具自动运行与需要批准，请参阅[配置权限](/docs/zh-CN/agent-sdk/permissions.md)。

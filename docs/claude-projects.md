@@ -8,11 +8,11 @@
 
 > [!NOTE]
 >
-> Projects 在 Pro 和 Max 计划上处于公开测试阶段，正在逐步推出，首先面向已使用[云会话](/docs/zh-CN/claude-code-on-the-web)且在 claude.ai 聊天或 Cowork 中没有现有项目的账户。它们在 Team 或 Enterprise 计划上还不可用。如果 **Projects** 没有出现在 [claude.ai/code](https://claude.ai/code) 的侧边栏中或[桌面应用](/docs/zh-CN/desktop)的代码选项卡中，说明推出还没有到达您的账户，您可以[加入等待列表](https://claude.com/form/projects)。[并行运行代理](/docs/zh-CN/agents)列出了您在此期间可以使用的内容。
+> Projects 在 Pro 和 Max 计划上处于公开测试阶段，正在逐步推出，首先面向已使用[云会话](/docs/zh-CN/claude-code-on-the-web.md)且在 claude.ai 聊天或 Cowork 中没有现有项目的账户。它们在 Team 或 Enterprise 计划上还不可用。如果 **Projects** 没有出现在 [claude.ai/code](https://claude.ai/code) 的侧边栏中或[桌面应用](/docs/zh-CN/desktop.md)的代码选项卡中，说明推出还没有到达您的账户，您可以[加入等待列表](https://claude.com/form/projects)。[并行运行代理](/docs/zh-CN/agents.md)列出了您在此期间可以使用的内容。
 
 项目是一个持续进行的对话，Claude 在其中为您协调一系列相关工作。您告诉它需要做什么，它为每个任务启动一个线程。
 
-每个线程通常是一个[云会话](/docs/zh-CN/claude-code-on-the-web)：Claude Code 在云中运行，而不是在您的机器上运行。当任务需要只有您的计算机才有的东西时，您可以要求 Claude 通过[远程控制](/docs/zh-CN/remote-control)在您的计算机上[运行该线程](#run-a-thread-on-your-own-computer)。线程并行运行，您可以从手机上检查它们并引导它们。云线程在您关闭笔记本电脑后会继续进行，而您计算机上的线程仅在该计算机处于唤醒状态时运行。
+每个线程通常是一个[云会话](/docs/zh-CN/claude-code-on-the-web.md)：Claude Code 在云中运行，而不是在您的机器上运行。当任务需要只有您的计算机才有的东西时，您可以要求 Claude 通过[远程控制](/docs/zh-CN/remote-control.md)在您的计算机上[运行该线程](#run-a-thread-on-your-own-computer)。线程并行运行，您可以从手机上检查它们并引导它们。云线程在您关闭笔记本电脑后会继续进行，而您计算机上的线程仅在该计算机处于唤醒状态时运行。
 
 没有项目的情况下，运行多个会话意味着您自己进行协调：您决定每个会话处理什么，在每个会话的开始重复相同的背景信息，并检查哪个已完成或需要您的回答。使用项目，您可以：
 
@@ -31,15 +31,15 @@
 * **比一个会话更大的构建或迁移**："构建 `docs/spec.md` 描述的内容"或"将应用从已弃用的 ORM 迁移出去。"工作分成线程，每个处理一部分，您要求 Claude 记住的早期决定会到达后续线程，您在构建期间发现的规范更改和错误进入同一对话。
 * **非代码工作**：一个合同文件夹或支持工单导出，您不断回来提出新问题，例如"在这些工单中找到十个最常见的集成错误。"上传文档而不是添加代码库，线程将每个写作作为文件提交到项目的[**Library** 标签页](#see-what-needs-you-in-overview)。
 
-在任何情况下，您都可以发送一批任务，告诉 Claude 直接开始而无需您确认，然后离开。回来后，您可以在[**Waiting on you**](#see-what-needs-you-in-overview)下找到需要您处理的线程。您还可以要求 Claude 将部分工作作为[云端定时任务](/docs/zh-CN/routines)按计划运行。如果您属于其中一种情况，请[创建项目](#create-a-project)。
+在任何情况下，您都可以发送一批任务，告诉 Claude 直接开始而无需您确认，然后离开。回来后，您可以在[**Waiting on you**](#see-what-needs-you-in-overview)下找到需要您处理的线程。您还可以要求 Claude 将部分工作作为[云端定时任务](/docs/zh-CN/routines.md)按计划运行。如果您属于其中一种情况，请[创建项目](#create-a-project)。
 
 ### 何时其他方式更合适
 
 项目仍然适用于仅某些任务需要您的机器的情况。Cloud 线程在 GitHub 代码库以及您上传到项目的文件、文件夹和 Google Drive 文件夹上工作，对于偶尔需要本地数据库或您计算机上的工具的任务，您可以要求 Claude [在您自己的计算机上运行该任务的线程](#run-a-thread-on-your-own-computer)。在这些情况下，项目以外的方式更合适：
 
-* **一个适合在一个会话中完成的任务**："修复不稳定的登录测试。"自己启动一个[云会话](/docs/zh-CN/claude-code-on-the-web)。
-* **每个任务都需要您的机器的工作**：本地数据库、设备模拟器或 VPN 后面的 API。使用本地会话，或[代理视图](/docs/zh-CN/agent-view)同时运行多个。如果工作只需要本地文件，请将它们上传到项目。
-* **一个按时间表重复的任务，周围没有对话**："每周一发布依赖报告。"单独创建一个[云端定时任务](/docs/zh-CN/routines)。
+* **一个适合在一个会话中完成的任务**："修复不稳定的登录测试。"自己启动一个[云会话](/docs/zh-CN/claude-code-on-the-web.md)。
+* **每个任务都需要您的机器的工作**：本地数据库、设备模拟器或 VPN 后面的 API。使用本地会话，或[代理视图](/docs/zh-CN/agent-view.md)同时运行多个。如果工作只需要本地文件，请将它们上传到项目。
+* **一个按时间表重复的任务，周围没有对话**："每周一发布依赖报告。"单独创建一个[云端定时任务](/docs/zh-CN/routines.md)。
 * **多个人在 Slack 频道中给 Claude 工作并一起引导它**：请参阅 [Claude Tag](https://claude.com/docs/claude-tag/overview)。
 
 项目使用与您其他 Claude Code 会话相同的计划限制，并更快地使用它们。[使用和成本](#usage-and-cost)涵盖了什么使用您的计划以及如何降低成本。
@@ -78,7 +78,7 @@
 
 * **计划**：您在 Pro 或 Max 上，**Projects** 显示在您的侧边栏中。
 * **GitHub，如果项目将处理代码**：您的代码在 github.com 上而不是 GitHub Enterprise Server、GitLab 或 Bitbucket 上，您连接的 GitHub 账户对其有推送访问权限，Claude GitHub App 已安装在其上。如果您使用 [`/web-setup`](/docs/zh-CN/web-quickstart#connect-from-your-terminal) 连接了 GitHub，该令牌让您的其他云会话可以访问代码库，但对于项目线程来说还不够，项目线程需要 Claude GitHub App。[设置 GitHub 访问](#set-up-github-access)有相关步骤。
-* **网络访问、密钥和工具**：对于云端线程，这些来自项目的[云环境](#choose-an-environment-for-threads)。默认环境已经可以访问[常见的包注册表](/docs/zh-CN/cloud-environments#default-allowed-domains)，因此仅在工作需要其他域、密钥或未预装的工具时检查此项。如果工作需要 MCP 服务器，检查它是否在您的 [claude.ai 连接器](https://claude.ai/customize/connectors)中显示为已连接。
+* **网络访问、密钥和工具**：对于云端线程，这些来自项目的[云环境](#choose-an-environment-for-threads)。默认环境已经可以访问[常见的包注册表](/docs/zh-CN/cloud-environments.md#default-allowed-domains)，因此仅在工作需要其他域、密钥或未预装的工具时检查此项。如果工作需要 MCP 服务器，检查它是否在您的 [claude.ai 连接器](https://claude.ai/customize/connectors)中显示为已连接。
 
 ### 从头开始启动新项目
 
@@ -124,7 +124,7 @@
 
 **1. 连接您的 GitHub 账户**
 
-如果您之前没有使用过 claude.ai/code，您的第一次访问会引导您连接 GitHub；请参阅[连接 GitHub](/docs/zh-CN/web-quickstart#connect-github)。否则使用[GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web#github-authentication-options)之一。
+如果您之前没有使用过 claude.ai/code，您的第一次访问会引导您连接 GitHub；请参阅[连接 GitHub](/docs/zh-CN/web-quickstart.md#connect-github)。否则使用[GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web.md#github-authentication-options)之一。
 
 **2. 在项目的代码库上安装 Claude GitHub App**
 
@@ -169,7 +169,7 @@ Claude 决定你在对话中发送的每条消息的去向：
 
 * **分支**：在新分支上工作，从存储库的默认分支开始。
 * **拉取请求**：当你要求时打开一个，并且可以为错误修复或其他具体更改自动打开一个。
-* **打开后**：使用[自动修复](/docs/zh-CN/claude-code-on-the-web#auto-fix-pull-requests)打开的情况下监视拉取请求，无论你的其他云会话是否打开了自动修复。当 CI 失败时它会推送修复，处理审查评论，并在检查通过且拉取请求准备好供你使用时在线程中回复。
+* **打开后**：使用[自动修复](/docs/zh-CN/claude-code-on-the-web.md#auto-fix-pull-requests)打开的情况下监视拉取请求，无论你的其他云会话是否打开了自动修复。当 CI 失败时它会推送修复，处理审查评论，并在检查通过且拉取请求准备好供你使用时在线程中回复。
 
 当线程推送了分支或打开了拉取请求时，其在对话中的卡片可以显示下一步的按钮：
 
@@ -200,7 +200,7 @@ Claude 决定你在对话中发送的每条消息的去向：
 
 * **库**：您添加的文件和文件夹，以及线程生成的文件
 * **Pull Request**：在线程创建了 Pull Request 后显示
-* **定时任务**：Claude 从此项目设置的[云端定时任务](/docs/zh-CN/routines)
+* **定时任务**：Claude 从此项目设置的[云端定时任务](/docs/zh-CN/routines.md)
 
 ### 当你需要控制时打开线程
 
@@ -213,7 +213,7 @@ Claude 决定你在对话中发送的每条消息的去向：
 
 ### 选择模型并让 Claude 管理上下文
 
-在**项目设置 > 常规**中设置模型和工作量。新项目在所有地方运行 Opus，线程的[工作量](/docs/zh-CN/model-config#adjust-effort-level)为高，对话的工作量为低：
+在**项目设置 > 常规**中设置模型和工作量。新项目在所有地方运行 Opus，线程的[工作量](/docs/zh-CN/model-config.md#adjust-effort-level)为高，对话的工作量为低：
 
 * **线程模型**和**线程工作量**适用于线程。要为一个任务使用不同的模型，请在任务中要求它；对于已在运行的线程，使用该线程的模型选择器。
 * **协调器模型**和**协调器工作量**适用于项目对话中的 Claude。
@@ -237,13 +237,13 @@ Claude 会自动将这些偏好保存到[项目内存](#give-a-project-standing-
 
 ### 解除等待批准的线程
 
-当线程的模型支持时，线程在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中运行，因此大多数工具调用无需询问你即可运行。当线程需要你的批准时，提示在该线程内，线程等待你在那里回答。在项目对话中告诉 Claude 继续不会到达它。
+当线程的模型支持时，线程在[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中运行，因此大多数工具调用无需询问你即可运行。当线程需要你的批准时，提示在该线程内，线程等待你在那里回答。在项目对话中告诉 Claude 继续不会到达它。
 
-每次批准仅涵盖该提示，或者如果您选择更广泛的选项，则涵盖该线程的其余部分。云端线程不会读取仓库 `.claude/settings.json` 中的[权限规则](/docs/zh-CN/permissions)，因此您需要依赖自动模式以及您在每个线程内给出的批准。
+每次批准仅涵盖该提示，或者如果您选择更广泛的选项，则涵盖该线程的其余部分。云端线程不会读取仓库 `.claude/settings.json` 中的[权限规则](/docs/zh-CN/permissions.md)，因此您需要依赖自动模式以及您在每个线程内给出的批准。
 
 ### 在你自己的计算机上运行线程
 
-当任务需要只有你的计算机才有的东西，例如本地数据库、设备模拟器或 VPN 后面的 API 时，要求 Claude 在你的计算机上而不是在云中运行该任务的线程。当你在项目对话中要求时，线程是你机器上文件夹中的 Claude Code 会话，通过[远程控制](/docs/zh-CN/remote-control)连接。项目的其他线程继续在云中运行。与云线程相比，在你的计算机上运行的线程：
+当任务需要只有你的计算机才有的东西，例如本地数据库、设备模拟器或 VPN 后面的 API 时，要求 Claude 在你的计算机上而不是在云中运行该任务的线程。当你在项目对话中要求时，线程是你机器上文件夹中的 Claude Code 会话，通过[远程控制](/docs/zh-CN/remote-control.md)连接。项目的其他线程继续在云中运行。与云线程相比，在你的计算机上运行的线程：
 
 * 使用该机器上的文件、工具、MCP 服务器和 Claude Code 设置，包括其 hooks 和权限规则，而不是项目的云环境
 * 从项目的说明开始，但不加载其内存文件
@@ -254,7 +254,7 @@ Claude 会自动将这些偏好保存到[项目内存](#give-a-project-standing-
 在具有任务需要的文件夹的计算机上，通过以下两种方式之一通过远程控制使其可用。两者都需要该计算机上的 Claude Code v2.1.280 或更高版本。
 
 * **在 Claude 桌面应用中**：打开**设置 > Claude Code**，打开**从你的手机和 claude.ai 使用此计算机**，并将文件夹添加到该开关下的列表中。当应用打开时，线程可以在此计算机上运行。
-* **在终端中**：在文件夹中运行`claude remote-control`并让其保持运行。在 git 存储库中，添加`--spawn worktree`以为那里的每个线程提供其自己的 [worktree](/docs/zh-CN/worktrees)，而不是文件夹本身。
+* **在终端中**：在文件夹中运行`claude remote-control`并让其保持运行。在 git 存储库中，添加`--spawn worktree`以为那里的每个线程提供其自己的 [worktree](/docs/zh-CN/worktrees.md)，而不是文件夹本身。
 
 **2. 使用本地工作要求任务**
 
@@ -264,11 +264,11 @@ Claude 会自动将这些偏好保存到[项目内存](#give-a-project-standing-
 
 Claude 会回答一张**允许 Claude 在你的设备上的文件夹中工作**卡片。如果你连接了多个，请选择文件夹。两个线程在一个文件夹中同时工作可能会覆盖彼此的更改，因此如果文件夹是 git 存储库，你可以在文件夹的选项中打开**Worktree** 以为此线程提供其自己的 worktree 而不是。然后点击**允许一次**。
 
-线程在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中运行，因此 Claude 在该文件夹中运行命令和编辑文件而不每次都询问你。如果自动模式在该计算机的 Claude Code 中不可用或已关闭，线程在没有它的情况下运行，它引发的任何权限提示都会在线程中等待你的答案，如[解除等待批准的线程](#unblock-a-thread-waiting-on-approval)所述。
+线程在[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中运行，因此 Claude 在该文件夹中运行命令和编辑文件而不每次都询问你。如果自动模式在该计算机的 Claude Code 中不可用或已关闭，线程在没有它的情况下运行，它引发的任何权限提示都会在线程中等待你的答案，如[解除等待批准的线程](#unblock-a-thread-waiting-on-approval)所述。
 
 当线程运行时，其标题中的笔记本电脑图标显示你的计算机是否已连接。点击它可以查看线程使用的文件夹或关闭连接。当该计算机处于睡眠状态时线程暂停，如果桌面应用或`claude remote-control`退出则停止。[失去与你的文件夹的联系](#lost-contact-with-your-folder)涵盖了让它再次运行。在桌面应用中，在**设置 > Claude Code**下打开**为远程控制保持此计算机唤醒**以阻止计算机自动睡眠。
 
-当[**需要受信任的设备**](/docs/zh-CN/remote-control#trusted-devices)对你的账户打开时，项目无法在你的计算机上运行线程。
+当[**需要受信任的设备**](/docs/zh-CN/remote-control.md#trusted-devices)对你的账户打开时，项目无法在你的计算机上运行线程。
 
 ## 给项目提供常规上下文
 
@@ -280,7 +280,7 @@ Claude 会回答一张**允许 Claude 在你的设备上的文件夹中工作**�
 | 项目说明 | 发送到每个新线程和项目对话中 Claude 的文本，最多 16,000 个字符。[编写项目说明](#write-project-instructions)涵盖了要放入其中的内容 | **Project settings > Memory > Project instructions**，或要求 Claude 更改说明 |
 | 仓库、文件和环境 | 每个云线程克隆的仓库、它可以在 `/mnt/project-files` 下读取的文件夹和文件，以及它运行的云环境 | 仓库和环境在 **Project settings > Environment** 中设置，或在对话中要求 Claude 将仓库添加到项目。[文件和文件夹](#add-files-and-folders)通过 **Overview** 中 **Library** 标签页上的 **Add** 添加 |
 
-**Project settings > Memory** 在 **Auto memory** 下列出这些文件，因为 Claude 在项目中工作时自己写入它们。它们与 Claude Code 在您机器上保留的[自动记忆](/docs/zh-CN/memory)是分开的，即使两者都使用 `MEMORY.md` 索引。项目记忆也与项目仓库中的 `CLAUDE.md` 文件分开。每个云线程在启动时仍然从其克隆中读取那些 `CLAUDE.md` 文件，因此将关于仓库的说明放在其 `CLAUDE.md` 中，将关于项目的笔记放在项目记忆中。
+**Project settings > Memory** 在 **Auto memory** 下列出这些文件，因为 Claude 在项目中工作时自己写入它们。它们与 Claude Code 在您机器上保留的[自动记忆](/docs/zh-CN/memory.md)是分开的，即使两者都使用 `MEMORY.md` 索引。项目记忆也与项目仓库中的 `CLAUDE.md` 文件分开。每个云线程在启动时仍然从其克隆中读取那些 `CLAUDE.md` 文件，因此将关于仓库的说明放在其 `CLAUDE.md` 中，将关于项目的笔记放在项目记忆中。
 
 ### 编写项目说明
 
@@ -333,7 +333,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 | 在每个仓库中 | 在云线程中 |
 | :- | :- |
-| 仓库根目录下的 `CLAUDE.md`、`.claude/CLAUDE.md` 和 `.claude/rules/` | 在线程启动时从每个仓库加载。子目录中的 `CLAUDE.md` 文件和[特定路径规则](/docs/zh-CN/memory#path-specific-rules)不会加载 |
+| 仓库根目录下的 `CLAUDE.md`、`.claude/CLAUDE.md` 和 `.claude/rules/` | 在线程启动时从每个仓库加载。子目录中的 `CLAUDE.md` 文件和[特定路径规则](/docs/zh-CN/memory.md#path-specific-rules)不会加载 |
 | `.claude/skills/` 下的 skill | 不加载。请改为为您的 claude.ai 账户启用该 skill，如[将 skill、插件、连接器和工具引入线程](#get-skills-plugins-connectors-and-tools-into-threads)所述 |
 | `.claude/` 下的 Agent 和命令 | 不加载。要使用它们，请[在您自己的计算机上运行线程](#run-a-thread-on-your-own-computer) |
 | `.mcp.json` 中的 MCP 服务器 | 不加载。请改为使用您 claude.ai 账户上的连接器，如[将 skill、插件、连接器和工具引入线程](#get-skills-plugins-connectors-and-tools-into-threads)所述 |
@@ -344,18 +344,18 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 ### 为线程选择环境
 
-每个新云线程都在项目的[云环境](/docs/zh-CN/cloud-environments)中启动。环境决定线程可以访问哪些域、它们拥有哪些环境变量、哪些网络密钥会被添加到它们的请求中，以及设置脚本在 Claude 启动之前安装什么。在您于 **Project settings > Environment** 中选择环境之前，云线程使用默认的 Anthropic 托管环境。
+每个新云线程都在项目的[云环境](/docs/zh-CN/cloud-environments.md)中启动。环境决定线程可以访问哪些域、它们拥有哪些环境变量、哪些网络密钥会被添加到它们的请求中，以及设置脚本在 Claude 启动之前安装什么。在您于 **Project settings > Environment** 中选择环境之前，云线程使用默认的 Anthropic 托管环境。
 
-如果云线程需要访问内部 API 或私有包注册表，或需要您的机器通常持有的令牌，请更改环境而不是项目：请参阅[网络访问](/docs/zh-CN/cloud-environments#network-access)、[添加网络密钥](/docs/zh-CN/cloud-environments#add-network-secrets)和[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)。
+如果云线程需要访问内部 API 或私有包注册表，或需要您的机器通常持有的令牌，请更改环境而不是项目：请参阅[网络访问](/docs/zh-CN/cloud-environments.md#network-access)、[添加网络密钥](/docs/zh-CN/cloud-environments.md#add-network-secrets)和[设置脚本](/docs/zh-CN/cloud-environments.md#setup-scripts)。
 
 ### 将 skill、插件、连接器和工具引入线程
 
-云线程不具备仅安装在您机器上的 skill、MCP 服务器、插件和工具。Claude 通过 [Remote Control](/docs/zh-CN/remote-control) 在您机器上运行的线程会使用那里安装的内容。要让这些内容对云线程可用：
+云线程不具备仅安装在您机器上的 skill、MCP 服务器、插件和工具。Claude 通过 [Remote Control](/docs/zh-CN/remote-control.md) 在您机器上运行的线程会使用那里安装的内容。要让这些内容对云线程可用：
 
-* skill：为您的 claude.ai 账户启用它们，云线程会加载[您在那里启用的 skill](/docs/zh-CN/skills#skills-in-cowork-and-cloud-sessions)，但[自托管环境中的某些线程](/docs/zh-CN/self-hosted-environments-configuration#how-each-session’s-config-is-assembled)除外。提交到仓库 `.claude/skills/` 中的 skill 不会在云线程中加载。
-* 插件：在 **Project settings > Plugins** 中添加它们；它们会加载到每个新云线程中。仓库在其 `.claude/settings.json` 中声明的插件[不会在云线程中加载](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)。
-* MCP 服务器：云线程从您 claude.ai 账户上的连接器获取 MCP 工具，这些连接器是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 一次性连接的 MCP 服务器。每个云线程都可以使用所有这些连接器，无需按项目设置。项目对话本身没有连接器，因此请将需要连接器的工作作为任务发送给云线程。[连接器如何到达 Claude Code](/docs/zh-CN/mcp#how-connectors-reach-claude-code) 列出了云端会话的规则以及关闭连接器的设置。
-* 命令行工具和包：在环境的[设置脚本](/docs/zh-CN/cloud-environments#setup-scripts)中安装它们。
+* skill：为您的 claude.ai 账户启用它们，云线程会加载[您在那里启用的 skill](/docs/zh-CN/skills.md#skills-in-cowork-and-cloud-sessions)，但[自托管环境中的某些线程](/docs/zh-CN/self-hosted-environments-configuration.md#how-each-session’s-config-is-assembled)除外。提交到仓库 `.claude/skills/` 中的 skill 不会在云线程中加载。
+* 插件：在 **Project settings > Plugins** 中添加它们；它们会加载到每个新云线程中。仓库在其 `.claude/settings.json` 中声明的插件[不会在云线程中加载](/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。
+* MCP 服务器：云线程从您 claude.ai 账户上的连接器获取 MCP 工具，这些连接器是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 一次性连接的 MCP 服务器。每个云线程都可以使用所有这些连接器，无需按项目设置。项目对话本身没有连接器，因此请将需要连接器的工作作为任务发送给云线程。[连接器如何到达 Claude Code](/docs/zh-CN/mcp.md#how-connectors-reach-claude-code) 列出了云端会话的规则以及关闭连接器的设置。
+* 命令行工具和包：在环境的[设置脚本](/docs/zh-CN/cloud-environments.md#setup-scripts)中安装它们。
 
 要在 claude.ai/code 查看正在运行的云线程拥有哪些连接器，请打开该线程，并从其消息框旁的 **+** 菜单中选择 **Connectors**。在那里关闭某个连接器会将其从该线程中移除，并将此保存为您的账户默认值，因此在您重新打开它之前，新线程和 claude.ai 聊天启动时都不会带有它。在您向云线程发送下一条消息后，它才会获取您新添加或重新连接的连接器。
 
@@ -368,7 +368,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 | 设置 | 部分 | 它控制什么 |
 | :- | :- | :- |
 | 名称、图标和目标 | General | 侧边栏中项目的名称和图标，以及其一行目标 |
-| Coordinator model 和 effort | General | 项目对话中 Claude 的模型和[努力级别](/docs/zh-CN/model-config#adjust-effort-level) |
+| Coordinator model 和 effort | General | 项目对话中 Claude 的模型和[努力级别](/docs/zh-CN/model-config.md#adjust-effort-level) |
 | Thread model 和 effort | General | 线程的模型和努力级别 |
 | 项目说明 | Memory | [常规规则](#give-a-project-standing-context)每个新线程接收 |
 | 项目代码库 | Environment | 新线程克隆的代码库 |
@@ -389,11 +389,11 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 ## 使用和成本
 
-项目使用计入与您其他 Claude Code 会话相同的[计划限制](/docs/zh-CN/errors#youve-hit-your-session-limit)，项目本身无法超过这些限制。
+项目使用计入与您其他 Claude Code 会话相同的[计划限制](/docs/zh-CN/errors.md#youve-hit-your-session-limit)，项目本身无法超过这些限制。
 
 达到您计划限制的线程等待并在限制重置时自己继续，因此您留下运行的工作在您的下一个使用窗口中开始使用，无需来自您的消息。[线程达到使用限制](#usage-limit-reached)涵盖了您看到的内容、如何停止它，以及不等待的一种情况。
 
-工作仅在您为您的账户打开[使用信用](/docs/zh-CN/costs#add-usage-credits-to-your-subscription)时才超过您的计划限制。线程无法为您打开它们。
+工作仅在您为您的账户打开[使用信用](/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)时才超过您的计划限制。线程无法为您打开它们。
 
 ### 什么使用您的计划
 
@@ -409,7 +409,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 在 **Project settings** 中打开 **Usage** 以按线程和按模型查看令牌使用，以及有多少进入项目对话。要降低它：
 
-* 路由到已闲置超过[缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)（Pro 和 Max 在您计划限制内为一小时）的线程的后续，在做任何事情之前重新读取该线程的整个对话。对于新工作，要求 Claude 启动新线程可以使用比恢复大的旧线程更少的。
+* 路由到已闲置超过[缓存生命周期](/docs/zh-CN/prompt-caching.md#cache-lifetime)（Pro 和 Max 在您计划限制内为一小时）的线程的后续，在做任何事情之前重新读取该线程的整个对话。对于新工作，要求 Claude 启动新线程可以使用比恢复大的旧线程更少的。
 * 对于不需要最大模型的工作，为线程、对话或两者[选择更小的模型或更低的努力级别](#choose-models-and-let-claude-manage-context)。
 * 在项目对话中要求 Claude 一次运行更少的线程，或自己回答小问题而不是启动线程。
 
@@ -418,21 +418,21 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 几个 Claude Code 功能让多个会话同时工作，因此并行运行工作本身不是项目的目的。在项目中，Claude 启动和跟踪会话而不是您，每个都从相同的说明开始。这是每个相邻功能如何连接到项目的方式：
 
 * **Claude Tag**：[Claude Tag](https://claude.com/docs/claude-tag/overview) 是您团队 Slack 频道中的 Claude，在 Team 和 Enterprise 计划上。频道中的任何人都可以给它工作，频道中的每个人都看到并引导它，它使用管理员为该频道设置的连接。项目是您的：您是唯一给它工作或看到其线程的人，它使用您自己的 GitHub 访问和连接器，它在 Pro 和 Max 上。[Claude Tag 与 Cowork 和 Claude Code 的不同之处](https://claude.com/docs/claude-tag/concepts/how-it-works#how-claude-tag-differs-from-cowork-and-claude-code)有并排比较。
-* **云会话**：每个线程都是一个[云会话](/docs/zh-CN/claude-code-on-the-web)，除非您要求 Claude 在您的机器上运行它。无论哪种方式，Claude 启动和跟踪它而不是您。您自己启动的云会话可以通过[**Continue as project** 或 **Move to project**](#start-from-an-existing-cloud-session)成为项目或提供一个。
-* **定时任务**：当您在项目中请求定时工作时，Claude 会创建一个[云端定时任务](/docs/zh-CN/routines)，它作为该项目中的线程运行，并显示在项目的 **Scheduled tasks** 标签页上。您在项目之外创建的定时任务会继续独立运行。
-* **Remote Control**：[Remote Control](/docs/zh-CN/remote-control) 连接 claude.ai 到在您的机器上运行的 Claude Code 会话。当您在项目中要求 Claude 在您的计算机上运行线程时，项目[使用 Remote Control 来执行](#run-a-thread-on-your-own-computer)。
-* **本地会话和代理视图**：您在终端、IDE 或桌面应用的本地环境中启动的会话不能添加到项目中。[代理视图](/docs/zh-CN/agent-view)是用于跟踪多个本地会话并排的屏幕，您仍然启动每个会话并自己给它分配任务。
-* **Worktrees**：一个 [worktree](/docs/zh-CN/worktrees) 为每个本地会话提供其自己的仓库工作副本。云线程不需要它们：每个线程将其仓库克隆到其自己的云沙箱中，并在其自己的分支上工作。
-* **代理团队**：一个[代理团队](/docs/zh-CN/agent-teams)是一个会话，为单个任务启动队友会话，在您的机器上或在云会话内，并以该任务结束。
-* **Subagents**：一个[subagent](/docs/zh-CN/sub-agents)在一个会话内运行，在其自己的上下文窗口中执行一个辅助任务，并向该会话返回摘要。项目的线程是 Claude 启动的整个会话，向项目对话报告，一个线程仍然可以为其自己的辅助任务使用 subagents。
+* **云会话**：每个线程都是一个[云会话](/docs/zh-CN/claude-code-on-the-web.md)，除非您要求 Claude 在您的机器上运行它。无论哪种方式，Claude 启动和跟踪它而不是您。您自己启动的云会话可以通过[**Continue as project** 或 **Move to project**](#start-from-an-existing-cloud-session)成为项目或提供一个。
+* **定时任务**：当您在项目中请求定时工作时，Claude 会创建一个[云端定时任务](/docs/zh-CN/routines.md)，它作为该项目中的线程运行，并显示在项目的 **Scheduled tasks** 标签页上。您在项目之外创建的定时任务会继续独立运行。
+* **Remote Control**：[Remote Control](/docs/zh-CN/remote-control.md) 连接 claude.ai 到在您的机器上运行的 Claude Code 会话。当您在项目中要求 Claude 在您的计算机上运行线程时，项目[使用 Remote Control 来执行](#run-a-thread-on-your-own-computer)。
+* **本地会话和代理视图**：您在终端、IDE 或桌面应用的本地环境中启动的会话不能添加到项目中。[代理视图](/docs/zh-CN/agent-view.md)是用于跟踪多个本地会话并排的屏幕，您仍然启动每个会话并自己给它分配任务。
+* **Worktrees**：一个 [worktree](/docs/zh-CN/worktrees.md) 为每个本地会话提供其自己的仓库工作副本。云线程不需要它们：每个线程将其仓库克隆到其自己的云沙箱中，并在其自己的分支上工作。
+* **代理团队**：一个[代理团队](/docs/zh-CN/agent-teams.md)是一个会话，为单个任务启动队友会话，在您的机器上或在云会话内，并以该任务结束。
+* **Subagents**：一个[subagent](/docs/zh-CN/sub-agents.md)在一个会话内运行，在其自己的上下文窗口中执行一个辅助任务，并向该会话返回摘要。项目的线程是 Claude 启动的整个会话，向项目对话报告，一个线程仍然可以为其自己的辅助任务使用 subagents。
 * **claude.ai 聊天和 Cowork 中的 Projects**：[早期的 Projects 体验](https://support.claude.com/en/articles/9517075-what-are-projects)，对对话和参考文件进行分组，没有线程或协调员。这些项目继续按照今天的方式工作，直到重新设计的体验到达它们。
 
-[并行运行代理](/docs/zh-CN/agents)并排比较这些选项。
+[并行运行代理](/docs/zh-CN/agents.md)并排比较这些选项。
 
 ## 限制
 
 * Projects 在 claude.ai/code、桌面应用和 Claude 移动应用中可用，不在终端 CLI、VS Code 扩展或 JetBrains 插件中，也不通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry。
-* 项目线程是[云会话](/docs/zh-CN/claude-code-on-the-web)，或通过[远程控制](/docs/zh-CN/remote-control)在您自己的机器上的会话，两种情况下 Anthropic 都是模型提供者。[安全](/docs/zh-CN/security)和[数据使用](/docs/zh-CN/data-usage)涵盖了云会话如何隔离以及保留什么，[连接和安全](/docs/zh-CN/remote-control#connection-and-security)涵盖了您机器上的线程如何连接以及存储什么。
+* 项目线程是[云会话](/docs/zh-CN/claude-code-on-the-web.md)，或通过[远程控制](/docs/zh-CN/remote-control.md)在您自己的机器上的会话，两种情况下 Anthropic 都是模型提供者。[安全](/docs/zh-CN/security.md)和[数据使用](/docs/zh-CN/data-usage.md)涵盖了云会话如何隔离以及保留什么，[连接和安全](/docs/zh-CN/remote-control.md#connection-and-security)涵盖了您机器上的线程如何连接以及存储什么。
 * 您不能将自己在机器上启动的会话添加到项目中。项目仅通过[在您自己的计算机上通过远程控制运行线程](#run-a-thread-on-your-own-computer)到达您的机器，该部分列出了它需要什么。
 * 云线程的沙箱在轮之间暂停，并在线程继续时恢复。如果沙箱无法恢复，线程从新克隆继续，因此未提交的更改可能会丢失。在长任务上，要求 Claude 提交和推送进行中的工作。
 * 项目属于一个用户。您不能与另一个用户共享项目或其线程，线程记录没有其他云会话具有的共享选项。在测试版期间没有项目的组织级控制。
@@ -444,7 +444,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 ### 线程看起来卡住了
 
-Claude 不发布线程采取的每一步，因此显示为运行且项目对话中没有新消息的线程通常仍在工作。新云线程也在 Claude 开始之前配置其[云环境](/docs/zh-CN/cloud-environments)，因此其第一次更新需要一会儿。打开线程读取其记录。如果线程等待权限提示，请在那里回答。
+Claude 不发布线程采取的每一步，因此显示为运行且项目对话中没有新消息的线程通常仍在工作。新云线程也在 Claude 开始之前配置其[云环境](/docs/zh-CN/cloud-environments.md)，因此其第一次更新需要一会儿。打开线程读取其记录。如果线程等待权限提示，请在那里回答。
 
 ### 线程猜测或停滞而不是询问
 
@@ -472,11 +472,11 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 
 当线程或项目对话达到您套餐的五小时或每周限制时，它会自动持续重试，并在限制重置后继续。由定时任务启动的线程不会等待：其轮次会因限制错误而停止，您需要在限制重置后向其发送消息。
 
-线程等待期间，会显示 **Service is busy** 以及"Claude is still retrying and will continue automatically."。您无需执行任何操作，工作即可继续。如果您不希望它占用您的下一个用量窗口，请点击线程中的 **Stop**，或[暂停项目](#pause-archive-or-delete-a-project)以暂停所有线程。[用量限制错误](/docs/zh-CN/errors#youve-hit-your-session-limit)解释了这些限制及其重置时间。
+线程等待期间，会显示 **Service is busy** 以及"Claude is still retrying and will continue automatically."。您无需执行任何操作，工作即可继续。如果您不希望它占用您的下一个用量窗口，请点击线程中的 **Stop**，或[暂停项目](#pause-archive-or-delete-a-project)以暂停所有线程。[用量限制错误](/docs/zh-CN/errors.md#youve-hit-your-session-limit)解释了这些限制及其重置时间。
 
 ### 需要额外的使用信用
 
-线程或项目对话发出了您的计划仅用使用信用覆盖的请求，例如对您的计划不包括的模型或上下文大小的请求，并且使用信用未为您的账户打开。[将使用信用添加到您的订阅](/docs/zh-CN/costs#add-usage-credits-to-your-subscription)涵盖了谁可以在每个计划上打开或购买它们。一旦信用可用，发送另一条消息重试。
+线程或项目对话发出了您的计划仅用使用信用覆盖的请求，例如对您的计划不包括的模型或上下文大小的请求，并且使用信用未为您的账户打开。[将使用信用添加到您的订阅](/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)涵盖了谁可以在每个计划上打开或购买它们。一旦信用可用，发送另一条消息重试。
 
 ### 与您的文件夹失去联系
 
@@ -492,7 +492,7 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 | "Unable to connect to repository"，带有"Claude couldn't access your repository or environment" | 您的 GitHub 账户需要对代码库的推送访问，环境必须仍然存在。在 **Project settings > Environment** 中检查两者，然后重试 |
 | "Couldn't show the setup proposal" | 您打开的应用比 Claude 发送的 **Setup recommendations** 更旧。刷新页面或重启桌面应用，或要求 Claude 再次提议设置 |
 | "The project's environment was removed" | 在 **Project settings > Environment** 中选择不同的环境；更改适用于新线程 |
-| "Setup script failed" | 点击错误上的 **Edit setup script**，在环境中修复脚本，然后发送另一条消息。[设置脚本失败](/docs/zh-CN/web-quickstart#setup-script-failed)列出常见原因 |
+| "Setup script failed" | 点击错误上的 **Edit setup script**，在环境中修复脚本，然后发送另一条消息。[设置脚本失败](/docs/zh-CN/web-quickstart.md#setup-script-failed)列出常见原因 |
 | "Claude ran out of context on this turn" | 线程填满了其上下文窗口。如果消息说线程在新会话中继续，它自己继续；否则在项目对话中要求 Claude 为剩余工作启动新线程 |
 | "Couldn't start in" 后跟您的文件夹名称 | 您允许线程在您的计算机上运行，但会话无法在那里启动。当消息下的一行给出原因时，修复它，然后要求 Claude 再次运行任务 |
 | "Claude is out of date on your device" | 您选择运行线程的计算机具有比 v2.1.280 更旧的 Claude Code 版本。在那里更新 Claude Code，或如果这是连接文件夹的内容，则更新桌面应用，然后要求 Claude 再次运行任务 |
@@ -500,8 +500,8 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 
 ## 相关资源
 
-* [在云中使用 Claude Code](/docs/zh-CN/claude-code-on-the-web)：每个云线程背后的云会话如何工作，包括 GitHub 访问选项和拉取请求上的自动修复
-* [配置云环境](/docs/zh-CN/cloud-environments)：更改云线程可以在网络上到达什么，为它们提供环境变量和网络密钥，并使用设置脚本安装工具
-* [使用定时任务自动化工作](/docs/zh-CN/routines)：定时任务的时间表、触发器和管理，包括 Claude 从项目创建的那些
-* [使用代理视图管理多个代理](/docs/zh-CN/agent-view)：当工作需要仅您的机器可以到达的工具或服务时，在您自己的机器上运行和跟踪多个会话
+* [在云中使用 Claude Code](/docs/zh-CN/claude-code-on-the-web.md)：每个云线程背后的云会话如何工作，包括 GitHub 访问选项和拉取请求上的自动修复
+* [配置云环境](/docs/zh-CN/cloud-environments.md)：更改云线程可以在网络上到达什么，为它们提供环境变量和网络密钥，并使用设置脚本安装工具
+* [使用定时任务自动化工作](/docs/zh-CN/routines.md)：定时任务的时间表、触发器和管理，包括 Claude 从项目创建的那些
+* [使用代理视图管理多个代理](/docs/zh-CN/agent-view.md)：当工作需要仅您的机器可以到达的工具或服务时，在您自己的机器上运行和跟踪多个会话
 * [Projects redesigned: from folder to conversation](https://claude.com/blog/projects-redesigned)：发布公告，带有使项目成为与 Claude 对话的思考

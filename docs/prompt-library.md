@@ -8,7 +8,7 @@
 
 这是一个提示词库，可以复制到 Claude Code 中使用。使用它来探索你还没有尝试过的工作方式，或者当你不确定从哪里开始时。
 
-这些提示词来自各种 Anthropic 指南，包括[常见工作流](/docs/zh-CN/common-workflows)、[最佳实践](/docs/zh-CN/best-practices)和[Anthropic 团队如何使用 Claude Code](https://claude.com/blog/how-anthropic-teams-use-claude-code)。它们是起点而不是脚本。打开任何提示词下的**为什么这样做有效**来查看其背后的模式，这样你可以编写自己的提示词。
+这些提示词来自各种 Anthropic 指南，包括[常见工作流](/docs/zh-CN/common-workflows.md)、[最佳实践](/docs/zh-CN/best-practices.md)和[Anthropic 团队如何使用 Claude Code](https://claude.com/blog/how-anthropic-teams-use-claude-code)。它们是起点而不是脚本。打开任何提示词下的**为什么这样做有效**来查看其背后的模式，这样你可以编写自己的提示词。
 
 ## 这些提示词为什么有效
 
@@ -44,20 +44,20 @@ get the bundle size under 200KB and show me what you removed
 why is the build failing? @build.log
 ```
 
-**说出你想要答案的方式。** 命名格式、长度或受众，以便解释适合你将如何使用它。要使格式成为每个响应的默认值，请设置 [输出样式](/docs/zh-CN/output-styles)。
+**说出你想要答案的方式。** 命名格式、长度或受众，以便解释适合你将如何使用它。要使格式成为每个响应的默认值，请设置 [输出样式](/docs/zh-CN/output-styles.md)。
 
 ```text wrap theme={null}
 explain how the payment retry logic works as an HTML page with a diagram, then open it in my browser
 ```
 
-有关每个模式的更多信息，请参阅[最佳实践](/docs/zh-CN/best-practices)。
+有关每个模式的更多信息，请参阅[最佳实践](/docs/zh-CN/best-practices.md)。
 
 ## 这些来自哪里
 
 这些提示词基于已发布的 Anthropic 资源中的模式。每张卡片都链接到其来源：
 
-* [常见工作流](/docs/zh-CN/common-workflows)：核心任务的分步指南
-* [最佳实践](/docs/zh-CN/best-practices)：提示词模式和项目设置
+* [常见工作流](/docs/zh-CN/common-workflows.md)：核心任务的分步指南
+* [最佳实践](/docs/zh-CN/best-practices.md)：提示词模式和项目设置
 * [Anthropic 团队如何使用 Claude Code](https://claude.com/blog/how-anthropic-teams-use-claude-code)：来自工程、产品、设计和数据团队的真实工作流，深入探讨[法律](https://claude.com/blog/how-anthropic-uses-claude-legal)、[营销](https://claude.com/blog/how-anthropic-uses-claude-marketing)和[网络安全](https://claude.com/blog/how-anthropic-uses-claude-cybersecurity)
 * [扩展代理编码指南](https://resources.anthropic.com/hubfs/Scaling%20agentic%20coding%20across%20your%20organization.pdf)：企业采用指南
 
@@ -65,6 +65,6 @@ explain how the payment retry logic works as an HTML page with a diagram, then o
 
 ## 相关资源
 
-此页面上的提示词是起点。一旦一个对你的项目有效，下一步是使其可重复：将其保存为 [技能](/docs/zh-CN/skills)，以便团队中的任何人都可以将其作为 `/command` 运行，并在 [CLAUDE.md](/docs/zh-CN/memory) 中记录 Claude 学到的约定，以便每个会话都以该上下文开始，而不是 Claude 重新学习它。对于更大或更危险的更改，[Plan Mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode) 在任何编辑发生前显示文件列表。
+此页面上的提示词是起点。一旦一个对你的项目有效，下一步是使其可重复：将其保存为 [技能](/docs/zh-CN/skills.md)，以便团队中的任何人都可以将其作为 `/command` 运行，并在 [CLAUDE.md](/docs/zh-CN/memory.md) 中记录 Claude 学到的约定，以便每个会话都以该上下文开始，而不是 Claude 重新学习它。对于更大或更危险的更改，[Plan Mode](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode) 在任何编辑发生前显示文件列表。
 
-如果你在团队中引入 Claude Code，请参阅[管理](/docs/zh-CN/admin-setup)以获取托管设置和策略，以及[成本和使用](/docs/zh-CN/costs)以了解此工作如何在你的计划上计费。
+如果你在团队中引入 Claude Code，请参阅[管理](/docs/zh-CN/admin-setup.md)以获取托管设置和策略，以及[成本和使用](/docs/zh-CN/costs.md)以了解此工作如何在你的计划上计费。

@@ -13,8 +13,8 @@
 
 您可以通过三种方式创建子代理：
 
-* **以编程方式**：在您的 `query()` 选项中使用 `agents` 参数。请参阅 [TypeScript](/docs/zh-CN/agent-sdk/typescript#agentdefinition) 和 [Python](/docs/zh-CN/agent-sdk/python#agentdefinition) 参考文档
-* **基于文件系统**：在 `.claude/agents/` 目录中将代理定义为 markdown 文件。请参阅[将子代理定义为文件](/docs/zh-CN/sub-agents)
+* **以编程方式**：在您的 `query()` 选项中使用 `agents` 参数。请参阅 [TypeScript](/docs/zh-CN/agent-sdk/typescript.md#agentdefinition) 和 [Python](/docs/zh-CN/agent-sdk/python.md#agentdefinition) 参考文档
+* **基于文件系统**：在 `.claude/agents/` 目录中将代理定义为 markdown 文件。请参阅[将子代理定义为文件](/docs/zh-CN/sub-agents.md)
 * **内置通用型**：Claude 可以随时通过 Agent 工具调用内置的 `general-purpose` 子代理，无需您定义任何内容
 
 本指南重点介绍以编程方式的方法，这是 SDK 应用程序的推荐方法。
@@ -23,7 +23,7 @@
 
 由于子代理是独立的代理实例，将工作委托给它们可以为您带来四个好处：
 
-* **上下文隔离**：每个子代理在自己的对话中运行，除非子代理是[fork](/docs/zh-CN/sub-agents#fork-the-current-conversation)，否则会从头开始。无论哪种方式，中间工具调用和结果都保留在子代理内部；只有其最终消息返回到父代理。`research-assistant` 子代理可以探索数十个文件，而不会有任何内容在主对话中累积。父代理收到的是简洁的摘要，而不是子代理读取的每个文件。有关子代理上下文中的确切内容，请参阅[子代理继承的内容](#what-subagents-inherit)。
+* **上下文隔离**：每个子代理在自己的对话中运行，除非子代理是[fork](/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，否则会从头开始。无论哪种方式，中间工具调用和结果都保留在子代理内部；只有其最终消息返回到父代理。`research-assistant` 子代理可以探索数十个文件，而不会有任何内容在主对话中累积。父代理收到的是简洁的摘要，而不是子代理读取的每个文件。有关子代理上下文中的确切内容，请参阅[子代理继承的内容](#what-subagents-inherit)。
 * **并行化**：多个子代理可以并发运行，因此独立的子任务在最慢的一个的时间内完成，而不是所有任务的总和。在代码审查期间，您可以同时运行 `style-checker`、`security-scanner` 和 `test-coverage` 子代理，而不是按顺序运行。
 * **专门的指令和知识**：每个子代理可以有一个定制的系统提示，具有特定的专业知识、最佳实践和约束。`database-migration` 子代理可以拥有关于 SQL 最佳实践、回滚策略和数据完整性检查的详细知识，这些在主代理的指令中会是不必要的噪音。
 * **工具限制**：子代理可以限制为特定工具，降低意外操作的风险。`doc-reviewer` 子代理可能只能访问 Read 和 Grep 工具，确保它可以分析但永远不会意外修改您的文档文件。
@@ -144,25 +144,25 @@ Focus on:
 | :- | :- | :- | :- |
 | `description` | `string` | 是 | 何时使用此代理的自然语言描述 |
 | `prompt` | `string` | 是 | 代理的系统提示，定义其角色和行为 |
-| `tools` | `string[]` | 否 | 允许的工具名称数组。如果省略，继承[子代理可用的每个工具](/docs/zh-CN/sub-agents#available-tools) |
+| `tools` | `string[]` | 否 | 允许的工具名称数组。如果省略，继承[子代理可用的每个工具](/docs/zh-CN/sub-agents.md#available-tools) |
 | `disallowedTools` | `string[]` | 否 | 要从代理工具集中移除的工具名称数组。也接受 MCP 服务器级别的模式：`mcp__server` 或 `mcp__server__*` 移除该服务器的每个工具，`mcp__*` 移除任何服务器的每个 MCP 工具 |
-| `model` | `string` | 否 | 此代理的模型覆盖。接受别名如 `'fable'`、`'opus'`、`'sonnet'`、`'haiku'`、`'inherit'` 或完整模型 ID。`'inherit'` 使用主模型。省略时，Claude Code 选择[子代理模型顺序](/docs/zh-CN/sub-agents#choose-a-model)中的模型 |
-| `skills` | `string[]` | 否 | 启动时预加载到 Agent 上下文中的 skill 名称列表。最多预加载列表中的[前 32 个不同名称](/docs/zh-CN/sub-agents#preload-skills-into-subagents)。未列出的 skill 仍可通过 Skill 工具调用 |
+| `model` | `string` | 否 | 此代理的模型覆盖。接受别名如 `'fable'`、`'opus'`、`'sonnet'`、`'haiku'`、`'inherit'` 或完整模型 ID。`'inherit'` 使用主模型。省略时，Claude Code 选择[子代理模型顺序](/docs/zh-CN/sub-agents.md#choose-a-model)中的模型 |
+| `skills` | `string[]` | 否 | 启动时预加载到 Agent 上下文中的 skill 名称列表。最多预加载列表中的[前 32 个不同名称](/docs/zh-CN/sub-agents.md#preload-skills-into-subagents)。未列出的 skill 仍可通过 Skill 工具调用 |
 | `memory` | `'user' \| 'project' \| 'local'` | 否 | 此代理的内存源 |
 | `mcpServers` | `(string \| object)[]` | 否 | 此代理可用的 MCP 服务器，按名称或内联配置 |
 | `initialPrompt` | `string` | 否 | 当此代理作为主线程代理运行时自动提交为第一个用户轮次。当代理作为子代理调用时忽略 |
 | `maxTurns` | `number` | 否 | 代理停止前的最大代理轮次数。当代理达到限制时，Claude Code 返回其输出标记为部分，您可以[恢复代理](#resume-subagents)以继续。部分标记需要 Claude Code v2.1.246 或更高版本 |
-| `autoCompactWindow` | `number` | 否 | 当此 Agent 作为子代理运行时，将其[自动压缩窗口](/docs/zh-CN/sub-agents#subagent-auto-compact-window)降低到 `100000` 至 `1000000` 之间的 token 数。需要 TypeScript Agent SDK v0.3.296 或更高版本。Python SDK 的 [`AgentDefinition`](/docs/zh-CN/agent-sdk/python#agentdefinition) 没有此字段 |
+| `autoCompactWindow` | `number` | 否 | 当此 Agent 作为子代理运行时，将其[自动压缩窗口](/docs/zh-CN/sub-agents.md#subagent-auto-compact-window)降低到 `100000` 至 `1000000` 之间的 token 数。需要 TypeScript Agent SDK v0.3.296 或更高版本。Python SDK 的 [`AgentDefinition`](/docs/zh-CN/agent-sdk/python#agentdefinition) 没有此字段 |
 | `background` | `boolean` | 否 | 调用时将此代理作为非阻塞后台任务运行 |
 | `omitClaudeMd` | `boolean` | 否 | 将用户、项目和本地 CLAUDE.md 文件排除在此 Agent 的初始上下文之外；托管策略文件仍会加载。当该 Agent 作为主线程 Agent 运行时忽略。需要 TypeScript Agent SDK v0.3.271 或更高版本。Python SDK 的 [`AgentDefinition`](/docs/zh-CN/agent-sdk/python#agentdefinition) 没有此字段 |
 | `effort` | `'low' \| 'medium' \| 'high' \| 'xhigh' \| 'max' \| number` | 否 | 此代理的推理工作量级别 |
-| `permissionMode` | `PermissionMode` | 否 | 此代理内工具执行的权限模式。[子代理继承规则](/docs/zh-CN/agent-sdk/permissions#available-modes)决定何时应用 |
+| `permissionMode` | `PermissionMode` | 否 | 此代理内工具执行的权限模式。[子代理继承规则](/docs/zh-CN/agent-sdk/permissions.md#available-modes)决定何时应用 |
 
 在 Python SDK 中，多词字段名称如 `disallowedTools` 和 `mcpServers` 保持其 camelCase 拼写以匹配线路格式，而不是遵循 Python 的 snake\_case 约定。有关详细信息，请参阅[`AgentDefinition` 参考](/docs/zh-CN/agent-sdk/python#agentdefinition)。
 
 #### 选择 Claude 是否等待子代理
 
-默认情况下，主 Agent 生成的子代理[在后台运行](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)。Agent 工具结果包含 `status: "async_launched"`，报告会在之后的轮次中送达。
+默认情况下，主 Agent 生成的子代理[在后台运行](/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)。Agent 工具结果包含 `status: "async_launched"`，报告会在之后的轮次中送达。
 
 当 Claude 的下一步操作需要该报告时，它会等待：调用会阻塞并返回 `status: "completed"`。要自行做出此选择：
 
@@ -171,7 +171,7 @@ Focus on:
 
 ### 基于文件系统的定义（替代方案）
 
-您也可以在 `.claude/agents/` 目录中将子代理定义为 markdown 文件。有关此方法的详细信息，请参阅 [Claude Code 子代理文档](/docs/zh-CN/sub-agents)。程序化定义的代理优先于具有相同名称的基于文件系统的代理。
+您也可以在 `.claude/agents/` 目录中将子代理定义为 markdown 文件。有关此方法的详细信息，请参阅 [Claude Code 子代理文档](/docs/zh-CN/sub-agents.md)。程序化定义的代理优先于具有相同名称的基于文件系统的代理。
 
 > [!NOTE]
 >
@@ -179,9 +179,9 @@ Focus on:
 
 ## 子代理继承的内容
 
-除非子代理是[分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)，否则其上下文窗口会重新开始，没有父对话，但也不是空的。从父代理传递给子代理的唯一内容是 Agent 工具的提示字符串，因此请直接在该提示中包含子代理需要的任何文件路径、错误消息或决策。
+除非子代理是[分叉](/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，否则其上下文窗口会重新开始，没有父对话，但也不是空的。从父代理传递给子代理的唯一内容是 Agent 工具的提示字符串，因此请直接在该提示中包含子代理需要的任何文件路径、错误消息或决策。
 
-具有 [`SendMessage`](/docs/zh-CN/tools-reference) 工具的子代理会从会话中运行的其他命名代理列表开始，因此它知道可以向哪些名称发送消息。Claude Code 会在子代理的第一轮自动将列表添加到其中。[分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)不会获得该列表，因为它继承的是父对话。
+具有 [`SendMessage`](/docs/zh-CN/tools-reference) 工具的子代理会从会话中运行的其他命名代理列表开始，因此它知道可以向哪些名称发送消息。Claude Code 会在子代理的第一轮自动将列表添加到其中。[分叉](/docs/zh-CN/sub-agents.md#fork-the-current-conversation)不会获得该列表，因为它继承的是父对话。
 
 子代理还继承主会话的扩展思考配置。
 
@@ -191,13 +191,13 @@ Focus on:
 | :- | :- |
 | 其自身的系统提示（`AgentDefinition.prompt`）和 Agent 工具的提示 | 父代理的对话历史或工具结果 |
 | 项目 CLAUDE.md（通过 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources) 加载）。设置了 [`omitClaudeMd`](#agentdefinition-configuration) 的 Agent 启动时不包含它 | 预加载的 skill 内容，除非在 `AgentDefinition.skills` 中列出 |
-| 工具定义（从父代理继承或 `tools` 中的子集，[为后台运行过滤](/docs/zh-CN/sub-agents#available-tools)） | 父代理的系统提示 |
+| 工具定义（从父代理继承或 `tools` 中的子集，[为后台运行过滤](/docs/zh-CN/sub-agents.md#available-tools)） | 父代理的系统提示 |
 
 > [!NOTE]
 >
 > 父 Agent 接收子代理的最终报告，但可能在其自己的回复中对其进行总结。要在面向用户的回复中逐字保留子代理输出，请在传递给主 `query()` 调用的提示词或 `systemPrompt` 选项中包含执行此操作的指令。
 >
-> 在 v2.1.210 及更高版本中，Claude Code [在父代理读取最终消息之前扫描它以查找指令形状的模式](/docs/zh-CN/sub-agents#subagent-output-scanning)。扫描以三种不同的方式处理三种模式：
+> 在 v2.1.210 及更高版本中，Claude Code [在父代理读取最终消息之前扫描它以查找指令形状的模式](/docs/zh-CN/sub-agents.md#subagent-output-scanning)。扫描以三种不同的方式处理三种模式：
 >
 > * **控制标签模仿**：Claude Code 就地中和仅由工具发出的标签，例如 `<system-reminder>` 块。它在开始角括号后插入反斜杠，不删除任何内容。
 > * **权限配置提及**：Claude Code 保持对权限配置的引用，例如 `.claude/settings.json`、`bypassPermissions` 或 `--dangerously-skip-permissions`，按原样写入。
@@ -205,7 +205,7 @@ Focus on:
 >
 > 对于控制标签或权限配置匹配，Claude Code 在前面加上 `[harness: ...]` 标记行，命名匹配的模式；轮次标记匹配不添加标记行。这些是扫描所做的唯一修改：它从不删除或改写子代理的文本。
 
-提前结束子代理的 API 错误（例如速率限制）永远不会作为其结果传递。有关前台和后台行为，请参阅[子代理中的 API 错误](/docs/zh-CN/sub-agents#api-errors-in-subagents)。
+提前结束子代理的 API 错误（例如速率限制）永远不会作为其结果传递。有关前台和后台行为，请参阅[子代理中的 API 错误](/docs/zh-CN/sub-agents.md#api-errors-in-subagents)。
 
 ## 调用子代理
 
@@ -227,7 +227,7 @@ Claude 根据任务和每个子代理的 `description` 自动决定何时调用�
 
 ### 分叉子代理
 
-[分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)是一种复制当前已有对话、而非从头开始的子代理。从 Claude Code v2.1.302 开始，无需任何配置，Claude 即可在您的应用程序中启动分叉，方法是调用 Agent 工具并传入 `subagent_type: "fork"`。
+[分叉](/docs/zh-CN/sub-agents.md#fork-the-current-conversation)是一种复制当前已有对话、而非从头开始的子代理。从 Claude Code v2.1.302 开始，无需任何配置，Claude 即可在您的应用程序中启动分叉，方法是调用 Agent 工具并传入 `subagent_type: "fork"`。
 
 要阻止 Claude 启动分叉，请添加 [`Agent(fork)` 拒绝规则](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules)：
 
@@ -323,7 +323,7 @@ for await (const message of query({
 
 Claude 通过 Agent 工具调用子代理。要检测何时调用子代理，请检查 `tool_use` 块，其中 `name` 为 `"Agent"`。
 
-来自子代理上下文内的消息包含 `parent_tool_use_id` 字段。在 TypeScript 中，子代理生成的每条 assistant 消息和 user 消息还带有 [`agent_id`](/docs/zh-CN/agent-sdk/typescript#sdkassistantmessage)：即该子代理的[任务事件](/docs/zh-CN/agent-sdk/typescript#sdktaskstartedmessage)中的 `task_id`。当您[恢复子代理](#resume-subagents)时，`agent_id` 保持不变。`agent_id` 需要 TypeScript Agent SDK v0.3.292 或更高版本。
+来自子代理上下文内的消息包含 `parent_tool_use_id` 字段。在 TypeScript 中，子代理生成的每条 assistant 消息和 user 消息还带有 [`agent_id`](/docs/zh-CN/agent-sdk/typescript#sdkassistantmessage)：即该子代理的[任务事件](/docs/zh-CN/agent-sdk/typescript.md#sdktaskstartedmessage)中的 `task_id`。当您[恢复子代理](#resume-subagents)时，`agent_id` 保持不变。`agent_id` 需要 TypeScript Agent SDK v0.3.292 或更高版本。
 
 > [!NOTE]
 >
@@ -553,13 +553,13 @@ if (agentId && sessionId) {
 }
 ```
 
-子代理记录存储在单独的文件中，并独立于主对话而持久存在。有关压缩行为和 `cleanupPeriodDays` 清理期，请参阅 [Claude Code 中的恢复子代理](/docs/zh-CN/sub-agents#resume-subagents)。
+子代理记录存储在单独的文件中，并独立于主对话而持久存在。有关压缩行为和 `cleanupPeriodDays` 清理期，请参阅 [Claude Code 中的恢复子代理](/docs/zh-CN/sub-agents.md#resume-subagents)。
 
 ## 工具限制
 
 使用 `tools` 字段来限制子代理可以执行的操作：
 
-* **省略 `tools`**：子代理获得[可用于子代理的每个工具](/docs/zh-CN/sub-agents#available-tools)
+* **省略 `tools`**：子代理获得[可用于子代理的每个工具](/docs/zh-CN/sub-agents.md#available-tools)
 * **列出工具**：子代理仅获得这些工具。例如，不应该编辑文件的代码审查员会获得 `["Read", "Grep", "Glob"]`
 
 你省略的工具根本不会出现在子代理的会话中：Claude 可以在没有它的情况下工作，不会出现权限提示或错误。
@@ -629,7 +629,7 @@ identify patterns, and suggest improvements without making changes.`,
 
 > [!NOTE]
 >
-> 本部分描述 TypeScript SDK v0.3.219 和 Python SDK v0.2.127 及更高版本，这些版本捆绑了 Claude Code v2.1.219 或更高版本。在较早的版本中，某些限制缺失或默认值不同，因此在依赖它们来限制运行之前，请升级。[环境变量参考](/docs/zh-CN/env-vars)和[轮次和预算](/docs/zh-CN/agent-sdk/agent-loop#turns-and-budget)记录了添加每个变量的 Claude Code 版本以及支出上限的子代理强制执行。
+> 本部分描述 TypeScript SDK v0.3.219 和 Python SDK v0.2.127 及更高版本，这些版本捆绑了 Claude Code v2.1.219 或更高版本。在较早的版本中，某些限制缺失或默认值不同，因此在依赖它们来限制运行之前，请升级。[环境变量参考](/docs/zh-CN/env-vars.md)和[轮次和预算](/docs/zh-CN/agent-sdk/agent-loop.md#turns-and-budget)记录了添加每个变量的 Claude Code 版本以及支出上限的子代理强制执行。
 
 Claude 会自行决定何时生成子代理以及生成多少个子代理。每个子代理都会发出自己的 API 请求，这些请求计入查询的 `total_cost_usd`，而子代理可以生成自己的子代理，因此一个提示可以扩展成一个代理树。
 
@@ -637,9 +637,9 @@ Claude 会自行决定何时生成子代理以及生成多少个子代理。每�
 
 | 限制 | 设置方式 | 默认值 | Claude Code 在达到限制时的行为 |
 | :- | :- | :- | :- |
-| 深度 | [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](/docs/zh-CN/env-vars) | 主代理下方的`3`层子代理。`1`会阻止您的子代理生成任何自己的子代理 | 使底层的子代理无法生成，因此它会自己完成委派的工作。请参阅[嵌套子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents) |
-| 并发 | [`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`](/docs/zh-CN/env-vars) | `20`个子代理同时运行，计算 Claude 使用 Agent 工具生成的每个子代理 | 拒绝生成另一个子代理，返回 `Concurrent subagent limit reached`，直到运行计数降至限制以下。启用了[ultracode](/docs/zh-CN/model-config#adjust-effort-level)的会话永远不会被拒绝。请参阅[并发子代理限制](/docs/zh-CN/sub-agents#concurrent-subagent-limit) |
-| 支出 | TypeScript 中的 `maxBudgetUsd`，Python 中的 `max_budget_usd` | 无限制。计算调用自身的支出，包括子代理请求 | 通过三种方式强制执行上限：拒绝生成更多子代理，返回 `Budget limit reached`，停止仍在运行的后台子代理，并以 `error_max_budget_usd` 结果子类型结束查询。关于上限在会话中的行为方式，请参阅[轮次和预算](/docs/zh-CN/agent-sdk/agent-loop#turns-and-budget) |
+| 深度 | [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](/docs/zh-CN/env-vars) | 主代理下方的`3`层子代理。`1`会阻止您的子代理生成任何自己的子代理 | 使底层的子代理无法生成，因此它会自己完成委派的工作。请参阅[嵌套子代理](/docs/zh-CN/sub-agents.md#let-subagents-spawn-their-own-subagents) |
+| 并发 | [`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`](/docs/zh-CN/env-vars) | `20`个子代理同时运行，计算 Claude 使用 Agent 工具生成的每个子代理 | 拒绝生成另一个子代理，返回 `Concurrent subagent limit reached`，直到运行计数降至限制以下。启用了[ultracode](/docs/zh-CN/model-config.md#adjust-effort-level)的会话永远不会被拒绝。请参阅[并发子代理限制](/docs/zh-CN/sub-agents.md#concurrent-subagent-limit) |
+| 支出 | TypeScript 中的 `maxBudgetUsd`，Python 中的 `max_budget_usd` | 无限制。计算调用自身的支出，包括子代理请求 | 通过三种方式强制执行上限：拒绝生成更多子代理，返回 `Budget limit reached`，停止仍在运行的后台子代理，并以 `error_max_budget_usd` 结果子类型结束查询。关于上限在会话中的行为方式，请参阅[轮次和预算](/docs/zh-CN/agent-sdk/agent-loop.md#turns-and-budget) |
 
 两个 SDK 对 `env` 选项的处理方式不同：TypeScript SDK 用它替换子进程环境，因此将 `process.env` 展开到其中以保留 `PATH` 等变量，而 Python SDK 将其合并到继承的环境中。此示例关闭嵌套，最多允许五个子代理同时运行，并在估计支出达到 \$5 时停止查询：
 
@@ -709,7 +709,7 @@ try {
 
 ### 使用子代理运行 Opus 5
 
-Claude Opus 5 比早期模型更容易委派给子代理，因此[深度、并发和支出限制](#cap-subagent-depth-concurrency-and-spend)在运行 Opus 5 的查询中最为重要。[Opus 5 提示指南](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5#controlling-subagent-spawning)提供了一条委派指令，您可以将其添加到任何提示中。Claude Code 是否添加自己的指令取决于您使用的[系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts#how-system-prompts-work)：
+Claude Opus 5 比早期模型更容易委派给子代理，因此[深度、并发和支出限制](#cap-subagent-depth-concurrency-and-spend)在运行 Opus 5 的查询中最为重要。[Opus 5 提示指南](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5#controlling-subagent-spawning)提供了一条委派指令，您可以将其添加到任何提示中。Claude Code 是否添加自己的指令取决于您使用的[系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts.md#how-system-prompts-work)：
 
 * **`claude_code` 预设**：当模型是 Opus 5 时，Claude Code 会在其系统提示中添加一行，告诉 Claude 除非被要求，否则不要调用 Agent 工具。Agent 工具保持可用。
 * **自定义提示或无 `systemPrompt`**：Claude Code 不构建其系统提示，因此该行不存在。将提示指南的委派指令添加到您自己的提示中。
@@ -718,9 +718,9 @@ Claude Opus 5 比早期模型更容易委派给子代理，因此[深度、并�
 
 ## 使用动态工作流进行扩展
 
-子代理适用于每轮委派的几个任务。对于协调数十到数百个代理的运行，请使用 `Workflow` 工具，它将编排移到运行时在对话上下文外执行的脚本中。请参阅[动态工作流](/docs/zh-CN/workflows)以了解工作流与逐轮子代理委派的区别。
+子代理适用于每轮委派的几个任务。对于协调数十到数百个代理的运行，请使用 `Workflow` 工具，它将编排移到运行时在对话上下文外执行的脚本中。请参阅[动态工作流](/docs/zh-CN/workflows.md)以了解工作流与逐轮子代理委派的区别。
 
-`Workflow` 工具在 TypeScript Agent SDK v0.3.149 及更高版本中可用。在 `allowedTools` 中包含 `Workflow` 以自动批准工作流运行。工具输入和输出架构列在 [TypeScript 参考](/docs/zh-CN/agent-sdk/typescript#workflow)中。
+`Workflow` 工具在 TypeScript Agent SDK v0.3.149 及更高版本中可用。在 `allowedTools` 中包含 `Workflow` 以自动批准工作流运行。工具输入和输出架构列在 [TypeScript 参考](/docs/zh-CN/agent-sdk/typescript.md#workflow)中。
 
 ## 故障排除
 
@@ -741,10 +741,10 @@ Claude Code 监视 `~/.claude/agents/` 和 `.claude/agents/`，并在几秒内�
 * **添加的目录下的文件**：Claude Code 从使用 `add_dirs`（Python）或 `additionalDirectories`（TypeScript）选项或 CLI 的 `--add-dir` 或 `/add-dir` 添加的目录加载 `.claude/agents/`，但不监视它们，因此那里的新文件或编辑文件需要会话重启。
 * **具有相同名称的程序化代理**：传递给 `query()` 的 `agents` 会覆盖具有相同名称的文件系统代理。
 
-有关文件格式，请参阅[如何编写子代理文件](/docs/zh-CN/sub-agents#write-subagent-files)。
+有关文件格式，请参阅[如何编写子代理文件](/docs/zh-CN/sub-agents.md#write-subagent-files)。
 
 ## 相关文档
 
-* [Claude Code 子代理](/docs/zh-CN/sub-agents)：子代理文档，包括基于文件系统的定义
-* [动态工作流](/docs/zh-CN/workflows)：从脚本编排许多子代理，用于对话过大的工作
-* [SDK 概述](/docs/zh-CN/agent-sdk/overview)：Claude Agent SDK 入门
+* [Claude Code 子代理](/docs/zh-CN/sub-agents.md)：子代理文档，包括基于文件系统的定义
+* [动态工作流](/docs/zh-CN/workflows.md)：从脚本编排许多子代理，用于对话过大的工作
+* [SDK 概述](/docs/zh-CN/agent-sdk/overview.md)：Claude Agent SDK 入门

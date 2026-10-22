@@ -6,20 +6,20 @@
 
 > 使用 REVIEW.md 和 CLAUDE.md 调整 Code Review 在您的 Pull Request 上标记的内容：重新校准严重程度、跳过路径、添加检查项，并查看适用的是哪个副本。
 
-您可以通过向仓库提交指令来更改 [Code Review](/docs/zh-CN/code-review) 在该仓库上标记的内容。借此可以减少吹毛求疵类评论的数量、停止对生成文件发表评论，或添加团队关注的规则。请将这些指令放在以下两个文件之一中：
+您可以通过向仓库提交指令来更改 [Code Review](/docs/zh-CN/code-review.md) 在该仓库上标记的内容。借此可以减少吹毛求疵类评论的数量、停止对生成文件发表评论，或添加团队关注的规则。请将这些指令放在以下两个文件之一中：
 
-* **`CLAUDE.md`**：Claude Code 在执行每项任务（包括审查）时都会读取的[项目指令](/docs/zh-CN/memory)。Code Review 将其作为项目上下文读取，并标记违反这些指令的更改。
+* **`CLAUDE.md`**：Claude Code 在执行每项任务（包括审查）时都会读取的[项目指令](/docs/zh-CN/memory.md)。Code Review 将其作为项目上下文读取，并标记违反这些指令的更改。
 * **`REVIEW.md`**：仅用于审查的指令。使用它来说明您的团队希望标记哪些内容、以何种严重程度标记，以及要跳过哪些内容。
 
 在仓库根目录添加 `REVIEW.md` 并将其合并。然后[保护您的默认分支](#which-branch-review-md-is-read-from)。
 
 > [!NOTE]
 >
-> 如需更改审查的详尽程度或运行时机，请让 Owner 更改[审查级别](/docs/zh-CN/code-review-setup#set-the-default-review-level)或 [**Review runs** 设置](/docs/zh-CN/code-review-setup#set-when-reviews-run)。
+> 如需更改审查的详尽程度或运行时机，请让 Owner 更改[审查级别](/docs/zh-CN/code-review-setup.md#set-the-default-review-level)或 [**Review runs** 设置](/docs/zh-CN/code-review-setup.md#set-when-reviews-run)。
 
 ## 使用 CLAUDE.md 设置项目范围的规则
 
-Code Review 将仓库中的 `CLAUDE.md` 文件作为项目上下文读取。违反其中某条规则的更改会成为一项发现，并按照与问题相符的[严重程度级别](/docs/zh-CN/code-review-pull-requests#severity-levels)进行标记。
+Code Review 将仓库中的 `CLAUDE.md` 文件作为项目上下文读取。违反其中某条规则的更改会成为一项发现，并按照与问题相符的[严重程度级别](/docs/zh-CN/code-review-pull-requests.md#severity-levels)进行标记。
 
 审查会读取仓库根目录下的 `CLAUDE.md`，以及每个已更改文件的各级父目录中的 `CLAUDE.md` 文件。当 Pull Request 更改了某个子目录路径下的文件时，会读取该子目录中的 `CLAUDE.md`。
 
@@ -127,7 +127,7 @@ Code Review 仅在从受保护分支读取 `REVIEW.md` 时才会包含这些文�
 * **名称**：文件名须完全匹配（包括大小写），并使用不含空格的名称。如果某行中的名称与 `REVIEW.md` 同级的任何文件都不匹配，该行会作为纯文本保留在 `REVIEW.md` 中，且检查运行不会将其报告为被跳过的包含项。
 * **仅限一层**：在根目录的 `REVIEW.md` 中列出所有文件。被包含文件或子目录 `REVIEW.md` 中的 `@` 行会保留为纯文本，而指向其他文件的 Markdown 链接不属于包含项。
 * **限制**：最多包含八个不同的文件，并使 `REVIEW.md` 及其包含的文件合计小于 150,000 字节。会达到字节上限的文件将被整体跳过，而不会被截断。检查运行会报告因任一限制而跳过了多少个包含行。
-* **链接**：`REVIEW.md` 及其包含的文件中的 Markdown 链接总数应不超过 64 个。指向 `http`、`https` 或 `mailto` 地址以及 `#` 锚点的链接不计入。超过该上限时，审查会跳过您的整个根目录 `REVIEW.md`，而不仅仅是被包含的文件。此时检查运行会[说明指令未被应用](/docs/zh-CN/code-review-troubleshooting#the-check-run-mentions-review-md)。
+* **链接**：`REVIEW.md` 及其包含的文件中的 Markdown 链接总数应不超过 64 个。指向 `http`、`https` 或 `mailto` 地址以及 `#` 锚点的链接不计入。超过该上限时，审查会跳过您的整个根目录 `REVIEW.md`，而不仅仅是被包含的文件。此时检查运行会[说明指令未被应用](/docs/zh-CN/code-review-troubleshooting.md#the-check-run-mentions-review-md)。
 * **已合并的副本**：将被包含的文件合并到[读取 `REVIEW.md` 的分支](#which-branch-review-md-is-read-from)中。审查会从同一个提交中读取两者，从不从 Pull Request 自身的更改中读取。
 
 ### 从哪个分支读取 REVIEW\.md
@@ -160,12 +160,12 @@ Code Review 将以下设置视为保护：
 | 默认分支未受保护，且基础分支没有任何一种保护规则 | 默认分支 | 根文件 |
 | Code Review 无法确认保护设置。这包括默认分支未受保护、而基础分支仅有经典规则的情况 | 无 | 无 |
 
-如果检查运行中提到了 `REVIEW.md`，请参阅[检查运行中提到 REVIEW.md](/docs/zh-CN/code-review-troubleshooting#the-check-run-mentions-review-md)。
+如果检查运行中提到了 `REVIEW.md`，请参阅[检查运行中提到 REVIEW.md](/docs/zh-CN/code-review-troubleshooting.md#the-check-run-mentions-review-md)。
 
 ## 相关资源
 
-* [Code Review](/docs/zh-CN/code-review)：该服务是什么以及审查如何运行
-* [在 Pull Request 上阅读和请求审查](/docs/zh-CN/code-review-pull-requests#severity-levels)：每个严重程度级别的含义以及发现的呈现方式
-* [设置 Code Review](/docs/zh-CN/code-review-setup)：由 Owner 设置的审查级别和审查运行时机
+* [Code Review](/docs/zh-CN/code-review.md)：该服务是什么以及审查如何运行
+* [在 Pull Request 上阅读和请求审查](/docs/zh-CN/code-review-pull-requests.md#severity-levels)：每个严重程度级别的含义以及发现的呈现方式
+* [设置 Code Review](/docs/zh-CN/code-review-setup.md)：由 Owner 设置的审查级别和审查运行时机
 * [使用 `/code-review` 在本地审查](/docs/zh-CN/code-review-local)：`/code-review` 命令、其参数和 effort 级别
-* [记忆](/docs/zh-CN/memory)：`CLAUDE.md` 文件在 Claude Code 中的工作方式
+* [记忆](/docs/zh-CN/memory.md)：`CLAUDE.md` 文件在 Claude Code 中的工作方式

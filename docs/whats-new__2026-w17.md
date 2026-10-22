@@ -6,7 +6,7 @@
 
 > /ultrareview 作为研究预览版开放，返回终端时自动生成会话摘要，可以在插件中构建和发布自定义颜色主题，以及重新设计的网页版 Claude Code。
 
-发布版本 [v2.1.114 → v2.1.119](/docs/en/changelog#2-1-114)
+发布版本 [v2.1.114 → v2.1.119](/docs/en/changelog.md#2-1-114)
 4 项功能 · 4月20–24日
 
 /ultrareview
@@ -28,7 +28,7 @@ research preview
 > /ultrareview 1234
 ```
 
-[Ultrareview 指南](/docs/zh-CN/ultrareview)
+[Ultrareview 指南](/docs/zh-CN/ultrareview.md)
 
 会话摘要
 CLI
@@ -43,7 +43,7 @@ CLI
 > /recap
 ```
 
-[交互模式：会话摘要](/docs/zh-CN/interactive-mode#session-recap)
+[交互模式：会话摘要](/docs/zh-CN/interactive-mode.md#session-recap)
 
 自定义主题
 v2.1.118
@@ -56,7 +56,7 @@ v2.1.118
 > /theme
 ```
 
-[终端配置：创建自定义主题](/docs/zh-CN/terminal-config#create-a-custom-theme)
+[终端配置：创建自定义主题](/docs/zh-CN/terminal-config.md#create-a-custom-theme)
 
 网页版 Claude Code
 web
@@ -65,10 +65,10 @@ web
 
 ![网页版 Claude Code 重新设计概览：新 UI、速度和可靠性、跨网页、移动和 CLI 工作](https://mintcdn.com/claude-code/FTi4SBJ9YRs7d-5X/images/whats-new/web-redesign.jpeg?fit=max\&auto=format\&n=FTi4SBJ9YRs7d-5X\&q=85\&s=a2aca1b49e295b7337f5779038db8e2c)
 
-[网页版 Claude Code](/docs/zh-CN/claude-code-on-the-web)
+[网页版 Claude Code](/docs/zh-CN/claude-code-on-the-web.md)
 
 其他改进
 
-[Vim 可视模式](/docs/zh-CN/interactive-mode#vim-editor-mode)：在提示输入中按 `v` 进行字符选择或按 `V` 进行行选择，带有运算符和可视反馈Hooks 现在可以通过 [`type: "mcp_tool"`](/docs/zh-CN/hooks#mcp-tool-hook-fields) 直接调用 MCP 工具，因此 hook 可以访问已连接的服务器，而无需生成进程`/cost` 和 `/stats` 已合并到 [`/usage`](/docs/zh-CN/commands)；旧名称仍然可用作打开相关选项卡的输入快捷方式`/config` 更改（主题、编辑器模式、详细信息等）现在持久化到 `~/.claude/settings.json`，并遵循与其他 [设置](/docs/zh-CN/settings) 相同的项目/本地/策略优先级[分叉的子代理](/docs/zh-CN/sub-agents#fork-the-current-conversation) 可以通过 `CLAUDE_CODE_FORK_SUBAGENT=1` 在外部构建上启用：分叉继承您的完整对话上下文，而不是从头开始Pro 和 Max 订阅者在 Opus 4.6 和 Sonnet 4.6 上的默认 [努力级别](/docs/zh-CN/model-config#adjust-effort-level) 现在是 `high`（之前是 `medium`）原生 macOS 和 Linux 构建用嵌入式 `bfs` 和 `ugrep`（通过 Bash 可用）替换了 `Glob` 和 `Grep` 工具，可实现更快的搜索，无需单独的工具往返`--from-pr` 现在除了接受 github.com 外，还接受 GitLab 合并请求、Bitbucket 拉取请求和 GitHub Enterprise PR URL自动模式：在 [`autoMode.allow`、`soft_deny` 或 `environment`](/docs/zh-CN/auto-mode-config) 中包含 `"$defaults"`，以在内置列表旁边添加自定义规则，而不是替换它新的 [`claude plugin tag`](/docs/zh-CN/plugins/dependencies#tag-plugin-releases-for-version-resolution) 命令为具有版本验证的插件创建发布 git 标签Opus 4.7 会话现在针对模型的原生 1M 上下文窗口进行计算，修复了膨胀的 `/context` 百分比和过早的自动压缩`/resume` 在大型会话上的速度提高了 67%，现在在重新读取之前提供总结陈旧的大型会话的选项
+[Vim 可视模式](/docs/zh-CN/interactive-mode.md#vim-editor-mode)：在提示输入中按 `v` 进行字符选择或按 `V` 进行行选择，带有运算符和可视反馈Hooks 现在可以通过 [`type: "mcp_tool"`](/docs/zh-CN/hooks#mcp-tool-hook-fields) 直接调用 MCP 工具，因此 hook 可以访问已连接的服务器，而无需生成进程`/cost` 和 `/stats` 已合并到 [`/usage`](/docs/zh-CN/commands)；旧名称仍然可用作打开相关选项卡的输入快捷方式`/config` 更改（主题、编辑器模式、详细信息等）现在持久化到 `~/.claude/settings.json`，并遵循与其他 [设置](/docs/zh-CN/settings.md) 相同的项目/本地/策略优先级[分叉的子代理](/docs/zh-CN/sub-agents.md#fork-the-current-conversation) 可以通过 `CLAUDE_CODE_FORK_SUBAGENT=1` 在外部构建上启用：分叉继承您的完整对话上下文，而不是从头开始Pro 和 Max 订阅者在 Opus 4.6 和 Sonnet 4.6 上的默认 [努力级别](/docs/zh-CN/model-config.md#adjust-effort-level) 现在是 `high`（之前是 `medium`）原生 macOS 和 Linux 构建用嵌入式 `bfs` 和 `ugrep`（通过 Bash 可用）替换了 `Glob` 和 `Grep` 工具，可实现更快的搜索，无需单独的工具往返`--from-pr` 现在除了接受 github.com 外，还接受 GitLab 合并请求、Bitbucket 拉取请求和 GitHub Enterprise PR URL自动模式：在 [`autoMode.allow`、`soft_deny` 或 `environment`](/docs/zh-CN/auto-mode-config) 中包含 `"$defaults"`，以在内置列表旁边添加自定义规则，而不是替换它新的 [`claude plugin tag`](/docs/zh-CN/plugins/dependencies#tag-plugin-releases-for-version-resolution) 命令为具有版本验证的插件创建发布 git 标签Opus 4.7 会话现在针对模型的原生 1M 上下文窗口进行计算，修复了膨胀的 `/context` 百分比和过早的自动压缩`/resume` 在大型会话上的速度提高了 67%，现在在重新读取之前提供总结陈旧的大型会话的选项
 
-[v2.1.114–v2.1.119 的完整更新日志 →](/docs/en/changelog#2-1-114)
+[v2.1.114–v2.1.119 的完整更新日志 →](/docs/en/changelog.md#2-1-114)

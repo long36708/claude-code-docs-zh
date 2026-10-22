@@ -15,13 +15,13 @@
 > 这些情况在其他页面上有介绍：
 >
 > * **您使用 claude.ai 聊天或 Cowork，而不是 Claude Code**：请参阅 [claude.ai 和 Cowork 中的插件](https://claude.com/docs/plugins/overview)
-> * **Claude Code 打印了错误**：在 [Troubleshoot plugins](/docs/zh-CN/plugins/troubleshooting) 中找到它
+> * **Claude Code 打印了错误**：在 [Troubleshoot plugins](/docs/zh-CN/plugins/troubleshooting.md) 中找到它
 
 从 [Install a plugin](#install-a-plugin) 开始。如果有人发送给您的安装命令的 `@` 名称不是 `claude-plugins-official`，请先 [add that marketplace](#add-a-marketplace)。
 
 ## Install a plugin
 
-作为示例，本节安装来自 [Anthropic 官方市场](/docs/zh-CN/plugins/anthropic-marketplaces) 的 [`commit-commands`](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/commit-commands)，它添加了用于提交、推送和打开拉取请求的命令。
+作为示例，本节安装来自 [Anthropic 官方市场](/docs/zh-CN/plugins/anthropic-marketplaces.md) 的 [`commit-commands`](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/commit-commands)，它添加了用于提交、推送和打开拉取请求的命令。
 
 相同的步骤可以安装任何其他插件：在 `commit-commands` 和 `claude-plugins-official` 出现的地方替换其名称和其市场的名称。如果该插件来自不同的市场，请先 [add the marketplace](#add-a-marketplace)。
 
@@ -51,7 +51,7 @@
 
 来自本地或自定义市场的插件可以改为显示 `Components will be discovered at installation`。
 
-插件可以运行 hooks 和 MCP servers，因此在安装前请阅读窗格。请参阅 [Plugin security and trust](/docs/zh-CN/plugins/security)。
+插件可以运行 hooks 和 MCP servers，因此在安装前请阅读窗格。请参阅 [Plugin security and trust](/docs/zh-CN/plugins/security.md)。
 
 **3. 选择范围**
 
@@ -70,9 +70,9 @@
 摘要的最后一句告诉您插件在此会话中是否可用：
 
 * **已激活**：`Plugin is now active.` 无需重新加载。
-* **已激活，但服务器需要设置**：`Plugin is now active.` 后跟 `Its bundled MCP server needs configuration before it can start`。在您设置其选项之前，插件的[捆绑 MCP 服务器](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server)无法启动。在 `/plugin` 的 **Installed** 选项卡上选择该插件，然后选择 **Configure** 以设置服务器的选项。
-* **需要重新加载**：`Run /reload-plugins to apply.` 面板会关闭，Claude Code 会为您运行该重新加载。如果重新加载会[使提示缓存失效](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)，它会发出警告，并改为让插件保持待处理状态。运行 `/reload-plugins --force` 可强制激活它，这会产生一次未缓存的请求。
-* **加载失败**：`The plugin couldn't be loaded`。在 `/plugin` 中打开 **Errors** 选项卡查看原因，然后参阅[安装后：插件不工作](/docs/zh-CN/plugins/troubleshooting#plugin-installed-but-not-working)。
+* **已激活，但服务器需要设置**：`Plugin is now active.` 后跟 `Its bundled MCP server needs configuration before it can start`。在您设置其选项之前，插件的[捆绑 MCP 服务器](/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)无法启动。在 `/plugin` 的 **Installed** 选项卡上选择该插件，然后选择 **Configure** 以设置服务器的选项。
+* **需要重新加载**：`Run /reload-plugins to apply.` 面板会关闭，Claude Code 会为您运行该重新加载。如果重新加载会[使提示缓存失效](/docs/zh-CN/prompt-caching.md#enabling-or-disabling-a-plugin)，它会发出警告，并改为让插件保持待处理状态。运行 `/reload-plugins --force` 可强制激活它，这会产生一次未缓存的请求。
+* **加载失败**：`The plugin couldn't be loaded`。在 `/plugin` 中打开 **Errors** 选项卡查看原因，然后参阅[安装后：插件不工作](/docs/zh-CN/plugins/troubleshooting.md#plugin-installed-but-not-working)。
 
 **5. 确认插件正常工作**
 
@@ -81,7 +81,7 @@
 * 在 `/plugin` 中打开 **Installed** 选项卡，该选项卡列出带有其范围的插件。
 * 在您的 shell 中，运行 `claude plugin list`，它打印相同的列表，带有 `Version`、`Scope` 和 `Status` 行。
 
-如果 `/commit-commands:commit` 没有出现，请参阅 [After install: plugin not working](/docs/zh-CN/plugins/troubleshooting#plugin-installed-but-not-working)。
+如果 `/commit-commands:commit` 没有出现，请参阅 [After install: plugin not working](/docs/zh-CN/plugins/troubleshooting.md#plugin-installed-but-not-working)。
 
 从任何其他市场安装需要先执行一个额外步骤：[add the marketplace](#add-a-marketplace)。Claude Code 在您第一次启动交互式终端会话时为您添加 Anthropic 的官方市场，这就是为什么示例跳过该步骤。如果您在 [claude.com/marketplace](https://claude.com/marketplace) 上找到了插件，其 **Claude Code** 按钮会复制其 [shell form](#install-from-your-shell) 中的安装命令，`claude plugin install <name>@claude-plugins-official`。
 
@@ -101,7 +101,7 @@
 
 选择 [作用域](#choose-an-install-scope)：您的用户账户、此项目或仅本地。
 
-要稍后启用、禁用或卸载插件，请参阅 [Install plugins in the desktop app](/docs/zh-CN/desktop#install-plugins)。
+要稍后启用、禁用或卸载插件，请参阅 [Install plugins in the desktop app](/docs/zh-CN/desktop.md#install-plugins)。
 
 **VS Code**
 
@@ -119,25 +119,25 @@
 
 选择 [scope](#choose-an-install-scope)：**Install for you**、**Install for this project** 或 **Install locally**。
 
-您的更改应用于打开的会话，无需重新启动。请参阅 [Manage plugins in VS Code](/docs/zh-CN/vs-code#manage-plugins)。
+您的更改应用于打开的会话，无需重新启动。请参阅 [Manage plugins in VS Code](/docs/zh-CN/vs-code.md#manage-plugins)。
 
 **Cloud session**
 
-[cloud session](/docs/zh-CN/cloud-environments)（包括 [the browser at claude.ai/code](/docs/zh-CN/claude-code-on-the-web)）没有插件浏览器，不会加载您在自己的机器上安装的插件或您的存储库的 `.claude/settings.json` 打开的插件。对于您的组织通过托管设置分发的插件，请参阅 [Manage plugins for your organization](/docs/zh-CN/plugins/org)。
+[cloud session](/docs/zh-CN/cloud-environments.md)（包括 [the browser at claude.ai/code](/docs/zh-CN/claude-code-on-the-web.md)）没有插件浏览器，不会加载您在自己的机器上安装的插件或您的存储库的 `.claude/settings.json` 打开的插件。对于您的组织通过托管设置分发的插件，请参阅 [Manage plugins for your organization](/docs/zh-CN/plugins/org.md)。
 
-请参阅 [which parts of your setup are also available in a cloud session](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup) 了解您设置的其余部分。
+请参阅 [which parts of your setup are also available in a cloud session](/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup) 了解您设置的其余部分。
 
 ### Choose an install scope
 
 插件的安装范围决定了谁获得该插件以及哪个设置文件将其记录为已启用：
 
 * **User scope**：该插件在此机器上的每个项目中为您启用。条目进入 `~/.claude/settings.json` 中的 `enabledPlugins`。
-* **Project scope**：该插件为在此存储库中工作的每个人启用。条目进入 `.claude/settings.json`，您提交它。提交该条目会为您的协作者打开插件，但不会将其下载到他们的机器上，因此每个协作者也需要运行一次 `claude plugin install <name>@<marketplace> --scope project`；请参阅 [在项目设置中启用但未安装](/docs/zh-CN/plugins/loading#enabled-in-project-settings-but-not-installed)。
+* **Project scope**：该插件为在此存储库中工作的每个人启用。条目进入 `.claude/settings.json`，您提交它。提交该条目会为您的协作者打开插件，但不会将其下载到他们的机器上，因此每个协作者也需要运行一次 `claude plugin install <name>@<marketplace> --scope project`；请参阅 [在项目设置中启用但未安装](/docs/zh-CN/plugins/loading.md#enabled-in-project-settings-but-not-installed)。
 * **Local scope**：该插件仅在此存储库中为您启用。条目进入 `.claude/settings.local.json`。
 
 某些插件由其作者通过 [`defaultEnabled`](/docs/zh-CN/plugins/manifest-reference#defaultenabled) 字段设置为默认关闭。这样的插件已安装但保持关闭，直到您在 shell 中使用 `claude plugin enable <name>` 或从会话中 `/plugin` 的 **Installed** 选项卡打开它。
 
-当同一插件在多个范围设置时，本地设置覆盖项目设置，项目设置覆盖用户设置。请参阅 [Find where a plugin is enabled](/docs/zh-CN/plugins/loading#find-where-a-plugin-is-enabled) 了解完整规则。
+当同一插件在多个范围设置时，本地设置覆盖项目设置，项目设置覆盖用户设置。请参阅 [Find where a plugin is enabled](/docs/zh-CN/plugins/loading.md#find-where-a-plugin-is-enabled) 了解完整规则。
 
 终端、桌面应用的本地会话和一台计算机上的 VS Code 扩展读取相同的设置文件，因此您在其中任何一个中以用户范围安装的插件在其他两个中可用。
 
@@ -147,13 +147,13 @@
 
 * **JetBrains IDEs**：JetBrains 插件在 IDE 的终端中运行 Claude Code，因此在那里使用 **Terminal** 选项卡的步骤。
 * **`claude -p` 和其他非交互式运行**：`/plugin` 不运行，Claude 回复 `/plugin isn't available in this environment.` 您已安装的插件确实会加载。使用 [`claude plugin` commands](#install-from-your-shell) 从 shell 安装和管理它们。
-* **Agent SDK**：通过 SDK 的插件选项加载插件。请参阅 [Load plugins in the Agent SDK](/docs/zh-CN/agent-sdk/plugins)。
+* **Agent SDK**：通过 SDK 的插件选项加载插件。请参阅 [Load plugins in the Agent SDK](/docs/zh-CN/agent-sdk/plugins.md)。
 
-如果 Claude Code 报告在存储库的 `.claude/settings.json` 中启用的插件未安装，请参阅 [Enabled in project settings but not installed](/docs/zh-CN/plugins/loading#enabled-in-project-settings-but-not-installed)。
+如果 Claude Code 报告在存储库的 `.claude/settings.json` 中启用的插件未安装，请参阅 [Enabled in project settings but not installed](/docs/zh-CN/plugins/loading.md#enabled-in-project-settings-but-not-installed)。
 
 > [!TIP]
 >
-> 如果您是插件作者，正在测试磁盘上的插件副本，请从 shell 使用 `--plugin-dir` 启动 Claude Code，以便为一个会话加载它，而不是安装它。请参阅 [Flags that load a plugin for one session](/docs/zh-CN/plugins/cli-reference#flags-that-load-a-plugin-for-one-session)。
+> 如果您是插件作者，正在测试磁盘上的插件副本，请从 shell 使用 `--plugin-dir` 启动 Claude Code，以便为一个会话加载它，而不是安装它。请参阅 [Flags that load a plugin for one session](/docs/zh-CN/plugins/cli-reference.md#flags-that-load-a-plugin-for-one-session)。
 
 ### Plugins from your claude.ai account
 
@@ -163,7 +163,7 @@
 * **Where you see them**：在 `/plugin` 和 `claude plugin list` 中，ID 为 `<name>@synced`。您可以在自己的范围关闭一个，除非您的组织要求它。
 * **What doesn't go the other way**：您使用 `/plugin` 或 `claude plugin install` 安装的插件保留在此机器上，不会添加到您的 claude.ai 账户。
 
-有关同步时间、登录要求和关闭同步，请参阅 [Plugins synced from claude.ai](/docs/zh-CN/plugins/loading#synced-plugins)。
+有关同步时间、登录要求和关闭同步，请参阅 [Plugins synced from claude.ai](/docs/zh-CN/plugins/loading.md#synced-plugins)。
 
 ### Install from your shell
 
@@ -181,7 +181,7 @@ claude plugin install formatter@your-org --scope project
 
 某些插件通过运行其市场命名的命令来安装，称为 [`command` source](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)。Claude Code 向您显示该命令并要求您在运行前接受它。脚本没有人来回答该提示，因此在那里传递 `--yes` 以接受它。
 
-有关其他 `claude plugin install` 标志，请参阅 [plugin install](/docs/zh-CN/plugins/cli-reference#plugin-install)。
+有关其他 `claude plugin install` 标志，请参阅 [plugin install](/docs/zh-CN/plugins/cli-reference.md#plugin-install)。
 
 ## Add a marketplace
 
@@ -206,7 +206,7 @@ claude plugin install formatter@your-org --scope project
 
 在每个 URL 上包含 `https://` 前缀，或对 SSH 使用 `git@host:path` 形式。如果您输入裸 `gitlab.example.com/your-group/your-marketplace.git`，Claude Code 将其读取为 GitHub `owner/repo` 简写并拒绝它。
 
-命令成功时，它打印 `Successfully added marketplace: <name>`，市场的插件在下次打开 `/plugin` 时出现在 **Discover** 选项卡上，无需重新加载。如果失败，请在 [Troubleshoot plugins](/docs/zh-CN/plugins/troubleshooting#add-a-marketplace) 中匹配错误消息。
+命令成功时，它打印 `Successfully added marketplace: <name>`，市场的插件在下次打开 `/plugin` 时出现在 **Discover** 选项卡上，无需重新加载。如果失败，请在 [Troubleshoot plugins](/docs/zh-CN/plugins/troubleshooting.md#add-a-marketplace) 中匹配错误消息。
 
 ### Add a marketplace and install in one command
 
@@ -230,7 +230,7 @@ claude plugin install formatter@your-org --scope project
 claude plugin install deploy-helper --marketplace your-org/plugins
 ```
 
-shell 命令添加市场时没有确认步骤。您已从该来源添加的市场会被重用。新市场会经过与 `claude plugin marketplace add` 相同的 [organization policy checks](/docs/zh-CN/plugins/org#restrict-what-users-can-install) 后添加，并且即使您传递 `--scope project`，也会在您的用户设置中声明。
+shell 命令添加市场时没有确认步骤。您已从该来源添加的市场会被重用。新市场会经过与 `claude plugin marketplace add` 相同的 [organization policy checks](/docs/zh-CN/plugins/org.md#restrict-what-users-can-install) 后添加，并且即使您传递 `--scope project`，也会在您的用户设置中声明。
 
 如果您尚未添加该市场，该命令会打印 `Successfully added marketplace: <name> (declared in user settings)`，然后[安装插件](#install-from-your-shell)。
 
@@ -244,13 +244,13 @@ shell 命令添加市场时没有确认步骤。您已从该来源添加的市�
 
 当您运行 `/plugin install`、`/plugin marketplace update` 和 `claude plugin update` 时，相同的凭证适用。
 
-在 GitHub Enterprise Server 主机上，请参阅 [Plugin marketplaces on GHES](/docs/zh-CN/github-enterprise-server#plugin-marketplaces-on-ghes) 了解每个操作需要的凭证。
+在 GitHub Enterprise Server 主机上，请参阅 [Plugin marketplaces on GHES](/docs/zh-CN/github-enterprise-server.md#plugin-marketplaces-on-ghes) 了解每个操作需要的凭证。
 
-如果您的组织通过托管设置为您注册市场，您不需要自己添加它。请参阅 [Pre-install and require plugins](/docs/zh-CN/plugins/org#pre-install-and-require-plugins)。
+如果您的组织通过托管设置为您注册市场，您不需要自己添加它。请参阅 [Pre-install and require plugins](/docs/zh-CN/plugins/org.md#pre-install-and-require-plugins)。
 
 ### Add a marketplace from claude.ai
 
-在 [plugins sync from your claude.ai account](/docs/zh-CN/plugins/loading#synced-plugins) 的终端会话中，claude.ai 也可以为您列出插件市场，例如您的组织的插件库和您自己的 claude.ai 上传。您通过其名称而不是来源添加其中之一。从 claude.ai 添加市场需要 Claude Code v2.1.273 或更高版本。
+在 [plugins sync from your claude.ai account](/docs/zh-CN/plugins/loading.md#synced-plugins) 的终端会话中，claude.ai 也可以为您列出插件市场，例如您的组织的插件库和您自己的 claude.ai 上传。您通过其名称而不是来源添加其中之一。从 claude.ai 添加市场需要 Claude Code v2.1.273 或更高版本。
 
 从 `/plugin` 面板或从 shell 添加 claude.ai 市场：
 
@@ -280,17 +280,17 @@ Claude Code 在以 `claudeai-` 开头的本地名称下注册市场，该名称�
 插件的详细信息菜单提供 **Disable plugin** 或 **Enable plugin**、**Update now** 和 **Uninstall**。采用设置的插件还会显示两个更多项目，一个插件可以同时显示两者：
 
 * **Configure options**：当插件的清单声明 [`userConfig` 选项](/docs/zh-CN/plugins/manifest-reference#user-configuration) 时显示。打开这些选项的对话框
-* **Configure**：当插件包含 [bundled MCP server](/docs/zh-CN/plugins/components#include-a-packaged-mcpb-server) 时显示。设置该服务器自己的 `user_config` 设置
+* **Configure**：当插件包含 [bundled MCP server](/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server) 时显示。设置该服务器自己的 `user_config` 设置
 
-该选项卡也可以显示 **Managed** 范围的插件。您的组织通过 [managed settings](/docs/zh-CN/settings#settings-files) 安装了这些，您无法在此处启用、禁用或卸载它们。
+该选项卡也可以显示 **Managed** 范围的插件。您的组织通过 [managed settings](/docs/zh-CN/settings.md#settings-files) 安装了这些，您无法在此处启用、禁用或卸载它们。
 
 对于您的组织在 claude.ai 上要求的同步插件，请参阅 [Manage plugins synced from claude.ai](#manage-plugins-synced-from-claude-ai)。
 
-当您关闭 `/plugin` 面板并在其中进行待处理更改时，Claude Code 为您运行 `/reload-plugins` 以应用它们。如果重新加载会 [invalidate the prompt cache](/docs/zh-CN/prompt-caching#enabling-or-disabling-a-plugin)，它会警告并改为保留更改待处理。运行 `/reload-plugins --force` 以应用它们。
+当您关闭 `/plugin` 面板并在其中进行待处理更改时，Claude Code 为您运行 `/reload-plugins` 以应用它们。如果重新加载会 [invalidate the prompt cache](/docs/zh-CN/prompt-caching.md#enabling-or-disabling-a-plugin)，它会警告并改为保留更改待处理。运行 `/reload-plugins --force` 以应用它们。
 
 ### Manage plugins synced from claude.ai
 
-`/plugin` 中的 **Installed** 选项卡也列出 [plugins synced from your claude.ai account](/docs/zh-CN/plugins/loading#synced-plugins)，其来源为 `synced`。同步插件在 Claude Code v2.1.273 或更高版本的终端会话中出现。
+`/plugin` 中的 **Installed** 选项卡也列出 [plugins synced from your claude.ai account](/docs/zh-CN/plugins/loading.md#synced-plugins)，其来源为 `synced`。同步插件在 Claude Code v2.1.273 或更高版本的终端会话中出现。
 
 * **Enable or disable**：使用 **Installed** 选项卡，除非您的组织将插件标记为必需。
 * **Remove**：在 claude.ai 上关闭插件。
@@ -306,7 +306,7 @@ Claude Code 在以 `claudeai-` 开头的本地名称下注册市场，该名称�
 
 ### See what an installed plugin adds to your sessions
 
-在 shell 中，为已安装的插件运行 `claude plugin details <name>`。`Always-on` 行是插件添加到启用它的每个会话的令牌数，每个组件行显示哪个 skill 或 agent 贡献最多。有关完整输出和每个数字的含义，请参阅 [Measure what a plugin costs](/docs/zh-CN/plugins/measure#measure-what-a-plugin-costs)。
+在 shell 中，为已安装的插件运行 `claude plugin details <name>`。`Always-on` 行是插件添加到启用它的每个会话的令牌数，每个组件行显示哪个 skill 或 agent 贡献最多。有关完整输出和每个数字的含义，请参阅 [Measure what a plugin costs](/docs/zh-CN/plugins/measure.md#measure-what-a-plugin-costs)。
 
 ### Find plugins you no longer use
 
@@ -319,9 +319,9 @@ Claude Code 在以 `claudeai-` 开头的本地名称下注册市场，该名称�
 * **Install**：Claude Code 也在相同范围安装并启用插件的声明依赖项。成功消息列出它们。
 * **Enable**：Claude Code 也启用已安装但禁用的插件的依赖项。如果声明的依赖项未安装，启用失败，消息告诉您先安装它。
 * **Disable**：当另一个启用的插件仍需要您命名的插件时，Claude Code 拒绝并打印以正确顺序禁用两者的链式命令。
-* **Uninstall**：自动安装的依赖项保留到您在 shell 中运行 `claude plugin prune` 为止；请参阅 [plugin prune](/docs/zh-CN/plugins/cli-reference#plugin-prune)。
+* **Uninstall**：自动安装的依赖项保留到您在 shell 中运行 `claude plugin prune` 为止；请参阅 [plugin prune](/docs/zh-CN/plugins/cli-reference.md#plugin-prune)。
 
-如果您改为使用 `--plugin-dir` 加载插件，请参阅 [Test a plugin and its dependency locally](/docs/zh-CN/plugins/dependencies#test-a-plugin-and-its-dependency-locally)。
+如果您改为使用 `--plugin-dir` 加载插件，请参阅 [Test a plugin and its dependency locally](/docs/zh-CN/plugins/dependencies.md#test-a-plugin-and-its-dependency-locally)。
 
 ### Manage plugins from your shell
 
@@ -346,10 +346,10 @@ claude plugin uninstall formatter@your-org --scope project
 
 这些是每种市场类型的自动更新默认值：
 
-* **On by default**：`claude-plugins-official` 和其他 [official marketplace names](/docs/zh-CN/plugins/security#official-marketplace-names)（除了 `knowledge-work-plugins` 和 `first-party-plugins`）以及 [marketplaces added from claude.ai](#add-from-claude-ai)。
+* **On by default**：`claude-plugins-official` 和其他 [official marketplace names](/docs/zh-CN/plugins/security.md#official-marketplace-names)（除了 `knowledge-work-plugins` 和 `first-party-plugins`）以及 [marketplaces added from claude.ai](#add-from-claude-ai)。
 * **Off by default**：所有其他市场，包括社区市场、第三方市场和本地开发市场。
 
-有关自动更新何时运行、它跳过哪些插件以及关闭它的环境变量，请参阅 [When auto-update runs](/docs/zh-CN/plugins/loading#when-auto-update-runs)。
+有关自动更新何时运行、它跳过哪些插件以及关闭它的环境变量，请参阅 [When auto-update runs](/docs/zh-CN/plugins/loading.md#when-auto-update-runs)。
 
 ### Turn auto-update on or off for a marketplace
 
@@ -365,7 +365,7 @@ claude plugin uninstall formatter@your-org --scope project
 
 ### Auto-update from a private marketplace
 
-对于私有市场，请参阅 [What background auto-update does with credentials](/docs/zh-CN/plugins/host-marketplace#what-background-auto-update-does-with-credentials) 了解后台自动更新如何通过 SSH 和 HTTPS 认证，以及 [Troubleshoot plugins](/docs/zh-CN/plugins/troubleshooting#add-a-marketplace) 了解您在失败时看到的消息。
+对于私有市场，请参阅 [What background auto-update does with credentials](/docs/zh-CN/plugins/host-marketplace.md#what-background-auto-update-does-with-credentials) 了解后台自动更新如何通过 SSH 和 HTTPS 认证，以及 [Troubleshoot plugins](/docs/zh-CN/plugins/troubleshooting.md#add-a-marketplace) 了解您在失败时看到的消息。
 
 ## Manage marketplaces
 
@@ -383,8 +383,8 @@ claude plugin uninstall formatter@your-org --scope project
 
 ## Next steps
 
-* [Anthropic's marketplaces](/docs/zh-CN/plugins/anthropic-marketplaces)：官方、社区和演示市场的区别以及在哪里浏览每个市场
-* [Plugin loading reference](/docs/zh-CN/plugins/loading)：为什么插件加载、未加载或在更新后未更改
-* [Plugin security and trust](/docs/zh-CN/plugins/security)：在从您不认识的市场安装插件前要查看的内容
-* [Troubleshoot plugins](/docs/zh-CN/plugins/troubleshooting)：安装和市场错误消息及其修复
-* [Create a plugin](/docs/zh-CN/plugins/create)：构建您自己的
+* [Anthropic's marketplaces](/docs/zh-CN/plugins/anthropic-marketplaces.md)：官方、社区和演示市场的区别以及在哪里浏览每个市场
+* [Plugin loading reference](/docs/zh-CN/plugins/loading.md)：为什么插件加载、未加载或在更新后未更改
+* [Plugin security and trust](/docs/zh-CN/plugins/security.md)：在从您不认识的市场安装插件前要查看的内容
+* [Troubleshoot plugins](/docs/zh-CN/plugins/troubleshooting.md)：安装和市场错误消息及其修复
+* [Create a plugin](/docs/zh-CN/plugins/create.md)：构建您自己的

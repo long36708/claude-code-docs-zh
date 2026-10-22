@@ -6,7 +6,7 @@
 
 > 在 Claude Code Desktop 应用中恢复终端会话，查看 Claude 为您起草的反馈报告，并在受限模式下启动会话。
 
-发布版本 [v2.1.240 → v2.1.250](/docs/en/changelog#2-1-240)
+发布版本 [v2.1.240 → v2.1.250](/docs/en/changelog.md#2-1-240)
 3 项功能 · 8 月 24–28 日
 
 在 Desktop 应用中恢复终端会话
@@ -24,7 +24,7 @@ Desktop
 
 选择一个会话并按 `Enter`。对话将在您停止的位置在应用中打开。
 
-[在 CLI 和 Desktop 之间移动](/docs/zh-CN/desktop#coming-from-the-cli)
+[在 CLI 和 Desktop 之间移动](/docs/zh-CN/desktop.md#coming-from-the-cli)
 
 Claude 起草的反馈
 CLI
@@ -41,7 +41,7 @@ CLI
 
 选择一份草稿，然后编辑、发送或丢弃它。要关闭起草功能，请在 `/config` 中将 **Claude-drafted feedback** 设置为 `off`。
 
-[SendFeedback 工具行为](/docs/zh-CN/tools-reference#sendfeedback-tool-behavior)
+[SendFeedback 工具行为](/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)
 
 受限模式
 v2.1.248
@@ -56,10 +56,10 @@ claude --restricted -p "review src/ for SQL injection risks"
 
 要为 Claude 恢复已移除的工具之一，请在 `--tools` 中将其与您想要的其他内置工具一起列出，例如 `--tools "Bash,Read,Edit"`。`--tools` 是一个允许列表，其 `default` 预设不会恢复已移除的工具。
 
-[CLI 标志](/docs/zh-CN/cli-reference#cli-flags)
+[CLI 标志](/docs/zh-CN/cli-reference.md#cli-flags)
 
 其他亮点
 
-设置新的 [`modelPicker`](/docs/zh-CN/settings-reference#modelpicker) 设置以使用您自己的有序、标记的条目扩展或替换 `/model` 选择器的内置列表，包括 Amazon Bedrock 或 Google Cloud 的 Agent Platform 模型 ID将 [`promptCacheTtl`](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself) 设置为 `1h` 以在使用 API 密钥或云提供商时在主对话上保持一小时的提示缓存；`subagentPromptCacheTtl` 为子代理和主对话外的所有其他请求设置 TTL在 Pro、Max、Team 和 Enterprise 计划上，[`/usage`](/docs/zh-CN/costs#plan-usage-breakdown) 添加了 Loops 分解：运行计数、总令牌数、每次运行的令牌数以及使用最多令牌的 `/loop` 和计划任务的最后一次运行按合同费率的组织可以设置 [`modelPricing`](/docs/zh-CN/costs#report-spend-at-your-contracted-rates) 托管设置，以便 `/usage`、状态行和 OpenTelemetry 按这些费率而不是列表价格报告成本`/login` 在 **Anthropic Console 账户**选项下提供 **使用您的 Console 账户登录**，因此 Console 组织的成员如果不允许 API 密钥，可以在不创建 API 密钥的情况下登录运行 `/permissions` 并打开新的 [**Auto mode** 标签页](/docs/zh-CN/auto-mode-config#edit-rules-from-permissions)以查看和编辑自动模式分类器规则，而无需打开设置文件当自动模式可用时，Manual 和 `acceptEdits` 权限模式中的 Bash 权限提示提供 [**是的，并切换到自动模式**](/docs/zh-CN/permission-modes#switch-permission-modes)选项；选择它以批准命令并将会话切换到自动模式在您 [使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory)后，新目录的项目设置、hooks、`.mcp.json` 服务器、skills 和子代理立即生效，而不是在下一个 `--resume` 时生效在非交互式会话中，包括 `-p` 运行、Agent SDK 运行和云会话，Claude Code [继续响应](/docs/zh-CN/errors#the-response-above-may-be-incomplete)，该响应被服务器错误、连接断开或停滞中断，当部分响应包含文本且没有工具调用时在其 `maxTurns` 限制处停止的子代理返回其输出标记为部分，并提示 Claude 可以 [使用 `SendMessage` 继续它](/docs/zh-CN/sub-agents#resume-subagents)，而不是显示为已完成在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，同一机器上的会话现在可以 [相互消息](/docs/zh-CN/cross-session-messaging#availability)，`/loop` 可以 [选择自己的间隔](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)，`/model` 和 `/effort` 立即应用而不是在回合结束后应用本机安装程序和自动更新程序下载 zstd 压缩的构建，在 Linux x64 上约为 75 MB 而不是 340 MB，本机构建按需加载代码，每个会话使用的内存大约少 40 到 70 MB
+设置新的 [`modelPicker`](/docs/zh-CN/settings-reference#modelpicker) 设置以使用您自己的有序、标记的条目扩展或替换 `/model` 选择器的内置列表，包括 Amazon Bedrock 或 Google Cloud 的 Agent Platform 模型 ID将 [`promptCacheTtl`](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself) 设置为 `1h` 以在使用 API 密钥或云提供商时在主对话上保持一小时的提示缓存；`subagentPromptCacheTtl` 为子代理和主对话外的所有其他请求设置 TTL在 Pro、Max、Team 和 Enterprise 计划上，[`/usage`](/docs/zh-CN/costs#plan-usage-breakdown) 添加了 Loops 分解：运行计数、总令牌数、每次运行的令牌数以及使用最多令牌的 `/loop` 和计划任务的最后一次运行按合同费率的组织可以设置 [`modelPricing`](/docs/zh-CN/costs#report-spend-at-your-contracted-rates) 托管设置，以便 `/usage`、状态行和 OpenTelemetry 按这些费率而不是列表价格报告成本`/login` 在 **Anthropic Console 账户**选项下提供 **使用您的 Console 账户登录**，因此 Console 组织的成员如果不允许 API 密钥，可以在不创建 API 密钥的情况下登录运行 `/permissions` 并打开新的 [**Auto mode** 标签页](/docs/zh-CN/auto-mode-config.md#edit-rules-from-permissions)以查看和编辑自动模式分类器规则，而无需打开设置文件当自动模式可用时，Manual 和 `acceptEdits` 权限模式中的 Bash 权限提示提供 [**是的，并切换到自动模式**](/docs/zh-CN/permission-modes.md#switch-permission-modes)选项；选择它以批准命令并将会话切换到自动模式在您 [使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory)后，新目录的项目设置、hooks、`.mcp.json` 服务器、skills 和子代理立即生效，而不是在下一个 `--resume` 时生效在非交互式会话中，包括 `-p` 运行、Agent SDK 运行和云会话，Claude Code [继续响应](/docs/zh-CN/errors.md#the-response-above-may-be-incomplete)，该响应被服务器错误、连接断开或停滞中断，当部分响应包含文本且没有工具调用时在其 `maxTurns` 限制处停止的子代理返回其输出标记为部分，并提示 Claude 可以 [使用 `SendMessage` 继续它](/docs/zh-CN/sub-agents#resume-subagents)，而不是显示为已完成在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，同一机器上的会话现在可以 [相互消息](/docs/zh-CN/cross-session-messaging.md#availability)，`/loop` 可以 [选择自己的间隔](/docs/zh-CN/scheduled-tasks.md#let-claude-choose-the-interval)，`/model` 和 `/effort` 立即应用而不是在回合结束后应用本机安装程序和自动更新程序下载 zstd 压缩的构建，在 Linux x64 上约为 75 MB 而不是 340 MB，本机构建按需加载代码，每个会话使用的内存大约少 40 到 70 MB
 
-[v2.1.240–v2.1.250 的完整更新日志 →](/docs/en/changelog#2-1-240)
+[v2.1.240–v2.1.250 的完整更新日志 →](/docs/en/changelog.md#2-1-240)

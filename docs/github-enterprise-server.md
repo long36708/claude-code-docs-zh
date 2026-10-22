@@ -12,7 +12,7 @@
 
 GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理托管在自管理 GitHub 实例上的存储库，而不是 github.com。一旦所有者连接您的 GHES 实例，开发人员可以运行云会话和获得自动化代码审查，无需任何按存储库的配置。您实例上托管的插件市场也受支持；凭证要求因表面而异，如 [GHES 上的插件市场](#plugin-marketplaces-on-ghes) 中所述。
 
-对于 github.com 上的存储库，请参阅 [云上的 Claude Code](/docs/zh-CN/claude-code-on-the-web) 和 [代码审查](/docs/zh-CN/code-review)。要在您自己的 CI 基础设施中运行 Claude，请参阅 [GitHub Actions](/docs/zh-CN/github-actions)。
+对于 github.com 上的存储库，请参阅 [云上的 Claude Code](/docs/zh-CN/claude-code-on-the-web.md) 和 [代码审查](/docs/zh-CN/code-review.md)。要在您自己的 CI 基础设施中运行 Claude，请参阅 [GitHub Actions](/docs/zh-CN/github-actions.md)。
 
 ## GitHub Enterprise Server 支持的功能
 
@@ -25,7 +25,7 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
 | Claude Security | ✅ 支持 | 在 [claude.ai/security](https://claude.ai/security) 为 Enterprise 计划提供公开测试版 |
 | Teleport 会话 | ✅ 支持 | 使用 `--teleport` 在云和终端之间移动会话 |
 | 插件市场 | ✅ 支持 | 凭证要求因表面而异。请参阅 [GHES 上的插件市场](#plugin-marketplaces-on-ghes) |
-| 贡献指标 | ❌ 不支持 | 需要托管在 github.com 上的仓库。[分析仪表板](/docs/zh-CN/analytics) 仍会显示 GHES 仓库中工作的使用指标 |
+| 贡献指标 | ❌ 不支持 | 需要托管在 github.com 上的仓库。[分析仪表板](/docs/zh-CN/analytics.md) 仍会显示 GHES 仓库中工作的使用指标 |
 | GitHub Actions | ✅ 支持 | 需要手动工作流设置；`/install-github-app` 仅适用于 github.com |
 | GitHub MCP server | ❌ 不支持 | GitHub MCP server 不适用于 GHES 实例 |
 
@@ -53,7 +53,7 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
 
 **5. 启用 Code Review**
 
-转到 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)，使用与 github.com 相同的配置为您的 GHES 仓库启用 [Code Review](/docs/zh-CN/code-review-setup)。
+转到 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)，使用与 github.com 相同的配置为您的 GHES 仓库启用 [Code Review](/docs/zh-CN/code-review-setup.md)。
 
 ### GitHub App 权限
 
@@ -83,9 +83,9 @@ Claude 会在您保存连接时生成应用的 webhook URL。点击 **Add config
 
 ### 网络要求
 
-对于 Anthropic 托管的会话，您的 GHES 实例必须可从 Anthropic 基础设施访问，以便 Claude 可以克隆仓库和发布审查评论。如果您的 GHES 实例位于防火墙后面，请将 Anthropic 的[出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses)加入允许列表。[自托管环境](/docs/zh-CN/self-hosted-environments-deploy#configure-git)中的会话则从您的网络内部克隆，除非运行器选择使用 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy#use-the-anthropic-git-proxy)，该代理从 Anthropic 一侧获取，因此需要相同的可达性。
+对于 Anthropic 托管的会话，您的 GHES 实例必须可从 Anthropic 基础设施访问，以便 Claude 可以克隆仓库和发布审查评论。如果您的 GHES 实例位于防火墙后面，请将 Anthropic 的[出站 IP 地址](https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses)加入允许列表。[自托管环境](/docs/zh-CN/self-hosted-environments-deploy.md#configure-git)中的会话则从您的网络内部克隆，除非运行器选择使用 [Anthropic git 代理](/docs/zh-CN/self-hosted-environments-deploy.md#use-the-anthropic-git-proxy)，该代理从 Anthropic 一侧获取，因此需要相同的可达性。
 
-托管的会话前流程（例如仓库选择器）会在会话启动前在 Anthropic 一侧运行。即使会话在自托管环境中运行，这些流程也需要您的 GHES 实例可从 Anthropic 基础设施访问。[SCM 连接器](/docs/zh-CN/self-hosted-environments-reference#scm-connector-flags)不可用，因此这些流程无法访问仅在内部可路由的 GHES 主机。
+托管的会话前流程（例如仓库选择器）会在会话启动前在 Anthropic 一侧运行。即使会话在自托管环境中运行，这些流程也需要您的 GHES 实例可从 Anthropic 基础设施访问。[SCM 连接器](/docs/zh-CN/self-hosted-environments-reference.md#scm-connector-flags)不可用，因此这些流程无法访问仅在内部可路由的 GHES 主机。
 
 ## 开发人员工作流
 
@@ -104,11 +104,11 @@ cd api-service
 claude --cloud "Add retry logic to the payment webhook handler"
 ```
 
-会话从 GHES 克隆您的仓库，并将更改推送回分支。在 [claude.ai/code](https://claude.ai/code) 监控进度。有关完整的云端会话工作流（包括 diff 审查、自动修复和云端定时任务），请参阅[在云端使用 Claude Code](/docs/zh-CN/claude-code-on-the-web)。
+会话从 GHES 克隆您的仓库，并将更改推送回分支。在 [claude.ai/code](https://claude.ai/code) 监控进度。有关完整的云端会话工作流（包括 diff 审查、自动修复和云端定时任务），请参阅[在云端使用 Claude Code](/docs/zh-CN/claude-code-on-the-web.md)。
 
 ### 将会话 Teleport 到您的终端
 
-使用 `claude --teleport` 将云会话拉入您的本地终端。Teleport 在获取分支和加载会话历史之前验证您在同一 GHES 存储库的检出中。有关详细信息，请参阅 [teleport 要求](/docs/zh-CN/claude-code-on-the-web#teleport-requirements)。
+使用 `claude --teleport` 将云会话拉入您的本地终端。Teleport 在获取分支和加载会话历史之前验证您在同一 GHES 存储库的检出中。有关详细信息，请参阅 [teleport 要求](/docs/zh-CN/claude-code-on-the-web.md#teleport-requirements)。
 
 ## GHES 上的插件市场
 
@@ -142,11 +142,11 @@ claude --cloud "Add retry logic to the payment webhook handler"
 
 Claude Code 以非交互方式运行 git，并拒绝连接到不在机器 `known_hosts` 文件中的主机的 SSH 连接。带有 git 凭证助手的 HTTPS URL 避免了 `known_hosts` 要求。
 
-有关构建市场的完整指南，请参阅 [创建和分发插件市场](/docs/zh-CN/plugins/create-marketplace)。
+有关构建市场的完整指南，请参阅 [创建和分发插件市场](/docs/zh-CN/plugins/create-marketplace.md)。
 
 ### 使用托管设置预注册 GHES 市场
 
-`extraKnownMarketplaces` 设置预注册市场，以便开发人员无需手动设置即可获得它。它可以从 [任何设置文件](/docs/zh-CN/settings-reference#extraknownmarketplaces) 工作，包括存储库的 `.claude/settings.json`；托管设置在整个组织范围内提供它：
+`extraKnownMarketplaces` 设置预注册市场，以便开发人员无需手动设置即可获得它。它可以从 [任何设置文件](/docs/zh-CN/settings-reference.md#extraknownmarketplaces) 工作，包括存储库的 `.claude/settings.json`；托管设置在整个组织范围内提供它：
 
 ```json theme={null}
 {
@@ -166,11 +166,11 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
 * **使用完整的 git URL。** `owner/repo` 简写始终解析为 github.com，无法引用 GHES 主机。
 * **优先使用 HTTPS URL。** SSH 克隆在不信任您的 GHES 主机密钥的机器上失败。带有您组织标准 git 凭证助手的 HTTPS URL 在任何配置了凭证的机器上都可以工作。
 * **确认每台机器都可以从您的 GHES 主机克隆。** 如果机器缺少凭证，市场会被注册但永远不会安装，其插件报告为未找到而不是提示输入凭证。
-* **确认设置到达每台机器。** 托管设置文件仅在部署到的机器上生效，例如通过您的设备管理系统。有关文件位置，请参阅 [部署托管设置](/docs/zh-CN/managed-settings#delivery-mechanisms)。
+* **确认设置到达每台机器。** 托管设置文件仅在部署到的机器上生效，例如通过您的设备管理系统。有关文件位置，请参阅 [部署托管设置](/docs/zh-CN/managed-settings.md#delivery-mechanisms)。
 
 ### 在托管设置中将 GHES 市场加入白名单
 
-如果您的组织使用 [托管设置](/docs/zh-CN/settings) 来限制开发人员可以添加哪些市场，请使用 `hostPattern` 源类型来允许来自您的 GHES 实例的所有市场，而无需枚举每个存储库。有关每个平台上的文件位置，请参阅 [部署机制](/docs/zh-CN/managed-settings#delivery-mechanisms)。将 JSON 添加到您的 `managed-settings.json` 文件或等效的 MDM 策略：
+如果您的组织使用 [托管设置](/docs/zh-CN/settings.md) 来限制开发人员可以添加哪些市场，请使用 `hostPattern` 源类型来允许来自您的 GHES 实例的所有市场，而无需枚举每个存储库。有关每个平台上的文件位置，请参阅 [部署机制](/docs/zh-CN/managed-settings.md#delivery-mechanisms)。将 JSON 添加到您的 `managed-settings.json` 文件或等效的 MDM 策略：
 
 ```json theme={null}
 {
@@ -183,7 +183,7 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
 }
 ```
 
-有关完整的架构，请参阅 [strictKnownMarketplaces](/docs/zh-CN/settings-reference#strictknownmarketplaces) 和 [extraKnownMarketplaces](/docs/zh-CN/settings-reference#extraknownmarketplaces) 设置参考。
+有关完整的架构，请参阅 [strictKnownMarketplaces](/docs/zh-CN/settings-reference.md#strictknownmarketplaces) 和 [extraKnownMarketplaces](/docs/zh-CN/settings-reference.md#extraknownmarketplaces) 设置参考。
 
 ## 限制
 
@@ -223,15 +223,15 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
 
 ### 会话启动失败，显示 `Unable to get organization UUID`
 
-Claude Code 无法从您的凭据中读取 claude.ai 组织。使用 `/login` 登录，使用您的 Team 或 Enterprise 组织中的账户，因为 GitHub Enterprise Server 支持仅限于这些计划。有关原因和此状态产生的其他消息，请参阅 [Unable to get organization UUID](/docs/zh-CN/claude-code-on-the-web#unable-to-get-organization-uuid)。
+Claude Code 无法从您的凭据中读取 claude.ai 组织。使用 `/login` 登录，使用您的 Team 或 Enterprise 组织中的账户，因为 GitHub Enterprise Server 支持仅限于这些计划。有关原因和此状态产生的其他消息，请参阅 [Unable to get organization UUID](/docs/zh-CN/claude-code-on-the-web.md#unable-to-get-organization-uuid)。
 
 ## 相关资源
 
 这些页面更深入地涵盖了本指南中引用的功能：
 
-* [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web)：在云基础设施上运行 Claude Code 会话
-* [代码审查](/docs/zh-CN/code-review)：自动化 PR 审查
-* [插件市场](/docs/zh-CN/plugins/host-marketplace)：构建和分发插件目录
-* [分析](/docs/zh-CN/analytics)：跟踪整个组织的 Claude Code 使用情况
-* [托管设置](/docs/zh-CN/settings)：组织范围的策略配置
-* [网络配置](/docs/zh-CN/network-config)：防火墙和 IP 白名单要求
+* [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web.md)：在云基础设施上运行 Claude Code 会话
+* [代码审查](/docs/zh-CN/code-review.md)：自动化 PR 审查
+* [插件市场](/docs/zh-CN/plugins/host-marketplace.md)：构建和分发插件目录
+* [分析](/docs/zh-CN/analytics.md)：跟踪整个组织的 Claude Code 使用情况
+* [托管设置](/docs/zh-CN/settings.md)：组织范围的策略配置
+* [网络配置](/docs/zh-CN/network-config.md)：防火墙和 IP 白名单要求

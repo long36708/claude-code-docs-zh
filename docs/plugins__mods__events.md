@@ -8,11 +8,11 @@
 
 hook 是一个事件处理程序：Claude Code 在命名事件发生时运行的函数。Claude Code 在即将采取行动的每个点触发事件，例如当它运行工具、提交提示、向模型发送请求或启动或结束会话时。你的 hook 在 Claude Code 采取行动之前运行，因此它可以观察事件、重写事件或代替 Claude Code 回答事件。你使用 [`on(eventName, handler)`](/docs/zh-CN/plugins/mods/reference#the-hook-function) 注册 hook。
 
-在开始之前，请构建你的[第一个 mod](/docs/zh-CN/plugins/mods/create)。对于每个事件及其确切字段，请参阅[参考](/docs/zh-CN/plugins/mods/reference#events)或阅读[你的构建的类型](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)。
+在开始之前，请构建你的[第一个 mod](/docs/zh-CN/plugins/mods/create.md)。对于每个事件及其确切字段，请参阅[参考](/docs/zh-CN/plugins/mods/reference.md#events)或阅读[你的构建的类型](/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)。
 
 ## hook 如何处理事件
 
-hook 位于事件和 Claude Code 对其采取的行动之间，因此它可以观察事件、重写事件或自己回答事件。它接收三个参数：[mods API](/docs/zh-CN/plugins/mods/api) 作为 `$`、事件作为 `e` 和下一个处理程序作为 `next`。事件的处理程序形成中间件链。`next(e)` 调用下一个处理程序，这是另一个 mod 的 hook 或链末端的 Claude Code 自己的行为，它解析为结果。你的 hook 对 `next` 做什么决定了它做以下三件事中的哪一件。
+hook 位于事件和 Claude Code 对其采取的行动之间，因此它可以观察事件、重写事件或自己回答事件。它接收三个参数：[mods API](/docs/zh-CN/plugins/mods/api.md) 作为 `$`、事件作为 `e` 和下一个处理程序作为 `next`。事件的处理程序形成中间件链。`next(e)` 调用下一个处理程序，这是另一个 mod 的 hook 或链末端的 Claude Code 自己的行为，它解析为结果。你的 hook 对 `next` 做什么决定了它做以下三件事中的哪一件。
 
 ### 观察事件
 
@@ -68,7 +68,7 @@ on('tool.call', { tool: 'Bash' }, async () => {
 })
 ```
 
-当 Claude 尝试 Bash 命令时，命令不会运行，Claude 将 `deny` 文本读作工具的结果。每个事件都有自己的结果形状，[事件参考](/docs/zh-CN/plugins/mods/reference#events)列出了这些。
+当 Claude 尝试 Bash 命令时，命令不会运行，Claude 将 `deny` 文本读作工具的结果。每个事件都有自己的结果形状，[事件参考](/docs/zh-CN/plugins/mods/reference.md#events)列出了这些。
 
 ### 过滤 hook 处理的事件
 
@@ -87,13 +87,13 @@ on('tool.call', { tool: /^mcp__github__/ }, hook)
 
 `hook` 为 Bash、Edit 或 Write 调用各运行一次，为名称以 `mcp__github__` 开头的工具调用运行一次。对任何其他工具（如 Read）的调用都不匹配这三个中的任何一个，因此 `hook` 不会为它运行。
 
-事件名称可以是通配符。`'classic.*'` 匹配每个[设置 hook 事件](#hook-the-settings-hook-events)。`'*'` 匹配除[遥测事件](/docs/zh-CN/plugins/mods/reference#telemetry)之外的每个事件，遥测事件需使用其自身的名称和 `{ to: 'collector' }` 过滤器。
+事件名称可以是通配符。`'classic.*'` 匹配每个[设置 hook 事件](#hook-the-settings-hook-events)。`'*'` 匹配除[遥测事件](/docs/zh-CN/plugins/mods/reference.md#telemetry)之外的每个事件，遥测事件需使用其自身的名称和 `{ to: 'collector' }` 过滤器。
 
 为每个 matcher 注册一次事件。如果你为 `session.start` 调用 `on` 两次而没有 matcher，模块将无法加载，错误为 `on("session.start") is registered twice without a matcher`。将你的 mod 在会话启动时执行的所有操作放在一个 hook 中。
 
 ## 对 Claude 正在执行的操作设置 hook
 
-处理这些事件，可以在工具调用、提示词或轮次发生时查看或更改它们。有关每个事件以及 hook 可以返回的内容，请参阅[事件参考](/docs/zh-CN/plugins/mods/reference#events)。
+处理这些事件，可以在工具调用、提示词或轮次发生时查看或更改它们。有关每个事件以及 hook 可以返回的内容，请参阅[事件参考](/docs/zh-CN/plugins/mods/reference.md#events)。
 
 ### 拦截或更改工具调用
 
@@ -135,10 +135,10 @@ on('tool.call', { tool: ['Edit', 'Write'] }, async ($, e, next) => {
 
 * **更改调用**：将更改后的参数传给 `next`。
 * **重试调用**：再次调用 `next(e)`。如果 hook 在第一次结果中看到 `isError`，可以再次运行该工具并返回那次的结果。
-* **自行响应调用**：在不调用 `next` 的情况下返回一个带有 `result` 字段的对象；对于内置工具，请让 `result` 的结构与该工具自身结果在[适用于您构建版本的类型](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)中的结构一致。不会出现权限提示，工具也不会运行，因此您返回的结果就是 Claude 对所发生情况的全部了解。
+* **自行响应调用**：在不调用 `next` 的情况下返回一个带有 `result` 字段的对象；对于内置工具，请让 `result` 的结构与该工具自身结果在[适用于您构建版本的类型](/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)中的结构一致。不会出现权限提示，工具也不会运行，因此您返回的结果就是 Claude 对所发生情况的全部了解。
 * **向 Claude 扣留结果**：在 `await next(e)` 之后返回 `{ deny: reason }`。Claude 读取的是您的原因，而不是 `next` 返回的内容。如果工具已运行，deny 会阻止 Claude 看到其结果，但不会撤销工具所做的任何操作。如果工具已运行并成功，原因会跟在诸如 `Bash ran, and a plugin withheld its result:` 的说明之后。
 
-您组织的[托管设置](/docs/zh-CN/server-managed-settings)中的 hook 会在任何 mod 的 `tool.call` hook 之前运行。当托管 hook 阻止该调用时，任何 mod 的 `tool.call` hook 都不会针对该调用运行。
+您组织的[托管设置](/docs/zh-CN/server-managed-settings.md)中的 hook 会在任何 mod 的 `tool.call` hook 之前运行。当托管 hook 阻止该调用时，任何 mod 的 `tool.call` hook 都不会针对该调用运行。
 
 #### 暂缓工具调用，直到用户做出决定
 
@@ -177,18 +177,18 @@ export function register(on) {
 * **用户输入答案**：`$.ui.ask` 解析为输入的文本。hook 会将其与 `Run it` 比较，因此任何其他文本都会拒绝该命令。
 * **无人回答**：当用户关闭问题或选择 **Chat about this** 时，以及在 `claude -p` 运行中，`$.ui.ask` 会 reject，因此 `catch` 块会将答案保留为 `Refuse`
 
-请将等待保持在诸如 `$.ui.ask` 之类的 mods API 调用内部，因为这段时间不计入 hook 的[时间限制](/docs/zh-CN/plugins/mods/reference#limits)。等待您自己的 promise 所花费的时间则会计入。Claude Code 会跳过超时的 hook，因此被暂缓的命令将会运行。
+请将等待保持在诸如 `$.ui.ask` 之类的 mods API 调用内部，因为这段时间不计入 hook 的[时间限制](/docs/zh-CN/plugins/mods/reference.md#limits)。等待您自己的 promise 所花费的时间则会计入。Claude Code 会跳过超时的 hook，因此被暂缓的命令将会运行。
 
 #### 在询问用户之前批准或拒绝工具调用
 
 要决定某个工具调用是否可以运行，请处理 [`tool.check`](/docs/zh-CN/plugins/mods/reference#tools)，这是 Claude Code 做出该决定的事件。
 
-对于固定的命令或路径，请使用诸如 `Bash(npm test)` 之类的[权限规则](/docs/zh-CN/permissions#permission-rule-syntax)，无需编写代码。当决定取决于当下的实际情况（例如当前的 Git 分支或另一个 hook 记录的值）时，请处理 `tool.check`。
+对于固定的命令或路径，请使用诸如 `Bash(npm test)` 之类的[权限规则](/docs/zh-CN/permissions.md#permission-rule-syntax)，无需编写代码。当决定取决于当下的实际情况（例如当前的 Git 分支或另一个 hook 记录的值）时，请处理 `tool.check`。
 
 * **返回什么**：要自行决定该调用，请返回您自己的对象，例如 `{ decision: 'allow' }` 或 `{ decision: 'deny', reason }`。要保持该决定不变，请返回 `await next(e)` 给您的结果。
 * **`await next(e)` 给您什么**：Claude Code 自身的决定，形式为一个对象，其 `decision` 为 `allow`、`ask` 或 `deny`。`next(e)` 运行期间不会出现权限提示。
 * **参数**：`e.input` 保存工具的参数，例如 Bash 的 `command`
-* **`tool.check` 何时触发**：在 [`PreToolUse` hook](/docs/zh-CN/hooks#pretooluse) 运行之后，并在权限提示、[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)的分类器或 [`PermissionRequest`](/docs/zh-CN/hooks#permissionrequest) hook 之前
+* **`tool.check` 何时触发**：在 [`PreToolUse` hook](/docs/zh-CN/hooks#pretooluse) 运行之后，并在权限提示、[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)的分类器或 [`PermissionRequest`](/docs/zh-CN/hooks#permissionrequest) hook 之前
 
 以下 hook 会在当前分支为 `main` 时拒绝 `git push`：
 
@@ -212,7 +212,7 @@ on('tool.check', { tool: 'Bash' }, async ($, e, next) => {
 
 > [!NOTE]
 >
-> `tool.check` hook 也可以返回 `allow` 或 `ask`。在[计划模式](/docs/zh-CN/permissions#hook-approvals-in-plan-mode)下，对于非只读的调用（例如文件编辑），您的 hook 可以收紧 `next(e)` 返回的决定，但不能放宽它。有关您的 hook 的 `allow` 无法覆盖的权限规则和 `PreToolUse` hook 决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+> `tool.check` hook 也可以返回 `allow` 或 `ask`。在[计划模式](/docs/zh-CN/permissions.md#hook-approvals-in-plan-mode)下，对于非只读的调用（例如文件编辑），您的 hook 可以收紧 `next(e)` 返回的决定，但不能放宽它。有关您的 hook 的 `allow` 无法覆盖的权限规则和 `PreToolUse` hook 决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
 
 #### 检查工具调用是否为只读
 
@@ -220,10 +220,10 @@ on('tool.check', { tool: 'Bash' }, async ($, e, next) => {
 
 某些工具（例如 Read、Grep、Glob 和 WebSearch）会将每次调用都报告为只读。Bash 和 MCP 工具在以下情况下将调用报告为只读：
 
-* **Bash**：命令通过 Claude Code 内置的[只读命令检查](/docs/zh-CN/permissions#read-only-commands)
+* **Bash**：命令通过 Claude Code 内置的[只读命令检查](/docs/zh-CN/permissions.md#read-only-commands)
 * **MCP 工具**：服务器将该工具的 `readOnlyHint` 注解设置为 `true`
 
-该值是工具自身的报告，因此不要仅凭此字段批准调用。例如，WebFetch 和 Agent 调用会报告为只读，但 [WebFetch](/docs/zh-CN/tools-reference#webfetch-tool-behavior) 会请求一个 URL，而 [Agent](/docs/zh-CN/tools-reference#agent-tool-behavior) 会启动一个运行其自身工具的子代理。
+该值是工具自身的报告，因此不要仅凭此字段批准调用。例如，WebFetch 和 Agent 调用会报告为只读，但 [WebFetch](/docs/zh-CN/tools-reference.md#webfetch-tool-behavior) 会请求一个 URL，而 [Agent](/docs/zh-CN/tools-reference.md#agent-tool-behavior) 会启动一个运行其自身工具的子代理。
 
 以下 hook 会为每个非只读且尚未被拒绝的 `mcp__github__` 调用返回 `ask`：
 
@@ -249,7 +249,7 @@ on('tool.check', { tool: /^mcp__github__/ }, async ($, e, next) => {
 
 | 要执行的操作 | 返回的内容 |
 | :- | :- |
-| 改写提示词。会话记录和您的[提示词历史](/docs/zh-CN/interactive-mode#command-history)会显示新文本。 | `next({ ...e, text: newText })` |
+| 改写提示词。会话记录和您的[提示词历史](/docs/zh-CN/interactive-mode.md#command-history)会显示新文本。 | `next({ ...e, text: newText })` |
 | 在提示词之后添加只有 Claude 读取的文本 | `next({ ...e, context: [...(e.context ?? []), extraText] })` |
 | 阻止发送提示词 | `{ drop: 'the reason' }` |
 
@@ -271,7 +271,7 @@ on('prompt.submit', async ($, e, next) => {
 
 要阻止提示词，请在不调用 `next` 的情况下返回 `{ drop: 'the reason' }`。文本会返回到用户的提示词输入框中，用户会看到 `Prompt dropped by a hook:` 后跟您的原因，因此请以用户为对象撰写原因。如果您的 hook 在其 `next(e)` 调用已放行提示词之后返回 `drop`，轮次仍会运行，并且该 hook 会[失败](#handle-a-hook-that-fails)，错误消息中包含 `a drop after its next() was answered`。
 
-[其他事件](/docs/zh-CN/plugins/mods/reference#prompts-and-what-claude-reads)涵盖了 Claude 读取的其余内容：`prompt.section` 用于系统提示词的每个部分，`prompt.context` 用于随第一条消息发送的上下文，`skill.prompt` 用于 skill 的文本。这些 hook 产生的文本如果在请求之间发生变化，会[使提示缓存失效](/docs/zh-CN/prompt-caching)。在 `skill.prompt` hook 中，您还可以读取[该 skill 来自哪个插件或文件](/docs/zh-CN/plugins/mods/reference#skill-prompt-fields)。
+[其他事件](/docs/zh-CN/plugins/mods/reference.md#prompts-and-what-claude-reads)涵盖了 Claude 读取的其余内容：`prompt.section` 用于系统提示词的每个部分，`prompt.context` 用于随第一条消息发送的上下文，`skill.prompt` 用于 skill 的文本。这些 hook 产生的文本如果在请求之间发生变化，会[使提示缓存失效](/docs/zh-CN/prompt-caching.md)。在 `skill.prompt` hook 中，您还可以读取[该 skill 来自哪个插件或文件](/docs/zh-CN/plugins/mods/reference.md#skill-prompt-fields)。
 
 ### 跟踪轮次
 
@@ -283,7 +283,7 @@ on('prompt.submit', async ($, e, next) => {
 | `turn.step` | Claude Code 即将向模型发送一个请求。包含工具调用的轮次会有多个请求。子代理的请求会设置 `e.agentId`。 | 读取每个请求的 token 用量、通过 `next({ ...e, model })` 将其发送到不同的模型，或在不调用模型的情况下直接响应 |
 | `turn.complete` | 轮次结束，包括用户中断的轮次，此时 `e.isAborted` 为 `true`。`e.answer` 是 Claude 的最终文本，`e.durationMs` 是所用时间，`e.usage` 是该轮次的 token 总量。子代理的轮次触发该事件时会设置 `e.agentId`。 | 观察，或返回一个带有 `text` 字段的对象（例如 `{ text: 'Done in 12 seconds' }`），以在回答下方显示一行 |
 
-请将 `turn.step` hook 编写为异步生成器，因为该事件是流式的。`yield* next(e)` 会在响应流式传输时将其转发，并求值为完成后的结果。以下 hook 会记录 Claude API 从[提示缓存](/docs/zh-CN/prompt-caching)中为每个请求提供了多少内容：
+请将 `turn.step` hook 编写为异步生成器，因为该事件是流式的。`yield* next(e)` 会在响应流式传输时将其转发，并求值为完成后的结果。以下 hook 会记录 Claude API 从[提示缓存](/docs/zh-CN/prompt-caching.md)中为每个请求提供了多少内容：
 
 ```javascript theme={null}
 // function* makes the hook a generator, which can pass the response on piece by piece
@@ -303,11 +303,11 @@ Claude 的回复会像没有该 mod 时一样以流式方式显示在屏幕上�
 
 `result.usage` 保存 Claude API 为某个请求报告的 token 计数，以及作出回答的 `model`：`input_tokens`、`output_tokens`、`cache_read_input_tokens` 和 `cache_creation_input_tokens`。该 hook 也会针对子代理的请求运行，因此如果您只想处理主对话，请检查 `e.agentId`。
 
-要查看 API 在请求期间自行运行的工具调用（例如对 [advisor 工具](/docs/zh-CN/advisor)的调用），请读取 `result.serverToolUses`。Claude Code 不会运行这些调用，因此不会为它们触发任何 `tool.call` 或 `tool.check` hook。当响应中没有此类调用时，该字段不存在；该字段需要 Claude Code v2.1.290 或更高版本。
+要查看 API 在请求期间自行运行的工具调用（例如对 [advisor 工具](/docs/zh-CN/advisor.md)的调用），请读取 `result.serverToolUses`。Claude Code 不会运行这些调用，因此不会为它们触发任何 `tool.call` 或 `tool.check` hook。当响应中没有此类调用时，该字段不存在；该字段需要 Claude Code v2.1.290 或更高版本。
 
 ### 处理设置 hook 事件
 
-设置 hook 是您在设置文件中配置的命令、HTTP、提示词和 Agent hook。每个[设置 hook 事件](/docs/zh-CN/hooks#hook-events)（例如 `Stop`、`SessionEnd` 或 `PostToolUse`）同时也是一个名为 `classic.` 后跟该设置 hook 事件名称的事件，例如 `classic.Stop`。`e` 是设置 hook 在 stdin 上接收的 JSON，包括 `transcript_path`。
+设置 hook 是您在设置文件中配置的命令、HTTP、提示词和 Agent hook。每个[设置 hook 事件](/docs/zh-CN/hooks.md#hook-events)（例如 `Stop`、`SessionEnd` 或 `PostToolUse`）同时也是一个名为 `classic.` 后跟该设置 hook 事件名称的事件，例如 `classic.Stop`。`e` 是设置 hook 在 stdin 上接收的 JSON，包括 `transcript_path`。
 
 以下 hook 使用 `Stop`（在 Claude 完成回复时触发）来记录会话的会话记录保存位置：
 
@@ -332,7 +332,7 @@ on('classic.Stop', async ($, e, next) => {
 
 Claude Code 按每个 mod 的来源对链进行排序：
 
-1. 内置守卫 `sec-default@builtin`（一个内置于 Claude Code 的 mod，`/plugin` 将其列为 `cc-plugin-sec-default`，在[它加载](/docs/zh-CN/plugins/mods/admin#know-what-happens-by-default)的位置）、您的组织在 [`prependPlugins`](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods) 中列出的 mod，然后是任何其他算作您的组织的、且不在 `appendPlugins` 中的 mod
+1. 内置守卫 `sec-default@builtin`（一个内置于 Claude Code 的 mod，`/plugin` 将其列为 `cc-plugin-sec-default`，在[它加载](/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)的位置）、您的组织在 [`prependPlugins`](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods) 中列出的 mod，然后是任何其他算作您的组织的、且不在 `appendPlugins` 中的 mod
 2. 您安装的 mod
 3. 您的组织在 `appendPlugins` 中列出的 mod
 4. 其他内置于 Claude Code 的 mod
@@ -346,7 +346,7 @@ Claude Code 按每个 mod 的来源对链进行排序：
 * **来自托管设置的 `PreToolUse` hook**：在第一个 mod 的 `tool.call` hook 之前运行。当托管 hook 阻止调用时，该调用不会运行任何 mod 的 `tool.call` hook。
 * **来自每个其他设置文件和插件的 `hooks/hooks.json` 的 `PreToolUse` hook**：在最后一个 mod 调用 `next` 后运行，作为 Claude Code 自己的行为的一部分。回答 `tool.call` 而不调用 `next` 的 mod 会阻止它们运行，调用 `next` 的 mod 在它返回的结果中看到它们的决定。
 
-[`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) 在 `PreToolUse` hook 运行之后触发。要了解 `tool.check` hook 的 `allow` 无法替代哪些权限规则和 `PreToolUse` hook 决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+[`tool.check`](#approve-or-refuse-a-tool-call-before-the-user-is-asked) 在 `PreToolUse` hook 运行之后触发。要了解 `tool.check` hook 的 `allow` 无法替代哪些权限规则和 `PreToolUse` hook 决定，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
 
 ### 处理失败的 hook
 
@@ -355,7 +355,7 @@ Claude Code 按每个 mod 的来源对链进行排序：
 * **它在调用 `next` 之前失败**：Claude Code 跳过它，下一个处理程序代替运行
 * **它在 `next` 解析后失败**：该结果成立，没有任何东西运行第二次
 
-一行内容会指明 mod、事件和原因，例如 `my-mod: tool.call hook skipped: threw Error: boom`。您读取它的位置取决于会话，如[找出 mod 为什么不做任何事](/docs/zh-CN/plugins/mods/troubleshoot#find-out-why-a-mod-does-nothing)所列。其绘图未通过验证的 `ui.render` hook 的报告方式不同，如[从元素构建树](/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements)所述。
+一行内容会指明 mod、事件和原因，例如 `my-mod: tool.call hook skipped: threw Error: boom`。您读取它的位置取决于会话，如[找出 mod 为什么不做任何事](/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)所列。其绘图未通过验证的 `ui.render` hook 的报告方式不同，如[从元素构建树](/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements)所述。
 
 要使阻止调用的 hook 失败关闭，请添加一个 `.catch` 错误处理程序来代替回答。这里，`guard` 是您的 hook 函数，处理程序检查 [`next.called`](/docs/zh-CN/plugins/mods/reference#the-hook-function) 来判断 `guard` 在失败时是否已经调用了 `next`：
 
@@ -374,20 +374,20 @@ on('tool.call', { tool: 'Bash' }, guard).catch(async ($, e, next) => {
 * **`guard` 在调用 `next` 之前失败**：命令不会运行，Claude 读取末尾带有该类型的 `deny` 文本
 * **`guard` 在调用 `next` 之后失败**：处理程序的 `next(e)` 解析为 `guard` 的调用所产生的结果，而不会再次运行命令，Claude 读取该结果
 
-处理程序自身有更短的[时间限制](/docs/zh-CN/plugins/mods/reference#limits)。如果处理程序本身抛出或超时，Claude Code 会像该 hook 没有处理程序一样跳过它。如果 `guard` 尚未调用 `next`，命令随后会像没有该 mod 时一样继续执行。
+处理程序自身有更短的[时间限制](/docs/zh-CN/plugins/mods/reference.md#limits)。如果处理程序本身抛出或超时，Claude Code 会像该 hook 没有处理程序一样跳过它。如果 `guard` 尚未调用 `next`，命令随后会像没有该 mod 时一样继续执行。
 
-同样的处理程序形式也适用于 `prompt.submit` 或 `config.set` 上的守卫。当 `next.called` 为 false 时，返回[事件参考](/docs/zh-CN/plugins/mods/reference#events)为该事件列出的拒绝：`prompt.submit` 使用 `{ drop: 'the reason' }`，`config.set` 使用 `{ deny: 'the reason' }`。
+同样的处理程序形式也适用于 `prompt.submit` 或 `config.set` 上的守卫。当 `next.called` 为 false 时，返回[事件参考](/docs/zh-CN/plugins/mods/reference.md#events)为该事件列出的拒绝：`prompt.submit` 使用 `{ drop: 'the reason' }`，`config.set` 使用 `{ deny: 'the reason' }`。
 
 在 `tool.check` 和 `plugin.register` 中，在 `next` 解析后返回的拒绝仍然有效，因此无需检查 `next.called`，直接返回即可：
 
 * **`tool.check`**：返回 `{ decision: 'deny', reason: 'the reason' }`
-* **`plugin.register`**：返回 `{ refuse: 'the reason' }`，如[在检查失败时拒绝 mod](/docs/zh-CN/plugins/mods/admin#refuse-mods-when-your-check-fails) 所示
+* **`plugin.register`**：返回 `{ refuse: 'the reason' }`，如[在检查失败时拒绝 mod](/docs/zh-CN/plugins/mods/admin.md#refuse-mods-when-your-check-fails) 所示
 
 在 `tool.call` 中，在 `next` 解析后返回的 `deny` 会[向 Claude 隐瞒该结果](#guard-or-change-a-tool-call)。
 
 ## 后续步骤
 
-* [使用 mods API](/docs/zh-CN/plugins/mods/api)：添加命令和工具、调用模型并在计时器上运行工作
-* [在界面中绘制](/docs/zh-CN/plugins/mods/interface)：在窗格中或提示上方显示你的 hooks 收集的内容
-* [测试 mod](/docs/zh-CN/plugins/mods/test)：从测试中触发这些事件中的任何一个
-* [Mods 参考](/docs/zh-CN/plugins/mods/reference)：每个事件、每个 mods API 方法和限制
+* [使用 mods API](/docs/zh-CN/plugins/mods/api.md)：添加命令和工具、调用模型并在计时器上运行工作
+* [在界面中绘制](/docs/zh-CN/plugins/mods/interface.md)：在窗格中或提示上方显示你的 hooks 收集的内容
+* [测试 mod](/docs/zh-CN/plugins/mods/test.md)：从测试中触发这些事件中的任何一个
+* [Mods 参考](/docs/zh-CN/plugins/mods/reference.md)：每个事件、每个 mods API 方法和限制

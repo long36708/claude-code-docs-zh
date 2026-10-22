@@ -8,7 +8,7 @@
 
 支出限制限制了每个开发者在给定的一天、一周或一个月内通过你的 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 可以花费的金额。当开发者超过他们的上限时，网关在他们的下一个请求上返回 `429`，并阻止他们直到该周期重置或管理员提高上限。使用支出限制为每个开发者、团队或整个组织设置一个共享凭证的上限。
 
-默认情况下，Claude 应用网关通过一个共享的上游凭证转发所有推理，因此你的提供商的账单将所有内容归属于该凭证，而不是单个开发者。在 Amazon Bedrock 上，[按开发者的 AWS 成本归属](/docs/zh-CN/claude-apps-gateway-config#per-developer-aws-cost-attribution) 改变了这一点。没有按开发者的限制，一个失控的代理群可能会花费组织的整个承诺。支出限制是网关在该共享账单之上的按开发者视图和断路器。
+默认情况下，Claude 应用网关通过一个共享的上游凭证转发所有推理，因此你的提供商的账单将所有内容归属于该凭证，而不是单个开发者。在 Amazon Bedrock 上，[按开发者的 AWS 成本归属](/docs/zh-CN/claude-apps-gateway-config.md#per-developer-aws-cost-attribution) 改变了这一点。没有按开发者的限制，一个失控的代理群可能会花费组织的整个承诺。支出限制是网关在该共享账单之上的按开发者视图和断路器。
 
 ## 设置上限
 
@@ -34,7 +34,7 @@ curl -sS https://claude-gateway.internal.example.com/v1/organizations/spend_limi
 
 | 字段 | 值 | 描述 |
 | - | - | - |
-| `scope.type` | `user`, `rbac_group`, `organization` | `user` 通过其 OpenID Connect (OIDC) `sub`（你的身份提供商分配的稳定用户 ID）针对一个开发者；将其作为 `scope.user_id` 传递。`rbac_group` 通过名称针对一个 [IdP 组](/docs/zh-CN/claude-apps-gateway-config#managed)；将其作为 `scope.rbac_group_id` 传递。`organization` 是组织范围的默认值。网关接受所有三个；Anthropic 的公共 `POST` 目前仅限用户。 |
+| `scope.type` | `user`, `rbac_group`, `organization` | `user` 通过其 OpenID Connect (OIDC) `sub`（你的身份提供商分配的稳定用户 ID）针对一个开发者；将其作为 `scope.user_id` 传递。`rbac_group` 通过名称针对一个 [IdP 组](/docs/zh-CN/claude-apps-gateway-config.md#managed)；将其作为 `scope.rbac_group_id` 传递。`organization` 是组织范围的默认值。网关接受所有三个；Anthropic 的公共 `POST` 目前仅限用户。 |
 | `amount` | USD 美分的整数字符串，或 `null` | `null` 是无限制的。`"0"` 是零上限，它阻止每个请求。 |
 | `period` | `daily`, `weekly`, `monthly` | 一个作用域可以为每个时期保持一个上限，每个都独立执行：如果开发者超过其中任何一个，他们就会被阻止。 |
 
@@ -72,15 +72,21 @@ curl -sS https://claude-gateway.internal.example.com/v1/organizations/spend_limi
 
 客户端中止也被计费。当流在没有上游最终使用帧的情况下结束时，计量器为已发送给客户端的文本计费约每输出令牌四个字符的下限估计，因此提前中止请求不会规避上限。
 
+#### 长提示词费率
+
+[Claude Haiku 5.5](https://platform.claude.com/docs/en/models/haiku-5-5/overview) 的列表价格对[超过 token 阈值的提示词采用更高费率](/docs/zh-CN/model-config.md#haiku-5-5-context-window-and-pricing)。当 Haiku 5.5 处理提示词超过该阈值的请求时，运行 Claude Code v2.1.293 或更高版本的网关服务器会按该费率为整个请求定价。计量器将输入 token、缓存读取和缓存写入计入该阈值。
+
+如果您的某个 `pricing.overrides` 行与请求匹配，则无论提示词长度如何，都适用该行的费率。
+
 ### Postgres 可用性
 
 预检查使用两秒超时查询 Postgres。如果存储无法访问或超时，执行默认情况下失败打开：请求继续，网关记录警告，响应不包含 `anthropic-ratelimit-unified-*` 标头。设置 [`enforcement.fail_closed_on_error: true`](/docs/zh-CN/claude-apps-gateway-config#enforcement) 改为失败关闭，它返回相同的 `429 billing_error`，但消息为 `spend limit unavailable`，没有期间、重置时间或 `retry-after` 标头。失败打开防止存储中断成为推理中断；失败关闭保证没有无计量支出。
 
-失败打开仅在你的负载均衡器或编排器仍然将流量路由到网关时有帮助。有关 `store.readiness_grace_seconds` 的信息，请参阅 [Outage behavior](/docs/zh-CN/claude-apps-gateway-deploy#outage-behavior)，它使副本在短暂中断期间通过其就绪检查。
+失败打开仅在你的负载均衡器或编排器仍然将流量路由到网关时有帮助。有关 `store.readiness_grace_seconds` 的信息，请参阅 [Outage behavior](/docs/zh-CN/claude-apps-gateway-deploy.md#outage-behavior)，它使副本在短暂中断期间通过其就绪检查。
 
 ### Claude Code 中的使用警告
 
-Claude Code 在开发者接近其上限时向其发出警告：一旦利用率超过 75% 时警告一次，超过其消耗最多的上限的 95% 时再次警告。当网关阻止请求时，Claude Code 按原样显示网关的 `429` 消息，包括您的 `admin.blocked_message`。它还会在 `/usage` 中显示该上限，并将其传递给开发者的[状态栏](/docs/zh-CN/statusline#spend-limit-fields)脚本。
+Claude Code 在开发者接近其上限时向其发出警告：一旦利用率超过 75% 时警告一次，超过其消耗最多的上限的 95% 时再次警告。当网关阻止请求时，Claude Code 按原样显示网关的 `429` 消息，包括您的 `admin.blocked_message`。它还会在 `/usage` 中显示该上限，并将其传递给开发者的[状态栏](/docs/zh-CN/statusline.md#spend-limit-fields)脚本。
 
 每种显示都需要开发者机器和网关服务器上具备最低 Claude Code 版本：
 
@@ -92,7 +98,7 @@ Claude Code 在开发者接近其上限时向其发出警告：一旦利用率�
 
 警告和百分比来自 `anthropic-ratelimit-unified-*` 标头，网关会将这些标头添加到具有上限的开发者的每个成功 `/v1/messages` 响应中。标头始终描述开发者自己的上限：网关会剥离上游提供商的速率限制标头（这些标头描述您的共享配额），从不转发它们。
 
-开发者看到的支出是网关自身的[估计值](#how-requests-are-priced)，即网关用于执行上限的同一数值，而不是来自您的提供商账单的金额。Claude Code 通过向网关发送单独的请求来读取美元金额。如果您按照 [Compliance posture](/docs/zh-CN/claude-apps-gateway-deploy#compliance-posture) 的建议在开发者的机器上设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`，Claude Code 会跳过该请求。设置了该变量时，或者网关服务器版本早于 v2.1.284 时，该栏和状态栏仅显示百分比。
+开发者看到的支出是网关自身的[估计值](#how-requests-are-priced)，即网关用于执行上限的同一数值，而不是来自您的提供商账单的金额。Claude Code 通过向网关发送单独的请求来读取美元金额。如果您按照 [Compliance posture](/docs/zh-CN/claude-apps-gateway-deploy.md#compliance-posture) 的建议在开发者的机器上设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`，Claude Code 会跳过该请求。设置了该变量时，或者网关服务器版本早于 v2.1.284 时，该栏和状态栏仅显示百分比。
 
 ## Admin API 参考
 
@@ -166,4 +172,4 @@ Claude Code 在开发者接近其上限时向其发出警告：一旦利用率�
 ## 相关
 
 * [`admin` 和 `enforcement` 配置](/docs/zh-CN/claude-apps-gateway-config#admin)：启用 admin API 和调整保留
-* [部署指南](/docs/zh-CN/claude-apps-gateway-deploy#postgres)：Postgres 模式和备份指导
+* [部署指南](/docs/zh-CN/claude-apps-gateway-deploy.md#postgres)：Postgres 模式和备份指导

@@ -12,7 +12,7 @@
 
 iOS Simulator 窗格在 Claude Code Desktop 中的对话旁边显示你的应用在 Apple 的 iOS Simulator 中运行。当 Claude 在模拟器中构建、安装、启动或检查你的应用时，该窗格会自动打开并实时流式传输设备屏幕。使用它来观看 Claude 运行和测试你的应用，或者在 Claude 继续工作时自己点击浏览应用。
 
-模拟器窗格直接驱动模拟器，因此它不需要[计算机使用](/docs/zh-CN/desktop#let-claude-use-your-computer)，也不会接管你的屏幕或隐藏其他窗口。从 CLI 中，Claude 通过[计算机使用](/docs/zh-CN/computer-use#test-a-simulator-flow)访问 iOS Simulator，它以与你使用鼠标相同的方式控制屏幕上的模拟器。
+模拟器窗格直接驱动模拟器，因此它不需要[计算机使用](/docs/zh-CN/desktop.md#let-claude-use-your-computer)，也不会接管你的屏幕或隐藏其他窗口。从 CLI 中，Claude 通过[计算机使用](/docs/zh-CN/computer-use.md#test-a-simulator-flow)访问 iOS Simulator，它以与你使用鼠标相同的方式控制屏幕上的模拟器。
 
 ## 要求
 
@@ -27,7 +27,7 @@ iOS Simulator 窗格在 Claude Code Desktop 中的对话旁边显示你的应用
 >
 > 在本页上，"设备"指的是模拟的 iPhone 或 iPad，是你在 Xcode 中的**Window → Devices and Simulators** 下管理的相同模拟器设备之一，而不是物理硬件。
 
-模拟器窗格仅在本地会话中可用。在[云](/docs/zh-CN/desktop#run-long-running-tasks-in-the-cloud)和 [SSH](/docs/zh-CN/desktop#ssh-sessions) 会话中，Claude 在无法访问 Mac 上模拟器的机器上运行。
+模拟器窗格仅在本地会话中可用。在[云](/docs/zh-CN/desktop.md#run-long-running-tasks-in-the-cloud)和 [SSH](/docs/zh-CN/desktop.md#ssh-sessions) 会话中，Claude 在无法访问 Mac 上模拟器的机器上运行。
 
 ### 选择模拟器窗格使用的 Xcode
 
@@ -49,7 +49,7 @@ sudo xcode-select -s /Applications/Xcode-26.4.app
 
 **1. 打开你的 iOS 项目**
 
-在 Claude Code Desktop 中，打开**Code** 选项卡并使用你的应用项目作为[项目文件夹](/docs/zh-CN/desktop#start-a-session)启动会话。任何为 iOS Simulator 构建应用的项目都可以使用。
+在 Claude Code Desktop 中，打开**Code** 选项卡并使用你的应用项目作为[项目文件夹](/docs/zh-CN/desktop.md#start-a-session)启动会话。任何为 iOS Simulator 构建应用的项目都可以使用。
 
 **2. 要求 Claude 运行或测试应用**
 
@@ -88,7 +88,7 @@ Claude 启动的设备也会出现在 Apple 的 Simulator 应用中，或在 Xco
 
 ## 会话如何管理设备
 
-每个设备属于启动它的会话，因此[并行会话](/docs/zh-CN/desktop#work-in-parallel-with-sessions)不共享设备：你在一个会话的窗格中看到的内容反映的是该会话的工作，而不是另一个会话的工作。在侧边栏中切换会话会同时切换模拟器视图和对话，切换回来会恢复同一设备停止的地方。如果 Claude 使用多个设备，每个设备都会打开自己的窗格，每个会话最多 4 个。
+每个设备属于启动它的会话，因此[并行会话](/docs/zh-CN/desktop.md#work-in-parallel-with-sessions)不共享设备：你在一个会话的窗格中看到的内容反映的是该会话的工作，而不是另一个会话的工作。在侧边栏中切换会话会同时切换模拟器视图和对话，切换回来会恢复同一设备停止的地方。如果 Claude 使用多个设备，每个设备都会打开自己的窗格，每个会话最多 4 个。
 
 Claude Code Desktop 会在模拟器不再使用时关闭它启动的模拟器：当你退出应用时、当你归档会话时，或在你从窗格中分离设备后 10 分钟。你在 Claude Code Desktop 外启动的设备，例如在 Apple 的 Simulator 应用或 Device Hub 中启动的设备，永远不会自动关闭。要立即关闭附加的设备，请使用窗格中的关闭按钮。
 
@@ -106,7 +106,7 @@ Claude 第一次使用模拟器时，桌面应用会要求你允许它。同意�
 
 ### 遵循你的权限模式的操作
 
-两个操作遵循你的会话的[权限模式](/docs/zh-CN/permissions#permission-modes)而不是一次性同意：
+两个操作遵循你的会话的[权限模式](/docs/zh-CN/permissions.md#permission-modes)而不是一次性同意：
 
 * 在设备上打开 URL，例如测试深层链接或在设备的 Safari 中加载页面，因为 URL 可以将数据从设备中携带出去。
 * 构建应用，因为 `xcodebuild` 在你的 Mac 上运行你的项目的构建脚本。检查已在进行的构建不会提示。
@@ -115,7 +115,7 @@ Claude 第一次使用模拟器时，桌面应用会要求你允许它。同意�
 
 你可以在桌面应用的设置中关闭 Claude 的模拟器访问。组织有两种方式为所有人关闭它：
 
-* `disableMobileSimulatorTools` [托管设置](/docs/zh-CN/desktop#managed-settings)阻止 Claude 的模拟器工具。模拟器窗格仍可用于你自己的点击，该设置无法从应用内覆盖。
+* `disableMobileSimulatorTools` [托管设置](/docs/zh-CN/desktop.md#managed-settings)阻止 Claude 的模拟器工具。模拟器窗格仍可用于你自己的点击，该设置无法从应用内覆盖。
 * `requireCoworkFullVmSandbox` 策略密钥，它在隔离的虚拟机内而不是在你的 Mac 上运行 Claude 的工具，禁用模拟器窗格和 Claude 的模拟器工具，因此当它被设置时窗格无法连接设备。
 
 Claude 会告诉你何时应用任一情况。
@@ -142,7 +142,7 @@ Xcode 已安装但没有 iOS 模拟器可列出。模拟器窗格显示要遵循
 
 ## 另请参阅
 
-* [Desktop 中的计算机使用](/docs/zh-CN/desktop#let-claude-use-your-computer)：没有专用窗格的应用的屏幕控制
-* [CLI 中的计算机使用](/docs/zh-CN/computer-use)：CLI 如何访问 iOS Simulator
-* [在独立的 worktree 中运行会话](/docs/zh-CN/desktop#run-a-session-in-its-own-worktree)：会话如何隔离更改
-* [开始使用 Claude Code Desktop](/docs/zh-CN/desktop-quickstart)
+* [Desktop 中的计算机使用](/docs/zh-CN/desktop.md#let-claude-use-your-computer)：没有专用窗格的应用的屏幕控制
+* [CLI 中的计算机使用](/docs/zh-CN/computer-use.md)：CLI 如何访问 iOS Simulator
+* [在独立的 worktree 中运行会话](/docs/zh-CN/desktop.md#run-a-session-in-its-own-worktree)：会话如何隔离更改
+* [开始使用 Claude Code Desktop](/docs/zh-CN/desktop-quickstart.md)

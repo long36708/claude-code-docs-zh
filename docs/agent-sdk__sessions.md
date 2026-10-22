@@ -12,13 +12,13 @@
 
 > [!NOTE]
 >
-> 会话保持**对话**，而不是文件系统。要快照和还原代理所做的文件更改，请使用[文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing)。
+> 会话保持**对话**，而不是文件系统。要快照和还原代理所做的文件更改，请使用[文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing.md)。
 
 本指南涵盖如何为您的应用选择正确的方法、自动跟踪会话的 SDK 接口、如何捕获会话 ID 以及手动使用 `resume` 和 `fork` 的方法，以及关于在主机之间恢复会话需要了解的内容。
 
 ## 选择一种方法
 
-您需要多少会话处理取决于应用的形状。当您发送应该共享上下文的多个提示时，会话管理就会发挥作用。在单个 `query()` 调用中，代理已经根据需要进行了尽可能多的轮次，权限提示和 `AskUserQuestion` 是[在循环中处理的](/docs/zh-CN/agent-sdk/user-input)（它们不会结束调用）。
+您需要多少会话处理取决于应用的形状。当您发送应该共享上下文的多个提示时，会话管理就会发挥作用。在单个 `query()` 调用中，代理已经根据需要进行了尽可能多的轮次，权限提示和 `AskUserQuestion` 是[在循环中处理的](/docs/zh-CN/agent-sdk/user-input.md)（它们不会结束调用）。
 
 | 您正在构建的内容 | 使用什么 |
 | :- | :- |
@@ -98,7 +98,7 @@ asyncio.run(main())
 
 每个查询都会打印代理的文本响应，后跟来自结果消息的状态行，例如 `[done: success, cost: $0.0042]`。
 
-有关何时使用 `ClaudeSDKClient` 与独立 `query()` 函数的详细信息，请参阅 [Python SDK 参考](/docs/zh-CN/agent-sdk/python#choosing-between-query-and-claudesdkclient)。
+有关何时使用 `ClaudeSDKClient` 与独立 `query()` 函数的详细信息，请参阅 [Python SDK 参考](/docs/zh-CN/agent-sdk/python.md#choosing-between-query-and-claudesdkclient)。
 
 ### TypeScript：`continue: true`
 
@@ -141,7 +141,7 @@ for await (const message of query({
 
 > [!NOTE]
 >
-> 实验性的 [V2 会话 API](/docs/zh-CN/agent-sdk/typescript-v2-preview)（提供了带有 `send` / `stream` 模式的 `createSession()`）已在 TypeScript Agent SDK 0.3.142 中移除。使用 `query()` 函数和本页面上描述的会话选项。
+> 实验性的 [V2 会话 API](/docs/zh-CN/agent-sdk/typescript-v2-preview.md)（提供了带有 `send` / `stream` 模式的 `createSession()`）已在 TypeScript Agent SDK 0.3.142 中移除。使用 `query()` 函数和本页面上描述的会话选项。
 
 ## 将会话选项与 `query()` 一起使用
 
@@ -215,7 +215,7 @@ console.log(`Session ID: ${sessionId}`);
 将会话 ID 传递给 `resume` 以返回到该特定会话。代理从会话中断的任何地方继续，具有完整的上下文。恢复的常见原因：
 
 * **跟进已完成的任务。** 代理已经分析了某些内容；现在您希望它根据该分析采取行动，而无需重新读取文件。
-* **从限制中恢复。** 第一次运行以 `error_max_turns` 或 `error_max_budget_usd` 结束（请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)）；使用更高的限制恢复。在单次 `query()` 调用中，SDK 在产生该错误结果后会抛出异常，因此在恢复前捕获错误。
+* **从限制中恢复。** 第一次运行以 `error_max_turns` 或 `error_max_budget_usd` 结束（请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)）；使用更高的限制恢复。在单次 `query()` 调用中，SDK 在产生该错误结果后会抛出异常，因此在恢复前捕获错误。
 * **重启您的进程。** 您在关闭前捕获了 ID，并希望恢复对话。
 
 此示例使用后续提示恢复[捕获会话 ID](#capture-the-session-id) 中的会话。因为您正在恢复，代理已经在上下文中具有先前的分析：
@@ -268,13 +268,13 @@ for await (const message of query({
 >
 > Claude Code 将会话存储在 `~/.claude/projects/<encoded-cwd>/*.jsonl` 下。如果您设置了 `CLAUDE_CONFIG_DIR` 环境变量，请改为查看 `$CLAUDE_CONFIG_DIR/projects/` 下。
 >
-> 要找到您的会话目录，请将绝对工作目录中的每个非字母数字字符替换为 `-`：`/Users/me/proj` 变成 `-Users-me-proj`。对于转换后的名称超过 200 个字符的工作目录，Claude Code [会截断名称并附加哈希值](/docs/zh-CN/sessions#where-transcripts-are-stored)，因此在列出 `projects/` 时匹配转换后名称的前 200 个字符。
+> 要找到您的会话目录，请将绝对工作目录中的每个非字母数字字符替换为 `-`：`/Users/me/proj` 变成 `-Users-me-proj`。对于转换后的名称超过 200 个字符的工作目录，Claude Code [会截断名称并附加哈希值](/docs/zh-CN/sessions.md#where-transcripts-are-stored)，因此在列出 `projects/` 时匹配转换后名称的前 200 个字符。
 >
 > 如果您在 `CLAUDE_CONFIG_DIR` 旁边设置了 [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/sessions#name-the-project-directory-yourself)，请改为查看 `projects/` 中的该名称。需要 TypeScript Agent SDK v0.3.234 或更高版本，或 Python Agent SDK v0.2.140 或更高版本。
 >
 > 您可以从任何工作目录恢复：
 >
-> * **跨目录查找**：Claude Code 搜索超出当前项目目录以查找 ID；请参阅[恢复会话](/docs/zh-CN/sessions#where-the-session-picker-looks)了解确切的查找顺序以及如何处理重复副本。
+> * **跨目录查找**：Claude Code 搜索超出当前项目目录以查找 ID；请参阅[恢复会话](/docs/zh-CN/sessions.md#where-the-session-picker-looks)了解确切的查找顺序以及如何处理重复副本。
 > * **仅限同一机器**：会话文件仍需要存在于当前机器上。
 >
 > 在 v2.1.223 之前，查找范围限于当前项目目录及其 git worktrees；捆绑较旧 CLI 的 SDK 版本仍然以这种方式运行。
@@ -287,7 +287,7 @@ Forking 创建一个新会话，从原始会话历史记录的副本开始，但
 
 > [!NOTE]
 >
-> Forking 分支对话历史记录，而不是文件系统。如果 forked 代理编辑文件，这些更改是真实的，对在同一目录中工作的任何会话都可见。要分支和还原文件更改，请使用[文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing)。
+> Forking 分支对话历史记录，而不是文件系统。如果 forked 代理编辑文件，这些更改是真实的，对在同一目录中工作的任何会话都可见。要分支和还原文件更改，请使用[文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing.md)。
 
 此示例基于[捕获会话 ID](#capture-the-session-id)：您已经在 `session_id` 中分析了一个身份验证模块，并希望探索 OAuth2 而不丢失 JWT 焦点线程。第一个块 forks 会话并捕获 fork 的 ID（`forked_id`）；第二个块恢复原始 `session_id` 以继续沿着 JWT 路径。您现在有两个会话 ID 指向两个单独的历史记录：
 
@@ -397,7 +397,7 @@ try {
 
 * **移动会话文件。** 从第一次运行中保持 `~/.claude/projects/<encoded-cwd>/<session-id>.jsonl`，并在调用 `resume` 之前将其恢复到新主机上的 `~/.claude/projects/` 下的任何目录内。
 
-  Claude Code 搜索超出当前项目目录以查找 ID；有关确切的查找顺序以及如何处理重复副本，请参阅[恢复会话](/docs/zh-CN/sessions#where-the-session-picker-looks)。在 v2.1.223 之前，查找范围限于当前项目目录及其 git worktrees；捆绑较旧 CLI 的 SDK 版本仍然以这种方式运行。
+  Claude Code 搜索超出当前项目目录以查找 ID；有关确切的查找顺序以及如何处理重复副本，请参阅[恢复会话](/docs/zh-CN/sessions.md#where-the-session-picker-looks)。在 v2.1.223 之前，查找范围限于当前项目目录及其 git worktrees；捆绑较旧 CLI 的 SDK 版本仍然以这种方式运行。
 
 * **不依赖会话恢复。** 捕获您需要的结果（分析输出、决定、文件差异）作为应用状态，并将其传递到新会话的提示中。这通常比在周围运送记录文件更强大。
 
@@ -407,7 +407,7 @@ try {
 
 ## 相关资源
 
-* [代理循环如何工作](/docs/zh-CN/agent-sdk/agent-loop)：了解会话中的轮次、消息和上下文累积
-* [文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing)：快照和还原代理在会话中所做的文件更改
+* [代理循环如何工作](/docs/zh-CN/agent-sdk/agent-loop.md)：了解会话中的轮次、消息和上下文累积
+* [文件检查点](/docs/zh-CN/agent-sdk/file-checkpointing.md)：快照和还原代理在会话中所做的文件更改
 * [Python `ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions)：Python 的完整会话选项参考
 * [TypeScript `Options`](/docs/zh-CN/agent-sdk/typescript#options)：TypeScript 的完整会话选项参考

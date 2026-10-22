@@ -12,14 +12,14 @@
 
 | 症状 | 转到 |
 | :- | :- |
-| 找不到 Skills、skill 未被使用、`Invalid skill name` 错误 | [Skills 故障排除](/docs/zh-CN/agent-sdk/skills#troubleshooting) |
-| MCP 服务器显示 `failed` 状态、工具未被调用、SDK MCP 服务器中缺少某个工具、连接超时、工具输出超过允许的最大 token 数 | [MCP 故障排除](/docs/zh-CN/agent-sdk/mcp#troubleshooting) |
-| Plugin 未加载、plugin skills 未出现 | [Plugins 故障排除](/docs/zh-CN/agent-sdk/plugins#troubleshooting) |
-| Claude 未委派给子代理、基于文件系统的代理未加载 | [Subagents 故障排除](/docs/zh-CN/agent-sdk/subagents#troubleshooting) |
-| Checkpointing 选项未被识别、没有 UUID 的用户消息、`No file checkpoint found`、`File rewinding is not enabled`、`ProcessTransport is not ready for writing` | [文件 checkpointing 故障排除](/docs/zh-CN/agent-sdk/file-checkpointing#troubleshooting) |
-| Hook 未触发、matcher 未按预期过滤、hook 超时、工具被意外阻止、修改的输入未应用、Python 中不可用的会话 hooks、子代理权限提示倍增、与子代理的递归 hook 循环、`systemMessage` 未出现在输出中 | [修复常见问题](/docs/zh-CN/agent-sdk/hooks#fix-common-issues)（在 hooks 页面上） |
-| 在您的机器上工作的代理在已部署的服务或容器中失败 | [故障排除部署失败](/docs/zh-CN/agent-sdk/hosting#troubleshoot-deployment-failures) |
-| `Not logged in`、`Invalid API key`、`API Error`、`429`、`There's an issue with the selected model` | [错误参考](/docs/zh-CN/errors#find-your-error) |
+| 找不到 Skills、skill 未被使用、`Invalid skill name` 错误 | [Skills 故障排除](/docs/zh-CN/agent-sdk/skills.md#troubleshooting) |
+| MCP 服务器显示 `failed` 状态、工具未被调用、SDK MCP 服务器中缺少某个工具、连接超时、工具输出超过允许的最大 token 数 | [MCP 故障排除](/docs/zh-CN/agent-sdk/mcp.md#troubleshooting) |
+| Plugin 未加载、plugin skills 未出现 | [Plugins 故障排除](/docs/zh-CN/agent-sdk/plugins.md#troubleshooting) |
+| Claude 未委派给子代理、基于文件系统的代理未加载 | [Subagents 故障排除](/docs/zh-CN/agent-sdk/subagents.md#troubleshooting) |
+| Checkpointing 选项未被识别、没有 UUID 的用户消息、`No file checkpoint found`、`File rewinding is not enabled`、`ProcessTransport is not ready for writing` | [文件 checkpointing 故障排除](/docs/zh-CN/agent-sdk/file-checkpointing.md#troubleshooting) |
+| Hook 未触发、matcher 未按预期过滤、hook 超时、工具被意外阻止、修改的输入未应用、Python 中不可用的会话 hooks、子代理权限提示倍增、与子代理的递归 hook 循环、`systemMessage` 未出现在输出中 | [修复常见问题](/docs/zh-CN/agent-sdk/hooks.md#fix-common-issues)（在 hooks 页面上） |
+| 在您的机器上工作的代理在已部署的服务或容器中失败 | [故障排除部署失败](/docs/zh-CN/agent-sdk/hosting.md#troubleshoot-deployment-failures) |
+| `Not logged in`、`Invalid API key`、`API Error`、`429`、`There's an issue with the selected model` | [错误参考](/docs/zh-CN/errors.md#find-your-error) |
 | `CLINotFoundError`、`CLIConnectionError`、`ProcessError`、`Claude Code process exited with code N`、`Claude Code returned an error result`、`structured_output` 为 `None` | 本页面上的 [CLI 启动](#cli-startup)、[CLI 进程退出](#cli-process-exit) 和 [结构化输出](#structured-outputs) |
 
 ## CLI 启动
@@ -36,13 +36,13 @@ Claude Code not found at: /your/configured/path
 
 要修复它：
 
-* 如果尚未安装 Claude Code，请安装它。请参阅 [安装 Claude Code](/docs/zh-CN/setup#install-claude-code) 了解您平台上的命令。
+* 如果尚未安装 Claude Code，请安装它。请参阅 [安装 Claude Code](/docs/zh-CN/setup.md#install-claude-code) 了解您平台上的命令。
 * 如果您设置了 `cli_path`，请确认该文件存在且是 `claude` 可执行文件。
 * 如果您依赖 `PATH` 解析，请确认 `claude --version` 在您的应用程序运行的同一环境中有效。您从 IDE 或服务管理器等外部启动的进程通常使用不同的 `PATH`。
 
 TypeScript SDK 在其捆绑的平台包和您在 `pathToClaudeCodeExecutable` 中设置的路径中查找 CLI。匹配您看到的消息：
 
-* `Native CLI binary for <platform>-<arch> not found`：捆绑的平台包缺失，最常见的原因是安装跳过了可选依赖项。重新安装 `@anthropic-ai/claude-agent-sdk` 而不跳过可选依赖项，或将 `pathToClaudeCodeExecutable` 指向 [原生安装](/docs/zh-CN/setup#install-claude-code)。在使用 `bun build --compile` 构建的单文件可执行文件中，同一消息有不同的原因和修复方法。请参阅 [编译为单个可执行文件](/docs/zh-CN/agent-sdk/typescript#compile-to-a-single-executable)。
+* `Native CLI binary for <platform>-<arch> not found`：捆绑的平台包缺失，最常见的原因是安装跳过了可选依赖项。重新安装 `@anthropic-ai/claude-agent-sdk` 而不跳过可选依赖项，或将 `pathToClaudeCodeExecutable` 指向 [原生安装](/docs/zh-CN/setup.md#install-claude-code)。在使用 `bun build --compile` 构建的单文件可执行文件中，同一消息有不同的原因和修复方法。请参阅 [编译为单个可执行文件](/docs/zh-CN/agent-sdk/typescript.md#compile-to-a-single-executable)。
 * `Claude Code native binary not found at <path>` 或 `Claude Code executable not found at <path>. Is options.pathToClaudeCodeExecutable set?`：已解析路径处的文件缺失，或进程无法访问它。确认该文件存在于该路径处，并且进程可以访问它。
 
 ### CLIConnectionError: Refusing to execute batch script
@@ -118,7 +118,7 @@ Error output: Check stderr output for details
 
 ### Claude Code process exited with code N
 
-IDE 包装器也会打印此消息，[错误参考](/docs/zh-CN/errors#claude-code-process-exited-with-code-n) 为 VS Code 和其他启动器介绍了它。此条目介绍了您的 TypeScript SDK 代码接收的内容。SDK 将非零 CLI 退出作为普通 `Error` 显示，该错误拒绝 `query()` 消息上的 `for await` 循环。没有 SDK 错误类可以捕获，所以将循环包装在 `try`/`catch` 中并匹配消息：
+IDE 包装器也会打印此消息，[错误参考](/docs/zh-CN/errors.md#claude-code-process-exited-with-code-n) 为 VS Code 和其他启动器介绍了它。此条目介绍了您的 TypeScript SDK 代码接收的内容。SDK 将非零 CLI 退出作为普通 `Error` 显示，该错误拒绝 `query()` 消息上的 `for await` 循环。没有 SDK 错误类可以捕获，所以将循环包装在 `try`/`catch` 中并匹配消息：
 
 ```
 Claude Code process exited with code 1. stderr: <tail of the CLI's stderr>
@@ -142,9 +142,9 @@ Claude Code returned an error result: <the CLI's own error report>
 
 结果消息可以以 `subtype: "success"` 结尾，而在 Python 中 `structured_output` 是 `None` 或在 TypeScript 中是 `undefined`。运行完成，但不存在经过验证的输出。
 
-在应用程序代码中将此结果视为失败。在使用 `structured_output` 之前，检查 `subtype` 是否为 `success` 以及 `structured_output` 是否存在。[错误处理](/docs/zh-CN/agent-sdk/structured-outputs#error-handling) 部分为两个 SDK 显示了此模式。然后检查以下原因：
+在应用程序代码中将此结果视为失败。在使用 `structured_output` 之前，检查 `subtype` 是否为 `success` 以及 `structured_output` 是否存在。[错误处理](/docs/zh-CN/agent-sdk/structured-outputs.md#error-handling) 部分为两个 SDK 显示了此模式。然后检查以下原因：
 
-* **Claude 拒绝的请求**：要在代码中检测这种情况，请检查结果消息的 `stop_reason` 是否为 `"refusal"`。有关接下来可以尝试的操作，请参阅[使用政策拒绝](/docs/zh-CN/errors#usage-policy-refusal)。
+* **Claude 拒绝的请求**：要在代码中检测这种情况，请检查结果消息的 `stop_reason` 是否为 `"refusal"`。有关接下来可以尝试的操作，请参阅[使用政策拒绝](/docs/zh-CN/errors.md#usage-policy-refusal)。
 * **任何输出都无法满足的 schema**：例如，一个 `minLength` 大于其 `maxLength` 的字符串。如果在使用您认为正确的 schema 时 `structured_output` 反复缺失，请查找相互矛盾的约束。如果没有找到，请简化 schema 直到输出通过验证，然后一次重新引入一个约束。
 
 ## 报告新问题

@@ -8,9 +8,9 @@
 
 > [!NOTE]
 >
-> 本页介绍在 Google Cloud 上运行 Claude apps gateway 的一种方式。该配置是客户管理基础设施的工作示例，而不是受支持的生产部署；使用它来了解各个部分如何组合在一起，然后再根据您自己的环境进行调整。有关平台无关的要求，请参阅[部署指南](/docs/zh-CN/claude-apps-gateway-deploy)。
+> 本页介绍在 Google Cloud 上运行 Claude apps gateway 的一种方式。该配置是客户管理基础设施的工作示例，而不是受支持的生产部署；使用它来了解各个部分如何组合在一起，然后再根据您自己的环境进行调整。有关平台无关的要求，请参阅[部署指南](/docs/zh-CN/claude-apps-gateway-deploy.md)。
 
-此示例在 Google Cloud 上配置 Claude apps gateway，使用 Google Cloud 的 Agent Platform 作为模型上游，使用 Cloud Run 或 GKE 进行计算。Google Workspace 是示例身份提供商 (IdP)，但任何符合 OpenID Connect (OIDC) 的 IdP 都可以工作；只有 `oidc` 块会改变。有关每个 IdP 的详细信息，请参阅[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy#identity-provider-setup)。
+此示例在 Google Cloud 上配置 Claude apps gateway，使用 Google Cloud 的 Agent Platform 作为模型上游，使用 Cloud Run 或 GKE 进行计算。Google Workspace 是示例身份提供商 (IdP)，但任何符合 OpenID Connect (OIDC) 的 IdP 都可以工作；只有 `oidc` 块会改变。有关每个 IdP 的详细信息，请参阅[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy.md#identity-provider-setup)。
 
 ## 您将构建的内容
 
@@ -20,7 +20,7 @@
 
 * **Cloud Run** 服务或 **GKE** Deployment 运行网关容器
 * **Artifact Registry** 存储库用于网关镜像
-* **Cloud SQL for PostgreSQL** 实例，仅限私有 IP，用于网关的[存储](/docs/zh-CN/claude-apps-gateway-config#store)
+* **Cloud SQL for PostgreSQL** 实例，仅限私有 IP，用于网关的[存储](/docs/zh-CN/claude-apps-gateway-config.md#store)
 * **Secret Manager** 机密用于 `gateway.yaml`、JWT 签名密钥、OIDC 客户端机密和 Postgres URL
 * **服务账户**，具有 `roles/aiplatform.user`，直接附加到 Cloud Run 或通过 Workload Identity 绑定到 GKE
 * **HTTPS 前端**，由您提供：Cloud Run 前面的内部应用负载均衡器，本演练为网关配置但不创建，或 GKE 上类别为 `gce-internal` 的内部 **GKE Ingress**
@@ -31,7 +31,7 @@
 * `gcloud` CLI，使用 `gcloud auth login` 进行身份验证，并在本地安装了 Docker
 * 对于 GKE 路径：`kubectl` 和在下面演练中创建的 VPC 上的 GKE 集群
 * 在 Model Garden 中访问您需要的 Claude 模型，在发布这些模型的区域中
-* Google Workspace OAuth 2.0 网络应用程序客户端，重定向 URI 为 `https://<gateway-host>/oauth/callback`；请参阅[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy#identity-provider-setup)
+* Google Workspace OAuth 2.0 网络应用程序客户端，重定向 URI 为 `https://<gateway-host>/oauth/callback`；请参阅[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy.md#identity-provider-setup)
 * 网关的 TLS 主机名，通常是指向负载均衡器的内部 DNS 名称
 
 设置项目和区域一次：
@@ -86,7 +86,7 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
 
 **3. 构建镜像并将其推送到 Artifact Registry**
 
-根据[容器镜像要求](/docs/zh-CN/claude-apps-gateway-deploy#container-image)构建镜像，使用 `linux-x64` glibc 二进制文件，然后推送：
+根据[容器镜像要求](/docs/zh-CN/claude-apps-gateway-deploy.md#container-image)构建镜像，使用 `linux-x64` glibc 二进制文件，然后推送：
 
 ```bash theme={null}
 gcloud artifacts repositories create claude-gateway \
@@ -133,7 +133,7 @@ Cloud Run 或 GKE 运行时必须在此 VPC 上或路由到此 VPC。
 
 **5. 编写 gateway.yaml**
 
-`upstreams` 块使用 `auth: {}` 指向 Google Cloud 的 Agent Platform，因此网关通过运行时服务账户的应用默认凭证进行身份验证。有关每个字段，请参阅[配置参考](/docs/zh-CN/claude-apps-gateway-config)。
+`upstreams` 块使用 `auth: {}` 指向 Google Cloud 的 Agent Platform，因此网关通过运行时服务账户的应用默认凭证进行身份验证。有关每个字段，请参阅[配置参考](/docs/zh-CN/claude-apps-gateway-config.md)。
 
 两个 `listen` 字段描述网关的前端：
 
@@ -221,7 +221,11 @@ gcloud run deploy claude-gateway \
   --no-invoker-iam-check
 ```
 
-直接 VPC 出口，通过 `--network`、`--subnet` 和 `--vpc-egress=private-ranges-only`，让服务直接到达 Cloud SQL 私有 IP。每个实例最多持有 [`store.max_connections`](/docs/zh-CN/claude-apps-gateway-config#store) 个 Postgres 连接，默认为 5 个，因此保持最大实例数 × `store.max_connections` 低于您的 Cloud SQL 层的连接限制；[参考资产](#terraform-reference)为 `db-g1-small` 层将实例上限设为 8 是出于这个原因。到 Google Cloud 的 Agent Platform 端点和 `accounts.google.com` 的公共出口直接进入互联网，而不是通过 VPC，因此不需要 Cloud NAT。
+直接 VPC 出口，通过 `--network`、`--subnet` 和 `--vpc-egress=private-ranges-only`，让服务直接到达 Cloud SQL 私有 IP。到 Google Cloud 的 Agent Platform 端点和 `accounts.google.com` 的公共出口直接进入互联网，而不是通过 VPC，因此不需要 Cloud NAT。
+
+> [!NOTE]
+>
+> 每个实例最多持有 [`store.max_connections`](/docs/zh-CN/claude-apps-gateway-config#store) 个 Postgres 连接，默认为 5 个。请参阅[调整连接池大小](/docs/zh-CN/claude-apps-gateway-deploy.md#size-the-connection-pool)，根据数据库为网关剩余的连接数检查 `--max-instances=8`，并将滚动更新启动的额外实例计算在内。
 
 调用者 IAM 检查必须打开或禁用。网关运行自己的 OIDC，其客户端不携带 GCP 令牌，因此 Cloud Run 的调用者检查必须允许未经身份验证的请求。网关的 OIDC 登录在请求到达容器后对其进行身份验证，`allowed_email_domains` 限制哪些域可以登录。
 
@@ -267,7 +271,7 @@ kubectl annotate serviceaccount gateway -n claude-gateway \
   iam.gke.io/gcp-service-account="claude-gateway@${PROJECT_ID}.iam.gserviceaccount.com"
 ```
 
-将网关部署为标准 Deployment 加上 Service 和内部 Ingress，类 `gce-internal`，如 [Kubernetes 部署](/docs/zh-CN/claude-apps-gateway-deploy#kubernetes)中所述，具有：
+将网关部署为标准 Deployment 加上 Service 和内部 Ingress，类 `gce-internal`，如 [Kubernetes 部署](/docs/zh-CN/claude-apps-gateway-deploy.md#kubernetes)中所述，具有：
 
 * `serviceAccountName: gateway`
 * Secret Manager CSI 驱动程序在 `/secrets` 处挂载密钥
@@ -275,7 +279,7 @@ kubectl annotate serviceaccount gateway -n claude-gateway \
 
 将具有提高的 `timeoutSec` 的 BackendConfig 附加到网关 Service：GKE Ingress 后面的负载均衡器后端服务默认为 30 秒超时，这会切断长流式响应。
 
-不要在 Workload Identity 集群上应用阻止 `169.254.169.254` 的出口 NetworkPolicy；Pod 必须到达元数据服务器以获取凭证。网关的内置 [SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy#threat-model-summary)是那里的防御。
+不要在 Workload Identity 集群上应用阻止 `169.254.169.254` 的出口 NetworkPolicy；Pod 必须到达元数据服务器以获取凭证。网关的内置 [SSRF 防护](/docs/zh-CN/claude-apps-gateway-deploy.md#threat-model-summary)是那里的防御。
 
 网关记录一个启动警告，指出元数据端点可达，并建议应用出口 NetworkPolicy。在 Workload Identity 下，该警告是预期的，因为 Pod 需要端点。
 
@@ -297,7 +301,7 @@ kubectl annotate serviceaccount gateway -n claude-gateway \
 
 ## 故障排除
 
-有关网关启动和登录错误，请参阅平台无关的[故障排除表](/docs/zh-CN/claude-apps-gateway-deploy#troubleshooting)。下面的条目特定于 Google Cloud。
+有关网关启动和登录错误，请参阅平台无关的[故障排除表](/docs/zh-CN/claude-apps-gateway-deploy.md#troubleshooting)。下面的条目特定于 Google Cloud。
 
 | 症状 | 原因 | 修复 |
 | - | - | - |
@@ -310,6 +314,6 @@ kubectl annotate serviceaccount gateway -n claude-gateway \
 
 ## 后续步骤
 
-* [配置参考](/docs/zh-CN/claude-apps-gateway-config)：每个 `gateway.yaml` 选项，包括 `managed.policies` 和 `telemetry`
-* [部署和操作](/docs/zh-CN/claude-apps-gateway-deploy)：IdP 设置、健康检查、JWT 密钥轮换、升级和安全模型
+* [配置参考](/docs/zh-CN/claude-apps-gateway-config.md)：每个 `gateway.yaml` 选项，包括 `managed.policies` 和 `telemetry`
+* [部署和操作](/docs/zh-CN/claude-apps-gateway-deploy.md)：IdP 设置、健康检查、JWT 密钥轮换、升级和安全模型
 * [Claude apps gateway 概述](/docs/zh-CN/claude-apps-gateway)：快速入门和连接开发人员

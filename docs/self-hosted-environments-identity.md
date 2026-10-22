@@ -8,9 +8,9 @@
 
 > [!NOTE]
 >
-> 自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段；[所有者](/docs/zh-CN/cloud-environments#organization-shared-environments)可以通过在[**云环境**管理页面](https://claude.ai/admin-settings/cloud-environments)上打开**允许自托管环境**来启用它们。本页面涵盖会话身份验证；有关设置，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)，有关舰队配方，请参阅[部署到生产](/docs/zh-CN/self-hosted-environments-deploy)。
+> 自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段；[所有者](/docs/zh-CN/cloud-environments.md#organization-shared-environments)可以通过在[**云环境**管理页面](https://claude.ai/admin-settings/cloud-environments)上打开**允许自托管环境**来启用它们。本页面涵盖会话身份验证；有关设置，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart.md)，有关舰队配方，请参阅[部署到生产](/docs/zh-CN/self-hosted-environments-deploy.md)。
 
-[自托管环境](/docs/zh-CN/self-hosted-environments)让 Claude Code [云会话](/docs/zh-CN/claude-code-on-the-web)在您运营的基础设施上运行，而不是在 Anthropic 的基础设施上运行。由于会话在您的网络内运行，Claude 可以直接调用您的内部服务。这些服务需要一种方式来确认请求来自您环境中的 Claude Code 会话，并识别创建该会话的用户或服务身份。
+[自托管环境](/docs/zh-CN/self-hosted-environments)让 Claude Code [云会话](/docs/zh-CN/claude-code-on-the-web.md)在您运营的基础设施上运行，而不是在 Anthropic 的基础设施上运行。由于会话在您的网络内运行，Claude 可以直接调用您的内部服务。这些服务需要一种方式来确认请求来自您环境中的 Claude Code 会话，并识别创建该会话的用户或服务身份。
 
 自托管环境中的每个会话都会在 `CLAUDE_CODE_SESSION_ACCESS_TOKEN` 环境变量中收到一个签名的 JSON Web Token (JWT)。会话像任何持有者凭证一样呈现令牌；例如，Claude 运行的脚本可以使用 `curl -H "Authorization: Bearer $CLAUDE_CODE_SESSION_ACCESS_TOKEN"` 调用您的服务。Anthropic 对令牌进行签名，并在公开 JWKS 端点发布验证密钥。您的服务获取这些密钥，验证签名，并读取声明以决定授予什么访问权限。
 
@@ -169,7 +169,7 @@ def verify_session_token(raw: str) -> dict:
 
 ### 在会话内验证令牌
 
-[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)在会话内、Claude 启动之前运行。它们无需调用 JWT 库，而是可以运行运行器二进制文件的 `self-hosted-runner decode-token` 子命令。该子命令依次从位置参数、`CLAUDE_CODE_SESSION_ACCESS_TOKEN` 或通过管道传入的 stdin 读取令牌，然后去除前缀，根据 JWKS 端点验证签名，检查过期时间，并以 JSON 格式打印声明。该子命令仅执行签名和过期检查；它不会检查 `iss`、`aud` 或 `ccr:role`。当您的包装脚本的授权决策依赖于这些声明时，请从打印的 JSON 中读取它们并进行显式比较。
+[包装脚本](/docs/zh-CN/self-hosted-environments-configuration.md#wrapper-scripts)在会话内、Claude 启动之前运行。它们无需调用 JWT 库，而是可以运行运行器二进制文件的 `self-hosted-runner decode-token` 子命令。该子命令依次从位置参数、`CLAUDE_CODE_SESSION_ACCESS_TOKEN` 或通过管道传入的 stdin 读取令牌，然后去除前缀，根据 JWKS 端点验证签名，检查过期时间，并以 JSON 格式打印声明。该子命令仅执行签名和过期检查；它不会检查 `iss`、`aud` 或 `ccr:role`。当您的包装脚本的授权决策依赖于这些声明时，请从打印的 JSON 中读取它们并进行显式比较。
 
 以下命令提取创建者身份，优先使用电子邮件地址，其次使用创建者的 `act.sub` 主体（`user:<id>` 或 `agent:<id>`）：
 
@@ -199,7 +199,7 @@ def verify_session_token(raw: str) -> dict:
 | `ccr:session_id` | 字符串 | 会话 ID。与 `sub` 的后缀相同的值。 |
 | `ccr:pool_id` | 字符串 | 您的环境 ID。与出现在 `aud` 中的值相同。 |
 | `ccr:org_id` | 字符串 | 您的 Anthropic 组织 ID。 |
-| `ccr:account_id` | 字符串 | 创建用户的 Anthropic 账户 ID：`act.sub` 的值去掉 `user:` 前缀，一个标记的 `user_...` ID。与[spawn-runner hook](/docs/zh-CN/self-hosted-environments-configuration#the-spawn-runner-hook) 的 `CLAUDE_RUNNER_ACCOUNT_ID` 携带的值相同，以及 [`--lock-to-account`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 接受的值，因此三者作为相等的字符串进行比较。 |
+| `ccr:account_id` | 字符串 | 创建用户的 Anthropic 账户 ID：`act.sub` 的值去掉 `user:` 前缀，一个标记的 `user_...` ID。与[spawn-runner hook](/docs/zh-CN/self-hosted-environments-configuration.md#the-spawn-runner-hook) 的 `CLAUDE_RUNNER_ACCOUNT_ID` 携带的值相同，以及 [`--lock-to-account`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 接受的值，因此三者作为相等的字符串进行比较。 |
 | `account_email` | 字符串 | `act.email` 的重复；每当 `act.email` 不存在时就不存在。 |
 | `organization_uuid` | 字符串 | 您的 Anthropic 组织 UUID。 |
 | `account_uuid` | 字符串 | 创建用户的 Anthropic 账户 UUID。 |
@@ -235,12 +235,12 @@ def verify_session_token(raw: str) -> dict:
 创建者身份也以纯环境变量的形式出现在两个从不验证令牌的表面上：
 
 * **[`spawn-runner` hook](/docs/zh-CN/self-hosted-environments-configuration#the-spawn-runner-hook)，在编排器上**：hook 在任何运行程序存在于排队会话之前运行，并在 `CLAUDE_RUNNER_ACCOUNT_EMAIL` 和 `CLAUDE_RUNNER_ACCOUNT_ID` 等变量中接收创建者身份。编排器从工作订单（授权生成一个运行程序的签名单次使用令牌）读取它们，而不验证工作订单的签名本身；声明是受信任的，因为工作订单通过编排器与 Anthropic 的连接到达，环境机密对其进行身份验证。
-* **[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)，在会话内**：包装脚本接收 `CCR_SESSION_ACCOUNT_EMAIL`，创建者的电子邮件从令牌中预提取，无需签名验证。该变量适合用于标记，例如提交预告片，而不是用于身份验证决定。
+* **[包装脚本](/docs/zh-CN/self-hosted-environments-configuration.md#wrapper-scripts)，在会话内**：包装脚本接收 `CCR_SESSION_ACCOUNT_EMAIL`，创建者的电子邮件从令牌中预提取，无需签名验证。该变量适合用于标记，例如提交预告片，而不是用于身份验证决定。
 
 使用纯变量进行编排器端决定，例如选择机器映像。当下游服务需要独立的加密证明而不是信任运行程序的环境时，使用 `CLAUDE_CODE_SESSION_ACCESS_TOKEN`。
 
 ## 接下来
 
-* [自托管环境](/docs/zh-CN/self-hosted-environments)：环境、运行程序和会话模型；[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)和[部署到生产](/docs/zh-CN/self-hosted-environments-deploy)包含设置和操作
-* [自定义会话](/docs/zh-CN/self-hosted-environments-configuration)：使用令牌的包装脚本和 `spawn-runner` hook
-* [参考](/docs/zh-CN/self-hosted-environments-reference)：CLI 标志、环境变量和指标
+* [自托管环境](/docs/zh-CN/self-hosted-environments)：环境、运行程序和会话模型；[快速入门](/docs/zh-CN/self-hosted-environments-quickstart.md)和[部署到生产](/docs/zh-CN/self-hosted-environments-deploy.md)包含设置和操作
+* [自定义会话](/docs/zh-CN/self-hosted-environments-configuration.md)：使用令牌的包装脚本和 `spawn-runner` hook
+* [参考](/docs/zh-CN/self-hosted-environments-reference.md)：CLI 标志、环境变量和指标

@@ -14,7 +14,7 @@ marketplace 运营商编写 `relevance` 条目。然后管理员在托管设置�
 >
 > 这些情况在其他页面上有介绍：
 >
-> * **您想安装插件**：请参阅[安装和管理插件](/docs/zh-CN/plugins/install)
+> * **您想安装插件**：请参阅[安装和管理插件](/docs/zh-CN/plugins/install.md)
 > * **您想关闭建议**：请参阅[了解插件相关性的工作原理](#understand-how-plugin-relevance-works)
 
 从适合您角色的部分开始：
@@ -158,7 +158,7 @@ claude plugin validate ./my-marketplace
 
 ## 在托管设置中启用建议
 
-用户看不到来自 marketplace 的任何建议，直到管理员在 [托管设置](/docs/zh-CN/plugins/org) 中将其加入允许列表，即使其 `marketplace.json` 声明了 `relevance`。
+用户看不到来自 marketplace 的任何建议，直到管理员在 [托管设置](/docs/zh-CN/plugins/org.md) 中将其加入允许列表，即使其 `marketplace.json` 声明了 `relevance`。
 
 要将 marketplace 加入允许列表，请按如下方式编辑您的托管设置：
 
@@ -217,7 +217,7 @@ Claude Code 限制建议给定插件的频率：
 
 ## 另请参阅
 
-* [托管 marketplace](/docs/zh-CN/plugins/host-marketplace)：运行托管您的插件的 marketplace
-* [Marketplace 参考](/docs/zh-CN/plugins/marketplace-reference#plugin-entries)：插件条目接受的每个字段
-* [从您的 CLI 推荐您的插件](/docs/zh-CN/plugins/cli-hints)：从您自己的 CLI 而不是从 Claude Code 的会话信号提示用户
-* [为您的组织管理插件](/docs/zh-CN/plugins/org)：`extraKnownMarketplaces`、`strictKnownMarketplaces` 和其余的插件策略键
+* [托管 marketplace](/docs/zh-CN/plugins/host-marketplace.md)：运行托管您的插件的 marketplace
+* [Marketplace 参考](/docs/zh-CN/plugins/marketplace-reference.md#plugin-entries)：插件条目接受的每个字段
+* [从您的 CLI 推荐您的插件](/docs/zh-CN/plugins/cli-hints.md)：从您自己的 CLI 而不是从 Claude Code 的会话信号提示用户
+* [为您的组织管理插件](/docs/zh-CN/plugins/org.md)：`extraKnownMarketplaces`、`strictKnownMarketplaces` 和其余的插件策略键

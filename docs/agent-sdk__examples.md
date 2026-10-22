@@ -12,7 +12,7 @@
 
 如果您还没有使用 SDK 构建过任何东西，请在完整应用程序之前从以下其中一个开始：
 
-* [Agent SDK 快速入门](/docs/zh-CN/agent-sdk/quickstart)：用 TypeScript 或 Python 构建您的第一个可工作的 agent，包括设置步骤。该 agent 在示例文件中查找并修复错误。
+* [Agent SDK 快速入门](/docs/zh-CN/agent-sdk/quickstart.md)：用 TypeScript 或 Python 构建您的第一个可工作的 agent，包括设置步骤。该 agent 在示例文件中查找并修复错误。
 
 * [Hello World](https://github.com/anthropics/claude-agent-sdk-demos/tree/main/hello-world)：当您想从仓库代码开始时要克隆的最小 TypeScript 项目
 

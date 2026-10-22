@@ -20,19 +20,19 @@
 
 顾问适合长期、多步骤的任务，其中大多数轮次是常规的，但计划质量决定了结果。示例包括大型重构、错误不断重复的调试会话，以及您希望在 Claude 声明完成之前独立检查的任务。
 
-在短任务上（几乎没有计划的地方）或需要每一轮都使用最强模型的工作上，它的价值较少。对于这些情况，[切换主模型](/docs/zh-CN/model-config#setting-your-model)，或查看[顾问与 opusplan 和子代理的比较](#compare-with-related-features)以获取其他获取第二意见的方式。
+在短任务上（几乎没有计划的地方）或需要每一轮都使用最强模型的工作上，它的价值较少。对于这些情况，[切换主模型](/docs/zh-CN/model-config.md#setting-your-model)，或查看[顾问与 opusplan 和子代理的比较](#compare-with-related-features)以获取其他获取第二意见的方式。
 
 ## 启用顾问
 
 您可以通过三种方式设置顾问模型：
 
 * **`/advisor` 命令**：在会话中途设置或更改顾问，并将其保存为默认值
-* **`advisorModel` 设置**：在您的[设置文件](/docs/zh-CN/settings)中配置持久默认值
+* **`advisorModel` 设置**：在您的[设置文件](/docs/zh-CN/settings.md)中配置持久默认值
 * **`--advisor` 标志**：在启动时为单个会话设置顾问
 
 这些方法中的每一种都会为主模型[支持它](#choose-an-advisor-model)的会话启用顾问。会话启动后，Claude Code 会显示一条 `Advisor Tool (experimental) is on and may use more tokens · /advisor` 通知。要停止使用顾问，请参阅[关闭顾问](#turn-the-advisor-off)。
 
-在某些计划中，使用 Fable 作为顾问还需要您一次性[同意将 Fable 使用费用计入使用额度](/docs/zh-CN/model-config#fable-and-usage-credits)。有关您给予该同意之前会发生什么，请参阅 [Fable 顾问和使用额度](#fable-advisor-and-usage-credits)。
+在某些计划中，使用 Fable 作为顾问还需要您一次性[同意将 Fable 使用费用计入使用额度](/docs/zh-CN/model-config.md#fable-and-usage-credits)。有关您给予该同意之前会发生什么，请参阅 [Fable 顾问和使用额度](#fable-advisor-and-usage-credits)。
 
 ### 使用 `/advisor` 命令
 
@@ -44,7 +44,7 @@
 
 该命令会确认 `Advisor set to` 后跟顾问模型名称。您的选择被保存到用户设置中的 `advisorModel`，并在会话之间持久化，除了 [`advisorModel` 条目](/docs/zh-CN/settings-reference#advisormodel)列出的仅适用于当前会话的情况。
 
-该命令也适用于没有终端选择器的地方：在[非交互模式](/docs/zh-CN/headless)中使用 `-p`、在 Agent SDK 中、在桌面应用中以及通过 [Remote Control](/docs/zh-CN/remote-control)。这需要 Claude Code v2.1.260 或更高版本。在这些使用入口上：
+该命令也适用于没有终端选择器的地方：在[非交互模式](/docs/zh-CN/headless.md)中使用 `-p`、在 Agent SDK 中、在桌面应用中以及通过 [Remote Control](/docs/zh-CN/remote-control.md)。这需要 Claude Code v2.1.260 或更高版本。在这些使用入口上：
 
 * 运行不带参数的 `/advisor` 以打印当前顾问模型及其接受的别名。
 * 运行带有模型的 `/advisor`，例如 `/advisor opus`，以设置它。
@@ -54,7 +54,7 @@ Claude Code 不会调用您的组织的 [`availableModels`](/docs/zh-CN/model-co
 
 Claude Code 仍然会保存您当前主模型不支持的顾问。该顾问在您使用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 切换到[兼容的主模型](#choose-an-advisor-model)后激活。如果 API 已在当前对话中拒绝了已保存的顾问，它将保持关闭状态，直到 `/clear` 或 `/compact`，即使在您切换模型之后。
 
-在某些计划中，使用 Fable 作为顾问还需要您一次性[同意将 Fable 使用费用计入使用额度](/docs/zh-CN/model-config#fable-and-usage-credits)。有关您给予该同意之前 `/advisor fable` 会做什么，请参阅 [Fable 顾问和使用额度](#fable-advisor-and-usage-credits)。
+在某些计划中，使用 Fable 作为顾问还需要您一次性[同意将 Fable 使用费用计入使用额度](/docs/zh-CN/model-config.md#fable-and-usage-credits)。有关您给予该同意之前 `/advisor fable` 会做什么，请参阅 [Fable 顾问和使用额度](#fable-advisor-and-usage-credits)。
 
 ### 在设置中设置 `advisorModel`
 
@@ -81,7 +81,7 @@ Claude Code 在该会话中使用该标志而不是 `advisorModel` 设置。它�
 * 您的组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了请求的模型
 * 您请求了 Fable，而您的账户仍然需要[使用额度同意](#fable-advisor-and-usage-credits)
 
-如果您使用 `--advisor` 启动[后台会话](/docs/zh-CN/agent-view)，并且上述任何情况成立，Claude Code 会在没有顾问的情况下启动会话，而不是退出。
+如果您使用 `--advisor` 启动[后台会话](/docs/zh-CN/agent-view.md)，并且上述任何情况成立，Claude Code 会在没有顾问的情况下启动会话，而不是退出。
 
 如果您传递的模型可以充当顾问，但[排名低于您的主模型](#choose-an-advisor-model)，则无论是否为后台会话，会话都会启动。随后您的主模型将在没有顾问的情况下运行。
 
@@ -101,25 +101,25 @@ Claude Code 按照担任顾问角色的能力对模型进行排名，顾问的�
 | Fable 5 | Fable 5.1 或 Fable 5 |
 | Fable 5.1 | Fable 5.1 |
 
-Fable 5.1 需要 Claude Code v2.1.257 或更高版本。Fable 模型需要 [Fable 访问权限](/docs/zh-CN/model-config#work-with-fable)。将 Sonnet 5.5 作为 Opus 4.7 或 Opus 4.8 主模型的顾问需要 Claude Code v2.1.287 或更高版本。将 Haiku 5.5 作为主模型或顾问需要 Claude Code v2.1.293 或更高版本。
+Fable 5.1 需要 Claude Code v2.1.257 或更高版本。Fable 模型需要 [Fable 访问权限](/docs/zh-CN/model-config.md#work-with-fable)。将 Sonnet 5.5 作为 Opus 4.7 或 Opus 4.8 主模型的顾问需要 Claude Code v2.1.287 或更高版本。将 Haiku 5.5 作为主模型或顾问需要 Claude Code v2.1.293 或更高版本。
 
-将顾问设置为 `fable`、`opus` 或 `sonnet`。这些别名解析为 Claude Code 为每个模型系列[内置的默认版本](/docs/zh-CN/model-config#model-aliases)，该版本随新的 Claude Code 版本而推进。您也可以传递完整的模型 ID，例如 `claude-opus-5-5` 或 `claude-haiku-5-5`。Haiku 4.5 可以调用顾问，但不能充当顾问。
+将顾问设置为 `fable`、`opus` 或 `sonnet`。这些别名解析为 Claude Code 为每个模型系列[内置的默认版本](/docs/zh-CN/model-config.md#model-aliases)，该版本随新的 Claude Code 版本而推进。您也可以传递完整的模型 ID，例如 `claude-opus-5-5` 或 `claude-haiku-5-5`。Haiku 4.5 可以调用顾问，但不能充当顾问。
 
 子代理继承配置的顾问，并对其自己的模型应用相同的配对检查。
 
 Claude Code 在发送请求之前验证配对，API 也会再次验证：
 
-* 对于排名低于主模型的顾问，Claude Code 不会将其附加到主模型的请求中。`/advisor` 命令输出和通知会显示这一点；请参阅[顾问的能力低于当前主模型](/docs/zh-CN/errors#advisor-is-less-capable-than-the-current-main-model)。其自己的模型满足配对的子代理仍然可以使用顾问。
+* 对于排名低于主模型的顾问，Claude Code 不会将其附加到主模型的请求中。`/advisor` 命令输出和通知会显示这一点；请参阅[顾问的能力低于当前主模型](/docs/zh-CN/errors.md#advisor-is-less-capable-than-the-current-main-model)。其自己的模型满足配对的子代理仍然可以使用顾问。
 * 如果 API 拒绝了 Claude Code 所附加顾问的配对，Claude Code 会在没有顾问的情况下重新发送该请求。对话会在没有顾问的情况下继续，因此您看不到错误，也不会获得顾问调用。如果您随后使用 `/advisor` 选择其他顾问，更改将在 `/clear` 或 `/compact` 之后以及新会话中生效。
 * 如果主模型或顾问是 Claude Code 无法识别的模型，顾问不会附加。
 
 ### Fable 顾问和使用额度
 
-在某些计划中，Fable 使用费用计入使用额度，Fable 作为顾问也以相同方式计费。如果您的账户需要 [一次性同意将 Fable 使用费用计入使用额度](/docs/zh-CN/model-config#fable-and-usage-credits)，当您使用 `/model` 选择 Fable 模型时，Claude Code 会要求您同意，在您接受该同意之前不会将 Fable 应用为顾问。
+在某些计划中，Fable 使用费用计入使用额度，Fable 作为顾问也以相同方式计费。如果您的账户需要 [一次性同意将 Fable 使用费用计入使用额度](/docs/zh-CN/model-config.md#fable-and-usage-credits)，当您使用 `/model` 选择 Fable 模型时，Claude Code 会要求您同意，在您接受该同意之前不会将 Fable 应用为顾问。
 
 在您接受之前，当您输入 `/advisor fable` 或在 `/advisor` 选择器中选择 Fable 时，Claude Code 不会将 Fable 保存为顾问。它会改为指向您 `/model fable`。使用 `claude --advisor fable`，Claude Code 在启动时会退出并显示指向 `/model fable` 的消息。在 [后台会话](#use-the-advisor-flag) 中，它会在没有顾问的情况下启动会话，而不是退出。如果 Fable 已保存为您的 `advisorModel`，Claude Code 会在没有顾问的情况下发送请求。在支持顾问的交互式会话中，它还会显示指向 `/model fable` 的通知。
 
-要接受同意，请运行 `/model fable` 并选择继续使用 Fable。Claude Code 会记录同意并 [将 Fable 保存为您选择的模型](/docs/zh-CN/model-config#default-model-setting)。然后选择 Fable 作为顾问。
+要接受同意，请运行 `/model fable` 并选择继续使用 Fable。Claude Code 会记录同意并 [将 Fable 保存为您选择的模型](/docs/zh-CN/model-config.md#default-model-setting)。然后选择 Fable 作为顾问。
 
 ### 常见模型配对
 
@@ -157,7 +157,7 @@ Claude 通常遵循顾问的指导，但在其自己的证据与特定声明相�
 当 Claude 调用顾问时，顾问模型会读取对话，因此除了主模型的使用外，每次调用都会以顾问模型的费率消耗令牌。这些顾问令牌如何计费取决于您的付款方式：
 
 * **API 计费**：您需要按顾问模型的输入和输出费率为顾问令牌付费
-* **订阅计划**：顾问使用计入您的计划使用限制，但 Fable 顾问在支持 Fable 使用的计划上计入[使用额度](/docs/zh-CN/model-config#fable-and-usage-credits)
+* **订阅计划**：顾问使用计入您的计划使用限制，但 Fable 顾问在支持 Fable 使用的计划上计入[使用额度](/docs/zh-CN/model-config.md#fable-and-usage-credits)
 
 如果您的账户需要使用额度同意，Fable 顾问在您给予同意之前不会产生任何费用，因为 Claude Code [在那之前不会应用该选择](#fable-advisor-and-usage-credits)。
 
@@ -167,7 +167,7 @@ Claude 在决策点而不是每一轮都调用顾问，因此将更快的主模�
 
 ## 对提示缓存的影响
 
-在会话中途启用或禁用顾问不会使主模型的[提示缓存](/docs/zh-CN/prompt-caching)失效。与[切换模型](/docs/zh-CN/prompt-caching#switching-models)不同，切换 `/advisor` 会保持缓存的前缀完整，顾问返回的指导在后续轮次中作为成绩单的一部分被缓存。
+在会话中途启用或禁用顾问不会使主模型的[提示缓存](/docs/zh-CN/prompt-caching.md)失效。与[切换模型](/docs/zh-CN/prompt-caching.md#switching-models)不同，切换 `/advisor` 会保持缓存的前缀完整，顾问返回的指导在后续轮次中作为成绩单的一部分被缓存。
 
 顾问模型自己对对话的读取不被缓存。每个顾问调用都会重新处理完整的成绩单，调用之间没有重用。
 
@@ -175,9 +175,9 @@ Claude 在决策点而不是每一轮都调用顾问，因此将更快的主模�
 
 顾问工具需要以下所有条件：
 
-* **仅 Anthropic API**：顾问是服务器执行的工具。它在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。通过配置了 `ANTHROPIC_BASE_URL` 的 [LLM 网关](/docs/zh-CN/llm-gateway)，可用性取决于网关是否将请求完整转发到 Anthropic API。如果网关或其上游不识别顾问工具，请参阅[自动重试和错误转发](/docs/zh-CN/llm-gateway-protocol#automatic-retry-and-error-forwarding)了解 Claude Code 如何响应。
+* **仅 Anthropic API**：顾问是服务器执行的工具。它在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。通过配置了 `ANTHROPIC_BASE_URL` 的 [LLM 网关](/docs/zh-CN/llm-gateway)，可用性取决于网关是否将请求完整转发到 Anthropic API。如果网关或其上游不识别顾问工具，请参阅[自动重试和错误转发](/docs/zh-CN/llm-gateway-protocol.md#automatic-retry-and-error-forwarding)了解 Claude Code 如何响应。
 * **支持的主模型**：Fable、Opus 4.6 或更高版本、Sonnet 4.6 或更高版本、Haiku 4.5 或 Haiku 5.5。请参阅[选择顾问模型](#choose-an-advisor-model)了解每个主模型接受哪些顾问。
-* **功能标志获取**：Claude Code 通过从 Anthropic 获取的功能标志来启用顾问。在设置了关闭标志获取的变量（例如 `DISABLE_TELEMETRY`）的会话中，顾问保持关闭状态。请参阅[需要功能标志获取的功能](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)。
+* **功能标志获取**：Claude Code 通过从 Anthropic 获取的功能标志来启用顾问。在设置了关闭标志获取的变量（例如 `DISABLE_TELEMETRY`）的会话中，顾问保持关闭状态。请参阅[需要功能标志获取的功能](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)。
 
 ## 关闭顾问
 
@@ -187,7 +187,7 @@ Claude 在决策点而不是每一轮都调用顾问，因此将更快的主模�
 /advisor off
 ```
 
-要完全禁用顾问工具，设置 `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`。`/advisor` 命令变为不可用，任何配置的 `advisorModel` 都会被忽略。`--advisor` 标志被接受但没有效果。请参阅[环境变量](/docs/zh-CN/env-vars)。
+要完全禁用顾问工具，设置 `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1`。`/advisor` 命令变为不可用，任何配置的 `advisorModel` 都会被忽略。`--advisor` 标志被接受但没有效果。请参阅[环境变量](/docs/zh-CN/env-vars.md)。
 
 ## 与相关功能比较
 
@@ -197,12 +197,12 @@ Claude 在决策点而不是每一轮都调用顾问，因此将更快的主模�
 | - | - | - |
 | 顾问工具 | 在任务中途的决策点 | Claude 在需要指导时调用它 |
 | [`opusplan`](/docs/zh-CN/model-config#opusplan-model-setting) | 在计划模式期间当[由 `availableModels` 允许](/docs/zh-CN/model-config#restrict-model-selection)时，然后切换到 Sonnet 执行 | 您进入计划模式 |
-| [子代理](/docs/zh-CN/sub-agents#choose-a-model)，设置了 `model` | 对于整个委派的子任务 | Claude 委派，或您调用子代理 |
+| [子代理](/docs/zh-CN/sub-agents.md#choose-a-model)，设置了 `model` | 对于整个委派的子任务 | Claude 委派，或您调用子代理 |
 | [`/model`](/docs/zh-CN/model-config#setting-your-model) | 从下一个请求开始 | 您切换模型 |
 
 ## 另请参阅
 
-* [模型配置](/docs/zh-CN/model-config)：切换模型、设置努力级别并使用 `opusplan`
-* [有效管理成本](/docs/zh-CN/costs)：跨模型跟踪令牌使用情况
+* [模型配置](/docs/zh-CN/model-config.md)：切换模型、设置努力级别并使用 `opusplan`
+* [有效管理成本](/docs/zh-CN/costs.md)：跨模型跟踪令牌使用情况
 * [Claude API 中的顾问工具](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool)：了解底层服务器工具，或直接从 Messages API 使用它
 * [顾问策略](https://claude.com/blog/the-advisor-strategy)：为什么将快速主模型与更强的顾问配对有效

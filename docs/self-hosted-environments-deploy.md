@@ -8,9 +8,9 @@
 
 > [!NOTE]
 >
-> 自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段；[可用性和限制](/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖启用路径。本页面涵盖在生产环境中运行队列；有关首个运行器和会话，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart)。
+> 自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段；[可用性和限制](/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖启用路径。本页面涵盖在生产环境中运行队列；有关首个运行器和会话，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart.md)。
 
-[自托管环境](/docs/zh-CN/self-hosted-environments)在您部署在网络内的运行器上运行 Claude Code [云会话](/docs/zh-CN/claude-code-on-the-web)，在生产环境中，这些会话代表所有可以向环境分派会话的人执行模型指导的代码。本页面适用于将工作环境投入生产的操作员。它按部署顺序进行：在连接真实系统之前要锁定什么、队列需要的出站流量、会话如何向您的 git 主机进行身份验证、部署配方本身，以及会话出现故障时要检查什么。
+[自托管环境](/docs/zh-CN/self-hosted-environments)在您部署在网络内的运行器上运行 Claude Code [云会话](/docs/zh-CN/claude-code-on-the-web.md)，在生产环境中，这些会话代表所有可以向环境分派会话的人执行模型指导的代码。本页面适用于将工作环境投入生产的操作员。它按部署顺序进行：在连接真实系统之前要锁定什么、队列需要的出站流量、会话如何向您的 git 主机进行身份验证、部署配方本身，以及会话出现故障时要检查什么。
 
 ## 加固您的部署
 
@@ -18,11 +18,11 @@
 
 * **临时的、按会话的容器**：在新容器或 VM 中运行每个运行器进程，该容器或 VM 在进程退出时被销毁，使用 `--capacity 1` 和默认的 `--drain-grace-sec 0`，以便每个容器恰好服务一个会话。在更高的容量或正的 drain grace 下，一个容器为来自同一[锁定所有者](/docs/zh-CN/self-hosted-environments#key-concepts)的多个会话服务；请参阅[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle)。不要在运行器重启之间重用文件系统，除了在刻意的[预热检出](#reuse-a-pre-warmed-checkout)设置中，并且永远不要跨所有者。
   * 当运行器停止会话时，它不会向在其 shell 命令退出后仍在运行的进程（例如已转为守护进程的服务）发送任何信号。销毁容器或 VM 会结束该进程。
-* **镜像中没有广泛的凭据**：不要包含长期的 SSH 密钥、云提供商凭据或授予超过会话需要的个人访问令牌。从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)按会话铸造会话期间使用的凭据，例如推送或 API 令牌。初始克隆发生在包装脚本运行之前，因此请使用 [`checkout` 生命周期 hook](/docs/zh-CN/self-hosted-environments-configuration#checkout) 处理它，或者在会话的所有仓库都位于 github.com 上时使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)。关于这两者，请参阅[配置 git](#configure-git)。
+* **镜像中没有广泛的凭据**：不要包含长期的 SSH 密钥、云提供商凭据或授予超过会话需要的个人访问令牌。从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration.md#wrapper-scripts)按会话铸造会话期间使用的凭据，例如推送或 API 令牌。初始克隆发生在包装脚本运行之前，因此请使用 [`checkout` 生命周期 hook](/docs/zh-CN/self-hosted-environments-configuration#checkout) 处理它，或者在会话的所有仓库都位于 github.com 上时使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)。关于这两者，请参阅[配置 git](#configure-git)。
 * **使主机的 GitHub 凭据远离会话**：Claude 可以使用会话能够读取的任何 GitHub 凭据，并拥有该凭据授予的全部访问权限。请确保运行器主机自身的宽范围 GitHub 凭据不出现在会话可以读取的任何位置。此类凭据可以是个人访问令牌、`gh auth login` 为您的帐户保存的令牌，或运行器环境中的 `GH_TOKEN`。
   * **使用 [Anthropic 托管的 git](#use-the-anthropic-git-proxy) 时**：有了此类凭据，Claude 会直接访问 GitHub，而不是通过 Anthropic 托管的 git。
   * **不使用 Anthropic 托管的 git 时**：如果您按照[在镜像中附带 git 配置](#ship-git-config-in-your-image)所述严格限定克隆凭据的范围，则该凭据可以保留在镜像中。
-* **将环境密钥保持在运行会话的主机之外**：环境密钥可以注册运行器并获取在环境上排队的任何会话。在固定队列上，它存在于每个运行器主机上，任何会话的代码都可以读取密钥文件。优先使用[按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)，其中密钥保留在编排器主机上，该主机从不运行用户代码，每个运行器接收单次使用的工作单，恰好注册一个运行器。在固定队列上，将环境密钥文件视为可由每个会话读取，并在任何可疑会话泄露后轮换密钥。
+* **将环境密钥保持在运行会话的主机之外**：环境密钥可以注册运行器并获取在环境上排队的任何会话。在固定队列上，它存在于每个运行器主机上，任何会话的代码都可以读取密钥文件。优先使用[按需运行器](/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，其中密钥保留在编排器主机上，该主机从不运行用户代码，每个运行器接收单次使用的工作单，恰好注册一个运行器。在固定队列上，将环境密钥文件视为可由每个会话读取，并在任何可疑会话泄露后轮换密钥。
 * **默认拒绝网络出站流量**：在每个环境上限制运行器和会话容器的出站流量在您自己的网络边界；[默认拒绝出站流量](#default-deny-egress)涵盖允许什么以及原因。
 * **最小权限主机 IAM**：附加到运行器主机的计算身份（例如实例配置文件或节点服务帐户）应仅授予运行器本身需要的内容。会话应通过您的包装脚本而不是继承主机的身份获取自己的凭证。
 * **阻止会话访问云元数据端点**：保持会话不访问主机身份需要阻止它们访问云元数据端点，子网级出站策略不会拦截链接本地元数据流量，因此在容器本身中阻止它：
@@ -31,20 +31,20 @@
   * GKE Workload Identity，隐藏元数据
   * 会话容器网络命名空间中 `169.254.169.254` 的显式拒绝
 
-  该块也适用于您的包装脚本和生命周期钩子，因为它们共享容器。使用[会话 JWT](/docs/zh-CN/self-hosted-environments-identity)针对您自己的令牌服务通过允许列表出站流量验证任何令牌交换，或使用基于文件的 Web 身份，例如 Amazon EKS 上的 IAM Roles for Service Accounts (IRSA)。
+  该块也适用于您的包装脚本和生命周期钩子，因为它们共享容器。使用[会话 JWT](/docs/zh-CN/self-hosted-environments-identity.md)针对您自己的令牌服务通过允许列表出站流量验证任何令牌交换，或使用基于文件的 Web 身份，例如 Amazon EKS 上的 IAM Roles for Service Accounts (IRSA)。
 * **按运行器文件系统隔离**：每个运行器进程获得自己的工作目录，主机上的其他进程无法读取或写入。使 `--hooks-dir`、包装脚本和主机的 `~/.claude/` 对会话只读，无论是内置在镜像中还是以只读方式挂载。
-* **分派没有按环境的访问控制**：您 Anthropic 组织的任何成员都可以向其任何环境分派会话。如果所有者[将 Claude Tag 频道路由到环境](/docs/zh-CN/cloud-environments#set-the-environment-a-claude-tag-channel-uses)，[Claude Tag 访问设置](https://claude.com/docs/claude-tag/admins/restrict-access#restrict-who-can-use-claude)允许的任何人都可以启动在那里运行的频道会话。默认情况下，这是连接的 Slack 工作区中的任何人，无论是否有 Claude 帐户。将每个运行器主机视为可由所有可以向其分派的人访问以执行代码，并仅在运行器主机上放置所有这些人都被允许读取的数据和凭证。[`--lock-to-account`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)限制给定主机执行哪个帐户的会话，但它不会缩小谁可以分派到环境中。要使自托管环境成为唯一的选择器选项，[所有者](/docs/zh-CN/cloud-environments#organization-shared-environments)可以从[**云环境**页面](https://claude.ai/admin-settings/cloud-environments)为整个组织隐藏 Anthropic 托管的环境。
+* **分派没有按环境的访问控制**：您 Anthropic 组织的任何成员都可以向其任何环境分派会话。如果所有者[将 Claude Tag 频道路由到环境](/docs/zh-CN/cloud-environments.md#set-the-environment-a-claude-tag-channel-uses)，[Claude Tag 访问设置](https://claude.com/docs/claude-tag/admins/restrict-access#restrict-who-can-use-claude)允许的任何人都可以启动在那里运行的频道会话。默认情况下，这是连接的 Slack 工作区中的任何人，无论是否有 Claude 帐户。将每个运行器主机视为可由所有可以向其分派的人访问以执行代码，并仅在运行器主机上放置所有这些人都被允许读取的数据和凭证。[`--lock-to-account`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)限制给定主机执行哪个帐户的会话，但它不会缩小谁可以分派到环境中。要使自托管环境成为唯一的选择器选项，[所有者](/docs/zh-CN/cloud-environments.md#organization-shared-environments)可以从[**云环境**页面](https://claude.ai/admin-settings/cloud-environments)为整个组织隐藏 Anthropic 托管的环境。
 * **强制执行 repo-settings 保护**：使用 [`--confine-repo-settings`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 选择保护模式。默认的 `warn` 记录违规并仍然生成会话，`enforce` 拒绝会话，`off` 禁用扫描。运行器扫描每个存储库的提交设置以查找：
 
   * 在该会话自己的工作区之外解析的授予：`additionalDirectories` 条目、`permissions.allow` 中的 `Edit`、`Write` 或 `NotebookEdit` 规则，或 `sandbox.filesystem.allowWrite` 或 `allowRead` 条目
   * 非空的 `env` 块
   * 操作员态势覆盖，例如 `sandbox.enabled: false`
 
-  无论 [`--trust-workspace`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 如何，保护都会运行，并且不涵盖存储库钩子、`.mcp.json` 或 Bash 规则；请参阅[权限和工具批准](/docs/zh-CN/self-hosted-environments-configuration#permissions-and-tool-approval)了解这些授予的位置。
+  无论 [`--trust-workspace`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 如何，保护都会运行，并且不涵盖存储库钩子、`.mcp.json` 或 Bash 规则；请参阅[权限和工具批准](/docs/zh-CN/self-hosted-environments-configuration.md#permissions-and-tool-approval)了解这些授予的位置。
 
 > [!NOTE]
 >
-> 如果您的组织启用了 [IP 允许列表](https://support.claude.com/en/articles/13200993-restrict-access-to-claude-with-ip-allowlisting)，请在启动运行器和会话容器之前，将它们的公共出站地址添加到允许列表中。如果您运行[按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)，还需添加编排器主机的地址。不要将允许列表作为运行器或会话流量的网络控制，而应在您自己的网络边界应用默认拒绝出站流量。
+> 如果您的组织启用了 [IP 允许列表](https://support.claude.com/en/articles/13200993-restrict-access-to-claude-with-ip-allowlisting)，请在启动运行器和会话容器之前，将它们的公共出站地址添加到允许列表中。如果您运行[按需运行器](/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，还需添加编排器主机的地址。不要将允许列表作为运行器或会话流量的网络控制，而应在您自己的网络边界应用默认拒绝出站流量。
 
 ## 网络要求
 
@@ -54,7 +54,7 @@
 
 | 主机 | 端口 | 用途 |
 | :- | :- | :- |
-| `api.anthropic.com` | 443，HTTPS；[Anthropic 托管的 git](#use-the-anthropic-git-proxy) 使用 WSS | 运行器控制平面和会话流式传输、模型推理、功能标志、产品分析、[JWKS](/docs/zh-CN/self-hosted-environments-identity) 密钥获取、提交签名，以及设置 `--use-anthropic-git-proxy` 时的 Anthropic 托管 git |
+| `api.anthropic.com` | 443，HTTPS；[Anthropic 托管的 git](#use-the-anthropic-git-proxy) 使用 WSS | 运行器控制平面和会话流式传输、模型推理、功能标志、产品分析、[JWKS](/docs/zh-CN/self-hosted-environments-identity.md) 密钥获取、提交签名，以及设置 `--use-anthropic-git-proxy` 时的 Anthropic 托管 git |
 | 您的 git 主机，例如 `github.com` 或您的 GitHub Enterprise 主机 | 443 或 22 | 在运行器会话使用的每个 git 主机上克隆和推送仓库。对于使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 的运行器，请参阅[何时仍需要 `github.com` 路径](#github-com-egress-with-the-anthropic-git-proxy)。 |
 
 使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 的运行器通过 `api.anthropic.com` 路由其 `github.com` git 流量，因此不需要 `github.com` 的 git 主机路径。如果您设置了 `--push-outcome-on-release` 或从 `post-session` hook 推送，则仍需要该路径。
@@ -66,27 +66,27 @@
 | `downloads.claude.ai` | 443 | 在安装时，当您使用本机安装程序在主机上安装或更新 Claude Code 时；`install.sh` 脚本本身从 `claude.ai` 提供。在会话运行时，仅当会话从官方 Anthropic 市场安装插件时。 |
 | `storage.googleapis.com` | 443 | 在会话运行时，用于 `/plugin` 中显示的插件安装计数和元数据。 |
 | `code.claude.com` 和 `claude.com` | 443 | 内置 claude-code-guide 代理的文档查找和会话期间预批准的 WebFetch 请求。阻止这些主机仅影响文档查找。 |
-| `*.frame.claudeusercontent.com` | 443 | 仅当[工件工具](/docs/zh-CN/artifacts#availability)对您组织中的会话可用时；默认值因计划而异，请参阅那里的可用性表。在运行器上设置 `CLAUDE_CODE_DISABLE_ARTIFACT=1` 以保持工具禁用，无论组织设置如何。 |
+| `*.frame.claudeusercontent.com` | 443 | 仅当[工件工具](/docs/zh-CN/artifacts.md#availability)对您组织中的会话可用时；默认值因计划而异，请参阅那里的可用性表。在运行器上设置 `CLAUDE_CODE_DISABLE_ARTIFACT=1` 以保持工具禁用，无论组织设置如何。 |
 | `registry.npmjs.org` | 443 | 当会话安装插件时，用于获取 npm 源插件包和安装插件的 Node.js 依赖项，或当 `npx` 启动的 MCP 服务器运行时 |
 | `http-intake.logs.us5.datadoghq.com` | 443 | Anthropic 操作指标。仅当设置 `CLAUDE_CODE_BYOC_ENABLE_DATADOG=1` 时；在自托管环境中默认关闭。 |
-| `browser-intake-us5-datadoghq.com` | 443 | Anthropic 错误报告上传，仅在为会话帐户启用[错误报告](/docs/zh-CN/data-usage#telemetry-services)时发送。由 `DISABLE_ERROR_REPORTING=1` 或 `DISABLE_TELEMETRY=1` 抑制。 |
-| 您的云提供商用于模型请求、模型查询和续期凭据的端点，例如 `bedrock-runtime.us-east-1.amazonaws.com` 或 `aiplatform.googleapis.com` | 443 | 仅当运行器[将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform](/docs/zh-CN/self-hosted-environments-configuration#send-model-requests-to-bedrock-or-agent-platform) 时 |
+| `browser-intake-us5-datadoghq.com` | 443 | Anthropic 错误报告上传，仅在为会话帐户启用[错误报告](/docs/zh-CN/data-usage.md#telemetry-services)时发送。由 `DISABLE_ERROR_REPORTING=1` 或 `DISABLE_TELEMETRY=1` 抑制。 |
+| 您的云提供商用于模型请求、模型查询和续期凭据的端点，例如 `bedrock-runtime.us-east-1.amazonaws.com` 或 `aiplatform.googleapis.com` | 443 | 仅当运行器[将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform](/docs/zh-CN/self-hosted-environments-configuration.md#send-model-requests-to-bedrock-or-agent-platform) 时 |
 
 您不需要为运行器或会话流量将以下主机加入允许列表：
 
 * **`statsig.anthropic.com`、`*.sentry.io`、`claude.ai` 和 `platform.claude.com`**：这些主机出现在一些较旧的企业网络检查清单中，但运行器不会访问它们。功能标志获取转到 `api.anthropic.com`，运行器使用环境密钥而不是交互式 OAuth 进行身份验证。
-* **`mcp-proxy.anthropic.com`**：自托管会话不使用它。当为您的组织启用连接器交付时，您组织的 claude.ai 连接器通过 `api.anthropic.com` 到达会话。请参阅 [MCP 服务器](/docs/zh-CN/self-hosted-environments-configuration#mcp-servers)。
+* **`mcp-proxy.anthropic.com`**：自托管会话不使用它。当为您的组织启用连接器交付时，您组织的 claude.ai 连接器通过 `api.anthropic.com` 到达会话。请参阅 [MCP 服务器](/docs/zh-CN/self-hosted-environments-configuration.md#mcp-servers)。
 
 以下主机端流程确实会访问 `claude.ai`，因此请从出站流量允许访问它的主机运行这些流程，而不是扩大会话容器出站流量：
 
 * **单行安装程序**：在安装时从 `claude.ai` 获取 `install.sh`。
-* **交互式 `claude auth login`**：通过 `claude.ai`、`claude.com` 和 `platform.claude.com` 登录。[引导设置](/docs/zh-CN/self-hosted-environments-quickstart#run-the-guided-setup)、`doctor` 的已登录模式和 [CI 分派](/docs/zh-CN/self-hosted-environments-testing#authenticate-from-ci)会使用它。您用于登录的浏览器还会从 `hcaptcha.com`、`*.hcaptcha.com` 和 `challenges.cloudflare.com` 加载 claude.ai 登录页面的浏览器检查。如果您的组织使用单点登录，该浏览器还可能被重定向经过 `sso.claude.com`。
+* **交互式 `claude auth login`**：通过 `claude.ai`、`claude.com` 和 `platform.claude.com` 登录。[引导设置](/docs/zh-CN/self-hosted-environments-quickstart.md#run-the-guided-setup)、`doctor` 的已登录模式和 [CI 分派](/docs/zh-CN/self-hosted-environments-testing.md#authenticate-from-ci)会使用它。您用于登录的浏览器还会从 `hcaptcha.com`、`*.hcaptcha.com` 和 `challenges.cloudflare.com` 加载 claude.ai 登录页面的浏览器检查。如果您的组织使用单点登录，该浏览器还可能被重定向经过 `sso.claude.com`。
 
 ### 默认拒绝出站流量
 
-在网络段或命名空间中部署运行器和会话容器，其出站流量限制为[网络要求表](#network-requirements)中的主机、您的 git 主机和会话需要到达的特定内部服务。该产品无法验证或强制执行此操作，因此在每个环境的您自己的网络边界应用它。会话代码是模型指导的，可以尝试连接到任意主机；网络层的默认拒绝出站流量限制这些尝试可以到达的位置。这适用于任何权限模式：默认预批准工具集已包括 `Bash`，因此 shell 出站流量在没有[自动模式](/docs/zh-CN/self-hosted-environments-configuration#permissions-and-tool-approval)的情况下运行而不提示。
+在网络段或命名空间中部署运行器和会话容器，其出站流量限制为[网络要求表](#network-requirements)中的主机、您的 git 主机和会话需要到达的特定内部服务。该产品无法验证或强制执行此操作，因此在每个环境的您自己的网络边界应用它。会话代码是模型指导的，可以尝试连接到任意主机；网络层的默认拒绝出站流量限制这些尝试可以到达的位置。这适用于任何权限模式：默认预批准工具集已包括 `Bash`，因此 shell 出站流量在没有[自动模式](/docs/zh-CN/self-hosted-environments-configuration.md#permissions-and-tool-approval)的情况下运行而不提示。
 
-有关每个会话发出的遥测详情以及如何关闭它，请参阅[遥测](/docs/zh-CN/self-hosted-environments-reference#telemetry)。
+有关每个会话发出的遥测详情以及如何关闭它，请参阅[遥测](/docs/zh-CN/self-hosted-environments-reference.md#telemetry)。
 
 ### 向出站代理进行身份验证
 
@@ -101,7 +101,7 @@
 
 #### 运行器拒绝启动的配置
 
-每个标志也有一个环境变量形式，在[运行器 CLI 标志参考](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)中列在其旁边。在运行器联系您的代理或控制平面之前，它检查标志及其变量，并在三种情况下拒绝启动：
+每个标志也有一个环境变量形式，在[运行器 CLI 标志参考](/docs/zh-CN/self-hosted-environments-reference.md#runner-cli-flags)中列在其旁边。在运行器联系您的代理或控制平面之前，它检查标志及其变量，并在三种情况下拒绝启动：
 
 * **两个标志都设置**：一个标志加上另一个标志的环境变量计为设置两个。
 * **没有代理 URL**：`HTTPS_PROXY` 和 `HTTP_PROXY` 都不包含 `http://` 或 `https://` URL。运行器以大写或小写读取两个变量，不查询 `ALL_PROXY`。
@@ -139,7 +139,7 @@
 
 提交签名需要 git 2.34 或更高版本；运行器在启动时检查并在您的 git 较旧时以错误退出。此标志不配置推送凭证，您仍然在镜像中提供。
 
-在 v2.1.280 或更高版本的运行器上，您从 `checkout` 或 `post-session` 生命周期钩子中进行的提交也会以会话身份签名，但不带 `Co-authored-by:` 尾注。[生命周期钩子内的 Git 配置](/docs/zh-CN/self-hosted-environments-configuration#git-configuration-inside-lifecycle-hooks)介绍了运行器在这些钩子内固定的 git 设置。
+在 v2.1.280 或更高版本的运行器上，您从 `checkout` 或 `post-session` 生命周期钩子中进行的提交也会以会话身份签名，但不带 `Co-authored-by:` 尾注。[生命周期钩子内的 Git 配置](/docs/zh-CN/self-hosted-environments-configuration.md#git-configuration-inside-lifecycle-hooks)介绍了运行器在这些钩子内固定的 git 设置。
 
 无论是否使用 `--configure-git`，Claude Code 都会指示 Claude 在其提交信息末尾添加 `Claude-Session: <url>` 尾注，并在其 Pull Request 描述末尾添加会话的 URL。要省略两者，请在运行器主机的 [`~/.claude/settings.json`](/docs/zh-CN/self-hosted-environments-configuration#how-each-session’s-config-is-assembled) 中将 [`attribution.sessionUrl`](/docs/zh-CN/settings-reference#attribution-sessionurl) 设置为 `false`，然后重新启动运行器。
 
@@ -154,7 +154,7 @@ RUN git config --system user.name "Claude" && \
 
 没有身份，`git commit` 失败并显示 `Please tell me who you are`，会话无法取得进展。您可以改用自己的机器人身份；运行器不会覆盖这些值。
 
-不要将长期或广泛范围的推送凭据烘焙到共享运行器镜像中：镜像中的凭据可用于镜像运行的每个会话，无论谁启动它。相反，从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)按会话铸造短期、最小范围的令牌，使用从会话 JWT 解码的会话创建者的身份。将其与临时的按会话容器配对，这需要 `--capacity 1`，因此没有凭据超过铸造它的会话；请参阅[加固部分](#harden-your-deployment)。
+不要将长期或广泛范围的推送凭据烘焙到共享运行器镜像中：镜像中的凭据可用于镜像运行的每个会话，无论谁启动它。相反，从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration.md#wrapper-scripts)按会话铸造短期、最小范围的令牌，使用从会话 JWT 解码的会话创建者的身份。将其与临时的按会话容器配对，这需要 `--capacity 1`，因此没有凭据超过铸造它的会话；请参阅[加固部分](#harden-your-deployment)。
 
 如果您必须在镜像级别配置推送凭证，例如对于只读部署密钥，请尽可能紧密地限制它们：
 
@@ -188,11 +188,11 @@ RUN git config --system --add safe.directory '*'
 作为交换，git 代理会限制运行器支持的内容，并改变运行器的需求：
 
 * **仅限 github.com**：只有当会话的所有仓库都在 github.com 上时，Anthropic 才会为其提供服务，并且 git 代理尚不支持 GitHub Enterprise Server。在启用 git 代理的运行器上，包含其他 git 主机上仓库的会话[无法启动](#when-anthropic-doesnt-serve-a-session)。
-* **仅限会话仓库的凭据**：Anthropic 只为属于会话的仓库提供 git 凭据，而不为同一 git 主机上的其他仓库提供。私有子模块、包管理器通过 git 获取的依赖，或位于另一个仓库中的插件市场，都不会从 Anthropic 获得凭据。请让创建会话的人员在创建会话时[添加会话所需的每个仓库](/docs/zh-CN/web-quickstart#start-a-task)。
+* **仅限会话仓库的凭据**：Anthropic 只为属于会话的仓库提供 git 凭据，而不为同一 git 主机上的其他仓库提供。私有子模块、包管理器通过 git 获取的依赖，或位于另一个仓库中的插件市场，都不会从 Anthropic 获得凭据。请让创建会话的人员在创建会话时[添加会话所需的每个仓库](/docs/zh-CN/web-quickstart.md#start-a-task)。
 
-  [云端定时任务](/docs/zh-CN/routines)的每次运行都是一个包含该任务仓库的会话，因此请让每个任务的所有者[添加其运行所需的每个仓库](/docs/zh-CN/routines#edit-and-control-routines)。
-* **仅限分支推送**：删除分支的推送会失败，推送到任何其他类型的引用（例如标签）也会失败。有关推送可以更新哪些分支，请参阅 [GitHub 代理](/docs/zh-CN/cloud-environments#github-proxy)。
-* **已连接的 GitHub 账户**：请让每个使用仓库创建用户会话的人[连接 GitHub](/docs/zh-CN/web-quickstart#connect-github)。如果他们没有自己的连接，这些会话[无法启动](#creator-has-no-github-connection)。
+  [云端定时任务](/docs/zh-CN/routines.md)的每次运行都是一个包含该任务仓库的会话，因此请让每个任务的所有者[添加其运行所需的每个仓库](/docs/zh-CN/routines.md#edit-and-control-routines)。
+* **仅限分支推送**：删除分支的推送会失败，推送到任何其他类型的引用（例如标签）也会失败。有关推送可以更新哪些分支，请参阅 [GitHub 代理](/docs/zh-CN/cloud-environments.md#github-proxy)。
+* **已连接的 GitHub 账户**：请让每个使用仓库创建用户会话的人[连接 GitHub](/docs/zh-CN/web-quickstart.md#connect-github)。如果他们没有自己的连接，这些会话[无法启动](#creator-has-no-github-connection)。
 * **`--capacity 1`**：git 代理要求每个运行器进程只有一个会话，因此请运行更多副本以获得并行性。[启用 Anthropic git 代理](#turn-the-anthropic-git-proxy-on)列出了各项要求。
 * **替换全局 git 配置**：运行器会[删除并替换其运行用户的全局 git 配置](#git-proxy-replaces-global-git-config)。请以专用用户身份或在容器中运行它。
 * **主机推送使用主机凭据**：运行器的 [`--push-outcome-on-release`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 推送以及您的 [`post-session` 钩子](/docs/zh-CN/self-hosted-environments-configuration#post-session)进行的任何推送，仍使用运行器主机自身的 git 凭据及其[到 `github.com` 的网络路径](#github-com-egress-with-the-anthropic-git-proxy)。请将这些凭据置于[全局 git 配置](#git-proxy-replaces-global-git-config)之外，并参阅[在镜像中提供 git 配置](#ship-git-config-in-your-image)了解提供这些凭据的方法。
@@ -216,7 +216,7 @@ RUN git config --system --add safe.directory '*'
 >
 > 本页上的 [Kubernetes](#kubernetes) 和 [Docker Compose](#docker-compose) 配方使用 `--capacity 4`。如果您在不将容量更改为 `1` 的情况下向其中一个添加 `--use-anthropic-git-proxy` 或 `CLAUDE_RUNNER_USE_GIT_PROXY=1`，每次您的编排器重新启动它时，运行器都会在启动时退出。设置 `--capacity 1` 并运行更多副本以获得并行性。[当运行器退出](#when-the-runner-exits)显示运行器打印的行。
 
-要启用 git 代理，请将 `--use-anthropic-git-proxy` 添加到运行器的命令中，或在运行器的环境中设置 `CLAUDE_RUNNER_USE_GIT_PROXY=1`。在运行器主机的 shell 中运行以下命令，即可启动启用了 git 代理的[快速入门](/docs/zh-CN/self-hosted-environments-quickstart#set-up-manually)运行器：
+要启用 git 代理，请将 `--use-anthropic-git-proxy` 添加到运行器的命令中，或在运行器的环境中设置 `CLAUDE_RUNNER_USE_GIT_PROXY=1`。在运行器主机的 shell 中运行以下命令，即可启动启用了 git 代理的[快速入门](/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-manually)运行器：
 
 ```bash theme={null}
 claude self-hosted-runner --environment-secret-file '/etc/claude/environment-secret' --base-dir '<writable-dir>' --use-anthropic-git-proxy
@@ -301,7 +301,7 @@ gh api repos/{owner}/{repo}/pulls -f title='Fix' -f head='my-branch' -f base='ma
 对于将会话令牌传送到 Anthropic 管理的 git 的 git 连接，运行器应用这两个变量如下。[`command` 钩子](/docs/zh-CN/self-hosted-environments-configuration#command)以会话的环境开始，所以它获得 git 在会话内获得的内容：
 
 * **`GIT_SSL_CAINFO`**：git 检查 Anthropic 管理的 git 的内容取决于 git 运行的位置：
-  * **运行器自己的克隆和获取**：运行时不使用变量，并根据运行器写入的按会话证书文件检查 Anthropic 管理的 git。该文件保存运行器主机的系统 CA 包加上您的文件中的证书。
+  * **运行器自己的克隆和获取**：运行时不使用变量，并根据运行器写入的按会话证书文件检查 Anthropic 管理的 git。运行器根据运行器主机的系统 CA 包和您的文件中的证书构建该文件。
   * **会话内的 Git**：获得 `http.sslCAInfo` 配置，命名您的文件代替变量，加上 `http.<url>.sslCAInfo` 条目，根据按会话文件检查 Anthropic 管理的 git。
   * **`checkout` 和 `post-session` 钩子**：继承变量不变。
 * **`GIT_SSL_NO_VERIFY`**：哪些证书检查保持关闭取决于 git 运行的位置：
@@ -315,7 +315,7 @@ gh api repos/{owner}/{repo}/pulls -f title='Fix' -f head='my-branch' -f base='ma
 
 ### 为专用网络重写 git URL
 
-仓库 URL 从控制平面作为 HTTPS 到达，带有您的 git 主机的主机名；对于 GitHub Enterprise，这是您在 claude.ai 上为 [GitHub Enterprise 集成](/docs/zh-CN/github-enterprise-server)配置的主机名。两个可重复的标志在克隆之前重写这些 URL：
+仓库 URL 从控制平面作为 HTTPS 到达，带有您的 git 主机的主机名；对于 GitHub Enterprise，这是您在 claude.ai 上为 [GitHub Enterprise 集成](/docs/zh-CN/github-enterprise-server.md)配置的主机名。两个可重复的标志在克隆之前重写这些 URL：
 
 * `--git-host-rewrite <from>=<to>`：对于分割视界 DNS，其中 Anthropic 通过外部主机名到达您的 git 主机，但运行器必须使用内部主机名
 * `--git-ssh-rewrite <host>`：适用于仅接受 SSH 的 git 主机，或仅有 SSH 密钥的运行器主机。例如，要通过 SSH 克隆 github.com 仓库，请将 `--git-ssh-rewrite github.com` 添加到运行器命令中。运行器随后会将 `https://github.com/owner/repo` 重写为 `git@github.com:owner/repo`。SSH 必须[无需提示即可连接](#git-must-work-without-a-prompt)。
@@ -324,9 +324,9 @@ gh api repos/{owner}/{repo}/pulls -f title='Fix' -f head='my-branch' -f base='ma
 
 ## 构建运行器镜像
 
-Anthropic 不发布预构建的运行器镜像。围绕 `claude` 二进制文件构建您自己的，分层您的存储库需要的任何工具链：语言运行时、编译器、包管理器和 [MCP](/docs/zh-CN/mcp) 边车。
+Anthropic 不发布预构建的运行器镜像。围绕 `claude` 二进制文件构建您自己的，分层您的存储库需要的任何工具链：语言运行时、编译器、包管理器和 [MCP](/docs/zh-CN/mcp.md) 边车。
 
-下面的配方使用 `--capacity 4`，所以一个容器为来自同一锁定所有者的最多四个并发会话服务。这不提供[加固部分](#harden-your-deployment)中的按会话容器隔离：在将环境连接到生产系统之前，要么以 `--capacity 1` 运行配方，每个会话一个容器，要么使用[按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)，它也将环境密钥保持在会话运行主机之外。如果您将[Anthropic git 代理](#use-the-anthropic-git-proxy)添加到这些配方之一，也要将 `--capacity` 更改为 `1`。
+下面的配方使用 `--capacity 4`，所以一个容器为来自同一锁定所有者的最多四个并发会话服务。这不提供[加固部分](#harden-your-deployment)中的按会话容器隔离：在将环境连接到生产系统之前，要么以 `--capacity 1` 运行配方，每个会话一个容器，要么使用[按需运行器](/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，它也将环境密钥保持在会话运行主机之外。如果您将[Anthropic git 代理](#use-the-anthropic-git-proxy)添加到这些配方之一，也要将 `--capacity` 更改为 `1`。
 
 这个 Dockerfile 是一个最小的起点：
 
@@ -343,7 +343,7 @@ RUN git config --system user.name "Claude" \
 ENTRYPOINT ["claude"]
 ```
 
-如果您的节点是 ARM，将 `linux-x64` 交换为 `linux-arm64`，或在 Alpine 等 musl 基础镜像上交换为 `linux-x64-musl` 或 `linux-arm64-musl`；请参阅 [Alpine Linux 设置](/docs/zh-CN/setup#alpine-linux-and-musl-based-distributions)了解 musl 镜像需要的额外包。URL 是标准 Claude Code 发布位置，因此您可以根据[二进制完整性和代码签名](/docs/zh-CN/setup#binary-integrity-and-code-signing)中描述的发布的已签名清单验证下载的二进制文件。运行器需要 Claude Code 版本 2.1.224 或更高版本。构建镜像，然后将其推送到您的注册表并在下面的配方中引用它：
+如果您的节点是 ARM，将 `linux-x64` 交换为 `linux-arm64`，或在 Alpine 等 musl 基础镜像上交换为 `linux-x64-musl` 或 `linux-arm64-musl`；请参阅 [Alpine Linux 设置](/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)了解 musl 镜像需要的额外包。URL 是标准 Claude Code 发布位置，因此您可以根据[二进制完整性和代码签名](/docs/zh-CN/setup.md#binary-integrity-and-code-signing)中描述的发布的已签名清单验证下载的二进制文件。运行器需要 Claude Code 版本 2.1.224 或更高版本。构建镜像，然后将其推送到您的注册表并在下面的配方中引用它：
 
 ```bash theme={null}
 docker build \
@@ -351,15 +351,15 @@ docker build \
   -t <your-registry>/claude-runner:latest .
 ```
 
-命令替换查找当前 `stable` 发布号并将其作为构建参数传递，因此在新的稳定版本发布后运行相同的命令会使用较新的二进制文件重建下载层。要为可重现的构建固定特定版本，请直接将版本号作为 `CLAUDE_CODE_VERSION` 传递。当您需要比稳定通道更新的版本（例如[新推出的模型所需的版本](/docs/zh-CN/model-config)）时，在查找 URL 中将 `stable` 替换为 `latest`。
+命令替换查找当前 `stable` 发布号并将其作为构建参数传递，因此在新的稳定版本发布后运行相同的命令会使用较新的二进制文件重建下载层。要为可重现的构建固定特定版本，请直接将版本号作为 `CLAUDE_CODE_VERSION` 传递。当您需要比稳定通道更新的版本（例如[新推出的模型所需的版本](/docs/zh-CN/model-config.md)）时，在查找 URL 中将 `stable` 替换为 `latest`。
 
 ## 为会话调整 CPU 和内存大小
 
-为运行器运行的会话而不是运行器进程调整运行器的容器或主机大小。运行器本身轮询工作、准备每个会话的检出、运行您的[生命周期钩子](/docs/zh-CN/self-hosted-environments-configuration#lifecycle-hooks)，以及启动和监督会话进程。负载来自会话：每个都是一个 Claude Code 进程加上它启动的任何东西，例如构建、测试套件、包安装和 [MCP 服务器](/docs/zh-CN/mcp)。
+为运行器运行的会话而不是运行器进程调整运行器的容器或主机大小。运行器本身轮询工作、准备每个会话的检出、运行您的[生命周期钩子](/docs/zh-CN/self-hosted-environments-configuration.md#lifecycle-hooks)，以及启动和监督会话进程。负载来自会话：每个都是一个 Claude Code 进程加上它启动的任何东西，例如构建、测试套件、包安装和 [MCP 服务器](/docs/zh-CN/mcp.md)。
 
 对于一个会话，从以下值开始，表示为 Kubernetes 请求和限制或您平台的等效值，并将它们视为起点而不是要求：
 
-* **内存**：请求和限制各 4 GiB，满足 Claude Code [系统要求](/docs/zh-CN/setup#system-requirements)中的 4 GB 最小值。保持两者相等，以便调度程序考虑容器的完整内存。当容器达到其内存限制时，内核杀死其中的进程，这可能会结束会话中途。
+* **内存**：请求和限制各 4 GiB，满足 Claude Code [系统要求](/docs/zh-CN/setup.md#system-requirements)中的 4 GB 最小值。保持两者相等，以便调度程序考虑容器的完整内存。当容器达到其内存限制时，内核杀死其中的进程，这可能会结束会话中途。
 * **CPU**：请求 2 个 CPU，限制 4 个 CPU，所以会话可以在构建期间突发超过请求。内核在其 CPU 限制处限制容器，而不是杀死其中的进程，所以会话在限制处运行较慢但继续运行。
 
 在 Kubernetes 容器规范中，使用以下 `resources` 块设置这些起始值：
@@ -376,9 +376,9 @@ resources:
 
 构建和测试通常是会话负载中最大和最可变的部分，因此运行您的存储库的代表性构建，测量其峰值 CPU 和内存，并提高任何在该峰值之上没有为 Claude Code 进程留出空间的起始值。
 
-运行器使用 `--capacity` 来限制它一次运行多少个会话。它不在它们之间分割 CPU 或内存，所以运行器上的会话共享容器的 CPU 和内存。要限制一个会话的份额，从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts)应用限制。因此，给一个容器什么取决于它一次服务多少个会话：
+运行器使用 `--capacity` 来限制它一次运行多少个会话。它不在它们之间分割 CPU 或内存，所以运行器上的会话共享容器的 CPU 和内存。要限制一个会话的份额，从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration.md#wrapper-scripts)应用限制。因此，给一个容器什么取决于它一次服务多少个会话：
 
-* **每个运行器一个会话**：给每个容器一个会话的值。在 `--capacity 1` 使用此大小，[加固部分](#harden-your-deployment)推荐，以及对于[按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)，您在您的 [`spawn-runner` 钩子](/docs/zh-CN/self-hosted-environments-configuration#the-spawn-runner-hook)提交的工作负载上设置值，例如 Kubernetes Job 的 pod 模板。
+* **每个运行器一个会话**：给每个容器一个会话的值。在 `--capacity 1` 使用此大小，[加固部分](#harden-your-deployment)推荐，以及对于[按需运行器](/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，您在您的 [`spawn-runner` 钩子](/docs/zh-CN/self-hosted-environments-configuration#the-spawn-runner-hook)提交的工作负载上设置值，例如 Kubernetes Job 的 pod 模板。
 * **每个运行器多个会话**：在 `--capacity` 高于 1 时，将一个会话的值乘以容量，因为最多那么多会话可以在容器中同时运行。[Kubernetes](#kubernetes) 和 [Docker Compose](#docker-compose) 配方以 `--capacity 4` 运行，没有 CPU 或内存限制，因此添加为您运行的容量调整大小的限制。
 
 ## Kubernetes
@@ -445,7 +445,7 @@ spec:
 kubectl create namespace claude-runners
 ```
 
-从保存您在管理 UI 的 [**Copy environment key** 步骤](/docs/zh-CN/self-hosted-environments-quickstart#set-up-manually)中复制的值的本地文件创建支持 Secret，以便密钥永远不会出现在您的 shell 历史记录中。运行 `(umask 077 && cat > ./environment-secret)`，粘贴密钥，按 Enter，然后按 Ctrl-D。然后创建 Secret 并删除文件：
+从保存您在管理 UI 的 [**Copy environment key** 步骤](/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-manually)中复制的值的本地文件创建支持 Secret，以便密钥永远不会出现在您的 shell 历史记录中。运行 `(umask 077 && cat > ./environment-secret)`，粘贴密钥，按 Enter，然后按 Ctrl-D。然后创建 Secret 并删除文件：
 
 ```bash theme={null}
 kubectl create secret generic claude-runner-environment-secret -n claude-runners --from-file=environment-secret=./environment-secret
@@ -508,7 +508,7 @@ secrets:
 
 ### 在重启前发布状态消息
 
-在进行会中断会话的重启之前，请让 [Owner](/docs/zh-CN/cloud-environments#organization-shared-environments) 从 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments)在该环境上发布一条状态消息。在 [claude.ai/code](https://claude.ai/code) 中，成员会在该环境内的会话中看到这条消息。请让 Owner 在发布时设置过期时间，或在运行器恢复后移除该消息。
+在进行会中断会话的重启之前，请让 [Owner](/docs/zh-CN/cloud-environments.md#organization-shared-environments) 从 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments)在该环境上发布一条状态消息。在 [claude.ai/code](https://claude.ai/code) 中，成员会在该环境内的会话中看到这条消息。请让 Owner 在发布时设置过期时间，或在运行器恢复后移除该消息。
 
 ### 延迟排空超过第一个信号
 
@@ -579,10 +579,10 @@ secrets:
 
 选择您的会话运行哪个版本以及何时更改：
 
-* **在固定版本之前**：针对您的会话使用的每个模型，检查[模型需要的 Claude Code 版本](/docs/zh-CN/model-config#available-models)。如果某个模型需要比您的会话所运行版本更新的版本，服务器会以 [Claude Code does not support this model](/docs/zh-CN/errors#claude-code-does-not-support-this-model) 拒绝对该模型的请求。
-* **将队列保持在一个版本上**：使用固定版本构建镜像，或在裸主机上安装特定版本并[禁用自动更新](/docs/zh-CN/setup#disable-auto-updates)
-* **升级固定队列**：阅读您当前版本与要安装版本之间的 [changelog](/docs/en/changelog) 条目，然后安装较新版本或重建镜像，并重启运行器
-* **升级按需运行器**：阅读您当前版本与要安装版本之间的 [changelog](/docs/en/changelog) 条目，然后更改您的 [`spawn-runner` hook](/docs/zh-CN/self-hosted-environments-configuration#the-spawn-runner-hook) 启动的镜像。每个新运行器都会获得新版本。已经在运行的运行器（包括由 [`--min-idle`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 启动的备用运行器）会保持其版本，直到退出。不要重启它，因为它的工作指令是一次性的。
+* **在固定版本之前**：针对您的会话使用的每个模型，检查[模型需要的 Claude Code 版本](/docs/zh-CN/model-config.md#available-models)。如果某个模型需要比您的会话所运行版本更新的版本，服务器会以 [Claude Code does not support this model](/docs/zh-CN/errors.md#claude-code-does-not-support-this-model) 拒绝对该模型的请求。
+* **将队列保持在一个版本上**：使用固定版本构建镜像，或在裸主机上安装特定版本并[禁用自动更新](/docs/zh-CN/setup.md#disable-auto-updates)
+* **升级固定队列**：阅读您当前版本与要安装版本之间的 [changelog](/docs/en/changelog.md) 条目，然后安装较新版本或重建镜像，并重启运行器
+* **升级按需运行器**：阅读您当前版本与要安装版本之间的 [changelog](/docs/en/changelog.md) 条目，然后更改您的 [`spawn-runner` hook](/docs/zh-CN/self-hosted-environments-configuration#the-spawn-runner-hook) 启动的镜像。每个新运行器都会获得新版本。已经在运行的运行器（包括由 [`--min-idle`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 启动的备用运行器）会保持其版本，直到退出。不要重启它，因为它的工作指令是一次性的。
 * **如果会话启动的是其他二进制文件**：如果您使用 [`--exec-path`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 或 [`command` hook](/docs/zh-CN/self-hosted-environments-configuration#command) 来启动运行器自身以外的 Claude Code 二进制文件，会话将运行该二进制文件的版本。更新运行器时，请同时更新该二进制文件。
 * **插件**：插件市场也不自动更新；在运行器的环境中设置 `FORCE_AUTOUPDATE_PLUGINS=1` 以让插件自动更新，同时二进制保持固定
 
@@ -592,8 +592,8 @@ secrets:
 
 两种扩展方法可用：
 
-* **固定队列**：运行静态运行器副本集并在每个运行器提供的 [Prometheus 指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics)上扩展
-* **按需运行器**：运行 `claude self-hosted-runner orchestrator` 子命令，它轮询 Anthropic 以查找没有可用运行器排队的会话，并调用您的 `spawn-runner` 钩子为每个会话启动一个。请参阅[按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)。
+* **固定队列**：运行静态运行器副本集并在每个运行器提供的 [Prometheus 指标](/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics)上扩展
+* **按需运行器**：运行 `claude self-hosted-runner orchestrator` 子命令，它轮询 Anthropic 以查找没有可用运行器排队的会话，并调用您的 `spawn-runner` 钩子为每个会话启动一个。请参阅[按需运行器](/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)。
 
 ## 已知问题和限制
 
@@ -609,7 +609,7 @@ Anthropic 从其自己的基础设施而不是从您的运行器调用连接器�
 * `https://api.anthropic.com/v1/code/sessions/*`
 * `https://api.anthropic.com/v1/code/mcp/*`
 
-如果工具流量必须保留在您的网络内，改为在运行器镜像上作为本地 MCP 服务器运行等效工具。请参阅 [MCP 服务器](/docs/zh-CN/self-hosted-environments-configuration#mcp-servers)。
+如果工具流量必须保留在您的网络内，改为在运行器镜像上作为本地 MCP 服务器运行等效工具。请参阅 [MCP 服务器](/docs/zh-CN/self-hosted-environments-configuration.md#mcp-servers)。
 
 ### 某些会话不计为空闲
 
@@ -654,7 +654,7 @@ claude self-hosted-runner doctor
 * **运行器在启动时退出，显示 `RegisterRunner failed:` 和 TLS 证书错误**：例如，错误可能是 `self signed certificate in certificate chain`。运行器不信任其收到的证书背后的证书颁发机构（CA），在执行 TLS 检查的代理之后就会发生这种情况。在运行器的环境中将 [`NODE_EXTRA_CA_CERTS`](/docs/zh-CN/network-config#custom-ca-certificates) 设置为包含代理根 CA 的 PEM 文件。
 
   您无需再为会话设置它，会话会继承它。Git 不读取它：对于通过该代理进行的克隆，还需设置 [`GIT_SSL_CAINFO`](#trust-a-private-certificate-authority-with-anthropic-managed-git)。
-* **您的启动脚本打印包含 `Resource temporarily unavailable` 的写入错误并退出**：您的脚本与其启动的 `claude self-hosted-runner` 或 [编排器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners) 进程共享 stdout 或 stderr，而该进程已将该共享管道或套接字切换为非阻塞模式。当管道已满时，脚本的写入会因该操作系统错误而失败，而不是等待；在 `set -e` 下，脚本会退出。
+* **您的启动脚本打印包含 `Resource temporarily unavailable` 的写入错误并退出**：您的脚本与其启动的 `claude self-hosted-runner` 或 [编排器](/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners) 进程共享 stdout 或 stderr，而该进程已将该共享管道或套接字切换为非阻塞模式。当管道已满时，脚本的写入会因该操作系统错误而失败，而不是等待；在 `set -e` 下，脚本会退出。
 
   要消除该错误，请将运行器或编排器的输出发送到您脚本的用户可以创建的文件。在启动它的命令后追加 `>> "$HOME/claude-runner.log" 2>&1`，并放在任何将其置于后台运行的 `&` 之前：
 
@@ -666,12 +666,22 @@ claude self-hosted-runner doctor
 * **编排器记录带有 TLS 证书错误的 `poll failed:` 并不断重试**：编排器不信任其收到的证书背后的 CA，在执行 TLS 检查的代理之后就会发生这种情况。在编排器的环境中将 [`NODE_EXTRA_CA_CERTS`](/docs/zh-CN/network-config#custom-ca-certificates) 设置为包含代理根 CA 的 PEM 文件。同时也为您的 `spawn-runner` hook 启动的运行器设置它。
 
   例如，一行可能以 `poll failed: self signed certificate in certificate chain — retrying in 1s` 结尾，冒号和破折号之间是 TLS 库给出的文字。要确认修复，请检查编排器的 [`/healthz`](/docs/zh-CN/self-hosted-environments-reference#health-endpoint) 正文中 `connected` 是否为 `true`。
-* **会话保持排队**：每个在线运行器可能被锁定到不同的所有者。检查每个运行器的 `claude_code_self_hosted_runner_locked_account` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 或其 `[runner:health]` 日志行的 `locked_account` 字段，以查看谁持有它。两者仅在运行器被颁发携带 `act.email` 声明的会话令牌后才显示所有者的电子邮件，Claude Tag 代理的会话永远不会这样做。没有该声明，运行器不发出 `locked_account` 系列，并记录 `locked_account=yes`，这告诉您运行器被锁定但不知道是哪个所有者。添加副本，或等待现有运行器耗尽并重新启动。如果环境使用按需运行器，请改为检查编排器；请参阅 [按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)。
+* **会话保持排队**：每个在线运行器可能被锁定到不同的所有者。检查每个运行器的 `claude_code_self_hosted_runner_locked_account` [指标](/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics) 或其 `[runner:health]` 日志行的 `locked_account` 字段，以查看谁持有它。两者仅在运行器被颁发携带 `act.email` 声明的会话令牌后才显示所有者的电子邮件，Claude Tag 代理的会话永远不会这样做。没有该声明，运行器不发出 `locked_account` 系列，并记录 `locked_account=yes`，这告诉您运行器被锁定但不知道是哪个所有者。添加副本，或等待现有运行器耗尽并重新启动。如果环境使用按需运行器，请改为检查编排器；请参阅 [按需运行器](/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)。
 * **会话在拾取后立即失败**：在 claude.ai/code 中打开会话以查看错误。最常见的原因是运行器镜像中缺少 [git 凭据](#configure-git) 和未安装的构建工具。对于使用 `--use-anthropic-git-proxy` 启动的运行器，请参阅 [当会话在使用 git 代理的运行器上无法启动时](#when-anthropic-doesnt-serve-a-session)。不可写的基础目录会在启动时停止运行器，而不是失败会话。请参阅此列表中的 **运行器在启动时退出，显示 `cannot create or write to base directory`** 条目。
 * **在设置了 `--use-anthropic-git-proxy` 的运行器上会话无法启动**：在运行器的日志中查找 `access denied by the git proxy`，或查找指明包含 `/git_proxy/` 的 `api.anthropic.com` 地址的 git 错误。要判断 Anthropic 是否提供了该会话并修复原因，请参阅 [当会话在使用 git 代理的运行器上无法启动时](#when-anthropic-doesnt-serve-a-session)。
 * **会话无法通过身份验证出口代理到达网络**：当您使用 [`--proxy-authorization-command` 或 `--proxy-authorization-file`](#authenticate-to-an-egress-proxy) 设置的源失败、在 30 秒后超时或产生空值时，运行器以 `502 Bad Gateway` 应答该连接并记录原因。运行器在该日志中编辑命令的 stderr，并且永远不会记录标头值。使用 `--proxy-authorization-command` 时，在主机上自己运行该命令以确认它在 stdout 上打印整个标头值。如果运行器改为在启动时退出，显示 `could not start the proxy-authorization listener`，则它无法打开其环回监听器。
-* **运行器记录包含 `rejecting the malformed poll response` 的 `Poll failed` 行**：运行器收到的工作轮询响应的正文不是队列的预期 JSON，最常见的原因是运行器和 `api.anthropic.com` 之间的某些内容（例如拦截代理或强制门户）用自己的页面进行了应答。运行器拒绝响应，在 `claude_code_self_hosted_runner_poll_errors_total` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 的 `transport` 类型下计数，并按 [会话生命周期](/docs/zh-CN/self-hosted-environments#session-lifecycle) 中描述的失败轮询计划重试。运行器继续为其实时会话提供服务。配置代理以将来自 `api.anthropic.com` 的响应原封不动地传递。在 v2.1.246 之前，运行器将这样的响应读取为空工作队列，这可能会结束其实时会话或使其退出。
-* **会话的分支在远程上不再存在**：对于会话仅从中读取的 git 源，运行器跳过该源并继续处理其余源。对于会话推送结果的源，删除的分支（通常是因为它被合并并自动删除）会导致会话失败，并显示一个错误，命名存储库和分支，并要求您恢复分支并重试。当跳过会导致它完全没有存储库时，运行器会以相同的错误失败会话。在 v2.1.228 之前，这样的会话在空目录中启动。
+* **运行器记录包含 `rejecting the malformed poll response` 的 `Poll failed` 行**：运行器收到的工作轮询响应的正文不是队列的预期 JSON，最常见的原因是运行器和 `api.anthropic.com` 之间的某些内容（例如拦截代理或强制门户）用自己的页面进行了应答。运行器拒绝响应，在 `claude_code_self_hosted_runner_poll_errors_total` [指标](/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics) 的 `transport` 类型下计数，并按 [会话生命周期](/docs/zh-CN/self-hosted-environments#session-lifecycle) 中描述的失败轮询计划重试。运行器继续为其实时会话提供服务。配置代理以将来自 `api.anthropic.com` 的响应原封不动地传递。在 v2.1.246 之前，运行器将这样的响应读取为空工作队列，这可能会结束其实时会话或使其退出。
+* **会话失败，显示 `no longer exists on the remote` 或 `couldn't find remote ref`**：运行器会将 git 的 `couldn't find remote ref` 理解为分支已被删除。但该分支可能仍然存在。请在您的 git 主机上按消息中的确切名称查找该分支，然后逐一检查符合情况的原因：
+
+  * **分支已不存在**：通常是因为它已被合并并自动删除。请按消息的要求恢复该分支。
+  * **分支存在，且您不管理该运行器**：将完整消息发送给运行器的管理员，并告知其该分支存在。
+  * **分支存在，且运行器有 `checkout` hook**：您的 hook 中的某个 git 命令可能会在 hook 以非零状态退出之前将 `couldn't find remote ref` 打印到 stderr。找到该命令，并更正它请求的 ref 或它从中获取的远程。运行器会将会话请求的修订版本作为 [`CLAUDE_RUNNER_REPO_REF`](/docs/zh-CN/self-hosted-environments-configuration#checkout) 传递给您的 hook。
+  * **分支存在，且运行器没有 `checkout` hook**：运行器会自行获取该分支。如果某个 [`--git-host-rewrite`](#rewrite-git-urls-for-private-networks) 适用于该仓库，请确认其重写到的目标主机上存在同名分支，如果不存在，请将该分支推送到那里。
+  * **分支存在，且运行器早于 v2.1.301**：按照 [固定版本](#pin-the-version) 中的说明升级运行器，以便其他类型的失败显示其自身的错误。在 v2.1.301 之前，错误输出中包含 `couldn't find remote ref` 的其他失败也会被报告为分支已删除。
+
+  升级运行器或修复原因后，请重试该会话或启动新会话。如果这些检查都未能找到原因，请[报告问题](#report-an-issue)。
+
+  对于会话推送结果的源，删除的分支会导致会话失败。对于会话仅从中读取的 git 源，运行器跳过该源并继续处理其余源。当跳过会导致会话完全没有仓库时，运行器会以相同的错误使会话失败。在 v2.1.228 之前，这样的会话在空目录中启动。
 * **会话启动时缺少其中一个存储库**：在没有 [`checkout` hook](/docs/zh-CN/self-hosted-environments-configuration#checkout) 的运行器上，git 主机可能会拒绝运行器对会话仅从中读取的存储库的访问检查。运行器随后跳过该存储库，记录一条 `[runner:warn] could not access context source` 行，命名拒绝，并在其余存储库上启动会话。
 
   运行器仅跳过明确的拒绝：主机回答存储库未找到，git 找不到主机的凭证，或身份验证失败。网络故障、超时或 HTTP `403` 仍会导致会话启动失败，对于会话推送结果的存储库的拒绝也是如此。运行器仍会失败一个会话，跳过会导致它完全没有存储库。使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)，运行器仅跳过 git 代理本身拒绝的存储库。
@@ -680,15 +690,15 @@ claude self-hosted-runner doctor
 * **会话启动失败，显示 `This runner couldn't read`**：运行器使用其 [git 凭据](#configure-git) 向 git 主机请求某个仓库，但得到了未找到的答复。该仓库不存在，或者这些凭据无法访问该仓库。
   * **如果您管理该运行器**：为其 git 凭据授予该仓库的读取权限，然后启动新会话。
   * **如果您启动了该会话**：如果该仓库不存在，请使用正确的仓库启动新会话。如果运行器无法访问该仓库，请让运行器的管理员授予访问权限，然后启动新会话。
-* **会话需要数分钟才能启动**：初始克隆通常占主导地位。观察 `claude_code_self_hosted_runner_session_init_duration_seconds` [指标](/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 以确认，并使用 [预热检出](#reuse-a-pre-warmed-checkout) 或更小的 `CLAUDE_RUNNER_FETCH_DEPTH` 减少克隆。
+* **会话需要数分钟才能启动**：初始克隆通常占主导地位。观察 `claude_code_self_hosted_runner_session_init_duration_seconds` [指标](/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics) 以确认，并使用 [预热检出](#reuse-a-pre-warmed-checkout) 或更小的 `CLAUDE_RUNNER_FETCH_DEPTH` 减少克隆。
 * **轮次以 401 失败**：当轮次以来自 Anthropic API 的 401 或 403 结束时，运行器从 Anthropic 获取新的 [`CLAUDE_CODE_OAUTH_TOKEN`](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts) 并将其传递给会话。失败的轮次不会重试。此令牌是短期的，运行器通过会话的 stdin 轮换它。
 
   当获取失败时，运行器记录一条 `inference_token refresh failed` 行，说明何时重试，并在会话运行期间继续重试。
 
-  如果每个调用在会话大约 30 分钟后开始失败，包装脚本可能已断开会话的 stdin，因此令牌轮换无法到达它；请参阅 [保持 stdin 和文件描述符 3 附加](/docs/zh-CN/self-hosted-environments-configuration#keep-stdin-and-file-descriptor-3-attached)。
+  如果每个调用在会话大约 30 分钟后开始失败，包装脚本可能已断开会话的 stdin，因此令牌轮换无法到达它；请参阅 [保持 stdin 和文件描述符 3 附加](/docs/zh-CN/self-hosted-environments-configuration.md#keep-stdin-and-file-descriptor-3-attached)。
 
   在 v2.1.274 之前，运行器在几次尝试后停止重试失败的获取，并等待下一个计划的获取。失败的轮次不会触发获取，因此每个轮次都会失败，显示 401，直到下一个计划的获取。
-* **轮次在 claude.ai/code 中失败，显示 `This model needs a newer version of Claude Code`**：您的运行器用于启动会话的 Claude Code 版本低于该会话的模型所要求的版本，因此 API [拒绝了该请求](/docs/zh-CN/errors#claude-code-does-not-support-this-model)。按照 [固定版本](#pin-the-version) 中的说明，将运行器升级到消息要求的版本或更高版本。在此之前，用户可以在会话中选择其他模型。
+* **轮次在 claude.ai/code 中失败，显示 `This model needs a newer version of Claude Code`**：您的运行器用于启动会话的 Claude Code 版本低于该会话的模型所要求的版本，因此 API [拒绝了该请求](/docs/zh-CN/errors.md#claude-code-does-not-support-this-model)。按照 [固定版本](#pin-the-version) 中的说明，将运行器升级到消息要求的版本或更高版本。在此之前，用户可以在会话中选择其他模型。
 * **Pod 在耗尽中途被杀死**：将 `terminationGracePeriodSeconds` 提高到至少运行器在启动时记录的值。请参阅 [关闭时序](#shutdown-timing)。
 
 初始化日志后，运行器将其生命周期日志（包括 `[runner:fatal]` 行）写入 stdout，将调试输出写入 stderr，全部作为纯文本行而不是 JSON。上述故障排除条目中描述的基础目录失败在该点之前打印到 stderr。使用 `--log-file` 捕获两个流，这也让 `self-hosted-runner doctor` 能够跟踪它们，或使用您的平台的日志收集。
@@ -697,7 +707,7 @@ claude self-hosted-runner doctor
 
 ### 当运行器退出时
 
-不要重新启动 [按需运行器](/docs/zh-CN/self-hosted-environments-configuration#on-demand-runners)，因为其工作订单是一次性的。在启动后立即退出的运行器需要与因任何其他原因退出的运行器不同的处理方式。
+不要重新启动 [按需运行器](/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，因为其工作订单是一次性的。在启动后立即退出的运行器需要与因任何其他原因退出的运行器不同的处理方式。
 
 * **正常退出**：运行器完成了其会话并耗尽，达到了其退休时间，或被告知停止。重新启动它以便环境再次具有容量。[运行器生命周期](/docs/zh-CN/self-hosted-environments#runner-lifecycle) 描述了这些退出。
 * **启动失败**：运行器无法使用给定的配置或主机启动，因此它在启动后几秒钟退出，并且每次重新启动时都以相同的方式退出。更快地重新启动它没有帮助。有人需要阅读其输出并修复原因。
@@ -760,6 +770,6 @@ claude self-hosted-runner doctor
 
 ## 接下来
 
-* [自定义会话](/docs/zh-CN/self-hosted-environments-configuration)：包装脚本、生命周期钩子、按需运行器、MCP 服务器和权限
-* [端到端测试](/docs/zh-CN/self-hosted-environments-testing)：在推广新运行器镜像之前从 CI 验证它
-* [参考](/docs/zh-CN/self-hosted-environments-reference)：每个 CLI 标志、环境变量和指标
+* [自定义会话](/docs/zh-CN/self-hosted-environments-configuration.md)：包装脚本、生命周期钩子、按需运行器、MCP 服务器和权限
+* [端到端测试](/docs/zh-CN/self-hosted-environments-testing.md)：在推广新运行器镜像之前从 CI 验证它
+* [参考](/docs/zh-CN/self-hosted-environments-reference.md)：每个 CLI 标志、环境变量和指标

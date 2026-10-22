@@ -8,7 +8,7 @@
 
 Claude Code 具有屏幕阅读器模式，可将其视觉终端界面替换为纯文本、线性文本。该模式不使用框、进度动画和原地重绘，而是打印带标签的行，屏幕阅读器（如 VoiceOver 或 NVDA）按顺序读取这些行，因此您可以进行完整对话、批准工具权限并从头到尾查看输出。
 
-屏幕阅读器模式是可选的。如果您使用屏幕放大镜、减少动画或色盲友好主题而不是屏幕阅读器，请从[辅助功能设置](#accessibility-settings)表中设置 `CLAUDE_CODE_ACCESSIBILITY`、`prefersReducedMotion` 或 `theme`。屏幕阅读器模式仅调整终端界面，因此您不需要在 VS Code 扩展的聊天面板中使用它。在 Claude Code v2.1.236 或更高版本上，该扩展[在不需要任何设置的情况下向您的屏幕阅读器宣布对话活动](/docs/zh-CN/vs-code#use-a-screen-reader)。
+屏幕阅读器模式是可选的。如果您使用屏幕放大镜、减少动画或色盲友好主题而不是屏幕阅读器，请从[辅助功能设置](#accessibility-settings)表中设置 `CLAUDE_CODE_ACCESSIBILITY`、`prefersReducedMotion` 或 `theme`。屏幕阅读器模式仅调整终端界面，因此您不需要在 VS Code 扩展的聊天面板中使用它。在 Claude Code v2.1.236 或更高版本上，该扩展[在不需要任何设置的情况下向您的屏幕阅读器宣布对话活动](/docs/zh-CN/vs-code.md#use-a-screen-reader)。
 
 ## 打开屏幕阅读器模式
 
@@ -16,7 +16,7 @@ Claude Code 具有屏幕阅读器模式，可将其视觉终端界面替换为�
 
 * 对于一个会话：运行 `claude --ax-screen-reader`。
 * 对于从一个 shell 启动的会话：设置 `CLAUDE_AX_SCREEN_READER` 环境变量为 `1`。在 Bash 或 Zsh 中，运行 `export CLAUDE_AX_SCREEN_READER=1`。在 PowerShell 中，运行 `$env:CLAUDE_AX_SCREEN_READER = "1"`。将该行添加到您的 shell 配置文件以保持它用于未来的 shell。
-* 对于机器上的每个会话：将 `"axScreenReader": true` 添加到您的用户[设置文件](/docs/zh-CN/settings)。该设置适用于任何终端，包括 VS Code 集成终端。
+* 对于机器上的每个会话：将 `"axScreenReader": true` 添加到您的用户[设置文件](/docs/zh-CN/settings.md)。该设置适用于任何终端，包括 VS Code 集成终端。
 
 如果您组合使用多种方法，Claude Code 会优先应用 [`--ax-screen-reader`](/docs/zh-CN/cli-reference#cli-flags) 标志而非 [`CLAUDE_AX_SCREEN_READER`](/docs/zh-CN/env-vars#variables) 环境变量，并优先应用该环境变量而非 [`axScreenReader`](/docs/zh-CN/settings-reference#axscreenreader) 设置。
 
@@ -54,7 +54,7 @@ Claude Code 打印的第一行确认该模式：`[Screen Reader Mode: on via fla
 * Claude 回复中的表格读作 `Header: value` 句子而不是方框字符网格
 * diff 以纯文本形式逐行读出，用 `+` 和 `-` 标记添加和删除的行，因此您可以在回答文件编辑批准提示之前听到建议的更改
 
-Claude Code 将其打印到终端滚动缓冲区中的所有内容都保留下来，因此您可以使用屏幕阅读器的审查命令或终端的搜索功能重新阅读之前的轮次。Claude Code 在屏幕阅读器模式下忽略 [`tui` 设置](/docs/zh-CN/settings-reference#tui)。除了在[已知限制](#known-limitations)下列出的附加后台会话外，它打印滚动文本而不是[全屏渲染](/docs/zh-CN/fullscreen)。
+Claude Code 将其打印到终端滚动缓冲区中的所有内容都保留下来，因此您可以使用屏幕阅读器的审查命令或终端的搜索功能重新阅读之前的轮次。Claude Code 在屏幕阅读器模式下忽略 [`tui` 设置](/docs/zh-CN/settings-reference#tui)。除了在[已知限制](#known-limitations)下列出的附加后台会话外，它打印滚动文本而不是[全屏渲染](/docs/zh-CN/fullscreen.md)。
 
 Claude Code 在启动时打印[确认行](#turn-on-screen-reader-mode)后，会在绘制输入框之前等待 3 秒，以便屏幕阅读器可以读完该行。按任意键结束等待。要更改等待的长度，请设置 [`CLAUDE_AX_STARTUP_QUIET_MS`](/docs/zh-CN/env-vars#variables)。
 
@@ -70,19 +70,19 @@ Claude Code 在启动时打印[确认行](#turn-on-screen-reader-mode)后，会�
 | `error:` | 对话中的错误，例如失败的 API 请求 |
 | `warning:` | Claude Code 的警告，例如切换到备用模型 |
 | `Permission Required:` | 等待您的答案的权限提示 |
-| `Cost:` | Claude Code 退出时的会话成本摘要，如果您的帐户[显示成本](/docs/zh-CN/costs) |
+| `Cost:` | Claude Code 退出时的会话成本摘要，如果您的帐户[显示成本](/docs/zh-CN/costs.md) |
 
 Claude Code 将终端光标保持在输入插入符上，因此屏幕阅读器的读取当前行命令读取您正在编辑的输入内容。
 
 当您在输入行末尾键入时，或在那里按 `Backspace`，Claude Code 仅写入更改的字符。您的屏幕阅读器仅回显这些字符。
 
-当您使用[文本编辑快捷键](/docs/zh-CN/interactive-mode#text-editing)之一删除单词或行时，Claude Code 宣布删除的文本：
+当您使用[文本编辑快捷键](/docs/zh-CN/interactive-mode.md#text-editing)之一删除单词或行时，Claude Code 宣布删除的文本：
 
 * 使用 `Ctrl+W` 或 `Alt+D` 删除单词，或在 macOS 上使用 `Option+Delete` 或在 Windows 上使用 `Ctrl+Backspace`
 * 使用 `Ctrl+U` 或 `Cmd+Backspace` 删除到行的开始
 * 使用 `Ctrl+K` 删除到行的末尾
 
-当您使用 `Shift+Tab` 循环[权限模式](/docs/zh-CN/permission-modes)时，Claude Code 宣布您切换到的权限模式，例如 `[plan mode on]` 或 `[accept edits on]`。Claude Code 打印公告一次，不会在以后的重绘中重复。
+当您使用 `Shift+Tab` 循环[权限模式](/docs/zh-CN/permission-modes.md)时，Claude Code 宣布您切换到的权限模式，例如 `[plan mode on]` 或 `[accept edits on]`。Claude Code 打印公告一次，不会在以后的重绘中重复。
 
 ### 阅读之前的输出而不丢失位置
 
@@ -120,17 +120,17 @@ macOS Terminal 不对标记进行操作，Claude Code 在 WezTerm 中不发出�
 * 提示或对话框需要你的答案，例如权限提示
 * 运行时间超过 5 秒的工具完成
 
-铃声是你的终端的标准警报。要使其静音，请更改你的终端应用程序中的铃声设置。在屏幕阅读器模式之外，设置 [`preferredNotifChannel`](/docs/zh-CN/settings-reference#preferrednotifchannel) 为 `"terminal_bell"` 以在 Claude 等待你时获得[类似的铃声](/docs/zh-CN/terminal-config#get-a-terminal-bell-or-notification)。
+铃声是你的终端的标准警报。要使其静音，请更改你的终端应用程序中的铃声设置。在屏幕阅读器模式之外，设置 [`preferredNotifChannel`](/docs/zh-CN/settings-reference#preferrednotifchannel) 为 `"terminal_bell"` 以在 Claude 等待你时获得[类似的铃声](/docs/zh-CN/terminal-config.md#get-a-terminal-bell-or-notification)。
 
 ## 已知限制
 
 某些行为不适应屏幕阅读器模式：
 
 * 屏幕阅读器模式在屏幕阅读器运行时不会自动打开。
-* Claude Code 不会宣布通过命令进行的权限模式更改，例如使用 `/plan` 进入[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)。
-* 使用 `claude attach` 或从代理视图附加到[后台会话](/docs/zh-CN/agent-view)会进入终端的备用屏幕，该屏幕没有本机滚动缓冲区。这与[其他附加会话的行为相同](/docs/zh-CN/fullscreen)。要退出，请在空提示上按左箭头，或如果对话框有焦点，请按 Ctrl+Z。
+* Claude Code 不会宣布通过命令进行的权限模式更改，例如使用 `/plan` 进入[计划模式](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)。
+* 使用 `claude attach` 或从代理视图附加到[后台会话](/docs/zh-CN/agent-view.md)会进入终端的备用屏幕，该屏幕没有本机滚动缓冲区。这与[其他附加会话的行为相同](/docs/zh-CN/fullscreen.md)。要退出，请在空提示上按左箭头，或如果对话框有焦点，请按 Ctrl+Z。
 * Claude Code 在退出时打印的摘要中宣布成本，而不是每轮。
-* 屏幕阅读器模式不改变带有 `-p` 标志的[非交互模式](/docs/zh-CN/headless)。非交互模式已经写入纯文本，并且仍然是脚本编写的替代方案。
+* 屏幕阅读器模式不改变带有 `-p` 标志的[非交互模式](/docs/zh-CN/headless.md)。非交互模式已经写入纯文本，并且仍然是脚本编写的替代方案。
 
 ## 报告问题
 

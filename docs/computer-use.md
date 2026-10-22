@@ -12,7 +12,7 @@
 
 Computer use 让 Claude 能够打开应用、控制您的屏幕，并以您的方式在您的机器上工作。从 CLI 中，Claude 可以编译 Swift 应用、启动它、点击每个按钮，并截图结果，所有这些都在编写代码的同一对话中进行。
 
-本页面介绍 computer use 在 CLI 中的工作原理。对于 macOS 或 Windows 上的 Desktop 应用，请参阅 [Desktop 中的 computer use](/docs/zh-CN/desktop#let-claude-use-your-computer)。
+本页面介绍 computer use 在 CLI 中的工作原理。对于 macOS 或 Windows 上的 Desktop 应用，请参阅 [Desktop 中的 computer use](/docs/zh-CN/desktop.md#let-claude-use-your-computer)。
 
 ## 您可以用 computer use 做什么
 
@@ -27,9 +27,9 @@ Computer use 处理需要 GUI 的任务：任何您通常必须离开终端并�
 
 Claude 有多种方式与应用或服务交互。Computer use 是最广泛和最慢的，所以 Claude 首先尝试最精确的工具：
 
-* 如果您有该服务的 [MCP server](/docs/zh-CN/mcp)，Claude 会使用它。
+* 如果您有该服务的 [MCP server](/docs/zh-CN/mcp.md)，Claude 会使用它。
 * 如果任务是 shell 命令，Claude 会使用 Bash。
-* 如果任务是浏览器工作且您已设置 [Claude in Chrome](/docs/zh-CN/chrome)，Claude 会使用它。
+* 如果任务是浏览器工作且您已设置 [Claude in Chrome](/docs/zh-CN/chrome.md)，Claude 会使用它。
 * 如果以上都不适用，Claude 会使用 computer use。
 
 屏幕控制保留用于其他工具无法到达的事物：原生应用、模拟器（如 iOS Simulator）和没有 API 的工具。
@@ -90,7 +90,7 @@ Claude 第一次尝试使用您的计算机时，您会看到一个提示来授�
 
 批准 Finder 以让 Claude 点击桌面、Dock 或 Finder 窗口。
 
-Claude 的控制级别也因应用类别而异：浏览器和交易平台是仅查看的，终端和 IDE 是仅点击的，其他所有内容都获得完全控制。有关完整的分层细分，请参阅 [Desktop 中的应用权限](/docs/zh-CN/desktop#app-permissions)。
+Claude 的控制级别也因应用类别而异：浏览器和交易平台是仅查看的，终端和 IDE 是仅点击的，其他所有内容都获得完全控制。有关完整的分层细分，请参阅 [Desktop 中的应用权限](/docs/zh-CN/desktop.md#app-permissions)。
 
 ## Claude 如何在您的屏幕上工作
 
@@ -122,7 +122,7 @@ Claude 在每个轮次中首次使用您的计算机时，会出现 macOS 通知
 
 > [!WARNING]
 >
-> 与 [sandboxed Bash tool](/docs/zh-CN/sandboxing) 不同，computer use 在您的实际桌面上运行，可以访问您批准的应用。Claude 检查每个操作并标记来自屏幕内容的潜在提示注入，但信任边界是不同的。有关最佳实践，请参阅 [computer use 安全指南](https://support.claude.com/en/articles/14128542)。
+> 与 [sandboxed Bash tool](/docs/zh-CN/sandboxing.md) 不同，computer use 在您的实际桌面上运行，可以访问您批准的应用。Claude 检查每个操作并标记来自屏幕内容的潜在提示注入，但信任边界是不同的。有关最佳实践，请参阅 [computer use 安全指南](https://support.claude.com/en/articles/14128542)。
 
 内置的护栏在不需要配置的情况下降低风险：
 
@@ -167,7 +167,7 @@ Claude 调整窗口大小、捕获损坏的状态，并读取相关的样式表�
 并告诉我是否有任何屏幕加载时间超过一秒。
 ```
 
-Claude 以您使用鼠标的方式控制模拟器。此流程适用于 CLI；在 Desktop 应用中，相同的请求会打开 [iOS Simulator 窗格](/docs/zh-CN/desktop-ios-simulator)，而不是屏幕控制。
+Claude 以您使用鼠标的方式控制模拟器。此流程适用于 CLI；在 Desktop 应用中，相同的请求会打开 [iOS Simulator 窗格](/docs/zh-CN/desktop-ios-simulator.md)，而不是屏幕控制。
 
 ## 与 Desktop 应用的差异
 
@@ -195,15 +195,15 @@ CLI 和 Desktop 表面共享相同的 computer use 引擎，有一些差异：
 
 服务器仅在符合条件的设置上出现。检查：
 
-* 您在 macOS 上。Computer use 在 CLI 中在 Linux 或 Windows 上不可用。在 Windows 上，改用 [Desktop 中的 computer use](/docs/zh-CN/desktop#let-claude-use-your-computer)。
+* 您在 macOS 上。Computer use 在 CLI 中在 Linux 或 Windows 上不可用。在 Windows 上，改用 [Desktop 中的 computer use](/docs/zh-CN/desktop.md#let-claude-use-your-computer)。
 * 您在 Pro 或 Max 计划上。运行 `/status` 来确认您的订阅。
 * 您通过 claude.ai 进行身份验证。Computer use 不适用于第三方提供商，如 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry。如果您仅通过第三方提供商访问 Claude，您需要单独的 claude.ai 账户来使用此功能。
 * 您在交互式会话中。Computer use 在使用 `-p` 标志的非交互式模式下不可用。
 
 ## 另请参阅
 
-* [Desktop 中的 Computer use](/docs/zh-CN/desktop#let-claude-use-your-computer)：具有图形设置页面的相同功能
-* [Claude in Chrome](/docs/zh-CN/chrome)：用于基于网络的任务的浏览器自动化
-* [MCP](/docs/zh-CN/mcp)：将 Claude 连接到结构化工具和 API
-* [Sandboxing](/docs/zh-CN/sandboxing)：Claude 的 Bash 工具如何隔离文件系统和网络访问
+* [Desktop 中的 Computer use](/docs/zh-CN/desktop.md#let-claude-use-your-computer)：具有图形设置页面的相同功能
+* [Claude in Chrome](/docs/zh-CN/chrome.md)：用于基于网络的任务的浏览器自动化
+* [MCP](/docs/zh-CN/mcp.md)：将 Claude 连接到结构化工具和 API
+* [Sandboxing](/docs/zh-CN/sandboxing.md)：Claude 的 Bash 工具如何隔离文件系统和网络访问
 * [Computer use 安全指南](https://support.claude.com/en/articles/14128542)：安全 computer use 的最佳实践

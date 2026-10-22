@@ -38,7 +38,7 @@
 
 > [!NOTE]
 >
-> 在`ANTHROPIC_BASE_URL`网关后方，工具搜索默认启用，无需任何设置。如果网关拒绝它，请参阅[通过LLM网关使用工具搜索](/docs/zh-CN/mcp#tool-search-through-a-gateway)。在Claude Code v2.1.304之前，除非`ENABLE_TOOL_SEARCH`为`true`、`auto`或`auto:N`，否则SDK会在此类网关后方禁用工具搜索。
+> 在`ANTHROPIC_BASE_URL`网关后方，工具搜索默认启用，无需任何设置。如果网关拒绝它，请参阅[通过LLM网关使用工具搜索](/docs/zh-CN/mcp.md#tool-search-through-a-gateway)。在Claude Code v2.1.304之前，除非`ENABLE_TOOL_SEARCH`为`true`、`auto`或`auto:N`，否则SDK会在此类网关后方禁用工具搜索。
 
 您可以使用`ENABLE_TOOL_SEARCH`环境变量控制是否以及何时延迟工具定义，该变量接受以下值：
 
@@ -46,13 +46,13 @@
 | :- | :- |
 | （未设置） | 工具搜索启用，工具定义被延迟并按需发现。在早于Opus 4和Sonnet 4的模型、[早期Agent Platform模型](#configure-tool-search)以及托管在Azure上的Microsoft Foundry部署上回退到预先加载。 |
 | `true` | 工具搜索启用，回退情况与（未设置）相同。 |
-| `auto` | 工具搜索关闭，工具定义预先加载，直到工具搜索可以延迟的定义达到模型上下文窗口的10%。随后工具搜索激活，并且即使这些定义之后降至10%以下，也可以[在同一对话中保持启用](/docs/zh-CN/mcp#tools-that-stay-deferred-below-the-threshold)。 |
+| `auto` | 工具搜索关闭，工具定义预先加载，直到工具搜索可以延迟的定义达到模型上下文窗口的10%。随后工具搜索激活，并且即使这些定义之后降至10%以下，也可以[在同一对话中保持启用](/docs/zh-CN/mcp.md#tools-that-stay-deferred-below-the-threshold)。 |
 | `auto:N` | 与`auto`相同，但具有自定义百分比。`auto:5`在这些定义达到上下文窗口的5%时激活。较低的值更早激活。 |
 | `false` | 工具搜索关闭。所有工具定义在每个轮次上都加载到上下文中。 |
 
-设置[`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](/docs/zh-CN/env-vars)会保持工具搜索关闭。您无法通过自己设置`ENABLE_TOOL_SEARCH`来覆盖它。在Claude Code v2.1.227或更高版本上，您的组织可以通过[托管设置](/docs/zh-CN/managed-settings)在设置了此变量的情况下保持工具搜索启用。在[获得HIPAA配置](/docs/zh-CN/hipaa-setup#check-how-developers-sign-in-and-connect)的会话中，工具搜索处于关闭状态，`ENABLE_TOOL_SEARCH`和托管设置都无法将其重新启用。[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities)涵盖了覆盖应用的位置以及变量删除的内容。
+设置[`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](/docs/zh-CN/env-vars)会保持工具搜索关闭。您无法通过自己设置`ENABLE_TOOL_SEARCH`来覆盖它。在Claude Code v2.1.227或更高版本上，您的组织可以通过[托管设置](/docs/zh-CN/managed-settings.md)在设置了此变量的情况下保持工具搜索启用。在[获得HIPAA配置](/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect)的会话中，工具搜索处于关闭状态，`ENABLE_TOOL_SEARCH`和托管设置都无法将其重新启用。[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol.md#disable-pre-release-capabilities)涵盖了覆盖应用的位置以及变量删除的内容。
 
-工具搜索适用于所有已注册的工具，无论它们来自远程MCP 服务器还是[自定义SDK MCP 服务器](/docs/zh-CN/agent-sdk/custom-tools)。当您使用`auto`时，SDK会计算工具搜索可以延迟的每个定义，针对一个组合阈值：来自任何服务器的未标记为[`alwaysLoad`](/docs/zh-CN/mcp#exempt-a-server-from-deferral)的每个MCP工具，加上按需加载的内置工具。SDK会预先加载核心内置工具（如Bash、Read和Edit），不会将其计入阈值。您的某个插件中的[mod](/docs/zh-CN/plugins/mods/reference#tools)也可以延迟某个工具或预先加载它，这会改变该计数。
+工具搜索适用于所有已注册的工具，无论它们来自远程MCP 服务器还是[自定义SDK MCP 服务器](/docs/zh-CN/agent-sdk/custom-tools.md)。当您使用`auto`时，SDK会计算工具搜索可以延迟的每个定义，针对一个组合阈值：来自任何服务器的未标记为[`alwaysLoad`](/docs/zh-CN/mcp#exempt-a-server-from-deferral)的每个MCP工具，加上按需加载的内置工具。SDK会预先加载核心内置工具（如Bash、Read和Edit），不会将其计入阈值。您的某个插件中的[mod](/docs/zh-CN/plugins/mods/reference.md#tools)也可以延迟某个工具或预先加载它，这会改变该计数。
 
 在`query()`上的`env`选项中设置值。在TypeScript中，`env`替换子进程环境，因此展开`...process.env`以保持继承的变量。在Python中，`env`合并到继承的环境之上。此示例连接到公开许多工具的远程MCP 服务器，使用通配符预先批准所有工具，并使用`auto:5`，以便当工具搜索可以延迟的定义达到上下文窗口的5%时激活工具搜索：
 
@@ -125,7 +125,7 @@ asyncio.run(main())
 
 要运行此示例，请将`https://tools.example.com/mcp`替换为您自己的MCP 服务器的URL。成功时，结果文本会打印到控制台。
 
-因为这是一个单次`query()`调用，SDK在产生错误结果后会抛出异常，所以该示例将循环包装在try块中。要查看运行失败的原因，请检查循环内结果消息的`subtype`，例如`error_during_execution`。有关结果消息的更多信息，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
+因为这是一个单次`query()`调用，SDK在产生错误结果后会抛出异常，所以该示例将循环包装在try块中。要查看运行失败的原因，请检查循环内结果消息的`subtype`，例如`error_during_execution`。有关结果消息的更多信息，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)。
 
 ## 优化工具发现
 
@@ -153,7 +153,7 @@ options = ClaudeAgentOptions(
 )
 ```
 
-有关完整的系统提示选项集，请参阅[修改系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts)。
+有关完整的系统提示选项集，请参阅[修改系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts.md)。
 
 ## 限制
 
@@ -164,7 +164,7 @@ options = ClaudeAgentOptions(
 ## 相关文档
 
 * [API中的工具搜索](https://platform.claude.com/docs/zh-CN/agents-and-tools/tool-use/tool-search-tool)：工具搜索的完整API文档，包括自定义实现
-* [连接MCP服务器](/docs/zh-CN/agent-sdk/mcp)：通过MCP服务器连接到外部工具
-* [自定义工具](/docs/zh-CN/agent-sdk/custom-tools)：使用SDK MCP服务器构建您自己的工具
-* [TypeScript SDK参考](/docs/zh-CN/agent-sdk/typescript)：完整API参考
-* [Python SDK参考](/docs/zh-CN/agent-sdk/python)：完整API参考
+* [连接MCP服务器](/docs/zh-CN/agent-sdk/mcp.md)：通过MCP服务器连接到外部工具
+* [自定义工具](/docs/zh-CN/agent-sdk/custom-tools.md)：使用SDK MCP服务器构建您自己的工具
+* [TypeScript SDK参考](/docs/zh-CN/agent-sdk/typescript.md)：完整API参考
+* [Python SDK参考](/docs/zh-CN/agent-sdk/python.md)：完整API参考

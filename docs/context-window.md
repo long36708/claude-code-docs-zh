@@ -12,30 +12,30 @@ Claude Code 的上下文窗口包含 Claude 在您的会话中了解的所有内
 
 该会话通过具有代表性的令牌计数演示了一个现实的流程：
 
-* **在您输入任何内容之前**：CLAUDE.md、自动记忆、MCP 工具名称和 skill 描述都加载到上下文中。[AGENTS.md 文件](/docs/zh-CN/memory#agents-md)可以代替 CLAUDE.md 加载。您自己的设置可能会在此处添加更多内容，例如[输出样式](/docs/zh-CN/output-styles)或来自 [`--append-system-prompt`](/docs/zh-CN/cli-reference) 的文本。
-* **当 Claude 工作时**：每个文件读取都会添加到上下文中，[路径范围的规则](/docs/zh-CN/memory#path-specific-rules)会自动与匹配的文件一起加载，并且[PostToolUse hook](/docs/zh-CN/hooks-guide)在每次编辑后触发。
-* **后续提示**：[子代理](/docs/zh-CN/sub-agents)在其自己的单独上下文窗口中处理研究，因此大文件读取不会进入您的窗口。只有摘要和一个小的元数据预告片返回。
+* **在您输入任何内容之前**：CLAUDE.md、自动记忆、MCP 工具名称和 skill 描述都加载到上下文中。[AGENTS.md 文件](/docs/zh-CN/memory.md#agents-md)可以代替 CLAUDE.md 加载。您自己的设置可能会在此处添加更多内容，例如[输出样式](/docs/zh-CN/output-styles.md)或来自 [`--append-system-prompt`](/docs/zh-CN/cli-reference) 的文本。
+* **当 Claude 工作时**：每个文件读取都会添加到上下文中，[路径范围的规则](/docs/zh-CN/memory.md#path-specific-rules)会自动与匹配的文件一起加载，并且[PostToolUse hook](/docs/zh-CN/hooks-guide.md)在每次编辑后触发。
+* **后续提示**：[子代理](/docs/zh-CN/sub-agents.md)在其自己的单独上下文窗口中处理研究，因此大文件读取不会进入您的窗口。只有摘要和一个小的元数据预告片返回。
 * **在演练结束时**：您运行 `/compact`，它用结构化摘要替换对话。大多数启动内容会自动重新加载；下表显示了每个机制会发生什么。
 
 ## 压缩后保留的内容
 
-当长会话压缩时，Claude Code 会总结对话历史以适应上下文窗口。从 v2.1.198 开始，总结请求继承您会话的[扩展思考](/docs/zh-CN/model-config#extended-thinking)配置，因此当您的会话启用思考时，它会在启用思考的情况下进行推理，否则保持关闭。思考仅影响摘要的生成方式；您的会话设置之后保持不变。每种内容的处理方式取决于其加载方式：
+当长会话压缩时，Claude Code 会总结对话历史以适应上下文窗口。从 v2.1.198 开始，总结请求继承您会话的[扩展思考](/docs/zh-CN/model-config.md#extended-thinking)配置，因此当您的会话启用思考时，它会在启用思考的情况下进行推理，否则保持关闭。思考仅影响摘要的生成方式；您的会话设置之后保持不变。每种内容的处理方式取决于其加载方式：
 
 | 机制 | 压缩后 |
 | :- | :- |
 | 系统提示词和输出样式 | 两者仍然适用 |
 | 项目根目录 CLAUDE.md 和无范围规则 | 从磁盘重新注入 |
 | 自动记忆 | 从磁盘重新注入 |
-| skill 描述 | 根据您当前的 [skill](/docs/zh-CN/skills) 重新构建并重新注入。需要 Claude Code v2.1.304 或更高版本 |
-| [Git 状态快照](/docs/zh-CN/settings-reference#includegitinstructions) | 如果会话开始时包含快照，Claude Code 会从您的仓库读取一个新的 |
-| Claude 在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)中编写的计划 | 从磁盘重新注入 |
-| 带有 `paths:` frontmatter 的规则 | Claude Code [按需](/docs/zh-CN/memory#path-specific-rules)重新加载它们 |
-| 子目录中的嵌套 CLAUDE.md | Claude Code [按需](/docs/zh-CN/memory#how-claude-md-files-load)重新加载它们 |
+| skill 描述 | 根据您当前的 [skill](/docs/zh-CN/skills.md) 重新构建并重新注入。需要 Claude Code v2.1.304 或更高版本 |
+| [Git 状态快照](/docs/zh-CN/settings-reference.md#includegitinstructions) | 如果会话开始时包含快照，Claude Code 会从您的仓库读取一个新的 |
+| Claude 在[计划模式](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)中编写的计划 | 从磁盘重新注入 |
+| 带有 `paths:` frontmatter 的规则 | Claude Code [按需](/docs/zh-CN/memory.md#path-specific-rules)重新加载它们 |
+| 子目录中的嵌套 CLAUDE.md | Claude Code [按需](/docs/zh-CN/memory.md#how-claude-md-files-load)重新加载它们 |
 | Claude 读取或编辑的文件 | Claude Code 重新读取最多五个，最近修改的优先 |
 | 调用的 skill 主体 | 重新注入，每个 skill 上限为 5,000 个 token，总计 25,000 个 token；最旧的首先删除 |
-| [后台命令](/docs/zh-CN/interactive-mode#background-bash-commands)和后台[子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background) | 继续运行。Claude Code 提醒 Claude 哪些仍在运行，以便它不会启动重复的 |
+| [后台命令](/docs/zh-CN/interactive-mode.md#background-bash-commands)和后台[子代理](/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background) | 继续运行。Claude Code 提醒 Claude 哪些仍在运行，以便它不会启动重复的 |
 | hook 先前添加的上下文 | 与对话的其余部分一起总结 |
-| 匹配 `compact` 源的 [SessionStart hooks](/docs/zh-CN/hooks-guide#re-inject-context-after-compaction) | Claude Code 运行它们并将其输出添加到压缩的上下文中 |
+| 匹配 `compact` 源的 [SessionStart hooks](/docs/zh-CN/hooks-guide.md#re-inject-context-after-compaction) | Claude Code 运行它们并将其输出添加到压缩的上下文中 |
 
 压缩后立即，Claude Code 重新读取最多五个 Claude 在会话中读取或编辑的文件，选择最近修改的文件。超过 5,000 个 token 的文件作为路径引用返回，不包含其内容，显示为 `Referenced file` 而不是 `Read`。
 
@@ -45,19 +45,19 @@ skill 主体在压缩后重新注入，但大型 skill 会被截断以适应每�
 
 ## 当您的上下文填满时
 
-Claude Code 在您接近限制时自动压缩，因此完整的上下文窗口不会结束您的会话。自动传递的工作方式与时间线中的 `/compact` 步骤相同。有关它保留的内容，请参阅[当上下文填满时](/docs/zh-CN/how-claude-code-works#when-context-fills-up)。有关 Claude Code 何时还会压缩您闲置的对话，请参阅[空闲压缩](/docs/zh-CN/settings-reference#idlecompaction)。
+Claude Code 在您接近限制时自动压缩，因此完整的上下文窗口不会结束您的会话。自动传递的工作方式与时间线中的 `/compact` 步骤相同。有关它保留的内容，请参阅[当上下文填满时](/docs/zh-CN/how-claude-code-works.md#when-context-fills-up)。有关 Claude Code 何时还会压缩您闲置的对话，请参阅[空闲压缩](/docs/zh-CN/settings-reference.md#idlecompaction)。
 
 您也可以在自动传递运行之前采取行动：
 
 * **带有焦点的压缩**：在开始长时间的新任务之前，运行带有指令的 `/compact`，例如 `/compact focus on the auth bug fix`。摘要保留您选择的内容，而不是自动传递猜测的重要内容。
-* **压缩对话的一部分**：运行 `/rewind`，选择一条消息，然后选择**从此处总结**或**总结到此处**。有关每个选项保留的内容以及如何指导摘要，请参阅[回退和总结](/docs/zh-CN/checkpointing#rewind-and-summarize)。
-* **更早压缩**：运行 [`/autocompact`](/docs/zh-CN/commands#all-commands) 并指定令牌计数，例如 `/autocompact 500k`，以设置在自动传递运行之前上下文窗口的填充程度。有关接受的值和覆盖，请参阅[设置自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)。
+* **压缩对话的一部分**：运行 `/rewind`，选择一条消息，然后选择**从此处总结**或**总结到此处**。有关每个选项保留的内容以及如何指导摘要，请参阅[回退和总结](/docs/zh-CN/checkpointing.md#rewind-and-summarize)。
+* **更早压缩**：运行 [`/autocompact`](/docs/zh-CN/commands#all-commands) 并指定令牌计数，例如 `/autocompact 500k`，以设置在自动传递运行之前上下文窗口的填充程度。有关接受的值和覆盖，请参阅[设置自动压缩窗口](/docs/zh-CN/model-config.md#set-the-auto-compact-window)。
 * **在任务之间清除**：切换到不相关的工作时运行 `/clear`。旧对话会挤出您接下来需要的文件，并在每条消息上花费令牌。
-* **委托大型读取**：将研究发送给[子代理](/docs/zh-CN/sub-agents)，以便文件内容保留在其上下文窗口中，而不是您的。
+* **委托大型读取**：将研究发送给[子代理](/docs/zh-CN/sub-agents.md)，以便文件内容保留在其上下文窗口中，而不是您的。
 
-如果您需要更大的窗口而不是更小的对话，Fable 模型、Sonnet 5 及更高版本、Haiku 5.5、Opus 4.6 及更高版本以及 Sonnet 4.6 支持 100 万 token 的上下文窗口。有关按计划的可用性以及如何选择 `[1m]` 模型变体，请参阅[扩展上下文](/docs/zh-CN/model-config#extended-context)。压缩在更大的限制下以相同的方式工作。
+如果您需要更大的窗口而不是更小的对话，Fable 模型、Sonnet 5 及更高版本、Haiku 5.5、Opus 4.6 及更高版本以及 Sonnet 4.6 支持 100 万 token 的上下文窗口。有关按计划的可用性以及如何选择 `[1m]` 模型变体，请参阅[扩展上下文](/docs/zh-CN/model-config.md#extended-context)。压缩在更大的限制下以相同的方式工作。
 
-自动压缩运行的位置取决于您的模型和配置。有关每个模型的边界，请参阅[默认自动压缩阈值](/docs/zh-CN/model-config#default-auto-compact-thresholds)，如果 Claude Code 为您的模型 ID（例如 [LLM 网关](/docs/zh-CN/llm-gateway)别名）假设了错误的窗口，请参阅[更正网关或自定义模型 ID 的窗口](/docs/zh-CN/model-config#correct-the-window-for-a-gateway-or-custom-model-id)。
+自动压缩运行的位置取决于您的模型和配置。有关每个模型的边界，请参阅[默认自动压缩阈值](/docs/zh-CN/model-config.md#default-auto-compact-thresholds)，如果 Claude Code 为您的模型 ID（例如 [LLM 网关](/docs/zh-CN/llm-gateway)别名）假设了错误的窗口，请参阅[更正网关或自定义模型 ID 的窗口](/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)。
 
 ## 检查您自己的会话
 
@@ -67,9 +67,9 @@ Claude Code 在您接近限制时自动压缩，因此完整的上下文窗口�
 
 有关时间线中显示的功能的更深入覆盖，请参阅这些页面：
 
-* [扩展 Claude Code](/docs/zh-CN/features-overview)：何时使用 CLAUDE.md 与技能与规则与 hooks 与 MCP
-* [存储指令和内存](/docs/zh-CN/memory)：CLAUDE.md 层次结构和自动内存
-* [子代理](/docs/zh-CN/sub-agents)：将研究委托给单独的上下文窗口
-* [最佳实践](/docs/zh-CN/best-practices)：将上下文作为您的主要约束来管理
-* [提示缓存](/docs/zh-CN/prompt-caching)：哪些操作会使缓存的前缀失效
-* [减少令牌使用](/docs/zh-CN/costs#reduce-token-usage)：保持上下文使用低的策略
+* [扩展 Claude Code](/docs/zh-CN/features-overview.md)：何时使用 CLAUDE.md 与技能与规则与 hooks 与 MCP
+* [存储指令和内存](/docs/zh-CN/memory.md)：CLAUDE.md 层次结构和自动内存
+* [子代理](/docs/zh-CN/sub-agents.md)：将研究委托给单独的上下文窗口
+* [最佳实践](/docs/zh-CN/best-practices.md)：将上下文作为您的主要约束来管理
+* [提示缓存](/docs/zh-CN/prompt-caching.md)：哪些操作会使缓存的前缀失效
+* [减少令牌使用](/docs/zh-CN/costs.md#reduce-token-usage)：保持上下文使用低的策略

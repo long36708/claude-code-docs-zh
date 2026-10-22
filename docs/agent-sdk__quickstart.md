@@ -91,8 +91,8 @@ pip install claude-agent-sdk
 >
 > TypeScript 和 Python SDK 都捆绑了一个本地 Claude Code 二进制文件，所以大多数安装不需要单独安装 Claude Code。某些安装没有捆绑的二进制文件：
 >
-> * 如果 pip 安装了 Python SDK 的源代码分发而不是平台 wheel，例如在 ARM64 Windows 上，则不会捆绑任何二进制文件。[本地安装 Claude Code](/docs/zh-CN/setup#install-claude-code)。Python SDK 在你的 `PATH` 上找到它。
-> * TypeScript SDK 通过 npm 可选依赖项安装其二进制文件，所以跳过它们的安装，例如 `npm ci --omit=optional`，即使在支持的平台上也不会获得二进制文件。重新安装而不跳过可选依赖项，或 [本地安装 Claude Code](/docs/zh-CN/setup#install-claude-code) 并将 `pathToClaudeCodeExecutable` 设置为其路径。
+> * 如果 pip 安装了 Python SDK 的源代码分发而不是平台 wheel，例如在 ARM64 Windows 上，则不会捆绑任何二进制文件。[本地安装 Claude Code](/docs/zh-CN/setup.md#install-claude-code)。Python SDK 在你的 `PATH` 上找到它。
+> * TypeScript SDK 通过 npm 可选依赖项安装其二进制文件，所以跳过它们的安装，例如 `npm ci --omit=optional`，即使在支持的平台上也不会获得二进制文件。重新安装而不跳过可选依赖项，或 [本地安装 Claude Code](/docs/zh-CN/setup.md#install-claude-code) 并将 `pathToClaudeCodeExecutable` 设置为其路径。
 
 **3. 设置你的 API 密钥**
 
@@ -119,7 +119,7 @@ SDK 还支持通过第三方 API 提供商进行身份验证：
 * **Google Cloud 的 Agent Platform**：设置 `CLAUDE_CODE_USE_VERTEX=1` 环境变量并配置 Google Cloud 凭证
 * **Microsoft Foundry**：设置 `CLAUDE_CODE_USE_FOUNDRY=1` 环境变量并配置 Azure 凭证
 
-有关详细信息，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 的设置指南。
+有关详细信息，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock.md)、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws.md)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry.md) 的设置指南。
 
 > [!NOTE]
 >
@@ -206,11 +206,11 @@ for await (const message of query({
 
 此代码有三个主要部分：
 
-1. **`query`**：创建 agentic 循环的主入口点。它返回一个异步迭代器，所以你使用 `async for` 来流式传输 Claude 工作时的消息。查看 [Python](/docs/zh-CN/agent-sdk/python#query) 或 [TypeScript](/docs/zh-CN/agent-sdk/typescript#query) SDK 参考中的完整 API。
+1. **`query`**：创建 agentic 循环的主入口点。它返回一个异步迭代器，所以你使用 `async for` 来流式传输 Claude 工作时的消息。查看 [Python](/docs/zh-CN/agent-sdk/python.md#query) 或 [TypeScript](/docs/zh-CN/agent-sdk/typescript.md#query) SDK 参考中的完整 API。
 
 2. **`prompt`**：你想让 Claude 做什么。Claude 根据任务确定要使用哪些工具。
 
-3. **`options`**：代理的配置。此示例使用 `allowedTools` 预先批准 `Read`、`Edit` 和 `Glob`，以及 `permissionMode: "acceptEdits"` 来自动批准文件更改。其他选项包括 `systemPrompt`、`mcpServers` 等。查看 [Python](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 或 [TypeScript](/docs/zh-CN/agent-sdk/typescript#options) 的所有选项。
+3. **`options`**：代理的配置。此示例使用 `allowedTools` 预先批准 `Read`、`Edit` 和 `Glob`，以及 `permissionMode: "acceptEdits"` 来自动批准文件更改。其他选项包括 `systemPrompt`、`mcpServers` 等。查看 [Python](/docs/zh-CN/agent-sdk/python.md#claudeagentoptions) 或 [TypeScript](/docs/zh-CN/agent-sdk/typescript.md#options) 的所有选项。
 
 `async for` 循环在 Claude 思考、调用工具、观察结果并决定下一步做什么时继续运行。每次迭代都会产生一条消息：Claude 的推理、工具调用、工具结果或最终结果。SDK 处理编排、工具执行、上下文管理和重试，所以你只需使用流。当 Claude 完成任务或遇到错误时，循环结束。
 
@@ -218,7 +218,7 @@ for await (const message of query({
 
 > [!NOTE]
 >
-> 此示例使用流式传输来实时显示进度。如果你不需要实时输出（例如，对于后台作业或 CI 管道），你可以一次性收集所有消息。有关详细信息，请参阅[流式传输与单轮模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)。
+> 此示例使用流式传输来实时显示进度。如果你不需要实时输出（例如，对于后台作业或 CI 管道），你可以一次性收集所有消息。有关详细信息，请参阅[流式传输与单轮模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)。
 
 ### 运行你的代理
 
@@ -258,7 +258,7 @@ python agent.py
 >
 > 如果你看到身份验证错误，例如 `Not logged in` 或 `Invalid API key`，请确保你已在运行代理的 shell 中设置了 `ANTHROPIC_API_KEY` 环境变量。SDK 不会自动加载 `.env` 文件。
 >
-> 有关这些和其他身份验证错误的原因和修复，请参阅错误参考中的[身份验证错误](/docs/zh-CN/errors#authentication-errors)。
+> 有关这些和其他身份验证错误的原因和修复，请参阅错误参考中的[身份验证错误](/docs/zh-CN/errors.md#authentication-errors)。
 
 ### 尝试其他提示
 
@@ -328,7 +328,7 @@ const _ = {
 
 启用 `Bash` 后，尝试：`"Write unit tests for utils.py, run them, and fix any failures"`
 
-这些代码片段中的每一个都在同一个选项对象上设置字段。有关更多信息，请参阅[配置你的代理](/docs/zh-CN/agent-sdk/configuration)。
+这些代码片段中的每一个都在同一个选项对象上设置字段。有关更多信息，请参阅[配置你的代理](/docs/zh-CN/agent-sdk/configuration.md)。
 
 ## 关键概念
 
@@ -340,17 +340,17 @@ const _ = {
 | `Read`、`Edit`、`Glob` | 分析和修改代码 |
 | `Read`、`Edit`、`Bash`、`Glob`、`Grep` | 完全自动化 |
 
-**权限模式**控制你想要多少人工监督。SDK 按照固定的顺序评估活跃模式以及你的允许和拒绝规则，详见[权限如何被评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)。有关完整的模式列表、它们的行为以及何时使用每种模式，请参阅[代理循环工作原理中的权限模式](/docs/zh-CN/agent-sdk/agent-loop#permission-mode)。
+**权限模式**控制你想要多少人工监督。SDK 按照固定的顺序评估活跃模式以及你的允许和拒绝规则，详见[权限如何被评估](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)。有关完整的模式列表、它们的行为以及何时使用每种模式，请参阅[代理循环工作原理中的权限模式](/docs/zh-CN/agent-sdk/agent-loop.md#permission-mode)。
 
 ## 后续步骤
 
 现在你已经创建了你的第一个代理，学习如何扩展其功能并将其定制到你的用例：
 
-* **[配置你的代理](/docs/zh-CN/agent-sdk/configuration)**：组合选项对象并找到涵盖每个设置的页面
-* **[权限](/docs/zh-CN/agent-sdk/permissions)**：控制你的代理可以做什么以及何时需要批准
-* **[Hooks](/docs/zh-CN/agent-sdk/hooks)**：在工具调用之前或之后运行自定义代码
-* **[会话](/docs/zh-CN/agent-sdk/sessions)**：构建维护上下文的多轮代理
-* **[MCP 服务器](/docs/zh-CN/agent-sdk/mcp)**：连接到数据库、浏览器、API 和其他外部系统
-* **[托管](/docs/zh-CN/agent-sdk/hosting)**：将代理部署到 Docker、云和 CI/CD
+* **[配置你的代理](/docs/zh-CN/agent-sdk/configuration.md)**：组合选项对象并找到涵盖每个设置的页面
+* **[权限](/docs/zh-CN/agent-sdk/permissions.md)**：控制你的代理可以做什么以及何时需要批准
+* **[Hooks](/docs/zh-CN/agent-sdk/hooks.md)**：在工具调用之前或之后运行自定义代码
+* **[会话](/docs/zh-CN/agent-sdk/sessions.md)**：构建维护上下文的多轮代理
+* **[MCP 服务器](/docs/zh-CN/agent-sdk/mcp.md)**：连接到数据库、浏览器、API 和其他外部系统
+* **[托管](/docs/zh-CN/agent-sdk/hosting.md)**：将代理部署到 Docker、云和 CI/CD
 * **[示例代理](https://github.com/anthropics/claude-agent-sdk-demos)**：查看完整示例：电子邮件助手、研究代理等
-* **[故障排除](/docs/zh-CN/agent-sdk/troubleshooting)**：修复 CLI 无法启动或退出时的错误，或结果到达时没有结构化输出
+* **[故障排除](/docs/zh-CN/agent-sdk/troubleshooting.md)**：修复 CLI 无法启动或退出时的错误，或结果到达时没有结构化输出

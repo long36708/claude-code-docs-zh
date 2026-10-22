@@ -8,21 +8,21 @@
 
 在 Claude Code CLI 中说出你的提示词，而不是输入它们。你的语音会实时转录到提示词输入中，所以你可以在同一条消息中混合使用语音和输入。使用 `/voice` 启用听写，然后要么在说话时按住一个键，要么点击一次开始，再点击一次发送。
 
-在[按住模式](#hold-to-record)下，听写功能也适用于 [Agent 视图](/docs/zh-CN/agent-view#peek-and-reply)。在 Dispatch 输入框或窥视面板回复获得焦点时，按住您的按键通话键，即可向后台会话进行听写。
+在[按住模式](#hold-to-record)下，听写功能也适用于 [Agent 视图](/docs/zh-CN/agent-view.md#peek-and-reply)。在 Dispatch 输入框或窥视面板回复获得焦点时，按住您的按键通话键，即可向后台会话进行听写。
 
 ## 要求
 
 语音听写将你录制的音频流传输到 Anthropic 的服务器进行转录。音频不在本地处理。它需要以下所有条件：
 
 * **一个 Claude.ai 账户**：语音转文本服务仅在你使用 Claude.ai 账户进行身份验证时可用，当 Claude Code 配置为直接使用 Anthropic API 密钥、Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 时不可用。
-* **一个本地麦克风**：语音听写在[云会话](/docs/zh-CN/claude-code-on-the-web)或 SSH 会话中不起作用。
+* **一个本地麦克风**：语音听写在[云会话](/docs/zh-CN/claude-code-on-the-web.md)或 SSH 会话中不起作用。
 * **如果你在 WSL 中运行 Claude Code，则需要 WSLg**：WSLg 包含在 Windows 10 或 11 上从 Microsoft Store 安装的 WSL2 中。如果 WSLg 不可用，例如在 WSL1 上，改为在本机 Windows 中运行 Claude Code。
 
-转录不消耗 Claude 消息或令牌，也不计入 `/usage` 中显示的限制。有关 Anthropic 如何处理你的数据，请参阅[数据使用](/docs/zh-CN/data-usage)。
+转录不消耗 Claude 消息或令牌，也不计入 `/usage` 中显示的限制。有关 Anthropic 如何处理你的数据，请参阅[数据使用](/docs/zh-CN/data-usage.md)。
 
 音频录制在 macOS、Linux 和 Windows 上使用内置的本机模块。在 Linux 上，如果本机模块无法加载，Claude Code 会回退到 ALSA utils 中的 `arecord` 或 SoX 中的 `rec`。如果两者都不可用，`/voice` 会打印你的包管理器的安装命令。
 
-Claude Code [VS Code 扩展](/docs/zh-CN/vs-code)也支持语音听写，具有相同的 Claude.ai 账户要求。它在 VS Code Remote 会话中不可用，包括 SSH、Dev Containers 和 Codespaces，因为麦克风在你的本地机器上，而扩展在远程主机上运行。
+Claude Code [VS Code 扩展](/docs/zh-CN/vs-code.md)也支持语音听写，具有相同的 Claude.ai 账户要求。它在 VS Code Remote 会话中不可用，包括 SSH、Dev Containers 和 Codespaces，因为麦克风在你的本地机器上，而扩展在远程主机上运行。
 
 ## 启用语音听写
 
@@ -42,7 +42,7 @@ Voice mode enabled (hold). Hold space to record. Dictation language: en (/config
 | `/voice tap` | 在[点击模式](#tap-to-record-and-send)中启用 |
 | `/voice off` | 禁用 |
 
-语音听写在会话之间持续。直接在你的[用户设置文件](/docs/zh-CN/settings)中设置它，而不是运行 `/voice`：
+语音听写在会话之间持续。直接在你的[用户设置文件](/docs/zh-CN/settings.md)中设置它，而不是运行 `/voice`：
 
 ```json theme={null}
 {
@@ -53,7 +53,7 @@ Voice mode enabled (hold). Hold space to record. Dictation language: en (/config
 }
 ```
 
-启用语音听写的前三个会话中，当提示词为空时，输入页脚会显示 `hold space to speak` 提示。提示文本反映你当前的 `voice:pushToTalk` 快捷键绑定，如果你[重新绑定听写键](#rebind-the-dictation-key)，它会更新。提示文本在两种模式中都相同，如果你配置了[自定义状态行](/docs/zh-CN/statusline)，则不会显示。
+启用语音听写的前三个会话中，当提示词为空时，输入页脚会显示 `hold space to speak` 提示。提示文本反映你当前的 `voice:pushToTalk` 快捷键绑定，如果你[重新绑定听写键](#rebind-the-dictation-key)，它会更新。提示文本在两种模式中都相同，如果你配置了[自定义状态行](/docs/zh-CN/statusline.md)，则不会显示。
 
 转录在两种模式中都针对编码词汇进行了调整。常见的开发术语如 `regex`、`OAuth`、`JSON` 和 `localhost` 被正确识别，你当前的项目名称和 git 分支名称会自动添加为识别提示。
 
@@ -65,7 +65,7 @@ Voice mode enabled (hold). Hold space to record. Dictation language: en (/config
 
 前几个按键重复字符在预热期间输入到输入中，当录制激活时会自动删除。单个 `Space` 点击仍然会输入一个空格，因为按住检测仅在快速重复时触发。
 
-按住或点击 `Space` 仅在按键会输入到提示词的地方开始听写。在[转录查看器](/docs/zh-CN/interactive-mode#transcript-viewer)中，`Space` 翻页浏览对话，在[vim 模式](/docs/zh-CN/interactive-mode#vim-editor-mode)的非 INSERT 状态下它是一个命令。[重新绑定的修饰符组合](#rebind-the-dictation-key)（如 `meta+k`）永远不会输入文本，所以它也可以从这些地方开始听写。
+按住或点击 `Space` 仅在按键会输入到提示词的地方开始听写。在[转录查看器](/docs/zh-CN/interactive-mode.md#transcript-viewer)中，`Space` 翻页浏览对话，在[vim 模式](/docs/zh-CN/interactive-mode.md#vim-editor-mode)的非 INSERT 状态下它是一个命令。[重新绑定的修饰符组合](#rebind-the-dictation-key)（如 `meta+k`）永远不会输入文本，所以它也可以从这些地方开始听写。
 
 > [!TIP]
 >
@@ -99,7 +99,7 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 
 这两个键也可以在完成的录音的转录文本仍在处理时取消。在处理期间编辑或提交的提示会保持您留下的状态。
 
-这两个键在取消的按键中不执行任何其他操作：`Esc` 不会中断 Claude 的响应，`Ctrl+C` 不会清除提示或计为 [退出 Claude Code 的两次按键中的第一次](/docs/zh-CN/interactive-mode#general-controls)。
+这两个键在取消的按键中不执行任何其他操作：`Esc` 不会中断 Claude 的响应，`Ctrl+C` 不会清除提示或计为 [退出 Claude Code 的两次按键中的第一次](/docs/zh-CN/interactive-mode.md#general-controls)。
 
 ## 更改听写语言
 
@@ -162,7 +162,7 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 
 在按住模式中，避免绑定裸字母键如 `v`，因为按住检测依赖于按键重复，字母在预热期间输入到提示词中。使用 `Space`，或使用修饰符组合如 `meta+k` 在第一次按键时开始录制，无需预热。点击模式没有预热，所以大多数键都可以。
 
-某些键不会传递到终端应用程序，根本无法绑定。例如，如果你尝试绑定 `Caps Lock`，会显示错误。有关完整的快捷键语法和保留快捷键列表，请参阅[自定义键盘快捷键](/docs/zh-CN/keybindings)。
+某些键不会传递到终端应用程序，根本无法绑定。例如，如果你尝试绑定 `Caps Lock`，会显示错误。有关完整的快捷键语法和保留快捷键列表，请参阅[自定义键盘快捷键](/docs/zh-CN/keybindings.md)。
 
 ## 故障排除
 
@@ -206,7 +206,7 @@ macOS 不会重新提示已在运行的进程。使用 Cmd+Q 退出终端应用�
 
 ## 另请参阅
 
-* [自定义键盘快捷键](/docs/zh-CN/keybindings)：重新绑定 `voice:pushToTalk` 和其他 CLI 键盘操作
-* [所有设置](/docs/zh-CN/settings-reference#voice)：`voice`、`language` 和其他设置键
-* [交互模式](/docs/zh-CN/interactive-mode)：键盘快捷键、输入模式和会话控制
-* [命令](/docs/zh-CN/commands)：`/voice`、`/config` 和所有其他命令的参考
+* [自定义键盘快捷键](/docs/zh-CN/keybindings.md)：重新绑定 `voice:pushToTalk` 和其他 CLI 键盘操作
+* [所有设置](/docs/zh-CN/settings-reference.md#voice)：`voice`、`language` 和其他设置键
+* [交互模式](/docs/zh-CN/interactive-mode.md)：键盘快捷键、输入模式和会话控制
+* [命令](/docs/zh-CN/commands.md)：`/voice`、`/config` 和所有其他命令的参考

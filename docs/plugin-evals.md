@@ -6,7 +6,7 @@
 
 > 为您的 Claude Code 插件编写 eval 用例，使用 claude plugin eval 运行它们，对结果进行评分，与无插件基线进行比较，并在 CI 中基于分数进行门控。
 
-`claude plugin eval` 针对一套测试用例运行您的[插件](/docs/zh-CN/plugins/overview)并对结果进行评分。每个用例都是一个现实的提示加上一个或多个评分器。评分器是对 Claude 生成的内容的通过/失败检查，例如对回复的正则表达式、是否调用了特定工具，或者由第二个模型判断回复的评分标准。
+`claude plugin eval` 针对一套测试用例运行您的[插件](/docs/zh-CN/plugins/overview.md)并对结果进行评分。每个用例都是一个现实的提示加上一个或多个评分器。评分器是对 Claude 生成的内容的通过/失败检查，例如对回复的正则表达式、是否调用了特定工具，或者由第二个模型判断回复的评分标准。
 
 您不必手动编写该套件；`claude plugin eval init` 会询问您关于您的插件的问题，提议用例和评分器，尝试它们，并编写文件。您也可以要求 Claude 从您已经打开的会话中执行相同操作。
 
@@ -16,7 +16,7 @@
 * 在您更改插件或发布新模型时捕捉回归
 * 查看与无插件相比插件的贡献
 
-本页面适用于拥有可工作插件并想要测试其行为的插件和技能作者，以及在 CI 中对插件更改进行门控的团队。对于在 Claude Code 对话中迭代单个技能，[技能创建者插件](/docs/zh-CN/skills#run-evals-with-skill-creator)使用其自己的 `evals/evals.json` 格式运行类似的比较，两个工具都不读取另一个的用例文件。要创建插件，请参阅[创建插件](/docs/zh-CN/plugins/create)；要检查插件文件的语法和架构错误而不是其行为，请使用 [`claude plugin validate`](/docs/zh-CN/plugins/cli-reference#plugin-validate)。
+本页面适用于拥有可工作插件并想要测试其行为的插件和技能作者，以及在 CI 中对插件更改进行门控的团队。对于在 Claude Code 对话中迭代单个技能，[技能创建者插件](/docs/zh-CN/skills.md#run-evals-with-skill-creator)使用其自己的 `evals/evals.json` 格式运行类似的比较，两个工具都不读取另一个的用例文件。要创建插件，请参阅[创建插件](/docs/zh-CN/plugins/create.md)；要检查插件文件的语法和架构错误而不是其行为，请使用 [`claude plugin validate`](/docs/zh-CN/plugins/cli-reference#plugin-validate)。
 
 > [!NOTE]
 >
@@ -28,8 +28,8 @@
 
 * Claude Code v2.1.269 或更高版本。运行 `claude --version` 检查，运行 `claude update` 升级。
 * Git 2.31 或更高版本（如果已安装 git）。运行 `git --version` 检查。使用较旧的 git，`claude plugin eval` [在运行任何案例之前停止](#git-is-too-old-for-claude-plugin-eval)。没有 git，它正常运行。
-* 一个包含 `plugin.json` 或 `.claude-plugin/plugin.json` 清单的插件目录，或一个[技能目录插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)。
-* 与您的常规 Claude Code 会话相同的身份验证和模型提供商。Eval 运行、评判评分器和 `claude plugin eval init` 使用您的凭据调用模型，因此它们计入您的计划用量限制或 API 账单。当命令报告成本时，该数字是这些调用的[列表价格估计](/docs/zh-CN/costs)。如果您在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上运行 Claude Code，请从导出与常规会话相同的提供商变量的 shell 中运行该套件，因为每次运行都会从该 shell 继承这些变量，如 [`env` 字段](#prompt-md-fields)所述。
+* 一个包含 `plugin.json` 或 `.claude-plugin/plugin.json` 清单的插件目录，或一个[技能目录插件](/docs/zh-CN/plugins/loading.md#plugins-shared-through-a-repository)。
+* 与您的常规 Claude Code 会话相同的身份验证和模型提供商。Eval 运行、评判评分器和 `claude plugin eval init` 使用您的凭据调用模型，因此它们计入您的计划用量限制或 API 账单。当命令报告成本时，该数字是这些调用的[列表价格估计](/docs/zh-CN/costs.md)。如果您在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上运行 Claude Code，请从导出与常规会话相同的提供商变量的 shell 中运行该套件，因为每次运行都会从该 shell 继承这些变量，如 [`env` 字段](#prompt-md-fields)所述。
 
 ## eval 运行如何工作
 
@@ -37,7 +37,7 @@
 
 ### 运行中发生的情况
 
-对于每次用例运行，Claude Code 启动一个新的、[隔离的](#how-runs-are-isolated)[非交互式会话](/docs/zh-CN/headless)，仅加载你的插件，发送提示，并让 Claude 工作直到完成或达到用例的轮次或时间限制。然后每个评分器检查最终回复、完整记录或 Claude 创建的文件，并通过或失败。
+对于每次用例运行，Claude Code 启动一个新的、[隔离的](#how-runs-are-isolated)[非交互式会话](/docs/zh-CN/headless.md)，仅加载你的插件，发送提示，并让 Claude 工作直到完成或达到用例的轮次或时间限制。然后每个评分器检查最终回复、完整记录或 Claude 创建的文件，并通过或失败。
 
 ### 用例如何评分
 
@@ -280,7 +280,7 @@ scaffold 脚本在空工作区中启动，具有小的固定环境：你的 shel
 
 ### Mock MCP 服务器
 
-你可以评估一个插件，其 skills 调用 MCP 工具，而不需要它们后面的真实服务。在 `evals/mocks/<server>/<tool>.md` 下为整个套件放置一个 Markdown 文件，或在用例自己的 `mocks/` 目录下为一个用例，其中 `<server>` 是你的插件的 [MCP 配置](/docs/zh-CN/plugins/components#mcp-servers)中服务器的名称。
+你可以评估一个插件，其 skills 调用 MCP 工具，而不需要它们后面的真实服务。在 `evals/mocks/<server>/<tool>.md` 下为整个套件放置一个 Markdown 文件，或在用例自己的 `mocks/` 目录下为一个用例，其中 `<server>` 是你的插件的 [MCP 配置](/docs/zh-CN/plugins/components.md#mcp-servers)中服务器的名称。
 
 运行永远不会启动你的插件的真实 MCP 服务器，除非你要求。Claude Code 在每个服务器自己的名称下注册一个替代服务器。带有 mock 文件的工具从它回答，并且无需 `--allow-tools` 授予即可允许，没有 mock 文件的工具对 Claude 不可用。完全没有 mocks 的服务器在用例的 `mocked:` 进度行中显示为 `plugin_<plugin>_<server>[not started: no mock]`。
 
@@ -330,8 +330,8 @@ mock 文件的正文和 frontmatter 接受这些选项：
 | :- | :- |
 | 插件的根目录，例如 `.` | 其 eval 目录下的每个用例，加载该插件 |
 | 单个 `prompt.md` 或 `case.yaml` 文件 | 该用例，加载其所在的插件 |
-| 已安装的插件（按名称），`name` 或 `name@marketplace` | 该插件及其 eval 目录中的用例，[就地读取或从已安装的副本读取](/docs/zh-CN/plugins/loading#in-place-and-copied-plugins)。结果写入当前目录下的 `./evals/results/`，或使用 `--eval-dir` 时写入 `./<dir>/results/` |
-| `name@skills-dir` | 相同，用于 [skills-directory 插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository) |
+| 已安装的插件（按名称），`name` 或 `name@marketplace` | 该插件及其 eval 目录中的用例，[就地读取或从已安装的副本读取](/docs/zh-CN/plugins/loading.md#in-place-and-copied-plugins)。结果写入当前目录下的 `./evals/results/`，或使用 `--eval-dir` 时写入 `./<dir>/results/` |
+| `name@skills-dir` | 相同，用于 [skills-directory 插件](/docs/zh-CN/plugins/loading.md#plugins-shared-through-a-repository) |
 | 省略 | 当前目录作为路径 |
 
 添加 `--case <glob>` 按用例名称过滤，添加 `--tag <tag>` 保留具有任何给定标签的用例。
@@ -350,7 +350,7 @@ claude plugin eval . --allow-tools Write Edit "Bash(npm test *)"
 
 当用例请求您没有授予的工具时，进度输出会将其列为 `not granted`。[模拟](#mock-mcp-servers) MCP 服务器上的工具不需要授予。真实插件 MCP 服务器上的工具需要服务器启动（使用 `--allow-real-servers` 或 `--mocks off`）和按名称授予，例如 `--allow-tools "mcp__plugin_my-plugin_github__*"`；插件的 MCP 工具命名为 `mcp__plugin_<plugin>_<server>__<tool>`。
 
-当您以任何形式授予 `Bash` 时，每个命令都在 Claude Code 的 [OS 级沙箱](/docs/zh-CN/sandboxing) 下运行。写入被限制在运行的工作区，您的主目录和 Claude Code 配置不可读，网络访问限制为您使用 `--allow-tools "WebFetch(domain:example.com)"` 授予的域。如果您在没有沙箱后端的机器上授予 Bash 或 PowerShell，Claude Code 会拒绝每次运行而不是无限制地运行它，用例会显示运行错误，通常得分为 0。原生 Windows 没有后端，所以请在 WSL2 下运行授予 shell 的套件；在 Linux 上，请首先安装 `bubblewrap` 和 `socat`。请参阅 [沙箱隔离前提条件](/docs/zh-CN/sandboxing)。
+当您以任何形式授予 `Bash` 时，每个命令都在 Claude Code 的 [OS 级沙箱](/docs/zh-CN/sandboxing.md) 下运行。写入被限制在运行的工作区，您的主目录和 Claude Code 配置不可读，网络访问限制为您使用 `--allow-tools "WebFetch(domain:example.com)"` 授予的域。如果您在没有沙箱后端的机器上授予 Bash 或 PowerShell，Claude Code 会拒绝每次运行而不是无限制地运行它，用例会显示运行错误，通常得分为 0。原生 Windows 没有后端，所以请在 WSL2 下运行授予 shell 的套件；在 Linux 上，请首先安装 `bubblewrap` 和 `socat`。请参阅 [沙箱隔离前提条件](/docs/zh-CN/sandboxing.md)。
 
 ### 命令选项
 
@@ -407,7 +407,7 @@ with 减 without 的差值会被报告，但永远不会改变退出码，写入
 
 CI 运行器还需要具备以下条件：
 
-* **安装和凭据**：CI 运行器需要安装 Claude Code，并需要 [环境中的凭据](/docs/zh-CN/authentication)，例如 `ANTHROPIC_API_KEY` 或您的云提供商的变量。
+* **安装和凭据**：CI 运行器需要安装 Claude Code，并需要 [环境中的凭据](/docs/zh-CN/authentication.md)，例如 `ANTHROPIC_API_KEY` 或您的云提供商的变量。
 * **信任**：如果没有 `--trust-plugin`，检出目录尚未被 Claude Code 信任的作业需要经过 [首次运行信任提示](#trust-the-plugin-directory)，无法询问的运行会被拒绝并以 1 退出。
 * **CI 中的 `init`**：`claude plugin eval init` 需要终端来向您提问；在 CI 中，请运行 `claude plugin eval init --bare <name>` 以获取空白模板。
 
@@ -430,7 +430,7 @@ CI 运行器还需要具备以下条件：
 * **在用例内**，with-plugin 运行首先出现，基线运行之后。每次运行都列出其评分器及通过或失败芯片。失败的评分器已经展开并显示其解释，`llm` 评分器也显示评判的投票和它被显示的证据，这是你发现运行分数低的原因的地方。不计入分数的评分器，例如 `tool_used: Skill`，带有 `plugin-fired indicator` 徽章。
 * **Prompt 和 Graders**，在运行下方，显示用例的提示和每个评分器的评分标准或模式，所以没有套件的人阅读报告时可以看到被问了什么以及什么被认为是好的。
 
-如果你使用 claude.ai 订阅登录，并且[工件](/docs/zh-CN/artifacts)可用于你的账户，Claude Code 也会将报告发布为私有工件并打印 `Published: <url>`。传递 `--no-publish` 以保持本地。如果没有 `Published:` 行出现，例如使用 API 密钥身份验证，本地文件是报告。
+如果你使用 claude.ai 订阅登录，并且[工件](/docs/zh-CN/artifacts.md)可用于你的账户，Claude Code 也会将报告发布为私有工件并打印 `Published: <url>`。传递 `--no-publish` 以保持本地。如果没有 `Published:` 行出现，例如使用 API 密钥身份验证，本地文件是报告。
 
 Claude Code 会话启动的运行，例如当你要求 Claude 为你运行套件时，也保持本地，其 `Report:` 行说 `kept local`。将 `--publish-report` 添加到该命令以发布它。
 
@@ -475,8 +475,8 @@ Claude Code 会话启动的运行，例如当你要求 Claude 为你运行套件
 每次运行都获得一个临时主目录、工作目录和 Claude Code 配置，被测试的代理在那里作为 `claude -p` 子进程运行，仅加载你的插件。在编写案例时，请记住这些后果：
 
 * **不加载任何个人或项目级内容。** 你的用户设置、hooks、`CLAUDE.md` 文件、MCP 服务器、其他已安装的插件、memory 和 skills 都不存在。项目范围的配置不会在任何地方被读取：没有 `.claude/` 目录、`CLAUDE.md` 或 `.mcp.json` 从工作区上方或内部加载，即使是 `scaffold_script` 写入的，`add_dirs` 目录仅授予读取访问权限。你的大部分 shell 环境也被隐瞒；只有[允许列表](#prompt-md-fields)和 `EVAL_*` 变量到达运行。在被测试的插件中提供任何 skills、agents、hooks 或 MCP 服务器案例所依赖的，因为 [`scaffold_script`](#add-setup-or-history-with-case-yaml) 只能提供文件和 git 状态。
-* **托管策略仍然可以限制运行。** 管理员部署到机器的[托管设置](/docs/zh-CN/managed-settings)中的限制适用于运行内部，所以托管机器上的结果可能因该策略而与非托管机器不同。
-* **Artifact 工具已关闭。** 发布[artifact](/docs/zh-CN/artifacts)的 skill 只能根据在该步骤之前产生的内容进行评分。
+* **托管策略仍然可以限制运行。** 管理员部署到机器的[托管设置](/docs/zh-CN/managed-settings.md)中的限制适用于运行内部，所以托管机器上的结果可能因该策略而与非托管机器不同。
+* **Artifact 工具已关闭。** 发布[artifact](/docs/zh-CN/artifacts.md)的 skill 只能根据在该步骤之前产生的内容进行评分。
 * **案例定义对代理隐藏。** 运行无法读取 eval 目录，所以 Claude 看不到案例的提示、其评分器或兄弟案例。
 * **shell 命令外没有网络沙箱。** 你授予的 shell 命令在沙箱的网络规则下运行。一个 `WebFetch(domain:…)` 授予直接到达该域，插件自己的 hooks 和你启动的任何真实 MCP 服务器可以到达任何主机。
 
@@ -636,7 +636,7 @@ git 2.30 is too old for claude plugin eval: it ignores the environment configura
 
 ### "cannot be evaluated where sessions load it"
 
-您在 shell 中运行了 `claude plugin eval`，并传入了一个插件的名称，该插件安装自您[从本地路径添加](/docs/zh-CN/plugins/loading#in-place-and-copied-plugins)的市场。目前没有任何会话能够从该市场加载此插件，因此该命令会以此消息拒绝执行，并以退出代码 1 退出。
+您在 shell 中运行了 `claude plugin eval`，并传入了一个插件的名称，该插件安装自您[从本地路径添加](/docs/zh-CN/plugins/loading.md#in-place-and-copied-plugins)的市场。目前没有任何会话能够从该市场加载此插件，因此该命令会以此消息拒绝执行，并以退出代码 1 退出。
 
 ```text theme={null}
 Error: formatter@my-marketplace cannot be evaluated where sessions load it: no session could load it now. Its marketplace is a folder whose catalog could not be read, or lists it no more. Check the marketplace with `claude plugin marketplace list`, or pass ./<dir> to evaluate a directory.
@@ -658,7 +658,7 @@ eval 目录下不存在 `<case>/prompt.md` 或 `<case>/case.yaml`，或你的 `-
 
 ### "Agent type '...' not found" 对于你的插件的某个代理
 
-默认情况下，每个案例都会同时运行你的插件和不运行它，不运行它的运行是[无插件基线](#the-no-plugin-baseline)。当 Claude 在基线运行中调度你的插件的某个代理时，Agent 工具调用失败，显示 `Agent type '<plugin>:<agent-name>' not found. Available agents: ...`。该列表仅列出不存在插件时存在的代理，例如[内置子代理](/docs/zh-CN/sub-agents#built-in-subagents)。
+默认情况下，每个案例都会同时运行你的插件和不运行它，不运行它的运行是[无插件基线](#the-no-plugin-baseline)。当 Claude 在基线运行中调度你的插件的某个代理时，Agent 工具调用失败，显示 `Agent type '<plugin>:<agent-name>' not found. Available agents: ...`。该列表仅列出不存在插件时存在的代理，例如[内置子代理](/docs/zh-CN/sub-agents.md#built-in-subagents)。
 
 该错误是预期的，因为 `Δ` 将你的插件运行与基线进行比较。在 JSON 结果中，基线运行位于 `cases[].arms.without` 下。
 
@@ -721,9 +721,9 @@ eval 目录下不存在 `<case>/prompt.md` 或 `<case>/case.yaml`，或你的 `-
 
 ## 另见
 
-* [创建插件](/docs/zh-CN/plugins/create)：构建你正在测试的插件，并在开发期间使用 `--plugin-dir` 加载它
-* [插件命令参考](/docs/zh-CN/plugins/cli-reference#plugin-eval)：`plugin eval` 和 `plugin eval init` 命令条目。清单的 [`experimental.evals`](/docs/zh-CN/plugins/manifest-reference#fields) 键在清单参考中
-* [技能](/docs/zh-CN/skills)：技能的描述如何决定 Claude 何时调用它，这是检查技能是否触发的用例测量的内容
-* [沙箱](/docs/zh-CN/sandboxing)：当你授予 Bash 给运行时应用的操作系统级沙箱
-* [发布插件](/docs/zh-CN/plugins/publish)：一旦其套件通过，发布插件
-* [测量插件成本和使用情况](/docs/zh-CN/plugins/measure)：插件添加到每个会话上下文的内容以及人们是否仍在使用它
+* [创建插件](/docs/zh-CN/plugins/create.md)：构建你正在测试的插件，并在开发期间使用 `--plugin-dir` 加载它
+* [插件命令参考](/docs/zh-CN/plugins/cli-reference.md#plugin-eval)：`plugin eval` 和 `plugin eval init` 命令条目。清单的 [`experimental.evals`](/docs/zh-CN/plugins/manifest-reference#fields) 键在清单参考中
+* [技能](/docs/zh-CN/skills.md)：技能的描述如何决定 Claude 何时调用它，这是检查技能是否触发的用例测量的内容
+* [沙箱](/docs/zh-CN/sandboxing.md)：当你授予 Bash 给运行时应用的操作系统级沙箱
+* [发布插件](/docs/zh-CN/plugins/publish.md)：一旦其套件通过，发布插件
+* [测量插件成本和使用情况](/docs/zh-CN/plugins/measure.md)：插件添加到每个会话上下文的内容以及人们是否仍在使用它

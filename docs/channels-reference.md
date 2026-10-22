@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> Channels 处于[研究预览](/docs/zh-CN/channels#research-preview)阶段。Team 和 Enterprise 组织必须[明确启用它们](/docs/zh-CN/channels#enterprise-controls)。
+> Channels 处于[研究预览](/docs/zh-CN/channels.md#research-preview)阶段。Team 和 Enterprise 组织必须[明确启用它们](/docs/zh-CN/channels.md#enterprise-controls)。
 
 Channel 是一个 MCP 服务器，它将事件推送到 Claude Code 会话中，以便 Claude 可以对终端外发生的事情做出反应。
 
@@ -25,7 +25,7 @@ Channel 是一个 MCP 服务器，它将事件推送到 Claude Code 会话中，
 * [门控入站消息](#gate-inbound-messages)：发送者检查以防止提示注入
 * [中继权限提示](#relay-permission-prompts)：将工具批准提示转发到远程频道
 
-要使用现有频道而不是构建一个，请参阅 [Channels](/docs/zh-CN/channels)。Telegram、Discord、iMessage 和 fakechat 包含在研究预览中。
+要使用现有频道而不是构建一个，请参阅 [Channels](/docs/zh-CN/channels.md)。Telegram、Discord、iMessage 和 fakechat 包含在研究预览中。
 
 ## 概述
 
@@ -48,7 +48,7 @@ Channel 是一个在与 Claude Code 相同的机器上运行的 [MCP](https://mo
 
 [服务器选项](#server-options)和[通知格式](#notification-format)部分详细介绍了每一项。有关完整演练，请参阅[示例：构建 webhook 接收器](#example-build-a-webhook-receiver)。
 
-在研究预览期间，自定义频道不在[批准的允许列表](/docs/zh-CN/channels#supported-channels)上。使用 `--dangerously-load-development-channels` 在本地测试。有关详细信息，请参阅[在研究预览期间测试](#test-during-the-research-preview)。
+在研究预览期间，自定义频道不在[批准的允许列表](/docs/zh-CN/channels.md#supported-channels)上。使用 `--dangerously-load-development-channels` 在本地测试。有关详细信息，请参阅[在研究预览期间测试](#test-during-the-research-preview)。
 
 ## 示例：构建 webhook 接收器
 
@@ -144,7 +144,7 @@ Claude Code 首先显示一个全屏警告对话框，列出您正在加载的�
 
 启动横幅下方的暗淡通知确认频道已注册：`Channels (experimental) messages from server:webhook inject directly in this session · restart without --dangerously-load-development-channels to stop`。
 
-如果您看到"被组织政策阻止"，您的组织管理员需要[启用频道](/docs/zh-CN/channels#enterprise-controls)。
+如果您看到"被组织政策阻止"，您的组织管理员需要[启用频道](/docs/zh-CN/channels.md#enterprise-controls)。
 
 在单独的终端中，通过向您的服务器发送带有消息的 HTTP POST 来模拟 webhook。此示例向端口 8788 发送 CI 失败警报（或您配置的任何端口）：
 
@@ -171,7 +171,7 @@ build failed on main: https://ci.example.com/run/1234
 
 ## 在研究预览期间测试
 
-在研究预览期间，每个频道都必须在[批准的允许列表](/docs/zh-CN/channels#research-preview)上才能注册。开发标志在确认提示后绕过特定条目的允许列表。此示例显示两种条目类型：
+在研究预览期间，每个频道都必须在[批准的允许列表](/docs/zh-CN/channels.md#research-preview)上才能注册。开发标志在确认提示后绕过特定条目的允许列表。此示例显示两种条目类型：
 
 ```bash theme={null}
 # 测试您正在开发的插件
@@ -431,7 +431,7 @@ await mcp.notification({ ... })
 
 根据发送者的身份而不是聊天或房间身份进行门控：示例中的 `message.from.id`，而不是 `message.chat.id`。在群组聊天中，这些不同，根据房间进行门控会让已列入允许列表的群组中的任何人向会话注入消息。
 
-[Telegram](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/telegram) 和 [Discord](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/discord) 频道以相同的方式在发送者允许列表上进行门控。它们通过[配对](/docs/zh-CN/channels#security)引导列表。有关完整配对流程，请参阅任一实现。[iMessage](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/imessage) 频道采用不同的方法：它在启动时从 Messages 数据库检测用户自己的地址，并自动让它们通过，其他发送者通过句柄添加。
+[Telegram](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/telegram) 和 [Discord](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/discord) 频道以相同的方式在发送者允许列表上进行门控。它们通过[配对](/docs/zh-CN/channels.md#security)引导列表。有关完整配对流程，请参阅任一实现。[iMessage](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/imessage) 频道采用不同的方法：它在启动时从 Messages 数据库检测用户自己的地址，并自动让它们通过，其他发送者通过句柄添加。
 
 ## 中继权限提示
 
@@ -439,7 +439,7 @@ await mcp.notification({ ... })
 
 中继涵盖工具使用批准，如 `Bash`、`Write` 和 `Edit`。项目信任和 MCP 服务器同意对话不中继；这些仅在本地终端中出现。
 
-Claude Code v2.1.234 及更高版本仅向其为会话注册为频道的服务器发送权限请求，因此中继位于与[会话选择加入和组织控制](/docs/zh-CN/channels#security)相同的后面。中继还要求您使用 `--channels` 或开发标志选择加入服务器，并要求服务器声明权限能力。
+Claude Code v2.1.234 及更高版本仅向其为会话注册为频道的服务器发送权限请求，因此中继位于与[会话选择加入和组织控制](/docs/zh-CN/channels.md#security)相同的后面。中继还要求您使用 `--channels` 或开发标志选择加入服务器，并要求服务器声明权限能力。
 
 ### 中继如何工作
 
@@ -767,15 +767,15 @@ curl -d "yes <id>" -H "X-Sender: dev" localhost:8788
 
 ## 打包为插件
 
-要使您的频道可安装和可共享，请将其包装在[插件](/docs/zh-CN/plugins/overview)中并将其发布到[市场](/docs/zh-CN/plugins/overview)。用户使用 `/plugin install` 安装它，然后使用 `--channels plugin:<name>@<marketplace>` 按会话启用它。
+要使您的频道可安装和可共享，请将其包装在[插件](/docs/zh-CN/plugins/overview.md)中并将其发布到[市场](/docs/zh-CN/plugins/overview.md)。用户使用 `/plugin install` 安装它，然后使用 `--channels plugin:<name>@<marketplace>` 按会话启用它。
 
-发布到您自己的市场的频道仍然需要 `--dangerously-load-development-channels` 来运行，因为它不在[批准的允许列表](/docs/zh-CN/channels#supported-channels)上。默认允许列表是 `claude-plugins-official` 中的频道插件。社区市场不在频道允许列表上。
+发布到您自己的市场的频道仍然需要 `--dangerously-load-development-channels` 来运行，因为它不在[批准的允许列表](/docs/zh-CN/channels.md#supported-channels)上。默认允许列表是 `claude-plugins-official` 中的频道插件。社区市场不在频道允许列表上。
 
 如果您正在与 Anthropic 合作伙伴联系合作，请与他们联系以协调官方市场列表。在 Team 和 Enterprise 计划上，管理员可以改为将您的插件包含在组织自己的 [`allowedChannelPlugins`](/docs/zh-CN/channels#restrict-which-channel-plugins-can-run) 列表中，该列表替换默认的 Anthropic 允许列表。
 
 ## 另请参阅
 
-* [Channels](/docs/zh-CN/channels) 安装和使用 Telegram、Discord、iMessage 或 fakechat 演示，以及为 Team 或 Enterprise 组织启用频道
+* [Channels](/docs/zh-CN/channels.md) 安装和使用 Telegram、Discord、iMessage 或 fakechat 演示，以及为 Team 或 Enterprise 组织启用频道
 * [工作频道实现](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins)用于具有配对流、回复工具和文件附件的完整服务器代码
-* [MCP](/docs/zh-CN/mcp) 用于频道服务器实现的基础协议
-* [Plugins](/docs/zh-CN/plugins/overview) 打包您的频道，以便用户可以使用 `/plugin install` 安装它
+* [MCP](/docs/zh-CN/mcp.md) 用于频道服务器实现的基础协议
+* [Plugins](/docs/zh-CN/plugins/overview.md) 打包您的频道，以便用户可以使用 `/plugin install` 安装它

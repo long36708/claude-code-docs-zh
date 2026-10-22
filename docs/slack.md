@@ -33,7 +33,7 @@ Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack
 | :- | :- |
 | Claude 计划 | Pro 或 Max |
 | Slack 工作区 | 未被任何组织连接到 [Claude Tag](https://claude.com/docs/claude-tag/overview)。如果 @Claude 回复了[停用通知](#the-legacy-claude-in-slack-bot-is-retired)，则说明该工作区已被连接 |
-| 云端会话 | [云端会话](/docs/zh-CN/claude-code-on-the-web)已为您的账户启用 |
+| 云端会话 | [云端会话](/docs/zh-CN/claude-code-on-the-web.md)已为您的账户启用 |
 | GitHub 账户 | 在 [claude.ai/code](https://claude.ai/code) 连接，至少有一个仓库已通过身份验证 |
 | Slack 身份验证 | 您的 Slack 账户通过 Claude 应用程序链接到您的 Claude 账户 |
 
@@ -154,7 +154,7 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
 
 **在 claude.ai/code**：完整的 Claude Code 会话，包含完整的对话历史、所有代码更改和文件操作。会话保存在您的 Claude Code 历史记录中，位于 [claude.ai/code](https://claude.ai/code)，您可以在那里继续过去的会话、参考它们或创建拉取请求。
 
-对于 Enterprise 和 Team 账户，从 Slack 中的 Claude 创建的会话会自动对组织可见。有关更多详情，请参阅 [云会话共享](/docs/zh-CN/claude-code-on-the-web#share-sessions)。
+对于 Enterprise 和 Team 账户，从 Slack 中的 Claude 创建的会话会自动对组织可见。有关更多详情，请参阅 [云会话共享](/docs/zh-CN/claude-code-on-the-web.md#share-sessions)。
 
 ## 最佳实践
 
@@ -190,7 +190,7 @@ Claude Tag 适用于 Team 和 Enterprise 计划。要连接工作区，请先使
 
 ### "Claude Code is not enabled for your account"
 
-此错误意味着您的 Claude 账户还没有云环境。使用连接到 Slack 的同一账户在 [claude.ai/code](https://claude.ai/code) 登录一次，并完成 [Web 入门](/docs/zh-CN/web-quickstart#connect-github)，这将创建您的默认云环境或要求您创建它。错误将在您下次提及时清除。每个用户必须单独执行此操作。
+此错误意味着您的 Claude 账户还没有云环境。使用连接到 Slack 的同一账户在 [claude.ai/code](https://claude.ai/code) 登录一次，并完成 [Web 入门](/docs/zh-CN/web-quickstart.md#connect-github)，这将创建您的默认云环境或要求您创建它。错误将在您下次提及时清除。每个用户必须单独执行此操作。
 
 ### 会话未启动
 
@@ -202,7 +202,7 @@ Claude Tag 适用于 Team 和 Enterprise 计划。要连接工作区，请先使
 
 此条目适用于使用 [Claude Tag](https://claude.com/docs/claude-tag/overview) 的工作区，其中 Claude 在频道中作为您组织的共享身份工作，而不是作为任何成员的账户。如果您在 [claude.ai/code](https://claude.ai/code) 创建了频道的云环境，它属于您的个人账户，Claude 无法在个人环境中启动频道会话。Claude Code 会立即使会话失败，重试也无法帮助。
 
-如果您是所有者且环境是您自己的，请从环境选择器中[与组织共享](/docs/zh-CN/cloud-environments#organization-shared-environments)。否则，所有者可从[管理设置](https://claude.ai/admin-settings)中的**云环境**页面将其重新创建为组织共享环境。
+如果您是所有者且环境是您自己的，请从环境选择器中[与组织共享](/docs/zh-CN/cloud-environments.md#organization-shared-environments)。否则，所有者可从[管理设置](https://claude.ai/admin-settings)中的**云环境**页面将其重新创建为组织共享环境。
 
 您可以通过两种方式应用它：
 
@@ -231,11 +231,11 @@ Claude Tag 适用于 Team 和 Enterprise 计划。要连接工作区，请先使
 
 * **仅 GitHub**：仓库必须在 GitHub 上。
 * **一次一个 PR**：每个会话可以创建一个拉取请求。
-* **需要云端会话访问权限**：用户需要访问[云端会话](/docs/zh-CN/claude-code-on-the-web)。
+* **需要云端会话访问权限**：用户需要访问[云端会话](/docs/zh-CN/claude-code-on-the-web.md)。
 
 ## 相关资源
 
-> **[云端 Claude Code](/docs/zh-CN/claude-code-on-the-web)**
+> **[云端 Claude Code](/docs/zh-CN/claude-code-on-the-web.md)**
 >
 > 了解有关云端会话的更多信息
 

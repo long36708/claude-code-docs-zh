@@ -154,7 +154,7 @@ async def streaming_analysis():
 asyncio.run(streaming_analysis())
 ```
 
-当您运行该示例时，TypeScript 版本会在每个响应完成时打印它。Python 版本的 `receive_response()` 循环在第一条结果消息处结束，因此它会打印安全分析；要读取两个响应，请使用一对 `query()` 和 `receive_response()`，如 [Python 参考中继续对话的示例](/docs/zh-CN/agent-sdk/python#example-continuing-a-conversation)所示。
+当您运行该示例时，TypeScript 版本会在每个响应完成时打印它。Python 版本的 `receive_response()` 循环在第一条结果消息处结束，因此它会打印安全分析；要读取两个响应，请使用一对 `query()` 和 `receive_response()`，如 [Python 参考中继续对话的示例](/docs/zh-CN/agent-sdk/python.md#example-continuing-a-conversation)所示。
 
 如果图像块的 `source` 缺失或不是对象，SDK 不会报告错误。Claude Code 会向 Claude 发送一条文本说明来代替该图像，例如 `[Image could not be processed: image block has no source object]`，并且会话会继续进行。
 
@@ -187,7 +187,7 @@ asyncio.run(streaming_analysis())
 > * 实时中断
 > * 自然的多轮对话
 
-如果查询以错误结果结束，例如 `error_max_turns`，单个消息 `query()` 调用会抛出一个错误，该错误包含在生成最终结果消息后的失败文本，因此如果您的代码需要继续，请将循环包装在 try 块中。有关结果子类型，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
+如果查询以错误结果结束，例如 `error_max_turns`，单个消息 `query()` 调用会抛出一个错误，该错误包含在生成最终结果消息后的失败文本，因此如果您的代码需要继续，请将循环包装在 try 块中。有关结果子类型，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)。
 
 ### 实现示例
 

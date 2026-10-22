@@ -8,7 +8,7 @@
 
 Claude Agent SDK 为每次与 Claude 的交互提供详细的令牌使用信息。本指南说明如何正确追踪使用情况和理解成本报告，特别是在处理并行工具使用和多步骤对话时。
 
-有关完整的 API 文档，请参阅 [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript) 和 [Python SDK 参考](/docs/zh-CN/agent-sdk/python)。
+有关完整的 API 文档，请参阅 [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript.md) 和 [Python SDK 参考](/docs/zh-CN/agent-sdk/python.md)。
 
 > [!WARNING]
 >
@@ -33,7 +33,7 @@ TypeScript 和 Python SDK 使用不同的字段名称公开相同的使用数据
 
 成本跟踪取决于理解 SDK 如何限定使用数据的范围：
 
-* **`query()` 调用：** SDK 的 `query()` 函数的一次调用。单个调用可以涉及多个步骤：Claude 响应、使用工具、获取结果并再次响应。每个调用在末尾产生一个 [`result`](/docs/zh-CN/agent-sdk/typescript#sdkresultmessage) 消息，除了在 [流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode) 中，其中一个 `query()` 调用承载多个用户轮次，每个轮次发出自己的 `result` 消息。
+* **`query()` 调用：** SDK 的 `query()` 函数的一次调用。单个调用可以涉及多个步骤：Claude 响应、使用工具、获取结果并再次响应。每个调用在末尾产生一个 [`result`](/docs/zh-CN/agent-sdk/typescript#sdkresultmessage) 消息，除了在 [流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md) 中，其中一个 `query()` 调用承载多个用户轮次，每个轮次发出自己的 `result` 消息。
 * **步骤：** `query()` 调用中的单个请求/响应周期。每个步骤产生具有令牌使用情况的助手消息。
 * **会话：** 由会话 ID 链接的一系列 `query()` 调用（通过 `resume` 选项）。已恢复调用的结果报告会话的整体支出，而不仅仅是该调用自己的支出。有关总计如何结转的信息，请参阅 [跨多个调用累积成本](#accumulate-costs-across-multiple-calls)。
 
@@ -55,7 +55,7 @@ TypeScript 和 Python SDK 使用不同的字段名称公开相同的使用数据
 
 ## 在流式输入模式下追踪成本
 
-在[流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)中，一个 `query()` 调用包含多个用户轮次，每个轮次都会发出自己的结果消息。结果字段的范围不同：
+在[流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)中，一个 `query()` 调用包含多个用户轮次，每个轮次都会发出自己的结果消息。结果字段的范围不同：
 
 * **`usage`**：仅覆盖该轮次，在该轮次内仅覆盖主代理循环，不包括它运行的任何子代理。
 * **`total_cost_usd` 和 `modelUsage`，或 Python 中的 `model_usage`**：为整个调用到目前为止的运行总计，加上调用恢复会话时恢复的任何支出。
@@ -83,7 +83,7 @@ TypeScript 和 Python SDK 使用不同的字段名称公开相同的使用数据
 
 在流式输入模式下，按照 [在流式输入模式下跟踪成本](#track-costs-in-streaming-input-mode) 中的描述读取调用总计。
 
-当代理生成 [子代理](/docs/zh-CN/agent-sdk/subagents) 时，三个结果级字段在计数内容上有所不同。使用 `modelUsage`，或在 Python 中使用 `model_usage`，进行整树令牌计数；`usage` 字段一旦发生嵌套就会低估。
+当代理生成 [子代理](/docs/zh-CN/agent-sdk/subagents.md) 时，三个结果级字段在计数内容上有所不同。使用 `modelUsage`，或在 Python 中使用 `model_usage`，进行整树令牌计数；`usage` 字段一旦发生嵌套就会低估。
 
 | 字段 | 子代理活动 |
 | - | - |
@@ -91,7 +91,7 @@ TypeScript 和 Python SDK 使用不同的字段名称公开相同的使用数据
 | `total_cost_usd` | 已包含。计算子代理请求以及顶级循环 |
 | `modelUsage` / `model_usage` | 已包含。计算子代理请求以及顶级循环，按模型分解 |
 
-在 [单消息输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode#single-message-input) 中，当后台子代理在最后一轮结束时仍在运行时，Claude Code 会等待它们，直到 [退出时的后台任务](/docs/zh-CN/headless#background-tasks-at-exit) 中描述的上限，然后再发出结果。结果的 `total_cost_usd`、`duration_api_ms` 和 `modelUsage`，或在 Python 中的 `model_usage`，包括在该等待期间完成的工作。
+在 [单消息输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md#single-message-input) 中，当后台子代理在最后一轮结束时仍在运行时，Claude Code 会等待它们，直到 [退出时的后台任务](/docs/zh-CN/headless.md#background-tasks-at-exit) 中描述的上限，然后再发出结果。结果的 `total_cost_usd`、`duration_api_ms` 和 `modelUsage`，或在 Python 中的 `model_usage`，包括在该等待期间完成的工作。
 
 以下示例遍历来自 `query()` 调用的消息流，并在 `result` 消息到达时打印总成本：
 
@@ -133,7 +133,7 @@ async def main():
 asyncio.run(main())
 ```
 
-要限制子代理可以添加到 `total_cost_usd` 的金额，请在查询上设置 [深度、并发和支出限制](/docs/zh-CN/agent-sdk/subagents#cap-subagent-depth-concurrency-and-spend)。
+要限制子代理可以添加到 `total_cost_usd` 的金额，请在查询上设置 [深度、并发和支出限制](/docs/zh-CN/agent-sdk/subagents.md#cap-subagent-depth-concurrency-and-spend)。
 
 ## 跟踪每步和每个模型的使用情况
 
@@ -220,7 +220,7 @@ try {
 每个 `query()` 调用都会在其结果中返回 `total_cost_usd`。如何组合这些值取决于调用是否共享一个会话：
 
 * **独立调用，没有 `resume` 或 `continue` 选项**：每个结果仅涵盖其自己的调用，因此您需要自己添加总计，如下面的示例所做的那样。
-* **恢复同一会话的调用**：Claude Code 在进程正常退出时将会话的总计保存到其[记录](/docs/zh-CN/sessions#where-transcripts-are-stored)，并在稍后的调用恢复或分叉会话时恢复它们。每个结果已经包括会话的早期支出。读取会话的最新结果以获得会话总计；对结果求和会重复计算恢复的支出。在 v2.1.277 之前，通过 SDK 或 `claude -p` 恢复的会话将其总计从零开始，因此每个调用的结果仅涵盖该调用。
+* **恢复同一会话的调用**：Claude Code 在进程正常退出时将会话的总计保存到其[记录](/docs/zh-CN/sessions.md#where-transcripts-are-stored)，并在稍后的调用恢复或分叉会话时恢复它们。每个结果已经包括会话的早期支出。读取会话的最新结果以获得会话总计；对结果求和会重复计算恢复的支出。在 v2.1.277 之前，通过 SDK 或 `claude -p` 恢复的会话将其总计从零开始，因此每个调用的结果仅涵盖该调用。
 
 无论哪种情况，合并后的数值仍然是[客户端估算值](#estimates-not-billing)。
 
@@ -337,13 +337,13 @@ Agent SDK 自动使用 [prompt caching](https://platform.claude.com/docs/en/buil
 
 ### 将 prompt cache TTL 扩展到一小时
 
-您自己的转换落在 [主对话 TTL 存储桶](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets) 中，与 Claude Code 与它们内联运行的助手一起。Claude Code 在该对话之外进行的请求，例如 [子代理](/docs/zh-CN/agent-sdk/subagents)，有 [单独的 TTL 控制](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)。
+您自己的转换落在 [主对话 TTL 存储桶](/docs/zh-CN/prompt-caching.md#which-ttl-each-request-gets) 中，与 Claude Code 与它们内联运行的助手一起。Claude Code 在该对话之外进行的请求，例如 [子代理](/docs/zh-CN/agent-sdk/subagents.md)，有 [单独的 TTL 控制](/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)。
 
-当您使用 API 密钥进行身份验证或在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws) 上运行时，您自己的转换的缓存条目默认使用 5 分钟 TTL。如果您的工作负载针对相同的系统提示和上下文运行许多短会话，且会话之间的间隔超过 5 分钟，缓存会在会话之间过期，每个新会话都需要支付完整的输入价格。
+当您使用 API 密钥进行身份验证或在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws.md) 上运行时，您自己的转换的缓存条目默认使用 5 分钟 TTL。如果您的工作负载针对相同的系统提示和上下文运行许多短会话，且会话之间的间隔超过 5 分钟，缓存会在会话之间过期，每个新会话都需要支付完整的输入价格。
 
 要请求缓存写入的 1 小时 TTL，请设置 [`ENABLE_PROMPT_CACHING_1H`](/docs/zh-CN/env-vars) 环境变量。您可以在 shell 或容器环境中导出它，或通过 `options.env` 传递它。
 
-以下示例为在 Amazon Bedrock 上运行的代理启用 1 小时 TTL。因为它设置了 `CLAUDE_CODE_USE_BEDROCK`，它需要 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock) 的有效 AWS 凭证；没有它们查询会失败。
+以下示例为在 Amazon Bedrock 上运行的代理启用 1 小时 TTL。因为它设置了 `CLAUDE_CODE_USE_BEDROCK`，它需要 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock.md) 的有效 AWS 凭证；没有它们查询会失败。
 
 ```python Python theme={null}
 from claude_agent_sdk import ClaudeAgentOptions, query
@@ -385,13 +385,13 @@ for await (const message of query({ prompt: "Summarize this project", options })
 
 `ENABLE_PROMPT_CACHING_1H` 要求在两个存储桶中的每个请求上使用 1 小时 TTL。要为每个存储桶分别选择 TTL，请改用这些控制。每个接受 `5m` 或 `1h` 并优先于 `ENABLE_PROMPT_CACHING_1H`：
 
-* 主对话：`CLAUDE_CODE_PROMPT_CACHE_TTL` [环境变量](/docs/zh-CN/env-vars)，或 [`promptCacheTtl`](/docs/zh-CN/settings-reference#promptcachettl) 设置
+* 主对话：`CLAUDE_CODE_PROMPT_CACHE_TTL` [环境变量](/docs/zh-CN/env-vars.md)，或 [`promptCacheTtl`](/docs/zh-CN/settings-reference#promptcachettl) 设置
 * 其他所有内容：`CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL` 环境变量，或 [`subagentPromptCacheTtl`](/docs/zh-CN/settings-reference#subagentpromptcachettl) 设置
 
-将 `promptCacheTtl` 设置为 `1h` 会在您使用使用额度时保持主对话上的 1 小时缓存。有关完整的优先级顺序，请参阅 [自己选择 TTL](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)。
+将 `promptCacheTtl` 设置为 `1h` 会在您使用使用额度时保持主对话上的 1 小时缓存。有关完整的优先级顺序，请参阅 [自己选择 TTL](/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)。
 
 ## 相关文档
 
-* [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript) - 完整的 API 文档
-* [SDK 概述](/docs/zh-CN/agent-sdk/overview) - SDK 入门
-* [SDK 权限](/docs/zh-CN/agent-sdk/permissions) - 管理工具权限
+* [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript.md) - 完整的 API 文档
+* [SDK 概述](/docs/zh-CN/agent-sdk/overview.md) - SDK 入门
+* [SDK 权限](/docs/zh-CN/agent-sdk/permissions.md) - 管理工具权限

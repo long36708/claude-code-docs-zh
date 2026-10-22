@@ -6,7 +6,7 @@
 
 > 从您的会话中使用 Artifacts 发布实时可共享页面，在拒绝和询问规则中匹配工具参数，以及使用 /config 从提示中设置任何设置。
 
-发布版本 [v2.1.178 → v2.1.183](/docs/en/changelog#2-1-178)
+发布版本 [v2.1.178 → v2.1.183](/docs/en/changelog.md#2-1-178)
 3 项功能 · 6 月 15–19 日
 
 Artifacts
@@ -21,7 +21,7 @@ Artifact 是一个实时交互式页面，Claude Code 从您的会话发布到 c
 Make an artifact that walks through this PR with the diff annotated inline.
 ```
 
-[创建 Artifact](/docs/zh-CN/artifacts#create-an-artifact)
+[创建 Artifact](/docs/zh-CN/artifacts.md#create-an-artifact)
 
 按输入参数匹配
 v2.1.178
@@ -38,7 +38,7 @@ v2.1.178
 }
 ```
 
-[按输入参数匹配](/docs/zh-CN/permissions#match-by-input-parameter)
+[按输入参数匹配](/docs/zh-CN/permissions.md#match-by-input-parameter)
 
 从提示中设置任何设置
 v2.1.181
@@ -51,10 +51,10 @@ v2.1.181
 /config thinking=false
 ```
 
-[命令参考](/docs/zh-CN/commands#all-commands)
+[命令参考](/docs/zh-CN/commands.md#all-commands)
 
 其他改进
 
 自动模式现在在您未要求丢弃本地工作时阻止破坏性 git 命令（`git reset --hard`、`git clean -fd`、`git stash drop`），并在您未要求特定堆栈时阻止 `terraform destroy`将新的 `attribution.sessionUrl` 设置设为 `false` 以在 web 和远程控制会话中的提交和 PR 中省略 claude.ai 会话链接在 `/config` 界面中，Enter 和 Space 都可以更改选定的设置，Esc 现在保存并关闭而不是还原新的 `sandbox.allowAppleEvents` 选择加入设置允许沙箱命令在 macOS 上发送 Apple Events指向 `CLAUDE_CLIENT_PRESENCE_FILE` 到标记文件以在您在机器上时抑制移动推送通知长段落现在逐行流式传输，而不是等待第一个换行符API 连接在思考中断开现在自动重试，而不是显示"思考时连接已关闭"设置 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 后，每个会话都有一个隐式团队，因此您可以直接使用 Agent 工具的 `name` 参数生成队友嵌套 `.claude/skills` 目录中的 Skills 在处理那里的文件时加载；在名称冲突时，嵌套 skill 显示为 `<dir>:<name>`，以便两者都保持可用修复了 prompt caching 在自定义 `ANTHROPIC_BASE_URL` 和 Foundry 上不读取的问题修复了 Write 和 Edit 在网络驱动器和云同步文件夹上生成零字节或截断文件的问题
 
-[v2.1.178–v2.1.183 完整更新日志 →](/docs/en/changelog#2-1-178)
+[v2.1.178–v2.1.183 完整更新日志 →](/docs/en/changelog.md#2-1-178)

@@ -6,11 +6,11 @@
 
 > 在agent会话期间跟踪文件更改，并将文件恢复到任何之前的状态
 
-File checkpointing跟踪在agent会话期间通过[Write](/docs/zh-CN/tools-reference#write-tool-behavior)、[Edit](/docs/zh-CN/tools-reference#edit-tool-behavior)和[NotebookEdit](/docs/zh-CN/tools-reference#notebookedit-tool-behavior)工具进行的文件修改，允许您将文件回滚到任何之前的状态。想要观看回滚恢复文件的过程，请跳转到[交互式示例](#try-it-out)。
+File checkpointing跟踪在agent会话期间通过[Write](/docs/zh-CN/tools-reference.md#write-tool-behavior)、[Edit](/docs/zh-CN/tools-reference.md#edit-tool-behavior)和[NotebookEdit](/docs/zh-CN/tools-reference.md#notebookedit-tool-behavior)工具进行的文件修改，允许您将文件回滚到任何之前的状态。想要观看回滚恢复文件的过程，请跳转到[交互式示例](#try-it-out)。
 
 > [!WARNING]
 >
-> 只有通过Write、Edit和NotebookEdit工具进行的更改才会被跟踪。通过Bash命令进行的更改（如`echo > file.txt`或`sed -i`）不会被checkpoint系统捕获，[subagent](/docs/zh-CN/agent-sdk/subagents)应用的编辑也不会被捕获，除了在前台运行的[具有`context: fork`的skill](/docs/zh-CN/skills#run-skills-in-a-subagent)。
+> 只有通过Write、Edit和NotebookEdit工具进行的更改才会被跟踪。通过Bash命令进行的更改（如`echo > file.txt`或`sed -i`）不会被checkpoint系统捕获，[subagent](/docs/zh-CN/agent-sdk/subagents.md)应用的编辑也不会被捕获，除了在前台运行的[具有`context: fork`的skill](/docs/zh-CN/skills#run-skills-in-a-subagent)。
 
 ## Checkpointing 如何工作
 
@@ -143,7 +143,7 @@ main();
 | 启用checkpointing | `enable_file_checkpointing=True` | `enableFileCheckpointing: true` | 跟踪文件更改以便回滚 |
 | 接收checkpoint UUID | `extra_args={"replay-user-messages": None}` | `extraArgs: { 'replay-user-messages': null }` | 需要在流中获取用户消息UUID |
 
-[实现checkpointing](#implement-checkpointing)下的主要示例还将权限模式设置为`acceptEdits`，这会在没有提示的情况下批准代理的文件编辑。有关更多信息，请参阅[权限模式](/docs/zh-CN/agent-sdk/permissions#permission-modes)。
+[实现checkpointing](#implement-checkpointing)下的主要示例还将权限模式设置为`acceptEdits`，这会在没有提示的情况下批准代理的文件编辑。有关更多信息，请参阅[权限模式](/docs/zh-CN/agent-sdk/permissions.md#permission-modes)。
 
 **2. 捕获checkpoint UUID和会话ID**
 
@@ -157,7 +157,7 @@ main();
 
 要在流完成后回滚，使用空提示恢复会话，并使用您的checkpoint UUID调用`rewind_files()`（Python）或`rewindFiles()`（TypeScript）。在恢复会话的选项上也启用checkpointing，并从响应循环内调用rewind。您也可以在流期间回滚。有关该模式，请参阅[在危险操作之前创建checkpoint](#checkpoint-before-risky-operations)。
 
-如果您捕获了会话ID和checkpoint ID，您也可以从CLI回滚。此命令需要`claude`可执行文件，该文件来自[安装Claude Code](/docs/zh-CN/setup)。SDK为您启用checkpointing，但当您直接运行`claude -p`时，您必须设置`CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING`环境变量：
+如果您捕获了会话ID和checkpoint ID，您也可以从CLI回滚。此命令需要`claude`可执行文件，该文件来自[安装Claude Code](/docs/zh-CN/setup.md)。SDK为您启用checkpointing，但当您直接运行`claude -p`时，您必须设置`CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING`环境变量：
 
 ```bash theme={null}
 CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true claude -p --resume <session-id> --rewind-files <checkpoint-uuid>
@@ -380,7 +380,7 @@ main();
 
 此完整示例创建一个小实用程序文件，让agent添加文档注释，向您显示更改，然后询问您是否想回滚。
 
-在开始之前，请确保您已[安装Claude Agent SDK](/docs/zh-CN/agent-sdk/quickstart)。
+在开始之前，请确保您已[安装Claude Agent SDK](/docs/zh-CN/agent-sdk/quickstart.md)。
 
 **1. 创建测试文件**
 
@@ -606,7 +606,7 @@ npx tsx try_checkpointing.ts
 | 限制 | 描述 |
 | - | - |
 | 仅Write/Edit/NotebookEdit工具 | 通过Bash命令进行的更改不被跟踪 |
-| 子代理编辑 | [子代理](/docs/zh-CN/agent-sdk/subagents)应用的编辑不被跟踪，但在前台运行的具有`context: fork`的skill除外。回滚仅会在主对话已编辑过的文件中撤销这些编辑；其余编辑请使用git来恢复 |
+| 子代理编辑 | [子代理](/docs/zh-CN/agent-sdk/subagents.md)应用的编辑不被跟踪，但在前台运行的具有`context: fork`的skill除外。回滚仅会在主对话已编辑过的文件中撤销这些编辑；其余编辑请使用git来恢复 |
 | 相同会话 | Checkpoint与创建它们的会话相关联 |
 | 仅文件内容 | 创建、移动或删除目录不会通过回滚撤销 |
 | 本地文件 | 远程或网络文件不被跟踪 |
@@ -661,7 +661,7 @@ CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true claude -p --resume <session-id> -
 
 ## 后续步骤
 
-* **[Sessions](/docs/zh-CN/agent-sdk/sessions)**：了解如何恢复会话，这是在流完成后回滚所必需的。涵盖会话ID、恢复对话和会话分叉。
-* **[Permissions](/docs/zh-CN/agent-sdk/permissions)**：配置Claude可以使用哪些工具以及如何批准文件修改。如果您想更好地控制何时进行编辑，这很有用。
-* **[TypeScript SDK reference](/docs/zh-CN/agent-sdk/typescript)**：完整的API参考，包括`query()`和`rewindFiles()`方法的所有选项。
-* **[Python SDK reference](/docs/zh-CN/agent-sdk/python)**：完整的API参考，包括`ClaudeAgentOptions`和`rewind_files()`方法的所有选项。
+* **[Sessions](/docs/zh-CN/agent-sdk/sessions.md)**：了解如何恢复会话，这是在流完成后回滚所必需的。涵盖会话ID、恢复对话和会话分叉。
+* **[Permissions](/docs/zh-CN/agent-sdk/permissions.md)**：配置Claude可以使用哪些工具以及如何批准文件修改。如果您想更好地控制何时进行编辑，这很有用。
+* **[TypeScript SDK reference](/docs/zh-CN/agent-sdk/typescript.md)**：完整的API参考，包括`query()`和`rewindFiles()`方法的所有选项。
+* **[Python SDK reference](/docs/zh-CN/agent-sdk/python.md)**：完整的API参考，包括`ClaudeAgentOptions`和`rewind_files()`方法的所有选项。

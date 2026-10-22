@@ -6,20 +6,20 @@
 
 > 让 Claude 从描述中编写一个 Claude Code mod，或者自己编写一个来计算工具调用并添加命令。学习重新加载和验证循环。
 
-Mod 是一个 Claude Code [插件](/docs/zh-CN/plugins/overview)，具有一个入口文件，称为 hooks 模块：一个 JavaScript 或 TypeScript 文件，其函数在事件发生时由 Claude Code 调用。创建方式如下：
+Mod 是一个 Claude Code [插件](/docs/zh-CN/plugins/overview.md)，具有一个入口文件，称为 hooks 模块：一个 JavaScript 或 TypeScript 文件，其函数在事件发生时由 Claude Code 调用。创建方式如下：
 
 * **让 Claude 编写它**：在 Claude Code 会话中[描述你想要的内容](#ask-claude-for-a-mod)
 * **自己编写**：[按照教程](#write-a-mod-yourself)学习 mod 代码的工作原理。你不需要 Node.js、打包工具或构建步骤，因为 Claude Code 直接加载 `.js` 和 `.ts` 文件。
 
-如果你还没有决定 mod 是否是合适的工具，请先阅读[概述中的比较](/docs/zh-CN/plugins/mods/overview#compare-mods-settings-hooks-skills-and-mcp-servers)。
+如果你还没有决定 mod 是否是合适的工具，请先阅读[概述中的比较](/docs/zh-CN/plugins/mods/overview.md#compare-mods-settings-hooks-skills-and-mcp-servers)。
 
 > [!NOTE]
 >
-> 请使用 Claude Code v2.1.287 或更高版本。在 shell 中运行 `claude --version` 进行检查。要查看 mod 是否可以为您加载，请参阅[检查 mod 是否可以加载](/docs/zh-CN/plugins/mods/troubleshoot#check-whether-mods-can-load)。
+> 请使用 Claude Code v2.1.287 或更高版本。在 shell 中运行 `claude --version` 进行检查。要查看 mod 是否可以为您加载，请参阅[检查 mod 是否可以加载](/docs/zh-CN/plugins/mods/troubleshoot.md#check-whether-mods-can-load)。
 
 ## 让 Claude 为你编写一个 mod
 
-在交互式 Claude Code 会话中描述你想要的 mod，Claude 会编写它。Claude 使用一个名为 `plugin-authoring` 的内置[技能](/docs/zh-CN/skills)，它告诉 Claude 在哪里编写 mod、你的版本有哪些事件和方法，以及 mod 如何被加载。当你请求一个 mod 时，Claude 可以加载该技能，或者你可以通过在 Claude Code 提示符处运行 `/plugin-authoring` 来自己加载它。
+在交互式 Claude Code 会话中描述你想要的 mod，Claude 会编写它。Claude 使用一个名为 `plugin-authoring` 的内置[技能](/docs/zh-CN/skills.md)，它告诉 Claude 在哪里编写 mod、你的版本有哪些事件和方法，以及 mod 如何被加载。当你请求一个 mod 时，Claude 可以加载该技能，或者你可以通过在 Claude Code 提示符处运行 `/plugin-authoring` 来自己加载它。
 
 一旦你批准了 mod，它就会运行，除了在[某些会话中 Claude 编写的 mod 无法加载](#sessions-that-skip-the-approval)的情况。
 
@@ -29,7 +29,7 @@ Mod 是一个 Claude Code [插件](/docs/zh-CN/plugins/overview)，具有一个�
 
 > [!NOTE]
 >
-> 在 `default` 和 `acceptEdits` [权限模式](/docs/zh-CN/permission-modes)中，Claude Code 会在 Claude 创建 mod 的每个文件之前请求您批准，因为 mods 文件夹是一个[受保护的路径](/docs/zh-CN/permission-modes#protected-paths)。请在每个文件出现时批准它。
+> 在 `default` 和 `acceptEdits` [权限模式](/docs/zh-CN/permission-modes.md)中，Claude Code 会在 Claude 创建 mod 的每个文件之前请求您批准，因为 mods 文件夹是一个[受保护的路径](/docs/zh-CN/permission-modes.md#protected-paths)。请在每个文件出现时批准它。
 
 **2. 批准 mod**
 
@@ -61,7 +61,7 @@ Claude 编写的 mod 仅在你批准它后加载，在允许 mod 运行的受信
 
 * **没有人在那里批准**：会话无法向你显示提示，如在 `claude -p` 运行或 [`dontAsk` 模式](/docs/zh-CN/permission-modes)中
 * **工作区不受信任**：你还没有接受目录的信任提示
-* **mod 已被禁用**：您使用 `--safe-mode` 或 `--bare` 启动，您设置了 `disableAllHooks`，或者您组织的[托管设置阻止了它](/docs/zh-CN/plugins/mods/admin#choose-how-much-to-allow)
+* **mod 已被禁用**：您使用 `--safe-mode` 或 `--bare` 启动，您设置了 `disableAllHooks`，或者您组织的[托管设置阻止了它](/docs/zh-CN/plugins/mods/admin.md#choose-how-much-to-allow)
 
 ## 自己编写一个 mod
 
@@ -82,8 +82,8 @@ first-mod/
     └── register.js
 ```
 
-* **`plugin.json`**：插件的[清单](/docs/zh-CN/plugins/manifest-reference)
-* **`hooks.json`**：[指向你的代码文件](/docs/zh-CN/plugins/mods/reference#files)
+* **`plugin.json`**：插件的[清单](/docs/zh-CN/plugins/manifest-reference.md)
+* **`hooks.json`**：[指向你的代码文件](/docs/zh-CN/plugins/mods/reference.md#files)
 * **`register.js`**：你的代码，称为 hooks 模块
 
 **1. 创建插件目录**
@@ -104,7 +104,7 @@ New-Item -ItemType Directory -Force first-mod\.claude-plugin, first-mod\hooks
 
 **2. 编写清单**
 
-Mod 是一个插件，mod 需要一个[清单](/docs/zh-CN/plugins/manifest-reference)。这个 mod 的清单没有特殊字段。将其保存为 `first-mod/.claude-plugin/plugin.json`：
+Mod 是一个插件，mod 需要一个[清单](/docs/zh-CN/plugins/manifest-reference.md)。这个 mod 的清单没有特殊字段。将其保存为 `first-mod/.claude-plugin/plugin.json`：
 
 ```json first-mod/.claude-plugin/plugin.json theme={null}
 {
@@ -205,7 +205,7 @@ claude -p "/tally" --plugin-dir ./first-mod
 first-mod: Claude has made 0 tool calls since this mod loaded
 ```
 
-如果 `/tally` 不在命令列表中，则模块未加载。请参阅[找出为什么 mod 什么都不做](/docs/zh-CN/plugins/mods/troubleshoot#find-out-why-a-mod-does-nothing)。
+如果 `/tally` 不在命令列表中，则模块未加载。请参阅[找出为什么 mod 什么都不做](/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)。
 
 **7. 在会话运行时更改代码**
 
@@ -225,17 +225,17 @@ first-mod: Claude has made 0 tool calls since this mod loaded
 
 你传递给 `on` 的每个函数都是一个 hook，它是一个事件处理程序。Claude Code 将相同的三个参数传递给每个 hook：
 
-* **Mods API**，名为 `$`：mod 可以调用的每个方法来到达自身之外，在[命名空间](/docs/zh-CN/plugins/mods/reference#mods-api-methods)中，例如 `$.ui` 和 `$.command`
-* **事件**，名为 `e`：[事件的输入](/docs/zh-CN/plugins/mods/reference#events)作为纯数据，例如工具调用的名称和参数
+* **Mods API**，名为 `$`：mod 可以调用的每个方法来到达自身之外，在[命名空间](/docs/zh-CN/plugins/mods/reference.md#mods-api-methods)中，例如 `$.ui` 和 `$.command`
+* **事件**，名为 `e`：[事件的输入](/docs/zh-CN/plugins/mods/reference.md#events)作为纯数据，例如工具调用的名称和参数
 * **下一个处理程序**，名为 [`next`](/docs/zh-CN/plugins/mods/events#how-a-hook-handles-an-event)：一个函数，将事件传递给其他 mod，然后传递给 Claude Code 自己的行为，并返回结果
 
 `first-mod` 中的 hook 以下列方式处理各自的事件：
 
 * **观察**：`session.start` hook 注册命令，`tool.call` hook 计算调用并要求重新绘制。两者都返回 `next(e)`，所以会话启动，工具照常运行。
-* **回答**：`command.run` hook 返回自己的结果，从不调用 `next`。`on` 的第二个参数 `{ command: 'tally' }` 是一个过滤器，称为[匹配器](/docs/zh-CN/plugins/mods/events#filter-which-events-a-hook-handles)，所以 hook 仅对 `/tally` 运行。
+* **回答**：`command.run` hook 返回自己的结果，从不调用 `next`。`on` 的第二个参数 `{ command: 'tally' }` 是一个过滤器，称为[匹配器](/docs/zh-CN/plugins/mods/events.md#filter-which-events-a-hook-handles)，所以 hook 仅对 `/tally` 运行。
 * **重写**：`ui.render` hook 使用 `e` 的副本调用 `next`，其 `suffix` 保持计数，所以 Claude Code 绘制其通常的微调器，你的文本在单词后面
 
-Claude Code 监视使用 `--plugin-dir` 加载的目录，并在其中的文件更改时热重新加载 hooks 模块。每次重新加载都会再次运行 `register`，所以 `calls` 回到 `0`，`/tally` 开始重新计数。要在重新加载中保持值，请参阅[保持状态](/docs/zh-CN/plugins/mods/interface#keep-state)。
+Claude Code 监视使用 `--plugin-dir` 加载的目录，并在其中的文件更改时热重新加载 hooks 模块。每次重新加载都会再次运行 `register`，所以 `calls` 回到 `0`，`/tally` 开始重新计数。要在重新加载中保持值，请参阅[保持状态](/docs/zh-CN/plugins/mods/interface.md#keep-state)。
 
 ## 继续处理 mod
 
@@ -249,7 +249,7 @@ Claude Code 监视使用 `--plugin-dir` 加载的目录，并在其中的文件�
 claude --plugin-dir ./first-mod
 ```
 
-然后请求更改，例如 `add a /tally-reset command to this mod that sets the tally back to zero`。Claude 编辑 hooks 模块，运行 `claude plugin validate`，并修复它报告的内容。你使用 `--plugin-dir` 加载的目录是一个[受保护的路径](/docs/zh-CN/permission-modes#protected-paths)，所以在 `default` 和 `acceptEdits` 模式中，你被要求批准 Claude 对 mod 的每个编辑。受保护的路径表给出其他权限模式的结果。
+然后请求更改，例如 `add a /tally-reset command to this mod that sets the tally back to zero`。Claude 编辑 hooks 模块，运行 `claude plugin validate`，并修复它报告的内容。你使用 `--plugin-dir` 加载的目录是一个[受保护的路径](/docs/zh-CN/permission-modes.md#protected-paths)，所以在 `default` 和 `acceptEdits` 模式中，你被要求批准 Claude 对 mod 的每个编辑。受保护的路径表给出其他权限模式的结果。
 
 Claude 在其转折期间保存的文件在转折结束时重新加载，所以你可以在 Claude 完成后立即尝试 `/tally-reset`。
 
@@ -299,7 +299,7 @@ claude plugin validate ./first-mod
 * 在 `register` 内，不要声明第二个名为 `on` 的变量或参数。验证失败，出现 `"on" is declared again (shadowed)`。
 * 仅从插件目录内的文件导入，通过相对路径。唯一允许的裸导入是 `claude-code`，用于类型和一些帮助程序。
 * 在文件顶部使用 `import` 声明，如 `import { name } from './file.js'`。动态 `import()` 失败，出现 `a dynamic import(); a hooks module imports its own files with an import declaration`。
-* 将每个文件写为 ES 模块，使用 `import` 而不是 `require`。[参考](/docs/zh-CN/plugins/mods/reference#files)列出 Claude Code 加载的文件扩展名。
+* 将每个文件写为 ES 模块，使用 `import` 而不是 `require`。[参考](/docs/zh-CN/plugins/mods/reference.md#files)列出 Claude Code 加载的文件扩展名。
 
 ### 测试 mod
 
@@ -341,26 +341,26 @@ tests/first-mod.test.ts:
 Ran 1 test across 1 file. [0.19s]
 ```
 
-[测试 mod](/docs/zh-CN/plugins/mods/test)涵盖存根模型调用或存储，以及测试计时器和绘图。
+[测试 mod](/docs/zh-CN/plugins/mods/test.md)涵盖存根模型调用或存储，以及测试计时器和绘图。
 
 ## 分享你的 mod
 
 mod 是一个插件，所以您在清单中对其进行版本控制，人们使用 `/plugin` 命令安装和更新它。如何分享取决于分享对象：
 
-* **少数几个人**：将插件的目录或其 `.zip` 文件发送给他们。请参阅[在没有市场的情况下分享插件](/docs/zh-CN/plugins/publish#share-a-plugin-without-a-marketplace)
-* **您的团队**：将其列入[您自己的市场](/docs/zh-CN/plugins/publish#publish-through-your-own-marketplace)，例如每个插件各占一个目录的私有仓库。要为在某个仓库中工作的所有人添加该市场，请[在仓库的设置中注册它](/docs/zh-CN/plugins/host-marketplace#register-the-marketplace-for-everyone-in-a-repository)
-* **您的整个组织**：管理员可以通过托管设置[安装您组织的 mod](/docs/zh-CN/plugins/mods/admin#install-your-organizations-mods)
-* **任何人**：将您的市场仓库设为公开，或[将插件提交到 Anthropic 的目录](/docs/zh-CN/plugins/publish#submit-to-anthropics-directory)
+* **少数几个人**：将插件的目录或其 `.zip` 文件发送给他们。请参阅[在没有市场的情况下分享插件](/docs/zh-CN/plugins/publish.md#share-a-plugin-without-a-marketplace)
+* **您的团队**：将其列入[您自己的市场](/docs/zh-CN/plugins/publish.md#publish-through-your-own-marketplace)，例如每个插件各占一个目录的私有仓库。要为在某个仓库中工作的所有人添加该市场，请[在仓库的设置中注册它](/docs/zh-CN/plugins/host-marketplace.md#register-the-marketplace-for-everyone-in-a-repository)
+* **您的整个组织**：管理员可以通过托管设置[安装您组织的 mod](/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)
+* **任何人**：将您的市场仓库设为公开，或[将插件提交到 Anthropic 的目录](/docs/zh-CN/plugins/publish.md#submit-to-anthropics-directory)
 
-在你这样做之前，检查插件的 `name`：`claude plugin validate` 失败一个[看起来像 Anthropic 自己的](/docs/zh-CN/plugins/manifest-reference#name)名称，例如以 `claude-` 开头的名称。事件和方法可以在版本之间更改，所以你的 README 是说明你测试的 Claude Code 版本的地方。
+在你这样做之前，检查插件的 `name`：`claude plugin validate` 失败一个[看起来像 Anthropic 自己的](/docs/zh-CN/plugins/manifest-reference.md#name)名称，例如以 `claude-` 开头的名称。事件和方法可以在版本之间更改，所以你的 README 是说明你测试的 Claude Code 版本的地方。
 
 继续针对目录使用 `--plugin-dir` 进行开发，而不是针对已安装的副本。Claude Code 按版本缓存已安装的插件，所以在您提高版本并再次安装之前，您的编辑不会到达已安装的副本。
 
 ## 后续步骤
 
-* [在界面中绘制](/docs/zh-CN/plugins/mods/interface)：打开一个窗格，在提示上方绘制，并添加按钮和文本字段
-* [对事件做出反应](/docs/zh-CN/plugins/mods/events)：hook 工具调用、提示和转折
-* [使用 mods API](/docs/zh-CN/plugins/mods/api)：添加命令和工具、调用模型、在计时器上运行工作
-* [测试 mod](/docs/zh-CN/plugins/mods/test)：存根 Claude Code 会回答的内容，以及测试计时器和绘图
-* [排查 mod 故障](/docs/zh-CN/plugins/mods/troubleshoot)：mod 什么都不做的原因和调试日志
-* [阅读内置 mod 的源代码](/docs/zh-CN/plugins/mods/overview#read-the-source-of-built-in-mods)：完整的插件，每个都有其 hooks 模块和测试
+* [在界面中绘制](/docs/zh-CN/plugins/mods/interface.md)：打开一个窗格，在提示上方绘制，并添加按钮和文本字段
+* [对事件做出反应](/docs/zh-CN/plugins/mods/events.md)：hook 工具调用、提示和转折
+* [使用 mods API](/docs/zh-CN/plugins/mods/api.md)：添加命令和工具、调用模型、在计时器上运行工作
+* [测试 mod](/docs/zh-CN/plugins/mods/test.md)：存根 Claude Code 会回答的内容，以及测试计时器和绘图
+* [排查 mod 故障](/docs/zh-CN/plugins/mods/troubleshoot.md)：mod 什么都不做的原因和调试日志
+* [阅读内置 mod 的源代码](/docs/zh-CN/plugins/mods/overview.md#read-the-source-of-built-in-mods)：完整的插件，每个都有其 hooks 模块和测试

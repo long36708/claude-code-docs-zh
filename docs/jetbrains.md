@@ -33,7 +33,7 @@ Claude Code 插件适用于大多数 JetBrains IDE，包括：
 
 **1. 安装 Claude Code CLI**
 
-如果您还没有安装 CLI，请按照[快速入门](/docs/zh-CN/quickstart)进行安装。当 `claude` 不在您的 PATH 中时，插件会显示"无法启动 Claude Code"通知。
+如果您还没有安装 CLI，请按照[快速入门](/docs/zh-CN/quickstart.md)进行安装。当 `claude` 不在您的 PATH 中时，插件会显示"无法启动 Claude Code"通知。
 
 **2. 安装 JetBrains 插件**
 
@@ -41,7 +41,7 @@ Claude Code 插件适用于大多数 JetBrains IDE，包括：
 
 如果 `claude` 安装在您的 IDE 找不到的位置，请在插件的 [Claude 命令设置](#general-settings)中设置完整路径。
 
-Claude Code 适用于任何付费 Claude 订阅（Pro、Max、Team 或 Enterprise）或 Claude Console 账户，无需 API 密钥。首次运行 `claude` 时，系统会提示您[登录](/docs/zh-CN/authentication#log-in-to-claude-code)。
+Claude Code 适用于任何付费 Claude 订阅（Pro、Max、Team 或 Enterprise）或 Claude Console 账户，无需 API 密钥。首次运行 `claude` 时，系统会提示您[登录](/docs/zh-CN/authentication.md#log-in-to-claude-code)。
 
 ## 使用
 
@@ -189,11 +189,11 @@ networkingMode=mirrored
 
 在 JetBrains IDE 中运行时，请考虑：
 
-* 对编辑使用手动模式，因为 `acceptEdits` 和自动模式都会批准您工作目录内的编辑而不询问，除了在[受保护路径](/docs/zh-CN/permission-modes#protected-paths)中会询问
+* 对编辑使用手动模式，因为 `acceptEdits` 和自动模式都会批准您工作目录内的编辑而不询问，除了在[受保护路径](/docs/zh-CN/permission-modes.md#protected-paths)中会询问
 * 特别小心确保 Claude 仅与受信任的提示一起使用
 * 了解 Claude Code 有权修改哪些文件
 
-对于 IDE 外的 Claude Code 安装或登录问题，请参阅[排查安装和登录问题](/docs/zh-CN/troubleshoot-install)。
+对于 IDE 外的 Claude Code 安装或登录问题，请参阅[排查安装和登录问题](/docs/zh-CN/troubleshoot-install.md)。
 
 ### 内置 IDE MCP 服务器
 
@@ -201,7 +201,7 @@ networkingMode=mirrored
 
 服务器名为 `ide`，从 `/mcp` 中隐藏，因为没有什么需要配置。但是，如果您的组织使用 [`PreToolUse` hook](/docs/zh-CN/hooks#pretooluse) 来允许列表 MCP 工具，您需要知道它的存在。
 
-**选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，记录会显示一行 `⧉ Selected N lines from <file>`。如果您[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)，它会保留您按下 `Enter` 时的选择，无论您之后选择什么。
+**选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，记录会显示一行 `⧉ Selected N lines from <file>`。如果您[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works)，它会保留您按下 `Enter` 时的选择，无论您之后选择什么。
 
 要排除敏感文件（如 `.env`），请为其路径添加 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)。匹配的拒绝规则可防止该文件的选定文本和打开文件通知都到达 Claude。
 

@@ -12,7 +12,7 @@
 * 团队的 `.claude/settings.json`，提交到仓库
 * 组织的 `managed-settings.json`
 
-每个文件都是该读者的合理文件，因此你可以看到其结构并复制你想要的部分。它们都不是推荐的基线。每个值都来自 [settings reference](/docs/zh-CN/settings-reference) 上的键条目，该条目包含其类型、默认值和可以设置的位置。
+每个文件都是该读者的合理文件，因此你可以看到其结构并复制你想要的部分。它们都不是推荐的基线。每个值都来自 [settings reference](/docs/zh-CN/settings-reference.md) 上的键条目，该条目包含其类型、默认值和可以设置的位置。
 
 每个示例有两个选项卡。**Copyable settings file** 是你保存的文件。**What each key does** 是同一个文件，每个键上方都有注释；Claude Code 不接受设置文件中的注释，因此请从第一个选项卡复制。
 
@@ -94,10 +94,10 @@
 
 一个团队的共享设置，提交到仓库，以便克隆它的每个人都获得相同的权限、hooks 和插件市场。在仓库顶部的 `.claude/settings.json` 处保存这样的文件。在提交之前需要了解的内容：
 
-* **[项目](/docs/zh-CN/claude-projects#what-threads-pick-up-from-your-repositories)之外的云端会话也会读取它。** 包含单个仓库的[云端会话](/docs/zh-CN/settings#settings-in-cloud-sessions)在克隆内部启动，因此提交的文件也适用于那里。
-* **遥测数据放在托管或个人设置中。** Claude Code 忽略仓库设置文件中的 [OpenTelemetry 导出器变量](/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)，除了一些关闭遥测的值。在 [托管设置](/docs/zh-CN/monitoring-usage#administrator-configuration) 中为你的组织设置它们，或在每个人的 `~/.claude/settings.json` 中设置。
-* **Allow 规则等待信任。** Allow 规则和 `extraKnownMarketplaces` 条目在每个人 [信任此文件夹本身](/docs/zh-CN/permissions#project-allow-rules-and-workspace-trust) 后生效，而不仅仅是父文件夹；deny 和 ask 规则在每个会话中应用，无论是否受信任。
-* **hook 是仓库中的脚本。** 此文件的 hook 运行 `.claude/hooks/block-rm.sh`；[How a hook resolves](/docs/zh-CN/hooks#how-a-hook-resolves) 介绍了如何编写它。
+* **[项目](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)线程之外的云端会话也会读取它。** 包含单个仓库的[云端会话](/docs/zh-CN/settings.md#settings-in-cloud-sessions)在克隆内部启动，因此提交的文件也适用于那里。
+* **遥测数据放在托管或个人设置中。** Claude Code 忽略仓库设置文件中的 [OpenTelemetry 导出器变量](/docs/zh-CN/settings-reference.md#variables-claude-code-ignores-in-env)，除了一些关闭遥测的值。在 [托管设置](/docs/zh-CN/monitoring-usage.md#administrator-configuration) 中为你的组织设置它们，或在每个人的 `~/.claude/settings.json` 中设置。
+* **Allow 规则等待信任。** Allow 规则和 `extraKnownMarketplaces` 条目在每个人 [信任此文件夹本身](/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust) 后生效，而不仅仅是父文件夹；deny 和 ask 规则在每个会话中应用，无论是否受信任。
+* **hook 是仓库中的脚本。** 此文件的 hook 运行 `.claude/hooks/block-rm.sh`；[How a hook resolves](/docs/zh-CN/hooks.md#how-a-hook-resolves) 介绍了如何编写它。
 * **规则匹配按写入的命令和路径。** `Bash(git push *)` 不匹配 [`git -C . push`](/docs/zh-CN/permissions#bash-rule-limits)。`Read(./.env)` 单独停止文件工具和命名文件的命令，例如 `cat .env`，但不停止 [`grep -r` 在目录上运行](/docs/zh-CN/permissions#read-and-edit)；此文件中的 `sandbox` 块关闭了该间隙，因为 sandbox [添加你的 `Read` deny 路径](/docs/zh-CN/settings-reference#sandbox-filesystem-denyread) 到每个沙箱命令无法读取的内容。
 
 **Copyable settings file**
@@ -236,16 +236,16 @@
 
 * `forceLoginMethod` 和 `forceLoginOrgUUID` 固定登录方法和组织
 * `availableModels` 和 `enforceAvailableModels` 限制会话可以使用的模型
-* `permissions.deny` 拒绝两个文件读取和 `curl` 命令 [如 Claude 编写的那样](/docs/zh-CN/permissions#bash-rule-limits)，`disableBypassPermissionsMode` 删除绕过权限模式
+* `permissions.deny` 拒绝两个文件读取和 `curl` 命令 [如 Claude 编写的那样](/docs/zh-CN/permissions.md#bash-rule-limits)，`disableBypassPermissionsMode` 删除绕过权限模式
 * [`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 和 [`allowManagedMcpServersOnly`](/docs/zh-CN/settings-reference#allowmanagedmcpserversonly) 使托管权限和 MCP 允许列表成为唯一适用的列表
 * `allowedMcpServers` 通过 URL 固定 MCP 服务器
 * `strictKnownMarketplaces` 允许一个插件市场
-* `sandbox` 使用固定的网络允许列表对命令进行沙箱处理，无需无沙箱重试。其 `failIfUnavailable` 键会[在沙箱无法运行的环境中阻止 Claude Code 启动](/docs/zh-CN/sandboxing#enforce-sandboxing-with-managed-settings)
+* `sandbox` 使用固定的网络允许列表对命令进行沙箱处理，无需无沙箱重试。其 `failIfUnavailable` 键会[在沙箱无法运行的环境中阻止 Claude Code 启动](/docs/zh-CN/sandboxing.md#enforce-sandboxing-with-managed-settings)
 * `requiredMinimumVersion` 设置最低 Claude Code 版本
 * `cleanupPeriodDays` 将会话记录和其他本地数据的保留期缩短为七天
 * `companyAnnouncements` 在启动时显示消息
 
-管理员将这样的文件部署为 `managed-settings.json`，或通过 MDM 或 [server-managed settings](/docs/zh-CN/server-managed-settings) 部署相同的 JSON。一个部署的文件适用于它到达的每台机器或帐户。要为一个组提供不同的值，请将不同的文件或配置文件部署到该组，因为 [server-managed settings 还不支持按组策略](/docs/zh-CN/server-managed-settings#current-limitations)。
+管理员将这样的文件部署为 `managed-settings.json`，或通过 MDM 或 [server-managed settings](/docs/zh-CN/server-managed-settings.md) 部署相同的 JSON。一个部署的文件适用于它到达的每台机器或帐户。要为一个组提供不同的值，请将不同的文件或配置文件部署到该组，因为 [server-managed settings 还不支持按组策略](/docs/zh-CN/server-managed-settings.md#current-limitations)。
 
 **Copyable settings file**
 

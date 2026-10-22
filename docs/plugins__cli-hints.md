@@ -8,11 +8,11 @@
 
 如果您维护 CLI 或 SDK，您的工具可以提示 Claude Code 用户安装您的插件。当您的 CLI 检测到它在 Claude Code 内运行时，让它向 stderr 写入一行 `<claude-code-hint />` 标签。Claude Code 在模型看到输出之前从 Bash 和 PowerShell 工具输出中删除该行，然后向用户显示一次性安装提示。
 
-本页仅适用于您的插件是否列在 `claude-plugins-official` 或其他市场中，该市场具有 Anthropic 的[官方市场名称](/docs/zh-CN/plugins/security#official-marketplace-names)之一。社区市场 `claude-community` 不是其中之一。
+本页仅适用于您的插件是否列在 `claude-plugins-official` 或其他市场中，该市场具有 Anthropic 的[官方市场名称](/docs/zh-CN/plugins/security.md#official-marketplace-names)之一。社区市场 `claude-community` 不是其中之一。
 
 > [!NOTE]
 >
-> 要发布插件，请参阅[发布和分发插件](/docs/zh-CN/plugins/publish)。
+> 要发布插件，请参阅[发布和分发插件](/docs/zh-CN/plugins/publish.md)。
 
 ## 发出提示
 
@@ -23,7 +23,7 @@ Claude Code 在通过 Bash 和 PowerShell 工具运行的命令以及 hook 命�
 * **`CLAUDECODE`**：由每个 Claude Code 版本设置。IDE 扩展也在其集成终端中设置它，因此仅在 `CLAUDECODE` 上的门控也会在人员在其中一个终端中直接运行您的 CLI 时发出标签
 * **`CLAUDE_CODE_CHILD_SESSION`**：仅在 Claude Code 本身启动的子进程中设置。当您可以要求 v2.1.172 或更高版本时使用它
 
-[环境变量参考](/docs/zh-CN/env-vars)有详细信息。
+[环境变量参考](/docs/zh-CN/env-vars.md)有详细信息。
 
 以下示例在 `CLAUDECODE` 上进行门控以获得最广泛的覆盖范围，并为官方市场中名为 `example-cli` 的插件发出提示：
 
@@ -85,7 +85,7 @@ fi
 提示仅在交互式终端会话中出现。在 `claude -p` 运行中、在子代理运行中以及在 hook 命令输出中，标签被剥离且不显示提示。所有这些检查也必须通过：
 
 * **官方且可安装**：`value` 命名一个 Claude Code 在其官方市场本地副本中找到的插件，该插件尚未安装，且没有策略阻止
-* **分析打开**：Claude Code 的分析关闭的会话永远不会提示，例如设置了 `DISABLE_TELEMETRY`、`DO_NOT_TRACK` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 的会话，或在第三方提供商（如 Amazon Bedrock）上的会话，其中[自动遥测选择退出](/docs/zh-CN/data-usage#default-behaviors-by-api-provider)适用
+* **分析打开**：Claude Code 的分析关闭的会话永远不会提示，例如设置了 `DISABLE_TELEMETRY`、`DO_NOT_TRACK` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 的会话，或在第三方提供商（如 Amazon Bedrock）上的会话，其中[自动遥测选择退出](/docs/zh-CN/data-usage.md#default-behaviors-by-api-provider)适用
 * **频率限制**：每个会话一个提示，每个插件一个提示（无论用户的答案如何），一旦在该机器上为 100 个插件提示过，就没有提示
 * **未关闭**：用户未选择**否，不再显示插件安装提示**
 * **本地、有人值守的会话**：会话的工作区是本地的而不是在云或远程机器上，会话不是无人值守运行的。例如，使用 `--cloud` 启动的会话、提供远程控制的会话或代理团队队友永远不会提示
@@ -114,11 +114,11 @@ fi
 
 对话框命名 Claude 运行的 shell 命令的第一个单词，以便用户可以发现不匹配。每个答案都有一个效果：
 
-* **是的，安装**：在[用户范围](/docs/zh-CN/plugins/install)安装插件
+* **是的，安装**：在[用户范围](/docs/zh-CN/plugins/install.md)安装插件
 * **否，不再显示插件安装提示**：为该用户关闭未来的提示提示
 * **30 秒内无答案**：计为**否**
 
 ## 后续步骤
 
-* [发布和分发插件](/docs/zh-CN/plugins/publish)：进入每个市场的路由，包括提示所需的官方市场
-* [插件命令参考](/docs/zh-CN/plugins/cli-reference#plugin-install)：在会话外安装相同插件的 shell 命令
+* [发布和分发插件](/docs/zh-CN/plugins/publish.md)：进入每个市场的路由，包括提示所需的官方市场
+* [插件命令参考](/docs/zh-CN/plugins/cli-reference.md#plugin-install)：在会话外安装相同插件的 shell 命令

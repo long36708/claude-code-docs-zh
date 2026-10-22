@@ -61,7 +61,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `Footer` | 页脚指示器导航（任务、团队、差异、工件） |
 | `MessageSelector` | 回退和总结对话框消息选择 |
 | `DiffDialog` | [diff 查看器](#diff-actions)导航 |
-| `DiffPanel` | [差异面板](/docs/zh-CN/interactive-mode#diff-panel)打开 |
+| `DiffPanel` | [差异面板](/docs/zh-CN/interactive-mode.md#diff-panel)打开 |
 | `ModelPicker` | 模型选择器工作量级别 |
 | `EffortSlider` | 由 `/effort` 打开的工作量滑块 |
 | `Select` | 通用选择/列表组件 |
@@ -69,9 +69,9 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `AbovePrompt` | [输入框上方的区域](#above-prompt-actions)或其中的按钮获得键盘焦点 |
 | `AbovePromptInput` | 输入框上方区域或 mod 窗格中的输入字段获得键盘焦点 |
 | `AbovePromptSelect` | 输入框上方区域或 mod 窗格中的选择框获得键盘焦点 |
-| `Pane` | 由 [mod](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive) 绘制的窗格获得键盘焦点 |
+| `Pane` | 由 [mod](/docs/zh-CN/plugins/mods/interface.md#know-which-keys-your-mod-can-receive) 绘制的窗格获得键盘焦点 |
 | `PaneField` | mod 窗格中的输入字段或选择框获得键盘焦点 |
-| `Agents` | [Agent 视图](/docs/zh-CN/agent-view)（`claude agents`） |
+| `Agents` | [Agent 视图](/docs/zh-CN/agent-view.md)（`claude agents`） |
 | `Scroll` | 对话滚动和全屏模式下的文本选择 |
 
 在 v2.1.205 之前，`/doctor` 诊断屏幕存在 `Doctor` 上下文和 `doctor:fix` 操作。
@@ -110,18 +110,18 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | :- | :- | :- |
 | `chat:cancel` | Escape | 取消当前输入 |
 | `chat:clearInput` | Ctrl+L | 强制全屏重绘，保留输入和对话 |
-| `chat:clearScreen` | Cmd+K | 与 `chat:clearInput` 相同。请参阅 [清除对话](/docs/zh-CN/fullscreen#clear-the-conversation) 了解 Cmd+K 在 iTerm2 和 Terminal.app 上的行为 |
-| `chat:killAgents` | Ctrl+X Ctrl+K | 停止此会话中所有运行的 [后台子代理](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)，并在会话的其余部分关闭 [Artifact 自动回复](/docs/zh-CN/artifacts#let-claude-reply-to-comments-on-its-own)。在 3 秒内按两次该快捷键以确认。即使后台子代理的权限提示处于打开状态，您也可以按下该快捷键 |
+| `chat:clearScreen` | Cmd+K | 与 `chat:clearInput` 相同。请参阅 [清除对话](/docs/zh-CN/fullscreen.md#clear-the-conversation) 了解 Cmd+K 在 iTerm2 和 Terminal.app 上的行为 |
+| `chat:killAgents` | Ctrl+X Ctrl+K | 停止此会话中所有运行的 [后台子代理](/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)，并在会话的其余部分关闭 [Artifact 自动回复](/docs/zh-CN/artifacts.md#let-claude-reply-to-comments-on-its-own)。在 3 秒内按两次该快捷键以确认。即使后台子代理的权限提示处于打开状态，您也可以按下该快捷键 |
 | `chat:cycleMode` | Shift+Tab\* | 循环权限模式 |
 | `chat:modelPicker` | Meta+P | 打开模型选择器 |
 | `chat:fastMode` | Meta+O | 切换快速模式 |
 | `chat:thinkingToggle` | Meta+T | 切换扩展思考 |
 | `chat:submit` | Enter | 提交消息 |
-| `chat:queueSubmit` | Ctrl+X Enter | 提交消息，标记为等待其轮次：当 Claude 工作时，Claude Code [将其排队](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)，永远不会中断轮次。与 `chat:submit` 不同，即使自动完成建议被突出显示，它也会提交草稿。需要 v2.1.247 或更高版本 |
-| `chat:sendNow` | Ctrl+Enter, Ctrl+X Ctrl+S | 发送您的 [排队消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works) 和您的草稿，立即一起发出。[Claude Code 发送您排队的内容](/docs/zh-CN/interactive-mode#when-claude-code-sends-what-you-queued) 涵盖了 Claude 正在处理的轮次会发生什么。当没有任何内容运行时，该键提交草稿，在 [shell 模式](/docs/zh-CN/interactive-mode#shell-mode-with-prefix) 中，它仅排队命令。不报告扩展键的终端将 `Ctrl+Enter` 传递为纯 `Enter`，因此 `Ctrl+X Ctrl+S` 是在任何终端中都有效的绑定。需要 v2.1.275 或更高版本 |
+| `chat:queueSubmit` | Ctrl+X Enter | 提交消息，标记为等待其轮次：当 Claude 工作时，Claude Code [将其排队](/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works)，永远不会中断轮次。与 `chat:submit` 不同，即使自动完成建议被突出显示，它也会提交草稿。需要 v2.1.247 或更高版本 |
+| `chat:sendNow` | Ctrl+Enter, Ctrl+X Ctrl+S | 发送您的 [排队消息](/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works) 和您的草稿，立即一起发出。[Claude Code 发送您排队的内容](/docs/zh-CN/interactive-mode.md#when-claude-code-sends-what-you-queued) 涵盖了 Claude 正在处理的轮次会发生什么。当没有任何内容运行时，该键提交草稿，在 [shell 模式](/docs/zh-CN/interactive-mode.md#shell-mode-with-prefix) 中，它仅排队命令。不报告扩展键的终端将 `Ctrl+Enter` 传递为纯 `Enter`，因此 `Ctrl+X Ctrl+S` 是在任何终端中都有效的绑定。需要 v2.1.275 或更高版本 |
 | `chat:newline` | Ctrl+J | 插入换行符而不提交 |
 | `chat:undo` | Ctrl+\_, Ctrl+Shift+- | 撤销上一个操作 |
-| `chat:externalEditor` | Ctrl+G, Ctrl+X Ctrl+E | 在外部编辑器中打开。[agent 视图调度输入](/docs/zh-CN/agent-view#keyboard-shortcuts) 也遵循此操作的单键击绑定 |
+| `chat:externalEditor` | Ctrl+G, Ctrl+X Ctrl+E | 在外部编辑器中打开。[agent 视图调度输入](/docs/zh-CN/agent-view.md#keyboard-shortcuts) 也遵循此操作的单键击绑定 |
 | `chat:stash` | Ctrl+S | 隐藏当前提示 |
 | `chat:imagePaste` | Ctrl+V (Windows 和 WSL 上为 Alt+V) | 从剪贴板粘贴图像。在 WSL 上，默认绑定两个快捷键 |
 
@@ -151,7 +151,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `confirm:nextField` | Tab | 在 `/fast` 对话框中，打开或关闭快速模式 |
 | `confirm:previousField` | (未绑定) | Claude Code 不响应此操作，命名该操作的 `keybindings.json` 仍然有效 |
 | `confirm:toggle` | Space | 切换选择 |
-| `confirm:cycleMode` | Shift+Tab\* | 在文件权限提示上，关闭打开的 [注释字段](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)；没有打开的字段时，选择允许会话其余部分操作的选项（当提示提供该选项时） |
+| `confirm:cycleMode` | Shift+Tab\* | 在文件权限提示上，关闭打开的 [注释字段](/docs/zh-CN/permissions.md#add-a-comment-when-you-answer-a-permission-prompt)；没有打开的字段时，选择允许会话其余部分操作的选项（当提示提供该选项时） |
 
 \*在没有 VT 模式的 Windows 上 (Node \<24.2.0/\<22.17.0, Bun \<1.2.23)，默认为 Meta+M。
 
@@ -198,7 +198,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `transcript:toggleShowAll` | Ctrl+E | 切换显示所有内容 |
 | `transcript:exit` | q, Ctrl+C, Escape | 退出记录视图 |
 
-`transcript:toggleShowAll` 仅在经典渲染器中应用；在 [全屏渲染](/docs/zh-CN/fullscreen) 中，记录查看器不提供显示全部切换。
+`transcript:toggleShowAll` 仅在经典渲染器中应用；在 [全屏渲染](/docs/zh-CN/fullscreen.md) 中，记录查看器不提供显示全部切换。
 
 ### History search 操作
 
@@ -212,7 +212,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `historySearch:execute` | Enter | 执行选定的命令 |
 | `historySearch:cycleScope` | Ctrl+S | 循环范围：会话、项目、任何地方 |
 
-`historySearch:next`、`historySearch:accept`、`historySearch:cancel` 和 `historySearch:execute` 默认值适用于经典渲染器中的内联历史搜索，它始终搜索来自所有项目的提示。`historySearch:cycleScope` 仅在 [全屏渲染](/docs/zh-CN/fullscreen) 中生效，其中 `Ctrl+R` 打开搜索对话框，`Ctrl+S` 循环其范围。对话框的其他键是固定的，无法重新绑定：`Enter` 或 `Tab` 将突出显示的匹配项放在提示输入中，`Esc` 取消。
+`historySearch:next`、`historySearch:accept`、`historySearch:cancel` 和 `historySearch:execute` 默认值适用于经典渲染器中的内联历史搜索，它始终搜索来自所有项目的提示。`historySearch:cycleScope` 仅在 [全屏渲染](/docs/zh-CN/fullscreen.md) 中生效，其中 `Ctrl+R` 打开搜索对话框，`Ctrl+S` 循环其范围。对话框的其他键是固定的，无法重新绑定：`Enter` 或 `Tab` 将突出显示的匹配项放在提示输入中，`Esc` 取消。
 
 ### Task 操作
 
@@ -274,7 +274,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `footer:down` | Down, Ctrl+N | 在页脚中向下导航 |
 | `footer:openSelected` | Enter | 打开选定的页脚项 |
 | `footer:clearSelection` | Escape | 清除页脚选择 |
-| `footer:close` | x | 停止选定的 [Agent](/docs/zh-CN/sub-agents#observe-and-steer-running-forks) 或 [工作流](/docs/zh-CN/workflows#manage-runs)；如果它已不再运行，则关闭其所在行 |
+| `footer:close` | x | 停止选定的 [Agent](/docs/zh-CN/sub-agents.md#observe-and-steer-running-forks) 或 [工作流](/docs/zh-CN/workflows.md#manage-runs)；如果它已不再运行，则关闭其所在行 |
 | `footer:dismiss` | (未绑定) | 绑定键到此操作没有效果，命名它的 `keybindings.json` 保持有效。在 v2.1.281 之前，Backspace 和 Delete 被绑定到它，并从页脚中关闭选定的 artifact 链接。 |
 
 选定页脚项时（例如提示下方的代理面板中的一行），即使您在 `Chat` 上下文中将 `Enter` 重新绑定到 `chat:queueSubmit` 或 `chat:newline`，`Enter` 也会打开它。
@@ -283,7 +283,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 ### Message selector 操作
 
-在 [rewind 菜单](/docs/zh-CN/checkpointing) 的消息列表中，您可以通过 [Select 操作](#select-actions) 及其默认键在消息中移动并选择一条。您的 `Select` 绑定对这些操作也适用于那里。`MessageSelector` 上下文没有自己的操作或默认绑定。使用它通过在 `MessageSelector` 块中绑定 Select 操作（例如 `select:accept`）来仅为此列表更改键。
+在 [rewind 菜单](/docs/zh-CN/checkpointing.md) 的消息列表中，您可以通过 [Select 操作](#select-actions) 及其默认键在消息中移动并选择一条。您的 `Select` 绑定对这些操作也适用于那里。`MessageSelector` 上下文没有自己的操作或默认绑定。使用它通过在 `MessageSelector` 块中绑定 Select 操作（例如 `select:accept`）来仅为此列表更改键。
 
 此示例将 `o` 绑定到在 rewind 菜单中选择突出显示的消息，而不更改任何其他列表：
 
@@ -304,7 +304,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 ### Diff 操作
 
-这些操作仅作用于 Claude Code 早期的 diff 查看器：在您于 `/plugin` 中禁用 [`cc-plugin-diff` mod](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 后，`/diff` 会在 [全屏渲染](/docs/zh-CN/fullscreen) 之外打开该查看器。启用该 mod 时，`/diff` 会改为打开 [diff 对话框](/docs/zh-CN/interactive-mode#diff-dialog)。无论哪种情况，命名这些操作的 `keybindings.json` 都能正常加载而不会报错。
+这些操作仅作用于 Claude Code 早期的 diff 查看器：在您于 `/plugin` 中禁用 [`cc-plugin-diff` mod](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 后，`/diff` 会在 [全屏渲染](/docs/zh-CN/fullscreen.md) 之外打开该查看器。启用该 mod 时，`/diff` 会改为打开 [diff 对话框](/docs/zh-CN/interactive-mode.md#diff-dialog)。无论哪种情况，命名这些操作的 `keybindings.json` 都能正常加载而不会报错。
 
 在 `DiffDialog` 上下文中可用的操作：
 
@@ -334,7 +334,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 
 ### Diff panel 操作
 
-用于 [diff 面板](/docs/zh-CN/interactive-mode#diff-panel) 的操作，`/diff` 在全屏渲染中打开。`app:cycleDiffBase` 在 `DiffPanel` 上下文中，在面板打开时处于活动状态；其他的在 `Global` 中。
+用于 [diff 面板](/docs/zh-CN/interactive-mode.md#diff-panel) 的操作，`/diff` 在全屏渲染中打开。`app:cycleDiffBase` 在 `DiffPanel` 上下文中，在面板打开时处于活动状态；其他的在 `Global` 中。
 
 内置的 [`cc-plugin-diff` mod](/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 绘制此面板，并处理 `app:cycleDiffBase`、`app:diffFileListUp` 和 `app:diffFileListDown`。`app:toggleReplTab`、`app:toggleDiffNoiseFilter` 和 `app:toggleDiffPreSession` 仅作用于 Claude Code 早期的面板，在您于 `/plugin` 中禁用 `cc-plugin-diff` 后，`/diff` 会打开该面板。
 
@@ -365,8 +365,8 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | :- | :- | :- |
 | `effortSlider:decreaseEffort` | Left | 将滑块移动到下一个较低的努力级别。需要 v2.1.284 或更高版本 |
 | `effortSlider:increaseEffort` | Right | 将滑块移动到下一个较高的努力级别。需要 v2.1.284 或更高版本 |
-| `effortSlider:toggleUltracode` | Tab | 为此会话打开或关闭 [ultracode](/docs/zh-CN/workflows#let-claude-decide-with-ultracode)，当滑块 [提供它](/docs/zh-CN/model-config#when-ultracode-is-available) 时。需要 v2.1.284 或更高版本 |
-| `effortSlider:thisSessionOnly` | s | 仅将焦点 [努力级别](/docs/zh-CN/model-config#adjust-effort-level) 应用于此会话。需要 v2.1.257 或更高版本 |
+| `effortSlider:toggleUltracode` | Tab | 为此会话打开或关闭 [ultracode](/docs/zh-CN/workflows.md#let-claude-decide-with-ultracode)，当滑块 [提供它](/docs/zh-CN/model-config.md#when-ultracode-is-available) 时。需要 v2.1.284 或更高版本 |
+| `effortSlider:thisSessionOnly` | s | 仅将焦点 [努力级别](/docs/zh-CN/model-config.md#adjust-effort-level) 应用于此会话。需要 v2.1.257 或更高版本 |
 
 ### Select 操作
 
@@ -401,7 +401,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 
 ### Above-prompt 操作
 
-用于输入框上方区域的操作，该区域是 [mod](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) 绘制按钮、输入字段和选择框的共享条带。`abovePrompt:toggle` 和 `abovePrompt:focus` 在 `Chat` 上下文中适用。其他操作在该区域或窗格中拥有键盘焦点的元素所在的 [上下文](#contexts) 中适用。
+用于输入框上方区域的操作，该区域是 [mod](/docs/zh-CN/plugins/mods/interface.md#pick-where-to-draw) 绘制按钮、输入字段和选择框的共享条带。`abovePrompt:toggle` 和 `abovePrompt:focus` 在 `Chat` 上下文中适用。其他操作在该区域或窗格中拥有键盘焦点的元素所在的 [上下文](#contexts) 中适用。
 
 | 操作 | 默认 | 描述 |
 | :- | :- | :- |
@@ -420,7 +420,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 
 ### Pane 操作
 
-用于由 [mod](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive) 绘制的窗格的操作。滚动、调整大小和关闭操作在 `Pane` [上下文](#contexts) 中适用。`pane:close` 也在 `PaneField` 上下文中适用，因此当窗格的某个字段拥有焦点时它也能生效。当打开的窗格多于一个时，`pane:next` 和 `pane:previous` 在 `Global` 上下文中适用。
+用于由 [mod](/docs/zh-CN/plugins/mods/interface.md#know-which-keys-your-mod-can-receive) 绘制的窗格的操作。滚动、调整大小和关闭操作在 `Pane` [上下文](#contexts) 中适用。`pane:close` 也在 `PaneField` 上下文中适用，因此当窗格的某个字段拥有焦点时它也能生效。当打开的窗格多于一个时，`pane:next` 和 `pane:previous` 在 `Global` 上下文中适用。
 
 | 操作 | 默认 | 描述 |
 | :- | :- | :- |
@@ -436,7 +436,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 | `pane:next` | (未绑定) | 显示下一个打开的窗格 |
 | `pane:previous` | (未绑定) | 显示上一个打开的窗格 |
 
-`Pane` 上下文还将 Tab、Shift+Tab、Enter 和 Escape 绑定到与该区域相同的 [Above-prompt 操作](#above-prompt-actions)，窗格中的输入字段和选择框使用 `AbovePromptInput` 和 `AbovePromptSelect` 上下文。[键盘焦点和快捷键](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive) 列出了每个键在窗格中的作用。
+`Pane` 上下文还将 Tab、Shift+Tab、Enter 和 Escape 绑定到与该区域相同的 [Above-prompt 操作](#above-prompt-actions)，窗格中的输入字段和选择框使用 `AbovePromptInput` 和 `AbovePromptSelect` 上下文。[键盘焦点和快捷键](/docs/zh-CN/plugins/mods/interface.md#know-which-keys-your-mod-can-receive) 列出了每个键在窗格中的作用。
 
 ### Settings 操作
 
@@ -452,15 +452,15 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 
 ### Agents 操作
 
-在 `Agents` 上下文中可用的操作，适用于 [agent 视图](/docs/zh-CN/agent-view)，使用 `claude agents` 打开。需要 v2.1.257 或更高版本。
+在 `Agents` 上下文中可用的操作，适用于 [agent 视图](/docs/zh-CN/agent-view.md)，使用 `claude agents` 打开。需要 v2.1.257 或更高版本。
 
 | 操作 | 默认 | 描述 |
 | :- | :- | :- |
-| `agents:switchView` | Ctrl+S | 在状态和目录之间切换 [会话分组](/docs/zh-CN/agent-view#organize-the-list) |
-| `agents:togglePin` | Ctrl+T | [固定或取消固定](/docs/zh-CN/agent-view#organize-the-list) 选定的会话 |
+| `agents:switchView` | Ctrl+S | 在状态和目录之间切换 [会话分组](/docs/zh-CN/agent-view.md#organize-the-list) |
+| `agents:togglePin` | Ctrl+T | [固定或取消固定](/docs/zh-CN/agent-view.md#organize-the-list) 选定的会话 |
 | `agents:find` | Ctrl+F | 使用 [`n:` 筛选器](/docs/zh-CN/agent-view#filter-sessions) 按名称查找会话。需要 v2.1.288 或更高版本 |
-| `agents:rename` | Ctrl+R | [重命名](/docs/zh-CN/agent-view#organize-the-list) 选定的会话。需要 v2.1.288 或更高版本 |
-| `agents:previousGroup` | Ctrl+Up, Meta+Up | 跳到上一个 [分组标题](/docs/zh-CN/agent-view#organize-the-list)。需要 v2.1.288 或更高版本 |
+| `agents:rename` | Ctrl+R | [重命名](/docs/zh-CN/agent-view.md#organize-the-list) 选定的会话。需要 v2.1.288 或更高版本 |
+| `agents:previousGroup` | Ctrl+Up, Meta+Up | 跳到上一个 [分组标题](/docs/zh-CN/agent-view.md#organize-the-list)。需要 v2.1.288 或更高版本 |
 | `agents:nextGroup` | Ctrl+Down, Meta+Down | 跳到下一个分组标题。需要 v2.1.288 或更高版本 |
 
 当 agent 视图打开时，Claude Code 对 `Agents` 上下文绑定的任何键使用 `Agents` 绑定，并忽略同一键上的 `Chat` 或 `Global` 绑定。例如，在 agent 视图中按 Ctrl+S 会切换会话分组，而不是触发默认的 `chat:stash`。
@@ -471,7 +471,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 
 ### Voice 操作
 
-当 [语音听写](/docs/zh-CN/voice-dictation) 启用时，在 `Chat` 上下文中可用的操作：
+当 [语音听写](/docs/zh-CN/voice-dictation.md) 启用时，在 `Chat` 上下文中可用的操作：
 
 | 操作 | 默认 | 描述 |
 | :- | :- | :- |
@@ -479,7 +479,7 @@ diff 详细视图也将寻呼机样式的键绑定到标准 [滚动操作](#scro
 
 ### Scroll 操作
 
-当 [全屏渲染](/docs/zh-CN/fullscreen) 启用时，在 `Scroll` 上下文中可用的操作：
+当 [全屏渲染](/docs/zh-CN/fullscreen.md) 启用时，在 `Scroll` 上下文中可用的操作：
 
 | 操作 | 默认 | 描述 |
 | :- | :- | :- |
@@ -650,7 +650,7 @@ Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
 | Ctrl+M | Claude Code 始终将其接收为 Enter |
 | Ctrl+\[ | Claude Code 始终将其接收为 Escape。在使用 Kitty 键盘协议的终端中，这需要 v2.1.242 或更高版本 |
 | Ctrl+I | Claude Code 始终将其接收为 Tab |
-| Ctrl+H | 发送 ASCII 退格字节。[Claude Code 在 Windows 上如何读取它](/docs/zh-CN/terminal-config#fix-backspace-deleting-a-whole-word-on-windows)取决于您的终端和 [`CLAUDE_CODE_BS_AS_CTRL_BACKSPACE`](/docs/zh-CN/env-vars) 环境变量 |
+| Ctrl+H | 发送 ASCII 退格字节。[Claude Code 在 Windows 上如何读取它](/docs/zh-CN/terminal-config.md#fix-backspace-deleting-a-whole-word-on-windows)取决于您的终端和 [`CLAUDE_CODE_BS_AS_CTRL_BACKSPACE`](/docs/zh-CN/env-vars) 环境变量 |
 | Caps Lock | 不传递到终端应用程序 |
 
 ## 终端冲突
@@ -687,11 +687,11 @@ Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
 * 在 vim NORMAL 模式中，`?` 显示帮助菜单（vim 行为）
 * 在 vim NORMAL 模式中，`/` 打开历史搜索，与标准模式中的 Ctrl+R 相同
 
-在 Claude 提出的问题的 `Other` 行中，vim 模式下按 Escape 不会立即取消该问题。除[屏幕阅读器模式](/docs/zh-CN/accessibility)外，每次聚焦该行时，它都会以 INSERT 模式开始。在 `Other` 行中按 Escape 时，该行会切换到 NORMAL 模式或丢弃输入到一半的 vim 命令，问题仍保持打开状态。在 NORMAL 模式下再次按 Escape 即可取消该问题。
+在 Claude 提出的问题的 `Other` 行中，vim 模式下按 Escape 不会立即取消该问题。除[屏幕阅读器模式](/docs/zh-CN/accessibility.md)外，每次聚焦该行时，它都会以 INSERT 模式开始。在 `Other` 行中按 Escape 时，该行会切换到 NORMAL 模式或丢弃输入到一半的 vim 命令，问题仍保持打开状态。在 NORMAL 模式下再次按 Escape 即可取消该问题。
 
 ### 按一次键取消问题
 
-要在 vim 模式下按一次键即可取消问题，请在 `Select` 上下文中将另一个键绑定到 `select:cancel`。在只能选择一个选项的问题中，您可以在 `Other` 行中以这种方式取消。在[屏幕阅读器模式](/docs/zh-CN/accessibility)下，或在可以选择多个选项的问题中，绑定的键不会取消问题，此时请改用 Escape 取消。
+要在 vim 模式下按一次键即可取消问题，请在 `Select` 上下文中将另一个键绑定到 `select:cancel`。在只能选择一个选项的问题中，您可以在 `Other` 行中以这种方式取消。在[屏幕阅读器模式](/docs/zh-CN/accessibility.md)下，或在可以选择多个选项的问题中，绑定的键不会取消问题，此时请改用 Escape 取消。
 
 请选择一个需要配合 Ctrl 或 Alt 按下的键。单独的字母或数字会[输入到 `Other` 行](#text-fields)中，而不会触发您的绑定。例如，要绑定 `Ctrl+Q`，请将以下内容添加到 `~/.claude/keybindings.json`：
 

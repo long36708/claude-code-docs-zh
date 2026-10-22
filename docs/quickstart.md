@@ -10,7 +10,7 @@
 
 > [!NOTE]
 >
-> 默认配置下，Claude Code 需要能够访问 claude.ai 和 Anthropic API 等端点才能完成安装、登录和正常使用。在中国大陆的网络环境中，这些端点可能无法直接访问。开始前，请先确认所在网络能够连通这些服务。企业代理配置以及 Amazon Bedrock 等第三方提供商的网络要求，请参阅[网络配置](/docs/zh-CN/network-config#network-access-requirements)。
+> 默认配置下，Claude Code 需要能够访问 claude.ai 和 Anthropic API 等端点才能完成安装、登录和正常使用。在中国大陆的网络环境中，这些端点可能无法直接访问。开始前，请先确认所在网络能够连通这些服务。企业代理配置以及 Amazon Bedrock 等第三方提供商的网络要求，请参阅[网络配置](/docs/zh-CN/network-config.md#network-access-requirements)。
 
 ## 开始前
 
@@ -18,14 +18,14 @@
 
 * 打开的终端或命令提示符
 * 一个可以使用的代码项目
-* 一个 [Claude 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_prereq)（Pro、Max、Team 或 Enterprise）、[Claude Console](https://platform.claude.com/) 账户，或通过[支持的云提供商](/docs/zh-CN/third-party-integrations)的访问权限
+* 一个 [Claude 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_prereq)（Pro、Max、Team 或 Enterprise）、[Claude Console](https://platform.claude.com/) 账户，或通过[支持的云提供商](/docs/zh-CN/third-party-integrations.md)的访问权限
 
 > [!NOTE]
 >
 > 以下情况在其他页面中介绍：
 >
 > * **从未使用过终端**：请从[终端指南](/docs/zh-CN/terminal-guide)开始
-> * **希望在终端以外的地方使用 Claude Code**：Claude Code 也可在[网页](https://claude.ai/code)、[桌面应用](/docs/zh-CN/desktop)、[VS Code](/docs/zh-CN/vs-code) 和 [JetBrains IDE](/docs/zh-CN/jetbrains)、[Slack](/docs/zh-CN/slack) 中使用，以及通过 [GitHub Actions](/docs/zh-CN/github-actions) 和 [GitLab](/docs/zh-CN/gitlab-ci-cd) 在 CI/CD 中使用。查看[所有界面](/docs/zh-CN/overview#use-claude-code-everywhere)。
+> * **希望在终端以外的地方使用 Claude Code**：Claude Code 也可在[网页](https://claude.ai/code)、[桌面应用](/docs/zh-CN/desktop.md)、[VS Code](/docs/zh-CN/vs-code.md) 和 [JetBrains IDE](/docs/zh-CN/jetbrains.md)、[Slack](/docs/zh-CN/slack.md) 中使用，以及通过 [GitHub Actions](/docs/zh-CN/github-actions.md) 和 [GitLab](/docs/zh-CN/gitlab-ci-cd.md) 在 CI/CD 中使用。查看[所有界面](/docs/zh-CN/overview.md#use-claude-code-everywhere)。
 
 ## 步骤 1：安装 Claude Code
 
@@ -53,11 +53,11 @@ irm https://claude.ai/install.ps1 | iex
 curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 ```
 
-安装命令在下载 Claude Code 期间不会显示进度。安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install#command-not-found-claude-after-installation)。
+安装命令在下载 Claude Code 期间不会显示进度。安装程序完成后，打开一个新的终端窗口并运行 `claude --version`。正常的安装会打印一个版本号。如果您的 shell 显示找不到 `claude` 或无法识别，说明安装目录还不在您的 PATH 中：请参阅[修复您的 PATH](/docs/zh-CN/troubleshoot-install.md#command-not-found-claude-after-installation)。
 
 如果您看到 `The token '&&' is not a valid statement separator`，说明您在 PowerShell 中，而不是 CMD。如果您看到 `'irm' is not recognized as an internal or external command`，说明您在 CMD 中，而不是 PowerShell。
 
-如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他任何错误，请参阅[排查安装问题](/docs/zh-CN/troubleshoot-install#find-your-error)以匹配错误并获得修复方案和替代安装方法。
+如果安装命令失败并显示 `syntax error near unexpected token '<'`、`403` 或其他任何错误，请参阅[排查安装问题](/docs/zh-CN/troubleshoot-install.md#find-your-error)以匹配错误并获得修复方案和替代安装方法。
 
 建议在原生 Windows 上安装 [Git for Windows](https://git-scm.com/downloads/win)，以便 Claude Code 可以使用 Bash 工具。如果未安装 Git for Windows，Claude Code 将使用 PowerShell 作为 shell 工具。WSL 设置不需要 Git for Windows。
 
@@ -87,7 +87,7 @@ winget install Anthropic.ClaudeCode
 >
 > WinGet 安装不会自动更新。定期运行 `winget upgrade Anthropic.ClaudeCode` 以获取最新功能和安全修复。
 
-您也可以在 Debian、Fedora、RHEL 和 Alpine 上使用 [apt、dnf 或 apk](/docs/zh-CN/setup#install-with-linux-package-managers) 进行安装。
+您也可以在 Debian、Fedora、RHEL 和 Alpine 上使用 [apt、dnf 或 apk](/docs/zh-CN/setup.md#install-with-linux-package-managers) 进行安装。
 
 要确认安装成功，请运行：
 
@@ -114,10 +114,10 @@ claude
 
 * [Claude Pro、Max、Team 或 Enterprise](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_login)（推荐）
 * [Claude Console](https://platform.claude.com/)（使用预付额度的 API 访问）。首次登录时，系统会在 Console 中自动创建一个"Claude Code"工作区，用于集中跟踪费用。
-* [Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry](/docs/zh-CN/third-party-integrations)（企业云服务提供商）
+* [Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry](/docs/zh-CN/third-party-integrations.md)（企业云服务提供商）
 * 自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway)（如果您的组织部署了该网关）：管理员会预先配置网关 URL，`/login` 将直接打开 **Cloud gateway** 界面，供您使用企业 SSO 登录
 
-登录后，您的凭据会被保存，无需再次登录。如需了解更多信息，请参阅[凭据管理](/docs/zh-CN/authentication#credential-management)。
+登录后，您的凭据会被保存，无需再次登录。如需了解更多信息，请参阅[凭据管理](/docs/zh-CN/authentication.md#credential-management)。
 
 随后将显示 Claude Code 提示符，其上方会显示版本、当前模型和工作目录。输入 `/help` 查看可用命令，或输入 `/resume` 继续之前的对话。如需稍后切换账户或重新进行身份验证，请在运行中的会话内输入 `/login`。
 
@@ -171,7 +171,7 @@ add a hello world function to the main file
 
 Claude Code 会找到合适的文件并向您展示更改。如果它在进行更改前征求确认，请选择 **Yes** 以批准。
 
-会话的[权限模式](/docs/zh-CN/permission-modes)决定了 Claude 可以在不事先询问您的情况下执行哪些操作。随时按 `Shift+Tab` 即可切换当前会话的权限模式。
+会话的[权限模式](/docs/zh-CN/permission-modes.md)决定了 Claude 可以在不事先询问您的情况下执行哪些操作。随时按 `Shift+Tab` 即可切换当前会话的权限模式。
 
 ## 步骤 5：在 Claude Code 中使用 Git
 
@@ -253,7 +253,7 @@ review my changes and suggest improvements
 | `claude -c` | 在当前目录中继续最近的对话 | `claude -c` |
 | `claude -r` | 恢复之前的对话 | `claude -r` |
 
-有关完整的 shell 命令列表，请参阅 [CLI 参考](/docs/zh-CN/cli-reference)。
+有关完整的 shell 命令列表，请参阅 [CLI 参考](/docs/zh-CN/cli-reference.md)。
 
 ### 会话命令
 
@@ -265,11 +265,11 @@ review my changes and suggest improvements
 | `/help` | 显示可用命令 | `/help` |
 | `/exit` 或 Ctrl+D 两次 | 退出 Claude Code | `/exit` |
 
-有关完整的会话命令列表，请参阅 [命令参考](/docs/zh-CN/commands)。
+有关完整的会话命令列表，请参阅 [命令参考](/docs/zh-CN/commands.md)。
 
 ## 初学者专业提示
 
-有关更多信息，请参阅[最佳实践](/docs/zh-CN/best-practices)和[常见工作流](/docs/zh-CN/common-workflows)。
+有关更多信息，请参阅[最佳实践](/docs/zh-CN/best-practices.md)和[常见工作流](/docs/zh-CN/common-workflows.md)。
 
 > **对您的请求要具体**
 >
@@ -310,12 +310,12 @@ review my changes and suggest improvements
 
 现在您已经学习了基础知识，探索更多高级功能：
 
-* [Claude Code 如何工作](/docs/zh-CN/how-claude-code-works)：了解智能体循环、内置工具以及 Claude Code 如何与您的项目交互
-* [最佳实践](/docs/zh-CN/best-practices)：通过有效的提示和项目设置获得更好的结果
-* [常见工作流](/docs/zh-CN/common-workflows)：常见任务的分步指南
-* [扩展 Claude Code](/docs/zh-CN/features-overview)：使用 CLAUDE.md、skill、hook、MCP 等进行自定义
+* [Claude Code 如何工作](/docs/zh-CN/how-claude-code-works.md)：了解智能体循环、内置工具以及 Claude Code 如何与您的项目交互
+* [最佳实践](/docs/zh-CN/best-practices.md)：通过有效的提示和项目设置获得更好的结果
+* [常见工作流](/docs/zh-CN/common-workflows.md)：常见任务的分步指南
+* [扩展 Claude Code](/docs/zh-CN/features-overview.md)：使用 CLAUDE.md、skill、hook、MCP 等进行自定义
 
-有关安装选项、手动更新或卸载说明，请参阅[高级设置](/docs/zh-CN/setup)。
+有关安装选项、手动更新或卸载说明，请参阅[高级设置](/docs/zh-CN/setup.md)。
 
 ## 获取帮助
 

@@ -10,13 +10,13 @@
 >
 > 动态工作流在所有付费计划上可用，具有 Anthropic API 访问权限，以及在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上可用。在 Pro 上，从 `/config` 中的 Dynamic workflows 行启用它们。
 
-动态工作流是一个 JavaScript 脚本，可大规模编排许多[子代理](/docs/zh-CN/sub-agents)。Claude 为您描述的任务编写脚本，运行时在后台执行它，同时您的会话保持响应。
+动态工作流是一个 JavaScript 脚本，可大规模编排许多[子代理](/docs/zh-CN/sub-agents.md)。Claude 为您描述的任务编写脚本，运行时在后台执行它，同时您的会话保持响应。
 
 当任务需要比一个对话能协调的更多代理时，或当您想将编排编纂为可以读取和重新运行的脚本时，请使用工作流。示例包括代码库范围的错误扫描、500 文件迁移、需要相互交叉检查来源的研究问题，以及在提交一个之前值得从多个独立角度起草的困难计划。
 
 ## 何时使用工作流
 
-[子代理](/docs/zh-CN/sub-agents)、[skills](/docs/zh-CN/skills)、[agent teams](/docs/zh-CN/agent-teams) 和工作流都可以运行多步骤任务。区别在于谁掌握计划：
+[子代理](/docs/zh-CN/sub-agents.md)、[skills](/docs/zh-CN/skills.md)、[agent teams](/docs/zh-CN/agent-teams.md) 和工作流都可以运行多步骤任务。区别在于谁掌握计划：
 
 | | 子代理 | Skills | Agent teams | 工作流 |
 | :- | :- | :- | :- | :- |
@@ -73,7 +73,7 @@ Claude Code 包含 `/deep-research` 作为内置工作流：
 
 | 命令 | 它做什么 |
 | :- | :- |
-| `/deep-research <question>` | 在多个角度上扇出网络搜索问题，获取并交叉检查它找到的来源，对每个声明投票，并返回一份引用的报告，其中未通过交叉检查的声明已被过滤掉。需要[WebSearch 工具](/docs/zh-CN/tools-reference#websearch-tool-behavior)可用 |
+| `/deep-research <question>` | 在多个角度上扇出网络搜索问题，获取并交叉检查它找到的来源，对每个声明投票，并返回一份引用的报告，其中未通过交叉检查的声明已被过滤掉。需要[WebSearch 工具](/docs/zh-CN/tools-reference.md#websearch-tool-behavior)可用 |
 
 `/deep-research` 仅在您调用它时运行。
 
@@ -118,7 +118,7 @@ Claude Code 包含 `/deep-research` 作为内置工作流：
 ultracode: audit every API endpoint under src/routes/ for missing auth checks
 ```
 
-Claude Code 在您的输入中突出显示该关键字，Claude 为任务编写工作流脚本，而不是逐轮处理它。该关键字仅选择 Claude 如何组织工作：代理的工具调用接收与会话中任何其他工具调用相同的权限检查和[沙箱化](/docs/zh-CN/sandboxing)。
+Claude Code 在您的输入中突出显示该关键字，Claude 为任务编写工作流脚本，而不是逐轮处理它。该关键字仅选择 Claude 如何组织工作：代理的工具调用接收与会话中任何其他工具调用相同的权限检查和[沙箱化](/docs/zh-CN/sandboxing.md)。
 
 如果运行完成了您想要的操作，您可以之后[将其保存为命令](#save-the-workflow-for-reuse)。如果您已经用另一种方式构建了编排器，例如子代理提示的文件夹或一个分散工作的技能，您可以指向 Claude 并要求一个执行相同操作的工作流。
 
@@ -128,7 +128,7 @@ Claude Code 在您的输入中突出显示该关键字，Claude 为任务编写�
 
 #### 关键字的工作位置
 
-该关键字仅在您自己输入的提示中选择加入：在交互式提示、IDE 扩展面板、[Remote Control](/docs/zh-CN/remote-control) 客户端或在 Agent SDK 应用程序中，该应用程序将您的键盘输入的 [`origin`](/docs/zh-CN/agent-sdk/typescript#sdkmessageorigin) 标记为 `{ kind: "human" }`。当它通过另一种方式到达会话时，它不会启动工作流：
+该关键字仅在您自己输入的提示中选择加入：在交互式提示、IDE 扩展面板、[Remote Control](/docs/zh-CN/remote-control.md) 客户端或在 Agent SDK 应用程序中，该应用程序将您的键盘输入的 [`origin`](/docs/zh-CN/agent-sdk/typescript#sdkmessageorigin) 标记为 `{ kind: "human" }`。当它通过另一种方式到达会话时，它不会启动工作流：
 
 * 使用 `-p` 传递的提示
 * Agent SDK 应用程序发送的未标记为人类输入的提示
@@ -137,7 +137,7 @@ Claude Code 在您的输入中突出显示该关键字，Claude 为任务编写�
 
 ### 让 Claude 使用 ultracode 决定
 
-Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排，在会话运行的任何[努力级别](/docs/zh-CN/model-config#adjust-effort-level)。启用它后，Claude 为每个实质性任务规划工作流，而不是等待您要求。在 Claude Code 提示处启用它：
+Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排，在会话运行的任何[努力级别](/docs/zh-CN/model-config.md#adjust-effort-level)。启用它后，Claude 为每个实质性任务规划工作流，而不是等待您要求。在 Claude Code 提示处启用它：
 
 ```text wrap theme={null}
 /effort ultracode
@@ -145,17 +145,17 @@ Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排
 
 要启动已启用 ultracode 的会话，请使用 `claude --effort ultracode` 启动，这也会将 effort 级别设置为 `xhigh`。
 
-要从 `/effort` 滑块启用它，按 `Tab` 翻转 **Ultracode** 切换，然后按 `Enter` 应用它。[调整努力级别](/docs/zh-CN/model-config#adjust-effort-level)列出启用 ultracode 的路由。
+要从 `/effort` 滑块启用它，按 `Tab` 翻转 **Ultracode** 切换，然后按 `Enter` 应用它。[调整努力级别](/docs/zh-CN/model-config.md#adjust-effort-level)列出启用 ultracode 的路由。
 
 启用 ultracode 后，Claude 决定任务何时值得工作流。单个请求可以变成一系列工作流：一个理解代码，一个进行更改，一个验证它。这适用于会话中的每个任务，所以每个请求使用更多令牌并花费比没有工作流的相同请求更长的时间。在订阅计划上，这些令牌会计入您的使用限制，所以启用 ultracode 的会话比关闭时进行相同工作更快达到会话或每周限制。
 
 启用 ultracode 已经选择加入大型运行，所以启用它时这些检查不适用：
 
 * 工作流运行时不会出现 [`Large workflow` 警告](#cost)
-* 会话的[并发子代理限制](/docs/zh-CN/sub-agents#concurrent-subagent-limit)对 Claude 使用 Agent 工具生成的子代理不强制执行
+* 会话的[并发子代理限制](/docs/zh-CN/sub-agents.md#concurrent-subagent-limit)对 Claude 使用 Agent 工具生成的子代理不强制执行
 * 在自动权限模式下，您不会被要求[批准第一个工作流启动](#approve-the-plan-before-it-runs)
 
-`/effort ultracode` 持续当前会话；要让每个会话都以它开始，设置 [`ultracode`](/docs/zh-CN/settings-reference#ultracode) 设置。当您返回日常工作时，使用 `/effort ultracode off` 关闭它。`/effort` 滑块仅在 [ultracode 可用时](/docs/zh-CN/model-config#when-ultracode-is-available)提供切换。
+`/effort ultracode` 持续当前会话；要让每个会话都以它开始，设置 [`ultracode`](/docs/zh-CN/settings-reference#ultracode) 设置。当您返回日常工作时，使用 `/effort ultracode off` 关闭它。`/effort` 滑块仅在 [ultracode 可用时](/docs/zh-CN/model-config.md#when-ultracode-is-available)提供切换。
 
 ### 在运行前批准计划
 
@@ -166,9 +166,9 @@ Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排
 * **查看原始脚本**：在决定前读取脚本
 * **否**：取消
 
-`Ctrl+G` 在您的编辑器中打开脚本。选中**是，运行它**或**否**时，按 `Tab` 可为您的回答[添加评论](/docs/zh-CN/permissions#add-a-comment-when-you-answer-a-permission-prompt)。
+`Ctrl+G` 在您的编辑器中打开脚本。选中**是，运行它**或**否**时，按 `Tab` 可为您的回答[添加评论](/docs/zh-CN/permissions.md#add-a-comment-when-you-answer-a-permission-prompt)。
 
-您是否看到此提示取决于您的[权限模式](/docs/zh-CN/permission-modes)：
+您是否看到此提示取决于您的[权限模式](/docs/zh-CN/permission-modes.md)：
 
 | 权限模式 | 何时提示您 |
 | :- | :- |
@@ -177,17 +177,17 @@ Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排
 | 绕过权限 | Claude Code 不提示您。运行立即启动 |
 | `claude -p`，Agent SDK | Claude Code 不提示您 |
 
-在 `claude -p` 和 Agent SDK 中，Claude Code 从不显示此提示。它通过与会话其余部分相同的[权限评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)运行 Workflow 工具调用，所以拒绝规则、询问规则和 `dontAsk` 模式适用于启动，就像它们适用于每个工具调用一样。要让工作流在这些运行中启动，使用以下之一：
+在 `claude -p` 和 Agent SDK 中，Claude Code 从不显示此提示。它通过与会话其余部分相同的[权限评估](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)运行 Workflow 工具调用，所以拒绝规则、询问规则和 `dontAsk` 模式适用于启动，就像它们适用于每个工具调用一样。要让工作流在这些运行中启动，使用以下之一：
 
 * **权限规则**：将 `Workflow` 添加到您的允许规则中以批准每个工作流，或添加 `Workflow(<name>)` 以按名称批准一个保存的工作流。
-* **自动权限模式**：在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)下运行，分类器会审查调用并可以批准它。
+* **自动权限模式**：在[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下运行，分类器会审查调用并可以批准它。
 * **绕过权限模式**：在绕过权限模式下运行。
-* **一个 hook**：从 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) hook 为该调用返回 `"allow"`。在[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)下，仅凭 hook 的批准工作流不会启动，因此在该模式下请改用权限规则或您的主机的批准。
+* **一个 hook**：从 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) hook 为该调用返回 `"allow"`。在[计划模式](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，仅凭 hook 的批准工作流不会启动，因此在该模式下请改用权限规则或您的主机的批准。
 * **您的主机**：一个 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)，或者在使用 Agent SDK 时，一个 [`canUseTool`](/docs/zh-CN/agent-sdk/permissions) 回调批准它。
 
 在桌面应用中，批准卡显示工作流名称、阶段列表和令牌使用警告，带有**一次**、**总是**和**拒绝**操作。进度视图出现在"后台任务"侧窗格中。
 
-工作流生成的子代理使用您的[权限规则](/docs/zh-CN/settings-reference#permission-settings)，Claude Code 按[子代理运行的权限模式](/docs/zh-CN/sub-agents#permission-modes)下的规则选择它们的权限模式。要在长时间运行中避免提示，在启动前将代理需要的工具添加到您的允许规则。
+工作流生成的子代理使用您的[权限规则](/docs/zh-CN/settings-reference.md#permission-settings)，Claude Code 按[子代理运行的权限模式](/docs/zh-CN/sub-agents.md#permission-modes)下的规则选择它们的权限模式。要在长时间运行中避免提示，在启动前将代理需要的工具添加到您的允许规则。
 
 ### 保存工作流以供重用
 
@@ -215,7 +215,7 @@ Claude Code 在写入前检查保存位置是否有符号链接，并显示错�
 
 ### 在插件中分发工作流
 
-要在团队或仓库中共享工作流，将其包含在[插件](/docs/zh-CN/plugins/overview)中。将脚本放在插件根目录的 `workflows/` 目录中，或使用 [`workflows` 清单字段](/docs/zh-CN/plugins/manifest-reference#fields)指向不同的位置。
+要在团队或仓库中共享工作流，将其包含在[插件](/docs/zh-CN/plugins/overview.md)中。将脚本放在插件根目录的 `workflows/` 目录中，或使用 [`workflows` 清单字段](/docs/zh-CN/plugins/manifest-reference#fields)指向不同的位置。
 
 插件工作流由插件名称命名空间。一个名为 `acme-tools` 的插件，其 `meta.name` 为 `release-audit` 的脚本作为 `/acme-tools:release-audit` 运行。
 
@@ -308,7 +308,7 @@ return audits.filter(Boolean)
 
 如果您在运行中途停止 `agent()` 调用或它遇到不可恢复的 API 错误，则 `agent()` 调用解析为 `null`。`pipeline()` 在结果数组中保留每个 `null`，这就是为什么示例以 `.filter(Boolean)` 结尾以删除这些条目，其中包括[每次尝试都停滞的 Agent](#when-an-agent-stalls-and-restarts) 所占的位置。
 
-在[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)中，您的脚本传递给 `agent()` 的提示不会计为您的请求，当分类器审查该子代理的操作时，因为 Claude Code 将其标记为脚本计算的文本。
+在[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中，您的脚本传递给 `agent()` 的提示不会计为您的请求，当分类器审查该子代理的操作时，因为 Claude Code 将其标记为脚本计算的文本。
 
 如果您在 `agent()` 调用上传递 `schema`，该子代理将返回与形状匹配的 JSON 而不是散文。Claude Code 在启动子代理之前检查架构：当它可以证明架构自相矛盾时，调用失败并显示一个错误，命名矛盾，子代理永远不会启动。它可以证明的一个矛盾是 `additionalProperties: false` 排除的 `required` 键。
 
@@ -316,7 +316,7 @@ return audits.filter(Boolean)
 
 ### 编辑保存的脚本
 
-要更改[您保存的工作流](#save-the-workflow-for-reuse)，编辑其 `.js` 文件或要求 Claude 进行更改。在编辑或要求之前，运行 `/workflow-authoring` [捆绑技能](/docs/zh-CN/skills#bundled-skills)以加载 Claude 工作的脚本编写参考。该技能需要 Claude Code v2.1.248 或更高版本。
+要更改[您保存的工作流](#save-the-workflow-for-reuse)，编辑其 `.js` 文件或要求 Claude 进行更改。在编辑或要求之前，运行 `/workflow-authoring` [捆绑技能](/docs/zh-CN/skills.md#bundled-skills)以加载 Claude 工作的脚本编写参考。该技能需要 Claude Code v2.1.248 或更高版本。
 
 要在当前会话中运行编辑后的版本，运行 [`/reload-skills`](/docs/zh-CN/commands#all-commands) 以重新读取工作流目录，然后再次运行 `/<name>`。
 
@@ -327,7 +327,7 @@ Claude Code 在加载和运行脚本时对文件的每个部分应用这些规�
 * **`phases`**：如果您在 `meta` 中列出它们，为每个条目提供您传递给 `phase()` 的确切标题。没有条目的 `phase()` 标题会获得自己的进度组。
 * **时间戳和随机性**：Claude Code 使脚本内的 `Date.now()`、`Math.random()` 和无参数 `new Date()` 抛出异常，以便[重新启动的运行](#resume-after-a-pause)重复相同的 `agent()` 调用。改为通过 `args` 传入时间戳。
 
-您也可以编辑[单个运行的脚本](#how-a-workflow-runs)而不是保存的副本。[在暂停后恢复](#resume-after-a-pause)涵盖当您重新启动编辑的脚本时哪些代理再次运行。有关 Workflow 工具的输入，请参阅其在 [Agent SDK 参考](/docs/zh-CN/agent-sdk/typescript#workflow)中的条目。
+您也可以编辑[单个运行的脚本](#how-a-workflow-runs)而不是保存的副本。[在暂停后恢复](#resume-after-a-pause)涵盖当您重新启动编辑的脚本时哪些代理再次运行。有关 Workflow 工具的输入，请参阅其在 [Agent SDK 参考](/docs/zh-CN/agent-sdk/typescript.md#workflow)中的条目。
 
 ## 工作流如何运行
 
@@ -335,15 +335,15 @@ Claude Code 在加载和运行脚本时对文件的每个部分应用这些规�
 
 每次运行都会将其脚本写入您会话目录下 `~/.claude/projects/` 中的文件。Claude 在运行开始时接收路径，因此您可以要求它提供路径。您可以打开该文件来读取 Claude 编写的编排，将其与之前运行的脚本进行对比，或编辑它并要求 Claude 从编辑后的版本重新启动。
 
-Claude 只能从会话已允许读取的脚本文件启动工作流。要运行保存在工作目录外的脚本，请先使用 [`/add-dir`](/docs/zh-CN/permissions#working-directories) 或 [Read allow rule](/docs/zh-CN/permissions#read-and-edit) 添加其目录。
+Claude 只能从会话已允许读取的脚本文件启动工作流。要运行保存在工作目录外的脚本，请先使用 [`/add-dir`](/docs/zh-CN/permissions#working-directories) 或 [Read allow rule](/docs/zh-CN/permissions.md#read-and-edit) 添加其目录。
 
 运行时在运行进行时跟踪每个代理的结果，这正是使运行在同一会话内 [可恢复](#resume-after-a-pause) 的原因。
 
 ### 扇出中的 prompt caching
 
-同一运行中的代理可以读取彼此的 [prompt cache](/docs/zh-CN/prompt-caching#subagents-and-the-cache)。两个使用相同模型、努力级别、代理类型、工具、输出架构和工作目录运行的代理会构建相同的工具和系统提示前缀，因此在匹配的兄弟代理响应开始后启动的代理会在其第一个请求中读取该兄弟代理的缓存。
+同一运行中的代理可以读取彼此的 [prompt cache](/docs/zh-CN/prompt-caching.md#subagents-and-the-cache)。两个使用相同模型、努力级别、代理类型、工具、输出架构和工作目录运行的代理会构建相同的工具和系统提示前缀，因此在匹配的兄弟代理响应开始后启动的代理会在其第一个请求中读取该兄弟代理的缓存。
 
-工作流代理的请求落在主对话的 [cache TTL bucket](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets) 之外，因此其缓存默认保持五分钟，包括在 Claude 订阅上。要将其保持一小时，请将 [`subagentPromptCacheTtl`](/docs/zh-CN/settings-reference#subagentpromptcachettl) 设置为 `1h`。API 以更高的费率计费 1 小时缓存写入。
+工作流代理的请求落在主对话的 [cache TTL bucket](/docs/zh-CN/prompt-caching.md#which-ttl-each-request-gets) 之外，因此其缓存默认保持五分钟，包括在 Claude 订阅上。要将其保持一小时，请将 [`subagentPromptCacheTtl`](/docs/zh-CN/settings-reference#subagentpromptcachettl) 设置为 `1h`。API 以更高的费率计费 1 小时缓存写入。
 
 当扇出同时启动多个匹配的代理时，Claude Code 会保留除第一个之外的所有代理，直到第一个代理的响应开始，然后一起释放保留的代理，以便它们的第一个请求读取共享前缀，而不是每个都未缓存地处理它。Claude Code 将保留限制在 [`CLAUDE_CODE_WORKFLOW_PREFIX_STAGGER_MS`](/docs/zh-CN/env-vars) 毫秒，默认为 `5000`。将其设置为 `0` 以禁用保留。
 
@@ -389,23 +389,23 @@ Claude Code 按 Agent 启动的顺序重放运行，每个 Agent 要么返回其
 
 您可以在同一 Claude Code 会话中恢复运行。当您离开会话时，运行中的工作流会发生什么取决于您如何离开：
 
-* 如果您[后台运行会话](/docs/zh-CN/agent-view#what-carries-over-when-you-background)，Claude Code 会在后台会话中以相同方式重放运行并继续它。
-* 如果您在工作流运行时退出 Claude Code 并且[代理视图已打开](/docs/zh-CN/agent-view#from-inside-a-session)，退出对话框会提供 `Move to background and exit`，它以相同方式转移运行。如果您选择 `Exit and stop tasks` 或未提供该选项，运行会随会话停止。Claude Code 会将运行的保存结果保存在 `~/.claude/projects/` 中该会话的目录下，所以您使用 `claude --resume` 恢复的会话可以在您要求 Claude 重新启动工作流时重放它们。在您全新启动的会话中，Claude 没有较早的运行可以重新启动，会将工作流作为新运行启动。
+* 如果您[后台运行会话](/docs/zh-CN/agent-view.md#what-carries-over-when-you-background)，Claude Code 会在后台会话中以相同方式重放运行并继续它。
+* 如果您在工作流运行时退出 Claude Code 并且[代理视图已打开](/docs/zh-CN/agent-view.md#from-inside-a-session)，退出对话框会提供 `Move to background and exit`，它以相同方式转移运行。如果您选择 `Exit and stop tasks` 或未提供该选项，运行会随会话停止。Claude Code 会将运行的保存结果保存在 `~/.claude/projects/` 中该会话的目录下，所以您使用 `claude --resume` 恢复的会话可以在您要求 Claude 重新启动工作流时重放它们。在您全新启动的会话中，Claude 没有较早的运行可以重新启动，会将工作流作为新运行启动。
 
-在[云会话](/docs/zh-CN/claude-code-on-the-web)中，Claude Code 也会将运行的结果与会话的对话历史一起保存，当会话的 VM 被回收时，这些历史会保留。当您[重新打开这样的会话](/docs/zh-CN/claude-code-on-the-web#environment-expired)并要求 Claude 重新启动工作流时，已完成的代理仍会返回其保存的结果。
+在[云会话](/docs/zh-CN/claude-code-on-the-web.md)中，Claude Code 也会将运行的结果与会话的对话历史一起保存，当会话的 VM 被回收时，这些历史会保留。当您[重新打开这样的会话](/docs/zh-CN/claude-code-on-the-web.md#environment-expired)并要求 Claude 重新启动工作流时，已完成的代理仍会返回其保存的结果。
 
 在本地和云会话中，当 Claude 重新启动较早的运行并且 Claude Code 根本找不到该运行的保存结果时，重新启动会失败并显示 `nothing to resume` 错误，而不是自动启动运行。要求 Claude 将工作流作为新运行启动。
 
 ### 当运行达到您的使用限制时
 
-当代理达到您的 claude.ai [使用限制](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)时，运行会暂停而不是该代理失败：达到限制的代理会等待重置，并且不会启动新代理。限制重置后不久，等待的代理会再次运行，运行会自动继续。需要 Claude Code v2.1.271 或更高版本；在较早的版本上，受影响的代理会失败。
+当代理达到您的 claude.ai [使用限制](/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)时，运行会暂停而不是该代理失败：达到限制的代理会等待重置，并且不会启动新代理。限制重置后不久，等待的代理会再次运行，运行会自动继续。需要 Claude Code v2.1.271 或更高版本；在较早的版本上，受影响的代理会失败。
 
 当运行等待时，其在任务面板中的进度行和 [`/workflows`](#watch-the-run) 标题显示限制何时重置。
 
 运行仅在以下所有条件都成立时暂停；当其中一个不成立时，受影响的代理会失败：
 
-* 会话是交互式的并使用 claude.ai 订阅登录。运行不会在[非交互模式](/docs/zh-CN/headless)中使用 `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 暂停，在[后台会话](/docs/zh-CN/agent-view)中，或在 [Remote Control](/docs/zh-CN/remote-control) 或[代理团队](/docs/zh-CN/agent-teams)队友会话中。
-* [`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit) 已打开，这是让会话本身[等待使用限制重置](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)的相同设置。如果您在等待期间关闭它，等待会结束，等待的代理会失败。
+* 会话是交互式的并使用 claude.ai 订阅登录。运行不会在[非交互模式](/docs/zh-CN/headless.md)中使用 `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 暂停，在[后台会话](/docs/zh-CN/agent-view.md)中，或在 [Remote Control](/docs/zh-CN/remote-control.md) 或[代理团队](/docs/zh-CN/agent-teams.md)队友会话中。
+* [`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit) 已打开，这是让会话本身[等待使用限制重置](/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)的相同设置。如果您在等待期间关闭它，等待会结束，等待的代理会失败。
 * 限制在 24 小时内重置。每周限制可能重置得更远。
 * 运行还没有等待过两次。当它第三次达到限制时，代理会失败。
 
@@ -418,7 +418,7 @@ Claude Code 按 Agent 启动的顺序重放运行，每个 Agent 要么返回其
 一个 Agent 最多重启五次，包括您使用 `r` 请求的任何重启。如果第六次尝试也停滞，`agent()` 调用会失败，错误的开头会说明原因：
 
 * `agent stalled on all 6 attempts`：每次尝试在整个窗口内都没有输出。如果 Agent 的工作使其保持静默这么长时间，请延长窗口
-* `agent lost its reply on all 6 attempts`：每次尝试的响应流都变为静默，Claude Code 放弃了等待。延长停滞窗口没有帮助，因为[流式空闲看门狗](/docs/zh-CN/network-config#streaming-idle-watchdogs)先结束了响应，而 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 设置该看门狗的超时时间
+* `agent lost its reply on all 6 attempts`：每次尝试的响应流都变为静默，Claude Code 放弃了等待。延长停滞窗口没有帮助，因为[流式空闲看门狗](/docs/zh-CN/network-config.md#streaming-idle-watchdogs)先结束了响应，而 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 设置该看门狗的超时时间
 * `agent abandoned after 6 attempts`：各次尝试以不同方式结束，错误会按顺序列出这些方式
 
 要在窗口结束前给 Agent 更多时间来产生输出：
@@ -446,14 +446,14 @@ Claude Code 还会标记增长异常大的运行。当工作流调度超过 25 �
 * 如果您自己选择[大小指南](#set-a-size-guideline)，其代理计数替换 25 个代理的阈值。内置默认指南将阈值保留在 25。
 * 启用[ultracode](#let-claude-decide-with-ultracode)的会话不显示警告，因为打开 ultracode 已经让您选择加入大型运行。
 
-Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理的模型](/docs/zh-CN/sub-agents#choose-a-model)。脚本为阶段命名的模型在该顺序中计为每次调用的模型。当没有其他东西分配一个时，代理在您的会话模型上运行。
+Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理的模型](/docs/zh-CN/sub-agents.md#choose-a-model)。脚本为阶段命名的模型在该顺序中计为每次调用的模型。当没有其他东西分配一个时，代理在您的会话模型上运行。
 
 要控制模型成本：
 
 * 在大型运行前检查 `/model`，如果您通常为日常工作切换到较小的模型
 * 当您描述任务时，要求 Claude 为不需要最强模型的阶段使用较小的模型
 
-当您组织的 [`availableModels` 允许列表](/docs/zh-CN/model-config#restrict-model-selection)阻止脚本为某个 Agent 请求的模型时，该 Agent 会改为在替代模型上运行，遵循与[子代理相同的替代规则](/docs/zh-CN/sub-agents#choose-a-model)。
+当您组织的 [`availableModels` 允许列表](/docs/zh-CN/model-config#restrict-model-selection)阻止脚本为某个 Agent 请求的模型时，该 Agent 会改为在替代模型上运行，遵循与[子代理相同的替代规则](/docs/zh-CN/sub-agents.md#choose-a-model)。
 
 ### 设置大小指南
 
@@ -476,7 +476,7 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
 
 ### 关闭工作流
 
-工作流在 CLI、桌面应用、IDE 扩展、[非交互模式](/docs/zh-CN/headless)与 `claude -p` 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview) 中可用。相同的禁用设置在每个表面上应用。
+工作流在 CLI、桌面应用、IDE 扩展、[非交互模式](/docs/zh-CN/headless.md)与 `claude -p` 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 中可用。相同的禁用设置在每个表面上应用。
 
 要为自己关闭工作流：
 
@@ -484,7 +484,7 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
 * 在 `~/.claude/settings.json` 中设置 `"disableWorkflows": true`。在会话中持续。
 * 设置 `CLAUDE_CODE_DISABLE_WORKFLOWS=1`。在启动时读取，所以它在您设置它的任何地方应用。
 
-要为整个组织关闭工作流，在[托管设置](/docs/zh-CN/server-managed-settings)中设置 `"disableWorkflows": true`，或使用[Claude Code 管理员设置](https://claude.ai/admin-settings/claude-code)页面上的切换。
+要为整个组织关闭工作流，在[托管设置](/docs/zh-CN/server-managed-settings.md)中设置 `"disableWorkflows": true`，或使用[Claude Code 管理员设置](https://claude.ai/admin-settings/claude-code)页面上的切换。
 
 当工作流被禁用时：
 
@@ -493,10 +493,10 @@ Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理�
 
 已在进行中的运行会继续进行。
 
-关闭工作流也会使[ultracode](#let-claude-decide-with-ultracode)不可用。没有托管设置单独排除 ultracode：无论它在哪里[可用](/docs/zh-CN/model-config#when-ultracode-is-available)，用户可以使用 `/effort ultracode` 打开它。[努力上限](/docs/zh-CN/model-config#organization-effort-limits)降低了启用 ultracode 的会话运行的努力级别，但不会关闭 ultracode。
+关闭工作流也会使[ultracode](#let-claude-decide-with-ultracode)不可用。没有托管设置单独排除 ultracode：无论它在哪里[可用](/docs/zh-CN/model-config.md#when-ultracode-is-available)，用户可以使用 `/effort ultracode` 打开它。[努力上限](/docs/zh-CN/model-config.md#organization-effort-limits)降低了启用 ultracode 的会话运行的努力级别，但不会关闭 ultracode。
 
 ## 相关资源
 
-* [并行运行代理](/docs/zh-CN/agents)：比较子代理、代理视图、代理团队和工作流
-* [创建自定义子代理](/docs/zh-CN/sub-agents)：工作流编排的工作者原语
-* [管理成本](/docs/zh-CN/costs)：多代理运行如何计入使用限制
+* [并行运行代理](/docs/zh-CN/agents.md)：比较子代理、代理视图、代理团队和工作流
+* [创建自定义子代理](/docs/zh-CN/sub-agents.md)：工作流编排的工作者原语
+* [管理成本](/docs/zh-CN/costs.md)：多代理运行如何计入使用限制

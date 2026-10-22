@@ -6,7 +6,7 @@
 
 > CLI 中的计算机使用、交互式产品内课程、无闪烁渲染、按工具 MCP 结果大小覆盖以及 PATH 上的插件可执行文件。
 
-发布版本 [v2.1.86 → v2.1.91](/docs/en/changelog#2-1-86)
+发布版本 [v2.1.86 → v2.1.91](/docs/en/changelog.md#2-1-86)
 5 项功能 · 3 月 30 日 – 4 月 3 日
 
 CLI 中的计算机使用
@@ -22,7 +22,7 @@ CLI 中的计算机使用
 Open the iOS simulator, tap through onboarding, and screenshot each step
 ```
 
-[计算机使用指南](/docs/zh-CN/computer-use)
+[计算机使用指南](/docs/zh-CN/computer-use.md)
 
 /powerup
 v2.1.90
@@ -37,7 +37,7 @@ v2.1.90
 /powerup
 ```
 
-[命令参考](/docs/zh-CN/commands)
+[命令参考](/docs/zh-CN/commands.md)
 
 无闪烁渲染
 v2.1.89
@@ -53,7 +53,7 @@ export CLAUDE_CODE_NO_FLICKER=1
 claude
 ```
 
-[全屏渲染](/docs/zh-CN/fullscreen)
+[全屏渲染](/docs/zh-CN/fullscreen.md)
 
 MCP 结果大小覆盖
 v2.1.91
@@ -72,7 +72,7 @@ MCP 服务器作者现在可以通过在工具的 `tools/list` 条目中设置 `
 }
 ```
 
-[MCP 参考](/docs/zh-CN/mcp#raise-the-limit-for-a-specific-tool)
+[MCP 参考](/docs/zh-CN/mcp.md#raise-the-limit-for-a-specific-tool)
 
 PATH 上的插件可执行文件
 v2.1.91
@@ -89,10 +89,10 @@ my-plugin/
     └── my-tool
 ```
 
-[插件参考](/docs/zh-CN/plugins/manifest-reference#standard-layout)
+[插件参考](/docs/zh-CN/plugins/manifest-reference.md#standard-layout)
 
 其他成就
 
 自动模式后续：新的 `PermissionDenied` 钩子在分类器拒绝时触发（返回 `retry: true` 让 Claude 尝试不同的方法），`/permissions` → 最近拒绝让你用 `r` 手动重试`PreToolUse` 钩子中 `permissionDecision` 的新 `defer` 值：`-p` 会话在工具调用处暂停并以 `deferred_tool_use` 有效负载退出，以便 SDK 应用或自定义 UI 可以显示它，然后用 `--resume` 恢复`/buddy`：孵化一个小生物来观看你编码。一个愚人节玩笑，不再可用`disableSkillShellExecution` 设置阻止来自技能、斜杠命令和插件命令的内联 shell编辑工具现在可以在通过 `cat` 或 `sed -n` 查看的文件上工作，无需单独的读取超过 50K 的钩子输出保存到磁盘，带有路径和预览，而不是注入到上下文中思考摘要在交互式会话中默认关闭（`showThinkingSummaries: true` 以恢复）语音模式：按住说话修饰符组合、Windows WebSocket、macOS Apple Silicon 麦克风权限`claude-cli://` 深层链接接受多行提示（编码 `%0A`）
 
-[v2.1.86–v2.1.91 的完整更改日志 →](/docs/en/changelog#2-1-86)
+[v2.1.86–v2.1.91 的完整更改日志 →](/docs/en/changelog.md#2-1-86)

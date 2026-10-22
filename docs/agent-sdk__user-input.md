@@ -46,20 +46,20 @@ const options = { canUseTool: handleToolRequest };
 
 回调在两种情况下触发：
 
-1. **工具需要批准**：Claude 想要使用不被[权限规则](/docs/zh-CN/agent-sdk/permissions)或权限模式自动批准的工具。检查 `tool_name` 以获取工具（例如 `"Bash"`、`"Write"`）。
+1. **工具需要批准**：Claude 想要使用不被[权限规则](/docs/zh-CN/agent-sdk/permissions.md)或权限模式自动批准的工具。检查 `tool_name` 以获取工具（例如 `"Bash"`、`"Write"`）。
 2. **Claude 提出问题**：Claude 调用 `AskUserQuestion` 工具。检查 `tool_name == "AskUserQuestion"` 以不同方式处理它。如果您指定 `tools` 数组，请包含 `AskUserQuestion` 以使其工作。有关详细信息，请参阅[处理澄清问题](#handle-clarifying-questions)。
 
 > [!WARNING]
 >
-> **回调永远不会对自动批准的工具触发。** [权限评估流程](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)中任何较早的批准、允许规则或 `acceptEdits` 或 `bypassPermissions` 等模式会在咨询 `canUseTool` 之前解决调用。如果您在 `allowed_tools` 中列出一个工具，仅当[评估流程](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)将调用路由回提示（例如询问规则或 `plan` 模式）时，该工具的 `canUseTool` 检查才会运行。对于必须应用于每个工具调用的逻辑，请使用 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它在流程的其余部分之前执行，可以允许、拒绝或修改请求。
+> **回调永远不会对自动批准的工具触发。** [权限评估流程](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)中任何较早的批准、允许规则或 `acceptEdits` 或 `bypassPermissions` 等模式会在咨询 `canUseTool` 之前解决调用。如果您在 `allowed_tools` 中列出一个工具，仅当[评估流程](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)将调用路由回提示（例如询问规则或 `plan` 模式）时，该工具的 `canUseTool` 检查才会运行。对于必须应用于每个工具调用的逻辑，请使用 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它在流程的其余部分之前执行，可以允许、拒绝或修改请求。
 >
-> 允许规则不会预先批准[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves)；有关其中哪些到达回调以及在 `dontAsk` 和 `auto` 模式下发生的情况，请参阅[权限如何评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)。
+> 允许规则不会预先批准[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)；有关其中哪些到达回调以及在 `dontAsk` 和 `auto` 模式下发生的情况，请参阅[权限如何评估](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)。
 
 您还可以使用 [`PermissionRequest` hook](/docs/zh-CN/agent-sdk/hooks#available-hooks) 在 Claude 等待批准时发送外部通知（Slack、电子邮件、推送）。
 
 ## 处理工具批准请求
 
-一旦您在查询选项中传递了 `canUseTool` 回调，当 Claude 想要使用不被权限流中较早步骤批准的工具时，它就会触发。在某些配置中，例如 `dontAsk` 模式，Claude Code 不会调用它；[权限如何被评估](/docs/zh-CN/agent-sdk/permissions#how-permissions-are-evaluated)的最后一步列出了它们并说明了调用会发生什么。
+一旦您在查询选项中传递了 `canUseTool` 回调，当 Claude 想要使用不被权限流中较早步骤批准的工具时，它就会触发。在某些配置中，例如 `dontAsk` 模式，Claude Code 不会调用它；[权限如何被评估](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)的最后一步列出了它们并说明了调用会发生什么。
 
 您的回调接收三个参数：
 
@@ -78,7 +78,7 @@ const options = { canUseTool: handleToolRequest };
 | `Edit` | `file_path`、`old_string`、`new_string` |
 | `Read` | `file_path`、`offset`、`limit` |
 
-有关完整的输入架构，请参阅 SDK 参考：[Python](/docs/zh-CN/agent-sdk/python#tool-input%2Foutput-types) | [TypeScript](/docs/zh-CN/agent-sdk/typescript#tool-input-types)。
+有关完整的输入架构，请参阅 SDK 参考：[Python](/docs/zh-CN/agent-sdk/python.md#tool-input%2Foutput-types) | [TypeScript](/docs/zh-CN/agent-sdk/typescript.md#tool-input-types)。
 
 您可以向用户显示此信息，以便他们可以决定是否允许或拒绝该操作，然后返回适当的响应。
 
@@ -221,7 +221,7 @@ for await (const message of query({
 * **批准并记住**：回显建议的权限规则，以便匹配的调用在下次跳过提示
 * **拒绝**：阻止工具并告诉 Claude 原因
 * **建议替代方案**：阻止但指导 Claude 朝向用户想要的方向
-* **完全重定向**：使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)向 Claude 发送全新指令
+* **完全重定向**：使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)向 Claude 发送全新指令
 
 以下代码片段中的 `ask_user` 和 `askUser` 帮助程序代表您应用程序自己的提示 UI。
 
@@ -383,7 +383,7 @@ canUseTool: async (toolName, input) => {
 
 **完全重定向**
 
-对于完全改变方向（不仅仅是轻推），使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)向 Claude 发送新指令。这绕过当前工具请求并为 Claude 提供全新指令来遵循。
+对于完全改变方向（不仅仅是轻推），使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)向 Claude 发送新指令。这绕过当前工具请求并为 Claude 提供全新指令来遵循。
 
 ## 处理澄清问题
 
@@ -804,7 +804,7 @@ main();
 
 ### 流输入
 
-当您需要以下情况时，使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)：
+当您需要以下情况时，使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)：
 
 * **在任务中断代理**：在 Claude 工作时发送取消信号或改变方向
 * **提供额外上下文**：添加 Claude 需要的信息而无需等待它提出问题
@@ -814,7 +814,7 @@ main();
 
 ### 自定义工具
 
-当您需要以下情况时，使用[自定义工具](/docs/zh-CN/agent-sdk/custom-tools)：
+当您需要以下情况时，使用[自定义工具](/docs/zh-CN/agent-sdk/custom-tools.md)：
 
 * **收集结构化输入**：构建超越 `AskUserQuestion` 多选格式的表单、向导或多步工作流
 * **集成外部批准系统**：连接到现有的票务、工作流或批准平台
@@ -824,6 +824,6 @@ main();
 
 ## 相关资源
 
-* [配置权限](/docs/zh-CN/agent-sdk/permissions)：设置权限模式和规则
-* [使用 hooks 控制执行](/docs/zh-CN/agent-sdk/hooks)：在代理生命周期的关键点运行自定义代码
-* [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript#canusetool)：完整的 canUseTool API 文档
+* [配置权限](/docs/zh-CN/agent-sdk/permissions.md)：设置权限模式和规则
+* [使用 hooks 控制执行](/docs/zh-CN/agent-sdk/hooks.md)：在代理生命周期的关键点运行自定义代码
+* [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript.md#canusetool)：完整的 canUseTool API 文档

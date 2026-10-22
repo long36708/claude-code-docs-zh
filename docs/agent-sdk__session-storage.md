@@ -312,7 +312,7 @@ SDK 还使用来自您真实配置目录的文件为临时目录提供种子。�
 
 ### 保留
 
-SDK 永远不会自行从您的存储中删除。保留是适配器的责任：根据您的合规要求实现 TTL、S3 生命周期策略或计划清理。`CLAUDE_CONFIG_DIR` 下的本地转录由 `cleanupPeriodDays` 设置独立清理，遵循[保留清理规则](/docs/zh-CN/claude-directory#cleaned-up-automatically)。[从存储恢复](#resume-from-the-store)的运行不留下本地转录，因此对于这些运行，您的存储保留是唯一的保留。
+SDK 永远不会自行从您的存储中删除。保留是适配器的责任：根据您的合规要求实现 TTL、S3 生命周期策略或计划清理。`CLAUDE_CONFIG_DIR` 下的本地转录由 `cleanupPeriodDays` 设置独立清理，遵循[保留清理规则](/docs/zh-CN/claude-directory.md#cleaned-up-automatically)。[从存储恢复](#resume-from-the-store)的运行不留下本地转录，因此对于这些运行，您的存储保留是唯一的保留。
 
 ## 支持的功能
 
@@ -330,11 +330,11 @@ SDK 永远不会自行从您的存储中删除。保留是适配器的责任：�
 * [`listSubagents()`](/docs/zh-CN/agent-sdk/typescript)
 * [`getSubagentMessages()`](/docs/zh-CN/agent-sdk/typescript)
 
-在 Python SDK 中，在 [`ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 中设置 `session_store` 以针对存储运行 `query()`。其余操作各有一个接受存储作为参数的存储支持的 Python 函数：`list_sessions_from_store()`、`get_session_info_from_store()`、`get_session_messages_from_store()`、`list_subagents_from_store()`、`get_subagent_messages_from_store()`、`rename_session_via_store()`、`tag_session_via_store()`、`delete_session_via_store()` 和 `fork_session_via_store()`。`startup()` 没有 Python 等效项。[Python SDK 参考](/docs/zh-CN/agent-sdk/python#functions)中记录的独立函数（如 `list_sessions()`）读取本地会话文件。
+在 Python SDK 中，在 [`ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 中设置 `session_store` 以针对存储运行 `query()`。其余操作各有一个接受存储作为参数的存储支持的 Python 函数：`list_sessions_from_store()`、`get_session_info_from_store()`、`get_session_messages_from_store()`、`list_subagents_from_store()`、`get_subagent_messages_from_store()`、`rename_session_via_store()`、`tag_session_via_store()`、`delete_session_via_store()` 和 `fork_session_via_store()`。`startup()` 没有 Python 等效项。[Python SDK 参考](/docs/zh-CN/agent-sdk/python.md#functions)中记录的独立函数（如 `list_sessions()`）读取本地会话文件。
 
 ## 相关资源
 
-* [使用会话](/docs/zh-CN/agent-sdk/sessions)：在没有自定义存储的情况下继续、恢复和分叉
-* [托管 SDK](/docs/zh-CN/agent-sdk/hosting)：多主机环境的部署模式
+* [使用会话](/docs/zh-CN/agent-sdk/sessions.md)：在没有自定义存储的情况下继续、恢复和分叉
+* [托管 SDK](/docs/zh-CN/agent-sdk/hosting.md)：多主机环境的部署模式
 * [TypeScript `Options`](/docs/zh-CN/agent-sdk/typescript#options)：完整的选项参考
 * [参考实现](#reference-implementations)：对象存储、键值存储和数据库的可运行示例适配器，在两个 SDK 存储库中

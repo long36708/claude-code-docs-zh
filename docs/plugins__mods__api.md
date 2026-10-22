@@ -6,9 +6,9 @@
 
 > 从 Claude Code mod 调用 mods API 来添加命令和工具、调用模型、在计时器上运行工作、向其他会话发送消息，以及访问文件和网络。
 
-mods API 是 mod 调用以执行操作的方法集：添加命令和工具、调用模型、在事件之间运行工作，以及访问文件系统、进程和网络。每个 hook 都将其作为第一个参数 `$` 接收，方法按命名空间分组，例如 `$.ui` 和 `$.fs`。[事件](/docs/zh-CN/plugins/mods/events)决定何时运行 hook，mods API 是 hook 运行后调用的内容。
+mods API 是 mod 调用以执行操作的方法集：添加命令和工具、调用模型、在事件之间运行工作，以及访问文件系统、进程和网络。每个 hook 都将其作为第一个参数 `$` 接收，方法按命名空间分组，例如 `$.ui` 和 `$.fs`。[事件](/docs/zh-CN/plugins/mods/events.md)决定何时运行 hook，mods API 是 hook 运行后调用的内容。
 
-在开始之前，请构建您的[第一个 mod](/docs/zh-CN/plugins/mods/create)。对于每个方法，请参阅 [mods API 方法](/docs/zh-CN/plugins/mods/reference#mods-api-methods)或阅读[您的构建的类型](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)。
+在开始之前，请构建您的[第一个 mod](/docs/zh-CN/plugins/mods/create.md)。对于每个方法，请参阅 [mods API 方法](/docs/zh-CN/plugins/mods/reference.md#mods-api-methods)或阅读[您的构建的类型](/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)。
 
 ## 添加命令或工具
 
@@ -34,7 +34,7 @@ on('command.run', { command: 'standup' }, async ($, e) => {
 
 会话启动后，`/standup` 及其描述会出现在您键入 `/` 时看到的列表中。`argumentHint` 在您键入命令和空格后显示在提示中，如 `/standup [days]`。当您运行 `/standup 3` 时，第二个 hook 返回 `Summary for the last 3 day(s): ...`，并且成绩单在插件名称后显示该文本。hook 永远不会调用 `next`，因为该命令除了您的行为外没有其他行为。
 
-您返回的 `text` 会打印在成绩单中，Claude 会读取它。要不打印任何内容，如仅打开[窗格](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw)的命令，请返回 `{}`。要让命令在 Claude 工作时运行，请在注册中添加 `immediate: true`。
+您返回的 `text` 会打印在成绩单中，Claude 会读取它。要不打印任何内容，如仅打开[窗格](/docs/zh-CN/plugins/mods/interface.md#pick-where-to-draw)的命令，请返回 `{}`。要让命令在 Claude 工作时运行，请在注册中添加 `immediate: true`。
 
 选择一个没有内置命令使用的名称。在会话中键入 `/` 以查看它们。`$.command.register` 对于已占用的名称会抛出异常，并显示诸如 `"/focus" refused: it is the built-in /focus` 的消息。抛出异常的 hook 会被跳过，因此您的 `session.start` hook 的其余部分也不会运行。在该 hook 中最后注册命令，或将调用包装在 `try` 和 `catch` 中。
 
@@ -67,7 +67,7 @@ on('tool.call', { tool: 'mcp__my-mod__ticket' }, async ($, e) => {
 
 > [!TIP]
 >
-> 当 [MCP 工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)延迟加载某个已注册的工具时，Claude 能看到其名称，但在搜索该工具之前看不到其描述。如果 Claude 应在每一轮都考虑该工具，请在注册中添加 [`isDeferred: false`](/docs/zh-CN/plugins/mods/reference#tools)，以[预先加载完整工具](/docs/zh-CN/mcp#exempt-a-server-from-deferral)。该字段需要 Claude Code v2.1.293 或更高版本，早期版本会忽略它。
+> 当 [MCP 工具搜索](/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)延迟加载某个已注册的工具时，Claude 能看到其名称，但在搜索该工具之前看不到其描述。如果 Claude 应在每一轮都考虑该工具，请在注册中添加 [`isDeferred: false`](/docs/zh-CN/plugins/mods/reference#tools)，以[预先加载完整工具](/docs/zh-CN/mcp.md#exempt-a-server-from-deferral)。该字段需要 Claude Code v2.1.293 或更高版本，早期版本会忽略它。
 
 ## 调用模型
 
@@ -78,14 +78,14 @@ mod 可以向模型发送自己的请求，用于分类或总结文本等小任�
 | 请求中的内容 | `$.model.complete` | `$.model.fork` |
 | :- | :- | :- |
 | 模型 | 您传入的 `model` | 会话的模型 |
-| 系统提示词 | 一个简短的[归属块](/docs/zh-CN/llm-gateway-protocol#system-prompt-attribution-block)，然后是您传入的 `system`（如果有） | 会话的系统提示词 |
+| 系统提示词 | 一个简短的[归属块](/docs/zh-CN/llm-gateway-protocol.md#system-prompt-attribution-block)，然后是您传入的 `system`（如果有） | 会话的系统提示词 |
 | 消息 | 一条用户消息，即您的 `prompt` | 迄今为止的对话，然后是作为用户消息的您的 `prompt` |
 | CLAUDE.md 和其他项目上下文 | 不包含 | 包含，与对话的最后一个请求相同 |
 | 工具 | 无 | Claude 的工具，但模型无法调用它们 |
 
-fork 会重复对话的最后一个请求，因此在对话仍处于缓存中时，Claude API 会从[提示缓存](/docs/zh-CN/prompt-caching)中提供其大部分内容。
+fork 会重复对话的最后一个请求，因此在对话仍处于缓存中时，Claude API 会从[提示缓存](/docs/zh-CN/prompt-caching.md)中提供其大部分内容。
 
-这两种调用都使用会话的凭据，因此费用计入用户的套餐、API 密钥或云提供商。[您的构建的类型](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)记录了每个 `$.model` 方法。
+这两种调用都使用会话的凭据，因此费用计入用户的套餐、API 密钥或云提供商。[您的构建的类型](/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)记录了每个 `$.model` 方法。
 
 ### 发送单个提示词
 
@@ -114,7 +114,7 @@ on('command.run', { command: 'triage' }, async ($, e) => {
 
 Claude API 失败不会拒绝调用，因此请检查 `r.isAnswered`，并在其为 `false` 时读取 `r.reason`。对于 Claude Code 不会发送的请求，例如您的组织阻止的模型，调用会被拒绝。
 
-[您的构建的类型](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)列出了其他选项，例如 `effort`，[限制](/docs/zh-CN/plugins/mods/reference#limits)给出了 `maxTokens` 的默认值。
+[您的构建的类型](/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)列出了其他选项，例如 `effort`，[限制](/docs/zh-CN/plugins/mods/reference.md#limits)给出了 `maxTokens` 的默认值。
 
 ### 使用提示缓存
 
@@ -153,7 +153,7 @@ TTL 和断点数量有以下限制：
 除非您确定请求直接发送到 Claude API，否则请将各调用共享的静态内容放在 `prompt` 的开头：
 
 * **使用 API 密钥或 Claude 订阅直接发送到 Claude API**：两个字段都可以
-* **通过 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai)、[Microsoft Foundry](/docs/zh-CN/microsoft-foundry) 或 [LLM 网关](/docs/zh-CN/llm-gateway)发送**：使用 `prompt`。Claude Code 会在系统提示词开头添加一个[归属块](/docs/zh-CN/llm-gateway-protocol#system-prompt-attribution-block)，其指纹来自用户消息的开头。`api.anthropic.com` 端点会在缓存之前去除该块。其他端点则会将其作为提示词的一部分接收，因此当 `prompt` 的开头不同时，`system` 中的断点可能无法命中。
+* **通过 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock.md)、[Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws.md)、[Google Cloud's Agent Platform](/docs/zh-CN/google-vertex-ai.md)、[Microsoft Foundry](/docs/zh-CN/microsoft-foundry.md) 或 [LLM 网关](/docs/zh-CN/llm-gateway)发送**：使用 `prompt`。Claude Code 会在系统提示词开头添加一个[归属块](/docs/zh-CN/llm-gateway-protocol.md#system-prompt-attribution-block)，其指纹来自用户消息的开头。`api.anthropic.com` 端点会在缓存之前去除该块。其他端点则会将其作为提示词的一部分接收，因此当 `prompt` 的开头不同时，`system` 中的断点可能无法命中。
 * **在其他人运行的 mod 中**：使用 `prompt`，因为您无法选择他们的提供商
 
 在前缀中，`system` 位于 `prompt` 之前，因此 `prompt` 中的断点也会覆盖 `system`，而 `system` 不同的调用将无法命中缓存。
@@ -168,7 +168,7 @@ TTL 和断点数量有以下限制：
 
 * **前缀太短**：API 不会缓存短于模型[最小长度](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#cache-limitations)的前缀，并且不会返回错误
 * **提示缓存已禁用**：当某个 [`DISABLE_PROMPT_CACHING` 变量](/docs/zh-CN/prompt-caching#disable-prompt-caching)适用于该模型时，Claude Code 会移除断点并以不缓存的方式发送文本
-* **您的网关去除了 `cache_control`**：网关可能会[移除该字段但仍返回成功](/docs/zh-CN/prompt-caching#where-the-cache-lives)
+* **您的网关去除了 `cache_control`**：网关可能会[移除该字段但仍返回成功](/docs/zh-CN/prompt-caching.md#where-the-cache-lives)
 * **另一个 mod 重写了文本的开头**：此时 Claude Code 会[不带断点发送文本](#what-a-model-complete-hook-receives)
 
 ### `model.complete` hook 接收的内容
@@ -183,7 +183,7 @@ Claude Code 会发送您的 hook 传给 `next` 的字符串，并使用您随之
 
 ## 在后台运行工作
 
-超越一个事件的工作，例如每分钟检查一次，在您从 `session.start` 启动的计时器上运行。hook 本身为一个事件运行，其自身运行时间有[时间限制](/docs/zh-CN/plugins/mods/reference#limits)。在 `next` 或 mods API 调用上花费的时间不计算，除了 `$.clock.sleep`。`$.clock.every` 和 `$.clock.after` 代替 `setInterval` 和 `setTimeout`，延迟以毫秒为单位：`$.clock.after(5000, fn)` 在五秒后调用 `fn` 一次。每个都返回一个带有 `cancel()` 方法的计时器，`await $.clock.now()` 给出以毫秒为单位的时间。
+超越一个事件的工作，例如每分钟检查一次，在您从 `session.start` 启动的计时器上运行。hook 本身为一个事件运行，其自身运行时间有[时间限制](/docs/zh-CN/plugins/mods/reference.md#limits)。在 `next` 或 mods API 调用上花费的时间不计算，除了 `$.clock.sleep`。`$.clock.every` 和 `$.clock.after` 代替 `setInterval` 和 `setTimeout`，延迟以毫秒为单位：`$.clock.after(5000, fn)` 在五秒后调用 `fn` 一次。每个都返回一个带有 `cancel()` 方法的计时器，`await $.clock.now()` 给出以毫秒为单位的时间。
 
 此 hook 每分钟查找一次拉取请求的检查，并在提示下显示结果。`summarize` 是您自己的函数，将命令的 JSON 输出转换为几个单词：
 
@@ -200,7 +200,7 @@ on('session.start', async ($, e, next) => {
 })
 ```
 
-会话照常启动。一分钟后，提示下会出现一行，带有 `⚠`、mod 的名称，然后是 `checks:` 和您的摘要。之后每分钟替换一次。计时器的回调在任何事件之外运行，因此它在轮次之间保持运行，不会启动一个。如果回调抛出异常，错误会进入[调试日志](/docs/zh-CN/plugins/mods/troubleshoot#read-the-debug-log)，计时器在下一个间隔再次运行。
+会话照常启动。一分钟后，提示下会出现一行，带有 `⚠`、mod 的名称，然后是 `checks:` 和您的摘要。之后每分钟替换一次。计时器的回调在任何事件之外运行，因此它在轮次之间保持运行，不会启动一个。如果回调抛出异常，错误会进入[调试日志](/docs/zh-CN/plugins/mods/troubleshoot.md#read-the-debug-log)，计时器在下一个间隔再次运行。
 
 ### 显示内容而不启动轮次
 
@@ -209,7 +209,7 @@ on('session.start', async ($, e, next) => {
 | 调用 | 用户看到的内容 |
 | :- | :- |
 | `$.ui.status(text)` | 提示下的一行，保持不变直到您更改它。它以 `⚠` 和 mod 的名称开头，如 `⚠ my-mod: checks: 3 passing`。 |
-| `$.ui.toast(text)` | 一条带有 mod 名称的 toast 通知，几秒后消失。在[全屏渲染](/docs/zh-CN/fullscreen)中，它是右上角的一个框；在经典渲染器中，它是提示下右侧的一行。 |
+| `$.ui.toast(text)` | 一条带有 mod 名称的 toast 通知，几秒后消失。在[全屏渲染](/docs/zh-CN/fullscreen.md)中，它是右上角的一个框；在经典渲染器中，它是提示下右侧的一行。 |
 | `$.ui.log(text)` | 成绩单中的一条暗线，Claude 不读取。它以 `●` 和 mod 的名称开头，如 `● my-mod: build finished`。 |
 | `$.ui.notify(text)` | 来自用户终端的通知，位于 Claude Code 之外，按照用户的 [`preferredNotifChannel`](/docs/zh-CN/settings-reference#preferrednotifchannel) 设置所指定的方式发送。其标题为 mod 的名称，除非您传入非空的 `{ title }`，此时标题按您提供的内容显示。 |
 
@@ -248,7 +248,7 @@ on('turn.complete', ($, e, next) => {
 })
 ```
 
-在 [VS Code 扩展](/docs/zh-CN/plugins/mods/interface#draw-in-the-vs-code-extension)中，状态栏和 toast 改为显示在输入框上方，日志行则显示在对话中。
+在 [VS Code 扩展](/docs/zh-CN/plugins/mods/interface.md#draw-in-the-vs-code-extension)中，状态栏和 toast 改为显示在输入框上方，日志行则显示在对话中。
 
 ### 从后台工作启动轮次
 
@@ -273,7 +273,7 @@ on('turn.complete', ($, e, next) => {
 * **`the session was stopped and nobody has sent input since`**：调用被拒绝
 * **`was removed from the queue before it ran`**：提示词或命令未运行就离开了队列并被丢弃，例如当用户停止了轮次时
 
-在此示例中，从您的后台工作中调用 `submitPrompt` 来代替 [`$.prompt.submit`](#start-a-turn-from-a-background-job)。将 `pendingText` 变量和 `submitPrompt` 函数放在 [`register`](/docs/zh-CN/plugins/mods/reference#files) 之上，并将 `turn.complete` hook 放在其内部，因为[验证](/docs/zh-CN/plugins/mods/create#check-what-claude-code-reads-from-your-mod)会拒绝传递给在 `register` 内部声明的函数的 `$`。当结果或错误带有上述字符串之一时，`submitPrompt` 会将文本保存在 `pendingText` 中，供 `turn.complete` hook 再次提交：
+在此示例中，从您的后台工作中调用 `submitPrompt` 来代替 [`$.prompt.submit`](#start-a-turn-from-a-background-job)。将 `pendingText` 变量和 `submitPrompt` 函数放在 [`register`](/docs/zh-CN/plugins/mods/reference#files) 之上，并将 `turn.complete` hook 放在其内部，因为[验证](/docs/zh-CN/plugins/mods/create.md#check-what-claude-code-reads-from-your-mod)会拒绝传递给在 `register` 内部声明的函数的 `$`。当结果或错误带有上述字符串之一时，`submitPrompt` 会将文本保存在 `pendingText` 中，供 `turn.complete` hook 再次提交：
 
 ```javascript theme={null}
 // The text of the last refused or dropped prompt, or null
@@ -321,7 +321,7 @@ on('turn.complete', async ($, e, next) => {
 | `$.command.run` | 以一个消息以 `<reason>` 结尾的错误 reject |
 | [`$.agent.spawn`](/docs/zh-CN/plugins/mods/reference#mods-api-methods) | 解析为 `{ deny: '<reason>' }`，且不会启动子代理 |
 | 向已完成的子代理调用 `$.session.send` | 解析为 `{ isDelivered: false, reason: 'Agent "<id>" was not resumed: <reason>.' }`，其中 `<id>` 是子代理的 id。仍在运行的子代理会收到该消息。 |
-| 向 [agent team](/docs/zh-CN/agent-teams) 队友调用 `$.session.send` | 解析为 `{ isDelivered: false, reason: 'Teammate "<name>" was not messaged: <reason>.' }`，其中 `<name>` 是队友的名称 |
+| 向 [agent team](/docs/zh-CN/agent-teams.md) 队友调用 `$.session.send` | 解析为 `{ isDelivered: false, reason: 'Teammate "<name>" was not messaged: <reason>.' }`，其中 `<name>` 是队友的名称 |
 | 对带有 `run_in_background: true` 的 Bash、Monitor 或 CronCreate 调用 [`$.tool.call`](/docs/zh-CN/plugins/mods/reference#mods-api-methods) | 解析为 `{ deny: '<tool> was not run: it starts background work, a schedule or a goal, and <reason>' }`，其中 `<tool>` 是工具的名称 |
 
 伴随这些 `$.session.send` 和 `$.tool.call` 结果，用户可能会看到 [`Stopped:` toast](/docs/zh-CN/plugins/mods/troubleshoot#stopped-type-a-message-to-continue)。
@@ -343,7 +343,7 @@ on('turn.complete', async ($, e, next) => {
 
 ## 在会话之间发送和接收消息
 
-mod 可以向您的另一个会话、此会话的子代理之一或其 [agent team](/docs/zh-CN/agent-teams) 中的队友发送纯文本消息，还可以观察到达和离开的消息。
+mod 可以向您的另一个会话、此会话的子代理之一或其 [agent team](/docs/zh-CN/agent-teams.md) 中的队友发送纯文本消息，还可以观察到达和离开的消息。
 
 要发送消息，请调用 `$.session.send({ to, text })`，它与 SendMessage 工具进行相同的传递。根据消息的接收者设置 `to`：
 
@@ -375,7 +375,7 @@ on('command.run', { command: 'ping' }, async ($, e) => {
 | `session.receive` | 消息到达此会话，在 Claude 读取之前 | `e.text` 和 `e.origin.kind`，例如 `peer` 或 `peer-send-message` 用于另一个会话或代理，`task-notification` 或 `scheduled-trigger`。返回 `{ consumed: reason }` 以防止 Claude 读取。 |
 | `session.send` | 消息即将离开，来自 SendMessage 工具或 mod | `e.to`、`e.text` 和 `e.origin.kind`，即 `model` 或 `plugin` |
 
-设置为[拒绝入站消息](/docs/zh-CN/cross-session-messaging#control-inbound-messages)的会话在 `session.receive` 触发之前拒绝消息，因此 hook 永远看不到它。为您的批准而保留的消息首先到达 hook，因此 mod 可以读取您尚未批准的消息。hook 的 `next(e)` 在消息未传递时拒绝。
+设置为[拒绝入站消息](/docs/zh-CN/cross-session-messaging.md#control-inbound-messages)的会话在 `session.receive` 触发之前拒绝消息，因此 hook 永远看不到它。为您的批准而保留的消息首先到达 hook，因此 mod 可以读取您尚未批准的消息。hook 的 `next(e)` 在消息未传递时拒绝。
 
 接收消息上的发送者名称是发送者写的任何内容，因此不要基于它做出决定。
 
@@ -399,9 +399,9 @@ mod 通过 mods API 访问文件系统、进程和网络，具有与运行 Claud
 * **路径**：相对路径相对于会话的工作目录进行解析，或相对于 hook 正在处理其事件的子代理的工作目录进行解析
 * **`$.fs.list`**：将一个目录的条目作为 `{ name, kind, size, isLink }` 返回，不进行递归
 * **`$.process.run`**：接受参数列表，不使用 shell。它解析为 `{ exitCode, stdout, stderr }`，无论退出码如何。如果程序无法启动或在超时时仍在运行，它会拒绝，默认为 30 秒，因此将其包装在 `try` 和 `catch` 中。
-* **`$.http.fetch`**：最多跟随五次重定向。当重定向到不同的源时，它只保留您设置的 `accept`、`accept-language`、`content-type` 和 `user-agent` 请求头，并丢弃其余请求头，因此依赖其他请求头（如 `Authorization`）的请求在该重定向之后可能会失败。[限制](/docs/zh-CN/plugins/mods/reference#limits)中列出了它的超时时间和体大小。
+* **`$.http.fetch`**：最多跟随五次重定向。当重定向到不同的源时，它只保留您设置的 `accept`、`accept-language`、`content-type` 和 `user-agent` 请求头，并丢弃其余请求头，因此依赖其他请求头（如 `Authorization`）的请求在该重定向之后可能会失败。[限制](/docs/zh-CN/plugins/mods/reference.md#limits)中列出了它的超时时间和体大小。
 
-这些调用中的每一个本身都是一个事件，以其命名空间和方法命名，不带 `$.`，例如 `fs.read` 用于 `$.fs.read`。[链中较早的](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in) mod 可以观察、重写或拒绝您的调用，这是组织限制 mod 到达的方式。
+这些调用中的每一个本身都是一个事件，以其命名空间和方法命名，不带 `$.`，例如 `fs.read` 用于 `$.fs.read`。[链中较早的](/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in) mod 可以观察、重写或拒绝您的调用，这是组织限制 mod 到达的方式。
 
 mod 可以在命令已产生输出或已退出之后拒绝您的 `$.process.spawn` 调用，且该命令已执行的任何操作都不会被撤销。此时该调用会拒绝，并返回一条以下列字符串之一加上拒绝方 mod 的原因结尾的消息：
 
@@ -410,7 +410,7 @@ mod 可以在命令已产生输出或已退出之后拒绝您的 `$.process.spaw
 
 ## 后续步骤
 
-* [对事件做出反应](/docs/zh-CN/plugins/mods/events)：hook 工具调用、提示和轮次
-* [在界面中绘制](/docs/zh-CN/plugins/mods/interface)：在窗格或提示上方显示您的 mod 收集的内容
-* [测试 mod](/docs/zh-CN/plugins/mods/test)：在测试中存根这些调用中的任何一个
-* [Mods 参考](/docs/zh-CN/plugins/mods/reference)：事件、mods API 方法和限制
+* [对事件做出反应](/docs/zh-CN/plugins/mods/events.md)：hook 工具调用、提示和轮次
+* [在界面中绘制](/docs/zh-CN/plugins/mods/interface.md)：在窗格或提示上方显示您的 mod 收集的内容
+* [测试 mod](/docs/zh-CN/plugins/mods/test.md)：在测试中存根这些调用中的任何一个
+* [Mods 参考](/docs/zh-CN/plugins/mods/reference.md)：事件、mods API 方法和限制

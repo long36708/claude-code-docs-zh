@@ -8,17 +8,17 @@
 
 mod 通过元素来绘制界面：文本、框、按钮、输入框，以及几个可为您格式化内容的元素。本页的示例展示了绘制各元素的代码，其中大多数还附有结果在终端窗格中的截图，方便您根据外观来挑选元素。
 
-要了解绘制的工作原理，请从[在界面中绘制](/docs/zh-CN/plugins/mods/interface)开始。有关主要 props 以及哪些应用会绘制各个元素，请参阅[元素参考](/docs/zh-CN/plugins/mods/reference#elements)。[类型声明](/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)列出了所有 props。
+要了解绘制的工作原理，请从[在界面中绘制](/docs/zh-CN/plugins/mods/interface.md)开始。有关主要 props 以及哪些应用会绘制各个元素，请参阅[元素参考](/docs/zh-CN/plugins/mods/reference.md#elements)。[类型声明](/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)列出了所有 props。
 
 ## 试用示例
 
 本页的示例是代码片段，而非完整的 mod。每个示例都是一个元素及其内部嵌套内容的代码。
 
-要在您自己的终端中查看示例，请按以下步骤创建一个小型 mod，并将示例粘贴进去。该 mod 会添加一个 `/gallery` 命令，用于打开一个窗格并在其中绘制示例。[窗格](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw)在宽屏全屏终端中是会话记录旁边的侧边栏，在其他情况下则是输入框上方带边框的区域。
+要在您自己的终端中查看示例，请按以下步骤创建一个小型 mod，并将示例粘贴进去。该 mod 会添加一个 `/gallery` 命令，用于打开一个窗格并在其中绘制示例。[窗格](/docs/zh-CN/plugins/mods/interface.md#pick-where-to-draw)在宽屏全屏终端中是会话记录旁边的侧边栏，在其他情况下则是输入框上方带边框的区域。
 
 **1. 创建 mod**
 
-创建一个名为 `gallery` 的目录，并在其中创建 `.claude-plugin` 和 `hooks` 目录。[创建 mod](/docs/zh-CN/plugins/mods/create#write-a-mod-yourself) 介绍了这些文件。
+创建一个名为 `gallery` 的目录，并在其中创建 `.claude-plugin` 和 `hooks` 目录。[创建 mod](/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 介绍了这些文件。
 
 将清单保存为 `gallery/.claude-plugin/plugin.json`：
 
@@ -219,9 +219,9 @@ Box({
 
 ## 接收输入
 
-`Button`、`Input` 和 `Select` 是控件：用户通过 Tab 键在它们之间移动，并操作获得焦点的那个控件。[键盘焦点和快捷键](/docs/zh-CN/plugins/mods/interface#know-which-keys-your-mod-can-receive)介绍了哪些按键会传递给它们。
+`Button`、`Input` 和 `Select` 是控件：用户通过 Tab 键在它们之间移动，并操作获得焦点的那个控件。[键盘焦点和快捷键](/docs/zh-CN/plugins/mods/interface.md#know-which-keys-your-mod-can-receive)介绍了哪些按键会传递给它们。
 
-使用 `focus: true` 打开窗格可为该窗格请求键盘焦点。`Input` 获得焦点后即可接收键入的字母。要选择窗格打开时哪个输入框获得焦点，请参阅[设置快捷键和初始焦点](/docs/zh-CN/plugins/mods/interface#set-a-hotkey-and-the-first-focus)。
+使用 `focus: true` 打开窗格可为该窗格请求键盘焦点。`Input` 获得焦点后即可接收键入的字母。要选择窗格打开时哪个输入框获得焦点，请参阅[设置快捷键和初始焦点](/docs/zh-CN/plugins/mods/interface.md#set-a-hotkey-and-the-first-focus)。
 
 ### `Button`
 
@@ -307,7 +307,7 @@ Select({
 
 ### `Raster`
 
-`Raster` 是由彩色字符单元格组成的网格，可用于热力图、迷你折线图或游戏棋盘。由终端负责绘制。此示例使用了起始模块中的 `cellsOf` 函数，该函数会将单元格打包成 `Raster` 所需的字符串。[绘制彩色单元格网格](/docs/zh-CN/plugins/mods/interface#draw-a-grid-of-colored-cells)对此进行了说明：
+`Raster` 是由彩色字符单元格组成的网格，可用于热力图、迷你折线图或游戏棋盘。由终端负责绘制。此示例使用了起始模块中的 `cellsOf` 函数，该函数会将单元格打包成 `Raster` 所需的字符串。[绘制彩色单元格网格](/docs/zh-CN/plugins/mods/interface.md#draw-a-grid-of-colored-cells)对此进行了说明：
 
 ```javascript theme={null}
 Raster({
@@ -343,7 +343,7 @@ Svg({
 
 ### `Image` 和 `Client`
 
-另有两个元素在此没有示例。`Image` 在终端中绘制 PNG 或原始像素。`Client` 是由您的另一个文件负责绘制的区域，用于动画和指针输入。[元素参考](/docs/zh-CN/plugins/mods/reference#elements)列出了它们的 props。
+另有两个元素在此没有示例。`Image` 在终端中绘制 PNG 或原始像素。`Client` 是由您的另一个文件负责绘制的区域，用于动画和指针输入。[元素参考](/docs/zh-CN/plugins/mods/reference.md#elements)列出了它们的 props。
 
 在以下终端中，`Image` 会绘制为图片：
 
@@ -354,8 +354,8 @@ Svg({
 在其他任何终端中，用户看到的将是以暗色显示的 `Image` 的 `alt` 文本，而不是图片。请编写能够独立表达含义的 `alt` 文本，因为在以下情况（以及其他一些情况）下也会显示该文本：
 
 * **tmux 和 screen**：在任何终端中运行于 tmux 或 screen 内的会话。
-* **后台会话**：每个[后台会话](/docs/zh-CN/agent-view)，无论从哪个终端连接。
-* **iTerm2 未使用全屏渲染**：在 iTerm2 中，图片仅在[全屏渲染](/docs/zh-CN/fullscreen)下绘制，并且在 [`CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT`](/docs/zh-CN/env-vars) 设置为 `1` 时不会绘制。要看到图片，请在 Claude Code 输入框中运行 `/tui fullscreen`，并保持该变量未设置。
+* **后台会话**：每个[后台会话](/docs/zh-CN/agent-view.md)，无论从哪个终端连接。
+* **iTerm2 未使用全屏渲染**：在 iTerm2 中，图片仅在[全屏渲染](/docs/zh-CN/fullscreen.md)下绘制，并且在 [`CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT`](/docs/zh-CN/env-vars) 设置为 `1` 时不会绘制。要看到图片，请在 Claude Code 输入框中运行 `/tui fullscreen`，并保持该变量未设置。
 * **iTerm2 中的文件路径来源**：iTerm2 会绘制 `source` prop 中包含 `png` 或 `rgba` 字节的 `Image`，而对于 `source` 指定 `file` 的 `Image`，则显示 `alt` 文本。如果您的 mod 有 iTerm2 用户，请在 `source.png` 或 `source.rgba` 中以 base64 形式传递图片，而不是在 `source.file` 中以路径形式传递。
 
 如果您的 mod 的用户在能够绘制使用 Unicode 占位符的 kitty 图形协议图像的终端中看到了暗色文本，可以将 [`CLAUDE_CODE_FORCE_TERMINAL_IMAGES`](/docs/zh-CN/env-vars) 设置为 `1`。在 tmux 或 screen 中这样做并无帮助：`alt` 文本会消失，而 Claude Code 发送图片时不会为 tmux 或 screen 直通对其进行包装。
@@ -364,13 +364,13 @@ Svg({
 
 这些示例都在窗格中绘制。mod 还可以在其他位置绘制，并可调用 Claude Code 为其显示内容：
 
-* **窗格和横条**：[选择绘制位置](/docs/zh-CN/plugins/mods/interface#pick-where-to-draw)
-* **Claude Code 自身的行，例如加载动画**：[更改 Claude Code 已绘制的内容](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws)
-* **Toast 通知、状态栏和日志行**：[在不开启轮次的情况下显示内容](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn)
-* **问题对话框**：[暂停工具调用直到用户做出决定](/docs/zh-CN/plugins/mods/events#hold-a-tool-call-until-the-user-decides)
+* **窗格和横条**：[选择绘制位置](/docs/zh-CN/plugins/mods/interface.md#pick-where-to-draw)
+* **Claude Code 自身的行，例如加载动画**：[更改 Claude Code 已绘制的内容](/docs/zh-CN/plugins/mods/interface.md#change-what-claude-code-already-draws)
+* **Toast 通知、状态栏和日志行**：[在不开启轮次的情况下显示内容](/docs/zh-CN/plugins/mods/api.md#show-something-without-starting-a-turn)
+* **问题对话框**：[暂停工具调用直到用户做出决定](/docs/zh-CN/plugins/mods/events.md#hold-a-tool-call-until-the-user-decides)
 
 ## 后续步骤
 
-* [在界面中绘制](/docs/zh-CN/plugins/mods/interface)：逐步构建一个带标签页的窗格
-* [测试绘制结果](/docs/zh-CN/plugins/mods/test#test-a-drawing)：在测试中按下您的按钮
-* [元素参考](/docs/zh-CN/plugins/mods/reference#elements)：每个元素的主要 props 以及绘制它的应用
+* [在界面中绘制](/docs/zh-CN/plugins/mods/interface.md)：逐步构建一个带标签页的窗格
+* [测试绘制结果](/docs/zh-CN/plugins/mods/test.md#test-a-drawing)：在测试中按下您的按钮
+* [元素参考](/docs/zh-CN/plugins/mods/reference.md#elements)：每个元素的主要 props 以及绘制它的应用

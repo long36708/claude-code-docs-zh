@@ -33,11 +33,11 @@ Usage by model:
 
 这些总计在 `/clear` 启动新会话时重置，因此下一个会话的总成本从 \$0 开始。在 v2.1.211 之前，它们在 `/clear` 后继续累积，直到 Claude Code 进程的生命周期结束。
 
-对于以 1.1× [数据驻留费率](https://platform.claude.com/docs/en/about-claude/pricing#data-residency-pricing) 计费的 Claude API 响应，Claude Code 在会话成本数字中将该响应 token 的列表价格乘以 1.1。相同的总计也会出现在[状态栏的成本字段](/docs/zh-CN/statusline#cost-and-duration-tracking)中，并且乘以后的数字同样计入 [`--max-budget-usd`](/docs/zh-CN/cli-reference#cli-flags)。
+对于以 1.1× [数据驻留费率](https://platform.claude.com/docs/en/about-claude/pricing#data-residency-pricing) 计费的 Claude API 响应，Claude Code 在会话成本数字中将该响应 token 的列表价格乘以 1.1。相同的总计也会出现在[状态栏的成本字段](/docs/zh-CN/statusline.md#cost-and-duration-tracking)中，并且乘以后的数字同样计入 [`--max-budget-usd`](/docs/zh-CN/cli-reference#cli-flags)。
 
 #### Prompt cache 统计
 
-在主对话的第一个 API 响应之后，Claude Code 还会向 Session 块添加一个 `Prompt cache (main)` 行，总结会话的 [prompt cache](/docs/zh-CN/prompt-caching) 使用情况：请求计数、从缓存提供的输入令牌份额、缓存未命中，以及缓存现在是否处于热状态。需要 Claude Code v2.1.251 或更高版本。
+在主对话的第一个 API 响应之后，Claude Code 还会向 Session 块添加一个 `Prompt cache (main)` 行，总结会话的 [prompt cache](/docs/zh-CN/prompt-caching.md) 使用情况：请求计数、从缓存提供的输入令牌份额、缓存未命中，以及缓存现在是否处于热状态。需要 Claude Code v2.1.251 或更高版本。
 
 ```text theme={null}
 Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses (last 6m 10s ago, 310.2k tokens re-cached) · 1 expected rebuild (compaction or tool-result clearing) · warm (1h TTL, last activity 40s ago)
@@ -45,9 +45,9 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 
 该行中的未命中、预期重建以及热或冷部分的含义如下：
 
-* **Misses（未命中）**：重新处理缓存已保存内容的请求，包括最后一次未命中的时间以及这些请求写回缓存的令牌数。[使缓存失效的操作](/docs/zh-CN/prompt-caching#actions-that-invalidate-the-cache)列出了常见原因。当 Claude Code 能够识别最后一次未命中的可能原因时，该行也会命名它，例如 `likely cause: tool definitions changed`。可能原因文本需要 Claude Code v2.1.260 或更高版本。
-* **Expected rebuilds（预期重建）**：当 Claude Code 本身刚刚重写对话时，通过[压缩](/docs/zh-CN/prompt-caching#compacting-the-conversation)或从上下文中清除旧工具结果，它会将相同类型的未命中计为预期重建。此部分仅在至少发生过一次预期重建后出现。
-* **Warm or cold（热或冷）**：缓存的前缀是否仍在其[缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime)内，以及生效的 TTL。当缓存冷时，该行显示会话已空闲多长时间。当没有响应报告缓存令牌时，该行以 `no prompt caching reported by the API` 结尾。
+* **Misses（未命中）**：重新处理缓存已保存内容的请求，包括最后一次未命中的时间以及这些请求写回缓存的令牌数。[使缓存失效的操作](/docs/zh-CN/prompt-caching.md#actions-that-invalidate-the-cache)列出了常见原因。当 Claude Code 能够识别最后一次未命中的可能原因时，该行也会命名它，例如 `likely cause: tool definitions changed`。可能原因文本需要 Claude Code v2.1.260 或更高版本。
+* **Expected rebuilds（预期重建）**：当 Claude Code 本身刚刚重写对话时，通过[压缩](/docs/zh-CN/prompt-caching.md#compacting-the-conversation)或从上下文中清除旧工具结果，它会将相同类型的未命中计为预期重建。此部分仅在至少发生过一次预期重建后出现。
+* **Warm or cold（热或冷）**：缓存的前缀是否仍在其[缓存生命周期](/docs/zh-CN/prompt-caching.md#cache-lifetime)内，以及生效的 TTL。当缓存冷时，该行显示会话已空闲多长时间。当没有响应报告缓存令牌时，该行以 `no prompt caching reported by the API` 结尾。
 
 计数来自 API 响应中的缓存令牌字段，因此该行适用于每个提供商和网关。它仅覆盖主对话，不包括子代理。`/clear` 与 Session 块的其余部分一起重置它。
 
@@ -65,7 +65,7 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 
 按 `d` 或 `w` 在过去 24 小时和过去 7 天之间切换。这些数据是近似值，从此机器上的本地会话历史记录计算，因此不包括来自其他设备或 claude.ai 的使用情况。
 
-在 [VS Code 扩展](/docs/zh-CN/vs-code#check-account-and-usage)中，归属份额和建议显示在"账户和使用情况"对话框中，带有"日"和"周"切换，不包括"循环"行。
+在 [VS Code 扩展](/docs/zh-CN/vs-code.md#check-account-and-usage)中，归属份额和建议显示在"账户和使用情况"对话框中，带有"日"和"周"切换，不包括"循环"行。
 
 #### 使用 fix 快捷键应用建议
 
@@ -84,7 +84,7 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 
 在 `f to fix 2 of 3` 中，第一个数字表示按 `f` 时 Claude Code 会处理的行数，第二个数字表示显示的行数。不含 `of` 的提示（例如 `f to fix both`）表示 Claude Code 会处理显示的每一行。
 
-当 [Remote Control](/docs/zh-CN/remote-control) 已连接时，页脚不显示 `f` 提示。如果按 `f` 后 `/usage` 关闭并显示 `Nothing was sent. Turn off Remote Control to use fixes.`，说明在 `/usage` 打开期间 Remote Control 建立了连接。要再次使用 `f`，请[断开 Remote Control](/docs/zh-CN/remote-control#check-connection-status)，然后在 Claude Code 提示符处运行 `/usage` 并再次按 `f`。
+当 [Remote Control](/docs/zh-CN/remote-control.md) 已连接时，页脚不显示 `f` 提示。如果按 `f` 后 `/usage` 关闭并显示 `Nothing was sent. Turn off Remote Control to use fixes.`，说明在 `/usage` 打开期间 Remote Control 建立了连接。要再次使用 `f`，请[断开 Remote Control](/docs/zh-CN/remote-control.md#check-connection-status)，然后在 Claude Code 提示符处运行 `/usage` 并再次按 `f`。
 
 #### 检查您的使用额度支出
 
@@ -105,18 +105,18 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 
 当 Claude 在主对话中工作时，加载指示器旁的行末尾可能显示已用时间和 token 计数，例如 `Deciphering… (10m 27s · ↓ 5.5k tokens)`。这是当前轮次迄今为止所产生输出的实时近似计数。在输出到达或工具运行时，计数旁的箭头指向下方。
 
-* **涵盖的内容**：该轮次生成的输出，例如 Claude 流式返回的文本和工具调用、其思考，以及在[前台](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)运行的子代理的输出
+* **涵盖的内容**：该轮次生成的输出，例如 Claude 流式返回的文本和工具调用、其思考，以及在[前台](/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)运行的子代理的输出
 * **不包括的内容**：Claude Code 发送给模型的内容，因此您的提示词、对话历史记录以及上下文的其余部分不会使其变化
-* **何时重置**：在每个轮次开始时，以及 Claude Code [压缩对话](/docs/zh-CN/prompt-caching#compacting-the-conversation)时
-* **何时保持隐藏**：在输出开始到达之前、该行过窄无法容纳时，以及在[屏幕阅读器模式](/docs/zh-CN/accessibility)中
+* **何时重置**：在每个轮次开始时，以及 Claude Code [压缩对话](/docs/zh-CN/prompt-caching.md#compacting-the-conversation)时
+* **何时保持隐藏**：在输出开始到达之前、该行过窄无法容纳时，以及在[屏幕阅读器模式](/docs/zh-CN/accessibility.md)中
 
-它不会与 `/usage` Session 块中 `Usage by model` 的输出数字一致，后者累加的是整个会话而非单个轮次。它也不同于[详细模式添加](/docs/zh-CN/statusline#notifications-share-the-status-line-row)的 token 计数，因为后者衡量的是您上下文的大小，而非单个轮次的输出。
+它不会与 `/usage` Session 块中 `Usage by model` 的输出数字一致，后者累加的是整个会话而非单个轮次。它也不同于[详细模式添加](/docs/zh-CN/statusline.md#notifications-share-the-status-line-row)的 token 计数，因为后者衡量的是您上下文的大小，而非单个轮次的输出。
 
 ### 分析您的使用情况模式
 
 运行 [`/insights`](/docs/zh-CN/commands#all-commands) 以获取关于您如何工作而不是您使用了多少令牌的报告。它分析此机器上的最近会话，并编写一份 HTML 报告，涵盖您处理的内容、摩擦点（例如误解的请求或有缺陷的代码）以及有关更有效地使用 Claude Code 的建议。单次运行分析最多 200 个它之前未见过的会话，并跳过非常短的会话。当会话被遗漏时，报告标题显示分析的计数，括号中显示总数，例如 `200 sessions (412 total)`。
 
-当[自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)对会话可用且您最近的会话大多在没有它的情况下运行时，报告还可以包括自动模式在这些会话中可以处理多少权限提示的估计。
+当[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)对会话可用且您最近的会话大多在没有它的情况下运行时，报告还可以包括自动模式在这些会话中可以处理多少权限提示的估计。
 
 Claude Code 将最新报告写入 `~/.claude/usage-data/report.html`，并在同一目录中保存每次运行的时间戳副本，因此早期报告不会被覆盖。Claude Code 按与其余会话数据相同的计划删除报告：在启动时，它删除早于 [`cleanupPeriodDays`](/docs/zh-CN/claude-directory#cleaned-up-automatically) 的文件，默认为 30 天。
 
@@ -132,25 +132,25 @@ Claude Code 将最新报告写入 `~/.claude/usage-data/report.html`，并在同
 | 具有计费访问权限的 Team 或 Enterprise 成员 | 在浏览器中打开您组织的用量设置 [**Organization settings > Usage**](https://claude.ai/admin-settings/usage) |
 | 没有计费访问权限的 Team 或 Enterprise 成员 | 要求您确认，然后向您的组织管理员发送请求。在 v2.1.211 之前，Claude Code 在没有确认步骤的情况下发送请求 |
 
-对于没有计费访问权限的 Team 和 Enterprise 成员，确认仅在交互式会话中出现：在使用 `-p` 标志的非交互式模式和从[远程控制](/docs/zh-CN/remote-control)中，该命令不发送请求，并告诉您在交互式会话中运行它。
+对于没有计费访问权限的 Team 和 Enterprise 成员，确认仅在交互式会话中出现：在使用 `-p` 标志的非交互式模式和从[远程控制](/docs/zh-CN/remote-control.md)中，该命令不发送请求，并告诉您在交互式会话中运行它。
 
 如果您在早期请求等待管理员时再次运行 `/usage-credits`，Claude Code 会告诉您已经发送了请求，而不是发送重复请求。在管理员驳回您的请求后，再次运行该命令会发送新请求。在 v2.1.222 之前，被驳回的请求也会阻止新请求。
 
-在 Pro 和 Max 计划上，当您达到支出限制且仍有使用额度可用时，Claude Code 会提示您提高或移除限制，而无需离开 CLI。如果服务器拒绝更改，请参阅[无法更新您的支出限制](/docs/zh-CN/errors#could-not-update-your-spend-limit)。
+在 Pro 和 Max 计划上，当您达到支出限制且仍有使用额度可用时，Claude Code 会提示您提高或移除限制，而无需离开 CLI。如果服务器拒绝更改，请参阅[无法更新您的支出限制](/docs/zh-CN/errors.md#could-not-update-your-spend-limit)。
 
 ## 管理组织的成本
 
 您对 Claude Code 的控制方式取决于您的组织如何访问 Claude Code：通过 Claude for Teams 或 Enterprise 计划、Claude Console 或云提供商。在 Teams 和 Enterprise 计划中，使用情况从每个成员的座位额度中扣除。在 Console 和云提供商上，使用情况按令牌计费到您的组织。如果您的组织混合使用登录方法，每个开发者将根据他们进行身份验证的方法进行计量。
 
-该表将每种设置映射到您查看支出的位置、您限制支出的位置以及如何提取每用户数字。在个人 Pro 或 Max 计划中，您没有组织可管理，因此请跟踪您自己的使用额度支出，包括[快速模式](/docs/zh-CN/fast-mode#see-where-fast-mode-spend-appears)，在[向您的订阅添加使用额度](#add-usage-credits-to-your-subscription)下。
+该表将每种设置映射到您查看支出的位置、您限制支出的位置以及如何提取每用户数字。在个人 Pro 或 Max 计划中，您没有组织可管理，因此请跟踪您自己的使用额度支出，包括[快速模式](/docs/zh-CN/fast-mode.md#see-where-fast-mode-spend-appears)，在[向您的订阅添加使用额度](#add-usage-credits-to-your-subscription)下。
 
 | 您的设置 | 查看支出 | 限制支出 | 每用户报告 |
 | :- | :- | :- | :- |
 | [Claude for Teams 或 Enterprise](#claude-for-teams-and-enterprise) | [组织分析中的支出报告](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans) | 管理员设置中的支出限制 | [支出报告 CSV](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans)；Enterprise 上的 [Enterprise Analytics API](https://platform.claude.com/docs/en/api/admin/analytics) |
 | [Claude Console (API)](#claude-console) | [Console 使用情况页面](https://platform.claude.com/usage) | 工作区支出限制 | [Console 仪表板](https://platform.claude.com/claude-code)、[Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api) |
-| [Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry](#cloud-providers) | 您的云计费控制台 | 您的云预算控制 | [OpenTelemetry](/docs/zh-CN/monitoring-usage) 或 [LLM gateway](/docs/zh-CN/llm-gateway) |
+| [Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry](#cloud-providers) | 您的云计费控制台 | 您的云预算控制 | [OpenTelemetry](/docs/zh-CN/monitoring-usage.md) 或 [LLM gateway](/docs/zh-CN/llm-gateway) |
 
-[OpenTelemetry 导出](/docs/zh-CN/monitoring-usage)适用于每种设置，是唯一能够以近实时方式将每用户令牌和成本指标流式传输到您自己的可观测性堆栈的选项。
+[OpenTelemetry 导出](/docs/zh-CN/monitoring-usage.md)适用于每种设置，是唯一能够以近实时方式将每用户令牌和成本指标流式传输到您自己的可观测性堆栈的选项。
 
 ### 按您的合同费率报告支出
 
@@ -166,16 +166,16 @@ Claude Code 将最新报告写入 `~/.claude/usage-data/report.html`，并在同
 
 **3. 通过托管设置部署它**
 
-将其作为[托管设置](/docs/zh-CN/managed-settings)交付：服务器管理的设置、MDM 策略、`managed-settings.json` 或[策略助手](/docs/zh-CN/managed-settings#compute-the-policy-with-a-helper-program)。Claude Code 忽略用户、项目和本地设置以及 `--settings` 中的密钥。
+将其作为[托管设置](/docs/zh-CN/managed-settings.md)交付：服务器管理的设置、MDM 策略、`managed-settings.json` 或[策略助手](/docs/zh-CN/managed-settings.md#compute-the-policy-with-a-helper-program)。Claude Code 忽略用户、项目和本地设置以及 `--settings` 中的密钥。
 
-要确认费率生效，请在已[接收托管设置](/docs/zh-CN/managed-settings#read-the-source-in-%2Fstatus)的会话中运行 `/usage`：Session 块的 `Total cost` 行带有注释 `at your organization's configured rates`。这些数字仍然是估计值，而不是发票。`/model` 选择器中的每百万令牌价格保持在列表价格。
+要确认费率生效，请在已[接收托管设置](/docs/zh-CN/managed-settings.md#read-the-source-in-%2Fstatus)的会话中运行 `/usage`：Session 块的 `Total cost` 行带有注释 `at your organization's configured rates`。这些数字仍然是估计值，而不是发票。`/model` 选择器中的每百万令牌价格保持在列表价格。
 
 ### Claude for Teams 和 Enterprise
 
 在 Claude for Teams 和 Enterprise 计划中，每个成员的 Claude Code 使用情况从按座位额度中扣除，该额度在滚动五小时窗口和每周窗口上重置。该额度与 Claude chat 和 Cowork 共享，其大小取决于成员的[座位等级](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)（Standard 或 Premium）。您的控制位于 claude.ai 管理控制台中，而不是 Claude Console。
 
 * **查看支出**：[组织分析中的支出报告](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans)显示每个用户和每个模型的估计支出，带有 CSV 导出，每日更新。该报告涵盖使用额度支出，并在启用使用额度后出现。座位额度内的使用情况不以美元计量。
-* **查看采用情况**：[分析仪表板](https://claude.ai/analytics/claude-code)显示每日活跃用户、会话和贡献指标，带有贡献数据的 CSV 导出。请参阅[使用分析跟踪团队使用情况](/docs/zh-CN/analytics)。
+* **查看采用情况**：[分析仪表板](https://claude.ai/analytics/claude-code)显示每日活跃用户、会话和贡献指标，带有贡献数据的 CSV 导出。请参阅[使用分析跟踪团队使用情况](/docs/zh-CN/analytics.md)。
 * **限制支出**：座位额度是默认上限。要让成员继续超过它，请启用[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)并在组织、组或个人成员级别设置支出限制。
 * **提取每用户数字**：在 Enterprise 计划中，[Enterprise Analytics API](https://platform.claude.com/docs/en/api/admin/analytics) 返回跨 Claude 表面（包括 Claude Code）的每用户使用情况和成本报告。主所有者在 [claude.ai/analytics/api-keys](https://claude.ai/analytics/api-keys) 处使用 `read:analytics` 范围创建密钥。在 Teams 计划中，导出[支出报告 CSV](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans)，其中列出了每个用户和每个模型的令牌使用情况和估计支出。
 
@@ -191,7 +191,7 @@ API 组织通过[工作区](https://platform.claude.com/docs/en/build-with-claud
 >
 > 对于具有自定义速率限制的组织，此工作区中的 Claude Code 流量计入您的组织整体 API 速率限制。您可以在 Claude Console 的此工作区的 Limits 页面上设置[工作区速率限制](https://platform.claude.com/docs/en/api/rate-limits#setting-lower-limits-for-workspaces)，以限制 Claude Code 的份额并保护其他生产工作负载。
 
-对于每用户报告，[Console 仪表板](https://platform.claude.com/claude-code)显示每个成员的支出和接受的行数，[Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api)使用[管理员 API 密钥](https://platform.claude.com/settings/admin-keys)以编程方式返回相同的每日每用户指标。请参阅[API 客户的分析](/docs/zh-CN/analytics#access-analytics-for-api-customers)。
+对于每用户报告，[Console 仪表板](https://platform.claude.com/claude-code)显示每个成员的支出和接受的行数，[Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api)使用[管理员 API 密钥](https://platform.claude.com/settings/admin-keys)以编程方式返回相同的每日每用户指标。请参阅[API 客户的分析](/docs/zh-CN/analytics.md#access-analytics-for-api-customers)。
 
 #### 速率限制建议
 
@@ -216,29 +216,29 @@ API 组织通过[工作区](https://platform.claude.com/docs/en/build-with-claud
 
 ### 云提供商
 
-在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，Claude Code 按令牌计费到您的云账户，支出控制位于您的云提供商的计费控制台中。Claude Code 不会从您的云向 Anthropic 发送指标，因此[分析仪表板](/docs/zh-CN/analytics)和 Claude Code Analytics API 不涵盖此使用情况。
+在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上，Claude Code 按令牌计费到您的云账户，支出控制位于您的云提供商的计费控制台中。Claude Code 不会从您的云向 Anthropic 发送指标，因此[分析仪表板](/docs/zh-CN/analytics.md)和 Claude Code Analytics API 不涵盖此使用情况。
 
 对于每用户成本归因，您有三个选项：
 
-* **OpenTelemetry**：[导出指标](/docs/zh-CN/monitoring-usage)从每个开发者的机器到您自己的可观测性堆栈。这为您提供每用户令牌计数、成本和工具活动，无论提供商如何。
-* **Claude apps gateway**：自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway)提供每用户使用情况归因、带有令牌计数的 OTLP 指标，以及这些提供商上的[每用户支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)。
+* **OpenTelemetry**：[导出指标](/docs/zh-CN/monitoring-usage.md)从每个开发者的机器到您自己的可观测性堆栈。这为您提供每用户令牌计数、成本和工具活动，无论提供商如何。
+* **Claude apps gateway**：自托管的 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway)提供每用户使用情况归因、带有令牌计数的 OTLP 指标，以及这些提供商上的[每用户支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits.md)。
 * **LLM gateway**：通过代理路由所有 Claude Code 流量，该代理按密钥跟踪支出。几个大型企业报告使用[LiteLLM](/docs/zh-CN/llm-gateway)，一个开源工具，可以[按密钥跟踪支出](https://docs.litellm.ai/docs/proxy/virtual_keys#tracking-spend)。此项目与 Anthropic 无关，尚未进行安全审计。
 
 ### 当开发者询问限制时
 
 开发者通常会向他们的管理员提出限制问题，因此了解他们遇到的上限会很有帮助。这些情况意味着不同的事情：
 
-* **"您已达到会话限制"或"您已达到每周限制"**：订阅计划上基于座位的使用窗口，在所有模型中共享，因此开发者无法通过使用 `/model` 切换模型来恢复访问权限。该消息显示窗口何时重置。在模型特定的"您已达到 Opus 限制"或"您已达到 Sonnet 限制"消息之后，使用 `/model` 切换到该系列之外的模型确实会让开发者继续工作。请参阅[使用限制错误](/docs/zh-CN/errors#youve-hit-your-session-limit)。开发者在此期间可以做什么：
+* **"您已达到会话限制"或"您已达到每周限制"**：订阅计划上基于座位的使用窗口，在所有模型中共享，因此开发者无法通过使用 `/model` 切换模型来恢复访问权限。该消息显示窗口何时重置。在模型特定的"您已达到 Opus 限制"或"您已达到 Sonnet 限制"消息之后，使用 `/model` 切换到该系列之外的模型确实会让开发者继续工作。请参阅[使用限制错误](/docs/zh-CN/errors.md#youve-hit-your-session-limit)。开发者在此期间可以做什么：
   * 运行 `/usage-credits` 以请求超过额度的使用情况，如果您已启用[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)。
-  * 在 Claude Code v2.1.234 或更高版本上，[在重置后自动等待并继续中断的任务](/docs/zh-CN/interactive-mode#wait-for-a-usage-limit-to-reset)；该部分列出了 Claude Code 何时自动启动等待以及开发者何时从 `/rate-limit-options` 中选择它。要控制您的车队 Claude Code 是否自动启动该等待，请在[托管设置](/docs/zh-CN/settings#settings-precedence)中设置 [`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit)。
-* **"You've hit your individual spend limit"、"org's monthly spend limit"或"team's shared budget"**：开发者的请求本应计费到使用额度，而这些额度已达到您设置的支出限制。要让开发者继续，请前往 [**Organization settings > Usage**](https://claude.ai/admin-settings/usage) 并提高消息中指出的限制。如果消息中还指出了套餐重置时间，开发者也可以等到那时。请参阅[错误参考](/docs/zh-CN/errors#youve-hit-your-monthly-spend-limit)了解各个变体。
-* **来自 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 的支出限制消息**：开发者超过了您在自托管网关上设置的支出上限，网关会阻止他们的请求，直到该期间重置或您提高上限。请参阅[网关支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits)以了解上限、重置计划和开发者看到的消息。
-* **上下文或自动压缩警告**：不是使用限制。对话已接近会话的[自动压缩窗口](/docs/zh-CN/model-config#set-the-auto-compact-window)，这是 Claude Code 总结较早历史以释放空间的阈值。将开发者指向[减少令牌使用](#reduce-token-usage)。
+  * 在 Claude Code v2.1.234 或更高版本上，[在重置后自动等待并继续中断的任务](/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)；该部分列出了 Claude Code 何时自动启动等待以及开发者何时从 `/rate-limit-options` 中选择它。要控制您的车队 Claude Code 是否自动启动该等待，请在[托管设置](/docs/zh-CN/settings.md#settings-precedence)中设置 [`autoContinueAtUsageLimit`](/docs/zh-CN/settings-reference#autocontinueatusagelimit)。
+* **"You've hit your individual spend limit"、"org's monthly spend limit"或"team's shared budget"**：开发者的请求本应计费到使用额度，而这些额度已达到您设置的支出限制。要让开发者继续，请前往 [**Organization settings > Usage**](https://claude.ai/admin-settings/usage) 并提高消息中指出的限制。如果消息中还指出了套餐重置时间，开发者也可以等到那时。请参阅[错误参考](/docs/zh-CN/errors.md#youve-hit-your-monthly-spend-limit)了解各个变体。
+* **来自 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 的支出限制消息**：开发者超过了您在自托管网关上设置的支出上限，网关会阻止他们的请求，直到该期间重置或您提高上限。请参阅[网关支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits.md)以了解上限、重置计划和开发者看到的消息。
+* **上下文或自动压缩警告**：不是使用限制。对话已接近会话的[自动压缩窗口](/docs/zh-CN/model-config.md#set-the-auto-compact-window)，这是 Claude Code 总结较早历史以释放空间的阈值。将开发者指向[减少令牌使用](#reduce-token-usage)。
 * **API 或云提供商计划上的意外高支出**：通常可以追溯到从未清除的长会话或将 Opus 作为默认模型。要分享的最高影响习惯是在不相关的任务之间清除和将模型与工作相匹配，两者都在[减少令牌使用](#reduce-token-usage)中涵盖。
 
 ### Agent 团队令牌成本
 
-[Agent 团队](/docs/zh-CN/agent-teams)生成多个 Claude Code 实例，每个实例都有自己的上下文窗口。令牌使用情况随活跃队友的数量和每个队友运行的时间长度而扩展。
+[Agent 团队](/docs/zh-CN/agent-teams.md)生成多个 Claude Code 实例，每个实例都有自己的上下文窗口。令牌使用情况随活跃队友的数量和每个队友运行的时间长度而扩展。
 
 为了保持 agent 团队成本可控：
 
@@ -246,17 +246,17 @@ API 组织通过[工作区](https://platform.claude.com/docs/en/build-with-claud
 * 保持团队规模小。每个队友运行自己的上下文窗口，因此令牌使用大致与团队规模成正比。
 * 保持生成提示的重点。队友会自动加载 CLAUDE.md、MCP servers 和 skills，但生成提示中的所有内容都会从一开始就添加到其上下文中。
 * 工作完成后关闭队友。每个活跃的队友会继续消耗令牌，直到它退出或会话结束。
-* Agent 团队默认被禁用。在您的[settings.json](/docs/zh-CN/settings)或环境中设置 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 以启用它们。请参阅[启用 agent 团队](/docs/zh-CN/agent-teams#enable-agent-teams)。
+* Agent 团队默认被禁用。在您的[settings.json](/docs/zh-CN/settings.md)或环境中设置 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 以启用它们。请参阅[启用 agent 团队](/docs/zh-CN/agent-teams.md#enable-agent-teams)。
 
 ## 减少 token 使用
 
-token 成本随上下文大小而扩展：Claude 处理的上下文越多，您使用的 token 就越多。Claude Code 通过[提示缓存](/docs/zh-CN/prompt-caching)（减少重复内容（如系统提示词）的成本）和自动压缩（在接近上下文限制时总结对话历史）自动优化成本。
+token 成本随上下文大小而扩展：Claude 处理的上下文越多，您使用的 token 就越多。Claude Code 通过[提示缓存](/docs/zh-CN/prompt-caching.md)（减少重复内容（如系统提示词）的成本）和自动压缩（在接近上下文限制时总结对话历史）自动优化成本。
 
 以下策略可帮助您保持上下文较小并降低每条消息的成本。
 
 ### 主动管理上下文
 
-使用 `/usage` 检查您当前的 token 使用情况，或[配置您的状态栏](/docs/zh-CN/statusline#context-window-usage)以持续显示它。
+使用 `/usage` 检查您当前的 token 使用情况，或[配置您的状态栏](/docs/zh-CN/statusline.md#context-window-usage)以持续显示它。
 
 * **在任务之间清除**：在切换到不相关的工作时，使用 `/clear` 重新开始。陈旧的上下文会在随后的每条消息上浪费 token。在清除之前使用 `/rename`，以便您稍后可以找到该会话，然后使用 `/resume` 返回到它。
 * **添加自定义压缩指令**：`/compact Focus on code samples and API usage` 告诉 Claude 在总结期间保留什么。
@@ -271,30 +271,30 @@ When you are using compact, please focus on test output and code changes
 
 ### 选择正确的模型
 
-Sonnet 处理大多数编码任务效果很好，成本低于 Opus。为复杂的架构决策或多步推理保留 Opus。使用 `/model` 在会话中途切换模型，或在 `/config` 中设置默认值。对 Opus 的切换也适用于[继承您会话模型的子代理](/docs/zh-CN/model-config#setting-your-model)。对于简单的子代理任务，在您的[子代理配置](/docs/zh-CN/sub-agents#choose-a-model)中指定 `model: haiku`。
+Sonnet 处理大多数编码任务效果很好，成本低于 Opus。为复杂的架构决策或多步推理保留 Opus。使用 `/model` 在会话中途切换模型，或在 `/config` 中设置默认值。对 Opus 的切换也适用于[继承您会话模型的子代理](/docs/zh-CN/model-config.md#setting-your-model)。对于简单的子代理任务，在您的[子代理配置](/docs/zh-CN/sub-agents.md#choose-a-model)中指定 `model: haiku`。
 
 ### 减少 MCP 服务器开销
 
-MCP 工具定义[默认被延迟](/docs/zh-CN/mcp#scale-with-mcp-tool-search)，因此只有工具名称和服务器指令进入上下文，直到 Claude 使用特定工具。运行 `/context` 查看占用空间的内容。
+MCP 工具定义[默认被延迟](/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)，因此只有工具名称和服务器指令进入上下文，直到 Claude 使用特定工具。运行 `/context` 查看占用空间的内容。
 
 * **在可用时优先使用 CLI 工具**：`gh`、`aws`、`gcloud` 和 `sentry-cli` 等工具仍比 MCP 服务器更节省上下文，因为它们不添加任何每工具列表。Claude 可以直接运行 CLI 命令。
 * **禁用未使用的服务器**：运行 `/mcp` 查看已配置的服务器，并禁用您未积极使用的任何服务器。
 
 ### 为类型化语言安装代码智能插件
 
-[代码智能插件](/docs/zh-CN/plugins/code-intelligence)为 Claude 提供精确的符号导航，而不是基于文本的搜索，减少在探索不熟悉的代码时不必要的文件读取。单个"转到定义"调用替代了可能需要的 grep 后跟读取多个候选文件。已安装的语言服务器还会在编辑后自动报告类型错误，因此 Claude 无需运行编译器即可捕获错误。
+[代码智能插件](/docs/zh-CN/plugins/code-intelligence.md)为 Claude 提供精确的符号导航，而不是基于文本的搜索，减少在探索不熟悉的代码时不必要的文件读取。单个"转到定义"调用替代了可能需要的 grep 后跟读取多个候选文件。已安装的语言服务器还会在编辑后自动报告类型错误，因此 Claude 无需运行编译器即可捕获错误。
 
 ### 将处理卸载到 hook 和 skill
 
-自定义 [hook](/docs/zh-CN/hooks) 可以在 Claude 看到数据之前对其进行预处理。Claude 不是读取 10,000 行日志文件来查找错误，hook 可以 grep `ERROR` 并仅返回匹配的行，将上下文从数万个 token 减少到数百个。
+自定义 [hook](/docs/zh-CN/hooks.md) 可以在 Claude 看到数据之前对其进行预处理。Claude 不是读取 10,000 行日志文件来查找错误，hook 可以 grep `ERROR` 并仅返回匹配的行，将上下文从数万个 token 减少到数百个。
 
-[skill](/docs/zh-CN/skills) 可以为 Claude 提供领域知识，这样它就不必进行探索。例如，"codebase-overview" skill 可以描述您的项目架构、关键目录和命名约定。当 Claude 调用该 skill 时，它会立即获得此上下文，而不是花费 token 读取多个文件来理解结构。
+[skill](/docs/zh-CN/skills.md) 可以为 Claude 提供领域知识，这样它就不必进行探索。例如，"codebase-overview" skill 可以描述您的项目架构、关键目录和命名约定。当 Claude 调用该 skill 时，它会立即获得此上下文，而不是花费 token 读取多个文件来理解结构。
 
 例如，此 PreToolUse hook 过滤测试输出以仅显示失败：
 
 **settings.json**
 
-将此添加到您的 [settings.json](/docs/zh-CN/settings#where-settings-live)，以在每个 Bash 命令之前运行 hook：
+将此添加到您的 [settings.json](/docs/zh-CN/settings.md#where-settings-live)，以在每个 Bash 命令之前运行 hook：
 
 ```json theme={null}
 {
@@ -324,10 +324,11 @@ input=$(cat)
 cmd=$(echo "$input" | jq -r '.tool_input.command')
 
 # If running tests, filter to show only failures
-if [[ "$cmd" =~ ^(npm test|pytest|go test) ]]; then
+pattern='^(npm test|pytest|go test)( [^;&|<>`$#\\[:cntrl:]]*)?$'
+if [[ "$cmd" =~ $pattern ]]; then
   filtered_cmd="$cmd 2>&1 | grep -A 5 -E '(FAIL|ERROR|error:)' | head -100"
   echo "$input" | jq --arg filtered "$filtered_cmd" \
-    '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "allow", updatedInput: (.tool_input + {command: $filtered})}}'
+    '{hookSpecificOutput: {hookEventName: "PreToolUse", updatedInput: (.tool_input + {command: $filtered})}}'
 else
   echo "{}"
 fi
@@ -337,25 +338,25 @@ fi
 
 ### 将指令从 CLAUDE.md 移动到 skill
 
-您的 [CLAUDE.md](/docs/zh-CN/memory) 文件在会话开始时加载到上下文中。如果它包含特定工作流的详细指令（如 PR 审查或数据库迁移），即使您在做不相关的工作时，这些 token 也会存在。[Skills](/docs/zh-CN/skills) 仅在调用时按需加载，因此将专门指令移动到 skill 中可以保持您的基础上下文较小。目标是通过仅包含必要内容来将 CLAUDE.md 保持在 200 行以下。
+您的 [CLAUDE.md](/docs/zh-CN/memory.md) 文件在会话开始时加载到上下文中。如果它包含特定工作流的详细指令（如 PR 审查或数据库迁移），即使您在做不相关的工作时，这些 token 也会存在。[Skills](/docs/zh-CN/skills.md) 仅在调用时按需加载，因此将专门指令移动到 skill 中可以保持您的基础上下文较小。目标是通过仅包含必要内容来将 CLAUDE.md 保持在 200 行以下。
 
 ### 调整扩展思考
 
 扩展思考默认启用，因为它显著改进了复杂规划和推理任务的性能。思考 token 作为输出 token 计费，默认预算可能是每个请求数万个 token，具体取决于模型。
 
-对于不需要深度推理的更简单任务，您可以通过使用 `/effort` 或在 `/model` 中降低 [effort 级别](/docs/zh-CN/model-config#adjust-effort-level)、或在 `/config` 中禁用思考来降低成本。您无法在 Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 模型上关闭思考，它们始终使用扩展思考。
+对于不需要深度推理的更简单任务，您可以通过使用 `/effort` 或在 `/model` 中降低 [effort 级别](/docs/zh-CN/model-config.md#adjust-effort-level)、或在 `/config` 中禁用思考来降低成本。您无法在 Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 模型上关闭思考，它们始终使用扩展思考。
 
-在具有[固定思考预算](/docs/zh-CN/model-config#adaptive-reasoning-and-fixed-thinking-budgets)的模型上，您也可以通过设置 `MAX_THINKING_TOKENS` [环境变量](/docs/zh-CN/env-vars)（例如 `MAX_THINKING_TOKENS=8000`）来降低预算。自适应推理模型忽略非零预算，因此请改用 effort 级别。
+在具有[固定思考预算](/docs/zh-CN/model-config.md#adaptive-reasoning-and-fixed-thinking-budgets)的模型上，您也可以通过设置 `MAX_THINKING_TOKENS` [环境变量](/docs/zh-CN/env-vars.md)（例如 `MAX_THINKING_TOKENS=8000`）来降低预算。自适应推理模型忽略非零预算，因此请改用 effort 级别。
 
 ### 将冗长的操作委托给子代理
 
-运行测试、获取文档或处理日志文件可能会消耗大量上下文。将这些委托给[子代理](/docs/zh-CN/sub-agents#isolate-high-volume-operations)，以便冗长的输出保留在子代理的上下文中，而只有摘要返回到您的主对话。
+运行测试、获取文档或处理日志文件可能会消耗大量上下文。将这些委托给[子代理](/docs/zh-CN/sub-agents.md#isolate-high-volume-operations)，以便冗长的输出保留在子代理的上下文中，而只有摘要返回到您的主对话。
 
-子代理自己的请求仍然会消耗您的使用量。为了在这些请求上花费更少，[为子代理选择更小的模型](/docs/zh-CN/sub-agents#choose-a-model)或[在一个模型上运行每个子代理](/docs/zh-CN/sub-agents#run-every-subagent-on-one-model)。
+子代理自己的请求仍然会消耗您的使用量。为了在这些请求上花费更少，[为子代理选择更小的模型](/docs/zh-CN/sub-agents.md#choose-a-model)或[在一个模型上运行每个子代理](/docs/zh-CN/sub-agents.md#run-every-subagent-on-one-model)。
 
 ### 管理 agent team 成本
 
-当队友在计划模式中运行时，agent team 使用的 token 大约是标准会话的 7 倍，因为每个队友维护自己的上下文窗口并作为单独的 Claude 实例运行。保持团队任务小且独立，以限制每个队友的 token 使用。有关详细信息，请参阅 [agent team](/docs/zh-CN/agent-teams)。
+当队友在计划模式中运行时，agent team 使用的 token 大约是标准会话的 7 倍，因为每个队友维护自己的上下文窗口并作为单独的 Claude 实例运行。保持团队任务小且独立，以限制每个队友的 token 使用。有关详细信息，请参阅 [agent team](/docs/zh-CN/agent-teams.md)。
 
 ### 编写具体的提示词
 
@@ -365,7 +366,7 @@ fi
 
 对于较长或更复杂的工作，这些习惯有助于避免因走错路而浪费的 token：
 
-* **对复杂任务使用计划模式**：在实现之前，按 Shift+Tab 切换到[计划模式](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)。Claude 探索代码库并提出一个方法供您批准，防止当初始方向错误时的昂贵返工。
+* **对复杂任务使用计划模式**：在实现之前，按 Shift+Tab 切换到[计划模式](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)。Claude 探索代码库并提出一个方法供您批准，防止当初始方向错误时的昂贵返工。
 * **尽早纠正方向**：如果 Claude 开始朝错误的方向发展，按 Escape 立即停止。使用 `/rewind` 或双击 Escape 将对话和代码恢复到之前的检查点。
 * **给出验证目标**：在您的提示词中包含测试用例、粘贴屏幕截图或定义预期输出。当 Claude 可以验证自己的工作时，它会在您需要请求修复之前捕获问题。
 * **增量测试**：编写一个文件，测试它，然后继续。这样可以尽早发现问题。
@@ -379,20 +380,20 @@ Claude Code 即使在空闲时也会为某些后台功能使用令牌：
 
 这些后台进程即使没有活跃交互也会消耗少量令牌（通常每个会话不到 \$0.04）。
 
-启用提示建议时，Claude Code 在 Claude 响应后还会向您的会话使用的模型发送一个简短请求，以[建议您的下一个提示](/docs/zh-CN/interactive-mode#prompt-suggestions)。该请求重用对话的提示缓存，因此主要是缓存读取加上少量输出令牌。当您的账户接近或达到使用限制时，Claude Code [会跳过这些请求](/docs/zh-CN/interactive-mode#when-claude-code-skips-suggestions)。要停止这些请求，[关闭提示建议](/docs/zh-CN/interactive-mode#turn-prompt-suggestions-off)。
+启用提示建议时，Claude Code 在 Claude 响应后还会向您的会话使用的模型发送一个简短请求，以[建议您的下一个提示](/docs/zh-CN/interactive-mode.md#prompt-suggestions)。该请求重用对话的提示缓存，因此主要是缓存读取加上少量输出令牌。当您的账户接近或达到使用限制时，Claude Code [会跳过这些请求](/docs/zh-CN/interactive-mode.md#when-claude-code-skips-suggestions)。要停止这些请求，[关闭提示建议](/docs/zh-CN/interactive-mode.md#turn-prompt-suggestions-off)。
 
 ## 为什么长时间会话中使用量会增加
 
 一个已经打开数小时的会话可能会使用远超你的活动量所暗示的计划限额，通常是由于以下原因之一：
 
-* **长上下文**：Claude Code 在每个请求中发送你与它的完整对话，每当 Claude 使用工具时，它会发送另一个请求，其中包含该批工具结果。使用 [prompt caching](/docs/zh-CN/prompt-caching)，Claude Code 以 [缓存令牌速率](https://platform.claude.com/docs/en/about-claude/pricing) 重新读取该历史记录，因此即使在已打开一整天的会话中提出一行问题，仍然会为整个对话消耗使用量。请参阅 [主动管理上下文](#manage-context-proactively) 了解保持上下文较小的方法
-* **缓存未命中**：在超过 [缓存生命周期](/docs/zh-CN/prompt-caching#cache-lifetime) 的中断后，您的第一条消息会错过缓存并重新处理您的完整上下文。请参阅 [您的请求使用哪种生命周期](/docs/zh-CN/prompt-caching#which-ttl-each-request-gets) 以及 [设置生命周期的控制方式](/docs/zh-CN/prompt-caching#choose-the-ttl-yourself)
-* **定时任务**：[会话范围的定时任务](/docs/zh-CN/scheduled-tasks)即使在会话处于空闲状态时也会按其间隔触发，每次都发送您的完整上下文
-* **跨会话消息**：当此会话处于空闲状态时，Claude Code 将 [来自你另一个会话的消息](/docs/zh-CN/cross-session-messaging) 作为新轮次传递，每次都发送你的完整上下文。要保留入站消息而不是传递它们，请将 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 `hold`
-* **目标检查**：当后台工作使活跃的 [目标](/docs/zh-CN/goal) 保持等待时，Claude Code [要求 Claude 检查该工作](/docs/zh-CN/goal#background-work-defers-evaluation)，即使会话处于空闲状态，启动发送你完整上下文的新轮次。Claude Code 在你的提示之间每个目标最多启动三个空闲检查。在 v2.1.246 之前，空闲检查是无限制的。要关闭检查，请将 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](/docs/zh-CN/env-vars) 设置为 `0`。空闲检查需要 Claude Code v2.1.236 或更高版本
-* **子代理和工作流**：每个子代理，以及每个 [动态工作流](/docs/zh-CN/workflows#cost) 生成的代理，都会在主对话的基础上发送自己的请求。[属性分解](#plan-usage-breakdown) 显示子代理份额
+* **长上下文**：Claude Code 在每个请求中发送你与它的完整对话，每当 Claude 使用工具时，它会发送另一个请求，其中包含该批工具结果。使用 [prompt caching](/docs/zh-CN/prompt-caching.md)，Claude Code 以 [缓存令牌速率](https://platform.claude.com/docs/en/about-claude/pricing) 重新读取该历史记录，因此即使在已打开一整天的会话中提出一行问题，仍然会为整个对话消耗使用量。请参阅 [主动管理上下文](#manage-context-proactively) 了解保持上下文较小的方法
+* **缓存未命中**：在超过 [缓存生命周期](/docs/zh-CN/prompt-caching.md#cache-lifetime) 的中断后，您的第一条消息会错过缓存并重新处理您的完整上下文。请参阅 [您的请求使用哪种生命周期](/docs/zh-CN/prompt-caching.md#which-ttl-each-request-gets) 以及 [设置生命周期的控制方式](/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)
+* **定时任务**：[会话范围的定时任务](/docs/zh-CN/scheduled-tasks.md)即使在会话处于空闲状态时也会按其间隔触发，每次都发送您的完整上下文
+* **跨会话消息**：当此会话处于空闲状态时，Claude Code 将 [来自你另一个会话的消息](/docs/zh-CN/cross-session-messaging.md) 作为新轮次传递，每次都发送你的完整上下文。要保留入站消息而不是传递它们，请将 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 `hold`
+* **目标检查**：当后台工作使活跃的 [目标](/docs/zh-CN/goal.md) 保持等待时，Claude Code [要求 Claude 检查该工作](/docs/zh-CN/goal.md#background-work-defers-evaluation)，即使会话处于空闲状态，启动发送你完整上下文的新轮次。Claude Code 在你的提示之间每个目标最多启动三个空闲检查。在 v2.1.246 之前，空闲检查是无限制的。要关闭检查，请将 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](/docs/zh-CN/env-vars) 设置为 `0`。空闲检查需要 Claude Code v2.1.236 或更高版本
+* **子代理和工作流**：每个子代理，以及每个 [动态工作流](/docs/zh-CN/workflows.md#cost) 生成的代理，都会在主对话的基础上发送自己的请求。[属性分解](#plan-usage-breakdown) 显示子代理份额
 * **代理队友**：每个活跃的 [队友](#agent-team-token-costs) 会继续消耗令牌，直到它退出
-* **压缩**：`/compact` 读取它总结的对话，因此 [压缩大型上下文](/docs/zh-CN/prompt-caching#compacting-the-conversation) 本身就是一个大型请求。当你想要全新开始而不是连续性时，`/clear` 不消耗任何成本
+* **压缩**：`/compact` 读取它总结的对话，因此 [压缩大型上下文](/docs/zh-CN/prompt-caching.md#compacting-the-conversation) 本身就是一个大型请求。当你想要全新开始而不是连续性时，`/clear` 不消耗任何成本
 
 在 Pro、Max、Team 或 Enterprise 计划上，[`/usage` 分解](#plan-usage-breakdown)会针对占您最近使用量 10% 或更多的行为（例如长上下文或缓存未命中）建议相应的调整。
 

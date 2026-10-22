@@ -6,7 +6,7 @@
 
 > Claude Code 会话可以相互发送消息，自托管环境在您的基础设施上运行云会话，自动模式成为默认权限模式。
 
-发布版本 [v2.1.220 → v2.1.224](/docs/en/changelog#2-1-220)
+发布版本 [v2.1.220 → v2.1.224](/docs/en/changelog.md#2-1-220)
 3 项功能 · 8 月 3–7 日
 
 跨会话消息传递
@@ -24,7 +24,7 @@ v2.1.224
 
 一旦 Claude 读取了消息，另一个会话会显示一个 `Message from` 行；按 `Ctrl+O` 展开它。要查看 Claude 可以访问哪些会话，请运行 `/list-agents`。
 
-[向另一个会话发送消息](/docs/zh-CN/cross-session-messaging#message-another-session)
+[向另一个会话发送消息](/docs/zh-CN/cross-session-messaging.md#message-another-session)
 
 自托管环境
 v2.1.224
@@ -41,7 +41,7 @@ claude self-hosted-runner setup
 
 运行器注册后，该环境在管理设置中显示 **健康**。
 
-[自托管环境快速入门](/docs/zh-CN/self-hosted-environments-quickstart#set-up-an-environment-and-runner)
+[自托管环境快速入门](/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-an-environment-and-runner)
 
 自动模式成为默认值
 CLI
@@ -60,10 +60,10 @@ CLI
 
 新会话随后在状态栏中显示 `auto mode on`。
 
-[自动模式要求和控制](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode)
+[自动模式要求和控制](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)
 
 其他改进
 
-VS Code 扩展获得 [焦点视图](/docs/zh-CN/vs-code#extension-settings)，它将工具活动隐藏在每轮一个可展开行之后；从命令菜单或使用 `Ctrl+Alt+F`（Mac 上为 `Ctrl+Option+F`）切换它沙箱凭据文件在 Linux 和 WSL2 上接受 [`mode: "mask"`](/docs/zh-CN/sandboxing#mask-credential-files)，因此沙箱中的命令读取哨兵副本，而沙箱代理在出口时替换真实值；凭据掩蔽还获得 `extract`、JWT 感知的 `decode` 和 AWS SigV4 重新签名选项市场可以使用新的 `archive` 源将插件分发为 [zip 存档](/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source)，通过 HTTPS 下载，带有可选的 SHA-256 固定校验，因此安装无需 git 或 npm`/review` 现在是 [`/code-review`](/docs/zh-CN/code-review-local) 的别名，`/code-review` 不带 effort 级别时会重用您上次输入的级别您使用 [`/fork`](/docs/zh-CN/agent-view#copy-the-session-with-%2Ffork) 复制的会话现在在其自己的 worktree 中进行代码更改，而不是在原始会话的检出中您从 [`/plugin`](/docs/zh-CN/plugins/install#install-a-plugin) 安装的插件在安全的情况下会在当前会话中激活；安装摘要会报告 `Plugin is now active.` 或告诉您运行 `/reload-plugins`在 worktree 中更改了代码的[后台会话](/docs/zh-CN/agent-view#how-file-edits-are-isolated)现在会在完成前提交和推送，仅当任务需要时才打开草稿 Pull Request，并遵循您的 `CLAUDE.md` 中的 git 指令每个会话 200 个子代理的上限被移除，因此长时间运行的会话不再拒绝新的子代理；[并发](/docs/zh-CN/sub-agents#concurrent-subagent-limit) 和深度限制仍然适用仓库中签入的设置不再能打开 [Remote Control 自动连接](/docs/zh-CN/remote-control#enable-remote-control-for-all-sessions)；改为在您的用户或托管设置中设置 `remoteControlAtStartup`，项目和本地设置只能将其关闭[Worktree 隔离](/docs/zh-CN/worktrees#how-claude-code-enforces-isolation) 现在不仅阻止文件编辑，还阻止到达主检出的 Bash 命令和 git 重定向，适用于每种会话类型以及会话的子代理Bash 命令不再能从权限检查中隐藏其自身的一部分，制表符或不可见的 Unicode 填充不再从批准对话框中隐藏命令的一部分PreToolUse 自动允许 hook 不再绕过 Claude Code 内部侧任务（如摘要和压缩）中的工具限制[Ultraplan](/docs/zh-CN/ultraplan) 研究预览版被移除，包括 `/ultraplan` 命令和 `ultraplan` 关键字；改为使用计划模式或 Web 版 Claude Code
+VS Code 扩展获得 [焦点视图](/docs/zh-CN/vs-code.md#extension-settings)，它将工具活动隐藏在每轮一个可展开行之后；从命令菜单或使用 `Ctrl+Alt+F`（Mac 上为 `Ctrl+Option+F`）切换它沙箱凭据文件在 Linux 和 WSL2 上接受 [`mode: "mask"`](/docs/zh-CN/sandboxing#mask-credential-files)，因此沙箱中的命令读取哨兵副本，而沙箱代理在出口时替换真实值；凭据掩蔽还获得 `extract`、JWT 感知的 `decode` 和 AWS SigV4 重新签名选项市场可以使用新的 `archive` 源将插件分发为 [zip 存档](/docs/zh-CN/plugins/marketplace-reference.md#archive-plugin-source)，通过 HTTPS 下载，带有可选的 SHA-256 固定校验，因此安装无需 git 或 npm`/review` 现在是 [`/code-review`](/docs/zh-CN/code-review-local) 的别名，`/code-review` 不带 effort 级别时会重用您上次输入的级别您使用 [`/fork`](/docs/zh-CN/agent-view#copy-the-session-with-%2Ffork) 复制的会话现在在其自己的 worktree 中进行代码更改，而不是在原始会话的检出中您从 [`/plugin`](/docs/zh-CN/plugins/install#install-a-plugin) 安装的插件在安全的情况下会在当前会话中激活；安装摘要会报告 `Plugin is now active.` 或告诉您运行 `/reload-plugins`在 worktree 中更改了代码的[后台会话](/docs/zh-CN/agent-view.md#how-file-edits-are-isolated)现在会在完成前提交和推送，仅当任务需要时才打开草稿 Pull Request，并遵循您的 `CLAUDE.md` 中的 git 指令每个会话 200 个子代理的上限被移除，因此长时间运行的会话不再拒绝新的子代理；[并发](/docs/zh-CN/sub-agents.md#concurrent-subagent-limit) 和深度限制仍然适用仓库中签入的设置不再能打开 [Remote Control 自动连接](/docs/zh-CN/remote-control.md#enable-remote-control-for-all-sessions)；改为在您的用户或托管设置中设置 `remoteControlAtStartup`，项目和本地设置只能将其关闭[Worktree 隔离](/docs/zh-CN/worktrees.md#how-claude-code-enforces-isolation) 现在不仅阻止文件编辑，还阻止到达主检出的 Bash 命令和 git 重定向，适用于每种会话类型以及会话的子代理Bash 命令不再能从权限检查中隐藏其自身的一部分，制表符或不可见的 Unicode 填充不再从批准对话框中隐藏命令的一部分PreToolUse 自动允许 hook 不再绕过 Claude Code 内部侧任务（如摘要和压缩）中的工具限制[Ultraplan](/docs/zh-CN/ultraplan) 研究预览版被移除，包括 `/ultraplan` 命令和 `ultraplan` 关键字；改为使用计划模式或 Web 版 Claude Code
 
-[v2.1.220–v2.1.224 的完整更新日志 →](/docs/en/changelog#2-1-220)
+[v2.1.220–v2.1.224 的完整更新日志 →](/docs/en/changelog.md#2-1-220)

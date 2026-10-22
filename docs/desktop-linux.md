@@ -10,14 +10,14 @@
 >
 > Claude 桌面应用的 Linux 支持处于测试版阶段。
 
-Linux 上的桌面应用提供与 macOS 和 Windows 相同的 Chat、Cowork 和 Claude Code 体验：并行会话、可视化差异审查、集成终端和编辑器以及实时应用预览。有关功能参考，请参阅[使用 Claude Code Desktop](/docs/zh-CN/desktop)。
+Linux 上的桌面应用提供与 macOS 和 Windows 相同的 Chat、Cowork 和 Claude Code 体验：并行会话、可视化差异审查、集成终端和编辑器以及实时应用预览。有关功能参考，请参阅[使用 Claude Code Desktop](/docs/zh-CN/desktop.md)。
 
 ## 要求
 
 * 基于 Debian 的发行版：Ubuntu 22.04 或更高版本，或 Debian 12 或更高版本
 * x86\_64 或 arm64
 
-其他满足这些要求的基于 Debian 的发行版可能可以工作，但未经过官方测试。在非基于 Debian 的发行版上，例如 Fedora 或 Arch，请改为运行 [CLI](/docs/zh-CN/setup#system-requirements)。如果您在 WSL 2 上使用 Windows，请安装 Windows 桌面应用程序并在您的发行版内运行会话；请参阅 [Claude Code Desktop in WSL](/docs/zh-CN/desktop-wsl)。
+其他满足这些要求的基于 Debian 的发行版可能可以工作，但未经过官方测试。在非基于 Debian 的发行版上，例如 Fedora 或 Arch，请改为运行 [CLI](/docs/zh-CN/setup.md#system-requirements)。如果您在 WSL 2 上使用 Windows，请安装 Windows 桌面应用程序并在您的发行版内运行会话；请参阅 [Claude Code Desktop in WSL](/docs/zh-CN/desktop-wsl.md)。
 
 ### Cowork 要求
 
@@ -71,7 +71,7 @@ sudo apt update && sudo apt install claude-desktop
 
 从应用启动器启动 **Claude**，或从终端运行 `claude-desktop`，然后使用您的 Anthropic 账户登录。
 
-Linux 应用的登录方式与 macOS 和 Windows 上相同：使用 claude.ai 订阅或通过您组织的 SSO。如需使用 API 密钥身份验证，请使用 [CLI](/docs/zh-CN/quickstart)。如果要改为将 Desktop 与 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 LLM 网关配合使用，请参阅 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)。有关这些部署中的代理服务器和自定义证书颁发机构，请参阅 [网络配置](/docs/zh-CN/network-config)。
+Linux 应用的登录方式与 macOS 和 Windows 上相同：使用 claude.ai 订阅或通过您组织的 SSO。如需使用 API 密钥身份验证，请使用 [CLI](/docs/zh-CN/quickstart.md)。如果要改为将 Desktop 与 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 LLM 网关配合使用，请参阅 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)。有关这些部署中的代理服务器和自定义证书颁发机构，请参阅 [网络配置](/docs/zh-CN/network-config.md)。
 
 ### 从下载的文件安装
 
@@ -162,9 +162,9 @@ Claude Desktop 将您的登录信息保存在您桌面的密钥环中，例如 G
 
 ## Linux 测试版中尚未包含的内容
 
-* **Computer Use**：[应用和屏幕控制](/docs/zh-CN/desktop#let-claude-use-your-computer)在 Linux 上不可用。
-* **Dictation**：语音输入在 Linux 桌面应用中不可用。请改用 CLI 中的[语音听写](/docs/zh-CN/voice-dictation)。
+* **Computer Use**：[应用和屏幕控制](/docs/zh-CN/desktop.md#let-claude-use-your-computer)在 Linux 上不可用。
+* **Dictation**：语音输入在 Linux 桌面应用中不可用。请改用 CLI 中的[语音听写](/docs/zh-CN/voice-dictation.md)。
 * **Quick Entry 全局热键**：在 X11 上有效。在原生 Wayland 上，它需要您的桌面环境的 GlobalShortcuts 门户。
 * **Fedora 和 RHEL**：目前仅支持基于 Debian 的发行版。对其他发行版的支持将在未来推出。
 
-对于桌面应用中尚未提供的任何功能，[CLI](/docs/zh-CN/quickstart) 运行相同的 Claude Code 引擎并支持更广泛的 Linux 发行版范围；请参阅[系统要求](/docs/zh-CN/setup#system-requirements)。
+对于桌面应用中尚未提供的任何功能，[CLI](/docs/zh-CN/quickstart.md) 运行相同的 Claude Code 引擎并支持更广泛的 Linux 发行版范围；请参阅[系统要求](/docs/zh-CN/setup.md#system-requirements)。

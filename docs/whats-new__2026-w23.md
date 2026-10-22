@@ -6,7 +6,7 @@
 
 > 在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上运行自动模式，在 acceptEdits 模式下提示写入可运行代码的文件，使用 /plugin list 列出已安装的插件，以及为托管部署要求批准的版本范围。
 
-发布版本 [v2.1.158 → v2.1.165](/docs/en/changelog#2-1-158)
+发布版本 [v2.1.158 → v2.1.165](/docs/en/changelog.md#2-1-158)
 4 项功能 · 6 月 1–5 日
 
 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的自动模式
@@ -20,7 +20,7 @@ v2.1.158
 export CLAUDE_CODE_ENABLE_AUTO_MODE=1
 ```
 
-[在第三方提供商上启用自动模式](/docs/zh-CN/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry)
+[在第三方提供商上启用自动模式](/docs/zh-CN/permission-modes.md#enable-auto-mode-on-bedrock-agent-platform-or-foundry)
 
 更安全的自动编辑
 v2.1.160
@@ -33,7 +33,7 @@ Claude Code 现在在写入可运行代码的文件之前进行提示，即使�
 claude --permission-mode acceptEdits
 ```
 
-[受保护的路径](/docs/zh-CN/permission-modes#protected-paths)
+[受保护的路径](/docs/zh-CN/permission-modes.md#protected-paths)
 
 使用 /plugin list 列出已安装的插件
 v2.1.163
@@ -46,7 +46,7 @@ v2.1.163
 > /plugin list --enabled
 ```
 
-[插件命令](/docs/zh-CN/plugins/cli-reference#plugin-list)
+[插件命令](/docs/zh-CN/plugins/cli-reference.md#plugin-list)
 
 托管部署的版本要求
 v2.1.163
@@ -61,10 +61,10 @@ v2.1.163
 }
 ```
 
-[决定要强制执行的内容](/docs/zh-CN/admin-setup#decide-what-to-enforce)
+[决定要强制执行的内容](/docs/zh-CN/admin-setup.md#decide-what-to-enforce)
 
 其他改进
 
-[动态工作流](/docs/zh-CN/workflows)的触发关键字从 `workflow` 更改为 `ultracode`；用您自己的话要求工作流仍然有效，关键字在提示中以紫色突出显示[Stop 和 SubagentStop hooks](/docs/zh-CN/hooks) 可以返回 `hookSpecificOutput.additionalContext` 以向 Claude 提供反馈并继续轮次，而不是被视为错误`claude mcp` list、get 和 add 不再打印机密：环境变量引用不会展开，凭证标头和 URL 机密会被编辑并行工具批处理中失败的 Bash 命令不再取消其他命令；每个工具独立返回自己的结果当您使用单文件 `grep`、`egrep` 或 `fgrep` 查看文件时，编辑文件不再需要单独的 Read单击自动完成菜单中的命令现在会将其填充到您的提示中，而不是立即运行；按 Enter 键运行在 `--tools` 中列出 `Grep` 或 `Glob` 现在在具有嵌入式搜索的本机构建上提供专用搜索工具，而不是静默忽略这些名称`/effort` 现在确认您选择的级别将作为新会话的默认值持久化`OTEL_RESOURCE_ATTRIBUTES` 值现在作为标签附加到指标数据点，因此您可以按自定义维度（如团队或存储库）对使用指标进行切片Windsurf 在 `/ide`、`/terminal-setup` 和 `/scroll-speed` 中重命名为 Devin Desktop，遵循编辑器的品牌重塑`/btw` 获得了 `c to copy` 快捷键，可将原始 markdown 答案复制到剪贴板
+[动态工作流](/docs/zh-CN/workflows.md)的触发关键字从 `workflow` 更改为 `ultracode`；用您自己的话要求工作流仍然有效，关键字在提示中以紫色突出显示[Stop 和 SubagentStop hooks](/docs/zh-CN/hooks.md) 可以返回 `hookSpecificOutput.additionalContext` 以向 Claude 提供反馈并继续轮次，而不是被视为错误`claude mcp` list、get 和 add 不再打印机密：环境变量引用不会展开，凭证标头和 URL 机密会被编辑并行工具批处理中失败的 Bash 命令不再取消其他命令；每个工具独立返回自己的结果当您使用单文件 `grep`、`egrep` 或 `fgrep` 查看文件时，编辑文件不再需要单独的 Read单击自动完成菜单中的命令现在会将其填充到您的提示中，而不是立即运行；按 Enter 键运行在 `--tools` 中列出 `Grep` 或 `Glob` 现在在具有嵌入式搜索的本机构建上提供专用搜索工具，而不是静默忽略这些名称`/effort` 现在确认您选择的级别将作为新会话的默认值持久化`OTEL_RESOURCE_ATTRIBUTES` 值现在作为标签附加到指标数据点，因此您可以按自定义维度（如团队或存储库）对使用指标进行切片Windsurf 在 `/ide`、`/terminal-setup` 和 `/scroll-speed` 中重命名为 Devin Desktop，遵循编辑器的品牌重塑`/btw` 获得了 `c to copy` 快捷键，可将原始 markdown 答案复制到剪贴板
 
-[v2.1.158–v2.1.165 的完整更新日志 →](/docs/en/changelog#2-1-158)
+[v2.1.158–v2.1.165 的完整更新日志 →](/docs/en/changelog.md#2-1-158)

@@ -6,19 +6,19 @@
 
 > 使用 Agent SDK 从 CLI、Python 或 TypeScript 以编程方式运行 Claude Code。
 
-[Agent SDK](/docs/zh-CN/agent-sdk/overview) 为您提供了与 Claude Code 相同的工具、agent 循环和上下文管理。它可作为 CLI 用于脚本和 CI/CD，或作为 [Python](/docs/zh-CN/agent-sdk/python) 和 [TypeScript](/docs/zh-CN/agent-sdk/typescript) 包供完整的编程控制。
+[Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 为您提供了与 Claude Code 相同的工具、agent 循环和上下文管理。它可作为 CLI 用于脚本和 CI/CD，或作为 [Python](/docs/zh-CN/agent-sdk/python.md) 和 [TypeScript](/docs/zh-CN/agent-sdk/typescript.md) 包供完整的编程控制。
 
-要以非交互模式运行 Claude Code，请使用 `-p` 传递您的提示和任何 [CLI 选项](/docs/zh-CN/cli-reference)：
+要以非交互模式运行 Claude Code，请使用 `-p` 传递您的提示和任何 [CLI 选项](/docs/zh-CN/cli-reference.md)：
 
 ```bash theme={null}
 claude -p "Find and fix the bug in auth.py" --allowedTools "Read,Edit,Bash"
 ```
 
-本页面涵盖通过 CLI (`claude -p`) 使用 Agent SDK。对于具有结构化输出、工具批准回调和原生消息对象的 Python 和 TypeScript SDK 包，请参阅 [完整 Agent SDK 文档](/docs/zh-CN/agent-sdk/overview)。
+本页面涵盖通过 CLI (`claude -p`) 使用 Agent SDK。对于具有结构化输出、工具批准回调和原生消息对象的 Python 和 TypeScript SDK 包，请参阅 [完整 Agent SDK 文档](/docs/zh-CN/agent-sdk/overview.md)。
 
 ## 基本用法
 
-在任何 `claude` 命令中添加 `-p`（或 `--print`）标志以非交互方式运行它。并非每个 [CLI 选项](/docs/zh-CN/cli-reference) 都能与 `-p` 组合使用。Claude Code 会拒绝 `--bg`，也会拒绝带有任务描述的 `--cloud`，并报错说明冲突；而 `--cloud` 与会话 ID 和 `-p` 一起使用时，会 [将消息排队到该云端会话](/docs/zh-CN/claude-code-on-the-web#send-follow-ups-from-the-cli) 并退出。经常与 `-p` 结合使用的选项包括：
+在任何 `claude` 命令中添加 `-p`（或 `--print`）标志以非交互方式运行它。并非每个 [CLI 选项](/docs/zh-CN/cli-reference.md) 都能与 `-p` 组合使用。Claude Code 会拒绝 `--bg`，也会拒绝带有任务描述的 `--cloud`，并报错说明冲突；而 `--cloud` 与会话 ID 和 `-p` 一起使用时，会 [将消息排队到该云端会话](/docs/zh-CN/claude-code-on-the-web.md#send-follow-ups-from-the-cli) 并退出。经常与 `-p` 结合使用的选项包括：
 
 * `--continue` 用于 [继续对话](#continue-conversations)
 * `--allowedTools` 用于 [自动批准工具](#auto-approve-tools)
@@ -34,11 +34,11 @@ Claude Code 在成功时以代码 0 退出，在运行失败时以非零代码�
 
 ### 使用 bare 模式更快启动
 
-添加 `--bare` 可以跳过 hook、skill、自定义命令、[子代理](/docs/zh-CN/sub-agents)、已安装的插件、MCP 服务器、自动记忆和 CLAUDE.md 的自动发现，从而减少启动时间。如果不使用它，`claude -p` 会像交互式会话一样发现并加载这些内容，包括在工作目录或 `~/.claude` 中配置的任何内容。
+添加 `--bare` 可以跳过 hook、skill、自定义命令、[子代理](/docs/zh-CN/sub-agents.md)、已安装的插件、MCP 服务器、自动记忆和 CLAUDE.md 的自动发现，从而减少启动时间。如果不使用它，`claude -p` 会像交互式会话一样发现并加载这些内容，包括在工作目录或 `~/.claude` 中配置的任何内容。
 
-bare 模式适用于需要在每台机器上获得相同结果的 CI 和脚本。队友的 `~/.claude` 中的 hook 或项目的 `.mcp.json` 中的 MCP 服务器不会运行，因为 bare 模式从不读取它们。您用 `--add-dir` 指定的目录是一个部分例外：bare 模式会从其 `.claude/skills/` 文件夹加载 skill，但仍然跳过其 `.claude/commands/` 和 `.claude/agents/` 文件夹。[来自其他目录的 Skills](/docs/zh-CN/skills#skills-from-additional-directories) 介绍了哪些内容会加载、哪些不会加载。
+bare 模式适用于需要在每台机器上获得相同结果的 CI 和脚本。队友的 `~/.claude` 中的 hook 或项目的 `.mcp.json` 中的 MCP 服务器不会运行，因为 bare 模式从不读取它们。您用 `--add-dir` 指定的目录是一个部分例外：bare 模式会从其 `.claude/skills/` 文件夹加载 skill，但仍然跳过其 `.claude/commands/` 和 `.claude/agents/` 文件夹。[来自其他目录的 Skills](/docs/zh-CN/skills.md#skills-from-additional-directories) 介绍了哪些内容会加载、哪些不会加载。
 
-如果不使用 `--bare`，`-p` 会话会运行项目的 `.claude/settings.json` 中的 hook 并连接其 `.mcp.json` 中的服务器，即使在您从未信任过的文件夹中也是如此。`-p` 会话不会显示工作区信任对话框，也不会显示逐个服务器的批准提示。[在您信任文件夹之前运行的内容](/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 介绍了 `-p` 下每种仓库内容以及如何将其排除在外。
+如果不使用 `--bare`，`-p` 会话会运行项目的 `.claude/settings.json` 中的 hook 并连接其 `.mcp.json` 中的服务器，即使在您从未信任过的文件夹中也是如此。`-p` 会话不会显示工作区信任对话框，也不会显示逐个服务器的批准提示。[在您信任文件夹之前运行的内容](/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 介绍了 `-p` 下每种仓库内容以及如何将其排除在外。
 
 此示例在 bare 模式下运行一次性摘要任务，并预先批准 Read 工具，以便调用无需权限提示即可完成。运行前请设置 `ANTHROPIC_API_KEY`，因为 bare 模式不使用您的订阅登录：
 
@@ -55,14 +55,14 @@ claude --bare -p "Summarize README.md" --allowedTools "Read"
 | 系统提示词附加内容 | `--append-system-prompt`, `--append-system-prompt-file` |
 | 设置 | `--settings <file-or-json>` |
 | MCP 服务器 | `--mcp-config <file-or-json>` |
-| [自定义 Agent](/docs/zh-CN/sub-agents#choose-the-subagent-scope) | `--agents <file-or-json>` |
+| [自定义 Agent](/docs/zh-CN/sub-agents.md#choose-the-subagent-scope) | `--agents <file-or-json>` |
 | 插件 | `--plugin-dir <path>`, `--plugin-url <url>` |
 
 bare 模式还会限制会话运行期间发生的事情：
 
 * **MCP 服务器**：只有在命令行中提供的服务器才会连接，例如通过 `--mcp-config`。在交互式会话中，除非您传递 `--ide`，否则 Claude Code 还会跳过自动 IDE 连接。
-* **系统提醒**：Claude 会收到您的提示词和工具结果，但不会收到 Claude Code 原本会随之添加的 [系统提醒](/docs/zh-CN/glossary#system-reminder)。例如，当 Claude 之前读取过的文件在磁盘上发生更改时，Claude 不会收到通知，也不会获得可用 skill 的列表，包括来自 `--add-dir` 文件夹的 skill。
-* **后台任务**：不会运行任何后台任务。达到 [超时](/docs/zh-CN/tools-reference#timeout-and-output-limits) 的命令会停止，而不是 [转入后台](/docs/zh-CN/tools-reference#background-commands)。
+* **系统提醒**：Claude 会收到您的提示词和工具结果，但不会收到 Claude Code 原本会随之添加的 [系统提醒](/docs/zh-CN/glossary.md#system-reminder)。例如，当 Claude 之前读取过的文件在磁盘上发生更改时，Claude 不会收到通知，也不会获得可用 skill 的列表，包括来自 `--add-dir` 文件夹的 skill。
+* **后台任务**：不会运行任何后台任务。达到 [超时](/docs/zh-CN/tools-reference.md#timeout-and-output-limits) 的命令会停止，而不是 [转入后台](/docs/zh-CN/tools-reference.md#background-commands)。
 
 在 v2.1.286 之前，这些限制只部分生效：交互式 `--bare` 会话会连接普通会话会连接的 MCP 服务器，每个 `--bare` 会话都会发送系统提醒，并且后台任务仍然可用。
 
@@ -78,10 +78,10 @@ bare 模式还会限制会话运行期间发生的事情：
 
 运行会等待后台工作，例如后台命令、子代理和工作流、Monitor 监视以及待处理的 `/loop` 唤醒：
 
-* **[后台命令](/docs/zh-CN/tools-reference#background-commands)**：对于主对话启动的命令（例如开发服务器或监视构建），运行会等待，直到该命令退出或达到其 [时间限制](/docs/zh-CN/tools-reference#time-limit-for-background-commands)。随后 Claude 会根据结果再进行一轮。在命令运行期间，10 分钟上限不会结束等待。
-* **后台[子代理](/docs/zh-CN/sub-agents)和工作流**：运行会保持打开状态，直到该工作完成，因为其结果是最终输出的一部分。
-* **[Monitor](/docs/zh-CN/tools-reference#monitor-tool) 监视**：运行会等待，直到监视超时或 10 分钟上限结束等待，以先发生者为准。在等待期间，Claude 会继续响应监视报告的内容。默认情况下，监视在 Claude 启动后五分钟超时。
-* **待处理的唤醒**：在以文本形式而非通过 `--input-format stream-json` 传递提示词的运行中，如果 Claude 已安排 [自定节奏的 `/loop` 唤醒](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)，运行会等待每次唤醒触发并执行其迭代，直到 [循环结束](/docs/zh-CN/scheduled-tasks#stop-a-loop)，即使超过 10 分钟上限也是如此。
+* **[后台命令](/docs/zh-CN/tools-reference.md#background-commands)**：对于主对话启动的命令（例如开发服务器或监视构建），运行会等待，直到该命令退出或达到其 [时间限制](/docs/zh-CN/tools-reference.md#time-limit-for-background-commands)。随后 Claude 会根据结果再进行一轮。在命令运行期间，10 分钟上限不会结束等待。
+* **后台[子代理](/docs/zh-CN/sub-agents.md)和工作流**：运行会保持打开状态，直到该工作完成，因为其结果是最终输出的一部分。
+* **[Monitor](/docs/zh-CN/tools-reference.md#monitor-tool) 监视**：运行会等待，直到监视超时或 10 分钟上限结束等待，以先发生者为准。在等待期间，Claude 会继续响应监视报告的内容。默认情况下，监视在 Claude 启动后五分钟超时。
+* **待处理的唤醒**：在以文本形式而非通过 `--input-format stream-json` 传递提示词的运行中，如果 Claude 已安排 [自定节奏的 `/loop` 唤醒](/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)，运行会等待每次唤醒触发并执行其迭代，直到 [循环结束](/docs/zh-CN/scheduled-tasks.md#stop-a-loop)，即使超过 10 分钟上限也是如此。
 
 当 stderr 是终端且运行已等待五秒时，Claude Code 会向 stderr 打印一行以 `Waiting for background work to finish` 开头的内容，并列出正在等待的工作。使用 [`json` 或 `stream-json` 输出](#get-structured-output) 时，该行仅在 stdout 不是终端时才会打印，因此您的脚本读取的 JSON 中永远不会包含它。
 
@@ -102,7 +102,7 @@ bare 模式还会限制会话运行期间发生的事情：
 
 ### 如果工作目录被删除
 
-如果 `claude -p` 或 Agent SDK 会话的工作目录在会话进行中被删除，会话会继续运行。当某个轮次在目录缺失时开始，Claude Code 会在 `stream-json` 输出中发出 [警告消息](/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage)，并且 shell 命令会失败，直到该目录重新存在。
+如果 `claude -p` 或 Agent SDK 会话的工作目录在会话进行中被删除，会话会继续运行。当某个轮次在目录缺失时开始，Claude Code 会在 `stream-json` 输出中发出 [警告消息](/docs/zh-CN/agent-sdk/typescript.md#sdkinformationalmessage)，并且 shell 命令会失败，直到该目录重新存在。
 
 ## 示例
 
@@ -118,7 +118,7 @@ bare 模式还会限制会话运行期间发生的事情：
 cat build-error.txt | claude -p 'concisely explain the root cause of this build error' > output.txt
 ```
 
-使用 `--output-format json` 时，响应的 JSON 数据包括 `total_cost_usd` 和按模型的成本分解，因此脚本调用者可以跟踪支出而无需查询 [使用情况仪表板](/docs/zh-CN/costs)。当您使用 `--continue` 或 `--resume` 继续较早的对话时，运行报告对话的整体总计，[包括较早运行的支出](/docs/zh-CN/agent-sdk/cost-tracking#accumulate-costs-across-multiple-calls)。两个数字都是 [客户端估计](/docs/zh-CN/agent-sdk/cost-tracking)，可能与您的实际账单不同。
+使用 `--output-format json` 时，响应的 JSON 数据包括 `total_cost_usd` 和按模型的成本分解，因此脚本调用者可以跟踪支出而无需查询 [使用情况仪表板](/docs/zh-CN/costs.md)。当您使用 `--continue` 或 `--resume` 继续较早的对话时，运行报告对话的整体总计，[包括较早运行的支出](/docs/zh-CN/agent-sdk/cost-tracking.md#accumulate-costs-across-multiple-calls)。两个数字都是 [客户端估计](/docs/zh-CN/agent-sdk/cost-tracking.md)，可能与您的实际账单不同。
 
 > [!NOTE]
 >
@@ -204,18 +204,18 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
   jq -rj 'select(.type == "stream_event" and .event.delta.type? == "text_delta") | .event.delta.text'
 ```
 
-对于具有回调和消息对象的编程流式传输，请参阅 Agent SDK 文档中的 [实时流式传输响应](/docs/zh-CN/agent-sdk/streaming-output)。
+对于具有回调和消息对象的编程流式传输，请参阅 Agent SDK 文档中的 [实时流式传输响应](/docs/zh-CN/agent-sdk/streaming-output.md)。
 
 #### 跟踪子代理消息
 
-来自[子代理](/docs/zh-CN/sub-agents)以及[在子代理中运行](/docs/zh-CN/skills#run-skills-in-a-subagent)的 skill 的消息在流中显示为 `assistant` 和 `user` 消息。其 `parent_tool_use_id` 字段表明每条消息属于哪次运行。来自主对话的消息在该字段中为 `null`。
+来自[子代理](/docs/zh-CN/sub-agents.md)以及[在子代理中运行](/docs/zh-CN/skills.md#run-skills-in-a-subagent)的 skill 的消息在流中显示为 `assistant` 和 `user` 消息。其 `parent_tool_use_id` 字段表明每条消息属于哪次运行。来自主对话的消息在该字段中为 `null`。
 
-来自 forked skill 或在[前台](/docs/zh-CN/sub-agents#run-subagents-in-foreground-or-background)运行的子代理的第一条消息是一条 `user` 消息，携带驱动它的提示词或 skill 内容。在该第一条消息之后，Claude Code 发出：
+来自 forked skill 或在[前台](/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)运行的子代理的第一条消息是一条 `user` 消息，携带驱动它的提示词或 skill 内容。在该第一条消息之后，Claude Code 发出：
 
 * **默认情况下**：该次运行的 `tool_use` 和 `tool_result` 块。
 * **使用 [`--forward-subagent-text`](/docs/zh-CN/cli-reference#cli-flags) 或 [`CLAUDE_CODE_FORWARD_SUBAGENT_TEXT`](/docs/zh-CN/env-vars) 时**：还包括该次运行的文本和思考块，因此您可以重建每次运行的会话记录。
 
-当您启用任一选项时，Claude Code 会转发来自[每个嵌套深度的子代理](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)的消息，无论每个子代理是使用 Agent 工具生成的还是作为 forked skill 启动的。在 `parent_tool_use_id` 中，嵌套子代理的消息携带启动它的 Agent 或 Skill 工具调用的 ID，因此您可以通过跟踪这些 ID 来重建完整的嵌套树。
+当您启用任一选项时，Claude Code 会转发来自[每个嵌套深度的子代理](/docs/zh-CN/sub-agents.md#let-subagents-spawn-their-own-subagents)的消息，无论每个子代理是使用 Agent 工具生成的还是作为 forked skill 启动的。在 `parent_tool_use_id` 中，嵌套子代理的消息携带启动它的 Agent 或 Skill 工具调用的 ID，因此您可以通过跟踪这些 ID 来重建完整的嵌套树。
 
 由 Claude 通过工具调用启动的运行携带该工具调用的 ID。通过将 `/<skill-name>` 作为提示词传递而启动的 forked skill 没有工具调用，因此其消息改为携带 `forked-command-` 值，并在其完成后到达。请在第一列中查找运行的启动方式：
 
@@ -246,7 +246,7 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
 | `max_retries` | 整数 | 针对此失败原因允许的总重试次数 |
 | `retry_delay_ms` | 整数 | 距下一次尝试的毫秒数 |
 | `error_status` | 整数或 null | 失败尝试的 HTTP 状态代码，当尝试未从 API 获得 HTTP 响应时为 `null` |
-| `no_response` | 对象，可选 | 仅当失败的尝试 [未及时获得响应头](/docs/zh-CN/errors#no-response-from-api) 时存在。`waited_ms` 是该尝试等待的时间，`retry_wait_ms` 是重试将等待的时间。需要 Claude Code v2.1.261 或更高版本 |
+| `no_response` | 对象，可选 | 仅当失败的尝试 [未及时获得响应头](/docs/zh-CN/errors.md#no-response-from-api) 时存在。`waited_ms` 是该尝试等待的时间，`retry_wait_ms` 是重试将等待的时间。需要 Claude Code v2.1.261 或更高版本 |
 | `error` | 字符串 | 错误类别：`authentication_failed`、`oauth_org_not_allowed`、`account_on_hold`、`billing_error`、`rate_limit`、`overloaded`、`invalid_request`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error` 或 `unknown` |
 | `uuid` | 字符串 | 唯一事件标识符 |
 | `session_id` | 字符串 | 事件所属的会话 |
@@ -271,7 +271,7 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
 
 当 `--plugin-dir` 目录或存档本身加载失败时，其 `plugin_errors` 条目包括解析的绝对路径作为 `path`。使用它来判断哪个 `--plugin-dir` 值失败。`path` 字段需要 Claude Code v2.1.283 或更高版本。
 
-以相同的方式使用 MCP 服务器字段。当您使用 `-p` 传递 [`--mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 时，Claude Code 在运行第一轮之前等待仍然待处理的服务器，最多等待 [`MCP_TIMEOUT`](/docs/zh-CN/env-vars) 启动超时时间，默认为 30 秒。具有 [缓存工具列表](/docs/zh-CN/agent-sdk/mcp#connection-timing) 的远程服务器跳过等待，在 `system/init` 中显示 `pending`，并在其第一次工具调用时连接。在 [自托管环境](/docs/zh-CN/self-hosted-environments-configuration#connection-timing) 中，改为适用较短的等待时间。等待需要 Claude Code v2.1.221 或更高版本。
+以相同的方式使用 MCP 服务器字段。当您使用 `-p` 传递 [`--mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 时，Claude Code 在运行第一轮之前等待仍然待处理的服务器，最多等待 [`MCP_TIMEOUT`](/docs/zh-CN/env-vars) 启动超时时间，默认为 30 秒。具有 [缓存工具列表](/docs/zh-CN/agent-sdk/mcp.md#connection-timing) 的远程服务器跳过等待，在 `system/init` 中显示 `pending`，并在其第一次工具调用时连接。在 [自托管环境](/docs/zh-CN/self-hosted-environments-configuration.md#connection-timing) 中，改为适用较短的等待时间。等待需要 Claude Code v2.1.221 或更高版本。
 
 Claude Code 在启动时验证每个 `--mcp-config` 条目并跳过验证失败的条目，例如没有 `type` 的 `url` 条目。运行继续并干净地退出，因此检查这些字段以捕获从未加载的服务器：
 
@@ -298,22 +298,22 @@ Claude Code 在启动时验证每个 `--mcp-config` 条目并跳过验证失败�
 
 ### 自动批准工具
 
-使用 `--allowedTools` 让 Claude 使用某些工具而无需提示。列出 `Read` 和 `Edit` 让 Claude 读取和编辑文件而无需请求权限，但从 [网络路径](/docs/zh-CN/permissions#network-paths) 读取除外。列出 `Bash` 对 shell 命令执行相同操作，但在 [自动模式](/docs/zh-CN/permission-modes#how-auto-mode-evaluates-actions) 中启动的运行除外，此时 Claude Code 会将裸 `Bash` 条目作为宽泛的允许规则丢弃，改由自动模式评估每个命令。此示例运行测试套件并修复失败，列出了这三个工具：
+使用 `--allowedTools` 让 Claude 使用某些工具而无需提示。列出 `Read` 和 `Edit` 让 Claude 读取和编辑文件而无需请求权限，但从 [网络路径](/docs/zh-CN/permissions.md#network-paths) 读取除外。列出 `Bash` 对 shell 命令执行相同操作，但在 [自动模式](/docs/zh-CN/permission-modes.md#how-auto-mode-evaluates-actions) 中启动的运行除外，此时 Claude Code 会将裸 `Bash` 条目作为宽泛的允许规则丢弃，改由自动模式评估每个命令。此示例运行测试套件并修复失败，列出了这三个工具：
 
 ```bash theme={null}
 claude -p "Run the test suite and fix any failures" \
   --allowedTools "Bash,Read,Edit"
 ```
 
-对未列出工具的调用如果无需批准，则会运行。在 [Manual 模式](/docs/zh-CN/permission-modes#available-modes) 的 `claude -p` 运行中，需要批准的调用会被拒绝，除非有机制批准它，例如 [`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest) 或 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)。在 Claude Code v2.1.302 或更高版本中，当 [没有任何设置指定权限模式](/docs/zh-CN/permission-modes#which-mode-a-non-interactive-run-starts-in) 时，`claude -p` 运行以 Manual 模式启动。
+对未列出工具的调用如果无需批准，则会运行。在 [Manual 模式](/docs/zh-CN/permission-modes.md#available-modes) 的 `claude -p` 运行中，需要批准的调用会被拒绝，除非有机制批准它，例如 [`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest) 或 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)。在 Claude Code v2.1.302 或更高版本中，当 [没有任何设置指定权限模式](/docs/zh-CN/permission-modes.md#which-mode-a-non-interactive-run-starts-in) 时，`claude -p` 运行以 Manual 模式启动。
 
-要为整个会话设置基线而不是列出单个工具，请使用 `--permission-mode` 传递 [权限模式](/docs/zh-CN/permission-modes)，例如 `auto`、`dontAsk` 或 `acceptEdits`：
+要为整个会话设置基线而不是列出单个工具，请使用 `--permission-mode` 传递 [权限模式](/docs/zh-CN/permission-modes.md)，例如 `auto`、`dontAsk` 或 `acceptEdits`：
 
 * **`auto`**：传递 `--permission-mode auto` 以让分类器代替您审查大多数操作
-* **`dontAsk`**：Claude Code 拒绝每个原本会提示的调用，这对于锁定的 CI 运行很有用，但您安装的 [mod](/docs/zh-CN/plugins/mods/overview) 仍然可以批准其中某些调用。要查看 mod 可以批准哪些调用，请参阅 [使用 hook 扩展权限](/docs/zh-CN/permissions#precedence-among-rules-hooks-and-mods)。
+* **`dontAsk`**：Claude Code 拒绝每个原本会提示的调用，这对于锁定的 CI 运行很有用，但您安装的 [mod](/docs/zh-CN/plugins/mods/overview.md) 仍然可以批准其中某些调用。要查看 mod 可以批准哪些调用，请参阅 [使用 hook 扩展权限](/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
 
-  在 Manual 模式下无需批准的操作仍会运行，例如工作目录中的文件读取和 [只读命令集](/docs/zh-CN/permissions#read-only-commands)。您的 `--allowedTools` 条目或 `permissions.allow` 规则涵盖的操作也会运行。`AskUserQuestion`、[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及 [从网络路径读取](/docs/zh-CN/permissions#network-paths) 即使在允许规则匹配时也会被拒绝
-* **`acceptEdits`**：Claude 写入文件而无需提示，Claude Code 自动批准常见的文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp`。[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes#actions-no-mode-auto-approves) 仍然适用。除了只读命令集，其他 shell 命令和网络请求仍然需要 `--allowedTools` 条目或 `permissions.allow` 规则。有关完整列表，请参阅 [`acceptEdits` 自动批准的内容](/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)
+  在 Manual 模式下无需批准的操作仍会运行，例如工作目录中的文件读取和 [只读命令集](/docs/zh-CN/permissions.md#read-only-commands)。您的 `--allowedTools` 条目或 `permissions.allow` 规则涵盖的操作也会运行。`AskUserQuestion`、[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具以及 [从网络路径读取](/docs/zh-CN/permissions.md#network-paths) 即使在允许规则匹配时也会被拒绝
+* **`acceptEdits`**：Claude 写入文件而无需提示，Claude Code 自动批准常见的文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp`。[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves) 仍然适用。除了只读命令集，其他 shell 命令和网络请求仍然需要 `--allowedTools` 条目或 `permissions.allow` 规则。有关完整列表，请参阅 [`acceptEdits` 自动批准的内容](/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)
 
 此示例使用 `acceptEdits` 作为基线应用 lint 修复：
 
@@ -327,13 +327,13 @@ claude -p "Apply the lint fixes" --permission-mode acceptEdits
 
 使用该标志，您的运行不会查询主机或等待它。任何会提示的内容都被拒绝，除非 `PermissionRequest` hook 允许它，Claude 被告知没有人可以批准请求且不要重试它，运行继续。在没有主机的 `-p` 运行中，这些请求无论如何都被拒绝，该标志也告诉 Claude 不要重试它们。权限规则、[`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest) 和您设置的权限模式仍然首先决定每个调用；Claude Code 仅拒绝其他任何机制都无法解决的请求。
 
-此示例在 [自动模式](/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 中运行无人值守任务。分类器照常审查每个操作，Claude Code 拒绝任何会回退到提示的内容：
+此示例在 [自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) 中运行无人值守任务。分类器照常审查每个操作，Claude Code 拒绝任何会回退到提示的内容：
 
 ```bash theme={null}
 claude -p "Update the dependency pins and run the tests" --permission-mode auto --permission-prompts none
 ```
 
-使用 `--permission-prompts none`，Claude Code 移除需要来自人的答案的工具，例如 [`AskUserQuestion`](/docs/zh-CN/tools-reference#askuserquestion-tool-behavior)，因此 Claude 无法调用它们。任何没有 [`Elicitation` hook](/docs/zh-CN/hooks#elicitation) 回答的 [MCP 引出请求](/docs/zh-CN/mcp#respond-to-mcp-elicitation-requests) 都被取消。
+使用 `--permission-prompts none`，Claude Code 移除需要来自人的答案的工具，例如 [`AskUserQuestion`](/docs/zh-CN/tools-reference#askuserquestion-tool-behavior)，因此 Claude 无法调用它们。任何没有 [`Elicitation` hook](/docs/zh-CN/hooks#elicitation) 回答的 [MCP 引出请求](/docs/zh-CN/mcp.md#respond-to-mcp-elicitation-requests) 都被取消。
 
 使用 `--output-format stream-json`，拒绝显示为 `permission_denied` 系统消息，最终结果消息在 `permission_denials` 中列出它们。
 
@@ -350,17 +350,17 @@ claude -p "Look at my staged changes and create an appropriate commit" \
   --allowedTools "Bash(git diff *),Bash(git log *),Bash(git status *),Bash(git commit *)"
 ```
 
-`--allowedTools` 标志使用 [权限规则语法](/docs/zh-CN/settings-reference#permission-rule-syntax)。尾部的 ` *` 启用前缀匹配，因此 `Bash(git diff *)` 允许任何以 `git diff` 开头的命令。`*` 之前的空格很重要：没有它，`Bash(git diff*)` 也会匹配 `git diff-index`。
+`--allowedTools` 标志使用 [权限规则语法](/docs/zh-CN/settings-reference.md#permission-rule-syntax)。尾部的 ` *` 启用前缀匹配，因此 `Bash(git diff *)` 允许任何以 `git diff` 开头的命令。`*` 之前的空格很重要：没有它，`Bash(git diff*)` 也会匹配 `git diff-index`。
 
 > [!NOTE]
 >
 > 命令支持在 `-p` 模式下有所不同：
 >
-> * 用户调用的 [skill](/docs/zh-CN/skills) 和自定义命令可以使用。在提示词字符串中包含 `/skill-name`，Claude Code 会在运行前展开它。
+> * 用户调用的 [skill](/docs/zh-CN/skills.md) 和自定义命令可以使用。在提示词字符串中包含 `/skill-name`，Claude Code 会在运行前展开它。
 > * 仅在终端界面中运行的内置命令，例如 `/login`，不可用。
-> * `/model`、`/effort`、`/fast`、`/color` 和 `/rename` 接受该值作为参数，例如 `/model sonnet`，`/mcp` 不带参数时打印服务器状态的文本摘要。这些形式遵循每个命令的 [可用性说明](/docs/zh-CN/commands#all-commands)。
+> * `/model`、`/effort`、`/fast`、`/color` 和 `/rename` 接受该值作为参数，例如 `/model sonnet`，`/mcp` 不带参数时打印服务器状态的文本摘要。这些形式遵循每个命令的 [可用性说明](/docs/zh-CN/commands.md#all-commands)。
 > * 要更改设置，请将 `key=value` 传递给 `/config`，例如 `/config thinking=false`。
-> * `/output-style <style>` 切换 [输出样式](/docs/zh-CN/output-styles)，单独使用 `/output-style` 会列出它们。需要 Claude Code v2.1.269 或更高版本。
+> * `/output-style <style>` 切换 [输出样式](/docs/zh-CN/output-styles.md)，单独使用 `/output-style` 会列出它们。需要 Claude Code v2.1.269 或更高版本。
 
 ### 自定义系统提示词
 
@@ -374,11 +374,11 @@ gh pr diff "$1" | claude -p \
 
 在脚本中，`"$1"` 代表您在命令行上传递的第一个参数。运行 `bash review.sh 123`，shell 将 `"$1"` 替换为 `123`，因此脚本获取 PR 123 的 diff。Claude Code 将审查打印为 JSON，文本在 `result` 字段中。
 
-有关更多选项（包括用于完全替换默认提示词的 `--system-prompt`），请参阅 [系统提示词标志](/docs/zh-CN/cli-reference#system-prompt-flags)。如果替换默认提示词，运行启动时也不会包含 [git 状态快照](/docs/zh-CN/settings-reference#includegitinstructions)。
+有关更多选项（包括用于完全替换默认提示词的 `--system-prompt`），请参阅 [系统提示词标志](/docs/zh-CN/cli-reference.md#system-prompt-flags)。如果替换默认提示词，运行启动时也不会包含 [git 状态快照](/docs/zh-CN/settings-reference.md#includegitinstructions)。
 
 ### 继续对话
 
-使用 `--continue` 继续最近的对话，或使用 `--resume` 与会话 ID 继续特定对话。在 Claude Code v2.1.257 或更高版本上，当您传递 `--continue` 时，Claude Code 会打开已完成的 [后台会话](/docs/zh-CN/sessions#where-the-session-picker-looks)，但不会打开仍在运行的后台会话。此示例运行审查，然后发送后续提示词：
+使用 `--continue` 继续最近的对话，或使用 `--resume` 与会话 ID 继续特定对话。在 Claude Code v2.1.257 或更高版本上，当您传递 `--continue` 时，Claude Code 会打开已完成的 [后台会话](/docs/zh-CN/sessions.md#where-the-session-picker-looks)，但不会打开仍在运行的后台会话。此示例运行审查，然后发送后续提示词：
 
 ```bash theme={null}
 # First request
@@ -396,13 +396,13 @@ session_id=$(claude -p "Start a review" --output-format json | jq -r '.session_i
 claude -p "Continue that review" --resume "$session_id"
 ```
 
-您可以从不同的目录运行这两个命令：Claude Code 会在此机器上的任何项目中 [按其 ID 查找会话](/docs/zh-CN/sessions#where-the-session-picker-looks)。
+您可以从不同的目录运行这两个命令：Claude Code 会在此机器上的任何项目中 [按其 ID 查找会话](/docs/zh-CN/sessions.md#where-the-session-picker-looks)。
 
-您可以向 `--resume` 传递会话的 `.jsonl` [会话记录文件](/docs/zh-CN/sessions#where-transcripts-are-stored) 的绝对路径来代替会话 ID，Claude Code 会继续存储在该文件中的对话。
+您可以向 `--resume` 传递会话的 `.jsonl` [会话记录文件](/docs/zh-CN/sessions.md#where-transcripts-are-stored) 的绝对路径来代替会话 ID，Claude Code 会继续存储在该文件中的对话。
 
 ## 后续步骤
 
-* [Agent SDK 快速入门](/docs/zh-CN/agent-sdk/quickstart)：使用 Python 或 TypeScript 构建您的第一个 agent
-* [CLI 参考](/docs/zh-CN/cli-reference)：所有 CLI 标志和选项
-* [GitHub Actions](/docs/zh-CN/github-actions)：在 GitHub 工作流中使用 Agent SDK
-* [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd)：在 GitLab 管道中使用 Agent SDK
+* [Agent SDK 快速入门](/docs/zh-CN/agent-sdk/quickstart.md)：使用 Python 或 TypeScript 构建您的第一个 agent
+* [CLI 参考](/docs/zh-CN/cli-reference.md)：所有 CLI 标志和选项
+* [GitHub Actions](/docs/zh-CN/github-actions.md)：在 GitHub 工作流中使用 Agent SDK
+* [GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd.md)：在 GitLab 管道中使用 Agent SDK

@@ -10,7 +10,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 安装后，该插件会自动运行。无需调用任何内容，也无需记住单独的命令。
 
-该插件是 [Code Review](/docs/zh-CN/code-review) 的会话内伴侣，Code Review 在拉取请求上运行。该插件减少了进入 PR 的内容。Code Review 捕获遗漏的内容。有关该插件如何与按需审查和 CI 扫描配合使用的信息，或者要扫描您已有的代码而不是 Claude 正在编写的更改，请参阅 [此插件如何与其他安全工具配合](#how-this-fits-with-other-security-tools)。
+该插件是 [Code Review](/docs/zh-CN/code-review.md) 的会话内伴侣，Code Review 在拉取请求上运行。该插件减少了进入 PR 的内容。Code Review 捕获遗漏的内容。有关该插件如何与按需审查和 CI 扫描配合使用的信息，或者要扫描您已有的代码而不是 Claude 正在编写的更改，请参阅 [此插件如何与其他安全工具配合](#how-this-fits-with-other-security-tools)。
 
 ## 前置条件
 
@@ -21,7 +21,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 ## 安装插件
 
-在终端 Claude Code 会话中，从[官方 Anthropic 市场](/docs/zh-CN/plugins/anthropic-marketplaces)安装：
+在终端 Claude Code 会话中，从[官方 Anthropic 市场](/docs/zh-CN/plugins/anthropic-marketplaces.md)安装：
 
 ```text theme={null}
 /plugin install security-guidance@claude-plugins-official
@@ -29,18 +29,18 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 
 `/plugin` 在终端 CLI 中打开一个交互式面板。如果 Claude 回复说 `/plugin` 在此环境中不可用，请以其他方式安装：
 
-* **Claude 桌面应用、本地或 SSH 会话**：使用[安装插件](/docs/zh-CN/plugins/install#install-a-plugin)下的 **Desktop app** 选项卡
-* **VS Code 扩展**：从[**Manage plugins** 对话框](/docs/zh-CN/vs-code#manage-plugins)安装
-* **云会话**：云会话不会从您的用户设置或存储库的 `.claude/settings.json` 加载插件，如[您的设置中哪些内容会保留](/docs/zh-CN/cloud-environments#what-carries-over-from-your-setup)所解释。对于您的组织通过托管设置分发的插件，请参阅[为您的组织管理插件](/docs/zh-CN/plugins/org)
+* **Claude 桌面应用、本地或 SSH 会话**：使用[安装插件](/docs/zh-CN/plugins/install.md#install-a-plugin)下的 **Desktop app** 选项卡
+* **VS Code 扩展**：从[**Manage plugins** 对话框](/docs/zh-CN/vs-code.md#manage-plugins)安装
+* **云会话**：云会话不会从您的用户设置或存储库的 `.claude/settings.json` 加载插件，如[您的设置中哪些内容会保留](/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)所解释。对于您的组织通过托管设置分发的插件，请参阅[为您的组织管理插件](/docs/zh-CN/plugins/org.md)
 
 终端安装会提示输入范围。选择用户范围将插件写入您的用户设置，这样它会在您在此机器上启动的每个新本地会话中加载。
 
 如果安装失败，请匹配 Claude Code 报告的消息：
 
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过时。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后仍显示相同的消息，请参阅[插件在市场中未找到](/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace)。
+* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过时。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后仍显示相同的消息，请参阅[插件在市场中未找到](/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
 
-检查安装摘要。如果它报告 `Run /reload-plugins to apply.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference#reload-plugins)以在当前会话中激活插件。
+检查安装摘要。如果它报告 `Run /reload-plugins to apply.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference.md#reload-plugins)以在当前会话中激活插件。
 
 ### 在本地会话中为您的团队启用
 
@@ -54,7 +54,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 }
 ```
 
-管理员可以通过在[托管设置](/docs/zh-CN/admin-setup)中设置 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 来在整个组织范围内启用插件。
+管理员可以通过在[托管设置](/docs/zh-CN/admin-setup.md)中设置 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 来在整个组织范围内启用插件。
 
 ## 插件检查的内容
 
@@ -125,7 +125,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 - 使用 `crypto.timingSafeEqual` 进行令牌比较，而不是 `===`。
 ```
 
-这些规则是审查者的指导，而不是确定性的护栏。该插件将违规作为发现呈现给 Claude 以修复，但它不会阻止写入或保证捕获每个违规。指导仅是附加的：说要忽略漏洞类别的规则不会抑制这些发现。对于硬执行，将该插件与 [阻止编辑受保护文件的钩子](/docs/zh-CN/hooks-guide#block-edits-to-protected-files) 或 CI 检查配对。
+这些规则是审查者的指导，而不是确定性的护栏。该插件将违规作为发现呈现给 Claude 以修复，但它不会阻止写入或保证捕获每个违规。指导仅是附加的：说要忽略漏洞类别的规则不会抑制这些发现。对于硬执行，将该插件与 [阻止编辑受保护文件的钩子](/docs/zh-CN/hooks-guide.md#block-edits-to-protected-files) 或 CI 检查配对。
 
 ### 添加自定义的每次编辑模式
 
@@ -167,7 +167,7 @@ patterns:
 
 ## 使用成本
 
-[每次编辑模式检查](#on-each-file-edit) 不进行模型调用，不增加成本。[回合结束](#at-the-end-of-each-turn) 和 [提交](#on-each-commit-or-push-claude-makes) 审查各自花费额外的模型使用，计入您的 [使用](/docs/zh-CN/costs)，就像任何其他 Claude 请求一样。提交审查是代理性的，每次提交可能需要多个模型回合。预期大约每个更改文件的回合有一次审查调用，每次提交有一次更深层审查，两者都受上述上限的约束。
+[每次编辑模式检查](#on-each-file-edit) 不进行模型调用，不增加成本。[回合结束](#at-the-end-of-each-turn) 和 [提交](#on-each-commit-or-push-claude-makes) 审查各自花费额外的模型使用，计入您的 [使用](/docs/zh-CN/costs.md)，就像任何其他 Claude 请求一样。提交审查是代理性的，每次提交可能需要多个模型回合。预期大约每个更改文件的回合有一次审查调用，每次提交有一次更深层审查，两者都受上述上限的约束。
 
 两个模型支持的审查默认使用 Claude Opus 4.7。设置 `SECURITY_REVIEW_MODEL` 为回合结束审查选择不同的模型，设置 `SG_AGENTIC_MODEL` 为提交审查。
 
@@ -197,11 +197,11 @@ patterns:
 /plugin uninstall security-guidance@claude-plugins-official
 ```
 
-如果插件通过项目的 `.claude/settings.json` 启用，从 `/plugin` 卸载它会将覆盖写入您的 `.claude/settings.local.json`，而不是编辑已检入的文件，因此该插件对您保持关闭，而不影响队友。同一对话框还提供了通过从共享的 `.claude/settings.json` 中删除插件来为所有人卸载该插件的选项。如果它通过 [托管设置](/docs/zh-CN/admin-setup) 启用，只有管理员可以禁用它。
+如果插件通过项目的 `.claude/settings.json` 启用，从 `/plugin` 卸载它会将覆盖写入您的 `.claude/settings.local.json`，而不是编辑已检入的文件，因此该插件对您保持关闭，而不影响队友。同一对话框还提供了通过从共享的 `.claude/settings.json` 中删除插件来为所有人卸载该插件的选项。如果它通过 [托管设置](/docs/zh-CN/admin-setup.md) 启用，只有管理员可以禁用它。
 
 ## 插件如何与 Claude Code 集成
 
-该插件完全基于 [hooks](/docs/zh-CN/hooks)，这是在 Claude 循环中的特定点运行您自己的代码的机制。它注册：
+该插件完全基于 [hooks](/docs/zh-CN/hooks.md)，这是在 Claude 循环中的特定点运行您自己的代码的机制。它注册：
 
 | Hook 事件 | 目的 |
 | :- | :- |
@@ -221,11 +221,11 @@ patterns:
 | :- | :- | :- |
 | 在会话中 | Security guidance 插件 | Claude 编写的代码中的常见漏洞，在同一会话中修复 |
 | 按需，单次扫描 | [`/security-review`](/docs/zh-CN/commands#all-commands) | 对当前分支的一次性安全检查，在您要求时运行 |
-| 按需，深度扫描 | [Claude Security 插件](/docs/zh-CN/claude-security) | 对存储库或差异的多代理漏洞扫描，具有独立审查的发现和补丁 |
-| 在拉取请求上 | [Code Review](/docs/zh-CN/code-review)，Team 和 Enterprise 计划 | 具有完整代码库上下文的多代理正确性和安全审查 |
+| 按需，深度扫描 | [Claude Security 插件](/docs/zh-CN/claude-security.md) | 对存储库或差异的多代理漏洞扫描，具有独立审查的发现和补丁 |
+| 在拉取请求上 | [Code Review](/docs/zh-CN/code-review.md)，Team 和 Enterprise 计划 | 具有完整代码库上下文的多代理正确性和安全审查 |
 | 在 CI 中 | 您现有的静态分析和依赖扫描器 | 语言特定的规则、供应链检查和该插件不尝试的策略执行 |
 
-要查找您已有的代码中的安全问题，而不是 Claude 正在编写的更改中的问题，请在会话中要求 Claude 审查特定文件或目录以查找漏洞，或使用 [Claude Security 插件](/docs/zh-CN/claude-security) 对整个存储库进行更深入的多代理扫描；[`/security-review`](/docs/zh-CN/commands#all-commands) 仅覆盖当前分支上的更改。无论哪种方式，审查都会读取您检出中的源代码，而不是运行的站点或已部署的服务。
+要查找您已有的代码中的安全问题，而不是 Claude 正在编写的更改中的问题，请在会话中要求 Claude 审查特定文件或目录以查找漏洞，或使用 [Claude Security 插件](/docs/zh-CN/claude-security.md) 对整个存储库进行更深入的多代理扫描；[`/security-review`](/docs/zh-CN/commands#all-commands) 仅覆盖当前分支上的更改。无论哪种方式，审查都会读取您检出中的源代码，而不是运行的站点或已部署的服务。
 
 ## 故障排除
 
@@ -241,6 +241,6 @@ patterns:
 
 要深入了解此页面涉及的部分：
 
-* [Code Review](/docs/zh-CN/code-review)：设置 PR 时间多代理审查
-* [使用 hooks 自动化工作流](/docs/zh-CN/hooks-guide)：在相同的生命周期点构建您自己的检查
-* [在官方市场中查找插件](/docs/zh-CN/plugins/anthropic-marketplaces#find-plugins-in-the-official-marketplace)：浏览其他官方插件
+* [Code Review](/docs/zh-CN/code-review.md)：设置 PR 时间多代理审查
+* [使用 hooks 自动化工作流](/docs/zh-CN/hooks-guide.md)：在相同的生命周期点构建您自己的检查
+* [在官方市场中查找插件](/docs/zh-CN/plugins/anthropic-marketplaces.md#find-plugins-in-the-official-marketplace)：浏览其他官方插件

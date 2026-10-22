@@ -6,7 +6,7 @@
 
 > 在 Agent SDK 会话中跟踪待办事项，并从结构化工具调用中呈现 Claude 的进度
 
-Claude Code 默认仅在[模型可用性](#model-availability)下列出的模型上提供[任务跟踪工具](/docs/zh-CN/tools-reference#task-tool-availability)。较新的模型无需书面待办事项列表即可跟踪多步骤工作，因此在这些模型上，您不需要本页面上的任何内容即可让 Claude 完成多步骤任务。
+Claude Code 默认仅在[模型可用性](#model-availability)下列出的模型上提供[任务跟踪工具](/docs/zh-CN/tools-reference.md#task-tool-availability)。较新的模型无需书面待办事项列表即可跟踪多步骤工作，因此在这些模型上，您不需要本页面上的任何内容即可让 Claude 完成多步骤任务。
 
 在具有任务跟踪工具的会话中，Claude 保持书面待办事项列表，在工作时更新每个项目的状态。您在消息流中看到每个更改作为结构化工具调用。仅当您的应用程序读取这些工具调用时才选择加入会话，无论是记录任务活动还是呈现自己的进度显示。
 
@@ -26,7 +26,7 @@ Claude Code 默认仅在[模型可用性](#model-availability)下列出的模型
 >
 > 此默认集合适用于 Claude Code v2.1.268 及更高版本，TypeScript Agent SDK 从 v0.3.268 开始捆绑此版本。
 
-在默认情况下没有这些工具的模型上，除非您选择加入会话，否则您在消息流中看不到这些工具的 `tool_use` 块。Agent SDK 通过它捆绑的 Claude Code 二进制文件应用这些默认值。如果您将 `pathToClaudeCodeExecutable`（TypeScript）或 `cli_path`（Python）指向您自己的 Claude Code 安装，您将获得该安装提供的任何工具，在其自己的默认值下。要查看运行中会话中的确切集合，请[检查哪些工具可用](/docs/zh-CN/tools-reference#check-which-tools-are-available)。要选择加入会话，请执行以下操作之一：
+在默认情况下没有这些工具的模型上，除非您选择加入会话，否则您在消息流中看不到这些工具的 `tool_use` 块。Agent SDK 通过它捆绑的 Claude Code 二进制文件应用这些默认值。如果您将 `pathToClaudeCodeExecutable`（TypeScript）或 `cli_path`（Python）指向您自己的 Claude Code 安装，您将获得该安装提供的任何工具，在其自己的默认值下。要查看运行中会话中的确切集合，请[检查哪些工具可用](/docs/zh-CN/tools-reference.md#check-which-tools-are-available)。要选择加入会话，请执行以下操作之一：
 
 * 在 [`allowedTools`](/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules)（TypeScript）或 `allowed_tools`（Python）选项中命名其中一个工具
 * 在 `tools` 选项中列出工具，该选项将会话的内置工具限制为它命名的工具。将您想要的工具与您使用的其他内置工具一起包括
@@ -54,11 +54,11 @@ Claude 可能会跳过非常短或单步骤请求的待办事项。
 
 ## 示例
 
-在运行这些示例之前，请按照[快速入门](/docs/zh-CN/agent-sdk/quickstart)安装 Claude Agent SDK。本页面上的每个示例都共享相同的权限设置和退出行为：
+在运行这些示例之前，请按照[快速入门](/docs/zh-CN/agent-sdk/quickstart.md)安装 Claude Agent SDK。本页面上的每个示例都共享相同的权限设置和退出行为：
 
-* **权限模式**：示例提示要求 Claude 对项目进行真实工作，因此每个示例都设置 `permissionMode: "acceptEdits"`（TypeScript）或 `permission_mode="acceptEdits"`（Python）以自动批准工作产生的文件编辑。有关替代方案，请参阅[权限模式](/docs/zh-CN/agent-sdk/permissions#permission-modes)。
+* **权限模式**：示例提示要求 Claude 对项目进行真实工作，因此每个示例都设置 `permissionMode: "acceptEdits"`（TypeScript）或 `permission_mode="acceptEdits"`（Python）以自动批准工作产生的文件编辑。有关替代方案，请参阅[权限模式](/docs/zh-CN/agent-sdk/permissions.md#permission-modes)。
 * **轮次限制**：每个示例运行直到代理完成并产生其最终结果消息。如果会话首先达到其轮次限制，该结果消息具有 `error_max_turns` 子类型。检查 `subtype` 以检测该结束。
-* **错误处理**：这些示例使用单次 `query()` 调用。在产生 `error_max_turns` 结果后，`query()` 会抛出一个包含 `Reached maximum number of turns` 的错误。每个示例都将其循环包装在 try 块中，以便在发生这种情况时干净地退出。有关结果子类型，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop#handle-the-result)。
+* **错误处理**：这些示例使用单次 `query()` 调用。在产生 `error_max_turns` 结果后，`query()` 会抛出一个包含 `Reached maximum number of turns` 的错误。每个示例都将其循环包装在 try 块中，以便在发生这种情况时干净地退出。有关结果子类型，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)。
 
 > [!NOTE]
 >
@@ -142,7 +142,7 @@ asyncio.run(main())
 
 以下示例监视助手流中的 `TaskCreate` 和 `TaskUpdate` `tool_use` 块，并在 `TaskTracker` 类中保持以任务 ID 为键的任务映射，在每次更改时重新呈现进度摘要。摘要计算已完成和进行中的任务，并显示每个活跃项目的 `activeForm` 标签代替其 `subject`。当您的应用程序维护进度显示而不是记录每个事件时，请使用此形状。
 
-分配的任务 ID 不在 `TaskCreate` 输入中。Claude Code 在携带其 `tool_result` 块的用户消息上传递每个工具的结构化输出，在 `tool_use_result` 字段中。对于 `TaskCreate`，该对象在 TypeScript 中记录为[工具输出类型](/docs/zh-CN/agent-sdk/typescript#tool-output-types)下的 `TaskCreateOutput`，在 Python 中该字段是相同形状的普通字典。跟踪器通过 `tool_use_id` 将每个 `tool_result` 块与其 `tool_use` 调用配对，并从配对消息的 `tool_use_result` 中读取 `task.id`。Claude 可以使用 `TaskList` 读取列表，使用 `TaskGet` 读取一个任务的完整详细信息。
+分配的任务 ID 不在 `TaskCreate` 输入中。Claude Code 在携带其 `tool_result` 块的用户消息上传递每个工具的结构化输出，在 `tool_use_result` 字段中。对于 `TaskCreate`，该对象在 TypeScript 中记录为[工具输出类型](/docs/zh-CN/agent-sdk/typescript.md#tool-output-types)下的 `TaskCreateOutput`，在 Python 中该字段是相同形状的普通字典。跟踪器通过 `tool_use_id` 将每个 `tool_result` 块与其 `tool_use` 调用配对，并从配对消息的 `tool_use_result` 中读取 `task.id`。Claude 可以使用 `TaskList` 读取列表，使用 `TaskGet` 读取一个任务的完整详细信息。
 
 ```typescript TypeScript theme={null}
 import { query } from "@anthropic-ai/claude-agent-sdk";
@@ -369,7 +369,7 @@ asyncio.run(main())
 
 ## 相关文档
 
-* [Agent SDK 参考 - TypeScript](/docs/zh-CN/agent-sdk/typescript)：TypeScript SDK 的选项、类型和工具架构，包括 Task 工具输入和输出类型
-* [Agent SDK 参考 - Python](/docs/zh-CN/agent-sdk/python)：Python SDK 的选项、类型和工具文档
-* [流式输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode)：两种输入模式，以及何时使用流式输入而不是这些示例使用的单次调用
-* [为 Claude 提供自定义工具](/docs/zh-CN/agent-sdk/custom-tools)：使用 SDK 的进程内 MCP 服务器定义您自己的工具
+* [Agent SDK 参考 - TypeScript](/docs/zh-CN/agent-sdk/typescript.md)：TypeScript SDK 的选项、类型和工具架构，包括 Task 工具输入和输出类型
+* [Agent SDK 参考 - Python](/docs/zh-CN/agent-sdk/python.md)：Python SDK 的选项、类型和工具文档
+* [流式输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)：两种输入模式，以及何时使用流式输入而不是这些示例使用的单次调用
+* [为 Claude 提供自定义工具](/docs/zh-CN/agent-sdk/custom-tools.md)：使用 SDK 的进程内 MCP 服务器定义您自己的工具

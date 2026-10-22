@@ -14,7 +14,7 @@
 
 > [!NOTE]
 >
-> 此集成基于 [Claude Code CLI and Agent SDK](/docs/zh-CN/agent-sdk/overview) 构建，可在您的 CI/CD 作业和自定义自动化工作流中以编程方式使用 Claude。
+> 此集成基于 [Claude Code CLI and Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 构建，可在您的 CI/CD 作业和自定义自动化工作流中以编程方式使用 Claude。
 
 ## 为什么在 GitLab 中使用 Claude Code？
 
@@ -292,7 +292,7 @@ claude-bedrock:
 * `GCP_PROJECT_ID`：Google Cloud 项目 ID
 * `CLOUD_ML_REGION`：Google Cloud 的 Agent Platform 区域（例如，`us-east5`）
 
-GitLab 从 `id_tokens:` 块中生成任务的 OIDC 令牌，并将其公开为 `GITLAB_OIDC_TOKEN`。将 `aud` 设置为您在 Workload Identity Pool 提供商上配置的受众值，例如您的 GitLab 实例 URL。任务将令牌写入文件，凭证配置的 `credential_source` 条目告诉 Google 的身份验证库从那里读取它。将 `GOOGLE_APPLICATION_CREDENTIALS` 设置为凭证配置文件使其可通过[应用默认凭证](/docs/zh-CN/google-vertex-ai#3-configure-gcp-credentials)供 Claude Code 使用。
+GitLab 从 `id_tokens:` 块中生成任务的 OIDC 令牌，并将其公开为 `GITLAB_OIDC_TOKEN`。将 `aud` 设置为您在 Workload Identity Pool 提供商上配置的受众值，例如您的 GitLab 实例 URL。任务将令牌写入文件，凭证配置的 `credential_source` 条目告诉 Google 的身份验证库从那里读取它。将 `GOOGLE_APPLICATION_CREDENTIALS` 设置为凭证配置文件使其可通过[应用默认凭证](/docs/zh-CN/google-vertex-ai.md#3-configure-gcp-credentials)供 Claude Code 使用。
 
 ```yaml theme={null}
 stages:

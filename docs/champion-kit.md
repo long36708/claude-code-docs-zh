@@ -29,7 +29,7 @@
 | 发布胜利和提示 | 约 15 分钟 | 用截图和一两句话在当时捕捉这些；避免将它们变成正式的写作。 |
 | 在共享频道中回答问题 | 约 20 分钟 | 公开回答一次，然后当问题再次出现时链接回该答案。 |
 | 主持每周展示和讲述线程 | 约 5 分钟 | 你发布开场提示；团队提供内容。 |
-| 可选的配对或演练 | 0 到 30 分钟 | 为真正被阻挡的同事保留此项，并在安排时间之前提供 [Quickstart](/docs/zh-CN/quickstart) 链接。 |
+| 可选的配对或演练 | 0 到 30 分钟 | 为真正被阻挡的同事保留此项，并在安排时间之前提供 [Quickstart](/docs/zh-CN/quickstart.md) 链接。 |
 
 ## 分享你的发现
 
@@ -101,13 +101,13 @@
 
 | 问题 | 建议的回应 | 后续资源 |
 | - | - | - |
-| "我应该首先在什么上尝试它？" | 推荐一个真实但有限的任务，最好是一个你一直在推迟的错误或琐事，因为它很繁琐而不是困难。 | [Common workflows](/docs/zh-CN/common-workflows) |
-| "我怎么能放心让它处理我的代码？" | 介绍计划模式：按 `Shift+Tab` 循环切换进入该模式，Claude 会进行研究并提出更改建议，而不会编辑您的源代码。 | [Permissions](/docs/zh-CN/permissions) |
-| "设置值得付出努力吗？" | 安装大约需要两分钟，在终端中运行，不需要 IDE 扩展。运行一次 `/init` 足以开始工作。 | [Quickstart](/docs/zh-CN/quickstart) |
-| "它产生了不正确的结果。" | 鼓励他们将失败提供给 Claude。粘贴错误消息或失败的测试远比重新表述原始请求更有效。 | [Common workflows](/docs/zh-CN/common-workflows) |
-| "它不理解我们的代码库约定。" | 建议运行 `/init` 生成 `CLAUDE.md` 文件，然后添加团队的约定、测试命令和任何应该避免的目录。 | [Memory](/docs/zh-CN/memory) |
+| "我应该首先在什么上尝试它？" | 推荐一个真实但有限的任务，最好是一个你一直在推迟的错误或琐事，因为它很繁琐而不是困难。 | [Common workflows](/docs/zh-CN/common-workflows.md) |
+| "我怎么能放心让它处理我的代码？" | 介绍计划模式：按 `Shift+Tab` 循环切换进入该模式，Claude 会进行研究并提出更改建议，而不会编辑您的源代码。 | [Permissions](/docs/zh-CN/permissions.md) |
+| "设置值得付出努力吗？" | 安装大约需要两分钟，在终端中运行，不需要 IDE 扩展。运行一次 `/init` 足以开始工作。 | [Quickstart](/docs/zh-CN/quickstart.md) |
+| "它产生了不正确的结果。" | 鼓励他们将失败提供给 Claude。粘贴错误消息或失败的测试远比重新表述原始请求更有效。 | [Common workflows](/docs/zh-CN/common-workflows.md) |
+| "它不理解我们的代码库约定。" | 建议运行 `/init` 生成 `CLAUDE.md` 文件，然后添加团队的约定、测试命令和任何应该避免的目录。 | [Memory](/docs/zh-CN/memory.md) |
 | "这只是自动完成吗？" | 提供一个简短的演示，其中 Claude 解释一个不熟悉的文件、跨服务追踪一个错误或起草迁移计划。这些任务需要在存储库中进行推理，而不是完成单一行。 | 一个两分钟的现场演示 |
-| "安全和数据处理呢？" | 将此问题转介给你的管理员。你的组织的部署和数据处理政策已经配置，倡导者不应该即兴回答这个问题。 | [Security](/docs/zh-CN/security) · [Data usage](/docs/zh-CN/data-usage) |
+| "安全和数据处理呢？" | 将此问题转介给你的管理员。你的组织的部署和数据处理政策已经配置，倡导者不应该即兴回答这个问题。 | [Security](/docs/zh-CN/security.md) · [Data usage](/docs/zh-CN/data-usage.md) |
 
 ## 扩大圈子
 
@@ -117,7 +117,7 @@
 
 | 模式 | 如何运行它 | 所需的努力 |
 | - | - | - |
-| 专用频道 | 创建一个 `#claude-code` 频道（或现有频道中的定期线程），固定 [Quickstart](/docs/zh-CN/quickstart) 链接和一个强大的例子，并公开回答问题，以便每个答案都能使观看的每个人受益。 | 大约五分钟的设置，然后是环境 |
+| 专用频道 | 创建一个 `#claude-code` 频道（或现有频道中的定期线程），固定 [Quickstart](/docs/zh-CN/quickstart.md) 链接和一个强大的例子，并公开回答问题，以便每个答案都能使观看的每个人受益。 | 大约五分钟的设置，然后是环境 |
 | 每周展示和讲述线程 | 每个星期五，发布"Claude 本周帮助你做了什么？"不需要准备、幻灯片或会议；截图和简短描述就足够了。 | 每周约两分钟 |
 | 分享自定义技能 | 发布你最有用的 `.claude/skills/<name>/SKILL.md` 文件，例如一个 `/ship` 技能，在提交前运行测试和 lint，附带一行描述。因为技能是纯 Markdown，同事可以立即采用它们。 | 每个技能约五分钟 |
 | 从你自己的使用生成设置指南 | 在你花费了真实时间的项目中运行 `/team-onboarding`。Claude 扫描你最近的会话、命令和 MCP 服务器，然后生成一个新队友可以粘贴为他们的第一条消息以重放你的设置的指南。在频道中固定它。 | 约两分钟 |
@@ -130,7 +130,7 @@
 
 **1. 第 1 周：为频道播种**
 
-创建频道，固定 [Quickstart](/docs/zh-CN/quickstart)，并发布两三个你自己的例子，包括提示。
+创建频道，固定 [Quickstart](/docs/zh-CN/quickstart.md)，并发布两三个你自己的例子，包括提示。
 
 **表明它有效的信号：** 几个同事做出反应或回复，至少有一个问题在频道中被提出。
 
@@ -154,7 +154,7 @@
 
 ### 当有人想深入了解时
 
-你是温暖的介绍而不是入职计划。当同事从"我应该尝试这个吗"进入"我如何有效地使用它"时，将他们指向 [Quickstart](/docs/zh-CN/quickstart) 和 [Common workflows](/docs/zh-CN/common-workflows) 页面。它们包含涵盖真正有用但难以自己发现的功能的短部分。
+你是温暖的介绍而不是入职计划。当同事从"我应该尝试这个吗"进入"我如何有效地使用它"时，将他们指向 [Quickstart](/docs/zh-CN/quickstart.md) 和 [Common workflows](/docs/zh-CN/common-workflows.md) 页面。它们包含涵盖真正有用但难以自己发现的功能的短部分。
 
 ## 回应常见顾虑
 
@@ -176,12 +176,12 @@
 | - | - |
 | 提供正确的上下文 | 使用 `@file` 或 `@directory/` 引用，或直接粘贴错误或日志输出。提供相关上下文比精心设计的提示更有效。 |
 | 在编辑前审查计划 | 按 `Shift+Tab` 进入计划模式。Claude 会进行调研并提出更改建议，而不会编辑您的源代码。 |
-| 教它你的存储库 | 运行 `/init` 生成 `CLAUDE.md` 文件，然后添加你的约定、测试命令和任何不应该修改的目录。参见 [Memory](/docs/zh-CN/memory)。 |
-| 重用工作流 | 在 `.claude/skills/<name>/` 中保存 `SKILL.md` 文件以创建整个团队可以使用的 `/name` 技能。参见 [Skills](/docs/zh-CN/skills)。 |
-| 在长任务期间保持知情 | 配置一个 Stop hook 以在长时间运行的任务完成时收到桌面通知。参见 [Hooks](/docs/zh-CN/hooks-guide)。 |
+| 教它你的存储库 | 运行 `/init` 生成 `CLAUDE.md` 文件，然后添加你的约定、测试命令和任何不应该修改的目录。参见 [Memory](/docs/zh-CN/memory.md)。 |
+| 重用工作流 | 在 `.claude/skills/<name>/` 中保存 `SKILL.md` 文件以创建整个团队可以使用的 `/name` 技能。参见 [Skills](/docs/zh-CN/skills.md)。 |
+| 在长任务期间保持知情 | 配置一个 Stop hook 以在长时间运行的任务完成时收到桌面通知。参见 [Hooks](/docs/zh-CN/hooks-guide.md)。 |
 | 从不正确的结果中恢复 | 与其重新表述请求，不如将失败的测试或堆栈跟踪粘贴回 Claude，并要求它解决该特定失败。 |
 | 保持编辑手术性 | 要求一个 diff，或指定"仅改变 X。"Claude 在陈述范围时尊重范围。 |
 
 > [!TIP]
 >
-> Claude Code 经常更新。在内部分发此材料之前，根据 [documentation home page](/docs/zh-CN/overview) 验证版本特定的详细信息。
+> Claude Code 经常更新。在内部分发此材料之前，根据 [documentation home page](/docs/zh-CN/overview.md) 验证版本特定的详细信息。

@@ -6,7 +6,7 @@
 
 > 使用 Claude Code 探索代码库、修复错误、重构、测试和其他日常任务的分步指南。
 
-本页收集了日常开发的简短工作流程。有关提示和上下文管理的更高级指导，请参阅[最佳实践](/docs/zh-CN/best-practices)。
+本页收集了日常开发的简短工作流程。有关提示和上下文管理的更高级指导，请参阅[最佳实践](/docs/zh-CN/best-practices.md)。
 
 本页涵盖：
 
@@ -23,7 +23,7 @@
 
 ### 理解新的代码库
 
-有关在 monorepo 或大型代码库中配置 Claude Code 的信息，请参阅 [Monorepos 和大型存储库](/docs/zh-CN/large-codebases)。
+有关在 monorepo 或大型代码库中配置 Claude Code 的信息，请参阅 [Monorepos 和大型存储库](/docs/zh-CN/large-codebases.md)。
 
 #### 快速获取代码库概览
 
@@ -99,7 +99,7 @@ trace the login process from front-end to database
 >
 > * 明确说明您要查找的内容
 > * 使用项目中的领域语言
-> * 为您的语言安装 [code intelligence plugin](/docs/zh-CN/plugins/code-intelligence)，以便 Claude 能够精确地进行"转到定义"和"查找引用"导航
+> * 为您的语言安装 [code intelligence plugin](/docs/zh-CN/plugins/code-intelligence.md)，以便 Claude 能够精确地进行"转到定义"和"查找引用"导航
 
 ***
 
@@ -231,7 +231,7 @@ create a pr
 enhance the PR description with more context about the security improvements
 ```
 
-要稍后找到会话，请运行 `claude --from-pr 1234`，将 1234 替换为您自己的 PR 编号，这会打开会话选择器，筛选链接到该 PR 的会话，或将 PR URL 粘贴到 [`/resume` 选择器](/docs/zh-CN/sessions#use-the-session-picker) 搜索中。当 Claude 使用 `gh pr create` 或 `glab mr create` 创建拉取请求时，Claude Code 会将会话链接到 PR，以及当 Claude [处理现有 PR](/docs/zh-CN/agent-view#pull-request-status) 时。
+要稍后找到会话，请运行 `claude --from-pr 1234`，将 1234 替换为您自己的 PR 编号，这会打开会话选择器，筛选链接到该 PR 的会话，或将 PR URL 粘贴到 [`/resume` 选择器](/docs/zh-CN/sessions#use-the-session-picker) 搜索中。当 Claude 使用 `gh pr create` 或 `glab mr create` 创建拉取请求时，Claude Code 会将会话链接到 PR，以及当 Claude [处理现有 PR](/docs/zh-CN/agent-view.md#pull-request-status) 时。
 
 > [!TIP]
 >
@@ -351,7 +351,7 @@ What HTML structure would recreate this component?
 Explain the logic in @src/utils/auth.js
 ```
 
-当文件符合 [Read 工具](/docs/zh-CN/tools-reference#read-tool-behavior)的 token 限制（默认为 25,000 个 token）时，这会将文件内容包含在对话中。大于 256KB 的文本文件不会被包含。
+当文件符合 [Read 工具](/docs/zh-CN/tools-reference.md#read-tool-behavior)的 token 限制（默认为 25,000 个 token）时，这会将文件内容包含在对话中。大于 256KB 的文本文件不会被包含。
 
 **2. 引用目录**
 
@@ -365,7 +365,7 @@ What's the structure of @src/components?
 Show me the data from @github:repos/owner/repo/issues
 ```
 
-这使用 @server:resource 格式从连接的 MCP 服务器获取数据。有关详细信息，请参阅 [MCP 资源](/docs/zh-CN/mcp#use-mcp-resources)。
+这使用 @server:resource 格式从连接的 MCP 服务器获取数据。有关详细信息，请参阅 [MCP 资源](/docs/zh-CN/mcp.md#use-mcp-resources)。
 
 > [!TIP]
 >
@@ -377,7 +377,7 @@ Show me the data from @github:repos/owner/repo/issues
 > * 目录引用显示文件列表，而不是内容
 > * 您可以在单个消息中引用多个文件（例如，"@file1.js and @file2.js"）
 
-若要阻止 `@` 引用在消息中包含文件内容和目录列表，请在 shell 或用户设置中设置 [`CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`](/docs/zh-CN/env-vars#variables)。随后 Claude 会收到您引用的路径，并附带一条说明，提示它使用其文件工具读取这些路径。该变量需要 Claude Code v2.1.299 或更高版本，并且 Claude Code 会在项目设置和本地设置中忽略它。
+若要阻止 `@` 引用包含文件内容和目录列表，请在 shell 中，或在用户设置或[托管设置](/docs/zh-CN/managed-settings.md)的 [`env` 块](/docs/zh-CN/env-vars#set-variables-in-settings-files)中，将 [`CLAUDE_CODE_DISABLE_FILE_MENTIONS`](/docs/zh-CN/env-vars#variables) 设置为 `1`。随后 Claude 会收到您引用的路径，并附带一条说明，提示它使用其文件工具读取这些路径。该变量需要 Claude Code v2.1.299 或更高版本，并且 Claude Code 会在项目设置和本地设置中忽略它。
 
 当 Claude Code 包含您使用 `@` 引用的文件时，您的 [`PreToolUse` hook](/docs/zh-CN/hooks#pretooluse) 不会运行，因为此过程不涉及工具调用。如果您依赖这些 hook 来控制 Claude 读取的内容，请阻止特定路径，或阻止 `@` 引用包含文件：
 
@@ -394,9 +394,9 @@ Show me the data from @github:repos/owner/repo/issues
 
 | 选项 | 运行位置 | 最适合 |
 | :- | :- | :- |
-| [云端定时任务](/docs/zh-CN/routines) | 云端，默认由 Anthropic 管理 | 即使您的计算机关闭也应该运行的任务。也可以在 API 调用或 GitHub 事件上触发，除了计划。在 [claude.ai/code/routines](https://claude.ai/code/routines) 配置。 |
-| [桌面计划任务](/docs/zh-CN/desktop-scheduled-tasks) | 您的机器，通过桌面应用 | 需要直接访问本地文件、工具或未提交更改的任务。 |
-| [GitHub Actions](/docs/zh-CN/github-actions) | 您的 CI 管道 | 与存储库事件（如打开的 PR）相关的任务，或应该与工作流配置一起存在的 cron 计划。 |
+| [云端定时任务](/docs/zh-CN/routines.md) | 云端，默认由 Anthropic 管理 | 即使您的计算机关闭也应该运行的任务。也可以在 API 调用或 GitHub 事件上触发，除了计划。在 [claude.ai/code/routines](https://claude.ai/code/routines) 配置。 |
+| [桌面计划任务](/docs/zh-CN/desktop-scheduled-tasks.md) | 您的机器，通过桌面应用 | 需要直接访问本地文件、工具或未提交更改的任务。 |
+| [GitHub Actions](/docs/zh-CN/github-actions.md) | 您的 CI 管道 | 与存储库事件（如打开的 PR）相关的任务，或应该与工作流配置一起存在的 cron 计划。 |
 | [`/loop`](/docs/zh-CN/scheduled-tasks) | 当前 CLI 会话 | 会话打开时的快速轮询。`--resume` 和 `--continue` 恢复未过期的固定间隔循环。 |
 
 > [!TIP]
@@ -456,7 +456,7 @@ what are the limitations of Claude Code?
 claude --continue
 ```
 
-这会恢复当前目录中最近的会话；如果还没有，它会打印 `No conversation found to continue` 并退出。使用 `claude --resume` 从列表中选择，或从运行中的会话内使用 `/resume`。有关命名、分支和完整选择器参考，请参阅[管理会话](/docs/zh-CN/sessions)。
+这会恢复当前目录中最近的会话；如果还没有，它会打印 `No conversation found to continue` 并退出。使用 `claude --resume` 从列表中选择，或从运行中的会话内使用 `/resume`。有关命名、分支和完整选择器参考，请参阅[管理会话](/docs/zh-CN/sessions.md)。
 
 ## 使用 worktrees 运行并行会话
 
@@ -466,7 +466,7 @@ claude --continue
 claude --worktree feature-auth
 ```
 
-在第二个终端中使用不同的名称运行相同的命令以启动隔离的并行会话。在没有提交的存储库中，该命令失败并显示 `Failed to resolve base branch "HEAD": git rev-parse failed`。有关清理、`.worktreeinclude` 和非 git VCS 支持，请参阅 [Worktrees](/docs/zh-CN/worktrees)。要从一个屏幕而不是单独的终端监视并行会话，请参阅[后台代理](/docs/zh-CN/agent-view)。
+在第二个终端中使用不同的名称运行相同的命令以启动隔离的并行会话。在没有提交的存储库中，该命令失败并显示 `Failed to resolve base branch "HEAD": git rev-parse failed`。有关清理、`.worktreeinclude` 和非 git VCS 支持，请参阅 [Worktrees](/docs/zh-CN/worktrees.md)。要从一个屏幕而不是单独的终端监视并行会话，请参阅[后台代理](/docs/zh-CN/agent-view.md)。
 
 ## 编辑前规划
 
@@ -476,7 +476,7 @@ claude --worktree feature-auth
 claude --permission-mode plan
 ```
 
-您也可以在会话中按 `Shift+Tab` 直到状态栏显示 `⏸ plan mode on` 来切换到 plan mode。有关批准流程和在文本编辑器中编辑计划，请参阅 [Plan mode](/docs/zh-CN/permission-modes#analyze-before-you-edit-with-plan-mode)。
+您也可以在会话中按 `Shift+Tab` 直到状态栏显示 `⏸ plan mode on` 来切换到 plan mode。有关批准流程和在文本编辑器中编辑计划，请参阅 [Plan mode](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)。
 
 ## 将研究委派给 subagents
 
@@ -486,7 +486,7 @@ claude --permission-mode plan
 use a subagent to investigate how our auth system handles token refresh
 ```
 
-subagent 在其自己的上下文窗口中读取文件并报告摘要。有关定义具有自己工具和提示的自定义代理，请参阅 [Subagents](/docs/zh-CN/sub-agents)。
+subagent 在其自己的上下文窗口中读取文件并报告摘要。有关定义具有自己工具和提示的自定义代理，请参阅 [Subagents](/docs/zh-CN/sub-agents.md)。
 
 ## 将 Claude 管道输入脚本
 
@@ -496,22 +496,22 @@ subagent 在其自己的上下文窗口中读取文件并报告摘要。有关�
 git log --oneline -20 | claude -p "summarize these recent commits"
 ```
 
-有关输出格式、权限标志和扇出模式，请参阅[非交互模式](/docs/zh-CN/headless)。
+有关输出格式、权限标志和扇出模式，请参阅[非交互模式](/docs/zh-CN/headless.md)。
 
 ## 后续步骤
 
-> **[最佳实践](/docs/zh-CN/best-practices)**
+> **[最佳实践](/docs/zh-CN/best-practices.md)**
 >
 > 充分利用 Claude Code 的模式
 
-> **[管理会话](/docs/zh-CN/sessions)**
+> **[管理会话](/docs/zh-CN/sessions.md)**
 >
 > 恢复、命名和分支对话
 
-> **[Worktrees](/docs/zh-CN/worktrees)**
+> **[Worktrees](/docs/zh-CN/worktrees.md)**
 >
 > 运行隔离的并行会话
 
-> **[扩展 Claude Code](/docs/zh-CN/features-overview)**
+> **[扩展 Claude Code](/docs/zh-CN/features-overview.md)**
 >
 > 添加 skills、hooks、MCP、subagents 和插件

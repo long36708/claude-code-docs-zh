@@ -8,7 +8,7 @@
 
 Claude Code 是一个在您的终端中运行的代理助手。虽然它在编码方面表现出色，但它可以帮助您完成从命令行可以做的任何事情：编写文档、运行构建、搜索文件、研究主题等。
 
-本指南涵盖核心架构、内置功能和[有效使用 Claude Code 的提示](#work-effectively-with-claude-code)。有关分步演练，请参阅[常见工作流](/docs/zh-CN/common-workflows)。有关 skills、MCP 和 hooks 等可扩展性功能，请参阅[扩展 Claude Code](/docs/zh-CN/features-overview)。
+本指南涵盖核心架构、内置功能和[有效使用 Claude Code 的提示](#work-effectively-with-claude-code)。有关分步演练，请参阅[常见工作流](/docs/zh-CN/common-workflows.md)。有关 skills、MCP 和 hooks 等可扩展性功能，请参阅[扩展 Claude Code](/docs/zh-CN/features-overview.md)。
 
 ## 代理循环
 
@@ -26,7 +26,7 @@ Claude Code 是一个在您的终端中运行的代理助手。虽然它在编�
 
 Claude Code 使用 Claude 模型来理解您的代码并推理任务。Claude 可以读取任何语言的代码、理解组件如何连接，以及找出需要改变什么来实现您的目标。对于复杂的任务，它将工作分解为步骤、执行它们，并根据学到的内容进行调整。
 
-[多个模型](/docs/zh-CN/model-config)可用，具有不同的权衡。Sonnet 可以很好地处理大多数编码任务。Opus 为复杂的架构决策提供更强的推理能力。在会话期间使用 `/model` 切换或使用 `claude --model <name>` 启动。
+[多个模型](/docs/zh-CN/model-config.md)可用，具有不同的权衡。Sonnet 可以很好地处理大多数编码任务。Opus 为复杂的架构决策提供更强的推理能力。在会话期间使用 `/model` 切换或使用 `claude --model <name>` 启动。
 
 当本指南说"Claude 选择"或"Claude 决定"时，是模型在进行推理。
 
@@ -42,9 +42,9 @@ Claude Code 使用 Claude 模型来理解您的代码并推理任务。Claude �
 | **搜索** | 按模式查找文件、使用正则表达式搜索内容、探索代码库 |
 | **执行** | 运行 shell 命令、启动服务器、运行测试、使用 git |
 | **网络** | 搜索网络、获取文档、查找错误消息 |
-| **代码智能** | 编辑后查看类型错误和警告、跳转到定义、查找引用（需要[代码智能插件](/docs/zh-CN/plugins/code-intelligence)） |
+| **代码智能** | 编辑后查看类型错误和警告、跳转到定义、查找引用（需要[代码智能插件](/docs/zh-CN/plugins/code-intelligence.md)） |
 
-这些是主要功能。Claude 还有用于生成 subagents、询问您问题和其他编排任务的工具。有关完整列表，请参阅[Claude 可用的工具](/docs/zh-CN/tools-reference)。
+这些是主要功能。Claude 还有用于生成 subagents、询问您问题和其他编排任务的工具。有关完整列表，请参阅[Claude 可用的工具](/docs/zh-CN/tools-reference.md)。
 
 Claude 根据您的提示和沿途学到的内容选择使用哪些工具。当您说"修复失败的测试"时，Claude 可能会：
 
@@ -57,7 +57,7 @@ Claude 根据您的提示和沿途学到的内容选择使用哪些工具。当�
 
 每个工具使用都给 Claude 新的信息，告知下一步。这就是代理循环的实际应用。
 
-**扩展基本功能：** 内置工具是基础。您可以使用 [skills](/docs/zh-CN/skills) 扩展 Claude 知道的内容、使用 [MCP](/docs/zh-CN/mcp) 连接到外部服务、使用 [hooks](/docs/zh-CN/hooks) 自动化工作流，以及将任务卸载给 [subagents](/docs/zh-CN/sub-agents)。这些扩展形成了核心代理循环之上的一层。有关为您的需求选择正确扩展的指导，请参阅[扩展 Claude Code](/docs/zh-CN/features-overview)。
+**扩展基本功能：** 内置工具是基础。您可以使用 [skills](/docs/zh-CN/skills.md) 扩展 Claude 知道的内容、使用 [MCP](/docs/zh-CN/mcp.md) 连接到外部服务、使用 [hooks](/docs/zh-CN/hooks.md) 自动化工作流，以及将任务卸载给 [subagents](/docs/zh-CN/sub-agents.md)。这些扩展形成了核心代理循环之上的一层。有关为您的需求选择正确扩展的指导，请参阅[扩展 Claude Code](/docs/zh-CN/features-overview.md)。
 
 ## Claude 可以访问什么
 
@@ -66,9 +66,9 @@ Claude 根据您的提示和沿途学到的内容选择使用哪些工具。当�
 * **您的项目。** 您目录和子目录中的文件，以及其他地方有您许可的文件。
 * **您的终端。** 您可以运行的任何命令：构建工具、git、包管理器、系统实用程序、脚本。如果您可以从命令行做到，Claude 也可以。
 * **您的 git 状态。** 当前分支、未提交的更改和最近的提交历史。
-* **您的 [CLAUDE.md](/docs/zh-CN/memory)。** 一个 markdown 文件，您可以在其中存储项目特定的说明、约定和 Claude 应该在每个会话中了解的上下文。如果您的仓库有用于其他编码 Agent 的 AGENTS.md，Claude [可以读取它](/docs/zh-CN/memory#agents-md)来代替 CLAUDE.md。
-* **[自动内存](/docs/zh-CN/memory#auto-memory)。** Claude 在您工作时自动保存的学习内容，如您的偏好。MEMORY.md 的前 200 行或 25KB（以先到者为准）在每个会话开始时加载。
-* **您配置的扩展。** 用于外部服务的 [MCP servers](/docs/zh-CN/mcp)、用于工作流的 [skills](/docs/zh-CN/skills)、用于委派工作的 [subagents](/docs/zh-CN/sub-agents) 和用于浏览器交互的 [Claude in Chrome](/docs/zh-CN/chrome)。
+* **您的 [CLAUDE.md](/docs/zh-CN/memory.md)。** 一个 markdown 文件，您可以在其中存储项目特定的说明、约定和 Claude 应该在每个会话中了解的上下文。如果您的仓库有用于其他编码 Agent 的 AGENTS.md，Claude [可以读取它](/docs/zh-CN/memory.md#agents-md)来代替 CLAUDE.md。
+* **[自动内存](/docs/zh-CN/memory.md#auto-memory)。** Claude 在您工作时自动保存的学习内容，如您的偏好。MEMORY.md 的前 200 行或 25KB（以先到者为准）在每个会话开始时加载。
+* **您配置的扩展。** 用于外部服务的 [MCP servers](/docs/zh-CN/mcp.md)、用于工作流的 [skills](/docs/zh-CN/skills.md)、用于委派工作的 [subagents](/docs/zh-CN/sub-agents.md) 和用于浏览器交互的 [Claude in Chrome](/docs/zh-CN/chrome.md)。
 
 因为 Claude 看到您的整个项目，它可以跨越它工作。当您要求 Claude"修复身份验证错误"时，它搜索相关文件、读取多个文件以理解上下文、跨它们进行协调编辑、运行测试以验证修复，并在您要求时提交更改。这与只看到当前文件的内联代码助手不同。
 
@@ -88,21 +88,21 @@ Claude Code 在三个环境中运行，每个环境对代码执行位置有不�
 
 ### 界面
 
-您可以通过终端、[桌面应用](/docs/zh-CN/desktop)、[IDE 扩展](/docs/zh-CN/vs-code)、[claude.ai/code](https://claude.ai/code)、[远程控制](/docs/zh-CN/remote-control)、[Slack](/docs/zh-CN/slack) 和 [CI/CD 管道](/docs/zh-CN/github-actions)访问 Claude Code。界面决定了您如何看到和与 Claude 交互，但底层的代理循环是相同的。有关完整列表，请参阅[在任何地方使用 Claude Code](/docs/zh-CN/overview#use-claude-code-everywhere)。
+您可以通过终端、[桌面应用](/docs/zh-CN/desktop.md)、[IDE 扩展](/docs/zh-CN/vs-code.md)、[claude.ai/code](https://claude.ai/code)、[远程控制](/docs/zh-CN/remote-control.md)、[Slack](/docs/zh-CN/slack.md) 和 [CI/CD 管道](/docs/zh-CN/github-actions.md)访问 Claude Code。界面决定了您如何看到和与 Claude 交互，但底层的代理循环是相同的。有关完整列表，请参阅[在任何地方使用 Claude Code](/docs/zh-CN/overview.md#use-claude-code-everywhere)。
 
 ## 使用会话
 
 Claude Code 在您工作时将您的对话保存在本地。每条消息、工具使用和结果都被写入 `~/.claude/projects/` 下的纯文本 JSONL 文件，这使得[回退](#undo-changes-with-checkpoints)、[恢复和分叉](#resume-or-fork-sessions)会话成为可能。在 Claude 进行代码更改之前，它还会对受影响的文件进行快照，以便您在需要时可以恢复。有关路径、保留和如何清除此数据，请参阅[`~/.claude` 中的应用数据](/docs/zh-CN/claude-directory#application-data)。
 
-**会话是独立的。** 每个新会话都以新的上下文窗口开始，没有来自以前会话的对话历史。Claude 可以使用[自动内存](/docs/zh-CN/memory#auto-memory)跨会话保持学习，您可以在 [CLAUDE.md](/docs/zh-CN/memory) 中添加您自己的持久说明。
+**会话是独立的。** 每个新会话都以新的上下文窗口开始，没有来自以前会话的对话历史。Claude 可以使用[自动内存](/docs/zh-CN/memory.md#auto-memory)跨会话保持学习，您可以在 [CLAUDE.md](/docs/zh-CN/memory.md) 中添加您自己的持久说明。
 
 ### 跨分支工作
 
-每个 Claude Code 对话都是一个与您当前目录相关的会话。`/resume` 选择器默认显示来自当前 worktree 的会话，带有键盘快捷键以扩展列表到其他 worktrees 或项目。有关选择器快捷键的完整列表以及名称解析如何工作，请参阅[管理会话](/docs/zh-CN/sessions#use-the-session-picker)。
+每个 Claude Code 对话都是一个与您当前目录相关的会话。`/resume` 选择器默认显示来自当前 worktree 的会话，带有键盘快捷键以扩展列表到其他 worktrees 或项目。有关选择器快捷键的完整列表以及名称解析如何工作，请参阅[管理会话](/docs/zh-CN/sessions.md#use-the-session-picker)。
 
 Claude 看到您当前分支的文件。当您切换分支时，Claude 看到新分支的文件，但您的对话历史保持不变。Claude 记得您讨论过的内容，即使在切换后也是如此。
 
-由于会话与目录相关，您可以通过使用 [git worktrees](/docs/zh-CN/worktrees) 运行并行 Claude 会话，这为各个分支创建单独的目录。
+由于会话与目录相关，您可以通过使用 [git worktrees](/docs/zh-CN/worktrees.md) 运行并行 Claude 会话，这为各个分支创建单独的目录。
 
 ### 恢复或分叉会话
 
@@ -110,24 +110,24 @@ Claude 看到您当前分支的文件。当您切换分支时，Claude 看到新
 
 ![Diagram of session continuity: resume continues the same session, fork creates a new branch with a new ID.](https://mintcdn.com/claude-code/ikqp3_70mqIahteV/images/session-continuity.svg?fit=max\&auto=format\&n=ikqp3_70mqIahteV\&q=85\&s=04ed0984a58e4127e05b3640265241a3)
 
-有关恢复标志、`/resume` 选择器、命名以及当相同会话在两个终端中打开时会发生什么，请参阅[管理会话](/docs/zh-CN/sessions)。
+有关恢复标志、`/resume` 选择器、命名以及当相同会话在两个终端中打开时会发生什么，请参阅[管理会话](/docs/zh-CN/sessions.md)。
 
 ### 上下文窗口
 
-Claude 的上下文窗口保存您的对话历史、文件内容、命令输出、[CLAUDE.md](/docs/zh-CN/memory)、[自动内存](/docs/zh-CN/memory#auto-memory)、加载的 skills 和系统说明。当您工作时，上下文填满。Claude 自动压缩，但对话早期的说明可能会丢失。将持久规则放在 CLAUDE.md 中，并运行 `/context` 以查看什么在占用空间。
+Claude 的上下文窗口保存您的对话历史、文件内容、命令输出、[CLAUDE.md](/docs/zh-CN/memory.md)、[自动内存](/docs/zh-CN/memory.md#auto-memory)、加载的 skills 和系统说明。当您工作时，上下文填满。Claude 自动压缩，但对话早期的说明可能会丢失。将持久规则放在 CLAUDE.md 中，并运行 `/context` 以查看什么在占用空间。
 
-有关交互式演练，了解什么加载以及何时加载，请参阅[探索上下文窗口](/docs/zh-CN/context-window)。
+有关交互式演练，了解什么加载以及何时加载，请参阅[探索上下文窗口](/docs/zh-CN/context-window.md)。
 
 #### Claude Code 自己添加的上下文
 
-如果 Claude 遵循您没有编写的规则，例如向提交添加 `Co-Authored-By` 预告片，该规则可能来自[系统提醒](/docs/zh-CN/glossary#system-reminder)。当您工作时，Claude Code 会在您的消息旁边向对话添加自己的上下文：
+如果 Claude 遵循您没有编写的规则，例如向提交添加 `Co-Authored-By` 预告片，该规则可能来自[系统提醒](/docs/zh-CN/glossary.md#system-reminder)。当您工作时，Claude Code 会在您的消息旁边向对话添加自己的上下文：
 
 * 您的 CLAUDE.md 文件
-* 您的[输出样式](/docs/zh-CN/output-styles)的说明
+* 您的[输出样式](/docs/zh-CN/output-styles.md)的说明
 * 当 Claude 之前读取的文件在磁盘上更改时的注记
 * 提交和拉取请求的归属行
 
-要更改或删除归属行，请设置 [`attribution`](/docs/zh-CN/settings-reference#attribution)。要删除 Claude Code 的内置提交和拉取请求说明，请将 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 设置为 `false`。有关其他开关，请参阅[关闭您的代理替换的上下文](/docs/zh-CN/agent-sdk/modifying-system-prompts#turn-off-the-context-your-agent-replaces)。
+要更改或删除归属行，请设置 [`attribution`](/docs/zh-CN/settings-reference#attribution)。要删除 Claude Code 的内置提交和拉取请求说明，请将 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 设置为 `false`。有关其他开关，请参阅[关闭您的代理替换的上下文](/docs/zh-CN/agent-sdk/modifying-system-prompts.md#turn-off-the-context-your-agent-replaces)。
 
 #### 当上下文填满时
 
@@ -135,19 +135,19 @@ Claude Code 在您接近限制时自动管理上下文。它首先清除较旧�
 
 要控制在压缩期间保留的内容，请在 CLAUDE.md 中添加"Compact Instructions"部分或使用焦点运行 `/compact`（如 `/compact focus on the API changes`）。
 
-如果单个文件或工具输出太大，以至于在每次总结后上下文立即重新填充，Claude Code 会在几次尝试后停止自动压缩，并显示错误而不是循环。有关恢复步骤，请参阅[自动压缩停止并出现抖动错误](/docs/zh-CN/troubleshooting#auto-compaction-stops-with-a-thrashing-error)。
+如果单个文件或工具输出太大，以至于在每次总结后上下文立即重新填充，Claude Code 会在几次尝试后停止自动压缩，并显示错误而不是循环。有关恢复步骤，请参阅[自动压缩停止并出现抖动错误](/docs/zh-CN/troubleshooting.md#auto-compaction-stops-with-a-thrashing-error)。
 
-运行 `/context` 以查看什么在占用空间。MCP 工具定义默认被延迟，并通过[工具搜索](/docs/zh-CN/mcp#scale-with-mcp-tool-search)按需加载，因此只有工具名称和服务器说明消耗上下文，直到 Claude 使用特定工具。
+运行 `/context` 以查看什么在占用空间。MCP 工具定义默认被延迟，并通过[工具搜索](/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)按需加载，因此只有工具名称和服务器说明消耗上下文，直到 Claude 使用特定工具。
 
 #### 使用 skills 和 subagents 管理上下文
 
 除了压缩，您可以使用其他功能来控制什么加载到上下文中。
 
-[Skills](/docs/zh-CN/skills) 按需加载。Claude 在会话开始时看到 skill 描述，但完整内容仅在使用 skill 时加载。对于您手动调用的 skills，设置 `disable-model-invocation: true` 以将描述保留在上下文之外，直到您需要它们。对于您没有编写的 skills，使用 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 从设置中执行相同操作。
+[Skills](/docs/zh-CN/skills.md) 按需加载。Claude 在会话开始时看到 skill 描述，但完整内容仅在使用 skill 时加载。对于您手动调用的 skills，设置 `disable-model-invocation: true` 以将描述保留在上下文之外，直到您需要它们。对于您没有编写的 skills，使用 [`skillOverrides`](/docs/zh-CN/skills#override-skill-visibility-from-settings) 从设置中执行相同操作。
 
-[Subagents](/docs/zh-CN/sub-agents) 在自己的上下文窗口中工作。subagent 会从新开始，除非它是一个[分叉](/docs/zh-CN/sub-agents#fork-the-current-conversation)，它会从您到目前为止的对话副本开始。无论哪种方式，subagent 的工具调用都保留在您的上下文之外，当 subagent 完成时 Claude 会获得一个摘要。
+[Subagents](/docs/zh-CN/sub-agents.md) 在自己的上下文窗口中工作。subagent 会从新开始，除非它是一个[分叉](/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，它会从您到目前为止的对话副本开始。无论哪种方式，subagent 的工具调用都保留在您的上下文之外，当 subagent 完成时 Claude 会获得一个摘要。
 
-有关每个功能的成本，请参阅[上下文成本](/docs/zh-CN/features-overview#understand-context-costs)，有关管理上下文的提示，请参阅[减少令牌使用](/docs/zh-CN/costs#reduce-token-usage)。
+有关每个功能的成本，请参阅[上下文成本](/docs/zh-CN/features-overview.md#understand-context-costs)，有关管理上下文的提示，请参阅[减少令牌使用](/docs/zh-CN/costs.md#reduce-token-usage)。
 
 ## 使用检查点和权限保持安全
 
@@ -157,24 +157,24 @@ Claude 有两个安全机制：checkpoints 让您撤销文件更改，权限控�
 
 **文件编辑是可逆的。** 在 Claude 编辑文件之前，它会对当前内容进行快照。如果出现问题，按两次 `Esc` 以回退到之前的状态，或要求 Claude 撤销。
 
-Checkpoints 独立于 git，在您恢复对话时仍然可用。它们仅涵盖文件更改，restore 会[跳过符号链接和硬链接文件](/docs/zh-CN/checkpointing#symlinked-and-hard-linked-paths-not-restored)。影响远程系统的操作（数据库、API、部署）无法进行 checkpointing。您可以通过权限模式和权限规则来控制这些操作。
+Checkpoints 独立于 git，在您恢复对话时仍然可用。它们仅涵盖文件更改，restore 会[跳过符号链接和硬链接文件](/docs/zh-CN/checkpointing.md#symlinked-and-hard-linked-paths-not-restored)。影响远程系统的操作（数据库、API、部署）无法进行 checkpointing。您可以通过权限模式和权限规则来控制这些操作。
 
 ### 控制 Claude 可以做什么
 
 选择一个权限模式来设置 Claude 可以在不询问您的情况下做什么。按 `Shift+Tab` 循环通过权限模式：
 
-* **Auto**：分类器在后台审查大多数操作，并阻止风险操作而不是询问您。在 Claude Code v2.1.283 或更高版本中，它是[交互式终端和 VS Code 会话的内置起始权限模式](/docs/zh-CN/permission-modes#which-mode-a-session-starts-in)，在早期版本中仅在 Pro、Max 和 Team 计划上可用
+* **Auto**：分类器在后台审查大多数操作，并阻止风险操作而不是询问您。在 Claude Code v2.1.283 或更高版本中，它是[交互式终端和 VS Code 会话的内置起始权限模式](/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)，在早期版本中仅在 Pro、Max 和 Team 计划上可用
 * **Manual**：Claude 在文件编辑和 shell 命令之前询问
 * **Accept edits**：Claude 编辑文件并运行常见的文件系统命令（如 `mkdir` 和 `mv`）而不询问，仍然询问其他命令
 * **Plan**：Claude 探索并提出计划而不编辑您的源文件
 
-您也可以在 `.claude/settings.json` 中允许特定命令，以便 Claude 不会每次都询问。这对于受信任的命令（如 `npm test` 或 `git status`）很有用。设置可以从组织范围的策略范围到个人偏好。有关详细信息，请参阅[权限](/docs/zh-CN/permissions)。
+您也可以在 `.claude/settings.json` 中允许特定命令，以便 Claude 不会每次都询问。这对于受信任的命令（如 `npm test` 或 `git status`）很有用。设置可以从组织范围的策略范围到个人偏好。有关详细信息，请参阅[权限](/docs/zh-CN/permissions.md)。
 
 ***
 
 ## 有效使用 Claude Code
 
-这些提示可以帮助您从 Claude Code 获得更好的结果。有关特定提示、验证和规划的更多信息，请参阅[最佳实践](/docs/zh-CN/best-practices)。
+这些提示可以帮助您从 Claude Code 获得更好的结果。有关特定提示、验证和规划的更多信息，请参阅[最佳实践](/docs/zh-CN/best-practices.md)。
 
 ### 向 Claude Code 寻求帮助
 
@@ -207,8 +207,8 @@ Claude Code 是对话式的。您不需要完美的提示。从您想要的开�
 
 您可以在任何时刻重定向 Claude，无需重新开始。执行以下任一操作：
 
-* **按 `Esc`** 立即停止 Claude。正在运行的工具调用被取消，Claude 等待您的下一条指令。如果您有排队的消息，Claude Code [会接下来发送它们](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)。
-* **输入更正并按 `Enter`** 在不停止 Claude 的情况下。消息显示为在对话中排队。如果 Claude 正在运行工具调用，它会在这些调用完成后立即读取消息，在同一轮内，并在下一步之前进行调整。[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode#queue-messages-while-claude-works)涵盖何时发送其他排队条目。
+* **按 `Esc`** 立即停止 Claude。正在运行的工具调用被取消，Claude 等待您的下一条指令。如果您有排队的消息，Claude Code [会接下来发送它们](/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works)。
+* **输入更正并按 `Enter`** 在不停止 Claude 的情况下。消息显示为在对话中排队。如果 Claude 正在运行工具调用，它会在这些调用完成后立即读取消息，在同一轮内，并在下一步之前进行调整。[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works)涵盖何时发送其他排队条目。
 
 ### 委派，不要指示
 
@@ -223,10 +223,10 @@ Claude Code 是对话式的。您不需要完美的提示。从您想要的开�
 
 ## 接下来是什么
 
-> **[使用功能扩展](/docs/zh-CN/features-overview)**
+> **[使用功能扩展](/docs/zh-CN/features-overview.md)**
 >
 > 添加 skills 和 MCP 连接
 
-> **[常见工作流](/docs/zh-CN/common-workflows)**
+> **[常见工作流](/docs/zh-CN/common-workflows.md)**
 >
 > 典型任务的分步指南

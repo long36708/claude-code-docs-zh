@@ -6,7 +6,7 @@
 
 > 修复安装或登录 Claude Code 时出现的命令未找到、PATH、权限、网络和身份验证错误。
 
-如果安装失败或无法登录，请在下面找到您的错误。有关 Claude Code 正常工作后的运行时问题，请参阅[故障排除](/docs/zh-CN/troubleshooting)。有关配置问题（例如设置未应用或 hook 未触发），请参阅[调试您的配置](/docs/zh-CN/debug-your-config)。
+如果安装失败或无法登录，请在下面找到您的错误。有关 Claude Code 正常工作后的运行时问题，请参阅[故障排除](/docs/zh-CN/troubleshooting.md)。有关配置问题（例如设置未应用或 hook 未触发），请参阅[调试您的配置](/docs/zh-CN/debug-your-config.md)。
 
 ## 查找您的错误
 
@@ -58,16 +58,16 @@
 | `unable to get local issuer certificate` | [配置企业 CA 证书](#tls-or-ssl-connection-errors) |
 | `OAuth error` 或 `403 Forbidden` | [修复身份验证](#login-and-authentication) |
 | `Claude Code access has not been granted for this account` | [获取包含 Claude Code 的角色](#claude-code-access-has-not-been-granted-for-this-account) |
-| 设置期间 `Unable to connect to Anthropic services` | 请参阅[错误参考](/docs/zh-CN/errors#unable-to-connect-to-anthropic-services)中的 Unable to connect to Anthropic services |
+| 设置期间 `Unable to connect to Anthropic services` | 请参阅[错误参考](/docs/zh-CN/errors.md#unable-to-connect-to-anthropic-services)中的 Unable to connect to Anthropic services |
 | `Could not load the default credentials` 或 `Could not load credentials from any providers` | [Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 凭据](#bedrock-agent-platform-or-foundry-credentials-not-loading) |
 | `ChainedTokenCredential authentication failed` 或 `CredentialUnavailableError` | [Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 凭据](#bedrock-agent-platform-or-foundry-credentials-not-loading) |
-| `API Error: 500`、`529 Overloaded`、`429` 或上面未列出的其他 4xx 和 5xx 错误 | 请参阅[错误参考](/docs/zh-CN/errors) |
+| `API Error: 500`、`529 Overloaded`、`429` 或上面未列出的其他 4xx 和 5xx 错误 | 请参阅[错误参考](/docs/zh-CN/errors.md) |
 
 如果您的问题未列出，请按照下面的诊断检查来缩小原因范围。
 
 > [!TIP]
 >
-> 如果您宁愿完全跳过终端，[Claude Code Desktop 应用](/docs/zh-CN/desktop-quickstart)可让您通过图形界面安装和使用 Claude Code。为 [macOS](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs) 或 [Windows](https://claude.com/download?utm_source=claude_code\&utm_medium=docs) 下载它，无需任何命令行设置即可开始编码。在 Linux 上，按照 [Linux 安装说明](/docs/zh-CN/desktop-linux)使用 apt 安装应用。
+> 如果您宁愿完全跳过终端，[Claude Code Desktop 应用](/docs/zh-CN/desktop-quickstart.md)可让您通过图形界面安装和使用 Claude Code。为 [macOS](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs) 或 [Windows](https://claude.com/download?utm_source=claude_code\&utm_medium=docs) 下载它，无需任何命令行设置即可开始编码。在 Linux 上，按照 [Linux 安装说明](/docs/zh-CN/desktop-linux.md)使用 apt 安装应用。
 
 ## 运行诊断检查
 
@@ -128,7 +128,7 @@ irm https://claude.ai/install.ps1 | iex
 
 > [!NOTE]
 >
-> [VS Code 扩展](/docs/zh-CN/vs-code)不会将 `claude` 放在此位置。它在扩展目录内捆绑了一个私有的 CLI 副本，用于其自己的聊天面板，不会将其添加到 PATH。如果您仅安装了扩展，`~/.local/bin/claude` 将不存在。运行[独立安装](/docs/zh-CN/setup)以从终端使用 `claude`，然后继续下面的步骤。
+> [VS Code 扩展](/docs/zh-CN/vs-code.md)不会将 `claude` 放在此位置。它在扩展目录内捆绑了一个私有的 CLI 副本，用于其自己的聊天面板，不会将其添加到 PATH。如果您仅安装了扩展，`~/.local/bin/claude` 将不存在。运行[独立安装](/docs/zh-CN/setup.md)以从终端使用 `claude`，然后继续下面的步骤。
 
 首先检查程序是否存在，然后检查其所在文件夹是否在您的 PATH 中。PATH 修复是永久性的，因此只需执行一次。选择您平台对应的选项卡并在相应环境中运行其中的命令：在 macOS 和 Linux 上使用终端，在 Windows 上使用 PowerShell 或命令提示符。
 
@@ -140,7 +140,7 @@ irm https://claude.ai/install.ps1 | iex
 ls -la ~/.local/bin/claude
 ```
 
-* **`No such file or directory`**：没有本机安装。如果您尚未通过其他方式（例如 npm、Homebrew 或 Linux 包管理器）安装 Claude Code，请[安装 Claude Code](/docs/zh-CN/setup#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
+* **`No such file or directory`**：没有本机安装。如果您尚未通过其他方式（例如 npm、Homebrew 或 Linux 包管理器）安装 Claude Code，请[安装 Claude Code](/docs/zh-CN/setup.md#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
 * **显示该文件的列表信息**：程序已存在。接下来检查您的 PATH。
 
 列出您的 PATH 条目并过滤出安装文件夹：
@@ -198,7 +198,7 @@ claude --version
 Test-Path "$env:USERPROFILE\.local\bin\claude.exe"
 ```
 
-* **`False`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](/docs/zh-CN/setup#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
+* **`False`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](/docs/zh-CN/setup.md#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
 * **`True`**：程序已存在。接下来检查您的 PATH。
 
 列出您的 PATH 条目并过滤出安装文件夹：
@@ -235,7 +235,7 @@ claude --version
 dir "%USERPROFILE%\.local\bin\claude.exe"
 ```
 
-* **`File Not Found` 或 `The system cannot find the path specified.`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](/docs/zh-CN/setup#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
+* **`File Not Found` 或 `The system cannot find the path specified.`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](/docs/zh-CN/setup.md#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
 * **显示 `claude.exe` 的列表信息**：程序已存在。接下来检查您的 PATH。
 
 列出您的 PATH 条目并过滤出安装文件夹：
@@ -274,7 +274,7 @@ which -a claude
 ls -la ~/.local/bin/claude
 ```
 
-一个本机安装显示一个指向 `~/.local/share/claude/versions/` 的符号链接。您在此路径创建的脚本或符号链接是自定义启动程序，[自动更新会将其保留在原位](/docs/zh-CN/setup#auto-updates)。
+一个本机安装显示一个指向 `~/.local/share/claude/versions/` 的符号链接。您在此路径创建的脚本或符号链接是自定义启动程序，[自动更新会将其保留在原位](/docs/zh-CN/setup.md#auto-updates)。
 
 如果任一 `ls` 命令打印 `No such file or directory`，这不是错误。这意味着该位置没有安装任何内容，因此继续进行下一个检查。
 
@@ -286,7 +286,7 @@ ls -la ~/.claude/local/
 npm -g ls @anthropic-ai/claude-code 2>/dev/null
 ```
 
-如果 `ls -la ~/.local/bin/claude` 打印了 `No such file or directory`，则没有本机安装。如果您尚未通过其他方式（例如 npm、Homebrew 或 Linux 包管理器）安装 Claude Code，请[安装 Claude Code](/docs/zh-CN/setup#install-claude-code)。如果 `~/.local/bin/claude` 存在但 `which -a claude` 未列出它，则该文件夹不在您的 PATH 中：请参阅[验证您的 PATH](#verify-your-path)。
+如果 `ls -la ~/.local/bin/claude` 打印了 `No such file or directory`，则没有本机安装。如果您尚未通过其他方式（例如 npm、Homebrew 或 Linux 包管理器）安装 Claude Code，请[安装 Claude Code](/docs/zh-CN/setup.md#install-claude-code)。如果 `~/.local/bin/claude` 存在但 `which -a claude` 未列出它，则该文件夹不在您的 PATH 中：请参阅[验证您的 PATH](#verify-your-path)。
 
 **Windows PowerShell**
 
@@ -305,7 +305,7 @@ Test-Path "$env:USERPROFILE\.local\bin\claude.exe"
 ```
 
 * **`True`**：本机安装存在。如果 `where.exe` 未找到任何内容，则其所在文件夹不在您的 PATH 中：请参阅[验证您的 PATH](#verify-your-path)。
-* **`False`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](/docs/zh-CN/setup#install-claude-code)。
+* **`False`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](/docs/zh-CN/setup.md#install-claude-code)。
 
 如果您找到多个安装，只保留一个。macOS/Linux 上 `~/.local/bin/claude` 或 Windows 上 `%USERPROFILE%\.local\bin\claude.exe` 的本机安装是推荐的。删除额外的：
 
@@ -388,7 +388,7 @@ ls -la "$(command -v claude)"
 Get-Command claude | Select-Object Source
 ```
 
-在 Linux 上，检查缺失的共享库。如果 `ldd` 显示缺失的库，您可能需要安装系统包。在 Alpine Linux 和其他基于 musl 的发行版上，请参阅 [Alpine Linux setup](/docs/zh-CN/setup#alpine-linux-and-musl-based-distributions)。
+在 Linux 上，检查缺失的共享库。如果 `ldd` 显示缺失的库，您可能需要安装系统包。在 Alpine Linux 和其他基于 musl 的发行版上，请参阅 [Alpine Linux setup](/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)。
 
 ```bash theme={null}
 ldd "$(command -v claude)" | grep "not found"
@@ -461,7 +461,7 @@ curl: (22) The requested URL returned error: 403
 
 1. **几分钟后重试**：该问题通常是临时的。等待并重新尝试原始命令。
 
-2. **使用替代安装方法**：与本机安装不同，Homebrew 或 WinGet 安装[默认不会自动更新](/docs/zh-CN/setup#auto-updates)。
+2. **使用替代安装方法**：与本机安装不同，Homebrew 或 WinGet 安装[默认不会自动更新](/docs/zh-CN/setup.md#auto-updates)。
 
    在 macOS 上，通过 Homebrew 安装：
 
@@ -511,7 +511,7 @@ ls -l ~/.zshrc
 
 `curl ... | bash` 命令下载脚本并将其管道传输到 Bash 以执行。此错误以及相关的 `curl: (23) Failure writing output to destination` 意味着 Bash 没有收到完整的脚本。退出码 56 表示下载本身被中断，退出码 23 表示 curl 无法将其接收的内容写入管道，通常是因为 Bash 提前退出。
 
-使用[检查网络连接](#check-network-connectivity)中的检查来测试您是否可以访问 `downloads.claude.ai`。如果您访问了服务器，原始失败可能是间歇性的；重试安装命令。您也可以[尝试替代安装方法](/docs/zh-CN/setup#install-claude-code)。
+使用[检查网络连接](#check-network-connectivity)中的检查来测试您是否可以访问 `downloads.claude.ai`。如果您访问了服务器，原始失败可能是间歇性的；重试安装命令。您也可以[尝试替代安装方法](/docs/zh-CN/setup.md#install-claude-code)。
 
 ### Homebrew cask 不可用或过时
 
@@ -522,7 +522,7 @@ brew update
 brew install --cask claude-code
 ```
 
-如果 Homebrew 安装的 Claude Code 版本比您预期的要旧，通常是相同的过时索引导致的。`claude-code` cask 跟踪稳定频道，通常比最新版本晚约一周；对于最新版本，请改为运行 `brew install --cask claude-code@latest`。请参阅[配置发布频道](/docs/zh-CN/setup#configure-release-channel)了解两个 cask 之间的区别。
+如果 Homebrew 安装的 Claude Code 版本比您预期的要旧，通常是相同的过时索引导致的。`claude-code` cask 跟踪稳定频道，通常比最新版本晚约一周；对于最新版本，请改为运行 `brew install --cask claude-code@latest`。请参阅[配置发布频道](/docs/zh-CN/setup.md#configure-release-channel)了解两个 cask 之间的区别。
 
 ### `Cask 'claude-code@latest' is not installed`
 
@@ -630,7 +630,7 @@ The connection dropped while downloading the update (attempt 3/3: aborted). Chec
 
 * 再次运行 `claude update`。在其他方面正常的网络上，下一次运行时下载通常会成功。对于超时消息，请从更快或限速更少的网络再次运行。
 * 如果您的网络需要代理，请在运行安装程序或 `claude update` 之前设置 `HTTPS_PROXY`。请参阅[检查网络连接](#check-network-connectivity)。
-* 如果公司代理不断关闭传输，请要求您的网络团队允许从 `downloads.claude.ai` 完整下载。请参阅[网络访问要求](/docs/zh-CN/network-config#network-access-requirements)。
+* 如果公司代理不断关闭传输，请要求您的网络团队允许从 `downloads.claude.ai` 完整下载。请参阅[网络访问要求](/docs/zh-CN/network-config.md#network-access-requirements)。
 * 从您的 shell 运行 `claude doctor` 以获取安装诊断信息
 
 ### Release verification failed for Claude Code
@@ -720,7 +720,7 @@ npm : File C:\Program Files\nodejs\npm.ps1 cannot be loaded because running scri
    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
    ```
 2. **改为调用 `.cmd` 启动程序**：`npm.cmd` 和 `claude.cmd` 做同样的工作，该策略不涵盖它们。
-3. **改用 [PowerShell 安装程序](/docs/zh-CN/setup#install-claude-code)** 而不是 npm。它安装二进制文件而不是 `.ps1` 脚本。
+3. **改用 [PowerShell 安装程序](/docs/zh-CN/setup.md#install-claude-code)** 而不是 npm。它安装二进制文件而不是 `.ps1` 脚本。
 
 ### Windows 安装期间 `The process cannot access the file`
 
@@ -764,7 +764,7 @@ Installation was killed before it could finish (exit code 137). This usually mea
 Claude Code needs roughly 512MB of free memory to install. Free up memory, then run this script again.
 ```
 
-安装需要大约 512 MB 的可用内存，运行 Claude Code 需要更多。请参阅[系统要求](/docs/zh-CN/setup#system-requirements)。
+安装需要大约 512 MB 的可用内存，运行 Claude Code 需要更多。请参阅[系统要求](/docs/zh-CN/setup.md#system-requirements)。
 
 **解决方案：**
 
@@ -821,9 +821,9 @@ Claude Code needs roughly 512MB of free memory to install. Free up memory, then 
 
 ### 安装期间 `Raw mode is not supported`
 
-当您的组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings)包括需要[安全批准](/docs/zh-CN/server-managed-settings#security-approval-dialogs)的更改时，2.1.246 之前的 Claude Code 版本尝试在 `claude install` 期间显示批准对话框。对话框需要 stdin 上的终端。当安装程序从管道运行 `claude install` 时，如 `curl -fsSL https://claude.ai/install.sh | bash` 所做的那样，stdin 是管道而不是终端，因此安装失败，错误包含 `Raw mode is not supported`。
+当您的组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings.md)包括需要[安全批准](/docs/zh-CN/server-managed-settings.md#security-approval-dialogs)的更改时，2.1.246 之前的 Claude Code 版本尝试在 `claude install` 期间显示批准对话框。对话框需要 stdin 上的终端。当安装程序从管道运行 `claude install` 时，如 `curl -fsSL https://claude.ai/install.sh | bash` 所做的那样，stdin 是管道而不是终端，因此安装失败，错误包含 `Raw mode is not supported`。
 
-Claude Code v2.1.246 及更高版本在 `claude install` 或 `claude update` 期间不显示对话框。该命令使用您上次批准的设置运行，Claude Code 在您的下一个交互式会话中显示对话框。如果您的组织的启动配置[等待设置获取](/docs/zh-CN/server-managed-settings#enforce-fail-closed-startup)，例如当它设置 `forceRemoteSettingsRefresh` 时，对话框仍会在这些命令期间出现，从管道运行的安装仍会失败。
+Claude Code v2.1.246 及更高版本在 `claude install` 或 `claude update` 期间不显示对话框。该命令使用您上次批准的设置运行，Claude Code 在您的下一个交互式会话中显示对话框。如果您的组织的启动配置[等待设置获取](/docs/zh-CN/server-managed-settings.md#enforce-fail-closed-startup)，例如当它设置 `forceRemoteSettingsRefresh` 时，对话框仍会在这些命令期间出现，从管道运行的安装仍会失败。
 
 在所有其他配置中，重新运行安装程序会绕过此错误，因为即使您要求它安装较旧版本，脚本也会运行最新版本的 `install` 命令。为您的平台重新运行命令：
 
@@ -851,7 +851,7 @@ irm https://claude.ai/install.ps1 | iex
 ls -ld ~/.zshrc ~/.bashrc ~/.bash_profile ~/.bash_login ~/.profile ~/.config/fish/config.fish
 ```
 
-将目录移到一边，或更新到 v2.1.214 或更高版本。由于 `claude update` 在受影响的版本上挂起，请改为通过重新运行[安装脚本](/docs/zh-CN/setup#install-claude-code)来更新。
+将目录移到一边，或更新到 v2.1.214 或更高版本。由于 `claude update` 在受影响的版本上挂起，请改为通过重新运行[安装脚本](/docs/zh-CN/setup.md#install-claude-code)来更新。
 
 ### Claude Desktop 在 Windows 上覆盖 `claude` 命令
 
@@ -861,7 +861,7 @@ ls -ld ~/.zshrc ~/.bashrc ~/.bash_profile ~/.bash_login ~/.profile ~/.config/fis
 
 ### Windows 上的 Claude Code 需要 Git for Windows（用于 bash）或 PowerShell
 
-Git for Windows 是可选的。Claude Code 在没有 Git Bash 时使用 [PowerShell 工具](/docs/zh-CN/tools-reference#powershell-tool)，因此此错误意味着找不到任何 shell。
+Git for Windows 是可选的。Claude Code 在没有 Git Bash 时使用 [PowerShell 工具](/docs/zh-CN/tools-reference.md#powershell-tool)，因此此错误意味着找不到任何 shell。
 
 **如果 PowerShell 不在您的 PATH 中**，其默认位置是 `C:\Windows\System32\WindowsPowerShell\v1.0\`。将该目录添加到您的 `PATH`，或安装 [PowerShell 7](https://aka.ms/powershell)，它提供 `pwsh`。
 
@@ -874,7 +874,7 @@ Git for Windows 是可选的。Claude Code 在没有 Git Bash 时使用 [PowerSh
 
 在第 2 步中，Claude Code 跳过位于您启动 Claude Code 的文件夹中的 `git`，或在包含 `node_modules` 或虚拟环境文件夹（如 `.venv` 或 `env`）的路径下方的 `git`，例如当您从 `C:\dev\env\myproject` 启动时的 `C:\dev\env\myproject\Git`。这防止 Claude Code 运行项目放在那里的可执行文件。如果您的 Git 在这样的位置，请将 `CLAUDE_CODE_GIT_BASH_PATH` 指向它。
 
-**要将 Claude Code 指向特定的 Git 安装**，通过在 PowerShell 中运行 `where.exe git` 找到它，然后将该安装中的 `bin\bash.exe` 路径设置为您的[settings.json 文件](/docs/zh-CN/settings)中的 `CLAUDE_CODE_GIT_BASH_PATH`：
+**要将 Claude Code 指向特定的 Git 安装**，通过在 PowerShell 中运行 `where.exe git` 找到它，然后将该安装中的 `bin\bash.exe` 路径设置为您的[settings.json 文件](/docs/zh-CN/settings.md)中的 `CLAUDE_CODE_GIT_BASH_PATH`：
 
 ```json theme={null}
 {
@@ -898,7 +898,7 @@ Windows 在"开始"菜单中包括两个 PowerShell 条目：`Windows PowerShell
 
 如果这打印 `True`，您的操作系统没问题。关闭窗口，打开不带 x86 后缀的 `Windows PowerShell`，然后再次运行安装命令。
 
-如果这打印 `False`，您在 32 位版本的 Windows 上。Claude Code 需要 64 位操作系统。请参阅[系统要求](/docs/zh-CN/setup#system-requirements)。
+如果这打印 `False`，您在 32 位版本的 Windows 上。Claude Code 需要 64 位操作系统。请参阅[系统要求](/docs/zh-CN/setup.md#system-requirements)。
 
 ### Linux musl 或 glibc 二进制不匹配
 
@@ -924,7 +924,7 @@ Error loading shared library libstdc++.so.6: No such file or directory
    ```bash theme={null}
    apk add libgcc libstdc++ ripgrep
    ```
-   在 Alpine 上，`ripgrep` 在社区仓库中。如果 `apk` 报告包丢失，请参阅 [Alpine Linux 设置](/docs/zh-CN/setup#alpine-linux-and-musl-based-distributions)。
+   在 Alpine 上，`ripgrep` 在社区仓库中。如果 `apk` 报告包丢失，请参阅 [Alpine Linux 设置](/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)。
 
 ### `Illegal instruction`
 
@@ -971,7 +971,7 @@ Abort trap: 6
 
 在 shell 的消息之前，Claude Code 的运行时可能会打印一份崩溃报告，其中包括 `panic(main thread): Bus error at address` 和 `oh no: Bun has crashed. This indicates a bug in Bun, not your code.`。当可执行文件变得不可读时，崩溃来自不可读的文件，而不是 Bun 中的 bug。如果运行时也无法读取打印该报告的代码，该报告也可能缺失。
 
-启动新会话以继续。如果 Claude Code 安装在网络存储上，请按照[在网络存储上安装](/docs/zh-CN/setup#install-on-network-storage)操作，以免升级删除正在运行的会话仍需要的二进制文件。
+启动新会话以继续。如果 Claude Code 安装在网络存储上，请按照[在网络存储上安装](/docs/zh-CN/setup.md#install-on-network-storage)操作，以免升级删除正在运行的会话仍需要的二进制文件。
 
 ### WSL1 上的 `Exec format error`
 
@@ -995,7 +995,7 @@ claude() {
 
 ### WSL 中的 npm 安装错误
 
-如果您在 WSL 内使用 `npm install -g` 安装了 Claude Code，这些问题适用。如果您使用了[本机安装程序](/docs/zh-CN/setup)，请跳过本部分。
+如果您在 WSL 内使用 `npm install -g` 安装了 Claude Code，这些问题适用。如果您使用了[本机安装程序](/docs/zh-CN/setup.md)，请跳过本部分。
 
 **OS 或平台检测问题。** 如果 npm 在安装期间报告平台不匹配，WSL 可能正在选择 Windows `npm`。首先运行 `npm config set os linux`，然后使用 `npm install -g @anthropic-ai/claude-code --force` 安装。不要使用 `sudo`。
 
@@ -1058,7 +1058,7 @@ Or reinstall without --ignore-scripts / --omit=optional.
 
 * **可选依赖项被禁用。** 从您的 npm install 命令中删除 `--omit=optional`，从 pnpm 中删除 `--no-optional`，或从 yarn 中删除 `--ignore-optional`，并检查 `.npmrc` 不设置 `optional=false`。然后重新安装。本机二进制文件仅作为可选依赖项交付，因此如果跳过它，没有 JavaScript 回退，再次运行 `install.cjs` 无法放置从未下载的二进制文件。
 * **安装脚本被禁用。** `--ignore-scripts` 和某些 pnpm 配置跳过 postinstall 步骤但仍然下载平台包。运行 `node node_modules/@anthropic-ai/claude-code/install.cjs`，如消息所示，或不使用该标志重新安装。如果 postinstall 在您的环境中根本无法运行，`node node_modules/@anthropic-ai/claude-code/cli-wrapper.cjs` 找到下载的包并启动它，代价是每次启动时额外的 Node 进程。如果包装器改为打印 `Could not find native binary package`，平台包从未被下载，因此首先修复上面的可选依赖项原因。
-* **不支持的平台。** 为 `darwin-arm64`、`darwin-x64`、`linux-x64`、`linux-arm64`、`linux-x64-musl`、`linux-arm64-musl`、`win32-x64` 和 `win32-arm64` 发布预构建二进制文件。Claude Code 不为其他平台提供二进制文件；请参阅[系统要求](/docs/zh-CN/setup#system-requirements)。在 FreeBSD 上，安装程序将平台报告为不支持。在 v2.1.205 之前，它将 FreeBSD 视为 Linux 并下载了无法运行的二进制文件。
+* **不支持的平台。** 为 `darwin-arm64`、`darwin-x64`、`linux-x64`、`linux-arm64`、`linux-x64-musl`、`linux-arm64-musl`、`win32-x64` 和 `win32-arm64` 发布预构建二进制文件。Claude Code 不为其他平台提供二进制文件；请参阅[系统要求](/docs/zh-CN/setup.md#system-requirements)。在 FreeBSD 上，安装程序将平台报告为不支持。在 v2.1.205 之前，它将 FreeBSD 视为 Linux 并下载了无法运行的二进制文件。
 * **公司 npm 镜像缺少平台包。** 确保您的注册表除了元包外还镜像所有八个 `@anthropic-ai/claude-code-*` 平台包。
 
 ### npm `ENOTEMPTY` 更新或重新安装期间的错误
@@ -1132,7 +1132,7 @@ npm install -g @anthropic-ai/claude-code
 
 * **Claude Pro/Max 用户**：在 [claude.ai/settings](https://claude.ai/settings) 验证您的订阅是否有效
 * **Anthropic Console 用户**：确认您的账户具有"Claude Code"或"Developer"角色。管理员在 Console 的 Members 页面 [platform.claude.com/settings/members](https://platform.claude.com/settings/members) 中分配此角色。
-* **在代理后面**：企业代理可能干扰 API 请求。有关代理设置，请参阅 [network configuration](/docs/zh-CN/network-config)。
+* **在代理后面**：企业代理可能干扰 API 请求。有关代理设置，请参阅 [network configuration](/docs/zh-CN/network-config.md)。
 
 ### Claude Code 访问权限尚未为此账户授予
 
@@ -1147,7 +1147,7 @@ npm install -g @anthropic-ai/claude-code
 
 如果您看到 `API Error: 400 ... "This organization has been disabled"`，尽管有活跃的 Claude 订阅，`ANTHROPIC_API_KEY` 环境变量正在覆盖您的订阅。这通常发生在来自前一个雇主或项目的旧 API 密钥仍在您的 shell 配置文件中设置时。
 
-当 `ANTHROPIC_API_KEY` 存在且您已批准它时，Claude Code 使用该密钥而不是您的订阅的 OAuth 凭据。在使用 `-p` 标志的非交互模式下，当存在时始终使用该密钥。有关完整的解决顺序，请参阅 [authentication precedence](/docs/zh-CN/authentication#authentication-precedence)。
+当 `ANTHROPIC_API_KEY` 存在且您已批准它时，Claude Code 使用该密钥而不是您的订阅的 OAuth 凭据。在使用 `-p` 标志的非交互模式下，当存在时始终使用该密钥。有关完整的解决顺序，请参阅 [authentication precedence](/docs/zh-CN/authentication.md#authentication-precedence)。
 
 要改用您的订阅，请取消设置环境变量并从您的 shell 配置文件中删除它：
 
@@ -1194,7 +1194,7 @@ claude auth login
 
 运行 `/login` 重新身份验证。如果这经常发生，检查您的系统时钟是否准确，因为令牌验证取决于正确的时间戳。
 
-一台机器上的并行会话共享已保存的登录并协调其续期，以便只有一个进程一次刷新令牌。有关在其中一个会话中重新登录后其他会话的行为，请参阅[未登录](/docs/zh-CN/errors#not-logged-in)。
+一台机器上的并行会话共享已保存的登录并协调其续期，以便只有一个进程一次刷新令牌。有关在其中一个会话中重新登录后其他会话的行为，请参阅[未登录](/docs/zh-CN/errors.md#not-logged-in)。
 
 在 v2.1.211 之前，从睡眠状态唤醒机器可能导致两个会话使用相同令牌续期，这会撤销已保存的登录并提示每个打开的会话立即再次登录。
 
@@ -1246,7 +1246,7 @@ az login
 
 如果凭据在您的终端中有效但在 VS Code 或 JetBrains 扩展中无效，IDE 进程可能未继承您的 shell 环境。在 IDE 自己的设置中设置提供商环境变量，或从已导出它们的终端启动 IDE。
 
-有关完整的提供商设置，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry)。
+有关完整的提供商设置，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry.md)。
 
 ## 仍然卡住
 

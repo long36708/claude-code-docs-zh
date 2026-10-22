@@ -6,7 +6,7 @@
 
 > 从 Claude Code mod 中绘制窗格、输入框上方的条带、按钮和文本字段，处理按键和输入，并在重绘和会话之间保持状态。
 
-mod 可以在 Claude Code 中绘制自己的界面，并更改 Claude Code 已经绘制的界面部分。mod 可以绘制的每个位置称为[渲染站点](/docs/zh-CN/plugins/mods/reference#render-sites)，例如窗格、输入框上方的条带或加载指示器。Claude Code 每次即将绘制渲染站点时都会触发 [`ui.render`](/docs/zh-CN/plugins/mods/reference#interface) 事件，您为该事件编写的 hook 返回要在那里绘制的内容。
+mod 可以在 Claude Code 中绘制自己的界面，并更改 Claude Code 已经绘制的界面部分。mod 可以绘制的每个位置称为[渲染站点](/docs/zh-CN/plugins/mods/reference.md#render-sites)，例如窗格、输入框上方的条带或加载指示器。Claude Code 每次即将绘制渲染站点时都会触发 [`ui.render`](/docs/zh-CN/plugins/mods/reference#interface) 事件，您为该事件编写的 hook 返回要在那里绘制的内容。
 
 此地图显示 mod 可以在终端会话中的绘制位置：
 
@@ -14,11 +14,11 @@ mod 可以在 Claude Code 中绘制自己的界面，并更改 Claude Code 已�
 
 在较窄的终端中，窗格位于输入框上方而不是会话记录旁边。
 
-在开始之前，请先构建您的[第一个 mod](/docs/zh-CN/plugins/mods/create)。从完整示例开始，该示例构建一个具有两个选项卡和一个计数器的窗格，然后阅读您想要更改的每个部分对应的章节。
+在开始之前，请先构建您的[第一个 mod](/docs/zh-CN/plugins/mods/create.md)。从完整示例开始，该示例构建一个具有两个选项卡和一个计数器的窗格，然后阅读您想要更改的每个部分对应的章节。
 
 > [!NOTE]
 >
-> 要查找某个属性或限制，请参阅[参考](/docs/zh-CN/plugins/mods/reference#render-sites)。
+> 要查找某个属性或限制，请参阅[参考](/docs/zh-CN/plugins/mods/reference.md#render-sites)。
 
 ## 构建带有选项卡的窗格
 
@@ -32,7 +32,7 @@ mod 可以在 Claude Code 中绘制自己的界面，并更改 Claude Code 已�
 
 **1. 创建插件**
 
-mod 是一个具有清单、指向您的代码的 `hooks.json` 和代码文件的插件。[创建 mod](/docs/zh-CN/plugins/mods/create#write-a-mod-yourself) 解释了每一个。创建一个名为 `hello-tabs` 的目录，其中包含 `.claude-plugin` 和 `hooks` 目录，然后保存前两个文件。
+mod 是一个具有清单、指向您的代码的 `hooks.json` 和代码文件的插件。[创建 mod](/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 解释了每一个。创建一个名为 `hello-tabs` 的目录，其中包含 `.claude-plugin` 和 `hooks` 目录，然后保存前两个文件。
 
 将清单保存为 `hello-tabs/.claude-plugin/plugin.json`：
 
@@ -177,7 +177,7 @@ export function register(on) {
 
 ## 选择绘制位置
 
-`ui.render` hook 会为每个渲染站点运行，除非您将其限定到想要绘制的那个站点。要选择渲染站点，请将一个过滤器（称为[匹配器](/docs/zh-CN/plugins/mods/events#filter-which-events-a-hook-handles)）作为第二个参数传递给 `on`。`{ component: 'Pane' }` 仅为窗格运行该 hook。在 hook 中，`e.component` 指明站点名称，`e.surface` 说明哪个应用在绘制，`e.props` 保存站点自己的数据。对于窗格，`e.requestId` 是您打开它时使用的 `id`。
+`ui.render` hook 会为每个渲染站点运行，除非您将其限定到想要绘制的那个站点。要选择渲染站点，请将一个过滤器（称为[匹配器](/docs/zh-CN/plugins/mods/events.md#filter-which-events-a-hook-handles)）作为第二个参数传递给 `on`。`{ component: 'Pane' }` 仅为窗格运行该 hook。在 hook 中，`e.component` 指明站点名称，`e.surface` 说明哪个应用在绘制，`e.props` 保存站点自己的数据。对于窗格，`e.requestId` 是您打开它时使用的 `id`。
 
 窗格和条带在 mod 填充之前都是空的。选择一个选项卡，查看每个站点是什么以及如何在其中绘制：
 
@@ -193,7 +193,7 @@ export function register(on) {
 
 条带是紧贴输入框上方的一条区域。它始终存在，并由所有 mod 共享。
 
-您的 hook 返回一棵树以在条带中显示内容，或返回 `next(e)` 以不显示任何内容。一棵树会替换[在您之后](/docs/zh-CN/plugins/mods/events#the-order-mods-run-in)运行的 mod 在那里绘制的内容。要保留它们的内容，请将 `await next(e)` 的结果放在您树中某个 [`Box`](#build-a-tree-from-elements) 的子项中。
+您的 hook 返回一棵树以在条带中显示内容，或返回 `next(e)` 以不显示任何内容。一棵树会替换[在您之后](/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)运行的 mod 在那里绘制的内容。要保留它们的内容，请将 `await next(e)` 的结果放在您树中某个 [`Box`](#build-a-tree-from-elements) 的子项中。
 
 要在条带中绘制，请过滤 `{ component: 'AbovePrompt' }`。
 
@@ -210,9 +210,9 @@ Claude Code 自己绘制大部分界面：消息、工具调用行、加载指�
 | `Spinner`, `ToolProgress`, `TurnDuration` | 轮次的状态栏：Claude 工作时显示动画的行、正在运行的工具的实时进度行，以及结束轮次的行 |
 | `InfoNotice`, `SessionMode`, `PromptHint` | 徽标下方的状态栏、页脚中的模式标签，以及输入框下方的提示行 |
 
-`Pane`、`AskUserQuestion`、`Spinner`、`UserMessage`、`AssistantMessage` 以及工具调用位置在终端、Desktop 应用和 VS Code 扩展中均有效。[渲染位置表](/docs/zh-CN/plugins/mods/reference#render-sites) 列出了其他每个位置在哪里触发。
+`Pane`、`AskUserQuestion`、`Spinner`、`UserMessage`、`AssistantMessage` 以及工具调用位置在终端、Desktop 应用和 VS Code 扩展中均有效。[渲染位置表](/docs/zh-CN/plugins/mods/reference.md#render-sites) 列出了其他每个位置在哪里触发。
 
-在 Claude Code 已经绘制的站点上，您的 hook 可以更改某个细节、替换绘制内容，或保持不变。选择一个选项卡，查看每种方式应用于加载指示器的效果。这些示例读取由另一个 hook 计数的 `calls` 变量，如[教程 mod](/docs/zh-CN/plugins/mods/create#write-a-mod-yourself) 中所示。
+在 Claude Code 已经绘制的站点上，您的 hook 可以更改某个细节、替换绘制内容，或保持不变。选择一个选项卡，查看每种方式应用于加载指示器的效果。这些示例读取由另一个 hook 计数的 `calls` 变量，如[教程 mod](/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 中所示。
 
 **Change a detail**
 
@@ -317,7 +317,7 @@ const pane = { id: 'hello-tabs', title: 'Hello tabs' }
 await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 ```
 
-要让命令在 Claude 工作时打开窗格，请在[注册命令](/docs/zh-CN/plugins/mods/api#add-a-command)时添加 `immediate: true`。如果不添加，在轮次进行期间输入的命令会等待轮次结束。
+要让命令在 Claude 工作时打开窗格，请在[注册命令](/docs/zh-CN/plugins/mods/api.md#add-a-command)时添加 `immediate: true`。如果不添加，在轮次进行期间输入的命令会等待轮次结束。
 
 #### 在对话框后暂缓显示 toast
 
@@ -336,7 +336,7 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 
 ### 在 VS Code 扩展中绘制
 
-在 VS Code 扩展中，当扩展版本为 2.1.299 或更高时，mod 绘制的内容会显示在聊天面板中。[不获取功能标志](/docs/zh-CN/env-vars#features-that-need-feature-flag-fetching)的会话（例如在 Amazon Bedrock 上运行的会话）需要 2.1.304 或更高版本。在面板的 `ui.render` hook 中，`e.surface` 为 `vscode`。要查看面板会绘制哪些位置和元素，以及会忽略哪些 prop，请参阅[渲染位置](/docs/zh-CN/plugins/mods/reference#render-sites)表和[元素](/docs/zh-CN/plugins/mods/reference#elements)表。
+在 VS Code 扩展中，当扩展版本为 2.1.299 或更高时，mod 绘制的内容会显示在聊天面板中。[不获取功能标志](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话（例如在 Amazon Bedrock 上运行的会话）需要 2.1.304 或更高版本。在面板的 `ui.render` hook 中，`e.surface` 为 `vscode`。要查看面板会绘制哪些位置和元素，以及会忽略哪些 prop，请参阅[渲染位置](/docs/zh-CN/plugins/mods/reference.md#render-sites)表和[元素](/docs/zh-CN/plugins/mods/reference.md#elements)表。
 
 要让 mod 既能在终端中运行，也能在面板中运行，请考虑以下差异：
 
@@ -421,11 +421,11 @@ Input({
 Note: Type a note and press Enter
 ```
 
-[界面图库](/docs/zh-CN/plugins/mods/gallery)提供了大多数元素的示例和屏幕截图。此表列出了每个元素：
+[界面图库](/docs/zh-CN/plugins/mods/gallery.md)提供了大多数元素的示例和屏幕截图。此表列出了每个元素：
 
 | 元素 | 它绘制什么 | 位置 |
 | :- | :- | :- |
-| `Box` | 一个 flex 容器。接受布局 prop，如 `flexDirection`、[`borderStyle`](/docs/zh-CN/plugins/mods/reference#box-border-styles) 和 `width`。`columnGap` 和 `padding` 等间距 prop 接受一个数字，或从 `'xs'` 到 `'xl'` 的[步长名称](/docs/zh-CN/plugins/mods/reference#box-spacing-steps)。 | 到处 |
+| `Box` | 一个 flex 容器。接受布局 prop，如 `flexDirection`、[`borderStyle`](/docs/zh-CN/plugins/mods/reference#box-border-styles) 和 `width`。`columnGap` 和 `padding` 等间距 prop 接受一个数字，或从 `'xs'` 到 `'xl'` 的[步长名称](/docs/zh-CN/plugins/mods/reference.md#box-spacing-steps)。 | 到处 |
 | `Text` | 样式化文本。接受 `color`、`bold`、`dimColor`、`italic`、`wrap` 以及 [`weight`](/docs/zh-CN/plugins/mods/reference#text-typography) 等其他 prop。`color` 是主题键或颜色，如 `'red'`。`wrap` 是 `'wrap'`、`'truncate'`、`'truncate-start'`、`'truncate-middle'` 或 `'truncate-end'`。 | 到处 |
 | `Button` | 调用 `onPress` 的控件 | 到处 |
 | `Link`, `Code`, `Markdown` | 带有 `href` 和可选 `label` 的链接、代码块和格式化为 Claude 回复方式的文本。`Markdown` 在 `text` 属性中而不是在 `children` 中获取其内容，当您传递 `onLinkPress` 时需要 `key`。 | 到处 |
@@ -438,7 +438,7 @@ Note: Type a note and press Enter
 
 如果树使用应用没有的元素、元素不接受的属性或在不应有子项的位置放置子项，Claude Code 会绘制其自己的站点版本。
 
-在使用 `--plugin-dir` 启动的会话中，会话记录中会有一行说明这一点，例如 `ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew its own`。[调试日志](/docs/zh-CN/plugins/mods/troubleshoot#read-the-debug-log) 将其记录为 `ui.render (Pane): a hook returned a tree that does not validate` 并带有相同的原因。会话中没有其他内容出现，所以当绘制不显示时，请检查该行或日志。
+在使用 `--plugin-dir` 启动的会话中，会话记录中会有一行说明这一点，例如 `ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew its own`。[调试日志](/docs/zh-CN/plugins/mods/troubleshoot.md#read-the-debug-log) 将其记录为 `ui.render (Pane): a hook returned a tree that does not validate` 并带有相同的原因。会话中没有其他内容出现，所以当绘制不显示时，请检查该行或日志。
 
 ### 桌面应用和 VS Code 中的 `Link`
 
@@ -512,7 +512,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 
 ### 键盘焦点和快捷键
 
-您的 mod 永远不会自己读取键盘。用户按下一个键，Claude Code 决定它属于您的哪个控件，然后该控件的回调运行。除了[条带上的数字快捷键](/docs/zh-CN/plugins/mods/reference#elements)，这仅在您的窗格或条带拥有键盘焦点时发生。其余时间，按键进入输入框。
+您的 mod 永远不会自己读取键盘。用户按下一个键，Claude Code 决定它属于您的哪个控件，然后该控件的回调运行。除了[条带上的数字快捷键](/docs/zh-CN/plugins/mods/reference.md#elements)，这仅在您的窗格或条带拥有键盘焦点时发生。其余时间，按键进入输入框。
 
 在 [VS Code 扩展](#draw-in-the-vs-code-extension)中，按钮没有快捷键：用户点击按钮或在按钮上按 Enter，并在字段中输入。
 
@@ -555,7 +555,7 @@ mod 无法将 Tab 或方向键绑定到其他任何功能，因此游戏使用 `
 | 带括号（默认） | `[ Add one ]`，不显示快捷键 | 标签，旁边有一个小键 | 标签，快捷键不起作用 |
 | 使用 `plain: true` | `1: One` | 标签，旁边有一个小键 | 标签，快捷键不起作用 |
 
-在终端中，请在带括号按钮的标签中写明按键，或使用 `plain: true`，以便用户知道要按什么。[元素参考](/docs/zh-CN/plugins/mods/reference#elements)包含其他 `Button` 规则：`action`、条带上的数字快捷键，以及同一快捷键上的两个按钮。
+在终端中，请在带括号按钮的标签中写明按键，或使用 `plain: true`，以便用户知道要按什么。[元素参考](/docs/zh-CN/plugins/mods/reference.md#elements)包含其他 `Button` 规则：`action`、条带上的数字快捷键，以及同一快捷键上的两个按钮。
 
 ### 获取输入的文本并为每个项目绘制一行
 
@@ -595,7 +595,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
         key: 'new-note',
         label: 'Note',
         placeholder: 'Type a note and press Enter',
-        // 每次都将字段绘制为空，这会在提交后清空它
+        // 字段初始的文本
         value: '',
         submitLabel: 'add',
         autoFocus: true,
@@ -639,9 +639,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 * **添加笔记**：输入一行并按 Enter。该行显示为新行，字段清空。
 * **删除笔记**：按 Tab 直到笔记的 `x` 按钮获得焦点，然后按 Enter。`x` 是按钮的标签，不是快捷键，因此输入该字母不会按下它。
 
-每次更改都遵循与 `hello-tabs` 相同的渲染周期：回调更改 `notes`，调用 `redraw`，并将列表保存到 `$.store`。
-
-字段在每次提交后清空，是因为其 `value` 属性。`value` 是绘制字段时字段中的文本，用户的输入会替换它，直到您的 hook 再次绘制字段。示例总是用 `''` 绘制字段。
+每次更改都遵循与 `hello-tabs` 相同的渲染周期：回调更改 `notes`，调用 `redraw`，并将列表保存到 `$.store`。如果您的 hook 在用户输入笔记时再次绘制窗格，只要 hook 每次传入相同的 `value`，字段就会保留用户的文本。要用您自己的文本替换用户的文本，请传入不同的 `value`。
 
 示例保存笔记但不加载它们。要在下一个会话中恢复它们，请在 `session.start` hook 中读取它们，就像 `hello-tabs` 读取 `count` 的方式一样。
 
@@ -651,6 +649,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 | :- | :- | :- |
 | `label` | `Note` | 字段前的文本。终端在其后绘制 `: `。 |
 | `placeholder` | `Type a note and press Enter` | 当字段为空时显示的暗色文本 |
+| `value` | `''` | 字段初始的文本。此处为空，因此显示占位文本。 |
 | `submitLabel` | `add` | `⏎` 后的单词，说明 Enter 做什么 |
 
 提交 `Input` 不会启动轮次，除非您的回调调用 [`$.prompt.submit`](/docs/zh-CN/plugins/mods/api#start-a-turn-from-a-background-job)。
@@ -712,7 +711,7 @@ Claude Code 现在每秒运行您的 `ui.render` hook 一次。当模块重新�
 
 ### 站点可以重绘的频率
 
-Claude Code 会限制站点的重绘频率，因此您的 mod 可以在数据每次更改时调用 `$.ui.invalidate`。有关每个站点可以重绘的频率，请参阅[限制表](/docs/zh-CN/plugins/mods/reference#limits)。
+Claude Code 会限制站点的重绘频率，因此您的 mod 可以在数据每次更改时调用 `$.ui.invalidate`。有关每个站点可以重绘的频率，请参阅[限制表](/docs/zh-CN/plugins/mods/reference.md#limits)。
 
 快于该限制的调用会被合并为一次重绘。该重绘只运行您的 hook 一次，hook 读取的是您的数据在那一刻的状态，因此显示的是最新值，而中间的值不会显示。动画的运行速度无法超过该限制。
 
@@ -857,7 +856,7 @@ onPress: async () => {
 
 ## 后续步骤
 
-* [对事件做出反应](/docs/zh-CN/plugins/mods/events)：从工具调用和轮次提供你的绘制
-* [使用 mod API](/docs/zh-CN/plugins/mods/api)：从计时器和模型调用提供你的绘制
-* [测试绘制](/docs/zh-CN/plugins/mods/test#test-a-drawing)：从测试按下你的按钮，在多个表面上
-* [渲染站点](/docs/zh-CN/plugins/mods/reference#render-sites)和[元素](/docs/zh-CN/plugins/mods/reference#elements)：每个站点的属性和每个元素的属性
+* [对事件做出反应](/docs/zh-CN/plugins/mods/events.md)：从工具调用和轮次提供你的绘制
+* [使用 mod API](/docs/zh-CN/plugins/mods/api.md)：从计时器和模型调用提供你的绘制
+* [测试绘制](/docs/zh-CN/plugins/mods/test.md#test-a-drawing)：从测试按下你的按钮，在多个表面上
+* [渲染站点](/docs/zh-CN/plugins/mods/reference.md#render-sites)和[元素](/docs/zh-CN/plugins/mods/reference.md#elements)：每个站点的属性和每个元素的属性
