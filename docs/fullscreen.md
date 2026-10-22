@@ -32,6 +32,7 @@ Claude Code 将这些内容保留到重新启动的会话中：
 * 您的[权限模式](/docs/zh-CN/permission-modes)和[努力级别](/docs/zh-CN/model-config#adjust-effort-level)
 * 您最后用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 选择的模型
 * 您用 [`--allowed-tools` 或 `--disallowed-tools`](/docs/zh-CN/cli-reference#cli-flags) 传递的规则，以及您的 `--agent`、`--agents`、`--append-system-prompt` 和 `--system-prompt-snapshot` 标志
+* 您启动时使用的 `--chrome` 或 `--no-chrome` 标志，以便 [Chrome 集成](/docs/zh-CN/chrome)在此会话中按您的选择保持开启或关闭
 
 如果会话有一个限制条件无法传递到重新启动的进程，Claude Code 会拒绝重新启动。无法传递的限制条件包括：
 

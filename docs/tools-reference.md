@@ -476,7 +476,11 @@ PowerShell 命令遵循与 Bash 命令[相同的主会话工作目录重置行�
 
 PowerShell 命令还会接收 hook 通过 `CLAUDE_ENV_FILE` 持久化的变量，具体条件请参阅 [PowerShell 命令中的持久化变量](/docs/zh-CN/hooks#persisted-variables-in-powershell-commands)。需要 Claude Code v2.1.296 或更高版本。
 
-来自 `grep`、`rg`、`egrep`、`fgrep`、`findstr` 和 `git grep` 的退出码 1 表示没有匹配。来自 `git diff` 的退出码 1 表示存在差异。这两个结果都不会作为命令失败报告给 Claude。对于 `robocopy`，退出码 0 到 7 是信息性结果，例如复制的文件或检测到的额外文件。退出码 8 或更高被视为失败。
+### PowerShell 中搜索和 `git diff` 的退出码 1
+
+如果 Claude 在 PowerShell 工具中运行的 `grep` 或 `rg` 搜索没有匹配到任何内容并显示 `Error: Exit code 1`，则该搜索并未失败。您无需执行任何操作。当搜索是较长命令的一部分时，可能会出现此错误。例如，当 `rg` 以退出码 1 退出时，`rg foo | Out-Null` 会显示该错误，而 `rg foo` 不会。
+
+PowerShell 工具可以将来自 `grep`、`rg`、`egrep`、`fgrep`、`findstr`、`git grep` 和 `git diff` 的退出码 1 视为正常结果。这些搜索使用退出码 1 表示没有匹配。对于 `git diff`，退出码 1 表示文件存在差异。在带有 `shell: powershell` 的 skill 中，如果 Claude 运行某条命令时显示该错误，则该命令[被视为失败](/docs/zh-CN/skills#when-an-injected-command-fails)。
 
 ### Windows 编码和退出代码
 
@@ -484,7 +488,8 @@ PowerShell 命令还会接收 hook 通过 `CLAUDE_ENV_FILE` 持久化的变量�
 * Claude Code 将管道传输到本机命令标准输入的文本编码为 UTF-8
 * Claude Code 捕获没有 ANSI 转义序列的错误输出
 * 其子进程等待标准输入的命令接收文件结束而不是挂起
-* 来自 `where.exe` 的退出代码 1 表示没有匹配，来自 `fc.exe` 和 `diff.exe` 的退出代码 1 表示文件不同，因此当命令产生输出时，Claude Code 将该退出代码视为有效的否定答案而不是命令错误。Claude Code 仍然将静默形式（例如 `where.exe /Q` 或重定向到 `$null`）报告为退出代码 1 上的失败
+* 如果 `where.exe` 未找到匹配项，或者 `fc.exe` 或 `diff.exe` 发现文件不同，结果可能会显示 `Error: Exit code 1`，但命令并未失败。您无需执行任何操作。
+* 如果 `robocopy` 的退出码 1 到 7 显示为错误，则复制并未失败，您无需执行任何操作。`robocopy` 以退出码 0 到 7 报告结果（例如已复制的文件），失败时以 8 或更高的退出码退出。
 
 ### 预览限制
 

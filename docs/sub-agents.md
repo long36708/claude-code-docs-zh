@@ -489,6 +489,13 @@ disallowedTools: mcp__github
 
 带有说明符的 `disallowedTools` 条目（如 `Bash(git push *)`）仍会从子代理中移除整个工具，而不仅仅是匹配的命令。若要保留 Bash 并阻止特定命令，请在设置中向 `permissions.deny` 添加 [Bash 拒绝规则](/docs/zh-CN/permissions#bash)，例如 `Bash(git push *)`。该规则适用于主对话和子代理。
 
+##### 名称包含双下划线的 MCP 服务器
+
+如果子代理无法获得名称包含 `__` 的 MCP 服务器（例如 `reports__v2`）中的任何工具，请检查该子代理的 `mcp__` 条目：
+
+* **在 `tools` 中**：写入 `mcp__`，后跟[服务器的完整名称](/docs/zh-CN/permissions#mcp)和 `__*`，如 `mcp__reports__v2__*`。如果没有末尾的 `__*`，`mcp__reports__v2` 不会匹配该服务器的任何工具。
+* **在 `disallowedTools` 中**：查找 `mcp__reports` 或 `mcp__reports__*`，这些条目会排除名为 `reports` 的服务器。使用其中任一条目时，子代理也会失去所有 `reports__v2` 工具，因为这些工具名称同样以 `mcp__reports__` 开头。若只想排除 `reports` 服务器的工具，请改为逐一列出它们，例如 `mcp__reports__run_query`。
+
 #### 限制可以生成的子代理
 
 当 Agent 通过 `claude --agent` 作为主线程运行时，它可以使用 Agent 工具生成子代理。若要限制它可以生成的子代理类型，请在 `tools` 字段中使用 `Agent(agent_type)` 语法。
@@ -955,7 +962,7 @@ Claude Code 会以两种方式之一从输入框下方的子代理面板中清�
 
 ### 子代理名称
 
-Claude 可以在 Agent 工具调用中传递 `name` 参数来为子代理命名，并且可能会自行这样做，而不事先询问您。名称使子代理可被寻址：在子代理完成后，Claude 可以[按名称向其发送消息或恢复它](#resume-subagents)。
+如果您在启用 [agent teams](/docs/zh-CN/agent-teams#enable-agent-teams) 的情况下启动会话，Claude 可以在 Agent 工具调用中传递 `name` 参数来为子代理命名。它可能会自行这样做，而不事先询问您。名称使子代理可被寻址：在子代理完成后，Claude 可以[按名称向其发送消息或恢复它](#resume-subagents)。
 
 在启用了 [agent teams](/docs/zh-CN/agent-teams) 的交互式会话中，Claude 从主对话生成的带有 `name` 的子代理会改为以队友身份启动，除非该调用是 [fork](#fork-the-current-conversation) 或在调用本身中传递了 `isolation`。子代理 frontmatter 中的 `isolation` 值无法阻止这一点，此时该队友会在主会话的工作目录中运行。请参阅 [Claude 如何启动 agent teams](/docs/zh-CN/agent-teams#how-claude-starts-agent-teams)。
 

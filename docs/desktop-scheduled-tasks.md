@@ -28,8 +28,8 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 | 访问本地文件 | 否（新克隆） | 是 | 是 |
 | MCP servers | 每个任务配置的连接器 | [配置文件](/docs/zh-CN/mcp)和连接器 | 从会话继承 |
 | 权限提示 | 否（自主运行） | 每个任务可配置 | 从会话继承 |
-| 可自定义的计划 | 通过 CLI 中的 `/schedule` | 是 | 是 |
-| 最小间隔 | 1 小时 | 1 分钟 | 1 分钟 |
+| 可自定义的计划 | 是 | 是 | 是 |
+| 最小间隔 | 1 小时 | 由 Claude 设置时为 1 分钟，[在表单中为 1 小时](/docs/zh-CN/desktop-scheduled-tasks#schedule-options) | 1 分钟 |
 
 > [!TIP]
 >
@@ -61,7 +61,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 **5. 启用 Only on this computer**
 
-暂时跳过 **Trigger** 卡片，展开其下方的 **Advanced settings**。在 **General** 选项卡上，启用 **Only on this computer**。启用后，任务会在您的计算机上的本地文件夹中运行，并且 **Trigger** 卡片会提供[计划选项](#schedule-options)中列出的预设。
+暂时跳过 **Trigger** 卡片，展开其下方的 **Advanced settings**。在 **General** 选项卡上，启用 **Only on this computer**。启用后，任务会在您的计算机上的本地文件夹中运行。
 
 如果该开关不可用，请清除仓库或 GitHub 事件或 API 触发器，因为这些设置会使该任务成为[云端定时任务](/docs/zh-CN/routines)。
 
@@ -81,7 +81,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 单击 **Create**。如果您尚未信任该文件夹，Desktop 会在此时要求您信任它。随后将打开该任务的详情页面。
 
-在详情页面上，单击铅笔图标以打开 [**Edit** 表单](#manage-scheduled-tasks)。在该表单中，您可以更改 Desktop 根据您的指令填写的 **Description**、选择 **Worktree**，或将计划切换为 **Manual**。
+在详情页面上，单击铅笔图标以打开 [**Edit** 表单](#manage-scheduled-tasks)。在该表单中，您可以更改 Desktop 根据您的指令填写的 **Description**、选择 **Worktree**，或将计划切换为 **Manual** 或 **Custom**。
 
 您也可以通过在任何会话中描述您想要的内容来创建任务。例如，"设置一个每天早上 9 点运行的日常代码审查"会创建一个周期性任务。像"提醒我明天下午 3 点检查部署"这样的请求会创建一个一次性任务，该任务在触发后会自行禁用。
 
@@ -95,21 +95,22 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 * **Description**：输入描述。在您输入描述之前，**Create** 将保持不可用。
 * **指令输入框**：输入任务运行时 Claude 应该执行的操作。从输入框中的菜单选择权限模式和模型。
 * **Working folder**：选择任务运行所在的文件夹。在您选择文件夹之前，**Create** 将保持不可用。
-* **Trigger**：选择计划。**Custom** 接受 cron 表达式。有关其他预设，请参阅[计划选项](#schedule-options)。
+* **Trigger**：选择计划。有关预设，请参阅[计划选项](#schedule-options)。
 
 单击 **Create**。随后将打开该任务的详情页面。
 
 ## 调度选项
 
-当您在 **Advanced settings** 下启用 **Only on this computer** 时，**Trigger** 卡片提供 Hourly、Daily、Weekdays 和 Weekly 选项。任务的 [**Edit** 表单](#manage-scheduled-tasks)还提供 **Manual** 选项。
+当您在 **Advanced settings** 下启用 **Only on this computer** 时，**Trigger** 卡片提供 Hourly、Daily、Weekdays 和 Weekly 选项。若要为此类任务使用 **Manual** 或 **Custom**，请在创建任务后打开其 [**Edit** 表单](#manage-scheduled-tasks)。该表单以及[顶部带有 **Only on this computer** 的对话框](#dialog-with-only-on-this-computer-at-the-top)提供以下六个选项：
 
 * **Hourly**：每小时运行一次
 * **Daily**：每天在您选择的本地时间运行
 * **Weekdays**：与 Daily 相同，但跳过星期六和星期日
 * **Weekly**：显示时间选择器和日期选择器
 * **Manual**：无调度，仅在您单击 **Run now** 时运行。适用于保存您按需触发的提示词
+* **Custom**：按照您输入的 cron 表达式运行，该表达式以您的本地时间计算，例如 `0 9 * * *` 表示每天上午 9:00。星期和月份请使用数字表示，因为不接受其名称。星期日为 `0`，而不是 `7`。表单会拒绝运行频率高于每小时一次的表达式。
 
-对于选择器不提供的间隔，例如每 15 分钟、每月的第一天或在特定未来时间的单次运行，请在任何 Desktop 会话中询问 Claude 来设置调度。使用纯语言；例如，"安排一个任务每 6 小时运行一次所有测试。"
+您也可以在任何 Desktop 会话中请 Claude 设置调度。Claude 不受每小时一次的限制，并且可以设置在未来某个时间的单次运行。例如，可以要求"每 30 分钟运行一次测试套件"或"下周一上午 9 点，总结自周五以来合并的 Pull Request"。
 
 ## 定期任务如何运行
 
@@ -121,7 +122,16 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 >
 > 对于需要在计算机关闭时运行或应该通过 API 调用或 GitHub 事件触发的任务，请改为创建[云端定时任务](/docs/zh-CN/routines)。
 
-当本地任务触发时，新会话会在侧边栏的 **Scheduled** 部分下出现。打开它以查看 Claude 做了什么、审查更改或响应权限提示。Claude 可以编辑文件、运行命令、创建提交和打开 Pull Request，与您自己启动的会话相同。
+### 查找某次运行的会话
+
+要打开某次运行所启动的会话，请前往该任务的[详情页面](#manage-scheduled-tasks)，然后在 **History** 列表中点击该次运行所在的行。
+
+侧边栏的会话列表中也可以显示 **Scheduled** 分组，每个任务对应一行。要打开某个任务最近一次运行的会话，请在该分组中点击该任务所在的行。要显示该分组，请先[确认您使用的是哪种布局](/docs/zh-CN/desktop#check-which-layout-you-have)：
+
+* **当前布局**：打开[**Group and sort** 菜单](/docs/zh-CN/desktop#organize-and-find-sessions)，选择 **Show**，然后选择 **Scheduled**。该分组默认处于折叠状态，因此请点击其标题将其展开。当您至少有一个任务处于 **Active** 状态（即任务详情页面所显示的 **Status**）时，**Show** 中才会列出 **Scheduled**。如果未列出，请使用 **History** 列表，无论该分组是否显示，它都可以使用。
+* **早期布局**：该分组直接显示在会话列表中，无需启用任何选项
+
+无论通过哪种方式进入某次运行的会话，您都可以查看 Claude 做了什么、审查更改并响应权限提示。Claude 可以编辑文件、运行命令、创建提交和打开 Pull Request，与您自己启动的会话相同。
 
 ## 错过的运行
 
@@ -131,7 +141,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 ## 定期任务的权限
 
-每个任务都有自己的权限模式，您在创建或编辑任务时设置。来自 `~/.claude/settings.json` 的允许规则也适用于定期任务会话。如果任务在 [Manual 模式](/docs/zh-CN/desktop#choose-a-permission-mode)下运行并需要运行它没有权限的工具，运行将停滞，直到您批准它。会话保持在侧边栏中打开，以便您稍后可以回答。
+每个任务都有自己的权限模式，您在创建或编辑任务时设置。来自 `~/.claude/settings.json` 的允许规则也适用于定时任务会话。如果任务在 [Manual 模式](/docs/zh-CN/desktop#choose-a-permission-mode)下运行并需要运行它没有权限的工具，运行将停滞，直到您批准它。要批准它，请[找到该运行的会话](#find-a-runs-session)并在其中回答权限提示。
 
 为了避免停滞，在创建任务后单击 **Run now**，查看权限提示，并为每个提示选择"always allow"。该任务的未来运行会自动批准相同的工具，无需提示。您可以从任务的详细信息页面查看和撤销这些批准。
 
@@ -146,7 +156,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 * **Edit**：更改 instructions、schedule、folder 或其他设置
 * **Review history**：查看每次过去的运行，包括跳过的运行。将鼠标悬停在跳过的条目上以查看原因：您的计算机处于睡眠状态、前一次运行仍在进行中，或其他定期任务已在运行。单击 **Show more** 以加载较早的条目。
 * **Review allowed permissions**：从 **Always allowed** 面板查看和撤销此任务的已保存工具批准
-* **Delete**：删除任务并存档它创建的所有会话。确认对话框中会出现 **Also delete files on disk** 复选框；选中它以同时删除任务的 `SKILL.md` 文件和 `~/.claude/scheduled-tasks/` 中的关联数据。
+* **Delete**：删除任务。该任务创建的会话会被[存档](/docs/zh-CN/desktop#organize-and-find-sessions)，而不是被删除。存放任务 `SKILL.md` 文件的文件夹会保留在磁盘上的 `~/.claude/scheduled-tasks/<task-name>/` 中；如果您设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 变量，则保留在其下的 `scheduled-tasks/<task-name>/` 中。要删除该文件夹，请您自行删除。
 
 您也可以通过在任何 Desktop 会话中询问 Claude 来列出、创建、编辑和暂停任务。例如，"pause my dependency-audit task"或"show me my scheduled tasks"。要删除任务，请使用其详细信息页面上的 **Delete** 按钮。
 

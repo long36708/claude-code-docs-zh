@@ -208,6 +208,13 @@ paths:
 
 没有 `paths` 字段的规则无条件加载并适用于所有文件。当 Claude 对匹配的文件使用 Read、Write 或 Edit 工具时，路径范围规则会加载。当 Claude 使用[算作读取](/docs/zh-CN/tools-reference#edit-tool-behavior)的 Bash 命令查看匹配的文件时（例如对单个文件使用 `cat` 或 `head`），该规则也会加载。当 Claude 通过项目目录的符号链接路径到达文件时，匹配也有效，例如在符号链接检出中。
 
+每个模式都相对于规则的基准目录：
+
+* **项目规则**：包含该规则所在 `.claude` 文件夹的目录
+* **[用户级规则](#user-level-rules)**：会话的[主工作目录](/docs/zh-CN/permissions#working-directories)
+
+要让路径范围规则为同级 git worktree 中的文件加载，请在该 worktree 中启动 Claude Code，或[使用 `/cd` 将会话移至该处](/docs/zh-CN/permissions#move-the-session-to-another-directory)。
+
 在 `paths` 字段中使用 glob 模式按扩展名、目录或任何组合匹配文件：
 
 | 模式 | 匹配 |

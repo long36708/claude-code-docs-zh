@@ -2579,7 +2579,7 @@ asyncio.run(main())
     "subagent_type": str | None,  # 要使用的专用 Agent 类型
     "model": "sonnet" | "opus" | "haiku" | "fable" | None,  # 此 Agent 的模型覆盖
     "effort": "low" | "medium" | "high" | "xhigh" | "max" | None,  # 此 Agent 的推理强度
-    "run_in_background": bool | None,  # Agent 默认在后台运行；设置为 False 可同步运行
+    "run_in_background": bool | None,  # 省略时的默认行为：主 Agent 的调用会在后台运行新 Agent，子代理的调用则会等待它完成
     "name": str | None,  # 所生成 Agent 的名称
     "team_name": str | None,  # 已弃用；会被忽略
     "mode": "acceptEdits" | "auto" | "bypassPermissions" | "default" | "dontAsk" | "plan" | None,  # 已弃用；会被忽略。子代理的权限模式由子代理继承规则决定
@@ -2588,6 +2588,13 @@ asyncio.run(main())
 ```
 
 启动一个新的 Agent 来自主处理复杂的多步骤任务。
+
+当 Claude 在 `Agent` 调用中省略 `run_in_background` 时，默认情况下，您的主 Agent 不会等待新 Agent，而子代理会等待：
+
+* **从您的主 Agent 调用**：新 Agent 在后台运行，结果带有 `status: "async_launched"`。如需让主 Agent 改为等待新 Agent，请参阅[选择 Claude 是否等待子代理](/docs/zh-CN/agent-sdk/subagents#choose-whether-claude-waits-for-subagents)。
+* **从您的某个子代理调用**：发起调用的子代理会[等待新 Agent](/docs/zh-CN/sub-agents#let-subagents-spawn-their-own-subagents)。当新 Agent 的定义将 [`background`](#agentdefinition) 设置为 `True`，或者您通过将 `CLAUDE_CODE_FORK_SUBAGENT` 设置为 `0` 来[关闭 fork 模式](/docs/zh-CN/sub-agents#turn-fork-mode-on-or-off)时，新 Agent 会改为在后台运行。
+
+在 Python SDK v0.2.169 之前，由您的子代理启动的 Agent 默认也在后台运行。该版本是首个捆绑 Claude Code v2.1.302 或更高版本的版本。
 
 **输出（status：`"completed"`）：**
 

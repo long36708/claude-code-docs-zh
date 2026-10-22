@@ -689,6 +689,27 @@ Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
 
 在 Claude 提出的问题的 `Other` 行中，vim 模式下按 Escape 不会立即取消该问题。除[屏幕阅读器模式](/docs/zh-CN/accessibility)外，每次聚焦该行时，它都会以 INSERT 模式开始。在 `Other` 行中按 Escape 时，该行会切换到 NORMAL 模式或丢弃输入到一半的 vim 命令，问题仍保持打开状态。在 NORMAL 模式下再次按 Escape 即可取消该问题。
 
+### 按一次键取消问题
+
+要在 vim 模式下按一次键即可取消问题，请在 `Select` 上下文中将另一个键绑定到 `select:cancel`。在只能选择一个选项的问题中，您可以在 `Other` 行中以这种方式取消。在[屏幕阅读器模式](/docs/zh-CN/accessibility)下，或在可以选择多个选项的问题中，绑定的键不会取消问题，此时请改用 Escape 取消。
+
+请选择一个需要配合 Ctrl 或 Alt 按下的键。单独的字母或数字会[输入到 `Other` 行](#text-fields)中，而不会触发您的绑定。例如，要绑定 `Ctrl+Q`，请将以下内容添加到 `~/.claude/keybindings.json`：
+
+```json theme={null}
+{
+  "bindings": [
+    {
+      "context": "Select",
+      "bindings": {
+        "ctrl+q": "select:cancel"
+      }
+    }
+  ]
+}
+```
+
+保存文件后，在只能选择一个选项的问题的 `Other` 行中按 `Ctrl+Q`。无论该行处于 INSERT 还是 NORMAL 模式，问题都会关闭。
+
 ## 验证
 
 Claude Code 验证您的快捷键并向调试日志写入以下警告：

@@ -703,6 +703,10 @@ Bypass permissions was requested at launch and ignored · if that was you, ~/.cl
 
 请将 `"skipDangerousModePermissionPrompt": true` 添加到 `~/.claude/settings.json`，然后启动新的后台会话。
 
+### `claude agents` 显示交互式会话会跳过的绕过权限警告
+
+如果 [`claude agents`](/docs/zh-CN/agent-view#dispatch-defaults) 显示了[绕过权限警告](#bypass-permissions-acceptance)，而您的交互式会话会跳过该警告，请检查 `skipDangerousModePermissionPrompt` 是否设置在 `.claude/settings.local.json` 或 `--settings` 文件中。交互式会话会将该处的键视为您对警告的接受，而 `claude agents` 不会。无论您是否在该处找到它，请接受警告，以将该键添加到 `~/.claude/settings.json`，`claude agents` 会在该文件中查找它。
+
 ## 受保护的路径
 
 对一小组路径的写入永远不会自动批准，唯一的例外是 `bypassPermissions` 模式，以及可使用[绕过权限](#skip-all-checks-with-bypasspermissions-mode)的 plan 模式交互式终端会话。这可以防止意外损坏存储库状态和 Claude 自己的配置。

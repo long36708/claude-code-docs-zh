@@ -118,7 +118,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 点击 **Create**。对话框关闭后，新任务的详情页将打开。任务会在其某个触发器下次匹配时运行。要立即启动一次运行，请在详情页上点击 **Run now**。
 
-每次运行都会在您的其他会话旁边创建一个新会话，您可以在其中查看 Claude 执行了哪些操作、审查更改并创建 Pull Request。
+要查看某次运行执行了哪些操作，请在详情页的 **History** 列表中点击该运行。该运行会[以完整会话的形式打开](#view-and-interact-with-runs)（每次运行对应一个新会话），您可以在其中查看 Claude 执行了哪些操作、审查更改并创建 Pull Request。
 
 #### 主视图中包含 Repositories 和 Environment 的对话框
 
@@ -149,9 +149,9 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 计划触发器按定期节奏运行任务，或在未来某个特定时间运行一次。在 Web 端任务的创建或编辑对话框中，选择一个预设频率，例如每小时、每天或每周：
 
-* **时区**：时间以您的本地时区输入并自动转换，因此无论云基础设施位于何处，任务都会在该当地时间运行。
 * **整点运行**：如果您将运行安排在整点（例如 9:00），它可能会晚几分钟才开始。要在接近计划时间时开始，请选择整点后几分钟，例如 9:07。
-* **自定义间隔**：对于每两小时这样的自定义间隔，请在对话框中选择最接近的预设，然后在 CLI 中运行 `/schedule update` 以设置特定的 cron 表达式。最小间隔为一小时；运行频率更高的表达式会被拒绝。
+* **自定义间隔**：如果预设中没有您需要的节奏，请先创建任务，然后在其[编辑对话框](#edit-and-control-scheduled-tasks)中选择 **Custom**。接着输入 cron 表达式，例如 `0 */2 * * *` 表示每两小时运行一次。要在 CLI 中设置，请运行 [`/schedule update`](#manage-scheduled-tasks-from-the-cli)。运行频率高于每小时一次的表达式会被拒绝。
+* **时区**：选择预设频率时，请以您的本地时区输入时间。
 
 #### 安排一次性运行
 
@@ -161,7 +161,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 * 在发布完成后打开一个清理 PR
 * 在上游更改发布后启动后续工作
 
-任务运行后，它会自行关闭，Web UI 会将其标记为 **Completed**。要再次运行它，请在 Web 端打开任务的编辑对话框（对于一次性任务，该对话框提供 **One-time** 选项），并设置新的时间。
+任务运行后，它会自行关闭，Web UI 会将其标记为 **Completed**。要再次运行它，请在 Web 端打开任务的[编辑对话框](#edit-and-control-scheduled-tasks)，并选择 **One-time** 或 **Once**（以您的对话框中显示的标签为准）。然后以您的本地时区设置新的日期和时间并保存。
 
 在 CLI 中用自然语言描述时间即可创建一次性运行。Claude 会根据当前时间解析该短语，并在保存前确认绝对时间戳。
 
@@ -172,8 +172,6 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 ```text theme={null}
 /schedule in 2 weeks, open a cleanup PR that removes the feature flag
 ```
-
-与定期计划相同的本地时间到 UTC 的转换同样适用于一次性时间戳。
 
 一次性运行与其他计划运行计入相同的每小时限制。详情请参阅[用量和限制](#usage-and-limits)。
 

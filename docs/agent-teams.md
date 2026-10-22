@@ -34,7 +34,7 @@ Agent teams 和 [subagents](/docs/zh-CN/sub-agents) 都让你并行化工作，�
 | | Subagents | Agent teams |
 | :- | :- | :- |
 | **Context** | 自己的 context window；结果返回给调用者 | 自己的 context window；完全独立 |
-| **通信** | 向调用者返回结果。Claude 在生成 subagents 时命名的 Subagents 也可以 [相互发送消息](/docs/zh-CN/sub-agents#what-loads-at-startup) | 队友直接相互发送消息 |
+| **通信** | 向调用者返回结果。Claude 在生成子代理时为其[命名](/docs/zh-CN/sub-agents#subagent-names)的子代理也可以 [相互发送消息](/docs/zh-CN/sub-agents#what-loads-at-startup) | 队友直接相互发送消息 |
 | **协调** | 主代理管理所有工作 | 通过消息进行自我协调，加上具有 [Task tools 的代理](/docs/zh-CN/tools-reference#task-tool-availability) 的共享任务列表 |
 | **最适合** | 只有结果重要的专注任务 | 需要讨论和协作的复杂工作 |
 | **令牌成本** | 较低：结果汇总回主 context | 较高：每个队友是一个独立的 Claude 实例 |

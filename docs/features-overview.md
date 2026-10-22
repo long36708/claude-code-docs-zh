@@ -148,7 +148,7 @@ Skills 和 subagents 解决不同的问题：
 * **Subagents** 是 Claude 生成的工作者，每个都向生成它的对话返回摘要
 * **[Dynamic workflows](/docs/zh-CN/workflows)** 是 Claude 编写的脚本，在后台运行许多 subagents 并返回一个结果
 
-**当您需要一个快速、专注的工作者时，使用 subagent**：研究一个问题、验证一个声明、审查一个文件。Subagent 完成工作并返回摘要，所以您的主对话保持清洁。Claude 在生成时命名的 subagents 也可以 [相互发送消息](/docs/zh-CN/sub-agents#what-loads-at-startup)。
+**当您需要一个快速、专注的工作者时，使用子代理**：研究一个问题、验证一个声明、审查一个文件。子代理完成工作并返回摘要，所以您的主对话保持清洁。Claude 在生成时[命名](/docs/zh-CN/sub-agents#subagent-names)的子代理也可以 [相互发送消息](/docs/zh-CN/sub-agents#what-loads-at-startup)。
 
 当一个工作[超出少数 subagents 的范围](/docs/zh-CN/workflows#when-to-use-a-workflow)时，或当您想在看到发现之前交叉检查它们时，**使用 dynamic workflow**，例如代码库范围的审计、大型迁移或从多个角度起草的计划。要启动一个，[在您的提示中要求一个工作流](/docs/zh-CN/workflows#ask-for-a-workflow-in-your-prompt)。
 

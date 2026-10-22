@@ -84,6 +84,7 @@ Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命�
 | :- | :- | :- |
 | `migrate` | 将您现有的 Claude API 代码更新到更新的模型 | 早于 v2.1.221 |
 | `upgrade` | 跨主要版本移动您的项目的 Anthropic SDK 依赖项，目前是 Python `anthropic` 包从 0.x 到 1.x | v2.1.236 或更高版本 |
+| `api-version` | 针对更新的 [API 版本](https://platform.claude.com/docs/en/api/versioning)更新您的 Claude API 代码，然后将您的请求切换到该版本 | v2.1.307 或更高版本 |
 | `managed-agents-onboard` | 逐步完成创建新的托管代理 | 早于 v2.1.221 |
 | `managed-agents-onboard <url>` | 构建该 URL 所指页面描述的 Managed Agent，例如 [Managed Agents 文档](https://platform.claude.com/docs/en/managed-agents/overview)中的某个页面 | v2.1.290 或更高版本 |
 | `managed-agents-onboard <quickstart-name>` | 构建 Console 的某个快速入门模板，例如 `deep-researcher`。如果您提供的单个词不是模板名称，Claude 会列出有效的名称 | v2.1.290 或更高版本 |
@@ -399,7 +400,7 @@ Your skill instructions here...
 | `agent` | 否 | 设置 `context: fork` 时使用的子代理类型。 |
 | `background` | 否 | 仅在使用 `context: fork` 时适用。设置为 `false` 可在调用该 skill 的轮次中等待分叉子代理的结果，而不是[在后台运行它](#run-skills-in-a-subagent)。默认值：`true`。需要 Claude Code v2.1.218 或更高版本。 |
 | `hooks` | 否 | Claude Code 在调用该 skill 时注册并在会话剩余时间内持续运行的 hook。有关配置格式和 `once` 选项，请参阅 [skill 和 Agent 中的 hook](/docs/zh-CN/hooks#hooks-in-skills-and-agents)。 |
-| `paths` | 否 | 限制此 skill 何时激活的 Glob 模式。接受以逗号分隔的字符串或 YAML 列表。设置后，仅当处理与这些模式匹配的文件时，Claude 才会自动加载该 skill。使用与[特定路径规则](/docs/zh-CN/memory#path-specific-rules)相同的格式。 |
+| `paths` | 否 | 限制此 skill 何时激活的 Glob 模式。接受以逗号分隔的字符串或 YAML 列表。设置后，仅当处理与这些模式匹配的文件时，Claude 才会自动加载该 skill。模式相对于 Claude 的当前工作目录，该目录之外的文件不会匹配。使用与[特定路径规则](/docs/zh-CN/memory#path-specific-rules)相同的 glob 格式。 |
 | `shell` | 否 | 此 skill 中 `` !`command` `` 和 ` ```! ` 块使用的 shell。接受 `bash`（默认）或 `powershell`。当 [PowerShell 工具](/zh-CN/tools-reference#powershell-tool)启用时，设置 `powershell` 会通过 PowerShell 运行内联 shell 命令：在没有 Git Bash 的 Windows 上默认启用，对于 claude.ai 和 Console 账户在有 Git Bash 时默认启用，而在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 会话中以及在 macOS、Linux 和 WSL 上需要设置 `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`。将其设置为 `0` 可关闭该工具。 |
 | `metadata` | 否 | 用于存放您自己的键值数据的自由格式 YAML 映射，例如权益或目录字段，由您自己的工具从 `SKILL.md` 中读取。Claude Code 不会处理其内容，并会丢弃非映射类型的值。请勿将 `paths` 等 frontmatter 字段名用作键。 |
 | `license` | 否 | 适用于该 skill 的许可证。属于 [Agent Skills](https://agentskills.io) 规范的一部分；请参阅[在 Claude Code 之外使用 skill frontmatter](#using-skill-frontmatter-outside-claude-code)。Claude Code 接受该字段，但不会对其进行处理。 |
@@ -756,7 +757,7 @@ PowerShell 工具对它运行的命令应用相同的超时、后台化和输出
 哪些命令获得例外取决于 shell：
 
 * 默认 `bash` shell：[输出限制](/docs/zh-CN/tools-reference#output-limits)下列出的命令
-* `shell: powershell`，当启用 PowerShell 工具时：一个[不同的集合](/docs/zh-CN/tools-reference#shell-selection-in-settings-hooks-and-skills)，包括 `grep` 和 `git diff` 但不包括 `find` 或 `diff`
+* `shell: powershell`，且已启用 PowerShell 工具：一个[不同的集合](/docs/zh-CN/tools-reference#exit-code-1-from-searches-and-git-diff-in-powershell)，包括 `grep` 和 `git diff`，但不包括 `find` 或 `diff`
 
 使用默认的 `bash` shell，将 `|| true` 附加到任何你期望退出非零的其他命令。一个在发现问题时退出 1 的检查脚本就是一个例子。
 
@@ -1178,6 +1179,7 @@ if __name__ == '__main__':
 3. 尝试重新表述你的请求以更接近描述
 4. 如果 skill 是用户可调用的，使用 `/skill-name` 直接调用它
 5. 如果 `/skill-name` 也无法被识别，请检查 Claude Code 是否[拒绝了该 skill 的名称](#characters-a-skill-name-cant-hold)
+6. 如果 skill 设置了 `paths`，请检查 Claude 读取、编辑或写入的文件是否位于 Claude 当前的工作目录内。对于该目录之外的文件，例如同级 git worktree 中的文件（即使是您使用 `/add-dir` 添加的 worktree），skill 不会激活。要让 skill 对这些文件激活，请在该 worktree 中启动 Claude Code，或[使用 `/cd` 将会话移至该处](/docs/zh-CN/permissions#move-the-session-to-another-directory)。
 
 如果 frontmatter YAML 格式不正确，Claude Code 会加载 skill 主体但元数据为空，所以 `/skill-name` 仍然有效，但 Claude 无法匹配你的 `description`。使用 `--debug` 运行以查看解析错误。
 

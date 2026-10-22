@@ -262,6 +262,12 @@ Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](/
 
 不支持使用 `Ctrl+V` 的块级可视模式。
 
+### 在 vim 模式下取消问题
+
+当您在 [Claude 提出的问题](/docs/zh-CN/tools-reference#askuserquestion-tool-behavior)的 `Other` 行中输入自己的回答时，按两次 `Esc` 即可取消该问题。
+
+如需改为按一次键即可取消，请[绑定另一个键来取消问题](/docs/zh-CN/keybindings#cancel-a-question-with-one-key-press)。
+
 ## 命令历史
 
 Claude Code 保留了你输入的提示词的历史记录，上箭头回调可以从同一项目的过去会话中获取提示词：
@@ -392,6 +398,15 @@ Claude Code 在您发送某些命令时立即运行它们，而不是排队它�
 * [`/model`](/docs/zh-CN/model-config#setting-your-model)：一旦您确认[缓存警告](/docs/zh-CN/prompt-caching#switching-models)（如果 Claude Code 显示），Claude Code 会将您的更改应用于该轮次中它发出的下一个请求
 * [`/effort`](/docs/zh-CN/model-config#adjust-effort-level)：一旦您确认[缓存警告](/docs/zh-CN/prompt-caching#changing-effort-level)（如果 Claude Code 显示），Claude Code 会将您的更改应用于该轮次中它发出的下一个请求
 * [`/fast`](/docs/zh-CN/fast-mode#toggle-fast-mode)：Claude Code 保持轮次开始时活跃的快速模式设置，因此您的速度更改从您的下一轮次应用。如果您当前的模型不支持快速模式，打开它也会[切换您的模型](/docs/zh-CN/prompt-caching#turning-on-fast-mode)，Claude Code 会在该轮次中从其下一个请求使用新模型
+
+### 在有排队消息时将会话转入后台
+
+当您[按 `←`](/docs/zh-CN/agent-view#switch-sessions-without-leaving-the-terminal) 后会话移到后台时，您排队的消息会随之移动。Claude 会在那里按您发送的顺序读取它们。
+
+命令和 `!` shell 命令无法移动，某些消息也无法移动，例如附带了 [IDE 选择](/docs/zh-CN/vs-code#the-built-in-ide-mcp-server)的消息。如果您在其中任何一项处于排队状态时按 `←`，会话会保留在前台，并出现一条以 `Cannot open agents` 开头的通知。要将会话转入后台，请将该条目移出队列，然后再次按 `←`：
+
+* **命令和 `!` shell 命令**：等待它们在轮次结束时运行，或[将其取回](#take-back-what-you-queued)并清除输入框。当有其他任何内容排队时，您无法取回 `!` shell 命令，因此请等待它们运行。
+* **无法移动的消息**：等待 Claude 读取它们
 
 ### 取回您排队的内容
 

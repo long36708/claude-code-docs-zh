@@ -8,7 +8,7 @@
 
 Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代理漏洞扫描。一个 Claude 代理团队映射您的架构、构建威胁模型、搜寻漏洞，并在编写报告前独立审查每个发现。使用该插件扫描整个存储库或[仅扫描一组更改](#scan-only-your-changes)，例如分支的差异、拉取请求的差异或单个提交，然后将您选择的发现转化为您自己审查和应用的补丁。
 
-该插件在您的会话中本地运行，使用[您在 Claude Code 中可以访问的任何模型](#models-and-providers)，每次扫描都计入您的[使用量](/docs/zh-CN/costs)。如果您想要一个监控您的存储库的托管服务，或想要在 [Claude Mythos](https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5) 上运行扫描，请参阅 [Claude Security](https://claude.com/product/claude-security) 产品，该产品在企业计划中提供。该插件可以访问托管产品无法访问的代码，例如托管在 GitLab 或 Bitbucket 上的存储库，或在不允许入站连接的网络上的存储库。
+该插件在您的会话中本地运行，使用[您在 Claude Code 中可以访问的任何模型](#models-and-providers)，每次扫描都计入您的[使用量](/docs/zh-CN/costs)。如果您想要一个监控您的仓库的托管服务，或想要在 [Claude Mythos](https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5) 上运行扫描，请参阅 [Claude Security](https://claude.com/product/claude-security) 产品，该产品在企业计划中提供。
 
 该插件也不同于 Claude Code 中已有的审查工具：[security guidance plugin](/docs/zh-CN/security-guidance) 在 Claude 编写代码时审查代码，[`/security-review`](/docs/zh-CN/commands#all-commands) 对您的分支运行单次扫描，[Code Review](/docs/zh-CN/code-review) 审查拉取请求。有关这些层如何堆叠的信息，请参阅[插件如何与其他安全工具配合](#how-the-plugin-fits-with-other-security-tools)。
 

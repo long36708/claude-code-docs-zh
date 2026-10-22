@@ -349,7 +349,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 
 不同的子目录以相同的方式保存不同的 skills：`packages/web/.claude/skills/component-patterns/` 描述前端的组件约定而不是测试。当 Claude 处理 `packages/api/` 中的文件时，它加载 api-testing skill。当它在 `packages/web/` 中工作时，它加载 component-patterns 代替。在另一个的任务期间，两个目录的 skills 都不加载。
 
-你也可以按文件模式而不是按位置范围 skill。[`paths` frontmatter 字段](/docs/zh-CN/skills#frontmatter-reference)采用 glob 模式，Claude 仅在处理匹配文件时自动加载 skill。对于位于存储库根目录的 `.claude/skills/` 中但仅适用于某些文件（无论它们出现在哪里）的 skill，使用此功能，例如范围限于 `**/migrations/**` 的数据库迁移 skill。
+您也可以按文件模式而不是按放置位置来限定 skill 的范围。[`paths` frontmatter 字段](/docs/zh-CN/skills#frontmatter-reference)采用 glob 模式，Claude 仅在处理匹配文件时自动加载 skill。对于位于仓库根目录的 `.claude/skills/` 中但仅适用于某些文件的 skill，可使用此功能，例如限定于 `**/migrations/**` 的数据库迁移 skill。
 
 有关创建和组织 skills 的更多信息，请参阅 [Skills](/docs/zh-CN/skills)。
 

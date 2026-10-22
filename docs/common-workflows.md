@@ -379,6 +379,11 @@ Show me the data from @github:repos/owner/repo/issues
 
 若要阻止 `@` 引用在消息中包含文件内容和目录列表，请在 shell 或用户设置中设置 [`CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`](/docs/zh-CN/env-vars#variables)。随后 Claude 会收到您引用的路径，并附带一条说明，提示它使用其文件工具读取这些路径。该变量需要 Claude Code v2.1.299 或更高版本，并且 Claude Code 会在项目设置和本地设置中忽略它。
 
+当 Claude Code 包含您使用 `@` 引用的文件时，您的 [`PreToolUse` hook](/docs/zh-CN/hooks#pretooluse) 不会运行，因为此过程不涉及工具调用。如果您依赖这些 hook 来控制 Claude 读取的内容，请阻止特定路径，或阻止 `@` 引用包含文件：
+
+* **阻止特定路径**：为这些路径添加 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)。Claude Code 不会包含与该规则匹配的文件。
+* **阻止 `@` 引用包含文件**：设置 `CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`，这会阻止消息中的 `@` 文件和目录引用包含内容，即使是您的 hook 不检查的路径也是如此。随后，在 Claude 使用 `Read` 等工具打开被引用的路径之前，您的匹配 hook 会运行。
+
 ***
 
 ### 按计划运行 Claude
