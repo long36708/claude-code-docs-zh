@@ -144,6 +144,7 @@ Match the message you see to a section below.
 | `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.` | [Network](#sessions-ended-while-this-machine-was-offline) |
 | `Couldn't share the transcript.` | [Network](#couldnt-share-the-transcript) |
 | `Couldn't send feedback` | [Network](#couldnt-send-feedback) |
+| `MCP server "<name>" connection timed out. Your computer went to sleep or its clock changed while connecting.` | [Network](#mcp-server-connection-timed-out-during-a-sleep-or-clock-change) |
 | `Prompt is too long` / `Input is too long for requested model` | [Request errors](#prompt-is-too-long) |
 | `Prompt is too long · automatic compaction failed:` | [Request errors](#prompt-is-too-long) |
 | `Prompt is too long · this conversation is a single exchange` / `A single-exchange conversation cannot be compacted` | [Request errors](#prompt-is-too-long) |
@@ -2141,6 +2142,27 @@ In the [feedback drafts queue](/docs/en/tools-reference#sendfeedback-tool-behavi
 * If it keeps failing, file the report at [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues), as the message says
 
 Before v2.1.281, every send failed with this message once a Remote Control **Stop** or an urgent cross-session message had arrived while the dialog was open. On those versions, close the dialog, reopen it, and send again.
+
+### MCP server connection timed out during a sleep or clock change
+
+This message means a connection to an [MCP server](/docs/en/mcp) timed out, and Claude Code found that your system clock jumped forward during the attempt:
+
+```text theme={null}
+MCP server "<name>" connection timed out. Your computer went to sleep or its clock changed while connecting.
+```
+
+Claude Code can't tell whether your computer slept or its clock was set forward, so the message names both.
+
+**What to do:**
+
+Connect to the server again, and keep your computer awake until the attempt finishes. If the server connects, you have nothing to fix.
+
+* **In an interactive session**: run `/mcp`, select the server, and select **Reconnect**
+* **In your shell**: run the [`claude -p`](/docs/en/headless), [`claude mcp list`](/docs/en/mcp#managing-your-servers), or `claude mcp get` command again. If the server then fails with a message that starts `Skipping connection (recent failure cached`, wait 15 minutes and run the command again.
+* **In an [Agent SDK](/docs/en/agent-sdk/overview) application**: call [`reconnectMcpServer()`](/docs/en/agent-sdk/typescript#methods) in TypeScript or [`ClaudeSDKClient.reconnect_mcp_server()`](/docs/en/agent-sdk/python#methods) in Python
+* **If the server fails again**: if the message differs from this one, see [what to check when an MCP server doesn't connect](/docs/en/mcp-quickstart#troubleshooting). If this message comes back although your computer stayed awake and nothing changed its clock, see [Report an error](#report-an-error).
+
+Before v2.1.307, Claude Code showed a timeout message such as `MCP server "<name>" connection timed out after <N>ms` instead of this one.
 
 ## Request errors
 
