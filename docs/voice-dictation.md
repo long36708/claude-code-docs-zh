@@ -180,8 +180,10 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 * **在点击模式中点击 `Space` 输入空格而不是录制**：第一次点击仅在提示词输入为空时开始录制。先清除输入，或通过运行 `/voice tap` 检查你是否处于点击模式。
 * **`No audio detected from microphone`**：录制开始但捕获了静音。确认正确的输入设备设置为系统默认值，其输入级别未静音或接近零。在 Windows 上，打开设置 → 系统 → 声音 → 输入并选择你的麦克风。在 macOS 上，打开系统设置 → 声音 → 输入。
 * **`Voice connection failed`**：你的录制从未到达转录服务，因为连接失败。检查你的网络并重试。捕获无音频的录制报告 `No audio detected from microphone` 而不是此消息。在 v2.1.200 之前，静音麦克风可能报告连接失败，这表示网络问题，而实际问题是输入设备。
+* **`Dictation error: WebSocket error:` 后跟证书错误，例如 `unable to get local issuer certificate`**：请参阅 VS Code 页面上的[在执行 TLS 检查的代理后听写或 Web 选项卡失败](/docs/zh-CN/vs-code.md#dictation-or-the-web-tab-fails-behind-a-tls-inspecting-proxy)。
 * **`Voice stream error: WebSocket upgrade rejected with HTTP <status>`**：服务器以显示的 HTTP 状态拒绝了你的连接，所以这不是网络中断。400 范围内的状态通常意味着过期的登录、代理或机器人保护服务代替转录服务进行应答。运行 `/login` 刷新你的登录，如果状态仍然存在，请检查你的网络路径上是否有 VPN 或代理。如果拒绝到达时你仍在录制，Claude Code 会在显示此消息之前重试一次 400 范围外的状态；它不会重试 400 范围内的状态。在 v2.1.229 到 v2.1.231 中，本机构建没有显示此消息：Claude Code 继续录制，按住模式页脚仍然显示 `listening…`，在你停止录制后报告 `Voice connection failed`。
 * **`No speech detected`**：音频到达转录服务但未识别任何单词。靠近麦克风说话，减少背景噪音，并确认你的[听写语言](#change-the-dictation-language)与你说话的语言匹配。
+* **`Dictation stopped: no speech recognized for 15 seconds` 或 `Dictation stopped at its 2-minute limit`**：在 VS Code 扩展中，如果 15 秒内没有识别到任何单词，或在开始两分钟后，录制就会结束。如果您在这 15 秒内一直在说话，请尝试 `No speech detected` 的修复方法。已识别的单词会保留在输入框中，不会被发送。要添加更多内容，请再次单击麦克风按钮。
 * **转录是乱码或使用了错误的语言**：听写默认为英语。如果你用另一种语言听写，请先在 `/config` 中设置它。请参阅[更改听写语言](#change-the-dictation-language)。
 
 ### 终端未在 macOS 麦克风设置中列出

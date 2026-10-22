@@ -197,7 +197,9 @@ Claude Code 在其下命名空间每个组件，因此 plugin `deploy-tools` 中
 
 将 `icon` 设置为插件内图像文件的路径，例如 `./logo.png`，并将四个 URL 字段分别设置为 `https://` URL。
 
-在 Claude Code v2.1.281 或更高版本上，`claude plugin validate` 接受这些字段且不发出警告。更早的版本会为每个字段打印一条 `Unknown field` 警告，因此在这些版本上使用 `--strict` 运行会失败。
+> [!NOTE]
+>
+> 在 Claude Code v2.1.281 或更高版本上，`claude plugin validate` 不会将 `plugin.json` 中的这些字段报告为未知字段。更早的版本会为每个字段打印一条 `Unknown field` 警告，因此在这些版本上使用 `--strict` 运行会失败。
 
 ### `defaultEnabled`
 

@@ -338,6 +338,8 @@ Claude Code 解析 PowerShell AST 并独立检查复合命令中的每个命令�
 
 要阻止 Claude 的文件工具读取文件或目录，请为其路径添加 `Read` deny 规则，如 `Read(./.env)` 或 `Read(./secrets/**)`；[排除敏感文件](/docs/zh-CN/settings-reference.md#exclude-sensitive-files)有一个粘贴就用的示例。如果您的项目有 `.claudeignore` 文件，它不会产生任何效果，因此请将其条目移到 `Read` deny 规则中。
 
+#### `Read` 和 `Edit` 规则涵盖的范围
+
 `Edit` 规则适用于所有编辑文件的内置工具。Claude 尽力将 `Read` 规则应用于所有读取文件的内置工具，如 Grep 和 Glob，以及您提示词中的 `@file` 提及，以及连接的 [IDE](/docs/zh-CN/vs-code.md#the-built-in-ide-mcp-server) 与 Claude 共享的选择和打开文件上下文。
 
 `Read(path)` deny 规则也适用于您粘贴到提示词中的图片路径以及您 @ 提及的目录：
@@ -349,13 +351,19 @@ Claude Code 在 v2.1.290 及更高版本中检查粘贴的图片路径和目录�
 
 `Read` deny 规则也会阻止同一路径上的 [Edit 和 Write 工具](/docs/zh-CN/errors.md#file-is-covered-by-a-read-deny-rule)，包括在那里创建新文件。NotebookEdit 不被覆盖，因此为任何工具都不能更改的路径添加 `Edit` deny 规则。对于 Write 工具，该检查需要 Claude Code v2.1.228 或更高版本。
 
-Claude Code 仅根据 `Edit(path)` 和 `Read(path)` 规则检查文件权限。如果您为 `Write`、`NotebookEdit`、`Glob` 或旧版 `MultiEdit` 工具编写路径规则，Claude Code 接受该规则但从不查询它，并在启动时[警告](/docs/zh-CN/errors.md#is-not-matched-by-file-permission-checks)，除了在 `--allowedTools` 中传递的 `Glob` 规则。使用 `Edit(docs/**)` 代替 `Write(docs/**)`、`NotebookEdit(docs/**)` 或 `MultiEdit(docs/**)`，以及 `Read(docs/**)` 代替 `Glob(docs/**)`。Claude Code 不会警告没有路径的工具名称规则，如 `Write` 的 deny 规则；它在任何地方在工具级别匹配该规则。
-
 > [!WARNING]
 >
 > Read 和 Edit deny 规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail`、`sed` 和 `tee`）以及 Bash [重定向](#redirections)的目标（如 `> file` 和 `< file`）。它们不适用于读取文件而不命名它们的命令，如从保存文件的目录运行的 `grep -r pattern .`，或间接读取或写入文件的任意子进程，如打开文件本身的 Python 或 Node 脚本。对于阻止所有进程访问路径的 OS 级别强制执行，请[启用沙箱](/docs/zh-CN/sandboxing.md)。
 
-Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模式语法，具有四种不同的模式类型；对于单段目录模式，匹配深度也取决于规则类型，本节后面描述：
+#### `Write(path)`、`NotebookEdit(path)` 和 `Glob(path)` 规则从不匹配
+
+Claude Code 仅根据 `Edit(path)` 和 `Read(path)` 规则检查文件权限。如果您为 `Write`、`NotebookEdit`、`Glob` 或旧版 `MultiEdit` 编写路径规则，Claude Code 会接受该规则，但从不将任何读取或编辑与其匹配。
+
+使用 `Edit(docs/**)` 代替 `Write(docs/**)`、`NotebookEdit(docs/**)` 或 `MultiEdit(docs/**)`，以及 `Read(docs/**)` 代替 `Glob(docs/**)`。要匹配 Write、NotebookEdit 或 Glob 工具的每次使用（无论路径如何），请只编写工具名称。
+
+#### 路径模式如何匹配
+
+Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模式语法，具有四种不同的模式类型：
 
 | 模式 | 含义 | 示例 | 匹配 |
 | - | - | - | - |
@@ -367,6 +375,8 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 > [!WARNING]
 >
 > 像 `/Users/alice/file` 这样的模式不是绝对路径。单个前导斜杠锚定在设置源，而不是文件系统根目录。对于绝对路径，使用 `//Users/alice/file`。
+
+##### 模式的锚定位置
 
 `/path` 模式锚定在与定义它的设置源关联的目录，因此相同的规则根据您放置它的位置匹配不同的位置：
 
@@ -392,6 +402,8 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 * `Read(~/.zshrc)`：读取您主目录的 `.zshrc`
 * `Edit(//tmp/scratch.txt)`：编辑绝对路径 `/tmp/scratch.txt`
 * `Read(src/**)`：作为 allow 规则，仅从 `<current-directory>/src/` 读取；作为 deny 或 ask 规则，匹配当前目录下任何深度的 `src` 目录
+
+##### 模式的匹配深度
 
 一个规则只匹配其锚点下的文件；在该范围内，匹配深度取决于模式形状，以及对于单段目录模式，规则类型，下面描述。裸文件名遵循 gitignore 语义并在任何深度匹配，因此 `Read(.env)` 和 `Read(**/.env)` 是等价的：
 
@@ -429,6 +441,8 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 > [!NOTE]
 >
 > 在 gitignore 模式中，`*` 匹配单个路径段内的文本，可以出现在模式中的任何位置，而 `**` 匹配跨目录。
+
+#### 特殊字符和 `!` 否定
 
 当您使用"是，不再询问"批准文件路径时，Claude Code 会转义该路径中的 gitignore 模式字符，如 `[`、`]` 和 `*`，因此生成的规则仅匹配您批准的字面路径。您自己编写的规则不会被转义。
 

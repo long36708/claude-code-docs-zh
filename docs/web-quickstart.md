@@ -65,7 +65,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 
 **2. 使用 GitHub 登录**
 
-登录后，claude.ai/code 会提示您连接 GitHub。按照提示操作，claude.ai/code 会将您发送到 GitHub 的授权页面。批准授权请求，GitHub 会将您返回到 claude.ai/code。云会话可以与现有 GitHub 存储库配合使用。要启动新项目，请先[在 GitHub 上创建一个空存储库](https://github.com/new)。
+登录后，claude.ai/code 会提示您连接 GitHub。按照提示操作，claude.ai/code 会将您发送到 GitHub 的授权页面。批准授权请求，GitHub 会将您返回到 claude.ai/code。云端会话可以与现有 GitHub 仓库配合使用。要启动新项目，请先[在 GitHub 上创建一个包含 README 的仓库](https://github.com/new)。
 
 通过此连接，会话可以克隆任何公共存储库，但只有在 Claude GitHub App 安装在私有存储库上时，才能在私有存储库中工作。[安装 Claude GitHub App](https://github.com/apps/claude/installations/new) 到您想要使用其私有存储库的每个 GitHub 账户或组织。在 GitHub 组织上，组织所有者可能需要批准安装。安装应用还会启用[Auto-fix](/docs/zh-CN/claude-code-on-the-web.md#auto-fix-pull-requests)，这让 Claude 能够响应这些存储库中拉取请求的 CI 失败和审查评论。
 

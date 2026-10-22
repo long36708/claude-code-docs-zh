@@ -953,7 +953,7 @@ export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-6[1m]'
 当您在第三方提供商上固定模型时，其在 `/model` 选择器中的行如果 Claude Code 识别固定 ID，则默认显示模型的名称，否则显示原始 ID：
 
 * **已识别**：Claude Code 知道的模型的确切 ID，例如其 Anthropic API ID 或您的提供商或网关的形式，带或不带 `[1m]` 后缀。固定 `us.anthropic.claude-sonnet-4-5-20250929-v1:0`，该行显示 `Sonnet 4.5`。
-* **未识别**：任何其他 ID，例如应用推理配置文件 ARN 或 Claude Code 不知道的模型版本，除非 [`modelOverrides`](#override-model-ids-per-version) 条目将模型映射到该确切字符串。在 Microsoft Foundry 上，部署名称是用户定义的，因此 Claude Code 永远不会识别固定 ID，无论是否映射，该行默认显示部署名称。
+* **未识别**：任何其他 ID，例如应用推理配置文件 ARN 或 Claude Code 不知道的模型版本，除非 [`modelOverrides`](#override-model-ids-per-version) 条目将模型映射到该 ID。在 Microsoft Foundry 上，部署名称是用户定义的，因此 Claude Code 在那里永远不会识别固定 ID，无论是否映射，该行默认显示部署名称。
 
 当行显示模型的名称时，其默认描述包括固定 ID，以便您仍然可以看到固定了哪个 ID。
 

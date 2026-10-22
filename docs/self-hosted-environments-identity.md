@@ -196,7 +196,7 @@ def verify_session_token(raw: str) -> dict:
 | `iat` | 数字 | 发布时间为 Unix 时间戳。 |
 | `jti` | 字符串 | 唯一令牌标识符。 |
 | `ccr:role` | 字符串 | 对于会话令牌始终为 `session_worker`。 |
-| `ccr:session_id` | 字符串 | 会话 ID。与 `sub` 的后缀相同的值。 |
+| `ccr:session_id` | 字符串 | `cse_...` 形式的会话 ID。与 `sub` 的后缀相同的值，也与 [`CLAUDE_CODE_REMOTE_SESSION_ID`](/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts) 是相同的字符串。要将其与[生命周期 hook](/docs/zh-CN/self-hosted-environments-configuration.md#lifecycle-hooks) 接收的 `CLAUDE_RUNNER_SESSION_ID` 匹配，请将 `cse_` 前缀替换为 `session_`。 |
 | `ccr:pool_id` | 字符串 | 您的环境 ID。与出现在 `aud` 中的值相同。 |
 | `ccr:org_id` | 字符串 | 您的 Anthropic 组织 ID。 |
 | `ccr:account_id` | 字符串 | 创建用户的 Anthropic 账户 ID：`act.sub` 的值去掉 `user:` 前缀，一个标记的 `user_...` ID。与[spawn-runner hook](/docs/zh-CN/self-hosted-environments-configuration.md#the-spawn-runner-hook) 的 `CLAUDE_RUNNER_ACCOUNT_ID` 携带的值相同，以及 [`--lock-to-account`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 接受的值，因此三者作为相等的字符串进行比较。 |

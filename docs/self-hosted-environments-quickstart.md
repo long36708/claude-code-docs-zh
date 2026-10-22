@@ -35,7 +35,7 @@ claude.ai 端需要：
 
 在启动之前在主机上安装：
 
-* **Claude Code v2.1.224 或更高版本**，使用任何[标准安装方法](/docs/zh-CN/setup.md)。运行器是标准 `claude` 二进制文件的一部分，较早的版本不识别 `self-hosted-runner` 子命令。本机安装程序的默认 `latest` 频道在发布后立即携带每个版本；`stable` 频道、Homebrew `claude-code` cask 和稳定的 apt、dnf 和 apk 存储库滞后约一周。要固定您的部队运行的确切版本，请参阅[安装特定版本](/docs/zh-CN/setup.md#install-a-specific-version)。对于容器镜像，请参阅[部署到生产环境](/docs/zh-CN/self-hosted-environments-deploy.md#build-the-runner-image)中的 Dockerfile。
+* **Claude Code v2.1.224 或更高版本**，使用任何[标准安装方法](/docs/zh-CN/setup.md)。运行器是标准 `claude` 二进制文件的一部分，较早的版本不识别 `self-hosted-runner` 子命令。要固定您的主机集群运行的确切版本，请参阅[安装特定版本](/docs/zh-CN/setup.md#install-a-specific-version)。对于容器镜像，请参阅[部署到生产环境](/docs/zh-CN/self-hosted-environments-deploy.md#build-the-runner-image)中的 Dockerfile。
 * **Git 2.24 或更高版本**。部署页面上的某些 git 选项需要更高版本；[配置 git](/docs/zh-CN/self-hosted-environments-deploy.md#configure-git)说明了每个下限。
 
 确认主机已准备好：
@@ -44,7 +44,7 @@ claude.ai 端需要：
 claude self-hosted-runner --help
 ```
 
-准备好的主机打印运行器的使用文本，列出诸如 `--environment-secret-file` 之类的标志。在 2.1.224 之前的版本上，该命令改为打印常规 `claude --help` 输出；使用 `claude update` 升级或从 `latest` 频道重新安装。
+准备好的主机打印运行器的使用文本，列出诸如 `--environment-secret-file` 之类的标志。在 2.1.224 之前的版本上，该命令改为打印常规 `claude --help` 输出。如果您看到该输出，请[更新 Claude Code](/docs/zh-CN/setup.md#update-claude-code)。如果您从容器镜像运行 `claude`，请使用 2.1.224 或更高版本[重新构建镜像](/docs/zh-CN/self-hosted-environments-deploy.md#build-the-runner-image)。
 
 ## 设置环境和运行器
 

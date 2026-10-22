@@ -336,7 +336,7 @@ Claude Code 在每次启动时选择一个运行时，并在您退出前保持�
 
 在 v2 上，Claude Code 还会：
 
-* 询问 HTTP、stdio 和 claude.ai 连接器服务器是否支持较新的修订版，并与支持的服务器一起使用它。它与 v1 一样连接到其他所有服务器。
+* 询问 HTTP、stdio 和 claude.ai 连接器服务器是否支持较新的修订版，并与支持的服务器一起使用它。这包括云端会话和 [Remote Control](/docs/zh-CN/remote-control.md) 会话的连接器。Claude Code 与 v1 一样连接到其他所有服务器。
 * 通过 [它保持打开的流](#notification-streams-on-the-v2-runtime) 从使用较新修订版的服务器接收 `list_changed` 通知。
 * 不注册在较新修订版上连接的 [频道](#push-messages-with-channels) 服务器，因为该修订版无法携带频道消息。
 * 当授权响应指明意外的发行者时，使 [MCP OAuth 登录](#authenticate-with-remote-mcp-servers) 失败。
@@ -765,7 +765,7 @@ claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
 * 对于您在 `headers` 中配置了 `Authorization` 标头的服务器，或通过 [`headersHelper`](#use-dynamic-headers-for-custom-authentication) 配置的服务器，连接时的 `401` 或 `403` 不会标记服务器，因为要修复的凭据是您配置的凭据。Claude Code 改为报告连接失败。如果您从 `${VAR}` 引用设置该标头，请检查该变量是否是 Claude Code [读取为空](#credential-variables-that-read-as-empty) 的变量之一。
 * 对于 [传递到云端会话的连接器](#how-connectors-reach-claude-code)，Claude Code 不运行登录流程，因为会话的代理使用您在 claude.ai 中授予的授权向连接器进行身份验证。当那里的连接器需要再次授权时，请在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 重新连接它，而不是从会话中连接。
 
-当对您已登录的 OAuth 服务器的请求返回 `401 Unauthorized` 时，Claude Code 会刷新存储的令牌、重新连接并重试请求一次。只有在该重试也失败时，它才会在 `/mcp` 中标记服务器。
+当您已登录的 OAuth 服务器以 `401 Unauthorized` 拒绝您存储的令牌时，Claude Code 会刷新令牌、重新连接并重试请求一次。只有在该重试也失败时，它才会在 `/mcp` 中标记服务器。在 macOS 上的 `claude -p` 或 Agent SDK 运行中，Claude Code 在无法读取您存储的令牌时发送的请求会改为以 [存储凭据错误](/docs/zh-CN/errors.md#couldnt-read-the-stored-credentials-for-mcp-server) 失败。
 
 当服务器拒绝存储的刷新令牌时，Claude Code 会立即显示一条指向 `/mcp` 的通知。打开 `/mcp` 并在服务器上选择 **Re-authenticate** 以在下一个工具调用失败之前再次登录。
 
@@ -1404,6 +1404,26 @@ Claude Code 会在每次调用时显示该工具的权限提示，即使在 `acc
 某些使用入口，例如 [Remote Control](/docs/zh-CN/remote-control.md) 和基于 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 构建的应用程序，通常允许您通过一次点击来批准工具调用。对于使用此注解标记的工具，Claude Code 会禁用一次点击操作并显示工具的完整权限提示，因此批准仍然来自回答提示的人，而不是点击。
 
 Claude Code 对任何只有终端对话框才能完整呈现的权限请求（例如带有安全警告或远程使用入口无法显示的始终允许选项的请求）也会以相同方式禁用一次点击批准。您需要在终端对话框中回答该请求，而不是从 Remote Control 中回答。
+
+## 标记可安全调用两次的工具
+
+如果您构建 MCP 服务器，请标记可以安全调用两次的工具，以便 Claude Code 能够重复在连接关闭时仍处于待处理状态的调用。对于 HTTP 服务器或 [claude.ai 连接器](#use-mcp-servers-from-claude-ai)，Claude Code 可以在新连接上重复此类调用一次。Claude Code 不重复的调用可能会失败，并显示 [`connection closed before the tool call was answered`](/docs/zh-CN/errors#connection-closed-before-the-tool-call-was-answered)。
+
+要标记某个工具，请在其 `tools/list` 条目中将以下 `annotations` 之一设置为 `true`：
+
+* **`idempotentHint`**：该工具可以更改内容，并且使用相同参数再次调用是安全的
+* **`readOnlyHint`**：该工具不更改任何内容。Claude Code 还会将该工具的调用与其他只读调用并行运行。
+
+例如，`tools/list` 条目中的以下字段将 `set_issue_status` 工具标记为可安全重复：
+
+```json theme={null}
+{
+  "name": "set_issue_status",
+  "annotations": {
+    "idempotentHint": true
+  }
+}
+```
 
 ## 响应 MCP 引出请求
 

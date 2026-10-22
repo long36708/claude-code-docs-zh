@@ -250,19 +250,11 @@ Claude Code 还会从您粘贴到输入框中的文本以及您发送的任何�
 
 点击 Claude Code 面板顶部的 **Session history** 按钮即可访问您的对话历史记录。您可以按关键字搜索或按时间浏览。
 
-点击任意对话即可将其恢复。如果该对话已在当前窗口的另一个标签页中打开，点击它会切换到该标签页。如果对话打开后没有显示任何消息，请参阅[为什么恢复的对话一开始显示为空白](#a-resumed-conversation-is-blank-at-first)。有关恢复会话的更多信息，请参阅[管理会话](/docs/zh-CN/sessions.md)。
+点击任意对话即可将其恢复。如果该对话已在当前窗口的另一个标签页中打开，点击它会切换到该标签页。如果通知提示该对话仍在其他位置打开，请参阅[如何在此窗口中继续该对话](#the-conversation-is-still-open-somewhere-else)。如果对话打开后没有显示任何消息，请参阅[为什么恢复的对话一开始显示为空白](#a-resumed-conversation-is-blank-at-first)。有关恢复会话的更多信息，请参阅[管理会话](/docs/zh-CN/sessions.md)。
 
 * **会话标题**：新会话会根据您的第一条消息获得 AI 生成的标题。
 * **重命名和归档**：将鼠标悬停在会话上即可显示这些操作。重命名可为其设置描述性标题，归档则会将其移至列表底部的 **Archived sessions** 组。
 * **设置了 [`claudeProcessWrapper`](#extension-settings) 时对话缺失**：请将扩展更新到 2.1.304 或更高版本。之后列表会包含之前缺失的对话，以及 `claude -p` 或 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 在此工作区中启动的会话。
-
-如果该对话在另一个 Claude Code 进程中打开（例如终端中的 `claude` 或另一个 VS Code 窗口），输入框的位置会显示以下通知：
-
-```text theme={null}
-This conversation is still open somewhere else. Using it in two places at once can mix up its messages.
-```
-
-要在此处继续，请先在另一处关闭该对话，然后点击 **Open here anyway**。如果未关闭就点击，该对话会在两处同时打开。设置了 [`claudeProcessWrapper`](#extension-settings) 时，扩展会跳过此检查并直接打开对话。
 
 默认情况下，14 天内没有活动的会话会自动移至 **Archived sessions**，除非它处于打开状态、未读或位于某个[分组](#organize-sessions-into-groups)中。自动归档需要 Claude Code v2.1.265 或更高版本。要更改期限或将其关闭，请打开 [Archive Inactive Sessions 设置](vscode://settings/claudeCode.archiveInactiveSessions)，并选择天数或 **Never**。
 
@@ -278,6 +270,21 @@ This conversation is still open somewhere else. Using it in two places at once c
 * 扩展根据 `claudeCode.initialPermissionMode` 或从之前对话沿用的选择来[选择初始权限模式](/docs/zh-CN/permission-modes.md#switch-permission-modes)
 * 您配置了 `claudeCode.claudeProcessWrapper`
 * 某条[拒绝规则](/docs/zh-CN/permissions.md#manage-permissions)移除了 [`ExitPlanMode`](/docs/zh-CN/tools-reference) 工具
+
+#### 对话仍在其他位置打开
+
+当通知提示该对话仍在其他位置打开时，要在此窗口中继续，请先完成与您情况对应的步骤，然后点击 **Open here anyway**：
+
+* **您没有在其他位置打开任何内容**：扩展重启之前的某个 Claude 进程可能仍打开着该对话。该进程通常会在大约 10 分钟内自行结束，因此请等待这段时间后再点击。如果在它结束之前点击，该对话会在两处同时打开，直到该进程结束。
+* **您在其他位置打开了该对话**：请先在那里将其关闭，例如在终端中退出 `claude`，或在另一个 VS Code 窗口中关闭其标签页
+
+当该对话仍在另一个 Claude Code 进程中打开时，输入框的位置会显示以下通知：
+
+```text theme={null}
+This conversation is still open somewhere else. Using it in two places at once can mix up its messages. If the extension restarted recently, a Claude process from before the restart may still be finishing. It usually ends on its own within about 10 minutes. This notice stays until you choose Open here anyway.
+```
+
+设置了 [`claudeProcessWrapper`](#extension-settings) 时，扩展会跳过此检查并直接打开对话。
 
 ### 从 claude.ai 恢复云端会话
 
@@ -361,7 +368,7 @@ VS Code 扩展支持检查点，它会跟踪 Claude 的文件编辑，并允许�
 * **编辑器标签页**：对话会随其标签页一起恢复。
 * **侧边栏**：如果您在最近 10 分钟内在该对话中发送过消息或 Claude 在其中做出过响应，对话会恢复。如果未恢复，请从[会话历史记录](#resume-past-conversations)中恢复该对话。
 
-如果另一个 Claude Code 进程仍打开着该对话，在此处打开之前会先询问您，显示的 **Open here anyway** 通知与[从会话历史记录恢复](#resume-past-conversations)时相同。如果消息起初保持空白，请参阅[消息为何空白以及何时出现](#a-resumed-conversation-is-blank-at-first)。
+如果输入框所在位置显示一条通知，提示该对话仍在其他地方打开，请参阅[如何在此处继续该对话](#the-conversation-is-still-open-somewhere-else)。如果消息起初保持空白，请参阅[消息为何空白以及何时出现](#a-resumed-conversation-is-blank-at-first)。
 
 #### 重新加载后被中断的步骤
 
@@ -886,6 +893,7 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 | 已经登录后又被要求重新登录 | [未登录或令牌已过期](/docs/zh-CN/troubleshoot-install.md#not-logged-in-or-token-expired) |
 | 云提供商凭据在终端中有效，但在扩展中无效 | [Bedrock、Agent Platform 或 Foundry 凭据未加载](/docs/zh-CN/troubleshoot-install.md#bedrock-agent-platform-or-foundry-credentials-not-loading) |
 | `SSL certificate verification failed` 或 `Self-signed certificate detected` | [SSL 证书错误](/docs/zh-CN/errors.md#ssl-certificate-errors) |
+| `Dictation error: WebSocket error:` 后跟证书错误（例如 `unable to get local issuer certificate`），或 Web 标签页上出现 `Remote server is not connected` | [在执行 TLS 检查的代理后方，听写或 Web 标签页失败](#dictation-or-the-web-tab-fails-behind-a-tls-inspecting-proxy) |
 | `Claude Code process exited with code 1` 或其他代码 | [Claude Code process exited with code N](/docs/zh-CN/errors.md#claude-code-process-exited-with-code-n) |
 | `Could not locate the Claude CLI on PATH` | [Could not locate the Claude CLI on PATH](/docs/zh-CN/errors.md#could-not-locate-the-claude-cli-on-path) |
 | `The connection to Claude Code ended before this message completed` | [The connection to Claude Code ended before this message completed](/docs/zh-CN/errors.md#the-connection-to-claude-code-ended-before-this-message-completed) |
@@ -946,6 +954,36 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 * **该公式包含未转义的 `%`**：请让 Claude 重写该公式，使用 `\%` 表示百分号。
 * **该公式过大**：长度超过 8,192 个字符的公式，或排版输出会远大于其 TeX 源文本的公式，会按原样显示。请让 Claude 将其拆分为多个较小的公式，或以更紧凑的方式书写。
 * **该公式位于大量数学公式之后**：在回复的同一文本块中，面板会按顺序排版公式，直至达到上限。超出上限的后续公式会按原样显示。请让 Claude 单独再次发送您需要的公式。
+
+### 在执行 TLS 检查的代理后方，听写或 Web 标签页失败
+
+当听写或 Web 标签页因证书错误（例如 `unable to get local issuer certificate`）而失败时，请在 `~/.claude/settings.json` 的 `env` 块中设置 [`NODE_EXTRA_CA_CERTS`](/docs/zh-CN/network-config#custom-ca-certificates)。将其设置为包含代理根 CA 证书的 PEM 文件的路径，该文件可向您的 IT 团队索取。该错误文本显示在麦克风按钮上或扩展的日志中：
+
+* **听写**：麦克风按钮会在 `Dictation error: WebSocket error:` 之后显示错误文本。
+* **Web 标签页**：列出[云端会话](#resume-cloud-sessions-from-claude-ai)的标签页会显示 `Remote server is not connected`，但不显示错误文本。要在日志中查看错误文本：
+  1. 从[命令面板](#vs-code-commands-and-shortcuts)运行 **Claude Code: Show Logs**，打开 `Claude VSCode` 输出频道。
+  2. 点击该标签页上的 **Reconnect**，等待其不再显示 `Connecting…`。
+  3. 在该频道中搜索 `Error fetching remote sessions:` 或 `Failed to fetch organization UUID:`，然后在最新的匹配行中查看该前缀之后的错误文本。
+
+此修复需要扩展版本 2.1.307 或更高版本，因此请先更新扩展。然后将 `NODE_EXTRA_CA_CERTS` 设置为证书文件的完整路径，且不要使用 `~`。对于 Windows 路径，在 `settings.json` 中每个反斜杠需要写两次，例如 `C:\\certs\\example-ca.pem`。
+
+以下示例指定了位于 Linux 或 macOS 路径 `/etc/ssl/certs/example-ca.pem` 的证书文件：
+
+```json ~/.claude/settings.json theme={null}
+{
+  "env": {
+    "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/example-ca.pem"
+  }
+}
+```
+
+保存 `settings.json`，然后开始录音或再次点击 **Reconnect**。如果错误再次出现，请通过 **Claude Code: Show Logs** 打开输出频道，并在其中搜索 `use the CA certificates file`。此类警告会说明扩展无法使用您的文件的原因，并指出它从何处读取该路径。然后在下表中找到您设置 `NODE_EXTRA_CA_CERTS` 的每个位置，并按照对应行的说明操作：
+
+| 设置位置 | 操作 |
+| - | - |
+| 启动 VS Code 时所用的环境 | 此处设置的值优先于 `~/.claude/settings.json` 中的值，即使其指定的文件无法使用也是如此。请更正或移除该值，然后重启 VS Code |
+| `~/.claude/settings.json` 中的 `env` | 更正该值或其指定的文件，然后开始录音或再次点击 **Reconnect** |
+| VS Code 的 [`claudeCode.environmentVariables`](#extension-settings) 设置、`~/.claude.json`、项目的 `.claude/settings.json` 或 `.claude/settings.local.json`，或托管设置 | 此处设置的值不适用于听写或 Web 标签页。请同时在 `~/.claude/settings.json` 的 `env` 中设置该变量 |
 
 ### Claude Code 始终没有响应
 

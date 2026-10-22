@@ -107,6 +107,8 @@
 | `(check the helper, then start a new task or chat)` / `(update it, then start a new task or chat)` | [身份验证](#mcp-credential-rejected-in-cowork) |
 | `MCP server "<name>" needs additional permissions (scope: "<scope>") — run /mcp to re-authenticate` | [身份验证](#mcp-server-needs-you-to-sign-in-again) |
 | `MCP server "<name>" requires re-authorization (token expired)` | [身份验证](#mcp-server-needs-you-to-sign-in-again) |
+| `Couldn't read the stored credentials for MCP server "<name>", so the request didn't run` | [身份验证](#couldnt-read-the-stored-credentials-for-mcp-server) |
+| `A request to MCP server "<name>" was sent without your stored credentials` | [身份验证](#couldnt-read-the-stored-credentials-for-mcp-server) |
 | `This server's URL is missing or not a valid URL, so sign-in can't start` | [身份验证](#mcp-server-url-is-missing-or-not-a-valid-url) |
 | `Issuer mismatch in authorization response (RFC 9207)` | [身份验证](#issuer-mismatch-in-authorization-response) |
 | `Refusing to send credentials to non-https token endpoint` / `<short-name> from the MCP SDK for <server-url>` | [身份验证](#refusing-to-send-credentials-to-non-https-token-endpoint) |
@@ -144,6 +146,7 @@
 | `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.` | [网络](#sessions-ended-while-this-machine-was-offline) |
 | `Couldn't share the transcript.` | [网络](#couldnt-share-the-transcript) |
 | `Couldn't send feedback` | [网络](#couldnt-send-feedback) |
+| `MCP server "<name>" connection timed out. Your computer went to sleep or its clock changed while connecting.` | [网络](#mcp-server-connection-timed-out-during-a-sleep-or-clock-change) |
 | `Prompt is too long` / `Input is too long for requested model` | [请求错误](#prompt-is-too-long) |
 | `Prompt is too long · automatic compaction failed:` | [请求错误](#prompt-is-too-long) |
 | `Prompt is too long · this conversation is a single exchange` / `A single-exchange conversation cannot be compacted` | [请求错误](#prompt-is-too-long) |
@@ -309,6 +312,7 @@
 | `Plugin "<plugin>" was not uninstalled: installed_plugins.json` | [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting.md#installed-plugins-json-holds-a-record-this-version-cannot-read) |
 | `Plugin directory does not exist: <path>` | [Plugin 故障排除](/docs/zh-CN/plugins/troubleshooting.md#plugin-directory-does-not-exist) |
 | `Error: No such tool available: <tool name>` | [工具错误](#no-such-tool-available) |
+| `MCP server "<name>" connection closed before the tool call was answered` | [工具错误](#connection-closed-before-the-tool-call-was-answered) |
 | `would be spawned with zero tools — refusing` | [工具错误](#agent-would-be-spawned-with-zero-tools) |
 | `File is covered by a Read deny rule in your permission settings` | [工具错误](#file-is-covered-by-a-read-deny-rule) |
 | `cannot contain null bytes (\0)` | [工具错误](#path-cannot-contain-null-bytes) |
@@ -1577,6 +1581,43 @@ MCP server "<name>" needs additional permissions (scope: "<scope>") — run /mcp
 
 在 v2.1.274 之前，这种情况显示 `needs you to sign in again` 消息；在 v2.1.273 之前，它与其他情况一样显示 `requires re-authorization (token expired)`。
 
+### Couldn't read the stored credentials for MCP server
+
+Claude Code 将您对 OAuth [MCP 服务器](/docs/zh-CN/mcp.md)的登录保存在凭据存储中。此消息表示 Claude Code 无法读取该存储，因此对服务器的请求没有运行：
+
+```text theme={null}
+Couldn't read the stored credentials for MCP server "<name>", so the request didn't run. If your Mac's keychain is locked, unlock it, then try again.
+Couldn't read the stored credentials for MCP server "<name>", so the request didn't run. Try again.
+```
+
+您已存储的登录保持不变：在存储可以读取后重试即可，只有当服务器随后要求时才需要重新登录。
+
+在 macOS 上的 [`claude -p`](/docs/zh-CN/headless) 或 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 运行中，钥匙串可能在某个请求已经在没有已存储登录的情况下发出之后才变为可读。该请求会以如下消息失败：
+
+```text theme={null}
+A request to MCP server "<name>" was sent without your stored credentials, so the server rejected it. The credentials are available now. Try again.
+```
+
+**解决方法：**
+
+* 如果消息要求您解锁 Mac 的钥匙串，请在运行 Claude Code 的 shell 会话中运行 [`claude doctor`](/docs/zh-CN/cli-reference#cli-commands)，并检查其报告中是否有钥匙串警告：
+  * 如果报告列出了以 `macOS Keychain is not writable` 开头的警告，或者您的 shell 中没有 `claude` 命令，请在该 shell 会话中运行以下解锁命令：
+
+    ```bash theme={null}
+    security unlock-keychain ~/Library/Keychains/login.keychain-db
+    ```
+
+  * 如果报告没有列出钥匙串警告，请跳过解锁命令
+
+* 在您看到消息的地方重试：
+  * 对于 `claude -p`，再次运行该命令
+  * 在交互式会话中，如果服务器在 `/mcp` 中显示为失败，请从那里重新连接，然后让 Claude 重试
+  * 在持续运行的 Agent SDK 应用中，在 TypeScript 中调用 [`reconnectMcpServer()`](/docs/zh-CN/agent-sdk/typescript#methods) 或在 Python 中调用 [`ClaudeSDKClient.reconnect_mcp_server()`](/docs/zh-CN/agent-sdk/python#methods)，或者启动新的会话
+
+* 如果服务器随后报告需要身份验证，说明 Claude Code 没有找到可用于该服务器的登录。请交互式登录：在 Claude Code 会话中运行 `/mcp`，或在 shell 中运行 [`claude mcp login <name>`](/docs/zh-CN/mcp#authenticate-from-the-command-line)。在 Agent SDK 应用中，请参阅 [Agent SDK 中的 OAuth2 身份验证](/docs/zh-CN/agent-sdk/mcp.md#oauth2-authentication)。
+
+在 v2.1.307 之前，在登录钥匙串被锁定的 Mac 上，`claude -p` 或 Agent SDK 运行会将服务器报告为需要身份验证，而不是显示上述任一消息。
+
 ### MCP 服务器 URL 缺失或不是有效的 URL
 
 Claude Code 拒绝为某个远程 MCP 服务器启动 OAuth 登录，因为该服务器配置的 `url` 无法解析为 URL。除非 Claude Code 对该服务器有更具体的配置问题需要报告，否则在您的 shell 中运行 [`claude mcp login <name>`](/docs/zh-CN/mcp#authenticate-from-the-command-line) 会将该拒绝输出为：
@@ -2142,6 +2183,27 @@ Couldn't send feedback (couldn't reach the service). If it keeps failing, you ca
 
 在 v2.1.281 之前，如果在对话框打开期间收到了 Remote Control **Stop** 或紧急的跨会话消息，之后的每次发送都会以此消息失败。在这些版本上，请关闭对话框，重新打开，然后再次发送。
 
+### 在睡眠或时钟更改期间 MCP 服务器连接超时
+
+此消息表示与 [MCP 服务器](/docs/zh-CN/mcp.md)的连接超时，并且 Claude Code 发现您的系统时钟在尝试期间向前跳变：
+
+```text theme={null}
+MCP server "<name>" connection timed out. Your computer went to sleep or its clock changed while connecting.
+```
+
+Claude Code 无法判断是您的计算机进入了睡眠，还是其时钟被向前调整，因此消息会同时提及这两种情况。
+
+**解决方法：**
+
+再次连接到该服务器，并在尝试完成之前保持计算机处于唤醒状态。如果服务器连接成功，则无需修复任何内容。
+
+* **在交互式会话中**：运行 `/mcp`，选择该服务器，然后选择 **Reconnect**
+* **在您的 shell 中**：再次运行 [`claude -p`](/docs/zh-CN/headless)、[`claude mcp list`](/docs/zh-CN/mcp#managing-your-servers) 或 `claude mcp get` 命令。如果服务器随后失败并显示以 `Skipping connection (recent failure cached` 开头的消息，请等待 15 分钟后再次运行该命令。
+* **在 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 应用程序中**：在 TypeScript 中调用 [`reconnectMcpServer()`](/docs/zh-CN/agent-sdk/typescript#methods)，或在 Python 中调用 [`ClaudeSDKClient.reconnect_mcp_server()`](/docs/zh-CN/agent-sdk/python#methods)
+* **如果服务器再次失败**：如果消息与此不同，请参阅[MCP 服务器无法连接时应检查的内容](/docs/zh-CN/mcp-quickstart.md#troubleshooting)。如果您的计算机保持唤醒且时钟未被更改，但此消息仍再次出现，请参阅[报告错误](#report-an-error)。
+
+在 v2.1.307 之前，Claude Code 会显示 `MCP server "<name>" connection timed out after <N>ms` 之类的超时消息，而不是此消息。
+
 ## 请求错误
 
 这些错误与您的请求内容有关。大多数来自 API 拒绝请求后的返回；少数是由 Claude Code 在发送任何请求之前在本地生成的。
@@ -2487,7 +2549,7 @@ Model 'claude-opus-9' not found
 
 ### 无法通过 API 确认模型
 
-您通过 [Agent SDK](/docs/zh-CN/agent-sdk/typescript.md) `setModel()` 方法或运行 Claude Code CLI 的应用程序（如 [Desktop app](/docs/zh-CN/desktop.md)）切换了模型，向您的 API 端点确认模型 ID 的请求在五秒内没有得到答复。会话保持其当前模型。
+您通过 [Agent SDK](/docs/zh-CN/agent-sdk/typescript.md) 的 `setModel()` 方法或为您运行 Claude Code CLI 的应用（例如 [Desktop 应用](/docs/zh-CN/desktop.md)）切换了模型，而向您的 API 端点确认模型 ID 的请求在 15 秒内没有得到响应。会话保留其当前模型。
 
 ```text theme={null}
 Couldn't confirm model "claude-sonnet-5" with the API. Try again, or run /model to see available models.
@@ -4276,6 +4338,23 @@ Error: No such tool available: read. Tool names are case-sensitive: call Read in
 
 * 如果只出现一次，无需任何操作。Claude 会读取该错误，轮次继续进行。
 * 如果对某个 MCP 服务器工具的调用持续因此错误失败，请在会话中运行 `/mcp`，或在 shell 中运行 `claude mcp list` 来检查该服务器的[状态](/docs/zh-CN/mcp.md#server-status)，并从 `/mcp` 中重新连接失败的服务器。在 Agent SDK 中，请参阅[错误处理](/docs/zh-CN/agent-sdk/mcp.md#error-handling)。
+
+### MCP server connection closed before the tool call was answered
+
+对 HTTP [MCP 服务器](/docs/zh-CN/mcp.md)或 [claude.ai 连接器](/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)的工具调用在服务器应答之前断开了连接，因此 Claude Code 无法判断该工具是否已运行：
+
+```text theme={null}
+MCP server "<name>" connection closed before the tool call was answered. The tool may have run: check whether it did before running it again.
+```
+
+重复该调用可能会重复该工具的操作，例如创建第二个 issue。因此，只有当服务器将该工具标记为可安全重复时，Claude Code 才会自行重复该调用一次。
+
+**处理方法：**
+
+* 在该工具所操作的服务中检查该操作是否已发生，例如它本应创建的 issue 或记录是否存在
+* 如果该操作已发生，请不要再次运行该工具。Claude 收到的是这条消息而不是工具的结果，因此请告诉 Claude 实际结果。
+* 如果该操作未发生，请让 Claude 再次运行该工具。您无需先重新连接服务器，因为 Claude Code 会在下一次调用该服务器的某个工具时重新连接它。如果该连接也失败，请参阅[远程服务器在会话中途断开](/docs/zh-CN/mcp.md#mid-session-drops-of-a-remote-server)。
+* 如果您是该服务器的构建者，且该工具可以安全地调用两次，请[将其标记为可安全重复](/docs/zh-CN/mcp.md#tool-calls-pending-when-a-connection-closes)，以便 Claude Code 可以重复丢失的调用
 
 ### Agent would be spawned with zero tools
 

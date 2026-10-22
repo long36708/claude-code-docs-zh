@@ -50,7 +50,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 您可以在 Web 端的 [claude.ai/code/routines](https://claude.ai/code/routines)、Desktop 应用或 CLI 中创建定时任务。这三个使用入口都写入同一个云端账户，因此您在其中一处创建的定时任务会立即显示在其他位置。在 Desktop 应用的 **Code** 标签页中，点击侧边栏中或侧边栏 **More** 菜单中的 **Scheduled**，然后点击 **New task**，并继续按照[从 Web 创建](#create-from-the-web)进行操作。
 
-定时任务作为完整的 Claude Code 云端会话自主运行。您无需选择权限模式。会话会运行 shell 命令、使用 [skill](/docs/zh-CN/skills.md)，并调用您包含的任何连接器，所有这些都无需停下来等待批准，某些 [Artifact 操作](#when-a-run-publishes-an-artifact-without-asking)除外。在[项目](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)的线程之外，这些 skill 包括提交到所克隆仓库中的 skill。
+定时任务作为完整的 Claude Code 云端会话自主运行。会话会运行 shell 命令、使用 [skill](/docs/zh-CN/skills.md)，并调用您包含的任何连接器。在[项目](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)的线程之外，这些 skill 包括提交到所克隆仓库中的 skill。创建任务时无需选择权限模式：有关运行何时会停下来等待您，请参阅[运行期间的权限提示](#permission-prompts-during-a-run)。
 
 定时任务可以访问的内容由以下各项决定：
 
@@ -112,7 +112,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 **6. 检查连接器**
 
-切换到 **Advanced settings** 的 **Connectors** 标签页。默认包含您所有已连接的 [MCP 连接器](/docs/zh-CN/mcp.md)。请移除任务不需要的连接器：Claude 可以使用所包含连接器中的每个工具（包括写入操作），且在运行期间不会请求权限。
+切换到 **Advanced settings** 的 **Connectors** 标签页。默认包含您所有已连接的 [MCP 连接器](/docs/zh-CN/mcp.md)。请移除任务不需要的连接器：Claude 可以在运行期间使用所包含的连接器，包括写入操作。有关运行何时会停下来先询问您，请参阅[运行期间的权限提示](#permission-prompts-during-a-run)。
 
 **7. 创建任务**
 
@@ -362,7 +362,30 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 
 要在该对话框之外管理或添加连接器，请访问 [claude.ai/customize/connectors](https://claude.ai/customize/connectors)，或在 CLI 中使用 `/schedule update`。
 
+### 运行期间的权限提示
+
+> [!NOTE]
+>
+> 对于在您组织的自托管环境中运行的任务，请参阅[权限和工具批准](/docs/zh-CN/self-hosted-environments-configuration.md#permissions-and-tool-approval)。
+
+当运行在 Anthropic 云端启动新会话时，该会话会以[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)开始，除非自动模式不可用。在自动模式下，分类器模型会允许或阻止原本需要等待您批准的操作。
+
+在以下等情况下，运行仍会停止并等待回答：
+
+* **即使在自动模式下也会提示的操作**：例如，与[询问规则](/docs/zh-CN/permissions.md#manage-permissions)匹配的操作。请参阅[自动模式如何评估操作](/docs/zh-CN/permission-modes.md#how-auto-mode-evaluates-actions)
+* **重复阻止**：一次阻止不会结束运行。一旦阻止次数达到自动模式的[重复阻止阈值](/docs/zh-CN/permission-modes.md#repeated-block-thresholds)，运行的会话中就会出现权限提示，并一直等待直到有人回答
+
+如果自动模式不可用，例如您的组织已将其关闭或任务的模型不支持它，运行将保持其启动时的权限模式。要回答等待中的提示，请从任务的[详情页](#view-and-interact-with-runs)打开该运行。
+
+在[项目](/docs/zh-CN/claude-projects.md)中，运行可以继续某个线程，而不是启动新会话。该运行会保持线程当时所处的权限模式。该线程在创建时会以自动模式开始，除非自动模式不可用。要回答在该线程中等待的提示，请参阅[解除等待批准的线程的阻塞](/docs/zh-CN/claude-projects.md#unblock-a-thread-waiting-on-approval)。
+
 ### 运行在未询问的情况下发布 Artifact 的情形
+
+在[自动模式](#permission-prompts-during-a-run)下的运行期间，一旦分类器允许发布，Claude 就会在不询问您的情况下发布 [Artifact](/docs/zh-CN/artifacts.md)。在某些情况下仍会先询问您，例如发布操作与[询问规则](/docs/zh-CN/permissions.md#manage-permissions)匹配时。在您[共享它](/docs/zh-CN/artifacts.md#share-an-artifact)之前，新的 Artifact 仅对您可见。下文的 [Accept edits 规则](#artifacts-in-accept-edits-mode)不适用于自动模式。
+
+如果定时任务的工作是保持某个页面处于最新状态，请为其提供一个您已经发布的 Artifact。
+
+#### Accept edits 模式下的 Artifact
 
 当定时任务的计划或 **Run now** 启动一次运行时，Claude 可以在不询问的情况下发布新的 [Artifact](/docs/zh-CN/artifacts.md)。在您[共享它](/docs/zh-CN/artifacts.md#share-an-artifact)之前，新的 Artifact 仅对您可见。如果发布操作为页面声明了运行时能力，例如[连接器调用](/docs/zh-CN/artifacts.md#pull-live-data-with-mcp-connectors)或[文件下载](/docs/zh-CN/artifacts.md#offer-a-file-download)，Claude 会先询问。
 
@@ -377,8 +400,6 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 * 现有页面不持有任何超出页面范围的授权，例如[连接器调用](/docs/zh-CN/artifacts.md#pull-live-data-with-mcp-connectors)
 
 在所有其他情况下，包括由 API 或 GitHub 触发器启动的运行，Claude 都会先询问。
-
-如果定时任务的工作是保持某个页面处于最新状态，请为其提供一个您已经发布的 Artifact。
 
 ### 环境和网络访问
 

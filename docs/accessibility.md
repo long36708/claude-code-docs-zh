@@ -24,9 +24,16 @@ Claude Code 具有屏幕阅读器模式，可将其视觉终端界面替换为�
 
 Claude Code 打印的第一行确认该模式：`[Screen Reader Mode: on via flag]`、`[Screen Reader Mode: on via env]` 或 `[Screen Reader Mode: on via settings]`。
 
+### 项目设置无法打开屏幕阅读器模式
+
+启动时显示的 `Screen reader mode is off: project settings can't turn it on` 这一行表示项目请求了屏幕阅读器模式，但没有其他方式将其打开。Claude Code 会忽略项目的 `.claude/settings.json` 和 `.claude/settings.local.json` 中的 `axScreenReader` 键以及 `env` 下的 `CLAUDE_AX_SCREEN_READER` 值，无论其值为何。
+
+* **要打开该模式**：使用 `--ax-screen-reader` 启动 Claude Code，在您的 shell 中将 `CLAUDE_AX_SCREEN_READER` 设置为 `1`，或将 `"axScreenReader": true` 添加到您的用户[设置文件](/docs/zh-CN/settings.md)并重新启动 Claude Code。您无需更改项目的文件。打开该模式后，启动时将改为显示[确认行](#turn-on-screen-reader-mode)。
+* **如果您不使用屏幕阅读器**：您无需执行任何操作。要阻止该行出现，请将 `"axScreenReader": false` 添加到您的用户设置文件，或从项目的设置文件中删除 `axScreenReader` 键和 `CLAUDE_AX_SCREEN_READER` 变量。
+
 ## 关闭屏幕阅读器模式
 
-反转打开模式的任何方法：启动时不使用标志、取消设置环境变量或将 `axScreenReader` 设置为 `false`。如果将 `CLAUDE_AX_SCREEN_READER` 设置为 `0`，Claude Code 即使在设置为 `true` 时也会保持模式关闭。
+反转打开模式的任何方法：启动时不使用标志、取消设置环境变量或在用户设置文件中将 `axScreenReader` 设置为 `false`。如果将 `CLAUDE_AX_SCREEN_READER` 设置为 `0`，Claude Code 即使在设置为 `true` 时也会保持模式关闭。
 
 ## 无障碍设置
 

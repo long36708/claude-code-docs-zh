@@ -414,6 +414,8 @@ spec:
             - /etc/claude/environment-secret
             - --capacity
             - "4"
+            - --base-dir
+            - /workspace
           volumeMounts:
             - name: environment-secret
               mountPath: /etc/claude
@@ -467,6 +469,8 @@ services:
       - /run/secrets/environment-secret
       - --capacity
       - "4"
+      - --base-dir
+      - /workspace
     secrets:
       - environment-secret
     restart: always
@@ -489,8 +493,6 @@ secrets:
 
 在整个排空过程中，运行器持续轮询 Anthropic。这会使其会话保持分配给它，因此在您的 `post-session` hook 仍在保存未提交的工作时，其他运行器不会接管这些会话。
 
-由于 `--drain-wait-sec` 默认为 `0`，滚动重启会中断任何仍在运行的轮次，会话将在另一个运行器上恢复，但不包含其[未推送的工作](#additional-limitations)。若要让轮次先完成，请设置 `--drain-wait-sec`，并相应提高停止超时时间。
-
 记录的时间是以下各值之和：
 
 * 步骤 1 的 `--drain-wait-sec`，默认为 0 秒
@@ -505,6 +507,18 @@ secrets:
 
 * **使用 [`--retire-at`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)**：在退休时间与主机停止时间之间留出足够的时间，以便典型轮次完成，再加上 [Runner lifecycle](/docs/zh-CN/self-hosted-environments#runner-lifecycle) 所述的后台任务等待时间，再加上记录的时间。在每次启动时计算退休时间，例如 `date +%s` 加上运行器的预期生命周期。
 * **使用 [`--defer-shutdown-max-min`](#defer-the-drain-past-the-first-signal)**：停止超时时间还必须涵盖您配置的分钟数，以及排空开始前的进一步等待时间（默认设置下为 75 秒）。[Defer the drain past the first signal](#defer-the-drain-past-the-first-signal) 对这两者都有说明。运行器同样会在启动时记录这一更长的时间。
+
+### 在重启前让正在运行的轮次完成
+
+若要在滚动重启前让正在运行的轮次完成，请设置 `--drain-wait-sec`，并将停止超时时间提高到至少该等待时间加 80 秒。在默认等待时间为 `0` 的情况下，重启会中断任何仍在运行的轮次，会话将在另一个运行器上恢复，但不包含其[未推送的工作](#additional-limitations)。
+
+* **`--drain-wait-sec`**：大致设为您希望等待完成的轮次和后台任务所需的时长。这是一个上限：如果它们先完成，等待会提前结束。
+* **您的停止超时时间**：Kubernetes 中的 `terminationGracePeriodSeconds`，Docker Compose 中的 `stop_grace_period`。例如，使用 `--drain-wait-sec 120` 时，将 [Kubernetes](#kubernetes) 或 [Docker Compose](#docker-compose) 配方中的 `90` 替换为 `200`。
+* **如果您更改了其他关闭设置**：80 秒仅适用于默认设置。使用您的标志启动一个运行器，并至少采用其启动日志行 `This runner needs up to` 中的数字，该数字已包含等待时间。如果设置了 [`--defer-shutdown-max-min`](#defer-the-drain-past-the-first-signal)，请使用下一条启动日志行中 `Size the stop timeout to at least` 之后的更大数字。[Shutdown timing](#shutdown-timing) 列出了会增加这些数字的因素。
+
+> [!WARNING]
+>
+> 如果停止超时时间在等待期间用完，主机会在工作仍在运行时终止运行器。其会话不会运行 `post-session` hook。运行器也不会注销，因此控制平面可能需要几分钟甚至更长时间才能重新排队这些会话。
 
 ### 在重启前发布状态消息
 
@@ -543,9 +557,9 @@ secrets:
 
 ## 在运行器之间保持基目录和容量相同
 
-如果运行器在会话中途死亡，服务器重新排队会话，环境中的另一个运行器获取它。该运行器从其自己的 `--base-dir` 和 `--capacity` 派生检出路径：`--capacity 1` 直接在 `--base-dir` 下检出，`--capacity` 高于 1 改用按会话 worktrees。当同一环境中的运行器对任一标志使用不同的值时，恢复的会话的工作目录更改，代理之前记录的绝对路径（在编辑、工具调用或其自己的笔记中）指向不再存在的位置。
+如果运行器在会话中途死亡，服务器重新排队会话，环境中的另一个运行器获取它。该运行器从其自己的 `--base-dir` 和 `--capacity` 派生检出路径：`--capacity 1` 直接在 `--base-dir` 下检出，`--capacity` 高于 `1` 改用按会话 worktrees。当同一环境中的运行器对任一标志使用不同的值时，恢复的会话的工作目录更改，Agent 之前记录的绝对路径（在编辑、工具调用或其自己的笔记中）指向不再存在的位置。
 
-在环境中的每个运行器上使用相同的 `--base-dir` 和 `--capacity`，并且不要使用按主机的值，例如实例 ID 或主机名。
+在环境中的每个运行器上使用相同的 `--base-dir` 和 `--capacity`，并且不要使用按主机的值，例如实例 ID 或主机名。请像 [Kubernetes](#kubernetes) 和 [Docker Compose](#docker-compose) 示例那样显式传递这两个标志，使两个值都不依赖于默认值。
 
 基目录默认为 `/workspace`，除了 [`--base-dir` 参考行](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)记录的例外。运行器需要对其的写入访问。在启动时，在注册之前，运行器创建目录并确认它可以写入，当它不能时以 `cannot create or write to base directory` 退出。以 root 身份启动的运行器自己创建默认 `/workspace`。对于非 root 运行器，在启动运行器之前创建目录并给运行器的用户所有权，或将 `--base-dir` 指向该用户已拥有的目录。
 
@@ -667,13 +681,17 @@ claude self-hosted-runner doctor
 
   例如，一行可能以 `poll failed: self signed certificate in certificate chain — retrying in 1s` 结尾，冒号和破折号之间是 TLS 库给出的文字。要确认修复，请检查编排器的 [`/healthz`](/docs/zh-CN/self-hosted-environments-reference#health-endpoint) 正文中 `connected` 是否为 `true`。
 * **会话保持排队**：每个在线运行器可能被锁定到不同的所有者。检查每个运行器的 `claude_code_self_hosted_runner_locked_account` [指标](/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics) 或其 `[runner:health]` 日志行的 `locked_account` 字段，以查看谁持有它。两者仅在运行器被颁发携带 `act.email` 声明的会话令牌后才显示所有者的电子邮件，Claude Tag 代理的会话永远不会这样做。没有该声明，运行器不发出 `locked_account` 系列，并记录 `locked_account=yes`，这告诉您运行器被锁定但不知道是哪个所有者。添加副本，或等待现有运行器耗尽并重新启动。如果环境使用按需运行器，请改为检查编排器；请参阅 [按需运行器](/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)。
-* **会话在拾取后立即失败**：在 claude.ai/code 中打开会话以查看错误。最常见的原因是运行器镜像中缺少 [git 凭据](#configure-git) 和未安装的构建工具。对于使用 `--use-anthropic-git-proxy` 启动的运行器，请参阅 [当会话在使用 git 代理的运行器上无法启动时](#when-anthropic-doesnt-serve-a-session)。不可写的基础目录会在启动时停止运行器，而不是失败会话。请参阅此列表中的 **运行器在启动时退出，显示 `cannot create or write to base directory`** 条目。
+* **会话在拾取后立即失败**：在 claude.ai/code 中打开会话以查看错误。如果错误显示 git 无法进行身份验证，请检查运行器的 [git 凭据](#configure-git)。对于使用 `--use-anthropic-git-proxy` 启动的运行器，请参阅 [当会话在使用 git 代理的运行器上无法启动时](#when-anthropic-doesnt-serve-a-session)。
+
+  不可写的基础目录会在启动时停止运行器，而不是使会话失败。请参阅此列表中的 **运行器在启动时退出，显示 `cannot create or write to base directory`** 条目。
 * **在设置了 `--use-anthropic-git-proxy` 的运行器上会话无法启动**：在运行器的日志中查找 `access denied by the git proxy`，或查找指明包含 `/git_proxy/` 的 `api.anthropic.com` 地址的 git 错误。要判断 Anthropic 是否提供了该会话并修复原因，请参阅 [当会话在使用 git 代理的运行器上无法启动时](#when-anthropic-doesnt-serve-a-session)。
 * **会话无法通过身份验证出口代理到达网络**：当您使用 [`--proxy-authorization-command` 或 `--proxy-authorization-file`](#authenticate-to-an-egress-proxy) 设置的源失败、在 30 秒后超时或产生空值时，运行器以 `502 Bad Gateway` 应答该连接并记录原因。运行器在该日志中编辑命令的 stderr，并且永远不会记录标头值。使用 `--proxy-authorization-command` 时，在主机上自己运行该命令以确认它在 stdout 上打印整个标头值。如果运行器改为在启动时退出，显示 `could not start the proxy-authorization listener`，则它无法打开其环回监听器。
-* **运行器记录包含 `rejecting the malformed poll response` 的 `Poll failed` 行**：运行器收到的工作轮询响应的正文不是队列的预期 JSON，最常见的原因是运行器和 `api.anthropic.com` 之间的某些内容（例如拦截代理或强制门户）用自己的页面进行了应答。运行器拒绝响应，在 `claude_code_self_hosted_runner_poll_errors_total` [指标](/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics) 的 `transport` 类型下计数，并按 [会话生命周期](/docs/zh-CN/self-hosted-environments#session-lifecycle) 中描述的失败轮询计划重试。运行器继续为其实时会话提供服务。配置代理以将来自 `api.anthropic.com` 的响应原封不动地传递。在 v2.1.246 之前，运行器将这样的响应读取为空工作队列，这可能会结束其实时会话或使其退出。
+* **运行器记录包含 `rejecting the malformed poll response` 的 `Poll failed` 行**：运行器收到的工作轮询响应的正文不是队列的预期 JSON。原因之一是拦截代理或强制门户用自己的页面进行了应答。如果运行器通过代理连接，请配置代理以将来自 `api.anthropic.com` 的响应原封不动地传递。
+
+  运行器拒绝该格式错误的响应，在 `claude_code_self_hosted_runner_poll_errors_total` [指标](/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics) 的 `transport` 类型下计数，并按 [会话生命周期](/docs/zh-CN/self-hosted-environments#session-lifecycle) 中描述的失败轮询计划重试。运行器继续为其实时会话提供服务。在 v2.1.246 之前，运行器将这样的响应读取为空工作队列，这可能会结束其实时会话或使其退出。
 * **会话失败，显示 `no longer exists on the remote` 或 `couldn't find remote ref`**：运行器会将 git 的 `couldn't find remote ref` 理解为分支已被删除。但该分支可能仍然存在。请在您的 git 主机上按消息中的确切名称查找该分支，然后逐一检查符合情况的原因：
 
-  * **分支已不存在**：通常是因为它已被合并并自动删除。请按消息的要求恢复该分支。
+  * **分支已不存在**：请按消息的要求恢复该分支。
   * **分支存在，且您不管理该运行器**：将完整消息发送给运行器的管理员，并告知其该分支存在。
   * **分支存在，且运行器有 `checkout` hook**：您的 hook 中的某个 git 命令可能会在 hook 以非零状态退出之前将 `couldn't find remote ref` 打印到 stderr。找到该命令，并更正它请求的 ref 或它从中获取的远程。运行器会将会话请求的修订版本作为 [`CLAUDE_RUNNER_REPO_REF`](/docs/zh-CN/self-hosted-environments-configuration#checkout) 传递给您的 hook。
   * **分支存在，且运行器没有 `checkout` hook**：运行器会自行获取该分支。如果某个 [`--git-host-rewrite`](#rewrite-git-urls-for-private-networks) 适用于该仓库，请确认其重写到的目标主机上存在同名分支，如果不存在，请将该分支推送到那里。
@@ -681,7 +699,7 @@ claude self-hosted-runner doctor
 
   升级运行器或修复原因后，请重试该会话或启动新会话。如果这些检查都未能找到原因，请[报告问题](#report-an-issue)。
 
-  对于会话推送结果的源，删除的分支会导致会话失败。对于会话仅从中读取的 git 源，运行器跳过该源并继续处理其余源。当跳过会导致会话完全没有仓库时，运行器会以相同的错误使会话失败。在 v2.1.228 之前，这样的会话在空目录中启动。
+  对于会话推送结果的源，删除的分支会导致会话失败。对于会话仅从中读取的 git 源，运行器跳过该源并继续处理其余源。当跳过会导致会话完全没有仓库时，运行器会使会话失败。在 v2.1.228 之前，这样的会话在空目录中启动。
 * **会话启动时缺少其中一个存储库**：在没有 [`checkout` hook](/docs/zh-CN/self-hosted-environments-configuration#checkout) 的运行器上，git 主机可能会拒绝运行器对会话仅从中读取的存储库的访问检查。运行器随后跳过该存储库，记录一条 `[runner:warn] could not access context source` 行，命名拒绝，并在其余存储库上启动会话。
 
   运行器仅跳过明确的拒绝：主机回答存储库未找到，git 找不到主机的凭证，或身份验证失败。网络故障、超时或 HTTP `403` 仍会导致会话启动失败，对于会话推送结果的存储库的拒绝也是如此。运行器仍会失败一个会话，跳过会导致它完全没有存储库。使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)，运行器仅跳过 git 代理本身拒绝的存储库。
@@ -714,6 +732,8 @@ claude self-hosted-runner doctor
 * **失去联系**：无法连接 Anthropic 的时间超过其 [租约](/docs/zh-CN/self-hosted-environments#session-lifecycle) 的运行器（例如在其主机休眠期间）可能会被从环境中移除。被移除的运行器重新连接时会退出。其日志可能显示一条包含 `runner record gone server-side` 的 `[runner:fatal]` 行，或者在较长时间的中断之后显示 [`poll auth failed`](/docs/zh-CN/self-hosted-environments-quickstart#set-up-an-environment-and-runner)。运行器不会自行重新注册，因此请重新启动它。
 
 配置您的监督程序在运行器退出时重新启动它，当运行器在启动后立即保持退出时等待更长时间，并在这种情况持续发生时告知某人。
+
+对于生产环境，请让您的监督程序在全新的磁盘上、在新的容器或 VM 中重新启动运行器，正如 [加固您的部署](#harden-your-deployment) 所建议的那样。
 
 #### 识别启动失败
 

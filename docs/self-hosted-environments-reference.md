@@ -30,7 +30,7 @@
 | `--defer-shutdown-max-min <n>` | `SELF_HOSTED_RUNNER_DEFER_SHUTDOWN_MAX_MS` | `0` | 在第一个 `SIGTERM` 或 `SIGINT` 上，继续为已附加的会话提供服务而不是排空它们，然后在 N 分钟后释放仍然附加的任何内容并退出。在设置此值之前提高主机的停止超时。请参阅[将排空推迟到第一个信号之后](/docs/zh-CN/self-hosted-environments-deploy.md#defer-the-drain-past-the-first-signal)。`0` 禁用。需要 Claude Code v2.1.238 或更高版本。 |
 | `--drain-grace-sec <n>` | `SELF_HOSTED_RUNNER_DRAIN_GRACE_MS` | `0` | 在运行器接收到关闭信号或达到其退休时间之前，控制运行器在其活跃会话完成后何时退出：`0` 立即退出而不轮询更多内容，正值使运行器保持活跃并首先重新轮询锁定所有者的队列那么多秒，代价是[加强部分](/docs/zh-CN/self-hosted-environments-deploy.md#harden-your-deployment)中描述的每个会话容器隔离。在您使用 [`--defer-shutdown-max-min`](/docs/zh-CN/self-hosted-environments-deploy#defer-the-drain-past-the-first-signal) 推迟的第一个信号之后，运行器在不持有任何会话时立即退出，无论您在此处设置什么。 |
 | `--drain-marker-file <path>` | `SELF_HOSTED_RUNNER_DRAIN_MARKER_FILE` | 未设置 | 标记文件，您的主机写入该文件以在发送 `SIGTERM` 之前宣布优雅排空。当文件在排空开始时存在时，运行器将其退出报告给 Anthropic 作为主机排空而不是普通关闭信号。排空本身（包括 `--drain-wait-sec` 保持）的运行方式与没有标志相同。在会话无法写入的本地文件系统上命名路径。需要 Claude Code v2.1.271 或更高版本。 |
-| `--drain-wait-sec <n>` | `SELF_HOSTED_RUNNER_DRAIN_WAIT_MS` | `0` | 一旦排空开始（在 `SIGTERM` 上，除非您设置 [`--defer-shutdown-max-min`](/docs/zh-CN/self-hosted-environments-deploy#defer-the-drain-past-the-first-signal)），等待最多 N 秒以完成每个会话的进行中的轮次和后台任务，然后终止子进程。在此等待期间，运行器将刚刚完成的后台任务计为仍在运行，直到读取其结果的后续轮次开始，最多为 [`SELF_HOSTED_RUNNER_BG_RESULT_GRACE_MS`](#environment-variable-only-settings) 窗口。 |
+| `--drain-wait-sec <n>` | `SELF_HOSTED_RUNNER_DRAIN_WAIT_MS` | `0` | 一旦排空开始（在 `SIGTERM` 上，除非您设置 [`--defer-shutdown-max-min`](/docs/zh-CN/self-hosted-environments-deploy#defer-the-drain-past-the-first-signal)），等待最多 N 秒以完成每个会话的进行中的轮次和后台任务，然后终止子进程。在此等待期间，运行器将刚刚完成的后台任务计为仍在运行，直到读取其结果的后续轮次开始，最多为 [`SELF_HOSTED_RUNNER_BG_RESULT_GRACE_MS`](#environment-variable-only-settings) 窗口。[同时提高您的停止超时时间](/docs/zh-CN/self-hosted-environments-deploy.md#let-running-turns-finish-before-a-restart)。 |
 | `--environment-secret-file <path>` | `SELF_HOSTED_RUNNER_ENVIRONMENT_SECRET` | 必需 | 包含环境密钥的文件的路径，或对于由[编排器](/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)生成的运行器，单次使用的工作订单 JWT。`SELF_HOSTED_RUNNER_ENVIRONMENT_SECRET` 直接携带密钥值，而不是文件路径。较旧的 `--pool-secret-file` 标志和 `SELF_HOSTED_RUNNER_POOL_SECRET` 变量仍然有效并向 stderr 打印弃用通知；早于 2.1.216 的预览程序运行器构建仅识别这些较旧的名称。 |
 | `--exec-path <path>` | `SELF_HOSTED_RUNNER_EXEC_PATH` | 自己的二进制文件 | 为每个会话生成的二进制文件或包装脚本。请参阅[包装脚本](/docs/zh-CN/self-hosted-environments-configuration.md#wrapper-scripts)。 |
 | `--exit-if-unused-min <n>` | `SELF_HOSTED_RUNNER_IDLE_SHUTDOWN_MS` | `0` | 在 N 分钟的轮询后退出，没有任何工作被分配，用于自动扩展器缩小。`0` 禁用。 |
@@ -254,7 +254,7 @@ groups:
         for: 5m
         labels: {severity: warning}
         annotations:
-          summary: "运行器 {{ $labels.pod }}：10 分钟内 >3 个会话初始化失败（checkout 钩子 / git / 令牌 / 初始化前崩溃）"
+          summary: "运行器 {{ $labels.pod }}：10 分钟内 >3 个会话初始化失败（checkout hook / git / 令牌 / 初始化前崩溃）"
       - alert: ClaudeRunnerPollErrors
         expr: sum by (pod) (rate(claude_code_self_hosted_runner_poll_errors_total[5m])) > 0
         for: 2m
@@ -266,7 +266,7 @@ groups:
         for: 5m
         labels: {severity: warning}
         annotations:
-          summary: "运行器 {{ $labels.pod }}：10 分钟内 >3 个 SessionStart 钩子失败"
+          summary: "运行器 {{ $labels.pod }}：10 分钟内 >3 个 SessionStart hook 失败"
 
   - name: claude-code-self-hosted-orchestrator
     rules:
@@ -281,7 +281,7 @@ groups:
         for: 2m
         labels: {severity: warning}
         annotations:
-          summary: "编排器 {{ $labels.pod }} 已超过 90 秒未轮询（轮询循环等待钩子执行）"
+          summary: "编排器 {{ $labels.pod }} 已超过 90 秒未轮询（轮询循环等待 hook 执行）"
       - alert: ClaudeOrchestratorCircuitBroken
         expr: claude_code_self_hosted_orchestrator_queue_circuit_broken_sessions > 0
         for: 1m
@@ -299,7 +299,7 @@ groups:
         for: 5m
         labels: {severity: warning}
         annotations:
-          summary: "编排器 {{ $labels.pod }}：5 分钟内 >3 个 spawn-runner 钩子失败"
+          summary: "编排器 {{ $labels.pod }}：5 分钟内 >3 个 spawn-runner hook 失败"
 ```
 
 ### 传递会话子进程指标
@@ -307,6 +307,13 @@ groups:
 每个会话在其自己的子进程中运行，具有自己的 OpenTelemetry 指标；在 `--capacity` 高于 1 时，运行器重写这些子指标的公开方式。在运行器主机上设置 `OTEL_METRICS_EXPORTER=prometheus` 和会话环境中的 `CLAUDE_CODE_ENABLE_TELEMETRY=1`（例如从您的[包装脚本](/docs/zh-CN/self-hosted-environments-configuration.md#wrapper-scripts)或运行器自己的环境，会话继承），重新公开每个子进程的计数器和仪表工具在运行器自己的 `/metrics` 端点上，与运行器的系列一起。运行器将子进程的导出器重写为通过 OTLP 推送到健康端口上的仅环回接收器，用 `session_id` 和 `client_platform` 标签标记每个系列，并在该会话结束时驱逐会话的系列。直方图不通过，子指标名称与运行器自己的前缀冲突的会被删除。
 
 在默认 `--capacity 1` 处，重写不适用：会话的子进程照常在端口 9464 上绑定自己的 Prometheus 端点。
+
+#### 将会话的指标与运行器的指标关联
+
+要将会话自身的指标与 `claude_code_self_hosted_runner_session_idle_seconds` 放在一起，请基于运行器的 `session_id` 进行关联：
+
+* **在 `--capacity` 高于 1 时**：直接关联。在运行器的 `/metrics` 上，会话的系列携带与该指标相同的 `session_id`，采用 `session_...` 形式。
+* **在 `--capacity 1` 时**：基于转换后的 `ccr_session_id` 进行关联。默认情况下，端口 9464 上的每个 Claude Code 指标都携带该标签，其中保存 `cse_...` 形式的会话 ID。在一个新标签中，将其 `cse_` 前缀替换为 `session_`，即可得到运行器的 `session_id`。该指标自身的 `session_id` 保存的是 Claude Code 自己的 [`session.id`](/docs/zh-CN/monitoring-usage#standard-attributes)，它不与任何运行器系列匹配。
 
 ### 会话生命周期计数器语义
 

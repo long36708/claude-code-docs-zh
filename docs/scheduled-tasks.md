@@ -29,7 +29,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 | 重启后持久化 | 是 | 是 | 在 `--resume` 上恢复，有[例外](/docs/zh-CN/scheduled-tasks.md#limitations) |
 | 访问本地文件 | 否（新克隆） | 是 | 是 |
 | MCP servers | 每个任务配置的连接器 | [配置文件](/docs/zh-CN/mcp.md)和连接器 | 从会话继承 |
-| 权限提示 | 否（自主运行） | 每个任务可配置 | 从会话继承 |
+| 权限提示 | 默认为[自动模式](/docs/zh-CN/routines.md#permission-prompts-during-a-run) | 每个任务可配置 | 从会话继承 |
 | 可自定义的计划 | 是 | 是 | 是 |
 | 最小间隔 | 1 小时 | 由 Claude 设置时为 1 分钟，[在表单中为 1 小时](/docs/zh-CN/desktop-scheduled-tasks.md#schedule-options) | 1 分钟 |
 

@@ -563,6 +563,8 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 
 默认情况下，来自云会话的指标和事件携带[标准属性](#standard-attributes)，包括 `session.id`、`ccr.session.id` 和 `organization.id`，因此您可以按会话或组织进行筛选，无需额外配置。`ccr.session.id` 值是会话的 `CLAUDE_CODE_REMOTE_SESSION_ID`。要将其转换为会话的成绩单 URL，请参阅[将输出链接回会话](/docs/zh-CN/cloud-environments.md#link-output-back-to-the-session)。
 
+要区分不同的云端会话，请按 `ccr.session.id`（而不是 `session.id`）进行分组或筛选。
+
 要更详细地属性化遥测，请使用这些选项：
 
 * **识别 Claude Tag 会话**：设置 `OTEL_METRICS_INCLUDE_ENTRYPOINT=true`，如[指标基数控制](#metrics-cardinality-control)下所述。指标随后会携带 `app.entrypoint`，其值对于 Claude Tag 会话为 `claude-in-slack`。
@@ -578,7 +580,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 
 | 属性 | 描述 | 控制方式 |
 | - | - | - |
-| `session.id` | 唯一的会话标识符 | `OTEL_METRICS_INCLUDE_SESSION_ID`（默认值：true） |
+| `session.id` | Claude Code 自身的会话 ID，`/clear` 会替换它 | `OTEL_METRICS_INCLUDE_SESSION_ID`（默认值：true） |
 | `ccr.session.id` | 云端会话标识符，即 `CLAUDE_CODE_REMOTE_SESSION_ID` 的值，仅出现在运行于[云环境](/docs/zh-CN/cloud-environments.md)中的会话上 | `OTEL_METRICS_INCLUDE_SESSION_ID`（默认值：true） |
 | `app.version` | 当前 Claude Code 版本 | `OTEL_METRICS_INCLUDE_VERSION`（默认值：false） |
 | `app.entrypoint` | 会话的启动方式，例如 `cli`、`sdk-cli`、`sdk-ts`、`sdk-py`、`claude-vscode`，或用于 Claude Tag 会话的 `claude-in-slack` | `OTEL_METRICS_INCLUDE_ENTRYPOINT`（默认值：false） |
@@ -1008,10 +1010,12 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   * Claude Code 在自动模式下未询问分类器就批准了该调用
   * 用户回答了 Claude Code 在[多次阻止](/docs/zh-CN/permission-modes.md#repeated-block-thresholds)后显示的提示
   * 在不带 `--permission-prompt-tool` 的 `-p` 运行中，由于没有人可以回答提示，Claude Code 在多次阻止后拒绝了该调用。该事件将 `decision` 报告为 `"reject"`，将 `source` 报告为 `"config"`
-* `classifier_category`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：分类器阻止该调用时所指明的[内置规则](/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)名称，采用小写加下划线形式，例如 Data Exfiltration 规则对应 `"data_exfiltration"`。需要 Claude Code v2.1.301 或更高版本。当以下条件全部满足时，该属性存在：
+* `classifier_category`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：分类器阻止该调用时指明的[内置规则](/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)名称，采用小写加下划线形式，例如 Data Exfiltration 规则对应 `"data_exfiltration"`。需要 Claude Code v2.1.301 或更高版本。当以下两个条件同时成立时，该属性存在：
+
   * `classifier_verdict` 为 `"block"`
-  * 分类器请求由 Claude Code 自行发送，而不是使用[服务器端分类器审查](/docs/zh-CN/permission-modes.md#server-side-classifier-review)
-  * 分类器恰好指明了一条规则，且该规则是内置规则，而不是您编写的规则
+  * 分类器恰好指明了一条规则，且该规则是内置规则而非您编写的规则
+
+  在 v2.1.302 之前，对于由[服务器端分类器审查](/docs/zh-CN/permission-modes.md#server-side-classifier-review)决定的任何阻止，该属性也不存在。
 * `permission_mode`：此调用的权限检查开始时处于活动状态的[权限模式](/docs/zh-CN/permission-modes.md)：`"default"`、`"plan"`、`"acceptEdits"`、`"bypassPermissions"`、`"dontAsk"` 或 `"auto"`。手动模式显示为 `"default"`。[子代理](/docs/zh-CN/sub-agents.md#permission-modes)的调用报告的是子代理的权限模式，而不是会话的权限模式。需要 Claude Code v2.1.301 或更高版本
 * `tool_parameters`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：包含工具特定参数的 JSON 字符串。结构与[工具结果事件](#tool-result-event)相同，但不含 `git_commit_id` 等执行后字段。如果权限决策通过 `updatedInput` 重写了工具输入，对于被接受的调用，其值可能与 `tool_result` 不同。当 `decision` 为 `"reject"` 时，可使用此属性查看哪个命令被拒绝。
   * 对于 `"sdk_host_builtin_mcp"` 工具：即使 `OTEL_LOG_TOOL_DETAILS` 关闭，也会包含 `mcp_server_name` 和 `mcp_tool_name`，因为这些名称由宿主应用定义；如果没有它们，对这些内置服务器之一的被拒绝调用在默认数据流中将无法归属。对于用户配置的 MCP 服务器，事件的 `tool_name` 始终为字面值 `"mcp_tool"`，服务器和工具名称仅在启用该标志时出现在 `tool_parameters` 中；参数内容在任何情况下都需要该标志。

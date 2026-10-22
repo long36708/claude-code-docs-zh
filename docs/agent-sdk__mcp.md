@@ -494,7 +494,12 @@ options = ClaudeAgentOptions(
 
 ### OAuth2 身份验证
 
-[MCP 规范支持 OAuth 2.1](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization) 用于授权。SDK 不会打开浏览器或运行交互式 OAuth 流程。当配置的服务器返回授权质询且没有可用的存储令牌时，代理运行将继续而不使用该服务器的工具，服务器报告状态为 `needs-auth`。[系统初始化消息](/docs/zh-CN/agent-sdk/typescript.md#sdksystemmessage)的 `mcp_servers` 数组在发出时可能仍会为该服务器显示 `pending`。要确认服务器是否需要凭证，请在 TypeScript SDK 中轮询 `mcpServerStatus()` 或在 Python 中轮询 [`get_mcp_status()`](/docs/zh-CN/agent-sdk/python#methods)。
+[MCP 规范支持 OAuth 2.1](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization) 用于授权。SDK 不会打开浏览器或运行交互式 OAuth 流程。当配置的服务器返回授权质询而 Claude Code 没有可发送的令牌时，SDK 会将该服务器报告为 `needs-auth` 或 `failed`：
+
+* **`needs-auth`**：Claude Code 未找到可用于该服务器的登录信息。请在 `headers` 中传递令牌，或在运行之前在同一台机器上[从交互式 Claude Code 会话中登录](/docs/zh-CN/mcp.md#authenticate-with-remote-mcp-servers)。
+* **`failed`**，且其 [`McpServerStatus`](/docs/zh-CN/agent-sdk/typescript#mcpserverstatus) 条目中的 `error` 以 `Couldn't read the stored credentials` 或 `A request to MCP server` 开头：Claude Code 无法读取其凭据存储。有关处理方法，请参阅 [Couldn't read the stored credentials for MCP server](/docs/zh-CN/errors.md#couldnt-read-the-stored-credentials-for-mcp-server)。在 Claude Code v2.1.307 之前，当 Mac 的登录钥匙串被锁定时，状态会显示为 `needs-auth`。
+
+无论哪种情况，Agent 运行都会继续，但不使用该服务器的工具。[系统初始化消息](/docs/zh-CN/agent-sdk/typescript.md#sdksystemmessage)的 `mcp_servers` 数组在发出时可能仍会为该服务器显示 `pending`。要确认服务器是否需要凭据，请在 TypeScript SDK 中轮询 `mcpServerStatus()` 或在 Python 中轮询 [`get_mcp_status()`](/docs/zh-CN/agent-sdk/python#methods)。
 
 要提供凭证，请在您自己的应用程序中完成 OAuth 流程，并在服务器的 `headers` 中传递生成的访问令牌：
 

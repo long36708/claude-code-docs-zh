@@ -40,7 +40,7 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 | `CLAUDE_CONFIG_DIR` | 按会话 Claude 配置目录，在会话启动时从运行器在启动时捕获的运行器主机配置快照中写入；请参阅 [Permissions and tool approval](#permissions-and-tool-approval)。此处的写入仅限于此会话。除非您使用 [`--remove-session-state`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，否则会话结束后该目录仍会保留在 `<base-dir>/_sessions/` 下；请参阅 [Reuse a pre-warmed checkout](/docs/zh-CN/self-hosted-environments-deploy.md#reuse-a-pre-warmed-checkout)。 |
 | `CLAUDE_CODE_REMOTE_MCP_CONFIG` | 指向 `CLAUDE_CONFIG_DIR` 中某个文件的路径，该文件保存 Anthropic 控制平面为此会话交付的 MCP 服务器定义。如果您的包装脚本重建子进程的环境，请携带此变量。如果缺少此变量，当控制平面更新交付的服务器时，子进程会关闭您的包装脚本通过 [`--mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 添加但不在更新中的任何 stdio、HTTP 或 SSE 服务器。需要 Claude Code v2.1.299 或更高版本。 |
 | `ANTHROPIC_BASE_URL` | 子进程将使用的 API 基础 URL，由控制平面按会话交付，通常为 `https://api.anthropic.com`。不要覆盖它：会话的推理凭据是 Anthropic 颁发的 OAuth 令牌，其他提供者不接受。 |
-| `CLAUDE_CODE_OAUTH_TOKEN` | 子进程用于模型推理的短期 OAuth 访问令牌，作用域仅限于模型推理和文件上传，生命周期约为 30 分钟。运行器在过期前重新生成它，并通过子进程的 stdin 交付轮换，因此不 [keep stdin attached](#keep-stdin-and-file-descriptor-3-attached) 的包装脚本只看到初始值。不要依赖您的组织 IP 允许列表来限制此令牌的使用：将其视为持有者凭据，如果泄露，大约 30 分钟内仍可使用，不要记录它、写入磁盘或在会话容器外转发它。 |
+| `CLAUDE_CODE_OAUTH_TOKEN` | 子进程用于模型推理的短期 OAuth 访问令牌，生命周期约为 30 分钟。运行器在过期前重新生成它，并通过子进程的 stdin 交付轮换，因此不 [keep stdin attached](#keep-stdin-and-file-descriptor-3-attached) 的包装脚本只看到初始值。不要依赖您的组织 IP 允许列表来限制此令牌的使用：将其视为持有者凭据，如果泄露，大约 30 分钟内仍可使用，不要记录它、写入磁盘或在会话容器外转发它。 |
 
 包装脚本还继承子进程的其余托管环境，包括任何服务器提供的环境变量。`exec` 自动传播所有内容；如果您的包装脚本以其他方式生成子进程，请转发完整环境。
 
@@ -148,7 +148,9 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 * **会话向其推送结果的仓库**：运行器会使会话失败，并在非零退出时将脚本 stderr 的末尾部分呈现给用户。请将原因以简短的一行写入 stderr，将其放在最后写入，然后以非零状态退出。请勿将机密信息打印到 stderr，并在部署 hook 之前移除 `set -x`。
 
   如果 git 的 `couldn't find remote ref` 出现在 hook stderr 的大约最后 4 KB 中，运行器会改为报告分支已被删除。此时会话的错误消息会说明该分支在远程上已不存在，并请用户恢复它。如果该分支确实存在，请参阅[会话失败并显示 `no longer exists on the remote` 或 `couldn't find remote ref`](/docs/zh-CN/self-hosted-environments-deploy#no-longer-exists-on-the-remote)。
-* **会话仅从中读取的仓库**，例如添加到正在运行的会话中的仓库：运行器记录一行带有失败详情的 `[runner:warn]`，向会话发布一个 `Skipped` 步骤，删除 hook 在检出路径处留下的任何内容，并继续处理其余仓库。如果跳过后会话完全没有仓库，运行器仍然会使会话失败。
+* **会话仅从中读取的仓库**，例如添加到正在运行的会话中的仓库：运行器会跳过该仓库并继续处理其余仓库。运行器会向会话发布一个 `Skipped` 步骤，并删除 hook 在检出路径处留下的任何内容。
+
+  当 `Skipped` 步骤提到 checkout hook 时，请在运行器日志中的 `[runner:warn] checkout hook failed` 行中查找失败详情。当该步骤表示某个源引用 `no longer exists on remote` 时，请参阅[会话失败并显示 `no longer exists on the remote` 或 `couldn't find remote ref`](/docs/zh-CN/self-hosted-environments-deploy#no-longer-exists-on-the-remote)。如果跳过后会话完全没有仓库，运行器仍然会使会话失败。
 
 当 hook 成功时，运行器会在会话结束后删除检出路径。
 
@@ -278,7 +280,7 @@ claude self-hosted-runner orchestrator \
 | :- | :- |
 | `CLAUDE_RUNNER_WORK_ORDER_FILE` | 包含新运行器注册所用的已签名工作单 JWT 的临时文件的路径。hook 退出后删除。不要记录文件的内容。 |
 | `CLAUDE_RUNNER_ORDER_ID` | 不透明的幂等性密钥，每个生成请求唯一，对 Kubernetes 资源名称安全。仅将订单 ID 用作您的配置器的去重密钥。 |
-| `CLAUDE_RUNNER_SESSION_ID` | 此请求所针对的会话。该会话的每次重新请求都会重复此值，因此请将其用于日志记录和路由，而不要用作去重密钥。对于预热请求为空，预热请求在设置 [`--min-idle`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 时于任何特定会话之前启动待命运行器，因此不要假设变量已设置。 |
+| `CLAUDE_RUNNER_SESSION_ID` | 此请求所针对的会话，采用会话 URL 中的 `session_...` ID 形式。该会话的每次重新请求都会重复此值，因此请将其用于日志记录和路由，而不要用作去重密钥。对于预热请求为空，预热请求在设置 [`--min-idle`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 时于任何特定会话之前启动待命运行器，因此不要假设变量已设置。 |
 | `CLAUDE_RUNNER_SESSION_UUID` | 相同的会话 ID，采用规范 UUID 形式。对于预热请求为空。 |
 | `CLAUDE_RUNNER_ATTEMPT` | 用于日志记录的按会话计数器。它不是重试次数，也不是请求次数。对于预热请求为 `0`，但针对某个会话的请求也可能携带 `0`。 |
 | `CLAUDE_RUNNER_ORDER_SERVER_TIME` | 来自轮询响应的 HTTP `Date` 标头的服务器时间。当 hook 验证工作单 JWT 的 `exp` 时，与此值进行比较而不是本地时钟，以容忍时钟偏差。当网关省略标头时为空。 |
@@ -348,6 +350,15 @@ your-background-command >> "$HOME/claude-runner.log" 2>&1 &
 
 * **Activity 标签**，在失败会话的生成错误中：`spawn-runner hook timed out after 60000ms`，或 hook 的 stderr 上的最后几行。
 * **编排器日志**：`timed out after 60000ms, sending SIGTERM to process tree`。
+
+#### 退出 hook 而不等待运行器
+
+如果每个按需运行器都在其 hook 启动约 60 秒后停止，并且您的 hook 针对同一会话再次运行，请检查 hook 是否在等待运行器。这 60 秒是默认的 [`--hook-timeout`](/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags)，因此如果您设置了自己的值，运行器会在 hook 启动后经过该时长停止。
+
+在编排器主机上启动 `claude self-hosted-runner` 并等待它（无论是在前台运行还是使用 `wait`）的 hook，在 `--hook-timeout` 结束时仍在运行。编排器随后会停止该 hook 及其下运行的进程，包括该运行器和会话的 Claude 进程，因此仍在运行的轮次会被中断。
+
+* **确认是超时导致运行器停止**：在编排器的日志中查找每个生成请求是否都出现 `timed out after 60000ms, sending SIGTERM to process tree`。其中 `60000` 是以毫秒为单位的 `--hook-timeout`。
+* **修复方法**：让 hook 将运行器提交到您的平台并以 0 退出。如果改为调高 `--hook-timeout`，运行器只会更晚停止。
 
 #### 在 shell hook 中保持暂时性失败可重试
 
@@ -595,6 +606,13 @@ case "$in" in *'"stop_hook_active":true'*) exit 0 ;; esac
 
 d="$CLAUDE_PROJECT_DIR"
 
+# Hardening: this script runs outside Claude Code's Bash sandbox, so its git
+# calls skip some features that can start a program named in the checkout's
+# git settings. They don't skip them all, so don't count on the sandbox alone.
+GIT_OPTIONAL_LOCKS=0
+export GIT_OPTIONAL_LOCKS
+git() { command git -c core.fsmonitor= -c core.hooksPath=/dev/null "$@"; }
+
 # Not a git repo → nothing to nudge.
 git -C "$d" rev-parse --git-dir >/dev/null 2>&1 || exit 0
 
@@ -605,7 +623,7 @@ git -C "$d" rev-parse --git-dir >/dev/null 2>&1 || exit 0
 # entirely — operator-seeded settings and CLI-written runtime state
 # (scheduler lock, worktrees, routine state) live there and neither is
 # "uncommitted work" the model needs to push.
-s=$(git -C "$d" status --porcelain -- . ':(exclude).claude/' 2>/dev/null)
+s=$(git -C "$d" status --porcelain --ignore-submodules=dirty -- . ':(exclude).claude/' 2>/dev/null)
 if [ -n "$s" ]; then
   printf '{"decision":"block","reason":"There are uncommitted changes in the repository. Please commit and push these changes to the remote branch."}'
   exit 0
@@ -649,6 +667,35 @@ exit 0
 ```
 
 该 hook 在会话结束前提示 Claude 提交并推送，当目录不是 git 仓库或没有远程时保持沉默。对于包含多个仓库的会话，请参阅 [`$CLAUDE_PROJECT_DIR` 指向的内容](#repository-settings-in-sessions-with-several-repositories)。
+
+Stop hook 只负责提示 Claude。要使提交和推送能够成功，请完成以下设置：
+
+* **git 身份**：在运行器镜像中设置 `user.name` 和 `user.email`，或使用 [`--configure-git`](/docs/zh-CN/self-hosted-environments-deploy#let-the-runner-configure-git) 启动运行器
+* **推送凭据**：使用 [Anthropic 托管的 git](/docs/zh-CN/self-hosted-environments-deploy.md#use-the-anthropic-git-proxy)，或按照[在镜像中提供 git 配置](/docs/zh-CN/self-hosted-environments-deploy.md#ship-git-config-in-your-image)中的说明提供凭据
+* **对于恢复的会话**：在环境中的每个运行器上设置 [`--push-outcome-on-release`](/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)。这样，恢复的会话将从 Claude 推送到该会话分支的提交开始。有关该标志的限制，请参阅[恢复的会话会丢失未推送的工作](/docs/zh-CN/self-hosted-environments-deploy.md#additional-limitations)。
+
+Stop hook 每个轮次最多提示一次。如果提交或推送失败，该轮次仍会结束。请在会话中查找 git 的错误信息，并修复其中指出的问题。
+
+对于大型检出，请调高 Stop hook 设置中的 `timeout`，然后重启运行器。脚本中的 `git status` 会跳过 `core.fsmonitor`，因此耗时可能超过其中设置的 10 秒。超时的 hook 会直接结束该轮次，不会发出提示。
+
+### 子模块与 Stop hook
+
+Stop hook 检查的是每个子模块所处的提交，而不是其中的文件：
+
+* **子模块中有新提交**：Claude 会一直收到提示，直到父仓库记录该提交为止，即使 `.gitmodules` 为该子模块设置了 `ignore = all`
+* **子模块中有未提交的文件**：Claude 不会收到提示，因此这些工作只会留在运行器的磁盘上
+* **子模块中有未推送的提交**：Stop hook 不会检查它们是否已推送，因此父仓库可能指向一个其他人都无法获取的提交
+
+### 替换旧版 Stop hook 脚本
+
+在您的 `stop-hook-nudge.sh` 副本中搜索 `GIT_OPTIONAL_LOCKS`。如果找不到，说明您使用的是旧版副本。请在所有安装位置将其替换为[当前脚本](#prompt-sessions-to-push-their-work)，然后重启运行器。保留您的 Stop hook 设置，但在大型检出上可调高 `timeout`。
+
+* **时机**：如果您的会话在启用 [Bash 沙箱](/docs/zh-CN/sandboxing.md)的情况下运行，请立即替换。否则，请在下次构建镜像或重启运行器时替换。
+* **变化**：子模块中未提交的文件不再提示 Claude。而 `.gitmodules` 标记为 `ignore = all` 的子模块中的新提交现在会提示 Claude。
+
+> [!WARNING]
+>
+> hook 在 Bash 沙箱之外运行，因此当前脚本的 git 调用会跳过某些可能启动检出的 git 设置中所指定程序的 git 功能，但并不会跳过全部此类功能。不要仅依赖沙箱，并请按照[加固您的部署](/docs/zh-CN/self-hosted-environments-deploy.md#harden-your-deployment)中的说明隔离会话。
 
 ## 权限和工具批准
 

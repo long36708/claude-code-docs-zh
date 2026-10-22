@@ -101,6 +101,8 @@ Jamf、Iru、Intune 和组策略的入门模板在[MDM 示例存储库](https://
 * **macOS 配置文件**：`com.anthropic.claudecode` 托管首选项域。使用与 `managed-settings.json` 相同的顶级密钥，嵌套设置为字典，列表为 plist 数组。
 * **Windows HKLM 注册表**：JSON 作为 `HKLM\SOFTWARE\Policies\ClaudeCode` 下名为 `Settings` 的 `REG_SZ` 或 `REG_EXPAND_SZ` 值。
 * **基于文件**：`managed-settings.json`、可选的 `managed-settings.d/` 目录和 `managed-mcp.json` 在系统目录中：macOS 上的 `/Library/Application Support/ClaudeCode/`、Linux 和 WSL 上的 `/etc/claude-code/`，以及 Windows 上的 `C:\Program Files\ClaudeCode\`。Claude Code 不读取旧版 Windows 路径 `C:\ProgramData\ClaudeCode\managed-settings.json`。
+
+  您可以将这些文件中的任何一个部署为符号链接，Claude Code 会读取链接指向的文件。当链接指向系统目录之外，或 Claude Code 无法确认它位于系统目录之内时，策略仍然适用。此时 `/status` 和 `claude doctor` 中会显示一条指明该文件的警告。要清除该警告，请将链接指向系统目录内的目标。
 * **Windows HKCU 注册表**：`HKCU\SOFTWARE\Policies\ClaudeCode` 下的相同 `Settings` 值。
 
 ### 跨团队拆分基于文件的策略

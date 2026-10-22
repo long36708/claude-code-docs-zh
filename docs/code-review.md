@@ -93,7 +93,7 @@ Owner 可以[为组织选择一个级别](/docs/zh-CN/code-review-setup.md#set-t
 
 ### 谁可以控制审查
 
-* **谁可以启动审查**：在自动运行审查的仓库中，打开 Pull Request 或向其推送都会启动审查，[草稿和 fork 除外](/docs/zh-CN/code-review-pull-requests.md#review-drafts-and-pull-requests-from-forks)。[评论命令](/docs/zh-CN/code-review-pull-requests.md#comment-commands)只有在来自对仓库具有写入权限的人员时才会启动审查。
+* **谁可以启动审查**：在自动运行审查的仓库中，打开 Pull Request 或向其推送都会启动审查，[草稿和 fork 除外](/docs/zh-CN/code-review-pull-requests.md#review-drafts-and-pull-requests-from-forks)。在某些推送之后，Code Review 会改为[保留之前的结果](/docs/zh-CN/code-review-pull-requests.md#when-a-push-keeps-the-earlier-result)。[评论命令](/docs/zh-CN/code-review-pull-requests.md#comment-commands)只有在来自对仓库具有写入权限的人员时才会启动审查。
 * **遵循哪些指令**：来自基础分支或默认分支的 `REVIEW.md`，[绝不会来自 Pull Request 自身的更改](/docs/zh-CN/code-review-customize.md#which-branch-review-md-is-read-from)。
 
 ## 比较获取审查的方式

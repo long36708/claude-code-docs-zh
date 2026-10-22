@@ -51,7 +51,21 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 
 对于有对应行号但未作为行内评论发布的发现，会以注释的形式显示在 **Files changed** 标签页中的相关行上。Important 发现显示为红色，nit 显示为黄色，已存在的 bug 显示为灰色。
 
-检查运行的结论为 neutral；如果因推送未更改任何文件而未运行自动审查，则结论为 skipped。它的结论永远不会是 failure，因此已完成的审查不会导致必需检查失败。如果您没有看到发现，或者审查未运行，请参阅[排查 Code Review 问题](/docs/zh-CN/code-review-troubleshooting.md)。
+检查运行的结论为 neutral；在某些未更改任何文件并[保留先前结果](#when-a-push-keeps-the-earlier-result)的推送之后，结论为 skipped。它的结论永远不会是 failure，因此已完成的审查不会导致必需检查失败。如果您没有看到发现，或者审查未运行，请参阅[排查 Code Review 问题](/docs/zh-CN/code-review-troubleshooting.md)。
+
+### 推送何时保留先前结果
+
+如果推送后检查运行显示以下标题之一，则表示 Code Review 保留了先前审查的结果，而没有启动新的审查：
+
+* **Code review skipped — no new changes**：先前审查中没有仍处于打开状态的 [Important](#severity-levels) 发现，因此无需进行新的审查
+* **Code review not repeated — earlier findings still open**：要启动新的审查，请推送针对某个打开的 Important 发现的修复，或[解决其讨论串](#respond-to-findings)后再次推送
+
+在 github.com 上，当以下两个条件同时满足时，Code Review 可以保留结果：
+
+* Pull Request 仍然添加和删除相同的行，例如在空提交、干净地合并基础分支或干净地变基之后
+* 自该次审查以来，没有人解决过任何 Important 发现的讨论串
+
+要在不更改代码的情况下获得审查，请评论 [`@claude review`](#comment-commands) 或点击检查运行上的 **Re-run**。
 
 ### 通过脚本读取结果
 
@@ -71,6 +85,8 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 gh api repos/OWNER/REPO/commits/<commit-sha>/check-runs --jq '.check_runs[] | {id, name}'
 ```
 
+如果该提交有多次 `Claude Code Review` 运行（例如在 **Re-run** 之后），GitHub 只会列出最新的一次。
+
 **2. 读取严重程度计数**
 
 从检查运行的 `output.text` 字段中读取计数，该字段保存 Details 文本。将 `CHECK_RUN_ID` 替换为该 ID：
@@ -82,12 +98,16 @@ gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID --jq '
   // error("no severity line")'
 ```
 
-这会输出一个 JSON 对象，其中包含每种严重程度的计数，键按字母顺序排列，例如 `{"nit": 1, "normal": 2, "pre_existing": 0}`。计数包括该 Pull Request 早期审查中讨论串仍处于打开状态的发现。
+这会输出一个 JSON 对象，其中包含每种严重程度的计数，键按字母顺序排列，例如 `{"nit": 1, "normal": 2, "pre_existing": 0}`。除了[保留先前结果](#when-a-push-keeps-the-earlier-result)的检查运行之外，计数包括该 Pull Request 早期审查中讨论串仍处于打开状态的发现。
+
+在标题为 `Code review skipped — no new changes` 时，计数不包括早期审查中仍处于打开状态的 nit 和已存在问题的发现。此时，先前审查中没有仍处于打开状态的 Important 发现。
 
 **3. 根据结果采取行动**
 
-让您的脚本处理以下情况：
+让您的脚本按顺序处理以下情况：
 
+* **标题以 `Code review not repeated` 开头**：Code Review [保留了先前结果](#when-a-push-keeps-the-earlier-result)，其 Important 发现仍处于打开状态，且检查运行中没有严重程度行。请在读取计数之前先读取标题，使用 `gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID --jq .output.title`。如果您希望控制合并，请让作业失败。
+* **标题以 `no new changes` 结尾**：无需读取计数，直接让作业通过
 * **`normal` 大于零**：如果您希望控制合并，请让作业失败。`normal` 键保存的是 Important 发现的数量，这意味着 Claude 至少发现了一个值得在合并前修复的 bug。如果只想输出该计数，请在结尾的单引号之前添加 `| .normal`。
 * **该行缺失**：命令会输出包含 `no severity line` 的错误而不是计数，并以非零状态退出。将其视为没有结论，而不是零个发现。对于失败、超时、被取消或被更新审查取代的审查，其检查运行中没有此行，某些已完成的审查也没有此行。
 
@@ -97,8 +117,8 @@ gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID --jq '
 
 * **打开或标记为就绪**：在设置为 **Once after PR creation** 或 **After every push** 的仓库中，当您打开或重新打开 Pull Request，或将草稿标记为可供审查时，会启动审查。
 * **发表命令评论**：在 Pull Request 上发布 [`@claude review`](#comment-commands)。
-* **推送提交**：在设置为 **After every push** 的仓库中，或在您使用 `@claude review always` 订阅的 Pull Request 上，推送会启动审查。
-* **点击 Re-run**：在非 fork 的 Pull Request 上审查失败或超时后，从检查运行中[再次运行](/docs/zh-CN/code-review-troubleshooting.md#retrigger-a-failed-or-timed-out-review)。
+* **推送提交**：在设置为 **After every push** 的仓库中，或在您使用 `@claude review always` 订阅的 Pull Request 上，推送会启动审查。如果推送后您的 Pull Request 添加和删除的行仍然相同，Code Review 可能会改为[保留之前的结果](#when-a-push-keeps-the-earlier-result)。
+* **点击 Re-run**：在非 fork 的 Pull Request 上审查失败或超时后，从检查运行中[再次运行](/docs/zh-CN/code-review-troubleshooting.md#retrigger-a-failed-or-timed-out-review)。在非 fork 的 Pull Request 上，您也可以在某次推送[保留了之前的结果](#when-a-push-keeps-the-earlier-result)后点击 **Re-run**。
 * **等待自动重试**：会话中断的审查会自动重试一次。[检查运行的摘要](/docs/zh-CN/code-review-troubleshooting.md#retrigger-a-failed-or-timed-out-review)会显示何时正在进行重试。
 
 ### 评论命令
@@ -108,7 +128,7 @@ gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID --jq '
 | 命令 | 作用 | 使用时机 |
 | :- | :- | :- |
 | `@claude review` | 启动一次审查，但不为 PR 订阅后续推送 | 您现在需要一次审查，例如在设置为 **Manual** 的仓库中的 Pull Request 上，或在其他模式下立即再进行一次审查 |
-| `@claude review always` | 启动审查，并为 PR 订阅此后由推送触发的审查 | 您希望之后的每次推送都启动新的审查，例如在设置为 **Manual** 的仓库中的高优先级 PR 上 |
+| `@claude review always` | 启动一次审查，并为该 PR 订阅今后由推送触发的审查 | 您希望后续推送都能启动审查，例如在设置为 **Manual** 的仓库中处理高优先级 PR 时 |
 | `@claude review once` | 与 `@claude review` 相同：启动一次审查而不订阅 | 与 `@claude review` 的情况相同 |
 | `@claude review stop` | 结束 PR 对由推送触发的审查的订阅，既不启动审查，也不取消已在运行的审查。Claude 会以评论而非检查运行进行回复。 | 您在设置为 **Manual** 或 **Once after PR creation** 的仓库中使用 `@claude review always` 订阅了某个 PR，但不再希望每次推送都启动审查 |
 | `@claude review off` 或 `@claude review pause` | 与 `@claude review stop` 相同 | 与 `@claude review stop` 的情况相同 |

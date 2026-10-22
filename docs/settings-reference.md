@@ -52,7 +52,7 @@
 | [`awaySummaryEnabled`](#awaysummaryenabled) | 关闭您返回终端时显示的[会话回顾](/docs/zh-CN/interactive-mode.md#session-recap) | 远程、桌面与通知 | 任意文件 |
 | [`awsAuthRefresh`](#awsauthrefresh) | 使用您自己的命令刷新 `.aws` 中已过期的 [Bedrock 凭据](/docs/zh-CN/amazon-bedrock.md#advanced-credential-configuration) | 身份验证与提供商 | 任意文件 |
 | [`awsCredentialExport`](#awscredentialexport) | 通过您自己的命令以 JSON 形式提供 [Bedrock 凭据](/docs/zh-CN/amazon-bedrock.md#advanced-credential-configuration) | 身份验证与提供商 | 任意文件 |
-| [`axScreenReader`](#axscreenreader) | 渲染[适合屏幕阅读器的输出](/docs/zh-CN/accessibility.md) | 界面与终端 | 任意文件 |
+| [`axScreenReader`](#axscreenreader) | 渲染[适合屏幕阅读器的输出](/docs/zh-CN/accessibility.md) | 界面与终端 | 用户或托管 |
 | [`bashEditDiffEnabled`](#basheditdiffenabled) | 在所有权限模式下记录[在 Bash 命令运行期间发生更改的文件](/docs/zh-CN/hooks.md#bash) | 界面与终端 | 用户或托管 |
 | [`bashOutputMaxChars`](#bashoutputmaxchars) | 设置 Claude 以内联方式接收成功命令[输出](/docs/zh-CN/tools-reference.md#output-limits)的长度 | 记忆与上下文 | 任意文件 |
 | [`blockedMarketplaces`](#blockedmarketplaces) | 为您的组织屏蔽[插件市场](/docs/zh-CN/plugins/overview.md)来源 | 插件与 skill | 托管 |
@@ -820,8 +820,12 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 * 您的 `~/.claude/skills/` 和 `~/.claude/commands/` 目录，包括[从 claude.ai 同步的 skill](/docs/zh-CN/skills.md#where-synced-skills-load)
 * `--add-dir` 目录
 * 位于 `~/.claude/skills/` 或项目 `.claude/skills/` 内、[通过 `.claude-plugin` 清单声明的插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)
+* 仅为单个会话加载、ID 以 [`@inline`](/docs/zh-CN/plugins/loading#find-where-a-plugin-came-from) 结尾的插件，前提是同时满足以下所有条件：
+  * 该会话是由 Claude Desktop 应用自身启动 Claude Code 的 [Code 会话](/docs/zh-CN/desktop.md#environment-configuration)或 [Cowork 会话](/docs/zh-CN/managed-settings.md#where-and-when-a-policy-applies)，云端会话除外
+  * 该键由您的托管设置设置，而不仅仅由嵌入宿主的[父级设置](/docs/zh-CN/managed-settings.md#let-an-embedding-host-add-policy)设置
+  * 该会话运行 Claude Code v2.1.305 或更高版本
 
-来自托管设置的 skill 和随附 skill 会保留其 `allowed-tools`。skill 的 `disallowed-tools` 仍然适用。有关 Claude Code 忽略该字段时开发者会看到什么，请参阅[仅托管权限规则生效时](/docs/zh-CN/skills.md#when-only-managed-permission-rules-apply)。
+来自托管设置的 skill 和随附 skill 会保留其 `allowed-tools`。这些 Desktop 会话之外的 `@inline` 插件也会保留其 `allowed-tools`，但名为 [`anthropic-skills`](/docs/zh-CN/skills#names-reserved-for-synced-skills) 的插件除外。skill 的 `disallowed-tools` 仍然适用。有关 Claude Code 忽略该字段时开发者会看到什么，请参阅[仅托管权限规则生效时](/docs/zh-CN/skills.md#when-only-managed-permission-rules-apply)。
 
 * **作用域**：[`Managed`](#scopes)
 * **类型**：Boolean
@@ -1959,8 +1963,8 @@ Claude Code 会在各设置作用域之间合并数组子键，因此除非适�
 允许沙箱化命令连接到所有 Unix 套接字。在 Linux 和 WSL2 上，沙箱的 [seccomp 过滤器](/docs/zh-CN/sandboxing.md#set-up-linux-and-wsl2)会阻止 `socket(AF_UNIX, ...)` 调用，因此这是在这些平台上允许 Unix 套接字的唯一方式。当过滤器缺失时（`/sandbox` 会在其 Dependencies 选项卡中报告），沙箱不会阻止 Unix 套接字调用。有关过滤器的来源，请参阅[设置 Linux 和 WSL2](/docs/zh-CN/sandboxing.md#set-up-linux-and-wsl2)。
 
 * **作用域**：[`Any file`](#scopes)，[对项目设置和本地设置有限制](/docs/zh-CN/sandboxing.md#repository-settings-under-an-admin-required-sandbox)
-* **类型**：布尔值
-  * `true`：沙箱化命令可以连接到所有 Unix 套接字
+* **类型**：Boolean
+  * `true`：沙箱内命令可以连接到所有 Unix 套接字。在 Linux 和 WSL2 上，它们还可以连接到 VM 套接字，即 `AF_VSOCK` 地址族
   * `false`：沙箱阻止 Unix 套接字连接：在 macOS 上，`allowUnixSockets` 中的路径除外；在 Linux 和 WSL2 上，在 seccomp 过滤器存在时通过该过滤器阻止
 * **默认值**：`false`
 
@@ -2347,6 +2351,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 
     在项目设置和本地设置中忽略此组变量需要 Claude Code v2.1.282 或更高版本。
   * 改变 Claude Code 启动或同步方式的变量，例如 `CLAUDE_CODE_PROCESS_WRAPPER`、`CLAUDE_CODE_SYNC_SKILLS`、`CLAUDE_CODE_SYNC_PLUGINS`、`CLAUDE_CODE_PLUGIN_CACHE_DIR` 和 `CLAUDE_CODE_PLUGIN_SEED_DIR`。
+  * [屏幕阅读器模式](/docs/zh-CN/accessibility.md)变量 `CLAUDE_AX_SCREEN_READER`，以及其他名称以 `CLAUDE_AX_` 开头的变量，例如 [`CLAUDE_AX_STARTUP_QUIET_MS`](/docs/zh-CN/env-vars#variables)。
   * [`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`](/docs/zh-CN/env-vars#variables)，用于设置未响应对话框的计时器。
   * [`CLAUDE_CODE_DISABLE_ATTACHMENTS`](/docs/zh-CN/env-vars#variables)，用于关闭附件处理。
   * [`CLAUDE_CODE_DISABLE_FILE_MENTIONS`](/docs/zh-CN/env-vars#variables)，用于阻止 Claude Code 展开对文件和目录的 `@` 提及。
@@ -2358,6 +2363,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 * [`CLAUDE_CODE_RESTRICTED`](/docs/zh-CN/env-vars#variables) 仅由 Claude Code 从启动环境中读取，在所有文件中都会被忽略。
 * [`CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY`](/docs/zh-CN/env-vars#variables) 仅由 Claude Code 从启动环境中读取，在所有文件中都会被忽略。该变量需要 Claude Code v2.1.283 或更高版本。
 * [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`、`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`、`CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT` 和 `CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT`](/docs/zh-CN/env-vars#variables) 仅由 Claude Code 从启动环境中读取，在所有文件中都会被忽略。
+* [`CLAUDE_CODE_WARN_DISK_FREE_GIB` 和 `CLAUDE_CODE_WARN_MEMORY_FREE_GIB`](/docs/zh-CN/env-vars#variables) 仅由 Claude Code 从启动环境中读取，在所有文件中都会被忽略。这些变量需要 Claude Code v2.1.304 或更高版本。
 
 ### `fileCheckpointingEnabled`
 
@@ -2385,6 +2391,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 对于满足以下所有条件的对话，空闲压缩默认开启：
 
 * **会话**：您处于交互式终端会话中
+* **自动压缩**：[`autoCompactEnabled`](#autocompactenabled) 已开启
 * **提示缓存**：该对话使用[一小时提示缓存 TTL](/docs/zh-CN/prompt-caching.md#which-ttl-each-request-gets)
 * **功能标志**：Claude Code 可以[从 Anthropic 获取功能标志](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)
 * **大小**：对话的上下文已达到 token 阈值，您可以将其从默认的 200,000 进行[更改](#change-the-idle-compaction-threshold)
@@ -2545,7 +2552,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 
 渲染适合屏幕阅读器的输出：不带装饰性边框或动画的纯文本。屏幕阅读器模式使用经典渲染器，因此在该模式启用时 `tui` 设置无效；附加的[后台会话](/docs/zh-CN/agent-view.md)仍以全屏方式渲染。
 
-* **作用域**：[`Any file`](#scopes)
+* **作用域**：[`User or managed`](#scopes)。您也可以在通过 `--settings` 传入的文件中设置此键。Claude Code 会忽略项目设置和本地设置中的此键，因此无论是仓库还是您自己的 `.claude/settings.local.json` 都无法开启或关闭屏幕阅读器模式。
 * **类型**：布尔值
   * `true`：Claude Code 使用经典渲染器，渲染不带装饰性边框或动画的纯文本
   * `false`：Claude Code 正常渲染
@@ -3800,7 +3807,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 }
 ```
 
-`github` 条目可以使用[所有者通配符形式](#owner-wildcards) `"owner/*"` 来阻止该 GitHub 所有者下的所有仓库，这需要 Claude Code v2.1.223 或更高版本。添加 `{ "source": "skills-dir" }` 可阻止 Claude Code 从 `~/.claude/skills/` 加载 [`@skills-dir` 插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)，而不限制任何市场。请参阅[托管市场限制](/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)。
+`github` 条目可以使用[所有者通配符形式](#owner-wildcards) `"owner/*"` 来阻止该 GitHub 所有者下的所有仓库，这需要 Claude Code v2.1.223 或更高版本。添加 `{ "source": "skills-dir" }` 可阻止 Claude Code 从 `~/.claude/skills/` 和项目的 `.claude/skills/` 加载 [`@skills-dir` 插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)，而不限制任何市场。请参阅[托管市场限制](/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)。
 
 ### `channelsEnabled`
 
@@ -3907,7 +3914,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 | `pathPattern` | `{ "source": "pathPattern", "pathPattern": "^/opt/approved/" }` | `pathPattern` 必填，为在 `file` 和 `directory` 来源的 `path` 中任意位置匹配的正则表达式；以 `^` 开头以固定前缀 |
 | `skills-dir` | `{ "source": "skills-dir" }` | 无字段 |
 
-有三种来源类型具有表格之外的规则：
+部分来源类型具有表格之外的规则：
 
 * **`url`**：URL 市场仅下载 `marketplace.json` 文件，Claude Code 不会按相对路径从该服务器获取插件文件，因此其插件必须使用相对路径以外的[插件来源](/docs/zh-CN/plugins/marketplace-reference.md#plugin-sources)，例如归档 URL（可以位于同一主机上）。对于使用相对路径的插件，请改用基于 Git 的市场。请参阅[使用相对路径的插件在基于 URL 的市场中失败](/docs/zh-CN/plugins/troubleshooting.md#plugins-with-relative-paths-fail-in-url-based-marketplaces)。
 * **`hostPattern`**：使用它可允许内部 GitHub Enterprise 或 GitLab 服务器上的所有市场，而无需逐个列出每个仓库。Claude Code 将 `github` 来源与 `github.com` 进行匹配，从 `url` 来源中获取主机名，并根据 [git URL](https://git-scm.com/docs/git-clone#_git_urls) 的形式从 `git` 来源中获取主机名：
@@ -3918,8 +3925,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
   `file` 和 `directory` 来源没有主机，永远不会匹配 `hostPattern` 条目。
 * **`pathPattern`**：使用它可在为网络来源设置 `hostPattern` 条目的同时允许文件系统市场。`".*"` 允许所有本地路径；更窄的模式（例如 `"^/opt/approved/"`）则限制到某个目录。
-
-任何允许列表（即使为空）也会阻止 Claude Code 从 `~/.claude/skills/` 加载 [`@skills-dir` 插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)。要继续加载它们，请添加 `{ "source": "skills-dir" }` 条目，并保持 [`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 未设置。该条目在此键和 `blockedMarketplaces` 之外没有意义。
+* **`skills-dir`**：任何允许列表（即使为空）也会阻止 Claude Code 从 `~/.claude/skills/` 和项目的 `.claude/skills/` 加载 [`@skills-dir` 插件](/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository)。要继续加载它们，请添加 `{ "source": "skills-dir" }` 条目，并保持 [`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 未设置。该条目在此键和 `blockedMarketplaces` 之外没有意义。
 
 #### 所有者通配符
 
@@ -4067,6 +4073,8 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 * **继续运行**：托管设置中的 hook，以及来自 [skills 目录插件](/docs/zh-CN/plugins/loading.md#skills-directory-plugins-blocked-by-managed-settings)以外插件的 hook
 
 frontmatter hook 停止运行的 skill、自定义命令和 Agent，只要其自身类别未被锁定，仍会加载。
+
+在 frontmatter 中声明了 `hooks` 的个人或项目 [skill](/docs/zh-CN/skills.md#where-skills-live) 还会失去其 [`allowed-tools`](/docs/zh-CN/skills#pre-approve-tools-for-a-skill) 预先批准，因此您的用户在使用该字段列出的工具时会收到权限提示。当此类 skill 通过 [`context: fork`](/docs/zh-CN/skills#run-skills-in-a-subagent) 在子代理中运行时，它会保留预先批准。未声明 `hooks` 的 skill 同样会保留其预先批准。
 
 * **作用域**：[`Managed`](#scopes)
 * **类型**：[`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 数组中的字符串 `"hooks"`
@@ -4335,7 +4343,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 内置服务器（例如 Claude in Chrome、Claude Code 在运行中的 [VS Code](/docs/zh-CN/vs-code.md#the-built-in-ide-mcp-server) 或 [JetBrains](/docs/zh-CN/jetbrains.md#the-built-in-ide-mcp-server) IDE 中连接的 `ide` 服务器）以及 CLI 自身配置的服务器不受允许列表限制，但拒绝列表仍然对它们适用。在 Claude Code v2.1.268 或更高版本中，[Claude Tag](/docs/zh-CN/claude-tag.md) 会话的 Slack 工具同样不受允许列表限制，但拒绝列表仍然对它们适用。进程内的 `type: "sdk"` 服务器不受这两个列表限制；它们由[启动会话的应用](/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)注册。
 
-您的组织交付的服务器同样不受允许列表限制，但拒绝列表仍然对它们适用。此豁免涵盖每个 [`managedMcpServers`](#managedmcpservers) 条目，以及值中[未在 `env` 之外使用 `${VAR}` 展开](/docs/zh-CN/managed-mcp#how-allowlists-and-denylists-apply-to-the-managed-set)的任何 [`managed-mcp.json`](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json) 条目。完整的检查顺序请参阅[如何评估服务器](/docs/zh-CN/managed-mcp.md#how-a-server-is-evaluated)。在 v2.1.259 之前，来自 `managed-mcp.json` 的服务器也必须匹配。
+您的组织交付的服务器同样不受允许列表限制，但拒绝列表仍然对它们适用。此豁免涵盖每个 [`managedMcpServers`](#managedmcpservers) 条目，以及值中[除 `env` 外未使用 `${VAR}` 展开](/docs/zh-CN/managed-mcp#how-allowlists-and-denylists-apply-to-the-managed-set)的任何 [`managed-mcp.json`](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json) 条目。完整的检查顺序请参阅[如何评估服务器](/docs/zh-CN/managed-mcp.md#how-a-server-is-evaluated)。在 v2.1.259 之前，来自 `managed-mcp.json` 的服务器也必须匹配。
 
 * **作用域**：[`Any file`](#scopes)。除非设置了 [`allowManagedMcpServersOnly`](#allowmanagedmcpserversonly)，否则所有文件中的条目会合并为一个允许列表。将其部署在托管设置中即可强制执行。
 * **类型**：对象数组，每个对象恰好包含一个键。使用 `serverName`（仅限字母、数字、连字符和下划线的字符串）；`serverCommand`（由命令及其参数组成的数组，需完全匹配）；或 `serverUrl`（带 `*` 通配符的 URL 模式）
@@ -4967,6 +4975,8 @@ Claude Code 会忽略来自项目设置或本地设置的 `true`，因此仓库�
 ### `sshHostAllowlist`
 
 限制 [Desktop SSH 会话](/docs/zh-CN/desktop.md#restrict-which-ssh-hosts-users-can-connect-to)可以连接的主机。只有 Desktop 应用读取此设置项；CLI 不读取。模式不区分大小写：`*` 匹配任何主机，`*.example.com` 匹配 `example.com` 及其所有子域，其他任何模式都与经过 `~/.ssh/config` 解析后的主机名进行精确匹配。空数组会关闭 SSH 会话。
+
+在 Claude Desktop v3.1623.0 或更高版本中，会话的[跳板主机](/docs/zh-CN/desktop.md#allow-jump-hosts)也必须与某个模式匹配。
 
 * **作用域**：[`Managed`](#scopes)。默认情况下，Desktop 从[一个托管来源](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取此设置项。
 * **类型**：主机名模式数组

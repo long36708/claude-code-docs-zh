@@ -18,6 +18,7 @@
 | **Code review found no issues** | 审查已完成，未发现需要标记的问题 | 无需操作 |
 | 表示发现了问题的标题 | 审查已完成并有发现项 | 如果在 diff 上看不到这些发现项，请参阅[查找未显示为内联评论的问题](#find-issues-that-aren’t-showing-as-inline-comments) |
 | **Code review skipped — no new changes** | 自动审查未在您最新的推送上运行 | 如果仍想获得审查，请评论 `@claude review` |
+| **Code review not repeated — earlier findings still open** | 自动审查未在您最新的推送上运行，且之前审查中的 Important 发现项仍未解决 | 推送修复；如果仍想获得审查，请评论 `@claude review`。请参阅[推送保留之前结果的情况](/docs/zh-CN/code-review-pull-requests.md#when-a-push-keeps-the-earlier-result) |
 | **Code review failed** 或 **Code review timed out** | 审查未完成 | 要重新运行，请参阅[重新触发失败或超时的审查](#retrigger-a-failed-or-timed-out-review) |
 | **Code review declined** | 审查未运行 | 阅读检查运行的摘要。如果其中提到预算或支出限额，请参阅[审查未运行且 PR 显示预算消息](#review-didn’t-run-and-the-pr-shows-a-budget-message) |
 | 没有检查运行 | 没有启动任何审查 | 评论 `@claude review`。如果之后仍未出现检查运行，请参阅[评论命令未启动审查](#a-comment-command-didn’t-start-a-review) |

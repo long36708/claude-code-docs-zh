@@ -114,9 +114,9 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 * `deniedMcpServers` 也适用于托管服务器，因此与条目匹配的托管服务器将不会加载。
 * 用户自己的 `deniedMcpServers` 从他们的设置中合并，因此用户可以为自己阻止托管服务器。
 
-`managed-mcp.json` 中的服务器无需 `allowedMcpServers` 条目，但有一个例外：当服务器在 `env` 之外使用 [`${VAR}` 扩展](/docs/zh-CN/mcp#environment-variable-expansion-in-mcp-json)时，Claude Code 会针对允许列表检查该服务器。在 v2.1.305 之前，它还会检查仅在 `env` 中使用 `${VAR}` 扩展的服务器；在 v2.1.259 之前，只要设置了允许列表，它就会检查每个托管服务器。有关哪些字段触发 `${VAR}` 检查和完整检查顺序，请参阅[如何评估服务器](#how-a-server-is-evaluated)。
+`managed-mcp.json` 中的服务器不需要 `allowedMcpServers` 条目，但有一个例外：当服务器在 `env` 之外使用 [`${VAR}` 扩展](/docs/zh-CN/mcp#environment-variable-expansion-in-mcp-json)时，Claude Code 会针对允许列表检查该服务器。在 v2.1.305 之前，它还会检查仅在 `env` 中使用 `${VAR}` 扩展的服务器；在 v2.1.259 之前，只要设置了允许列表，它就会检查每个托管服务器。有关哪些字段触发 `${VAR}` 检查和完整检查顺序，请参阅[如何评估服务器](#how-a-server-is-evaluated)。
 
-如果您使用 `allowedMcpServers` 来防止某些 `managed-mcp.json` 服务器加载，请在用户升级之前为它们添加 `deniedMcpServers` 条目，或为每个组部署单独的 `managed-mcp.json`。除非这些服务器在 `env` 之外使用 `${VAR}` 扩展，否则它们会在每个用户首次启动不再检查它们的版本时开始加载，且没有任何提示或通知。
+如果您使用 `allowedMcpServers` 来防止某些 `managed-mcp.json` 服务器加载，请在用户升级之前为它们添加 `deniedMcpServers` 条目，或为每个组部署单独的 `managed-mcp.json`。除非这些服务器在 `env` 之外使用 `${VAR}` 扩展，否则它们将在每个用户首次启动不检查它们的版本时开始加载，且没有任何提示或通知。
 
 ### 验证配置
 
@@ -371,7 +371,7 @@ URL 支持 `*` 通配符，包括以 `*` 作为整个方案。主机名匹配不
 * 内置服务器，例如 Chrome 中的 Claude、Claude Code 在运行的 VS Code 或 JetBrains IDE 中连接的 `ide` 服务器，以及 CLI 本身配置的服务器。
 * [Claude Tag](/docs/zh-CN/claude-tag.md) 会话的 Slack 工具：它用来读取线程和发布回复的服务器无需允许列表条目即可加载。
 
-在其命令、参数、URL 或标头中使用 `${VAR}` 展开的 `managed-mcp.json` 服务器仍会被检查。Claude Code 还会检查用户、插件或 claude.ai 添加的每个服务器，以及用户通过 `--mcp-config` 传递的每个服务器。有关哪些版本改变了检查哪些 `managed-mcp.json` 服务器，以及如何阻止某个服务器加载，请参阅[允许列表和拒绝列表如何应用于托管集](#how-allowlists-and-denylists-apply-to-the-managed-set)。
+在其命令、参数、URL 或标头中使用 `${VAR}` 展开的 `managed-mcp.json` 服务器仍会被检查。Claude Code 还会检查用户、插件或 claude.ai 添加的每个服务器，以及用户通过 `--mcp-config` 传递的每个服务器。有关哪些版本改变了 `managed-mcp.json` 服务器的检查范围，以及如何阻止某个服务器加载，请参阅[允许列表和拒绝列表如何应用于托管集](#how-allowlists-and-denylists-apply-to-the-managed-set)。
 
 ### 示例配置
 

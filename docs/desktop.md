@@ -1021,6 +1021,8 @@ Host devbox
 
 在 **SSH host** 字段中输入 `devbox`。
 
+如果您的管理员[限制了 SSH 主机](#allow-jump-hosts)，跳板机也必须在列表中。在您计算机的终端中运行 `ssh -G bastion.example.com`，并请管理员允许其输出的 `hostname`。
+
 ##### 访问远程计算机上的容器
 
 若要在未发布 SSH 端口的容器内运行会话，请使用 `ProxyCommand` 访问它，因为 Desktop 不会运行您所连接条目的 `RemoteCommand`。如果您的条目使用 `RemoteCommand` 进入容器，会话将在该条目登录的计算机上运行，而不是在容器中运行。
@@ -1531,9 +1533,37 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
 >
 > 同时，请在每个用户计算机上的最高优先级 MDM 策略或托管设置文件中保留相同的列表。Desktop 在启动时获取服务器托管设置，且不保留缓存副本，因此在获取成功之前，适用的是该计算机上的列表。
 
-模式不区分大小写。`*` 匹配任何主机，`*.example.com` 匹配 `example.com` 及其任何子域。其他任何内容均为精确匹配。检查针对的是通过 `ssh -G` 进行 `~/.ssh/config` 解析后的主机名，因此只要解析后的 `HostName` 匹配，就允许使用 `Host` 别名和 `ProxyCommand`/`ProxyJump` 条目。
+模式不区分大小写。`*` 匹配任何主机，`*.example.com` 匹配 `example.com` 及其任何子域。其他任何内容均为精确匹配。检查针对的是通过 `ssh -G` 进行 `~/.ssh/config` 解析后的主机名，因此只要 `Host` 别名解析后的 `HostName` 匹配，就允许使用该别名。会话的[跳板主机](#allow-jump-hosts)也必须匹配。
 
 `sshHostAllowlist` 仅从托管设置中读取；用户或项目设置中的值会被忽略。只有 Claude Desktop 应用遵循此设置；Claude Code CLI 和 IDE 扩展不会读取它，并且它不会限制通过 Bash 工具运行的 `ssh` 命令。它管控的是 Desktop 应用连接到哪些主机，而不是网络出站流量，因此如果您需要硬性边界，请将其与您组织的网络或零信任控制措施结合使用。
+
+##### 允许跳板主机
+
+将 Desktop 检查的每台跳板主机按其自身解析后的 `HostName` 添加到 `sshHostAllowlist`。请在用户更新到 Claude Desktop v3.1623.0 或更高版本之前添加这些跳板主机，否则他们将无法通过这些主机进行连接。
+
+> [!WARNING]
+>
+> 该列表只有一种条目，因此用户也可以在您列出的任何主机上启动会话。请只列出您同样允许用户在其上运行会话的跳板主机。
+
+Desktop 会检查用户的 `~/.ssh/config` 为会话主机设置的 `ProxyJump` 中的跳板主机，或写作 `ssh -W %h:%p <host>` 的 `ProxyCommand` 中的跳板主机。如果 Desktop 在连接或重新连接会话时，所检查的某台跳板主机不在列表中，连接就会失败。当用户启动会话或发送消息时，错误详情会给出该跳板主机的 `HostName`，这就是需要添加的名称：
+
+```text theme={null}
+SSH host "bastion.example.com" is not allowed by your organization's managed settings. It is a jump host on the way to "devbox".
+```
+
+如果消息中显示 `managed settings on this computer`，请将该名称添加到用户计算机上的列表中。如果缺少多台跳板主机，错误每次只会指出一台。要在用户更新之前找出所有名称，请在用户计算机上使用终端：
+
+**1. 查找路由**
+
+使用用户连接的主机运行 `ssh -G`，例如 `ssh -G devbox`。查找 `proxyjump` 行，或写作 `ssh -W %h:%p <host>` 的 `proxycommand` 行。带有 `-l`、`-p`、`-J`、`-q`、`-v`、`-N`、`-T`、`-x` 或 `-a` 中任一选项的命令仍然计入，并且 `-J` 之后的主机也是跳板主机。如果 `proxycommand` 行运行的是 `ssh` 以外的程序，则无需为其添加任何内容。
+
+**2. 查找每台跳板主机**
+
+对该行中的每台跳板主机运行 `ssh -G`（不带任何 `:port`），并记下其输出的 `hostname`。如果该行中第一台跳板主机的输出包含上述任一类型的行，请对其重复此步骤。忽略后续跳板主机输出中的此类行。
+
+**3. 添加名称**
+
+将每个主机名或覆盖它的通配符，添加到您设置了列表的每个托管来源中的 `sshHostAllowlist`。然后让用户退出并重新打开 Desktop，因为它在启动时获取服务器托管设置。
 
 #### 关闭本地会话并分发 SSH 连接
 
@@ -1567,7 +1597,7 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
 
 调整示例时，请检查主机名、Desktop 版本和文件权限：
 
-* **主机名**：确保 `sshHostAllowlist` 中的某个模式与每个 `sshConfigs` 条目的主机名（不含 `user@`）匹配，否则开发者无法连接到该条目。有关 Desktop 如何匹配主机名，请参阅[限制用户可以连接的 SSH 主机](#restrict-which-ssh-hosts-users-can-connect-to)。
+* **主机名**：确保 `sshHostAllowlist` 中有一个模式与每个 `sshConfigs` 条目的主机名（不含 `user@`）匹配，否则开发者将无法连接到该主机。此外，还要添加与 Desktop 在通往该主机途中检查的每台[跳板主机](#allow-jump-hosts)相匹配的模式。有关 Desktop 如何匹配主机名，请参阅[限制用户可以连接的 SSH 主机](#restrict-which-ssh-hosts-users-can-connect-to)。
 * **版本**：`disableDesktopLocalSessions` 需要 Claude Desktop v1.37937.0 或更高版本
 * **文件权限**：确保计算机上每位开发者的账户都能读取托管设置文件。Desktop 不会应用账户无法读取的文件中的键，Claude Code 也会[在没有这些键的情况下启动](/docs/zh-CN/managed-settings.md#find-entries-claude-code-dropped)。
 
