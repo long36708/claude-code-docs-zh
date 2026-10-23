@@ -8,24 +8,24 @@
 
 > [!NOTE]
 >
-> 云环境适用于[云端会话](/docs/zh-CN/claude-code-on-the-web.md)，这些会话在 Pro、Max 和 Team 计划上可用，以及具有[高级席位或 Chat + Claude Code 席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)的 Enterprise 用户。
+> 云环境适用于[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，这些会话在 Pro、Max 和 Team 计划上可用，以及具有[高级席位或 Chat + Claude Code 席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)的 Enterprise 用户。
 
-每个[云端会话](/docs/zh-CN/claude-code-on-the-web.md)都在云环境中运行。您可以配置环境以允许或拒绝[网络访问](#access-levels)、为会话[设置环境变量](#set-environment-variables)、存储会话使用但无法看到的[网络密钥](#add-network-secrets)，以及在 Claude 开始工作前运行[设置脚本](#setup-scripts)。
+每个[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)都在云环境中运行。您可以配置环境以允许或拒绝[网络访问](#access-levels)、为会话[设置环境变量](#set-environment-variables)、存储会话使用但无法看到的[网络密钥](#add-network-secrets)，以及在 Claude 开始工作前运行[设置脚本](#setup-scripts)。
 
 相同的环境适用于您启动云端会话的任何地方：
 
-* [Desktop 应用](/docs/zh-CN/desktop.md)
-* [Claude 移动应用](/docs/zh-CN/mobile.md)
+* [Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md)
+* [Claude 移动应用](https://code.claude.com/docs/zh-CN/mobile.md)
 * 浏览器中的 [claude.ai/code](https://claude.ai/code)
-* 终端中搭配 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)
-* [云端定时任务](/docs/zh-CN/routines.md)
+* 终端中搭配 [`claude --cloud`](https://code.claude.com/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)
+* [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)
 * [Claude Tag](https://claude.com/docs/claude-tag/overview)
 
-这些使用入口中的每一个也可以路由到[自托管环境](/docs/zh-CN/self-hosted-environments)。[可用性和限制](/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖了当 Claude Tag 会话在其中运行时 Claude 还不能使用的内容。
+这些使用入口中的每一个也可以路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)。[可用性和限制](https://code.claude.com/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖了当 Claude Tag 会话在其中运行时 Claude 还不能使用的内容。
 
 > [!NOTE]
 >
-> [Remote Control](/docs/zh-CN/remote-control.md) 会话将网页和移动界面连接到您自己机器上的会话，该会话使用您机器的网络和文件，而不是云环境。Claude Tag 频道会话仅使用组织级别的环境，即[共享环境](#organization-shared-environments)或[自托管环境](/docs/zh-CN/self-hosted-environments)。
+> [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话将网页和移动界面连接到您自己机器上的会话，该会话使用您机器的网络和文件，而不是云环境。Claude Tag 频道会话仅使用组织级别的环境，即[共享环境](#organization-shared-environments)或[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)。
 
 ## Default 环境
 
@@ -33,7 +33,7 @@
 
 * **CLI 流程（例如 `/web-setup`）**：为您创建 **Default**
 * **Pro 和 Max 上的网页引导**：为您创建 **Default**
-* **Team 和 Enterprise 上的网页引导**：显示 **Create your first cloud environment** 表单，除非所有者已启用[快速设置](/docs/zh-CN/claude-code-on-the-web.md#quick-setup-for-team-and-enterprise)；保持表单的默认值并点击 **Create & finish** 以获得相同的 **Default** 环境
+* **Team 和 Enterprise 上的网页引导**：显示 **Create your first cloud environment** 表单，除非所有者已启用[快速设置](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#quick-setup-for-team-and-enterprise)；保持表单的默认值并点击 **Create & finish** 以获得相同的 **Default** 环境
 
 **Default** 本身不带有任何配置：
 
@@ -42,14 +42,14 @@
 
 只有 **Default** 可用时，每个会话都在其中运行。当您有多个环境时，会话会按界面选择一个：
 
-* 在网页、Desktop 应用和移动应用上，会话使用[选择器](#configure-your-environment)中显示的环境。当您尚未选择时，所有者设置的[组织默认值](#organization-shared-environments)会填入选择。线程在[项目](/docs/zh-CN/claude-projects.md#project-settings-reference)中使用项目设置中设置的环境。
-* 从 CLI，Claude Code 使用您的 [`/remote-env` 选择](#select-an-environment-from-the-cli)，或在您的列表中有一个 Anthropic 托管环境时回退到该环境，否则回退到您列表中第一个不是桥接环境的环境，即 [Remote Control](/docs/zh-CN/remote-control.md) 注册的条目，用于代表您自己的机器而不是云环境。对于[自托管环境](/docs/zh-CN/self-hosted-environments)，在[分派会话](/docs/zh-CN/self-hosted-environments-testing.md#run-the-test-loop)时使用其 `ccpool_` ID 传递 `--environment <environment-id>` 会覆盖该调用的 `/remote-env` 选择和回退。Claude Code 拒绝传递给该标志的 Anthropic 托管 `env_` ID，因此请使用 `/remote-env` 来定位这些。该标志需要 Claude Code v2.1.224 或更高版本。
+* 在网页、Desktop 应用和移动应用上，会话使用[选择器](#configure-your-environment)中显示的环境。当您尚未选择时，所有者设置的[组织默认值](#organization-shared-environments)会填入选择。线程在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#project-settings-reference)中使用项目设置中设置的环境。
+* 从 CLI，Claude Code 使用您的 [`/remote-env` 选择](#select-an-environment-from-the-cli)，或在您的列表中有一个 Anthropic 托管环境时回退到该环境，否则回退到您列表中第一个不是桥接环境的环境，即 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 注册的条目，用于代表您自己的机器而不是云环境。对于[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)，在[分派会话](https://code.claude.com/docs/zh-CN/self-hosted-environments-testing.md#run-the-test-loop)时使用其 `ccpool_` ID 传递 `--environment <environment-id>` 会覆盖该调用的 `/remote-env` 选择和回退。Claude Code 拒绝传递给该标志的 Anthropic 托管 `env_` ID，因此请使用 `/remote-env` 来定位这些。该标志需要 Claude Code v2.1.224 或更高版本。
 
 当默认环境不够用时，请配置环境：当 Claude 需要访问[默认允许列表](#default-allowed-domains)之外的域、需要为其会话设置环境变量，或需要在开始工作前安装依赖项时。
 
 ## 配置您的环境
 
-在 [claude.ai/code](https://claude.ai/code) 上启动新会话的页面中，通过消息框下方的环境选择器添加、编辑和归档环境。要进入该页面，请完成[网页入门引导](/docs/zh-CN/web-quickstart.md)。对于桌面应用，请参阅[云端会话](/docs/zh-CN/desktop.md#cloud-sessions)。您创建的环境是您账户的个人环境；由所有者创建的[共享环境](#organization-shared-environments)会与它们一起出现在选择器中。查看[已安装的工具](#installed-tools)，了解无需任何配置即可使用的工具。
+在 [claude.ai/code](https://claude.ai/code) 上启动新会话的页面中，通过消息框下方的环境选择器添加、编辑和归档环境。要进入该页面，请完成[网页入门引导](https://code.claude.com/docs/zh-CN/web-quickstart.md)。对于桌面应用，请参阅[云端会话](https://code.claude.com/docs/zh-CN/desktop.md#cloud-sessions)。您创建的环境是您账户的个人环境；由所有者创建的[共享环境](#organization-shared-environments)会与它们一起出现在选择器中。查看[已安装的工具](#installed-tools)，了解无需任何配置即可使用的工具。
 
 选择器仅在您发送新会话的第一条消息之前显示。要编辑您自己正在运行的云端会话的环境，请选择顶部会话标题后的插入符号，然后选择 **Edit cloud environment**。
 
@@ -76,16 +76,16 @@ LOG_LEVEL=debug
 DATABASE_URL=postgres://localhost:5432/myapp
 ```
 
-会话会将环境的值读入普通环境变量中，Claude 运行的任何命令都可以读取这些变量，`OTEL_*` 变量除外。Claude Code 使用这些变量进行自己的[遥测导出](/docs/zh-CN/monitoring-usage.md#telemetry-from-cloud-sessions-and-claude-tag)，不会将它们传递给它运行的命令。
+会话会将环境的值读入普通环境变量中，Claude 运行的任何命令都可以读取这些变量，`OTEL_*` 变量除外。Claude Code 使用这些变量进行自己的[遥测导出](https://code.claude.com/docs/zh-CN/monitoring-usage.md#telemetry-from-cloud-sessions-and-claude-tag)，不会将它们传递给它运行的命令。
 
 在 Anthropic 托管的环境中，会话在创建时读取环境的值，之后每次 Claude Code 在会话的 VM 中启动时也会再次读取，这发生在两种情况下：
 
 * **VM 在空闲后被恢复**：在几分钟没有活动后，会话的 VM 会暂停，其文件会被保存。您的下一条消息会恢复同一个 VM 并再次启动 Claude Code。
-* **VM 被回收并被重建**：如果暂停的 VM 已经被[回收](/docs/zh-CN/claude-code-on-the-web.md#environment-expired)，重新打开会话会配置一个新的 VM。
+* **VM 被回收并被重建**：如果暂停的 VM 已经被[回收](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#environment-expired)，重新打开会话会配置一个新的 VM。
 
 编辑、添加或删除变量后，Anthropic 托管环境中的现有会话会保持它最后读取的值，直到其 VM 下次被恢复或重建，此后才使用您的更改。会话空闲后其 VM 会自动暂停，您无法手动暂停它。要立即使用新值，请要求 Claude 在它运行的命令上设置该值，例如 `LOG_LEVEL=trace npm test`，或启动一个新会话。
 
-云端会话在启动时也会自行设置一些变量。对于 [`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`](/docs/zh-CN/claude-code-on-the-web#manage-context)，会话设置的值会覆盖您在这里添加的值，因此在这里添加该键没有效果。
+云端会话在启动时也会自行设置一些变量。对于 [`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`](https://code.claude.com/docs/zh-CN/claude-code-on-the-web#manage-context)，会话设置的值会覆盖您在这里添加的值，因此在这里添加该键没有效果。
 
 使用该环境的任何人都可以读取这些值。在 Anthropic 托管的环境中，对于 Agent 代理可以附加到请求中的密钥，请改用[网络机密](#add-network-secrets)。[永远不会获得机密的请求](#requests-that-never-get-the-credential)在该处列出。
 
@@ -103,7 +103,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
   * **Enterprise 上您自己的环境**：拥有组织管理员角色时，您可以添加和删除机密。没有该角色时，**Network secrets** 行会打开机密列表，并显示说明"Only an organization admin can add or delete network secrets"，且没有 **Add secret** 或删除按钮。请让所有者将机密添加到[共享环境](#organization-shared-environments)，然后在该环境中运行您的会话
   * **共享环境**：所有者从管理设置中[添加和删除其机密](#add-a-credential)。没有组织管理员角色时，请让所有者添加机密，因为该环境的对话框中没有 **Network secrets** 部分
   * **Team 上您自己的环境**：没有组织管理员角色时，**Add secret** 会打开一个只接受一个主机的[简化表单](#add-a-secret-without-the-role)
-* **Environment type**：一个已存在的 Anthropic 托管云环境。[自托管环境](/docs/zh-CN/self-hosted-environments)没有网络机密
+* **Environment type**：一个已存在的 Anthropic 托管云环境。[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)没有网络机密
 * **API reachability**：API 接受来自互联网的连接，因为请求从 Anthropic 的网络发出
 * **Encryption keys**：如果您的组织使用客户管理的加密密钥，则无法保存网络机密
 
@@ -152,13 +152,13 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 * **GitHub**：[GitHub 代理](#github-proxy)会代为对发往 GitHub 的请求进行身份验证，因此您无需为其设置网络机密
 * **Anthropic API 和公共包注册表**：`api.anthropic.com`、`registry.npmjs.org`、`jsr.io`、`npm.jsr.io`、`pypi.org`、`files.pythonhosted.org`、`index.crates.io` 和 `proxy.golang.org`
 * **设置脚本请求**：Claude Code 在启动时才连接到 Agent 代理，此时[设置脚本](#setup-scripts)已经运行完毕
-* **Claude Code 的遥测导出**：Claude Code 自行发送其[遥测导出](/docs/zh-CN/monitoring-usage.md#telemetry-from-cloud-sessions-and-claude-tag)，而不是通过它运行的命令发送，该请求不会经过 Agent 代理
+* **Claude Code 的遥测导出**：Claude Code 自行发送其[遥测导出](https://code.claude.com/docs/zh-CN/monitoring-usage.md#telemetry-from-cloud-sessions-and-claude-tag)，而不是通过它运行的命令发送，该请求不会经过 Agent 代理
 
 ### 从 CLI 选择环境
 
-在终端中运行 `/remote-env`，为您从 CLI 创建的云端会话（例如 [`claude --cloud`](/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)）选择默认环境。该命令会打开现有环境的选择器，并将您的选择保存到[用户设置](/docs/zh-CN/settings.md#where-settings-live)中的 `remote.defaultEnvironmentId` 键，因此它适用于您机器上的每个项目，直到您更改它为止，除非在更高优先级的[设置层级](/docs/zh-CN/settings.md#settings-precedence)（例如仓库的项目设置）中设置了相同的键。
+在终端中运行 `/remote-env`，为您从 CLI 创建的云端会话（例如 [`claude --cloud`](https://code.claude.com/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud)）选择默认环境。该命令会打开现有环境的选择器，并将您的选择保存到[用户设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中的 `remote.defaultEnvironmentId` 键，因此它适用于您机器上的每个项目，直到您更改它为止，除非在更高优先级的[设置层级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)（例如仓库的项目设置）中设置了相同的键。
 
-[自托管环境](/docs/zh-CN/self-hosted-environments) ID 的形式为 `ccpool_...`，遵循更严格的来源规则。查看 [`remote.defaultEnvironmentId`](/docs/zh-CN/settings-reference#remote-defaultenvironmentid)，了解 Claude Code 会从哪些设置层级采用该值。
+[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments) ID 的形式为 `ccpool_...`，遵循更严格的来源规则。查看 [`remote.defaultEnvironmentId`](https://code.claude.com/docs/zh-CN/settings-reference#remote-defaultenvironmentid)，了解 Claude Code 会从哪些设置层级采用该值。
 
 `/remote-env` 仅设置默认值：它不会启动会话，也不能添加或编辑环境。请从[环境选择器](#configure-your-environment)管理环境。
 
@@ -173,13 +173,13 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 * 环境中的网络机密在其正在运行的会话中仍保持附加状态。请在归档前删除不再需要的机密。
 * 在任何使用入口上都无法在已归档的环境中启动新会话：
   * **保存的 CLI 默认值**：如果该环境是您保存的 [CLI 默认值](#select-an-environment-from-the-cli)，当您的列表中有 Anthropic 托管的环境时，Claude Code 会在该环境中启动 CLI 云端会话。否则，会在列表中第一个不是 [Remote Control bridge 环境](#the-default-environment)的环境中启动。
-  * **显式配置**：任何显式配置了该环境的内容，例如[云端定时任务](/docs/zh-CN/routines.md#environments-and-network-access)，都无法在其中启动新会话。请将其指向另一个环境。
+  * **显式配置**：任何显式配置了该环境的内容，例如[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md#environments-and-network-access)，都无法在其中启动新会话。请将其指向另一个环境。
 
-当您不再需要某个 Anthropic 托管的环境时，请将其归档。环境对话框和 **Cloud environments** 管理页面都没有删除 Anthropic 托管环境的选项。如果该环境是[自托管](/docs/zh-CN/self-hosted-environments)的，所有者可以从管理设置中的 **Cloud environments** 页面将其删除。如果您不是所有者，请联系所有者将其删除。
+当您不再需要某个 Anthropic 托管的环境时，请将其归档。环境对话框和 **Cloud environments** 管理页面都没有删除 Anthropic 托管环境的选项。如果该环境是[自托管](https://code.claude.com/docs/zh-CN/self-hosted-environments)的，所有者可以从管理设置中的 **Cloud environments** 页面将其删除。如果您不是所有者，请联系所有者将其删除。
 
 ### 组织共享环境
 
-在 Team 和 Enterprise 计划上，所有者可以创建与组织每个成员共享的云环境。同一角色管理 **Cloud environments** 管理页面上的其他所有内容，包括[自托管环境](/docs/zh-CN/self-hosted-environments)；管理员（Admin）角色无法打开该页面。可以打开该页面的完整角色列表与[管理服务器托管设置](/docs/zh-CN/server-managed-settings.md#access-control)的角色列表相同。
+在 Team 和 Enterprise 计划上，所有者可以创建与组织每个成员共享的云环境。同一角色管理 **Cloud environments** 管理页面上的其他所有内容，包括[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)；管理员（Admin）角色无法打开该页面。可以打开该页面的完整角色列表与[管理服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control)的角色列表相同。
 
 共享环境出现在每个成员的[环境选择器](#configure-your-environment)中的 **Organization** 标题下，位于成员自己在 **Personal** 下的环境之后，因此团队可以统一使用一套配置，而无需每个成员各自重新创建。在那里选择共享环境的设置图标，会为每个成员（包括所有者）打开其配置的只读摘要。
 
@@ -194,7 +194,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 ### 设置 Claude Tag 频道使用的环境
 
-在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 频道中，Claude 以您组织的共享身份工作，而不是以任何成员的身份工作，因此频道会话仅使用组织级别的环境，即共享环境或[自托管环境](/docs/zh-CN/self-hosted-environments)。要为频道提供未[预安装](#installed-tools)的工具链（例如 .NET），所有者可以从 **Cloud environments** 管理页面创建一个[共享环境](#organization-shared-environments)，并使用[设置脚本](#setup-scripts)安装该工具链。通过以下两种方式之一将频道指向某个环境：
+在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 频道中，Claude 以您组织的共享身份工作，而不是以任何成员的身份工作，因此频道会话仅使用组织级别的环境，即共享环境或[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)。要为频道提供未[预安装](#installed-tools)的工具链（例如 .NET），所有者可以从 **Cloud environments** 管理页面创建一个[共享环境](#organization-shared-environments)，并使用[设置脚本](#setup-scripts)安装该工具链。通过以下两种方式之一将频道指向某个环境：
 
 * 在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 将共享环境或自托管环境设置为组织的[默认环境](#the-default-environment)。
 * 在 Claude Tag 管理设置中[将某个环境固定到频道](https://claude.com/docs/claude-tag/admins/troubleshooting#channel-sessions-use-the-wrong-environment-or-can%E2%80%99t-find-one)。
@@ -203,13 +203,13 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 每个环境都设置一个网络访问级别，控制其会话可以进行的出站连接。默认级别 **Trusted** 允许包注册表和其他[允许列表中的域](#default-allowed-domains)；**Custom** 采用您自己的域列表。
 
-要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的控件出现在[Default 环境](#the-default-environment)下列出的应用使用入口上，以及[云端定时任务编辑器](/docs/zh-CN/routines.md#environments-and-network-access)中。个人环境在您的 claude.ai 账户设置中没有单独的页面。
+要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的控件出现在[Default 环境](#the-default-environment)下列出的应用使用入口上，以及[云端定时任务编辑器](https://code.claude.com/docs/zh-CN/routines.md#environments-and-network-access)中。个人环境在您的 claude.ai 账户设置中没有单独的页面。
 
 当您更改 Anthropic 托管环境的网络访问时，其现有会话在约一分钟内遵循新设置，用于通过会话的[网络允许列表](#access-levels)的请求。您无需启动新会话。
 
 > [!NOTE]
 >
-> 您在会话或定时任务上启用的 MCP 连接器无需将其主机添加到 **Allowed domains**，因为连接器流量通过 Anthropic 的服务器而不是会话的网络传输。这依赖于[安全性和隔离](/docs/zh-CN/claude-code-on-the-web.md#security-and-isolation)下提到的同一条通往 Anthropic 的通道。关闭任何您不需要的连接器，以限制 Claude 可以访问的工具。
+> 您在会话或定时任务上启用的 MCP 连接器无需将其主机添加到 **Allowed domains**，因为连接器流量通过 Anthropic 的服务器而不是会话的网络传输。这依赖于[安全性和隔离](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#security-and-isolation)下提到的同一条通往 Anthropic 的通道。关闭任何您不需要的连接器，以限制 Claude 可以访问的工具。
 
 ### 访问级别
 
@@ -227,7 +227,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 * GitHub，通过其[单独的代理](#github-proxy)
 * 您启用的 [MCP 连接器](#network-access)，其流量通过 Anthropic 的服务器传输
 * 您在环境的[网络密钥](#add-network-secrets)上列出的主机，除了[永远不会获得该密钥的主机](#requests-that-never-get-the-credential)
-* Anthropic API，用于 Claude Code 自己的请求，即使在 **None** 下也是如此，如[安全性和隔离](/docs/zh-CN/claude-code-on-the-web.md#security-and-isolation)下所述
+* Anthropic API，用于 Claude Code 自己的请求，即使在 **None** 下也是如此，如[安全性和隔离](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#security-and-isolation)下所述
 
 ### 允许特定域
 
@@ -241,16 +241,16 @@ registry.example.com
 
 此环境中的会话现在可以访问 `api.example.com`、`internal.example.com` 的任何子域和 `registry.example.com`，但无法通过会话的网络访问其他域。[GitHub 流量](#github-proxy)、[MCP 连接器流量](#network-access)和对环境[网络密钥](#add-network-secrets)的主机的请求（除了[永远不会获得该密钥的主机](#requests-that-never-get-the-credential)）不经过此允许列表。前导 `*.` 匹配每个子域。要同时保留 [Trusted 域](#default-allowed-domains)，请勾选 **Also include default list of common package managers**；不勾选则只允许您列出的内容。
 
-如果您的组织使用 [Artifact](/docs/zh-CN/artifacts.md#availability)，会话读取 Artifact 时不需要在列表中包含 `*.frame.claudeusercontent.com`。当列表中没有该主机时，Claude Code 通过会话与 Anthropic 的连接读取 Artifact 内容。在两种情况下保留允许列表中的主机：
+如果您的组织使用 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#availability)，会话读取 Artifact 时不需要在列表中包含 `*.frame.claudeusercontent.com`。当列表中没有该主机时，Claude Code 通过会话与 Anthropic 的连接读取 Artifact 内容。在两种情况下保留允许列表中的主机：
 
 * **此环境中的会话打开另一个组织的公开 Artifact**：Claude Code 直接从主机获取这些 Artifact，因此将其添加到此列表。
-* **您正在配置本地 CLI 或自托管运行器**：在该允许列表中保留主机。请参阅[网络访问要求](/docs/zh-CN/network-config.md#network-access-requirements)和自托管[网络要求](/docs/zh-CN/self-hosted-environments-deploy.md#network-requirements)。
+* **您正在配置本地 CLI 或自托管运行器**：在该允许列表中保留主机。请参阅[网络访问要求](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)和自托管[网络要求](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#network-requirements)。
 
-每个环境都有自己的允许域列表；没有组织级别的允许列表可供管理员推送到每个成员的环境。[服务器管理的设置](/docs/zh-CN/server-managed-settings.md)也不会将域添加到环境的网络允许列表。要为团队提供一个标准列表，Owner 可以创建一个具有 **Custom** 网络访问和该列表的[组织共享环境](#organization-shared-environments)。
+每个环境都有自己的允许域列表；没有组织级别的允许列表可供管理员推送到每个成员的环境。[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)也不会将域添加到环境的网络允许列表。要为团队提供一个标准列表，Owner 可以创建一个具有 **Custom** 网络访问和该列表的[组织共享环境](#organization-shared-environments)。
 
 ### GitHub 代理
 
-在 Anthropic 托管的环境中，所有 GitHub 操作都经过专用代理，使您的真实 GitHub 凭据保留在会话的 VM 之外，独立于环境的[访问级别](#access-levels)。自托管环境中的会话使用您的部署提供的凭据进行 git 操作身份验证；[配置 git](/docs/zh-CN/self-hosted-environments-deploy.md#configure-git)涵盖了选项，包括按会话生成的凭据和选择加入此同一代理。代理提供：
+在 Anthropic 托管的环境中，所有 GitHub 操作都经过专用代理，使您的真实 GitHub 凭据保留在会话的 VM 之外，独立于环境的[访问级别](#access-levels)。自托管环境中的会话使用您的部署提供的凭据进行 git 操作身份验证；[配置 git](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#configure-git)涵盖了选项，包括按会话生成的凭据和选择加入此同一代理。代理提供：
 
 * **Git 凭据**：VM 内的 git 客户端使用范围受限的凭据，代理验证并将其交换为您的实际 GitHub 令牌。
 * **API 请求**：来自内置 GitHub 工具的请求，以及来自 [`proxy-injected` 占位符](#work-with-github-issues-and-pull-requests)下的 `gh` 的请求，会在替换为您的真实凭据后发出。
@@ -262,7 +262,7 @@ registry.example.com
 
 ### 安全代理
 
-Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行，用于安全和滥用防范目的；在[自托管环境](/docs/zh-CN/self-hosted-environments-deploy.md#default-deny-egress)中，出站流量通过您自己的网络边界离开。来自 Anthropic 托管会话的所有出站互联网流量都经过此代理，它提供：
+Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行，用于安全和滥用防范目的；在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#default-deny-egress)中，出站流量通过您自己的网络边界离开。来自 Anthropic 托管会话的所有出站互联网流量都经过此代理，它提供：
 
 * 防范恶意请求
 * 速率限制和滥用防范
@@ -273,30 +273,30 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 
 > [!NOTE]
 >
-> 您的组织路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话在您自己的运行器上运行，使用您的运行器镜像提供的工具。
+> 您的组织路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话在您自己的运行器上运行，使用您的运行器镜像提供的工具。
 
 ### 您的设置中会保留的内容
 
 > [!NOTE]
 >
-> 在此表列出的仓库配置中，[项目](/docs/zh-CN/claude-projects.md)中的云端线程仅加载仓库根目录的 `CLAUDE.md`、`.claude/CLAUDE.md`，以及不[特定于路径](/docs/zh-CN/memory.md#path-specific-rules)的 `.claude/rules/` 文件。请参阅[线程从您的仓库中获取的内容](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。
+> 在此表列出的仓库配置中，[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)中的云端线程仅加载仓库根目录的 `CLAUDE.md`、`.claude/CLAUDE.md`，以及不[特定于路径](https://code.claude.com/docs/zh-CN/memory.md#path-specific-rules)的 `.claude/rules/` 文件。请参阅[线程从您的仓库中获取的内容](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。
 
-云端会话从您仓库的全新克隆开始。您提交到仓库的任何内容都可用。您只在自己机器上安装或配置的任何内容在会话中都不可用。您组织的策略通过[服务器托管设置](/docs/zh-CN/server-managed-settings.md)单独到达。
+云端会话从您仓库的全新克隆开始。您提交到仓库的任何内容都可用。您只在自己机器上安装或配置的任何内容在会话中都不可用。您组织的策略通过[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)单独到达。
 
 | | 在云端会话中可用 | 原因 |
 | :- | :- | :- |
 | 您的仓库的 `CLAUDE.md` | 是 | 克隆的一部分 |
-| 您的仓库的 `.claude/settings.json` hook 和权限规则 | 是，在具有一个仓库的会话中 | 克隆的一部分。对于具有多个仓库的会话，请参阅[它读取哪些设置](/docs/zh-CN/settings.md#settings-in-cloud-sessions) |
-| 您的仓库的 `.mcp.json` MCP 服务器 | 是，在具有一个仓库的会话中 | 克隆的一部分，从会话的工作目录中找到。对于自托管环境，请参阅[哪个仓库的设置适用](/docs/zh-CN/self-hosted-environments-configuration.md#repository-settings-in-sessions-with-several-repositories) |
+| 您的仓库的 `.claude/settings.json` hook 和权限规则 | 是，在具有一个仓库的会话中 | 克隆的一部分。对于具有多个仓库的会话，请参阅[它读取哪些设置](https://code.claude.com/docs/zh-CN/settings.md#settings-in-cloud-sessions) |
+| 您的仓库的 `.mcp.json` MCP 服务器 | 是，在具有一个仓库的会话中 | 克隆的一部分，从会话的工作目录中找到。对于自托管环境，请参阅[哪个仓库的设置适用](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#repository-settings-in-sessions-with-several-repositories) |
 | 您的仓库的 `.claude/rules/` | 是 | 克隆的一部分 |
 | 您的仓库的 `.claude/skills/`、`.claude/agents/`、`.claude/commands/` | 是 | 克隆的一部分 |
-| 在您的仓库的 `.claude/settings.json` 中声明的插件和市场 | 否 | 云端会话不会安装仓库在 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 下启用的插件，包括来自它在 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 下列出的市场的插件 |
-| 您组织的[服务器托管设置](/docs/zh-CN/server-managed-settings.md) | 是，除了在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话中 | 在会话启动时从 Anthropic 的服务器获取。请参阅[使用入口覆盖范围](/docs/zh-CN/model-config.md#surface-coverage)了解 `availableModels` 在云端会话中如何强制执行。通过 MDM 或托管设置文件部署到您设备的设置不适用，因为会话在 Anthropic 管理的 VM 上运行；在[自托管环境](/docs/zh-CN/self-hosted-environments)中，会话也会读取运行器镜像中的托管设置文件，根据 [Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources) |
+| 在您的仓库的 `.claude/settings.json` 中声明的插件和市场 | 否 | 云端会话不会安装仓库在 [`enabledPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#enabledplugins) 下启用的插件，包括来自它在 [`extraKnownMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#extraknownmarketplaces) 下列出的市场的插件 |
+| 您组织的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md) | 是，除了在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话中 | 在会话启动时从 Anthropic 的服务器获取。请参阅[使用入口覆盖范围](https://code.claude.com/docs/zh-CN/model-config.md#surface-coverage)了解 `availableModels` 在云端会话中如何强制执行。通过 MDM 或托管设置文件部署到您设备的设置不适用，因为会话在 Anthropic 管理的 VM 上运行；在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中，会话也会读取运行器镜像中的托管设置文件，根据 [Claude Code 如何组合托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources) |
 | 您的用户 `~/.claude/CLAUDE.md` | 否 | 位于您的机器上，不在仓库中。请参阅[添加个人偏好而无需提交到仓库](#add-personal-preferences-without-committing-to-the-repo) |
-| 您的用户 `~/.claude/skills/`、`~/.claude/agents/`、`~/.claude/commands/` | 否 | 位于您的机器上，不在仓库中。请改为将它们提交到仓库的 `.claude/` 目录。云端会话会自动加载[您在 claude.ai 上启用的 skill](/docs/zh-CN/skills.md#skills-in-cowork-and-cloud-sessions) |
+| 您的用户 `~/.claude/skills/`、`~/.claude/agents/`、`~/.claude/commands/` | 否 | 位于您的机器上，不在仓库中。请改为将它们提交到仓库的 `.claude/` 目录。云端会话会自动加载[您在 claude.ai 上启用的 skill](https://code.claude.com/docs/zh-CN/skills.md#skills-in-cowork-and-cloud-sessions) |
 | 仅在您的用户设置中启用的插件 | 否 | 用户作用域的 `enabledPlugins` 位于您机器上的 `~/.claude/settings.json` |
-| 您使用 `claude mcp add` 在默认本地作用域或用户作用域添加的 MCP 服务器 | 否 | 这些写入您机器上的 `~/.claude.json`，而不是仓库。请使用 `claude mcp add --scope project` 添加服务器，它会写入仓库的 [`.mcp.json`](/docs/zh-CN/mcp#project-scope)，并提交该文件。具有一个仓库的会话会加载它 |
-| 您的仓库的 `.claude/settings.json` `env` 块中的传输变量，例如 `NODE_EXTRA_CA_CERTS` 和 [mTLS 客户端证书变量](/docs/zh-CN/network-config.md#mtls-authentication) | 否 | 托管环境管理会话的 API 连接，因此 Claude Code 忽略这些键，并在会话的调试日志中记录每个被忽略的键 |
+| 您使用 `claude mcp add` 在默认本地作用域或用户作用域添加的 MCP 服务器 | 否 | 这些写入您机器上的 `~/.claude.json`，而不是仓库。请使用 `claude mcp add --scope project` 添加服务器，它会写入仓库的 [`.mcp.json`](https://code.claude.com/docs/zh-CN/mcp#project-scope)，并提交该文件。具有一个仓库的会话会加载它 |
+| 您的仓库的 `.claude/settings.json` `env` 块中的传输变量，例如 `NODE_EXTRA_CA_CERTS` 和 [mTLS 客户端证书变量](https://code.claude.com/docs/zh-CN/network-config.md#mtls-authentication) | 否 | 托管环境管理会话的 API 连接，因此 Claude Code 忽略这些键，并在会话的调试日志中记录每个被忽略的键 |
 | Claude 调用的服务的 API 密钥和令牌 | 在 Anthropic 托管的环境中，作为[网络密钥](#add-network-secrets) | 您在环境中添加一次密钥，Agent 代理会将其附加到发往您列出的主机的请求。Agent 代理[无法附加](#requests-that-never-get-the-credential)的密钥保留在环境变量中 |
 | 交互式身份验证，例如 AWS SSO | 否 | 不支持。SSO 需要基于浏览器的登录，无法在云端会话中执行 |
 
@@ -306,7 +306,7 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 
 #### 添加个人偏好而无需提交到仓库
 
-在 Anthropic 托管的环境中，对于您不希望放入共享仓库的偏好，请添加一个写入 `~/.claude/CLAUDE.md` 的[设置脚本](#setup-scripts)。Claude Code 会在会话中将该文件作为[用户指令](/docs/zh-CN/memory.md#choose-where-to-put-claude-md-files)加载。以下示例设置了一项提交信息偏好：
+在 Anthropic 托管的环境中，对于您不希望放入共享仓库的偏好，请添加一个写入 `~/.claude/CLAUDE.md` 的[设置脚本](#setup-scripts)。Claude Code 会在会话中将该文件作为[用户指令](https://code.claude.com/docs/zh-CN/memory.md#choose-where-to-put-claude-md-files)加载。以下示例设置了一项提交信息偏好：
 
 ```bash theme={null}
 #!/bin/bash
@@ -348,7 +348,7 @@ Node.js 版本安装在 `/opt/node20`、`/opt/node21` 和 `/opt/node22`，默认
 
 ### 使用 GitHub 问题和 Pull Request
 
-云端会话包括内置 GitHub 工具，让 Claude 无需任何设置即可读取问题、列出 Pull Request、获取 diff 和发布评论。这些工具通过 [GitHub 代理](#github-proxy)，使用您在 [GitHub 身份验证选项](/docs/zh-CN/claude-code-on-the-web.md#github-authentication-options)下配置的任何方法进行身份验证，因此您的令牌永远不会进入容器。
+云端会话包括内置 GitHub 工具，让 Claude 无需任何设置即可读取问题、列出 Pull Request、获取 diff 和发布评论。这些工具通过 [GitHub 代理](#github-proxy)，使用您在 [GitHub 身份验证选项](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#github-authentication-options)下配置的任何方法进行身份验证，因此您的令牌永远不会进入容器。
 
 您可以在[环境设置](#set-environment-variables)中自己设置 `GH_TOKEN` 或 `GITHUB_TOKEN`，或者两者都不设置，让 [GitHub 代理](#github-proxy)为您进行身份验证：
 
@@ -365,7 +365,7 @@ GitHub 的 [`gh` CLI](https://cli.github.com) 已预安装。如果您需要内�
 
 每个云端会话在 claude.ai 上都有一个会话记录 URL，会话可以从 `CLAUDE_CODE_REMOTE_SESSION_ID` 环境变量读取自己的 ID。使用它在 PR 正文、提交信息、Slack 帖子或生成的报告中放置可追溯的链接，以便审阅者可以打开生成它们的运行。
 
-Claude 在云端会话中创建的提交包括 `Claude-Session: <url>` git 尾注，PR 正文在单独一行包括会话 URL。要省略尾注和 PR 正文链接，请将 [`attribution.sessionUrl`](/docs/zh-CN/settings-reference#attribution-sessionurl) 设置为 `false`。
+Claude 在云端会话中创建的提交包括 `Claude-Session: <url>` git 尾注，PR 正文在单独一行包括会话 URL。要省略尾注和 PR 正文链接，请将 [`attribution.sessionUrl`](https://code.claude.com/docs/zh-CN/settings-reference#attribution-sessionurl) 设置为 `false`。
 
 要在提交或 PR 以外的内容中包含会话链接，例如 Claude 发布的 Slack 消息或它编写的报告文件，请让 Claude 运行以下命令并使用其输出。该命令将环境变量值中的 `cse_` 前缀转换为会话记录 URL 预期的 `session_` 前缀：
 
@@ -409,7 +409,7 @@ Anthropic 托管环境中的云端会话运行时具有可能随时间变化的�
 * 16 GB RAM
 * 30 GB 磁盘
 
-VM 可能会停止需要明显更多内存的任务，例如大型构建作业或内存密集型测试。对于超出这些限制的工作负载，请使用 [Remote Control](/docs/zh-CN/remote-control.md) 在您自己的硬件上运行 Claude Code，或在[自托管环境](/docs/zh-CN/self-hosted-environments)中运行云端会话，该环境在您的组织运营的计算资源上。
+VM 可能会停止需要明显更多内存的任务，例如大型构建作业或内存密集型测试。对于超出这些限制的工作负载，请使用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 在您自己的硬件上运行 Claude Code，或在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中运行云端会话，该环境在您的组织运营的计算资源上。
 
 ### 时间限制
 
@@ -417,12 +417,12 @@ VM 可能会停止需要明显更多内存的任务，例如大型构建作业�
 
 * **Claude 运行的命令**：云环境不设置自己的命令超时时间，因此 Bash 工具的默认值适用。Claude 默认为前台命令等待 2 分钟，最多可以要求 10 分钟。
 
-  当命令达到其[超时](/docs/zh-CN/tools-reference.md#timeout-and-output-limits)时，Claude Code [将其移到后台](/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background)，而不是停止它，除非命令以 `sleep` 开头。以这种方式移动的命令可以继续运行最多 30 分钟，然后 Claude Code 在其[后台时间限制](/docs/zh-CN/tools-reference.md#time-limit-for-background-commands)处停止它。将 `BASH_DEFAULT_TIMEOUT_MS` 设置为 `1800000` 毫秒以上会延长该限制以及前台默认值。
-* **SessionStart hook**：Claude Code 在 600 秒后取消 `command` hook，除非您在 hook 条目上设置 [`timeout`](/docs/zh-CN/hooks#common-fields)（以秒为单位）。Claude Code 不会对您使用 [`async: true`](/docs/zh-CN/hooks#run-hooks-in-the-background) 运行的 hook 强制执行超时。
+  当命令达到其[超时](https://code.claude.com/docs/zh-CN/tools-reference.md#timeout-and-output-limits)时，Claude Code [将其移到后台](https://code.claude.com/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background)，而不是停止它，除非命令以 `sleep` 开头。以这种方式移动的命令可以继续运行最多 30 分钟，然后 Claude Code 在其[后台时间限制](https://code.claude.com/docs/zh-CN/tools-reference.md#time-limit-for-background-commands)处停止它。将 `BASH_DEFAULT_TIMEOUT_MS` 设置为 `1800000` 毫秒以上会延长该限制以及前台默认值。
+* **SessionStart hook**：Claude Code 在 600 秒后取消 `command` hook，除非您在 hook 条目上设置 [`timeout`](https://code.claude.com/docs/zh-CN/hooks#common-fields)（以秒为单位）。Claude Code 不会对您使用 [`async: true`](https://code.claude.com/docs/zh-CN/hooks#run-hooks-in-the-background) 运行的 hook 强制执行超时。
 * **设置脚本**：花费超过大约五分钟的脚本不会被缓存。[脚本要求](#script-requirements)涵盖如何保持在该时间以下。
-* **空闲会话**：在几分钟没有活动后，会话的 VM 会暂停并保存其文件，暂停的 VM 之后可能会被回收。[设置环境变量](#set-environment-variables)描述会话在每种情况下会获取什么，[环境已过期](/docs/zh-CN/claude-code-on-the-web.md#environment-expired)涵盖如何重新打开 VM 被回收的会话。
+* **空闲会话**：在几分钟没有活动后，会话的 VM 会暂停并保存其文件，暂停的 VM 之后可能会被回收。[设置环境变量](#set-environment-variables)描述会话在每种情况下会获取什么，[环境已过期](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#environment-expired)涵盖如何重新打开 VM 被回收的会话。
 
-要为环境的会话提高命令超时时间，请将 [`BASH_DEFAULT_TIMEOUT_MS` 和 `BASH_MAX_TIMEOUT_MS`](/docs/zh-CN/env-vars#variables) 添加到其[环境变量](#set-environment-variables)。两者都采用毫秒。例如，`BASH_DEFAULT_TIMEOUT_MS=600000` 使 10 分钟成为默认值。
+要为环境的会话提高命令超时时间，请将 [`BASH_DEFAULT_TIMEOUT_MS` 和 `BASH_MAX_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 添加到其[环境变量](#set-environment-variables)。两者都采用毫秒。例如，`BASH_DEFAULT_TIMEOUT_MS=600000` 使 10 分钟成为默认值。
 
 ## 设置脚本
 
@@ -446,7 +446,7 @@ apt update && apt install -y shellcheck
 设置脚本有三个需要考虑的约束：
 
 * **以零退出**：如果脚本以非零状态结束，会话将无法启动。在非关键命令后附加 `|| true`，以便间歇性安装失败不会阻止会话。
-* **在五分钟内完成**：将脚本的总运行时间保持在大约五分钟以内，以便[环境缓存](#environment-caching)可以建立。当设置耗时超过五分钟时，环境不会被缓存。使用 `&` 和 `wait` 并行运行独立的安装，并将任何无法容纳的单个下载移至 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks)，在后台启动它。如果新会话在设置期间停滞或失败，请参阅[新会话在设置期间挂起或超时](/docs/zh-CN/web-quickstart.md#new-sessions-hang-or-time-out-during-setup)。
+* **在五分钟内完成**：将脚本的总运行时间保持在大约五分钟以内，以便[环境缓存](#environment-caching)可以建立。当设置耗时超过五分钟时，环境不会被缓存。使用 `&` 和 `wait` 并行运行独立的安装，并将任何无法容纳的单个下载移至 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks)，在后台启动它。如果新会话在设置期间停滞或失败，请参阅[新会话在设置期间挂起或超时](https://code.claude.com/docs/zh-CN/web-quickstart.md#new-sessions-hang-or-time-out-during-setup)。
 * **安装需要网络访问**：包安装需要连接到注册表。默认的 **Trusted** 级别涵盖[常见包注册表](#default-allowed-domains)，包括 npm、PyPI、RubyGems 和 crates.io；使用 **None** 网络访问时，安装会失败。
 
 ### 环境缓存
@@ -455,30 +455,30 @@ apt update && apt install -y shellcheck
 
 缓存是文件系统快照，因此它会保留设置脚本写入磁盘的内容，并丢失任何仅在运行中的内容。您安装的包、您拉取的 Docker 镜像和您写入的文件都会保留。脚本启动的数据库、`docker compose up` 堆栈或任何其他后台进程不会保留；请通过询问 Claude 或使用 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks) 在每个会话中启动这些。
 
-当您更改环境的设置脚本或允许的网络主机时，以及当缓存在大约七天后到期时，设置脚本会再次运行以重建缓存。在 Anthropic 托管环境中，当会话的 VM 在[空闲后恢复](#set-environment-variables)时，设置脚本不会运行，因此对脚本的更改仅在其 VM 被[回收](/docs/zh-CN/claude-code-on-the-web.md#environment-expired)并重建时才会到达现有会话。要立即应用更改，请在会话中运行命令或启动新会话。
+当您更改环境的设置脚本或允许的网络主机时，以及当缓存在大约七天后到期时，设置脚本会再次运行以重建缓存。在 Anthropic 托管环境中，当会话的 VM 在[空闲后恢复](#set-environment-variables)时，设置脚本不会运行，因此对脚本的更改仅在其 VM 被[回收](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#environment-expired)并重建时才会到达现有会话。要立即应用更改，请在会话中运行命令或启动新会话。
 
 您不需要自己启用缓存或管理快照。
 
 ### 设置脚本与 SessionStart hooks
 
-使用设置脚本来配备 VM 本身：未[预安装](#installed-tools)的工具链和 CLI 工具。使用 [SessionStart hook](/docs/zh-CN/hooks.md#sessionstart) 进行应在各处运行的项目设置，包括云端和本地，例如 `npm install`。
+使用设置脚本来配备 VM 本身：未[预安装](#installed-tools)的工具链和 CLI 工具。使用 [SessionStart hook](https://code.claude.com/docs/zh-CN/hooks.md#sessionstart) 进行应在各处运行的项目设置，包括云端和本地，例如 `npm install`。
 
 设置脚本和 SessionStart hooks 在云会话启动时按固定顺序运行。下表比较了您在哪里配置它们、何时运行以及在哪里运行。
 
 | | 设置脚本 | SessionStart hooks |
 | - | - | - |
-| **您在哪里配置它们** | [claude.ai/code](https://claude.ai/code) 的环境对话框，以及[共享环境](#organization-shared-environments)的 **Cloud environments** 管理页面 | [设置文件](/docs/zh-CN/settings.md#where-settings-live)，例如您的存储库的 `.claude/settings.json`；请参阅[您的设置中会保留的内容](#what-carries-over-from-your-setup)，了解哪些文件会到达云会话 |
+| **您在哪里配置它们** | [claude.ai/code](https://claude.ai/code) 的环境对话框，以及[共享环境](#organization-shared-environments)的 **Cloud environments** 管理页面 | [设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)，例如您的存储库的 `.claude/settings.json`；请参阅[您的设置中会保留的内容](#what-carries-over-from-your-setup)，了解哪些文件会到达云会话 |
 | **它们何时运行** | 在 Claude Code 启动之前，当存在[缓存环境](#environment-caching)时跳过 | 在 Claude Code 启动后，在每个会话（包括已恢复的会话）上 |
 | **它们在哪里运行** | 仅限云会话 | 本地和云会话 |
 
 如果您在用户级 `~/.claude/settings.json` 中有 SessionStart hooks，不要期望它们在云端生效。用户级设置保留在您的机器上。其他 hooks 运行的位置取决于会话运行的位置：
 
-* **Anthropic 托管环境**：Claude Code 运行来自您组织的[服务器管理的设置](/docs/zh-CN/server-managed-settings.md)的 hook，并且在[项目](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)线程之外，还运行来自仓库的 hook。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话不会接收服务器管理的设置，因此来自服务器管理的设置的 hook 不会在那里运行。
-* **[自托管环境](/docs/zh-CN/self-hosted-environments-configuration.md#permissions-and-tool-approval)**：Claude Code 还运行运行程序主机的 `~/.claude/` 中的运行程序操作员播种的 hooks，以及运行程序镜像的托管设置文件中的 hooks，当该文件是 [Claude Code 应用的托管源](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)之一时。
+* **Anthropic 托管环境**：Claude Code 运行来自您组织的[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)的 hook，并且在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)线程之外，还运行来自仓库的 hook。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话不会接收服务器管理的设置，因此来自服务器管理的设置的 hook 不会在那里运行。
+* **[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#permissions-and-tool-approval)**：Claude Code 还运行运行程序主机的 `~/.claude/` 中的运行程序操作员播种的 hooks，以及运行程序镜像的托管设置文件中的 hooks，当该文件是 [Claude Code 应用的托管源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)之一时。
 
 ### 使用 SessionStart hook 安装依赖项
 
-要仅在[项目](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)线程之外的云端会话中安装依赖项，请将 SessionStart hook 与检查其运行位置的脚本配对。
+要仅在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)线程之外的云端会话中安装依赖项，请将 SessionStart hook 与检查其运行位置的脚本配对。
 
 首先，将 SessionStart hook 添加到您的存储库的 `.claude/settings.json`。此配置告诉 Claude Code 在会话启动或恢复时运行存储库中的 `scripts/install_pkgs.sh`：
 
@@ -539,11 +539,11 @@ exit 0
 
 SessionStart hooks 在云端的行为与本地相同，但有以下注意事项：
 
-* **每个会话一个仓库**：在 Anthropic 托管环境中，具有多个仓库的会话不会从任何仓库的 `.claude/settings.json` 加载 hook，因此您在那里定义的 SessionStart hook 不会运行。请改为使用[设置脚本](#setup-scripts)为这些会话安装依赖项。对于自托管环境，请参阅[适用哪个仓库的设置](/docs/zh-CN/self-hosted-environments-configuration.md#repository-settings-in-sessions-with-several-repositories)。
-* **不适用于项目的云端线程**：[项目](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)中的云端线程不会运行来自仓库 `.claude/settings.json` 的 hook，无论仓库数量多少。在 Anthropic 托管环境中，请使用[设置脚本](#setup-scripts)为线程安装依赖项。在自托管环境中，请改为使用[运行程序主机设置](/docs/zh-CN/self-hosted-environments-configuration.md#repository-settings-in-sessions-with-several-repositories)中的 hook。
+* **每个会话一个仓库**：在 Anthropic 托管环境中，具有多个仓库的会话不会从任何仓库的 `.claude/settings.json` 加载 hook，因此您在那里定义的 SessionStart hook 不会运行。请改为使用[设置脚本](#setup-scripts)为这些会话安装依赖项。对于自托管环境，请参阅[适用哪个仓库的设置](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#repository-settings-in-sessions-with-several-repositories)。
+* **不适用于项目的云端线程**：[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)中的云端线程不会运行来自仓库 `.claude/settings.json` 的 hook，无论仓库数量多少。在 Anthropic 托管环境中，请使用[设置脚本](#setup-scripts)为线程安装依赖项。在自托管环境中，请改为使用[运行程序主机设置](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#repository-settings-in-sessions-with-several-repositories)中的 hook。
 * **没有仅云端的范围**：hooks 在本地和云会话中都运行。要跳过本地运行，请在 `CLAUDE_CODE_REMOTE` 环境变量不为 `true` 时提前退出，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
 * **需要网络访问**：安装命令需要连接到包注册表。如果您的环境使用 **None** 网络访问，这些 hooks 会失败。**Trusted** 下的[默认允许列表](#default-allowed-domains)涵盖 npm、PyPI、RubyGems 和 crates.io。
-* **代理兼容性**：在 Anthropic 托管环境中，所有出站流量都经过[安全代理](#security-proxy)，某些包管理器无法与此代理正确配合工作；Bun 是一个已知的例子。在[自托管环境](/docs/zh-CN/self-hosted-environments-deploy.md#default-deny-egress)中，出站流量改为经过您自己的网络边界。
+* **代理兼容性**：在 Anthropic 托管环境中，所有出站流量都经过[安全代理](#security-proxy)，某些包管理器无法与此代理正确配合工作；Bun 是一个已知的例子。在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#default-deny-egress)中，出站流量改为经过您自己的网络边界。
 * **增加启动延迟**：hook 在每次会话启动或恢复时运行，不同于受益于[环境缓存](#environment-caching)的设置脚本。请通过跳过已完成的工作来保持安装脚本快速，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
 
 要自定义基础镜像，请使用设置脚本在[提供的镜像](#installed-tools)上安装您需要的内容，或使用 `docker compose` 将您自己的镜像作为 Claude 旁边的容器运行。目前不支持完全替换基础镜像。
@@ -809,11 +809,11 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 
 ## 相关资源
 
-* [Cloud sessions reference](/docs/zh-CN/claude-code-on-the-web.md)：启动、管理和共享云会话
-* [Cloud sessions quickstart](/docs/zh-CN/web-quickstart.md)：连接 GitHub 并启动您的第一个云会话
+* [Cloud sessions reference](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)：启动、管理和共享云会话
+* [Cloud sessions quickstart](https://code.claude.com/docs/zh-CN/web-quickstart.md)：连接 GitHub 并启动您的第一个云会话
 * [Claude Tag](https://claude.com/docs/claude-tag/overview)：Claude 从 Slack 启动的会话在相同的环境中运行
-* [Cloud scheduled tasks](/docs/zh-CN/routines.md)：定时运行使用相同的环境和网络访问级别
-* [Remote Control](/docs/zh-CN/remote-control.md)：改为在您自己的机器的网络和文件上运行会话
-* [Self-hosted environments](/docs/zh-CN/self-hosted-environments)：在您的组织自己的基础设施上运行云会话
-* [SessionStart hooks](/docs/zh-CN/hooks.md#sessionstart)：存储库提交的设置，在本地和云会话中运行
-* [Server-managed settings](/docs/zh-CN/server-managed-settings.md)：从管理控制台交付的组织策略
+* [Cloud scheduled tasks](https://code.claude.com/docs/zh-CN/routines.md)：定时运行使用相同的环境和网络访问级别
+* [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)：改为在您自己的机器的网络和文件上运行会话
+* [Self-hosted environments](https://code.claude.com/docs/zh-CN/self-hosted-environments)：在您的组织自己的基础设施上运行云会话
+* [SessionStart hooks](https://code.claude.com/docs/zh-CN/hooks.md#sessionstart)：存储库提交的设置，在本地和云会话中运行
+* [Server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md)：从管理控制台交付的组织策略

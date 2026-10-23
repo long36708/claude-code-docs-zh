@@ -18,7 +18,7 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
 
 当 Claude 通过 channel 回复时，您会在终端中看到入站消息，但看不到回复文本。终端显示工具调用和确认（如"已发送"），实际回复出现在其他平台上。
 
-如果您管理 Team、Enterprise 或控制台组织，请参阅[为您的组织启用 channels](#enterprise-controls)。要构建您自己的 channel，请参阅 [Channels 参考](/docs/zh-CN/channels-reference.md)。
+如果您管理 Team、Enterprise 或控制台组织，请参阅[为您的组织启用 channels](#enterprise-controls)。要构建您自己的 channel，请参阅 [Channels 参考](https://code.claude.com/docs/zh-CN/channels-reference.md)。
 
 ## 支持的频道
 
@@ -43,9 +43,9 @@ Channel 是一个 MCP 服务器，它将事件推送到您运行中的 Claude Co
 如果安装失败，请匹配 Claude Code 报告的消息：
 
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后打印相同的消息，请参阅[在市场中找不到插件](/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
+* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后打印相同的消息，请参阅[在市场中找不到插件](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
 
-当安装要求选择安装作用域时，选择用户作用域选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to apply.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference.md#reload-plugins)以使插件的配置命令可用。
+当安装要求选择安装作用域时，选择用户作用域选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to apply.`，请参阅[在不重启的情况下应用插件更改](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#reload-plugins)以使插件的配置命令可用。
 
 **3. 配置您的令牌**
 
@@ -121,9 +121,9 @@ claude --channels plugin:telegram@claude-plugins-official
 如果安装失败，请匹配 Claude Code 报告的消息：
 
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后打印相同的消息，请参阅[在市场中找不到插件](/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
+* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后打印相同的消息，请参阅[在市场中找不到插件](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
 
-当安装要求选择安装作用域时，选择用户作用域选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to apply.`，请参阅[在不重启的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference.md#reload-plugins)以使插件的配置命令可用。
+当安装要求选择安装作用域时，选择用户作用域选项，以便插件在所有项目中可用。检查安装摘要：如果它报告 `Run /reload-plugins to apply.`，请参阅[在不重启的情况下应用插件更改](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#reload-plugins)以使插件的配置命令可用。
 
 **5. 配置您的令牌**
 
@@ -186,7 +186,7 @@ iMessage 频道直接读取您的消息数据库，并通过 AppleScript 发送�
 如果安装失败，请匹配 Claude Code 报告的消息：
 
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后打印相同的消息，请参阅[在市场中找不到插件](/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
+* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后打印相同的消息，请参阅[在市场中找不到插件](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
 
 当安装要求选择安装作用域时，选择用户作用域选项，以便插件在所有项目中可用。
 
@@ -226,7 +226,7 @@ Fakechat 是一个官方支持的演示 channel，在 localhost 上运行聊天 
 
 要尝试 fakechat 演示，您需要：
 
-* Claude Code [已安装并使用 claude.ai 账户或 Claude 控制台 API 密钥进行身份验证](/docs/zh-CN/quickstart.md#step-1-install-claude-code)
+* Claude Code [已安装并使用 claude.ai 账户或 Claude 控制台 API 密钥进行身份验证](https://code.claude.com/docs/zh-CN/quickstart.md#step-1-install-claude-code)
 * [Bun](https://bun.sh) 已安装。预构建的 channel 插件是 Bun 脚本。使用 `bun --version` 检查；如果失败，[安装 Bun](https://bun.sh/docs/installation)。
 * **Team、Enterprise 或托管控制台组织**：您的管理员必须在托管设置中[启用 channels](#enterprise-controls)
 
@@ -241,7 +241,7 @@ Fakechat 是一个官方支持的演示 channel，在 localhost 上运行聊天 
 如果安装失败，请匹配 Claude Code 报告的消息：
 
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
-* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后仍显示相同的消息，请参阅[在市场中找不到插件](/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
+* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后仍显示相同的消息，请参阅[在市场中找不到插件](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
 
 当安装要求安装范围时，选择用户范围选项，以便插件在您的所有项目中可用。
 
@@ -271,7 +271,7 @@ what's in my working directory?
 
 消息到达您的 Claude Code 会话。终端将其显示为入站 channel 行，如 `← fakechat · web: what's in my working directory?`，而模型将其接收为 `<channel source="plugin:fakechat:fakechat">` 事件，使用插件的作用域服务器名称。Claude 读取它，完成工作，并调用 fakechat 的 `reply` 工具。如果 Claude Code 要求第一次回复的权限，请批准。答案显示在聊天 UI 中。
 
-如果 Claude 在您离开终端时遇到权限提示，会话会暂停，直到您响应。声明[权限中继功能](/docs/zh-CN/channels-reference.md#relay-permission-prompts)的 Channel 服务器可以将这些提示转发给您，以便您可以远程批准或拒绝。对于无人值守使用，[`--dangerously-skip-permissions`](/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode) 绕过大多数提示，但仅在您信任的环境中使用。即使这样，[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)仍然适用。
+如果 Claude 在您离开终端时遇到权限提示，会话会暂停，直到您响应。声明[权限中继功能](https://code.claude.com/docs/zh-CN/channels-reference.md#relay-permission-prompts)的 Channel 服务器可以将这些提示转发给您，以便您可以远程批准或拒绝。对于无人值守使用，[`--dangerously-skip-permissions`](https://code.claude.com/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode) 绕过大多数提示，但仅在您信任的环境中使用。即使这样，[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)仍然适用。
 
 当您使用 `-p` 以非交互模式运行 channels 时，需要终端输入的工具（如多选问题和 Plan Mode 批准）被禁用，以便会话永远不会因等待输入而停滞。
 
@@ -292,11 +292,11 @@ iMessage 的工作方式不同：给自己发短信会自动绕过门禁，您�
 
 仅在 `.mcp.json` 中还不足以推送消息：服务器还必须在 `--channels` 中命名。
 
-允许列表也会限制[权限中继](/docs/zh-CN/channels-reference.md#relay-permission-prompts)（如果 channel 声明了它）。任何可以通过 channel 回复的人都可以批准或拒绝您会话中的工具使用，因此只允许列表您信任具有该权限的发送者。
+允许列表也会限制[权限中继](https://code.claude.com/docs/zh-CN/channels-reference.md#relay-permission-prompts)（如果 channel 声明了它）。任何可以通过 channel 回复的人都可以批准或拒绝您会话中的工具使用，因此只允许列表您信任具有该权限的发送者。
 
 ## Enterprise 控制
 
-管理员通过两个[托管设置](/docs/zh-CN/settings.md)控制可用性，用户无法覆盖。默认值取决于您如何进行身份验证：
+管理员通过两个[托管设置](https://code.claude.com/docs/zh-CN/settings.md)控制可用性，用户无法覆盖。默认值取决于您如何进行身份验证：
 
 * **claude.ai Team 和 Enterprise**：channels 被阻止，直到所有者[启用它们](#enable-channels-for-your-organization)。
 * **Anthropic 控制台与 API 密钥身份验证**：channels 默认被允许。仅当您的组织部署托管设置时才需要此设置。
@@ -333,7 +333,7 @@ iMessage 的工作方式不同：给自己发短信会自动绕过门禁，您�
 
 如果您设置空数组，您会阻止所有 channel 插件从允许列表中，但 `--dangerously-load-development-channels` 仍可以为本地测试绕过该阻止。要完全阻止 channels，包括开发标志，请改为保持 `channelsEnabled` 未设置。
 
-此设置需要 `channelsEnabled: true`。如果用户将不在您列表中的插件传递给 `--channels`，Claude Code 会正常启动，但 channel 不会注册，启动通知会解释该插件不在组织的批准列表中。在 v2 MCP 客户端运行时上，channel 也可能无法注册，因为 Claude Code [不会注册协商协议修订版本 2026-07-28 的 channel 服务器](/docs/zh-CN/mcp.md#push-messages-with-channels)。
+此设置需要 `channelsEnabled: true`。如果用户将不在您列表中的插件传递给 `--channels`，Claude Code 会正常启动，但 channel 不会注册，启动通知会解释该插件不在组织的批准列表中。在 v2 MCP 客户端运行时上，channel 也可能无法注册，因为 Claude Code [不会注册协商协议修订版本 2026-07-28 的 channel 服务器](https://code.claude.com/docs/zh-CN/mcp.md#push-messages-with-channels)。
 
 ## 研究预览
 
@@ -343,7 +343,7 @@ Channels 是一个研究预览功能。可用性正在逐步推出，`--channels
 
 在预览期间，`--channels` 仅接受来自 Anthropic 维护的允许列表的插件，或来自您组织的允许列表（如果管理员已设置 [`allowedChannelPlugins`](#restrict-which-channel-plugins-can-run)）。[claude-plugins-official](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins) 中的 channel 插件是默认批准的集合。如果您传递不在有效允许列表中的内容，Claude Code 会正常启动，但 channel 不会注册，启动通知会告诉您原因。
 
-要测试您正在构建的 channel，请将其以 `plugin:<name>@<marketplace>` 或 `server:<name>` 的形式传递给 `--dangerously-load-development-channels`。有关测试您构建的自定义 channels 的信息，请参阅[在研究预览期间测试](/docs/zh-CN/channels-reference.md#test-during-the-research-preview)。
+要测试您正在构建的 channel，请将其以 `plugin:<name>@<marketplace>` 或 `server:<name>` 的形式传递给 `--dangerously-load-development-channels`。有关测试您构建的自定义 channels 的信息，请参阅[在研究预览期间测试](https://code.claude.com/docs/zh-CN/channels-reference.md#test-during-the-research-preview)。
 
 在 [Claude Code GitHub 存储库](https://github.com/anthropics/claude-code/issues)上报告问题或反馈。
 
@@ -353,20 +353,20 @@ Channels 是一个研究预览功能。可用性正在逐步推出，`--channels
 
 | 功能 | 它做什么 | 适合 |
 | - | - | - |
-| [网络上的 Claude Code](/docs/zh-CN/claude-code-on-the-web.md) | 在新的云沙箱中运行任务，从 GitHub 克隆 | 委派您稍后检查的自包含异步工作 |
-| [Slack 中的 Claude](/docs/zh-CN/slack.md) | 从频道或线程中的 `@Claude` 提及生成网络会话 | 直接从团队对话上下文启动任务 |
-| 标准 [MCP 服务器](/docs/zh-CN/mcp.md) | Claude 在任务期间查询它；没有任何内容被推送到会话 | 给 Claude 按需访问以读取或查询系统 |
-| [远程控制](/docs/zh-CN/remote-control.md) | 您从 claude.ai 或 Claude 移动应用程序驱动您的本地会话 | 在离开您的办公桌时指导进行中的会话 |
+| [网络上的 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) | 在新的云沙箱中运行任务，从 GitHub 克隆 | 委派您稍后检查的自包含异步工作 |
+| [Slack 中的 Claude](https://code.claude.com/docs/zh-CN/slack.md) | 从频道或线程中的 `@Claude` 提及生成网络会话 | 直接从团队对话上下文启动任务 |
+| 标准 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md) | Claude 在任务期间查询它；没有任何内容被推送到会话 | 给 Claude 按需访问以读取或查询系统 |
+| [远程控制](https://code.claude.com/docs/zh-CN/remote-control.md) | 您从 claude.ai 或 Claude 移动应用程序驱动您的本地会话 | 在离开您的办公桌时指导进行中的会话 |
 
 Channels 通过将来自非 Claude 源的事件推送到您已经运行的本地会话中，填补了该列表中的空白。
 
 * **聊天桥接**：通过 Telegram、Discord 或 iMessage 从您的手机向 Claude 询问某事，答案会在同一聊天中返回，而工作在您的机器上针对您的真实文件运行。
-* **[Webhook 接收器](/docs/zh-CN/channels-reference.md#example-build-a-webhook-receiver)**：来自 CI、您的错误跟踪器、部署管道或其他外部服务的 webhook 到达 Claude 已经打开您的文件并记得您正在调试的内容的地方。
+* **[Webhook 接收器](https://code.claude.com/docs/zh-CN/channels-reference.md#example-build-a-webhook-receiver)**：来自 CI、您的错误跟踪器、部署管道或其他外部服务的 webhook 到达 Claude 已经打开您的文件并记得您正在调试的内容的地方。
 
 ## 后续步骤
 
 一旦您有一个 channel 运行，请探索这些相关功能：
 
-* [构建您自己的 channel](/docs/zh-CN/channels-reference.md)，用于尚未有插件的系统
-* [远程控制](/docs/zh-CN/remote-control.md)，从您的手机驱动本地会话，而不是将事件转发到其中
-* [会话范围的定时任务](/docs/zh-CN/scheduled-tasks.md)，按计时器轮询而不是对推送事件做出反应
+* [构建您自己的 channel](https://code.claude.com/docs/zh-CN/channels-reference.md)，用于尚未有插件的系统
+* [远程控制](https://code.claude.com/docs/zh-CN/remote-control.md)，从您的手机驱动本地会话，而不是将事件转发到其中
+* [会话范围的定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)，按计时器轮询而不是对推送事件做出反应

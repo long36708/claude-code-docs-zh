@@ -22,16 +22,16 @@
 | 方法 | 下一个回合何时开始 | 停止条件 |
 | :- | :- | :- |
 | `/goal` | 前一个回合完成时，或在交互式会话中，[空闲检查](#background-work-defers-evaluation)或[自动重试](#other-errors-retry-or-pause-the-goal)到期时 | 模型确认条件已满足或判断其不可能，或回合因[你必须修复的错误](#errors-you-have-to-fix-clear-the-goal)而失败，或你运行[`/goal clear`](#clear-a-goal) |
-| [`/loop`](/docs/zh-CN/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop) | 时间间隔过去时 | 你停止它，或 Claude 决定工作完成 |
-| [Stop hook](/docs/zh-CN/hooks-guide.md#prompt-based-hooks) | 前一个回合完成时 | 你自己的脚本或提示决定 |
+| [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop) | 时间间隔过去时 | 你停止它，或 Claude 决定工作完成 |
+| [Stop hook](https://code.claude.com/docs/zh-CN/hooks-guide.md#prompt-based-hooks) | 前一个回合完成时 | 你自己的脚本或提示决定 |
 
 `/goal` 和 Stop hook 都在每个回合后触发。`/goal` 是一个会话范围的快捷方式：你输入一个条件，它仅在当前会话中活跃。Stop hook 存在于你的设置文件中，适用于其范围内的每个会话，可以运行脚本进行确定性检查或运行提示进行模型评估的检查。
 
-[Auto mode](/docs/zh-CN/auto-mode-config.md) 本身在单个回合内批准工具调用，但不会启动新的回合。Claude 在判断工作完成时停止。`/goal` 添加了一个单独的评估器，在每个回合后检查你的条件，因此完成由一个新鲜的模型而不是执行工作的模型决定。这两者是互补的：auto mode 消除了每个工具的提示，`/goal` 消除了每个回合的提示。
+[Auto mode](https://code.claude.com/docs/zh-CN/auto-mode-config.md) 本身在单个回合内批准工具调用，但不会启动新的回合。Claude 在判断工作完成时停止。`/goal` 添加了一个单独的评估器，在每个回合后检查你的条件，因此完成由一个新鲜的模型而不是执行工作的模型决定。这两者是互补的：auto mode 消除了每个工具的提示，`/goal` 消除了每个回合的提示。
 
 > [!TIP]
 >
-> 上述方法用于保持当前会话运行。您还可以安排独立于任何打开的会话运行的工作，例如夜间测试或早间分类处理。有关云端和 Desktop 定时任务，请参阅[调度选项](/docs/zh-CN/scheduled-tasks.md#compare-scheduling-options)。
+> 上述方法用于保持当前会话运行。您还可以安排独立于任何打开的会话运行的工作，例如夜间测试或早间分类处理。有关云端和 Desktop 定时任务，请参阅[调度选项](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#compare-scheduling-options)。
 
 ## 使用 `/goal`
 
@@ -47,7 +47,7 @@
 
 设置目标会立即启动一个回合，条件本身作为指令。你不需要发送单独的提示。当目标活跃时，`◎ /goal active` 指示器显示目标已运行多长时间。
 
-目标不会改变你的权限模式。要让目标回合无人值守地运行，请在[自动模式](/docs/zh-CN/auto-mode-config.md)中运行 `/goal`。在[手动模式](/docs/zh-CN/permission-modes.md)中，Claude 在进行工具调用前仍会询问，这些工具调用是你的设置不允许的，例如上面的测试命令。
+目标不会改变你的权限模式。要让目标回合无人值守地运行，请在[自动模式](https://code.claude.com/docs/zh-CN/auto-mode-config.md)中运行 `/goal`。在[手动模式](https://code.claude.com/docs/zh-CN/permission-modes.md)中，Claude 在进行工具调用前仍会询问，这些工具调用是你的设置不允许的，例如上面的测试命令。
 
 当目标活跃时，记录显示评估器返回的每个判决，你可以按 Ctrl+O 查看其背后的原因。状态视图也显示最近的原因，所以你可以看到 Claude 接下来要朝着什么工作。
 
@@ -99,13 +99,13 @@ Claude 打印 `Goal cleared:` 后跟条件以确认，或如果没有活跃的�
 
 ### 使用活跃目标恢复
 
-当你恢复会话时，Claude Code 会恢复在会话结束时仍然活跃的目标。Claude Code 在每个恢复路由上恢复它：`--continue`、`--resume` 带有会话 ID、名称或[记录文件路径](/docs/zh-CN/sessions.md#resume-a-session)，以及[会话选择器](/docs/zh-CN/sessions.md#use-the-session-picker)。在 v2.1.239 之前，Claude Code 在除了 `claude --resume` 选择器之外的每个路由上恢复目标。
+当你恢复会话时，Claude Code 会恢复在会话结束时仍然活跃的目标。Claude Code 在每个恢复路由上恢复它：`--continue`、`--resume` 带有会话 ID、名称或[记录文件路径](https://code.claude.com/docs/zh-CN/sessions.md#resume-a-session)，以及[会话选择器](https://code.claude.com/docs/zh-CN/sessions.md#use-the-session-picker)。在 v2.1.239 之前，Claude Code 在除了 `claude --resume` 选择器之外的每个路由上恢复目标。
 
 Claude Code 保留条件但重置回合计数、计时器和令牌支出基线。它不会恢复已经实现或清除的目标。
 
 ### 非交互式运行
 
-`/goal` 在[非交互式模式](/docs/zh-CN/headless.md)、[桌面应用](/docs/zh-CN/desktop.md)中工作，并通过[远程控制](/docs/zh-CN/remote-control.md)工作。使用 `-p` 设置目标会在单个调用中运行循环至完成：
+`/goal` 在[非交互式模式](https://code.claude.com/docs/zh-CN/headless.md)、[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)中工作，并通过[远程控制](https://code.claude.com/docs/zh-CN/remote-control.md)工作。使用 `-p` 设置目标会在单个调用中运行循环至完成：
 
 ```bash theme={null}
 claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
@@ -117,13 +117,13 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 
 ## 评估如何工作
 
-`/goal` 是会话范围的[基于提示词的 Stop hook](/docs/zh-CN/hooks.md#prompt-based-hooks)的包装器。每次 Claude 完成一个轮次时，Claude Code 会将条件和到目前为止的对话发送到您配置的[小型快速模型](/docs/zh-CN/model-config.md)。该模型返回三个判决之一，每个都带有简短的原因：
+`/goal` 是会话范围的[基于提示词的 Stop hook](https://code.claude.com/docs/zh-CN/hooks.md#prompt-based-hooks)的包装器。每次 Claude 完成一个轮次时，Claude Code 会将条件和到目前为止的对话发送到您配置的[小型快速模型](https://code.claude.com/docs/zh-CN/model-config.md)。该模型返回三个判决之一，每个都带有简短的原因：
 
 * **尚未满足**：Claude 继续工作，并将原因作为下一个回合的指导。
 * **已满足**：Claude Code 清除目标并在记录中记录一个已实现的条目。
 * **不可能**：评估器判断该条件永远无法满足。Claude Code 清除目标并在记录中记录一个失败的条目以及原因。你不需要自己清除它。
 
-如果 Claude 持续回答评估器而没有取得进展（连续多个回合没有工具使用），Claude Code 会停止循环，打印警告，并将控制权返回给你，目标仍然设置。评估在你的下一个提示后恢复。[hooks 指南](/docs/zh-CN/hooks-guide.md#stop-hook-hits-the-block-cap)解释了底层机制。
+如果 Claude 持续回答评估器而没有取得进展（连续多个回合没有工具使用），Claude Code 会停止循环，打印警告，并将控制权返回给你，目标仍然设置。评估在你的下一个提示后恢复。[hooks 指南](https://code.claude.com/docs/zh-CN/hooks-guide.md#stop-hook-hits-the-block-cap)解释了底层机制。
 
 ### 当一个回合失败时
 
@@ -133,9 +133,9 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 
 如果一个回合因为一个在你修复之前不会清除的错误而失败，Claude Code 会清除目标并打印一个警告，说明原因。警告以 `Goal cleared after an unrecoverable error` 开头，以 `Run /goal again to continue` 结尾。修复原因，然后使用 `/goal <condition>` [再次设置目标](#set-a-goal)。四种失败会清除目标：
 
-* 身份验证失败，当 Claude Code 管理自己的凭证时。当主机为你管理凭证时，例如桌面应用或[云会话](/docs/zh-CN/claude-code-on-the-web.md)，Claude Code 会保持目标活跃，因为主机会自动恢复访问权限。
+* 身份验证失败，当 Claude Code 管理自己的凭证时。当主机为你管理凭证时，例如桌面应用或[云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，Claude Code 会保持目标活跃，因为主机会自动恢复访问权限。
 * 信用余额耗尽
-* 一个[自动压缩](/docs/zh-CN/model-config.md#set-the-auto-compact-window)无法清除的上下文溢出
+* 一个[自动压缩](https://code.claude.com/docs/zh-CN/model-config.md#set-the-auto-compact-window)无法清除的上下文溢出
 * 一个不可用的模型
 
 #### 其他错误重试或暂停目标
@@ -143,9 +143,9 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 在任何其他失败之后，目标保持设置。在 Claude Code v2.1.269 或更高版本的交互式会话中，Claude Code 也会打印一行说明原因，并自动重试或等待你：
 
 * **重试**：在倾向于自行清除的失败之后，例如服务器过载或连接断开，一个以 `Goal still active` 开头的通知显示下一次尝试之前的等待时间。在三次自动重试之后，目标会暂停。
-* **暂停**：在重试只会重复的失败之后，例如 API 速率限制、claude.ai [使用限制](/docs/zh-CN/errors.md#youve-hit-your-session-limit)或结束回合的 hook，一个以 `Goal paused` 开头的通知说明原因。如果会话[在使用限制重置时等待自动继续](/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)，Claude 会在那时恢复朝着目标的工作。
+* **暂停**：在重试只会重复的失败之后，例如 API 速率限制、claude.ai [使用限制](https://code.claude.com/docs/zh-CN/errors.md#youve-hit-your-session-limit)或结束回合的 hook，一个以 `Goal paused` 开头的通知说明原因。如果会话[在使用限制重置时等待自动继续](https://code.claude.com/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)，Claude 会在那时恢复朝着目标的工作。
 
-随时发送消息以立即开始下一个回合。要关闭自动重试，请将 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](/docs/zh-CN/env-vars) 设置为 `0`，这也会关闭[检查](#background-work-defers-evaluation)。
+随时发送消息以立即开始下一个回合。要关闭自动重试，请将 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `0`，这也会关闭[检查](#background-work-defers-evaluation)。
 
 ### 后台工作延迟评估
 
@@ -158,17 +158,17 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 
 在 v2.1.239 之前，只有空闲检查以这种方式退避；在回合结束时传递的检查在第一个间隔重复。
 
-要更改第一个间隔，请设置 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](/docs/zh-CN/env-vars)。Claude Code 使用你的值代替 30 分钟间隔，并相应地缩放后续间隔。将其设置为 `0` 以关闭检查和[自动重试](#other-errors-retry-or-pause-the-goal)。
+要更改第一个间隔，请设置 [`CLAUDE_CODE_GOAL_CHECKIN_MINUTES`](https://code.claude.com/docs/zh-CN/env-vars)。Claude Code 使用你的值代替 30 分钟间隔，并相应地缩放后续间隔。将其设置为 `0` 以关闭检查和[自动重试](#other-errors-retry-or-pause-the-goal)。
 
 检查需要 Claude Code v2.1.234 或更高版本。
 
 ### 评估模型和成本
 
-要在不同的模型上进行评估，请设置 [`ANTHROPIC_DEFAULT_HAIKU_MODEL`](/docs/zh-CN/model-config#environment-variables)。
+要在不同的模型上进行评估，请设置 [`ANTHROPIC_DEFAULT_HAIKU_MODEL`](https://code.claude.com/docs/zh-CN/model-config#environment-variables)。
 
 > [!WARNING]
 >
-> Claude Code 在使用小型快速模型的任何地方都会读取 `ANTHROPIC_DEFAULT_HAIKU_MODEL`，不仅仅是用于 `/goal` 评估。当你设置它时，Claude Code 也会将 [`haiku` 别名](/docs/zh-CN/model-config#model-aliases)解析为该模型，并在其上运行[后台功能](/docs/zh-CN/costs.md#background-token-usage)，例如对话摘要。
+> Claude Code 在使用小型快速模型的任何地方都会读取 `ANTHROPIC_DEFAULT_HAIKU_MODEL`，不仅仅是用于 `/goal` 评估。当你设置它时，Claude Code 也会将 [`haiku` 别名](https://code.claude.com/docs/zh-CN/model-config#model-aliases)解析为该模型，并在其上运行[后台功能](https://code.claude.com/docs/zh-CN/costs.md#background-token-usage)，例如对话摘要。
 
 评估器在你的会话配置的任何提供商上运行。它不调用工具，所以它只能判断 Claude 已经在对话中呈现的内容。
 
@@ -178,11 +178,11 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 
 ## 要求
 
-Claude Code 在与 [设置文件中的 hooks 相同的工作区信任规则](/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)下提供 `/goal`，因为评估器是 hooks 系统的一部分。当 [`disableAllHooks`](/docs/zh-CN/hooks#disable-or-remove-hooks) 为 `true`（在应用设置优先级后）或当在托管设置中设置了 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly) 时，`/goal` 也不可用。在每种情况下，该命令会告诉你原因，而不是默默地什么都不做。
+Claude Code 在与 [设置文件中的 hooks 相同的工作区信任规则](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)下提供 `/goal`，因为评估器是 hooks 系统的一部分。当 [`disableAllHooks`](https://code.claude.com/docs/zh-CN/hooks#disable-or-remove-hooks) 为 `true`（在应用设置优先级后）或当在托管设置中设置了 [`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 时，`/goal` 也不可用。在每种情况下，该命令会告诉你原因，而不是默默地什么都不做。
 
 ## 另请参阅
 
-* [使用 `/loop` 重复运行提示](/docs/zh-CN/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop)：按时间间隔重新运行，而不是直到条件满足
-* [基于提示的 hooks](/docs/zh-CN/hooks-guide.md#prompt-based-hooks)：当你需要自定义评估逻辑时编写你自己的 Stop hook
-* [自动模式](/docs/zh-CN/auto-mode-config.md)：自动批准工具调用，以便每个目标回合无人值守运行
-* [调度比较](/docs/zh-CN/scheduled-tasks.md#compare-scheduling-options)：独立于任何打开的会话按计划运行工作
+* [使用 `/loop` 重复运行提示](https://code.claude.com/docs/zh-CN/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop)：按时间间隔重新运行，而不是直到条件满足
+* [基于提示的 hooks](https://code.claude.com/docs/zh-CN/hooks-guide.md#prompt-based-hooks)：当你需要自定义评估逻辑时编写你自己的 Stop hook
+* [自动模式](https://code.claude.com/docs/zh-CN/auto-mode-config.md)：自动批准工具调用，以便每个目标回合无人值守运行
+* [调度比较](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#compare-scheduling-options)：独立于任何打开的会话按计划运行工作

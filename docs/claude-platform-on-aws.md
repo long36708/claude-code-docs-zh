@@ -8,7 +8,7 @@
 
 AWS 上的 Claude Platform 是 Anthropic 运营的 Claude API，支持 AWS 身份验证、IAM 访问控制和 AWS Marketplace 计费。请求直接到达 Anthropic 的 API，因此您获得与 [Claude API](https://platform.claude.com/docs) 相同的模型和 API 功能，并遵循相同的发布计划。您使用 AWS 凭证或工作区 API 密钥进行身份验证，并通过 AWS Marketplace 付款。
 
-Claude Code 通过 Anthropic 的功能标志服务启用的客户端功能默认处于关闭状态，[advisor 工具](/docs/zh-CN/advisor.md)不可用。有关完整列表，请参阅[功能可用性矩阵](/docs/zh-CN/feature-availability.md#summary-by-provider)。
+Claude Code 通过 Anthropic 的功能标志服务启用的客户端功能默认处于关闭状态，[advisor 工具](https://code.claude.com/docs/zh-CN/advisor.md)不可用。有关完整列表，请参阅[功能可用性矩阵](https://code.claude.com/docs/zh-CN/feature-availability.md#summary-by-provider)。
 
 使用本指南将 Claude Code 指向您已通过 AWS 上的 Claude Platform 配置的工作区。有关在此之前的 AWS 订阅和工作区设置，请参阅 [AWS 上的 Claude Platform 文档](https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws)。
 
@@ -47,7 +47,7 @@ export AWS_PROFILE=my-profile
 
 对于 CI 和自动化，为运行程序提供具有调用 Anthropic 服务权限的 IAM 角色，并设置 `AWS_REGION`。凭证链会自动获取该角色。
 
-如果您的 SSO 凭据在会话中途过期，请配置 [`awsAuthRefresh`](/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)，以便 Claude Code 重新运行您的登录命令并重试，而不是失败。将命令添加到您的[设置文件](/docs/zh-CN/settings.md)，例如 `~/.claude/settings.json`：
+如果您的 SSO 凭据在会话中途过期，请配置 [`awsAuthRefresh`](https://code.claude.com/docs/zh-CN/amazon-bedrock#advanced-credential-configuration)，以便 Claude Code 重新运行您的登录命令并重试，而不是失败。将命令添加到您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md)，例如 `~/.claude/settings.json`：
 
 ```json theme={null}
 {
@@ -69,7 +69,7 @@ export ANTHROPIC_AWS_API_KEY=sk-ant-xxxxx
 
 该密钥作为 `x-api-key` 发送，优先于 SigV4，因此您环境中的任何 AWS 凭证都会被忽略。来自单独 Claude Console 组织的 API 密钥在此处不起作用。
 
-像对待任何其他生产凭证一样对待工作区 API 密钥。[用户设置文件](/docs/zh-CN/settings.md) `env` 块是一种方便的方式，可以将密钥限定于您的机器，而无需全局导出。
+像对待任何其他生产凭证一样对待工作区 API 密钥。[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md) `env` 块是一种方便的方式，可以将密钥限定于您的机器，而无需全局导出。
 
 > [!NOTE]
 >
@@ -87,7 +87,7 @@ export AWS_REGION=us-east-1
 
 `ANTHROPIC_AWS_WORKSPACE_ID` 是必需的。Claude Code 在每个请求中将其作为 `anthropic-workspace-id` 标头发送。将示例 `wrkspc_01ABCDEFGHIJKLMN` 值替换为您从 AWS 上的 Claude Platform 设置中获得的工作区 ID。
 
-Claude Code 从 AWS 区域计算基础 URL 为 `https://aws-external-anthropic.{region}.api.aws`，它使用[与 Amazon Bedrock 相同的优先级](/docs/zh-CN/amazon-bedrock.md#3-configure-claude-code)进行解析。要直接覆盖 URL，请设置 `ANTHROPIC_AWS_BASE_URL`。
+Claude Code 从 AWS 区域计算基础 URL 为 `https://aws-external-anthropic.{region}.api.aws`，它使用[与 Amazon Bedrock 相同的优先级](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#3-configure-claude-code)进行解析。要直接覆盖 URL，请设置 `ANTHROPIC_AWS_BASE_URL`。
 
 即使您的环境中存在 AWS 凭证，AWS 上的 Claude Platform 也是可选的。Amazon Bedrock 和 Microsoft Foundry 在提供程序路由中优先，因此如果设置了 `CLAUDE_CODE_USE_BEDROCK` 和 `CLAUDE_CODE_USE_FOUNDRY`，请取消设置它们。
 
@@ -106,11 +106,11 @@ export ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-5
 export ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4-5
 ```
 
-有关模型 ID 和别名的完整列表，请参阅 [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview)。有关其他与模型相关的变量，请参阅 [Model configuration](/docs/zh-CN/model-config.md)。
+有关模型 ID 和别名的完整列表，请参阅 [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview)。有关其他与模型相关的变量，请参阅 [Model configuration](https://code.claude.com/docs/zh-CN/model-config.md)。
 
-[Prompt caching](/docs/zh-CN/prompt-caching.md) 会自动启用。要请求 1 小时缓存 TTL 而不是 5 分钟默认值，请设置 `ENABLE_PROMPT_CACHING_1H=1`。API 按更高的费率对 1 小时缓存写入进行计费。有关费率，请参阅 [prompt caching pricing](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing)。
+[Prompt caching](https://code.claude.com/docs/zh-CN/prompt-caching.md) 会自动启用。要请求 1 小时缓存 TTL 而不是 5 分钟默认值，请设置 `ENABLE_PROMPT_CACHING_1H=1`。API 按更高的费率对 1 小时缓存写入进行计费。有关费率，请参阅 [prompt caching pricing](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing)。
 
-要为您的主对话和 Claude Code 在其外部进行的请求设置不同的 TTL，请[自己选择 TTL](/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)。
+要为您的主对话和 Claude Code 在其外部进行的请求设置不同的 TTL，请[自己选择 TTL](https://code.claude.com/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)。
 
 ### 启动并验证
 
@@ -124,7 +124,7 @@ claude
 
 ## 使用 Agent SDK
 
-[Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 读取与 CLI 相同的环境变量，因此任何生成 Claude Code 子进程的程序都可以通过在调用前导出 `CLAUDE_CODE_USE_ANTHROPIC_AWS`、`ANTHROPIC_AWS_WORKSPACE_ID` 和 `ANTHROPIC_AWS_API_KEY` 或 AWS 凭证来针对 AWS 上的 Claude Platform。
+[Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 读取与 CLI 相同的环境变量，因此任何生成 Claude Code 子进程的程序都可以通过在调用前导出 `CLAUDE_CODE_USE_ANTHROPIC_AWS`、`ANTHROPIC_AWS_WORKSPACE_ID` 和 `ANTHROPIC_AWS_API_KEY` 或 AWS 凭证来针对 AWS 上的 Claude Platform。
 
 ```typescript theme={null}
 import { query } from "@anthropic-ai/claude-agent-sdk";
@@ -138,11 +138,11 @@ for await (const msg of query({ prompt: "What's in this repo?" })) {
 }
 ```
 
-此示例依赖于环境 AWS 凭证链进行 SigV4。要改为使用工作区 API 密钥进行身份验证，请以相同方式设置 `ANTHROPIC_AWS_API_KEY`。有关更广泛的 Agent SDK 表面，请参阅 [Agent SDK overview](/docs/zh-CN/agent-sdk/overview.md)。
+此示例依赖于环境 AWS 凭证链进行 SigV4。要改为使用工作区 API 密钥进行身份验证，请以相同方式设置 `ANTHROPIC_AWS_API_KEY`。有关更广泛的 Agent SDK 表面，请参阅 [Agent SDK overview](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md)。
 
 ## 通过企业代理路由
 
-要通过代理或 [LLM gateway](/docs/zh-CN/llm-gateway) 路由流量，请将 `ANTHROPIC_AWS_BASE_URL` 设置为代理的地址。Claude Code 将请求发送到该 URL，并使用相同的工作区和身份验证标头，因此任何转发它们不变的网关都可以工作。
+要通过代理或 [LLM gateway](https://code.claude.com/docs/zh-CN/llm-gateway) 路由流量，请将 `ANTHROPIC_AWS_BASE_URL` 设置为代理的地址。Claude Code 将请求发送到该 URL，并使用相同的工作区和身份验证标头，因此任何转发它们不变的网关都可以工作。
 
 ```bash theme={null}
 export CLAUDE_CODE_USE_ANTHROPIC_AWS=1

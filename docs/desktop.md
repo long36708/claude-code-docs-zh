@@ -16,19 +16,19 @@
 >
 > 适用于 x64 处理器
 
-> **[获取 Claude for Linux（测试版）](/docs/zh-CN/desktop-linux.md)**
+> **[获取 Claude for Linux（测试版）](https://code.claude.com/docs/zh-CN/desktop-linux.md)**
 >
 > Ubuntu 和 Debian 的 apt 或 .deb
 
-对于 Windows ARM64，请下载 [ARM64 安装程序](https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)。在 Linux 上，使用 apt 安装；请参阅 [Claude Desktop on Linux](/docs/zh-CN/desktop-linux.md)。
+对于 Windows ARM64，请下载 [ARM64 安装程序](https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)。在 Linux 上，使用 apt 安装；请参阅 [Claude Desktop on Linux](https://code.claude.com/docs/zh-CN/desktop-linux.md)。
 
-安装后，启动 Claude，登录，然后点击 **Code** 选项卡。有关首次会话的演练，请参阅[快速开始指南](/docs/zh-CN/desktop-quickstart.md)。
+安装后，启动 Claude，登录，然后点击 **Code** 选项卡。有关首次会话的演练，请参阅[快速开始指南](https://code.claude.com/docs/zh-CN/desktop-quickstart.md)。
 
 在 Code 选项卡中，每个对话都是一个**会话**：它有自己的聊天历史和项目文件夹，独立于任何其他会话。侧边栏列出你的会话，让你可以并行运行多个会话。在一个会话中，你可以：
 
 * [使用 diff 视图审查和评论更改](#review-changes-with-diff-view)，然后[通过 CI 监控生成的 PR](#monitor-pull-request-status)
 * [在浏览器窗格中预览你的运行应用](#preview-your-app)，同时 Claude 验证自己的更改，并[在其旁边打开外部网站](#browse-external-sites)
-* 在 iOS Simulator 窗格中[观看 Claude 运行和测试你的 iOS 应用](/docs/zh-CN/desktop-ios-simulator.md)
+* 在 iOS Simulator 窗格中[观看 Claude 运行和测试你的 iOS 应用](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)
 * [整理窗格](#arrange-your-workspace)，将聊天、diff、浏览器、终端和文件编辑器并排放置
 * 提出[侧边问题](#ask-a-side-question-without-derailing-the-session)，使用会话的上下文而不偏离主线
 * 让 Claude [检查、消息或存档你的其他会话](#work-across-sessions)
@@ -36,7 +36,7 @@
 * 让 Claude [打开应用和控制你的屏幕](#let-claude-use-your-computer)
 * 在你的机器上、[云中](#run-long-running-tasks-in-the-cloud)或通过 [SSH](#ssh-sessions) 运行
 
-有关[计划的定期工作](/docs/zh-CN/desktop-scheduled-tasks.md)、[快捷键](#keyboard-shortcuts)或[从手机发送任务](#sessions-from-dispatch)，请参阅链接的页面和部分。如果你已经使用基于终端的 CLI，请参阅 [CLI 比较](#coming-from-the-cli)了解哪些内容可以继续使用。
+有关[计划的定期工作](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md)、[快捷键](#keyboard-shortcuts)或[从手机发送任务](#sessions-from-dispatch)，请参阅链接的页面和部分。如果你已经使用基于终端的 CLI，请参阅 [CLI 比较](#coming-from-the-cli)了解哪些内容可以继续使用。
 
 ## 启动会话
 
@@ -48,7 +48,7 @@
   * **云端会话**：选择[仓库](#run-long-running-tasks-in-the-cloud)而不是文件夹
   * **[已保存的本地或 SSH 环境](#create-a-saved-environment)**：该环境已包含其文件夹，因此该行不显示项目文件夹控件。要更改文件夹，请[编辑该环境](#use-edit-or-remove-a-saved-environment)。
 * **权限模式**：使用[模式选择器](#choose-a-permission-mode)选择 Claude 拥有多少自主权。您可以在会话期间更改权限模式。
-* **模型**：从该行靠右端的模型选择器中选择一个[模型](/docs/zh-CN/model-config.md#available-models)。您可以在会话期间更改模型。
+* **模型**：从该行靠右端的模型选择器中选择一个[模型](https://code.claude.com/docs/zh-CN/model-config.md#available-models)。您可以在会话期间更改模型。
 
 输入你的任务并按 **Enter** 启动。每个会话独立跟踪其自己的上下文和更改。
 
@@ -64,7 +64,7 @@
 
 ### 接受建议的提示词
 
-Claude 回复后，Code 选项卡可能会在空的输入框中以灰色文本显示建议的下一条提示词。Claude Code 通过一个简短的后台请求，根据您的对话[生成每条建议](/docs/zh-CN/interactive-mode.md#prompt-suggestions)，该请求会计入您套餐的用量限制或您的 API 费用。
+Claude 回复后，Code 选项卡可能会在空的输入框中以灰色文本显示建议的下一条提示词。Claude Code 通过一个简短的后台请求，根据您的对话[生成每条建议](https://code.claude.com/docs/zh-CN/interactive-mode.md#prompt-suggestions)，该请求会计入您套餐的用量限制或您的 API 费用。
 
 * **使用建议**：按 **Tab** 或 **右箭头** 将其放入输入框，根据需要进行编辑，然后按 **Enter** 发送。在接受建议之前按 **Enter** 不会发送它。
 * **编写自己的提示词**：直接开始输入。建议仅在输入框为空且没有附加文件时显示。
@@ -78,13 +78,13 @@ Claude 回复后，Code 选项卡可能会在空的输入框中以灰色文本�
 * **@mention 文件**：输入 `@` 后跟文件名，将文件添加到对话上下文。
   * **在云端会话中**：`@` 只有在您发送第一条消息后才能列出文件。如果 `@` 未列出任何文件，请先发送不含该文件的第一条消息，然后在下一条消息中 @mention 该文件。
 * **附加文件**：通过输入框旁边的 **+** 按钮将图像、PDF 和其他文件附加到您的提示词，或直接将文件拖放到提示词中。这对于共享错误的屏幕截图、设计模型或参考文档很有用。
-  * **在 [WSL 会话](/docs/zh-CN/desktop-wsl.md)中**：如果 **+** 菜单显示 **Add image** 而不是 **Add files or photos**，则您只能附加图像。要向 Claude 提供会话文件夹中的任何其他文件，请 @mention 它。
+  * **在 [WSL 会话](https://code.claude.com/docs/zh-CN/desktop-wsl.md)中**：如果 **+** 菜单显示 **Add image** 而不是 **Add files or photos**，则您只能附加图像。要向 Claude 提供会话文件夹中的任何其他文件，请 @mention 它。
 
 ### 选择权限模式
 
 权限模式控制 Claude 在会话期间的自主程度：它是否在编辑文件、运行命令或两者之前询问。您可以随时使用输入框下方一行中的模式选择器切换权限模式。要自己批准每项更改，请切换到 Manual。
 
-要为新的本地会话设置默认模式，请将 `permissions.defaultMode` 添加到您的[设置文件](/docs/zh-CN/settings.md#where-settings-live)。桌面应用读取与 CLI 相同的设置文件。您在选择器中选择的模式会被记住（按文件夹），并对该文件夹优先于 `defaultMode`，除了 Plan，它仅适用于当前会话。
+要为新的本地会话设置默认模式，请将 `permissions.defaultMode` 添加到您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)。桌面应用读取与 CLI 相同的设置文件。您在选择器中选择的模式会被记住（按文件夹），并对该文件夹优先于 `defaultMode`，除了 Plan，它仅适用于当前会话。
 
 | 模式 | 设置键 | 行为 |
 | - | - | - |
@@ -92,25 +92,25 @@ Claude 回复后，Code 选项卡可能会在空的输入框中以灰色文本�
 | **Accept edits** | `acceptEdits` | Claude 自动接受文件编辑和常见的文件系统命令，如 `mkdir`、`touch` 和 `mv`，但在运行其他终端命令之前仍会询问。当您信任文件更改并希望更快迭代时，请使用此选项。 |
 | **Plan** | `plan` | Claude 读取文件并运行命令进行探索，然后提出计划而不编辑您的源代码。适合复杂任务，您想先审查方法。 |
 | **Auto** | `auto` | Claude 运行时不需要常规提示；在执行 shell 命令和网络请求等操作之前，后台分类器会检查它们是否与您的请求一致。当[自动模式可用](#auto-mode-availability)时出现；没有单独的设置切换。 |
-| **Bypass permissions** | `bypassPermissions` | Claude 运行时不需要权限提示，除了[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)、当 Claude [在外部网站上操作](#browse-external-sites)时的安全分类器，或删除会话等桌面操作（但[归档会话](#work-across-sessions)不在此列）。等同于 CLI 中的 `--dangerously-skip-permissions`。在 Pro 和 Max 计划上，在您的设置 → Claude Code 中启用它，在"Allow bypass permissions mode"下；在 Team 和 Enterprise 计划上没有设置切换，由组织策略控制它。仅在沙箱容器或虚拟机中使用。 |
+| **Bypass permissions** | `bypassPermissions` | Claude 运行时不需要权限提示，除了[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)、当 Claude [在外部网站上操作](#browse-external-sites)时的安全分类器，或删除会话等桌面操作（但[归档会话](#work-across-sessions)不在此列）。等同于 CLI 中的 `--dangerously-skip-permissions`。在 Pro 和 Max 计划上，在您的设置 → Claude Code 中启用它，在"Allow bypass permissions mode"下；在 Team 和 Enterprise 计划上没有设置切换，由组织策略控制它。仅在沙箱容器或虚拟机中使用。 |
 
 Code 选项卡的早期版本将这些模式标记为 Ask permissions、Auto accept edits 和 Plan mode。
 
-`dontAsk` 权限模式仅在 [CLI](/docs/zh-CN/permission-modes.md#allow-only-pre-approved-tools-with-dontask-mode) 中可用。
+`dontAsk` 权限模式仅在 [CLI](https://code.claude.com/docs/zh-CN/permission-modes.md#allow-only-pre-approved-tools-with-dontask-mode) 中可用。
 
 > [!TIP]
 >
-> 在 Plan 中开始复杂任务，以便 Claude 在进行更改之前制定方法。一旦您批准计划，切换到 Accept edits 或 Manual 来执行它。有关此工作流的更多信息，请参阅[先探索，然后计划，然后编码](/docs/zh-CN/best-practices.md#explore-first-then-plan-then-code)。
+> 在 Plan 中开始复杂任务，以便 Claude 在进行更改之前制定方法。一旦您批准计划，切换到 Accept edits 或 Manual 来执行它。有关此工作流的更多信息，请参阅[先探索，然后计划，然后编码](https://code.claude.com/docs/zh-CN/best-practices.md#explore-first-then-plan-then-code)。
 
-云端会话支持 Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，因此选择器显示 Accept edits 而不是 Manual。Bypass permissions 在云端会话中不可用，包括[自托管环境](/docs/zh-CN/self-hosted-environments)中的会话。
+云端会话支持 Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，因此选择器显示 Accept edits 而不是 Manual。Bypass permissions 在云端会话中不可用，包括[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中的会话。
 
 Enterprise 管理员可以限制哪些权限模式可用。有关详细信息，请参阅[企业配置](#enterprise-configuration)。
 
 #### 自动模式可用性
 
-自动模式对 Anthropic API 上的所有用户可用，需要 Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本、Haiku 5.5，或 [Fable 模型](/docs/zh-CN/model-config.md#work-with-fable)。组织管理员可以使用[托管设置](#managed-settings)中的 `disableAutoMode` 键关闭自动模式。
+自动模式对 Anthropic API 上的所有用户可用，需要 Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本、Haiku 5.5，或 [Fable 模型](https://code.claude.com/docs/zh-CN/model-config.md#work-with-fable)。组织管理员可以使用[托管设置](#managed-settings)中的 `disableAutoMode` 键关闭自动模式。
 
-在将 Desktop 路由到 Google Cloud 的 Agent Platform 的 Enterprise 部署中，自动模式也默认可用；有关支持的模型，请参阅 [Bedrock、Agent Platform 或 Foundry 上的自动模式](/docs/zh-CN/permission-modes.md#enable-auto-mode-on-bedrock-agent-platform-or-foundry)。
+在将 Desktop 路由到 Google Cloud 的 Agent Platform 的 Enterprise 部署中，自动模式也默认可用；有关支持的模型，请参阅 [Bedrock、Agent Platform 或 Foundry 上的自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#enable-auto-mode-on-bedrock-agent-platform-or-foundry)。
 
 ### 预览您的应用
 
@@ -150,11 +150,11 @@ Claude 可以使用与[验证您的应用](#preview-your-app)相同的工具读�
 
 Claude 第一次在外部网站上操作时，会出现权限卡，Claude 等待您的选择：**Allow once**、**Always allow** 或 **Deny**。**Allow once** 批准操作而不保存任何内容。**Always allow** 在您的设备上保存该网站的批准，您可以在设置中撤销它。每个网站都需要自己的批准，包括子域。您的本地开发服务器和项目文件不需要批准，因此[自动验证](#auto-verify-changes)继续工作而不需要提示。
 
-即使在批准的网站上，Claude 也不会在没有您的输入的情况下购买物品、创建账户或绕过 CAPTCHA。在浏览器窗格中浏览使用与 [Claude in Chrome extension](/docs/zh-CN/chrome.md) 相同的安全模型。有关 Claude 如何处理敏感网站和风险操作的信息，请参阅[安全使用 Chrome 中的 Claude](https://support.claude.com/en/articles/12902428-using-claude-in-chrome-safely)。
+即使在批准的网站上，Claude 也不会在没有您的输入的情况下购买物品、创建账户或绕过 CAPTCHA。在浏览器窗格中浏览使用与 [Claude in Chrome extension](https://code.claude.com/docs/zh-CN/chrome.md) 相同的安全模型。有关 Claude 如何处理敏感网站和风险操作的信息，请参阅[安全使用 Chrome 中的 Claude](https://support.claude.com/en/articles/12902428-using-claude-in-chrome-safely)。
 
 #### 在浏览器和 Chrome 扩展之间选择
 
-浏览器窗格使用干净的浏览器配置文件，与您的个人浏览器分开，没有您保存的登录或历史记录。将其用于构建和测试您的应用以及不需要您的身份的网站。当您想让 Claude 在您的登录会话中以您的身份操作时，请改用 [Claude in Chrome extension](/docs/zh-CN/chrome.md)，它共享您的浏览器的登录状态。
+浏览器窗格使用干净的浏览器配置文件，与您的个人浏览器分开，没有您保存的登录或历史记录。将其用于构建和测试您的应用以及不需要您的身份的网站。当您想让 Claude 在您的登录会话中以您的身份操作时，请改用 [Claude in Chrome extension](https://code.claude.com/docs/zh-CN/chrome.md)，它共享您的浏览器的登录状态。
 
 #### 为您的组织限制外部浏览
 
@@ -177,12 +177,12 @@ Claude 读取您的评论并进行请求的更改，这些更改显示为您可�
 
 要让 Claude 在您提交之前审查您的更改，请在[输入框](#use-the-prompt-box)中输入 `/code-review`。审查完成后，结果会出现在对话中。
 
-在本地、[SSH](#ssh-sessions) 和 [WSL](/docs/zh-CN/desktop-wsl.md) 会话中，结果会显示为一张按文件分组的 **Code review** 卡片。使用该卡片处理这些结果：
+在本地、[SSH](#ssh-sessions) 和 [WSL](https://code.claude.com/docs/zh-CN/desktop-wsl.md) 会话中，结果会显示为一张按文件分组的 **Code review** 卡片。使用该卡片处理这些结果：
 
 * 点击 **Walk through in diff** 打开 diff 视图，逐条查看结果。当前 diff 中的结果会显示在其对应的行上，您可以在那里点击 **Fix this one** 或忽略它。
 * 点击 **Apply fixes** 让 Claude 修复仍未处理的结果。
 
-在任何会话中，您也可以在输入框中要求 Claude 修复审查发现的问题。有关 `/code-review` 检查的内容及其接受的参数，请参阅[使用 `/code-review` 在本地审查](/docs/zh-CN/code-review-local)。
+在任何会话中，您也可以在输入框中要求 Claude 修复审查发现的问题。有关 `/code-review` 检查的内容及其接受的参数，请参阅[使用 `/code-review` 在本地审查](https://code.claude.com/docs/zh-CN/code-review-local)。
 
 ### 监控 Pull Request 状态
 
@@ -204,7 +204,7 @@ Claude 读取您的评论并进行请求的更改，这些更改显示为您可�
 
 ## 整理工作区
 
-Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff、浏览器、终端、文件、计划、任务和子代理，以及 macOS 上的 [iOS Simulator](/docs/zh-CN/desktop-ios-simulator.md)。通过其标题拖动窗格来重新定位它，或拖动窗格边缘来调整大小。在 macOS 上按 **Cmd+\\** 或在 Windows 上按 **Ctrl+\\** 来关闭焦点窗格。
+Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff、浏览器、终端、文件、计划、任务和子代理，以及 macOS 上的 [iOS Simulator](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)。通过其标题拖动窗格来重新定位它，或拖动窗格边缘来调整大小。在 macOS 上按 **Cmd+\\** 或在 Windows 上按 **Ctrl+\\** 来关闭焦点窗格。
 
 要打开其他窗格，请点击会话标题栏中对应的图标按钮。将鼠标悬停在按钮上可查看每个按钮的名称，例如 **Terminal**、用于 diff 视图的 **Changes**、**Browser** 和 **Files**。如果所需窗格在标题栏中没有按钮，请从按钮旁的 **⋮** 菜单中选择：
 
@@ -229,7 +229,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 集成终端让您无需切换到另一个应用即可在会话旁运行命令。点击会话标题栏中的 **Terminal**，或在 macOS 或 Windows 上按 **Ctrl+\`**。终端在您的会话工作目录中打开，并与 Claude 共享相同的环境，因此 `npm test` 或 `git status` 等命令看到 Claude 正在编辑的相同文件。要打开第二个终端选项卡，点击终端窗格标题中的 **+** 或右键点击聊天中的文件夹来选择 **Open in terminal**。
 
-如果 WSL 会话中没有终端，请参阅[如果终端或连接器不可用](/docs/zh-CN/desktop-wsl.md#check-for-the-terminal-and-connectors)。终端在本地和 [SSH](#ssh-sessions) 会话中可用，但在 [Windows 远程机器](#windows-remote-machines)上存在限制。
+如果 WSL 会话中没有终端，请参阅[如果终端或连接器不可用](https://code.claude.com/docs/zh-CN/desktop-wsl.md#check-for-the-terminal-and-connectors)。终端在本地和 [SSH](#ssh-sessions) 会话中可用，但在 [Windows 远程机器](#windows-remote-machines)上存在限制。
 
 ### 打开和编辑文件
 
@@ -301,7 +301,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 | `Cmd` `Shift` `E` | 打开工作量菜单 |
 | `1`–`9` | 在打开的菜单中选择项目 |
 
-这些快捷键适用于 Code 选项卡。在 Desktop 中，`Shift+Tab` 不会像在终端的[交互模式](/docs/zh-CN/interactive-mode.md#keyboard-shortcuts)中那样循环切换权限模式。
+这些快捷键适用于 Code 选项卡。在 Desktop 中，`Shift+Tab` 不会像在终端的[交互模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#keyboard-shortcuts)中那样循环切换权限模式。
 
 ### 检查使用情况
 
@@ -316,7 +316,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 ## 让 Claude 使用你的计算机
 
-计算机使用让 Claude 打开你的应用、控制你的屏幕，并像你一样直接在你的机器上工作。要求 Claude 与没有 CLI 的桌面工具交互，或自动化只能通过 GUI 工作的东西。对于运行和测试 iOS 应用，Desktop 会打开专用的 [iOS Simulator 窗格](/docs/zh-CN/desktop-ios-simulator.md)，而不是控制你的屏幕；该窗格无需启用计算机使用即可工作。
+计算机使用让 Claude 打开你的应用、控制你的屏幕，并像你一样直接在你的机器上工作。要求 Claude 与没有 CLI 的桌面工具交互，或自动化只能通过 GUI 工作的东西。对于运行和测试 iOS 应用，Desktop 会打开专用的 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)，而不是控制你的屏幕；该窗格无需启用计算机使用即可工作。
 
 > [!NOTE]
 >
@@ -328,7 +328,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 > [!WARNING]
 >
-> 与[沙箱化 Bash 工具](/docs/zh-CN/sandboxing.md)不同，计算机使用在你的实际桌面上运行，可以访问你批准的任何内容。Claude 检查每个操作并标记来自屏幕内容的潜在提示注入，但信任边界不同。有关最佳实践，请参阅[计算机使用安全指南](https://support.claude.com/en/articles/14128542)。
+> 与[沙箱化 Bash 工具](https://code.claude.com/docs/zh-CN/sandboxing.md)不同，计算机使用在你的实际桌面上运行，可以访问你批准的任何内容。Claude 检查每个操作并标记来自屏幕内容的潜在提示注入，但信任边界不同。有关最佳实践，请参阅[计算机使用安全指南](https://support.claude.com/en/articles/14128542)。
 
 ### 何时应用计算机使用
 
@@ -336,8 +336,8 @@ Claude 有多种方式与应用或服务交互，计算机使用是最广泛和�
 
 * 如果你有一个服务的[连接器](#connect-external-tools)，Claude 使用连接器。
 * 如果任务是 shell 命令，Claude 使用 Bash。
-* 如果任务是浏览器工作且你已设置[Chrome 中的 Claude](/docs/zh-CN/chrome.md)，Claude 使用那个。
-* 如果任务是运行或测试 iOS 应用，Claude 使用 [iOS Simulator 窗格](/docs/zh-CN/desktop-ios-simulator.md)，它不使用屏幕控制。
+* 如果任务是浏览器工作且你已设置[Chrome 中的 Claude](https://code.claude.com/docs/zh-CN/chrome.md)，Claude 使用那个。
+* 如果任务是运行或测试 iOS 应用，Claude 使用 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)，它不使用屏幕控制。
 * 如果以上都不适用，Claude 使用计算机使用。
 
 [按应用访问层](#app-permissions)强化了这一点：浏览器限制为仅查看，终端和 IDE 限制为仅点击，即使计算机使用处于活跃状态，也会引导 Claude 使用专用工具。屏幕控制保留给其他工具无法到达的东西，如原生应用、硬件控制面板或没有 API 的专有工具。
@@ -348,7 +348,7 @@ Claude 有多种方式与应用或服务交互，计算机使用是最广泛和�
 
 **1. 更新桌面应用**
 
-确保你有最新版本的 Claude Desktop。在 macOS 和 Windows 上，在 [claude.com/download](https://claude.com/download) 下载或更新；在 Linux 上，通过你的包管理器更新（[说明](/docs/zh-CN/desktop-linux.md)）。然后重启应用。
+确保你有最新版本的 Claude Desktop。在 macOS 和 Windows 上，在 [claude.com/download](https://claude.com/download) 下载或更新；在 Linux 上，通过你的包管理器更新（[说明](https://code.claude.com/docs/zh-CN/desktop-linux.md)）。然后重启应用。
 
 **2. 打开切换**
 
@@ -401,7 +401,7 @@ Claude 第一次需要使用应用时，会话中会出现提示。点击**允�
 
 #### 在独立的 worktree 中运行会话
 
-在属于 Git 仓库的项目中，请在启动会话前打开 **Worktree**，使会话在其自己的 [Git worktree](/docs/zh-CN/worktrees.md)（项目的隔离副本）中运行。默认情况下，**Worktree** 处于关闭状态，Claude 直接在项目文件夹中工作。点击[输入框下方一行](#start-a-session)中的项目文件夹控件，然后打开 **Worktree**。
+在属于 Git 仓库的项目中，请在启动会话前打开 **Worktree**，使会话在其自己的 [Git worktree](https://code.claude.com/docs/zh-CN/worktrees.md)（项目的隔离副本）中运行。默认情况下，**Worktree** 处于关闭状态，Claude 直接在项目文件夹中工作。点击[输入框下方一行](#start-a-session)中的项目文件夹控件，然后打开 **Worktree**。
 
 * **使用[已保存的环境](#create-a-saved-environment)时**：在创建或编辑环境时设置 **Worktree**
 * **[早期布局](#check-which-layout-you-have)**：选中输入框上方分支名称旁边的 **worktree** 复选框
@@ -413,7 +413,7 @@ Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。要改为将�
 
 您还可以在 **Settings > Claude Code** 中设置 **Branch prefix**。Desktop 会将其添加到每个 worktree 分支名称的前面，这有助于让 Claude 创建的分支保持条理。
 
-要在新 worktree 中包含被 gitignore 的文件（如 `.env`），请在项目根目录中创建一个 [`.worktreeinclude` 文件](/docs/zh-CN/worktrees#copy-gitignored-files-into-worktrees)。有关 worktree 会话从何处读取项目设置、hook 和 skill，请参阅 [worktree 与主检出共享的内容](/docs/zh-CN/worktrees.md#what-worktrees-share-with-the-main-checkout)。
+要在新 worktree 中包含被 gitignore 的文件（如 `.env`），请在项目根目录中创建一个 [`.worktreeinclude` 文件](https://code.claude.com/docs/zh-CN/worktrees#copy-gitignored-files-into-worktrees)。有关 worktree 会话从何处读取项目设置、hook 和 skill，请参阅 [worktree 与主检出共享的内容](https://code.claude.com/docs/zh-CN/worktrees.md#what-worktrees-share-with-the-main-checkout)。
 
 > [!NOTE]
 >
@@ -451,11 +451,11 @@ Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。要改为将�
 
 ### 检查并释放上下文
 
-要检查上下文使用情况，请参阅[检查使用情况](#check-usage)。当上下文填满时，Claude 会自动总结对话并继续工作。您也可以输入 `/compact` 提前触发总结并释放上下文空间。有关压缩工作原理的详细信息，请参阅[上下文窗口](/docs/zh-CN/how-claude-code-works.md#the-context-window)。
+要检查上下文使用情况，请参阅[检查使用情况](#check-usage)。当上下文填满时，Claude 会自动总结对话并继续工作。您也可以输入 `/compact` 提前触发总结并释放上下文空间。有关压缩工作原理的详细信息，请参阅[上下文窗口](https://code.claude.com/docs/zh-CN/how-claude-code-works.md#the-context-window)。
 
 ### 在会话完成时获得通知
 
-当 Code 会话完成任务且您当前未在查看该会话时，桌面应用会发送操作系统通知。对于属于某个[项目](/docs/zh-CN/claude-projects.md#see-what-needs-you-in-overview)的会话，您将收到该项目的通知。
+当 Code 会话完成任务且您当前未在查看该会话时，桌面应用会发送操作系统通知。对于属于某个[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#see-what-needs-you-in-overview)的会话，您将收到该项目的通知。
 
 ### 在不偏离会话的情况下提出侧边问题
 
@@ -467,7 +467,7 @@ Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。要改为将�
 
 ### 查看后台任务
 
-任务窗格显示当前会话内正在运行的后台工作：子代理、后台 shell 命令和[动态工作流](/docs/zh-CN/workflows.md)。会话中有后台工作后，可通过标题栏 **⋮** 菜单中的 **Background tasks** 打开该窗格。
+任务窗格显示当前会话内正在运行的后台工作：子代理、后台 shell 命令和[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)。会话中有后台工作后，可通过标题栏 **⋮** 菜单中的 **Background tasks** 打开该窗格。
 
 点击任意条目可在子代理窗格中查看其输出或将其停止。要查看其他会话正在做什么，请使用[侧边栏](#work-in-parallel-with-sessions)，或请 Claude [为您查看](#work-across-sessions)。
 
@@ -477,14 +477,14 @@ Claude 可以列出您的其他 Code 选项卡会话，读取每个会话一直�
 
 您也可以请 Claude 重命名或存档会话。例如，请它存档 PR 已合并的会话。
 
-通过此使用入口，Claude 只能看到桌面应用自身运行的会话：Code 选项卡中的本地、[SSH](#ssh-sessions) 和 [WSL](/docs/zh-CN/desktop-wsl.md) 会话。Claude 看不到云端会话，也看不到您从终端 CLI 或 VS Code 扩展启动的会话，即使它们位于同一项目的 worktree 中也是如此。因此，如果打开了九个终端 worktree 和两个桌面会话，在其中一个桌面会话中回答的 Claude 只会报告另一个桌面会话。Claude 从不会列出您正在提问的那个会话。默认情况下，它可以看到最近活跃的 20 个会话，并跳过已存档的会话，除非您明确要求。[跨会话消息传递](/docs/zh-CN/cross-session-messaging.md)则另外让 Claude 可以向[您的其他 Claude Code 会话](/docs/zh-CN/cross-session-messaging.md#see-which-sessions-claude-can-reach)发送消息，包括终端会话。
+通过此使用入口，Claude 只能看到桌面应用自身运行的会话：Code 选项卡中的本地、[SSH](#ssh-sessions) 和 [WSL](https://code.claude.com/docs/zh-CN/desktop-wsl.md) 会话。Claude 看不到云端会话，也看不到您从终端 CLI 或 VS Code 扩展启动的会话，即使它们位于同一项目的 worktree 中也是如此。因此，如果打开了九个终端 worktree 和两个桌面会话，在其中一个桌面会话中回答的 Claude 只会报告另一个桌面会话。Claude 从不会列出您正在提问的那个会话。默认情况下，它可以看到最近活跃的 20 个会话，并跳过已存档的会话，除非您明确要求。[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)则另外让 Claude 可以向[您的其他 Claude Code 会话](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#see-which-sessions-claude-can-reach)发送消息，包括终端会话。
 
 当 Claude 通过此使用入口向另一个会话发送消息时，Claude Code 会在对方会话中将其显示为一张卡片，卡片标有发送会话的标题和返回链接，因此您始终可以知道消息来自何处。如果接收会话正在执行任务，Claude Code 会暂存该消息，Claude 会在当前工作完成后读取它。接收方的 Claude 可以回复，Claude Code 会通过此使用入口将回复传回。Claude 无法向已存档的会话发送消息，并会在消息未送达时告知您。
 
 Claude Code 在跨会话时应用三项安全行为：
 
 * 在 Claude 存档会话之前，您会看到一张批准卡片，但自动模式和 Bypass permissions 模式除外，在这两种模式下 Claude 可以在没有批准卡片的情况下存档会话。如需在存档前被询问，请切换到 Manual。
-* Claude Code 会根据接收会话的[入站控制](/docs/zh-CN/cross-session-messaging.md#control-inbound-messages)检查来自此使用入口的每条消息，即使接收会话本身未启用[跨会话消息传递](/docs/zh-CN/cross-session-messaging.md#availability)。如果您在接收会话中将 [`crossSessionInbound`](/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 `refuse`，Claude Code 会丢弃来自此使用入口的消息。Claude Code 会向 Claude 桌面应用报告该拒绝。在 v2.1.234 之前，对于未启用跨会话消息传递的接收会话，Claude Code 会丢弃来自此使用入口的所有消息。
+* Claude Code 会根据接收会话的[入站控制](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#control-inbound-messages)检查来自此使用入口的每条消息，即使接收会话本身未启用[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#availability)。如果您在接收会话中将 [`crossSessionInbound`](https://code.claude.com/docs/zh-CN/settings-reference#crosssessioninbound) 设置为 `refuse`，Claude Code 会丢弃来自此使用入口的消息。Claude Code 会向 Claude 桌面应用报告该拒绝。在 v2.1.234 之前，对于未启用跨会话消息传递的接收会话，Claude Code 会丢弃来自此使用入口的所有消息。
 * Claude Code 会引用每条传入消息并注明其来自哪个发送会话，且 Claude 在据此执行操作时仍遵循接收会话自身的权限设置。
 
 ### 启动 Claude 建议的任务
@@ -500,14 +500,14 @@ Claude Code 在跨会话时应用三项安全行为：
 
 ### 在云端运行长时间运行的任务
 
-对于大型重构、测试套件、迁移或其他长时间运行的任务，请在启动会话时，在[环境选择器](#start-a-session)中选择 **Cloud** 下的某个环境。云端会话默认在 Anthropic 管理的基础设施上运行，即使您关闭应用或关闭计算机也会继续运行。您可以随时回来查看进度，或引导 Claude 转向不同的方向。您也可以从 [claude.ai/code](https://claude.ai/code) 或 [Claude 移动应用](/docs/zh-CN/mobile.md)监控云端会话。
+对于大型重构、测试套件、迁移或其他长时间运行的任务，请在启动会话时，在[环境选择器](#start-a-session)中选择 **Cloud** 下的某个环境。云端会话默认在 Anthropic 管理的基础设施上运行，即使您关闭应用或关闭计算机也会继续运行。您可以随时回来查看进度，或引导 Claude 转向不同的方向。您也可以从 [claude.ai/code](https://claude.ai/code) 或 [Claude 移动应用](https://code.claude.com/docs/zh-CN/mobile.md)监控云端会话。
 
 云端会话还支持多个仓库。选择仓库的位置：
 
 * **当前布局**：选择云端环境后，在输入框下方的一行中选择。
 * **[早期布局](#check-which-layout-you-have)**：在输入框上方选择。要添加另一个仓库，请点击所选仓库旁边的 **+**。
 
-有关云端会话工作方式的更多信息，请参阅[在云端使用 Claude Code](/docs/zh-CN/claude-code-on-the-web.md)。当一项工作需要许多云端会话时，请使用[项目](/docs/zh-CN/claude-projects.md)：Claude 会在一个对话中为您启动并跟踪这些会话。[创建项目](/docs/zh-CN/claude-projects.md#create-a-project)中介绍了具体步骤。
+有关云端会话工作方式的更多信息，请参阅[在云端使用 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)。当一项工作需要许多云端会话时，请使用[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)：Claude 会在一个对话中为您启动并跟踪这些会话。[创建项目](https://code.claude.com/docs/zh-CN/claude-projects.md#create-a-project)中介绍了具体步骤。
 
 > [!NOTE]
 >
@@ -517,17 +517,17 @@ Claude Code 在跨会话时应用三项安全行为：
 
 要在其他地方继续会话，请通过会话标题旁边的下拉箭头或侧边栏中该会话所在的行打开会话菜单，然后选择 **Open in**：
 
-* 选择 **Cloud** 可将会话作为[云端会话](/docs/zh-CN/claude-code-on-the-web.md)继续，您的对话会以摘要形式带过去。在您确认之前，对话框会说明您的文件是否也会一并移动，以及云端会话就绪后此会话是否会被存档。通过 [SSH](#ssh-sessions) 或在 [WSL](/docs/zh-CN/desktop-wsl.md) 中运行的会话无法以这种方式移动。
+* 选择 **Cloud** 可将会话作为[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)继续，您的对话会以摘要形式带过去。在您确认之前，对话框会说明您的文件是否也会一并移动，以及云端会话就绪后此会话是否会被存档。通过 [SSH](#ssh-sessions) 或在 [WSL](https://code.claude.com/docs/zh-CN/desktop-wsl.md) 中运行的会话无法以这种方式移动。
 * 选择已安装的编辑器或文件管理器，可在其中打开该会话在磁盘上的文件夹。
 
 ### 控制哪些会话显示在您的其他设备上
 
-本地会话在 [Remote Control](/docs/zh-CN/remote-control.md) 将其连接后，会显示在您的其他设备上。已连接的会话会出现在 [claude.ai/code](https://claude.ai/code) 的会话列表中，以及登录了您 claude.ai 账户的设备上的 Claude 应用中。
+本地会话在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 将其连接后，会显示在您的其他设备上。已连接的会话会出现在 [claude.ai/code](https://claude.ai/code) 的会话列表中，以及登录了您 claude.ai 账户的设备上的 Claude 应用中。
 
 本地会话会在您为其打开 Remote Control 时连接，或在启动时自动连接：
 
 * **您为该会话打开它**：使用该会话的 **Remote Control** 开关，或在其输入框中输入 `/remote-control`。
-* **在启动时连接**：当 **Settings > Claude Code** 中的 **Connect new sessions to Remote Control** 处于打开状态时，新会话会自动连接。如果您从未更改过该设置，Desktop 会遵循您的用户设置或托管设置中的 [`remoteControlAtStartup`](/docs/zh-CN/settings-reference#remotecontrolatstartup)，其次是您组织的默认值。
+* **在启动时连接**：当 **Settings > Claude Code** 中的 **Connect new sessions to Remote Control** 处于打开状态时，新会话会自动连接。如果您从未更改过该设置，Desktop 会遵循您的用户设置或托管设置中的 [`remoteControlAtStartup`](https://code.claude.com/docs/zh-CN/settings-reference#remotecontrolatstartup)，其次是您组织的默认值。
 
 要查看会话是否已连接，请查看其[会话详情面板](#see-session-details)中 **Environment** 卡片内的 **Remote Control** 开关。
 
@@ -535,9 +535,9 @@ Claude Code 在跨会话时应用三项安全行为：
 
 * **单个会话**：关闭其 **Remote Control** 开关。在启动时已自动连接的会话中，输入 `/remote-control` 会保持 Remote Control 打开，并显示 `Remote Control is already on. This session connected automatically when it started.`。点击该行上的 **Turn off** 即可断开连接。
 * **此计算机上的新 Desktop 会话**：在 **Settings > Claude Code** 中关闭 **Connect new sessions to Remote Control**。如果它已显示为关闭，请先将其打开再关闭，以便 Desktop 保存您的选择。保存后，它优先于 `remoteControlAtStartup` 和默认值。
-* **此计算机上的任何会话，包括 CLI**：在 `~/.claude/settings.json` 中将 [`disableRemoteControl`](/docs/zh-CN/settings-reference#disableremotecontrol) 设置为 `true`，以阻止会话连接。保存该文件时已连接的会话会保持连接，直到您为其关闭 Remote Control。
+* **此计算机上的任何会话，包括 CLI**：在 `~/.claude/settings.json` 中将 [`disableRemoteControl`](https://code.claude.com/docs/zh-CN/settings-reference#disableremotecontrol) 设置为 `true`，以阻止会话连接。保存该文件时已连接的会话会保持连接，直到您为其关闭 Remote Control。
 
-要隐藏已显示在您其他设备上的会话，请在 Desktop 中将其存档。Desktop 也会存档该会话的 Remote Control 副本，使其从这些设备上的默认会话列表中移除。要在那里查看或删除它，请参阅[存档会话](/docs/zh-CN/claude-code-on-the-web.md#archive-sessions)。
+要隐藏已显示在您其他设备上的会话，请在 Desktop 中将其存档。Desktop 也会存档该会话的 Remote Control 副本，使其从这些设备上的默认会话列表中移除。要在那里查看或删除它，请参阅[存档会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#archive-sessions)。
 
 ### 来自 Dispatch 的会话
 
@@ -555,17 +555,17 @@ Dispatch 启动的会话会与您的其他会话一起出现在 Code 选项卡�
 
 有关设置、配对和 Dispatch 设置，请参阅 [Dispatch 帮助文章](https://support.claude.com/en/articles/13947068)。Dispatch 需要 Pro 或 Max 计划，Team 或 Enterprise 计划不可用。
 
-Dispatch 是您离开终端时与 Claude 协作的几种方式之一。有关与其他选项的比较，请参阅[平台和集成](/docs/zh-CN/platforms.md#work-when-you-are-away-from-your-terminal)。
+Dispatch 是您离开终端时与 Claude 协作的几种方式之一。有关与其他选项的比较，请参阅[平台和集成](https://code.claude.com/docs/zh-CN/platforms.md#work-when-you-are-away-from-your-terminal)。
 
 ## 扩展 Claude Code
 
 连接外部服务、添加可重用工作流、自定义 Claude 的行为并配置预览服务器。要在一个地方管理连接器、skill 和插件，请点击侧边栏中的**自定义**。桌面应用中的 [Cowork](https://claude.com/product/cowork) 从此自定义配置获取其 skill、插件和连接器，该配置通过您的 claude.ai 账户同步，而不是从 CLI 的 `~/.claude` 目录获取。
 
-Claude Code 还会在你使用同一账户登录的终端会话中加载为你的 claude.ai 账户启用的 skills 和插件。请参阅[从 claude.ai 同步的 Skills](/docs/zh-CN/skills.md#how-synced-skills-behave) 和[从 claude.ai 同步的插件](/docs/zh-CN/plugins/loading.md#synced-plugins)。
+Claude Code 还会在你使用同一账户登录的终端会话中加载为你的 claude.ai 账户启用的 skills 和插件。请参阅[从 claude.ai 同步的 Skills](https://code.claude.com/docs/zh-CN/skills.md#how-synced-skills-behave) 和[从 claude.ai 同步的插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)。
 
 ### 连接外部工具
 
-连接器是具有图形设置流程的 [MCP 服务器](/docs/zh-CN/mcp.md)。
+连接器是具有图形设置流程的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)。
 
 在会话开始之前或期间，点击提示框旁的 **+**，即可在使用 Claude 账户的本地或 [SSH](#ssh-sessions) 会话中添加连接器。选择 **Add connectors** 打开连接器目录。如果菜单显示的是 **Connectors**，请选择它，然后选择 **Browse connectors**。
 
@@ -573,32 +573,32 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 >
 > 以下情况在其他页面中介绍：
 >
-> * **WSL 会话中 Connectors 显示为灰色**：请参阅[如果终端或连接器不可用](/docs/zh-CN/desktop-wsl.md#check-for-the-terminal-and-connectors)
-> * **云端会话**：请参阅[连接器如何接入 Claude Code](/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)
+> * **WSL 会话中 Connectors 显示为灰色**：请参阅[如果终端或连接器不可用](https://code.claude.com/docs/zh-CN/desktop-wsl.md#check-for-the-terminal-and-connectors)
+> * **云端会话**：请参阅[连接器如何接入 Claude Code](https://code.claude.com/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)
 
 连接后，Claude 可以读取您的日历、发送消息、创建问题并直接与您的工具交互。您可以询问 Claude 在您的会话中配置了哪些连接器。要管理或断开连接器，请在桌面应用中转到 **Settings > Connectors**。
 
-对于 Connectors 中未列出的集成，通过[设置文件](/docs/zh-CN/mcp.md#installing-mcp-servers)手动添加 MCP 服务器。您也可以[创建自定义连接器](https://support.claude.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)。
+对于 Connectors 中未列出的集成，通过[设置文件](https://code.claude.com/docs/zh-CN/mcp.md#installing-mcp-servers)手动添加 MCP 服务器。您也可以[创建自定义连接器](https://support.claude.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)。
 
 ### 使用 skills
 
-[Skills](/docs/zh-CN/skills.md)扩展 Claude 可以做的事情。Claude 在相关时自动加载它们，或者你可以直接调用一个：在提示框中输入 `/` 或点击 **+** 按钮并选择 **Slash commands** 来浏览可用的内容。这包括[内置命令](/docs/zh-CN/commands.md)、你的[自定义 skills](/docs/zh-CN/skills.md#create-your-first-skill)、来自你的代码库的项目 skills 以及来自任何[已安装插件](/docs/zh-CN/plugins/install.md)的 skills。选择一个，它会在输入字段中突出显示。在它之后输入你的任务并照常发送。
+[Skills](https://code.claude.com/docs/zh-CN/skills.md)扩展 Claude 可以做的事情。Claude 在相关时自动加载它们，或者你可以直接调用一个：在提示框中输入 `/` 或点击 **+** 按钮并选择 **Slash commands** 来浏览可用的内容。这包括[内置命令](https://code.claude.com/docs/zh-CN/commands.md)、你的[自定义 skills](https://code.claude.com/docs/zh-CN/skills.md#create-your-first-skill)、来自你的代码库的项目 skills 以及来自任何[已安装插件](https://code.claude.com/docs/zh-CN/plugins/install.md)的 skills。选择一个，它会在输入字段中突出显示。在它之后输入你的任务并照常发送。
 
 您可以在 Claude 工作时发送命令，就像发送任何其他消息一样，会话会在该轮次完成后返回空闲状态。
 
 本地会话从 `~/.claude/skills/` 加载你的个人 skills。[SSH](#ssh-sessions) 会话从远程主机的主目录读取 `~/.claude/skills/`，而不是从你的机器。
 
-本地和云会话也加载为你的 claude.ai 账户启用的 skills，除非你的组织设置了 [`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags)。云会话改为加载它们，而不是 `~/.claude/skills/`，如[Cowork 和云会话中的 Skills](/docs/zh-CN/skills.md#skills-in-cowork-and-cloud-sessions)所述。
+本地和云会话也加载为你的 claude.ai 账户启用的 skills，除非你的组织设置了 [`disableSideloadFlags`](https://code.claude.com/docs/zh-CN/settings-reference#disablesideloadflags)。云会话改为加载它们，而不是 `~/.claude/skills/`，如[Cowork 和云会话中的 Skills](https://code.claude.com/docs/zh-CN/skills.md#skills-in-cowork-and-cloud-sessions)所述。
 
 ### 安装插件
 
-[Plugins](/docs/zh-CN/plugins/overview.md)是可重用的包，为 Claude Code 添加 skills、agents、hooks、MCP servers 和 LSP 配置。你可以从桌面应用安装插件，而无需使用终端。
+[Plugins](https://code.claude.com/docs/zh-CN/plugins/overview.md)是可重用的包，为 Claude Code 添加 skills、agents、hooks、MCP servers 和 LSP 配置。你可以从桌面应用安装插件，而无需使用终端。
 
 在本地会话或 [SSH 会话](#ssh-sessions)中，点击提示框旁的 **+** 并选择 **Add plugins** 打开插件浏览器。如果菜单显示的是 **Plugins**，请选择它，然后选择 **Browse plugins**，或选择 **Manage plugins** 来启用、禁用或卸载插件。
 
-你可以将插件限定到你的用户账户、特定项目或仅本地。如果你的组织集中管理插件，这些插件在桌面会话中的可用方式与在 CLI 中相同，除了桌面应用在 [`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags) 下扣留的那些。
+你可以将插件限定到你的用户账户、特定项目或仅本地。如果你的组织集中管理插件，这些插件在桌面会话中的可用方式与在 CLI 中相同，除了桌面应用在 [`disableSideloadFlags`](https://code.claude.com/docs/zh-CN/settings-reference#disablesideloadflags) 下扣留的那些。
 
-插件浏览器在云会话中不可用，从桌面应用安装的插件不可用于云会话。云会话也不会安装存储库的 `.claude/settings.json` 声明的插件，如[从你的设置中继承的内容](/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)所述。插件在 WSL 会话中不可用。有关完整的插件参考，包括创建你自己的插件，请参阅 [plugins](/docs/zh-CN/plugins/overview.md)。
+插件浏览器在云会话中不可用，从桌面应用安装的插件不可用于云会话。云会话也不会安装存储库的 `.claude/settings.json` 声明的插件，如[从你的设置中继承的内容](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)所述。插件在 WSL 会话中不可用。有关完整的插件参考，包括创建你自己的插件，请参阅 [plugins](https://code.claude.com/docs/zh-CN/plugins/overview.md)。
 
 ### 配置预览服务器
 
@@ -801,7 +801,7 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 * **Local**：在您的计算机上运行，可直接访问您的文件
 * **Cloud**：默认在 Anthropic 托管的基础设施上运行。即使您关闭应用，会话也会继续。
 * **SSH**：在您通过 SSH 连接的远程计算机上运行，例如您自己的服务器、云虚拟机或开发容器。正在运行的任务可以[在 Desktop 断开连接时继续运行](#keep-a-task-running-while-desktop-is-disconnected)，但使用 Claude 账户时，任务可能会在其登录过期时停止。
-* **WSL**（Windows）：在您计算机上的 [WSL 2 发行版](/docs/zh-CN/desktop-wsl.md)内运行，使用该发行版的 Linux 工具链和原生路径
+* **WSL**（Windows）：在您计算机上的 [WSL 2 发行版](https://code.claude.com/docs/zh-CN/desktop-wsl.md)内运行，使用该发行版的 Linux 工具链和原生路径
 
 ### 创建已保存的环境
 
@@ -829,11 +829,22 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 * **启动会话**：选择该条目。
 * **编辑或删除**：将鼠标悬停在条目上并点击齿轮图标。要删除本地或 SSH 环境，请在 **Edit environment** 中点击 **Delete environment**。
-* **归档云端环境**：请参阅[归档环境](/docs/zh-CN/cloud-environments.md#archive-an-environment)。
+* **归档云端环境**：请参阅[归档环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#archive-an-environment)。
 
-### 本地会话
+### 本地会话中的环境变量
 
-桌面应用并不总是继承您完整的 shell 环境。在 macOS 上，当您从 Dock 或 Finder 启动应用时，它会读取您的 shell profile 文件（例如 `~/.zshrc` 或 `~/.bashrc`），为 Claude Code 提供 `PATH` 和一组固定的 Claude Code 变量，但不包括您在其中导出的其他变量。在 Windows 上，应用会继承用户和系统环境变量，但不会读取 PowerShell profile 文件。
+要为本地会话设置环境变量，请[将其添加到已保存的本地环境](#set-environment-variables-for-local-sessions)，然后从该环境启动新会话。
+
+`PATH` 和 `CLAUDE_CONFIG_DIR` 等变量有各自的说明：
+
+| 变量 | 应改为执行的操作 |
+| :- | :- |
+| `PATH`，即系统搜索 `npm` 等程序的文件夹 | 请参阅[会话找不到已安装的工具](#session-not-finding-installed-tools)。在 Windows 上，Desktop 不读取 PowerShell 配置文件，因此请在用户或系统环境变量中设置 `PATH`，然后退出并重新打开 Desktop。 |
+| 来自 [`claude_desktop_config.json`](#mcp-servers-from-the-claude-desktop-chat-app) 的 MCP 服务器所用的变量 | 退出 Desktop，在该服务器的 `env` 块中设置它，然后重新打开 Desktop |
+| [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars#variables) 或 [`CLAUDE_CODE_TMPDIR`](https://code.claude.com/docs/zh-CN/env-vars#variables) | 在[为开发服务器设置变量的位置之一](#set-environment-variables-for-dev-servers)中设置它，然后退出并重新打开 Desktop |
+| `API_TIMEOUT_MS`、`ANTHROPIC_BASE_URL` 或 Desktop 自行设置的其他变量 | 请参阅 [Desktop 自行设置的环境变量](#environment-variables-desktop-sets-itself) |
+
+在 macOS 或 Linux 上，如果您已经在 `~/.zshrc` 或 `~/.bashrc` 中使用 `export` 设置了变量，请参阅[Claude 运行的命令中缺少导出的变量或变量值错误](#exported-variable-missing-or-wrong-in-commands-claude-runs)。
 
 #### 为本地会话设置环境变量
 
@@ -843,9 +854,10 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 >
 > 如果您的环境选择器位于输入框上方，则您使用的是[早期布局](#check-which-layout-you-have)，该布局没有已保存的本地环境。请改用[本地环境编辑器](#use-the-local-environment-editor)。
 
-**1. 打开环境的表单**
+**1. 打开本地环境的表单**
 
-打开 [**New environment**](#create-a-saved-environment) 或 [**Edit environment**](#use-edit-or-remove-a-saved-environment)。
+* **创建已保存的本地环境**：选择环境选择器菜单底部的 [**New environment**](#create-a-saved-environment)，然后选择 **Local** 选项卡
+* **修改已有的环境**：在环境选择器中，将鼠标悬停在 **Local** 下的某个已保存环境上，点击齿轮图标以打开 [**Edit environment**](#use-edit-or-remove-a-saved-environment)
 
 **2. 输入变量**
 
@@ -857,7 +869,7 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 只有从该环境启动的会话才会获得这些变量。
 
-要为每个本地会话设置变量，请将其添加到 `~/.claude/settings.json` 文件中的 [`env` 键](/docs/zh-CN/env-vars#set-variables-in-settings-files)。如果该变量已存在于 Desktop 启动会话时所用的环境中，Claude Code 会[忽略该值](/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)。有关支持的变量的完整列表，请参阅[环境变量](/docs/zh-CN/env-vars.md)。
+要为每个本地会话设置变量，请将其添加到 `~/.claude/settings.json` 文件中的 [`env` 键](https://code.claude.com/docs/zh-CN/env-vars#set-variables-in-settings-files)。如果该变量已存在于 Desktop 启动会话时所用的环境中，Claude Code 会[忽略该值](https://code.claude.com/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)。有关支持的变量的完整列表，请参阅[环境变量](https://code.claude.com/docs/zh-CN/env-vars.md)。
 
 #### 为开发服务器设置环境变量
 
@@ -878,39 +890,61 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 每行输入一个 `KEY=value`，然后选择 **Save changes**。您在此处保存的变量会以加密方式存储在您的机器上。本地会话会获得这些变量，但 [Desktop 自行设置的](#environment-variables-desktop-sets-itself)任何变量（例如 `API_TIMEOUT_MS`）除外。重启 Desktop 即可将您的变量提供给开发服务器。
 
+#### Claude 运行的命令中缺少导出的变量或变量值错误
+
+如果 Claude 在 macOS 或 Linux 上运行的命令没有获得您在 `~/.zshrc` 或 `~/.bashrc` 中使用 `export` 设置的变量，或者获得了错误的值，请按顺序尝试以下操作：
+
+**1. 启动新会话**
+
+让 Claude 再次运行该命令。
+
+**2. 退出并重新打开 Desktop**
+
+然后启动新会话。
+
+**3. 检查已保存的变量**
+
+如果命令获得了错误的值，请检查您是否也在[已保存的环境](#use-edit-or-remove-a-saved-environment)或[本地环境编辑器](#use-the-local-environment-editor)中设置了该变量。如果是，请在那里修改该值并启动新会话。
+
+**4. 使用已保存的环境**
+
+将变量添加到[已保存的本地环境](#set-environment-variables-for-local-sessions)，然后从该环境启动新会话。对于 `PATH` 或 `CLAUDE_CONFIG_DIR` 等变量，请改为遵循[其各自的说明](#environment-variables-in-local-sessions)。
+
+在 v2.1.304 之前，Claude Code 不会将导出的变量传递给命令，因此请[检查会话运行的版本](#claude-code-version-in-the-code-tab)。
+
 #### Desktop 自行设置的环境变量
 
-如果您设置了 `API_TIMEOUT_MS` 或 `ANTHROPIC_BASE_URL`，但本地会话中没有任何变化，这是因为 Desktop 会自行设置这些[变量](/docs/zh-CN/env-vars.md#variables)以及其他一些变量。无论您是在 shell 配置文件、Windows 用户或系统变量、本地环境编辑器还是已保存的环境中设置自己的值，本地会话都会获得 Desktop 的值。将您的值移到设置文件中也无济于事，因为 Claude Code 在本地会话中会[忽略该值](/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)。
+如果您设置了 `API_TIMEOUT_MS` 或 `ANTHROPIC_BASE_URL`，但本地会话中没有任何变化，这是因为 Desktop 会自行设置这些[变量](https://code.claude.com/docs/zh-CN/env-vars.md#variables)以及其他一些变量。无论您是在 shell 配置文件、Windows 用户或系统变量、本地环境编辑器还是已保存的环境中设置自己的值，本地会话都会获得 Desktop 的值。将您的值移到设置文件中也无济于事，因为 Claude Code 在本地会话中会[忽略该值](https://code.claude.com/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)。
 
-* `API_TIMEOUT_MS`：本地会话获得的值为 `900000`，即 15 分钟。如需更长的超时时间，请[安装 Claude Code CLI](/docs/zh-CN/quickstart.md) 并使用它来代替 Desktop。[在您的 shell 中设置该变量](/docs/zh-CN/env-vars.md#set-variables-in-your-shell)，然后在终端中运行 `claude`。
-* `ANTHROPIC_BASE_URL`：当您使用 Claude 账户登录时，本地会话获得的是 Anthropic 的 API 主机。要使用网关，请改为设置 Desktop 的[第三方推理配置](/docs/zh-CN/llm-gateway-connect.md#desktop-app)。
+* `API_TIMEOUT_MS`：本地会话获得的值为 `900000`，即 15 分钟。如需更长的超时时间，请[安装 Claude Code CLI](https://code.claude.com/docs/zh-CN/quickstart.md) 并使用它来代替 Desktop。[在您的 shell 中设置该变量](https://code.claude.com/docs/zh-CN/env-vars.md#set-variables-in-your-shell)，然后在终端中运行 `claude`。
+* `ANTHROPIC_BASE_URL`：当您使用 Claude 账户登录时，本地会话获得的是 Anthropic 的 API 主机。要使用网关，请改为设置 Desktop 的[第三方推理配置](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#desktop-app)。
 
 #### 关闭扩展思考
 
-[扩展思考](/docs/zh-CN/model-config.md#extended-thinking)默认启用，它可以提升复杂推理任务的表现，但会消耗额外的 token。要关闭它，请在[已保存的本地环境](#set-environment-variables-for-local-sessions)或[本地环境编辑器](#use-the-local-environment-editor)中将 `MAX_THINKING_TOKENS` 设置为 `0`。随后，思考功能会在 Anthropic API 上关闭，但 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 模型除外，这些模型始终使用扩展思考。
+[扩展思考](https://code.claude.com/docs/zh-CN/model-config.md#extended-thinking)默认启用，它可以提升复杂推理任务的表现，但会消耗额外的 token。要关闭它，请在[已保存的本地环境](#set-environment-variables-for-local-sessions)或[本地环境编辑器](#use-the-local-environment-editor)中将 `MAX_THINKING_TOKENS` 设置为 `0`。随后，思考功能会在 Anthropic API 上关闭，但 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 模型除外，这些模型始终使用扩展思考。
 
 在 Opus 5 上，还需要在启动会话之前选择 `high` 或更低的 effort。在[当前布局](#check-which-layout-you-have)中，打开模型选择器并在 **Effort** 下选择一个级别。如果您以更高的级别启动了会话，请以 `high` 或更低的级别启动一个新会话。
 
 #### 固定思考预算
 
-在支持[自适应推理](/docs/zh-CN/model-config.md#adjust-effort-level)的模型上，Claude Code 会忽略正值 `MAX_THINKING_TOKENS` 中的具体数值，因为自适应推理会改为控制思考深度。在 Opus 4.6 和 Sonnet 4.6 上，将 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` 设置为 `1` 可使用固定的思考预算；Fable 模型、Sonnet 5 及更高版本、Haiku 5.5 以及 Opus 4.7 及更高版本始终使用自适应推理，没有固定预算模式。
+在支持[自适应推理](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)的模型上，Claude Code 会忽略正值 `MAX_THINKING_TOKENS` 中的具体数值，因为自适应推理会改为控制思考深度。在 Opus 4.6 和 Sonnet 4.6 上，将 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` 设置为 `1` 可使用固定的思考预算；Fable 模型、Sonnet 5 及更高版本、Haiku 5.5 以及 Opus 4.7 及更高版本始终使用自适应推理，没有固定预算模式。
 
-#### 托管设备上的本地会话
+### 受管设备上的本地会话
 
-如果代表您计算机的条目在环境选择器中显示为灰色，并带有工具提示 **Disabled by your organization**，则表示您的管理员已[关闭本地会话](#managed-settings)。在 Windows 上，[WSL](/docs/zh-CN/desktop-wsl.md) 条目也会以同样的方式显示为灰色，其在受管设备上的可用性[另行管控](/docs/zh-CN/admin-setup.md#wsl-sessions-in-claude-code-desktop)。
+如果代表您计算机的条目在环境选择器中显示为灰色，并带有工具提示 **Disabled by your organization**，则表示您的管理员已[关闭本地会话](#managed-settings)。在 Windows 上，[WSL](https://code.claude.com/docs/zh-CN/desktop-wsl.md) 条目也会以同样的方式显示为灰色，其在受管设备上的可用性[另行管控](https://code.claude.com/docs/zh-CN/admin-setup.md#wsl-sessions-in-claude-code-desktop)。
 
 如果已配置 SSH 连接，新会话默认使用第一个 SSH 连接。如果您尝试继续现有的本地会话，Desktop 会显示一条消息，说明此设备上无法使用本地会话。当您选择[已保存的本地环境](#create-a-saved-environment)时，会显示此错误：`Couldn’t switch environments: the Local environment isn’t available anymore.` 请改为选择 [SSH](#ssh-sessions) 或[云端](#cloud-sessions)环境，或联系您的 IT 团队。
 
 ### 云端会话
 
-即使您关闭应用，云端会话也会在后台继续运行。用量计入您的[订阅套餐限额](/docs/zh-CN/costs.md)，不单独收取计算费用。
+即使您关闭应用，云端会话也会在后台继续运行。用量计入您的[订阅套餐限额](https://code.claude.com/docs/zh-CN/costs.md)，不单独收取计算费用。
 
-要添加、编辑或[归档](/docs/zh-CN/cloud-environments.md#archive-an-environment)云端环境，请打开[环境选择器](#start-a-session)：
+要添加、编辑或[归档](https://code.claude.com/docs/zh-CN/cloud-environments.md#archive-an-environment)云端环境，请打开[环境选择器](#start-a-session)：
 
 * **添加环境**：选择选择器菜单底部的 **New environment**，然后选择 [**New environment** 对话框](#create-a-saved-environment)中的 **Cloud** 选项卡
 * **编辑或归档您自己的某个环境**：将鼠标悬停在该环境上，然后点击齿轮图标
 
-有关配置网络访问和环境变量的详细信息，请参阅[配置云端环境](/docs/zh-CN/cloud-environments.md)。
+有关配置网络访问和环境变量的详细信息，请参阅[配置云端环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)。
 
 ### SSH 会话
 
@@ -918,7 +952,7 @@ SSH 会话让您可以在远程计算机上运行 Claude Code，同时使用桌�
 
 > [!NOTE]
 >
-> 如果您将 Desktop 与[第三方提供商](/docs/zh-CN/third-party-integrations.md)配合使用，SSH 会话需要单独设置。请参阅 [3P 上 Claude Desktop 中的 SSH 远程会话](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
+> 如果您将 Desktop 与[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)配合使用，SSH 会话需要单独设置。请参阅 [3P 上 Claude Desktop 中的 SSH 远程会话](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
 
 在 [**New environment** 对话框](#create-a-saved-environment)中添加 SSH 连接，然后在该连接上启动会话。如果新会话的输入框下方没有环境选择器，则您使用的是早期布局。请参阅[检查您使用的布局](#check-which-layout-you-have)。
 
@@ -948,22 +982,22 @@ SSH 会话让您可以在远程计算机上运行 Claude Code，同时使用桌�
 
 Linux 或 macOS 远程计算机需要受支持的处理器、带 SFTP 的 SSH 服务器、未以 `noexec` 挂载的安装文件夹、可正常工作的 shell 以及网络访问。请在连接之前检查每项要求，或在登录后连接失败时进行检查：
 
-* **系统**：x86\_64 或 arm64 处理器。该计算机还必须满足 Claude Code 的[系统要求](/docs/zh-CN/setup.md#system-requirements)。在 Linux 上，Claude Code 需要 glibc 2.17 或更高版本，或 musl。若要查看该计算机使用的是哪一种，请在其上运行 `ldd --version`。在 Alpine Linux 等基于 musl 的发行版上，还需安装 [Claude Code 所需的软件包](/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)。
+* **系统**：x86\_64 或 arm64 处理器。该计算机还必须满足 Claude Code 的[系统要求](https://code.claude.com/docs/zh-CN/setup.md#system-requirements)。在 Linux 上，Claude Code 需要 glibc 2.17 或更高版本，或 musl。若要查看该计算机使用的是哪一种，请在其上运行 `ldd --version`。在 Alpine Linux 等基于 musl 的发行版上，还需安装 [Claude Code 所需的软件包](https://code.claude.com/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)。
 * **SFTP**：SSH 服务器必须提供 SFTP 子系统，该子系统通过其 `sshd_config` 中的 `Subsystem sftp` 行启用。若要检查，请在您计算机上的终端中使用 `sftp` 连接到相同的主机和端口。正常工作的服务器会显示 `sftp>` 提示符。
 * **每个连接的会话数**：macOS 和 Linux 上的 Desktop 会在一个 SSH 连接上打开多个会话。如果服务器的 `sshd_config` 设置了 `MaxSessions 1`，请将其调高，例如调到 OpenSSH 的默认值 10。
 * **安装文件夹**：Desktop 会在您主目录下的 `~/.claude/remote/` 中安装一个辅助程序和 Claude Code。它从该位置运行这些程序，因此该文件夹不能位于以 `noexec` 挂载的文件系统上。请在每个连接用户的主目录中预留约 1 GB 的磁盘空间。有关该文件夹包含的内容，请参阅[远程计算机上的文件和进程](#files-and-processes-on-the-remote-machine)。
 * **Shell**：远程计算机上为您的账户设置的 shell 必须能运行通过 SSH 发送的命令，Bash、Zsh 和 `sh` 均可
-* **网络**：Claude Code 在远程计算机上运行，并从那里发出网络请求，因此该计算机需要具备 [Claude Code 所需的网络访问](/docs/zh-CN/network-config.md#network-access-requirements)。如果该计算机无法下载 Claude Code，Desktop 会在您的计算机上下载并上传它。Claude Code 的其他请求仍从远程计算机发出。在 Linux 远程计算机上，如果这些请求需要代理，请[为 SSH 会话设置代理](#set-a-proxy-or-a-ca-certificate-for-ssh-sessions)。
+* **网络**：Claude Code 在远程计算机上运行，并从那里发出网络请求，因此该计算机需要具备 [Claude Code 所需的网络访问](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)。如果该计算机无法下载 Claude Code，Desktop 会在您的计算机上下载并上传它。Claude Code 的其他请求仍从远程计算机发出。在 Linux 远程计算机上，如果这些请求需要代理，请[为 SSH 会话设置代理](#set-a-proxy-or-a-ca-certificate-for-ssh-sessions)。
 
 #### 为 SSH 会话设置代理或 CA 证书
 
-如果 Linux 远程计算机通过代理访问互联网或需要 CA 证书，请在该计算机上的 `~/.claude/settings.json` 中的 `env` 下添加[代理和 CA 变量](/docs/zh-CN/network-config.md)。即使您已在该计算机上的 `~/.profile`、`~/.bash_profile`、`~/.zprofile` 或 `~/.zshrc` 中导出它们，也要添加。
+如果 Linux 远程计算机通过代理访问互联网或需要 CA 证书，请在该计算机上的 `~/.claude/settings.json` 中的 `env` 下添加[代理和 CA 变量](https://code.claude.com/docs/zh-CN/network-config.md)。即使您已在该计算机上的 `~/.profile`、`~/.bash_profile`、`~/.zprofile` 或 `~/.zshrc` 中导出它们，也要添加。
 
 SSH 会话不会从这些文件中获取它们，即使在该计算机终端中运行的 `claude` 可以获取。此时会话可能会挂起，或显示 **The connection from … to the API failed** 或 **Authentication failed**，且重新登录也无济于事。
 
 **1. 添加变量**
 
-对于 CA 文件，请使用 [`NODE_EXTRA_CA_CERTS`](/docs/zh-CN/network-config#custom-ca-certificates)，因为 Claude Code 不信任 `~/.claude/settings.json` 中 `SSL_CERT_FILE` 指定的 CA。此示例设置了代理和 CA 文件：
+对于 CA 文件，请使用 [`NODE_EXTRA_CA_CERTS`](https://code.claude.com/docs/zh-CN/network-config#custom-ca-certificates)，因为 Claude Code 不信任 `~/.claude/settings.json` 中 `SSL_CERT_FILE` 指定的 CA。此示例设置了代理和 CA 文件：
 
 ```json ~/.claude/settings.json theme={null}
 {
@@ -980,7 +1014,7 @@ SSH 会话不会从这些文件中获取它们，即使在该计算机终端中�
 
 ##### 查找远程计算机上其他位置设置的代理或 CA 变量
 
-请检查 Linux 远程计算机是否在其他位置设置了代理或 CA 变量，因为会话会使用该值，并[忽略任何设置文件中的值](/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)：
+请检查 Linux 远程计算机是否在其他位置设置了代理或 CA 变量，因为会话会使用该值，并[忽略任何设置文件中的值](https://code.claude.com/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)：
 
 **1. 列出远程计算机设置的变量**
 
@@ -1168,7 +1202,7 @@ Windows 远程计算机的测试少于 Linux 远程计算机。在依赖它之�
 在 Windows 远程计算机上，预计会有以下限制（包括但不限于）：
 
 * **终端**：在文件夹为 Windows 路径（例如 `C:/projects/app`）的会话中，[终端](#run-commands-in-the-terminal)不会打开
-* **沙箱**：Claude Code 在那里以原生 Windows 方式运行，在此环境下它运行命令时不使用沙箱。请参阅[沙箱在何处运行](/docs/zh-CN/sandboxing.md)。
+* **沙箱**：Claude Code 在那里以原生 Windows 方式运行，在此环境下它运行命令时不使用沙箱。请参阅[沙箱在何处运行](https://code.claude.com/docs/zh-CN/sandboxing.md)。
 * **插件**：如果插件包含 Windows 无法存储的文件或文件夹名称（例如含有 `:` 的名称），Desktop 不会复制该插件。会话会列出 Desktop 遗漏的插件。
 * **MCP 服务器**：在某些 Windows 远程计算机上，Claude 对来自 `claude_desktop_config.json` 的 MCP 服务器的调用会经过 Desktop，因此 [Desktop 断开连接时](#limits-while-desktop-is-disconnected) Claude 无法调用其工具。在 Claude Desktop v2.37337.0 之前，这适用于所有 Windows 远程计算机。
 * **Worktree**：worktree 位于 `<project-root>/.claude/worktrees/`。如果您[选择其他文件夹](#choose-where-ssh-session-worktrees-go)，Desktop 会忽略它。
@@ -1191,7 +1225,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 >
 > 如果任务必须通宵运行：
 >
-> * [保持您的计算机唤醒](/docs/zh-CN/desktop-scheduled-tasks.md#how-scheduled-tasks-run)并在线，保持笔记本盖打开并让 Desktop 运行
+> * [保持您的计算机唤醒](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md#how-scheduled-tasks-run)并在线，保持笔记本盖打开并让 Desktop 运行
 > * 对远程计算机以及途中的任何跳板机使用无需提示即可工作的登录方式，例如由您的 SSH agent 持有的密钥。这样，Desktop 可以在连接中断后自行重新连接。
 >
 > 对于必须在您的计算机睡眠或关机时运行的任务，请改为启动[云端会话](#run-long-running-tasks-in-the-cloud)。
@@ -1230,7 +1264,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 * **Worktree**：在使用 [worktree](#run-a-session-in-its-own-worktree) 的会话中，Desktop 会在 Claude 进行每次文件编辑之前对其进行检查。在 Desktop 断开连接期间，每次编辑会等待约 30 秒然后失败。Shell 命令仍会运行。在 Linux 或 macOS 远程机器上，[编辑可以继续正常进行](#worktree-edits-while-disconnected)。如果您不确定，请在不使用 worktree 的情况下启动会话。
 * **文件夹限制**：如果您的组织限制了会话可以使用的文件夹，无论是否使用 worktree，Desktop 都会检查每次文件读取、搜索和编辑。在 Desktop 断开连接期间，每项操作最多等待 10 分钟，然后失败。
 * **连接器**：[连接器](#connect-external-tools)和 Desktop 提供的其他工具通过 Desktop 运行，因此在其断开连接期间，每次调用都会在约 30 秒后失败
-* **工作流**：Desktop 会在每个新[工作流](/docs/zh-CN/workflows.md)启动前对其进行检查，因此在 Desktop 断开连接期间，新工作流最多等待 10 分钟，然后失败
+* **工作流**：Desktop 会在每个新[工作流](https://code.claude.com/docs/zh-CN/workflows.md)启动前对其进行检查，因此在 Desktop 断开连接期间，新工作流最多等待 10 分钟，然后失败
 * **MCP 服务器**：Claude Code 在远程计算机上启动的 MCP 服务器不通过 Desktop 运行，因此 Claude 仍可调用其工具。仅当 Desktop 未使用其[内置 SSH 客户端](#worktree-edits-while-disconnected)时，来自 `claude_desktop_config.json` 的服务器才属于这一类。否则，以及在[某些 Windows 远程计算机](#windows-remote-machines)上，Desktop 断开连接期间 Claude 无法调用其工具。
 
 > **worktree 中的编辑何时可以继续工作**
@@ -1243,7 +1277,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 > * **仓库位置**：仓库是您的主目录、其上层文件夹或 `~/.claude`
 > * **macOS 路径**：在 macOS 远程计算机上，仓库位于 `/Volumes` 下，或者仓库或 worktree 路径中的某个文件夹名称包含 `~` 或非 ASCII 字符
 > * **文件夹限制**：您的组织限制了会话可以使用的文件夹
-> * **企业启动器**：在 Claude Desktop v2.37337.0 之前，您使用 Claude 账户登录，且您的组织通过[企业启动器](/docs/zh-CN/corporate-launcher.md)在远程计算机上启动 Claude Code
+> * **企业启动器**：在 Claude Desktop v2.37337.0 之前，您使用 Claude 账户登录，且您的组织通过[企业启动器](https://code.claude.com/docs/zh-CN/corporate-launcher.md)在远程计算机上启动 Claude Code
 >
 > 不使用 worktree 的会话没有此类检查，除非您的组织限制了会话可以使用的文件夹。
 
@@ -1257,15 +1291,15 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 
 若要减少任务停下来等待您的频率，并在您不在时收到任务的消息，请在离开前设置以下任一项：
 
-* **自动模式**：如果[您可以使用自动模式](#auto-mode-availability)，请选择[自动模式](#choose-a-permission-mode)。在多次被阻止后，[系统会再次询问您](/docs/zh-CN/permission-modes.md#when-auto-mode-falls-back)。
-* **允许规则**：在远程计算机上的用户设置文件 `~/.claude/settings.json` 中，为任务所需的命令添加[允许规则](/docs/zh-CN/permissions.md#manage-permissions)。如果您的组织[仅接受来自托管设置的权限规则](/docs/zh-CN/settings-reference.md#allowmanagedpermissionrulesonly)，请让管理员将其添加到能传递到远程计算机的[托管设置](#managed-settings)中。有关项目 `.claude/settings.json` 中的允许规则，请参阅[项目允许规则和工作区信任](/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)。
-* **自动应答的 hook**：在远程计算机上的 `~/.claude/settings.json` 中配置 [`PermissionRequest` hook](/docs/zh-CN/hooks#permissionrequest)，以代替您允许或拒绝请求
-* **提醒您的 hook**：在同一文件中使用 `permission_prompt` 匹配器配置 [`Notification` hook](/docs/zh-CN/hooks#notification)，以便在有请求等待时向自己发送消息
-* **在 Claude 完成时通知您的 hook**：在同一文件中配置 [`Stop` hook](/docs/zh-CN/hooks#stop)，以便在 Claude 完成响应时向自己发送消息。当 API 错误结束该轮次时，它不会运行。对于这种情况，请配置 [`StopFailure` hook](/docs/zh-CN/hooks#stopfailure)。
+* **自动模式**：如果[您可以使用自动模式](#auto-mode-availability)，请选择[自动模式](#choose-a-permission-mode)。在多次被阻止后，[系统会再次询问您](https://code.claude.com/docs/zh-CN/permission-modes.md#when-auto-mode-falls-back)。
+* **允许规则**：在远程计算机上的用户设置文件 `~/.claude/settings.json` 中，为任务所需的命令添加[允许规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)。如果您的组织[仅接受来自托管设置的权限规则](https://code.claude.com/docs/zh-CN/settings-reference.md#allowmanagedpermissionrulesonly)，请让管理员将其添加到能传递到远程计算机的[托管设置](#managed-settings)中。有关项目 `.claude/settings.json` 中的允许规则，请参阅[项目允许规则和工作区信任](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)。
+* **自动应答的 hook**：在远程计算机上的 `~/.claude/settings.json` 中配置 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest)，以代替您允许或拒绝请求
+* **提醒您的 hook**：在同一文件中使用 `permission_prompt` 匹配器配置 [`Notification` hook](https://code.claude.com/docs/zh-CN/hooks#notification)，以便在有请求等待时向自己发送消息
+* **在 Claude 完成时通知您的 hook**：在同一文件中配置 [`Stop` hook](https://code.claude.com/docs/zh-CN/hooks#stop)，以便在 Claude 完成响应时向自己发送消息。当 API 错误结束该轮次时，它不会运行。对于这种情况，请配置 [`StopFailure` hook](https://code.claude.com/docs/zh-CN/hooks#stopfailure)。
 
-如果您的组织[仅运行托管 hook](/docs/zh-CN/settings-reference.md#allowmanagedhooksonly)，请让管理员将该 hook 添加到能传递到远程计算机的[托管设置](#managed-settings)中。
+如果您的组织[仅运行托管 hook](https://code.claude.com/docs/zh-CN/settings-reference.md#allowmanagedhooksonly)，请让管理员将该 hook 添加到能传递到远程计算机的[托管设置](#managed-settings)中。
 
-Claude Code 在任何权限模式（包括 Bypass permissions）下都不会自动批准[少数操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)。根据权限模式的不同，Claude Code 会拒绝此类操作或询问您，任务随后会等待您的回答。
+Claude Code 在任何权限模式（包括 Bypass permissions）下都不会自动批准[少数操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)。根据权限模式的不同，Claude Code 会拒绝此类操作或询问您，任务随后会等待您的回答。
 
 ##### 在睡眠或网络中断后重新连接
 
@@ -1296,14 +1330,14 @@ Claude Code 在任何权限模式（包括 Bypass permissions）下都不会自�
 
 > [!WARNING]
 >
-> 当对话的 Claude Code 进程仍在运行时，请勿在远程计算机上为该对话运行 [`claude --resume`](/docs/zh-CN/cli-reference#cli-flags)。Claude Code 不会阻止您，此时两个进程会写入同一个对话。如果您不确定，请添加 `--fork-session`，它会在对话的副本中继续，但两个进程仍会处理相同的文件。
+> 当对话的 Claude Code 进程仍在运行时，请勿在远程计算机上为该对话运行 [`claude --resume`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)。Claude Code 不会阻止您，此时两个进程会写入同一个对话。如果您不确定，请添加 `--fork-session`，它会在对话的副本中继续，但两个进程仍会处理相同的文件。
 
 #### 选择 SSH 会话 worktree 的位置
 
 除非您的组织限制了会话可使用的文件夹，否则新的 SSH 会话会在以下已设置位置中的第一个位置创建其 [worktree](#run-a-session-in-its-own-worktree)：
 
 1. SSH 连接上的 **Worktree folder**
-2. 远程计算机上 `~/.claude/settings.json` 中的 [`worktree.location`](/docs/zh-CN/settings-reference#worktree-location)
+2. 远程计算机上 `~/.claude/settings.json` 中的 [`worktree.location`](https://code.claude.com/docs/zh-CN/settings-reference#worktree-location)
 3. `<project-root>/.claude/worktrees/`，即默认位置
 
 每个项目都会在您设置的文件夹中拥有自己的子文件夹，因此如果设置为 `~/worktrees`，worktree 的路径为 `~/worktrees/<project>-<id>/<worktree-name>`。如果您设置的文件夹位于项目内部，Desktop 会对该项目忽略它并使用默认位置。在 [Windows 远程计算机](#windows-remote-machines)上，Desktop 始终使用默认位置。
@@ -1334,7 +1368,7 @@ Desktop 会在连接到 Linux 或 macOS 远程计算机的每个用户的主目�
 | `~/.claude/remote/ccd-cli/` | Claude Code，每个版本一个文件 |
 | `~/.claude/remote/run/` | 辅助程序的运行时文件（例如其套接字和日志），每台连接的计算机一个文件夹 |
 | `~/.claude/remote/plugins/` | Desktop 从用户计算机复制的插件 |
-| [`~/.claude/uploads/`](/docs/zh-CN/claude-directory#clear-local-data) | 用户附加到消息中的文件，每个会话一个文件夹 |
+| [`~/.claude/uploads/`](https://code.claude.com/docs/zh-CN/claude-directory#clear-local-data) | 用户附加到消息中的文件，每个会话一个文件夹 |
 
 若要列出某个用户的进程，请以该用户身份在远程计算机上运行 `pgrep -fl "$HOME/.claude/remote/"`，或用该用户的主目录替换 `$HOME` 后运行：
 
@@ -1359,7 +1393,7 @@ Desktop 通过用户的 SSH 连接，经由 `~/.claude/remote/run/` 下辅助程
 
 **3. 删除文件夹**
 
-删除 `~/.claude/remote/`。若要移除 Claude Code 自己在 `~/.claude/` 和 `~/.claude.json` 中的文件，请参阅[移除配置文件](/docs/zh-CN/setup.md#remove-configuration-files)。
+删除 `~/.claude/remote/`。若要移除 Claude Code 自己在 `~/.claude/` 和 `~/.claude.json` 中的文件，请参阅[移除配置文件](https://code.claude.com/docs/zh-CN/setup.md#remove-configuration-files)。
 
 ##### 结束单个会话的进程
 
@@ -1377,7 +1411,7 @@ Claude Code 启动的程序（例如 shell 命令和 MCP 服务器）也以该�
 
 若要了解谁连接了远程计算机，请读取该计算机上 SSH 服务器的日志，其中来自 Desktop 的登录与来自终端的登录看起来相同。在 macOS 或 Linux 上的 Desktop 中，每次 Desktop 连接都会产生一条记录，而不是每个会话一条。
 
-您不会在 Claude Code 的[指标和事件](/docs/zh-CN/monitoring-usage.md#available-metrics-and-events)中找到 Desktop 的 SSH 连接。要从中了解某个 SSH 会话在哪台远程机器上运行，请参阅[将遥测归因于 Desktop SSH 会话](/docs/zh-CN/monitoring-usage.md#attribute-telemetry-to-desktop-ssh-sessions)。有关 Desktop 自身的连接记录，请参阅[获取 Desktop 针对 SSH 问题的日志](#get-desktops-logs-for-an-ssh-problem)。
+您不会在 Claude Code 的[指标和事件](https://code.claude.com/docs/zh-CN/monitoring-usage.md#available-metrics-and-events)中找到 Desktop 的 SSH 连接。要从中了解某个 SSH 会话在哪台远程机器上运行，请参阅[将遥测归因于 Desktop SSH 会话](https://code.claude.com/docs/zh-CN/monitoring-usage.md#attribute-telemetry-to-desktop-ssh-sessions)。有关 Desktop 自身的连接记录，请参阅[获取 Desktop 针对 SSH 问题的日志](#get-desktops-logs-for-an-ssh-problem)。
 
 #### 在登录前关闭的连接
 
@@ -1439,11 +1473,11 @@ fail2ban-regex -o ip lines.log "sshd[mode=aggressive]"
 
 #### 使用在远程计算机上设置的 MCP 服务器
 
-若要在 SSH 会话中使用来自 `~/.claude.json` 或项目 `.mcp.json` 的 [MCP 服务器](/docs/zh-CN/mcp.md)，请在远程计算机上的这些文件中进行设置。Claude Code 会在那里启动其 stdio 服务器，因此请在远程计算机上安装这些服务器运行的命令。有关来自 `claude_desktop_config.json` 的服务器，请参阅 [Desktop 断开连接时的限制](#limits-while-desktop-is-disconnected)。
+若要在 SSH 会话中使用来自 `~/.claude.json` 或项目 `.mcp.json` 的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)，请在远程计算机上的这些文件中进行设置。Claude Code 会在那里启动其 stdio 服务器，因此请在远程计算机上安装这些服务器运行的命令。有关来自 `claude_desktop_config.json` 的服务器，请参阅 [Desktop 断开连接时的限制](#limits-while-desktop-is-disconnected)。
 
 #### 通过链接打开 SSH 会话
 
-`claude://code/new` 链接会打开 Desktop 的新会话页面，并且可以指定 SSH 连接。将此类链接放在运维手册、仪表板或 wiki 页面中，即可打开已为正确的计算机和文件夹设置好的 Desktop。对于会去除此类链接的平台，请参阅[链接显示为纯文本而不是可点击链接](/docs/zh-CN/deep-links.md#the-link-renders-as-plain-text-instead-of-being-clickable)。
+`claude://code/new` 链接会打开 Desktop 的新会话页面，并且可以指定 SSH 连接。将此类链接放在运维手册、仪表板或 wiki 页面中，即可打开已为正确的计算机和文件夹设置好的 Desktop。对于会去除此类链接的平台，请参阅[链接显示为纯文本而不是可点击链接](https://code.claude.com/docs/zh-CN/deep-links.md#the-link-renders-as-plain-text-instead-of-being-clickable)。
 
 SSH 链接需要 Claude Desktop v2.110.0 或更高版本。
 
@@ -1488,9 +1522,159 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
 * **Desktop 版本早于 v2.110.0**：较早的版本会忽略 SSH 参数，仅带着提示词打开新会话页面。
 * **SSH 会话已关闭**：如果您的管理员将允许列表设置为空数组，Desktop 会拒绝 SSH 链接。
 
+#### 通过命令创建 SSH 连接
+
+如果某个命令行工具可以按需创建您的远程机器，请将其命令添加到 [`~/.claude/settings.json`](https://code.claude.com/docs/zh-CN/settings#settings-files) 中的 `sshHostCommands`。随后，环境选择器会列出一个以您的条目命名的项，例如 **Create Dev box**。选择该项时，Desktop 会在您的计算机上运行该命令，将命令输出的主机保存为 SSH 连接，然后进行连接。
+
+> [!NOTE]
+>
+> 通过命令创建的连接需要在 macOS 或 Linux 上使用 Claude Desktop v3.6556.0 或更高版本，并使用 Claude 账户登录。管理员可以[将命令分发给团队](#distribute-commands-to-your-team)。
+
+每个条目对应一个连接，一次只有一个主机。Desktop 仅在您创建连接或[替换其主机](#replace-the-host)时运行命令，而不是每次连接时都运行。要同时保留两台机器，请添加第二个条目。
+
+> [!WARNING]
+>
+> Desktop 不会停止或删除机器。以下每一项都会持续运行，并可能持续产生费用，直到您使用自己的工具将其删除：
+>
+> * 您已替换的主机
+> * 您已从文件中移除的条目的主机，或您已更改其 `id` 的条目的主机
+> * 您的命令创建了但 Desktop 未保存其主机的机器，例如以下情况：
+>   * 命令失败或超时
+>   * Desktop 无法使用输出的主机、另一个连接已在使用该主机，或您的组织不允许该主机
+>   * 在命令运行期间，您取消了它、移除了其条目、更改了其 `command` 或 `id`，或退出了 Desktop
+
+以下示例添加一个名为 Dev box 的连接。如果该文件不存在，请创建它。如果文件中已有设置，请将该键添加在它们旁边。命令 `acme-dev create` 代表您自己的工具，`~/project` 是 Desktop 在您的命令创建的每台机器上选择的文件夹：
+
+```json ~/.claude/settings.json theme={null}
+{
+  "sshHostCommands": [
+    {
+      "id": "devbox",
+      "name": "Dev box",
+      "command": "acme-dev create",
+      "startDirectory": "~/project"
+    }
+  ]
+}
+```
+
+每个条目接受以下字段，其中 `id`、`name` 和 `command` 是必需的：
+
+| 字段 | 值 |
+| :- | :- |
+| `id` | 最多 64 个 ASCII 字母、数字、`.`、`_` 和 `-`，以字母或数字开头。请使用 `sshHostCommands` 或 [`sshConfigs`](#pre-configure-ssh-connections-for-your-team) 中其他条目均未使用的 `id`。Desktop 以它为键保存连接的主机，因此如果您更改它，连接会重新开始且没有主机，而旧机器会继续运行。 |
+| `name` | 连接在环境选择器中的名称，最多 200 个字符，且为单行 |
+| `command` | 一个程序及其参数，如[编写命令](#write-the-command)所述 |
+| `sshIdentityFile` | 您的私钥路径，例如 `~/.ssh/id_ed25519`。省略此项则使用您的 SSH 配置或 SSH agent。 |
+| `startDirectory` | 远程机器上的默认文件夹。以 `/` 或 `~/` 开头，或使用 `~`。 |
+
+要更改或移除该连接，请在文件中编辑其条目，因为应用的 SSH 连接对话框不会为它打开。编辑文件后无需重启 Desktop。如果该条目没有显示或无法选择，请参阅[如果命令缺失或显示为灰色](#if-a-command-is-missing-or-gray)。
+
+##### 编写命令
+
+Desktop 直接启动程序，不经过 shell，也没有终端：
+
+* **程序**：写出其名称，或从 `/` 开始的完整路径，不含空格。对于裸名称，Desktop 会在您的登录 shell 导出的 `PATH` 中查找。相对路径（例如 `./acme-dev`）、以 `~` 开头的路径以及 shell 别名和函数都不起作用。
+* **参数**：用空格分隔普通参数。命令只能包含空格、ASCII 字母、数字以及字符 `+,-./:=@_~`，并且任何单词都不能以 `~` 开头。
+* **脚本**：如果命令需要其他内容，例如引号、管道、变量或包含 `?` 或 `&` 的 URL，请将其放入脚本中。使脚本可执行，以 `#!` 行开头，并将 `command` 设置为其完整路径，例如 `/Users/you/bin/make-devbox`。在 macOS 上，请勿将脚本放在 Documents、Desktop 和 Downloads 文件夹中，macOS 可能会阻止其运行。
+* **输入**：程序没有输入，也没有终端，因此无法在那里提示您。如果您的工具通过浏览器或提示让您登录，请先在终端中登录，并在每次登录失效时重新登录。
+* **环境**：程序在您的主目录中运行，使用您的登录 shell 导出的变量。Desktop 在启动时读取这些变量，与[`ProxyCommand`](#use-variables-from-your-shell-in-a-proxycommand) 的处理方式相同，因此更改变量后请退出并重新打开 Desktop。
+* **时间限制**：程序运行超过 10 分钟仍未结束时，Desktop 会将其停止。Desktop 的进度消息不会显示程序的输出。要更早停止程序，请选择该消息旁边的 **Cancel**。
+
+程序必须以代码 0 退出，并且只在标准输出上打印主机，格式为以下两种之一：
+
+* **一行**：`host` 或 `user@host`，写法与 [SSH 链接](#open-an-ssh-session-from-a-link)中的 `ssh_host` 相同。要指定端口，请使用 JSON 格式。
+* **一个 JSON 对象**：`sshHost`，以及可选的数字 `sshPort` 和用于替换条目中对应值的 `startDirectory`，例如 `{"sshHost": "dev@devbox-1234.example.com", "sshPort": 2222}`
+
+要查看 Desktop 读取的输出，请在终端中以无输入方式运行命令，并将标准输出写入文件：
+
+```bash theme={null}
+acme-dev create < /dev/null > host.txt
+```
+
+该文件必须只包含主机。运行此测试时，您的工具也会创建一台机器，因此之后请使用您的工具将其删除。
+
+如果您的工具在主机之前打印其他行（例如进度消息），请用一个只打印主机的脚本将其包装起来。以下脚本打印您的工具输出的最后一行。如果您的工具失败，脚本会以相同的代码退出，以便 Desktop 报告该失败：
+
+```bash theme={null}
+#!/bin/bash
+out=$(mktemp) || exit
+trap 'rm -f "$out"' EXIT
+acme-dev create > "$out" || exit
+tail -n 1 "$out"
+```
+
+如果命令失败，Desktop 消息中的 **View details** 会显示命令写入标准错误的最后一行（如果有）。
+
+##### 连接到新主机
+
+首次连接到每个新主机时，需要回答两个问题：
+
+* **主机密钥**：在 OpenSSH 的默认主机密钥检查下，检查密钥的指纹，然后选择是否连接。要跳过此问题，请让您的命令在打印主机之前，使用您的工具在创建机器时获得的密钥，将其添加到 `~/.ssh/known_hosts`。对于 22 以外的端口，该行以 `[host]:port` 开头。如果您的工具会重复使用主机名，也请删除旧密钥所在的行。
+* **文件夹**：选择是否信任您在那里打开的文件夹
+
+请为这些主机保持启用主机密钥检查，并为它们保留 `known_hosts` 文件。如果 `StrictHostKeyChecking` 为 `no` 或 `accept-new`，且 `UserKnownHostsFile` 也为 `/dev/null` 或 `none`，则不会记录任何密钥。之后当您的工具重复使用某个名称时，您可能会在没有任何警告的情况下连接到另一台机器。
+
+##### 替换主机
+
+Dev box 有了主机后，选择器会在您的 SSH 连接中列出 Dev box，并且 **Create Dev box** 会变为 **Replace Dev box's host**。如果该项不在列表中，请在 **More** 下查找。
+
+当机器已不存在或您想要一台新机器时，请选择该项。在新建会话页面上，提示 Desktop 无法访问主机的消息中也会提供此选项。Desktop 会再次运行命令，新会话将使用新主机。
+
+* **新主机**：Desktop 保存主机后的 10 分钟内，该项显示为灰色，因为新机器可能需要一段时间才能启动。在新主机无响应期间，新建会话页面会在这 10 分钟内持续尝试连接。
+* **旧主机上的会话**：这些会话保留在旧主机上，除非您将其重新添加，否则 Desktop 不会连接到该主机。要继续某个会话，请打开该会话并选择 **Add SSH connection**。Desktop 会填入旧主机。将其另存为一个独立的连接。
+
+##### 将命令分发给团队
+
+要为您的团队提供连接，请在每台计算机上的 Claude Code [托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)文件或 MDM 策略中设置 `sshHostCommands`，而不是在桌面应用自身的[设备管理策略](#device-management-policies)中设置。用户会看到您的条目与他们自己的条目并列，并且应用不提供任何编辑或移除条目的方式，无论是他们的还是您的。
+
+以下托管设置文件为用户提供一个名为 Dev box 的连接，并关闭用户自己的条目，同时关闭来自用户、项目和本地设置的 Claude Code hook：
+
+```json managed-settings.json theme={null}
+{
+  "sshHostCommands": [
+    {
+      "id": "acme-devbox",
+      "name": "Dev box",
+      "command": "/usr/local/bin/acme-dev create"
+    }
+  ],
+  "strictPluginOnlyCustomization": ["hooks"]
+}
+```
+
+部署该键之前，请确定以下每一项：
+
+* **键放在哪里**：如果您针对 Claude Code 的 MDM 策略已经设置了某个[策略键](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)，请将其放在那里。否则，请将其放在托管设置文件中。默认情况下，此类策略的优先级高于该文件，此时 Desktop 会忽略文件中的条目。即使在适用[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)的计算机上，也请在计算机上设置它：Desktop 会忽略那里以及项目和本地设置中的该键。
+* **`id`**：如果用户的 `sshHostCommands` 条目使用了您的 `id`，则只有您的条目生效。如果其他任何 SSH 连接使用了它（例如用户 `sshConfigs` 中的连接），您的条目会显示为灰色。请选择用户不太可能使用的 `id`。
+* **程序**：请提供其完整路径，因为 Desktop 会在每个用户自己的 `PATH` 中查找裸名称。程序以该用户身份运行，使用其登录 shell 导出的变量。
+* **用户自己的条目**：Desktop 将用户的条目视同 [hook](https://code.claude.com/docs/zh-CN/hooks.md)，因为两者都会在计算机上运行程序。要仅允许您的条目，请将 [`strictPluginOnlyCustomization`](https://code.claude.com/docs/zh-CN/settings-reference#strictpluginonlycustomization) 设置为 `["hooks"]`，或将 `"hooks"` 添加到其列表中。这样也会阻止来自用户、项目和本地设置的 Claude Code hook，且无法保留它们。如果您改为将该键或 [`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 设置为 `true`，则会阻止更多内容，具体见每个键的条目说明。
+* **所有条目**：要同时关闭您的条目，请在托管设置中设置 [`disableAllHooks`](https://code.claude.com/docs/zh-CN/settings-reference#disableallhooks)。如果您设置了 [`disableDesktopLocalSessions`](https://code.claude.com/docs/zh-CN/settings-reference#disabledesktoplocalsessions)，或设置了不允许任何主机的 `sshHostAllowlist`，选择器将不会列出任何 **Create** 或 **Replace** 项。
+* **锁定在哪里生效**：对于这些条目，Desktop 会从服务器托管设置以及计算机自身的文件或策略中读取 `allowManagedHooksOnly`、`strictPluginOnlyCustomization` 和 `disableAllHooks`，并应用更严格的结果。在 Desktop 检查 claude.ai 上的服务器托管设置之前，所有条目都保持灰色，即使您的组织没有任何服务器托管设置也是如此。
+* **允许的主机**：如果您设置了 [`sshHostAllowlist`](#restrict-which-ssh-hosts-users-can-connect-to)，请确保有一个模式能匹配您的工具打印的每个主机名，并且模式中不要包含 `user@`。Desktop 只在命令运行后才检查打印的名称，因此被列表拒绝的机器已经存在，用户必须使用您的工具将其删除。每次连接时，解析后的 `HostName` 也必须匹配。
+
+部署该键后，在一台测试计算机上重启 Desktop。在 Code 选项卡的环境选择器中，在 **SSH** 下或单独的 **SSH** 行中查找。您的条目会显示为 **Create** 项，或显示为灰色项，将鼠标悬停其上即可看到原因。如果它缺失，请检查您放置该键的位置，然后查看[如果命令缺失或显示为灰色](#if-a-command-is-missing-or-gray)中的各种情况。
+
+##### 如果命令缺失或显示为灰色
+
+在以下情况下，环境选择器不会列出任何 **Create** 或 **Replace** 项：
+
+* **文件**：`~/.claude/settings.json` 包含[无效的 JSON 或被 schema 拒绝的值](https://code.claude.com/docs/zh-CN/settings.md#fix-a-broken-settings-file)、您拼错了键名，或者您将其放在了项目的设置中。请修复该文件。
+* **平台和账户**：您使用的是 Windows，或者使用的是[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)而非 Claude 账户。请自行将每个主机添加为 [SSH 连接](#ssh-sessions)。
+* **您组织的设置**：您的管理员关闭了本地会话或 SSH 会话。请询问他们您是否可以使用命令。
+* **没有 `ssh` 程序**：Desktop 无法在您的计算机上启动 OpenSSH 客户端。请安装它，或请您的管理员允许它，然后重启 Desktop。
+
+无法选择的条目显示为灰色。将鼠标悬停其上即可查看原因：
+
+* **条目中有错误**：修复消息中指出的字段或命令。如果 `id` 已被使用，请为该条目指定另一个。
+* **设置文件损坏**：当您自己的设置文件损坏时，管理员的条目可能显示为灰色，并附带指出该文件的消息。[修复该文件](https://code.claude.com/docs/zh-CN/settings.md#fix-a-broken-settings-file)。
+* **新主机**：主机保存满 10 分钟后，您才能[替换主机](#replace-the-host)。
+* **hook 已关闭或受限**：您自己的条目只在您自己的 hook 可以运行的地方生效。请从您的设置中移除 `disableAllHooks`，或询问您的管理员。
+* **设置仍在加载**：在 Desktop 加载您组织的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)之前，所有条目都显示为灰色，通常在启动后几秒钟内完成。如果条目一直是灰色，请检查您与 claude.ai 的连接。
+
 #### 为您的团队预配置 SSH 连接
 
-管理员可以通过在[托管设置](/docs/zh-CN/managed-settings.md)中设置 `sshConfigs`，向团队成员分发 SSH 连接。
+管理员可以通过在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `sshConfigs`，向团队成员分发 SSH 连接。
 
 * **用户看到的内容**：以这种方式定义的连接会自动出现在每个用户的环境选择器中。
 * **用户可以更改的内容**：用户可以选择托管连接，并为其[设置自己的 **Worktree folder**](#set-the-worktree-folder-on-an-existing-connection)。他们无法在应用中编辑其其他字段或删除它。
@@ -1517,7 +1701,7 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
 
 #### 限制用户可以连接的 SSH 主机
 
-管理员可以通过在[托管设置](/docs/zh-CN/managed-settings.md)中设置 `sshHostAllowlist`，将 Desktop 的 SSH 会话限制为一组已批准的主机。设置后，用户只能连接到解析后的主机名与其中某个模式匹配的主机。将其设置为空数组可禁用 SSH 会话。[`sshHostAllowlist` 参考条目](/docs/zh-CN/settings-reference#sshhostallowlist)说明了空数组如何与其他托管来源中的列表组合。
+管理员可以通过在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `sshHostAllowlist`，将 Desktop 的 SSH 会话限制为一组已批准的主机。设置后，用户只能连接到解析后的主机名与其中某个模式匹配的主机。将其设置为空数组可禁用 SSH 会话。[`sshHostAllowlist` 参考条目](https://code.claude.com/docs/zh-CN/settings-reference#sshhostallowlist)说明了空数组如何与其他托管来源中的列表组合。
 
 以下示例允许连接到 `devboxes.example.com` 下的任何主机以及一个指定的堡垒主机：
 
@@ -1529,7 +1713,7 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
 
 > [!WARNING]
 >
-> 如果您的组织提供[服务器托管设置](/docs/zh-CN/server-managed-settings.md)，请在其中设置 `sshHostAllowlist`。默认情况下，Desktop 仅从[提供策略键的最高优先级托管来源](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取该键。如果该来源未设置该键，Desktop 会忽略较低优先级的 MDM 策略或托管设置文件中的列表，并将该键视为[未设置](/docs/zh-CN/settings-reference.md#sshhostallowlist)。Desktop 不会显示任何警告。
+> 如果您的组织提供[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)，请在其中设置 `sshHostAllowlist`。默认情况下，Desktop 仅从[提供策略键的最高优先级托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取该键。如果该来源未设置该键，Desktop 会忽略较低优先级的 MDM 策略或托管设置文件中的列表，并将该键视为[未设置](https://code.claude.com/docs/zh-CN/settings-reference.md#sshhostallowlist)。Desktop 不会显示任何警告。
 >
 > 同时，请在每个用户计算机上的最高优先级 MDM 策略或托管设置文件中保留相同的列表。Desktop 在启动时获取服务器托管设置，且不保留缓存副本，因此在获取成功之前，适用的是该计算机上的列表。
 
@@ -1567,11 +1751,11 @@ SSH host "bastion.example.com" is not allowed by your organization's managed set
 
 #### 关闭本地会话并分发 SSH 连接
 
-若要关闭本地会话并将 SSH 会话限制为您选择的主机，请同时部署 [`disableDesktopLocalSessions`](/docs/zh-CN/settings-reference#disabledesktoplocalsessions)、[`sshConfigs`](#pre-configure-ssh-connections-for-your-team) 和 [`sshHostAllowlist`](#restrict-which-ssh-hosts-users-can-connect-to)。
+若要关闭本地会话并将 SSH 会话限制为您选择的主机，请同时部署 [`disableDesktopLocalSessions`](https://code.claude.com/docs/zh-CN/settings-reference#disabledesktoplocalsessions)、[`sshConfigs`](#pre-configure-ssh-connections-for-your-team) 和 [`sshHostAllowlist`](#restrict-which-ssh-hosts-users-can-connect-to)。
 
 > [!NOTE]
 >
-> 此方案适用于使用 Claude 账户登录的用户。使用[第三方提供商](/docs/zh-CN/third-party-integrations.md)时，SSH 会话默认关闭，而设置 `sshHostAllowlist` 可以开启它们。在部署这些键之前，请阅读 [3P 上 Claude Desktop 中的 SSH 远程会话](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
+> 此方案适用于使用 Claude 账户登录的用户。使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)时，SSH 会话默认关闭，而设置 `sshHostAllowlist` 可以开启它们。在部署这些键之前，请阅读 [3P 上 Claude Desktop 中的 SSH 远程会话](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
 
 以下示例关闭本地会话、添加一个连接，并将 SSH 会话限制为该连接的主机：
 
@@ -1599,9 +1783,9 @@ SSH host "bastion.example.com" is not allowed by your organization's managed set
 
 * **主机名**：确保 `sshHostAllowlist` 中有一个模式与每个 `sshConfigs` 条目的主机名（不含 `user@`）匹配，否则开发者将无法连接到该主机。此外，还要添加与 Desktop 在通往该主机途中检查的每台[跳板主机](#allow-jump-hosts)相匹配的模式。有关 Desktop 如何匹配主机名，请参阅[限制用户可以连接的 SSH 主机](#restrict-which-ssh-hosts-users-can-connect-to)。
 * **版本**：`disableDesktopLocalSessions` 需要 Claude Desktop v1.37937.0 或更高版本
-* **文件权限**：确保计算机上每位开发者的账户都能读取托管设置文件。Desktop 不会应用账户无法读取的文件中的键，Claude Code 也会[在没有这些键的情况下启动](/docs/zh-CN/managed-settings.md#find-entries-claude-code-dropped)。
+* **文件权限**：确保计算机上每位开发者的账户都能读取托管设置文件。Desktop 不会应用账户无法读取的文件中的键，Claude Code 也会[在没有这些键的情况下启动](https://code.claude.com/docs/zh-CN/managed-settings.md#find-entries-claude-code-dropped)。
 
-将这三个键放在一个[托管来源](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)中，即您提供的最高优先级来源。如果您提供[服务器托管设置](/docs/zh-CN/server-managed-settings.md)，还要在每台计算机上的最高优先级 MDM 策略或托管设置文件中保留这三个键的副本。Desktop 在启动时获取服务器托管设置，在获取成功之前，计算机上的副本适用。
+将这三个键放在一个[托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)中，即您提供的最高优先级来源。如果您提供[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)，还要在每台计算机上的最高优先级 MDM 策略或托管设置文件中保留这三个键的副本。Desktop 在启动时获取服务器托管设置，在获取成功之前，计算机上的副本适用。
 
 若要确认设置已生效，请检查开发者的计算机：
 
@@ -1616,7 +1800,7 @@ SSH host "bastion.example.com" is not allowed by your organization's managed set
 
 * **Desktop 版本**：如果 Desktop 版本早于 v1.37937.0，请更新 Desktop。
 * **托管设置文件**：确保该文件是有效的 JSON。
-* **托管来源**：确保该计算机读取的是包含这些键的[托管来源](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)。
+* **托管来源**：确保该计算机读取的是包含这些键的[托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)。
 
 **2. 添加不在允许列表中的主机**
 
@@ -1631,49 +1815,50 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 这些设置通过[管理员设置控制台](https://claude.ai/admin-settings/claude-code)配置：
 
 * **Desktop**：控制您的组织中的用户是否可以在桌面应用中访问 Claude Code
-* **Cloud sessions**：为您的组织启用或禁用[云端会话](/docs/zh-CN/claude-code-on-the-web.md)
-* **Remote Control**：为您的组织启用或禁用 [Remote Control](/docs/zh-CN/remote-control.md)
+* **Cloud sessions**：为您的组织启用或禁用[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)
+* **Remote Control**：为您的组织启用或禁用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)
 
-在启用了 HIPAA 的 Enterprise 组织中，**Desktop** 开关默认关闭，[Owner](/docs/zh-CN/server-managed-settings.md#access-control) 可以将其打开。应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup.md)会将其关闭（即使之前已打开），因此 Owner 之后必须重新将其打开。**Cloud sessions** 和 **Remote Control** 也默认关闭，并且一旦组织应用了 HIPAA 配置，Owner 就无法将它们打开。
+在启用了 HIPAA 的 Enterprise 组织中，**Desktop** 开关默认关闭，[Owner](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control) 可以将其打开。应用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)会将其关闭（即使之前已打开），因此 Owner 之后必须重新将其打开。**Cloud sessions** 和 **Remote Control** 也默认关闭，并且一旦组织应用了 HIPAA 配置，Owner 就无法将它们打开。
 
 > [!NOTE]
 >
 > Cowork 下的 OpenTelemetry 表单位于管理员控制台的[数据和隐私设置](https://claude.ai/admin-settings/data-privacy-controls)中的**监控**下，仅适用于 Cowork 会话。在此机器上的 Cowork 会话中，桌面应用将该收集器作为 `OTEL_*` 环境变量传递给 Claude Code，因此该表单生效，尽管该会话中的 Claude Code [从不获取管理员控制台设置](#managed-settings)。
 >
-> 要从 Code 选项卡会话导出遥测，请在 Claude Code 托管设置的 `env` 块中设置 `CLAUDE_CODE_ENABLE_TELEMETRY` 和 `OTEL_*` 变量，如[监控的管理员配置](/docs/zh-CN/monitoring-usage.md#administrator-configuration)中所示。本地、云端和 SSH 会话各自[从不同来源读取托管设置](#managed-settings)。有关云端会话可以到达的主机，请参阅[网络访问](/docs/zh-CN/cloud-environments.md#network-access)。有关 Code 选项卡会话报告的 `service.name`，请参阅[服务信息](/docs/zh-CN/monitoring-usage.md#service-information)。
+> 要从 Code 选项卡会话导出遥测，请在 Claude Code 托管设置的 `env` 块中设置 `CLAUDE_CODE_ENABLE_TELEMETRY` 和 `OTEL_*` 变量，如[监控的管理员配置](https://code.claude.com/docs/zh-CN/monitoring-usage.md#administrator-configuration)中所示。本地、云端和 SSH 会话各自[从不同来源读取托管设置](#managed-settings)。有关云端会话可以到达的主机，请参阅[网络访问](https://code.claude.com/docs/zh-CN/cloud-environments.md#network-access)。有关 Code 选项卡会话报告的 `service.name`，请参阅[服务信息](https://code.claude.com/docs/zh-CN/monitoring-usage.md#service-information)。
 >
-> 要了解 SSH 会话在哪台远程机器上运行，请参阅[将遥测归因于 Desktop SSH 会话](/docs/zh-CN/monitoring-usage.md#attribute-telemetry-to-desktop-ssh-sessions)。
+> 要了解 SSH 会话在哪台远程机器上运行，请参阅[将遥测归因于 Desktop SSH 会话](https://code.claude.com/docs/zh-CN/monitoring-usage.md#attribute-telemetry-to-desktop-ssh-sessions)。
 
 ### 托管设置
 
-托管设置覆盖项目和用户设置，并应用于 Desktop 中的 Claude Code 会话。您可以在您的组织的[托管设置](/docs/zh-CN/managed-settings.md)文件中设置这些键，或通过管理员控制台远程推送它们。
+托管设置覆盖项目和用户设置，并应用于 Desktop 中的 Claude Code 会话。您可以在您的组织的[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)文件中设置这些键，或通过管理员控制台远程推送它们，除非某个键所在的行另有说明。
 
 | 键 | 描述 |
 | - | - |
 | `permissions.disableBypassPermissionsMode` | 设置为 `"disable"` 以防止用户启用绕过权限模式。 |
-| `disableAutoMode` | 设置为 `"disable"` 以从模式选择器中删除 [Auto](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) 模式。也在 `permissions` 下接受。 |
-| `autoMode` | 自定义自动模式分类器在您的组织中信任和阻止的内容。请参阅[配置自动模式](/docs/zh-CN/auto-mode-config.md)。 |
+| `disableAutoMode` | 设置为 `"disable"` 以从模式选择器中删除 [Auto](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) 模式。也在 `permissions` 下接受。 |
+| `autoMode` | 自定义自动模式分类器在您的组织中信任和阻止的内容。请参阅[配置自动模式](https://code.claude.com/docs/zh-CN/auto-mode-config.md)。 |
 | `browserExternalPageTools` | 设置为 `"disabled"` 以防止 Claude 使用工具在[浏览器窗格](#browse-external-sites)中读取或作用于外部页面。用户仍然可以自己导航到外部网站，本地开发服务器预览不受影响。 |
-| `disableMobileSimulatorTools` | 设置为 `true` 以阻止 Claude 在 [iOS Simulator 窗格](/docs/zh-CN/desktop-ios-simulator.md#turn-off-simulator-access)中控制和捕获设备的工具。该窗格仍可用于用户自己的点击；仅删除 Claude 的访问权限。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
+| `disableMobileSimulatorTools` | 设置为 `true` 以阻止 Claude 在 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md#turn-off-simulator-access)中控制和捕获设备的工具。该窗格仍可用于用户自己的点击；仅删除 Claude 的访问权限。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
 | `disableBrowserExternalNavigation` | 设置为 `true` 以完全关闭[浏览器窗格](#browse-external-sites)中的外部浏览。用户和 Claude 都无法导航到外部网站，localhost 开发服务器预览不受影响。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
 | `sshConfigs` | 预配置[SSH 连接](#pre-configure-ssh-connections-for-your-team)，在环境选择器中显示。用户无法删除托管连接，也无法编辑除其自己的 **Worktree folder** 之外的任何内容。 |
+| `sshHostCommands` | 为用户提供[主机来自命令的 SSH 连接](#distribute-commands-to-your-team)，与用户自己的连接并存。Desktop 从计算机上的托管设置文件或 MDM 策略中读取它，并在[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中忽略它。需要 macOS 或 Linux 上的 Claude Desktop v3.6556.0 或更高版本，并使用 Claude 帐户登录。 |
 | `sshHostAllowlist` | 限制 [SSH 会话](#restrict-which-ssh-hosts-users-can-connect-to)连接到已解析主机名与这些模式之一匹配的主机。仅从托管设置中读取。 |
 | `disableDesktopLocalSessions` | 设置为 `true` 以关闭[在设备上运行的 Code 会话](#local-sessions-on-managed-devices)，仅保留到其他主机的 SSH 会话和云端会话可用。该值必须是 JSON 布尔值 `true`。仅从托管设置中读取。需要 Claude Desktop v1.37937.0 或更高版本。 |
 | `disableSshSavedPasswords` | 设置为 `true` 以阻止 Desktop 提供记住 SSH 密码的选项，并阻止其使用或显示之前保存的密码。启用此设置不会删除这些密码。仅从托管设置中读取。需要 Claude Desktop v1.49585.0 或更高版本。 |
-| `managedMcpServers` | 将 MCP 服务器配置推送到所有用户。仅在第三方 (3P) Desktop 部署中可用。在每个条目中，设置 `"http"`、`"sse"` 或 `"stdio"` 的传输、连接详细信息，以及可选的 `toolPolicy` 映射，该映射限制该服务器中用户可以调用的工具。通过托管设置文件、MDM 或 Claude apps gateway 策略的 [`desktop` 块](/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)提供它，因为 3P 部署不接收管理员控制台设置。要通过网关提供它，您需要网关服务器上的 Claude Code v2.1.232 或更高版本。这是桌面应用自己的键；Claude Code 读取自己的[同名托管设置](/docs/zh-CN/managed-mcp.md#provide-servers-through-managed-settings)，具有不同的条目形状。 |
+| `managedMcpServers` | 将 MCP 服务器配置推送到所有用户。仅在第三方 (3P) Desktop 部署中可用。在每个条目中，设置 `"http"`、`"sse"` 或 `"stdio"` 的传输、连接详细信息，以及可选的 `toolPolicy` 映射，该映射限制该服务器中用户可以调用的工具。通过托管设置文件、MDM 或 Claude apps gateway 策略的 [`desktop` 块](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)提供它，因为 3P 部署不接收管理员控制台设置。要通过网关提供它，您需要网关服务器上的 Claude Code v2.1.232 或更高版本。这是桌面应用自己的键；Claude Code 读取自己的[同名托管设置](https://code.claude.com/docs/zh-CN/managed-mcp.md#provide-servers-through-managed-settings)，具有不同的条目形状。 |
 
-哪些托管设置到达 Desktop 会话取决于该会话运行的位置。模型限制（如 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection)）在 Desktop 的 Claude Code 会话中的执行方式与在终端 CLI 中相同；请参阅[使用入口覆盖范围](/docs/zh-CN/model-config.md#surface-coverage)。
+哪些托管设置到达 Desktop 会话取决于该会话运行的位置。模型限制（如 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection)）在 Desktop 的 Claude Code 会话中的执行方式与在终端 CLI 中相同；请参阅[使用入口覆盖范围](https://code.claude.com/docs/zh-CN/model-config.md#surface-coverage)。
 
-* **此机器上的本地会话**：部署到磁盘的托管设置文件适用。通过管理员控制台远程推送的托管设置也在会话使用[符合条件的登录](/docs/zh-CN/server-managed-settings.md#platform-availability)向 Anthropic 的 API 进行身份验证时到达这些会话，遵循与终端 CLI 相同的[设置优先级](/docs/zh-CN/settings.md#settings-precedence)。
-* **[云端会话](#cloud-sessions)**：接收[服务器管理的设置](/docs/zh-CN/server-managed-settings.md)；设备部署的文件无法到达它们，因为它们在 Anthropic 管理的虚拟机上运行。路由到[自托管环境](/docs/zh-CN/self-hosted-environments)的会话也读取运行程序镜像中的托管设置文件。[Claude Code 如何组合托管源](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说明该文件何时适用。
-* **[SSH 会话](#ssh-sessions)**：会话从远程主机读取托管设置文件。Desktop 本身在本地机器上读取 `sshConfigs`、`sshHostAllowlist`、`disableSshSavedPasswords` 和 `disableDesktopLocalSessions`。如果您提供多个托管源，它[默认只从其中一个](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取。
-* **[Cowork](https://claude.com/docs/cowork/overview) 会话**：在此机器上的 Cowork 会话中，Claude Code 永远不会获取管理员控制台设置，即使用户使用 Team 或 Enterprise 帐户登录，并读取部署到机器的策略，除非您的 Claude Desktop 配置设置了 `requireCoworkFullVmSandbox`。远程 Cowork 会话两者都不接收。请参阅[策略应用的位置和时间](/docs/zh-CN/managed-settings.md#where-and-when-a-policy-applies)了解哪些设备文件到达 Cowork，以及[MCP 权限规则](/docs/zh-CN/permissions.md#mcp)了解 `Bash` 和 `WebFetch` 规则如何应用于 Cowork 的工具。
+* **此机器上的本地会话**：部署到磁盘的托管设置文件适用。通过管理员控制台远程推送的托管设置也在会话使用[符合条件的登录](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)向 Anthropic 的 API 进行身份验证时到达这些会话，遵循与终端 CLI 相同的[设置优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)。
+* **[云端会话](#cloud-sessions)**：接收[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)；设备部署的文件无法到达它们，因为它们在 Anthropic 管理的虚拟机上运行。路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话也读取运行程序镜像中的托管设置文件。[Claude Code 如何组合托管源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说明该文件何时适用。
+* **[SSH 会话](#ssh-sessions)**：会话从远程主机读取托管设置文件。Desktop 本身在本地机器上读取 `sshConfigs`、`sshHostAllowlist`、`disableSshSavedPasswords` 和 `disableDesktopLocalSessions`。如果您提供多个托管源，它[默认只从其中一个](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取。
+* **[Cowork](https://claude.com/docs/cowork/overview) 会话**：在此机器上的 Cowork 会话中，Claude Code 永远不会获取管理员控制台设置，即使用户使用 Team 或 Enterprise 帐户登录，并读取部署到机器的策略，除非您的 Claude Desktop 配置设置了 `requireCoworkFullVmSandbox`。远程 Cowork 会话两者都不接收。请参阅[策略应用的位置和时间](https://code.claude.com/docs/zh-CN/managed-settings.md#where-and-when-a-policy-applies)了解哪些设备文件到达 Cowork，以及[MCP 权限规则](https://code.claude.com/docs/zh-CN/permissions.md#mcp)了解 `Bash` 和 `WebFetch` 规则如何应用于 Cowork 的工具。
 
-在本地和 SSH 会话中，桌面应用直接将每个用户连接的 claude.ai 连接器传递给 Claude Code。无论您使用哪个设置源或文件位置，都没有 MCP 设置或 `managed-mcp.json` 到达这些连接器。要在这些会话中阻止连接器的工具，请使用您的组织的[连接器工具控制](/docs/zh-CN/mcp.md#organization-controls-on-connector-tools)。[连接器如何到达 Claude Code](/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)显示在每种会话中哪些设置管理连接器。
+在本地和 SSH 会话中，桌面应用直接将每个用户连接的 claude.ai 连接器传递给 Claude Code。无论您使用哪个设置源或文件位置，都没有 MCP 设置或 `managed-mcp.json` 到达这些连接器。要在这些会话中阻止连接器的工具，请使用您的组织的[连接器工具控制](https://code.claude.com/docs/zh-CN/mcp.md#organization-controls-on-connector-tools)。[连接器如何到达 Claude Code](https://code.claude.com/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)显示在每种会话中哪些设置管理连接器。
 
 `permissions.disableBypassPermissionsMode` 和 `disableAutoMode` 也在用户和项目设置中工作，但将它们放在托管设置中可防止用户覆盖它们。
 
-有关仅托管源可以设置的权限、插件和交付键，请参阅[仅托管设置可以设置的键](/docs/zh-CN/managed-settings.md#managed-only-settings)。
+有关仅托管源可以设置的权限、插件和交付键，请参阅[仅托管设置可以设置的键](https://code.claude.com/docs/zh-CN/managed-settings.md#managed-only-settings)。
 
 ### 设备管理策略
 
@@ -1681,7 +1866,7 @@ IT 团队可以通过 macOS 上的 MDM、Windows 上的组策略或 Linux 上的
 
 * **macOS**：通过使用 Jamf 或 Kandji 等工具的 `com.anthropic.claudefordesktop` 偏好域配置
 * **Windows**：通过 `SOFTWARE\Policies\Claude` 处的注册表配置
-* **Linux**：通过位于 `/etc/claude-desktop/managed-settings.json` 的 root 所有的文件配置，该文件以 JSON 对象形式保存策略键。如果除 root 之外的任何人可以写入该文件或其所在文件夹，Desktop 将拒绝使用该文件。它与 Claude Code 的[托管设置文件](/docs/zh-CN/managed-settings.md)是不同的文件。
+* **Linux**：通过位于 `/etc/claude-desktop/managed-settings.json` 的 root 所有的文件配置，该文件以 JSON 对象形式保存策略键。如果除 root 之外的任何人可以写入该文件或其所在文件夹，Desktop 将拒绝使用该文件。它与 Claude Code 的[托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md)是不同的文件。
 
 ### 网络访问要求
 
@@ -1700,9 +1885,9 @@ claude.app
 *.claudemcpcontent.com
 ```
 
-流量在端口 443 上使用 HTTPS，除非您为 [OTLP](/docs/zh-CN/monitoring-usage.md)、LLM 网关或 MCP 服务器配置自定义端口。
+流量在端口 443 上使用 HTTPS，除非您为 [OTLP](https://code.claude.com/docs/zh-CN/monitoring-usage.md)、LLM 网关或 MCP 服务器配置自定义端口。
 
-有关代理服务器、自定义证书颁发机构、mTLS 和独立 CLI 需要的域，请参阅[网络配置](/docs/zh-CN/network-config.md)。
+有关代理服务器、自定义证书颁发机构、mTLS 和独立 CLI 需要的域，请参阅[网络配置](https://code.claude.com/docs/zh-CN/network-config.md)。
 
 要减少防火墙通配符的数量，请改为允许这些 Anthropic 主机。某些子域是动态生成的，必须保持为通配符。
 
@@ -1730,17 +1915,17 @@ sso.claude.com
 
 Anthropic 根据连接到达的地址检查与该主机的连接是否符合您的组织的 IP 允许列表。如果您的代理通过不在该允许列表上的地址为其发送流量，Chrome 中的 Claude 和通过网桥连接的其他功能将停止工作，而应用的其余部分继续工作。
 
-从 [Google Fonts](/docs/zh-CN/artifacts.md#improve-the-visual-design) 加载字体的 [Artifact](/docs/zh-CN/artifacts.md) 也会请求 `fonts.googleapis.com` 和 `fonts.gstatic.com`。两个主机都是可选的。如果您阻止它们，Artifact 将以备用字体呈现。使用快速拒绝而不是静默丢弃来阻止，以便字体请求立即失败，而不是延迟页面的首次呈现。
+从 [Google Fonts](https://code.claude.com/docs/zh-CN/artifacts.md#improve-the-visual-design) 加载字体的 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 也会请求 `fonts.googleapis.com` 和 `fonts.gstatic.com`。两个主机都是可选的。如果您阻止它们，Artifact 将以备用字体呈现。使用快速拒绝而不是静默丢弃来阻止，以便字体请求立即失败，而不是延迟页面的首次呈现。
 
 Artifact 还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwindcss.com`、`code.jquery.com` 和 `unpkg.com` 加载 JavaScript 库（如 React 或图表包），而不能从其他任何外部主机加载。如果您阻止这些主机，Artifact 中依赖库的部分将无法工作，与被阻止的字体不同，被阻止的库没有备用方案。这里也使用快速拒绝，以便被阻止的库请求立即失败，而不是挂起直到超时。
 
 ### 身份验证和 SSO
 
-Team 和 Enterprise 组织可以要求所有用户使用 SSO。有关计划级别的详细信息，请参阅[身份验证](/docs/zh-CN/authentication.md)，有关 SAML 配置，请参阅[设置 SSO](https://support.claude.com/en/articles/13132885-setting-up-single-sign-on-sso)；OIDC 设置在 [Claude Enterprise Administrator Guide](https://claude.com/resources/tutorials/claude-enterprise-administrator-guide) 中介绍。
+Team 和 Enterprise 组织可以要求所有用户使用 SSO。有关计划级别的详细信息，请参阅[身份验证](https://code.claude.com/docs/zh-CN/authentication.md)，有关 SAML 配置，请参阅[设置 SSO](https://support.claude.com/en/articles/13132885-setting-up-single-sign-on-sso)；OIDC 设置在 [Claude Enterprise Administrator Guide](https://claude.com/resources/tutorials/claude-enterprise-administrator-guide) 中介绍。
 
 ### 数据处理
 
-Claude Code 在本地会话中本地处理您的代码，或在云端会话中在 Anthropic 管理的基础设施上处理，除非您的组织将它们路由到[自托管环境](/docs/zh-CN/self-hosted-environments)。云端会话（包括在自托管环境中）将对话和代码上下文发送到 Anthropic 的 API 进行处理；本地和 SSH 会话将它们发送到您的部署配置的任何[模型提供商](#feature-comparison)，默认为 Anthropic 的 API。有关数据保留、隐私和合规性的详细信息，请参阅[数据处理](/docs/zh-CN/data-usage.md)。
+Claude Code 在本地会话中本地处理您的代码，或在云端会话中在 Anthropic 管理的基础设施上处理，除非您的组织将它们路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)。云端会话（包括在自托管环境中）将对话和代码上下文发送到 Anthropic 的 API 进行处理；本地和 SSH 会话将它们发送到您的部署配置的任何[模型提供商](#feature-comparison)，默认为 Anthropic 的 API。有关数据保留、隐私和合规性的详细信息，请参阅[数据处理](https://code.claude.com/docs/zh-CN/data-usage.md)。
 
 ### 部署
 
@@ -1749,7 +1934,7 @@ Desktop 可以通过企业部署工具分发：
 * **macOS**：通过 MDM（如 Jamf 或 Kandji）使用 `.dmg` 安装程序分发
 * **Windows**：通过 MSIX 包部署。有关企业部署选项（包括静默安装），请参阅[为 Windows 部署 Claude Desktop](https://support.claude.com/en/articles/12622703-deploy-claude-desktop-for-windows)
 
-有关需要在防火墙中加入允许列表的域，请参阅上面的[网络访问要求](#network-access-requirements)。有关代理设置、自定义证书颁发机构和 LLM 网关，请参阅[网络配置](/docs/zh-CN/network-config.md)。
+有关需要在防火墙中加入允许列表的域，请参阅上面的[网络访问要求](#network-access-requirements)。有关代理设置、自定义证书颁发机构和 LLM 网关，请参阅[网络配置](https://code.claude.com/docs/zh-CN/network-config.md)。
 
 有关完整的企业配置参考，请参阅[企业配置指南](https://support.claude.com/en/articles/12622667-enterprise-configuration)。
 
@@ -1759,7 +1944,7 @@ Desktop 可以通过企业部署工具分发：
 
 要将 CLI 会话移动到 Desktop，在终端中运行 `/desktop`。Claude 保存您的会话并在桌面应用中打开它，然后退出 CLI。当您使用 Claude 订阅登录时，此命令在 macOS 和 x64 Windows 上可用。它不适用于 API 密钥身份验证或 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry。
 
-从您的 shell，[`claude --desktop`](/docs/zh-CN/cli-reference#cli-flags) 直接打开 Desktop，无需启动终端会话。它需要 Claude Code v2.1.285 或更高版本，并具有与 `/desktop` 相同的平台和登录要求。没有其他参数时，它在当前目录中打开 Desktop。要在 Desktop 中打开现有的 CLI 会话，添加 `--continue` 以获取此目录中最近的对话，或使用 `--resume` 和 `/status` 显示的会话 ID：
+从您的 shell，[`claude --desktop`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 直接打开 Desktop，无需启动终端会话。它需要 Claude Code v2.1.285 或更高版本，并具有与 `/desktop` 相同的平台和登录要求。没有其他参数时，它在当前目录中打开 Desktop。要在 Desktop 中打开现有的 CLI 会话，添加 `--continue` 以获取此目录中最近的对话，或使用 `--resume` 和 `/status` 显示的会话 ID：
 
 ```bash theme={null}
 claude --desktop --resume <session-id>
@@ -1792,7 +1977,7 @@ Desktop 继续相同的会话而不是副本，所以之后在终端中 `claude 
 | `--permission-mode` | 输入框下方一行中的模式选择器 |
 | `--dangerously-skip-permissions` | 绕过权限模式。在 Pro 和 Max 套餐上，在设置 → Claude Code → "允许绕过权限模式"中启用它；在 Team 和 Enterprise 套餐上，由组织策略控制 |
 | `--add-dir` | 在本地和 SSH 会话中[向会话添加文件夹](#add-folders-to-a-session)，或在云端会话中选择[多个仓库](#run-long-running-tasks-in-the-cloud) |
-| `--allowedTools`, `--disallowedTools` | 无每个会话的等效项。[设置文件](/docs/zh-CN/settings.md)中的权限规则仍然适用。 |
+| `--allowedTools`, `--disallowedTools` | 无每个会话的等效项。[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中的权限规则仍然适用。 |
 | `--verbose` | [Verbose 视图模式](#switch-view-modes) |
 | `--print`, `--output-format` | 不可用。Desktop 仅是交互式的。 |
 | `ANTHROPIC_MODEL` 环境变量 | 输入框下方一行中的模型选择器 |
@@ -1802,11 +1987,11 @@ Desktop 继续相同的会话而不是副本，所以之后在终端中 `claude 
 
 Desktop 和 CLI 读取相同的配置文件，因此您的设置会沿用：
 
-* 项目中的 **[CLAUDE.md](/docs/zh-CN/memory.md)** 和 `CLAUDE.local.md` 文件由两者共同使用
-* 在 `~/.claude.json` 或 `.mcp.json` 中配置的 **[MCP 服务器](/docs/zh-CN/mcp.md)** 在两者中均可使用
-* 在设置中定义的 **[hook](/docs/zh-CN/hooks.md)** 和 **[skill](/docs/zh-CN/skills.md)** 适用于两者
-* `~/.claude.json` 和 `~/.claude/settings.json` 中的 **[设置](/docs/zh-CN/settings.md)** 是共享的。权限规则、允许的工具和 `settings.json` 中的其他设置适用于 Desktop 会话。
-* **模型**：相同的[模型](/docs/zh-CN/model-config.md#available-models)在两者中都可用。在 Desktop 中，从输入框下方一行中的模型选择器中选择模型。您可以在会话期间从同一选择器更改模型。
+* 项目中的 **[CLAUDE.md](https://code.claude.com/docs/zh-CN/memory.md)** 和 `CLAUDE.local.md` 文件由两者共同使用
+* 在 `~/.claude.json` 或 `.mcp.json` 中配置的 **[MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)** 在两者中均可使用
+* 在设置中定义的 **[hook](https://code.claude.com/docs/zh-CN/hooks.md)** 和 **[skill](https://code.claude.com/docs/zh-CN/skills.md)** 适用于两者
+* `~/.claude.json` 和 `~/.claude/settings.json` 中的 **[设置](https://code.claude.com/docs/zh-CN/settings.md)** 是共享的。权限规则、允许的工具和 `settings.json` 中的其他设置适用于 Desktop 会话。
+* **模型**：相同的[模型](https://code.claude.com/docs/zh-CN/model-config.md#available-models)在两者中都可用。在 Desktop 中，从输入框下方一行中的模型选择器中选择模型。您可以在会话期间从同一选择器更改模型。
 
 #### 来自 Claude Desktop 聊天应用的 MCP 服务器
 
@@ -1814,47 +1999,47 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 
 如果您在 `claude_desktop_config.json` 和 `~/.claude.json` 或 `.mcp.json` 中定义相同的服务器名称，本地会话中的 Code 选项卡只连接一次并使用 `claude_desktop_config.json` 中的定义。
 
-该应用还将来自 `~/.claude.json` 的 stdio 服务器重新传递到本地会话中的嵌入式 CLI。当 `~/.claude.json` 的顶层（用户作用域）和 `.mcp.json` 定义相同的 stdio 服务器名称时，Code 选项卡使用 `~/.claude.json` 中的定义，这与 CLI 的[作用域层次结构](/docs/zh-CN/mcp.md#scope-hierarchy-and-precedence)不同。
+该应用还将来自 `~/.claude.json` 的 stdio 服务器重新传递到本地会话中的嵌入式 CLI。当 `~/.claude.json` 的顶层（用户作用域）和 `.mcp.json` 定义相同的 stdio 服务器名称时，Code 选项卡使用 `~/.claude.json` 中的定义，这与 CLI 的[作用域层次结构](https://code.claude.com/docs/zh-CN/mcp.md#scope-hierarchy-and-precedence)不同。
 
 > [!NOTE]
 >
-> 独立 CLI 不读取 `claude_desktop_config.json`。在 macOS 和 WSL 上，运行 `claude mcp add-from-claude-desktop` 将这些服务器复制到 `~/.claude.json`。请参阅[从 Claude Desktop 导入 MCP 服务器](/docs/zh-CN/mcp.md#import-mcp-servers-from-claude-desktop)了解导入流程和作用域选项。
+> 独立 CLI 不读取 `claude_desktop_config.json`。在 macOS 和 WSL 上，运行 `claude mcp add-from-claude-desktop` 将这些服务器复制到 `~/.claude.json`。请参阅[从 Claude Desktop 导入 MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md#import-mcp-servers-from-claude-desktop)了解导入流程和作用域选项。
 
 ### 功能比较
 
-此表比较了 CLI 和 Desktop 之间的核心功能。有关 CLI 标志的完整列表，请参阅 [CLI 参考](/docs/zh-CN/cli-reference.md)。
+此表比较了 CLI 和 Desktop 之间的核心功能。有关 CLI 标志的完整列表，请参阅 [CLI 参考](https://code.claude.com/docs/zh-CN/cli-reference.md)。
 
 | 功能 | CLI | Desktop |
 | - | - | - |
 | 权限模式 | 所有模式，包括 `dontAsk` | Manual、Accept edits、Plan 和 Auto。启用后，绕过权限会出现在模式选择器中：在 Pro 和 Max 套餐上通过设置开关启用，在 Team 和 Enterprise 套餐上通过组织策略启用 |
-| [第三方提供商](/docs/zh-CN/third-party-integrations.md) | Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry | 默认使用 Anthropic 的 API。对于网关路由，请参阅[将桌面应用连接到网关](/docs/zh-CN/llm-gateway-connect.md#desktop-app)。要在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或自托管 LLM 网关上运行 Code 选项卡，请参阅 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)。 |
-| [MCP 服务器](/docs/zh-CN/mcp.md) | 在设置文件中配置 | 本地和 SSH 会话的连接器 UI，或设置文件 |
-| [插件](/docs/zh-CN/plugins/overview.md) | `/plugin` 命令 | 插件管理器 UI |
+| [第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md) | Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry | 默认使用 Anthropic 的 API。对于网关路由，请参阅[将桌面应用连接到网关](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#desktop-app)。要在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或自托管 LLM 网关上运行 Code 选项卡，请参阅 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)。 |
+| [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md) | 在设置文件中配置 | 本地和 SSH 会话的连接器 UI，或设置文件 |
+| [插件](https://code.claude.com/docs/zh-CN/plugins/overview.md) | `/plugin` 命令 | 插件管理器 UI |
 | @mention 文件 | 基于文本 | 带自动完成，云端会话的第一条消息除外 |
 | 文件附件 | 不可用 | 图像、PDF |
-| 会话隔离 | [`--worktree`](/docs/zh-CN/cli-reference) 标志 | [在独立的 worktree 中运行会话](#run-a-session-in-its-own-worktree) |
+| 会话隔离 | [`--worktree`](https://code.claude.com/docs/zh-CN/cli-reference) 标志 | [在独立的 worktree 中运行会话](#run-a-session-in-its-own-worktree) |
 | 多个会话 | 单独的终端 | 侧边栏选项卡 |
-| 定期任务 | Cron 作业、CI 管道 | [定时任务](/docs/zh-CN/desktop-scheduled-tasks.md) |
-| 计算机使用 | [在 macOS 上通过 `/mcp` 启用](/docs/zh-CN/computer-use) | 在 macOS 和 Windows 上的[应用和屏幕控制](#let-claude-use-your-computer) |
-| iOS 模拟器 | 通过[计算机使用](/docs/zh-CN/computer-use.md#test-a-simulator-flow)驱动模拟器 | [iOS Simulator 窗格](/docs/zh-CN/desktop-ios-simulator.md)自动打开 |
+| 定期任务 | Cron 作业、CI 管道 | [定时任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md) |
+| 计算机使用 | [在 macOS 上通过 `/mcp` 启用](https://code.claude.com/docs/zh-CN/computer-use) | 在 macOS 和 Windows 上的[应用和屏幕控制](#let-claude-use-your-computer) |
+| iOS 模拟器 | 通过[计算机使用](https://code.claude.com/docs/zh-CN/computer-use.md#test-a-simulator-flow)驱动模拟器 | [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)自动打开 |
 | Dispatch 集成 | 不可用 | 侧边栏中的 [Dispatch 会话](#sessions-from-dispatch) |
-| 脚本和自动化 | [`--print`](/docs/zh-CN/cli-reference)、[Agent SDK](/docs/zh-CN/headless.md) | 不可用 |
+| 脚本和自动化 | [`--print`](https://code.claude.com/docs/zh-CN/cli-reference)、[Agent SDK](https://code.claude.com/docs/zh-CN/headless.md) | 不可用 |
 
 ### Desktop 中不可用的内容
 
 以下功能在 Desktop 中不可用，除非另有说明：
 
 * **第三方提供商**：Desktop 默认连接到 Anthropic 的 API。要通过网关路由 Desktop，或在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或自托管 LLM 网关上运行 Code 选项卡，请按照[第三方提供商行](#feature-comparison)中的链接操作。
-* **Linux (beta)**：Linux 桌面应用中尚不提供计算机使用。请参阅 [Claude Desktop on Linux](/docs/zh-CN/desktop-linux.md)。
+* **Linux (beta)**：Linux 桌面应用中尚不提供计算机使用。请参阅 [Claude Desktop on Linux](https://code.claude.com/docs/zh-CN/desktop-linux.md)。
 * **内联代码建议**：Desktop 不提供自动完成风格的代码补全。它通过对话式提示词和显式代码更改工作，并可以在 Claude 回复后[建议您的下一个提示词](#accept-a-suggested-prompt)。
-* **Agent team**：协调的团队（由 Claude 作为团队负责人从共享任务列表中为队友分配任务）在 [CLI](/docs/zh-CN/agent-teams.md) 中可用，不在 Desktop 中。对于一个会话内的多 Agent 工作，请使用[动态工作流](/docs/zh-CN/workflows.md)，它可在 Desktop 中运行；Claude 也可以直接[向您的其他会话发送消息并管理它们](#work-across-sessions)。
-* **Terminal-dialog 命令**：在终端中打开交互式面板的内置命令，其行为在 Code 选项卡中有所不同。直接编辑[设置文件](/docs/zh-CN/settings.md)来管理权限规则和配置，或从独立 CLI 运行命令。
+* **Agent team**：协调的团队（由 Claude 作为团队负责人从共享任务列表中为队友分配任务）在 [CLI](https://code.claude.com/docs/zh-CN/agent-teams.md) 中可用，不在 Desktop 中。对于一个会话内的多 Agent 工作，请使用[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)，它可在 Desktop 中运行；Claude 也可以直接[向您的其他会话发送消息并管理它们](#work-across-sessions)。
+* **Terminal-dialog 命令**：在终端中打开交互式面板的内置命令，其行为在 Code 选项卡中有所不同。直接编辑[设置文件](https://code.claude.com/docs/zh-CN/settings.md)来管理权限规则和配置，或从独立 CLI 运行命令。
   * 没有参数形式的命令，例如 `/permissions`，会回复 `isn't available in this environment`。
   * `/config` 打开 **设置 > Claude Code**。
 
 ## 故障排除
 
-下面的部分涵盖特定于桌面应用的问题。对于出现在聊天中的运行时 API 错误，如 `API Error: 500`、`529 Overloaded`、`429` 或 `Prompt is too long`，请参阅[错误参考](/docs/zh-CN/errors.md)。
+下面的部分涵盖特定于桌面应用的问题。对于出现在聊天中的运行时 API 错误，如 `API Error: 500`、`529 Overloaded`、`429` 或 `Prompt is too long`，请参阅[错误参考](https://code.claude.com/docs/zh-CN/errors.md)。
 
 ### 检查你的版本
 
@@ -1878,7 +2063,7 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 如果新会话的输入框下方没有[环境选择器](#start-a-session)，则说明您使用的是早期布局：
 
 * **[低于 v2.37337.0 的 Desktop](#check-your-version)**：请更新以获取当前布局。在 macOS 上选择 **Claude > Check for Updates…**，或在 Windows 上选择 **Help > Check for Updates…**。
-* **会话在您计算机上运行的[第三方提供商](/docs/zh-CN/third-party-integrations.md)**：当前布局需要 Claude Desktop v3.1623.0 或更高版本，因此请[检查您的版本](#check-your-version)。要进行更新，请在 macOS 上选择 **Claude > Check for Updates…**，或在 Windows 上选择 **Help > Check for Updates…**。如果您的组织[关闭了自动更新](#device-management-policies)，**Check for Updates…** 会被隐藏，此时请向管理员索取 v3.1623.0 或更高版本。
+* **会话在您计算机上运行的[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)**：当前布局需要 Claude Desktop v3.1623.0 或更高版本，因此请[检查您的版本](#check-your-version)。要进行更新，请在 macOS 上选择 **Claude > Check for Updates…**，或在 Windows 上选择 **Help > Check for Updates…**。如果您的组织[关闭了自动更新](#device-management-policies)，**Check for Updates…** 会被隐藏，此时请向管理员索取 v3.1623.0 或更高版本。
 * **会话在您组织基础设施上运行的第三方提供商**：当您的组织在其自己的基础设施上而不是在您的计算机上运行会话时，Desktop 会保留早期布局，更新不会改变布局。如果您不清楚会话在哪里运行，请询问管理员。
 
 在早期布局中，在输入框上方选择环境和项目文件夹，在其下方的一行中选择权限模式和模型。早期布局没有[会话详细信息面板](#see-session-details)和[已保存的本地和 SSH 环境](#create-a-saved-environment)。
@@ -1897,7 +2082,7 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 如果应用打开但显示空白或无响应的屏幕：
 
 1. 重启应用。
-2. 检查待处理的更新。在 macOS 和 Windows 上，应用在启动时自动更新；在 Linux 上，通过 apt 更新，如 [Claude Desktop on Linux](/docs/zh-CN/desktop-linux.md) 中所述。
+2. 检查待处理的更新。在 macOS 和 Windows 上，应用在启动时自动更新；在 Linux 上，通过 apt 更新，如 [Claude Desktop on Linux](https://code.claude.com/docs/zh-CN/desktop-linux.md) 中所述。
 3. 在托管网络上，确认你的防火墙允许[网络访问要求](#network-access-requirements)中的 CDN 主机。
 4. 在 Windows 上，在 **Windows 日志 → 应用程序** 下的事件查看器中检查崩溃日志。
 

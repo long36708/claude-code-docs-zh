@@ -12,7 +12,7 @@ Agent SDK 建立在与 Claude Code 相同的基础之上，这意味着您的 SD
 
 ## 使用 settingSources 控制文件系统设置
 
-设置源选项（Python 中的 [`setting_sources`](/docs/zh-CN/agent-sdk/python#claudeagentoptions)、TypeScript 中的 [`settingSources`](/docs/zh-CN/agent-sdk/typescript#settingsource)）控制 SDK 加载哪些基于文件系统的设置。传递显式列表以选择加入特定源，或传递空数组以禁用用户、项目和本地设置。
+设置源选项（Python 中的 [`setting_sources`](https://code.claude.com/docs/zh-CN/agent-sdk/python#claudeagentoptions)、TypeScript 中的 [`settingSources`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#settingsource)）控制 SDK 加载哪些基于文件系统的设置。传递显式列表以选择加入特定源，或传递空数组以禁用用户、项目和本地设置。
 
 此示例通过将 `settingSources` 设置为 `["user", "project"]` 来加载用户级和项目级设置：
 
@@ -69,11 +69,11 @@ for await (const message of query({
 
 当此代码运行时，助手的响应会打印到标准输出，然后在运行完成后打印最终结果行。
 
-每个源从特定位置加载设置，其中 `<cwd>` 是您通过 `cwd` 选项传递的工作目录，或者如果未设置则为进程的当前目录。有关完整的类型定义，请参阅 [`SettingSource`](/docs/zh-CN/agent-sdk/typescript#settingsource)（TypeScript）或 [`SettingSource`](/docs/zh-CN/agent-sdk/python#settingsource)（Python）。
+每个源从特定位置加载设置，其中 `<cwd>` 是您通过 `cwd` 选项传递的工作目录，或者如果未设置则为进程的当前目录。有关完整的类型定义，请参阅 [`SettingSource`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#settingsource)（TypeScript）或 [`SettingSource`](https://code.claude.com/docs/zh-CN/agent-sdk/python#settingsource)（Python）。
 
 | 源 | 加载的内容 | 位置 |
 | :- | :- | :- |
-| `"project"` | 项目 `settings.json` 和 hooks；项目 CLAUDE.md 和 `.claude/rules/*.md`；项目 skills、commands 和 subagents | `<cwd>/.claude/` 用于 `settings.json` 和 hooks；`<cwd>` 和每个父目录用于 CLAUDE.md 和规则；`<cwd>` 和每个父目录直到存储库根目录用于 skills、commands 和 subagents，加上您通过 `additionalDirectories` 或 `add_dirs` 选项传递的每个目录的 `.claude/skills/`、`.claude/commands/` 和 `.claude/agents/` 文件夹，SDK 将其作为 [`--add-dir`](/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration) 传递给 Claude Code |
+| `"project"` | 项目 `settings.json` 和 hooks；项目 CLAUDE.md 和 `.claude/rules/*.md`；项目 skills、commands 和 subagents | `<cwd>/.claude/` 用于 `settings.json` 和 hooks；`<cwd>` 和每个父目录用于 CLAUDE.md 和规则；`<cwd>` 和每个父目录直到存储库根目录用于 skills、commands 和 subagents，加上您通过 `additionalDirectories` 或 `add_dirs` 选项传递的每个目录的 `.claude/skills/`、`.claude/commands/` 和 `.claude/agents/` 文件夹，SDK 将其作为 [`--add-dir`](https://code.claude.com/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration) 传递给 Claude Code |
 | `"user"` | 用户 `settings.json`；用户 CLAUDE.md 和 `~/.claude/rules/*.md`；用户 skills、commands 和 subagents | `~/.claude/` 用于 `settings.json`、CLAUDE.md 和规则；`~/.claude/skills/`、`~/.claude/commands/` 和 `~/.claude/agents/` 用于 skills、commands 和 subagents |
 | `"local"` | CLAUDE.local.md、`.claude/settings.local.json` | `<cwd>/.claude/` 用于 `settings.local.json`；`<cwd>` 和每个父目录用于 CLAUDE.local.md |
 
@@ -87,15 +87,15 @@ for await (const message of query({
 
 | 输入 | 行为 | 禁用方式 |
 | :- | :- | :- |
-| 托管策略设置 | 端点管理的策略（例如 MDM plist、注册表策略或托管设置文件）从主机加载。[服务器管理的设置](/docs/zh-CN/server-managed-settings.md)在会话使用符合条件的凭证（例如组织 OAuth 登录、直接配置的 API 密钥或 `user_oauth` [Anthropic 配置文件](/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials)）进行身份验证时，在[符合条件的配置](/docs/zh-CN/server-managed-settings.md#platform-availability)上获取 | 端点策略：从主机中删除托管设置文件、plist 或注册表策略。服务器管理的设置：由您的 Claude 组织中的[所有者](/docs/zh-CN/server-managed-settings.md#access-control)控制；您无法从 SDK 禁用它们 |
+| 托管策略设置 | 端点管理的策略（例如 MDM plist、注册表策略或托管设置文件）从主机加载。[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)在会话使用符合条件的凭证（例如组织 OAuth 登录、直接配置的 API 密钥或 `user_oauth` [Anthropic 配置文件](https://code.claude.com/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials)）进行身份验证时，在[符合条件的配置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)上获取 | 端点策略：从主机中删除托管设置文件、plist 或注册表策略。服务器管理的设置：由您的 Claude 组织中的[所有者](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control)控制；您无法从 SDK 禁用它们 |
 | `~/.claude.json` 全局配置 | 始终读取 | 使用 `env` 中的 `CLAUDE_CONFIG_DIR` 重新定位 |
 | `~/.claude/projects/<project>/memory/` 处的自动内存 | 在会话启动时加载到系统提示中。代理使用标准 `Write` 和 `Edit` 工具而不是专用内存工具在那里写入新内存，因此必须启用这些工具才能让代理保存内存 | 在设置中设置 `autoMemoryEnabled: false`，或在 `env` 中设置 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` |
-| [claude.ai MCP 连接器](/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai) | 当会话使用您的 claude.ai 登录进行身份验证时加载。当 `CLAUDE_CODE_OAUTH_TOKEN` 持有来自 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 的令牌时不加载，该令牌只能进行模型请求。传递 `mcpServers: {}` 不会抑制连接器 | 设置 `strictMcpConfig: true`、[`disableClaudeAiConnectors: true`](/docs/zh-CN/mcp#disable-claude-ai-connectors) 在设置中，或在 `env` 中设置 `ENABLE_CLAUDEAI_MCP_SERVERS=false` |
-| [`sandbox.credentials`](/docs/zh-CN/sandboxing#protect-credentials) `deny` 条目和 `~/.claude/settings.json` 中的文件 `mask` 条目 | 当[命令沙箱](/docs/zh-CN/sandboxing.md)运行时，Claude Code 应用 `deny` 条目，并将 `credentials.files` `mask` 条目保持为限制，即使 `settingSources` 排除用户设置。Claude Code 仅使用这些条目来缩小沙箱命令可以访问的内容 | 从 `~/.claude/settings.json` 中删除条目 |
+| [claude.ai MCP 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai) | 当会话使用您的 claude.ai 登录进行身份验证时加载。当 `CLAUDE_CODE_OAUTH_TOKEN` 持有来自 [`claude setup-token`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 的令牌时不加载，该令牌只能进行模型请求。传递 `mcpServers: {}` 不会抑制连接器 | 设置 `strictMcpConfig: true`、[`disableClaudeAiConnectors: true`](https://code.claude.com/docs/zh-CN/mcp#disable-claude-ai-connectors) 在设置中，或在 `env` 中设置 `ENABLE_CLAUDEAI_MCP_SERVERS=false` |
+| [`sandbox.credentials`](https://code.claude.com/docs/zh-CN/sandboxing#protect-credentials) `deny` 条目和 `~/.claude/settings.json` 中的文件 `mask` 条目 | 当[命令沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)运行时，Claude Code 应用 `deny` 条目，并将 `credentials.files` `mask` 条目保持为限制，即使 `settingSources` 排除用户设置。Claude Code 仅使用这些条目来缩小沙箱命令可以访问的内容 | 从 `~/.claude/settings.json` 中删除条目 |
 
 > [!WARNING]
 >
-> 不要依赖默认 `query()` 选项进行多租户隔离。因为上述输入无论 `settingSources` 如何都会被读取，SDK 进程可能会获取主机级配置和按目录内存。对于多租户部署，在自己的文件系统中运行每个租户，并设置 `settingSources: []` 加上 `env` 中的 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`。[服务器管理的设置](/docs/zh-CN/server-managed-settings.md)在进程使用组织凭证进行身份验证时获取；文件系统隔离不会删除它们。请参阅[安全部署](/docs/zh-CN/agent-sdk/secure-deployment.md)。
+> 不要依赖默认 `query()` 选项进行多租户隔离。因为上述输入无论 `settingSources` 如何都会被读取，SDK 进程可能会获取主机级配置和按目录内存。对于多租户部署，在自己的文件系统中运行每个租户，并设置 `settingSources: []` 加上 `env` 中的 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`。[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)在进程使用组织凭证进行身份验证时获取；文件系统隔离不会删除它们。请参阅[安全部署](https://code.claude.com/docs/zh-CN/agent-sdk/secure-deployment.md)。
 
 ## 项目说明（CLAUDE.md 和规则）
 
@@ -108,7 +108,7 @@ for await (const message of query({
 | 项目（根） | `<cwd>/CLAUDE.md` 或 `<cwd>/.claude/CLAUDE.md` | `settingSources` 包含 `"project"` |
 | 项目规则 | `<cwd>/.claude/rules/*.md` 和 `.claude/rules/*.md` 在每个父目录中 | `settingSources` 包含 `"project"` |
 | 项目（父目录） | `cwd` 上方目录中的 `CLAUDE.md` 文件 | `settingSources` 包含 `"project"`，在会话开始时加载 |
-| 项目（子目录） | `cwd` 子目录中的 `CLAUDE.md` 文件 | `settingSources` 包含 `"project"`，[按需](/docs/zh-CN/memory.md#how-claude-md-files-load)加载 |
+| 项目（子目录） | `cwd` 子目录中的 `CLAUDE.md` 文件 | `settingSources` 包含 `"project"`，[按需](https://code.claude.com/docs/zh-CN/memory.md#how-claude-md-files-load)加载 |
 | 本地 | `<cwd>/CLAUDE.local.md` 和 `CLAUDE.local.md` 在每个父目录中 | `settingSources` 包含 `"local"` |
 | 用户 | `~/.claude/CLAUDE.md` | `settingSources` 包含 `"user"` |
 | 用户规则 | `~/.claude/rules/*.md` | `settingSources` 包含 `"user"` |
@@ -117,9 +117,9 @@ for await (const message of query({
 
 > [!TIP]
 >
-> 您也可以通过 `systemPrompt` 直接注入上下文，而无需使用 CLAUDE.md 文件。请参阅 [修改系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts.md)。当您希望在交互式 Claude Code 会话和 SDK 代理之间共享相同的上下文时，使用 CLAUDE.md。
+> 您也可以通过 `systemPrompt` 直接注入上下文，而无需使用 CLAUDE.md 文件。请参阅 [修改系统提示](https://code.claude.com/docs/zh-CN/agent-sdk/modifying-system-prompts.md)。当您希望在交互式 Claude Code 会话和 SDK 代理之间共享相同的上下文时，使用 CLAUDE.md。
 
-有关如何构建和组织 CLAUDE.md 内容，请参阅 [管理 Claude 的内存](/docs/zh-CN/memory.md)。
+有关如何构建和组织 CLAUDE.md 内容，请参阅 [管理 Claude 的内存](https://code.claude.com/docs/zh-CN/memory.md)。
 
 ## Skills
 
@@ -171,16 +171,16 @@ for await (const message of query({
 
 > [!NOTE]
 >
-> Skills 必须创建为文件系统工件（`.claude/skills/<name>/SKILL.md`）。SDK 没有用于注册 skills 的编程 API。有关完整详情，请参阅 [SDK 中的 Agent Skills](/docs/zh-CN/agent-sdk/skills.md)。
+> Skills 必须创建为文件系统工件（`.claude/skills/<name>/SKILL.md`）。SDK 没有用于注册 skills 的编程 API。有关完整详情，请参阅 [SDK 中的 Agent Skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md)。
 
 ## Hooks
 
 SDK 支持两种定义 hooks 的方式，它们并行运行：
 
-* **文件系统 hooks：** 在 `settings.json` 中定义的 shell 命令，当 `settingSources` 包含相关源时加载。这些与您为 [交互式 Claude Code 会话](/docs/zh-CN/hooks-guide.md) 配置的 hooks 相同。
-* **编程 hooks：** 直接传递给 `query()` 的回调函数。这些在您的应用程序进程中运行，可以返回结构化决策。请参阅 [使用 hooks 控制执行](/docs/zh-CN/agent-sdk/hooks.md)。
+* **文件系统 hooks：** 在 `settings.json` 中定义的 shell 命令，当 `settingSources` 包含相关源时加载。这些与您为 [交互式 Claude Code 会话](https://code.claude.com/docs/zh-CN/hooks-guide.md) 配置的 hooks 相同。
+* **编程 hooks：** 直接传递给 `query()` 的回调函数。这些在您的应用程序进程中运行，可以返回结构化决策。请参阅 [使用 hooks 控制执行](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)。
 
-Hook 回调接收工具输入并返回决策字典。返回 `{}` 意味着允许工具继续。要阻止执行，返回一个 `hookSpecificOutput` 对象，其中包含 `permissionDecision: "deny"` 和 `permissionDecisionReason`。原因会作为工具结果发送给 Claude。请参阅 [hooks 指南](/docs/zh-CN/agent-sdk/hooks.md) 了解完整的回调签名和返回类型。
+Hook 回调接收工具输入并返回决策字典。返回 `{}` 意味着允许工具继续。要阻止执行，返回一个 `hookSpecificOutput` 对象，其中包含 `permissionDecision: "deny"` 和 `permissionDecisionReason`。原因会作为工具结果发送给 Claude。请参阅 [hooks 指南](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md) 了解完整的回调签名和返回类型。
 
 ```python Python theme={null}
 from claude_agent_sdk import query, ClaudeAgentOptions, HookMatcher, ResultMessage
@@ -272,9 +272,9 @@ for await (const message of query({
 
 > [!NOTE]
 >
-> TypeScript SDK 支持超出 Python 的其他 hook 事件，包括 `SessionStart`、`SessionEnd`、`TeammateIdle` 和 `TaskCompleted`。有关完整的事件兼容性表，请参阅 [hooks 指南](/docs/zh-CN/agent-sdk/hooks.md)。
+> TypeScript SDK 支持超出 Python 的其他 hook 事件，包括 `SessionStart`、`SessionEnd`、`TeammateIdle` 和 `TaskCompleted`。有关完整的事件兼容性表，请参阅 [hooks 指南](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)。
 
-有关编程 hooks 的完整详情，请参阅 [使用 hooks 控制执行](/docs/zh-CN/agent-sdk/hooks.md)。有关文件系统 hook 语法，请参阅 [Hooks](/docs/zh-CN/hooks.md)。
+有关编程 hooks 的完整详情，请参阅 [使用 hooks 控制执行](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)。有关文件系统 hook 语法，请参阅 [Hooks](https://code.claude.com/docs/zh-CN/hooks.md)。
 
 ## 选择正确的功能
 
@@ -282,21 +282,21 @@ Agent SDK 为您提供了多种方式来扩展代理的行为。如果您不确�
 
 | 您想要做什么 | 使用 | SDK 表面 |
 | :- | :- | :- |
-| 设置代理始终遵循的项目约定 | [CLAUDE.md](/docs/zh-CN/memory.md) | `settingSources: ["project"]` 自动加载它 |
-| 为代理提供它在相关时加载的参考材料 | [Skills](/docs/zh-CN/agent-sdk/skills.md) | `settingSources` + `skills` 选项 |
-| 运行可重用的工作流（部署、审查、发布） | [用户可调用的 skills](/docs/zh-CN/agent-sdk/skills.md) | `settingSources` + `skills` 选项 |
-| 将隔离的子任务委托给新的上下文（研究、审查） | [子代理](/docs/zh-CN/agent-sdk/subagents.md) | `agents` 参数 + `allowedTools: ["Agent"]` |
-| 协调多个 Claude Code 实例，具有共享任务列表和直接的代理间消息传递 | [代理团队](/docs/zh-CN/agent-teams.md) | 不直接通过 SDK 选项配置。代理团队是一个 CLI 功能，其中一个会话充当团队负责人，协调独立队友之间的工作 |
-| 在工具调用上运行确定性逻辑（审计、阻止、转换） | [Hooks](/docs/zh-CN/agent-sdk/hooks.md) | `hooks` 参数带回调，或通过 `settingSources` 加载的 shell 脚本 |
-| 为 Claude 提供对外部服务的结构化工具访问 | [MCP](/docs/zh-CN/agent-sdk/mcp.md) | `mcpServers` 参数 |
+| 设置代理始终遵循的项目约定 | [CLAUDE.md](https://code.claude.com/docs/zh-CN/memory.md) | `settingSources: ["project"]` 自动加载它 |
+| 为代理提供它在相关时加载的参考材料 | [Skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md) | `settingSources` + `skills` 选项 |
+| 运行可重用的工作流（部署、审查、发布） | [用户可调用的 skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md) | `settingSources` + `skills` 选项 |
+| 将隔离的子任务委托给新的上下文（研究、审查） | [子代理](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md) | `agents` 参数 + `allowedTools: ["Agent"]` |
+| 协调多个 Claude Code 实例，具有共享任务列表和直接的代理间消息传递 | [代理团队](https://code.claude.com/docs/zh-CN/agent-teams.md) | 不直接通过 SDK 选项配置。代理团队是一个 CLI 功能，其中一个会话充当团队负责人，协调独立队友之间的工作 |
+| 在工具调用上运行确定性逻辑（审计、阻止、转换） | [Hooks](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md) | `hooks` 参数带回调，或通过 `settingSources` 加载的 shell 脚本 |
+| 为 Claude 提供对外部服务的结构化工具访问 | [MCP](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md) | `mcpServers` 参数 |
 
-您启用的每个功能都会增加代理的上下文窗口。有关每个功能的成本以及这些功能如何分层组合，请参阅 [扩展 Claude Code](/docs/zh-CN/features-overview.md#understand-context-costs)。
+您启用的每个功能都会增加代理的上下文窗口。有关每个功能的成本以及这些功能如何分层组合，请参阅 [扩展 Claude Code](https://code.claude.com/docs/zh-CN/features-overview.md#understand-context-costs)。
 
 ## 相关资源
 
-* [扩展 Claude Code](/docs/zh-CN/features-overview.md)：所有扩展功能的概念概述，包含比较表和上下文成本分析
-* [SDK 中的 Skills](/docs/zh-CN/agent-sdk/skills.md)：使用 skills 的完整指南
-* [子代理](/docs/zh-CN/agent-sdk/subagents.md)：为隔离的子任务定义和调用子代理
-* [Hooks](/docs/zh-CN/agent-sdk/hooks.md)：在关键执行点拦截和控制代理行为
-* [权限](/docs/zh-CN/agent-sdk/permissions.md)：使用模式、规则和回调控制工具访问
-* [系统提示](/docs/zh-CN/agent-sdk/modifying-system-prompts.md)：在不使用 CLAUDE.md 文件的情况下注入上下文
+* [扩展 Claude Code](https://code.claude.com/docs/zh-CN/features-overview.md)：所有扩展功能的概念概述，包含比较表和上下文成本分析
+* [SDK 中的 Skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md)：使用 skills 的完整指南
+* [子代理](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md)：为隔离的子任务定义和调用子代理
+* [Hooks](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)：在关键执行点拦截和控制代理行为
+* [权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)：使用模式、规则和回调控制工具访问
+* [系统提示](https://code.claude.com/docs/zh-CN/agent-sdk/modifying-system-prompts.md)：在不使用 CLAUDE.md 文件的情况下注入上下文

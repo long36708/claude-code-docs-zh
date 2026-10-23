@@ -8,13 +8,13 @@
 
 > [!NOTE]
 >
-> 本页介绍了在 AWS 上运行 Claude apps gateway 的一种方式。该配置是客户管理基础设施的工作示例，而不是受支持的生产部署；在将其调整到您自己的环境之前，使用它来了解各个部分如何组合在一起。有关平台无关的要求，请参阅[部署指南](/docs/zh-CN/claude-apps-gateway-deploy.md)。
+> 本页介绍了在 AWS 上运行 Claude apps gateway 的一种方式。该配置是客户管理基础设施的工作示例，而不是受支持的生产部署；在将其调整到您自己的环境之前，使用它来了解各个部分如何组合在一起。有关平台无关的要求，请参阅[部署指南](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md)。
 
-此示例在 AWS 上配置 Claude apps gateway，使用 Amazon Bedrock 作为模型上游，计算资源使用 [Amazon ECS](https://aws.amazon.com/ecs/) 在 [AWS Fargate](https://aws.amazon.com/fargate/) 上或 [Amazon EKS](https://aws.amazon.com/eks/)。[Okta](https://www.okta.com/) 是示例身份提供商 (IdP)，但任何符合 OpenID Connect (OIDC) 的 IdP 都可以工作；有关每个 IdP 的详细信息，请参阅[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy.md#identity-provider-setup)。
+此示例在 AWS 上配置 Claude apps gateway，使用 Amazon Bedrock 作为模型上游，计算资源使用 [Amazon ECS](https://aws.amazon.com/ecs/) 在 [AWS Fargate](https://aws.amazon.com/fargate/) 上或 [Amazon EKS](https://aws.amazon.com/eks/)。[Okta](https://www.okta.com/) 是示例身份提供商 (IdP)，但任何符合 OpenID Connect (OIDC) 的 IdP 都可以工作；有关每个 IdP 的详细信息，请参阅[身份提供商设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#identity-provider-setup)。
 
 > [!NOTE]
 >
-> Bedrock 不是 AWS 上唯一的 Claude 上游。gateway 还支持 Claude Platform on AWS，这是由 Anthropic 运营的 Claude API，具有 AWS 身份验证和 AWS Marketplace 计费，可以代替 Bedrock 或与其一起使用。其上游条目、凭证和 IAM 权限与本页的 Bedrock 范围的权限不同；[Claude Platform on AWS 上游参考](/docs/zh-CN/claude-apps-gateway-config.md#claude-platform-on-aws)涵盖了哪些内容会改变，本页的其余部分保持不变。
+> Bedrock 不是 AWS 上唯一的 Claude 上游。gateway 还支持 Claude Platform on AWS，这是由 Anthropic 运营的 Claude API，具有 AWS 身份验证和 AWS Marketplace 计费，可以代替 Bedrock 或与其一起使用。其上游条目、凭证和 IAM 权限与本页的 Bedrock 范围的权限不同；[Claude Platform on AWS 上游参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#claude-platform-on-aws)涵盖了哪些内容会改变，本页的其余部分保持不变。
 
 ## 架构
 
@@ -26,7 +26,7 @@ gateway 在您的网络上作为私有 HTTPS 端点运行，开发人员通过�
 
 * **Amazon ECS on AWS Fargate** 服务或 **Amazon EKS** Deployment 运行 gateway 容器
 * **Amazon ECR** 存储库用于 gateway 镜像
-* **Amazon RDS for PostgreSQL** 实例在私有子网中，不可公开访问，用于 gateway 的[存储](/docs/zh-CN/claude-apps-gateway-config.md#store)
+* **Amazon RDS for PostgreSQL** 实例在私有子网中，不可公开访问，用于 gateway 的[存储](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#store)
 * **AWS Secrets Manager** 机密用于 JWT 签名密钥、OIDC 客户端机密和 Postgres URL
 * **IAM 角色**具有 `bedrock:InvokeModel`、`bedrock:InvokeModelWithResponseStream` 和 `bedrock:CountTokens`，作为 ECS 任务角色附加或通过 EKS 上的 IAM Roles for Service Accounts (IRSA) 绑定
 * **内部应用负载均衡器**用于 HTTPS
@@ -38,14 +38,14 @@ gateway 在您的网络上作为私有 HTTPS 端点运行，开发人员通过�
 * 一个 AWS 账户，具有创建[上述资源](#architecture)的权限
 * 安装了 [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) 并[已认证](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-authentication.html)，以及本地安装了 [Docker](https://docs.docker.com/get-started/get-docker/)
 * 一个 [VPC](https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html)，至少有两个[私有子网](https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html)在不同的可用区中，通过 [NAT 网关](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html)具有出站互联网访问；内部负载均衡器需要两个 AZ 中的子网，gateway 需要到 Bedrock 和您的 IdP 的出站访问
-* 一个 Okta OIDC web 应用程序，重定向 URI 为 `https://<gateway-host>/oauth/callback`；请参阅[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy.md#identity-provider-setup)
+* 一个 Okta OIDC web 应用程序，重定向 URI 为 `https://<gateway-host>/oauth/callback`；请参阅[身份提供商设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#identity-provider-setup)
 * gateway 的 TLS 主机名，通常是 [Route 53 私有托管区域](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-private.html)中的内部 DNS 名称，指向负载均衡器，具有该名称的 [ACM 证书](https://docs.aws.amazon.com/acm/latest/userguide/gs.html)，由 [AWS Private CA](https://docs.aws.amazon.com/privateca/latest/userguide/PcaWelcome.html) 导入或颁发
 
 ### 设置您的环境变量
 
 本页上的每个命令都从您的 shell 读取四个值：`AWS_REGION`、`ACCOUNT_ID`、`VPC_ID` 和 `PRIVATE_SUBNETS`。
 
-选择一个 Bedrock 提供您需要的 Claude 模型的美国区域。该演练依赖于 gateway 的内置模型目录，该目录解析为 `us.anthropic.*` 推理配置文件，IAM 策略授予这些 ARN。在非美国区域中，添加一个[`models:` 块](/docs/zh-CN/claude-apps-gateway-config#models)，其中包含该地理位置的推理配置文件 ID，并更改 IAM 策略的 ARN 前缀以匹配。
+选择一个 Bedrock 提供您需要的 Claude 模型的美国区域。该演练依赖于 gateway 的内置模型目录，该目录解析为 `us.anthropic.*` 推理配置文件，IAM 策略授予这些 ARN。在非美国区域中，添加一个[`models:` 块](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#models)，其中包含该地理位置的推理配置文件 ID，并更改 IAM 策略的 ARN 前缀以匹配。
 
 如果您手边没有 VPC ID，请使用 `aws ec2 describe-vpcs` 列出您的 VPC，然后列出该 VPC 的子网以找到两个不同可用区中的私有子网：
 
@@ -95,7 +95,7 @@ aws ec2 authorize-security-group-ingress --group-id "$DB_SG" \
 
 **2. 创建 IAM 角色并提交用例表单**
 
-gateway 使用专用任务角色运行，其唯一权限是在 Bedrock 上调用 Claude 模型。根据 [Bedrock 上游参考](/docs/zh-CN/claude-apps-gateway-config.md#amazon-bedrock)，该策略必须涵盖跨区域推理配置文件 ARN 和底层基础模型 ARN：
+gateway 使用专用任务角色运行，其唯一权限是在 Bedrock 上调用 Claude 模型。根据 [Bedrock 上游参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#amazon-bedrock)，该策略必须涵盖跨区域推理配置文件 ARN 和底层基础模型 ARN：
 
 ```bash theme={null}
 cat > bedrock-invoke.json <<EOF
@@ -155,7 +155,7 @@ aws iam put-role-policy --role-name claude-gateway-execution \
 
 该策略为每个机密命名一个 ARN，而不是裸 `gateway-*` 通配符，在共享账户中，这也会匹配不相关的机密；尾部的 `-??????` 完全匹配 Secrets Manager 附加到每个机密 ARN 的随机六字符后缀。尾部的 `-*` 将是一个普通前缀 glob，也会匹配更长的名称，例如 `gateway-postgres-url-prod`。
 
-IAM 策略授予 gateway 调用 Bedrock 的权限，Bedrock 在商业区域中默认启用模型访问。剩余的账户级门槛是 Anthropic 的一次性用例表单：如果您账户中没有人提交过，请打开 [Amazon Bedrock 控制台](https://console.aws.amazon.com/bedrock/)，从模型目录中选择一个 Anthropic 模型，并完成表单。提交后立即授予访问权限；有关 AWS Organizations 表单和提交者需要的 IAM 权限，请参阅 [Claude Code on Amazon Bedrock](/docs/zh-CN/amazon-bedrock.md#1-submit-use-case-details)。
+IAM 策略授予 gateway 调用 Bedrock 的权限，Bedrock 在商业区域中默认启用模型访问。剩余的账户级门槛是 Anthropic 的一次性用例表单：如果您账户中没有人提交过，请打开 [Amazon Bedrock 控制台](https://console.aws.amazon.com/bedrock/)，从模型目录中选择一个 Anthropic 模型，并完成表单。提交后立即授予访问权限；有关 AWS Organizations 表单和提交者需要的 IAM 权限，请参阅 [Claude Code on Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#1-submit-use-case-details)。
 
 EKS 轨道改为在 IRSA 角色上重用两个策略文档，而不是两个 ECS 角色；请参阅部署步骤。
 
@@ -210,11 +210,11 @@ ECS 服务或 EKS pod 必须在此 VPC 中运行，以便它们可以到达实�
 
 **4. 编写 gateway.yaml**
 
-`upstreams` 块使用 `auth: {}` 指向 Bedrock，因此 gateway 通过 ECS 上的任务角色或 EKS 上的 IRSA 角色从 AWS 默认凭据链进行身份验证。有关每个字段，请参阅[配置参考](/docs/zh-CN/claude-apps-gateway-config.md)。
+`upstreams` 块使用 `auth: {}` 指向 Bedrock，因此 gateway 通过 ECS 上的任务角色或 EKS 上的 IRSA 角色从 AWS 默认凭据链进行身份验证。有关每个字段，请参阅[配置参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md)。
 
 两个 `listen` 字段描述什么位于 gateway 前面：
 
-* `public_url`：外部 `https://` 源，对于任何非环回绑定都是必需的；请参阅 [`listen` 参考](/docs/zh-CN/claude-apps-gateway-config#listen)。gateway 仅从此值构建 IdP `redirect_uri` 和其发现文档，从不从 `X-Forwarded-*` 标头构建。
+* `public_url`：外部 `https://` 源，对于任何非环回绑定都是必需的；请参阅 [`listen` 参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#listen)。gateway 仅从此值构建 IdP `redirect_uri` 和其发现文档，从不从 `X-Forwarded-*` 标头构建。
 * `trusted_proxies`：前端的源范围。gateway 仅当 TCP 对等体在此列表中时才遵守 `X-Forwarded-For`，然后遍历链越过受信任的跳跃，因此每 IP 登录速率限制和审计事件记录开发人员 IP 而不是负载均衡器的。
 
 在两个轨道上，前端是内部 ALB，无论是直接创建还是由 AWS Load Balancer Controller 创建，ALB 的节点从它附加到的子网中获取地址，因此将 `trusted_proxies` 设置为这些子网的 CIDR。这将这些子网中的每个主机信任为代理。保持 ALB 的入站源（您的企业 CIDR）不与它们重叠，并且不要与可能通过 `X-Forwarded-For` 欺骗客户端 IP 的不受信任的工作负载共享子网。
@@ -260,7 +260,7 @@ upstreams:
 
 > [!NOTE]
 >
-> 只有 `oidc` 块是 Okta 特定的。要改为使用 Microsoft Entra ID，请将 `issuer` 设置为 `https://login.microsoftonline.com/<tenant-id>/v2.0`，删除 `userinfo_fallback` 和 `groups` 范围，并注意 Entra 发出组对象 ID 而不是名称，因此 [`managed.policies`](/docs/zh-CN/claude-apps-gateway-config#managed) 必须匹配 GUID，或使用 `oidc.groups_claim: roles` 的应用角色。请参阅[身份提供商设置](/docs/zh-CN/claude-apps-gateway-deploy.md#identity-provider-setup)。
+> 只有 `oidc` 块是 Okta 特定的。要改为使用 Microsoft Entra ID，请将 `issuer` 设置为 `https://login.microsoftonline.com/<tenant-id>/v2.0`，删除 `userinfo_fallback` 和 `groups` 范围，并注意 Entra 发出组对象 ID 而不是名称，因此 [`managed.policies`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#managed) 必须匹配 GUID，或使用 `oidc.groups_claim: roles` 的应用角色。请参阅[身份提供商设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#identity-provider-setup)。
 
 **5. 在 AWS Secrets Manager 中存储机密**
 
@@ -281,14 +281,14 @@ aws secretsmanager create-secret --name gateway-postgres-url \
 >
 > 字面 `--secret-string` 参数在每个命令运行时在进程表和审计/EDR 日志中可见。在共享或受监控的主机上，将值放在 `0600` 文件中，改为传递 `--secret-string file://<path>`。bundle 的 `setup.sh` 以相同的方式将机密值保持在进程 argv 之外，将 `0600` 临时文件传递给 `--cli-input-json`。
 
-与机密不同，`gateway.yaml` 本身不包含机密值，因为每个凭据在启动时通过 [`${VAR}` 或 `${file:...}` 扩展](/docs/zh-CN/claude-apps-gateway-config#secret-expansion)解析。一切如何到达容器因轨道而异：
+与机密不同，`gateway.yaml` 本身不包含机密值，因为每个凭据在启动时通过 [`${VAR}` 或 `${file:...}` 扩展](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#secret-expansion)解析。一切如何到达容器因轨道而异：
 
 * 在 ECS 上，下一步的构建将 `gateway.yaml` 复制到镜像中的 `/etc/claude/gateway.yaml`，任务定义通过其 `secrets` 字段将三个机密作为环境变量注入，因此 YAML 引用 `${GATEWAY_JWT_SECRET}`、`${OIDC_CLIENT_SECRET}` 和 `${GATEWAY_POSTGRES_URL}`。
 * 在 EKS 上，从 ConfigMap 挂载 `gateway.yaml` 并将机密作为文件挂载在 `/secrets`，引用为 `${file:/secrets/...}`。使用 External Secrets Operator 或 Secrets Store CSI 驱动程序的 AWS 提供程序从 Secrets Manager 获取 Kubernetes Secrets，或使用 `kubectl` 直接创建它们。
 
 **6. 构建镜像并将其推送到 Amazon ECR**
 
-根据[容器镜像要求](/docs/zh-CN/claude-apps-gateway-deploy.md#container-image)构建镜像，将 `linux-x64` glibc 二进制文件放在构建上下文中的 `./claude`。根据这些要求编写您自己的 Dockerfile，或从 bundle 的 [`Dockerfile`](https://github.com/anthropics/claude-code/blob/main/examples/gateway/aws/Dockerfile) 开始，它将填充的 `gateway.yaml` 从前面的步骤复制到镜像中的 `/etc/claude/gateway.yaml`。在 ECS 上，该嵌入式副本是配置到达容器的方式，这就是为什么构建在文件被写入后进行。EKS 轨道改为在部署时从 ConfigMap 挂载 `gateway.yaml`，因此嵌入式副本在那里未使用。
+根据[容器镜像要求](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#container-image)构建镜像，将 `linux-x64` glibc 二进制文件放在构建上下文中的 `./claude`。根据这些要求编写您自己的 Dockerfile，或从 bundle 的 [`Dockerfile`](https://github.com/anthropics/claude-code/blob/main/examples/gateway/aws/Dockerfile) 开始，它将填充的 `gateway.yaml` 从前面的步骤复制到镜像中的 `/etc/claude/gateway.yaml`。在 ECS 上，该嵌入式副本是配置到达容器的方式，这就是为什么构建在文件被写入后进行。EKS 轨道改为在部署时从 ConfigMap 挂载 `gateway.yaml`，因此嵌入式副本在那里未使用。
 
 镜像还携带 AWS RDS 证书包作为连接字符串的 `sslmode=verify-full` 的信任锚，因此首先将其下载到构建上下文中。AWS 轮换 bundle（新的区域 CA 被附加），因此每次构建时下载它，而不是固定校验和或提交它：
 
@@ -419,9 +419,9 @@ aws ecs create-service --cluster claude-gateway --service-name claude-gateway \
 
 60 秒的宽限期给冷任务时间拉取镜像、连接到存储并在 ECS 开始计算针对部署的失败之前回答其第一个健康检查。
 
-目标组对 `GET /readyz` 的健康检查验证存储是否可达，因此无法到达 Postgres 的任务永远不会进入轮换。要通过短数据库中断（例如 RDS 故障转移）保持任务通过检查，请按照[中断行为](/docs/zh-CN/claude-apps-gateway-deploy.md#outage-behavior)中所述设置 `store.readiness_grace_seconds`，其中也涵盖了 `/healthz` 替代方案。
+目标组对 `GET /readyz` 的健康检查验证存储是否可达，因此无法到达 Postgres 的任务永远不会进入轮换。要通过短数据库中断（例如 RDS 故障转移）保持任务通过检查，请按照[中断行为](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#outage-behavior)中所述设置 `store.readiness_grace_seconds`，其中也涵盖了 `/healthz` 替代方案。
 
-任务在私有子网中运行，没有公共 IP，因此所有出站（到 Bedrock、您的 IdP、Secrets Manager、ECR 和 CloudWatch Logs）都通过 NAT 网关。要将 Bedrock 流量保持在公共路径之外，创建一个 `bedrock-runtime` 接口 VPC 端点并将上游的 `base_url` 指向它，如 [Bedrock 上游参考](/docs/zh-CN/claude-apps-gateway-config.md#amazon-bedrock)所示；IdP 仍然需要互联网出站。
+任务在私有子网中运行，没有公共 IP，因此所有出站（到 Bedrock、您的 IdP、Secrets Manager、ECR 和 CloudWatch Logs）都通过 NAT 网关。要将 Bedrock 流量保持在公共路径之外，创建一个 `bedrock-runtime` 接口 VPC 端点并将上游的 `base_url` 指向它，如 [Bedrock 上游参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#amazon-bedrock)所示；IdP 仍然需要互联网出站。
 
 最后，为开发人员提供一个可私有解析的主机名：在 Route 53 私有托管区域中，将 gateway 的内部 DNS 名称别名到 ALB，并将 `listen.public_url` 设置为该主机名。ALB 自己的 `*.elb.amazonaws.com` 名称在内部 ALB 上解析为私有地址，但它不能携带您的 ACM 证书，因此使用您自己的名称。
 
@@ -449,7 +449,7 @@ eksctl create iamserviceaccount --cluster <your-cluster> --region "$AWS_REGION" 
 
 机密策略仅在 pod 自己读取 Secrets Manager 时需要，如 Secrets Store CSI 驱动程序的 AWS 提供程序使用挂载 pod 的服务账户所做的那样；如果您以其他方式创建 Kubernetes Secrets，则删除它。提供程序需要策略的两个操作：它在协调轮换的机密时调用 `DescribeSecret`，因此仅 `GetSecretValue` 授予在第一次部署时挂载但停止拾取轮换。
 
-将 gateway 部署为标准 Deployment 加上 Service 和 Ingress，如[Kubernetes 部署](/docs/zh-CN/claude-apps-gateway-deploy.md#kubernetes)中所述，具有：
+将 gateway 部署为标准 Deployment 加上 Service 和 Ingress，如[Kubernetes 部署](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#kubernetes)中所述，具有：
 
 * `serviceAccountName: gateway`
 * 从 ConfigMap 挂载的 `gateway.yaml` 和在 `/secrets` 挂载的机密
@@ -458,7 +458,7 @@ eksctl create iamserviceaccount --cluster <your-cluster> --region "$AWS_REGION" 
 对于前端，由 AWS Load Balancer Controller 管理的 Ingress 配置内部 ALB。使用以下注解：
 
 * `alb.ingress.kubernetes.io/scheme: internal` 和 `alb.ingress.kubernetes.io/target-type: ip`
-* `alb.ingress.kubernetes.io/ip-address-type: ipv4`，因此不会发布会被 `/login` [私有网络检查](/docs/zh-CN/claude-apps-gateway#prerequisites)拒绝的公共范围 AAAA 记录
+* `alb.ingress.kubernetes.io/ip-address-type: ipv4`，因此不会发布会被 `/login` [私有网络检查](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)拒绝的公共范围 AAAA 记录
 * `alb.ingress.kubernetes.io/inbound-cidrs: <your-corporate-cidr>`，因此控制器管理的前端安全组仅允许您的企业网络而不是其 `0.0.0.0/0` 默认值
 * `alb.ingress.kubernetes.io/certificate-arn` 与 ACM 证书
 * `alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06`，因此侦听器不会回退到接受 TLS 1.0 和 1.1 的遗留默认策略
@@ -468,7 +468,7 @@ eksctl create iamserviceaccount --cluster <your-cluster> --region "$AWS_REGION" 
 
 **8. 将 gateway URL 推送到开发人员机器**
 
-gateway 现在正在运行，但在 gateway URL 出现在开发人员的机器上之前，开发人员无法从 `/login` 到达它。通过 MDM 将完整的[托管设置代码片段](/docs/zh-CN/claude-apps-gateway#set-the-gateway-url)（包含 `forceLoginMethod`、`forceLoginGatewayUrl` 以及选择启用的 `parentSettingsBehavior: "merge"`）部署到每台设备。登录选择器中没有可供开发人员手动选择的 gateway 选项。
+gateway 现在正在运行，但在 gateway URL 出现在开发人员的机器上之前，开发人员无法从 `/login` 到达它。通过 MDM 将完整的[托管设置代码片段](https://code.claude.com/docs/zh-CN/claude-apps-gateway#set-the-gateway-url)（包含 `forceLoginMethod`、`forceLoginGatewayUrl` 以及选择启用的 `parentSettingsBehavior: "merge"`）部署到每台设备。登录选择器中没有可供开发人员手动选择的 gateway 选项。
 
 ## Terraform 参考
 
@@ -483,12 +483,12 @@ gateway 现在正在运行，但在 gateway URL 出现在开发人员的机器�
 
 ## 故障排除
 
-有关 gateway 启动和登录错误，请参阅平台无关的[故障排除表](/docs/zh-CN/claude-apps-gateway-deploy.md#troubleshooting)。下面的条目特定于 AWS。
+有关 gateway 启动和登录错误，请参阅平台无关的[故障排除表](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#troubleshooting)。下面的条目特定于 AWS。
 
 | 症状 | 原因 | 修复 |
 | - | - | - |
-| CLI `/login`：`Gateway hosts must be on your organization's private network; <host> resolves to the public (or unrecognized) address <ip>` | gateway 名称解析为至少一个公共地址。双栈内部 ALB 发布公共范围 AAAA 记录，[私有网络检查](/docs/zh-CN/claude-apps-gateway#prerequisites)要求每个解析的地址都是私有的 | 使用 `--ip-address-type ipv4` 创建 ALB，或提供没有公共 AAAA 记录的单独内部 DNS 名称 |
-| 每个 Bedrock 请求返回 502；日志显示 `Could not load credentials from any providers` | 任务在没有任务角色的 ECS EC2 启动类型上运行，或 pod 在没有 IRSA 的 EKS 节点上运行，因此凭证来自实例元数据，IMDSv2 的默认跳跃限制 1 在容器内停止。本页上的两个轨道都不受影响：Fargate 任务角色和 IRSA 不使用实例元数据 | 更喜欢任务角色和 IRSA。在实例凭证不可避免的地方，使用 `aws ec2 modify-instance-metadata-options --instance-id <id> --http-put-response-hop-limit 2` 提高跳跃限制；[平台无关表](/docs/zh-CN/claude-apps-gateway-deploy.md#troubleshooting)涵盖权衡 |
+| CLI `/login`：`Gateway hosts must be on your organization's private network; <host> resolves to the public (or unrecognized) address <ip>` | gateway 名称解析为至少一个公共地址。双栈内部 ALB 发布公共范围 AAAA 记录，[私有网络检查](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)要求每个解析的地址都是私有的 | 使用 `--ip-address-type ipv4` 创建 ALB，或提供没有公共 AAAA 记录的单独内部 DNS 名称 |
+| 每个 Bedrock 请求返回 502；日志显示 `Could not load credentials from any providers` | 任务在没有任务角色的 ECS EC2 启动类型上运行，或 pod 在没有 IRSA 的 EKS 节点上运行，因此凭证来自实例元数据，IMDSv2 的默认跳跃限制 1 在容器内停止。本页上的两个轨道都不受影响：Fargate 任务角色和 IRSA 不使用实例元数据 | 更喜欢任务角色和 IRSA。在实例凭证不可避免的地方，使用 `aws ec2 modify-instance-metadata-options --instance-id <id> --http-put-response-hop-limit 2` 提高跳跃限制；[平台无关表](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#troubleshooting)涵盖权衡 |
 | Bedrock 请求返回 `403 AccessDeniedException` | 账户未提交 Anthropic 的一次性用例表单，启动自动 AWS Marketplace 订阅的账户首次调用尚未完成，或任务角色的策略缺少推理配置文件或基础模型 ARN | 从 Bedrock 控制台的模型目录提交用例表单；如果刚刚提交或这是账户的首次调用，请在几分钟后重试。在两个 ARN 系列上授予 `bedrock:InvokeModel` 和 `bedrock:InvokeModelWithResponseStream`。 |
 | Bedrock 返回 `ValidationException` 说按需吞吐量不受支持 | 自定义 `models:` 条目映射到区域仅通过推理配置文件提供的裸基础模型 ID | 改为将模型映射到其跨区域推理配置文件 ID (`us.anthropic.*`)；内置目录已经这样做了 |
 | ECS 任务在 gateway 记录任何内容之前以 `ResourceInitializationError` 停止 | 执行角色无法读取 Secrets Manager 机密，或私有子网没有到 Secrets Manager 或 ECR 的路径 | 在三个 `gateway-` 机密的 ARN 上向执行角色授予 `secretsmanager:GetSecretValue`，并通过 NAT 网关提供出站，或者没有一个，Secrets Manager、ECR 和 CloudWatch Logs 的接口端点，`awslogs` 驱动程序在同一阶段需要，加上 S3 网关端点 |
@@ -498,17 +498,17 @@ gateway 现在正在运行，但在 gateway URL 出现在开发人员的机器�
 
 ## 遥测
 
-网关为您提供每个开发者的使用指标，无需任何每台机器的 OTEL 配置。Claude Code 发出 OpenTelemetry (OTLP) 指标、日志和可选的跟踪；[监控使用情况](/docs/zh-CN/monitoring-usage.md)涵盖了 CLI 报告的所有内容。在通过 `/login` 登录的会话中，CLI 使用经过身份验证的 IdP 身份属性 `user.id`、`user.email` 和 `user.groups` [标记每个导出](/docs/zh-CN/monitoring-usage.md#standard-attributes)，因此使用情况按开发者汇总。
+网关为您提供每个开发者的使用指标，无需任何每台机器的 OTEL 配置。Claude Code 发出 OpenTelemetry (OTLP) 指标、日志和可选的跟踪；[监控使用情况](https://code.claude.com/docs/zh-CN/monitoring-usage.md)涵盖了 CLI 报告的所有内容。在通过 `/login` 登录的会话中，CLI 使用经过身份验证的 IdP 身份属性 `user.id`、`user.email` 和 `user.groups` [标记每个导出](https://code.claude.com/docs/zh-CN/monitoring-usage.md#standard-attributes)，因此使用情况按开发者汇总。
 
-网关本身是一个经过身份验证的 OTLP 中继。将 [`telemetry.forward_to`](/docs/zh-CN/claude-apps-gateway-config#telemetry) 与 `listen.public_url` 一起设置，它会将 OTEL 导出器设置推送到每个连接的客户端，并将其 OTLP 流量逐字转发到您列出的每个目标。每个目标独立选择指标、日志和跟踪，默认仅为指标；有关每个信号字段及其敏感性权衡，请参阅 [`telemetry` 参考](/docs/zh-CN/claude-apps-gateway-config#telemetry)。网关不缓冲、聚合或存储遥测数据，因此数据最终的位置完全由收集器的导出器配置决定。
+网关本身是一个经过身份验证的 OTLP 中继。将 [`telemetry.forward_to`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#telemetry) 与 `listen.public_url` 一起设置，它会将 OTEL 导出器设置推送到每个连接的客户端，并将其 OTLP 流量逐字转发到您列出的每个目标。每个目标独立选择指标、日志和跟踪，默认仅为指标；有关每个信号字段及其敏感性权衡，请参阅 [`telemetry` 参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#telemetry)。网关不缓冲、聚合或存储遥测数据，因此数据最终的位置完全由收集器的导出器配置决定。
 
-客户端遥测默认关闭；配置 `telemetry.forward_to` 是为连接的开发者启用它的方式，每个交互式客户端都会显示一个安全批准对话框，用于推送的设置，如 [配置参考](/docs/zh-CN/claude-apps-gateway-config.md#telemetry) 中所述。在 AWS 上，每个信号映射到目标如下。
+客户端遥测默认关闭；配置 `telemetry.forward_to` 是为连接的开发者启用它的方式，每个交互式客户端都会显示一个安全批准对话框，用于推送的设置，如 [配置参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#telemetry) 中所述。在 AWS 上，每个信号映射到目标如下。
 
 ### 客户端指标、日志和跟踪
 
 将 `telemetry.forward_to` 指向 OpenTelemetry 收集器，例如 [AWS Distro for OpenTelemetry (ADOT) 收集器](https://aws-otel.github.io/)，并从那里导出到 Amazon CloudWatch、Amazon Managed Service for Prometheus 或任何 OTLP 后端。
 
-将收集器作为其自己的内部服务运行，可通过 `https://` 访问；[`telemetry` 参考](/docs/zh-CN/claude-apps-gateway-config#telemetry)涵盖了环回异常和 `CLAUDE_GATEWAY_ALLOW_LOOPBACK`。
+将收集器作为其自己的内部服务运行，可通过 `https://` 访问；[`telemetry` 参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#telemetry)涵盖了环回异常和 `CLAUDE_GATEWAY_ALLOW_LOOPBACK`。
 
 ### 网关日志
 
@@ -520,7 +520,7 @@ gateway 现在正在运行，但在 gateway URL 出现在开发人员的机器�
 
 ### 支出
 
-遥测显示事后使用情况；[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits.md)是网关的实时每个开发者视图和执行。
+遥测显示事后使用情况；[支出限制](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)是网关的实时每个开发者视图和执行。
 
 ## 成本归属
 
@@ -528,7 +528,7 @@ gateway 现在正在运行，但在 gateway URL 出现在开发人员的机器�
 
 ### 使用 `assume_role` 按开发者拆分
 
-创建第二个 IAM 角色来持有 Bedrock 权限并信任网关的主体，授予该主体对其的 `sts:AssumeRole` 权限，并在 Bedrock 上游上设置 [`assume_role`](/docs/zh-CN/claude-apps-gateway-config#per-developer-aws-cost-attribution)，其中 `session_name: email`。网关随后会每小时为每个开发者假设该角色一次，并将会话名称设置为其电子邮件，然后使用结果对其请求进行签名。需要运行 Claude Code v2.1.281 或更高版本的网关。该角色也可以位于另一个 AWS 账户中：请参阅 [Bedrock 在另一个 AWS 账户中](/docs/zh-CN/claude-apps-gateway-config.md#bedrock-in-another-aws-account)。在 Terraform 中，在 [Terraform 包](#terraform-reference) 中的任务角色旁边：
+创建第二个 IAM 角色来持有 Bedrock 权限并信任网关的主体，授予该主体对其的 `sts:AssumeRole` 权限，并在 Bedrock 上游上设置 [`assume_role`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#per-developer-aws-cost-attribution)，其中 `session_name: email`。网关随后会每小时为每个开发者假设该角色一次，并将会话名称设置为其电子邮件，然后使用结果对其请求进行签名。需要运行 Claude Code v2.1.281 或更高版本的网关。该角色也可以位于另一个 AWS 账户中：请参阅 [Bedrock 在另一个 AWS 账户中](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#bedrock-in-another-aws-account)。在 Terraform 中，在 [Terraform 包](#terraform-reference) 中的任务角色旁边：
 
 ```hcl theme={null}
 resource "aws_iam_role" "bedrock_user" {
@@ -559,7 +559,7 @@ resource "aws_iam_role_policy" "task_assume_bedrock_user" {
 
 ### 使用应用推理配置文件按团队拆分
 
-此路由仅使用 [`models`](/docs/zh-CN/claude-apps-gateway-config#models) 和 [`managed`](/docs/zh-CN/claude-apps-gateway-config#managed) 部分。为每个团队和模型创建一个 Bedrock [应用推理配置文件](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-create.html)，用团队标记每个配置文件，并激活该标记作为成本分配标记。然后在 `gateway.yaml` 中为每个团队提供其自己的模型 id，并将每个 IdP 组固定到其团队的 id：
+此路由仅使用 [`models`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#models) 和 [`managed`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#managed) 部分。为每个团队和模型创建一个 Bedrock [应用推理配置文件](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-create.html)，用团队标记每个配置文件，并激活该标记作为成本分配标记。然后在 `gateway.yaml` 中为每个团队提供其自己的模型 id，并将每个 IdP 组固定到其团队的 id：
 
 ```yaml theme={null}
 models:
@@ -589,7 +589,7 @@ managed:
 * 配置随着团队乘以模型而增长
 * 对此上游的 Bedrock 请求进行签名的角色也必须被允许调用 `application-inference-profile/*` ARN。该角色是网关的主体，或者使用 `assume_role` 时是它假设的角色。
 
-请参阅[请求如何定价](/docs/zh-CN/claude-apps-gateway-spend-limits.md#how-requests-are-priced)了解网关自身的支出计量如何对这些 id 进行定价。
+请参阅[请求如何定价](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md#how-requests-are-priced)了解网关自身的支出计量如何对这些 id 进行定价。
 
 #### 让开发者选择向哪个团队计费
 
@@ -597,7 +597,7 @@ managed:
 
 **1. 为这对团队添加一个组**
 
-在您的 IdP 中，将该开发者添加到一个新组，例如 `team-platform-and-data`。如果他们已经登录，请让他们再次运行 `/login`，或等待下一次[静默刷新](/docs/zh-CN/claude-apps-gateway-config.md#managed)，以便网关识别到新组。
+在您的 IdP 中，将该开发者添加到一个新组，例如 `team-platform-and-data`。如果他们已经登录，请让他们再次运行 `/login`，或等待下一次[静默刷新](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#managed)，以便网关识别到新组。
 
 **2. 将其策略列在最前面**
 
@@ -620,13 +620,13 @@ managed:
 
 让开发者传入该工作所属团队的 id，例如 `claude --model data-claude-opus-4-8`。
 
-网关会应用[第一个匹配的策略](/docs/zh-CN/claude-apps-gateway-config.md#managed)，因此仅属于两个团队组的开发者会获得 `team-platform` 策略。他们使用数据团队 id 的会话会失败，并显示 `is not in your role's availableModels allowlist`，其中指明的是 Claude Code 的默认模型，而不是他们输入的 id。如果您改为在一个策略的 `groups` 中列出两个团队组，那么任一团队中的每个人都可以对任一团队的配置文件进行计费。
+网关会应用[第一个匹配的策略](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#managed)，因此仅属于两个团队组的开发者会获得 `team-platform` 策略。他们使用数据团队 id 的会话会失败，并显示 `is not in your role's availableModels allowlist`，其中指明的是 Claude Code 的默认模型，而不是他们输入的 id。如果您改为在一个策略的 `groups` 中列出两个团队组，那么任一团队中的每个人都可以对任一团队的配置文件进行计费。
 
-在网关自身的[支出限制](/docs/zh-CN/claude-apps-gateway-spend-limits.md#set-a-cap)中，无论会话使用哪个 id，该开发者每个周期都只有一个总额和一个上限，默认为其所属各组上限中的最低值。为避免某个团队较低的上限阻止另一个团队的工作，请为该开发者设置按用户的上限。
+在网关自身的[支出限制](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md#set-a-cap)中，无论会话使用哪个 id，该开发者每个周期都只有一个总额和一个上限，默认为其所属各组上限中的最低值。为避免某个团队较低的上限阻止另一个团队的工作，请为该开发者设置按用户的上限。
 
 ## 后续步骤
 
-* [配置参考](/docs/zh-CN/claude-apps-gateway-config.md)：每个 `gateway.yaml` 选项，包括 `managed.policies` 和 `telemetry`
-* [部署和操作](/docs/zh-CN/claude-apps-gateway-deploy.md)：IdP 设置、健康检查、JWT 机密轮换、升级和安全模型
-* [Claude apps gateway 概述](/docs/zh-CN/claude-apps-gateway)：快速入门和连接开发人员
+* [配置参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md)：每个 `gateway.yaml` 选项，包括 `managed.policies` 和 `telemetry`
+* [部署和操作](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md)：IdP 设置、健康检查、JWT 机密轮换、升级和安全模型
+* [Claude apps gateway 概述](https://code.claude.com/docs/zh-CN/claude-apps-gateway)：快速入门和连接开发人员
 * [Claude apps gateway 的 AWS 示例](https://github.com/aws-samples/anthropic-on-aws/tree/main/claude-apps-gateway)：AWS 维护的部署示例，涵盖一系列客户环境

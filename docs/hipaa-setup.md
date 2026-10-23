@@ -10,7 +10,7 @@ HIPAA 配置是 Claude Enterprise 计划中的一项组织设置，适用于处�
 
 > [!NOTE]
 >
-> "（本地模式）"指的是本地会话，而不是[云端会话](/docs/zh-CN/claude-code-on-the-web.md)。本地会话在以下位置之一运行：
+> "（本地模式）"指的是本地会话，而不是[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)。本地会话在以下位置之一运行：
 >
 > * 终端中的 Claude Code
 > * Claude Desktop 的 Code 标签页中的 Claude Code
@@ -43,10 +43,10 @@ HIPAA 配置是 Claude Enterprise 计划中的一项组织设置，适用于处�
 | Claude Code 的连接方式 | 是否符合 HIPAA 配置的条件 |
 | :- | :- |
 | Claude Enterprise 账户，直接连接到 Claude API | 是 |
-| Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry、Claude Platform on AWS 或 [Claude apps 网关](/docs/zh-CN/claude-apps-gateway) | 否 |
-| [LLM 网关](/docs/zh-CN/llm-gateway)或任何其他自定义 `ANTHROPIC_BASE_URL` | 否 |
+| Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry、Claude Platform on AWS 或 [Claude apps 网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) | 否 |
+| [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)或任何其他自定义 `ANTHROPIC_BASE_URL` | 否 |
 | 在未登录 Claude Enterprise 的计算机上使用 `ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` | 否 |
-| Claude Console API 密钥或[联合凭据](/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials) | 否。这些会话属于 Claude Console 组织，该组织有自己的协议和设置 |
+| Claude Console API 密钥或[联合凭据](https://code.claude.com/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials) | 否。这些会话属于 Claude Console 组织，该组织有自己的协议和设置 |
 
 #### 检查计算机的连接方式
 
@@ -62,7 +62,7 @@ HIPAA 配置是 Claude Enterprise 计划中的一项组织设置，适用于处�
 
 ### 更新 Claude Code 和 Claude Desktop
 
-HIPAA 配置要求 Claude Code v2.1.285 或更高版本，以及 Claude Desktop v2.19675.0 或更高版本。如果您的组织同时使用终端和 [Claude Desktop 应用](/docs/zh-CN/desktop.md)，请同时更新两者。
+HIPAA 配置要求 Claude Code v2.1.285 或更高版本，以及 Claude Desktop v2.19675.0 或更高版本。如果您的组织同时使用终端和 [Claude Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md)，请同时更新两者。
 
 要查看已安装的 Claude Code 版本，请在终端中运行以下命令。该命令在 Bash、Zsh 和 PowerShell 中相同：
 
@@ -72,7 +72,7 @@ claude --version
 
 受支持的安装会输出 `2.1.285 (Claude Code)` 或更高的版本号。
 
-要查看已安装的 Claude Desktop 版本，请参阅[检查您的版本](/docs/zh-CN/desktop.md#check-your-version)。
+要查看已安装的 Claude Desktop 版本，请参阅[检查您的版本](https://code.claude.com/docs/zh-CN/desktop.md#check-your-version)。
 
 #### 开发人员在旧版本上会看到什么
 
@@ -80,10 +80,10 @@ claude --version
 
 | 应用 | 开发人员在旧版本上会看到的内容 |
 | :- | :- |
-| Claude Code | 每个请求都会失败，并显示 [`API Error`](/docs/zh-CN/errors#claude-code-does-not-support-this-model)，说明该版本低于您组织的策略所要求的最低版本 |
+| Claude Code | 每个请求都会失败，并显示 [`API Error`](https://code.claude.com/docs/zh-CN/errors#claude-code-does-not-support-this-model)，说明该版本低于您组织的策略所要求的最低版本 |
 | Claude Desktop | 一个 **Update required** 对话框，提示开发人员更新 Claude Desktop 才能继续使用 **Code** 标签页 |
 
-要让开发人员保持使用受支持的版本，请[保持 Claude Code 为最新版本](/docs/zh-CN/setup.md#update-claude-code)。对于 Claude Desktop，请参阅[更新 Claude Desktop](https://claude.com/docs/cowork/hipaa-setup#update-claude-desktop)。
+要让开发人员保持使用受支持的版本，请[保持 Claude Code 为最新版本](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)。对于 Claude Desktop，请参阅[更新 Claude Desktop](https://claude.com/docs/cowork/hipaa-setup#update-claude-desktop)。
 
 ### 允许网络访问
 
@@ -95,13 +95,13 @@ claude --version
 | `claude.ai`、`claude.com`、`platform.claude.com` | 登录和令牌刷新 |
 | `sso.claude.com` | 登录（当您的组织使用单点登录时） |
 | `downloads.claude.ai` | 原生安装程序及其更新 |
-| `mcp-proxy.anthropic.com` | [来自 claude.ai 的连接器](/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai) |
+| `mcp-proxy.anthropic.com` | [来自 claude.ai 的连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai) |
 
 此表列出了终端中原生安装的 Claude Code 进行登录、运行和更新所需的主机。其余主机列在以下页面中：
 
-* **其他安装方式和可选功能**：[网络访问要求](/docs/zh-CN/network-config.md#network-access-requirements)列出了 npm 和 Homebrew 安装检查更新时使用的主机，以及插件安装等功能所需的主机
-* **Code 标签页和 Cowork**：[Desktop 网络访问要求](/docs/zh-CN/desktop.md#network-access-requirements)列出了 Claude Desktop 所需的其他主机
-* **检查 TLS 的代理**：[自定义 CA 证书](/docs/zh-CN/network-config.md#custom-ca-certificates)说明了如何信任您代理的证书
+* **其他安装方式和可选功能**：[网络访问要求](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)列出了 npm 和 Homebrew 安装检查更新时使用的主机，以及插件安装等功能所需的主机
+* **Code 标签页和 Cowork**：[Desktop 网络访问要求](https://code.claude.com/docs/zh-CN/desktop.md#network-access-requirements)列出了 Claude Desktop 所需的其他主机
+* **检查 TLS 的代理**：[自定义 CA 证书](https://code.claude.com/docs/zh-CN/network-config.md#custom-ca-certificates)说明了如何信任您代理的证书
 
 只要代理能够访问表中的主机，通过企业 HTTPS 代理的会话仍然符合 HIPAA 配置的条件。
 
@@ -111,11 +111,11 @@ Claude Code 通过从 `api.anthropic.com` 获取您组织的策略来得知您�
 
 ### 部署托管设置
 
-您可以使用[托管设置](/docs/zh-CN/managed-settings.md)引导开发人员使用 Claude Enterprise 账户登录、阻止云提供商和网关，并设置每台计算机保留本地会话数据的天数。无论 HIPAA 配置是否生效，这些设置都会生效。
+您可以使用[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)引导开发人员使用 Claude Enterprise 账户登录、阻止云提供商和网关，并设置每台计算机保留本地会话数据的天数。无论 HIPAA 配置是否生效，这些设置都会生效。
 
 本节中的设置是我们推荐作为起点的示例。您的组织有责任确定其自身环境的需求，并确认其配置满足这些需求。
 
-以下示例设置了四个键，您可以将它们添加到组织部署的[托管设置](/docs/zh-CN/managed-settings.md#choose-a-delivery-mechanism)中：
+以下示例设置了四个键，您可以将它们添加到组织部署的[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#choose-a-delivery-mechanism)中：
 
 ```json theme={null}
 {
@@ -134,10 +134,10 @@ Claude Code 通过从 `api.anthropic.com` 获取您组织的策略来得知您�
 
 | 键 | 设置值 | Claude Code 强制执行的内容 |
 | :- | :- | :- |
-| [`forceLoginMethod`](/docs/zh-CN/settings-reference#forceloginmethod) | `"claudeai"` | Claude Code 引导开发人员使用 claude.ai 登录，而不是 Claude Console |
-| [`forceLoginOrgUUID`](/docs/zh-CN/settings-reference#forceloginorguuid) | 您的组织 ID，[所有者](/docs/zh-CN/server-managed-settings.md#access-control)可以从 [claude.ai 管理设置](https://claude.ai/admin-settings/organization)中复制 | 当 claude.ai 登录属于其他组织时，Claude Code 会在启动时退出 |
-| [`allowedProviders`](/docs/zh-CN/settings-reference#allowedproviders) | `["anthropic"]` | Claude Code 拒绝在云提供商或网关上启动 |
-| [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) | 您的记录策略允许计算机保留会话数据的天数 | 每台计算机在相同天数后删除旧的会话数据 |
+| [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) | `"claudeai"` | Claude Code 引导开发人员使用 claude.ai 登录，而不是 Claude Console |
+| [`forceLoginOrgUUID`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginorguuid) | 您的组织 ID，[所有者](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control)可以从 [claude.ai 管理设置](https://claude.ai/admin-settings/organization)中复制 | 当 claude.ai 登录属于其他组织时，Claude Code 会在启动时退出 |
+| [`allowedProviders`](https://code.claude.com/docs/zh-CN/settings-reference#allowedproviders) | `["anthropic"]` | Claude Code 拒绝在云提供商或网关上启动 |
+| [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays) | 您的记录策略允许计算机保留会话数据的天数 | 每台计算机在相同天数后删除旧的会话数据 |
 
 > [!WARNING]
 >
@@ -149,15 +149,15 @@ HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的
 
 #### 确认设置已加载
 
-在已具有这些设置的计算机上，运行 `claude`，使用 Claude Enterprise 账户登录，然后输入 `/status`。`Setting sources` 行会列出 `Enterprise managed settings`，后跟括号中的来源，例如 `(file)`，并且 `Allowed providers` 行显示为 `Anthropic API (managed allowedProviders)`。如果 `Setting sources` 中未列出它，或者缺少 `Allowed providers` 行，请参阅[检查策略是否生效](/docs/zh-CN/managed-settings.md#check-that-a-policy-is-in-force)。
+在已具有这些设置的计算机上，运行 `claude`，使用 Claude Enterprise 账户登录，然后输入 `/status`。`Setting sources` 行会列出 `Enterprise managed settings`，后跟括号中的来源，例如 `(file)`，并且 `Allowed providers` 行显示为 `Anthropic API (managed allowedProviders)`。如果 `Setting sources` 中未列出它，或者缺少 `Allowed providers` 行，请参阅[检查策略是否生效](https://code.claude.com/docs/zh-CN/managed-settings.md#check-that-a-policy-is-in-force)。
 
 #### 托管设置键无法阻止的会话
 
 即使部署了这些键，某些会话仍可能在没有 HIPAA 配置的情况下运行：
 
-* **Claude Console 登录和联合凭据**：`forceLoginOrgUUID` 仅检查 claude.ai 登录。[将登录限制为您的组织](/docs/zh-CN/authentication.md#restrict-login-to-your-organization)列出了 Claude Code 对每种登录路径和凭据检查的内容。
-* **服务器托管设置**：如果您的组织还使用[服务器托管设置](/docs/zh-CN/server-managed-settings.md)，请让所有者在其中添加相同的键。[Claude Code 如何合并托管来源](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说明了哪个来源生效。
-* **低于 v2.1.285 的版本**：这些版本会忽略 `allowedProviders`，因此仍可能在云提供商或网关上启动。要让 v2.1.163 至 v2.1.284 拒绝启动，您可以在与[示例键](#deploy-managed-settings)相同的托管设置中添加值为 `"2.1.285"` 的 [`requiredMinimumVersion`](/docs/zh-CN/settings-reference#requiredminimumversion)。v2.1.163 之前的版本既会忽略 `allowedProviders`，也会忽略 `requiredMinimumVersion`，因此请[更新这些计算机](#update-claude-code-and-claude-desktop)。
+* **Claude Console 登录和联合凭据**：`forceLoginOrgUUID` 仅检查 claude.ai 登录。[将登录限制为您的组织](https://code.claude.com/docs/zh-CN/authentication.md#restrict-login-to-your-organization)列出了 Claude Code 对每种登录路径和凭据检查的内容。
+* **服务器托管设置**：如果您的组织还使用[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)，请让所有者在其中添加相同的键。[Claude Code 如何合并托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说明了哪个来源生效。
+* **低于 v2.1.285 的版本**：这些版本会忽略 `allowedProviders`，因此仍可能在云提供商或网关上启动。要让 v2.1.163 至 v2.1.284 拒绝启动，您可以在与[示例键](#deploy-managed-settings)相同的托管设置中添加值为 `"2.1.285"` 的 [`requiredMinimumVersion`](https://code.claude.com/docs/zh-CN/settings-reference#requiredminimumversion)。v2.1.163 之前的版本既会忽略 `allowedProviders`，也会忽略 `requiredMinimumVersion`，因此请[更新这些计算机](#update-claude-code-and-claude-desktop)。
 
 要了解您的 BAA 是否涵盖在没有 HIPAA 配置的情况下运行的会话，请参阅[在符合 HIPAA 要求的 Enterprise 计划中使用 Claude Code（本地模式）和 Cowork（本地模式）](https://support.claude.com/en/articles/17318731)。
 
@@ -200,10 +200,10 @@ HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的
 | 开发人员注意到的情况 | 原因 |
 | :- | :- |
 | WebFetch 工具不可用 | WebFetch 已关闭。网页搜索仍然可用 |
-| `--cloud`、`/teleport` 和 [Remote Control](/docs/zh-CN/remote-control.md) 被拒绝 | [云端会话](/docs/zh-CN/claude-code-on-the-web.md)和 Remote Control 已关闭 |
+| `--cloud`、`/teleport` 和 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 被拒绝 | [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)和 Remote Control 已关闭 |
 | `/feedback` 和 `/bug` 不可用 | 反馈提交已关闭 |
-| Claude 无法发布 [Artifact](/docs/zh-CN/artifacts.md) | Artifact 发布已关闭 |
-| MCP 工具会预先加载到上下文中 | [MCP 工具搜索](/docs/zh-CN/mcp.md#configure-tool-search)已关闭。`ENABLE_TOOL_SEARCH` 和托管设置都无法重新打开它 |
+| Claude 无法发布 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) | Artifact 发布已关闭 |
+| MCP 工具会预先加载到上下文中 | [MCP 工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#configure-tool-search)已关闭。`ENABLE_TOOL_SEARCH` 和托管设置都无法重新打开它 |
 | 读取 `ANTHROPIC_API_KEY` 的 MCP 服务器或 hook 无法再进行身份验证 | Claude Code 会从其启动的进程中[移除 Anthropic 凭据](#anthropic-credentials-in-commands-hooks-and-mcp-servers) |
 | 通过 `/login` 切换到其他组织后限制仍然存在 | HIPAA 状态会一直持续到 Claude Code 重新启动 |
 
@@ -213,7 +213,7 @@ HIPAA 配置不限制 `cleanupPeriodDays`，因此开发人员可以在自己的
 
 HIPAA 配置不会移除云提供商或 GitHub 凭据，因此推送到 GitHub 或调用其他服务的命令仍然可以使用该开发人员的访问权限正常工作。您与 Anthropic 签订的 BAA 不涵盖发送到这些位置的数据。有关合格服务的完整列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
 
-要限制 Claude 可以使用的命令和主机，请参阅[权限规则](/docs/zh-CN/permissions.md)和[沙箱](/docs/zh-CN/sandboxing.md)。
+要限制 Claude 可以使用的命令和主机，请参阅[权限规则](https://code.claude.com/docs/zh-CN/permissions.md)和[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)。
 
 ## 管理本地会话数据
 
@@ -221,7 +221,7 @@ Claude Code（本地模式）和 Cowork（本地模式）会在每位开发人�
 
 ### Claude Code 数据
 
-[应用程序数据](/docs/zh-CN/claude-directory.md#application-data)列出了 Claude Code（本地模式）在计算机上存储的内容、其保留清理在 `cleanupPeriodDays` 之后删除的内容，以及在有人删除之前一直保留的内容。该页面还说明了在已应用 HIPAA 配置的组织中有何不同。
+[应用程序数据](https://code.claude.com/docs/zh-CN/claude-directory.md#application-data)列出了 Claude Code（本地模式）在计算机上存储的内容、其保留清理在 `cleanupPeriodDays` 之后删除的内容，以及在有人删除之前一直保留的内容。该页面还说明了在已应用 HIPAA 配置的组织中有何不同。
 
 保留清理仅在有人启动 Claude Code 时运行，因此无人启动 Claude Code 的计算机会保留其数据。
 
@@ -229,7 +229,7 @@ Claude Code（本地模式）和 Cowork（本地模式）会在每位开发人�
 
 Code 标签页将数据存储在以下位置：
 
-* **会话记录**：位于 `~/.claude/projects/`，与终端会话记录存放在一起。[自动清理](/docs/zh-CN/claude-directory.md#cleaned-up-automatically)说明了保留清理何时删除它们。
+* **会话记录**：位于 `~/.claude/projects/`，与终端会话记录存放在一起。[自动清理](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)说明了保留清理何时删除它们。
 * **Claude Desktop 数据文件夹**：在 macOS 上为 `~/Library/Application Support/Claude`。在 Windows 上为 `%APPDATA%\Claude`，对于从 Anthropic 下载的安装程序则为 `%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude`，因此请同时检查两者。应用 HIPAA 配置后，Claude Desktop 会删除不活动时间超过 `cleanupPeriodDays` 的本地 Code 标签页会话，包括已加星标的会话。它仅在运行时执行删除。Claude Desktop 会以下列方式之一处理已删除会话的 worktree：
   * **没有未提交的更改、会话未加星标或固定，且没有其他会话正在使用该 worktree**：Claude Desktop 会移除该 worktree
   * **其他任何情况**：worktree 保留在计算机上
@@ -258,7 +258,7 @@ claude project purge --all --yes
 
 这两个命令都会删除每个项目的会话记录和自动记忆、`tasks/`、`debug/` 和 `file-history/` 中的条目、`history.jsonl`，以及 `~/.claude.json` 中的项目条目。如果不加 `--yes`，它会先输出计划并进行询问。
 
-清除操作会保留其他可能包含会话内容的路径，例如 `paste-cache/` 中粘贴的文本。[清除本地数据](/docs/zh-CN/claude-directory.md#clear-local-data)列出了您可以手动删除的路径。要彻底清理一台计算机（例如在重新分配之前），请[擦除它](#offboard-a-developer)。
+清除操作会保留其他可能包含会话内容的路径，例如 `paste-cache/` 中粘贴的文本。[清除本地数据](https://code.claude.com/docs/zh-CN/claude-directory.md#clear-local-data)列出了您可以手动删除的路径。要彻底清理一台计算机（例如在重新分配之前），请[擦除它](#offboard-a-developer)。
 
 ### 开发人员离职处理
 
@@ -267,9 +267,9 @@ claude project purge --all --yes
 ## 相关资源
 
 * [为符合 HIPAA 要求的组织设置 Cowork（本地模式）](https://claude.com/docs/cowork/hipaa-setup)
-* [部署托管设置](/docs/zh-CN/managed-settings.md)
+* [部署托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)
 * [HIPAA 设置示例](https://github.com/anthropics/claude-code/tree/main/examples/settings)
-* [企业网络配置](/docs/zh-CN/network-config.md)
-* [零数据保留](/docs/zh-CN/zero-data-retention.md)
-* [法律与合规](/docs/zh-CN/legal-and-compliance.md)
-* [数据使用](/docs/zh-CN/data-usage.md)
+* [企业网络配置](https://code.claude.com/docs/zh-CN/network-config.md)
+* [零数据保留](https://code.claude.com/docs/zh-CN/zero-data-retention.md)
+* [法律与合规](https://code.claude.com/docs/zh-CN/legal-and-compliance.md)
+* [数据使用](https://code.claude.com/docs/zh-CN/data-usage.md)

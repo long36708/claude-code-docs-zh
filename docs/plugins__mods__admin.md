@@ -6,7 +6,7 @@
 
 > 使用托管设置控制 Claude Code mods：停止用户安装的 mods、仅允许您自己的 mods、查看 mod 可以执行的操作，以及使用您自己的 mod 强制执行策略。
 
-[mod](/docs/zh-CN/plugins/mods/overview.md) 是在 Claude Code 内运行代码的插件，具有安装它的用户的权限。Mods 不是沙箱化的。通过[托管设置](/docs/zh-CN/managed-settings.md)，您可以决定 mods 是否在用户的机器上运行、运行哪些 mods 以及运行顺序。您还可以安装自己的 mod，用于监视或拒绝其他 mods 的操作。
+[mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 是在 Claude Code 内运行代码的插件，具有安装它的用户的权限。Mods 不是沙箱化的。通过[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)，您可以决定 mods 是否在用户的机器上运行、运行哪些 mods 以及运行顺序。您还可以安装自己的 mod，用于监视或拒绝其他 mods 的操作。
 
 本页面适用于为 Claude Code 部署托管设置的人员，无论是通过文件、MDM 还是从 claude.ai 管理控制台部署。在 Claude Code v2.1.286 及更高版本中，mod 默认处于启用状态。从与您要执行的操作相匹配的部分开始：
 
@@ -18,8 +18,8 @@
 >
 > 这些情况在其他页面上有介绍：
 >
-> * **您之前没有部署过托管设置**：从[部署托管设置](/docs/zh-CN/managed-settings.md)开始
-> * **您想控制用户可以安装哪些插件**：请参阅[为您的组织管理插件](/docs/zh-CN/plugins/org.md)
+> * **您之前没有部署过托管设置**：从[部署托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)开始
+> * **您想控制用户可以安装哪些插件**：请参阅[为您的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)
 
 ## 停止用户安装的 mod 加载
 
@@ -39,14 +39,14 @@
 
 在托管设置中设置该选项后：
 
-* **用户带来的任何 mod 都不会运行其 hook**：这包括用户安装的插件中的 mod、使用 `--plugin-dir` 加载的 mod，以及[Claude 在会话期间编写的](/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod) mod
+* **用户带来的任何 mod 都不会运行其 hook**：这包括用户安装的插件中的 mod、使用 `--plugin-dir` 加载的 mod，以及[Claude 在会话期间编写的](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod) mod
 * **您组织的 mod 仍然运行**：[计为您组织的](#install-your-organizations-mods) mod 不会被检查。所有其他 mod 都计为用户的 mod，并会被拒绝。这包括您从 GitHub 或其他远程市场启用的插件中的 mod，以及您的组织为其成员在 claude.ai 上启用的 mod。如果没有任何 mod 计为您组织的，则所有已安装的 mod 都不会运行其 hook。
 * **用户无法撤销它**：守卫仅从托管设置读取该选项，因此用户、项目或本地设置文件中的相同条目，或使用 `--settings` 传递的文件中的条目都不会改变任何内容
-* **文件或 MDM 策略涵盖每个提供商**：当您以文件形式或通过 MDM 提供该选项时，它在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的工作方式相同。对于从 claude.ai 管理控制台进行的交付，请参阅[平台可用性](/docs/zh-CN/server-managed-settings.md#platform-availability)
-* **用户的其他自定义保持工作**：他们[设置文件中的 hook](/docs/zh-CN/hooks.md) 和插件 `hooks/hooks.json` 中的 hook、状态栏以及 `/goal` 均不受影响
-* **内置 mod 继续运行**：内置于 Claude Code 的 mod，例如 `AGENTS.md` 支持，各有[自己的开关](/docs/zh-CN/plugins/mods/overview.md#mods-built-into-claude-code)
+* **文件或 MDM 策略涵盖每个提供商**：当您以文件形式或通过 MDM 提供该选项时，它在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的工作方式相同。对于从 claude.ai 管理控制台进行的交付，请参阅[平台可用性](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)
+* **用户的其他自定义保持工作**：他们[设置文件中的 hook](https://code.claude.com/docs/zh-CN/hooks.md) 和插件 `hooks/hooks.json` 中的 hook、状态栏以及 `/goal` 均不受影响
+* **内置 mod 继续运行**：内置于 Claude Code 的 mod，例如 `AGENTS.md` 支持，各有[自己的开关](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#mods-built-into-claude-code)
 
-要在用户机器上确认该选项，请在该机器上使用 `--plugin-dir` 和包含 mod 的目录路径启动 Claude Code，例如 `claude --plugin-dir ./first-mod`。该 mod 的 hook 不会运行，会话记录和调试日志中会出现[守卫的消息](/docs/zh-CN/plugins/mods/troubleshoot.md#messages-from-the-built-in-guard)，其中会指明该 mod 和 `allowManagedModsOnly`。如果没有出现该消息，请参阅[检查策略是否生效](/docs/zh-CN/managed-settings.md#check-that-a-policy-is-in-force)以及[决定选项是否生效的规则](#set-options-on-the-built-in-guard)。
+要在用户机器上确认该选项，请在该机器上使用 `--plugin-dir` 和包含 mod 的目录路径启动 Claude Code，例如 `claude --plugin-dir ./first-mod`。该 mod 的 hook 不会运行，会话记录和调试日志中会出现[守卫的消息](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#messages-from-the-built-in-guard)，其中会指明该 mod 和 `allowManagedModsOnly`。如果没有出现该消息，请参阅[检查策略是否生效](https://code.claude.com/docs/zh-CN/managed-settings.md#check-that-a-policy-is-in-force)以及[决定选项是否生效的规则](#set-options-on-the-built-in-guard)。
 
 如果您在早期访问期间将 `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` 设置为 `0`，请将其替换为此选项。Claude Code v2.1.287 及更高版本在任何值下都会忽略该变量，因此那里的 `0` 会使 mod 保持开启。
 
@@ -58,15 +58,15 @@
 * **内置守卫首先运行。** Claude Code 在用户安装的每个 mod 之前加载一个名为 `sec-default@builtin` 的内置 mod。用户无法将其关闭。`/plugin` 和调试日志将其列为 `cc-plugin-sec-default`。内置守卫在以下任一情况为真时加载：
 
   * 机器有托管设置
-  * 会话使用 Team 或 Enterprise 计划的 [`/login` 凭据](/docs/zh-CN/authentication#authentication-precedence)运行
+  * 会话使用 Team 或 Enterprise 计划的 [`/login` 凭据](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence)运行
 
-  使用 API 密钥进行身份验证的用户，或通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 进行身份验证的用户，仅在具有托管设置的机器上获得内置守卫。使用长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话也不算作上述登录，即使机器上存储了 Team 或 Enterprise 登录信息。
+  使用 API 密钥进行身份验证的用户，或通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 进行身份验证的用户，仅在具有托管设置的机器上获得内置守卫。使用长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话也不算作上述登录，即使机器上存储了 Team 或 Enterprise 登录信息。
 * **保护程序保护您管理的内容。** 用户的 mod 无法更改您的托管 hooks 接收或决定的内容、系统提示、您的托管 `CLAUDE.md` 和其他托管说明、任何 mod 读取的设置内容，或您的托管 MCP 服务器的工具和描述。
 * **在您管理的内容之外，用户的 mod 以该用户身份行事。** mod 保留该用户的权限：它仍然可以读写文件、启动进程和发出网络请求。它还可以重写工具调用和提示词、拒绝工具调用，以及在界面中绘制。
 * **权限规则和 `PreToolUse` hook 优先于用户的 mod。** 加载内置守卫后，默认情况下，用户的 mod 无法批准 `deny` 规则拒绝的调用或 `ask` 规则会提示的调用，无论哪个设置文件持有该规则。mod 也无法批准任何 `PreToolUse` hook 阻止的调用。
 
-  权限规则和 `PreToolUse` hook 适用于 Claude 的工具调用，而不适用于 mod 的 [`$.fs` 和 `$.process` 调用](/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)。即使 `Read(.env)` 被拒绝，mod 仍然可以使用 `$.fs.read` 读取该文件，或启动执行此操作的程序。要限制 mod 自身的 `$.fs` 和 `$.process` 调用，请[阻止该 mod 加载](#stop-user-installed-mods-from-loading)，或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中处理这些调用。
-* **用户的 mod 仍然可以跳过某些提示。** 在[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，mod 批准的调用运行时不进行分类器检查，除非内置守卫已加载，且会话使用 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 或 Agent SDK [`canUseTool` 回调](/docs/zh-CN/agent-sdk/user-input#handle-tool-approval-requests)运行。在这种情况下，分类器会先检查该调用。对于 mod 的批准不会跳过的提示，请参阅[使用 hook 扩展权限](/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
+  权限规则和 `PreToolUse` hook 适用于 Claude 的工具调用，而不适用于 mod 的 [`$.fs` 和 `$.process` 调用](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)。即使 `Read(.env)` 被拒绝，mod 仍然可以使用 `$.fs.read` 读取该文件，或启动执行此操作的程序。要限制 mod 自身的 `$.fs` 和 `$.process` 调用，请[阻止该 mod 加载](#stop-user-installed-mods-from-loading)，或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中处理这些调用。
+* **用户的 mod 仍然可以跳过某些提示。** 在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，mod 批准的调用运行时不进行分类器检查，除非内置守卫已加载，且会话使用 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 Agent SDK [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input#handle-tool-approval-requests)运行。在这种情况下，分类器会先检查该调用。对于 mod 的批准不会跳过的提示，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
 
 保护程序的源代码在 [Claude Code 存储库的 `mods/sec-default` 目录](https://github.com/anthropics/claude-code/tree/main/mods/sec-default)中是公开的。
 
@@ -76,19 +76,19 @@ Mods 不会替换您已有的控制：
 
 * **设置 hook 继续工作。** 设置文件和插件的 `hooks/hooks.json` 中的命令、HTTP、提示词和 Agent hook 照常运行，与 mod 一起。
 * **拒绝规则在保护程序加载的地方优先。** 用户的 mod 无法批准 `deny` 规则拒绝的调用，除非您设置 [`allowModsToOverrideDenyRules`](#set-options-on-the-built-in-guard)。
-* **托管 hook 首先运行。** 托管设置中的 `PreToolUse` hook 在任何 mod 的 [`tool.call`](/docs/zh-CN/plugins/mods/reference#tools) hook 之前运行，当该托管 hook 阻止某个工具调用时，不会有任何 mod 的 `tool.call` hook 针对该调用运行。如果调用继续进行且 mod 重写了它，您的托管 hook 会在重写后的调用上再次运行，因此仍然可以阻止它。
+* **托管 hook 首先运行。** 托管设置中的 `PreToolUse` hook 在任何 mod 的 [`tool.call`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#tools) hook 之前运行，当该托管 hook 阻止某个工具调用时，不会有任何 mod 的 `tool.call` hook 针对该调用运行。如果调用继续进行且 mod 重写了它，您的托管 hook 会在重写后的调用上再次运行，因此仍然可以阻止它。
 
-  来自其他设置文件和插件的 `PreToolUse` hook 在最后一个 mod 之后运行。如果 mod 自行应答工具调用，该工具永远不会运行，这些 hook 也不会运行。请参阅[mod 运行的顺序](/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)。
+  来自其他设置文件和插件的 `PreToolUse` hook 在最后一个 mod 之后运行。如果 mod 自行应答工具调用，该工具永远不会运行，这些 hook 也不会运行。请参阅[mod 运行的顺序](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)。
 * **网络策略涵盖 `$.http.fetch`。**
 
-  * **您的组织策略不允许 WebFetch**：Claude Code 也会拒绝每个 mod 的 `$.http.fetch` 请求。请参阅 [WebFetch 可用性](/docs/zh-CN/tools-reference.md#webfetch-availability)。
-  * **您在托管设置或任何其他设置文件中使用 [`CLAUDE_CODE_DISABLE_WEB_FETCH`](/docs/zh-CN/env-vars#variables) 或 `WebFetch` [拒绝规则](/docs/zh-CN/permissions.md#tool-specific-permission-rules)关闭了 WebFetch 工具**：mod 仍然可以发出 `$.http.fetch` 请求。
+  * **您的组织策略不允许 WebFetch**：Claude Code 也会拒绝每个 mod 的 `$.http.fetch` 请求。请参阅 [WebFetch 可用性](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-availability)。
+  * **您在托管设置或任何其他设置文件中使用 [`CLAUDE_CODE_DISABLE_WEB_FETCH`](https://code.claude.com/docs/zh-CN/env-vars#variables) 或 `WebFetch` [拒绝规则](https://code.claude.com/docs/zh-CN/permissions.md#tool-specific-permission-rules)关闭了 WebFetch 工具**：mod 仍然可以发出 `$.http.fetch` 请求。
 
-    要为您的用户安装的每个 mod 阻止这些请求，请[防止用户安装的 mod 加载](#stop-user-installed-mods-from-loading)，或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中 hook `http.fetch` 并拒绝来自用户 mod 的请求。还要为该 hook 提供一个同样会拒绝请求的 [`.catch` 处理程序](/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)，因为 Claude Code 会跳过失败的 hook，届时请求将继续进行。如果您只[限制用户可以安装的插件](/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)，加载的 mod 会减少，但您允许的 mod 仍然可以发出这些请求。
-  * **您设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars)**：您或您的用户安装的 mod 仍然可以发出这些请求。该变量仅阻止 [Claude Code 内置的 mod](/docs/zh-CN/plugins/mods/overview.md#mods-built-into-claude-code)，以及任何携带会话 Anthropic 凭据的 `$.http.fetch` 请求。在 v2.1.288 之前，该变量会阻止每个 mod 的 `$.http.fetch` 请求。
+    要为您的用户安装的每个 mod 阻止这些请求，请[防止用户安装的 mod 加载](#stop-user-installed-mods-from-loading)，或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中 hook `http.fetch` 并拒绝来自用户 mod 的请求。还要为该 hook 提供一个同样会拒绝请求的 [`.catch` 处理程序](https://code.claude.com/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)，因为 Claude Code 会跳过失败的 hook，届时请求将继续进行。如果您只[限制用户可以安装的插件](https://code.claude.com/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)，加载的 mod 会减少，但您允许的 mod 仍然可以发出这些请求。
+  * **您设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](https://code.claude.com/docs/zh-CN/env-vars)**：您或您的用户安装的 mod 仍然可以发出这些请求。该变量仅阻止 [Claude Code 内置的 mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#mods-built-into-claude-code)，以及任何携带会话 Anthropic 凭据的 `$.http.fetch` 请求。在 v2.1.288 之前，该变量会阻止每个 mod 的 `$.http.fetch` 请求。
 
   这些都不涵盖 mod 使用 `$.process.run` 启动的程序，该程序使用用户自己的访问权限访问网络。
-* **插件控制涵盖 mods。** Mod 是一个插件，因此[限制用户可以安装的内容的设置](/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)，例如 `strictKnownMarketplaces`，决定它是否可以被安装。
+* **插件控制涵盖 mods。** Mod 是一个插件，因此[限制用户可以安装的内容的设置](https://code.claude.com/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)，例如 `strictKnownMarketplaces`，决定它是否可以被安装。
 * **Mods 无法更改权限提示。** Mod 可以重新设置 Claude Code 界面的大部分样式，但不能更改权限提示，因此它无法更改提示显示的内容。Mod 仍然可以在提示出现之前批准或拒绝工具调用，如[了解默认情况下会发生什么](#know-what-happens-by-default)所述。
 * **信任提示首先出现。** 在用户尚未信任的目录中的交互式会话中，在他们回答信任提示之前，没有 mod 加载。
 * **`--safe-mode` 关闭已安装的 mods，包括您的。** 使用 `claude --safe-mode` 启动会话以检查 mod 是否导致了问题。
@@ -104,10 +104,10 @@ Mod 可以做的比插件的其他部分更多，因为它在 Claude Code 内运
 | 您今天的插件控制 | 用户可以加载什么作为 mod |
 | :- | :- |
 | 无 | 来自任何市场的 mod、来自任何带有 `--plugin-dir` 的目录的 mod，或 Claude 在会话期间编写的 mod |
-| 市场允许列表 | 来自您允许的市场的 mod，或来自任何带有 `--plugin-dir` 的目录的 mod。Claude 在会话期间编写的 mod 仅在允许列表[包含 `skills-dir`](/docs/zh-CN/plugins/org#keep-skills-directory-plugins-loading) 时加载。 |
+| 市场允许列表 | 来自您允许的市场的 mod，或来自任何带有 `--plugin-dir` 的目录的 mod。Claude 在会话期间编写的 mod 仅在允许列表[包含 `skills-dir`](https://code.claude.com/docs/zh-CN/plugins/org#keep-skills-directory-plugins-loading) 时加载。 |
 | 市场允许列表和 `disableSideloadFlags` | 来自您允许的市场的 mod |
 
-[为您的组织管理插件](/docs/zh-CN/plugins/org.md)列出了插件加载的每种方式以及控制每种方式的设置。
+[为您的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)列出了插件加载的每种方式以及控制每种方式的设置。
 
 要在用户安装市场中的 mods 之前检查它们，请参阅[查看 mod 可以执行的操作](#review-what-a-mod-can-do)。要在您完成此操作之前排除用户的 mods，请参阅[停止用户安装的 mods 加载](#stop-user-installed-mods-from-loading)。
 
@@ -126,7 +126,7 @@ claude plugin validate ./some-mod
   ❯ ./register.js calls: $.fs.read, $.http.fetch, $.store.set, $.ui.open
 ```
 
-`hooks:` 行列出了 mod 接收的事件。`calls:` 行列出了其代码调用的 mods API 方法。[mods API](/docs/zh-CN/plugins/mods/api.md)（在 mod 的代码中写作 `$`）是 mod 到达文件、进程和网络的方式。Claude Code 拒绝加载以此命令无法读取的方式使用 mods API 的 mod。
+`hooks:` 行列出了 mod 接收的事件。`calls:` 行列出了其代码调用的 mods API 方法。[mods API](https://code.claude.com/docs/zh-CN/plugins/mods/api.md)（在 mod 的代码中写作 `$`）是 mod 到达文件、进程和网络的方式。Claude Code 拒绝加载以此命令无法读取的方式使用 mods API 的 mod。
 
 查看 `calls:` 行以获取这些：
 
@@ -140,32 +140,32 @@ claude plugin validate ./some-mod
 | `$.mcp.call` | 在连接的 MCP 服务器上调用工具，在会话的权限规则下 |
 | `$.model.complete` | 使用用户的计划或 API 密钥进行模型调用 |
 | `$.prompt.submit` | 提交提示，可以将其作为用户自己的话语发送 |
-| `$.session.send` | 发送另一个会话、子代理或[队友](/docs/zh-CN/agent-teams.md)的 Claude 读取的消息 |
+| `$.session.send` | 发送另一个会话、子代理或[队友](https://code.claude.com/docs/zh-CN/agent-teams.md)的 Claude 读取的消息 |
 
-在 `hooks:` 行中，[`tool.call`](/docs/zh-CN/plugins/mods/reference#tools) 和 [`prompt.submit`](/docs/zh-CN/plugins/mods/reference#prompts-and-what-claude-reads) 意味着 mod 看到每个工具调用和每个提示，并可以更改它们。[`session.append`](/docs/zh-CN/plugins/mods/reference#session) 意味着 mod 可以在存储之前重写对话的每一行。[`ui.render{component=AskUserQuestion}`](/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) 意味着 mod 可以重新绘制 Claude 用来询问用户问题的对话框。`tool.check` 意味着 mod 可以在权限提示出现之前批准或拒绝工具调用。[了解默认情况下会发生什么](#know-what-happens-by-default)列出了您的哪些规则和 hooks 优先于其答案。
+在 `hooks:` 行中，[`tool.call`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#tools) 和 [`prompt.submit`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#prompts-and-what-claude-reads) 意味着 mod 看到每个工具调用和每个提示，并可以更改它们。[`session.append`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#session) 意味着 mod 可以在存储之前重写对话的每一行。[`ui.render{component=AskUserQuestion}`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) 意味着 mod 可以重新绘制 Claude 用来询问用户问题的对话框。`tool.check` 意味着 mod 可以在权限提示出现之前批准或拒绝工具调用。[了解默认情况下会发生什么](#know-what-happens-by-default)列出了您的哪些规则和 hooks 优先于其答案。
 
 ## 选择允许的程度
 
-Mod 策略的范围从根本没有已安装的 mod 到用户选择的任何 mod，以及由您自己的 mod 检查其他 mod，每一种都只需几个托管设置。在第一列中找到您想要的策略，并设置第二列列出的内容。[部署托管设置](/docs/zh-CN/managed-settings.md)介绍了托管设置的存放位置。
+Mod 策略的范围从根本没有已安装的 mod 到用户选择的任何 mod，以及由您自己的 mod 检查其他 mod，每一种都只需几个托管设置。在第一列中找到您想要的策略，并设置第二列列出的内容。[部署托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)介绍了托管设置的存放位置。
 
 | 您想要什么 | 设置 |
 | :- | :- |
 | 没有已安装的 mod 运行，设置 hook 保持不变 | 设置 [`allowManagedModsOnly`](#set-options-on-the-built-in-guard) 并且不部署您自己的 mod |
 | 没有已安装的 mod，也根本没有 hook，包括您的托管 hook | 将 `disableAllHooks` 设置为 `true` |
 | 仅您组织的 mod | 设置守卫的 [`allowManagedModsOnly` 选项](#stop-user-installed-mods-from-loading)，并[安装您的 mod](#install-your-organizations-mods) 以便它们计为您的 |
-| 来自您批准的市场的任何 mod | 保持您的[市场限制](/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)，并将 `disableSideloadFlags` 设置为 `true` |
+| 来自您批准的市场的任何 mod | 保持您的[市场限制](https://code.claude.com/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)，并将 `disableSideloadFlags` 设置为 `true` |
 | 任何 mod，由您自己的 mod 检查其他 mod | [安装您的 mod](#install-your-organizations-mods)，并在 `prependPlugins` 中将它与 `sec-default@builtin` 一起列出 |
 
 每个设置的作用：
 
 * **`allowManagedModsOnly`**：内置守卫上的一个选项。Claude Code 会拒绝用户自己的 mod，因此他们的 hook 都不会运行。用户的设置 hook、状态栏和 `/goal` 继续工作。[停止加载用户安装的 mod](#stop-user-installed-mods-from-loading)列出了它涵盖的内容。
-* **`allowManagedHooksOnly`**：范围更广的设置。仅[您组织的 mod](#install-your-organizations-mods) 和内置于 Claude Code 的 mod 会加载。用户自己安装的 mod 不会加载。该设置还会阻止用户自己的设置文件中的 hook。在设置之前，请阅读[`allowManagedHooksOnly` 下运行什么](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)。
-* **`disableAllHooks`**：范围最广的设置。在托管设置中，它会停止每个已安装插件中的 mod（包括您的），并关闭设置文件中的每个 hook，因此您的托管设置中的 `PreToolUse` hook 不再阻止任何内容。自定义状态栏和 `/goal` 也会停止工作。在设置之前，请阅读[`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks)。
-* **`disableSideloadFlags`**：在启动时拒绝 `--plugin-dir` 和 `--plugin-url`，并阻止 Claude 在会话期间编写的 mod 加载。该设置还会拒绝 `--agents` 和 `--mcp-config`。在设置之前，请阅读[`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags)。
+* **`allowManagedHooksOnly`**：范围更广的设置。仅[您组织的 mod](#install-your-organizations-mods) 和内置于 Claude Code 的 mod 会加载。用户自己安装的 mod 不会加载。该设置还会阻止用户自己的设置文件中的 hook。在设置之前，请阅读[`allowManagedHooksOnly` 下运行什么](https://code.claude.com/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)。
+* **`disableAllHooks`**：范围最广的设置。在托管设置中，它会停止每个已安装插件中的 mod（包括您的），并关闭设置文件中的每个 hook，因此您的托管设置中的 `PreToolUse` hook 不再阻止任何内容。自定义状态栏和 `/goal` 也会停止工作。在设置之前，请阅读[`disableAllHooks`](https://code.claude.com/docs/zh-CN/settings-reference#disableallhooks)。
+* **`disableSideloadFlags`**：在启动时拒绝 `--plugin-dir` 和 `--plugin-url`，并阻止 Claude 在会话期间编写的 mod 加载。该设置还会拒绝 `--agents` 和 `--mcp-config`。在设置之前，请阅读[`disableSideloadFlags`](https://code.claude.com/docs/zh-CN/settings-reference#disablesideloadflags)。
 
-内置于 Claude Code 的 mod，例如 `AGENTS.md` 支持，不受这些设置的影响。每个都有[自己的开关](/docs/zh-CN/plugins/mods/overview.md#mods-built-into-claude-code)。
+内置于 Claude Code 的 mod，例如 `AGENTS.md` 支持，不受这些设置的影响。每个都有[自己的开关](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#mods-built-into-claude-code)。
 
-如果用户的 mod 被拒绝或未加载，用户可以在其调试日志中找到原因。[拒绝消息](/docs/zh-CN/plugins/mods/troubleshoot.md#refusal-messages)列出了 `allowManagedHooksOnly` 和 `disableAllHooks` 对应的日志行，[来自内置守卫的消息](/docs/zh-CN/plugins/mods/troubleshoot.md#messages-from-the-built-in-guard)包含 `allowManagedModsOnly` 对应的日志行。
+如果用户的 mod 被拒绝或未加载，用户可以在其调试日志中找到原因。[拒绝消息](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#refusal-messages)列出了 `allowManagedHooksOnly` 和 `disableAllHooks` 对应的日志行，[来自内置守卫的消息](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#messages-from-the-built-in-guard)包含 `allowManagedModsOnly` 对应的日志行。
 
 ### 仅允许您组织的 mod
 
@@ -193,7 +193,7 @@ Mod 策略的范围从根本没有已安装的 mod 到用户选择的任何 mod�
 
 * **`extraKnownMarketplaces`、`enabledPlugins` 和 `prependPlugins`**：安装您的 mod 以便它计为您的，并让它首先运行，守卫紧随其后。[安装您组织的 mod 并设置顺序](#install-your-organizations-mods)介绍了这些键所指向的目录。
 * **`pluginConfigs`**：设置守卫的 `allowManagedModsOnly` 选项，因此 Claude Code 会拒绝用户自己的 mod。他们的设置 hook、状态栏和 `/goal` 继续工作。
-* **`disableSideloadFlags`**：有关它在启动时拒绝的标志，请参阅 [`disableSideloadFlags`](/docs/zh-CN/settings-reference#disablesideloadflags)
+* **`disableSideloadFlags`**：有关它在启动时拒绝的标志，请参阅 [`disableSideloadFlags`](https://code.claude.com/docs/zh-CN/settings-reference#disablesideloadflags)
 
 要在测试机器上确认该策略，请在您的 shell 中使用 `claude --debug` 启动会话并阅读调试日志：
 
@@ -201,18 +201,18 @@ Mod 策略的范围从根本没有已安装的 mod 到用户选择的任何 mod�
 * **用户安装的 mod**：有一行显示 `refused by cc-plugin-sec-default: mods are limited to your organization's by policy (allowManagedModsOnly)`。更早的一行会显示该 mod 的 hook 模块已 `loaded`，因此请查找拒绝信息。
 * **插件目录**：`claude --plugin-dir ./any-mod` 会退出，并显示以 `--plugin-dir is disabled by your organization's managed settings (disableSideloadFlags)` 开头的消息
 
-要同时限制用户可以添加哪些市场，请将此文件与您的[市场限制](/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)结合使用。
+要同时限制用户可以添加哪些市场，请将此文件与您的[市场限制](https://code.claude.com/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)结合使用。
 
 ### 将您的插件控制应用于 mod
 
-mod 就是插件，因此您[为组织管理插件](/docs/zh-CN/plugins/org.md)的方式同样适用于包含 mod 的插件：
+mod 就是插件，因此您[为组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)的方式同样适用于包含 mod 的插件：
 
-* **查看整个设备群中加载了哪些插件**：[审计和审查](/docs/zh-CN/plugins/org.md#audit-and-review)
-* **决定您审查过的插件何时可以更新**：[设置更新策略](/docs/zh-CN/plugins/org.md#set-update-policy)
-* **为某个群组（例如试点群组）提供不同的策略**：[为托管设置无法强制执行的内容做好规划](/docs/zh-CN/plugins/org.md#plan-for-what-managed-settings-can’t-enforce)
-* **检查哪些应用和会话类型会应用插件键**：[各使用入口何时应用插件键](/docs/zh-CN/plugins/org.md#when-each-surface-applies-the-plugin-keys)
-* **设置 CI 和容器**：[为容器和 CI 预置内容](/docs/zh-CN/plugins/org.md#seed-containers-and-ci)
-* **提供用户可以安装的 mod**：[托管市场](/docs/zh-CN/plugins/host-marketplace.md)。Claude Code 从 GitHub、git、URL 或 npm 源复制的 mod 计为用户的，而不是[您组织的](#install-your-organizations-mods)。
+* **查看整个设备群中加载了哪些插件**：[审计和审查](https://code.claude.com/docs/zh-CN/plugins/org.md#audit-and-review)
+* **决定您审查过的插件何时可以更新**：[设置更新策略](https://code.claude.com/docs/zh-CN/plugins/org.md#set-update-policy)
+* **为某个群组（例如试点群组）提供不同的策略**：[为托管设置无法强制执行的内容做好规划](https://code.claude.com/docs/zh-CN/plugins/org.md#plan-for-what-managed-settings-can’t-enforce)
+* **检查哪些应用和会话类型会应用插件键**：[各使用入口何时应用插件键](https://code.claude.com/docs/zh-CN/plugins/org.md#when-each-surface-applies-the-plugin-keys)
+* **设置 CI 和容器**：[为容器和 CI 预置内容](https://code.claude.com/docs/zh-CN/plugins/org.md#seed-containers-and-ci)
+* **提供用户可以安装的 mod**：[托管市场](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md)。Claude Code 从 GitHub、git、URL 或 npm 源复制的 mod 计为用户的，而不是[您组织的](#install-your-organizations-mods)。
 
 ### 在内置守卫上设置选项
 
@@ -232,7 +232,7 @@ mod 就是插件，因此您[为组织管理插件](/docs/zh-CN/plugins/org.md)�
 * **守卫必须加载**：如果您设置了 `prependPlugins`，请[在列表中指定守卫](#install-your-organizations-mods)。守卫未加载时，两个选项都不适用。
 * **守卫以失败即关闭方式运行**：如果守卫无法读取托管设置，它会在加载时拒绝每个用户的 mod。如果它无法针对用户的 mod 所批准的调用检查拒绝规则，它会拒绝该调用。
 
-[来自内置守卫的消息](/docs/zh-CN/plugins/mods/troubleshoot.md#messages-from-the-built-in-guard)是任一选项生效时您的用户看到的内容。
+[来自内置守卫的消息](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#messages-from-the-built-in-guard)是任一选项生效时您的用户看到的内容。
 
 ## 运行您组织自己的 mod
 
@@ -243,8 +243,8 @@ mod 就是插件，因此您[为组织管理插件](/docs/zh-CN/plugins/org.md)�
 您组织的 mod 在用户 mod 无法加载的地方加载，并且可以在用户 mod 之前运行，因此 Claude Code 必须能够判断 mod 是否来自您。只有当以下所有条件都为真时，它才会将 mod 视为您组织的：
 
 * 托管的 `enabledPlugins` 将 mod 的插件设置为 `true`
-* 托管设置通过绝对路径将插件的[市场](/docs/zh-CN/plugins/create-marketplace.md)指定为用户机器上的目录。`extraKnownMarketplaces` 条目可以做到这一点，并且也会为用户注册该市场。
-* 市场通过相对路径列出插件，因此 Claude Code [从该目录就地加载它](/docs/zh-CN/plugins/loading.md#in-place-and-copied-plugins)
+* 托管设置通过绝对路径将插件的[市场](https://code.claude.com/docs/zh-CN/plugins/create-marketplace.md)指定为用户机器上的目录。`extraKnownMarketplaces` 条目可以做到这一点，并且也会为用户注册该市场。
+* 市场通过相对路径列出插件，因此 Claude Code [从该目录就地加载它](https://code.claude.com/docs/zh-CN/plugins/loading.md#in-place-and-copied-plugins)
 
 为了满足这些条件，请让您的设备管理将市场目录复制到每台机器上的相同路径。使该目录及其上方的每个目录仅可由管理员写入，就像托管设置文件一样。任何可以在那里写入的人都可以重写您的 mod。您从 claude.ai 管理员控制台交付的托管设置可以携带这些键，但无法将目录放到机器上。
 
@@ -277,7 +277,7 @@ mod 就是插件，因此您[为组织管理插件](/docs/zh-CN/plugins/org.md)�
 
 Claude Code 复制到其缓存中的插件计为用户的，即使托管的 `enabledPlugins` 启用了它。这涵盖了来自 GitHub、git、URL 或 npm 源的每个插件。其 mod 在用户 mod 中运行，`prependPlugins` 和 `appendPlugins` 会跳过它，`allowManagedModsOnly` 会拒绝它，`allowManagedHooksOnly` 会阻止它加载。用户的调试日志中有一行以插件的 id 和 `is enabled by managed settings, but` 开头。
 
-Claude Code 每次即将采取行动（例如运行工具）时都会触发一个事件，并依次将其传递给每个 mod。计为您的 mod [在用户 mod 之前运行](/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)，即使您没有在任何地方列出它。要设置其位置，请在两个设置之一中列出其 id。id 是插件的名称、`@` 和市场的名称，例如 `acme-guard@acme-tools`。
+Claude Code 每次即将采取行动（例如运行工具）时都会触发一个事件，并依次将其传递给每个 mod。计为您的 mod [在用户 mod 之前运行](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)，即使您没有在任何地方列出它。要设置其位置，请在两个设置之一中列出其 id。id 是插件的名称、`@` 和市场的名称，例如 `acme-guard@acme-tools`。
 
 * **`prependPlugins`**：您的 mod 在任何用户 mod 之前看到每个事件，并在之后看到每个结果。它可以更改事件、拒绝事件或跳过用户 mod。
 * **`appendPlugins`**：您的 mod 在每个用户 mod 之后运行，因此它只看到这些 mod 传递的事件，并以它们传递的形式看到
@@ -302,9 +302,9 @@ Claude Code 每次即将采取行动（例如运行工具）时都会触发一�
 * **`enabledPlugins`**：为接收这些托管设置的每个用户启用 `acme-guard`
 * **`prependPlugins`**：将 `acme-guard` 放在第一位，内置守卫放在第二位，都在用户安装的任何 mod 之前。Claude Code 遵循您列出的顺序。
 
-要确认用户的机器收到了设置，请参阅[检查策略是否生效](/docs/zh-CN/managed-settings.md#check-that-a-policy-is-in-force)。
+要确认用户的机器收到了设置，请参阅[检查策略是否生效](https://code.claude.com/docs/zh-CN/managed-settings.md#check-that-a-policy-is-in-force)。
 
-要确认 mod 运行的位置，请在该机器上使用 `claude --debug` 启动会话，并在[调试日志](/docs/zh-CN/plugins/mods/troubleshoot.md#read-the-debug-log)中搜索 mod 的 id：
+要确认 mod 运行的位置，请在该机器上使用 `claude --debug` 启动会话，并在[调试日志](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#read-the-debug-log)中搜索 mod 的 id：
 
 * **`hooks module acme-guard@acme-tools loaded`，带有 `tier prepend`**：mod 计为您组织的，并首先运行
 * **同一行带有 `tier user`**：Claude Code 将其视为用户的 mod。第二行 `prependPlugins names acme-guard@acme-tools, which is not an enabled managed plugin with a hooks module; skipped` 表示列表跳过了它。
@@ -319,7 +319,7 @@ Claude Code 每次即将采取行动（例如运行工具）时都会触发一�
 
 要阻止每个用户的 mod，您不需要自己的 mod。设置 [`allowManagedModsOnly`](#stop-user-installed-mods-from-loading) 即可。当您想允许某些用户的 mod 并拒绝其他的，或记录 mod 的行为时，请编写策略 mod。
 
-每次另一个 mod 即将加载时，您的 mod 会在名为 [`plugin.register`](/docs/zh-CN/plugins/mods/reference#other-mods) 的事件中收到 `claude plugin validate` 打印的列表。`prependPlugins` 中的 mod 可以读取该列表并拒绝该 mod。它也可以[按名称处理任何 mods API 调用](/docs/zh-CN/plugins/mods/api.md#reach-files-processes-and-the-network)，以便针对每个其他 mod 记录或拒绝该调用。名称是去掉 `$.` 的方法，因此 `fs.write` 上的 hook 会看到每个 `$.fs.write` 调用。
+每次另一个 mod 即将加载时，您的 mod 会在名为 [`plugin.register`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#other-mods) 的事件中收到 `claude plugin validate` 打印的列表。`prependPlugins` 中的 mod 可以读取该列表并拒绝该 mod。它也可以[按名称处理任何 mods API 调用](https://code.claude.com/docs/zh-CN/plugins/mods/api.md#reach-files-processes-and-the-network)，以便针对每个其他 mod 记录或拒绝该调用。名称是去掉 `$.` 的方法，因此 `fs.write` 上的 hook 会看到每个 `$.fs.write` 调用。
 
 此策略 mod 拒绝任何自身代码调用 `$.process.run` 或 `$.process.spawn` 的用户 mod。它还保留审计日志，将每个工具调用和 mod 写入的每个文件写入调试日志。因为它首先运行，日志记录的是请求的原始内容，在任何用户 mod 更改之前。将其保存为 `acme-guard/hooks/register.js`：
 
@@ -365,13 +365,13 @@ export function register(on) {
 * **`e.tier`**：mod 将运行的位置，为 `prepend`、`user`、`append` 或 `builtin` 之一。用户安装的每个 mod 都是 `user`。
 * **`e.uses.calls`**：mod 调用的 mods API 方法，每个写作 `namespace.method`，例如 `process.run`，不带 `claude plugin validate` 打印的 `$.`
 
-当用户安装调用 `$.process.run` 的 mod 时，该 mod 不会加载，其调试日志中有一行以 `refused by acme-guard:` 和您的原因结尾。在[热重新加载插件目录的会话](/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)中，拒绝信息也会出现在会话记录中。要在不拒绝整个 mod 的情况下阻止某个调用，请从该调用名称上的 hook 返回 `{ deny: 'your reason' }`。
+当用户安装调用 `$.process.run` 的 mod 时，该 mod 不会加载，其调试日志中有一行以 `refused by acme-guard:` 和您的原因结尾。在[热重新加载插件目录的会话](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)中，拒绝信息也会出现在会话记录中。要在不拒绝整个 mod 的情况下阻止某个调用，请从该调用名称上的 hook 返回 `{ deny: 'your reason' }`。
 
 要将审计行发送到调试日志以外的地方，请从相同的 hook 中调用 `$.http.fetch`。
 
-会话可以在没有您的 mod 的情况下运行。如果运行已安装 mod 的工作线程[崩溃三次](/docs/zh-CN/plugins/mods/troubleshoot.md#mods-that-run-in-the-hooks-worker-are-off-for-this-session)，Claude Code 会卸载所有非内置的 mod（包括您的），直到用户运行 `/reload-plugins` 或启动新会话。此外，使用 `--safe-mode` 启动 Claude Code 的用户运行时不会加载已安装的 mod，包括您的。
+会话可以在没有您的 mod 的情况下运行。如果运行已安装 mod 的工作线程[崩溃三次](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#mods-that-run-in-the-hooks-worker-are-off-for-this-session)，Claude Code 会卸载所有非内置的 mod（包括您的），直到用户运行 `/reload-plugins` 或启动新会话。此外，使用 `--safe-mode` 启动 Claude Code 的用户运行时不会加载已安装的 mod，包括您的。
 
-[创建 mod](/docs/zh-CN/plugins/mods/create.md) 介绍 mod 需要的文件。[测试策略 mod](/docs/zh-CN/plugins/mods/test.md#test-a-mod-that-judges-other-mods) 提供此策略 mod 的测试文件。
+[创建 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md) 介绍 mod 需要的文件。[测试策略 mod](https://code.claude.com/docs/zh-CN/plugins/mods/test.md#test-a-mod-that-judges-other-mods) 提供此策略 mod 的测试文件。
 
 #### 当您的检查失败时拒绝 mod
 
@@ -400,11 +400,11 @@ export function register(on) {
 }
 ```
 
-处理程序就位后，如果检查在处理某个 mod 时抛出异常或超时，该 mod 不会加载，拒绝行会带有第二个原因，例如 `refused by acme-guard: Acme policy check failed, so this mod was not loaded`。处理程序将 `user` 层以外的每个 mod 传递给 `next(e)`，因此失败的检查不会阻止您组织列出的 mod。[处理失败的 hook](/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails) 介绍其他事件的 `.catch`。
+处理程序就位后，如果检查在处理某个 mod 时抛出异常或超时，该 mod 不会加载，拒绝行会带有第二个原因，例如 `refused by acme-guard: Acme policy check failed, so this mod was not loaded`。处理程序将 `user` 层以外的每个 mod 传递给 `next(e)`，因此失败的检查不会阻止您组织列出的 mod。[处理失败的 hook](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails) 介绍其他事件的 `.catch`。
 
 ## 后续步骤
 
-* [插件安全](/docs/zh-CN/plugins/security.md)：任何插件可以在用户机器上执行的操作，以及如何在安装前查看一个
-* [Mods 概述](/docs/zh-CN/plugins/mods/overview.md)：什么是 mod 以及它与 hooks、skills 和 MCP 服务器的比较
-* [mods 运行的顺序](/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)：`prependPlugins` 和 `appendPlugins` 如何与用户的 mods 配合
-* [设置和环境变量](/docs/zh-CN/plugins/mods/reference.md#settings-and-environment-variables)：本页命名的每个设置在一个表中
+* [插件安全](https://code.claude.com/docs/zh-CN/plugins/security.md)：任何插件可以在用户机器上执行的操作，以及如何在安装前查看一个
+* [Mods 概述](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md)：什么是 mod 以及它与 hooks、skills 和 MCP 服务器的比较
+* [mods 运行的顺序](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)：`prependPlugins` 和 `appendPlugins` 如何与用户的 mods 配合
+* [设置和环境变量](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#settings-and-environment-variables)：本页命名的每个设置在一个表中

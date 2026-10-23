@@ -6,7 +6,7 @@
 
 > 将 Claude Code 连接到 Chrome 浏览器，以测试网络应用、使用控制台日志进行调试、自动填充表单以及从网页中提取数据。
 
-Claude Code 与 [Claude in Chrome 浏览器扩展程序](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn) 集成，为您提供从 CLI 或 [VS Code 扩展程序](/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome) 进行浏览器自动化的功能。构建您的代码，然后在浏览器中测试和调试，无需切换上下文。
+Claude Code 与 [Claude in Chrome 浏览器扩展程序](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn) 集成，为您提供从 CLI 或 [VS Code 扩展程序](https://code.claude.com/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome) 进行浏览器自动化的功能。构建您的代码，然后在浏览器中测试和调试，无需切换上下文。
 
 Claude 为浏览器任务打开新标签页，并共享您浏览器的登录状态，因此它可以访问您已登录的任何网站。浏览器操作在实时可见的 Chrome 窗口中运行。当 Claude 遇到登录页面或 CAPTCHA 时，它会暂停并要求您手动处理。
 
@@ -38,12 +38,12 @@ Claude 为浏览器任务打开新标签页，并共享您浏览器的登录状�
 
 * [Google Chrome](https://www.google.com/chrome/)、[Microsoft Edge](https://www.microsoft.com/edge) 或其他基于 Chromium 的浏览器，如 Brave、Arc、Vivaldi 或 Opera
 * [Claude in Chrome 扩展程序](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn) 版本 1.0.36 或更高版本，可在 Chrome Web Store 中获得
-* [Claude Code](/docs/zh-CN/quickstart.md#step-1-install-claude-code)
+* [Claude Code](https://code.claude.com/docs/zh-CN/quickstart.md#step-1-install-claude-code)
 * 直接 Anthropic 计划（Pro、Max、Team 或 Enterprise）
 
-在已启用 HIPAA 的 Enterprise 组织中，Claude in Chrome 默认处于关闭状态，[Owner](/docs/zh-CN/server-managed-settings.md#access-control) 可以在 [**Organization settings > Claude in Chrome**](https://claude.ai/admin-settings/browser-extension) 中将其启用。您与 Anthropic 签订的商业伙伴协议（BAA）不涵盖通过 Claude in Chrome 发送到第三方网站的数据。有关合格服务（Eligible Services）的列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
+在已启用 HIPAA 的 Enterprise 组织中，Claude in Chrome 默认处于关闭状态，[Owner](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control) 可以在 [**Organization settings > Claude in Chrome**](https://claude.ai/admin-settings/browser-extension) 中将其启用。您与 Anthropic 签订的商业伙伴协议（BAA）不涵盖通过 Claude in Chrome 发送到第三方网站的数据。有关合格服务（Eligible Services）的列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
 
-Chrome 集成还需要使用 `/login` 登录。如果您使用 API 密钥或来自 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 的长期令牌进行身份验证，Claude Code 会关闭 Chrome 集成，即使您传递 `--chrome`，因为浏览器扩展程序无法使用这些凭据进行身份验证。在 v2.1.216 之前，这些会话可以启用 Chrome 集成，但每次尝试连接到浏览器扩展程序都会失败，并显示 403 错误。
+Chrome 集成还需要使用 `/login` 登录。如果您使用 API 密钥或来自 [`claude setup-token`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 的长期令牌进行身份验证，Claude Code 会关闭 Chrome 集成，即使您传递 `--chrome`，因为浏览器扩展程序无法使用这些凭据进行身份验证。在 v2.1.216 之前，这些会话可以启用 Chrome 集成，但每次尝试连接到浏览器扩展程序都会失败，并显示 403 错误。
 
 > [!NOTE]
 >
@@ -78,7 +78,7 @@ type "hooks", and tell me what results appear
 
 如果连接了多个浏览器，您可以选择 Claude 使用哪一个。当浏览器操作在您选择之前开始时，Claude 会提示您选择一个。要稍后切换浏览器，运行 `/chrome` 并选择**选择浏览器…**。即使另一个浏览器连接，Claude 也会继续使用您的选择。
 
-对于 VS Code，请参阅[在 VS Code 中使用 Chrome 自动化浏览器任务](/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome)。
+对于 VS Code，请参阅[在 VS Code 中使用 Chrome 自动化浏览器任务](https://code.claude.com/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome)。
 
 ### 当 Claude 要求时安装扩展程序
 
@@ -92,12 +92,12 @@ type "hooks", and tell me what results appear
 
 两个托管 MCP 策略会关闭该提示：
 
-* 如果您的组织使用 [`deniedMcpServers` 托管设置](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists)阻止 `claude-in-chrome` MCP 服务器，Claude Code 不会显示安装提示。
-* 如果您的组织部署了 [`managed-mcp.json`](/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json) 文件，但未[在托管集合中允许 Claude in Chrome](/docs/zh-CN/managed-mcp.md#allow-claude-in-chrome-alongside-the-managed-set)，Claude Code 不会显示安装提示。
+* 如果您的组织使用 [`deniedMcpServers` 托管设置](https://code.claude.com/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists)阻止 `claude-in-chrome` MCP 服务器，Claude Code 不会显示安装提示。
+* 如果您的组织部署了 [`managed-mcp.json`](https://code.claude.com/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json) 文件，但未[在托管集合中允许 Claude in Chrome](https://code.claude.com/docs/zh-CN/managed-mcp.md#allow-claude-in-chrome-alongside-the-managed-set)，Claude Code 不会显示安装提示。
 
 ### 默认启用 Chrome
 
-要连接 Chrome 而无需每次都传递 `--chrome`，请在 CLI 会话中运行 `/chrome` 并选择 **Enabled by default**。在 [VS Code 扩展程序](/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome)中，在输入框中键入 `/chrome` 并打开 **Enabled by default** 开关。两者共享同一个设置，因此在任一处启用它，都会同时对 CLI 和 VS Code 启用。
+要连接 Chrome 而无需每次都传递 `--chrome`，请在 CLI 会话中运行 `/chrome` 并选择 **Enabled by default**。在 [VS Code 扩展程序](https://code.claude.com/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome)中，在输入框中键入 `/chrome` 并打开 **Enabled by default** 开关。两者共享同一个设置，因此在任一处启用它，都会同时对 CLI 和 VS Code 启用。
 
 启用该设置且使用 Claude Code v2.1.287 或更高版本时，每个 VS Code 会话在启动时就会连接到您的浏览器，因此 Claude 无需您键入 `@browser` 即可使用它。在更早的版本中，或在关闭该设置时，VS Code 会话会在您键入 `@browser` 时连接。
 
@@ -105,11 +105,11 @@ type "hooks", and tell me what results appear
 
 > [!NOTE]
 >
-> 默认启用 Chrome 会增加上下文使用，因为浏览器工具及其说明始终被加载。如果您注意到上下文消耗增加，请关闭此设置，仅在需要时连接：在 CLI 中使用 `--chrome`，或在 VS Code 输入框中键入 [`@browser`](/docs/zh-CN/vs-code#automate-browser-tasks-with-chrome)。
+> 默认启用 Chrome 会增加上下文使用，因为浏览器工具及其说明始终被加载。如果您注意到上下文消耗增加，请关闭此设置，仅在需要时连接：在 CLI 中使用 `--chrome`，或在 VS Code 输入框中键入 [`@browser`](https://code.claude.com/docs/zh-CN/vs-code#automate-browser-tasks-with-chrome)。
 
 ### 管理网站权限
 
-网站级权限从 Chrome 扩展程序继承。在 Chrome 扩展程序设置中管理权限，以控制 Claude 可以浏览、点击和输入的网站。在[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中，当自动模式分类器本身批准对网站的浏览器调用时，扩展程序会跳过该调用的自己的按网站检查，除非您的权限规则拒绝任何网站对 Claude in Chrome 的访问。
+网站级权限从 Chrome 扩展程序继承。在 Chrome 扩展程序设置中管理权限，以控制 Claude 可以浏览、点击和输入的网站。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中，当自动模式分类器本身批准对网站的浏览器调用时，扩展程序会跳过该调用的自己的按网站检查，除非您的权限规则拒绝任何网站对 Claude in Chrome 的访问。
 
 ### VS Code 会话中的权限提示
 
@@ -119,7 +119,7 @@ type "hooks", and tell me what results appear
 
 ### 计划模式中的浏览器工具
 
-在[计划模式](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)中，在 Claude 记录 GIF、打开新标签页或运行快捷方式之前会出现权限提示。在交互式 CLI 会话中，如果[可用绕过权限模式](/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)且[功能标志获取](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)已关闭，这些调用将在没有提示的情况下运行。
+在[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)中，在 Claude 记录 GIF、打开新标签页或运行快捷方式之前会出现权限提示。在交互式 CLI 会话中，如果[可用绕过权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)且[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)已关闭，这些调用将在没有提示的情况下运行。
 
 当 `tabs_context_mcp` 调用设置 `createIfEmpty` 时也会提示，包含任何这些操作的 `browser_batch` 调用也是如此。
 
@@ -175,7 +175,7 @@ and attach logs/session.log to it
 
 如果 Claude 拒绝附加文件或上传失败，请检查以下原因：
 
-* **权限**：Claude 只能在会话被允许读取文件时上传文件，因此[权限规则](/docs/zh-CN/settings-reference.md#permission-settings)拒绝对文件的 `Read` 访问也会阻止上传。
+* **权限**：Claude 只能在会话被允许读取文件时上传文件，因此[权限规则](https://code.claude.com/docs/zh-CN/settings-reference.md#permission-settings)拒绝对文件的 `Read` 访问也会阻止上传。
 * **大小**：单次上传最多可包含 10 MB 的文件。
 * **硬链接**：Claude 拒绝具有多个硬链接的文件，这在 `node_modules` 等包管理器存储中很常见。复制文件并上传副本。
 * **凭据名称**：如果文件名或所在文件夹是通常用于存放凭据的名称，例如 `.env`、`.pem` 或 `.key` 文件，或 `.ssh` 下的任何内容，Claude 会拒绝该文件。需要 Claude Code v2.1.293 或更高版本。
@@ -275,7 +275,7 @@ Claude Code 在首次安装时会打开一个浏览器标签页，提示您连�
 Claude Code ignored CLAUDE_CODE_ENABLE_CFC in this project's settings: a project can't turn on Claude in Chrome. To turn it on yourself, run /chrome or start with --chrome.
 ```
 
-该项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 在其 `env` 块中将 [`CLAUDE_CODE_ENABLE_CFC`](/docs/zh-CN/env-vars#variables) 设置为 `1`，以启用 Chrome 集成。Claude Code 未应用该设置，因此本会话中 Chrome 集成处于关闭状态，Claude 没有浏览器工具。
+该项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 在其 `env` 块中将 [`CLAUDE_CODE_ENABLE_CFC`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1`，以启用 Chrome 集成。Claude Code 未应用该设置，因此本会话中 Chrome 集成处于关闭状态，Claude 没有浏览器工具。
 
 Claude Code 会跳过该设置，因为这些文件存储在项目目录中，而您检出的仓库不得能够将 Claude 连接到您的浏览器。
 
@@ -303,7 +303,7 @@ Chrome 扩展程序的 service worker 在扩展会话期间可能会进入空闲
 
 如果您属于多个 claude.ai 组织，扩展程序必须登录到与 Claude Code 相同的组织。如果两者不同，即使两者使用相同的 claude.ai 账户，Claude 的浏览器工具也会返回"Browser extension is not connected"。
 
-要查看 Claude Code 登录的是哪个组织，请在 Claude Code 输入框中运行 [`/status`](/docs/zh-CN/commands) 并查看 `Organization` 行。
+要查看 Claude Code 登录的是哪个组织，请在 Claude Code 输入框中运行 [`/status`](https://code.claude.com/docs/zh-CN/commands) 并查看 `Organization` 行。
 
 > [!WARNING]
 >
@@ -325,17 +325,17 @@ Chrome 扩展程序的 service worker 在扩展会话期间可能会进入空闲
 
 | 错误 | 原因 | 修复 |
 | - | - | - |
-| "浏览器扩展程序未连接" | 扩展程序未在 Chrome 中安装并运行，扩展程序登录的 claude.ai 账户或组织与 Claude Code 不同，或您的组织的 IP 允许列表拒绝了到 `bridge.claudeusercontent.com` 的连接 | 检查扩展程序登录的 claude.ai 账户和[组织](#extension-signed-in-to-a-different-organization)是否与 Claude Code 相同，重新启动 Chrome 和 Claude Code，然后运行 `/chrome` 以重新连接。如果您的组织使用 IP 允许列表且错误仍然存在，请参阅[组织 IP 允许列表和代理出口](/docs/zh-CN/network-config.md#organization-ip-allowlists-and-proxy-egress) |
+| "浏览器扩展程序未连接" | 扩展程序未在 Chrome 中安装并运行，扩展程序登录的 claude.ai 账户或组织与 Claude Code 不同，或您的组织的 IP 允许列表拒绝了到 `bridge.claudeusercontent.com` 的连接 | 检查扩展程序登录的 claude.ai 账户和[组织](#extension-signed-in-to-a-different-organization)是否与 Claude Code 相同，重新启动 Chrome 和 Claude Code，然后运行 `/chrome` 以重新连接。如果您的组织使用 IP 允许列表且错误仍然存在，请参阅[组织 IP 允许列表和代理出口](https://code.claude.com/docs/zh-CN/network-config.md#organization-ip-allowlists-and-proxy-egress) |
 | 扩展程序在 `/chrome` 中显示"未检测到" | Chrome 扩展程序未安装或已禁用 | 在 `chrome://extensions` 中安装或启用扩展程序 |
 | "没有可用的标签页" | Claude 在标签页准备好之前尝试操作 | 要求 Claude 创建新标签页并重试 |
 | "接收端不存在" | 扩展程序 service worker 进入空闲状态 | 运行 `/chrome` 并选择"重新连接扩展程序" |
-| "没有已连接的浏览器" | Chrome 未打开，或扩展程序登录的 claude.ai 账户和组织与 Claude Code 不同，或 Claude Code 无法访问 `bridge.claudeusercontent.com` | 确认 Chrome 已打开，且扩展程序登录的 claude.ai 账户和[组织](#extension-signed-in-to-a-different-organization)与 Claude Code 相同。如果是这样，请检查您的网络是否允许 Claude Code 访问 `bridge.claudeusercontent.com`，该地址列于[网络访问要求](/docs/zh-CN/network-config.md#network-access-requirements)中 |
+| "没有已连接的浏览器" | Chrome 未打开，或扩展程序登录的 claude.ai 账户和组织与 Claude Code 不同，或 Claude Code 无法访问 `bridge.claudeusercontent.com` | 确认 Chrome 已打开，且扩展程序登录的 claude.ai 账户和[组织](#extension-signed-in-to-a-different-organization)与 Claude Code 相同。如果是这样，请检查您的网络是否允许 Claude Code 访问 `bridge.claudeusercontent.com`，该地址列于[网络访问要求](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)中 |
 
 ## 另请参阅
 
-* [计算机使用](/docs/zh-CN/computer-use.md)：当任务无法在浏览器中完成时控制本机 macOS 应用
-* [在 VS Code 中使用 Claude Code](/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome)：VS Code 扩展程序中的浏览器自动化
-* [CLI 参考](/docs/zh-CN/cli-reference.md)：命令行标志，包括 `--chrome`
-* [常见工作流](/docs/zh-CN/common-workflows.md)：更多使用 Claude Code 的方式
-* [数据和隐私](/docs/zh-CN/data-usage.md)：Claude Code 如何处理您的数据
+* [计算机使用](https://code.claude.com/docs/zh-CN/computer-use.md)：当任务无法在浏览器中完成时控制本机 macOS 应用
+* [在 VS Code 中使用 Claude Code](https://code.claude.com/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome)：VS Code 扩展程序中的浏览器自动化
+* [CLI 参考](https://code.claude.com/docs/zh-CN/cli-reference.md)：命令行标志，包括 `--chrome`
+* [常见工作流](https://code.claude.com/docs/zh-CN/common-workflows.md)：更多使用 Claude Code 的方式
+* [数据和隐私](https://code.claude.com/docs/zh-CN/data-usage.md)：Claude Code 如何处理您的数据
 * [Claude in Chrome 入门](https://support.claude.com/en/articles/12012173-getting-started-with-claude-in-chrome)：Chrome 扩展程序的完整文档，包括快捷键、计划和权限

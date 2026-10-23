@@ -21,11 +21,11 @@ Agent Skills 通过专业能力扩展 Claude，Claude 会在相关时自动调�
 * **由用户调用**：你可以通过在提示中发送 `/<name>` 直接分派 skill。请参阅 [Agent SDK 会话中的命令](#commands-in-agent-sdk-sessions)
 * **通过 `skills` 选项进行范围限制**：发现的 skills 默认启用。传递 skill 名称列表、`"all"` 或 `[]` 来控制 Claude 可以调用哪些 skills
 
-与子代理不同，子代理可以在 [`agents` 选项](/docs/zh-CN/agent-sdk/subagents#programmatic-definition-recommended) 中定义，你创建 skills 作为磁盘上的文件。SDK 不提供用于注册它们的编程 API。
+与子代理不同，子代理可以在 [`agents` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/subagents#programmatic-definition-recommended) 中定义，你创建 skills 作为磁盘上的文件。SDK 不提供用于注册它们的编程 API。
 
 > [!NOTE]
 >
-> Skills 通过文件系统设置源发现。使用默认 `query()` 选项时，SDK 加载用户和项目源，因此 `~/.claude/skills/`、`<cwd>/.claude/skills/` 和 `<cwd>` 到存储库根目录之间任何父目录中的 `.claude/skills/` 中的 skills 可用。项目源还涵盖你通过 `additionalDirectories`（TypeScript）或 `add_dirs`（Python）传递的每个目录中的 `<dir>/.claude/skills/`，因为 SDK 将这些目录作为 [`--add-dir`](/docs/zh-CN/skills#skills-from-additional-directories) 传递给 Claude Code。如果你显式设置 `settingSources`，请包含 `'project'` 以保持项目和添加目录 skills，包含 `'user'` 以保持你的个人 skills，或使用 [`plugins` 选项](/docs/zh-CN/agent-sdk/plugins) 从特定路径加载 skills。
+> Skills 通过文件系统设置源发现。使用默认 `query()` 选项时，SDK 加载用户和项目源，因此 `~/.claude/skills/`、`<cwd>/.claude/skills/` 和 `<cwd>` 到存储库根目录之间任何父目录中的 `.claude/skills/` 中的 skills 可用。项目源还涵盖你通过 `additionalDirectories`（TypeScript）或 `add_dirs`（Python）传递的每个目录中的 `<dir>/.claude/skills/`，因为 SDK 将这些目录作为 [`--add-dir`](https://code.claude.com/docs/zh-CN/skills#skills-from-additional-directories) 传递给 Claude Code。如果你显式设置 `settingSources`，请包含 `'project'` 以保持项目和添加目录 skills，包含 `'user'` 以保持你的个人 skills，或使用 [`plugins` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/plugins) 从特定路径加载 skills。
 
 ## 在 Agent SDK 中使用 skill
 
@@ -91,9 +91,9 @@ for await (const message of query({
 
 ### 确认 skill 已加载
 
-在流的开始附近，SDK 产生一个子类型为 `init` 的系统消息。检查其 `skills` 数组以在 Claude 开始工作前确认您的 skill 已加载。该数组包括您通过 `description` 或 `when_to_use` frontmatter 字段定义的用户可调用 skill，以及 [Claude Code 随附 skill](/docs/zh-CN/skills.md#bundled-skills)。
+在流的开始附近，SDK 产生一个子类型为 `init` 的系统消息。检查其 `skills` 数组以在 Claude 开始工作前确认您的 skill 已加载。该数组包括您通过 `description` 或 `when_to_use` frontmatter 字段定义的用户可调用 skill，以及 [Claude Code 随附 skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)。
 
-该数组仅列出用户可调用的 skill。在其 frontmatter 中具有 [`user-invocable: false`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill 会加载并保持对 Claude 可用，但不会出现在数组中。该数组列出相同的 skill，无论它们是否在您的 `skills` 列表中。
+该数组仅列出用户可调用的 skill。在其 frontmatter 中具有 [`user-invocable: false`](https://code.claude.com/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill 会加载并保持对 Claude 可用，但不会出现在数组中。该数组列出相同的 skill，无论它们是否在您的 `skills` 列表中。
 
 ### 仅允许特定 skill
 
@@ -101,7 +101,7 @@ for await (const message of query({
 
 * **您自己的 skill**：skill 的目录名称
 * **插件 skill**：`plugin:skill`
-* **`additionalDirectories` 或 `add_dirs` 中的名称冲突**：当这些目录之一中的 skill 与企业、个人或项目 skill，或与先前添加的目录中的 skill 名称冲突时，它会获得一个[带前缀的名称](/docs/zh-CN/skills.md#how-a-skill-gets-its-command-name)。请按该名称列出它。如果 `../api` 和 `../web` 中各有一个 `verify` skill，按此顺序添加，且没有其他 `verify` skill，则将它们列为 `verify` 和 `web:verify`。需要 Claude Code v2.1.309 或更高版本
+* **`additionalDirectories` 或 `add_dirs` 中的名称冲突**：当这些目录之一中的 skill 与企业、个人或项目 skill，或与先前添加的目录中的 skill 名称冲突时，它会获得一个[带前缀的名称](https://code.claude.com/docs/zh-CN/skills.md#how-a-skill-gets-its-command-name)。请按该名称列出它。如果 `../api` 和 `../web` 中各有一个 `verify` skill，按此顺序添加，且没有其他 `verify` skill，则将它们列为 `verify` 和 `web:verify`。需要 Claude Code v2.1.309 或更高版本
 
 该列表仅接受确切的 skill 名称。如果一个条目不能作为确切名称工作，`query()` 会在会话开始前拒绝该列表。请参阅 [Invalid skill name error](#invalid-skill-name-error) 了解名称规则和每个 SDK 引发的错误。
 
@@ -118,7 +118,7 @@ for await (const message of query({
 * **你的 skills**：你编写的提示工件，每个都是一个包含 `SKILL.md` 文件的目录。用户可调用 skill 的名称自动加入表面，因此分派你自己的 `/security-check` 和运行内置的工作方式相同
 * **自定义命令文件**：一种较旧的工件形式，具有相同的行为，`.claude/commands/` 中的平面 Markdown 文件，其文件名成为命令名称。Skills 是它们推荐的后继者
 
-默认情况下，你和 Claude 都可以调用任何 skill。你可以通过 skill 的 [frontmatter](/docs/zh-CN/skills.md#control-who-invokes-a-skill) 限制任一路径。有关命令和 skill 的定义，请参阅词汇表的 [Command](/docs/zh-CN/glossary.md#command) 和 [Skill](/docs/zh-CN/glossary.md#skill) 条目。请参阅 [Claude Code 中的命令](/docs/zh-CN/commands.md) 了解每个内置命令，以及 [使用 skills 扩展 Claude](/docs/zh-CN/skills.md) 了解两种工件形式的完整指南。
+默认情况下，你和 Claude 都可以调用任何 skill。你可以通过 skill 的 [frontmatter](https://code.claude.com/docs/zh-CN/skills.md#control-who-invokes-a-skill) 限制任一路径。有关命令和 skill 的定义，请参阅词汇表的 [Command](https://code.claude.com/docs/zh-CN/glossary.md#command) 和 [Skill](https://code.claude.com/docs/zh-CN/glossary.md#skill) 条目。请参阅 [Claude Code 中的命令](https://code.claude.com/docs/zh-CN/commands.md) 了解每个内置命令，以及 [使用 skills 扩展 Claude](https://code.claude.com/docs/zh-CN/skills.md) 了解两种工件形式的完整指南。
 
 ### 发现可用命令
 
@@ -157,7 +157,7 @@ asyncio.run(main())
 Available commands: ["clear", "compact", "context", "usage", "code-review", "verify", "security-check", ...]
 ```
 
-在其 frontmatter 中具有 [`user-invocable: false`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill 不会出现在此列表或 [确认 skills 已加载](#confirm-skills-loaded) 中的 `skills` 数组中。配置 [MCP servers](/docs/zh-CN/agent-sdk/mcp.md) 的会话也可以公开 [MCP prompts 作为命令](/docs/zh-CN/mcp.md#use-mcp-prompts-as-commands)。
+在其 frontmatter 中具有 [`user-invocable: false`](https://code.claude.com/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill 不会出现在此列表或 [确认 skills 已加载](#confirm-skills-loaded) 中的 `skills` 数组中。配置 [MCP servers](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md) 的会话也可以公开 [MCP prompts 作为命令](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-prompts-as-commands)。
 
 ### 按名称分派命令
 
@@ -169,7 +169,7 @@ Available commands: ["clear", "compact", "context", "usage", "code-review", "ver
 
 > [!NOTE]
 >
-> 命令可以像任何其他提示一样触及 `maxTurns` / `max_turns` 限制，以错误结果而不是 `success` 结束查询。有关错误结果合约，请参阅 [处理结果](/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)。如果你的命令可能触及限制，请在 TypeScript 中用 `try`/`catch` 或在 Python 中用 `try`/`except` 包装循环，如 [单消息输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md#single-message-input) 中所示，或设置 `maxTurns` 足够高以完成工作。
+> 命令可以像任何其他提示一样触及 `maxTurns` / `max_turns` 限制，以错误结果而不是 `success` 结束查询。有关错误结果合约，请参阅 [处理结果](https://code.claude.com/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)。如果你的命令可能触及限制，请在 TypeScript 中用 `try`/`catch` 或在 Python 中用 `try`/`except` 包装循环，如 [单消息输入](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md#single-message-input) 中所示，或设置 `maxTurns` 足够高以完成工作。
 
 ### 使用 `/compact` 压缩历史
 
@@ -250,13 +250,13 @@ asyncio.run(main())
 
 > [!NOTE]
 >
-> `compact_boundary` 消息仅在压缩运行时到达。当继续的会话有消息但 `/compact` 无法总结任何内容时，运行仍以 `success` 结果结束而不是错误，并且没有 `compact_boundary` 消息到达。结果文本随后会携带原因，例如当会话仅包含提示但尚未收到 Claude 的回复时 `Not enough messages to compact.`。新的单次 `query()` 调用以空上下文开始，因此在具有先前轮次的会话中使用此模式，例如在 [流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md) 中或恢复会话时。
+> `compact_boundary` 消息仅在压缩运行时到达。当继续的会话有消息但 `/compact` 无法总结任何内容时，运行仍以 `success` 结果结束而不是错误，并且没有 `compact_boundary` 消息到达。结果文本随后会携带原因，例如当会话仅包含提示但尚未收到 Claude 的回复时 `Not enough messages to compact.`。新的单次 `query()` 调用以空上下文开始，因此在具有先前轮次的会话中使用此模式，例如在 [流式输入模式](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md) 中或恢复会话时。
 
 ### 使用 `/clear` 重置上下文
 
-`/clear` 命令将对话重置为空上下文，因此后续提示以没有先前对话历史开始。先前的对话保留在磁盘上。你可以通过将其会话 ID 传递给 [`resume` 选项](/docs/zh-CN/agent-sdk/sessions#resume-by-id) 返回到该对话。
+`/clear` 命令将对话重置为空上下文，因此后续提示以没有先前对话历史开始。先前的对话保留在磁盘上。你可以通过将其会话 ID 传递给 [`resume` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/sessions#resume-by-id) 返回到该对话。
 
-`/clear` 在 [流式输入模式](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md) 中很有用，你在单个连接上发送多个提示。对于单次 `query()` 调用，每个调用已经以空上下文开始，因此发送 `/clear` 没有实际效果。改为启动新的 `query()`。
+`/clear` 在 [流式输入模式](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md) 中很有用，你在单个连接上发送多个提示。对于单次 `query()` 调用，每个调用已经以空上下文开始，因此发送 `/clear` 没有实际效果。改为启动新的 `query()`。
 
 ## 创建 skills
 
@@ -271,12 +271,12 @@ asyncio.run(main())
 
 ### 选择发现级别
 
-在两个最常见的 [发现级别](/docs/zh-CN/skills.md#where-skills-live) 中的任一个保存 skills：
+在两个最常见的 [发现级别](https://code.claude.com/docs/zh-CN/skills.md#where-skills-live) 中的任一个保存 skills：
 
 * **项目 skills**：`.claude/skills/`，仅在当前项目中可用
 * **个人 skills**：`~/.claude/skills/`，在所有项目中可用
 
-如果你在 `.claude/commands/` 中有现有的自定义命令文件，它们会继续工作。`.claude/commands/deploy.md` 中的命令文件创建 `/deploy` 并以与 `.claude/skills/deploy/SKILL.md` 中的 skill 相同的方式工作。如果命令文件和 skill 共享名称，请参阅 [解决共享名称的 skills](/docs/zh-CN/skills.md#resolve-skills-that-share-a-name) 了解哪一个运行。SDK 从与 skills 相同的两个范围加载 `.claude/commands/` 和 `~/.claude/commands/` 文件。请参阅 [使用 skills 扩展 Claude](/docs/zh-CN/skills.md) 了解两种工件形式的完整指南。
+如果你在 `.claude/commands/` 中有现有的自定义命令文件，它们会继续工作。`.claude/commands/deploy.md` 中的命令文件创建 `/deploy` 并以与 `.claude/skills/deploy/SKILL.md` 中的 skill 相同的方式工作。如果命令文件和 skill 共享名称，请参阅 [解决共享名称的 skills](https://code.claude.com/docs/zh-CN/skills.md#resolve-skills-that-share-a-name) 了解哪一个运行。SDK 从与 skills 相同的两个范围加载 `.claude/commands/` 和 `~/.claude/commands/` 文件。请参阅 [使用 skills 扩展 Claude](https://code.claude.com/docs/zh-CN/skills.md) 了解两种工件形式的完整指南。
 
 ### 创建并分派你的第一个 skill
 
@@ -345,7 +345,7 @@ skill 的名称也出现在 init 消息的 `slash_commands` 数组中。
 
 > [!NOTE]
 >
-> 在 SDK 会话中，您可以通过 skill 的 [`allowed-tools`](/docs/zh-CN/skills#pre-approve-tools-for-a-skill) frontmatter，或通过查询配置中的 `allowedTools` 选项（Python 中的 `allowed_tools`），为项目或个人 skill 预先批准工具。如果您的组织在托管设置中设置了 [`allowManagedPermissionRulesOnly`](/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly)，Claude Code 会忽略这两者。[从 claude.ai 同步的](/docs/zh-CN/skills.md#how-claude-code-handles-the-frontmatter-of-a-synced-skill) skill 遵循其自身的 frontmatter 规则。
+> 在 SDK 会话中，您可以通过 skill 的 [`allowed-tools`](https://code.claude.com/docs/zh-CN/skills#pre-approve-tools-for-a-skill) frontmatter，或通过查询配置中的 `allowedTools` 选项（Python 中的 `allowed_tools`），为项目或个人 skill 预先批准工具。如果您的组织在托管设置中设置了 [`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly)，Claude Code 会忽略这两者。[从 claude.ai 同步的](https://code.claude.com/docs/zh-CN/skills.md#how-claude-code-handles-the-frontmatter-of-a-synced-skill) skill 遵循其自身的 frontmatter 规则。
 
 Skills 使用会话的工具运行。下面的示例使用 `allowedTools`（Python 中的 `allowed_tools`）预先批准 `Read`、`Grep` 和 `Glob`，因此 Claude 可以在运行 [security-check skill](#create-and-dispatch-your-first-skill) 时检查文件，而无需停止以获得批准：
 
@@ -386,7 +386,7 @@ for await (const message of query({
 
 在流中，skill 调用显示为 Skill 工具使用，然后是对项目文件的 Read 调用。运行以 `success` 结果结束，其文本携带发现。
 
-该列表预先批准命名的工具而不是限制其他工具。有关完整权限流程，包括权限模式和 `canUseTool` 回调，请参阅 [权限](/docs/zh-CN/agent-sdk/permissions.md)。
+该列表预先批准命名的工具而不是限制其他工具。有关完整权限流程，包括权限模式和 `canUseTool` 回调，请参阅 [权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)。
 
 ## 故障排除
 
@@ -419,7 +419,7 @@ const optionsWithSkills = {
 };
 ```
 
-有关每个源加载哪些 skill 目录，请参阅 [文件系统源表](/docs/zh-CN/agent-sdk/claude-code-features.md#control-filesystem-settings-with-settingsources)。有关 `settingSources`/`setting_sources` 的更多详情，请参阅 [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript.md#settingsource) 或 [Python SDK 参考](/docs/zh-CN/agent-sdk/python.md#settingsource)。
+有关每个源加载哪些 skill 目录，请参阅 [文件系统源表](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features.md#control-filesystem-settings-with-settingsources)。有关 `settingSources`/`setting_sources` 的更多详情，请参阅 [TypeScript SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#settingsource) 或 [Python SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/python.md#settingsource)。
 
 **检查工作目录**：SDK 从 `cwd` 选项中的 `.claude/skills/` 以及直到存储库根目录的每个父目录加载 skills。确保 `cwd` 指向包含 `.claude/skills/` 的目录或其下方目录，且在同一存储库内：
 
@@ -496,24 +496,24 @@ ValueError: Invalid skill name 'docs:*': wildcard-suffix names are not allowed; 
 
 ### 其他故障排除
 
-有关一般 skills 故障排除，例如 YAML 语法错误和调试，请参阅 [Claude Code skills 故障排除部分](/docs/zh-CN/skills.md#troubleshooting)。
+有关一般 skills 故障排除，例如 YAML 语法错误和调试，请参阅 [Claude Code skills 故障排除部分](https://code.claude.com/docs/zh-CN/skills.md#troubleshooting)。
 
 ## 后续步骤
 
-[Claude Code skills 指南](/docs/zh-CN/skills.md) 深入涵盖编写。其指导适用于 SDK 会话。从这些部分开始：
+[Claude Code skills 指南](https://code.claude.com/docs/zh-CN/skills.md) 深入涵盖编写。其指导适用于 SDK 会话。从这些部分开始：
 
-* [Frontmatter 参考](/docs/zh-CN/skills.md#frontmatter-reference)：每个支持的字段
-* [将参数传递给 skill](/docs/zh-CN/skills.md#pass-arguments-to-skills)：`$ARGUMENTS`、`$0` 和 `$1`。[完整替换表](/docs/zh-CN/skills.md#available-string-substitutions) 添加命名参数和 `${CLAUDE_*}` 变量
-* [注入动态上下文](/docs/zh-CN/skills.md#inject-dynamic-context)：`` !`command` `` 行在 Claude 看到 skill 内容前运行
-* [选择 skills 加载的位置](/docs/zh-CN/skills.md#where-skills-live)：每个 skill 位置、插件命名空间和两个共享名称时哪一个运行
+* [Frontmatter 参考](https://code.claude.com/docs/zh-CN/skills.md#frontmatter-reference)：每个支持的字段
+* [将参数传递给 skill](https://code.claude.com/docs/zh-CN/skills.md#pass-arguments-to-skills)：`$ARGUMENTS`、`$0` 和 `$1`。[完整替换表](https://code.claude.com/docs/zh-CN/skills.md#available-string-substitutions) 添加命名参数和 `${CLAUDE_*}` 变量
+* [注入动态上下文](https://code.claude.com/docs/zh-CN/skills.md#inject-dynamic-context)：`` !`command` `` 行在 Claude 看到 skill 内容前运行
+* [选择 skills 加载的位置](https://code.claude.com/docs/zh-CN/skills.md#where-skills-live)：每个 skill 位置、插件命名空间和两个共享名称时哪一个运行
 
 ## 相关资源
 
-* [Claude Code 中的命令](/docs/zh-CN/commands.md)：完整命令表面，包括每个内置命令
+* [Claude Code 中的命令](https://code.claude.com/docs/zh-CN/commands.md)：完整命令表面，包括每个内置命令
 * [Agent Skills 概述](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)：概念概述、优势和架构
 * [Agent Skills 最佳实践](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)：有效 skills 的编写指南
 * [Agent Skills 食谱](https://platform.claude.com/cookbook/skills-notebooks-01-skills-introduction)：示例 skills 和模板
-* [SDK 中的子代理](/docs/zh-CN/agent-sdk/subagents.md)：具有编程选项的类似文件系统代理
-* [SDK 概述](/docs/zh-CN/agent-sdk/overview.md)：常规 SDK 概念
-* [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript.md)：完整 API 文档
-* [Python SDK 参考](/docs/zh-CN/agent-sdk/python.md)：完整 API 文档
+* [SDK 中的子代理](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md)：具有编程选项的类似文件系统代理
+* [SDK 概述](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md)：常规 SDK 概念
+* [TypeScript SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md)：完整 API 文档
+* [Python SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/python.md)：完整 API 文档

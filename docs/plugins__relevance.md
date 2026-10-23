@@ -14,7 +14,7 @@ marketplace 运营商编写 `relevance` 条目。然后管理员在托管设置�
 >
 > 这些情况在其他页面上有介绍：
 >
-> * **您想安装插件**：请参阅[安装和管理插件](/docs/zh-CN/plugins/install.md)
+> * **您想安装插件**：请参阅[安装和管理插件](https://code.claude.com/docs/zh-CN/plugins/install.md)
 > * **您想关闭建议**：请参阅[了解插件相关性的工作原理](#understand-how-plugin-relevance-works)
 
 从适合您角色的部分开始：
@@ -38,7 +38,7 @@ marketplace 运营商编写 `relevance` 条目。然后管理员在托管设置�
 
 Claude Code 永远不会自动安装插件。用户始终需要确认。
 
-当用户或项目将 [`spinnerTipsEnabled`](/docs/zh-CN/settings-reference#spinnertipsenabled) 设置为 `false`，或当 [`spinnerTipsOverride`](/docs/zh-CN/settings-reference#spinnertipsoverride) 带有 `excludeDefault` 替换内置提示时，spinner 提示和会话启动通知都会停止出现。Discover 标签页的固定不受这两个设置的影响。
+当用户或项目将 [`spinnerTipsEnabled`](https://code.claude.com/docs/zh-CN/settings-reference#spinnertipsenabled) 设置为 `false`，或当 [`spinnerTipsOverride`](https://code.claude.com/docs/zh-CN/settings-reference#spinnertipsoverride) 带有 `excludeDefault` 替换内置提示时，spinner 提示和会话启动通知都会停止出现。Discover 标签页的固定不受这两个设置的影响。
 
 ## 向插件条目添加相关性
 
@@ -158,12 +158,12 @@ claude plugin validate ./my-marketplace
 
 ## 在托管设置中启用建议
 
-用户看不到来自 marketplace 的任何建议，直到管理员在 [托管设置](/docs/zh-CN/plugins/org.md) 中将其加入允许列表，即使其 `marketplace.json` 声明了 `relevance`。
+用户看不到来自 marketplace 的任何建议，直到管理员在 [托管设置](https://code.claude.com/docs/zh-CN/plugins/org.md) 中将其加入允许列表，即使其 `marketplace.json` 声明了 `relevance`。
 
 要将 marketplace 加入允许列表，请按如下方式编辑您的托管设置：
 
 * 将 marketplace 名称添加到 `pluginSuggestionMarketplaces`。
-* 对于除官方 Anthropic marketplace 之外的任何 marketplace，还要声明 marketplace 源，可以是 [`extraKnownMarketplaces`](/docs/zh-CN/plugins/org#require-a-marketplace-and-its-plugins) 中该名称的条目，或 [`strictKnownMarketplaces`](/docs/zh-CN/plugins/org#allowlist-with-strictknownmarketplaces) 中的条目。
+* 对于除官方 Anthropic marketplace 之外的任何 marketplace，还要声明 marketplace 源，可以是 [`extraKnownMarketplaces`](https://code.claude.com/docs/zh-CN/plugins/org#require-a-marketplace-and-its-plugins) 中该名称的条目，或 [`strictKnownMarketplaces`](https://code.claude.com/docs/zh-CN/plugins/org#allowlist-with-strictknownmarketplaces) 中的条目。
 
 在未注册 marketplace 的机器上，或在从不同源注册的允许列表名称下注册的机器上，来自它的任何建议都不会出现。源检查阻止不相关的源以允许列表名称注册以在您的组织中建议其插件。
 
@@ -217,7 +217,7 @@ Claude Code 限制建议给定插件的频率：
 
 ## 另请参阅
 
-* [托管 marketplace](/docs/zh-CN/plugins/host-marketplace.md)：运行托管您的插件的 marketplace
-* [Marketplace 参考](/docs/zh-CN/plugins/marketplace-reference.md#plugin-entries)：插件条目接受的每个字段
-* [从您的 CLI 推荐您的插件](/docs/zh-CN/plugins/cli-hints.md)：从您自己的 CLI 而不是从 Claude Code 的会话信号提示用户
-* [为您的组织管理插件](/docs/zh-CN/plugins/org.md)：`extraKnownMarketplaces`、`strictKnownMarketplaces` 和其余的插件策略键
+* [托管 marketplace](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md)：运行托管您的插件的 marketplace
+* [Marketplace 参考](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#plugin-entries)：插件条目接受的每个字段
+* [从您的 CLI 推荐您的插件](https://code.claude.com/docs/zh-CN/plugins/cli-hints.md)：从您自己的 CLI 而不是从 Claude Code 的会话信号提示用户
+* [为您的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)：`extraKnownMarketplaces`、`strictKnownMarketplaces` 和其余的插件策略键

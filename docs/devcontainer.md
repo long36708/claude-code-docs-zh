@@ -13,7 +13,7 @@
 > [!WARNING]
 >
 > 虽然开发容器提供了实质性的保护，但没有任何系统能够完全免疫所有攻击。
-> 当使用 `--dangerously-skip-permissions` 执行时，开发容器不会阻止恶意项目泄露容器内可访问的任何内容，包括存储在 [`~/.claude`](/docs/zh-CN/claude-directory) 中的 Claude Code 凭证。
+> 当使用 `--dangerously-skip-permissions` 执行时，开发容器不会阻止恶意项目泄露容器内可访问的任何内容，包括存储在 [`~/.claude`](https://code.claude.com/docs/zh-CN/claude-directory) 中的 Claude Code 凭证。
 > 仅在使用受信任的存储库进行开发时使用开发容器，并监控 Claude 的活动。
 > 避免将主机密钥（如 `~/.ssh` 或云凭证文件）挂载到容器中；优先使用存储库范围或短期令牌。
 
@@ -23,7 +23,7 @@
 >
 > 开发容器作为 Docker 容器运行，可以在您的机器上或云主机（如 GitHub Codespaces）上运行。支持 Dev Containers 规范的编辑器（如 VS Code、GitHub Codespaces、JetBrains IDE 或 Cursor）连接到该容器：您可以像往常一样在编辑器中浏览和编辑文件，但集成终端、语言服务器和构建工具都在容器内运行，而不是在主机上。不支持开发容器的编辑器（如纯 Vim）不属于此工作流。
 >
-> Claude Code 在容器内运行，因此它看到与项目工具链其余部分相同的文件、依赖项和工具。在 VS Code 中，您可以使用 [Claude Code 扩展面板](/docs/zh-CN/vs-code.md) 或在集成终端中运行 `claude`；两者都在容器内运行并共享相同的 `~/.claude` 配置。
+> Claude Code 在容器内运行，因此它看到与项目工具链其余部分相同的文件、依赖项和工具。在 VS Code 中，您可以使用 [Claude Code 扩展面板](https://code.claude.com/docs/zh-CN/vs-code.md) 或在集成终端中运行 `claude`；两者都在容器内运行并共享相同的 `~/.claude` 配置。
 
 ## 在开发容器中添加 Claude Code
 
@@ -71,11 +71,11 @@ Claude Code 功能在基础镜像未提供 Node.js 时会自行安装。如果�
 您在身份验证提示处看到的内容取决于您的提供商：
 
 * **Anthropic**：通过浏览器使用您的 Claude 或 Anthropic Console 账户登录
-* **[Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry](/docs/zh-CN/third-party-integrations.md)**：Claude Code 使用您的云提供商凭证，无需浏览器提示
+* **[Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry](https://code.claude.com/docs/zh-CN/third-party-integrations.md)**：Claude Code 使用您的云提供商凭证，无需浏览器提示
 
-对于云提供商，通过 `containerEnv`、Codespaces 密钥或您的云的工作负载身份将凭证传递到容器中，而不是从主机挂载凭证文件。有关凭证链的详细信息，请参阅 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry.md)，Claude Code 会读取这些信息。
+对于云提供商，通过 `containerEnv`、Codespaces 密钥或您的云的工作负载身份将凭证传递到容器中，而不是从主机挂载凭证文件。有关凭证链的详细信息，请参阅 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)，Claude Code 会读取这些信息。
 
-请参阅[选择您的 API 提供商](/docs/zh-CN/admin-setup.md#choose-your-api-provider)以决定哪条路径适合您的组织。
+请参阅[选择您的 API 提供商](https://code.claude.com/docs/zh-CN/admin-setup.md#choose-your-api-provider)以决定哪条路径适合您的组织。
 
 > [!NOTE]
 >
@@ -83,9 +83,9 @@ Claude Code 功能在基础镜像未提供 Node.js 时会自行安装。如果�
 
 ## 在重建过程中保持身份验证和设置
 
-默认情况下，容器的主目录在重建时会被丢弃，因此工程师必须每次都重新登录。Claude Code 将其身份验证令牌、用户设置和会话历史存储在 [`~/.claude`](/docs/zh-CN/claude-directory) 目录下。它将您的账户详细信息、个人 MCP 服务器和按项目信任存储在该目录之外的一个单独文件中：[`~/.claude.json`](/docs/zh-CN/settings-reference#global-config-settings)。
+默认情况下，容器的主目录在重建时会被丢弃，因此工程师必须每次都重新登录。Claude Code 将其身份验证令牌、用户设置和会话历史存储在 [`~/.claude`](https://code.claude.com/docs/zh-CN/claude-directory) 目录下。它将您的账户详细信息、个人 MCP 服务器和按项目信任存储在该目录之外的一个单独文件中：[`~/.claude.json`](https://code.claude.com/docs/zh-CN/settings-reference#global-config-settings)。
 
-要保留该目录和该文件，请在 `~/.claude` 处挂载一个命名卷，并将 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 设置为相同路径，以便 Claude Code 在卷内写入 `.claude.json`。以下示例为 `remoteUser` 为 `node` 的容器挂载卷并设置 `CLAUDE_CONFIG_DIR`：
+要保留该目录和该文件，请在 `~/.claude` 处挂载一个命名卷，并将 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars) 设置为相同路径，以便 Claude Code 在卷内写入 `.claude.json`。以下示例为 `remoteUser` 为 `node` 的容器挂载卷并设置 `CLAUDE_CONFIG_DIR`：
 
 ```json devcontainer.json theme={null}
 "mounts": [
@@ -106,22 +106,22 @@ Claude Code 功能在基础镜像未提供 Node.js 时会自行安装。如果�
 
 在 GitHub Codespaces 中，`~/.claude` 在停止和启动 codespace 时会保持，但在重建容器时仍会被清除，因此上面的配置也适用于此。
 
-要在 codespace 之间进行身份验证，请将 `ANTHROPIC_API_KEY` 或来自 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 的 `CLAUDE_CODE_OAUTH_TOKEN` 存储为 [Codespaces 密钥](https://docs.github.com/en/codespaces/managing-your-codespaces/managing-your-account-specific-secrets-for-github-codespaces)。Codespaces 会自动将密钥作为环境变量提供给容器内部。
+要在 codespace 之间进行身份验证，请将 `ANTHROPIC_API_KEY` 或来自 [`claude setup-token`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 的 `CLAUDE_CODE_OAUTH_TOKEN` 存储为 [Codespaces 密钥](https://docs.github.com/en/codespaces/managing-your-codespaces/managing-your-account-specific-secrets-for-github-codespaces)。Codespaces 会自动将密钥作为环境变量提供给容器内部。
 
 ## 强制执行组织策略
 
 开发容器是应用组织策略的便利场所，因为相同的镜像和配置在每个工程师的机器上运行。
 
-Claude Code 在 Linux 上读取 `/etc/claude-code/managed-settings.json` 并在[设置层次结构](/docs/zh-CN/settings.md#settings-precedence)中以最高优先级应用它，因此那里的值会覆盖工程师在 `~/.claude` 或项目的 `.claude/` 目录中设置的任何内容。从您的 Dockerfile 复制文件到位：
+Claude Code 在 Linux 上读取 `/etc/claude-code/managed-settings.json` 并在[设置层次结构](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)中以最高优先级应用它，因此那里的值会覆盖工程师在 `~/.claude` 或项目的 `.claude/` 目录中设置的任何内容。从您的 Dockerfile 复制文件到位：
 
 ```dockerfile Dockerfile theme={null}
 RUN mkdir -p /etc/claude-code
 COPY managed-settings.json /etc/claude-code/managed-settings.json
 ```
 
-因为 Dockerfile 存在于存储库中，任何具有写入权限的人都可以更改或删除此步骤。对于工程师无法通过编辑存储库文件来绕过的策略，请通过[服务器管理的设置](/docs/zh-CN/server-managed-settings.md)或您的 MDM 提供托管设置。有关可用的键和其他交付路径，请参阅[托管设置文件](/docs/zh-CN/managed-settings.md#delivery-mechanisms)。
+因为 Dockerfile 存在于存储库中，任何具有写入权限的人都可以更改或删除此步骤。对于工程师无法通过编辑存储库文件来绕过的策略，请通过[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)或您的 MDM 提供托管设置。有关可用的键和其他交付路径，请参阅[托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)。
 
-要设置适用于容器中每个 Claude Code 会话的[环境变量](/docs/zh-CN/env-vars.md)，请将它们添加到 `devcontainer.json` 中的 `containerEnv`。以下示例选择退出遥测和错误报告，并防止 Claude Code 在安装后自动更新：
+要设置适用于容器中每个 Claude Code 会话的[环境变量](https://code.claude.com/docs/zh-CN/env-vars.md)，请将它们添加到 `devcontainer.json` 中的 `containerEnv`。以下示例选择退出遥测和错误报告，并防止 Claude Code 在安装后自动更新：
 
 ```json devcontainer.json theme={null}
 "containerEnv": {
@@ -130,17 +130,17 @@ COPY managed-settings.json /etc/claude-code/managed-settings.json
 }
 ```
 
-`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 也禁用了[远程控制](/docs/zh-CN/remote-control.md#requirements)和其他[需要功能标志获取的功能](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)所依赖的功能标志评估，因此容器中的会话无法使用它们。
+`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 也禁用了[远程控制](https://code.claude.com/docs/zh-CN/remote-control.md#requirements)和其他[需要功能标志获取的功能](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)所依赖的功能标志评估，因此容器中的会话无法使用它们。
 
 Dev Container Feature 始终安装最新的 Claude Code 版本。要为可重现的构建固定特定的 Claude Code 版本，请从您的 Dockerfile 使用 `npm install -g @anthropic-ai/claude-code@X.Y.Z` 安装它，而不是使用该功能，并在 `containerEnv` 中将 `DISABLE_AUTOUPDATER` 设置为 `1`。
 
-有关完整的策略控制列表，包括权限规则、工具限制和 MCP 服务器允许列表，请参阅[为您的组织设置 Claude Code](/docs/zh-CN/admin-setup.md)。
+有关完整的策略控制列表，包括权限规则、工具限制和 MCP 服务器允许列表，请参阅[为您的组织设置 Claude Code](https://code.claude.com/docs/zh-CN/admin-setup.md)。
 
-要在容器内提供 [MCP 服务器](/docs/zh-CN/mcp.md)，请在存储库根目录的 `.mcp.json` 文件中的[项目范围](/docs/zh-CN/mcp.md#mcp-installation-scopes)定义它们，以便它们与您的开发容器配置一起签入。在您的 Dockerfile 中安装本地 stdio 服务器依赖的任何二进制文件，并将远程服务器域添加到您的网络允许列表。
+要在容器内提供 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)，请在存储库根目录的 `.mcp.json` 文件中的[项目范围](https://code.claude.com/docs/zh-CN/mcp.md#mcp-installation-scopes)定义它们，以便它们与您的开发容器配置一起签入。在您的 Dockerfile 中安装本地 stdio 服务器依赖的任何二进制文件，并将远程服务器域添加到您的网络允许列表。
 
 ## 限制网络出站流量
 
-您可以将容器的出站流量限制为仅 Claude Code 需要的域。有关推理和身份验证域，请参阅[网络访问要求](/docs/zh-CN/network-config.md#network-access-requirements)，有关可选的遥测和错误报告连接以及如何禁用它们，请参阅[遥测服务](/docs/zh-CN/data-usage.md#telemetry-services)。
+您可以将容器的出站流量限制为仅 Claude Code 需要的域。有关推理和身份验证域，请参阅[网络访问要求](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)，有关可选的遥测和错误报告连接以及如何禁用它们，请参阅[遥测服务](https://code.claude.com/docs/zh-CN/data-usage.md#telemetry-services)。
 
 参考容器包含一个 [`init-firewall.sh`](https://github.com/anthropics/claude-code/blob/main/.devcontainer/init-firewall.sh) 脚本，该脚本限制出站流量仅限于脚本允许的目标。在容器内运行防火墙需要额外的权限，因此参考通过 `runArgs` 添加 `NET_ADMIN` 和 `NET_RAW` 功能。防火墙脚本和这些功能对于 Claude Code 本身不是必需的：您可以将其省略并改为依赖您自己的网络控制。
 
@@ -150,7 +150,7 @@ Dev Container Feature 始终安装最新的 Claude Code 版本。要为可重现
 
 跳过权限提示会移除您在工具调用运行前审查它们的机会。Claude 仍然可以修改绑定挂载的工作区中的任何文件（这直接显示在您的主机上），并访问容器的网络策略允许的任何内容。将此标志与上面的[网络出站流量限制](#restrict-network-egress)配对，以限制绕过的会话可以访问的内容。
 
-如果您想要更少的提示而不禁用安全检查，请考虑改为[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，它有一个分类器在运行前审查操作。要完全防止工程师使用 `--dangerously-skip-permissions`，请在[托管设置](/docs/zh-CN/settings-reference.md#permission-settings)中将 `permissions.disableBypassPermissionsMode` 设置为 `"disable"`。
+如果您想要更少的提示而不禁用安全检查，请考虑改为[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，它有一个分类器在运行前审查操作。要完全防止工程师使用 `--dangerously-skip-permissions`，请在[托管设置](https://code.claude.com/docs/zh-CN/settings-reference.md#permission-settings)中将 `permissions.disableBypassPermissionsMode` 设置为 `"disable"`。
 
 ## 尝试参考容器
 
@@ -186,12 +186,12 @@ Dev Container Feature 始终安装最新的 Claude Code 版本。要为可重现
 
 Claude Code 在您的开发容器中运行后，下面的页面涵盖了组织推出的其余部分：选择身份验证路径、在存储库外交付托管策略、监控使用情况以及了解 Claude Code 存储和发送的内容。
 
-* [为您的组织设置 Claude Code](/docs/zh-CN/admin-setup.md)：选择身份验证提供商、决定策略如何到达设备以及规划推出
-* [服务器管理的设置](/docs/zh-CN/server-managed-settings.md)：从 claude.ai 管理控制台交付托管策略，以便工程师无法通过编辑存储库文件来绕过它
-* [监控使用情况和审计活动](/docs/zh-CN/monitoring-usage.md)：导出 OpenTelemetry 指标并查看您的团队正在运行的内容
-* [网络访问要求](/docs/zh-CN/network-config.md#network-access-requirements)：代理和防火墙的完整域允许列表
-* [遥测服务和选择退出](/docs/zh-CN/data-usage.md#telemetry-services)：Claude Code 默认发送的内容以及禁用它的环境变量
-* [探索 `.claude` 目录](/docs/zh-CN/claude-directory)：卷挂载包含的内容，包括凭证、设置和会话历史
-* [沙箱环境](/docs/zh-CN/sandbox-environments.md)：比较开发容器与内置 Bash 沙箱、自定义容器和虚拟机
-* [安全模型](/docs/zh-CN/security.md)：Claude Code 的权限系统、沙箱和提示注入保护如何组合在一起
-* [权限模式](/docs/zh-CN/permission-modes.md)：从计划模式到自动模式再到绕过的完整范围，以及何时使用每种模式
+* [为您的组织设置 Claude Code](https://code.claude.com/docs/zh-CN/admin-setup.md)：选择身份验证提供商、决定策略如何到达设备以及规划推出
+* [服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)：从 claude.ai 管理控制台交付托管策略，以便工程师无法通过编辑存储库文件来绕过它
+* [监控使用情况和审计活动](https://code.claude.com/docs/zh-CN/monitoring-usage.md)：导出 OpenTelemetry 指标并查看您的团队正在运行的内容
+* [网络访问要求](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)：代理和防火墙的完整域允许列表
+* [遥测服务和选择退出](https://code.claude.com/docs/zh-CN/data-usage.md#telemetry-services)：Claude Code 默认发送的内容以及禁用它的环境变量
+* [探索 `.claude` 目录](https://code.claude.com/docs/zh-CN/claude-directory)：卷挂载包含的内容，包括凭证、设置和会话历史
+* [沙箱环境](https://code.claude.com/docs/zh-CN/sandbox-environments.md)：比较开发容器与内置 Bash 沙箱、自定义容器和虚拟机
+* [安全模型](https://code.claude.com/docs/zh-CN/security.md)：Claude Code 的权限系统、沙箱和提示注入保护如何组合在一起
+* [权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)：从计划模式到自动模式再到绕过的完整范围，以及何时使用每种模式

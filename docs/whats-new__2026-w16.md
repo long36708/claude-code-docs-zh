@@ -6,7 +6,7 @@
 
 > Claude Opus 4.7 配备新的 xhigh 努力级别、Claude Code 网页版上的 Routines、移动推送通知在 Claude 需要您时 ping 您的手机、显示限制驱动因素的 /usage 分解，以及替代捆绑 JavaScript 的原生二进制文件。
 
-发布版本 [v2.1.105 → v2.1.113](/docs/en/changelog.md#2-1-105)
+发布版本 [v2.1.105 → v2.1.113](https://code.claude.com/docs/en/changelog.md#2-1-105)
 5 项功能 · 4 月 13–17 日
 
 Claude Opus 4.7
@@ -21,7 +21,7 @@ Anthropic 最强大的编码模型现在是 Max 和 Team Premium 的默认模型
 > /effort xhigh
 ```
 
-[模型配置：努力级别](/docs/zh-CN/model-config.md#adjust-effort-level)
+[模型配置：努力级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)
 
 Routines
 web
@@ -36,7 +36,7 @@ web
 > /schedule daily PR review at 9am
 ```
 
-[Routines 指南](/docs/zh-CN/routines.md)
+[Routines 指南](https://code.claude.com/docs/zh-CN/routines.md)
 
 /usage breakdown
 CLI
@@ -51,12 +51,12 @@ CLI
 > /usage
 ```
 
-[命令参考](/docs/zh-CN/commands.md)
+[命令参考](https://code.claude.com/docs/zh-CN/commands.md)
 
 移动推送通知
 mobile
 
-连接了 [Remote Control](/docs/zh-CN/remote-control.md)，Claude 可以在长任务完成或需要决定继续时向您的手机发送推送通知。在 `/config` 中使用"Claude 决定时推送"打开它，或在您的提示中请求一个。当您启动长代理运行并想离开终端时很有用。
+连接了 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)，Claude 可以在长任务完成或需要决定继续时向您的手机发送推送通知。在 `/config` 中使用"Claude 决定时推送"打开它，或在您的提示中请求一个。当您启动长代理运行并想离开终端时很有用。
 
 <video autoPlay muted loop playsInline src="https://mintcdn.com/claude-code/uII1TETOZxBUZ3lB/images/whats-new/push-notifications.mp4?fit=max&auto=format&n=uII1TETOZxBUZ3lB&q=85&s=c91a967139596500cbdb581a53822ac1" />
 
@@ -66,7 +66,7 @@ mobile
 > notify me when the tests pass
 ```
 
-[Remote Control：移动推送通知](/docs/zh-CN/remote-control.md#mobile-push-notifications)
+[Remote Control：移动推送通知](https://code.claude.com/docs/zh-CN/remote-control.md#mobile-push-notifications)
 
 原生二进制文件
 v2.1.113
@@ -80,10 +80,10 @@ claude update
 claude --version
 ```
 
-[设置指南](/docs/zh-CN/setup.md)
+[设置指南](https://code.claude.com/docs/zh-CN/setup.md)
 
 其他亮点
 
-新的 [`/ultrareview`](/docs/zh-CN/ultrareview)：使用并行多代理分析和对抗性批评通过在云中进行全面代码审查。不带参数运行它来审查您当前的分支，或 `/ultrareview <PR#>` 来审查特定 PR[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)现在可供 Max 订阅者在 Opus 4.7 上使用，`--enable-auto-mode` 标志不再需要[会话回顾](/docs/zh-CN/interactive-mode.md#session-recap)显示您离开时发生的一行摘要；按需运行 `/recap` 或从 `/config` 关闭它新的 `/tui` 命令和 `tui` 设置在对话中间切换经典和无闪烁渲染；焦点视图从 `Ctrl+O` 移至其自己的 `/focus` 命令插件可以通过顶级 `monitors` 清单键提供后台监视器，在会话启动或技能调用时自动启用`/theme` 中的"自动（匹配终端）"选项遵循您的终端的深色/浅色模式`/fewer-permission-prompts` 扫描您的记录以查找常见的只读 Bash 和 MCP 调用，并为 `.claude/settings.json` 提议一个允许列表Claude 现在可以通过 Skill 工具发现并运行内置命令，如 `/init`、`/review` 和 `/security-review``PreCompact` hooks 可以通过以代码 2 退出或返回 `{"decision":"block"}` 来阻止压缩`ENABLE_PROMPT_CACHING_1H` 选择 API 密钥、Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 用户进入 1 小时提示缓存 TTL`sandbox.network.deniedDomains` 设置从更广泛的 `allowedDomains` 通配符中分离特定域`/undo` 现在是 `/rewind` 的别名，`/proactive` 是 `/loop` 的别名强化的 Bash 权限：拒绝规则现在通过 `env`/`sudo`/`watch` 包装器匹配，`Bash(find:*)` 允许规则不再自动批准 `-exec` 或 `-delete`
+新的 [`/ultrareview`](https://code.claude.com/docs/zh-CN/ultrareview)：使用并行多代理分析和对抗性批评通过在云中进行全面代码审查。不带参数运行它来审查您当前的分支，或 `/ultrareview <PR#>` 来审查特定 PR[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)现在可供 Max 订阅者在 Opus 4.7 上使用，`--enable-auto-mode` 标志不再需要[会话回顾](https://code.claude.com/docs/zh-CN/interactive-mode.md#session-recap)显示您离开时发生的一行摘要；按需运行 `/recap` 或从 `/config` 关闭它新的 `/tui` 命令和 `tui` 设置在对话中间切换经典和无闪烁渲染；焦点视图从 `Ctrl+O` 移至其自己的 `/focus` 命令插件可以通过顶级 `monitors` 清单键提供后台监视器，在会话启动或技能调用时自动启用`/theme` 中的"自动（匹配终端）"选项遵循您的终端的深色/浅色模式`/fewer-permission-prompts` 扫描您的记录以查找常见的只读 Bash 和 MCP 调用，并为 `.claude/settings.json` 提议一个允许列表Claude 现在可以通过 Skill 工具发现并运行内置命令，如 `/init`、`/review` 和 `/security-review``PreCompact` hooks 可以通过以代码 2 退出或返回 `{"decision":"block"}` 来阻止压缩`ENABLE_PROMPT_CACHING_1H` 选择 API 密钥、Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 用户进入 1 小时提示缓存 TTL`sandbox.network.deniedDomains` 设置从更广泛的 `allowedDomains` 通配符中分离特定域`/undo` 现在是 `/rewind` 的别名，`/proactive` 是 `/loop` 的别名强化的 Bash 权限：拒绝规则现在通过 `env`/`sudo`/`watch` 包装器匹配，`Bash(find:*)` 允许规则不再自动批准 `-exec` 或 `-delete`
 
-[v2.1.105–v2.1.113 的完整更改日志 →](/docs/en/changelog.md#2-1-105)
+[v2.1.105–v2.1.113 的完整更改日志 →](https://code.claude.com/docs/en/changelog.md#2-1-105)

@@ -13,13 +13,13 @@ Plugins 允许你使用可在项目间共享的自定义功能来扩展 Claude C
 * **Hooks**：响应工具使用和其他事件的事件处理程序
 * **MCP servers**：通过 Model Context Protocol 的外部工具集成
 
-有关 plugin 结构和如何创建 plugins 的完整信息，请参阅 [Plugins](/docs/zh-CN/plugins/overview.md)。
+有关 plugin 结构和如何创建 plugins 的完整信息，请参阅 [Plugins](https://code.claude.com/docs/zh-CN/plugins/overview.md)。
 
 ## 加载 plugins
 
 通过在选项配置中提供本地文件系统路径来加载 plugins。`type` 字段必须是 `"local"`，这是 SDK 接受的唯一值。SDK 支持从不同位置加载多个 plugins。
 
-要使用通过 [marketplace](/docs/zh-CN/plugins/overview.md) 或远程存储库分发的 plugin，请先下载它并提供本地目录路径。有关 plugin 需要的目录布局，请参阅下面的 [Plugin 结构参考](#plugin-structure-reference)。
+要使用通过 [marketplace](https://code.claude.com/docs/zh-CN/plugins/overview.md) 或远程存储库分发的 plugin，请先下载它并提供本地目录路径。有关 plugin 需要的目录布局，请参阅下面的 [Plugin 结构参考](#plugin-structure-reference)。
 
 ```typescript TypeScript theme={null}
 import { query } from "@anthropic-ai/claude-agent-sdk";
@@ -305,7 +305,7 @@ plugins: [
 
 ### Plugin 未加载
 
-如果你的 plugin 未出现在初始化消息的 `plugins` 列表中，请检查其 [`plugin_errors`](/docs/zh-CN/agent-sdk/typescript#sdksystemmessage) 字段以了解原因，然后按照以下检查步骤进行：
+如果你的 plugin 未出现在初始化消息的 `plugins` 列表中，请检查其 [`plugin_errors`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdksystemmessage) 字段以了解原因，然后按照以下检查步骤进行：
 
 1. **检查路径**：确保路径指向 plugin 根目录，即 `skills/`、`agents/`、`hooks/`、`commands/` 或 `.claude-plugin/` 的父目录
 2. **验证 plugin.json**：如果你的 plugin 包含清单文件，确保它具有有效的 JSON 语法
@@ -322,8 +322,8 @@ plugins: [
 
 ## 另请参阅
 
-* [Plugins](/docs/zh-CN/plugins/overview.md) - 完整的 plugin 开发指南
-* [Plugins reference](/docs/zh-CN/plugins/manifest-reference.md) - 技术规范
-* [Commands](/docs/zh-CN/agent-sdk/skills.md#dispatch-commands-by-name) - 在 SDK 中调度命令
-* [Subagents](/docs/zh-CN/agent-sdk/subagents.md) - 使用专门的 agents
-* [Skills](/docs/zh-CN/agent-sdk/skills.md) - 使用 Agent Skills
+* [Plugins](https://code.claude.com/docs/zh-CN/plugins/overview.md) - 完整的 plugin 开发指南
+* [Plugins reference](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md) - 技术规范
+* [Commands](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md#dispatch-commands-by-name) - 在 SDK 中调度命令
+* [Subagents](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md) - 使用专门的 agents
+* [Skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md) - 使用 Agent Skills

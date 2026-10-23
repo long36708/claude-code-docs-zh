@@ -158,15 +158,15 @@ start "" "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
 
 处理程序在检测到的终端模拟器中启动 Claude Code。在 macOS 上，Claude Code 记住您最近交互式会话中的终端并重复使用它，支持 iTerm2、Ghostty、kitty、Alacritty、WezTerm 和 Terminal.app。在 Linux 上，它遵守 `$TERMINAL` 环境变量，然后是 `x-terminal-emulator`，然后是常见模拟器的列表。在 Windows 上，它优先选择 Windows Terminal，然后是 PowerShell，然后是 `cmd.exe`。
 
-要完全防止注册，在 `settings.json` 中将 [`disableDeepLinkRegistration`](/docs/zh-CN/settings-reference#disabledeeplinkregistration) 设置为 `"disable"`。要在整个组织中强制执行此操作，使用户无法重新启用它，请改为在[托管设置](/docs/zh-CN/server-managed-settings.md)中设置它。Claude Code 的 `disableDeepLinkRegistration` 设置仅适用于 `claude-cli://` 链接。
+要完全防止注册，在 `settings.json` 中将 [`disableDeepLinkRegistration`](https://code.claude.com/docs/zh-CN/settings-reference#disabledeeplinkregistration) 设置为 `"disable"`。要在整个组织中强制执行此操作，使用户无法重新启用它，请改为在[托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中设置它。Claude Code 的 `disableDeepLinkRegistration` 设置仅适用于 `claude-cli://` 链接。
 
 ## 打开 VS Code 标签页而不是终端
 
-VS Code 扩展在 `vscode://anthropic.claude-code/open` 注册自己的处理程序，它打开一个 Claude Code 编辑器标签页而不是终端窗口。请参阅[从其他工具启动 VS Code 标签页](/docs/zh-CN/vs-code.md#launch-a-vs-code-tab-from-other-tools)了解该 URL 的参数。
+VS Code 扩展在 `vscode://anthropic.claude-code/open` 注册自己的处理程序，它打开一个 Claude Code 编辑器标签页而不是终端窗口。请参阅[从其他工具启动 VS Code 标签页](https://code.claude.com/docs/zh-CN/vs-code.md#launch-a-vs-code-tab-from-other-tools)了解该 URL 的参数。
 
 ## 在 SSH 连接上打开 Claude Desktop 会话
 
-Claude Desktop 会自行处理其 `claude://` 链接。要通过 SSH 在远程机器上打开 Desktop 会话，请参阅[通过链接打开 SSH 会话](/docs/zh-CN/desktop.md#open-an-ssh-session-from-a-link)。
+Claude Desktop 会自行处理其 `claude://` 链接。要通过 SSH 在远程机器上打开 Desktop 会话，请参阅[通过链接打开 SSH 会话](https://code.claude.com/docs/zh-CN/desktop.md#open-an-ssh-session-from-a-link)。
 
 ## 故障排除
 
@@ -194,5 +194,5 @@ Claude Desktop 会自行处理其 `claude://` 链接。要通过 SSH 在远程�
 
 这些页面涵盖了启动或扩展 Claude Code 会话的相关方式：
 
-* [Skills](/docs/zh-CN/skills.md)：将长运行手册提示存储为仓库中的 `/skill`，以便深链接的 `q` 参数只需命名它
-* [Non-interactive mode](/docs/zh-CN/headless.md)：从脚本运行 Claude 并捕获输出而不打开终端
+* [Skills](https://code.claude.com/docs/zh-CN/skills.md)：将长运行手册提示存储为仓库中的 `/skill`，以便深链接的 `q` 参数只需命名它
+* [Non-interactive mode](https://code.claude.com/docs/zh-CN/headless.md)：从脚本运行 Claude 并捕获输出而不打开终端

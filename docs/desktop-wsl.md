@@ -20,7 +20,7 @@
 
 **1. 选择发行版**
 
-在 Code 选项卡中启动新会话，然后打开输入框下方（在[早期布局](/docs/zh-CN/desktop.md#check-which-layout-you-have)中则位于输入框上方）的[环境选择器](/docs/zh-CN/desktop.md#start-a-session)。您安装的 WSL 2 发行版会出现在 **WSL** 部分中。选择一个。
+在 Code 选项卡中启动新会话，然后打开输入框下方（在[早期布局](https://code.claude.com/docs/zh-CN/desktop.md#check-which-layout-you-have)中则位于输入框上方）的[环境选择器](https://code.claude.com/docs/zh-CN/desktop.md#start-a-session)。您安装的 WSL 2 发行版会出现在 **WSL** 部分中。选择一个。
 
 **2. 选择文件夹**
 
@@ -38,18 +38,18 @@
 
 如果某项 Desktop 功能在 WSL 会话中不可用或受限，请检查它是否属于以下情况之一：
 
-* **终端和连接器**：您的会话可能缺少[集成终端](/docs/zh-CN/desktop.md#run-commands-in-the-terminal)、[连接器](/docs/zh-CN/desktop.md#connect-external-tools)，或两者都缺少。请参阅[如果终端或连接器不可用](#check-for-the-terminal-and-connectors)。
-* **[插件](/docs/zh-CN/desktop.md#install-plugins)**：在 WSL 会话中不可用
-* **文件编辑**：您可以在[文件窗格](/docs/zh-CN/desktop.md#open-and-edit-files)中查看文件，但无法在其中编辑，因此请让 Claude 进行更改
-* **附件**：如果 **+** 菜单显示的是 **Add image** 而不是 **Add files or photos**，则您只能附加图片。请参阅[向提示词添加文件和上下文](/docs/zh-CN/desktop.md#add-files-and-context-to-prompts)。
+* **终端和连接器**：您的会话可能缺少[集成终端](https://code.claude.com/docs/zh-CN/desktop.md#run-commands-in-the-terminal)、[连接器](https://code.claude.com/docs/zh-CN/desktop.md#connect-external-tools)，或两者都缺少。请参阅[如果终端或连接器不可用](#check-for-the-terminal-and-connectors)。
+* **[插件](https://code.claude.com/docs/zh-CN/desktop.md#install-plugins)**：在 WSL 会话中不可用
+* **文件编辑**：您可以在[文件窗格](https://code.claude.com/docs/zh-CN/desktop.md#open-and-edit-files)中查看文件，但无法在其中编辑，因此请让 Claude 进行更改
+* **附件**：如果 **+** 菜单显示的是 **Add image** 而不是 **Add files or photos**，则您只能附加图片。请参阅[向提示词添加文件和上下文](https://code.claude.com/docs/zh-CN/desktop.md#add-files-and-context-to-prompts)。
 
 ### 如果终端或连接器不可用
 
 您无法自行为 WSL 会话启用集成终端或连接器：
 
 * **Claude 账户**：这两项功能正在分别推出。请选择 **Help > Check for Updates…**，如果更新后某项功能仍然缺失，则无需进行任何操作。
-* **[第三方提供商](/docs/zh-CN/third-party-integrations.md)**：WSL 会话不提供终端或连接器，更新 Desktop 也不会改变这一点
+* **[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)**：WSL 会话不提供终端或连接器，更新 Desktop 也不会改变这一点
 
 ## 受管设备
 
-在由组织管理的设备上，WSL 会话可能不可用。如果会话启动失败并显示设备受管的消息，这由您的管理员控制。管理员：请参阅部署指南中的[设置如何到达设备](/docs/zh-CN/admin-setup.md#decide-how-settings-reach-devices)。
+在由组织管理的设备上，WSL 会话可能不可用。如果会话启动失败并显示设备受管的消息，这由您的管理员控制。管理员：请参阅部署指南中的[设置如何到达设备](https://code.claude.com/docs/zh-CN/admin-setup.md#decide-how-settings-reach-devices)。

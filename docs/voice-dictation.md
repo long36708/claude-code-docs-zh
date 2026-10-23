@@ -8,21 +8,21 @@
 
 在 Claude Code CLI 中说出你的提示词，而不是输入它们。你的语音会实时转录到提示词输入中，所以你可以在同一条消息中混合使用语音和输入。使用 `/voice` 启用听写，然后要么在说话时按住一个键，要么点击一次开始，再点击一次发送。
 
-在[按住模式](#hold-to-record)下，听写功能也适用于 [Agent 视图](/docs/zh-CN/agent-view.md#peek-and-reply)。在 Dispatch 输入框或窥视面板回复获得焦点时，按住您的按键通话键，即可向后台会话进行听写。
+在[按住模式](#hold-to-record)下，听写功能也适用于 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md#peek-and-reply)。在 Dispatch 输入框或窥视面板回复获得焦点时，按住您的按键通话键，即可向后台会话进行听写。
 
 ## 要求
 
 语音听写将你录制的音频流传输到 Anthropic 的服务器进行转录。音频不在本地处理。它需要以下所有条件：
 
 * **一个 Claude.ai 账户**：语音转文本服务仅在你使用 Claude.ai 账户进行身份验证时可用，当 Claude Code 配置为直接使用 Anthropic API 密钥、Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 时不可用。
-* **一个本地麦克风**：语音听写在[云会话](/docs/zh-CN/claude-code-on-the-web.md)或 SSH 会话中不起作用。
+* **一个本地麦克风**：语音听写在[云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)或 SSH 会话中不起作用。
 * **如果你在 WSL 中运行 Claude Code，则需要 WSLg**：WSLg 包含在 Windows 10 或 11 上从 Microsoft Store 安装的 WSL2 中。如果 WSLg 不可用，例如在 WSL1 上，改为在本机 Windows 中运行 Claude Code。
 
-转录不消耗 Claude 消息或令牌，也不计入 `/usage` 中显示的限制。有关 Anthropic 如何处理你的数据，请参阅[数据使用](/docs/zh-CN/data-usage.md)。
+转录不消耗 Claude 消息或令牌，也不计入 `/usage` 中显示的限制。有关 Anthropic 如何处理你的数据，请参阅[数据使用](https://code.claude.com/docs/zh-CN/data-usage.md)。
 
 音频录制在 macOS、Linux 和 Windows 上使用内置的本机模块。在 Linux 上，如果本机模块无法加载，Claude Code 会回退到 ALSA utils 中的 `arecord` 或 SoX 中的 `rec`。如果两者都不可用，`/voice` 会打印你的包管理器的安装命令。
 
-Claude Code [VS Code 扩展](/docs/zh-CN/vs-code.md)也支持语音听写，具有相同的 Claude.ai 账户要求。它在 VS Code Remote 会话中不可用，包括 SSH、Dev Containers 和 Codespaces，因为麦克风在你的本地机器上，而扩展在远程主机上运行。
+Claude Code [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)也支持语音听写，具有相同的 Claude.ai 账户要求。它在 VS Code Remote 会话中不可用，包括 SSH、Dev Containers 和 Codespaces，因为麦克风在你的本地机器上，而扩展在远程主机上运行。
 
 ## 启用语音听写
 
@@ -42,7 +42,7 @@ Voice mode enabled (hold). Hold space to record. Dictation language: en (/config
 | `/voice tap` | 在[点击模式](#tap-to-record-and-send)中启用 |
 | `/voice off` | 禁用 |
 
-语音听写在会话之间持续。直接在你的[用户设置文件](/docs/zh-CN/settings.md)中设置它，而不是运行 `/voice`：
+语音听写在会话之间持续。直接在你的[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)中设置它，而不是运行 `/voice`：
 
 ```json theme={null}
 {
@@ -53,7 +53,7 @@ Voice mode enabled (hold). Hold space to record. Dictation language: en (/config
 }
 ```
 
-启用语音听写的前三个会话中，当提示词为空时，输入页脚会显示 `hold space to speak` 提示。提示文本反映你当前的 `voice:pushToTalk` 快捷键绑定，如果你[重新绑定听写键](#rebind-the-dictation-key)，它会更新。提示文本在两种模式中都相同，如果你配置了[自定义状态行](/docs/zh-CN/statusline.md)，则不会显示。
+启用语音听写的前三个会话中，当提示词为空时，输入页脚会显示 `hold space to speak` 提示。提示文本反映你当前的 `voice:pushToTalk` 快捷键绑定，如果你[重新绑定听写键](#rebind-the-dictation-key)，它会更新。提示文本在两种模式中都相同，如果你配置了[自定义状态行](https://code.claude.com/docs/zh-CN/statusline.md)，则不会显示。
 
 转录在两种模式中都针对编码词汇进行了调整。常见的开发术语如 `regex`、`OAuth`、`JSON` 和 `localhost` 被正确识别，你当前的项目名称和 git 分支名称会自动添加为识别提示。
 
@@ -61,11 +61,11 @@ Voice mode enabled (hold). Hold space to record. Dictation language: en (/config
 
 按住模式是按键通话：当你按住键时录制运行，释放时停止。这是默认模式。
 
-按住 `Space` 开始录制。Claude Code 通过监视来自你的终端的快速按键重复事件来检测按住的键，因此在录制开始之前有一个简短的预热。页脚在预热期间显示 `keep holding…`，然后在录制激活后显示 `listening…`。录制时，提示词光标变成一个随麦克风电平上下移动的条形，除非你打开了 [`prefersReducedMotion`](/docs/zh-CN/settings-reference#prefersreducedmotion)。
+按住 `Space` 开始录制。Claude Code 通过监视来自你的终端的快速按键重复事件来检测按住的键，因此在录制开始之前有一个简短的预热。页脚在预热期间显示 `keep holding…`，然后在录制激活后显示 `listening…`。录制时，提示词光标变成一个随麦克风电平上下移动的条形，除非你打开了 [`prefersReducedMotion`](https://code.claude.com/docs/zh-CN/settings-reference#prefersreducedmotion)。
 
 前几个按键重复字符在预热期间输入到输入中，当录制激活时会自动删除。单个 `Space` 点击仍然会输入一个空格，因为按住检测仅在快速重复时触发。
 
-按住或点击 `Space` 仅在按键会输入到提示词的地方开始听写。在[转录查看器](/docs/zh-CN/interactive-mode.md#transcript-viewer)中，`Space` 翻页浏览对话，在[vim 模式](/docs/zh-CN/interactive-mode.md#vim-editor-mode)的非 INSERT 状态下它是一个命令。[重新绑定的修饰符组合](#rebind-the-dictation-key)（如 `meta+k`）永远不会输入文本，所以它也可以从这些地方开始听写。
+按住或点击 `Space` 仅在按键会输入到提示词的地方开始听写。在[转录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)中，`Space` 翻页浏览对话，在[vim 模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#vim-editor-mode)的非 INSERT 状态下它是一个命令。[重新绑定的修饰符组合](#rebind-the-dictation-key)（如 `meta+k`）永远不会输入文本，所以它也可以从这些地方开始听写。
 
 > [!TIP]
 >
@@ -99,11 +99,11 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 
 这两个键也可以在完成的录音的转录文本仍在处理时取消。在处理期间编辑或提交的提示会保持您留下的状态。
 
-这两个键在取消的按键中不执行任何其他操作：`Esc` 不会中断 Claude 的响应，`Ctrl+C` 不会清除提示或计为 [退出 Claude Code 的两次按键中的第一次](/docs/zh-CN/interactive-mode.md#general-controls)。
+这两个键在取消的按键中不执行任何其他操作：`Esc` 不会中断 Claude 的响应，`Ctrl+C` 不会清除提示或计为 [退出 Claude Code 的两次按键中的第一次](https://code.claude.com/docs/zh-CN/interactive-mode.md#general-controls)。
 
 ## 更改听写语言
 
-语音听写使用与控制 Claude 响应语言相同的[`language` 设置](/docs/zh-CN/settings-reference#language)。如果该设置为空，听写默认为英语。在 VS Code 扩展中，如果 `language` 为空，听写在默认为英语之前使用 VS Code 的 `accessibility.voice.speechLanguage` 设置。
+语音听写使用与控制 Claude 响应语言相同的[`language` 设置](https://code.claude.com/docs/zh-CN/settings-reference#language)。如果该设置为空，听写默认为英语。在 VS Code 扩展中，如果 `language` 为空，听写在默认为英语之前使用 VS Code 的 `accessibility.voice.speechLanguage` 设置。
 
 > **支持的听写语言**
 >
@@ -142,7 +142,7 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 
 ## 重新绑定听写键
 
-听写键在 `Chat` 上下文中绑定到 `voice:pushToTalk`，默认为 `Space`。相同的绑定控制按住和点击模式。在 [`~/.claude/keybindings.json`](/docs/zh-CN/keybindings) 中重新绑定它：
+听写键在 `Chat` 上下文中绑定到 `voice:pushToTalk`，默认为 `Space`。相同的绑定控制按住和点击模式。在 [`~/.claude/keybindings.json`](https://code.claude.com/docs/zh-CN/keybindings) 中重新绑定它：
 
 ```json theme={null}
 {
@@ -162,7 +162,7 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 
 在按住模式中，避免绑定裸字母键如 `v`，因为按住检测依赖于按键重复，字母在预热期间输入到提示词中。使用 `Space`，或使用修饰符组合如 `meta+k` 在第一次按键时开始录制，无需预热。点击模式没有预热，所以大多数键都可以。
 
-某些键不会传递到终端应用程序，根本无法绑定。例如，如果你尝试绑定 `Caps Lock`，会显示错误。有关完整的快捷键语法和保留快捷键列表，请参阅[自定义键盘快捷键](/docs/zh-CN/keybindings.md)。
+某些键不会传递到终端应用程序，根本无法绑定。例如，如果你尝试绑定 `Caps Lock`，会显示错误。有关完整的快捷键语法和保留快捷键列表，请参阅[自定义键盘快捷键](https://code.claude.com/docs/zh-CN/keybindings.md)。
 
 ## 故障排除
 
@@ -180,7 +180,7 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 * **在点击模式中点击 `Space` 输入空格而不是录制**：第一次点击仅在提示词输入为空时开始录制。先清除输入，或通过运行 `/voice tap` 检查你是否处于点击模式。
 * **`No audio detected from microphone`**：录制开始但捕获了静音。确认正确的输入设备设置为系统默认值，其输入级别未静音或接近零。在 Windows 上，打开设置 → 系统 → 声音 → 输入并选择你的麦克风。在 macOS 上，打开系统设置 → 声音 → 输入。
 * **`Voice connection failed`**：你的录制从未到达转录服务，因为连接失败。检查你的网络并重试。捕获无音频的录制报告 `No audio detected from microphone` 而不是此消息。在 v2.1.200 之前，静音麦克风可能报告连接失败，这表示网络问题，而实际问题是输入设备。
-* **`Dictation error: WebSocket error:` 后跟证书错误，例如 `unable to get local issuer certificate`**：请参阅 VS Code 页面上的[在执行 TLS 检查的代理后听写或 Web 选项卡失败](/docs/zh-CN/vs-code.md#dictation-or-the-web-tab-fails-behind-a-tls-inspecting-proxy)。
+* **`Dictation error: WebSocket error:` 后跟证书错误，例如 `unable to get local issuer certificate`**：请参阅 VS Code 页面上的[在执行 TLS 检查的代理后听写或 Web 选项卡失败](https://code.claude.com/docs/zh-CN/vs-code.md#dictation-or-the-web-tab-fails-behind-a-tls-inspecting-proxy)。
 * **`Voice stream error: WebSocket upgrade rejected with HTTP <status>`**：服务器以显示的 HTTP 状态拒绝了你的连接，所以这不是网络中断。400 范围内的状态通常意味着过期的登录、代理或机器人保护服务代替转录服务进行应答。运行 `/login` 刷新你的登录，如果状态仍然存在，请检查你的网络路径上是否有 VPN 或代理。如果拒绝到达时你仍在录制，Claude Code 会在显示此消息之前重试一次 400 范围外的状态；它不会重试 400 范围内的状态。在 v2.1.229 到 v2.1.231 中，本机构建没有显示此消息：Claude Code 继续录制，按住模式页脚仍然显示 `listening…`，在你停止录制后报告 `Voice connection failed`。
 * **`No speech detected`**：音频到达转录服务但未识别任何单词。靠近麦克风说话，减少背景噪音，并确认你的[听写语言](#change-the-dictation-language)与你说话的语言匹配。
 * **`Dictation stopped: no speech recognized for 15 seconds` 或 `Dictation stopped at its 2-minute limit`**：在 VS Code 扩展中，如果 15 秒内没有识别到任何单词，或在开始两分钟后，录制就会结束。如果您在这 15 秒内一直在说话，请尝试 `No speech detected` 的修复方法。已识别的单词会保留在输入框中，不会被发送。要添加更多内容，请再次单击麦克风按钮。
@@ -208,7 +208,7 @@ macOS 不会重新提示已在运行的进程。使用 Cmd+Q 退出终端应用�
 
 ## 另请参阅
 
-* [自定义键盘快捷键](/docs/zh-CN/keybindings.md)：重新绑定 `voice:pushToTalk` 和其他 CLI 键盘操作
-* [所有设置](/docs/zh-CN/settings-reference.md#voice)：`voice`、`language` 和其他设置键
-* [交互模式](/docs/zh-CN/interactive-mode.md)：键盘快捷键、输入模式和会话控制
-* [命令](/docs/zh-CN/commands.md)：`/voice`、`/config` 和所有其他命令的参考
+* [自定义键盘快捷键](https://code.claude.com/docs/zh-CN/keybindings.md)：重新绑定 `voice:pushToTalk` 和其他 CLI 键盘操作
+* [所有设置](https://code.claude.com/docs/zh-CN/settings-reference.md#voice)：`voice`、`language` 和其他设置键
+* [交互模式](https://code.claude.com/docs/zh-CN/interactive-mode.md)：键盘快捷键、输入模式和会话控制
+* [命令](https://code.claude.com/docs/zh-CN/commands.md)：`/voice`、`/config` 和所有其他命令的参考

@@ -6,7 +6,7 @@
 
 > 从 Desktop 应用的内置浏览器浏览外部网站，使用 /doctor 运行完整的设置检查，并获取自动模式的文本记录保护和代理视图升级。
 
-发布版本 [v2.1.202 → v2.1.206](/docs/en/changelog.md#2-1-202)
+发布版本 [v2.1.202 → v2.1.206](https://code.claude.com/docs/en/changelog.md#2-1-202)
 2 项功能 · 7 月 6–10 日
 
 Desktop 上的应用内浏览器
@@ -16,7 +16,7 @@ Desktop 上的 Claude Code 现在具有内置浏览器。Claude 可以打开文�
 
 <video autoPlay muted loop playsInline src="https://mintcdn.com/claude-code/x358isu_VzLnyTEN/images/whats-new/desktop-browser.mp4?fit=max&auto=format&n=x358isu_VzLnyTEN&q=85&s=8033e85a1cb0a37870a79e702c18f4e4" />
 
-[浏览外部网站](/docs/zh-CN/desktop.md#browse-external-sites)
+[浏览外部网站](https://code.claude.com/docs/zh-CN/desktop.md#browse-external-sites)
 
 /doctor 是完整的设置检查
 v2.1.205
@@ -29,10 +29,10 @@ v2.1.205
 > /doctor
 ```
 
-[所有命令](/docs/zh-CN/commands.md#all-commands)
+[所有命令](https://code.claude.com/docs/zh-CN/commands.md#all-commands)
 
 其他改进
 
 自动模式现在阻止篡改会话文本记录文件，并在运行 `rm -rf` 处理无法从上下文解析的变量之前询问`/cd` 现在在您输入时建议目录路径，与 `/add-dir` 匹配`/commit-push-pr` 自动允许 `git push` 到存储库配置的推送远程，除了 `origin`Gateway：`/login` 现在支持 Anthropic 运营的公共网关端点`EnterWorktree` 在进入项目 `.claude/worktrees/` 目录之外的 git worktree 之前请求确认后台代理在 Claude Code 更新后立即升级到新版本，而不是在您附加时支付缓慢的过时会话升级代理视图行现在显示彩色状态词和分类器编写的标题，而不是原始工具调用文本，编辑、合并、评论或推送到现有 PR 的会话在 `claude agents` 中链接它自动更新二进制下载现在流式传输到磁盘，而不是在内存中缓冲，将更新程序的峰值内存使用量减少了大约 400 MB后台任务通知现在明确说明没有发生人工输入，防止虚构的文本记录内批准被执行在 Opus 4.8 上改进了 `/code-review` 发现质量，涵盖所有工作量级别
 
-[v2.1.202–v2.1.206 的完整更新日志 →](/docs/en/changelog.md#2-1-202)
+[v2.1.202–v2.1.206 的完整更新日志 →](https://code.claude.com/docs/en/changelog.md#2-1-202)

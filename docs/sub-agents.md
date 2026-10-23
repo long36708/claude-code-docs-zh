@@ -8,11 +8,11 @@
 
 Subagents 是处理特定类型任务的专门 AI 助手。当一个辅助任务会用搜索结果、日志或文件内容充斥您的主对话，而您不会再次引用这些内容时，请使用一个 subagent：该 subagent 在自己的上下文中完成这项工作，仅返回摘要。当您不断生成相同类型的工作者并使用相同的指令时，定义一个自定义 subagent。
 
-每个 subagent 在自己的 context window 中运行，具有自定义系统提示、特定的工具访问权限和独立的权限。它还发送自己的请求，这些请求计入与您的主对话相同的[使用限制](/docs/zh-CN/costs.md#plan-usage-breakdown)。当 Claude 遇到与 subagent 描述相匹配的任务时，它会委托给该 subagent，该 subagent 独立工作并返回结果。要在实践中看到上下文节省，[context window 可视化](/docs/zh-CN/context-window.md)演示了一个 subagent 在自己的独立窗口中处理研究的会话。
+每个 subagent 在自己的 context window 中运行，具有自定义系统提示、特定的工具访问权限和独立的权限。它还发送自己的请求，这些请求计入与您的主对话相同的[使用限制](https://code.claude.com/docs/zh-CN/costs.md#plan-usage-breakdown)。当 Claude 遇到与 subagent 描述相匹配的任务时，它会委托给该 subagent，该 subagent 独立工作并返回结果。要在实践中看到上下文节省，[context window 可视化](https://code.claude.com/docs/zh-CN/context-window.md)演示了一个 subagent 在自己的独立窗口中处理研究的会话。
 
 > [!NOTE]
 >
-> Subagents 在单个会话中工作。要在并行运行许多独立会话并从一个地方监控它们，请参阅 [background agents](/docs/zh-CN/agent-view.md)。对于相互传递消息的单独会话，请参阅 [cross-session messaging](/docs/zh-CN/cross-session-messaging.md)。对于 Claude 生成和监督的协调团队会话，请参阅 [agent teams](/docs/zh-CN/agent-teams.md)。
+> Subagents 在单个会话中工作。要在并行运行许多独立会话并从一个地方监控它们，请参阅 [background agents](https://code.claude.com/docs/zh-CN/agent-view.md)。对于相互传递消息的单独会话，请参阅 [cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)。对于 Claude 生成和监督的协调团队会话，请参阅 [agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md)。
 
 Subagents 帮助您：
 
@@ -24,7 +24,7 @@ Subagents 帮助您：
 
 Claude 使用每个 subagent 的描述来决定何时委托任务。创建 subagent 时，请编写清晰的描述，以便 Claude 知道何时使用它。
 
-这些描述会占用上下文，因此请保持简洁。当您的 subagents（除了内置的 subagents）的组合描述超过 15,000 个 token 时，Claude Code 会在启动时显示 [包含总 token 计数的警告](/docs/zh-CN/errors.md#agent-descriptions-are-over-the-15000-token-limit)。修剪您的 subagents 的 `description` 字段，并将详细信息移到每个 subagent 的系统提示中，该提示仅在该 subagent 运行时加载。
+这些描述会占用上下文，因此请保持简洁。当您的 subagents（除了内置的 subagents）的组合描述超过 15,000 个 token 时，Claude Code 会在启动时显示 [包含总 token 计数的警告](https://code.claude.com/docs/zh-CN/errors.md#agent-descriptions-are-over-the-15000-token-limit)。修剪您的 subagents 的 `description` 字段，并将详细信息移到每个 subagent 的系统提示中，该提示仅在该 subagent 运行时加载。
 
 ## 内置 subagents
 
@@ -37,8 +37,8 @@ Explore 和 Plan 启动时不加载您的 CLAUDE.md 文件和 git 状态快照�
 一个快速的、只读的代理，针对搜索和分析代码库进行了优化。
 
 * **Model**: 主对话的模型。当主对话运行 Fable 时，Explore 的模型取决于您的连接方式：
-  * 使用 Claude 订阅、Anthropic Console 账户，或通过 `ANTHROPIC_BASE_URL` 访问的 [LLM 网关](/docs/zh-CN/llm-gateway)时，Explore 在 [`opus` 别名](/docs/zh-CN/model-config#model-aliases)解析到的 Opus 模型上运行。
-  * 在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry、[AWS 上的 Claude Platform](/docs/zh-CN/claude-platform-on-aws.md) 或 [Claude apps 网关](/docs/zh-CN/claude-apps-gateway)上，Explore 保持使用主对话的模型。
+  * 使用 Claude 订阅、Anthropic Console 账户，或通过 `ANTHROPIC_BASE_URL` 访问的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)时，Explore 在 [`opus` 别名](https://code.claude.com/docs/zh-CN/model-config#model-aliases)解析到的 Opus 模型上运行。
+  * 在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry、[AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 或 [Claude apps 网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)上，Explore 保持使用主对话的模型。
 * **Tools**: 只读工具；拒绝访问 Write 和 Edit
 * **Purpose**: 文件发现、代码搜索、代码库探索
 
@@ -50,7 +50,7 @@ Explore 和 Plan 启动时不加载您的 CLAUDE.md 文件和 git 状态快照�
 
 **Plan**
 
-一个研究代理，在 [plan mode](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode) 期间使用，以在呈现计划之前收集上下文。
+一个研究代理，在 [plan mode](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode) 期间使用，以在呈现计划之前收集上下文。
 
 * **Model**: 从主对话继承，除非您设置 `CLAUDE_CODE_SUBAGENT_MODEL` 并[强制将其应用于每个 subagent](#run-every-subagent-on-one-model)
 * **Tools**: 只读工具；拒绝访问 Write 和 Edit
@@ -74,18 +74,18 @@ Claude Code 包括用于特定任务的其他辅助代理。这些通常会自�
 
 | Agent | Model | Claude 何时使用它 |
 | :- | :- | :- |
-| claude | 没有自己的；当 Claude 将其生成为 subagent 时遵循[模型顺序](#choose-a-model) | 当任务不适合更专业的代理时。一个具有所有[可用于 subagents 的工具](#available-tools)的通用代理。也是调度的[后台会话](/docs/zh-CN/agent-view.md)的默认代理；[它启动的权限模式](/docs/zh-CN/agent-view.md#permission-mode-model-and-effort)取决于会话的启动方式 |
+| claude | 没有自己的；当 Claude 将其生成为 subagent 时遵循[模型顺序](#choose-a-model) | 当任务不适合更专业的代理时。一个具有所有[可用于 subagents 的工具](#available-tools)的通用代理。也是调度的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)的默认代理；[它启动的权限模式](https://code.claude.com/docs/zh-CN/agent-view.md#permission-mode-model-and-effort)取决于会话的启动方式 |
 | statusline-setup | Sonnet | 当您运行 `/statusline` 来配置您的状态行时 |
 | claude-code-guide | Haiku | 当您提出关于 Claude Code 功能的问题时 |
 
 内置 subagents 在交互式会话中默认被注册。要限制它们：
 
 * 要阻止特定的内置类型，请将其添加到 `permissions.deny`，如[禁用特定 subagents](#disable-specific-subagents) 中所示。
-* 要防止 Claude 委托给任何 subagent，请使用 [`permissions.deny`](/docs/zh-CN/permissions#tool-specific-permission-rules) 拒绝 `Agent` 工具本身。
-* 要仅移除内置的 `Explore` 和 `Plan` subagents，请设置 [`CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS=1`](/docs/zh-CN/env-vars)。Claude 直接读取和探索文件，而不是委托给它们。需要 Claude Code v2.1.198 或更高版本。
-* 在[非交互模式](/docs/zh-CN/headless.md) 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 中，设置 [`CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1`](/docs/zh-CN/env-vars) 以移除所有内置类型并仅提供您自己的。
+* 要防止 Claude 委托给任何 subagent，请使用 [`permissions.deny`](https://code.claude.com/docs/zh-CN/permissions#tool-specific-permission-rules) 拒绝 `Agent` 工具本身。
+* 要仅移除内置的 `Explore` 和 `Plan` subagents，请设置 [`CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS=1`](https://code.claude.com/docs/zh-CN/env-vars)。Claude 直接读取和探索文件，而不是委托给它们。需要 Claude Code v2.1.198 或更高版本。
+* 在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md) 和 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 中，设置 [`CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1`](https://code.claude.com/docs/zh-CN/env-vars) 以移除所有内置类型并仅提供您自己的。
 
-当会话没有 `general-purpose` subagent 可回退时，省略 `subagent_type` 的 Agent 工具调用会失败，并显示 [`subagent_type is required`](/docs/zh-CN/errors#subagent-type-is-required)。
+当会话没有 `general-purpose` subagent 可回退时，省略 `subagent_type` 的 Agent 工具调用会失败，并显示 [`subagent_type is required`](https://code.claude.com/docs/zh-CN/errors#subagent-type-is-required)。
 
 除了这些内置 subagents，您可以创建自己的，具有自定义提示、工具限制、权限模式、hooks 和 skills。以下部分展示了如何开始和自定义 subagents。
 
@@ -157,23 +157,23 @@ Claude 委托给您的新子代理，它扫描代码库并返回改进建议。�
 
 | 位置 | 作用域 | 优先级 | 创建方式 |
 | :- | :- | :- | :- |
-| 托管设置 | 整个组织 | 1（最高） | 通过[托管设置](/docs/zh-CN/settings.md)部署 |
+| 托管设置 | 整个组织 | 1（最高） | 通过[托管设置](https://code.claude.com/docs/zh-CN/settings.md)部署 |
 | `--agents` CLI 标志 | 当前会话 | 2 | 启动 Claude Code 时传入 JSON |
 | `.claude/agents/` | 当前项目 | 3 | 让 Claude 创建，或手动创建文件 |
 | `~/.claude/agents/` | 您的所有项目 | 4 | 让 Claude 创建，或手动创建文件 |
-| 插件的 `agents/` 目录 | 启用插件的位置 | 5（最低） | 随[插件](/docs/zh-CN/plugins/overview.md)一起安装 |
+| 插件的 `agents/` 目录 | 启用插件的位置 | 5（最低） | 随[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)一起安装 |
 
 **项目子代理**（`.claude/agents/`）非常适合特定于某个代码库的子代理。将它们提交到版本控制中，以便您的团队可以协作使用和改进它们。
 
 项目子代理的发现方式是从当前工作目录向上遍历，因此从该目录到仓库根目录之间的每个 `.claude/agents/` 都会被扫描。当这些嵌套目录中有多个定义了相同的 `name` 时，Claude Code 使用离工作目录最近的定义。
 
-当您使用 `--add-dir` 或 `/add-dir` 添加目录时，Claude Code 也会加载该目录的 `.claude/agents/` 文件夹，与您的项目子代理一起使用。有关还有哪些其他配置类型会从 `--add-dir` 加载，请参阅[额外目录](/docs/zh-CN/permissions.md#additional-directories-grant-file-access-not-configuration)。若要在不使用 `--add-dir` 的情况下跨项目共享子代理，请使用 `~/.claude/agents/` 或[插件](/docs/zh-CN/plugins/overview.md)。
+当您使用 `--add-dir` 或 `/add-dir` 添加目录时，Claude Code 也会加载该目录的 `.claude/agents/` 文件夹，与您的项目子代理一起使用。有关还有哪些其他配置类型会从 `--add-dir` 加载，请参阅[额外目录](https://code.claude.com/docs/zh-CN/permissions.md#additional-directories-grant-file-access-not-configuration)。若要在不使用 `--add-dir` 的情况下跨项目共享子代理，请使用 `~/.claude/agents/` 或[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)。
 
 **用户子代理**（`~/.claude/agents/`）是在您所有项目中都可用的个人子代理。
 
 Claude Code 会递归扫描 `.claude/agents/` 和 `~/.claude/agents/`，因此您可以将定义组织到子文件夹中，例如 `agents/review/` 或 `agents/research/`。子目录路径不影响子代理的识别或调用方式，因为其身份仅来自 `name` frontmatter 字段。
 
-请在整个目录树中保持 `name` 值唯一：如果同一个 `.claude/agents/` 目录（包括其子文件夹）下的两个文件声明了相同的名称，Claude Code 只会加载其中一个，具体由文件系统读取顺序决定，而不是由文档规定的优先级决定。在嵌套的项目目录之间，如上所述，离工作目录最近的定义优先。[`/doctor`](/docs/zh-CN/commands#all-commands) 设置检查会报告同一目录中同名的文件，并建议重命名或删除多余的文件，只保留一个。
+请在整个目录树中保持 `name` 值唯一：如果同一个 `.claude/agents/` 目录（包括其子文件夹）下的两个文件声明了相同的名称，Claude Code 只会加载其中一个，具体由文件系统读取顺序决定，而不是由文档规定的优先级决定。在嵌套的项目目录之间，如上所述，离工作目录最近的定义优先。[`/doctor`](https://code.claude.com/docs/zh-CN/commands#all-commands) 设置检查会报告同一目录中同名的文件，并建议重命名或删除多余的文件，只保留一个。
 
 插件的 `agents/` 目录也会被递归扫描。与项目和用户作用域不同，插件 `agents/` 目录中的子文件夹会成为[作用域标识符](#invoke-subagents-explicitly)的一部分：插件 `my-plugin` 中位于 `agents/review/security.md` 的文件注册为 `my-plugin:review:security`。
 
@@ -215,7 +215,7 @@ claude --agents @'
 '@
 ```
 
-在[非交互模式](/docs/zh-CN/headless.md)下，`--agents` 也接受一个包含相同对象的 JSON 文件路径，适用于定义过大而无法在命令行中传入的情况。例如，`claude -p --agents ./agents.json "Review my changes"` 会从该文件读取定义。在交互式会话中，Claude Code 会拒绝文件路径。文件形式需要 Claude Code v2.1.281 或更高版本。
+在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下，`--agents` 也接受一个包含相同对象的 JSON 文件路径，适用于定义过大而无法在命令行中传入的情况。例如，`claude -p --agents ./agents.json "Review my changes"` 会从该文件读取定义。在交互式会话中，Claude Code 会拒绝文件路径。文件形式需要 Claude Code v2.1.281 或更高版本。
 
 JSON 中的每个顶层键都是一个 Agent 的名称，其值是该 Agent 的定义。名称不要以 `-` 开头。定义包含以下字段：
 
@@ -223,19 +223,19 @@ JSON 中的每个顶层键都是一个 Agent 的名称，其值是该 Agent 的�
 * **[Frontmatter 字段](#supported-frontmatter-fields)**：`description`、`tools`、`disallowedTools`、`model`、`permissionMode`、`mcpServers`、`hooks`、`maxTurns`、`autoCompactWindow`、`skills`、`initialPrompt`、`memory`、`effort`、`background`、`omitClaudeMd` 和 `isolation`。
 * **被忽略的字段**：`color` 和 `experimental` 在此处不被接受，会被忽略而不是被拒绝。
 
-有关 Claude Code 如何处理无法加载的值，以及跳过该检查的标志和环境变量，请参阅 [`Invalid --agents configuration`](/docs/zh-CN/errors#invalid-agents-configuration)。
+有关 Claude Code 如何处理无法加载的值，以及跳过该检查的标志和环境变量，请参阅 [`Invalid --agents configuration`](https://code.claude.com/docs/zh-CN/errors#invalid-agents-configuration)。
 
-**托管子代理**由组织管理员部署。将 markdown 文件放在[托管设置目录](/docs/zh-CN/managed-settings.md#delivery-mechanisms)内的 `.claude/agents/` 中，使用与项目和用户子代理相同的 frontmatter 格式。托管定义优先于同名的项目和用户子代理。
+**托管子代理**由组织管理员部署。将 markdown 文件放在[托管设置目录](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)内的 `.claude/agents/` 中，使用与项目和用户子代理相同的 frontmatter 格式。托管定义优先于同名的项目和用户子代理。
 
-**插件子代理**来自您已安装的[插件](/docs/zh-CN/plugins/overview.md)。它们会与您的自定义子代理一起自动加载，并以其作用域名称出现在 @ 提及的输入提示中。有关创建插件子代理的详细信息，请参阅[插件组件参考](/docs/zh-CN/plugins/components.md#agents)。
+**插件子代理**来自您已安装的[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)。它们会与您的自定义子代理一起自动加载，并以其作用域名称出现在 @ 提及的输入提示中。有关创建插件子代理的详细信息，请参阅[插件组件参考](https://code.claude.com/docs/zh-CN/plugins/components.md#agents)。
 
 > [!NOTE]
 >
-> 出于安全原因，插件子代理不支持 `hooks`、`mcpServers` 或 `permissionMode` frontmatter 字段。从插件加载 Agent 时，这些字段会被忽略。如果您需要它们，请将 Agent 文件复制到 `.claude/agents/` 或 `~/.claude/agents/` 中。您也可以在 `settings.json` 或 `settings.local.json` 中向 [`permissions.allow`](/docs/zh-CN/settings-reference#permissions-allow) 添加规则，但这些规则适用于整个会话，而不仅仅是插件子代理。
+> 出于安全原因，插件子代理不支持 `hooks`、`mcpServers` 或 `permissionMode` frontmatter 字段。从插件加载 Agent 时，这些字段会被忽略。如果您需要它们，请将 Agent 文件复制到 `.claude/agents/` 或 `~/.claude/agents/` 中。您也可以在 `settings.json` 或 `settings.local.json` 中向 [`permissions.allow`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-allow) 添加规则，但这些规则适用于整个会话，而不仅仅是插件子代理。
 >
-> 如果您是插件的作者，请改为在插件的 [`hooks/hooks.json`](/docs/zh-CN/plugins/components#hooks) 中提供 hook，在其 [`.mcp.json`](/docs/zh-CN/plugins/components#mcp-servers) 中提供 MCP 服务器。它们会在插件启用时生效，而不仅仅在子代理内部生效。
+> 如果您是插件的作者，请改为在插件的 [`hooks/hooks.json`](https://code.claude.com/docs/zh-CN/plugins/components#hooks) 中提供 hook，在其 [`.mcp.json`](https://code.claude.com/docs/zh-CN/plugins/components#mcp-servers) 中提供 MCP 服务器。它们会在插件启用时生效，而不仅仅在子代理内部生效。
 
-您还可以将子代理定义复用为 [agent team](/docs/zh-CN/agent-teams.md) 的队友：在请求 Claude 生成队友时指定子代理类型，Claude Code 会将该定义的部分内容应用于该队友。[将子代理定义用于队友](/docs/zh-CN/agent-teams.md#use-subagent-definitions-for-teammates)说明了在每种显示模式下适用哪些作用域和哪些部分。
+您还可以将子代理定义复用为 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 的队友：在请求 Claude 生成队友时指定子代理类型，Claude Code 会将该定义的部分内容应用于该队友。[将子代理定义用于队友](https://code.claude.com/docs/zh-CN/agent-teams.md#use-subagent-definitions-for-teammates)说明了在每种显示模式下适用哪些作用域和哪些部分。
 
 ### 编写子代理文件
 
@@ -265,55 +265,55 @@ specific, actionable feedback on quality, security, and best practices.
 
 frontmatter 定义子代理的元数据和配置。正文成为指导子代理行为的系统提示词。子代理只接收此系统提示词以及基本的环境详细信息（如工作目录），而不接收 Claude Code 的系统提示词。
 
-在[非交互模式](/docs/zh-CN/headless.md)下，传入 [`--append-subagent-system-prompt`](/docs/zh-CN/cli-reference#cli-flags) 可将您的文本追加到每个子代理（包括嵌套子代理）的系统提示词末尾，但[分叉子代理](#fork-the-current-conversation)除外，它复用对话自身的提示词。需要 Claude Code v2.1.205 或更高版本。如果您的文本太长而无法在命令行中传入，请将其保存到文件中，并改用 `--append-subagent-system-prompt-file` 传入路径。文件标志需要 Claude Code v2.1.261 或更高版本。
+在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下，传入 [`--append-subagent-system-prompt`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 可将您的文本追加到每个子代理（包括嵌套子代理）的系统提示词末尾，但[分叉子代理](#fork-the-current-conversation)除外，它复用对话自身的提示词。需要 Claude Code v2.1.205 或更高版本。如果您的文本太长而无法在命令行中传入，请将其保存到文件中，并改用 `--append-subagent-system-prompt-file` 传入路径。文件标志需要 Claude Code v2.1.261 或更高版本。
 
 子代理在主对话的当前工作目录中启动。在子代理中，`cd` 命令不会在 Bash 或 PowerShell 工具调用之间保留，也不会影响主对话的工作目录。若要为子代理提供仓库的隔离副本，请设置 [`isolation: worktree`](#supported-frontmatter-fields)。
 
 设置了 `isolation: worktree` 的子代理会在其 worktree 内运行 Bash 和 PowerShell 命令。如果某个命令的工作目录解析为您的主检出目录（例如因为 worktree 目录在子代理运行期间被删除），该命令会失败并报错。
 
-此工作目录检查覆盖包含您启动 Claude Code 的目录的整个仓库。当您的会话本身运行在一个链接的 [worktree](/docs/zh-CN/worktrees.md) 中时，该检查还覆盖该 worktree 所链接的主检出目录。
+此工作目录检查覆盖包含您启动 Claude Code 的目录的整个仓库。当您的会话本身运行在一个链接的 [worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 中时，该检查还覆盖该 worktree 所链接的主检出目录。
 
 对于 Bash 命令，Claude Code 还会从两个方面检查命令本身：
 
 * 它会阻止将 git 重定向到主检出目录的命令。
 * 当无法从命令文本中验证命令运行的任何 git 都停留在 worktree 内时（例如命令名称是在运行时计算的），它会拒绝该命令。
 
-重定向途径和形式规则列在[Claude Code 如何强制执行隔离](/docs/zh-CN/worktrees.md#how-claude-code-enforces-isolation)中。PowerShell 命令只进行工作目录检查。
+重定向途径和形式规则列在[Claude Code 如何强制执行隔离](https://code.claude.com/docs/zh-CN/worktrees.md#how-claude-code-enforces-isolation)中。PowerShell 命令只进行工作目录检查。
 
-[Monitor](/docs/zh-CN/tools-reference.md#monitor-tool) 命令与 Bash 命令一样，会经过相同的工作目录和命令内容检查。
+[Monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool) 命令与 Bash 命令一样，会经过相同的工作目录和命令内容检查。
 
-当主对话本身在 worktree 中隔离运行时，Claude Code 会对会话及其生成的每个子代理应用相同的检查，包括没有设置 `isolation: worktree` 的子代理；请参阅[Claude Code 如何强制执行隔离](/docs/zh-CN/worktrees.md#how-claude-code-enforces-isolation)。
+当主对话本身在 worktree 中隔离运行时，Claude Code 会对会话及其生成的每个子代理应用相同的检查，包括没有设置 `isolation: worktree` 的子代理；请参阅[Claude Code 如何强制执行隔离](https://code.claude.com/docs/zh-CN/worktrees.md#how-claude-code-enforces-isolation)。
 
 ### Frontmatter 参考
 
-使用子代理文件顶部 `---` 标记之间的 YAML [frontmatter](/docs/zh-CN/glossary.md#frontmatter) 来配置子代理，并在结束的 `---` 之后以 Markdown 编写其系统提示词。只有 `name` 和 `description` 是必需的。
+使用子代理文件顶部 `---` 标记之间的 YAML [frontmatter](https://code.claude.com/docs/zh-CN/glossary.md#frontmatter) 来配置子代理，并在结束的 `---` 之后以 Markdown 编写其系统提示词。只有 `name` 和 `description` 是必需的。
 
 多词字段名使用 camelCase，例如 `maxTurns` 和 `disallowedTools`，并且必须与表格完全一致：Claude Code 会忽略无法识别的字段，且不报告错误。
 
-* 若要在已加载的子代理中查找拼写错误的字段，请在 shell 中运行 [`claude --debug`](/docs/zh-CN/cli-reference#cli-flags)，并在 `~/.claude/debug/<session-id>.txt` 的调试日志中搜索 `does not recognize or apply`。调试日志会列出子代理文件中最多五个 Claude Code 无法识别的顶层字段，并在存在相近的受支持字段时给出可能想写的名称。需要 Claude Code v2.1.296 或更高版本。
+* 若要在已加载的子代理中查找拼写错误的字段，请在 shell 中运行 [`claude --debug`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)，并在 `~/.claude/debug/<session-id>.txt` 的调试日志中搜索 `does not recognize or apply`。调试日志会列出子代理文件中最多五个 Claude Code 无法识别的顶层字段，并在存在相近的受支持字段时给出可能想写的名称。需要 Claude Code v2.1.296 或更高版本。
 * 若要了解子代理文件为何未加载，请参阅 [Claude Code 跳过的子代理文件](#subagent-files-claude-code-skips)。
 
 | 字段 | 必需 | 描述 |
 | :- | :- | :- |
-| `name` | 是 | 最多 256 个字符的唯一标识符，例如 `code-reviewer` 或 `reviewer-v2`。[Hook](/docs/zh-CN/hooks.md#subagentstart) 以 `agent_type` 的形式接收此值。文件名不必与之匹配。名称不能包含 `:`，它保留给[插件作用域标识符](/docs/zh-CN/plugins/overview.md)，例如 `my-plugin:reviewer` |
+| `name` | 是 | 最多 256 个字符的唯一标识符，例如 `code-reviewer` 或 `reviewer-v2`。[Hook](https://code.claude.com/docs/zh-CN/hooks.md#subagentstart) 以 `agent_type` 的形式接收此值。文件名不必与之匹配。名称不能包含 `:`，它保留给[插件作用域标识符](https://code.claude.com/docs/zh-CN/plugins/overview.md)，例如 `my-plugin:reviewer` |
 | `description` | 是 | Claude 应在何时委派给此子代理 |
-| `tools` | 否 | 子代理可以使用的[工具](#available-tools)，可以是逗号分隔的字符串（如 `Read, Grep, Bash`）或 YAML 列表。省略时继承子代理可用的所有工具。如果列表中没有任何条目能解析为工具，子代理通常会[启动失败](/docs/zh-CN/errors.md#agent-would-be-spawned-with-zero-tools)，并报告列出这些条目的错误。若要将 skill 预加载到上下文中，请使用 `skills` 字段，而不是在此处列出 `Skill` |
+| `tools` | 否 | 子代理可以使用的[工具](#available-tools)，可以是逗号分隔的字符串（如 `Read, Grep, Bash`）或 YAML 列表。省略时继承子代理可用的所有工具。如果列表中没有任何条目能解析为工具，子代理通常会[启动失败](https://code.claude.com/docs/zh-CN/errors.md#agent-would-be-spawned-with-zero-tools)，并报告列出这些条目的错误。若要将 skill 预加载到上下文中，请使用 `skills` 字段，而不是在此处列出 `Skill` |
 | `disallowedTools` | 否 | 要拒绝的工具，从继承的或指定的列表中移除。格式与 `tools` 相同。带有说明符的条目（如 `Bash(git push *)`）仍会[移除整个工具](#restrict-which-tools-a-subagent-can-use) |
 | `model` | 否 | 要使用的[模型](#choose-a-model)：`sonnet`、`opus`、`haiku`、`fable`、完整模型 ID（如 `claude-opus-5-5`）或 `inherit`。省略时，Claude Code 按照[子代理模型顺序](#choose-a-model)选择模型 |
 | `permissionMode` | 否 | [权限模式](#permission-modes)：`default`、`acceptEdits`、`auto`、`dontAsk`、`bypassPermissions`、`plan`，或作为 `default` 别名的 `manual`。对[插件子代理](#choose-the-subagent-scope)忽略 |
 | `maxTurns` | 否 | 子代理停止前的最大 Agent 轮次数。当子代理达到限制时，Claude Code 会返回其标记为部分结果的输出，Claude 可以[恢复它](#resume-subagents)以继续。部分结果标记需要 Claude Code v2.1.246 或更高版本 |
 | `autoCompactWindow` | 否 | 将此子代理的[自动压缩窗口](#subagent-auto-compact-window)降低到 `100000` 至 `1000000` 之间的 token 数。需要 Claude Code v2.1.296 或更高版本 |
-| `skills` | 否 | 启动时预加载到子代理上下文中的 [skill](/docs/zh-CN/skills.md)。注入的是完整的 skill 内容，而不仅仅是描述。子代理仍可通过 Skill 工具调用未列出的项目、用户和插件 skill |
-| `mcpServers` | 否 | 此子代理可用的 [MCP 服务器](/docs/zh-CN/mcp.md)。每个条目可以是引用已配置服务器的服务器名称（例如 `"slack"`），也可以是以服务器名称为键、以完整 [MCP 服务器配置](/docs/zh-CN/mcp.md#installing-mcp-servers)为值的内联定义。对[插件子代理](#choose-the-subagent-scope)忽略 |
+| `skills` | 否 | 启动时预加载到子代理上下文中的 [skill](https://code.claude.com/docs/zh-CN/skills.md)。注入的是完整的 skill 内容，而不仅仅是描述。子代理仍可通过 Skill 工具调用未列出的项目、用户和插件 skill |
+| `mcpServers` | 否 | 此子代理可用的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)。每个条目可以是引用已配置服务器的服务器名称（例如 `"slack"`），也可以是以服务器名称为键、以完整 [MCP 服务器配置](https://code.claude.com/docs/zh-CN/mcp.md#installing-mcp-servers)为值的内联定义。对[插件子代理](#choose-the-subagent-scope)忽略 |
 | `hooks` | 否 | 限定于此子代理的[生命周期 hook](#define-hooks-for-subagents)。对[插件子代理](#choose-the-subagent-scope)忽略 |
 | `memory` | 否 | [持久记忆作用域](#enable-persistent-memory)：`user`、`project` 或 `local`。启用跨会话学习 |
 | `background` | 否 | 设置为 `true` 可使此子代理保持在后台运行，即使 Claude 要求等待它。默认情况下，Claude 从主对话生成的子代理已经会[在后台启动](#run-subagents-in-foreground-or-background) |
-| `omitClaudeMd` | 否 | 设置为 `true` 可使此子代理在启动时的[初始上下文](#what-loads-at-startup)中不包含用户、项目和本地 CLAUDE.md 文件；[托管策略文件](/docs/zh-CN/memory.md#how-claude-md-files-load)仍会加载，但[托管子代理](#choose-the-subagent-scope)除外。适用于从委派提示词中获取所需全部信息的子代理。当 Agent 通过 `--agent` 或 `agent` 设置作为主会话 Agent 运行时忽略。需要 Claude Code v2.1.271 或更高版本 |
-| `effort` | 否 | 此子代理活动时的 effort 级别。覆盖会话的 effort 级别，但不覆盖 [`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars#variables) 环境变量。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型。请参阅[选择 effort 级别](#choose-an-effort-level) |
-| `isolation` | 否 | 设置为 `worktree` 可在临时 [git worktree](/docs/zh-CN/worktrees.md) 中运行子代理，为其提供仓库的隔离副本，默认从您的[默认分支](/docs/zh-CN/worktrees.md#choose-the-base-branch)而不是父会话的 `HEAD` 创建分支。如果子代理未做任何更改，worktree 会被自动清理 |
+| `omitClaudeMd` | 否 | 设置为 `true` 可使此子代理在启动时的[初始上下文](#what-loads-at-startup)中不包含用户、项目和本地 CLAUDE.md 文件；[托管策略文件](https://code.claude.com/docs/zh-CN/memory.md#how-claude-md-files-load)仍会加载，但[托管子代理](#choose-the-subagent-scope)除外。适用于从委派提示词中获取所需全部信息的子代理。当 Agent 通过 `--agent` 或 `agent` 设置作为主会话 Agent 运行时忽略。需要 Claude Code v2.1.271 或更高版本 |
+| `effort` | 否 | 此子代理活动时的 effort 级别。覆盖会话的 effort 级别，但不覆盖 [`CLAUDE_CODE_EFFORT_LEVEL`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型。请参阅[选择 effort 级别](#choose-an-effort-level) |
+| `isolation` | 否 | 设置为 `worktree` 可在临时 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 中运行子代理，为其提供仓库的隔离副本，默认从您的[默认分支](https://code.claude.com/docs/zh-CN/worktrees.md#choose-the-base-branch)而不是父会话的 `HEAD` 创建分支。如果子代理未做任何更改，worktree 会被自动清理 |
 | `color` | 否 | 子代理在任务列表和会话记录中的显示颜色。接受 `red`、`blue`、`green`、`yellow`、`purple`、`orange`、`pink` 或 `cyan` |
-| `initialPrompt` | 否 | 当此 Agent 作为主会话 Agent 运行时（通过 `--agent` 或 `agent` 设置），作为第一个用户轮次自动提交。会处理其中的[命令](/docs/zh-CN/commands.md)和 [skill](/docs/zh-CN/skills.md)。添加在任何用户提供的提示词之前。对[插件子代理](#choose-the-subagent-scope)忽略 |
-| `experimental` | 否 | 实验性选项的映射。将其 `cacheTtl` 键设置为 `5m` 或 `1h`，可为此子代理的请求选择[提示缓存生命周期](/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)，其优先级取决于 frontmatter 在[缓存生命周期优先级](/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)中的位置。Claude Code 会忽略任何其他值，在您的 Claude 订阅使用使用额度时忽略 `1h`，并且只从子代理文件中读取该字段。需要 Claude Code v2.1.248 或更高版本 |
+| `initialPrompt` | 否 | 当此 Agent 作为主会话 Agent 运行时（通过 `--agent` 或 `agent` 设置），作为第一个用户轮次自动提交。会处理其中的[命令](https://code.claude.com/docs/zh-CN/commands.md)和 [skill](https://code.claude.com/docs/zh-CN/skills.md)。添加在任何用户提供的提示词之前。对[插件子代理](#choose-the-subagent-scope)忽略 |
+| `experimental` | 否 | 实验性选项的映射。将其 `cacheTtl` 键设置为 `5m` 或 `1h`，可为此子代理的请求选择[提示缓存生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)，其优先级取决于 frontmatter 在[缓存生命周期优先级](https://code.claude.com/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)中的位置。Claude Code 会忽略任何其他值，在您的 Claude 订阅使用使用额度时忽略 `1h`，并且只从子代理文件中读取该字段。需要 Claude Code v2.1.248 或更高版本 |
 
 请将 `cacheTtl` 写在 `experimental` 映射内，而不是 frontmatter 的顶层。
 
@@ -338,11 +338,11 @@ experimental:
 
 若要查看调试日志，请使用 `--debug` 运行 Claude Code。
 
-如果[插件子代理](/docs/zh-CN/plugins/components.md#agents)的 frontmatter 没有 `name` 或无法解析，它仍会以其文件名加载。
+如果[插件子代理](https://code.claude.com/docs/zh-CN/plugins/components.md#agents)的 frontmatter 没有 `name` 或无法解析，它仍会以其文件名加载。
 
 ##### 在会话开始前检查 `agents` 目录
 
-若要查找 `agents` 目录中 frontmatter 无法解析的文件，请针对该目录（例如 `.claude/agents` 或 `~/.claude/agents`）运行 `claude plugin validate`。Claude Code 只检查[您指定的目录](/docs/zh-CN/plugins/cli-reference.md#validate-a-directory)，并且不会标记 frontmatter 可解析但没有 `name` 的文件。需要 Claude Code v2.1.233 或更高版本。
+若要查找 `agents` 目录中 frontmatter 无法解析的文件，请针对该目录（例如 `.claude/agents` 或 `~/.claude/agents`）运行 `claude plugin validate`。Claude Code 只检查[您指定的目录](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#validate-a-directory)，并且不会标记 frontmatter 可解析但没有 `name` 的文件。需要 Claude Code v2.1.233 或更高版本。
 
 ### 选择模型
 
@@ -356,15 +356,15 @@ experimental:
 
 1. 单次调用的 `model` 参数
 2. 子代理定义中的 `model` frontmatter，其中 `inherit` 选择主对话的模型
-3. [`CLAUDE_CODE_SUBAGENT_MODEL`](/docs/zh-CN/model-config#environment-variables) 环境变量（当您将其设置为模型别名或模型 ID 时）
+3. [`CLAUDE_CODE_SUBAGENT_MODEL`](https://code.claude.com/docs/zh-CN/model-config#environment-variables) 环境变量（当您将其设置为模型别名或模型 ID 时）
 4. 主对话的模型
 
-如果已安装的 [mod](/docs/zh-CN/plugins/mods/overview.md) 在其 [`agent.spawn`](/docs/zh-CN/plugins/mods/reference#subagents) hook 中设置了模型，Claude Code 会使用该模型来代替单次调用的参数。
+如果已安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 在其 [`agent.spawn`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#subagents) hook 中设置了模型，Claude Code 会使用该模型来代替单次调用的参数。
 
-在两种情况下，单次调用参数或 frontmatter 中的系列别名（如 `opus`）会解析为主对话的模型，而不是[该别名指向的版本](/docs/zh-CN/model-config.md#model-aliases)：
+在两种情况下，单次调用参数或 frontmatter 中的系列别名（如 `opus`）会解析为主对话的模型，而不是[该别名指向的版本](https://code.claude.com/docs/zh-CN/model-config.md#model-aliases)：
 
-* **主对话的模型属于该系列**：子代理在主对话的确切模型上运行，包括任何 `[1m]` 后缀，因此它获得与主对话相同的[扩展上下文](/docs/zh-CN/model-config.md#extended-context)窗口。
-* **在 [Anthropic API 以外的提供商](/docs/zh-CN/third-party-integrations.md)上，Claude Code 无法判断主对话的模型系列**：这可能发生在 Amazon Bedrock 上使用 Claude Code 尚未解析到后端模型的[应用推理配置文件 ARN](/docs/zh-CN/amazon-bedrock.md#iam-configuration) 时。这种情况仅涵盖 `opus` 别名，并且在您设置了 [`ANTHROPIC_DEFAULT_OPUS_MODEL`](/docs/zh-CN/model-config#environment-variables) 时不适用，因为此时 `opus` 会解析为您设置的模型。
+* **主对话的模型属于该系列**：子代理在主对话的确切模型上运行，包括任何 `[1m]` 后缀，因此它获得与主对话相同的[扩展上下文](https://code.claude.com/docs/zh-CN/model-config.md#extended-context)窗口。
+* **在 [Anthropic API 以外的提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)上，Claude Code 无法判断主对话的模型系列**：这可能发生在 Amazon Bedrock 上使用 Claude Code 尚未解析到后端模型的[应用推理配置文件 ARN](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#iam-configuration) 时。这种情况仅涵盖 `opus` 别名，并且在您设置了 [`ANTHROPIC_DEFAULT_OPUS_MODEL`](https://code.claude.com/docs/zh-CN/model-config#environment-variables) 时不适用，因为此时 `opus` 会解析为您设置的模型。
 
 `CLAUDE_CODE_SUBAGENT_MODEL` 中的别名始终解析为该别名指向的版本，即使它指向主对话的系列。将该变量设置为 `inherit` 等同于不设置它。
 
@@ -372,27 +372,27 @@ experimental:
 
 在 v2.1.251 之前，`CLAUDE_CODE_SUBAGENT_MODEL` 在此顺序中排在首位，会覆盖单次调用参数和 frontmatter，包括 `model: inherit`。
 
-Claude Code 会根据您组织的 [`availableModels`](/docs/zh-CN/model-config#restrict-model-selection) 允许列表检查单次调用参数、frontmatter 和环境变量的值。对于被阻止的值，它会替换为另一个模型：
+Claude Code 会根据您组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表检查单次调用参数、frontmatter 和环境变量的值。对于被阻止的值，它会替换为另一个模型：
 
-* 当被阻止的值是系列别名（如 `opus`）时，Claude Code 会在允许列表允许的该系列最新版本上运行子代理，遵循与 `/model` 相同的[替换规则和提供商范围](/docs/zh-CN/model-config.md#restrict-model-selection)。在 v2.1.222 之前，对于被阻止的系列别名，Claude Code 同样会在继承的模型上运行子代理。
+* 当被阻止的值是系列别名（如 `opus`）时，Claude Code 会在允许列表允许的该系列最新版本上运行子代理，遵循与 `/model` 相同的[替换规则和提供商范围](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)。在 v2.1.222 之前，对于被阻止的系列别名，Claude Code 同样会在继承的模型上运行子代理。
 * 对于任何其他被阻止的值、在该替换不起作用的提供商上，或者当允许列表不允许该系列的任何版本时，Claude Code 会改为在继承的模型上运行子代理。如果您设置了 `CLAUDE_CODE_SUBAGENT_MODEL`，Claude Code 会按照同样的规则首先尝试该模型。
 
 在交互式会话中，对于上述任一种替换，Claude Code 都会显示一条警告，列出请求的模型和子代理实际运行的模型。
 
-若要查看子代理正在哪个模型上运行，请运行 [`/tasks`](/docs/zh-CN/commands)。Claude Code 会在子代理所在行显示模型名称，并附上为该子代理设置的 [effort 级别](/docs/zh-CN/model-config.md#adjust-effort-level)（如果有）。需要 Claude Code v2.1.242 或更高版本。
+若要查看子代理正在哪个模型上运行，请运行 [`/tasks`](https://code.claude.com/docs/zh-CN/commands)。Claude Code 会在子代理所在行显示模型名称，并附上为该子代理设置的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)（如果有）。需要 Claude Code v2.1.242 或更高版本。
 
 当子代理被[恢复或收到后续消息](#resume-subagents)时，单次调用的 `model` 参数同样适用，因此子代理会保持在该模型上。
 
-从 v2.1.198 开始，子代理还会继承主对话的[扩展思考](/docs/zh-CN/model-config.md#extended-thinking)配置：如果您的会话中启用了思考，子代理也会启用；如果关闭，它也保持关闭。没有针对单个子代理的思考设置。在 v2.1.198 之前，无论主对话的设置如何，子代理都在禁用扩展思考的情况下运行。
+从 v2.1.198 开始，子代理还会继承主对话的[扩展思考](https://code.claude.com/docs/zh-CN/model-config.md#extended-thinking)配置：如果您的会话中启用了思考，子代理也会启用；如果关闭，它也保持关闭。没有针对单个子代理的思考设置。在 v2.1.198 之前，无论主对话的设置如何，子代理都在禁用扩展思考的情况下运行。
 
 #### 让所有子代理在同一模型上运行
 
-`CLAUDE_CODE_SUBAGENT_MODEL` 是一个默认值，因此子代理的定义或 Claude 传入的模型仍优先于它。若要将同一模型应用于每个子代理、[队友](/docs/zh-CN/agent-teams.md#specify-teammates-and-models)和[工作流 Agent](/docs/zh-CN/workflows.md)，还需将 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` 设置为 `1`。需要 Claude Code v2.1.257 或更高版本。
+`CLAUDE_CODE_SUBAGENT_MODEL` 是一个默认值，因此子代理的定义或 Claude 传入的模型仍优先于它。若要将同一模型应用于每个子代理、[队友](https://code.claude.com/docs/zh-CN/agent-teams.md#specify-teammates-and-models)和[工作流 Agent](https://code.claude.com/docs/zh-CN/workflows.md)，还需将 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` 设置为 `1`。需要 Claude Code v2.1.257 或更高版本。
 
 * 如果同时设置了这两个变量，子代理会在 `CLAUDE_CODE_SUBAGENT_MODEL` 中的模型上运行。
 * 如果只设置了 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`，子代理会在主对话的模型上运行，但内置 Explore 子代理除外，它在[内置子代理下为其列出的模型](#built-in-subagents)上运行。
 
-例如，若要让所有子代理都在 Haiku 上运行，请在[设置文件](/docs/zh-CN/settings.md)的 `env` 块中同时设置这两个变量：
+例如，若要让所有子代理都在 Haiku 上运行，请在[设置文件](https://code.claude.com/docs/zh-CN/settings.md)的 `env` 块中同时设置这两个变量：
 
 ```json theme={null}
 {
@@ -403,18 +403,18 @@ Claude Code 会根据您组织的 [`availableModels`](/docs/zh-CN/model-config#r
 }
 ```
 
-若要检查设置是否生效，请在子代理运行时运行 [`/tasks`](/docs/zh-CN/commands)。子代理所在行会显示它所运行的模型。
+若要检查设置是否生效，请在子代理运行时运行 [`/tasks`](https://code.claude.com/docs/zh-CN/commands)。子代理所在行会显示它所运行的模型。
 
-当 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` [启用](/docs/zh-CN/env-vars.md)时，Claude Code 会忽略子代理定义中的 `model` 字段，并且 Claude 在启动子代理时无法传入模型。以下子代理仍在主对话的模型上运行：
+当 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` [启用](https://code.claude.com/docs/zh-CN/env-vars.md)时，Claude Code 会忽略子代理定义中的 `model` 字段，并且 Claude 在启动子代理时无法传入模型。以下子代理仍在主对话的模型上运行：
 
 * [分叉](#fork-the-current-conversation)
-* 设置了 `model: inherit` 的[在子代理中运行的 skill](/docs/zh-CN/skills.md#run-skills-in-a-subagent)
+* 设置了 `model: inherit` 的[在子代理中运行的 skill](https://code.claude.com/docs/zh-CN/skills.md#run-skills-in-a-subagent)
 
 ### 选择 effort 级别
 
-若要让子代理以其自己的 [effort 级别](/docs/zh-CN/model-config.md#adjust-effort-level)运行，请在其定义中设置 [`effort`](#supported-frontmatter-fields) 字段。
+若要让子代理以其自己的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)运行，请在其定义中设置 [`effort`](#supported-frontmatter-fields) 字段。
 
-当您要求 Claude 以特定 effort 级别运行非分叉子代理时，它还可以为该次调用传入 `effort` 参数。该参数会覆盖 `effort` 字段，并在子代理被[恢复](#resume-subagents)时保持有效。[`CLAUDE_CODE_EFFORT_LEVEL`](/docs/zh-CN/env-vars#variables) 环境变量优先于这两者。单次调用参数需要 Claude Code v2.1.292 或更高版本。
+当您要求 Claude 以特定 effort 级别运行非分叉子代理时，它还可以为该次调用传入 `effort` 参数。该参数会覆盖 `effort` 字段，并在子代理被[恢复](#resume-subagents)时保持有效。[`CLAUDE_CODE_EFFORT_LEVEL`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量优先于这两者。单次调用参数需要 Claude Code v2.1.292 或更高版本。
 
 ### 控制子代理的能力
 
@@ -422,24 +422,24 @@ Claude Code 会根据您组织的 [`availableModels`](/docs/zh-CN/model-config#r
 
 #### 可用工具
 
-子代理继承主对话中可用的[内置工具](/docs/zh-CN/tools-reference.md)和 MCP 工具，并经过两个过滤器的缩减：第一个过滤器从每个子代理中移除少量工具，第二个过滤器为在[后台](#run-subagents-in-foreground-or-background)运行的子代理（默认情况）缩减内置工具集。在 macOS、Linux 和 WSL 上，当主对话没有 Glob 和 Grep 工具时，子代理也可以获得这些工具，如 [Glob 工具行为](/docs/zh-CN/tools-reference.md#glob-tool-behavior)中所述。[分叉](#fork-the-current-conversation)会跳过这两个过滤器，获得与主对话完全相同的工具池。第一个过滤器会移除以下工具，即使它们列在 `tools` 字段中：
+子代理继承主对话中可用的[内置工具](https://code.claude.com/docs/zh-CN/tools-reference.md)和 MCP 工具，并经过两个过滤器的缩减：第一个过滤器从每个子代理中移除少量工具，第二个过滤器为在[后台](#run-subagents-in-foreground-or-background)运行的子代理（默认情况）缩减内置工具集。在 macOS、Linux 和 WSL 上，当主对话没有 Glob 和 Grep 工具时，子代理也可以获得这些工具，如 [Glob 工具行为](https://code.claude.com/docs/zh-CN/tools-reference.md#glob-tool-behavior)中所述。[分叉](#fork-the-current-conversation)会跳过这两个过滤器，获得与主对话完全相同的工具池。第一个过滤器会移除以下工具，即使它们列在 `tools` 字段中：
 
 * `Agent`，当子代理达到[深度限制](#let-subagents-spawn-their-own-subagents)时；在[分叉](#fork-the-current-conversation)中，该工具仍会列出，但会返回错误而不是生成子代理
 * `AskUserQuestion`
-* `EndConversation`，它只能结束主对话；请参阅 [EndConversation 工具行为](/docs/zh-CN/tools-reference.md#endconversation-tool-behavior)
+* `EndConversation`，它只能结束主对话；请参阅 [EndConversation 工具行为](https://code.claude.com/docs/zh-CN/tools-reference.md#endconversation-tool-behavior)
 * `EnterPlanMode`
 * `ExitPlanMode`，除非子代理的 [`permissionMode`](#permission-modes) 为 `plan`
 * `ScheduleWakeup`
 * `WaitForMcpServers`
 * `Workflow`
 
-第二个过滤器适用于在后台运行的子代理。除了 `Agent` 和 `ExitPlanMode`（无论子代理在何处运行，都遵循第一个过滤器的条件）之外，后台子代理保留所有 MCP 工具，但只保留以下内置工具：`Read`、`Grep`、`Glob`、`LSP`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage` 和 `Artifact`，对于通过 [`SubagentHandback`](/docs/zh-CN/tools-reference) 报告的子代理，还保留该工具。Claude Code 会从后台子代理中移除所有其他内置工具，无论是继承的还是列在 `tools` 字段中的，因此同一定义在前台和后台可能解析为不同的工具。除非移除后 `tools` 列表[解析结果为空](/docs/zh-CN/errors.md#agent-would-be-spawned-with-zero-tools)，否则移除操作不会报告错误。
+第二个过滤器适用于在后台运行的子代理。除了 `Agent` 和 `ExitPlanMode`（无论子代理在何处运行，都遵循第一个过滤器的条件）之外，后台子代理保留所有 MCP 工具，但只保留以下内置工具：`Read`、`Grep`、`Glob`、`LSP`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage` 和 `Artifact`，对于通过 [`SubagentHandback`](https://code.claude.com/docs/zh-CN/tools-reference) 报告的子代理，还保留该工具。Claude Code 会从后台子代理中移除所有其他内置工具，无论是继承的还是列在 `tools` 字段中的，因此同一定义在前台和后台可能解析为不同的工具。除非移除后 `tools` 列表[解析结果为空](https://code.claude.com/docs/zh-CN/errors.md#agent-would-be-spawned-with-zero-tools)，否则移除操作不会报告错误。
 
 在 v2.1.280 之前，后台子代理无法使用 `LSP`。
 
-[`ListAgents`](/docs/zh-CN/cross-session-messaging) 与任何内置工具一样遵循这些过滤器：在启用了跨会话消息的会话中，前台子代理会继承它，而后台子代理不会保留它。
+[`ListAgents`](https://code.claude.com/docs/zh-CN/cross-session-messaging) 与任何内置工具一样遵循这些过滤器：在启用了跨会话消息的会话中，前台子代理会继承它，而后台子代理不会保留它。
 
-[agent team](/docs/zh-CN/agent-teams.md) 中的队友还会额外保留任务工具和 cron 工具：`TaskCreate`、`TaskGet`、`TaskList`、`TaskUpdate`、`CronCreate`、`CronDelete` 和 `CronList`。在[没有 Task 工具的会话](/docs/zh-CN/tools-reference.md#task-tool-availability)中，Claude Code 也不会向子代理提供任务工具，即使子代理运行的是不同的模型。进程内队友同样遵循您的会话。若要了解分割窗格中的队友是否拥有任务工具，请参阅 [Task 工具可用性](/docs/zh-CN/tools-reference.md#task-tool-availability)。
+[agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 中的队友还会额外保留任务工具和 cron 工具：`TaskCreate`、`TaskGet`、`TaskList`、`TaskUpdate`、`CronCreate`、`CronDelete` 和 `CronList`。在[没有 Task 工具的会话](https://code.claude.com/docs/zh-CN/tools-reference.md#task-tool-availability)中，Claude Code 也不会向子代理提供任务工具，即使子代理运行的是不同的模型。进程内队友同样遵循您的会话。若要了解分割窗格中的队友是否拥有任务工具，请参阅 [Task 工具可用性](https://code.claude.com/docs/zh-CN/tools-reference.md#task-tool-availability)。
 
 #### 限制子代理可以使用的工具
 
@@ -465,7 +465,7 @@ disallowedTools: Write, Edit
 ---
 ```
 
-当 `tools` 列表中没有任何条目能解析为工具时（例如每个条目都拼写错误，或指向子代理不可用的工具），Claude Code 通常会拒绝启动子代理，并且 Agent 工具会返回一个列出未解析条目的错误；有关该消息以及如何修复每个条目，请参阅 [Agent would be spawned with zero tools](/docs/zh-CN/errors.md#agent-would-be-spawned-with-zero-tools)。
+当 `tools` 列表中没有任何条目能解析为工具时（例如每个条目都拼写错误，或指向子代理不可用的工具），Claude Code 通常会拒绝启动子代理，并且 Agent 工具会返回一个列出未解析条目的错误；有关该消息以及如何修复每个条目，请参阅 [Agent would be spawned with zero tools](https://code.claude.com/docs/zh-CN/errors.md#agent-would-be-spawned-with-zero-tools)。
 
 `tools` 和 `disallowedTools` 字段还接受针对整个 MCP 服务器的条目：
 
@@ -485,13 +485,13 @@ disallowedTools: mcp__github
 ---
 ```
 
-带有说明符的 `disallowedTools` 条目（如 `Bash(git push *)`）仍会从子代理中移除整个工具，而不仅仅是匹配的命令。若要保留 Bash 并阻止特定命令，请在设置中向 `permissions.deny` 添加 [Bash 拒绝规则](/docs/zh-CN/permissions.md#bash)，例如 `Bash(git push *)`。该规则适用于主对话和子代理。
+带有说明符的 `disallowedTools` 条目（如 `Bash(git push *)`）仍会从子代理中移除整个工具，而不仅仅是匹配的命令。若要保留 Bash 并阻止特定命令，请在设置中向 `permissions.deny` 添加 [Bash 拒绝规则](https://code.claude.com/docs/zh-CN/permissions.md#bash)，例如 `Bash(git push *)`。该规则适用于主对话和子代理。
 
 ##### 名称包含双下划线的 MCP 服务器
 
 如果子代理无法获得名称包含 `__` 的 MCP 服务器（例如 `reports__v2`）中的任何工具，请检查该子代理的 `mcp__` 条目：
 
-* **在 `tools` 中**：写入 `mcp__`，后跟[服务器的完整名称](/docs/zh-CN/permissions.md#mcp)和 `__*`，如 `mcp__reports__v2__*`。如果没有末尾的 `__*`，`mcp__reports__v2` 不会匹配该服务器的任何工具。
+* **在 `tools` 中**：写入 `mcp__`，后跟[服务器的完整名称](https://code.claude.com/docs/zh-CN/permissions.md#mcp)和 `__*`，如 `mcp__reports__v2__*`。如果没有末尾的 `__*`，`mcp__reports__v2` 不会匹配该服务器的任何工具。
 * **在 `disallowedTools` 中**：查找 `mcp__reports` 或 `mcp__reports__*`，这些条目会排除名为 `reports` 的服务器。使用其中任一条目时，子代理也会失去所有 `reports__v2` 工具，因为这些工具名称同样以 `mcp__reports__` 开头。若只想排除 `reports` 服务器的工具，请改为逐一列出它们，例如 `mcp__reports__run_query`。
 
 #### 限制可以生成的子代理
@@ -524,7 +524,7 @@ tools: Agent, Read, Bash
 
 #### 将 MCP 服务器限定于子代理
 
-使用 `mcpServers` 字段为子代理提供对主对话中不可用的 [MCP](/docs/zh-CN/mcp.md) 服务器的访问权限。此处定义的内联服务器在子代理启动时连接（需符合[针对 Agent 文件所在文件夹的信任规则](#inline-server-trust)），并在其完成时断开连接。字符串引用共享父会话的连接。
+使用 `mcpServers` 字段为子代理提供对主对话中不可用的 [MCP](https://code.claude.com/docs/zh-CN/mcp.md) 服务器的访问权限。此处定义的内联服务器在子代理启动时连接（需符合[针对 Agent 文件所在文件夹的信任规则](#inline-server-trust)），并在其完成时断开连接。字符串引用共享父会话的连接。
 
 > [!NOTE]
 >
@@ -533,7 +533,7 @@ tools: Agent, Read, Bash
 > * 作为子代理，通过 Agent 工具或 @ 提及生成
 > * 作为主会话，通过 [`--agent`](#invoke-subagents-explicitly) 或 `agent` 设置启动
 >
-> 当 Agent 是主会话时，内联服务器定义会在启动时与来自 [`.mcp.json`](/docs/zh-CN/mcp) 和设置文件的服务器一起连接，遵循相同的[针对 Agent 文件所在文件夹的信任规则](#inline-server-trust)。在 `/mcp` 中，您以前使用过的远程（HTTP 或 SSE）服务器可能会改为显示 [`cached` 状态](/docs/zh-CN/mcp#managing-your-servers)；Claude Code 会在 Claude 首次调用其某个工具时连接它。
+> 当 Agent 是主会话时，内联服务器定义会在启动时与来自 [`.mcp.json`](https://code.claude.com/docs/zh-CN/mcp) 和设置文件的服务器一起连接，遵循相同的[针对 Agent 文件所在文件夹的信任规则](#inline-server-trust)。在 `/mcp` 中，您以前使用过的远程（HTTP 或 SSE）服务器可能会改为显示 [`cached` 状态](https://code.claude.com/docs/zh-CN/mcp#managing-your-servers)；Claude Code 会在 Claude 首次调用其某个工具时连接它。
 
 列表中的每个条目要么是内联服务器定义，要么是引用您会话中已配置的 MCP 服务器的字符串：
 
@@ -560,9 +560,9 @@ Use the Playwright tools to navigate, screenshot, and interact with pages.
 
 适用于主会话的 MCP 限制同样覆盖在子代理 frontmatter 中声明的服务器：
 
-* [`--strict-mcp-config`](/docs/zh-CN/cli-reference) 和 [`--bare`](/docs/zh-CN/cli-reference)
-* [企业托管 MCP 配置](/docs/zh-CN/managed-mcp.md)
-* [`allowedMcpServers` 和 `deniedMcpServers` 策略](/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists)
+* [`--strict-mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference) 和 [`--bare`](https://code.claude.com/docs/zh-CN/cli-reference)
+* [企业托管 MCP 配置](https://code.claude.com/docs/zh-CN/managed-mcp.md)
+* [`allowedMcpServers` 和 `deniedMcpServers` 策略](https://code.claude.com/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists)
 
 当其中之一阻止某个服务器时，Claude Code 会跳过它，并显示一条列出被阻止服务器的警告。
 
@@ -570,9 +570,9 @@ Use the Playwright tools to navigate, screenshot, and interact with pages.
 
 #### 内联 MCP 服务器所需的信任
 
-对于您项目的 `.claude/agents/` 目录或 `--add-dir` 目录的 `.claude/agents/` 中的 Agent 文件，Claude Code 只有在您[信任该 Agent 文件所在的文件夹](/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)之后，才会加载其中的[内联 MCP 服务器](#scope-mcp-servers-to-a-subagent)。在 v2.1.238 之前，Claude Code 加载这些服务器时不检查信任。
+对于您项目的 `.claude/agents/` 目录或 `--add-dir` 目录的 `.claude/agents/` 中的 Agent 文件，Claude Code 只有在您[信任该 Agent 文件所在的文件夹](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)之后，才会加载其中的[内联 MCP 服务器](#scope-mcp-servers-to-a-subagent)。在 v2.1.238 之前，Claude Code 加载这些服务器时不检查信任。
 
-* **不算数的信任**：父文件夹的信任，以及 `-p` 或 SDK 会话针对[设置文件中的 hook](/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 获得的自动信任
+* **不算数的信任**：父文件夹的信任，以及 `-p` 或 SDK 会话针对[设置文件中的 hook](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 获得的自动信任
 * **在此之前**：Claude Code 会跳过该 Agent 文件中的每个内联服务器，并将 `~/.claude.json` 中确切的 `projects["<path>"].hasTrustDialogAccepted` 键写入调试日志
 * **`--add-dir` 目录**：位于您受信任工作区仓库之外的目录需要其自己的信任条目，因为其 `.claude/agents/` 文件不会继承您工作区的信任
 
@@ -583,15 +583,15 @@ Use the Playwright tools to navigate, screenshot, and interact with pages.
 
 #### 权限模式
 
-设置 `permissionMode` 以选择子代理运行时使用的权限模式。请使用模式的配置值，因此 Manual 模式为 `default`。如果不设置，子代理会继承主对话的[权限模式](/docs/zh-CN/permission-modes.md)。
+设置 `permissionMode` 以选择子代理运行时使用的权限模式。请使用模式的配置值，因此 Manual 模式为 `default`。如果不设置，子代理会继承主对话的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。
 
 主对话的权限模式决定 Claude Code 是否使用您设置的值：
 
-* 当主对话处于 `bypassPermissions`、`acceptEdits` 或[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)时，子代理以相同模式运行，Claude Code 会忽略您设置的 `permissionMode`。在自动模式下，分类器使用主对话的阻止和允许规则评估子代理的工具调用。当子代理完成时，分类器还会在交付最终报告之前审查其工作和最终报告，如[自动模式如何处理子代理](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中所述。
-* 当主对话处于 `plan` 模式时，无论您设置了什么 `permissionMode`，子代理都会保持在计划模式，除非它作为 [agent team 队友](#subagent-names)按照 [agent team 规则](/docs/zh-CN/agent-teams.md#have-teammates-plan-before-implementing)运行。如果您设置了 `dontAsk`，子代理也不会提示您：计划模式下原本会请求您批准的操作将被拒绝。
+* 当主对话处于 `bypassPermissions`、`acceptEdits` 或[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)时，子代理以相同模式运行，Claude Code 会忽略您设置的 `permissionMode`。在自动模式下，分类器使用主对话的阻止和允许规则评估子代理的工具调用。当子代理完成时，分类器还会在交付最终报告之前审查其工作和最终报告，如[自动模式如何处理子代理](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中所述。
+* 当主对话处于 `plan` 模式时，无论您设置了什么 `permissionMode`，子代理都会保持在计划模式，除非它作为 [agent team 队友](#subagent-names)按照 [agent team 规则](https://code.claude.com/docs/zh-CN/agent-teams.md#have-teammates-plan-before-implementing)运行。如果您设置了 `dontAsk`，子代理也不会提示您：计划模式下原本会请求您批准的操作将被拒绝。
 * 当主对话处于 `default` 或 `dontAsk` 模式时，子代理以您设置的权限模式运行。在以下情况下，它会改为保持主对话的权限模式：
   * 您设置了 `bypassPermissions`。`bypassPermissions` 例外需要 Claude Code v2.1.267 或更高版本。
-  * 您设置了 `auto`，但子代理[无法使用自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，例如设置文件设置了 [`disableAutoMode`](/docs/zh-CN/settings-reference#disableautomode)，或子代理的模型不支持自动模式。
+  * 您设置了 `auto`，但子代理[无法使用自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，例如设置文件设置了 [`disableAutoMode`](https://code.claude.com/docs/zh-CN/settings-reference#disableautomode)，或子代理的模型不支持自动模式。
 
 `permissionMode` 接受以下值，以及作为 `default` 别名的 `manual`：
 
@@ -599,9 +599,9 @@ Use the Playwright tools to navigate, screenshot, and interact with pages.
 | :- | :- |
 | `default` | Manual 模式：提示请求权限 |
 | `acceptEdits` | 对于工作目录或 `additionalDirectories` 中的路径，自动接受文件编辑和常见文件系统命令 |
-| `auto` | [自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)：后台分类器审查命令和对受保护目录的写入 |
-| `dontAsk` | 自动拒绝会触发提示的调用，但您安装的 [mod](/docs/zh-CN/plugins/mods/overview.md) 仍可批准[其中部分调用](/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。明确允许的工具仍可使用。`AskUserQuestion`、标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](/docs/zh-CN/permissions.md#network-paths)，以及在该设置能作用到 Claude Code 的会话中[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，即使您已允许也会被拒绝 |
-| `bypassPermissions` | [跳过权限提示](/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)。只有当主对话处于此模式时，子代理才会以此模式运行 |
+| `auto` | [自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)：后台分类器审查命令和对受保护目录的写入 |
+| `dontAsk` | 自动拒绝会触发提示的调用，但您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍可批准[其中部分调用](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。明确允许的工具仍可使用。`AskUserQuestion`、标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)，以及在该设置能作用到 Claude Code 的会话中[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，即使您已允许也会被拒绝 |
+| `bypassPermissions` | [跳过权限提示](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)。只有当主对话处于此模式时，子代理才会以此模式运行 |
 | `plan` | 计划模式（只读探索） |
 
 #### 将 skill 预加载到子代理中
@@ -622,13 +622,13 @@ Implement API endpoints. Follow the conventions and patterns from the preloaded 
 
 每个列出的 skill 的完整内容会在启动时注入子代理的上下文，最多为列表中前 32 个不同的名称。此字段控制预加载哪些 skill，而不是子代理可以访问哪些 skill：即使没有此字段，子代理在执行期间仍可通过 Skill 工具发现和调用项目、用户和插件 skill。若要完全阻止子代理调用 skill，请从 [`tools`](#available-tools) 列表中省略 `Skill`，或将其添加到 `disallowedTools`。
 
-您无法预加载设置了 [`disable-model-invocation: true`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill，因为预加载取自 Claude 可以调用的同一组 skill。这包括内置的 `/verify` skill，Claude 无法自行运行它。
+您无法预加载设置了 [`disable-model-invocation: true`](https://code.claude.com/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill，因为预加载取自 Claude 可以调用的同一组 skill。这包括内置的 `/verify` skill，Claude 无法自行运行它。
 
 如果列出的某个 skill 缺失或被禁用（例如被您组织的策略禁用），Claude Code 会跳过它，并在调试日志中记录一条警告。
 
 > [!NOTE]
 >
-> 这与[在子代理中运行 skill](/docs/zh-CN/skills.md#run-skills-in-a-subagent) 相反。在子代理中使用 `skills` 时，由子代理控制系统提示词并加载 skill 内容。在 skill 中使用 `context: fork` 时，skill 内容会被注入到您指定的 Agent 中。在这两种情况下，子代理启动时都不带有您的对话历史。
+> 这与[在子代理中运行 skill](https://code.claude.com/docs/zh-CN/skills.md#run-skills-in-a-subagent) 相反。在子代理中使用 `skills` 时，由子代理控制系统提示词并加载 skill 内容。在 skill 中使用 `context: fork` 时，skill 内容会被注入到您指定的 Agent 中。在这两种情况下，子代理启动时都不带有您的对话历史。
 
 #### 启用持久记忆
 
@@ -653,7 +653,7 @@ patterns, conventions, and recurring issues you discover.
 | `project` | `.claude/agent-memory/<name-of-agent>/` | 子代理的知识特定于项目，并可通过版本控制共享 |
 | `local` | `.claude/agent-memory-local/<name-of-agent>/` | 子代理的知识特定于项目，但不应提交到版本控制 |
 
-子代理记忆是[自动记忆](/docs/zh-CN/memory.md#auto-memory)的一部分：如果您通过 `autoMemoryEnabled` 设置或 `CLAUDE_CODE_DISABLE_AUTO_MEMORY` 关闭自动记忆，`memory` 字段将不起作用，子代理启动时不会带有下述记忆指令或记忆工具访问权限。
+子代理记忆是[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)的一部分：如果您通过 `autoMemoryEnabled` 设置或 `CLAUDE_CODE_DISABLE_AUTO_MEMORY` 关闭自动记忆，`memory` 字段将不起作用，子代理启动时不会带有下述记忆指令或记忆工具访问权限。
 
 启用记忆后：
 
@@ -695,7 +695,7 @@ hooks:
 ---
 ```
 
-Claude Code 通过 stdin [以 JSON 形式将 hook 输入传递](/docs/zh-CN/hooks.md#pretooluse-input)给 hook 命令。验证脚本读取此 JSON，提取 Bash 命令，并[以退出码 2 退出](/docs/zh-CN/hooks.md#exit-code-2-behavior-per-event)以阻止写入操作：
+Claude Code 通过 stdin [以 JSON 形式将 hook 输入传递](https://code.claude.com/docs/zh-CN/hooks.md#pretooluse-input)给 hook 命令。验证脚本读取此 JSON，提取 Bash 命令，并[以退出码 2 退出](https://code.claude.com/docs/zh-CN/hooks.md#exit-code-2-behavior-per-event)以阻止写入操作：
 
 ```bash theme={null}
 #!/bin/bash
@@ -721,11 +721,11 @@ chmod +x ./scripts/validate-readonly-query.sh
 
 若要测试该规则，请让子代理运行一条 `UPDATE` 语句：脚本以退出码 2 退出，Claude Code 阻止该命令，子代理会看到 `Blocked: Only SELECT queries are allowed` 消息。
 
-有关完整的输入 schema，请参阅 [Hook 输入](/docs/zh-CN/hooks.md#pretooluse-input)；有关退出码如何影响行为，请参阅[退出码](/docs/zh-CN/hooks.md#exit-code-output)。在 Windows 上，请使用 PowerShell 编写 hook 脚本，并按照[在 PowerShell 中运行 hook](/docs/zh-CN/hooks.md#windows-powershell-tool) 中所示，向 hook 条目添加 `shell: powershell`。
+有关完整的输入 schema，请参阅 [Hook 输入](https://code.claude.com/docs/zh-CN/hooks.md#pretooluse-input)；有关退出码如何影响行为，请参阅[退出码](https://code.claude.com/docs/zh-CN/hooks.md#exit-code-output)。在 Windows 上，请使用 PowerShell 编写 hook 脚本，并按照[在 PowerShell 中运行 hook](https://code.claude.com/docs/zh-CN/hooks.md#windows-powershell-tool) 中所示，向 hook 条目添加 `shell: powershell`。
 
 #### 禁用特定子代理
 
-您可以将特定子代理添加到[设置](/docs/zh-CN/settings-reference.md#permission-settings)中的 `deny` 数组，以阻止 Claude 使用它们。使用 `Agent(subagent-name)` 格式，其中 `subagent-name` 与子代理的 name 字段匹配。
+您可以将特定子代理添加到[设置](https://code.claude.com/docs/zh-CN/settings-reference.md#permission-settings)中的 `deny` 数组，以阻止 Claude 使用它们。使用 `Agent(subagent-name)` 格式，其中 `subagent-name` 与子代理的 name 字段匹配。
 
 ```json theme={null}
 {
@@ -741,16 +741,16 @@ chmod +x ./scripts/validate-readonly-query.sh
 claude --disallowedTools "Agent(Explore)"
 ```
 
-有关权限规则的更多详细信息，请参阅[权限文档](/docs/zh-CN/permissions.md#tool-specific-permission-rules)。
+有关权限规则的更多详细信息，请参阅[权限文档](https://code.claude.com/docs/zh-CN/permissions.md#tool-specific-permission-rules)。
 
 ### 为子代理定义 hook
 
-子代理可以定义在子代理生命周期中运行的 [hook](/docs/zh-CN/hooks.md)。配置 hook 有两种方式：
+子代理可以定义在子代理生命周期中运行的 [hook](https://code.claude.com/docs/zh-CN/hooks.md)。配置 hook 有两种方式：
 
 * **在子代理的 frontmatter 中**：定义仅在该子代理活动期间运行的 hook
 * **在 `settings.json` 中**：定义也会在子代理内部触发的会话级 hook。`PreToolUse` 和 `PostToolUse` 等工具事件会像在主对话中一样针对子代理的工具调用触发，而 `SubagentStart` 和 `SubagentStop` 会在子代理启动或完成时触发
 
-来自[设置文件、托管策略设置和插件](/docs/zh-CN/hooks.md#hook-locations)的 hook 都会在子代理内部生效，因此 `settings.json` 中的 `PreToolUse` hook 也会在子代理使用每个工具之前运行。
+来自[设置文件、托管策略设置和插件](https://code.claude.com/docs/zh-CN/hooks.md#hook-locations)的 hook 都会在子代理内部生效，因此 `settings.json` 中的 `PreToolUse` hook 也会在子代理使用每个工具之前运行。
 
 #### 子代理 frontmatter 中的 hook
 
@@ -758,13 +758,13 @@ claude --disallowedTools "Agent(Explore)"
 
 > [!NOTE]
 >
-> 当 Agent 通过 Agent 工具或 @ 提及作为子代理生成时，以及当 Agent 通过 [`--agent`](#invoke-subagents-explicitly) 或 `agent` 设置作为主会话运行时，frontmatter hook 都会触发。在主会话的情况下，它们会与 [`settings.json`](/docs/zh-CN/hooks) 中定义的任何 hook 一起运行。
+> 当 Agent 通过 Agent 工具或 @ 提及作为子代理生成时，以及当 Agent 通过 [`--agent`](#invoke-subagents-explicitly) 或 `agent` 设置作为主会话运行时，frontmatter hook 都会触发。在主会话的情况下，它们会与 [`settings.json`](https://code.claude.com/docs/zh-CN/hooks) 中定义的任何 hook 一起运行。
 
-若要让项目级子代理的 frontmatter hook 运行，请为包含该 Agent 文件的文件夹接受[工作区信任对话框](/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)。来自 `~/.claude/agents/` 中用户级子代理以及您通过 `--agents` 传入的定义的 hook 无需此步骤即可运行。如果您通过 `--add-dir` 添加了位于受信任工作区仓库之外的文件夹，请单独信任该文件夹：其 `.claude/agents/` 中的 hook 不会继承工作区的授权。
+若要让项目级子代理的 frontmatter hook 运行，请为包含该 Agent 文件的文件夹接受[工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)。来自 `~/.claude/agents/` 中用户级子代理以及您通过 `--agents` 传入的定义的 hook 无需此步骤即可运行。如果您通过 `--add-dir` 添加了位于受信任工作区仓库之外的文件夹，请单独信任该文件夹：其 `.claude/agents/` 中的 hook 不会继承工作区的授权。
 
-在您信任该文件夹之前，子代理仍会运行，但 Claude Code 会跳过其 frontmatter hook，并在调试日志中记录一条说明如何信任该文件夹的错误。这一规则比设置文件中 hook 的规则更严格：信任父文件夹是不够的，并且 `-p` 会话不算作受信任。[信任文件夹之前会运行什么](/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)对这两者进行了比较。在 v2.1.218 之前，frontmatter hook 可以从您未信任的文件夹中运行，包括在非交互式会话中。
+在您信任该文件夹之前，子代理仍会运行，但 Claude Code 会跳过其 frontmatter hook，并在调试日志中记录一条说明如何信任该文件夹的错误。这一规则比设置文件中 hook 的规则更严格：信任父文件夹是不够的，并且 `-p` 会话不算作受信任。[信任文件夹之前会运行什么](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)对这两者进行了比较。在 v2.1.218 之前，frontmatter hook 可以从您未信任的文件夹中运行，包括在非交互式会话中。
 
-支持所有 [hook 事件](/docs/zh-CN/hooks.md#hook-events)。子代理最常用的事件有：
+支持所有 [hook 事件](https://code.claude.com/docs/zh-CN/hooks.md#hook-events)。子代理最常用的事件有：
 
 | 事件 | 匹配器输入 | 触发时机 |
 | :- | :- | :- |
@@ -803,7 +803,7 @@ hooks:
 | `SubagentStart` | Agent 类型名称 | 子代理开始执行时 |
 | `SubagentStop` | Agent 类型名称 | 子代理完成时 |
 
-这两个事件都支持匹配器，可按名称指定特定的 Agent 类型。对于项目级和用户级子代理，匹配器值是 Agent 的 frontmatter `name`；对于[插件子代理](/docs/zh-CN/plugins/components.md#agents)，则是插件作用域标识符，例如 `my-plugin:db-agent`。作用域名称包含冒号，因此会被作为[非锚定正则表达式](/docs/zh-CN/hooks.md#matcher-patterns)进行求值；请使用 `^` 和 `$` 对其进行锚定，如 `^my-plugin:db-agent$`，以仅匹配该 Agent。
+这两个事件都支持匹配器，可按名称指定特定的 Agent 类型。对于项目级和用户级子代理，匹配器值是 Agent 的 frontmatter `name`；对于[插件子代理](https://code.claude.com/docs/zh-CN/plugins/components.md#agents)，则是插件作用域标识符，例如 `my-plugin:db-agent`。作用域名称包含冒号，因此会被作为[非锚定正则表达式](https://code.claude.com/docs/zh-CN/hooks.md#matcher-patterns)进行求值；请使用 `^` 和 `$` 对其进行锚定，如 `^my-plugin:db-agent$`，以仅匹配该 Agent。
 
 此示例仅在 `db-agent` 子代理启动时运行设置脚本，并在任何子代理停止时运行清理脚本：
 
@@ -829,7 +829,7 @@ hooks:
 }
 ```
 
-有关完整的 hook 配置格式，请参阅 [Hooks](/docs/zh-CN/hooks.md)。
+有关完整的 hook 配置格式，请参阅 [Hooks](https://code.claude.com/docs/zh-CN/hooks.md)。
 
 ## 使用子代理
 
@@ -837,9 +837,9 @@ hooks:
 
 Claude 根据您请求中的任务描述、子代理配置中的 `description` 字段以及当前上下文自动委托任务。要鼓励主动委托，请在子代理的 description 字段中包含"use proactively"之类的短语。
 
-请保持描述简洁：当您的子代理描述总和超过 [15,000 token 限制](/docs/zh-CN/errors.md#agent-descriptions-are-over-the-15000-token-limit)时，Claude Code 会显示启动警告，但仍会加载每个子代理。
+请保持描述简洁：当您的子代理描述总和超过 [15,000 token 限制](https://code.claude.com/docs/zh-CN/errors.md#agent-descriptions-are-over-the-15000-token-limit)时，Claude Code 会显示启动警告，但仍会加载每个子代理。
 
-如果子代理由[插件](/docs/zh-CN/plugins/overview.md)提供，您可以在一组贴近实际的提示词上衡量 Claude 委托给它的可靠程度，而无需逐个检查：[`claude plugin eval`](/docs/zh-CN/plugin-evals) 会在启用和不启用该插件的情况下分别运行每个提示词，并对结果进行评分。
+如果子代理由[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)提供，您可以在一组贴近实际的提示词上衡量 Claude 委托给它的可靠程度，而无需逐个检查：[`claude plugin eval`](https://code.claude.com/docs/zh-CN/plugin-evals) 会在启用和不启用该插件的情况下分别运行每个提示词，并对结果进行评分。
 
 ### 显式调用子代理
 
@@ -864,21 +864,21 @@ Have the code-reviewer subagent look at my recent changes
 
 您的完整消息仍会发送给 Claude，由 Claude 根据您的要求为子代理编写任务提示词。@-mention 控制的是 Claude 调用哪个子代理，而不是子代理收到什么提示词。
 
-已启用[插件](/docs/zh-CN/plugins/overview.md)提供的子代理会以其作用域名称显示在自动补全列表中，例如 `my-plugin:code-reviewer`；当插件[将 Agent 组织到子文件夹中](#choose-the-subagent-scope)时，则显示为 `my-plugin:review:security` 这样的名称。当前在会话中运行的已命名后台子代理也会出现在自动补全列表中，并在名称旁显示其状态。
+已启用[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)提供的子代理会以其作用域名称显示在自动补全列表中，例如 `my-plugin:code-reviewer`；当插件[将 Agent 组织到子文件夹中](#choose-the-subagent-scope)时，则显示为 `my-plugin:review:security` 这样的名称。当前在会话中运行的已命名后台子代理也会出现在自动补全列表中，并在名称旁显示其状态。
 
 您也可以不使用选择器而手动输入提及：本地子代理使用 `@agent-<name>`，插件子代理使用 `@agent-` 后跟作用域名称，例如 `@agent-my-plugin:code-reviewer`。输入这种形式时，自动补全列表显示的是匹配的文件而不是 Agent，但提交时该 Agent 提及仍会被正确解析。
 
-**以子代理身份运行整个会话。** 传递 [`--agent <name>`](/docs/zh-CN/cli-reference) 可启动一个会话，让主线程本身采用该子代理的工具限制和模型：
+**以子代理身份运行整个会话。** 传递 [`--agent <name>`](https://code.claude.com/docs/zh-CN/cli-reference) 可启动一个会话，让主线程本身采用该子代理的工具限制和模型：
 
 ```bash theme={null}
 claude --agent code-reviewer
 ```
 
-除非该 Agent 的[提示词为空](#choose-the-subagent-scope)，否则自定义子代理的系统提示词会完全替换默认的 Claude Code 系统提示词，效果与 [`--system-prompt`](/docs/zh-CN/cli-reference) 相同。`CLAUDE.md` 文件和项目记忆仍会通过正常的消息流加载，即使该 Agent 的定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 也是如此。如果您使用 `-p` 以拥有自身提示词的自定义 Agent 身份运行会话，该会话启动时也不会包含 [Git 状态快照](/docs/zh-CN/settings-reference.md#includegitinstructions)。
+除非该 Agent 的[提示词为空](#choose-the-subagent-scope)，否则自定义子代理的系统提示词会完全替换默认的 Claude Code 系统提示词，效果与 [`--system-prompt`](https://code.claude.com/docs/zh-CN/cli-reference) 相同。`CLAUDE.md` 文件和项目记忆仍会通过正常的消息流加载，即使该 Agent 的定义设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 也是如此。如果您使用 `-p` 以拥有自身提示词的自定义 Agent 身份运行会话，该会话启动时也不会包含 [Git 状态快照](https://code.claude.com/docs/zh-CN/settings-reference.md#includegitinstructions)。
 
 Agent 名称会以 `@<name>` 的形式显示在启动标题中，方便您确认其已生效。
 
-这适用于内置和自定义子代理，并且在恢复会话时该选择会保留：Claude Code 会随对话一起恢复该 Agent 的工具限制和模型。如果恢复时该 Agent 已不存在，会话将使用默认工具继续，并显示一条[指明该 Agent 的警告](/docs/zh-CN/errors.md#session-agent-no-longer-available)。关于这两种情况下的系统提示词，请参阅[已恢复对话中的系统提示词标志](/docs/zh-CN/cli-reference.md#system-prompt-flags-in-resumed-conversations)。
+这适用于内置和自定义子代理，并且在恢复会话时该选择会保留：Claude Code 会随对话一起恢复该 Agent 的工具限制和模型。如果恢复时该 Agent 已不存在，会话将使用默认工具继续，并显示一条[指明该 Agent 的警告](https://code.claude.com/docs/zh-CN/errors.md#session-agent-no-longer-available)。关于这两种情况下的系统提示词，请参阅[已恢复对话中的系统提示词标志](https://code.claude.com/docs/zh-CN/cli-reference.md#system-prompt-flags-in-resumed-conversations)。
 
 对于插件提供的子代理，您可以只传递 Agent 名称，Claude Code 会自行找到它：
 
@@ -918,11 +918,11 @@ claude --agent my-plugin:security-reviewer
 * **`claude -p` 和 Agent SDK**：Claude 可以根据自己的判断或在您要求时等待。
 * **交互式终端会话、VS Code 以及您本机上的桌面应用会话**：要让 Claude 等待子代理，请[关闭 fork 模式](#let-claude-wait-for-a-subagent)，该模式[默认开启](#turn-fork-mode-on-or-off)。
 
-对于带有 `context: fork` 的 skill，Claude Code 改为遵循[在子代理中运行 skill](/docs/zh-CN/skills.md#run-skills-in-a-subagent) 中的规则，无论 fork 模式是否开启。
+对于带有 `context: fork` 的 skill，Claude Code 改为遵循[在子代理中运行 skill](https://code.claude.com/docs/zh-CN/skills.md#run-skills-in-a-subagent) 中的规则，无论 fork 模式是否开启。
 
 #### 让 Claude 等待子代理
 
-1. 将 `CLAUDE_CODE_FORK_SUBAGENT` 设置为 `0` 以关闭 [fork 模式](#turn-fork-mode-on-or-off)，例如在 [`settings.json`](/docs/zh-CN/settings) 中：
+1. 将 `CLAUDE_CODE_FORK_SUBAGENT` 设置为 `0` 以关闭 [fork 模式](#turn-fork-mode-on-or-off)，例如在 [`settings.json`](https://code.claude.com/docs/zh-CN/settings) 中：
 
    ```json theme={null}
    {
@@ -936,9 +936,9 @@ claude --agent my-plugin:security-reviewer
 
 3. 当您需要先拿到结果时，请让 Claude 等待，例如"run the reviewer subagent and wait for its report"。
 
-要在 Claude 等待期间继续工作，请在终端中按 **Ctrl+B**，或在 VS Code 中点击 [**Run in background**](/docs/zh-CN/vs-code.md#move-a-running-command-or-subagent-to-the-background)。
+要在 Claude 等待期间继续工作，请在终端中按 **Ctrl+B**，或在 VS Code 中点击 [**Run in background**](https://code.claude.com/docs/zh-CN/vs-code.md#move-a-running-command-or-subagent-to-the-background)。
 
-如果您不关闭 fork 模式，而是将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 环境变量设置为 `1`，Claude 会等待每一个子代理。后台命令也会被关闭，并且 **Ctrl+B** 不会将任何内容移到后台。
+如果您不关闭 fork 模式，而是将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars) 环境变量设置为 `1`，Claude 会等待每一个子代理。后台命令也会被关闭，并且 **Ctrl+B** 不会将任何内容移到后台。
 
 #### 后台子代理的工具、权限和结果
 
@@ -946,7 +946,7 @@ claude --agent my-plugin:security-reviewer
 
 后台子代理会在您的主会话中显示每一个权限提示。当您对其中某个提示所作的选择会在该次工具调用之后继续生效（例如在会话剩余时间内持续有效的授予）时，Claude Code 会将您的答复应用于整个会话，包括您的主对话。
 
-后台子代理可以让后台 [Bash 或 PowerShell 命令](/docs/zh-CN/tools-reference.md#background-commands)[在其轮次结束后继续运行](/docs/zh-CN/interactive-mode.md#how-backgrounding-works)。该命令结束时，Claude Code 会向该子代理发送通知。
+后台子代理可以让后台 [Bash 或 PowerShell 命令](https://code.claude.com/docs/zh-CN/tools-reference.md#background-commands)[在其轮次结束后继续运行](https://code.claude.com/docs/zh-CN/interactive-mode.md#how-backgrounding-works)。该命令结束时，Claude Code 会向该子代理发送通知。
 
 后台子代理的结果会在之后的某个轮次中以完成通知的形式送达 Claude。Claude 会等待该通知后再报告子代理的结果；如果您先询问进度，它会告知子代理仍在运行。
 
@@ -954,24 +954,24 @@ claude --agent my-plugin:security-reviewer
 
 Claude Code 会以两种方式之一从输入框下方的子代理面板中清除后台子代理所在的行，具体取决于子代理的结束方式：
 
-* 当子代理成功完成时，Claude Code 会立即移除其所在行，并在页脚显示 `/tasks to see subagents` 30 秒（[屏幕阅读器模式](/docs/zh-CN/accessibility.md)下除外）。在这 30 秒内，运行 [`/tasks`](/docs/zh-CN/commands) 并在该子代理上按 `Enter` 即可打开其会话记录。在 v2.1.232 之前，Claude Code 会在子代理完成后将该行保留 30 秒（与失败的子代理相同），且不显示页脚提示。
+* 当子代理成功完成时，Claude Code 会立即移除其所在行，并在页脚显示 `/tasks to see subagents` 30 秒（[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)下除外）。在这 30 秒内，运行 [`/tasks`](https://code.claude.com/docs/zh-CN/commands) 并在该子代理上按 `Enter` 即可打开其会话记录。在 v2.1.232 之前，Claude Code 会在子代理完成后将该行保留 30 秒（与失败的子代理相同），且不显示页脚提示。
 * 当子代理失败或被您停止时，Claude Code 会将其所在行保留 30 秒。要更早清除该行，请选中它并按 `x`。
 
-已完成的后台子代理会继续列在 [`/tasks`](/docs/zh-CN/commands) 中，标记为已完成并排在正在运行的工作下方，持续时间与页脚提示相同，为 30 秒。子代理完成时，其详情视图保持打开。失败或被您停止的子代理会从列表中移除。在 v2.1.208 之前，已完成的子代理会在完成的那一刻离开列表，其详情视图也会关闭。
+已完成的后台子代理会继续列在 [`/tasks`](https://code.claude.com/docs/zh-CN/commands) 中，标记为已完成并排在正在运行的工作下方，持续时间与页脚提示相同，为 30 秒。子代理完成时，其详情视图保持打开。失败或被您停止的子代理会从列表中移除。在 v2.1.208 之前，已完成的子代理会在完成的那一刻离开列表，其详情视图也会关闭。
 
 ### 子代理名称
 
-如果您在启用 [agent teams](/docs/zh-CN/agent-teams.md#enable-agent-teams) 的情况下启动会话，Claude 可以在 Agent 工具调用中传递 `name` 参数来为子代理命名。它可能会自行这样做，而不事先询问您。名称使子代理可被寻址：在子代理完成后，Claude 可以[按名称向其发送消息或恢复它](#resume-subagents)。
+如果您在启用 [agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md#enable-agent-teams) 的情况下启动会话，Claude 可以在 Agent 工具调用中传递 `name` 参数来为子代理命名。它可能会自行这样做，而不事先询问您。名称使子代理可被寻址：在子代理完成后，Claude 可以[按名称向其发送消息或恢复它](#resume-subagents)。
 
-在启用了 [agent teams](/docs/zh-CN/agent-teams.md) 的交互式会话中，Claude 从主对话生成的带有 `name` 的子代理会改为以队友身份启动，除非该调用是 [fork](#fork-the-current-conversation) 或在调用本身中传递了 `isolation`。子代理 frontmatter 中的 `isolation` 值无法阻止这一点，此时该队友会在主会话的工作目录中运行。请参阅 [Claude 如何启动 agent teams](/docs/zh-CN/agent-teams.md#how-claude-starts-agent-teams)。
+在启用了 [agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md) 的交互式会话中，Claude 从主对话生成的带有 `name` 的子代理会改为以队友身份启动，除非该调用是 [fork](#fork-the-current-conversation) 或在调用本身中传递了 `isolation`。子代理 frontmatter 中的 `isolation` 值无法阻止这一点，此时该队友会在主会话的工作目录中运行。请参阅 [Claude 如何启动 agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md#how-claude-starts-agent-teams)。
 
 ### 子代理中的 API 错误
 
-当某种原因[在流式传输中途截断了子代理的响应](/docs/zh-CN/errors.md#the-response-above-may-be-incomplete)，且部分响应包含文本但没有工具调用时，Claude Code 会提示子代理继续，而不是结束运行。这在交互式会话中同样适用。只有当这些继续次数用完后，运行才会因该错误而结束。
+当某种原因[在流式传输中途截断了子代理的响应](https://code.claude.com/docs/zh-CN/errors.md#the-response-above-may-be-incomplete)，且部分响应包含文本但没有工具调用时，Claude Code 会提示子代理继续，而不是结束运行。这在交互式会话中同样适用。只有当这些继续次数用完后，运行才会因该错误而结束。
 
 因 API 错误（例如用量限制或反复出现的服务器错误）而结束运行的子代理会将该失败报告给 Claude。Claude 收到的内容取决于子代理的运行位置：
 
-* **前台**：如果速率限制、过载或服务器错误截断了已经产生文本输出的子代理，Agent 工具会返回该部分输出，并附注说明子代理被截断、未完成其任务。未产生任何输出、或输出仅包含工具调用的子代理会以 [`Agent terminated early due to an API error`](/docs/zh-CN/errors#agent-terminated-early-due-to-an-api-error) 失败，后跟错误详情。
+* **前台**：如果速率限制、过载或服务器错误截断了已经产生文本输出的子代理，Agent 工具会返回该部分输出，并附注说明子代理被截断、未完成其任务。未产生任何输出、或输出仅包含工具调用的子代理会以 [`Agent terminated early due to an API error`](https://code.claude.com/docs/zh-CN/errors#agent-terminated-early-due-to-an-api-error) 失败，后跟错误详情。
 * **后台**：子代理会被标记为失败，Claude 在其结束时收到的消息会指明该 API 错误，并包含子代理的最后输出，因此部分工作不会丢失。
 
 如果子代理的报告以下面这一行开头，说明该子代理是在备用模型上完成的：
@@ -980,7 +980,7 @@ Claude Code 会以两种方式之一从输入框下方的子代理面板中清�
 ⚠ This agent switched to <model> because its earlier model could not be used.
 ```
 
-当您配置了[备用模型链](/docs/zh-CN/model-config.md#fallback-model-chains)，且子代理遇到该链所覆盖的失败（例如其模型不可用）时，Claude Code 会将子代理切换到链中第一个接受请求的模型。子代理会继续工作，而不是因错误而结束。
+当您配置了[备用模型链](https://code.claude.com/docs/zh-CN/model-config.md#fallback-model-chains)，且子代理遇到该链所覆盖的失败（例如其模型不可用）时，Claude Code 会将子代理切换到链中第一个接受请求的模型。子代理会继续工作，而不是因错误而结束。
 
 底层 API 错误消除后，请让 Claude 重试该任务或[恢复子代理](#resume-subagents)。
 
@@ -991,7 +991,7 @@ Claude Code 会在 Claude 读取每个子代理的最终报告之前对其进行
 * **插入反斜杠**：扫描会在模仿 Claude Code 自身输出的文本中插入反斜杠，例如 `<system-reminder>` 标签，或以 `Human:` 或 `Assistant:` 开头的行，使这些模仿内容被当作普通文本读取，而不会被误认为是对话的一部分。
 * **标记行**：当报告模仿了 `<system-reminder>` 之类的标签，或提及 `bypassPermissions` 或 `--dangerously-skip-permissions` 等权限设置时，扫描会在开头添加一行以 `[harness: subagent output matched instruction-shaped pattern(s):` 开头的内容。提及权限设置的报告会获得标记行，但文本本身保持原样。
 
-扫描不会判断内容是否恶意，也不会改变报告中的指令所能产生的效果：报告促使 Claude 发起的工具调用仍然要经过会话的[权限检查](/docs/zh-CN/permissions.md)和[沙箱隔离](/docs/zh-CN/sandboxing.md)。它不能替代[限制子代理可访问的范围](#control-subagent-capabilities)。
+扫描不会判断内容是否恶意，也不会改变报告中的指令所能产生的效果：报告促使 Claude 发起的工具调用仍然要经过会话的[权限检查](https://code.claude.com/docs/zh-CN/permissions.md)和[沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md)。它不能替代[限制子代理可访问的范围](#control-subagent-capabilities)。
 
 作为子代理结果返回给 Claude 的报告还会带有一个标题，将其标记为子代理输出。该标题说明报告中的指令或批准声明是子代理的话语，并不具备来自您的任何权威。
 
@@ -1021,7 +1021,7 @@ Research the authentication, database, and API modules in parallel using separat
 >
 > 子代理完成后，其结果会返回到您的主对话。运行许多各自返回详细结果的子代理可能会消耗大量上下文，而且每个子代理在运行时也会消耗自己的 token。
 
-对于需要持续并行运行或无法容纳在一个上下文窗口中的工作，请在[单独的会话](/docs/zh-CN/agents.md)中运行，并让 Claude [在会话之间传递发现](/docs/zh-CN/cross-session-messaging.md)。
+对于需要持续并行运行或无法容纳在一个上下文窗口中的工作，请在[单独的会话](https://code.claude.com/docs/zh-CN/agents.md)中运行，并让 Claude [在会话之间传递发现](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)。
 
 #### 串联子代理
 
@@ -1046,9 +1046,9 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 * 您想强制执行特定的工具限制或权限
 * 工作是自成一体的，可以返回一份摘要
 
-如果您想要可复用的提示词或工作流，并希望它们在主对话上下文中而不是隔离的子代理上下文中运行，请考虑改用 [Skills](/docs/zh-CN/skills.md)。
+如果您想要可复用的提示词或工作流，并希望它们在主对话上下文中而不是隔离的子代理上下文中运行，请考虑改用 [Skills](https://code.claude.com/docs/zh-CN/skills.md)。
 
-对于关于对话中已有内容的问题，请使用 [`/btw`](/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw) 而不是子代理。它能看到您的完整上下文，但无法使用工具，且答案不会添加到历史记录中。
+对于关于对话中已有内容的问题，请使用 [`/btw`](https://code.claude.com/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw) 而不是子代理。它能看到您的完整上下文，但无法使用工具，且答案不会添加到历史记录中。
 
 ### 让子代理生成自己的子代理
 
@@ -1059,7 +1059,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 * **交互式终端会话**：只有顶层子代理的摘要会返回给您，因为启动后台子代理的子代理会等待它们的结果后再结束。
 * **`claude -p` 和 Agent SDK**：当 [fork 模式](#turn-fork-mode-on-or-off)开启时，发起启动的子代理会等待。如果您关闭 fork 模式，嵌套子代理会改为在[后台](#run-subagents-in-foreground-or-background)启动。发起启动的子代理不会等待后台嵌套子代理；如果该嵌套子代理在其启动者结束后仍在运行，它会向您的主对话报告。
 
-要更改该限制，请将 [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](/docs/zh-CN/env-vars) 设置为您希望在主对话之下允许的子代理层数。例如，[`settings.json`](/docs/zh-CN/settings) 中的以下条目将嵌套限制为两层：
+要更改该限制，请将 [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](https://code.claude.com/docs/zh-CN/env-vars) 设置为您希望在主对话之下允许的子代理层数。例如，[`settings.json`](https://code.claude.com/docs/zh-CN/settings) 中的以下条目将嵌套限制为两层：
 
 ```json theme={null}
 {
@@ -1086,14 +1086,14 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 
 有两个限制控制子代理的使用，各自对应一个变量：本限制在运行中的子代理过多时阻止 Claude 生成更多子代理，而[深度限制](#let-subagents-spawn-their-own-subagents)则限制子代理的嵌套深度。Claude 在一个会话中可以生成的子代理总数没有限制。
 
-默认情况下，当会话中有 20 个子代理正在运行时，使用 Agent 工具再生成一个会失败并返回 `Concurrent subagent limit reached`，且该错误会告知 Claude 不要重试。当运行数量降到限制以下时，即可再次成功生成。要更改该限制，请将 [`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`](/docs/zh-CN/env-vars) 设置为任意正整数。启用了 [ultracode](/docs/zh-CN/model-config.md#adjust-effort-level) 的会话不受此限制约束。需要 Claude Code v2.1.217 或更高版本。
+默认情况下，当会话中有 20 个子代理正在运行时，使用 Agent 工具再生成一个会失败并返回 `Concurrent subagent limit reached`，且该错误会告知 Claude 不要重试。当运行数量降到限制以下时，即可再次成功生成。要更改该限制，请将 [`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`](https://code.claude.com/docs/zh-CN/env-vars) 设置为任意正整数。启用了 [ultracode](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level) 的会话不受此限制约束。需要 Claude Code v2.1.217 或更高版本。
 
 该限制只阻止 Claude 使用 Agent 工具生成的子代理，但其他运行也会占用相同的槽位：
 
 * 您通过 [`/subtask`](#fork-the-current-conversation) 启动的会话内 fork 在运行时会占用一个槽位，且永远不会被该限制阻止。
 * [恢复](#resume-subagents)已完成的子代理会占用一个新槽位，且不检查限制，因此恢复操作可能使运行数量超过限制。
 
-其他功能运行的 Agent，例如[工作流](/docs/zh-CN/workflows.md) Agent 和 [agent team](/docs/zh-CN/agent-teams.md) 队友，则遵循各自的限制。
+其他功能运行的 Agent，例如[工作流](https://code.claude.com/docs/zh-CN/workflows.md) Agent 和 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友，则遵循各自的限制。
 
 ### 管理子代理上下文
 
@@ -1105,12 +1105,12 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 
 * **系统提示词**：Agent 自身的提示词加上 Claude Code 附加的环境详情，而不是 Claude Code 系统提示词。自定义子代理在 [markdown 正文](#write-subagent-files)或 `prompt` 字段中定义其系统提示词。内置 Agent 具有预定义的提示词。
 * **任务消息**：Claude 在移交工作时编写的委托提示词。
-* **CLAUDE.md 文件**：主对话所加载的 [CLAUDE.md 层级结构](/docs/zh-CN/memory.md#how-claude-md-files-load)中的每一级，包括 `~/.claude/CLAUDE.md`、项目规则、`CLAUDE.local.md`、托管策略文件，以及作为项目指令加载的任何 [`AGENTS.md` 文件](/docs/zh-CN/memory#agents-md)。内置的 Explore 和 Plan Agent 会跳过这些。定义中设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 的子代理只加载托管策略文件；如果该定义来自[托管设置](#choose-the-subagent-scope)，则一个也不加载。
-* **Git 状态**：子代理启动时 Claude Code 从您的仓库读取的快照。对于在该仓库的[自有 worktree](/docs/zh-CN/worktrees.md#isolate-subagents-with-worktrees) 中运行的子代理，快照会显示该 worktree 的分支、状态和最近的提交。在 Git 仓库之外或快照被关闭时不存在；请参阅 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions)。Explore 和 Plan 无论如何都会跳过它。
+* **CLAUDE.md 文件**：主对话所加载的 [CLAUDE.md 层级结构](https://code.claude.com/docs/zh-CN/memory.md#how-claude-md-files-load)中的每一级，包括 `~/.claude/CLAUDE.md`、项目规则、`CLAUDE.local.md`、托管策略文件，以及作为项目指令加载的任何 [`AGENTS.md` 文件](https://code.claude.com/docs/zh-CN/memory#agents-md)。内置的 Explore 和 Plan Agent 会跳过这些。定义中设置了 [`omitClaudeMd`](#supported-frontmatter-fields) 的子代理只加载托管策略文件；如果该定义来自[托管设置](#choose-the-subagent-scope)，则一个也不加载。
+* **Git 状态**：子代理启动时 Claude Code 从您的仓库读取的快照。对于在该仓库的[自有 worktree](https://code.claude.com/docs/zh-CN/worktrees.md#isolate-subagents-with-worktrees) 中运行的子代理，快照会显示该 worktree 的分支、状态和最近的提交。在 Git 仓库之外或快照被关闭时不存在；请参阅 [`includeGitInstructions`](https://code.claude.com/docs/zh-CN/settings-reference#includegitinstructions)。Explore 和 Plan 无论如何都会跳过它。
 * **预加载的 skill**：Agent 的 [`skills` 字段](#preload-skills-into-subagents)中列出的每个 skill 的完整内容。内置 Agent 不预加载 skill。
-* **同级名单**：一条[系统提醒](/docs/zh-CN/glossary.md#system-reminder)，列出 `main` 以及会话中所有其他已命名的 Agent，每一个都是 [`SendMessage`](#resume-subagents) 的有效 `to` 值。仅当子代理的工具包含 `SendMessage` 且至少有一个其他 Agent 拥有名称时才会出现该名单，无论该名称是 Claude 在生成时指定的，还是该 Agent 作为 [agent team](/docs/zh-CN/agent-teams.md) 队友运行。名单是子代理启动时拍摄的快照，因此之后命名的 Agent 不会出现在其中。
+* **同级名单**：一条[系统提醒](https://code.claude.com/docs/zh-CN/glossary.md#system-reminder)，列出 `main` 以及会话中所有其他已命名的 Agent，每一个都是 [`SendMessage`](#resume-subagents) 的有效 `to` 值。仅当子代理的工具包含 `SendMessage` 且至少有一个其他 Agent 拥有名称时才会出现该名单，无论该名称是 Claude 在生成时指定的，还是该 Agent 作为 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友运行。名单是子代理启动时拍摄的快照，因此之后命名的 Agent 不会出现在其中。
 
-要在不加载用户、项目和本地 CLAUDE.md 文件的情况下启动您自己的某个子代理，请在其 frontmatter 或 `--agents` JSON 中设置 [`omitClaudeMd: true`](#supported-frontmatter-fields)。对于 Explore、Plan 以及设置了 `omitClaudeMd` 的子代理，当子代理处理某个子目录中的文件时，该子目录的 `CLAUDE.md` 和匹配的[路径作用域规则](/docs/zh-CN/memory.md#path-specific-rules)仍会[加载](/docs/zh-CN/memory.md#how-claude-md-files-load)。
+要在不加载用户、项目和本地 CLAUDE.md 文件的情况下启动您自己的某个子代理，请在其 frontmatter 或 `--agents` JSON 中设置 [`omitClaudeMd: true`](#supported-frontmatter-fields)。对于 Explore、Plan 以及设置了 `omitClaudeMd` 的子代理，当子代理处理某个子目录中的文件时，该子目录的 `CLAUDE.md` 和匹配的[路径作用域规则](https://code.claude.com/docs/zh-CN/memory.md#path-specific-rules)仍会[加载](https://code.claude.com/docs/zh-CN/memory.md#how-claude-md-files-load)。
 
 主对话在读取这些子代理的结果时仍拥有您的完整 CLAUDE.md，因此大多数规则无需传达给子代理本身。如果某条规则必须传达，例如"忽略 `vendor/` 目录"，请在委托时给 Claude 的提示词中重新说明。
 
@@ -1118,8 +1118,8 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 
 某些主对话状态永远不会传递给非 fork 子代理：
 
-* **输出样式**：子代理运行自己的系统提示词，因此您的[输出样式](/docs/zh-CN/output-styles.md)不会影响其回复，[fork](#fork-the-current-conversation) 除外。
-* **自动记忆**：不会加载主对话的[自动记忆](/docs/zh-CN/memory.md#auto-memory)。要为子代理提供其自身的持久记忆，请使用 [`memory` 字段](#enable-persistent-memory)。
+* **输出样式**：子代理运行自己的系统提示词，因此您的[输出样式](https://code.claude.com/docs/zh-CN/output-styles.md)不会影响其回复，[fork](#fork-the-current-conversation) 除外。
+* **自动记忆**：不会加载主对话的[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)。要为子代理提供其自身的持久记忆，请使用 [`memory` 字段](#enable-persistent-memory)。
 * **上下文窗口大小**：子代理的上下文窗口大小由其自身的模型决定，而不是由父级决定。委托给上下文窗口较小的模型时，该子代理获得的也是较小的窗口。
 
 #### 恢复子代理
@@ -1132,7 +1132,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 * 内置的 Explore 和 Plan Agent 是一次性的，不返回 Agent ID，因此 Claude 无法恢复它们。需要继续工作时，请使用 `general-purpose` 或自定义子代理。
 * 当子代理因达到 [`maxTurns`](#supported-frontmatter-fields) 限制而停止时，Claude Code 会将返回的输出标记为部分结果，Claude 可以恢复该子代理以继续其工作。
 
-Claude 使用 `SendMessage` 工具，以 Agent 的 ID 或名称作为 `to` 字段来恢复它。`SendMessage` 不要求启用 [agent teams](/docs/zh-CN/agent-teams.md)；只有 `shutdown_request` 和 `plan_approval_response` 等结构化团队协议消息才需要。除了子代理和队友之外，在启用了跨会话消息的会话中，Claude 还可以使用同一工具向[您的其他 Claude Code 会话](/docs/zh-CN/cross-session-messaging.md)发送消息，无论它们在本机还是[其他机器上](/docs/zh-CN/cross-session-messaging.md#message-sessions-on-other-machines)。
+Claude 使用 `SendMessage` 工具，以 Agent 的 ID 或名称作为 `to` 字段来恢复它。`SendMessage` 不要求启用 [agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md)；只有 `shutdown_request` 和 `plan_approval_response` 等结构化团队协议消息才需要。除了子代理和队友之外，在启用了跨会话消息的会话中，Claude 还可以使用同一工具向[您的其他 Claude Code 会话](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)发送消息，无论它们在本机还是[其他机器上](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#message-sessions-on-other-machines)。
 
 要恢复子代理，请让 Claude 继续之前的工作：
 
@@ -1144,7 +1144,7 @@ Continue that code review and now analyze the authorization logic
 [Claude resumes the subagent with full context from previous conversation]
 ```
 
-当 Claude 使用 `SendMessage` 工具向已完成的子代理发送消息时，该子代理会在后台恢复，无需新的 `Agent` 调用。对于 Claude 使用 `TaskStop` 工具停止的子代理，在其被停止的运行退出后同样适用。恢复后的运行会保留[子代理首次运行时的工具集](#run-subagents-in-foreground-or-background)，并且可以继续读取[原始运行预热的提示缓存](/docs/zh-CN/prompt-caching.md#subagents-and-the-cache)。
+当 Claude 使用 `SendMessage` 工具向已完成的子代理发送消息时，该子代理会在后台恢复，无需新的 `Agent` 调用。对于 Claude 使用 `TaskStop` 工具停止的子代理，在其被停止的运行退出后同样适用。恢复后的运行会保留[子代理首次运行时的工具集](#run-subagents-in-foreground-or-background)，并且可以继续读取[原始运行预热的提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md#subagents-and-the-cache)。
 
 拥有 `SendMessage` 工具的子代理也可以发送这种消息。在交互式会话中，被恢复的 Agent 随后会向恢复它的那个子代理汇报，而不是向您的主对话汇报。该子代理会等待结果后再完成自己的工作。当子代理向它所汇报的 Agent（例如其自身的启动者）发送消息时，Claude Code 会恢复该 Agent，且不会重定向其结果。
 
@@ -1164,21 +1164,21 @@ Continue that code review and now analyze the authorization logic
 
 * **主对话压缩**：主对话压缩时，子代理会话记录不受影响。它们存储在单独的文件中。
 * **会话持久性**：子代理会话记录在其所属会话内持久保存。重启 Claude Code 后，您可以通过恢复同一会话来[恢复子代理](#resume-subagents)。
-* **自动清理**：Claude Code 会在 `cleanupPeriodDays` 保留期（默认为 30 天）过后删除子代理会话记录，遵循[保留清理规则](/docs/zh-CN/claude-directory.md#cleaned-up-automatically)。
+* **自动清理**：Claude Code 会在 `cleanupPeriodDays` 保留期（默认为 30 天）过后删除子代理会话记录，遵循[保留清理规则](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)。
 
 ##### 重启后按名称向子代理发送消息
 
 > [!NOTE]
 >
-> 对于以队友身份启动的子代理，请改为参阅 [agent team 限制](/docs/zh-CN/agent-teams.md#limitations)。
+> 对于以队友身份启动的子代理，请改为参阅 [agent team 限制](https://code.claude.com/docs/zh-CN/agent-teams.md#limitations)。
 
-如果在您重启 Claude Code 并恢复会话后，Claude 无法按名称向某个子代理发送消息，请改为向 Claude 提供该子代理的 Agent ID。Claude 自上次[压缩](/docs/zh-CN/context-window.md#what-survives-compaction)以来在主对话中指定的名称在重启后仍会保留，而该次压缩之前的名称则不会保留。要查找某个名称对应的 ID，请在 `~/.claude/projects/{project}/{sessionId}/subagents/` 下的 `agent-{agentId}.meta.json` 文件中查找该名称。
+如果在您重启 Claude Code 并恢复会话后，Claude 无法按名称向某个子代理发送消息，请改为向 Claude 提供该子代理的 Agent ID。Claude 自上次[压缩](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)以来在主对话中指定的名称在重启后仍会保留，而该次压缩之前的名称则不会保留。要查找某个名称对应的 ID，请在 `~/.claude/projects/{project}/{sessionId}/subagents/` 下的 `agent-{agentId}.meta.json` 文件中查找该名称。
 
 通过 ID 发送一条消息后，该子代理的名称即可再次使用，除非已有较新的 Agent 占用了该名称。在 v2.1.299 之前，任何名称都无法在重启后保留，即使 Agent ID 仍然有效，按名称发送也会被拒绝。
 
 #### 上下文自动压缩
 
-子代理支持自动压缩。压缩会在子代理自身的上下文窗口逐渐填满时触发，`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 同样适用于子代理。有关该覆盖何时生效，请参阅[环境变量](/docs/zh-CN/env-vars.md)。
+子代理支持自动压缩。压缩会在子代理自身的上下文窗口逐渐填满时触发，`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 同样适用于子代理。有关该覆盖何时生效，请参阅[环境变量](https://code.claude.com/docs/zh-CN/env-vars.md)。
 
 压缩事件会记录在子代理会话记录文件中：
 
@@ -1197,7 +1197,7 @@ Continue that code review and now analyze the authorization logic
 
 ##### 为单个子代理设置自动压缩窗口
 
-要让某个子代理比原本更早压缩，请在其 [frontmatter](#supported-frontmatter-fields) 中将 `autoCompactWindow` 设置为 `100000` 到 `1000000` 之间的 token 数。如果您设置了 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](/docs/zh-CN/env-vars#variables)，子代理会改用该变量的窗口，此字段不起作用，除非 Claude Code [忽略了该变量的值](/docs/zh-CN/model-config.md#claude_code_auto_compact_window-values)。需要 Claude Code v2.1.296 或更高版本。
+要让某个子代理比原本更早压缩，请在其 [frontmatter](#supported-frontmatter-fields) 中将 `autoCompactWindow` 设置为 `100000` 到 `1000000` 之间的 token 数。如果您设置了 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](https://code.claude.com/docs/zh-CN/env-vars#variables)，子代理会改用该变量的窗口，此字段不起作用，除非 Claude Code [忽略了该变量的值](https://code.claude.com/docs/zh-CN/model-config.md#claude_code_auto_compact_window-values)。需要 Claude Code v2.1.296 或更高版本。
 
 以下 frontmatter 为一个读取长日志文件的子代理将 `autoCompactWindow` 设置为 200,000 token：
 
@@ -1213,14 +1213,14 @@ autoCompactWindow: 200000
 
 如果该值在范围内但您仍未看到任何变化，请检查以下原因：
 
-* **该值不低于子代理原本会继承的[自动压缩窗口](/docs/zh-CN/model-config.md#context-window-and-auto-compaction)**：要更早压缩，请设置低于该窗口的值。
-* **您通过 `--agent` 或 `agent` 设置以此子代理身份运行整个会话**：此时该字段不起作用。要设置会话的窗口，请参阅[设置自动压缩窗口](/docs/zh-CN/model-config.md#set-the-auto-compact-window)。
+* **该值不低于子代理原本会继承的[自动压缩窗口](https://code.claude.com/docs/zh-CN/model-config.md#context-window-and-auto-compaction)**：要更早压缩，请设置低于该窗口的值。
+* **您通过 `--agent` 或 `agent` 设置以此子代理身份运行整个会话**：此时该字段不起作用。要设置会话的窗口，请参阅[设置自动压缩窗口](https://code.claude.com/docs/zh-CN/model-config.md#set-the-auto-compact-window)。
 
 ## 分叉当前对话
 
 > [!NOTE]
 >
-> 当[Agent 视图被关闭](/docs/zh-CN/agent-view.md#turn-off-agent-view)时，`/subtask` 不可用，`/fork` 改为启动分叉子代理；否则 `/fork` 将整个会话复制到新的[后台会话](/docs/zh-CN/agent-view.md#from-inside-a-session)中。
+> 当[Agent 视图被关闭](https://code.claude.com/docs/zh-CN/agent-view.md#turn-off-agent-view)时，`/subtask` 不可用，`/fork` 改为启动分叉子代理；否则 `/fork` 将整个会话复制到新的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#from-inside-a-session)中。
 
 分叉是一个 subagent，它继承到目前为止的整个对话，而不是从头开始。这消除了 subagents 通常提供的输入隔离：分叉看到与主会话相同的系统提示、工具、模型和消息历史，因此您可以将其交给一个辅助任务而无需重新解释情况。分叉自己的工具调用仍然保持在您的对话之外，只有其最终结果返回，因此您的主 context window 保持干净。当任何其他 subagent 需要太多背景才能有用时，或当您想从相同的起点并行尝试多种方法时，使用分叉。
 
@@ -1249,12 +1249,12 @@ autoCompactWindow: 200000
 | `x` | 如果分叉正在运行，停止它；如果不再运行，关闭其行。在主会话行或您使用 `Enter` 打开其转录的分叉行上，`x` 会输入到提示中 |
 | `Esc` | 将焦点返回到提示输入 |
 
-打开分叉或子代理的会话记录后，后续消息和 [skill](/docs/zh-CN/skills.md) 会发送到该 Agent，而内置命令会发送到您的主对话，并有以下保护措施：
+打开分叉或子代理的会话记录后，后续消息和 [skill](https://code.claude.com/docs/zh-CN/skills.md) 会发送到该 Agent，而内置命令会发送到您的主对话，并有以下保护措施：
 
 * `/compact`、`/clear` 和 `/rewind` 作用于主对话，因此 Claude Code 在从该视图运行其中任何一个之前会要求您确认。
 * `/model` 和 `/fast` 设置的是主对话的模型和快速模式，而不是所查看 Agent 的，因此它们不会从该视图运行。一条通知会告诉您原因。
 
-要让所查看的 Agent 在其等待的工作完成之前读取您的消息，请使用 [`Ctrl+Enter` 或 `Ctrl+X Ctrl+S`](/docs/zh-CN/keybindings#chat-actions) 发送。该 Agent 正在等待的任何可以移至[后台](/docs/zh-CN/tools-reference.md#background-commands)的 shell 命令或子代理都会移至后台并继续运行。当该 Agent 正在编写回复，或正在等待无法移至后台的工作时，它会继续进行，并在完成后读取您的消息。需要 Claude Code v2.1.286 或更高版本。
+要让所查看的 Agent 在其等待的工作完成之前读取您的消息，请使用 [`Ctrl+Enter` 或 `Ctrl+X Ctrl+S`](https://code.claude.com/docs/zh-CN/keybindings#chat-actions) 发送。该 Agent 正在等待的任何可以移至[后台](https://code.claude.com/docs/zh-CN/tools-reference.md#background-commands)的 shell 命令或子代理都会移至后台并继续运行。当该 Agent 正在编写回复，或正在等待无法移至后台的工作时，它会继续进行，并在完成后读取您的消息。需要 Claude Code v2.1.286 或更高版本。
 
 ### 分叉与其他 subagents 的区别
 
@@ -1267,7 +1267,7 @@ autoCompactWindow: 200000
 | 模型 | 与主会话相同 | 来自 subagent 的 `model` 字段 |
 | Prompt cache | 与主会话共享 | 单独的缓存 |
 
-因为分叉的系统提示词和工具定义与父级相同，其第一个请求重用父级的[提示缓存](/docs/zh-CN/prompt-caching.md#subagents-and-the-cache)。由于这种重用，对于需要相同上下文的任务，分叉的成本低于新的子代理。
+因为分叉的系统提示词和工具定义与父级相同，其第一个请求重用父级的[提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md#subagents-and-the-cache)。由于这种重用，对于需要相同上下文的任务，分叉的成本低于新的子代理。
 
 当 Claude 通过 Agent 工具生成分叉时，它可以传递 `isolation: "worktree"` 以便分叉的文件编辑被写入单独的 git worktree 而不是您的检出。分叉无法生成进一步的分叉。
 
@@ -1431,7 +1431,7 @@ When asked to analyze data:
 You cannot modify data. If asked to INSERT, UPDATE, DELETE, or modify schema, explain that you only have read access.
 ```
 
-Claude Code [通过 stdin 将 hook 输入作为 JSON 传递](/docs/zh-CN/hooks.md#pretooluse-input) 给 hook 命令。验证脚本读取此 JSON，提取正在执行的命令，并根据 SQL 写入操作列表检查它。如果检测到写入操作，脚本 [以代码 2 退出](/docs/zh-CN/hooks.md#exit-code-2-behavior-per-event) 以阻止执行，并通过 stderr 向 Claude 返回错误消息。
+Claude Code [通过 stdin 将 hook 输入作为 JSON 传递](https://code.claude.com/docs/zh-CN/hooks.md#pretooluse-input) 给 hook 命令。验证脚本读取此 JSON，提取正在执行的命令，并根据 SQL 写入操作列表检查它。如果检测到写入操作，脚本 [以代码 2 退出](https://code.claude.com/docs/zh-CN/hooks.md#exit-code-2-behavior-per-event) 以阻止执行，并通过 stderr 向 Claude 返回错误消息。
 
 在您的项目中的任何位置创建验证脚本。路径必须与您的 hook 配置中的 `command` 字段匹配：
 
@@ -1464,9 +1464,9 @@ exit 0
 chmod +x ./scripts/validate-readonly-query.sh
 ```
 
-在 Windows 上，用 PowerShell 编写验证脚本，并在 hook 条目中添加 `shell: powershell`。请参阅 [在 PowerShell 中运行 hooks](/docs/zh-CN/hooks.md#windows-powershell-tool)。
+在 Windows 上，用 PowerShell 编写验证脚本，并在 hook 条目中添加 `shell: powershell`。请参阅 [在 PowerShell 中运行 hooks](https://code.claude.com/docs/zh-CN/hooks.md#windows-powershell-tool)。
 
-Hook 通过 stdin 接收 JSON，Bash 命令在 `tool_input.command` 中。退出代码 2 阻止操作并将错误消息反馈给 Claude。有关退出代码和输出的详细信息，请参阅 [Hooks](/docs/zh-CN/hooks.md#exit-code-output)，有关完整的输入架构，请参阅 [Hook input](/docs/zh-CN/hooks.md#pretooluse-input)。
+Hook 通过 stdin 接收 JSON，Bash 命令在 `tool_input.command` 中。退出代码 2 阻止操作并将错误消息反馈给 Claude。有关退出代码和输出的详细信息，请参阅 [Hooks](https://code.claude.com/docs/zh-CN/hooks.md#exit-code-output)，有关完整的输入架构，请参阅 [Hook input](https://code.claude.com/docs/zh-CN/hooks.md#pretooluse-input)。
 
 系统提示告诉 subagent 拒绝写入请求，因此 hook 是一个后备：如果 subagent 尝试写入，Claude Code 会阻止该命令，subagent 会看到 `Blocked: Write operations not allowed. Use SELECT queries only.` 消息。
 
@@ -1474,6 +1474,6 @@ Hook 通过 stdin 接收 JSON，Bash 命令在 `tool_input.command` 中。退出
 
 现在您了解了 subagents，探索这些相关功能：
 
-* [使用 plugins 分发 subagents](/docs/zh-CN/plugins/components.md#agents) 以在团队或项目中共享 subagents
-* [以编程方式运行 Claude Code](/docs/zh-CN/headless.md)，使用 Agent SDK 进行 CI/CD 和自动化
-* [使用 MCP 服务器](/docs/zh-CN/mcp.md) 为 subagents 提供对外部工具和数据的访问
+* [使用 plugins 分发 subagents](https://code.claude.com/docs/zh-CN/plugins/components.md#agents) 以在团队或项目中共享 subagents
+* [以编程方式运行 Claude Code](https://code.claude.com/docs/zh-CN/headless.md)，使用 Agent SDK 进行 CI/CD 和自动化
+* [使用 MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md) 为 subagents 提供对外部工具和数据的访问

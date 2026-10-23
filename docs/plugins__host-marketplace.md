@@ -14,8 +14,8 @@
 >
 > 这些情况在其他页面上有介绍：
 >
-> * **你还没有编写目录文件**：从 [创建 marketplace](/docs/zh-CN/plugins/create-marketplace.md) 开始
-> * **你是一个管理员，需要在你的组织机器上要求、限制或预安装 marketplace**：阅读 [为你的组织管理插件](/docs/zh-CN/plugins/org.md)
+> * **你还没有编写目录文件**：从 [创建 marketplace](https://code.claude.com/docs/zh-CN/plugins/create-marketplace.md) 开始
+> * **你是一个管理员，需要在你的组织机器上要求、限制或预安装 marketplace**：阅读 [为你的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)
 
 从 [托管你的 marketplace](#host-your-marketplace) 开始选择一个主机和你的用户运行的命令。在你的第一次发布之前阅读 [保持用户更新](#keep-users-up-to-date)。在你更改插件的 `name` 之前阅读 [重命名或删除插件](#rename-or-remove-a-plugin)。
 
@@ -30,7 +30,7 @@
 | 托管的 `marketplace.json` URL | `/plugin marketplace add https://plugins.example.com/marketplace.json` | 对 URL 的 HTTPS 访问。用户不需要 `git` 来获取目录本身 |
 | 共享文件系统上的目录 | `/plugin marketplace add /Volumes/shared/claude-plugins` | 对路径的读取访问权限 |
 
-要固定 GitHub 或 git-URL marketplace 的分支或标签，告诉用户追加 `#<ref>`，如 `your-org/your-marketplace#stable`。[插件命令参考](/docs/zh-CN/plugins/cli-reference.md#plugin-marketplace-add) 列出了命令接受的每种形式。
+要固定 GitHub 或 git-URL marketplace 的分支或标签，告诉用户追加 `#<ref>`，如 `your-org/your-marketplace#stable`。[插件命令参考](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#plugin-marketplace-add) 列出了命令接受的每种形式。
 
 成功添加会打印 `Successfully added marketplace: your-marketplace`。Claude Code 从你的 `marketplace.json` 中的 `name` 字段获取该名称，而不是从仓库名称。
 
@@ -38,15 +38,15 @@
 
 ### 为仓库中的每个人注册 marketplace
 
-要与在一个仓库中工作的每个人共享 marketplace，请从你的 shell 在那里运行一次 `claude plugin marketplace add your-org/your-marketplace --scope project`，并提交它写入的 `.claude/settings.json`。Claude Code 随后为每个 [信任该文件夹](/docs/zh-CN/plugins/org.md#require-plugins-per-repository) 的队友注册 marketplace。
+要与在一个仓库中工作的每个人共享 marketplace，请从你的 shell 在那里运行一次 `claude plugin marketplace add your-org/your-marketplace --scope project`，并提交它写入的 `.claude/settings.json`。Claude Code 随后为每个 [信任该文件夹](https://code.claude.com/docs/zh-CN/plugins/org.md#require-plugins-per-repository) 的队友注册 marketplace。
 
 ### 避免在 URL 托管的 marketplace 中使用相对路径条目
 
-当用户将你的 marketplace 添加为裸 `marketplace.json` URL 时，Claude Code 仅下载该文件。你的 `plugins` 数组中的条目，其 `source` 是相对路径（如 `./plugins/formatter`），则在安装时会失败，出现 [`其 marketplace 条目路径不会停留在 marketplace 目录内`](/docs/zh-CN/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces)。给每个条目一个可以独立获取的源，如 `github` 仓库或 `archive` URL，或在 git 仓库中托管 marketplace，以便 Claude Code 克隆整个树。
+当用户将你的 marketplace 添加为裸 `marketplace.json` URL 时，Claude Code 仅下载该文件。你的 `plugins` 数组中的条目，其 `source` 是相对路径（如 `./plugins/formatter`），则在安装时会失败，出现 [`其 marketplace 条目路径不会停留在 marketplace 目录内`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces)。给每个条目一个可以独立获取的源，如 `github` 仓库或 `archive` URL，或在 git 仓库中托管 marketplace，以便 Claude Code 克隆整个树。
 
 ### 保持托管文件的下载限制内
 
-当用户将你的 marketplace 添加为 `marketplace.json` URL，或安装具有 [`archive`](/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source) 源的条目时，Claude Code 从你的服务器下载文件。下载超过此表中的限制会失败，因此请调整你的文件大小并配置你的服务器以保持在限制内。
+当用户将你的 marketplace 添加为 `marketplace.json` URL，或安装具有 [`archive`](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source) 源的条目时，Claude Code 从你的服务器下载文件。下载超过此表中的限制会失败，因此请调整你的文件大小并配置你的服务器以保持在限制内。
 
 | 文件 | 最大下载 | 你的服务器响应时间 | 重定向 |
 | :- | :- | :- | :- |
@@ -78,7 +78,7 @@
 * **在同一 marketplace 内的其他地方**：符号链接被解引用。目标的内容被复制到缓存中以代替它。这允许元插件的 `skills/` 目录链接到 marketplace 中其他插件定义的技能。
 * **在 marketplace 外**：符号链接因安全原因被跳过。
 
-对于从本地路径安装的插件，或从 [`command` 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)（其 `mode` 是默认 `copy`）安装的插件，Claude Code 仅保留在插件自己目录内解析的符号链接，并跳过所有其他的。
+对于从本地路径安装的插件，或从 [`command` 源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)（其 `mode` 是默认 `copy`）安装的插件，Claude Code 仅保留在插件自己目录内解析的符号链接，并跳过所有其他的。
 
 以下命令创建从 marketplace 插件内部到由兄弟插件定义的共享技能的链接。在 Windows 上，从提升的命令提示符使用 `mklink /D` 或启用开发者模式：
 
@@ -93,7 +93,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 组织同步对仓库的要求比 `/plugin marketplace add` 更严格：
 
 * **Marketplace 仓库**：在 github.com 和 gitlab.com 上，它必须是私有或内部的
-* **插件源**：组织同步仅接受某些 [源类型](/docs/zh-CN/plugins/marketplace-reference.md#plugin-sources)
+* **插件源**：组织同步仅接受某些 [源类型](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#plugin-sources)
 * **顶级 `bin/` 目录**：claude.ai 拒绝具有一个的插件并同步 marketplace 的其余部分。错误消息以 `Plugin contains a top-level bin/ directory` 开头。将可执行文件保留在另一个目录中，如 `scripts/`，并从你的 hooks 或 MCP 服务器配置中将它们引用为 `${CLAUDE_PLUGIN_ROOT}/scripts/<name>`
 
 [从仓库同步你的组织的插件](https://claude.com/docs/plugins/org-sync) 在 claude.com 上列出了接受的源、GitLab 设置和 `bin/` 错误，[为你的组织管理插件](https://claude.com/docs/plugins/admin) 涵盖了管理员工作流程。
@@ -113,7 +113,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 * **SSH**：密钥必须在没有密码提示的情况下工作，例如因为它被加载到 `ssh-agent` 中。主机必须已经在 `known_hosts` 中。
 * **HTTPS**：Claude Code 保持用户的 git 凭证助手启用，但禁止它提示。助手已经存储的凭证有效；它必须要求的凭证失败。在 GitHub 上，`gh auth login` 后跟 `gh auth setup-git` 存储一个。
 
-对于 GitHub Enterprise Server 主机，用户需要从他们的机器访问该主机的 git 访问权限。有关每个 Claude Code 表面需要到达 GHES 托管的 marketplace 的内容，请参阅 [GHES 上的插件 marketplace](/docs/zh-CN/github-enterprise-server.md#plugin-marketplaces-on-ghes)。
+对于 GitHub Enterprise Server 主机，用户需要从他们的机器访问该主机的 git 访问权限。有关每个 Claude Code 表面需要到达 GHES 托管的 marketplace 的内容，请参阅 [GHES 上的插件 marketplace](https://code.claude.com/docs/zh-CN/github-enterprise-server.md#plugin-marketplaces-on-ghes)。
 
 如果你改为通过 claude.ai 上的 **组织设置 > 插件和技能** 分发，你的用户的 git 凭证不涉及。请参阅 [通过组织设置分发](#distribute-through-organization-settings)。
 
@@ -143,7 +143,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 检查后，Claude Code 执行以下操作之一：
 
 * **检出是最新的**：Claude Code 保持原样。
-* **检查找到新提交，或因为无法到达或认证到远程而失败**：Claude Code 再次克隆 marketplace 并用新克隆替换现有检出。如果该克隆失败，现有检出保持原位。重新克隆可以 [在大型仓库上超时](/docs/zh-CN/plugins/troubleshooting.md#git-clone-timed-out-after-120s)。
+* **检查找到新提交，或因为无法到达或认证到远程而失败**：Claude Code 再次克隆 marketplace 并用新克隆替换现有检出。如果该克隆失败，现有检出保持原位。重新克隆可以 [在大型仓库上超时](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#git-clone-timed-out-after-120s)。
 
 要保持私有 marketplace 最新，用户可以执行以下任一操作：
 
@@ -159,13 +159,13 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 | 谁 | 他们做什么 | 它在哪里被覆盖 |
 | :- | :- | :- |
 | 你，marketplace 所有者 | 将目录保留在只有公司可以读取的仓库中，发送你的主机的添加命令，并说明每个人的机器上需要什么 | [托管你的 marketplace](#host-your-marketplace) 和 [授予对私有 marketplace 的访问权限](#grant-access-to-a-private-marketplace) |
-| 管理员 | 使用托管设置中的 `extraKnownMarketplaces` 和 `enabledPlugins` 为每个人注册 marketplace 并打开其插件，并在那里设置 `autoUpdate` | [要求一个 marketplace 及其插件](/docs/zh-CN/plugins/org.md#require-a-marketplace-and-its-plugins) 和 [设置更新策略](/docs/zh-CN/plugins/org.md#set-update-policy) |
-| 每个人 | 需要对私有 git 仓库的读取访问权限，凭证已经存储在他们的机器上。没有管理员，他们也运行添加和安装命令 | [添加私有 marketplace](/docs/zh-CN/plugins/install.md#add-a-private-marketplace) |
+| 管理员 | 使用托管设置中的 `extraKnownMarketplaces` 和 `enabledPlugins` 为每个人注册 marketplace 并打开其插件，并在那里设置 `autoUpdate` | [要求一个 marketplace 及其插件](https://code.claude.com/docs/zh-CN/plugins/org.md#require-a-marketplace-and-its-plugins) 和 [设置更新策略](https://code.claude.com/docs/zh-CN/plugins/org.md#set-update-policy) |
+| 每个人 | 需要对私有 git 仓库的读取访问权限，凭证已经存储在他们的机器上。没有管理员，他们也运行添加和安装命令 | [添加私有 marketplace](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-private-marketplace) |
 
 对于没有 git 主机账户的人，这些部分各覆盖一种到达他们的方式：
 
 * **不需要 git 账户的条目源**：[为没有 git 主机账户的用户提供服务](#serve-users-who-have-no-git-host-account)
-* **预填充的插件目录**：[为容器和 CI 播种](/docs/zh-CN/plugins/org.md#seed-containers-and-ci)，也为没有 git 主机账户的用户提供服务
+* **预填充的插件目录**：[为容器和 CI 播种](https://code.claude.com/docs/zh-CN/plugins/org.md#seed-containers-and-ci)，也为没有 git 主机账户的用户提供服务
 * **claude.ai 组织设置**：[通过组织设置分发](#distribute-through-organization-settings)，你的用户的 git 凭证不涉及
 
 ## 保持用户最新
@@ -177,17 +177,17 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 后台自动更新默认对你的 marketplace 关闭，`marketplace.json` 没有字段来打开它。用户或管理员打开它：
 
 * **告诉用户打开它**：每个用户进入 `/plugin` 中的 **Marketplaces**，选择你的 marketplace，并选择 **启用自动更新**。
-* **要求管理员设置它**：如果管理员在托管设置中的你的 marketplace 的 `extraKnownMarketplaces` 条目上设置 `"autoUpdate": true`，它对接收这些设置的每个人都打开。请参阅 [设置更新策略](/docs/zh-CN/plugins/org.md#set-update-policy)。
+* **要求管理员设置它**：如果管理员在托管设置中的你的 marketplace 的 `extraKnownMarketplaces` 条目上设置 `"autoUpdate": true`，它对接收这些设置的每个人都打开。请参阅 [设置更新策略](https://code.claude.com/docs/zh-CN/plugins/org.md#set-update-policy)。
 
 没有自动更新，用户在会话中运行 `/plugin marketplace update <name>` 或在 shell 中运行 `claude plugin update <plugin>@<name>` 时接收你的更改。
 
-对于用户在更新到达他们时看到的内容，请参阅 [自动更新何时运行](/docs/zh-CN/plugins/loading.md#when-auto-update-runs)。
+对于用户在更新到达他们时看到的内容，请参阅 [自动更新何时运行](https://code.claude.com/docs/zh-CN/plugins/loading.md#when-auto-update-runs)。
 
 ### 发布新版本
 
-要向用户发布新版本，更改插件的 `version`。用户只有在插件的计算版本与他们拥有的版本不同时才获得新副本。该版本首先来自 `plugin.json`，然后来自 marketplace 条目，根据 [版本和更新](/docs/zh-CN/plugins/loading.md#versions-and-updates)。
+要向用户发布新版本，更改插件的 `version`。用户只有在插件的计算版本与他们拥有的版本不同时才获得新副本。该版本首先来自 `plugin.json`，然后来自 marketplace 条目，根据 [版本和更新](https://code.claude.com/docs/zh-CN/plugins/loading.md#versions-and-updates)。
 
-如果用户从通过本地路径添加的市场中[就地加载](/docs/zh-CN/plugins/loading.md#find-plugins-on-disk)插件，该插件不受 `version` 控制。无论其版本字符串是什么，它都会在每次会话启动时加载您当前的文件。
+如果用户从通过本地路径添加的市场中[就地加载](https://code.claude.com/docs/zh-CN/plugins/loading.md#find-plugins-on-disk)插件，该插件不受 `version` 控制。无论其版本字符串是什么，它都会在每次会话启动时加载您当前的文件。
 
 对于除了就地加载或来自 `command` 源的安装之外的每次安装，要么在每次发布时增加 `version`，要么省略它：
 
@@ -200,19 +200,19 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 一个 marketplace 一次为每个插件提供一个版本，所以你通过选择每个条目指向什么来将用户保持在一个版本上：
 
-* **插件条目上的 `ref` 和 `sha`**：`ref` 命名分支或标签，`sha` 为 `github`、`url` 或 `git-subdir` 源命名提交。请参阅 [插件源](/docs/zh-CN/plugins/marketplace-reference.md#plugin-sources)。
+* **插件条目上的 `ref` 和 `sha`**：`ref` 命名分支或标签，`sha` 为 `github`、`url` 或 `git-subdir` 源命名提交。请参阅 [插件源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#plugin-sources)。
 * **添加命令上的 `#<ref>`**：添加 `your-org/your-marketplace#stable` 的用户获得该目录的分支或标签。对于两条发布线同时进行，请参阅 [运行发布渠道](#run-release-channels)。
-* **`<plugin>--v<version>` 标签**：依赖的版本范围针对这些标签解析。请参阅 [发布其他人依赖的插件](/docs/zh-CN/plugins/dependencies.md#tag-plugin-releases-for-version-resolution)。
+* **`<plugin>--v<version>` 标签**：依赖的版本范围针对这些标签解析。请参阅 [发布其他人依赖的插件](https://code.claude.com/docs/zh-CN/plugins/dependencies.md#tag-plugin-releases-for-version-resolution)。
 
 [发布新版本](#release-a-new-version) 说明更改的条目何时到达用户。
 
 ### 更改命令源的命令
 
-如果你更改 [`command` 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source) 的 `command`，或切换其 `mode`，每个用户必须在 Claude Code 运行它之前接受新命令。Claude Code 仅运行用户在安装或最后更新插件时接受的确切命令。
+如果你更改 [`command` 源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#command-plugin-source) 的 `command`，或切换其 `mode`，每个用户必须在 Claude Code 运行它之前接受新命令。Claude Code 仅运行用户在安装或最后更新插件时接受的确切命令。
 
 在用户的 marketplace 副本获取更改后，该用户看到以下内容：
 
-* **不再有后台运行**：该用户的命令的 [每会话一次运行](/docs/zh-CN/plugins/loading.md#when-a-command-source-re-runs) 停止，因此工具的新输出不会到达他们。
+* **不再有后台运行**：该用户的命令的 [每会话一次运行](https://code.claude.com/docs/zh-CN/plugins/loading.md#when-a-command-source-re-runs) 停止，因此工具的新输出不会到达他们。
 * **`/plugin` 错误选项卡中的条目**：条目显示新命令和要运行的 `claude plugin update` 命令。
 
 告诉用户在终端中运行该条目显示的 `claude plugin update` 命令。Claude Code 向他们显示新命令并要求他们接受它。
@@ -247,7 +247,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 给两个 ref 不同的 `plugin.json` 版本，或省略 `version` 以便提交 SHA 区分它们。更新通过比较版本检测，所以在没有版本改变的情况下移动的 ref 将用户留在缓存副本上。
 
-要将渠道分配给用户组而不是让用户选择，管理员给每个组匹配的 `extraKnownMarketplaces` 条目，如 [设置更新策略](/docs/zh-CN/plugins/org.md#set-update-policy) 中所述。
+要将渠道分配给用户组而不是让用户选择，管理员给每个组匹配的 `extraKnownMarketplaces` 条目，如 [设置更新策略](https://code.claude.com/docs/zh-CN/plugins/org.md#set-update-policy) 中所述。
 
 ## 重命名或删除插件
 
@@ -257,7 +257,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 ### 使用重命名映射迁移用户
 
-当您必须更改 `name` 时，向 `marketplace.json` 添加顶级 `renames` 映射，以便 Claude Code 迁移现有用户，而不是报告 [`Plugin "<name>" not found in marketplace`](/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace)。当您从 `plugins` 中删除条目时也应这样做。
+当您必须更改 `name` 时，向 `marketplace.json` 添加顶级 `renames` 映射，以便 Claude Code 迁移现有用户，而不是报告 [`Plugin "<name>" not found in marketplace`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-not-found-in-marketplace)。当您从 `plugins` 中删除条目时也应这样做。
 
 将每个前名称映射到其当前名称，或在插件消失时映射到 `null`。此 marketplace 将 `formatter` 重命名为 `code-formatter` 并记录 `legacy-linter` 被删除：
 
@@ -281,7 +281,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 * **`null` 条目**：旧键从这些范围中删除，用户看到 `Removed from the "your-marketplace" marketplace`。
 * **在托管设置中启用**：插件仍然在其新名称下加载，但 Claude Code 无法重写托管设置，所以通知重复出现，直到管理员在那里更新 `enabledPlugins`。
 
-对于用户从 git 仓库或 URL 添加的 marketplace，重命名的插件报告 [`Plugin "<name>" not cached at <path>`](/docs/zh-CN/plugins/troubleshooting#plugin-not-cached-at)，直到用户在会话中运行 `/plugin install code-formatter@your-marketplace` 一次。
+对于用户从 git 仓库或 URL 添加的 marketplace，重命名的插件报告 [`Plugin "<name>" not cached at <path>`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-not-cached-at)，直到用户在会话中运行 `/plugin install code-formatter@your-marketplace` 一次。
 
 将 `renames` 视为仅追加历史。在每个人迁移后保持旧条目。当你再次重命名时，添加第二个条目而不是编辑第一个，因为 Claude Code 遵循从最旧名称的链。
 
@@ -297,14 +297,14 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 ## 认证存档下载
 
-要认证 [`archive`](/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source) 下载，如从私有注册表下载，设置 Claude Code 随其发送的 HTTP 标头。你可以在以下任一位置设置 `headers`：
+要认证 [`archive`](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source) 下载，如从私有注册表下载，设置 Claude Code 随其发送的 HTTP 标头。你可以在以下任一位置设置 `headers`：
 
-* **Marketplace 的 `url` 源**：你注册 marketplace 的 `url` 源，如 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 条目。
+* **Marketplace 的 `url` 源**：你注册 marketplace 的 `url` 源，如 [`extraKnownMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#extraknownmarketplaces) 条目。
 * **插件的条目**：在 Claude Code v2.1.238 或更高版本上，你可以改为在插件的 `marketplace.json` 条目上设置它，在 `source` 旁边。
 
 在任一位置，当值是短期的（如你的注册表生成的令牌）时，设置 `headersHelper` 命令而不是 `headers`。Claude Code 运行命令并将其打印的 JSON 对象作为该位置的标头发送。需要 Claude Code v2.1.238 或更高版本。
 
-[marketplace 参考](/docs/zh-CN/plugins/marketplace-reference.md#plugin-entries) 列出 `headers` 和 `headersHelper` 条目字段。
+[marketplace 参考](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#plugin-entries) 列出 `headers` 和 `headersHelper` 条目字段。
 
 你选择的位置决定哪些下载获得标头以及 Claude Code 何时运行命令：
 
@@ -317,7 +317,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 ### 向插件条目添加 headersHelper
 
-此条目在 `source` 旁边设置 `headersHelper`。它也设置 [`"strict": false`](/docs/zh-CN/plugins/marketplace-reference#strict-mode)，Claude Code 要求设置 `headersHelper` 的 `marketplace.json` 条目：
+此条目在 `source` 旁边设置 `headersHelper`。它也设置 [`"strict": false`](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#strict-mode)，Claude Code 要求设置 `headersHelper` 的 `marketplace.json` 条目：
 
 ```json theme={null}
 {
@@ -340,8 +340,8 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 * **命令文本**：最多 500 个可打印 ASCII 字符，没有四个或更多空格的运行。
 * **输出**：在 stdout 上打印一个标头名称和字符串值的 JSON 对象，然后在 10 秒内退出 0。
-* **Shell 和工作目录**：Claude Code 通过 `sh` 运行命令，或在 Windows 上通过 `cmd.exe`。工作目录是配置目录，即 `~/.claude` 或 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars#variables)。给出绝对路径或 `PATH` 上的命令，因为相对路径针对该目录解析，而不是用户的项目。
-* **Claude Code 删除的变量**：当命令在 `marketplace.json` 条目中设置，或在项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置时，Claude Code 从环境中删除每个名称看起来像凭证的变量，通过 [它应用于 MCP `headersHelper` 的相同规则](/docs/zh-CN/mcp#which-variables-a-helper-can-read)。`ANTHROPIC_API_KEY` 和 `MY_REGISTRY_TOKEN` 都被删除，所以让命令从文件或凭证存储读取其凭证。此删除不适用于在用户设置、`--settings` 文件或托管设置中设置的命令。
+* **Shell 和工作目录**：Claude Code 通过 `sh` 运行命令，或在 Windows 上通过 `cmd.exe`。工作目录是配置目录，即 `~/.claude` 或 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars#variables)。给出绝对路径或 `PATH` 上的命令，因为相对路径针对该目录解析，而不是用户的项目。
+* **Claude Code 删除的变量**：当命令在 `marketplace.json` 条目中设置，或在项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置时，Claude Code 从环境中删除每个名称看起来像凭证的变量，通过 [它应用于 MCP `headersHelper` 的相同规则](https://code.claude.com/docs/zh-CN/mcp#which-variables-a-helper-can-read)。`ANTHROPIC_API_KEY` 和 `MY_REGISTRY_TOKEN` 都被删除，所以让命令从文件或凭证存储读取其凭证。此删除不适用于在用户设置、`--settings` 文件或托管设置中设置的命令。
 * **Claude Code 设置的变量**：对于 `url` 源的命令为 `CLAUDE_CODE_MARKETPLACE_URL` 和 `CLAUDE_CODE_MARKETPLACE_NAME`，对于条目的命令为 `CLAUDE_CODE_PLUGIN_NAME` 和 `CLAUDE_CODE_PLUGIN_ARCHIVE_URL`。`CLAUDE_CODE_MARKETPLACE_NAME` 在用户通过 URL 添加 marketplace 后的第一次获取时未设置，因为该获取是提供名称的。
 
 铸造承载令牌的命令打印像这样的对象：
@@ -357,9 +357,9 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 * **命令失败**：如果命令退出非零、运行超过 10 秒或打印除 JSON 对象的字符串值以外的任何内容，命令运行的获取或下载不会发生。
 * **Marketplace URL 不以 `https://` 开头**：该 `url` 源的命令不运行，请求仅携带其 `headers` 字段中列出的标头。
 * **重定向离开源**：当下载被重定向离开存档 URL 的源时，重定向的请求不携带来自 marketplace `url` 源或插件条目的 `headers` 值或命令输出。
-* **条目设置路由或身份标头**：Claude Code 从条目的 `headers` 和命令输出中删除请求路由和客户端身份名称，如 `Host`、`Cookie` 和 `X-Forwarded-*`，并保持认证名称，如 `Authorization`。每个 `marketplace.json` 条目都以这种方式过滤。对于设置中的内联插件条目，请参阅 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces)。
-* **命令在 `--add-dir` 目录的设置中设置**：命令被忽略，在 `url` 源和 [内联插件条目](/docs/zh-CN/settings-reference.md#extraknownmarketplaces) 上，仅该文件的 `headers` 被发送。
-* **托管设置阻止命令**：将 [`disableCommandPluginSources`](/docs/zh-CN/settings-reference#disablecommandpluginsources) 设置为 `true` 阻止 `headersHelper` 命令，[`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly) 也阻止它们，除非 `disableCommandPluginSources` 明确为 `false`。在任一块下，Claude Code 仍然为托管设置本身声明的 marketplace 运行命令。
+* **条目设置路由或身份标头**：Claude Code 从条目的 `headers` 和命令输出中删除请求路由和客户端身份名称，如 `Host`、`Cookie` 和 `X-Forwarded-*`，并保持认证名称，如 `Authorization`。每个 `marketplace.json` 条目都以这种方式过滤。对于设置中的内联插件条目，请参阅 [`extraKnownMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#extraknownmarketplaces)。
+* **命令在 `--add-dir` 目录的设置中设置**：命令被忽略，在 `url` 源和 [内联插件条目](https://code.claude.com/docs/zh-CN/settings-reference.md#extraknownmarketplaces) 上，仅该文件的 `headers` 被发送。
+* **托管设置阻止命令**：将 [`disableCommandPluginSources`](https://code.claude.com/docs/zh-CN/settings-reference#disablecommandpluginsources) 设置为 `true` 阻止 `headersHelper` 命令，[`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 也阻止它们，除非 `disableCommandPluginSources` 明确为 `false`。在任一块下，Claude Code 仍然为托管设置本身声明的 marketplace 运行命令。
 
 ### 用户如何接受 headersHelper 命令
 
@@ -369,9 +369,9 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 * **终端会话**：从 `/plugin` 中该插件自己的视图。
 * **Shell**：使用 `claude plugin install` 或 `claude plugin update`。
-* **VS Code 扩展**：从 [**Manage plugins** 对话框](/docs/zh-CN/vs-code.md#manage-plugins)，需要扩展版本 2.1.290 或更高版本。
+* **VS Code 扩展**：从 [**Manage plugins** 对话框](https://code.claude.com/docs/zh-CN/vs-code.md#manage-plugins)，需要扩展版本 2.1.290 或更高版本。
 
-在非交互式 shell 中，传递 [`--yes`](/docs/zh-CN/plugins/cli-reference#plugin-install) 以接受命令。要仅接受之前 `--json` 运行显示的命令，传递 [`--accept-command`](/docs/zh-CN/plugins/cli-reference#plugin-install) 与运行报告的 `sha256`。
+在非交互式 shell 中，传递 [`--yes`](https://code.claude.com/docs/zh-CN/plugins/cli-reference#plugin-install) 以接受命令。要仅接受之前 `--json` 运行显示的命令，传递 [`--accept-command`](https://code.claude.com/docs/zh-CN/plugins/cli-reference#plugin-install) 与运行报告的 `sha256`。
 
 Claude Code 仅针对它显示的存档 URL 运行它显示的命令。如果条目的命令或存档 URL 在此期间发生了变化，Claude Code 会拒绝安装或更新。仅查询字符串的更改不计在内，但在 VS Code 扩展中或使用 `--accept-command` 时除外。
 
@@ -384,15 +384,15 @@ Claude Code 仅针对它显示的存档 URL 运行它显示的命令。如果条
 
 ### 当 marketplace `url` 源的命令运行时
 
-你在设置文件中声明 marketplace `url` 源的 `headersHelper`，如 [`extraKnownMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 条目，而不是在 marketplace 发布的目录中。Claude Code 因此不会在每次安装或更新时要求用户接受它。相反，声明它的设置文件决定 Claude Code 何时运行它：
+你在设置文件中声明 marketplace `url` 源的 `headersHelper`，如 [`extraKnownMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#extraknownmarketplaces) 条目，而不是在 marketplace 发布的目录中。Claude Code 因此不会在每次安装或更新时要求用户接受它。相反，声明它的设置文件决定 Claude Code 何时运行它：
 
 | 设置文件 | Claude Code 何时运行命令 |
 | :- | :- |
 | 用户设置、`--settings` 文件或机器上的托管设置文件 | 不询问，包括在后台 marketplace 刷新期间 |
-| 项目的 `.claude/settings.json` 或 `.claude/settings.local.json` | 仅在用户接受该文件夹本身的 [工作区信任对话](/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 后。`-p` 或 SDK 会话不计为接受它，对父文件夹授予的信任也不计 |
-| 服务器托管设置 | 在交互式会话中，仅在用户在 [安全批准对话](/docs/zh-CN/server-managed-settings.md#security-approval-dialogs) 中批准交付的设置后 |
+| 项目的 `.claude/settings.json` 或 `.claude/settings.local.json` | 仅在用户接受该文件夹本身的 [工作区信任对话](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 后。`-p` 或 SDK 会话不计为接受它，对父文件夹授予的信任也不计 |
+| 服务器托管设置 | 在交互式会话中，仅在用户在 [安全批准对话](https://code.claude.com/docs/zh-CN/server-managed-settings.md#security-approval-dialogs) 中批准交付的设置后 |
 
-对于这些文件中的 [内联插件条目](/docs/zh-CN/settings-reference.md#extraknownmarketplaces)，Claude Code 要求与该文件中 marketplace 级别命令相同的文件夹信任或设置批准，用户也在每次安装或更新时接受条目的命令。
+对于这些文件中的 [内联插件条目](https://code.claude.com/docs/zh-CN/settings-reference.md#extraknownmarketplaces)，Claude Code 要求与该文件中 marketplace 级别命令相同的文件夹信任或设置批准，用户也在每次安装或更新时接受条目的命令。
 
 ## 依赖和推荐其他插件
 
@@ -401,16 +401,16 @@ Claude Code 仅针对它显示的存档 URL 运行它显示的命令。如果条
 * **版本范围**：依赖可以携带 semver 范围。
 * **跨 marketplace 依赖**：来自另一个 marketplace 的依赖仅在你的 marketplace 在 `allowCrossMarketplaceDependenciesOn` 中列出该 marketplace 时安装。
 
-对于版本范围、它们解析的 `<plugin>--v<version>` git 标签约定和跨 marketplace 信任，请参阅 [插件依赖](/docs/zh-CN/plugins/dependencies.md)。
+对于版本范围、它们解析的 `<plugin>--v<version>` git 标签约定和跨 marketplace 信任，请参阅 [插件依赖](https://code.claude.com/docs/zh-CN/plugins/dependencies.md)。
 
-要在项目匹配时让 Claude Code 建议插件，向条目添加 `relevance` 块，其中包含识别项目的信号。用户仅在管理员在 `pluginSuggestionMarketplaces` 中列出你的 marketplace 时才看到来自你的 marketplace 的建议。对于信号和启用步骤，请参阅 [插件相关性](/docs/zh-CN/plugins/relevance.md)。
+要在项目匹配时让 Claude Code 建议插件，向条目添加 `relevance` 块，其中包含识别项目的信号。用户仅在管理员在 `pluginSuggestionMarketplaces` 中列出你的 marketplace 时才看到来自你的 marketplace 的建议。对于信号和启用步骤，请参阅 [插件相关性](https://code.claude.com/docs/zh-CN/plugins/relevance.md)。
 
 ## 解决 marketplace 无法做的事情
 
 一些所有者要求的东西在 `marketplace.json` 中没有字段。以下是每个的最接近选项：
 
-* **限制用户安装的其他内容**：marketplace 允许列表是托管设置 `strictKnownMarketplaces`。请参阅 [限制用户可以安装的内容](/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)。
-* **在用户询问之前安装或启用插件**：没有条目字段安装插件。托管 `enabledPlugins` 为一个舰队执行此操作；请参阅 [预安装和要求插件](/docs/zh-CN/plugins/org.md#pre-install-and-require-plugins)。
+* **限制用户安装的其他内容**：marketplace 允许列表是托管设置 `strictKnownMarketplaces`。请参阅 [限制用户可以安装的内容](https://code.claude.com/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)。
+* **在用户询问之前安装或启用插件**：没有条目字段安装插件。托管 `enabledPlugins` 为一个舰队执行此操作；请参阅 [预安装和要求插件](https://code.claude.com/docs/zh-CN/plugins/org.md#pre-install-and-require-plugins)。
 * **向不同用户显示不同的条目**：条目不携带受众字段，添加 marketplace 的每个用户看到整个目录。为不同的受众托管单独的 marketplace。
 * **标记插件已弃用**：没有弃用状态。选项是删除条目，在 `renames` 中将其名称映射到 `null`，并可选地设置 `forceRemoveDeletedPlugins`。
 * **为你的用户打开自动更新**：每个用户在 `/plugin` 中的 **Marketplaces** 下打开它，或管理员在托管设置中设置 `autoUpdate`。请参阅 [打开自动更新](#turn-on-auto-update)。
@@ -418,7 +418,7 @@ Claude Code 仅针对它显示的存档 URL 运行它显示的命令。如果条
 
 ## 后续步骤
 
-* [Marketplace 参考](/docs/zh-CN/plugins/marketplace-reference.md)：`marketplace.json` 字段、源类型和验证消息
-* [为你的组织管理插件](/docs/zh-CN/plugins/org.md)：在你的组织的机器上要求、限制或播种你的 marketplace
-* [插件依赖](/docs/zh-CN/plugins/dependencies.md)：标记发布，以便依赖你的插件的插件可以解析版本
-* [排查插件问题](/docs/zh-CN/plugins/troubleshooting.md)：你的用户在从你的 marketplace 添加或更新时看到的错误
+* [Marketplace 参考](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md)：`marketplace.json` 字段、源类型和验证消息
+* [为你的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)：在你的组织的机器上要求、限制或播种你的 marketplace
+* [插件依赖](https://code.claude.com/docs/zh-CN/plugins/dependencies.md)：标记发布，以便依赖你的插件的插件可以解析版本
+* [排查插件问题](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md)：你的用户在从你的 marketplace 添加或更新时看到的错误

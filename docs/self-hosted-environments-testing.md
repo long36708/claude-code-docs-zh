@@ -8,15 +8,15 @@
 
 > [!NOTE]
 >
-> 自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段；[可用性和限制](/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖启用路径。本页面是 CI 测试方案；有关设置，请参阅[快速入门](/docs/zh-CN/self-hosted-environments-quickstart.md)，有关群组方案，请参阅[部署到生产环境](/docs/zh-CN/self-hosted-environments-deploy.md)。
+> 自托管环境在 Team 和 Enterprise 计划上处于公开测试阶段；[可用性和限制](https://code.claude.com/docs/zh-CN/self-hosted-environments#availability-and-limitations)涵盖启用路径。本页面是 CI 测试方案；有关设置，请参阅[快速入门](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md)，有关群组方案，请参阅[部署到生产环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md)。
 
-在[自托管环境](/docs/zh-CN/self-hosted-environments)中，Claude Code [云会话](/docs/zh-CN/claude-code-on-the-web.md)在您构建和维护的运行器镜像上运行。在将新镜像推送到生产环境之前，从脚本对测试环境驱动完整会话：创建会话、读取 Claude 的回复、发送后续问题，并读取该回复。这是 CI 烟雾测试的形式，用于验证您的运行器镜像、git 访问和任何自定义工具，然后再推广更改。
+在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中，Claude Code [云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)在您构建和维护的运行器镜像上运行。在将新镜像推送到生产环境之前，从脚本对测试环境驱动完整会话：创建会话、读取 Claude 的回复、发送后续问题，并读取该回复。这是 CI 烟雾测试的形式，用于验证您的运行器镜像、git 访问和任何自定义工具，然后再推广更改。
 
-此方案假设您已经[设置了环境和运行器](/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-an-environment-and-runner)，并且您的 CI 作业在与测试脚本相同的主机上启动运行器进程，这是测试新运行器镜像的自然设置。您在运行器上安装的 Stop hook 将每个回合的最终回复写入本地文件，脚本从那里读取它，因此对 Anthropic API 的唯一调用是两个分派本身。如果您的测试运行器在单独的基础设施上，请参阅[远程测试运行器](#remote-test-runners)。
+此方案假设您已经[设置了环境和运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-an-environment-and-runner)，并且您的 CI 作业在与测试脚本相同的主机上启动运行器进程，这是测试新运行器镜像的自然设置。您在运行器上安装的 Stop hook 将每个回合的最终回复写入本地文件，脚本从那里读取它，因此对 Anthropic API 的唯一调用是两个分派本身。如果您的测试运行器在单独的基础设施上，请参阅[远程测试运行器](#remote-test-runners)。
 
 ## 在测试运行器上安装捕获 hook
 
-读回通过 Claude Code [Stop hook](/docs/zh-CN/hooks.md#stop)工作：当 Claude 完成一个回合时，hook 在其 stdin JSON 中接收最终助手消息作为 `last_assistant_message`，并将其附加到 `$E2E_REPLY_DIR/<session_id>.txt`。以与[commit-nudge Stop hook](/docs/zh-CN/self-hosted-environments-configuration.md#prompt-sessions-to-push-their-work)相同的方式安装它，在运行器主机的 `~/.claude/` 上，运行器将其种子化到每个会话中。
+读回通过 Claude Code [Stop hook](https://code.claude.com/docs/zh-CN/hooks.md#stop)工作：当 Claude 完成一个回合时，hook 在其 stdin JSON 中接收最终助手消息作为 `last_assistant_message`，并将其附加到 `$E2E_REPLY_DIR/<session_id>.txt`。以与[commit-nudge Stop hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#prompt-sessions-to-push-their-work)相同的方式安装它，在运行器主机的 `~/.claude/` 上，运行器将其种子化到每个会话中。
 
 ### 保存 hook 文件
 
@@ -84,14 +84,14 @@ hook 有以下要求：
    * **会话创建失败**：输出 `{"ok":false,"error":"..."}` 这一行，并且命令以状态 1 退出
    * **某些较早发生的错误**，例如您的组织无法使用云端会话或缺少提示词：错误输出到 stderr，不输出 JSON 行，并且命令以状态 1 退出
 2. 等待回复出现在 `$E2E_REPLY_DIR/<session_id>.txt` 中，由运行器上的 Stop hook 在回合完成后写入。
-3. 使用 `claude -p "<message>" --cloud <session_id> --output-format json` 发送后续消息（请参阅[向运行中的会话发送后续消息](/docs/zh-CN/claude-code-on-the-web.md#send-follow-ups-from-the-cli)），它将用户事件发布到现有会话并退出。
+3. 使用 `claude -p "<message>" --cloud <session_id> --output-format json` 发送后续消息（请参阅[向运行中的会话发送后续消息](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-follow-ups-from-the-cli)），它将用户事件发布到现有会话并退出。
 4. 以与步骤 2 相同的方式等待后续回复。
 
 ### `--environment` 分派行为
 
 Claude Code 创建会话，打印会话 ID 和指向它的链接，然后退出。
 
-该标志优先于 [`remote.defaultEnvironmentId`](/docs/zh-CN/settings-reference#remote-defaultenvironmentid) 设置。它不支持 `--output-format stream-json`，不能与恢复、附加到或预配置会话的标志组合，例如 `--resume`、`--continue`、`--teleport`、`--session-id` 或 `--init-only`。`--cloud` 在使用会话 ID 或 URL 时被拒绝，在非交互式运行中当它带有描述时也被拒绝。裸 `--cloud` 被视为不存在。从终端，您可以将任务作为 `--cloud` 描述而不是位置提示传递。
+该标志优先于 [`remote.defaultEnvironmentId`](https://code.claude.com/docs/zh-CN/settings-reference#remote-defaultenvironmentid) 设置。它不支持 `--output-format stream-json`，不能与恢复、附加到或预配置会话的标志组合，例如 `--resume`、`--continue`、`--teleport`、`--session-id` 或 `--init-only`。`--cloud` 在使用会话 ID 或 URL 时被拒绝，在非交互式运行中当它带有描述时也被拒绝。裸 `--cloud` 被视为不存在。从终端，您可以将任务作为 `--cloud` 描述而不是位置提示传递。
 
 ## 示例脚本
 
@@ -198,15 +198,15 @@ exit 0
 
 ### 长期 CI 主机
 
-在执行脚本的机器上使用专用自动化用户帐户交互式运行一次 `claude auth login`。Claude Code 在 macOS 上将令牌存储在 OS 密钥链中，或在 Linux 和 Windows 上存储在 `~/.claude/.credentials.json` 中。在 macOS 主机上，其密钥链无法写入（如 SSH 会话中的典型情况，其中登录密钥链保持锁定），Claude Code 也将令牌存储在 `~/.claude/.credentials.json` 中。请参阅[凭证管理](/docs/zh-CN/authentication.md#credential-management)。
+在执行脚本的机器上使用专用自动化用户帐户交互式运行一次 `claude auth login`。Claude Code 在 macOS 上将令牌存储在 OS 密钥链中，或在 Linux 和 Windows 上存储在 `~/.claude/.credentials.json` 中。在 macOS 主机上，其密钥链无法写入（如 SSH 会话中的典型情况，其中登录密钥链保持锁定），Claude Code 也将令牌存储在 `~/.claude/.credentials.json` 中。请参阅[凭证管理](https://code.claude.com/docs/zh-CN/authentication.md#credential-management)。
 
 CLI 在每次调用时自动刷新短期访问令牌，但基础刷新令牌授予从初始登录起限制为 30 天，因此每 30 天在该主机上交互式重新运行一次 `claude auth login`。
 
 ### 临时 CI 运行器
 
-目前没有针对此的长期 CI 令牌。授予云会话控制的范围 `user:sessions:claude_code` 在服务器端限制为 30 天，因此 `claude setup-token`（它铸造一年推理令牌）不涵盖它。[环境秘密](/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-an-environment-and-runner)也不被接受，因为它仅授权运行器向环境注册，而不是创建会话。
+目前没有针对此的长期 CI 令牌。授予云会话控制的范围 `user:sessions:claude_code` 在服务器端限制为 30 天，因此 `claude setup-token`（它铸造一年推理令牌）不涵盖它。[环境秘密](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-an-environment-and-runner)也不被接受，因为它仅授权运行器向环境注册，而不是创建会话。
 
-要在临时运行器上配置存储的登录，请设置 [`CLAUDE_CODE_OAUTH_REFRESH_TOKEN` 和 `CLAUDE_CODE_OAUTH_SCOPES`](/docs/zh-CN/env-vars#variables)，以便 `claude auth login` 交换令牌而不需要浏览器；相同的 30 天上限适用于刷新授予。如果您需要不受人类帐户约束的机器身份路径，请联系您的 Anthropic 帐户团队。
+要在临时运行器上配置存储的登录，请设置 [`CLAUDE_CODE_OAUTH_REFRESH_TOKEN` 和 `CLAUDE_CODE_OAUTH_SCOPES`](https://code.claude.com/docs/zh-CN/env-vars#variables)，以便 `claude auth login` 交换令牌而不需要浏览器；相同的 30 天上限适用于刷新授予。如果您需要不受人类帐户约束的机器身份路径，请联系您的 Anthropic 帐户团队。
 
 ## 创建专用测试环境
 
@@ -235,7 +235,7 @@ ENVIRONMENT_ID=$(jq -er .pool.pool_id <<<"$create")
 ENVIRONMENT_SECRET=$(jq -er .pool_secret <<<"$create")
 ```
 
-在[所有者为组织启用**允许自托管环境**](/docs/zh-CN/self-hosted-environments#availability-and-limitations)之前，调用失败，出现 `403` `permission_error`，读取 `self-hosted runners are disabled by your organization's policy`。
+在[所有者为组织启用**允许自托管环境**](https://code.claude.com/docs/zh-CN/self-hosted-environments#availability-and-limitations)之前，调用失败，出现 `403` `permission_error`，读取 `self-hosted runners are disabled by your organization's policy`。
 
 在此主机上启动运行器，使用 `SELF_HOSTED_RUNNER_ENVIRONMENT_SECRET=$ENVIRONMENT_SECRET`，加上捕获 hook 和 `E2E_REPLY_DIR`，根据[在测试运行器上安装捕获 hook](#install-the-capture-hook-on-your-test-runner)，然后运行测试脚本。
 

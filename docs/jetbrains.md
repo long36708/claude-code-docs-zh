@@ -23,7 +23,7 @@ Claude Code 插件适用于大多数 JetBrains IDE，包括：
 
 * **快速启动**：使用 `Cmd+Esc`（Mac）或 `Ctrl+Esc`（Windows/Linux）直接从编辑器打开 Claude Code，或点击 UI 中的 Claude Code 按钮
 * **差异查看**：Claude Code 在 IDE 差异查看器中打开代码更改，而不是在终端中；使用 `/config` 中的 **Diff tool** 设置更改此行为
-* **选择上下文**：IDE 中的当前选择或标签页会自动与 Claude Code 共享。[`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)会阻止对匹配文件的此共享
+* **选择上下文**：IDE 中的当前选择或标签页会自动与 Claude Code 共享。[`Read` 拒绝规则](https://code.claude.com/docs/zh-CN/permissions#read-and-edit)会阻止对匹配文件的此共享
 * **文件引用快捷方式**：使用 `Cmd+Option+K`（Mac）或 `Alt+Ctrl+K`（Linux/Windows）插入文件引用，例如 `@src/auth.ts#L1-99`
 * **诊断共享**：Claude 通过调用 [`getDiagnostics` 工具](#the-built-in-ide-mcp-server)读取 IDE 的检查诊断，例如 lint 和语法错误；Claude Code 在编辑后不会自行从插件请求诊断
 
@@ -33,7 +33,7 @@ Claude Code 插件适用于大多数 JetBrains IDE，包括：
 
 **1. 安装 Claude Code CLI**
 
-如果您还没有安装 CLI，请按照[快速入门](/docs/zh-CN/quickstart.md)进行安装。当 `claude` 不在您的 PATH 中时，插件会显示"无法启动 Claude Code"通知。
+如果您还没有安装 CLI，请按照[快速入门](https://code.claude.com/docs/zh-CN/quickstart.md)进行安装。当 `claude` 不在您的 PATH 中时，插件会显示"无法启动 Claude Code"通知。
 
 **2. 安装 JetBrains 插件**
 
@@ -41,7 +41,7 @@ Claude Code 插件适用于大多数 JetBrains IDE，包括：
 
 如果 `claude` 安装在您的 IDE 找不到的位置，请在插件的 [Claude 命令设置](#general-settings)中设置完整路径。
 
-Claude Code 适用于任何付费 Claude 订阅（Pro、Max、Team 或 Enterprise）或 Claude Console 账户，无需 API 密钥。首次运行 `claude` 时，系统会提示您[登录](/docs/zh-CN/authentication.md#log-in-to-claude-code)。
+Claude Code 适用于任何付费 Claude 订阅（Pro、Max、Team 或 Enterprise）或 Claude Console 账户，无需 API 密钥。首次运行 `claude` 时，系统会提示您[登录](https://code.claude.com/docs/zh-CN/authentication.md#log-in-to-claude-code)。
 
 ## 使用
 
@@ -75,7 +75,7 @@ claude
 2. 输入 `/config` 命令
 3. 将**差异工具**设置为 `auto` 以在 IDE 中显示差异，或设置为 `terminal` 以在终端中保留它们
 
-**差异工具**条目仅在 Claude Code 连接到 IDE 时才会出现在 `/config` 中，因此请从 JetBrains 终端运行 `claude`，或先从外部终端运行 [`/ide`](/docs/zh-CN/commands)。有关底层设置，请参阅 [`diffTool`](/docs/zh-CN/settings-reference#difftool)。
+**差异工具**条目仅在 Claude Code 连接到 IDE 时才会出现在 `/config` 中，因此请从 JetBrains 终端运行 `claude`，或先从外部终端运行 [`/ide`](https://code.claude.com/docs/zh-CN/commands)。有关底层设置，请参阅 [`diffTool`](https://code.claude.com/docs/zh-CN/settings-reference#difftool)。
 
 ### 插件设置
 
@@ -185,25 +185,25 @@ networkingMode=mirrored
 
 ## 安全考虑
 
-当 Claude Code 在 JetBrains IDE 中以 [`acceptEdits` 权限模式](/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)运行时，它可能能够修改 IDE 配置文件，这些文件可以由您的 IDE 自动执行。这可能会增加在 `acceptEdits` 模式下运行 Claude Code 的风险，并允许绕过 Claude Code 对 Bash 执行的权限提示。
+当 Claude Code 在 JetBrains IDE 中以 [`acceptEdits` 权限模式](https://code.claude.com/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)运行时，它可能能够修改 IDE 配置文件，这些文件可以由您的 IDE 自动执行。这可能会增加在 `acceptEdits` 模式下运行 Claude Code 的风险，并允许绕过 Claude Code 对 Bash 执行的权限提示。
 
 在 JetBrains IDE 中运行时，请考虑：
 
-* 对编辑使用手动模式，因为 `acceptEdits` 和自动模式都会批准您工作目录内的编辑而不询问，除了在[受保护路径](/docs/zh-CN/permission-modes.md#protected-paths)中会询问
+* 对编辑使用手动模式，因为 `acceptEdits` 和自动模式都会批准您工作目录内的编辑而不询问，除了在[受保护路径](https://code.claude.com/docs/zh-CN/permission-modes.md#protected-paths)中会询问
 * 特别小心确保 Claude 仅与受信任的提示一起使用
 * 了解 Claude Code 有权修改哪些文件
 
-对于 IDE 外的 Claude Code 安装或登录问题，请参阅[排查安装和登录问题](/docs/zh-CN/troubleshoot-install.md)。
+对于 IDE 外的 Claude Code 安装或登录问题，请参阅[排查安装和登录问题](https://code.claude.com/docs/zh-CN/troubleshoot-install.md)。
 
 ### 内置 IDE MCP 服务器
 
 当插件处于活动状态时，它运行一个本地 MCP 服务器，CLI 会自动连接到该服务器。这是 CLI 在 IDE 的原生 diff 查看器中打开 diff、读取您当前的 `@`-提及选择以及让 Claude 读取检查诊断的方式。
 
-服务器名为 `ide`，从 `/mcp` 中隐藏，因为没有什么需要配置。但是，如果您的组织使用 [`PreToolUse` hook](/docs/zh-CN/hooks#pretooluse) 来允许列表 MCP 工具，您需要知道它的存在。
+服务器名为 `ide`，从 `/mcp` 中隐藏，因为没有什么需要配置。但是，如果您的组织使用 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#pretooluse) 来允许列表 MCP 工具，您需要知道它的存在。
 
-**选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，记录会显示一行 `⧉ Selected N lines from <file>`。如果您[在 Claude 工作时排队消息](/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works)，它会保留您按下 `Enter` 时的选择，无论您之后选择什么。
+**选择和打开文件上下文。** 连接时，CLI 会在您发送的每个提示中包含您当前的编辑器选择和活动文件的路径作为上下文。当发生这种情况时，记录会显示一行 `⧉ Selected N lines from <file>`。如果您[在 Claude 工作时排队消息](https://code.claude.com/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works)，它会保留您按下 `Enter` 时的选择，无论您之后选择什么。
 
-要排除敏感文件（如 `.env`），请为其路径添加 [`Read` 拒绝规则](/docs/zh-CN/permissions#read-and-edit)。匹配的拒绝规则可防止该文件的选定文本和打开文件通知都到达 Claude。
+要排除敏感文件（如 `.env`），请为其路径添加 [`Read` 拒绝规则](https://code.claude.com/docs/zh-CN/permissions#read-and-edit)。匹配的拒绝规则可防止该文件的选定文本和打开文件通知都到达 Claude。
 
 **传输和身份验证。** 服务器侦听 OS 分配的临时端口，该端口不可配置。传输是未加密的 `ws://`；在环回上，任何可以捕获流量的进程也可以从锁文件中读取令牌，因此 TLS 不会对本地攻击者增加保护。每次 IDE 启动都会生成一个新的随机身份验证令牌，将其写入 `~/.claude/ide/<port>.lock` 处的锁文件，CLI 必须将其作为 `X-Claude-Code-Ide-Authorization` 标头呈现才能连接。如果设置了 `CLAUDE_CONFIG_DIR`，锁文件将改为写入 `$CLAUDE_CONFIG_DIR/ide/`。
 

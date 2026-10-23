@@ -12,7 +12,7 @@ Claude 在两种情况下请求用户输入：当它需要**使用工具的权�
 
 对于澄清问题，Claude 生成问题和选项。您的角色是向用户呈现这些问题，并返回他们的选择。您不能向此流程添加自己的问题；如果您需要自己询问用户某些内容，请在应用程序逻辑中单独进行。
 
-回调可以无限期地保持待处理状态。执行保持暂停状态，直到您的回调返回。如果用户可能需要比您的进程能够合理保持运行的时间更长的时间来响应，请注册一个 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它返回 [`defer` 决定](/docs/zh-CN/hooks#defer-a-tool-call-for-later)，而不是在回调中等待，以便进程可以退出并稍后从持久化会话恢复。
+回调可以无限期地保持待处理状态。执行保持暂停状态，直到您的回调返回。如果用户可能需要比您的进程能够合理保持运行的时间更长的时间来响应，请注册一个 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks)，它返回 [`defer` 决定](https://code.claude.com/docs/zh-CN/hooks#defer-a-tool-call-for-later)，而不是在回调中等待，以便进程可以退出并稍后从持久化会话恢复。
 
 本指南向您展示如何检测每种类型的请求并做出适当的响应。
 
@@ -46,20 +46,20 @@ const options = { canUseTool: handleToolRequest };
 
 回调在两种情况下触发：
 
-1. **工具需要批准**：Claude 想要使用不被[权限规则](/docs/zh-CN/agent-sdk/permissions.md)或权限模式自动批准的工具。检查 `tool_name` 以获取工具（例如 `"Bash"`、`"Write"`）。
+1. **工具需要批准**：Claude 想要使用不被[权限规则](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)或权限模式自动批准的工具。检查 `tool_name` 以获取工具（例如 `"Bash"`、`"Write"`）。
 2. **Claude 提出问题**：Claude 调用 `AskUserQuestion` 工具。检查 `tool_name == "AskUserQuestion"` 以不同方式处理它。如果您指定 `tools` 数组，请包含 `AskUserQuestion` 以使其工作。有关详细信息，请参阅[处理澄清问题](#handle-clarifying-questions)。
 
 > [!WARNING]
 >
-> **回调永远不会对自动批准的工具触发。** [权限评估流程](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)中任何较早的批准、允许规则或 `acceptEdits` 或 `bypassPermissions` 等模式会在咨询 `canUseTool` 之前解决调用。如果您在 `allowed_tools` 中列出一个工具，仅当[评估流程](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)将调用路由回提示（例如询问规则或 `plan` 模式）时，该工具的 `canUseTool` 检查才会运行。对于必须应用于每个工具调用的逻辑，请使用 [`PreToolUse` hook](/docs/zh-CN/agent-sdk/hooks)，它在流程的其余部分之前执行，可以允许、拒绝或修改请求。
+> **回调永远不会对自动批准的工具触发。** [权限评估流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)中任何较早的批准、允许规则或 `acceptEdits` 或 `bypassPermissions` 等模式会在咨询 `canUseTool` 之前解决调用。如果您在 `allowed_tools` 中列出一个工具，仅当[评估流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)将调用路由回提示（例如询问规则或 `plan` 模式）时，该工具的 `canUseTool` 检查才会运行。对于必须应用于每个工具调用的逻辑，请使用 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks)，它在流程的其余部分之前执行，可以允许、拒绝或修改请求。
 >
-> 允许规则不会预先批准[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)；有关其中哪些到达回调以及在 `dontAsk` 和 `auto` 模式下发生的情况，请参阅[权限如何评估](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)。
+> 允许规则不会预先批准[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)；有关其中哪些到达回调以及在 `dontAsk` 和 `auto` 模式下发生的情况，请参阅[权限如何评估](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)。
 
-您还可以使用 [`PermissionRequest` hook](/docs/zh-CN/agent-sdk/hooks#available-hooks) 在 Claude 等待批准时发送外部通知（Slack、电子邮件、推送）。
+您还可以使用 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks#available-hooks) 在 Claude 等待批准时发送外部通知（Slack、电子邮件、推送）。
 
 ## 处理工具批准请求
 
-一旦您在查询选项中传递了 `canUseTool` 回调，当 Claude 想要使用不被权限流中较早步骤批准的工具时，它就会触发。在某些配置中，例如 `dontAsk` 模式，Claude Code 不会调用它；[权限如何被评估](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)的最后一步列出了它们并说明了调用会发生什么。
+一旦您在查询选项中传递了 `canUseTool` 回调，当 Claude 想要使用不被权限流中较早步骤批准的工具时，它就会触发。在某些配置中，例如 `dontAsk` 模式，Claude Code 不会调用它；[权限如何被评估](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)的最后一步列出了它们并说明了调用会发生什么。
 
 您的回调接收三个参数：
 
@@ -67,7 +67,7 @@ const options = { canUseTool: handleToolRequest };
 | - | - |
 | `toolName` | Claude 想要使用的工具的名称（例如 `"Bash"`、`"Write"`、`"Edit"`） |
 | `input` | Claude 传递给工具的参数。内容因工具而异。 |
-| `options` (TS) / `context` (Python) | 附加上下文，包括可选的 `suggestions`（建议的 `PermissionUpdate` 条目以避免重新提示）和取消信号。在 TypeScript 中，`signal` 是 `AbortSignal`；在 Python 中，信号字段保留供将来使用。有关 Python，请参阅 [`ToolPermissionContext`](/docs/zh-CN/agent-sdk/python#toolpermissioncontext)。 |
+| `options` (TS) / `context` (Python) | 附加上下文，包括可选的 `suggestions`（建议的 `PermissionUpdate` 条目以避免重新提示）和取消信号。在 TypeScript 中，`signal` 是 `AbortSignal`；在 Python 中，信号字段保留供将来使用。有关 Python，请参阅 [`ToolPermissionContext`](https://code.claude.com/docs/zh-CN/agent-sdk/python#toolpermissioncontext)。 |
 
 `input` 对象包含工具特定的参数。常见示例：
 
@@ -78,7 +78,7 @@ const options = { canUseTool: handleToolRequest };
 | `Edit` | `file_path`、`old_string`、`new_string` |
 | `Read` | `file_path`、`offset`、`limit` |
 
-有关完整的输入架构，请参阅 SDK 参考：[Python](/docs/zh-CN/agent-sdk/python.md#tool-input%2Foutput-types) | [TypeScript](/docs/zh-CN/agent-sdk/typescript.md#tool-input-types)。
+有关完整的输入架构，请参阅 SDK 参考：[Python](https://code.claude.com/docs/zh-CN/agent-sdk/python.md#tool-input%2Foutput-types) | [TypeScript](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#tool-input-types)。
 
 您可以向用户显示此信息，以便他们可以决定是否允许或拒绝该操作，然后返回适当的响应。
 
@@ -221,7 +221,7 @@ for await (const message of query({
 * **批准并记住**：回显建议的权限规则，以便匹配的调用在下次跳过提示
 * **拒绝**：阻止工具并告诉 Claude 原因
 * **建议替代方案**：阻止但指导 Claude 朝向用户想要的方向
-* **完全重定向**：使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)向 Claude 发送全新指令
+* **完全重定向**：使用[流输入](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)向 Claude 发送全新指令
 
 以下代码片段中的 `ask_user` 和 `askUser` 帮助程序代表您应用程序自己的提示 UI。
 
@@ -283,9 +283,9 @@ canUseTool: async (toolName, input) => {
 
 **批准并记住**
 
-用户批准并且不想再被询问此类调用。第三个回调参数携带 `suggestions`，一个现成的 [`PermissionUpdate`](/docs/zh-CN/agent-sdk/typescript#permissionupdate) 条目数组。在 `updatedPermissions` 中回显其中一个以应用它。带有 `localSettings` 目标的建议会将规则写入 `.claude/settings.local.json`，以便将来的会话跳过匹配调用的提示。
+用户批准并且不想再被询问此类调用。第三个回调参数携带 `suggestions`，一个现成的 [`PermissionUpdate`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#permissionupdate) 条目数组。在 `updatedPermissions` 中回显其中一个以应用它。带有 `localSettings` 目标的建议会将规则写入 `.claude/settings.local.json`，以便将来的会话跳过匹配调用的提示。
 
-在 TypeScript 中，跳过选项携带 [`suppressAlwaysAllowRule: true`](/docs/zh-CN/agent-sdk/typescript#canusetool) 的请求的始终允许选择。该提示需要 Agent SDK v0.3.268 或更高版本，Python `context` 不携带它。
+在 TypeScript 中，跳过选项携带 [`suppressAlwaysAllowRule: true`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#canusetool) 的请求的始终允许选择。该提示需要 Agent SDK v0.3.268 或更高版本，Python `context` 不携带它。
 
 Python 示例需要 `claude-agent-sdk` 0.1.80 或更高版本。
 
@@ -383,7 +383,7 @@ canUseTool: async (toolName, input) => {
 
 **完全重定向**
 
-对于完全改变方向（不仅仅是轻推），使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)向 Claude 发送新指令。这绕过当前工具请求并为 Claude 提供全新指令来遵循。
+对于完全改变方向（不仅仅是轻推），使用[流输入](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)向 Claude 发送新指令。这绕过当前工具请求并为 Claude 提供全新指令来遵循。
 
 ## 处理澄清问题
 
@@ -391,7 +391,7 @@ canUseTool: async (toolName, input) => {
 
 > [!TIP]
 >
-> 澄清问题在 [`plan` 模式](/docs/zh-CN/agent-sdk/permissions#plan-mode-plan)中特别常见，其中 Claude 探索代码库并在提出计划前提出问题。这使 plan 模式非常适合交互式工作流，您希望 Claude 在进行更改前收集需求。
+> 澄清问题在 [`plan` 模式](https://code.claude.com/docs/zh-CN/agent-sdk/permissions#plan-mode-plan)中特别常见，其中 Claude 探索代码库并在提出计划前提出问题。这使 plan 模式非常适合交互式工作流，您希望 Claude 在进行更改前收集需求。
 
 以下步骤显示如何处理澄清问题：
 
@@ -804,7 +804,7 @@ main();
 
 ### 流输入
 
-当您需要以下情况时，使用[流输入](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)：
+当您需要以下情况时，使用[流输入](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)：
 
 * **在任务中断代理**：在 Claude 工作时发送取消信号或改变方向
 * **提供额外上下文**：添加 Claude 需要的信息而无需等待它提出问题
@@ -814,7 +814,7 @@ main();
 
 ### 自定义工具
 
-当您需要以下情况时，使用[自定义工具](/docs/zh-CN/agent-sdk/custom-tools.md)：
+当您需要以下情况时，使用[自定义工具](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools.md)：
 
 * **收集结构化输入**：构建超越 `AskUserQuestion` 多选格式的表单、向导或多步工作流
 * **集成外部批准系统**：连接到现有的票务、工作流或批准平台
@@ -824,6 +824,6 @@ main();
 
 ## 相关资源
 
-* [配置权限](/docs/zh-CN/agent-sdk/permissions.md)：设置权限模式和规则
-* [使用 hooks 控制执行](/docs/zh-CN/agent-sdk/hooks.md)：在代理生命周期的关键点运行自定义代码
-* [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript.md#canusetool)：完整的 canUseTool API 文档
+* [配置权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)：设置权限模式和规则
+* [使用 hooks 控制执行](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)：在代理生命周期的关键点运行自定义代码
+* [TypeScript SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#canusetool)：完整的 canUseTool API 文档

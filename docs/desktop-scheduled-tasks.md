@@ -8,28 +8,28 @@
 
 定期任务在您选择的时间和频率自动启动新会话。使用它们进行定期工作，如日常代码审查、依赖项更新检查或从您的日历和收件箱中提取信息的早晨简报。
 
-Desktop 应用的 **Scheduled tasks** 页面会同时列出本地定时任务和[云端定时任务](/docs/zh-CN/routines.md)（原名 Routines）：
+Desktop 应用的 **Scheduled tasks** 页面会同时列出本地定时任务和[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)（原名 Routines）：
 
 * **本地任务**：在您的机器上运行，可直接访问您的文件和工具，但仅在应用打开且计算机处于唤醒状态时才会触发
 * **云端任务**：即使您的计算机关闭也可以运行，还可以通过 API 调用或 GitHub 事件启动
 
-本页面涵盖本地定时任务；有关云端定时任务及其触发选项，请参阅[使用定时任务自动化工作](/docs/zh-CN/routines.md)。
+本页面涵盖本地定时任务；有关云端定时任务及其触发选项，请参阅[使用定时任务自动化工作](https://code.claude.com/docs/zh-CN/routines.md)。
 
 ## 比较调度选项
 
 Claude Code 提供三种方式来安排定期或一次性工作：
 
-| | [Cloud](/docs/zh-CN/routines.md) | [Desktop](/docs/zh-CN/desktop-scheduled-tasks.md) | [`/loop`](/docs/zh-CN/scheduled-tasks) |
+| | [Cloud](https://code.claude.com/docs/zh-CN/routines.md) | [Desktop](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md) | [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) |
 | :- | :- | :- | :- |
 | 运行位置 | Cloud，默认由 Anthropic 管理 | 您的机器 | 您的机器 |
 | 需要机器开启 | 否 | 是 | 是 |
 | 需要打开会话 | 否 | 否 | 是 |
-| 重启后持久化 | 是 | 是 | 在 `--resume` 上恢复，有[例外](/docs/zh-CN/scheduled-tasks.md#limitations) |
+| 重启后持久化 | 是 | 是 | 在 `--resume` 上恢复，有[例外](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#limitations) |
 | 访问本地文件 | 否（新克隆） | 是 | 是 |
-| MCP servers | 每个任务配置的连接器 | [配置文件](/docs/zh-CN/mcp.md)和连接器 | 从会话继承 |
-| 权限提示 | 默认为[自动模式](/docs/zh-CN/routines.md#permission-prompts-during-a-run) | 每个任务可配置 | 从会话继承 |
+| MCP servers | 每个任务配置的连接器 | [配置文件](https://code.claude.com/docs/zh-CN/mcp.md)和连接器 | 从会话继承 |
+| 权限提示 | 默认为[自动模式](https://code.claude.com/docs/zh-CN/routines.md#permission-prompts-during-a-run) | 每个任务可配置 | 从会话继承 |
 | 可自定义的计划 | 是 | 是 | 是 |
-| 最小间隔 | 1 小时 | 由 Claude 设置时为 1 分钟，[在表单中为 1 小时](/docs/zh-CN/desktop-scheduled-tasks.md#schedule-options) | 1 分钟 |
+| 最小间隔 | 1 小时 | 由 Claude 设置时为 1 分钟，[在表单中为 1 小时](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md#schedule-options) | 1 分钟 |
 
 > [!TIP]
 >
@@ -37,7 +37,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 > [!NOTE]
 >
-> 默认情况下，本地定时任务针对您的工作目录的任何状态运行，包括未提交的更改。如需为每次运行提供其自己的[隔离 Git worktree](/docs/zh-CN/desktop.md#run-a-session-in-its-own-worktree)，请在创建任务后，在该任务的[**Edit** 表单](#manage-scheduled-tasks)中选择 **Worktree**。当任务的文件夹是 Git 仓库时，该复选框可用。
+> 默认情况下，本地定时任务针对您的工作目录的任何状态运行，包括未提交的更改。如需为每次运行提供其自己的[隔离 Git worktree](https://code.claude.com/docs/zh-CN/desktop.md#run-a-session-in-its-own-worktree)，请在创建任务后，在该任务的[**Edit** 表单](#manage-scheduled-tasks)中选择 **Worktree**。当任务的文件夹是 Git 仓库时，该复选框可用。
 
 ## 创建定期任务
 
@@ -45,7 +45,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 **1. 打开 Scheduled tasks 页面**
 
-在 [**Code** 选项卡](/docs/zh-CN/desktop.md)中，单击侧边栏中的 **Scheduled**，或侧边栏 **More** 菜单中的 **Scheduled**。
+在 [**Code** 选项卡](https://code.claude.com/docs/zh-CN/desktop.md)中，单击侧边栏中的 **Scheduled**，或侧边栏 **More** 菜单中的 **Scheduled**。
 
 **2. 开始新任务**
 
@@ -63,7 +63,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 暂时跳过 **Trigger** 卡片，展开其下方的 **Advanced settings**。在 **General** 选项卡上，启用 **Only on this computer**。启用后，任务会在您的计算机上的本地文件夹中运行。
 
-如果该开关不可用，请清除仓库或 GitHub 事件或 API 触发器，因为这些设置会使该任务成为[云端定时任务](/docs/zh-CN/routines.md)。
+如果该开关不可用，请清除仓库或 GitHub 事件或 API 触发器，因为这些设置会使该任务成为[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)。
 
 **6. 选择本地文件夹**
 
@@ -120,15 +120,15 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 > [!NOTE]
 >
-> 对于需要在计算机关闭时运行或应该通过 API 调用或 GitHub 事件触发的任务，请改为创建[云端定时任务](/docs/zh-CN/routines.md)。
+> 对于需要在计算机关闭时运行或应该通过 API 调用或 GitHub 事件触发的任务，请改为创建[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)。
 
 ### 查找某次运行的会话
 
 要打开某次运行所启动的会话，请前往该任务的[详情页面](#manage-scheduled-tasks)，然后在 **History** 列表中点击该次运行所在的行。
 
-侧边栏的会话列表中也可以显示 **Scheduled** 分组，每个任务对应一行。要打开某个任务最近一次运行的会话，请在该分组中点击该任务所在的行。要显示该分组，请先[确认您使用的是哪种布局](/docs/zh-CN/desktop.md#check-which-layout-you-have)：
+侧边栏的会话列表中也可以显示 **Scheduled** 分组，每个任务对应一行。要打开某个任务最近一次运行的会话，请在该分组中点击该任务所在的行。要显示该分组，请先[确认您使用的是哪种布局](https://code.claude.com/docs/zh-CN/desktop.md#check-which-layout-you-have)：
 
-* **当前布局**：打开[**Group and sort** 菜单](/docs/zh-CN/desktop.md#organize-and-find-sessions)，选择 **Show**，然后选择 **Scheduled**。该分组默认处于折叠状态，因此请点击其标题将其展开。当您至少有一个任务处于 **Active** 状态（即任务详情页面所显示的 **Status**）时，**Show** 中才会列出 **Scheduled**。如果未列出，请使用 **History** 列表，无论该分组是否显示，它都可以使用。
+* **当前布局**：打开[**Group and sort** 菜单](https://code.claude.com/docs/zh-CN/desktop.md#organize-and-find-sessions)，选择 **Show**，然后选择 **Scheduled**。该分组默认处于折叠状态，因此请点击其标题将其展开。当您至少有一个任务处于 **Active** 状态（即任务详情页面所显示的 **Status**）时，**Show** 中才会列出 **Scheduled**。如果未列出，请使用 **History** 列表，无论该分组是否显示，它都可以使用。
 * **早期布局**：该分组直接显示在会话列表中，无需启用任何选项
 
 无论通过哪种方式进入某次运行的会话，您都可以查看 Claude 做了什么、审查更改并响应权限提示。Claude 可以编辑文件、运行命令、创建提交和打开 Pull Request，与您自己启动的会话相同。
@@ -141,11 +141,11 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 ## 定期任务的权限
 
-每个任务都有自己的权限模式，您在创建或编辑任务时设置。来自 `~/.claude/settings.json` 的允许规则也适用于定时任务会话。如果任务在 [Manual 模式](/docs/zh-CN/desktop.md#choose-a-permission-mode)下运行并需要运行它没有权限的工具，运行将停滞，直到您批准它。要批准它，请[找到该运行的会话](#find-a-runs-session)并在其中回答权限提示。
+每个任务都有自己的权限模式，您在创建或编辑任务时设置。来自 `~/.claude/settings.json` 的允许规则也适用于定时任务会话。如果任务在 [Manual 模式](https://code.claude.com/docs/zh-CN/desktop.md#choose-a-permission-mode)下运行并需要运行它没有权限的工具，运行将停滞，直到您批准它。要批准它，请[找到该运行的会话](#find-a-runs-session)并在其中回答权限提示。
 
 为了避免停滞，在创建任务后单击 **Run now**，查看权限提示，并为每个提示选择"always allow"。该任务的未来运行会自动批准相同的工具，无需提示。您可以从任务的详细信息页面查看和撤销这些批准。
 
-标记为 [`requiresUserInteraction`](/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具在每次调用时都会提示，并且不提供"always allow"选项。调用这些工具的运行每次都会停滞。
+标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具在每次调用时都会提示，并且不提供"always allow"选项。调用这些工具的运行每次都会停滞。
 
 ## 管理定期任务
 
@@ -156,17 +156,17 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 * **Edit**：更改 instructions、schedule、folder 或其他设置
 * **Review history**：查看每次过去的运行，包括跳过的运行。将鼠标悬停在跳过的条目上以查看原因：您的计算机处于睡眠状态、前一次运行仍在进行中，或其他定期任务已在运行。单击 **Show more** 以加载较早的条目。
 * **Review allowed permissions**：从 **Always allowed** 面板查看和撤销此任务的已保存工具批准
-* **Delete**：删除任务。该任务创建的会话会被[存档](/docs/zh-CN/desktop.md#organize-and-find-sessions)，而不是被删除。存放任务 `SKILL.md` 文件的文件夹会保留在磁盘上的 `~/.claude/scheduled-tasks/<task-name>/` 中；如果您设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 变量，则保留在其下的 `scheduled-tasks/<task-name>/` 中。要删除该文件夹，请您自行删除。
+* **Delete**：删除任务。该任务创建的会话会被[存档](https://code.claude.com/docs/zh-CN/desktop.md#organize-and-find-sessions)，而不是被删除。存放任务 `SKILL.md` 文件的文件夹会保留在磁盘上的 `~/.claude/scheduled-tasks/<task-name>/` 中；如果您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars) 变量，则保留在其下的 `scheduled-tasks/<task-name>/` 中。要删除该文件夹，请您自行删除。
 
 您也可以通过在任何 Desktop 会话中询问 Claude 来列出、创建、编辑和暂停任务。例如，"pause my dependency-audit task"或"show me my scheduled tasks"。要删除任务，请使用其详细信息页面上的 **Delete** 按钮。
 
 定期任务还可以使用 `update_scheduled_task` MCP 工具从运行中的会话内修改其自己的调度或提示。这让任务可以根据它发现的内容重新调度自己，例如，当它检测到发布分支已创建时，将代码审查重新调度为更早运行。
 
-要在磁盘上编辑任务的提示，请打开 `~/.claude/scheduled-tasks/<task-name>/SKILL.md`（如果设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)，则在其下）。该文件使用 YAML frontmatter 表示 `name` 和 `description`，提示作为正文。更改在下一次运行时生效。Schedule、folder、model 和 enabled 状态不在此文件中：通过 Edit 表单更改它们或询问 Claude。
+要在磁盘上编辑任务的提示，请打开 `~/.claude/scheduled-tasks/<task-name>/SKILL.md`（如果设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，则在其下）。该文件使用 YAML frontmatter 表示 `name` 和 `description`，提示作为正文。更改在下一次运行时生效。Schedule、folder、model 和 enabled 状态不在此文件中：通过 Edit 表单更改它们或询问 Claude。
 
 ## 相关资源
 
-* [云端定时任务](/docs/zh-CN/routines.md)：在云端按计划、通过 API 调用或响应 GitHub 事件运行任务，即使您的计算机关闭
-* [Run prompts on a schedule](/docs/zh-CN/scheduled-tasks.md)：在 CLI 中使用 `/loop` 的会话范围调度
-* [Claude Code GitHub Actions](/docs/zh-CN/github-actions.md)：在 CI 中按计划运行 Claude，而不是在您的机器上
-* [Use Claude Code Desktop](/docs/zh-CN/desktop.md)：完整的 Desktop 应用指南
+* [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)：在云端按计划、通过 API 调用或响应 GitHub 事件运行任务，即使您的计算机关闭
+* [Run prompts on a schedule](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)：在 CLI 中使用 `/loop` 的会话范围调度
+* [Claude Code GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)：在 CI 中按计划运行 Claude，而不是在您的机器上
+* [Use Claude Code Desktop](https://code.claude.com/docs/zh-CN/desktop.md)：完整的 Desktop 应用指南

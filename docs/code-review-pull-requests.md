@@ -8,11 +8,11 @@
 
 Code Review 是一项托管服务，由您的 Claude 组织中的 Owner 为一组 GitHub 仓库启用。启用后，Claude 会审查这些仓库中的 Pull Request，并将其发现以内联评论、审查正文中的摘要以及名为 **Claude Code Review** 的检查运行的形式发布。审查永远不会批准或阻止您的 Pull Request，检查运行也永远不会以失败结束。
 
-Owner 可以为每个仓库控制[审查何时运行](/docs/zh-CN/code-review-setup.md#set-when-reviews-run)以及[审查的详尽程度](/docs/zh-CN/code-review-setup.md#set-the-default-review-level)。
+Owner 可以为每个仓库控制[审查何时运行](https://code.claude.com/docs/zh-CN/code-review-setup.md#set-when-reviews-run)以及[审查的详尽程度](https://code.claude.com/docs/zh-CN/code-review-setup.md#set-the-default-review-level)。
 
 > [!NOTE]
 >
-> 如果您的套餐不包含 Code Review，您仍然可以在 Claude Code 会话中让 Claude 审查您的分支：请参阅[使用 `/code-review` 在本地审查](/docs/zh-CN/code-review-local)。
+> 如果您的套餐不包含 Code Review，您仍然可以在 Claude Code 会话中让 Claude 审查您的分支：请参阅[使用 `/code-review` 在本地审查](https://code.claude.com/docs/zh-CN/code-review-local)。
 
 ## 严重程度级别
 
@@ -26,7 +26,7 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 
 如果审查记录了其推理过程，该发现会带有一个折叠的 **Why this was flagged** 部分。展开它即可了解 Claude 为何标记该问题以及如何验证该问题。
 
-要更改 Claude 在您的仓库中标记的内容或其对严重程度的判定方式，请参阅[自定义 Code Review](/docs/zh-CN/code-review-customize.md)。
+要更改 Claude 在您的仓库中标记的内容或其对严重程度的判定方式，请参阅[自定义 Code Review](https://code.claude.com/docs/zh-CN/code-review-customize.md)。
 
 ## 回应发现
 
@@ -36,7 +36,7 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 
 * **不修改代码直接忽略**：在 GitHub 上自行解决该讨论串。仅回复并不会忽略发现。
 * **修复问题**：修改代码并推送。当下一次对该 Pull Request 的审查判断问题已修复时，会解决之前的讨论串，无论该审查是在您推送时自动运行还是由您请求的。
-* **解释或提出异议**：回复该评论。Claude 不会立即回复，回复也不会启动审查。下一次对该 Pull Request 的审查会读取对其之前发现的回复，并可以解决该讨论串或发布一条后续回复。如果同类发现反复出现，请让维护者在 [`REVIEW.md`](/docs/zh-CN/code-review-customize#choose-what-to-write-in-review-md) 中添加规则。
+* **解释或提出异议**：回复该评论。Claude 不会立即回复，回复也不会启动审查。下一次对该 Pull Request 的审查会读取对其之前发现的回复，并可以解决该讨论串或发布一条后续回复。如果同类发现反复出现，请让维护者在 [`REVIEW.md`](https://code.claude.com/docs/zh-CN/code-review-customize#choose-what-to-write-in-review-md) 中添加规则。
 
 要在不推送的情况下获得下一次审查，请以[顶层 Pull Request 评论](#comment-commands)的形式发表 `@claude review`。
 
@@ -51,7 +51,7 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 
 对于有对应行号但未作为行内评论发布的发现，会以注释的形式显示在 **Files changed** 标签页中的相关行上。Important 发现显示为红色，nit 显示为黄色，已存在的 bug 显示为灰色。
 
-检查运行的结论为 neutral；在某些未更改任何文件并[保留先前结果](#when-a-push-keeps-the-earlier-result)的推送之后，结论为 skipped。它的结论永远不会是 failure，因此已完成的审查不会导致必需检查失败。如果您没有看到发现，或者审查未运行，请参阅[排查 Code Review 问题](/docs/zh-CN/code-review-troubleshooting.md)。
+检查运行的结论为 neutral；在某些未更改任何文件并[保留先前结果](#when-a-push-keeps-the-earlier-result)的推送之后，结论为 skipped。它的结论永远不会是 failure，因此已完成的审查不会导致必需检查失败。如果您没有看到发现，或者审查未运行，请参阅[排查 Code Review 问题](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md)。
 
 ### 推送何时保留先前结果
 
@@ -118,8 +118,8 @@ gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID --jq '
 * **打开或标记为就绪**：在设置为 **Once after PR creation** 或 **After every push** 的仓库中，当您打开或重新打开 Pull Request，或将草稿标记为可供审查时，会启动审查。
 * **发表命令评论**：在 Pull Request 上发布 [`@claude review`](#comment-commands)。
 * **推送提交**：在设置为 **After every push** 的仓库中，或在您使用 `@claude review always` 订阅的 Pull Request 上，推送会启动审查。如果推送后您的 Pull Request 添加和删除的行仍然相同，Code Review 可能会改为[保留之前的结果](#when-a-push-keeps-the-earlier-result)。
-* **点击 Re-run**：在非 fork 的 Pull Request 上审查失败或超时后，从检查运行中[再次运行](/docs/zh-CN/code-review-troubleshooting.md#retrigger-a-failed-or-timed-out-review)。在非 fork 的 Pull Request 上，您也可以在某次推送[保留了之前的结果](#when-a-push-keeps-the-earlier-result)后点击 **Re-run**。
-* **等待自动重试**：会话中断的审查会自动重试一次。[检查运行的摘要](/docs/zh-CN/code-review-troubleshooting.md#retrigger-a-failed-or-timed-out-review)会显示何时正在进行重试。
+* **点击 Re-run**：在非 fork 的 Pull Request 上审查失败或超时后，从检查运行中[再次运行](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md#retrigger-a-failed-or-timed-out-review)。在非 fork 的 Pull Request 上，您也可以在某次推送[保留了之前的结果](#when-a-push-keeps-the-earlier-result)后点击 **Re-run**。
+* **等待自动重试**：会话中断的审查会自动重试一次。[检查运行的摘要](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md#retrigger-a-failed-or-timed-out-review)会显示何时正在进行重试。
 
 ### 评论命令
 
@@ -167,13 +167,13 @@ gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID --jq '
 
 ### 将 Code Review 与 Claude Code GitHub Action 一起使用
 
-如果仓库还以交互模式运行 [Claude Code GitHub Action](/docs/zh-CN/github-actions.md)，并使用其默认的 `@claude` 触发短语，那么 `@claude review` 评论也会启动该 Action。要将两者区分开，请将该 Action 的 `trigger_phrase` 输入设置为其他短语。
+如果仓库还以交互模式运行 [Claude Code GitHub Action](https://code.claude.com/docs/zh-CN/github-actions.md)，并使用其默认的 `@claude` 触发短语，那么 `@claude review` 评论也会启动该 Action。要将两者区分开，请将该 Action 的 `trigger_phrase` 输入设置为其他短语。
 
 ## 相关资源
 
-* [Code Review 故障排除](/docs/zh-CN/code-review-troubleshooting.md)：未启动、失败或因预算而被跳过的审查
-* [Code Review](/docs/zh-CN/code-review.md)：该服务是什么以及审查如何运行
-* [设置 Code Review](/docs/zh-CN/code-review-setup.md)：供 Owner 使用，启用 Code Review 并选择审查的运行时机和级别
-* [自定义 Code Review](/docs/zh-CN/code-review-customize.md)：使用 `REVIEW.md` 和 `CLAUDE.md` 更改 Claude 标记的内容
-* [Code Review 费用和用量](/docs/zh-CN/code-review-costs.md)：审查如何计费以及在何处设置支出限额
-* [使用 `/code-review` 在本地审查](/docs/zh-CN/code-review-local)：从 Claude Code 会话中对您的分支运行审查
+* [Code Review 故障排除](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md)：未启动、失败或因预算而被跳过的审查
+* [Code Review](https://code.claude.com/docs/zh-CN/code-review.md)：该服务是什么以及审查如何运行
+* [设置 Code Review](https://code.claude.com/docs/zh-CN/code-review-setup.md)：供 Owner 使用，启用 Code Review 并选择审查的运行时机和级别
+* [自定义 Code Review](https://code.claude.com/docs/zh-CN/code-review-customize.md)：使用 `REVIEW.md` 和 `CLAUDE.md` 更改 Claude 标记的内容
+* [Code Review 费用和用量](https://code.claude.com/docs/zh-CN/code-review-costs.md)：审查如何计费以及在何处设置支出限额
+* [使用 `/code-review` 在本地审查](https://code.claude.com/docs/zh-CN/code-review-local)：从 Claude Code 会话中对您的分支运行审查

@@ -54,7 +54,7 @@
 
 要使用结构化输出，定义一个 [JSON Schema](https://json-schema.org/understanding-json-schema/about) 来描述你想要的数据形状，然后通过 `outputFormat` 选项（TypeScript）或 `output_format` 选项（Python）将其传递给 `query()`。当代理完成时，结果消息包含一个 `structured_output` 字段，其中包含与你的 schema 匹配的验证数据。
 
-在运行本页上的示例之前，请按照[快速入门](/docs/zh-CN/agent-sdk/quickstart.md#setup)安装 Claude Agent SDK。下面的示例要求 Agent 研究 Anthropic 并返回公司名称、成立年份和总部作为结构化输出。
+在运行本页上的示例之前，请按照[快速入门](https://code.claude.com/docs/zh-CN/agent-sdk/quickstart.md#setup)安装 Claude Agent SDK。下面的示例要求 Agent 研究 Anthropic 并返回公司名称、成立年份和总部作为结构化输出。
 
 ```typescript TypeScript theme={null}
 import { query } from "@anthropic-ai/claude-agent-sdk";
@@ -370,7 +370,7 @@ asyncio.run(main())
 
 ## 识别 StructuredOutput 工具调用
 
-当您在 TypeScript 中设置 `outputFormat` 或在 Python 中设置 `output_format` 时，消息流中会出现一个名为 `StructuredOutput` 的工具调用，而您从未定义过该工具。Claude Code 会将此工具添加到会话中，Agent 通过调用它来返回答案。[系统 init 消息](/docs/zh-CN/agent-sdk/typescript.md#sdksystemmessage)会在 `tools` 数组中列出该工具，每次调用都以两个块的形式出现：
+当您在 TypeScript 中设置 `outputFormat` 或在 Python 中设置 `output_format` 时，消息流中会出现一个名为 `StructuredOutput` 的工具调用，而您从未定义过该工具。Claude Code 会将此工具添加到会话中，Agent 通过调用它来返回答案。[系统 init 消息](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#sdksystemmessage)会在 `tools` 数组中列出该工具，每次调用都以两个块的形式出现：
 
 * 一个名为 `StructuredOutput` 的 `tool_use` 块，其输入是 Agent 根据您的 schema 生成的对象
 * 一个内容为 `Structured output provided successfully` 的 `tool_result` 块
@@ -381,7 +381,7 @@ asyncio.run(main())
 
 ## 错误处理
 
-结构化输出生成可能会失败，当 Agent 无法生成与您的 schema 匹配的有效 JSON 时。这通常发生在 schema 对于任务来说太复杂、任务本身不明确或 Agent 在尝试修复验证错误时达到重试限制时。它也可能在没有任何验证失败的情况下发生：[模型回退](/docs/zh-CN/model-config.md#automatic-model-fallback)可以在流中途收回已完成的输出，如果没有重试替换它，运行将以相同的错误结束。在调试您的 schema 之前，检查错误结果消息上的 `errors` 列表以区分这两个原因。
+结构化输出生成可能会失败，当 Agent 无法生成与您的 schema 匹配的有效 JSON 时。这通常发生在 schema 对于任务来说太复杂、任务本身不明确或 Agent 在尝试修复验证错误时达到重试限制时。它也可能在没有任何验证失败的情况下发生：[模型回退](https://code.claude.com/docs/zh-CN/model-config.md#automatic-model-fallback)可以在流中途收回已完成的输出，如果没有重试替换它，运行将以相同的错误结束。在调试您的 schema 之前，检查错误结果消息上的 `errors` 列表以区分这两个原因。
 
 发生错误时，结果消息有一个 `subtype` 指示出了什么问题：
 
@@ -390,7 +390,7 @@ asyncio.run(main())
 | `success` | 输出已成功生成并验证 |
 | `error_max_structured_output_retries` | 多次尝试后没有有效输出存活（验证失败，或模型回退收回且没有成功重试） |
 
-结果也可以以 `success` 的 subtype 结束，但没有 `structured_output` 值，例如当运行完成而代理没有生成结构化输出时。将该情况也视为失败。故障排除条目[structured\_output 为 None 但结果显示 success](/docs/zh-CN/agent-sdk/troubleshooting.md#structured_output-is-none-but-the-result-says-success)涵盖了这种情况。下面的示例仅当 `subtype` 为 `success` 且 `structured_output` 存在时才将结果视为成功，并将所有其他结果作为失败处理：
+结果也可以以 `success` 的 subtype 结束，但没有 `structured_output` 值，例如当运行完成而代理没有生成结构化输出时。将该情况也视为失败。故障排除条目[structured\_output 为 None 但结果显示 success](https://code.claude.com/docs/zh-CN/agent-sdk/troubleshooting.md#structured_output-is-none-but-the-result-says-success)涵盖了这种情况。下面的示例仅当 `subtype` 为 `success` 且 `structured_output` 存在时才将结果视为成功，并将所有其他结果作为失败处理：
 
 ```typescript TypeScript theme={null}
 import { query } from "@anthropic-ai/claude-agent-sdk";
@@ -481,4 +481,4 @@ asyncio.run(main())
 
 * [JSON Schema 文档](https://json-schema.org/)：学习 JSON Schema 语法以定义具有嵌套对象、数组、枚举和验证约束的复杂 schema
 * [API 结构化输出](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)：直接使用 Claude API 的结构化输出进行单轮请求，无需工具使用
-* [自定义工具](/docs/zh-CN/agent-sdk/custom-tools.md)：在返回结构化输出之前，在执行期间给你的代理自定义工具来调用
+* [自定义工具](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools.md)：在返回结构化输出之前，在执行期间给你的代理自定义工具来调用

@@ -103,7 +103,7 @@ export ANTHROPIC_FOUNDRY_RESOURCE={resource}
 # export ANTHROPIC_FOUNDRY_BASE_URL=https://{resource}.services.ai.azure.com/anthropic
 ```
 
-将 `ANTHROPIC_FOUNDRY_RESOURCE` 仅设置为资源名称，例如 `my-resource`。如果设置为 URL 或主机名，Claude Code 会在您发送消息时[拒绝该值](/docs/zh-CN/errors.md#anthropic-foundry-resource-must-be-a-foundry-resource-name)。
+将 `ANTHROPIC_FOUNDRY_RESOURCE` 仅设置为资源名称，例如 `my-resource`。如果设置为 URL 或主机名，Claude Code 会在您发送消息时[拒绝该值](https://code.claude.com/docs/zh-CN/errors.md#anthropic-foundry-resource-must-be-a-foundry-resource-name)。
 
 ### 固定模型版本
 
@@ -123,15 +123,15 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5'
 
 后台任务（如会话标题生成）使用小型/快速模型，通常是 Haiku 级别的模型。在 Microsoft Foundry 上，Claude Code 默认使用主模型，因为并非每个账户都有 Haiku 部署。要为后台任务使用 Haiku，请将 `ANTHROPIC_DEFAULT_HAIKU_MODEL` 设置为您账户中可用的 Haiku 部署，如上所示。
 
-有关当前和旧版模型 ID，请参阅[模型概览](https://platform.claude.com/docs/en/about-claude/models/overview)。有关完整的环境变量列表，请参阅[模型配置](/docs/zh-CN/model-config.md#pin-models-for-third-party-deployments)。
+有关当前和旧版模型 ID，请参阅[模型概览](https://platform.claude.com/docs/en/about-claude/models/overview)。有关完整的环境变量列表，请参阅[模型配置](https://code.claude.com/docs/zh-CN/model-config.md#pin-models-for-third-party-deployments)。
 
-[提示缓存](/docs/zh-CN/prompt-caching.md)会自动启用。要请求 1 小时的缓存 TTL 而不是 5 分钟的默认值，请设置以下变量；具有 1 小时 TTL 的缓存写入按更高的费率计费：
+[提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md)会自动启用。要请求 1 小时的缓存 TTL 而不是 5 分钟的默认值，请设置以下变量；具有 1 小时 TTL 的缓存写入按更高的费率计费：
 
 ```bash theme={null}
 export ENABLE_PROMPT_CACHING_1H=1
 ```
 
-要为您的主对话和 Claude Code 在其外部进行的请求设置不同的 TTL，请[自己选择 TTL](/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)。
+要为您的主对话和 Claude Code 在其外部进行的请求设置不同的 TTL，请[自己选择 TTL](https://code.claude.com/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)。
 
 ### 运行 Claude Code
 
@@ -167,7 +167,7 @@ Claude Code 从环境中读取 `CLAUDE_CODE_USE_FOUNDRY` 和其他 Microsoft Fou
 
 ## 1M token 上下文窗口
 
-在 Microsoft Foundry 上，当 Claude Code 能够识别您的部署所服务的模型时，Fable 模型、Sonnet 5 及更高版本以及 Opus 4.7 及更高版本默认使用 [1M token 上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)，无需添加 `[1m]` 后缀。Claude Code 从模型变量中的部署名称读取模型。请使用模型 ID 命名每个部署，例如 `claude-opus-4-8`，或者使用 [`modelOverrides`](/docs/zh-CN/model-config#override-model-ids-per-version) 将模型映射到您的部署名称。对于无法匹配到模型的部署名称，Claude Code 会假定使用 200K 窗口，除非您[声明其他窗口大小](/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)。
+在 Microsoft Foundry 上，当 Claude Code 能够识别您的部署所服务的模型时，Fable 模型、Sonnet 5 及更高版本以及 Opus 4.7 及更高版本默认使用 [1M token 上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)，无需添加 `[1m]` 后缀。Claude Code 从模型变量中的部署名称读取模型。请使用模型 ID 命名每个部署，例如 `claude-opus-4-8`，或者使用 [`modelOverrides`](https://code.claude.com/docs/zh-CN/model-config#override-model-ids-per-version) 将模型映射到您的部署名称。对于无法匹配到模型的部署名称，Claude Code 会假定使用 200K 窗口，除非您[声明其他窗口大小](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)。
 
 以下 `settings.json` 条目告知 Claude Code，名为 `team-opus-prod` 的部署服务于 Opus 4.8：
 
@@ -179,9 +179,9 @@ Claude Code 从环境中读取 `CLAUDE_CODE_USE_FOUNDRY` 和其他 Microsoft Fou
 }
 ```
 
-如需改为保持 200K 窗口，请设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](/docs/zh-CN/model-config#turn-off-1m-context)。
+如需改为保持 200K 窗口，请设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](https://code.claude.com/docs/zh-CN/model-config#turn-off-1m-context)。
 
-当您在 `ANTHROPIC_DEFAULT_OPUS_MODEL` 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的部署名称后附加 `[1m]` 时，Opus 4.6 和 Sonnet 4.6 可使用 1M 窗口，如[为第三方部署固定模型](/docs/zh-CN/model-config.md#pin-models-for-third-party-deployments)中所述。在 v2.1.287 之前，Fable 模型以及 Opus 4.7 及更高版本在 Microsoft Foundry 上同样需要该后缀，否则默认使用 200K 窗口。
+当您在 `ANTHROPIC_DEFAULT_OPUS_MODEL` 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的部署名称后附加 `[1m]` 时，Opus 4.6 和 Sonnet 4.6 可使用 1M 窗口，如[为第三方部署固定模型](https://code.claude.com/docs/zh-CN/model-config.md#pin-models-for-third-party-deployments)中所述。在 v2.1.287 之前，Fable 模型以及 Opus 4.7 及更高版本在 Microsoft Foundry 上同样需要该后缀，否则默认使用 200K 窗口。
 
 ## 故障排除
 

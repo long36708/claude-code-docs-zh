@@ -60,9 +60,9 @@ asyncio.run(main())
 | `CLAUDE.md` 内存文件 | 用户层级为 `~/.claude/CLAUDE.md`，项目层级为会话的工作目录 |
 | 工作目录工件 | 会话的工作目录 |
 
-要在主机间持久化记录，请配置 [`SessionStore` 适配器](/docs/zh-CN/agent-sdk/session-storage)。内存文件和其他工作目录工件需要自己的存储策略，例如挂载卷或对象存储同步。
+要在主机间持久化记录，请配置 [`SessionStore` 适配器](https://code.claude.com/docs/zh-CN/agent-sdk/session-storage)。内存文件和其他工作目录工件需要自己的存储策略，例如挂载卷或对象存储同步。
 
-有关会话、恢复和分叉在 API 级别如何工作的信息，请参阅 [Sessions](/docs/zh-CN/agent-sdk/sessions.md)。
+有关会话、恢复和分叉在 API 级别如何工作的信息，请参阅 [Sessions](https://code.claude.com/docs/zh-CN/agent-sdk/sessions.md)。
 
 ## 选择会话模式
 
@@ -103,7 +103,7 @@ async def main():
 asyncio.run(main())
 ```
 
-脚本在每条消息到达时打印它，包括一条结果消息，当任务在轮次限制内完成时，其 `subtype` 为 `success`。如果任务改为达到 20 轮限制，结果消息的 `subtype` 为 `error_max_turns`，`query()` 调用在产生它后会抛出错误，因此如果容器需要干净地退出，请将循环包装在 try 块中。有关错误子类型，请参阅[处理结果](/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)。
+脚本在每条消息到达时打印它，包括一条结果消息，当任务在轮次限制内完成时，其 `subtype` 为 `success`。如果任务改为达到 20 轮限制，结果消息的 `subtype` 为 `error_max_turns`，`query()` 调用在产生它后会抛出错误，因此如果容器需要干净地退出，请将循环包装在 try 块中。有关错误子类型，请参阅[处理结果](https://code.claude.com/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)。
 
 ### Long-running sessions
 
@@ -113,14 +113,14 @@ asyncio.run(main())
 
 容器公开 HTTP 或 WebSocket 端点，并将每个活跃会话映射到一个长期查询及其后面的子进程。保持会话打开和预热的调用在 SDK 之间有所不同：
 
-* **TypeScript**：使用 [`streamInput()`](/docs/zh-CN/agent-sdk/typescript#query-object) 向活跃会话添加轮次。调用 [`startup()`](/docs/zh-CN/agent-sdk/typescript#startup) 在传入流量前预热子进程。如果您在第一个请求到达之前不知道会话的工作目录，请改用 [`prewarm()`](/docs/zh-CN/agent-sdk/typescript#prewarm) 进行预热。
-* **Python**：使用 [`ClaudeSDKClient`](/docs/zh-CN/agent-sdk/python#claudesdkclient) 在轮次间保持会话打开。
+* **TypeScript**：使用 [`streamInput()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#query-object) 向活跃会话添加轮次。调用 [`startup()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#startup) 在传入流量前预热子进程。如果您在第一个请求到达之前不知道会话的工作目录，请改用 [`prewarm()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#prewarm) 进行预热。
+* **Python**：使用 [`ClaudeSDKClient`](https://code.claude.com/docs/zh-CN/agent-sdk/python#claudesdkclient) 在轮次间保持会话打开。
 
 调整容器大小，使其能够在内存中容纳最大并发会话数。
 
 ### Hybrid sessions
 
-从启动时的 [`SessionStore`](/docs/zh-CN/agent-sdk/session-storage) 进行补充并将更新持久化回去的临时容器。最适合跨越许多交互但在交互之间处于空闲状态的会话。容器在空闲期间关闭，当用户返回时重新启动。
+从启动时的 [`SessionStore`](https://code.claude.com/docs/zh-CN/agent-sdk/session-storage) 进行补充并将更新持久化回去的临时容器。最适合跨越许多交互但在交互之间处于空闲状态的会话。容器在空闲期间关闭，当用户返回时重新启动。
 
 示例工作负载包括具有间歇性检查的个人项目管理器、在数小时内暂停和恢复的深度研究，以及在交互间加载票证历史的客户支持代理。
 
@@ -186,14 +186,14 @@ asyncio.run(main())
 * **定价模式**：按秒、按请求或按小时固定计费。按秒定价适合突发的临时工作负载。按小时定价适合长期运行的会话。
 * **网络**：支持自定义出站规则、出站代理和私有 VPC 对等互联，用于受管制的环境。
 
-有关自托管选项（如 Docker、gVisor 和 Firecracker）以及详细的隔离配置，请参阅 [隔离技术](/docs/zh-CN/agent-sdk/secure-deployment.md#isolation-technologies)。
+有关自托管选项（如 Docker、gVisor 和 Firecracker）以及详细的隔离配置，请参阅 [隔离技术](https://code.claude.com/docs/zh-CN/agent-sdk/secure-deployment.md#isolation-technologies)。
 
 ### 运行时依赖项
 
 容器需要您的 SDK 的语言运行时：
 
 * Python SDK 需要 Python 3.10+，或 TypeScript SDK 需要 Node.js 18+
-* TypeScript 和 Python SDK 都为大多数安装捆绑了本机 Claude Code 二进制文件，生成的 CLI 不需要单独的 Node.js 安装。有关需要单独本机 Claude Code 安装的安装，请参阅 [quickstart 的安装说明](/docs/zh-CN/agent-sdk/quickstart.md)。
+* TypeScript 和 Python SDK 都为大多数安装捆绑了本机 Claude Code 二进制文件，生成的 CLI 不需要单独的 Node.js 安装。有关需要单独本机 Claude Code 安装的安装，请参阅 [quickstart 的安装说明](https://code.claude.com/docs/zh-CN/agent-sdk/quickstart.md)。
 
 捆绑的二进制文件固定到 SDK 包版本，因此更新 SDK 是更新 CLI 的方式。SDK 遵循 semver：持续采用补丁版本，并在采用次要版本之前查看 [TypeScript](https://github.com/anthropics/claude-agent-sdk-typescript/blob/main/CHANGELOG.md) 或 [Python](https://github.com/anthropics/claude-agent-sdk-python/blob/main/CHANGELOG.md) 更新日志。
 
@@ -203,7 +203,7 @@ asyncio.run(main())
 
 ### 网络
 
-SDK 需要对 `api.anthropic.com` 的出站 HTTPS，或在 Amazon Bedrock 或 Google Cloud 的 Agent Platform 上运行时对您的提供商的区域端点的出站 HTTPS。如果您的代理使用 [MCP 服务器](/docs/zh-CN/agent-sdk/mcp.md) 或外部工具，它们还需要对这些端点的出站访问。对于生产环境，通过强制执行域允许列表、注入凭据和记录请求的出站代理路由出站流量。有关完整模式，请参阅 [安全部署](/docs/zh-CN/agent-sdk/secure-deployment.md)。
+SDK 需要对 `api.anthropic.com` 的出站 HTTPS，或在 Amazon Bedrock 或 Google Cloud 的 Agent Platform 上运行时对您的提供商的区域端点的出站 HTTPS。如果您的代理使用 [MCP 服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md) 或外部工具，它们还需要对这些端点的出站访问。对于生产环境，通过强制执行域允许列表、注入凭据和记录请求的出站代理路由出站流量。有关完整模式，请参阅 [安全部署](https://code.claude.com/docs/zh-CN/agent-sdk/secure-deployment.md)。
 
 对于入站流量，在容器上公开 HTTP 或 WebSocket 端口。您的应用程序在该端口上处理客户端请求并在内部调用 SDK；子进程本身不在网络上侦听。
 
@@ -213,13 +213,13 @@ SDK 需要对 `api.anthropic.com` 的出站 HTTPS，或在 Amazon Bedrock 或 Go
 
 ### 会话和状态持久化
 
-默认本地磁盘在重启、缩减或移动到不同节点时会丢失。对于用户期望恢复的任何会话，使用 [`SessionStore` 适配器](/docs/zh-CN/agent-sdk/session-storage)将记录副本镜像到持久存储。查看[参考实现](/docs/zh-CN/agent-sdk/session-storage.md#reference-implementations)了解对象存储、键值存储和数据库的示例适配器，以及用于您自己实现的一致性测试套件。
+默认本地磁盘在重启、缩减或移动到不同节点时会丢失。对于用户期望恢复的任何会话，使用 [`SessionStore` 适配器](https://code.claude.com/docs/zh-CN/agent-sdk/session-storage)将记录副本镜像到持久存储。查看[参考实现](https://code.claude.com/docs/zh-CN/agent-sdk/session-storage.md#reference-implementations)了解对象存储、键值存储和数据库的示例适配器，以及用于您自己实现的一致性测试套件。
 
 关于 `SessionStore` 行为的三个要点：
 
 * **仅限记录**：`SessionStore` 镜像记录，不镜像 `CLAUDE.md` 内存文件或其他工作目录工件。挂载共享卷或单独同步这些文件。
-* **镜像，不替换**：子进程首先写入本地磁盘，SDK 将每个批次的副本转发到存储。新会话的本地记录比运行时间更长；从存储恢复的运行在结束时删除其本地副本，因此存储保存唯一的持久副本。查看[双写架构](/docs/zh-CN/agent-sdk/session-storage.md#dual-write-architecture)。
-* **`mirror_error` 消息**：当 SDK 无法将批次传递到存储时，它会丢弃该批次，发出 `{ type: "system", subtype: "mirror_error" }` 消息，并继续查询。如果存储持久性很重要，请对这些消息进行警报。查看[镜像写入是尽力而为](/docs/zh-CN/agent-sdk/session-storage.md#mirror-writes-are-best-effort)了解重试和超时行为。
+* **镜像，不替换**：子进程首先写入本地磁盘，SDK 将每个批次的副本转发到存储。新会话的本地记录比运行时间更长；从存储恢复的运行在结束时删除其本地副本，因此存储保存唯一的持久副本。查看[双写架构](https://code.claude.com/docs/zh-CN/agent-sdk/session-storage.md#dual-write-architecture)。
+* **`mirror_error` 消息**：当 SDK 无法将批次传递到存储时，它会丢弃该批次，发出 `{ type: "system", subtype: "mirror_error" }` 消息，并继续查询。如果存储持久性很重要，请对这些消息进行警报。查看[镜像写入是尽力而为](https://code.claude.com/docs/zh-CN/agent-sdk/session-storage.md#mirror-writes-are-best-effort)了解重试和超时行为。
 
 ### 可观测性
 
@@ -237,13 +237,13 @@ OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
 OTEL_EXPORTER_OTLP_ENDPOINT=http://collector.example.com:4318
 ```
 
-默认情况下，导出中不包含提示文本和工具输入。查看[控制导出中的敏感数据](/docs/zh-CN/agent-sdk/observability.md#control-sensitive-data-in-exports)了解选择加入标志，以及[可观测性](/docs/zh-CN/agent-sdk/observability.md)了解完整的信号目录。
+默认情况下，导出中不包含提示文本和工具输入。查看[控制导出中的敏感数据](https://code.claude.com/docs/zh-CN/agent-sdk/observability.md#control-sensitive-data-in-exports)了解选择加入标志，以及[可观测性](https://code.claude.com/docs/zh-CN/agent-sdk/observability.md)了解完整的信号目录。
 
 ### 身份验证和密钥
 
 托管时有三个身份验证问题很重要：
 
-* **Anthropic API**：子进程从其环境读取 `ANTHROPIC_API_KEY`。从您的密钥管理器提供它，或设置 `ANTHROPIC_BASE_URL` 以通过在容器外注入密钥的代理路由模型调用。查看[凭证管理](/docs/zh-CN/agent-sdk/secure-deployment.md#credential-management)了解代理模式，以及[SDK 快速入门中的设置](/docs/zh-CN/agent-sdk/quickstart.md#setup)了解支持的身份验证方法。
+* **Anthropic API**：子进程从其环境读取 `ANTHROPIC_API_KEY`。从您的密钥管理器提供它，或设置 `ANTHROPIC_BASE_URL` 以通过在容器外注入密钥的代理路由模型调用。查看[凭证管理](https://code.claude.com/docs/zh-CN/agent-sdk/secure-deployment.md#credential-management)了解代理模式，以及[SDK 快速入门中的设置](https://code.claude.com/docs/zh-CN/agent-sdk/quickstart.md#setup)了解支持的身份验证方法。
 * **入站**：在代理容器前面的网关处放置身份验证。代理应接收预先认证的请求，不应是验证用户令牌的组件。
 * **出站工具**：将工具凭证保留在代理环境之外。通过代理路由出站调用，该代理在请求离开容器后注入 API 密钥。代理进行调用；代理添加凭证。
 
@@ -263,7 +263,7 @@ agents per host = (host RAM - overhead) / (per-session RAM ceiling)
 
 ### 成本
 
-Anthropic 令牌成本通常比容器基础设施成本高一个数量级或更多。最小配置的容器运行成本大约为每小时 \$0.05，而单个长代理会话可能花费数美元的令牌。查看[成本跟踪](/docs/zh-CN/agent-sdk/cost-tracking.md)了解每会话令牌计数。
+Anthropic 令牌成本通常比容器基础设施成本高一个数量级或更多。最小配置的容器运行成本大约为每小时 \$0.05，而单个长代理会话可能花费数美元的令牌。查看[成本跟踪](https://code.claude.com/docs/zh-CN/agent-sdk/cost-tracking.md)了解每会话令牌计数。
 
 ### 多租户隔离
 
@@ -272,8 +272,8 @@ Anthropic 令牌成本通常比容器基础设施成本高一个数量级或更�
 要在共享容器内隔离租户：
 
 * 在 TypeScript 中传递 `settingSources: []` 或在 Python 中传递 `setting_sources=[]` 以跳过用户、项目和本地设置。
-* 在 `env` 中设置 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`。[自动内存](/docs/zh-CN/memory.md#auto-memory)在 `~/.claude/projects/<project>/memory/` 加载到系统提示中，无论 `settingSources` 如何。查看[settingSources 不控制的内容](/docs/zh-CN/agent-sdk/claude-code-features.md#what-settingsources-does-not-control)了解无条件加载的其他输入。
-* 将 `CLAUDE_CONFIG_DIR` 指向每个租户目录，以便租户不共享 `~/.claude.json` 全局配置。当每个配置目录服务一个工作目录，并且您不在租户之间共享 [`SessionStore`](/docs/zh-CN/agent-sdk/session-storage) 时，您也可以在 `env` 中设置 [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/sessions#name-the-project-directory-yourself) 以保持其下的记录路径简短。需要 TypeScript Agent SDK v0.3.234 或更高版本，或 Python Agent SDK v0.2.140 或更高版本。
+* 在 `env` 中设置 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`。[自动内存](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)在 `~/.claude/projects/<project>/memory/` 加载到系统提示中，无论 `settingSources` 如何。查看[settingSources 不控制的内容](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features.md#what-settingsources-does-not-control)了解无条件加载的其他输入。
+* 将 `CLAUDE_CONFIG_DIR` 指向每个租户目录，以便租户不共享 `~/.claude.json` 全局配置。当每个配置目录服务一个工作目录，并且您不在租户之间共享 [`SessionStore`](https://code.claude.com/docs/zh-CN/agent-sdk/session-storage) 时，您也可以在 `env` 中设置 [`CLAUDE_CODE_PROJECT_DIR_NAME`](https://code.claude.com/docs/zh-CN/sessions#name-the-project-directory-yourself) 以保持其下的记录路径简短。需要 TypeScript Agent SDK v0.3.234 或更高版本，或 Python Agent SDK v0.2.140 或更高版本。
 * 使用每个租户工作目录。在每个 `query()` 调用上显式传递 `cwd`。
 * 在您的代理处应用每个租户出站规则，例如不同的出站 IP、凭证或域名白名单，以便受损的租户无法通过另一个租户的出站策略泄露数据。
 
@@ -338,20 +338,20 @@ asyncio.run(main())
 | 没有顶级会话超时 | 会话不会自动超时。在 TypeScript 中设置 `maxTurns` 或在 Python 中设置 `max_turns` 来限制代理在停止前进行多少次工具使用往返。 |
 | 长会话中的内存增长 | 限制会话长度或定期回收子进程。请参阅[扩展和并发](#scaling-and-concurrency)。 |
 | 大规模并行子代理扇出可能会触发速率限制 | 将工作分解为较小的批次，而不是发出一个宽范围的调度。 |
-| 没有每个子代理的挂钟截止时间 | 在其 `AgentDefinition` 中使用 `maxTurns` 限制每个[子代理](/docs/zh-CN/agent-sdk/subagents.md)。`CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS` 设置一个停滞监视程序，当子代理停止产生输出时触发；它不是总运行时截止时间。 |
+| 没有每个子代理的挂钟截止时间 | 在其 `AgentDefinition` 中使用 `maxTurns` 限制每个[子代理](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md)。`CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS` 设置一个停滞监视程序，当子代理停止产生输出时触发；它不是总运行时截止时间。 |
 
 ## 排查部署失败
 
 当在已部署的服务中运行的代理在您的机器上工作正常但在部署后失败时，请使用本部分。下面的每一项都列出了一个失败情况并链接到相应的条目：
 
-* **服务启动时找不到 CLI**：在 Python 中，容器或服务管理器运行您的应用程序时使用的 `PATH` 与您的 shell 不同，因此在本地有效的安装对该进程不可见。在 TypeScript 中，镜像构建跳过了 SDK 的可选依赖项，或者 `pathToClaudeCodeExecutable` 指向镜像中不存在的文件。请参阅 [Claude Code not found](/docs/zh-CN/agent-sdk/troubleshooting.md#clinotfounderror-claude-code-not-found)。
-* **CLI 在镜像中存在但无法启动**：Claude Code 无法从与容器架构或 libc 不匹配的二进制文件启动，或者从在镜像构建中失去执行权限的文件启动。请参阅 [Failed to start Claude Code](/docs/zh-CN/agent-sdk/troubleshooting.md#cliconnectionerror-failed-to-start-claude-code)。
-* **Claude Code 进程在运行中途退出**：您的应用程序收到的错误取决于 SDK 语言以及 CLI 是否首先报告了错误结果。[CLI 进程退出](/docs/zh-CN/agent-sdk/troubleshooting.md#cli-process-exit) 下的条目涵盖了每条消息。
+* **服务启动时找不到 CLI**：在 Python 中，容器或服务管理器运行您的应用程序时使用的 `PATH` 与您的 shell 不同，因此在本地有效的安装对该进程不可见。在 TypeScript 中，镜像构建跳过了 SDK 的可选依赖项，或者 `pathToClaudeCodeExecutable` 指向镜像中不存在的文件。请参阅 [Claude Code not found](https://code.claude.com/docs/zh-CN/agent-sdk/troubleshooting.md#clinotfounderror-claude-code-not-found)。
+* **CLI 在镜像中存在但无法启动**：Claude Code 无法从与容器架构或 libc 不匹配的二进制文件启动，或者从在镜像构建中失去执行权限的文件启动。请参阅 [Failed to start Claude Code](https://code.claude.com/docs/zh-CN/agent-sdk/troubleshooting.md#cliconnectionerror-failed-to-start-claude-code)。
+* **Claude Code 进程在运行中途退出**：您的应用程序收到的错误取决于 SDK 语言以及 CLI 是否首先报告了错误结果。[CLI 进程退出](https://code.claude.com/docs/zh-CN/agent-sdk/troubleshooting.md#cli-process-exit) 下的条目涵盖了每条消息。
 
 ## 后续步骤
 
 * [托管指南](https://github.com/anthropics/claude-cookbooks/blob/main/claude_agent_sdk/07_Hosting_the_agent.ipynb)：包含 Docker、Modal 和 Kubernetes 的[可部署代码](https://github.com/anthropics/claude-cookbooks/tree/main/claude_agent_sdk/hosting)的笔记本演练。
-* [会话存储](/docs/zh-CN/agent-sdk/session-storage.md)：使用 `SessionStore` 适配器在主机间持久化记录。
-* [可观测性](/docs/zh-CN/agent-sdk/observability.md)：将 OTEL 跟踪、指标和日志导出到您的收集器。
-* [安全部署](/docs/zh-CN/agent-sdk/secure-deployment.md)：网络控制、凭证管理和隔离加固。
-* [成本跟踪](/docs/zh-CN/agent-sdk/cost-tracking.md)：按会话的令牌和成本核算。
+* [会话存储](https://code.claude.com/docs/zh-CN/agent-sdk/session-storage.md)：使用 `SessionStore` 适配器在主机间持久化记录。
+* [可观测性](https://code.claude.com/docs/zh-CN/agent-sdk/observability.md)：将 OTEL 跟踪、指标和日志导出到您的收集器。
+* [安全部署](https://code.claude.com/docs/zh-CN/agent-sdk/secure-deployment.md)：网络控制、凭证管理和隔离加固。
+* [成本跟踪](https://code.claude.com/docs/zh-CN/agent-sdk/cost-tracking.md)：按会话的令牌和成本核算。

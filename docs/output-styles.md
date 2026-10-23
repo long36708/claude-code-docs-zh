@@ -17,8 +17,8 @@
 >
 > 输出样式为 Claude 提供要遵循的指令。它不保证某些事情总是发生或永远不会发生。某些需求适合不同的功能：
 >
-> * 对于 Claude 应该了解的关于你的项目的内容，请使用 [CLAUDE.md](/docs/zh-CN/memory.md)。
-> * 对于必须每次都发生的事情，例如每次编辑后的格式化或阻止命令，请使用 [hook](/docs/zh-CN/hooks-guide.md)。
+> * 对于 Claude 应该了解的关于你的项目的内容，请使用 [CLAUDE.md](https://code.claude.com/docs/zh-CN/memory.md)。
+> * 对于必须每次都发生的事情，例如每次编辑后的格式化或阻止命令，请使用 [hook](https://code.claude.com/docs/zh-CN/hooks-guide.md)。
 > * 对于技能、子代理和其他选项，请参阅[在输出样式和其他功能之间选择](#choose-between-an-output-style-and-other-features)。
 
 ## 内置输出样式
@@ -46,7 +46,7 @@ Claude Code 从[**默认**](#default)样式开始，这是其完成软件工程�
 
 该样式的指令还告诉 Claude 在删除数据或更改共享或生产系统的操作之前在对话中与你核实。该核实是 Claude 遵循的指令，与权限提示分开。
 
-切换到 Proactive 样式不会改变你的[权限模式](/docs/zh-CN/permission-modes.md)。你的权限模式仍然决定哪些工具调用在不询问你的情况下运行，所以权限提示的显示方式与你切换之前相同。
+切换到 Proactive 样式不会改变你的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。你的权限模式仍然决定哪些工具调用在不询问你的情况下运行，所以权限提示的显示方式与你切换之前相同。
 
 ### Concise
 
@@ -90,14 +90,14 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
 
 ## 更改你的输出样式
 
-通过命令、菜单或设置文件选择样式。命令和两个菜单都会将你的选择保存到[本地项目级别](/docs/zh-CN/settings.md)的 `.claude/settings.local.json`。
+通过命令、菜单或设置文件选择样式。命令和两个菜单都会将你的选择保存到[本地项目级别](https://code.claude.com/docs/zh-CN/settings.md)的 `.claude/settings.local.json`。
 
 * **`/output-style` 命令**：运行 `/output-style <style>` 来切换，例如 `/output-style concise`。不带参数时，该命令列出你可以选择的样式并标记当前样式。
 
-  该命令也适用于[非交互模式](/docs/zh-CN/headless.md)和 Agent SDK 会话，以及来自移动应用或网页的[远程控制](/docs/zh-CN/remote-control.md#limitations)，其中你只能列出和选择[内置样式](#built-in-output-styles)。需要 Claude Code v2.1.269 或更高版本。
+  该命令也适用于[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)和 Agent SDK 会话，以及来自移动应用或网页的[远程控制](https://code.claude.com/docs/zh-CN/remote-control.md#limitations)，其中你只能列出和选择[内置样式](#built-in-output-styles)。需要 Claude Code v2.1.269 或更高版本。
 * **Terminal 菜单**：运行 `/config` 并选择**输出样式**从菜单中选择一种样式。
-* **VS Code extension**：使用 `/` 打开[命令菜单](/docs/zh-CN/vs-code.md#use-the-prompt-box)并选择**输出样式**来选择一种样式，包括你的自定义样式。需要 Claude Code v2.1.257 或更高版本。
-* **Desktop app**：在设置文件中设置 `outputStyle` 字段，例如 `.claude/settings.local.json`，这是终端菜单写入的文件。当你在那里运行 `/config` 时，Claude Code [打开**设置 > Claude Code**](/docs/zh-CN/desktop.md#what%E2%80%99s-not-available-in-desktop)而不是菜单。
+* **VS Code extension**：使用 `/` 打开[命令菜单](https://code.claude.com/docs/zh-CN/vs-code.md#use-the-prompt-box)并选择**输出样式**来选择一种样式，包括你的自定义样式。需要 Claude Code v2.1.257 或更高版本。
+* **Desktop app**：在设置文件中设置 `outputStyle` 字段，例如 `.claude/settings.local.json`，这是终端菜单写入的文件。当你在那里运行 `/config` 时，Claude Code [打开**设置 > Claude Code**](https://code.claude.com/docs/zh-CN/desktop.md#what%E2%80%99s-not-available-in-desktop)而不是菜单。
 
 要在不使用菜单的情况下设置样式，直接编辑设置文件中的 `outputStyle` 字段：
 
@@ -109,15 +109,15 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
 
 该值区分大小写，因此请将内置名称写为 `Proactive`、`Concise`、`Explanatory` 和 `Learning`。与样式名称不完全匹配的值（例如 `explanatory`）会给你默认样式。`/output-style` 命令忽略大小写。
 
-要在项目间将样式设置为默认值，请在 `~/.claude/settings.json` 中设置 `outputStyle`。项目自己的设置文件[优先于](/docs/zh-CN/settings.md#settings-precedence)该值。
+要在项目间将样式设置为默认值，请在 `~/.claude/settings.json` 中设置 `outputStyle`。项目自己的设置文件[优先于](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)该值。
 
-当你在会话中途切换样式时，Claude 从你的下一条消息开始使用新样式。关于该第一条消息在 prompt caching 中的成本，请参阅[更改输出样式](/docs/zh-CN/prompt-caching.md#changing-output-style)。在 v2.1.251 之前，新样式仅在你运行 `/clear` 或开始新会话后才会应用。
+当你在会话中途切换样式时，Claude 从你的下一条消息开始使用新样式。关于该第一条消息在 prompt caching 中的成本，请参阅[更改输出样式](https://code.claude.com/docs/zh-CN/prompt-caching.md#changing-output-style)。在 v2.1.251 之前，新样式仅在你运行 `/clear` 或开始新会话后才会应用。
 
 ## 创建自定义输出样式
 
 自定义输出样式是一个 Markdown 文件：frontmatter 用于元数据，然后是 Claude 的说明。
 
-在 VS Code 扩展中，你也可以从[**输出样式**菜单](/docs/zh-CN/vs-code.md#use-the-prompt-box)创建文件，而不是手动编写。这需要 Claude Code v2.1.261 或更高版本。
+在 VS Code 扩展中，你也可以从[**输出样式**菜单](https://code.claude.com/docs/zh-CN/vs-code.md#use-the-prompt-box)创建文件，而不是手动编写。这需要 Claude Code v2.1.261 或更高版本。
 
 **1. 创建一个 Markdown 文件**
 
@@ -125,7 +125,7 @@ Claude 然后停止并等待。在 `TODO(human)` 注释处编写你的代码，�
 
 * 用户：`~/.claude/output-styles`
 * 项目：`.claude/output-styles`
-* 托管策略：[托管设置目录](/docs/zh-CN/managed-settings.md#delivery-mechanisms)内的 `.claude/output-styles`
+* 托管策略：[托管设置目录](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)内的 `.claude/output-styles`
 
 项目输出样式从工作目录和仓库根目录之间的每个 `.claude/output-styles/` 加载。当多个这样的嵌套目录定义了同名样式时，Claude Code 使用最接近工作目录的那个。
 
@@ -153,11 +153,11 @@ Use `flowchart TD` for control flow and `sequenceDiagram` for request paths. Kee
 
 在终端中运行 `/output-style <style>`，或运行 `/config` 并在**输出样式**下选择你的样式。Claude 从你的下一条消息开始使用新样式。在终端中，Claude Code 在启动时读取样式文件，所以如果你在运行会话期间创建或编辑一个样式文件，请重启 Claude Code 以获取更改。
 
-[Plugins](/docs/zh-CN/plugins/manifest-reference.md) 也可以在 `output-styles/` 目录中提供输出样式。
+[Plugins](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md) 也可以在 `output-styles/` 目录中提供输出样式。
 
 ### Frontmatter 参考
 
-使用位于文件顶部 `---` 标记之间的 YAML [frontmatter](/docs/zh-CN/glossary.md#frontmatter) 配置输出样式。所有字段都是可选的，字段名称使用由连字符分隔的小写单词。拼写错误的字段会被忽略而不会出现错误。如果 YAML 无法解析，样式仍会以其文件名加载，且不设置任何字段；运行 `claude --debug` 以查看解析错误。
+使用位于文件顶部 `---` 标记之间的 YAML [frontmatter](https://code.claude.com/docs/zh-CN/glossary.md#frontmatter) 配置输出样式。所有字段都是可选的，字段名称使用由连字符分隔的小写单词。拼写错误的字段会被忽略而不会出现错误。如果 YAML 无法解析，样式仍会以其文件名加载，且不设置任何字段；运行 `claude --debug` 以查看解析错误。
 
 | 字段 | 必需 | 描述 |
 | :- | :- | :- |
@@ -175,22 +175,22 @@ Use `flowchart TD` for control flow and `sequenceDiagram` for request paths. Kee
 | 你想要 | 使用 | 为什么合适 |
 | :- | :- | :- |
 | 每个响应都采用特定的语气、长度或格式，或 Claude 采用不同的角色 | 输出样式 | 它适用于整个会话，你可以用一个命令切换样式 |
-| Claude 了解你的项目的约定、命令和结构 | [CLAUDE.md](/docs/zh-CN/memory.md) | 它保存了 Claude 应该了解的关于代码库的内容，无论你选择哪种样式，它都保持加载状态 |
-| 针对一种任务的指令，例如发布清单或审查程序 | 一个 [skill](/docs/zh-CN/skills.md) | Claude 仅在你调用它或任务匹配时加载它，所以它不会影响无关的响应 |
-| 每次都无一例外地发生的事情，例如每次编辑后的格式化或阻止命令 | 一个 [hook](/docs/zh-CN/hooks-guide.md) | Claude Code 在生命周期事件中自己运行 hook，所以它不依赖于 Claude 遵循指令 |
-| 一个具有自己的指令、模型和工具的助手，用于专注任务 | 一个 [subagent](/docs/zh-CN/sub-agents.md) | 它在具有自己的系统提示的单独上下文中运行，并将摘要返回到你的对话 |
-| 你启动 Claude Code 时传递的对 Claude 指令的补充 | [`--append-system-prompt`](/docs/zh-CN/cli-reference#system-prompt-flags) | 它附加到系统提示而不删除任何内容 |
+| Claude 了解你的项目的约定、命令和结构 | [CLAUDE.md](https://code.claude.com/docs/zh-CN/memory.md) | 它保存了 Claude 应该了解的关于代码库的内容，无论你选择哪种样式，它都保持加载状态 |
+| 针对一种任务的指令，例如发布清单或审查程序 | 一个 [skill](https://code.claude.com/docs/zh-CN/skills.md) | Claude 仅在你调用它或任务匹配时加载它，所以它不会影响无关的响应 |
+| 每次都无一例外地发生的事情，例如每次编辑后的格式化或阻止命令 | 一个 [hook](https://code.claude.com/docs/zh-CN/hooks-guide.md) | Claude Code 在生命周期事件中自己运行 hook，所以它不依赖于 Claude 遵循指令 |
+| 一个具有自己的指令、模型和工具的助手，用于专注任务 | 一个 [subagent](https://code.claude.com/docs/zh-CN/sub-agents.md) | 它在具有自己的系统提示的单独上下文中运行，并将摘要返回到你的对话 |
+| 你启动 Claude Code 时传递的对 Claude 指令的补充 | [`--append-system-prompt`](https://code.claude.com/docs/zh-CN/cli-reference#system-prompt-flags) | 它附加到系统提示而不删除任何内容 |
 
-这些功能可以组合使用。例如，你可以使用 CLAUDE.md 来说明 Claude 应该了解的内容，使用输出样式来说明它如何响应，以及使用 hook 来保证任何必须保证的事情。[扩展 Claude Code](/docs/zh-CN/features-overview.md) 比较了其余的扩展功能。
+这些功能可以组合使用。例如，你可以使用 CLAUDE.md 来说明 Claude 应该了解的内容，使用输出样式来说明它如何响应，以及使用 hook 来保证任何必须保证的事情。[扩展 Claude Code](https://code.claude.com/docs/zh-CN/features-overview.md) 比较了其余的扩展功能。
 
 ## 输出样式的工作原理
 
 输出样式改变 Claude Code 给予 Claude 的指令。
 
 * Claude Code 在每个请求中发送活跃样式的指令。
-* 在完整系统提示词中，自定义输出样式会省略 Claude Code 的内置软件工程指令部分，例如如何限定更改范围、编写注释和验证工作，除非 `keep-coding-instructions` 设置为 `true`。较短的系统提示词不包含该部分，因此该字段在那里不起作用。若要依赖该字段，请将 [`CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT`](/docs/zh-CN/env-vars#variables) 设置为 `0`，这样在任何模型上都会选用完整提示词。
+* 在完整系统提示词中，自定义输出样式会省略 Claude Code 的内置软件工程指令部分，例如如何限定更改范围、编写注释和验证工作，除非 `keep-coding-instructions` 设置为 `true`。较短的系统提示词不包含该部分，因此该字段在那里不起作用。若要依赖该字段，请将 [`CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `0`，这样在任何模型上都会选用完整提示词。
 
-输出样式适用于主对话和[分支](/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，分支继承父级的完整对话和系统提示词。其他[子代理运行自己的系统提示词](/docs/zh-CN/sub-agents.md#what-loads-at-startup)，因此样式不会改变它们的回复方式。
+输出样式适用于主对话和[分支](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，分支继承父级的完整对话和系统提示词。其他[子代理运行自己的系统提示词](https://code.claude.com/docs/zh-CN/sub-agents.md#what-loads-at-startup)，因此样式不会改变它们的回复方式。
 
 令牌使用情况取决于样式。样式的指令会增加输入令牌，尽管提示缓存在会话中的第一个请求之后会降低这个成本。
 
@@ -198,7 +198,7 @@ Use `flowchart TD` for control flow and `sequenceDiagram` for request paths. Kee
 
 ## 相关资源
 
-* [Settings](/docs/zh-CN/settings.md)：`outputStyle` 字段所在的位置以及设置优先级的工作原理
-* [Permission modes](/docs/zh-CN/permission-modes.md)：Proactive 样式与自动模式的比较方式
-* [Plugins](/docs/zh-CN/plugins/overview.md)：打包和分发输出样式以及 skills、hooks 和 agents
-* [Debug your configuration](/docs/zh-CN/debug-your-config.md)：诊断为什么输出样式没有生效
+* [Settings](https://code.claude.com/docs/zh-CN/settings.md)：`outputStyle` 字段所在的位置以及设置优先级的工作原理
+* [Permission modes](https://code.claude.com/docs/zh-CN/permission-modes.md)：Proactive 样式与自动模式的比较方式
+* [Plugins](https://code.claude.com/docs/zh-CN/plugins/overview.md)：打包和分发输出样式以及 skills、hooks 和 agents
+* [Debug your configuration](https://code.claude.com/docs/zh-CN/debug-your-config.md)：诊断为什么输出样式没有生效

@@ -6,7 +6,7 @@
 
 > 从 Claude Code mod 中绘制窗格、输入框上方的条带、按钮和文本字段，处理按键和输入，并在重绘和会话之间保持状态。
 
-mod 可以在 Claude Code 中绘制自己的界面，并更改 Claude Code 已经绘制的界面部分。mod 可以绘制的每个位置称为[渲染站点](/docs/zh-CN/plugins/mods/reference.md#render-sites)，例如窗格、输入框上方的条带或加载指示器。Claude Code 每次即将绘制渲染站点时都会触发 [`ui.render`](/docs/zh-CN/plugins/mods/reference#interface) 事件，您为该事件编写的 hook 返回要在那里绘制的内容。
+mod 可以在 Claude Code 中绘制自己的界面，并更改 Claude Code 已经绘制的界面部分。mod 可以绘制的每个位置称为[渲染站点](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites)，例如窗格、输入框上方的条带或加载指示器。Claude Code 每次即将绘制渲染站点时都会触发 [`ui.render`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface) 事件，您为该事件编写的 hook 返回要在那里绘制的内容。
 
 此地图显示 mod 可以在终端会话中的绘制位置：
 
@@ -14,11 +14,11 @@ mod 可以在 Claude Code 中绘制自己的界面，并更改 Claude Code 已�
 
 在较窄的终端中，窗格位于输入框上方而不是会话记录旁边。
 
-在开始之前，请先构建您的[第一个 mod](/docs/zh-CN/plugins/mods/create.md)。从完整示例开始，该示例构建一个具有两个选项卡和一个计数器的窗格，然后阅读您想要更改的每个部分对应的章节。
+在开始之前，请先构建您的[第一个 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md)。从完整示例开始，该示例构建一个具有两个选项卡和一个计数器的窗格，然后阅读您想要更改的每个部分对应的章节。
 
 > [!NOTE]
 >
-> 要查找某个属性或限制，请参阅[参考](/docs/zh-CN/plugins/mods/reference.md#render-sites)。
+> 要查找某个属性或限制，请参阅[参考](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites)。
 
 ## 构建带有选项卡的窗格
 
@@ -32,7 +32,7 @@ mod 可以在 Claude Code 中绘制自己的界面，并更改 Claude Code 已�
 
 **1. 创建插件**
 
-mod 是一个具有清单、指向您的代码的 `hooks.json` 和代码文件的插件。[创建 mod](/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 解释了每一个。创建一个名为 `hello-tabs` 的目录，其中包含 `.claude-plugin` 和 `hooks` 目录，然后保存前两个文件。
+mod 是一个具有清单、指向您的代码的 `hooks.json` 和代码文件的插件。[创建 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 解释了每一个。创建一个名为 `hello-tabs` 的目录，其中包含 `.claude-plugin` 和 `hooks` 目录，然后保存前两个文件。
 
 将清单保存为 `hello-tabs/.claude-plugin/plugin.json`：
 
@@ -159,8 +159,8 @@ export function register(on) {
 
 每个 hook 也做代码没有明确说明的事情：
 
-* **[`session.start`](/docs/zh-CN/plugins/mods/reference#session)** 也从 [`$.store`](#keep-state) 读取保存的计数，这是一个在会话之间持久化的键值存储。
-* **[`command.run`](/docs/zh-CN/plugins/mods/api#add-a-command)** 只告诉 Claude Code 窗格存在。打开窗格本身不绘制任何内容：Claude Code 然后触发 `ui.render` 来询问在其中放入什么。
+* **[`session.start`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#session)** 也从 [`$.store`](#keep-state) 读取保存的计数，这是一个在会话之间持久化的键值存储。
+* **[`command.run`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-command)** 只告诉 Claude Code 窗格存在。打开窗格本身不绘制任何内容：Claude Code 然后触发 `ui.render` 来询问在其中放入什么。
 * **`ui.render`** 返回元素树，即一个保存其他框、文本和按钮的 `Box`，并在每次运行时根据 `tab` 和 `count` 重新构建它。
 
 按下按钮会运行其 `onPress` 回调，该回调更改变量并调用 `redraw`。Claude Code 然后再次运行 `ui.render` hook，该 hook 根据新值构建新树。每个交互式绘制都使用该渲染周期：回调更改状态，hook 根据新状态重新渲染。
@@ -177,7 +177,7 @@ export function register(on) {
 
 ## 选择绘制位置
 
-`ui.render` hook 会为每个渲染站点运行，除非您将其限定到想要绘制的那个站点。要选择渲染站点，请将一个过滤器（称为[匹配器](/docs/zh-CN/plugins/mods/events.md#filter-which-events-a-hook-handles)）作为第二个参数传递给 `on`。`{ component: 'Pane' }` 仅为窗格运行该 hook。在 hook 中，`e.component` 指明站点名称，`e.surface` 说明哪个应用在绘制，`e.props` 保存站点自己的数据。对于窗格，`e.requestId` 是您打开它时使用的 `id`。
+`ui.render` hook 会为每个渲染站点运行，除非您将其限定到想要绘制的那个站点。要选择渲染站点，请将一个过滤器（称为[匹配器](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#filter-which-events-a-hook-handles)）作为第二个参数传递给 `on`。`{ component: 'Pane' }` 仅为窗格运行该 hook。在 hook 中，`e.component` 指明站点名称，`e.surface` 说明哪个应用在绘制，`e.props` 保存站点自己的数据。对于窗格，`e.requestId` 是您打开它时使用的 `id`。
 
 窗格和条带在 mod 填充之前都是空的。选择一个选项卡，查看每个站点是什么以及如何在其中绘制：
 
@@ -193,7 +193,7 @@ export function register(on) {
 
 条带是紧贴输入框上方的一条区域。它始终存在，并由所有 mod 共享。
 
-您的 hook 返回一棵树以在条带中显示内容，或返回 `next(e)` 以不显示任何内容。一棵树会替换[在您之后](/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)运行的 mod 在那里绘制的内容。要保留它们的内容，请将 `await next(e)` 的结果放在您树中某个 [`Box`](#build-a-tree-from-elements) 的子项中。
+您的 hook 返回一棵树以在条带中显示内容，或返回 `next(e)` 以不显示任何内容。一棵树会替换[在您之后](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)运行的 mod 在那里绘制的内容。要保留它们的内容，请将 `await next(e)` 的结果放在您树中某个 [`Box`](#build-a-tree-from-elements) 的子项中。
 
 要在条带中绘制，请过滤 `{ component: 'AbovePrompt' }`。
 
@@ -210,9 +210,9 @@ Claude Code 自己绘制大部分界面：消息、工具调用行、加载指�
 | `Spinner`, `ToolProgress`, `TurnDuration` | 轮次的状态栏：Claude 工作时显示动画的行、正在运行的工具的实时进度行，以及结束轮次的行 |
 | `InfoNotice`, `SessionMode`, `PromptHint` | 徽标下方的状态栏、页脚中的模式标签，以及输入框下方的提示行 |
 
-`Pane`、`AskUserQuestion`、`Spinner`、`UserMessage`、`AssistantMessage` 以及工具调用位置在终端、Desktop 应用和 VS Code 扩展中均有效。[渲染位置表](/docs/zh-CN/plugins/mods/reference.md#render-sites) 列出了其他每个位置在哪里触发。
+`Pane`、`AskUserQuestion`、`Spinner`、`UserMessage`、`AssistantMessage` 以及工具调用位置在终端、Desktop 应用和 VS Code 扩展中均有效。[渲染位置表](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites) 列出了其他每个位置在哪里触发。
 
-在 Claude Code 已经绘制的站点上，您的 hook 可以更改某个细节、替换绘制内容，或保持不变。选择一个选项卡，查看每种方式应用于加载指示器的效果。这些示例读取由另一个 hook 计数的 `calls` 变量，如[教程 mod](/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 中所示。
+在 Claude Code 已经绘制的站点上，您的 hook 可以更改某个细节、替换绘制内容，或保持不变。选择一个选项卡，查看每种方式应用于加载指示器的效果。这些示例读取由另一个 hook 计数的 `calls` 变量，如[教程 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 中所示。
 
 **Change a detail**
 
@@ -285,7 +285,7 @@ on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
 
 窗格仅在您的 mod 打开它时出现。您如何以及何时打开它，决定了它是否获得键盘焦点、它请求多少空间，以及它在狭窄的终端中是否显示。
 
-要打开窗格，请使用您选择的 `id` 调用 [`$.ui.open`](/docs/zh-CN/plugins/mods/reference#mods-api-methods)。`id` 是窗格的名称：您的 `ui.render` hook 会检查它，关闭窗格时您也要再次传递它。
+要打开窗格，请使用您选择的 `id` 调用 [`$.ui.open`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods)。`id` 是窗格的名称：您的 `ui.render` hook 会检查它，关闭窗格时您也要再次传递它。
 
 ```javascript theme={null}
 await $.ui.open({ id: 'hello-tabs', title: 'Hello tabs', focus: true })
@@ -317,26 +317,26 @@ const pane = { id: 'hello-tabs', title: 'Hello tabs' }
 await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 ```
 
-要让命令在 Claude 工作时打开窗格，请在[注册命令](/docs/zh-CN/plugins/mods/api.md#add-a-command)时添加 `immediate: true`。如果不添加，在轮次进行期间输入的命令会等待轮次结束。
+要让命令在 Claude 工作时打开窗格，请在[注册命令](https://code.claude.com/docs/zh-CN/plugins/mods/api.md#add-a-command)时添加 `immediate: true`。如果不添加，在轮次进行期间输入的命令会等待轮次结束。
 
 #### 在对话框后暂缓显示 toast
 
 当窗格是用户作答后即离开的对话框时，请向 `$.ui.open` 传递 `holdToasts: true`，这样在用户做决定时不会出现 toast。在终端中，只要该窗格是正在显示的窗格，暂缓就会持续，在此期间触发的 toast 会等到暂缓结束后再显示。
 
-除了您的 mod 通过 [`$.ui.toast`](/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn) 触发的 toast 外，Claude Code 还会暂缓其他 mod 的 toast 以及它自己的短时通知。对于保持打开的窗格，请不要设置该字段，以便用户能继续看到这些通知。
+除了您的 mod 通过 [`$.ui.toast`](https://code.claude.com/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn) 触发的 toast 外，Claude Code 还会暂缓其他 mod 的 toast 以及它自己的短时通知。对于保持打开的窗格，请不要设置该字段，以便用户能继续看到这些通知。
 
 #### 当窗格等待更宽的终端时
 
 您的 mod 在未经用户请求的情况下打开的窗格不会出现在狭窄的终端中，因此它无法占据小屏幕。它是否出现取决于是什么打开了它：
 
 * **由用户的操作打开**，例如用户运行的命令或按下的按钮，窗格在任何宽度下都会出现
-* **由您的 mod 自行打开**，例如从计时器或 [`turn.start`](/docs/zh-CN/plugins/mods/events#follow-a-turn) hook 中打开，窗格仅在至少 144 列宽的终端中出现。用户亲自打开过该窗格一次后，110 列就足够了。
+* **由您的 mod 自行打开**，例如从计时器或 [`turn.start`](https://code.claude.com/docs/zh-CN/plugins/mods/events#follow-a-turn) hook 中打开，窗格仅在至少 144 列宽的终端中出现。用户亲自打开过该窗格一次后，110 列就足够了。
 
 当窗格出现时，`$.ui.open` 解析为 `{ isPlaced: true }`。当窗格处于等待状态时，`isPlaced` 为 `false`，`reason` 是一个说明原因的字符串。等待中的窗格会在用户打开它或拓宽终端时出现。要在不打开窗格的情况下告知某些内容可用，请调用 `$.ui.toast('Your message')`，它会显示一条 toast 通知。
 
 ### 在 VS Code 扩展中绘制
 
-在 VS Code 扩展中，当扩展版本为 2.1.299 或更高时，mod 绘制的内容会显示在聊天面板中。[不获取功能标志](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话（例如在 Amazon Bedrock 上运行的会话）需要 2.1.304 或更高版本。在面板的 `ui.render` hook 中，`e.surface` 为 `vscode`。要查看面板会绘制哪些位置和元素，以及会忽略哪些 prop，请参阅[渲染位置](/docs/zh-CN/plugins/mods/reference.md#render-sites)表和[元素](/docs/zh-CN/plugins/mods/reference.md#elements)表。
+在 VS Code 扩展中，当扩展版本为 2.1.299 或更高时，mod 绘制的内容会显示在聊天面板中。[不获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话（例如在 Amazon Bedrock 上运行的会话）需要 2.1.304 或更高版本。在面板的 `ui.render` hook 中，`e.surface` 为 `vscode`。要查看面板会绘制哪些位置和元素，以及会忽略哪些 prop，请参阅[渲染位置](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites)表和[元素](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#elements)表。
 
 要让 mod 既能在终端中运行，也能在面板中运行，请考虑以下差异：
 
@@ -421,24 +421,24 @@ Input({
 Note: Type a note and press Enter
 ```
 
-[界面图库](/docs/zh-CN/plugins/mods/gallery.md)提供了大多数元素的示例和屏幕截图。此表列出了每个元素：
+[界面图库](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md)提供了大多数元素的示例和屏幕截图。此表列出了每个元素：
 
 | 元素 | 它绘制什么 | 位置 |
 | :- | :- | :- |
-| `Box` | 一个 flex 容器。接受布局 prop，如 `flexDirection`、[`borderStyle`](/docs/zh-CN/plugins/mods/reference#box-border-styles) 和 `width`。`columnGap` 和 `padding` 等间距 prop 接受一个数字，或从 `'xs'` 到 `'xl'` 的[步长名称](/docs/zh-CN/plugins/mods/reference.md#box-spacing-steps)。 | 到处 |
-| `Text` | 样式化文本。接受 `color`、`bold`、`dimColor`、`italic`、`wrap` 以及 [`weight`](/docs/zh-CN/plugins/mods/reference#text-typography) 等其他 prop。`color` 是主题键或颜色，如 `'red'`。`wrap` 是 `'wrap'`、`'truncate'`、`'truncate-start'`、`'truncate-middle'` 或 `'truncate-end'`。 | 到处 |
+| `Box` | 一个 flex 容器。接受布局 prop，如 `flexDirection`、[`borderStyle`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#box-border-styles) 和 `width`。`columnGap` 和 `padding` 等间距 prop 接受一个数字，或从 `'xs'` 到 `'xl'` 的[步长名称](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#box-spacing-steps)。 | 到处 |
+| `Text` | 样式化文本。接受 `color`、`bold`、`dimColor`、`italic`、`wrap` 以及 [`weight`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#text-typography) 等其他 prop。`color` 是主题键或颜色，如 `'red'`。`wrap` 是 `'wrap'`、`'truncate'`、`'truncate-start'`、`'truncate-middle'` 或 `'truncate-end'`。 | 到处 |
 | `Button` | 调用 `onPress` 的控件 | 到处 |
 | `Link`, `Code`, `Markdown` | 带有 `href` 和可选 `label` 的链接、代码块和格式化为 Claude 回复方式的文本。`Markdown` 在 `text` 属性中而不是在 `children` 中获取其内容，当您传递 `onLinkPress` 时需要 `key`。 | 到处 |
 | `Input`, `Select` | 文本字段和下拉列表 | 终端、桌面、VS Code |
 | `Svg` | SVG 文档 | 桌面、VS Code |
-| `Client` | 由您的第二个文件绘制的区域，用于动画和指针输入。该文件没有 mod API。它通过发布数据到达您的 hook，该数据作为 `ui.message` 事件到达。如果它加载、绘制或运行失败，您的 hook 会收到 [`ui.fault`](/docs/zh-CN/plugins/mods/reference#interface) 事件。 | 终端、桌面 |
+| `Client` | 由您的第二个文件绘制的区域，用于动画和指针输入。该文件没有 mod API。它通过发布数据到达您的 hook，该数据作为 `ui.message` 事件到达。如果它加载、绘制或运行失败，您的 hook 会收到 [`ui.fault`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface) 事件。 | 终端、桌面 |
 | `Raster`, `Image` | [彩色单元格网格](#draw-a-grid-of-colored-cells)和图片 | 终端 |
 
 如果您的模块是 `.tsx` 或 `.jsx` 文件，您可以将树写成 JSX。首先从 `$.ui.resolve(e)` 解构元素。
 
 如果树使用应用没有的元素、元素不接受的属性或在不应有子项的位置放置子项，Claude Code 会绘制其自己的站点版本。
 
-在使用 `--plugin-dir` 启动的会话中，会话记录中会有一行说明这一点，例如 `ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew its own`。[调试日志](/docs/zh-CN/plugins/mods/troubleshoot.md#read-the-debug-log) 将其记录为 `ui.render (Pane): a hook returned a tree that does not validate` 并带有相同的原因。会话中没有其他内容出现，所以当绘制不显示时，请检查该行或日志。
+在使用 `--plugin-dir` 启动的会话中，会话记录中会有一行说明这一点，例如 `ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew its own`。[调试日志](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#read-the-debug-log) 将其记录为 `ui.render (Pane): a hook returned a tree that does not validate` 并带有相同的原因。会话中没有其他内容出现，所以当绘制不显示时，请检查该行或日志。
 
 ### 桌面应用和 VS Code 中的 `Link`
 
@@ -454,7 +454,7 @@ Note: Type a note and press Enter
 
 在终端中，当 `Client` 运行的文件失败时，一行暗色文本（例如 `my-mod: Client client/spinner.js: boom`）会取代 `Client` 的位置，而您绘制的其余部分仍会显示。
 
-如果您的 mod 处理 [`ui.fault`](/docs/zh-CN/plugins/mods/reference#interface)，Claude Code 随后会[再次绘制该站点](#when-claude-code-redraws-without-being-asked)。
+如果您的 mod 处理 [`ui.fault`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface)，Claude Code 随后会[再次绘制该站点](#when-claude-code-redraws-without-being-asked)。
 
 ### 绘制彩色单元格网格
 
@@ -508,11 +508,11 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 * **`Input`**：接受 `onSubmit(value)` 和 `onInput(value)`
 * **`Select`**：接受 `onSelect(value)`，其选项在 `options` 中，这是一个至少包含一个选项且值唯一的列表，例如 `[{ value: 'sm', label: 'Small' }, { value: 'lg', label: 'Large' }]`
 
-测试通过控件的 `key` 按下控件或向其输入，因此请为每个控件指定一个。控件的每次使用也会触发 [`ui.press`、`ui.input` 或 `ui.select`](/docs/zh-CN/plugins/mods/reference#interface)，其中 `key` 在 `e.element` 中，另一个 mod 可以处理这些事件。其 hook 在您的回调之前运行，因此它能看到用户输入到您的 `Input` 中的内容，可以更改它或代替您的回调作出响应。mod API 没有按下另一个 mod 的按钮的方法。
+测试通过控件的 `key` 按下控件或向其输入，因此请为每个控件指定一个。控件的每次使用也会触发 [`ui.press`、`ui.input` 或 `ui.select`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface)，其中 `key` 在 `e.element` 中，另一个 mod 可以处理这些事件。其 hook 在您的回调之前运行，因此它能看到用户输入到您的 `Input` 中的内容，可以更改它或代替您的回调作出响应。mod API 没有按下另一个 mod 的按钮的方法。
 
 ### 键盘焦点和快捷键
 
-您的 mod 永远不会自己读取键盘。用户按下一个键，Claude Code 决定它属于您的哪个控件，然后该控件的回调运行。除了[条带上的数字快捷键或 `action` 绑定](/docs/zh-CN/plugins/mods/reference#elements)，这仅在您的窗格或条带拥有键盘焦点时发生。其余时间，按键进入输入框。
+您的 mod 永远不会自己读取键盘。用户按下一个键，Claude Code 决定它属于您的哪个控件，然后该控件的回调运行。除了[条带上的数字快捷键或 `action` 绑定](https://code.claude.com/docs/zh-CN/plugins/mods/reference#elements)，这仅在您的窗格或条带拥有键盘焦点时发生。其余时间，按键进入输入框。
 
 在 [VS Code 扩展](#draw-in-the-vs-code-extension)中，按钮没有快捷键：用户点击按钮或在按钮上按 Enter，并在字段中输入。
 
@@ -522,7 +522,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 
 * 您的 mod 从命令或按键使用 `focus: true` 打开它
 * 用户按 Ctrl+X 然后按 Tab
-* 用户点击它，这在终端中需要[全屏渲染](/docs/zh-CN/fullscreen.md)
+* 用户点击它，这在终端中需要[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)
 
 Claude Code 仅在输入框为空且没有其他内容拥有键盘焦点时授予 `focus: true`。在用户输入时打开的窗格不会获取其按键。
 
@@ -556,14 +556,14 @@ mod 无法将 Tab 或方向键绑定到其他任何功能，因此游戏使用 `
 | 带括号（默认） | `[ Add one ]`，不显示快捷键 | 标签，旁边有一个小键 | 标签，快捷键不起作用 |
 | 使用 `plain: true` | `1: One` | 标签，旁边有一个小键 | 标签，快捷键不起作用 |
 
-在终端中，请在带括号按钮的标签中写明按键，或使用 `plain: true`，以便用户知道要按什么。[元素参考](/docs/zh-CN/plugins/mods/reference.md#elements)包含其他 `Button` 规则：`action`、条带上的数字快捷键，以及同一快捷键上的两个按钮。
+在终端中，请在带括号按钮的标签中写明按键，或使用 `plain: true`，以便用户知道要按什么。[元素参考](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#elements)包含其他 `Button` 规则：`action`、条带上的数字快捷键，以及同一快捷键上的两个按钮。
 
 #### 用户折叠条带时
 
 在终端中，当有 mod 在条带中绘制时，用户可以将条带折叠为一行，使其不再碍事：
 
-* **点击 `[-]`**：条带展开时，Claude Code 在其第一行的右端绘制此标记。在[全屏渲染](/docs/zh-CN/fullscreen.md)中，用户点击它即可折叠条带。
-* **按 Ctrl+X 然后按 Ctrl+A**：无论是输入框、条带还是窗格拥有键盘焦点，此操作都有效。用户可以通过 `abovePrompt:toggle` 操作为其[绑定其他按键](/docs/zh-CN/keybindings.md#above-prompt-actions)。
+* **点击 `[-]`**：条带展开时，Claude Code 在其第一行的右端绘制此标记。在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)中，用户点击它即可折叠条带。
+* **按 Ctrl+X 然后按 Ctrl+A**：无论是输入框、条带还是窗格拥有键盘焦点，此操作都有效。用户可以通过 `abovePrompt:toggle` 操作为其[绑定其他按键](https://code.claude.com/docs/zh-CN/keybindings.md#above-prompt-actions)。
 
 折叠的条带会隐藏 mod 在其中绘制的所有内容，改为显示一个暗色行，该行按用户的绑定方式列出展开条带的按键：
 
@@ -571,7 +571,7 @@ mod 无法将 Tab 或方向键绑定到其他任何功能，因此游戏使用 `
 ▸ plugin panel hidden · ctrl+x ctrl+a or click to show
 ```
 
-相同的按键，或在全屏渲染中点击该行，可以再次展开条带。在此之前，任何方式都无法按下其中的按钮：快捷键、在空输入框中键入的数字以及按钮 [`action`](/docs/zh-CN/plugins/mods/reference#elements) 的快捷键均无效。如果用户折叠条带时条带拥有键盘焦点，焦点会返回到输入框，并且在条带折叠期间，Ctrl+X 然后按 Tab 会跳过条带。
+相同的按键，或在全屏渲染中点击该行，可以再次展开条带。在此之前，任何方式都无法按下其中的按钮：快捷键、在空输入框中键入的数字以及按钮 [`action`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#elements) 的快捷键均无效。如果用户折叠条带时条带拥有键盘焦点，焦点会返回到输入框，并且在条带折叠期间，Ctrl+X 然后按 Tab 会跳过条带。
 
 条带会保持折叠状态直到用户展开它，即使在 `/clear` 之后也是如此，并会在下次启动 Claude Code 时重新展开。您的 mod 无法展开它，也无法得知它已折叠：`ui.render` hook 会继续运行，`e.props` 中也没有任何内容表明这一点。请不要让条带成为您的 mod 显示需要用户回应的内容的唯一位置。
 
@@ -670,7 +670,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 | `value` | `''` | 字段初始的文本。此处为空，因此显示占位文本。 |
 | `submitLabel` | `add` | `⏎` 后的单词，说明 Enter 做什么 |
 
-提交 `Input` 不会启动轮次，除非您的回调调用 [`$.prompt.submit`](/docs/zh-CN/plugins/mods/api#start-a-turn-from-a-background-job)。
+提交 `Input` 不会启动轮次，除非您的回调调用 [`$.prompt.submit`](https://code.claude.com/docs/zh-CN/plugins/mods/api#start-a-turn-from-a-background-job)。
 
 ## 重绘站点
 
@@ -678,7 +678,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 
 ### 当 Claude Code 在不被要求时重绘
 
-当站点的 prop 更改或终端的宽度更改时，Claude Code 会再次运行您的 `ui.render` hook。当站点中的某个 `Client` 失败且您的 mod 处理 [`ui.fault`](/docs/zh-CN/plugins/mods/reference#interface) 时，Claude Code 会在您的 `ui.fault` hook 返回后再运行一次该 hook，以便您的 `ui.render` hook 可以省略该 `Client`。它不会按计时器运行 hook，也无法判断您的模块中的变量何时更改。
+当站点的 prop 更改或终端的宽度更改时，Claude Code 会再次运行您的 `ui.render` hook。当站点中的某个 `Client` 失败且您的 mod 处理 [`ui.fault`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface) 时，Claude Code 会在您的 `ui.fault` hook 返回后再运行一次该 hook，以便您的 `ui.render` hook 可以省略该 `Client`。它不会按计时器运行 hook，也无法判断您的模块中的变量何时更改。
 
 ### 当您的数据更改时重绘
 
@@ -715,7 +715,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 
 ### 按计时器重绘
 
-要使时钟、倒计时或来自会话外部的值保持最新，请按计划重绘。在模块的 `session.start` hook 中启动计时器。如果模块已经有一个该 hook（如 `hello-tabs`），请将 [`$.clock.every`](/docs/zh-CN/plugins/mods/api#run-work-in-the-background) 这一行添加到其中：
+要使时钟、倒计时或来自会话外部的值保持最新，请按计划重绘。在模块的 `session.start` hook 中启动计时器。如果模块已经有一个该 hook（如 `hello-tabs`），请将 [`$.clock.every`](https://code.claude.com/docs/zh-CN/plugins/mods/api#run-work-in-the-background) 这一行添加到其中：
 
 ```javascript theme={null}
 on('session.start', async ($, e, next) => {
@@ -729,7 +729,7 @@ Claude Code 现在每秒运行您的 `ui.render` hook 一次。当模块重新�
 
 ### 站点可以重绘的频率
 
-Claude Code 会限制站点的重绘频率，因此您的 mod 可以在数据每次更改时调用 `$.ui.invalidate`。有关每个站点可以重绘的频率，请参阅[限制表](/docs/zh-CN/plugins/mods/reference.md#limits)。
+Claude Code 会限制站点的重绘频率，因此您的 mod 可以在数据每次更改时调用 `$.ui.invalidate`。有关每个站点可以重绘的频率，请参阅[限制表](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)。
 
 快于该限制的调用会被合并为一次重绘。该重绘只运行您的 hook 一次，hook 读取的是您的数据在那一刻的状态，因此显示的是最新值，而中间的值不会显示。动画的运行速度无法超过该限制。
 
@@ -741,7 +741,7 @@ mod 将值保存在何处，决定了该值持续多长时间：直到模块重�
 | :- | :- | :- |
 | 模块级变量 | 模块重新加载，这在开发期间每次保存文件时发生 | 您可以丢失的值，如 `hello-tabs` 中的 `tab` |
 | `$.state` | 会话结束，或用户运行 `/clear`、`/resume` 或 `/branch` | 绘制依赖的值，应该在重新加载后存活 |
-| `$.store` | 您的 mod 删除它，或没有会话在 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperioddays) 内读取或写入存储。存储是一个键值存储，保存为您的插件自己的 JSON 文件，位于 `~/.claude/plugins/store/` 下。 | 设置、历史记录、用户期望下次找到的任何内容 |
+| `$.store` | 您的 mod 删除它，或没有会话在 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays) 内读取或写入存储。存储是一个键值存储，保存为您的插件自己的 JSON 文件，位于 `~/.claude/plugins/store/` 下。 | 设置、历史记录、用户期望下次找到的任何内容 |
 
 `$.store.get(key)` 解析为值或 `undefined`，`$.store.set(key, value)` 接受任何 JSON 值。
 
@@ -819,7 +819,7 @@ onPress: () => update($, count, (value) => value + 1)
 
 ### 在 `/clear` 后再次加载保存的值
 
-如果您的 mod 在 `session.start` 时将保存的值从 `$.store` 复制到 `$.state`，它必须在 `/clear`、`/resume` 或 `/branch` 后再次复制。这些命令会将每个 `$.state` 值重置为其默认值，而 `session.start` 不会再次触发。[`classic.SessionStart`](/docs/zh-CN/plugins/mods/events#hook-the-settings-hook-events) 确实会在每个命令之后触发，`e.source` 设置为 `clear`、`resume` 或 `fork`，因此请在其上的 hook 中再次复制值。否则您的绘制会显示默认值，而保存 `$.state` 值的回调会用默认值覆盖您存储的内容。
+如果您的 mod 在 `session.start` 时将保存的值从 `$.store` 复制到 `$.state`，它必须在 `/clear`、`/resume` 或 `/branch` 后再次复制。这些命令会将每个 `$.state` 值重置为其默认值，而 `session.start` 不会再次触发。[`classic.SessionStart`](https://code.claude.com/docs/zh-CN/plugins/mods/events#hook-the-settings-hook-events) 确实会在每个命令之后触发，`e.source` 设置为 `clear`、`resume` 或 `fork`，因此请在其上的 hook 中再次复制值。否则您的绘制会显示默认值，而保存 `$.state` 值的回调会用默认值覆盖您存储的内容。
 
 此代码从两个 hook 加载 `count`。它基于 `hello-tabs` 的 `$.state` 版本，其中 `count` 是原子，`update` 已被导入。将 `loadCount` 放在 `register` 上方，并将 `loadCount` 调用添加到您已有的 `session.start` hook。`classic.SessionStart` 也会在启动时和压缩后触发，而这些不会重置 `$.state`，因此对 `source` 的过滤将该 hook 限定于这三种重置：
 
@@ -847,7 +847,7 @@ on('classic.SessionStart', { source: ['clear', 'resume', 'fork'] }, async ($, e,
 
 `loadCount` 会用存储的值覆盖 `$.state` 中的值，并且每次模块重新加载时 `session.start` 都会再次触发。为了防止存储落后，请在每次更改时保存，就像 **Add one** 按钮所做的那样。
 
-要在不启动会话的情况下检查重新加载，请[在 `/clear` 后测试绘制](/docs/zh-CN/plugins/mods/test#test-a-drawing-after-clear)。
+要在不启动会话的情况下检查重新加载，请[在 `/clear` 后测试绘制](https://code.claude.com/docs/zh-CN/plugins/mods/test#test-a-drawing-after-clear)。
 
 ### 从多个会话保存
 
@@ -874,7 +874,7 @@ onPress: async () => {
 
 ## 后续步骤
 
-* [对事件做出反应](/docs/zh-CN/plugins/mods/events.md)：从工具调用和轮次提供你的绘制
-* [使用 mod API](/docs/zh-CN/plugins/mods/api.md)：从计时器和模型调用提供你的绘制
-* [测试绘制](/docs/zh-CN/plugins/mods/test.md#test-a-drawing)：从测试按下你的按钮，在多个表面上
-* [渲染站点](/docs/zh-CN/plugins/mods/reference.md#render-sites)和[元素](/docs/zh-CN/plugins/mods/reference.md#elements)：每个站点的属性和每个元素的属性
+* [对事件做出反应](https://code.claude.com/docs/zh-CN/plugins/mods/events.md)：从工具调用和轮次提供你的绘制
+* [使用 mod API](https://code.claude.com/docs/zh-CN/plugins/mods/api.md)：从计时器和模型调用提供你的绘制
+* [测试绘制](https://code.claude.com/docs/zh-CN/plugins/mods/test.md#test-a-drawing)：从测试按下你的按钮，在多个表面上
+* [渲染站点](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites)和[元素](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#elements)：每个站点的属性和每个元素的属性

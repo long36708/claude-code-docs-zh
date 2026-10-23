@@ -15,7 +15,7 @@
 * 你在多个会话中工作，需要区分它们
 * 你希望 git 分支和状态始终可见
 
-状态行在其自己的行中呈现，位于内置页脚徽章上方，不会替换它们。配置自定义状态行后，Claude Code 会停止显示页脚中的大多数键盘提示，包括 `esc to interrupt`、`? for shortcuts` 回退和 `hold space to speak` [语音听写](/docs/zh-CN/voice-dictation.md)提示。要在对话中出现 ID 时向页脚添加可点击的链接徽章，而无需编写脚本，请改为配置 [`footerLinksRegexes`](/docs/zh-CN/settings-reference#footerlinksregexes)。
+状态行在其自己的行中呈现，位于内置页脚徽章上方，不会替换它们。配置自定义状态行后，Claude Code 会停止显示页脚中的大多数键盘提示，包括 `esc to interrupt`、`? for shortcuts` 回退和 `hold space to speak` [语音听写](https://code.claude.com/docs/zh-CN/voice-dictation.md)提示。要在对话中出现 ID 时向页脚添加可点击的链接徽章，而无需编写脚本，请改为配置 [`footerLinksRegexes`](https://code.claude.com/docs/zh-CN/settings-reference#footerlinksregexes)。
 
 这是一个[多行状态行](#display-multiple-lines)的示例，它在第一行显示 git 信息，在第二行显示颜色编码的上下文栏。
 
@@ -39,7 +39,7 @@
 
 ### 手动配置状态行
 
-将 `statusLine` 字段添加到你的用户设置（`~/.claude/settings.json`，其中 `~` 是你的主目录）或[项目设置](/docs/zh-CN/settings.md#where-settings-live)。将 `type` 设置为 `"command"` 并将 `command` 指向脚本路径或内联 shell 命令。有关创建脚本的完整演练，请参阅[逐步构建状态行](#build-a-status-line-step-by-step)。
+将 `statusLine` 字段添加到你的用户设置（`~/.claude/settings.json`，其中 `~` 是你的主目录）或[项目设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)。将 `type` 设置为 `"command"` 并将 `command` 指向脚本路径或内联 shell 命令。有关创建脚本的完整演练，请参阅[逐步构建状态行](#build-a-status-line-step-by-step)。
 
 ```json theme={null}
 {
@@ -175,9 +175,9 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `cwd`, `workspace.current_dir` | 当前工作目录。两个字段包含相同的值；为了与 `workspace.project_dir` 保持一致，首选 `workspace.current_dir`。 |
 | `workspace.project_dir` | 启动 Claude Code 的目录，如果在会话期间工作目录更改，可能与 `cwd` 不同 |
 | `workspace.added_dirs` | 通过 `/add-dir` 或 `--add-dir` 添加的其他目录。如果未添加任何目录，则为空数组 |
-| `workspace.git_worktree` | 当前目录在使用 `git worktree add` 创建的链接 worktree 内时的 Git worktree 名称。在主工作树中不存在。对于任何 git worktree 都会填充，不同于仅在 [worktree 会话](/docs/zh-CN/worktrees.md) 期间出现的 `worktree.*` |
+| `workspace.git_worktree` | 当前目录在使用 `git worktree add` 创建的链接 worktree 内时的 Git worktree 名称。在主工作树中不存在。对于任何 git worktree 都会填充，不同于仅在 [worktree 会话](https://code.claude.com/docs/zh-CN/worktrees.md) 期间出现的 `worktree.*` |
 | `workspace.repo.host`, `workspace.repo.owner`, `workspace.repo.name` | 从 `origin` 远程解析的存储库标识，例如 `"github.com"`、`"anthropics"`、`"claude-code"`。在 git 存储库外或未配置 `origin` 远程时不存在。对于嵌套在子组中的 gitlab.com 项目，`owner` 是带有斜杠的完整命名空间路径，例如 `"group/subgroup"`。在 v2.1.260 之前，这些项目的 `workspace.repo` 不存在 |
-| `cost.total_cost_usd` | 以美元计的估计会话成本，在客户端按列表价格计算，除非有 [`modelPricing`](/docs/zh-CN/settings-reference#modelpricing) 表生效。可能与您的实际账单不同。当 `/clear` 启动新会话时重置为 \$0 |
+| `cost.total_cost_usd` | 以美元计的估计会话成本，在客户端按列表价格计算，除非有 [`modelPricing`](https://code.claude.com/docs/zh-CN/settings-reference#modelpricing) 表生效。可能与您的实际账单不同。当 `/clear` 启动新会话时重置为 \$0 |
 | `cost.total_duration_ms` | 自会话开始以来的总挂钟时间（毫秒） |
 | `cost.total_api_duration_ms` | 等待 API 响应的总时间（毫秒） |
 | `cost.total_lines_added`, `cost.total_lines_removed` | 更改的代码行数 |
@@ -187,26 +187,26 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `context_window.remaining_percentage` | 预计算的剩余上下文窗口百分比 |
 | `context_window.current_usage` | 来自最后一次 API 调用的令牌计数，在 [上下文窗口字段](#context-window-fields) 中描述 |
 | `exceeds_200k_tokens` | 最近一次 API 响应中的总令牌计数（输入、缓存和输出令牌合并）是否超过 200k。这是一个固定阈值，与实际上下文窗口大小无关。 |
-| `fast_mode` | 是否为会话启用了 [快速模式](/docs/zh-CN/fast-mode.md) |
+| `fast_mode` | 是否为会话启用了 [快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md) |
 | `effort.level` | 当前推理工作量（`low`、`medium`、`high`、`xhigh` 或 `max`）。反映实时会话值，包括中途 `/effort` 更改。当当前模型不支持工作量参数时不存在 |
 | `thinking.enabled` | 是否为会话启用了扩展思考 |
 | `rate_limits.five_hour.used_percentage`, `rate_limits.seven_day.used_percentage` | 消耗的 5 小时或 7 天速率限制的百分比，从 0 到 100 |
 | `rate_limits.five_hour.resets_at`, `rate_limits.seven_day.resets_at` | Unix 纪元秒，当 5 小时或 7 天速率限制窗口重置时 |
 | `rate_limits.spend_limit.used_percentage`, `rate_limits.spend_limit.resets_at` | 在 Claude apps gateway 后面，您已使用的支出限制额度以及其周期何时重置。请参阅 [支出限制字段](#spend-limit-fields)。需要 Claude Code v2.1.251 或更高版本 |
 | `rate_limits.spend_limit.used_usd`, `rate_limits.spend_limit.limit_usd`, `rate_limits.spend_limit.period` | 您以美元计的估计支出和限额，以及该限制的周期。这些字段可能不存在。请参阅 [支出限制字段](#spend-limit-fields)。Claude Code 和网关均需要 v2.1.284 或更高版本 |
-| `prompt_cache` | 会话的主对话的 [prompt cache](/docs/zh-CN/prompt-caching.md) 统计信息：命中率、未命中次数以及缓存是否预热。有关每个字段，请参阅 [prompt cache 字段](#prompt-cache-fields)。在主对话的第一次 API 响应之前不存在。需要 Claude Code v2.1.251 或更高版本 |
+| `prompt_cache` | 会话的主对话的 [prompt cache](https://code.claude.com/docs/zh-CN/prompt-caching.md) 统计信息：命中率、未命中次数以及缓存是否预热。有关每个字段，请参阅 [prompt cache 字段](#prompt-cache-fields)。在主对话的第一次 API 响应之前不存在。需要 Claude Code v2.1.251 或更高版本 |
 | `session_id` | 唯一的会话标识符 |
-| `session_name` | 会话名称。使用使用 `--name` 标志或 `/rename` 设置的自定义名称（如果存在），否则使用 AI 生成的会话标题。[默认显示名称](/docs/zh-CN/sessions.md#name-your-sessions)（例如 `my-app-3f`）不会填充此字段。当会话既没有自定义名称也没有 AI 生成的标题时不存在 |
-| `prompt_id` | 标识当前正在处理的用户提示词的 UUID。与 OpenTelemetry 事件上的 [`prompt.id` 属性](/docs/zh-CN/monitoring-usage#event-correlation-attributes) 匹配。在第一次用户输入之前不存在 |
+| `session_name` | 会话名称。使用使用 `--name` 标志或 `/rename` 设置的自定义名称（如果存在），否则使用 AI 生成的会话标题。[默认显示名称](https://code.claude.com/docs/zh-CN/sessions.md#name-your-sessions)（例如 `my-app-3f`）不会填充此字段。当会话既没有自定义名称也没有 AI 生成的标题时不存在 |
+| `prompt_id` | 标识当前正在处理的用户提示词的 UUID。与 OpenTelemetry 事件上的 [`prompt.id` 属性](https://code.claude.com/docs/zh-CN/monitoring-usage#event-correlation-attributes) 匹配。在第一次用户输入之前不存在 |
 | `transcript_path` | 对话记录文件的路径 |
 | `version` | Claude Code 版本 |
 | `output_style.name` | 当前输出样式的名称 |
-| `vim.mode` | 启用 [vim 模式](/docs/zh-CN/interactive-mode.md#vim-editor-mode) 时的当前 vim 模式（`NORMAL`、`INSERT`、`VISUAL` 或 `VISUAL LINE`） |
+| `vim.mode` | 启用 [vim 模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#vim-editor-mode) 时的当前 vim 模式（`NORMAL`、`INSERT`、`VISUAL` 或 `VISUAL LINE`） |
 | `agent.name` | 使用 `--agent` 标志或配置的代理设置运行时的代理名称 |
-| `pr.number`, `pr.url` | 当前分支的开放拉取请求。镜像底部状态栏中的 PR 徽章。在具有 GitLab 远程的存储库中，Claude Code 从分支的开放 [merge request](/docs/zh-CN/interactive-mode.md#gitlab-merge-requests) 填充这些字段，因此 `pr.number` 是 merge request 编号。Merge request 数据需要 Claude Code v2.1.234 或更高版本。当不在 git 存储库中、找到拉取请求或 merge request 之前，或一旦它合并或关闭后不存在 |
+| `pr.number`, `pr.url` | 当前分支的开放拉取请求。镜像底部状态栏中的 PR 徽章。在具有 GitLab 远程的存储库中，Claude Code 从分支的开放 [merge request](https://code.claude.com/docs/zh-CN/interactive-mode.md#gitlab-merge-requests) 填充这些字段，因此 `pr.number` 是 merge request 编号。Merge request 数据需要 Claude Code v2.1.234 或更高版本。当不在 git 存储库中、找到拉取请求或 merge request 之前，或一旦它合并或关闭后不存在 |
 | `pr.review_state` | 开放 PR 的审查状态：`approved`、`pending`、`changes_requested` 或 `draft`。即使 `pr` 存在，也可能独立不存在 |
-| `pr.kind` | 当 `pr` 描述 [GitLab merge request](/docs/zh-CN/interactive-mode.md#gitlab-merge-requests) 时为 `mr`。对于 GitHub 拉取请求不存在，因此在此字段之前编写的脚本继续工作。对于 merge request，当 GitLab 报告它可合并时，Claude Code 将 `review_state` 设置为 `approved`，对于任何其他开放状态设置为 `pending`，对于草稿设置为 `draft`。需要 Claude Code v2.1.234 或更高版本 |
-| `worktree.name` | 活跃 worktree 的名称。仅在 [worktree 会话](/docs/zh-CN/worktrees.md) 期间出现 |
+| `pr.kind` | 当 `pr` 描述 [GitLab merge request](https://code.claude.com/docs/zh-CN/interactive-mode.md#gitlab-merge-requests) 时为 `mr`。对于 GitHub 拉取请求不存在，因此在此字段之前编写的脚本继续工作。对于 merge request，当 GitLab 报告它可合并时，Claude Code 将 `review_state` 设置为 `approved`，对于任何其他开放状态设置为 `pending`，对于草稿设置为 `draft`。需要 Claude Code v2.1.234 或更高版本 |
+| `worktree.name` | 活跃 worktree 的名称。仅在 [worktree 会话](https://code.claude.com/docs/zh-CN/worktrees.md) 期间出现 |
 | `worktree.path` | worktree 目录的绝对路径 |
 | `worktree.branch` | worktree 的 Git 分支名称（例如，`"worktree-my-feature"`）。对于基于钩子的 worktree 不存在 |
 | `worktree.original_cwd` | Claude 进入 worktree 之前所在的目录 |
@@ -340,7 +340,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 > * `vim`：仅在启用 vim 模式时出现
 > * `agent`：仅在使用 `--agent` 标志或配置的代理设置运行时出现
 > * `pr`：仅在为当前分支找到开放 PR 或 GitLab merge request 时出现，一旦它合并或关闭就会被移除。`pr.review_state` 和 `pr.kind` 可能独立不存在
-> * `worktree`：仅在 [worktree 会话](/docs/zh-CN/worktrees.md) 期间出现。当存在时，对于基于钩子的 worktree，`branch` 和 `original_branch` 也可能不存在
+> * `worktree`：仅在 [worktree 会话](https://code.claude.com/docs/zh-CN/worktrees.md) 期间出现。当存在时，对于基于钩子的 worktree，`branch` 和 `original_branch` 也可能不存在
 > * `rate_limits`：仅对 Claude.ai Pro 和 Max 订阅者，或在为你设置支出限制的 Claude apps gateway 后面，以及仅在会话中第一次 API 响应后出现。每个窗口（`five_hour`、`seven_day`、`spend_limit`）可能独立不存在，Claude Code 在其 `resets_at` 时间过去后删除一个窗口。使用 `jq -r '.rate_limits.five_hour.used_percentage // empty'` 来优雅地处理缺失。
 > * `prompt_cache`：在主对话的第一次 API 响应后出现。请参阅 [prompt cache 字段](#prompt-cache-fields)
 >
@@ -365,7 +365,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 * `cache_creation_input_tokens`：写入缓存的令牌
 * `cache_read_input_tokens`：从缓存读取的令牌
 
-有关缓存字段的含义以及它们如何计费的信息，请参阅 [检查缓存性能](/docs/zh-CN/prompt-caching.md#check-cache-performance)。
+有关缓存字段的含义以及它们如何计费的信息，请参阅 [检查缓存性能](https://code.claude.com/docs/zh-CN/prompt-caching.md#check-cache-performance)。
 
 `used_percentage` 字段仅从输入令牌计算：`input_tokens + cache_creation_input_tokens + cache_read_input_tokens`。它不包括 `output_tokens`。
 
@@ -375,16 +375,16 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 
 ### 支出限制字段
 
-在 [设置了支出限制的 Claude apps gateway](/docs/zh-CN/claude-apps-gateway-spend-limits.md#usage-warnings-in-claude-code) 后面，`rate_limits.spend_limit` 对象描述适用于您的支出限制。它在会话的第一次 API 响应后出现，需要 Claude Code v2.1.251 或更高版本。您的脚本按不同的时间表接收其字段：
+在 [设置了支出限制的 Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md#usage-warnings-in-claude-code) 后面，`rate_limits.spend_limit` 对象描述适用于您的支出限制。它在会话的第一次 API 响应后出现，需要 Claude Code v2.1.251 或更高版本。您的脚本按不同的时间表接收其字段：
 
 * `used_percentage` 和 `resets_at`：随每个响应一起提供，因此只要 `spend_limit` 存在，它们就存在。`used_percentage` 的范围是 0 到 100，一旦您超过限制则会超过 100；`resets_at` 是该限制周期重置时的 Unix 纪元秒。
-* `used_usd`、`limit_usd` 和 `period`：您迄今为止以美元计的估计支出和限额，以及该限制涵盖的周期，为 `daily`、`weekly` 或 `monthly` 之一。网关 [根据 token 计数计算 `used_usd`](/docs/zh-CN/claude-apps-gateway-spend-limits#how-requests-are-priced)，因此它是一个估计值，而不是计费金额。Claude Code 通过单独的请求从网关读取这些字段，在您发送请求期间大约每五分钟一次。美元金额可能比 `used_percentage` 滞后约五分钟，因此两者可能会短暂不一致。Claude Code 和网关均需要 v2.1.284 或更高版本。
+* `used_usd`、`limit_usd` 和 `period`：您迄今为止以美元计的估计支出和限额，以及该限制涵盖的周期，为 `daily`、`weekly` 或 `monthly` 之一。网关 [根据 token 计数计算 `used_usd`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits#how-requests-are-priced)，因此它是一个估计值，而不是计费金额。Claude Code 通过单独的请求从网关读取这些字段，在您发送请求期间大约每五分钟一次。美元金额可能比 `used_percentage` 滞后约五分钟，因此两者可能会短暂不一致。Claude Code 和网关均需要 v2.1.284 或更高版本。
 
 即使 `spend_limit` 存在，也应将 `used_usd`、`limit_usd` 和 `period` 视为可选字段。您的脚本会先于它们收到百分比；如果您设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`（它会关闭该请求），它们将始终不存在。请在脚本中为每个字段提供备用值来读取，例如 `jq -r '.rate_limits.spend_limit.used_usd // empty'`。
 
 ### Prompt cache 字段
 
-`prompt_cache` 对象总结了会话的主对话如何使用 [prompt cache](/docs/zh-CN/prompt-caching.md)。Claude Code 从 API 响应中的缓存令牌计数计算它，因此它适用于每个提供商。
+`prompt_cache` 对象总结了会话的主对话如何使用 [prompt cache](https://code.claude.com/docs/zh-CN/prompt-caching.md)。Claude Code 从 API 响应中的缓存令牌计数计算它，因此它适用于每个提供商。
 
 该对象在主对话的第一次 API 响应后出现。Claude Code 不计算这些统计信息中的子代理请求。需要 Claude Code v2.1.251 或更高版本。
 
@@ -394,7 +394,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | - | - |
 | `warm` | 缓存的前缀是否仍在其 TTL 内。当最后一次响应未报告缓存令牌时为 `false`，即使 `caching_observed` 为 `true` |
 | `caching_observed` | 此会话的任何响应是否报告了缓存令牌。`false` 意味着 prompt caching 已关闭，或你的提供商或网关不报告它 |
-| `ttl` | 当前缓存前缀的 [缓存生命周期](/docs/zh-CN/prompt-caching.md#cache-lifetime)：`"5m"` 或 `"1h"` |
+| `ttl` | 当前缓存前缀的 [缓存生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime)：`"5m"` 或 `"1h"` |
 | `expires_at` | 缓存的前缀离开其 TTL 并变冷时，以纪元秒为单位。当最后一次响应未报告缓存令牌时为 `null` |
 | `requests` | 为此会话的主对话记录的 API 请求 |
 | `misses` | 重新处理缓存已持有的内容的请求：超过 5% 且至少 2,000 个令牌的请求可以从缓存读取，没有压缩或清除旧工具结果来解释缓存读取的不足 |
@@ -407,7 +407,7 @@ Claude Code 通过 stdin 向你的脚本发送以下 JSON 字段：
 | `miss_causes` | 此会话的诊断未命中中有多少具有每个原因，以与 `last_miss_cause` 相同的原因名称为键。需要 Claude Code v2.1.260 或更高版本 |
 | `recache_tokens_if_cold` | 如果缓存到那时已变冷，下一个请求重新缓存的令牌。在压缩或清除旧工具结果后为 `null`，直到下一个请求记录重写对话的大小 |
 
-Claude Code 在终端上显示相同的统计信息，在 [`/usage` 命令的 `Prompt cache (main)` 行](/docs/zh-CN/costs#prompt-cache-statistics) 上。
+Claude Code 在终端上显示相同的统计信息，在 [`/usage` 命令的 `Prompt cache (main)` 行](https://code.claude.com/docs/zh-CN/costs#prompt-cache-statistics) 上。
 
 #### 最后一次未命中原因
 
@@ -1087,7 +1087,7 @@ echo "$dirname [$model]"
 
 ## 子代理状态行
 
-`subagentStatusLine` 设置为代理面板中显示的每个[子代理](/docs/zh-CN/sub-agents.md)呈现自定义行体。使用它来替换默认的 `name · description · token count` 行为你自己的格式。
+`subagentStatusLine` 设置为代理面板中显示的每个[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)呈现自定义行体。使用它来替换默认的 `name · description · token count` 行为你自己的格式。
 
 ```json theme={null}
 {
@@ -1098,11 +1098,11 @@ echo "$dirname [$model]"
 }
 ```
 
-该命令在每个刷新周期运行一次，所有可见的子代理行作为单个 JSON 对象通过 stdin 传入。输入包括[基本 hook 字段](/docs/zh-CN/hooks.md#common-input-fields)、表示可用行宽的 `columns` 字段，以及每行对应一个条目的 `tasks` 数组，详见[任务字段](#task-fields)。
+该命令在每个刷新周期运行一次，所有可见的子代理行作为单个 JSON 对象通过 stdin 传入。输入包括[基本 hook 字段](https://code.claude.com/docs/zh-CN/hooks.md#common-input-fields)、表示可用行宽的 `columns` 字段，以及每行对应一个条目的 `tasks` 数组，详见[任务字段](#task-fields)。
 
 将一个 JSON 行写入 stdout，用于你想覆盖的每一行，形式为 `{"id": "<task id>", "content": "<row body>"}` 。`content` 字符串按原样呈现，包括 ANSI 颜色和 OSC 8 超链接。省略任务的 `id` 以保持该行的默认呈现；发出空 `content` 字符串以隐藏它。
 
-适用于 `statusLine` 的相同信任、`disableAllHooks` 和 [`allowManagedHooksOnly`](/docs/zh-CN/settings-reference#allowmanagedhooksonly) 门控也适用于此处。插件可以在其[`settings.json`](/docs/zh-CN/plugins/manifest-reference#standard-layout)中提供默认的 `subagentStatusLine`，但与钩子不同，即使插件在托管设置 `enabledPlugins` 中被强制启用，插件值也不会在 `allowManagedHooksOnly` 下运行。
+适用于 `statusLine` 的相同信任、`disableAllHooks` 和 [`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 门控也适用于此处。插件可以在其[`settings.json`](https://code.claude.com/docs/zh-CN/plugins/manifest-reference#standard-layout)中提供默认的 `subagentStatusLine`，但与钩子不同，即使插件在托管设置 `enabledPlugins` 中被强制启用，插件值也不会在 `allowManagedHooksOnly` 下运行。
 
 ### 任务字段
 
@@ -1111,15 +1111,15 @@ echo "$dirname [$model]"
 | 字段 | 类型 | 描述 |
 | :- | :- | :- |
 | `id` | string | 任务的标识符。在为该行写回的行中将其作为 `id` 原样返回 |
-| `name` | string，可选 | 子代理的[称呼名称](/docs/zh-CN/sub-agents.md#subagent-names)（如果有） |
+| `name` | string，可选 | 子代理的[称呼名称](https://code.claude.com/docs/zh-CN/sub-agents.md#subagent-names)（如果有） |
 | `type` | string | 任务类型：`local_agent` |
-| `agentType` | string | 任务运行所用的子代理类型，例如内置的 [`Explore`](/docs/zh-CN/sub-agents#built-in-subagents) 或自定义的 `code-reviewer`。其值与 hook 接收到的 [`agent_type`](/docs/zh-CN/hooks#subagentstart) 相同。需要 Claude Code v2.1.293 或更高版本 |
+| `agentType` | string | 任务运行所用的子代理类型，例如内置的 [`Explore`](https://code.claude.com/docs/zh-CN/sub-agents#built-in-subagents) 或自定义的 `code-reviewer`。其值与 hook 接收到的 [`agent_type`](https://code.claude.com/docs/zh-CN/hooks#subagentstart) 相同。需要 Claude Code v2.1.293 或更高版本 |
 | `status` | string | 任务状态，例如 `running`、`completed`、`failed` 或 `killed` |
 | `description` | string | 任务的简短描述，例如 Claude 在生成该子代理时给出的描述 |
 | `label` | string | Claude Code 提供的任务简短进度摘要（如果有），否则与 `description` 文本相同 |
 | `startTime` | number | 任务开始时间，以自 Unix 纪元以来的毫秒数表示 |
 | `model` | string，可选 | 任务运行所用的已解析模型 ID。在模型解析之前省略 |
-| `effort` | string 或 number，可选 | 在子代理的[定义 frontmatter](/docs/zh-CN/sub-agents.md#supported-frontmatter-fields) 中或单次调用时为其设置的推理 effort：`low`、`medium`、`high`、`xhigh`、`max` 或数字 token 预算。这是所配置的值，当模型不支持该级别时，Claude Code 实际应用的 effort 可能会有所不同。未设置 effort 时省略 |
+| `effort` | string 或 number，可选 | 在子代理的[定义 frontmatter](https://code.claude.com/docs/zh-CN/sub-agents.md#supported-frontmatter-fields) 中或单次调用时为其设置的推理 effort：`low`、`medium`、`high`、`xhigh`、`max` 或数字 token 预算。这是所配置的值，当模型不支持该级别时，Claude Code 实际应用的 effort 可能会有所不同。未设置 effort 时省略 |
 | `contextWindowSize` | number，可选 | `model` 的上下文窗口（以 token 计），计算方式与主状态栏的 [`context_window.context_window_size`](#context-window-fields) 相同，因此您可以根据 `tokenCount` 渲染每行百分比。当 `model` 被省略时也会省略 |
 | `tokenCount` | number | 子代理的累计 token 数，即默认行中显示的数值 |
 | `tokenSamples` | array of numbers | 最近最多 16 个 `tokenCount` 读数，每个刷新周期一个，按从旧到新排列，最后一个为当前值 |
@@ -1145,8 +1145,8 @@ echo "$dirname [$model]"
 * 检查您的脚本输出到 stdout，而不是 stderr
 * 手动运行您的脚本以验证它产生输出
 * 在安装了 Git Bash 的 Windows 上，`command` 路径中的反斜杠可能在脚本运行前被当作转义字符消耗。请在路径中使用正斜杠。参见 [Windows 配置](#windows-configuration)。
-* 如果在应用[设置优先级](/docs/zh-CN/hooks.md#disable-or-remove-hooks)后 `disableAllHooks` 在托管设置之外为 `true`，Claude Code 仅运行来自托管设置的 `statusLine`，如果没有托管 `statusLine`，状态栏将被禁用。删除该设置，或在设置它的文件中将其设置为 `false` 以重新启用。参见 [`disableAllHooks`](/docs/zh-CN/settings-reference#disableallhooks)。
-* 如果您的组织在托管设置中设置了 `allowManagedHooksOnly`，您的自定义状态栏会无警告地消失：您只能从那些托管设置中的 `statusLine` 值获得状态栏。参见[在 `allowManagedHooksOnly` 下运行的内容](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)了解完整行为，并询问您的管理员此设置是否适用于您。
+* 如果在应用[设置优先级](https://code.claude.com/docs/zh-CN/hooks.md#disable-or-remove-hooks)后 `disableAllHooks` 在托管设置之外为 `true`，Claude Code 仅运行来自托管设置的 `statusLine`，如果没有托管 `statusLine`，状态栏将被禁用。删除该设置，或在设置它的文件中将其设置为 `false` 以重新启用。参见 [`disableAllHooks`](https://code.claude.com/docs/zh-CN/settings-reference#disableallhooks)。
+* 如果您的组织在托管设置中设置了 `allowManagedHooksOnly`，您的自定义状态栏会无警告地消失：您只能从那些托管设置中的 `statusLine` 值获得状态栏。参见[在 `allowManagedHooksOnly` 下运行的内容](https://code.claude.com/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)了解完整行为，并询问您的管理员此设置是否适用于您。
 * 运行 `claude --debug` 以在每次状态栏调用时记录您的脚本的 stderr，以及在会话中第一次调用时的退出码
 * 要求 Claude 读取您的设置文件并直接执行 `statusLine` 命令以显示错误
 
@@ -1190,7 +1190,7 @@ echo "$dirname [$model]"
 
 ### 需要工作区信任
 
-在您接受工作区信任对话框之前，状态栏会保持空白。因为 `statusLine` 执行 shell 命令，Claude Code 在与[设置文件中的 hook 相同的工作区信任规则](/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)下运行它。接受该文件夹的对话框，或接受其信任扩展到它的父目录，就足够了。
+在您接受工作区信任对话框之前，状态栏会保持空白。因为 `statusLine` 执行 shell 命令，Claude Code 在与[设置文件中的 hook 相同的工作区信任规则](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)下运行它。接受该文件夹的对话框，或接受其信任扩展到它的父目录，就足够了。
 
 在此之前，`claude --debug` 会记录 `Status line command skipped: workspace trust not accepted`。重新启动 Claude Code 并接受信任对话框以启用它。
 
@@ -1205,8 +1205,8 @@ Claude Code 仅在脚本以代码 0 退出后才显示其输出：
 
 ### 通知与状态栏共享同一行
 
-在[全屏渲染](/docs/zh-CN/fullscreen.md)之外，Claude Code 在与您的状态栏相同的行上显示通知。在全屏渲染中，Claude Code 会为通知提供单独的一行。
+在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)之外，Claude Code 在与您的状态栏相同的行上显示通知。在全屏渲染中，Claude Code 会为通知提供单独的一行。
 
 * 系统通知，如 MCP 服务器错误和自动更新，显示在该行的右侧。临时通知，如上下文不足警告，也会在此区域轮流显示。
-* 启用详细模式会向此区域添加 token 计数器，显示的是最后一次 API 响应所报告的上下文大小，而不是[旋转指示器旁边的每轮计数](/docs/zh-CN/costs.md#read-the-token-count-beside-the-spinner)
+* 启用详细模式会向此区域添加 token 计数器，显示的是最后一次 API 响应所报告的上下文大小，而不是[旋转指示器旁边的每轮计数](https://code.claude.com/docs/zh-CN/costs.md#read-the-token-count-beside-the-spinner)
 * 在窄终端上，这些通知可能会截断您的状态栏输出

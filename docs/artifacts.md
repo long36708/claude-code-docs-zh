@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> Artifacts 在 Pro、Max、Team 和 Enterprise 计划中可用，需要使用 [`/login`](/docs/zh-CN/setup#authenticate) 登录的会话。有关完整的要求集，请参阅 [可用性](#availability)。
+> Artifacts 在 Pro、Max、Team 和 Enterprise 计划中可用，需要使用 [`/login`](https://code.claude.com/docs/zh-CN/setup#authenticate) 登录的会话。有关完整的要求集，请参阅 [可用性](#availability)。
 
 [Artifact](https://claude.com/features/artifacts) 是一个实时交互式网页，Claude Code 从您的会话发布到 claude.ai 上的私密 URL。您在浏览器中打开它，随着会话的继续，它会实时更新。当您希望其他人也看到它时，可以从页面标题中共享它。
 
@@ -16,7 +16,7 @@
 
 ## 何时使用 artifact
 
-当终端文本不是 Claude 生成内容的合适媒介时，请使用 artifact：输出内容更容易查看和交互，而不是逐行阅读。Claude 从您的会话可以访问的任何内容构建页面，包括您的代码库和通过您的[连接工具](/docs/zh-CN/mcp.md)拉取的数据，因此页面可以显示需要段落才能描述的内容。例如，要求 Claude：
+当终端文本不是 Claude 生成内容的合适媒介时，请使用 artifact：输出内容更容易查看和交互，而不是逐行阅读。Claude 从您的会话可以访问的任何内容构建页面，包括您的代码库和通过您的[连接工具](https://code.claude.com/docs/zh-CN/mcp.md)拉取的数据，因此页面可以显示需要段落才能描述的内容。例如，要求 Claude：
 
 * 通过带注释的 diff 向审查者讲解拉取请求
 * 从会话已拉取的数据呈现仪表板
@@ -48,28 +48,28 @@ Build a dashboard artifact of last week's deploy failures by service and keep it
 首次发布后，Claude 会打印 URL，您的浏览器会打开新页面。
 
 * **重新打开页面**：随时按 `Ctrl+]` 可重新打开会话中最近的 Artifact
-* **查看本会话的 Artifact**：输入框下方的 `⧉` 标签会显示 Artifact 的名称，当会话中有多个 Artifact 时则显示数量。在[全屏渲染](/docs/zh-CN/fullscreen.md)中，点击它可打开 [`/artifacts`](#find-an-artifact-again) 列表
+* **查看本会话的 Artifact**：输入框下方的 `⧉` 标签会显示 Artifact 的名称，当会话中有多个 Artifact 时则显示数量。在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)中，点击它可打开 [`/artifacts`](#find-an-artifact-again) 列表
 * **阻止浏览器自动打开**：在您的环境中设置 `CLAUDE_CODE_ARTIFACT_AUTO_OPEN=0`
-* **Remote Control**：如果您通过 [Remote Control](/docs/zh-CN/remote-control.md) 从 claude.ai、Claude Desktop 或 Claude 移动应用发送提示词，运行会话的机器上不会打开标签页。下次 Claude 根据您在终端中输入的提示词发布该 Artifact 时，浏览器会在那台机器上打开
+* **Remote Control**：如果您通过 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 从 claude.ai、Claude Desktop 或 Claude 移动应用发送提示词，运行会话的机器上不会打开标签页。下次 Claude 根据您在终端中输入的提示词发布该 Artifact 时，浏览器会在那台机器上打开
 
 Claude 会为 Artifact 选择标题，以及与页面内容相匹配的浏览器标签页图标，例如图表或日历。标题会显示在您在 claude.ai 上的 [Artifact 库](#share-an-artifact)和共享链接中。如果您想要特定的标题或标签页图标，请告诉 Claude。
 
-如果 Claude 回复说无法发布，或者写入了本地 HTML 文件但没有提供链接，则说明您的会话未启用 Artifact。请检查[可用性](#availability)要求。如果终端显示 `Artifacts need a claude.ai login`，请参阅[该错误的条目](/docs/zh-CN/errors.md#artifacts-need-a-claude-ai-login)了解如何登录。
+如果 Claude 回复说无法发布，或者写入了本地 HTML 文件但没有提供链接，则说明您的会话未启用 Artifact。请检查[可用性](#availability)要求。如果终端显示 `Artifacts need a claude.ai login`，请参阅[该错误的条目](https://code.claude.com/docs/zh-CN/errors.md#artifacts-need-a-claude-ai-login)了解如何登录。
 
 ### Claude Code 何时会在发布前询问
 
-Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需权限提示或分类器审查。在以下情况下，Claude Code 会先询问您，或在[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下让分类器审查该发布：
+Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需权限提示或分类器审查。在以下情况下，Claude Code 会先询问您，或在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下让分类器审查该发布：
 
 | 情况 | Claude Code 的行为 |
 | :- | :- |
-| 会话处于[计划模式](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode) | 在每个 Artifact 首次发布前询问 |
+| 会话处于[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode) | 在每个 Artifact 首次发布前询问 |
 | 该发布声明了页面的运行时功能，例如[连接器调用](#pull-live-data-with-mcp-connectors)或[文件下载](#offer-a-file-download) | 在该次发布前询问 |
 | 您已公开共享该 Artifact | 每个对话中在更改它之前询问一次 |
-| Claude 在由您会话中触发的[会话级定时任务](/docs/zh-CN/scheduled-tasks.md)（而非您输入的提示词）启动的轮次中发布 | 在每个 Artifact 首次发布前询问 |
+| Claude 在由您会话中触发的[会话级定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)（而非您输入的提示词）启动的轮次中发布 | 在每个 Artifact 首次发布前询问 |
 | Claude 未经您批准无法读取该文件 | 在发布前询问。针对 `Artifact` 工具的允许规则不会跳过此提示 |
-| 在 [Manual](/docs/zh-CN/permission-modes.md) 或 `acceptEdits` 模式下，Claude 对某个未经您批准无法编辑的 Artifact 文件进行小幅更改，例如 Manual 模式下的项目文件 | 在发布该更改前询问。即使有允许规则涵盖 `Artifact` 工具，也会询问您，因为对该文件的编辑需要您的批准 |
+| 在 [Manual](https://code.claude.com/docs/zh-CN/permission-modes.md) 或 `acceptEdits` 模式下，Claude 对某个未经您批准无法编辑的 Artifact 文件进行小幅更改，例如 Manual 模式下的项目文件 | 在发布该更改前询问。即使有允许规则涵盖 `Artifact` 工具，也会询问您，因为对该文件的编辑需要您的批准 |
 
-要让 Claude 无需您批准即可读取[工作目录](/docs/zh-CN/permissions.md#working-directories)之外的文件，请在启动时使用 [`--add-dir`](/docs/zh-CN/cli-reference#cli-flags) 或在会话期间使用 `/add-dir` 将其所在文件夹添加为工作目录。Claude 本就可以无需询问即读取这些目录中的文件，以及它写入页面所用的临时目录中的文件。
+要让 Claude 无需您批准即可读取[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外的文件，请在启动时使用 [`--add-dir`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或在会话期间使用 `/add-dir` 将其所在文件夹添加为工作目录。Claude 本就可以无需询问即读取这些目录中的文件，以及它写入页面所用的临时目录中的文件。
 
 如果发布提示中包含诸如 `Also makes 1 edit to that file on disk.` 的句子，说明 Claude 正在一步完成对 Artifact 文件的更改和发布。当您批准该提示后，Claude Code 会先发布页面，然后将更改写入您的文件。
 
@@ -98,7 +98,7 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 * **`Enter`**：如果它已附加到当前会话，则在浏览器中打开它；如果尚未附加，则将其附加到当前会话。在v2.1.216之前，`Enter`会在浏览器中打开它
 * **`o`**：在浏览器中打开它
 * **`c`**：复制其链接
-* **`d`**：在[云端会话](/docs/zh-CN/claude-code-on-the-web.md)之外，经您确认后永久删除您拥有的Artifact。其链接将对所有人失效，包括您自己
+* **`d`**：在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)之外，经您确认后永久删除您拥有的Artifact。其链接将对所有人失效，包括您自己
 
 Claude Code从您的claude.ai账户读取列表，因此当Artifact的链接已从终端滚出时，`/artifacts`在新会话中以及在`/clear`之后都能使用。
 
@@ -135,16 +135,16 @@ Give me a link to each tab of the deploy failures dashboard.
 
 当有人与你共享一个工件时，你可以让 Claude 阅读它：给 Claude 提供其 URL，或从 [`/artifacts`](#find-an-artifact-again) 附加它。
 
-Claude 读取他人编写的页面的方式与它读取网页的方式相同，使用 [WebFetch](/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)：它获得关于所询问内容的摘要，而不是原始页面，摘要报告写入页面的说明，而不是转达它们。Claude Code 还将页面的完整源代码保存到本地文件，当 Claude 需要确切内容时可以打开该文件，例如将工件重新发布为 [编辑器](#let-someone-edit-with-you)。
+Claude 读取他人编写的页面的方式与它读取网页的方式相同，使用 [WebFetch](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)：它获得关于所询问内容的摘要，而不是原始页面，摘要报告写入页面的说明，而不是转达它们。Claude Code 还将页面的完整源代码保存到本地文件，当 Claude 需要确切内容时可以打开该文件，例如将工件重新发布为 [编辑器](#let-someone-edit-with-you)。
 
 在以下情况下，除了您的权限模式或规则所要求的任何提示之外，Claude Code 还会在 Claude 读取 Artifact 之前请求您的批准：
 
-* **没有网络访问权限的云端会话**：对于[云环境](/docs/zh-CN/cloud-environments.md#access-levels)，即 **None** 级别。在[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，可以改由分类器进行批准；在 [Cowork](https://claude.com/product/cowork) 会话中，只能由您本人批准。
-* **其他组织的公开 Artifact**：即使在自动模式下，Claude Code 也会先询问您。在 Claude Code 无法询问您的情况下（例如在 `bypassPermissions` 模式下），Claude 无法读取该 Artifact。只有在[功能标志获取](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)开启时，Claude 才能读取这些 Artifact。
+* **没有网络访问权限的云端会话**：对于[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#access-levels)，即 **None** 级别。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，可以改由分类器进行批准；在 [Cowork](https://claude.com/product/cowork) 会话中，只能由您本人批准。
+* **其他组织的公开 Artifact**：即使在自动模式下，Claude Code 也会先询问您。在 Claude Code 无法询问您的情况下（例如在 `bypassPermissions` 模式下），Claude 无法读取该 Artifact。只有在[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)开启时，Claude 才能读取这些 Artifact。
 * **无法确认所有者或网络设置**：当 Claude Code 无法确认 Artifact 的创建者，或无法确认云端会话的网络设置时，它会进行询问，且您的批准仅适用于该次请求。
-* **计划模式**：在[计划模式](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，Claude Code 会在 Artifact 工具读取您组织中其他人创建的 Artifact 之前进行询问。
+* **计划模式**：在[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，Claude Code 会在 Artifact 工具读取您组织中其他人创建的 Artifact 之前进行询问。
 
-当 Claude 使用 WebFetch 读取 Artifact 时，WebFetch 自身的[提示规则](/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)仍然适用。
+当 Claude 使用 WebFetch 读取 Artifact 时，WebFetch 自身的[提示规则](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)仍然适用。
 
 ## 收集工件上的评论
 
@@ -166,16 +166,16 @@ Claude 只能回复或解决已激活的线程。其他线程保持打开状态�
 如果 Claude 告诉您它无法读取评论，请确认您的版本、您的会话和您的功能标志设置：
 
 * 您运行的是 Claude Code v2.1.221 或更高版本。
-* 您不在安装 Claude Code 或从 v2.1.221 之前的版本升级后的第一个会话中。在[安装或升级后的第一个会话](/docs/zh-CN/env-vars.md#first-session-after-an-install-or-upgrade)中，Claude 可能还无法读取评论；启动新会话并再次询问。
+* 您不在安装 Claude Code 或从 v2.1.221 之前的版本升级后的第一个会话中。在[安装或升级后的第一个会话](https://code.claude.com/docs/zh-CN/env-vars.md#first-session-after-an-install-or-upgrade)中，Claude 可能还无法读取评论；启动新会话并再次询问。
 * 您没有关闭功能标志获取。
 
 ### 让 Claude 自动回复评论
 
 在您的会话发布 Artifact 后，Claude Code 会监视该 Artifact 的评论。当可以编辑 Artifact 的人向 Claude 发送评论时，它会立即到达您的会话，Claude 可以读取线程并回复，而无需您询问。
 
-您需要 Claude Code v2.1.228 或更高版本。如果您关闭了[功能标志获取](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，Claude Code 不会监视评论。
+您需要 Claude Code v2.1.228 或更高版本。如果您关闭了[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，Claude Code 不会监视评论。
 
-您的[权限模式](/docs/zh-CN/permission-modes.md)决定了当发送的评论到达时 Claude 的行为：
+您的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)决定了当发送的评论到达时 Claude 的行为：
 
 * **Claude 自动回复**：如果您所处的权限模式允许 Claude 在不询问您的情况下发布回复，Claude 会读取线程并回复。您会看到 `Auto-replied to comment thread on Artifact: <name>`。
 * **Claude 等待您**：在计划模式之外，当发布回复需要您的批准时，您会看到 `Comments are waiting on Artifact: <name>`。Claude 然后要求您批准读取线程，再次批准发布回复。
@@ -189,7 +189,7 @@ Claude 只能回复或解决已激活的线程。其他线程保持打开状态�
 
 * **在空闲提示符处按一次 Ctrl+C**：Claude 暂停回复您的会话正在监视的每个工件。在您发送下一条消息后，回复会重新开始。
 * **在 `/tasks` 中停止任务**：Claude 停止回复该工件，直到您要求它在那里恢复回复。重新发布工件不会再次启动回复，当您稍后恢复会话时，停止仍然适用。
-* **在 3 秒内按两次 `Ctrl+X Ctrl+K`**：[停止每个运行的后台子代理](/docs/zh-CN/interactive-mode.md#general-controls)的和弦也会停止 Claude 为会话的其余部分回复每个工件。要求 Claude 恢复回复不会撤销此停止。
+* **在 3 秒内按两次 `Ctrl+X Ctrl+K`**：[停止每个运行的后台子代理](https://code.claude.com/docs/zh-CN/interactive-mode.md#general-controls)的和弦也会停止 Claude 为会话的其余部分回复每个工件。要求 Claude 恢复回复不会撤销此停止。
 
 由 Claude Code 自行启动的监视可能会在 Artifact 数小时无活动后结束。要重新启动监视，请再次发布该 Artifact 或要求 Claude 监视它。
 
@@ -197,7 +197,7 @@ Claude 只能回复或解决已激活的线程。其他线程保持打开状态�
 
 ## 使用 MCP 连接器拉取实时数据
 
-artifact 可以在每次有人查看它时调用 [MCP 连接器](/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)，因此页面显示的是当前数据而不是构建它的会话中的快照。来自 artifact 的连接器调用在 Pro、Max、Team 和 Enterprise 计划上可用，需要 Claude Code v2.1.209 或更高版本。在早期版本上，Claude 会发布该页面，其中包含会话在构建时收集的任何数据。
+artifact 可以在每次有人查看它时调用 [MCP 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)，因此页面显示的是当前数据而不是构建它的会话中的快照。来自 artifact 的连接器调用在 Pro、Max、Team 和 Enterprise 计划上可用，需要 Claude Code v2.1.209 或更高版本。在早期版本上，Claude 会发布该页面，其中包含会话在构建时收集的任何数据。
 
 要创建一个由连接器支持的页面，请在提示中命名连接器和您想要的数据：
 
@@ -292,7 +292,7 @@ Turn this migration plan into a checklist artifact. Check items off as you compl
 
 ## 改进视觉设计
 
-Claude 在构建工件时应用内置设计技能，因此页面获得精心设计的调色板、排版和布局，无需额外提示。该技能还会在选择自己的设计之前查找项目中是否存在现有设计系统。设计令牌是设计系统重复使用的命名颜色、排版和间距值。为了保持工件与产品品牌的一致性，请将它们记录在 Claude 可以找到的地方，例如项目的 [CLAUDE.md](/docs/zh-CN/memory.md) 或存储库中的主题文件：
+Claude 在构建工件时应用内置设计技能，因此页面获得精心设计的调色板、排版和布局，无需额外提示。该技能还会在选择自己的设计之前查找项目中是否存在现有设计系统。设计令牌是设计系统重复使用的命名颜色、排版和间距值。为了保持工件与产品品牌的一致性，请将它们记录在 Claude 可以找到的地方，例如项目的 [CLAUDE.md](https://code.claude.com/docs/zh-CN/memory.md) 或存储库中的主题文件：
 
 ```markdown theme={null}
 ## Design system
@@ -338,11 +338,11 @@ Claude 创建一个 Claude Slides 工件并给您链接。在桌面浏览器中�
 
 ### 使用 Claude Docs 编写文档
 
-Claude Docs 作为 claude.ai [连接器](/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)而不是命令到达 Claude Code。连接后，`/mcp` 将其列为 `claude.ai Claude Docs`。针对供其他人使用的文档的请求随后转到 Claude Docs 而不是工件页面：规范、提案或您在会话中完成的计划的写入。Claude 在草拟文档时给您文档的链接。
+Claude Docs 作为 claude.ai [连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)而不是命令到达 Claude Code。连接后，`/mcp` 将其列为 `claude.ai Claude Docs`。针对供其他人使用的文档的请求随后转到 Claude Docs 而不是工件页面：规范、提案或您在会话中完成的计划的写入。Claude 在草拟文档时给您文档的链接。
 
 属于代码库的文档（例如 README）保持为文件。要为 Claude 否则会放在 Claude Docs 中的内容获取文件，请命名格式，例如 `.docx` 或存储库中的 Markdown 文件。
 
-要关闭连接器，请将 `claude.ai Claude Docs` 添加到 `deniedMcpServers` 或使用 `/mcp` 切换，两者都在[禁用 claude.ai 连接器](/docs/zh-CN/mcp.md#disable-claude-ai-connectors)中描述。
+要关闭连接器，请将 `claude.ai Claude Docs` 添加到 `deniedMcpServers` 或使用 `/mcp` 切换，两者都在[禁用 claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#disable-claude-ai-connectors)中描述。
 
 ## 页面约束
 
@@ -354,8 +354,8 @@ Claude Docs 作为 claude.ai [连接器](/docs/zh-CN/mcp.md#use-mcp-servers-from
 | 无后端 | 工件是一个静态页面。它无法自行对查看者进行身份验证。 |
 | 下载 | 页面无法自行启动下载。为了让查看者保存页面生成的文件，Claude 声明下载功能。请参阅[提供文件下载](#offer-a-file-download)。 |
 | 单页面 | 相对链接无法解析，因为页面旁边没有部署任何内容。对于多部分内容，Claude 使用页面内锚点而不是单独的文件。 |
-| 源文件类型 | 发布的文件必须是 `.html`、`.htm` 或 `.md`，并且必须解码为 UTF-8，或通过其字节顺序标记解码为小端 UTF-16。Markdown 文件呈现为样式化的文档页面，带有语法突出显示的代码。无法解码或包含替换字符 `U+FFFD` 的文件会被[拒绝并显示要修复的行和列](/docs/zh-CN/errors.md#the-source-file-is-not-valid-utf-8-text)。 |
-| 源文件位置 | 路径指向网络主机的文件会被拒绝，且不会被读取。有关哪些路径会被拒绝以及 Windows 上映射驱动器的例外情况，请参阅[未发布：该文件位于网络共享上](/docs/zh-CN/errors.md#not-published-that-file-is-on-a-network-share)。 |
+| 源文件类型 | 发布的文件必须是 `.html`、`.htm` 或 `.md`，并且必须解码为 UTF-8，或通过其字节顺序标记解码为小端 UTF-16。Markdown 文件呈现为样式化的文档页面，带有语法突出显示的代码。无法解码或包含替换字符 `U+FFFD` 的文件会被[拒绝并显示要修复的行和列](https://code.claude.com/docs/zh-CN/errors.md#the-source-file-is-not-valid-utf-8-text)。 |
+| 源文件位置 | 路径指向网络主机的文件会被拒绝，且不会被读取。有关哪些路径会被拒绝以及 Windows 上映射驱动器的例外情况，请参阅[未发布：该文件位于网络共享上](https://code.claude.com/docs/zh-CN/errors.md#not-published-that-file-is-on-a-network-share)。 |
 | 呈现大小 | 呈现的页面必须为 16 MiB 或更小。大型嵌入图像通常是发布因大小而失败的原因。 |
 
 生成工件使用输出令牌，就像任何其他响应一样，样式化页面比相同内容作为终端文本更耗费令牌。内联 CSS、用于交互控制的 JavaScript，尤其是嵌入为数据 URI 的图像是主要贡献者。要减少工件的令牌成本：
@@ -371,10 +371,10 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
 | 要求 | 可用时间 |
 | :- | :- |
 | 计划 | Pro、Max、Team 或 Enterprise。在 Pro 和 Max 计划上，artifacts 仅对您私有，直到您共享它们，不适用任何管理员管理。在 Team 和 Enterprise 计划上，artifacts 默认启用，Owner 可以在 claude.ai 管理设置中 [关闭它们](#manage-artifacts-for-your-organization)。 |
-| 身份验证 | 会话由 claude.ai 账户支持：在 CLI 或桌面应用中使用 `/login` 登录。Claude Tag 会话通过代理的身份登录，因此不需要任何步骤。使用 API 密钥、[网关令牌](/docs/zh-CN/llm-gateway) 或云提供商凭证的会话无法发布。 |
-| 模型提供商 | Anthropic API。在 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry.md) 上不可用。 |
-| 组织策略 | 客户管理的加密密钥 (CMEK)、HIPAA 和 [零数据保留](/docs/zh-CN/zero-data-retention.md) 未为组织启用。 |
-| 使用入口 | Claude Code CLI，或 Claude 桌面应用版本 1.13576.0 或更高版本。当 Claude Tag 和 artifacts 都为组织启用时，[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话也可以发布 artifacts。由 [`claude remote-control`](/docs/zh-CN/remote-control) 提供服务的会话，在会话由您自己启动时可以发布 artifacts。需要 Claude Code v2.1.281 或更高版本。在 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md)、GitHub Action 和 MCP 服务器上下文中默认关闭；当您从自己的终端或脚本中使用 [`-p`](/docs/zh-CN/headless) 运行 Claude Code 时，以及设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars) 时，也默认关闭。 |
+| 身份验证 | 会话由 claude.ai 账户支持：在 CLI 或桌面应用中使用 `/login` 登录。Claude Tag 会话通过代理的身份登录，因此不需要任何步骤。使用 API 密钥、[网关令牌](https://code.claude.com/docs/zh-CN/llm-gateway) 或云提供商凭证的会话无法发布。 |
+| 模型提供商 | Anthropic API。在 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md) 上不可用。 |
+| 组织策略 | 客户管理的加密密钥 (CMEK)、HIPAA 和 [零数据保留](https://code.claude.com/docs/zh-CN/zero-data-retention.md) 未为组织启用。 |
+| 使用入口 | Claude Code CLI，或 Claude 桌面应用版本 1.13576.0 或更高版本。当 Claude Tag 和 artifacts 都为组织启用时，[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话也可以发布 artifacts。由 [`claude remote-control`](https://code.claude.com/docs/zh-CN/remote-control) 提供服务的会话，在会话由您自己启动时可以发布 artifacts。需要 Claude Code v2.1.281 或更高版本。在 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md)、GitHub Action 和 MCP 服务器上下文中默认关闭；当您从自己的终端或脚本中使用 [`-p`](https://code.claude.com/docs/zh-CN/headless) 运行 Claude Code 时，以及设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](https://code.claude.com/docs/zh-CN/env-vars) 时，也默认关闭。 |
 
 您的组织是否允许 artifacts 来自您的组织策略，Claude Code 从 `api.anthropic.com` 加载。当 Claude Code 无法加载策略时，artifacts 不可用。当您请求一个时，Claude 会说明原因。
 
@@ -386,16 +386,16 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
 
 | 位置 | 操作 |
 | :- | :- |
-| [`/config`](/docs/zh-CN/commands) | 关闭 **Artifacts** 行，这会将 [`"enableArtifact": false`](/docs/zh-CN/settings-reference#enableartifact) 写入您的用户设置 |
-| [Settings 文件](/docs/zh-CN/settings.md) | 设置 `"enableArtifact": false`。已弃用的 `"disableArtifact": true` 也会关闭 artifacts |
-| [环境变量](/docs/zh-CN/env-vars.md) | 设置 `CLAUDE_CODE_DISABLE_ARTIFACT=1` |
-| [权限规则](/docs/zh-CN/permissions.md) | 将 `Artifact` 添加到 `permissions.deny` |
+| [`/config`](https://code.claude.com/docs/zh-CN/commands) | 关闭 **Artifacts** 行，这会将 [`"enableArtifact": false`](https://code.claude.com/docs/zh-CN/settings-reference#enableartifact) 写入您的用户设置 |
+| [Settings 文件](https://code.claude.com/docs/zh-CN/settings.md) | 设置 `"enableArtifact": false`。已弃用的 `"disableArtifact": true` 也会关闭 artifacts |
+| [环境变量](https://code.claude.com/docs/zh-CN/env-vars.md) | 设置 `CLAUDE_CODE_DISABLE_ARTIFACT=1` |
+| [权限规则](https://code.claude.com/docs/zh-CN/permissions.md) | 将 `Artifact` 添加到 `permissions.deny` |
 
-一旦您在 [`--settings`](/docs/zh-CN/cli-reference#cli-flags) 文件中或使用 `CLAUDE_CODE_DISABLE_ARTIFACT` 关闭 artifacts，或您的管理员在[托管设置](/docs/zh-CN/server-managed-settings.md)中关闭它们，任何设置文件都无法将其重新打开。
+一旦您在 [`--settings`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 文件中或使用 `CLAUDE_CODE_DISABLE_ARTIFACT` 关闭 artifacts，或您的管理员在[托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中关闭它们，任何设置文件都无法将其重新打开。
 
 您也可以在项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中设置 `"enableArtifact": false` 来为该项目中的会话关闭 artifacts。任何文件中的 `"enableArtifact": true` 都不会将其重新打开。在项目和本地设置中支持此键需要 Claude Code v2.1.242 或更高版本。
 
-如果您添加了没有 `domain:` 部分的 `WebFetch` deny 或 ask 规则，它不会关闭 artifacts 或阻止 artifact 读取。[`permissions` 中 `deny` 或 `ask` 中的 `WebFetch(domain:claude.ai)` 规则确实适用于 artifact 读取](/docs/zh-CN/permissions#allow-or-deny-every-fetch)。
+如果您添加了没有 `domain:` 部分的 `WebFetch` deny 或 ask 规则，它不会关闭 artifacts 或阻止 artifact 读取。[`permissions` 中 `deny` 或 `ask` 中的 `WebFetch(domain:claude.ai)` 规则确实适用于 artifact 读取](https://code.claude.com/docs/zh-CN/permissions#allow-or-deny-every-fetch)。
 
 ## 管理组织的 Artifact
 
@@ -423,7 +423,7 @@ Team 和 Enterprise 计划的所有者可以在 [claude.ai 管理设置](https:/
 
 ### 将查看器域名加入允许列表
 
-claude.ai 上的查看器会从沙盒化的 `*.claudeusercontent.com` 源加载每个 Artifact。如果您的组织限制出站网络访问，请将该域名与 `claude.ai` 一起添加到允许列表中。有关完整列表，请参阅[网络访问要求](/docs/zh-CN/network-config.md#network-access-requirements)。
+claude.ai 上的查看器会从沙盒化的 `*.claudeusercontent.com` 源加载每个 Artifact。如果您的组织限制出站网络访问，请将该域名与 `claude.ai` 一起添加到允许列表中。有关完整列表，请参阅[网络访问要求](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)。
 
 从 [Google Fonts](#improve-the-visual-design) 加载字体的 Artifact 还会请求 `fonts.googleapis.com` 和 `fonts.gstatic.com`。这两个主机都是可选的。如果您阻止它们，Artifact 将使用备用字体进行渲染。请采用快速拒绝而非静默丢弃的方式进行阻止，以便字体请求立即失败，而不会延迟页面的首次渲染。
 
@@ -443,6 +443,6 @@ Artifact 还可以从 `cdnjs.cloudflare.com`、`cdn.jsdelivr.net`、`cdn.tailwin
 
 ## 相关资源
 
-* 浏览与 artifacts 配对的 [提示模式和工作流](/docs/zh-CN/prompt-library.md)
-* 将您重复使用的 artifact 提示转换为 [skill](/docs/zh-CN/skills.md)，以便您可以将其作为命令调用
-* [连接 MCP 服务器](/docs/zh-CN/mcp.md)，以便 Claude 可以在构建页面时将数据拉入 artifact
+* 浏览与 artifacts 配对的 [提示模式和工作流](https://code.claude.com/docs/zh-CN/prompt-library.md)
+* 将您重复使用的 artifact 提示转换为 [skill](https://code.claude.com/docs/zh-CN/skills.md)，以便您可以将其作为命令调用
+* [连接 MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)，以便 Claude 可以在构建页面时将数据拉入 artifact

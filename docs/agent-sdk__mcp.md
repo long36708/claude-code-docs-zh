@@ -12,7 +12,7 @@ MCP 服务器可以作为本地进程运行、通过 HTTP 连接或直接在您�
 
 > [!NOTE]
 >
-> 本页面涵盖 Agent SDK 的 MCP 配置。要将 MCP 服务器添加到 Claude Code CLI 以便在每个项目中加载，请参阅 [MCP 安装范围](/docs/zh-CN/mcp.md#mcp-installation-scopes)。
+> 本页面涵盖 Agent SDK 的 MCP 配置。要将 MCP 服务器添加到 Claude Code CLI 以便在每个项目中加载，请参阅 [MCP 安装范围](https://code.claude.com/docs/zh-CN/mcp.md#mcp-installation-scopes)。
 
 ## 快速开始
 
@@ -148,26 +148,26 @@ Claude Code 在会话启动时开始连接您的 MCP 服务器，并在第一轮
 
 | 服务器类型 | 延迟第一轮？ | 第一轮等待超时 |
 | :- | :- | :- |
-| stdio 服务器，或没有缓存工具列表的 HTTP/SSE 服务器 | 是，直到连接 | [`MCP_TIMEOUT`](/docs/zh-CN/env-vars)，默认 30 秒；连接在该截止时间失败 |
+| stdio 服务器，或没有缓存工具列表的 HTTP/SSE 服务器 | 是，直到连接 | [`MCP_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars)，默认 30 秒；连接在该截止时间失败 |
 | 具有缓存工具列表的远程服务器，由 Claude Code 从之前的连接保存 | 否；缓存的工具从第一轮开始可用 | 无；在其第一次工具调用时连接，该延迟连接有其自己的超时 |
-| 进程内 [SDK 服务器](#sdk-mcp-servers) | 是，直到连接并列出其工具 | [`MCP_TIMEOUT`](/docs/zh-CN/env-vars)，默认 30 秒，每次连接尝试；连接在该截止时间失败 |
+| 进程内 [SDK 服务器](#sdk-mcp-servers) | 是，直到连接并列出其工具 | [`MCP_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars)，默认 30 秒，每次连接尝试；连接在该截止时间失败 |
 
-只有在启用 [MCP 发现缓存](/docs/zh-CN/mcp.md#server-status-detail)时，服务器才会有缓存的工具列表。
+只有在启用 [MCP 发现缓存](https://code.claude.com/docs/zh-CN/mcp.md#server-status-detail)时，服务器才会有缓存的工具列表。
 
 来自 [设置文件](#from-a-config-file)（如 `.mcp.json`）或插件的服务器通常在 init 消息中仍显示 `pending`。第一轮等待它们的时长取决于 `options.mcpServers` 和 tool search：
 
 * **`options.mcpServers` 包含 stdio、HTTP 或 SSE 服务器**：第一轮也会等待待处理的设置文件服务器和插件服务器，最多等待 `MCP_TIMEOUT`。
-* **否则，当 `ANTHROPIC_BASE_URL` 指向[网关](/docs/zh-CN/mcp.md#tool-search-through-a-gateway)且未设置 [`ENABLE_TOOL_SEARCH`](/docs/zh-CN/mcp#configure-tool-search) 时**：第一轮最多等待 2 秒，等待每个待处理的设置文件服务器和插件服务器。
-* **否则，在启用 [tool search](/docs/zh-CN/agent-sdk/tool-search.md)（默认启用）时**：第一轮最多等待 2 秒，且仅等待设置了 [`alwaysLoad: true`](/docs/zh-CN/mcp#exempt-a-server-from-deferral) 或您已[指名](#named-servers)的待处理服务器。其余服务器继续在后台连接，Claude 会在它们连接后[访问其工具](/docs/zh-CN/mcp.md#tool-availability)。
-* **否则，在关闭 tool search 时**：第一轮最多等待 2 秒，等待每个待处理的设置文件服务器和插件服务器。当您的 [`ENABLE_TOOL_SEARCH` 值或模型](/docs/zh-CN/agent-sdk/tool-search#configure-tool-search)将其关闭，或当您排除 `ToolSearch` 工具（例如通过 `disallowedTools`）时，tool search 处于关闭状态。
+* **否则，当 `ANTHROPIC_BASE_URL` 指向[网关](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)且未设置 [`ENABLE_TOOL_SEARCH`](https://code.claude.com/docs/zh-CN/mcp#configure-tool-search) 时**：第一轮最多等待 2 秒，等待每个待处理的设置文件服务器和插件服务器。
+* **否则，在启用 [tool search](https://code.claude.com/docs/zh-CN/agent-sdk/tool-search.md)（默认启用）时**：第一轮最多等待 2 秒，且仅等待设置了 [`alwaysLoad: true`](https://code.claude.com/docs/zh-CN/mcp#exempt-a-server-from-deferral) 或您已[指名](#named-servers)的待处理服务器。其余服务器继续在后台连接，Claude 会在它们连接后[访问其工具](https://code.claude.com/docs/zh-CN/mcp.md#tool-availability)。
+* **否则，在关闭 tool search 时**：第一轮最多等待 2 秒，等待每个待处理的设置文件服务器和插件服务器。当您的 [`ENABLE_TOOL_SEARCH` 值或模型](https://code.claude.com/docs/zh-CN/agent-sdk/tool-search#configure-tool-search)将其关闭，或当您排除 `ToolSearch` 工具（例如通过 `disallowedTools`）时，tool search 处于关闭状态。
 
 ### 指名服务器
 
-您可以通过在 [`allowedTools`](#allow-mcp-tools) 中或在 `settings` 选项的 `permissions.allow` 规则中列出服务器的任意工具（例如 `mcp__github__list_issues` 或 `mcp__github__*`）来指名该服务器。当您在提示提交、工具使用、权限、子代理、任务、elicitation 或 worktree 事件上配置 [`mcp_tool` hook](/docs/zh-CN/hooks#mcp-tool-hook-fields) 时，它也会指名其调用的服务器。在 v2.1.284 之前，指名服务器不会影响第一轮等待。
+您可以通过在 [`allowedTools`](#allow-mcp-tools) 中或在 `settings` 选项的 `permissions.allow` 规则中列出服务器的任意工具（例如 `mcp__github__list_issues` 或 `mcp__github__*`）来指名该服务器。当您在提示提交、工具使用、权限、子代理、任务、elicitation 或 worktree 事件上配置 [`mcp_tool` hook](https://code.claude.com/docs/zh-CN/hooks#mcp-tool-hook-fields) 时，它也会指名其调用的服务器。在 v2.1.284 之前，指名服务器不会影响第一轮等待。
 
 ### 自行设置第一轮等待
 
-要自行选择第一轮等待时长，请在 [`env` 选项](/docs/zh-CN/agent-sdk/configuration#set-environment-variables)中设置 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS`，例如 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS: "5000"`。此后第一轮会最多等待该毫秒数，以等待待处理的设置文件服务器和插件服务器，无论 tool search 是否启用。同一上限也会替代 `options.mcpServers` 中 stdio、HTTP 和 SSE 服务器的 `MCP_TIMEOUT` 等待。
+要自行选择第一轮等待时长，请在 [`env` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/configuration#set-environment-variables)中设置 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS`，例如 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS: "5000"`。此后第一轮会最多等待该毫秒数，以等待待处理的设置文件服务器和插件服务器，无论 tool search 是否启用。同一上限也会替代 `options.mcpServers` 中 stdio、HTTP 和 SSE 服务器的 `MCP_TIMEOUT` 等待。
 
 无论您设置什么值（包括 `0`），以下三种等待都适用：
 
@@ -181,8 +181,8 @@ Claude Code 在会话启动时开始连接您的 MCP 服务器，并在第一轮
 
 有两项设置会让启动本身在 Claude Code 发送 init 消息之前进行等待：
 
-* **将 [`MCP_CONNECTION_NONBLOCKING`](/docs/zh-CN/env-vars) 设置为 `0`**：启动会等待整个连接批次，默认最多 5 秒。设置 [`MCP_CONNECT_TIMEOUT_MS`](/docs/zh-CN/env-vars)（单位为毫秒）可更改该上限。达到上限时仍处于待处理状态的服务器会继续在后台连接。
-* **在服务器的配置上设置 `alwaysLoad: true`**：启动会在相同上限内等待该服务器的工具，使第一轮能以完整 schema 获得这些工具，[豁免于 tool search 延迟加载](/docs/zh-CN/mcp.md#exempt-a-server-from-deferral)。具有缓存工具列表的远程服务器无需连接或阻塞启动即可提供这些工具。
+* **将 [`MCP_CONNECTION_NONBLOCKING`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `0`**：启动会等待整个连接批次，默认最多 5 秒。设置 [`MCP_CONNECT_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars)（单位为毫秒）可更改该上限。达到上限时仍处于待处理状态的服务器会继续在后台连接。
+* **在服务器的配置上设置 `alwaysLoad: true`**：启动会在相同上限内等待该服务器的工具，使第一轮能以完整 schema 获得这些工具，[豁免于 tool search 延迟加载](https://code.claude.com/docs/zh-CN/mcp.md#exempt-a-server-from-deferral)。具有缓存工具列表的远程服务器无需连接或阻塞启动即可提供这些工具。
 
 init 消息报告的是 Claude Code 发送该消息时每个服务器的状态。
 
@@ -201,7 +201,7 @@ MCP 工具的命名格式为 `mcp__<server-name>__<tool-name>`，其中 `<server
 | `github` | `mcp__github__list_issues` |
 | `my.server` | `mcp__my_server__list_issues` |
 
-在 `allowedTools` 和 [MCP 权限规则](/docs/zh-CN/permissions.md#mcp)中使用完整的工具名称。对于由[插件](/docs/zh-CN/agent-sdk/plugins.md)提供的服务器，`<server-name>` 采用[插件作用域形式](/docs/zh-CN/mcp.md#plugin-provided-mcp-servers)，并以 `plugin_` 开头。
+在 `allowedTools` 和 [MCP 权限规则](https://code.claude.com/docs/zh-CN/permissions.md#mcp)中使用完整的工具名称。对于由[插件](https://code.claude.com/docs/zh-CN/agent-sdk/plugins.md)提供的服务器，`<server-name>` 采用[插件作用域形式](https://code.claude.com/docs/zh-CN/mcp.md#plugin-provided-mcp-servers)，并以 `plugin_` 开头。
 
 ### 使用 allowedTools 自动批准
 
@@ -239,7 +239,7 @@ options = ClaudeAgentOptions(
 
 > [!NOTE]
 >
-> **对于 MCP 访问，优先使用 `allowedTools` 而不是权限模式。** `permissionMode: "acceptEdits"` 不会自动批准 MCP 工具（仅限文件编辑和文件系统 Bash 命令）。`permissionMode: "bypassPermissions"` 会自动批准 MCP 工具，但也会禁用大多数其他安全提示，这比必要的范围更广；请参阅 [权限如何被评估](/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated) 了解保留的提示。`allowedTools` 中的通配符仅授予你想要的 MCP 服务器，不会授予其他任何东西。请参阅 [权限模式](/docs/zh-CN/agent-sdk/permissions.md#permission-modes) 了解完整的比较。
+> **对于 MCP 访问，优先使用 `allowedTools` 而不是权限模式。** `permissionMode: "acceptEdits"` 不会自动批准 MCP 工具（仅限文件编辑和文件系统 Bash 命令）。`permissionMode: "bypassPermissions"` 会自动批准 MCP 工具，但也会禁用大多数其他安全提示，这比必要的范围更广；请参阅 [权限如何被评估](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated) 了解保留的提示。`allowedTools` 中的通配符仅授予你想要的 MCP 服务器，不会授予其他任何东西。请参阅 [权限模式](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#permission-modes) 了解完整的比较。
 
 ### 发现可用工具
 
@@ -368,15 +368,15 @@ options = ClaudeAgentOptions(
 
 ### SDK MCP 服务器
 
-直接在您的应用程序代码中定义自定义工具，而不是运行单独的服务器进程。有关实现详情，请参阅 [custom tools guide](/docs/zh-CN/agent-sdk/custom-tools.md)。
+直接在您的应用程序代码中定义自定义工具，而不是运行单独的服务器进程。有关实现详情，请参阅 [custom tools guide](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools.md)。
 
-由 [`initialize` control request](/docs/zh-CN/agent-sdk/typescript#sdkcontrolinitializeresponse) 注册的 SDK MCP 服务器在 Claude Code 处理请求后立即开始连接。
+由 [`initialize` control request](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkcontrolinitializeresponse) 注册的 SDK MCP 服务器在 Claude Code 处理请求后立即开始连接。
 
 ## MCP 工具搜索
 
 当你配置了许多 MCP 工具时，工具定义可能会消耗上下文窗口的很大一部分。工具搜索通过从上下文中隐藏工具定义并仅加载 Claude 每轮所需的工具来解决这个问题。
 
-工具搜索默认启用。有关配置选项、最佳实践以及将工具搜索与自定义 SDK 工具一起使用的信息，请参阅[工具搜索](/docs/zh-CN/agent-sdk/tool-search.md)。
+工具搜索默认启用。有关配置选项、最佳实践以及将工具搜索与自定义 SDK 工具一起使用的信息，请参阅[工具搜索](https://code.claude.com/docs/zh-CN/agent-sdk/tool-search.md)。
 
 ## 身份验证
 
@@ -496,10 +496,10 @@ options = ClaudeAgentOptions(
 
 [MCP 规范支持 OAuth 2.1](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization) 用于授权。SDK 不会打开浏览器或运行交互式 OAuth 流程。当配置的服务器返回授权质询而 Claude Code 没有可发送的令牌时，SDK 会将该服务器报告为 `needs-auth` 或 `failed`：
 
-* **`needs-auth`**：Claude Code 未找到可用于该服务器的登录信息。请在 `headers` 中传递令牌，或在运行之前在同一台机器上[从交互式 Claude Code 会话中登录](/docs/zh-CN/mcp.md#authenticate-with-remote-mcp-servers)。
-* **`failed`**，且其 [`McpServerStatus`](/docs/zh-CN/agent-sdk/typescript#mcpserverstatus) 条目中的 `error` 以 `Couldn't read the stored credentials` 或 `A request to MCP server` 开头：Claude Code 无法读取其凭据存储。有关处理方法，请参阅 [Couldn't read the stored credentials for MCP server](/docs/zh-CN/errors.md#couldnt-read-the-stored-credentials-for-mcp-server)。在 Claude Code v2.1.307 之前，当 Mac 的登录钥匙串被锁定时，状态会显示为 `needs-auth`。
+* **`needs-auth`**：Claude Code 未找到可用于该服务器的登录信息。请在 `headers` 中传递令牌，或在运行之前在同一台机器上[从交互式 Claude Code 会话中登录](https://code.claude.com/docs/zh-CN/mcp.md#authenticate-with-remote-mcp-servers)。
+* **`failed`**，且其 [`McpServerStatus`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#mcpserverstatus) 条目中的 `error` 以 `Couldn't read the stored credentials` 或 `A request to MCP server` 开头：Claude Code 无法读取其凭据存储。有关处理方法，请参阅 [Couldn't read the stored credentials for MCP server](https://code.claude.com/docs/zh-CN/errors.md#couldnt-read-the-stored-credentials-for-mcp-server)。在 Claude Code v2.1.307 之前，当 Mac 的登录钥匙串被锁定时，状态会显示为 `needs-auth`。
 
-无论哪种情况，Agent 运行都会继续，但不使用该服务器的工具。[系统初始化消息](/docs/zh-CN/agent-sdk/typescript.md#sdksystemmessage)的 `mcp_servers` 数组在发出时可能仍会为该服务器显示 `pending`。要确认服务器是否需要凭据，请在 TypeScript SDK 中轮询 `mcpServerStatus()` 或在 Python 中轮询 [`get_mcp_status()`](/docs/zh-CN/agent-sdk/python#methods)。
+无论哪种情况，Agent 运行都会继续，但不使用该服务器的工具。[系统初始化消息](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#sdksystemmessage)的 `mcp_servers` 数组在发出时可能仍会为该服务器显示 `pending`。要确认服务器是否需要凭据，请在 TypeScript SDK 中轮询 `mcpServerStatus()` 或在 Python 中轮询 [`get_mcp_status()`](https://code.claude.com/docs/zh-CN/agent-sdk/python#methods)。
 
 要提供凭证，请在您自己的应用程序中完成 OAuth 流程，并在服务器的 `headers` 中传递生成的访问令牌：
 
@@ -809,9 +809,9 @@ async def main():
 asyncio.run(main())
 ```
 
-远程服务器的状态在报告 `"connected"` 后也可能会改变。当连接在会话中途断开时，Claude Code 会在 [重新连接](/docs/zh-CN/mcp.md#automatic-reconnection) 时将服务器移回 `"pending"`。之后在 TypeScript 中调用 `mcpServerStatus()`，或在 Python 中调用 [`ClaudeSDKClient.get_mcp_status()`](/docs/zh-CN/agent-sdk/python#methods)，可能会为您之前看到已连接的服务器报告 `"pending"`，而您这一方没有进行任何配置更改。
+远程服务器的状态在报告 `"connected"` 后也可能会改变。当连接在会话中途断开时，Claude Code 会在 [重新连接](https://code.claude.com/docs/zh-CN/mcp.md#automatic-reconnection) 时将服务器移回 `"pending"`。之后在 TypeScript 中调用 `mcpServerStatus()`，或在 Python 中调用 [`ClaudeSDKClient.get_mcp_status()`](https://code.claude.com/docs/zh-CN/agent-sdk/python#methods)，可能会为您之前看到已连接的服务器报告 `"pending"`，而您这一方没有进行任何配置更改。
 
-在五次重新连接尝试失败后，服务器报告 `"failed"`，或在需要再次授权时报告 `"needs-auth"`。处于 `"failed"` 状态的 HTTP 或 SSE 服务器仍可能在您无需调用任何方法的情况下恢复为 `"connected"`，因为 Claude Code 在发生暂时性错误后会持续[在后台重试](/docs/zh-CN/mcp.md#mid-session-drops-of-a-remote-server)。要手动重试，请在 TypeScript 中调用 [`reconnectMcpServer()`](/docs/zh-CN/agent-sdk/typescript#methods) 或在 Python 中调用 [`ClaudeSDKClient.reconnect_mcp_server()`](/docs/zh-CN/agent-sdk/python#methods)。
+在五次重新连接尝试失败后，服务器报告 `"failed"`，或在需要再次授权时报告 `"needs-auth"`。处于 `"failed"` 状态的 HTTP 或 SSE 服务器仍可能在您无需调用任何方法的情况下恢复为 `"connected"`，因为 Claude Code 在发生暂时性错误后会持续[在后台重试](https://code.claude.com/docs/zh-CN/mcp.md#mid-session-drops-of-a-remote-server)。要手动重试，请在 TypeScript 中调用 [`reconnectMcpServer()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#methods) 或在 Python 中调用 [`ClaudeSDKClient.reconnect_mcp_server()`](https://code.claude.com/docs/zh-CN/agent-sdk/python#methods)。
 
 ## 故障排除
 
@@ -836,7 +836,7 @@ if isinstance(message, SystemMessage) and message.subtype == "init":
             print(f"Server {server['name']} failed to connect")
 ```
 
-`"pending"` 状态并不意味着服务器连接失败。请参阅[错误处理](#error-handling)了解它在初始化时涵盖的情况。要在会话后期获取更新的状态，请在 TypeScript SDK 中调用查询的 `mcpServerStatus()` 方法，或在 Python 中调用 [`ClaudeSDKClient.get_mcp_status()`](/docs/zh-CN/agent-sdk/python#methods)。
+`"pending"` 状态并不意味着服务器连接失败。请参阅[错误处理](#error-handling)了解它在初始化时涵盖的情况。要在会话后期获取更新的状态，请在 TypeScript SDK 中调用查询的 `mcpServerStatus()` 方法，或在 Python 中调用 [`ClaudeSDKClient.get_mcp_status()`](https://code.claude.com/docs/zh-CN/agent-sdk/python#methods)。
 
 常见原因：
 
@@ -871,7 +871,7 @@ options = ClaudeAgentOptions(
 
 ### SDK MCP 服务器中缺少某个工具
 
-在 TypeScript SDK 中，当某个工具的输入 schema 无法转换为 JSON Schema 时，您使用 [`createSdkMcpServer()`](/docs/zh-CN/agent-sdk/typescript#createsdkmcpserver) 创建的服务器在列出其工具时会省略该工具。此时 SDK 会发出一条警告。在 Node.js 下，该警告是一个代码为 `CLAUDE_SDK_MCP_TOOL_SCHEMA_UNCONVERTIBLE` 的进程警告，并以以下文本开头：
+在 TypeScript SDK 中，当某个工具的输入 schema 无法转换为 JSON Schema 时，您使用 [`createSdkMcpServer()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#createsdkmcpserver) 创建的服务器在列出其工具时会省略该工具。此时 SDK 会发出一条警告。在 Node.js 下，该警告是一个代码为 `CLAUDE_SDK_MCP_TOOL_SCHEMA_UNCONVERTIBLE` 的进程警告，并以以下文本开头：
 
 ```text theme={null}
 Tool "<name>" on SDK MCP server "<server>" was left out of the server's tool list, because its input schema cannot be converted to JSON Schema
@@ -883,24 +883,24 @@ Tool "<name>" on SDK MCP server "<server>" was left out of the server's tool lis
 
 ### 连接超时
 
-MCP 服务器连接默认在 30 秒后超时。要更改运行中的工具调用可能需要的时间，请设置 [`MCP_TOOL_TIMEOUT`](/docs/zh-CN/env-vars)。如果您的服务器需要更长时间才能启动，连接将失败。使用 [`MCP_TIMEOUT`](/docs/zh-CN/env-vars) 环境变量（以毫秒为单位）提高连接限制。对于需要更多启动时间的服务器，还应考虑：
+MCP 服务器连接默认在 30 秒后超时。要更改运行中的工具调用可能需要的时间，请设置 [`MCP_TOOL_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars)。如果您的服务器需要更长时间才能启动，连接将失败。使用 [`MCP_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars) 环境变量（以毫秒为单位）提高连接限制。对于需要更多启动时间的服务器，还应考虑：
 
 * 使用更轻量级的服务器（如果可用）
 * 在启动代理之前预热服务器
 * 检查服务器日志以查找缓慢初始化的原因
 
-在 TypeScript 中，您可以通过将 [`timeout` 传递给 `createSdkMcpServer()`](/docs/zh-CN/agent-sdk/typescript#createsdkmcpserver) 来为单个 [SDK MCP 服务器](#sdk-mcp-servers) 设置工具调用限制。
+在 TypeScript 中，您可以通过将 [`timeout` 传递给 `createSdkMcpServer()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#createsdkmcpserver) 来为单个 [SDK MCP 服务器](#sdk-mcp-servers) 设置工具调用限制。
 
 ### 工具输出超过最大允许令牌数
 
 SDK 应用与 Claude Code 相同的 MCP 输出限制。当不含图像内容的成功工具结果大于 25,000 个 token 时，Claude Code 会将输出保存到文件中，并用一条指明文件路径的错误消息替换工具结果，以便 Agent 可以分部分读回输出。
 
-要更改 token 限制，请设置 [`MAX_MCP_OUTPUT_TOKENS`](/docs/zh-CN/env-vars) 环境变量。除非工具声明了 `anthropic/maxResultSizeChars`，否则长度超过 50,000 个字符的成功文本结果无论 token 限制如何都会被保存到文件中。请参阅 [MCP 输出限制和警告](/docs/zh-CN/mcp.md#mcp-output-limits-and-warnings) 了解完整行为，包括服务器如何声明该注释。
+要更改 token 限制，请设置 [`MAX_MCP_OUTPUT_TOKENS`](https://code.claude.com/docs/zh-CN/env-vars) 环境变量。除非工具声明了 `anthropic/maxResultSizeChars`，否则长度超过 50,000 个字符的成功文本结果无论 token 限制如何都会被保存到文件中。请参阅 [MCP 输出限制和警告](https://code.claude.com/docs/zh-CN/mcp.md#mcp-output-limits-and-warnings) 了解完整行为，包括服务器如何声明该注释。
 
 ## 相关资源
 
-* **[自定义工具指南](/docs/zh-CN/agent-sdk/custom-tools.md)**：构建您自己的 MCP 服务器，在 SDK 应用程序中进程内运行
-* **[权限](/docs/zh-CN/agent-sdk/permissions.md)**：使用 `allowedTools` 和 `disallowedTools` 控制您的代理可以使用哪些 MCP 工具
-* **[TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript.md)**：完整的 API 参考，包括 MCP 配置选项
-* **[Python SDK 参考](/docs/zh-CN/agent-sdk/python.md)**：完整的 API 参考，包括 MCP 配置选项
+* **[自定义工具指南](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools.md)**：构建您自己的 MCP 服务器，在 SDK 应用程序中进程内运行
+* **[权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)**：使用 `allowedTools` 和 `disallowedTools` 控制您的代理可以使用哪些 MCP 工具
+* **[TypeScript SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md)**：完整的 API 参考，包括 MCP 配置选项
+* **[Python SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/python.md)**：完整的 API 参考，包括 MCP 配置选项
 * **[MCP 服务器目录](https://github.com/modelcontextprotocol/servers)**：浏览可用的 MCP 服务器，用于数据库、API 等

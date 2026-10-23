@@ -6,11 +6,11 @@
 
 > 通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 而不是 Claude API 运行 Claude Code GitHub Actions
 
-[Claude Code GitHub Actions](/docs/zh-CN/github-actions.md) 默认调用 Claude API。要改为通过您自己的云账户路由推理，请设置 Claude Code GitHub Action 的 provider 输入，并配置您的云以信任工作流的 OpenID Connect (OIDC) 令牌。工作流使用该令牌进行身份验证，因此您无需在存储库中存储长期的云凭证。
+[Claude Code GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 默认调用 Claude API。要改为通过您自己的云账户路由推理，请设置 Claude Code GitHub Action 的 provider 输入，并配置您的云以信任工作流的 OpenID Connect (OIDC) 令牌。工作流使用该令牌进行身份验证，因此您无需在存储库中存储长期的云凭证。
 
 > [!NOTE]
 >
-> 本页基于 [GitHub Actions 设置](/docs/zh-CN/github-actions.md#setup)。它假设您已经了解工作流文件和 `anthropics/claude-code-action` 步骤，仅涵盖云提供商所做的更改。
+> 本页基于 [GitHub Actions 设置](https://code.claude.com/docs/zh-CN/github-actions.md#setup)。它假设您已经了解工作流文件和 `anthropics/claude-code-action` 步骤，仅涵盖云提供商所做的更改。
 
 ## 选择您的提供商
 
@@ -29,9 +29,9 @@ Claude Code GitHub Action 支持三个提供商，下面的设置步骤仅在云
 * 对运行 Claude Code GitHub Action 的存储库的管理员访问权限，以安装 GitHub App 并添加密钥
 * 在您的云账户中创建身份资源的权限：AWS 上的 IAM 角色和 OIDC 身份提供商、Google Cloud 上的 Workload Identity Federation 资源和服务账户，或 Azure 上的 Microsoft Entra 应用程序
 * 在您的提供商上拥有 Claude 模型访问权限：
-  * **Amazon Bedrock**: 获得对 Claude 模型的访问权限。跨区域推理配置文件，例如本页示例中的 `us.` 模型 ID，需要在其区域组的每个区域中获得访问权限。请参阅 [Amazon Bedrock 上的 Claude Code](/docs/zh-CN/amazon-bedrock.md)
-  * **Google Cloud 的 Agent Platform**: 一个启用了 Agent Platform API 的项目以及对 Claude 模型的访问权限。请参阅 [Google Cloud 的 Agent Platform 上的 Claude Code](/docs/zh-CN/google-vertex-ai.md)
-  * **Microsoft Foundry**: 一个具有 Claude 模型部署的 Foundry 资源。请参阅 [Microsoft Foundry 上的 Claude Code](/docs/zh-CN/microsoft-foundry.md)
+  * **Amazon Bedrock**: 获得对 Claude 模型的访问权限。跨区域推理配置文件，例如本页示例中的 `us.` 模型 ID，需要在其区域组的每个区域中获得访问权限。请参阅 [Amazon Bedrock 上的 Claude Code](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)
+  * **Google Cloud 的 Agent Platform**: 一个启用了 Agent Platform API 的项目以及对 Claude 模型的访问权限。请参阅 [Google Cloud 的 Agent Platform 上的 Claude Code](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)
+  * **Microsoft Foundry**: 一个具有 Claude 模型部署的 Foundry 资源。请参阅 [Microsoft Foundry 上的 Claude Code](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)
 
 ## 设置集成
 
@@ -39,10 +39,10 @@ Claude Code GitHub Action 支持三个提供商，下面的设置步骤仅在云
 
 **1. 选择 GitHub 身份**
 
-Claude Code GitHub Action 通过 GitHub 身份推送提交和发布评论。[快速设置](/docs/zh-CN/github-actions.md#quick-setup) 为此安装了官方 Claude GitHub App。使用云提供商时，您可以自己选择身份：
+Claude Code GitHub Action 通过 GitHub 身份推送提交和发布评论。[快速设置](https://code.claude.com/docs/zh-CN/github-actions.md#quick-setup) 为此安装了官方 Claude GitHub App。使用云提供商时，您可以自己选择身份：
 
 * **官方 [Claude GitHub App](https://github.com/apps/claude)**: 在存储库上安装它，或如果已经安装，请跳到下一步
-* **自定义 GitHub App**: 当您只想要 Claude Code GitHub Action 使用的三个权限而不是[官方应用的完整权限集](/docs/zh-CN/github-actions.md#github-app-permissions)时，创建您自己的应用
+* **自定义 GitHub App**: 当您只想要 Claude Code GitHub Action 使用的三个权限而不是[官方应用的完整权限集](https://code.claude.com/docs/zh-CN/github-actions.md#github-app-permissions)时，创建您自己的应用
 * **GitHub 的自动 `GITHUB_TOKEN`**: 无需创建或安装应用，但 GitHub 不会在使用它进行的提交上触发您的 CI 工作流
 
 第四步中的工作流示例使用自定义应用进行身份验证。该步骤还说明了如何为其他两个选项进行更改。
@@ -64,7 +64,7 @@ Claude Code GitHub Action 通过 GitHub 身份推送提交和发布评论。[快
 在您的 AWS 账户中创建信任配置，遵循 [AWS 创建 OIDC 身份提供商指南](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html)：
 
 * 添加一个 GitHub OIDC 身份提供商，提供商 URL 为 `https://token.actions.githubusercontent.com`，受众为 `sts.amazonaws.com`
-* 创建一个由该提供商作为 Web 身份信任的 IAM 角色，并附加来自 [IAM 配置](/docs/zh-CN/amazon-bedrock.md#iam-configuration) 的作用域调用策略，该策略授予 `bedrock:InvokeModel`、`bedrock:InvokeModelWithResponseStream`、`bedrock:ListInferenceProfiles` 和 `bedrock:GetInferenceProfile`，以及两个 `aws-marketplace` 订阅操作
+* 创建一个由该提供商作为 Web 身份信任的 IAM 角色，并附加来自 [IAM 配置](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#iam-configuration) 的作用域调用策略，该策略授予 `bedrock:InvokeModel`、`bedrock:InvokeModelWithResponseStream`、`bedrock:ListInferenceProfiles` 和 `bedrock:GetInferenceProfile`，以及两个 `aws-marketplace` 订阅操作
 * 使用主题条件（例如 `repo:your-org/your-repo:*`）将角色的信任策略限制在您的存储库。有关声明格式，请参阅 [GitHub 的 OIDC 加固指南](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect)
 
 记下角色的 ARN。您将在下一步中将其添加为密钥。
@@ -84,7 +84,7 @@ Claude Code GitHub Action 通过 GitHub 身份推送提交和发布评论。[快
 创建一个 Microsoft Entra 应用程序，其中包含您的存储库的联合凭证，遵循 [Microsoft 的 GitHub Actions 身份验证指南](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-openid-connect)：
 
 * 注册一个 Microsoft Entra 应用程序，并添加一个联合身份凭证，该凭证信任 GitHub 向您的存储库颁发的令牌。用户分配的托管身份可以代替应用程序。两者都有您在下面记下的客户端 ID
-* 在您的 Foundry 资源上为应用程序分配 `Azure AI User` 角色。有关更窄的自定义角色，请参阅 [Azure RBAC 配置](/docs/zh-CN/microsoft-foundry.md#azure-rbac-configuration)
+* 在您的 Foundry 资源上为应用程序分配 `Azure AI User` 角色。有关更窄的自定义角色，请参阅 [Azure RBAC 配置](https://code.claude.com/docs/zh-CN/microsoft-foundry.md#azure-rbac-configuration)
 
 记下应用程序的客户端 ID、您的租户 ID 和您的订阅 ID。您将在下一步中将它们添加为密钥。
 
@@ -285,9 +285,9 @@ jobs:
 
 > [!TIP]
 >
-> 使用与您的 Foundry 资源中的 Claude 部署相匹配的模型 ID。有关模型配置和版本固定，请参阅 [Microsoft Foundry 上的 Claude Code](/docs/zh-CN/microsoft-foundry.md)。
+> 使用与您的 Foundry 资源中的 Claude 部署相匹配的模型 ID。有关模型配置和版本固定，请参阅 [Microsoft Foundry 上的 Claude Code](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)。
 
-对于任何提供商，您可以通过将 `--max-turns` 添加到 `claude_args` 来限制运行长度和成本。请参阅 [管理成本](/docs/zh-CN/github-actions.md#manage-costs)。
+对于任何提供商，您可以通过将 `--max-turns` 添加到 `claude_args` 来限制运行长度和成本。请参阅 [管理成本](https://code.claude.com/docs/zh-CN/github-actions.md#manage-costs)。
 
 **5. 测试设置**
 
@@ -298,11 +298,11 @@ jobs:
 失败的运行通常在以下两个地方之一中断：
 
 * **身份验证错误**: 通常是 OIDC 配置错误。检查工作流是否包含 `id-token: write` 权限，信任配置的存储库条件是否与您的存储库完全匹配，以及工作流中的密钥名称是否与您添加的名称匹配
-* **触发和 CI 问题**: 这些的行为与 Claude Code GitHub Action 调用 Claude API 时相同。请参阅主页的[故障排除部分](/docs/zh-CN/github-actions.md#troubleshooting)和 Claude Code GitHub Action 的 [FAQ](https://github.com/anthropics/claude-code-action/blob/main/docs/faq.md)
+* **触发和 CI 问题**: 这些的行为与 Claude Code GitHub Action 调用 Claude API 时相同。请参阅主页的[故障排除部分](https://code.claude.com/docs/zh-CN/github-actions.md#troubleshooting)和 Claude Code GitHub Action 的 [FAQ](https://github.com/anthropics/claude-code-action/blob/main/docs/faq.md)
 
 ## 接下来
 
-* [Claude Code GitHub Actions](/docs/zh-CN/github-actions.md) 获取示例、参数和最佳实践
-* [Amazon Bedrock 上的 Claude Code](/docs/zh-CN/amazon-bedrock.md) 获取 Bedrock 模型 ID 和区域
-* [Google Cloud 的 Agent Platform 上的 Claude Code](/docs/zh-CN/google-vertex-ai.md) 获取 Agent Platform 模型 ID 和区域
-* [Microsoft Foundry 上的 Claude Code](/docs/zh-CN/microsoft-foundry.md) 获取 Foundry 模型和端点配置
+* [Claude Code GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 获取示例、参数和最佳实践
+* [Amazon Bedrock 上的 Claude Code](https://code.claude.com/docs/zh-CN/amazon-bedrock.md) 获取 Bedrock 模型 ID 和区域
+* [Google Cloud 的 Agent Platform 上的 Claude Code](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 获取 Agent Platform 模型 ID 和区域
+* [Microsoft Foundry 上的 Claude Code](https://code.claude.com/docs/zh-CN/microsoft-foundry.md) 获取 Foundry 模型和端点配置

@@ -6,7 +6,7 @@
 
 > Claude Code Desktop 在用量限制重置后自动继续，fork 模式默认启用，GitLab 合并请求和市场加入 GitHub。
 
-发布版本 [v2.1.225 → v2.1.233](/docs/en/changelog.md#2-1-225)
+发布版本 [v2.1.225 → v2.1.233](https://code.claude.com/docs/en/changelog.md#2-1-225)
 3 项功能 · 8 月 10–14
 
 Desktop 上用量限制重置后自动继续
@@ -18,7 +18,7 @@ Desktop
 
 下次出现会话限制卡时，勾选**限制重置时自动继续**并保持会话打开。该卡显示 `Auto-resuming at` 后跟重置时间，一旦限制重置，轮次将自动继续。
 
-[达到用量限制时该怎么办](/docs/zh-CN/errors.md#youve-hit-your-session-limit)
+[达到用量限制时该怎么办](https://code.claude.com/docs/zh-CN/errors.md#youve-hit-your-session-limit)
 
 Fork 模式默认启用
 v2.1.232
@@ -33,7 +33,7 @@ Fork 模式现在在交互式会话中默认启用。Claude 可以请求 `fork` 
 
 fork 出现在您的输入框下方的面板中，其结果在完成时到达您的对话。要关闭 fork 模式，请设置 `CLAUDE_CODE_FORK_SUBAGENT=0`。
 
-[启用或关闭 fork 模式](/docs/zh-CN/sub-agents.md#turn-fork-mode-on-or-off)
+[启用或关闭 fork 模式](https://code.claude.com/docs/zh-CN/sub-agents.md#turn-fork-mode-on-or-off)
 
 GitLab 合并请求和市场
 v2.1.232
@@ -48,10 +48,10 @@ claude --worktree https://gitlab.com/group/project/-/merge_requests/42
 
 当 `origin` 在 gitlab.com 上时，Claude Code 获取 `merge-requests/42/head` 并在其自己的 worktree 中的该分支上打开会话。
 
-[从拉取或合并请求分支 worktree](/docs/zh-CN/worktrees.md#branch-from-a-pull-request)
+[从拉取或合并请求分支 worktree](https://code.claude.com/docs/zh-CN/worktrees.md#branch-from-a-pull-request)
 
 其他改进
 
-在输入框中键入 `@` 以按名称[提及另一个 Claude 会话](/docs/zh-CN/cross-session-messaging.md#message-another-session)，Claude 使用 `SendMessage` 直接向其发送消息；与恰好一个活跃会话完全匹配的裸名称现在无需确认步骤即可传递一台机器上的交互式会话保持[唯一名称](/docs/zh-CN/cross-session-messaging.md#see-which-sessions-claude-can-reach)：如果您启动或重命名会话时使用另一个活跃会话已在使用的名称，Claude Code 会为您的会话提供 `name-word-word` 变体并告知您插件市场接受[`command` 源](/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)：本地命令打印插件目录，Claude Code 在每个会话中重新解析并应用，无需重启在 Linux 和 WSL 上，设置[`CLAUDE_CODE_TOOL_MEMORY_LIMIT`](/docs/zh-CN/tools-reference#memory-limit-on-linux-and-wsl) 为大小（如 `4G`）以限制 Bash 和 PowerShell 工具命令可以使用的内存任务跟踪工具，如 `TaskCreate`、`TaskUpdate` 和 `TodoWrite`，[在 Opus 4.8、Sonnet 5、Fable 5、Mythos 5 及这些系列中的更高版本上不再可用](/docs/zh-CN/tools-reference.md#task-tool-availability)；设置 `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` 以重新启用它们[`/code-review`](/docs/zh-CN/code-review-local) 在高、超高和最大努力级别现在像其他级别一样在后台 Agent 中运行[`/plugin install plugin@marketplace`](/docs/zh-CN/plugins/install#install-a-plugin) 首先刷新市场，因此新发布的插件无需手动市场更新即可安装设置接受[`additionalMarketplaces` 和 `allowedMarketplaces`](/docs/zh-CN/settings-reference#marketplace-key-aliases) 作为 `extraKnownMarketplaces` 和 `strictKnownMarketplaces` 的别名在较新的模型上，Claude 可以[使用 Write 工具覆盖现有文件](/docs/zh-CN/tools-reference.md#write-tool-behavior)而无需在此会话中首先读取它，与 Edit 工具的规则匹配；较旧的模型需要读取VS Code 扩展可以[将会话列表组织成组](/docs/zh-CN/vs-code.md#organize-sessions-into-groups)：右键单击以创建、重命名或删除组，使用 Cmd/Ctrl- 或 Shift-单击一次移动多个会话如果您的组织通过[具有支出限制的 Claude 应用网关](/docs/zh-CN/claude-apps-gateway-spend-limits.md)路由 Claude Code，Claude Code 会在您达到限制时显示限制期间、其重置时间和运营商的消息
+在输入框中键入 `@` 以按名称[提及另一个 Claude 会话](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#message-another-session)，Claude 使用 `SendMessage` 直接向其发送消息；与恰好一个活跃会话完全匹配的裸名称现在无需确认步骤即可传递一台机器上的交互式会话保持[唯一名称](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#see-which-sessions-claude-can-reach)：如果您启动或重命名会话时使用另一个活跃会话已在使用的名称，Claude Code 会为您的会话提供 `name-word-word` 变体并告知您插件市场接受[`command` 源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)：本地命令打印插件目录，Claude Code 在每个会话中重新解析并应用，无需重启在 Linux 和 WSL 上，设置[`CLAUDE_CODE_TOOL_MEMORY_LIMIT`](https://code.claude.com/docs/zh-CN/tools-reference#memory-limit-on-linux-and-wsl) 为大小（如 `4G`）以限制 Bash 和 PowerShell 工具命令可以使用的内存任务跟踪工具，如 `TaskCreate`、`TaskUpdate` 和 `TodoWrite`，[在 Opus 4.8、Sonnet 5、Fable 5、Mythos 5 及这些系列中的更高版本上不再可用](https://code.claude.com/docs/zh-CN/tools-reference.md#task-tool-availability)；设置 `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` 以重新启用它们[`/code-review`](https://code.claude.com/docs/zh-CN/code-review-local) 在高、超高和最大努力级别现在像其他级别一样在后台 Agent 中运行[`/plugin install plugin@marketplace`](https://code.claude.com/docs/zh-CN/plugins/install#install-a-plugin) 首先刷新市场，因此新发布的插件无需手动市场更新即可安装设置接受[`additionalMarketplaces` 和 `allowedMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#marketplace-key-aliases) 作为 `extraKnownMarketplaces` 和 `strictKnownMarketplaces` 的别名在较新的模型上，Claude 可以[使用 Write 工具覆盖现有文件](https://code.claude.com/docs/zh-CN/tools-reference.md#write-tool-behavior)而无需在此会话中首先读取它，与 Edit 工具的规则匹配；较旧的模型需要读取VS Code 扩展可以[将会话列表组织成组](https://code.claude.com/docs/zh-CN/vs-code.md#organize-sessions-into-groups)：右键单击以创建、重命名或删除组，使用 Cmd/Ctrl- 或 Shift-单击一次移动多个会话如果您的组织通过[具有支出限制的 Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)路由 Claude Code，Claude Code 会在您达到限制时显示限制期间、其重置时间和运营商的消息
 
-[v2.1.225–v2.1.233 的完整更新日志 →](/docs/en/changelog.md#2-1-225)
+[v2.1.225–v2.1.233 的完整更新日志 →](https://code.claude.com/docs/en/changelog.md#2-1-225)

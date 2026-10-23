@@ -13,7 +13,7 @@ Claude Code 提供分析仪表板，帮助组织了解开发者使用模式、�
 | Claude for Teams / Enterprise | [claude.ai/analytics/claude-code](https://claude.ai/analytics/claude-code) | 使用指标、带 GitHub 集成的贡献指标、排行榜、数据导出 | [详情](#access-analytics-for-team-and-enterprise) |
 | API (Claude Console) | [platform.claude.com/claude-code](https://platform.claude.com/claude-code) | 使用指标、支出跟踪、团队洞察 | [详情](#access-analytics-for-api-customers) |
 
-Code Review 有其独立的仪表板。有关审查活动和支出，请参阅[查看使用情况](/docs/zh-CN/code-review-costs.md#view-usage)。
+Code Review 有其独立的仪表板。有关审查活动和支出，请参阅[查看使用情况](https://code.claude.com/docs/zh-CN/code-review-costs.md#view-usage)。
 
 ## 访问 Team 和 Enterprise 分析
 
@@ -26,7 +26,7 @@ Team 和 Enterprise 仪表板包括：
 * **排行榜**：按 Claude Code 使用情况排名的顶级贡献者
 * **数据导出**：将贡献数据下载为 CSV 格式以进行自定义报告
 
-对于每个用户的令牌计数和成本估计，请配置 [OpenTelemetry 导出](/docs/zh-CN/monitoring-usage.md)，或从您组织的分析设置中导出 [支出报告](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans)，其中列出了每个用户和每个模型的令牌使用情况和估计的使用额度支出。
+对于每个用户的令牌计数和成本估计，请配置 [OpenTelemetry 导出](https://code.claude.com/docs/zh-CN/monitoring-usage.md)，或从您组织的分析设置中导出 [支出报告](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans)，其中列出了每个用户和每个模型的令牌使用情况和估计的使用额度支出。
 
 ### 启用贡献指标
 
@@ -40,7 +40,7 @@ Team 和 Enterprise 仪表板包括：
 
 > [!WARNING]
 >
-> 启用了 [Zero Data Retention](/docs/zh-CN/zero-data-retention.md) 的组织无法使用贡献指标。分析仪表板将仅显示使用指标。
+> 启用了 [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md) 的组织无法使用贡献指标。分析仪表板将仅显示使用指标。
 
 **1. 安装 GitHub 应用**
 
@@ -63,7 +63,7 @@ Claude 所有者导航到 [claude.ai/admin-settings/claude-code](https://claude.
 * **"GitHub 应用必需"**：安装 GitHub 应用以查看贡献指标
 * **"数据处理进行中"**：几天后重新检查，如果数据未出现，请确认 GitHub 应用已安装
 
-贡献指标涵盖托管在 github.com 上的仓库。对于 [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server.md) 上的仓库，分析仪表板仅显示使用指标。
+贡献指标涵盖托管在 github.com 上的仓库。对于 [GitHub Enterprise Server](https://code.claude.com/docs/zh-CN/github-enterprise-server.md) 上的仓库，分析仪表板仅显示使用指标。
 
 ### 查看摘要指标
 
@@ -219,6 +219,6 @@ Console 仪表板显示：
 
 ## 相关资源
 
-* [使用 OpenTelemetry 进行监控](/docs/zh-CN/monitoring-usage.md)：将实时指标和事件导出到您的可观测性堆栈
-* [有效管理成本](/docs/zh-CN/costs.md)：设置支出限制并优化令牌使用
-* [权限](/docs/zh-CN/permissions.md)：配置角色和权限
+* [使用 OpenTelemetry 进行监控](https://code.claude.com/docs/zh-CN/monitoring-usage.md)：将实时指标和事件导出到您的可观测性堆栈
+* [有效管理成本](https://code.claude.com/docs/zh-CN/costs.md)：设置支出限制并优化令牌使用
+* [权限](https://code.claude.com/docs/zh-CN/permissions.md)：配置角色和权限

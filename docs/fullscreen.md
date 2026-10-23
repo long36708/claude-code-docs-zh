@@ -20,26 +20,26 @@
 
 ## 启用全屏渲染
 
-在任何 Claude Code 对话中运行 `/tui fullscreen`。CLI 会保存 [`tui` 设置](/docs/zh-CN/settings-reference#tui)并以您的对话完整地重新启动到全屏模式，因此您可以在会话中途切换而不会丢失上下文。运行 `/tui default` 来切换回经典渲染器，或运行不带参数的 `/tui` 来打印当前活动的渲染器。
+在任何 Claude Code 对话中运行 `/tui fullscreen`。CLI 会保存 [`tui` 设置](https://code.claude.com/docs/zh-CN/settings-reference#tui)并以您的对话完整地重新启动到全屏模式，因此您可以在会话中途切换而不会丢失上下文。运行 `/tui default` 来切换回经典渲染器，或运行不带参数的 `/tui` 来打印当前活动的渲染器。
 
-在[屏幕阅读器模式](/docs/zh-CN/accessibility.md)中，Claude Code 始终使用经典渲染器，除了附加的[后台会话](/docs/zh-CN/agent-view.md)仍然以全屏渲染。如果您在任何其他会话中运行 `/tui fullscreen`，Claude Code 会打印说明而不是切换，并且不会更改保存的 `tui` 设置。
+在[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)中，Claude Code 始终使用经典渲染器，除了附加的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)仍然以全屏渲染。如果您在任何其他会话中运行 `/tui fullscreen`，Claude Code 会打印说明而不是切换，并且不会更改保存的 `tui` 设置。
 
 Claude Code 将这些内容保留到重新启动的会话中：
 
-* 对话在屏幕上显示的样子。在 [`/rewind`](/docs/zh-CN/checkpointing#rewind-and-summarize) 之后，这意味着：
+* 对话在屏幕上显示的样子。在 [`/rewind`](https://code.claude.com/docs/zh-CN/checkpointing#rewind-and-summarize) 之后，这意味着：
   * 如果您在会话早期倒带，Claude Code 会从倒带点而不是保存在磁盘上的较长记录中重新启动。例如，如果您倒带过了最后三条消息，重新启动的会话会在没有它们的情况下打开
   * 如果您倒带到第一条消息之前，Claude Code 会以空对话重新启动
-* 您的[权限模式](/docs/zh-CN/permission-modes.md)和[努力级别](/docs/zh-CN/model-config.md#adjust-effort-level)
-* 您最后用 [`/model`](/docs/zh-CN/model-config#setting-your-model) 选择的模型
-* 您用 [`--allowed-tools` 或 `--disallowed-tools`](/docs/zh-CN/cli-reference#cli-flags) 传递的规则，以及您的 `--agent`、`--agents`、`--append-system-prompt` 和 `--system-prompt-snapshot` 标志
-* 您启动时使用的 `--chrome` 或 `--no-chrome` 标志，以便 [Chrome 集成](/docs/zh-CN/chrome.md)在此会话中按您的选择保持开启或关闭
+* 您的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)和[努力级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)
+* 您最后用 [`/model`](https://code.claude.com/docs/zh-CN/model-config#setting-your-model) 选择的模型
+* 您用 [`--allowed-tools` 或 `--disallowed-tools`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 传递的规则，以及您的 `--agent`、`--agents`、`--append-system-prompt` 和 `--system-prompt-snapshot` 标志
+* 您启动时使用的 `--chrome` 或 `--no-chrome` 标志，以便 [Chrome 集成](https://code.claude.com/docs/zh-CN/chrome.md)在此会话中按您的选择保持开启或关闭
 
 如果会话有一个限制条件无法传递到重新启动的进程，Claude Code 会拒绝重新启动。无法传递的限制条件包括：
 
-* 启动标志，例如 [`--system-prompt`](/docs/zh-CN/cli-reference#cli-flags) 替换、[`--tools`](/docs/zh-CN/cli-reference#cli-flags) 允许列表或 [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags)
-* [hook 或 SDK 权限更新](/docs/zh-CN/hooks.md#permission-update-entries)为仅此会话添加的拒绝或询问规则
+* 启动标志，例如 [`--system-prompt`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 替换、[`--tools`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 允许列表或 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)
+* [hook 或 SDK 权限更新](https://code.claude.com/docs/zh-CN/hooks.md#permission-update-entries)为仅此会话添加的拒绝或询问规则
 
-在这种情况下，Claude Code 会打印 [`Cannot switch renderers in this session`](/docs/zh-CN/errors#cannot-switch-renderers-in-this-session)，并说明原因。它不会切换或保存任何内容。
+在这种情况下，Claude Code 会打印 [`Cannot switch renderers in this session`](https://code.claude.com/docs/zh-CN/errors#cannot-switch-renderers-in-this-session)，并说明原因。它不会切换或保存任何内容。
 
 您也可以在启动 Claude Code 之前设置 `CLAUDE_CODE_NO_FLICKER` 环境变量：
 
@@ -47,25 +47,25 @@ Claude Code 将这些内容保留到重新启动的会话中：
 CLAUDE_CODE_NO_FLICKER=1 claude
 ```
 
-有关 [`tui`](/docs/zh-CN/settings-reference#tui) 设置和变量在两者都设置时如何组合的信息，请参阅该设置的条目。在[失败的全屏启动](#fullscreen-renderer-didnt-finish-starting)之后，Claude Code 仍然遵守该变量但不遵守该设置。`/tui` 命令从重新启动的进程中清除 `CLAUDE_CODE_NO_FLICKER`，以便它写入的设置生效。
+有关 [`tui`](https://code.claude.com/docs/zh-CN/settings-reference#tui) 设置和变量在两者都设置时如何组合的信息，请参阅该设置的条目。在[失败的全屏启动](#fullscreen-renderer-didnt-finish-starting)之后，Claude Code 仍然遵守该变量但不遵守该设置。`/tui` 命令从重新启动的进程中清除 `CLAUDE_CODE_NO_FLICKER`，以便它写入的设置生效。
 
 ### 默认全屏
 
-附加的[后台会话](/docs/zh-CN/agent-view.md)以全屏渲染，[屏幕阅读器模式](/docs/zh-CN/accessibility.md)中的其他会话使用经典渲染器。否则，Claude Code 会在与您的设置匹配的此表的第一行中的渲染器中启动您：
+附加的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)以全屏渲染，[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)中的其他会话使用经典渲染器。否则，Claude Code 会在与您的设置匹配的此表的第一行中的渲染器中启动您：
 
 | 您的情况 | 您启动的渲染器 |
 | :- | :- |
-| 您设置了 [`CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1`](/docs/zh-CN/env-vars) 或 `CLAUDE_CODE_NO_FLICKER=0` | 经典 |
+| 您设置了 [`CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1`](https://code.claude.com/docs/zh-CN/env-vars) 或 `CLAUDE_CODE_NO_FLICKER=0` | 经典 |
 | 您设置了 `CLAUDE_CODE_NO_FLICKER=1` | 全屏 |
 | Claude Code [在此机器上失败的全屏启动后关闭了全屏](#fullscreen-renderer-didnt-finish-starting) | 经典 |
 | 您在 iTerm2 的 [`tmux -CC` 集成模式](#use-with-tmux)中，或您通过 SSH 连接到在 Windows 上运行的 Claude Code | 经典 |
-| 您保存了 [`tui` 设置](/docs/zh-CN/settings-reference#tui) | 该设置命名的渲染器 |
-| 您的会话不[从 Anthropic 获取功能标志](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，并且 Claude Code 已停止在此机器上提供启动对话框 | 经典 |
+| 您保存了 [`tui` 设置](https://code.claude.com/docs/zh-CN/settings-reference#tui) | 该设置命名的渲染器 |
+| 您的会话不[从 Anthropic 获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，并且 Claude Code 已停止在此机器上提供启动对话框 | 经典 |
 | 您的会话不从 Anthropic 获取功能标志，并且此机器的第一次 Claude Code 启动运行了 v2.1.239 或更高版本 | 全屏 |
 | 您的会话从 Anthropic 获取功能标志，并且您在 2026 年 5 月 6 日或之后首次使用 Claude Code | 全屏 |
 | 其他任何情况 | 经典 |
 
-不从 Anthropic 获取功能标志的会话包括通过 [Amazon Bedrock](/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](/docs/zh-CN/microsoft-foundry.md) 的会话，以及关闭了遥测的会话。
+不从 Anthropic 获取功能标志的会话包括通过 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md) 的会话，以及关闭了遥测的会话。
 
 如果您在经典渲染器中启动并且尚未保存 `tui` 设置，Claude Code 可能会在启动时打开一个对话框，提供切换选项：
 
@@ -102,7 +102,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 * **单击列表边缘的 `↑ N more` 或 `↓ N more` 行**以跳转到列表的该端，而不选择任何选项。需要 Claude Code v2.1.286 或更高版本。
 * **单击折叠的工具结果**以展开它并查看完整输出。再次单击以折叠。工具调用及其结果一起展开。只有有更多内容要显示的消息才可点击。
   * 单击也会展开 `!` shell 命令的输出，无论是较旧的截断结果还是命令运行时的实时进度行。需要 Claude Code v2.1.257 或更高版本。
-  * 当发送者是[队友](/docs/zh-CN/agent-teams.md)或在您的会话中运行的另一个 Agent 时，单击也会展开暗淡的 `Message from @<sender>` 行。
+  * 当发送者是[队友](https://code.claude.com/docs/zh-CN/agent-teams.md)或在您的会话中运行的另一个 Agent 时，单击也会展开暗淡的 `Message from @<sender>` 行。
 * **在 macOS 上按住 `Cmd`，或在 Linux 和 Windows 上按住 `Ctrl`，然后单击 URL 或文件路径**以打开它。纯 `http://` 和 `https://` URL 在您的浏览器中打开。当由 Claude Code 处理单击时，工具输出中的文件路径（如 Edit 或 Write 后打印的路径）会在您的文件管理器中打开并选中该文件。不带修饰符的纯单击不会打开链接，与本机终端行为相匹配。
   * 在 Linux 和 WSL 上，单击文件路径需要一个提供 `org.freedesktop.FileManager1` D-Bus 接口的文件管理器。如果没有，则不会打开任何内容。
   * Claude Code 将网络 (UNC) 路径（例如 `\\server\share\file.ts`）呈现为纯文本，没有链接，因为打开网络路径可能会将您的 Windows 凭据发送到它命名的主机。
@@ -122,7 +122,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 * **`Esc`**：Claude Code 执行该键的常规操作，例如中断正在运行的响应或关闭打开的对话框，选择保持突出显示。
 * **`PgUp`、`PgDn`、`Ctrl+Home`、`Ctrl+End` 或 `Shift`、`Alt` 或 `Option` 或 `Cmd`、`Win` 或 `Super` 与箭头、`Home` 或 `End` 键**：选择保持。
 * **任何其他键，包括纯箭头键、`Enter` 和输入的字符**：Claude Code 清除选择。
-* **绑定到 [`selection:clear`](/docs/zh-CN/keybindings#scroll-actions) 的键**：Claude Code 清除选择，即使该键是 `Esc` 或其他通常保持选择的键。该操作没有默认绑定。
+* **绑定到 [`selection:clear`](https://code.claude.com/docs/zh-CN/keybindings#scroll-actions) 的键**：Claude Code 清除选择，即使该键是 `Esc` 或其他通常保持选择的键。该操作没有默认绑定。
 
 在[会话记录模式](#search-and-review-the-conversation)中，那里列出的导航键也会保持选择。
 
@@ -137,7 +137,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 | `Ctrl+End` | 跳转到最新消息并重新启用自动跟随 |
 | 鼠标滚轮 | 一次滚动几行 |
 
-如果您关闭一个已[压缩](/docs/zh-CN/context-window.md#what-survives-compaction)的会话并[恢复](/docs/zh-CN/sessions.md#what-a-resumed-session-restores)它，向上滚动会停在 `Conversation compacted` 行，而您较早的消息仍保存在磁盘上的[会话记录文件](/docs/zh-CN/sessions.md#where-transcripts-are-stored)中。要获取这些消息中的某个细节，请让 Claude 在该文件中查找。
+如果您关闭一个已[压缩](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)的会话并[恢复](https://code.claude.com/docs/zh-CN/sessions.md#what-a-resumed-session-restores)它，向上滚动会停在 `Conversation compacted` 行，而您较早的消息仍保存在磁盘上的[会话记录文件](https://code.claude.com/docs/zh-CN/sessions.md#where-transcripts-are-stored)中。要获取这些消息中的某个细节，请让 Claude 在该文件中查找。
 
 在没有专用 `PgUp`、`PgDn`、`Home` 或 `End` 键的键盘上，例如 MacBook 键盘，按住 `Fn` 并使用箭头键：`Fn+↑` 发送 `PgUp`，`Fn+↓` 发送 `PgDn`，`Fn+←` 发送 `Home`，`Fn+→` 发送 `End`。`Ctrl+Fn+→` 在 macOS 上无法到达 Claude Code，因此 MacBook 键盘默认没有有效的跳转到底部快捷键。相反，使用以下选项之一：
 
@@ -145,7 +145,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 * 使用鼠标滚轮滚动到底部以恢复跟随。
 * 将 `scroll:bottom` 重新绑定到您的键盘可以发送的快捷键。
 
-这些操作可重新绑定。有关完整的操作名称列表（包括没有默认绑定的半页和全页变体），请参阅[滚动操作](/docs/zh-CN/keybindings.md#scroll-actions)。
+这些操作可重新绑定。有关完整的操作名称列表（包括没有默认绑定的半页和全页变体），请参阅[滚动操作](https://code.claude.com/docs/zh-CN/keybindings.md#scroll-actions)。
 
 当您向上滚动时，对话顶部的一个暗淡标题行显示已滚动到视图上方的最新提示。点击该行可跳转到该提示。
 
@@ -155,7 +155,7 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 
 当自动跟随暂停时，当响应完成流式传输时，视图也会保持在您滚动的位置。
 
-按钮的键盘提示反映您的键盘可以发送的内容。在 macOS 上，它建议点击或 `Fn+↓` 滚动，因为 `Ctrl+End` 无法从 Mac 键盘到达 Claude Code。重新绑定 [`scroll:bottom`](/docs/zh-CN/keybindings#scroll-actions)，按钮会在每个平台上显示您的快捷键。
+按钮的键盘提示反映您的键盘可以发送的内容。在 macOS 上，它建议点击或 `Fn+↓` 滚动，因为 `Ctrl+End` 无法从 Mac 键盘到达 Claude Code。重新绑定 [`scroll:bottom`](https://code.claude.com/docs/zh-CN/keybindings#scroll-actions)，按钮会在每个平台上显示您的快捷键。
 
 在终端太窄而无法显示完整标签的情况下，按钮会缩短提示，而不是换行到记录行下方。
 
@@ -179,7 +179,7 @@ export CLAUDE_CODE_SCROLL_SPEED=3
 
 该命令写入与 `CLAUDE_CODE_SCROLL_SPEED` 环境变量设置相同的值，持久化到 `~/.claude/settings.json`。对话框的最大值是 10：如果您通过环境变量设置更高的值，对话框显示 10，从对话框保存会持久化 10。该命令在 JetBrains IDE 终端中不可用。
 
-与基本速度分开，Claude Code 在您快速旋转滚轮时加速滚动速率，因此快速旋转覆盖的距离比相同数量的慢刻度更多。要关闭加速并保持每个刻度的恒定速率，在 [`settings.json`](/docs/zh-CN/settings-reference#all-settings) 中将 `wheelScrollAccelerationEnabled` 设置为 `false`。此设置需要 Claude Code v2.1.174 或更高版本。
+与基本速度分开，Claude Code 在您快速旋转滚轮时加速滚动速率，因此快速旋转覆盖的距离比相同数量的慢刻度更多。要关闭加速并保持每个刻度的恒定速率，在 [`settings.json`](https://code.claude.com/docs/zh-CN/settings-reference#all-settings) 中将 `wheelScrollAccelerationEnabled` 设置为 `false`。此设置需要 Claude Code v2.1.174 或更高版本。
 
 ### 在 JetBrains IDE 终端中滚动
 
@@ -213,7 +213,7 @@ export CLAUDE_CODE_SCROLL_SPEED=3
 
 ## 在 diff 面板中查看你的更改
 
-在全屏渲染中，[`/diff`](/docs/zh-CN/interactive-mode#review-changes-with-%2Fdiff) 会在对话旁边打开一个面板，因此您可以在 Claude 工作时观看更改逐步累积。[Diff 面板](/docs/zh-CN/interactive-mode.md#diff-panel)涵盖了它显示的内容、它何时会自动打开、如何保持它关闭以及如何更改它比较的内容。
+在全屏渲染中，[`/diff`](https://code.claude.com/docs/zh-CN/interactive-mode#review-changes-with-%2Fdiff) 会在对话旁边打开一个面板，因此您可以在 Claude 工作时观看更改逐步累积。[Diff 面板](https://code.claude.com/docs/zh-CN/interactive-mode.md#diff-panel)涵盖了它显示的内容、它何时会自动打开、如何保持它关闭以及如何更改它比较的内容。
 
 ## 清除对话
 
@@ -251,7 +251,7 @@ Claude Code 将选择内容写入您的系统剪贴板，它使用的路径取�
 
 在 tmux 内部，它也会写入 tmux 粘贴缓冲区。通过 SSH 时，它会回退到 OSC 52 转义序列。在 GNU screen 内部，Claude Code 也会将长选择复制到剪贴板。在 v2.1.219 之前，如果您复制的选择长度超过大约 570 个字符，GNU screen 会将 base64 文本打印到窗口中。Claude Code 在每次复制后都会打印一个提示，告诉您它使用了哪条路径。
 
-某些终端默认阻止 OSC 52。iTerm2 会阻止它，直到您打开 Settings → General → Selection → Applications in terminal may access clipboard；在 iTerm2 中运行 [`/terminal-setup`](/docs/zh-CN/terminal-config) 会为您启用此功能。
+某些终端默认阻止 OSC 52。iTerm2 会阻止它，直到您打开 Settings → General → Selection → Applications in terminal may access clipboard；在 iTerm2 中运行 [`/terminal-setup`](https://code.claude.com/docs/zh-CN/terminal-config) 会为您启用此功能。
 
 对于一次性原生选择，要使用的键取决于您的终端：
 
@@ -282,7 +282,7 @@ CLAUDE_CODE_NO_FLICKER=1 CLAUDE_CODE_DISABLE_MOUSE=1 claude
 
 全屏渲染仅发送帧之间更改的单元格。某些终端（最常见的是 Windows Terminal 和其他基于 ConPTY 的主机）会错误地合并这些定位写入，并在调整窗口大小之前在屏幕上留下早期输出的片段。
 
-设置 [`CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1`](/docs/zh-CN/env-vars) 以在每一帧上重新绘制每个单元格，而不是发送增量更新。
+设置 [`CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1`](https://code.claude.com/docs/zh-CN/env-vars) 以在每一帧上重新绘制每个单元格，而不是发送增量更新。
 
 在 Windows PowerShell 上：
 
@@ -297,7 +297,7 @@ claude
 CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1 claude
 ```
 
-在 Windows 上，Claude Code 已经为后台会话和 [agent view](/docs/zh-CN/agent-view.md) 自动启用了完整重绘，因此您只需要为直接启动的交互式全屏会话设置该变量。
+在 Windows 上，Claude Code 已经为后台会话和 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 自动启用了完整重绘，因此您只需要为直接启动的交互式全屏会话设置该变量。
 
 ### 启动时出现 `Claude Code's fullscreen renderer didn't finish starting last time`
 
@@ -327,4 +327,4 @@ CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1 claude
 
 要关闭全屏渲染，请运行 `/tui default`，或如果您以这种方式启用了 `CLAUDE_CODE_NO_FLICKER`，请取消设置它。当您使用 `/tui default` 切换回去时，Claude Code 可能会首先显示一个可选的反馈提示，询问您为什么要切换。输入原因并按 `Enter` 发送，或按 `Esc` 跳过。无论哪种方式，CLI 都会重新启动到经典渲染器。要强制使用经典渲染器而不管保存的 `tui` 设置，请设置 `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1`。经典渲染器将对话保留在终端的原生滚动缓冲区中，因此 `Cmd+f` 和 tmux 复制模式可以照常工作。
 
-从[代理视图](/docs/zh-CN/agent-view.md)或 `claude attach` 打开的后台会话始终使用全屏渲染。附加终端进入备用屏幕缓冲区以显示会话，经典渲染器在那里没有滚动缓冲或鼠标处理，因此 `tui` 设置和 `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN` 不适用于它们。
+从[代理视图](https://code.claude.com/docs/zh-CN/agent-view.md)或 `claude attach` 打开的后台会话始终使用全屏渲染。附加终端进入备用屏幕缓冲区以显示会话，经典渲染器在那里没有滚动缓冲或鼠标处理，因此 `tui` 设置和 `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN` 不适用于它们。

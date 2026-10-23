@@ -20,12 +20,12 @@ Claude Code 和 Agent SDK 可以代表您执行代码、访问文件并与外部
 
 ## 内置安全功能
 
-Claude Code 包含多个安全功能来解决常见问题。有关完整详情，请参阅[安全文档](/docs/zh-CN/security.md)。
+Claude Code 包含多个安全功能来解决常见问题。有关完整详情，请参阅[安全文档](https://code.claude.com/docs/zh-CN/security.md)。
 
-* **权限系统**：每个工具和 bash 命令都可以配置为允许、阻止或提示用户批准。使用 glob 模式创建规则，如"允许所有 npm 命令"或"阻止任何带有 sudo 的命令"。组织可以设置适用于所有用户的策略。请参阅[权限](/docs/zh-CN/permissions.md)。
-* **权限的命令解析**：在执行 bash 命令之前，Claude Code 将其解析为 AST 并将结果与您的权限规则进行匹配。无法干净解析或不符合允许规则的命令需要明确批准。一小组构造（如 `eval`）无论允许规则如何都始终需要批准。这是一个权限门，而不是沙箱；除了内置的安全检查（如对 `rm` 和 `rmdir` 的[关键路径检查](/docs/zh-CN/permission-modes.md#critical-paths)和[受保护路径](/docs/zh-CN/permission-modes.md#protected-paths)列表）外，它不会根据其目标路径或效果推断命令是否危险。
+* **权限系统**：每个工具和 bash 命令都可以配置为允许、阻止或提示用户批准。使用 glob 模式创建规则，如"允许所有 npm 命令"或"阻止任何带有 sudo 的命令"。组织可以设置适用于所有用户的策略。请参阅[权限](https://code.claude.com/docs/zh-CN/permissions.md)。
+* **权限的命令解析**：在执行 bash 命令之前，Claude Code 将其解析为 AST 并将结果与您的权限规则进行匹配。无法干净解析或不符合允许规则的命令需要明确批准。一小组构造（如 `eval`）无论允许规则如何都始终需要批准。这是一个权限门，而不是沙箱；除了内置的安全检查（如对 `rm` 和 `rmdir` 的[关键路径检查](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)和[受保护路径](https://code.claude.com/docs/zh-CN/permission-modes.md#protected-paths)列表）外，它不会根据其目标路径或效果推断命令是否危险。
 * **Web 搜索摘要**：搜索结果被摘要化，而不是将原始内容直接传递到上下文中，从而降低了来自恶意网络内容的提示注入风险。
-* **Sandbox 模式**：Bash 命令可以在限制文件系统和网络访问的沙箱环境中运行。有关详情，请参阅[沙箱文档](/docs/zh-CN/sandboxing.md)。
+* **Sandbox 模式**：Bash 命令可以在限制文件系统和网络访问的沙箱环境中运行。有关详情，请参阅[沙箱文档](https://code.claude.com/docs/zh-CN/sandboxing.md)。
 
 ## 安全原则
 
@@ -98,7 +98,7 @@ npm install @anthropic-ai/sandbox-runtime
 
 1. **同主机内核**：与 VM 不同，沙箱进程共享主机内核。理论上，内核漏洞可能导致逃逸。对于某些威胁模型，这是可以接受的，但如果您需要内核级隔离，请使用 gVisor 或单独的 VM。
 
-2. **无 TLS 检查**：代理基于客户端提供的主机名将域列入允许列表，不会终止或检查加密流量。在沙箱内运行的代码可能会使用[域前置](https://en.wikipedia.org/wiki/Domain_fronting)或类似技术来访问允许列表外的主机。如果您的威胁模型需要更强的保证，请配置[TLS 终止代理](#traffic-forwarding)。有关更多详情，请参阅[沙箱安全限制](/docs/zh-CN/sandboxing.md#security-limitations)。另外，如果代理对允许的域具有宽松凭证，请确保它无法使用该域来触发其他网络请求或泄露数据。
+2. **无 TLS 检查**：代理基于客户端提供的主机名将域列入允许列表，不会终止或检查加密流量。在沙箱内运行的代码可能会使用[域前置](https://en.wikipedia.org/wiki/Domain_fronting)或类似技术来访问允许列表外的主机。如果您的威胁模型需要更强的保证，请配置[TLS 终止代理](#traffic-forwarding)。有关更多详情，请参阅[沙箱安全限制](https://code.claude.com/docs/zh-CN/sandboxing.md#security-limitations)。另外，如果代理对允许的域具有宽松凭证，请确保它无法使用该域来触发其他网络请求或泄露数据。
 
 对于许多单开发人员和 CI/CD 用例，sandbox-runtime 以最少的设置显著提高了标准。下面的部分涵盖了需要更强隔离的部署的容器和 VM。
 
@@ -336,9 +336,9 @@ docker run \
 
 ## 进一步阅读
 
-* [Claude Code 安全文档](/docs/zh-CN/security.md)
-* [托管 Agent SDK](/docs/zh-CN/agent-sdk/hosting.md)
-* [处理权限](/docs/zh-CN/agent-sdk/permissions.md)
+* [Claude Code 安全文档](https://code.claude.com/docs/zh-CN/security.md)
+* [托管 Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/hosting.md)
+* [处理权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)
 * [沙箱运行时](https://github.com/anthropics/sandbox-runtime)
 * [AI 代理的致命三角](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/)
 * [OWASP 大型语言模型应用程序前 10 名](https://owasp.org/www-project-top-10-for-large-language-model-applications/)

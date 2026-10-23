@@ -36,8 +36,8 @@ Claude Code 仍然受 Anthropic 的标准条款管制（请参阅上面的许可
 
 如果客户与 Anthropic 签订了业务关联协议（BAA），该 BAA 将在以下两种配置中扩展到 Claude Code，具体取决于您的组织可用的选项：
 
-* **HIPAA 配置**：Claude Code CLI 或 Claude Desktop 中的 Code 标签页，与 Claude for Enterprise 账户配合使用。组织必须已启用 HIPAA，并已将 HIPAA 配置应用于 Claude Code（本地模式）和 Cowork（本地模式）。请参阅[为符合 HIPAA 要求的组织设置 Claude Code（本地模式）](/docs/zh-CN/hipaa-setup.md)。
-* **零数据保留**：为相关组织启用了[零数据保留（ZDR）](/docs/zh-CN/zero-data-retention.md)的 Claude Code。ZDR 并非对所有组织都可用。
+* **HIPAA 配置**：Claude Code CLI 或 Claude Desktop 中的 Code 标签页，与 Claude for Enterprise 账户配合使用。组织必须已启用 HIPAA，并已将 HIPAA 配置应用于 Claude Code（本地模式）和 Cowork（本地模式）。请参阅[为符合 HIPAA 要求的组织设置 Claude Code（本地模式）](https://code.claude.com/docs/zh-CN/hipaa-setup.md)。
+* **零数据保留**：为相关组织启用了[零数据保留（ZDR）](https://code.claude.com/docs/zh-CN/zero-data-retention.md)的 Claude Code。ZDR 并非对所有组织都可用。
 
 在 HIPAA 配置下，云端会话、Remote Control、Claude 移动应用中的 Claude Code，以及通过第三方云提供商或网关路由的 Claude Code 均不在涵盖范围内。请查阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)，了解符合条件的服务的完整列表。
 
@@ -51,8 +51,8 @@ Claude Code 的使用受 [Anthropic 使用政策](https://www.anthropic.com/lega
 
 Claude Code 使用 OAuth 令牌或 API 密钥与 Anthropic 的服务器进行身份验证。这些身份验证方法有不同的用途：
 
-* **OAuth 身份验证**仅供 Claude Free、Pro、Max、Team 和 Enterprise 订阅计划的购买者使用，旨在支持 Claude Code 和其他原生 Anthropic 应用程序的普通使用。有关登录步骤，请参阅 [登录您的 Claude 账户](https://support.claude.com/en/articles/13189465-logging-in-to-your-claude-account)；有关 Claude Code 如何执行 OAuth 身份验证，请参阅 [身份验证](/docs/zh-CN/authentication.md)。
-* **开发者**构建与 Claude 功能交互的产品或服务，包括使用 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 的产品或服务，应通过 [Claude Console](https://platform.claude.com/) 或受支持的云提供商使用 API 密钥身份验证。Anthropic 不允许第三方开发者提供 Claude.ai 登录到他们自己的应用程序，或代表其用户通过 Free、Pro 或 Max 计划凭证路由请求。此外，开发者不得收集、存储或中介 Claude.ai 凭证或会话令牌 — 登录到 Claude 账户必须通过 Anthropic 自己的流程完成。
+* **OAuth 身份验证**仅供 Claude Free、Pro、Max、Team 和 Enterprise 订阅计划的购买者使用，旨在支持 Claude Code 和其他原生 Anthropic 应用程序的普通使用。有关登录步骤，请参阅 [登录您的 Claude 账户](https://support.claude.com/en/articles/13189465-logging-in-to-your-claude-account)；有关 Claude Code 如何执行 OAuth 身份验证，请参阅 [身份验证](https://code.claude.com/docs/zh-CN/authentication.md)。
+* **开发者**构建与 Claude 功能交互的产品或服务，包括使用 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 的产品或服务，应通过 [Claude Console](https://platform.claude.com/) 或受支持的云提供商使用 API 密钥身份验证。Anthropic 不允许第三方开发者提供 Claude.ai 登录到他们自己的应用程序，或代表其用户通过 Free、Pro 或 Max 计划凭证路由请求。此外，开发者不得收集、存储或中介 Claude.ai 凭证或会话令牌 — 登录到 Claude 账户必须通过 Anthropic 自己的流程完成。
 
 这不限制客户如何配置和管理他们自己的 API 密钥或第三方推理提供商凭证 — 例如，在开发环境、密钥管理器或机器镜像中配置 API 密钥供客户自己的授权用户使用 — 前提是所产生的使用按照密钥所有者与 Anthropic（或适用提供商）的协议进行计费，并且不被转售或按上述方式中介。它也不妨碍最终用户使用他们自己的 Claude 订阅登录到未修改的 Claude Code 二进制文件，包括平台按照上述\*客户可以在他们的产品中提供 Claude Code 吗？\*部分所述方式托管 Claude Code 的情况。
 

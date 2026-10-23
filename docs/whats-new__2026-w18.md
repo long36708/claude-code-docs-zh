@@ -6,7 +6,7 @@
 
 > Claude Code 在 Windows 上无需 Git Bash 即可运行，claude auth login 在浏览器回调无法到达 localhost 时接受粘贴的 OAuth 代码，claude project purge 清理每个项目的本地状态，将 PR URL 粘贴到 /resume 中可找到创建该会话的会话。
 
-发布版本 [v2.1.120 → v2.1.126](/docs/en/changelog.md#2-1-120)
+发布版本 [v2.1.120 → v2.1.126](https://code.claude.com/docs/en/changelog.md#2-1-120)
 4 项功能 · 4 月 27 日 – 5 月 1 日
 
 无需浏览器回调即可登录
@@ -20,7 +20,7 @@ v2.1.126
 claude auth login
 ```
 
-[CLI 参考](/docs/zh-CN/cli-reference.md#cli-commands)
+[CLI 参考](https://code.claude.com/docs/zh-CN/cli-reference.md#cli-commands)
 
 claude project purge
 v2.1.124
@@ -39,7 +39,7 @@ claude project purge --dry-run
 claude project purge
 ```
 
-[CLI 参考](/docs/zh-CN/cli-reference.md)
+[CLI 参考](https://code.claude.com/docs/zh-CN/cli-reference.md)
 
 通过 PR URL 恢复
 v2.1.122
@@ -64,17 +64,17 @@ https://github.com/your-org/your-repo/pull/1234
 claude --from-pr 1234
 ```
 
-[会话：使用会话选择器](/docs/zh-CN/sessions.md#use-the-session-picker)
+[会话：使用会话选择器](https://code.claude.com/docs/zh-CN/sessions.md#use-the-session-picker)
 
 Windows 无需 Git Bash
 Windows
 
 不再需要 Git for Windows。当 Bash 不存在时，Claude Code 使用 PowerShell 作为 shell 工具，当启用 PowerShell 工具时，它被视为主要 shell。现在自动检测通过 Microsoft Store、MSI 不带 PATH 或 `.NET` 全局工具安装的 PowerShell 7。
 
-[设置指南](/docs/zh-CN/setup.md)
+[设置指南](https://code.claude.com/docs/zh-CN/setup.md)
 
 其他优化
 
-MCP 服务器可以通过其配置中的 `alwaysLoad: true` 选择退出工具搜索延迟，以便该服务器的所有工具始终可用新的 `claude plugin prune` 删除孤立的自动安装的插件依赖项，`plugin uninstall --prune` 级联删除`/skills` 现在有一个类型过滤搜索框，因此你可以在长列表中找到技能而无需滚动`PostToolUse` hooks 可以通过 `hookSpecificOutput.updatedToolOutput` 替换任何工具的工具输出，不仅仅是 MCP 工具新的 [`claude ultrareview`](/docs/zh-CN/ultrareview) 子命令从 CI 或脚本非交互式地运行 `/ultrareview`：将发现打印到 stdout（`--json` 用于原始输出）并在完成时退出 0 或失败时退出 1`--dangerously-skip-permissions` 现在绕过对 `.claude/`、`.git/`、`.vscode/`、shell 配置文件和其他以前受保护的路径的写入提示，而灾难性删除命令仍然作为安全网提示`/model` 选择器可以在 `ANTHROPIC_BASE_URL` 指向 Anthropic 兼容网关时列出来自网关的 `/v1/models` 端点的模型；自 v2.1.129 起使用 `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1` 选择加入在启动期间遇到瞬时错误的 MCP 服务器现在自动重试最多 3 次，而不是保持断开连接`ANTHROPIC_BEDROCK_SERVICE_TIER` 选择 Amazon Bedrock 服务层：`default`、`flex` 或 `priority``/terminal-setup` 启用 iTerm2 的剪贴板访问设置，以便 `/copy` 工作，包括来自 tmuxGoogle Cloud 的 Agent Platform 现在支持基于 X.509 证书的工作负载身份联合 (mTLS ADC)重大内存泄漏修复：图像繁重的会话、大型记录历史上的 `/usage` 以及没有进度事件的长时间运行工具
+MCP 服务器可以通过其配置中的 `alwaysLoad: true` 选择退出工具搜索延迟，以便该服务器的所有工具始终可用新的 `claude plugin prune` 删除孤立的自动安装的插件依赖项，`plugin uninstall --prune` 级联删除`/skills` 现在有一个类型过滤搜索框，因此你可以在长列表中找到技能而无需滚动`PostToolUse` hooks 可以通过 `hookSpecificOutput.updatedToolOutput` 替换任何工具的工具输出，不仅仅是 MCP 工具新的 [`claude ultrareview`](https://code.claude.com/docs/zh-CN/ultrareview) 子命令从 CI 或脚本非交互式地运行 `/ultrareview`：将发现打印到 stdout（`--json` 用于原始输出）并在完成时退出 0 或失败时退出 1`--dangerously-skip-permissions` 现在绕过对 `.claude/`、`.git/`、`.vscode/`、shell 配置文件和其他以前受保护的路径的写入提示，而灾难性删除命令仍然作为安全网提示`/model` 选择器可以在 `ANTHROPIC_BASE_URL` 指向 Anthropic 兼容网关时列出来自网关的 `/v1/models` 端点的模型；自 v2.1.129 起使用 `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1` 选择加入在启动期间遇到瞬时错误的 MCP 服务器现在自动重试最多 3 次，而不是保持断开连接`ANTHROPIC_BEDROCK_SERVICE_TIER` 选择 Amazon Bedrock 服务层：`default`、`flex` 或 `priority``/terminal-setup` 启用 iTerm2 的剪贴板访问设置，以便 `/copy` 工作，包括来自 tmuxGoogle Cloud 的 Agent Platform 现在支持基于 X.509 证书的工作负载身份联合 (mTLS ADC)重大内存泄漏修复：图像繁重的会话、大型记录历史上的 `/usage` 以及没有进度事件的长时间运行工具
 
-[v2.1.120–v2.1.126 的完整更新日志 →](/docs/en/changelog.md#2-1-120)
+[v2.1.120–v2.1.126 的完整更新日志 →](https://code.claude.com/docs/en/changelog.md#2-1-120)

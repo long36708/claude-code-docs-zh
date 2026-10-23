@@ -8,15 +8,15 @@
 
 plugin marketplace 是一个目录或仓库，包含一个 `.claude-plugin/marketplace.json` 文件，该文件列出你的 plugins 以及从哪里获取每一个。你将目录推送到 git 主机，任何有权限的人都可以用一个命令在 Claude Code 中注册它，并从中安装你的 plugins。
 
-当你想让一个你选择的群体（例如你的团队或组织）安装你的 plugins 并继续从你控制的目录接收更新时，创建你自己的 marketplace。该仓库可以是私有的，可以列出任意数量的 plugins，管理员可以[在每台机器上要求它](/docs/zh-CN/plugins/org.md)。
+当你想让一个你选择的群体（例如你的团队或组织）安装你的 plugins 并继续从你控制的目录接收更新时，创建你自己的 marketplace。该仓库可以是私有的，可以列出任意数量的 plugins，管理员可以[在每台机器上要求它](https://code.claude.com/docs/zh-CN/plugins/org.md)。
 
 > [!NOTE]
 >
 > 这些情况在其他页面上有介绍：
 >
-> * **与少数人共享一个 plugin**：将 plugin 的目录或其 `.zip` 文件发送给他们。请参阅[不使用 marketplace 共享 plugin](/docs/zh-CN/plugins/publish.md#share-a-plugin-without-a-marketplace)。
-> * **向所有人提供一个 plugin**：将其提交到 Anthropic 的社区 marketplace。请参阅[提交到社区 marketplace](/docs/zh-CN/plugins/publish.md#submit-to-anthropics-directory)。
-> * **自己使用一个 plugin**：使用 `--plugin-dir` 加载它或将其保存在你的 skills 目录中。请参阅[不使用 marketplace 开发](/docs/zh-CN/plugins/create.md#develop-without-a-marketplace)。
+> * **与少数人共享一个 plugin**：将 plugin 的目录或其 `.zip` 文件发送给他们。请参阅[不使用 marketplace 共享 plugin](https://code.claude.com/docs/zh-CN/plugins/publish.md#share-a-plugin-without-a-marketplace)。
+> * **向所有人提供一个 plugin**：将其提交到 Anthropic 的社区 marketplace。请参阅[提交到社区 marketplace](https://code.claude.com/docs/zh-CN/plugins/publish.md#submit-to-anthropics-directory)。
+> * **自己使用一个 plugin**：使用 `--plugin-dir` 加载它或将其保存在你的 skills 目录中。请参阅[不使用 marketplace 开发](https://code.claude.com/docs/zh-CN/plugins/create.md#develop-without-a-marketplace)。
 
 从[创建一个 marketplace](#create-a-marketplace) 开始，在你自己的机器上构建一个并从中安装一个 plugin，然后[添加更多 plugin 条目](#add-plugin-entries)。
 
@@ -24,7 +24,7 @@ plugin marketplace 是一个目录或仓库，包含一个 `.claude-plugin/marke
 
 以下步骤在你的机器上创建一个 marketplace，向其中添加一个 plugin，在 Claude Code 中注册它，并从中安装该 plugin。这是整个循环，也是你的用户一旦你在他们可以访问的地方托管 marketplace 后所经历的相同循环。从你想要创建 `my-marketplace/` 的目录在你的 shell 中运行每个命令。
 
-你需要一个 plugin 来列出。该示例使用来自[创建你的第一个 plugin](/docs/zh-CN/plugins/create.md#create-your-first-plugin) 的 `my-first-plugin`，这是一个具有一个 skill 的 plugin，你可以将其作为 `/my-first-plugin:hello` 运行；如果你还没有 plugin，请先构建它。要使用你自己的 plugin，请在步骤说 `my-first-plugin` 的地方替换其目录和其 `name`。有关 plugin 目录可以包含的内容，请参阅[plugin 目录浏览器](/docs/zh-CN/plugins/components.md#explore-the-plugin-directory)。
+你需要一个 plugin 来列出。该示例使用来自[创建你的第一个 plugin](https://code.claude.com/docs/zh-CN/plugins/create.md#create-your-first-plugin) 的 `my-first-plugin`，这是一个具有一个 skill 的 plugin，你可以将其作为 `/my-first-plugin:hello` 运行；如果你还没有 plugin，请先构建它。要使用你自己的 plugin，请在步骤说 `my-first-plugin` 的地方替换其目录和其 `name`。有关 plugin 目录可以包含的内容，请参阅[plugin 目录浏览器](https://code.claude.com/docs/zh-CN/plugins/components.md#explore-the-plugin-directory)。
 
 **1. 设置 marketplace 目录**
 
@@ -94,7 +94,7 @@ claude plugin install my-first-plugin@my-marketplace
 
 该命令打印 `✔ Successfully installed plugin: my-first-plugin@my-marketplace (scope: user)`。
 
-在会话内，`/plugin marketplace add ./my-marketplace` 以相同的方式注册 marketplace。`/plugin install my-first-plugin@my-marketplace` 在 `/plugin` 面板中打开 plugin 的详细信息，你可以在其中安装它。有关该流程，请参阅[安装和管理 plugins](/docs/zh-CN/plugins/install.md)。
+在会话内，`/plugin marketplace add ./my-marketplace` 以相同的方式注册 marketplace。`/plugin install my-first-plugin@my-marketplace` 在 `/plugin` 面板中打开 plugin 的详细信息，你可以在其中安装它。有关该流程，请参阅[安装和管理 plugins](https://code.claude.com/docs/zh-CN/plugins/install.md)。
 
 **5. 确认 plugin 已加载**
 
@@ -120,11 +120,11 @@ claude plugin details my-first-plugin
 
 你分发的每个 plugin 都是 `marketplace.json` 的 `plugins` 数组中的一个对象。要添加第二个 plugin，请添加第二个对象。这些字段涵盖了大多数条目：
 
-* `name`：人们在安装时在 `@` 之前输入的标识符。[Plugin 条目](/docs/zh-CN/plugins/marketplace-reference.md#plugin-entries)给出了名称可以使用的字符。
+* `name`：人们在安装时在 `@` 之前输入的标识符。[Plugin 条目](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#plugin-entries)给出了名称可以使用的字符。
 * `source`：Claude Code 从哪里获取 plugin。对于 marketplace 目录内的 plugin，写一个相对路径字符串，如[演练](#create-a-marketplace)中所示，或对于目录外的 plugin，写一个源对象。请参阅[选择 plugin 源](#choose-a-plugin-source)。
 * `description`：人们在 `/plugin` 中浏览你的 marketplace 时在 plugin 旁边看到的行。
 
-有关完整的字段列表，请参阅[插件条目](/docs/zh-CN/plugins/marketplace-reference.md#plugin-entries)，其中还介绍了条目可以设置的 [`plugin.json`](/docs/zh-CN/plugins/manifest-reference) 字段以及这些字段何时生效。
+有关完整的字段列表，请参阅[插件条目](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#plugin-entries)，其中还介绍了条目可以设置的 [`plugin.json`](https://code.claude.com/docs/zh-CN/plugins/manifest-reference) 字段以及这些字段何时生效。
 
 ## Plugin 条目的规则
 
@@ -143,10 +143,10 @@ marketplace 根目录是包含 `.claude-plugin/` 的目录。在[演练](#create
 
 marketplace plugin 在 `marketplace.json` 中有一个条目 `name` 和在其自己的 `plugin.json` 中有一个 `name`，称为清单名称。每个名称出现在不同的地方：
 
-* **条目名称**：安装 id，`<entry-name>@<marketplace>`。这是人们输入来安装的内容，`claude plugin list` 显示的内容，以及 Claude Code 在他们的设置文件中的 [`enabledPlugins`](/docs/zh-CN/settings-reference#enabledplugins) 下写入的键。
+* **条目名称**：安装 id，`<entry-name>@<marketplace>`。这是人们输入来安装的内容，`claude plugin list` 显示的内容，以及 Claude Code 在他们的设置文件中的 [`enabledPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#enabledplugins) 下写入的键。
 * **清单名称**：plugin 的 skills 上的前缀，以及 `claude plugin details` 接受的名称。
 
-当两个名称不同且有人按清单名称安装时，Claude Code 报告 `Plugin "<manifest-name>" not found in marketplace "<marketplace>"`。保持两个名称相同。有关 Claude Code 如何使用这两个名称的更多信息，请参阅[Plugin 加载参考](/docs/zh-CN/plugins/loading.md#find-where-a-plugin-came-from)。
+当两个名称不同且有人按清单名称安装时，Claude Code 报告 `Plugin "<manifest-name>" not found in marketplace "<marketplace>"`。保持两个名称相同。有关 Claude Code 如何使用这两个名称的更多信息，请参阅[Plugin 加载参考](https://code.claude.com/docs/zh-CN/plugins/loading.md#find-where-a-plugin-came-from)。
 
 ## 选择 plugin 源
 
@@ -167,7 +167,7 @@ plugin 也可以来自以下源类型之一：
 * `npm`：npm 包
 * `command`：通过在安装 plugin 的机器上运行命令生成的目录
 
-有关每种源类型的字段，以及将基于 git 的源固定到 `ref` 或 `sha`，请参阅[Plugin 源](/docs/zh-CN/plugins/marketplace-reference.md#plugin-sources)。
+有关每种源类型的字段，以及将基于 git 的源固定到 `ref` 或 `sha`，请参阅[Plugin 源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#plugin-sources)。
 
 ## 验证和测试
 
@@ -179,18 +179,18 @@ plugin 也可以来自以下源类型之一：
 
 * JSON 语法错误，如 `json: Invalid JSON syntax: <reason>`
 * 缺少必需字段，例如 `owner: Invalid input`
-* 违反[marketplace 参考](/docs/zh-CN/plugins/marketplace-reference.md#top-level-fields)中命名规则的 marketplace 或 plugin 名称
+* 违反[marketplace 参考](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#top-level-fields)中命名规则的 marketplace 或 plugin 名称
 * 包含 `..` 的相对 `source`
 * 顶级或 plugin 条目中的未知字段，作为警告
 * 每个相对路径 plugin 的 `plugin.json` 中的问题，如 `plugins[N] plugin.json → <field>: <message>`
 
-有关 `validate` 可以打印的每条消息，请参阅[验证消息](/docs/zh-CN/plugins/marketplace-reference.md#validation-messages)。有关其标志和退出代码，请参阅 [`plugin validate`](/docs/zh-CN/plugins/cli-reference#plugin-validate)。
+有关 `validate` 可以打印的每条消息，请参阅[验证消息](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#validation-messages)。有关其标志和退出代码，请参阅 [`plugin validate`](https://code.claude.com/docs/zh-CN/plugins/cli-reference#plugin-validate)。
 
 ### 添加或安装时出现的问题
 
 `claude plugin validate` 不报告的问题在你添加 marketplace 或从中安装时出现：
 
-* **当你添加 marketplace 时**：确切的[官方 marketplace 名称](/docs/zh-CN/plugins/marketplace-reference.md#reserved-names)，例如 `claude-plugins-official`，通过验证。当你添加具有其中一个名称的 marketplace 时，Claude Code 拒绝它，消息以 `The name '<name>' is reserved for official Anthropic marketplaces` 开头。
+* **当你添加 marketplace 时**：确切的[官方 marketplace 名称](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#reserved-names)，例如 `claude-plugins-official`，通过验证。当你添加具有其中一个名称的 marketplace 时，Claude Code 拒绝它，消息以 `The name '<name>' is reserved for official Anthropic marketplaces` 开头。
 * **当你安装一个 plugin 时**：
   * Claude Code 在你安装 plugin 时首先获取 `github`、`git-subdir` 或其他远程源，所以错误的 `repo` 或 `path` 会在那时出现。
   * 一个相对 `source` 的目录不存在也会在安装时失败，显示 `Source path does not exist: <path>`。
@@ -199,7 +199,7 @@ plugin 也可以来自以下源类型之一：
 
 在[演练](#create-a-marketplace)中，你从具有相对路径 `source` 的本地目录添加了 `my-marketplace`。使用该设置，Claude Code 直接从 `my-marketplace/plugins/` 读取 plugin 的文件。你的编辑在下一个会话开始时或当你在会话中运行 `/reload-plugins` 时生效，无需更改 plugin 的 `version`。
 
-从你托管的 marketplace 安装的人会在 plugin 缓存中获得一个副本。有关他们如何接收新版本，请参阅[保持用户最新](/docs/zh-CN/plugins/host-marketplace.md#keep-users-up-to-date)。
+从你托管的 marketplace 安装的人会在 plugin 缓存中获得一个副本。有关他们如何接收新版本，请参阅[保持用户最新](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md#keep-users-up-to-date)。
 
 ### 删除 marketplace 以重新开始
 
@@ -211,11 +211,11 @@ plugin 也可以来自以下源类型之一：
 
 你的队友然后在他们的 shell 中为 GitHub 仓库运行 `claude plugin marketplace add <owner>/<repo>`，或使用仓库 URL 运行相同的命令。然后他们按名称安装 plugin，如[演练](#create-a-marketplace)中所示。
 
-有关私有仓库访问、更新、版本控制以及重命名或删除条目，请参阅[托管和维护 marketplace](/docs/zh-CN/plugins/host-marketplace.md)。
+有关私有仓库访问、更新、版本控制以及重命名或删除条目，请参阅[托管和维护 marketplace](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md)。
 
 ## 后续步骤
 
-* [托管和维护 marketplace](/docs/zh-CN/plugins/host-marketplace.md)：选择一个主机、保持用户最新并安全地重命名或删除 plugins
-* [Marketplace 参考](/docs/zh-CN/plugins/marketplace-reference.md)：`marketplace.json` 字段和源类型
-* [为你的组织管理 plugins](/docs/zh-CN/plugins/org.md)：在每台机器上要求你的 marketplace 及其 plugins
-* [按相关性建议 plugins](/docs/zh-CN/plugins/relevance.md)：当会话匹配时，让 Claude Code 建议来自你的 marketplace 的 plugin
+* [托管和维护 marketplace](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md)：选择一个主机、保持用户最新并安全地重命名或删除 plugins
+* [Marketplace 参考](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md)：`marketplace.json` 字段和源类型
+* [为你的组织管理 plugins](https://code.claude.com/docs/zh-CN/plugins/org.md)：在每台机器上要求你的 marketplace 及其 plugins
+* [按相关性建议 plugins](https://code.claude.com/docs/zh-CN/plugins/relevance.md)：当会话匹配时，让 Claude Code 建议来自你的 marketplace 的 plugin

@@ -10,7 +10,7 @@ Claude Code 可以通过 [Model Context Protocol (MCP)](https://modelcontextprot
 
 当您发现自己从另一个工具（如问题跟踪器或监控仪表板）复制数据到聊天中时，请连接一个服务器。连接后，Claude 可以直接读取和操作该系统，而不是从您粘贴的内容中工作。
 
-如果您是第一次连接服务器，请从 [MCP 快速入门](/docs/zh-CN/mcp-quickstart.md) 开始，获取分步演练。本页面是完整参考。
+如果您是第一次连接服务器，请从 [MCP 快速入门](https://code.claude.com/docs/zh-CN/mcp-quickstart.md) 开始，获取分步演练。本页面是完整参考。
 
 ## 使用 MCP 可以做什么
 
@@ -21,7 +21,7 @@ Claude Code 可以通过 [Model Context Protocol (MCP)](https://modelcontextprot
 * **查询数据库**："根据我们的 PostgreSQL 数据库，查找使用功能 ENG-4521 的 10 个随机用户的电子邮件。"
 * **集成设计**："根据在 Slack 中发布的新 Figma 设计更新我们的标准电子邮件模板"
 * **自动化工作流**："创建 Gmail 草稿，邀请这 10 个用户参加关于新功能的反馈会议。"
-* **对外部事件做出反应**：MCP 服务器也可以充当[频道](/docs/zh-CN/channels.md)，将消息推送到您的会话中，因此当您不在时，Claude 可以对 Telegram 消息、Discord 聊天或 webhook 事件做出反应。
+* **对外部事件做出反应**：MCP 服务器也可以充当[频道](https://code.claude.com/docs/zh-CN/channels.md)，将消息推送到您的会话中，因此当您不在时，Claude 可以对 Telegram 消息、Discord 聊天或 webhook 事件做出反应。
 
 ## 查找和构建 MCP 服务器
 
@@ -29,7 +29,7 @@ Claude Code 可以通过 [Model Context Protocol (MCP)](https://modelcontextprot
 
 > [!WARNING]
 >
-> 在连接每个服务器之前，请验证您信任该服务器。获取外部内容的服务器可能会使您面临 [提示注入风险](/docs/zh-CN/security.md#protect-against-prompt-injection)。
+> 在连接每个服务器之前，请验证您信任该服务器。获取外部内容的服务器可能会使您面临 [提示注入风险](https://code.claude.com/docs/zh-CN/security.md#protect-against-prompt-injection)。
 
 要构建您自己的服务器，请参阅 [MCP 服务器指南](https://modelcontextprotocol.io/docs/develop/build-server) 了解协议基础知识，以及 [Claude 连接器构建文档](https://claude.com/docs/connectors/building) 了解身份验证、测试和 Directory 提交。
 
@@ -37,7 +37,7 @@ Claude Code 可以通过 [Model Context Protocol (MCP)](https://modelcontextprot
 
 **1. 安装插件**
 
-在 VS Code 扩展或桌面应用中，请按照 [安装插件](/docs/zh-CN/plugins/install.md#install-a-plugin) 操作，而不是执行此步骤。在终端中，运行 `claude` 启动 Claude Code，然后在其提示符处输入以下内容：
+在 VS Code 扩展或桌面应用中，请按照 [安装插件](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin) 操作，而不是执行此步骤。在终端中，运行 `claude` 启动 Claude Code，然后在其提示符处输入以下内容：
 
 ```
 /plugin install mcp-server-dev@claude-plugins-official
@@ -46,7 +46,7 @@ Claude Code 可以通过 [Model Context Protocol (MCP)](https://modelcontextprot
 如果安装失败，请匹配 Claude Code 报告的消息：
 
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加该市场，然后重试安装。
-* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后显示相同的消息，请参阅 [Plugin not found in marketplace](/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
+* `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后显示相同的消息，请参阅 [Plugin not found in marketplace](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
 
 如果安装摘要报告 `Run /reload-plugins to apply.`，Claude Code 会为您运行该重新加载。如果重新加载警告您的下一条消息会重新读取对话，请运行 `/reload-plugins --force`。
 
@@ -82,9 +82,9 @@ claude mcp add --transport http secure-api https://api.example.com/mcp \
 
 具有 `url` 但没有 `type` 的 JSON 条目是配置错误，因为 Claude Code 将没有 `type` 的条目读取为 stdio 服务器。Claude Code 跳过该服务器并报告 `MCP server "<name>" has a "url" but no "type"; add "type": "http" (or "sse" / "ws") to this entry`。
 
-只有 SDK 主机应用程序（例如 [Agent SDK](/docs/zh-CN/agent-sdk/mcp.md) 应用程序或 [桌面应用](/docs/zh-CN/desktop.md)）可以注册进程内 `"type": "sdk"` 服务器。Claude Code 跳过 `.mcp.json`、`~/.claude.json` 或设置中的 `"type": "sdk"` 条目，并报告 `Skipped — MCP server "<name>" declares type "sdk", which only an SDK host application can register`。
+只有 SDK 主机应用程序（例如 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md) 应用程序或 [桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)）可以注册进程内 `"type": "sdk"` 服务器。Claude Code 跳过 `.mcp.json`、`~/.claude.json` 或设置中的 `"type": "sdk"` 条目，并报告 `Skipped — MCP server "<name>" declares type "sdk", which only an SDK host application can register`。
 
-在 `--output-format stream-json` 运行中，Claude Code 还在 `system/init` 事件的 [`mcp_server_errors` 字段](/docs/zh-CN/headless#stream-responses) 中报告跳过的 `--mcp-config` 条目，以便脚本可以检测到服务器从未加载。这需要 Claude Code v2.1.219 或更高版本。
+在 `--output-format stream-json` 运行中，Claude Code 还在 `system/init` 事件的 [`mcp_server_errors` 字段](https://code.claude.com/docs/zh-CN/headless#stream-responses) 中报告跳过的 `--mcp-config` 条目，以便脚本可以检测到服务器从未加载。这需要 Claude Code v2.1.219 或更高版本。
 
 ### 选项 2：添加远程 SSE 服务器
 
@@ -114,7 +114,7 @@ Stdio 服务器作为本地进程在您的机器上运行。它们非常适合�
 
 Claude Code 在生成的服务器的环境中设置 `CLAUDE_PROJECT_DIR` 为项目根目录，以便您的服务器可以解析项目相对路径，而不依赖于工作目录。这与 hook 在其 `CLAUDE_PROJECT_DIR` 变量中接收的目录相同。从服务器进程内读取它，例如 Node 中的 `process.env.CLAUDE_PROJECT_DIR` 或 Python 中的 `os.environ["CLAUDE_PROJECT_DIR"]`。
 
-`CLAUDE_PROJECT_DIR` 是稳定的项目根目录，在会话中添加或删除工作目录时不会更改。限制自己的文件系统访问到一组允许目录的服务器应该改为实现 MCP `roots/list` 请求。Claude Code 使用会话的启动目录加上您通过 `--add-dir`、`/add-dir` 或 `additionalDirectories` 设置授予的每个 [额外工作目录](/docs/zh-CN/permissions.md#working-directories) 来回答 `roots/list`。当该集合更改时，Claude Code 发送 `notifications/roots/list_changed`。
+`CLAUDE_PROJECT_DIR` 是稳定的项目根目录，在会话中添加或删除工作目录时不会更改。限制自己的文件系统访问到一组允许目录的服务器应该改为实现 MCP `roots/list` 请求。Claude Code 使用会话的启动目录加上您通过 `--add-dir`、`/add-dir` 或 `additionalDirectories` 设置授予的每个 [额外工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories) 来回答 `roots/list`。当该集合更改时，Claude Code 发送 `notifications/roots/list_changed`。
 
 此变量在服务器的环境中设置，而不是在 Claude Code 自己的环境中，因此通过项目作用域的 `.mcp.json` 条目或 `~/.claude.json` 中的本地或用户作用域服务器条目中的 `command` 或 `args` 中的 `${VAR}` 扩展来引用它需要默认值，例如 `${CLAUDE_PROJECT_DIR:-.}`。插件提供的 MCP 配置直接替换 `${CLAUDE_PROJECT_DIR}` 并且不需要默认值。
 
@@ -244,19 +244,19 @@ claude mcp remove notion
 
 #### 服务器状态
 
-`claude mcp add` 通过打印 `Added ...` 行确认成功添加，这意味着配置已写入。如果命令改为打印 `was not saved` 消息，请参阅 [MCP 服务器未保存或删除](/docs/zh-CN/errors.md#mcp-server-was-not-saved-or-removed)；对于 `may not have been saved` 消息，请参阅 [MCP 服务器可能未保存或删除](/docs/zh-CN/errors.md#mcp-server-may-not-have-been-saved-or-removed)。
+`claude mcp add` 通过打印 `Added ...` 行确认成功添加，这意味着配置已写入。如果命令改为打印 `was not saved` 消息，请参阅 [MCP 服务器未保存或删除](https://code.claude.com/docs/zh-CN/errors.md#mcp-server-was-not-saved-or-removed)；对于 `may not have been saved` 消息，请参阅 [MCP 服务器可能未保存或删除](https://code.claude.com/docs/zh-CN/errors.md#mcp-server-may-not-have-been-saved-or-removed)。
 
 `claude mcp list` 在它列出的每个服务器旁边显示健康状态，例如 `✔ Connected`、`! Needs authentication` 或 `✘ Failed to connect`。失败状态意味着 Claude Code 无法连接到该服务器，而不是列表命令失败。
 
 此列表中的状态报告配置决策而不是连接尝试，因此 Claude Code 在不连接到服务器的情况下打印它们：
 
 * ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json` 的项目作用域服务器，您尚未批准。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。以交互方式运行 `claude` 以查看并批准它。
-* `✘ Rejected (see disabledMcpjsonServers in settings)`：由 [`disabledMcpjsonServers`](/docs/zh-CN/settings-reference#disabledmcpjsonservers) 条目拒绝的 `.mcp.json` 服务器。Claude Code 仅在 `claude mcp get <name>` 中显示它。
+* `✘ Rejected (see disabledMcpjsonServers in settings)`：由 [`disabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#disabledmcpjsonservers) 条目拒绝的 `.mcp.json` 服务器。Claude Code 仅在 `claude mcp get <name>` 中显示它。
 * `⊘ Disabled for this project (re-enable via /mcp)`：项目的 [`disabledMcpServers`](#disable-a-server-without-removing-it) 列表命名的服务器。Claude Code 在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。从 `/mcp` 面板重新打开服务器。
 
 #### 项目服务器批准和工作区信任
 
-`claude mcp list` 和 `claude mcp get` 仅从未签入仓库的设置文件中读取 `.mcp.json` 批准，直到您通过在其中运行 `claude` 并接受工作区信任对话框来信任工作区。克隆的仓库无法批准自己的服务器：提交到项目的 `.claude/settings.json` 的 [`enableAllProjectMcpServers`](/docs/zh-CN/settings-reference#enableallprojectmcpservers) 或 [`enabledMcpjsonServers`](/docs/zh-CN/settings-reference#enabledmcpjsonservers) 在不受信任的文件夹中被忽略，服务器保持在 `⏸ Pending approval` 而不是被连接和健康检查。
+`claude mcp list` 和 `claude mcp get` 仅从未签入仓库的设置文件中读取 `.mcp.json` 批准，直到您通过在其中运行 `claude` 并接受工作区信任对话框来信任工作区。克隆的仓库无法批准自己的服务器：提交到项目的 `.claude/settings.json` 的 [`enableAllProjectMcpServers`](https://code.claude.com/docs/zh-CN/settings-reference#enableallprojectmcpservers) 或 [`enabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#enabledmcpjsonservers) 在不受信任的文件夹中被忽略，服务器保持在 `⏸ Pending approval` 而不是被连接和健康检查。
 
 这些来源的批准仍然适用于不受信任的文件夹：
 
@@ -264,15 +264,15 @@ claude mcp remove notion
 * 托管设置
 * 使用 `--settings` 传递的设置
 
-Claude Code 也应用来自未跟踪的 `.claude/settings.local.json` 的批准，但它运行 git 来检查文件是否被跟踪，并且仅在 [受信任的文件夹](/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust) 中运行该检查。在您从未信任的文件夹中，Claude Code 等待信任对话框后才应用文件的批准，除非该文件夹是您自己的配置主目录：您的主目录，或其 `.claude` 您已设置为 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars) 的目录。在 v2.1.207 之前，Claude Code 即使在您从未信任的文件夹中也应用来自未跟踪的 `.claude/settings.local.json` 的批准。
+Claude Code 也应用来自未跟踪的 `.claude/settings.local.json` 的批准，但它运行 git 来检查文件是否被跟踪，并且仅在 [受信任的文件夹](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust) 中运行该检查。在您从未信任的文件夹中，Claude Code 等待信任对话框后才应用文件的批准，除非该文件夹是您自己的配置主目录：您的主目录，或其 `.claude` 您已设置为 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars) 的目录。在 v2.1.207 之前，Claude Code 即使在您从未信任的文件夹中也应用来自未跟踪的 `.claude/settings.local.json` 的批准。
 
 任何设置文件中的 `disabledMcpjsonServers` 条目仍然拒绝服务器。
 
 #### 服务器状态详情
 
-在 `/mcp` 中（包括服务器的菜单）和 [`/plugin`](/docs/zh-CN/plugins/install) 管理器中，您之前使用过的远程 HTTP 或 SSE 服务器可以显示 `cached` 状态，例如 `cached 2h ago · connects on first use · 5 tools`。Claude Code 从发现缓存加载了服务器的工具列表，该缓存保存在上一个会话中，而不是在启动时连接，Claude Code 在 Claude 首次调用服务器的工具之一时连接服务器。工具从您的第一条消息开始可用，因此您无需执行任何操作。发现缓存及其 `cached` 状态需要 Claude Code v2.1.221 或更高版本。
+在 `/mcp` 中（包括服务器的菜单）和 [`/plugin`](https://code.claude.com/docs/zh-CN/plugins/install) 管理器中，您之前使用过的远程 HTTP 或 SSE 服务器可以显示 `cached` 状态，例如 `cached 2h ago · connects on first use · 5 tools`。Claude Code 从发现缓存加载了服务器的工具列表，该缓存保存在上一个会话中，而不是在启动时连接，Claude Code 在 Claude 首次调用服务器的工具之一时连接服务器。工具从您的第一条消息开始可用，因此您无需执行任何操作。发现缓存及其 `cached` 状态需要 Claude Code v2.1.221 或更高版本。
 
-发现缓存默认关闭，除非逐步推出已为您的帐户启用它。设置 [`MCP_DISCOVERY_CACHE=1`](/docs/zh-CN/env-vars) 打开它，或设置为 `0` 即使推出已启用它也保持关闭。在 v2.1.238 之前，缓存默认打开。
+发现缓存默认关闭，除非逐步推出已为您的帐户启用它。设置 [`MCP_DISCOVERY_CACHE=1`](https://code.claude.com/docs/zh-CN/env-vars) 打开它，或设置为 `0` 即使推出已启用它也保持关闭。在 v2.1.238 之前，缓存默认打开。
 
 当您从 `/mcp` 中的服务器菜单选择 **Disable** 或 **Clear authentication** 时，Claude Code 也会丢弃该服务器的缓存条目。**Reconnect** 在已连接或失败的服务器上也会丢弃它；在 `cached` 服务器上，**Reconnect** 会立即连接服务器并保留条目。丢弃条目后，Claude Code 下次连接到服务器时，会从服务器而不是从缓存获取工具列表。
 
@@ -284,7 +284,7 @@ Claude Code 也应用来自未跟踪的 `.claude/settings.local.json` 的批准�
 * 对于本地、项目或用户 [作用域](#mcp-installation-scopes) 中的服务器或托管 MCP 配置中的服务器，来源显示该配置中写入的主机，因此主机中的 `${VAR}` 引用在消息中不会展开。
 * 对于没有状态或错误代码的失败，Claude Code 显示错误文本而不显示来源。
 
-配置为空 `url` 的远程服务器在 `/mcp`、`claude mcp list` 和 [`/plugin`](/docs/zh-CN/plugins/install) 管理器中显示为 `not configured`，Claude Code 不尝试连接到它。插件可以包含这样的占位符条目，用于您稍后配置的连接器，因此 Claude Code 不将其报告为错误或设置问题。`/mcp` 中的服务器详情视图显示 `No URL configured for this server`；设置条目的 `url` 以连接它。
+配置为空 `url` 的远程服务器在 `/mcp`、`claude mcp list` 和 [`/plugin`](https://code.claude.com/docs/zh-CN/plugins/install) 管理器中显示为 `not configured`，Claude Code 不尝试连接到它。插件可以包含这样的占位符条目，用于您稍后配置的连接器，因此 Claude Code 不将其报告为错误或设置问题。`/mcp` 中的服务器详情视图显示 `No URL configured for this server`；设置条目的 `url` 以连接它。
 
 #### 配置警告
 
@@ -292,7 +292,7 @@ Claude Code 警告以下配置问题。每个条目说明 Claude Code 检查什�
 
 * **隐藏的空格**：当 MCP 配置值携带隐藏的前导或尾随空格时，Claude Code 发出警告，这通常来自粘贴带有尾随换行符的令牌。Claude Code 检查 `command`、`url`、每个 `args` 条目以及 `env` 和 `headers` 下的值和键名称。Claude Code 在 `claude mcp list` 输出和 `/mcp` 中显示警告，命名受影响的字段而不回显其值，例如 `Leading or trailing whitespace in: headers.Authorization`。Claude Code 不修剪空格并完全按照写入的方式使用值，因此请编辑配置以删除它。
 * **在多个作用域中使用相同名称**：如果您在多个 [作用域](#mcp-installation-scopes) 中定义相同的服务器名称，具有不同的端点，Claude Code 在 `claude mcp list` 输出和 `/mcp` 中警告冲突。Claude Code 按端点存储 OAuth 登录，因此当您在一个项目中对加载的定义进行身份验证时，您仍然需要在加载不同定义的项目中单独登录。保留您想要的端点并使用 `claude mcp remove <name> --scope <scope>` 删除其他端点。在警告中，Claude Code 按您的配置中所写的形式引用每个作用域的端点，[`${VAR}` 引用](#environment-variable-expansion-in-mcp-json) 保持未展开，因此它永远不显示已解析的值，例如 API 密钥。
-* **保留名称**：Claude Code 保留其内置服务器的名称，包括 `workspace`、`claude-in-chrome`、`computer-use`、`Claude Preview` 和 `Claude Browser`。如果您的配置定义具有保留名称的服务器，Claude Code 在加载时跳过它并显示警告，要求您重命名它。`claude mcp add` 拒绝保留名称并出现错误。`Claude Preview` 和 `Claude Browser` 都命名 [Claude Code 桌面应用的预览窗格](/docs/zh-CN/desktop.md#preview-your-app) 使用的内置服务器。
+* **保留名称**：Claude Code 保留其内置服务器的名称，包括 `workspace`、`claude-in-chrome`、`computer-use`、`Claude Preview` 和 `Claude Browser`。如果您的配置定义具有保留名称的服务器，Claude Code 在加载时跳过它并显示警告，要求您重命名它。`claude mcp add` 拒绝保留名称并出现错误。`Claude Preview` 和 `Claude Browser` 都命名 [Claude Code 桌面应用的预览窗格](https://code.claude.com/docs/zh-CN/desktop.md#preview-your-app) 使用的内置服务器。
 * **缺少环境变量**：如果服务器配置中的 [`${VAR}` 引用](#environment-variable-expansion-in-mcp-json) 命名未设置且没有 `:-default` 的变量，Claude Code 在 `claude mcp list` 输出和 `/mcp` 中警告，命名变量，并仍然使用 `${VAR}` 文本未展开加载服务器。设置变量或添加 `${VAR:-default}` 备用值。在远程服务器的 `url` 和 `headers` 中，某些凭据变量 [读取为空](#credential-variables-that-read-as-empty) 而不显示警告。
 
 #### 工具可用性
@@ -307,7 +307,7 @@ Claude Code 警告以下配置问题。每个条目说明 Claude Code 检查什�
 
 启用工具搜索后，当服务器在 Claude 工作时完成连接时，Claude Code 在同一轮次的下一个请求中将服务器的工具名称列出给 Claude。Claude 然后可以搜索和调用这些工具，而无需等待您的下一条消息。
 
-恢复会话后，Claude 可以在工具的 MCP 服务器仍在连接时调用已保存对话中的工具。当服务器处于首次连接尝试时，Claude Code 会将该调用保留最多 10 秒，并在工具可用后运行它。如果服务器未能及时连接，或者已在 [失败尝试后重试](#automatic-reconnection)，调用会失败并返回 `No such tool available` [工具错误](/docs/zh-CN/errors.md#no-such-tool-available)。
+恢复会话后，Claude 可以在工具的 MCP 服务器仍在连接时调用已保存对话中的工具。当服务器处于首次连接尝试时，Claude Code 会将该调用保留最多 10 秒，并在工具可用后运行它。如果服务器未能及时连接，或者已在 [失败尝试后重试](#automatic-reconnection)，调用会失败并返回 `No such tool available` [工具错误](https://code.claude.com/docs/zh-CN/errors.md#no-such-tool-available)。
 
 ### 禁用服务器而不删除它
 
@@ -315,43 +315,43 @@ Claude Code 警告以下配置问题。每个条目说明 Claude Code 检查什�
 
 当您切换服务器时，Claude Code 在 `~/.claude.json` 中按项目记录您的选择，在两个涵盖不相交服务器集的列表之一中：
 
-* `disabledMcpServers`：用户配置的服务器、插件服务器、您的组织 [通过托管设置提供](/docs/zh-CN/managed-mcp.md#provide-servers-through-managed-settings) 的服务器、Claude Code [自己获取](#how-connectors-reach-claude-code) 的 claude.ai 连接器以及默认打开的内置服务器的选择退出列表。Claude Code 不连接您在此处列出的服务器。当您使用 [禁用 claude.ai 连接器](#disable-claude-ai-connectors) 中描述的按项目 `/mcp` 切换禁用 claude.ai 连接器时，Claude Code 在此列表下使用其显示名称（例如 `claude.ai Slack`）写入它。
+* `disabledMcpServers`：用户配置的服务器、插件服务器、您的组织 [通过托管设置提供](https://code.claude.com/docs/zh-CN/managed-mcp.md#provide-servers-through-managed-settings) 的服务器、Claude Code [自己获取](#how-connectors-reach-claude-code) 的 claude.ai 连接器以及默认打开的内置服务器的选择退出列表。Claude Code 不连接您在此处列出的服务器。当您使用 [禁用 claude.ai 连接器](#disable-claude-ai-connectors) 中描述的按项目 `/mcp` 切换禁用 claude.ai 连接器时，Claude Code 在此列表下使用其显示名称（例如 `claude.ai Slack`）写入它。
 * `enabledMcpServers`：默认关闭的内置服务器（例如 `computer-use`）的选择加入列表。Claude Code 仅当您在此处列出它时才连接默认关闭的服务器。
 
 Claude Code 为每个服务器查询恰好两个列表之一，因此两个列表都不会覆盖另一个。如果您将常规服务器添加到 `enabledMcpServers`，或将默认关闭的内置服务器添加到 `disabledMcpServers`，Claude Code 会忽略该条目。
 
-`disabledMcpServers` 和 `enabledMcpServers` 与 [`enabledMcpjsonServers`](/docs/zh-CN/settings-reference#enabledmcpjsonservers) 和 [`disabledMcpjsonServers`](/docs/zh-CN/settings-reference#disabledmcpjsonservers) 无关，后者控制项目的 `.mcp.json` 文件中定义的服务器的批准。
+`disabledMcpServers` 和 `enabledMcpServers` 与 [`enabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#enabledmcpjsonservers) 和 [`disabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#disabledmcpjsonservers) 无关，后者控制项目的 `.mcp.json` 文件中定义的服务器的批准。
 
 ### MCP 客户端运行时
 
 Claude Code 通过两个客户端运行时之一连接到 MCP 服务器。v1 运行时基于 MCP TypeScript SDK 1.x。v2 运行时是 [MCP TypeScript SDK 2.0](https://ts.sdk.modelcontextprotocol.io/v2/) 上的相同代码，它添加了 MCP 协议修订版 2026-07-28。本页的其余部分适用于两个运行时，除非某个部分指明 v2 运行时。
 
-Claude Code 在每次启动时选择一个运行时，并在您退出前保持它。在 [获取功能标志](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching) 的会话中，它在 Claude Code v2.1.232 或更高版本上使用 v2 运行时。
+Claude Code 在每次启动时选择一个运行时，并在您退出前保持它。在 [获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching) 的会话中，它在 Claude Code v2.1.232 或更高版本上使用 v2 运行时。
 
 在不获取功能标志的会话中，Claude Code 在 Claude Code v2.1.274 或更高版本上默认使用 v2 运行时：
 
-* Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上的会话，除非嵌入 Claude Code 的主机平台设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](/docs/zh-CN/env-vars)
-* 通过 [Claude 应用网关](/docs/zh-CN/claude-apps-gateway) 登录的会话
+* Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上的会话，除非嵌入 Claude Code 的主机平台设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](https://code.claude.com/docs/zh-CN/env-vars)
+* 通过 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 登录的会话
 * 您关闭遥测或功能标志获取的会话，例如使用 `DISABLE_TELEMETRY`
 
 在 v2 上，Claude Code 还会：
 
-* 询问 HTTP、stdio 和 claude.ai 连接器服务器是否支持较新的修订版，并与支持的服务器一起使用它。这包括云端会话和 [Remote Control](/docs/zh-CN/remote-control.md) 会话的连接器。Claude Code 与 v1 一样连接到其他所有服务器。
+* 询问 HTTP、stdio 和 claude.ai 连接器服务器是否支持较新的修订版，并与支持的服务器一起使用它。这包括云端会话和 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话的连接器。Claude Code 与 v1 一样连接到其他所有服务器。
 * 通过 [它保持打开的流](#notification-streams-on-the-v2-runtime) 从使用较新修订版的服务器接收 `list_changed` 通知。
 * 不注册在较新修订版上连接的 [频道](#push-messages-with-channels) 服务器，因为该修订版无法携带频道消息。
 * 当授权响应指明意外的发行者时，使 [MCP OAuth 登录](#authenticate-with-remote-mcp-servers) 失败。
-* 仅将 [MCP OAuth](#authenticate-with-remote-mcp-servers) 凭据发送到通过 HTTPS 或在 `localhost`、`127.0.0.1` 或 `::1` 上提供的令牌端点。对于令牌端点在其他任何地方为纯 `http://` 的服务器（例如本地网络上的设备），登录失败。请参阅 [拒绝向非 https 令牌端点发送凭据](/docs/zh-CN/errors.md#refusing-to-send-credentials-to-non-https-token-endpoint)。
+* 仅将 [MCP OAuth](#authenticate-with-remote-mcp-servers) 凭据发送到通过 HTTPS 或在 `localhost`、`127.0.0.1` 或 `::1` 上提供的令牌端点。对于令牌端点在其他任何地方为纯 `http://` 的服务器（例如本地网络上的设备），登录失败。请参阅 [拒绝向非 https 令牌端点发送凭据](https://code.claude.com/docs/zh-CN/errors.md#refusing-to-send-credentials-to-non-https-token-endpoint)。
 
 Anthropic 可以通过 Claude Code 获取的功能标志，将特定服务器保持在较早的协议上，或不使用该流。
 
-要自己选择运行时，请设置 [`MCP_SDK_GENERATION`](/docs/zh-CN/env-vars) 为 `v1` 或 `v2`。要决定 Claude Code 是否询问，请设置 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 为 `auto` 或 `legacy`。
+要自己选择运行时，请设置 [`MCP_SDK_GENERATION`](https://code.claude.com/docs/zh-CN/env-vars) 为 `v1` 或 `v2`。要决定 Claude Code 是否询问，请设置 [`MCP_PROTOCOL_NEGOTIATION`](https://code.claude.com/docs/zh-CN/env-vars) 为 `auto` 或 `legacy`。
 
 ### 动态工具更新
 
 MCP 服务器可以在连接期间更改其提供的工具、提示词或资源，并发送 `list_changed` 通知。收到通知时：
 
 * **在交互式终端会话中**，Claude Code 从该服务器获取更新后的列表，因此您无需重新连接它。
-* **在使用 `-p` 标志的 [非交互模式](/docs/zh-CN/headless.md) 和 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 中**，Claude Code 在收到这些通知时仅刷新工具列表。
+* **在使用 `-p` 标志的 [非交互模式](https://code.claude.com/docs/zh-CN/headless.md) 和 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 中**，Claude Code 在收到这些通知时仅刷新工具列表。
 
 如果刷新请求失败，Claude Code 保留服务器之前发现的工具、提示词和资源，直到稍后的刷新成功。
 
@@ -373,9 +373,9 @@ Claude Code 重新连接在会话中途断开的远程服务器，并在瞬时�
 Claude Code 首先使用指数退避尝试重新连接断开的远程服务器，最多五次，从一秒延迟开始，每次加倍：
 
 * **在交互式会话中**：`/mcp` 在 Claude Code 重新连接时显示服务器为待处理。在五次失败尝试后，Claude Code 将服务器标记为失败，或在服务器需要再次授权时标记为需要身份验证。当它将服务器标记为失败时，您会看到 `MCP server "<name>" disconnected · open /mcp to reconnect` 通知。您可以从 `/mcp` 手动重试。
-* **在 [`claude -p`](/docs/zh-CN/headless) 运行和 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 会话中**：Claude Code 进行相同的五次尝试，没有 `/mcp` 面板显示这些尝试。如果五次尝试全部失败，运行会在没有该服务器工具的情况下继续：
-  * **在瞬时错误（例如 5xx 响应或超时）之后**：Claude Code 在后台继续重试 HTTP 或 SSE 服务器。重试最多持续约半小时，当某次重试连接成功时，服务器的工具会再次可用。在此之前，Agent SDK 会话报告 [状态](/docs/zh-CN/agent-sdk/mcp.md#error-handling) `failed`，您的代码可以 [重新连接服务器](/docs/zh-CN/agent-sdk/mcp.md#error-handling)。要在 `claude -p` 中重新连接它，请重新开始运行。
-  * **当服务器 [需要您重新登录](#authenticate-with-remote-mcp-servers) 时**：Claude Code 停止重试，Agent SDK 会话将服务器的状态报告为 `needs-auth`。在您的 shell 中使用 [`claude mcp login <name>`](#authenticate-from-the-command-line) 登录。然后重新开始运行，或者在 Agent SDK 会话中改为 [重新连接服务器](/docs/zh-CN/agent-sdk/mcp.md#error-handling)。
+* **在 [`claude -p`](https://code.claude.com/docs/zh-CN/headless) 运行和 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话中**：Claude Code 进行相同的五次尝试，没有 `/mcp` 面板显示这些尝试。如果五次尝试全部失败，运行会在没有该服务器工具的情况下继续：
+  * **在瞬时错误（例如 5xx 响应或超时）之后**：Claude Code 在后台继续重试 HTTP 或 SSE 服务器。重试最多持续约半小时，当某次重试连接成功时，服务器的工具会再次可用。在此之前，Agent SDK 会话报告 [状态](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling) `failed`，您的代码可以 [重新连接服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling)。要在 `claude -p` 中重新连接它，请重新开始运行。
+  * **当服务器 [需要您重新登录](#authenticate-with-remote-mcp-servers) 时**：Claude Code 停止重试，Agent SDK 会话将服务器的状态报告为 `needs-auth`。在您的 shell 中使用 [`claude mcp login <name>`](#authenticate-from-the-command-line) 登录。然后重新开始运行，或者在 Agent SDK 会话中改为 [重新连接服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling)。
 
 #### 失败的首次连接
 
@@ -394,8 +394,8 @@ Claude Code 首先使用指数退避尝试重新连接断开的远程服务器�
 | 您运行 Claude Code 的方式 | 服务器进程在会话中途退出 | 服务器的首次连接失败 |
 | - | - | - |
 | 交互式会话 | Claude Code 将服务器标记为失败。要重新启动它，请从 `/mcp` 中该服务器的菜单选择 **Reconnect** | Claude Code 将服务器标记为失败。要重新启动它，请从 `/mcp` 中该服务器的菜单选择 **Reconnect** |
-| `claude -p` 运行 | Claude Code 在 Claude 下次调用该服务器的某个工具时重新启动服务器，调用会在服务器连接后运行 | 运行会在没有该服务器工具的情况下继续。要让 Claude Code 再次尝试连接，请重新开始运行。当插件提供该服务器时，新的运行会在失败后 15 分钟内跳过连接，因此请先等待这段时间，或 [更早重试](/docs/zh-CN/errors.md#skipping-connection-recent-failure-cached) |
-| Agent SDK 会话 | Claude Code 在 Claude 下次调用该服务器的某个工具时重新启动服务器，调用会在服务器连接后运行 | 会话会在没有该服务器工具的情况下继续。您的代码可以 [重新连接服务器](/docs/zh-CN/agent-sdk/mcp.md#error-handling) |
+| `claude -p` 运行 | Claude Code 在 Claude 下次调用该服务器的某个工具时重新启动服务器，调用会在服务器连接后运行 | 运行会在没有该服务器工具的情况下继续。要让 Claude Code 再次尝试连接，请重新开始运行。当插件提供该服务器时，新的运行会在失败后 15 分钟内跳过连接，因此请先等待这段时间，或 [更早重试](https://code.claude.com/docs/zh-CN/errors.md#skipping-connection-recent-failure-cached) |
+| Agent SDK 会话 | Claude Code 在 Claude 下次调用该服务器的某个工具时重新启动服务器，调用会在服务器连接后运行 | 会话会在没有该服务器工具的情况下继续。您的代码可以 [重新连接服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling) |
 
 #### 失败的发现请求
 
@@ -414,11 +414,11 @@ Claude Code 是否告诉 Claude 配置的服务器未能连接取决于 [工具�
 
 ### 使用频道推送消息
 
-MCP 服务器也可以直接将消息推送到您的会话中，以便 Claude 可以对外部事件（如 CI 结果、监控警报或聊天消息）做出反应。要启用此功能，您的服务器声明 `claude/channel` 能力，您在启动时使用 `--channels` 标志选择加入。请参阅 [频道](/docs/zh-CN/channels.md) 以使用官方支持的频道，或 [频道参考](/docs/zh-CN/channels-reference.md) 以构建您自己的。
+MCP 服务器也可以直接将消息推送到您的会话中，以便 Claude 可以对外部事件（如 CI 结果、监控警报或聊天消息）做出反应。要启用此功能，您的服务器声明 `claude/channel` 能力，您在启动时使用 `--channels` 标志选择加入。请参阅 [频道](https://code.claude.com/docs/zh-CN/channels.md) 以使用官方支持的频道，或 [频道参考](https://code.claude.com/docs/zh-CN/channels-reference.md) 以构建您自己的。
 
 在 [v2 运行时](#mcp-client-runtimes) 上，协商 MCP 协议修订版 2026-07-28 的频道服务器无法传递频道消息，因此 Claude Code 不将其注册为频道。不支持该修订版的频道服务器会在较早的握手上连接，并像以前一样注册。
 
-Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道服务器保持在较早的握手上，请将 [`MCP_PROTOCOL_NEGOTIATION`](/docs/zh-CN/env-vars) 设置为 `legacy`，这会将所有服务器都保持在较早的握手上。
+Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道服务器保持在较早的握手上，请将 [`MCP_PROTOCOL_NEGOTIATION`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `legacy`，这会将所有服务器都保持在较早的握手上。
 
 > [!TIP]
 >
@@ -440,38 +440,38 @@ Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道
 要限制 MCP 工具调用可以运行的时长：
 
 * **按服务器**：在该服务器的配置条目中添加以毫秒为单位的 `timeout` 字段
-* **跨服务器**：设置 [`MCP_TOOL_TIMEOUT`](/docs/zh-CN/env-vars)
+* **跨服务器**：设置 [`MCP_TOOL_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars)
 
-按服务器的 `timeout` 是每个工具调用的硬性墙钟时间限制，来自服务器的进度通知不会延长它。低于 1000 的值被忽略并回退到 `MCP_TOOL_TIMEOUT`，或在该变量未设置时回退到其约 28 小时的默认值。对于 HTTP、SSE 或 [claude.ai 连接器](/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai) 服务器，还有第二个按请求计时器，覆盖每个请求直到服务器的第一个响应字节。Claude Code 将该计时器设置为三个值中最大的：60 秒、适用于服务器的工具超时和 `MCP_TIMEOUT`。未设置的 `MCP_TOOL_TIMEOUT` 的 28 小时默认值不参与该比较，低于 60 秒的值不会缩短计时器。Stdio 和 WebSocket 服务器没有按请求计时器。
+按服务器的 `timeout` 是每个工具调用的硬性墙钟时间限制，来自服务器的进度通知不会延长它。低于 1000 的值被忽略并回退到 `MCP_TOOL_TIMEOUT`，或在该变量未设置时回退到其约 28 小时的默认值。对于 HTTP、SSE 或 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai) 服务器，还有第二个按请求计时器，覆盖每个请求直到服务器的第一个响应字节。Claude Code 将该计时器设置为三个值中最大的：60 秒、适用于服务器的工具超时和 `MCP_TIMEOUT`。未设置的 `MCP_TOOL_TIMEOUT` 的 28 小时默认值不参与该比较，低于 60 秒的值不会缩短计时器。Stdio 和 WebSocket 服务器没有按请求计时器。
 
 至少 1000 的按服务器 `timeout` 也充当下面描述的空闲超时的下限：Claude Code 永远不会早于按服务器 `timeout` 因空闲而中止该服务器的工具调用。
 
 对 MCP 服务器的工具调用，如果在空闲窗口内既没有响应也没有进度通知，会以错误中止，而不是等待墙钟时间限制。空闲超时适用于除 IDE 服务器和 SDK 进程内服务器外的每种服务器类型。空闲窗口对 HTTP、SSE、WebSocket 和 [claude.ai 连接器](#use-mcp-servers-from-claude-ai) 服务器默认为五分钟，对 stdio 服务器默认为 30 分钟。
 
-设置 [`CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`](/docs/zh-CN/env-vars) 环境变量（以毫秒为单位）来更改空闲窗口，或将其设置为 `0` 以禁用检查。
+设置 [`CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars) 环境变量（以毫秒为单位）来更改空闲窗口，或将其设置为 `0` 以禁用检查。
 
 这些超时限制调用可以运行多长时间，但不一定是它阻塞会话多长时间：运行超过两分钟的主对话调用会先移到后台任务。请参阅 [长工具调用的自动后台处理](#automatic-backgrounding-of-long-tool-calls)。
 
 ### 长工具调用的自动后台处理
 
-如果某个后台调用在 [`/tasks`](/docs/zh-CN/commands#all-commands) 中的详情视图显示 `runs on the server; survives exiting this session`，请参阅[在服务器上运行的 MCP 任务](#mcp-tasks-that-run-on-the-server)。
+如果某个后台调用在 [`/tasks`](https://code.claude.com/docs/zh-CN/commands#all-commands) 中的详情视图显示 `runs on the server; survives exiting this session`，请参阅[在服务器上运行的 MCP 任务](#mcp-tasks-that-run-on-the-server)。
 
 主对话中的 MCP 工具调用在两分钟后仍在运行时会移到后台任务，而不是阻塞会话。Claude 立即收到任务 ID 并继续工作，结果在调用完成时作为任务通知到达。
 
-任务出现在 [`/tasks`](/docs/zh-CN/commands#all-commands) 中，您也可以在其中停止它，退出会话后它不会保留。任务的条目显示服务器报告的最新进度。如果您停止任务，Claude Code 会取消调用并告知 Claude 不会有结果返回。停止并不保证服务器停止：服务器可能已经完成了部分工作，或者仍可能完成它。
+任务出现在 [`/tasks`](https://code.claude.com/docs/zh-CN/commands#all-commands) 中，您也可以在其中停止它，退出会话后它不会保留。任务的条目显示服务器报告的最新进度。如果您停止任务，Claude Code 会取消调用并告知 Claude 不会有结果返回。停止并不保证服务器停止：服务器可能已经完成了部分工作，或者仍可能完成它。
 
-调用在后台运行时，每次调用的限制仍然适用：由按服务器 `timeout` 或 [`MCP_TOOL_TIMEOUT`](/docs/zh-CN/env-vars) 设置的墙钟时间限制，以及由 [`CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`](/docs/zh-CN/env-vars) 设置的空闲超时。
+调用在后台运行时，每次调用的限制仍然适用：由按服务器 `timeout` 或 [`MCP_TOOL_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars) 设置的墙钟时间限制，以及由 [`CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars) 设置的空闲超时。
 
 要更改或关闭自动后台化：
 
-* 设置以毫秒为单位的 [`CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS`](/docs/zh-CN/env-vars) 环境变量以更改阈值，或设置为 `0` 以关闭自动后台化。设置为 `0` 时，Claude 在交互式会话中也会[等待 MCP 任务](#make-claude-wait-for-the-result-of-an-mcp-task)
-* 将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 设置为 `1`，这会将其与后台命令和后台子代理一起关闭
+* 设置以毫秒为单位的 [`CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS`](https://code.claude.com/docs/zh-CN/env-vars) 环境变量以更改阈值，或设置为 `0` 以关闭自动后台化。设置为 `0` 时，Claude 在交互式会话中也会[等待 MCP 任务](#make-claude-wait-for-the-result-of-an-mcp-task)
+* 将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `1`，这会将其与后台命令和后台子代理一起关闭
 
 某些调用永远不会移到后台：
 
-* 来自 [子代理](/docs/zh-CN/sub-agents.md) 的调用；Claude Code 仅后台处理主对话调用
+* 来自 [子代理](https://code.claude.com/docs/zh-CN/sub-agents.md) 的调用；Claude Code 仅后台处理主对话调用
 * 对 IDE 服务器的调用
-* [非交互模式](/docs/zh-CN/headless.md) 中的调用，除非 `CLAUDE_AUTO_BACKGROUND_TASKS` 设置为 `1`，因为一次性运行可能在结果到达前结束
+* [非交互模式](https://code.claude.com/docs/zh-CN/headless.md) 中的调用，除非 `CLAUDE_AUTO_BACKGROUND_TASKS` 设置为 `1`，因为一次性运行可能在结果到达前结束
 
 等待已打开的 [引出对话框](#respond-to-mcp-elicitation-requests) 的调用在对话框打开期间不会后台处理；服务器是在等待您的输入，而不是运行缓慢，因此 Claude Code 将移动推迟到对话框关闭。
 
@@ -487,7 +487,7 @@ MCP 任务是指 MCP 服务器使用 [MCP tasks 扩展](https://modelcontextprot
 
 #### 停止 MCP 任务或获取其结果
 
-要停止正在运行的任务，请在 [`/tasks`](/docs/zh-CN/commands#all-commands) 中选择它并按 `x`，或者让 Claude 停止它。Claude Code 会停止跟踪该任务并请求服务器取消它，但服务器仍可能完成它。请先从 `/mcp` 重新连接已断开的服务器，否则不会发出取消请求，Claude Code 会忘记该任务且无法再次跟踪它。按 `Esc` 不会停止后台任务。
+要停止正在运行的任务，请在 [`/tasks`](https://code.claude.com/docs/zh-CN/commands#all-commands) 中选择它并按 `x`，或者让 Claude 停止它。Claude Code 会停止跟踪该任务并请求服务器取消它，但服务器仍可能完成它。请先从 `/mcp` 重新连接已断开的服务器，否则不会发出取消请求，Claude Code 会忘记该任务且无法再次跟踪它。按 `Esc` 不会停止后台任务。
 
 任务结束时，会话记录中会出现类似这样的一行：
 
@@ -501,7 +501,7 @@ MCP task <server task id> (<server>/<tool>) completed.
 
 正在运行的任务可以打开 [elicitation 对话框](#respond-to-mcp-elicitation-requests)向您请求输入。在 `/tasks` 打开期间，该对话框会保持隐藏，因此请关闭 `/tasks` 以作答。拒绝或按 `Esc` 也是对服务器的一种回答，服务器随后会决定任务是否继续。
 
-在[非交互](/docs/zh-CN/headless.md)会话中，对于请求输入的任务，Claude Code 会请求服务器取消它，而不会运行您的 [`Elicitation` hook](/docs/zh-CN/hooks#elicitation)，也不会调用 Agent SDK 的 `onElicitation` 回调。
+在[非交互](https://code.claude.com/docs/zh-CN/headless.md)会话中，对于请求输入的任务，Claude Code 会请求服务器取消它，而不会运行您的 [`Elicitation` hook](https://code.claude.com/docs/zh-CN/hooks#elicitation)，也不会调用 Agent SDK 的 `onElicitation` 回调。
 
 #### 在 MCP 任务运行时退出、清除或恢复
 
@@ -520,18 +520,18 @@ MCP task <server task id> (<server>/<tool>) completed.
 只有当以下所有条件都满足时，工具调用才会成为 MCP 任务：
 
 * 服务器支持任务
-* 服务器是以[协议修订版 2026-07-28](#mcp-client-runtimes) 连接的 HTTP、stdio 或 claude.ai 连接器服务器。设置 [`MCP_SDK_GENERATION=v1` 或 `MCP_PROTOCOL_NEGOTIATION=legacy`](/docs/zh-CN/env-vars) 会排除这一情况
-* 会话会[获取功能标志](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，因此不能在 Amazon Bedrock 等第三方提供商上，也不能关闭遥测或标志获取
-* Anthropic 已为您的会话类型启用了 MCP 任务。在 v2.1.304 或更高版本上，这包括终端 CLI 会话、[Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 会话和 [GitHub Actions](/docs/zh-CN/github-actions.md) 运行。其他使用入口（例如 [VS Code 扩展](/docs/zh-CN/vs-code.md)和[桌面应用](/docs/zh-CN/desktop.md)）没有 MCP 任务
-* 调用来自主对话，而不是来自[子代理](/docs/zh-CN/sub-agents.md)
-* 会话是交互式的，或者 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 会话或读取 `--input-format stream-json` 的 `claude -p` 运行满足：
-  * [`CLAUDE_AUTO_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 为 `1`
+* 服务器是以[协议修订版 2026-07-28](#mcp-client-runtimes) 连接的 HTTP、stdio 或 claude.ai 连接器服务器。设置 [`MCP_SDK_GENERATION=v1` 或 `MCP_PROTOCOL_NEGOTIATION=legacy`](https://code.claude.com/docs/zh-CN/env-vars) 会排除这一情况
+* 会话会[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，因此不能在 Amazon Bedrock 等第三方提供商上，也不能关闭遥测或标志获取
+* Anthropic 已为您的会话类型启用了 MCP 任务。在 v2.1.304 或更高版本上，这包括终端 CLI 会话、[Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话和 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 运行。其他使用入口（例如 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)和[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)）没有 MCP 任务
+* 调用来自主对话，而不是来自[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)
+* 会话是交互式的，或者 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话或读取 `--input-format stream-json` 的 `claude -p` 运行满足：
+  * [`CLAUDE_AUTO_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars) 为 `1`
   * `CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND` 不为 `1`
   * `CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS` 不为 `0`
 
 其他任何调用都是普通工具调用，[长时间工具调用的自动后台化](#automatic-backgrounding-of-long-tool-calls)说明了其中哪些会转入后台。
 
-请保持 Agent SDK 或 stream-json 会话的输入处于打开状态，因为输入关闭后，运行[不会等待 MCP 任务](/docs/zh-CN/headless.md#mcp-work-when-a-non-interactive-run-ends)。一次性 `claude -p "<prompt>"` 运行不会获得 MCP 任务。
+请保持 Agent SDK 或 stream-json 会话的输入处于打开状态，因为输入关闭后，运行[不会等待 MCP 任务](https://code.claude.com/docs/zh-CN/headless.md#mcp-work-when-a-non-interactive-run-ends)。一次性 `claude -p "<prompt>"` 运行不会获得 MCP 任务。
 
 #### MCP 任务的状态消息
 
@@ -556,14 +556,14 @@ MCP task <server task id> (<server>/<tool>) completed.
 
 #### 让 Claude 等待 MCP 任务的结果
 
-要在交互式会话中让 Claude 等待任务的结果，请设置以下两个环境变量之一，例如在 [`settings.json`](/docs/zh-CN/settings) 的 `env` 块中：
+要在交互式会话中让 Claude 等待任务的结果，请设置以下两个环境变量之一，例如在 [`settings.json`](https://code.claude.com/docs/zh-CN/settings) 的 `env` 块中：
 
-* **[`CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS`](/docs/zh-CN/env-vars) 设置为 `0`**：Claude 会等待每个 MCP 工具调用直到调用结束
-* **[`CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND`](/docs/zh-CN/env-vars) 设置为 `1`**：Claude 会等待任务的结果。当[自动后台化](#automatic-backgrounding-of-long-tool-calls)开启时，它默认会在两分钟后转移该调用，因此短任务会就地完成，长任务不会阻塞您。被转移的调用是普通后台调用，而不是 MCP 任务。它不会在退出会话后保留
+* **[`CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `0`**：Claude 会等待每个 MCP 工具调用直到调用结束
+* **[`CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `1`**：Claude 会等待任务的结果。当[自动后台化](#automatic-backgrounding-of-long-tool-calls)开启时，它默认会在两分钟后转移该调用，因此短任务会就地完成，长任务不会阻塞您。被转移的调用是普通后台调用，而不是 MCP 任务。它不会在退出会话后保留
 
 Claude 等待期间，按 `Esc` 或达到[挂钟时间限制或空闲超时](#time-limits-on-mcp-tasks)会结束该调用，Claude Code 会请求服务器取消该任务。
 
-如果您将 `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` 设置为 `1` 或以 [bare 模式](/docs/zh-CN/headless.md#start-faster-with-bare-mode)启动，仅凭这一点并不会让 Claude 等待 MCP 任务。以下示例将 `CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS` 设置为 `0`，因此 Claude 会等待每个 MCP 工具调用：
+如果您将 `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` 设置为 `1` 或以 [bare 模式](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode)启动，仅凭这一点并不会让 Claude 等待 MCP 任务。以下示例将 `CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS` 设置为 `0`，因此 Claude 会等待每个 MCP 工具调用：
 
 ```json settings.json theme={null}
 {
@@ -638,7 +638,7 @@ Claude 等待期间，按 `Esc` 或达到[挂钟时间限制或空闲超时](#ti
 
 ### 插件提供的 MCP 服务器
 
-[插件](/docs/zh-CN/plugins/overview.md) 可以捆绑 MCP 服务器，在您启用插件时提供工具和集成。
+[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md) 可以捆绑 MCP 服务器，在您启用插件时提供工具和集成。
 
 **插件 MCP 服务器如何工作**：
 
@@ -682,12 +682,12 @@ Claude 等待期间，按 `Esc` 或达到[挂钟时间限制或空闲超时](#ti
 **插件 MCP 功能**：
 
 * **自动生命周期**：服务器在这些时间点连接和断开：
-  * 在会话启动时，Claude Code 自动连接已启用插件的服务器。在 `/mcp` 中，您之前使用过的远程（HTTP 或 SSE）插件服务器可能改为显示 [`cached` 状态](#server-status-detail)；Claude Code 在 Claude 首次调用其工具之一时连接它。当 stdio 插件服务器的连接在不到 15 分钟前失败时，Claude Code 会 [跳过该连接](/docs/zh-CN/errors.md#skipping-connection-recent-failure-cached)
-  * 如果您在会话期间启用或禁用插件，Claude Code 在更改生效时连接或断开其 MCP 服务器。[在不重新启动的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference.md#reload-plugins) 说明了生效时间。在没有交互式终端的会话中，`/reload-plugins` 不连接或断开插件 MCP 服务器；这些更改在您的下一个会话中生效
-  * 当您重新加载时，Claude Code 保留配置未更改的插件服务器的实时连接，当您从 Agent SDK [替换会话的 MCP 服务器列表](/docs/zh-CN/agent-sdk/typescript.md#mcpsetserversresult) 而未列出它们时也是如此
-  * 当您在 v2.1.246 或更高版本上 [使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory) 时，Claude Code 连接新目录的设置所启用插件的服务器，并断开不再启用的插件的服务器，因此您无需在移动后运行 `/reload-plugins`
-  * 在 [云端会话](/docs/zh-CN/claude-code-on-the-web.md) 中，对尚未连接的插件服务器的 MCP 调用（例如空闲会话唤醒后）会按需启动服务器并等待它连接
-* **路径占位符**：`${CLAUDE_PLUGIN_ROOT}` 解析为插件的安装目录，`${CLAUDE_PLUGIN_DATA}` 解析为其 [持久状态](/docs/zh-CN/plugins/components.md#path-variables-and-persistent-data) 目录，`${CLAUDE_PROJECT_DIR}` 解析为稳定的项目根目录。替换适用于：
+  * 在会话启动时，Claude Code 自动连接已启用插件的服务器。在 `/mcp` 中，您之前使用过的远程（HTTP 或 SSE）插件服务器可能改为显示 [`cached` 状态](#server-status-detail)；Claude Code 在 Claude 首次调用其工具之一时连接它。当 stdio 插件服务器的连接在不到 15 分钟前失败时，Claude Code 会 [跳过该连接](https://code.claude.com/docs/zh-CN/errors.md#skipping-connection-recent-failure-cached)
+  * 如果您在会话期间启用或禁用插件，Claude Code 在更改生效时连接或断开其 MCP 服务器。[在不重新启动的情况下应用插件更改](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#reload-plugins) 说明了生效时间。在没有交互式终端的会话中，`/reload-plugins` 不连接或断开插件 MCP 服务器；这些更改在您的下一个会话中生效
+  * 当您重新加载时，Claude Code 保留配置未更改的插件服务器的实时连接，当您从 Agent SDK [替换会话的 MCP 服务器列表](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#mcpsetserversresult) 而未列出它们时也是如此
+  * 当您在 v2.1.246 或更高版本上 [使用 `/cd` 移动会话](https://code.claude.com/docs/zh-CN/permissions#move-the-session-to-another-directory) 时，Claude Code 连接新目录的设置所启用插件的服务器，并断开不再启用的插件的服务器，因此您无需在移动后运行 `/reload-plugins`
+  * 在 [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) 中，对尚未连接的插件服务器的 MCP 调用（例如空闲会话唤醒后）会按需启动服务器并等待它连接
+* **路径占位符**：`${CLAUDE_PLUGIN_ROOT}` 解析为插件的安装目录，`${CLAUDE_PLUGIN_DATA}` 解析为其 [持久状态](https://code.claude.com/docs/zh-CN/plugins/components.md#path-variables-and-persistent-data) 目录，`${CLAUDE_PROJECT_DIR}` 解析为稳定的项目根目录。替换适用于：
   * `stdio` 服务器：`command`、`args`、`env`
   * `http`、`sse` 和 `ws` 服务器：`url`、`headers` 和 `headersHelper`
 * **用户环境访问**：访问与手动配置的服务器相同的环境变量
@@ -700,7 +700,7 @@ Claude 等待期间，按 `Esc` 或达到[挂钟时间限制或空闲超时](#ti
 * **stdio 服务器**：它打印 `Command: stdio`、空的 `Args:` 行，并将每个环境变量显示为 `NAME=[REDACTED]`
 * **WebSocket 服务器**：它打印 `URL: ws`，并将每个标头显示为 `<name>: [REDACTED]`，`claude mcp list` 则显示 `ws` 来代替 URL
 
-要查看插件配置了什么，请 [在磁盘上找到插件](/docs/zh-CN/plugins/loading.md#find-plugins-on-disk) 并阅读其 `.mcp.json` 或 `plugin.json`。
+要查看插件配置了什么，请 [在磁盘上找到插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#find-plugins-on-disk) 并阅读其 `.mcp.json` 或 `plugin.json`。
 
 **插件 MCP 工具名称**：
 
@@ -710,11 +710,11 @@ Claude 等待期间，按 `Esc` 或达到[挂钟时间限制或空闲超时](#ti
 mcp__plugin_my-plugin_database-tools__query
 ```
 
-在 [权限规则](/docs/zh-CN/permissions.md)、skill 的 `allowed-tools` 列表、[子代理的 `tools` 字段](/docs/zh-CN/sub-agents#available-tools) 或 [hook 匹配器](/docs/zh-CN/hooks.md#match-mcp-tools) 中引用工具时使用此完整名称。针对裸服务器键编写的 hook 匹配器（例如 `mcp__database-tools__.*`）永远不会为插件捆绑的服务器触发。
+在 [权限规则](https://code.claude.com/docs/zh-CN/permissions.md)、skill 的 `allowed-tools` 列表、[子代理的 `tools` 字段](https://code.claude.com/docs/zh-CN/sub-agents#available-tools) 或 [hook 匹配器](https://code.claude.com/docs/zh-CN/hooks.md#match-mcp-tools) 中引用工具时使用此完整名称。针对裸服务器键编写的 hook 匹配器（例如 `mcp__database-tools__.*`）永远不会为插件捆绑的服务器触发。
 
-服务器本身以限定名称 `plugin:<plugin-name>:<server-name>` 注册，例如 `plugin:my-plugin:database-tools`。在需要配置的服务器名称的地方使用该名称，例如 [`mcp_tool` hook 的 `server` 字段](/docs/zh-CN/hooks#mcp-tool-hook-fields)。
+服务器本身以限定名称 `plugin:<plugin-name>:<server-name>` 注册，例如 `plugin:my-plugin:database-tools`。在需要配置的服务器名称的地方使用该名称，例如 [`mcp_tool` hook 的 `server` 字段](https://code.claude.com/docs/zh-CN/hooks#mcp-tool-hook-fields)。
 
-有关使用插件捆绑 MCP 服务器的详细信息，请参阅 [插件组件参考](/docs/zh-CN/plugins/components.md#mcp-servers)。
+有关使用插件捆绑 MCP 服务器的详细信息，请参阅 [插件组件参考](https://code.claude.com/docs/zh-CN/plugins/components.md#mcp-servers)。
 
 ## MCP 安装范围
 
@@ -732,7 +732,7 @@ MCP 服务器可以在三个不同的范围级别进行配置。您选择的范�
 
 > [!NOTE]
 >
-> MCP 服务器的"本地范围"术语与一般本地设置不同。MCP 本地范围的服务器存储在 `~/.claude.json`（您的主目录）中，而一般本地设置使用 `.claude/settings.local.json`（在项目目录中）。有关设置文件位置的详细信息，请参阅[设置](/docs/zh-CN/settings.md#where-settings-live)。
+> MCP 服务器的"本地范围"术语与一般本地设置不同。MCP 本地范围的服务器存储在 `~/.claude.json`（您的主目录）中，而一般本地设置使用 `.claude/settings.local.json`（在项目目录中）。有关设置文件位置的详细信息，请参阅[设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)。
 
 ```bash theme={null}
 # 添加本地范围的服务器（默认）
@@ -783,11 +783,11 @@ claude mcp add --transport http shared-server --scope project https://example.co
 
 出于安全原因，Claude Code 在交互式会话中使用来自 `.mcp.json` 文件的项目范围的服务器之前会提示批准。要重置这些批准选择，请运行 `claude mcp reset-project-choices`。
 
-在 `claude -p` 运行、[Agent SDK](/docs/zh-CN/headless.md) 会话以及[项目](/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)线程之外的[云端会话](/docs/zh-CN/claude-code-on-the-web.md)中，Claude Code 无法显示该提示：它加载项目范围的服务器而不询问。Claude Code 还会在您以 `bypassPermissions` 模式启动的会话中跳过提示，其中用户设置或托管设置中设置了 [`skipDangerousModePermissionPrompt`](/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)。要无论如何保持服务器不加载：
+在 `claude -p` 运行、[Agent SDK](https://code.claude.com/docs/zh-CN/headless.md) 会话以及[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)线程之外的[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中，Claude Code 无法显示该提示：它加载项目范围的服务器而不询问。Claude Code 还会在您以 `bypassPermissions` 模式启动的会话中跳过提示，其中用户设置或托管设置中设置了 [`skipDangerousModePermissionPrompt`](https://code.claude.com/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)。要无论如何保持服务器不加载：
 
-* 将其添加到 [`disabledMcpjsonServers`](/docs/zh-CN/settings-reference#disabledmcpjsonservers)，这会在每个权限模式中阻止它。
-* 使用 [`--setting-sources`](/docs/zh-CN/cli-reference#cli-flags) 或 SDK 的 `settingSources` 选项完全排除项目设置。
-* 使用 [`--strict-mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 启动会话。Claude Code 随后仅使用您通过 `--mcp-config` 传递的 MCP 服务器。跳过 Claude Code 未加载的项目范围服务器的批准提示需要 Claude Code v2.1.246 或更高版本；在 v2.1.246 之前，严格会话仍然会等待它们的批准，这会导致后台会话在启动时等待。有关该标志在托管 MCP 文件下的作用，请参阅[使用 managed-mcp.json 进行独占控制](/docs/zh-CN/managed-mcp.md#exclusive-control-with-managed-mcp-json)。
+* 将其添加到 [`disabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#disabledmcpjsonservers)，这会在每个权限模式中阻止它。
+* 使用 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 SDK 的 `settingSources` 选项完全排除项目设置。
+* 使用 [`--strict-mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 启动会话。Claude Code 随后仅使用您通过 `--mcp-config` 传递的 MCP 服务器。跳过 Claude Code 未加载的项目范围服务器的批准提示需要 Claude Code v2.1.246 或更高版本；在 v2.1.246 之前，严格会话仍然会等待它们的批准，这会导致后台会话在启动时等待。有关该标志在托管 MCP 文件下的作用，请参阅[使用 managed-mcp.json 进行独占控制](https://code.claude.com/docs/zh-CN/managed-mcp.md#exclusive-control-with-managed-mcp-json)。
 
 [项目服务器批准和工作区信任](#project-server-approvals-and-workspace-trust)涵盖了提交到存储库的批准如何与工作区信任交互。
 
@@ -807,16 +807,16 @@ claude mcp add --transport http hubspot --scope user https://mcp.hubspot.com/ant
 1. 本地范围
 2. 项目范围
 3. 用户范围
-4. [插件提供的服务器](/docs/zh-CN/plugins/components.md#mcp-servers)
+4. [插件提供的服务器](https://code.claude.com/docs/zh-CN/plugins/components.md#mcp-servers)
 5. [claude.ai 连接器](#use-mcp-servers-from-claude-ai)
 
 Claude Code 按名称匹配三个范围中的重复项。插件和连接器按端点匹配，因此指向与上述服务器相同的 URL 或命令的连接器被视为重复项。
 
 当两个 URL 拼写仅在方案或主机的字母大小写、方案的默认端口（例如 `https` 上的 `:443`）或尾部斜杠方面不同时，它们被视为相同的端点。不同的路径、查询字符串、用户信息或非默认端口会使两个服务器不同。
 
-您的组织通过 [`managedMcpServers`](/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings) 托管设置提供的服务器排名高于所有这些，因此当其中一个重复它时，Claude Code 连接组织的定义。需要 Claude Code v2.1.259 或更高版本。
+您的组织通过 [`managedMcpServers`](https://code.claude.com/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings) 托管设置提供的服务器排名高于所有这些，因此当其中一个重复它时，Claude Code 连接组织的定义。需要 Claude Code v2.1.259 或更高版本。
 
-如果您在[桌面应用的代码选项卡](/docs/zh-CN/desktop.md#mcp-servers-from-the-claude-desktop-chat-app)中打开本地会话，其中 `~/.claude.json`（用户范围）的顶级和 `.mcp.json` 中具有相同的 stdio 服务器名称，代码选项卡使用 `~/.claude.json` 定义。
+如果您在[桌面应用的代码选项卡](https://code.claude.com/docs/zh-CN/desktop.md#mcp-servers-from-the-claude-desktop-chat-app)中打开本地会话，其中 `~/.claude.json`（用户范围）的顶级和 `.mcp.json` 中具有相同的 stdio 服务器名称，代码选项卡使用 `~/.claude.json` 定义。
 
 ### `.mcp.json` 中的环境变量扩展
 
@@ -882,7 +882,7 @@ Claude Code 支持 `.mcp.json` 文件中的环境变量扩展，允许团队共�
 
 `/mcp` 详细视图在 Claude Code v2.1.268 或更高版本中以这种方式显示引用。
 
-对于您的组织通过 `managedMcpServers` 设置提供的服务器，这些界面仅显示[URL 的主机](/docs/zh-CN/managed-mcp.md#what-users-can-see-and-change)。
+对于您的组织通过 `managedMcpServers` 设置提供的服务器，这些界面仅显示[URL 的主机](https://code.claude.com/docs/zh-CN/managed-mcp.md#what-users-can-see-and-change)。
 
 要检查当连接失败时 `claude mcp list`、`claude mcp get` 和 `/mcp` 显示的内容，请参阅[服务器状态详情](#server-status-detail)。
 
@@ -945,11 +945,11 @@ claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
 当服务器响应 `401 Unauthorized` 或 `403 Forbidden` 时，Claude Code 会将远程服务器标记为需要身份验证。Claude Code 显示的内容取决于服务器：
 
 * 对于您尚未登录的服务器，任一状态代码都会在 `/mcp` 中标记它，以便您可以完成 OAuth 流程。
-* 对于 [claude.ai 连接器](#use-mcp-servers-from-claude-ai)，由 claude.ai 拒绝您的会话令牌导致的 `401` 不会标记连接器，因为重新授权连接器无法修复您的登录。Claude Code 改为显示 [会话令牌被拒绝状态](/docs/zh-CN/errors.md#claude-ai-rejected-the-session-token)。
+* 对于 [claude.ai 连接器](#use-mcp-servers-from-claude-ai)，由 claude.ai 拒绝您的会话令牌导致的 `401` 不会标记连接器，因为重新授权连接器无法修复您的登录。Claude Code 改为显示 [会话令牌被拒绝状态](https://code.claude.com/docs/zh-CN/errors.md#claude-ai-rejected-the-session-token)。
 * 对于您在 `headers` 中配置了 `Authorization` 标头的服务器，或通过 [`headersHelper`](#use-dynamic-headers-for-custom-authentication) 配置的服务器，连接时的 `401` 或 `403` 不会标记服务器，因为要修复的凭据是您配置的凭据。Claude Code 改为报告连接失败。如果您从 `${VAR}` 引用设置该标头，请检查该变量是否是 Claude Code [读取为空](#credential-variables-that-read-as-empty) 的变量之一。
 * 对于 [传递到云端会话的连接器](#how-connectors-reach-claude-code)，Claude Code 不运行登录流程，因为会话的代理使用您在 claude.ai 中授予的授权向连接器进行身份验证。当那里的连接器需要再次授权时，请在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 重新连接它，而不是从会话中连接。
 
-当您已登录的 OAuth 服务器以 `401 Unauthorized` 拒绝您存储的令牌时，Claude Code 会刷新令牌、重新连接并重试请求一次。只有在该重试也失败时，它才会在 `/mcp` 中标记服务器。在 macOS 上的 `claude -p` 或 Agent SDK 运行中，Claude Code 在无法读取您存储的令牌时发送的请求会改为以 [存储凭据错误](/docs/zh-CN/errors.md#couldnt-read-the-stored-credentials-for-mcp-server) 失败。
+当您已登录的 OAuth 服务器以 `401 Unauthorized` 拒绝您存储的令牌时，Claude Code 会刷新令牌、重新连接并重试请求一次。只有在该重试也失败时，它才会在 `/mcp` 中标记服务器。在 macOS 上的 `claude -p` 或 Agent SDK 运行中，Claude Code 在无法读取您存储的令牌时发送的请求会改为以 [存储凭据错误](https://code.claude.com/docs/zh-CN/errors.md#couldnt-read-the-stored-credentials-for-mcp-server) 失败。
 
 当服务器拒绝存储的刷新令牌时，Claude Code 会立即显示一条指向 `/mcp` 的通知。打开 `/mcp` 并在服务器上选择 **Re-authenticate** 以在下一个工具调用失败之前再次登录。
 
@@ -965,7 +965,7 @@ claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
 
 **1. 添加需要身份验证的服务器**
 
-如果您已在 [MCP 快速入门](/docs/zh-CN/mcp-quickstart.md#connect-a-server-that-requires-sign-in) 中添加了 `sentry` 服务器，请跳过此步骤：使用相同的服务器名称在相同的作用域内再次运行 `claude mcp add` 会失败，并显示 `MCP server sentry already exists in local config`。否则，运行：
+如果您已在 [MCP 快速入门](https://code.claude.com/docs/zh-CN/mcp-quickstart.md#connect-a-server-that-requires-sign-in) 中添加了 `sentry` 服务器，请跳过此步骤：使用相同的服务器名称在相同的作用域内再次运行 `claude mcp add` 会失败，并显示 `MCP server sentry already exists in local config`。否则，运行：
 
 ```bash theme={null}
 claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
@@ -993,7 +993,7 @@ claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
 
 ### 从命令行进行身份验证
 
-`claude mcp login <name>` 命令直接从您的 shell 运行配置的服务器的 OAuth 流程，因此您不需要在会话内打开 `/mcp` 面板。对于 claude.ai 连接器，请按照 [从 shell 再次授权连接器](/docs/zh-CN/remote-control.md#authorize-a-connector-again-from-your-shell) 操作。
+`claude mcp login <name>` 命令直接从您的 shell 运行配置的服务器的 OAuth 流程，因此您不需要在会话内打开 `/mcp` 面板。对于 claude.ai 连接器，请按照 [从 shell 再次授权连接器](https://code.claude.com/docs/zh-CN/remote-control.md#authorize-a-connector-again-from-your-shell) 操作。
 
 ```bash theme={null}
 claude mcp login sentry
@@ -1136,7 +1136,7 @@ URL 必须使用 `https://`。元数据 URL 的 `scopes_supported` 覆盖上游�
 
 如果授权服务器在 `scopes_supported` 中宣传 `offline_access`，Claude Code 会将其附加到固定作用域，以便可以在没有新浏览器登录的情况下刷新访问令牌。
 
-如果服务器稍后为工具调用返回 403 `insufficient_scope`，调用会失败并显示 [`needs additional permissions`](/docs/zh-CN/errors#mcp-server-needs-you-to-sign-in-again) 消息，该消息命名服务器要求的作用域。该服务器在 `/mcp` 中显示为需要身份验证。
+如果服务器稍后为工具调用返回 403 `insufficient_scope`，调用会失败并显示 [`needs additional permissions`](https://code.claude.com/docs/zh-CN/errors#mcp-server-needs-you-to-sign-in-again) 消息，该消息命名服务器要求的作用域。该服务器在 `/mcp` 中显示为需要身份验证。
 
 如果该作用域不在您的固定 `oauth.scopes` 中，请添加它，然后运行 `/mcp` 并再次对服务器进行身份验证。Claude Code 请求固定作用域而不是服务器命名的作用域，因此如果您在不添加它的情况下再次进行身份验证，您获得的令牌仍然缺少它。
 
@@ -1191,22 +1191,22 @@ Claude Code 在执行助手时设置这些环境变量：
 | :- | :- |
 | `CLAUDE_CODE_MCP_SERVER_NAME` | MCP 服务器的名称 |
 | `CLAUDE_CODE_MCP_SERVER_URL` | MCP 服务器的 URL |
-| `CLAUDE_PLUGIN_ROOT` | 插件的根目录。仅当 [插件](/docs/zh-CN/plugins/components.md#mcp-servers) 提供服务器时设置 |
+| `CLAUDE_PLUGIN_ROOT` | 插件的根目录。仅当 [插件](https://code.claude.com/docs/zh-CN/plugins/components.md#mcp-servers) 提供服务器时设置 |
 
 使用这些来编写为多个 MCP 服务器服务的单个助手脚本。
 
-插件提供的 `headersHelper` 无法引用插件的 [`${user_config.*}`](/docs/zh-CN/plugins/manifest-reference#user-configuration) 值，因为该命令通过 shell 运行。Claude Code 报告服务器配置错误并显示 [错误](/docs/zh-CN/errors.md#plugin-command-references-user-config)，不替换该值。将 `${user_config.KEY}` 放在服务器的 `headers` 字段中，该字段不是 shell 解析的，或让助手脚本从配置文件读取该值。在 v2.1.207 之前，`headersHelper` 替换了 `${user_config.*}` 值。
+插件提供的 `headersHelper` 无法引用插件的 [`${user_config.*}`](https://code.claude.com/docs/zh-CN/plugins/manifest-reference#user-configuration) 值，因为该命令通过 shell 运行。Claude Code 报告服务器配置错误并显示 [错误](https://code.claude.com/docs/zh-CN/errors.md#plugin-command-references-user-config)，不替换该值。将 `${user_config.KEY}` 放在服务器的 `headers` 字段中，该字段不是 shell 解析的，或让助手脚本从配置文件读取该值。在 v2.1.207 之前，`headersHelper` 替换了 `${user_config.*}` 值。
 
 #### 助手运行的位置
 
-Claude Code 从声明服务器的配置中选择 `headersHelper` 命令的工作目录。Claude 在 Bash 中运行的 `cd` 不会移动它，[`/cd`](/docs/zh-CN/permissions#move-the-session-to-another-directory) 仅对从会话主工作目录运行的服务器移动它。下面的每一行给出您的 `headersHelper` 命令中相对路径解析所依据的目录。
+Claude Code 从声明服务器的配置中选择 `headersHelper` 命令的工作目录。Claude 在 Bash 中运行的 `cd` 不会移动它，[`/cd`](https://code.claude.com/docs/zh-CN/permissions#move-the-session-to-another-directory) 仅对从会话主工作目录运行的服务器移动它。下面的每一行给出您的 `headersHelper` 命令中相对路径解析所依据的目录。
 
 | 您配置服务器的位置 | 工作目录 |
 | :- | :- |
-| [插件](/docs/zh-CN/plugins/components.md#mcp-servers) | 插件的根目录 |
+| [插件](https://code.claude.com/docs/zh-CN/plugins/components.md#mcp-servers) | 插件的根目录 |
 | 项目 `.mcp.json` 或 [本地作用域](#local-scope) 服务器 | 声明服务器的项目目录 |
-| 您项目中的 Agent 文件、来自 SDK 的 `mcpServers` 选项或 `setMcpServers()` 方法的服务器，或 [`--mcp-config`](/docs/zh-CN/cli-reference) | 会话的 [主工作目录](/docs/zh-CN/permissions.md#working-directories) |
-| [用户作用域](#user-scope)、[托管 MCP](/docs/zh-CN/managed-mcp.md)、[claude.ai 连接器](#use-mcp-servers-from-claude-ai)，或来自您项目外的 Agent 文件，包括来自 `--add-dir` 目录的 Agent 文件 | 您的配置目录，除非您设置了 [`CLAUDE_CONFIG_DIR`](/docs/zh-CN/env-vars)，否则为 `~/.claude` |
+| 您项目中的 Agent 文件、来自 SDK 的 `mcpServers` 选项或 `setMcpServers()` 方法的服务器，或 [`--mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference) | 会话的 [主工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories) |
+| [用户作用域](#user-scope)、[托管 MCP](https://code.claude.com/docs/zh-CN/managed-mcp.md)、[claude.ai 连接器](#use-mcp-servers-from-claude-ai)，或来自您项目外的 Agent 文件，包括来自 `--add-dir` 目录的 Agent 文件 | 您的配置目录，除非您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，否则为 `~/.claude` |
 
 在 v2.1.238 之前，Claude Code 也从您启动它的目录运行用户作用域、托管和 claude.ai 连接器服务器的助手，以及来自您项目外的 Agent 文件的助手。
 
@@ -1215,7 +1215,7 @@ Claude Code 从声明服务器的配置中选择 `headersHelper` 命令的工作
 仓库或插件提供的 `headersHelper` 是您没有编写的命令，因此 Claude Code 运行它时不使用来自您环境的凭据变量，例如 `ANTHROPIC_API_KEY`。您配置服务器的位置决定这是否适用：
 
 * **已删除**：项目 `.mcp.json` 中的服务器或插件中的服务器，以及来自您项目或 `--add-dir` 目录的 Agent 文件中的内联服务器
-* **未删除**：[用户](#user-scope) 或 [本地作用域](#local-scope) 的服务器、[托管 MCP](/docs/zh-CN/managed-mcp.md) 中的服务器、来自 [claude.ai 连接器](#use-mcp-servers-from-claude-ai) 的服务器、由 SDK 或 [`--mcp-config`](/docs/zh-CN/cli-reference) 提供的服务器，以及来自 `~/.claude/agents/`、来自托管设置或使用 `--agents` 传递的 Agent 文件中的内联服务器
+* **未删除**：[用户](#user-scope) 或 [本地作用域](#local-scope) 的服务器、[托管 MCP](https://code.claude.com/docs/zh-CN/managed-mcp.md) 中的服务器、来自 [claude.ai 连接器](#use-mcp-servers-from-claude-ai) 的服务器、由 SDK 或 [`--mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference) 提供的服务器，以及来自 `~/.claude/agents/`、来自托管设置或使用 `--agents` 传递的 Agent 文件中的内联服务器
 
 除了 Git 的 `GIT_CONFIG_KEY_<n>` 变量外，Claude Code 会从您的环境中删除每个名称看起来像凭据的变量，例如名称中包含 `TOKEN`、`SECRET`、`PASSWORD`、`KEY` 或 `AUTH` 的名称（无论大小写），因此 `ANTHROPIC_API_KEY` 和 `MY_REGISTRY_TOKEN` 都被删除。Claude Code 也会删除一个固定的凭据变量列表，其名称不遵循该模式，例如 `ANTHROPIC_CUSTOM_HEADERS`。
 
@@ -1223,20 +1223,20 @@ Claude Code 从声明服务器的配置中选择 `headersHelper` 命令的工作
 
 #### 在其 headersHelper 运行之前信任文件夹
 
-Claude Code 将 `headersHelper` 作为任意 shell 命令执行。对于项目 `.mcp.json` 中的服务器或 [本地作用域](#local-scope) 的服务器，它仅在您接受声明服务器的项目目录的 [信任对话](/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust) 后运行助手。在 v2.1.238 之前，`claude -p` 或 SDK 会话运行这些助手而不检查信任，交互式会话在您信任父文件夹后运行它们。
+Claude Code 将 `headersHelper` 作为任意 shell 命令执行。对于项目 `.mcp.json` 中的服务器或 [本地作用域](#local-scope) 的服务器，它仅在您接受声明服务器的项目目录的 [信任对话](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust) 后运行助手。在 v2.1.238 之前，`claude -p` 或 SDK 会话运行这些助手而不检查信任，交互式会话在您信任父文件夹后运行它们。
 
-* **不计算的信任**：父文件夹的信任，以及 `claude -p` 或 SDK 会话为 [设置文件中的 hook](/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 获得的自动信任
-* **直到您信任文件夹**：Claude Code 仅使用其静态 `headers` 连接服务器。在 `claude -p` 或 SDK 会话中，它也会向 stderr 打印每个服务器一行 [`headersHelper not run`](/docs/zh-CN/errors#headershelper-not-run)，告诉您如何授予信任。
-* **无对话的信任**：在 `~/.claude.json` 中将 `projects["<path>"].hasTrustDialogAccepted` 设置为 `true`。`<path>` 是 [项目允许规则和工作区信任](/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust) 中所述 Claude Code 用作信任键的文件夹。
+* **不计算的信任**：父文件夹的信任，以及 `claude -p` 或 SDK 会话为 [设置文件中的 hook](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 获得的自动信任
+* **直到您信任文件夹**：Claude Code 仅使用其静态 `headers` 连接服务器。在 `claude -p` 或 SDK 会话中，它也会向 stderr 打印每个服务器一行 [`headersHelper not run`](https://code.claude.com/docs/zh-CN/errors#headershelper-not-run)，告诉您如何授予信任。
+* **无对话的信任**：在 `~/.claude.json` 中将 `projects["<path>"].hasTrustDialogAccepted` 设置为 `true`。`<path>` 是 [项目允许规则和工作区信任](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust) 中所述 Claude Code 用作信任键的文件夹。
 
-对于在 [Agent 文件](/docs/zh-CN/sub-agents.md#scope-mcp-servers-to-a-subagent) 中内联声明的服务器，Claude Code 应用相同的规则，并检查该 Agent 文件的来源：您的项目（对于其 `.claude/agents/` 目录中的文件），或 `--add-dir` 目录。直到您 [信任该项目或目录本身](/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)，Claude Code 都不会加载该服务器，因此其助手也永远不会运行。
+对于在 [Agent 文件](https://code.claude.com/docs/zh-CN/sub-agents.md#scope-mcp-servers-to-a-subagent) 中内联声明的服务器，Claude Code 应用相同的规则，并检查该 Agent 文件的来源：您的项目（对于其 `.claude/agents/` 目录中的文件），或 `--add-dir` 目录。直到您 [信任该项目或目录本身](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)，Claude Code 都不会加载该服务器，因此其助手也永远不会运行。
 
 ### 登录位于需要标头的网关后面的 MCP 服务器
 
 当网关要求某个标头（例如 `X-API-Key`）而 Claude Code 未发送该标头时，对 MCP 服务器的 OAuth 登录会失败。要让 Claude Code 发送该标头，请将其添加到服务器的配置中，并使用 Claude Code v2.1.299 或更高版本：
 
 * **您可以编辑其[配置](#mcp-installation-scopes)的服务器**：在 [`headers`](#example-with-variable-expansion) 中设置它，或从 [`headersHelper`](#use-dynamic-headers-for-custom-authentication) 返回它
-* **由[托管 MCP](/docs/zh-CN/managed-mcp.md) 或[插件](#plugin-provided-mcp-servers)提供的服务器**：请您的管理员或插件作者将该标头添加到服务器的条目中
+* **由[托管 MCP](https://code.claude.com/docs/zh-CN/managed-mcp.md) 或[插件](#plugin-provided-mcp-servers)提供的服务器**：请您的管理员或插件作者将该标头添加到服务器的条目中
 
 随后，Claude Code 会将除 `Authorization` 之外的已配置标头添加到它发送到服务器源的登录、令牌刷新和令牌撤销请求中。服务器的源是其 `url` 中的协议、主机和端口。要求该标头的网关仍可能在授权页面或位于其他源的授权服务器处阻止登录：
 
@@ -1332,24 +1332,24 @@ claude mcp list
 
 来自 claude.ai 的服务器会出现在列表中，并带有指示符显示它们来自 claude.ai。
 
-Anthropic 本身也提供一些 connectors，无需您或管理员添加。在 [Claude Docs](/docs/zh-CN/artifacts.md#write-a-document-with-claude-docs) 可用的账户上，`/mcp` 列出 `claude.ai Claude Docs`，无需设置，当您要求创建供他人使用的文档时，Claude 会使用它。要关闭它，请将 `"claude.ai Claude Docs"` 的 `serverName` 条目添加到 `deniedMcpServers`，或使用 `/mcp` 切换，两者都在 [禁用 claude.ai connectors](#disable-claude-ai-connectors) 中描述。
+Anthropic 本身也提供一些 connectors，无需您或管理员添加。在 [Claude Docs](https://code.claude.com/docs/zh-CN/artifacts.md#write-a-document-with-claude-docs) 可用的账户上，`/mcp` 列出 `claude.ai Claude Docs`，无需设置，当您要求创建供他人使用的文档时，Claude 会使用它。要关闭它，请将 `"claude.ai Claude Docs"` 的 `serverName` 条目添加到 `deniedMcpServers`，或使用 `/mcp` 切换，两者都在 [禁用 claude.ai connectors](#disable-claude-ai-connectors) 中描述。
 
-当您的组织在 claude.ai 中管理其身份验证时，Claude Code 在 `/mcp` 和 [`/plugin`](/docs/zh-CN/plugins/install) 管理器中将 connector 标记为 `managed`。Managed 状态不会改变 Claude Code 连接到 connector 的方式或应用您组织的 [工具控制](#organization-controls-on-connector-tools)。
+当您的组织在 claude.ai 中管理其身份验证时，Claude Code 在 `/mcp` 和 [`/plugin`](https://code.claude.com/docs/zh-CN/plugins/install) 管理器中将 connector 标记为 `managed`。Managed 状态不会改变 Claude Code 连接到 connector 的方式或应用您组织的 [工具控制](#organization-controls-on-connector-tools)。
 
 您从未登录过的 Connectors 会折叠在 claude.ai 部分末尾的 `Show unused connectors` 行后面，因此组织预配的列表不会填满面板。选择该行以展开它们。您之前登录过的 connector 即使当前需要重新身份验证，也会保持可见。
 
-Connectors 来自 claude.ai 仅在您的活跃 [身份验证方法](/docs/zh-CN/authentication.md#authentication-precedence) 是 claude.ai 订阅登录时才会获取。即使您之前运行过 `/login`，在以下情况下也不会加载：
+Connectors 来自 claude.ai 仅在您的活跃 [身份验证方法](https://code.claude.com/docs/zh-CN/authentication.md#authentication-precedence) 是 claude.ai 订阅登录时才会获取。即使您之前运行过 `/login`，在以下情况下也不会加载：
 
 * `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 处于活跃状态
 * 第三方提供商（如 Amazon Bedrock 或 Google Cloud 的 Agent Platform）处于活跃状态
-* `ANTHROPIC_PROFILE`、联合变量或活跃的 [Anthropic 配置文件](/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials) 提供凭据
-* `CLAUDE_CODE_OAUTH_TOKEN` 持有来自 [`claude setup-token`](/docs/zh-CN/authentication#generate-a-long-lived-token) 的令牌，该令牌只能进行模型请求
+* `ANTHROPIC_PROFILE`、联合变量或活跃的 [Anthropic 配置文件](https://code.claude.com/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials) 提供凭据
+* `CLAUDE_CODE_OAUTH_TOKEN` 持有来自 [`claude setup-token`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 的令牌，该令牌只能进行模型请求
 
-如果 `/mcp` 没有列出您添加的 connector，请运行 `/status` 以确认哪个身份验证方法处于活跃状态。取消设置该环境变量，删除 `apiKeyHelper` 设置，或 [关闭配置文件](/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials)，然后运行 `/login` 以选择您的 claude.ai 账户。
+如果 `/mcp` 没有列出您添加的 connector，请运行 `/status` 以确认哪个身份验证方法处于活跃状态。取消设置该环境变量，删除 `apiKeyHelper` 设置，或 [关闭配置文件](https://code.claude.com/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials)，然后运行 `/login` 以选择您的 claude.ai 账户。
 
 如果临时网络问题导致您的会话启动时 connector 列表无法加载，Claude Code 会在后台重试最多三次，一旦重试成功，connectors 就会出现。如果它们仍未出现，请重启 Claude Code 以再次获取列表。
 
-如果 `/mcp` 显示 connector 为 `session token rejected`，或其详细视图显示 [`claude.ai rejected the session token`](/docs/zh-CN/errors#claude-ai-rejected-the-session-token)，则 claude.ai 拒绝了您的 Claude Code 登录中的令牌。再次授权 connector 不会清除此状态，因为被拒绝的不是 connector 在 claude.ai 中的自身授权。要清除它：
+如果 `/mcp` 显示 connector 为 `session token rejected`，或其详细视图显示 [`claude.ai rejected the session token`](https://code.claude.com/docs/zh-CN/errors#claude-ai-rejected-the-session-token)，则 claude.ai 拒绝了您的 Claude Code 登录中的令牌。再次授权 connector 不会清除此状态，因为被拒绝的不是 connector 在 claude.ai 中的自身授权。要清除它：
 
 1. 运行 `/login` 以重新登录。
 2. 从 `/mcp` 重新连接 connector。
@@ -1358,37 +1358,37 @@ Connectors 来自 claude.ai 仅在您的活跃 [身份验证方法](/docs/zh-CN/
 
 您在 Claude Code 中添加的服务器[优先于](#scope-hierarchy-and-precedence)指向相同 URL 的 claude.ai connector。发生这种情况时，`/mcp` 将 connector 列为隐藏，并显示如何删除重复项（如果您更希望使用 connector）。
 
-某些 Anthropic 托管的 connectors（如 Microsoft 365、Gmail 和 Google Calendar）不支持来自 Claude Code 的本地 OAuth，因为上游身份提供商仅接受 claude.ai 注册的重定向 URL。当您使用 `claude mcp add` 或在 `.mcp.json` 中添加的服务器指向这些主机之一，并且您从 `/mcp` 或使用 `claude mcp login` 登录时，Claude Code 会显示 [`is Anthropic-hosted and doesn't support local OAuth`](/docs/zh-CN/errors#anthropic-hosted-and-doesnt-support-local-oauth)，指导您改为在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 连接该服务。
+某些 Anthropic 托管的 connectors（如 Microsoft 365、Gmail 和 Google Calendar）不支持来自 Claude Code 的本地 OAuth，因为上游身份提供商仅接受 claude.ai 注册的重定向 URL。当您使用 `claude mcp add` 或在 `.mcp.json` 中添加的服务器指向这些主机之一，并且您从 `/mcp` 或使用 `claude mcp login` 登录时，Claude Code 会显示 [`is Anthropic-hosted and doesn't support local OAuth`](https://code.claude.com/docs/zh-CN/errors#anthropic-hosted-and-doesnt-support-local-oauth)，指导您改为在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 连接该服务。
 
 在您使用 `claude mcp remove <name>` 删除您的条目并在 claude.ai 上连接该服务后，connector 会自动出现在 Claude Code 中。
 
 ### Connectors 如何到达 Claude Code
 
-哪些设置管理 claude.ai 连接器取决于您的会话在哪里运行，因为只有某些会话从 claude.ai 本身获取连接器。下表中的每一行命名连接器在一种会话中的到达方式以及在那里控制它们的内容。桌面应用的 WSL 会话没有对应的行，因为连接器[仍在逐步向其推出](/docs/zh-CN/desktop-wsl.md#check-for-the-terminal-and-connectors)。
+哪些设置管理 claude.ai 连接器取决于您的会话在哪里运行，因为只有某些会话从 claude.ai 本身获取连接器。下表中的每一行命名连接器在一种会话中的到达方式以及在那里控制它们的内容。桌面应用的 WSL 会话没有对应的行，因为连接器[仍在逐步向其推出](https://code.claude.com/docs/zh-CN/desktop-wsl.md#check-for-the-terminal-and-connectors)。
 
 | 会话运行的位置 | Connectors 如何到达 | 什么管理它们 |
 | :- | :- | :- |
-| 终端、[VS Code](/docs/zh-CN/vs-code.md)、[JetBrains](/docs/zh-CN/jetbrains.md) 和 [Agent SDK](/docs/zh-CN/agent-sdk/claude-code-features.md) 会话 | Claude Code 从 claude.ai 获取它们 | 本部分中的设置和 [managed MCP 配置](/docs/zh-CN/managed-mcp.md) |
-| [云端会话](/docs/zh-CN/claude-code-on-the-web.md) | 云主机传入它们 | 您的 claude.ai 组织设置，加上到达会话的 [允许列表和拒绝列表](/docs/zh-CN/managed-mcp.md#policy-based-control-with-allowlists-and-denylists) 设置以及运行它的主机上的任何 `managed-mcp.json` |
-| [桌面应用](/docs/zh-CN/desktop.md) 的本地和 SSH 会话 | 桌面应用在进程中传入它们 | 您组织的 [connector 工具控制](#organization-controls-on-connector-tools) 中的 `blocked` 条目 |
+| 终端、[VS Code](https://code.claude.com/docs/zh-CN/vs-code.md)、[JetBrains](https://code.claude.com/docs/zh-CN/jetbrains.md) 和 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features.md) 会话 | Claude Code 从 claude.ai 获取它们 | 本部分中的设置和 [managed MCP 配置](https://code.claude.com/docs/zh-CN/managed-mcp.md) |
+| [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) | 云主机传入它们 | 您的 claude.ai 组织设置，加上到达会话的 [允许列表和拒绝列表](https://code.claude.com/docs/zh-CN/managed-mcp.md#policy-based-control-with-allowlists-and-denylists) 设置以及运行它的主机上的任何 `managed-mcp.json` |
+| [桌面应用](https://code.claude.com/docs/zh-CN/desktop.md) 的本地和 SSH 会话 | 桌面应用在进程中传入它们 | 您组织的 [connector 工具控制](#organization-controls-on-connector-tools) 中的 `blocked` 条目 |
 
-[`disableClaudeAiConnectors`](#disable-claude-ai-connectors)、`ENABLE_CLAUDEAI_MCP_SERVERS` 和 [`allowAllClaudeAiMcps`](/docs/zh-CN/settings-reference#allowallclaudeaimcps) 仅作用于第一行，即 Claude Code 自身获取的 connectors。其他两行在这些方面与它不同：
+[`disableClaudeAiConnectors`](#disable-claude-ai-connectors)、`ENABLE_CLAUDEAI_MCP_SERVERS` 和 [`allowAllClaudeAiMcps`](https://code.claude.com/docs/zh-CN/settings-reference#allowallclaudeaimcps) 仅作用于第一行，即 Claude Code 自身获取的 connectors。其他两行在这些方面与它不同：
 
-* **云端会话**：到达会话的 `allowedMcpServers` 和 `deniedMcpServers` 条目（例如通过 [server-managed 设置](/docs/zh-CN/server-managed-settings.md)）也会过滤传入的 connectors。会话的代理重写每个 connector 的 URL，因此为 connector 自身 URL 编写的 `serverUrl` 模式不会匹配它。要在自托管环境中的 URL 允许列表旁边允许传入的 connectors，请添加 [Connector 流量离开您的网络](/docs/zh-CN/self-hosted-environments-deploy.md#connector-traffic-leaves-your-network) 下列出的 `serverUrl` 条目。当运行会话的主机上存在 `managed-mcp.json` 时（例如 [self-hosted runner 主机](/docs/zh-CN/self-hosted-environments-configuration.md#mcp-servers)），Claude Code 会删除传入的 connectors，无论您是否设置 `allowAllClaudeAiMcps`。
-* **桌面应用本地和 SSH 会话**：桌面应用将 connectors 注册为进程内 `type: "sdk"` 服务器，没有 MCP 设置或 `managed-mcp.json` 到达它们。用户通过在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 断开连接来将 connector 排除在自己的会话之外。组织阻止 connector 的 [工具](#organization-controls-on-connector-tools) 或完全关闭 [桌面应用中的 Claude Code](/docs/zh-CN/desktop.md#admin-console-controls)。
+* **云端会话**：到达会话的 `allowedMcpServers` 和 `deniedMcpServers` 条目（例如通过 [server-managed 设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)）也会过滤传入的 connectors。会话的代理重写每个 connector 的 URL，因此为 connector 自身 URL 编写的 `serverUrl` 模式不会匹配它。要在自托管环境中的 URL 允许列表旁边允许传入的 connectors，请添加 [Connector 流量离开您的网络](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#connector-traffic-leaves-your-network) 下列出的 `serverUrl` 条目。当运行会话的主机上存在 `managed-mcp.json` 时（例如 [self-hosted runner 主机](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#mcp-servers)），Claude Code 会删除传入的 connectors，无论您是否设置 `allowAllClaudeAiMcps`。
+* **桌面应用本地和 SSH 会话**：桌面应用将 connectors 注册为进程内 `type: "sdk"` 服务器，没有 MCP 设置或 `managed-mcp.json` 到达它们。用户通过在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 断开连接来将 connector 排除在自己的会话之外。组织阻止 connector 的 [工具](#organization-controls-on-connector-tools) 或完全关闭 [桌面应用中的 Claude Code](https://code.claude.com/docs/zh-CN/desktop.md#admin-console-controls)。
 
 ### 组织对 connector 工具的控制
 
-您的组织可以在 [claude.ai connectors](https://claude.com/docs/connectors) 上设置每个工具的控制。Claude Code 在启动时读取这些设置并在本地强制执行它们，除了桌面应用的 [本地和 SSH 会话](#how-connectors-reach-claude-code)。在那里，桌面应用在传入 connector 之前扣留 `blocked` 工具，`ask` 设置不会到达 Claude Code，因此它将会话的普通 [权限规则](/docs/zh-CN/permissions.md) 应用于这些工具，而不是在每次调用时提示。在 Claude Code 自身获取 connectors 的会话中，运行 `/mcp` 以查看哪个设置适用于 connector 上的每个工具。
+您的组织可以在 [claude.ai connectors](https://claude.com/docs/connectors) 上设置每个工具的控制。Claude Code 在启动时读取这些设置并在本地强制执行它们，除了桌面应用的 [本地和 SSH 会话](#how-connectors-reach-claude-code)。在那里，桌面应用在传入 connector 之前扣留 `blocked` 工具，`ask` 设置不会到达 Claude Code，因此它将会话的普通 [权限规则](https://code.claude.com/docs/zh-CN/permissions.md) 应用于这些工具，而不是在每次调用时提示。在 Claude Code 自身获取 connectors 的会话中，运行 `/mcp` 以查看哪个设置适用于 connector 上的每个工具。
 
-* **工具设置为 `ask`**：Claude Code 在每次调用时提示，原因是 `Your organization requires approval for this tool`。即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](/docs/zh-CN/permissions.md#permission-modes)中，提示也会出现。在终端中，该提示不提供记住您选择的选项。匹配该工具的 [Allow 规则](/docs/zh-CN/permissions.md)也不会跳过提示。在 `dontAsk` 模式中（从不提示），Claude Code 会改为拒绝调用。
+* **工具设置为 `ask`**：Claude Code 在每次调用时提示，原因是 `Your organization requires approval for this tool`。即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](https://code.claude.com/docs/zh-CN/permissions.md#permission-modes)中，提示也会出现。在终端中，该提示不提供记住您选择的选项。匹配该工具的 [Allow 规则](https://code.claude.com/docs/zh-CN/permissions.md)也不会跳过提示。在 `dontAsk` 模式中（从不提示），Claude Code 会改为拒绝调用。
 * **工具设置为 `blocked`**：Claude Code 在 Claude 看到它之前过滤掉该工具，因此它从不出现在 Claude 的工具列表中。在 Claude Code 自身获取 connectors 的会话中，`/mcp` 工具列表仍然显示该工具，标记为 `disabled by your organization`。
 
 桌面应用和 claude.ai 聊天应用相同的 `blocked` 设置，因此 Claude 也无法在那里使用被阻止的工具，您无法从桌面应用的会话中扣留工具，同时在聊天中保持其可用。桌面应用跳过其所有工具都被阻止的 connector。
 
 ### 禁用 claude.ai connectors
 
-Claude Code 仅将 [`disableClaudeAiConnectors`](/docs/zh-CN/settings-reference#disableclaudeaiconnectors) 应用于它 [自身获取](#how-connectors-reach-claude-code) 的 connectors，而不是云主机或桌面应用传入的 connectors。要关闭它获取的 connectors，请在任何设置作用域中将该设置项设置为 `true`：
+Claude Code 仅将 [`disableClaudeAiConnectors`](https://code.claude.com/docs/zh-CN/settings-reference#disableclaudeaiconnectors) 应用于它 [自身获取](#how-connectors-reach-claude-code) 的 connectors，而不是云主机或桌面应用传入的 connectors。要关闭它获取的 connectors，请在任何设置作用域中将该设置项设置为 `true`：
 
 ```json theme={null}
 {
@@ -1404,7 +1404,7 @@ Claude Code 仅将 [`disableClaudeAiConnectors`](/docs/zh-CN/settings-reference#
 ENABLE_CLAUDEAI_MCP_SERVERS=false claude
 ```
 
-要阻止单个 claude.ai connectors 而不是全部，请按名称或 URL 模式将它们添加到 [`deniedMcpServers`](/docs/zh-CN/managed-mcp) 中。例如，`"claude.ai Slack"` 的 `serverName` 条目会阻止 Slack connector。您也可以运行 `/mcp` 以仅为当前项目切换 Claude Code 获取的任何 connector。
+要阻止单个 claude.ai connectors 而不是全部，请按名称或 URL 模式将它们添加到 [`deniedMcpServers`](https://code.claude.com/docs/zh-CN/managed-mcp) 中。例如，`"claude.ai Slack"` 的 `serverName` 条目会阻止 Slack connector。您也可以运行 `/mcp` 以仅为当前项目切换 Claude Code 获取的任何 connector。
 
 ## 将 Claude Code 用作 MCP 服务器
 
@@ -1468,13 +1468,13 @@ claude mcp serve
 
 ### 作为 MCP 客户端读取后台命令的输出
 
-当 `claude mcp serve` 返回的 Bash 或 PowerShell 结果中包含 `backgroundOutputPath` 字段时，表示该调用使其命令[在后台](/docs/zh-CN/tools-reference.md#background-commands)继续运行。当您的客户端在调用中设置 `run_in_background: true` 时，命令会在后台运行。前台命令在达到超时时也可能[转入后台](/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background)。
+当 `claude mcp serve` 返回的 Bash 或 PowerShell 结果中包含 `backgroundOutputPath` 字段时，表示该调用使其命令[在后台](https://code.claude.com/docs/zh-CN/tools-reference.md#background-commands)继续运行。当您的客户端在调用中设置 `run_in_background: true` 时，命令会在后台运行。前台命令在达到超时时也可能[转入后台](https://code.claude.com/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background)。
 
 该字段位于结果的 JSON 文本中，保存命令输出文件的路径。
 
-* **读取截至目前的输出**：从您的客户端打开该路径下的文件，或将该路径作为 `file_path` 传递给服务器的 [`Read`](/docs/zh-CN/tools-reference#read-tool-behavior) 工具
+* **读取截至目前的输出**：从您的客户端打开该路径下的文件，或将该路径作为 `file_path` 传递给服务器的 [`Read`](https://code.claude.com/docs/zh-CN/tools-reference#read-tool-behavior) 工具
 * **判断命令何时完成**：在 `command` 值末尾附加一个输出固定字符串的 `echo`，例如 `npm test; echo DONE`。一旦该字符串出现在文件中，即表示命令已完成。如果没有该字符串，则没有任何内容标记结束，因为 Claude Code 不会向文件添加结束行，也不会通知您的客户端。
-* **读取长输出的末尾部分**：仅传入 `file_path` 的 `Read` 会返回[第一页](/docs/zh-CN/tools-reference.md#large-files)，或在文件超出大小限制时失败。请同时传入 `offset` 和 `limit`，这种方式适用于任何文件大小：
+* **读取长输出的末尾部分**：仅传入 `file_path` 的 `Read` 会返回[第一页](https://code.claude.com/docs/zh-CN/tools-reference.md#large-files)，或在文件超出大小限制时失败。请同时传入 `offset` 和 `limit`，这种方式适用于任何文件大小：
   1. 调用 `Read`，将 `offset` 和 `limit` 都设置为 `1`，并从结果中获取 `totalLines`
   2. 再次调用 `Read`，将 `offset` 设置为 `totalLines` 减九，将 `limit` 设置为 `10`
   3. 在第二次调用返回的最后十行中查找您的 `echo` 字符串
@@ -1489,7 +1489,7 @@ claude mcp serve
 * **可配置限制**：您可以使用 `MAX_MCP_OUTPUT_TOKENS` 环境变量调整允许的最大 MCP 输出 token 数
 * **默认限制**：默认最大值为 25,000 个 token
 * **范围**：环境变量适用于未声明自己限制的工具。设置了 [`anthropic/maxResultSizeChars`](#raise-the-limit-for-a-specific-tool) 的工具会对文本内容使用该值，而不管 `MAX_MCP_OUTPUT_TOKENS` 设置为什么。返回图像数据的工具仍然受 `MAX_MCP_OUTPUT_TOKENS` 限制
-* **超过限制**：当没有图像内容的成功结果超过 token 限制时，Claude Code 会将其保存到文件中，并在对话中用一条消息替换它，该消息指定文件路径，以便 Claude 在需要内容时读取该文件。该文件位于会话的 `tool-results` 目录中，在 [`~/.claude/projects/`](/docs/zh-CN/claude-directory#cleaned-up-automatically) 下。
+* **超过限制**：当没有图像内容的成功结果超过 token 限制时，Claude Code 会将其保存到文件中，并在对话中用一条消息替换它，该消息指定文件路径，以便 Claude 在需要内容时读取该文件。该文件位于会话的 `tool-results` 目录中，在 [`~/.claude/projects/`](https://code.claude.com/docs/zh-CN/claude-directory#cleaned-up-automatically) 下。
 * **来自 HTTP 和 SSE 服务器的响应大小**：当来自 [HTTP](#option-1-add-a-remote-http-server) 或 [SSE](#option-2-add-a-remote-sse-server) 服务器的响应超过 16 MiB 时，Claude Code 会停止读取该响应，并且请求会失败。该限制在解压后适用于单个 JSON 响应体或事件流中的单个事件。如果您负责维护该服务器，请减少每个响应返回的数据量以保持在限制之内，例如对结果进行分页
 * **来自 WebSocket 服务器的消息大小**：当 [WebSocket](#option-4-add-a-remote-websocket-server) 服务器发送的单条消息超过 16 MiB 时，Claude Code 会[关闭连接](#mid-session-drops-of-a-remote-server)，该服务器上正在进行的调用都会失败。如果您负责维护该服务器，请减少每条消息返回的数据量以保持在限制之内
 
@@ -1525,9 +1525,9 @@ claude
 
 ### 工具结果中的图像
 
-当 MCP 工具返回 PNG、JPEG、GIF 或 WebP 图像时，Claude 会在对话中内联看到该图像。内联副本可能会缩小或压缩以适应模型的图像大小限制。Claude Code 还会将原始字节保存到会话的 `tool-results` 目录中的文件中，该目录位于 [`~/.claude/projects/`](/docs/zh-CN/claude-directory#cleaned-up-automatically) 下，并向 Claude 提供路径。Claude 随后可以使用 Bash 等工具裁剪、转换或重新使用完整分辨率的文件。
+当 MCP 工具返回 PNG、JPEG、GIF 或 WebP 图像时，Claude 会在对话中内联看到该图像。内联副本可能会缩小或压缩以适应模型的图像大小限制。Claude Code 还会将原始字节保存到会话的 `tool-results` 目录中的文件中，该目录位于 [`~/.claude/projects/`](https://code.claude.com/docs/zh-CN/claude-directory#cleaned-up-automatically) 下，并向 Claude 提供路径。Claude 随后可以使用 Bash 等工具裁剪、转换或重新使用完整分辨率的文件。
 
-如果您使用 [`--no-session-persistence`](/docs/zh-CN/cli-reference#cli-flags) 或 [`CLAUDE_CODE_SKIP_PROMPT_HISTORY`](/docs/zh-CN/env-vars) 禁用会话持久化，Claude Code 将不会写入图像文件，Claude 仅接收内联副本。
+如果您使用 [`--no-session-persistence`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 [`CLAUDE_CODE_SKIP_PROMPT_HISTORY`](https://code.claude.com/docs/zh-CN/env-vars) 禁用会话持久化，Claude Code 将不会写入图像文件，Claude 仅接收内联副本。
 
 将 MCP 图像结果保存到文件需要 Claude Code v2.1.283 或更高版本。
 
@@ -1553,7 +1553,7 @@ Claude API 检查请求中每个工具的输入架构，当任何一个架构失
 
 当 Claude Code 排除一个工具时，它会在服务器的日志中记录原因，并告诉 Claude 它排除了哪些工具以及原因，这样你可以询问 Claude 为什么工具缺失。如果你修复了服务器上的架构，下次 Claude Code 加载服务器的工具时该工具就会回来。
 
-Claude Code 通过从 Anthropic 获取的功能标志打开排除。在 [禁用标志获取的部署](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching) 上，或在标志从未到达的机器上（例如隔离的机器），Claude Code 仍然运行检查并在服务器的日志中记录哪个工具会被拒绝，但仍然将工具的架构发送到 API。API 拒绝包含该架构的请求，并 [以 400 错误按其位置命名工具](/docs/zh-CN/errors.md#tool-input-schema-is-invalid)。在 v2.1.216 之前，没有部署运行这些检查。
+Claude Code 通过从 Anthropic 获取的功能标志打开排除。在 [禁用标志获取的部署](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching) 上，或在标志从未到达的机器上（例如隔离的机器），Claude Code 仍然运行检查并在服务器的日志中记录哪个工具会被拒绝，但仍然将工具的架构发送到 API。API 拒绝包含该架构的请求，并 [以 400 错误按其位置命名工具](https://code.claude.com/docs/zh-CN/errors.md#tool-input-schema-is-invalid)。在 v2.1.216 之前，没有部署运行这些检查。
 
 [根级组合器处理](#tool-input-schemas-with-a-root-level-combinator) 是独立的，当标志获取关闭或标志从未到达时保持其自己的行为。
 
@@ -1561,15 +1561,15 @@ Claude Code 通过从 Anthropic 获取的功能标志打开排除。在 [禁用�
 
 如果 `/mcp` 列出了某个 Claude 无法调用的工具，请检查该工具的完整名称是否超过 128 个字符。在会话中运行 `/mcp` 并选择该工具，即可查看其完整名称，例如 `mcp__<server>__<tool>`。当 MCP 工具的完整名称超过 128 个字符时，Claude Code 会将其从发送给 Claude 的工具中排除。Claude API 会拒绝包含此类工具的请求，因此排除该工具可以确保服务器的其他工具正常工作。
 
-有关指明该工具的消息以及缩短其完整名称的方法，请参阅 [MCP tool name over 128 characters](/docs/zh-CN/errors.md#mcp-tool-name-over-128-characters)。
+有关指明该工具的消息以及缩短其完整名称的方法，请参阅 [MCP tool name over 128 characters](https://code.claude.com/docs/zh-CN/errors.md#mcp-tool-name-over-128-characters)。
 
 ## 要求对特定工具进行批准
 
 如果您正在构建 MCP 服务器，可以通过在工具的 `tools/list` 响应条目中将 `_meta["anthropic/requiresUserInteraction"]` 设置为 `true` 来标记工具需要在每次调用时获得明确批准。该值必须是 JSON 布尔值 `true`；任何其他值都会被忽略。
 
-Claude Code 会在每次调用时显示该工具的权限提示，即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](/docs/zh-CN/permissions.md#permission-modes)中也是如此，并且不会为其提供"不再询问"选项。与该工具匹配的 [允许规则](/docs/zh-CN/permissions.md#permission-rule-syntax)也不会跳过提示。在 `dontAsk` 模式中（从不提示），Claude Code 会拒绝该调用。
+Claude Code 会在每次调用时显示该工具的权限提示，即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](https://code.claude.com/docs/zh-CN/permissions.md#permission-modes)中也是如此，并且不会为其提供"不再询问"选项。与该工具匹配的 [允许规则](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)也不会跳过提示。在 `dontAsk` 模式中（从不提示），Claude Code 会拒绝该调用。
 
-提示必须到达一个人。在非交互模式下使用 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags)，来自提示工具的标记工具的 `allow` 结果会被转换为拒绝，消息为 `MCP tool requires user interaction; not supported via --permission-prompt-tool`。Agent SDK 的 [`canUseTool` 回调](/docs/zh-CN/agent-sdk/permissions)确实会接收这些调用并可以批准它们，因为您的 SDK 应用程序应该将它们显示给用户。
+提示必须到达一个人。在非交互模式下使用 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)，来自提示工具的标记工具的 `allow` 结果会被转换为拒绝，消息为 `MCP tool requires user interaction; not supported via --permission-prompt-tool`。Agent SDK 的 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/permissions)确实会接收这些调用并可以批准它们，因为您的 SDK 应用程序应该将它们显示给用户。
 
 将此用于权限提示本身就是目的的工具，例如同意或访问授予步骤，其中自动批准意味着没有人类曾经同意。来自同一服务器的其他工具保持其正常的权限行为。
 
@@ -1585,13 +1585,13 @@ Claude Code 会在每次调用时显示该工具的权限提示，即使在 `acc
 }
 ```
 
-某些使用入口，例如 [Remote Control](/docs/zh-CN/remote-control.md) 和基于 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 构建的应用程序，通常允许您通过一次点击来批准工具调用。对于使用此注解标记的工具，Claude Code 会禁用一次点击操作并显示工具的完整权限提示，因此批准仍然来自回答提示的人，而不是点击。
+某些使用入口，例如 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 和基于 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 构建的应用程序，通常允许您通过一次点击来批准工具调用。对于使用此注解标记的工具，Claude Code 会禁用一次点击操作并显示工具的完整权限提示，因此批准仍然来自回答提示的人，而不是点击。
 
 Claude Code 对任何只有终端对话框才能完整呈现的权限请求（例如带有安全警告或远程使用入口无法显示的始终允许选项的请求）也会以相同方式禁用一次点击批准。您需要在终端对话框中回答该请求，而不是从 Remote Control 中回答。
 
 ## 标记可安全调用两次的工具
 
-如果您构建 MCP 服务器，请标记可以安全调用两次的工具，以便 Claude Code 能够重复在连接关闭时仍处于待处理状态的调用。对于 HTTP 服务器或 [claude.ai 连接器](#use-mcp-servers-from-claude-ai)，Claude Code 可以在新连接上重复此类调用一次。Claude Code 不重复的调用可能会失败，并显示 [`connection closed before the tool call was answered`](/docs/zh-CN/errors#connection-closed-before-the-tool-call-was-answered)。
+如果您构建 MCP 服务器，请标记可以安全调用两次的工具，以便 Claude Code 能够重复在连接关闭时仍处于待处理状态的调用。对于 HTTP 服务器或 [claude.ai 连接器](#use-mcp-servers-from-claude-ai)，Claude Code 可以在新连接上重复此类调用一次。Claude Code 不重复的调用可能会失败，并显示 [`connection closed before the tool call was answered`](https://code.claude.com/docs/zh-CN/errors#connection-closed-before-the-tool-call-was-answered)。
 
 要标记某个工具，请在其 `tools/list` 条目中将以下 `annotations` 之一设置为 `true`：
 
@@ -1620,7 +1620,7 @@ MCP 服务器可以在任务进行中使用引出功能向你请求结构化输�
 
 在 URL 模式中，Claude Code 将 URL 作为命令行参数传递给系统的 URL 处理程序，并限制该参数的长度。当 URL 在为命令行转义后超过该限制时，你只能拒绝该请求。每个需要转义的字符，例如 `%` 或 `&`，都会计为上限的四倍：其自身字符加上三个转义字符。没有这些字符的 URL 在大约 8,000 个字符处达到上限。主要由百分比转义组成的 URL，其中每三个字符中有一个是 `%`，在大约 4,000 处达到上限。
 
-要在不显示对话框的情况下自动响应引出请求，请使用 [`Elicitation` hook](/docs/zh-CN/hooks#elicitation)。
+要在不显示对话框的情况下自动响应引出请求，请使用 [`Elicitation` hook](https://code.claude.com/docs/zh-CN/hooks#elicitation)。
 
 如果你正在构建使用引出功能的 MCP 服务器，请参阅 [MCP 引出规范](https://modelcontextprotocol.io/docs/learn/client-concepts#elicitation) 了解协议详情和架构示例。
 
@@ -1677,7 +1677,7 @@ MCP Apps UI 资源是具有 `ui://` URI 或 `text/html;profile=mcp-app` 媒体�
 
 ### 面向 MCP 服务器作者的工具搜索
 
-如果您正在构建 MCP 服务器，启用工具搜索后，服务器说明字段会变得更加有用。服务器说明帮助 Claude 理解何时搜索您的工具，类似于 [skills](/docs/zh-CN/skills.md) 的工作方式。
+如果您正在构建 MCP 服务器，启用工具搜索后，服务器说明字段会变得更加有用。服务器说明帮助 Claude 理解何时搜索您的工具，类似于 [skills](https://code.claude.com/docs/zh-CN/skills.md) 的工作方式。
 
 添加清晰、描述性的服务器说明，说明：
 
@@ -1694,7 +1694,7 @@ MCP Apps UI 资源是具有 `ui://` URI 或 `text/html;profile=mcp-app` 媒体�
 
 在 v2.1.296 之前，较短的限制为 2,048 个字符；在 v2.1.295 之前，该限制适用于每个工具描述，包括通过工具搜索加载的工具描述。
 
-Anthropic 在 `api.anthropic.com` 托管的部分 MCP 服务器，其描述和说明会完整地传达给 Claude。要更改会话中其他 MCP 服务器的限制，请将 [`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH`](/docs/zh-CN/env-vars#variables) 设置为字符数。您设置的数值会同时替换这两个限制：例如，`8192` 会提高较短的限制并降低较长的限制。此变量需要 Claude Code v2.1.280 或更高版本。
+Anthropic 在 `api.anthropic.com` 托管的部分 MCP 服务器，其描述和说明会完整地传达给 Claude。要更改会话中其他 MCP 服务器的限制，请将 [`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为字符数。您设置的数值会同时替换这两个限制：例如，`8192` 会提高较短的限制并降低较长的限制。此变量需要 Claude Code v2.1.280 或更高版本。
 
 #### 将工具标记为预先加载或保持延迟
 
@@ -1703,7 +1703,7 @@ Anthropic 在 `api.anthropic.com` 托管的部分 MCP 服务器，其描述和�
 | 您的工具的值 | 结果 |
 | :- | :- |
 | `true` | 该工具预先加载。启动不会因为此值而等待您的服务器。配置您的服务器的人仍然可以[延迟其所有工具](#defer-a-servers-tools) |
-| `false` | 当其配置设置了 `"alwaysLoad": true` 时，该工具保持延迟。这适用于通过 [`--mcp-config`](/docs/zh-CN/cli-reference#cli-flags) 传入、由 [Agent SDK 应用程序](/docs/zh-CN/agent-sdk/mcp.md#in-code)提供或由[插件](#plugin-provided-mcp-servers)提供的服务器。在其他服务器上，该工具预先加载。需要 Claude Code v2.1.285 或更高版本 |
+| `false` | 当其配置设置了 `"alwaysLoad": true` 时，该工具保持延迟。这适用于通过 [`--mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 传入、由 [Agent SDK 应用程序](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#in-code)提供或由[插件](#plugin-provided-mcp-servers)提供的服务器。在其他服务器上，该工具预先加载。需要 Claude Code v2.1.285 或更高版本 |
 
 以下 `tools/list` 条目请求预先加载一个工具：
 
@@ -1721,7 +1721,7 @@ Anthropic 在 `api.anthropic.com` 托管的部分 MCP 服务器，其描述和�
 
 工具搜索默认启用：MCP 工具被延迟并按需发现。
 
-设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](/docs/zh-CN/env-vars) 保持工具搜索关闭。您无法通过自己设置 `ENABLE_TOOL_SEARCH` 来覆盖它。在 Claude Code v2.1.227 或更高版本上，您的组织可以通过[托管设置](/docs/zh-CN/managed-settings.md)在设置此变量的情况下保持工具搜索开启。在[获得 HIPAA 配置](/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect)的会话中，工具搜索处于关闭状态，`ENABLE_TOOL_SEARCH` 和托管设置都无法将其重新开启。[禁用预发布功能](/docs/zh-CN/llm-gateway-protocol.md#disable-pre-release-capabilities) 涵盖了覆盖应用的位置以及变量剥离的内容。
+设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](https://code.claude.com/docs/zh-CN/env-vars) 保持工具搜索关闭。您无法通过自己设置 `ENABLE_TOOL_SEARCH` 来覆盖它。在 Claude Code v2.1.227 或更高版本上，您的组织可以通过[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)在设置此变量的情况下保持工具搜索开启。在[获得 HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect)的会话中，工具搜索处于关闭状态，`ENABLE_TOOL_SEARCH` 和托管设置都无法将其重新开启。[禁用预发布功能](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#disable-pre-release-capabilities) 涵盖了覆盖应用的位置以及变量剥离的内容。
 
 Claude Code 在 Claude Opus 4、Claude Sonnet 4、Claude Haiku 4.5 及更高版本的模型上使用工具搜索；在 Google Cloud 的 Agent Platform 上，则在 Opus 4.5、Sonnet 4.5、Haiku 4.5 及更高版本的模型上使用。在更早的模型上，Claude Code 预先加载所有 MCP 工具，且 `ENABLE_TOOL_SEARCH=true` 不会覆盖此行为。
 
@@ -1750,7 +1750,7 @@ ENABLE_TOOL_SEARCH=auto:5 claude
 ENABLE_TOOL_SEARCH=false claude
 ```
 
-或在您的 [settings.json `env` 字段](/docs/zh-CN/settings-reference#env) 中设置该值。
+或在您的 [settings.json `env` 字段](https://code.claude.com/docs/zh-CN/settings-reference#env) 中设置该值。
 
 您也可以特别禁用 `ToolSearch` 工具：
 
@@ -1762,7 +1762,7 @@ ENABLE_TOOL_SEARCH=false claude
 }
 ```
 
-如果您拒绝 `ToolSearch` 或未将其包含在 [`--tools`](/docs/zh-CN/cli-reference#cli-flags) 中，MCP 工具会改为预先加载，但请求仍可能携带一个占位的 `defer_loading` 条目。如果网关拒绝该条目，请参阅[通过 LLM 网关使用工具搜索](#tool-search-through-a-gateway)。
+如果您拒绝 `ToolSearch` 或未将其包含在 [`--tools`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 中，MCP 工具会改为预先加载，但请求仍可能携带一个占位的 `defer_loading` 条目。如果网关拒绝该条目，请参阅[通过 LLM 网关使用工具搜索](#tool-search-through-a-gateway)。
 
 #### 通过 LLM 网关使用工具搜索
 
@@ -1771,15 +1771,15 @@ ENABLE_TOOL_SEARCH=false claude
 > 以下情况在其他地方介绍：
 >
 > * **您已设置 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`**：请参阅[它如何影响工具搜索](#configure-tool-search)
-> * **请求失败，且错误中提到 `defer_loading` 或 `tool_reference`**：请参阅 [Extra inputs are not permitted](/docs/zh-CN/errors.md#extra-inputs-are-not-permitted)
+> * **请求失败，且错误中提到 `defer_loading` 或 `tool_reference`**：请参阅 [Extra inputs are not permitted](https://code.claude.com/docs/zh-CN/errors.md#extra-inputs-are-not-permitted)
 
-当 `ANTHROPIC_BASE_URL` 指向网关时，工具搜索默认开启，因此请求会包含 `defer_loading` 工具字段和 `tool_reference` 块，供网关转发。工具搜索开启时，MCP 工具会被[延迟](#scale-with-mcp-tool-search)。如需改为预先加载所有工具，请在 shell 或您的 [settings `env`](/docs/zh-CN/settings-reference#env) 中设置 `ENABLE_TOOL_SEARCH=false`。在 v2.1.304 之前，在网关后面工具搜索处于关闭状态，除非 `ENABLE_TOOL_SEARCH` 为 `true`、`auto` 或 `auto:N`。
+当 `ANTHROPIC_BASE_URL` 指向网关时，工具搜索默认开启，因此请求会包含 `defer_loading` 工具字段和 `tool_reference` 块，供网关转发。工具搜索开启时，MCP 工具会被[延迟](#scale-with-mcp-tool-search)。如需改为预先加载所有工具，请在 shell 或您的 [settings `env`](https://code.claude.com/docs/zh-CN/settings-reference#env) 中设置 `ENABLE_TOOL_SEARCH=false`。在 v2.1.304 之前，在网关后面工具搜索处于关闭状态，除非 `ENABLE_TOOL_SEARCH` 为 `true`、`auto` 或 `auto:N`。
 
-在 v2.1.305 或更高版本上，当出现原因无法识别的 `400` 或 `422` 时，Claude Code 可以[在不使用工具搜索的情况下重试请求](/docs/zh-CN/llm-gateway-protocol.md#retry-without-tool-search)。重试成功时，屏幕上不会显示任何内容，您也无需执行任何操作：MCP 工具会改为预先加载。Claude Code 稍后会再次尝试工具搜索，代价是再产生一次被拒绝的请求。要跳过这些请求，请设置 `ENABLE_TOOL_SEARCH=false`。
+在 v2.1.305 或更高版本上，当出现原因无法识别的 `400` 或 `422` 时，Claude Code 可以[在不使用工具搜索的情况下重试请求](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#retry-without-tool-search)。重试成功时，屏幕上不会显示任何内容，您也无需执行任何操作：MCP 工具会改为预先加载。Claude Code 稍后会再次尝试工具搜索，代价是再产生一次被拒绝的请求。要跳过这些请求，请设置 `ENABLE_TOOL_SEARCH=false`。
 
 #### 低于 `ENABLE_TOOL_SEARCH=auto` 阈值时仍保持延迟的工具
 
-如果 [`/context`](/docs/zh-CN/commands#all-commands) 将工具标记为 `(deferred)` 或 `(loaded on-demand)`，尽管它们的定义总计低于 `auto` 阈值，这说明工具搜索在此对话中已经开启并保持开启。总量之后可能会下降，例如在您恢复会话后 MCP 服务器重新连接期间。您无需执行任何操作：当任务需要时，Claude 会加载其中的每个工具。
+如果 [`/context`](https://code.claude.com/docs/zh-CN/commands#all-commands) 将工具标记为 `(deferred)` 或 `(loaded on-demand)`，尽管它们的定义总计低于 `auto` 阈值，这说明工具搜索在此对话中已经开启并保持开启。总量之后可能会下降，例如在您恢复会话后 MCP 服务器重新连接期间。您无需执行任何操作：当任务需要时，Claude 会加载其中的每个工具。
 
 ### 豁免服务器不延迟
 
@@ -1801,7 +1801,7 @@ ENABLE_TOOL_SEARCH=false claude
 
 `alwaysLoad` 字段在所有服务器类型上都可用。
 
-设置 `alwaysLoad: true` 也会使启动等待服务器的工具，上限为标准 5 秒连接超时，因为它们必须在构建第一个提示词时存在。具有有效 [`cached` 条目](#server-status-detail) 的远程服务器从缓存提供其工具而无需连接，因此它不会延迟启动。其他服务器默认在后台连接；设置 [`MCP_CONNECTION_NONBLOCKING=0`](/docs/zh-CN/env-vars) 也使启动等待它们。
+设置 `alwaysLoad: true` 也会使启动等待服务器的工具，上限为标准 5 秒连接超时，因为它们必须在构建第一个提示词时存在。具有有效 [`cached` 条目](#server-status-detail) 的远程服务器从缓存提供其工具而无需连接，因此它不会延迟启动。其他服务器默认在后台连接；设置 [`MCP_CONNECTION_NONBLOCKING=0`](https://code.claude.com/docs/zh-CN/env-vars) 也使启动等待它们。
 
 ### 延迟服务器的工具
 
@@ -1811,7 +1811,7 @@ ENABLE_TOOL_SEARCH=false claude
 
 MCP 服务器可以公开提示，这些提示在 Claude Code 中作为命令可用。
 
-来自名为 `anthropic-skills` 的服务器的提示不会出现，因为 Claude Code [保留该名称](/docs/zh-CN/skills.md#names-reserved-for-synced-skills)用于从 claude.ai 同步的 skills。该服务器的工具仍然有效。在您的 MCP 配置中重命名服务器以列出其提示。
+来自名为 `anthropic-skills` 的服务器的提示不会出现，因为 Claude Code [保留该名称](https://code.claude.com/docs/zh-CN/skills.md#names-reserved-for-synced-skills)用于从 claude.ai 同步的 skills。该服务器的工具仍然有效。在您的 MCP 配置中重命名服务器以列出其提示。
 
 ### 执行 MCP 提示
 
@@ -1848,4 +1848,4 @@ MCP 服务器可以公开提示，这些提示在 Claude Code 中作为命令可
 
 ## 托管 MCP 配置
 
-对于需要集中控制用户可以连接到哪些 MCP 服务器的组织，请参阅[托管 MCP 配置](/docs/zh-CN/managed-mcp.md)。它涵盖使用 `managed-mcp.json` 部署固定服务器集、使用 `managedMcpServers` 为每个用户提供服务器、使用 `allowedMcpServers` 和 `deniedMcpServers` 限制服务器，以及当服务器被阻止时用户看到的内容。
+对于需要集中控制用户可以连接到哪些 MCP 服务器的组织，请参阅[托管 MCP 配置](https://code.claude.com/docs/zh-CN/managed-mcp.md)。它涵盖使用 `managed-mcp.json` 部署固定服务器集、使用 `managedMcpServers` 为每个用户提供服务器、使用 `allowedMcpServers` 和 `deniedMcpServers` 限制服务器，以及当服务器被阻止时用户看到的内容。

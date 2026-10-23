@@ -86,7 +86,7 @@ class SessionSummaryEntry(TypedDict):
 
 `SessionKey` 寻址一个记录。`projectKey` 是工作目录的稳定的、文件系统安全的编码，`sessionId` 是会话 UUID，`subpath` 在条目属于子代理记录或边车文件而不是主对话时设置。
 
-因为 `projectKey` 编码了工作目录，请从与原始运行的工作目录匹配的工作目录中从存储恢复或继续。在 TypeScript 中，如果在查询的 [`env` 选项](/docs/zh-CN/agent-sdk/typescript#options)中在 `CLAUDE_CONFIG_DIR` 旁边设置 [`CLAUDE_CODE_PROJECT_DIR_NAME`](/docs/zh-CN/sessions#name-the-project-directory-yourself)，SDK 会改用该名称作为该查询的条目及其 `resume` 和 `continue` 查找的键。因为 `listSessions` 和 `deleteSession` 等独立帮助程序不接受 `env` 并读取进程环境，也要在主机进程环境中设置 `CLAUDE_CONFIG_DIR` 和相同的名称。需要 Agent SDK v0.3.234 或更高版本。
+因为 `projectKey` 编码了工作目录，请从与原始运行的工作目录匹配的工作目录中从存储恢复或继续。在 TypeScript 中，如果在查询的 [`env` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)中在 `CLAUDE_CONFIG_DIR` 旁边设置 [`CLAUDE_CODE_PROJECT_DIR_NAME`](https://code.claude.com/docs/zh-CN/sessions#name-the-project-directory-yourself)，SDK 会改用该名称作为该查询的条目及其 `resume` 和 `continue` 查找的键。因为 `listSessions` 和 `deleteSession` 等独立帮助程序不接受 `env` 并读取进程环境，也要在主机进程环境中设置 `CLAUDE_CONFIG_DIR` 和相同的名称。需要 Agent SDK v0.3.234 或更高版本。
 
 将 `subpath` 视为不透明的键后缀；它遵循磁盘上的布局，例如 `subagents/agent-<id>`。当 `subpath` 未定义时，该键指的是主记录。
 
@@ -263,7 +263,7 @@ Claude Code 子进程始终首先将每批转录条目写入本地磁盘，然�
 * **新会话，或当存储对该会话没有任何内容时的恢复**：您配置目录下的本地转录在运行后保留，存储接收一个副本。
 * **从存储[恢复的运行](#resume-from-the-store)**：本地副本在运行结束时被删除，因此存储持有唯一的持久副本。
 
-如果您不希望新会话在本地磁盘上留下转录，请在 `options.env` 中将 `CLAUDE_CONFIG_DIR` 设置为临时目录。从存储恢复的运行已经删除其本地副本，因此不需要此类设置。在 TypeScript 中，也将 `process.env` 展开到 `env` 中，因为 [`env` 选项](/docs/zh-CN/agent-sdk/typescript#options) 替换子进程环境。
+如果您不希望新会话在本地磁盘上留下转录，请在 `options.env` 中将 `CLAUDE_CONFIG_DIR` 设置为临时目录。从存储恢复的运行已经删除其本地副本，因此不需要此类设置。在 TypeScript 中，也将 `process.env` 展开到 `env` 中，因为 [`env` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 替换子进程环境。
 
 如果您的应用通过配置目录中的文件进行登录，例如 OAuth 凭证或用户 `settings.json` 中的 `apiKeyHelper`，请先将这些文件复制到临时目录中，或改为在 `env` 中设置 `ANTHROPIC_API_KEY`。否则运行失败并显示 `Not logged in`。
 
@@ -283,7 +283,7 @@ Claude Code 子进程始终首先将每批转录条目写入本地磁盘，然�
 
 SDK 还使用来自您真实配置目录的文件为临时目录提供种子。它复制的内容因语言而异：
 
-* **TypeScript**：凭证、`.claude.json` 和您的用户 `settings.json`。从 `settings.json` 中，它删除在临时配置目录下表现不佳的键：`enabledPlugins`、`extraKnownMarketplaces`、其 [`additionalMarketplaces`](/docs/zh-CN/settings-reference#extraknownmarketplaces) 别名，以及文件 `env` 块中的任何 `CLAUDE_CONFIG_DIR`。在 Agent SDK v0.3.232 之前，SDK 没有删除别名。在设置中配置的身份验证，例如 [`apiKeyHelper`](/docs/zh-CN/settings-reference#apikeyhelper)，在从存储恢复时有效。在 Agent SDK v0.3.222 之前，TypeScript SDK 仅复制凭证和 `.claude.json`。
+* **TypeScript**：凭证、`.claude.json` 和您的用户 `settings.json`。从 `settings.json` 中，它删除在临时配置目录下表现不佳的键：`enabledPlugins`、`extraKnownMarketplaces`、其 [`additionalMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#extraknownmarketplaces) 别名，以及文件 `env` 块中的任何 `CLAUDE_CONFIG_DIR`。在 Agent SDK v0.3.232 之前，SDK 没有删除别名。在设置中配置的身份验证，例如 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper)，在从存储恢复时有效。在 Agent SDK v0.3.222 之前，TypeScript SDK 仅复制凭证和 `.claude.json`。
 * **Python**：仅凭证和 `.claude.json`，因此通过用户 `settings.json` 中的 `apiKeyHelper` 进行身份验证的应用在从存储恢复时失败并显示 `Not logged in`。托管或项目设置中的 `apiKeyHelper` 仍然有效，因为 Claude Code 从 `CLAUDE_CONFIG_DIR` 不影响的位置读取这些文件。
 
 当存储对该会话没有任何内容时，SDK 改为在您的真实配置目录下运行，结果取决于您传递的选项：
@@ -312,29 +312,29 @@ SDK 还使用来自您真实配置目录的文件为临时目录提供种子。�
 
 ### 保留
 
-SDK 永远不会自行从您的存储中删除。保留是适配器的责任：根据您的合规要求实现 TTL、S3 生命周期策略或计划清理。`CLAUDE_CONFIG_DIR` 下的本地转录由 `cleanupPeriodDays` 设置独立清理，遵循[保留清理规则](/docs/zh-CN/claude-directory.md#cleaned-up-automatically)。[从存储恢复](#resume-from-the-store)的运行不留下本地转录，因此对于这些运行，您的存储保留是唯一的保留。
+SDK 永远不会自行从您的存储中删除。保留是适配器的责任：根据您的合规要求实现 TTL、S3 生命周期策略或计划清理。`CLAUDE_CONFIG_DIR` 下的本地转录由 `cleanupPeriodDays` 设置独立清理，遵循[保留清理规则](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)。[从存储恢复](#resume-from-the-store)的运行不留下本地转录，因此对于这些运行，您的存储保留是唯一的保留。
 
 ## 支持的功能
 
 以下 TypeScript SDK 函数接受 `sessionStore` 选项，当提供时针对存储而不是本地文件系统操作：
 
-* [`query()`](/docs/zh-CN/agent-sdk/typescript#query)
-* [`startup()`](/docs/zh-CN/agent-sdk/typescript#startup)
-* [`listSessions()`](/docs/zh-CN/agent-sdk/typescript#listsessions)
-* [`getSessionInfo()`](/docs/zh-CN/agent-sdk/typescript#getsessioninfo)
-* [`getSessionMessages()`](/docs/zh-CN/agent-sdk/typescript#getsessionmessages)
-* [`renameSession()`](/docs/zh-CN/agent-sdk/typescript#renamesession)
-* [`tagSession()`](/docs/zh-CN/agent-sdk/typescript#tagsession)
-* [`deleteSession()`](/docs/zh-CN/agent-sdk/typescript)
-* [`forkSession()`](/docs/zh-CN/agent-sdk/typescript#forksession)
-* [`listSubagents()`](/docs/zh-CN/agent-sdk/typescript)
-* [`getSubagentMessages()`](/docs/zh-CN/agent-sdk/typescript)
+* [`query()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#query)
+* [`startup()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#startup)
+* [`listSessions()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#listsessions)
+* [`getSessionInfo()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#getsessioninfo)
+* [`getSessionMessages()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#getsessionmessages)
+* [`renameSession()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#renamesession)
+* [`tagSession()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#tagsession)
+* [`deleteSession()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript)
+* [`forkSession()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#forksession)
+* [`listSubagents()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript)
+* [`getSubagentMessages()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript)
 
-在 Python SDK 中，在 [`ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 中设置 `session_store` 以针对存储运行 `query()`。其余操作各有一个接受存储作为参数的存储支持的 Python 函数：`list_sessions_from_store()`、`get_session_info_from_store()`、`get_session_messages_from_store()`、`list_subagents_from_store()`、`get_subagent_messages_from_store()`、`rename_session_via_store()`、`tag_session_via_store()`、`delete_session_via_store()` 和 `fork_session_via_store()`。`startup()` 没有 Python 等效项。[Python SDK 参考](/docs/zh-CN/agent-sdk/python.md#functions)中记录的独立函数（如 `list_sessions()`）读取本地会话文件。
+在 Python SDK 中，在 [`ClaudeAgentOptions`](https://code.claude.com/docs/zh-CN/agent-sdk/python#claudeagentoptions) 中设置 `session_store` 以针对存储运行 `query()`。其余操作各有一个接受存储作为参数的存储支持的 Python 函数：`list_sessions_from_store()`、`get_session_info_from_store()`、`get_session_messages_from_store()`、`list_subagents_from_store()`、`get_subagent_messages_from_store()`、`rename_session_via_store()`、`tag_session_via_store()`、`delete_session_via_store()` 和 `fork_session_via_store()`。`startup()` 没有 Python 等效项。[Python SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/python.md#functions)中记录的独立函数（如 `list_sessions()`）读取本地会话文件。
 
 ## 相关资源
 
-* [使用会话](/docs/zh-CN/agent-sdk/sessions.md)：在没有自定义存储的情况下继续、恢复和分叉
-* [托管 SDK](/docs/zh-CN/agent-sdk/hosting.md)：多主机环境的部署模式
-* [TypeScript `Options`](/docs/zh-CN/agent-sdk/typescript#options)：完整的选项参考
+* [使用会话](https://code.claude.com/docs/zh-CN/agent-sdk/sessions.md)：在没有自定义存储的情况下继续、恢复和分叉
+* [托管 SDK](https://code.claude.com/docs/zh-CN/agent-sdk/hosting.md)：多主机环境的部署模式
+* [TypeScript `Options`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)：完整的选项参考
 * [参考实现](#reference-implementations)：对象存储、键值存储和数据库的可运行示例适配器，在两个 SDK 存储库中

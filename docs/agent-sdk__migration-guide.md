@@ -18,7 +18,7 @@ Claude Code SDK 已更名为 **Claude Agent SDK**，其文档已重新组织。�
 | :- | :- | :- |
 | **包名称 (TS/JS)** | `@anthropic-ai/claude-code` | `@anthropic-ai/claude-agent-sdk` |
 | **Python 包** | `claude-code-sdk` | `claude-agent-sdk` |
-| **文档位置** | Claude Code 文档 | Claude Code 文档 → 专用 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 部分 |
+| **文档位置** | Claude Code 文档 | Claude Code 文档 → 专用 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 部分 |
 
 ## 迁移步骤
 
@@ -181,17 +181,17 @@ asyncio.run(main())
 
 **当前行为：** 在 `query()` 上省略 `settingSources` 会加载用户、项目和本地文件系统设置，与 CLI 匹配。这包括 `~/.claude/settings.json`、`.claude/settings.json`、`.claude/settings.local.json`、CLAUDE.md 文件和自定义命令。
 
-要从文件系统设置中隔离运行，请传递 `settingSources: []`，或在 Python 中传递 `setting_sources=[]`。请参阅 [使用 settingSources 控制文件系统设置](/docs/zh-CN/agent-sdk/claude-code-features.md#control-filesystem-settings-with-settingsources) 了解每个源加载的内容。
+要从文件系统设置中隔离运行，请传递 `settingSources: []`，或在 Python 中传递 `setting_sources=[]`。请参阅 [使用 settingSources 控制文件系统设置](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features.md#control-filesystem-settings-with-settingsources) 了解每个源加载的内容。
 
 隔离对于 CI/CD 管道、已部署的应用程序、测试环境和多租户系统特别重要，其中本地自定义不应泄露。
 
 > [!NOTE]
 >
-> Python SDK 0.1.59 及更早版本将空列表视为与省略该选项相同，因此在依赖 `setting_sources=[]` 之前请升级。请参阅 [settingSources 不控制的内容](/docs/zh-CN/agent-sdk/claude-code-features.md#what-settingsources-does-not-control) 了解即使在 `settingSources` 为 `[]` 时也会读取的输入。
+> Python SDK 0.1.59 及更早版本将空列表视为与省略该选项相同，因此在依赖 `setting_sources=[]` 之前请升级。请参阅 [settingSources 不控制的内容](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features.md#what-settingsources-does-not-control) 了解即使在 `settingSources` 为 `[]` 时也会读取的输入。
 
 ## 后续步骤
 
-* 探索 [Agent SDK 概述](/docs/zh-CN/agent-sdk/overview.md) 以了解可用功能
-* 查看 [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript.md) 以获取详细的 API 文档
-* 查看 [Python SDK 参考](/docs/zh-CN/agent-sdk/python.md) 以获取 Python 特定文档
-* 了解 [自定义工具](/docs/zh-CN/agent-sdk/custom-tools.md) 和 [MCP 集成](/docs/zh-CN/agent-sdk/mcp.md)
+* 探索 [Agent SDK 概述](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 以了解可用功能
+* 查看 [TypeScript SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md) 以获取详细的 API 文档
+* 查看 [Python SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/python.md) 以获取 Python 特定文档
+* 了解 [自定义工具](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools.md) 和 [MCP 集成](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md)

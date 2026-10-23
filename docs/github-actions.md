@@ -10,10 +10,10 @@
 
 多个产品共享 Claude Code 名称。本页涵盖 `claude-code-action` 工作流集成，您可以使用仓库中的工作流文件进行配置。对于相关产品，请参阅：
 
-* [Code Review](/docs/zh-CN/code-review.md)：在每个拉取请求上自动审查，无需编写工作流
-* [Claude Code in the cloud](/docs/zh-CN/claude-code-on-the-web.md)：在云基础设施上运行的 Claude Code 会话，而不是在您的机器上
-* [Claude Agent SDK](/docs/zh-CN/agent-sdk/overview.md)：GitHub Actions 之外的自定义自动化。Claude Code GitHub Action 建立在 SDK 之上
-* [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server.md)：带有自托管 GitHub 的 Claude Code
+* [Code Review](https://code.claude.com/docs/zh-CN/code-review.md)：在每个拉取请求上自动审查，无需编写工作流
+* [Claude Code in the cloud](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)：在云基础设施上运行的 Claude Code 会话，而不是在您的机器上
+* [Claude Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md)：GitHub Actions 之外的自定义自动化。Claude Code GitHub Action 建立在 SDK 之上
+* [GitHub Enterprise Server](https://code.claude.com/docs/zh-CN/github-enterprise-server.md)：带有自托管 GitHub 的 Claude Code
 
 ## 设置
 
@@ -26,7 +26,7 @@
 
 ### 快速设置
 
-`/install-github-app` 仅适用于 github.com 仓库。如果您的仓库的 git 远程在 gitlab.com 或 bitbucket.org 上，该命令会打印通知并退出，而不是开始设置。要从 GitLab 管道运行 Claude Code，请参阅 [Claude Code GitLab CI/CD](/docs/zh-CN/gitlab-ci-cd.md)。
+`/install-github-app` 仅适用于 github.com 仓库。如果您的仓库的 git 远程在 gitlab.com 或 bitbucket.org 上，该命令会打印通知并退出，而不是开始设置。要从 GitLab 管道运行 Claude Code，请参阅 [Claude Code GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。
 
 在开始之前，安装 [GitHub CLI](https://cli.github.com) 并使用 `gh auth login` 进行身份验证。Claude Code 会检查它并在缺少时警告您。
 
@@ -53,7 +53,7 @@ Claude Code 然后推送一个包含您选择的工作流文件的分支，已�
 > [!NOTE]
 >
 > * 安装 GitHub App 时，您授予它多个权限。有关完整集合，请参阅 [GitHub App 权限](#github-app-permissions)
-> * 快速设置适用于 Claude API 和 Claude 订阅。如果您使用 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry，请参阅[将 Claude Code GitHub Actions 与云提供商一起使用](/docs/zh-CN/github-actions-cloud-providers.md)
+> * 快速设置适用于 Claude API 和 Claude 订阅。如果您使用 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry，请参阅[将 Claude Code GitHub Actions 与云提供商一起使用](https://code.claude.com/docs/zh-CN/github-actions-cloud-providers.md)
 
 ### 手动设置
 
@@ -74,7 +74,7 @@ Claude Code 然后推送一个包含您选择的工作流文件的分支，已�
 根据您的身份验证方式，将以下密钥之一添加到您的仓库。请参阅 GitHub 的[在 GitHub Actions 中使用密钥](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)指南。
 
 * `ANTHROPIC_API_KEY`：来自 [Claude Console](https://platform.claude.com) 的 Claude API 密钥
-* `CLAUDE_CODE_OAUTH_TOKEN`：使用您的 Claude 订阅进行身份验证的 OAuth 令牌，在 Pro、Max、Team 和 Enterprise 计划上可用。通过在本地运行 `claude setup-token` 生成一个。请参阅[生成长期令牌](/docs/zh-CN/authentication.md#generate-a-long-lived-token)
+* `CLAUDE_CODE_OAUTH_TOKEN`：使用您的 Claude 订阅进行身份验证的 OAuth 令牌，在 Pro、Max、Team 和 Enterprise 计划上可用。通过在本地运行 `claude setup-token` 生成一个。请参阅[生成长期令牌](https://code.claude.com/docs/zh-CN/authentication.md#generate-a-long-lived-token)
 
 在工作流文件中，将密钥传递给匹配的输入：`anthropic_api_key` 用于 API 密钥，或 `claude_code_oauth_token` 用于 OAuth 令牌。
 
@@ -105,7 +105,7 @@ Claude Code 然后推送一个包含您选择的工作流文件的分支，已�
 
 授予工作流 `id-token: write` 权限，Claude Code GitHub Action 需要它来进行联合交换，即使您传递自己的 `github_token`。有关 Console 端配置，请参阅 [Claude Code GitHub Action 的设置指南](https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md)。
 
-有关安全审查中的数据处理和保留问题，请参阅[数据使用](/docs/zh-CN/data-usage.md)和[安全](/docs/zh-CN/security.md)。
+有关安全审查中的数据处理和保留问题，请参阅[数据使用](https://code.claude.com/docs/zh-CN/data-usage.md)和[安全](https://code.claude.com/docs/zh-CN/security.md)。
 
 ### 卸载
 
@@ -115,11 +115,11 @@ Claude Code 然后推送一个包含您选择的工作流文件的分支，已�
 * **密钥**：从仓库中删除 `ANTHROPIC_API_KEY` 或 `CLAUDE_CODE_OAUTH_TOKEN` 密钥，如果您[跨仓库共享它](#set-up-for-an-organization)，也从组织级别的 Actions 密钥中删除。如果您删除密钥，它持有的凭证保持有效。要完全停用 API 密钥，也在 [Claude Console](https://platform.claude.com) 中删除密钥
 * **GitHub App**：在您的仓库或组织设置中的 GitHub Apps 下卸载 Claude GitHub App，但仅当您不将其用于另一个 Claude 功能（如 Code Review 或 web auto-fix）时
 
-如果您配置了[云提供商](/docs/zh-CN/github-actions-cloud-providers.md)，也删除提供商密钥，例如 `AWS_ROLE_TO_ASSUME`、`GCP_*` 密钥或 `AZURE_*` 密钥，并卸载自定义 GitHub App 及其 `APP_ID` 和 `APP_PRIVATE_KEY` 密钥。
+如果您配置了[云提供商](https://code.claude.com/docs/zh-CN/github-actions-cloud-providers.md)，也删除提供商密钥，例如 `AWS_ROLE_TO_ASSUME`、`GCP_*` 密钥或 `AZURE_*` 密钥，并卸载自定义 GitHub App 及其 `APP_ID` 和 `APP_PRIVATE_KEY` 密钥。
 
 ### GitHub App 权限
 
-[Claude GitHub App](https://github.com/apps/claude) 由与 GitHub 集成的每个 Claude 功能共享，包括 Claude Code GitHub Action、[Code Review](/docs/zh-CN/code-review.md) 和 [Claude Code on the web](/docs/zh-CN/claude-code-on-the-web.md#auto-fix-pull-requests) 上的 auto-fix。GitHub App 有一个覆盖其所有功能的单一权限集，因此该集包括 Claude Code GitHub Action 不使用的一些权限。
+[Claude GitHub App](https://github.com/apps/claude) 由与 GitHub 集成的每个 Claude 功能共享，包括 Claude Code GitHub Action、[Code Review](https://code.claude.com/docs/zh-CN/code-review.md) 和 [Claude Code on the web](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#auto-fix-pull-requests) 上的 auto-fix。GitHub App 有一个覆盖其所有功能的单一权限集，因此该集包括 Claude Code GitHub Action 不使用的一些权限。
 
 安装应用时，您授予以下权限：
 
@@ -214,12 +214,12 @@ Claude 在同一 issue 或 PR 上的评论中回复并在工作时更新它。
 
 ### 运行 skill
 
-`prompt` 输入接受 [skill](/docs/zh-CN/skills.md) 调用以及纯文本：
+`prompt` 输入接受 [skill](https://code.claude.com/docs/zh-CN/skills.md) 调用以及纯文本：
 
 * 对于仓库的 `.claude/skills/` 目录中的 skill，在 `anthropics/claude-code-action` 步骤之前运行 `actions/checkout`，以便 skill 文件在运行器上可用，然后将 `/skill-name` 作为 `prompt` 传递。
-* 对于打包在[插件](/docs/zh-CN/plugins/overview.md)中的 skill，使用 `plugin_marketplaces` 和 `plugins` 输入安装插件，然后将命名空间的 `/plugin-name:skill-name` 作为 `prompt` 传递。`plugins` 输入采用 `plugin-name@marketplace-name`，其中市场名称来自市场自己的清单而不是其仓库 URL。
+* 对于打包在[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)中的 skill，使用 `plugin_marketplaces` 和 `plugins` 输入安装插件，然后将命名空间的 `/plugin-name:skill-name` 作为 `prompt` 传递。`plugins` 输入采用 `plugin-name@marketplace-name`，其中市场名称来自市场自己的清单而不是其仓库 URL。
 
-以下工作流安装 `code-review` 插件并在拉取请求打开、更新、重新打开或标记为准备审查时运行其 skill。它运行与快速设置中的审查工作流相同的插件。当您想自己控制提示、模型和触发器时，请使用这样的工作流。对于无需维护工作流文件的自动审查，请参阅 [Code Review](/docs/zh-CN/code-review.md)。在公共仓库上，GitHub 从 fork 拉取请求触发的运行中扣留密钥，因此审查仅在来自同一仓库中分支的拉取请求上运行。
+以下工作流安装 `code-review` 插件并在拉取请求打开、更新、重新打开或标记为准备审查时运行其 skill。它运行与快速设置中的审查工作流相同的插件。当您想自己控制提示、模型和触发器时，请使用这样的工作流。对于无需维护工作流文件的自动审查，请参阅 [Code Review](https://code.claude.com/docs/zh-CN/code-review.md)。在公共仓库上，GitHub 从 fork 拉取请求触发的运行中扣留密钥，因此审查仅在来自同一仓库中分支的拉取请求上运行。
 
 ```yaml theme={null}
 name: Code Review
@@ -256,7 +256,7 @@ Claude 跳过草稿和已关闭的拉取请求、它判断不需要审查的拉�
 
 ### 按计划运行
 
-使用 `prompt` 输入，Claude Code GitHub Action 在任何 GitHub 事件上以自动化模式运行，包括 cron 计划。对于纯文本提示，Claude 没有 shell 或 GitHub API 访问权限，直到您授予提示需要的工具，使用 `claude_args` 中的 `--allowedTools` 或 `settings` 输入中的 [`permissions.allow` 规则](/docs/zh-CN/permissions#permission-rule-syntax)。如果您改为调用 skill，Claude 可以使用其 [`allowed-tools` frontmatter](/docs/zh-CN/skills#pre-approve-tools-for-a-skill) 授予的工具。GitHub 仅从默认分支运行计划工作流，在公共仓库中，在 60 天没有仓库活动后禁用计划。
+使用 `prompt` 输入，Claude Code GitHub Action 在任何 GitHub 事件上以自动化模式运行，包括 cron 计划。对于纯文本提示，Claude 没有 shell 或 GitHub API 访问权限，直到您授予提示需要的工具，使用 `claude_args` 中的 `--allowedTools` 或 `settings` 输入中的 [`permissions.allow` 规则](https://code.claude.com/docs/zh-CN/permissions#permission-rule-syntax)。如果您改为调用 skill，Claude 可以使用其 [`allowed-tools` frontmatter](https://code.claude.com/docs/zh-CN/skills#pre-approve-tools-for-a-skill) 授予的工具。GitHub 仅从默认分支运行计划工作流，在公共仓库中，在 60 天没有仓库活动后禁用计划。
 
 此工作流在每天 09:00 UTC 在工作流运行日志中生成报告。其 `claude_args` 行[传递 CLI 参数](#pass-cli-arguments)，选择模型并允许两个 GitHub MCP 工具。Claude 通过这些工具使用 GitHub API 读取提交和 issue，因此您可以省略 checkout 步骤：
 
@@ -286,7 +286,7 @@ jobs:
 
 ### 在 CLAUDE.md 中定义项目标准
 
-在您的仓库根目录创建一个 `CLAUDE.md` 文件来定义代码风格指南、审查标准、项目特定规则和首选模式。Claude 在创建 PR 和响应请求时遵循这些指南。有关详细信息，请参阅[内存文档](/docs/zh-CN/memory.md)。
+在您的仓库根目录创建一个 `CLAUDE.md` 文件来定义代码风格指南、审查标准、项目特定规则和首选模式。Claude 在创建 PR 和响应请求时遵循这些指南。有关详细信息，请参阅[内存文档](https://code.claude.com/docs/zh-CN/memory.md)。
 
 ### 保护您的凭证
 
@@ -314,11 +314,11 @@ jobs:
 * 设置工作流级别的超时以避免失控的作业
 * 使用 GitHub 的并发控制来限制并行运行
 
-有关跨组织的使用跟踪，请参阅[分析仪表板](/docs/zh-CN/analytics.md)和[监控](/docs/zh-CN/monitoring-usage.md)。有关如何测量和计费使用情况，请参阅[成本](/docs/zh-CN/costs.md)。
+有关跨组织的使用跟踪，请参阅[分析仪表板](https://code.claude.com/docs/zh-CN/analytics.md)和[监控](https://code.claude.com/docs/zh-CN/monitoring-usage.md)。有关如何测量和计费使用情况，请参阅[成本](https://code.claude.com/docs/zh-CN/costs.md)。
 
 ## 使用云提供商
 
-默认情况下，Claude Code GitHub Action 使用您的 API 密钥或 OAuth 令牌直接调用 Claude API。要通过您自己的云账户路由推理，请设置您的提供商的输入并按照[将 Claude Code GitHub Actions 与云提供商一起使用](/docs/zh-CN/github-actions-cloud-providers.md)：
+默认情况下，Claude Code GitHub Action 使用您的 API 密钥或 OAuth 令牌直接调用 Claude API。要通过您自己的云账户路由推理，请设置您的提供商的输入并按照[将 Claude Code GitHub Actions 与云提供商一起使用](https://code.claude.com/docs/zh-CN/github-actions-cloud-providers.md)：
 
 * **Amazon Bedrock**：`use_bedrock: "true"`
 * **Google Cloud 的 Agent Platform**：`use_vertex: "true"`
@@ -344,7 +344,7 @@ jobs:
 ### 身份验证错误
 
 * 通过在本地使用 `claude` 测试 API 密钥或 OAuth 令牌来确认它有效，然后再调试工作流
-* 对于 Bedrock、Agent Platform 和 Foundry，请参阅云提供商页面的[故障排除部分](/docs/zh-CN/github-actions-cloud-providers.md#troubleshooting)
+* 对于 Bedrock、Agent Platform 和 Foundry，请参阅云提供商页面的[故障排除部分](https://code.claude.com/docs/zh-CN/github-actions-cloud-providers.md#troubleshooting)
 
 有关更多解决方案，请参阅 Claude Code GitHub Action 的 [FAQ](https://github.com/anthropics/claude-code-action/blob/main/docs/faq.md)。
 
@@ -356,7 +356,7 @@ jobs:
 
 | 参数 | 描述 | 必需 |
 | - | - | - |
-| `prompt` | Claude 的说明，作为纯文本或 [skill](/docs/zh-CN/skills.md) 调用。省略时，Claude 改为响应[触发短语](#interactive-and-automation-modes) | 否 |
+| `prompt` | Claude 的说明，作为纯文本或 [skill](https://code.claude.com/docs/zh-CN/skills.md) 调用。省略时，Claude 改为响应[触发短语](#interactive-and-automation-modes) | 否 |
 | `claude_args` | 传递给 Claude Code 的 CLI 参数 | 否 |
 | `anthropic_api_key` | Claude API 密钥 | 对于 Claude API，除非您使用 `claude_code_oauth_token` 或[工作负载身份联合](#set-up-for-an-organization)。不用于 Bedrock、Agent Platform 或 Foundry |
 | `claude_code_oauth_token` | 用于使用 Claude 订阅进行身份验证的 OAuth 令牌，使用 `claude setup-token` 生成 | 否 |
@@ -373,7 +373,7 @@ jobs:
 
 ### 传递 CLI 参数
 
-`claude_args` 参数接受任何 [Claude Code CLI 参数](/docs/zh-CN/cli-reference.md)：
+`claude_args` 参数接受任何 [Claude Code CLI 参数](https://code.claude.com/docs/zh-CN/cli-reference.md)：
 
 ```yaml theme={null}
 claude_args: "--max-turns 5 --model claude-sonnet-5 --mcp-config /path/to/config.json"
@@ -382,8 +382,8 @@ claude_args: "--max-turns 5 --model claude-sonnet-5 --mcp-config /path/to/config
 常见参数：
 
 * `--max-turns`：限制对话轮数
-* `--model`：要使用的模型，例如 `claude-sonnet-5`。没有此参数，Claude Code GitHub Action 使用 Claude Code [默认模型](/docs/zh-CN/model-config.md)
-* `--mcp-config`：[MCP 配置](/docs/zh-CN/mcp.md)的路径
+* `--model`：要使用的模型，例如 `claude-sonnet-5`。没有此参数，Claude Code GitHub Action 使用 Claude Code [默认模型](https://code.claude.com/docs/zh-CN/model-config.md)
+* `--mcp-config`：[MCP 配置](https://code.claude.com/docs/zh-CN/mcp.md)的路径
 * `--allowedTools`：允许的工具的逗号分隔列表。`--allowed-tools` 别名也可以使用
 * `--debug`：启用调试输出
 
@@ -400,7 +400,7 @@ claude_args: "--max-turns 5 --model claude-sonnet-5 --mcp-config /path/to/config
 
 ## 接下来
 
-* [将 Claude Code GitHub Actions 与云提供商一起使用](/docs/zh-CN/github-actions-cloud-providers.md)：通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 路由推理
+* [将 Claude Code GitHub Actions 与云提供商一起使用](https://code.claude.com/docs/zh-CN/github-actions-cloud-providers.md)：通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 路由推理
 * [配置参考](https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md#inputs)：action 输入的完整列表
 * [Examples 目录](https://github.com/anthropics/claude-code-action/tree/main/examples)：更多场景的现成工作流
-* [Code Review](/docs/zh-CN/code-review.md)：无需维护工作流文件的自动拉取请求审查
+* [Code Review](https://code.claude.com/docs/zh-CN/code-review.md)：无需维护工作流文件的自动拉取请求审查

@@ -24,7 +24,7 @@
 | - | - |
 | `#claude-code` 频道已创建并在消息中链接 | 为问题提供一个统一的落地点 |
 | 在您环境中至少一台机器上测试了安装命令 | 在所有人同时遇到代理或防火墙问题之前捕获它们 |
-| 安全和数据处理链接已准备好（[数据使用](/docs/zh-CN/data-usage.md) 或您的内部等效项） | "我的代码去哪里了？" 将是第一个回复 |
+| 安全和数据处理链接已准备好（[数据使用](https://code.claude.com/docs/zh-CN/data-usage.md) 或您的内部等效项） | "我的代码去哪里了？" 将是第一个回复 |
 | 已选择一个具体的首个任务，您代码库中的真实错误或文件 | 通用示例不会转化；"修复 `auth_test.go` 中的不稳定测试" 会 |
 | 为前 48 小时指定的频道所有者 | 未回答的推出当天问题会杀死势头 |
 | 已安排一位 C 级高管赞助商发送或共同签署公告 | 由高管发送的推出在第一周采用率上始终比由管理员或工具团队发送的相同消息更高 |
@@ -185,9 +185,9 @@ Claude Code 在与 Claude 应用相同的模型上运行，您可以在会话中
 
 | 模型 | 最适合 |
 | - | - |
-| Fable | 最困难、最长时间运行的任务。仅选择加入：使用 `/model fable` 选择它。网络安全或生物学内容触发[自动模型回退到 Opus](/docs/zh-CN/model-config.md#automatic-model-fallback) |
-| Opus | 大规模重构、复杂调试、架构决策、高风险更改。在 Opus 5.5 和 Opus 5 上，网络安全或生物学内容触发[自动模型回退或拒绝](/docs/zh-CN/model-config.md#automatic-model-fallback) |
-| Sonnet | 日常功能工作、错误修复、测试、文档、代码审查。推荐默认值。在 Sonnet 5.5 上，网络安全或生物学内容触发[自动模型回退或拒绝](/docs/zh-CN/model-config.md#automatic-model-fallback) |
+| Fable | 最困难、最长时间运行的任务。仅选择加入：使用 `/model fable` 选择它。网络安全或生物学内容触发[自动模型回退到 Opus](https://code.claude.com/docs/zh-CN/model-config.md#automatic-model-fallback) |
+| Opus | 大规模重构、复杂调试、架构决策、高风险更改。在 Opus 5.5 和 Opus 5 上，网络安全或生物学内容触发[自动模型回退或拒绝](https://code.claude.com/docs/zh-CN/model-config.md#automatic-model-fallback) |
+| Sonnet | 日常功能工作、错误修复、测试、文档、代码审查。推荐默认值。在 Sonnet 5.5 上，网络安全或生物学内容触发[自动模型回退或拒绝](https://code.claude.com/docs/zh-CN/model-config.md#automatic-model-fallback) |
 | Haiku | 快速问题、格式化、机械编辑、快速迭代 |
 
 **快速赢得尝试首先**
@@ -405,12 +405,12 @@ Skills 被捆绑并作为插件共享。`/plugin` 浏览可用的内容并在一
 
 | 问题 | 回复 |
 | - | - |
-| "它在 VS Code 中工作吗？" | 是的。有一个 VS Code 扩展和一个 JetBrains 插件，具有相同的功能，嵌入在您的编辑器中。[VS Code →](/docs/zh-CN/vs-code.md) |
-| "我必须先配置什么吗？" | 不。安装，然后在任何仓库中运行 `claude`。运行一次 `/init`，您就设置好了。[快速入门 →](/docs/zh-CN/quickstart.md) |
-| "我的代码去哪里了？" | CLI 在您的终端中运行，并将上下文发送到 Anthropic 的 API 进行推理。在 Team 或 Enterprise 计划上，您的代码和提示词不会用于训练模型。[数据使用 →](/docs/zh-CN/data-usage.md) |
-| "它能看到我的整个仓库吗？" | 它读取您授予其访问权限的内容。您工作目录内的文件读取不会弹出提示。[权限 →](/docs/zh-CN/permissions.md) |
-| "这与 Copilot 有什么不同？" | Copilot 自动完成行。Claude Code 是一个读取文件、运行命令和进行多文件编辑的代理。[概述 →](/docs/zh-CN/overview.md) |
-| "我应该首先尝试什么？" | 您一直在推迟的错误，因为它很乏味。"文件 \[file] 中的测试不稳定，找出原因。" [快速入门 →](/docs/zh-CN/quickstart.md) |
+| "它在 VS Code 中工作吗？" | 是的。有一个 VS Code 扩展和一个 JetBrains 插件，具有相同的功能，嵌入在您的编辑器中。[VS Code →](https://code.claude.com/docs/zh-CN/vs-code.md) |
+| "我必须先配置什么吗？" | 不。安装，然后在任何仓库中运行 `claude`。运行一次 `/init`，您就设置好了。[快速入门 →](https://code.claude.com/docs/zh-CN/quickstart.md) |
+| "我的代码去哪里了？" | CLI 在您的终端中运行，并将上下文发送到 Anthropic 的 API 进行推理。在 Team 或 Enterprise 计划上，您的代码和提示词不会用于训练模型。[数据使用 →](https://code.claude.com/docs/zh-CN/data-usage.md) |
+| "它能看到我的整个仓库吗？" | 它读取您授予其访问权限的内容。您工作目录内的文件读取不会弹出提示。[权限 →](https://code.claude.com/docs/zh-CN/permissions.md) |
+| "这与 Copilot 有什么不同？" | Copilot 自动完成行。Claude Code 是一个读取文件、运行命令和进行多文件编辑的代理。[概述 →](https://code.claude.com/docs/zh-CN/overview.md) |
+| "我应该首先尝试什么？" | 您一直在推迟的错误，因为它很乏味。"文件 \[file] 中的测试不稳定，找出原因。" [快速入门 →](https://code.claude.com/docs/zh-CN/quickstart.md) |
 
 ### 提示模板
 
@@ -429,4 +429,4 @@ Skills 被捆绑并作为插件共享。`/plugin` 浏览可用的内容并在一
 
 > [!TIP]
 >
-> Claude Code 频繁发货。在内部分发前，根据[文档主页](/docs/zh-CN/overview.md)验证版本特定的详情。
+> Claude Code 频繁发货。在内部分发前，根据[文档主页](https://code.claude.com/docs/zh-CN/overview.md)验证版本特定的详情。

@@ -38,11 +38,11 @@
 
 ## 自定义代理行为
 
-`append` 和自定义提示字符串各自直接改变系统提示，输出样式改变 Claude Code 为每个响应给 Claude 的指令。CLAUDE.md 采用不同的路径：SDK 读取它并将其内容注入到对话中作为项目上下文，因此它与你选择的任何系统提示一起塑造行为。[Skills](/docs/zh-CN/agent-sdk/skills.md)、[hooks](/docs/zh-CN/agent-sdk/hooks.md) 和 [permissions](/docs/zh-CN/agent-sdk/permissions.md) 也在系统提示之外塑造行为，并在各自的页面上介绍。
+`append` 和自定义提示字符串各自直接改变系统提示，输出样式改变 Claude Code 为每个响应给 Claude 的指令。CLAUDE.md 采用不同的路径：SDK 读取它并将其内容注入到对话中作为项目上下文，因此它与你选择的任何系统提示一起塑造行为。[Skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md)、[hooks](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md) 和 [permissions](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md) 也在系统提示之外塑造行为，并在各自的页面上介绍。
 
 ### 用于项目级指令的 CLAUDE.md 文件
 
-CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其内容注入到对话中并保持系统提示不变，因此它们与任何系统提示配置一起工作。关于在 CLAUDE.md 中放什么、放在哪里以及如何编写有效的指令，请参阅 [When to add to CLAUDE.md](/docs/zh-CN/memory.md#when-to-add-to-claude-md) 和 [How Claude remembers your project](/docs/zh-CN/memory.md) 的其余部分。本节涵盖 SDK 特定的内容：CLAUDE.md 如何加载。
+CLAUDE.md 文件为 Claude 提供持久的项目上下文和指令。SDK 将其内容注入到对话中并保持系统提示不变，因此它们与任何系统提示配置一起工作。关于在 CLAUDE.md 中放什么、放在哪里以及如何编写有效的指令，请参阅 [When to add to CLAUDE.md](https://code.claude.com/docs/zh-CN/memory.md#when-to-add-to-claude-md) 和 [How Claude remembers your project](https://code.claude.com/docs/zh-CN/memory.md) 的其余部分。本节涵盖 SDK 特定的内容：CLAUDE.md 如何加载。
 
 SDK 在匹配的设置源启用时读取 CLAUDE.md：`'project'` 从工作目录加载 `CLAUDE.md` 或 `.claude/CLAUDE.md`，`'user'` 加载 `~/.claude/CLAUDE.md`。默认 `query()` 选项启用两个源，因此 CLAUDE.md 自动加载。如果你在 TypeScript 中显式设置 `settingSources` 或在 Python 中设置 `setting_sources`，请包含你需要的源。CLAUDE.md 加载由设置源控制，而不是由 `claude_code` 预设控制。
 
@@ -108,9 +108,9 @@ CLAUDE.md 在项目中的所有会话中持久存在，通过 git 与你的团�
 
 #### 创建输出样式
 
-输出样式是一个 markdown 文件，包含用于元数据的 [frontmatter](/docs/zh-CN/output-styles.md#frontmatter)，后跟提示内容。将其保存到 `~/.claude/output-styles/` 以获得在每个项目中可用的用户级样式，或保存到你的存储库中的 `.claude/output-styles/` 以获得可以提交并与你的团队共享的项目级样式。
+输出样式是一个 markdown 文件，包含用于元数据的 [frontmatter](https://code.claude.com/docs/zh-CN/output-styles.md#frontmatter)，后跟提示内容。将其保存到 `~/.claude/output-styles/` 以获得在每个项目中可用的用户级样式，或保存到你的存储库中的 `.claude/output-styles/` 以获得可以提交并与你的团队共享的项目级样式。
 
-自定义输出样式会省略 `claude_code` 预设的软件工程指令，转而使用您自己的指令。要保留这些指令并在其上叠加您的指令，请在 frontmatter 中设置 `keep-coding-instructions: true`。这些指令仅存在于 Claude Code 的完整系统提示词中，因此在使用较短系统提示词的会话中，该设置不起作用；将 [`CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT`](/docs/zh-CN/env-vars#variables) 设置为 `0` 即可在任何模型上选择完整提示词。当您的 Agent 仍在执行软件工程工作时，请保留它们。当您要完全替换角色时，请省略它们。
+自定义输出样式会省略 `claude_code` 预设的软件工程指令，转而使用您自己的指令。要保留这些指令并在其上叠加您的指令，请在 frontmatter 中设置 `keep-coding-instructions: true`。这些指令仅存在于 Claude Code 的完整系统提示词中，因此在使用较短系统提示词的会话中，该设置不起作用；将 [`CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `0` 即可在任何模型上选择完整提示词。当您的 Agent 仍在执行软件工程工作时，请保留它们。当您要完全替换角色时，请省略它们。
 
 下面的示例定义了一个代码审查角色，它保留编码指令，因为审查代码仍然受益于 Claude Code 的安全和代码质量指导。将其保存为 `~/.claude/output-styles/code-reviewer.md` 以使其在项目中可用：
 
@@ -257,7 +257,7 @@ asyncio.run(main())
 
 **权衡：** 移出系统提示的文本仍然到达 Claude，但在用户消息中。该文本至少是自动内存目录的位置，通常是整个自动内存部分。用户消息中的指令比系统提示中的相同文本的权重略低，因此 Claude 可能会更少一致地遵循其自动内存指导。当跨会话缓存重复使用比最大化权威环境上下文更重要时，启用此选项。
 
-对于非交互式 CLI 模式中的等效标志，请参阅 [`--exclude-dynamic-system-prompt-sections`](/docs/zh-CN/cli-reference)。
+对于非交互式 CLI 模式中的等效标志，请参阅 [`--exclude-dynamic-system-prompt-sections`](https://code.claude.com/docs/zh-CN/cli-reference)。
 
 ### 自定义系统提示
 
@@ -318,15 +318,15 @@ async def main():
 asyncio.run(main())
 ```
 
-在 Python 中，使用 `system_prompt={"type": "file", "path": "..."}` 从文件加载大型自定义提示，而不是将其作为字符串传递。Python SDK 将字符串提示作为一个命令行参数传递给 CLI 子进程，因此超过 OS 参数长度限制的提示在任何 API 请求发送之前在进程生成时失败。在 Linux 上，错误是 `Argument list too long`。请参阅 [`SystemPromptFile`](/docs/zh-CN/agent-sdk/python#systempromptfile) 了解平台阈值和 Windows 行为。
+在 Python 中，使用 `system_prompt={"type": "file", "path": "..."}` 从文件加载大型自定义提示，而不是将其作为字符串传递。Python SDK 将字符串提示作为一个命令行参数传递给 CLI 子进程，因此超过 OS 参数长度限制的提示在任何 API 请求发送之前在进程生成时失败。在 Linux 上，错误是 `Argument list too long`。请参阅 [`SystemPromptFile`](https://code.claude.com/docs/zh-CN/agent-sdk/python#systempromptfile) 了解平台阈值和 Windows 行为。
 
 #### 缓存自定义提示的静态部分
 
-在 TypeScript SDK 中，你可以将自定义提示作为字符串数组而不是一个字符串传递，在静态部分和其余部分之间使用 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 标记。当你的提示结合在每个请求上相同的指令与每个请求变化的上下文（如代理处理的客户或工单）时，使用此方法。当你将两部分作为一个字符串传递时，对每个请求部分的更改会改变整个系统提示，因此静态指令也会错过缓存。数组形式在 Python SDK 中不可用；[`ClaudeAgentOptions`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 列出 `system_prompt` 接受的形式。
+在 TypeScript SDK 中，你可以将自定义提示作为字符串数组而不是一个字符串传递，在静态部分和其余部分之间使用 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 标记。当你的提示结合在每个请求上相同的指令与每个请求变化的上下文（如代理处理的客户或工单）时，使用此方法。当你将两部分作为一个字符串传递时，对每个请求部分的更改会改变整个系统提示，因此静态指令也会错过缓存。数组形式在 Python SDK 中不可用；[`ClaudeAgentOptions`](https://code.claude.com/docs/zh-CN/agent-sdk/python#claudeagentoptions) 列出 `system_prompt` 接受的形式。
 
 > [!NOTE]
 >
-> Claude Code 仅在直接调用 Claude API 或在 [Claude Platform on AWS](/docs/zh-CN/claude-platform-on-aws.md) 上运行时拆分提示。在所有其他配置中，例如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [LLM gateway](/docs/zh-CN/llm-gateway-connect.md)，它将整个提示作为一个块发送，与传递一个字符串相同。每当你设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 时也会发生这种情况。
+> Claude Code 仅在直接调用 Claude API 或在 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 上运行时拆分提示。在所有其他配置中，例如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [LLM gateway](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md)，它将整个提示作为一个块发送，与传递一个字符串相同。每当你设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](https://code.claude.com/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 时也会发生这种情况。
 
 要拆分提示，从 `@anthropic-ai/claude-agent-sdk` 导入 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 并将其作为自己的数组元素在两部分之间传递。SDK 将标记之前的字符串作为一个文本块发送，将标记之后的字符串作为第二个块发送，每个都有自己的缓存断点。在下面的示例中，支持代理从文件加载其分类指令，并在每个请求上接收有关一个工单的详细信息，因此指令保持缓存，而工单详细信息改变：
 
@@ -349,7 +349,7 @@ for await (const message of query({
 }
 ```
 
-[Track cache tokens](/docs/zh-CN/agent-sdk/cost-tracking.md#track-cache-tokens) 描述了每个结果消息上的 `cache_creation_input_tokens` 和 `cache_read_input_tokens` 字段。
+[Track cache tokens](https://code.claude.com/docs/zh-CN/agent-sdk/cost-tracking.md#track-cache-tokens) 描述了每个结果消息上的 `cache_creation_input_tokens` 和 `cache_read_input_tokens` 字段。
 
 SDK 从数组中组装块如下：
 
@@ -357,7 +357,7 @@ SDK 从数组中组装块如下：
 * 如果你多次包含标记，第一个是拆分，SDK 删除其他的。
 * 如果你省略标记，SDK 将所有字符串连接到一个块中，与传递一个字符串相同。
 
-使用 CLI 的 [`--system-prompt` 或 `--system-prompt-file` 标志](/docs/zh-CN/cli-reference#system-prompt-flags)，提示是一个字符串，因此没有数组来携带标记。在静态和每个请求部分之间包含仅包含 `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__` 的行。Claude Code 在第一个这样的行处拆分提示为相同的两个块并删除该行。需要 Claude Code v2.1.275 或更高版本。
+使用 CLI 的 [`--system-prompt` 或 `--system-prompt-file` 标志](https://code.claude.com/docs/zh-CN/cli-reference#system-prompt-flags)，提示是一个字符串，因此没有数组来携带标记。在静态和每个请求部分之间包含仅包含 `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__` 的行。Claude Code 在第一个这样的行处拆分提示为相同的两个块并删除该行。需要 Claude Code v2.1.275 或更高版本。
 
 在 SDK 中，更喜欢数组形式，它不带标记行地携带边界。
 
@@ -370,17 +370,17 @@ SDK 从数组中组装块如下：
 如果你在系统提示中放置的指令需要在会话运行时改变，例如因为你的用户将代理切换到只读模式或在你的应用中编辑其配置，请在对话中发送新指令，而不是改变 `systemPrompt`：
 
 * **在你的下一条消息中**：在你发送的下一条用户消息中包含新指令。
-* **从 hook 中**：从 `UserPromptSubmit` 或 `PostToolUse` [hook 回调](/docs/zh-CN/agent-sdk/hooks.md#outputs) 返回 [`additionalContext`](/docs/zh-CN/hooks#add-context-for-claude)，写成事实陈述，如"工作区现在是只读的"。SDK 在 hook 触发的点将文本插入到对话中，因此记录的提示保持不变。
+* **从 hook 中**：从 `UserPromptSubmit` 或 `PostToolUse` [hook 回调](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md#outputs) 返回 [`additionalContext`](https://code.claude.com/docs/zh-CN/hooks#add-context-for-claude)，写成事实陈述，如"工作区现在是只读的"。SDK 在 hook 触发的点将文本插入到对话中，因此记录的提示保持不变。
 
 #### 在迭代措辞时关闭记录
 
-当你迭代提示措辞并希望每个编辑到达你恢复的会话时，在系统提示的对象形式上设置 `snapshot` 为 false。Claude Code 然后在每个请求上重建提示。该字段在 TypeScript 中的 [`systemPrompt`](/docs/zh-CN/agent-sdk/typescript#options) 的预设和自定义形式上可用，在 Python 中的 [`system_prompt`](/docs/zh-CN/agent-sdk/python#systempromptpreset) 上可用，并需要 `@anthropic-ai/claude-agent-sdk` v0.3.257 或更高版本，或 `claude-agent-sdk` v0.2.153 或更高版本。
+当你迭代提示措辞并希望每个编辑到达你恢复的会话时，在系统提示的对象形式上设置 `snapshot` 为 false。Claude Code 然后在每个请求上重建提示。该字段在 TypeScript 中的 [`systemPrompt`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 的预设和自定义形式上可用，在 Python 中的 [`system_prompt`](https://code.claude.com/docs/zh-CN/agent-sdk/python#systempromptpreset) 上可用，并需要 `@anthropic-ai/claude-agent-sdk` v0.3.257 或更高版本，或 `claude-agent-sdk` v0.2.153 或更高版本。
 
-在生产中保持记录打开。关闭记录时，恢复的会话上的不同 `append` 或自定义提示在下一轮到达 Claude，该请求无法重复使用会话的 [prompt cache](/docs/zh-CN/prompt-caching.md#how-the-cache-is-organized)。在 API 强制 [preserved thinking](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking) 的地方，Claude 也会失去其早期轮次的思考。
+在生产中保持记录打开。关闭记录时，恢复的会话上的不同 `append` 或自定义提示在下一轮到达 Claude，该请求无法重复使用会话的 [prompt cache](https://code.claude.com/docs/zh-CN/prompt-caching.md#how-the-cache-is-organized)。在 API 强制 [preserved thinking](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking) 的地方，Claude 也会失去其早期轮次的思考。
 
-在 [cloud sessions](/docs/zh-CN/cloud-environments.md) 之外，如果你通过 `extraArgs` 传递 `--bare` 或设置 `CLAUDE_CODE_SIMPLE=1` 在 [bare mode](/docs/zh-CN/headless.md#start-faster-with-bare-mode) 中启动 Claude Code，记录保持关闭，除非你设置 `snapshot: true`。
+在 [cloud sessions](https://code.claude.com/docs/zh-CN/cloud-environments.md) 之外，如果你通过 `extraArgs` 传递 `--bare` 或设置 `CLAUDE_CODE_SIMPLE=1` 在 [bare mode](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode) 中启动 Claude Code，记录保持关闭，除非你设置 `snapshot: true`。
 
-默认记录 `append` 或自定义提示需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑，Python Agent SDK 从 v0.2.153 捆绑。在 Claude Code v2.1.268 之前，不 [fetch feature flags](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching) 的会话，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的会话，在每个请求上重建提示，`snapshot` 无效。
+默认记录 `append` 或自定义提示需要 Claude Code v2.1.265 或更高版本，TypeScript Agent SDK 从 v0.3.265 捆绑，Python Agent SDK 从 v0.2.153 捆绑。在 Claude Code v2.1.268 之前，不 [fetch feature flags](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching) 的会话，包括 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的会话，在每个请求上重建提示，`snapshot` 无效。
 
 ## Claude Code 在系统提示之外添加的上下文
 
@@ -394,11 +394,11 @@ SDK 从数组中组装块如下：
 
 * **项目说明**：您的 [`settingSources`](#claude-md-files-for-project-level-instructions) 选项加载的 CLAUDE.md 文件
 * **输出样式说明**：活跃[输出样式](#output-styles-for-persistent-configurations)的说明，在主对话中
-* **提交和拉取请求归属**：来自 [`attribution`](/docs/zh-CN/settings-reference#attribution) 设置的 `Co-Authored-By` 预告片和拉取请求页脚
-* **Hook 输出**：您的 [hooks](/docs/zh-CN/agent-sdk/hooks.md#outputs) 作为 `additionalContext` 返回的文本
-* **可用技能**：Claude 可以调用的 [skills](/docs/zh-CN/agent-sdk/skills.md) 的名称和描述
-* **可用子代理**：Claude 可以启动的 [subagents](/docs/zh-CN/agent-sdk/subagents.md) 的名称和描述
-* **任务列表提示**：在[具有任务跟踪工具的会话](/docs/zh-CN/agent-sdk/todo-tracking.md#model-availability)中，当 Claude 在多个轮次中未触及任务列表时，提示更新任务列表
+* **提交和拉取请求归属**：来自 [`attribution`](https://code.claude.com/docs/zh-CN/settings-reference#attribution) 设置的 `Co-Authored-By` 预告片和拉取请求页脚
+* **Hook 输出**：您的 [hooks](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md#outputs) 作为 `additionalContext` 返回的文本
+* **可用技能**：Claude 可以调用的 [skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md) 的名称和描述
+* **可用子代理**：Claude 可以启动的 [subagents](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md) 的名称和描述
+* **任务列表提示**：在[具有任务跟踪工具的会话](https://code.claude.com/docs/zh-CN/agent-sdk/todo-tracking.md#model-availability)中，当 Claude 在多个轮次中未触及任务列表时，提示更新任务列表
 * **文件更改说明**：Claude 之前读取的文件在磁盘上已更改的说明
 
 Claude Code 使用一行文本介绍您的 CLAUDE.md 文件，告诉 Claude 这些说明会覆盖默认行为。
@@ -413,19 +413,19 @@ The application adds system reminders to this conversation. Treat them as contex
 
 当您的代理提供相同指导的自己版本时，关闭一段内置上下文。例如，如果您的提示告诉 Claude 将提交消息写成 `PROJ-142: fix login redirect` 且没有预告片，Claude Code 仍然会告诉 Claude 以 `Co-Authored-By` 预告片结束每条提交消息，因此 Claude 会收到两个关于同一提交的冲突指令。
 
-在 TypeScript 中通过 [`settings`](/docs/zh-CN/agent-sdk/typescript#options) 选项或在 Python 中通过 [`settings`](/docs/zh-CN/agent-sdk/python#claudeagentoptions) 传递设置键，并通过 `env` 选项传递环境变量。在 TypeScript 中，[`env`](/docs/zh-CN/agent-sdk/typescript#options) 替换继承的环境，因此将 `process.env` 展开到其中。
+在 TypeScript 中通过 [`settings`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 选项或在 Python 中通过 [`settings`](https://code.claude.com/docs/zh-CN/agent-sdk/python#claudeagentoptions) 传递设置键，并通过 `env` 选项传递环境变量。在 TypeScript 中，[`env`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 替换继承的环境，因此将 `process.env` 展开到其中。
 
 | 内置上下文 | 如何关闭 |
 | :- | :- |
-| 内置提交和拉取请求说明以及 git 状态快照 | 将 [`includeGitInstructions`](/docs/zh-CN/settings-reference#includegitinstructions) 设置为 `false`，或 `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS=1` |
-| `Co-Authored-By` 预告片和拉取请求页脚 | 将 [`attribution.commit`](/docs/zh-CN/settings-reference#attribution-commit) 和 [`attribution.pr`](/docs/zh-CN/settings-reference#attribution-pr) 设置为您自己的文本，或设置为空字符串以删除它们 |
-| 用户或项目设置源，包括其 CLAUDE.md | 从 [`settingSources`](/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources) 中省略 `'user'` 或 `'project'` |
+| 内置提交和拉取请求说明以及 git 状态快照 | 将 [`includeGitInstructions`](https://code.claude.com/docs/zh-CN/settings-reference#includegitinstructions) 设置为 `false`，或 `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS=1` |
+| `Co-Authored-By` 预告片和拉取请求页脚 | 将 [`attribution.commit`](https://code.claude.com/docs/zh-CN/settings-reference#attribution-commit) 和 [`attribution.pr`](https://code.claude.com/docs/zh-CN/settings-reference#attribution-pr) 设置为您自己的文本，或设置为空字符串以删除它们 |
+| 用户或项目设置源，包括其 CLAUDE.md | 从 [`settingSources`](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources) 中省略 `'user'` 或 `'project'` |
 | 每个 CLAUDE.md 文件 | 设置 `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1` |
 | 任务列表提示、文件更改说明和技能列表 | 设置 `CLAUDE_CODE_DISABLE_ATTACHMENTS=1` |
 
 将 `includeGitInstructions` 设置为 `false` 可排除内置的提交和 Pull Request 说明；这些说明是 Bash 工具描述的一部分，即使使用自定义 `systemPrompt` 也会传达给 Claude。不过，在使用最小默认设置、自定义 `systemPrompt` 或带有自身提示词的自定义主线程 Agent 时，会话启动时不会包含 git 状态快照。
 
-如果您设置 `CLAUDE_CODE_DISABLE_ATTACHMENTS`，Claude Code 也会将 `@` 文件提及作为纯文本发送，而不是将其展开为文件内容。可用子代理列表和后台任务通知仍然会到达。如果只想阻止 `@` 文件提及被展开，请改为设置 [`CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`](/docs/zh-CN/env-vars#variables)（需要 Claude Code v2.1.299 或更高版本）。这样 Claude 会收到所提及的路径，以及一条提示其使用文件工具读取这些路径的说明。
+如果您设置 `CLAUDE_CODE_DISABLE_ATTACHMENTS`，Claude Code 也会将 `@` 文件提及作为纯文本发送，而不是将其展开为文件内容。可用子代理列表和后台任务通知仍然会到达。如果只想阻止 `@` 文件提及被展开，请改为设置 [`CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`](https://code.claude.com/docs/zh-CN/env-vars#variables)（需要 Claude Code v2.1.299 或更高版本）。这样 Claude 会收到所提及的路径，以及一条提示其使用文件工具读取这些路径的说明。
 
 以下示例适用于在 `append` 中携带自己提交规则的代理。它将两个 `attribution` 键都设置为空字符串以删除预告片和页脚，并关闭 `includeGitInstructions`，以便 Claude Code 自己的提交工作流说明不会与您的说明竞争：
 
@@ -481,8 +481,8 @@ asyncio.run(main())
 
 SDK 消息流不包括系统提醒，因此读取您的代码接收的消息不会显示 Claude 看到的内容。要查看它们，请记录 Claude Code 发送的请求：
 
-* **原始请求日志记录**：将 [`OTEL_LOG_RAW_API_BODIES`](/docs/zh-CN/monitoring-usage#api-request-body-event) 设置为 `file:<dir>`。Claude Code 将每个请求体写入该目录。
-* **您控制的网关**：将 [`ANTHROPIC_BASE_URL`](/docs/zh-CN/llm-gateway) 指向记录请求体的代理。
+* **原始请求日志记录**：将 [`OTEL_LOG_RAW_API_BODIES`](https://code.claude.com/docs/zh-CN/monitoring-usage#api-request-body-event) 设置为 `file:<dir>`。Claude Code 将每个请求体写入该目录。
+* **您控制的网关**：将 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/llm-gateway) 指向记录请求体的代理。
 
 在记录的请求中，查看 `messages` 数组。提醒出现在用 `<system-reminder>` 标签包装的用户消息内，或在某些模型上，作为具有 `system` 角色的单独消息。
 
@@ -571,8 +571,8 @@ asyncio.run(main())
 
 ## 另请参阅
 
-* [输出样式](/docs/zh-CN/output-styles.md)：为 CLI 创建、管理和共享输出样式，包括文件格式和存储位置
-* [Claude 如何记住您的项目](/docs/zh-CN/memory.md)：CLAUDE.md 中应放入的内容、放置位置以及如何编写有效的项目说明
-* [TypeScript SDK 参考](/docs/zh-CN/agent-sdk/typescript.md)：完整的 `Options` 类型，包括 `systemPrompt`、`settingSources` 和 `settings`
-* [Python SDK 参考](/docs/zh-CN/agent-sdk/python.md)：完整的 `ClaudeAgentOptions` 类型，包括 `system_prompt` 和 `setting_sources`
-* [Settings](/docs/zh-CN/settings.md)：`settings.json` 参考，包括输出样式和其他配置的存储位置
+* [输出样式](https://code.claude.com/docs/zh-CN/output-styles.md)：为 CLI 创建、管理和共享输出样式，包括文件格式和存储位置
+* [Claude 如何记住您的项目](https://code.claude.com/docs/zh-CN/memory.md)：CLAUDE.md 中应放入的内容、放置位置以及如何编写有效的项目说明
+* [TypeScript SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md)：完整的 `Options` 类型，包括 `systemPrompt`、`settingSources` 和 `settings`
+* [Python SDK 参考](https://code.claude.com/docs/zh-CN/agent-sdk/python.md)：完整的 `ClaudeAgentOptions` 类型，包括 `system_prompt` 和 `setting_sources`
+* [Settings](https://code.claude.com/docs/zh-CN/settings.md)：`settings.json` 参考，包括输出样式和其他配置的存储位置

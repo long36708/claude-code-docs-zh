@@ -6,7 +6,7 @@
 
 > 修复未启动、失败或因预算原因被跳过的 Code Review，查找缺失的发现项，并解决设置和 `REVIEW.md` 问题。
 
-当 [Code Review](/docs/zh-CN/code-review.md) 在 Pull Request 上的表现不符合预期时，请先查看 **Claude Code Review** 检查运行。它的标题会说明审查进行到了哪一步。
+当 [Code Review](https://code.claude.com/docs/zh-CN/code-review.md) 在 Pull Request 上的表现不符合预期时，请先查看 **Claude Code Review** 检查运行。它的标题会说明审查进行到了哪一步。
 
 ## 查看审查进行到了哪一步
 
@@ -18,7 +18,7 @@
 | **Code review found no issues** | 审查已完成，未发现需要标记的问题 | 无需操作 |
 | 表示发现了问题的标题 | 审查已完成并有发现项 | 如果在 diff 上看不到这些发现项，请参阅[查找未显示为内联评论的问题](#find-issues-that-aren’t-showing-as-inline-comments) |
 | **Code review skipped — no new changes** | 自动审查未在您最新的推送上运行 | 如果仍想获得审查，请评论 `@claude review` |
-| **Code review not repeated — earlier findings still open** | 自动审查未在您最新的推送上运行，且之前审查中的 Important 发现项仍未解决 | 推送修复；如果仍想获得审查，请评论 `@claude review`。请参阅[推送保留之前结果的情况](/docs/zh-CN/code-review-pull-requests.md#when-a-push-keeps-the-earlier-result) |
+| **Code review not repeated — earlier findings still open** | 自动审查未在您最新的推送上运行，且之前审查中的 Important 发现项仍未解决 | 推送修复；如果仍想获得审查，请评论 `@claude review`。请参阅[推送保留之前结果的情况](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#when-a-push-keeps-the-earlier-result) |
 | **Code review failed** 或 **Code review timed out** | 审查未完成 | 要重新运行，请参阅[重新触发失败或超时的审查](#retrigger-a-failed-or-timed-out-review) |
 | **Code review declined** | 审查未运行 | 阅读检查运行的摘要。如果其中提到预算或支出限额，请参阅[审查未运行且 PR 显示预算消息](#review-didn’t-run-and-the-pr-shows-a-budget-message) |
 | 没有检查运行 | 没有启动任何审查 | 评论 `@claude review`。如果之后仍未出现检查运行，请参阅[评论命令未启动审查](#a-comment-command-didn’t-start-a-review) |
@@ -31,9 +31,9 @@
 
 在您评论 `@claude review` 之后，请查看 Pull Request 上是否出现标题为 **Code review queued...** 或 **Code review in progress...** 的 **Claude Code Review** 检查运行。您的评论上出现 👀 表情回应并不能确认审查即将开始。如果没有出现检查运行，请逐一检查以下原因：
 
-* **此仓库未启用 Code Review**：Claude 不会针对该命令发布任何评论或检查运行。请让 Owner [添加该仓库](/docs/zh-CN/code-review-setup.md#add-more-repositories)。
-* **评论不满足某个条件**：评论是内联评论或审查正文，而不是新的顶层评论，或者命令不在评论开头。编辑先前的评论而不是发布新评论也不算数，并且 Pull Request 必须处于打开状态。请参阅[评论命令的条件](/docs/zh-CN/code-review-pull-requests.md#comment-commands)，并发布一条满足这些条件的新评论。
-* **您没有写入权限**：您需要拥有该仓库的 write、maintain 或 admin 权限；对于来自 fork 的 Pull Request，起作用的是基础仓库上的权限。除非该 Pull Request 是您自己的，否则 Claude 可能会回复一条[提示](/docs/zh-CN/code-review-setup.md#turn-tip-comments-on-or-off)："No review was started: manual reviews can only be requested by someone with write access to this repository."。请让具有写入权限的人来发表评论。
+* **此仓库未启用 Code Review**：Claude 不会针对该命令发布任何评论或检查运行。请让 Owner [添加该仓库](https://code.claude.com/docs/zh-CN/code-review-setup.md#add-more-repositories)。
+* **评论不满足某个条件**：评论是内联评论或审查正文，而不是新的顶层评论，或者命令不在评论开头。编辑先前的评论而不是发布新评论也不算数，并且 Pull Request 必须处于打开状态。请参阅[评论命令的条件](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#comment-commands)，并发布一条满足这些条件的新评论。
+* **您没有写入权限**：您需要拥有该仓库的 write、maintain 或 admin 权限；对于来自 fork 的 Pull Request，起作用的是基础仓库上的权限。除非该 Pull Request 是您自己的，否则 Claude 可能会回复一条[提示](https://code.claude.com/docs/zh-CN/code-review-setup.md#turn-tip-comments-on-or-off)："No review was started: manual reviews can only be requested by someone with write access to this repository."。请让具有写入权限的人来发表评论。
 * **预算已用尽**：Claude 会发布一条以 "⚠️ Code review skipped" 开头的评论。请参阅[审查未运行且 PR 显示预算消息](#review-didn’t-run-and-the-pr-shows-a-budget-message)。
 
 ### 审查未运行且 PR 显示预算消息
@@ -42,11 +42,11 @@
 
 该评论会链接到 [claude.ai/admin-settings/usage](https://claude.ai/admin-settings/usage)，管理员可在此恢复预算。评论的措辞会告诉您达到了哪项限额：
 
-* **"has reached its monthly code review spending cap"**：已达到 [Code Review 的每月支出限额](/docs/zh-CN/code-review-costs.md#limit-your-spend)。审查将在下一个计费周期开始时恢复。如需更早恢复，请让管理员提高该限额。
+* **"has reached its monthly code review spending cap"**：已达到 [Code Review 的每月支出限额](https://code.claude.com/docs/zh-CN/code-review-costs.md#limit-your-spend)。审查将在下一个计费周期开始时恢复。如需更早恢复，请让管理员提高该限额。
 * **"has no extra usage available to pay for this review"**：您组织的[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)余额已用完，或已达到其总体每月支出限额。请让管理员添加使用额度或提高该限额。
 * **"is too low to start another review"**：剩余的预算或余额低于一次审查的预计费用。请让管理员提高限额或添加使用额度。
 
-预算恢复后，在 Pull Request 上评论 `@claude review` 即可获得之前被跳过的审查。[评论命令的条件](/docs/zh-CN/code-review-pull-requests.md#comment-commands)同样适用，因此评论者需要拥有写入权限。
+预算恢复后，在 Pull Request 上评论 `@claude review` 即可获得之前被跳过的审查。[评论命令的条件](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#comment-commands)同样适用，因此评论者需要拥有写入权限。
 
 ## 重新触发失败或超时的审查
 
@@ -55,7 +55,7 @@
 否则，当检查运行的标题为 **Code review failed** 或 **Code review timed out** 时，请通过评论或重新运行来再次运行审查：
 
 * **评论 `@claude review`**：将其作为顶层评论发布在 Pull Request 上。这会启动一次全新的审查，而不会让该 Pull Request 订阅后续推送。
-* **点击 Re-run**：如果该 Pull Request 不是[来自 fork](/docs/zh-CN/code-review-pull-requests.md#review-drafts-and-pull-requests-from-forks)，请在 GitHub 的 **Checks** 标签页中点击 **Claude Code Review** 检查上的 **Re-run**。重新运行会覆盖 Pull Request 当前的 head 提交，同样不会让该 Pull Request 订阅后续推送。
+* **点击 Re-run**：如果该 Pull Request 不是[来自 fork](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#review-drafts-and-pull-requests-from-forks)，请在 GitHub 的 **Checks** 标签页中点击 **Claude Code Review** 检查上的 **Re-run**。重新运行会覆盖 Pull Request 当前的 head 提交，同样不会让该 Pull Request 订阅后续推送。
 
 ## 查找未显示为内联评论的问题
 
@@ -69,16 +69,16 @@
 
 检查运行可能携带的关于 `REVIEW.md` 的消息中，有以下三条：
 
-* **"This review applied the repository's review instructions (REVIEW\.md) from its default branch, which is not protected against direct pushes."**：该审查仅读取了根目录下的文件。请参阅[从哪个分支读取 REVIEW.md](/docs/zh-CN/code-review-customize.md#which-branch-review-md-is-read-from)，了解保护该分支会带来哪些变化。
+* **"This review applied the repository's review instructions (REVIEW\.md) from its default branch, which is not protected against direct pushes."**：该审查仅读取了根目录下的文件。请参阅[从哪个分支读取 REVIEW.md](https://code.claude.com/docs/zh-CN/code-review-customize.md#which-branch-review-md-is-read-from)，了解保护该分支会带来哪些变化。
 * **"were not applied to this review: branch protection could not be confirmed"**：该审查没有读取任何 `REVIEW.md`。
-* **"they link to a file this pull request modifies, or carry more links than the review checks"**：该审查跳过了根目录下的 `REVIEW.md`，或跳过了消息中给出数量的子目录 `REVIEW.md` 文件。请针对以下每种原因检查被跳过的文件。对于根目录下的 `REVIEW.md`，还需检查[它所包含的文件](/docs/zh-CN/code-review-customize.md#include-other-files-in-review-md)：
-  * **链接过多**：文件包含超过 64 个 Markdown 链接。请将链接削减至 [64 个或更少](/docs/zh-CN/code-review-customize.md#include-other-files-in-review-md)。
+* **"they link to a file this pull request modifies, or carry more links than the review checks"**：该审查跳过了根目录下的 `REVIEW.md`，或跳过了消息中给出数量的子目录 `REVIEW.md` 文件。请针对以下每种原因检查被跳过的文件。对于根目录下的 `REVIEW.md`，还需检查[它所包含的文件](https://code.claude.com/docs/zh-CN/code-review-customize.md#include-other-files-in-review-md)：
+  * **链接过多**：文件包含超过 64 个 Markdown 链接。请将链接削减至 [64 个或更少](https://code.claude.com/docs/zh-CN/code-review-customize.md#include-other-files-in-review-md)。
   * **审查无法解析的链接**：文件中有格式错误的 Markdown 链接。请修复或删除该链接。
   * **指向已更改文件的链接**：文件链接到此 Pull Request 更改的文件或文件夹，且审查无法仅排除包含该链接的行。请直接在 `REVIEW.md` 中编写该规则。
 
 ## 设置问题
 
-以下情况会在 Owner [设置 Code Review](/docs/zh-CN/code-review-setup.md) 时出现。
+以下情况会在 Owner [设置 Code Review](https://code.claude.com/docs/zh-CN/code-review-setup.md) 时出现。
 
 ### 仓库未在 Add a repository 中列出
 
@@ -90,7 +90,7 @@
 
 ## 相关资源
 
-* [在 Pull Request 上阅读和请求审查](/docs/zh-CN/code-review-pull-requests.md)：发现项和检查运行的含义，以及评论命令
-* [设置 Code Review](/docs/zh-CN/code-review-setup.md)：供 Owner 使用，启用 Code Review 并管理仓库
-* [Code Review 费用和使用情况](/docs/zh-CN/code-review-costs.md)：预算消息背后的支出限额
-* [自定义 Code Review](/docs/zh-CN/code-review-customize.md)：审查读取的是哪一份 `REVIEW.md`
+* [在 Pull Request 上阅读和请求审查](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md)：发现项和检查运行的含义，以及评论命令
+* [设置 Code Review](https://code.claude.com/docs/zh-CN/code-review-setup.md)：供 Owner 使用，启用 Code Review 并管理仓库
+* [Code Review 费用和使用情况](https://code.claude.com/docs/zh-CN/code-review-costs.md)：预算消息背后的支出限额
+* [自定义 Code Review](https://code.claude.com/docs/zh-CN/code-review-customize.md)：审查读取的是哪一份 `REVIEW.md`

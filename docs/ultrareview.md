@@ -10,7 +10,7 @@
 >
 > Ultrareview 是一个研究预览功能。该功能、定价和可用性可能会根据反馈而改变。该命令是 `/code-review ultra`。当 ultrareview 对您的账户可用时，`/ultrareview` 是一个别名。
 
-Ultrareview 是在 Anthropic 基础设施上运行的[云会话](/docs/zh-CN/claude-code-on-the-web.md)中进行的深度代码审查。当您运行 `/code-review ultra` 时，Claude Code 在云沙箱中启动一队审查代理来查找您的分支或拉取请求中的错误。
+Ultrareview 是在 Anthropic 基础设施上运行的[云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中进行的深度代码审查。当您运行 `/code-review ultra` 时，Claude Code 在云沙箱中启动一队审查代理来查找您的分支或拉取请求中的错误。
 
 与本地 `/code-review` 相比，ultrareview 提供：
 
@@ -18,7 +18,7 @@ Ultrareview 是在 Anthropic 基础设施上运行的[云会话](/docs/zh-CN/cla
 * **更广泛的覆盖范围**：许多审查代理并行探索更改，这会发现本地审查可能遗漏的问题
 * **无本地资源使用**：审查完全在云沙箱中运行，因此您的终端在运行时保持空闲，可用于其他工作
 
-Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthropic 基础设施上作为云端会话运行。如果您仅使用 API 密钥登录，请先运行 `/login` 并使用 claude.ai 进行身份验证。当使用 Claude Code 与 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 时，Ultrareview 不可用；对于已启用零数据保留或已应用 [HIPAA 配置](/docs/zh-CN/hipaa-setup.md)的组织也不可用。在这些情况下，`/code-review ultra` 会改为在您的会话中运行本地审查。使用[客户管理的加密密钥](https://platform.claude.com/docs/en/manage-claude/cmek)（CMEK）的组织无法运行 ultrareview。要在本地审查您的更改，请运行 `/code-review`。
+Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthropic 基础设施上作为云端会话运行。如果您仅使用 API 密钥登录，请先运行 `/login` 并使用 claude.ai 进行身份验证。当使用 Claude Code 与 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 时，Ultrareview 不可用；对于已启用零数据保留或已应用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)的组织也不可用。在这些情况下，`/code-review ultra` 会改为在您的会话中运行本地审查。使用[客户管理的加密密钥](https://platform.claude.com/docs/en/manage-claude/cmek)（CMEK）的组织无法运行 ultrareview。要在本地审查您的更改，请运行 `/code-review`。
 
 ## 从 CLI 运行 ultrareview
 
@@ -30,7 +30,7 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthr
 
 不带参数时，ultrareview 审查您当前分支与默认分支之间的 diff，包括未提交和暂存的更改。
 
-对于分支审查，Claude Code 按照[将本地仓库上传到云端会话](/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github)的规则捆绑仓库状态并将其上传到云沙箱，这些规则涵盖了大小限制、检出要求，以及名称类似凭据或密钥的文件（如 `.env` 和 `*.tfvars` 文件）中的未提交更改会如何处理。当您[审查拉取请求](#review-a-pull-request)时，Claude Code 不会从您的计算机上传任何内容。
+对于分支审查，Claude Code 按照[将本地仓库上传到云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github)的规则捆绑仓库状态并将其上传到云沙箱，这些规则涵盖了大小限制、检出要求，以及名称类似凭据或密钥的文件（如 `.env` 和 `*.tfvars` 文件）中的未提交更改会如何处理。当您[审查拉取请求](#review-a-pull-request)时，Claude Code 不会从您的计算机上传任何内容。
 
 启动前，Claude Code 显示一个确认对话框，其中包含审查范围、您剩余的免费运行次数和估计成本；对于分支审查，范围包括文件和行数。确认后，审查在后台继续进行，您可以继续使用您的会话。
 
@@ -58,11 +58,11 @@ Ultrareview 需要使用 claude.ai 账户进行身份验证，因为它在 Anthr
 
 该命令也接受 `#1234`、`PR 1234` 和粘贴的 PR URL；粘贴的 URL 必须指向您当前目录中的存储库。
 
-PR 模式需要 `github.com` 上的仓库。对于 [GitHub Enterprise Server](/docs/zh-CN/github-enterprise-server.md) 实例上的仓库，请运行不带 PR 编号的 `/code-review ultra` 来审查您的本地分支。
+PR 模式需要 `github.com` 上的仓库。对于 [GitHub Enterprise Server](https://code.claude.com/docs/zh-CN/github-enterprise-server.md) 实例上的仓库，请运行不带 PR 编号的 `/code-review ultra` 来审查您的本地分支。
 
 在 PR 模式下，云沙箱从 `github.com` 克隆拉取请求，而不是上传您的工作树。它使用连接到您的 Claude 账户的 GitHub 账户，因此该账户需要对仓库具有读取权限。
 
-运行 [`/web-setup`](/docs/zh-CN/web-quickstart#connect-from-your-terminal) 将您的 GitHub CLI 登录连接到您的 Claude 账户。
+运行 [`/web-setup`](https://code.claude.com/docs/zh-CN/web-quickstart#connect-from-your-terminal) 将您的 GitHub CLI 登录连接到您的 Claude 账户。
 
 ### 将发现发布到拉取请求
 
@@ -73,7 +73,7 @@ Claude Code 永远不会发布，除非您在该运行中选择，`--no-post` �
 * **交互式**：在启动对话框中，选择**运行并将发现作为我发布到 PR**。如果您将 `--post` 添加到命令中，如 `/code-review ultra 1234 --post`，Claude Code 会预选该选择，但仍会在启动前询问。
 * **非交互式**：使用 `--post` 运行 [`claude ultrareview` 子命令](#run-ultrareview-non-interactively)。通过使用该标志运行子命令，您同意发布，因此 Claude Code 会发布而不询问。在 `claude -p '/code-review ultra'` 运行中，Claude Code 在发现到达前退出，因此不会发布任何内容；改用子命令。
 
-Claude Code 不会从您的计算机发布。它将审查的会话 ID 发送到 Anthropic API，该 API 通过您连接到 Claude 的 GitHub 账户将审查的存储发现作为评论发布。发布需要与审查本身相同的 claude.ai 登录，并且在第三方提供商上或当您设置 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](/docs/zh-CN/env-vars) 时不可用。
+Claude Code 不会从您的计算机发布。它将审查的会话 ID 发送到 Anthropic API，该 API 通过您连接到 Claude 的 GitHub 账户将审查的存储发现作为评论发布。发布需要与审查本身相同的 claude.ai 登录，并且在第三方提供商上或当您设置 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](https://code.claude.com/docs/zh-CN/env-vars) 时不可用。
 
 在交互式会话中，Claude Code 在发现到达时启动发布，因此请保持会话打开直到审查完成。Claude Code 仅在该会话中保留发布选择。如果会话在审查完成前结束，Claude Code 不会发布任何内容，即使您稍后恢复对话。
 
@@ -103,14 +103,14 @@ Claude Code 不会从您的计算机发布。它将审查的会话 ID 发送到 
 
 Ultrareview 在任何审查工作运行之前检查差异，并在无法按原样审查时告诉您：
 
-* **差异过大**：分支审查默认最多可包括 500 个更改的文件和 8,000 个更改的行。确切的值可能会改变，[拒绝](/docs/zh-CN/errors.md#diff-is-too-large-for-ultrareview)会说明生效的值、您的差异大小以及更改行数最多的文件。Claude Code 以相同的方式拒绝过大的拉取请求，说明其文件和行数，但不说明每个文件的细分
+* **差异过大**：分支审查默认最多可包括 500 个更改的文件和 8,000 个更改的行。确切的值可能会改变，[拒绝](https://code.claude.com/docs/zh-CN/errors.md#diff-is-too-large-for-ultrareview)会说明生效的值、您的差异大小以及更改行数最多的文件。Claude Code 以相同的方式拒绝过大的拉取请求，说明其文件和行数，但不说明每个文件的细分
 * **没有要审查的内容**：当针对基础的差异为空时，ultrareview 拒绝并说明它比较的分支或提交以及您所处的情况，例如在基础分支本身上且没有未提交的内容，或一个分支的所有提交都已是基础的一部分。它还为该情况建议解决方法，例如切换到您的工作分支、暂存或提交本地编辑，或传递不同的基础
 * **首次提交**：存储库的首次提交没有更早的内容可比较，因此 ultrareview 在您在启动对话框中确认后审查其中的每个文件。如果您有未跟踪的文件，它会拒绝并告诉您 `git add` 您想审查的文件。相同的大小限制适用。
 
   首次提交仅在该确认后才被整体审查，因此 `claude ultrareview` 子命令和 `claude -p` 拒绝它并指向您使用交互式会话。需要 Claude Code v2.1.277 或更高版本
 * **没有合并基础**：当您的分支与基础分支没有共享历史时，或存储库没有基础分支可比较时，ultrareview 审查存储库中的每个跟踪文件。回退需要完整克隆并应用相同的大小限制。它仅在您在启动对话框中确认或自己运行 `claude ultrareview` 子命令时启动。在 `claude -p` 和任何其他两者都不发生的地方，ultrareview 拒绝，说审查将涵盖每个文件，并指向您使用交互式会话。
 
-  在没有分支或其他引用的检出上，例如通过在获取 URL 后检出 `FETCH_HEAD` 创建的分离 HEAD，Claude Code [拒绝审查](/docs/zh-CN/errors.md#your-checkout-has-no-branches)并建议首先创建分支
+  在没有分支或其他引用的检出上，例如通过在获取 URL 后检出 `FETCH_HEAD` 创建的分离 HEAD，Claude Code [拒绝审查](https://code.claude.com/docs/zh-CN/errors.md#your-checkout-has-no-branches)并建议首先创建分支
 
 ## 定价和免费运行
 
@@ -139,7 +139,7 @@ Claude Code 在每次对话中要求您确认一次使用额度计费：例如�
 
 Claude 还可以告诉您审查已停止或其会话未找到：
 
-* 如果审查的云会话在审查完成前在 claude.ai 上停止或[存档](/docs/zh-CN/claude-code-on-the-web.md#archive-sessions)，Claude 会告诉您它已停止。
+* 如果审查的云会话在审查完成前在 claude.ai 上停止或[存档](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#archive-sessions)，Claude 会告诉您它已停止。
 * 如果审查的云会话被删除，或者您自启动它以来已登录到不同的 Claude 账户或组织，Claude 会告诉您会话未找到。
 * 如果您切换了账户，审查可能仍会在启动它的账户下完成。如果审查仍在运行，请以该账户重新登录，并使用 `claude --resume` 恢复对话以重新附加它。
 
@@ -186,13 +186,13 @@ claude ultrareview origin/main
 * 如果运行失败、被停止或超时，子命令不会发布任何内容。
 * 如果审查完成但评论未能发布，Claude Code 会将原因输出到 stderr，发现结果仍保留在 stdout 中，以便您手动发布。
 
-如需对 GitHub Pull Request 进行自动审查，[Code Review](/docs/zh-CN/code-review.md) 可直接与您的仓库集成，并以 PR 行内评论的形式发布发现结果，无需 CLI 步骤。
+如需对 GitHub Pull Request 进行自动审查，[Code Review](https://code.claude.com/docs/zh-CN/code-review.md) 可直接与您的仓库集成，并以 PR 行内评论的形式发布发现结果，无需 CLI 步骤。
 
 ### 在审查运行前信任文件夹
 
-当 `claude ultrareview` 询问 `Trust <folder>? [y/N]` 时，回答 `y` 即可[信任该文件夹](/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)。仅当您信任其中的代码时才应信任该文件夹，因为此后 git 和 Claude Code 可能会运行其 git 配置和项目设置中指定的程序。
+当 `claude ultrareview` 询问 `Trust <folder>? [y/N]` 时，回答 `y` 即可[信任该文件夹](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)。仅当您信任其中的代码时才应信任该文件夹，因为此后 git 和 Claude Code 可能会运行其 git 配置和项目设置中指定的程序。
 
-当它无法询问您时（例如在 CI 作业中，或输出被重定向到文件时），它会以 [`Error: Workspace not trusted`](/docs/zh-CN/errors#workspace-not-trusted-when-running-claude-ultrareview) 退出。追加 `--trust-workspace` 即可在该次运行中信任该文件夹：
+当它无法询问您时（例如在 CI 作业中，或输出被重定向到文件时），它会以 [`Error: Workspace not trusted`](https://code.claude.com/docs/zh-CN/errors#workspace-not-trusted-when-running-claude-ultrareview) 退出。追加 `--trust-workspace` 即可在该次运行中信任该文件夹：
 
 ```bash theme={null}
 claude ultrareview 1234 --trust-workspace
@@ -217,5 +217,5 @@ claude ultrareview 1234 --trust-workspace
 
 ## 相关资源
 
-* [在云端使用 Claude Code](/docs/zh-CN/claude-code-on-the-web.md)：了解云会话和云沙箱如何工作
-* [有效管理成本](/docs/zh-CN/costs.md)：跟踪使用情况并设置支出限制
+* [在云端使用 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)：了解云会话和云沙箱如何工作
+* [有效管理成本](https://code.claude.com/docs/zh-CN/costs.md)：跟踪使用情况并设置支出限制

@@ -10,7 +10,7 @@
 
 > [!TIP]
 >
-> 本页面涵盖输出流式传输（实时接收令牌）。有关输入模式（如何发送消息），请参阅[向代理发送消息](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)。您也可以[通过 CLI 使用 Agent SDK 流式传输响应](/docs/zh-CN/headless.md)。
+> 本页面涵盖输出流式传输（实时接收令牌）。有关输入模式（如何发送消息），请参阅[向代理发送消息](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)。您也可以[通过 CLI 使用 Agent SDK 流式传输响应](https://code.claude.com/docs/zh-CN/headless.md)。
 
 ## 启用流式输出
 
@@ -73,14 +73,14 @@ for await (const message of query({
 
 启用部分消息时，您会收到包装在对象中的原始 Claude API 流事件。该类型在每个 SDK 中有不同的名称：
 
-* **Python**: [`StreamEvent`](/docs/zh-CN/agent-sdk/python#streamevent)（从 `claude_agent_sdk.types` 导入）
-* **TypeScript**: [`SDKPartialAssistantMessage`](/docs/zh-CN/agent-sdk/typescript#sdkpartialassistantmessage)，其中 `type: 'stream_event'`
+* **Python**: [`StreamEvent`](https://code.claude.com/docs/zh-CN/agent-sdk/python#streamevent)（从 `claude_agent_sdk.types` 导入）
+* **TypeScript**: [`SDKPartialAssistantMessage`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkpartialassistantmessage)，其中 `type: 'stream_event'`
 
 两者都包含原始 Claude API 事件，而不是累积的文本。您需要自己提取和累积文本增量。
 
-`parent_tool_use_id` 字段在 Python 中始终为 `None`，在 TypeScript 中始终为 `null`。流事件仅针对主会话发出；来自子代理的令牌级增量不会被转发。要将输出归属于子代理，请使用完整消息，这些消息携带 `parent_tool_use_id`。请参阅[检测子代理调用](/docs/zh-CN/agent-sdk/subagents.md#detect-subagent-invocation)。
+`parent_tool_use_id` 字段在 Python 中始终为 `None`，在 TypeScript 中始终为 `null`。流事件仅针对主会话发出；来自子代理的令牌级增量不会被转发。要将输出归属于子代理，请使用完整消息，这些消息携带 `parent_tool_use_id`。请参阅[检测子代理调用](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md#detect-subagent-invocation)。
 
-Claude Code 在轮次的第一个非 ping 流事件上设置 `user_message_uuid`，以及当轮次回答的消息更改时再次设置，条件在 [`user_message_uuid`](/docs/zh-CN/agent-sdk/typescript#user_message_uuid) 中。Python `StreamEvent` 不公开此字段。
+Claude Code 在轮次的第一个非 ping 流事件上设置 `user_message_uuid`，以及当轮次回答的消息更改时再次设置，条件在 [`user_message_uuid`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#user_message_uuid) 中。Python `StreamEvent` 不公开此字段。
 
 `event` 字段包含来自 [Claude API](https://platform.claude.com/docs/en/build-with-claude/streaming#event-types) 的原始流事件。常见的事件类型包括：
 
@@ -318,12 +318,12 @@ for await (const message of query({
 
 ## 已知限制
 
-* **结构化输出**：启用部分消息时，JSON 作为工具调用的未验证 `input_json_delta` 块进行流式传输，只有验证后的结果才会到达最终的 `ResultMessage.structured_output`。[识别 StructuredOutput 工具调用](/docs/zh-CN/agent-sdk/structured-outputs.md#recognize-the-structuredoutput-tool-call)介绍了该调用在您的流中如何呈现。
+* **结构化输出**：启用部分消息时，JSON 作为工具调用的未验证 `input_json_delta` 块进行流式传输，只有验证后的结果才会到达最终的 `ResultMessage.structured_output`。[识别 StructuredOutput 工具调用](https://code.claude.com/docs/zh-CN/agent-sdk/structured-outputs.md#recognize-the-structuredoutput-tool-call)介绍了该调用在您的流中如何呈现。
 
 ## 后续步骤
 
 现在您可以实时流式传输文本和工具调用，请探索这些相关主题：
 
-* [交互式与一次性查询](/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)：为您的用例选择输入模式
-* [结构化输出](/docs/zh-CN/agent-sdk/structured-outputs.md)：从代理获取类型化的 JSON 响应
-* [权限](/docs/zh-CN/agent-sdk/permissions.md)：控制代理可以使用哪些工具
+* [交互式与一次性查询](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)：为您的用例选择输入模式
+* [结构化输出](https://code.claude.com/docs/zh-CN/agent-sdk/structured-outputs.md)：从代理获取类型化的 JSON 响应
+* [权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)：控制代理可以使用哪些工具

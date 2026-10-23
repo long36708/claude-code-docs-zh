@@ -10,7 +10,7 @@
 >
 > V2 session API 不再受支持。TypeScript Agent SDK 0.3.142 移除了 `unstable_v2_createSession`、`unstable_v2_resumeSession`、`unstable_v2_prompt` 以及 `SDKSession` 和 `SDKSessionOptions` 类型。
 >
-> 要迁移，请使用 [`query()` API](/docs/zh-CN/agent-sdk/typescript) 和它接受的 [session 选项](/docs/zh-CN/agent-sdk/sessions.md)。为多轮对话传递 `AsyncIterable<SDKUserMessage>`，或使用 `options.resume` 继续已保存的会话。如果您在 Agent SDK 0.2.x 或更早版本上维护代码，此页面保留供参考。
+> 要迁移，请使用 [`query()` API](https://code.claude.com/docs/zh-CN/agent-sdk/typescript) 和它接受的 [session 选项](https://code.claude.com/docs/zh-CN/agent-sdk/sessions.md)。为多轮对话传递 `AsyncIterable<SDKUserMessage>`，或使用 `options.resume` 继续已保存的会话。如果您在 Agent SDK 0.2.x 或更早版本上维护代码，此页面保留供参考。
 
 V2 是一个实验性的 session API，消除了对异步生成器和 yield 协调的需求。与其在各轮之间管理生成器状态，每一轮都是一个单独的 `send()`/`stream()` 周期。API 表面简化为三个概念：
 
@@ -28,7 +28,7 @@ npm install @anthropic-ai/claude-agent-sdk@0.2
 
 > [!NOTE]
 >
-> SDK 为您的平台捆绑了一个本地 Claude Code 二进制文件作为可选依赖项，因此大多数安装无需单独安装 Claude Code。请参阅[快速入门的安装说明](/docs/zh-CN/agent-sdk/quickstart.md)了解需要单独安装的情况。
+> SDK 为您的平台捆绑了一个本地 Claude Code 二进制文件作为可选依赖项，因此大多数安装无需单独安装 Claude Code。请参阅[快速入门的安装说明](https://code.claude.com/docs/zh-CN/agent-sdk/quickstart.md)了解需要单独安装的情况。
 
 ## 快速开始
 
@@ -384,13 +384,13 @@ interface SDKSession {
 
 ## 功能可用性
 
-V2 session API 不支持所有 V1 功能。以下功能需要使用 [V1 SDK](/docs/zh-CN/agent-sdk/typescript.md)：
+V2 session API 不支持所有 V1 功能。以下功能需要使用 [V1 SDK](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md)：
 
 * 会话分叉（`forkSession` 选项）
 * 某些高级流式输入模式
 
 ## 另请参阅
 
-* [TypeScript SDK 参考（V1）](/docs/zh-CN/agent-sdk/typescript.md) - 完整的 V1 SDK 文档
-* [SDK 概述](/docs/zh-CN/agent-sdk/overview.md) - 常规 SDK 概念
+* [TypeScript SDK 参考（V1）](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md) - 完整的 V1 SDK 文档
+* [SDK 概述](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) - 常规 SDK 概念
 * [GitHub 上的 V2 示例](https://github.com/anthropics/claude-agent-sdk-demos/tree/main/hello-world-v2) - 工作代码示例
