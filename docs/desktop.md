@@ -507,7 +507,7 @@ Cloud sessions also support multiple repositories. Choose the repositories:
 * **Current layout**: in the row under the prompt box, once you select a cloud environment.
 * **[Earlier layout](#check-which-layout-you-have)**: above the prompt box. To add another repository, click **+** beside the selected one.
 
-See [Use Claude Code in the cloud](/docs/en/claude-code-on-the-web.md) for more on how cloud sessions work. When one body of work needs many cloud sessions, select **Projects** in the sidebar to create a [project](/docs/en/claude-projects.md), where Claude starts and tracks the sessions for you from one conversation.
+See [Use Claude Code in the cloud](/docs/en/claude-code-on-the-web.md) for more on how cloud sessions work. When one body of work needs many cloud sessions, use a [project](/docs/en/claude-projects.md): Claude starts and tracks the sessions for you from one conversation. [Create a project](/docs/en/claude-projects.md#create-a-project) has the steps.
 
 > [!NOTE]
 >
