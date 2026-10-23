@@ -85,7 +85,7 @@ Claude 将 CLAUDE.md 文件视为上下文而不是强制配置，因此您编�
 
 保持您的文件简短、有组织和一致：
 
-* **大小**：每个 CLAUDE.md 文件目标在 200 行以下。较长的文件消耗更多上下文并降低遵守度。将仅对代码库的一部分重要的指令移至 [path-scoped rules](#path-specific-rules)，这样它们仅在 Claude 处理匹配文件时加载。[导入](#import-additional-files) 帮助您组织一个长文件，但不会减少其上下文成本，因为导入的文件也在启动时加载。
+* **大小**：每个 CLAUDE.md 文件目标在 200 行以下。较长的文件消耗更多上下文并降低遵守度。将仅对代码库的一部分重要的指令移至 [path-scoped rules](#path-specific-rules)，这样它们仅在 Claude 处理匹配文件时加载。[导入](#import-additional-files) 帮助您组织一个长文件，但不会减少其上下文成本，因为导入的文件会与导入它们的 CLAUDE.md 一起加载。
 * **结构**：使用 markdown 标题和项目符号来分组相关指令。有组织的部分比密集段落更容易让 Claude 遵循。
 * **一致性**：如果两条指令相互矛盾，Claude 可能会任意选择一条。定期审查您的 CLAUDE.md 文件、子目录中的嵌套 CLAUDE.md 文件和 [`.claude/rules/`](#organize-rules-with-claude/rules/)，以删除过时或冲突的指令。要让 Claude 为您找到它们，请 [运行提示词审计](#audit-your-instruction-files)。
 
@@ -99,7 +99,7 @@ Claude 将 CLAUDE.md 文件视为上下文而不是强制配置，因此您编�
 
 ### 导入其他文件
 
-CLAUDE.md 文件可以使用 `@path/to/import` 语法导入其他文件。导入的文件被展开并在启动时加载到上下文中，与引用它们的 CLAUDE.md 一起。
+CLAUDE.md 文件可以使用 `@path/to/import` 语法导入其他文件。导入的文件被展开并加载到上下文中，与引用它们的 CLAUDE.md 一起。
 
 允许相对路径和绝对路径。相对路径相对于包含导入的文件解析，而不是工作目录。导入的文件可以递归导入其他文件，最大深度为四跳。
 
@@ -548,7 +548,9 @@ Claude Code 在 [`cleanupPeriodDays`](/docs/zh-CN/settings-reference#cleanupperi
 
 Claude 写入 `MEMORY.md` 后，Claude Code 根据 200 行和 25KB 读取限制测量文件。如果文件接近限制，Claude Code 提醒 Claude 缩短它：每个条目保留一行，将详细信息移到主题文件，并合并或删除陈旧条目。如果文件超过限制，写入仍然成功，但 Claude Code 返回一个[错误告诉 Claude 重写索引](/docs/zh-CN/errors.md#memory-index-is-over-its-read-limit)，因为下次加载时超过限制的所有内容都会被丢弃。
 
-此限制仅适用于 `MEMORY.md`。Claude Code 完整加载最多 4 MiB 的 CLAUDE.md 文件，并跳过更大的文件。较短的文件产生更好的遵守度。
+> [!NOTE]
+>
+> 此限制仅适用于 `MEMORY.md`。对于启动时加载的每个 CLAUDE.md 文件，只要文件不超过 4 MiB，Claude 就会获得其完整内容。Claude Code 会跳过超过 4 MiB 的文件，不加载其中任何内容。路径限定的规则和子目录中的 CLAUDE.md 文件有[各自更小的单文件限制](#claude-ignores-the-end-of-my-subdirectory-claude-md)。
 
 Claude Code 在启动时不加载主题文件，例如 `user_role.md` 或 `feedback_testing.md`。Claude 在需要信息时使用其标准文件工具按需读取它们。
 
@@ -616,11 +618,35 @@ CLAUDE.md 内容作为用户消息在系统提示词之后传递，而不是系�
 
 ### 我的 CLAUDE.md 太大了
 
-超过 200 行的文件消耗更多上下文并可能降低遵守度。Claude Code 会跳过超过 4 MiB 的文件。使用 [path-scoped rules](#path-specific-rules) 仅在 Claude 处理匹配文件时加载指令，或修剪不是每个会话都需要的内容。分割到 [`@path` imports](#import-additional-files) 有助于组织，但不会减少上下文，因为导入的文件在启动时加载。
+超过 200 行的文件消耗更多上下文并可能降低遵守度。Claude Code 会跳过超过 4 MiB 的文件。使用 [path-scoped rules](#path-specific-rules) 仅在 Claude 处理匹配文件时加载指令，或修剪不是每个会话都需要的内容。分割到 [`@path` imports](#import-additional-files) 有助于组织，但不会减少上下文，因为导入的文件会与导入它们的 CLAUDE.md 一起加载。
 
 如果您的某个指令文件超过推荐长度，您会在启动时和运行 `/status` 时看到警告。当各自都在该长度内的文件在会话开始时加起来超过组合限制时，您也会看到警告。每个 CLAUDE.md、规则文件和 `@path` 导入都计为单独的文件。
 
 [`/doctor`](/docs/zh-CN/commands#all-commands) 检查为已检入的 CLAUDE.md 提议修剪：它删除 Claude 可以从代码库派生的内容，例如目录布局、依赖项列表和架构概览，并保留与工具默认值不同的陷阱、基本原理和约定。
+
+> [!NOTE]
+>
+> 请将每个路径范围规则文件控制在[其单文件大小限制](#claude-ignores-the-end-of-my-subdirectory-claude-md)之内，因为对于超过该限制的文件，Claude 只会收到文件的开头部分。
+
+### Claude 忽略了我的子目录 CLAUDE.md 的末尾部分
+
+当子目录中的 `CLAUDE.md` 或按需加载的规则文件超过单文件大小限制时，Claude 只会收到其开头部分。该部分末尾附有一条说明，告诉 Claude 使用 Read 工具读取其余内容；在 Claude 选择这样做之前，后面的指令不会出现在其上下文中。
+
+检查您的文件是否超过限制，如果超过则缩减它：
+
+1. 确认该限制适用于您的文件。该限制适用于以下按需加载的文件：
+   * 您启动 Claude Code 所在目录的子目录中的 `CLAUDE.md` 和 `CLAUDE.local.md`，以及它们通过 `@path` [导入](#import-additional-files)的文件
+   * 子目录的 `.claude/rules/` 中的规则文件
+   * 项目的 `.claude/rules/` 或 `~/.claude/rules/` 中的[路径范围规则](#path-specific-rules)
+2. 根据您会话的[上下文窗口](/docs/zh-CN/model-config.md#extended-context)找到对应的限制：
+   * **200K 上下文窗口**：40,000 个字符
+   * **1M 上下文窗口**：Claude Opus 4.6 和 Claude Sonnet 4.6 上为 200,000 个字符，更新的模型上为 150,000 个字符
+3. 在 Bash 或 Zsh 中，运行 `wc -m path/to/CLAUDE.md` 以输出文件的字符数。
+4. 将字符数与您的限制进行比较：
+   * **超过限制**：精简文件，或将其中一部分移到一个或多个规则文件中，每个规则文件会单独计算是否超过限制
+   * **未超过限制**：在 [Claude 不遵循我的 CLAUDE.md](#claude-isn’t-following-my-claude-md) 中查找其他原因
+
+在 v2.1.309 之前，Claude Code 不会对按需加载的文件应用此限制。
 
 ### 在 `/compact` 后指令似乎丢失了
 

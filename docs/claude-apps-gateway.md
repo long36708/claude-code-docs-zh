@@ -456,6 +456,22 @@ Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](/
 
 在默认的“先到先得”设置下，只有当管理员值位于最高优先级管理员来源中时，才会阻止父进程的值，但在 [MCP 服务器锁定](#lock-behavior-across-sources)开启期间的 `allowedMcpServers` 除外。在 `managedSourcesBehavior` 合并选项下，改由 [Claude Code 如何组合托管来源](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说明应用哪个来源的值。
 
+#### 父设置中的 hook 和 skill 键如何生效
+
+如果您通过 Agent SDK 的 `managedSettings` 选项将 `disableAllHooks: true` 作为父设置传递，并非所有 hook 都会停止。您的 [SDK hook 回调](/docs/zh-CN/agent-sdk/hooks.md)仍会运行，管理员的 hook 也会运行，您的应用程序无法将其关闭。
+
+在管理员部署了托管设置的机器上，Claude Code 会忽略父设置，除非管理员[允许嵌入宿主添加策略](/docs/zh-CN/managed-settings.md#let-an-embedding-host-add-policy)。
+
+| 您传递的内容 | 结果 |
+| :- | :- |
+| `disableAllHooks: true` | 被视为 `allowManagedHooksOnly: true`，因此列为[在 `allowManagedHooksOnly` 下被阻止](/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)的 hook 会停止，SDK [`settings` 选项](/docs/zh-CN/agent-sdk/typescript#options)中的 hook 也会停止。 |
+| [`disableSkillShellExecution: true`](/docs/zh-CN/settings-reference#disableskillshellexecution) | 生效。 |
+| `allowedHttpHookUrls: []` | 生效，除非管理员定义了 `hooks` 或启用了插件。不会运行任何 HTTP hook，但其他设置来源列出的 URL 除外。 |
+| `httpHookAllowedEnvVars: []` | 生效，除非管理员定义了 `hooks` 或启用了插件。HTTP hook 标头只能包含其他设置来源列出的环境变量。 |
+| 包含条目的 `allowedHttpHookUrls` 或 `httpHookAllowedEnvVars` | Claude Code 会忽略它，因为合并会扩大管理员的列表。请改用 SDK 的 `settings` 选项。 |
+
+在 `managedSettings` 中传递这些键需要 Claude Code v2.1.309 或更高版本，或 TypeScript Agent SDK v0.3.309 或更高版本。
+
 ### 连接 Claude Desktop
 
 [Claude Desktop](/docs/zh-CN/desktop.md) 通过另一个 MDM 键连接到同一网关：在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中将 `bootstrapUrl` 设置为 `<listen.public_url>/user/bootstrap`，并通过 `desktop` 键让用户的策略启用该功能。[Claude Desktop 覆盖层](/docs/zh-CN/claude-apps-gateway-config.md#claude-desktop-overlay)介绍了这两部分。需要网关服务器上的 Claude Code 为 v2.1.203 或更高版本。

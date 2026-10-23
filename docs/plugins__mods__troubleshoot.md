@@ -102,6 +102,12 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 
 重写代码，减少其作用域的嵌套深度。
 
+### `the engine ran out of stack linking the file and its imports`
+
+hook 模块中的代码嵌套过深，或其导入链过长，导致 Claude Code 无法加载它。该行以 mod 的名称和 `hooks module did not load:` 开头，然后给出某个文件的名称以及此原因。
+
+请在该文件以及通过其导入所到达的文件中查找嵌套最深的部分，并重写该部分以减少嵌套，或缩短导入链。如果该 mod 是您安装的而非您编写的，请让其作者进行修改。
+
 ### `the parser stopped` 或 `the engine ran out of stack loading the file`
 
 hook 模块某个文件中的代码嵌套过深，导致 Claude Code 在读取时耗尽了栈空间。该行以 mod 的名称和 `hooks module did not load:` 开头，然后给出该文件的名称以及以下原因之一：
@@ -253,11 +259,18 @@ mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期�
 
 在 v2.1.290 之前，如果某个 toast 是在 Claude Code 为您的 mod 显示上一个 toast 后两秒内发出的，Claude Code 会丢弃该 toast，且调试日志中针对被丢弃 toast 的行会显示 `within 2000ms of the last; dropped`。
 
+### 带显示 `plugin panel hidden`
+
+该带已[折叠](/docs/zh-CN/plugins/mods/interface.md#when-the-user-collapses-the-band)。当您按 Ctrl+X 然后 Ctrl+A（或您绑定以替代它们的按键）时，以及在[全屏渲染](/docs/zh-CN/fullscreen.md)中单击其第一行的 `[-]` 时，该带会折叠。它会保持折叠状态，直到您将其展开或再次启动 Claude Code；在此期间，任何热键或 `action` 绑定都不会按下其中的按钮。
+
+要展开该带，请按该行所示的按键（默认为 Ctrl+X 然后 Ctrl+A），或在全屏渲染中单击该行。
+
 ### 热键不起作用
 
-您的窗格没有键盘焦点，或者绘图位于 VS Code 扩展中，而该扩展中的按钮没有热键。请按对应的情况操作：
+您的窗格或带没有键盘焦点、您的按钮位于已折叠的带中，或者绘图位于 VS Code 扩展中，而该扩展中的按钮没有热键。请按对应的情况操作：
 
-* **没有键盘焦点**：按 Ctrl+X 然后 Tab，或单击窗格。要让窗格在打开时获得焦点，请从命令中使用 `focus: true` 打开它。
+* **没有键盘焦点**：按 Ctrl+X 然后 Tab，或在[全屏渲染](/docs/zh-CN/fullscreen.md)中单击窗格或带。要让窗格在打开时获得焦点，请从命令中使用 `focus: true` 打开它。
+* **按钮位于已折叠的带中**：该带显示一个以 `▸ plugin panel hidden` 开头的暗色行。按该行所示的按键（默认为 Ctrl+X 然后 Ctrl+A）即可[展开它](#plugin-panel-hidden)。
 * **在 VS Code 扩展中**：单击按钮，或在按钮获得焦点后按 Enter
 
 ### 绘图在终端中有效，在桌面应用或 VS Code 中无效

@@ -3469,6 +3469,8 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 主机名匹配不区分大小写，并且会将 `hooks.example.com.`（末尾带有表示完全限定域名的点）视为与 `hooks.example.com` 相同，这与 DNS 的处理方式一致。此允许列表适用于所有来源的 hook，包括托管设置。
 
+在 Agent SDK 的 `managedSettings` 选项中，如果此键的列表包含条目，Claude Code 会忽略此键，因此请改为在 SDK 的 `settings` 选项中传入该列表。请参阅[各个值在父级设置中的作用](/docs/zh-CN/claude-apps-gateway#how-hook-and-skill-keys-in-parent-settings-take-effect)。
+
 ### `allowManagedHooksOnly`
 
 将 hook 的执行限制为您的组织所部署的 hook。
@@ -3517,6 +3519,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 其影响范围取决于哪个文件包含此键：
 
 * **在托管设置中**：Claude Code 会禁用所有已配置的 hook（包括托管 hook），但会继续运行 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 在进程内注册的 hook
+* **在 Agent SDK 的 `managedSettings` 选项中**：Claude Code 会将此键视为 `allowManagedHooksOnly: true`，因此有关哪些 hook 会停止，请参阅 [`allowManagedHooksOnly` 下会运行哪些内容](#what-runs-under-allowmanagedhooksonly)。在管理员部署了托管设置的机器上，除非管理员[允许嵌入宿主添加策略](/docs/zh-CN/managed-settings.md#let-an-embedding-host-add-policy)，否则 Claude Code 会忽略此键。需要 Claude Code v2.1.309 或更高版本。
 * **在任何其他设置文件中**：Claude Code 会禁用用户、项目、本地和插件 hook；托管 hook、Agent SDK hook 以及在托管 [`enabledPlugins`](#enabledplugins) 中强制启用的插件中的 hook 会继续运行
 
 此键还会停止 [mod](/docs/zh-CN/plugins/mods/overview.md)，即其代码会注册 hook 的插件：
@@ -3619,6 +3622,8 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 ```
 
 此允许列表适用于所有来源的 hook，包括托管设置。
+
+在 Agent SDK 的 `managedSettings` 选项中，如果此键的列表包含条目，Claude Code 会忽略此键，因此请改为在 SDK 的 `settings` 选项中传入该列表。请参阅[各个值在父级设置中的作用](/docs/zh-CN/claude-apps-gateway#how-hook-and-skill-keys-in-parent-settings-take-effect)。
 
 ### `workflowKeywordTriggerEnabled`
 

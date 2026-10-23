@@ -104,6 +104,8 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 
 `Bash(*)` 等同于 `Bash` 并匹配所有 Bash 命令。作为拒绝规则，两种形式都会从 Claude 的上下文中移除该工具。
 
+会话记录和权限对话框中为工具显示的标签可能与其规范名称不同。例如，会话记录中标记为 `Stop Task` 的工具具有规范名称 `TaskStop`。权限规则和 [hook 匹配器](/docs/zh-CN/hooks.md) 不匹配标签，因此写作 `Stop Task` 的规则不匹配。对于拒绝和询问规则，[启动警告](/docs/zh-CN/errors.md#matches-no-tool)会指出这一点。请使用[工具参考](/docs/zh-CN/tools-reference.md)中列出的规范名称。
+
 ### 使用说明符进行细粒度控制
 
 在括号中添加说明符以匹配特定的工具使用：
@@ -205,8 +207,6 @@ Bash 规则中的 `*` 匹配任何文本，包括空格，因此一个规则涵�
 允许规则仅在文字 `mcp__<server>__` 前缀之后接受工具名称 glob。服务器段必须不含 glob，以便规则命名您配置的特定服务器。`mcp__puppeteer__*` 匹配来自 `puppeteer` 服务器的每个工具，`mcp__github__get_*` 匹配其 `get_` 工具。未锚定的允许 glob（如 `"*"`、`"B*"` 或 `"mcp__*"`）会被跳过，不会自动批准任何内容。
 
 工具名称不匹配任何已知工具的拒绝或询问规则会产生[启动警告](/docs/zh-CN/errors.md#matches-no-tool)以捕获拼写错误。包含 `_` 或 `*` 的工具名称不受此检查的约束，Claude Code 已移除的工具的名称（例如 `TaskOutput`）也不受约束。
-
-转录本和权限对话框中为工具显示的标签可能与其规范名称不同。例如，转录本中标记为 `Stop Task` 的工具具有规范名称 `TaskStop`。权限规则和 [hook 匹配器](/docs/zh-CN/hooks.md) 不匹配标签，因此写作为 `Stop Task` 的规则不匹配。对于拒绝和询问规则，上面的启动警告会捕获不匹配。使用[工具参考](/docs/zh-CN/tools-reference.md)中列出的规范名称。
 
 ## 工具特定的权限规则
 

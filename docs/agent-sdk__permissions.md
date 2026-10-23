@@ -115,9 +115,9 @@ const options = {
 
 ## 权限模式
 
-权限模式提供对 Claude 如何使用工具的全局控制。您可以在调用 `query()` 时设置权限模式，或在流式会话期间动态更改它。
+权限模式为 Claude 使用工具的方式提供全局控制。您可以在调用 `query()` 时设置权限模式，也可以在流式会话期间动态更改。
 
-在 Claude Code v2.1.302 或更高版本中，您的应用会以 `default` 模式启动，除非您设置了权限模式，或者应用从其设置文件中的 [`permissions.defaultMode`](/docs/zh-CN/settings-reference#permissions-defaultmode) 获取权限模式。在 `default` 模式下，Claude Code 会拒绝任何需要批准的工具调用，除非您通过允许规则、hook、`canUseTool` 回调或权限提示工具批准它。如果工具调用被拒绝，请参阅[在 `claude -p` 和 Agent SDK 运行中工具调用被拒绝](/docs/zh-CN/permission-modes#which-mode-a-non-interactive-run-starts-in)。
+在 Claude Code v2.1.302 或更高版本中，除非您设置了权限模式，或应用从其设置文件中的 [`permissions.defaultMode`](/docs/zh-CN/settings-reference#permissions-defaultmode) 获取了权限模式，否则应用会以 `default` 模式启动。在 `default` 模式下，对于任何需要批准的工具调用，除非您通过允许规则、hook、`canUseTool` 回调或权限提示工具批准它，否则 Claude Code 都会拒绝。如果工具调用被拒绝，请参阅 [`claude -p` 和 Agent SDK 运行中的工具调用被拒绝](/docs/zh-CN/permission-modes#which-mode-a-non-interactive-run-starts-in)。
 
 ### 可用模式
 
@@ -125,26 +125,28 @@ SDK 支持以下权限模式：
 
 | 模式 | 描述 | 工具行为 |
 | :- | :- | :- |
-| `default` | 标准权限行为 | 无基于模式的自动批准；需要批准且不匹配任何允许规则的调用会触发您的 `canUseTool` 回调 |
-| `dontAsk` | 拒绝而不是提示 | 任何原本会提示的调用都会被拒绝，且不调用 `canUseTool`，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview.md) 仍可以批准[其中部分调用](/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。由 `allowed_tools` 或 `settings.json` 允许规则批准的调用会运行，`default` 模式下不需要批准的调用也会运行。某些调用，例如[来自网络路径的读取](/docs/zh-CN/permissions.md#network-paths)，即使 `allowed_tools` 或允许规则与之匹配也会被拒绝。有关完整列表，请参阅[不要询问模式](#don’t-ask-mode-dontask) |
-| `acceptEdits` | 自动接受文件编辑 | 文件编辑和[文件系统操作](#accept-edits-mode-acceptedits)（`mkdir`、`rm`、`mv` 等）会自动批准 |
-| `bypassPermissions` | 绕过权限检查 | 工具运行时无需权限提示，除了[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)。请谨慎使用 |
-| `plan` | 规划模式 | Claude 在不编辑您的源文件的情况下探索和规划；文件编辑永远不会自动批准，而是通过您的 `canUseTool` 回调提示 |
-| `auto` | 模型分类批准 | 模型分类器审查 shell 命令和网络请求等操作，允许或阻止它审查的每一个操作。有关可用性和决策顺序，请参阅[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) |
+| `default` | 标准权限行为 | 没有基于模式的自动批准；需要批准且不匹配任何允许规则的调用会触发您的 `canUseTool` 回调 |
+| `dontAsk` | 拒绝而不是提示 | 任何原本会提示的调用都会被拒绝，且不调用 `canUseTool`，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview.md) 仍可批准[其中部分调用](/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。由 `allowed_tools` 或 `settings.json` 允许规则批准的调用会运行，在 `default` 模式下无需批准的调用也会运行。某些调用，例如[从网络路径读取](/docs/zh-CN/permissions.md#network-paths)，即使 `allowed_tools` 或允许规则与其匹配也会被拒绝。完整列表请参阅[不询问模式](#don’t-ask-mode-dontask) |
+| `acceptEdits` | 自动接受文件编辑 | 文件编辑和[文件系统操作](#accept-edits-mode-acceptedits)（`mkdir`、`rm`、`mv` 等）会被自动批准 |
+| `bypassPermissions` | 绕过权限检查 | 工具无需权限提示即可运行，但[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)除外。请谨慎使用 |
+| `plan` | 计划模式 | Claude 进行探索和规划，但不编辑您的源文件；文件编辑永远不会被自动批准，而是通过您的 `canUseTool` 回调进行提示 |
+| `auto` | 由模型分类的批准 | 模型分类器会审查 shell 命令和网络请求等操作，对其审查的每个操作予以允许或阻止。有关可用性和决策顺序，请参阅[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) |
 
 > [!WARNING]
 >
-> **子代理继承：** 子代理在父会话的权限模式下运行，除非您在其[`AgentDefinition`](/docs/zh-CN/agent-sdk/typescript#agentdefinition)上设置 `permissionMode`，且父会话处于 `default`、`dontAsk` 或 `plan` 模式。即使这样，Claude Code 也永远不会应用 `"bypassPermissions"` 值，并且仅当该子代理[可以使用自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)时才会应用 `"auto"` 值。子代理仅在父会话本身处于 `bypassPermissions` 模式时才在该模式下运行。 `bypassPermissions` 异常需要 Claude Code v2.1.267 或更高版本。
+> **子代理继承：** 如果您的主会话处于[计划模式](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)，那么即使某个子代理的 [`AgentDefinition`](/docs/zh-CN/agent-sdk/typescript#agentdefinition) 设置了 `permissionMode: "acceptEdits"`，它仍会在计划模式下运行。该子代理对您源文件的 `Edit` 和 `Write` 调用仍会交给您的 `canUseTool` 回调。计划模式同样适用于您定义的子代理，这样将工作交给子代理就无法绕过先审查计划这一步。
 >
-> 子代理可能具有不同的系统提示和比主代理更少受限的行为，因此继承 `bypassPermissions` 会授予它们完整的自主系统访问权限。[任何模式都不自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)仍然适用。
+> 子代理会从主会话继承 `plan`、`acceptEdits`、`auto` 或 `bypassPermissions`；当主会话处于 `default` 或 `dontAsk` 模式时，子代理会以您设置的模式运行。即便如此，Claude Code 也永远不会应用 `"bypassPermissions"` 值，并且仅当该子代理[可以使用自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)时才会应用 `"auto"` 值。`bypassPermissions` 这一例外需要 Claude Code v2.1.267 或更高版本。
+>
+> 子代理可能具有与主 Agent 不同的系统提示词和更少约束的行为，因此继承 `bypassPermissions` 会授予它们完全、自主的系统访问权限。[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)仍然适用。
 
 ### 设置权限模式
 
-您可以在启动查询时设置一次权限模式，或在会话活跃时动态更改它。
+您可以在启动查询时一次性设置权限模式，也可以在会话活动期间动态更改。
 
-**在查询时**
+**查询时**
 
-在创建查询时传递 `permission_mode`（Python）或 `permissionMode`（TypeScript）。
+在创建查询时传入 `permission_mode`（Python）或 `permissionMode`（TypeScript）。
 
 ```python Python theme={null}
 import asyncio
@@ -184,9 +186,9 @@ async function main() {
 main();
 ```
 
-**在流式传输期间**
+**流式传输期间**
 
-调用 `set_permission_mode()`（Python）或 `setPermissionMode()`（TypeScript）以在会话中途更改模式。新模式立即对所有后续工具请求生效。这让您可以从限制性开始，随着信任建立而放宽权限，例如在审查 Claude 的初始方法后切换到 `acceptEdits`。
+调用 `set_permission_mode()`（Python）或 `setPermissionMode()`（TypeScript）可在会话中途更改模式。新模式会立即对所有后续工具请求生效。这样您可以先采用严格限制，随着信任建立再放宽权限，例如在审查 Claude 的初始方案后切换到 `acceptEdits`。
 
 ```python Python theme={null}
 import asyncio
@@ -242,65 +244,65 @@ main();
 
 #### 接受编辑模式（`acceptEdits`）
 
-自动批准文件操作，以便 Claude 可以编辑代码而无需提示。其他工具（如不是文件系统操作的 Bash 命令）仍需要正常权限。
+自动批准文件操作，使 Claude 无需提示即可编辑代码。其他工具（例如不属于文件系统操作的 Bash 命令）仍需要常规权限。
 
 **自动批准的操作：**
 
 * 文件编辑（Edit、Write 工具）
 * 文件系统命令：`mkdir`、`touch`、`rm`、`rmdir`、`mv`、`cp`、`sed`
 
-两者都仅适用于工作目录或 `additionalDirectories` 内的路径。在 `acceptEdits` 模式下，当 Claude 执行以下操作时，Claude Code 不会自动批准请求：
+两者都仅适用于工作目录或 `additionalDirectories` 内的路径。在 `acceptEdits` 模式下，当 Claude 执行以下操作时，Claude Code 不会自动批准该请求：
 
-* 在该范围之外的路径上工作
+* 处理该范围之外的路径
 * 写入受保护的路径
 * 使用 `rm` 或 `rmdir` 删除 Claude Code 识别为[关键路径](/docs/zh-CN/permission-modes.md#critical-paths)的路径
 
-**使用场景：** 您信任 Claude 的编辑并希望更快地迭代，例如在原型设计期间或在隔离目录中工作时。
+**适用场景：** 您信任 Claude 的编辑并希望加快迭代速度，例如在原型开发期间或在隔离目录中工作时。
 
-#### 不要询问模式（`dontAsk`）
+#### 不询问模式（`dontAsk`）
 
-将任何权限提示转换为拒绝，而不调用 `canUseTool`，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview.md) 仍可以批准[其中部分调用](/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。由 `allowed_tools`、`settings.json` 允许规则或 hook 预先批准的工具会正常运行。`default` 模式下不需要批准的调用也会运行，例如在您的工作目录内的文件读取和对 `Agent` 的调用。
+将任何权限提示转换为拒绝，且不调用 `canUseTool`，不过您安装的 [mod](/docs/zh-CN/plugins/mods/overview.md) 仍可批准[其中部分调用](/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。由 `allowed_tools`、`settings.json` 允许规则或 hook 预先批准的工具会正常运行。在 `default` 模式下无需批准的调用也会运行，例如在工作目录内读取文件以及调用 `Agent`。
 
-[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、需要用户交互的工具、[来自网络路径的读取](/docs/zh-CN/permissions.md#network-paths)，以及已识别的[关键路径删除](/docs/zh-CN/permission-modes.md#critical-paths)即使允许规则匹配也会被拒绝。`PreToolUse` hook 允许也不会放行已识别的关键路径删除或来自网络路径的读取。识别这些删除操作的检查[可能会遗漏某些命令](/docs/zh-CN/permission-modes.md#critical-paths)。
+[您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、需要用户交互的工具、[从网络路径读取](/docs/zh-CN/permissions.md#network-paths)以及被识别出的[关键路径删除](/docs/zh-CN/permission-modes.md#critical-paths)即使匹配允许规则也会被拒绝。`PreToolUse` hook 的允许结果同样无法放行被识别出的关键路径删除或从网络路径读取。识别这些删除操作的检查[可能会漏掉某些命令](/docs/zh-CN/permission-modes.md#critical-paths)。
 
-**使用场景：** 您希望为无头代理提供固定的、明确的工具表面，并且更喜欢硬拒绝而不是依赖 `canUseTool` 不存在的无声依赖。
+**适用场景：** 您希望为无头 Agent 提供一组固定、明确的工具，并且更倾向于硬性拒绝，而不是默默依赖 `canUseTool` 的缺失。
 
 #### 绕过权限模式（`bypassPermissions`）
 
-自动批准工具使用而无需提示，除了下面警告中列出的情况。钩子仍会执行，如果需要可以阻止操作。在 Linux 和 macOS 上，Claude Code 拒绝在此模式下以 root 身份或在[已识别的沙箱](/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)外的 `sudo` 下启动，查询在第一轮之前失败。
+无需提示即可自动批准工具使用，但下方警告中列出的情况除外。hook 仍会执行，并可在需要时阻止操作。在 Linux 和 macOS 上，如果不在[可识别的沙箱](/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)中，无论是以 root 身份还是在 `sudo` 下，Claude Code 都会拒绝以此模式启动，查询会在第一轮之前失败。
 
 > [!WARNING]
 >
-> 请极其谨慎使用。Claude 在此模式下具有完整的系统访问权限。仅在您信任所有可能操作的受控环境中使用。
+> 请极其谨慎地使用。在此模式下，Claude 拥有完全的系统访问权限。仅在您信任所有可能操作的受控环境中使用。
 >
-> `allowed_tools` 不会限制此模式。每个工具都被批准，而不仅仅是您列出的工具。这些控制仍然适用：
+> `allowed_tools` 不会约束此模式。每个工具都会被批准，而不仅仅是您列出的工具。以下控制措施仍然适用：
 >
-> * 拒绝规则、显式 `ask` 规则和钩子在模式检查之前被评估，仍然可以阻止工具。
-> * [您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、需要用户交互的工具，以及已识别的[关键路径删除](/docs/zh-CN/permission-modes.md#critical-paths)仍然会转到您的 `canUseTool` 回调。识别这些删除操作的检查[可能会遗漏某些命令](/docs/zh-CN/permission-modes.md#critical-paths)。
-> * [跨会话消息保护措施](/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)仍然适用。
+> * 拒绝规则、显式 `ask` 规则和 hook 会在模式检查之前进行评估，仍然可以阻止工具。
+> * [您的组织设置为 `ask`](/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、需要用户交互的工具以及被识别出的[关键路径删除](/docs/zh-CN/permission-modes.md#critical-paths)仍会交给您的 `canUseTool` 回调处理。识别这些删除操作的检查[可能会漏掉某些命令](/docs/zh-CN/permission-modes.md#critical-paths)。
+> * [跨会话消息传递保护措施](/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)仍然适用。
 
-#### 规划模式（`plan`）
+#### 计划模式（`plan`）
 
-Claude 探索代码库并生成计划，而不编辑您的源文件。只读工具的运行方式与 `default` 权限模式相同。
+Claude 会探索代码库并制定计划，而不编辑您的源文件。只读工具的运行方式与 `default` 权限模式相同。
 
-在计划模式下，文件编辑永远不会自动批准，即使允许规则匹配或 `PreToolUse` hook 返回 `allow`。它们会通过您的 `canUseTool` 回调提示。 在 Claude Code v2.1.212 或更高版本上，修改文件的 shell 命令（如 `touch` 和 `rm`）会以相同方式到达您的 `canUseTool` 回调。
+在计划模式下，文件编辑永远不会被自动批准，即使某条允许规则与之匹配或 `PreToolUse` hook 返回 `allow` 也是如此。它们会改为通过您的 `canUseTool` 回调进行提示。在 Claude Code v2.1.212 或更高版本中，修改文件的 shell 命令（例如 `touch` 和 `rm`）也会以同样的方式交给您的 `canUseTool` 回调。
 
-在 TypeScript SDK 中，如果您在 `permissionMode: 'plan'` 旁边设置 `allowDangerouslySkipPermissions: true`，文件编辑和修改文件的 shell 命令仍然会到达您的 `canUseTool` 回调。该选项让您稍后可以使用 `setPermissionMode()` 切换到 `bypassPermissions`。
+在 TypeScript SDK 中，如果您在设置 `permissionMode: 'plan'` 的同时设置了 `allowDangerouslySkipPermissions: true`，文件编辑和修改文件的 shell 命令仍会交给您的 `canUseTool` 回调。该选项让您之后可以通过 `setPermissionMode()` 切换到 `bypassPermissions`。
 
-Claude 可能会使用 `AskUserQuestion` 在最终确定计划之前澄清需求。有关处理这些提示的信息，请参阅[处理批准和用户输入](/docs/zh-CN/agent-sdk/user-input.md#handle-clarifying-questions)。
+Claude 可能会在最终确定计划之前使用 `AskUserQuestion` 来澄清需求。有关如何处理这些提示，请参阅[处理批准和用户输入](/docs/zh-CN/agent-sdk/user-input.md#handle-clarifying-questions)。
 
-**使用场景：** 您希望 Claude 提议更改而不执行它们，例如在代码审查期间或当您需要在进行更改之前批准更改时。
+**适用场景：** 您希望 Claude 提出更改但不执行，例如在代码审查期间，或者您需要在更改生效前先批准时。
 
 #### 自动模式（`auto`）
 
-分类器模型会在 shell 命令和网络请求等操作运行之前对其进行审查，并允许或阻止它审查的每一个操作。有关自动模式所需的模型和提供商以及它评估操作的顺序，请参阅[使用自动模式消除权限提示](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)。
+分类器模型会在 shell 命令和网络请求等操作运行之前对其进行审查，并对其审查的每个操作予以允许或阻止。有关自动模式所需的模型和提供商，以及它评估操作的顺序，请参阅[使用自动模式消除权限提示](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)。
 
-如果您使用 [`set_model()`](/docs/zh-CN/agent-sdk/python#claudesdkclient)、[`setModel()`](/docs/zh-CN/agent-sdk/typescript#query-object) 或 [`applyFlagSettings()`](/docs/zh-CN/agent-sdk/typescript#applyflagsettings) 将处于自动模式的会话切换到自动模式不支持的模型，会话将更改为 `default` 模式：
+如果您使用 [`set_model()`](/docs/zh-CN/agent-sdk/python#claudesdkclient)、[`setModel()`](/docs/zh-CN/agent-sdk/typescript#query-object) 或 [`applyFlagSettings()`](/docs/zh-CN/agent-sdk/typescript#applyflagsettings) 将处于自动模式的会话切换到自动模式不支持的模型，该会话会变为 `default` 模式：
 
-* **您会看到的内容**：一条子类型为 `status`、`permissionMode` 设置为 `"default"` 的 `system` 消息，TypeScript SDK 将其类型定义为 [`SDKStatusMessage`](/docs/zh-CN/agent-sdk/typescript#sdkstatusmessage)。此后，需要批准且不匹配任何允许规则的调用会到达您的 `canUseTool` 回调。
-* **返回自动模式**：切换到受支持的模型，然后调用 `set_permission_mode("auto")` 或 `setPermissionMode("auto")`。如果您切换回原模型但未进行该调用，会话将保持在 `default` 模式。当不受支持的模型处于活动状态时，该调用会失败并显示 `Cannot set permission mode to auto: auto mode unavailable for this model`。
+* **您会看到**：一条子类型为 `status`、`permissionMode` 设置为 `"default"` 的 `system` 消息，TypeScript SDK 将其类型定义为 [`SDKStatusMessage`](/docs/zh-CN/agent-sdk/typescript#sdkstatusmessage)。此后，需要批准且不匹配任何允许规则的调用会交给您的 `canUseTool` 回调。
+* **要返回自动模式**：切换到受支持的模型，然后调用 `set_permission_mode("auto")` 或 `setPermissionMode("auto")`。如果您将模型切换回来但没有进行该调用，会话将保持在 `default` 模式。当不受支持的模型处于活动状态时，该调用会失败并显示 `Cannot set permission mode to auto: auto mode unavailable for this model`。
 
-在调用 `set_model()`、`setModel()` 或 `applyFlagSettings()` 之后更改为 `default` 模式需要 Claude Code v2.1.299 或更高版本。
+在调用 `set_model()`、`setModel()` 或 `applyFlagSettings()` 后变为 `default` 模式的行为需要 Claude Code v2.1.299 或更高版本。
 
 ## 相关资源
 

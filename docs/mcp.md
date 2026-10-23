@@ -366,7 +366,7 @@ MCP 服务器可以在连接期间更改其提供的工具、提示词或资源�
 
 ### 自动重新连接
 
-Claude Code 重新连接在会话中途断开的远程服务器，并在瞬时错误后重试 HTTP 或 SSE 服务器的首次连接。Stdio 服务器是本地进程，Claude Code 不会自动重新连接它们。
+Claude Code 重新连接在会话中途断开的远程服务器，并在瞬时错误后重试 HTTP 或 SSE 服务器的首次连接。对于 stdio 服务器，请参阅 [退出或无法启动的 stdio 服务器](#stdio-servers-that-exit-or-fail-to-start)。
 
 #### 远程服务器的会话中途断开
 
@@ -381,10 +381,21 @@ Claude Code 首先使用指数退避尝试重新连接断开的远程服务器�
 
 当 HTTP 或 SSE 服务器的首次连接因瞬时错误（例如 5xx 响应、连接被拒绝或超时）失败时，Claude Code 最多重试三次。如果连接仍然失败，Claude Code 将服务器标记为失败。
 
-Claude Code 在这些情况下不重试：
+这些重试在以下情况下不适用：
 
+* stdio 服务器的首次连接。要再次尝试，请参阅 [退出或无法启动的 stdio 服务器](#stdio-servers-that-exit-or-fail-to-start)
 * WebSocket 服务器的首次连接
 * 身份验证或未找到错误，因为它需要配置更改来解决。当 [`headersHelper`](#use-dynamic-headers-for-custom-authentication) 是服务器唯一的 `Authorization` 标头来源时，Claude Code 仍然重试身份验证错误，因为它在每次尝试时重新运行助手并可以获取新凭据
+
+#### 退出或无法启动的 stdio 服务器
+
+要重新启动 stdio 服务器，请阅读与其所发生情况相符的列。根据您运行 Claude Code 的方式找到对应的行：交互式会话、`claude -p` 运行或 Agent SDK 会话。
+
+| 您运行 Claude Code 的方式 | 服务器进程在会话中途退出 | 服务器的首次连接失败 |
+| - | - | - |
+| 交互式会话 | Claude Code 将服务器标记为失败。要重新启动它，请从 `/mcp` 中该服务器的菜单选择 **Reconnect** | Claude Code 将服务器标记为失败。要重新启动它，请从 `/mcp` 中该服务器的菜单选择 **Reconnect** |
+| `claude -p` 运行 | Claude Code 在 Claude 下次调用该服务器的某个工具时重新启动服务器，调用会在服务器连接后运行 | 运行会在没有该服务器工具的情况下继续。要让 Claude Code 再次尝试连接，请重新开始运行。当插件提供该服务器时，新的运行会在失败后 15 分钟内跳过连接，因此请先等待这段时间，或 [更早重试](/docs/zh-CN/errors.md#skipping-connection-recent-failure-cached) |
+| Agent SDK 会话 | Claude Code 在 Claude 下次调用该服务器的某个工具时重新启动服务器，调用会在服务器连接后运行 | 会话会在没有该服务器工具的情况下继续。您的代码可以 [重新连接服务器](/docs/zh-CN/agent-sdk/mcp.md#error-handling) |
 
 #### 失败的发现请求
 
@@ -498,7 +509,7 @@ Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道
 **插件 MCP 功能**：
 
 * **自动生命周期**：服务器在这些时间点连接和断开：
-  * 在会话启动时，Claude Code 自动连接已启用插件的服务器。在 `/mcp` 中，您之前使用过的远程（HTTP 或 SSE）插件服务器可能改为显示 [`cached` 状态](#server-status-detail)；Claude Code 在 Claude 首次调用其工具之一时连接它
+  * 在会话启动时，Claude Code 自动连接已启用插件的服务器。在 `/mcp` 中，您之前使用过的远程（HTTP 或 SSE）插件服务器可能改为显示 [`cached` 状态](#server-status-detail)；Claude Code 在 Claude 首次调用其工具之一时连接它。当 stdio 插件服务器的连接在不到 15 分钟前失败时，Claude Code 会 [跳过该连接](/docs/zh-CN/errors.md#skipping-connection-recent-failure-cached)
   * 如果您在会话期间启用或禁用插件，Claude Code 在更改生效时连接或断开其 MCP 服务器。[在不重新启动的情况下应用插件更改](/docs/zh-CN/plugins/cli-reference.md#reload-plugins) 说明了生效时间。在没有交互式终端的会话中，`/reload-plugins` 不连接或断开插件 MCP 服务器；这些更改在您的下一个会话中生效
   * 当您重新加载时，Claude Code 保留配置未更改的插件服务器的实时连接，当您从 Agent SDK [替换会话的 MCP 服务器列表](/docs/zh-CN/agent-sdk/typescript.md#mcpsetserversresult) 而未列出它们时也是如此
   * 当您在 v2.1.246 或更高版本上 [使用 `/cd` 移动会话](/docs/zh-CN/permissions#move-the-session-to-another-directory) 时，Claude Code 连接新目录的设置所启用插件的服务器，并断开不再启用的插件的服务器，因此您无需在移动后运行 `/reload-plugins`

@@ -600,9 +600,18 @@ Task 跟踪工具 `TaskCreate`、`TaskGet`、`TaskUpdate`、`TaskList` 和 `Todo
 
 在[后台会话](/docs/zh-CN/agent-view.md)和[云会话](/docs/zh-CN/claude-code-on-the-web.md)中，Claude Code 在每个模型上提供相同的工具，无论是否列出。
 
-Claude Code 仅在您的会话拥有这些工具时才会将其提供给子代理，即使子代理运行不同的模型也是如此。进程内[代理团队](/docs/zh-CN/agent-teams.md)队友以相同的方式跟随您的会话，而在其自己的[分割窗格](/docs/zh-CN/agent-teams.md#choose-a-display-mode)中的队友作为单独的 Claude Code 进程运行，因此其自己的模型决定。没有 Task 工具，代理通过消息而不是[共享任务列表](/docs/zh-CN/agent-teams.md#assign-and-claim-tasks)与其团队协调。
-
 此处描述的默认集合适用于 Claude Code v2.1.268 及更高版本。
+
+### 子代理和 agent team 中的 Task 跟踪工具
+
+子代理仅在您的会话拥有 Task 跟踪工具时才拥有这些工具，无论子代理运行什么模型。进程内 [agent team](/docs/zh-CN/agent-teams.md) 队友在您的会话拥有 Task 跟踪工具时也拥有这些工具。[分割窗格](/docs/zh-CN/agent-teams.md#choose-a-display-mode)队友是一个单独的 Claude Code 进程，它[继承](/docs/zh-CN/agent-teams.md#permissions)您的 `--tools` 列表和拒绝规则，但不继承 `--allowedTools`，因此请检查您的设置：
+
+* **没有 `--tools` 列表或拒绝规则，且未为队友设置 `CLAUDE_CODE_ENABLE_TODO_TOOLS`**：队友拥有其自身模型默认具备的 Task 跟踪工具。
+* **在您的 shell 中导出了 `CLAUDE_CODE_ENABLE_TODO_TOOLS`**：Claude Code 会向队友传递一组固定的环境变量，其中不包括您导出的那个变量。若要同时为队友设置该变量，请在 shell 中运行 `claude --settings '{"env":{"CLAUDE_CODE_ENABLE_TODO_TOOLS":"1"}}'` 来启动会话。队友也会获得您的 [`--settings`](/docs/zh-CN/settings#change-a-setting-for-one-session) 值。
+* **`--tools` 中命名了 Task 跟踪工具**：队友在任何模型上都拥有这些工具。
+* **某个 Task 跟踪工具未包含在 `--tools` 中或在拒绝规则中被命名**：队友不具备该工具。
+
+没有 Task 工具时，Agent 通过消息而不是[共享任务列表](/docs/zh-CN/agent-teams.md#assign-and-claim-tasks)与其团队协调。
 
 ## WebFetch 工具行为
 

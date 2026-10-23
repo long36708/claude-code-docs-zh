@@ -902,6 +902,10 @@ claude plugin update formatter@my-marketplace --scope project
 
 要读取服务器在启动时打印的错误，请运行 `claude --debug` 并打开 `~/.claude/debug/<session-id>.txt` 处的日志。`--debug` 标志不打印到终端。
 
+> [!NOTE]
+>
+> 当与 [插件的 stdio 服务器](/docs/zh-CN/mcp.md#plugin-provided-mcp-servers) 的连接在您运行 `claude --debug` 之前不到 15 分钟内失败时，Claude Code [不会启动该服务器](/docs/zh-CN/errors.md#skipping-connection-recent-failure-cached)。在新会话中，从 `/mcp` 中该服务器的菜单选择 **Reconnect** 以启动它，然后打开日志。
+
 `.mcp.json` 中失败架构的服务器条目不出现在 **Errors** 选项卡中。Claude Code 删除该服务器并仅在该调试日志中记录 `Invalid MCP server config for <server> in <path>`。要在不加载插件的情况下找到条目，请在插件目录上在您的 shell 中运行 `claude plugin validate`，它将其报告为错误。
 
 在 v2.1.281 之前，`claude plugin validate` 没有检查 `.mcp.json`。

@@ -118,7 +118,7 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 上的[自动模型回退](/docs
 | 会话中途的更改 | 缓存 | 下一个请求中的工具定义 |
 | - | - | - |
 | 服务器连接，或[动态工具更新](/docs/zh-CN/mcp.md#dynamic-tool-updates)添加工具 | 失效 | 添加新定义 |
-| 服务器在您未执行任何操作的情况下断开，例如 stdio 服务器的进程退出 | 保持 | 服务器的定义保持不变。对其工具的调用会返回错误而不是运行 |
+| 服务器在您未执行任何操作的情况下断开，例如 stdio 服务器的进程退出 | 保持 | 服务器的定义保持不变。对其工具的调用会返回错误而不是运行，除非 Claude Code 为该调用[重新启动服务器](/docs/zh-CN/mcp.md#stdio-servers-that-exit-or-fail-to-start) |
 | 远程服务器在连接断开后[自动重新连接](/docs/zh-CN/mcp.md#automatic-reconnection) | 保持，除非在服务器重新连接期间发送的请求添加了 `WaitForMcpServers` 工具，这会使缓存失效一次 | 服务器的定义保持不变。如果对话尚未列出 `WaitForMcpServers`，在服务器重新连接期间发送的请求可能会添加它，之后该工具会在对话的其余部分保持列出 |
 | 您有意移除工具，例如使用[拒绝规则](#denying-an-entire-tool)或在 `/mcp` 中禁用其服务器 | 失效 | 定义被移除 |
 

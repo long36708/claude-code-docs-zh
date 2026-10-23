@@ -766,7 +766,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
 * `user_prompt`、`assistant_response` 和 `api_response_body` 上的 `message.uuid`
 * API 事件上的 `request_id`，在会话记录的 assistant 条目中持久保存为 `requestId`
-* `tool_result` 和 `tool_decision` 事件上的 `tool_use_id`
+* `tool_result` 和 `tool_decision` 事件上的 `tool_use_id`，以及 `safety_event` 事件上的 `tool_use_id`（针对[轮次结束](#safety-event)的事件除外）
 
 #### 用户提示词事件
 
@@ -989,7 +989,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
     * 在同一交互式 CLI 会话中较早的权限提示中授予的、在会话剩余时间内有效的授权
     * 工具本身是安全的
 
-    `source` 值不会表明匹配的是上述哪个来源。
+    `source` 值并不表明匹配的是其中哪个来源。要查明是哪个来源拒绝了调用，请查找具有相同 `tool_use_id` 的[安全事件](#safety-event)，并读取其 `category` 和 `rule_source` 属性。部分被拒绝的调用[没有安全事件](#calls-without-a-safety-event)。
 
     当权限提示请求本身失败时，Claude Code 也会报告 `"config"`。例如，当 Agent SDK 的 [`canUseTool`](/docs/zh-CN/agent-sdk/typescript#canusetool) 回调或 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 工具返回无效结果时，或者当请求挂起期间输入流关闭时，该请求就会失败。在 v2.1.216 之前，Claude Code 将这些失败报告为 `"user_reject"`。
   * `"hook"`：由 `PreToolUse` 或 `PermissionRequest` hook 返回了该决策。
@@ -1025,6 +1025,93 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   * 对于 Agent 工具或旧版 Task 工具：包括 `subagent_type`
 
 如果您将 OpenTelemetry SDK 的 `OTEL_LOGRECORD_ATTRIBUTE_COUNT_LIMIT` 调低到低于 `tool_decision` 事件上的属性数量，SDK 会丢弃 Claude Code 最后设置的属性。SDK 会首先丢弃 `permission_mode`，其次是 `classifier_category`，再次是 `classifier_verdict`，只有在丢弃这三个属性之后才会丢弃事件的其他属性。此顺序需要 Claude Code v2.1.302 或更高版本。
+
+#### 安全事件
+
+当某项检查拒绝工具调用或要求权限提示时记录，但[没有安全事件的调用](#calls-without-a-safety-event)除外。当[沙箱的网络代理](/docs/zh-CN/sandboxing.md#network-isolation)拒绝连接或请求时，以及当 hook 阻止结果时，也会记录。需要 Claude Code v2.1.307 或更高版本。
+
+该事件与其他事件一起导出，没有单独的设置。该事件自身的属性不包含命令文本、文件路径、主机名或 MCP 服务器和工具名称。该记录还携带每个事件都有的[标准属性](#standard-attributes)，其中可能包括 `workspace.host_paths` 和[仓库属性](#repository-attributes)。要查看事件背后的命令或 MCP 工具，请设置 `OTEL_LOG_TOOL_DETAILS=1`，并读取匹配的 `tool_decision` 事件上的 `tool_parameters`。
+
+**事件名称**：`claude_code.safety_event`
+
+**属性**：
+
+* 所有[标准属性](#standard-attributes)
+* `event.name`：`"safety_event"`
+* `event.timestamp`：ISO 8601 时间戳
+* `event.sequence`：用于对事件排序的按进程计数器，详见[事件关联属性](#event-correlation-attributes)
+* `category`：检查或结果，为一个[类别值](#safety-event-categories)
+* `decision`：`"accept"`、`"reject"`，或当 hook 阻止了结果或轮次结束时为 `"sent_back"`
+* `decision_source`：由谁或什么做出决定，为 [`tool_decision`](#tool-decision-event) 的某个 `source` 值或 `"other"`
+* `reason_code`：检查的原因，例如 `"rule:policySettings"`、`"mode:dontAsk"`、`"hook:PreToolUse"`、`"classifier:auto-mode"`、`"bashMiss:too-complex"` 或 `"unknown"`
+* `reason_type`：检查的原因类型，例如 `"rule"`、`"subcommandResults"`、`"mode"`、`"hook"`、`"classifier"` 或 `"asyncAgent"`
+* `rule_source`：所涉及规则的设置来源，例如 `"policySettings"`、`"userSettings"`、`"projectSettings"`、`"localSettings"`、`"flagSettings"`、`"cliArg"` 或 `"session"`
+* `grant_scope`：对于未将规则保存到设置文件即获批准的提示，为 `"once"` 或 `"session"`
+* `circuit_breaker`：内置安全检查，例如 `"dangerousRemoval"`、`"outsideReadsBlocked"` 或 `"claudeSettingsFile"`
+* `classifier_category`：在 `OTEL_LOG_TOOL_DETAILS=1` 时，为自动模式阻止背后的[内置规则](/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)，例如 `"data_exfiltration"`
+* `hook_event`：对于 `PreToolUse` hook 为 `"pre_tool_use"`，在 `"hook_review"` 事件上为 `"post_tool_use"`、`"post_tool_use_failure"`、`"stop"` 或 `"subagent_stop"`
+* `tool_class`：Bash 和 [Monitor](/docs/zh-CN/tools-reference.md#monitor-tool) 为 `"bash"`，`"powershell"`，Read、Edit、Write、NotebookEdit、Glob 和 Grep 为 `"file"`，WebFetch 和 WebSearch 为 `"web"`，`"mcp"`，或 `"other"`
+* `tool_name`：工具的名称，例如内置工具为 `"Bash"`，或为 `"mcp_tool"`、`"skill_tool"`、`"dynamic_tool"` 或 `"other_tool"`
+* `tool_source`：`"builtin"`、`"mcp"` 或 `"sdk_host_builtin_mcp"`，与 [`tool_decision`](#tool-decision-event) 上的相同
+* `permission_mode`：检查时该调用的[权限模式](/docs/zh-CN/permission-modes.md)：`"default"`、`"plan"`、`"acceptEdits"`、`"bypassPermissions"`、`"dontAsk"` 或 `"auto"`
+* `tool_use_id`：该调用的 ID，与 `tool_decision` 和 `tool_result` 上的相同
+* `sandbox_violation_count`：沙箱的网络代理拒绝了来自该调用命令的多少个不同连接或请求，为 `"0"` 到 `"20"` 的字符串。针对在前台完成的沙箱化命令统计拒绝次数
+* `sandbox_enabled`：如果会话启用了[沙箱隔离](/docs/zh-CN/sandboxing.md)，则为 `"true"`，否则为 `"false"`
+
+以下是托管设置中的拒绝规则拒绝一条 Bash 命令时该事件自身的属性：
+
+```json theme={null}
+{
+  "event.name": "safety_event",
+  "category": "managed_policy",
+  "decision": "reject",
+  "decision_source": "config",
+  "reason_code": "rule:policySettings",
+  "rule_source": "policySettings",
+  "tool_class": "bash",
+  "tool_name": "Bash",
+  "tool_source": "builtin",
+  "permission_mode": "default",
+  "tool_use_id": "toolu_01ABC123...",
+  "sandbox_violation_count": "0",
+  "sandbox_enabled": "false"
+}
+```
+
+##### 安全事件类别
+
+| 值 | 检查或结果 | 详情属性 |
+| - | - | - |
+| `"permission_rule"` | 托管设置之外的拒绝或询问[权限规则](/docs/zh-CN/permissions.md#manage-permissions) | `rule_source` |
+| `"managed_policy"` | 来自[托管设置](/docs/zh-CN/permissions.md#managed-settings)的拒绝或询问规则 | `rule_source` |
+| `"permission_mode"` | [`dontAsk`](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode) 或[计划](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)模式，或者在无法显示提示的会话中（例如使用 [`--permission-prompts none`](/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs) 时）出现的[无类别](#prompts-with-no-category)提示 | `reason_code`、`reason_type` |
+| `"hook"` | 某个 hook，例如 [`PreToolUse`](/docs/zh-CN/hooks#pretooluse) 或 [`PermissionRequest`](/docs/zh-CN/hooks#permissionrequest) | `hook_event`、`reason_code` |
+| `"auto_mode_block"` | 自动模式[分类器](/docs/zh-CN/permission-modes.md#how-the-classifier-evaluates-actions)阻止了该调用 | `classifier_category` |
+| `"auto_mode_no_verdict"` | 没有可用的[分类器判定结果](/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)，例如在请求失败之后 | `reason_code` |
+| `"safety_check"` | 内置安全检查，例如针对在您的[工作目录](/docs/zh-CN/permissions.md#working-directories)之外执行的 Read、Edit 或 Write | `circuit_breaker` |
+| `"static_analysis"` | Bash 或 Monitor 命令的写法，例如过于复杂而无法分析的命令 | `reason_code` |
+| `"sandbox_override"` | [在沙箱之外运行命令](/docs/zh-CN/sandboxing.md#the-unsandboxed-retry-escape-hatch)的提示 | `reason_code` |
+| `"user_rejected"` | 有人拒绝或关闭了[无类别](#prompts-with-no-category)的提示或仅由 hook 要求的提示，或者 `canUseTool` 回调或 `--permission-prompt-tool` 工具拒绝了此类提示 | `decision_source` |
+| `"sandbox_network"` | 调用已运行，且[沙箱的网络代理](/docs/zh-CN/sandboxing.md#network-isolation)拒绝了某个连接或请求 | `sandbox_violation_count` |
+| `"sandbox_other"` | 类似 `"sandbox_network"`，但没有任何被拒绝的目标可识别为主机名或 IP 地址 | `sandbox_violation_count` |
+| `"hook_review"` | 某个 hook [阻止了调用的结果](/docs/zh-CN/hooks.md#posttooluse-decision-control)或[轮次的结束](/docs/zh-CN/hooks.md#stop-decision-control) | `hook_event` |
+| `"other"` | 其他任何值都无法描述的拒绝 | `reason_code` |
+
+要在任何 `category` 下查找代理拒绝，请筛选存在且不为 `"0"` 的 `sandbox_violation_count`。
+
+##### 没有安全事件的调用
+
+要查找因无人能回答[无类别提示](#prompts-with-no-category)而被拒绝的调用，请查找报告 `"reject"` 且 `source` 为 `"config"`、并且没有安全事件与其共享 `tool_use_id` 的 [`tool_decision`](#tool-decision-event) 事件。此类拒绝发生在既未使用 [`--permission-prompt-tool`](/docs/zh-CN/cli-reference#cli-flags) 也未使用 `--permission-prompts none` 的 `-p` 运行中。
+
+对于以下这类调用，请检查其 `tool_decision` 事件，因为除了在其运行后发出的 [`"sandbox_network"`、`"sandbox_other"` 或 `"hook_review"` 事件](#safety-event-categories)之外，它们没有安全事件：
+
+* 在无类别提示中获得批准的调用
+* 在仅由 `PreToolUse` hook 要求的提示中，由 `canUseTool` 回调或 `--permission-prompt-tool` 工具批准的调用
+* [`AskUserQuestion`](/docs/zh-CN/tools-reference#askuserquestion-tool-behavior) 或 `ExitPlanMode` 调用，无论是否被拒绝
+
+##### 无类别的提示
+
+当没有任何 [`category` 值](#safety-event-categories)命名某个提示的检查时，该提示即无类别，例如针对工作目录内编辑的 `default` 模式提示。
 
 #### 权限模式变更事件
 
@@ -1519,9 +1606,9 @@ Claude Code 不设置 `gen_ai.usage.*` 属性。[OpenTelemetry GenAI 语义约�
 
 OpenTelemetry 事件是 Claude Code 活动的审计数据源。每个事件都携带身份属性，将工具调用、MCP 活动和权限决策与触发它们的用户联系起来。OTLP 日志导出器可以将这些事件传递到任何具有 OTLP 接收器的安全信息和事件管理 (SIEM) 平台，或转发到您的 SIEM 的 OpenTelemetry Collector。
 
-### 将属性操作归属于用户
+### 将操作归属到用户
 
-每个事件上的 [标准属性](#standard-attributes) 包括已认证用户的身份：`user.email`、`user.account_uuid`、`user.account_id` 和 `organization.id`（使用 Claude 账户登录时或在 [云会话](/docs/zh-CN/claude-code-on-the-web.md) 中，当会话自己的凭证携带它们时），加上 `user.id` 和每会话的 `session.id`。`user.id` 是安装范围的标识符，除了在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上通过 `/login` 登录时，其中它是来自网关颁发的令牌的 IdP 主体。
+每个事件上的 [标准属性](#standard-attributes) 包括已认证用户的身份：`user.email`、`user.account_uuid`、`user.account_id` 和 `organization.id`（使用 Claude 账户登录时或在 [云端会话](/docs/zh-CN/claude-code-on-the-web.md) 中，当会话自己的凭据携带它们时），加上 `user.id` 和每会话的 `session.id`。`user.id` 是安装范围的标识符，除了在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上通过 `/login` 登录时，其中它是来自网关颁发的令牌的 IdP 主体。
 
 在开发人员启动的会话中，MCP 工具调用、Bash 命令和文件编辑因此归属于该开发人员。Claude Code 不在单独的服务账户下运行；每个事件上记录的身份是开发人员自己的 Claude 账户，或开发人员在 [Claude apps gateway](/docs/zh-CN/claude-apps-gateway) 会话上的 IdP 身份。在 Claude Tag 频道会话中，Claude 改为作为您组织的 [共享身份](/docs/zh-CN/cloud-environments.md#set-the-environment-a-claude-tag-channel-uses) 工作。
 
@@ -1538,8 +1625,8 @@ export OTEL_RESOURCE_ATTRIBUTES="enduser.id=jdoe@example.com,enduser.directory_i
 | 事件 | 它为 MCP 记录的内容 |
 | - | - |
 | `mcp_server_connection` | 服务器连接、断开连接和连接失败，带有 `server_name`、`transport_type`、`server_scope` 和错误详情 |
-| `tool_result` | 每个 MCP 工具调用，带有 `tool_name` 和 `mcp_server_scope`，包含 `mcp_server_name` 和 `mcp_tool_name` 的 `tool_parameters` 有效负载，以及包含调用参数的 `tool_input` 有效负载 |
-| `tool_decision` | 调用是否被允许或拒绝，以及决策是来自配置、hook 还是用户，以及包含 `mcp_server_name` 和 `mcp_tool_name` 的 `tool_parameters` 有效负载 |
+| `tool_result` | 每个 MCP 工具调用，带有 `tool_name` 和 `mcp_server_scope`，包含 `mcp_server_name` 和 `mcp_tool_name` 的 `tool_parameters` 负载，以及包含调用参数的 `tool_input` 负载 |
+| `tool_decision` | 调用是否被允许或拒绝，以及决策是来自配置、hook 还是用户，以及包含 `mcp_server_name` 和 `mcp_tool_name` 的 `tool_parameters` 负载 |
 
 没有 `OTEL_LOG_TOOL_DETAILS`，这些事件会丢弃识别详情：
 
@@ -1553,16 +1640,19 @@ export OTEL_RESOURCE_ATTRIBUTES="enduser.id=jdoe@example.com,enduser.directory_i
 
 | 信号 | 事件 | 关键属性 |
 | - | - | - |
-| 工具调用被允许或拒绝，以及决策的来源，例如规则、hook 或用户 | [`tool_decision`](#tool-decision-event) | `decision`、`source`、`classifier_verdict`、`permission_mode`、`tool_name`；设置 `OTEL_LOG_TOOL_DETAILS=1` 时还有 `tool_parameters` |
+| 工具调用被允许或拒绝，以及决策的来源，例如配置、hook 或用户 | [`tool_decision`](#tool-decision-event) | `decision`、`source`、`classifier_verdict`、`permission_mode`、`tool_name`；设置 `OTEL_LOG_TOOL_DETAILS=1` 时还有 `tool_parameters` |
+| 哪项检查拒绝了工具调用或要求对其进行权限提示 | [`safety_event`](#safety-event)，其中 `category` 指明该检查，例如 `"managed_policy"`、`"permission_rule"`、`"hook"` 或 `"auto_mode_block"`。对于未运行的调用，`decision` 为 `"reject"`。某些调用[没有安全事件](#calls-without-a-safety-event) | `category`、`decision`、`reason_code`、`rule_source`、`tool_name`、`tool_use_id` |
 | 自动模式分类器允许或阻止了工具调用，或 Claude Code 在没有分类器判定的情况下拒绝了调用 | 存在 `classifier_verdict` 的 [`tool_decision`](#tool-decision-event)。对于没有判定的拒绝，`classifier_verdict` 为 `"no_verdict"` 或 `"unavailable"` | `classifier_verdict`、`permission_mode`、`tool_name`；设置 `OTEL_LOG_TOOL_DETAILS=1` 时还有 `classifier_category` |
 | 权限模式升级 | `permission_mode_changed` | `from_mode`、`to_mode`、`trigger` |
 | 每个工具调用在哪种权限模式下接受检查，包括子代理发起的调用 | [`tool_decision`](#tool-decision-event) | `permission_mode`、`session.id` |
 | 策略 hook 阻止了操作 | `hook_execution_complete` | `hook_event`、`num_blocking` |
-| 登录、登出和身份验证失败 | `auth` | `action`、`success`、`error_category` |
+| hook 拒绝了哪个工具调用，以及 hook 阻止了哪个结果或轮次结束 | [`safety_event`](#safety-event)，对于被拒绝的调用，其 `category` 为 `"hook"` 且 `decision` 为 `"reject"`；对于被阻止的结果或轮次结束，其 `category` 为 `"hook_review"` | `category`、`decision`、`hook_event`；工具调用还有 `tool_use_id` |
+| 沙箱的网络代理拒绝了来自 Bash 或 PowerShell 命令的连接或请求 | 存在 `sandbox_violation_count` 且其值不为 `"0"` 的 [`safety_event`](#safety-event) | `sandbox_violation_count`、`category`、`sandbox_enabled`、`tool_use_id` |
+| 登录、注销和身份验证失败 | `auth` | `action`、`success`、`error_category` |
 | MCP 服务器连接或失败 | `mcp_server_connection` | `status`、`server_name`、`is_plugin`、`error_code` |
 | 插件已安装及其来源 | `plugin_installed` | `plugin.name`、`marketplace.name`、`marketplace.is_official` |
 | 运行的命令和触及的文件 | `tool_result`（已执行）或 `tool_decision`（已拒绝），带有 `OTEL_LOG_TOOL_DETAILS=1` | `tool_parameters`；`tool_input`（仅 `tool_result`） |
-| 托管设置源机器运行的内容、其策略助手是否健康，以及机器拒绝启动的原因 | `managed_settings_resolved` | `managed_settings.trigger`、`managed_settings.sources`、`managed_settings.source_behavior`、`managed_settings.helper.state`、`error.type`；`managed_settings.settings` 和 `managed_settings.resolved_sha256`，带有 `OTEL_LOG_MANAGED_SETTINGS=1` |
+| 机器使用哪些托管设置源、其策略助手是否健康，以及机器拒绝启动的原因 | `managed_settings_resolved` | `managed_settings.trigger`、`managed_settings.sources`、`managed_settings.source_behavior`、`managed_settings.helper.state`、`error.type`；`managed_settings.settings` 和 `managed_settings.resolved_sha256`，带有 `OTEL_LOG_MANAGED_SETTINGS=1` |
 
 Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关联和警报是您的 SIEM 或可观测性后端的责任。
 
@@ -1626,7 +1716,7 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 }
 ```
 
-要确认事件到达，在运行此配置的会话中提交提示，并在您的 SIEM 中检查 `claude_code.user_prompt` 事件。如果没有任何内容到达，使用 `claude --debug-file <path>` 启动 Claude Code 并在该日志中检查 `[3P telemetry]` 导出错误。
+要确认事件到达，在运行此配置的会话中提交提示词，并在您的 SIEM 中检查 `claude_code.user_prompt` 事件。如果没有任何内容到达，使用 `claude --debug-file <path>` 启动 Claude Code 并在该日志中检查 `[3P telemetry]` 导出错误。
 
 ## 后端考虑事项
 

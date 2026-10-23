@@ -91,6 +91,15 @@ Claude Code 以何种权限模式启动恢复的会话取决于您如何恢复�
 * 运行不是通过[频道](/docs/zh-CN/channels.md)启动的
 * 没有[拒绝规则](/docs/zh-CN/permissions.md#manage-permissions)移除 `ExitPlanMode` 工具
 
+### "Resume this conversation?" 对话框
+
+如果您在恢复会话时看到 "Resume this conversation?" 对话框，其中的估算值是仅保存的对话本身就会占用的 5 小时用量限制的份额。该估算不计入您已经使用的用量。
+
+在 Pro 和 Max 计划中，当您[在长时间中断后](/docs/zh-CN/prompt-caching.md#resuming-a-session)或在不同的模型上恢复较长的对话时，可能会出现该对话框。估算的用量在您选择 **Resume** 后发送第一条消息时产生，而不是在您选择它时产生。请根据您的下一个任务是否仍需要保存的对话来选择：
+
+* **Resume**：继续在保存的对话中工作。
+* **Start a new conversation**：切换到不需要保存的对话的工作。要稍后重新打开它，请在输入框中运行 [`/resume`](#use-the-session-picker)。该估算不适用于您在新对话中的第一条消息。如果该选项表明 Claude 可以查找此对话，您仍然可以在新对话中引用之前的工作。
+
 ### 会话选择器查看的位置
 
 Claude Code 按项目目录存储会话。默认情况下，会话选择器显示：

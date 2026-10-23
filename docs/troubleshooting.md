@@ -20,7 +20,7 @@
 | 更新 Claude Code 或 Agent SDK 后，在未传递 `--permission-mode`、`permissionMode` 或 `permission_mode` 的 `claude -p` 或 SDK 运行中，工具调用被拒绝 | [`claude -p` 和 Agent SDK 运行中的工具调用被拒绝](/docs/zh-CN/permission-modes#which-mode-a-non-interactive-run-starts-in) |
 | `API Error: 5xx`、`529 Overloaded`、`429`、请求验证错误 | [错误参考](/docs/zh-CN/errors.md) |
 | `model not found` 或 `you may not have access to it` | [错误参考](/docs/zh-CN/errors.md#theres-an-issue-with-the-selected-model) |
-| Claude 运行的命令失败，显示 `Your disk quota is full`、`is full (ENOSPC)` 或 `Command output was lost` | [错误参考](/docs/zh-CN/errors.md#disk-quota-or-temp-filesystem-is-full) |
+| Claude 运行的命令失败，显示 `Disk full:`、`Disk quota used up:`、`Nearly out of inodes:`、`The command was not started:`、`Your disk quota is full`、`is full (ENOSPC)` 或 `Command output was lost` | [错误参考](/docs/zh-CN/errors.md#disk-quota-or-temp-filesystem-is-full) |
 | VS Code 扩展未连接或未检测到 Claude | [VS Code 集成](/docs/zh-CN/vs-code.md#fix-common-issues) |
 | VS Code 或 SDK 应用中出现 `Claude Code process exited with code 1` | [错误参考](/docs/zh-CN/errors.md#claude-code-process-exited-with-code-n) |
 | JetBrains 插件或 IDE 未检测到 | [JetBrains 集成](/docs/zh-CN/jetbrains.md#troubleshooting) |

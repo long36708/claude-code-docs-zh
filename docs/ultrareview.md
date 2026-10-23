@@ -147,7 +147,7 @@ Claude 还可以告诉您审查已停止或其会话未找到：
 
 ## 以非交互方式运行 ultrareview
 
-使用 `claude ultrareview` 子命令，可以在 CI 或脚本中启动 ultrareview，而无需交互式会话。该子命令启动的审查与 `/code-review ultra` 相同，会一直阻塞到远程审查完成，然后将发现的问题输出到 stdout。
+使用 `claude ultrareview` 子命令，可以在 CI 或脚本中启动 ultrareview，而无需交互式会话。该子命令启动的审查与 `/code-review ultra` 相同，会一直阻塞到远程审查完成，然后将发现的问题输出到 stdout。如果运行时以 `Error: Workspace not trusted` 退出，请参阅[在审查运行前信任文件夹](#trust-the-folder-before-the-review-runs)。
 
 ```bash theme={null}
 claude ultrareview
@@ -157,11 +157,9 @@ claude ultrareview origin/main
 
 不带参数时，该子命令会审查当前分支与默认分支之间的 diff；当不存在合并基准时，会执行与 `/code-review ultra` 相同的[回退到整个仓库审查](#diff-limits-and-fallbacks)。传入 PR 编号可[审查 `github.com` 上的 Pull Request](#review-a-pull-request)，传入基准分支则以该分支为基准进行审查；[基准分支的处理方式](#review-against-a-different-base)与交互式命令一致。
 
-运行该子命令即表示您同意回退到整个仓库审查，并同意计费和条款确认提示，因此运行会直接开始，无需等待输入。只有您亲自运行才算作同意。如果改由 Claude 替您运行该子命令（例如通过 Bash 工具），Claude Code 会拒绝执行整个仓库审查。
+当您运行该子命令时，即表示您同意回退到审查整个仓库，并同意计费和条款确认提示，因此运行过程中不会停下来请求您确认。由您亲自运行即视为同意。如果改由 Claude 代您运行该子命令（例如通过 Bash 工具），Claude Code 会拒绝执行整个仓库的审查。
 
 `claude -p '/code-review ultra'` 无法获取发现的问题，因此请在脚本中使用 `claude ultrareview`。`-p` 运行会启动云端审查，但不等待其完成就退出。如果该审查会消耗使用额度，`-p` 运行会停止且不启动审查。在 v2.1.218 之前，非交互式会话中的 `/code-review ultra` 会运行本地审查。
-
-`claude ultrareview` 会将进度消息写入 stderr，以便 stdout 保持可解析。使用以下标志控制其输出、超时时间以及是否发布发现的问题：
 
 | 标志 | 描述 |
 | - | - |
@@ -169,14 +167,17 @@ claude ultrareview origin/main
 | `--timeout <minutes>` | 等待审查完成的最长分钟数。默认为 45 |
 | `--post` | 以您的 GitHub 账户身份，将完成的发现结果作为一条纯文本评论[发布到 Pull Request](#post-findings-to-the-pull-request)。适用于 `github.com` 上的 Pull Request 目标；对于其他目标，Claude Code 会忽略该标志并给出提示。需要 Claude Code v2.1.227 或更高版本 |
 | `--no-post` | 不发布发现结果。这是默认行为；如果同时传入两个标志，Claude Code 不会发布。需要 Claude Code v2.1.227 或更高版本 |
+| `--trust-workspace` | 仅在本次运行中[信任当前文件夹](#trust-the-folder-before-the-review-runs)，且不进行询问，以便脚本或 CI 作业可以审查您尚未信任的检出目录。该标志不接受值：请将 PR 编号或基准分支放在它之前。需要 Claude Code v2.1.309 或更高版本 |
+
+`claude ultrareview` 会将进度消息写入 stderr，以便 stdout 保持可解析。
 
 运行 `claude ultrareview` 所需的身份验证和使用额度配置与 `/code-review ultra` 相同。
 
 该子命令会以以下三种退出码之一退出：
 
 * **0**：审查已完成，无论是否有发现结果
-* **1**：审查启动失败或在完成前被停止、云端会话出错，或已超时
-* **130**：您使用 Ctrl-C 中断了该子命令
+* **1**：审查启动失败或在完成前被停止、云端会话出错，或已超时。当[文件夹未被信任](#trust-the-folder-before-the-review-runs)时，退出码也为 1，包括您在信任询问处回答 `n` 或按下 Ctrl-C 的情况。
+* **130**：您在该子命令启动审查、等待发现结果或发送 `--post` 评论期间按下了 Ctrl-C，而不是在信任询问处按下
 
 如果子命令在发现结果返回之前退出，这些结果将永远不会到达您的终端。审查可能仍在云端运行。再次运行该子命令会启动一次新的审查，而不是恢复之前那次，并且新的审查会[使用一次免费运行或按使用额度计费](#pricing-and-free-runs)。
 
@@ -186,6 +187,18 @@ claude ultrareview origin/main
 * 如果审查完成但评论未能发布，Claude Code 会将原因输出到 stderr，发现结果仍保留在 stdout 中，以便您手动发布。
 
 如需对 GitHub Pull Request 进行自动审查，[Code Review](/docs/zh-CN/code-review.md) 可直接与您的仓库集成，并以 PR 行内评论的形式发布发现结果，无需 CLI 步骤。
+
+### 在审查运行前信任文件夹
+
+当 `claude ultrareview` 询问 `Trust <folder>? [y/N]` 时，回答 `y` 即可[信任该文件夹](/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)。仅当您信任其中的代码时才应信任该文件夹，因为此后 git 和 Claude Code 可能会运行其 git 配置和项目设置中指定的程序。
+
+当它无法询问您时（例如在 CI 作业中，或输出被重定向到文件时），它会以 [`Error: Workspace not trusted`](/docs/zh-CN/errors#workspace-not-trusted-when-running-claude-ultrareview) 退出。追加 `--trust-workspace` 即可在该次运行中信任该文件夹：
+
+```bash theme={null}
+claude ultrareview 1234 --trust-workspace
+```
+
+要审查不受信任的 Pull Request，请在您信任的分支上运行 `claude ultrareview <PR number> --trust-workspace`。与回答 `y` 不同，该标志不会保存任何内容。该 PR 会[在云端克隆](#review-a-pull-request)，因此您无需在本地拥有其分支。
 
 ## ultrareview 与 /code-review 的比较
 

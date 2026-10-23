@@ -193,9 +193,18 @@ Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/ski
 
 这些加载取决于 `project` [设置源](/docs/zh-CN/agent-sdk/claude-code-features.md#control-filesystem-settings-with-settingsources)，默认情况下处于启用状态。[`strictPluginOnlyCustomization`](/docs/zh-CN/settings-reference#strictpluginonlycustomization) 策略、[bare mode](/docs/zh-CN/headless.md#start-faster-with-bare-mode) 和 [`--safe-mode`](/docs/zh-CN/cli-reference#cli-flags) 各自进一步限制它们，如这些页面所述。请参阅 [其他目录授予文件访问权限，而不是配置](/docs/zh-CN/permissions.md#additional-directories-grant-file-access-not-configuration) 以获取添加目录加载的完整表格，包括 `CLAUDE.md` 和插件设置。
 
+#### 运行已添加目录中的同名 skill
+
+当已添加目录中 skill 的文件夹名称与 enterprise、personal 或 project skill，或较早添加的目录中的 skill 冲突时，该 skill 会获得一个前缀。要运行它，请在 Claude Code 输入框中输入 `/<prefix>:<skill-name>`。`/` 菜单以其带前缀的名称列出该 skill，[skill 如何获得其命令名称](#how-a-skill-gets-its-command-name) 介绍了前缀的来源。该名称需要 Claude Code v2.1.309 或更高版本。
+
+例如，使用 `--add-dir ../cli`，并且您的项目和 `../cli` 中都有 `verify` skill：
+
+* `/verify` 运行您项目的 skill
+* `/cli:verify` 运行来自 `../cli` 的 skill
+
 ### 解决共享名称的 skills
 
-当两个 skill 共享目录或文件名称时，每个来自的位置决定了 `/name` 运行哪一个。对于由 frontmatter `name` 字段设置的名称，请参阅 [skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)。该表涵盖 enterprise、personal、project、nested、plugin 和 claude.ai 位置、随附 skill、内置命令和命令文件：
+当两个 skill 共享目录或文件名称时，每个来自的位置决定了 `/name` 运行哪一个。对于由 frontmatter `name` 字段设置的名称，请参阅 [skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)。
 
 | 相同名称在 | 运行哪一个 |
 | :- | :- |
@@ -204,6 +213,8 @@ Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/ski
 | 这些位置中的任何一个和 [内置命令](/docs/zh-CN/commands.md) | 在本地终端会话中，您的 skill 替换内置命令，但不替换其别名。项目 `usage` skill 替换 `/usage`，内置别名 `/cost` 仍然运行内置命令 |
 | Skill 和 `.claude/commands/` 中的文件 | Skill |
 | 项目根 skill 和嵌套 skill | 两者都加载。请参阅 [monorepos 和子目录](#discovery-from-parent-and-nested-directories) |
+| Enterprise、personal 或 project skill 和 [项目外已添加目录](#skills-from-additional-directories) 中的 skill | Enterprise、personal 或 project skill，而已添加目录中的 skill 以带前缀的名称运行。请参阅 [运行已添加目录中的同名 skill](#run-a-same-named-skill-from-an-added-directory) |
+| 项目外的两个 [已添加目录](#skills-from-additional-directories) | 按 `--add-dir` 或 `/add-dir` 的顺序，最先添加的目录中的 skill。另一个以 [带前缀的名称](#run-a-same-named-skill-from-an-added-directory) 运行 |
 | 插件 skill 和上述任何位置的 skill | 两者都加载，因为插件 skills 被命名为 `/plugin-name:skill-name` |
 | 上述任何一个和 [从您的 claude.ai 账户同步的 skill](#how-synced-skills-behave) 的短名称 | 其他 skill 或命令。同步 skill 随后被列出并仅在其完整名称下运行。请参阅 [当同步 skill 名称与另一个命令匹配时](#when-a-synced-skill-name-matches-another-command) |
 
@@ -435,6 +446,7 @@ Unexpected key(s) in SKILL.md frontmatter: argument-hint. Allowed properties are
 | :- | :- | :- |
 | `~/.claude/skills/` 或 `.claude/skills/` 下的 skill 目录 | Frontmatter `name` 或目录名称 | `.claude/skills/deploy-staging/SKILL.md` → `/deploy-staging`，或使用 `name: deploy` 时为 `/deploy` |
 | [嵌套的](#where-skills-live) `.claude/skills/` 目录，当目录名称与其他 skill 冲突时 | 相对于工作目录的子目录路径，然后是 skill 目录名称 | `apps/web/.claude/skills/deploy/SKILL.md` → `/apps/web:deploy` |
+| [项目之外添加的目录](#skills-from-additional-directories)中的 `.claude/skills/`，当 skill 目录名称与企业、个人或项目 skill，或较早添加的目录中的 skill 冲突时 | 所添加目录的文件夹名称，然后是 skill 目录名称。当两个添加的目录具有相同的文件夹名称时，前缀以父文件夹的名称开头。需要 v2.1.309 或更高版本 | 使用 `--add-dir ../cli` 时，`../cli/.claude/skills/verify/SKILL.md` → `/cli:verify`。使用 `--add-dir ../a/cli --add-dir ../b/cli`，且每个目录中各有一个 `verify` skill、其他位置均没有时，`../a/cli` 中的那个 → `/verify`，另一个 → `/b/cli:verify` |
 | `.claude/commands/` 下的文件 | 不含扩展名的文件名 | `.claude/commands/deploy.md` → `/deploy` |
 | `.claude/commands/` 子目录中的文件 | 相对于 `commands/` 的子目录路径（每个 `/` 替换为 `:`），然后是不含扩展名的文件名 | `.claude/commands/frontend/component.md` → `/frontend:component` |
 | 插件 `skills/` 子目录 | Frontmatter `name` 或目录名称，以插件作为命名空间 | `my-plugin/skills/review/SKILL.md` → `/my-plugin:review`，或使用 `name: fancy` 时为 `/my-plugin:fancy` |
@@ -620,6 +632,13 @@ allowed-tools: Bash(git add *) Bash(git commit *) Bash(git status *)
 ```
 
 要在 skill 处于活动状态时从 Claude 的可用工具池中移除工具，请在 skill 的 frontmatter 中的 `disallowed-tools` 里列出这些工具。当您发送下一条消息时，该限制即被清除。与拒绝规则一样，只要还有其他工具存在，该字段就无法移除 [`EndConversation`](/docs/zh-CN/tools-reference#endconversation-tool-behavior)。要在所有 skill 和提示词中阻止工具，请在您的[权限设置](/docs/zh-CN/permissions.md)中添加拒绝规则。
+
+#### 当托管设置将 hook 限定于插件时
+
+当您组织的托管设置在 `strictPluginOnlyCustomization` 中列出 `hooks` 时，在 frontmatter 中声明了 `hooks` 的个人或项目 skill 会失去其 `allowed-tools` 预先批准，[保留该预先批准的 skill](/docs/zh-CN/settings-reference.md#strictpluginonlycustomization-hooks) 除外。
+
+* **检查**：在 Claude Code 会话中输入 `/status`。如果 `/status` 显示 [`Enterprise managed settings`](/docs/zh-CN/settings#check-what-your-organization-enforces)，请询问您的管理员 `strictPluginOnlyCustomization` 是否列出了 `hooks`。
+* **修复**：从该 skill 的 frontmatter 中移除 `hooks`，因为在该设置下其 hook 不会运行。要保留这些 hook，请将该 skill [移入插件](/docs/zh-CN/hooks.md#limits-on-skill-hooks)，并从市场安装该插件。
 
 #### 仅适用托管权限规则时
 

@@ -222,7 +222,7 @@ Claude Code 在生命周期事件上运行 hook；它将 skill 加载到上下�
 
 | 功能 | 何时加载 | 加载内容 | 上下文成本 |
 | - | - | - | - |
-| **CLAUDE.md** | 会话开始 | 完整内容 | 每个请求 |
+| **CLAUDE.md** | 会话开始 | 在会话开始时加载的每个文件的完整内容 | 每个请求 |
 | **Output styles** | 会话开始，以及当您切换样式时再次加载 | 活跃样式的完整说明；默认样式无内容 | 每个请求 |
 | **Skills** | 会话开始 + 使用时 | 启动时的描述，使用时的完整内容 | 低（每个请求的描述）\* |
 | **MCP 服务器** | 会话开始 | 工具名称；完整架构按需 | 低，直到使用工具 |
@@ -242,9 +242,9 @@ Claude Code 在生命周期事件上运行 hook；它将 skill 加载到上下�
 
 **何时：** 会话开始
 
-**加载内容：** 所有 CLAUDE.md 文件的完整内容（托管、用户和项目级别）。
+**加载内容：** 在会话开始时加载的每个 CLAUDE.md 文件的完整内容（托管、用户和项目级别）。
 
-**继承：** Claude 从您的工作目录读取 CLAUDE.md 文件直到根目录，并在访问这些文件时发现子目录中的嵌套文件。有关详细信息，请参阅 [CLAUDE.md 文件如何加载](/docs/zh-CN/memory.md#how-claude-md-files-load)。
+**继承：** Claude 从您的工作目录读取 CLAUDE.md 文件直到根目录，并在访问这些文件时发现子目录中的嵌套文件。有关详细信息，请参阅 [CLAUDE.md 文件如何加载](/docs/zh-CN/memory.md#how-claude-md-files-load)。如果嵌套的 CLAUDE.md 超出其[单文件大小限制](/docs/zh-CN/memory.md#claude-ignores-the-end-of-my-subdirectory-claude-md)，Claude 只会收到该文件的开头部分。
 
 > [!TIP]
 >

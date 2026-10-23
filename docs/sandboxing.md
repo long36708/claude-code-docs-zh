@@ -889,7 +889,7 @@ Claude Code 会忽略在其他任何位置设置的端口。在 v2.1.285 之前�
 
 在 Linux 和 WSL2 上，沙箱化命令运行期间，沙箱通过在尚不存在的文件位置创建 0 字节只读占位符来保持对该文件的写入拒绝。沙箱随后会移除占位符。如果会话在清理运行之前被终止，例如通过 SIGKILL，占位符就会残留下来。后续会话每次启动时都会再次将这些占位符以只读方式绑定，因此在占位符所在的位置，设置写入（如保存权限选择）会失败。
 
-在终端中运行 `claude doctor` 以列出残留的占位符文件。[`Stale sandbox mask files left by a killed session`](/docs/zh-CN/errors#stale-sandbox-mask-files-left-by-a-killed-session) 警告会列出其中部分文件的名称，并统计其余文件的数量。在该项目中没有其他 Claude Code 会话运行时，使用 `rm` 删除每个文件。在 v2.1.257 之前，Claude Code 会留下相同的占位符而不对其进行标记。
+在终端中运行 `claude doctor` 以列出残留的占位符文件。[`Sandbox mask files left behind at write-deny paths`](/docs/zh-CN/errors#stale-sandbox-mask-files-left-by-a-killed-session) 警告会列出其中部分文件的名称，并统计其余文件的数量。在该项目中没有其他 Claude Code 会话运行时，使用 `rm` 删除每个文件。在 v2.1.257 之前，Claude Code 会留下相同的占位符而不对其进行标记。
 
 ### 启用沙箱时通过 SSH 使用 `git` 失败
 

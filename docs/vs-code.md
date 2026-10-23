@@ -320,7 +320,7 @@ Web 标签页还会列出您的 [Remote Control](/docs/zh-CN/remote-control.md) 
 
   对话框还会细分哪些因素在消耗您的套餐限额：
 
-  * **建议**：可降低用量的更改，每行一条，并附有该更改所针对的近期用量占比，例如 `Trim ~/code/api/CLAUDE.md · 49k tokens per request`
+  * **建议**：建议进行的更改，每行一条，例如 `Trim ~/code/api/CLAUDE.md · 49k tokens per request`
   * **修复按钮**：要让 Claude Code 应用它能处理的建议，请点击建议下方的按钮，例如 **Fix both**。要了解该按钮作用于哪些行以及随后会在您的会话中发生什么，请参阅[使用修复快捷方式应用建议](/docs/zh-CN/costs.md#apply-recommendations-with-the-fix-shortcut)。需要 Claude Code v2.1.305 或更高版本。
 
     连接 [Remote Control](/docs/zh-CN/remote-control.md) 期间不会显示该按钮。如果在 Remote Control 连接后出现 `The usage fix wasn’t fully sent. Open usage and try again.` 警告，请先[断开 Remote Control](/docs/zh-CN/remote-control.md#check-connection-status)，然后再重试。
@@ -926,6 +926,50 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 3. 取消勾选游戏叠加层复选框
 
 或者，将扩展重新绑定到其他按键：打开 VS Code [快捷键编辑器](https://code.visualstudio.com/docs/configure/keybindings)（`Cmd+K Cmd+S`），搜索 `Claude Code: Focus input`，然后分配新的快捷键。
+
+### 按 Ctrl+J 会在输入框中添加新行
+
+要阻止 `Ctrl+J` 在输入框中添加新行，请在 Claude Code 的 `keybindings.json` 文件中[解除该按键的绑定](/docs/zh-CN/keybindings.md#unbind-default-shortcuts)。扩展在 2.1.309 或更高版本中才会读取此文件，因此如果扩展版本较旧，请先在扩展视图中更新。
+
+以下示例是完整的文件，其中只有一个用于解除该按键绑定的条目，即 `Chat` 块中的 `"ctrl+j": null`：
+
+```json theme={null}
+{
+  "bindings": [
+    {
+      "context": "Chat",
+      "bindings": {
+        "ctrl+j": null
+      }
+    }
+  ]
+}
+```
+
+该文件位于您的 Claude Code 配置目录中，除非您已通过 `CLAUDE_CONFIG_DIR` 移动该目录，否则该目录为 `~/.claude`。请查看该目录，并根据您发现的情况执行相应步骤：
+
+* **尚无 `keybindings.json`**：创建该文件，内容与示例完全相同
+* **`keybindings.json` 中没有 `Chat` 块**：将示例中的 `Chat` 块添加到顶层 `bindings` 数组中，位置不限
+* **`Chat` 块中没有 `"ctrl+j"` 行**：将 `"ctrl+j": null` 添加到该块的 `bindings` 中
+* **`Chat` 块中已有 `"ctrl+j"` 行**：将该行的值更改为 `null`
+
+保存文件后，在输入框中按 `Ctrl+J` 将不再添加新行。
+
+如果 `Ctrl+J` 仍然在输入框中添加新行，请从命令面板按顺序运行以下两个命令：
+
+1. **Developer: Reload Window**，然后在输入框中再次按 `Ctrl+J`
+2. **Claude Code: Show Logs**，然后查找包含 `Ctrl+J in the chat input still inserts a newline` 的警告。在警告所指出的文件中更正其报告的问题，保存文件，然后再次按 `Ctrl+J`。
+
+如果日志中没有此类警告，请检查该文件是否位于您的 Claude Code 配置目录中，以及其 `Chat` 块是否将 `"ctrl+j"` 设置为 `null`。如果 `Ctrl+J` 仍然添加新行，请[报告该问题](https://github.com/anthropics/claude-code/issues)。
+
+### Claude Code 面板空白或无法加载
+
+如果 Claude Code 面板已打开但完全不显示任何内容（连输入框都没有），请在扩展视图中将扩展更新到 v2.1.309 或更高版本。然后从命令面板运行 **Developer: Reload Window**。如果随后看到 `Claude Code couldn’t load` 通知，请按顺序完成其中列出的步骤。
+
+如果面板仍然无法加载，请打开扩展的日志，并附上日志副本[报告该问题](https://github.com/anthropics/claude-code/issues)：
+
+* **在 v2.1.309 或更高版本上仍然空白**：从命令面板运行 **Claude Code: Show Logs** 打开日志
+* **通知中的步骤没有帮助**：点击通知中的 **Show logs** 打开日志
 
 ### 恢复的对话起初显示为空白
 

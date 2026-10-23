@@ -5763,6 +5763,7 @@ type SandboxSettings = {
   filesystem?: SandboxFilesystemConfig;
   ignoreViolations?: Record<string, string[]>;
   enableWeakerNestedSandbox?: boolean;
+  allowNestedUserNamespaces?: boolean;
   ripgrep?: { command: string; args?: string[] };
 };
 ```
@@ -5778,6 +5779,7 @@ type SandboxSettings = {
 | `filesystem` | [`SandboxFilesystemConfig`](#sandboxfilesystemconfig) | `undefined` | 用于读/写限制的文件系统相关沙箱配置 |
 | `ignoreViolations` | `Record<string, string[]>` | `undefined` | 从命令子字符串（或表示所有命令的 `*`）到要忽略的违规文本子字符串的映射，例如 `{ "*": ['/etc/hosts'] }`；请参阅 [`sandbox.ignoreViolations`](/docs/zh-CN/settings-reference#sandbox-ignoreviolations) |
 | `enableWeakerNestedSandbox` | `boolean` | `false` | 为兼容性启用较弱的嵌套沙箱 |
+| `allowNestedUserNamespaces` | `boolean` | `false` | 允许 Linux 和 WSL2 上在沙箱中运行的命令创建用户命名空间。在将其设置为 `true` 之前，请阅读 [`sandbox.allowNestedUserNamespaces`](/docs/zh-CN/settings-reference#sandbox-allownestedusernamespaces)，其中介绍了需要此设置的工具以及您将关闭的安全边界。需要 Claude Code v2.1.305 或更高版本 |
 | `ripgrep` | `{ command: string; args?: string[] }` | `undefined` | 用于沙箱环境的自定义 ripgrep 二进制文件配置 |
 
 > [!NOTE]

@@ -512,7 +512,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 
 ### 键盘焦点和快捷键
 
-您的 mod 永远不会自己读取键盘。用户按下一个键，Claude Code 决定它属于您的哪个控件，然后该控件的回调运行。除了[条带上的数字快捷键](/docs/zh-CN/plugins/mods/reference.md#elements)，这仅在您的窗格或条带拥有键盘焦点时发生。其余时间，按键进入输入框。
+您的 mod 永远不会自己读取键盘。用户按下一个键，Claude Code 决定它属于您的哪个控件，然后该控件的回调运行。除了[条带上的数字快捷键或 `action` 绑定](/docs/zh-CN/plugins/mods/reference#elements)，这仅在您的窗格或条带拥有键盘焦点时发生。其余时间，按键进入输入框。
 
 在 [VS Code 扩展](#draw-in-the-vs-code-extension)中，按钮没有快捷键：用户点击按钮或在按钮上按 Enter，并在字段中输入。
 
@@ -522,7 +522,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 
 * 您的 mod 从命令或按键使用 `focus: true` 打开它
 * 用户按 Ctrl+X 然后按 Tab
-* 用户点击它
+* 用户点击它，这在终端中需要[全屏渲染](/docs/zh-CN/fullscreen.md)
 
 Claude Code 仅在输入框为空且没有其他内容拥有键盘焦点时授予 `focus: true`。在用户输入时打开的窗格不会获取其按键。
 
@@ -539,6 +539,7 @@ Claude Code 仅在输入框为空且没有其他内容拥有键盘焦点时授�
 | Page Up、Page Down、Home 和 End | 当您的窗格或条带的行数超过它可以显示的行数时，滚动它 |
 | Ctrl+X 然后按方向键 | 调整您的窗格大小。左或上为其提供更多空间，右或下将空间让回。位于会话记录旁边的窗格最多加宽到终端宽度的 45%。 |
 | Ctrl+X 然后按 X | 关闭您的窗格，即使其某个字段拥有焦点 |
+| Ctrl+X 然后按 Ctrl+A | 当有 mod 在条带中绘制时，将[条带折叠](#when-the-user-collapses-the-band)为一行，或再次展开它。这些按键在输入框拥有焦点时同样有效。 |
 | Esc | 将键盘焦点返回到输入框。使用 `closeOnEscape: true` 时，它还会关闭窗格。 |
 
 mod 无法将 Tab 或方向键绑定到其他任何功能，因此游戏使用 `w`、`a`、`s` 和 `d` 控制方向。
@@ -556,6 +557,23 @@ mod 无法将 Tab 或方向键绑定到其他任何功能，因此游戏使用 `
 | 使用 `plain: true` | `1: One` | 标签，旁边有一个小键 | 标签，快捷键不起作用 |
 
 在终端中，请在带括号按钮的标签中写明按键，或使用 `plain: true`，以便用户知道要按什么。[元素参考](/docs/zh-CN/plugins/mods/reference.md#elements)包含其他 `Button` 规则：`action`、条带上的数字快捷键，以及同一快捷键上的两个按钮。
+
+#### 用户折叠条带时
+
+在终端中，当有 mod 在条带中绘制时，用户可以将条带折叠为一行，使其不再碍事：
+
+* **点击 `[-]`**：条带展开时，Claude Code 在其第一行的右端绘制此标记。在[全屏渲染](/docs/zh-CN/fullscreen.md)中，用户点击它即可折叠条带。
+* **按 Ctrl+X 然后按 Ctrl+A**：无论是输入框、条带还是窗格拥有键盘焦点，此操作都有效。用户可以通过 `abovePrompt:toggle` 操作为其[绑定其他按键](/docs/zh-CN/keybindings.md#above-prompt-actions)。
+
+折叠的条带会隐藏 mod 在其中绘制的所有内容，改为显示一个暗色行，该行按用户的绑定方式列出展开条带的按键：
+
+```text theme={null}
+▸ plugin panel hidden · ctrl+x ctrl+a or click to show
+```
+
+相同的按键，或在全屏渲染中点击该行，可以再次展开条带。在此之前，任何方式都无法按下其中的按钮：快捷键、在空输入框中键入的数字以及按钮 [`action`](/docs/zh-CN/plugins/mods/reference#elements) 的快捷键均无效。如果用户折叠条带时条带拥有键盘焦点，焦点会返回到输入框，并且在条带折叠期间，Ctrl+X 然后按 Tab 会跳过条带。
+
+条带会保持折叠状态直到用户展开它，即使在 `/clear` 之后也是如此，并会在下次启动 Claude Code 时重新展开。您的 mod 无法展开它，也无法得知它已折叠：`ui.render` hook 会继续运行，`e.props` 中也没有任何内容表明这一点。请不要让条带成为您的 mod 显示需要用户回应的内容的唯一位置。
 
 ### 获取输入的文本并为每个项目绘制一行
 

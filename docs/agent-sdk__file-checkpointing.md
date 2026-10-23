@@ -10,7 +10,7 @@ File checkpointing跟踪在agent会话期间通过[Write](/docs/zh-CN/tools-refe
 
 > [!WARNING]
 >
-> 只有通过Write、Edit和NotebookEdit工具进行的更改才会被跟踪。通过Bash命令进行的更改（如`echo > file.txt`或`sed -i`）不会被checkpoint系统捕获，[subagent](/docs/zh-CN/agent-sdk/subagents.md)应用的编辑也不会被捕获，除了在前台运行的[具有`context: fork`的skill](/docs/zh-CN/skills#run-skills-in-a-subagent)。
+> `rewindFiles()` 不会撤销 `sed -i` 或其他 Bash 命令对文件所做的更改，除非 Write 或 Edit 等工具曾在主对话中修改过该文件。[子代理](/docs/zh-CN/agent-sdk/subagents.md)的编辑不会被跟踪，而在前台运行的[具有 `context: fork` 的 skill](/docs/zh-CN/skills#run-skills-in-a-subagent)所做的编辑会被跟踪。
 
 ## Checkpointing 如何工作
 
@@ -605,7 +605,7 @@ npx tsx try_checkpointing.ts
 
 | 限制 | 描述 |
 | - | - |
-| 仅Write/Edit/NotebookEdit工具 | 通过Bash命令进行的更改不被跟踪 |
+| Bash命令更改 | 回滚不会撤销Bash命令所做的更改，但主对话已使用Write或Edit等工具编辑过的文件除外 |
 | 子代理编辑 | [子代理](/docs/zh-CN/agent-sdk/subagents.md)应用的编辑不被跟踪，但在前台运行的具有`context: fork`的skill除外。回滚仅会在主对话已编辑过的文件中撤销这些编辑；其余编辑请使用git来恢复 |
 | 相同会话 | Checkpoint与创建它们的会话相关联 |
 | 仅文件内容 | 创建、移动或删除目录不会通过回滚撤销 |

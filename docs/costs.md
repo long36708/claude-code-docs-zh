@@ -58,7 +58,9 @@ Prompt cache (main):   14 requests · 91% of input tokens from cache · 2 misses
 在 Pro、Max、Team 或 Enterprise 套餐上，`/usage` 还显示计入您的套餐限制的内容明细，并附带建议：
 
 * **Attribution（归属）**：最近使用情况归属于 skills、subagents、plugins 和各个 MCP 服务器，每个都显示为总数的百分比。MCP 服务器的份额仅计算消耗其工具结果之一的请求。在 v2.1.222 之前，在调用 MCP 服务器一次后，Claude Code 将每个后续请求归属于该服务器，高估了其份额。
-* **Recommendations（建议）**：可降低用量的更改，每行一项。每行开头是该建议所针对的最近使用情况份额（至少 10%），例如 `25%  Trim ~/code/api/CLAUDE.md · 49k tokens per request`。要让 Claude Code 应用其能够应用的建议，请参阅[使用 fix 快捷键应用建议](#apply-recommendations-with-the-fix-shortcut)。
+* **Recommendations（建议）**：建议的更改，每行一项。每行开头是您最近使用情况的一个份额（至少 10%），例如 `25%  Trim ~/code/api/CLAUDE.md · 49k tokens per request`。
+  * **如何解读份额**：它表示该行适用于您多少使用量，而不是该更改能节省多少。一个请求可以计入多行，因此各份额相加可能超过 100%。
+  * **如何应用建议**：要让 Claude Code 应用其能够应用的建议，请参阅[使用 fix 快捷键应用建议](#apply-recommendations-with-the-fix-shortcut)
 * **Loops（循环）**：最近运行的每个最重的 [`/loop` 或其他会话范围的定时任务](/docs/zh-CN/scheduled-tasks)各占一行，按总 token 排序，其余的显示计数。需要 Claude Code v2.1.242 或更高版本。
   * **每行报告的内容**：任务触发的频率、运行次数、其总 token 和每次运行 token，以及最后一次运行的时间
   * **停止并重新创建的循环**：Claude Code 以任务的提示词作为行的键，因此您停止并重新创建的循环保持为一行

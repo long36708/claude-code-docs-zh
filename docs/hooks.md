@@ -958,17 +958,20 @@ Error: Cannot find module '/path/to/project/.claude/hooks/check-command.js'
 如果被阻止的工具调用的错误包含以下文本，则说明某个 `PreToolUse` 或 `PermissionRequest` 命令 hook 失败或超时，并阻止了该调用：
 
 ```text theme={null}
-blocking because Git Bash wasn't found and this hook doesn't set "shell" to "powershell", so only exit code 0 or 2 counts as its verdict.
+blocking because Git Bash wasn't found, so only exit code 0 or 2 counts as this hook's verdict.
 ```
 
-未设置 `shell` 的 shell 形式 hook 在未安装 Git Bash 时会在 PowerShell 中运行，而为 Bash 编写的脚本在那里可能无法按原样运行。请选择与您的 hook 匹配的修复方法：
+要查明 hook 失败的原因，请检查[调试日志](#debug-hooks)。请选择与您的 hook 匹配的修复方法：
 
-* **hook 是为 Bash 编写的**：安装 [Git for Windows](https://git-scm.com/downloads/win)，或者（如果 Git Bash 已安装但 Claude Code 找不到它）设置 [`CLAUDE_CODE_GIT_BASH_PATH`](/docs/zh-CN/env-vars)，然后启动新会话
-* **hook 运行单个 `.exe`，而不是 `.cmd` 或 `.bat` 文件**：将程序放在 `command` 中，将其参数放在 `args` 中，以使用 [exec 形式](#exec-form-and-shell-form)，并添加 [`"onFailure": "block"`](#block-the-action-when-a-hook-fails)。这样 Claude Code 会在不使用 shell 的情况下启动该程序。如果没有 `"onFailure": "block"`，当程序失败、缺失或超时时，调用可能会继续进行
-* **hook 是为 PowerShell 编写的**：为 hook 添加 `"shell": "powershell"` 和 [`"onFailure": "block"`](#block-the-action-when-a-hook-fails)。如果没有 `"onFailure": "block"`，当 hook 仍然失败或超时时，调用可能会继续进行。要查明 hook 失败的原因，请检查[调试日志](#debug-hooks)
-* **hook 失败时操作应继续进行**：为 hook 添加 `"onFailure": "continue"`
+* **hook 失败时操作应继续进行**：为 hook 添加 [`"onFailure": "continue"`](#block-the-action-when-a-hook-fails)
+* **hook 是为 Bash 编写的**：未设置 `shell` 的 [shell 形式](#exec-form-and-shell-form) hook 在未安装 Git Bash 时会在 PowerShell 中运行，而为 Bash 编写的脚本在那里可能无法按原样运行。安装 [Git for Windows](https://git-scm.com/downloads/win)，或者（如果 Git Bash 已安装但 Claude Code 找不到它）设置 [`CLAUDE_CODE_GIT_BASH_PATH`](/docs/zh-CN/env-vars)，然后启动新会话
+* **hook 运行单个 `.exe`，而不是 `.cmd` 或 `.bat` 文件**：将程序放在 `command` 中，将其参数放在 `args` 中，以使用 exec 形式，并添加 `"onFailure": "block"`。这样 Claude Code 会在不使用 shell 的情况下启动该程序。如果没有 `"onFailure": "block"`，当程序失败、缺失或超时时，调用可能会继续进行
+* **hook 以退出码 1 发出警告，但在崩溃时必须阻止**：使用 `"onFailure": "continue"` 时，无论是警告还是崩溃，退出码 1 都会让调用继续进行。请改为添加 `"onFailure": "block"`，并在脚本发出警告的位置以退出码 0 结束，使这些调用继续进行。要在 `PreToolUse` 上以退出码 0 退出后显示警告，请将其打印到 stdout 中单个 JSON 对象的 [`systemMessage`](#json-output) 字段中
+* **必须在失败时阻止的 PowerShell 防护 hook**：如果未设置 `onFailure`，一旦安装了 Git for Windows 且 Claude Code 找到 Git Bash，它就不再阻止。添加 `"onFailure": "block"`，使失败或超时无论是否有 Git Bash 都会阻止调用。同时设置 `"shell": "powershell"`，使该 hook 此后继续在 PowerShell 中运行，而不是在 Git Bash 中运行
 
 对于显示此错误的 hook，0 或 2 以外的任何退出码都算作[失败](#block-the-action-when-a-hook-fails)，即使 hook 打印了不拒绝该调用的 JSON。
+
+在 v2.1.309 之前，该消息为 `blocking because Git Bash wasn't found and this hook doesn't set "shell" to "powershell", so only exit code 0 or 2 counts as its verdict.`
 
 #### 每个事件的退出码 2 行为
 

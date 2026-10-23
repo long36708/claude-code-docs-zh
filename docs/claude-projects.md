@@ -8,7 +8,9 @@
 
 > [!NOTE]
 >
-> Projects 在 Pro 和 Max 计划上处于公开测试阶段，正在逐步推出，首先面向已使用[云会话](/docs/zh-CN/claude-code-on-the-web.md)且在 claude.ai 聊天或 Cowork 中没有现有项目的账户。它们在 Team 或 Enterprise 计划上还不可用。如果 **Projects** 没有出现在 [claude.ai/code](https://claude.ai/code) 的侧边栏中或[桌面应用](/docs/zh-CN/desktop.md)的代码选项卡中，说明推出还没有到达您的账户，您可以[加入等待列表](https://claude.com/form/projects)。[并行运行代理](/docs/zh-CN/agents.md)列出了您在此期间可以使用的内容。
+> Projects 目前在 Pro 和 Max 计划上以公开测试版提供，并正在逐步推出。推出首先面向已使用过[云端会话](/docs/zh-CN/claude-code-on-the-web.md)且在 claude.ai 聊天或 Cowork 中没有现有项目的账户。Projects 目前尚未在 Team 或 Enterprise 计划上提供。
+>
+> 如果您在 [claude.ai/code](https://claude.ai/code) 的侧边栏中或[桌面应用](/docs/zh-CN/desktop.md)的代码选项卡中没有看到 **Projects**，请在其中的 **More** 下查看。如果那里也没有，说明推出尚未覆盖到您的账户。您可以[加入等待列表](https://claude.com/form/projects)，并参阅[并行运行 Agent](/docs/zh-CN/agents.md)，了解您在此期间可以使用的功能。
 
 项目是一个持续进行的对话，Claude 在其中为您协调一系列相关工作。您告诉它需要做什么，它为每个任务启动一个线程。
 
@@ -86,7 +88,7 @@
 
 **1. 打开 Projects**
 
-在 [claude.ai/code](https://claude.ai/code) 或桌面应用的 Code 标签页中，在左侧边栏中选择 **Projects**，然后选择 **New project**。在浏览器中，您也可以直接转到 [claude.ai/code/projects/browse](https://claude.ai/code/projects/browse)。
+在 [claude.ai/code](https://claude.ai/code) 或桌面应用的 Code 标签页中，在左侧边栏中（或其中的 **More** 下）选择 **Projects**。在浏览器中，您也可以直接转到 [claude.ai/code/projects/browse](https://claude.ai/code/projects/browse)。然后选择 **New project**。如果按钮显示的是 **Get started**，请选择它，并先升级或归档其中列出的现有 claude.ai 项目。
 
 **2. 填写 New project 对话框**
 

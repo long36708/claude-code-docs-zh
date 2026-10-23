@@ -73,22 +73,16 @@ Checkpoints 在以下情况下特别有用：
 
 ### Bash 命令更改未跟踪
 
-Checkpointing 不跟踪由 Bash 命令修改的文件。例如，如果 Claude Code 运行：
+一旦 Claude 在您的对话中使用其文件编辑工具编辑过某个文件，`/rewind` 就会撤销之后 Bash 命令对该文件所做的更改。仅由 Bash 命令更改过的文件不会被跟踪，并保持原样。要还原此类文件，请使用版本控制，例如 Git。
 
-```bash theme={null}
-rm file.txt
-mv old.txt new.txt
-cp source.txt dest.txt
-```
-
-这些文件修改无法通过回溯撤销。只有通过 Claude 的文件编辑工具进行的直接文件编辑才会被跟踪。
+在每条提示词下，回溯菜单会统计对 Claude 已编辑过的文件所做的更改，无论这些更改由什么产生。如果某条提示词中有 shell 命令更改了此类文件，该提示词同样会列出文件更改。
 
 ### 子代理编辑未恢复
 
 [子代理](/docs/zh-CN/sub-agents.md)使用 Claude 的文件编辑工具进行编辑，但 Claude Code 通常不会在您的会话检查点中捕获这些编辑。回溯是否恢复这些编辑取决于子代理的运行方式：
 
 * **前台分叉技能**：[具有 `context: fork` 的技能](/docs/zh-CN/skills#run-skills-in-a-subagent)在前台运行，在您自己的回合期间编辑您的工作树，因此回溯会照常恢复其编辑。设置 `background: false` 以在前台运行分叉；有几种情况（[列在技能页面上](/docs/zh-CN/skills.md#run-skills-in-a-subagent)）无论设置如何都会在那里运行。
-* **任何其他子代理**：回溯只会恢复 Claude 已在您的对话中编辑过的文件。子代理对其他文件的编辑会保留，因此请使用 git 来还原它们。这包括在后台运行的分叉 skill（默认设置）和后台 [`/code-review --fix`](/docs/zh-CN/code-review-local) 运行。
+* **任何其他子代理**：回溯只会恢复 Claude 已在您的对话中编辑过的文件。子代理对其他文件的编辑会保留，因此请使用版本控制（例如 Git）来还原它们。这包括在后台运行的分叉 skill（默认设置）和后台 [`/code-review --fix`](/docs/zh-CN/code-review-local) 运行。
 
 ### 外部更改未跟踪
 

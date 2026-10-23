@@ -203,12 +203,26 @@ rate_limits:
 
 ### 使 `API_TIMEOUT_MS` 高于网关的首字节时间
 
-如果您降低 [`API_TIMEOUT_MS`](/docs/zh-CN/network-config#streaming-idle-watchdogs) 以便更快地重试未得到应答的请求，请使其高于网关发送流式响应首批字节所需的时间。等待时间更长的请求会超时，同样等待那么久的每次重试也会超时，直到该轮次以 `Request timed out` 结束。
+如果您降低 [`API_TIMEOUT_MS`](/docs/zh-CN/network-config#streaming-idle-watchdogs) 以便更快地重试未得到应答的请求，请使其高于网关发送流式响应首批字节所需的时间。等待时间更长的请求会超时，同样等待那么久的每次重试也会超时，直到该轮次以 `Request timed out` 结束，除非[首字节截止时间](#retry-an-unanswered-request-sooner-with-the-first-byte-deadline)先将其结束。
 
 * **`provider: anthropic`**：将 `API_TIMEOUT_MS` 设置为高于您的上游发送其第一个事件所需的最长时间。
 * **其他所有上游**：将其设置为比您的上游返回响应标头所需的最长时间多出 20 秒以上。网关在这些标头之后约 15 秒发送其第一个 [keepalive `ping`](#deployment)，除非上游的第一个事件更早到达。早于 v2.1.229 的网关不发送 ping，因此在那里请使用 `provider: anthropic` 规则。
 
 在此时间之上，还要考虑任何[等待空闲槽位](#concurrent-upstream-requests)的时间，以及在[故障转移](/docs/zh-CN/claude-apps-gateway-config.md#multiple-upstreams)之前等待已宕机上游的时间。同时也要使该值高于最长的[非流式请求](/docs/zh-CN/network-config.md#streaming-idle-watchdogs)。
+
+### 使用首字节截止时间更快地重试未得到应答的请求
+
+要让 Claude Code 更快地重试未得到应答的流式请求，请在开发者的机器上设置 [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](/docs/zh-CN/env-vars)，为其设定首字节截止时间。该截止时间限制首次尝试等待响应标头的时长。没有它，该尝试可能等待 5 到 6 分钟。需要开发者机器上的 Claude Code v2.1.307 或更高版本。
+
+将该变量设置为以毫秒为单位的正整数，可以在[网关策略的 `env` 块](#deliver-the-value-in-a-policy)中或开发者的 shell 中设置。请使该值高于网关最长的[首字节时间](#keep-api_timeout_ms-above-the-gateways-time-to-first-byte)，否则 Claude Code 可能会中止并重新发送标头返回较慢的健康请求。此示例在开发者的 shell 中设置 60 秒：
+
+```bash theme={null}
+export CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS=60000
+```
+
+未得到应答的重新发送可能等待 5 到 6 分钟，直到[响应体空闲超时](/docs/zh-CN/network-config.md#streaming-idle-watchdogs)将其结束，然后 Claude Code 在[重试预算](/docs/zh-CN/errors.md#tune-retry-behavior)内重试它。如果您降低 `API_TIMEOUT_MS` 只是为了更快地重试，请移除该值，否则一次未得到应答的重新发送就可能以 [No response from API](/docs/zh-CN/errors.md#no-response-from-api) 结束该轮次。
+
+要确认截止时间已触发，请让开发者在启用[调试日志](/docs/zh-CN/network-config.md#verify-your-configuration)的情况下启动 Claude Code，然后在日志中搜索 `[first-byte] no response headers`。
 
 ### 中断行为
 

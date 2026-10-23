@@ -27,11 +27,11 @@ Agent Skills 通过专业能力扩展 Claude，Claude 会在相关时自动调�
 >
 > Skills 通过文件系统设置源发现。使用默认 `query()` 选项时，SDK 加载用户和项目源，因此 `~/.claude/skills/`、`<cwd>/.claude/skills/` 和 `<cwd>` 到存储库根目录之间任何父目录中的 `.claude/skills/` 中的 skills 可用。项目源还涵盖你通过 `additionalDirectories`（TypeScript）或 `add_dirs`（Python）传递的每个目录中的 `<dir>/.claude/skills/`，因为 SDK 将这些目录作为 [`--add-dir`](/docs/zh-CN/skills#skills-from-additional-directories) 传递给 Claude Code。如果你显式设置 `settingSources`，请包含 `'project'` 以保持项目和添加目录 skills，包含 `'user'` 以保持你的个人 skills，或使用 [`plugins` 选项](/docs/zh-CN/agent-sdk/plugins) 从特定路径加载 skills。
 
-## 在 Agent SDK 中使用 skills
+## 在 Agent SDK 中使用 skill
 
-在 `query()` 上设置 `skills` 选项以控制会话中 Claude 可以调用哪些 skills。省略时，发现的 skills 启用且 Skill 工具可用，与 CLI 行为匹配。传递 `"all"` 以让 Claude 调用每个发现的 skill，传递 skill 名称列表以仅允许那些，或传递 `[]` 以让 Claude 不调用任何 skill。
+在 `query()` 上设置 `skills` 选项以控制会话中 Claude 可以调用哪些 skill。省略时，发现的 skill 启用且 Skill 工具可用，与 CLI 行为匹配。传递 `"all"` 以让 Claude 调用每个发现的 skill，传递 skill 名称列表以仅允许那些，或传递 `[]` 以让 Claude 不调用任何 skill。
 
-例如，要让 Claude 仅调用两个命名的 skills：
+例如，要让 Claude 仅调用两个命名的 skill：
 
 ```python Python theme={null}
 options = ClaudeAgentOptions(skills=["pdf", "docx"])
@@ -41,13 +41,13 @@ options = ClaudeAgentOptions(skills=["pdf", "docx"])
 const options = { skills: ["pdf", "docx"] };
 ```
 
-### 在会话中设置 skills
+### 在会话中设置 skill
 
-当你设置 `skills` 时，SDK 自动将 Skill 工具添加到 `allowedTools`。如果你还传递显式 `tools` 列表，请在该列表中包含 `"Skill"`，以便 Claude 可以调用 skills。
+当您设置 `skills` 时，SDK 自动将 Skill 工具添加到 `allowedTools`。如果您还传递显式 `tools` 列表，请在该列表中包含 `"Skill"`，以便 Claude 可以调用 skill。
 
-配置后，Claude 自动从文件系统发现 skills 并在与用户请求相关时调用它们。
+配置后，Claude 自动从文件系统发现 skill 并在与用户请求相关时调用它们。
 
-以下示例在会话中启用每个发现的 skill，并预先批准 skills 通常需要的工具。该示例将 `cwd` 设置为进程的当前工作目录，因此从具有当前目录或直到存储库根目录的任何父目录中的 `.claude/skills/` 目录的项目内运行它：
+以下示例在会话中启用每个发现的 skill，并预先批准 skill 通常需要的工具。该示例将 `cwd` 设置为进程的当前工作目录，因此请在当前目录或直到仓库根目录的任何父目录中具有 `.claude/skills/` 目录的项目内运行它：
 
 ```python Python theme={null}
 import asyncio
@@ -89,19 +89,23 @@ for await (const message of query({
 }
 ```
 
-### 确认 skills 已加载
+### 确认 skill 已加载
 
-在流的开始附近，SDK 产生一个子类型为 `init` 的系统消息。检查其 `skills` 数组以在 Claude 开始工作前确认你的 skills 已加载。该数组包括你定义的用户可调用 skills，以及 [Claude Code 包含的捆绑 skills](/docs/zh-CN/skills.md#bundled-skills)。
+在流的开始附近，SDK 产生一个子类型为 `init` 的系统消息。检查其 `skills` 数组以在 Claude 开始工作前确认您的 skill 已加载。该数组包括您通过 `description` 或 `when_to_use` frontmatter 字段定义的用户可调用 skill，以及 [Claude Code 随附 skill](/docs/zh-CN/skills.md#bundled-skills)。
 
-该数组仅列出用户可调用的 skills。在其 frontmatter 中具有 [`user-invocable: false`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill 会加载并保持对 Claude 可用，但不会出现在数组中。该数组列出相同的 skills，无论它们是否在你的 `skills` 列表中。
+该数组仅列出用户可调用的 skill。在其 frontmatter 中具有 [`user-invocable: false`](/docs/zh-CN/skills#control-who-invokes-a-skill) 的 skill 会加载并保持对 Claude 可用，但不会出现在数组中。该数组列出相同的 skill，无论它们是否在您的 `skills` 列表中。
 
-### 仅允许特定 skills
+### 仅允许特定 skill
 
-要让 Claude 仅调用特定 skills，请在 `skills` 列表中传递它们的名称。名称与 `SKILL.md` 中的 `name` 字段或 skill 的目录名称匹配。对于插件提供的 skills，使用 `plugin:skill`。
+要让 Claude 仅调用特定 skill，请在 `skills` 列表中传递它们的名称：
+
+* **您自己的 skill**：skill 的目录名称
+* **插件 skill**：`plugin:skill`
+* **`additionalDirectories` 或 `add_dirs` 中的名称冲突**：当这些目录之一中的 skill 与企业、个人或项目 skill，或与先前添加的目录中的 skill 名称冲突时，它会获得一个[带前缀的名称](/docs/zh-CN/skills.md#how-a-skill-gets-its-command-name)。请按该名称列出它。如果 `../api` 和 `../web` 中各有一个 `verify` skill，按此顺序添加，且没有其他 `verify` skill，则将它们列为 `verify` 和 `web:verify`。需要 Claude Code v2.1.309 或更高版本
 
 该列表仅接受确切的 skill 名称。如果一个条目不能作为确切名称工作，`query()` 会在会话开始前拒绝该列表。请参阅 [Invalid skill name error](#invalid-skill-name-error) 了解名称规则和每个 SDK 引发的错误。
 
-模型看不到未列出的 skills，Skill 工具会拒绝它们，而它们的文件保留在磁盘上，可通过 Read 和 Bash 访问。限制列表不会限制 [按名称分派](#dispatch-commands-by-name)。
+模型看不到未列出的 skill，Skill 工具会拒绝它们，而它们的文件保留在磁盘上，可通过 Read 和 Bash 访问。限制列表不会限制 [按名称分派](#dispatch-commands-by-name)。
 
 要让 Claude 调用每个发现的 skill，传递 `skills: "all"` 而不是通配符。
 

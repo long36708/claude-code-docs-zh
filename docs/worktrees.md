@@ -337,6 +337,10 @@ Claude Code 在创建 worktree 时跳过存储库自己的过滤驱动程序，�
 * **`The repository git config has a conditional include (includeIf)`**：将 `includeIf` 在 `.git/config` 中拉入的设置直接移到该文件中，删除 `includeIf`，并重试。您全局 git 配置中的 `includeIf` 不会触发此问题。
 * **`Git was not run: the repository's own git config sets <key>`**：消息命名一个指向 Git LFS 运行程序的键，例如 `lfs.customtransfer.<name>.path` 或 `lfs.standalonetransferagent`。如果该设置是您的，将其移到您的全局 git 配置。如果您不认识它，从存储库的 git 配置中删除它，因为您不信任的工具或检出可能已写入它。一旦键从存储库的配置中消失，重试。
 
+### 在部分克隆中创建 worktree 失败
+
+包含 `This repository is a partial clone` 的错误意味着 Claude Code 无法获取 worktree 起始提交所需的全部 git 对象。请执行消息中以 `try again` 结尾的那句话所述的步骤。然后在您执行该步骤的 shell 中重试：运行 `claude --worktree`，或在那里启动 `claude` 并再次提出请求。
+
 ### Claude Code 拒绝使用 worktree
 
 以 `Refusing to use <path> as an isolation worktree` 开头的错误意味着 Claude Code 在采用它作为会话或子代理的隔离检出之前检查了目录的 git 身份，并拒绝了它。检查运行无论 Claude Code 是创建 worktree、进入现有的还是重用早期运行中的。

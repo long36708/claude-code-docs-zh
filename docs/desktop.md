@@ -507,7 +507,7 @@ Claude Code 在跨会话时应用三项安全行为：
 * **当前布局**：选择云端环境后，在输入框下方的一行中选择。
 * **[早期布局](#check-which-layout-you-have)**：在输入框上方选择。要添加另一个仓库，请点击所选仓库旁边的 **+**。
 
-有关云端会话工作方式的更多信息，请参阅[在云端使用 Claude Code](/docs/zh-CN/claude-code-on-the-web.md)。当一项工作需要许多云端会话时，请在侧边栏中选择 **Projects** 创建一个[项目](/docs/zh-CN/claude-projects.md)，Claude 会在一个对话中为您启动并跟踪这些会话。
+有关云端会话工作方式的更多信息，请参阅[在云端使用 Claude Code](/docs/zh-CN/claude-code-on-the-web.md)。当一项工作需要许多云端会话时，请使用[项目](/docs/zh-CN/claude-projects.md)：Claude 会在一个对话中为您启动并跟踪这些会话。[创建项目](/docs/zh-CN/claude-projects.md#create-a-project)中介绍了具体步骤。
 
 > [!NOTE]
 >
@@ -1850,7 +1850,7 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 * **Agent team**：协调的团队（由 Claude 作为团队负责人从共享任务列表中为队友分配任务）在 [CLI](/docs/zh-CN/agent-teams.md) 中可用，不在 Desktop 中。对于一个会话内的多 Agent 工作，请使用[动态工作流](/docs/zh-CN/workflows.md)，它可在 Desktop 中运行；Claude 也可以直接[向您的其他会话发送消息并管理它们](#work-across-sessions)。
 * **Terminal-dialog 命令**：在终端中打开交互式面板的内置命令，其行为在 Code 选项卡中有所不同。直接编辑[设置文件](/docs/zh-CN/settings.md)来管理权限规则和配置，或从独立 CLI 运行命令。
   * 没有参数形式的命令，例如 `/permissions`，会回复 `isn't available in this environment`。
-  * `/config` 打开设置 → Claude Code。命令后的文本会被忽略，所以 `/config theme=dark` 不会设置主题。
+  * `/config` 打开 **设置 > Claude Code**。
 
 ## 故障排除
 
@@ -1929,7 +1929,7 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 | `SFTP doesn't start on <host>` | `[SFTP_NOT_STARTED]` | 在您计算机的终端中使用 `sftp` 连接到同一主机，查看是什么阻止了它启动，然后检查 Desktop 消息中提到的设置和文件 |
 | `<host> allows too few SSH sessions per connection` | `[SESSION_LIMIT]` | 提高服务器 `sshd_config` 中的 `MaxSessions`，例如设为 OpenSSH 的默认值 10 |
 | `<host> is out of disk space` | `[ENOSPC]` 或 `[EDQUOT]` | 在远程机器上的主目录或 `/tmp` 中释放空间或配额 |
-| `This computer is out of disk space` | `[ENOSPC]` 或 `[EDQUOT]`，出现在以 `Couldn't prepare the deploy locally` 开头的消息中 | 释放您计算机上的空间 |
+| `Free up disk space on this computer` | `[ENOSPC]` 或 `[EDQUOT]`，出现在以 `Couldn't prepare the deploy locally` 开头的消息中 | 释放您计算机上的空间 |
 | `Claude Code won't start on <host>` | `[CLI_UNRESPONSIVE]` | 等待一分钟，然后重试。如果仍然失败，请在远程机器上运行消息中提到的命令，查看 Claude Code 在那里是否有响应。 |
 
 对于任何其他消息，请查看[远程机器要求](#remote-machine-requirements-for-ssh-sessions)。

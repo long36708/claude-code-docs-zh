@@ -290,6 +290,11 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
 
 队友从负责人的权限模式开始，除了 [`dontAsk` 模式](/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)，他们不继承该模式。如果负责人使用 `--dangerously-skip-permissions` 运行，所有队友也会这样做。生成后，你可以更改个别队友的权限模式，但在生成时无法设置每个队友的权限模式。
 
+[进程内](#choose-a-display-mode)队友在负责人实时的允许和拒绝规则下运行，因此 [`--disallowedTools`](/docs/zh-CN/cli-reference#cli-flags)、`--tools` 和 `--allowedTools` 都适用于它。对于分割窗格队友，请逐一检查各个标志：
+
+* **`--disallowedTools` 和 `--tools`**：队友以负责人的命令行拒绝规则和工具列表启动。需要 Claude Code v2.1.309 或更高版本。
+* **`--allowedTools`**：Claude Code 不会将此标志传递给分割窗格队友，因此仅通过该标志允许的操作在那里不会被预先批准。要提前批准这些操作，请在启动负责人时将规则放在 [`--settings`](/docs/zh-CN/settings#change-a-setting-for-one-session) 的 `permissions.allow` 下。例如，在您的 shell 中运行 `claude --settings '{"permissions":{"allow":["Bash(npm *)"]}}'`。这些规则在该会话中适用于负责人和每个分割窗格队友。
+
 队友权限提示出现在负责人会话中，所以请在那里亲自批准它们。您无需批准 [队友的计划](#have-teammates-plan-before-implementing)。
 
 #### 代理之间的消息

@@ -264,15 +264,15 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 
 * **`/model`、`/effort`、`/color` 和 `/rename`**：将值作为参数传递，例如 `/model sonnet`，而不是打开终端选择器或滑块。参数形式遵循每个命令的[可用性说明](/docs/zh-CN/commands.md#all-commands)。
 * **`/fast`**：当快速模式在[你的账户上可用](/docs/zh-CN/fast-mode.md#requirements)时，为会话切换[快速模式](/docs/zh-CN/fast-mode.md#use-fast-mode-in-cloud-sessions)。需要会话环境中的 Claude Code v2.1.271 或更高版本。
-* **`/config`**：在浏览器中访问 claude.ai/code 时，此命令会打开您设置中的 Claude Code 部分，而不是设置某个值，命令后的文本（包括 `key=value`）将被忽略。要更改云端会话的设置，请在环境中设置[环境变量](/docs/zh-CN/cloud-environments.md#set-environment-variables)。在[项目](/docs/zh-CN/claude-projects.md)的线程之外且仅包含一个仓库的会话中，请改为将该键提交到该仓库的 `.claude/settings.json` 中。[云端会话中的设置](/docs/zh-CN/settings.md#settings-in-cloud-sessions)列出了每个会话读取的内容。
+* **`/config`**：在浏览器中访问 claude.ai/code 时，此命令会打开您设置中的 Claude Code 部分，而不是设置某个值。要更改云端会话的设置，请在环境中设置[环境变量](/docs/zh-CN/cloud-environments.md#set-environment-variables)。在[项目](/docs/zh-CN/claude-projects.md)的线程之外且仅包含一个仓库的会话中，请改为将该键提交到该仓库的 `.claude/settings.json` 中。[云端会话中的设置](/docs/zh-CN/settings.md#settings-in-cloud-sessions)列出了每个会话读取的内容。
 
-对于上下文管理特别是：
+对于[项目线程](/docs/zh-CN/claude-projects.md#choose-models-and-let-claude-manage-context)之外的云端会话中的上下文管理：
 
 | 命令 | 在云会话中工作 | 注释 |
 | :- | :- | :- |
 | `/compact` | 是 | 总结对话以释放上下文。接受可选的焦点指令，如 `/compact keep the test output` |
 | `/context` | 是 | 显示当前在上下文窗口中的内容 |
-| `/clear` | 否 | 从侧边栏启动新会话 |
+| `/clear` | 是 | 在同一云端会话中以空上下文开始新的对话 |
 
 自动压缩在上下文窗口接近容量时自动运行。云会话自己设置 [`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`](/docs/zh-CN/env-vars)，所以压缩在[自动压缩窗口](/docs/zh-CN/model-config.md#set-the-auto-compact-window)的中途触发，而不是当窗口填满时。该值覆盖你在[环境变量](/docs/zh-CN/cloud-environments.md#set-environment-variables)中添加的值，所以在那里添加变量不会改变压缩何时触发。
 

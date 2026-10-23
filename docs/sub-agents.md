@@ -439,9 +439,7 @@ Claude Code 会根据您组织的 [`availableModels`](/docs/zh-CN/model-config#r
 
 [`ListAgents`](/docs/zh-CN/cross-session-messaging) 与任何内置工具一样遵循这些过滤器：在启用了跨会话消息的会话中，前台子代理会继承它，而后台子代理不会保留它。
 
-[agent team](/docs/zh-CN/agent-teams.md) 中的队友还会额外保留任务工具和 cron 工具：`TaskCreate`、`TaskGet`、`TaskList`、`TaskUpdate`、`CronCreate`、`CronDelete` 和 `CronList`。
-
-在[没有 Task 工具的会话](/docs/zh-CN/tools-reference.md#task-tool-availability)中，Claude Code 也不会向子代理提供任务工具，即使子代理运行的是不同的模型。进程内队友同样遵循您的会话，而在其自己的[分割窗格](/docs/zh-CN/agent-teams.md#choose-a-display-mode)中的队友作为独立的 Claude Code 进程运行，因此由其自身的模型决定。
+[agent team](/docs/zh-CN/agent-teams.md) 中的队友还会额外保留任务工具和 cron 工具：`TaskCreate`、`TaskGet`、`TaskList`、`TaskUpdate`、`CronCreate`、`CronDelete` 和 `CronList`。在[没有 Task 工具的会话](/docs/zh-CN/tools-reference.md#task-tool-availability)中，Claude Code 也不会向子代理提供任务工具，即使子代理运行的是不同的模型。进程内队友同样遵循您的会话。若要了解分割窗格中的队友是否拥有任务工具，请参阅 [Task 工具可用性](/docs/zh-CN/tools-reference.md#task-tool-availability)。
 
 #### 限制子代理可以使用的工具
 
@@ -590,7 +588,8 @@ Use the Playwright tools to navigate, screenshot, and interact with pages.
 主对话的权限模式决定 Claude Code 是否使用您设置的值：
 
 * 当主对话处于 `bypassPermissions`、`acceptEdits` 或[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)时，子代理以相同模式运行，Claude Code 会忽略您设置的 `permissionMode`。在自动模式下，分类器使用主对话的阻止和允许规则评估子代理的工具调用。当子代理完成时，分类器还会在交付最终报告之前审查其工作和最终报告，如[自动模式如何处理子代理](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中所述。
-* 当主对话处于 `default`、`dontAsk` 或 `plan` 模式时，子代理以您设置的权限模式运行。在以下情况下，它会改为保持主对话的权限模式：
+* 当主对话处于 `plan` 模式时，无论您设置了什么 `permissionMode`，子代理都会保持在计划模式，除非它作为 [agent team 队友](#subagent-names)按照 [agent team 规则](/docs/zh-CN/agent-teams.md#have-teammates-plan-before-implementing)运行。如果您设置了 `dontAsk`，子代理也不会提示您：计划模式下原本会请求您批准的操作将被拒绝。
+* 当主对话处于 `default` 或 `dontAsk` 模式时，子代理以您设置的权限模式运行。在以下情况下，它会改为保持主对话的权限模式：
   * 您设置了 `bypassPermissions`。`bypassPermissions` 例外需要 Claude Code v2.1.267 或更高版本。
   * 您设置了 `auto`，但子代理[无法使用自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，例如设置文件设置了 [`disableAutoMode`](/docs/zh-CN/settings-reference#disableautomode)，或子代理的模型不支持自动模式。
 
