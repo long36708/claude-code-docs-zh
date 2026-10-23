@@ -679,7 +679,7 @@ Claude Code 在您的计算机上、沙箱之外运行沙箱代理，并通过 `
 | :- | :- | :- |
 | `/sandbox` | Bash 命令运行后可以访问的内容 | 沙箱边界本身，在[自动允许模式](#sandbox-modes)中 |
 | [自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) | 每个工具调用是否运行 | 审查操作的分类器 |
-| `--dangerously-skip-permissions` | 每个工具调用是否运行 | 无。[受保护路径](/docs/zh-CN/permission-modes.md#protected-paths)检查也被跳过；[模式自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)仍然适用 |
+| `--dangerously-skip-permissions` | 每个工具调用是否运行 | 无。[受保护路径](/docs/zh-CN/permission-modes.md#protected-paths)检查也被跳过；[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)仍然适用 |
 
 沙箱的[自动允许模式](#sandbox-modes)与[自动模式](/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分开：自动允许批准 Bash 命令是因为沙箱边界包含它们，而自动模式使用分类器来审查操作。这两者独立工作，可以组合，但[沙箱模式](#sandbox-modes)下列出的例外除外。要为无人值守运行选择隔离边界，请参阅[沙箱环境](/docs/zh-CN/sandbox-environments.md#how-isolation-relates-to-permission-modes)。有关常见权限模式和沙箱配对及启动每个配对的标志的表格，请参阅[常见设置](/docs/zh-CN/permission-modes.md#common-setups)。
 

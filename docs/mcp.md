@@ -250,7 +250,7 @@ claude mcp remove notion
 
 此列表中的状态报告配置决策而不是连接尝试，因此 Claude Code 在不连接到服务器的情况下打印它们：
 
-* ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json` 的项目作用域服务器，您尚未批准。Claude Code 在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。运行 `claude` 交互式地审查和批准它。
+* ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json` 的项目作用域服务器，您尚未批准。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。以交互方式运行 `claude` 以查看并批准它。
 * `✘ Rejected (see disabledMcpjsonServers in settings)`：由 [`disabledMcpjsonServers`](/docs/zh-CN/settings-reference#disabledmcpjsonservers) 条目拒绝的 `.mcp.json` 服务器。Claude Code 仅在 `claude mcp get <name>` 中显示它。
 * `⊘ Disabled for this project (re-enable via /mcp)`：项目的 [`disabledMcpServers`](#disable-a-server-without-removing-it) 列表命名的服务器。Claude Code 在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。从 `/mcp` 面板重新打开服务器。
 
@@ -435,6 +435,13 @@ Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道
 > * 当 MCP 工具输出超过 10,000 个 token 时，Claude Code 显示警告，默认限制输出为 25,000 个 token。要更改 token 限制，请设置 `MAX_MCP_OUTPUT_TOKENS` 环境变量，例如 `MAX_MCP_OUTPUT_TOKENS=50000`。警告阈值是固定的。除非服务器提高了某个工具自身的限制，否则超过 50,000 个字符的成功文本结果会被保存到文件中，不受此变量影响。请参阅 [MCP 输出限制和警告](#mcp-output-limits-and-warnings)
 > * 使用 `/mcp` 与需要 OAuth 2.0 身份验证的远程服务器进行身份验证
 
+### MCP 工具调用的时间限制
+
+要限制 MCP 工具调用可以运行的时长：
+
+* **按服务器**：在该服务器的配置条目中添加以毫秒为单位的 `timeout` 字段
+* **跨服务器**：设置 [`MCP_TOOL_TIMEOUT`](/docs/zh-CN/env-vars)
+
 按服务器的 `timeout` 是每个工具调用的硬性墙钟时间限制，来自服务器的进度通知不会延长它。低于 1000 的值被忽略并回退到 `MCP_TOOL_TIMEOUT`，或在该变量未设置时回退到其约 28 小时的默认值。对于 HTTP、SSE 或 [claude.ai 连接器](/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai) 服务器，还有第二个按请求计时器，覆盖每个请求直到服务器的第一个响应字节。Claude Code 将该计时器设置为三个值中最大的：60 秒、适用于服务器的工具超时和 `MCP_TIMEOUT`。未设置的 `MCP_TOOL_TIMEOUT` 的 28 小时默认值不参与该比较，低于 60 秒的值不会缩短计时器。Stdio 和 WebSocket 服务器没有按请求计时器。
 
 至少 1000 的按服务器 `timeout` 也充当下面描述的空闲超时的下限：Claude Code 永远不会早于按服务器 `timeout` 因空闲而中止该服务器的工具调用。
@@ -447,13 +454,18 @@ Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道
 
 ### 长工具调用的自动后台处理
 
+如果某个后台调用在 [`/tasks`](/docs/zh-CN/commands#all-commands) 中的详情视图显示 `runs on the server; survives exiting this session`，请参阅[在服务器上运行的 MCP 任务](#mcp-tasks-that-run-on-the-server)。
+
 主对话中的 MCP 工具调用在两分钟后仍在运行时会移到后台任务，而不是阻塞会话。Claude 立即收到任务 ID 并继续工作，结果在调用完成时作为任务通知到达。
 
 任务出现在 [`/tasks`](/docs/zh-CN/commands#all-commands) 中，您也可以在其中停止它，退出会话后它不会保留。任务的条目显示服务器报告的最新进度。如果您停止任务，Claude Code 会取消调用并告知 Claude 不会有结果返回。停止并不保证服务器停止：服务器可能已经完成了部分工作，或者仍可能完成它。
 
 调用在后台运行时，每次调用的限制仍然适用：由按服务器 `timeout` 或 [`MCP_TOOL_TIMEOUT`](/docs/zh-CN/env-vars) 设置的墙钟时间限制，以及由 [`CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`](/docs/zh-CN/env-vars) 设置的空闲超时。
 
-设置 [`CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS`](/docs/zh-CN/env-vars) 环境变量（以毫秒为单位）来更改阈值，或将其设置为 `0` 以关闭自动后台处理。将 `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` 设置为 `1` 也会关闭它，以及所有其他后台任务功能。
+要更改或关闭自动后台化：
+
+* 设置以毫秒为单位的 [`CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS`](/docs/zh-CN/env-vars) 环境变量以更改阈值，或设置为 `0` 以关闭自动后台化。设置为 `0` 时，Claude 在交互式会话中也会[等待 MCP 任务](#make-claude-wait-for-the-result-of-an-mcp-task)
+* 将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 设置为 `1`，这会将其与后台命令和后台子代理一起关闭
 
 某些调用永远不会移到后台：
 
@@ -462,6 +474,167 @@ Claude Code 默认会向 stdio 服务器询问该修订版。要将 stdio 频道
 * [非交互模式](/docs/zh-CN/headless.md) 中的调用，除非 `CLAUDE_AUTO_BACKGROUND_TASKS` 设置为 `1`，因为一次性运行可能在结果到达前结束
 
 等待已打开的 [引出对话框](#respond-to-mcp-elicitation-requests) 的调用在对话框打开期间不会后台处理；服务器是在等待您的输入，而不是运行缓慢，因此 Claude Code 将移动推迟到对话框关闭。
+
+### 在服务器上运行的 MCP 任务
+
+MCP 任务是指 MCP 服务器使用 [MCP tasks 扩展](https://modelcontextprotocol.io/extensions/tasks/overview)自行运行的长时间作业，例如报告导出或构建。服务器接受该作业后，Claude 的工具调用即返回，因此 Claude 会继续工作，除非您[让 Claude 等待](#make-claude-wait-for-the-result-of-an-mcp-task)。作业结束时，会话记录中会注明这一点，Claude 会获得结果。您可以向 Claude 询问结果。
+
+在此期间，页脚会显示诸如 `1 MCP task` 的计数，Claude Code 会通过向服务器检查任务状态来跟踪该任务。远程服务器上的任务在您退出后会继续运行。要再次跟踪它，请[恢复同一会话](#exit-clear-or-resume-while-an-mcp-task-runs)。
+
+> [!NOTE]
+>
+> MCP 任务在 Claude Code CLI 中处于公开测试版阶段，需要 Claude Code v2.1.304 或更高版本。[调用成为 MCP 任务的条件](#requirements-for-mcp-tasks)列出了可以使用该功能的会话和服务器。
+
+#### 停止 MCP 任务或获取其结果
+
+要停止正在运行的任务，请在 [`/tasks`](/docs/zh-CN/commands#all-commands) 中选择它并按 `x`，或者让 Claude 停止它。Claude Code 会停止跟踪该任务并请求服务器取消它，但服务器仍可能完成它。请先从 `/mcp` 重新连接已断开的服务器，否则不会发出取消请求，Claude Code 会忘记该任务且无法再次跟踪它。按 `Esc` 不会停止后台任务。
+
+任务结束时，会话记录中会出现类似这样的一行：
+
+```text theme={null}
+MCP task <server task id> (<server>/<tool>) completed.
+```
+
+结果会发送给 Claude，而不是写入会话记录，因此请向 Claude 询问结果。如果结果到达时 Claude 处于空闲状态，Claude 会主动开始处理它。
+
+#### 回答来自 MCP 任务的问题
+
+正在运行的任务可以打开 [elicitation 对话框](#respond-to-mcp-elicitation-requests)向您请求输入。在 `/tasks` 打开期间，该对话框会保持隐藏，因此请关闭 `/tasks` 以作答。拒绝或按 `Esc` 也是对服务器的一种回答，服务器随后会决定任务是否继续。
+
+在[非交互](/docs/zh-CN/headless.md)会话中，对于请求输入的任务，Claude Code 会请求服务器取消它，而不会运行您的 [`Elicitation` hook](/docs/zh-CN/hooks#elicitation)，也不会调用 Agent SDK 的 `onElicitation` 回调。
+
+#### 在 MCP 任务运行时退出、清除或恢复
+
+远程服务器上的任务在您退出后会继续运行。stdio 服务器的进程会在 Claude Code 退出时停止，尽管其任务在 `/tasks` 中显示 `runs on the server; survives exiting this session`。除非该服务器的文档说明工作会在进程结束后继续，否则请先让这些任务完成，或在 `/tasks` 中停止它们。
+
+| 情况 | 任务会怎样 | 您可以做什么 |
+| - | - | - |
+| 您运行 `/clear` 或 `/branch`，或 `/resume` 另一个会话 | 在 Claude Code 保持打开期间，结果会送达您当前的对话 | 退出后，使用 `claude --resume` 恢复任务启动时所在的会话 |
+| 您退出 Claude Code | 任何退出选项都不会取消远程服务器的任务，即使退出对话框将其列在 `The following will stop when you exit:` 下 | 先在 `/tasks` 中停止它，或稍后恢复同一会话 |
+| 您以交互方式返回任务所在的会话：`claude --resume`、`claude --continue` 或 `/resume` | 服务器连接后，Claude Code 会再次跟踪该任务；如果任务在此期间已完成且服务器仍知道它，Claude 会获得结果 | 保持服务器的名称和连接设置不变 |
+| 您在一次性 `claude -p "<prompt>"` 运行中使用 `--resume` 或 `--continue` 恢复任务所在的会话 | 该运行不会跟踪该任务 | 以交互方式恢复，或使用 `--input-format stream-json` 恢复 |
+| 您启动新会话或使用 `--fork-session` | 新会话不会跟踪该任务 | 恢复启动该任务的会话 |
+
+#### 调用成为 MCP 任务的条件
+
+只有当以下所有条件都满足时，工具调用才会成为 MCP 任务：
+
+* 服务器支持任务
+* 服务器是以[协议修订版 2026-07-28](#mcp-client-runtimes) 连接的 HTTP、stdio 或 claude.ai 连接器服务器。设置 [`MCP_SDK_GENERATION=v1` 或 `MCP_PROTOCOL_NEGOTIATION=legacy`](/docs/zh-CN/env-vars) 会排除这一情况
+* 会话会[获取功能标志](/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，因此不能在 Amazon Bedrock 等第三方提供商上，也不能关闭遥测或标志获取
+* Anthropic 已为您的会话类型启用了 MCP 任务。在 v2.1.304 或更高版本上，这包括终端 CLI 会话、[Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 会话和 [GitHub Actions](/docs/zh-CN/github-actions.md) 运行。其他使用入口（例如 [VS Code 扩展](/docs/zh-CN/vs-code.md)和[桌面应用](/docs/zh-CN/desktop.md)）没有 MCP 任务
+* 调用来自主对话，而不是来自[子代理](/docs/zh-CN/sub-agents.md)
+* 会话是交互式的，或者 [Agent SDK](/docs/zh-CN/agent-sdk/overview.md) 会话或读取 `--input-format stream-json` 的 `claude -p` 运行满足：
+  * [`CLAUDE_AUTO_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 为 `1`
+  * `CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND` 不为 `1`
+  * `CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS` 不为 `0`
+
+其他任何调用都是普通工具调用，[长时间工具调用的自动后台化](#automatic-backgrounding-of-long-tool-calls)说明了其中哪些会转入后台。
+
+请保持 Agent SDK 或 stream-json 会话的输入处于打开状态，因为输入关闭后，运行[不会等待 MCP 任务](/docs/zh-CN/headless.md#mcp-work-when-a-non-interactive-run-ends)。一次性 `claude -p "<prompt>"` 运行不会获得 MCP 任务。
+
+#### MCP 任务的状态消息
+
+这些消息出现在任务的 `/tasks` 条目或其结束时的会话记录行中，表示 Claude Code 无法连接到服务器或任务。当 `/tasks` 中显示其中一条消息时，作业可能仍在运行：Claude Code 不会干预它并会继续检查。`300s` 消息和配置相关消息即使在恢复联系后也会保留在条目上。
+
+| 消息 | 发生了什么 | 您可以做什么 |
+| - | - | - |
+| `reconnecting…` | 自恢复以来服务器尚未应答，或状态检查没有得到应答 | 如果一直显示，请从 `/mcp` 重新连接 |
+| `needs a sign-in to <server>` | 服务器拒绝了状态检查 | 从 `/mcp` 登录 |
+| `status requests come back with errors; retrying…` | 服务器或其前面的代理以错误应答状态检查 | 等待 Claude Code 重试 |
+| `server '<name>' did not reconnect within 300s` | 五分钟内没有得到应答的检查，例如连接中断或服务器被禁用 | 从 `/mcp` 重新连接 |
+| `server '<name>' asked for a sign-in, and none was accepted within 300s` | 五分钟后服务器仍要求登录 | 从 `/mcp` 登录 |
+| `status requests to server '<name>' came back with errors, and none succeeded in 300s` | 五分钟内都是错误应答 | 检查服务器自身的健康状况或日志 |
+| `server '<name>' is not configured in this session; the task may still be running on it` | 会话中没有该名称的服务器，例如它已被移除、重命名或未包含在 `--mcp-config` 中，或者某个 claude.ai 连接器仍在加载 | 以相同名称恢复该服务器，然后再次恢复会话。对于正在加载的连接器，无需操作：连接器出现后 Claude Code 会跟踪该任务 |
+| 以 `server '<name>' was reconfigured to a different transport since this task was created` 开头的消息 | 存在该名称的服务器，但其连接设置自任务开始后已更改，例如 URL、command、args、env、headers 或 timeout | 恢复之前的设置，然后再次恢复会话 |
+| `the server rejected this task's id; asking again…` | 服务器表示不认识该任务 ID。Claude Code 会继续询问最多五分钟 | 等待：如果服务器再次识别该 ID，消息会消失，否则会出现 `outcome unknown.` 行 |
+| 以 `outcome unknown.` 结尾的会话记录行，其中一种形式为 `expired on the server: outcome unknown.` | 服务器拒绝了该 ID 或以其他永久性错误拒绝，Claude Code 已停止跟踪该任务 | 第二次调用可能会重复执行该工作。再次调用该工具之前，请从服务器了解已完成的内容，例如让 Claude 使用该服务器的其他工具 |
+
+#### MCP 任务的时间限制
+
+默认情况下，后台任务没有 Claude Code 时间限制。[工具调用时间限制](#time-limits-on-mcp-tool-calls)（包括挂钟时间限制和空闲超时）在服务器以任务应答该调用之前适用。如果您[让 Claude 等待](#make-claude-wait-for-the-result-of-an-mcp-task)，这些限制会在整个任务期间适用。得到应答的状态检查会计为空闲超时中的活动。
+
+#### 让 Claude 等待 MCP 任务的结果
+
+要在交互式会话中让 Claude 等待任务的结果，请设置以下两个环境变量之一，例如在 [`settings.json`](/docs/zh-CN/settings) 的 `env` 块中：
+
+* **[`CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS`](/docs/zh-CN/env-vars) 设置为 `0`**：Claude 会等待每个 MCP 工具调用直到调用结束
+* **[`CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND`](/docs/zh-CN/env-vars) 设置为 `1`**：Claude 会等待任务的结果。当[自动后台化](#automatic-backgrounding-of-long-tool-calls)开启时，它默认会在两分钟后转移该调用，因此短任务会就地完成，长任务不会阻塞您。被转移的调用是普通后台调用，而不是 MCP 任务。它不会在退出会话后保留
+
+Claude 等待期间，按 `Esc` 或达到[挂钟时间限制或空闲超时](#time-limits-on-mcp-tasks)会结束该调用，Claude Code 会请求服务器取消该任务。
+
+如果您将 `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` 设置为 `1` 或以 [bare 模式](/docs/zh-CN/headless.md#start-faster-with-bare-mode)启动，仅凭这一点并不会让 Claude 等待 MCP 任务。以下示例将 `CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS` 设置为 `0`，因此 Claude 会等待每个 MCP 工具调用：
+
+```json settings.json theme={null}
+{
+  "env": {
+    "CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS": "0"
+  }
+}
+```
+
+### 面向服务器开发者的 MCP 任务
+
+如果您构建 MCP 服务器，可以用任务来应答长时间运行的 `tools/call`。[MCP tasks 扩展](https://modelcontextprotocol.io/extensions/tasks/overview)定义了您要发送的消息。在[协议修订版 2026-07-28](#mcp-client-runtimes) 连接上，每个请求都会在 `params._meta["io.modelcontextprotocol/clientCapabilities"]` 中携带 Claude Code 的客户端能力，其中 `extensions` 下包含 `"io.modelcontextprotocol/tasks": {}`。[无法成为任务](#requirements-for-mcp-tasks)的 `tools/call` 请求会省略该扩展。
+
+#### 以任务应答调用
+
+只有当请求携带该扩展时才以任务应答，否则 Claude 会收到工具错误 `Unsupported result type 'task' for tools/call`。当缺少 `taskId`、`status`、`createdAt`、`lastUpdatedAt` 或 `ttlMs` 时，Claude 也会收到相同的错误。任务对象是您的 `tools/call` 响应的 JSON-RPC `result`，不需要 `content` 数组，此处还包含可选的 `statusMessage` 和 `pollIntervalMs`：
+
+```json theme={null}
+{
+  "resultType": "task",
+  "taskId": "build-7f3a9c2e",
+  "status": "working",
+  "statusMessage": "Compiling, 40 of 212 files done",
+  "createdAt": "2026-10-22T14:03:07Z",
+  "lastUpdatedAt": "2026-10-22T14:03:07Z",
+  "ttlMs": null,
+  "pollIntervalMs": 5000
+}
+```
+
+| 字段 | Claude Code 如何处理 |
+| - | - |
+| `resultType` | 设置为 `"task"` 以将该应答标记为任务。如果没有它，Claude Code 会将该应答视为普通结果 |
+| `taskId` | 必需。最多 128 个不含空格的可打印 ASCII 字符，否则 Claude 会收到以 `MCP server "<name>" returned a malformed task handle for tool "<tool>"` 开头的工具错误。请确保该 ID 在不同连接间都能被应答，因为恢复后 Claude Code 会在新连接上询问它 |
+| `status` | 必需。取值为 `working`、`input_required`、`completed`、`failed` 或 `cancelled` 之一。其他值会产生 `Unsupported result type` 错误 |
+| `createdAt`、`lastUpdatedAt`、`ttlMs` | 必需，`ttlMs` 可以为 `null`。Claude Code 不会因为任务的 `ttlMs` 已过而丢弃该任务 |
+| `pollIntervalMs` | 可选，但不能为 `null`。两次 `tasks/get` 请求之间的毫秒数，限制在 250 到 30000 之间。字段缺失时 Claude Code 使用 2000，并会从每个 `tasks/get` 响应中重新读取该值 |
+| `statusMessage` | 可选。`/tasks` 显示的是您最新的 `tasks/get` 响应中的值，而不是这第一个应答中的值，省略该字段的响应会清除它。[来自 Claude Code 的状态消息](#status-messages-on-an-mcp-task)可能会取代它 |
+
+在 HTTP 或 claude.ai 连接器服务器上，任务应答必须在[按请求的计时器](#time-limits-on-mcp-tool-calls)内开始，因此请先接受作业并应答，然后再执行工作。
+
+#### 报告状态、结果和问题
+
+在任务应答之后，Claude Code 会立即发送带有 `{ "taskId": ... }` 的 `tasks/get`，然后每个轮询间隔重复一次。tasks 扩展要求您的响应携带 `"resultType": "complete"`，以及 `taskId`、`status`、`createdAt`、`lastUpdatedAt` 和 `ttlMs`。`ttlMs` 可以为 `null`，`statusMessage` 和 `pollIntervalMs` 是可选的。以下示例报告构建已完成：
+
+```json theme={null}
+{
+  "resultType": "complete",
+  "taskId": "build-7f3a9c2e",
+  "status": "completed",
+  "createdAt": "2026-10-22T14:03:07Z",
+  "lastUpdatedAt": "2026-10-22T14:09:41Z",
+  "ttlMs": null,
+  "result": {
+    "content": [{ "type": "text", "text": "Build succeeded: 212 files, 0 warnings" }]
+  }
+}
+```
+
+| 状态、方法或响应 | Claude Code 如何处理 |
+| - | - |
+| `working` | 继续轮询 |
+| `completed` | 将顶层 `result` 对象中的普通 `tools/call` 结果交给 Claude。其中的 `isError: true` 会被报告为失败 |
+| `failed` | 将顶层 `error` 对象 `{ code, message, data }` 的 `message` 告知 Claude，tasks 扩展要求失败的任务包含该对象。如果没有该 `message`，Claude 会改为收到 `statusMessage`，否则收到 `Task failed` |
+| `cancelled` | 将 `statusMessage` 告知 Claude，否则告知 `Task was cancelled by the server` |
+| `input_required` | 读取 `inputRequests`，这是一个将您选择的键映射到 `{ method, params }` 的对象。Claude Code 会通过带有 `{ taskId, inputResponses }` 的 `tasks/update` 对每个键应答一次，其中 `inputResponses` 将相同的键映射到该请求的结果。每个任务超过 16 个的键会被忽略 |
+| `inputRequests` 中的方法 | `elicitation/create` 仅在交互式终端会话中处理，`roots/list` 在所有地方都会处理。当 Claude Code 无法处理某个请求时，它会请求服务器取消该任务 |
+| 其他 `status` 值 | Claude Code 会请求服务器取消该任务，并将其作为失败报告给 Claude |
+| JSON-RPC 错误 `-32602` | 视为未知的任务 ID。对于后台任务，Claude Code 会继续询问最多五分钟，然后将结果作为未知报告给 Claude |
+| `tasks/cancel` | 例如，在服务器已连接时 Claude 或用户停止该任务时发送。退出时不发送 |
+| `tasks/result`、`tasks/list`、`notifications/tasks` | 不使用，因此请将结果放在您的 `tasks/get` 响应中 |
 
 ### 插件提供的 MCP 服务器
 

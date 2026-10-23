@@ -317,7 +317,7 @@ Claude Code 支持在后台运行 Bash 命令，允许你在长时间运行的�
 * 提示 Claude Code 在后台运行命令
 * 按 `Ctrl+B` 将常规 Bash 工具调用移到后台。Tmux 用户必须按两次 `Ctrl+B`，因为 tmux 有前缀键。
 
-当命令在完成前达到超时时，Claude Code 会自动[将其移到后台](/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background)而不是停止它，除非命令以 `sleep` 开头。如果你已通过 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars#variables) 关闭了后台任务，或通过启动[裸模式](/docs/zh-CN/headless.md#start-faster-with-bare-mode)，命令会在超时时停止。要更改超时，请设置 [Bash 超时环境变量](/docs/zh-CN/tools-reference.md#timeout-and-output-limits)。
+当命令在完成前达到超时时，Claude Code 会自动[将其移到后台](/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background)而不是停止它，除非命令以 `sleep` 开头。如果您已通过 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars#variables) 或以 [bare 模式](/docs/zh-CN/headless.md#start-faster-with-bare-mode)启动关闭了后台命令，命令会在超时时停止。要更改超时时间，请设置 [Bash 超时环境变量](/docs/zh-CN/tools-reference.md#timeout-and-output-limits)。
 
 **主要功能：**
 
@@ -332,7 +332,7 @@ Claude Code 支持在后台运行 Bash 命令，允许你在长时间运行的�
 * 在您通过终端、桌面应用或 VS Code 扩展进行工作的本地会话中，后台命令没有时间限制。在无人值守运行的会话中（例如 `-p` 运行或云端会话），Claude Code 会在后台命令达到其[时间限制](/docs/zh-CN/tools-reference.md#time-limit-for-background-commands)时停止它
 * 由前台[子代理](/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)启动的后台命令在该子代理的运行结束时结束，无论是完成、失败还是被中断；请参阅工具参考中的[后台命令何时停止](/docs/zh-CN/tools-reference.md#when-a-background-command-stops)
 
-要禁用所有后台任务功能，请将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars#variables) 环境变量设置为 `1`。启动[裸模式](/docs/zh-CN/headless.md#start-faster-with-bare-mode)也会关闭它。
+要关闭后台命令，请将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars#variables) 环境变量设置为 `1`。设置后，您还将无法使用后台子代理、后台 fork skill 以及 `Ctrl+B`。以 [bare 模式](/docs/zh-CN/headless.md#start-faster-with-bare-mode)启动具有相同效果。
 
 **常见的后台命令：**
 

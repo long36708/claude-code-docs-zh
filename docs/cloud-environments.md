@@ -62,7 +62,7 @@
 * **添加环境**：选择菜单底部的 **New environment** 以打开 **New environment** 对话框。填写表单并选择 **Add environment**。随后您的新会话将使用您添加的环境。
 * **编辑环境**：在 **Cloud** 下找到该环境所在的行。如果 **Cloud** 只是单独一行，请选择它以打开列表。如果您的环境未列在 **Cloud** 下，请选择该标题下的 **More** 行。悬停在该环境的行上，然后选择其右侧出现的设置图标以打开其对话框。
 
-对话框包括名称、网络访问级别、环境变量和设置脚本。要存储会话可以使用但无法看到的密钥，请参阅[添加网络机密](#add-network-secrets)。
+当您添加环境或编辑您自己的环境时，选择对话框中的 [**Network access**](#network-access)、[**Setup script**](#add-a-setup-script) 或 [**Environment variables**](#set-environment-variables) 行以打开相应设置。完成最后一项更改后，对于新环境请使用 **Add environment** 保存，对于现有环境请使用 **Save changes** 保存。要存储会话可以使用但无法看到的密钥，请参阅[添加网络机密](#add-network-secrets)。
 
 ### 设置环境变量
 
@@ -100,7 +100,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 以下要求决定您是否可以添加机密，以及添加后 Agent 代理是否可以使用它：
 
 * **Role**：在 Pro、Max 和 Team 计划上，无论您的角色如何，您都可以在自己的环境中添加和删除机密。在 Team 和 Enterprise 上，所有者在您的 claude.ai 组织中持有组织管理员角色，管理员（Admin）不持有，这会改变您在以下情况下看到的内容：
-  * **Enterprise 上您自己的环境**：拥有组织管理员角色时，您可以添加和删除机密。没有该角色时，**Network secrets** 部分会在说明"Only an organization admin can add or delete network secrets"下列出机密，且没有 **Add secret** 或删除按钮。请让所有者将机密添加到[共享环境](#organization-shared-environments)，然后在该环境中运行您的会话
+  * **Enterprise 上您自己的环境**：拥有组织管理员角色时，您可以添加和删除机密。没有该角色时，**Network secrets** 行会打开机密列表，并显示说明"Only an organization admin can add or delete network secrets"，且没有 **Add secret** 或删除按钮。请让所有者将机密添加到[共享环境](#organization-shared-environments)，然后在该环境中运行您的会话
   * **共享环境**：所有者从管理设置中[添加和删除其机密](#add-a-credential)。没有组织管理员角色时，请让所有者添加机密，因为该环境的对话框中没有 **Network secrets** 部分
   * **Team 上您自己的环境**：没有组织管理员角色时，**Add secret** 会打开一个只接受一个主机的[简化表单](#add-a-secret-without-the-role)
 * **Environment type**：一个已存在的 Anthropic 托管云环境。[自托管环境](/docs/zh-CN/self-hosted-environments)没有网络机密
@@ -111,11 +111,11 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 机密需要逐个添加，添加后无法编辑。要更改机密的主机或值，请将其删除后重新添加。
 
-要向[共享环境](#organization-shared-environments)添加机密，请从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面打开该环境进行编辑，然后从 **Network secrets** 部分继续执行步骤 1。如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，请在您自己的环境中执行步骤 1，然后[填写简化表单](#add-a-secret-without-the-role)。
+要向[共享环境](#organization-shared-environments)添加机密，请从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面打开该环境进行编辑，然后在其 **Network secrets** 部分从步骤 2 继续。如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，请在您自己的环境中执行步骤 1，然后[填写简化表单](#add-a-secret-without-the-role)。
 
 **1. 打开环境的网络机密**
 
-在 [claude.ai/code](https://claude.ai/code) [打开环境进行编辑](#configure-your-environment)。在 **Edit cloud environment** 对话框中，找到 **Network secrets** 部分。您会看到环境中已有的机密，每个机密都附有其适用的主机。
+在 [claude.ai/code](https://claude.ai/code) [打开环境进行编辑](#configure-your-environment)。在 **Edit cloud environment** 对话框中，选择 **Network secrets** 行。您会看到环境中已有的机密，每个机密都附有其适用的主机。
 
 **2. 添加机密**
 
@@ -135,7 +135,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 #### 在没有组织管理员角色的 Team 计划上添加机密
 
-如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，**Add secret** 表单只接受针对一个主机的一个机密。在您环境的 [**Network secrets** 部分](#add-a-credential)中选择 **Add secret**，填写以下字段，然后选择表单中的 **Add secret** 按钮：
+如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，**Add secret** 表单只接受针对一个主机的一个机密。选择您环境的 [**Network secrets** 行](#add-a-credential)，然后选择 **Add secret**。填写以下字段，然后选择表单中的 **Add secret** 按钮：
 
 * **Host**：获得该机密的唯一主机，例如 `api.example.com`。该表单不接受 `*.` 通配符
 * **Name**：机密的可选标签
@@ -430,7 +430,9 @@ VM 可能会停止需要明显更多内存的任务，例如大型构建作业�
 
 脚本以 root 身份在 Ubuntu 24.04 上运行，因此 `apt install` 和大多数语言包管理器都能工作。
 
-要添加设置脚本，请打开环境设置对话框，并在 **Setup script** 字段中输入您的脚本。
+### 添加设置脚本
+
+要为您自己的环境添加设置脚本，可以直接输入或粘贴脚本，也可以加载 `setup.sh` 等文本文件。[添加或编辑环境](#configure-your-environment)，然后选择 **Setup script** 行。在打开的框中输入脚本，或选择 **Choose file**，用不超过 64 KB 的文件文本替换框中的内容。然后选择 **Add environment** 或 **Save changes**。
 
 此示例安装 [ShellCheck](https://www.shellcheck.net/)，它不是预安装的。
 

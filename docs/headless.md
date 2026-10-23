@@ -62,7 +62,7 @@ bare 模式还会限制会话运行期间发生的事情：
 
 * **MCP 服务器**：只有在命令行中提供的服务器才会连接，例如通过 `--mcp-config`。在交互式会话中，除非您传递 `--ide`，否则 Claude Code 还会跳过自动 IDE 连接。
 * **系统提醒**：Claude 会收到您的提示词和工具结果，但不会收到 Claude Code 原本会随之添加的 [系统提醒](/docs/zh-CN/glossary.md#system-reminder)。例如，当 Claude 之前读取过的文件在磁盘上发生更改时，Claude 不会收到通知，也不会获得可用 skill 的列表，包括来自 `--add-dir` 文件夹的 skill。
-* **后台任务**：不会运行任何后台任务。达到 [超时](/docs/zh-CN/tools-reference.md#timeout-and-output-limits) 的命令会停止，而不是 [转入后台](/docs/zh-CN/tools-reference.md#background-commands)。
+* **后台任务**：Claude 无法运行后台命令或后台子代理，并且 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 所关闭的其他功能也同样处于关闭状态。达到 [超时](/docs/zh-CN/tools-reference.md#timeout-and-output-limits) 的命令会停止，而不是 [转入后台](/docs/zh-CN/tools-reference.md#background-commands)。
 
 在 v2.1.286 之前，这些限制只部分生效：交互式 `--bare` 会话会连接普通会话会连接的 MCP 服务器，每个 `--bare` 会话都会发送系统提醒，并且后台任务仍然可用。
 
@@ -88,6 +88,13 @@ bare 模式还会限制会话运行期间发生的事情：
 如果运行达到其 [`--max-budget-usd`](/docs/zh-CN/cli-reference#cli-flags) 上限，Claude Code 会停止剩余的后台工作，而不是继续等待。
 
 当后台工作启动新的轮次时，使用默认的 `text` 输出时运行会打印每一轮的结果，使用 `json` 输出时则打印最后一轮的结果。在 v2.1.295 之前，使用 `text` 输出时运行也只打印最后一轮的结果。
+
+#### 非交互式运行结束时的 MCP 工作
+
+`claude -p` 运行不会等待在后台进行的 MCP 工作：
+
+* **[MCP 任务](/docs/zh-CN/mcp.md#mcp-tasks-that-run-on-the-server)**：在远程服务器上，该作业会继续进行。要再次跟进它，请 [恢复该会话](/docs/zh-CN/mcp.md#exit-clear-or-resume-while-an-mcp-task-runs)，而不是以一次性 `claude -p "<prompt>"` 运行的方式。
+* **被 [自动转入后台](/docs/zh-CN/mcp.md#automatic-backgrounding-of-long-tool-calls) 的 MCP 调用**：该调用的结果会丢失。
 
 ### 使用 SIGTERM 停止运行
 

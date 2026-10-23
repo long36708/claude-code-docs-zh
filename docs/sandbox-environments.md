@@ -54,7 +54,7 @@ Claude Code 可以在多种隔离环境中运行，从轻量级的按命令沙�
 
 [Permission modes](/docs/zh-CN/permission-modes.md) 决定工具调用是否运行以及是否首先提示您。隔离限制命令运行后可以访问的内容。两者协同工作：当权限模式允许操作在不询问您的情况下运行时，隔离边界限制这些操作可以到达的内容。
 
-当您传递 `--dangerously-skip-permissions` 时，Claude 在不首先询问您的情况下行动。[actions no mode auto-approves](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves) 仍然适用。
+当您传递 `--dangerously-skip-permissions` 时，Claude 在不首先询问您的情况下行动。[任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves) 仍然适用。
 
 没有提示来捕捉错误，您选择的隔离边界是保护您的系统的东西。始终在容器、虚拟机或 [sandbox runtime](#sandbox-runtime) 内运行 `--dangerously-skip-permissions` 会话，以便文件工具、MCP 服务器和 hooks 也在边界内。在 Linux 和 macOS 上，当以 root 用户身份运行时，Claude Code 拒绝使用此标志启动，因此请以非 root 用户身份运行容器、虚拟机或 sandbox runtime。
 

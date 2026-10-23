@@ -2492,7 +2492,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 
 在 v2.1.276 及之前的版本中，您可以将此键设置为 Claude 使用 `TaskOutput` 工具读取[后台任务](/docs/zh-CN/tools-reference.md#background-commands)时以内联方式接收的输出字符数。
 
-## 界面和终端
+## 界面与终端
 
 更改 Claude Code 在终端中的外观和行为：主题、编辑器模式、状态栏、加载指示器、会话内通知以及无障碍功能。请参阅[终端配置](/docs/zh-CN/terminal-config.md)。
 
@@ -3663,7 +3663,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 需要 Claude Code v2.1.219 或更高版本；在 v2.1.202 至 v2.1.218 版本中，请改为在 `/config` 中设置该指导值。
 
-## 插件和 skill
+## 插件与 skill
 
 启用插件、注册市场、限制组织允许的插件来源，以及控制加载哪些 skill。有关安装和构建插件的信息，请参阅[插件](/docs/zh-CN/plugins/overview.md)。
 
@@ -4501,7 +4501,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 关于优先级、所提供的服务器如何与 `managed-mcp.json` 以及允许列表和拒绝列表结合，以及用户会看到什么，请参阅[通过托管设置提供服务器](/docs/zh-CN/managed-mcp.md#provide-servers-through-managed-settings)。
 
-## Agent、会话和 worktree
+## Agent、会话与 worktree
 
 设置默认 Agent，控制队友和跨会话消息，并配置 worktree。请参阅[子代理](/docs/zh-CN/sub-agents.md)和 [Worktrees](/docs/zh-CN/worktrees.md)。
 
@@ -4999,7 +4999,7 @@ Desktop 无法读取为主机列表的值（例如 `true` 或对象）在您更�
 
 如果您在优先级最高的来源中将 [`managedSourcesBehavior`](#managedsourcesbehavior) 设置为 `"merge"`，Desktop 会合并来自每个[管理员来源](/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)的列表，并允许与其中任一列表匹配的主机。如果您在某个来源中设置了空数组，对于另一个来源所列出的主机，SSH 会话仍保持开启。
 
-## 身份验证和提供商
+## 身份验证与提供商
 
 通过辅助脚本提供凭据；对于组织，可强制指定登录方式或组织。请参阅[身份验证](/docs/zh-CN/authentication.md)。
 
@@ -5433,7 +5433,7 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 跳过检查后，WebFetch 会尝试访问任何 URL 而不查询阻止列表，因此如果您需要限制 Claude 可以访问的域名，请将其与 [`WebFetch` 权限规则](/docs/zh-CN/permissions#webfetch)搭配使用。
 
-## 企业和托管设置
+## 企业与托管设置
 
 组织用于计算、刷新和合并托管设置的键。请参阅[设置托管设置](/docs/zh-CN/admin-setup.md)。
 

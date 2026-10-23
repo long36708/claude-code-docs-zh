@@ -805,7 +805,7 @@ PowerShell 工具对它运行的命令应用相同的超时、后台化和输出
 Claude Code 也会等待结果，即使技能没有设置 `background: false`，在这些情况下：
 
 * 在非交互模式中，使用 `-p` 标志或 Agent SDK
-* 当你将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 设置为 `1` 时，这也会关闭所有其他后台任务功能
+* 当您将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 设置为 `1` 时，这也会关闭其他后台任务功能
 * 当你在同一技能的早期调用仍在运行时调用分叉技能时
 * 当以该 skill 作为提示词的[会话范围定时任务](/docs/zh-CN/scheduled-tasks.md)触发时
 

@@ -214,7 +214,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 
 当前台命令在完成前达到其超时时，Claude Code 会将其移到后台而不是停止它，除非命令以 `sleep` 开头。移动的命令的[时间限制](#time-limit-for-background-commands)从移动时开始计算，前台子代理的移动命令仍然在该子代理的运行结束时停止。
 
-设置 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](/docs/zh-CN/env-vars#variables) 或在 [bare 模式](/docs/zh-CN/headless.md#start-faster-with-bare-mode)下运行会禁用自动后台处理以及其余后台任务功能，因此达到超时的命令会改为停止。
+设置 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](/docs/zh-CN/env-vars#variables) 或在 [bare 模式](/docs/zh-CN/headless.md#start-faster-with-bare-mode)下运行会禁用自动后台处理，因此达到超时的命令会改为停止。
 
 移到后台的命令的结果说明发生了什么：
 

@@ -62,11 +62,11 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 
 子进程的 stdin 是运行器的控制通道。令牌轮换和会话结束信号在其上到达。运行器还在文件描述符 3 上打开一个管道，并从中读取子进程的活动信号以驱动空闲和启动超时。普通的 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"` 自动保留两者。
 
-如果您的包装脚本使用裸 `&` 在后台运行子进程，它会切断子进程的 stdin。会话看起来健康，直到初始 OAuth 令牌的大约 30 分钟生命周期过期，然后每个使用该令牌的 API 调用都失败，出现 `401 authentication_error`。如果您的包装脚本必须在后台运行子进程，例如保持拆卸陷阱活跃，请在文件描述符 4 或更高编号上保存 stdin 并显式重新连接它：
+如果您的包装脚本使用裸 `&` 在后台运行子进程，它会切断子进程的 stdin。会话看起来健康，直到初始 OAuth 令牌的大约 30 分钟生命周期过期，然后每个使用该令牌的 API 调用都失败，出现 `401 authentication_error`。如果您的包装脚本必须在后台运行子进程，例如保持拆卸陷阱活跃，请在文件描述符 9 上保存 stdin 并显式重新连接它：
 
 ```bash theme={null}
-exec 4<&0
-"$CLAUDE_RUNNER_CLAUDE_BIN" "$@" <&4 4<&- &
+exec 9<&0   # the runner uses 3, and from v2.1.309 reserves 4 and 5
+"$CLAUDE_RUNNER_CLAUDE_BIN" "$@" <&9 9<&- &
 CHILD=$!
 trap 'teardown' EXIT
 wait "$CHILD"
@@ -75,6 +75,7 @@ wait "$CHILD"
 您可以重定向子进程的 stdout。请保持文件描述符 3 和 stderr 连接到运行器：
 
 * **文件描述符 3**：将子进程的活动信号传送给运行器。不要在包装脚本中关闭或重用它。
+* **文件描述符 4 和 5**：Claude Code v2.1.309 或更高版本上的运行器会为子进程保留它们。不要在包装脚本中关闭或重用它们。如果您的包装脚本使用了其中任何一个（例如用于保存 stdin），请将该用途改为 6 到 9 之间的描述符，早期版本同样不会占用这些描述符。
 * **stderr**：当包装脚本或子进程以非零状态退出时，运行器会将 stderr 的最后几行发布到会话中，并在其自身日志中打印这些行。会话的用户会看到这些行，因此不要将密钥打印到 stderr，并在部署包装脚本之前移除 `set -x`。如果您重定向 stderr，会话仍会运行，但运行器仅以退出码报告失败。
 
 ### 透传系统提示词标志

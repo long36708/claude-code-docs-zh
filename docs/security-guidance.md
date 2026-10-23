@@ -169,7 +169,7 @@ patterns:
 
 [每次编辑模式检查](#on-each-file-edit) 不进行模型调用，不增加成本。[回合结束](#at-the-end-of-each-turn) 和 [提交](#on-each-commit-or-push-claude-makes) 审查各自花费额外的模型使用，计入您的 [使用](/docs/zh-CN/costs.md)，就像任何其他 Claude 请求一样。提交审查是代理性的，每次提交可能需要多个模型回合。预期大约每个更改文件的回合有一次审查调用，每次提交有一次更深层审查，两者都受上述上限的约束。
 
-两个模型支持的审查默认使用 Claude Opus 4.7。设置 `SECURITY_REVIEW_MODEL` 为回合结束审查选择不同的模型，设置 `SG_AGENTIC_MODEL` 为提交审查。
+默认情况下，两项审查都在 Claude Opus 模型上运行。设置 `SECURITY_REVIEW_MODEL` 为轮次结束审查选择不同的模型，设置 `SG_AGENTIC_MODEL` 为提交审查选择不同的模型。
 
 该插件在所有计划上都可用。
 

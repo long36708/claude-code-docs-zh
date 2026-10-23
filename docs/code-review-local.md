@@ -111,7 +111,7 @@
 如需让审查在前台运行，请执行以下操作之一：
 
 * 在非交互模式下运行，使用 `-p` 标志或 Agent SDK。Claude Code 会等待审查完成，并在响应中包含发现的问题，但 `ultra` 除外，它[不会等待云端审查](/docs/zh-CN/ultrareview.md#run-ultrareview-non-interactively)。
-* 将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 设置为 `1`，这也会关闭所有其他后台任务功能
+* 将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](/docs/zh-CN/env-vars) 设置为 `1`，这也会关闭其他后台任务功能
 * 在之前的审查仍在进行时再次运行 `/code-review`
 
 在 v2.1.218 之前，审查在您的对话内部运行。

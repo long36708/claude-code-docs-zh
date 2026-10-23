@@ -113,6 +113,7 @@ Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`clean
 | `projects/<project>/<session>.orphaned-<timestamp>-<suffix>.jsonl`、`projects/<project>/<session>.jsonl.superseded-<timestamp>` | 会话的先前记录，Claude Code 将其搁置而不是覆盖或删除它。它不会出现在会话选择器中 |
 | `projects/<project>/<session>/subagents/` | [Subagent](/docs/zh-CN/sub-agents.md) 对话记录，当父会话记录过期时被删除 |
 | `projects/<project>/<session>/tool-results/` | 大型工具输出溢出到单独的文件，以及 [MCP 工具返回的图像](/docs/zh-CN/mcp.md#images-in-tool-results) 的完整大小副本 |
+| `projects/<project>/<session>/mcp-tasks/` | 恢复的会话重新跟踪其正在运行的 [MCP 任务](/docs/zh-CN/mcp.md#mcp-tasks-that-run-on-the-server)所需的内容，以及 Claude 尚未读取的已完成任务的结果 |
 | `file-history/<session>/` | Claude 更改的文件的编辑前快照，用于 [checkpoint 恢复](/docs/zh-CN/checkpointing.md)。保存最近 100 个 checkpoint 的快照；没有保留 checkpoint 引用的快照文件被删除，除了每个文件的第一个快照 |
 | `plans/` | 在 [Plan Mode](/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode) 期间写入的计划文件 |
 | `debug/` | 每个会话的调试日志，在启用调试日志时写入，例如当您使用 [`--debug`](/docs/zh-CN/cli-reference#cli-flags) 启动或运行 `/debug` 时 |

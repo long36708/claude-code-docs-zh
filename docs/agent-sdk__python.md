@@ -3744,7 +3744,7 @@ asyncio.run(main())
 >
 > 使用 `dangerouslyDisableSandbox: True` 运行的命令具有完整的系统访问权限。确保你的 `can_use_tool` 处理程序仔细验证这些请求。
 >
-> 如果 `permission_mode` 设置为 `bypassPermissions` 且 `allowUnsandboxedCommands` 启用，模型可以自主执行沙箱外的命令，无需批准提示，除了 [操作无模式自动批准](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves) 之外。此组合实际上允许模型无声地逃离沙箱隔离。
+> 如果 `permission_mode` 设置为 `bypassPermissions` 且 `allowUnsandboxedCommands` 启用，模型可以自主执行沙箱外的命令，无需批准提示，除了 [任何模式都不会自动批准的操作](/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves) 之外。此组合实际上允许模型无声地逃离沙箱隔离。
 
 ## 另见
 
