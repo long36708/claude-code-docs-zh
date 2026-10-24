@@ -127,11 +127,14 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 
 ```bash ~/.tmux.conf theme={null}
 set -g allow-passthrough on
+set -g focus-events on
 set -s extended-keys on
 set -as terminal-features 'xterm*:extkeys'
 ```
 
 `allow-passthrough` 行允许通知和进度更新到达外部终端，而不是被 tmux 吞掉。`extended-keys` 行让 tmux 区分 Shift+Enter 和普通 Enter，这样换行快捷键就能工作。
+
+[mod 的 `Image`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#elements) 需要 `allow-passthrough` 和 `focus-events` 行，以及其他[在 tmux 中绘制的要求](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#draw-an-image-inside-tmux)。添加这些行后，还需要从 tmux 分离、重新连接，然后重启 Claude Code。
 
 ## 修复 Windows 上 Backspace 删除整个单词的问题
 

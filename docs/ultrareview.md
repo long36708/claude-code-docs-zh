@@ -176,7 +176,7 @@ claude ultrareview origin/main
 该子命令会以以下三种退出码之一退出：
 
 * **0**：审查已完成，无论是否有发现结果
-* **1**：审查启动失败或在完成前被停止、云端会话出错，或已超时。当[文件夹未被信任](#trust-the-folder-before-the-review-runs)时，退出码也为 1，包括您在信任询问处回答 `n` 或按下 Ctrl-C 的情况。
+* **1**：审查启动失败或在完成前被停止、云端会话出错，或已超时。当[文件夹未被信任](#trust-the-folder-before-the-review-runs)时，退出码也为 1，包括您在信任询问处回答 `n`、按下 Enter 或按下 Ctrl-C 的情况。
 * **130**：您在该子命令启动审查、等待发现结果或发送 `--post` 评论期间按下了 Ctrl-C，而不是在信任询问处按下
 
 如果子命令在发现结果返回之前退出，这些结果将永远不会到达您的终端。审查可能仍在云端运行。再次运行该子命令会启动一次新的审查，而不是恢复之前那次，并且新的审查会[使用一次免费运行或按使用额度计费](#pricing-and-free-runs)。
@@ -198,7 +198,7 @@ claude ultrareview origin/main
 claude ultrareview 1234 --trust-workspace
 ```
 
-要审查不受信任的 Pull Request，请在您信任的分支上运行 `claude ultrareview <PR number> --trust-workspace`。与回答 `y` 不同，该标志不会保存任何内容。该 PR 会[在云端克隆](#review-a-pull-request)，因此您无需在本地拥有其分支。
+要审查不受信任的 Pull Request，请在您信任的分支上运行 `claude ultrareview <PR number> --trust-workspace`。该 PR 会[在云端克隆](#review-a-pull-request)，因此您无需在本地拥有其分支。
 
 ## ultrareview 与 /code-review 的比较
 

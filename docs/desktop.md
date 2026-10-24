@@ -844,7 +844,7 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 | [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars#variables) 或 [`CLAUDE_CODE_TMPDIR`](https://code.claude.com/docs/zh-CN/env-vars#variables) | 在[为开发服务器设置变量的位置之一](#set-environment-variables-for-dev-servers)中设置它，然后退出并重新打开 Desktop |
 | `API_TIMEOUT_MS`、`ANTHROPIC_BASE_URL` 或 Desktop 自行设置的其他变量 | 请参阅 [Desktop 自行设置的环境变量](#environment-variables-desktop-sets-itself) |
 
-在 macOS 或 Linux 上，如果您已经在 `~/.zshrc` 或 `~/.bashrc` 中使用 `export` 设置了变量，请参阅[Claude 运行的命令中缺少导出的变量或变量值错误](#exported-variable-missing-or-wrong-in-commands-claude-runs)。
+在 macOS 或 Linux 上，如果您使用 `export` 设置的变量在 Claude 运行的命令中缺失或值不正确，请参阅[导出的变量在 Claude 运行的命令中缺失或不正确](#exported-variable-missing-or-wrong-in-commands-claude-runs)。
 
 #### 为本地会话设置环境变量
 
@@ -908,7 +908,7 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 **4. 使用已保存的环境**
 
-将变量添加到[已保存的本地环境](#set-environment-variables-for-local-sessions)，然后从该环境启动新会话。对于 `PATH` 或 `CLAUDE_CONFIG_DIR` 等变量，请改为遵循[其各自的说明](#environment-variables-in-local-sessions)。
+将该变量添加到[已保存的本地环境](#set-environment-variables-for-local-sessions)，然后从该环境启动新会话。对于 `PATH`、`CLAUDE_CONFIG_DIR` 或 `API_TIMEOUT_MS` 等变量，请改为按照[其各自的说明](#environment-variables-in-local-sessions)操作。
 
 在 v2.1.304 之前，Claude Code 不会将导出的变量传递给命令，因此请[检查会话运行的版本](#claude-code-version-in-the-code-tab)。
 

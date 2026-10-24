@@ -89,6 +89,26 @@ Claude Code v2.1.281 或更高版本上的运行器以文件形式传递提示�
 * **透传它们**：使用 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"` 结束包装脚本，这会将文件标志与其他所有参数一起转发。不要丢弃或改写它们。如果会话丢失了某个提示词文件标志，它将在没有控制平面为其发送的指令的情况下运行。
 * **在 v2.1.281 或更高版本的运行器上，您追加的文件标志会替换服务器的标志，而不会叠加**：每个提示词文件标志只接受单个值，Claude Code 保留最后一次出现的值，因此如果您在 `"$@"` 之后追加 `--append-system-prompt-file <path>`，您文件的内容将替换服务器追加的指令。要在服务器指令之上添加指令，请将其放入运行器镜像的 `CLAUDE.md` 中，运行器会将其[植入每个会话的用户级配置](#how-each-session’s-config-is-assembled)。
 
+#### 修复会话启动时的 `Argument list too long`
+
+在 Linux 上，如果您将控制平面的提示词和您自己的文本合并为一个 `--append-system-prompt` 参数，一旦该参数达到 128 KB，运行器就会记录如下一行日志：
+
+```text theme={null}
+Session <id> finished: failed — reason: child exited 126: /opt/wrapper.sh: line 9: /usr/local/bin/claude: Argument list too long
+```
+
+Linux 将每个单独的参数限制为 32 个内存页，在通常的 4 KB 页大小下即 128 KB。`getconf ARG_MAX` 给出的数值（通常为 2 MB）是另一项限制，针对的是所有参数和环境的总和。
+
+在 Claude Code v2.1.283 或更高版本上，请将文件标志保留在 `"$@"` 中，并仅将您自己的文本作为 `--append-system-prompt` 传递。Claude Code 会[同时使用两者](https://code.claude.com/docs/zh-CN/cli-reference.md#system-prompt-flags)，先是控制平面的提示词，然后是您自己的文本：
+
+```bash theme={null}
+exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --append-system-prompt "$(cat /opt/team-instructions.md)"
+```
+
+在 Linux 上，如果您自己的文本达到 128 KB，请将其移到运行器镜像的 `CLAUDE.md` 中，因为它仍然是一个参数。
+
+在 v2.1.281 或 v2.1.282 上，该命令会以 `Cannot use both --append-system-prompt and --append-system-prompt-file` 退出。在更早的版本上，您的文本会替换控制平面的提示词，且不报错。无论哪种版本，请先更新，或将您自己的文本移到 `CLAUDE.md` 中。
+
 ### 配置作用域限定为会话创建者的凭据
 
 使用 `decode-token` 子命令从会话 JWT 读取声明。它从参数、`CLAUDE_CODE_SESSION_ACCESS_TOKEN` 或 stdin 读取令牌，按该顺序；请参阅 [Verify the token inside the session](https://code.claude.com/docs/zh-CN/self-hosted-environments-identity.md#verify-the-token-inside-the-session) 了解它检查的内容。下面的示例解码创建者身份，将其交换为短期 AWS 凭据，并 exec 进入 Claude Code：

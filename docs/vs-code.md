@@ -1001,15 +1001,20 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 
 ### 在执行 TLS 检查的代理后方，听写或 Web 标签页失败
 
-当听写或 Web 标签页因证书错误（例如 `unable to get local issuer certificate`）而失败时，请在 `~/.claude/settings.json` 的 `env` 块中设置 [`NODE_EXTRA_CA_CERTS`](https://code.claude.com/docs/zh-CN/network-config#custom-ca-certificates)。将其设置为包含代理根 CA 证书的 PEM 文件的路径，该文件可向您的 IT 团队索取。该错误文本显示在麦克风按钮上或扩展的日志中：
+当听写或 Web 标签页因证书错误（例如 `unable to get local issuer certificate`）而失败时，请在 `~/.claude/settings.json` 的 `env` 块中设置 [`NODE_EXTRA_CA_CERTS`](https://code.claude.com/docs/zh-CN/network-config#custom-ca-certificates)。将其设置为包含代理根 CA 证书的 PEM 文件的路径，该文件可向您的 IT 团队索取。该失败会显示在麦克风按钮或 Web 标签页上，或显示在日志中：
 
 * **听写**：麦克风按钮会在 `Dictation error: WebSocket error:` 之后显示错误文本。
 * **Web 标签页**：列出[云端会话](#resume-cloud-sessions-from-claude-ai)的标签页会显示 `Remote server is not connected`，但不显示错误文本。要在日志中查看错误文本：
   1. 从[命令面板](#vs-code-commands-and-shortcuts)运行 **Claude Code: Show Logs**，打开 `Claude VSCode` 输出频道。
   2. 点击该标签页上的 **Reconnect**，等待其不再显示 `Connecting…`。
   3. 在该频道中搜索 `Error fetching remote sessions:` 或 `Failed to fetch organization UUID:`，然后在最新的匹配行中查看该前缀之后的错误文本。
+* **日志警告**：提及 `an authority that Claude Code does not trust` 的警告表示出现了证书错误。在执行 TLS 检查的代理后方，请在 `~/.claude/settings.json` 的 `env` 中设置 `NODE_EXTRA_CA_CERTS`。v2.1.309 之前的版本不会记录此警告。
 
 此修复需要扩展版本 2.1.307 或更高版本，因此请先更新扩展。然后将 `NODE_EXTRA_CA_CERTS` 设置为证书文件的完整路径，且不要使用 `~`。对于 Windows 路径，在 `settings.json` 中每个反斜杠需要写两次，例如 `C:\\certs\\example-ca.pem`。
+
+> [!NOTE]
+>
+> 在连接到 WSL、SSH 主机、开发容器或其他系统的窗口中，请在该系统上（而不是在您的本地计算机上）保存证书文件并编辑 `~/.claude/settings.json`。
 
 以下示例指定了位于 Linux 或 macOS 路径 `/etc/ssl/certs/example-ca.pem` 的证书文件：
 

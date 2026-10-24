@@ -353,12 +353,35 @@ Svg({
 
 在其他任何终端中，用户看到的将是以暗色显示的 `Image` 的 `alt` 文本，而不是图片。请编写能够独立表达含义的 `alt` 文本，因为在以下情况（以及其他一些情况）下也会显示该文本：
 
-* **tmux 和 screen**：在任何终端中运行于 tmux 或 screen 内的会话。
+* **GNU screen**：在任何终端中运行于 screen 内的会话。
+* **tmux**：运行于 tmux 内、但未满足某项[在 tmux 中绘制的要求](#draw-an-image-inside-tmux)的会话。
 * **后台会话**：每个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，无论从哪个终端连接。
 * **iTerm2 未使用全屏渲染**：在 iTerm2 中，图片仅在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)下绘制，并且在 [`CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `1` 时不会绘制。要看到图片，请在 Claude Code 输入框中运行 `/tui fullscreen`，并保持该变量未设置。
-* **iTerm2 中的文件路径来源**：iTerm2 会绘制 `source` prop 中包含 `png` 或 `rgba` 字节的 `Image`，而对于 `source` 指定 `file` 的 `Image`，则显示 `alt` 文本。如果您的 mod 有 iTerm2 用户，请在 `source.png` 或 `source.rgba` 中以 base64 形式传递图片，而不是在 `source.file` 中以路径形式传递。
+* **iTerm2 或 tmux 中的文件路径来源**：在 iTerm2 中以及在 tmux 内，`source` 指定 `file` 的 `Image` 会显示 `alt` 文本而不是图片。如果您的 mod 有 iTerm2 或 tmux 用户，请在 `source.png` 或 `source.rgba` 中以 base64 形式传递图片，而不是在 `source.file` 中以路径形式传递。
 
-如果您的 mod 的用户在能够绘制使用 Unicode 占位符的 kitty 图形协议图像的终端中看到了暗色文本，可以将 [`CLAUDE_CODE_FORCE_TERMINAL_IMAGES`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `1`。在 tmux 或 screen 中这样做并无帮助：`alt` 文本会消失，而 Claude Code 发送图片时不会为 tmux 或 screen 直通对其进行包装。
+如果您的 mod 的用户在能够绘制使用 Unicode 占位符的 kitty 图形协议图像的终端中看到了暗色文本，可以将 [`CLAUDE_CODE_FORCE_TERMINAL_IMAGES`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `1`。不应在以下情况下设置该变量：在 GNU screen 内、在低于 3.3 版本的 tmux 内、在 tmux 弹出窗口中，或在 tmux 的 `allow-passthrough` 关闭时。在这些情况下，用户看不到图片，并且 `alt` 文本的位置会显示一个方框。
+
+#### 在 tmux 中绘制 `Image`
+
+如果 `Image` 在 tmux 中显示其 `alt` 文本，请检查以下要求，同时检查[其他显示 `alt` 文本的情况](#image-and-client)，例如后台会话：
+
+* Claude Code v2.1.310 或更高版本
+* tmux 3.3 或更高版本
+* Claude Code 运行在 tmux 窗格中，而不是 tmux 弹出窗口中
+* tmux 运行在 kitty 0.28 或更高版本、Ghostty 或 iTerm2 3.5 或更高版本中
+* tmux 选项 `focus-events` 和 `allow-passthrough` 为 `on`。在 kitty 或 Ghostty 中，`allow-passthrough` 也可以为 `all`。
+* 在 iTerm2 中，tmux [不使用 `-CC`](https://code.claude.com/docs/zh-CN/fullscreen#use-with-tmux) 运行，[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)已开启，并且 `CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT` 未设置。
+* 在 iTerm2 中，tmux 窗口不大于 iTerm2 窗口。要进行检查，请在该 tmux 窗口中运行 `tmux display-message -p '#{window_bigger}'`。如果输出 `1`，请调整 tmux 窗口使其适配，然后重启 Claude Code。
+* mod 的作者以 `png` 或 `rgba` 字节形式传递图片，而不是以 `file` 路径形式传递。如果您使用的 mod 并非由您编写，且其他要求均已满足，请让其作者检查这一项。
+
+对于每个尚未按要求设置的 tmux 选项，请在 shell 中运行其对应命令：
+
+```bash theme={null}
+tmux set -g allow-passthrough on
+tmux set -g focus-events on
+```
+
+然后从 tmux 分离，重新连接，并重启 Claude Code。每当您从不同的终端连接 tmux 时，请再次重启 Claude Code。要在 tmux 服务器重启后保留这两个选项，还请[将这两行添加到 `~/.tmux.conf`](https://code.claude.com/docs/zh-CN/terminal-config#configure-tmux)。
 
 ## 了解 mod 可以在哪里绘制
 

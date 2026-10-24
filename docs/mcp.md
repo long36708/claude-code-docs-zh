@@ -250,7 +250,7 @@ claude mcp remove notion
 
 此列表中的状态报告配置决策而不是连接尝试，因此 Claude Code 在不连接到服务器的情况下打印它们：
 
-* ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json` 的项目作用域服务器，您尚未批准。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。以交互方式运行 `claude` 以查看并批准它。
+* ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json` 且您尚未批准的项目作用域服务器。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。以交互方式运行 `claude` 来查看并批准它。
 * `✘ Rejected (see disabledMcpjsonServers in settings)`：由 [`disabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#disabledmcpjsonservers) 条目拒绝的 `.mcp.json` 服务器。Claude Code 仅在 `claude mcp get <name>` 中显示它。
 * `⊘ Disabled for this project (re-enable via /mcp)`：项目的 [`disabledMcpServers`](#disable-a-server-without-removing-it) 列表命名的服务器。Claude Code 在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。从 `/mcp` 面板重新打开服务器。
 
@@ -384,7 +384,7 @@ Claude Code 首先使用指数退避尝试重新连接断开的远程服务器�
 这些重试在以下情况下不适用：
 
 * stdio 服务器的首次连接。要再次尝试，请参阅 [退出或无法启动的 stdio 服务器](#stdio-servers-that-exit-or-fail-to-start)
-* WebSocket 服务器的首次连接
+* WebSocket 服务器的首次连接。要在交互式终端会话中再次尝试，请从 `/mcp` 中该服务器的菜单选择 **Reconnect**
 * 身份验证或未找到错误，因为它需要配置更改来解决。当 [`headersHelper`](#use-dynamic-headers-for-custom-authentication) 是服务器唯一的 `Authorization` 标头来源时，Claude Code 仍然重试身份验证错误，因为它在每次尝试时重新运行助手并可以获取新凭据
 
 #### 退出或无法启动的 stdio 服务器
@@ -403,7 +403,7 @@ Claude Code 首先使用指数退避尝试重新连接断开的远程服务器�
 
 #### 自行重试失败的服务器
 
-要重试所有失败或需要身份验证的服务器，请运行 `/mcp reconnect all`。在交互式终端中，这需要 Claude Code v2.1.284 或更高版本，较早的版本会在此处打印 `MCP server "all" not found`。
+要重试每个失败或需要身份验证的服务器，请在交互式终端会话中的 Claude Code 输入框运行 `/mcp reconnect all`。这需要 Claude Code v2.1.284 或更高版本。较早的版本会打印 `MCP server "all" not found`。
 
 #### Claude 如何了解服务器失败
 

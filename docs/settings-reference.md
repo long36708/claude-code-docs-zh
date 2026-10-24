@@ -3470,7 +3470,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 主机名匹配不区分大小写，并且会将 `hooks.example.com.`（末尾带有表示完全限定域名的点）视为与 `hooks.example.com` 相同，这与 DNS 的处理方式一致。此允许列表适用于所有来源的 hook，包括托管设置。
 
-在 Agent SDK 的 `managedSettings` 选项中，如果此键的列表包含条目，Claude Code 会忽略此键，因此请改为在 SDK 的 `settings` 选项中传入该列表。请参阅[各个值在父级设置中的作用](https://code.claude.com/docs/zh-CN/claude-apps-gateway#how-hook-and-skill-keys-in-parent-settings-take-effect)。
+在 Agent SDK 的 `managedSettings` 选项中，如果此键的列表包含条目，Claude Code 会忽略此键，因此请改为在 SDK 的 [`settings` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)中传入该列表。请参阅[空列表在父级设置中的作用](https://code.claude.com/docs/zh-CN/claude-apps-gateway#how-hook-and-skill-keys-in-parent-settings-take-effect)。
 
 ### `allowManagedHooksOnly`
 
@@ -3624,7 +3624,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 此允许列表适用于所有来源的 hook，包括托管设置。
 
-在 Agent SDK 的 `managedSettings` 选项中，如果此键的列表包含条目，Claude Code 会忽略此键，因此请改为在 SDK 的 `settings` 选项中传入该列表。请参阅[各个值在父级设置中的作用](https://code.claude.com/docs/zh-CN/claude-apps-gateway#how-hook-and-skill-keys-in-parent-settings-take-effect)。
+在 Agent SDK 的 `managedSettings` 选项中，如果此键的列表包含条目，Claude Code 会忽略此键，因此请改为在 SDK 的 [`settings` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)中传入该列表。请参阅[空列表在父级设置中的作用](https://code.claude.com/docs/zh-CN/claude-apps-gateway#how-hook-and-skill-keys-in-parent-settings-take-effect)。
 
 ### `workflowKeywordTriggerEnabled`
 

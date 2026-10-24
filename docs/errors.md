@@ -317,6 +317,7 @@
 | `Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)` | [Plugin 错误](#skipping-connection-recent-failure-cached) |
 | `Error: No such tool available: <tool name>` | [工具错误](#no-such-tool-available) |
 | `MCP server "<name>" connection closed before the tool call was answered` | [工具错误](#connection-closed-before-the-tool-call-was-answered) |
+| `MCP server "<name>" is disabled — re-enable it via /mcp to use its tools` | [工具错误](#mcp-server-is-disabled) |
 | `MCP server "<name>" tool "<tool>" timed out after <N>s. The server asked the user a question, and no answer came before the time limit.` | [工具错误](#mcp-tool-call-timed-out-with-the-servers-question-unanswered) |
 | `would be spawned with zero tools — refusing` | [工具错误](#agent-would-be-spawned-with-zero-tools) |
 | `File is covered by a Read deny rule in your permission settings` | [工具错误](#file-is-covered-by-a-read-deny-rule) |
@@ -349,6 +350,7 @@
 | `Your disk quota is full on the filesystem with Claude Code's temp directory <dir> (EDQUOT)` / `The filesystem with Claude Code's temp directory <dir>, or your disk quota on it, is full (ENOSPC)` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `Command output was lost: the temp filesystem at <dir> is full` / `is out of inodes` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary` | [工具错误](#file-is-not-valid-utf-8) |
+| `git is not installed on this Mac. To install it, run xcode-select --install, then try again.` | [工具错误](#git-is-not-installed-on-this-mac) |
 | `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `the source file has the replacement character U+FFFD` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `Not published: that file is on a network share` | [工具错误](#not-published-that-file-is-on-a-network-share) |
@@ -487,6 +489,16 @@ Claude Code 不重试这些故障：
 一旦数据恢复或重试成功，横幅会自动清除。如果它在每次尝试时重新出现，将其视为 [network issue](#unable-to-connect-to-api)。在 v2.1.185 之前，横幅在 10 秒后出现，措辞不同。
 
 当 Claude 咨询 [advisor](https://code.claude.com/docs/zh-CN/advisor.md) 时，横幅在 90 秒无数据后出现，而不是 20 秒，因为长时间的顾问审查可能在远超 20 秒的时间内不发送任何数据。在 v2.1.214 之前，20 秒阈值也适用于顾问调用，所以横幅在顾问审查期间出现，即使没有任何问题。
+
+#### 通过网关连接时等待横幅时隐时现
+
+如果您通过网关连接，且在 Claude 思考时 `Waiting for API response` 横幅时隐时现，请[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code) 到 v2.1.309 或更高版本。在以下连接上，横幅会在 45 秒无数据后出现：
+
+* [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 Anthropic API 以外的主机，例如 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)
+* [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话
+* 设置了 `ANTHROPIC_AWS_BASE_URL` 的 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)
+
+在 v2.1.309 之前，这些连接上的横幅会在 20 秒后出现。
 
 ### 调整重试行为
 
@@ -3257,7 +3269,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 
 **解决方法：**
 
-* 在脚本或 CI 任务中，追加 `--trust-workspace` 以仅在该次运行中信任检出内容：`claude ultrareview --trust-workspace`。请只对您信任的代码追加此标志，因为这样一来，检出内容的 git 配置和 Claude Code 项目设置就可以运行程序。若要审查您不信任其代码的 Pull Request，请参阅[如何从您信任的检出内容中审查它](https://code.claude.com/docs/zh-CN/ultrareview.md#trust-the-folder-before-the-review-runs)。
+* 在脚本或 CI 作业中，追加 `--trust-workspace` 以在该次运行中信任该文件夹：`claude ultrareview --trust-workspace`。仅对您信任的代码追加此标志，因为 git 和 Claude Code 随后可能会运行该文件夹的 git 配置和项目设置中指定的程序。对于您不信任其代码的 Pull Request，请[从您信任的分支运行审查](https://code.claude.com/docs/zh-CN/ultrareview.md#trust-the-folder-before-the-review-runs)。
 * 在您自己的机器上，在该文件夹中运行 `claude` 并接受[工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)，然后再次运行您原来的命令
 
 `claude ultrareview` 的以下每条消息都表示没有启动任何审查，且退出码为 1：
@@ -3266,7 +3278,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了非标志的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用此标志。若要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请省略该标志。若要在此次运行中信任它，请将 PR 编号或基础分支放在标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
 
@@ -3527,9 +3539,9 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：命令的权限检查不允许它运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
-* `No shell command in <name> was run`：该文件中的某个 `!` 命令包含除制表符或换行符以外的原始控制字符，因此其中的命令都不会运行。请参阅[如何查找并删除该字符](#no-shell-command-was-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查不允许它运行。[对注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 更改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `No shell command in <name> was run`：文件中某个 `!` 命令包含除制表符或换行符之外的原始控制字符，因此所有命令都不会运行。请参阅[如何查找并移除该字符](#no-shell-command-was-run)
 
 **解决方法：**
 
@@ -3679,7 +3691,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会失败并报错 `fatal: --unshallow on a complete repository does not make sense`。
 
 **解决方法：**
 
@@ -4420,6 +4432,20 @@ MCP server "<name>" connection closed before the tool call was answered. The too
 * 如果该操作未发生，请让 Claude 再次运行该工具。您无需先重新连接服务器，因为 Claude Code 会在下一次调用该服务器的某个工具时重新连接它。如果该连接也失败，请参阅[远程服务器在会话中途断开](https://code.claude.com/docs/zh-CN/mcp.md#mid-session-drops-of-a-remote-server)。
 * 如果您是该服务器的构建者，且该工具可以安全地调用两次，请[将其标记为可安全重复](https://code.claude.com/docs/zh-CN/mcp.md#tool-calls-pending-when-a-connection-closes)，以便 Claude Code 可以重复丢失的调用
 
+### MCP server is disabled
+
+工具结果中出现这条消息，表示 Claude 调用了一个已[关闭](https://code.claude.com/docs/zh-CN/mcp.md#disable-a-server-without-removing-it)的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)上的工具。Claude Code 没有连接到该服务器，因此该工具没有运行，Claude 收到的是以下文本而不是结果：
+
+```text wrap theme={null}
+MCP server "<name>" is disabled — re-enable it via /mcp to use its tools
+```
+
+**处理方法：**
+
+* 如果您本来就打算关闭该服务器，则无需任何操作
+* 如果 Claude 需要该服务器的工具，请在 Claude Code 输入框中通过 `/mcp` 重新启用它
+* 在 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 应用程序中，如需重新启用该服务器，请在 TypeScript 中调用 [`toggleMcpServer()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#togglemcpserver) 并将 `enabled` 设置为 `true`，或在 Python 中调用 [`toggle_mcp_server()`](https://code.claude.com/docs/zh-CN/agent-sdk/python#claudesdkclient) 并将 `enabled` 设置为 `True`
+
 ### MCP tool call timed out with the server's question unanswered
 
 在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下，某个 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)在工具调用期间通过 [elicitation](https://code.claude.com/docs/zh-CN/mcp.md#respond-to-mcp-elicitation-requests) 请求输入，而在收到回答之前，该调用的时间限制已用尽：
@@ -4759,7 +4785,7 @@ Claude Code 会将每个 Bash 和 PowerShell 命令的输出保存到该目录�
 The command was not started: this computer's disk is full (ENOSPC) on the volume holding /tmp/claude-501 (Claude Code's temporary directory), so the file that captures command output could not be created there and nothing ran. Free space on that volume, or restart Claude Code with CLAUDE_CODE_TMPDIR set to a directory on another one, then retry. If this is the user's own computer, tell them before deleting anything to make room.
 ```
 
-另外三条消息出现在命令已运行并以非零代码退出之后。此示例为 `Disk full:` 形式：
+`Disk full:`、`Disk quota used up:` 和 `Nearly out of inodes:` 消息出现在命令已运行并以非零代码退出之后。例如：
 
 ```text wrap theme={null}
 Disk full: this computer's volume holding /tmp/claude-501 (Claude Code's temporary directory) has 3 MB free, so whatever this command printed was lost and its own writes may have failed with "No space left on device". Free space on that volume, or restart Claude Code with CLAUDE_CODE_TMPDIR set to a directory on another one, then retry. If this is the user's own computer, tell them before deleting anything to make room.
@@ -4769,8 +4795,7 @@ Disk full: this computer's volume holding /tmp/claude-501 (Claude Code's tempora
 
 * 在 macOS 和 Linux 上，在 shell 中运行 `df -h <dir>`，查看哪个卷存放该目录以及其已用程度。`df -i <dir>` 会显示剩余的 inode 数量。`<dir>` 是您的消息中指出的目录，例如 `df -i /tmp/claude-501`
 * **`Disk full: this computer's volume` 或 `disk is full (ENOSPC)`**：在该卷上的任意位置删除您不需要的文件
-* **`Disk quota used up:` 或 `Disk full: a test write`**：删除您自己在该卷上的文件，即使该卷仍显示有可用空间
-* **`disk quota is used up (EDQUOT)`**：删除您自己在该卷上的文件
+* **`Disk quota used up:`、`disk quota is used up (EDQUOT)` 或 `Disk full: a test write`**：删除您自己在该卷上的文件，即使该卷仍显示有可用空间
 * **`Nearly out of inodes:`**：删除该卷上的大量文件。无论大小，每个文件都占用一个 inode，因此重要的是文件数量，而不是文件大小
 * 或者将 [`CLAUDE_CODE_TMPDIR`](https://code.claude.com/docs/zh-CN/env-vars) 设置为有空间的卷上的目录，然后重新启动 Claude Code
 * 然后让 Claude 再次运行该命令
@@ -4783,6 +4808,20 @@ Disk full: this computer's volume holding /tmp/claude-501 (Claude Code's tempora
 * `The command was not started: this computer's disk is full (ENOSPC), so the file that captures command output could not be created. Nothing ran.`，或带有 `(EDQUOT)` 的相同消息。此形式不指出目录：请在存放系统临时目录（例如 `/tmp`）的卷上查找，或在 `CLAUDE_CODE_TMPDIR` 所设置目录所在的卷上查找
 
 在 v2.1.305 之前，因磁盘已满而无法由 Claude Code 启动的命令只会返回操作系统的错误文本。该文本例如为 `ENOSPC: no space left on device, open <path>.output`。
+
+### git is not installed on this Mac
+
+此消息表示 Claude Code 中的某个步骤需要 git，而它找到的 git 是 Apple 位于 `/usr/bin/git` 的占位程序。提供 git 的开发者工具尚未安装。
+
+Claude Code 不会启动该占位程序，而是显示以下文本，例如出现在一条较长的消息中：
+
+```text wrap theme={null}
+git is not installed on this Mac. To install it, run xcode-select --install, then try again.
+```
+
+**处理方法：**
+
+* 在终端中运行 `xcode-select --install`，完成它启动的安装，然后在 Claude Code 中重试您之前进行的操作
 
 ### File is not valid UTF-8
 

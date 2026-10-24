@@ -229,6 +229,8 @@ spec:
       interval: 30s
 ```
 
+### 示例警报规则
+
 这些示例警报规则是一个起点；为您的舰队大小调整阈值：
 
 ```yaml theme={null}
@@ -250,11 +252,11 @@ groups:
         annotations:
           summary: "运行器正在运行混合版本"
       - alert: ClaudeRunnerInitErrorsHigh
-        expr: increase(claude_code_self_hosted_runner_session_init_errors_total[10m]) > 3
+        expr: sum by (namespace) (increase(claude_code_self_hosted_runner_session_init_errors_total[10m])) > 3
         for: 5m
         labels: {severity: warning}
         annotations:
-          summary: "运行器 {{ $labels.pod }}：10 分钟内 >3 个会话初始化失败（checkout hook / git / 令牌 / 初始化前崩溃）"
+          summary: "会话在初始化前失败（checkout hook / git / 令牌 / 初始化前崩溃）"
       - alert: ClaudeRunnerPollErrors
         expr: sum by (pod) (rate(claude_code_self_hosted_runner_poll_errors_total[5m])) > 0
         for: 2m
@@ -262,11 +264,11 @@ groups:
         annotations:
           summary: "运行器 {{ $labels.pod }}：PollWork 失败（{{ $value | humanize }}/s 超过 5m）"
       - alert: ClaudeRunnerSessionStartHookErrors
-        expr: increase(claude_code_self_hosted_runner_session_start_hook_errors_total[10m]) > 3
+        expr: sum by (namespace) (increase(claude_code_self_hosted_runner_session_start_hook_errors_total[10m])) > 3
         for: 5m
         labels: {severity: warning}
         annotations:
-          summary: "运行器 {{ $labels.pod }}：10 分钟内 >3 个 SessionStart hook 失败"
+          summary: "SessionStart hook 正在失败"
 
   - name: claude-code-self-hosted-orchestrator
     rules:
@@ -283,7 +285,7 @@ groups:
         annotations:
           summary: "编排器 {{ $labels.pod }} 已超过 90 秒未轮询（轮询循环等待 hook 执行）"
       - alert: ClaudeOrchestratorCircuitBroken
-        expr: claude_code_self_hosted_orchestrator_queue_circuit_broken_sessions > 0
+        expr: max by (namespace) (claude_code_self_hosted_orchestrator_queue_circuit_broken_sessions and on (instance) max_over_time(claude_code_self_hosted_orchestrator_connected[2m]) == 1) > 0
         for: 1m
         labels: {severity: critical}
         annotations:
@@ -301,6 +303,66 @@ groups:
         annotations:
           summary: "编排器 {{ $labels.pod }}：5 分钟内 >3 个 spawn-runner hook 失败"
 ```
+
+### 针对丢失的运行器和等待中的会话发出警报
+
+在[固定舰队](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#scale-the-fleet)上，加载 `ClaudeRunnersBelowFloor`。使用[按需运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)时，改为加载 `ClaudeOrchestratorSessionsWaiting` 和 `ClaudeOrchestratorQueueWaitHigh`。
+
+#### 固定舰队丢失运行器时发出警报
+
+当剩余的已注册且已被抓取的运行器数量低于下限并持续 10 分钟时，`ClaudeRunnersBelowFloor` 会触发：
+
+```yaml theme={null}
+groups:
+  # 仅适用于固定舰队。使用按需运行器时，计数随需求变化，
+  # 因此 ClaudeRunnersBelowFloor 会在需求较低时触发。
+  - name: claude-code-self-hosted-fixed-fleet-capacity
+    rules:
+      - alert: ClaudeRunnersBelowFloor
+        expr: (count(claude_code_self_hosted_runner_info{namespace="claude-runners"}) or vector(0)) < 2
+        for: 10m
+        labels: {severity: critical, namespace: claude-runners}
+        annotations:
+          summary: "已注册并被抓取的运行器：{{ $value }}，低于下限。请先检查运行器工作负载，如果全部在运行，再检查抓取目标。"
+```
+
+* **下限**：将 `expr` 中的 `2` 设置为副本数的一半左右，向上取整。有三个副本时保留 `2`，当只剩一个运行器或没有运行器时警报会触发。
+* **命名空间**：替换匹配器中和 `labels` 中的 `claude-runners`，并为每个其他命名空间复制该警报。如果您的目标没有 `namespace` 标签，请删除该匹配器和该标签，否则警报读数为 0 并触发。
+* **`ClaudeRunnerPollStale` 和 `ClaudeRunnerPollErrors`**：保持从[示例警报规则](#sample-alert-rules)中加载它们，因为 `ClaudeRunnersBelowFloor` 仍会计入无法轮询的运行器
+
+#### 会话等待按需运行器时发出警报
+
+当等待运行器的会话数持续 10 分钟高于 0 时，`ClaudeOrchestratorSessionsWaiting` 会触发。当过去 10 分钟内超过 1% 的队列等待超过 160 秒，且该情况持续 5 分钟时，`ClaudeOrchestratorQueueWaitHigh` 会触发：
+
+```yaml theme={null}
+groups:
+  # 仅适用于按需运行器。无需针对命名空间进行编辑。
+  - name: claude-code-self-hosted-on-demand-capacity
+    rules:
+      - alert: ClaudeOrchestratorSessionsWaiting
+        expr: |
+          max by (namespace) (
+            claude_code_self_hosted_orchestrator_pool_pending_sessions
+            and on (instance)
+            max_over_time(claude_code_self_hosted_orchestrator_connected[2m]) == 1
+          ) > 0
+        for: 10m
+        labels: {severity: warning}
+        annotations:
+          summary: "等待运行器的会话：{{ $value }}，已连续 10 分钟高于阈值。请按 result 检查 claude_code_self_hosted_orchestrator_spawn_hooks_total，然后检查未能启动的运行器工作负载。"
+      - alert: ClaudeOrchestratorQueueWaitHigh
+        expr: |
+          histogram_quantile(0.99, sum by (namespace, le) (
+            rate(claude_code_self_hosted_orchestrator_session_queue_wait_seconds_bucket[10m])
+          )) > 160
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: "过去 10 分钟内超过 1% 的队列等待超过 160 秒。请检查 ClaudeOrchestratorDisconnected 是否正在触发，然后按 result 检查 claude_code_self_hosted_orchestrator_spawn_hooks_total 以及 claude_code_self_hosted_orchestrator_spawn_hook_duration_seconds。"
+```
+
+* **阈值**：如果始终有会话在等待，请将 `ClaudeOrchestratorSessionsWaiting` 中的 `> 0` 提高到您通常看到的数值之上
+* **`ClaudeOrchestratorDisconnected`**：保持从[示例警报规则](#sample-alert-rules)中加载它，因为在命名空间中最后一个编排器断开连接约 2 分钟后，`ClaudeOrchestratorSessionsWaiting` 会停止触发
 
 ### 传递会话子进程指标
 

@@ -106,7 +106,7 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 
 hook 模块中的代码嵌套过深，或其导入链过长，导致 Claude Code 无法加载它。该行以 mod 的名称和 `hooks module did not load:` 开头，然后给出某个文件的名称以及此原因。
 
-请在该文件以及通过其导入所到达的文件中查找嵌套最深的部分，并重写该部分以减少嵌套，或缩短导入链。如果该 mod 是您安装的而非您编写的，请让其作者进行修改。
+请在该文件以及通过其导入所到达的文件中查找嵌套最深的部分，并重写该部分以减少嵌套，或缩短导入链。如果该 mod 不是您编写的，请让其作者进行修复。
 
 ### `the parser stopped` 或 `the engine ran out of stack loading the file`
 

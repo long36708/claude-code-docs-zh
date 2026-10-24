@@ -458,17 +458,19 @@ Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](h
 
 #### 父设置中的 hook 和 skill 键如何生效
 
-如果您通过 Agent SDK 的 `managedSettings` 选项将 `disableAllHooks: true` 作为父设置传递，并非所有 hook 都会停止。您的 [SDK hook 回调](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)仍会运行，管理员的 hook 也会运行，您的应用程序无法将其关闭。
+您的应用程序在 Agent SDK 的 [`managedSettings`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 选项中传递的键属于父设置。在管理员部署了托管设置的机器上，Claude Code 会忽略父设置，除非管理员[允许嵌入宿主添加策略](https://code.claude.com/docs/zh-CN/managed-settings.md#let-an-embedding-host-add-policy)。
 
-在管理员部署了托管设置的机器上，Claude Code 会忽略父设置，除非管理员[允许嵌入宿主添加策略](https://code.claude.com/docs/zh-CN/managed-settings.md#let-an-embedding-host-add-policy)。
+如果您在 `managedSettings` 中传递 [`disableAllHooks: true`](https://code.claude.com/docs/zh-CN/settings-reference#disableallhooks)：
+
+* **停止**：用户、项目和本地 hook，以及在 Agent frontmatter 或 SDK 的 [`settings` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)中声明的 hook。
+* **继续运行**：您的应用程序的 [SDK hook 回调](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)以及来自托管设置的管理员 hook。您的应用程序无法关闭管理员的 hook。
 
 | 您传递的内容 | 结果 |
 | :- | :- |
-| `disableAllHooks: true` | 被视为 `allowManagedHooksOnly: true`，因此列为[在 `allowManagedHooksOnly` 下被阻止](https://code.claude.com/docs/zh-CN/settings-reference#what-runs-under-allowmanagedhooksonly)的 hook 会停止，SDK [`settings` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)中的 hook 也会停止。 |
-| [`disableSkillShellExecution: true`](https://code.claude.com/docs/zh-CN/settings-reference#disableskillshellexecution) | 生效。 |
+| `hooks`，或包含条目的 `allowedHttpHookUrls` 或 `httpHookAllowedEnvVars` | Claude Code 会忽略该键。请改用 SDK 的 `settings` 选项。 |
 | `allowedHttpHookUrls: []` | 生效，除非管理员定义了 `hooks` 或启用了插件。不会运行任何 HTTP hook，但其他设置来源列出的 URL 除外。 |
 | `httpHookAllowedEnvVars: []` | 生效，除非管理员定义了 `hooks` 或启用了插件。HTTP hook 标头只能包含其他设置来源列出的环境变量。 |
-| 包含条目的 `allowedHttpHookUrls` 或 `httpHookAllowedEnvVars` | Claude Code 会忽略它，因为合并会扩大管理员的列表。请改用 SDK 的 `settings` 选项。 |
+| [`disableSkillShellExecution: true`](https://code.claude.com/docs/zh-CN/settings-reference#disableskillshellexecution) | 生效。 |
 
 在 `managedSettings` 中传递这些键需要 Claude Code v2.1.309 或更高版本，或 TypeScript Agent SDK v0.3.309 或更高版本。
 
