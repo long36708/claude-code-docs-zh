@@ -67,7 +67,7 @@
 
 ## 检查运行提到 REVIEW\.md
 
-检查运行可能携带的关于 `REVIEW.md` 的消息中，有以下三条：
+检查运行可能携带的关于 `REVIEW.md` 的消息中，有以下四条：
 
 * **"This review applied the repository's review instructions (REVIEW\.md) from its default branch, which is not protected against direct pushes."**：该审查仅读取了根目录下的文件。请参阅[从哪个分支读取 REVIEW.md](https://code.claude.com/docs/zh-CN/code-review-customize.md#which-branch-review-md-is-read-from)，了解保护该分支会带来哪些变化。
 * **"were not applied to this review: branch protection could not be confirmed"**：该审查没有读取任何 `REVIEW.md`。
@@ -75,6 +75,7 @@
   * **链接过多**：文件包含超过 64 个 Markdown 链接。请将链接削减至 [64 个或更少](https://code.claude.com/docs/zh-CN/code-review-customize.md#include-other-files-in-review-md)。
   * **审查无法解析的链接**：文件中有格式错误的 Markdown 链接。请修复或删除该链接。
   * **指向已更改文件的链接**：文件链接到此 Pull Request 更改的文件或文件夹，且审查无法仅排除包含该链接的行。请直接在 `REVIEW.md` 中编写该规则。
+* **"include line(s) in the root REVIEW\.md were skipped on this review"**：根目录下的 `REVIEW.md` 已应用，但这些行所指定的文件未被应用。请查看[在 REVIEW.md 中包含其他文件](https://code.claude.com/docs/zh-CN/code-review-customize.md#include-other-files-in-review-md)下的列表；对于 skill，还需查看[包含 skill 文件](https://code.claude.com/docs/zh-CN/code-review-customize.md#include-a-skill-file)下的列表。
 
 ## 设置问题
 

@@ -123,12 +123,72 @@ Code Review 仅在从受保护分支读取 `REVIEW.md` 时才会包含这些文�
 
 当审查未应用被包含的文件时，请逐项检查以下内容：
 
-* **位置**：将文件移至仓库根目录。指向子目录的路径（例如 `@docs/review-rules.md`）不会被包含。
+* **位置**：将文件移至仓库根目录。除 [skill 文件](#include-a-skill-file)外，指向子目录的路径（例如 `@docs/review-rules.md`）不会被包含。
 * **名称**：文件名须完全匹配（包括大小写），并使用不含空格的名称。如果某行中的名称与 `REVIEW.md` 同级的任何文件都不匹配，该行会作为纯文本保留在 `REVIEW.md` 中，且检查运行不会将其报告为被跳过的包含项。
-* **仅限一层**：在根目录的 `REVIEW.md` 中列出所有文件。被包含文件或子目录 `REVIEW.md` 中的 `@` 行会保留为纯文本，而指向其他文件的 Markdown 链接不属于包含项。
+* **仅限一层**：在根目录的 `REVIEW.md` 中列出所有文件。被包含文件或子目录 `REVIEW.md` 中的 `@` 行会保留为纯文本（[skill 文件有所不同](#include-a-skill-file)），而指向其他文件的 Markdown 链接不属于包含项。
 * **限制**：最多包含八个不同的文件，并使 `REVIEW.md` 及其包含的文件合计小于 150,000 字节。会达到字节上限的文件将被整体跳过，而不会被截断。检查运行会报告因任一限制而跳过了多少个包含行。
-* **链接**：`REVIEW.md` 及其包含的文件中的 Markdown 链接总数应不超过 64 个。指向 `http`、`https` 或 `mailto` 地址以及 `#` 锚点的链接不计入。超过该上限时，审查会跳过您的整个根目录 `REVIEW.md`，而不仅仅是被包含的文件。此时检查运行会[说明指令未被应用](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md#the-check-run-mentions-review-md)。
+* **链接**：`REVIEW.md` 及其包含的文件中的 Markdown 链接总数应不超过 64 个。指向 `http`、`https` 或 `mailto` 地址以及 `#` 锚点的链接不计入，[skill 文件](#include-a-skill-file)中的链接也不计入。超过该上限时，审查会跳过您的整个根目录 `REVIEW.md`，而不仅仅是被包含的文件。此时检查运行会[说明指令未被应用](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md#the-check-run-mentions-review-md)。
 * **已合并的副本**：将被包含的文件合并到[读取 `REVIEW.md` 的分支](#which-branch-review-md-is-read-from)中。审查会从同一个提交中读取两者，从不从 Pull Request 自身的更改中读取。
+
+### 包含 Skill 文件
+
+要让审查遵循您在 [skill](https://code.claude.com/docs/zh-CN/skills.md) 中维护的指导，请在根目录的 `REVIEW.md` 中包含该 skill 的 `SKILL.md`。Code Review 不会运行 skill。
+
+在单独的一行中添加 `@` 和 `SKILL.md` 的路径，格式为 `.claude/skills/<folder>/SKILL.md`：
+
+```markdown theme={null}
+# Review instructions
+
+Report at most five Nits per review.
+
+@.claude/skills/api-review/SKILL.md
+
+Treat any change under `migrations/` as Important.
+```
+
+请保护[读取 `REVIEW.md` 的分支](#which-branch-review-md-is-read-from)，因为 Code Review 仅在从受保护分支读取 `REVIEW.md` 时才会包含 skill 文件。skill 文件计入八个文件和 150,000 字节的限制，并且有其自身 30,000 字节的限制。
+
+#### 编写能被 Code Review 包含的 Skill 行
+
+请使用不含空格的文件夹名称。路径中含有空格的行会作为纯文本保留在 `REVIEW.md` 中，且检查运行不会将其报告为被跳过的包含项。
+
+如果某个 skill 的 `@` 行违反了以下任一规则，Code Review 不会从该行包含该 skill：
+
+* **路径**：从仓库根目录以 `.claude/skills/<folder>/SKILL.md` 的形式写出路径，skill 的文件夹须直接位于 `skills/` 下。与根目录下的文件名不同，此形式的路径如果不匹配任何文件，会被跳过并计数。
+* **来源**：将 `.claude/` 下任何其他文件中的指导，或[内置、个人或插件 skill](https://code.claude.com/docs/zh-CN/skills.md#where-skills-live) 中的指导，复制到与 `REVIEW.md` 同级的文件中。您无法直接包含这些内容。
+* **文件**：将 `SKILL.md` 作为常规文本文件提交。Code Review 不会跟随符号链接，无论该链接是文件本身还是其路径中的某个文件夹。
+* **大小**：使 `SKILL.md` 不超过 30,000 字节（包括 frontmatter）
+* **数量**：最多编写八个 skill 行。重复的行会再次计入这八个。
+* **`REVIEW.md` 中的块**：不要将 `@` 行放在代码围栏内。关闭其上方的每个 HTML 注释以及每个 `<pre>`、`<script>`、`<style>` 或 `<textarea>` 块。
+
+当 Code Review 因违反文件、大小、数量或块规则而跳过某个 skill 行时，检查运行中[关于被跳过包含行的消息](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md#the-check-run-mentions-review-md)会将其计入。仅当审查从受保护分支应用 `REVIEW.md` 时，才会显示该消息。
+
+#### 检查审查从 Skill 中获得的内容
+
+当 skill 被包含时，审查只会获得 `SKILL.md` 的正文，而不会获得该 skill 的其他任何内容，因此请对照以下列表检查该 skill。
+
+* **Frontmatter**：在正文中重复审查所需的 [frontmatter](https://code.claude.com/docs/zh-CN/skills.md#frontmatter-reference) 内容，例如 `description` 给出的使用该 skill 的条件
+* **注入的命令**：写出 [`!` 命令](https://code.claude.com/docs/zh-CN/skills#inject-dynamic-context)本应提供的内容。Code Review 不会运行该命令，并会用占位符替换包含该命令的整行或整个块。
+* **替换变量**：将 `$ARGUMENTS` 和其他[替换变量](https://code.claude.com/docs/zh-CN/skills.md#available-string-substitutions)替换为固定文本，因为审查不传递任何参数，并会将它们原样保留
+* **支持文件**：将审查所需的内容复制到 `SKILL.md` 中，因为 Code Review 不会加载脚本、链接的文件或 `@file` 引用
+* **排除项和 Nit 上限**：将排除发现或限制 Nit 数量的指令写在 `REVIEW.md` 或与其同级的文件中，而不是写在 skill 中。Code Review 不接受以 skill 的文本作为这两者的依据。
+* **指向仓库文件的链接**：用文字说明链接或 `@file` 引用所指向的内容。审查会将该路径视为纯文本或占位符。
+
+如果您编辑 skill 的 `!` 命令、`$ARGUMENTS` 或链接，也会改变它在 Claude Code 中的工作方式。如果您的团队依赖这些功能，请将指导复制到与 `REVIEW.md` 同级的文件中，并包含该文件来代替 skill。
+
+#### Code Review 在 Skill 文本中更改的字符
+
+Code Review 会更改 skill 文本中的某些字符，因此您的代码示例会以下面的形式传达给审查。
+
+```text theme={null}
+In SKILL.md:       Use `items[0]`, never `List<String>`.
+The review reads:  Use ˋitems(0)ˋ, never ˋList< String>ˋ.
+
+In SKILL.md:       Run `ps | grep api` and ask @alice.
+The review reads:  Run ˋps ¦ grep apiˋ and ask @ alice.
+```
+
+如果某条规则依赖于其中某个字符，也请用文字加以说明。
 
 ### 从哪个分支读取 REVIEW\.md
 
@@ -139,6 +199,8 @@ Code Review 从 Pull Request 的基础分支或默认分支读取 `REVIEW.md`，
 * 降低某项发现的严重程度
 * 排除路径、文件或问题类别
 * 限制 nit 评论数量
+
+请将排除项和 Nit 上限写在 `REVIEW.md` 或与其同级的文件中，而不是写在[被包含的 skill](#include-a-skill-file) 中。
 
 #### 哪些设置算作分支保护
 

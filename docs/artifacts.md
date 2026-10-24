@@ -340,9 +340,7 @@ Claude 创建一个 Claude Slides 工件并给您链接。在桌面浏览器中�
 
 Claude Docs 作为 claude.ai [连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)而不是命令到达 Claude Code。连接后，`/mcp` 将其列为 `claude.ai Claude Docs`。针对供其他人使用的文档的请求随后转到 Claude Docs 而不是工件页面：规范、提案或您在会话中完成的计划的写入。Claude 在草拟文档时给您文档的链接。
 
-属于代码库的文档（例如 README）保持为文件。要为 Claude 否则会放在 Claude Docs 中的内容获取文件，请命名格式，例如 `.docx` 或存储库中的 Markdown 文件。
-
-要关闭连接器，请将 `claude.ai Claude Docs` 添加到 `deniedMcpServers` 或使用 `/mcp` 切换，两者都在[禁用 claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#disable-claude-ai-connectors)中描述。
+属于代码库的文档（例如 README）保持为文件。要为 Claude 否则会放在 Claude Docs 中的内容获取文件，请命名格式，例如 `.docx` 或仓库中的 Markdown 文件。要仅关闭 `claude.ai Claude Docs` 连接器，请参阅[禁用 claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#disable-claude-ai-connectors)。
 
 ## 页面约束
 

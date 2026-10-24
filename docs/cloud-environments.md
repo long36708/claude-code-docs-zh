@@ -109,7 +109,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 #### 添加机密
 
-机密需要逐个添加，添加后无法编辑。要更改机密的主机或值，请将其删除后重新添加。
+机密需要逐个添加。要更改机密的主机或值，请将其删除后重新添加。
 
 要向[共享环境](#organization-shared-environments)添加机密，请从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面打开该环境进行编辑，然后在其 **Network secrets** 部分从步骤 2 继续。如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，请在您自己的环境中执行步骤 1，然后[填写简化表单](#add-a-secret-without-the-role)。
 
@@ -119,7 +119,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 **2. 添加机密**
 
-选择 **Add secret** 并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Secret type**，即 **Bearer**，并填写以下字段：
+选择 **Add secret**（在管理设置中标记为 **Add**）并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Secret type**，即 **Bearer**，并填写以下字段：
 
 * **Name**：机密的标签，例如 `Internal billing API`
 * **Allowed websites**：API 的主机，例如 `api.example.com`。前导 `*.` 匹配所有子域
@@ -443,11 +443,12 @@ apt update && apt install -y shellcheck
 
 ### 脚本要求
 
-设置脚本有三个需要考虑的约束：
+设置脚本有四个需要考虑的约束：
 
 * **以零退出**：如果脚本以非零状态结束，会话将无法启动。在非关键命令后附加 `|| true`，以便间歇性安装失败不会阻止会话。
 * **在五分钟内完成**：将脚本的总运行时间保持在大约五分钟以内，以便[环境缓存](#environment-caching)可以建立。当设置耗时超过五分钟时，环境不会被缓存。使用 `&` 和 `wait` 并行运行独立的安装，并将任何无法容纳的单个下载移至 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks)，在后台启动它。如果新会话在设置期间停滞或失败，请参阅[新会话在设置期间挂起或超时](https://code.claude.com/docs/zh-CN/web-quickstart.md#new-sessions-hang-or-time-out-during-setup)。
 * **安装需要网络访问**：包安装需要连接到注册表。默认的 **Trusted** 级别涵盖[常见包注册表](#default-allowed-domains)，包括 npm、PyPI、RubyGems 和 crates.io；使用 **None** 网络访问时，安装会失败。
+* **环境的变量尚未设置**：脚本在会话设置环境的[环境变量](#set-environment-variables)之前运行。请在脚本本身中设置脚本所需的任何值。
 
 ### 环境缓存
 

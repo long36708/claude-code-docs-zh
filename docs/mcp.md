@@ -1332,7 +1332,7 @@ claude mcp list
 
 来自 claude.ai 的服务器会出现在列表中，并带有指示符显示它们来自 claude.ai。
 
-Anthropic 本身也提供一些 connectors，无需您或管理员添加。在 [Claude Docs](https://code.claude.com/docs/zh-CN/artifacts.md#write-a-document-with-claude-docs) 可用的账户上，`/mcp` 列出 `claude.ai Claude Docs`，无需设置，当您要求创建供他人使用的文档时，Claude 会使用它。要关闭它，请将 `"claude.ai Claude Docs"` 的 `serverName` 条目添加到 `deniedMcpServers`，或使用 `/mcp` 切换，两者都在 [禁用 claude.ai connectors](#disable-claude-ai-connectors) 中描述。
+Anthropic 本身也提供一些 connectors，无需您或管理员添加。在 [Claude Docs](https://code.claude.com/docs/zh-CN/artifacts.md#write-a-document-with-claude-docs) 可用的账户上，`/mcp` 列出 `claude.ai Claude Docs`，无需设置，当您要求创建供他人使用的文档时，Claude 会使用它。要仅关闭此 connector，请参阅[禁用 claude.ai connectors](#disable-claude-ai-connectors)。
 
 当您的组织在 claude.ai 中管理其身份验证时，Claude Code 在 `/mcp` 和 [`/plugin`](https://code.claude.com/docs/zh-CN/plugins/install) 管理器中将 connector 标记为 `managed`。Managed 状态不会改变 Claude Code 连接到 connector 的方式或应用您组织的 [工具控制](#organization-controls-on-connector-tools)。
 

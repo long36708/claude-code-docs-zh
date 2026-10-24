@@ -324,7 +324,7 @@
 }
 ```
 
-诸如 `"claude-opus-5"` 之类的模型 ID 条目也会允许在其基础上扩展的后续版本，例如 Opus 5.5。要阻止其中某个版本，请使用 [`deniedModels`](#deniedmodels)。要让每个模型 ID 条目只允许其指定的版本，请使用 [`availableModelsMatch`](#availablemodelsmatch)。请参阅[限制模型选择](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)。
+诸如 `"claude-opus-5"` 之类的模型 ID 条目也会允许在其基础上扩展的后续版本，例如 Opus 5.5。要阻止其中某个版本，请使用 [`deniedModels`](#deniedmodels)。要让每个模型 ID 条目只允许其指定的版本，请使用 [`availableModelsMatch`](#availablemodelsmatch)。请参阅[限制模型选择](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)。有关第三方提供商 ID，请参阅[为第三方部署固定模型](https://code.claude.com/docs/zh-CN/model-config.md#pin-models-for-third-party-deployments)。
 
 ### `availableModelsMatch`
 
@@ -333,7 +333,7 @@
 * **作用域**：[`Managed`](#scopes)。Claude Code 会忽略用户、项目和本地设置以及 `--settings` 中的此键，并给出警告
 * **类型**：字符串，可选值之一：
   * `"prefix"`：模型 ID 条目允许其对应版本以及在其基础上再扩展一个段的任何模型 ID
-  * `"exact"`：模型 ID 条目只允许其指定的版本（包括该版本带日期的 ID），因此 `"claude-opus-5"` 允许 Opus 5 但不允许 `claude-opus-5-5`。诸如 `"opus"` 之类的系列别名仍允许整个系列，而 `best`、`opusplan` 和 `default` 条目会被忽略
+  * `"exact"`：模型 ID 条目只允许其指定的版本，因此 `"claude-opus-5"` 允许 Opus 5 但不允许 `claude-opus-5-5`。诸如 `"claude-opus-4-5"` 之类的条目还会允许其带日期的 Anthropic 模型 ID `claude-opus-4-5-20251101`。诸如 `"opus"` 之类的系列别名仍允许整个系列，而 `best`、`opusplan` 和 `default` 条目会被忽略
 * **默认值**：`"prefix"`
 
 此示例允许 Opus 5 和 Sonnet 5，但不允许两者的任何后续版本：
@@ -1371,12 +1371,40 @@ Claude Code 在操作系统沙箱边界强制执行这些列表，因此它们�
 
 Claude Code 会去除目录路径末尾的斜杠，因此 `~/.aws` 和 `~/.aws/` 匹配同一目录。在 v2.1.224 之前，Claude Code 会将末尾斜杠原样传递给沙箱，对于带末尾斜杠写法的 `denyRead` 或 `denyWrite` 条目，Claude 仍可能读取或写入其下的路径。
 
-Claude Code 还会去除末尾的 `/**`，因此 `~/build/**` 和 `~/build` 覆盖同一目录。`*` 等通配符是否有效取决于条目所在的列表以及平台：
+##### 通配符在沙箱路径中的适用位置
 
-* **`allowWrite` 和 `denyWrite`**：在 macOS 上，通配符有效。在 Linux 和 WSL2 上，沙箱挂载的是具体路径，因此去除末尾 `/**` 后仍包含 `*`、`?` 或 `[` 的条目会被 Claude Code 跳过，该条目不起作用。Claude Code 会将您的 `Edit` 权限规则中的路径添加到这些列表中，因此同样的限制也适用于它们，`/sandbox` 的 **Config** 选项卡会对包含通配符的 `Edit` 和 `Read` 权限规则发出警告。
-* **`denyRead` 和 `allowRead`**：通配符在所有平台上都有效。在 Linux 和 WSL2 上，Claude Code 会将读取条目展开为其匹配的具体路径，而对写入列表不会这样做。
+通配符 `*`、`?` 和 `**` 在 macOS 上适用于全部四个 `sandbox.filesystem` 路径列表，在 Linux 和 WSL2 上则适用的位置较少：
 
-花括号在名称中按普通字符匹配，因此 `~/data/{keys,tokens}` 覆盖的是字面名为 `{keys,tokens}` 的目录，而不是两个备选项。要覆盖 `~/data/keys` 和 `~/data/tokens`，请将它们分别添加为单独的条目。
+| `sandbox.filesystem` 列表 | 在 Linux 和 WSL2 上有效的写法 | 在 Linux 和 WSL2 上无效的示例 | 替代写法 |
+| :- | :- | :- | :- |
+| `denyRead`、`allowRead` | 末尾的 `/**` 有效，因此 `~/build/**` 与 `~/build` 覆盖同一目录。其他任何通配符只有出现在条目[完整路径](#sandbox-path-prefixes)的第一个目录名之后才有效。 | `denyRead` 中的 `/**/*.pem` 不覆盖任何内容，因此不会阻止任何读取 | `/srv/**/*.pem`，每个顶层目录各写一个条目 |
+| `allowWrite`、`denyWrite` | 只有末尾的 `/**` 有效，因此 `~/build/**` 与 `~/build` 覆盖同一目录 | `./src/*` 只覆盖 `src` 中本身名为 `*` 的文件或目录，若不存在则不覆盖任何内容 | `./src`，它覆盖 `src` 下的所有内容，或者每个路径各写一个条目 |
+
+在 `~/keys/*.pem` 中，通配符位于第一个目录名之后；对于主目录为 `/home/alice` 的情况，第一个目录名是 `home`：
+
+```text theme={null}
+~/keys/*.pem              the entry
+/home/alice/keys/*.pem    its full path
+ ^^^^                     the first directory name, home
+```
+
+在 Linux 和 WSL2 上，会话中 `/sandbox` 的 **Config** 选项卡会针对包含末尾 `/**` 以外通配符的 `Edit` 权限规则发出警告。这些通配符对沙箱化命令无效。请将该规则应覆盖的每个路径或包含这些路径的目录添加到 `allowWrite`（对于允许规则）或 `denyWrite`（对于拒绝规则）。
+
+##### 包含方括号、花括号或圆括号的目录名
+
+要允许或阻止名称中包含方括号的目录，请按原样写出名称，例如 `./app/[slug]`。在该条目中，`[slug]` 是目录的真实名称，包括方括号：
+
+```text theme={null}
+app/
+└── [slug]/
+    └── page.tsx
+```
+
+该条目覆盖该目录下的所有内容，因此不要添加末尾的 `/**`。在 macOS 以及 Linux 和 WSL2 上，`app/[slug]` 目录必须在沙箱化命令启动时已存在。
+
+* **方括号，例如 `[slug]`**：在 macOS 的所有列表中，以及 Linux 和 WSL2 的 `denyRead` 和 `allowRead` 中，`./app/[slug]` 中的方括号同时也是一个模式。该条目还会匹配 `app` 下以 `slug` 中某一个字符命名的任何路径，例如 `app/s` 或 `app/g`。如果该条目位于 `allowRead` 中，或在 macOS 上位于 `allowWrite` 中，沙箱化命令也可以访问这些路径。请重命名任何不应被它们访问的路径。
+* **方括号，例如 `[user-id]` 或 `[post-id]`，其中连字符左侧字符的排序位于右侧字符之后**：在所有平台的所有列表中，`./app/[user-id]` 只覆盖恰好具有该名称的目录。在 v2.1.304 之前，当 `denyRead` 或 `allowRead` 包含此类条目时，Linux 和 WSL2 上的沙箱化命令无法启动。
+* **花括号和圆括号**：它们是普通字符，因此 `~/data/{keys,tokens}` 覆盖的是一个名为 `{keys,tokens}` 的目录，而不是两个备选项。要覆盖 `~/data/keys` 和 `~/data/tokens`，请将它们分别添加为单独的条目。
 
 ### `sandbox.filesystem.allowWrite`
 
@@ -3520,7 +3548,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 其影响范围取决于哪个文件包含此键：
 
 * **在托管设置中**：Claude Code 会禁用所有已配置的 hook（包括托管 hook），但会继续运行 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 在进程内注册的 hook
-* **在 Agent SDK 的 `managedSettings` 选项中**：Claude Code 会将此键视为 `allowManagedHooksOnly: true`，因此有关哪些 hook 会停止，请参阅 [`allowManagedHooksOnly` 下会运行哪些内容](#what-runs-under-allowmanagedhooksonly)。在管理员部署了托管设置的机器上，除非管理员[允许嵌入宿主添加策略](https://code.claude.com/docs/zh-CN/managed-settings.md#let-an-embedding-host-add-policy)，否则 Claude Code 会忽略此键。需要 Claude Code v2.1.309 或更高版本。
+* **在 Agent SDK 的 `managedSettings` 选项中**：在管理员部署了托管设置的机器上，除非管理员[允许嵌入宿主添加策略](https://code.claude.com/docs/zh-CN/managed-settings.md#let-an-embedding-host-add-policy)，否则 Claude Code 会忽略此键。在此键生效的情况下，用户、项目、本地和插件 hook 会停止，SDK 的 `settings` 选项中的 hook 也会停止。管理员的托管 hook、[强制启用](#enabledplugins)的插件中的 hook 以及您的 [SDK hook 回调](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)会继续运行。需要 Claude Code v2.1.309 或更高版本。
 * **在任何其他设置文件中**：Claude Code 会禁用用户、项目、本地和插件 hook；托管 hook、Agent SDK hook 以及在托管 [`enabledPlugins`](#enabledplugins) 中强制启用的插件中的 hook 会继续运行
 
 此键还会停止 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md)，即其代码会注册 hook 的插件：
@@ -3841,7 +3869,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 * **类型**：Boolean
   * `true`：Claude Code 永远不会运行市场声明的命令，不会安装或更新来自命令来源的插件，并停止加载已安装的此类插件
   * `false`：Claude Code 显式允许来自命令来源的插件
-* **默认值**：未设置，因此 Claude Code 遵循 [`allowManagedHooksOnly`](#allowmanagedhooksonly)：将 hook 执行限制为托管设置的组织也会禁用命令来源
+* **默认值**：未设置，因此 Claude Code 遵循 [`allowManagedHooksOnly`](#allowmanagedhooksonly)：将 hook 执行限制为托管设置的组织也会禁用命令来源。在 Agent SDK 的 `managedSettings` 选项中传入 [`disableAllHooks: true`](#disableallhooks) 的应用程序，其本身并不会禁用命令来源。
 
 ```json managed-settings.json theme={null}
 {

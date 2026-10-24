@@ -15,6 +15,10 @@ Desktop 应用的 **Scheduled tasks** 页面会同时列出本地定时任务和
 
 本页面涵盖本地定时任务；有关云端定时任务及其触发选项，请参阅[使用定时任务自动化工作](https://code.claude.com/docs/zh-CN/routines.md)。
 
+> [!NOTE]
+>
+> 如果您的应用以其[旧名称](https://code.claude.com/docs/zh-CN/routines.md#where-the-name-routines-still-appears)显示此功能，请在本页面提到 **Scheduled** 的地方点击 **Routines**，在提到 **New task** 的地方点击 **New routine**。
+
 ## 比较调度选项
 
 Claude Code 提供三种方式来安排定期或一次性工作：
@@ -45,11 +49,15 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 **1. 打开 Scheduled tasks 页面**
 
-在 [**Code** 选项卡](https://code.claude.com/docs/zh-CN/desktop.md)中，单击侧边栏中的 **Scheduled**，或侧边栏 **More** 菜单中的 **Scheduled**。
+在 [**Code** 选项卡](https://code.claude.com/docs/zh-CN/desktop.md)中，单击侧边栏中的 **Scheduled**，或侧边栏 **More** 菜单中的 **Scheduled**。如果侧边栏显示的是 **Routines** 而不是 **Scheduled**，请单击 **Routines**，然后单击 **New routine**，并继续参阅[整页表单](#full-page-form)。
 
 **2. 开始新任务**
 
-单击 **New task**。如果弹出包含 **Create with Claude** 和 **Set up manually** 的菜单，请选择 **Set up manually**。此时会打开 **New scheduled task** 对话框。如果 **Only on this computer** 位于对话框顶部，请在输入任何内容之前，转到[顶部带有 Only on this computer 的对话框](#dialog-with-only-on-this-computer-at-the-top)。
+单击 **New task** 以打开 **New scheduled task** 对话框。在继续之前，请检查是否出现以下界面：
+
+* 如果弹出包含 **Create with Claude** 和 **Set up manually** 的菜单，请选择 **Set up manually** 以打开该对话框。
+* 如果 **Only on this computer** 位于对话框顶部，请在输入任何内容之前，转到[顶部带有 Only on this computer 的对话框](#dialog-with-only-on-this-computer-at-the-top)。
+* 如果弹出包含 **Local** 和 **Cloud** 的菜单，或者打开的是整个页面而不是对话框，请转到[整页表单](#full-page-form)。
 
 **3. 为任务命名**
 
@@ -99,9 +107,20 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 单击 **Create**。随后将打开该任务的详情页面。
 
+### 整页表单
+
+如果弹出包含 **Local** 和 **Cloud** 的菜单，请选择 **Local**。此时会打开标题为 **New local routine** 或 **New local scheduled task** 的页面。请填写其中的字段：
+
+* **Name**：输入在您的所有任务中唯一的名称。
+* **Description**：输入描述。
+* **Instructions**：输入任务运行时 Claude 应该执行的操作。在同一输入框中，选择权限模式、模型以及任务运行所在的文件夹。
+* **Schedule**：选择一个[计划选项](#schedule-options)。
+
+如果 **Create** 不可用，请将鼠标悬停在其上方，查看表单还缺少哪些内容。单击 **Create**，随后将打开该任务的详情页面。
+
 ## 调度选项
 
-当您在 **Advanced settings** 下启用 **Only on this computer** 时，**Trigger** 卡片提供 Hourly、Daily、Weekdays 和 Weekly 选项。若要为此类任务使用 **Manual** 或 **Custom**，请在创建任务后打开其 [**Edit** 表单](#manage-scheduled-tasks)。该表单以及[顶部带有 **Only on this computer** 的对话框](#dialog-with-only-on-this-computer-at-the-top)提供以下六个选项：
+当您在 **Advanced settings** 下启用 **Only on this computer** 时，**Trigger** 卡片提供 Hourly、Daily、Weekdays 和 Weekly 选项。若要为此类任务使用 **Manual** 或 **Custom**，请在创建任务后打开其 [**Edit** 表单](#manage-scheduled-tasks)。该表单、[顶部带有 **Only on this computer** 的对话框](#dialog-with-only-on-this-computer-at-the-top)以及[整页表单](#full-page-form)提供以下六个选项：
 
 * **Hourly**：每小时运行一次
 * **Daily**：每天在您选择的本地时间运行

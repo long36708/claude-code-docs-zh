@@ -961,6 +961,8 @@ Error: Cannot find module '/path/to/project/.claude/hooks/check-command.js'
 blocking because Git Bash wasn't found, so only exit code 0 or 2 counts as this hook's verdict.
 ```
 
+如果错误中还包含 `PowerShell started no program`，请先参阅[针对仅由带引号字符串组成的 `command` 的修复方法](#powershell-started-no-program)，PowerShell 会打印这类 `command` 而不是运行它。
+
 在未安装 Git Bash 的情况下，该 hook 返回的 0 或 2 以外的任何退出码都算作[失败](#block-the-action-when-a-hook-fails)，即使它打印了不拒绝该调用的 JSON。要查明 hook 失败的原因，请检查[调试日志](#debug-hooks)。然后选择与您的 hook 匹配的修复方法：
 
 * **hook 失败时操作应继续进行**：为 hook 添加 [`"onFailure": "continue"`](#block-the-action-when-a-hook-fails)
@@ -970,6 +972,15 @@ blocking because Git Bash wasn't found, so only exit code 0 or 2 counts as this 
 * **必须在失败时阻止的 PowerShell 防护 hook**：如果未设置 `onFailure`，一旦安装了 Git for Windows 且 Claude Code 找到 Git Bash，它就不再阻止。添加 `"onFailure": "block"`，使失败或超时无论是否有 Git Bash 都会阻止调用。同时设置 `"shell": "powershell"`，使该 hook 此后继续在 PowerShell 中运行，而不是在 Git Bash 中运行
 
 在 v2.1.309 之前，该消息为 `blocking because Git Bash wasn't found and this hook doesn't set "shell" to "powershell", so only exit code 0 or 2 counts as its verdict.`
+
+#### PowerShell started no program
+
+出现此错误的 hook 在 PowerShell 中运行，而 PowerShell 会打印仅由带引号字符串组成的 `command`（例如 `"command": "\"C:\\Tools\\guard.exe\""`），而不是运行它。
+
+* **要打印文本（如 JSON）**：设置 `"shell": "powershell"`，hook 会以 0 退出
+* **要运行 `.ps1`、`.cmd` 或 `.bat` 文件，或路径中包含变量的 `.exe`**：设置 `"shell": "powershell"`，并在带引号的路径前加上 `&`。保持 `$HOME` 原样，并按照 [`check.ps1` 示例](#reference-scripts-by-path-in-powershell-hooks)书写 `$env:CLAUDE_PROJECT_DIR` 的方式书写环境变量
+* **要运行路径中不含 `$` 的单个 `.exe`**：从 `command` 中删除内层引号，然后应用[针对运行单个 `.exe` 的 hook 的修复方法](#failed-hooks-on-windows-without-git-bash)，如果程序不接受参数，则写入 `"args": []`
+* **要运行为 Bash 编写的脚本**：应用[针对为 Bash 编写的 hook 的修复方法](#failed-hooks-on-windows-without-git-bash)
 
 #### 每个事件的退出码 2 行为
 
@@ -4182,6 +4193,8 @@ Claude Code 在运行来自设置文件的任何 hook 之前会检查工作区�
   }
 }
 ```
+
+### 在 PowerShell hook 中按路径引用脚本
 
 要从 PowerShell shell 形式命令引用项目根目录，请写入 `${CLAUDE_PROJECT_DIR}` 或 `$env:CLAUDE_PROJECT_DIR`。Claude Code 会将 PowerShell shell 形式命令中的 `${CLAUDE_PROJECT_DIR}`、`${CLAUDE_PLUGIN_ROOT}` 和 `${CLAUDE_PLUGIN_DATA}` 占位符重写为 PowerShell 的 `${env:NAME}` 形式，无论 hook 是在 `settings.json`、插件还是 skill 中定义。PowerShell 随后在解析后从导出的环境中解析该值，因此占位符在双引号字符串内有效，但在单引号字符串内无效，PowerShell 在单引号字符串中永远不会展开变量。
 

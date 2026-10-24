@@ -30,7 +30,7 @@
 
 图中的两个 Claude Code 框是会话进程：一个运行器同时执行两个会话，达到其配置的容量。运行器一次为一个[所有者](#key-concepts)服务，并在声称其第一个会话时锁定到该所有者，因此检出的代码永远不会在所有者之间混合；[运行器生命周期](#runner-lifecycle)涵盖了这个规则。
 
-您可以自己启动运行器并保持它们运行，或运行[自动扩展编排器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，这是您托管的第二个进程，它在会话排队时启动运行器；每个运行器在其工作完成时自行退出。无论哪种方式，您都设置一次环境，它会出现在每个支持的表面上的选择器中。
+您可以自己启动运行器并保持它们运行，或运行[自动扩展编排器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，这是您托管的第二个进程，它在会话排队时启动运行器。无论哪种方式，您都只需设置一次环境，它会出现在每个支持的使用入口上的选择器中。
 
 ## 可用性和限制
 
@@ -122,7 +122,8 @@
 
 支持企业出站代理。运行器和可选的[自动扩展编排器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)遵守[网络配置](https://code.claude.com/docs/zh-CN/network-config.md)中描述的代理和 mTLS 环境变量，例如 `HTTPS_PROXY` 和 `NO_PROXY`；在每个进程的环境中设置它们。这些变量涵盖控制平面调用、编排器的 [SCM 连接器](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#scm-connector-flags) WebSocket 和 HTTPS 远程的内置克隆，会话从运行器继承它们。会话流使用 HTTPS 上的服务器发送事件，因此路径中的代理不能缓冲响应。
 
-如果您的代理还需要 `Proxy-Authorization` 标头，运行器可以将其添加到它打开到代理的每个连接；请参阅[向出站代理进行身份验证](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#authenticate-to-an-egress-proxy)。
+* **代理身份验证**：如果您的代理还需要 `Proxy-Authorization` 标头，运行器可以将其添加到它打开到代理的每个连接；请参阅[向出站代理进行身份验证](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#authenticate-to-an-egress-proxy)。
+* **长连接响应**：如果运行器拾取了会话，但 Claude 始终没有回答其第一条消息，原因可能在于您的代理。请参阅[会话已被拾取，但 Claude 始终没有回答其第一条消息](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#when-a-sessions-first-message-is-never-answered)。
 
 ## 保留在您的基础设施上的内容
 

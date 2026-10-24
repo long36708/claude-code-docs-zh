@@ -537,7 +537,7 @@ AWS 请求携带基于请求内容的 SigV4 签名，因此请同时对 `AWS_ACC
 
 * **在您的工作目录及其上级目录中**：`.claude` 设置文件，`.claude/skills`、`.claude/agents`、`.claude/commands` 和 `.claude/hooks` 目录，`.mcp.json`，以及 Claude Code 自行运行的文件，例如 `.claude/workflows` 和 `.claude/scheduled_tasks.json`
 * **仅在您的工作目录中**：shell 启动文件（例如 `.bashrc` 和 `.zshrc`）、`.gitconfig`、`.vscode` 和 `.idea` 目录，以及 `.git` 内的 `hooks` 和 `config`
-* **会将您的工作目录变成裸 git 仓库的文件**：顶层的 `HEAD`、`objects` 和 `refs`，以及当旁边存在 `HEAD` 时，该处已有的 `config` 和 `hooks` 条目。即使没有 `HEAD`，名为 `config` 的文件也会被拒绝。在 Linux 和 WSL2 上，如果沙箱化命令运行期间出现顶层 `HEAD` 文件或 `objects`、`refs` 目录，沙箱会将其删除
+* **会将您的工作目录变成裸 git 仓库的文件**：顶层的 `HEAD`、`objects` 和 `refs`，以及当旁边存在 `HEAD` 文件或符号链接时，该处已有的 `config` 和 `hooks` 条目。即使没有 `HEAD`，名为 `config` 的文件也会被拒绝。[之后出现的 `HEAD`、`objects` 或 `refs` 可能会被删除](#when-the-sandbox-deletes-head-objects-or-refs)。在 Linux 和 WSL2 上，沙箱化命令可以在其不存在的位置创建一个。
 * **在 `~/.claude` 或 `CLAUDE_CONFIG_DIR` 所指向的目录中**：其中的大部分内容，以及 `~/.claude.json` 和 `.credentials.json` 凭据存储
 
 如果会话期间在受保护设置文件的路径上出现符号链接，沙箱还会从下一条命令开始拒绝写入该符号链接所指向的文件。
@@ -551,6 +551,12 @@ AWS 请求携带基于请求内容的 SigV4 签名，因此请同时对 `AWS_ACC
 要查看其中大部分路径在您的计算机上解析后的结果，请运行 `/sandbox` 并打开 **Config** 标签页，其中会在 **Denied within allowed** 下列出这些路径，并与您自己的 `denyWrite` 条目混合显示。
 
 如果 `git merge` 或 `git checkout` 在这些路径之一上因 `unable to unlink old` 而失败，请参阅[git 命令因 `unable to unlink old` 而失败](#a-git-command-fails-with-unable-to-unlink-old)。
+
+#### 沙箱何时删除 `HEAD`、`objects` 或 `refs`
+
+沙箱化命令结束后，工作目录中较新的顶层 `HEAD`、`objects` 或 `refs` 条目会被删除，除非它是包含内容的文件夹。"较新"是指沙箱上次构建其配置时该条目并不存在：即会话开始时，或在 [`/cd`](https://code.claude.com/docs/zh-CN/commands) 等更改之后。
+
+如果沙箱上次构建其配置时存在 `HEAD` 文件或符号链接，那么较新的包含内容的 `objects` 或 `refs` 文件夹也会连同其内容一起被删除。要保留某个文件夹，请参阅[命令执行后名为 `objects` 或 `refs` 的文件夹消失](#a-folder-named-objects-or-refs-disappears-after-a-command)。
 
 #### 经过符号链接的被拒绝路径
 
@@ -880,6 +886,12 @@ Claude Code 会忽略在其他任何位置设置的端口。在 v2.1.285 之前�
 * 根本位于沙箱允许命令写入的目录之外
 
 失败后，Claude 可能会[提议在沙箱外重新运行该命令](#the-unsandboxed-retry-escape-hatch)。批准该重试，或在另一个终端中自行运行该 git 命令。如果您已将 `allowUnsandboxedCommands` 设置为 `false`，Claude 无法提供重试，因此请自行运行该命令。
+
+### 名为 `objects` 或 `refs` 的文件夹在命令执行后消失
+
+会话期间出现的顶层 `objects` 或 `refs` 文件夹可能会[在沙箱化命令结束后被删除](#when-the-sandbox-deletes-head-objects-or-refs)。无论它是由命令、Claude 还是您创建的，都是如此。要保留某个文件夹，请在其中放入一些内容。如果会话期间顶层曾存在 `HEAD` 文件或符号链接，请将其移走，然后重新启动在该位置打开的每个 Claude Code 会话。
+
+在 v2.1.307 之前，即使文件夹中有内容且不存在 `HEAD`，该文件夹也会被删除。如果您使用的是更早的版本，请[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)。
 
 ### Bubblewrap 在容器内启动失败
 

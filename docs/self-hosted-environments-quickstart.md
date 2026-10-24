@@ -121,6 +121,8 @@ claude self-hosted-runner --environment-secret-file '/etc/claude/environment-sec
 * **会话因 git 错误而无法启动**：如果错误包含 git 的 `could not read Username for`，后跟您的 git 主机的 URL，则说明运行器没有该主机的 HTTPS 凭据。
   * **提供 HTTPS 凭据**：请参阅[配置 git](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#configure-git)
   * **改为通过 SSH 克隆**：如果运行器主机已有 SSH 密钥，请参阅[为私有网络重写 git URL](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#rewrite-git-urls-for-private-networks)
+  * **完成任一修复后**：再次启动运行器并观察失败的会话，而不是启动新会话。如果该会话已失败多次，请等待几分钟，直到运行器记录 `Picked up session`。
+  * **改为使用其他仓库**：[归档](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#archive-sessions)或[删除](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#delete-sessions)失败的会话，然后再次启动运行器并启动新会话。否则，运行器可能会拾取失败的会话而不是新会话。
 
 ### 如果运行器退出
 

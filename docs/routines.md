@@ -25,7 +25,7 @@
 * 仅有 API 触发器的任务会在您调用其端点时运行。
 * 仅有 GitHub 触发器的任务会在发生匹配的仓库事件时运行。
 
-定时任务适用于 Pro、Max、Team 和 Enterprise 套餐。您可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理它们，也可以在 CLI 中使用 `/schedule`。旧名称 Routine [仍会出现](#where-the-name-routines-still-appears)在网址、CLI 和 API 中。
+定时任务适用于 Pro、Max、Team 和 Enterprise 套餐。您可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理它们，也可以在 CLI 中使用 `/schedule`。旧名称 Routine [仍会出现](#where-the-name-routines-still-appears)。
 
 > [!NOTE]
 >
@@ -66,7 +66,12 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 **1. 打开创建对话框**
 
-访问 [claude.ai/code/routines](https://claude.ai/code/routines) 并点击 **New task**。如果先打开了一个菜单，请选择 **Set up manually**。随后会打开 **New scheduled task** 对话框。该菜单中的另一个选项 **Create with Claude** 允许您在聊天中描述任务，由 Claude 为您创建。
+访问 [claude.ai/code/routines](https://claude.ai/code/routines) 并点击 **New task**，以打开 **New scheduled task** 对话框。继续之前，请留意以下界面：
+
+* 如果按钮显示为 **New routine** 而不是 **New task**，请点击 **New routine**，并继续按照[完整页面表单](#full-page-form)进行操作。
+* 在 Desktop 应用中，如果打开了包含 **Local** 和 **Cloud** 的菜单，请转到[完整页面表单](#full-page-form)。
+* 如果打开了包含 **Create with Claude** 和 **Set up manually** 的菜单，请选择 **Set up manually** 以打开对话框。**Create with Claude** 则允许您在聊天中描述任务，由 Claude 为您创建。
+* 如果打开的是完整页面而不是对话框，请转到[完整页面表单](#full-page-form)。
 
 如果对话框打开时已显示 **Repositories** 和 **Environment**，请参阅[该对话框有何不同](#dialog-with-repositories-and-environment-in-the-main-view)。否则，此对话框也可用于创建 claude.ai 聊天的定时任务。要将您的任务设为对话框中所称的 Claude Code 任务，请在后续步骤中选择一个仓库，或添加 GitHub 事件触发器或 API 触发器。此类任务会在云端会话中运行 Claude Code。
 
@@ -126,6 +131,17 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 请在添加 GitHub 事件触发器之前选择仓库，因为在选择仓库之前该触发器不可用。
 
+#### 完整页面表单
+
+在 Desktop 应用中，如果打开了包含 **Local** 和 **Cloud** 的菜单，请选择 **Cloud**。随后会打开一个标题为 **New routine** 或 **New scheduled task** 的页面。填写其中的字段：
+
+* **Name**：输入一个名称。
+* **Instructions**：输入提示词。在同一个输入框中，选择模型、仓库和环境。有关每一项所控制的内容，请参阅[从 Web 创建](#create-from-the-web)下的步骤。
+* **Select a trigger**：选择 **Schedule**、**GitHub event** 或 **API**。对于计划，请参阅[添加计划触发器](#add-a-schedule-trigger)。对于 [GitHub 事件](#add-a-github-trigger)，请选择一个仓库。对于 [API 触发器](#add-an-api-trigger)，请从点击 **Create** 后打开的 **API token** 对话框中复制令牌，因为它只显示一次。要组合多个触发器，请点击 **Add another trigger**。
+* **Connectors**：默认包含您所有已连接的连接器，因此请移除任务不需要的连接器。
+
+如果 **Create** 不可用，请将鼠标悬停在其上，查看表单还需要填写哪些内容。点击 **Create**，任务的详情页随即打开。
+
 ### 从 CLI 创建
 
 在任意会话中运行 `/schedule`，即可通过对话方式创建定时任务。您也可以直接传入描述，例如定期任务 `/schedule daily PR review at 9am` 或一次性任务 `/schedule clean up feature flag in one week`。Claude 会逐步收集与 Web 对话框相同的信息，然后将任务保存到您的账户。该命令也可以通过别名 `/routines` 使用。
@@ -152,6 +168,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 * **整点运行**：如果您将运行安排在整点（例如 9:00），它可能会晚几分钟才开始。要在接近计划时间时开始，请选择整点后几分钟，例如 9:07。
 * **自定义间隔**：如果预设中没有您需要的节奏，请先创建任务，然后在其[编辑对话框](#edit-and-control-scheduled-tasks)中选择 **Custom**。接着输入 cron 表达式，例如 `0 */2 * * *` 表示每两小时运行一次。要在 CLI 中设置，请运行 [`/schedule update`](#manage-scheduled-tasks-from-the-cli)。运行频率高于每小时一次的表达式会被拒绝。
 * **时区**：选择预设频率时，请以您的本地时区输入时间。
+* **Cron 表达式时区**：当表达式仅由五个字段组成时，请以 UTC 填写小时，因此 `0 9 * * 1-5` 会在工作日的 UTC 上午 9:00 运行。如果该字段以 `CRON_TZ=` 前缀开头，请保留该前缀并以其指定的时区填写小时，或者删除该前缀并以 UTC 填写小时。
 
 #### 安排一次性运行
 
@@ -455,6 +472,7 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 
 定时任务以前称为 Routine，以下位置仍保留这一旧名称。它们指的都是同一项功能：
 
+* **应用**：在某些账户中，侧边栏条目和页面标题显示为 **Routines**，按钮显示为 **New routine**，其他标签也使用 routine 一词。如需在此处创建任务，请参阅[完整页面表单](#full-page-form)。
 * **网址**：`claude.ai/code/routines`
 * **CLI**：`/schedule` 的别名 `/routines`、该命令的描述，以及 Claude 在设置任务时的回复
 * **API**：`/fire` 端点路径、其 beta 标头、其响应中的 `type`、`<routine-fire-payload>` 标签，以及 [Trigger a routine through the API](https://platform.claude.com/docs/en/api/claude-code/routines-fire) 参考页面

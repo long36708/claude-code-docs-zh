@@ -155,25 +155,35 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 在提供快速模式之前，Claude Code 会通过直接请求 `api.anthropic.com` 来检查您的组织的快速模式可用性。该检查不遵循 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential)，因此在通过 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)路由 Claude 流量并阻止直接出站到 `api.anthropic.com` 的网络上，即使推理请求有效，检查也会失败。该检查确实使用配置的 [HTTP 代理](https://code.claude.com/docs/zh-CN/network-config.md#proxy-configuration)，因此网络块仅在 `api.anthropic.com` 即使通过代理也无法到达的地方才会导致检查失败。
 
-当检查失败时，`/fast` 报告"Fast mode unavailable due to network connectivity issues"，请求以标准速度运行，即使您的组织已启用快速模式。过去成功的检查会从其缓存结果继续工作，因此被阻止的检查主要影响新安装。
+如果您的组织已启用快速模式，而 `/fast` 显示的结果与之不符，请在以下情况中查找它显示的消息。
 
-当检查到达 `api.anthropic.com` 但呈现 Anthropic 拒绝的凭证时，同样的连接消息也会出现在开放网络上。其解析的密钥是网关颁发的凭证的会话，保存在 [`ANTHROPIC_API_KEY`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential) 中或由 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 生成，会使用该密钥发送检查，被拒绝的请求会被报告为连接失败。
+#### Fast mode unavailable due to network connectivity issues
 
-要恢复快速模式，在网络块是原因的地方允许直接出站到 `api.anthropic.com`，或设置与检查失败方式相匹配的任何变量：
+可用性检查失败（例如因为您的网络阻止了 `api.anthropic.com`），请求以标准速度运行。过去成功的检查会从其缓存结果继续工作，因此被阻止的检查主要影响新安装。
 
-* `CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS=1` 将失败的检查视为可用，并仍然遵守"disabled by your organization"响应。当您的网络拒绝连接或 Anthropic 拒绝网关凭证时使用它；允许列表对凭证情况没有帮助，因为没有任何东西被阻止。
-* `CLAUDE_CODE_SKIP_FAST_MODE_ORG_CHECK=1` 完全跳过检查。当您的网络拦截请求而不是拒绝它时使用它。
+要恢复快速模式，请在允许列表中允许直接出站到 `api.anthropic.com`，或设置 `CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS=1`，它会将失败的检查视为可用，并仍然遵守"disabled by your organization"响应。
 
-两个网关配置报告"Fast mode has been disabled by your organization"而不是连接消息，即使您的组织已启用快速模式：
+#### Fast mode is currently unavailable
 
-* 仅使用 [`ANTHROPIC_AUTH_TOKEN`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential) 进行身份验证的会话会跳过检查：没有 claude.ai 登录或 Anthropic API 密钥，也没有缓存的成功检查，Claude Code 会将快速模式视为由您的组织禁用，而不发送请求。
-* 拦截检查并用自己的页面回答的代理，例如返回 HTTP 200 阻止页面的 TLS 检查代理，被读取为响应说您的组织已禁用快速模式。
+在网关后面时，请检查是否存在以下配置，在这些配置中 Claude Code 不会发送可用性检查，且没有缓存之前的成功检查：
 
-在这两种情况下，设置 `CLAUDE_CODE_SKIP_FAST_MODE_ORG_CHECK=1` 来恢复快速模式。`CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS` 不适用于任何一种情况，因为它仅绕过失败的检查，而这两种情况都会产生禁用响应。允许列表对承载者令牌情况没有帮助，它从不发送请求。
+* 您将 `ANTHROPIC_BASE_URL` 指向您的网关，并将 [`ANTHROPIC_API_KEY`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential) 设置为网关颁发的、不符合 Anthropic API 密钥格式的密钥。Claude Code 不会将此类密钥发送到 `api.anthropic.com`。
+* 您设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](https://code.claude.com/docs/zh-CN/env-vars)，因此 Claude Code 会跳过该检查。
 
-这些变量仅影响客户端检查。当您的组织禁用了快速模式时，API 会拒绝快速模式请求，无论是否设置了这些变量。来自 API 的拒绝即使设置了跳过变量也会成立。Claude Code 会以标准速度重试被拒绝的请求，关闭快速模式，并且 `/fast` 报告您的组织已禁用快速模式。
+要在上述任一配置中恢复快速模式，请设置 `CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS=1`。
 
-设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 也会抑制可用性检查。没有之前缓存的成功检查，`/fast` 报告"Fast mode is currently unavailable"；两个跳过变量在该配置中也会恢复快速模式。
+#### Fast mode has been disabled by your organization
+
+在网关后面时，即使您的组织已启用快速模式，在以下任一配置中您也可能看到此消息：
+
+* 您仅使用 [`ANTHROPIC_AUTH_TOKEN`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential) 进行身份验证，没有 claude.ai 登录、没有 API 密钥，也没有缓存的成功检查。此时 Claude Code 会将快速模式视为由您的组织禁用，而不发送请求。
+* 代理拦截了检查并用自己的页面进行回答，例如返回 HTTP 200 阻止页面的 TLS 检查代理。Claude Code 会将该页面读取为表明您的组织已禁用快速模式的响应。
+
+在这两种情况下，请设置 `CLAUDE_CODE_SKIP_FAST_MODE_ORG_CHECK=1`（它会完全跳过检查），而不是 `CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS`（它不适用于其中任何一种情况）。
+
+> [!NOTE]
+>
+> 跳过变量仅更改客户端检查。当您的组织禁用了快速模式时，无论是否设置了这些变量，API 都会拒绝快速模式请求。随后 Claude Code 会以标准速度重试该请求，关闭快速模式，并且 `/fast` 报告您的组织已禁用快速模式。
 
 ### 要求每个会话选择加入
 

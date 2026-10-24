@@ -36,6 +36,7 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 | `CLAUDE_CODE_REMOTE_SESSION_UUID` | 相同的会话 ID，采用规范 UUID 形式，供以 UUID 作为键的系统使用。 |
 | `CLAUDE_CODE_REMOTE_SLACK_THREAD_URL` | 对于属于某个 Slack 线程的 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话，为该线程的链接。其他会话未设置此变量，线程会话也可能未设置。 |
 | `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` | 对于属于某个 Slack 线程的 Claude Tag 会话，为该线程的 Slack 时间戳，例如 `1700000000.000100`。可能未设置，也可能在 `CLAUDE_CODE_REMOTE_SLACK_THREAD_URL` 未设置时被设置，因此请分别检查每个变量。 |
+| `CLAUDE_CODE_REMOTE_SLACK_CHANNEL_ID` | 对于 Claude Tag 会话，为该会话所服务的、或其线程所在的 Slack 频道或私信的 ID，例如 `C0123ABCDE`。Slack 时间戳只在单个频道内标识一条消息，因此请将此 ID 与 `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` 一起记录。其他会话未设置此变量，Claude Tag 会话也可能未设置。 |
 | `CLAUDE_SESSION_INGRESS_TOKEN_FILE` | 绝对路径，指向保存当前会话 JWT 的按会话文件，在令牌刷新时保持最新。Shell 子进程在下载用户添加到会话的附件时从中读取其 `Authorization` 标头。`exec` 自动保留该变量；重建子进程环境的包装脚本必须携带该变量，否则附件下载会无声地停止工作。 |
 | `CLAUDE_CONFIG_DIR` | 按会话 Claude 配置目录，在会话启动时从运行器在启动时捕获的运行器主机配置快照中写入；请参阅 [Permissions and tool approval](#permissions-and-tool-approval)。此处的写入仅限于此会话。除非您使用 [`--remove-session-state`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，否则会话结束后该目录仍会保留在 `<base-dir>/_sessions/` 下；请参阅 [Reuse a pre-warmed checkout](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#reuse-a-pre-warmed-checkout)。 |
 | `CLAUDE_CODE_REMOTE_MCP_CONFIG` | 指向 `CLAUDE_CONFIG_DIR` 中某个文件的路径，该文件保存 Anthropic 控制平面为此会话交付的 MCP 服务器定义。如果您的包装脚本重建子进程的环境，请携带此变量。如果缺少此变量，当控制平面更新交付的服务器时，子进程会关闭您的包装脚本通过 [`--mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 添加但不在更新中的任何 stdio、HTTP 或 SSE 服务器。需要 Claude Code v2.1.299 或更高版本。 |
@@ -44,11 +45,11 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 
 包装脚本还继承子进程的其余托管环境，包括任何服务器提供的环境变量。`exec` 自动传播所有内容；如果您的包装脚本以其他方式生成子进程，请转发完整环境。
 
-`CLAUDE_CODE_REMOTE_SLACK_THREAD_URL` 和 `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` 会传递到您的包装脚本或 [`command` hook](#command)。它们也会传递到会话运行的内容，例如 shell 命令、git 钩子和 Claude Code hook。`checkout`、`post-session` 和 `spawn-runner` hook 不会接收它们。
+您可以在包装脚本或 [`command` hook](#command) 中读取 `CLAUDE_CODE_REMOTE_SLACK_*` 变量，也可以在会话运行的内容中读取它们，例如 shell 命令、git 钩子和 Claude Code hook。`checkout`、`post-session` 和 `spawn-runner` hook 不会接收它们。
 
 ### 为可能未设置的变量提供默认值
 
-`CCR_SESSION_ACCOUNT_EMAIL`、`CLAUDE_RUNNER_CLIENT_PLATFORM`、`CLAUDE_CODE_REMOTE_SLACK_THREAD_URL` 和 `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` 都可能未设置。如果您的脚本使用 `set -u`，Bash 在展开其中未设置的变量时会以 `unbound variable` 停止，因此请使用默认值展开它们，例如 `"${CCR_SESSION_ACCOUNT_EMAIL:-}"`。
+如果您的脚本使用 `set -u`，请使用默认值展开 `CCR_SESSION_ACCOUNT_EMAIL`、`CLAUDE_RUNNER_CLIENT_PLATFORM`、`CLAUDE_CODE_REMOTE_SLACK_THREAD_URL`、`CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` 和 `CLAUDE_CODE_REMOTE_SLACK_CHANNEL_ID`，例如 `"${CCR_SESSION_ACCOUNT_EMAIL:-}"`。它们都可能未设置，而在 `set -u` 下，Bash 在展开未设置的变量时会以 `unbound variable` 停止。
 
 ### 为脚本展开的参数和变量加引号
 
@@ -142,7 +143,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 | 变量 | 描述 |
 | :- | :- |
 | `CLAUDE_RUNNER_REPO_URL` | 要克隆的存储库 URL，在应用任何 `--git-host-rewrite` 和 `--git-ssh-rewrite` 之后 |
-| `CLAUDE_RUNNER_REPO_REF` | 要检出的修订版本，即会话所请求的形式：分支、标签、提交 SHA，或完整引用名称（例如 `refs/pull/<number>/head`）。为空表示仓库的默认分支。 |
+| `CLAUDE_RUNNER_REPO_REF` | 要检出的修订版本，即会话所请求的形式：分支、标签、提交 SHA，或完整引用名称（例如 `refs/heads/<branch>` 或 `refs/pull/<number>/head`）。为空表示仓库的默认分支。 |
 | `CLAUDE_RUNNER_CHECKOUT_PATH` | 必须留下工作树的绝对路径 |
 | `CLAUDE_RUNNER_SESSION_ID` | 会话 ID，采用标记的 `session_...` 形式，用于日志记录和关联 |
 | `CLAUDE_RUNNER_SESSION_UUID` | 相同的会话 ID，采用规范 UUID 形式 |
@@ -323,12 +324,12 @@ claude self-hosted-runner orchestrator \
 
 无论您的 hook 在哪个平台上配置资源，约定都有四条规则：
 
-1. **在 `CLAUDE_RUNNER_ORDER_ID` 上保持幂等。** 相同请求的重新交付必须最多生成一个运行器。从订单 ID 派生确定性资源名称，让您的平台拒绝重复。不要改为以 `CLAUDE_RUNNER_SESSION_ID` 作为键。会话的每次重新请求都携带相同的会话 ID 和新的订单 ID，因此按会话 ID 命名或去重的工作负载只会创建一次，之后该会话再也不会创建。
+1. **在 `CLAUDE_RUNNER_ORDER_ID` 上保持幂等。** 相同请求的重新交付必须最多生成一个运行器。从订单 ID 派生确定性资源名称，让您的平台拒绝重复。不要改为以 `CLAUDE_RUNNER_SESSION_ID` 作为键。会话的每次重新请求都携带相同的会话 ID 和新的订单 ID。按会话 ID 命名或去重的工作负载，在第一个工作负载仍存在期间不会再次创建。
 2. **不要重试工作负载。** 一个订单 ID 意味着最多创建一个工作负载。如果运行器从不注册，Anthropic 在 `--expected-spawn-seconds` 后使用新订单 ID 重新请求。
 3. **使用退出码约定。** 以与结果相匹配的状态退出：
 
    * **退出 0**：已提交。
-   * **退出 1，或在 `--hook-timeout` 结束时仍在运行**：可重试失败。会话退避并被重新提供。
+   * **退出 1，或在 `--hook-timeout` 结束时仍在运行**：可重试失败。会话退避并被重新提供。连续 10 次请求失败后，会话会像退出 2 或更高时一样被阻止。
    * **退出 2 或更高**：不可重试失败。会话被阻止再次生成，直到用户向其发送新消息，或 [Owner](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments) 在环境的 **Activity** 标签中对其选择 **Retry**。
 
    会话退避期间，它在 **Activity** 标签中显示为 **Queued**，且没有生成错误，因此请在编排器的日志中查看 hook 的输出。会话被阻止后，会显示为 **Failed**。展开该会话即可查看生成错误，该错误取自 hook 的 stderr 的最后 512 个字符。请将可操作的错误写入 stderr，并且不要写入任何密钥。在 shell hook 中，请[保持暂时性失败可重试](#keep-transient-failures-retryable-in-a-shell-hook)。
@@ -338,7 +339,41 @@ claude self-hosted-runner orchestrator \
 
 hook 写入 stdout 或 stderr 的所有内容都出现在编排器的日志中，凭据会自动脱敏。如果会话保持排队，检查编排器的 `/healthz` 正文以获取队列计数，然后在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments) 上打开您的环境的 **Activity** 标签：在那里展开失败的会话以获取其生成错误，并选择 **Retry** 以重新请求它。
 
-如果会话保持排队，且 **Activity** 标签中没有生成错误，可能意味着 hook 以会话 ID 作为键。要确认这一点，请检查您的平台是否存在该会话第一次生成请求对应的工作负载，而重新请求却没有对应的工作负载。如果是这样，请改为以 `CLAUDE_RUNNER_ORDER_ID` 作为工作负载的键。
+#### 修复保持 Queued 或显示 Failed 的重新打开的会话
+
+如果重新打开的会话保持 **Queued** 或显示 **Failed**，或者您的 hook 在处理这些会话时超时，原因之一可能是 hook 按会话 ID 命名或去重工作负载。当会话的运行器退出后，其用户又向该会话发送消息时，该会话即被重新打开。例如，假设某个 hook 按如下方式构建每个工作负载的名称：
+
+```bash theme={null}
+name="runner-${CLAUDE_RUNNER_SESSION_ID}"
+```
+
+1. 在会话的第一次生成请求时，hook 以该名称创建工作负载，并启动一个运行器
+2. 运行器退出（例如在 [`--release-idle-session-min`](#make-on-demand-runners-exit-when-idle) 之后），用户之后重新打开该会话
+3. 会话的下一次生成请求携带相同的会话 ID 和新的订单 ID，因此 hook 构建出相同的名称
+4. 如果您的平台仍保留着第一次请求的工作负载（因为在其运行器退出时没有任何机制[移除](#make-on-demand-runners-exit-when-idle)它），hook 不会创建新的工作负载，也不会启动运行器
+5. 该会话之后的每次生成请求都以同样的方式结束
+
+打开您自己的 hook，查看它在工作负载已存在时（例如您的平台拒绝重复名称时）的行为。在第一列中找到该行为，即可了解重新打开的会话在 **Activity** 标签中显示什么：
+
+| 当工作负载已存在时，您的 hook | **Queued** 变为 **Failed** | 生成错误 |
+| :- | :- | :- |
+| 以 0 退出且未创建任何内容 | 连续 10 次此类请求之后 | `runner did not register within ETA after max attempts` |
+| 以 1 退出 | 连续 10 次此类请求之后 | 您的 hook 的 stderr 末尾内容；如果它未向 stderr 写入任何内容，则为 `exit 1` |
+| 以 2 或更高退出 | 立即 | 您的 hook 的 stderr 末尾内容；如果它未向 stderr 写入任何内容，则为 `exit` 加上退出码，例如 `exit 2` |
+| 一直等待到 `--hook-timeout` 结束 | 连续 10 次此类请求之后 | 您的 hook 的 stderr 末尾内容；如果它未向 stderr 写入任何内容，则为 `spawn-runner hook timed out after 60000ms` |
+
+在最后一行的生成错误中，`60000` 是以毫秒为单位的 `--hook-timeout`。当 hook 一直等待到 `--hook-timeout` 结束时，编排器的日志中还会出现一行 `timed out after`。
+
+要修复 hook，请按照 [hook 约定的第 1 条规则](#the-spawn-runner-hook)的要求，以 `CLAUDE_RUNNER_ORDER_ID` 构建每个名称或键。在该示例中，名称变为：
+
+```bash theme={null}
+name="runner-${CLAUDE_RUNNER_ORDER_ID}"
+```
+
+如果您的 hook 会等待，还请让它在提交工作负载后立即退出，因为等待中的 hook 会[延迟其编排器的后续 hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#orchestrator-cli-flags)。修改 hook 后，请在 **Activity** 标签中检查每个卡住会话的状态：
+
+* **Queued**：会话会自动获得下一次生成请求
+* **Failed**：以 Owner 身份对其选择 **Retry**，或让其用户向其发送新消息
 
 #### 让按需运行器在空闲时退出
 
@@ -759,6 +794,27 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 除 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话外，自托管环境中的会话默认关闭[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)。对于需要跨会话保留的指令，请使用运行器镜像或仓库中的 `CLAUDE.md`。
 
 运行器对主机 `~/.claude/` 的快照不包含 `projects/` 目录。自动记忆的默认存储位置就在该目录下。如果您将记忆文件放在那里，运行器不会将它们填充到会话中，它们也不会启用自动记忆。
+
+### 在获取服务器托管设置失败时阻止会话启动
+
+要在获取[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)失败时阻止执行该获取的会话启动，请在运行器镜像中的 [`managed-settings.json`](https://code.claude.com/docs/zh-CN/settings#where-settings-live) 里将 [`forceRemoteSettingsRefresh`](https://code.claude.com/docs/zh-CN/settings-reference#forceremotesettingsrefresh) 设置为 `true`。如果 Anthropic 的 API 回复您的组织没有服务器托管设置，这也算作获取成功。
+
+在添加该键之前，请检查该环境是否运行 Claude Tag 频道会话，或是否将模型请求发送到 Bedrock 或 Agent Platform：
+
+* **Claude Tag 频道会话**：对于 Owner [将 Claude Tag 频道路由到](https://code.claude.com/docs/zh-CN/cloud-environments.md#set-the-environment-a-claude-tag-channel-uses)的环境中的运行器，请不要设置该键。Anthropic 的 API 会拒绝这些会话获取服务器托管设置的请求，因此设置该键后它们将无法启动。请将它们的规则放在运行器镜像的 `managed-settings.json` 中，[它们仍会读取该文件](https://code.claude.com/docs/zh-CN/managed-settings.md#where-and-when-a-policy-applies)。要为其他会话使用该键，请在单独的环境中运行这些会话。
+* **Bedrock 或 Agent Platform**：使用这些提供商的会话[不会获取服务器托管设置](#what-differs-from-sessions-on-the-anthropic-api)，因此无论是否设置该键，它们都会启动。请改为通过同一个 `managed-settings.json` 强制执行您的规则。
+
+以下 `managed-settings.json` 设置了该键：
+
+```json managed-settings.json theme={null}
+{
+  "forceRemoteSettingsRefresh": true
+}
+```
+
+即使您也在 claude.ai 管理控制台中设置了该键，也请在该文件中设置它。新会话没有您的服务器托管设置的[缓存副本](https://code.claude.com/docs/zh-CN/server-managed-settings.md#fetch-and-caching-behavior)，因此如果您只在控制台中设置该键，会话尚不具备该设置。如果此时获取失败，会话将在没有这些设置的情况下运行，直到后续获取成功为止。
+
+要确认会话未启动是因为设置获取失败，请查看会话中或运行器日志中 [Claude Code 的最后输出](#keep-stdin-and-file-descriptor-3-attached)。其中会包含 `Your organization requires remote managed settings to load, but they could not be loaded.`
 
 ### 包含多个仓库的会话中的仓库设置
 

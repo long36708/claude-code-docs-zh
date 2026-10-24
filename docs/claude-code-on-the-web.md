@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> 云端会话在 Pro、Max 和 Team 计划上可用，以及拥有高级席位或 Chat + Claude Code 席位的 Enterprise 用户。如果您的 Enterprise 组织通过[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，您还需要一个包含云端会话权限的角色。如果缺少该权限，请让 Owner 检查您的角色，并在 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles) 中添加。
+> 云端会话在 Pro、Max 和 Team 计划上可用，以及拥有高级席位或 Chat + Claude Code 席位的 Enterprise 用户。如果[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，您还需要一个包含云端会话权限的角色，才能从浏览器、应用或终端在 Anthropic 的基础设施上启动会话。请让 Owner 在 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles) 中将该权限添加到您的某个角色。
 
 云端会话是在云基础设施上运行的 Claude Code 会话，而不是在您的机器上运行。默认情况下，它在 Anthropic 管理的基础设施上运行，或在路由到您的组织的[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)时在那里运行。即使关闭笔记本电脑后，会话也会继续运行，您可以从任何设备检查或控制它。它会与您的其他 Claude 和 Claude Code 使用量一起计入您计划的用量限制，云端 VM 不会单独收费。
 

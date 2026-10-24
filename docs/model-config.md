@@ -349,7 +349,7 @@ Claude Code 代表您进行的模型更改以相同的方式检查：
 
 当 Claude Code 应用的托管设置定义 `availableModels` 时，该列表单独适用，除了[提供自己的主机平台](https://code.claude.com/docs/zh-CN/settings.md#exceptions-to-managed-settings-precedence)：用户、项目或本地设置中的条目无法扩展它，Claude Code 也永远不会跨托管源合并 `availableModels`；[Claude Code 如何组合托管源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说明了哪个源的列表适用。否则，来自用户、项目和本地设置的列表像其他数组设置一样[连接和去重](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)。在 Claude Code v2.1.175 之前，来自较低优先级作用域的条目合并到托管列表中，而不是被它替换。
 
-在有效列表中，命名系列中特定模型的条目（无论是版本前缀还是完整模型 ID）禁用该系列的通配符条目：`["sonnet", "claude-sonnet-4-5"]` 仅允许 Sonnet 4.5 版本，而不是每个 Sonnet 模型。
+在有效列表中，命名系列中特定模型的条目（无论是版本前缀还是完整模型 ID）禁用该系列的通配符条目。例如，使用 `["sonnet", "claude-sonnet-4-5"]` 时，用户只能选择 `claude-sonnet-4-5` [匹配](#restrict-model-selection)的模型 ID，而不是每个 Sonnet 模型。
 
 ### Mantle 模型 ID
 
@@ -946,7 +946,12 @@ export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-6[1m]'
 >
 > 通过 [MDM 或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms) 提供的 `availableModels` 允许列表在使用第三方提供商时仍然适用；[服务器托管设置不会在那里提供](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)。
 >
-> 过滤与模型别名（如 `opus`）、版本前缀（如 `claude-opus-4-8`）或完整提供商形式的模型 ID 匹配。提供商特定的前缀（如 `us.anthropic.`）不会被删除，因此要允许特定模型，请列出其完整提供商形式 ID，或通过 [`modelOverrides`](#override-model-ids-per-version) 映射它。对于固定模型，该 ID 是您在其 `ANTHROPIC_DEFAULT_*_MODEL` 变量中设置的值。任何 `[1m]` 后缀在匹配前都会从允许列表条目和请求的模型中删除。
+> 过滤与模型别名（如 `opus`）、版本前缀（如 `claude-opus-4-8`）或完整提供商形式的模型 ID 匹配。提供商特定的前缀（如 `us.anthropic.`）不会被删除，因此要允许特定模型，请通过 [`modelOverrides`](#override-model-ids-per-version) 映射它，或列出其完整提供商形式 ID：
+>
+> * **Google Cloud's Agent Platform**：当 Claude Code 请求的 ID 带有 `@` 日期（如 `claude-sonnet-4-5@20250929`）时，请在允许列表条目中包含该日期。单独的 `claude-sonnet-4-5` 在任一 [`availableModelsMatch`](https://code.claude.com/docs/zh-CN/settings-reference#availablemodelsmatch) 设置下都不会匹配该 ID。
+> * **固定模型**：列出您在该模型的 `ANTHROPIC_DEFAULT_*_MODEL` 变量中设置的值
+>
+> 任何 `[1m]` 后缀在匹配前都会从允许列表条目和请求的模型中删除。
 
 ### 自定义固定模型显示和功能
 

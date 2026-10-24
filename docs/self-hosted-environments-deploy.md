@@ -313,6 +313,26 @@ gh api repos/{owner}/{repo}/pulls -f title='Fix' -f head='my-branch' -f base='ma
 
 对于使用 Anthropic 管理的 git 的每个会话，运行器还记录一行 `[runner:warn]` 开始于 `governed git: GIT_SSL_CAINFO is set` 或 `governed git: GIT_SSL_NO_VERIFY is set`。该行说明运行器对其自己的 git、会话内的 git 和您的生命周期钩子对该变量所做的操作。它以您是否需要更改任何内容结束。
 
+### 将 github.com 仓库添加到 Claude Tag 频道会话
+
+如果 Claude 无法将 github.com 仓库添加到 Claude Tag 频道会话，请确保该频道有权访问该仓库，即使您的运行器可以克隆它也是如此。该访问权限来自 GitHub 上和您的 Claude 组织中的设置，而不是来自运行器的 git 凭据。
+
+**1. 安装 Claude GitHub App**
+
+在拥有该仓库的 GitHub 组织或账户上安装 [Claude GitHub App](https://github.com/apps/claude)，并在安装中包含该仓库。
+
+**2. 关联 GitHub 组织或账户**
+
+在 [**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) 中，将该组织或账户关联到您的 Claude 组织。同时也是该 GitHub 组织所有者的 Claude 组织 Owner 可以关联它。请参阅[关联您的 GitHub 组织](https://claude.com/docs/claude-tag/admins/configure-github#link-your-github-organization)。
+
+**3. 授予仓库访问权限**
+
+在 [Claude Tag 管理设置](https://claude.ai/admin-settings/claude-tag)中，将该仓库授予该频道，或授予包含该频道的更大作用域：其 Slack 工作区或整个 Slack。拥有 Owner 角色或 Claude Tag Admin 权限的人员可以授予它。如果频道管理员的 GitHub 账户是该仓库的管理员，频道管理员也可以将其添加到自己的频道。请参阅[授予仓库访问权限](https://claude.com/docs/claude-tag/admins/configure-github#grant-repository-access)。
+
+然后在该频道中开始一个新会话串，并在您的第一条消息中[指明该仓库](https://claude.com/docs/claude-tag/admins/configure-github#how-granted-repositories-reach-a-session)。
+
+如果 Claude 仍然无法添加该仓库，请参阅[如果 Claude 无法访问仓库](https://claude.com/docs/claude-tag/admins/configure-github#if-claude-can%E2%80%99t-reach-a-repository)，了解在何处检查 GitHub 关联和仓库授权。
+
 ### 为专用网络重写 git URL
 
 仓库 URL 从控制平面作为 HTTPS 到达，带有您的 git 主机的主机名；对于 GitHub Enterprise，这是您在 claude.ai 上为 [GitHub Enterprise 集成](https://code.claude.com/docs/zh-CN/github-enterprise-server.md)配置的主机名。两个可重复的标志在克隆之前重写这些 URL：
@@ -376,10 +396,89 @@ resources:
 
 构建和测试通常是会话负载中最大和最可变的部分，因此运行您的存储库的代表性构建，测量其峰值 CPU 和内存，并提高任何在该峰值之上没有为 Claude Code 进程留出空间的起始值。
 
-运行器使用 `--capacity` 来限制它一次运行多少个会话。它不在它们之间分割 CPU 或内存，所以运行器上的会话共享容器的 CPU 和内存。要限制一个会话的份额，从您的[包装脚本](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#wrapper-scripts)应用限制。因此，给一个容器什么取决于它一次服务多少个会话：
+运行器使用 `--capacity` 来限制它一次运行多少个会话。它不在它们之间分割 CPU 或内存，所以运行器上的会话共享容器的 CPU 和内存。为防止一个会话的内存使用导致其他会话结束，请每个运行器运行一个会话，并为其设置[独立的内存限制](#give-each-session-its-own-memory-limit)。
 
 * **每个运行器一个会话**：给每个容器一个会话的值。在 `--capacity 1` 使用此大小，[加固部分](#harden-your-deployment)推荐，以及对于[按需运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，您在您的 [`spawn-runner` 钩子](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#the-spawn-runner-hook)提交的工作负载上设置值，例如 Kubernetes Job 的 pod 模板。
 * **每个运行器多个会话**：在 `--capacity` 高于 1 时，将一个会话的值乘以容量，因为最多那么多会话可以在容器中同时运行。[Kubernetes](#kubernetes) 和 [Docker Compose](#docker-compose) 配方以 `--capacity 4` 运行，没有 CPU 或内存限制，因此添加为您运行的容量调整大小的限制。
+* **一台主机上多个运行器容器**：按各运行器容量之和调整主机大小，因为每个运行器只将自己的会话计入 `--capacity`：
+
+  * **内存**：将一个会话的内存乘以该总和，再加上主机自身进程使用的内存
+  * **CPU**：将一个会话的 CPU 请求乘以该总和。若要让所有会话同时突发，则改为乘以其 CPU 限制。
+
+  为每个运行器提供独立的容器。在每个容器中使用[相同的 `--base-dir` 路径](#keep-the-base-directory-and-capacity-identical-across-runners)，并将其放在没有其他运行器容器挂载的存储上，以便每个运行器拥有[自己的工作目录](#harden-your-deployment)。
+
+### 为每个会话设置独立的内存限制
+
+为防止内存耗尽时一个会话导致其他会话结束，请让每个运行器以 `--capacity 1` 运行，并置于其独立的内存限制之下，该限制设为一个会话的内存：
+
+* **在容器中**：每个容器运行一个运行器，并设置容器的内存限制，例如 Kubernetes 上的 `limits.memory`、Docker 上的 `--memory` 或 Compose 文件中的 `mem_limit`。保持各容器限制之和低于主机内存，因为当主机本身内存耗尽时，内核可能会杀死主机上任何位置的进程。
+* **在不使用容器的 systemd 下**：在运行器的 unit 上设置 `MemoryMax`，并且每台主机运行一个运行器，因为在同一文件系统上[使用相同 `--base-dir`](#keep-the-base-directory-and-capacity-identical-across-runners) 的运行器会共享克隆在那里的仓库。例如，在 `--capacity 1` 且没有 `checkout` 钩子的情况下，它们在同一仓库上的会话可能同时在同一个检出中工作。若要在一台主机上运行多个运行器，请为每个运行器提供一个容器。
+
+当容器或 unit 达到其内存限制时，内核只杀死其内部的进程。如果您将 `--capacity` 设置为大于 1，会话将共享同一个限制。当它们达到该限制时，内核不会按会话选择要杀死的进程，因此一个会话的内存使用可能导致其他会话结束。
+
+在 Kubernetes 上，kubelet 的 `singleProcessOOMKill` 设置无论取哪个值都无法将会话隔离开。您也无法在[包装脚本](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#wrapper-scripts)中使用内存 `ulimit` 来限制一个会话的总内存。内核会对每个进程单独应用诸如 `ulimit -v` 之类的值。
+
+### 在进程和线程限制下留出余量
+
+要确定进程和线程限制的大小，请测量一个会话所需的数量，并乘以共享该限制的会话数。当这些会话达到限制时，内核会拒绝创建新的进程和线程，因此其中任何会话中的命令、构建和测试都可能失败。被拒绝的调用返回 `EAGAIN`，其标准消息为 `Resource temporarily unavailable`。
+
+假设一个会话的进程和线程峰值为 300 个，且有四个会话共享该限制。它们总共需要 1,200 个，若将限制设为 2,400，则可为需要两倍数量的构建留出余量。
+
+#### 各限制的设置位置
+
+此表中的每个限制都同时计算线程和进程，`pids.max` 是保存 cgroup 限制的文件：
+
+| 限制 | 设置位置 | 共享范围 |
+| :- | :- | :- |
+| Kubernetes 上的 `pids.max` | 运行运行器的节点的 kubelet 配置中的 `podPidsLimit`。无法在 Pod spec 中设置。 | 一个 Pod 的所有容器 |
+| Docker 上的 `pids.max` | `--pids-limit`，或 Compose 文件中的 `pids_limit` | 一个容器 |
+| systemd 下的 `pids.max` | 运行器 unit 上的 `TasksMax` | 一个 unit |
+| `ulimit -u` | 启动运行器的 shell 或服务 | 主机上以运行器用户 ID 运行的所有内容。对 root 不强制执行。 |
+
+当您未设置 `TasksMax` 时，systemd 会应用 `DefaultTasksMax`，其默认值为 `kernel.pid_max`、`kernel.threads-max` 和根 cgroup 的 `pids.max` 中最小值的 15%。
+
+#### 测量一个会话的峰值
+
+要获取您自己运行器的数值，请在其主机上测量一个会话，在 Kubernetes 上主机即为节点：
+
+**1. 单独启动一个运行器**
+
+以 `--capacity 1` 启动一个运行器，其容器或 systemd unit 中没有其他任何内容，并且在其主机和环境中都是唯一的：
+
+* **其主机**：使用不运行其他运行器的主机。这样您可以在下一步中找出它的进程。
+* **其环境**：使其成为该环境中唯一的运行器，例如在您[为测试创建](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-manually)的环境中。会话是路由到环境而不是路由到运行器的。
+
+暂时不要启动会话，因为在构建开始之前您需要下一步中的目录。
+
+**2. 找到运行器的 cgroup 目录**
+
+在主机上（而不是在容器内）找到运行器的进程 ID，例如使用 `ps`。读取该 ID 对应的 `/proc/<pid>/cgroup`：
+
+* **某行包含 `:pids:`**：主机使用 cgroup v1，目录为 `/sys/fs/cgroup/pids` 后接 `:pids:` 之后的文本
+* **唯一的一行以 `0::` 开头**：主机使用 cgroup v2，目录为 `/sys/fs/cgroup` 后接 `0::` 之后的文本
+
+**3. 运行代表性构建并记录峰值**
+
+让一个会话运行一次代表性构建，并从运行器的 cgroup 目录中获取峰值：
+
+* **目录中有 `pids.peak`**：在构建完成后读取该文件
+* **目录中没有 `pids.peak`**：在构建运行期间每秒读取一次 `pids.current`，并保留最高值。两次读取之间出现的峰值无法被观测到，因此请将该值视为偏低的估计。
+
+**4. 乘以共享该限制的会话数**
+
+* **一个运行器的 Pod、容器或 unit**：将峰值乘以运行器的 `--capacity`
+* **多个运行器共享的限制**：将峰值乘以它们容量之和
+
+然后加上共享该限制的其他任何内容的峰值，例如 Pod 中的另一个容器。
+
+**5. 将限制设置为高于结果**
+
+限制越高，为更重的构建留出的余量越多；限制越低，越能更早地阻止 fork 炸弹。
+
+#### 检查 `pids.max` 限制
+
+* **检查是否达到了 `pids.max`**：在主机的内核日志中（例如使用 `dmesg`）搜索包含 `cgroup: fork rejected by pids controller in` 和某个 cgroup 路径的行。内核仅在第一次拒绝该 cgroup 中的进程或线程时记录此日志，因此请搜索整个日志。
+* **查看生效的限制**：读取运行器 cgroup 目录及其上每一级目录中的 `pids.max`。最小值即为生效的限制，`max` 表示该级别没有限制。
 
 ## Kubernetes
 
@@ -577,7 +676,7 @@ secrets:
 
 重用路径的保证和不保证的内容：
 
-* **任何克隆形状都可以工作**：路径处的完整、浅层或单分支克隆按原样使用。运行器在获取到现有克隆时永远不会传递 `--depth`，因此完整的预热保持其完整历史，浅层克隆保持浅层。`CLAUDE_RUNNER_FETCH_DEPTH`（`full`、`0` 或一个数字；默认 50）仅控制当尚不存在克隆时运行器进行的冷克隆。
+* **克隆深度**：构建克隆时不要使用 `--depth`，是否使用 `--single-branch` 均可。当运行器获取到带有 `origin` 远程的克隆中时，永远不会传递 `--depth`，即使您设置了 [`CLAUDE_RUNNER_FETCH_DEPTH`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#environment-variable-only-settings) 也是如此。使用完整克隆时，每个会话只下载克隆所缺少的提交。使用浅层克隆时，如果会话所在的分支是在克隆最旧的提交之前分叉的，该会话会下载该分支的完整历史。
 * **跟踪的更改重置，未跟踪的文件保留**：在 `--capacity 1` 时，每个会话从硬重置开始，该重置会清除前一个会话的跟踪修改，但运行器永远不会运行 `git clean`，因此来自锁定所有者早期会话的未跟踪文件保留在树中。
 * **按会话目录也会保留**：在检出旁边，运行器在 `<base-dir>/_sessions/` 下为其运行的每个会话创建按会话条目。会话的 Claude 配置目录保存对话记录的本地副本。在其旁边是会话的上传文件，当会话有任何文件时。会话目录也在那里：它保存会话运行时的任何按会话工作树和 `checkout` hook 检出，以及 Claude 在其中写入的任何其他内容。
 
@@ -586,6 +685,12 @@ secrets:
 * **使用 git 代理时，重置变成检出**：使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 时，运行器在每个会话前清理克隆的 `.git/`。它保留对象存储和浅层状态，并删除索引。没有索引，每个会话都以完整的工作树检出开始，而不是近乎瞬间的重置。运行器仍然获取到现有克隆中，而不是再次克隆仓库。代理下不支持子模块预热。
 * **使用 git 代理时，`reftable` 预热会丢失其引用**：当运行器在每个会话前清理 `.git/` 时，它会保留 `.git/refs/` 并删除 `.git/reftable/` 目录。以 git 的 `reftable` 引用格式预热的克隆会因此丢失其引用，因此请改为以 git 的 `files` 引用格式预热克隆。
 * **长克隆不需要解决方法**：运行器使用 120 秒无进度监视器和 30 分钟硬上限来限制每个 git 操作，而不是平面超时，因此保持报告进度的缓慢冷克隆会完成。
+
+### 确认运行器使用您的克隆
+
+要确认运行器使用您的克隆，请使用 [`--log-level debug`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，并在该仓库上启动一个会话。运行器会记录 `Prefetched repo found at` 以及克隆的路径。如果它记录的是 `No prefetched repo, fresh init at`，则说明它在该行中的路径处未找到可用的克隆。请检查您的克隆是否位于该路径、是否归运行器的用户所有，以及是否具有名为 `origin` 的远程。
+
+如果运行器找到了您的克隆，但会话启动仍然缓慢，请检查该克隆是否为浅层克隆。
 
 ## 固定版本
 
@@ -608,6 +713,23 @@ secrets:
 
 * **固定队列**：运行静态运行器副本集并在每个运行器提供的 [Prometheus 指标](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics)上扩展
 * **按需运行器**：运行 `claude self-hosted-runner orchestrator` 子命令，它轮询 Anthropic 以查找没有可用运行器排队的会话，并调用您的 `spawn-runner` 钩子为每个会话启动一个。请参阅[按需运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)。
+
+### 在固定队列上释放空闲会话
+
+如果在每个运行器都在线的情况下，固定队列上的会话仍然处于排队状态，原因可能是空闲会话。默认情况下，会话在其轮次结束后仍会保留其槽位，其运行器也会保持锁定到该会话的[所有者](https://code.claude.com/docs/zh-CN/self-hosted-environments#key-concepts)。如果您团队的[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)每次运行都会启动一个新会话，其空闲会话可能会占满所有槽位。
+
+要进行检查，请读取每个运行器 [Prometheus 指标](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics)中的 `claude_code_self_hosted_runner_session_idle_seconds`。运行器持有的每个会话都有自己的序列：会话繁忙时为 `0`，否则为自其进入空闲以来的秒数。选择您允许的空闲时间：要长于人们在任务中途的停顿时间，并且足够短，使每次运行都能在定时任务的下一次运行开始之前被释放。将序列与该时间进行比较。
+
+* **序列高于该时间，例如 30 分钟对应 `1800`**：空闲会话占用了这些槽位，因此请设置 `--release-idle-session-min`
+* **所有序列都低于该时间**：没有会话空闲那么久。请添加运行器，或针对[从不进入空闲的会话](#some-sessions-don’t-count-as-idle)设置 [`--kill-session-after-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)。
+* **没有序列的运行器**：没有会话持有它。请参阅[故障排除](#troubleshooting)下的**会话保持排队**。
+* **指标无响应的运行器**：其进程可能已退出。请参阅[运行器退出时](#when-the-runner-exits)下的**看起来健康的环境**。
+
+要释放空闲会话，请使用 [`--release-idle-session-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 及以分钟为单位的该时间启动每个运行器，例如 `--release-idle-session-min 30`。之后，运行器会释放任何空闲达到该时长的会话，无论该会话是由定时任务还是由人启动的。
+
+* **未推送的工作**：被释放的会话会在收到下一条消息时恢复，但不包含其尚未推送的工作。要保留其提交，请参阅[恢复的会话会丢失未推送的工作](#additional-limitations)。
+* **运行器退出**：释放其最后一个会话的运行器会开始[正常退出](#when-the-runner-exits)。请让您的监管程序在全新的文件系统上重新启动它，如[加固您的部署](#harden-your-deployment)所述。
+* **从不进入空闲的会话**：还需设置 [`--kill-session-after-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，因为[某些会话不计为空闲](#some-sessions-don’t-count-as-idle)
 
 ## 已知问题和限制
 
@@ -642,9 +764,10 @@ Anthropic 从其自己的基础设施而不是从您的运行器调用连接器�
 ### 其他限制
 
 * **恢复的会话丢失未推送的工作**：新的运行器会从其起始分支重新克隆仓库，因此会话未推送的工作会丢失。
-  * **要保留已提交的工作**：在环境中的每个运行器上设置 [`--push-outcome-on-release`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，因为未设置该标志的运行器会从起始分支恢复会话。设置了该标志的运行器会在释放之前尽力推送会话的结果分支，恢复的会话将从这些提交开始。推送使用运行器主机自身的 git 凭据，在使用 [Anthropic 托管 git](#use-the-anthropic-git-proxy) 的运行器上也是如此。未提交的更改仍会丢失。
+  * **要保留已提交的工作**：在环境中的每个运行器上设置 [`--push-outcome-on-release`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，因为未设置该标志的运行器会从起始分支恢复会话。设置了该标志的运行器会在释放之前尽力推送会话的结果分支，恢复的会话将从这些提交开始。推送使用运行器主机自身的 git 凭据，在使用 [Anthropic 托管 git](#use-the-anthropic-git-proxy) 的运行器上也是如此。
   * **使用 `checkout` hook 时**：通过 [`checkout` 生命周期 hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 检出的仓库不会被推送。请改为从 [`post-session` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#post-session) 对其进行快照。
   * **启用该标志之前**：限制谁可以推送到源远程上的 `claude/*` refs。在恢复时，运行器会获取之前推送的分支，而不验证是谁推送的。
+  * **未提交的更改仍会丢失**：要提示 Claude 在完成响应时提交并推送，请参阅[提示会话推送其工作](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#prompt-sessions-to-push-their-work)
 * **会话中途添加的仓库可能无法克隆**：Claude 通过 HTTPS 使用 `git clone` 克隆它。在未启用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 的运行器上，如果主机上没有任何内容能够读取该仓库，克隆会因 git 身份验证错误而失败。如有可能，请在创建会话时选择会话所需的每个仓库。
 * **某些连接器不出现在自托管会话中**：您在 claude.ai Settings 中尚未连接的连接器不在自托管会话中列出，会话不会提示您连接它。首先在 Settings 中连接它，然后启动新会话。向已运行的会话添加连接器也不会使其工具对 Claude 可用；启动新会话以获取新添加的连接器。
 * **当有人归档或删除会话，或从会话菜单中释放其运行器时**：不要依赖 [`--push-outcome-on-release`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 的推送。要在这些情况下保存提交，请从 [`post-session` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#post-session) 将 `HEAD` 推送到一个救援分支。如果您以那里的示例为基础，请让它在没有任何未提交内容时也执行推送，因为该示例仅在创建快照提交之后才推送。
@@ -684,6 +807,7 @@ claude self-hosted-runner doctor
 * **会话在拾取后立即失败**：在 claude.ai/code 中打开会话以查看错误。如果错误显示 git 无法进行身份验证，请检查运行器的 [git 凭据](#configure-git)。对于使用 `--use-anthropic-git-proxy` 启动的运行器，请参阅 [当会话在使用 git 代理的运行器上无法启动时](#when-anthropic-doesnt-serve-a-session)。
 
   不可写的基础目录会在启动时停止运行器，而不是使会话失败。请参阅此列表中的 **运行器在启动时退出，显示 `cannot create or write to base directory`** 条目。
+* **会话已被拾取，但 Claude 从未回答其第一条消息**：如果您的运行器通过代理访问 `api.anthropic.com`，请将代理配置为在会话的 `/worker/events/stream` 响应到达时立即将其传递出去。提高运行器的超时时间没有帮助。要在运行器的日志中确认原因，请参阅 [会话已被拾取，但 Claude 从未回答其第一条消息](#when-a-sessions-first-message-is-never-answered)。
 * **在设置了 `--use-anthropic-git-proxy` 的运行器上会话无法启动**：在运行器的日志中查找 `access denied by the git proxy`，或查找指明包含 `/git_proxy/` 的 `api.anthropic.com` 地址的 git 错误。要判断 Anthropic 是否提供了该会话并修复原因，请参阅 [当会话在使用 git 代理的运行器上无法启动时](#when-anthropic-doesnt-serve-a-session)。
 * **会话无法通过身份验证出口代理到达网络**：当您使用 [`--proxy-authorization-command` 或 `--proxy-authorization-file`](#authenticate-to-an-egress-proxy) 设置的源失败、在 30 秒后超时或产生空值时，运行器以 `502 Bad Gateway` 应答该连接并记录原因。运行器在该日志中编辑命令的 stderr，并且永远不会记录标头值。使用 `--proxy-authorization-command` 时，在主机上自己运行该命令以确认它在 stdout 上打印整个标头值。如果运行器改为在启动时退出，显示 `could not start the proxy-authorization listener`，则它无法打开其环回监听器。
 * **运行器记录包含 `rejecting the malformed poll response` 的 `Poll failed` 行**：运行器收到的工作轮询响应的正文不是队列的预期 JSON。原因之一是拦截代理或强制门户用自己的页面进行了应答。如果运行器通过代理连接，请配置代理以将来自 `api.anthropic.com` 的响应原封不动地传递。
@@ -708,7 +832,11 @@ claude self-hosted-runner doctor
 * **会话启动失败，显示 `This runner couldn't read`**：运行器使用其 [git 凭据](#configure-git) 向 git 主机请求某个仓库，但得到了未找到的答复。该仓库不存在，或者这些凭据无法访问该仓库。
   * **如果您管理该运行器**：为其 git 凭据授予该仓库的读取权限，然后启动新会话。
   * **如果您启动了该会话**：如果该仓库不存在，请使用正确的仓库启动新会话。如果运行器无法访问该仓库，请让运行器的管理员授予访问权限，然后启动新会话。
-* **会话需要数分钟才能启动**：初始克隆通常占主导地位。观察 `claude_code_self_hosted_runner_session_init_duration_seconds` [指标](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics) 以确认，并使用 [预热检出](#reuse-a-pre-warmed-checkout) 或更小的 `CLAUDE_RUNNER_FETCH_DEPTH` 减少克隆。
+* **会话需要数分钟才能启动或恢复**：原因之一是全新克隆。在每个运行器都从空磁盘启动、且没有 [`checkout` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 的机群上，运行器会在启动 Claude Code 之前重新克隆会话的仓库。在空磁盘上恢复的会话会再次等待同样的克隆。
+
+  要跳过全新克隆，请提供 [预热检出](#reuse-a-pre-warmed-checkout)。如果您已经提供了预热检出，请 [确认运行器使用了它](#confirm-that-the-runner-uses-your-clone)。如果运行器自行进行克隆并在一个会话后退出，请将 [`CLAUDE_RUNNER_FETCH_DEPTH`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#environment-variable-only-settings) 从默认的 50 个提交调低，以获取更少的历史记录。
+
+  如果您使用 hook，它会代替运行器的克隆运行，因此请改为检查您的 hook 执行的操作。观察 `claude_code_self_hosted_runner_session_init_duration_seconds` [指标](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics) 以了解启动需要多长时间。
 * **轮次以 401 失败**：当轮次以来自 Anthropic API 的 401 或 403 结束时，运行器从 Anthropic 获取新的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts) 并将其传递给会话。失败的轮次不会重试。此令牌是短期的，运行器通过会话的 stdin 轮换它。
 
   当获取失败时，运行器记录一条 `inference_token refresh failed` 行，说明何时重试，并在会话运行期间继续重试。
@@ -787,6 +915,43 @@ claude self-hosted-runner doctor
 * **环境的 Activity 标签**：打开环境并选择 **Activity**。如果新运行器不断出现在那里，但没有拾取工作，您的监督程序正在重新启动运行器。
 
 如需在运行器主机上进行引导式诊断，请运行 [doctor 子命令](#troubleshooting)。
+
+### 会话已被拾取，但 Claude 从未回答其第一条消息
+
+如果运行器拾取了会话，但 Claude 从未回答第一条消息，并且您的运行器通过代理访问 `api.anthropic.com`，则原因可能是该代理。Anthropic 通过一个保持打开的流式响应向会话发送其消息。如果您的代理缓冲该响应，或在传递任何内容之前就将其结束，第一条消息就永远不会到达。来自该会话的其他请求仍会成功。
+
+要修复此问题，请更改代理处理此请求的方式：
+
+```text theme={null}
+GET https://api.anthropic.com/v1/code/sessions/<session-id>/worker/events/stream
+```
+
+* **不要缓冲该响应**：在响应到达时立即将其传递出去。其内容类型为 `text/event-stream`。
+* **让该响应保持打开**：它最长可以保持打开一小时。如果代理有空闲超时，请将其设置为远高于 15 秒，因为默认情况下 Anthropic 至少每隔这么长时间发送一次保活消息。
+
+然后启动一个新会话，并检查 Claude 是否回答。提高运行器的超时时间没有帮助：您只会在运行器停止会话之前等待更长时间。
+
+#### 在运行器的日志中确认原因
+
+这些步骤适用于 Claude Code v2.1.287 或更高版本、使用默认 `--log-level info` 的运行器。较旧的运行器会更晚记录这些行，或者根本不记录。
+
+1. 等待 [`--startup-timeout-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 过去，默认为 15 分钟。之后运行器会停止该会话，并记录一行包含 `no child output for` 且以 `— releasing` 结尾的内容。
+2. 在运行器的日志中搜索 `SDKStartup: SSE`。这些行位于一条 `finished: interrupted` 行之后，在第 1 步中那一行之后的几行。大多数这样的行没有时间戳，因此日志收集器可能会将它们显示在其他位置。
+3. 在下表中找到该行：
+
+| 日志行包含 | 应采取的操作 |
+| :- | :- |
+| `SSE connect failed (no response in 30s)` 或 `SSE liveness timeout` | 检查代理是否转发该请求、是否在响应的标头和数据到达时立即将其传递，以及是否没有断开连接 |
+| `SSE connect failed (HTTP` 和一个状态码 | 检查代理自身的日志。如果是代理自己应答了该请求，请让该请求通过代理。 |
+| `SSE connect failed (` 和任何其他文本 | 括号中的文本就是错误。在代理自身的日志中查找同一个连接。 |
+| `SSE stream ended by server`，反复出现 | 检查代理对长时间存在的响应的时间限制。单独一条这样的行是正常的。 |
+| `SSE reconnected after` | 在其后查找其他行之一。这一行并不表示有任何内容到达了会话。 |
+
+如果日志中没有这些行，或者代理的日志显示没有任何问题，请[报告问题](#report-an-issue)。
+
+#### 阻止会话再次尝试
+
+会话会将该消息保持为待处理状态，能够为该会话的所有者提供服务的运行器会再次拾取该会话。在您更改代理之前，该会话每次都会以相同的方式等待。要阻止这种情况，请在 claude.ai/code 中归档该会话。
 
 ## 接下来
 
