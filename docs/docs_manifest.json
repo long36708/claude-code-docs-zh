@@ -537,8 +537,8 @@
     "errors.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/errors",
       "original_md_url": "https://code.claude.com/docs/zh-CN/errors.md",
-      "hash": "4fc1ffdf4a1ba424abd3a13c2f40a56395ccffe83080b0a5bf0ae120cf36ceae",
-      "last_updated": "2026-10-23T22:28:38.443075"
+      "hash": "63f7a42d0bab9928195eb9a9d4d030c1e6c9d0e6be5c4741b78ef28bde3baa7b",
+      "last_updated": "2026-10-24T06:08:16.516651"
     },
     "fast-mode.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/fast-mode",
@@ -651,8 +651,8 @@
     "jetbrains.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/jetbrains",
       "original_md_url": "https://code.claude.com/docs/zh-CN/jetbrains.md",
-      "hash": "b9263756b3f9a96abc7ec04a34fc778a7b72c2038317bba4afba788e1c9a8e61",
-      "last_updated": "2026-10-23T22:28:49.898604"
+      "hash": "462df4205ece360e88bf7af1cca12a86195a47ab9fba45634ebfc56dc12e4e6c",
+      "last_updated": "2026-10-24T06:08:27.414101"
     },
     "keybindings.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/keybindings",
@@ -747,8 +747,8 @@
     "monitoring-usage.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/monitoring-usage",
       "original_md_url": "https://code.claude.com/docs/zh-CN/monitoring-usage.md",
-      "hash": "8fc31993dd104ba1d57b8b250a8442ee8140348ec593d77aafabe6d8a69b2c64",
-      "last_updated": "2026-10-23T22:28:59.332427"
+      "hash": "57ec8e71ba4e7abda084db843820a1213883181ea84d7d7c168c38301450a867",
+      "last_updated": "2026-10-24T06:08:36.694028"
     },
     "network-config.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/network-config",
@@ -1372,8 +1372,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-10-24T00:59:17.117542",
-    "fetch_duration_seconds": 171.635769,
+    "last_fetch_completed": "2026-10-24T06:09:36.423983",
+    "fetch_duration_seconds": 132.36626,
     "total_pages_discovered": 226,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1383,7 +1383,7 @@
     "total_files": 228,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-10-24T00:59:17.117581",
+  "last_updated": "2026-10-24T06:09:36.424015",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

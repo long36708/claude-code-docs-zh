@@ -317,6 +317,7 @@
 | `Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)` | [Plugin 错误](#skipping-connection-recent-failure-cached) |
 | `Error: No such tool available: <tool name>` | [工具错误](#no-such-tool-available) |
 | `MCP server "<name>" connection closed before the tool call was answered` | [工具错误](#connection-closed-before-the-tool-call-was-answered) |
+| `MCP server "<name>" tool "<tool>" timed out after <N>s. The server asked the user a question, and no answer came before the time limit.` | [工具错误](#mcp-tool-call-timed-out-with-the-servers-question-unanswered) |
 | `would be spawned with zero tools — refusing` | [工具错误](#agent-would-be-spawned-with-zero-tools) |
 | `File is covered by a Read deny rule in your permission settings` | [工具错误](#file-is-covered-by-a-read-deny-rule) |
 | `cannot contain null bytes (\0)` | [工具错误](#path-cannot-contain-null-bytes) |
@@ -4418,6 +4419,23 @@ MCP server "<name>" connection closed before the tool call was answered. The too
 * 如果该操作已发生，请不要再次运行该工具。Claude 收到的是这条消息而不是工具的结果，因此请告诉 Claude 实际结果。
 * 如果该操作未发生，请让 Claude 再次运行该工具。您无需先重新连接服务器，因为 Claude Code 会在下一次调用该服务器的某个工具时重新连接它。如果该连接也失败，请参阅[远程服务器在会话中途断开](https://code.claude.com/docs/zh-CN/mcp.md#mid-session-drops-of-a-remote-server)。
 * 如果您是该服务器的构建者，且该工具可以安全地调用两次，请[将其标记为可安全重复](https://code.claude.com/docs/zh-CN/mcp.md#tool-calls-pending-when-a-connection-closes)，以便 Claude Code 可以重复丢失的调用
+
+### MCP tool call timed out with the server's question unanswered
+
+在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下，某个 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)在工具调用期间通过 [elicitation](https://code.claude.com/docs/zh-CN/mcp.md#respond-to-mcp-elicitation-requests) 请求输入，而在收到回答之前，该调用的时间限制已用尽：
+
+```text theme={null}
+MCP server "<name>" tool "<tool>" timed out after <N>s. The server asked the user a question, and no answer came before the time limit. Do not call this tool again in this turn. Tell the user that the server's question got no answer, and wait for their reply.
+```
+
+在 v2.1.310 之前，结果以 `timed out after <N>s` 结尾，不会提及该问题。
+
+**处理方法：**
+
+* 设置一个用于回答服务器请求的 [`Elicitation` hook](https://code.claude.com/docs/zh-CN/hooks#elicitation)
+* 在 TypeScript Agent SDK 应用程序中，让您的 [`onElicitation`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 回调在限制用尽之前返回其回答
+* 如需给回答留出更多时间，请在该服务器的配置条目中设置更长的 [`timeout`](https://code.claude.com/docs/zh-CN/mcp#time-limits-on-mcp-tool-calls)（以毫秒为单位），例如 `"timeout": 600000` 表示 10 分钟
+* 改为在交互式会话中运行该任务，并自行回答服务器的[对话框](https://code.claude.com/docs/zh-CN/mcp.md#respond-to-mcp-elicitation-requests)
 
 ### Agent would be spawned with zero tools
 

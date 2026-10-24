@@ -605,8 +605,10 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 
 * `prompt.id`：将用户提示词与其后直到下一个提示词之前的所有事件关联起来的 UUID。请参阅[事件关联属性](#event-correlation-attributes)。
 * `workspace.host_paths`：在桌面应用中选择的主机工作区目录，以字符串数组形式表示
-* `workflow.run_id`：运行标识符，以 `wf_` 为前缀，出现在属于某次 [Workflow](https://code.claude.com/docs/zh-CN/workflows.md) 工具运行的 Agent 所发出的 API 和工具事件上。按某个 `workflow.run_id` 过滤事件即可重建该次运行的 API 请求和工具结果。该标识符涵盖工作流脚本生成的 Agent，以及这些 Agent 进一步生成的任何 Agent，例如 skill 调用。它与 Workflow 工具结果中报告的运行标识符一致。其他所有事件上均不存在该属性。
+* `workflow.run_id`：运行标识符，前缀为 `wf_`，出现在属于某次 [Workflow](https://code.claude.com/docs/zh-CN/workflows.md) 工具运行的 Agent 所发出的 API 和工具事件上。按某个 `workflow.run_id` 筛选事件，即可重建该次运行的 API 请求和工具结果。该标识符涵盖工作流脚本生成的 Agent，以及这些 Agent 进一步生成的任何 Agent（例如 skill 调用）。它与 Workflow 工具结果中报告的运行标识符一致。
 * `workflow.name`：工作流的名称，即其脚本的 `meta.name`，与 `workflow.run_id` 一起发出。当运行执行未经修改的内置脚本时，内置工作流名称按原样显示。用户编写的名称（包括内置脚本的编辑副本）会被替换为 `custom`，除非设置了 `OTEL_LOG_TOOL_DETAILS=1`。
+* `agent_id`：引发该事件的[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)的标识符，例如 `a3f2c1b4d5e6f7a80`。携带该属性的事件包括子代理的 API 和工具事件、其 [`assistant_response`](#assistant-response-event) 事件，以及已完成子代理的 [`subagent_completed`](#subagent-completed-event)。主会话事件和[进程内队友](https://code.claude.com/docs/zh-CN/agent-teams.md#choose-a-display-mode)事件上不包含该属性。子代理的 [span `agent_id`](#span-attributes) 与此值相同，或在开头的 `a` 之后添加一个标签，如 `acompact-3f2c1b4d5e6f7a80`。需要 Claude Code v2.1.310 或更高版本
+* `parent_agent_id`：生成或最近一次恢复引发该事件的子代理的 Agent 的 `agent_id`。当该 Agent 为主会话时不包含此属性。需要 Claude Code v2.1.310 或更高版本
 
 #### 仓库属性
 
@@ -755,7 +757,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 | `prompt.id` | UUID v4 标识符，关联处理单个用户提示词期间产生的所有事件 |
 | `event.sequence` | 用于对事件排序的从 0 开始的计数器，按 Claude Code 进程计数，而不是按会话计数 |
 | `message.uuid` | 持久保存在会话记录（`~/.claude/projects/*/*.jsonl` 文件）中的消息的 UUID。出现在 `assistant_response`、`api_response_body` 以及 `user_prompt` 上，但命令分派除外，因为命令分派可能产生零条或多条消息。在 `assistant_response` 和 `api_response_body` 上，这是该响应的最后一条会话记录条目，下一轮的 `parentUuid` 从它链接。在 `api_response_body` 上需要 Claude Code v2.1.274 或更高版本 |
-| `request_id` | 服务器分配的 API 请求 ID，从 `request-id` 响应头读取，例如 `req_011...`。对于没有 `request-id` 头的响应（如在 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md) 上），该值改为来自 `x-amzn-requestid` 头。当响应携带任一头时，出现在 `api_request`、`api_error`、`api_refusal`、`assistant_response` 和 `api_response_body` 上。与 `llm_request` 追踪 span 上的同名属性相匹配。`x-amzn-requestid` 来源需要 Claude Code v2.1.282 或更高版本 |
+| `request_id` | 服务器分配的 API 请求 ID，从 `request-id` 响应头读取，例如 `req_011...`。对于没有 `request-id` 响应头的响应（如在 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md) 上），该值改为取自 `x-amzn-requestid` 响应头。当响应携带其中任一响应头时，出现在 `api_request`、`api_error`、`api_refusal`、`assistant_response`、`api_response_body`、[`tool_result`](#tool-result-event) 和 [`tool_decision`](#tool-decision-event) 上。与 `llm_request` 追踪 span 上的同名属性一致。`x-amzn-requestid` 来源需要 Claude Code v2.1.282 或更高版本 |
 | `client_request_id` | 客户端生成的 UUID，作为 `x-client-request-id` 请求头发送。在第一方 API 连接上出现于 `api_request` 和 `api_error`；在第三方提供商后端上，以及当请求通过非流式回退方式重试时不存在。它将请求与其响应配对，并且对于超时等从未产生服务器 `request_id` 的失败仍然可用。与 `llm_request` 追踪 span 上的同名属性一致 |
 
 要追踪由单个提示词触发的所有活动，请按特定的 `prompt.id` 值过滤您的事件。这会返回处理该提示词期间发生的 user\_prompt 事件、所有 api\_request 事件以及所有 tool\_result 事件。
@@ -820,6 +822,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.sequence`：用于对事件排序的按进程计数器，详见[事件关联属性](#event-correlation-attributes)
 * `tool_name`：工具的名称
 * `tool_use_id`：此次工具调用的唯一标识符。与传递给 hook 的 `tool_use_id` 相匹配，从而可以在 OTel 事件和 hook 捕获的数据之间建立关联。
+* `request_id`：包含此工具调用的 API 响应的 [`request_id`](#event-correlation-attributes)，以便您将该调用与该响应的 API 事件关联起来。当该响应没有请求 ID，或没有任何 API 响应包含该调用时不包含。需要 Claude Code v2.1.310 或更高版本
 * `success`：`"true"` 或 `"false"`
 * `duration_ms`：执行时间（以毫秒为单位）
 * `error_type`：工具失败时的错误类别字符串，例如 `"Error:ENOENT"` 或 `"ShellError"`
@@ -972,6 +975,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.sequence`：用于对事件排序的按进程计数器，详见[事件关联属性](#event-correlation-attributes)
 * `tool_name`：工具的名称（例如 "Read"、"Edit"、"Write"、"NotebookEdit"）
 * `tool_use_id`：此次工具调用的唯一标识符。与传递给 hook 的 `tool_use_id` 相匹配，从而可以在 OTel 事件和 hook 捕获的数据之间建立关联。
+* `request_id`：包含此工具调用的 API 响应的 [`request_id`](#event-correlation-attributes)，以便您将该调用与该响应的 API 事件关联起来。当该响应没有请求 ID，或没有任何 API 响应包含该调用时不包含。需要 Claude Code v2.1.310 或更高版本
 * `decision`：`"accept"` 或 `"reject"`
 * `tool_source`：始终存在。工具的来源，是由 CLI 定义的封闭值集合：
   * `"builtin"`：CLI 自身的工具
@@ -1024,7 +1028,16 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   * 对于 Skill 工具：包括 `skill_name`
   * 对于 Agent 工具或旧版 Task 工具：包括 `subagent_type`
 
-如果您将 OpenTelemetry SDK 的 `OTEL_LOGRECORD_ATTRIBUTE_COUNT_LIMIT` 调低到低于 `tool_decision` 事件上的属性数量，SDK 会丢弃 Claude Code 最后设置的属性。SDK 会首先丢弃 `permission_mode`，其次是 `classifier_category`，再次是 `classifier_verdict`，只有在丢弃这三个属性之后才会丢弃事件的其他属性。此顺序需要 Claude Code v2.1.302 或更高版本。
+如果您将 OpenTelemetry SDK 的 `OTEL_LOGRECORD_ATTRIBUTE_COUNT_LIMIT` 降低到低于 `tool_decision` 事件上的属性数量，SDK 会丢弃 Claude Code 最后设置的属性。SDK 会先于任何其他属性按以下顺序丢弃这些属性，并跳过事件未携带的属性：
+
+1. `parent_agent_id`
+2. `agent_id`
+3. `request_id`
+4. `permission_mode`
+5. `classifier_category`
+6. `classifier_verdict`
+
+在 Claude Code v2.1.302 或更高版本上，`permission_mode`、`classifier_category` 和 `classifier_verdict` 按此顺序丢弃。`parent_agent_id`、`agent_id` 和 `request_id` 需要 v2.1.310 或更高版本。
 
 #### 安全事件
 

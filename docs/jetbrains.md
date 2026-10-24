@@ -61,7 +61,7 @@ claude
 /ide
 ```
 
-当连接成功时，Claude Code 会确认一条消息，例如 `Connected to IntelliJ IDEA.`。如果 Claude Code 检测到正在运行的 IDE 没有该插件，`/ide` 将为您安装该插件并要求您重新启动 IDE。
+当连接成功时，Claude Code 会确认一条消息，例如 `Connected to IntelliJ IDEA.`
 
 如果您希望 Claude 能够访问与 IDE 相同的文件，请从与 IDE 项目根目录相同的目录启动 Claude Code。
 
