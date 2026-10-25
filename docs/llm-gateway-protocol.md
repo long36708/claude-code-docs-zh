@@ -113,62 +113,62 @@ Claude Code 会在每个流式推理响应到达时逐个事件地读取它，�
 * **上下文窗口**：Claude Code 假设 200K，或当 ID 包含 `[1m]` 时为 1M。要声明真实窗口，请参阅 [为网关或自定义模型 ID 更正窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)
 * **能力**：要给网关别名赋予其后面模型的能力，请使用您分发的设置中的 [`modelOverrides`](https://code.claude.com/docs/zh-CN/errors#unrecognized-model-id-on-a-request) 条目将该模型的 Anthropic ID 映射到您的别名。有关 `ANTHROPIC_DEFAULT_*_MODEL_SUPPORTED_CAPABILITIES` 变量适用的位置，请参阅 [功能传递](#feature-pass-through)
 
-## 请求头
+## 请求标头
 
-Claude Code 在 API 请求中包含这些头。头名称在网络上不区分大小写。转发 `anthropic-version` 和 `anthropic-beta` 不变，以及当上游是 [AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 时的 `anthropic-workspace-id`；其余的网关可能会用于路由、归属和追踪，不需要转发。
+Claude Code 会在 API 请求中包含以下标头。标头名称在传输时不区分大小写。请原样转发 `anthropic-version` 和 `anthropic-beta`，当上游为 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 时还需转发 `anthropic-workspace-id`；其余标头网关可用于路由、归因和追踪，无需转发。
 
-| 头 | 描述 |
+| 标头 | 描述 |
 | :- | :- |
-| `Authorization`, `x-api-key` | 开发者的网关凭证，根据他们设置的 [凭证变量](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#set-the-credential-variable) 在一个或两个头中 |
-| `anthropic-version` | API 版本，目前为 `2023-06-01`。Amazon Bedrock 和 Google Cloud 的 Agent Platform 格式请求也在 `anthropic_version` 请求体字段中携带，其值是提供商方言字符串，而不是此头的值 |
-| `anthropic-beta` | 请求的逗号分隔的能力值。逐字转发该头；不要对单个值进行白名单，因为该集合随 Claude Code 版本而变化。当开发者使用 claude.ai 登录进行身份验证时（当设置 `ANTHROPIC_BASE_URL` 而没有网关凭证变量时可能），此头也会携带上游所需的 OAuth 能力，删除它会导致这些请求失败并返回 `401` |
-| `x-claude-code-session-id` | 当前 Claude Code 会话的唯一标识符。使用它来聚合来自一个会话的所有请求，无需解析请求体 |
-| `x-claude-code-agent-id` | 发出请求的 [子代理](https://code.claude.com/docs/zh-CN/sub-agents.md) 的标识符，仅在来自代理在会话内生成的 Claude Code 的请求上存在。将其与会话 ID 一起使用以将成本归属于并行代理 |
-| `x-claude-code-parent-agent-id` | 生成请求代理的代理的标识符，仅对嵌套代理存在 |
+| `Authorization`、`x-api-key` | 开发者的网关凭据，根据开发者设置的[凭据变量](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#set-the-credential-variable)，出现在其中一个或两个标头中 |
+| `anthropic-version` | API 版本，当前为 `2023-06-01`。Amazon Bedrock 格式和 Google Cloud's Agent Platform 格式的请求还会携带 `anthropic_version` 请求体字段，其值为提供商的方言字符串，而不是此标头的值 |
+| `anthropic-beta` | 请求的以逗号分隔的功能值。请原样转发此标头；不要对单个值设置允许列表，因为该集合会随 Claude Code 版本发布而变化。当开发者使用 claude.ai 登录进行身份验证时（在设置了 `ANTHROPIC_BASE_URL` 但未设置网关凭据变量的情况下可能出现），此标头还会携带上游所需的 OAuth 功能值，将其移除会导致这些请求以 `401` 失败 |
+| `x-claude-code-session-id` | 当前 Claude Code 会话的唯一标识符。可用它汇总来自同一会话的所有请求，而无需解析请求体 |
+| `x-claude-code-agent-id` | 发出请求的[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)的标识符，仅出现在由 Claude Code 在会话内生成的 Agent 所发出的请求中。将其与会话 ID 结合使用，可将成本归因到并行运行的各个 Agent |
+| `x-claude-code-parent-agent-id` | 生成发出请求的 Agent 的那个 Agent 的标识符，仅在嵌套 Agent 时出现 |
 
-子代理 ID 在每次 Claude Code 生成子代理时都会生成新的。队友代理是 [代理团队](https://code.claude.com/docs/zh-CN/agent-teams.md) 的命名成员，在重新连接时重用基于名称的稳定 ID。在两种情况下，ID 都标识一个代理，而不是一个人或设备，因此不要将代理 ID 头视为用户标识符。
+每次 Claude Code 生成子代理时，都会重新生成子代理 ID。队友 Agent（即 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 中的具名成员）在重新连接时会复用一个基于名称的稳定 ID。在这两种情况下，ID 标识的都是 Agent，而不是人员或设备，因此请勿将 Agent ID 标头视为用户标识符。
 
-如果您的开发者设置了 `ANTHROPIC_CUSTOM_HEADERS`，这些头也会出现在请求上。
+如果您的开发者设置了 `ANTHROPIC_CUSTOM_HEADERS`，这些标头也会出现在请求中。
 
-### 网关提示头
+### 网关提示标头
 
-Claude Code 也可以发送路由提示：网关或路由器可以用来调度、缓存或归属请求的每个请求事实。需要 Claude Code v2.1.273 或更高版本。
+Claude Code 还可以发送路由提示：即网关或路由器可用于调度、缓存或归因请求的每个请求的相关信息。需要 Claude Code v2.1.273 或更高版本。
 
-请求是否携带它们取决于 Claude Code 将其发送到何处：
+请求是否携带这些标头，取决于 Claude Code 将请求发送到何处：
 
-* 直接连接到 Anthropic API：默认发送
-* 自定义基础 URL：默认关闭，因为拒绝未知头的代理会导致请求失败。要接收它们，请为您的开发者设置 [`CLAUDE_CODE_GATEWAY_HINT_HEADERS=1`](https://code.claude.com/docs/zh-CN/env-vars)，例如在 [托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md) 的 `env` 块中
-* 任何其他后端，包括 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和 AWS 上的 Claude Platform：仅当设置 `CLAUDE_CODE_GATEWAY_HINT_HEADERS=1` 时发送
+* 直接连接 Anthropic API：默认发送
+* 自定义基础 URL：默认关闭，因为拒绝未知标头的代理会导致请求失败。如需接收这些标头，请为您的开发者设置 [`CLAUDE_CODE_GATEWAY_HINT_HEADERS=1`](https://code.claude.com/docs/zh-CN/env-vars)，例如在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)的 `env` 块中设置
+* 任何其他后端，包括 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 和 Claude Platform on AWS：仅在设置了 `CLAUDE_CODE_GATEWAY_HINT_HEADERS=1` 时发送
 
-将 `CLAUDE_CODE_GATEWAY_HINT_HEADERS` 设置为 `0` 会在每个连接上停止这些头。
+将 `CLAUDE_CODE_GATEWAY_HINT_HEADERS` 设置为 `0` 会在所有连接上停止发送这些标头。
 
-这些头仅携带下面行列出的内容：固定词汇、工具名称、持续时间和随机提示标识符，从不携带提示文本或文件内容。每个值都是可打印的 ASCII。
+这些标头仅携带下表所列的内容：固定词汇、工具名称、时长以及一个随机的提示词标识符，绝不包含提示词文本或文件内容。所有值均为可打印 ASCII 字符。
 
-| 头 | 描述 |
+| 标头 | 描述 |
 | :- | :- |
-| `x-claude-code-request-class` | 这是什么类型的请求：`main` 用于主对话的一个回合，`subagent` 用于 [子代理](https://code.claude.com/docs/zh-CN/sub-agents.md) 的一个回合，`workflow` 用于在工作流内运行的代理，`compaction` 用于压缩对话的总结请求，或 `auxiliary` 用于侧面请求，如会话标题、分类器和摘要。在每个请求上发送 |
-| `x-claude-code-agent-type` | 发出请求的子代理的类型：内置代理类型名称，如 `Explore`、`Plan` 或 `general-purpose`，或 `custom` 用于用户定义的代理，`teammate` 用于在主导的进程中运行的 [代理团队](https://code.claude.com/docs/zh-CN/agent-teams.md) 成员，或 `fork` 用于 [分叉](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)。仅在子代理自己的回合上存在；子代理的压缩或侧面请求保留代理 ID 但不携带类型。用户选择的代理名称永远不会被发送 |
-| `x-claude-code-compaction` | 在 [压缩](https://code.claude.com/docs/zh-CN/prompt-caching.md#compacting-the-conversation) 期间总结对话的请求上存在。该值说明触发了什么：`auto` 当上下文窗口接近容量时，`manual` 用于 `/compact`，或 `reactive` 当 API 拒绝请求过长时。对于 [空闲压缩](https://code.claude.com/docs/zh-CN/settings-reference.md#idlecompaction)，该值也为 `auto`。在所有其他请求上不存在 |
-| `x-claude-code-context-compacted` | 在压缩后的第一个主对话请求上存在一次，具有与 `x-claude-code-compaction` 相同的值。此请求之前的对话前缀不再使用，因此可以删除以其为键的缓存 |
-| `x-claude-code-prev-tool-durations` | 此请求携带其结果的工具调用的测量运行时间，格式为 `<name>=<ms>;<name>=<ms>`，例如 `Bash=742;Read=9`。在同一对话的下一个请求之后发送，来自主会话或子代理的一批工具调用 |
-| `x-claude-code-prompt-id` | 标识请求所服务的用户提示的随机 UUID。服务一个提示的请求共享该值，包括提示启动的子代理的回合。未归属于提示的请求省略它。使用它按提示对会话的请求进行分组。需要 Claude Code v2.1.283 或更高版本 |
+| `x-claude-code-request-class` | 请求的类型：`main` 表示主对话的一个轮次，`subagent` 表示[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)的一个轮次，`workflow` 表示在工作流中运行的 Agent，`compaction` 表示用于压缩对话的摘要请求，`auxiliary` 表示辅助请求，例如会话标题、分类器和摘要。每个请求都会发送 |
+| `x-claude-code-agent-type` | 发出请求的子代理类型：内置 Agent 类型名称，例如 `Explore`、`Plan` 或 `general-purpose`；`custom` 表示用户定义的 Agent；`teammate` 表示在主导者进程中运行的 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 成员；`fork` 表示[分叉](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)。仅出现在子代理自身的轮次中；子代理的压缩请求或辅助请求保留 Agent ID，但不携带类型。用户选择的 Agent 名称绝不会被发送 |
+| `x-claude-code-compaction` | 出现在[上下文压缩](https://code.claude.com/docs/zh-CN/prompt-caching.md#compacting-the-conversation)期间对对话进行摘要的请求中。其值表示触发原因：`auto` 表示上下文窗口接近容量上限，`manual` 表示 `/compact`，`reactive` 表示 API 因请求过长而拒绝了请求。在交互式终端会话中进行的[空闲压缩](https://code.claude.com/docs/zh-CN/settings-reference.md#idlecompaction)，其值也为 `auto`。其他所有请求中均不出现，包括在压缩之前于后台写入摘要的请求 |
+| `x-claude-code-context-compacted` | 在压缩后的第一个主对话请求中出现一次，取值与 `x-claude-code-compaction` 相同。此请求之前的对话前缀将不再使用，因此以其为键的缓存可以丢弃 |
+| `x-claude-code-prev-tool-durations` | 此请求所携带结果对应的工具调用的实测运行时间，格式为 `<name>=<ms>;<name>=<ms>`，例如 `Bash=742;Read=9`。在一批工具调用之后，于同一对话的下一个请求中发送，适用于主会话或子代理 |
+| `x-claude-code-prompt-id` | 随机 UUID，用于标识请求所服务的用户提示词。服务于同一提示词的请求共享该值，包括该提示词所启动的子代理的轮次。未归属于某个提示词的请求不包含此标头。可用它按提示词对会话中的请求进行分组。需要 Claude Code v2.1.283 或更高版本 |
 
-在解析 `x-claude-code-prev-tool-durations` 之前，检查 Claude Code 如何构建该值以及它遗漏了什么：
+在解析 `x-claude-code-prev-tool-durations` 之前，请了解 Claude Code 如何构建该值以及它会省略哪些内容：
 
-* 条目：每个运行的工具调用一个，按其结果被收集的顺序，以整毫秒为单位
-* 上限：Claude Code 最多发送 32 个条目和 4 KB，保留第一个条目
-* 编码：工具名称是百分比编码的，涵盖 `%`、`;`、`=`、逗号、空格和任何可打印 ASCII 之外的字符
-* 解析：在 `;` 上分割，然后在 `=` 上分割，并解码每个名称
-* 缺失：压缩调用、侧面请求和新提示的第一个请求永远不会携带它。不要将缺失的头读作运行无工具的回合
-* 时间：每个都排除权限提示和钩子，并行工具调用各自报告自己的时间，因此条目不会加起来等于请求之间的间隙
+* 条目：每个已运行的工具调用对应一个条目，按其结果被收集的顺序排列，以整毫秒为单位
+* 上限：Claude Code 最多发送 32 个条目和 4 KB，保留最前面的条目
+* 编码：工具名称采用百分号编码，涵盖 `%`、`;`、`=`、逗号、空格以及可打印 ASCII 范围之外的任何字符
+* 解析：先按 `;` 拆分，再按 `=` 拆分，然后解码每个名称
+* 缺失：压缩调用、辅助请求以及新提示词的第一个请求绝不会携带此标头。不要将缺失该标头理解为某个轮次未运行任何工具
+* 时间：每个时间都不包括权限提示和 hook 的耗时，并行的工具调用各自报告自己的时间，因此各条目之和并不等于请求之间的间隔
 
 ### 作为开放列表转发
 
-将头和请求体字段视为开放列表，而不是封闭列表。Claude Code 在版本中获得能力，它们作为新的 `anthropic-beta` 值、新的请求体字段，以及偶尔新的 `anthropic-*` 或 `x-claude-code-*` 头到达。
+请将标头和请求体字段视为开放列表，而非封闭列表。Claude Code 会随着版本发布获得新功能，这些功能会以新的 `anthropic-beta` 值、新的请求体字段，偶尔也会以新的 `anthropic-*` 或 `x-claude-code-*` 标头的形式出现。
 
-转发到 Anthropic 格式上游时，通过 `anthropic-*` 请求头和请求体字段不变，而不是对您今天看到的进行白名单。固定在观察列表上的网关会删除下一个能力的头或字段，并在引入它的版本上破坏它。
+转发到 Anthropic 格式的上游时，请原样传递 `anthropic-*` 请求标头和请求体字段，而不是为当前看到的那些设置允许列表。固定于已观察到的列表的网关会移除下一个功能的标头或字段，并在引入该功能的版本中导致其失效。
 
-例外是非 Anthropic 上游，如 Amazon Bedrock 或 Google Cloud 的 Agent Platform，其中桥接模式差异是网关的工作；请参阅 [功能传递](#feature-pass-through)。
+例外情况是非 Anthropic 上游，例如 Amazon Bedrock 或 Google Cloud's Agent Platform，在这种情况下，弥合 schema 差异是网关的职责；请参阅[功能透传](#feature-pass-through)。
 
 ## 响应头
 

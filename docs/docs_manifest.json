@@ -687,8 +687,8 @@
     "llm-gateway-protocol.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/llm-gateway-protocol",
       "original_md_url": "https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md",
-      "hash": "6a2e820cc8b01f26d254eef81bd784a1ff3f97ceb7be34144b96207a2eff2ca9",
-      "last_updated": "2026-10-25T00:26:57.414571"
+      "hash": "d415050fed090809a4d3ce0abd8d9b96761a263dd397861d5f881b880a4d2d79",
+      "last_updated": "2026-10-25T06:29:01.739919"
     },
     "llm-gateway-rollout.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/llm-gateway-rollout",
@@ -747,8 +747,8 @@
     "monitoring-usage.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/monitoring-usage",
       "original_md_url": "https://code.claude.com/docs/zh-CN/monitoring-usage.md",
-      "hash": "57ec8e71ba4e7abda084db843820a1213883181ea84d7d7c168c38301450a867",
-      "last_updated": "2026-10-24T06:08:36.694028"
+      "hash": "56376829ce410c1807809f8c2c1f24c6a34fcde2e2aa53cdf4f622c468debb24",
+      "last_updated": "2026-10-25T06:29:07.905406"
     },
     "network-config.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/network-config",
@@ -777,8 +777,8 @@
     "permissions.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/permissions",
       "original_md_url": "https://code.claude.com/docs/zh-CN/permissions.md",
-      "hash": "a01fb5966cb8cf32e267e9106ad993df58e77e47779013ddc1b8729175302ab1",
-      "last_updated": "2026-10-23T22:29:02.394654"
+      "hash": "b1bb22503808678fe0f4aa80d7f2c5fb73ae7ea8afbf90ecc4fda664494f3bc2",
+      "last_updated": "2026-10-25T06:29:11.006573"
     },
     "platforms.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/platforms",
@@ -1005,8 +1005,8 @@
     "sandbox-environments.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/sandbox-environments",
       "original_md_url": "https://code.claude.com/docs/zh-CN/sandbox-environments.md",
-      "hash": "904a49a020372a936ea77f06df92d0e44a63214a4489b5485423b89bee8a101f",
-      "last_updated": "2026-10-23T22:29:25.528172"
+      "hash": "af67f32e966138592f6712eebad4168fcca82e46d1efde8d2d4f16e6fd15cde1",
+      "last_updated": "2026-10-25T06:29:34.484263"
     },
     "sandboxing.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/sandboxing",
@@ -1372,8 +1372,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-10-25T00:28:03.185614",
-    "fetch_duration_seconds": 133.774393,
+    "last_fetch_completed": "2026-10-25T06:30:11.380264",
+    "fetch_duration_seconds": 141.20378,
     "total_pages_discovered": 226,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1383,7 +1383,7 @@
     "total_files": 228,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-10-25T00:28:03.185640",
+  "last_updated": "2026-10-25T06:30:11.380294",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

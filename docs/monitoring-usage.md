@@ -1403,7 +1403,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `pre_tokens`：压缩前的大致 token 数量
 * `post_tokens`：压缩后的大致 token 数量
 * `error`：压缩失败时的错误消息
-* `precompute_reuse`：仅在 `trigger` 为 `"manual"` 时，或针对[空闲压缩](https://code.claude.com/docs/zh-CN/settings-reference.md#idlecompaction)（其 `trigger` 报告为 `"auto"`）时设置。自动压缩可以在上下文窗口填满之前在后台准备摘要，此属性记录压缩是否重用了该预先准备的摘要。`"hit"` 表示已重用；`"miss_custom_instructions"`、`"miss_hook"` 和 `"miss_not_ready"` 给出改为重新计算摘要的原因
+* `precompute_reuse`：仅在 `trigger` 为 `"manual"` 时设置，或在交互式终端会话中进行[空闲压缩](https://code.claude.com/docs/zh-CN/settings-reference.md#idlecompaction)且 `trigger` 为 `"auto"` 时设置。自动压缩可以在上下文窗口填满之前在后台预先准备摘要，此属性记录压缩是否复用了该预先准备的摘要。`"hit"` 表示已复用；`"miss_custom_instructions"`、`"miss_hook"` 和 `"miss_not_ready"` 给出改为重新计算摘要的原因
 
 #### 子代理完成事件
 
