@@ -1747,7 +1747,7 @@ $text = $batch.delta -replace '\*\*', '' -replace '`', ''
 
 使用 [PreToolUse 决策控制](#pretooluse-decision-control)来允许、拒绝、询问或延迟工具调用。
 
-`PreToolUse` 上的 [Agent SDK 回调 hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md) 超过其超时时间时，会阻止工具调用，Claude 会收到一个注明该超时的错误结果。
+`PreToolUse` 上的 [Agent SDK 回调 hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md#hook-timeout) 超时后会阻止该工具调用。
 
 #### PreToolUse 输入
 
@@ -4084,7 +4084,7 @@ Claude Code 仅在会话运行时传递异步 hook 的结果：
 
 当异步 hook 触发时，Claude Code 启动 hook 进程并立即继续，不等待其完成。Hook 通过 stdin 接收与同步 hook 相同的 JSON 输入。
 
-后台进程退出后，Claude Code 从 hook 的 JSON 响应中传递 `additionalContext` 和 `systemMessage` 字段给 Claude 在下一个对话轮次。与同步 hook 的 `systemMessage` 不同，这两个字段都不会显示给你。
+后台进程退出后，Claude Code 会在下一个对话轮次将 hook 的 JSON 响应中的 `additionalContext` 和 `systemMessage` 字段传递给 Claude，但[重复的 `SessionStart` 输出](#limitations)除外。与同步 hook 的 `systemMessage` 不同，这两个字段都不会显示给您。
 
 将 JSON 响应单独输出到 stdout，或单独输出在一行上：
 
@@ -4152,6 +4152,7 @@ jq -nc --arg msg "$MSG" '{hookSpecificOutput: {hookEventName: "PostToolUse", add
 
 * Hook 输出在下一个对话轮次传递。如果会话空闲，响应等待直到下一个用户交互。例外：退出代码为 2 的 `asyncRewake` hook 即使在会话空闲时也会立即唤醒 Claude。
 * 每次执行创建一个单独的后台进程。
+* 异步 `SessionStart` hook 在每次事件触发时都会运行。当 `additionalContext` 和 `systemMessage` 文本与 Claude 上次从该 hook 收到的内容相同时，Claude Code 会跳过该 hook 的输出，除非此后有同步 `SessionStart` hook 添加了其他文本。当文本发生变化时，Claude Code 会传递该文本；在压缩或 `/clear` 之后该 hook 下次运行时，也会再次传递。在 v2.1.295 之前，Claude Code 会在每次恢复时将相同的文本再次添加到对话中。
 
 ## 安全考虑
 

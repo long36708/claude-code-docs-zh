@@ -120,9 +120,9 @@ Claude Code 读取项目范围配置的目录：settings、hooks、skills、suba
 
 ### Compaction
 
-当 [context window](#context-window) 接近其限制时，自动总结您的对话。首先清除较旧的工具输出，然后总结对话。Project-root CLAUDE.md 和 auto memory 在 compaction 期间保留并从磁盘重新加载；仅在对话中给出的指令可能会丢失。运行 `/compact` 手动触发，可选择使用焦点，如 `/compact focus on the API changes`。
+当[上下文窗口](#context-window)接近其限制时，自动总结您的对话。项目根目录的 CLAUDE.md 和自动记忆在压缩后仍会保留，但仅在对话中给出的指令可能不会保留。运行 `/compact` 手动触发，可选择指定焦点，如 `/compact focus on the API changes`。
 
-了解更多：[What survives compaction](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction) · [When context fills up](https://code.claude.com/docs/zh-CN/how-claude-code-works.md#when-context-fills-up)
+了解更多：[压缩后保留的内容](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction) · [上下文填满时](https://code.claude.com/docs/zh-CN/how-claude-code-works.md#when-context-fills-up) · [Claude Code 何时压缩您闲置的对话](https://code.claude.com/docs/zh-CN/settings-reference.md#idlecompaction)
 
 ### Connector
 

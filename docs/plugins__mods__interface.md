@@ -508,7 +508,16 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 * **`Input`**：接受 `onSubmit(value)` 和 `onInput(value)`
 * **`Select`**：接受 `onSelect(value)`，其选项在 `options` 中，这是一个至少包含一个选项且值唯一的列表，例如 `[{ value: 'sm', label: 'Small' }, { value: 'lg', label: 'Large' }]`
 
-测试通过控件的 `key` 按下控件或向其输入，因此请为每个控件指定一个。控件的每次使用也会触发 [`ui.press`、`ui.input` 或 `ui.select`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface)，其中 `key` 在 `e.element` 中，另一个 mod 可以处理这些事件。其 hook 在您的回调之前运行，因此它能看到用户输入到您的 `Input` 中的内容，可以更改它或代替您的回调作出响应。mod API 没有按下另一个 mod 的按钮的方法。
+### 哪些控件需要 `key`
+
+请为每个 `Input` 和 `Select` 指定一个 `key` prop，例如 `key: 'size'`。当 `Button` 具有 `label` prop 或单个字符串子元素时，可以不指定 `key`。此时其键为 `label` 的值或该字符串。
+
+测试和其他 mod 通过键来识别控件：
+
+* **测试**：[测试](https://code.claude.com/docs/zh-CN/plugins/mods/test.md#test-a-drawing)通过键按下控件或向其输入。
+* **其他 mod**：Claude Code 在运行控件的回调之前，会触发 [`ui.press`、`ui.input` 或 `ui.select`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface)，并在 `e.element` 中带上控件的键。另一个 mod 针对该事件的 hook 能看到用户输入到您的 `Input` 中的内容，可以更改该文本或阻止您的回调运行。mod API 没有为该 mod 提供按下您的按钮的方法。
+
+如果消息显示 `needs a key` 或 `is drawn twice`，请[根据该消息查找原因](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#needs-a-key)。
 
 ### 键盘焦点和快捷键
 

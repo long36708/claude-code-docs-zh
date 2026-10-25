@@ -783,7 +783,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 
 有关这些来源的应用顺序，请参阅[设置优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)。
 
-当 Anthropic 的控制平面为会话提供 [Claude Code hook](https://code.claude.com/docs/zh-CN/hooks.md) 时，运行器会将它们与您自己的配置并行安装，而不是覆盖您的配置。需要 Claude Code v2.1.229 或更高版本。
+当 Anthropic 的控制平面为会话提供 [Claude Code hook](https://code.claude.com/docs/zh-CN/hooks.md) 时，运行器会将它们与您自己的配置并行安装，而不是覆盖您的配置。需要 Claude Code v2.1.229 或更高版本；较旧的运行器会忽略所提供的 hook。所提供的 hook 会运行 `python3`，因此请在您的[运行器镜像](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#build-the-runner-image)中安装 `python3`。
 
 * **安装位置**：运行器将提供的每个 hook 脚本写入会话配置目录中保留的 `hooks/.ccr-launcher/` 子目录，并在一个单独的设置文件中注册这些脚本，该文件通过 `--settings` 传递给会话，从而使初始填充的 `settings.json` 以及您位于 `hooks/<name>` 的脚本保持不变。运行器会为每个会话重新创建该保留子目录，并且不会将主机上 `~/.claude/hooks/.ccr-launcher/` 中的内容填充到会话中。
 * **编写者**：控制平面使用其自身部署中的固定常量填充这些脚本，绝不使用按会话或第三方的输入。

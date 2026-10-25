@@ -60,7 +60,7 @@ for await (const message of query({
 
 ### `query()`
 
-与 Claude Code 交互的主要函数。创建一个异步生成器，在消息到达时流式传输消息。
+与 Claude Code 交互的主要函数。创建一个异步生成器，在消息到达时以流式方式输出消息。
 
 ```typescript theme={null}
 function query({
@@ -76,16 +76,16 @@ function query({
 
 | 参数 | 类型 | 描述 |
 | :- | :- | :- |
-| `prompt` | `string \| AsyncIterable<`[`SDKUserMessage`](#sdkusermessage)`>` | 输入提示，可以是字符串或异步可迭代对象（用于流式模式） |
-| `options` | [`Options`](#options) | 可选配置对象（请参阅下面的 Options 类型） |
+| `prompt` | `string \| AsyncIterable<`[`SDKUserMessage`](#sdkusermessage)`>` | 输入提示词，可以是字符串，也可以是用于流式模式的异步可迭代对象 |
+| `options` | [`Options`](#options) | 可选的配置对象（参见下文的 Options 类型） |
 
 #### 返回值
 
-返回一个 [`Query`](#query-object) 对象，该对象扩展 `AsyncGenerator<`[`SDKMessage`](#sdkmessage)`, void>`，并具有其他方法。
+返回一个 [`Query`](#query-object) 对象，该对象扩展了 `AsyncGenerator<`[`SDKMessage`](#sdkmessage)`, void>` 并提供了额外的方法。
 
 ### `startup()`
 
-通过生成 CLI 子进程并在提示可用之前完成初始化握手来预热 CLI 子进程。返回的 [`WarmQuery`](#warmquery) 句柄稍后接受提示并将其写入已准备好的进程，因此第一个 `query()` 调用解析时无需支付子进程生成和初始化成本。如果您还不知道会话的工作目录，请改用 [`prewarm()`](#prewarm)。
+在提示词可用之前，通过启动 CLI 子进程并完成初始化握手来预热该子进程。返回的 [`WarmQuery`](#warmquery) 句柄可在稍后接收提示词，并将其写入已就绪的进程，因此第一次 `query()` 调用在解析时无需在调用路径中承担子进程启动和初始化的开销。如果您尚不知道会话的工作目录，请改用 [`prewarm()`](#prewarm)。
 
 ```typescript theme={null}
 function startup(params?: {
@@ -98,24 +98,24 @@ function startup(params?: {
 
 | 参数 | 类型 | 描述 |
 | :- | :- | :- |
-| `options` | [`Options`](#options) | 可选配置对象。与 `query()` 的 `options` 参数相同 |
-| `initializeTimeoutMs` | `number` | 等待子进程初始化的最长时间（毫秒）。默认为 `60000`。如果初始化未在规定时间内完成，promise 将以超时错误拒绝 |
+| `options` | [`Options`](#options) | 可选的配置对象。与 `query()` 的 `options` 参数相同 |
+| `initializeTimeoutMs` | `number` | 等待子进程初始化的最长时间（毫秒）。默认为 `60000`。如果初始化未能在此时间内完成，promise 将以超时错误被拒绝 |
 
 #### 返回值
 
-返回一个 `Promise<`[`WarmQuery`](#warmquery)`>`，在子进程生成并完成其初始化握手后解析。
+返回一个 `Promise<`[`WarmQuery`](#warmquery)`>`，在子进程启动并完成初始化握手后解析。
 
 #### 示例
 
-早期调用 `startup()`，例如在应用程序启动时，然后在提示准备好后在返回的句柄上调用 `.query()`。这会将子进程生成和初始化移出关键路径。
+尽早调用 `startup()`（例如在应用程序启动时），然后在提示词就绪后对返回的句柄调用 `.query()`。这样可以将子进程的启动和初始化移出关键路径。
 
 ```typescript theme={null}
 import { startup } from "@anthropic-ai/claude-agent-sdk";
 
-// 提前支付启动成本
+// Pay startup cost upfront
 const warm = await startup({ options: { maxTurns: 3 } });
 
-// 稍后，当提示准备好时，这是立即的
+// Later, when a prompt is ready, this is immediate
 for await (const message of warm.query("What files are here?")) {
   console.log(message);
 }
@@ -123,9 +123,9 @@ for await (const message of warm.query("What files are here?")) {
 
 ### `prewarm()`
 
-*Alpha。* 在您知道它将服务哪个会话之前启动 Claude Code 进程作为备用，以便您稍后可以使用 [`claim()`](#spareprocess) 将其绑定到会话。在应用程序启动之前用户选择文件夹的应用程序中使用它。需要 TypeScript Agent SDK v0.3.282 或更高版本。
+*Alpha。* 在您知道某个 Claude Code 进程将服务于哪个会话之前，先将其作为备用进程启动，以便稍后通过 [`claim()`](#spareprocess) 将其绑定到会话。适用于在用户选择文件夹之前就已启动的应用程序。需要 TypeScript Agent SDK v0.3.282 或更高版本。
 
-`prewarm()` 完成与 [`startup()`](#startup) 相同的初始化握手，当您设置 `options.cwd` 时进程在其中等待，否则在 Claude Code 配置目录下的私有临时目录中等待。会话的工作目录、其 `SessionStart` hooks、其 stdio MCP 服务器以及其 CLAUDE.md 和 git 上下文等待声明。备用进程在等待时占用大约 230 到 260 MB 的内存。如果您的 [`spawnClaudeCodeProcess`](#options) 在另一台机器或容器中运行 Claude Code，请将 `options.cwd` 设置为存在于那里的目录，以便备用进程在其中等待。
+`prewarm()` 完成与 [`startup()`](#startup) 相同的初始化握手；如果您设置了 `options.cwd`，进程将在该目录中等待，否则将在您的 Claude Code 配置目录下的一个私有临时目录中等待。会话的工作目录、其 `SessionStart` hook、其 stdio MCP 服务器以及其 CLAUDE.md 和 git 上下文都要等到认领时才会确定。备用进程在等待期间大约占用 230 到 260 MB 内存。如果您的 [`spawnClaudeCodeProcess`](#options) 在另一台机器或容器中运行 Claude Code，请将 `options.cwd` 设置为该环境中存在的目录，供备用进程在其中等待。
 
 ```typescript theme={null}
 function prewarm(params?: {
@@ -134,27 +134,27 @@ function prewarm(params?: {
 }): Promise<SpareProcess>;
 ```
 
-`options` 和 `initializeTimeoutMs` 的含义与 `startup()` 相同，除了 `options.cwd` 仅设置备用进程等待的目录。promise 在进程完成其初始化握手后使用 [`SpareProcess`](#spareprocess) 解析。如果 `options` 设置 `resume`、`continue` 或 `forkSession`，`prewarm()` 会抛出错误，因为备用进程还没有会话。声明无法设置的所有内容，例如 `mcpServers`、`hooks`、`canUseTool`、`settingSources`、`systemPrompt` 和 `plugins`，在备用进程的生命周期内是固定的，因此为每个不同的选项集保留一个备用进程，并在它们更改时再次预热。
+`options` 和 `initializeTimeoutMs` 的含义与 `startup()` 中相同，只是 `options.cwd` 仅设置备用进程等待所在的目录。进程完成初始化握手后，promise 将解析为一个 [`SpareProcess`](#spareprocess)。如果 `options` 设置了 `resume`、`continue` 或 `forkSession`，`prewarm()` 会抛出错误，因为备用进程尚无会话。认领时无法设置的所有内容，例如 `mcpServers`、`hooks`、`canUseTool`、`settingSources`、`systemPrompt` 和 `plugins`，在备用进程的整个生命周期内都是固定的，因此请为每组不同的此类选项保留一个备用进程，并在这些选项发生变化时重新预热。
 
 #### 示例
 
-在应用程序启动时预热，然后在用户启动会话时声明备用进程：
+在应用程序启动时预热，然后在用户开始会话时认领备用进程：
 
 ```typescript theme={null}
 import { prewarm } from "@anthropic-ai/claude-agent-sdk";
 
-// 在应用程序启动时，在会话的文件夹已知之前
+// On application boot, before the session's folder is known
 const spare = await prewarm({ options: { maxTurns: 3 } });
 
-// 稍后，当用户在文件夹中启动会话时
+// Later, when the user starts a session in a folder
 const claimedQuery = spare.claim({
   prompt: "What files are here?",
   options: { cwd: "/path/to/project" },
 });
 
 spare.claimed.catch((error: Error) => {
-  // 除非消息以 "option_not_applied" 开头，否则提示未运行：
-  // 改为使用 query() 启动此会话
+  // Unless the message starts with "option_not_applied", the prompt didn't run:
+  // start this session with query() instead
   console.error("Claim failed:", error.message);
 });
 
@@ -163,14 +163,14 @@ try {
     console.log(message);
   }
 } catch (error) {
-  // 声明被拒绝后，已声明的查询在产出错误结果后会抛出异常
+  // After a refused claim, the claimed query throws once it has yielded the error result
   console.error(`Session ended with an error: ${error}`);
 }
 ```
 
 ### `tool()`
 
-为与 SDK MCP 服务器一起使用创建类型安全的 MCP 工具定义。
+创建类型安全的 MCP 工具定义，供 SDK MCP 服务器使用。
 
 ```typescript theme={null}
 function tool<Schema extends AnyZodRawShape>(
@@ -187,22 +187,22 @@ function tool<Schema extends AnyZodRawShape>(
 | 参数 | 类型 | 描述 |
 | :- | :- | :- |
 | `name` | `string` | 工具的名称 |
-| `description` | `string` | 工具功能的描述 |
-| `inputSchema` | `Schema extends AnyZodRawShape` | 定义工具输入参数的 Zod schema（支持 Zod 3 和 Zod 4） |
+| `description` | `string` | 对工具功能的描述 |
+| `inputSchema` | `Schema extends AnyZodRawShape` | 定义工具输入参数的 Zod schema（同时支持 Zod 3 和 Zod 4） |
 | `handler` | `(args, extra) => Promise<`[`CallToolResult`](#calltoolresult)`>` | 执行工具逻辑的异步函数 |
-| `extras` | `{ annotations?: `[`ToolAnnotations`](#toolannotations)`; searchHint?: string; alwaysLoad?: boolean }` | 可选的 extras。`annotations` 为客户端提供 MCP 行为提示。`searchHint` 是当[工具搜索](https://code.claude.com/docs/zh-CN/agent-sdk/tool-search.md)处于活动状态时在延迟工具列表中显示的单行功能短语。`alwaysLoad: true` 将此工具的完整 schema 保留在初始提示中，而不是延迟它 |
+| `extras` | `{ annotations?: `[`ToolAnnotations`](#toolannotations)`; searchHint?: string; alwaysLoad?: boolean }` | 可选的附加项。`annotations` 为客户端提供 MCP 行为提示。`searchHint` 是一个单行的能力描述短语，在启用 [工具搜索](https://code.claude.com/docs/zh-CN/agent-sdk/tool-search.md) 时显示在延迟加载工具列表中。`alwaysLoad: true` 会将此工具的完整 schema 保留在初始提示词中，而不是延迟加载 |
 
 #### `ToolAnnotations`
 
-在 `@modelcontextprotocol/sdk/types.js` 中定义。所有字段都是可选提示；客户端不应依赖它们做出安全决策。
+定义于 `@modelcontextprotocol/sdk/types.js`。所有字段都是可选的提示；客户端不应依赖它们做出安全决策。
 
 | 字段 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
 | `title` | `string` | `undefined` | 工具的人类可读标题 |
-| `readOnlyHint` | `boolean` | `false` | 如果为 `true`，工具不会修改其环境 |
-| `destructiveHint` | `boolean` | `true` | 如果为 `true`，工具可能执行破坏性更新（仅在 `readOnlyHint` 为 `false` 时有意义） |
-| `idempotentHint` | `boolean` | `false` | 如果为 `true`，使用相同参数的重复调用没有额外效果（仅在 `readOnlyHint` 为 `false` 时有意义） |
-| `openWorldHint` | `boolean` | `true` | 如果为 `true`，工具与外部实体交互（例如，网络搜索）。如果为 `false`，工具的域是封闭的（例如，记忆工具） |
+| `readOnlyHint` | `boolean` | `false` | 如果为 `true`，则该工具不会修改其环境 |
+| `destructiveHint` | `boolean` | `true` | 如果为 `true`，则该工具可能执行破坏性更新（仅当 `readOnlyHint` 为 `false` 时有意义） |
+| `idempotentHint` | `boolean` | `false` | 如果为 `true`，则使用相同参数重复调用不会产生额外效果（仅当 `readOnlyHint` 为 `false` 时有意义） |
+| `openWorldHint` | `boolean` | `true` | 如果为 `true`，则该工具会与外部实体交互（例如网络搜索）。如果为 `false`，则该工具的作用域是封闭的（例如记忆工具） |
 
 ```typescript theme={null}
 import { tool } from "@anthropic-ai/claude-agent-sdk";
@@ -221,7 +221,7 @@ const searchTool = tool(
 
 ### `createSdkMcpServer()`
 
-创建在与应用程序相同的进程中运行的 MCP 服务器实例。
+创建一个与您的应用程序在同一进程中运行的 MCP 服务器实例。
 
 ```typescript theme={null}
 function createSdkMcpServer(options: {
@@ -239,15 +239,15 @@ function createSdkMcpServer(options: {
 | 参数 | 类型 | 描述 |
 | :- | :- | :- |
 | `options.name` | `string` | MCP 服务器的名称 |
-| `options.version` | `string` | 可选版本字符串 |
-| `options.instructions` | `string` | 可选服务器说明，从 `initialize` 返回并作为 MCP 说明块呈现给模型 |
+| `options.version` | `string` | 可选的版本字符串 |
+| `options.instructions` | `string` | 可选的服务器指令，由 `initialize` 返回，并作为 MCP 指令块呈现给模型 |
 | `options.tools` | `Array<SdkMcpToolDefinition>` | 使用 [`tool()`](#tool) 创建的工具定义数组 |
-| `options.alwaysLoad` | `boolean` | 当为 `true` 时，此服务器的工具保留在初始提示词中，而不是被延迟到[工具搜索](https://code.claude.com/docs/zh-CN/agent-sdk/tool-search.md)之后。与 [`tool()`](#tool) 中的每个工具 `alwaysLoad` 结合 |
-| `options.timeout` | `number` | 此服务器的工具调用超时时间（毫秒）。Claude Code 将其应用于此服务器以代替 [`MCP_TOOL_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars)。传递至少 1000 的整数。Claude Code 忽略其他值。需要 TypeScript Agent SDK v0.3.248 或更高版本 |
+| `options.alwaysLoad` | `boolean` | 为 `true` 时，此服务器的工具会保留在初始提示词中，而不会延迟到 [工具搜索](https://code.claude.com/docs/zh-CN/agent-sdk/tool-search.md) 之后加载。可与 [`tool()`](#tool) 中针对单个工具的 `alwaysLoad` 组合使用 |
+| `options.timeout` | `number` | 此服务器工具调用的超时时间（毫秒）。Claude Code 会将其应用于此服务器，以取代 [`MCP_TOOL_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars)。请传入不小于 1000 的整数。Claude Code 会忽略其他值。需要 TypeScript Agent SDK v0.3.248 或更高版本 |
 
 ### `listSessions()`
 
-发现并列出具有轻量级元数据的过去会话。按项目目录筛选或列出所有项目中的会话。
+发现并列出过去的会话及其轻量元数据。可按项目目录筛选，或列出所有项目中的会话。
 
 ```typescript theme={null}
 function listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]>;
@@ -257,28 +257,28 @@ function listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]>;
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
-| `options.dir` | `string` | `undefined` | 列出会话的目录。省略时，返回所有项目中的会话 |
+| `options.dir` | `string` | `undefined` | 要列出会话的目录。省略时返回所有项目中的会话 |
 | `options.limit` | `number` | `undefined` | 要返回的最大会话数 |
-| `options.includeWorktrees` | `boolean` | `true` | 当 `dir` 在 git 仓库内时，包括来自所有 worktree 路径的会话 |
+| `options.includeWorktrees` | `boolean` | `true` | 当 `dir` 位于 git 仓库内时，包含来自所有 worktree 路径的会话 |
 
 #### 返回类型：`SDKSessionInfo`
 
 | 属性 | 类型 | 描述 |
 | :- | :- | :- |
-| `sessionId` | `string` | 唯一会话标识符 (UUID) |
-| `summary` | `string` | 显示标题：自定义标题、最近的提示、自动生成的摘要或第一个提示 |
-| `lastModified` | `number` | 上次修改时间（自纪元以来的毫秒数） |
-| `fileSize` | `number \| undefined` | 会话文件大小（字节）。仅对本地 JSONL 存储进行填充 |
-| `customTitle` | `string \| undefined` | 会话的自定义标题（当设置了一个时），例如通过 `--name`、`/rename`、hook 的 `sessionTitle` 输出或 [`renameSession()`](#renamesession)。否则为 AI 生成的会话标题（如果会话有的话） |
-| `firstPrompt` | `string \| undefined` | 会话中的第一个有意义的用户提示 |
-| `gitBranch` | `string \| undefined` | 会话结束时的 git 分支 |
+| `sessionId` | `string` | 唯一会话标识符（UUID） |
+| `summary` | `string` | 显示标题：自定义标题、最近的提示词、自动生成的摘要或第一个提示词 |
+| `lastModified` | `number` | 最后修改时间，自纪元以来的毫秒数 |
+| `fileSize` | `number \| undefined` | 会话文件大小（字节）。仅在本地 JSONL 存储时填充 |
+| `customTitle` | `string \| undefined` | 会话已设置的自定义标题，例如通过 `--name`、`/rename`、hook 的 `sessionTitle` 输出或 [`renameSession()`](#renamesession) 设置的标题。否则为 AI 生成的会话标题（如果会话有的话） |
+| `firstPrompt` | `string \| undefined` | 会话中第一个有意义的用户提示词 |
+| `gitBranch` | `string \| undefined` | 会话结束时的 Git 分支 |
 | `cwd` | `string \| undefined` | 会话的工作目录 |
-| `tag` | `string \| undefined` | 用户设置的会话标签（请参阅 [`tagSession()`](#tagsession)） |
-| `createdAt` | `number \| undefined` | 创建时间（自纪元以来的毫秒数），来自第一个条目的时间戳 |
+| `tag` | `string \| undefined` | 用户设置的会话标签（参见 [`tagSession()`](#tagsession)） |
+| `createdAt` | `number \| undefined` | 创建时间，自纪元以来的毫秒数，取自第一个条目的时间戳 |
 
 #### 示例
 
-打印项目的 10 个最近会话。结果按 `lastModified` 降序排序，因此第一项是最新的。省略 `dir` 以搜索所有项目。
+打印某个项目最近的 10 个会话。结果按 `lastModified` 降序排列，因此第一项是最新的。省略 `dir` 可在所有项目中搜索。
 
 ```typescript theme={null}
 import { listSessions } from "@anthropic-ai/claude-agent-sdk";
@@ -305,21 +305,22 @@ function getSessionMessages(
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
-| `sessionId` | `string` | 必需 | 要读取的会话 UUID（请参阅 `listSessions()`） |
-| `options.dir` | `string` | `undefined` | 查找会话的项目目录。省略时，搜索所有项目 |
+| `sessionId` | `string` | 必需 | 要读取的会话 UUID（参见 `listSessions()`） |
+| `options.dir` | `string` | `undefined` | 用于查找会话的项目目录。省略时搜索所有项目 |
 | `options.limit` | `number` | `undefined` | 要返回的最大消息数 |
-| `options.offset` | `number` | `undefined` | 从开始跳过的消息数 |
+| `options.offset` | `number` | `undefined` | 从开头跳过的消息数 |
+| `options.includeSystemMessages` | `boolean` | `false` | 为 `true` 时，除用户和助手消息外，还返回系统消息，例如压缩边界 |
 
 #### 返回类型：`SessionMessage`
 
 | 属性 | 类型 | 描述 |
 | :- | :- | :- |
-| `type` | `"user" \| "assistant"` | 消息角色 |
+| `type` | `"user" \| "assistant" \| "system"` | 消息角色。仅当 `options.includeSystemMessages` 为 `true` 时才会出现 `"system"` |
 | `uuid` | `string` | 唯一消息标识符 |
 | `session_id` | `string` | 此消息所属的会话 |
 | `message` | `unknown` | 来自会话记录的原始消息负载 |
-| `parent_tool_use_id` | `string \| null` | 对于子代理消息，启动该子代理的 `Agent` 或 `Skill` 工具调用的 `tool_use_id`。对于主会话消息和较旧的会话为 `null` |
-| `parent_agent_id` | `string \| null` | 对于来自[嵌套子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#let-subagents-spawn-their-own-subagents)的消息，为启动该嵌套子代理的子代理的 `agentId`。对于主会话消息、来自顶级子代理的消息和较旧的会话为 `null`。需要 Claude Code v2.1.202 或更高版本 |
+| `parent_tool_use_id` | `string \| null` | 对于子代理消息，为启动该子代理的 `Agent` 或 `Skill` 工具调用的 `tool_use_id`。对于主会话消息和较旧的会话为 `null` |
+| `parent_agent_id` | `string \| null` | 对于来自 [嵌套子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#let-subagents-spawn-their-own-subagents) 的消息，为生成它的子代理的 `agentId`。对于主会话消息、来自顶层子代理的消息以及较旧的会话为 `null`。需要 Claude Code v2.1.202 或更高版本 |
 
 #### 示例
 
@@ -342,7 +343,7 @@ if (latest) {
 
 ### `getSessionInfo()`
 
-按 ID 读取单个会话的元数据，无需扫描完整项目目录。
+按 ID 读取单个会话的元数据，无需扫描整个项目目录。
 
 ```typescript theme={null}
 function getSessionInfo(
@@ -355,14 +356,14 @@ function getSessionInfo(
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
-| `sessionId` | `string` | 必需 | 要查找的会话 UUID |
-| `options.dir` | `string` | `undefined` | 项目目录路径。省略时，搜索所有项目目录 |
+| `sessionId` | `string` | 必需 | 要查找的会话的 UUID |
+| `options.dir` | `string` | `undefined` | 项目目录路径。省略时搜索所有项目目录 |
 
-返回 [`SDKSessionInfo`](#return-type-sdksessioninfo)，如果找不到会话，则返回 `undefined`。
+返回 [`SDKSessionInfo`](#return-type-sdksessioninfo)，如果未找到会话则返回 `undefined`。
 
 ### `renameSession()`
 
-通过附加自定义标题条目来重命名会话。重复调用是安全的；以最新的标题为准。
+通过追加一个自定义标题条目来重命名会话。重复调用是安全的；以最近的标题为准。
 
 ```typescript theme={null}
 function renameSession(
@@ -376,13 +377,13 @@ function renameSession(
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
-| `sessionId` | `string` | 必需 | 要重命名的会话 UUID |
-| `title` | `string` | 必需 | 新标题。修剪空格后必须非空 |
-| `options.dir` | `string` | `undefined` | 项目目录路径。省略时，搜索所有项目目录 |
+| `sessionId` | `string` | 必需 | 要重命名的会话的 UUID |
+| `title` | `string` | 必需 | 新标题。去除首尾空白后不得为空 |
+| `options.dir` | `string` | `undefined` | 项目目录路径。省略时搜索所有项目目录 |
 
 ### `tagSession()`
 
-标记会话。传递 `null` 以清除标签。重复调用是安全的；以最新的标签为准。
+为会话添加标签。传入 `null` 可清除标签。重复调用是安全的；以最近的标签为准。
 
 ```typescript theme={null}
 function tagSession(
@@ -396,13 +397,13 @@ function tagSession(
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
-| `sessionId` | `string` | 必需 | 要标记的会话 UUID |
-| `tag` | `string \| null` | 必需 | 标签字符串，或 `null` 以清除 |
-| `options.dir` | `string` | `undefined` | 项目目录路径。省略时，搜索所有项目目录 |
+| `sessionId` | `string` | 必需 | 要添加标签的会话的 UUID |
+| `tag` | `string \| null` | 必需 | 标签字符串，或传入 `null` 以清除 |
+| `options.dir` | `string` | `undefined` | 项目目录路径。省略时搜索所有项目目录 |
 
 ### `forkSession()`
 
-将会话的会话记录复制到新会话中，以便您可以将对话引向另一个方向，同时保持原始会话不变。要从对话中较早的某个点分支，请传递 `upToMessageId`。
+将会话的会话记录复制到一个新会话中，以便您在保持原始会话不变的同时，将对话引向另一个方向。要从对话中较早的某个位置分叉，请传入 `upToMessageId`。
 
 ```typescript theme={null}
 function forkSession(
@@ -415,32 +416,32 @@ function forkSession(
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
-| `sessionId` | `string` | 必需 | 要分叉的会话 UUID |
-| `options.dir` | `string` | `undefined` | 项目目录路径。省略时，搜索所有项目目录 |
-| `options.upToMessageId` | `string` | `undefined` | 复制会话记录，直到并包括具有此 `uuid` 的消息：该值来自 [`getSessionMessages()`](#getsessionmessages)，或是您在流式传输的 [`SDKUserMessage`](#sdkusermessage) 上设置的 `uuid`。省略时，复制整个会话记录 |
-| `options.title` | `string` | `undefined` | 分叉的标题。省略时，SDK 从原始会话派生一个标题，后跟 `(fork)` |
+| `sessionId` | `string` | 必需 | 要分叉的会话的 UUID |
+| `options.dir` | `string` | `undefined` | 项目目录路径。省略时搜索所有项目目录 |
+| `options.upToMessageId` | `string` | `undefined` | 复制会话记录，直到并包括具有此 `uuid` 的消息：该值可以来自 [`getSessionMessages()`](#getsessionmessages)，也可以是您在流式传入的 [`SDKUserMessage`](#sdkusermessage) 上设置的 `uuid`。省略时复制整个会话记录 |
+| `options.title` | `string` | `undefined` | 分叉的标题。省略时，SDK 会根据原始会话生成一个标题，并在其后附加 `(fork)` |
 
-返回 `{ sessionId }`，即新会话的 UUID。将其作为 [`resume`](#options) 传递以继续该分叉。分叉不包括原始会话的[文件检查点](https://code.claude.com/docs/zh-CN/agent-sdk/file-checkpointing.md)，因此您无法将其回退到分叉之前捕获的检查点。
+返回 `{ sessionId }`，即新会话的 UUID。将其作为 [`resume`](#options) 传入即可继续该分叉。分叉不包含原始会话的 [文件检查点](https://code.claude.com/docs/zh-CN/agent-sdk/file-checkpointing.md)，因此您无法将其回退到分叉之前捕获的检查点。
 
-`forkSession()` 在以下情况下会抛出错误：
+在以下情况下，`forkSession()` 会抛出错误：
 
 * `sessionId` 不是 UUID
-* 找不到会话，或会话没有消息
+* 找不到该会话，或该会话没有消息
 * `upToMessageId` 与会话记录中的任何消息都不匹配
 
 ### `resolveSettings()`
 
-使用与 CLI 相同的合并引擎为给定目录解析有效的 Claude Code 设置，无需生成 Claude CLI。在调用 `query()` 之前使用它来检查 `query()` 调用将看到的配置。
+使用与 CLI 相同的合并引擎，解析给定目录的有效 Claude Code 设置，而无需启动 Claude CLI。可在调用 `query()` 之前，用它检查该调用将会看到哪些配置。
 
 > [!NOTE]
 >
-> 此函数处于 alpha 阶段，其 API 在稳定之前可能会更改。
+> 此函数处于 alpha 阶段，其 API 在稳定之前可能会发生变化。
 
-快照与实时 `query()` 会话应用的内容不同：
+该快照与实时 `query()` 会话实际应用的内容存在以下差异：
 
-* **`policyHelper`**：`resolveSettings()` 读取 MDM 源，包括 macOS plist 和 Windows HKLM/HKCU，但不执行管理员配置的 `policyHelper` 子进程。
-* **服务器管理的设置**：`resolveSettings()` 不获取[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#fetch-and-caching-behavior)。将它们作为 `options.serverManagedSettings` 传递以包含它们。
-* **`defaultMode`**：快照从每个层级按原样返回 `permissions.defaultMode`，因此它可以包括项目和本地设置中的 `'auto'` 和 `'bypassPermissions'` 值，[实时会话忽略](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)这些值。
+* **`policyHelper`**：`resolveSettings()` 会读取 MDM 来源，包括 macOS plist 和 Windows HKLM/HKCU，但不会执行管理员配置的 `policyHelper` 子进程。
+* **服务器托管设置**：`resolveSettings()` 不会获取 [服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#fetch-and-caching-behavior)。如需包含这些设置，请将其作为 `options.serverManagedSettings` 传入。
+* **`defaultMode`**：快照会按原样返回每个层级中的 `permissions.defaultMode`，因此其中可能包含来自项目设置和本地设置的 `'auto'` 和 `'bypassPermissions'` 值，而 [实时会话会忽略这些值](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)。
 
 ```typescript theme={null}
 function resolveSettings(
@@ -454,24 +455,24 @@ function resolveSettings(
 
 | 参数 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
-| `options.cwd` | `string` | `process.cwd()` | 用于解析项目和本地设置的相对目录 |
-| `options.settingSources` | [`SettingSource`](#settingsource)`[]` | 所有源 | 要加载的文件系统源。传递 `[]` 以跳过用户、项目和本地设置。[端点管理的策略](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)在所有情况下都会加载。`resolveSettings()` 仅当您传递 `options.serverManagedSettings` 时才包括服务器管理的设置 |
-| `options.managedSettings` | `Settings` | `undefined` | 由嵌入主机提供的策略层设置。遵循与 [`managedSettings` in `Options`](#options) 相同的规则，除了 `resolveSettings()` 不执行配置的 [`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper)，因此快照可以包括实时会话删除的设置 |
-| `options.serverManagedSettings` | `Settings` | `undefined` | 来自 `/api/claude_code/settings` 的服务器管理设置负载。非限制性键不经过滤地通过 |
+| `options.cwd` | `string` | `process.cwd()` | 解析项目设置和本地设置时所相对的目录 |
+| `options.settingSources` | [`SettingSource`](#settingsource)`[]` | 所有来源 | 要加载哪些文件系统来源。传入 `[]` 可跳过用户设置、项目设置和本地设置。[端点托管策略](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms) 在所有情况下都会加载。仅当您传入 `options.serverManagedSettings` 时，`resolveSettings()` 才会包含服务器托管设置 |
+| `options.managedSettings` | `Settings` | `undefined` | 由嵌入宿主提供的策略层级设置。遵循与 [`Options` 中的 `managedSettings`](#options) 相同的规则，不同之处在于 `resolveSettings()` 不会执行已配置的 [`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper)，因此快照中可能包含实时会话会丢弃的设置 |
+| `options.serverManagedSettings` | `Settings` | `undefined` | 来自 `/api/claude_code/settings` 的服务器托管设置负载。非限制性键将不经过滤直接传递 |
 
 #### 返回类型：`ResolvedSettings`
 
-`resolveSettings()` 返回一个对象，描述合并的设置和为每个键提供值的源。
+`resolveSettings()` 返回一个对象，描述合并后的设置以及提供每个键的来源。
 
 | 属性 | 类型 | 描述 |
 | :- | :- | :- |
-| `effective` | `Settings` | 在按优先级顺序应用所有启用的源后合并的设置 |
-| `provenance` | `Partial<Record<keyof Settings, ProvenanceEntry>>` | 对于 `effective` 中的每个顶级键，哪个源提供了该值 |
-| `sources` | `Array<{ source, settings, path?, policyOrigin? }>` | 每个源的原始设置，按从最低到最高优先级排序 |
+| `effective` | `Settings` | 按优先级顺序应用所有已启用来源后的合并设置 |
+| `provenance` | `Partial<Record<keyof Settings, ProvenanceEntry>>` | 对于 `effective` 中的每个顶层键，指明由哪个来源提供了该值 |
+| `sources` | `Array<{ source, settings, path?, policyOrigin? }>` | 每个来源的原始设置，按优先级从低到高排列 |
 
 #### 示例
 
-下面的示例为项目目录解析设置并打印控制清理周期的源。在没有设置文件设置 `cleanupPeriodDays` 的机器上，两条打印的行都显示 `undefined` 作为值，这是预期的输出而不是错误。
+下面的示例解析某个项目目录的设置，并打印控制清理周期的来源。在没有任何设置文件设置 `cleanupPeriodDays` 的机器上，打印的两行中该值都显示为 `undefined`，这是预期的输出，而不是错误。
 
 ```typescript theme={null}
 import { resolveSettings } from "@anthropic-ai/claude-agent-sdk";
@@ -632,13 +633,19 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
   }): Promise<SDKControlReloadPluginsResponse>;
   reloadSkills(): Promise<SDKControlReloadSkillsResponse>;
   reloadOutputStyles(): Promise<SDKControlReloadOutputStylesResponse>;
+  seedReadState(path: string, mtime: number): Promise<void>;
   accountInfo(): Promise<AccountInfo>;
   reconnectMcpServer(serverName: string): Promise<void>;
   toggleMcpServer(serverName: string, enabled: boolean): Promise<void>;
   setMcpServers(servers: Record<string, McpServerConfig>): Promise<McpSetServersResult>;
+  setMcpPermissionModeOverride(
+    serverName: string,
+    mode: 'default' | 'auto' | null
+  ): Promise<{ warning?: string }>;
   readMcpResource(serverName: string, uri: string): Promise<SDKControlMcpReadResourceResponse>;
   streamInput(stream: AsyncIterable<SDKUserMessage>): Promise<void>;
   stopTask(taskId: string): Promise<void>;
+  backgroundTasks(toolUseId?: string): Promise<boolean>;
   close(): void;
 }
 ```
@@ -665,14 +672,54 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 | `reloadPlugins(options?)` | 从磁盘重新加载插件，使您在会话中途安装或编辑的插件作用于正在运行的会话。以 [`SDKControlReloadPluginsResponse`](#sdkcontrolreloadpluginsresponse) 完成，其中列出会话的命令、子代理、插件和 MCP 服务器状态。需要 Agent SDK v0.2.85 或更高版本。[`holdOnCacheImpact` 选项](#sdkcontrolreloadpluginsresponse)需要 Agent SDK v0.3.268 或更高版本 |
 | `reloadSkills()` | 从磁盘重新加载 skill，使您在会话中途添加或编辑的 skill 可供正在运行的会话使用。以 [`SDKControlReloadSkillsResponse`](#sdkcontrolreloadskillsresponse) 完成，其中列出重新加载后可用的 skill。需要 Agent SDK v0.3.163 或更高版本 |
 | `reloadOutputStyles()` | 从磁盘重新读取[输出样式](https://code.claude.com/docs/zh-CN/output-styles.md)，使您在会话中途添加或编辑的样式文件可供正在运行的会话使用。以 [`SDKControlReloadOutputStylesResponse`](#sdkcontrolreloadoutputstylesresponse) 完成，其中列出重新加载后可用的样式名称。需要 Agent SDK v0.3.261 或更高版本 |
+| `seedReadState(path, mtime)` | 将文件标记为已读取，使之后的 Edit 不会因 `File has not been read yet` 而失败。请参阅 [`seedReadState()`](#seedreadstate)。需要 TypeScript SDK v0.2.83 或更高版本 |
 | `accountInfo()` | 返回账户信息 |
 | `reconnectMcpServer(serverName)` | 按名称重新连接 MCP 服务器。如果该名称同时匹配 `.mcp.json` 或 `~/.claude.json` 等设置文件中的条目，Claude Code 会重新连接您通过 [`mcpServers`](#options) 或 `setMcpServers()` 配置的服务器，而不是设置文件中的条目。该解析顺序需要 Claude Code v2.1.257 或更高版本 |
 | `toggleMcpServer(serverName, enabled)` | 按名称启用或禁用 MCP 服务器，名称解析方式与 `reconnectMcpServer()` 相同。禁用服务器会断开其连接并移除其工具。有关每种服务器所需的 Claude Code 版本，请参阅 [`toggleMcpServer()`](#togglemcpserver) |
 | `setMcpServers(servers)` | 替换此方法管理的 MCP 服务器：通过此方法添加的服务器以及[进程内 SDK 服务器](#createsdkmcpserver)。以 [`McpSetServersResult`](#mcpsetserversresult) 完成，其中指明添加和移除了哪些服务器以及任何错误；该部分说明了哪些其他服务器会保持连接 |
+| `setMcpPermissionModeOverride(serverName, mode)` | 用比会话更严格的模式覆盖某个 MCP 服务器工具的权限模式，或使用 `null` 清除覆盖。仅在流式输入模式下可用。请参阅 [`setMcpPermissionModeOverride()`](#setmcppermissionmodeoverride)。需要 TypeScript SDK v0.3.187 或更高版本 |
 | `readMcpResource(serverName, uri)` | *Alpha。* 从已连接的 MCP 服务器读取一个 MCP Apps `ui://` 资源，以便您的应用渲染工具的小组件。以 [`SDKControlMcpReadResourceResponse`](#sdkcontrolmcpreadresourceresponse) 完成。需要 TypeScript Agent SDK v0.3.280 或更高版本 |
 | `streamInput(stream)` | 向查询流式传输输入消息，用于多轮对话 |
 | `stopTask(taskId)` | 按 ID 停止正在运行的后台任务 |
+| `backgroundTasks(toolUseId?)` | 将当前轮次正在等待的运行中 Bash 命令和子代理移到后台，效果与在交互式终端中按 Ctrl+B 相同。请参阅 [`backgroundTasks()`](#backgroundtasks)。需要 TypeScript SDK v0.2.139 或更高版本 |
 | `close()` | 关闭查询并终止底层进程。强制结束查询并清理所有资源 |
+
+#### `setMcpPermissionModeOverride()`
+
+用比会话更严格的模式覆盖某个 MCP 服务器工具的权限模式，或使用 `null` 清除覆盖。当会话运行在跳过逐项操作提示的模式下，但某个服务器的工具仍应经过审查时，请使用它。需要 TypeScript SDK v0.3.187 或更高版本。
+
+将以下三个值之一作为 `mode` 传递：
+
+* `'default'`：Claude Code 以 [Manual 模式](https://code.claude.com/docs/zh-CN/permission-modes.md#available-modes)的方式评估该服务器的工具调用。
+* `'auto'`：Claude Code 将该服务器的工具调用交由[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器处理。当该分类器对会话不可用时，Claude Code 会拒绝此值。
+* `null`：清除覆盖。
+
+覆盖仅在会话处于跳过逐项操作提示的模式（`bypassPermissions` 或 `auto`）时生效。在任何其他会话模式下，Claude Code 会忽略该覆盖，因此它永远不会放宽会话允许的范围。
+
+当尚不知道有该名称的服务器时，promise 会以 `{ warning }` 解析。Claude Code 仍会存储该覆盖，并在具有该确切名称的服务器连接后应用它，因此该警告只是拼写检查，而不是失败。
+
+仅在流式输入模式下可用，与 `setModel()` 和 `setPermissionMode()` 的限制相同。
+
+#### `seedReadState()`
+
+将文件标记为已读取，使之后的 Edit 不会因 `File has not been read yet` 而失败。当您的应用已从对话上下文中丢弃了先前的 `Read` 结果，而 Claude 接下来要编辑该文件时，请使用它。需要 TypeScript SDK v0.2.83 或更高版本。
+
+将 `mtime` 传递为先前那次读取时文件的修改时间，以自纪元起的整毫秒数表示，例如 `Math.floor(stat.mtimeMs)`。如果磁盘上的文件在该时间之后发生了变化，Claude Code 会跳过标记。
+
+无论文件是否被标记，promise 都会解析，因此 promise 解析并不能告诉您实际发生了哪种情况。
+
+#### `backgroundTasks()`
+
+将当前轮次正在等待的运行中 Bash 命令和子代理移到后台，效果与在交互式终端中按 Ctrl+B 相同。传递某个工具调用的 `toolUseId` 可仅将该调用启动的 Bash 命令或子代理移到后台，省略它则将所有前台任务移到后台。需要 TypeScript SDK v0.2.139 或更高版本。
+
+每个被移到后台的工具调用会立即向 Claude 返回一个"正在后台运行"的结果，当前轮次继续进行，并且在任务完成时 Claude Code 会发出一个 [`SDKTaskNotificationMessage`](#sdktasknotificationmessage)。
+
+在启用了后台任务的会话中，promise 会解析为一个布尔值：
+
+* **`true`**：有任务被移到后台，或者您省略了 `toolUseId`。
+* **`false`**：您传递的 `toolUseId` 未匹配任何前台任务。
+
+如果会话禁用了后台任务（例如通过 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars)），promise 会被拒绝，并且不会有任何任务被移到后台。
 
 #### `applyFlagSettings()`
 
@@ -1472,10 +1519,19 @@ type SDKMessage =
   | SDKPermissionDeniedMessage
   | SDKPromptSuggestionMessage
   | SDKAPIRetryMessage
+  | SDKControlRequestProgressMessage
+  | SDKModelRefusalFallbackMessage
+  | SDKModelRefusalNoFallbackMessage
   | SDKMirrorErrorMessage
   | SDKInformationalMessage
   | SDKConversationResetMessage;
 ```
+
+此联合类型中有三种消息用于报告控制请求进度和模型拒绝。它们都带有 `type: "system"`，因此请根据各自列出的 `subtype` 加以区分：
+
+* `SDKControlRequestProgressMessage`，`subtype: "control_request_progress"`：报告客户端发送的长时间运行的控制请求的进度。`request_id` 将该消息与对应请求关联，`status` 为 `"started"` 或 `"api_retry"`。需要 Agent SDK v0.3.203 或更高版本。
+* `SDKModelRefusalFallbackMessage`，`subtype: "model_refusal_fallback"`：当模型以拒绝结束流式输出，且该轮次在备用模型上重试时发出。携带 `original_model` 和 `fallback_model`。需要 Agent SDK v0.3.170 或更高版本。
+* `SDKModelRefusalNoFallbackMessage`，`subtype: "model_refusal_no_fallback"`：当模型以拒绝结束流式输出且未进行重试时发出，例如因为未配置备用模型。携带 `original_model`。需要 Agent SDK v0.3.193 或更高版本。
 
 ### `SDKAssistantMessage`
 
@@ -1636,6 +1692,7 @@ type SDKResultMessage =
       stop_reason: string | null;
       ttft_ms?: number;
       ttft_stream_ms?: number;
+      time_to_request_ms?: number;
       user_message_uuid?: string;
       user_message_uuids?: string[];
       resume_reason?: string;
@@ -1701,6 +1758,7 @@ type SDKResultMessage =
 * `api_error_status`：终止对话的 API 错误的 HTTP 状态码。当轮在没有 API 错误的情况下结束时不存在或为 `null`。
 * `ttft_ms`：首个 token 的时间（毫秒），在第一条完整助手消息到达时测量。仅在成功分支上存在。
 * `ttft_stream_ms`：直到第一个 `message_start` 流事件（响应流打开时）的时间（毫秒）。低于 `ttft_ms`；两者之间的差距是流式传输第一条消息所花费的时间。仅在成功分支上存在。
+* `time_to_request_ms`：从轮次开始到 Claude Code 发送 API 请求的时间（毫秒）。仅在成功分支上存在。需要 Claude Code v2.1.162 或更高版本。
 * `user_message_uuid`：您发送的消息的 `uuid`，该轮回答了该消息。请参阅 [`user_message_uuid`](#user_message_uuid) 了解哪些结果携带它。
 * `user_message_uuids`：您发送的每条消息的 `uuid`，Claude Code 在该轮中回答了这些消息。请参阅 [`user_message_uuids`](#user_message_uuids)。
 * `resume_reason`：本轮次为何是继续一个被重启中断的轮次。在两个分支上都存在。请参阅 [`resume_reason`](#resume_reason)。
@@ -1772,13 +1830,17 @@ Claude Code 在这些情况下省略该字段：
 * 不回答您任何消息的轮，或回答您发送的没有 `uuid` 的消息的轮
 * 不回答您发送的任何消息的结果，例如崩溃的工作进程后的零化结果
 
+当 [`UserPromptSubmit`](https://code.claude.com/docs/zh-CN/hooks#userpromptsubmit) hook 阻止了一条开启自身轮次的消息，或以 `continue: false` 停止它时，您仍会收到该消息的结果。它是 `is_error: false` 且 `num_turns: 0` 的成功结果，其 `result` 为[阻止消息](https://code.claude.com/docs/zh-CN/hooks.md#what-a-blocked-prompt-leaves-behind)或[停止消息](https://code.claude.com/docs/zh-CN/hooks.md#json-output)，并按照与其他结果相同的规则回显该消息的 `uuid`。该结果没有 `terminal_reason`，除 `result` 文本外，结果上没有任何内容表明是 hook 结束了该轮次。在另一个轮次运行期间被 hook 阻止的消息可能不会得到结果：请参阅 [`user_message_uuids`](#user_message_uuids)。
+
 #### `user_message_uuids`
 
 Claude Code 在该轮中回答的您发送的每条消息的 `uuid`。当您一起发送多条消息时，Claude Code 可以将它们合并为一轮，`user_message_uuid` 然后仅命名其中的最后一个。要将回复与任何合并的消息匹配，在此列表中的任何位置查找该消息的 `uuid`。需要 Agent SDK v0.3.259 或更高版本。
 
 Claude Code 在携带 `user_message_uuid` 的每个回复帧和结果上，与该字段一起设置此列表。有关回显所回答消息 `uuid` 的完整轮帧集合以及每种帧所需的版本，请参阅 [`user_message_uuid`](#user_message_uuid)。列表始终包含 `user_message_uuid` 并最多包含 64 个条目。
 
-当 Claude Code 在轮运行时拾取您发送的常规消息时，它将该消息的 `uuid` 添加到结果的列表中。
+当 Claude Code 接收您在轮次运行期间发送的常规消息时，会将该消息的 `uuid` 添加到结果的列表中。当 [`UserPromptSubmit`](https://code.claude.com/docs/zh-CN/hooks#userpromptsubmit) hook 在接收时阻止了该消息，Claude Code 会改为丢弃它：该消息永远不会到达 Claude，也不会为后续轮次保留。您不会收到它的结果，它的 `uuid` 也不会出现在任何结果的列表中。如果 hook 可能阻止消息，请为等待列出您在轮次运行期间所发送消息的结果设置超时。
+
+以上情况适用于 hook 的输出仅为阻止时。如果输出设置了 `continue: false`（即使同时带有 `decision: "block"`），或者该 hook 是一个回答 [`ok: false`](https://code.claude.com/docs/zh-CN/hooks#response-schema) 且未设置 `continueOnBlock: true` 的提示词 hook，Claude Code 会停止该消息而不是丢弃它。该消息会等待自己的轮次，您会收到它的结果，其文本保留在对话中，因此 Claude 会在下一轮次看到它。
 
 当第一个回复或结果携带 `user_message_uuid` 而没有列表时，它来自早期的 Claude Code 版本，因此回退到单个字段。
 

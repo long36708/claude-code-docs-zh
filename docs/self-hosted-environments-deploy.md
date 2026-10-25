@@ -348,12 +348,12 @@ Anthropic 不发布预构建的运行器镜像。围绕 `claude` 二进制文件
 
 下面的配方使用 `--capacity 4`，所以一个容器为来自同一锁定所有者的最多四个并发会话服务。这不提供[加固部分](#harden-your-deployment)中的按会话容器隔离：在将环境连接到生产系统之前，要么以 `--capacity 1` 运行配方，每个会话一个容器，要么使用[按需运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，它也将环境密钥保持在会话运行主机之外。如果您将[Anthropic git 代理](#use-the-anthropic-git-proxy)添加到这些配方之一，也要将 `--capacity` 更改为 `1`。
 
-这个 Dockerfile 是一个最小的起点：
+这个 Dockerfile 是一个最小的起点。它安装了 `python3`，因为 [Anthropic 控制平面提供](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#how-each-session’s-config-is-assembled)给 Claude Tag 会话的 hook（包括让 Claude 在 Slack 中发布回复的那个 hook）会运行 `python3`。在任何为 Claude Tag 会话提供服务的镜像中，请确保 `python3` 位于 `PATH` 中：
 
 ```dockerfile theme={null}
 FROM debian:bookworm-slim
 ARG CLAUDE_CODE_VERSION
-RUN apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates openssh-client jq \
+RUN apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates openssh-client jq python3 \
  && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL "https://downloads.claude.ai/claude-code-releases/${CLAUDE_CODE_VERSION:?set with --build-arg CLAUDE_CODE_VERSION}/linux-x64/claude" \
       -o /usr/local/bin/claude && chmod +x /usr/local/bin/claude
@@ -363,7 +363,7 @@ RUN git config --system user.name "Claude" \
 ENTRYPOINT ["claude"]
 ```
 
-如果您的节点是 ARM，将 `linux-x64` 交换为 `linux-arm64`，或在 Alpine 等 musl 基础镜像上交换为 `linux-x64-musl` 或 `linux-arm64-musl`；请参阅 [Alpine Linux 设置](https://code.claude.com/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)了解 musl 镜像需要的额外包。URL 是标准 Claude Code 发布位置，因此您可以根据[二进制完整性和代码签名](https://code.claude.com/docs/zh-CN/setup.md#binary-integrity-and-code-signing)中描述的发布的已签名清单验证下载的二进制文件。运行器需要 Claude Code 版本 2.1.224 或更高版本。构建镜像，然后将其推送到您的注册表并在下面的配方中引用它：
+如果您的节点是 ARM，将 `linux-x64` 交换为 `linux-arm64`，或在 Alpine 等 musl 基础镜像上交换为 `linux-x64-musl` 或 `linux-arm64-musl`；请参阅 [Alpine Linux 设置](https://code.claude.com/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)了解 musl 镜像需要的额外包。URL 是标准 Claude Code 发布位置，因此您可以根据[二进制完整性和代码签名](https://code.claude.com/docs/zh-CN/setup.md#binary-integrity-and-code-signing)中描述的发布的已签名清单验证下载的二进制文件。运行器需要 Claude Code 版本 2.1.224 或更高版本；若要为 Claude Tag 会话提供服务，则需要 2.1.229 或更高版本。构建镜像，然后将其推送到您的注册表并在下面的配方中引用它：
 
 ```bash theme={null}
 docker build \
@@ -825,6 +825,7 @@ claude self-hosted-runner doctor
   升级运行器或修复原因后，请重试该会话或启动新会话。如果这些检查都未能找到原因，请[报告问题](#report-an-issue)。
 
   对于会话推送结果的源，删除的分支会导致会话失败。对于会话仅从中读取的 git 源，运行器跳过该源并继续处理其余源。当跳过会导致会话完全没有仓库时，运行器会使会话失败。在 v2.1.228 之前，这样的会话在空目录中启动。
+* **Claude Tag 有时不在 Slack 中发布其回复**：回复提醒是一个[由控制平面提供的 hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#how-each-session’s-config-is-assembled)。请使用 `claude --version` 确认运行器为 Claude Code v2.1.229 或更高版本，因为较旧的运行器会忽略所提供的 hook；确认 `python3 --version` 在运行器镜像中能够成功执行，因为这些 hook 会运行 `python3`；并确认没有任何设置文件关闭了 hook，无论是 `managed-settings.json`、运行器用户的 `~/.claude/settings.json`、仓库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `disableAllHooks`，还是托管设置中的 `allowManagedHooksOnly` 或涵盖 hook 的 [`strictPluginOnlyCustomization`](https://code.claude.com/docs/zh-CN/settings-reference#strictpluginonlycustomization)。
 * **会话启动时缺少其中一个存储库**：在没有 [`checkout` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 的运行器上，git 主机可能会拒绝运行器对会话仅从中读取的存储库的访问检查。运行器随后跳过该存储库，记录一条 `[runner:warn] could not access context source` 行，命名拒绝，并在其余存储库上启动会话。
 
   运行器仅跳过明确的拒绝：主机回答存储库未找到，git 找不到主机的凭证，或身份验证失败。网络故障、超时或 HTTP `403` 仍会导致会话启动失败，对于会话推送结果的存储库的拒绝也是如此。运行器仍会失败一个会话，跳过会导致它完全没有存储库。使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)，运行器仅跳过 git 代理本身拒绝的存储库。

@@ -148,6 +148,19 @@ marketplace plugin 在 `marketplace.json` 中有一个条目 `name` 和在其自
 
 当两个名称不同且有人按清单名称安装时，Claude Code 报告 `Plugin "<manifest-name>" not found in marketplace "<marketplace>"`。保持两个名称相同。有关 Claude Code 如何使用这两个名称的更多信息，请参阅[Plugin 加载参考](https://code.claude.com/docs/zh-CN/plugins/loading.md#find-where-a-plugin-came-from)。
 
+### 避免将未使用的子模块拉入克隆
+
+当有人添加您的市场时，Claude Code 会克隆该仓库，并且只获取包含插件文件的 git 子模块。需要 Claude Code v2.1.295 或更高版本。
+
+您可以通过每个插件的放置位置来决定 Claude Code 获取哪些子模块：
+
+* **位于子目录中的插件**：Claude Code 会获取插件目录内的子模块，以及包含该插件的子模块。将插件需要的子模块放在插件目录内，并将不需要的子模块放在目录外
+* **位于市场根目录的插件**：只要插件的某个文件引用了任一子模块内的路径，Claude Code 就会获取仓库中的所有子模块。如果您的仓库中有一个仅供构建使用的大型子模块，请将插件移到子目录中
+
+如果位于根目录的插件运行来自子模块的文件，请在插件的 hook 或服务器配置中完整写出该文件的路径，例如 `${CLAUDE_PLUGIN_ROOT}/vendor/tool/run.sh`。Claude Code 会读取这些路径来判断插件是否需要这些子模块。它无法识别脚本在运行时拼接出的路径。
+
+有关完整规则，请参阅[市场仓库中的 Git 子模块](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#git-submodules-in-the-marketplace-repository)。
+
 ## 选择 plugin 源
 
 `marketplace.json` 中的每个 plugin 条目都有一个 `source`，告诉 Claude Code 从哪里获取那个 plugin。根据 plugin 文件的存储位置选择源。该表列出了大多数 marketplace 所有者使用的源。

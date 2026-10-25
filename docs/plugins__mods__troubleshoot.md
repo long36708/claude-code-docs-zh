@@ -168,6 +168,15 @@ mod 已加载，然后 Claude Code 跳过了其中一个 hooks 或卸载了它�
 
 在 v2.1.292 之前，该调用会再运行一次，因此提示词会被提交两次、命令会被运行两次，或子代理会被启动两次。
 
+### `This mod's change didn't load` 或 `the earlier version is no longer running`
+
+对[Claude 在本会话中编写的 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod) 所做的更改无法加载。会话记录中的该行以 mod 的名称开头，以原因结尾：
+
+* `This mod's change didn't load, so the earlier version is still running: <reason>.`
+* `This mod didn't load, and the earlier version is no longer running: <reason>.`
+
+Claude 看不到此行，因此在请求 Claude 修复时，请将其粘贴到您的下一条消息中。
+
 ### `$.agent.register refused: the hooks module that made the call is no longer loaded`
 
 该行以您的 mod 名称开头，如 `first-mod: $.agent.register refused: the hooks module that made the call is no longer loaded (it was reloaded or removed)`，且该 Agent 未被注册。您的 mod 在该调用之前被重新加载或卸载。重新加载会加载 hook 模块的新副本，而此调用来自仍在旧副本中运行的代码，例如尚未返回的 hook。
@@ -224,6 +233,15 @@ mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期�
 您的 hook 返回的 [树](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements) 未通过验证。使用 `--plugin-dir` 时，会话记录会显示 `ui.render (Pane) refused:` 及原因，如 `first-mod: ui.render (Pane) refused: Box prop "flexDirection" must be one of row, column, row-reverse, column-reverse; the engine drew its own`。调试日志中有 `a hook returned a tree that does not validate` 及相同的原因。
 
 读取该行上的原因。常见原因是元素不接受的 prop 和应用没有的元素。
+
+### `needs a key`、`is drawn twice` 或 `key each once`
+
+您的 `ui.render` hook 返回的树中，某个元素没有有效的 [`key`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#which-controls-need-a-key)，或两个元素共用同一个 key。请找到您收到的消息：
+
+* **`<Input> needs a key` 或 `<Select> needs a key`**：该元素没有 `key` prop，或其 `key` 为空或不是字符串，如 `key: 3`。请为其提供一个非空字符串作为 `key`。
+* **`<Button> needs a key`**：为该按钮提供一个非空字符串作为其 `key`
+* **`is drawn twice; each takes its own key`**：消息所指明类型的两个元素具有相同的 `key`，如 `Input "size" is drawn twice; each takes its own key`。请为每个元素提供各自的 `key`。
+* **[测试](https://code.claude.com/docs/zh-CN/plugins/mods/test.md#test-a-drawing)中 `press` 报告的 `key each once`**：绘图中有多个按钮使用您传入的 key。标签相同且没有 `key` prop 的按钮会共用该标签作为其 key。请为每个按钮提供各自的 `key`。
 
 ### `ui.render` 行显示 `threw while drawn`
 
@@ -302,6 +320,48 @@ mod 运行，您所做的更改或它保留的值不存在。
 值重置，或保存的值被其默认值替换。这些命令中的每一个都将 `$.state` 重置为其默认值，`session.start` 不再触发。
 
 [在 `classic.SessionStart` hook 中再次加载保存的值](https://code.claude.com/docs/zh-CN/plugins/mods/interface#load-a-saved-value-again-after-clear)。
+
+### `settings.read` hook 返回的某个键不生效
+
+返回的 `env` 条目不会成为环境变量。返回的 `allow`、`ask` 和 `deny` 规则不会在工具调用时被检查。请在[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中设置这些内容，或对环境变量调用 [`$.env.set`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)。
+
+对于其他键，请查看[哪些 mod 会收到 `settings.read` 以及从哪个版本开始](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-hook)，然后在[调试日志](#read-the-debug-log)中搜索 `settings.read`，并查找以下某一行：
+
+| 日志行 | 含义和步骤 |
+| :- | :- |
+| `settings.read hook skipped`，位于您的 mod 名称之后 | 您的 hook 失败。[修复该行报告的错误](#hook-skipped)。 |
+| `settings.read bypassed by cc-plugin-sec-default`，所在行在其前面列出了您的 mod | [内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)跳过了您的 hook。请让您组织的管理员[将该 mod 安装为组织的 mod 之一](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)。 |
+| `settings.read: the answer for <key> is no value the key can hold` | 返回的值不符合该键的 schema。[返回一个它允许的值](#settings-read-key-refused)。 |
+| `settings.read: the merge never settles for <key>` | 该行列出的键保留设置来源中的值。请在设置文件中设置它们。 |
+| `answered settings.read without next()`，位于某个 mod 名称之后 | 仅当该 mod [在您的 mod 之前运行](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)时才相关。此时您的 hook 在该次读取中未运行。[关闭该 mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off)，或者如果它是由您的组织部署的，请让其管理员关闭。 |
+| `settings.read: refused to the engine` | 读取被拒绝，因此没有任何 hook 的 `{ value }` 生效。[找出拒绝它的原因](#settings-read-refused)。 |
+
+如果没有任何一行能解释该键，请检查在您的 mod 之前运行的 mod 中是否有[更改该键](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#settings-read-example)的 `settings.read` hook。关闭该 mod，或让您组织的管理员关闭。如果没有 hook 更改该键，请在设置文件中设置该键。
+
+### `the answer for <key> is no value the key can hold`
+
+此[调试日志](#read-the-debug-log)行表示 Claude Code 拒绝了您的 [`settings.read`](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-hook) hook 为所列键返回的值，且仅针对该键：
+
+```text theme={null}
+settings.read: the answer for <key> is no value the key can hold; the settings' own value stands
+```
+
+您为所列键返回的值不符合该键的 schema，例如类型或范围不符。请返回该键的[设置参考](https://code.claude.com/docs/zh-CN/settings-reference.md)条目所允许的值。在您的值不符合要求期间，该键保留在任何 hook 应答之前从设置来源合并得到的值。该行将其称为设置自身的值。
+
+### `settings.read: refused to the engine`
+
+此[调试日志](#read-the-debug-log)行表示 [Claude Code 自身的读取](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#settings-read-hook)被拒绝，因此没有任何 hook 的 `{ value }` 生效，包括您的 hook。当某个 `settings.read` hook 使用 [`{ deny: reason }`](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-returns) 拒绝该读取时，该行会带有该 hook 的原因：
+
+```text theme={null}
+settings.read: refused to the engine (engine: $.settings.read: <reason>); the settings' own values stand
+```
+
+在您自己的 hook 代码中搜索 `<reason>` 文本：
+
+* **您的代码中有该文本**：您的 hook 拒绝了读取。当 [`next.origin`](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-origin) 显示为 Claude Code 自身的读取时，让它返回 `{ value }`。
+* **您的代码中没有该文本**：逐个[关闭](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off)您的其他 mod。每关闭一个后，从 shell 重新运行本会话的命令，并使用一个指向新路径的 `--debug-file`，然后在该文件中搜索 `refused to the engine`。如果该行存在，则关闭下一个 mod。如果不存在，则说明您最后关闭的 mod 拒绝了读取，请保持其关闭状态。
+
+如果已没有其他 mod，请对您的 hook 返回的键使用[设置文件](https://code.claude.com/docs/zh-CN/settings.md)。在读取被拒绝期间，其中的值仍然有效。
 
 ## 阅读调试日志
 

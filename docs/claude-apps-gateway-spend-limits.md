@@ -98,7 +98,7 @@ Claude Code 在开发者接近其上限时向其发出警告：一旦利用率�
 
 警告和百分比来自 `anthropic-ratelimit-unified-*` 标头，网关会将这些标头添加到具有上限的开发者的每个成功 `/v1/messages` 响应中。标头始终描述开发者自己的上限：网关会剥离上游提供商的速率限制标头（这些标头描述您的共享配额），从不转发它们。
 
-开发者看到的支出是网关自身的[估计值](#how-requests-are-priced)，即网关用于执行上限的同一数值，而不是来自您的提供商账单的金额。Claude Code 通过向网关发送单独的请求来读取美元金额。如果您按照 [Compliance posture](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#compliance-posture) 的建议在开发者的机器上设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`，Claude Code 会跳过该请求。设置了该变量时，或者网关服务器版本早于 v2.1.284 时，该栏和状态栏仅显示百分比。
+开发者看到的支出是网关自身的[估计值](#how-requests-are-priced)，即网关用于执行上限的同一数值，而不是来自您的提供商账单的金额。Claude Code 通过向网关发送单独的请求来读取美元金额，即使您在开发者的机器上设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`，它也会发送该请求。在 v2.1.295 之前，设置了该变量时 Claude Code 会跳过该请求，`/usage` 和状态栏仅显示百分比和重置日期，不显示美元金额。
 
 ## Admin API 参考
 

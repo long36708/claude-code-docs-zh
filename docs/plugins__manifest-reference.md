@@ -606,7 +606,7 @@ Claude Code 为 plugin 组件提供三个路径变量。在[每个变量解析�
 }
 ```
 
-在 Windows 上，替换的路径使用正斜杠，因此 shell 不会将反斜杠读取为转义。
+在 Windows 上，大多数替换的路径使用正斜杠，例如 `C:/Users/you/...`。在 [exec 形式 hook](https://code.claude.com/docs/zh-CN/hooks.md#exec-form-and-shell-form) 以及通过 PowerShell 运行的 hook 中，它们会保留原生的反斜杠；未安装 Git Bash 时，PowerShell 是 Windows 上的默认 shell。
 
 ## 标准布局
 

@@ -318,6 +318,8 @@ $env:CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS = "300000"
 
 如果存储库是 monorepo，使用 `claude plugin marketplace add <source> --sparse <paths>` 限制检出到您命名的目录。
 
+如果仓库包含大型 git 子模块，请更新 Claude Code。在 v2.1.295 及更高版本中，Claude Code 仅获取[包含插件文件的子模块](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#git-submodules-in-the-marketplace-repository)。早期版本会获取所有子模块，仅此一项就可能耗尽这 120 秒。
+
 ### 市场更新在离线时持续失败
 
 您在市场的 git 主机无法访问的环境中工作，每个会话都在后台重复失败的刷新。您现有的市场检出保持原位，启动不会延迟。
@@ -609,7 +611,7 @@ Could not move the new copy of this plugin version into /home/user/.claude/plugi
 | `<Plugin or Dependency> "<name>" has conflicting version requirements` | 没有版本满足每个引脚它的范围。消息列出范围。 | 卸载或更新其中一个冲突的插件，或要求上游作者扩大其约束。 |
 | `... has version requirements too complex to intersect` 或 `has an invalid version requirement` | 范围不是有效的 semver，或组合范围无法相交。 | 修复无效范围或简化长 `\|\|` 链。 |
 | `... has no git tag satisfying <range>` | 依赖项的仓库在范围内没有 `<name>--v*` 标签。 | 检查上游是否使用该约定标记发布，或放宽范围。 |
-| `Dependency "<dep>" (required by <plugin>) is in <marketplace>, which is not in the allowlist` | 依赖项在不同的市场中，默认情况下跨市场解析已关闭。 | 自己在相同的作用域安装依赖项，在您的 shell 中使用 `claude plugin install <dep>@<marketplace>` 加上您安装插件的 `--scope`，然后重试。 |
+| `Dependency "<dep>" (required by <plugin>) is in marketplace "<marketplace>", which is not in the allowlist` | 依赖项在不同的市场中，默认情况下跨市场解析已关闭。 | 自己在相同的作用域安装依赖项，在您的 shell 中使用 `claude plugin install <dep>@<marketplace>` 加上您安装插件的 `--scope`，然后重试。 |
 
 要以编程方式查看这些，请在您的 shell 中运行 `claude plugin list --json`。有问题的插件携带带有消息的 `errors` 字段和带有每个 `type` 的 `errorDetails` 字段：前三行是 `dependency-unsatisfied`，第四行是 `dependency-version-unsatisfied`。
 
@@ -979,9 +981,9 @@ Claude Code 将已安装的插件复制到其缓存中并从那里加载，因�
 
 ### `${CLAUDE_PLUGIN_ROOT}` 在 Windows 上显示正斜杠
 
-在 Windows 上，插件 hook 接收到的 `${CLAUDE_PLUGIN_ROOT}` 为 `C:/Users/you/...` 而不是 `C:\Users\you\...`，期望反斜杠的脚本因此出错。
+在 Windows 上，通过 Git Bash 运行的插件 hook 接收到的 `${CLAUDE_PLUGIN_ROOT}` 为 `C:/Users/you/...` 而不是 `C:\Users\you\...`，期望反斜杠的脚本因此出错。
 
-Claude Code 在 Windows 上通过 Git Bash 运行 shell 形式的 hook，并有意以正斜杠 Win32 形式替换插件根目录。Bash 内置命令、MSYS 工具和本机 Windows 二进制文件都接受该形式。
+安装了 Git Bash 时，[shell 形式的 hook](https://code.claude.com/docs/zh-CN/hooks.md#exec-form-and-shell-form) 默认通过 Git Bash 运行。对于通过 Git Bash 运行的 hook，Claude Code 以正斜杠形式传递路径，以免 Bash 将反斜杠解读为转义符。Bash 内置命令、MSYS 工具和本机 Windows 二进制文件都接受该形式。
 
 如果您的脚本需要反斜杠，请将 hook 切换到保留本机路径的形式之一，如[执行形式和 shell 形式](https://code.claude.com/docs/zh-CN/hooks.md#exec-form-and-shell-form)下所述：
 
@@ -1090,6 +1092,14 @@ claude plugin install my-plugin@my-marketplace --config api_url=https://example.
 
 或者，在 git 存储库中托管市场并告诉用户使用存储库 URL 添加它。对于 git 源，Claude Code 克隆整个存储库，因此相对路径解析。源类型在 [市场参考](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md) 上。
 
+### 安装后根插件来自 git 子模块的文件缺失
+
+您的插件位于市场根目录，并运行或读取来自仓库 git 子模块的文件。安装后，子模块的目录为空。在 v2.1.295 之前，Claude Code 会获取每个子模块，因此该目录中有内容。
+
+当 Claude Code 克隆您的市场时，它仅获取[包含插件文件的子模块](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#git-submodules-in-the-marketplace-repository)。对于位于根目录的插件，它通过读取插件配置中的路径以及插件文件的文本来做出判断。它无法看到脚本在运行时构建的路径。
+
+请将指向子模块的路径完整写在 Claude Code 能够读取的位置，例如 hook 命令中的 `${CLAUDE_PLUGIN_ROOT}/vendor/tool/run.sh`。这样 Claude Code 就会为该插件获取仓库中的每个子模块。
+
 ### 市场验证错误
 
 您从市场目录运行了 `claude plugin validate .`，它在市场文件本身上报告了错误或警告。
@@ -1121,7 +1131,7 @@ claude plugin install my-plugin@my-marketplace --config api_url=https://example.
 
 ### `Marketplace source '<source>' is blocked by enterprise policy`
 
-您运行了 `/plugin marketplace add`、`update` 或安装，Claude Code 拒绝了此行。对于 GitHub 或 git 源，主机跟随括号中的源，如 `'github:owner/repo' (github.com)`。
+您运行了 `/plugin marketplace add`、`update` 或安装，Claude Code 拒绝并显示此行。
 
 您的管理员在托管设置中设置了 `blockedMarketplaces` 或 `strictKnownMarketplaces`，此源不被允许。要求您的管理员允许源，或添加消息列出的允许源之一。
 

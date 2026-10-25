@@ -262,7 +262,7 @@ Skills 是 Claude 工具包中的额外功能。它们可以是参考材料（�
 
 **上下文成本：** 低，直到使用。仅用户 skills 在调用前成本为零。
 
-**在 subagents 中：** Skills 在 subagents 中的工作方式不同。不是按需加载，而是在 subagent 的 `skills` 字段中列出的 skills 在启动时完全预加载到其上下文中。Subagents 仍然可以通过 Skill 工具发现和调用未列出的项目、用户和插件 skills。
+**在子代理中：** 子代理的 `skills` 字段中列出的 skill 的完整内容会[在启动时加载到其上下文中](https://code.claude.com/docs/zh-CN/sub-agents.md#preload-skills-into-subagents)，而不是按需加载。子代理仍然可以通过 Skill 工具发现和调用未列出的项目、用户和插件 skill。
 
 > [!TIP]
 >

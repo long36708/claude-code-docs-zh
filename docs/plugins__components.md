@@ -648,7 +648,7 @@ VS Code 扩展的[管理插件对话框](https://code.claude.com/docs/zh-CN/vs-c
 
 在数据目录路径中，`<id>` 是插件标识符，每个字符除了字母、数字、`_` 和 `-` 被替换为 `-`，所以 `my-plugin@my-marketplace` 变成 `my-plugin-my-marketplace`。
 
-在 Windows 上，替换的路径使用正斜杠，所以 shell 不将反斜杠读取为转义。
+在 Windows 上，大多数替换的路径使用正斜杠，例如 `C:/Users/you/...`。在 [exec 形式的 hook](https://code.claude.com/docs/zh-CN/hooks.md#exec-form-and-shell-form) 以及通过 PowerShell 运行的 hook 中，它们保留原生的反斜杠；在未安装 Git Bash 时，PowerShell 是 Windows 上的默认 shell。
 
 ### 将依赖项安装到数据目录
 

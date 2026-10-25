@@ -35,7 +35,7 @@ claude.ai 端需要：
 
 在启动之前在主机上安装：
 
-* **Claude Code v2.1.224 或更高版本**，使用任何[标准安装方法](https://code.claude.com/docs/zh-CN/setup.md)。运行器是标准 `claude` 二进制文件的一部分，较早的版本不识别 `self-hosted-runner` 子命令。要固定您的主机集群运行的确切版本，请参阅[安装特定版本](https://code.claude.com/docs/zh-CN/setup.md#install-a-specific-version)。对于容器镜像，请参阅[部署到生产环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#build-the-runner-image)中的 Dockerfile。
+* **Claude Code v2.1.224 或更高版本**，使用任何[标准安装方法](https://code.claude.com/docs/zh-CN/setup.md)。运行器是标准 `claude` 二进制文件的一部分，较早的版本不识别 `self-hosted-runner` 子命令。为 Claude Tag 会话提供服务的运行器需要 v2.1.229 或更高版本，并且其 `PATH` 上需要有 `python3`，因为[控制平面提供的 hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#how-each-session’s-config-is-assembled) 会为这些会话运行 `python3`。要固定您的主机集群运行的确切版本，请参阅[安装特定版本](https://code.claude.com/docs/zh-CN/setup.md#install-a-specific-version)。对于容器镜像，请参阅[部署到生产环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#build-the-runner-image)中的 Dockerfile。
 * **Git 2.24 或更高版本**。部署页面上的某些 git 选项需要更高版本；[配置 git](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#configure-git)说明了每个下限。
 
 确认主机已准备好：

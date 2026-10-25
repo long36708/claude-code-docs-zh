@@ -984,7 +984,12 @@ Linux 或 macOS 远程计算机需要受支持的处理器、带 SFTP 的 SSH �
 
 * **系统**：x86\_64 或 arm64 处理器。该计算机还必须满足 Claude Code 的[系统要求](https://code.claude.com/docs/zh-CN/setup.md#system-requirements)。在 Linux 上，Claude Code 需要 glibc 2.17 或更高版本，或 musl。若要查看该计算机使用的是哪一种，请在其上运行 `ldd --version`。在 Alpine Linux 等基于 musl 的发行版上，还需安装 [Claude Code 所需的软件包](https://code.claude.com/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)。
 * **SFTP**：SSH 服务器必须提供 SFTP 子系统，该子系统通过其 `sshd_config` 中的 `Subsystem sftp` 行启用。若要检查，请在您计算机上的终端中使用 `sftp` 连接到相同的主机和端口。正常工作的服务器会显示 `sftp>` 提示符。
-* **每个连接的会话数**：macOS 和 Linux 上的 Desktop 会在一个 SSH 连接上打开多个会话。如果服务器的 `sshd_config` 设置了 `MaxSessions 1`，请将其调高，例如调到 OpenSSH 的默认值 10。
+* **服务器上的 `MaxSessions 1`**：要连接到其 `sshd_config` 设置了 `MaxSessions 1` 的服务器，请执行以下操作之一：
+  * **您的计算机运行 macOS 或 Linux**：更新到 Claude Desktop v3.1623.0 或更高版本
+  * **您的计算机运行 Windows**：确保 Desktop [通过 OpenSSH 客户端连接](#use-your-ssh-configuration)，因为 Desktop 的内置 SSH 客户端无法连接到该服务器
+  * **您可以更改服务器**：调高 `MaxSessions`，例如调到 OpenSSH 的默认值 10
+* **使用 `MaxSessions 1` 时的登录**：使用无需提示即可完成的登录方式，例如由您的 SSH agent 持有的密钥。Desktop 每次连接或重新连接时至少登录两次。每个[终端](#run-commands-in-the-terminal)选项卡，以及您在其中运行以 `!` 开头的命令的每个 Desktop 会话，预计还需至少再登录一次。Claude 运行的命令则不需要额外登录。
+* **使用 `MaxSessions 1` 时的一次性验证码**：如果每次登录都会提示您（例如使用一次性验证码时），`!` 命令会失败。请改为在终端选项卡中运行这些命令，终端选项卡会在其自己的窗格中提示。
 * **安装文件夹**：Desktop 会在您主目录下的 `~/.claude/remote/` 中安装一个辅助程序和 Claude Code。它从该位置运行这些程序，因此该文件夹不能位于以 `noexec` 挂载的文件系统上。请在每个连接用户的主目录中预留约 1 GB 的磁盘空间。有关该文件夹包含的内容，请参阅[远程计算机上的文件和进程](#files-and-processes-on-the-remote-machine)。
 * **Shell**：远程计算机上为您的账户设置的 shell 必须能运行通过 SSH 发送的命令，Bash、Zsh 和 `sh` 均可
 * **网络**：Claude Code 在远程计算机上运行，并从那里发出网络请求，因此该计算机需要具备 [Claude Code 所需的网络访问](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)。如果该计算机无法下载 Claude Code，Desktop 会在您的计算机上下载并上传它。Claude Code 的其他请求仍从远程计算机发出。在 Linux 远程计算机上，如果这些请求需要代理，请[为 SSH 会话设置代理](#set-a-proxy-or-a-ca-certificate-for-ssh-sessions)。
@@ -993,7 +998,7 @@ Linux 或 macOS 远程计算机需要受支持的处理器、带 SFTP 的 SSH �
 
 如果 Linux 远程计算机通过代理访问互联网或需要 CA 证书，请在该计算机上的 `~/.claude/settings.json` 中的 `env` 下添加[代理和 CA 变量](https://code.claude.com/docs/zh-CN/network-config.md)。即使您已在该计算机上的 `~/.profile`、`~/.bash_profile`、`~/.zprofile` 或 `~/.zshrc` 中导出它们，也要添加。
 
-SSH 会话不会从这些文件中获取它们，即使在该计算机终端中运行的 `claude` 可以获取。此时会话可能会挂起，或显示 **The connection from … to the API failed** 或 **Authentication failed**，且重新登录也无济于事。
+在 SSH 会话中，Claude Code 不会从这些文件中获取变量，即使在该机器终端中运行的 `claude` 能获取到。此时会话可能会挂起，或显示 **The connection from … to the API failed** 或 **Authentication failed**，且重新登录也无济于事。
 
 **1. 添加变量**
 
@@ -1028,19 +1033,42 @@ SSH 会话不会从这些文件中获取它们，即使在该计算机终端中�
 
 重启远程计算机，或退出 Desktop 并结束辅助程序的进程，如[移除辅助程序](#files-and-processes-on-the-remote-machine)的前两个步骤所述。请在没有任务运行时执行此操作，因为任一方式都会中断 Claude 的工作。
 
-#### 在 macOS 和 Linux 上使用您的 SSH 配置
+#### 使用您的 SSH 配置
 
-在 macOS 和 Linux 上，Desktop 通过在您的计算机上运行 OpenSSH 客户端进行连接，因此会使用您的 `~/.ssh/config`。通过 OpenSSH 客户端连接需要 Claude Desktop v1.37937.0 或更高版本。在 **SSH host** 字段中输入该文件中的 `Host` 名称，即可使用其条目中的设置，例如 `HostName`、`User`、`IdentityFile`、`CertificateFile`、`ProxyJump` 和 `ProxyCommand`。
+当 Desktop 通过您计算机上的 OpenSSH 客户端连接时，您可以在 macOS、Linux 和 Windows 上使用您的 SSH 配置：
+
+* **macOS 和 Linux**：Desktop 通过运行您计算机上的 OpenSSH 客户端进行连接，因此会使用您的 `~/.ssh/config`。通过 OpenSSH 客户端连接需要 Claude Desktop v1.37937.0 或更高版本。
+* **Windows**：当 Desktop 通过 OpenSSH 客户端连接时，它会使用您的 `%USERPROFILE%\.ssh\config`。如果您使用的是 Claude 账户而不是第三方提供商，则通过 OpenSSH 客户端连接需要满足以下所有条件：
+
+  * Claude Desktop v2.2553.0 或更高版本。要查找您的版本，请参阅[检查您的版本](#check-your-version)。
+  * Microsoft 的 OpenSSH 9.4 或更高版本
+  * 使用本页顶部的下载按钮安装的 Desktop，因为来自 Microsoft Store 的 Desktop 不会通过 OpenSSH 客户端连接
+
+  如果您无法满足这些要求，或者您使用的是第三方提供商，请参阅[在 Windows 上不使用 OpenSSH 客户端进行连接](#connect-on-windows-without-the-openssh-client)。
+
+使用 OpenSSH 客户端时，请在 **SSH host** 字段中输入配置文件中的 `Host` 名称。随后 Desktop 会使用该 `Host` 条目中的设置，例如 `HostName`、`User`、`IdentityFile`、`CertificateFile`、`ProxyJump` 和 `ProxyCommand`。
 
 添加连接之前，请在您计算机上的终端中检查客户端和条目：
 
-* **客户端版本**：运行 `ssh -V`。客户端必须是 OpenSSH 7.6 或更高版本。
-* **条目**：使用 `Host` 名称运行 `ssh`，例如 `ssh devbox`。如果失败，请先修复该条目。
+* **macOS 和 Linux 上的客户端版本**：运行 `ssh -V`。客户端必须是 OpenSSH 7.6 或更高版本。
+* **Windows 上的客户端版本**：Desktop 会首先尝试 `PATH` 上的 `ssh`，因此请运行 `ssh -V`。如果输出显示 `OpenSSH_for_Windows_` 且版本为 9.4 或更高，则该客户端符合要求。如果不符合，请检查 Desktop 接下来会尝试的两个文件夹：先在 `C:\Windows\System32\OpenSSH` 中运行 `.\ssh.exe -V`，然后在 `C:\Program Files\OpenSSH` 中运行。
+* **Windows 上没有符合要求的客户端**：在 Windows 中添加 **OpenSSH Client** 可选功能并安装待处理的 Windows 更新，或者安装 [Microsoft 的较新构建版本](https://learn.microsoft.com/en-us/troubleshoot/windows-server/system-management-components/upgrade-in-box-openssh-to-latest-openssh-release)。然后退出并重新打开 Desktop。要查看 Desktop 是否找到了可用的 OpenSSH 客户端，请在 [`ssh.log`](#get-desktops-logs-for-an-ssh-problem) 中查找 `Windows OpenSSH client:` 及版本号，或查找 `no usable Windows OpenSSH client`。
+* **条目**：在 Windows 上，请使用通过了版本检查的客户端。使用 `Host` 名称运行 `ssh`，例如 `ssh devbox`。如果失败，请先修复该条目。
 
 您可以将 **SSH port** 和 **SSH key (optional)** 字段留空。如果填写其中之一，Desktop 会将其与条目一起使用：
 
 * **SSH port**：此处的值会覆盖条目的 `Port`
-* **SSH key (optional)**：除条目的 `IdentityFile` 和您 SSH agent 中的密钥外，Desktop 还会提供您选择的密钥文件
+* **SSH key (optional)**：使用 OpenSSH 客户端时，除了条目的 `IdentityFile` 和 SSH agent 中的密钥外，Desktop 还会提供您选择的密钥文件。在 Windows 上，请选择 OpenSSH 格式的密钥，因为 `ssh` 无法读取 PuTTY `.ppk` 文件。
+
+##### 在 Windows 上不使用 OpenSSH 客户端进行连接
+
+在 Windows 上，如果您的计算机不满足 [OpenSSH 客户端的要求](#use-your-ssh-configuration)，您将通过 Desktop 的内置 SSH 客户端进行连接。使用第三方提供商时，默认通过内置客户端连接，您的管理员可以更改此设置。有关该设置，请参阅 [SSH remote sessions in Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
+
+使用内置客户端时，如果您的 `PATH` 中有 `ssh` 命令，您仍可以在 **SSH host** 字段中输入 SSH 配置中的 `Host` 名称，但有以下限制：
+
+* **条目中的设置**：Desktop 会采用 `HostName`、`User`、`Port` 和 `IdentityFile`。如果您的 `PATH` 上有 `sh` shell，它还会采用 `ProxyCommand`。
+* **SSH key (optional)**：将此字段留空以保留条目的 `IdentityFile`，因为您在此处选择的密钥文件会替换 `IdentityFile`
+* **`CertificateFile` 和 `ProxyJump`**：Desktop 会忽略 `CertificateFile`，如果条目设置了 `ProxyJump`，连接会失败。要使用其中任一设置，请[通过 OpenSSH 客户端连接](#use-your-ssh-configuration)。
 
 ##### 访问跳板机后面的计算机
 
@@ -1095,7 +1123,7 @@ Host devbox-container
 
 ##### 在 `ProxyCommand` 中使用来自 shell 的变量
 
-若要在 `ProxyCommand` 或 `Match exec` 命令中使用您自己的环境变量，请在 shell 启动文件（例如 `~/.zshrc`）中导出它，然后退出并重新打开 Desktop。Desktop 启动时会读取您的登录 shell 导出的内容，并在您退出之前一直保留这些值。
+在 macOS 和 Linux 上，要在 `ProxyCommand` 或 `Match exec` 命令中使用您自己的环境变量，请在 shell 启动文件（例如 `~/.zshrc`）中导出它。然后退出并重新打开 Desktop。Desktop 启动时会读取您的登录 shell 导出的内容，并在您退出之前一直保留这些值。
 
 这需要 Claude Desktop v2.37337.0 或更高版本，以及一个接受 `-0` 的 `env` 命令，您可以在计算机上的终端中运行 `env -0` 进行检查。
 
@@ -1103,7 +1131,7 @@ Host devbox-container
 >
 > 如果您的 shell 设置了临时 AWS 凭据，请[为 AWS CLI 提供一个 profile](#use-aws-credentials-in-a-proxycommand)，而不是导出 `AWS_*` 变量。
 
-##### 在 `ProxyCommand` 中使用 AWS 凭据
+##### 在 macOS 和 Linux 上的 `ProxyCommand` 中使用 AWS 凭据
 
 如果您在 shell 启动文件中设置了临时 AWS 凭据，运行 AWS CLI 的 `ProxyCommand` 可能在终端中能够连接，而在 Desktop 中失败。当您的 shell 导出 `AWS_SESSION_TOKEN`、`AWS_SECURITY_TOKEN` 或 `AWS_CREDENTIAL_EXPIRATION` 时，Desktop 中的 `ssh` 和您的 `ProxyCommand` 不会获得 shell 的 AWS 凭据、`AWS_REGION` 或 `AWS_PROFILE`。
 
@@ -1242,8 +1270,9 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 
 ##### 准备长时间任务
 
-* **先更新**：在开始长时间任务之前更新 Desktop。在 macOS 和 Windows 上，Desktop 可能会自行重启以安装已下载的更新。当 Claude 正在处理 SSH 任务时，该重启会等待。在使用 Claude 账户的 macOS 上，默认情况下，更新等待 72 小时后，重启仍可能进行。
-* **在 Windows 上，或在 v2.42304.0 之前使用第三方提供商时，不要退出**：在这些情况下，退出后您会失去正在运行的任务，因此请在任务期间保持 Desktop 打开。在其他任何情况下，退出之前请查看[您能找回什么](#reopen-a-session-after-you-quit-desktop)。
+* **先更新**：在开始长时间任务之前更新 Desktop。在 macOS 和 Windows 上，Desktop 可能会自行重启以安装已下载的更新。当 Claude 正在处理 SSH 任务时，该重启会等待。默认情况下，一旦更新已等待 72 小时，如果 Desktop 之后能够[重新加入该任务](#reopen-a-session-after-you-quit-desktop)，重启就可能在任务期间进行。
+* **退出前检查**：退出或重启后，您不一定能重新获得正在运行的任务，例如在某些 Desktop 更新之后。有关具体情况，请参阅[退出 Desktop 后重新打开会话](#reopen-a-session-after-you-quit-desktop)。
+* **使用旧版本时，保持 Desktop 打开**：在 Windows 上使用 v3.1623.0 之前的 Claude Desktop 时，Desktop 退出或重启后，您无法重新获得正在运行的任务。在 macOS 或 Linux 上使用 v2.42304.0 之前版本的第三方提供商时也是如此。在这两种情况下，请在任务期间保持 Desktop 打开。要查找您的版本，请参阅[检查您的版本](#check-your-version)。
 * **减少请求**：选择[让任务更少等待您](#handle-requests-that-arrive-while-you-are-away)的权限模式、规则或 hook
 * **检查跳板机**：如果您的跳板机要求登录（例如向手机发送推送），请改用无需提示即可工作的登录方式。否则，Desktop 每次尝试重新连接时都可能发送另一条推送。
 * **测试远程计算机**：启动一个短任务，在任务仍在运行时退出 Desktop，并在任务应该完成很久之后再次打开会话。如果任务尚未完成且会话未显示身份验证错误，请检查远程计算机上[可能结束任务的因素](#limits-while-desktop-is-disconnected)。
@@ -1320,11 +1349,11 @@ Claude Code 在任何权限模式（包括 Bypass permissions）下都不会自�
 
 退出 Desktop 后，任务会在远程机器上继续运行，但除非 Desktop 能重新接入其进程，否则会话再次打开时任务会停止。在 Desktop 关闭期间，任务会一直运行，直到完成、需要您介入或达到某项[限制](#limits-while-desktop-is-disconnected)。
 
-* **Windows 上的 Desktop**：您无法找回正在运行的任务，因为 Desktop 在退出后从不重新接入。请仅在您预计任务已完成时再次启动 Desktop，因为会话可能会在 Desktop 启动时打开。
-* **第三方提供商，来自较早版本的任务**：如果您在 v2.42304.0 之前的 Desktop 版本中启动了任务，在 macOS 或 Linux 上也无法找回它。请仅在您预计任务已完成时再次启动 Desktop。
-* **其他任何任务，在 macOS 或 Linux 上的 Desktop 中**：启动 Desktop 并打开会话，如果 Desktop 重新接入，任务就会继续。它并不总能重新接入，例如在某些 Desktop 更新之后，因此请[在长时间任务之前更新](#prepare-a-long-task)。
+* **Windows 上的 Desktop，任务在 v3.1623.0 之前的版本中启动**：即使 Desktop 此后已更新，您也无法重新获得该任务。请仅在您预计任务已完成时再次启动 Desktop，因为会话可能会在 Desktop 启动时打开，而会话打开时任务会停止。如果您不知道任务是在哪个版本中启动的，也请等到您预计任务已完成时再启动。
+* **macOS 或 Linux 上的第三方提供商，任务在 v2.42304.0 之前的版本中启动**：您无法重新获得该任务。请仅在您预计任务已完成时再次启动 Desktop。
+* **任何其他任务**：启动 Desktop 并打开会话，如果 Desktop 重新加入，任务就会继续。它并不总能重新加入，例如在某些 Desktop 更新之后，因此请[在长时间任务之前更新](#prepare-a-long-task)。
 
-当 Desktop 无法重新接入时，您也会失去任何正在等待您的批准或问题。如果任务没有自行继续，请发送消息，Claude 会根据对话保存的历史记录继续。
+当任务停止时，会话可能会在 Desktop 启动新进程期间显示 `Restarting Claude Code on <host>…`。您还会失去任何正在等待您的批准或问题。如果 Claude 没有自行继续，请发送消息，Claude 会根据对话保存的历史记录继续。
 
 有关第三方部署，请参阅 [3P 上 Claude Desktop 中的 SSH 远程会话](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
 
@@ -1410,6 +1439,8 @@ Claude Code 启动的程序（例如 shell 命令和 MCP 服务器）也以该�
 ##### 查看谁连接了远程计算机
 
 若要了解谁连接了远程计算机，请读取该计算机上 SSH 服务器的日志，其中来自 Desktop 的登录与来自终端的登录看起来相同。在 macOS 或 Linux 上的 Desktop 中，每次 Desktop 连接都会产生一条记录，而不是每个会话一条。
+
+如果服务器设置了 `MaxSessions 1`，则每次 Desktop 连接或重新连接时至少会有两条记录。每个终端标签页，以及每个运行以 `!` 开头的命令的 Desktop 会话，还会至少再产生一条记录。
 
 您不会在 Claude Code 的[指标和事件](https://code.claude.com/docs/zh-CN/monitoring-usage.md#available-metrics-and-events)中找到 Desktop 的 SSH 连接。要从中了解某个 SSH 会话在哪台远程机器上运行，请参阅[将遥测归因于 Desktop SSH 会话](https://code.claude.com/docs/zh-CN/monitoring-usage.md#attribute-telemetry-to-desktop-ssh-sessions)。有关 Desktop 自身的连接记录，请参阅[获取 Desktop 针对 SSH 问题的日志](#get-desktops-logs-for-an-ssh-problem)。
 
@@ -2112,7 +2143,7 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 | - | - | - |
 | `<host>'s SSH server has SFTP turned off` | `[SFTP_UNAVAILABLE]` | 在服务器的 `sshd_config` 中启用 SFTP，如[远程机器要求](#remote-machine-requirements-for-ssh-sessions)中所述 |
 | `SFTP doesn't start on <host>` | `[SFTP_NOT_STARTED]` | 在您计算机的终端中使用 `sftp` 连接到同一主机，查看是什么阻止了它启动，然后检查 Desktop 消息中提到的设置和文件 |
-| `<host> allows too few SSH sessions per connection` | `[SESSION_LIMIT]` | 提高服务器 `sshd_config` 中的 `MaxSessions`，例如设为 OpenSSH 的默认值 10 |
+| `<host> allows too few SSH sessions per connection` | `[SESSION_LIMIT]` | 更新到 Claude Desktop v3.1623.0 或更高版本，或提高服务器 `sshd_config` 中的 `MaxSessions`，例如设为 OpenSSH 的默认值 10 |
 | `<host> is out of disk space` | `[ENOSPC]` 或 `[EDQUOT]` | 在远程机器上的主目录或 `/tmp` 中释放空间或配额 |
 | `Free up disk space on this computer` | `[ENOSPC]` 或 `[EDQUOT]`，出现在以 `Couldn't prepare the deploy locally` 开头的消息中 | 释放您计算机上的空间 |
 | `Claude Code won't start on <host>` | `[CLI_UNRESPONSIVE]` | 等待一分钟，然后重试。如果仍然失败，请在远程机器上运行消息中提到的命令，查看 Claude Code 在那里是否有响应。 |

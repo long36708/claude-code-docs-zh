@@ -111,7 +111,7 @@
 
 项目现在在侧边栏的 **Projects** 下列出，其对话已打开。[您的第一批](#your-first-batch)涵盖了在您向其发送工作之前要设置的内容。
 
-### 从现有云会话启动
+### 从现有会话启动
 
 如果您自己启动的某个云端会话正在进行属于项目的工作，请打开其侧边栏菜单并选择 **Move to project**，然后从子菜单中选择：
 
@@ -120,7 +120,12 @@
 
 云端会话的消息框上方也可能出现 **Set up project** 横幅。如果您使用它而不是 **Continue as new project**，结果是相同的，只是会话正在运行的轮次会在项目打开后停止。
 
-本地会话没有这些选项。要在项目中继续其工作，请在项目对话中描述工作，或推送其分支，将该代码库添加到项目，并在任务中命名分支。
+您自己机器上的会话通过 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#start-a-remote-control-session) 连接后，在 claude.ai/code 也会获得相同的侧边栏菜单。如果某个会话是在您的账户开启了 [**Require trusted devices**](https://code.claude.com/docs/zh-CN/remote-control.md#trusted-devices) 时连接的，Claude 无法从项目中读取该会话的会话记录。如果该设置处于关闭状态：
+
+1. 如果会话尚未连接，请在其中运行 `/remote-control`。如果它是在该设置开启时连接的，请先断开连接，然后重新连接。
+2. 在浏览器中，在 [claude.ai/code](https://claude.ai/code) 的侧边栏中找到该会话所在的行，打开其菜单，然后从同一子菜单中选择。
+
+如果 **Require trusted devices** 已开启，或者您不使用 Remote Control，请自己在项目对话中描述工作。或者推送该会话的分支，将其仓库添加到项目，并告诉 Claude 分支名称。
 
 ### 设置 GitHub 访问
 
@@ -425,7 +430,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 * **云端会话**：每个线程都是一个[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，除非您要求 Claude 在您的机器上运行它。无论哪种方式，Claude 启动和跟踪它而不是您。您还可以将自己启动的云端会话的工作带入项目：在该会话的侧边栏菜单中选择 [**Move to project**](#start-from-an-existing-cloud-session)。
 * **定时任务**：当您在项目中请求定时工作时，Claude 会创建一个[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)，它作为该项目中的线程运行，并显示在项目的 **Scheduled tasks** 标签页上。您在项目之外创建的定时任务会继续独立运行。
 * **Remote Control**：[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 连接 claude.ai 到在您的机器上运行的 Claude Code 会话。当您在项目中要求 Claude 在您的计算机上运行线程时，项目[使用 Remote Control 来执行](#run-a-thread-on-your-own-computer)。
-* **本地会话和代理视图**：您在终端、IDE 或桌面应用的本地环境中启动的会话不能添加到项目中。[代理视图](https://code.claude.com/docs/zh-CN/agent-view.md)是用于跟踪多个本地会话并排的屏幕，您仍然启动每个会话并自己给它分配任务。
+* **本地会话和 Agent 视图**：您自己在终端、IDE 或桌面应用的本地环境中启动的会话不属于您的项目，但您可以[将其工作带入某个项目](#start-from-an-existing-cloud-session)。[Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)是用于并排跟踪多个本地会话的屏幕，您仍然需要自己启动每个会话并为其分配任务。
 * **Worktrees**：一个 [worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 为每个本地会话提供其自己的仓库工作副本。云线程不需要它们：每个线程将其仓库克隆到其自己的云沙箱中，并在其自己的分支上工作。
 * **代理团队**：一个[代理团队](https://code.claude.com/docs/zh-CN/agent-teams.md)是一个会话，为单个任务启动队友会话，在您的机器上或在云会话内，并以该任务结束。
 * **Subagents**：一个[subagent](https://code.claude.com/docs/zh-CN/sub-agents.md)在一个会话内运行，在其自己的上下文窗口中执行一个辅助任务，并向该会话返回摘要。项目的线程是 Claude 启动的整个会话，向项目对话报告，一个线程仍然可以为其自己的辅助任务使用 subagents。
@@ -437,7 +442,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 * Projects 在 claude.ai/code、桌面应用和 Claude 移动应用中可用，不在终端 CLI、VS Code 扩展或 JetBrains 插件中，也不通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry。
 * 项目线程是[云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，或通过[远程控制](https://code.claude.com/docs/zh-CN/remote-control.md)在您自己的机器上的会话，两种情况下 Anthropic 都是模型提供者。[安全](https://code.claude.com/docs/zh-CN/security.md)和[数据使用](https://code.claude.com/docs/zh-CN/data-usage.md)涵盖了云会话如何隔离以及保留什么，[连接和安全](https://code.claude.com/docs/zh-CN/remote-control.md#connection-and-security)涵盖了您机器上的线程如何连接以及存储什么。
-* 您不能将自己在机器上启动的会话添加到项目中。项目仅通过[在您自己的计算机上通过远程控制运行线程](#run-a-thread-on-your-own-computer)到达您的机器，该部分列出了它需要什么。
+* 您不能将自己在机器上启动的会话添加到项目中，但可以[将其工作带入项目](#start-from-an-existing-cloud-session)。项目通过[在您自己的计算机上通过 Remote Control 运行线程](#run-a-thread-on-your-own-computer)到达您的机器，该部分列出了它需要什么。
 * 云线程的沙箱在轮之间暂停，并在线程继续时恢复。如果沙箱无法恢复，线程从新克隆继续，因此未提交的更改可能会丢失。在长任务上，要求 Claude 提交和推送进行中的工作。
 * 项目属于一个用户。您不能与另一个用户共享项目或其线程，线程记录没有其他云会话具有的共享选项。在测试版期间没有项目的组织级控制。
 * 线程属于启动它的一个项目。您不能将线程移动或复制到另一个项目，或将其移出以独立存在。[**Move to project**](#start-from-an-existing-cloud-session)仅以另一种方式进行：它将云会话的工作带入项目。您不能将两个项目合并为一个。

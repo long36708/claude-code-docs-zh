@@ -470,7 +470,7 @@ Claude Code 将这些值作为属性附加到每个指标数据点和事件记�
 如果名称没有到达，请检查是否存在以下原因之一：
 
 * **您在运行 Desktop 的计算机上设置了它**：Desktop 不会将您在那里设置的值传递给 SSH 会话
-* **您在登录文件中导出了它**：只有登录 shell 会读取 `/etc/profile` 之类的文件。您在其中 `export` 的值会传递给从登录 shell 启动的 Claude Code。它不会传递到 Desktop SSH 会话，因为 Desktop 不通过登录 shell 启动 Claude Code。
+* **您在 `/etc/profile` 或其他只有登录 shell 才会读取的文件中导出了它**：从登录 shell 运行 `claude` 时名称会到达，但在 Desktop SSH 会话中不会。Desktop 不通过登录 shell 启动 Claude Code。请改为在远程机器上的[托管设置文件](https://code.claude.com/docs/zh-CN/desktop.md#managed-settings)中的 `env` 下设置该变量。
 * **某个值内部包含空格**：此时 Claude Code 不会将任何键复制到事件或数据点上，也不会报告错误。[从值中去掉空格](#multi-team-organization-support)。
 * **其他来源已经设置了该变量**：在桌面应用启动的会话中，启动环境中已设置的变量[优先于设置文件](https://code.claude.com/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)。[调试日志](https://code.claude.com/docs/zh-CN/debug-your-config.md)会列出每个被忽略的变量。当第三方 Desktop 部署在其提供的环境中[指定 OTLP 端点](#how-managed-settings-lock-the-otlp-destination)时，该环境会带有 Desktop 自己的 `OTEL_RESOURCE_ATTRIBUTES`。
 

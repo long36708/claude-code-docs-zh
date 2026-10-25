@@ -313,9 +313,9 @@ on('turn.complete', async ($, e, next) => {
 
 #### 被拒绝的调用返回什么
 
-在结果中，`<reason>` 代表 `the session was stopped and nobody has sent input since`：
+在结果中，`<reason>` 代表调用被拒绝的原因。在中断之后，该原因为 `the session was stopped and nobody has sent input since`。有关其他原因，请参阅[在 `claude -p` 运行和 Agent SDK 会话中被拒绝的调用](#calls-refused-in-non-interactive-runs)。
 
-| 部分被拒绝的调用 | 用户下一次输入之前的结果 |
+| 部分被拒绝的调用 | 结果 |
 | :- | :- |
 | `$.prompt.submit` | 解析为 `{ drop: '<reason>' }`，且不会将任何提示词排队 |
 | `$.command.run` | 以一个消息以 `<reason>` 结尾的错误 reject |
@@ -324,7 +324,7 @@ on('turn.complete', async ($, e, next) => {
 | 向 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友调用 `$.session.send` | 解析为 `{ isDelivered: false, reason: 'Teammate "<name>" was not messaged: <reason>.' }`，其中 `<name>` 是队友的名称 |
 | 对带有 `run_in_background: true` 的 Bash、Monitor 或 CronCreate 调用 [`$.tool.call`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods) | 解析为 `{ deny: '<tool> was not run: it starts background work, a schedule or a goal, and <reason>' }`，其中 `<tool>` 是工具的名称 |
 
-伴随这些 `$.session.send` 和 `$.tool.call` 结果，用户可能会看到 [`Stopped:` toast](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#stopped-type-a-message-to-continue)。
+当这些 `$.session.send` 或 `$.tool.call` 调用之一在交互式会话中因中断而被拒绝时，用户可能会看到 [`Stopped:` toast](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#stopped-type-a-message-to-continue)。
 
 #### 您的 mod 在中断前启动的工作
 
@@ -340,6 +340,31 @@ on('turn.complete', async ($, e, next) => {
 | 您的 mod 生成并随后通过 `$.session.send` 恢复、在用户下一次输入之前完成的子代理 | 其完成通知会等待，并在该输入之后到达对话 | 无需处理 |
 
 当计划作业到期或监视器在用户下一次输入之前触发事件时，用户可能会看到 [`Stopped:` toast](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#stopped-type-a-message-to-continue)。
+
+### 在 `claude -p` 运行和 Agent SDK 会话中被拒绝的调用
+
+在 `claude -p` 运行或 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话中，诸如 `{ drop: 'the run reached its --max-turns limit' }` 这样的结果表示该运行拒绝了您的 mod 的调用。
+
+被拒绝的 `$.prompt.submit` 解析为 `{ drop: '<reason>' }`。其他被拒绝的调用，例如 `$.command.run` 和 `$.agent.spawn`，会给出[被拒绝的调用返回什么](#what-refused-calls-return)中所示的结果，其中 `<reason>` 替换为相应的原因。在下方找到您的 `<reason>`，了解如何处理：
+
+* **`the run reached its --max-turns limit`**：来自您的 mod 的提示词以及它生成的子代理所产生的轮次都会计入 [`--max-turns`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 Agent SDK 的[轮次限制](https://code.claude.com/docs/zh-CN/agent-sdk/configuration.md#limit-turns-and-spend)。如需更多轮次，请使用更高的限制启动运行。如果无法这样做，请让您的 mod 停止发起被拒绝的调用。如果运行从用户或 SDK 应用程序接收到另一个提示词，轮次计数会重置，运行会再次接受调用。
+* **`the run is past its --max-budget-usd limit`**：使用更高的 `--max-budget-usd` 启动运行，或提高 Agent SDK 的[花费限制](https://code.claude.com/docs/zh-CN/agent-sdk/configuration.md#limit-turns-and-spend)。如果无法这样做，请让您的 mod 停止发起被拒绝的调用。该限制适用于运行到目前为止的总花费。当运行接收到另一个提示词时，该总额会继续累加，因此重试会返回相同的原因。
+* **`the host has ended its input`**：例如，SDK 应用程序结束了其[流式输入](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)，或者使用 [`--input-format stream-json`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 启动的运行的 stdin 已关闭。运行正在结束，不再接受任何输入，因此重试会返回相同的原因。请让您的 mod 停止发起被拒绝的调用。如果运行由您自己启动，下次请保持该输入打开，直到您的 mod 不再需要发起调用。
+* **`the session was stopped and nobody has sent input since`**：运行被[中断](#calls-and-background-work-after-the-user-interrupts-a-turn)，例如通过 Agent SDK 的 [`interrupt()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#query-object)。要在用户或 SDK 应用程序的下一条消息之后再次发起调用，请按照[重试被拒绝或被丢弃的调用](#retry-a-refused-or-dropped-call)操作。
+
+### 加载您的 mod 的 `claude -p` 运行永不退出
+
+如果您的 mod 在每个轮次结束时都提交一个提示词，则每个提示词都会启动另一个轮次。如果没有 [`--max-turns`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 `--max-budget-usd`，加载该 mod 的 `claude -p` 运行会一直持续，直到您自己将其停止。
+
+要让运行自行结束，请在 shell 中为命令添加其中任一标志。如果由其他人启动运行，请让您的 mod 在完成工作后停止提交提示词。以下命令添加了 `--max-turns`：
+
+```bash theme={null}
+claude -p "find the TODOs" --max-turns 5
+```
+
+一旦运行达到该限制，mod 的下一个提示词会被[拒绝](#calls-refused-in-non-interactive-runs)而不是启动轮次，运行随之结束。
+
+如果运行仍然超出限制，请在 shell 中运行 `claude --version`，如果您的版本低于 v2.1.304，请[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)。从 v2.1.299 起，mod 的提示词会在达到限制时被拒绝。如果您的 mod 生成子代理，从 v2.1.304 起，它们的轮次会计入 `--max-turns`。
 
 ## 在会话之间发送和接收消息
 
@@ -390,7 +415,7 @@ mod 通过 mods API 访问文件系统、进程和网络，具有与运行 Claud
 | `$.http` | `fetch(url, init)` 通过 `http` 或 `https`。它在读取体后解析为 `{ status, ok, headers, text }`。 |
 | `$.store` | 您的插件自己的 JSON 键值存储，在会话之间保留 |
 | `$.env` | `get` 和 `set` 环境变量。将名称写为文字字符串。 |
-| `$.settings` | `read` 设置文件和托管策略持有的内容 |
+| `$.settings` | `read()` 解析为合并成一个对象的全部设置。传入 `{ source }` 或 `{ key }` 时，它改为解析为[单个来源的设置或单个键的值](#read-one-source-or-one-key)。 |
 | `$.session` | `messages()` 将会话记录作为 `{ role, text, toolUses }` 列表返回。还有工作目录、模型等。[`usage()`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods) 返回上下文窗口使用和计划限制。 |
 | `$.mcp` | `call` 连接的 MCP 服务器上的工具 |
 
@@ -407,6 +432,27 @@ mod 可以在命令已产生输出或已退出之后拒绝您的 `$.process.spaw
 
 * **`$.process.spawn started, and a plugin withheld its result:`**：拒绝方 mod 尚未将命令的输出读取到末尾。如果命令仍在运行，Claude Code 会将其停止。
 * **`$.process.spawn ran, and a plugin withheld its result:`**：拒绝方 mod 已将命令的输出读取到末尾，因此命令已经退出
+
+### 读取全部设置、单个来源或单个键
+
+`$.settings.read()` 解析为一个对象，其中包含所有正在使用的来源的设置，按[优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)合并。传入 `{ source }` 可改为读取单个来源，传入 `{ key }` 可读取单个键，也可以同时传入两者：
+
+| 调用 | 解析为 |
+| :- | :- |
+| `$.settings.read()` | 合并后的设置，作为一个对象。其顶层键与 `settings.json` 文件的顶层键相同，例如 `permissions` 和 `hooks`。 |
+| `$.settings.read({ source: 'policy' })` | 该单个来源的设置，作为一个对象；当该来源不包含任何设置时为 `{}` |
+| `$.settings.read({ key: 'spinnerTipsEnabled' })` | 该键在合并后设置中的值；当该键未设置时为 `undefined` |
+| `$.settings.read({ key: 'spinnerTipsEnabled', source: 'user' })` | 该键在该单个来源中的值；当该来源未设置它时为 `undefined` |
+
+对于 `source`，传入要读取的单个设置来源的名称：
+
+* **`user`**：`~/.claude/settings.json`
+* **`project`**：`.claude/settings.json`
+* **`local`**：`.claude/settings.local.json`
+* **`flag`**：通过 `--settings` 传入的内容，以及 SDK 的内联设置
+* **`policy`**：[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)
+
+对于 `key`，传入单个顶层键的确切名称，而不是指向嵌套对象内部的点分路径。`key` 参数需要 Claude Code v2.1.304 或更高版本。
 
 ## 后续步骤
 

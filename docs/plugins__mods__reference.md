@@ -21,7 +21,7 @@ mod 是一个包含以下文件的插件目录：
 | `.claude-plugin/plugin.json` | 是 | 插件[清单](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md)。mod 不会添加任何必需字段。 |
 | `hooks/hooks.json` | 是 | `modules`：一个数组，包含一个指向 hook 模块的路径（相对于此文件），如 `"modules": ["./register.js"]`。也可以在 `hooks` 下包含[设置 hook](https://code.claude.com/docs/zh-CN/hooks.md)。 |
 | hook 模块，例如 [`hooks/register.js`](https://code.claude.com/docs/zh-CN/plugins/mods/create#write-a-mod-yourself) | 是 | mod 的入口点。导出 `register(on, options)`。文件名以 `.js`、`.mjs`、`.cjs`、`.jsx`、`.ts`、`.mts`、`.cts` 或 `.tsx` 结尾。是一个 ES 模块。 |
-| [`types/index.d.ts`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#declare-the-values)，由清单中的 `types` 指定 | 当 mod 使用 `$.state` 或向 mods API 添加命名空间时 | 声明 `PluginState` 值以及 mod 添加的任何命名空间 |
+| [`types/index.d.ts`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#declare-the-values)，除非清单中的 `types` 指定了其他路径 | 当 mod 使用 `$.state` 或向 mods API 添加命名空间时 | 声明 `PluginState` 值以及 mod 添加的任何命名空间。要在清单中省略 `types`，需要 v2.1.299 或更高版本。 |
 | 名称以 `.test.ts` 或 `.test.tsx` 结尾的文件 | 否 | [`claude plugin test`](https://code.claude.com/docs/zh-CN/plugins/mods/test#write-a-test) 运行的测试 |
 
 `register` 接收 `on` 和 `options`。`options` 包含清单所声明的 [`userConfig`](https://code.claude.com/docs/zh-CN/plugins/components#user-configuration) 字段的值，并已填入默认值。
@@ -110,7 +110,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 
 ### 命令和配置
 
-命令和配置事件在命令运行或被列出时，以及 `/config` 行显示或更改时触发：
+命令和配置事件在命令运行或被列出时、`/config` 行显示或更改时，以及读取设置时触发：
 
 | 事件 | 触发时机 | hook 可以返回 |
 | :- | :- | :- |
@@ -118,6 +118,14 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | `command.describe` | 每个命令一次，用于命令列表 | `{ description, argumentHint, isHidden }` |
 | `config.set` | `/config` 行即将更改 | `next({ ...e, value })` 或 `{ deny: reason }` |
 | `config.describe` | 每个 `/config` 行一次 | `{ label, description, isHidden }` |
+| [`settings.read`](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-hook) | mod 调用 [`$.settings.read`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)，或 Claude Code 构建会话的合并设置时 | `next(e)`、`{ value }` 或 `{ deny: reason }` |
+
+#### `settings.read` 上的 `e.layers` 和 `e.source`
+
+* **`e.layers`**：每个正在使用且包含设置的来源对应一个 `{ source, settings }` 对象，[优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)最低的排在最前。请参阅[`settings.read` hook 接收的内容](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-receives)。
+* **`e.source`**：mod 所请求的那一个来源，如 `$.settings.read({ source: 'policy' })`。在 Claude Code 自身的读取以及任何其他对合并设置的读取中不存在
+
+在 `settings.read` 上，该事件在 Claude Code 自身读取时触发以及 `e.layers` 字段需要 Claude Code v2.1.304 或更高版本。有关该 hook 的运行时机以及它可以返回的内容（附示例），请参阅[更改或拒绝设置读取](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#settings-read-hook)。
 
 ### 轮次
 

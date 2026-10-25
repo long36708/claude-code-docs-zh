@@ -1230,11 +1230,11 @@ Claude Code 会分别判断每个文件。如果某个文件位于沙箱中的�
 
 * **作用域**：[`Any file`](#scopes)，[对项目设置和本地设置有限制](https://code.claude.com/docs/zh-CN/sandboxing.md#repository-settings-under-an-admin-required-sandbox)
 * **类型**：布尔值
-  * `true`：当 `sandbox.enabled` 为 `true` 但沙箱无法启动时，Claude Code 在启动时报错退出
+  * `true`：当 `sandbox.enabled` 为 `true` 但沙箱无法启动时，Claude Code 在启动时报错退出。如果沙箱通过了该检查但随后初始化失败，会话将继续运行，而 Claude Code 会[拒绝每个沙箱命令](https://code.claude.com/docs/zh-CN/sandboxing.md#commands-refused-with-sandbox-is-required)
   * `false`：当沙箱无法启动时，Claude Code 在沙箱外运行命令
 * **默认值**：`false`
 
-以下配置使每台受管机器要么对命令进行沙箱隔离，要么拒绝启动：
+以下配置为托管计算机启用沙箱，并将 `failIfUnavailable` 设置为 `true`：
 
 ```json managed-settings.json theme={null}
 {

@@ -223,6 +223,8 @@ Claude Code 提供两种沙箱模式。在这两种模式下，沙箱都会强�
 * **针对该参数的询问规则**：为 `Bash(dangerouslyDisableSandbox:true)` 添加[询问规则](https://code.claude.com/docs/zh-CN/permissions.md#match-by-input-parameter)，即可在 Bash 重试时收到提示。在自动模式和 `bypassPermissions` 模式下您也会收到提示，并且该规则优先于匹配的允许规则
 * **[`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories)**：[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)介绍了在启用该设置时会提示的重试
 
+当命令因 [`Sandbox is required` 消息](#commands-refused-with-sandbox-is-required)而被拒绝时，Claude Code 会忽略 `dangerouslyDisableSandbox` 参数，并同样拒绝该重试。
+
 #### 使用严格沙箱模式关闭重试
 
 您可以在[沙箱设置](https://code.claude.com/docs/zh-CN/settings-reference.md#sandbox-settings)中设置 `"allowUnsandboxedCommands": false` 来禁用沙箱外重试。禁用重试后，Claude Code 会忽略 `dangerouslyDisableSandbox` 参数。此后，在沙箱运行期间，Claude 运行的命令都会在沙箱中执行，除非它们匹配 `excludedCommands` 条目。要防止 Claude Code 在沙箱无法启动时在沙箱外运行命令，还需设置 [`failIfUnavailable`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-failifunavailable)。`/sandbox` 的 **Overrides** 选项卡将此设置显示为 **Strict sandbox mode**。
@@ -899,9 +901,16 @@ Claude Code 会忽略在其他任何位置设置的端口。在 v2.1.285 之前�
 
 ### 0 字节只读文件出现在 `.claude` 设置路径中，且"是的，不要再问"无法保存
 
-在 Linux 和 WSL2 上，沙箱化命令运行期间，沙箱通过在尚不存在的文件位置创建 0 字节只读占位符来保持对该文件的写入拒绝。沙箱随后会移除占位符。如果会话在清理运行之前被终止，例如通过 SIGKILL，占位符就会残留下来。后续会话每次启动时都会再次将这些占位符以只读方式绑定，因此在占位符所在的位置，设置写入（如保存权限选择）会失败。
+在 Linux 和 WSL2 上，沙箱化命令运行期间，沙箱通过在尚不存在的文件位置创建 0 字节只读占位符来保持对该文件的写入拒绝。沙箱随后会移除占位符。
 
-在终端中运行 `claude doctor` 以列出残留的占位符文件。[`Sandbox mask files left behind at write-deny paths`](https://code.claude.com/docs/zh-CN/errors#stale-sandbox-mask-files-left-by-a-killed-session) 警告会列出其中部分文件的名称，并统计其余文件的数量。在该项目中没有其他 Claude Code 会话运行时，使用 `rm` 删除每个文件。在 v2.1.257 之前，Claude Code 会留下相同的占位符而不对其进行标记。
+在以下情况下，占位符会残留下来：
+
+* 会话在清理运行之前被终止，例如通过 SIGKILL
+* 会话在沙箱化命令仍在运行时退出，例如后台命令
+
+后续会话每次启动时都会再次将这些占位符以只读方式绑定，因此在占位符所在的位置，设置写入（如保存权限选择）会失败。
+
+在终端中运行 `claude doctor` 以列出残留的占位符文件。[`Sandbox mask files left behind at write-deny paths`](https://code.claude.com/docs/zh-CN/errors#stale-sandbox-mask-files-left-by-a-killed-session) 警告会列出其中部分文件的名称，并统计其余文件的数量。在该项目中没有其他 Claude Code 会话运行时，使用 `rm` 删除每个文件。在 v2.1.257 之前，会话被终止时 Claude Code 会留下相同的占位符，而不对其进行标记。
 
 ### 启用沙箱时通过 SSH 使用 `git` 失败
 
@@ -999,6 +1008,21 @@ git remote set-url origin https://git.example.com/example-org/example-repo.git
 不带端口的 IP 地址条目会让沙箱化命令能够访问在该地址上监听的所有服务。
 
 在 v2.1.284 之前，代理会连接到允许的主机名所解析到的任何地址。
+
+### 命令因 `Sandbox is required` 被拒绝
+
+如果您通过 [`sandbox.failIfUnavailable`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-failifunavailable) 要求使用沙箱，而沙箱在 Claude Code 启动后以下列方式之一失败，则 Claude 运行的每条沙箱化命令都会被拒绝，并显示相应的消息。会话会继续运行，被拒绝的命令不会在沙箱外运行：
+
+* **`Sandbox is required but failed to initialize: <reason>`**：Claude Code 已启动，但沙箱随后初始化失败。请执行消息中给出的步骤：`Restart to retry.` 或 `Fix the sandbox settings to retry`。
+* **`Sandbox is required (sandbox.failIfUnavailable) and stopped being available in this session: <reason>`**：在 Linux 或 WSL2 上，沙箱已启动，但 Claude Code 随后发现缺少某个依赖项。请修复原因中指出的问题，例如[安装缺失的依赖项](#set-up-linux-and-wsl2)，然后重新启动 Claude Code。
+
+被排除的命令和您自行输入的命令会继续运行，且 Claude 无法在沙箱外重试被拒绝的命令：
+
+* **被排除的命令**：匹配 [`excludedCommands`](#run-commands-outside-the-sandbox-with-excludedcommands) 条目的命令会继续在沙箱外运行。当其中某条命令写入您工作目录之外的 [`filesystem.allowWrite`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-filesystem-allowwrite) 路径时，该写入会经过常规权限流程。在[管理员强制要求的沙箱](#repository-settings-under-an-admin-required-sandbox)下，Claude Code 会忽略来自仓库设置的条目
+* **您在 [`!` shell 模式提示符](https://code.claude.com/docs/zh-CN/interactive-mode#shell-mode-with-prefix)处输入的命令**：继续在沙箱外运行。在[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中，它们也会被拒绝
+* **在沙箱外重试**：Claude Code 会忽略[在沙箱外重试](#the-unsandboxed-retry-escape-hatch)的 `dangerouslyDisableSandbox` 参数
+
+在设置了 `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` 的 Linux 会话中，每条命令都在沙箱中运行，因此被排除的命令和您输入的命令也会被拒绝。
 
 ### `/sandbox` 因 `Sandbox settings are overridden by a higher-priority configuration` 失败
 

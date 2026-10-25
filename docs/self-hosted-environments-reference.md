@@ -378,10 +378,21 @@ groups:
 
 #### 将会话的指标与运行器的指标关联
 
-要将会话自身的指标与 `claude_code_self_hosted_runner_session_idle_seconds` 放在一起，请基于运行器的 `session_id` 进行关联：
+要查看空闲会话产生了多少成本，请基于 `ccr_session_id` 将运行器的 `claude_code_self_hosted_runner_session_idle_seconds` 与 Claude Code 的成本指标关联。运行器的指标不携带该标签，因此请使用 `label_replace` 为其添加一个，如以下查询所示：
 
-* **在 `--capacity` 高于 1 时**：直接关联。在运行器的 `/metrics` 上，会话的系列携带与该指标相同的 `session_id`，采用 `session_...` 形式。
-* **在 `--capacity 1` 时**：基于转换后的 `ccr_session_id` 进行关联。默认情况下，端口 9464 上的每个 Claude Code 指标都携带该标签，其中保存 `cse_...` 形式的会话 ID。在一个新标签中，将其 `cse_` 前缀替换为 `session_`，即可得到运行器的 `session_id`。该指标自身的 `session_id` 保存的是 Claude Code 自己的 [`session.id`](https://code.claude.com/docs/zh-CN/monitoring-usage#standard-attributes)，它不与任何运行器系列匹配。
+```text theme={null}
+sum by (ccr_session_id) (claude_code_cost_usage_total)
+and on (ccr_session_id)
+label_replace(
+  claude_code_self_hosted_runner_session_idle_seconds > 600,
+  "ccr_session_id", "cse_$1", "session_id", "session_(.*)"
+)
+```
+
+该查询为每个空闲超过十分钟的会话返回一个结果：即其 Claude Code 进程迄今为止统计的以美元计的成本。要关联其他 Claude Code 指标，请替换查询中的 `claude_code_cost_usage_total`。该查询在任何 `--capacity` 下都有效。
+
+* **`session_id`**：在端口 9464 上，Claude Code 指标上的该标签保存的是 Claude Code 自己的 [`session.id`](https://code.claude.com/docs/zh-CN/monitoring-usage#standard-attributes)，它不与任何运行器系列匹配。基于它进行关联不会返回任何结果，因此请基于 `ccr_session_id` 进行关联。
+* **Claude Code 指标没有 `ccr_session_id`**：请检查 [`OTEL_METRICS_INCLUDE_SESSION_ID`](https://code.claude.com/docs/zh-CN/monitoring-usage#metrics-cardinality-control) 是否被设置为 `false`
 
 ### 会话生命周期计数器语义
 
