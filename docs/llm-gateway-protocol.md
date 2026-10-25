@@ -238,7 +238,10 @@ Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并
 * 当上游仅拒绝对话中途系统消息上的 `cache_control` 标记时，Claude Code 会保留系统消息，并在移动该标记后重试一次。该标记会放在 `messages` 中最后一个非系统消息的条目上，在该次重试以及 Claude Code 退出之前的后续请求中均是如此
 * 当上游拒绝[思考签名](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)时，包括带有 `400` 的拒绝，其消息说该块被 `bound to a different conversation`，Claude Code 会从请求中删除早期思考块，重试，并将其排除在每个后续请求之外。新响应仍然包括思考
 * 当 gateway 或其上游将[顾问工具](https://code.claude.com/docs/zh-CN/advisor.md)条目在 `tools` 中拒绝为无法识别的工具类型时，Claude Code 会重试一次请求，不包含该条目及其 `anthropic-beta` 值。对该基础 URL 的后续请求会将顾问排除在外，直到 Claude Code 退出，在该时间内 `/advisor` 对开发者不可用。Claude Code 通过 `400` 或 `422` 响应识别此拒绝，其消息在 `Input tag` 之后命名工具类型，例如 `Input tag 'advisor_20260301'`。在 v2.1.280 之前，Claude Code 没有重试此拒绝
-* 当上游拒绝 `output_config.effort` 时，Claude Code 会在不带努力的情况下重试请求，并在 Claude Code 退出之前，在发往该模型的后续请求中省略它。Claude Code 通过 `400` 响应识别此拒绝，其消息同时命名 `output_config.effort` 和 `Extra inputs are not permitted`，或说明该模型不支持 effort 参数
+* 当上游拒绝 `output_config.effort` 或其 `anthropic-beta` 值时，Claude Code 会重试，并在 Claude Code 退出之前，不再向发往该模型的请求中添加这两者。如果您的网关原封不动地转发上游的 `400`，且其消息满足以下条件之一，则网关无需任何更改：
+  * 同时命名 `output_config.effort` 和 `Extra inputs are not permitted`
+  * 说明该模型不支持 effort 参数
+  * 以 `Unexpected value(s)` 开头，并针对 `anthropic-beta` 请求头列出 `effort-2025-11-24`。需要 v2.1.310 或更高版本。如果开发者的 [`ANTHROPIC_BETAS`](https://code.claude.com/docs/zh-CN/env-vars) 中列出了该值，他们会继续发送该值并收到 `400`，因此请让他们移除该条目
 * 当上游拒绝 `context_management` 字段或其 `anthropic-beta` 值时，网关会再次收到不带它们的该请求。如果网关在后续请求中再次看到它们且上游再次拒绝，则会进行同样的重试。Claude Code 通过消息识别此拒绝，例如包含 `context_management: Extra inputs are not permitted` 的消息。在 v2.1.304 之前，Claude Code 没有重试此拒绝
 * 当上游拒绝 `defer_loading` 以外的 beta 工具字段（例如 `strict`）时，`400` 会到达开发者。在此之前，网关可能会再次收到[不带工具搜索字段](#retry-without-tool-search)的该请求。若要停止发送此类字段，请让开发者设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](#disable-pre-release-capabilities)
 

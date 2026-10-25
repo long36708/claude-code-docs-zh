@@ -584,7 +584,8 @@ monitor 是在整个会话中在后台运行的 shell 命令。它打印的内�
 
 monitor 的命令在其启动位置和可以引用的内容方面受到限制：
 
-* **仅限交互式会话**：插件 monitor 在交互式会话中启动，从不在使用 `-p` 标志的非交互模式中启动。在 API 提供商或遥测设置导致 [Monitor 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool) 不可用的会话中，它们也不会启动
+* **交互式会话**：插件 monitor 不会在使用 `-p` 标志的非交互模式中启动
+* **最低版本**：在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上，或设置了 `DISABLE_TELEMETRY` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，monitor 需要 Claude Code v2.1.310 或更高版本。该要求在 [功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching) 关闭时适用
 * **无用户配置**：`command` 从环境中获取 [路径变量](#path-variables-and-persistent-data) 和 `${ENV_VAR}`，但从不获取 `${user_config.*}`。引用一个的 monitor 不启动，monitor 进程也不接收 `CLAUDE_PLUGIN_OPTION_<KEY>`
 * **会话中期禁用**：如果你在会话中期禁用插件，Claude Code 不会停止已经运行的 monitors。它们在会话结束时停止
 

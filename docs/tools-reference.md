@@ -258,7 +258,7 @@ Edit 工具执行精确字符串替换。它接受一个 `old_string` 和一个 
 
 当 `old_string` 与当前内容完全匹配且明确无误，且 Claude Code 可以在不提示的情况下读取文件时，在 Claude 最后读取后在磁盘上更改的文件仍然可以编辑。针对文件的当前内容进行匹配可以保持安全，结果会注明该文件包含其他更改，以便 Claude 在依赖周围内容的编辑前重新读取它。在任何其他情况下，例如过时的 `old_string` 或在没有 `replace_all` 的情况下匹配多次的情况，Claude 在编辑前再次读取文件。
 
-Claude 使用 `cat` 或 `grep` 等 Bash 命令查看文件后，也可以在不单独执行 Read 的情况下编辑该文件。这些命令是 `cat`、`nl`、`bat`、`batcat`、`head`、`tail`、`sed -n 'X,Yp'`、`grep`、`egrep`、`fgrep` 和 `rg`，且每个命令都需在单个文件上运行，没有管道或重定向。没有输出任何匹配的搜索不算作读取，此列表之外的任何命令也不算。
+Claude 使用 `cat` 或 `grep` 等 Bash 命令查看文件后，也可以在不单独执行 Read 的情况下编辑该文件。这些命令是 `cat`、`nl`、`bat`、`batcat`、`head`、`tail`、`sed -n 'X,Yp'`、`grep`、`egrep`、`fgrep` 和 `rg`，且每个命令都需在单个文件上运行，没有管道或重定向。如果命令没有输出该文件的任何文本（例如搜索没有匹配到任何内容时），编辑前读取检查仍然适用。
 
 当 Claude 以这种方式查看文件时，Claude Code 还会加载适用于该文件的任何[子目录 `CLAUDE.md`](https://code.claude.com/docs/zh-CN/memory#how-claude-md-files-load) 和[路径范围规则](https://code.claude.com/docs/zh-CN/memory.md#path-specific-rules)。请参阅 [Read 和 Edit 权限规则](https://code.claude.com/docs/zh-CN/permissions.md#read-and-edit)，了解您的 `Read` 和 `Edit` 拒绝规则涵盖哪些 Bash 命令。
 
@@ -383,7 +383,10 @@ Monitor 工具让 Claude 在后台监视某些内容，并在其发生变化时�
 
 [WebSocket 源](#websocket-source) 有其自己的批准提示，分类器也在自动模式下决定。
 
-该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。当设置了 `DISABLE_TELEMETRY` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，它也不可用。在 Windows 上，仅当安装了 [Git Bash](https://code.claude.com/docs/zh-CN/setup.md#set-up-on-windows) 时该工具才可用。
+在以下情况下，Monitor 需要最低版本或 Git Bash：
+
+* **最低版本**：在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上，或者设置了 `DISABLE_TELEMETRY` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，Monitor 需要 Claude Code v2.1.310 或更高版本。此要求在 [功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching) 关闭时适用
+* **Windows**：仅当安装了 [Git Bash](https://code.claude.com/docs/zh-CN/setup.md#set-up-on-windows) 时该工具才可用
 
 插件可以声明在插件处于活动状态时自动启动的监视，而不是要求 Claude 启动它们。请参阅 [插件监视器](https://code.claude.com/docs/zh-CN/plugins/components.md#monitors)。
 

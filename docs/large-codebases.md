@@ -306,7 +306,7 @@ CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 claude --add-dir ../shared
 
 ## 添加按目录 skills
 
-任何子目录都可以定义[skills](https://code.claude.com/docs/zh-CN/skills.md)范围限于其自己的堆栈。skill 在 Claude 确定其相关时按需加载，所以 API 特定的工具在前端工作期间不会消耗上下文。
+任何子目录都可以定义范围限于其自己技术栈的 [skill](https://code.claude.com/docs/zh-CN/skills.md)。skill 在 Claude 确定其相关时按需加载。
 
 Skills 位于目录内的 `.claude/skills/` 下。将它们与该区域的代码一起提交，以便克隆存储库的任何人都能获得它们。在 monorepo 中，这可以是每个包一套 skills。在大型单树代码库中，它是每个子系统一套，例如 `src/db/.claude/skills/`。
 
@@ -347,7 +347,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 - 在 `src/__tests__/mocks/` 中模拟外部服务
 ```
 
-不同的子目录以相同的方式保存不同的 skills：`packages/web/.claude/skills/component-patterns/` 描述前端的组件约定而不是测试。当 Claude 处理 `packages/api/` 中的文件时，它加载 api-testing skill。当它在 `packages/web/` 中工作时，它加载 component-patterns 代替。在另一个的任务期间，两个目录的 skills 都不加载。
+不同的子目录以相同的方式保存不同的 skill：`packages/web/.claude/skills/component-patterns/` 描述前端的组件约定而不是测试。当 Claude 处理 `packages/api/` 中的文件时，它加载 api-testing skill。当它在 `packages/web/` 中工作时，它加载 component-patterns。
 
 您也可以按文件模式而不是按放置位置来限定 skill 的范围。[`paths` frontmatter 字段](https://code.claude.com/docs/zh-CN/skills#frontmatter-reference)采用 glob 模式，Claude 仅在处理匹配文件时自动加载 skill。对于位于仓库根目录的 `.claude/skills/` 中但仅适用于某些文件的 skill，可使用此功能，例如限定于 `**/migrations/**` 的数据库迁移 skill。
 

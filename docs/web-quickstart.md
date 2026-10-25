@@ -177,7 +177,10 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
 
 **1. 打开差异视图**
 
-差异指示器显示整个会话中添加和删除的行，例如 `+42 -18`。选择它以打开差异视图，左侧是文件列表，右侧是更改。
+Claude 将其更改推送到分支后，聊天旁边面板中的 **Changes** 卡片会显示整个会话中添加和删除的行，例如 `+42 -18`。点击这些计数以打开差异视图。
+
+* 您也可以点击会话标题栏中的 **Changes**，或标题栏 **⋮** 菜单中的该选项。
+* 若面板处于隐藏状态，要显示它，请点击会话标题栏中的 **Show session rail** 图标，或标题栏 **⋮** 菜单中的该选项。
 
 差异默认将会话的更改与其基础分支进行比较。要与不同的分支进行比较，选择**Compare against**并选择一个。
 
@@ -187,7 +190,10 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
 
 **3. 创建拉取请求**
 
-当差异看起来正确时，选择差异视图顶部的**Create PR**。您可以将其作为完整 PR、草稿打开，或跳转到 GitHub 的撰写页面，其中包含生成的标题和描述。
+当 diff 看起来正确时，如果 **Changes** 卡片不在视图中，请[重新显示面板](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#review-changes)，然后从该卡片创建 Pull Request 或草稿：
+
+* 点击 **Create PR**。Claude Code 会使用生成的标题和描述创建 Pull Request。
+* 若要改为打开草稿，请右键点击 **Create PR**，选择 **Create draft PR** 以更改该按钮的行为，然后点击该按钮
 
 **4. 在 PR 后继续迭代**
 

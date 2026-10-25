@@ -659,6 +659,8 @@ diff 面板列出了更改的文件及其添加和删除的行数，并在列表
 
 要重新绑定用于滚动文件列表或更改比较内容的快捷键，请参阅 [Diff panel actions](https://code.claude.com/docs/zh-CN/keybindings.md#diff-panel-actions)。
 
+在未完成的合并、rebase、cherry-pick 或 revert 期间，面板会继续显示它上次从 git 读取的更改，因此不会被该操作传入的更改填满。操作结束后，面板会在第一次刷新时更新，例如在 Claude 下次编辑文件时。
+
 ### Diff dialog
 
 diff 对话框以带边框的区块形式在输入框上方打开，列出您更改的文件及其添加和删除的行数。它将这些文件与 `HEAD` 进行比较，或者与您上次为此仓库[在 diff 面板中选择](#diff-panel)的内容进行比较。

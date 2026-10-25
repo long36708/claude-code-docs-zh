@@ -15,7 +15,7 @@
 | 检查运行标题 | 含义 | 处理方法 |
 | :- | :- | :- |
 | **Code review queued...** 或 **Code review in progress...** | 审查尚未完成 | 等待标题变化 |
-| **Code review found no issues** | 审查已完成，未发现需要标记的问题 | 无需操作 |
+| **Code review found no issues** | 审查已完成，未发布任何发现项 | 如果这不是该 Pull Request 的首次审查，请在审查正文中查看[审查未包含的发现项](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#what-a-later-review-covers)的数量。否则无需操作 |
 | 表示发现了问题的标题 | 审查已完成并有发现项 | 如果在 diff 上看不到这些发现项，请参阅[查找未显示为内联评论的问题](#find-issues-that-aren’t-showing-as-inline-comments) |
 | **Code review skipped — no new changes** | 自动审查未在您最新的推送上运行 | 如果仍想获得审查，请评论 `@claude review` |
 | **Code review not repeated — earlier findings still open** | 自动审查未在您最新的推送上运行，且之前审查中的 Important 发现项仍未解决 | 推送修复；如果仍想获得审查，请评论 `@claude review`。请参阅[推送保留之前结果的情况](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#when-a-push-keeps-the-earlier-result) |

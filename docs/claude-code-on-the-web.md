@@ -18,7 +18,7 @@
 
 * **浏览器**：[claude.ai/code](https://claude.ai/code)，也称为网络上的 Claude Code
 * **移动设备**：[Claude 应用](https://code.claude.com/docs/zh-CN/mobile.md)中的 **Code** 标签页
-* **桌面应用**：当你[启动会话](https://code.claude.com/docs/zh-CN/desktop.md#run-long-running-tasks-in-the-cloud)时，选择 **Cloud** 而不是 **Local**
+* **桌面应用**：在[启动会话](https://code.claude.com/docs/zh-CN/desktop.md#run-long-running-tasks-in-the-cloud)时，在环境选择器中选择 **Cloud** 下的某个环境
 * **终端**：[`claude --cloud`](#from-terminal-to-cloud)
 * **云端定时任务**：[定时运行和触发运行](https://code.claude.com/docs/zh-CN/routines.md)每次都作为云端会话运行
 
@@ -247,9 +247,15 @@ Teleport 需要 claude.ai 订阅身份验证。请找到与您相符的情况：
 
 ### 审查更改
 
-每个会话都会显示一个 diff 指示器，标示添加和删除的行数，例如 `+42 -18`。选择它即可打开 diff 视图，在特定行上添加内联评论，并随下一条消息将这些评论发送给 Claude。
+Claude 将其更改推送到分支后，聊天旁面板中的 **Changes** 卡片会显示添加和删除的行数，例如 `+42 -18`。点击 **Changes** 卡片上的行数即可打开 diff 视图。
 
-diff 视图默认将会话的更改与其基础分支进行比较。要与仓库中的任何其他分支进行比较，请选择 **Compare against** 并选择一个分支。
+* 您也可以点击会话标题栏中的 **Changes**，或标题栏 **⋮** 菜单中的该选项。
+* 面板隐藏时，要显示面板，请点击会话标题栏中的 **Show session rail** 图标，或标题栏 **⋮** 菜单中的该选项。
+
+在 diff 视图中，您可以对行添加评论，并与其他分支进行比较：
+
+* **评论**：在特定行上留下内联评论，然后随下一条消息将这些评论发送给 Claude
+* **比较**：diff 视图默认将会话的更改与其基础分支进行比较。要与仓库中的任何其他分支进行比较，请选择 **Compare against** 并选择一个分支
 
 Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配置的 diff 驱动程序和 `textconv` 过滤器不适用。
 
@@ -313,16 +319,19 @@ Max 和 Pro 账户的共享方式如下：
 
 ### 归档会话
 
-你可以归档会话以保持你的会话列表有序。归档的会话从默认会话列表中隐藏，但可以通过筛选已归档会话来查看。
+归档会话可将其从侧边栏的会话列表中移除。要归档会话，请在侧边栏中将鼠标悬停在该会话上，打开其 **⋯** 菜单，然后选择 **Archive**。
 
-要归档会话，请在侧边栏中悬停在会话上并选择归档图标。
+#### 查找已归档的会话
+
+要查看已归档的会话，请前往 [claude.ai/code/sessions](https://claude.ai/code/sessions) 并打开 **Archived** 标签页。要将某个会话放回侧边栏的会话列表，请在该标签页上将鼠标悬停在该会话上，打开其 **⋮** 菜单，然后选择 **Unarchive**。
 
 ### 删除会话
 
-删除会话会永久删除会话及其数据。此操作无法撤销。你可以通过两种方式删除会话：
+删除会话会永久删除会话及其数据。此操作无法撤销。您可以从侧边栏、会话菜单删除会话；如果会话已归档，也可以从 **Archived** 标签页删除：
 
-* **从侧边栏**：筛选已归档会话，然后悬停在你想删除的会话上并选择删除图标
+* **从侧边栏**：将鼠标悬停在会话上，打开其 **⋯** 菜单，然后选择 **Delete**
 * **从会话菜单**：打开会话，选择会话标题旁的下拉菜单，然后选择**删除**
+* **从 Archived 标签页**：在 [**Archived** 标签页](#find-an-archived-session)上将鼠标悬停在会话上，打开其 **⋮** 菜单，然后选择 **Delete**
 
 删除会话前会要求你确认。
 
@@ -336,12 +345,12 @@ Claude 可以监视拉取请求并自动响应 CI 失败和审查评论。Claude
 
 根据 PR 来自何处以及你使用的设备，有几种方法可以打开自动修复：
 
-* **在云会话中创建的 PR**：打开 claude.ai/code 处的会话，打开 CI 状态栏，并选择**自动修复**
+* **在云端会话中创建的 PR**：打开 claude.ai/code 处的会话，在 [**Changes** 卡片](#review-changes)中找到该拉取请求。打开拉取请求标题旁边的 **⋮** 菜单并启用 **Auto-fix**
 * **从终端**：在 PR 的分支上运行 [`/autofix-pr`](https://code.claude.com/docs/zh-CN/commands)。Claude Code 使用 `gh` 检测打开的 PR，生成云会话，并一步启用自动修复
 * **从移动应用**：告诉 Claude 自动修复 PR，例如"watch this PR and fix any CI failures or review comments"
 * **任何现有 PR**：将 PR URL 粘贴到会话中并告诉 Claude 自动修复它
 
-自动修复是按 PR 的切换开关。要停止监视，请在 claude.ai/code 处的会话中打开 CI 状态栏并清除**自动修复**切换，或告诉 Claude 停止监视 PR。
+要停止监视，请在会话的 [**Changes** 卡片](#review-changes)中，通过拉取请求的 **⋮** 菜单关闭 **Auto-fix**，或告诉 Claude 停止监视该 PR。
 
 ### Claude 如何响应 PR 活动
 
@@ -380,6 +389,17 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 * 检查 [status.claude.com](https://status.claude.com) 以了解云会话事件
 * 一分钟后重试，因为容量是按需配置的
 * 通过遵循[连接 GitHub 后没有存储库出现](https://code.claude.com/docs/zh-CN/web-quickstart.md#no-repositories-appear-after-connecting-github)来确认你的 GitHub 连接可以访问存储库
+
+### Your new session couldn't start
+
+您的提示词已返回到您发送它时所用的输入框中。
+
+* **连接中断**：请检查您的网络连接以及您使用的任何 VPN 或代理，然后重新发送您的提示词
+* **服务器错误**：请稍等片刻，然后重新发送您的提示词。如果该通知再次出现，请检查 [status.claude.com](https://status.claude.com)
+
+### Can't rewind to this message
+
+当您的会话在 Claude Code 版本早于 v2.1.246 的[自托管运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments)上运行时，对除最新消息之外的任何消息执行 **Rewind to here** 都会因此错误而失败。请让负责运行您组织运行器的人员[升级它们](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#pin-the-version)。
 
 ### 无法获取组织 UUID
 

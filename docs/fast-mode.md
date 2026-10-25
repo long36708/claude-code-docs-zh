@@ -167,7 +167,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 在网关后面时，请检查是否存在以下配置，在这些配置中 Claude Code 不会发送可用性检查，且没有缓存之前的成功检查：
 
-* 您将 `ANTHROPIC_BASE_URL` 指向您的网关，并将 [`ANTHROPIC_API_KEY`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential) 设置为网关颁发的、不符合 Anthropic API 密钥格式的密钥。Claude Code 不会将此类密钥发送到 `api.anthropic.com`。
+* 您将 `ANTHROPIC_BASE_URL` 指向您的网关，并将 [`ANTHROPIC_API_KEY`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential) 设置为网关颁发的、不符合 Anthropic API 密钥格式的密钥。
 * 您设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](https://code.claude.com/docs/zh-CN/env-vars)，因此 Claude Code 会跳过该检查。
 
 要在上述任一配置中恢复快速模式，请设置 `CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS=1`。

@@ -1426,7 +1426,7 @@ exit 0
 
 Setup hook 无法阻止；无论退出码是什么，执行都会继续。对于任何退出码，Claude Code 都会丢弃 Setup hook 的 [JSON 输出字段](#json-output)，例如 `systemMessage`、`continue` 和 `hookSpecificOutput.additionalContext`。使用 `-p` 时，只有当您使用 `--output-format stream-json --verbose` 启动时，Setup hook 的 stdout、stderr 和退出码才会作为 [`hook_response` 事件](https://code.claude.com/docs/zh-CN/headless#read-session-metadata)出现在运行输出中。
 
-Setup hook 可以访问 `CLAUDE_ENV_FILE`。写入该文件的变量会持久化到会话后续的 Bash 命令中，与 [SessionStart hook](#persist-environment-variables) 相同。`Setup` 上只运行 `type: "command"` hook。`Setup` 上的 `type: "mcp_tool"` hook 始终会被跳过，如 [MCP 工具 hook 字段](#mcp-tool-hook-fields)中所述。
+Setup hook 可以访问 `CLAUDE_ENV_FILE`。如果您的 hook 向该文件写入变量，这些变量会持久保留到该会话后续的 Bash 命令中，与 [SessionStart hook](#persist-environment-variables) 相同。`Setup` 上只运行 `type: "command"` hook。`Setup` 上的 `type: "mcp_tool"` hook 总是会被跳过，如 [MCP 工具 hook 字段](#mcp-tool-hook-fields)中所述。
 
 ### InstructionsLoaded
 
@@ -1482,6 +1482,12 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 除使用 [`async: true`](#run-hooks-in-the-background) 运行的命令 hook 外，达到超时的 `UserPromptSubmit` 命令、HTTP 或 MCP 工具 hook 会被取消，其输出（包括任何 `additionalContext`）会被丢弃。提示词仍会传达给 Claude，但不带该上下文。若要改为阻止提示词，请在命令或 HTTP hook 上设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。会话记录会显示一条通知，指明该 hook、触发的超时，以及输出已被丢弃。
 
 `UserPromptSubmit` 上的 [Agent SDK 回调 hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md) 达到超时时，会以一条指明该 hook 和超时的消息阻止提示词，因为此处的回调可能充当策略关卡，不能在失败时放行。会话会继续。
+
+#### 提示词检查期间按 `Esc`
+
+如果您在 hook 仍在检查提示词时按 `Esc` 或中断会话，检查会停止，提示词不会传达给 Claude。您在终端输入的文本会返回到输入框，重新发送时 hook 会再次检查它。
+
+hook 可能恰好在您中断的同一时刻阻止该提示词。此时提示词保持被阻止状态：您会看到该 hook 的[阻止消息](#what-a-blocked-prompt-leaves-behind)，文本不会返回到输入框。
 
 #### UserPromptSubmit 输入
 
@@ -2969,7 +2975,7 @@ Claude Code 会根据 ConfigChange hook JSON 输出中的阻止决策采取行�
 
 当主对话中的 shell 命令更改工作目录时运行，例如 Claude 执行 `cd` 命令时。可用于响应目录更改：重新加载环境变量、激活项目特定的工具链，或自动运行设置脚本。可与 [FileChanged](#filechanged) 搭配使用，以支持 [direnv](https://direnv.net/) 等按目录管理环境的工具。
 
-CwdChanged hook 可以访问 [`CLAUDE_ENV_FILE`](#persist-environment-variables)。写入该文件的变量会持续作用于后续的 Bash 命令，直到下一个 CwdChanged 事件发生时由 Claude Code 清除。
+CwdChanged hook 可以访问 [`CLAUDE_ENV_FILE`](#persist-environment-variables)。如果您的 hook 将变量写入该文件，这些变量会在后续 Bash 命令中持续存在，直到下一个 CwdChanged 事件，届时 Claude Code 会清除它们。
 
 CwdChanged 不支持匹配器，每次发生时都会触发。
 
@@ -3134,7 +3140,10 @@ Claude Code 从其 JSON 输出中读取 `watchPaths` 和 `systemMessage`，并�
 * Claude Code 将[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#how-file-edits-are-isolated)隔离在其自己的 worktree 中
 * 处于 `worktree` 模式的 [`claude remote-control`](https://code.claude.com/docs/zh-CN/remote-control#start-a-remote-control-session) 在其自己的 worktree 中启动会话
 
-当 Claude 通过 Bash 工具运行 `git worktree add` 而不是调用 `EnterWorktree` 时，您的 WorktreeCreate hook 不会运行。要检查或阻止该命令，请添加一个使用 `Bash` 匹配器的 [`PreToolUse`](#pretooluse) hook。
+对于 Claude 通过 Bash 添加的 worktree，WorktreeCreate hook 不会运行；对于使用 `--worktree` 和 [`--tmux`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 启动时创建的 worktree，插件的 hook 也不会运行：
+
+* **通过 Bash 执行 `git worktree add`**：要检查或阻止该命令，请添加一个使用 `Bash` 匹配器的 [`PreToolUse`](#pretooluse) hook。
+* **`--worktree` 与 `--tmux` 同时使用**：Claude Code 在加载插件之前创建 worktree，因此来自插件的 WorktreeCreate hook 不会运行。要让您的 hook 在同时使用这两个标志时运行，请改为在[设置文件](#configuration)中定义它。在 v2.1.300 之前，仅使用 `--worktree` 时插件的 WorktreeCreate hook 也不会运行。
 
 默认情况下，Claude Code 使用 `git worktree` 创建隔离的工作副本。配置 WorktreeCreate hook 会替换该默认的 git 行为，使您可以使用其他版本控制系统，例如 SVN、Perforce 或 Mercurial。
 

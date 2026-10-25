@@ -238,7 +238,7 @@ shell 命令添加市场时没有确认步骤。您已从该来源添加的市�
 
 私有市场是您需要凭证才能克隆的存储库中的市场，在 GitHub 或任何其他 git 主机上。您使用与公共市场相同的 `/plugin marketplace add` 或 `claude plugin marketplace add` 命令添加它。Claude Code 使用已在您的机器上的 git 凭证克隆它，从不提示，因此每种连接方式都有要求：
 
-* **HTTPS**：您的 git 凭证助手适用，因此您使用 `gh auth login`、macOS Keychain 或 `git-credential-store` 设置的访问权限有效。交互式提示被抑制，因此您从未认证过的主机失败而不是要求密码。
+* **HTTPS**：您的 git 凭据助手适用，因此您使用 `gh auth login`、macOS Keychain 或 `git-credential-store` 设置的访问权限有效。git 的提示和 askpass 程序均被关闭，包括在 `GIT_ASKPASS` 中设置的程序，因此当 git 需要询问凭据时，克隆会直接失败而不是提示。
 * **SSH**：主机必须已在您的 `known_hosts` 文件中，密钥必须在没有密码短语提示的情况下工作。如果您的 git 设置在 `GIT_SSH_COMMAND`、`GIT_SSH` 或您的 git 配置的 `core.sshCommand` 中命名 SSH 程序，Claude Code 运行该程序。
 * **GitHub `owner/repo` shorthand**：Claude Code 检查您的 SSH 密钥是否向 `github.com` 认证，如果认证则通过 SSH 克隆，如果不认证则通过 HTTPS 克隆。设置 [`CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1`](https://code.claude.com/docs/zh-CN/env-vars#variables) 以跳过该检查并始终通过 HTTPS 克隆。
 

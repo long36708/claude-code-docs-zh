@@ -768,6 +768,7 @@ Anthropic 从其自己的基础设施而不是从您的运行器调用连接器�
   * **使用 `checkout` hook 时**：通过 [`checkout` 生命周期 hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 检出的仓库不会被推送。请改为从 [`post-session` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#post-session) 对其进行快照。
   * **启用该标志之前**：限制谁可以推送到源远程上的 `claude/*` refs。在恢复时，运行器会获取之前推送的分支，而不验证是谁推送的。
   * **未提交的更改仍会丢失**：要提示 Claude 在完成响应时提交并推送，请参阅[提示会话推送其工作](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#prompt-sessions-to-push-their-work)
+* **因运行器丢失而中断的命令可能会再次运行**：当会话在另一个运行器上恢复时，Claude 会看到被中断的工具调用，其结果表明该调用的执行结果未知。
 * **会话中途添加的仓库可能无法克隆**：Claude 通过 HTTPS 使用 `git clone` 克隆它。在未启用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 的运行器上，如果主机上没有任何内容能够读取该仓库，克隆会因 git 身份验证错误而失败。如有可能，请在创建会话时选择会话所需的每个仓库。
 * **某些连接器不出现在自托管会话中**：您在 claude.ai Settings 中尚未连接的连接器不在自托管会话中列出，会话不会提示您连接它。首先在 Settings 中连接它，然后启动新会话。向已运行的会话添加连接器也不会使其工具对 Claude 可用；启动新会话以获取新添加的连接器。
 * **当有人归档或删除会话，或从会话菜单中释放其运行器时**：不要依赖 [`--push-outcome-on-release`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 的推送。要在这些情况下保存提交，请从 [`post-session` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#post-session) 将 `HEAD` 推送到一个救援分支。如果您以那里的示例为基础，请让它在没有任何未提交内容时也执行推送，因为该示例仅在创建快照提交之后才推送。

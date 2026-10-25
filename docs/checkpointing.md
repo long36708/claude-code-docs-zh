@@ -90,9 +90,9 @@ Checkpointing 仅跟踪在当前会话中编辑过的文件。您在 Claude Code
 
 ### 中途发送的消息未检查点
 
-在回溯菜单中，您[在 Claude 仍在工作时输入的](https://code.claude.com/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works)消息可能会被标记为 **No code restore**。Claude 在其轮次结束之前读取了该消息。[检查点是为启动轮次的提示词创建的](#how-checkpoints-work)，因此该消息没有属于自己的检查点。Claude 在读取该消息之后所做的编辑会计入启动该轮次的提示词。
+在回溯菜单中，您[在 Claude 仍在工作时输入的](https://code.claude.com/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works)消息可能会被标记为 **No code restore**。被标记的消息没有属于自己的[检查点](#how-checkpoints-work)。
 
-您无需对该消息本身做任何处理。要撤销会话中那部分的文件更改，请选择启动该轮次的提示词，然后选择 **Restore code** 或 **Restore code and conversation**。这会还原 Claude 在整个轮次中所做的文件编辑，包括您的消息到达之前所做的编辑。选择被标记的消息时仍会提供 **Restore conversation**，它会将对话回溯到该消息，并保持您的文件不变。
+要撤销 Claude 在该消息之后所做的文件编辑，请选择启动该轮次的提示词，然后选择 **Restore code** 或 **Restore code and conversation**。这会还原 Claude 在整个轮次中所做的文件编辑，包括您的消息到达之前所做的编辑。
 
 ### 符号链接和硬链接路径未恢复
 

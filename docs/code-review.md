@@ -67,7 +67,7 @@
 
 * **发现**：相关代码行上的内联评论，并在审查正文中附带摘要
 * **检查运行**：名为 **Claude Code Review**，其[详细信息](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#check-run-output)中列出了各项发现。检查运行不会以失败结束。
-* **未发现问题时**：检查运行的标题显示 **Code review found no issues**，Claude 也会在 Pull Request 上发布相同的简短说明
+* **代替发现的说明**：当检查运行的标题显示 **Code review found no issues** 时发布
 
 Code Review 会选择运行审查所用的 Claude 模型，其管理设置中不提供模型选择。要让审查更深入或更轻量，请更改[审查级别](#review-levels)。
 

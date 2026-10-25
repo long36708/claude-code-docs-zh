@@ -293,12 +293,13 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 
 #### 支持的事件
 
-GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您可以选择特定操作（例如 `pull_request.opened`），也可以响应该类别中的所有操作。
+从以下任一类别中选择一个事件。在每个类别中，您可以选择特定操作（例如 `pull_request.opened`），也可以响应该类别中的所有操作。
 
 | 事件 | 触发时机 |
 | :- | :- |
 | Pull request | PR 被打开、关闭、分配、添加标签、同步或以其他方式更新 |
 | Release | 发布被创建、发布、编辑或删除 |
+| Issue | Issue 被打开、编辑、关闭、重新打开、添加标签、分配或以其他方式更新 |
 
 #### 筛选 Pull Request
 
@@ -333,9 +334,13 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 
 点击任意运行即可将其作为完整会话打开。在那里，您可以查看 Claude 执行了哪些操作、审查更改、创建 Pull Request 或继续对话。每个运行会话的用法与其他会话相同：使用会话标题旁边的下拉菜单对其进行重命名、归档或删除。
 
-> [!NOTE]
->
-> 运行列表中的绿色状态表示会话已启动并退出，且没有出现基础设施错误。这并不表示提示词中描述的工作已成功完成。请打开该运行阅读会话记录，确认 Claude 实际执行了哪些操作。被阻止的网络请求、缺失的连接器工具以及工作本身的失败都会显示在会话记录中，而不会体现在状态指示器中。
+在任务详情页的 **History** 下，每个已结束运行所在行的末尾会显示其结果：运行失败时显示 **Error**，运行被取消时显示 **Cancelled**，运行成功时则两者都不显示。**Status** 筛选器将这三种结果分别称为 **Failed**、**Cancelled** 和 **Succeeded**。这些结果表示会话是如何结束的，而不表示 Claude 是否完成了提示词中描述的工作，因此请打开该运行并阅读其会话记录，以了解实际发生了什么。
+
+* **Succeeded**：会话结束时 Claude Code 未报告失败。被阻止的网络请求、缺失的连接器工具以及 Claude 未能完成的工作会显示在会话记录中，而不会体现在该行上
+* **Failed**：会话未正常结束。例如，它意外停止、因错误而结束，或在运行开始之前就已被归档
+* **Cancelled**：运行并未失败，但其会话已被归档。如果您归档了一个成功运行的会话，该运行会变为 **Cancelled**。任务本身无需做任何更改
+
+如果 **History** 下出现警告，请参阅[“The last run”警告](#the-last-run-didnt-start)。
 
 ### 编辑和控制定时任务
 
@@ -498,6 +503,21 @@ GitHub 触发器可以订阅以下任一事件类别。在每个类别中，您�
 ### "Routines are disabled by your organization's policy"
 
 您 Team 或 Enterprise 组织中的 Owner 可能已在 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 关闭了 **Scheduled tasks (Was Routines)** 开关。在 Claude Code v2.1.227 或更高版本中，同一开关还会在 CLI 中隐藏 `/schedule`。这是一项服务器端的组织设置，因此无法通过您的本地配置覆盖。请联系 Owner 为您的组织重新启用定时任务。
+
+### "The last run" 警告
+
+当 **History** 下的警告以 "The last run" 开头时，请在第一列中找到该警告，并按照其所在行的说明操作。之后的某次运行启动后，该警告即会清除。
+
+| 警告 | 处理方法 |
+| :- | :- |
+| "The last run didn't start because your organization had reached its limit on cloud sessions running at once." | 该任务无需更改。稍后点击 **Run now**，或等待下一次运行 |
+| "The last run didn't start because its cloud environment couldn't be found or used." | 在任务的详情页面上，打开其名称旁边的菜单，选择 **Edit**，然后找到[云环境选择器](#environments-and-network-access)。如果其中显示 **Unavailable environment**，说明该环境已被归档或您的账户已无法再使用该环境，请在此处选择另一个环境并保存更改。否则，请在详情页面上使用 **Run now** 重试，或在选择器中选择另一个环境并保存更改 |
+| "The last run was blocked because it couldn't access something it needs, or your organization's policy doesn't allow it." | 检查您的 [GitHub 访问权限](#repositories-and-branch-permissions)是否涵盖该任务的仓库。如果已涵盖，请询问您 Claude 组织的 [Owner](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control) 是否有策略阻止了该任务 |
+| "The last run didn't start because of a problem that's usually temporary." | 点击 **Run now** 重试，或等待下一次运行 |
+| "The last run didn't start because its repository or branch wasn't available." | 在 GitHub 上检查任务中的每个仓库是否都有[运行所基于的分支](#repositories-and-branch-permissions)。同时检查您的 [GitHub 访问权限](#repositories-and-branch-permissions)是否涵盖每个仓库，如果连接已过期，请重新连接 GitHub |
+| "The last run didn't start because some of its settings weren't accepted." | 在任务的详情页面上，打开其名称旁边的菜单并选择 **Edit**。该对话框不会标明哪项设置未被接受，因此请在其中逐一检查每项设置，包括任务的名称、提示词、模型、仓库、环境、连接器和触发器 |
+| "The last run stopped because a usage limit was reached." | 关于达到用量限制后任务何时可以再次开始运行，请参阅[用量和限制](#usage-and-limits) |
+| "The last run failed." | 点击 **Run now** 重试，或等待下一次运行。失败的运行没有可打开的会话 |
 
 ## 相关资源
 

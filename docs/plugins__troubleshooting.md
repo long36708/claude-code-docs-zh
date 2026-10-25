@@ -251,12 +251,12 @@ Cannot add marketplace "constructor": Claude Code reserves this name and cannot 
 
 首先检查存储库本身：拼写错误的 `owner/repo`、不存在的存储库或您看不到的私有存储库也以此消息结尾。在浏览器中打开存储库 URL，或在终端中运行 `git ls-remote <url>`，以确认它存在且您有权访问。
 
-如果存储库是正确的，原因是凭证。Claude Code 运行 git 时禁用了交互式提示，因此它无法像您的终端那样要求您输入密码、密钥密码或凭证。如果 git 需要提示，您会看到 `fatal: Cannot prompt because user interactivity has been disabled` 或 `terminal prompts disabled` 在原始错误中。只有已经非交互式工作的凭证才会成功：
+如果仓库是正确的，原因是凭据。Claude Code 会关闭 git 的提示和 askpass 程序（包括在 `GIT_ASKPASS` 中设置的程序），并以批处理模式运行 SSH。当 git 需要提示时，克隆的错误中会包含 `fatal: Cannot prompt because user interactivity has been disabled`、`terminal prompts disabled` 或 `fatal: unable to get password from user`。只有 git 无需提示或 askpass 程序即可获取的凭据才会成功：
 
 * **SSH**：`ssh -T git@<host>` 必须成功而不提示密码，主机必须已在 `known_hosts` 中
-* **HTTPS**：您的凭证助手必须为主机保存令牌。对于 GitHub，运行 `gh auth login` 和 `gh auth setup-git`。对于另一个主机，在您的 git 凭证助手中存储个人访问令牌。使用 `git ls-remote <url>` 测试
+* **HTTPS**：您的凭据助手必须为主机保存令牌。对于 GitHub，运行 `gh auth login` 和 `gh auth setup-git`。对于另一个主机，在您的 git 凭据助手中存储个人访问令牌。要进行测试，请在终端中取消设置 `GIT_ASKPASS` 并运行 `git -c core.askPass= ls-remote <url>`。
 
-一旦 `git ls-remote` 在您的终端中成功而不提示，再次运行添加或更新。成功的添加打印 `Successfully added marketplace: <name>`。成功的更新从您的 shell 打印 `Successfully updated marketplace: <name>`，或在会话中打印 `✔ Updated 1 marketplace`。
+一旦针对您所用协议的检查成功且未出现提示，再次运行添加或更新。成功的添加打印 `Successfully added marketplace: <name>`。成功的更新从您的 shell 打印 `Successfully updated marketplace: <name>`，或在会话中打印 `✔ Updated 1 marketplace`。
 
 要使 Claude Code 为 GitHub `owner/repo` 源跳过 SSH，请设置 `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1`。没有它，当 `github.com` 的 SSH 密钥看起来已配置时，Claude Code 通过 SSH 克隆这些源，当 SSH 克隆失败时回退到 HTTPS。
 

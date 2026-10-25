@@ -117,7 +117,7 @@
 | [`gcpAuthRefresh`](#gcpauthrefresh) | 使用您自己的命令刷新 [Google Cloud 凭据](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#advanced-credential-configuration) | 身份验证与提供商 | 任意文件 |
 | [`hooks`](#hooks) | 在 Claude Code 生命周期的各个节点以 [hook](https://code.claude.com/docs/zh-CN/hooks.md) 形式运行您自己的命令 | hook 与自动化 | 任意文件 |
 | [`httpHookAllowedEnvVars`](#httphookallowedenvvars) | 限制 [HTTP hook](https://code.claude.com/docs/zh-CN/hooks.md) 可以放入请求头的环境变量 | hook 与自动化 | 任意文件 |
-| [`idleCompaction`](#idlecompaction) | 阻止 Claude Code 在终端会话空闲时压缩较长的对话 | 记忆与上下文 | 任意文件 |
+| [`idleCompaction`](#idlecompaction) | 阻止 Claude Code 压缩您已离开的较长对话 | 记忆与上下文 | 任意文件 |
 | [`includeCoAuthoredBy`](#includecoauthoredby) | 已弃用；请使用 `attribution` 隐藏或更改提交和 PR 署名 | Git 与署名 | 任意文件 |
 | [`includeGitInstructions`](#includegitinstructions) | 从 Claude 的上下文中移除内置的提交和 PR 指令 | Git 与署名 | 任意文件 |
 | [`inputNeededNotifEnabled`](#inputneedednotifenabled) | 在 Claude 等待您操作时收到[推送通知](https://code.claude.com/docs/zh-CN/remote-control.md#mobile-push-notifications) | 远程、桌面与通知 | 任意文件 |
@@ -2415,11 +2415,15 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 
 ### `idleCompaction`
 
-空闲压缩会在您离开的长对话的提示缓存过期前不久对其进行[压缩](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)。这样，您的下一条消息发送的将是摘要，而不是整个对话。当您回来时，对话中会显示一行以 `Compacted while idle, before the prompt cache expired` 开头的内容。
+空闲压缩会对您离开的长对话进行[压缩](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)。这样，您的下一条消息发送的将是摘要，而不是整个对话。压缩完成后，对话中会显示一条通知：
+
+* **终端**：一行以 `Compacted while idle, before the prompt cache expired` 开头的内容
+* **[VS Code 聊天面板](#idle-compaction-in-vs-code-and-the-desktop-app)**：一条包含 `a summary written while you were away` 的通知
+* **[桌面应用](#idle-compaction-in-vs-code-and-the-desktop-app)**：同样的通知，位于标签包含 `Claude Code notice` 的行中。如果您看不到该行或其文本，请切换到 [Verbose 视图模式](https://code.claude.com/docs/zh-CN/desktop.md#switch-view-modes)。
 
 对于满足以下所有条件的对话，空闲压缩默认开启：
 
-* **会话**：您处于交互式终端会话中
+* **会话**：您处于交互式终端会话中，或者在 [Anthropic 选定的账户](#idle-compaction-in-vs-code-and-the-desktop-app)上使用 VS Code 扩展的聊天面板或桌面应用的 Code 标签页
 * **自动压缩**：[`autoCompactEnabled`](#autocompactenabled) 已开启
 * **提示缓存**：该对话使用[一小时提示缓存 TTL](https://code.claude.com/docs/zh-CN/prompt-caching.md#which-ttl-each-request-gets)
 * **功能标志**：Claude Code 可以[从 Anthropic 获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)
@@ -2441,7 +2445,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 }
 ```
 
-要在会话中开启或关闭空闲压缩，请运行 `/config` 并更改 **Idle compaction** 行。您的选择会保存到用户设置中并立即生效。该行需要 Claude Code v2.1.302 或更高版本。如果您使用的是这些版本之一，但 `/config` 中未显示该行，请检查以下原因：
+要在终端会话中开启或关闭空闲压缩，请运行 `/config` 并更改 **Idle compaction** 行。您的选择会保存到用户设置中并立即生效。该行需要 Claude Code v2.1.302 或更高版本。如果您使用的是这些版本之一，但 `/config` 中未显示该行，请检查以下原因：
 
 * **其他设置来源设置了此键**：托管设置、`--settings` 标志或项目或本地设置文件中的值覆盖了您的用户设置。请改为在该来源中更改此键
 * **功能标志不可用**：当 Claude Code 无法[从 Anthropic 获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)时，空闲压缩不会运行，因此没有需要关闭的内容
@@ -2461,6 +2465,18 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
   }
 }
 ```
+
+#### VS Code 和桌面应用中的空闲压缩
+
+类似下面这样的通知表示 Claude Code 已[用摘要替换了您之前的对话](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)，Claude 现在基于该摘要继续工作：
+
+```text theme={null}
+Compacted using a summary written while you were away · turn off with "idleCompaction": false in settings.json
+```
+
+您无需执行任何操作。要关闭空闲压缩，请在 `~/.claude/settings.json` 或其他[设置文件](https://code.claude.com/docs/zh-CN/settings.md#settings-files-and-who-they-affect)中将 `idleCompaction` 设置为 `false`。
+
+在 VS Code 扩展的聊天面板和桌面应用的 Code 标签页中，空闲压缩会为 Anthropic 选定的账户运行。Claude Code 会在您离开期间编写摘要，然后仅当您的下一条消息距上次请求一小时或更久时，才使用该摘要进行压缩。
 
 ### `plansDirectory`
 
@@ -3522,6 +3538,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 * **托管 hook 和 SDK hook 会运行**：来自托管设置的 hook，以及 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 在进程内注册的 hook
 * **强制启用的插件 hook 会运行**：来自托管设置通过 [`enabledPlugins`](#enabledplugins) 强制启用的插件中的 hook。Claude Code 会按完整的 `plugin@marketplace` ID 进行匹配，因此来自其他市场的同名插件仍会被阻止。这样，您可以通过组织市场分发经过审核的 hook，同时阻止其他所有内容。此类插件中的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仅在[被视为您组织的 mod](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods) 时才会加载
+* **其他插件中的监视器会被阻止**：除非插件被强制启用，否则插件的[监视器](https://code.claude.com/docs/zh-CN/plugins/components.md#monitors)不会启动。需要 Claude Code v2.1.310 或更高版本
 * **其他所有内容都会被阻止**：用户、项目和本地 hook，其他已安装插件中的 hook 和 mod，以及在 Agent frontmatter 中声明的 hook。[Claude Code 内置的 mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#mods-built-into-claude-code) 会继续运行。如果只想阻止用户的 mod，请改为设置 [`allowManagedModsOnly`](https://code.claude.com/docs/zh-CN/plugins/mods/admin#set-options-on-the-built-in-guard)。
 * **命令来源的插件会被禁用**：Claude Code 还会禁用具有 [`command` 来源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)的插件，包括在托管 `enabledPlugins` 中强制启用的插件，除非您显式将 [`disableCommandPluginSources`](#disablecommandpluginsources) 设置为 `false`
 * **市场的 `headersHelper` 命令会被阻止**：Claude Code 还会阻止市场的 [`headersHelper` 命令](https://code.claude.com/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads)，除非显式将 [`disableCommandPluginSources`](#disablecommandpluginsources) 设置为 `false`，但由托管设置本身声明的市场除外。需要 Claude Code v2.1.238 或更高版本

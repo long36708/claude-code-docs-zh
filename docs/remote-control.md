@@ -179,7 +179,7 @@ claude --remote-control "My Project"
 * **您的更改的差异**：当会话的目录在 git 存储库中时，连接的设备的差异窗格显示您的更改。在具有超过存储库默认分支的提交的分支上，窗格显示自分支从它分离以来的更改，包括您未提交的编辑。在默认分支本身上，或在不超过它的分支上，窗格仅显示您未提交的更改。
 * **模型**：当您从连接的设备选择[模型](https://code.claude.com/docs/zh-CN/model-config.md)时，Claude Code 在该模型上运行会话。需要 Claude Code v2.1.238 或更高版本。您从设备的模型控制中选择的模型仅适用于当前会话。当您从设备向交互式会话发送 `/model <name>` 时，Claude Code 也会为新会话设置您的默认值。
 * **努力级别**：当您从连接的设备设置[努力级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)时，使用 `/effort` 或设备的努力控制，Claude Code 将其应用于您机器上的会话。如果您使用 `CLAUDE_CODE_EFFORT_LEVEL` 固定了一个级别，会话保持该级别，Claude Code 拒绝从努力控制中选择不同的级别。从努力控制中选择级别需要您机器上的 Claude Code v2.1.234 或更高版本。
-* **连接失败后重新连接**：运行 `/remote-control` 以重新连接。如果压缩重写了对话或您在此期间使用 `/resume` 切换了对话，Claude Code 会存档它正在使用的服务器会话，而不是将其留在会话列表中。您仍然可以通过[过滤存档的会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#archive-sessions)找到它。在设备仍然连接时切换对话不会存档会话。
+* **连接失败后重新连接**：运行 `/remote-control` 以重新连接。如果压缩重写了对话或您在此期间使用 `/resume` 切换了对话，Claude Code 会存档它正在使用的服务器会话，而不是将其留在会话列表中。您仍然可以在 claude.ai/code 的[已存档会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#find-an-archived-session)中找到该会话。在设备仍然连接时切换对话不会存档会话。
 
 ### 为所有会话启用远程控制
 
@@ -401,6 +401,14 @@ claude mcp login "claude.ai Slack" --no-browser
 
 ## 故障排除
 
+### "Remote Control disconnected" or "Can't reach"
+
+在 [claude.ai/code](https://claude.ai/code) 或 Desktop 应用中，**Remote Control disconnected** 或 **Can't reach** 消息表示您的浏览器或应用与您计算机上的 Claude Code 失去了联系。这两条消息都无法告诉您 Claude 或您正在查看的子代理是否仍在您的计算机上工作。在该计算机上，检查 Claude Code 所处的状态，并按照相应的步骤重新连接：
+
+* **交互式会话显示 `Remote Control disconnected`**：按照[该行给出的原因所对应的重新连接步骤](#session-ended-elsewhere)操作
+* **Claude Code 正在运行且未显示任何故障**：一旦计算机处于唤醒状态并已联网，交互式会话会自动重新连接，因此您无需执行任何操作。如果您使用的是 `claude remote-control`，请参阅[限制](#limitations)下的 **长时间网络中断**
+* **Claude Code 未在运行**：[重新启动它并恢复会话](#resume-sessions-after-stopping-the-server)
+
 ### "Remote Control requires a claude.ai subscription"
 
 您未使用 claude.ai 账户登录，或者其他凭据优先于您的登录。该消息采用以下形式之一：
@@ -463,7 +471,7 @@ Claude Code 无法访问功能标志服务来检查是否为您的账户启用�
 * **使用 `/remote-control`、`claude --remote-control` 或[自动连接](#enable-remote-control-for-all-sessions)**：会话继续运行但不再使用 Remote Control，Claude Code 会在 claude.ai 上将其归档
 * **使用 `claude remote-control`**：服务器停止并归档其所服务的会话，然后退出
 
-您仍然可以通过[筛选已归档的会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#archive-sessions)找到已归档的会话。
+要再次找到这些会话之一，请在 claude.ai/code 打开您的[已归档会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#find-an-archived-session)。
 
 Remote Control 不会自动重新连接。要在您的组织重新允许后再次启用它，请在会话中运行 `/remote-control`，或在 shell 中运行 `claude remote-control`。在此计算机上的 Claude Code 获取到已更改的策略之前，这两个命令都会失败并显示 [`Remote Control is disabled by your organization's policy`](#remote-control-is-disabled-by-your-organizations-policy)。打开的会话大约每小时获取一次策略。要找出阻止 Remote Control 的原因，请将命令输出的完整文本与该条目进行对照。
 

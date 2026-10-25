@@ -152,7 +152,10 @@ gh api repos/OWNER/REPO/check-runs/CHECK_RUN_ID --jq '
 
 ### 后续审查涵盖的内容
 
-自行启动的后续审查（例如推送后）会侧重于自上次审查以来的更改，并发布较少的 nit 和已存在问题的发现。其摘要会统计被省略的内容，相应行以 "found and not posted" 或 "outside the scope of this re-review and not posted." 结尾。
+自行启动的后续审查（例如推送后）会侧重于自上次审查以来的更改，并发布较少的 [nit 和已存在问题的发现](#severity-levels)。要了解它是否因此省略了某些发现，请在审查正文中查找统计这些发现的句子：
+
+* **针对自上次审查以来未更改代码的发现**：该句以 "outside the scope of this re-review and not posted" 结尾
+* **nit 和已存在问题的发现**：该句以 "found and not posted" 结尾
 
 要获得不省略任何这些内容的审查，请评论 [`@claude review`](#comment-commands)。它会再次涵盖整个 Pull Request。
 

@@ -121,6 +121,8 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 * **后台会话**：[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)不会向您的终端报告其状态，即使您已连接到该会话也是如此。Agent 视图会改为显示其状态。
 * **[`CLAUDE_CODE_DISABLE_TERMINAL_TITLE`](https://code.claude.com/docs/zh-CN/env-vars#variables)**：如果您将此变量设置为 `1`，Claude Code 将不会检查支持情况，也不会报告状态。请取消设置该变量。
 
+在报告支持该协议的终端中，标签页标题不会以状态符号开头。终端会自行显示会话的状态，因此 Claude Code 会省略其在其他终端中置于标题前面的符号。
+
 ## 配置 tmux
 
 当 Claude Code 在 tmux 中运行时，默认情况下 Shift+Enter 提交而不是插入换行符，桌面通知和[进度条](https://code.claude.com/docs/zh-CN/settings-reference.md#terminalprogressbarenabled)永远无法到达外部终端。将这些行添加到 `~/.tmux.conf`，然后运行 `tmux source-file ~/.tmux.conf` 将其应用到运行中的服务器：

@@ -248,7 +248,7 @@ Cowork 不使用这些模式。它有自己的权限模式，需单独启用；�
 
 **Web and mobile**
 
-在 [claude.ai/code](https://claude.ai/code) 上，使用输入框旁边的模式下拉菜单。在移动应用中，点击输入框中的 **+** 按钮，然后点击 **Permission**。云端会话和 Remote Control 会话提供不同的权限模式：
+在 [claude.ai/code](https://claude.ai/code) 上，使用输入框下方那一行中的模式下拉菜单。在移动应用中，点击输入框中的 **+** 按钮，然后点击 **Permission**。云端会话和 Remote Control 会话提供不同的权限模式：
 
 * **[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云端会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。Auto 模式仅在您的组织允许且所选模型支持时出现。Bypass permissions 不可用。
 * 您本地机器上的 **[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话**：Manual、Accept edits、Plan 和 Auto（对于您自己启动的会话），您无法从应用中选择 Bypass permissions。要使用 Auto，会话必须满足自动模式的[可用性要求](#eliminate-prompts-with-auto-mode)。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](https://code.claude.com/docs/zh-CN/claude-projects.md#run-a-thread-on-your-own-computer)。

@@ -954,7 +954,7 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
 * `PostToolUse` hooks 无法撤销操作，因为工具已经执行。
 * [`PermissionRequest`](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) hook 在 Claude Code 即将向您请求权限时触发，或在它原本会自动拒绝无法显示提示的调用时触发。在带 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)中，它们在 [`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)之外仍会运行，而没有 hook 做出决策且无其他方式可以应答的调用会被拒绝。
 * `Stop` hooks 在 Claude 完成响应时触发，而不仅仅在任务完成时。它们不在用户中断时触发。API 错误触发 [StopFailure](https://code.claude.com/docs/zh-CN/hooks.md#stopfailure) 代替。
-* 当多个 `PreToolUse` hooks 返回 [`updatedInput`](https://code.claude.com/docs/zh-CN/hooks#pretooluse) 来重写工具的参数时，最后完成的获胜。由于 hooks 并行运行，顺序是非确定性的。避免有多个 hook 修改同一工具的输入。
+* 当多个 `PreToolUse` hook 返回 [`updatedInput`](https://code.claude.com/docs/zh-CN/hooks#pretooluse) 来改写工具的输入时，Claude Code 不会合并这些改写，也不保证工具使用哪一个改写运行。避免让多个 hook 改写同一工具的输入。
 
 ### Hooks 和权限模式
 

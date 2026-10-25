@@ -223,7 +223,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 #### 隐藏或显示会话详细信息面板
 
-要隐藏或显示该面板，请点击会话标题栏中的 **Hide session rail** 或 **Show session rail**；窗口较窄时，则在标题栏的 **⋮** 菜单中点击。如果仍然看不到该面板，请[检查您使用的是哪种 Code 选项卡布局](#check-which-layout-you-have)。
+要隐藏或显示该面板，请点击会话标题栏中或标题栏 **⋮** 菜单中的 **Hide session rail** 或 **Show session rail**。如果仍然看不到该面板，请[检查您使用的是哪种 Code 选项卡布局](#check-which-layout-you-have)。
 
 ### 在终端中运行命令
 

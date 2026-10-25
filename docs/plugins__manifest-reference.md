@@ -155,7 +155,7 @@ claude plugin validate ./my-plugin
 | `workflows` | Path, or array of paths | [Workflow](https://code.claude.com/docs/zh-CN/workflows.md#distribute-a-workflow-in-a-plugin) `.js` 文件或目录。替换默认 `workflows/` 扫描 |
 | `experimental` | Object | `themes`、`monitors` 和 `evals` 的容器，其 manifest 形式可能仍会改变 |
 | `experimental.themes` | Path, or array of paths | 主题文件或目录。替换默认 `themes/` 扫描。顶级 `themes` 键仍然加载，带有 `claude plugin validate` 警告 |
-| [`experimental.monitors`](#monitors) | Path, or inline array | 包含 monitors 数组的 `.json` 文件，或数组本身。默认为 `monitors/monitors.json`。顶级 `monitors` 键仍然加载，带有 `claude plugin validate` 警告。Monitors 仅在交互式会话中运行，不在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上运行 |
+| [`experimental.monitors`](#monitors) | Path, or inline array | 包含 monitors 数组的 `.json` 文件，或数组本身。默认为 `monitors/monitors.json`。顶级 `monitors` 键仍然加载，带有 `claude plugin validate` 警告。Monitors [在使用 `-p` 标志时不会启动](https://code.claude.com/docs/zh-CN/plugins/components#monitors) |
 | `experimental.evals` | Path, or array of paths | 当不是默认 `evals/` 时，保存 plugin 的[评估案例](https://code.claude.com/docs/zh-CN/plugin-evals.md#use-a-different-eval-directory)的目录。`claude plugin eval --eval-dir` 覆盖它 |
 
 在"类型"列中，路径是相对于 plugin 根目录的字符串，例如 `"./custom/commands"`。

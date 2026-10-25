@@ -184,7 +184,7 @@ Claude Code 永远不会因插件的 skill、命令、Agent、hook、监视器�
 >
 > 当您丢弃的上下文是您不再需要的内容时，压缩对您有利。要选择其开销发生的时间，请在工作中的自然间歇处（例如任务之间）运行 `/compact`，而不是等待自动压缩在任务中途触发。如果您走上了一条想要完全放弃的路径，请改用 [`/rewind`](#rewinding-the-conversation) 回退到较早的轮次。回退会截断回到一个已缓存的前缀，而不是像压缩那样构建新的前缀。
 
-如果您在终端会话中让一个长对话处于空闲状态，且该对话使用的是[一小时 TTL](#which-ttl-each-request-gets)，Claude Code 可能会在缓存过期前不久对其进行压缩。要关闭空闲压缩，请将 [`idleCompaction`](https://code.claude.com/docs/zh-CN/settings-reference#idlecompaction) 设置为 `false`，这需要 Claude Code v2.1.290 或更高版本。
+如果您让一个长对话处于空闲状态，且该对话使用的是[一小时 TTL](#which-ttl-each-request-gets)，Claude Code 可能会对其进行压缩。要关闭空闲压缩，请将 [`idleCompaction`](https://code.claude.com/docs/zh-CN/settings-reference#idlecompaction) 设置为 `false`，这需要 Claude Code v2.1.290 或更高版本。
 
 ### 积累许多图像
 

@@ -111,7 +111,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 告诉用户每个协议在他们的机器上需要什么：
 
 * **SSH**：密钥必须在没有密码提示的情况下工作，例如因为它被加载到 `ssh-agent` 中。主机必须已经在 `known_hosts` 中。
-* **HTTPS**：Claude Code 保持用户的 git 凭证助手启用，但禁止它提示。助手已经存储的凭证有效；它必须要求的凭证失败。在 GitHub 上，`gh auth login` 后跟 `gh auth setup-git` 存储一个。
+* **HTTPS**：Claude Code 会保持用户的 git 凭据助手处于启用状态，但禁止其进行提示，并且不会运行 askpass 程序，例如在 `GIT_ASKPASS` 中设置的程序。助手已存储的凭据可以正常使用；需要助手询问才能获得的凭据则会失败。在 GitHub 上，先运行 `gh auth login`，再运行 `gh auth setup-git`，即可存储凭据。
 
 对于 GitHub Enterprise Server 主机，用户需要从他们的机器访问该主机的 git 访问权限。有关每个 Claude Code 表面需要到达 GHES 托管的 marketplace 的内容，请参阅 [GHES 上的插件 marketplace](https://code.claude.com/docs/zh-CN/github-enterprise-server.md#plugin-marketplaces-on-ghes)。
 
