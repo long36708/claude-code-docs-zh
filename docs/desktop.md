@@ -994,6 +994,28 @@ Linux 或 macOS 远程计算机需要受支持的处理器、带 SFTP 的 SSH �
 * **Shell**：远程计算机上为您的账户设置的 shell 必须能运行通过 SSH 发送的命令，Bash、Zsh 和 `sh` 均可
 * **网络**：Claude Code 在远程计算机上运行，并从那里发出网络请求，因此该计算机需要具备 [Claude Code 所需的网络访问](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)。如果该计算机无法下载 Claude Code，Desktop 会在您的计算机上下载并上传它。Claude Code 的其他请求仍从远程计算机发出。在 Linux 远程计算机上，如果这些请求需要代理，请[为 SSH 会话设置代理](#set-a-proxy-or-a-ca-certificate-for-ssh-sessions)。
 
+#### 检查远程机器的主机密钥
+
+主机密钥是远程机器出示的、用于证明自身身份的密钥，而指纹是该密钥的简短形式。当您信任某个密钥时，您的计算机会保存它，之后连接到出示该密钥的任何机器时都不会再询问。请在信任密钥之前先检查它，因为可能有其他方在拦截连接。
+
+首先，根据您看到指纹的位置，确定该密钥属于哪台机器：
+
+* **Desktop 询问 `Connect to <host> for the first time?`，或者您选择了 Review new key**：Desktop 指明的机器，即 `<host>`
+* **Desktop 询问 `Connect through <jump host> for the first time?`**：跳板机，即您的连接所经过的机器，而不是您想要访问的机器
+* **`ssh` 在终端中询问或发出警告**：其消息中指明的机器，这可能不是您输入的那台
+
+从该机器本身获取其指纹，而不是通过您正在检查的连接获取：
+
+* **该机器由他人管理**：向对方索取其主机密钥指纹
+* **由您管理，且运行 Linux 或 macOS**：在该机器的控制台上，或通过您已信任的连接，在该机器上运行 `ssh-keygen -lf /etc/ssh/ssh_host_<type>_key.pub`。对于 `<type>`，请使用 Desktop 或 `ssh` 在指纹旁显示的密钥类型的小写形式：`ED25519` 或 `ssh-ed25519` 对应 `ed25519`。
+
+然后将该机器本身的指纹与您看到的指纹进行比较：
+
+* **两者一致**：信任该密钥。在 Desktop 中选择 **Trust and connect** 或 **Trust new key**，或在终端中回答 `yes`。
+* **两者不一致，或者您无法检查**：不要连接。在 Desktop 中选择 **Cancel**，或在终端中回答 `no`。如果该机器由他人管理，请告知对方您看到的指纹。
+
+如果您是从某个故障排除步骤跳转到此处的，无论结果如何，请返回该步骤。
+
 #### 为 SSH 会话设置代理或 CA 证书
 
 如果 Linux 远程计算机通过代理访问互联网或需要 CA 证书，请在该计算机上的 `~/.claude/settings.json` 中的 `env` 下添加[代理和 CA 变量](https://code.claude.com/docs/zh-CN/network-config.md)。即使您已在该计算机上的 `~/.profile`、`~/.bash_profile`、`~/.zprofile` 或 `~/.zshrc` 中导出它们，也要添加。
@@ -2134,6 +2156,48 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 ### MCP servers 在 Windows 上不工作
 
 如果 MCP server 切换不响应或服务器在 Windows 上连接失败，检查服务器在你的设置中是否正确配置，重启应用，验证服务器进程在任务管理器中运行，并查看服务器日志以获取连接错误。
+
+### SSH host key verification failed
+
+以下每条消息都表示 Desktop 拒绝了某个[主机密钥](#check-a-remote-machines-host-key)：
+
+* 在 `Couldn't connect to <host>` 卡片的 **View details** 下出现 `SSH host key verification failed` 或 `Host denied (verification failed)`
+* 在输入框旁边或执行 **Test connection** 后出现 `Connection failed: Host key changed or not trusted`
+* 在已断开的会话上出现 `<host>'s host key is not trusted` 或 `<host>'s host key has changed`
+
+Desktop 拒绝密钥，通常是因为它与您计算机上保存的密钥不同，或者没有为该机器保存任何密钥。重建或重新安装过的机器通常会提供新的密钥，拦截连接的程序也会如此。再次连接之前，请先检查密钥，并从 Desktop 随消息显示的内容入手：
+
+* **您使用的是 Windows，且 Desktop 显示 `Connection failed: Host key changed or not trusted`**：首先排除[缺少 OpenSSH 客户端](#ssh-host-key-refused-on-windows-without-an-openssh-client)的情况
+* **Desktop 提示您设置 `UserKnownHostsFile`**：在 `~/.ssh/config` 中将其设置为 `~/.ssh/known_hosts`，然后[从终端检查密钥](#check-the-host-key-from-a-terminal)
+* **您看到 Review new key 按钮**：选择该按钮，并将 Desktop 显示的指纹与该机器自身的指纹进行[比较](#check-a-remote-machines-host-key)。如果两者匹配，请选择 **Trust new key** 以替换已保存的密钥。否则请选择 **Cancel**。
+* **您没有看到 Review new key 按钮、Desktop 显示 `Couldn't show the new key`，或者在 Trust new key 之后 Desktop 再次拒绝密钥**：[从终端检查密钥](#check-the-host-key-from-a-terminal)
+
+#### 从终端检查主机密钥
+
+在您的计算机上运行 `ssh <SSH host>`，使用 Desktop 中您的 [SSH 连接](#ssh-sessions)的 **SSH host** 值。如果该连接有 **SSH port** 值，请添加 `-p <SSH port>`。在 Windows 上，请使用 PowerShell，因为 Desktop 不会使用 Git Bash 或 WSL 中的 `ssh` 进行连接。如果 PowerShell 找不到 `ssh`，请[安装 Microsoft 的 OpenSSH 客户端](#ssh-host-key-refused-on-windows-without-an-openssh-client)。
+
+留意 `ssh` 在其消息中提到的是哪台机器，它可能是跳板主机而不是 `<SSH host>`，然后按照适用的情况操作：
+
+* **`ssh` 询问是否继续连接**：将其显示的指纹与该机器自身的指纹进行[比较](#check-a-remote-machines-host-key)。仅当两者匹配时才回答 `yes`。
+* **`ssh` 警告主机密钥已更改**：将警告中的指纹与该机器自身的指纹进行[比较](#check-a-remote-machines-host-key)。仅当两者匹配时，才删除 `Offending <type> key in <file>:<line>` 所指出的那一行，然后重新运行 `ssh`。如果 `ssh` 再次就另一行发出警告，请按照同样的方式比较、删除并重新运行。
+* **`ssh` 未经询问就拒绝了它不认识的密钥**：从该机器的管理人员处获取该机器的 `known_hosts` 行，不要通过您正在检查的连接获取。将该行添加到您的 `known_hosts` 文件中，并使用 `ssh` 消息中的名称作为其主机名，然后重新运行 `ssh`。
+* **`ssh` 没有询问主机密钥就继续登录**：先不要输入密码。[检查 `ssh` 已信任的密钥](#check-the-keys-that-ssh-already-trusts)。
+
+一旦 `ssh` 接受了您检查过或添加的密钥，请在 Desktop 中重试。如果 Desktop 再次拒绝该密钥，请参阅[获取 SSH 问题的 Desktop 日志](#get-desktops-logs-for-an-ssh-problem)。
+
+##### 检查 `ssh` 已信任的密钥
+
+添加 `-v -S none` 后重新运行相同的 `ssh` 命令。在其输出中，`Server host key:` 行会显示一个指纹，紧随其后的 `Host '<name>' is known` 行会指出该指纹所属的机器。将您找到的每个指纹与对应机器自身的指纹进行[比较](#check-a-remote-machines-host-key)。
+
+* **跳板主机没有 `Server host key:` 行**：同时运行 `ssh -v -S none <jump host>`，并以同样的方式比较该指纹。
+* **某个指纹不匹配，或者您无法检查它**：不要再次连接。删除已保存的密钥：在 `Host '<name>' is known` 下方，`Found key in <file>:<line>` 行指出了保存该密钥的文件。运行 `ssh-keygen -R "<name>" -f <file>`。如果您将主机密钥保存在多个文件中，请从每个文件中删除该密钥。如果您无法修改某个文件，请告知您计算机的管理人员。
+* **所有指纹都匹配**：在 Desktop 中重试。如果 Desktop 再次拒绝该密钥，请参阅[获取 SSH 问题的 Desktop 日志](#get-desktops-logs-for-an-ssh-problem)。
+
+### 在没有 OpenSSH 客户端的 Windows 上 SSH 主机密钥被拒绝
+
+在没有 OpenSSH 客户端的 Windows 上，Desktop 即使面对正确的主机密钥也会拒绝，并显示 `Connection failed: Host key changed or not trusted`。它需要该客户端来查找已保存的密钥。要确认您是否已安装该客户端，请在 PowerShell 中运行 `ssh`。如果 PowerShell 无法识别 `ssh`，请安装 [Microsoft 的 OpenSSH 客户端](https://learn.microsoft.com/windows-server/administration/openssh/openssh_install_firstuse)并重启 Desktop。
+
+然后再次连接。如果 Desktop 询问是否首次连接，请在信任之前先[检查该机器的主机密钥](#check-a-remote-machines-host-key)。如果 Desktop 仍然拒绝该密钥，请按照 [SSH host key verification failed](#ssh-host-key-verification-failed) 下的其他情况操作。
 
 ### 登录后 SSH 连接失败
 
