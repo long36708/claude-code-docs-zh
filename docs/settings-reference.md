@@ -5525,7 +5525,10 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 如果 `--mcp-config` 中的服务器全部是进程内 `type: "sdk"` 条目，Claude Code 仍会接受它，因此 Agent SDK 和 VS Code 扩展可以继续正常工作。用户仍然可以通过 `claude mcp add` 或 `.mcp.json` 文件添加服务器；如需按服务器进行控制，请同时设置 [`allowedMcpServers`](https://code.claude.com/docs/zh-CN/managed-mcp)。需要 Claude Code v2.1.193 或更高版本。
 
-同样的检查也适用于 [`CLAUDE_CODE_PLUGIN_DIRS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量中指定的插件文件夹，这需要 Claude Code v2.1.280 或更高版本。当该变量指定了文件夹时，Claude Code 会以相同的错误退出，并且错误信息会提示取消设置该变量。
+`disableSideloadFlags` 还会拒绝来自以下来源的插件文件夹：
+
+* **[`CLAUDE_CODE_PLUGIN_DIRS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量**：当该变量指定了插件文件夹时，Claude Code 会在启动时退出，并显示一条指出该变量并提示取消设置它的错误。需要 Claude Code v2.1.280 或更高版本
+* **Agent SDK [`addPlugins`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#load-more-plugin-folders-with-addplugins) 选项**：当应用程序在 `addPlugins` 中将插件文件夹传递给 `reloadPlugins()` 时，该调用会失败并报错。会话将继续运行，并保留其已有的插件。需要 Claude Code v2.1.301 或更高版本
 
 在云端会话中，Claude Code 还会忽略服务器在会话中途下发的 MCP 更新，云端会话配置以及到达这些会话的 SDK `setMcpServers()` 调用都是通过这一路径生效的。在这里，进程内 `type: "sdk"` 条目和 Claude Tag 会话的 Slack 工具同样不受影响。在 v2.1.268 之前，这种丢弃和启动时的丢弃也会移除 Claude Tag 会话的 Slack 工具。在 v2.1.239 之前，服务器下发的 `--mcp-config` 会导致云端会话无法启动。
 

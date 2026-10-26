@@ -41,7 +41,7 @@ Anthropic 为 Claude Code 发布了三个通用插件市场：[官方](https://g
 
 如果教程或较旧的说明告诉你运行 `/plugin marketplace add anthropics/claude-code`，这会添加演示市场，名为 `claude-code-plugins`。它不是官方市场。
 
-演示市场的大多数插件也在官方市场中以相同的名称存在。例如，`code-review`、`feature-dev`、`commit-commands` 和 `security-guidance` 都在两者中。从 `claude-plugins-official` 安装这些，这样你就不会安装两个副本。
+演示市场的大多数插件也在官方市场中以相同的名称存在。例如，`code-review`、`feature-dev` 和 `commit-commands` 都在两者中。请从 `claude-plugins-official` 安装这些插件，以免安装两个副本。
 
 ## 在官方市场中查找插件
 

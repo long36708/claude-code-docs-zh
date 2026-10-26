@@ -170,9 +170,11 @@ Claude Code 在启动时从 Anthropic 的服务器获取设置，并在活动会
 
 **后续启动且有缓存的设置：**
 
-* 缓存的设置在启动时立即应用，除了缓存的 `modelPricing` 和 `managedMcpServers` 值以及 Claude Code 在服务器确认有效负载之前暂扣的环境变量
+* 缓存的设置在启动时立即应用，但以下情况除外：缓存的 `modelPricing` 和 `managedMcpServers` 值；Claude Code 在服务器确认负载之前暂扣的环境变量；缓存的插件列表对[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)的移除、重新定位或禁用；以及在端点管理的源自行列出或启用插件的机器上，仅由缓存列表启用的插件的[组织归属](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)
 * 缓存的 [`modelPricing`](https://code.claude.com/docs/zh-CN/settings-reference#modelpricing) 在会话的获取确认有效负载前不适用。在那之前，开发者在 `/usage` 中看到的成本数字和状态行处于列表价格
 * 缓存的 [`managedMcpServers`](https://code.claude.com/docs/zh-CN/settings-reference#managedmcpservers) 块在会话的获取确认有效负载前不适用。Claude Code 在连接 MCP 服务器前最多等待 30 秒以获取。如果获取失败或超时，会话启动时不使用组织的服务器，`/status` 会说明这一点，它们在后续获取确认它们后连接。有关完整行为（包括首次启动），请参阅[何时提供的服务器连接](https://code.claude.com/docs/zh-CN/managed-mcp.md#when-provided-servers-connect)。需要 Claude Code v2.1.259 或更高版本
+* 缓存的 [`prependPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#prependplugins)、[`appendPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#appendplugins) 或 [`enabledPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#enabledplugins) 值在会话的获取确认负载之前，无法移除内置守卫、更改其位置或将其关闭
+* 在[端点管理的源](https://code.claude.com/docs/zh-CN/managed-settings.md#choose-a-delivery-mechanism)自行列出或启用插件的机器上，仅由缓存列表启用的插件在获取确认负载之前被视为[用户的](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)插件，而非您组织的插件
 * Claude Code 在后台获取新鲜设置
 * 缓存的设置通过网络故障持久化。如果启动获取失败，Claude Code 在交互式会话中警告缓存的策略有效
 * 在某次获取成功之前，启动时被暂扣的值保持暂扣状态

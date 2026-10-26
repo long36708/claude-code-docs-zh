@@ -303,7 +303,7 @@ Skills 是 Claude 工具包中的额外功能。它们可以是参考材料（�
 * CLAUDE.md 和 git 状态。内置的 Explore 和 Plan Agent [启动时两者都不包含](https://code.claude.com/docs/zh-CN/sub-agents.md#what-loads-at-startup)，而定义中设置了 [`omitClaudeMd`](https://code.claude.com/docs/zh-CN/sub-agents#supported-frontmatter-fields) 的 Agent 启动时不包含用户、项目和本地 CLAUDE.md 文件。
 * 主 Agent 在提示词中传递的任何上下文
 
-对于 [fork](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，Claude Code 加载父对话到目前为止、系统提示和工具。
+对于 [fork](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，Claude Code 改为加载父对话到目前为止的内容、系统提示和工具。
 
 **上下文成本：** 与主会话隔离。
 

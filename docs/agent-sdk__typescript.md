@@ -200,7 +200,7 @@ function tool<Schema extends AnyZodRawShape>(
 | :- | :- | :- | :- |
 | `title` | `string` | `undefined` | 工具的人类可读标题 |
 | `readOnlyHint` | `boolean` | `false` | 如果为 `true`，则该工具不会修改其环境 |
-| `destructiveHint` | `boolean` | `true` | 如果为 `true`，则该工具可能执行破坏性更新（仅当 `readOnlyHint` 为 `false` 时有意义） |
+| `destructiveHint` | `boolean` | `true` | 如果为 `true`，则该工具可能执行破坏性更新。对于您标记为 [`always_ask`](#mcpservertoolpolicy) 的任何工具，请显式设置 `destructiveHint: true`，否则自动模式分类器可能会代替您的 `canUseTool` 回调批准该工具的调用。仅将 `destructiveHint` 保持未设置是不够的，因为 Claude Code 在处理 `always_ask` 调用时会将未设置的 `destructiveHint` 视为 `false`，尽管 MCP 规范中的默认值为 `true` |
 | `idempotentHint` | `boolean` | `false` | 如果为 `true`，则使用相同参数重复调用不会产生额外效果（仅当 `readOnlyHint` 为 `false` 时有意义） |
 | `openWorldHint` | `boolean` | `true` | 如果为 `true`，则该工具会与外部实体交互（例如网络搜索）。如果为 `false`，则该工具的作用域是封闭的（例如记忆工具） |
 
@@ -630,6 +630,7 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
   ): Promise<SDKControlReadFileResponse | null>;
   reloadPlugins(options?: {
     holdOnCacheImpact?: boolean;
+    addPlugins?: SdkPluginConfig[];
   }): Promise<SDKControlReloadPluginsResponse>;
   reloadSkills(): Promise<SDKControlReloadSkillsResponse>;
   reloadOutputStyles(): Promise<SDKControlReloadOutputStylesResponse>;
@@ -669,7 +670,7 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 | `mcpServerStatus()` | 以 [`McpServerStatus`](#mcpserverstatus)`[]` 形式返回已连接 MCP 服务器的状态 |
 | `getContextUsage(opts?)` | 返回一个 [`SDKControlGetContextUsageResponse`](#sdkcontrolgetcontextusageresponse)，按类别、skill 和工具细分会话的上下文窗口使用情况。使用默认的 `detail` 时，它包含 `/context` 在交互式会话中显示的数据，这些数据通过不会出现在消息流中的 token 计数 API 请求计算得出；请参阅[这些请求的处理方式](#sdkcontrolgetcontextusageresponse)。[`detail` 选项](#sdkcontrolgetcontextusageresponse)需要 Agent SDK v0.3.257 或更高版本 |
 | `readFile(path, options?)` | 从会话的文件系统中读取文件。Claude Code 会相对于 `cwd` 解析路径；[`readFile()` 可以读取的内容](#what-readfile-can-read)列出了它可提供的文件。传递 `{ maxBytes }` 可更改读取上限（默认 1 MB，最大 10 MB），对于图像等二进制文件传递 `{ encoding: 'base64' }`。以 [`SDKControlReadFileResponse`](#sdkcontrolreadfileresponse) 完成；在权限被拒绝、文件不存在或传输错误时以 `null` 完成。需要 TypeScript SDK v0.2.121 或更高版本 |
-| `reloadPlugins(options?)` | 从磁盘重新加载插件，使您在会话中途安装或编辑的插件作用于正在运行的会话。以 [`SDKControlReloadPluginsResponse`](#sdkcontrolreloadpluginsresponse) 完成，其中列出会话的命令、子代理、插件和 MCP 服务器状态。需要 Agent SDK v0.2.85 或更高版本。[`holdOnCacheImpact` 选项](#sdkcontrolreloadpluginsresponse)需要 Agent SDK v0.3.268 或更高版本 |
+| `reloadPlugins(options?)` | 从磁盘重新加载插件，使您在会话中途安装或编辑的插件能够作用于正在运行的会话。以 [`SDKControlReloadPluginsResponse`](#sdkcontrolreloadpluginsresponse) 解析，其中列出会话的命令、子代理、插件和 MCP 服务器状态。需要 Agent SDK v0.2.85 或更高版本。[`holdOnCacheImpact` 选项](#sdkcontrolreloadpluginsresponse)需要 Agent SDK v0.3.268 或更高版本。[`addPlugins` 选项](#load-more-plugin-folders-with-addplugins)需要 Agent SDK v0.3.301 或更高版本 |
 | `reloadSkills()` | 从磁盘重新加载 skill，使您在会话中途添加或编辑的 skill 可供正在运行的会话使用。以 [`SDKControlReloadSkillsResponse`](#sdkcontrolreloadskillsresponse) 完成，其中列出重新加载后可用的 skill。需要 Agent SDK v0.3.163 或更高版本 |
 | `reloadOutputStyles()` | 从磁盘重新读取[输出样式](https://code.claude.com/docs/zh-CN/output-styles.md)，使您在会话中途添加或编辑的样式文件可供正在运行的会话使用。以 [`SDKControlReloadOutputStylesResponse`](#sdkcontrolreloadoutputstylesresponse) 完成，其中列出重新加载后可用的样式名称。需要 Agent SDK v0.3.261 或更高版本 |
 | `seedReadState(path, mtime)` | 将文件标记为已读取，使之后的 Edit 不会因 `File has not been read yet` 而失败。请参阅 [`seedReadState()`](#seedreadstate)。需要 TypeScript SDK v0.2.83 或更高版本 |
@@ -1135,6 +1136,39 @@ type SDKControlReloadPluginsResponse = {
 
 `cache_impact` 仅与 `held: true` 一同出现。`mcp_servers_added` 和 `mcp_servers_removed` 以限定的 `plugin:<plugin>:<server>` 名称列出重新加载将注册或移除的插件 MCP 服务器。这些名称由插件作者编写，因此在显示之前请先验证。`lsp_tool_change` 说明应用后是否会添加或移除 LSP 工具，如果两者都不会发生则为 `null`。`may-` 形式表示检查无法完全看到待处理的插件集合。
 
+#### 使用 `addPlugins` 加载更多插件文件夹
+
+要加载启动时未包含在 [`plugins`](#options) 选项中的插件文件夹，请将它们作为 `addPlugins` 传给 `reloadPlugins()`，这是一个由 [`SdkPluginConfig`](#sdkpluginconfig) 条目组成的列表，其中的 `path` 必须是绝对路径。Claude Code 会在一次处理中加载新文件夹并重新加载会话中已有的插件。每个新增插件的 MCP 服务器也会连接，除非您在该文件夹的条目上设置了 [`skipMcpDiscovery`](#sdkpluginconfig)。需要 Agent SDK v0.3.301 或更高版本以及 Claude Code v2.1.301 或更高版本。
+
+以下示例向正在运行的查询 `q` 添加一个文件夹，并在调用返回时打印会话已加载的每个插件的安装路径：
+
+```typescript theme={null}
+const result = await q.reloadPlugins({
+  addPlugins: [{ type: "local", path: "/opt/my-app/plugins/reports" }]
+});
+
+console.log(result.plugins.map((plugin) => plugin.path));
+```
+
+如果该文件夹已加载，打印的列表中会包含 `/opt/my-app/plugins/reports`，并且该插件的命令和子代理会出现在 `result.commands` 和 `result.agents` 中。
+
+新增的文件夹会一直作为会话的一部分。当您再次调用 `reloadPlugins()` 时，Claude Code 会将其与其他插件一起重新加载，您无需再次在 `addPlugins` 中传入它。
+
+##### `reloadPlugins()` 未加载 `addPlugins` 文件夹的情况
+
+如果 `reloadPlugins()` 被拒绝，`addPlugins` 中的文件夹都不会被添加，因此重试时请再次在 `addPlugins` 中传入它们。当拒绝由以下某个原因导致时，会话会保留其原有的插件：
+
+* **相对 `path` 或格式错误的条目**：错误消息为 `add_plugins must be a list of { type: "local", path } entries with absolute paths`。只要有一个错误条目，Claude Code 就会拒绝整个列表，因此请将每个条目都传为 `{ type: "local", path }`，并使用绝对 `path`
+* **管理员在您的托管设置中启用了 [`disableSideloadFlags`](https://code.claude.com/docs/zh-CN/settings-reference#disablesideloadflags)**：消息为 `reload_plugins add_plugins is disabled by managed settings (disableSideloadFlags)`。要加载该文件夹，请联系该管理员移除此设置
+* **无法重建[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)**：启用[沙箱隔离](#sandboxsettings)时，Claude Code 会重建沙箱配置，使沙箱中的 shell 命令无法写入您添加的文件夹。消息为 `the sandbox could not be rebuilt to keep shell commands out of this folder`。请检查您的[沙箱设置](#sandboxsettings)是否仍构成有效配置
+
+如果您传入了 `holdOnCacheImpact`，且调用以 [`held: true`](#sdkcontrolreloadpluginsresponse) 解析，则 `addPlugins` 中的文件夹不会被添加。如需仍然添加，请使用相同的 `addPlugins` 列表、不带 `holdOnCacheImpact` 再次调用 `reloadPlugins()`。
+
+如果调用未以 `held: true` 解析，但某个文件夹仍未出现在 `result.plugins` 中，请先排查以下原因：
+
+* **文件夹不存在或其插件加载失败**：`result.error_count` 为 `1` 或更高。即便如此，该文件夹仍是会话的一部分。修复文件夹后，再次调用 `reloadPlugins()` 即可加载它，这次无需在 `addPlugins` 中列出它
+* **Claude Code 可执行文件早于 v2.1.301**：早于 v2.1.301 的可执行文件会忽略 `addPlugins`，只重新加载会话中已有的插件。请检查 [init 消息](#sdksystemmessage)中的 `claude_code_version`，并运行 v2.1.301 或更高版本的可执行文件
+
 ### `SDKControlReloadSkillsResponse`
 
 [`reloadSkills()`](#query-object) 的返回类型。
@@ -1430,14 +1464,105 @@ type McpHttpServerConfig = {
 
 #### `McpSdkServerConfigWithInstance`
 
+进程内 MCP 服务器的配置，此类服务器由 [`createSdkMcpServer()`](#createsdkmcpserver) 创建，并在您的应用程序进程内运行。它是 `createSdkMcpServer()` 返回的对象，外加一个由您自行添加的、由 [`McpServerToolPolicy`](#mcpservertoolpolicy) 条目组成的可选 `tools` 列表。要对该服务器某个工具的调用要求批准或予以拒绝，请添加一个指定该工具的条目。
+
 ```typescript theme={null}
 type McpSdkServerConfigWithInstance = {
   type: "sdk";
   name: string;
   timeout?: number;
+  tools?: McpServerToolPolicy[];
   instance: McpServer;
 };
 ```
+
+要设置策略，请将 `createSdkMcpServer()` 返回的对象展开到 `mcpServers` 中的一个新对象里，并将 `tools` 列表添加到该新对象上。`createSdkMcpServer()` 自身的 `tools` 选项是另一个列表，用于保存工具定义，不接受策略条目。策略列表需要 Agent SDK v0.3.301 或更高版本，[`McpServerToolPolicy`](#mcpservertoolpolicy) 说明了每个 `permission_policy` 值的作用。
+
+以下示例使用 `allowedTools` 通配符预先批准 `records` 服务器上的所有工具，然后将 `delete_record` 标记为 `always_ask`，使对它的调用仍然转到 `canUseTool`。借助 `destructiveHint: true` 注解，即使会话在 `auto` 模式下运行，该调用仍会到达回调；否则自动模式[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)可能会批准它。
+
+```typescript theme={null}
+import { query, tool, createSdkMcpServer } from "@anthropic-ai/claude-agent-sdk";
+import { z } from "zod";
+
+const deleteRecord = tool(
+  "delete_record",
+  "Delete a customer record by ID",
+  { id: z.string() },
+  async ({ id }) => ({ content: [{ type: "text", text: `Deleted record ${id}` }] }),
+  { annotations: { destructiveHint: true } }
+);
+
+const records = createSdkMcpServer({ name: "records", tools: [deleteRecord] });
+
+for await (const message of query({
+  prompt: "Delete customer record 42",
+  options: {
+    mcpServers: {
+      // Spread the returned config and add the policy list beside it
+      records: {
+        ...records,
+        tools: [{ name: "delete_record", permission_policy: "always_ask" as const }]
+      }
+    },
+    allowedTools: ["mcp__records__*"],
+    canUseTool: async (toolName, input) => {
+      console.log(`Approval requested for ${toolName}`);
+      return { behavior: "allow", updatedInput: input };
+    }
+  }
+})) {
+  if (message.type === "result" && message.subtype === "success") {
+    console.log(message.result);
+  }
+}
+```
+
+当 Claude 调用该工具时，脚本会在 `delete_record` 工具运行之前打印 `Approval requested for mcp__records__delete_record`，尽管 `allowedTools` 条目原本会批准该调用。
+
+要在会话运行期间更改或解除某个工具的策略，请将带有新 `tools` 值的服务器配置传给 [`setMcpServers()`](#mcpsetserversresult)。您传入的 `tools` 值从 Claude 下一次调用该服务器的工具时开始生效：
+
+* **包含条目的列表**：这些条目替换当前策略
+* **空列表**：清除该服务器上的所有策略
+* **没有 `tools` 键**：保留当前策略
+
+请在该调用中包含您的其他进程内服务器以及先前 `setMcpServers()` 调用添加的任何服务器，否则该调用会断开它们的连接。
+
+#### `McpServerToolPolicy`
+
+[`McpSdkServerConfigWithInstance`](#mcpsdkserverconfigwithinstance) 的 `tools` 列表中的一个条目，用于指定服务器的某个工具并设置对该工具调用的权限策略。该列表需要 Agent SDK v0.3.301 或更高版本以及 Claude Code v2.1.301 或更高版本。较旧的 Claude Code 可执行文件（例如您通过 `pathToClaudeCodeExecutable` 指定的可执行文件）会忽略该列表。此时 `always_ask` 和 `always_deny` 不会被强制执行，每个调用都会经过[权限流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)。
+
+```typescript theme={null}
+type McpServerToolPolicy = {
+  name: string;
+  permission_policy?: "always_allow" | "always_ask" | "always_deny";
+  org_max_permission?: "allow" | "ask" | "blocked";
+};
+```
+
+| 字段 | 类型 | 描述 |
+| :- | :- | :- |
+| `name` | `string` | 传给 [`tool()`](#tool) 的工具裸名称，不带 `mcp__<server>__` 前缀 |
+| `permission_policy` | `'always_allow' \| 'always_ask' \| 'always_deny'` | 该工具调用的批准策略，即 [`always_ask` 或 `always_deny`](#permission-policy-values)。`always_allow` 在进程内服务器上会被忽略：要预先批准某个工具，请改为在 [`allowedTools`](#options) 中列出它 |
+| `org_max_permission` | `'allow' \| 'ask' \| 'blocked'` | 由组织管理员设置的单个工具上限。在进程内服务器上会被忽略，因此请勿设置 |
+
+##### `permission_policy` 值
+
+选择 `always_ask` 以亲自批准每个调用，或选择 `always_deny` 以直接阻止该工具：
+
+* **`always_ask`**：对该工具的每个调用都[需要批准](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)，即使有 `allowedTools` 条目或 allow 规则覆盖它。该调用会转到您的 `canUseTool` 回调或 [`permissionPromptToolName`](#options) 工具，除非它已先被处理。您加载的插件中的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) [可以先批准它](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。否则，在 `dontAsk` 模式下它会被拒绝，而在 [`auto`、`plan` 和 `bypassPermissions` 模式](#permission-modes-that-can-approve-an-always_ask-call)下，它可能在到达您的回调之前就被批准
+* **`always_deny`**：在所有权限模式下（包括 `bypassPermissions`），对该工具的调用都[会被拒绝](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)，但您加载的插件中的 mod [仍然可以批准它](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)
+
+如果您既未传入 `canUseTool` 也未传入 `permissionPromptToolName`，或将 [`permissionPrompts`](#options) 设为 `'none'`，则未被先行处理的 `always_ask` 调用会被拒绝，除非 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 允许它。
+
+##### 可以批准 `always_ask` 调用的权限模式
+
+在 `auto`、`plan` 和 `bypassPermissions` 模式下，对标记为 [`always_ask`](#permission-policy-values) 的工具的调用可能在到达您的 `canUseTool` 回调之前就被批准。在下面的列表中找到您会话所用的模式，了解该批准何时发生，以及需要设置什么才能让调用仍然到达您的回调：
+
+* **`auto`**：自动模式[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)会审查该调用并可能允许它。要让每个调用在 `auto` 模式下都到达您的回调，请在工具的[注解](#toolannotations)中设置 `destructiveHint: true`
+* **`plan`**：当会话可使用[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)时，对注解为 `readOnlyHint: true` 的 `always_ask` 工具的调用会转到自动模式分类器，分类器可能允许它们。对其他 `always_ask` 工具的调用会到达您的回调。要让只读工具的调用也到达您的回调，请在该工具的注解中于 `readOnlyHint: true` 之外添加 `destructiveHint: true`。或者，将 [`useAutoModeDuringPlan`](https://code.claude.com/docs/zh-CN/settings-reference#useautomodeduringplan) 设为 `false`，这会在规划期间关闭分类器
+* **`bypassPermissions`**：当 [`CLAUDE_CODE_REMOTE`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量为 `true` 时（在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中即是如此），无论工具的注解如何，该调用都会在不经过您回调的情况下被批准。在其他任何地方，该调用都会到达您的回调。要让它在云端会话中也到达您的回调，请改为在 `default` 或 `acceptEdits` 模式下运行会话
+
+在 `auto` 和 `plan` 模式下，请显式地将 `destructiveHint` 设为 `true`。对于 `always_ask` 调用，Claude Code 会将未设置的 `destructiveHint` 视为 `false`，尽管 [`ToolAnnotations`](#toolannotations) 下列出的默认值为 `true`。
 
 #### `McpClaudeAIProxyServerConfig`
 
@@ -1464,7 +1589,7 @@ type SdkPluginConfig = {
 | 字段 | 类型 | 描述 |
 | :- | :- | :- |
 | `type` | `'local'` | 必须为 `'local'`（目前仅支持本地插件） |
-| `path` | `string` | 插件目录的绝对或相对路径 |
+| `path` | `string` | 插件目录的路径。相对路径会在会话启动时相对于 [`cwd`](#options) 选项解析。使用 [`addPlugins`](#load-more-plugin-folders-with-addplugins) 在会话中途加载插件时，路径必须为绝对路径 |
 | `skipMcpDiscovery` | `boolean` | 为 `true` 时，SDK 会从此插件加载 skill、hook、Agent 和命令，但不会读取其 `.mcp.json` 或清单中的 `mcpServers`。当您的应用程序自行管理插件的 MCP 连接时，请设置此项。 |
 
 **示例：**
@@ -5074,9 +5199,27 @@ type McpServerStatus = {
 };
 ```
 
-`source` 表示服务器定义的来源，其取值和信任规则与 [`McpServerProvenance`](#mcpserverprovenance) 的 `source` 相同。该字段需要 Agent SDK v0.3.274 或更高版本，在更早的版本中不存在。
+使用 `source` 决定对服务器的信任程度，并使用每个 `tools` 条目上的 `_meta` 查找服务器附加到该工具的 UI 资源：
 
-`tools` 条目上的 `_meta` 携带该工具 `_meta` 中的 MCP Apps 成员，以便您的应用程序找到要通过 [`readMcpResource()`](#query-object) 渲染的 `ui://` 资源。Claude Code 会透传 `ui` 对象和已弃用的扁平 `ui/resourceUri` 字符串，并扣留所有其他键，不予透传。在 `ui` 内部，当服务器设置了 `resourceUri` 和 `visibility` 时，`resourceUri` 为 `ui://` 字符串，`visibility` 为由 `"model"` 和 `"app"` 组成的数组，其他任何成员原样透传。当值格式错误时，Claude Code 会丢弃相应的键；对于两者都未声明的工具，则省略 `_meta`。仅当 init 消息的 [`capabilities`](#sdksystemmessage) 包含 `mcp_tool_ui_meta_v1` 时，该字段才会出现，并且需要 TypeScript Agent SDK v0.3.280 或更高版本。
+* **`source`**：服务器定义的来源，取值与 [`McpServerProvenance`](#mcpserverprovenance) 上的 `source` 相同。请基于 `source` 而不是 `name` 做出信任决策，因为只有您自己的进程内服务器才会报告 `sdk`，无论任何其他服务器以什么名称注册。如果您无法识别某个 `source` 值，请像对待任何 `source` 不是 `sdk` 的服务器一样对待该服务器。需要 Agent SDK v0.3.274 或更高版本
+* **`_meta`**：服务器为该工具声明的 `_meta` 中的 `ui` 对象和 `ui/resourceUri` 字符串。Claude Code 会扣留所有其他 `_meta` 键。`ui/resourceUri` 是 `ui.resourceUri` 的一种较旧的顶层写法。当服务器为该工具附加了 [MCP Apps UI 资源](https://code.claude.com/docs/zh-CN/mcp.md#reference-mcp-resources)时，`ui.resourceUri` 或 `ui/resourceUri` 保存该资源的 `ui://` URI。使用 [`readMcpResource()`](#query-object) 获取该 URI，并在您的应用程序中渲染该资源。需要 Agent SDK v0.3.280 或更高版本
+
+仅当 subtype 为 `init` 的 `system` 消息的 [`capabilities`](#sdksystemmessage) 数组列出 `mcp_tool_ui_meta_v1` 时，Claude Code 才会发送 `_meta`。您无需自行启用 `mcp_tool_ui_meta_v1`。
+
+#### 当工具的 `_meta.ui` 仅包含 `visibility` 时
+
+如果您的服务器为某个工具声明了 `ui.resourceUri`，但您的应用程序收到的 `_meta.ui` 仅包含 `visibility`，则说明服务器发送的 `ui` 对象未通过 Claude Code 的某项检查。Claude Code 会分别检查 `ui` 和 `ui/resourceUri`，因此当一个键未通过检查时，另一个键仍可能到达您的应用程序。请将服务器 `tools/list` 响应中的 `_meta` 与每个键的检查项进行比对：
+
+* **`ui`**：如果以下三项检查全部通过，则原样到达您的应用程序，包括 `resourceUri` 和 `visibility` 以外的任何成员：
+
+  * `resourceUri` 不存在，或者是以 `ui://` 开头的字符串
+  * `visibility` 不存在，或者仅列出 `"model"` 和 `"app"`
+  * 整个对象序列化为 JSON 后最多 4,096 个字符
+
+  如果任何一项检查未通过，您的应用程序最多只会收到一个 `ui`，其唯一成员是由服务器所列出的 `"model"` 和 `"app"` 条目组成的 `visibility` 数组。
+* **`ui/resourceUri`**：如果它是以 `ui://` 开头且最多 4,096 个字符的字符串，则会到达您的应用程序。否则 Claude Code 会将其丢弃
+
+当 Claude Code 既没有可发送的 `ui` 成员，也没有可发送的 `ui/resourceUri` 字符串时，该 `tools` 条目完全不包含 `_meta`。
 
 ### `McpServerStatusConfig`
 
@@ -5311,7 +5454,9 @@ type McpSetServersResult = {
 调用 `setMcpServers()` 时，Claude Code 会应用以下规则：
 
 * **调用未指定的服务器**：在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)之外，Claude Code 会断开先前 `setMcpServers()` 调用添加的服务器以及进程内 SDK 服务器的连接，并在 `removed` 中列出它们。其他服务器会继续运行，且不会列在 `removed` 中，其中包括来自 [`mcpServers`](#options) 选项的 stdio、HTTP 和 SSE 服务器、来自设置文件的服务器以及插件提供的服务器。
-* **调用指定的服务器**：对于先前 `setMcpServers()` 调用添加的 stdio、HTTP 或 SSE 服务器，只有当其配置与您传入的配置不同时，Claude Code 才会替换它。已以该名称注册的进程内 SDK 服务器会保持原样，因此要替换它，请在一次调用中将其省略，然后在下一次调用中添加它。
+* **先前 `setMcpServers()` 调用添加的 stdio、HTTP 和 SSE 服务器**：在云端会话之外，如果您以相同的配置再次指定某个服务器，它会保留其连接和工具，既不会出现在 `added` 中，也不会出现在 `removed` 中。如果您传入更改后的配置，Claude Code 会使用该配置重新连接该服务器，并将其列在 `added` 中，而不是 `removed` 中。
+* **调用指定的、此前没有任何调用添加过的 stdio、HTTP 和 SSE 服务器**：在云端会话之外，Claude Code 会添加该服务器并将其列在 `added` 中；如果拒绝该服务器，则将其列在 `errors` 中。
+* **调用指定的进程内 SDK 服务器**：已通过 `mcpServers` 或先前调用注册的服务器会保留其正在运行的实例和超时时间。如果您为其传入 [`tools` 策略列表](#mcpsdkserverconfigwithinstance)（即使是空列表），则会替换其策略；否则策略保持不变。要在云端会话之外运行新实例，请在一次调用中省略该服务器，然后在下一次调用中指定它。
 * **CLI 在启动时启动的内置服务器**：如果调用指定了其中之一，Claude Code 会丢弃该条目并在 `errors` 中报告它。
 * **与 MCP 安装作用域（例如 `.mcp.json`）中的服务器同名的 stdio、HTTP 或 SSE 服务器**：在该名称下，会话使用您的服务器的工具，而不是[安装作用域服务器](https://code.claude.com/docs/zh-CN/mcp.md#mcp-installation-scopes)的工具。在 Claude Code v2.1.305 之前，当您的应用[重新加载插件](#query-object)时，Claude Code 可能会断开您的服务器的连接并改为连接安装作用域服务器。
 
@@ -5797,6 +5942,24 @@ type SDKConversationResetMessage = {
 `trigger`、`user_message_uuid` 和 `timestamp` 字段需要 Claude Code v2.1.281 或更高版本。
 
 在 Claude Code v2.1.203 及更高版本中，SDK 发布的类型定义声明了 `SDKConversationResetMessage`。在 v2.1.203 之前，`SDKMessage` 引用了该类型却未声明它，因此在禁用 `skipLibCheck` 时，基于 `type === "conversation_reset"` 的类型收窄无法通过类型检查。
+
+### `BUILTIN_TOOL_NAMES` 和 `LEGACY_TOOL_NAME_ALIASES`
+
+使用这两个常量来检查您的应用程序用户输入的工具名称。两者中每个名称的写法都与您在权限规则、hook 匹配器以及 `tools` 和 `disallowedTools` 选项中的写法一致。请从 `@anthropic-ai/claude-agent-sdk` 或 `@anthropic-ai/claude-agent-sdk/core` 导入它们。它们需要 Agent SDK v0.3.301 或更高版本，并且处于 alpha 阶段。
+
+SDK 的类型声明为 `BUILTIN_TOOL_NAMES` 提供了只读元组类型，为 `LEGACY_TOOL_NAME_ALIASES` 提供了字符串到字符串的记录类型：
+
+```typescript theme={null}
+const BUILTIN_TOOL_NAMES: readonly ["Agent", /* ...more names... */ "Write"];
+const LEGACY_TOOL_NAME_ALIASES: Readonly<Record<string, string>>;
+```
+
+* **`BUILTIN_TOOL_NAMES`**：按字母顺序排列的 Claude Code 内置工具名称，例如 `Agent`、`Bash` 和 `Read`。不包括 MCP 工具名称。由于该类型是字符串字面量元组，`(typeof BUILTIN_TOOL_NAMES)[number]` 会为您提供这些名称的联合类型
+* **`LEGACY_TOOL_NAME_ALIASES`**：权限规则、hook 匹配器以及 `tools` 和 `disallowedTools` 选项仍然接受的早期工具名称。每个键是一个早期名称，其值是当前名称：例如，`Task` 映射到 `Agent`，`KillShell` 和 `KillBash` 映射到 `TaskStop`
+
+您可以通过以下两种检测中的任意一种来确认某个名称：`BUILTIN_TOOL_NAMES` 包含它，或者 `Object.hasOwn(LEGACY_TOOL_NAME_ALIASES, name)` 返回 `true`。两种检测都未通过的名称仍可能是有效的，因为 `BUILTIN_TOOL_NAMES` 不包括 MCP 工具和部分内置工具。如果您基于 `BUILTIN_TOOL_NAMES` 构建拒绝列表，Claude 仍然可以使用该常量未包含的工具。要拒绝所有工具，请改为设置 [`disallowedTools: ["*"]`](https://code.claude.com/docs/zh-CN/agent-sdk/permissions#allow-and-deny-rules)。
+
+在 `BUILTIN_TOOL_NAMES` 中找到某个名称并不代表会话拥有该工具：`TodoWrite` 虽然[默认处于禁用状态](https://code.claude.com/docs/zh-CN/tools-reference.md)，但仍列在其中。要查看会话拥有哪些工具，请读取其 [`SDKSystemMessage`](#sdksystemmessage) 的 `tools` 数组。该数组包含 MCP 工具，并将 Agent 工具列为 `Task`，因此在与 `BUILTIN_TOOL_NAMES` 比较之前，请先通过 `LEGACY_TOOL_NAME_ALIASES` 映射每个名称。
 
 ### `AbortError`
 

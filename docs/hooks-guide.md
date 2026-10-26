@@ -629,6 +629,7 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 
 * 从 [网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths) 读取
 * 标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具
+* 对 [Agent SDK 应用标记为 `always_ask` 的工具](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools#require-approval-for-specific-tools) 的调用，除非 [权限模式批准该调用](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#permission-modes-that-can-approve-an-always_ask-call)
 * 在该设置到达 Claude Code 的会话中，[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具
 
   有关 `"allow"` 在计划模式下的作用，请参阅 [计划模式下的 hook 批准](https://code.claude.com/docs/zh-CN/permissions.md#hook-approvals-in-plan-mode)。
@@ -963,6 +964,7 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
 * **对 `"allow"` 仍然有效的限制**：返回 `"allow"` 的 hook 不会绕过设置中的拒绝规则，并且在以下情况下也无法抑制提示：
   * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)读取
   * 标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具
+  * 调用 [Agent SDK 应用标记为 `always_ask` 的工具](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools#require-approval-for-specific-tools)，除非[权限模式批准该调用](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#permission-modes-that-can-approve-an-always_ask-call)
   * 在该设置会传达到 Claude Code 的会话中，[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具
 
 在[计划模式](https://code.claude.com/docs/zh-CN/permissions.md#hook-approvals-in-plan-mode)中，如果您的 `PreToolUse` hook 对文件编辑返回 `"allow"`，您得到的提示、阻止或批准与没有 hook 时该编辑所得到的相同。要解除对 hook 批准的这一限制，请[批准计划](https://code.claude.com/docs/zh-CN/permission-modes.md#review-and-approve-a-plan)或切换到其他权限模式。
