@@ -224,7 +224,7 @@ claude --continue --fork-session
 * **`/compact [instructions]`**：用摘要替换历史记录，可选地专注于您指定的内容
 * **`/context`**：显示当前消耗的上下文
 
-有关压缩如何与 CLAUDE.md、skills 和规则交互的信息，请参阅[上下文窗口指南](https://code.claude.com/docs/zh-CN/context-window.md)。有关何时清除与压缩的策略，请参阅[最佳实践](https://code.claude.com/docs/zh-CN/best-practices.md#manage-your-session)。
+有关压缩如何与 CLAUDE.md、skill 和规则交互的信息，请参阅[上下文窗口指南](https://code.claude.com/docs/zh-CN/context-window.md)。有关何时清除与压缩的策略，请参阅[最佳实践](https://code.claude.com/docs/zh-CN/best-practices.md#keep-cost-and-context-down)。
 
 ## 导出和定位会话数据
 

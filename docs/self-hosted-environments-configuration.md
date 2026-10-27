@@ -381,7 +381,7 @@ name="runner-${CLAUDE_RUNNER_ORDER_ID}"
 
 | 标志及示例值 | 传递给 | 作用 |
 | :- | :- | :- |
-| `--release-idle-session-min 30` | 您的 hook 启动的每个运行器 | 运行器在空闲达到该分钟数后释放其会话，然后以 0 退出。当会话的用户发送下一条消息时，会话会恢复，但[其尚未推送的工作将会丢失](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#additional-limitations)。 |
+| `--release-idle-session-min 30` | 您的 hook 启动的每个运行器 | 运行器在空闲达到该分钟数后释放其会话，然后以 0 退出。当会话的用户发送下一条消息时，会话会恢复，但[其尚未推送的工作将会丢失](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#additional-limitations)。对于会话遗留的仍在运行的进程，请[保留会话](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#keep-an-idle-session-while-its-processes-run)。 |
 | `--kill-session-after-min 480` | 您的 hook 启动的每个运行器 | 将每个会话限制为该分钟数，作为[不计为空闲的会话](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#some-sessions-don’t-count-as-idle)的兜底措施，因此请将其设置为高于您预期的最长会话时长 |
 | `--exit-if-unused-min 60` | 待命运行器，即您的 hook 为预热请求启动的运行器 | 从未接收会话的待命运行器会在该分钟数后退出。如果您设置了 [`--min-idle`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags)，除非该待命运行器是多余的，否则您会获得替代运行器，因此请使用远高于启动时间的值。 |
 

@@ -542,7 +542,7 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 运行安全分类器，最常�
 在以下情况下会应用不同的级别：
 
 * **您自己的更改**：一旦您选择了 effort 级别、在 `/model` 中选择了模型或稍后恢复会话，被标记请求的级别就不再沿用。
-* **Skill effort**：skill 的 `effort` frontmatter 为被标记请求设置的级别适用于该轮次，后续轮次以 [effort 解析顺序](#adjust-effort-level)为备用模型给出的级别运行。
+* **为单个轮次设置的 effort**：如果您使用 `ultrathink` 提升了被标记的轮次，或 skill 的 `effort` frontmatter 设置了其级别，该级别适用于该轮次。后续轮次以 [effort 解析顺序](#adjust-effort-level)为备用模型给出的级别运行。
 
 在会话中，运行 `/effort status` 查看当前生效的级别，或运行 `/effort` 更改它。
 
@@ -674,13 +674,19 @@ Opus 5.5 [默认为 `medium`](#adjust-effort-level)，比 Opus 5 的默认值 `h
 
 #### 使用 ultrathink 进行一次性深度推理
 
-在您的提示词中的任何地方包含 `ultrathink` 以请求该轮次的更深推理，而不改变您的会话 effort 设置。Claude Code 识别关键字并添加上下文内指令。发送到 API 的 effort 级别保持不变。Claude Code 将其他短语如"think"、"think hard"和"think more"作为普通提示词文本传递，不将它们识别为关键字。
+在您的提示词中的任何地方包含 `ultrathink` 以请求该轮次的更深推理，而不改变您的会话 effort 设置。Claude Code 识别关键字并添加上下文内指令。Claude Code 将其他短语如"think"、"think hard"和"think more"作为普通提示词文本传递，不将它们识别为关键字。
+
+在终端输入框中键入时，该词还可以将该轮次提升到 `xhigh` effort。当它可以这样做时，该词会以彩虹色显示。需要 Claude Code v2.1.311 或更高版本。如果您开始新轮次时该词没有以彩虹色显示，请尝试以下方法之一：
+
+* 在不以 `/` 开头的提示词中重新键入该词，并确保它不在引号、括号、路径或命令等任何内容之内
+* 如果 `CLAUDE_CODE_EFFORT_LEVEL` 设置为低于 `xhigh` 的级别，请取消设置它；或将您自己的 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel) 提高到 `xhigh` 或更高；或请组织管理员提高您的[组织限制](#organization-effort-limits)
+* 在会话中运行 `/model` 切换到 Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 5.1 模型。在该词无法提升轮次的情况下（例如在 Amazon Bedrock 上），请改为[设置 effort 级别](#set-the-effort-level)
 
 #### 设置 effort 级别
 
 您可以通过以下任何方式更改 effort：
 
-* **`/effort`**：运行 `/effort` 不带参数以打开交互式滑块，`/effort` 后跟级别名称以直接设置它，或 `/effort auto` 以清除活动模型的保存级别。您可以在 Claude 工作时运行它，一旦您确认[缓存警告](https://code.claude.com/docs/zh-CN/prompt-caching.md#changing-effort-level)（如果 Claude Code 显示一个），Claude Code 会将新级别应用于轮次中的下一个请求
+* **`/effort`**：运行 `/effort` 不带参数以打开交互式滑块，`/effort` 后跟级别名称以直接设置它，或 `/effort auto` 以清除活动模型的保存级别
 * **在 `/model` 中**：选择模型时使用左/右箭头键调整 effort 滑块
 * **`--effort` 标志**：启动 Claude Code 时传递级别名称以为单个会话设置它
 * **环境变量**：将 `CLAUDE_CODE_EFFORT_LEVEL` 设置为级别名称或 `auto`
@@ -692,7 +698,18 @@ Frontmatter effort 在该 skill 或子代理活跃时应用，覆盖会话级别
 
 如果您在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `effortLevel`，Claude Code 在 [effort 解析顺序](#adjust-effort-level)的设置步骤处应用它，用户仍然可以使用 `/effort` 或 `--effort` 更改级别。要将用户保持在或低于某个级别，设置 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel)。
 
-Effort 滑块在选择支持的模型时出现在 `/model` 中。当前 effort 级别也显示在会话标题中模型名称旁边，例如"with low effort"，因此您可以确认哪个设置处于活跃状态，而无需打开 `/model`。页脚也在启动和更改时简要显示 effort 级别。
+#### 检查您设置的 effort 级别
+
+选择支持的模型时，effort 滑块会出现在 `/model` 中。会话标题中显示的级别（例如"with low effort"）来自您的 effort 设置，即使 Claude [仍在以旧级别工作](#when-a-new-effort-level-starts)。页脚也会在启动时和级别更改时简要显示 effort 级别。
+
+#### 新 effort 级别何时生效
+
+在终端会话中，一旦 `/effort` 确认了新级别，您发送的下一条消息就会以该级别运行。您可以在当前轮次结束后发送它，也可以[在 Claude 仍在工作时](https://code.claude.com/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works)发送：
+
+* **轮次结束后**：在此之前您无需执行任何操作，如果该轮次以旧级别完成，这属于预期行为
+* **Claude 仍在工作时**：输入一条消息（例如 `keep going`），然后按 `Enter` 将其加入队列，而不会中断当前轮次。Claude 会在其当前工具调用完成时（最迟在轮次结束时）收到该消息，并从那时起以新级别工作。
+
+在 v2.1.242 之前，Claude Code 可能会将 `/effort` 本身排队直到轮次结束；在不[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中（例如在[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)上）则始终如此。
 
 #### 自适应推理和固定思考预算
 

@@ -396,7 +396,7 @@ Shell 模式：
 Claude Code 在您发送某些命令时立即运行它们，而不是排队它们，其中包括 `/model`、`/effort` 和 `/fast`。这三个命令各改变一个设置：模型、effort 级别或快速模式。Claude Code 是将新设置应用于 Claude 已在处理的轮次，还是仅从您的下一轮次应用，因命令而异：
 
 * [`/model`](https://code.claude.com/docs/zh-CN/model-config#setting-your-model)：一旦您确认[缓存警告](https://code.claude.com/docs/zh-CN/prompt-caching.md#switching-models)（如果 Claude Code 显示），Claude Code 会将您的更改应用于该轮次中它发出的下一个请求
-* [`/effort`](https://code.claude.com/docs/zh-CN/model-config#adjust-effort-level)：一旦您确认[缓存警告](https://code.claude.com/docs/zh-CN/prompt-caching.md#changing-effort-level)（如果 Claude Code 显示），Claude Code 会将您的更改应用于该轮次中它发出的下一个请求
+* `/effort`：您发送的下一条消息将以新级别运行。要[在 Claude 已在处理的轮次中启用新级别](https://code.claude.com/docs/zh-CN/model-config.md#when-a-new-effort-level-starts)，请在 Claude 运行工具调用时排队一条消息
 * [`/fast`](https://code.claude.com/docs/zh-CN/fast-mode#toggle-fast-mode)：Claude Code 保持轮次开始时活跃的快速模式设置，因此您的速度更改从您的下一轮次应用。如果您当前的模型不支持快速模式，打开它也会[切换您的模型](https://code.claude.com/docs/zh-CN/prompt-caching.md#turning-on-fast-mode)，Claude Code 会在该轮次中从其下一个请求使用新模型
 
 ### 在有排队消息时将会话转入后台

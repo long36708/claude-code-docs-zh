@@ -155,7 +155,7 @@ Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排
 * 会话的[并发子代理限制](https://code.claude.com/docs/zh-CN/sub-agents.md#concurrent-subagent-limit)对 Claude 使用 Agent 工具生成的子代理不强制执行
 * 在自动权限模式下，您不会被要求[批准第一个工作流启动](#approve-the-plan-before-it-runs)
 
-`/effort ultracode` 持续当前会话；要让每个会话都以它开始，设置 [`ultracode`](https://code.claude.com/docs/zh-CN/settings-reference#ultracode) 设置。当您返回日常工作时，使用 `/effort ultracode off` 关闭它。`/effort` 滑块仅在 [ultracode 可用时](https://code.claude.com/docs/zh-CN/model-config.md#when-ultracode-is-available)提供切换。
+`/effort ultracode` 持续当前会话；要让每个会话都以它开始，设置 [`ultracode`](https://code.claude.com/docs/zh-CN/settings-reference#ultracode) 设置。当您返回日常工作时，使用 `/effort ultracode off` 关闭它。`/effort` 滑块仅在 [ultracode 可用时](https://code.claude.com/docs/zh-CN/model-config.md#when-ultracode-is-available)提供切换。在 v2.1.284 之前，`/effort ultracode` 会将会话设置为 `xhigh`，而 `/effort ultracode off` 会失败并显示 `Invalid argument`。
 
 ### 在运行前批准计划
 

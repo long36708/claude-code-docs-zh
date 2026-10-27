@@ -314,7 +314,7 @@ Claude Code 也检查 `tee` 命令写入的文件，包括在管道中，如 `ma
 
 ### PowerShell
 
-PowerShell 权限规则使用与 Bash 规则相同的形式。带有 `*` 的通配符可以在任何位置匹配，`:*` 后缀等同于尾部 ` *`，而裸 `PowerShell` 或 `PowerShell(*)` 匹配每个命令。此配置允许 `Get-ChildItem` 和 `git commit` 命令，同时阻止 `Remove-Item`：
+PowerShell 权限规则使用与 [Bash 规则](#wildcard-patterns)相同的形式，裸 `PowerShell` 或 `PowerShell(*)` 匹配每个命令。此配置允许 `Get-ChildItem` 和 `git commit` 命令，同时阻止 `Remove-Item`：
 
 ```json theme={null}
 {

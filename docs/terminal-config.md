@@ -290,7 +290,7 @@ Claude Code 监视 `~/.claude/themes/` 并在添加或更改文件时重新加�
 >
 > 每个[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)和并行任务以八个命名颜色之一显示，以便您可以在成绩单中区分它们。令牌名称遵循 `<color>_FOR_SUBAGENTS_ONLY` 的模式，其中 `<color>` 是 `red`、`blue`、`green`、`yellow`、`purple`、`orange`、`pink` 或 `cyan`。覆盖这些以更改每个命名颜色的外观。例如，定义中具有 `color: blue` 的子代理使用 `blue_FOR_SUBAGENTS_ONLY` 值绘制。
 >
-> Claude Code 在提示输入中使用七色彩虹梯度渲染[`ultrathink`](https://code.claude.com/docs/zh-CN/model-config#use-ultrathink-for-one-off-deep-reasoning)关键字。令牌名称遵循 `rainbow_<color>` 和 `rainbow_<color>_shimmer` 的模式，其中 `<color>` 是 `red`、`orange`、`yellow`、`green`、`blue`、`indigo` 或 `violet`。
+> 当 [`ultrathink`](https://code.claude.com/docs/zh-CN/model-config#use-ultrathink-for-one-off-deep-reasoning) 能够提高某一轮次的 effort 时，Claude Code 会在提示词输入框中使用七色彩虹梯度渲染该词。令牌名称遵循 `rainbow_<color>` 和 `rainbow_<color>_shimmer` 的模式，其中 `<color>` 是 `red`、`orange`、`yellow`、`green`、`blue`、`indigo` 或 `violet`。
 
 ## 切换到全屏渲染
 

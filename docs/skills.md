@@ -371,7 +371,7 @@ Deploy the application:
 3. Push to the deployment target
 ```
 
-请保持正文本身简洁。skill 加载后，其内容会[在各轮次之间保留在上下文中](#skill-content-lifecycle)，因此每一行都是重复的 token 开销。说明要做什么，而不是叙述如何做或为什么做，并采用与 [CLAUDE.md 内容](https://code.claude.com/docs/zh-CN/best-practices.md#write-an-effective-claude-md)相同的简洁性标准。
+请保持正文本身简洁。skill 加载后，其内容会[在各轮次之间保留在上下文中](#skill-content-lifecycle)，因此每一行都是重复的 token 开销。说明要做什么，而不是叙述如何做或为什么做，并采用与 [CLAUDE.md 内容](https://code.claude.com/docs/zh-CN/best-practices.md#keep-claude-md-short)相同的简洁性标准。
 
 ### Frontmatter 参考
 

@@ -31,7 +31,7 @@
 
 > [!TIP]
 >
-> 有关在任何存储库中保持上下文较小的工作流技术，例如[在子代理中运行探索](https://code.claude.com/docs/zh-CN/best-practices.md#use-subagents-for-investigation)以使文件读取不会进入主对话，请参阅 [Claude Code 的最佳实践](https://code.claude.com/docs/zh-CN/best-practices.md)。要向组织中的每个开发者推出基线配置，请参阅[为你的组织设置 Claude Code](https://code.claude.com/docs/zh-CN/admin-setup.md)。
+> 有关在任何仓库中保持上下文较小的工作流技术，请参阅 [Claude Code 的最佳实践](https://code.claude.com/docs/zh-CN/best-practices.md)。一个例子是[在子代理中运行探索](https://code.claude.com/docs/zh-CN/best-practices.md#know-what-subagents-cost)，以使文件读取不会进入主对话。要向组织中的每个开发者推出基线配置，请参阅[为您的组织设置 Claude Code](https://code.claude.com/docs/zh-CN/admin-setup.md)。
 
 ### 示例 monorepo
 
@@ -465,7 +465,7 @@ monorepo/
 两种技术帮助保持跨包更改的一致性：
 
 * **在一个会话中给 Claude 整个更改**：将共享编辑及其调用站点一起交付保持每个编辑背后的决策一致，而不是按包重新推导它们
-* **在编辑前计划**：[先计划](https://code.claude.com/docs/zh-CN/best-practices.md#explore-first-then-plan-then-code)在 [plan mode](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode) 中，Claude 将计划写入文件。长的跨包会话[在进行中压缩其上下文](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)。Claude Code 在每次压缩后重新注入计划文件，所以计划在对话历史可能不会的地方幸存
+* **在编辑前计划**：先在[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)中进行计划，Claude 会将计划写入文件。长的跨包会话会在进行过程中[压缩其上下文](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)。Claude Code 在每次压缩后重新注入计划文件，因此即使对话历史可能无法保留，计划也能保留下来
 
 ## 后续步骤
 

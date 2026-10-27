@@ -174,7 +174,7 @@ Checkpoints 独立于 git，在您恢复对话时仍然可用。它们仅涵盖�
 
 ## 有效使用 Claude Code
 
-这些提示可以帮助您从 Claude Code 获得更好的结果。有关特定提示、验证和规划的更多信息，请参阅[最佳实践](https://code.claude.com/docs/zh-CN/best-practices.md)。
+这些提示可以帮助您从 Claude Code 获得更好的结果。有关具体提示词、验证，以及哪些规则值得强制执行而非通过提示词要求的更多信息，请参阅[最佳实践](https://code.claude.com/docs/zh-CN/best-practices.md)。
 
 ### 向 Claude Code 寻求帮助
 

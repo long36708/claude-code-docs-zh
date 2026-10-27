@@ -632,7 +632,7 @@ secrets:
 
 在信号后的前两个阶段，运行器释放会话，释放的会话在其用户发送下一条消息时在新运行器上恢复。从第一个信号开始计数，运行器经过三个阶段：
 
-* **在前 `n` 分钟内**：运行器正常为其会话服务，并继续强制执行 `--startup-timeout-min` 和 `--kill-session-after-min`。如果你也设置了 [`--release-idle-session-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，运行器会释放任何用户空闲该长时间的会话；没有它，空闲会话保留在运行器上。
+* **在前 `n` 分钟内**：运行器正常为其会话提供服务，并继续执行 `--startup-timeout-min` 和 `--kill-session-after-min`。如果您还设置了 [`--release-idle-session-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，运行器会释放用户空闲达到该时长的任何会话，除非您[保留该会话](#keep-an-idle-session-while-its-processes-run)。如果未设置该标志，空闲会话会保留在运行器上。
 * **当 `n` 分钟用完时**：运行器释放它仍然持有的每个会话，无论是否空闲。运行器等待中途轮次的轮次结束，以及最多 60 秒的轮次后台任务，然后释放该会话。
 * **当发布后宽限期用完时**：运行器排空它仍然持有的任何会话，控制平面立即将每个排空的会话重新排队到另一个运行器。发布后宽限期从 `n` 分钟用完时开始，默认为 75 秒。如果你设置 `--drain-wait-sec` 超过 60 秒，发布后宽限期是 `--drain-wait-sec` 加 15 秒。
 
@@ -726,11 +726,56 @@ secrets:
 * **没有序列的运行器**：没有会话持有它。请参阅[故障排除](#troubleshooting)下的**会话保持排队**。
 * **指标无响应的运行器**：其进程可能已退出。请参阅[运行器退出时](#when-the-runner-exits)下的**看起来健康的环境**。
 
-要释放空闲会话，请使用 [`--release-idle-session-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 及以分钟为单位的该时间启动每个运行器，例如 `--release-idle-session-min 30`。之后，运行器会释放任何空闲达到该时长的会话，无论该会话是由定时任务还是由人启动的。
+要释放空闲会话，请使用 [`--release-idle-session-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 及以分钟为单位的该时间启动每个运行器，例如 `--release-idle-session-min 30`。之后，运行器会释放任何空闲达到该时长的会话，无论该会话是由定时任务还是由人启动的，除非您[为其遗留运行的进程保留该会话](#keep-an-idle-session-while-its-processes-run)。
 
 * **未推送的工作**：被释放的会话会在收到下一条消息时恢复，但不包含其尚未推送的工作。要保留其提交，请参阅[恢复的会话会丢失未推送的工作](#additional-limitations)。
 * **运行器退出**：释放其最后一个会话的运行器会开始[正常退出](#when-the-runner-exits)。请让您的监管程序在全新的文件系统上重新启动它，如[加固您的部署](#harden-your-deployment)所述。
 * **从不进入空闲的会话**：还需设置 [`--kill-session-after-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，因为[某些会话不计为空闲](#some-sessions-don’t-count-as-idle)
+
+### 在进程运行期间保留空闲会话
+
+要在会话遗留在您主机上的进程（例如 `nohup` 作业）完成之前一直保留该空闲会话，请使用 [`--hold-idle-file`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，并从主机上持续 touch 该文件。需要 Claude Code v2.1.311 或更高版本。
+
+以下步骤假定运行器以非 root 用户在主机上运行。如果您的运行器以 `root` 身份运行，其会话可以自行 touch 该文件，因此请先将其改为以专用用户身份运行。
+
+**1. 为文件选择路径**
+
+选择一个本地常规文件，例如 `/var/lib/claude-hold/hold-idle`，它应位于会话无法写入的目录中（包括其父目录），这样会话就无法写入该文件。运行器及其会话共用同一个操作系统用户，因此请先创建该目录，使其归另一个用户（例如 `root`）所有，并将模式设为 `755`。
+
+**2. 启动运行器**
+
+在您的 shell 中，使用 `--hold-idle-file`、`--release-idle-session-min` 和 [`--max-hold-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，后者是保留的上限，从会话进入空闲时开始计算。如果不设置，上限为一天。请将其设置为高于 `--release-idle-session-min`，否则不会保留任何会话。此示例在 30 分钟后释放空闲会话，并在被保留的会话进入空闲后最多 4 小时将其释放：
+
+```bash theme={null}
+claude self-hosted-runner \
+  --environment-secret-file /etc/claude/environment-secret \
+  --release-idle-session-min 30 \
+  --hold-idle-file /var/lib/claude-hold/hold-idle \
+  --max-hold-min 240
+```
+
+**3. 在进程运行期间 touch 该文件**
+
+在进程运行期间，以该目录所有者的身份从主机上 `touch` 该文件，频率要高于每三分钟一次。第一次 `touch` 会创建该文件。例如，将以下行添加到 `root` 的 crontab 中：
+
+```text theme={null}
+* * * * * pgrep -x nightly-build > /dev/null && touch /var/lib/claude-hold/hold-idle
+```
+
+该行每分钟运行一次，并在任何名为 `nightly-build` 的进程运行期间 touch 该文件，因此启动了此类进程的会话会一直被保留，直至达到上限。请将 `pgrep` 检查替换为您的主机查找会话遗留运行内容的任何方式。
+
+当这些进程完成时，检查必须不再匹配，否则该运行器上的每个空闲会话都会一直被保留，直至达到上限。
+
+**4. 确认保留**
+
+在进程运行期间，检查该文件的修改时间是否始终在三分钟以内。当会话的空闲时间耗尽时，在运行器的日志中查找 `idle release held`。如果没有出现这样的行，请读取运行器在启动时记录的 `watchdog config` 行中的 `leftover-hold=`，它会显示文件和上限，或者说明为何没有保留任何会话。
+
+最后一次 `touch` 三分钟后，保留结束。再过大约一分钟，日志会显示 `idle release no longer held`，运行器随即释放该会话。
+
+即使文件持续发生变化，保留也可能结束，例如以下情况：
+
+* **超过上限**：`--max-hold-min` 耗尽。要保留更长时间，请调高该值
+* **强制释放**：您设置了 [`--retire-at`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)、[`--defer-shutdown-max-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 或 [`--kill-session-after-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，并且达到了该限制。要保留更长时间，请设置更晚的限制
 
 ## 已知问题和限制
 
@@ -829,9 +874,16 @@ claude self-hosted-runner doctor
 * **Claude Tag 有时不在 Slack 中发布其回复**：回复提醒是一个[由控制平面提供的 hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#how-each-session’s-config-is-assembled)。请使用 `claude --version` 确认运行器为 Claude Code v2.1.229 或更高版本，因为较旧的运行器会忽略所提供的 hook；确认 `python3 --version` 在运行器镜像中能够成功执行，因为这些 hook 会运行 `python3`；并确认没有任何设置文件关闭了 hook，无论是 `managed-settings.json`、运行器用户的 `~/.claude/settings.json`、仓库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `disableAllHooks`，还是托管设置中的 `allowManagedHooksOnly` 或涵盖 hook 的 [`strictPluginOnlyCustomization`](https://code.claude.com/docs/zh-CN/settings-reference#strictpluginonlycustomization)。
 * **会话启动时缺少其中一个存储库**：在没有 [`checkout` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 的运行器上，git 主机可能会拒绝运行器对会话仅从中读取的存储库的访问检查。运行器随后跳过该存储库，记录一条 `[runner:warn] could not access context source` 行，命名拒绝，并在其余存储库上启动会话。
 
-  运行器仅跳过明确的拒绝：主机回答存储库未找到，git 找不到主机的凭证，或身份验证失败。网络故障、超时或 HTTP `403` 仍会导致会话启动失败，对于会话推送结果的存储库的拒绝也是如此。运行器仍会失败一个会话，跳过会导致它完全没有存储库。使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy)，运行器仅跳过 git 代理本身拒绝的存储库。
+  使用运行器自身的 git 凭据时，如果主机答复仓库未找到、git 找不到该主机的凭据，或身份验证失败，运行器可以跳过该仓库。
+
+  使用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 时，如果 git 代理以 `access denied by the git proxy` 拒绝某个仓库，运行器会跳过该仓库。此时日志行会显示 `blocked by the git proxy`。要了解需要检查的原因，请参阅 [当会话在使用 git 代理的运行器上无法启动时](#when-anthropic-doesnt-serve-a-session) 中的 `remote: access denied by the git proxy` 情况。
+
+  网络故障、超时或任何其他 HTTP `403` 仍会导致会话启动失败，对会话推送结果的仓库的拒绝也是如此。如果跳过会导致会话完全没有仓库，运行器仍会使该会话失败。
 
   访问检查在每次会话在运行器上启动时再次运行，因此一旦运行器的 git 身份具有读取访问权限，下一次启动就会克隆存储库。在 v2.1.274 之前，这些拒绝中的每一个都导致会话启动失败。
+* **日志显示 `could not read context source`**：与 `could not access context source` 不同，这一行表示 git 主机持续答复 HTTP `429`，或者您作为 `git` 安装的包装程序持续以 `75` 退出。运行器跳过了该仓库。要重试，请启动新会话。每次此会话在运行器上启动时，运行器也会再次尝试该仓库。
+
+  在没有 `checkout` hook 的情况下，运行器可以跳过会话仅从中读取的仓库，除非该仓库是会话的第一个仓库。在 v2.1.311 之前，会话启动会失败。
 * **会话启动失败，显示 `This runner couldn't read`**：运行器使用其 [git 凭据](#configure-git) 向 git 主机请求某个仓库，但得到了未找到的答复。该仓库不存在，或者这些凭据无法访问该仓库。
   * **如果您管理该运行器**：为其 git 凭据授予该仓库的读取权限，然后启动新会话。
   * **如果您启动了该会话**：如果该仓库不存在，请使用正确的仓库启动新会话。如果运行器无法访问该仓库，请让运行器的管理员授予访问权限，然后启动新会话。

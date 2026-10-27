@@ -100,7 +100,7 @@ Code 选项卡的早期版本将这些模式标记为 Ask permissions、Auto acc
 
 > [!TIP]
 >
-> 在 Plan 中开始复杂任务，以便 Claude 在进行更改之前制定方法。一旦您批准计划，切换到 Accept edits 或 Manual 来执行它。有关此工作流的更多信息，请参阅[先探索，然后计划，然后编码](https://code.claude.com/docs/zh-CN/best-practices.md#explore-first-then-plan-then-code)。
+> 在 Plan 中开始复杂任务，以便 Claude 在进行更改之前制定方法。一旦您批准计划，切换到 Accept edits 或 Manual 来执行它。有关此工作流的更多信息，请参阅[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)。
 
 云端会话支持 Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，因此选择器显示 Accept edits 而不是 Manual。Bypass permissions 在云端会话中不可用，包括[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中的会话。
 
@@ -401,9 +401,10 @@ Claude 第一次需要使用应用时，会话中会出现提示。点击**允�
 
 #### 在独立的 worktree 中运行会话
 
-在属于 Git 仓库的项目中，请在启动会话前打开 **Worktree**，使会话在其自己的 [Git worktree](https://code.claude.com/docs/zh-CN/worktrees.md)（项目的隔离副本）中运行。默认情况下，**Worktree** 处于关闭状态，Claude 直接在项目文件夹中工作。点击[输入框下方一行](#start-a-session)中的项目文件夹控件，然后打开 **Worktree**。
+在属于 Git 仓库的项目中，请在启动会话前打开 **Worktree**，使会话在其自己的 [Git worktree](https://code.claude.com/docs/zh-CN/worktrees.md)（项目的隔离副本）中运行。默认情况下，**Worktree** 处于关闭状态，Claude 直接在项目文件夹中工作。在[当前布局](#check-which-layout-you-have)中，打开[输入框下方一行](#start-a-session)中的 **Worktree** 按钮。
 
-* **使用[已保存的环境](#create-a-saved-environment)时**：在创建或编辑环境时设置 **Worktree**
+* **使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)时**：如果输入框下方一行显示了项目文件夹控件但没有 **Worktree** 按钮，请点击该控件并打开 **Worktree**
+* **作为[已保存的本地或 SSH 环境](#create-a-saved-environment)的默认值**：在创建或编辑环境时设置 **Worktree**
 * **[早期布局](#check-which-layout-you-have)**：选中输入框上方分支名称旁边的 **worktree** 复选框
 
 Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。要改为将其存储在自定义目录中：

@@ -70,6 +70,6 @@ Claude Code 在您接近限制时自动压缩，因此完整的上下文窗口�
 * [扩展 Claude Code](https://code.claude.com/docs/zh-CN/features-overview.md)：何时使用 CLAUDE.md 与技能与规则与 hooks 与 MCP
 * [存储指令和内存](https://code.claude.com/docs/zh-CN/memory.md)：CLAUDE.md 层次结构和自动内存
 * [子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)：将研究委托给单独的上下文窗口
-* [最佳实践](https://code.claude.com/docs/zh-CN/best-practices.md)：将上下文作为您的主要约束来管理
+* [最佳实践](https://code.claude.com/docs/zh-CN/best-practices.md#keep-cost-and-context-down)：保持会话专注并降低成本
 * [提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md)：哪些操作会使缓存的前缀失效
 * [减少令牌使用](https://code.claude.com/docs/zh-CN/costs.md#reduce-token-usage)：保持上下文使用低的策略
