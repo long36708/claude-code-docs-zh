@@ -42,7 +42,7 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 
 应用活跃的 [权限模式](#permission-modes)：
 
-* 在 `bypassPermissions` 模式下，Claude Code 批准到达此步骤的所有内容，除了被识别出的 [关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)，这些会传递下去。
+* 在 `bypassPermissions` 模式下，Claude Code 批准到达此步骤的所有内容，除了被识别出的 [关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths) 以及被标记为 [`Dangerous rm operation not ruled out`](https://code.claude.com/docs/zh-CN/permission-modes#dangerous-rm-operation-not-ruled-out) 的 Bash 命令，这些会传递下去。
 * 在 `acceptEdits` 模式下，Claude Code 批准 [接受编辑模式](#accept-edits-mode-acceptedits) 下列出的文件操作。
 * 在 `plan` 模式下，无论允许规则如何，Claude Code 都会将文件编辑工具发送到您的 `canUseTool` 回调。
 * 在其他模式下，请求传递下去。
@@ -51,7 +51,7 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 
 检查 `allow` 规则（来自 `allowed_tools` 和 settings.json）。如果规则匹配，工具被批准。工具自己批准的调用也在此步骤被解决，无需规则：例如在您的工作目录内的文件读取或 [只读 Bash 命令](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)。
 
-被识别出的 [关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths) 不会被允许规则批准。它们是否随后到达您的回调取决于权限模式：例如在 `auto` 模式的 Agent SDK 会话中，Claude Code 默认拒绝它们而不调用它。[关键路径模式表](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-path-removals-in-each-permission-mode) 列出了每种模式对它们的处理方式。
+被识别出的 [关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths) 不会被允许规则批准，被标记为 `Dangerous rm operation not ruled out` 的命令也不会被 `Bash` 或 `Bash(*)` 规则批准。它们是否随后到达您的回调取决于权限模式：例如在 `auto` 模式的 Agent SDK 会话中，Claude Code 默认拒绝它们而不调用它。[关键路径模式表](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-path-removals-in-each-permission-mode) 列出了每种模式对它们的处理方式。
 
 允许规则不会批准从 [网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths) 进行的读取。
 
@@ -101,10 +101,16 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 > 如果对 `allowed_tools` 中某个工具的调用仍然到达您的 `canUseTool` 回调，或在 `dontAsk` 模式中被拒绝，请检查它们是否属于[从网络路径读取](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)或以下调用之一。任何允许规则都不会批准这些调用。在从不提示的 `dontAsk` 模式中，Claude Code 会拒绝它们而不调用 `canUseTool`；在其他权限模式中，请按照各项说明处理它们：
 >
 > * `AskUserQuestion`、标记为 [`_meta["anthropic/requiresUserInteraction"]`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具，以及[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具：在回调中应答它们。[处理澄清问题](https://code.claude.com/docs/zh-CN/agent-sdk/user-input.md#handle-clarifying-questions)展示了如何应答 `AskUserQuestion`，而连接器调用到达时附带的原因为 `Your organization requires approval for this tool`
+>
 > * 您的应用程序标记为 [`always_ask`](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools#require-approval-for-specific-tools) 的自定义工具：在回调中对该调用作出决定。要阻止这些调用到达，请[在会话中途更改策略](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#mcpsdkserverconfigwithinstance)。在 `auto`、`plan` 和 `bypassPermissions` 模式中，该调用也可能在回调之前被批准，具体情况列于[可以批准 `always_ask` 调用的权限模式](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#permission-modes-that-can-approve-an-always_ask-call)
+>
 > * 被识别出的 `rm` 和 `rmdir` [关键路径移除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)：在 `default`、`acceptEdits` 和 `bypassPermissions` 模式中，在回调中允许或拒绝该移除操作，此时 [`decisionReason`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#canusetool) 以 `Dangerous rm` 开头。对于 `auto` 和 `plan` 模式，请参阅[各权限模式中的关键路径移除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-path-removals-in-each-permission-mode)。识别这些移除操作的检查[可能会遗漏某些命令](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)
 >
-> 覆盖范围取决于条目的形式：像 `Read` 或 `mcp__github__get_issue` 这样的裸名称会自动批准对该工具的每个调用，上述例外和[从网络路径读取](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)除外，而像 `Bash(npm test *)` 这样的限定规则仅自动批准匹配的调用，其他需要批准的 `Bash` 调用仍然会进入回调。对于必须在每个工具调用上运行的检查，使用 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks)：hook 在每个其他步骤之前运行，hook 拒绝即使在 `bypassPermissions` 模式中也适用。
+> * **裸名称**：像 `Read` 或 `mcp__github__get_issue` 这样的条目会自动批准对该工具的每个调用，[任何模式都不自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)和[从网络路径读取](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)除外。
+>
+> * **限定规则**：像 `Bash(npm test *)` 这样的条目仅自动批准匹配的调用，其他需要批准的 `Bash` 调用仍然会进入回调。
+>
+> 对于必须在每个工具调用上运行的检查，请使用 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks)：hook 在每个其他步骤之前运行，hook 拒绝即使在 `bypassPermissions` 模式中也适用。
 
 对于锁定的代理，将 `allowedTools` 与 `permissionMode: "dontAsk"` 配对：
 
@@ -268,6 +274,7 @@ main();
 * 处理该范围之外的路径
 * 写入受保护的路径
 * 使用 `rm` 或 `rmdir` 删除 Claude Code 识别为[关键路径](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)的路径
+* 运行带有例如选项、glob 或 `timeout 5`、`LANG=C` 前缀的 [`touch`](https://code.claude.com/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)
 
 **适用场景：** 您信任 Claude 的编辑并希望加快迭代速度，例如在原型开发期间或在隔离目录中工作时。
 
@@ -289,7 +296,7 @@ main();
 
 #### 绕过权限模式（`bypassPermissions`）
 
-无需提示即可自动批准工具使用，但下方警告中列出的情况除外。hook 仍会执行，并可在需要时阻止操作。在 Linux 和 macOS 上，如果不在[可识别的沙箱](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)中，无论是以 root 身份还是在 `sudo` 下，Claude Code 都会拒绝以此模式启动，查询会在第一轮之前失败。
+无需提示即可自动批准工具使用，但[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)除外。hook 仍会执行，并可在需要时阻止操作。在 Linux 和 macOS 上，如果不在[可识别的沙箱](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)中，无论是以 root 身份还是在 `sudo` 下，Claude Code 都会拒绝以此模式启动，查询会在第一轮之前失败。
 
 > [!WARNING]
 >

@@ -166,7 +166,7 @@ Claude 第一次在外部网站上操作时，会出现权限卡，Claude 等待
 
 Claude 对您的代码进行更改后，diff 视图让您在创建 Pull Request 之前逐个文件审查修改。要打开 diff 视图，请点击[会话详情面板](#see-session-details)的 **Changes** 卡片中的行数统计，例如 `+12 -1`。您也可以点击会话标题栏中的 **Changes**。
 
-要对特定行进行评论，点击 diff 中的任何行以打开评论框。输入您的反馈并按 **Enter** 添加评论。在多行添加评论后，一次提交所有评论：
+要对特定行进行评论，请将鼠标悬停在某一行上，然后点击其行号旁出现的 **+** 以打开评论框。输入您的反馈并按 **Enter** 添加评论。在多行添加评论后，一次提交所有评论：
 
 * **macOS**：按 **Cmd+Enter**
 * **Windows**：按 **Ctrl+Enter**
@@ -275,7 +275,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 * **Cmd+Ctrl**：按 **Ctrl+Alt**
 * **Cmd**：按 **Ctrl**
 
-会话循环、终端切换和视图模式切换在每个平台上使用 **Ctrl**。
+以 `Ctrl` 开头的快捷键在每个平台上保持不变。
 
 | 快捷键 | 操作 |
 | - | - |
@@ -284,7 +284,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 | `Cmd` `Option` `1`–`9` | 在[当前布局](#check-which-layout-you-have)的新会话屏幕上，选择一个环境 |
 | `Cmd` `Option` `0` | 在当前布局的新会话屏幕上，打开 [**New environment** 对话框](#create-a-saved-environment) |
 | `Cmd` `W` | 关闭会话 |
-| `Ctrl` `Tab` / `Ctrl` `Shift` `Tab` | 下一个或上一个会话 |
+| `Ctrl` `Tab` / `Ctrl` `Shift` `Tab` | 在会话之间切换 |
 | `Cmd` `Shift` `]` / `Cmd` `Shift` `[` | 下一个或上一个会话 |
 | `Esc` | 停止 Claude 的回复 |
 | `Tab` / `Right arrow` | 在空输入框中[接受建议的提示词](#accept-a-suggested-prompt) |
@@ -390,7 +390,7 @@ Claude 第一次需要使用应用时，会话中会出现提示。点击**允�
 
 ### 使用会话并行工作
 
-点击侧边栏中的 **+ New**，或在 macOS 上按 **Cmd+N**、在 Windows 上按 **Ctrl+N**，即可并行处理多个任务。按 **Ctrl+Tab** 和 **Ctrl+Shift+Tab** 可在侧边栏中循环切换会话。
+点击侧边栏中的 **+ New**，或在 macOS 上按 **Cmd+N**、在 Windows 上按 **Ctrl+N**，即可并行处理多个任务。按 **Ctrl+Tab** 和 **Ctrl+Shift+Tab** 可在会话之间切换。
 
 您还可以在当前会话旁边或在单独的窗口中打开第二个会话：
 

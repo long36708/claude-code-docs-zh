@@ -206,7 +206,10 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 * 已完成的会话：其结果
 * 工作中的会话：其完整的状态句子
 
-接下来列出与该会话链接的所有拉取请求。对于正在等待您的会话，其下方的一行（例如 `waiting 3m`）显示它已等待多长时间，这也是面板中显示的唯一时间。行右边缘的时长是另一个数字：它从会话启动时开始计算。
+接下来列出与该会话链接的所有拉取请求。对于正在等待您或以安全模式运行的会话，其下方还会多出一行：
+
+* 类似 `waiting 3m` 的行：会话已等待您多长时间。行右边缘的时长是另一个数字：它从会话启动时开始计算
+* `safe mode · customizations are off`：此会话在[关闭您的自定义配置](https://code.claude.com/docs/zh-CN/debug-your-config.md#test-against-a-clean-configuration)的情况下运行，因为您是从 shell 用 `claude --bg --safe-mode` 启动它的。您可以保持原样。要在重新启用自定义配置的情况下继续对话，请在 shell 中依次运行 [`claude stop <id>`](#manage-sessions-from-the-shell) 和 [`claude --resume`](https://code.claude.com/docs/zh-CN/sessions#resume-a-session)
 
 大多数时候窥视面板就足够了，您无需打开完整的会话记录。
 
@@ -468,11 +471,11 @@ fork 之后，两个对话彼此独立：副本所做的任何事情都不会自
 
 #### 后台处理时的继承内容
 
-后台处理会启动一个从已保存对话恢复的新进程，进行中的后台工作会移到该进程。正在运行的后台 shell 命令、已转入后台的子代理、动态工作流、您使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 创建的定时任务，以及 Claude 对 [Artifact 评论的自动回复](https://code.claude.com/docs/zh-CN/artifacts.md#let-claude-reply-to-comments-on-its-own) 都会继承过去并在那里继续运行。子代理会与其启动的所有内容一起移动，因此只有当所有这些工作也都能移动时它才会被继承。
+当您将会话转入后台时，每种进行中的后台工作要么继承到后台会话，要么仅在 Claude 于那里重新启动它时才继续，要么停止：
 
-当 [动态工作流](https://code.claude.com/docs/zh-CN/workflows.md) 仍有子代理在运行时，Claude Code 会在后台处理前通过 `Background this session?` 对话框询问，其中会说明有多少子代理将重新启动。选择 `Stay` 可让它们先完成。如果您确认，Claude Code 会在后台会话中重放该运行：仍在运行的子代理会从头开始，因此它们目前已使用的 token 会再次消耗。请参阅 [暂停后恢复](https://code.claude.com/docs/zh-CN/workflows.md#resume-after-a-pause) 了解哪些已完成的子代理会返回其保存的结果、哪些会再次运行。
-
-Claude Code 会停止无法继承的后台工作，例如正在运行的 [monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)，并一并停止拥有 monitor 的后台子代理。当有任何此类工作正在运行时，Claude Code 会显示 `Background this session?` 对话框，以便您在它停止工作前确认。
+* **继承**：正在运行的后台 shell 命令、已转入后台的子代理、您使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 创建的定时任务，以及 Claude 对 [Artifact 评论的自动回复](https://code.claude.com/docs/zh-CN/artifacts.md#let-claude-reply-to-comments-on-its-own) 会在后台会话中继续运行。子代理会与其启动的所有内容一起移动，因此只有当所有这些工作也都能移动时它才会被继承。
+* **仅在 Claude 重新启动时继续**：正在运行的 [动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)。如果您查看后台会话时该工作流尚未继续，请 [让 Claude 重新启动它](#dynamic-workflows-when-you-background)。
+* **停止**：无法移到后台会话的工作，例如正在运行的 [monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)。当有任何此类工作正在运行时，Claude Code 会显示 `Background this session?` 对话框，以便您在它停止工作前确认。拥有 monitor 的已转入后台的子代理会随 monitor 一起停止。
 
 进入后台后，会话可以启动新的子代理、monitor 和后台命令，这些在之后的分离和重新附加过程中会持续运行。
 
@@ -487,6 +490,12 @@ Claude Code 会停止无法继承的后台工作，例如正在运行的 [monito
 * `--allow-dangerously-skip-permissions`
 
 您在会话期间使用 [`/add-dir`](https://code.claude.com/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration) 添加的目录也会继承。继承 `--allow-dangerously-skip-permissions` 会使 `bypassPermissions` 在后台会话中保持可用，但不会授予任何新权限：该模式仍需要有您 [接受绕过免责声明](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode) 的记录。
+
+##### 后台处理时的动态工作流
+
+如果 [动态工作流](https://code.claude.com/docs/zh-CN/workflows.md) 在您将其会话转入后台后没有继续，请让 Claude [重新启动该工作流](https://code.claude.com/docs/zh-CN/workflows.md#resume-after-you-leave-the-session)。只有当 Claude 在后台会话中重新启动它时，该运行才会继续，并且 Claude Code 可能会先请您批准该重新启动。会话的对话中会显示一条通知，说明该工作流 `could not be resumed`。
+
+当 Claude 重新启动工作流时，在您将会话转入后台时仍在运行的任何子代理都会从头开始，并再次消耗其 token。如果您在仍有子代理运行时按 `←` 或运行 `/background`，`Background this session?` 对话框会说明有多少个。要让它们先完成，请选择 `Stay`。
 
 ### 从您的 shell 分派 Agent
 
@@ -844,7 +853,7 @@ Claude Code 将 agent view 中列出的每个会话都视为后台会话，无�
 * **自动更新后**：监督进程重新启动自身到新版本，并在后台移动空闲会话。工作中、等待您或已连接的会话不会被中断。
 * **监督进程本身停止**，例如因为其进程被 Claude Code 外部结束：在 macOS 和 Linux 上，除非新的监督进程在约一分钟内连接，否则您的会话会停止。要启动新的监督进程，请在 shell 中运行 `claude agents`。超过这一分钟后，请参阅[在监督进程停止后保持会话运行](#keep-sessions-running-after-the-supervisor-stops)。
 
-当会话的进程停止或重新启动时，Claude 在其中启动的后台 shell 命令、动态工作流和后台子代理会转移到其下一个进程；运行中的监视器和子代理启动的 shell 命令会随进程停止。删除会话会停止它转移的所有内容。要改为让所有内容随进程停止而不是转移，请将 [`CLAUDE_CODE_DISABLE_BG_EXIT_HANDOFF`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1`。
+当会话的进程停止或重新启动时，Claude 在其中启动的后台 shell 命令和后台子代理会转移到其下一个进程。动态工作流[仅在 Claude 重新启动它时才会继续](#dynamic-workflows-when-you-background)。运行中的监视器和子代理启动的 shell 命令会随进程停止。如果您删除该会话，它转移的所有内容都会停止。要改为让所有内容随进程一起停止，请将 [`CLAUDE_CODE_DISABLE_BG_EXIT_HANDOFF`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1`。
 
 监督进程及其会话使用与您的交互式会话相同的存储凭据进行身份验证。关于哪些设置和 shell 变量到达会话（包括 `PATH`），请参阅[设置和提供商](#settings-and-provider)。关于网关端点，请参阅 [LLM 网关](#llm-gateway)。
 
@@ -897,10 +906,10 @@ Background sessions still running will stop in about a minute. Run 'claude agent
 
 ### 后台处理显示 `Background this session?` 对话框
 
-如果您按 `←` 来后台处理当前会话，而 Claude Code 显示 `Background this session?` 对话框，说明该会话有正在进行的后台工作，后台处理会停止、重新启动或让其无人值守地运行，Claude Code 在执行这些操作之前会询问：
+当您按 `←` 来后台处理某个会话时，如果出现 `Background this session?` 对话框，说明该会话有正在进行的后台工作，这些工作会被停止、被中断或在无人值守的情况下继续运行：
 
 * **无法移动的工作**：该会话有无法移动到后台会话的工作，例如正在运行的[监视器](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)。对话框列出 Claude Code 会停止的后台工作，并另外计算会转移的任务数。
-* **具有运行子代理的工作流**：[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)仍然有子代理在运行。工作流本身会转移，但其运行的子代理从头开始重新启动，对话框会说明有多少个。
+* **具有运行子代理的工作流**：[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)仍然有子代理在运行。如果您仍然进行后台处理，这些子代理会停止，对话框会说明有多少个。当 Claude [在后台会话中重新启动该工作流](#dynamic-workflows-when-you-background)时，它们会从头开始。
 * **自动 Artifact 回复**：Claude [自动回复 Artifact 上的评论](https://code.claude.com/docs/zh-CN/artifacts.md#let-claude-reply-to-comments-on-its-own)。这些回复在后台会话中继续，对话框会说明这一点。
 
 运行 `/tasks` 来查看正在运行的所有内容，然后确认后台处理或选择 `Stay` 来让工作先完成。请参阅[后台处理时转移的内容](#what-carries-over-when-you-background)，了解哪些类型的工作会转移，哪些 Claude Code 会停止。
@@ -1118,7 +1127,7 @@ Agent view 在研究预览期间发展迅速。如果您使用的是较旧的 Cl
 | v2.1.200 | 重写 `roster.json` 中会话列表的较旧 Claude Code 版本会保留由较新版本写入的字段，与现有的 `state.json` 保证一致，因此由较新版本启动的会话在监督进程重启后仍能继续接受输入。当您打开已停止响应的会话时，监督进程会重启其进程，会话会从中断处继续被中断的回复。Agent view 会将放在 `agents` 之后的 `--plugin-dir` 标志应用于其自身在调度输入框中的子代理和 skill 自动补全，以及所调度的会话。 |
 | v2.1.199 | 在低内存主机上，后台会话的进程在完成启动前退出时，其行状态会显示 `possibly low memory — free some up and retry`，而不仅仅是简单的退出原因。使用 `←` 或 `/background` 将会话移到后台时，会将其 `/color` 带到新行。 |
 | v2.1.198 | 当后台会话需要输入、完成或失败时，Agent view 会通过 `preferredNotifChannel` 发送通知，并以 `agent_needs_input` 或 `agent_completed` 类型触发 `Notification` hook。在 `claude attach <id>` 中，`←` 和 `/exit` 会返回 agent view，而不是退出到 shell；`Ctrl+Z` 会返回 shell。在 worktree 中隔离其工作的后台会话完成时，会提交、推送其自己的隔离分支（绝不会推送 `main` 或 `master`），并打开一个草稿 Pull Request，而不是先询问。`/login` 可在 agent view 中运行并打开登录对话框。`Background work is running` 退出对话框提供 `Move to background and exit`。退出交接也涵盖后台子代理，它们会在下次唤醒时从其会话记录恢复，而不是被报告为失败。`claude --bg` 与 `-p` 或 `--print` 组合使用时会被拒绝并报错。后台会话主机会在首次访问局域网时请求 macOS 本地网络权限，而不是以 `connect: no route to host` 失败。 |
-| v2.1.196 | 按一次 `←` 即可将前台会话移到后台；早期版本需要按两次，并带有页脚提示和确认。传递给 `claude agents` 的 `--dangerously-skip-permissions` 会显示绕过免责声明，而不是在不提示的情况下被丢弃。您从未命名的交互式会话在会话列表和 `claude agents --json` 中会带有默认名称，例如 `my-app-3f`。后台 shell 命令和动态工作流在会话进程被停止、重启或更新时仍能继续存在，包括在 Windows 上；设置 `CLAUDE_CODE_DISABLE_BG_EXIT_HANDOFF=1` 可关闭此交接。在重启时被误读为空的会话记录会被重命名并加上 `.orphaned-` 后缀，而不是被删除。 |
+| v2.1.196 | 按一次 `←` 即可将前台会话移到后台；早期版本需要按两次，并带有页脚提示和确认。传递给 `claude agents` 的 `--dangerously-skip-permissions` 会显示绕过免责声明，而不是在不提示的情况下被丢弃。您从未命名的交互式会话在会话列表和 `claude agents --json` 中会带有默认名称，例如 `my-app-3f`。后台 shell 命令在会话进程被停止、重启或更新时仍能继续存在，包括在 Windows 上；设置 `CLAUDE_CODE_DISABLE_BG_EXIT_HANDOFF=1` 可关闭此交接。在重启时被误读为空的会话记录会被重命名并加上 `.orphaned-` 后缀，而不是被删除。 |
 | v2.1.195 | 在 Windows 上将会话移到后台时，进行中的后台工作也会转移。`Completed` 组会填满剩余的垂直空间，标题在较矮的终端上会压缩显示。较旧的 Claude Code 版本不再丢弃较新会话的 `state.json` 字段，也不再在 `claude agents` 中隐藏这些会话。附加到已停止的会话会立即切换，而不是显示最多五秒的空白屏幕。无法接受连接的监督进程会自行退出并释放其锁。 |
 | v2.1.191 | 如果 `claude --bg` 使用的 `--agent` 名称与您的任何子代理都不匹配，启动会失败：会话会立即退出并显示 `--agent '<name>' not found` 错误，而不是使用默认 Agent 运行。 |
 | v2.1.174 | 后台会话不再从监督进程的启动 shell 继承 `ANTHROPIC_BASE_URL` 等网关端点变量；监督进程会向预热的工作进程提供新的凭据快照，修复了虚假的 `Could not resolve authentication method` 错误。 |

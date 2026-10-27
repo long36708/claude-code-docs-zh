@@ -1464,7 +1464,7 @@ type McpHttpServerConfig = {
 
 #### `McpSdkServerConfigWithInstance`
 
-进程内 MCP 服务器的配置，此类服务器由 [`createSdkMcpServer()`](#createsdkmcpserver) 创建，并在您的应用程序进程内运行。它是 `createSdkMcpServer()` 返回的对象，外加一个由您自行添加的、由 [`McpServerToolPolicy`](#mcpservertoolpolicy) 条目组成的可选 `tools` 列表。要对该服务器某个工具的调用要求批准或予以拒绝，请添加一个指定该工具的条目。
+进程内 MCP 服务器的配置。它是 [`createSdkMcpServer()`](#createsdkmcpserver) 的返回值，外加一个由您添加的可选 `tools` 列表，其中包含 [`McpServerToolPolicy`](#mcpservertoolpolicy) 条目。
 
 ```typescript theme={null}
 type McpSdkServerConfigWithInstance = {
@@ -1476,9 +1476,9 @@ type McpSdkServerConfigWithInstance = {
 };
 ```
 
-要设置策略，请将 `createSdkMcpServer()` 返回的对象展开到 `mcpServers` 中的一个新对象里，并将 `tools` 列表添加到该新对象上。`createSdkMcpServer()` 自身的 `tools` 选项是另一个列表，用于保存工具定义，不接受策略条目。策略列表需要 Agent SDK v0.3.301 或更高版本，[`McpServerToolPolicy`](#mcpservertoolpolicy) 说明了每个 `permission_policy` 值的作用。
+要要求对服务器某个工具的调用进行批准或拒绝这些调用，请添加一个指明该工具的策略条目。将 `createSdkMcpServer()` 的返回值展开到 `mcpServers` 下的一个对象中，并将条目放在该对象的 `tools` 列表中，因为该函数的 `tools` 选项接受的是工具定义而非策略条目。策略列表需要 Agent SDK v0.3.301 或更高版本，[`McpServerToolPolicy`](#mcpservertoolpolicy) 说明了每个 `permission_policy` 值的作用。
 
-以下示例使用 `allowedTools` 通配符预先批准 `records` 服务器上的所有工具，然后将 `delete_record` 标记为 `always_ask`，使对它的调用仍然转到 `canUseTool`。借助 `destructiveHint: true` 注解，即使会话在 `auto` 模式下运行，该调用仍会到达回调；否则自动模式[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)可能会批准它。
+在此脚本中，`allowedTools` 通配符预先批准了 `records` 服务器上的所有工具，但 `delete_record` 被标记为 `always_ask`，因此对它的调用仍会交给 `canUseTool`。借助 `destructiveHint: true` 注解，即使会话在 `auto` 模式下运行，调用仍会到达回调，否则自动模式[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)可能会批准它。
 
 ```typescript theme={null}
 import { query, tool, createSdkMcpServer } from "@anthropic-ai/claude-agent-sdk";
@@ -1517,7 +1517,7 @@ for await (const message of query({
 }
 ```
 
-当 Claude 调用该工具时，脚本会在 `delete_record` 工具运行之前打印 `Approval requested for mcp__records__delete_record`，尽管 `allowedTools` 条目原本会批准该调用。
+当 Claude 调用 `delete_record` 时，脚本会打印 `Approval requested for mcp__records__delete_record`。
 
 要在会话运行期间更改或解除某个工具的策略，请将带有新 `tools` 值的服务器配置传给 [`setMcpServers()`](#mcpsetserversresult)。您传入的 `tools` 值从 Claude 下一次调用该服务器的工具时开始生效：
 
@@ -1556,7 +1556,7 @@ type McpServerToolPolicy = {
 
 ##### 可以批准 `always_ask` 调用的权限模式
 
-在 `auto`、`plan` 和 `bypassPermissions` 模式下，对标记为 [`always_ask`](#permission-policy-values) 的工具的调用可能在到达您的 `canUseTool` 回调之前就被批准。在下面的列表中找到您会话所用的模式，了解该批准何时发生，以及需要设置什么才能让调用仍然到达您的回调：
+在 `auto`、`plan` 和 `bypassPermissions` 模式下，对标记为 [`always_ask`](#permission-policy-values) 的工具的调用可能在到达您的 `canUseTool` 回调之前被批准。
 
 * **`auto`**：自动模式[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)会审查该调用并可能允许它。要让每个调用在 `auto` 模式下都到达您的回调，请在工具的[注解](#toolannotations)中设置 `destructiveHint: true`
 * **`plan`**：当会话可使用[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)时，对注解为 `readOnlyHint: true` 的 `always_ask` 工具的调用会转到自动模式分类器，分类器可能允许它们。对其他 `always_ask` 工具的调用会到达您的回调。要让只读工具的调用也到达您的回调，请在该工具的注解中于 `readOnlyHint: true` 之外添加 `destructiveHint: true`。或者，将 [`useAutoModeDuringPlan`](https://code.claude.com/docs/zh-CN/settings-reference#useautomodeduringplan) 设为 `false`，这会在规划期间关闭分类器
@@ -5208,7 +5208,7 @@ type McpServerStatus = {
 
 #### 当工具的 `_meta.ui` 仅包含 `visibility` 时
 
-如果您的服务器为某个工具声明了 `ui.resourceUri`，但您的应用程序收到的 `_meta.ui` 仅包含 `visibility`，则说明服务器发送的 `ui` 对象未通过 Claude Code 的某项检查。Claude Code 会分别检查 `ui` 和 `ui/resourceUri`，因此当一个键未通过检查时，另一个键仍可能到达您的应用程序。请将服务器 `tools/list` 响应中的 `_meta` 与每个键的检查项进行比对：
+如果您的服务器为某个工具声明了 `ui.resourceUri`，但您的应用程序收到的 `_meta.ui` 仅包含 `visibility`，则说明服务器发送的 `ui` 对象未通过 Claude Code 的某项检查。请将服务器 `tools/list` 响应中的 `_meta` 与每个键的检查项进行比对：
 
 * **`ui`**：如果以下三项检查全部通过，则原样到达您的应用程序，包括 `resourceUri` 和 `visibility` 以外的任何成员：
 

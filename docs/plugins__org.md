@@ -186,7 +186,7 @@ CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin install code-formatt
 | `disableCommandPluginSources` | 阻止具有 `command` 源的插件安装、更新或加载。`command` 源是其插件目录通过在机器上运行命令产生的源。未设置时，它采用 `allowManagedHooksOnly` 的值 | 不影响其他源类型 |
 | `allowManagedHooksOnly` | 限制哪些 hooks 运行。请参阅[`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) | 不信任用户自己启用的插件中的 hooks |
 | `strictPluginOnlyCustomization` | 阻止不来自插件、托管设置或 Claude Code 内置的 skill、Agent、hook 和 MCP 服务器。它还会阻止 [skill 目录插件](#keep-skills-directory-plugins-loading)加载。设置 `true` 以覆盖所有四种类型，或 `skills`、`agents`、`hooks` 和 `mcp` 值的数组（例如 `["skills", "hooks"]`）以覆盖某些 | 不限制用户安装哪些插件。将其与 `strictKnownMarketplaces` 配对 |
-| `pluginSuggestionMarketplaces` | 其插件可能显示为安装建议的市场。请参阅[推荐插件](#recommend-plugins) | 不影响内置提示 |
+| `pluginSuggestionMarketplaces` | 其插件可能在终端中显示为安装建议的市场。请参阅[推荐插件](#recommend-plugins) | 不影响内置提示 |
 | `pluginTrustMessage` | 将您的文本附加到 `/plugin` 在插件安装之前显示的信任警告 | 不改变警告自己的文本 |
 | `allowedChannelPlugins` | 替换允许推送频道消息的默认插件列表。需要 `channelsEnabled: true` | 请参阅[限制哪些频道插件可以运行](https://code.claude.com/docs/zh-CN/channels.md#restrict-which-channel-plugins-can-run) |
 | [`CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL=1`](https://code.claude.com/docs/zh-CN/env-vars) | 停止交互式终端会话自动注册官方市场 | 不删除已注册的市场。允许列表和阻止列表在没有它的情况下门控相同的自动注册。在设置它的情况下启动一次的机器在您取消设置它后不会恢复自动注册 |
@@ -360,6 +360,10 @@ skill 目录插件是用户在 `~/.claude/skills/` 或项目的 `.claude/skills/
 市场所有者可以将 `relevance` 信号附加到条目，以便 Claude Code 在项目匹配时建议插件。
 
 来自市场的建议仅在其在用户的机器上注册、您在托管设置中的 `pluginSuggestionMarketplaces` 中列出其名称，并且您在相同策略中声明其源时出现。声明源作为市场的 `extraKnownMarketplaces` 条目或允许列表条目。官方市场仅需要名称。请参阅[在托管设置中启用建议](https://code.claude.com/docs/zh-CN/plugins/relevance.md#enable-suggestions-in-managed-settings)。
+
+> [!NOTE]
+>
+> 在云端会话的对话中，无论您是否设置了 `pluginSuggestionMarketplaces`，Claude 都可以建议插件。要关闭这些建议，请参阅[关闭插件建议](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#turn-off-plugin-suggestions)。
 
 ## 审计和审查
 

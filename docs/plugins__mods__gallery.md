@@ -246,7 +246,7 @@ Box({
 
 ### `Input`
 
-`Input` 是单行文本输入框，用户按 Enter 时会运行 `onSubmit`：
+`Input` 是文本输入框，用户按 Enter 时会运行 `onSubmit`。除非为其指定 `rows`，否则它只容纳一行：
 
 ```javascript theme={null}
 Input({
@@ -270,6 +270,26 @@ Input({
 键入内容会替换占位文本：
 
 ![同一个输入框，其中包含已键入的字母 Rel，后跟回车符号和单词 save。](https://mintcdn.com/claude-code/EXkwf0kKMewZsyod/images/mods-el-input-typed-light.png?fit=max\&auto=format\&n=EXkwf0kKMewZsyod\&q=85\&s=4eb6d4443763a21415dad4e426bc747a)
+
+如需容纳多行内容的输入框（例如备注或提交信息），请添加 `rows`：
+
+```javascript theme={null}
+Input({
+  key: 'note',
+  label: 'Note',
+  placeholder: 'Write a note',
+  rows: 4,
+  onSubmit: noop,
+})
+```
+
+无论输入框中有什么内容，它都占据该数量的行，最多不超过其所在窗格或区域的高度。更长的文本会在输入框内滚动。
+
+* Enter 仍然用于提交。在终端中，用户可以先键入反斜杠再按 Enter 来换行，或者在[终端模拟器支持的情况下](https://code.claude.com/docs/zh-CN/terminal-config.md#enter-multiline-prompts)按 Shift+Enter。这些按键与输入框中的按键相同。
+* 上方向键和下方向键用于在输入框的各行之间移动。在第一行和最后一行时，它们会移动到前一个或后一个控件。
+* `onSubmit` 和 `onInput` 接收完整文本，其各行以 `\n` 连接。
+
+终端和桌面应用会绘制多行。在 VS Code 扩展中，输入框只容纳一行。
 
 ### `Select`
 

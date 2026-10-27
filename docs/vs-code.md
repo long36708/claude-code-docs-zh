@@ -203,28 +203,19 @@ Explain the logic in @auth (fuzzy matches auth.js, AuthService.ts, etc.)
 What's in @src/components/ (include a trailing slash for folders)
 ```
 
+### 读取 PDF 的特定页面
+
 对于大型 PDF，您可以让 Claude 读取特定页面而不是整个文件。可以请求单个页面、诸如第 1-10 页的范围，或诸如第 3 页起的开放范围。读取特定页面需要在运行 Claude Code 的计算机上安装 [poppler-utils](https://code.claude.com/docs/zh-CN/tools-reference.md#read-tool-behavior)。
-
-当您在编辑器中选择文本时，Claude 会自动看到您高亮显示的代码。输入框底部会显示已选择的行数。按 `Option+K`（Mac）/ `Alt+K`（Windows/Linux）可插入包含文件路径和行号的 @ 提及，例如 `@app.ts#5-10`。点击选择指示器上的 **X** 可将其移除，这样 Claude 就不会收到所选内容。当您选择其他文本时，指示器会重新出现。
-
-扩展不会发送某些文件中的所选文本：
-
-* 当文件位于您的工作区内且匹配您的 `files.exclude` 或 `search.exclude` 设置时，Claude 最多只会收到文件路径，而不会收到您所选的文本。
-* 这同样适用于被 git 忽略的文件，前提是 VS Code 的 `search.useIgnoreFiles` 设置和扩展的 [`respectGitIgnore` 设置](#extension-settings)都已打开（默认如此）。
-
-此筛选仅适用于聊天面板。当 Claude Code 在集成终端中运行时，无论是什么文件，CLI 都会发送您所选的文本。要在终端中阻止 Claude 获取文件内容，请添加 [`Read` 拒绝规则](#the-built-in-ide-mcp-server)。
-
-即使没有选择任何内容，Claude 也能看到您在编辑器中打开的是哪个文件，输入框会显示其名称。如果只想添加您所选的文本，请关闭 [Attach Open File 设置](vscode://settings/claudeCode.attachOpenFile)。该设置需要 Claude Code v2.1.271 或更高版本。
-
-您还可以将图片和文件附加到消息中：
-
-* 要附加图片，请将其从剪贴板粘贴到输入框中。
-* 要附加文件，请按住 `Shift` 将其拖入输入框。
-* 要从上下文中移除附件，请点击附件上的 X。
 
 ### 在提示词中包含终端输出
 
 在提示词中使用 `@terminal:name` 引用终端输出，其中 `name` 是终端的标题。这样 Claude 无需复制粘贴即可看到命令输出、错误消息或日志。
+
+### 附加图片和文件
+
+* 要附加图片，请将其从剪贴板粘贴到输入框中。
+* 要附加文件，请按住 `Shift` 将其拖入输入框。
+* 要从上下文中移除附件，请点击附件上的 X。
 
 ### 粘贴文本
 
@@ -234,6 +225,32 @@ Claude Code 还会从您粘贴到输入框中的文本以及您发送的任何�
 
 * 如果粘贴时出现 `Removed 3 invisible characters from the pasted text` 之类的通知，则表示文本已去除这些字符后放入输入框。
 * 如果发送时出现有关已移除字符的通知，则表示没有发送任何内容。清理后的文本会回到输入框中。再次发送即可按显示的内容发送文本。
+
+### 根据所选内容和打开的文件自动提供上下文
+
+当您在编辑器中选择文本时，Claude 会自动看到您高亮显示的代码。输入框底部会显示已选择的行数。即使没有选择任何内容，Claude 也能看到您在编辑器中打开的是哪个文件，输入框会显示其名称。
+
+按 `Option+K`（Mac）/ `Alt+K`（Windows/Linux）可插入包含文件路径和行号的 @ 提及，例如 `@app.ts#5-10`。
+
+#### 不让所选内容和打开的文件进入您的消息
+
+要阻止所选文本或打开的文件进入您的消息，请在 VS Code 的设置中关闭相应的设置项：
+
+* **所选文本**：关闭 [Attach Selection 设置](vscode://settings/claudeCode.attachSelection)。需要 Claude Code v2.1.300 或更高版本。要移除某一次选择，请点击行数旁边的 **X**。当您选择其他文本时，行数会重新出现。
+* **打开的文件**：关闭 [Attach Open File 设置](vscode://settings/claudeCode.attachOpenFile)。需要 Claude Code v2.1.271 或更高版本。除非您的消息包含您在该文件中所选的文本，否则该文件不会被包含在内。
+
+在关闭 Attach Selection 的情况下，要将文本作为 @ 提及添加，请选择该文本，然后在 Mac 上按 `Option+K`，在 Windows 和 Linux 上按 `Alt+K`。
+
+在 VS Code 的集成终端中运行 `claude` 时，这两个设置同样适用。
+
+#### 来自排除或忽略文件的所选文本
+
+在聊天面板中，扩展不会发送某些文件中的所选文本：
+
+* 当文件位于您的工作区内且匹配您的 `files.exclude` 或 `search.exclude` 设置时，Claude 最多只会收到文件路径，而不会收到您所选的文本。
+* 这同样适用于被 git 忽略的文件，前提是 VS Code 的 `search.useIgnoreFiles` 设置和扩展的 [`respectGitIgnore` 设置](#extension-settings)都已打开（默认如此）。
+
+此筛选仅适用于聊天面板。当 Claude Code 在集成终端中运行时，Claude 可以收到您在这些文件中所选的文本。要在终端中阻止 Claude 获取文件内容，请添加 [`Read` 拒绝规则](https://code.claude.com/docs/zh-CN/permissions#read-and-edit)。
 
 ### 回复中的 LaTeX 数学公式
 
@@ -694,7 +711,8 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `preferredLocation` | `panel` | Claude 的打开位置：`sidebar`（右侧）或 `panel`（新标签页） |
 | `lockEditorGroups` | `true` | [锁定 Claude 为其标签页启动的编辑器组](#choose-where-claude-lives)，这样在 Claude 标签页获得焦点时打开的文件会进入另一个编辑器组。关闭时，扩展永远不会锁定编辑器组。需要 Claude Code v2.1.274 或更高版本 |
 | `autosave` | `true` | 在 Claude 读取或写入文件之前自动保存文件 |
-| `attachOpenFile` | `true` | 将编辑器中打开的文件添加到您的消息中，并在输入框中显示。关闭时，仅添加您选中的文本。需要 Claude Code v2.1.271 或更高版本 |
+| `attachOpenFile` | `true` | 将编辑器中打开的文件添加到您的消息中，并在输入框中显示。关闭时，仅在您选中文本时才随之添加该文件。需要 Claude Code v2.1.271 或更高版本 |
+| `attachSelection` | `true` | 将您在编辑器中选中的文本添加到您的消息中，并在输入框中显示。关闭时，您仍然可以[将选区作为 @-mention 添加](#automatic-context-from-your-selection-and-open-file)。需要 Claude Code v2.1.300 或更高版本 |
 | `useCtrlEnterToSend` | `false` | 使用 Ctrl/Cmd+Enter 而非 Enter 发送提示词 |
 | `scrollToBottomOnSend` | `true` | 发送消息时将对话滚动到底部。关闭时，对话保持在您离开时的位置。需要 Claude Code v2.1.275 或更高版本 |
 | `showMessageTimestamps` | `true` | 显示每条消息的发送时间。日期行标记日期变化的位置。需要 Claude Code v2.1.284 或更高版本。在 v2.1.290 之前，默认值为 `false` |
@@ -705,7 +723,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `continueAfterReload` | `true` | 窗口重新加载后，Claude 会在恢复的会话中[继续被中断的步骤](#continue-conversations-after-a-reload)。需要 Claude Code v2.1.274 或更高版本 |
 | `hideOnboarding` | `false` | 隐藏入门清单（学士帽图标） |
 | `focusView` | `false` | 将工具调用、工具结果和思考内容隐藏在可展开的行中，仅保留您的提示词和 Claude 的回复。Claude 最新的待办事项列表保持可见；这需要 Claude Code v2.1.225 或更高版本。您也可以从命令菜单中切换 Focus view。需要 Claude Code v2.1.221 或更高版本 |
-| `respectGitIgnore` | `true` | 在文件搜索和[选区上下文](#reference-files-and-folders)中排除 .gitignore 模式 |
+| `respectGitIgnore` | `true` | 在文件搜索和[选区上下文](#selected-text-from-excluded-or-ignored-files)中排除 .gitignore 模式 |
 | `usePythonEnvironment` | `true` | 运行 Claude 时激活工作区的 Python 环境。需要 Python 扩展。 |
 | `environmentVariables` | `[]` | 为 Claude 进程设置环境变量。如需共享配置，请改用 Claude Code 设置。[`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars) 条目仅在其值为绝对路径时生效；扩展不会展开 `~`，并会忽略相对路径值。 |
 | `disableLoginPrompt` | `false` | 跳过身份验证提示（用于第三方提供商配置） |
@@ -835,9 +853,10 @@ claude mcp add --transport http github https://api.githubcopilot.com/mcp/ \
 
 **选中内容和已打开文件上下文。** 连接期间，CLI 会在您发送的每条提示词中附带当前编辑器的选中内容以及活动文件的路径作为上下文。发生这种情况时，会话记录中会显示一行 `⧉ Selected N lines from <file>`。以下情况会改变该上下文：
 
+* **关闭 [Attach Selection 设置](#keep-your-selection-and-open-file-out-of-your-messages)**：CLI 不会将您的选中内容作为上下文附带。
+* **关闭 Attach Open File 设置**：只有在同时附带选中内容时，CLI 才会附带活动文件的路径。
 * **排队的消息**：如果您[在 Claude 工作时将消息加入队列](https://code.claude.com/docs/zh-CN/interactive-mode.md#queue-messages-while-claude-works)，该消息会保留您按下 `Enter` 时的选中内容，无论您之后选中了什么。
 * **敏感文件**：要排除 `.env` 等敏感文件，请为其路径添加 [`Read` 拒绝规则](https://code.claude.com/docs/zh-CN/permissions#read-and-edit)。匹配的拒绝规则会阻止该文件的选中文本和已打开文件通知发送给 Claude。
-* **关闭 Attach Open File**：如果您关闭了 [Attach Open File 设置](#extension-settings)，则只有在活动文件中有选中文本时，CLI 才会收到该文件的路径。
 
 **传输和身份验证。** 该服务器绑定到 `127.0.0.1` 上 10000–65535 范围内的随机端口，端口不可配置。传输方式和身份验证令牌的工作方式如下：
 

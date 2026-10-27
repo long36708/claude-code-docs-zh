@@ -927,6 +927,11 @@ managed:
 
 切换时，请在重命名块的同一次编辑中删除所有 `serve_to_desktop` 行。在说明中提到 `cli` 块的地方，请使用您的 `code` 块。
 
+`serve_to_desktop: true` 是向 Code 标签页提供策略 `cli` 设置的旧方式。当 Claude Desktop 通过 [`bootstrapUrl`](#claude-desktop-overlay) 连接时，它不起作用。当您的策略使用 `cli` 时，提到此键的启动警告意味着这些设置未到达 Code 标签页：
+
+* **要覆盖 Code 标签页**：在用户的计算机满足[在 Code 标签页中应用 `code` 设置](#apply-code-settings-in-the-code-tab)中的条件后，切换到 `code`
+* **要继续使用 `cli`**：在策略中的 `cli` 旁设置 `serve_to_desktop: false` 以消除警告
+
 #### `cli` 中包含什么
 
 每个 `code` 或 `cli` 值都是一个完整的 Claude Code `managed-settings.json` 文档，与您通过 MDM 或 `/etc/claude-code/managed-settings.json` 部署的 schema 相同，只是此处以 YAML 表示。CLI 在托管层级（高于用户和项目设置）应用所交付的文档，以取代服务器托管设置。因此，它会忽略[仅限于操作系统级策略来源](https://code.claude.com/docs/zh-CN/server-managed-settings.md#current-limitations)的设置，例如 `policyHelper` 和 `wslInheritsWindowsSettings`。
@@ -974,7 +979,7 @@ managed:
 | - | - | - |
 | `availableModels` | 网关 + CLI | 模型允许列表。还会在 `/v1/messages` 进行检查，因此打过补丁的客户端无法绕过它。 |
 | [`deniedModels`](https://code.claude.com/docs/zh-CN/settings-reference#deniedmodels)、[`availableModelsMatch`](https://code.claude.com/docs/zh-CN/settings-reference#availablemodelsmatch) | 网关 + CLI | [阻止特定模型或版本](https://code.claude.com/docs/zh-CN/model-config.md#block-specific-models-or-versions)，即使 `availableModels` 原本会允许它们。被阻止的模型会在 `/v1/messages` 以 `400` 被拒绝，并且不会出现在 `/v1/models` 中。网关自身的检查要求网关服务器上的 Claude Code 为 v2.1.299 或更高版本。CLI 的检查要求客户端为 v2.1.283 或更高版本，更早的客户端会忽略这两个键。 |
-| `permissions.allow` / `.deny` | CLI | 工具和命令规则。请参阅[权限](https://code.claude.com/docs/zh-CN/permissions.md)。 |
+| `permissions.allow` / `.deny` | CLI | 工具和命令规则。请参阅[权限](https://code.claude.com/docs/zh-CN/permissions.md)和 [Bash 规则不匹配的情况](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)。 |
 | `permissions.disableBypassPermissionsMode` | CLI | 设置为 `disable` 可阻止 [`bypassPermissions`](https://code.claude.com/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode)（跳过权限提示的模式）以及 `--dangerously-skip-permissions` 标志 |
 | `allowManagedPermissionRulesOnly` | CLI | 为 `true` 时，托管设置成为权限规则的唯一设置来源。[`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 条目列出了 Claude Code 随后会忽略的每个来源。 |
 | `env` | CLI | 合并到 CLI 进程中的环境变量。用于遥测、自动更新和模型名称覆盖。 |
@@ -1002,6 +1007,10 @@ Claude Code 会应用某些交付的 `env` 变量而不向开发者显示批准�
 如果开发者拒绝，Claude Code 会退出该会话，而不是应用策略。因此，当您向一个广泛的策略推送新的 hook 或任何会触发对话框的环境变量时，每位匹配的开发者都会在其交互式会话中看到该对话框。正在运行的交互式会话会在下一次每小时轮询时显示它，否则它会在开发者下次交互式启动时出现。
 
 `cli` 键在早期版本中名为 `settings`，网关仍接受该写法作为别名。对于新部署，请使用 [`code`](#choose-cli-or-code)。
+
+#### 在部署前测试策略
+
+要测试策略更改，请让网关连接一个临时的 Postgres 数据库启动。网关会先连接 Postgres 并应用其 schema 迁移，然后才检查 `cli`、`code` 和 `desktop` 块的内容。如果无法连接数据库，启动会在 `could not connect to Postgres` 处停止，且不会报告这些块内容的任何信息。
 
 #### 终端会话中的上下文窗口
 
@@ -1589,7 +1598,7 @@ managed:
         # 承包商策略继承此键。
         enforceAvailableModels: true
         permissions:
-          allow: [Read, Grep, Bash, Edit]
+          allow: [Read, Grep, Edit]
           deny: ["WebFetch"]
         env: { HTTP_PROXY: http://proxy.example.com:8080 }
 

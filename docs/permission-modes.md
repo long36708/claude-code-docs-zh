@@ -36,7 +36,7 @@ Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypass
 * 与显式 [询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions) 匹配的工具
 * 您的组织 [设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，在该设置到达 Claude Code 的会话中
 * 需要用户交互的工具：内置 `AskUserQuestion` 工具和标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具
-* 可识别的 `rm` 和 `rmdir` [关键路径删除](#critical-paths)，任何允许规则或 `PreToolUse` hook `"allow"` 都无法批准
+* 可识别的 `rm` 和 `rmdir` [关键路径删除](#critical-paths)，任何允许规则或 `PreToolUse` hook `"allow"` 都无法批准；以及被标记为 [`Dangerous rm operation not ruled out`](#dangerous-rm-operation-not-ruled-out) 的 Bash 命令
 * [跨会话消息传递保护措施](#skip-all-checks-with-bypasspermissions-mode)
 * 在 [`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 打开时在工作目录外读取：识别的文件读取 Bash 命令和任何需要批准才能在沙箱外运行的 [未沙箱化重试](https://code.claude.com/docs/zh-CN/sandboxing.md#the-unsandboxed-retry-escape-hatch)，即使在 auto 模式和 `bypassPermissions` 模式下也会提示。需要 Claude Code v2.1.257 或更高版本。
 
@@ -265,13 +265,14 @@ claude remote-control --permission-mode acceptEdits
 
 `acceptEdits` 模式让 Claude 在您的工作目录中创建和编辑文件而无需提示。当此模式处于活动状态时，状态栏显示 `⏵⏵ accept edits on`。
 
-除了文件编辑外，`acceptEdits` 模式还自动批准常见的文件系统 Bash 命令：`mkdir`、`touch`、`rm`、`rmdir`、`mv`、`cp` 和 `sed`。当这些命令带有安全环境变量（如 `LANG=C` 或 `NO_COLOR=1`）或进程包装器（如 `timeout`、`nice` 或 `nohup`）作为前缀时，也会自动批准。与文件编辑一样，自动批准仅适用于工作目录或 `additionalDirectories` 内的路径。
+除了文件编辑外，`acceptEdits` 模式还自动批准常见的文件系统 Bash 命令：`mkdir`、`touch`、`rm`、`rmdir`、`mv`、`cp` 和 `sed`。除 `touch` 外，当这些命令带有安全环境变量（如 `LANG=C` 或 `NO_COLOR=1`）或进程包装器（如 `timeout`、`nice` 或 `nohup`）作为前缀时，也会自动批准。与文件编辑一样，自动批准仅适用于工作目录或 `additionalDirectories` 内的路径。
 
 以下情况仍然会提示：
 
 * 超出该范围的路径
 * 对[受保护路径](#protected-paths)的写入
 * 可识别的 `rm` 和 `rmdir` [关键路径移除](#critical-paths)操作
+* `touch` 带有纯文件路径以外的任何内容，例如选项、glob，或 `timeout 5`、`LANG=C` 之类的前缀
 * 除[内置只读集合](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)之外的所有其他 Bash 命令
 
 每个路径也会经过[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)，因此解析到该范围之外的写入也不会自动批准。
@@ -369,6 +370,7 @@ claude --permission-mode plan
 * **直接连接到 Anthropic API**：在交互式终端会话以及 `-p`、Agent SDK、[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)和[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)会话中，无论您的计划或账户类型如何，随 Anthropic 逐步推出而生效。在交互式终端会话中，Pro、Max 和 Team 计划需要 Claude Code v2.1.271 或更高版本，Enterprise 计划和 Claude API 账户需要 v2.1.278 或更高版本。在 `-p`、Agent SDK、VS Code 扩展和桌面应用会话中，需要 Claude Code v2.1.281 或更高版本。从 v2.1.282 起，[不获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话（例如因为您关闭了遥测）在任何类型的会话中都会默认请求服务器审查。
 * **云提供商，或 LLM 网关或代理**：在 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry 上，以及每当您将 `ANTHROPIC_BASE_URL` 指向 [LLM 网关或代理](https://code.claude.com/docs/zh-CN/llm-gateway)时，无论您的计划如何。默认请求服务器审查需要 Claude Code v2.1.278 或更高版本。
 * **已登录的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话**：需要 Claude Code v2.1.280 或更高版本
+* **Anthropic 托管环境中的[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)**：无论您的计划如何，当您在选择了 **Cloud** 的情况下从网页、移动应用或桌面应用启动该会话时。由[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)启动的会话会随 Anthropic 逐步推出而请求服务器审查。
 
 当服务器审查这些操作时，由服务器的裁决决定结果。此外还有另外两种可能的结果：
 
@@ -647,7 +649,7 @@ claude --permission-mode dontAsk
 
 `bypassPermissions` 模式禁用权限提示和安全检查，以便工具调用立即执行，包括对[受保护路径](#protected-paths)的写入。
 
-[任何模式都不会自动批准的操作](#actions-no-mode-auto-approves)在此模式下仍会提示。读取[其他组织的公开 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) 需要您的批准，而此模式不会请求批准，因此 Claude 无法读取此类 Artifact。[PowerShell 中的 Remove-Item](#remove-item-in-powershell) 拒绝也适用于此模式。
+即使在 `bypassPermissions` 模式下，每项[任何模式都不会自动批准的操作](#actions-no-mode-auto-approves)也会触发提示或被拒绝，而不会自行运行。读取[其他组织的公开 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) 需要您的批准，而此模式不会请求批准，因此 Claude 无法读取此类 Artifact。[PowerShell 中的 Remove-Item](#remove-item-in-powershell) 拒绝也适用于此模式。
 
 两个[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)保护措施在此模式下仍然适用，在可使用绕过权限的交互式终端计划模式会话中同样适用：
 
@@ -769,6 +771,7 @@ Bypass permissions was requested at launch and ignored · if that was you, ~/.cl
 * `.devcontainer.json`
 * `.ripgreprc`、`pyrightconfig.json`
 * `.mcp.json`、`.claude.json`
+* 您在启动会话时传递给 [`--settings`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)、`--mcp-config` 或 `--agents` 的文件
 * 当您的用户、项目或本地[设置文件](https://code.claude.com/docs/zh-CN/settings.md#settings-files-and-who-they-affect)本身是符号链接（例如指向 dotfiles 仓库）时，该设置文件所指向的文件。在将受保护路径写入路由到分类器的模式中，对此文件的写入会改为提示您，即使有允许规则匹配也是如此。如果该文件自身的路径同时也是某个设置文件的路径，例如另一个文件夹中的 `.claude/settings.json`，则该写入会像其他受保护路径写入一样交由分类器处理
 
 ## 关键路径
@@ -844,6 +847,22 @@ Claude Code 也查看这些构造内部：
 
 对于变量下的 glob 或尾部斜杠，提示命名被标记的 `rm` 并说明如何重写它以便检查通过。
 
+### `Dangerous rm operation not ruled out` 提示
+
+完整原因如下：
+
+```text theme={null}
+Dangerous rm operation not ruled out — the shell may read this command differently than it was parsed
+```
+
+此原因表示 shell 对该命令的解读可能与 Claude Code 不同，因此即使命令中没有 `rm`，移除操作也可能位于未经检查的部分中。在 `auto` 或 `bypassPermissions` 模式下，包含以下语句的拒绝也来自同一检查：
+
+```text theme={null}
+This command could not be checked for dangerous rm operations: the shell may read it differently than it was parsed.
+```
+
+您会收到关键路径移除[在您的权限模式下](#critical-path-removals-in-each-permission-mode)会收到的提示或拒绝，`bypassPermissions` 也不例外。您无法通过 `Bash` 或 `Bash(*)` 允许规则、沙箱[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#auto-allow-mode)或返回 `"allow"` 的 `PreToolUse` hook 批准该命令。请阅读该命令，然后批准提示，或者在被拒绝后在您的 shell 中运行它。
+
 ### 挂载驱动器提示
 
 在 macOS、Linux 和 WSL 上，当递归 `rm` 的目标是所列的[挂载驱动器路径](#paths-that-get-the-mounted-drive-prompt)（如 `/mnt/c` 或 `/Volumes/USB/build`）时，会出现挂载驱动器提示。其原因显示为 `Dangerous rm operation on mounted drive path: <path>`。`/*` 目标即使没有递归标志也会出现该提示，因为 Claude Code 将 `rm /Volumes/USB/build/*` 视为对 `/Volumes/USB/build` 的移除。
@@ -900,7 +919,7 @@ Claude Code 对关键路径移除的处理取决于您的权限模式：
 | `plan` | 要求您批准它。当[分类器在规划期间审查命令](#analyze-before-you-edit-with-plan-mode)且没有可用的绕过权限时，按 `auto` 模式处理 |
 | `auto` | 在终端中要求您批准它，有[时间限制](#time-limits-and-denials-in-auto-and-bypasspermissions-modes)。在其他地方，拒绝它 |
 | `dontAsk` | 拒绝它 |
-| `bypassPermissions` | 要求您批准它，在终端中有时间限制 |
+| `bypassPermissions` | 在终端中，要求您在时间限制用完之前批准它。在其他地方，请参阅[各处的处理方式](#time-limits-and-denials-in-auto-and-bypasspermissions-modes) |
 
 如果显式[询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)与命令匹配，Claude Code 即使在 `auto` 模式下也会询问您，且没有时间限制。在询问的模式中，[`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 可以回答提示。
 
@@ -912,9 +931,32 @@ Claude Code 对关键路径移除的处理取决于您的权限模式：
 * 在提示打开时按任何键停止倒计时并保持提示等待您的回答。
 * 在一个会话中这样的提示运行完三次后无人回答，Claude Code 停止显示它们并立即拒绝进一步的关键路径移除。发送新消息会重新开始计数。
 
-在 `auto` 模式下，无论 Claude Code 无法向您显示终端提示的地方，它都立即拒绝命令，例如在[非交互式运行](https://code.claude.com/docs/zh-CN/headless.md)中使用 `-p`、在 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md) 会话中，以及在 VS Code 扩展的聊天面板和桌面应用中。拒绝告诉 Claude 报告它想删除的内容并将移除留给您。
+时间限制适用于 Claude Code v2.1.281 及更高版本，终端之外的 `auto` 模式拒绝同样如此。
 
-`auto` 和 `bypassPermissions` 处理需要 Claude Code v2.1.281 或更高版本。要关闭它，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT=1`](https://code.claude.com/docs/zh-CN/env-vars#variables)。在 `auto` 模式下，关键路径移除随后转到分类器，在 `bypassPermissions` 模式下提示没有时间限制。
+在终端之外，您不会收到该提示：
+
+| 位置 | `auto` | `bypassPermissions` |
+| :- | :- | :- |
+| [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)的聊天面板 | 拒绝它 | 拒绝它，除非 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 允许它 |
+| [桌面应用](https://code.claude.com/docs/zh-CN/desktop.md) | 拒绝它 | 拒绝它，除非 `PermissionRequest` hook 允许它 |
+| [`-p` 运行](https://code.claude.com/docs/zh-CN/headless)或 [Agent SDK 会话](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md) | 拒绝它 | 由您的 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input#handle-tool-approval-requests)决定。如果两者都没有，或者在 [`--permission-prompts none`](https://code.claude.com/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs) 下，则拒绝它，除非 `PermissionRequest` hook 允许它 |
+
+无论在何处拒绝了该移除，您都可以阅读完整命令并在您的 shell 中运行它。
+
+要更改每种模式下的处理方式，请将 [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1`：
+
+* **`bypassPermissions`**：终端提示没有时间限制，VS Code 聊天面板会询问您
+* **`auto`**：由[分类器](#eliminate-prompts-with-auto-mode)决定，适用于终端、VS Code 聊天面板、`-p` 运行和 Agent SDK 会话
+
+请在启动 Claude Code 的环境中设置它，例如您的 shell 或 SDK 的 `env` 选项，而不是在 Claude Code 设置文件中设置。对于聊天面板，请将其添加到 VS Code 自身用户 `settings.json` 中的 [`claudeCode.environmentVariables`](https://code.claude.com/docs/zh-CN/vs-code#extension-settings)，然后开始新的对话：
+
+```json theme={null}
+{
+  "claudeCode.environmentVariables": [
+    { "name": "CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT", "value": "1" }
+  ]
+}
+```
 
 ### PowerShell 中的 Remove-Item
 

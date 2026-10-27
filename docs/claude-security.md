@@ -6,7 +6,9 @@
 
 > 安装 Claude Security plugin 以在 Claude Code 会话中扫描代码库中的漏洞，并将发现的问题转化为您可以审查和应用的补丁。
 
-Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代理漏洞扫描。一个 Claude 代理团队映射您的架构、构建威胁模型、搜寻漏洞，并在编写报告前独立审查每个发现。使用该插件扫描整个存储库或[仅扫描一组更改](#scan-only-your-changes)，例如分支的差异、拉取请求的差异或单个提交，然后将您选择的发现转化为您自己审查和应用的补丁。
+Claude Security plugin 在 Claude Code 会话中对您的代码库运行多 Agent 漏洞扫描。[默认情况下](#choose-a-scan-effort)，当您扫描整个仓库时，Claude Agent 会映射您的架构、构建威胁模型、搜寻漏洞，并在编写报告前独立审查每个发现。
+
+使用该插件扫描整个仓库或[仅扫描一组更改](#scan-only-your-changes)，例如分支的 diff、Pull Request 的 diff 或单个提交，然后将您选择的发现转化为您自己审查和应用的补丁。
 
 该插件在您的会话中本地运行，使用[您在 Claude Code 中可以访问的任何模型](#models-and-providers)，每次扫描都计入您的[使用量](https://code.claude.com/docs/zh-CN/costs.md)。如果您想要一个监控您的仓库的托管服务，或想要在 [Claude Mythos](https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5) 上运行扫描，请参阅 [Claude Security](https://claude.com/product/claude-security) 产品，该产品在企业计划中提供。
 
@@ -50,6 +52,10 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代�
 检查安装摘要。如果它报告 `Run /reload-plugins to apply.`，请参阅[应用插件更改而无需重启](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#reload-plugins)以在当前会话中激活插件。
 
 一旦插件处于活跃状态，您已准备好[扫描和修复您的代码库](#scan-and-fix-your-codebase)。
+
+### 更新插件
+
+要自行更新插件，请参阅[立即更新插件](https://code.claude.com/docs/zh-CN/plugins/install.md#update-plugins-now)。除非关闭了自动更新，否则 Claude Code 还会[自动更新插件](https://code.claude.com/docs/zh-CN/plugins/install.md#keep-plugins-updated)。
 
 ### 卸载插件
 
@@ -95,6 +101,18 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代�
 
 在大型存储库上，一次扫描一个区域而不是整个树。选择插件提供的聚焦范围之一，例如您的 API 层或您的身份验证代码，运行会根据您选择的内容调整大小。报告的覆盖部分说明了什么被检查了，什么没有。随时在不同区域运行另一次扫描。
 
+### 选择扫描工作量
+
+扫描工作量决定扫描的深度。在 `low`、`medium` 和 `high` 下，您的发现都会经过相同的独立验证。
+
+* **`low`**：快速初步检查。扫描代码库时，它会跳过架构图和威胁模型。
+* **`medium`**：默认值。
+* **`high`**：执行 `medium` 的所有工作，并在同一代码中进一步搜寻漏洞。
+
+在 Claude Code 输入框中的请求里指明扫描工作量，例如 `/claude-security scan my public API code at high` 或 `/claude-security scan my branch at high`。
+
+如果对大型仓库的扫描发现的问题少于预期，请选择 `high` 扫描工作量、再扫描一次，或两者都做。每种方式都可能报告出一次 `medium` 扫描未发现的问题。
+
 ### 阅读扫描结果
 
 每次扫描都会将其结果写入您的存储库中的时间戳 `CLAUDE-SECURITY-<timestamp>/` 目录：
@@ -102,7 +120,7 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多代�
 * **`CLAUDE-SECURITY-RESULTS.md`**：报告，包含每个发现的 ID，例如 `F1`，加上其影响、利用场景、严重性、置信度和建议
 * **`CLAUDE-SECURITY-RESULTS.jsonl`**：相同的发现以机器可读的形式，每行一个 JSON 对象
 * **`CLAUDE-SECURITY-RESULTS.sarif`**：相同的发现作为 [SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html) 日志，用于 GitHub 代码扫描和任何其他读取该标准的工具。扫描将发现分类在其 [CWE](https://cwe.mitre.org/) 弱点类别下
-* **`CLAUDE-SECURITY-REVISION-<commit>.json`**：修订戳，记录扫描了哪个提交、以什么工作量、未提交的更改是否是扫描树的一部分，以及运行的验证程度如何，因此报告始终与它描述的代码相关联。版本控制外的扫描在提交位置戳上 `UNVERSIONED`
+* **`CLAUDE-SECURITY-REVISION-<commit>.json`**：修订戳，记录扫描了哪个提交、以什么[扫描工作量](#choose-a-scan-effort)、未提交的更改是否是扫描树的一部分，以及运行的验证程度如何，因此报告始终与它描述的代码相关联。版本控制外的扫描在提交位置戳上 `UNVERSIONED`
 
 该目录是扫描对您的检出所做的唯一更改，它有自己的 `.gitignore`，因此随意的 `git add` 永远不会将报告扫入提交。要在历史中保留报告以供审计跟踪，删除那一个 `.gitignore` 文件并像任何其他文件一样提交目录。
 

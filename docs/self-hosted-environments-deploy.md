@@ -68,6 +68,7 @@
 | `code.claude.com` 和 `claude.com` | 443 | 内置 claude-code-guide 代理的文档查找和会话期间预批准的 WebFetch 请求。阻止这些主机仅影响文档查找。 |
 | `*.frame.claudeusercontent.com` | 443 | 仅当[工件工具](https://code.claude.com/docs/zh-CN/artifacts.md#availability)对您组织中的会话可用时；默认值因计划而异，请参阅那里的可用性表。在运行器上设置 `CLAUDE_CODE_DISABLE_ARTIFACT=1` 以保持工具禁用，无论组织设置如何。 |
 | `registry.npmjs.org` | 443 | 当会话安装插件时，用于获取 npm 源插件包和安装插件的 Node.js 依赖项，或当 `npx` 启动的 MCP 服务器运行时 |
+| 您的构建所使用的软件包注册表的内部镜像，或这些注册表本身 | 443，或您镜像的端口 | 当会话安装依赖以构建或测试您的仓库时 |
 | `http-intake.logs.us5.datadoghq.com` | 443 | Anthropic 操作指标。仅当设置 `CLAUDE_CODE_BYOC_ENABLE_DATADOG=1` 时；在自托管环境中默认关闭。 |
 | `browser-intake-us5-datadoghq.com` | 443 | Anthropic 错误报告上传，仅在为会话帐户启用[错误报告](https://code.claude.com/docs/zh-CN/data-usage.md#telemetry-services)时发送。由 `DISABLE_ERROR_REPORTING=1` 或 `DISABLE_TELEMETRY=1` 抑制。 |
 | 您的云提供商用于模型请求、模型查询和续期凭据的端点，例如 `bedrock-runtime.us-east-1.amazonaws.com` 或 `aiplatform.googleapis.com` | 443 | 仅当运行器[将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#send-model-requests-to-bedrock-or-agent-platform) 时 |
@@ -716,7 +717,7 @@ secrets:
 
 ### 在固定队列上释放空闲会话
 
-如果在每个运行器都在线的情况下，固定队列上的会话仍然处于排队状态，原因可能是空闲会话。默认情况下，会话在其轮次结束后仍会保留其槽位，其运行器也会保持锁定到该会话的[所有者](https://code.claude.com/docs/zh-CN/self-hosted-environments#key-concepts)。如果您团队的[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)每次运行都会启动一个新会话，其空闲会话可能会占满所有槽位。
+如果在每个运行器都在线的情况下，固定队列上的会话仍然处于排队状态，原因可能是空闲会话。默认情况下，会话在其轮次结束后仍会保留其槽位，其运行器也会保持锁定到该会话的[所有者](https://code.claude.com/docs/zh-CN/self-hosted-environments#key-concepts)。其他所有者的会话无法使用该运行器的空闲槽位。如果您团队的[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)每次运行都会启动一个新会话，其空闲会话可能会占满所有槽位。
 
 要进行检查，请读取每个运行器 [Prometheus 指标](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics)中的 `claude_code_self_hosted_runner_session_idle_seconds`。运行器持有的每个会话都有自己的序列：会话繁忙时为 `0`，否则为自其进入空闲以来的秒数。选择您允许的空闲时间：要长于人们在任务中途的停顿时间，并且足够短，使每次运行都能在定时任务的下一次运行开始之前被释放。将序列与该时间进行比较。
 

@@ -288,6 +288,28 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 
 [Agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md) 默认关闭，但可以通过将 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 添加到你的[环境变量](https://code.claude.com/docs/zh-CN/cloud-environments.md#set-environment-variables)来启用。
 
+### 对话中的插件建议
+
+如果对话中出现一张列出一个或多个[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)并带有 **Add** 按钮的卡片，则表示 Claude 正在为您的任务建议插件。Claude 可能会在您未提出请求的情况下给出这些建议。您无需回应，无论如何 Claude 都会继续执行任务。
+
+#### 添加或移除建议的插件
+
+在插件上选择 **Add**，即可为您的 claude.ai 账户启用该插件，会话结束后该插件仍保持启用。要撤销，请从卡片中打开已添加的插件，选择 **Manage** 进入该插件在 claude.ai 上的页面，然后从该页面移除插件。
+
+#### 关闭插件建议
+
+要阻止 Claude 建议插件，请使用[权限规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)拒绝 `SearchPlugins` 和 `SuggestPluginInstall` 工具。在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)之外且仅包含一个仓库的会话中，请将这些规则提交到该仓库的 `.claude/settings.json`，并在 `permissions.deny` 下列出这两个工具名称：
+
+```json theme={null}
+{
+  "permissions": {
+    "deny": ["SearchPlugins", "SuggestPluginInstall"]
+  }
+}
+```
+
+当适用于该会话的[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)设置了 [`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 时，Claude Code 会忽略仓库 `.claude/settings.json` 中的权限规则，包括这些拒绝规则。在这种情况下，请改为将规则放入这些托管设置中。对于其他配置，例如包含多个仓库的会话或项目中的云端线程，请参阅哪些[设置会作用于云端会话](https://code.claude.com/docs/zh-CN/settings.md#settings-in-cloud-sessions)。
+
 ### 取回已排队的消息
 
 如果您在 Claude 工作时发送消息，该消息会排队，直到 Claude 读取它。要取回已排队的消息，请点击消息上的 ✕。文本会返回到消息框，以便您编辑或发送其他内容。

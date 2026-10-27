@@ -421,6 +421,8 @@ Input({
 Note: Type a note and press Enter
 ```
 
+添加 `rows` 可让该字段容纳多行。Enter 仍会提交，在 Enter 前输入反斜杠会开始新行，在[终端支持的情况下](https://code.claude.com/docs/zh-CN/terminal-config.md#enter-multiline-prompts)按 Shift+Enter 也可以。图库展示了[带有 `rows` 的字段](https://code.claude.com/docs/zh-CN/plugins/mods/gallery#input)。
+
 [界面图库](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md)提供了大多数元素的示例和屏幕截图。此表列出了每个元素：
 
 | 元素 | 它绘制什么 | 位置 |
@@ -436,9 +438,11 @@ Note: Type a note and press Enter
 
 如果您的模块是 `.tsx` 或 `.jsx` 文件，您可以将树写成 JSX。首先从 `$.ui.resolve(e)` 解构元素。
 
-如果树使用应用没有的元素、元素不接受的属性或在不应有子项的位置放置子项，Claude Code 会绘制其自己的站点版本。
+如果您的绘制没有显示，请检查其树中是否有元素不接受的 prop，或是否在不应有子项的位置放置了子项。返回此类树的 hook 会[失败](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails)，并且会出现一行 [`hook skipped` 行](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#a-pane-or-band-is-empty)，指出您的 mod 以及该树违反的规则。对于窗格中带有名为 `bogusProp` 的 prop 的 `Text`，该行内容为：
 
-在使用 `--plugin-dir` 启动的会话中，会话记录中会有一行说明这一点，例如 `ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew its own`。[调试日志](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#read-the-debug-log) 将其记录为 `ui.render (Pane): a hook returned a tree that does not validate` 并带有相同的原因。会话中没有其他内容出现，所以当绘制不显示时，请检查该行或日志。
+```text theme={null}
+my-mod: ui.render hook skipped: returned the wrong shape (a tree Pane refuses: Text prop "bogusProp" is not allowed)
+```
 
 ### 桌面应用和 VS Code 中的 `Link`
 
@@ -542,7 +546,7 @@ Claude Code 仅在输入框为空且没有其他内容拥有键盘焦点时授�
 | 键 | 它做什么 |
 | :- | :- |
 | Tab | 移动到下一个控件 |
-| 上和下 | 在绘制内容能完整显示时在控件之间移动。当窗格或条带的行数超过它可以显示的行数时，它们会滚动它。 |
+| 上和下 | 在绘制内容能完整显示时在控件之间移动。当窗格或条带的行数超过它可以显示的行数时，它们会滚动它。在 `Input` 中，它们会先[在字段的各行之间移动](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#input)。 |
 | Enter | 按下获得焦点的 `Button`、提交获得焦点的 `Input` 或在 `Select` 中选择 |
 | 按钮的快捷键 | 按下该按钮。当 `Input` 拥有焦点时，每个可打印键都进入字段。 |
 | Page Up、Page Down、Home 和 End | 当您的窗格或条带的行数超过它可以显示的行数时，滚动它 |

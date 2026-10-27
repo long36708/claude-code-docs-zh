@@ -312,7 +312,10 @@ groups:
 
 ### 针对丢失的运行器和等待中的会话发出警报
 
-在[固定舰队](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#scale-the-fleet)上，加载 `ClaudeRunnersBelowFloor`。使用[按需运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)时，改为加载 `ClaudeOrchestratorSessionsWaiting` 和 `ClaudeOrchestratorQueueWaitHigh`。
+要在运行器丢失、会话等待或编排器停机时收到警报，请在[示例警报规则](#sample-alert-rules)之外加载以下 Prometheus 警报规则：
+
+* **[固定舰队](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#scale-the-fleet)**：`ClaudeRunnersBelowFloor`
+* **[按需运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)**：`ClaudeOrchestratorSessionsWaiting`、`ClaudeOrchestratorQueueWaitHigh` 和 `ClaudeOrchestratorAbsent`
 
 #### 固定舰队丢失运行器时发出警报
 
@@ -369,6 +372,27 @@ groups:
 
 * **阈值**：如果始终有会话在等待，请将 `ClaudeOrchestratorSessionsWaiting` 中的 `> 0` 提高到您通常看到的数值之上
 * **`ClaudeOrchestratorDisconnected`**：保持从[示例警报规则](#sample-alert-rules)中加载它，因为在命名空间中最后一个编排器断开连接约 2 分钟后，`ClaudeOrchestratorSessionsWaiting` 会停止触发
+
+#### 编排器停机时发出警报
+
+要获知[编排器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)本身已停机，请加载 `ClaudeOrchestratorAbsent`。当命名空间中没有任何编排器被抓取并持续 5 分钟时，它会触发：
+
+```yaml theme={null}
+groups:
+  # 仅适用于按需运行器。请将 claude-runners 替换为编排器所在的命名空间。
+  - name: claude-code-self-hosted-on-demand-orchestrator
+    rules:
+      - alert: ClaudeOrchestratorAbsent
+        expr: absent(claude_code_self_hosted_orchestrator_connected{namespace="claude-runners"})
+        for: 5m
+        labels: {severity: critical}
+        annotations:
+          summary: "已有 5 分钟没有抓取到任何编排器。如果它已停机，则不会启动任何按需运行器，会话将处于等待状态。请先检查编排器工作负载，如果它在运行，再检查其抓取目标。"
+```
+
+* **命名空间**：将 `claude-runners` 替换为编排器所在的命名空间，并为每个其他运行编排器的命名空间复制该警报。如果您的目标没有 `namespace` 标签，请删除该匹配器，否则警报会在 5 分钟后触发并持续保持。
+* **不抓取编排器的 Prometheus 服务器**：请勿将该警报放入这些服务器的规则文件中，因为在此类服务器上它会在 5 分钟后触发并持续保持
+* **不要依赖编排器的其他警报**：它们读取的是编排器自身提供的指标。在编排器停机后约 10 分钟内，`ClaudeOrchestratorSessionsWaiting`、`ClaudeOrchestratorQueueWaitHigh` 以及编排器的[示例警报规则](#sample-alert-rules)都会停止触发。
 
 ### 传递会话子进程指标
 

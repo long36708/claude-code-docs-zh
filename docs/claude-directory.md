@@ -103,15 +103,22 @@ Skills、命令文件、subagents、输出样式和规则从文件顶部的 YAML
 
 除了您创作的配置外，`~/.claude` 还保存 Claude Code 在会话期间写入的数据。这些文件是纯文本。通过工具传递的任何内容都会在磁盘上的记录中：文件内容、命令输出、粘贴的文本。
 
+会话记录还可能包含 Claude Code 随您的消息一起发送给模型的内容：
+
+* 系统提示词
+* 工具定义
+* 请求参数
+* 它加载的指令文件，例如 CLAUDE.md
+
 ### 自动清理
 
 Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays)，只要它能安全地确定保留期。默认值为 30 天，最小值为 1；设置 `0` 会导致验证错误。相同的年龄截止值也适用于 [孤立 worktrees](https://code.claude.com/docs/zh-CN/worktrees.md#clean-up-subagent-and-background-session-worktrees) 的自动删除。
 
 | `~/.claude/` 下的路径 | 内容 |
 | - | - |
-| `projects/<project>/<session>.jsonl` | 完整的对话记录：每条消息、工具调用和工具结果 |
+| `projects/<project>/<session>.jsonl` | 对话的会话记录：消息、工具调用和工具结果，以及 Claude Code 发送给模型的请求中的系统提示词、工具定义和参数 |
 | `projects/<project>/<session>.orphaned-<timestamp>-<suffix>.jsonl`、`projects/<project>/<session>.jsonl.superseded-<timestamp>` | 会话的先前记录，Claude Code 将其搁置而不是覆盖或删除它。它不会出现在会话选择器中 |
-| `projects/<project>/<session>/subagents/` | [Subagent](https://code.claude.com/docs/zh-CN/sub-agents.md) 对话记录，当父会话记录过期时被删除 |
+| `projects/<project>/<session>/subagents/` | [子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)的会话记录，格式与会话的会话记录相同，当父会话记录过期时随之删除 |
 | `projects/<project>/<session>/tool-results/` | 大型工具输出溢出到单独的文件，以及 [MCP 工具返回的图像](https://code.claude.com/docs/zh-CN/mcp.md#images-in-tool-results) 的完整大小副本 |
 | `projects/<project>/<session>/mcp-tasks/` | 恢复的会话重新跟踪其正在运行的 [MCP 任务](https://code.claude.com/docs/zh-CN/mcp.md#mcp-tasks-that-run-on-the-server)所需的内容，以及 Claude 尚未读取的已完成任务的结果 |
 | `file-history/<session>/` | Claude 更改的文件的编辑前快照，用于 [checkpoint 恢复](https://code.claude.com/docs/zh-CN/checkpointing.md)。保存最近 100 个 checkpoint 的快照；没有保留 checkpoint 引用的快照文件被删除，除了每个文件的第一个快照 |

@@ -275,7 +275,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`Link`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#link-in-the-desktop-app) | `href`、`label`。请参阅[限制](#limits)。 | ✓ | ✓ | ✓ |
 | [`Code`](https://code.claude.com/docs/zh-CN/plugins/mods/gallery#show-code-and-changes) | `source`、`language`、`path`、`startLine`、`format`、`wrap` | ✓ | ✓ | ✓ |
 | `Markdown` | `text`、`key`、`dimColor`、`onLinkPress`、`pressableLinks` | ✓ | ✓ | ✓ |
-| [`Input`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#take-typed-input-and-draw-a-row-for-each-item) | `key`、`label`、`placeholder`、`value`、`submitLabel`、`onSubmit`、`onInput`、`autoFocus` | ✓ | ✓ | ✓ |
+| [`Input`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#take-typed-input-and-draw-a-row-for-each-item) | `key`、`label`、`placeholder`、`value`、`submitLabel`、[`rows`](https://code.claude.com/docs/zh-CN/plugins/mods/gallery#input)、`onSubmit`、`onInput`、`autoFocus` | ✓ | ✓ | ✓ |
 | `Select` | `key`、`label`、`options`、`value`、`onSelect`、`autoFocus` | ✓ | ✓ | ✓ |
 | `Svg` | 最多 131,072 个字符的 SVG 标记 `source`、`alt` 文本、`width`、`height` 以及 `isInteractive` | | ✓ | ✓ |
 | [`Client`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `module`、`key`、`props`、`width`、`height`、`flexGrow` | ✓ | ✓ | |
@@ -333,7 +333,7 @@ VS Code 扩展会忽略某些元素 prop，并像您省略了这些 prop 一样�
 
 如果将 `gap`、`padding` 或 `margin` 设置为某个步长，该步长会同时应用于横向和纵向。例如，在终端和 VS Code 扩展中，`padding: 'md'` 表示左右两侧各两个单元格，上下各一行。
 
-步长名称需要 Claude Code v2.1.299 或更高版本。在更早的版本中，对于使用了步长名称的树，Claude Code 会[绘制它自己版本的该位置内容](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements)来代替。
+步长名称需要 Claude Code v2.1.299 或更高版本。在更早的版本中，使用了步长名称的树不会绘制。
 
 ### `Text` 排版 prop
 
@@ -346,17 +346,17 @@ VS Code 扩展会忽略某些元素 prop，并像您省略了这些 prop 一样�
 | `mono` | `true`，请求使用应用的等宽字体 | 忽略：终端始终是等宽的 | 忽略，因此文本保持扩展自身的字体 |
 | `tabular` | `true`，请求使用等宽数字，使原地更新的数字或一列数字保持对齐 | 忽略：终端中的数字本来就占一个单元格宽 | 忽略 |
 
-这四个 prop 需要 Claude Code v2.1.299 或更高版本。在更早的版本中，对于设置了 `size`、`weight`、`mono` 或 `tabular` 的树，Claude Code 会[绘制它自己版本的该位置内容](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements)来代替。
+这四个 prop 需要 Claude Code v2.1.299 或更高版本。在更早的版本中，设置了 `size`、`weight`、`mono` 或 `tabular` 的树不会绘制。
 
 #### 用 `weight` 替换 `bold`
 
 `Text` 上的 `bold` 已弃用，建议改用 `weight`，但它仍然可用。要在未设置 `weight` 的 `Text` 上替换它，请将 `bold: true` 改为 `weight: 'semibold'`，在 Claude Code v2.1.299 或更高版本上效果相同。
 
-在早于 v2.1.299 的版本中，设置了 `weight` 的树不会绘制，Claude Code 会改为[绘制它自己版本的该位置内容](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements)。如果您在 `Text` 上同时设置了 `bold` 和 `weight`，则 `bold` 不起作用。
+在早于 v2.1.299 的版本中，设置了 `weight` 的树不会绘制。如果您在 `Text` 上同时设置了 `bold` 和 `weight`，则 `bold` 不起作用。
 
 ## 限制
 
-hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出时间限制的 hook。
+hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出时间限制的 hook。超出嵌套、元素、`Raster` 单元格或 `Image` 字节限制的树[不会被绘制](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#a-pane-or-band-is-empty)。
 
 | 限制 | 值 |
 | :- | :- |
@@ -372,8 +372,12 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | 单次 `$.http.fetch` 调用跟随的重定向次数 | 5 |
 | hook 的 `drop` 原因或 `config.set` 的 `deny` 原因 | 4,096 个字符。更长的原因会被截去末尾部分，drop 或 deny 仍然生效。截断需要 Claude Code v2.1.292 或更高版本；在更早的版本中，该 hook 会改为[失败](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails)。 |
 | 单个树中的文本 | 仅绘制前 100,000 个字符 |
-| `Code` 的 `language` 或 `path`、`Select` 选项的 `value`，或 `Client` 的 `module` | 10,000 个字符。如果其中任何一项超出此长度，Claude Code 会[在该位置绘制其自身的版本](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements)。 |
-| `Link` 的 `href` | 2,048 个字符。更长的 `href` 会导致整个树无法绘制。 |
+| `Code` 的 `language` 或 `path`、`Select` 选项的 `value`，或 `Client` 的 `module` | 10,000 个字符。如果其中任何一项超出此长度，返回它的 `ui.render` hook 会[失败](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails)。 |
+| `Link` 的 `href` | 2,048 个字符。如果超出此长度，返回它的 `ui.render` hook 会[失败](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails)。 |
+| 单个树的嵌套深度 | 根元素以下 32 层 |
+| 单个树中的元素和文本子项 | 20,000 |
+| 单个树中的 `Raster` 单元格，即每个 `Raster` 的 `columns` 乘以其 `rows` | 262,144 |
+| 单个树中所有 `Image` 的 PNG 或 RGBA 字节数 | 2 MiB |
 | `$.store` | JSON 总计 4 MiB |
 | `$.session.messages()` | 最新的 4,096 个条目 |
 | `$.ui.invalidate('ui.render')` 重绘 | 限制为每秒 10 次；在终端中，对于可见窗格、展开区域以及输入框下方的提示行，限制为每秒 30 次。更早到达的调用会被合并。 |

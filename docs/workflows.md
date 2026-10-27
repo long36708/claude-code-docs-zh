@@ -333,7 +333,7 @@ Claude Code 在加载和运行脚本时对文件的每个部分应用这些规�
 
 工作流运行时在隔离的环境中执行脚本，与您的对话分离。中间结果保留在脚本变量中，而不是进入 Claude 的上下文。
 
-每次运行都会将其脚本写入您会话目录下 `~/.claude/projects/` 中的文件。Claude 在运行开始时接收路径，因此您可以要求它提供路径。您可以打开该文件来读取 Claude 编写的编排，将其与之前运行的脚本进行对比，或编辑它并要求 Claude 从编辑后的版本重新启动。
+除非 Claude 从脚本文件的路径启动运行，否则 Claude Code 会将该次运行的脚本写入您会话目录下 `~/.claude/projects/` 中的文件。Claude 在运行开始时接收脚本的路径，因此您可以要求它提供该路径。您可以打开该文件来读取 Claude 编写的编排，将其与之前运行的脚本进行对比，或编辑它并要求 Claude 从编辑后的版本重新启动。
 
 Claude 只能从会话已允许读取的脚本文件启动工作流。要运行保存在工作目录外的脚本，请先使用 [`/add-dir`](https://code.claude.com/docs/zh-CN/permissions#working-directories) 或 [Read allow rule](https://code.claude.com/docs/zh-CN/permissions.md#read-and-edit) 添加其目录。
 
@@ -363,137 +363,138 @@ Claude 只能从会话已允许读取的脚本文件启动工作流。要运行�
 
 ## 管理运行
 
-运行启动后，您可以从 `/workflows` 视图管理它，或通过展开输入框下方任务面板中的其进度行来管理。
+运行开始后，您可以在 `/workflows` 视图中管理它，也可以展开输入框下方任务面板中该运行的进度行进行管理。
 
-当您停止运行时，它会保留在任务面板中，直到其任何代理的进程仍在运行。如果您再次停止它，Claude Code 会重新向这些进程发送信号。
+停止运行后，只要其任何 Agent 的进程仍在运行，该运行就会一直保留在任务面板中。如果您再次停止它，Claude Code 会重新向这些进程发送信号。
 
 ### 暂停后恢复
 
-从 `/workflows` 恢复暂停的运行，选择它并按 `p`。对于您停止的运行，要求 Claude 使用相同脚本重新启动工作流。如果来自已停止运行的代理尚未退出，Claude Code 会拒绝重新启动，直到它们退出，这样这些代理的第二个副本就不会与它们并行运行。
+要恢复已暂停的运行，请在 `/workflows` 中选中它并按 `p`。对于您已停止的运行，请让 Claude 使用同一脚本重新启动该工作流。如果已停止运行中的 Agent 尚未退出，Claude Code 会拒绝重新启动，直到它们退出为止，以免这些 Agent 的第二个副本与它们同时运行。
 
 #### 哪些 Agent 会再次运行
 
-Claude Code 按 Agent 启动的顺序重放运行，每个 Agent 要么返回其保存的结果，要么再次运行：
+Claude Code 按 Agent 的启动顺序重放运行，每个 Agent 要么返回其保存的结果，要么再次运行：
 
-* **已完成**：返回其保存的结果。第一个提示与之前运行不同的代理（因为您编辑了脚本或较早的代理返回了不同的内容）会再次运行，之后的每个代理也会再次运行，即使是已完成的代理。
+* **已完成**：返回其保存的结果。第一个提示词与上一次运行不同的 Agent（因为您编辑了脚本，或者前面的某个 Agent 返回了不同的内容）会再次运行，其后的每个 Agent 也会再次运行，即使它们已经完成。
 
-  在 v2.1.305 之前，当您重新启动一个未经编辑的脚本，且其 `pipeline()` 项或 `parallel()` 任务各自运行了多个 Agent 时，已完成的 Agent 也可能再次运行。要让新的运行不再出现这类重新运行，请更新 Claude Code。
-* **停止时仍在运行**：重新开始。停止整个运行不会将任何代理计为失败。
-* **失败**：再次运行，脚本在其之后启动的每个 Agent 也会再次运行，即使是已完成的 Agent。通过在 [`/workflows`](#watch-the-run) 中选择单个 Agent 并按 `x` 来停止它，会将其计为失败。
+  在 v2.1.305 之前，如果您重新启动一个未经编辑的脚本，而该脚本的 `pipeline()` 项或 `parallel()` 任务各自运行了多个 Agent，已完成的 Agent 也可能再次运行。要让新的运行不再出现这类重复运行，请更新 Claude Code。
+* **停止时仍在运行**：从头开始。停止整个运行不会将任何 Agent 计为失败。
+* **失败**：再次运行，脚本在其之后启动的每个 Agent 也会再次运行，即使它们已经完成。单独停止某一个 Agent（在 [`/workflows`](#watch-the-run) 中选中它并按 `x`）会被计为失败。
 
-最后一种情况意味着在扇出中间的失败会重新运行已经完成的工作。如果脚本按该顺序启动 A、B、C 和 D，并且 B 失败，重新启动会从缓存返回 A 并再次运行 B、C 和 D。
+最后一种情况意味着，扇出过程中途的失败会导致已完成的工作重新运行。如果一个脚本按顺序启动 A、B、C 和 D，而 B 失败了，重新启动时会从缓存返回 A，并再次运行 B、C 和 D。
 
-如果您将一个按 A、B、C、D 顺序启动的脚本编辑为按 A、C、B、D 顺序启动，那么第二个启动的 Agent 现在是 C，而之前的运行在这个位置启动的是 B。重新启动会从缓存返回 A，并再次运行 C、B 和 D。
+如果您编辑一个原本启动 A、B、C 和 D 的脚本，使其改为启动 A、C、B 和 D，那么第二个启动的 Agent 现在是 C，而上一次运行中是 B。重新启动时会从缓存返回 A，并再次运行 C、B 和 D。
 
 #### 离开会话后恢复
 
-您可以在同一 Claude Code 会话中恢复运行。当您离开会话时，运行中的工作流会发生什么取决于您如何离开：
+如果您在工作流运行进行期间将会话转入后台或退出 Claude Code，该运行不会自行继续。只有当 Claude 通过 `Workflow` 调用重新启动它时，运行才会继续，这会[根据保存的结果重放运行](#which-agents-run-again)。
 
-* 如果您[后台运行会话](https://code.claude.com/docs/zh-CN/agent-view.md#what-carries-over-when-you-background)，Claude Code 会在后台会话中以相同方式重放运行并继续它。
-* 如果您在工作流运行时退出 Claude Code 并且[代理视图已打开](https://code.claude.com/docs/zh-CN/agent-view.md#from-inside-a-session)，退出对话框会提供 `Move to background and exit`，它以相同方式转移运行。如果您选择 `Exit and stop tasks` 或未提供该选项，运行会随会话停止。Claude Code 会将运行的保存结果保存在 `~/.claude/projects/` 中该会话的目录下，所以您使用 `claude --resume` 恢复的会话可以在您要求 Claude 重新启动工作流时重放它们。在您全新启动的会话中，Claude 没有较早的运行可以重新启动，会将工作流作为新运行启动。
+* **您将会话转入了后台，或选择了 [`Move to background and exit`](https://code.claude.com/docs/zh-CN/agent-view#from-inside-a-session)**：如果您查看[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#what-carries-over-when-you-background)时运行尚未继续，请在该会话中让 Claude 重新启动工作流。根据您的[权限模式](#approve-the-plan-before-it-runs)，Claude Code 会先请您批准此次重新启动。如果该会话在 agent view 中显示在 `Needs input` 下，请[连接到该会话](https://code.claude.com/docs/zh-CN/agent-view.md#attach-to-a-session)以回应批准提示。
+* **在后台会话中重新启动失败并显示 `nothing to resume`**：请让 Claude 将工作流作为新运行从头开始。如果 Claude 是从 `~/.claude/projects/` 之外的脚本文件路径（例如工作目录中的脚本）启动该运行的，Claude 无法在后台会话中重新启动它。
+* **您选择了 `Exit and stop tasks`，或者没有出现 `Move to background and exit` 选项**：运行已随会话一起停止，Claude Code 会将该运行保存的结果保留在 `~/.claude/projects/` 中该会话的目录下。请在 shell 中使用 `claude --resume` 恢复该会话，然后让 Claude 重新启动工作流。在全新的会话中，Claude 没有可以重新启动的先前运行，会从头开始工作流。
 
-在[云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中，Claude Code 也会将运行的结果与会话的对话历史一起保存，当会话的 VM 被回收时，这些历史会保留。当您[重新打开这样的会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#environment-expired)并要求 Claude 重新启动工作流时，已完成的代理仍会返回其保存的结果。
+在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中，Claude Code 还会将运行的结果与会话的对话历史一起保存，即使会话的 VM 被回收，这些结果也会保留。当您[重新打开此类会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#environment-expired)并让 Claude 重新启动工作流时，已完成的 Agent 仍会返回其保存的结果。
 
-在本地和云会话中，当 Claude 重新启动较早的运行并且 Claude Code 根本找不到该运行的保存结果时，重新启动会失败并显示 `nothing to resume` 错误，而不是自动启动运行。要求 Claude 将工作流作为新运行启动。
+无论是本地会话还是云端会话，当 Claude 重新启动先前的运行而 Claude Code 完全找不到该运行保存的结果时，重新启动会失败并显示 `nothing to resume` 错误，而不会自行从头开始运行。请让 Claude 将工作流作为新运行从头开始。
 
-### 当运行达到您的使用限制时
+### 运行达到用量限制时
 
-当代理达到您的 claude.ai [使用限制](https://code.claude.com/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)时，运行会暂停而不是该代理失败：达到限制的代理会等待重置，并且不会启动新代理。限制重置后不久，等待的代理会再次运行，运行会自动继续。需要 Claude Code v2.1.271 或更高版本；在较早的版本上，受影响的代理会失败。
+当某个 Agent 达到您的 claude.ai [用量限制](https://code.claude.com/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)时，运行会暂停，而不是让该 Agent 失败：达到限制的 Agent 会等待重置，并且不会启动新的 Agent。限制重置后不久，等待中的 Agent 会再次运行，运行会自行继续。需要 Claude Code v2.1.271 或更高版本；在更早的版本中，受影响的 Agent 会失败。
 
-当运行等待时，其在任务面板中的进度行和 [`/workflows`](#watch-the-run) 标题显示限制何时重置。
+运行等待期间，任务面板中的进度行和 [`/workflows`](#watch-the-run) 标题会显示限制的重置时间。
 
-运行仅在以下所有条件都成立时暂停；当其中一个不成立时，受影响的代理会失败：
+只有当以下所有条件都满足时，运行才会暂停；任一条件不满足时，受影响的 Agent 会失败：
 
-* 会话是交互式的并使用 claude.ai 订阅登录。运行不会在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)中使用 `claude -p` 或 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 暂停，在[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中，或在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 或[代理团队](https://code.claude.com/docs/zh-CN/agent-teams.md)队友会话中。
-* [`autoContinueAtUsageLimit`](https://code.claude.com/docs/zh-CN/settings-reference#autocontinueatusagelimit) 已打开，这是让会话本身[等待使用限制重置](https://code.claude.com/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)的相同设置。如果您在等待期间关闭它，等待会结束，等待的代理会失败。
-* 限制在 24 小时内重置。每周限制可能重置得更远。
-* 运行还没有等待过两次。当它第三次达到限制时，代理会失败。
+* 会话是交互式的，并且已使用 claude.ai 订阅登录。在使用 `claude -p` 的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)或 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 中、在[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中，或在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 或 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友会话中，运行不会暂停。
+* [`autoContinueAtUsageLimit`](https://code.claude.com/docs/zh-CN/settings-reference#autocontinueatusagelimit) 已开启，这也是让会话本身能够[等待用量限制重置](https://code.claude.com/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)的同一设置。如果您在等待期间将其关闭，等待会结束，等待中的 Agent 会失败。
+* 限制在 24 小时内重置。每周限制的重置时间可能更远。
+* 运行尚未等待过两次。当第三次达到限制时，该 Agent 会失败。
 
-### 当 Agent 停滞并重启时
+### Agent 停滞并重新启动时
 
-如果某个 Agent 的输出停止到达足够长的时间，它会使用相同的提示词重新开始。在 [`/workflows`](#watch-the-run) 中，其名称会添加 `(retry 1)` 后缀，其详细信息会显示 `attempt 2 (stalled)`。重启是自动的，因此您无需执行任何操作。
+如果某个 Agent 的输出停止到达的时间足够长，它会使用相同的提示词从头开始。在 [`/workflows`](#watch-the-run) 中，其名称会加上 `(retry 1)` 后缀，详情中显示 `attempt 2 (stalled)`。重新启动是自动的，您无需进行任何操作。
 
-新的尝试在开始时不带有停滞尝试的会话记录。停滞尝试已更改的文件保持更改状态，其消耗的 token 仍计入运行的总量。停滞窗口是 Claude Code 在结束尝试之前等待 Agent 输出的时长。Agent 等待其自身工具调用或等待[用量限制重置](#when-a-run-hits-your-usage-limit)所花费的时间不计入停滞窗口。
+新的尝试启动时不带有停滞尝试的会话记录。停滞尝试已经更改的文件会保持更改状态，其消耗的 token 也会计入运行的总量。停滞窗口是 Claude Code 在结束尝试之前等待 Agent 输出的时长。Agent 等待自身工具调用或[用量限制重置](#when-a-run-hits-your-usage-limit)所花的时间不计入停滞窗口。
 
-一个 Agent 最多重启五次，包括您使用 `r` 请求的任何重启。如果第六次尝试也停滞，`agent()` 调用会失败，错误的开头会说明原因：
+一个 Agent 最多重新启动五次，包括您通过 `r` 要求的任何重新启动。如果第六次尝试也停滞，`agent()` 调用会失败，错误开头会说明原因：
 
-* `agent stalled on all 6 attempts`：每次尝试在整个窗口内都没有输出。如果 Agent 的工作使其保持静默这么长时间，请延长窗口
-* `agent lost its reply on all 6 attempts`：每次尝试的响应流都变为静默，Claude Code 放弃了等待。延长停滞窗口没有帮助，因为[流式空闲看门狗](https://code.claude.com/docs/zh-CN/network-config.md#streaming-idle-watchdogs)先结束了响应，而 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 设置该看门狗的超时时间
+* `agent stalled on all 6 attempts`：每次尝试在整个窗口内都没有输出。如果 Agent 的工作会让它保持沉默这么长时间，请延长窗口
+* `agent lost its reply on all 6 attempts`：每次尝试的响应流都变得沉默，Claude Code 放弃了等待。延长停滞窗口没有帮助，因为[流式空闲看门狗](https://code.claude.com/docs/zh-CN/network-config.md#streaming-idle-watchdogs)先结束了响应，而 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 用于设置该看门狗的超时时间
 * `agent abandoned after 6 attempts`：各次尝试以不同方式结束，错误会按顺序列出这些方式
 
-要在窗口结束前给 Agent 更多时间来产生输出：
+要在窗口结束前给 Agent 更多时间产生输出：
 
 * **单个 Agent**：在其 `agent()` 调用中以毫秒为单位传入 `stallMs`，例如 `agent(prompt, { stallMs: 1800000 })` 表示 30 分钟
 * **所有 Agent**：设置 [`CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables)，它也适用于工作流之外的子代理
 
-失败后运行是否继续取决于您的脚本如何调用该 Agent：
+失败后运行是否继续，取决于您的脚本如何调用该 Agent：
 
-* **在 [`parallel()` 或 `pipeline()`](#what-the-saved-script-looks-like) 内部**：运行继续，用 `null` 代替该 Agent 的结果
-* **直接 await**：运行以该错误结束
+* **在 [`parallel()` 或 `pipeline()`](#what-the-saved-script-looks-like) 内部**：运行会继续，以 `null` 代替该 Agent 的结果
+* **直接 await**：运行会随错误结束
 
-要重试，请要求 Claude 重新启动工作流。[暂停后恢复](#resume-after-a-pause)介绍了哪些内容会再次运行。
+要重试，请让 Claude 重新启动工作流。[暂停后恢复](#resume-after-a-pause)介绍了哪些内容会再次运行。
 
 ### 成本
 
-工作流生成许多代理，所以单次运行可以使用比在对话中处理相同任务更多的令牌。运行计入您的计划使用和速率限制。
+工作流会生成许多 Agent，因此单次运行使用的 token 可能明显多于在对话中完成同一任务。运行会计入您套餐的用量和速率限制。
 
-要在提交大型任务前评估支出，请先在小范围上运行工作流：一个目录而不是整个仓库，或一个狭窄的问题而不是一个宽泛的问题。`/workflows` 视图显示每个代理的令牌使用情况，随着运行进行，您可以随时在那里停止运行，通常不会丢失已完成的工作。[暂停后恢复](#resume-after-a-pause)涵盖了停止的运行保留的内容。运行时的[代理上限](#behavior-and-limits)限制单次运行可以生成多少个代理，这限制了失控脚本的成本。要保持运行的代理数量较少，选择 `small` [大小指南](#set-a-size-guideline)。
+要在投入大型任务之前估算开销，请先在一小部分内容上运行工作流：一个目录而不是整个仓库，或者一个具体的问题而不是宽泛的问题。`/workflows` 视图会在运行过程中显示每个 Agent 的 token 用量，您可以随时在那里停止运行，通常不会丢失已完成的工作。[暂停后恢复](#resume-after-a-pause)介绍了已停止的运行会保留哪些内容。运行时的 [Agent 上限](#behavior-and-limits)限制了单次运行可以生成的 Agent 数量，从而限定了失控脚本的成本。要让运行使用更少的 Agent，请选择 `small` [规模指导](#set-a-size-guideline)。
 
-Claude Code 还会标记增长异常大的运行。当工作流调度超过 25 个代理，或其预计令牌总数超过 150 万时，输入框下方任务面板中的其进度行显示 `Large workflow` 警告。警告指向您可以停止运行的 [`/workflows`](#watch-the-run)。
+Claude Code 还会标记规模异常大的运行。当工作流安排的 Agent 超过 25 个，或其预计的 token 总量超过 150 万时，输入框下方任务面板中的进度行会显示 `Large workflow` 警告。该警告会引导您前往 [`/workflows`](#watch-the-run)，您可以在那里停止运行。
 
-警告是建议性的：它不会暂停或限制运行。当您看到它时，两个设置会改变：
+该警告仅作提示：它不会暂停或限制运行。有两项设置会改变您看到它的时机：
 
-* 如果您自己选择[大小指南](#set-a-size-guideline)，其代理计数替换 25 个代理的阈值。内置默认指南将阈值保留在 25。
-* 启用[ultracode](#let-claude-decide-with-ultracode)的会话不显示警告，因为打开 ultracode 已经让您选择加入大型运行。
+* 如果您自行选择了[规模指导](#set-a-size-guideline)，其 Agent 数量会取代 25 个 Agent 的阈值。内置的默认指导会将阈值保持为 25。
+* 开启了 [ultracode](#let-claude-decide-with-ultracode) 的会话不会显示该警告，因为开启 ultracode 就已表示您选择接受大型运行。
 
-Claude Code 按照它用于子代理的相同[顺序选择每个工作流代理的模型](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)。脚本为阶段命名的模型在该顺序中计为每次调用的模型。当没有其他东西分配一个时，代理在您的会话模型上运行。
+Claude Code 为每个工作流 Agent 选择模型的顺序与[为子代理选择模型的顺序](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)相同。脚本为某个阶段指定的模型在该顺序中算作按调用指定的模型。当没有其他来源指定模型时，Agent 会使用您会话的模型运行。
 
 要控制模型成本：
 
-* 在大型运行前检查 `/model`，如果您通常为日常工作切换到较小的模型
-* 当您描述任务时，要求 Claude 为不需要最强模型的阶段使用较小的模型
+* 如果您通常会为日常工作切换到较小的模型，请在大型运行之前检查 `/model`
+* 在描述任务时，让 Claude 为不需要最强模型的阶段使用较小的模型
 
-当您组织的 [`availableModels` 允许列表](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection)阻止脚本为某个 Agent 请求的模型时，该 Agent 会改为在替代模型上运行，遵循与[子代理相同的替代规则](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)。
+当您组织的 [`availableModels` 允许列表](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection)阻止了脚本为某个 Agent 请求的模型时，该 Agent 会改用替代模型运行，遵循与[子代理相同的替代规则](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)。
 
-### 设置大小指南
+### 设置规模指导
 
-大小指南告诉 Claude 在编写动态工作流时应以多少个 Agent 为目标。Claude Code 将指南作为建议而不是上限发送给 Claude，所以要求不同规模的提示词仍然会覆盖它。
+规模指导告诉 Claude 在编写动态工作流时以多少个 Agent 为目标。Claude Code 将该指导作为建议而不是上限发送给 Claude，因此要求不同规模的提示词仍会覆盖它。
 
-每个值映射到一个代理计数：
+每个值对应一个 Agent 数量：
 
-| 值 | Claude 针对的代理计数 |
+| 值 | Claude 的目标 Agent 数量 |
 | :- | :- |
-| `unrestricted` | 无指南：Claude 根据任务调整工作流大小 |
-| `small` | 少于 5 个代理 |
-| `medium` | 少于 10 个代理 |
-| `large` | 少于 50 个代理 |
+| `unrestricted` | 无指导：Claude 根据任务确定工作流规模 |
+| `small` | 少于 5 个 Agent |
+| `medium` | 少于 10 个 Agent |
+| `large` | 少于 50 个 Agent |
 
-默认值是 `medium`，或当您在使用 Claude Code v2.1.271 或更高版本的 Pro 计划上登录时为 `small`。在您选择值之前，`/config` 行将值标记为默认值，工作流的 `Running in background` 行命名生效的大小。需要 Claude Code v2.1.219 或更高版本；较早的版本默认为 `unrestricted`。
+默认值为 `medium`，如果您使用 Pro 套餐登录且 Claude Code 为 v2.1.271 或更高版本，则默认值为 `small`。在您选择某个值之前，`/config` 中的该行会将该值标记为默认值，工作流的 `Running in background` 行会显示当前生效的规模。需要 Claude Code v2.1.219 或更高版本；更早的版本默认为 `unrestricted`。
 
-要更改指南，在 `/config` 中为 Dynamic workflow size 设置选择一个值，或运行 `/config workflowSizeGuideline=small`。在 v2.1.219 及更高版本上，您也可以在任何设置文件中设置 [`workflowSizeGuideline` 键](https://code.claude.com/docs/zh-CN/settings-reference#workflowsizeguideline)；该值优先于 `/config`，当设置文件提供一个时，Claude Code 会隐藏 `/config` 行。
+要更改指导，请在 `/config` 中为 Dynamic workflow size 设置选择一个值，或运行 `/config workflowSizeGuideline=small`。在 v2.1.219 及更高版本中，您还可以在任意设置文件中设置 [`workflowSizeGuideline` 键](https://code.claude.com/docs/zh-CN/settings-reference#workflowsizeguideline)；该值优先于 `/config`，并且当设置文件提供了该值时，Claude Code 会隐藏 `/config` 中的该行。
 
-更改在下一个提示时生效。[运行时代理上限](#behavior-and-limits)仍然适用，无论设置如何。
+更改会在下一个提示词时生效。无论该设置如何，[运行时 Agent 上限](#behavior-and-limits)仍然适用。
 
 ### 关闭工作流
 
-工作流在 CLI、桌面应用、IDE 扩展、[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)与 `claude -p` 和 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 中可用。相同的禁用设置在每个表面上应用。
+工作流可在 CLI、Desktop 应用、IDE 扩展、使用 `claude -p` 的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)以及 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 中使用。相同的禁用设置适用于每个使用入口。
 
-要为自己关闭工作流：
+要为您自己关闭工作流：
 
-* 在 `/config` 中切换 Dynamic workflows 关闭。在会话中持续。
-* 在 `~/.claude/settings.json` 中设置 `"disableWorkflows": true`。在会话中持续。
-* 设置 `CLAUDE_CODE_DISABLE_WORKFLOWS=1`。在启动时读取，所以它在您设置它的任何地方应用。
+* 在 `/config` 中关闭 Dynamic workflows。在会话之间保持有效。
+* 在 `~/.claude/settings.json` 中设置 `"disableWorkflows": true`。在会话之间保持有效。
+* 设置 `CLAUDE_CODE_DISABLE_WORKFLOWS=1`。在启动时读取，因此在您设置它的任何位置都适用。
 
-要为整个组织关闭工作流，在[托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中设置 `"disableWorkflows": true`，或使用[Claude Code 管理员设置](https://claude.ai/admin-settings/claude-code)页面上的切换。
+要为整个组织关闭工作流，请在[托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中设置 `"disableWorkflows": true`，或使用 [Claude Code 管理设置](https://claude.ai/admin-settings/claude-code)页面上的开关。
 
-当工作流被禁用时：
+工作流被禁用时：
 
-* `/workflows`、工作流命令和 `/workflow-authoring` skill 不可用
-* `ultracode` 关键字不再触发运行，**Ultracode** 开关会从 `/effort` 中移除
+* `/workflows`、工作流命令以及 `/workflow-authoring` skill 不可用
+* `ultracode` 关键字不再触发运行，并且 **Ultracode** 开关会从 `/effort` 中移除
 
 已在进行中的运行会继续进行。
 
-关闭工作流也会使[ultracode](#let-claude-decide-with-ultracode)不可用。没有托管设置单独排除 ultracode：无论它在哪里[可用](https://code.claude.com/docs/zh-CN/model-config.md#when-ultracode-is-available)，用户可以使用 `/effort ultracode` 打开它。[努力上限](https://code.claude.com/docs/zh-CN/model-config.md#organization-effort-limits)降低了启用 ultracode 的会话运行的努力级别，但不会关闭 ultracode。
+关闭工作流也会使 [ultracode](#let-claude-decide-with-ultracode) 不可用。没有任何托管设置可以单独禁止 ultracode：在 ultracode [可用](https://code.claude.com/docs/zh-CN/model-config.md#when-ultracode-is-available)的任何地方，用户都可以使用 `/effort ultracode` 开启它。[effort 上限](https://code.claude.com/docs/zh-CN/model-config.md#organization-effort-limits)会降低开启了 ultracode 的会话运行时所用的 effort 级别，但不会关闭 ultracode。
 
 ## 相关资源
 

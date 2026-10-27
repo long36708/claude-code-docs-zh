@@ -226,13 +226,31 @@ mod 已加载，其窗格、带、toast 或控件的行为不符合您的预期�
 
 要找到该 mod，请[写入调试日志](#read-the-debug-log)并在其中搜索 `answered ui.render without next()`。诸如 `other-mod (user) answered ui.render without next()` 的行会指明一个返回了树但未调用 `next(e)` 的 mod。该行不会指明[渲染位置](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites)，因此仅绘制窗格的 mod 也可能出现在其中。调用了 `next(e)` 但丢弃其结果的 mod 不会产生该行，因此也请检查在您的 mod 之前运行的 hook。
 
-进行更改后，如果任一 mod 返回的树未通过验证，带中将不显示任何内容。要了解原因，请在 `--plugin-dir` 会话的会话记录中查找 `ui.render (AbovePrompt) refused:` 行，或在调试日志中搜索 `does not validate`。当带中有多个 mod 时，这两行都不会指明具体的 mod，因此请检查每个 mod 的树。
+当某个 mod 自身的 hook 返回的树未通过验证时，该 mod 的带也会缺失，而其他 mod 的带仍会保留。要了解是哪个 mod 以及原因，请[写入调试日志](#read-the-debug-log)并在其中搜索 [`ui.render hook skipped`](#a-pane-or-band-is-empty)。
 
 ### 窗格或带为空或显示 Claude Code 的常规内容
 
-您的 hook 返回的 [树](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements) 未通过验证。使用 `--plugin-dir` 时，会话记录会显示 `ui.render (Pane) refused:` 及原因，如 `first-mod: ui.render (Pane) refused: Box prop "flexDirection" must be one of row, column, row-reverse, column-reverse; the engine drew its own`。调试日志中有 `a hook returned a tree that does not validate` 及相同的原因。
+您的 hook 返回的[树](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements)未通过验证。[会话记录或调试日志中](#find-out-why-a-mod-does-nothing)的 [`hook skipped`](#hook-skipped) 行会指明您的 mod 及原因，例如以下针对窗格中某个 `Box` 的行：
 
-读取该行上的原因。常见原因是元素不接受的 prop 和应用没有的元素。
+```text theme={null}
+first-mod: ui.render hook skipped: returned the wrong shape (a tree Pane refuses: Box prop "flexDirection" must be one of row, column, row-reverse, column-reverse)
+```
+
+请修复原因中指出的问题。如果原因被截断，请[写入调试日志](#read-the-debug-log)并在其中搜索 `a hook returned a tree that does not validate` 以查看其余内容。
+
+如果该行在位置名称之后紧接着显示 `refused:`，如 `ui.render (Pane) refused:`，请参阅[`ui.render` 行显示 `refused`](#ui-render-refused)。
+
+### `ui.render` 行显示 `refused`
+
+`ui.render (<site>) refused:`，或[调试日志](#read-the-debug-log)中的 `ui.render (<site>): the chain settled on a tree that does not validate`，表示该位置的[树](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements)超出了[大小限制](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)。这两行都会先指明[渲染位置](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites)，然后给出原因，原因中会指明该限制。
+
+请修改在该位置绘制的 mod，使其 [`ui.render`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface) hook 返回更小的树，或请其作者修改。如果会话记录行以 `hooks` 开头，则表示有多个已加载的 mod 为该位置设置了 `ui.render` hook，因此请检查每个这些 mod 的树。当多个 mod 在输入框上方的带嵌套成深度超过 32 层的树时，该行显示为：
+
+```text theme={null}
+hooks: ui.render (AbovePrompt) refused: deeper than 32; nothing was drawn
+```
+
+在 v2.1.307 之前，任何位置的 `refused:` 行都会报告任何未通过验证的树，并且对于 `Pane` 和 `AbovePrompt`，该行以 `; the engine drew its own` 结尾。在这些版本中，请修复原因中指出的问题。
 
 ### `needs a key`、`is drawn twice` 或 `key each once`
 
@@ -383,7 +401,7 @@ tail -f ./mod-debug.log | grep first-mod
 hooks module first-mod@inline loaded (worker, environment 2, tier user); events: session.start,tool.call,command.run,ui.render
 ```
 
-未验证的绘图计为被拒绝的结果，也会获得一行。要在日志中写入您自己的行，请调用 [`$.ui.log`](https://code.claude.com/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn)，带有第二个参数，如 `$.ui.log('message', { to: 'debug' })`。没有第二个参数，`$.ui.log` 会在会话记录中添加一条暗行。
+要在日志中写入您自己的行，请调用 [`$.ui.log`](https://code.claude.com/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn)，带有第二个参数，如 `$.ui.log('message', { to: 'debug' })`。没有第二个参数，`$.ui.log` 会在会话记录中添加一条暗行。
 
 当您编辑使用 `--plugin-dir` 加载的 mod 时，会话记录为每次重新加载显示一行，命名 mod 并列出其 hook。如果保存破坏了模块，该行会显示 `reload failed, the previous version stays loaded:` 及原因，最后一个可用版本会继续运行，直到 Claude Code 下次重新加载插件，例如当您运行 `/reload-plugins` 时。
 

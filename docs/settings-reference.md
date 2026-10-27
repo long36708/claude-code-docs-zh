@@ -2037,13 +2037,13 @@ Claude Code 会在各设置作用域之间合并数组子键，因此除非适�
 * **类型**：字符串数组，每项是一个服务名称；单个末尾 `*` 匹配前缀，单独的 `"*"` 匹配所有服务
 * **默认值**：未设置
 
-以下配置允许 `com.apple.coresimulator.` 前缀下的所有服务：
+以下配置允许 `com.apple.CoreSimulator.` 前缀下的所有服务：
 
 ```json settings.json theme={null}
 {
   "sandbox": {
     "network": {
-      "allowMachLookup": ["com.apple.coresimulator.*"]
+      "allowMachLookup": ["com.apple.CoreSimulator.*"]
     }
   }
 }
@@ -4729,12 +4729,12 @@ Claude Code 首先读取托管设置，然后读取 `--settings` 标志，再读
 * **类型**：字符串数组，相对于仓库根目录的目录路径
 * **默认值**：未设置，因此每个 worktree 检出整个树
 
-以下示例在每个 worktree 中仅检出 `packages/my-app` 和 `shared/utils` 以及根级文件：
+请在列表中包含 `.claude`，以便每个 worktree 中也包含仓库的 `.claude/settings.json` 和 `.claude/rules/`。以下示例在每个 worktree 中仅检出 `.claude`、`packages/my-app` 和 `shared/utils` 以及根级文件：
 
 ```json settings.json theme={null}
 {
   "worktree": {
-    "sparsePaths": ["packages/my-app", "shared/utils"]
+    "sparsePaths": [".claude", "packages/my-app", "shared/utils"]
   }
 }
 ```

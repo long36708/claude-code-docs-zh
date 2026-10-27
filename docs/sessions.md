@@ -249,7 +249,7 @@ claude -p --resume <session-id> --output-format json "summarize what we changed"
 
 默认情况下，Claude Code 将文本记录存储为 JSONL，位置为 `~/.claude/projects/<project>/<session-id>.jsonl`，其中 `<project>` 是您的工作目录路径，非字母数字字符被替换为 `-`。对于转换后的名称超过 200 个字符的工作目录，Claude Code 将名称截断为 200 个字符，并附加完整路径的哈希值，以便目录名称保持在文件系统限制范围内。
 
-每行是消息、工具使用或元数据条目的 JSON 对象。条目格式是 Claude Code 的内部格式，在版本之间会发生变化，因此直接解析这些文件的脚本可能在任何版本上中断。要基于会话数据构建，请改用 `/export` 或 [脚本接口](#access-conversations-from-scripts)。
+每行是一个 JSON 对象：消息、工具使用或结果、Claude Code 向模型发送的请求的记录，或元数据条目。条目格式是 Claude Code 的内部格式，在版本之间会发生变化，因此直接解析这些文件的脚本可能在任何版本上中断。要基于会话数据构建，请改用 `/export` 或 [脚本接口](#access-conversations-from-scripts)。
 
 位置、保留期和写入行为是可配置的：
 

@@ -425,7 +425,7 @@ Claude Code 按每个 mod 的来源对链进行排序：
 * **它在调用 `next` 之前失败**：Claude Code 跳过它，下一个处理程序代替运行
 * **它在 `next` 解析后失败**：该结果成立，没有任何东西运行第二次
 
-一行内容会指明 mod、事件和原因，例如 `my-mod: tool.call hook skipped: threw Error: boom`。您读取它的位置取决于会话，如[找出 mod 为什么不做任何事](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)所列。其绘图未通过验证的 `ui.render` hook 的报告方式不同，如[从元素构建树](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements)所述。
+一行内容会指明 mod、事件和原因，例如 `my-mod: tool.call hook skipped: threw Error: boom`。您读取它的位置取决于会话，如[找出 mod 为什么不做任何事](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)所列。[树未通过验证](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements)的 `ui.render` hook 视为返回了错误形状结果的 hook。
 
 要使阻止调用的 hook 失败关闭，请添加一个 `.catch` 错误处理程序来代替回答。这里，`guard` 是您的 hook 函数，处理程序检查 [`next.called`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#the-hook-function) 来判断 `guard` 在失败时是否已经调用了 `next`：
 

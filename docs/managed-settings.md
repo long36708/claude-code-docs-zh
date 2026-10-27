@@ -407,7 +407,7 @@ Claude Code 仅从托管源读取以下密钥；将它们放在用户或项目�
 | [`managedMcpServers`](https://code.claude.com/docs/zh-CN/settings-reference#managedmcpservers) | 提供给每个用户的远程 MCP 服务器，与他们自己的一起。它提供服务器而不是锁定任何东西。请参阅[通过托管设置提供服务器](https://code.claude.com/docs/zh-CN/managed-mcp.md#provide-servers-through-managed-settings)。需要 Claude Code v2.1.259 或更高版本 |
 | [`managedSourcesBehavior`](https://code.claude.com/docs/zh-CN/settings-reference#managedsourcesbehavior) | Claude Code 是仅应用最高优先级托管源还是[组合它们中的每一个](#compose-every-managed-source) |
 | [`parentSettingsBehavior`](https://code.claude.com/docs/zh-CN/settings-reference#parentsettingsbehavior) | 主机提供的父设置是否在托管策略下合并 |
-| [`pluginSuggestionMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#pluginsuggestionmarketplaces) | Claude Code 可能向用户建议其插件的市场 |
+| [`pluginSuggestionMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#pluginsuggestionmarketplaces) | Claude Code 可以在终端中向用户建议其插件的市场 |
 | [`pluginTrustMessage`](https://code.claude.com/docs/zh-CN/settings-reference#plugintrustmessage) | 附加到安装前显示的插件信任警告的自定义消息 |
 | [`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper) | 在启动时计算托管设置的可执行文件；请参阅[使用策略助手计算托管设置](https://code.claude.com/docs/zh-CN/settings-reference.md#policyhelper) |
 | [`sandbox.filesystem.allowManagedReadPathsOnly`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-filesystem-allowmanagedreadpathsonly) | 当 `true` 时，仅尊重来自托管设置的 `filesystem.allowRead` 路径。`denyRead` 仍然从所有源合并 |

@@ -244,6 +244,7 @@
 | `MCP server "<name>" was not saved to` / `was not removed from` | [命令行错误](#mcp-server-was-not-saved-or-removed) |
 | `MCP server "<name>" may not have been saved` / `may not have been removed` | [命令行错误](#mcp-server-may-not-have-been-saved-or-removed) |
 | `Server rejected the Authorization header minted by the configured headersHelper` | [命令行错误](#server-rejected-the-authorization-header-minted-by-the-configured-headershelper) |
+| `This server (Java MCP SDK 0.17.0 or older) rejected Claude Code's elicitation capability` | [命令行错误](#mcp-server-rejected-the-elicitation-capability) |
 | `Error: MCP tool <name> (passed via --permission-prompt-tool) not found` | [命令行错误](#mcp-permission-prompt-tool-not-found) |
 | `OAuth callback port <port> is already in use — another process may be holding it` | [命令行错误](#oauth-callback-port-is-already-in-use) |
 | `No available ports for OAuth redirect` | [命令行错误](#no-available-ports-for-oauth-redirect) |
@@ -374,7 +375,7 @@
 | `This conversation is already open in another running Claude session` | [后台会话错误](#this-session-is-running-in-another-terminal) |
 | `This session's saved conversation is no longer on disk` | [后台会话错误](#this-sessions-saved-conversation-is-no-longer-on-disk) |
 | `Bypass permissions was requested at launch and ignored` | [后台会话中忽略了 Bypass permissions](https://code.claude.com/docs/zh-CN/permission-modes.md#bypass-permissions-ignored-in-a-background-session) |
-| `kept <id> — its worktree is still at <path>` | [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere) |
+| `kept <id> — its worktree is still at <path>` | 如果消息的下一行提到未推送的提交，请参阅 [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere)，否则请参阅 [删除会话会移除哪些内容](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes) |
 | `kept <id> — <n> unpushed commits on <branch>` | [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere) |
 | `kept <id> — worktree has commits that are not pushed anywhere` | [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere) |
 | `terminal host process died — press Enter to restart` / `This session's terminal host process died` | [后台会话错误](#terminal-host-process-died) |
@@ -3280,7 +3281,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请省略该标志。若要在此次运行中信任它，请将 PR 编号或基础分支放在标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了非标志的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请省略此标志。若要在本次运行中信任它，请将 PR 编号或基础分支放在标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
 
@@ -3473,6 +3474,37 @@ Claude Code 在每次连接尝试时都会重新运行该辅助程序，因此�
 
 在 v2.1.248 之前，对于由辅助程序提供 `Authorization` 标头的服务器，Claude Code 会运行 OAuth 发现。该发现过程可能以 `Incompatible auth server: does not support dynamic client registration` 失败，而不是报告被拒绝的凭据。
 
+### MCP server rejected the elicitation capability
+
+基于 Java MCP SDK 0.11.0 至 0.17.0 构建的 MCP 服务器拒绝了连接。这些 SDK 版本无法解析 Claude Code 在握手中声明的 `form` 和 `url` [elicitation 模式](https://code.claude.com/docs/zh-CN/mcp.md#elicitation-modes-claude-code-declares)。`claude mcp list` 会将该服务器显示为失败，并以此消息代替服务器自身的错误：
+
+```text theme={null}
+This server (Java MCP SDK 0.17.0 or older) rejected Claude Code's elicitation capability. Set "bareElicitationCapability": true for it, or upgrade to Java MCP SDK 0.17.1+ (Spring AI 1.0.7+ or 1.1.6+).
+```
+
+**解决方法：**
+
+* 将服务器升级到 Java MCP SDK 0.17.1 或更高版本，或升级到消息中列出的 Spring AI 版本之一
+* 或者在 MCP 配置中为该服务器的条目添加 `"bareElicitationCapability": true`，然后重启 Claude Code。该字段可用于 stdio、`sse`、`http` 和 `ws` 条目，需要 Claude Code v2.1.281 或更高版本
+
+以下 `.mcp.json` 条目为一个 HTTP 服务器设置了该字段：
+
+```json theme={null}
+{
+  "mcpServers": {
+    "inventory": {
+      "type": "http",
+      "url": "https://mcp.example.com/mcp",
+      "bareElicitationCapability": true
+    }
+  }
+}
+```
+
+重启后，`/mcp` 会将该服务器显示为已连接。Claude Code 仅向该服务器声明 form 模式，因此在升级服务器后请移除此字段。
+
+服务器也可能以其自身的错误文本失败，例如包含 `Unrecognized field "form"` 的错误。解决方法相同。
+
 ### 未找到 MCP 权限提示工具
 
 当运行首次需要权限决策时，您传给 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 的工具不在已连接的 MCP 工具之中，原因可能是其服务器从未连接，或者没有任何已连接的服务器公开该名称的工具。Claude Code 仍会发送您的提示词：[非交互](https://code.claude.com/docs/zh-CN/headless.md)运行会在第一次工具调用时以此错误和退出码 1 退出，因此即使请求已经发出，也不会产生回答。在第一个提示词之前，Claude Code 会等待该服务器连接，最长等待由 [`MCP_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars) 设置的每服务器连接超时时间 30 秒。在 v2.1.206 之前，启动时不会等待服务器完成连接，因此启动较慢但运行正常的服务器也会产生此错误。
@@ -3541,9 +3573,9 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查不允许它运行。[对注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 更改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
-* `No shell command in <name> was run`：文件中某个 `!` 命令包含除制表符或换行符之外的原始控制字符，因此所有命令都不会运行。请参阅[如何查找并移除该字符](#no-shell-command-was-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许其运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求在没有 bash 的机器上使用 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `No shell command in <name> was run`：该文件的某个 `!` 命令包含制表符或换行符以外的原始控制字符，因此所有命令都不会运行。请参阅[如何查找并删除该字符](#no-shell-command-was-run)
 
 **解决方法：**
 
@@ -3693,7 +3725,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会失败并报错 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并报错 `fatal: --unshallow on a complete repository does not make sense`。
 
 **解决方法：**
 
@@ -5083,12 +5115,12 @@ kept 7c5dcf5d — its worktree is still at “/home/you/project/.claude/worktree
 **要做什么：**
 
 * 要保留提交，推送 worktree 的分支，或将其合并到在主检出中检出的默认分支，然后再次删除会话
-* 要丢弃提交，运行消息打印的 `claude rm <id> --discard-unpushed` 命令，或在 Agent 视图中的会话行上再次按 `Ctrl+X` 两次。这会删除会话和 worktree 以及其分支、未推送的提交和任何未提交的更改。如果 worktree 自拒绝以来获得了提交，Claude Code 再次保留它并显示更新的状态
+* 要丢弃提交，运行消息打印的 `claude rm <id> --discard-unpushed` 命令，或在 Agent 视图中的会话行上再次按 `Ctrl+X` 两次。这会删除会话和 worktree 以及其分支、未推送的提交和任何未提交的更改。如果删除再次被拒绝，请按照新消息操作。
 * 当消息说 worktree 也由另一个完成的会话记录时，再次删除不会丢弃它：推送提交，然后再次删除会话
 
 在 v2.1.268 之前，`claude rm` 将提交摘要放在 `kept` 行本身上。当 `claude rm` 无法总结提交时，`kept` 行读取 `worktree has commits that are not pushed anywhere` 代替摘要。
 
-在 v2.1.260 之前，消息没有命名分支或提交，再次删除被拒绝的方式相同：删除会话而不推送意味着使用 `git worktree remove --force <path>` 自己删除 worktree，然后再次运行 `claude rm <id>`。
+在 v2.1.260 之前，消息没有命名分支或提交，也没有丢弃途径。您仍然可以删除会话，这会丢失未提交的更改，但保留分支和提交。使用拒绝消息打印的路径运行 `git worktree remove --force --force <path>`，然后运行 `claude rm <id>`。对于已锁定的 worktree，Git 需要两次 `--force`。
 
 在 v2.1.248 之前，在主检出中检出的默认分支不计数：您已经合并到那里的分支仍然触发此拒绝，直到其提交到达远程。
 

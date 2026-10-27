@@ -1624,7 +1624,16 @@ MCP 服务器可以在任务进行中使用引出功能向你请求结构化输�
 
 如果你正在构建使用引出功能的 MCP 服务器，请参阅 [MCP 引出规范](https://modelcontextprotocol.io/docs/learn/client-concepts#elicitation) 了解协议详情和架构示例。
 
-在使用 [protocol revision 2026-07-28](#mcp-client-runtimes) 的连接上，Claude Code 在其客户端功能中声明 `elicitation: {form: {}, url: {}}`，因此该处的服务器可以通过协议的标准引出请求来请求任一模式。
+### Claude Code 声明的引出模式
+
+如果您构建 MCP 服务器，Claude Code 在连接时发送的客户端功能会告知您的服务器可以请求哪些引出模式。Claude Code 在以下连接上声明 `elicitation: {form: {}, url: {}}`，因此其中任何连接上的服务器都可以请求这两种模式：
+
+* 使用 [protocol revision 2026-07-28](#mcp-client-runtimes) 的连接
+* 在较早的协议修订版（2025-11-25 及更早版本）上，与用户 Claude Code MCP 配置中的 stdio、`sse`、`http` 和 `ws` 服务器建立的连接。需要 Claude Code v2.1.287 或更高版本
+
+在较早修订版上的其他连接中，例如与 [claude.ai 连接器](#use-mcp-servers-from-claude-ai)的连接，Claude Code 声明的是不带内容的 `elicitation: {}`，这仅允许表单模式的引出请求。
+
+基于 Java MCP SDK 0.17.0 或更早版本构建的服务器可能会拒绝包含 `form` 和 `url` 的声明。请参阅 [MCP server rejected the elicitation capability](https://code.claude.com/docs/zh-CN/errors.md#mcp-server-rejected-the-elicitation-capability)。
 
 ## 使用 MCP 资源
 

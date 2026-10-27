@@ -403,7 +403,7 @@ Claude Code 仅针对它显示的存档 URL 运行它显示的命令。如果条
 
 对于版本范围、它们解析的 `<plugin>--v<version>` git 标签约定和跨 marketplace 信任，请参阅 [插件依赖](https://code.claude.com/docs/zh-CN/plugins/dependencies.md)。
 
-要在项目匹配时让 Claude Code 建议插件，向条目添加 `relevance` 块，其中包含识别项目的信号。用户仅在管理员在 `pluginSuggestionMarketplaces` 中列出你的 marketplace 时才看到来自你的 marketplace 的建议。对于信号和启用步骤，请参阅 [插件相关性](https://code.claude.com/docs/zh-CN/plugins/relevance.md)。
+要在项目匹配时让 Claude Code 建议某个插件，请向条目添加 `relevance` 块，其中包含用于识别该项目的信号。仅当管理员在 `pluginSuggestionMarketplaces` 中列出您的市场时，用户才会看到这些建议。有关信号和启用步骤，请参阅[插件相关性](https://code.claude.com/docs/zh-CN/plugins/relevance.md)。
 
 ## 解决 marketplace 无法做的事情
 

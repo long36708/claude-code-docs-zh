@@ -312,14 +312,14 @@ test('the second tab counts presses and saves the count', async ($, on) => {
 | 方法 | 它做什么 |
 | :- | :- |
 | `press({ key: 'more' })` | 按下具有该 key 的 `Button` |
-| `input({ key: 'new-note', text: 'buy milk' })` | 将文本输入到具有该 key 的 `Input` 中并按 Enter。添加 `kind: 'change'` 以输入而不提交。 |
+| `input({ key: 'new-note', text: 'buy milk' })` | 将文本输入到具有该 key 的 `Input` 中并按 Enter。添加 `kind: 'change'` 以输入而不提交。对于带有 `rows` 的字段，文本中可以包含 `\n`。 |
 | `select({ key: 'size', value: 'large' })` | 在具有该 key 的 `Select` 中选择具有该值的选项 |
 | `find({ key: 'more' })` 或 `find({ type: 'Text', text: 'Count: 2' })` | 返回第一个匹配的元素作为 `{ type, props, children }`，或 `undefined`。`text` 可以是字符串或正则表达式。 |
 | `unmount()` | 移除绘图 |
 
 每个方法在您的处理程序完成后解析，因此您可以在下一行检查结果。将 `props` 设置为 Claude Code 为该站点传递的内容。[render sites table](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites) 列出每个站点的 props，[您的构建的类型](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build) 有它们的类型。
 
-绘图测试检查您的 hook 返回的树以及它对该应用是否有效。它不检查应用如何绘制它，因此也在真实会话中查看新布局。
+要捕获对您在 `surface` 中指定的应用无效的[元素树](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#build-a-tree-from-elements)，请使用 `find` 检查您的 hook 添加的某个元素。测试不检查应用如何绘制树，因此也请在真实会话中查看新布局。
 
 ### 在 `/clear` 后测试绘图
 
