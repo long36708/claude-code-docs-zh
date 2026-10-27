@@ -176,7 +176,7 @@ CLI 和 Desktop 表面共享相同的 computer use 引擎，有一些差异：
 | 功能 | Desktop | CLI |
 | :- | :- | :- |
 | 平台 | macOS 和 Windows | 仅 macOS |
-| 启用 | **Settings > This computer > System** 中的切换 | 在 `/mcp` 中启用 `computer-use` |
+| 启用 | [设置](https://code.claude.com/docs/zh-CN/desktop.md#enable-computer-use) 中的切换 | 在 `/mcp` 中启用 `computer-use` |
 | 拒绝应用列表 | 在设置中可配置 | 尚不可用 |
 | 自动取消隐藏切换 | 可选 | 始终开启 |
 | Dispatch 集成 | Dispatch 生成的会话可以使用 computer use | 不适用 |

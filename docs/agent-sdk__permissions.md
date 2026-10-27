@@ -43,6 +43,7 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 应用活跃的 [权限模式](#permission-modes)：
 
 * 在 `bypassPermissions` 模式下，Claude Code 批准到达此步骤的所有内容，除了被识别出的 [关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths) 以及被标记为 [`Dangerous rm operation not ruled out`](https://code.claude.com/docs/zh-CN/permission-modes#dangerous-rm-operation-not-ruled-out) 的 Bash 命令，这些会传递下去。
+  * 若要在没有提示的情况下运行这些删除操作，请参阅 [关闭关键路径删除提示](https://code.claude.com/docs/zh-CN/permission-modes.md#turn-off-the-critical-path-removal-prompt-in-bypasspermissions-mode)。
 * 在 `acceptEdits` 模式下，Claude Code 批准 [接受编辑模式](#accept-edits-mode-acceptedits) 下列出的文件操作。
 * 在 `plan` 模式下，无论允许规则如何，Claude Code 都会将文件编辑工具发送到您的 `canUseTool` 回调。
 * 在其他模式下，请求传递下去。
@@ -305,7 +306,7 @@ main();
 > `allowed_tools` 不会约束此模式。每个工具都会被批准，而不仅仅是您列出的工具。以下控制措施仍然适用：
 >
 > * 拒绝规则、显式 `ask` 规则和 hook 会在模式检查之前进行评估，仍然可以阻止工具。
-> * [您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、需要用户交互的工具以及被识别出的[关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)仍会交给您的 `canUseTool` 回调处理。识别这些删除操作的检查[可能会漏掉某些命令](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)。在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)之外，对您的应用程序[标记为 `always_ask`](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools#require-approval-for-specific-tools) 的自定义工具的调用也会交给该回调处理。
+> * [您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具、需要用户交互的工具以及被识别出的[关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)仍会交给您的 `canUseTool` 回调处理。识别这些删除操作的检查[可能会漏掉某些命令](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)，您也可以[关闭关键路径删除提示](https://code.claude.com/docs/zh-CN/permission-modes.md#turn-off-the-critical-path-removal-prompt-in-bypasspermissions-mode)。在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)之外，对您的应用程序[标记为 `always_ask`](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools#require-approval-for-specific-tools) 的自定义工具的调用也会交给该回调处理。
 > * [跨会话消息传递保护措施](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)仍然适用。
 
 #### 计划模式（`plan`）

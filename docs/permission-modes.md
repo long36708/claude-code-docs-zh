@@ -31,7 +31,7 @@
 
 ### 任何模式都不会自动批准的操作
 
-Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypassPermissions`。每个项目符号链接到说明在每种模式下会发生什么的部分：
+Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypassPermissions`，不过您可以在 `bypassPermissions` 模式下 [关闭针对危险 `rm` 命令的提示](#turn-off-the-critical-path-removal-prompt-in-bypasspermissions-mode)。每个项目符号链接到说明在每种模式下会发生什么的部分：
 
 * 与显式 [询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions) 匹配的工具
 * 您的组织 [设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，在该设置到达 Claude Code 的会话中
@@ -649,7 +649,7 @@ claude --permission-mode dontAsk
 
 `bypassPermissions` 模式禁用权限提示和安全检查，以便工具调用立即执行，包括对[受保护路径](#protected-paths)的写入。
 
-即使在 `bypassPermissions` 模式下，每项[任何模式都不会自动批准的操作](#actions-no-mode-auto-approves)也会触发提示或被拒绝，而不会自行运行。读取[其他组织的公开 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) 需要您的批准，而此模式不会请求批准，因此 Claude 无法读取此类 Artifact。[PowerShell 中的 Remove-Item](#remove-item-in-powershell) 拒绝也适用于此模式。
+即使在 `bypassPermissions` 模式下，每项[任何模式都不会自动批准的操作](#actions-no-mode-auto-approves)也会触发提示或被拒绝，不过您可以[关闭针对危险 `rm` 命令的提示](#turn-off-the-critical-path-removal-prompt-in-bypasspermissions-mode)。读取[其他组织的公开 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) 需要您的批准，而此模式不会请求批准，因此 Claude 无法读取此类 Artifact。[PowerShell 中的 Remove-Item](#remove-item-in-powershell) 拒绝也适用于此模式。
 
 两个[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)保护措施在此模式下仍然适用，在可使用绕过权限的交互式终端计划模式会话中同样适用：
 
@@ -861,7 +861,7 @@ Dangerous rm operation not ruled out — the shell may read this command differe
 This command could not be checked for dangerous rm operations: the shell may read it differently than it was parsed.
 ```
 
-您会收到关键路径移除[在您的权限模式下](#critical-path-removals-in-each-permission-mode)会收到的提示或拒绝，`bypassPermissions` 也不例外。您无法通过 `Bash` 或 `Bash(*)` 允许规则、沙箱[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#auto-allow-mode)或返回 `"allow"` 的 `PreToolUse` hook 批准该命令。请阅读该命令，然后批准提示，或者在被拒绝后在您的 shell 中运行它。
+您会收到关键路径移除[在您的权限模式下](#critical-path-removals-in-each-permission-mode)会收到的提示或拒绝，`bypassPermissions` 也不例外，不过在 `bypassPermissions` 模式下您可以[关闭该提示](#turn-off-the-critical-path-removal-prompt-in-bypasspermissions-mode)。您无法通过 `Bash` 或 `Bash(*)` 允许规则、沙箱[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#auto-allow-mode)或返回 `"allow"` 的 `PreToolUse` hook 批准该命令。请阅读该命令，然后批准提示，或者在被拒绝后在您的 shell 中运行它。
 
 ### 挂载驱动器提示
 
@@ -923,6 +923,8 @@ Claude Code 对关键路径移除的处理取决于您的权限模式：
 
 如果显式[询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)与命令匹配，Claude Code 即使在 `auto` 模式下也会询问您，且没有时间限制。在询问的模式中，[`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 可以回答提示。
 
+要在 `bypassPermissions` 模式下不经提示运行这些移除，请参阅[关闭关键路径移除提示](#turn-off-the-critical-path-removal-prompt-in-bypasspermissions-mode)。
+
 ### auto 和 bypassPermissions 模式中的时间限制和拒绝
 
 在 `auto` 和 `bypassPermissions` 模式下，关键路径移除的终端提示显示两分钟倒计时：
@@ -939,7 +941,7 @@ Claude Code 对关键路径移除的处理取决于您的权限模式：
 | :- | :- | :- |
 | [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)的聊天面板 | 拒绝它 | 拒绝它，除非 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 允许它 |
 | [桌面应用](https://code.claude.com/docs/zh-CN/desktop.md) | 拒绝它 | 拒绝它，除非 `PermissionRequest` hook 允许它 |
-| [`-p` 运行](https://code.claude.com/docs/zh-CN/headless)或 [Agent SDK 会话](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md) | 拒绝它 | 由您的 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input#handle-tool-approval-requests)决定。如果两者都没有，或者在 [`--permission-prompts none`](https://code.claude.com/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs) 下，则拒绝它，除非 `PermissionRequest` hook 允许它 |
+| [`-p` 运行](https://code.claude.com/docs/zh-CN/headless)或 [Agent SDK 会话](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md) | 拒绝它 | 由您的 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input#handle-tool-approval-requests)决定。如果两者都没有，或者在 [`--permission-prompts none`](https://code.claude.com/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs) 下，则拒绝它，除非 `PermissionRequest` hook 允许它。若要改为不经提示运行这些移除，请参阅[关闭关键路径移除提示](#turn-off-the-critical-path-removal-prompt-in-bypasspermissions-mode) |
 
 无论在何处拒绝了该移除，您都可以阅读完整命令并在您的 shell 中运行它。
 
@@ -957,6 +959,63 @@ Claude Code 对关键路径移除的处理取决于您的权限模式：
   ]
 }
 ```
+
+### 在 bypassPermissions 模式下关闭关键路径移除提示
+
+要在 `bypassPermissions` 模式下不经提示运行针对[关键路径](#critical-paths)的 Bash `rm` 和 `rmdir` 命令，请在环境中设置 [`CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS=1`](https://code.claude.com/docs/zh-CN/env-vars#variables) 后启动 Claude Code。这需要 Claude Code v2.1.311 或更高版本。Claude Code 仅从启动环境读取该变量，并会[忽略设置文件 `env` 块中的该变量](https://code.claude.com/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)。例如，在[您的 shell](https://code.claude.com/docs/zh-CN/env-vars.md#set-variables-in-your-shell) 中设置该变量，然后从中启动 `claude`：
+
+**macOS, Linux, WSL**
+
+```bash theme={null}
+export CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS=1
+claude --permission-mode bypassPermissions
+```
+
+**Windows PowerShell**
+
+```powershell theme={null}
+$env:CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS = "1"
+claude --permission-mode bypassPermissions
+```
+
+**Windows CMD**
+
+```batch theme={null}
+set CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS=1
+claude --permission-mode bypassPermissions
+```
+
+> [!WARNING]
+>
+> 设置此变量后，您将失去针对破坏性删除的安全提示：`rm -rf ~` 之类的命令可能会在不询问您的情况下运行。请仅在内容丢失也无妨的[隔离环境](#skip-all-checks-with-bypasspermissions-mode)中设置它。
+
+只有在 `bypassPermissions` 模式本身下（而非计划模式下），且仅对于关键路径检查在 Bash 和 [Monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool) 工具中标记的内容，移除才会不经提示运行。这包括 Claude Code 无法完全解析的命令，这些命令同样会不经提示运行。
+
+#### 关于关键路径移除提示的启动通知
+
+要检查 `CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS` 是否生效，请查看 Claude Code 在启动时打印的那一行。在 `-p` 运行中，它输出到 stderr。在 Agent SDK 应用中，传入 [`stderr` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)即可读取它。该行内容为以下之一：
+
+* **`is set, so dangerous rm commands can run without a prompt`**：托管设置和插件 hook 加载完成后，移除即可不经提示运行。如果移除仍然收到提示或拒绝，请参阅[关键路径移除提示为何仍然开启](#why-the-critical-path-removal-prompt-stays-on)
+* **`has no effect in this session`**：在整个会话中，移除保持其通常的提示或拒绝。要改变这一点，请在[关键路径移除提示为何仍然开启](#why-the-critical-path-removal-prompt-stays-on)中找到您的情况
+* **`has no effect while the Windows registry cannot be read for managed settings`**：移除保持其通常的提示或拒绝；如果之后读取注册表成功，该变量无需重启即可生效。如果移除仍然收到提示或拒绝，请参阅[关键路径移除提示为何仍然开启](#why-the-critical-path-removal-prompt-stays-on)
+
+没有该行并不意味着提示处于开启状态：未设置 `stderr` 选项的 Agent SDK 应用看不到该行，但移除仍可能不经提示运行。否则，请检查您是否在启动环境中设置了该变量、会话是否[能够进入 `bypassPermissions` 模式](#skip-all-checks-with-bypasspermissions-mode)，以及 `claude` 是否运行在另一个会话内部。某些会话[启动时不带该变量](#why-the-critical-path-removal-prompt-stays-on)。
+
+如果您看到其中某一行但并未设置该变量，请找到设置它的位置（例如您的 shell 配置文件）并将其移除。
+
+#### 关键路径移除提示为何仍然开启
+
+如果 `CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS` 没有效果，移除保持其[通常的提示或拒绝](#critical-path-removals-in-each-permission-mode)，请检查以下原因：
+
+* **其他机制处理权限提示**：未配合 [`--permission-prompts none`](https://code.claude.com/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs) 使用的 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 Agent SDK [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input)、带有任意匹配器的 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest)，或处理该事件的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#hook-the-settings-hook-events)。移除该 hook、mod、工具或回调，然后重新启动 `claude`
+* **会话由 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)的聊天面板或[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)运行**：改为在终端中启动 `claude`，例如 IDE 的集成终端
+* **有规则覆盖 Bash、Edit 或 Read**：针对其中某个工具的[拒绝或询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)，无论是在启动时存在，还是在会话期间被 Claude Code 读取，即使您之后将其移除也是如此。移除该规则并重新启动 `claude`。要排除某个工具，请使用 [`--tools`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 而不是拒绝规则
+* **[`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 已开启**：从每个将其设置为 `true` 的设置文件中移除该设置，然后重新启动 `claude`
+* **`claude` 在另一个会话内部运行**：从某个会话的 Bash 工具或 hook 启动的 `claude`，即使其命令行中带有该变量。请从您自己的 shell 启动 `claude`。不要将这一嵌套会话限制当作安全边界
+* **`PreToolUse` hook 对移除返回 `ask`**：更改该 hook 的返回值
+* **Claude Code 为您启动会话**：[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)、分屏窗格中的 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友，以及 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 服务器创建的会话，启动时都不带该变量。请从您自己的 shell 启动 `claude`
+* **无法读取托管设置**：Claude Code 尚未成功读取您的[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)来源。如果服务器托管设置持续加载失败，请参阅[Remote managed settings failed to load](https://code.claude.com/docs/zh-CN/errors.md#remote-managed-settings-failed-to-load)。对于注册表查询以外的任何其他失败，请联系该来源的管理者进行修复
+* **无法查询 Windows 注册表**：在 Windows 和 WSL 中，该变量需要从注册表获得应答，即使 [WSL 不将其用于设置](https://code.claude.com/docs/zh-CN/settings-reference.md#wslinheritswindowssettings)也是如此。在非英语 Windows、关闭了互操作的 WSL，或 WSL2 内核上的容器中，该查询可能在整个会话中都失败。如果互操作已关闭，请将其开启。否则，请自行运行这些移除
 
 ### PowerShell 中的 Remove-Item
 

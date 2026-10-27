@@ -89,7 +89,7 @@ mkdir -p /etc/claude
 (umask 077 && cat > /etc/claude/environment-secret)
 ```
 
-选择一个基目录，将下面运行器命令中的 `<writable-dir>` 替换为运行器可以写入或创建的绝对路径。运行器在启动时创建目录，然后检查存储库并在其下创建每个会话的目录。没有 `--base-dir`，它使用 `/workspace`，这仅在该目录已存在且可写或您以 root 身份启动运行器时有效。
+选择一个基目录，将下面运行器命令中的 `<writable-dir>` 替换为运行器可以写入或创建的绝对路径。运行器在启动时创建目录，然后检出仓库并在其下创建每个会话的目录。没有 `--base-dir`，它使用 `/workspace`，这仅在该目录已存在且可写或您以 root 身份启动运行器时有效。
 
 > [!WARNING]
 >

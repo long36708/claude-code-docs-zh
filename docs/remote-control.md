@@ -192,7 +192,7 @@ claude --remote-control "My Project"
 VS Code 扩展和 Desktop 应用也有自动连接开关：
 
 * **VS Code 扩展**：[命令菜单](https://code.claude.com/docs/zh-CN/vs-code.md#use-the-prompt-box)的设置部分中的**为所有会话启用远程控制**。
-* **Desktop 应用**：**Settings > Claude Code > Connect new sessions to Remote Control**。请参阅[控制哪些会话出现在您的其他设备上](https://code.claude.com/docs/zh-CN/desktop.md#control-which-sessions-appear-on-your-other-devices)。
+* **Desktop 应用**：**Settings > Code** 或 **Settings > Claude Code** 中的 **Connect new sessions to Remote Control**。请参阅[控制哪些会话出现在您的其他设备上](https://code.claude.com/docs/zh-CN/desktop.md#control-which-sessions-appear-on-your-other-devices)。
 
 要改为从设置文件打开自动连接，请在您的用户 `~/.claude/settings.json` 或[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中将 [`remoteControlAtStartup`](https://code.claude.com/docs/zh-CN/settings-reference#remotecontrolatstartup) 设置为 `true`。在项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中，Claude Code 遵守 `false` 并为该存储库关闭自动连接，但忽略 `true`，因此已检入的文件无法为打开存储库的每个人打开远程控制。
 
@@ -363,7 +363,7 @@ Claude 决定何时推送。它通常在长时间运行的任务完成时或需�
   * 文本输出命令：`/compact`、`/clear`、`/context`、`/usage`、`/exit`、`/usage-credits`、`/recap` 和 `/reload-plugins`。`/usage-credits` 会打印计费 URL，而不是打开浏览器。`/reload-plugins` 仅在会话运行于交互式终端中时有效；没有交互式终端的会话会拒绝执行该命令。
   * `/model`、`/effort`、`/fast`、`/color` 和 `/rename`：将值作为参数传递，例如 `/model sonnet` 或 `/effort high`。在移动端和 Web 端，`/model` 和 `/effort` 接受参数，以代替终端中的选择器或滑块。
   * `/mcp`：在移动应用中，返回服务器状态的文本摘要，而不是打开选择器。在 Web 端，单独使用 `/mcp` 会打开 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)目录，而不是返回摘要。当会话运行于交互式终端中时，`reconnect`、`enable` 和 `disable` [子命令](https://code.claude.com/docs/zh-CN/commands.md#all-commands)在两端均可使用。不带服务器名称的 `/mcp reconnect` 会重试所有失败或需要身份验证的服务器。要在不使用选择器的情况下授权 claude.ai 连接器，请参阅[从 shell 重新授权连接器](#authorize-a-connector-again-from-your-shell)。
-  * `/config`：在移动应用中，传递 `key=value` 可更改设置项，或不带参数运行以列出可设置的键。在 Web 端，`/config` 会改为打开您设置中的 Claude Code 部分。
+  * `/config`：在移动应用中，传递 `key=value` 可更改设置项，或不带参数运行以列出可设置的键。在 Web 端，`/config` 会改为打开 **Settings > Code** 或 **Settings > Claude Code**。
   * 在 Team 和 Enterprise 版本中，从移动端或 Web 端运行 `/usage-credits` 不会[向您的管理员发送使用额度请求](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)。发送请求需要一个仅在交互式 CLI 中出现的确认，因此该命令会提示您改为在 CLI 中运行。
   * `/autocompact`，自 v2.1.221 起：将窗口大小作为参数传递，例如 `/autocompact 500k`。不带参数时，它会以文本形式打印当前窗口大小，而不是打开该命令在终端会话中显示的对话框。
   * `/advisor`，自 v2.1.260 起：将模型作为参数传递，例如 `/advisor opus`，或传递 `off` 以关闭 advisor。两种形式都仅应用于当前会话，不会更改您保存的默认值。不带参数时，它会以文本形式打印当前的 advisor，而不是打开选择器。

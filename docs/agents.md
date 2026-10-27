@@ -32,7 +32,7 @@ Claude Code 有五种方式可以同时处理多个任务：[子代理](https://
 
 > [!NOTE]
 >
-> 同时运行多个会话或子代理会增加令牌使用量。有关使用情况和速率限制详情，请参阅 [Costs](https://code.claude.com/docs/zh-CN/costs.md)。
+> 同时运行多个会话或子代理会成倍增加 token 使用量。有关使用情况和速率限制详情，请参阅 [Costs](https://code.claude.com/docs/zh-CN/costs.md)。
 
 ## 选择一种方法
 

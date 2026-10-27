@@ -262,20 +262,23 @@ Claude 会自动将这些偏好保存到[项目内存](#give-a-project-standing-
 
 在具有任务需要的文件夹的计算机上，通过以下两种方式之一通过远程控制使其可用。两者都需要该计算机上的 Claude Code v2.1.280 或更高版本。
 
-* **在 Claude 桌面应用中**：打开**设置 > Claude Code**，打开**从你的手机和 claude.ai 使用此计算机**，并将文件夹添加到该开关下的列表中。当应用打开时，线程可以在此计算机上运行。
-* **在终端中**：在文件夹中运行`claude remote-control`并让其保持运行。在 git 存储库中，添加`--spawn worktree`以为那里的每个线程提供其自己的 [worktree](https://code.claude.com/docs/zh-CN/worktrees.md)，而不是文件夹本身。
+* **在 Claude 桌面应用中**：打开**设置 > Code** 或**设置 > Claude Code**，然后启用**从您的手机和 claude.ai 使用此计算机**。将文件夹添加到该开关下方的列表中。应用打开期间，线程可以在此计算机上运行。
+* **在终端中**：在文件夹中运行 `claude remote-control` 并保持其运行。在 git 仓库中，添加 `--spawn worktree` 可为在那里运行的每个线程提供其自己的 [worktree](https://code.claude.com/docs/zh-CN/worktrees.md)，而不是使用文件夹本身。
 
-**2. 使用本地工作要求任务**
+**2. 使用本地工作提出任务**
 
-在项目对话中，从消息框旁边的\*\*+**菜单中选择**本地工作\*\*，它会标记你的消息为**本地**，并写下你想要完成的内容。在消息中说任务应该在你的计算机上运行也可以。
+在项目对话中，从消息框旁边的 **+** 菜单中选择**本地工作**，这会为您的消息添加**本地**标记，然后写下您想要完成的内容。在消息中说明该任务应在您的计算机上运行也同样有效。
 
-**3. 在卡片上允许它**
+**3. 在卡片上允许**
 
-Claude 会回答一张**允许 Claude 在你的设备上的文件夹中工作**卡片。如果你连接了多个，请选择文件夹。两个线程在一个文件夹中同时工作可能会覆盖彼此的更改，因此如果文件夹是 git 存储库，你可以在文件夹的选项中打开**Worktree** 以为此线程提供其自己的 worktree 而不是。然后点击**允许一次**。
+Claude 会回复一张**允许 Claude 在您设备上的文件夹中工作**卡片。如果您连接了多个文件夹，请选择其中一个。两个线程同时在同一文件夹中工作可能会覆盖彼此的更改，因此如果该文件夹是 git 仓库，您可以在文件夹的选项中启用 **Worktree**，为此线程提供其自己的 worktree。然后点击**允许一次**。
 
 线程在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中运行，因此 Claude 在该文件夹中运行命令和编辑文件而不每次都询问你。如果自动模式在该计算机的 Claude Code 中不可用或已关闭，线程在没有它的情况下运行，它引发的任何权限提示都会在线程中等待你的答案，如[解除等待批准的线程](#unblock-a-thread-waiting-on-approval)所述。
 
-当线程运行时，其标题中的笔记本电脑图标显示你的计算机是否已连接。点击它可以查看线程使用的文件夹或关闭连接。当该计算机处于睡眠状态时线程暂停，如果桌面应用或`claude remote-control`退出则停止。[失去与你的文件夹的联系](#lost-contact-with-your-folder)涵盖了让它再次运行。在桌面应用中，在**设置 > Claude Code**下打开**为远程控制保持此计算机唤醒**以阻止计算机自动睡眠。
+线程运行时，其标题中的笔记本电脑图标会显示您的计算机是否已连接。点击该图标可查看线程正在使用哪个文件夹，或关闭连接。当该计算机处于睡眠状态时，线程会暂停；如果桌面应用或 `claude remote-control` 退出，线程会停止。
+
+* **要让线程重新运行**：请参阅[与您的文件夹失去联系](#lost-contact-with-your-folder)
+* **要防止计算机自动进入睡眠**：在桌面应用中，在**设置 > Code** 或**设置 > Claude Code** 中启用**为 Remote Control 保持此计算机唤醒**
 
 当[**需要受信任的设备**](https://code.claude.com/docs/zh-CN/remote-control.md#trusted-devices)对你的账户打开时，项目无法在你的计算机上运行线程。
 
@@ -489,7 +492,10 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 
 ### 与您的文件夹失去联系
 
-在您的计算机上运行的线程在 Claude Code 会话停止响应时显示此消息，通常是因为计算机进入睡眠状态或桌面应用或 `claude remote-control` 退出。唤醒计算机，如果桌面应用或 `claude remote-control` 不再在那里运行，请重新启动它：重新打开应用并确认 **Use this computer from your phone and claude.ai** 仍在 **Settings > Claude Code** 下打开，或在同一文件夹中再次运行 `claude remote-control`。
+在您的计算机上运行的线程在该处的 Claude Code 会话停止响应时显示此消息，通常是因为计算机进入睡眠状态，或桌面应用或 `claude remote-control` 退出。唤醒计算机。如果桌面应用或 `claude remote-control` 不再在那里运行，请重新启动它：
+
+* **桌面应用**：重新打开应用，并确认 **Settings > Code** 或 **Settings > Claude Code** 下的 **Use this computer from your phone and claude.ai** 仍处于打开状态
+* **终端**：在同一文件夹中再次运行 `claude remote-control`
 
 ### 其他消息
 

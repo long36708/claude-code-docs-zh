@@ -2392,6 +2392,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 * [`CLAUDE_CODE_RESTRICTED`](https://code.claude.com/docs/zh-CN/env-vars#variables) 仅由 Claude Code 从启动环境中读取，在所有文件中都会被忽略。
 * [`CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY`](https://code.claude.com/docs/zh-CN/env-vars#variables) 仅由 Claude Code 从启动环境中读取，在所有文件中都会被忽略。该变量需要 Claude Code v2.1.283 或更高版本。
 * [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`、`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`、`CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT` 和 `CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT`](https://code.claude.com/docs/zh-CN/env-vars#variables) 仅由 Claude Code 从启动环境中读取，在所有文件中都会被忽略。
+* [`CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 仅由 Claude Code 从启动环境中读取，在所有文件中都会被忽略。
 * [`CLAUDE_CODE_WARN_DISK_FREE_GIB` 和 `CLAUDE_CODE_WARN_MEMORY_FREE_GIB`](https://code.claude.com/docs/zh-CN/env-vars#variables) 仅由 Claude Code 从启动环境中读取，在所有文件中都会被忽略。这些变量需要 Claude Code v2.1.304 或更高版本。
 
 ### `fileCheckpointingEnabled`

@@ -600,7 +600,7 @@ Use the Playwright tools to navigate, screenshot, and interact with pages.
 | `default` | Manual 模式：提示请求权限 |
 | `acceptEdits` | 对于工作目录或 `additionalDirectories` 中的路径，自动接受文件编辑和常见文件系统命令 |
 | `auto` | [自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)：后台分类器审查命令和对受保护目录的写入 |
-| `dontAsk` | 自动拒绝会触发提示的调用，但您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍可批准[其中部分调用](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。明确允许的工具仍可使用。`AskUserQuestion`、标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)，以及在该设置能作用到 Claude Code 的会话中[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，即使您已允许也会被拒绝 |
+| `dontAsk` | 自动拒绝会触发提示的调用，但您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍可批准[其中部分调用](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。明确允许的工具仍可使用。`AskUserQuestion`、标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)，以及在该设置到达 Claude Code 的会话中[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，即使您已允许也会被拒绝 |
 | `bypassPermissions` | [跳过权限提示](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)。只有当主对话处于此模式时，子代理才会以此模式运行 |
 | `plan` | 计划模式（只读探索） |
 

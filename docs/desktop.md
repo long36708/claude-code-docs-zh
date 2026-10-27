@@ -69,7 +69,7 @@ Claude 回复后，Code 选项卡可能会在空的输入框中以灰色文本�
 * **使用建议**：按 **Tab** 或 **右箭头** 将其放入输入框，根据需要进行编辑，然后按 **Enter** 发送。在接受建议之前按 **Enter** 不会发送它。
 * **编写自己的提示词**：直接开始输入。建议仅在输入框为空且没有附加文件时显示。
 
-前往 **Settings > Claude Code**，在 **Sessions** 下关闭 **Prompt suggestions**，即可从每个会话下次启动或恢复时起停止显示建议。
+在 **Settings > Code** 或 **Settings > Claude Code** 中关闭 **Prompt suggestions** 即可停止显示建议。每个会话会在下次启动或恢复时停止显示建议。
 
 ### 向提示添加文件和上下文
 
@@ -92,7 +92,7 @@ Claude 回复后，Code 选项卡可能会在空的输入框中以灰色文本�
 | **Accept edits** | `acceptEdits` | Claude 自动接受文件编辑和常见的文件系统命令，如 `mkdir`、`touch` 和 `mv`，但在运行其他终端命令之前仍会询问。当您信任文件更改并希望更快迭代时，请使用此选项。 |
 | **Plan** | `plan` | Claude 读取文件并运行命令进行探索，然后提出计划而不编辑您的源代码。适合复杂任务，您想先审查方法。 |
 | **Auto** | `auto` | Claude 运行时不需要常规提示；在执行 shell 命令和网络请求等操作之前，后台分类器会检查它们是否与您的请求一致。当[自动模式可用](#auto-mode-availability)时出现；没有单独的设置切换。 |
-| **Bypass permissions** | `bypassPermissions` | Claude 运行时不需要权限提示，除了[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)、当 Claude [在外部网站上操作](#browse-external-sites)时的安全分类器，或删除会话等桌面操作（但[归档会话](#work-across-sessions)不在此列）。等同于 CLI 中的 `--dangerously-skip-permissions`。在 Pro 和 Max 计划上，在您的设置 → Claude Code 中启用它，在"Allow bypass permissions mode"下；在 Team 和 Enterprise 计划上没有设置切换，由组织策略控制它。仅在沙箱容器或虚拟机中使用。 |
+| **Bypass permissions** | `bypassPermissions` | Claude 运行时不需要权限提示，除了[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)、当 Claude [在外部网站上操作](#browse-external-sites)时的安全分类器，或删除会话等桌面操作（但[归档会话](#work-across-sessions)不在此列）。等同于 CLI 中的 `--dangerously-skip-permissions`。在 Pro 和 Max 计划上，请在 **Settings > Code** 或 **Settings > Claude Code** 中启用"Allow bypass permissions mode"。在 Team 和 Enterprise 计划上没有设置切换，而是由组织策略控制它。仅在沙箱容器或虚拟机中使用。 |
 
 Code 选项卡的早期版本将这些模式标记为 Ask permissions、Auto accept edits 和 Plan mode。
 
@@ -133,7 +133,7 @@ Claude 可以启动开发服务器并在浏览器窗格中打开它以验证其�
 
 Claude 根据您的项目创建初始服务器配置。如果您的应用使用自定义开发命令，编辑 `.claude/launch.json` 以匹配您的设置。有关完整参考，请参阅[配置预览服务器](#configure-preview-servers)。
 
-要清除浏览器保存的数据，请在浏览器窗格的 **⋮** 菜单中选择 **Clear browsing data**。要完全关闭浏览器，请在 **Settings > Claude Code** 中关闭 **Browser tools**。
+要清除浏览器保存的数据，请在浏览器窗格的 **⋮** 菜单中选择 **Clear browsing data**。要完全关闭浏览器，请在 **Settings > Code** 或 **Settings > Claude Code** 中关闭 **Browser tools**。
 
 ### 浏览外部网站
 
@@ -194,7 +194,7 @@ Claude 读取您的评论并进行请求的更改，这些更改显示为您可�
   * **如果仓库不允许自动合并**：**Merge when ready** 无法打开，因此请先在您的 [GitHub 仓库设置](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-auto-merge-for-pull-requests-in-your-repository)中启用自动合并
 * **[早期布局](#check-which-layout-you-have)**：会话有 Pull Request 后，点击其状态栏上的 **CI**。
 
-要在 PR 合并或关闭后自动归档会话，请在 **Settings > Claude Code** 中打开[自动归档](#archive-a-session)。
+要在 PR 合并或关闭后自动归档会话，请在 **Settings > Code** 或 **Settings > Claude Code** 中打开[自动归档](#archive-a-session)。
 
 > [!NOTE]
 >
@@ -352,7 +352,15 @@ Claude 有多种方式与应用或服务交互，计算机使用是最广泛和�
 
 **2. 打开切换**
 
-在桌面应用中，转到**设置 > 此计算机 > 系统**。在**计算机使用**下，打开**启用计算机使用**。在 Windows 上，切换立即生效，设置完成。在 macOS 上，继续下一步。
+在桌面应用中，打开**设置**，然后：
+
+* **如果设置菜单中列出了此计算机**：转到**此计算机 > 系统**
+* **否则**：转到**功能**
+
+在**计算机使用**下，打开**启用计算机使用**：
+
+* **Windows**：开关立即生效，设置完成
+* **macOS**：继续下一步
 
 如果你看不到切换，确认你在 macOS 或 Windows 上使用 Pro 或 Max 计划，然后更新并重启应用。
 
@@ -379,7 +387,7 @@ Claude 第一次需要使用应用时，会话中会出现提示。点击**允�
 
 像终端、Finder 或文件浏览器以及系统设置或设置这样具有广泛影响的应用在提示中显示额外警告，以便你知道批准它们授予什么。
 
-**设置 > 此计算机 > 系统**中的**计算机使用**部分包含以下选项：
+在设置中，您[启用计算机使用](#enable-computer-use)时所在的**计算机使用**部分包含以下选项：
 
 * **拒绝的应用**：在此处添加应用以拒绝它们而不提示。Claude 可能仍然通过允许应用中的操作间接影响被拒绝的应用，但它无法直接与被拒绝的应用交互。
 * **Claude 完成时取消隐藏应用**：当计算机使用不在后台运行时，Claude 隐藏你的其他窗口，以便它仅与批准的应用交互。当 Claude 完成时，隐藏的窗口被恢复，除非你关闭此设置。
@@ -409,10 +417,10 @@ Claude 第一次需要使用应用时，会话中会出现提示。点击**允�
 
 Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。要改为将其存储在自定义目录中：
 
-* **本地会话**：在 **Settings > Claude Code** 中设置 **Worktree location**
+* **本地会话**：在 **Settings > Code** 或 **Settings > Claude Code** 中设置 **Worktree location**
 * **SSH 会话**：在 [SSH 连接](#choose-where-ssh-session-worktrees-go)上设置 **Worktree folder**
 
-您还可以在 **Settings > Claude Code** 中设置 **Branch prefix**。Desktop 会将其添加到每个 worktree 分支名称的前面，这有助于让 Claude 创建的分支保持条理。
+您还可以在 **Settings > Code** 或 **Settings > Claude Code** 中设置 **Branch prefix**。Desktop 会将其添加到每个 worktree 分支名称的前面，这有助于让 Claude 创建的分支保持条理。
 
 要在新 worktree 中包含被 gitignore 的文件（如 `.env`），请在项目根目录中创建一个 [`.worktreeinclude` 文件](https://code.claude.com/docs/zh-CN/worktrees#copy-gitignored-files-into-worktrees)。有关 worktree 会话从何处读取项目设置、hook 和 skill，请参阅 [worktree 与主检出共享的内容](https://code.claude.com/docs/zh-CN/worktrees.md#what-worktrees-share-with-the-main-checkout)。
 
@@ -431,7 +439,7 @@ Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。要改为将�
 
 在存档 worktree 中有未提交更改的会话之前，请参阅[存档会话时保留未提交的更改](#keep-uncommitted-changes-when-a-session-is-archived)。要存档会话，请将鼠标悬停在侧边栏中的该会话上，打开其菜单，然后选择 **Archive**。该会话会移至您的[已存档会话](#organize-and-find-sessions)。
 
-要让会话在其 Pull Request 合并或关闭时自动存档，请在 **Settings > Claude Code** 中打开 **Auto-archive after PR merge or close**。云端会话和仍在运行的会话不会自动存档。
+要让会话在其 Pull Request 合并或关闭时自动存档，请在 **Settings > Code** 或 **Settings > Claude Code** 中打开 **Auto-archive after PR merge or close**。云端会话和仍在运行的会话不会自动存档。
 
 #### 存档会话时保留未提交的更改
 
@@ -528,14 +536,14 @@ Claude Code 在跨会话时应用三项安全行为：
 本地会话会在您为其打开 Remote Control 时连接，或在启动时自动连接：
 
 * **您为该会话打开它**：使用该会话的 **Remote Control** 开关，或在其输入框中输入 `/remote-control`。
-* **在启动时连接**：当 **Settings > Claude Code** 中的 **Connect new sessions to Remote Control** 处于打开状态时，新会话会自动连接。如果您从未更改过该设置，Desktop 会遵循您的用户设置或托管设置中的 [`remoteControlAtStartup`](https://code.claude.com/docs/zh-CN/settings-reference#remotecontrolatstartup)，其次是您组织的默认值。
+* **在启动时连接**：当 **Settings > Code** 或 **Settings > Claude Code** 中的 **Connect new sessions to Remote Control** 处于打开状态时，新会话会自动连接。如果您从未更改过该设置，Desktop 会遵循您的用户设置或托管设置中的 [`remoteControlAtStartup`](https://code.claude.com/docs/zh-CN/settings-reference#remotecontrolatstartup)，其次是您组织的默认值。
 
 要查看会话是否已连接，请查看其[会话详情面板](#see-session-details)中 **Environment** 卡片内的 **Remote Control** 开关。
 
 要让会话不出现在您的其他设备上，请在所需的级别关闭 Remote Control：
 
 * **单个会话**：关闭其 **Remote Control** 开关。在启动时已自动连接的会话中，输入 `/remote-control` 会保持 Remote Control 打开，并显示 `Remote Control is already on. This session connected automatically when it started.`。点击该行上的 **Turn off** 即可断开连接。
-* **此计算机上的新 Desktop 会话**：在 **Settings > Claude Code** 中关闭 **Connect new sessions to Remote Control**。如果它已显示为关闭，请先将其打开再关闭，以便 Desktop 保存您的选择。保存后，它优先于 `remoteControlAtStartup` 和默认值。
+* **此计算机上的新 Desktop 会话**：在 **Settings > Code** 或 **Settings > Claude Code** 中关闭 **Connect new sessions to Remote Control**。如果它已显示为关闭，请先将其打开再关闭，以便 Desktop 保存您的选择。保存后，它优先于 `remoteControlAtStartup` 和默认值。
 * **此计算机上的任何会话，包括 CLI**：在 `~/.claude/settings.json` 中将 [`disableRemoteControl`](https://code.claude.com/docs/zh-CN/settings-reference#disableremotecontrol) 设置为 `true`，以阻止会话连接。保存该文件时已连接的会话会保持连接，直到您为其关闭 Remote Control。
 
 要隐藏已显示在您其他设备上的会话，请在 Desktop 中将其存档。Desktop 也会存档该会话的 Remote Control 副本，使其从这些设备上的默认会话列表中移除。要在那里查看或删除它，请参阅[存档会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#archive-sessions)。
@@ -577,7 +585,7 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 > * **WSL 会话中 Connectors 显示为灰色**：请参阅[如果终端或连接器不可用](https://code.claude.com/docs/zh-CN/desktop-wsl.md#check-for-the-terminal-and-connectors)
 > * **云端会话**：请参阅[连接器如何接入 Claude Code](https://code.claude.com/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)
 
-连接后，Claude 可以读取您的日历、发送消息、创建问题并直接与您的工具交互。您可以询问 Claude 在您的会话中配置了哪些连接器。要管理或断开连接器，请在桌面应用中转到 **Settings > Connectors**。
+连接后，Claude 可以读取您的日历、发送消息、创建问题并直接与您的工具交互。您可以询问 Claude 在您的会话中配置了哪些连接器。要管理或断开连接器，请点击侧边栏中的**自定义**并打开 **Connectors**。
 
 对于 Connectors 中未列出的集成，通过[设置文件](https://code.claude.com/docs/zh-CN/mcp.md#installing-mcp-servers)手动添加 MCP 服务器。您也可以[创建自定义连接器](https://support.claude.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)。
 
@@ -2029,7 +2037,7 @@ Desktop 继续相同的会话而不是副本，所以之后在终端中 `claude 
 | `--model sonnet` | 输入框下方一行中的模型选择器 |
 | `--resume`, `--continue` | 点击侧边栏中的会话，或在输入框中输入 `/resume` 来选择您从 CLI 启动的会话 |
 | `--permission-mode` | 输入框下方一行中的模式选择器 |
-| `--dangerously-skip-permissions` | 绕过权限模式。在 Pro 和 Max 套餐上，在设置 → Claude Code → "允许绕过权限模式"中启用它；在 Team 和 Enterprise 套餐上，由组织策略控制 |
+| `--dangerously-skip-permissions` | 绕过权限模式。在 Pro 和 Max 套餐上，在 **设置 > Code** 或 **设置 > Claude Code** 中启用"允许绕过权限模式"；在 Team 和 Enterprise 套餐上，由组织策略控制 |
 | `--add-dir` | 在本地和 SSH 会话中[向会话添加文件夹](#add-folders-to-a-session)，或在云端会话中选择[多个仓库](#run-long-running-tasks-in-the-cloud) |
 | `--allowedTools`, `--disallowedTools` | 无每个会话的等效项。[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中的权限规则仍然适用。 |
 | `--verbose` | [Verbose 视图模式](#switch-view-modes) |
@@ -2089,7 +2097,7 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 * **Agent team**：协调的团队（由 Claude 作为团队负责人从共享任务列表中为队友分配任务）在 [CLI](https://code.claude.com/docs/zh-CN/agent-teams.md) 中可用，不在 Desktop 中。对于一个会话内的多 Agent 工作，请使用[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)，它可在 Desktop 中运行；Claude 也可以直接[向您的其他会话发送消息并管理它们](#work-across-sessions)。
 * **Terminal-dialog 命令**：在终端中打开交互式面板的内置命令，其行为在 Code 选项卡中有所不同。直接编辑[设置文件](https://code.claude.com/docs/zh-CN/settings.md)来管理权限规则和配置，或从独立 CLI 运行命令。
   * 没有参数形式的命令，例如 `/permissions`，会回复 `isn't available in this environment`。
-  * `/config` 打开 **设置 > Claude Code**。
+  * `/config` 打开 **设置 > Code** 或 **设置 > Claude Code**。
 
 ## 故障排除
 
