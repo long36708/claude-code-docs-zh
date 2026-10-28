@@ -679,7 +679,7 @@ Opus 5.5 [默认为 `medium`](#adjust-effort-level)，比 Opus 5 的默认值 `h
 在终端输入框中键入时，该词还可以将该轮次提升到 `xhigh` effort。当它可以这样做时，该词会以彩虹色显示。需要 Claude Code v2.1.311 或更高版本。如果您开始新轮次时该词没有以彩虹色显示，请尝试以下方法之一：
 
 * 在不以 `/` 开头的提示词中重新键入该词，并确保它不在引号、括号、路径或命令等任何内容之内
-* 如果 `CLAUDE_CODE_EFFORT_LEVEL` 设置为低于 `xhigh` 的级别，请取消设置它；或将您自己的 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel) 提高到 `xhigh` 或更高；或请组织管理员提高您的[组织限制](#organization-effort-limits)
+* 如果 `CLAUDE_CODE_EFFORT_LEVEL` 设置为低于 `xhigh` 的级别，请取消设置它。或者将您自己的 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel) 提高到 `xhigh` 或更高，或请组织管理员提高您的[组织限制](#organization-effort-limits)
 * 在会话中运行 `/model` 切换到 Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 5.1 模型。在该词无法提升轮次的情况下（例如在 Amazon Bedrock 上），请改为[设置 effort 级别](#set-the-effort-level)
 
 #### 设置 effort 级别

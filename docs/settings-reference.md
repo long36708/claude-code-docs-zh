@@ -5173,7 +5173,9 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 ### `forceLoginMethod`
 
-限制用户可以使用哪种账户登录。设置为 `"claudeai"` 仅允许 claude.ai 账户，设置为 `"console"` 仅允许 Claude Console 账户，设置为 `"gateway"` 则将用户引导至 [cloud gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，而不是第一方登录。管理员在托管设置中设置此项，并与 [`forceLoginOrgUUID`](#forceloginorguuid) 搭配使用，使开发者的 claude.ai 登录限定在一个组织内。如果您在任何设置文件中将其设置为 `"claudeai"` 或 `"console"`，Claude Code 还会在该文件适用的会话中停止提供[无密钥 Console 登录](https://code.claude.com/docs/zh-CN/authentication.md#sign-in-without-an-api-key)。
+限制用户可以使用哪种账户登录。设置为 `"claudeai"` 仅允许 claude.ai 账户，设置为 `"console"` 仅允许 Claude Console 账户，设置为 `"gateway"` 则将用户引导至 [cloud gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，而不是第一方登录。管理员在托管设置中设置此项，并与 [`forceLoginOrgUUID`](#forceloginorguuid) 搭配使用，使开发者的 claude.ai 登录限定在一个组织内。
+
+如果您在任何设置文件中将其设置为 `"claudeai"`，Claude Code 还会在该文件适用的会话中停止提供[无密钥 Console 登录](https://code.claude.com/docs/zh-CN/authentication.md#sign-in-without-an-api-key)。仅设置 `"console"` 时，用户在登录失败后仍可访问无密钥登录。要让 Claude Code 停止提供该登录方式，请参阅[在托管机器上停止提供无密钥登录](https://code.claude.com/docs/zh-CN/authentication.md#stop-offering-the-keyless-sign-in-on-managed-machines)，其中还列出了 `forceLoginOrgUUID` 带来的其他变化。
 
 * **作用域**：[`Any file`](#scopes)。Claude Code 仅在与 [`forceLoginGatewayUrl`](#forcelogingatewayurl) 相同的来源中认可 `"gateway"`，在其他任何地方都将其视为未设置。
 * **类型**：字符串，以下之一：

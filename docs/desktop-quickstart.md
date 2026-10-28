@@ -57,7 +57,7 @@ Claude Code 位于应用侧边栏顶部的 **Code** 选项卡中。本页面将�
 
 在[输入框下方的一行](https://code.claude.com/docs/zh-CN/desktop.md#start-a-session)中，点击第一个控件（即环境选择器），然后选择**本地**分组中的第一项。接着点击环境选择器旁边的项目文件夹控件，选择**打开文件夹…**，并选择您的项目目录。
 
-如果输入框下方没有出现环境选择器，说明您使用的是早期布局。请参阅[检查您使用的布局](https://code.claude.com/docs/zh-CN/desktop.md#check-which-layout-you-have)。
+如果新会话的输入框下方没有显示环境，说明您使用的是早期布局。请参阅[检查您使用的布局](https://code.claude.com/docs/zh-CN/desktop.md#check-which-layout-you-have)。
 
 > [!TIP]
 >

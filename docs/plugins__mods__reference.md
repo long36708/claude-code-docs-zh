@@ -392,7 +392,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | `$.session.messages()` | 最新的 4,096 个条目 |
 | `$.ui.invalidate('ui.render')` 重绘 | 限制为每秒 10 次；在终端中，对于可见窗格、展开区域以及输入框下方的提示行，限制为每秒 30 次。更早到达的调用会被合并。 |
 | `$.ui.toast` | 显示 4 秒，除非您传入 `{ timeoutMs }`。在[经典渲染器](https://code.claude.com/docs/zh-CN/fullscreen.md#enable-fullscreen-rendering)中，mod 较新的 toast 可能会[取代其较早的 toast](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#a-toast-doesn’t-appear)，无论较早的 toast 正在显示还是正在等待显示。 |
-| 非用户主动打开的窗格 | 从终端第 144 列起放置；用户打开过一次后，从第 110 列起放置 |
+| 非用户主动打开的窗格 | 终端至少 144 列宽时放置；用户打开过一次后，110 列宽即可 |
 | mods API 调用参数的嵌套深度 | 28,000 层。超过此深度，调用会被拒绝，消息以 `nesting deeper than 28000 levels is not supported` 结尾。需要 Claude Code v2.1.299 或更高版本。 |
 | 传递给 `next` 的已更改事件的嵌套深度，[异步生成器 hook](#events)（例如 `turn.step` 上的 hook）除外 | 28,000 层。超过此深度，`next` 会拒绝，消息以 `nesting deeper than 28000 levels is not supported` 结尾。需要 Claude Code v2.1.299 或更高版本。 |
 | hook 返回值的嵌套深度，`ui.render`、`ui.resolve` 和异步生成器 hook 除外 | 28,000 层。超过此深度，该 hook 的结果会被拒绝，[报告此问题的通知](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)中包含 `nesting deeper than 28000 levels is not supported`。需要 Claude Code v2.1.299 或更高版本。 |

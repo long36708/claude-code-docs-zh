@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> 快速模式处于[研究预览](#research-preview)阶段。该功能、定价和可用性可能会根据反馈而改变。
+> Claude Opus 5.5 的快速模式现已可用，Claude Opus 5 和 Claude Opus 4.8 的快速模式目前为[研究预览版](#research-preview)。
 
 快速模式是 Claude Opus 的高速配置，使模型速度提高最多 2.5 倍，但每个令牌的成本更高。当您需要速度进行交互式工作（如快速迭代或实时调试）时，使用 `/fast` 将其打开，当成本比延迟更重要时，将其关闭。
 
@@ -20,7 +20,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 * 使用 `/fast` 在 Claude Code CLI 中切换快速模式。[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)在选定的模型支持快速模式时提供**切换快速模式**命令。Claude Code 将该切换保存到您的 [`fastMode` 设置](#toggle-fast-mode)。
 * 快速模式定价在 Opus 5.5 上为 $8/$40 MTok 输入/输出，在 Opus 5 和 Opus 4.8 上为 $10/$50 MTok 输入/输出。
-* 可供订阅计划（Pro/Max/Team/Enterprise）上的 Claude Code 用户和 Claude 控制台使用。Team 和 Enterprise 组织需要所有者先启用它，Console 组织需要先配置访问权限，两者都在[要求](#requirements)下描述。
+* 可供订阅计划（Pro/Max/Team/Enterprise）上的 Claude Code 用户和 Claude 控制台使用。Team 和 Enterprise 组织需要所有者先启用它，Console 组织需要先配置访问权限才能在 Opus 5 或 Opus 4.8 上使用它。[要求](#requirements)对这两者进行了说明。
 * 对于订阅计划（Pro/Max/Team/Enterprise）上的 Claude Code 用户，快速模式仅通过使用额度提供，不包含在订阅速率限制中。
 
 ## 切换快速模式
@@ -119,7 +119,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 快速模式需要以下所有条件：
 
-* **仅限 Anthropic API 或订阅**：快速模式可通过 Anthropic 控制台 API 和使用使用额度的 Claude 订阅计划获得。它在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 AWS 上的 Claude Platform 上不可用。控制台组织还必须[为您的组织配置快速模式访问权限](#enable-fast-mode-for-your-organization)。
+* **仅限 Anthropic API 或订阅**：快速模式可通过 Anthropic 控制台 API 和使用使用额度的 Claude 订阅套餐获得。它在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 AWS 上的 Claude Platform 上不可用。控制台组织还必须[配置快速模式访问权限](#enable-fast-mode-for-your-organization)，才能在 Opus 5 或 Opus 4.8 上使用快速模式。
 * **为订阅计划启用使用额度**：在 Pro、Max、Team 或 Enterprise 计划上，您的账户必须[启用使用额度](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)，这允许在您的计划包含的使用量之外进行计费。在启用之前，`/fast` 显示"Fast mode requires usage credits"。您启用它们的方式取决于您的计划：
   * 在 Pro 和 Max 上，在 claude.ai 上的[**Settings > Usage**](https://claude.ai/settings/usage)的**Usage credits**部分中启用它们，或运行 `/usage-credits` 来打开该页面。
   * 在 Team 和 Enterprise 上，具有计费访问权限的成员在[**Organization settings > Usage**](https://claude.ai/admin-settings/usage)处为组织启用它们，没有访问权限的成员运行 `/usage-credits` 向组织的管理员发送请求。
@@ -129,6 +129,8 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 > 快速模式使用直接计入使用额度，即使您的计划上还有剩余使用量。
 
 * **付费控制台组织**：Claude 控制台账户不使用使用额度，您的组织按令牌为快速模式付费，与其余 API 使用量一起。在控制台的免费 Evaluation 计划上，`/fast` 显示"Fast mode unavailable during evaluation. Please purchase credits."。要清除它，在您的[控制台计费设置](https://platform.claude.com/settings/billing)中购买额度。
+
+  Opus 5.5 上的快速模式还取决于您的组织的[使用层级](https://platform.claude.com/docs/en/api/rate-limits)。
 * **团队和企业的所有者启用**：快速模式默认对团队和企业组织禁用。所有者必须明确[启用快速模式](#enable-fast-mode-for-your-organization)，用户才能访问它。
 
 > [!NOTE]
@@ -144,10 +146,10 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 您启用快速模式的位置取决于您的组织使用的产品：
 
-* **控制台**（API 客户）：管理员在 [Claude Code 偏好设置](https://platform.claude.com/claude-code/preferences)中启用它。快速模式处于[研究预览](#research-preview)中，因此您的组织还必须在快速模式请求成功之前配置快速模式访问权限。要获得访问权限，请联系您的账户经理或加入等待列表，如[Claude API 上的快速模式](https://platform.claude.com/docs/en/build-with-claude/fast-mode)中所述。
-
-  没有配置的访问权限，API 会以 429 拒绝每个快速模式请求，Claude Code 会将每个拒绝视为[快速模式速率限制](#handle-rate-limits)。与速率限制的冷却时间不同，拒绝会继续，直到配置了访问权限。
+* **控制台**（API 客户）：管理员在 [Claude Code 偏好设置](https://platform.claude.com/claude-code/preferences)中启用它
 * **Claude AI**（团队和企业）：所有者在[**Organization settings > Claude Code**](https://claude.ai/admin-settings/claude-code)中启用它
+
+使用 Claude Opus 5 或 Claude Opus 4.8 的控制台组织还需要配置访问权限，如 [Claude API 上的快速模式](https://platform.claude.com/docs/en/build-with-claude/fast-mode)中所述。如果没有该访问权限，这些模型上的快速模式请求会触发[快速模式速率限制](#handle-rate-limits)，并回退到标准速度，直到配置了访问权限。
 
 另一个完全禁用快速模式的选项是设置 `CLAUDE_CODE_DISABLE_FAST_MODE=1`。请参阅[环境变量](https://code.claude.com/docs/zh-CN/env-vars.md)。
 
@@ -201,7 +203,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 ## 处理速率限制
 
-快速模式与标准 Opus 有单独的速率限制。所有支持的 Opus 模型共享一个快速模式速率限制池：任何模型上的使用都会从相同的限制中扣除。当您达到快速模式速率限制时：
+快速模式与标准 Opus 有单独的速率限制；对于 Console 组织，Claude Platform 的[速率限制](https://platform.claude.com/docs/en/api/rate-limits)页面对此进行了说明。当您达到快速模式速率限制时：
 
 1. 快速模式自动回退到标准速度
 2. `↯` 图标变灰以指示冷却
@@ -217,7 +219,7 @@ Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fas
 
 ## 研究预览
 
-快速模式是一个研究预览功能。这意味着：
+Claude Opus 5 和 Claude Opus 4.8 的快速模式是一个研究预览功能。这意味着：
 
 * 该功能可能会根据反馈而改变
 * 可用性和定价可能会改变

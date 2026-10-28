@@ -485,15 +485,15 @@ Claude Code 不重试这些故障：
 
 从 v2.1.198 开始，通常的微调器提示在重试期间被抑制。一旦错误原因被揭示，如果故障是 529 过载，倒计时下方的行也命名了检查服务状态的位置：Anthropic API 上的 `status.claude.com`，或其他配置上的提供商或网关主机。
 
-如果在请求仍然待处理时响应流上 20 秒内没有数据到达，微调器显示 `Waiting for API response · will retry in … · check your network`，然后任何重试都尚未开始。请求尚未失败：倒计时运行到 Claude Code 中止停滞连接的点。中止后，您看到的内容取决于响应已进行的距离：
+#### Waiting for API response
+
+`Waiting for API response · will retry in … · check your network` 横幅表示 Claude Code 已等待至少 20 秒，但未收到某个请求的任何数据。请求尚未失败：倒计时运行到 Claude Code 中止停滞连接的点。如果发生中止：
 
 * 在 Claude 完成文本块或工具调用之前，或在完成思考之后开始一个，Claude Code 重试请求或以错误结束轮次。[Automatic retries](#automatic-retries) 说明它重试哪些停滞以及多少次。
 * 在 Claude 完成文本块或工具调用之后，或在完成思考之后开始一个，但在 Claude 完成响应之前，Claude Code 保留 Claude 完成的内容，从 Claude 完成的任何工具调用继续轮次，并显示 [The response above may be incomplete](#the-response-above-may-be-incomplete)。在非交互式会话中，以及对于任何会话中的子代理响应，Claude Code 可能首先提示 Claude 继续响应；该条目说明何时执行以及何时您仍然在那里看到通知。
 * 在 Claude 完成响应之后，Claude Code 正常结束轮次。
 
-一旦数据恢复或重试成功，横幅会自动清除。如果它在每次尝试时重新出现，将其视为 [network issue](#unable-to-connect-to-api)。在 v2.1.185 之前，横幅在 10 秒后出现，措辞不同。
-
-当 Claude 咨询 [advisor](https://code.claude.com/docs/zh-CN/advisor.md) 时，横幅在 90 秒无数据后出现，而不是 20 秒，因为长时间的顾问审查可能在远超 20 秒的时间内不发送任何数据。在 v2.1.214 之前，20 秒阈值也适用于顾问调用，所以横幅在顾问审查期间出现，即使没有任何问题。
+一旦数据恢复或重试成功，横幅会自动清除。如果它在每次尝试时重新出现，将其视为 [network issue](#unable-to-connect-to-api)。如果您通过网关连接，请参阅[通过网关连接时等待横幅时隐时现](#waiting-banner-behind-a-gateway)。在 v2.1.185 之前，横幅在 10 秒后出现，措辞不同。
 
 #### 通过网关连接时等待横幅时隐时现
 

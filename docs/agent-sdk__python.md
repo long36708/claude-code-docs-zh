@@ -1274,6 +1274,8 @@ class PermissionResultAllow:
 | `updated_input` | `dict[str, Any] \| None` | `None` | 要使用的修改后的输入而不是原始输入 |
 | `updated_permissions` | `list[PermissionUpdate] \| None` | `None` | 要应用的权限更新 |
 
+如果您返回的 `PermissionResultAllow` 在 `updated_permissions` 中包含超过 4,096 项，Claude Code 会将该结果视为无效并拒绝该工具调用。每个 [`PermissionUpdate`](#permissionupdate) 计为一项，其 `rules` 或 `directories` 列表中的每个条目也各计为一项。拒绝消息以 `updatedPermissions may hold at most 4096 updates, rules and directories in all.` 结尾。为避免被拒绝，请返回不超过 4,096 项。
+
 ### `PermissionResultDeny`
 
 指示应拒绝工具调用的结果。

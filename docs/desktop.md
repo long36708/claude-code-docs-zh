@@ -43,7 +43,7 @@
 在发送第一条消息之前，请在输入框下方的一行中选择环境、项目文件夹、权限模式和模型：
 
 * **环境**：使用环境选择器（该行中的第一个控件）选择 Claude 运行的位置。请参阅[环境配置](#environment-configuration)。
-  * 如果新会话的输入框下方没有环境选择器，请按照[早期布局的步骤](#check-which-layout-you-have)操作。
+  * 如果新会话的输入框下方没有显示环境，请按照[早期布局的步骤](#check-which-layout-you-have)操作。
 * **项目文件夹**：点击环境选择器旁边的项目文件夹控件，选择 Claude 工作的文件夹。
   * **云端会话**：选择[仓库](#run-long-running-tasks-in-the-cloud)而不是文件夹
   * **[已保存的本地或 SSH 环境](#create-a-saved-environment)**：该环境已包含其文件夹，因此该行不显示项目文件夹控件。要更改文件夹，请[编辑该环境](#use-edit-or-remove-a-saved-environment)。
@@ -861,7 +861,7 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 > [!NOTE]
 >
-> 如果您的环境选择器位于输入框上方，则您使用的是[早期布局](#check-which-layout-you-have)，该布局没有已保存的本地环境。请改用[本地环境编辑器](#use-the-local-environment-editor)。
+> 如果新会话在输入框下方没有显示环境，则说明您使用的是[早期布局](#check-which-layout-you-have)，该布局没有已保存的本地环境。请改用[本地环境编辑器](#use-the-local-environment-editor)。
 
 **1. 打开本地环境的表单**
 
@@ -963,7 +963,7 @@ SSH 会话让您可以在远程计算机上运行 Claude Code，同时使用桌�
 >
 > 如果您将 Desktop 与[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)配合使用，SSH 会话需要单独设置。请参阅 [3P 上 Claude Desktop 中的 SSH 远程会话](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
 
-在 [**New environment** 对话框](#create-a-saved-environment)中添加 SSH 连接，然后在该连接上启动会话。如果新会话的输入框下方没有环境选择器，则您使用的是早期布局。请参阅[检查您使用的布局](#check-which-layout-you-have)。
+在 [**New environment** 对话框](#create-a-saved-environment)中添加 SSH 连接，然后在该连接上启动会话。如果新会话在输入框下方没有显示环境，则说明您使用的是早期布局。请参阅[检查您使用的布局](#check-which-layout-you-have)。
 
 **1. 打开 New environment 对话框**
 
@@ -2122,13 +2122,13 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 
 ### 检查您使用的布局
 
-如果新会话的输入框下方没有[环境选择器](#start-a-session)，则说明您使用的是早期布局：
+如果新会话在输入框上方而不是下方显示[环境](#start-a-session)，则说明您使用的是早期布局：
 
 * **[低于 v2.37337.0 的 Desktop](#check-your-version)**：请更新以获取当前布局。在 macOS 上选择 **Claude > Check for Updates…**，或在 Windows 上选择 **Help > Check for Updates…**。
 * **会话在您计算机上运行的[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)**：当前布局需要 Claude Desktop v3.1623.0 或更高版本，因此请[检查您的版本](#check-your-version)。要进行更新，请在 macOS 上选择 **Claude > Check for Updates…**，或在 Windows 上选择 **Help > Check for Updates…**。如果您的组织[关闭了自动更新](#device-management-policies)，**Check for Updates…** 会被隐藏，此时请向管理员索取 v3.1623.0 或更高版本。
-* **会话在您组织基础设施上运行的第三方提供商**：当您的组织在其自己的基础设施上而不是在您的计算机上运行会话时，Desktop 会保留早期布局，更新不会改变布局。如果您不清楚会话在哪里运行，请询问管理员。
+* **会话在您组织基础设施上运行的第三方提供商**：当前布局需要 Claude Desktop v4.29.0 或更高版本，因此请[检查您的版本](#check-your-version)。如果您使用的是较旧的版本，请向管理员索取 v4.29.0 或更高版本。如果您不清楚会话在哪里运行，请询问管理员。
 
-在早期布局中，在输入框上方选择环境和项目文件夹，在其下方的一行中选择权限模式和模型。早期布局没有[会话详细信息面板](#see-session-details)和[已保存的本地和 SSH 环境](#create-a-saved-environment)。
+在早期布局中，在输入框上方选择环境以及任何项目文件夹或仓库，在其下方的一行中选择权限模式和模型。早期布局没有[会话详细信息面板](#see-session-details)和[已保存的本地和 SSH 环境](#create-a-saved-environment)。
 
 ### Code 选项卡中的 403 或身份验证错误
 

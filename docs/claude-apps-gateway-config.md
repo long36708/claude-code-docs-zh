@@ -421,7 +421,7 @@ upstreams:
 
 ```yaml theme={null}
 models:
-  - id: claude-opus-restricted          # 自定义 id，不是内置模型名称
+  - id: restricted-claude-opus-4-8      # 自定义 id，不是内置模型名称
     upstream_model:
       bedrock-isolated: us.anthropic.claude-opus-4-8   # 唯一提供它的上游
 ```
@@ -875,9 +875,11 @@ managed:
   policies:
     - match: { groups: [restricted-projects] }
       cli:
-        availableModels: [claude-opus-restricted]
+        availableModels: [restricted-claude-opus-4-8]
         enforceAvailableModels: true
-        model: claude-opus-restricted
+        model: restricted-claude-opus-4-8
+        env:
+          ANTHROPIC_DEFAULT_OPUS_MODEL: restricted-claude-opus-4-8   # opus and Default resolve to the ID too
 ```
 
 #### 会导致网关在启动时停止的匹配器值

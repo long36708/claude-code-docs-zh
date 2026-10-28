@@ -127,7 +127,8 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 您不会在每台机器上都获得选择。Claude Code 在以下情况下会在不询问的情况下创建 API 密钥：
 
 * 您针对云提供商运行，例如 [Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry](https://code.claude.com/docs/zh-CN/third-party-integrations.md) 或 [AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)
-* 任何设置文件设置 [`forceLoginOrgUUID`](#restrict-login-to-your-organization)，或将 `forceLoginMethod` 设置为 `"claudeai"` 或 `"console"`
+* 任何设置文件设置 [`forceLoginOrgUUID`](#restrict-login-to-your-organization)，或将 `forceLoginMethod` 设置为 `"claudeai"`
+* `forceLoginMethod` 为 `"console"` 且没有任何设置文件设置 `forceLoginOrgUUID`，直到您在登录失败后从错误屏幕重试为止
 * 您机器上存在托管设置源（例如托管设置文件、MDM 配置文件或缓存的服务器托管设置），但 Claude Code [无法读取它](https://code.claude.com/docs/zh-CN/managed-settings.md#invalid-entries-in-managed-settings)，且没有其他托管源提供策略
 
 在无密钥登录之前取消设置 `ANTHROPIC_API_KEY`。
@@ -139,6 +140,16 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 * **如何撤销它**：运行 `/logout`，它会删除并撤销此登录写入的凭证
 
 关于配置文件的所有其他内容都适用于此登录，包括它在您的其他凭证中的排名、您在 `/status` 中获得的 `Profile` 行，以及需要 claude.ai 登录的功能。请参阅 [Anthropic 配置文件和联合凭证](#anthropic-profiles-and-federation-credentials)。
+
+#### 在托管机器上停止提供无密钥登录
+
+要让 Claude Code 停止提供 [无密钥登录](#sign-in-without-an-api-key)，请使用您的设备管理工具将 [托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md) 中的 [`forceLoginOrgUUID`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginorguuid) 部署到每位开发人员的机器上。将其设置为您的 [Console 组织 ID](https://platform.claude.com/settings/organization)。部署之前，请确保每位开发人员都拥有 [可以创建 API 密钥的角色](#claude-console-authentication)。部署之后，没有该角色的开发人员将无法在 `/login` 处登录 Console。
+
+如果仅将 `forceLoginMethod` 设置为 `"console"`，开发人员可以重试失败的登录并选择无密钥选项。部署 `forceLoginOrgUUID` 后，登录屏幕会移除该选项，但开发人员仍可以使用他们已有的或通过 [`ant auth login`](https://platform.claude.com/docs/en/cli-sdks-libraries/cli/authentication) 创建的 [Anthropic 配置文件](#anthropic-profiles-and-federation-credentials)。部署之后，请在每台机器上按如下方式处理这些凭据和登录：
+
+* **无密钥登录**：要将开发人员切换到 API 密钥，请让他们注销后再次登录 Console，这会创建密钥。对于无密钥登录，他们在 shell 中运行 `claude auth logout`。对于 `ant auth login` 配置文件，他们运行 `ant auth logout`。如果机器上同时存在配置文件和 API 密钥，Claude Code 会拒绝该会话，因此他们需要先注销。
+* **环境和辅助程序凭据**：Claude Code 会拒绝使用 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 进行身份验证的会话，即使这些凭据由托管设置提供。请删除这些凭据，然后让开发人员运行 `/login` 以创建已保存的 API 密钥。
+* **claude.ai 登录**：Claude Code 会 [拒绝登录](#restrict-login-to-your-organization) 到您未列出的组织，包括机器上已在使用的组织。要保留某个组织，请将其添加到 `forceLoginOrgUUID` 数组中。
 
 ### 云提供商身份验证
 

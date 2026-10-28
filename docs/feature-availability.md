@@ -90,7 +90,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
     <tr>
       <td>[Fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)</td>
       <td>✓（[所有者启用](https://code.claude.com/docs/zh-CN/fast-mode.md#enable-fast-mode-for-your-organization) Team 和 Enterprise）</td>
-      <td>✓（预配置的组织）</td>
+      <td>✓（Opus 5 和 4.8 需要预配置）</td>
       <td>✗</td>
       <td>✗</td>
       <td>✗</td>
@@ -285,7 +285,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)。
 
-[按提供商变化的 CLI 功能](#cli-capabilities-that-vary-by-provider)中的所有内容都可用，除了 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md) 需要[预配置访问](https://code.claude.com/docs/zh-CN/fast-mode.md#enable-fast-mode-for-your-organization)。在 claude.ai Team 或 Enterprise 组织中配置的 [Server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 不会作用于使用 Console API 密钥进行身份验证的会话。有关如何覆盖这些会话，请参阅[平台可用性](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)。
+[按提供商变化的 CLI 功能](#cli-capabilities-that-vary-by-provider)中的所有内容都可用，除了使用 Claude Opus 5 或 Claude Opus 4.8 的 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md) 需要[预配置访问](https://code.claude.com/docs/zh-CN/fast-mode.md#enable-fast-mode-for-your-organization)。在 claude.ai Team 或 Enterprise 组织中配置的 [Server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 不会作用于使用 Console API 密钥进行身份验证的会话。有关如何覆盖这些会话，请参阅[平台可用性](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)。
 
 **部分支持：**
 

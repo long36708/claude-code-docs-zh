@@ -1156,7 +1156,7 @@ console.log(result.plugins.map((plugin) => plugin.path));
 
 新增的文件夹会一直作为会话的一部分。当您再次调用 `reloadPlugins()` 时，Claude Code 会将其与其他插件一起重新加载，您无需再次在 `addPlugins` 中传入它。
 
-##### `reloadPlugins()` 未加载 `addPlugins` 文件夹的情况
+##### 当 `reloadPlugins()` 未加载 `addPlugins` 文件夹时
 
 如果 `reloadPlugins()` 被拒绝，`addPlugins` 中的文件夹都不会被添加，因此重试时请再次在 `addPlugins` 中传入它们。当拒绝由以下某个原因导致时，会话会保留其原有的插件：
 
@@ -1405,7 +1405,7 @@ type PermissionResult =
     };
 ```
 
-如果您返回 `allow` 且 `updatedPermissions` 中的项超过 4,096 个，Claude Code 会将结果视为无效并拒绝该工具调用。每个更新计为一项，其 `rules` 或 `directories` 列表中的每个条目也各计为一项。拒绝消息以 `updatedPermissions may hold at most 4096 updates, rules and directories in all` 结尾。要使调用被允许，请返回不超过 4,096 项。
+如果您返回 `allow` 且 `updatedPermissions` 中的项超过 4,096 个，Claude Code 会将该结果视为无效并拒绝工具调用。每个更新计为一项，其 `rules` 或 `directories` 列表中的每个条目也各计为一项。拒绝消息以 `updatedPermissions may hold at most 4096 updates, rules and directories in all.` 结尾。要使调用被允许，请返回不超过 4,096 项。
 
 ### `ToolConfig`
 

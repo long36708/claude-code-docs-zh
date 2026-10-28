@@ -99,10 +99,9 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 以下要求决定您是否可以添加机密，以及添加后 Agent 代理是否可以使用它：
 
-* **Role**：在 Pro、Max 和 Team 计划上，无论您的角色如何，您都可以在自己的环境中添加和删除机密。在 Team 和 Enterprise 上，所有者在您的 claude.ai 组织中持有组织管理员角色，管理员（Admin）不持有，这会改变您在以下情况下看到的内容：
-  * **Enterprise 上您自己的环境**：拥有组织管理员角色时，您可以添加和删除机密。没有该角色时，**Network secrets** 行会打开机密列表，并显示说明"Only an organization admin can add or delete network secrets"，且没有 **Add secret** 或删除按钮。请让所有者将机密添加到[共享环境](#organization-shared-environments)，然后在该环境中运行您的会话
+* **Role**：在所有计划上，无论您的角色如何，您都可以在自己的环境中添加和删除机密。在 Team 和 Enterprise 上，所有者在您的 claude.ai 组织中持有组织管理员角色，管理员（Admin）不持有，这会改变您在以下情况下看到的内容：
+  * **您自己的环境**：没有组织管理员角色时，**Add secret** 会打开一个[简化表单](#add-a-secret-without-the-role)
   * **共享环境**：所有者从管理设置中[添加和删除其机密](#add-a-credential)。没有组织管理员角色时，请让所有者添加机密，因为该环境的对话框中没有 **Network secrets** 部分
-  * **Team 上您自己的环境**：没有组织管理员角色时，**Add secret** 会打开一个只接受一个主机的[简化表单](#add-a-secret-without-the-role)
 * **Environment type**：一个已存在的 Anthropic 托管云环境。[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)没有网络机密
 * **API reachability**：API 接受来自互联网的连接，因为请求从 Anthropic 的网络发出
 * **Encryption keys**：如果您的组织使用客户管理的加密密钥，则无法保存网络机密
@@ -111,7 +110,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 机密需要逐个添加。要更改机密的主机或值，请将其删除后重新添加。
 
-要向[共享环境](#organization-shared-environments)添加机密，请从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面打开该环境进行编辑，然后在其 **Network secrets** 部分从步骤 2 继续。如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，请在您自己的环境中执行步骤 1，然后[填写简化表单](#add-a-secret-without-the-role)。
+要向[共享环境](#organization-shared-environments)添加机密，请从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面打开该环境进行编辑，然后在其 **Network secrets** 部分从步骤 2 继续。如果您使用的是 Team 或 Enterprise 计划且不持有[组织管理员角色](#requirements)，请在您自己的环境中执行步骤 1，然后[填写简化表单](#add-a-secret-without-the-role)。
 
 **1. 打开环境的网络机密**
 
@@ -133,9 +132,9 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 要确认机密是否有效，请在该环境中启动会话并让 Claude 调用 API，例如使用 `curl`。API 的响应就如同请求中带有密钥一样，而密钥不会出现在会话的环境变量或任何文件中。如果列表将某个机密标记为 **Not sent**，其下方的说明会解释原因和处理方法。两个主机重叠但不完全匹配的机密不会显示标记，而 Agent 代理只会发送其中一个。
 
-#### 在没有组织管理员角色的 Team 计划上添加机密
+#### 在没有组织管理员角色的情况下添加机密
 
-如果您使用的是 Team 计划且不持有[组织管理员角色](#requirements)，**Add secret** 表单只接受针对一个主机的一个机密。选择您环境的 [**Network secrets** 行](#add-a-credential)，然后选择 **Add secret**。填写以下字段，然后选择表单中的 **Add secret** 按钮：
+如果您使用的是 Team 或 Enterprise 计划且不持有[组织管理员角色](#requirements)，**Add secret** 表单只接受针对一个主机的一个机密。选择您环境的 [**Network secrets** 行](#add-a-credential)，然后选择 **Add secret**。填写以下字段，然后选择表单中的 **Add secret** 按钮：
 
 * **Host**：获得该机密的唯一主机，例如 `api.example.com`。该表单不接受 `*.` 通配符
 * **Name**：机密的可选标签

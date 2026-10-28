@@ -242,7 +242,7 @@ claude mcp remove notion
 /mcp
 ```
 
-删除远程服务器时，Claude Code 也会删除为该服务器存储的 OAuth 令牌和客户端注册。
+移除远程服务器时，Claude Code 还会删除它为该服务器存储的 OAuth 令牌和客户端注册信息。Claude Code 不会在签发这些令牌的授权服务器上撤销令牌。如果授权服务器支持撤销，要撤销令牌，请在运行 `claude mcp remove <name>` 之前，先在 shell 中运行 [`claude mcp logout <name>`](#authenticate-from-the-command-line)。
 
 #### 服务器状态
 
@@ -252,7 +252,7 @@ claude mcp remove notion
 
 此列表中的状态报告配置决策而不是连接尝试，因此 Claude Code 在不连接到服务器的情况下打印它们：
 
-* ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json` 且您尚未批准的项目作用域服务器。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。以交互方式运行 `claude` 来查看并批准它。
+* ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json`、您尚未批准的项目作用域服务器。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示此状态。以交互方式运行 `claude` 来审查并批准它。
 * `✘ Rejected (see disabledMcpjsonServers in settings)`：由 [`disabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#disabledmcpjsonservers) 条目拒绝的 `.mcp.json` 服务器。Claude Code 仅在 `claude mcp get <name>` 中显示它。
 * `⊘ Disabled for this project (re-enable via /mcp)`：项目的 [`disabledMcpServers`](#disable-a-server-without-removing-it) 列表命名的服务器。Claude Code 在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。从 `/mcp` 面板重新打开服务器。
 
