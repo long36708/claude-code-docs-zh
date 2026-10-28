@@ -689,7 +689,7 @@ Opus 5.5 [默认为 `medium`](#adjust-effort-level)，比 Opus 5 的默认值 `h
 * **`/effort`**：运行 `/effort` 不带参数以打开交互式滑块，`/effort` 后跟级别名称以直接设置它，或 `/effort auto` 以清除活动模型的保存级别
 * **在 `/model` 中**：选择模型时使用左/右箭头键调整 effort 滑块
 * **`--effort` 标志**：启动 Claude Code 时传递级别名称以为单个会话设置它
-* **环境变量**：将 `CLAUDE_CODE_EFFORT_LEVEL` 设置为级别名称或 `auto`
+* **环境变量**：将 `CLAUDE_CODE_EFFORT_LEVEL` 设置为级别名称。要让 Claude Code [不发送 effort 级别](#send-no-effort-level)，请改为将其设置为 `auto` 或 `unset`
 * **设置**：在 [`modelSettings`](https://code.claude.com/docs/zh-CN/settings-reference#modelsettings) 中设置每个模型的级别，或将 [`effortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#effortlevel) 设置为 `low`、`medium`、`high` 或 `xhigh` 作为没有级别的模型的默认值。`max` 在任一键中都不被接受为级别，`ultracode` 有其自己的 [`ultracode`](https://code.claude.com/docs/zh-CN/settings-reference#ultracode) 键
 * **从连接的设备**：在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#what-connected-devices-see) 会话中，从您的手机或浏览器上的 effort 控件中选择级别。该级别仅适用于当前会话。需要 Claude Code v2.1.234 或更高版本
 * **Skill 和子代理 frontmatter**：在 [skill](https://code.claude.com/docs/zh-CN/skills.md#frontmatter-reference) 或[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#supported-frontmatter-fields) markdown 文件中设置 `effort` 以在该 skill 或子代理运行时覆盖 effort 级别
@@ -710,6 +710,23 @@ Frontmatter effort 在该 skill 或子代理活跃时应用，覆盖会话级别
 * **Claude 仍在工作时**：输入一条消息（例如 `keep going`），然后按 `Enter` 将其加入队列，而不会中断当前轮次。Claude 会在其当前工具调用完成时（最迟在轮次结束时）收到该消息，并从那时起以新级别工作。
 
 在 v2.1.242 之前，Claude Code 可能会将 `/effort` 本身排队直到轮次结束；在不[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中（例如在[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)上）则始终如此。
+
+#### 不发送 effort 级别
+
+当 Claude Code 不向[支持的模型](#adjust-effort-level)发送 effort 级别时，将应用 [API 的默认值](https://platform.claude.com/docs/en/build-with-claude/effort)，而不是 Claude Code 的默认值。要让 Claude Code 不发送任何级别，请从导出了 `CLAUDE_CODE_EFFORT_LEVEL` 且其值为 `auto` 或 `unset` 的 shell 中启动 `claude`，这两个值的作用相同：
+
+```bash theme={null}
+export CLAUDE_CODE_EFFORT_LEVEL=auto
+```
+
+未发送任何级别时，会话标题和页脚不显示 effort 级别。要确认未发送任何级别，请在 Claude Code 提示符处运行 `/effort status`：
+
+* **`Effort level: auto`**：未发送任何 effort 级别。
+* **`Effort level: auto (currently <level>)`**：仍在发送级别。如果低于 `max` 的 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel) 设置适用于活动模型，Claude Code 会发送其自己为该模型设定的默认值，并降低到该上限。请移除该设置或将其设置为 `max`。
+
+> [!NOTE]
+>
+> 在 v2.1.304 之前，即使未发送任何级别，`/effort status` 也会打印 `Effort level: auto (currently high)`。
 
 #### 自适应推理和固定思考预算
 

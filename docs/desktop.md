@@ -314,83 +314,83 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 两种布局的模型选择器旁都有使用环形图。点击它可查看您的计划使用情况，该使用情况在您所有的 Claude Code 使用入口之间共享。
 
-## 让 Claude 使用你的计算机
+## 让 Claude 使用您的计算机
 
-计算机使用让 Claude 打开你的应用、控制你的屏幕，并像你一样直接在你的机器上工作。要求 Claude 与没有 CLI 的桌面工具交互，或自动化只能通过 GUI 工作的东西。对于运行和测试 iOS 应用，Desktop 会打开专用的 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)，而不是控制你的屏幕；该窗格无需启用计算机使用即可工作。
+Computer use 让 Claude 能够打开您的应用、控制您的屏幕，并像您一样直接在您的计算机上工作。您可以让 Claude 操作没有 CLI 的桌面工具，或自动化只能通过 GUI 完成的任务。对于运行和测试 iOS 应用，Desktop 会打开专用的 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)，而不是控制您的屏幕；该窗格无需启用 computer use 即可使用。
 
 > [!NOTE]
 >
-> 计算机使用是 macOS 和 Windows 上的研究预览版，需要 Pro 或 Max 计划。它在 Team 或 Enterprise 计划上不可用。Claude Desktop 应用必须运行。在 macOS 上，计算机使用需要 macOS 14 或更高版本。
+> Computer use 是 macOS 和 Windows 上的研究预览版功能，需要 Pro 或 Max 计划。Team 或 Enterprise 计划不提供此功能。Claude Desktop 应用必须处于运行状态。在 macOS 上，computer use 需要 macOS 14 或更高版本。
 
-计算机使用默认关闭。[在设置中启用它](#enable-computer-use)，然后 Claude 才能控制你的屏幕。在 macOS 上，你还需要授予辅助功能和屏幕录制权限。
+Computer use 默认处于关闭状态。在 Claude 能够控制您的屏幕之前，请先[在设置中启用它](#enable-computer-use)。在 macOS 上，您还需要授予辅助功能和屏幕录制权限。
 
-在 macOS 上，计算机使用也可以在后台运行：Claude 在你批准的应用中工作，同时你继续工作。
+在 macOS 上，computer use 还可以在后台运行：Claude 在您已批准的应用中工作，同时您可以继续自己的工作。
 
 > [!WARNING]
 >
-> 与[沙箱化 Bash 工具](https://code.claude.com/docs/zh-CN/sandboxing.md)不同，计算机使用在你的实际桌面上运行，可以访问你批准的任何内容。Claude 检查每个操作并标记来自屏幕内容的潜在提示注入，但信任边界不同。有关最佳实践，请参阅[计算机使用安全指南](https://support.claude.com/en/articles/14128542)。
+> 与[沙箱隔离的 Bash 工具](https://code.claude.com/docs/zh-CN/sandboxing.md)不同，computer use 在您的实际桌面上运行，可以访问您批准的任何内容。Claude 会检查每个操作，并标记来自屏幕内容的潜在提示词注入，但信任边界有所不同。有关最佳实践，请参阅 [computer use 安全指南](https://support.claude.com/en/articles/14128542)。
 
-### 何时应用计算机使用
+### Computer use 的适用场景
 
-Claude 有多种方式与应用或服务交互，计算机使用是最广泛和最慢的。它首先尝试最精确的工具：
+Claude 有多种方式与应用或服务交互，其中 computer use 的适用范围最广，但速度最慢。Claude 会优先尝试最精确的工具：
 
-* 如果你有一个服务的[连接器](#connect-external-tools)，Claude 使用连接器。
-* 如果任务是 shell 命令，Claude 使用 Bash。
-* 如果任务是浏览器工作且你已设置[Chrome 中的 Claude](https://code.claude.com/docs/zh-CN/chrome.md)，Claude 使用那个。
-* 如果任务是运行或测试 iOS 应用，Claude 使用 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)，它不使用屏幕控制。
-* 如果以上都不适用，Claude 使用计算机使用。
+* 如果您有某个服务的[连接器](#connect-external-tools)，Claude 会使用该连接器。
+* 如果任务是 shell 命令，Claude 会使用 Bash。
+* 如果任务是浏览器操作，并且您已设置 [Claude in Chrome](https://code.claude.com/docs/zh-CN/chrome.md)，Claude 会使用它。
+* 如果任务是运行或测试 iOS 应用，Claude 会使用 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)，该窗格不使用屏幕控制。
+* 如果以上都不适用，Claude 会使用 computer use。
 
-[按应用访问层](#app-permissions)强化了这一点：浏览器限制为仅查看，终端和 IDE 限制为仅点击，即使计算机使用处于活跃状态，也会引导 Claude 使用专用工具。屏幕控制保留给其他工具无法到达的东西，如原生应用、硬件控制面板或没有 API 的专有工具。
+[按应用划分的访问级别](#app-permissions)进一步强化了这一点：浏览器的权限上限为仅查看，终端和 IDE 的上限为仅点击，从而在 computer use 处于活动状态时仍引导 Claude 使用专用工具。屏幕控制仅保留给其他方式无法触及的对象，例如原生应用、硬件控制面板或没有 API 的专有工具。
 
-### 启用计算机使用
+### 启用 computer use
 
-计算机使用默认关闭。如果你要求 Claude 做需要它的事情而它关闭时，Claude 会告诉你如果在设置中启用计算机使用，它可以完成任务。
+Computer use 默认处于关闭状态。如果在其关闭时您要求 Claude 执行需要它的操作，Claude 会告诉您，只要在设置中启用 computer use，它就可以完成该任务。
 
 **1. 更新桌面应用**
 
-确保你有最新版本的 Claude Desktop。在 macOS 和 Windows 上，在 [claude.com/download](https://claude.com/download) 下载或更新；在 Linux 上，通过你的包管理器更新（[说明](https://code.claude.com/docs/zh-CN/desktop-linux.md)）。然后重启应用。
+请确保您使用的是最新版本的 Claude Desktop。在 macOS 和 Windows 上，请前往 [claude.com/download](https://claude.com/download) 下载或更新；在 Linux 上，请通过您的包管理器更新（[说明](https://code.claude.com/docs/zh-CN/desktop-linux.md)）。然后重启应用。
 
-**2. 打开切换**
+**2. 打开开关**
 
-在桌面应用中，打开**设置**，然后：
+在桌面应用中，打开 **Settings**，然后：
 
-* **如果设置菜单中列出了此计算机**：转到**此计算机 > 系统**
-* **否则**：转到**功能**
+* **如果 Settings 菜单中列出了 This computer**：前往 **This computer > System**
+* **否则**：前往 **Capabilities**
 
-在**计算机使用**下，打开**启用计算机使用**：
+在 **Computer use** 下，打开 **Enable computer use**：
 
 * **Windows**：开关立即生效，设置完成
 * **macOS**：继续下一步
 
-如果你看不到切换，确认你在 macOS 或 Windows 上使用 Pro 或 Max 计划，然后更新并重启应用。
+如果您没有看到该开关，请确认您使用的是 macOS 或 Windows，并且拥有 Pro 或 Max 计划，然后更新并重启应用。
 
 **3. 授予 macOS 权限**
 
-在 macOS 上，在切换生效之前授予两个系统权限：
+在 macOS 上，开关生效前需要授予两项系统权限：
 
-* **Accessibility**：让 Claude 点击、输入和滚动
-* **Screen Recording**：让 Claude 看到你屏幕上的内容
+* **辅助功能**：让 Claude 能够点击、输入和滚动
+* **屏幕录制**：让 Claude 能够看到您屏幕上的内容
 
-设置页面显示每个权限的当前状态。如果任一被拒绝，点击徽章打开相关的系统设置窗格。
+设置页面会显示每项权限的当前状态。如果其中任一权限被拒绝，请点击相应标识以打开对应的系统设置窗格。
 
 ### 应用权限
 
-Claude 第一次需要使用应用时，会话中会出现提示。点击**允许此会话**或**拒绝**。批准持续当前会话，或在 [Dispatch 生成的会话](#sessions-from-dispatch)中持续 30 分钟。
+Claude 首次需要使用某个应用时，您的会话中会出现一个权限提示。点击 **Allow for this session** 或 **Deny**。批准在当前会话中有效，在 [Dispatch 创建的会话](#sessions-from-dispatch)中则有效 30 分钟。
 
-提示还显示 Claude 为该应用获得的控制级别。这些层由应用类别固定，无法更改：
+该提示还会显示 Claude 对该应用获得的控制级别。这些级别按应用类别固定，无法更改：
 
-| 层 | Claude 可以做什么 | 适用于 |
+| 级别 | Claude 可以执行的操作 | 适用于 |
 | :- | :- | :- |
-| 仅查看 | 在屏幕截图中看到应用 | 浏览器、交易平台 |
+| 仅查看 | 在屏幕截图中查看应用 | 浏览器、交易平台 |
 | 仅点击 | 点击和滚动，但不能输入或使用快捷键 | 终端、IDE |
-| 完全控制 | 点击、输入、拖动和使用快捷键 | 其他所有内容 |
+| 完全控制 | 点击、输入、拖动和使用快捷键 | 其他所有应用 |
 
-像终端、Finder 或文件浏览器以及系统设置或设置这样具有广泛影响的应用在提示中显示额外警告，以便你知道批准它们授予什么。
+影响范围较广的应用（例如终端、Finder 或文件资源管理器，以及系统设置或设置）会在提示中显示额外警告，以便您了解批准它们意味着授予了什么权限。
 
-在设置中，您[启用计算机使用](#enable-computer-use)时所在的**计算机使用**部分包含以下选项：
+在设置中，您[启用 computer use](#enable-computer-use) 的 **Computer use** 部分包含以下选项：
 
-* **拒绝的应用**：在此处添加应用以拒绝它们而不提示。Claude 可能仍然通过允许应用中的操作间接影响被拒绝的应用，但它无法直接与被拒绝的应用交互。
-* **Claude 完成时取消隐藏应用**：当计算机使用不在后台运行时，Claude 隐藏你的其他窗口，以便它仅与批准的应用交互。当 Claude 完成时，隐藏的窗口被恢复，除非你关闭此设置。
+* **Denied apps**：将应用添加到此处即可直接拒绝，而无需提示。Claude 仍可能通过在已允许应用中的操作间接影响被拒绝的应用，但无法直接与被拒绝的应用交互。
+* **Unhide apps when Claude finishes**：当 computer use 未在后台运行时，Claude 会在工作期间隐藏您的其他窗口，以便只与已批准的应用交互。Claude 完成后，隐藏的窗口会恢复显示，除非您关闭此设置。
 
 ## 管理会话
 

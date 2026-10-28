@@ -95,6 +95,7 @@
 | `--hook-timeout <sec>` | `60` | 在这么多秒后终止钩子的进程树。超时加其 5 秒杀死宽限期必须保持在 `--expected-spawn-seconds` 以下；编排器在启动时强制执行此操作。 |
 | `--expected-spawn-seconds <sec>` | `120` | 从编排器收到生成请求到运行器注册的预期 p99 时间，包括在您的平台上等待容量的任何时间。服务器强制的范围为 10 到 3600。在每次轮询时作为服务器端租约发送；如果没有运行器在其过期前注册，会话将使用新的订单 ID 重新提供。所有副本必须共享此值。 |
 | `--min-idle <n>` | `0` | 通过主动生成待命运行器来保持至少 N 个空闲会话槽。`0` 禁用预热。与运行器的 `--exit-if-unused-min` 配对，以便多余的待命运行器回收自己。 |
+| `--shutdown-drain-sec <n>` | `0` | 收到 `SIGTERM` 时，停止轮询生成请求，并给正在运行的 `spawn-runner` hook 和任何尚未得到响应的轮询最多这么多秒来完成，之后停止剩余的部分。设为 `0` 时立即停止。最大值为 `3600`，编排器在启动时强制执行此限制。要选择合适的值，请参阅[确定 `--shutdown-drain-sec` 和编排器的停止超时时间](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#size-shutdown-drain-sec-and-the-supervisors-stop-timeout-for-the-orchestrator)。需要 Claude Code v2.1.299 或更高版本。 |
 | `--debug-dir <path>` | 未设置 | 将每个生成请求的工作订单和钩子 stderr 写入磁盘。仅用于调试；永远不要在生产中设置。 |
 
 ### SCM 连接器标志

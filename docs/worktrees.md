@@ -214,7 +214,7 @@ config/secrets.json
 
 ### 重用 worktree 名称
 
-传递 `--worktree` 一个其目录已存在的名称会打开该现有 worktree 而不是创建一个新的。
+如果与您传递给 `--worktree` 的名称相同的 worktree 已存在，Claude Code 会打开它而不是创建一个新的。如果 Claude Code 因包含 `belongs to a different repository` 或 `is a leftover worktree` 的错误而停止，请参阅[worktree 目录 `belongs to a different repository`](#belongs-to-a-different-repository)。
 
 使用默认的 `"fresh"` [基础](#choose-the-base-branch)，当以下所有条件都成立时，重新打开的 worktree 会重置为仓库的默认分支而不是在其旧提示处继续：
 
@@ -352,6 +352,20 @@ Claude Code 在创建 worktree 时跳过存储库自己的过滤驱动程序，�
 ### 在部分克隆中创建 worktree 失败
 
 包含 `This repository is a partial clone` 的错误意味着 Claude Code 无法获取 worktree 起始提交所需的全部 git 对象。请执行消息中以 `try again` 结尾的那句话所述的步骤。然后在您执行该步骤的 shell 中重试：运行 `claude --worktree`，或在那里启动 `claude` 并再次提出请求。
+
+### `Can only use --worktree in a git repository`
+
+此错误意味着您在一个不是 git 检出的目录中传递了 `--worktree`，并且没有活动的 [`WorktreeCreate` hook](#non-git-version-control)。
+
+* 在没有版本控制的文件夹中，在那里运行 `git init`，创建第一个提交，然后重试。
+* 在其他版本控制系统的检出中，设置消息建议的 hook。
+* 要直接在该目录中工作，请在不使用 `--worktree` 的情况下启动 Claude。
+
+### worktree 目录 `belongs to a different repository`
+
+错误 `belongs to a different repository` 和 `is a leftover worktree` 都意味着 git 将您所传递的 worktree 名称对应的目录关联到了另一个位置。这可能发生在您复制或移动项目之后。
+
+请传递一个不同的 worktree 名称。如果该目录中没有需要保留的工作，并且您没有复制或移动项目，则可以删除它并使用相同的名称重试。在复制或移动之后，这种重试可能会失败并显示 `is already checked out elsewhere in this repository`，因此请使用不同的名称。
 
 ### Claude Code 拒绝使用 worktree
 

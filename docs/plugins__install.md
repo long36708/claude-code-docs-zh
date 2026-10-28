@@ -193,7 +193,7 @@ claude plugin install formatter@your-org --scope project
 
 | Source | What you type | Example |
 | :- | :- | :- |
-| GitHub repository | `owner/repo`。添加 `#ref` 以固定分支或标签。 | `/plugin marketplace add anthropics/claude-code`，或 `/plugin marketplace add your-org/plugins#v1.2.0` 以固定 `v1.2.0` 标签 |
+| GitHub 仓库 | `owner/repo`。添加 `#ref` 以固定分支或标签。 | `/plugin marketplace add anthropics/claude-plugins-official`，或 `/plugin marketplace add your-org/plugins#v1.2.0` 以固定 `v1.2.0` 标签 |
 | Git repository on any host | 完整的克隆 URL。添加 `#ref` 以固定分支或标签。 | `/plugin marketplace add https://gitlab.example.com/your-group/your-marketplace.git#v1.0.0` |
 | Local directory or file | 相对或绝对路径到包含 `.claude-plugin/marketplace.json` 的目录，或到 JSON 文件本身。以 `./` 或 `../` 开始相对路径，因为 Claude Code 将裸 `name/name` 读取为 GitHub 存储库。 | `/plugin marketplace add ./my-marketplace` |
 | Hosted `marketplace.json` | 其 `https://` URL | `/plugin marketplace add https://example.com/marketplace.json` |
@@ -383,7 +383,7 @@ claude plugin uninstall formatter@your-org --scope project
 
 ## Next steps
 
-* [Anthropic's marketplaces](https://code.claude.com/docs/zh-CN/plugins/anthropic-marketplaces.md)：官方、社区和演示市场的区别以及在哪里浏览每个市场
+* [Anthropic 的市场](https://code.claude.com/docs/zh-CN/plugins/anthropic-marketplaces.md)：官方市场和社区市场的区别以及在哪里浏览每个市场
 * [Plugin loading reference](https://code.claude.com/docs/zh-CN/plugins/loading.md)：为什么插件加载、未加载或在更新后未更改
 * [Plugin security and trust](https://code.claude.com/docs/zh-CN/plugins/security.md)：在从您不认识的市场安装插件前要查看的内容
 * [Troubleshoot plugins](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md)：安装和市场错误消息及其修复

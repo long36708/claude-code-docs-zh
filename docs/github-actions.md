@@ -19,131 +19,131 @@
 
 您可以通过以下两种方式之一设置 Claude Code GitHub Action：
 
-* **快速设置**：从 Claude Code 运行 `/install-github-app`。Claude Code 安装 GitHub App、添加您的身份验证密钥并为您准备工作流拉取请求
-* **手动设置**：安装应用、添加密钥并自己将工作流文件复制到您的仓库。当您不在本地运行 Claude Code、命令失败或您想完全控制工作流文件时，请使用此路径
+* **快速设置**：在 Claude Code 中运行 `/install-github-app`。Claude Code 会为您安装 GitHub App、添加身份验证密钥，并准备好工作流 Pull Request
+* **手动设置**：自行安装应用、添加密钥，并将工作流文件复制到仓库中。如果您不在本地运行 Claude Code、该命令执行失败，或者您希望完全掌控工作流文件，请使用此方式
 
-对于任一路径，您需要对仓库具有管理员访问权限。
+无论采用哪种方式，您都需要拥有该仓库的管理员权限。
 
 ### 快速设置
 
-`/install-github-app` 仅适用于 github.com 仓库。如果您的仓库的 git 远程在 gitlab.com 或 bitbucket.org 上，该命令会打印通知并退出，而不是开始设置。要从 GitLab 管道运行 Claude Code，请参阅 [Claude Code GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。
+`/install-github-app` 仅适用于 github.com 仓库。如果仓库的 git 远程地址位于 gitlab.com 或 bitbucket.org，该命令会输出提示并退出，而不会开始设置。如需在 GitLab 流水线中运行 Claude Code，请参阅 [Claude Code GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。
 
-在开始之前，安装 [GitHub CLI](https://cli.github.com) 并使用 `gh auth login` 进行身份验证。Claude Code 会检查它并在缺少时警告您。
+开始之前，请安装 [GitHub CLI](https://cli.github.com) 并使用 `gh auth login` 进行身份验证。Claude Code 会检查该工具，如果缺失会发出警告。
 
-在您想要连接的仓库中打开 `claude`，运行 `/install-github-app`，然后按照提示操作。Claude Code 安装 Claude GitHub App，然后为工作流设置身份验证密钥：
+在要连接的仓库中打开 `claude`，运行 `/install-github-app`，然后按照提示操作。Claude Code 会安装 Claude GitHub App，然后为工作流设置身份验证密钥：
 
-* 如果 Claude Code 已经有 API 密钥，它会重用该密钥，并提供保留仓库现有 `ANTHROPIC_API_KEY` 密钥的选项（如果已设置）
-* 否则，选择使用您的 Claude 订阅创建长期令牌或粘贴 API 密钥
+* 如果 Claude Code 已有 API 密钥，则会复用该密钥；如果仓库已设置 `ANTHROPIC_API_KEY` 密钥，还会询问是否保留现有密钥
+* 否则，您可以选择使用 Claude 订阅创建长期令牌，或粘贴 API 密钥
 
-Claude Code 将凭证保存为仓库密钥，对于 API 密钥命名为 `ANTHROPIC_API_KEY`，对于订阅令牌命名为 `CLAUDE_CODE_OAUTH_TOKEN`。
+Claude Code 会将凭据保存为仓库密钥：API 密钥命名为 `ANTHROPIC_API_KEY`，订阅令牌命名为 `CLAUDE_CODE_OAUTH_TOKEN`。
 
-Claude Code 然后推送一个包含您选择的工作流文件的分支，已设置为使用该密钥，并在您的浏览器中打开 GitHub，准备创建拉取请求。创建并合并该拉取请求，`@claude` 就可以在仓库中工作。
+随后，Claude Code 会推送一个包含您所选工作流文件的分支，这些文件已配置为使用该密钥，并在浏览器中打开 GitHub，其中已准备好待创建的 Pull Request。创建并合并该 Pull Request 后，即可在仓库中使用 `@claude`。
 
-要停止设置过程中途，请按 Esc。已在进行的步骤会完成，之后的步骤不会开始。关闭消息列出了仓库中已发生的事情，例如推送的分支或保存的密钥。
+如需在设置中途停止，请按 Esc。正在进行的步骤会完成，后续步骤不会再开始。结束消息会列出仓库中已经发生的操作，例如已推送的分支或已保存的密钥。
 
-如果您选择审查工作流，Claude 会在拉取请求本身上发布每个审查，作为它发现的每个问题的内联评论或在它没有发现任何问题时作为一个摘要评论。Claude 会跳过一些拉取请求，例如草稿。[审查工作流示例](#run-a-skill)使用相同的 skill 并列出它们。在 v2.1.229 之前，Claude 仅将其审查写入工作流运行日志。
+如果您选择了审查工作流，Claude 会将每次审查直接发布在 Pull Request 上：对发现的每个问题发布行内评论，若未发现问题则发布一条摘要评论。Claude 会跳过某些 Pull Request，例如草稿。[审查工作流示例](#run-a-skill)使用相同的 skill 并列出了这些情况。在 v2.1.229 之前，Claude 仅将审查结果写入工作流运行日志。
 
-要更新早期版本生成的审查工作流，请执行以下操作之一：
+如需更新由早期版本生成的审查工作流，请执行以下任一操作：
 
-* 再次运行 `/install-github-app`。当仓库已经有 `claude.yml` 时，选择**使用最新版本更新工作流文件**。Claude Code 将新的工作流文件副本推送到新分支并打开拉取请求，与首次安装相同。
-* 自己将 `--comment` 参数和 `claude_args` 行从[审查工作流示例](#run-a-skill)添加到已检入的文件，这会保留您对其所做的任何其他编辑。
+* 再次运行 `/install-github-app`。当仓库中已有 `claude.yml` 时，选择 **Update workflow file with latest version**。Claude Code 会将最新的工作流文件推送到新分支并打开 Pull Request，与首次安装时相同。
+* 自行将 [审查工作流示例](#run-a-skill)中的 `--comment` 参数和 `claude_args` 行添加到已提交的文件中，这样可以保留您对该文件所做的其他修改。
 
-安装 GitHub App 后，Claude Code 会询问是否继续进行 GitHub Actions 设置。选择**暂时跳过**以仅安装 GitHub App。稍后再次运行 `/install-github-app` 以完成工作流和密钥步骤。
+安装 GitHub App 后，Claude Code 会询问是否继续进行 GitHub Actions 设置。选择 **Skip for now** 将在仅安装 GitHub App 的状态下停止。之后可再次运行 `/install-github-app` 来完成工作流和密钥步骤。
 
 > [!NOTE]
 >
-> * 安装 GitHub App 时，您授予它多个权限。有关完整集合，请参阅 [GitHub App 权限](#github-app-permissions)
-> * 快速设置适用于 Claude API 和 Claude 订阅。如果您使用 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry，请参阅[将 Claude Code GitHub Actions 与云提供商一起使用](https://code.claude.com/docs/zh-CN/github-actions-cloud-providers.md)
+> * 安装 GitHub App 时，您会授予它多项权限。完整列表请参阅 [GitHub App 权限](#github-app-permissions)
+> * 快速设置适用于 Claude API 和 Claude 订阅。如果您使用 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry，请参阅[在云服务提供商上使用 Claude Code GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions-cloud-providers.md)
 
 ### 手动设置
 
-要在不运行 `/install-github-app` 的情况下配置 Claude Code GitHub Action，请安装应用、添加密钥并自己复制工作流文件：
+如需在不运行 `/install-github-app` 的情况下配置 Claude Code GitHub Action，请自行安装应用、添加密钥并复制工作流文件：
 
 **1. 安装 Claude GitHub App**
 
-将 [Claude GitHub App](https://github.com/apps/claude) 安装到您的仓库。Claude Code GitHub Action 依赖于应用的三个权限：
+将 [Claude GitHub App](https://github.com/apps/claude) 安装到您的仓库。Claude Code GitHub Action 依赖该应用的以下三项权限：
 
 * **Contents**：读写，以便 Claude 可以修改仓库文件
-* **Issues**：读写，以便 Claude 可以响应 issue
+* **Issues**：读写，以便 Claude 可以回复 issue
 * **Pull requests**：读写，以便 Claude 可以创建 PR 并推送更改
 
-在安装期间，您还授予其他 Claude 功能使用的权限。有关完整集合，请参阅 [GitHub App 权限](#github-app-permissions)。
+安装过程中，您还会授予其他 Claude 功能所使用的权限。完整列表请参阅 [GitHub App 权限](#github-app-permissions)。
 
 **2. 添加身份验证密钥**
 
-根据您的身份验证方式，将以下密钥之一添加到您的仓库。请参阅 GitHub 的[在 GitHub Actions 中使用密钥](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)指南。
+根据您的身份验证方式，向仓库添加以下密钥之一。请参阅 GitHub 的[在 GitHub Actions 中使用密钥](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)指南。
 
 * `ANTHROPIC_API_KEY`：来自 [Claude Console](https://platform.claude.com) 的 Claude API 密钥
-* `CLAUDE_CODE_OAUTH_TOKEN`：使用您的 Claude 订阅进行身份验证的 OAuth 令牌，在 Pro、Max、Team 和 Enterprise 计划上可用。通过在本地运行 `claude setup-token` 生成一个。请参阅[生成长期令牌](https://code.claude.com/docs/zh-CN/authentication.md#generate-a-long-lived-token)
+* `CLAUDE_CODE_OAUTH_TOKEN`：使用您的 Claude 订阅进行身份验证的 OAuth 令牌，适用于 Pro、Max、Team 和 Enterprise 套餐。在本地运行 `claude setup-token` 即可生成。请参阅[生成长期令牌](https://code.claude.com/docs/zh-CN/authentication.md#generate-a-long-lived-token)
 
-在工作流文件中，将密钥传递给匹配的输入：`anthropic_api_key` 用于 API 密钥，或 `claude_code_oauth_token` 用于 OAuth 令牌。
+在工作流文件中，将密钥传递给对应的输入：API 密钥使用 `anthropic_api_key`，OAuth 令牌使用 `claude_code_oauth_token`。
 
 **3. 复制工作流文件**
 
-将 [examples/claude.yml](https://github.com/anthropics/claude-code-action/blob/main/examples/claude.yml) 复制到您的仓库的 `.github/workflows/` 目录。该文件是一个工作的工作流，不仅仅是一个示例。按照提交的方式，Claude 在任何人在 issue 或拉取请求中提及 `@claude` 时响应，使用 `ANTHROPIC_API_KEY` 密钥进行身份验证。如果您改为添加了 `CLAUDE_CODE_OAUTH_TOKEN`，请将工作流的 `anthropic_api_key` 行更改为 `claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}`。
+将 [examples/claude.yml](https://github.com/anthropics/claude-code-action/blob/main/examples/claude.yml) 复制到仓库的 `.github/workflows/` 目录中。该文件是一个可直接使用的工作流，而不仅仅是示例。按提交时的状态，每当有人在 issue 或 Pull Request 中提及 `@claude` 时，Claude 都会做出回应，并使用 `ANTHROPIC_API_KEY` 密钥进行身份验证。如果您添加的是 `CLAUDE_CODE_OAUTH_TOKEN`，请将工作流中的 `anthropic_api_key` 行改为 `claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}`。
 
 > [!TIP]
 >
-> 设置后，通过在 issue 或 PR 评论中标记 `@claude` 来测试 Claude Code GitHub Action。
+> 设置完成后，在 issue 或 PR 评论中标记 `@claude` 来测试 Claude Code GitHub Action。
 
-### 为组织设置
+### 为组织进行设置
 
-使用快速设置或手动设置，您一次配置一个仓库。要在整个组织中推出 Claude Code GitHub Action：
+无论是快速设置还是手动设置，每次只能配置一个仓库。如需在整个组织中推广 Claude Code GitHub Action：
 
-* 在组织级别安装一次 [Claude GitHub App](https://github.com/apps/claude)，选择所有仓库或选定列表
-* 将身份验证密钥存储为组织级别的 Actions 密钥，以便每个仓库不需要自己的副本
-* 将工作流文件添加到应该运行 Claude Code GitHub Action 的每个仓库，或将作业定义一次作为[可重用工作流](https://docs.github.com/en/actions/using-workflows/reusing-workflows)，每个仓库都调用它
+* 在组织级别安装一次 [Claude GitHub App](https://github.com/apps/claude)，选择所有仓库或指定的仓库列表
+* 将身份验证密钥存储为组织级别的 Actions 密钥，这样每个仓库就无需单独保存副本
+* 将工作流文件添加到每个需要运行 Claude Code GitHub Action 的仓库，或将该作业定义为一个[可复用工作流](https://docs.github.com/en/actions/using-workflows/reusing-workflows)，供各仓库调用
 
-对于跨仓库共享的密钥，使用来自 [Claude Console](https://platform.claude.com) 的 API 密钥进行身份验证，而不是 OAuth 令牌，因为 OAuth 令牌与运行 `claude setup-token` 的人的订阅相关联。
+对于跨仓库共享的密钥，请使用来自 [Claude Console](https://platform.claude.com) 的 API 密钥进行身份验证，而不是 OAuth 令牌，因为 OAuth 令牌与运行 `claude setup-token` 的用户的订阅绑定。
 
-要完全避免存储长期密钥，通过工作负载身份联合进行身份验证，其中 Claude Code GitHub Action 将工作流的 GitHub OpenID Connect (OIDC) 令牌交换为通过 Claude Console 服务账户的 Claude API 访问。设置这些输入：
+如需完全避免存储长期密钥，请通过工作负载身份联合进行身份验证：Claude Code GitHub Action 会通过 Claude Console 服务账号，将工作流的 GitHub OpenID Connect (OIDC) 令牌交换为 Claude API 访问权限。请设置以下输入：
 
 * `anthropic_federation_rule_id`：联合规则 ID，`fdrl_...`
 * `anthropic_organization_id`：您的 Anthropic 组织 ID
-* `anthropic_service_account_id`：服务账户 ID，`svac_...`。可选，因为您在 Console 中创建的联合规则已经针对服务账户
-* `anthropic_workspace_id`：工作区 ID，`wrkspc_...`。当联合规则针对单个工作区时可选
+* `anthropic_service_account_id`：服务账号 ID，`svac_...`。可选，因为您在 Console 中创建的联合规则已指向某个服务账号
+* `anthropic_workspace_id`：工作区 ID，`wrkspc_...`。当联合规则指向单个工作区时为可选
 
-授予工作流 `id-token: write` 权限，Claude Code GitHub Action 需要它来进行联合交换，即使您传递自己的 `github_token`。有关 Console 端配置，请参阅 [Claude Code GitHub Action 的设置指南](https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md)。
+为工作流授予 `id-token: write` 权限。即使您传入了自己的 `github_token`，Claude Code GitHub Action 也需要此权限来完成联合交换。Console 端的配置请参阅 [Claude Code GitHub Action 设置指南](https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md)。
 
-有关安全审查中的数据处理和保留问题，请参阅[数据使用](https://code.claude.com/docs/zh-CN/data-usage.md)和[安全](https://code.claude.com/docs/zh-CN/security.md)。
+关于安全审查中涉及的数据处理和保留问题，请参阅[数据使用](https://code.claude.com/docs/zh-CN/data-usage.md)和[安全](https://code.claude.com/docs/zh-CN/security.md)。
 
 ### 卸载
 
-要删除 Claude Code GitHub Action，请撤销适用于您的安装的每个设置部分：
+如需移除 Claude Code GitHub Action，请撤销您的安装中适用的每一项设置：
 
-* **工作流文件**：从 `.github/workflows/` 中删除使用 `anthropics/claude-code-action` 的工作流。如果您使用了快速设置，请查找 `claude.yml`，如果您选择了审查工作流，请查找 `claude-code-review.yml`。删除工作流后，Claude Code GitHub Action 不再运行
-* **密钥**：从仓库中删除 `ANTHROPIC_API_KEY` 或 `CLAUDE_CODE_OAUTH_TOKEN` 密钥，如果您[跨仓库共享它](#set-up-for-an-organization)，也从组织级别的 Actions 密钥中删除。如果您删除密钥，它持有的凭证保持有效。要完全停用 API 密钥，也在 [Claude Console](https://platform.claude.com) 中删除密钥
-* **GitHub App**：在您的仓库或组织设置中的 GitHub Apps 下卸载 Claude GitHub App，但仅当您不将其用于另一个 Claude 功能（如 Code Review 或 web auto-fix）时
+* **工作流文件**：从 `.github/workflows/` 中删除使用 `anthropics/claude-code-action` 的工作流。如果您使用的是快速设置，请查找 `claude.yml`，如果选择了审查工作流，还需查找 `claude-code-review.yml`。删除工作流后，Claude Code GitHub Action 将不再运行
+* **密钥**：从仓库中删除 `ANTHROPIC_API_KEY` 或 `CLAUDE_CODE_OAUTH_TOKEN` 密钥；如果您已[跨仓库共享该密钥](#set-up-for-an-organization)，还需从组织级别的 Actions 密钥中删除。删除密钥后，其中保存的凭据仍然有效。如需彻底停用 API 密钥，还需在 [Claude Console](https://platform.claude.com) 中删除该密钥
+* **GitHub App**：在仓库或组织设置的 GitHub Apps 下卸载 Claude GitHub App，但前提是您没有将其用于其他 Claude 功能，例如 Code Review 或网页版自动修复
 
-如果您配置了[云提供商](https://code.claude.com/docs/zh-CN/github-actions-cloud-providers.md)，也删除提供商密钥，例如 `AWS_ROLE_TO_ASSUME`、`GCP_*` 密钥或 `AZURE_*` 密钥，并卸载自定义 GitHub App 及其 `APP_ID` 和 `APP_PRIVATE_KEY` 密钥。
+如果您配置了[云服务提供商](https://code.claude.com/docs/zh-CN/github-actions-cloud-providers.md)，还需删除提供商密钥，例如 `AWS_ROLE_TO_ASSUME`、`GCP_*` 密钥或 `AZURE_*` 密钥，并卸载自定义 GitHub App 及其 `APP_ID` 和 `APP_PRIVATE_KEY` 密钥。
 
 ### GitHub App 权限
 
-[Claude GitHub App](https://github.com/apps/claude) 由与 GitHub 集成的每个 Claude 功能共享，包括 Claude Code GitHub Action、[Code Review](https://code.claude.com/docs/zh-CN/code-review.md) 和 [Claude Code on the web](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#auto-fix-pull-requests) 上的 auto-fix。GitHub App 有一个覆盖其所有功能的单一权限集，因此该集包括 Claude Code GitHub Action 不使用的一些权限。
+[Claude GitHub App](https://github.com/apps/claude) 由所有与 GitHub 集成的 Claude 功能共享，包括 Claude Code GitHub Action、[Code Review](https://code.claude.com/docs/zh-CN/code-review.md) 以及云端会话中的 [Pull Request 自动修复](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#auto-fix-pull-requests)。一个 GitHub App 只有一套涵盖其所有功能的权限，因此其中包含一些 Claude Code GitHub Action 并不使用的权限。
 
-安装应用时，您授予以下权限：
+安装该应用时，您会授予以下权限：
 
-| 权限 | 访问 |
+| 权限 | 访问级别 |
 | - | - |
 | Actions | 读写 |
-| Administration | 读 |
+| Administration | 读取 |
 | Checks | 读写 |
 | Contents | 读写 |
 | Discussions | 读写 |
 | Issues | 读写 |
-| Members | 读 |
-| Merge queues | 读 |
-| Metadata | 读 |
+| Members | 读取 |
+| Merge queues | 读取 |
+| Metadata | 读取 |
 | Pull requests | 读写 |
 | Repository hooks | 读写 |
-| Statuses | 读 |
+| Statuses | 读取 |
 | Workflows | 读写 |
 
-权限集也可以在使用它的功能之前更改。当应用请求它之前没有的权限时，GitHub 会提示账户所有者批准它，对于组织安装则提示组织所有者，安装保持其旧权限直到他们这样做。例如，当 Actions 访问从读更改为写时，应用可以重新运行工作流而不仅仅查看运行和日志，因此 GitHub 要求所有者批准更改。
+权限集也可能先于使用这些权限的功能而发生变化。当应用请求之前没有的权限时，GitHub 会提示账号所有者（对于组织安装则为组织所有者）进行批准，在其批准之前，安装将保留原有权限。例如，当 Actions 访问权限从读取变为读写时，应用将能够重新运行工作流，而不仅仅是查看运行记录和日志，因此 GitHub 会请求所有者批准此更改。
 
-安装应用时，您接受其完整权限集。GitHub 不允许您接受子集。如果您的组织仅需要 Claude Code GitHub Action 使用的权限，请按照 [Claude Code GitHub Action 的设置指南](https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md)创建一个具有 Contents、Issues 和 Pull requests 的自定义 GitHub App。自定义应用仅覆盖 Claude Code GitHub Action。Code Review 和 web auto-fix 仍然需要官方应用。
+安装该应用即表示您接受其完整的权限集。GitHub 不允许只接受其中一部分。如果您的组织要求仅授予 Claude Code GitHub Action 所使用的权限，请按照 [Claude Code GitHub Action 设置指南](https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md)创建一个仅包含 Contents、Issues 和 Pull requests 权限的自定义 GitHub App。自定义应用仅适用于 Claude Code GitHub Action。Code Review 和网页版自动修复仍需使用官方应用。
 
-有关 Claude Code GitHub Action 如何限制 Claude 对这些权限的操作的详细信息，请参阅[安全文档](https://github.com/anthropics/claude-code-action/blob/main/docs/security.md)。
+关于 Claude Code GitHub Action 如何限制 Claude 使用这些权限的详细信息，请参阅[安全文档](https://github.com/anthropics/claude-code-action/blob/main/docs/security.md)。
 
 ## 交互和自动化模式
 
@@ -241,8 +241,8 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
-          plugins: "code-review@claude-code-plugins"
+          plugin_marketplaces: "https://github.com/anthropics/claude-plugins-official.git"
+          plugins: "code-review@claude-plugins-official"
           prompt: "/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
           claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment"'
 ```

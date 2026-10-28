@@ -228,7 +228,7 @@ Teleport 在恢复会话前检查这些要求。如果任何要求未满足，�
 
 Teleport 需要 claude.ai 订阅身份验证。请找到与您相符的情况：
 
-* **您通过 API 密钥进行身份验证**：运行 `/login` 以改为使用您的 claude.ai 账户登录
+* **您使用 API 密钥或 Console 账户登录**：在您的 shell 中运行 `claude auth login`，然后使用 claude.ai 登录
 * **错误指明了您的提供商**：云端会话无法通过第三方提供商使用。请参阅[错误表](#errors-when-sending-to-a-cloud-session)
 * **您已通过 claude.ai 登录**：您的组织可能已禁用云端会话
 
@@ -437,10 +437,11 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 
 ### 无法获取组织 UUID
 
-`claude --cloud` 和 `claude --teleport` 需要使用 claude.ai 账户登录。如果您使用 API 密钥进行身份验证，或者存储的账户详情已过期，您会看到以下情况之一：
+`claude --cloud` 和 `claude --teleport` 需要使用 claude.ai 账户登录。如果您改为使用 API 密钥或 Console 登录进行身份验证，或者存储的账户详情已过期，您会看到以下消息之一：
 
 * `Unable to get organization UUID`
 * ``Cloud sessions need a claude.ai sign-in. Run `claude auth login` (or /login in a local session), then try again.``
+* ``Cloud sessions aren't available with this Console sign-in. They need a claude.ai sign-in. Run `claude auth login` (or /login in a local session), then try again.``
 * 在不带会话 ID 运行 `claude --teleport` 时，会话选择器中显示 `Error loading Claude Code sessions`
 
 在 shell 中运行 [`claude auth login`](https://code.claude.com/docs/zh-CN/cli-reference#cli-commands) 以使用您的 claude.ai 账户登录，然后重试该命令。在正在运行的会话中，`/login` 的作用相同。如果错误中提到的是您的提供商，请参阅[错误表](#errors-when-sending-to-a-cloud-session)：云端会话无法通过第三方提供商使用。

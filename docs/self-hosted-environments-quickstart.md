@@ -29,7 +29,7 @@ claude.ai 端需要：
 
 * 一个 Linux 或 macOS 主机或容器，具有到 `api.anthropic.com` 的出站 HTTPS、到 `claude.ai` 和下面安装步骤重定向到的下载主机的出站 HTTPS，以及到您的 git 主机的出站 HTTPS 用于克隆；[网络要求表](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#network-requirements)有完整列表。Windows 不支持作为运行器主机；改为在 Linux 容器中运行运行器。开发人员工作站不受影响，因为会话从浏览器中的 claude.ai 启动。
 * 一个用于测试会话的仓库：可以是公共仓库，也可以是此主机已能通过其 HTTPS URL 克隆且无需提供凭据的仓库。仅有 SSH 密钥是不够的，因为运行器克隆的是仓库的 `https://` URL。要改为通过 SSH 克隆，请参阅[为私有网络重写 git URL](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#rewrite-git-urls-for-private-networks)。
-* 与实时同步的时钟，例如使用 NTP。当时钟偏离超过五分钟时，身份验证失败；请参阅[故障排除](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#troubleshooting)。
+* 与实时同步的时钟，例如使用 NTP。
 
 ### 运行器主机上的软件
 

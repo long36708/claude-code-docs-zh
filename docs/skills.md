@@ -395,7 +395,7 @@ Your skill instructions here...
 | 字段 | 必需 | 描述 |
 | :- | :- | :- |
 | `name` | 否 | 在 `/` 菜单中显示的命令名称。默认为目录名称。有关该字段如何与您为调用 skill 而输入的名称交互，请参阅 [skill 如何获得其命令名称](#how-a-skill-gets-its-command-name)。 |
-| `description` | 建议 | skill 的功能以及何时使用它。Claude 据此决定何时应用该 skill。如果省略，则使用 markdown 内容的第一个非空行。请将关键用例放在最前面：为减少上下文占用，`description` 和 `when_to_use` 的合并文本在 skill 列表中会被截断为 1,536 个字符。 |
+| `description` | 建议 | skill 的功能以及何时使用它。Claude 据此决定何时应用该 skill。如果省略，则使用 markdown 内容的第一个非空行。请将关键用例放在最前面：为减少上下文占用，`description` 和 `when_to_use` 的合并文本在 skill 列表中会被截断为 1,536 个字符。文本中的尖括号会[显示为 `&lt;` 和 `&gt;`](#angle-brackets-in-a-skill-description)。 |
 | `when_to_use` | 否 | 关于 Claude 何时应调用该 skill 的附加上下文，例如触发短语或示例请求。在 skill 列表中附加到 `description` 之后，并计入 1,536 个字符的上限。 |
 | `argument-hint` | 否 | 自动补全期间显示的提示，用于指示预期的参数。示例：`[issue-number]` 或 `[filename] [format]`。 |
 | `arguments` | 否 | 用于 skill 内容中 [`$name` 替换](#available-string-substitutions)的命名位置参数。接受以空格分隔的字符串或 YAML 列表。名称按顺序映射到参数位置。 |
@@ -778,9 +778,9 @@ PowerShell 工具对它运行的命令应用相同的超时、后台化和输出
 
 使用默认的 `bash` shell，将 `|| true` 附加到任何你期望退出非零的其他命令。一个在发现问题时退出 1 的检查脚本就是一个例子。
 
-#### 注入命令中的控制字符
+#### 未运行任何 shell 命令时
 
-`No shell command in <name> was run` 表示该文件中的某个 `!` 命令包含制表符或换行符以外的原始控制字符，因此其中所有命令都不会运行。请参阅[如何查找并删除该字符](https://code.claude.com/docs/zh-CN/errors.md#no-shell-command-was-run)。
+`No shell command in <name> was run` 表示其中某个 shell 命令包含该工具不接受的字符。要查找并删除该字符，请参阅[错误参考](https://code.claude.com/docs/zh-CN/errors.md#no-shell-command-was-run)。
 
 #### 注入命令的权限检查
 
@@ -1228,6 +1228,13 @@ Claude Code 将 skill 名称和描述的列表加载到上下文中，以便 Cla
 `/context` 中的 Skills 行报告应用预算后列表的大小，因此它与模型接收的内容相匹配。在 v2.1.196 之前，该行计算每个描述的完整文本，可能显示的值比配置的预算大几倍。
 
 要提高预算，设置 [`skillListingBudgetFraction`](https://code.claude.com/docs/zh-CN/settings-reference#skilllistingbudgetfraction) 设置（例如 `0.02` = 2%）或 `SLASH_COMMAND_TOOL_CHAR_BUDGET` 环境变量为固定字符数。要为其他 skills 释放预算，在 [`skillOverrides`](#override-skill-visibility-from-settings) 中将低优先级条目设置为 `"name-only"`，以便它们在没有描述的情况下列出。你也可以在源处修剪 `description` 和 `when_to_use` 文本：将关键用例放在首位，因为每个条目的组合文本被限制在 1,536 个字符，无论预算如何。该上限可通过 [`skillListingMaxDescChars`](https://code.claude.com/docs/zh-CN/settings-reference#skilllistingmaxdescchars) 配置。
+
+### Skill 描述中的尖括号显示为 `&lt;` 和 `&gt;`
+
+Claude Code 会将 `description` 和 `when_to_use` 字段中的 `<` 和 `>` 显示为 `&lt;` 和 `&gt;`。要显示诸如 `<branch>` 之类的占位符，请使用方括号或 [`argument-hint`](#frontmatter-reference)：
+
+* **方括号**：将 `<branch>` 替换为 `[branch]`，它会按输入原样显示
+* **`argument-hint`**：将占位符移到新的 `argument-hint: <branch>` 行中。它会显示在命令名称之后。如果您还将该 skill 上传到 claude.ai 或 Skills API，请先[检查那里是否接受 `argument-hint`](#using-skill-frontmatter-outside-claude-code)。
 
 ### 个人 skills 消失了
 

@@ -18,10 +18,10 @@
 
 当每个会话需要运行器无法自行完成的设置时，使用包装脚本：为会话创建者配置作用域的短期凭据、导出特定于环境的密钥、准备语言工具链或围绕子进程应用资源限制。运行器每个会话启动一次您的包装脚本，而不是 Claude Code 二进制文件。通过 `exec` 进入 `$CLAUDE_RUNNER_CLAUDE_BIN`（运行器自己的二进制文件）来结束包装脚本，以便信号和退出码正确传播。
 
-启动运行器时，使用 `--exec-path` 或 `SELF_HOSTED_RUNNER_EXEC_PATH` 指向包装脚本：
+启动运行器时，使用 `--exec-path` 或 `SELF_HOSTED_RUNNER_EXEC_PATH` 指向包装脚本，并按照[快速入门](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-manually)中的说明替换 `<writable-dir>`：
 
 ```bash theme={null}
-claude self-hosted-runner --environment-secret-file /etc/claude/environment-secret --exec-path /etc/claude/session-wrapper.sh
+claude self-hosted-runner --environment-secret-file /etc/claude/environment-secret --base-dir '<writable-dir>' --exec-path /etc/claude/session-wrapper.sh
 ```
 
 运行器在包装脚本的环境中设置以下内容：
@@ -456,6 +456,39 @@ trap 'rc=$?; [ "$rc" -eq 0 ] || [ -n "${PERMANENT:-}" ] || exit 1' EXIT
   随后编排器的日志中会显示该消息。如果 hook 还会创建其他对象，请以订单 ID 命名每个对象，为每个对象使用单独的命令，并以同样方式将其“已存在”应答视为成功。对于包含密钥的对象，请打印固定消息来代替命令的输出。
 
 要确认 trap 是否生效，请在 `trap` 行正下方添加一行，调用一个不存在的命令，例如 `no-such-command`。从您的 shell 运行 hook 文件，检查 `echo $?` 是否输出 `1`，然后删除该行。
+
+### 停止或重启编排器
+
+要在不中断正在运行的 `spawn-runner` hook 的情况下停止或重启编排器，请使用 [`--shutdown-drain-sec`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 启动它。这样，收到 `SIGTERM` 时，编排器会给正在运行的 hook 最多您所设置的秒数来完成。要选择该值并相应地设置您的进程管理器，请参阅[确定 `--shutdown-drain-sec` 和编排器的停止超时时间](#size-shutdown-drain-sec-and-the-supervisors-stop-timeout-for-the-orchestrator)。
+
+以下启动命令允许 70 秒：
+
+```bash theme={null}
+claude self-hosted-runner orchestrator \
+  --environment-secret-file /etc/claude/environment-secret \
+  --hooks-dir /etc/claude/hooks \
+  --shutdown-drain-sec 70
+```
+
+当已发送的轮询和每个 hook 都完成后，编排器即退出。当 `--shutdown-drain-sec` 的秒数用尽时，仍在运行的 hook 会收到 `SIGTERM`，编排器随即退出。第二个 `SIGTERM` 或任何 `SIGINT` 会产生相同效果，且不再等待。包含 `[runner:orchestrator] stop summary:` 的日志行会按每个 hook 和生成请求的结束方式进行计数。
+
+如果不使用 `--shutdown-drain-sec`，编排器会在收到 `SIGTERM` 或 `SIGINT` 时立即停止。每个正在运行的 hook 都会收到 `SIGTERM`，且不会通知 Anthropic。这样，运行器从未启动的会话可能会一直停留在队列中，直到 Anthropic [重新请求它](#the-spawn-runner-hook)，这会在 `--expected-spawn-seconds`（默认 120 秒）过后发生。
+
+> [!NOTE]
+>
+> `--shutdown-drain-sec` 需要 Claude Code v2.1.299 或更高版本。较旧的版本会在启动时以 `error: unknown flag --shutdown-drain-sec` 退出。
+
+#### 确定 `--shutdown-drain-sec` 和编排器的停止超时时间
+
+在默认设置下，请使用 [`--shutdown-drain-sec 70`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 并将停止超时时间设为 85 秒，即在 Kubernetes 上使用 `terminationGracePeriodSeconds: 85`，或在 systemd 下使用 `TimeoutStopSec=85`。如果您更改了 `--hook-timeout`，请按比例调整这两个值：
+
+* **`--shutdown-drain-sec`**：至少为 `--hook-timeout` 加 10 秒，以便在 `SIGTERM` 之前刚启动的 hook 仍能完成
+* **停止超时时间**：至少为 `--shutdown-drain-sec` 加 15 秒。编排器会在启动时记录此数值：请查找包含 `shutdown drain:` 的行。
+
+请让您的进程管理器只发送一个 `SIGTERM`，且仅发送给编排器进程，因为第二个 `SIGTERM` 会缩短 `--shutdown-drain-sec` 的等待时间。如果您保留 systemd 的默认设置 [`KillMode=control-group`](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy#what-reaches-a-running-post-session-hook)，hook 也会收到 `SIGTERM`，hook 可能会在提交其工作负载之前终止。在更改 `KillMode` 之前，请检查您的 `spawn-runner` hook 是如何启动运行器的：
+
+* **如果您的 hook 将其工作负载提交到平台后即退出**：将编排器作为该单元的主进程运行，并设置 `KillMode=mixed`，这样只会向该进程发送 `SIGTERM`。
+* **如果您的 hook 在编排器自身的单元中以进程形式启动运行器**：`KillMode=mixed` 不会向这些运行器发送 `SIGTERM`。相反，systemd 稍后会向它们发送 `SIGKILL`，因此它们会在未排空其会话、也未运行其 `post-session` hook 的情况下退出。
 
 ## 将模型请求发送到 Bedrock 或 Agent Platform
 

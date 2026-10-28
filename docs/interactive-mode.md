@@ -332,7 +332,7 @@ Claude Code 支持在后台运行 Bash 命令，允许你在长时间运行的�
 * 在您通过终端、桌面应用或 VS Code 扩展进行工作的本地会话中，后台命令没有时间限制。在无人值守运行的会话中（例如 `-p` 运行或云端会话），Claude Code 会在后台命令达到其[时间限制](https://code.claude.com/docs/zh-CN/tools-reference.md#time-limit-for-background-commands)时停止它
 * 由前台[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)启动的后台命令在该子代理的运行结束时结束，无论是完成、失败还是被中断；请参阅工具参考中的[后台命令何时停止](https://code.claude.com/docs/zh-CN/tools-reference.md#when-a-background-command-stops)
 
-要关闭后台命令，请将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量设置为 `1`。设置后，您还将无法使用后台子代理、后台 fork skill 以及 `Ctrl+B`。以 [bare 模式](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode)启动具有相同效果。
+要关闭后台命令，请将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量设置为 `1`。设置后，您还将无法使用 `Ctrl+B` 快捷键和[其他后台功能](https://code.claude.com/docs/zh-CN/env-vars.md#variables)，例如[在后台运行 skill](https://code.claude.com/docs/zh-CN/skills.md#run-skills-in-a-subagent)。以 [bare 模式](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode)启动具有相同效果。
 
 **常见的后台命令：**
 

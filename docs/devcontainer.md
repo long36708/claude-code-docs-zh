@@ -79,7 +79,7 @@ Claude Code 功能在基础镜像未提供 Node.js 时会自行安装。如果�
 
 > [!NOTE]
 >
-> 如果浏览器登录完成但回调从未到达容器，请复制浏览器中显示的代码并将其粘贴到终端中的 `Paste code here if prompted` 提示处。当编辑器的端口转发不路由 localhost 回调时，可能会发生这种情况。
+> 对于 Anthropic 登录：如果没有打开浏览器，或者浏览器完成登录后显示 `localhost` 连接错误，请使用终端粘贴提示上方显示的登录 URL。将其复制到浏览器中并在浏览器中登录，然后将浏览器显示的代码粘贴到该提示处。如果粘贴没有任何反应，请参阅[在 WSL2、SSH 或容器中 OAuth 登录失败](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#oauth-login-fails-in-wsl2-ssh-or-containers)。
 
 ## 在重建过程中保持身份验证和设置
 

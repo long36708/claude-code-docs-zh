@@ -631,7 +631,10 @@ upstreams:
 
 网关不保持失败上游的记录，因此当上游关闭时，到达它的每个请求仍然尝试它并等待它失败后再继续。
 
-对于 Anthropic API 上游，[`timeouts.upstream_ttfb_ms`](#http-tuning) 限制在关闭上游上的等待。该设置不适用于其他提供商，网关等待最多一小时以便上游开始响应。
+网关等待响应开始的时长如下：
+
+* **`provider: anthropic` 上游**：[`timeouts.upstream_ttfb_ms`](#http-tuning)，默认 120 秒
+* **其他提供商**：最多一小时。要缩短流式请求的等待时间，请在网关 v2.1.295 或更高版本上设置 `timeouts.upstream_ttfb_ms`。非流式模型请求无论如何都最多等待一小时
 
 `404` 是按上游模型可用性，因此未启用模型的上游不阻止提供它的后续上游。无法解析请求的模型的上游被跳过而不进行网络往返。
 
@@ -1150,6 +1153,10 @@ managed:
 
 `blockReadsOutsideWorkingDirectories`、`disableBypassPermissionsMode`、`configRecheckIntervalMinutes` 和 `sshClientPath` 需要网关服务器上的 Claude Code v2.1.281 或更高版本。`microsoftAuthBroker` 的 `required` 值以及 Microsoft 365 `managedMcpServers` 条目的 `continuousAccessEvaluation` 字段也是如此。早于 `required` 值的 Claude Desktop 版本会将其读取为 `disabled`，因此请仅在每位成员的 Claude Desktop 都支持后再设置 `required`。Claude Desktop 的[托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)列出了首次读取每个键的版本。
 
+> [!NOTE]
+>
+> [`sshTransport`](https://claude.com/docs/third-party/claude-desktop/configuration#sshtransport) 需要网关服务器上为 Claude Code v2.1.293 或更高版本。
+
 如果您在策略的 `desktop` 块中设置了 `orgPluginSettings`，网关会以 Claude Desktop 1.15200.0 及更高版本读取的数组形式提供它。较旧的桌面客户端会忽略该数组且不执行任何插件工具策略，因此在依赖它之前，请将成员更新到 1.15200.0 或更高版本。
 
 ##### 角色策略如何继承基础 `desktop` 块
@@ -1400,7 +1407,7 @@ Claude Code 在直接导出信号之前会检查端点，检查失败时该信�
 | `limits` | `max_request_bytes` | 32 MiB | 入站请求体的最大大小；超出大小的请求会在缓冲请求体之前收到 `413`。对于大型文件或图片请求，请调高此值。 |
 | `limits` | `max_request_header_bytes` | 未设置 | 降低网关对请求头总大小的 256 KiB 限制。超出限制的请求返回 `431`，大于 256 KiB 的值不起作用。如果开发者在登录后收到 `431`，请参阅[登录后请求头过大](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#request-headers-too-large-after-sign-in)。 |
 | `limits` | `max_url_length` | 未设置 | 设置后，过长的 URL 返回 `414` |
-| `timeouts` | `upstream_ttfb_ms` | 120000 | 等待上游响应头的最长时间（首字节时间）。之后响应体以流式传输，不设总时长上限。适用于直连 Anthropic 的上游路径；对于其他所有提供商，网关最多等待一小时让响应开始。 |
+| `timeouts` | `upstream_ttfb_ms` | 120000 | 等待上游响应标头的最长时间（首字节时间）。之后响应体以流式传输，没有总时长上限。如果未设置此键，默认值适用于 `provider: anthropic` 上游；对于其他所有提供商，网关最多等待一小时让响应开始。如需缩短此等待时间，请参阅[多个上游](#multiple-upstreams)。 |
 | `rate_limits` | `device_authorization.max` / `.window_seconds` | 30 / 600 | 对未经身份验证的设备授权端点按 IP 施加的速率限制。对于位于共享出口 IP 或 NAT 之后的大型组织，请调高此值。[大规模推广](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#large-rollouts)说明了如何确定其大小。这些限制仅适用于设备授权登录流程，不适用于 `/v1/messages` 推理。请参阅[用户码暴力破解防护](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#user-code-brute-force-resistance)。 |
 | `rate_limits` | `device_verify.max` / `.window_seconds` | 10 / 600 | 对 `/device` 处 `user_code` 提交按 IP 施加的速率限制。它用于阻止他人猜测其他开发者的码。[大规模推广](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#large-rollouts)说明了可以将其调高到什么程度。 |
 

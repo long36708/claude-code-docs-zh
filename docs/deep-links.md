@@ -8,7 +8,7 @@
 
 深链接是一个 `claude-cli://` URL，它在新的终端窗口中打开 Claude Code。该 URL 可以携带工作目录和预填充的提示。
 
-这让你可以为任务共享一个一键式的起点：任何安装了 Claude Code 的人点击该链接都会看到一个会话打开，提示已经输入。提示已填充但在你按 Enter 之前不会发送。
+提示词已填充但在您按 Enter 之前不会发送。要让链接能够在某台机器上打开，请先在该机器上的交互式 Claude Code 会话中发送一条提示词，以便 Claude Code [注册其 `claude-cli://` 处理程序](#registration-and-supported-platforms)。
 
 因为深链接是一个 URL，你可以在任何可以放置链接的地方放置它：
 
@@ -104,7 +104,7 @@ Check recent commits to main and the last successful build.
 3. Post initial findings in #incident.
 ```
 
-要在你自己的运行手册中使用这个，将 `acme/web-gateway` 替换为你的服务的仓库 slug。这允许安装了 Claude Code 并拥有该仓库本地克隆的工程师点击第 2 步并开始调查，提示已准备好发送。
+要在您自己的运行手册中使用这个，将 `acme/web-gateway` 替换为您的服务的仓库 slug。在工程师点击第 2 步之前，他们必须已在自己的机器上[在交互式 Claude Code 会话中发送过提示词](#registration-and-supported-platforms)，并且已在其本地克隆中打开过 Claude Code。
 
 ### 从 shell 打开链接
 

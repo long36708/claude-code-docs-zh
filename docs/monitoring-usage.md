@@ -861,6 +861,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `output_tokens`：输出 token 数量
 * `cache_read_tokens`：从缓存读取的 token 数量
 * `cache_creation_tokens`：用于创建缓存的 token 数量
+* `cache_creation_5m_tokens`、`cache_creation_1h_tokens`：API 响应报告的以五分钟[缓存生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime)写入缓存的 token 数量，以及以一小时生命周期写入的数量。当 API 响应未报告这两项时，两者均为 `0`，即使 `cache_creation_tokens` 大于零也是如此。需要 Claude Code v2.1.300 或更高版本
 * `request_id`：API 请求 ID，例如 `"req_011..."`，详见[事件关联属性](#event-correlation-attributes)。
 * `client_request_id`：客户端生成的 UUID，作为 `x-client-request-id` 请求头发送；有关其出现的条件，请参阅[事件关联属性](#event-correlation-attributes)表
 * `speed`：`"fast"` 或 `"normal"`，表示快速模式是否处于活跃状态

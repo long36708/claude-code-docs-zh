@@ -105,127 +105,127 @@ Claude Code 包含 `/deep-research` 作为内置工作流：
 
 您可以通过两种方式让 Claude 为您的任务编写工作流：
 
-* [在您的提示中请求工作流](#ask-for-a-workflow-in-your-prompt)，使用关键字 `ultracode`，Claude 为任务编写一个。
-* [让 Claude 使用 ultracode 决定](#let-claude-decide-with-ultracode)：设置 `/effort ultracode`，Claude 为会话中的每个实质性任务规划工作流。
+* 在提示词中[请求工作流](#ask-for-a-workflow-in-your-prompt)，可以用您自己的话表述，也可以包含关键字 `ultracode`，Claude 会为该任务编写一个工作流。
+* [使用 ultracode 让 Claude 决定](#let-claude-decide-with-ultracode)：设置 `/effort ultracode`，Claude 会为会话中的每个实质性任务规划工作流。
 
-您也可以运行已存在的工作流命令：一个[捆绑工作流](#bundled-workflows)如 `/deep-research`，或一个您已[保存](#save-the-workflow-for-reuse)的。
+您也可以运行已存在的工作流命令：例如 `/deep-research` 这样的[内置工作流](#bundled-workflows)，或您[已保存](#save-the-workflow-for-reuse)的工作流。
 
-### 在您的提示中请求工作流
+### 在提示词中请求工作流
 
-要在不改变会话的努力级别的情况下将单个任务作为工作流运行，在您的提示中包含关键字 `ultracode`。用您自己的话提问，例如"使用工作流"或"运行工作流"，也可以工作：Claude 将直接请求视为相同的选择加入。
+要在不更改会话 effort 级别的情况下以工作流方式运行单个任务，请在提示词中包含关键字 `ultracode`。用您自己的话请求也同样有效，例如"use a workflow"或"run a workflow"：Claude 会将直接请求视为同样的选择加入。
 
 ```text wrap theme={null}
 ultracode: audit every API endpoint under src/routes/ for missing auth checks
 ```
 
-Claude Code 在您的输入中突出显示该关键字，Claude 为任务编写工作流脚本，而不是逐轮处理它。该关键字仅选择 Claude 如何组织工作：代理的工具调用接收与会话中任何其他工具调用相同的权限检查和[沙箱化](https://code.claude.com/docs/zh-CN/sandboxing.md)。
+Claude Code 会在您的输入中高亮显示该关键字，Claude 会为该任务编写工作流脚本，而不是逐轮次地处理任务。该关键字只决定 Claude 如何组织工作：Agent 的工具调用与会话中的任何其他工具调用一样，接受相同的权限检查和[沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md)。
 
-如果运行完成了您想要的操作，您可以之后[将其保存为命令](#save-the-workflow-for-reuse)。如果您已经用另一种方式构建了编排器，例如子代理提示的文件夹或一个分散工作的技能，您可以指向 Claude 并要求一个执行相同操作的工作流。
+如果运行结果符合您的预期，您可以在之后[将其保存为命令](#save-the-workflow-for-reuse)。如果您已经用其他方式构建了编排器，例如一个存放子代理提示词的文件夹，或一个分发工作的 skill，您可以让 Claude 参考它，并请求编写一个实现相同功能的工作流。
 
-#### 忽略或关闭关键字
+#### 取消或关闭关键字
 
-如果您不打算启动工作流，在 macOS 上按 `Option+W` 或在 Windows 和 Linux 上按 `Alt+W` 来忽略此提示的突出显示，或在突出显示的关键字后面的光标处按退格键。要完全停止该关键字触发，请在 `/config` 中关闭 Ultracode 关键字触发。
+如果您并非有意启动工作流，请在 macOS 上按 `Option+W`，在 Windows 和 Linux 上按 `Alt+W`，以取消本次提示词的高亮；或者在光标紧跟高亮关键字时按退格键。要完全阻止该关键字触发，请在 `/config` 中关闭 Ultracode keyword trigger。
 
-#### 关键字的工作位置
+#### 关键字的生效范围
 
-该关键字仅在您自己输入的提示中选择加入：在交互式提示、IDE 扩展面板、[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 客户端或在 Agent SDK 应用程序中，该应用程序将您的键盘输入的 [`origin`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkmessageorigin) 标记为 `{ kind: "human" }`。当它通过另一种方式到达会话时，它不会启动工作流：
+只有在您亲自输入的提示词中，该关键字才会作为选择加入：包括交互式输入框、IDE 扩展面板、[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 客户端，或将您的键盘输入的 [`origin`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkmessageorigin) 标记为 `{ kind: "human" }` 的 Agent SDK 应用程序。当它通过其他方式到达会话时，不会启动工作流：
 
-* 使用 `-p` 传递的提示
-* Agent SDK 应用程序发送的未标记为人类输入的提示
-* 计划任务提示
-* 中继到对话中的 webhook 有效负载或拉取请求评论
+* 通过 `-p` 传入的提示词
+* Agent SDK 应用程序发送但未标记为人工输入的提示词
+* 定时任务的提示词
+* 转发到对话中的 webhook 负载或 Pull Request 评论
 
-### 让 Claude 使用 ultracode 决定
+### 使用 ultracode 让 Claude 决定
 
-Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排，在会话运行的任何[努力级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)。启用它后，Claude 为每个实质性任务规划工作流，而不是等待您要求。在 Claude Code 提示处启用它：
+Ultracode 是 Claude Code 的一项设置，可为会话启用自动工作流编排，无论会话运行在哪个 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)。启用后，Claude 会为每个实质性任务规划工作流，而不是等待您提出请求。在 Claude Code 输入框中启用它：
 
 ```text wrap theme={null}
 /effort ultracode
 ```
 
-要启动已启用 ultracode 的会话，请使用 `claude --effort ultracode` 启动，这也会将 effort 级别设置为 `xhigh`。
+要在启动会话时就启用 ultracode，请使用 `claude --effort ultracode` 启动，这还会将 effort 级别设置为 `xhigh`。
 
-要从 `/effort` 滑块启用它，按 `Tab` 翻转 **Ultracode** 切换，然后按 `Enter` 应用它。[调整努力级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)列出启用 ultracode 的路由。
+要从 `/effort` 滑块启用，请按 `Tab` 切换 **Ultracode** 开关，然后按 `Enter` 应用。[调整 effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)列出了启用 ultracode 的各种途径。
 
-启用 ultracode 后，Claude 决定任务何时值得工作流。单个请求可以变成一系列工作流：一个理解代码，一个进行更改，一个验证它。这适用于会话中的每个任务，所以每个请求使用更多令牌并花费比没有工作流的相同请求更长的时间。在订阅计划上，这些令牌会计入您的使用限制，所以启用 ultracode 的会话比关闭时进行相同工作更快达到会话或每周限制。
+启用 ultracode 后，Claude 会决定任务何时需要工作流。单个请求可能会变成连续的多个工作流：一个用于理解代码，一个用于进行更改，一个用于验证更改。这适用于会话中的每个任务，因此每个请求都会比不使用工作流的相同请求消耗更多 token、耗时更长。在订阅套餐中，这些 token 会计入您的用量限制，因此启用 ultracode 的会话会比关闭时完成相同工作更早达到会话或每周限制。
 
-启用 ultracode 已经选择加入大型运行，所以启用它时这些检查不适用：
+启用 ultracode 本身就意味着您已选择加入大型运行，因此启用期间以下检查不适用：
 
 * 工作流运行时不会出现 [`Large workflow` 警告](#cost)
-* 会话的[并发子代理限制](https://code.claude.com/docs/zh-CN/sub-agents.md#concurrent-subagent-limit)对 Claude 使用 Agent 工具生成的子代理不强制执行
-* 在自动权限模式下，您不会被要求[批准第一个工作流启动](#approve-the-plan-before-it-runs)
+* 对于 Claude 使用 Agent 工具生成的子代理，不强制执行会话的[并发子代理限制](https://code.claude.com/docs/zh-CN/sub-agents.md#concurrent-subagent-limit)
+* 在自动权限模式下，不会要求您[批准首次工作流启动](#approve-the-plan-before-it-runs)
 
-`/effort ultracode` 持续当前会话；要让每个会话都以它开始，设置 [`ultracode`](https://code.claude.com/docs/zh-CN/settings-reference#ultracode) 设置。当您返回日常工作时，使用 `/effort ultracode off` 关闭它。`/effort` 滑块仅在 [ultracode 可用时](https://code.claude.com/docs/zh-CN/model-config.md#when-ultracode-is-available)提供切换。在 v2.1.284 之前，`/effort ultracode` 会将会话设置为 `xhigh`，而 `/effort ultracode off` 会失败并显示 `Invalid argument`。
+`/effort ultracode` 仅在当前会话中有效；要让每个会话启动时都启用它，请设置 [`ultracode`](https://code.claude.com/docs/zh-CN/settings-reference#ultracode) 设置项。回到日常工作时，使用 `/effort ultracode off` 将其关闭。只有[在 ultracode 可用时](https://code.claude.com/docs/zh-CN/model-config.md#when-ultracode-is-available)，`/effort` 滑块才会提供该开关。在 v2.1.284 之前，`/effort ultracode` 会将会话设置为 `xhigh`，而 `/effort ultracode off` 会失败并显示 `Invalid argument`。
 
 ### 在运行前批准计划
 
-在 CLI 中，每次运行的提示显示计划的阶段和这些选项：
+在 CLI 中，每次运行的确认提示会显示计划的阶段以及以下选项：
 
-* **是，运行它**：启动运行
-* **是，不再为 `<path>` 中的 `<name>` 询问**：启动，并从现在起跳过此项目中此工作流的此提示。Claude Code 在您按名称运行捆绑、保存或插件工作流时提供此选项，而不是为当前任务编写的脚本。
-* **查看原始脚本**：在决定前读取脚本
-* **否**：取消
+* **Yes, run it**：开始运行
+* **Yes, and don't ask again for `<name>` in `<path>`**：开始运行，并且此后在此项目中对该工作流跳过此提示。当您按名称运行内置、已保存或插件工作流时，Claude Code 会提供此选项；对于 Claude 为当前任务编写的脚本则不提供。
+* **View raw script**：在决定之前阅读脚本
+* **No**：取消
 
-`Ctrl+G` 在您的编辑器中打开脚本。选中**是，运行它**或**否**时，按 `Tab` 可为您的回答[添加评论](https://code.claude.com/docs/zh-CN/permissions.md#add-a-comment-when-you-answer-a-permission-prompt)。
+`Ctrl+G` 会在您的编辑器中打开脚本。选中 **Yes, run it** 或 **No** 时，按 `Tab` 可为您的回答[添加评论](https://code.claude.com/docs/zh-CN/permissions.md#add-a-comment-when-you-answer-a-permission-prompt)。
 
-您是否看到此提示取决于您的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)：
+是否会看到此提示取决于您的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)：
 
-| 权限模式 | 何时提示您 |
+| 权限模式 | 何时提示 |
 | :- | :- |
-| 自动 | 仅首次启动。任何**是**在您的用户设置中记录同意，之后启动无需提示。当 ultracode 启用时完全跳过 |
-| 手动，接受编辑 | 每次运行，除非您已为此项目中的该工作流选择**是，不再询问** |
-| 绕过权限 | Claude Code 不提示您。运行立即启动 |
-| `claude -p`，Agent SDK | Claude Code 不提示您 |
+| 自动 | 仅首次启动。任何 **Yes** 都会在您的用户设置中记录同意，之后的启动不再提示。启用 ultracode 时完全跳过 |
+| 手动、接受编辑 | 每次运行，除非您已在此项目中为该工作流选择了 **Yes, and don't ask again** |
+| 绕过权限 | Claude Code 不会提示您。运行立即开始 |
+| `claude -p`、Agent SDK | Claude Code 不会提示您 |
 
-在 `claude -p` 和 Agent SDK 中，Claude Code 从不显示此提示。它通过与会话其余部分相同的[权限评估](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)运行 Workflow 工具调用，所以拒绝规则、询问规则和 `dontAsk` 模式适用于启动，就像它们适用于每个工具调用一样。要让工作流在这些运行中启动，使用以下之一：
+在 `claude -p` 和 Agent SDK 中，Claude Code 从不显示此提示。它会对 Workflow 工具调用执行与会话其余部分相同的[权限评估](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)，因此拒绝规则、询问规则和 `dontAsk` 模式对启动的作用与对每个工具调用的作用相同。要允许工作流在这些运行中启动，请使用以下方式之一：
 
-* **权限规则**：将 `Workflow` 添加到您的允许规则中以批准每个工作流，或添加 `Workflow(<name>)` 以按名称批准一个保存的工作流。
-* **自动权限模式**：在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下运行，分类器会审查调用并可以批准它。
+* **权限规则**：将 `Workflow` 添加到允许规则中以批准所有工作流，或添加 `Workflow(<name>)` 以按名称批准某个已保存的工作流。
+* **自动权限模式**：在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下运行，分类器会审查该调用并可以批准它。
 * **绕过权限模式**：在绕过权限模式下运行。
-* **一个 hook**：从 [`PreToolUse`](https://code.claude.com/docs/zh-CN/hooks#pretooluse) hook 为该调用返回 `"allow"`。在[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，仅凭 hook 的批准工作流不会启动，因此在该模式下请改用权限规则或您的主机的批准。
-* **您的主机**：一个 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)，或者在使用 Agent SDK 时，一个 [`canUseTool`](https://code.claude.com/docs/zh-CN/agent-sdk/permissions) 回调批准它。
+* **hook**：从 [`PreToolUse`](https://code.claude.com/docs/zh-CN/hooks#pretooluse) hook 为该调用返回 `"allow"`。在[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，仅凭 hook 的批准工作流不会启动，因此请改用权限规则或您的宿主程序的批准。
+* **您的宿主程序**：由 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)，或在 Agent SDK 中由 [`canUseTool`](https://code.claude.com/docs/zh-CN/agent-sdk/permissions) 回调批准。
 
-在桌面应用中，批准卡显示工作流名称、阶段列表和令牌使用警告，带有**一次**、**总是**和**拒绝**操作。进度视图出现在"后台任务"侧窗格中。
+在桌面应用中，批准卡片会显示工作流名称、阶段列表和 token 用量提醒，并提供 **Once**、**Always** 和 **Deny** 操作。进度视图显示在 Background tasks 侧边窗格中。
 
-工作流生成的子代理使用您的[权限规则](https://code.claude.com/docs/zh-CN/settings-reference.md#permission-settings)，Claude Code 按[子代理运行的权限模式](https://code.claude.com/docs/zh-CN/sub-agents.md#permission-modes)下的规则选择它们的权限模式。要在长时间运行中避免提示，在启动前将代理需要的工具添加到您的允许规则。
+工作流生成的子代理使用您的[权限规则](https://code.claude.com/docs/zh-CN/settings-reference.md#permission-settings)，Claude Code 会按照[子代理在哪种权限模式下运行](https://code.claude.com/docs/zh-CN/sub-agents.md#permission-modes)中的规则为其选择权限模式。为避免长时间运行中出现提示，请在开始前将 Agent 所需的工具添加到允许规则中。
 
-### 保存工作流以供重用
+### 保存工作流以便重用
 
-当 Claude 为您将重复的任务编写工作流时，您可以将该运行的脚本保存为命令。像您在每个分支上运行的审查这样的过程然后每次运行相同的编排。
+当 Claude 为您会重复执行的任务编写工作流时，您可以将该次运行的脚本保存为命令。这样，像在每个分支上运行的审查这类流程，每次都会执行相同的编排。
 
-运行 `/workflows`，选择您想保留的运行，然后按 `s`。在保存对话中，Tab 在两个保存位置之间切换：
+运行 `/workflows`，选择要保留的运行，然后按 `s`。在保存对话框中，Tab 可在两个保存位置之间切换：
 
-* `.claude/workflows/` 在您的项目中：与克隆仓库的每个人共享
-* `~/.claude/workflows/` 在您的主目录中：在每个项目中可用，仅对您可见。如果您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，此位置是该路径下的 `workflows/` 目录。
+* 项目中的 `.claude/workflows/`：与所有克隆该仓库的人共享
+* 主目录中的 `~/.claude/workflows/`：在每个项目中可用，仅您可见。如果您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，此位置为该路径下的 `workflows/` 目录。
 
-保存对话框显示个人位置的已解析路径。按 Enter 保存。工作流在未来的会话中可从任一位置作为 `/<name>` 运行。
+保存对话框会显示个人位置的解析后路径。按 Enter 保存。无论保存在哪个位置，该工作流在之后的会话中都以 `/<name>` 运行。
 
-Claude Code 在写入前检查保存位置是否存在符号链接，如有则显示错误，而不是通过符号链接写入：
+Claude Code 在写入前会检查保存位置是否存在符号链接，如果存在，会显示错误而不是通过符号链接写入：
 
-* 项目位置：如果 `.claude`、`.claude/workflows` 或目标文件是符号链接，Claude Code 拒绝。
-* 个人位置：Claude Code 仅在目标文件本身是符号链接时拒绝，所以由点文件工具管理的 `~/.claude` 目录仍然有效。
+* 项目位置：如果 `.claude`、`.claude/workflows` 或目标文件是符号链接，Claude Code 会拒绝写入。
+* 个人位置：仅当目标文件本身是符号链接时 Claude Code 才会拒绝，因此由 dotfiles 工具管理的 `~/.claude` 目录仍然可以正常使用。
 
-在具有多个 `.claude/` 目录的单体仓库中，您可以将工作流保存在它们适用的包旁边。保存到项目位置会写入您的工作目录和仓库根之间已存在的最近的 `.claude/workflows/` 目录，或如果尚不存在则写入仓库根。项目工作流也从该路径上的每个 `.claude/workflows/` 加载，当多个定义相同名称时 Claude Code 运行最接近工作目录的那个。
+在包含多个 `.claude/` 目录的 monorepo 中，您可以将工作流放在其所适用的包旁边。保存到项目位置时，会写入工作目录与仓库根目录之间已存在的最近的 `.claude/workflows/` 目录；如果尚不存在，则写入仓库根目录。项目工作流也会从该路径上的每个 `.claude/workflows/` 加载，当多个目录定义了同名工作流时，Claude Code 会运行离工作目录最近的那个。
 
-如果项目工作流和个人工作流共享名称，项目工作流运行。
+如果项目工作流和个人工作流同名，则运行项目工作流。
 
-### 在插件中分发工作流
+### 通过插件分发工作流
 
-要在团队或仓库中共享工作流，将其包含在[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)中。将脚本放在插件根目录的 `workflows/` 目录中，或使用 [`workflows` 清单字段](https://code.claude.com/docs/zh-CN/plugins/manifest-reference#fields)指向不同的位置。
+要在团队或仓库之间共享工作流，请将其包含在[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)中。将脚本放在插件根目录的 `workflows/` 目录中，或通过 [`workflows` 清单字段](https://code.claude.com/docs/zh-CN/plugins/manifest-reference#fields)指向其他位置。
 
-插件工作流由插件名称命名空间。一个名为 `acme-tools` 的插件，其 `meta.name` 为 `release-audit` 的脚本作为 `/acme-tools:release-audit` 运行。
+插件工作流以插件名称作为命名空间。名为 `acme-tools` 的插件中，如果某个脚本的 `meta.name` 为 `release-audit`，它将以 `/acme-tools:release-audit` 运行。
 
-### 将输入传递给保存的工作流
+### 向已保存的工作流传递输入
 
-保存的工作流可以通过 `args` 参数接受输入。脚本将其读取为名为 `args` 的全局变量。使用此功能在调用时提供研究问题、目标路径列表或配置对象，而不是为每次运行编辑脚本。
+已保存的工作流可以通过 `args` 参数接收输入。脚本会将其作为名为 `args` 的全局变量读取。您可以借此在调用时提供研究问题、目标路径列表或配置对象，而无需为每次运行编辑脚本。
 
-以下提示使用问题编号列表运行保存的工作流：
+以下提示词使用一组 issue 编号运行已保存的工作流：
 
 ```text wrap theme={null}
 Run /triage-issues on issues 1024, 1025, and 1030
 ```
 
-Claude 将列表作为结构化数据传递，所以脚本可以直接在 `args` 上调用数组和对象方法，无需先解析它。如果省略 `args`，脚本内的全局变量为 `undefined`。
+Claude 会以结构化数据的形式传递该列表，因此脚本可以直接对 `args` 调用数组和对象方法，而无需先解析。如果省略 `args`，该全局变量在脚本中为 `undefined`。
 
 ## 工作流提示示例
 

@@ -220,7 +220,7 @@ plugin 也可以来自以下源类型之一：
 
 ## 托管你的 marketplace
 
-一旦你可以从你自己机器上的 marketplace 安装 plugin，如[创建一个 marketplace](#create-a-marketplace) 中所示，将 marketplace 目录推送到 git 主机。
+当您能够像[创建市场](#create-a-marketplace)中那样，在自己的机器上从市场安装插件后，请将市场目录推送到 git 托管平台。推送之前，请为市场指定一个其他作者不太可能使用的顶层 `name`，因为用户[不能拥有两个同名的市场](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#marketplace-file)。
 
 你的队友然后在他们的 shell 中为 GitHub 仓库运行 `claude plugin marketplace add <owner>/<repo>`，或使用仓库 URL 运行相同的命令。然后他们按名称安装 plugin，如[演练](#create-a-marketplace)中所示。
 

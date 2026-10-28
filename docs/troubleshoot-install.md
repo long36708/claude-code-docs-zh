@@ -1169,16 +1169,19 @@ claude
 
 ### OAuth 登录在 WSL2、SSH 或容器中失败
 
-当 Claude Code 在 WSL2 中运行、通过 SSH 在远程机器上运行或在容器内运行时，浏览器通常在不同的主机上打开，其重定向无法到达 Claude Code 的本地回调服务器。登录后，浏览器显示登录代码而不是自动重定向回来。将该代码粘贴到终端的 `Paste code here if prompted` 提示处以完成登录。
+如果没有浏览器打开，或者浏览器完成登录后显示 `localhost` 地址的连接错误，您无需修复其中任何一个问题即可完成登录。请改为通过终端在其粘贴提示上方显示的单独登录 URL 进行登录：
 
-如果浏览器根本不从 WSL2 打开，请将 `BROWSER` 环境变量设置为您的 Windows 浏览器路径：
+**1. 复制登录 URL**
 
-```bash theme={null}
-export BROWSER="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
-claude
-```
+在交互式登录提示处，按 `c` 复制 URL，或在终端中选中它。使用 `claude auth login` 时，复制它打印的 URL。
 
-或者，在交互式登录提示处按 `c` 复制 OAuth URL，或复制 `claude auth login` 打印的 URL，并在您的本地机器上的浏览器中打开它。
+**2. 通过该 URL 登录**
+
+在本地机器上的浏览器中打开该 URL 并登录。浏览器随后会显示一个代码，而不是返回 `localhost`。
+
+**3. 粘贴代码**
+
+将该代码粘贴到终端中以 `Paste code here` 开头的提示处。
 
 如果将代码粘贴到交互式提示中没有任何反应，您的终端的粘贴绑定可能无法到达输入字段。尝试您的终端的替代粘贴快捷键，通常在 Windows Terminal 中是右键单击或 Shift+Insert，或改用 `claude auth login`，它从标准输入读取粘贴的代码：
 
@@ -1187,6 +1190,13 @@ claude auth login
 ```
 
 此回退也适用于本机 Windows 或任何将粘贴到交互式提示中失败的终端。
+
+在 WSL2 上，如果没有浏览器打开，您还可以将 `BROWSER` 环境变量设置为您的 Windows 浏览器的路径，以便 Claude Code 下次打开该浏览器：
+
+```bash theme={null}
+export BROWSER="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
+claude
+```
 
 ### 未登录或令牌已过期
 

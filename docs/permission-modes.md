@@ -287,41 +287,41 @@ claude remote-control --permission-mode acceptEdits
 claude --permission-mode acceptEdits
 ```
 
-## 使用 plan mode 在编辑前进行分析
+## 使用计划模式在编辑前进行分析
 
-Plan mode 告诉 Claude 研究并提议更改而不进行编辑。Claude 读取文件、运行 shell 命令进行探索并编写计划，但不编辑您的源代码。除了在[绕过权限可用](#skip-all-checks-with-bypasspermissions-mode)的交互式终端会话中，编辑保持阻止状态，直到您批准计划。
+计划模式让 Claude 研究并提出更改方案，但不实际执行更改。Claude 会读取文件、运行 shell 命令进行探索并编写计划，但不会编辑您的源代码。除了在[可使用绕过权限](#skip-all-checks-with-bypasspermissions-mode)的交互式终端会话中之外，在您批准计划之前，编辑操作始终处于阻止状态。
 
-shell 命令在规划期间发生的情况取决于会话，以下第一个匹配的情况适用：
+规划期间 shell 命令的处理方式取决于会话，以下情况中第一个匹配的情况适用：
 
-* **具有可用绕过权限的交互式终端会话**：分类器和提示都不适用于规划命令。[使用 bypassPermissions 模式跳过所有检查](#skip-all-checks-with-bypasspermissions-mode)涵盖仍会在那里提示的少数事项。
-* **[Auto mode](https://code.claude.com/docs/zh-CN/auto-mode-config.md)可用且 `useAutoModeDuringPlan` 设置打开**，默认情况下是这样：分类器审查 shell 命令（除了[关键路径移除](#critical-paths)）而不是提示您。批准的命令运行，拒绝的命令被阻止。
-* **Auto mode 不可用，或 `useAutoModeDuringPlan` 关闭**：[内置只读集合](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)外的命令会提示批准，包括当沙箱的[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes)启用时。
+* **可使用绕过权限的交互式终端会话**：规划命令既不经过分类器，也不会弹出提示。[使用 bypassPermissions 模式跳过所有检查](#skip-all-checks-with-bypasspermissions-mode)介绍了在这种情况下仍会提示的少数几种操作。
+* **[自动模式](https://code.claude.com/docs/zh-CN/auto-mode-config.md)可用且 `useAutoModeDuringPlan` 设置已开启**（默认开启）：分类器会审查除[关键路径删除](#critical-paths)以外的 shell 命令，而不是提示您。获批准的命令会运行，被拒绝的命令会被阻止。
+* **自动模式不可用，或 `useAutoModeDuringPlan` 已关闭**：[内置只读命令集](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)以外的命令会提示您批准，即使启用了沙箱的[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes)也是如此。
 
-通过按 `Shift+Tab` 或在单个提示前加上 `/plan` 进入 plan mode。您也可以从 CLI 启动 plan mode：
+按 `Shift+Tab` 或在单条提示词前加上 `/plan` 前缀即可进入计划模式。您也可以从 CLI 以计划模式启动：
 
 ```bash theme={null}
 claude --permission-mode plan
 ```
 
-再次按 `Shift+Tab` 以退出 plan mode 而不批准计划。
+再次按 `Shift+Tab` 可在不批准计划的情况下退出计划模式。
 
-### 审查并批准计划
+### 审阅并批准计划
 
-当计划准备好时，Claude 会呈现它并询问如何继续。从该提示中，您可以选择：
+计划准备就绪后，Claude 会展示计划并询问如何继续。在该提示中，您可以选择：
 
-* **是的，并使用自动模式**：批准并以[自动模式](#eliminate-prompts-with-auto-mode)启动。如果自动模式不[可用于您的会话](#eliminate-prompts-with-auto-mode)，例如因为您的组织关闭了它，此选项读取**是的，自动接受编辑**。如果您使用启用的绕过权限启动会话，该选项读取**是的，并为此会话切换到绕过权限（无进一步提示）**。
-* **是的，手动批准编辑**：批准并逐个审查每个编辑。
-* **否，继续规划**：保持在 plan mode 并告诉 Claude 要更改什么。
+* **Yes, and use auto mode**：批准并以[自动模式](#eliminate-prompts-with-auto-mode)开始。如果自动模式[对您的会话不可用](#eliminate-prompts-with-auto-mode)（例如因为您的组织已将其关闭），此选项将显示为 **Yes, auto-accept edits**。如果您在启动会话时启用了绕过权限，此选项则显示为 **Yes, and switch to BYPASS PERMISSIONS (no further prompts) for this session**。
+* **Yes, manually approve edits**：批准并逐一审阅每项编辑。
+* **No, keep planning**：保持在计划模式，并告诉 Claude 需要更改什么。
 
-批准计划退出 plan mode 并将会话切换到每个批准选项描述的权限模式，因此 Claude 开始编辑。要再次规划，使用 `Shift+Tab` 循环回到 plan mode，或在下一个提示前加上 `/plan`。
+批准计划会退出计划模式，并将会话切换到各批准选项所描述的权限模式，然后 Claude 开始编辑。如需再次规划，可使用 `Shift+Tab` 循环切换回计划模式，或在下一条提示词前加上 `/plan` 前缀。
 
-按 `Ctrl+G` 在默认文本编辑器中打开建议的计划并在 Claude 继续之前直接编辑它。当启用 [`showClearContextOnPlanAccept`](https://code.claude.com/docs/zh-CN/settings-reference#showclearcontextonplanaccept) 时，列表获得第一个选项，该选项批准计划并清除规划上下文。
+按 `Ctrl+G` 可在默认文本编辑器中打开所提议的计划，并在 Claude 继续之前直接编辑。启用 [`showClearContextOnPlanAccept`](https://code.claude.com/docs/zh-CN/settings-reference#showclearcontextonplanaccept) 后，列表中会新增第一个选项，用于批准计划并清除规划上下文。
 
-接受计划也会根据计划为会话提供[生成的标题](https://code.claude.com/docs/zh-CN/sessions.md#name-your-sessions)，除非您已经命名了会话。
+接受计划还会根据计划为会话[生成标题](https://code.claude.com/docs/zh-CN/sessions.md#name-your-sessions)，除非您已经为该会话命名。
 
-### 将 plan mode 设置为默认值
+### 将计划模式设为默认
 
-要使 plan mode 成为项目的终端会话的默认值，请在 `.claude/settings.json` 中将 `defaultMode` 设置为 `plan`，如[以不同的权限模式启动](#start-in-a-different-mode)下的示例所示。[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)启动的对话不读取项目设置以获取起始权限模式。在那里，改为在您的 VS Code 用户设置中将 `claudeCode.initialPermissionMode` 设置为 `plan`。
+要将计划模式设为项目终端会话的默认模式，请在 `.claude/settings.json` 中将 `defaultMode` 设置为 `plan`，放置方式参见[以其他权限模式启动](#start-in-a-different-mode)下的示例。[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)启动的对话不会从项目设置中读取初始权限模式。在该扩展中，请改为在 VS Code 用户设置中将 `claudeCode.initialPermissionMode` 设置为 `plan`。
 
 ## 使用自动模式消除权限提示
 

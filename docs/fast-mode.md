@@ -25,48 +25,48 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 ## 切换快速模式
 
-在 CLI 中，通过以下任一方式切换快速模式：
+在 CLI 中，可以通过以下任一方式切换快速模式：
 
-* 运行 `/fast`，按空格键打开或关闭，然后按 Enter 键确认
-* 在您的[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)中设置 `"fastMode": true`
+* 运行 `/fast`，按 Space 切换开启或关闭，然后按 Enter 确认
+* 在[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)中设置 `"fastMode": true`
 
-默认情况下，在交互式会话中打开的快速模式在会话之间保持。您可以配置快速模式在每个会话时重置。有关详细信息，请参阅[要求每个会话选择加入](#require-per-session-opt-in)。
+默认情况下，在交互式会话中开启的快速模式会跨会话保留。您可以将快速模式配置为每个会话重置。有关详细信息，请参阅[要求按会话选择启用](#require-per-session-opt-in)。
 
-在[云会话](#use-fast-mode-in-cloud-sessions)之外，在[非交互式模式](https://code.claude.com/docs/zh-CN/headless.md)中使用 `-p` 标志，`/fast` 仅在使用快速模式在其 [`--settings`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 值中启动的会话中工作，例如 `claude -p --settings '{"fastMode": true}'`；切换然后仅适用于该会话，不会保存为您的默认值。`-p` 形式需要 Claude Code v2.1.205 或更高版本。在非交互式模式的其他地方，该命令报告快速模式不可用。
+在[云端会话](#use-fast-mode-in-cloud-sessions)之外，在使用 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下，`/fast` 仅在其 [`--settings`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 值中包含快速模式的会话中有效，例如 `claude -p --settings '{"fastMode": true}'`；此时切换仅适用于该会话，不会保存为您的默认设置。`-p` 形式需要 Claude Code v2.1.205 或更高版本。在非交互模式的其他情况下，该命令会报告快速模式不可用。
 
-您可以在 Claude 工作时运行 `/fast`，Claude Code 会在不等待当前轮次结束的情况下切换快速模式。Claude Code 以其原始速度完成正在运行的轮次，因此速度变化从您的下一轮开始生效。如果您当前的模型不支持快速模式，打开它也会切换您的模型，Claude Code 会在该轮次的下一个请求中使用新模型。
+您可以在 Claude 工作时运行 `/fast`，Claude Code 会切换快速模式，而无需等待当前轮次结束。Claude Code 会以原来的速度完成正在运行的轮次，因此速度变化从您的下一轮次开始生效。如果您当前的模型不支持快速模式，开启快速模式还会切换您的模型，Claude Code 会从该轮次中的下一个请求开始使用新模型。
 
-为了获得最佳成本效率，在会话开始时启用快速模式，而不是在对话中途切换。有关详细信息，请参阅[了解成本权衡](#understand-the-cost-tradeoff)。
+为获得最佳成本效益，请在会话开始时启用快速模式，而不是在对话中途切换。有关详细信息，请参阅[了解成本权衡](#understand-the-cost-tradeoff)。
 
 启用快速模式时：
 
 * 如果您当前的模型不支持快速模式，Claude Code 会切换到 Opus
-* 您将看到确认消息："Fast mode ON"
-* 快速模式处于活动状态时，提示旁边会出现一个小的 `↯` 图标
-* 随时再次运行 `/fast` 以检查快速模式是否打开或关闭
+* 您将看到一条确认消息："Fast mode ON"
+* 快速模式处于活动状态时，提示词旁边会出现一个小的 `↯` 图标
+* 随时再次运行 `/fast` 可检查快速模式是开启还是关闭
 
-Opus 5.5 是 Claude Code v2.1.280 及更高版本中的快速模式默认值。在 v2.1.280 之前，快速模式自 v2.1.219 起默认为 Opus 5。
+在 Claude Code v2.1.280 及更高版本中，Opus 5.5 是快速模式的默认模型。在 v2.1.280 之前，从 v2.1.219 起快速模式默认使用 Opus 5。
 
-当您再次使用 `/fast` 禁用快速模式时，您仍然保持在 Opus 上。要切换到不同的模型，请使用 `/model`。
+当您再次使用 `/fast` 禁用快速模式时，您仍将使用 Opus。要切换到其他模型，请使用 `/model`。
 
-### 在快速模式打开时切换模型
+### 在快速模式开启时切换模型
 
-快速模式在两个方向上都遵循您的模型切换：
+快速模式会双向跟随您的模型切换：
 
-* **切换离开**：当您切换到不支持快速模式的模型时，Claude Code 会关闭快速模式。这包括 Opus 4.7；在 v2.1.221 之前，快速模式在切换到 Opus 4.7 后保持打开，API 拒绝了请求。
-* **切换回来**：当您保存的快速模式偏好设置为打开时，切换回支持的 Opus 模型会再次打开快速模式，这与新会话默认启动的偏好设置相同。模型切换永远不会为保存的偏好设置为关闭的会话打开快速模式，配置了[每个会话选择加入](#require-per-session-opt-in)后，切换回也不会打开它；运行 `/fast` 以重新启用它。
+* **切换离开**：当您切换到不支持快速模式的模型时，Claude Code 会关闭快速模式。这包括 Opus 4.7；在 v2.1.221 之前，切换到 Opus 4.7 后快速模式仍保持开启，API 会拒绝这些请求。
+* **切换回来**：当您保存的快速模式偏好为开启时（新会话默认即从该偏好开始），切换回受支持的 Opus 模型会再次开启快速模式。对于保存的偏好为关闭的会话，模型切换永远不会开启快速模式；如果配置了[按会话选择启用](#require-per-session-opt-in)，切换回来也不会开启快速模式；请运行 `/fast` 重新启用。
 
-每当模型切换打开或关闭快速模式时，Claude Code 都会显示 `Fast mode ON` 或 `Fast mode OFF` 确认，`↯` 图标在快速模式打开时出现。无论您使用 `/model`、[`/config model=<model>`](https://code.claude.com/docs/zh-CN/settings) 切换，还是从通过[远程控制](https://code.claude.com/docs/zh-CN/remote-control.md)连接的设备切换，这都适用。
+每当模型切换开启或关闭快速模式时，Claude Code 都会显示 `Fast mode ON` 或 `Fast mode OFF` 确认消息，并且在快速模式开启时会出现 `↯` 图标。无论您是使用 `/model`、使用 [`/config model=<model>`](https://code.claude.com/docs/zh-CN/settings) 还是从通过 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 连接的设备进行切换，都是如此。
 
-Claude Code 在模型切换、重新连接或失败的[可用性检查](#use-fast-mode-behind-proxies-and-llm-gateways)后，会将会话的快速模式状态重新发送到通过 Remote Control 连接的设备。
+在模型切换、重新连接或[可用性检查](#use-fast-mode-behind-proxies-and-llm-gateways)失败后，Claude Code 会将会话的快速模式状态重新发送到通过 Remote Control 连接的设备。
 
-### 在云会话中使用快速模式
+### 在云端会话中使用快速模式
 
-当快速模式在您的账户上可用时，快速模式在[云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中工作，无论会话是在 Anthropic 管理的基础设施还是[自托管运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments)上运行。需要会话环境中的 Claude Code v2.1.271 或更高版本。
+当您的账户可以使用快速模式时，快速模式可在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中使用，无论会话是在 Anthropic 托管的基础设施上运行还是在[自托管运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments)上运行。需要会话环境中的 Claude Code 为 v2.1.271 或更高版本。
 
-在会话中输入 `/fast on` 以打开快速模式。它仅对该会话保持打开，不会保存为您的默认值。[要求](#requirements)也适用于云会话。
+在会话中输入 `/fast on` 以开启快速模式。它仅对该会话保持开启，不会保存为您的默认设置。[要求](#requirements)同样适用于云端会话。
 
-在浏览器中访问 [claude.ai/code](https://claude.ai/code)，您也可以从消息框上的模型菜单打开和关闭快速模式。当您的计划包含快速模式且所选模型支持它时，菜单会显示该开关。
+在 [claude.ai/code](https://claude.ai/code) 的浏览器中，您还可以从消息框上的模型菜单开启和关闭快速模式。当您的套餐包含快速模式且所选模型支持快速模式时，菜单会显示该开关。
 
 ## 了解成本权衡
 

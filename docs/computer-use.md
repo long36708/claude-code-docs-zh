@@ -70,27 +70,27 @@ Claude 第一次尝试使用您的计算机时，您会看到一个提示来授�
 
 ## 按会话批准应用
 
-启用 `computer-use` 服务器不会授予 Claude 访问您机器上每个应用的权限。Claude 在会话中第一次需要特定应用时，您的终端中会出现一个提示，显示：
+启用 `computer-use` 服务器并不会授予 Claude 访问您机器上所有应用的权限。在一个会话中，Claude 首次需要使用某个特定应用时，终端中会出现一个权限提示，显示：
 
 * Claude 想要控制哪些应用
-* 任何额外请求的权限，例如剪贴板访问
-* Claude 工作时将隐藏多少其他应用
+* 请求的任何额外权限，例如剪贴板访问
+* Claude 工作期间将隐藏多少个其他应用
 
-选择**允许此会话**或**拒绝**。批准持续当前会话。当 Claude 一起请求多个应用时，您可以一次批准多个应用。
+选择 **Allow for this session** 或 **Deny**。批准仅在当前会话中有效。当 Claude 同时请求多个应用时，您可以一次性批准它们。
 
-具有广泛影响的应用在提示中显示额外警告，以便您知道批准它们授予什么：
+影响范围较广的应用会在权限提示中显示额外警告，以便您了解批准它们意味着授予哪些权限：
 
 | 警告 | 适用于 |
 | :- | :- |
-| 等同于 shell 访问 | Terminal、iTerm、VS Code、Warp 和其他终端和 IDE |
+| 等同于 shell 访问 | Terminal、iTerm、VS Code、Warp 以及其他终端和 IDE |
 | 可以读取或写入任何文件 | Finder |
 | 可以更改系统设置 | System Settings |
 
-这些应用不被阻止。警告让您决定任务是否值得那个级别的访问。
+这些应用并不会被阻止。该警告让您能够判断任务是否需要这种级别的访问权限。
 
-批准 Finder 以让 Claude 点击桌面、Dock 或 Finder 窗口。
+批准 Finder 后，Claude 即可点击桌面、Dock 或 Finder 窗口。
 
-Claude 的控制级别也因应用类别而异：浏览器和交易平台是仅查看的，终端和 IDE 是仅点击的，其他所有内容都获得完全控制。有关完整的分层细分，请参阅 [Desktop 中的应用权限](https://code.claude.com/docs/zh-CN/desktop.md#app-permissions)。
+Claude 的控制级别也因应用类别而异：浏览器和交易平台仅可查看，终端和 IDE 仅可点击，其他所有应用则获得完全控制。有关完整的层级划分，请参阅 [Desktop 中的应用权限](https://code.claude.com/docs/zh-CN/desktop.md#app-permissions)。
 
 ## Claude 如何在您的屏幕上工作
 

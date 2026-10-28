@@ -10,49 +10,49 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 
 ## 登录 Claude Code
 
-[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code) 后，在终端中运行 `claude`。首次启动时，Claude Code 会打开浏览器窗口供您登录，但在以下情况下，它可以跳过登录提示：
+[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code) 后，在终端中运行 `claude`。Claude Code 首次启动时会打开浏览器窗口供您登录，但以下情况除外，此时可以跳过登录提示：
 
-* **API 密钥**：您已设置 `ANTHROPIC_API_KEY` 环境变量，并在 Claude Code 询问是否使用该密钥时批准了它
-* **之前已登录**：您在首次会话之前已在 shell 中运行过 [`claude auth login`](https://code.claude.com/docs/zh-CN/cli-reference#cli-commands)，或者您重建了一个将凭据保存在 [卷](https://code.claude.com/docs/zh-CN/devcontainer.md#persist-authentication-and-settings-across-rebuilds) 中的开发容器。如果仍然看到登录提示，请 [查看可能的原因](#login-prompt-still-appears-after-an-earlier-sign-in)。
+* **API 密钥**：您已设置 `ANTHROPIC_API_KEY` 环境变量，并在 Claude Code 询问是否使用该密钥时予以批准
+* **之前已登录**：您在首次会话之前已在 shell 中运行过 [`claude auth login`](https://code.claude.com/docs/zh-CN/cli-reference#cli-commands)，或者您重建了一个将凭据保存在[卷](https://code.claude.com/docs/zh-CN/devcontainer.md#persist-authentication-and-settings-across-rebuilds)中的开发容器。如果仍然看到登录提示，请[查看可能的原因](#login-prompt-still-appears-after-an-earlier-sign-in)。
 
 如果浏览器没有自动打开，请按 `c` 将登录 URL 复制到剪贴板，然后将其粘贴到浏览器中。
 
-如果您的浏览器在您登录后显示登录代码而不是重定向回来，请将其粘贴到终端的 `Paste code here if prompted` 提示符处。这种情况在浏览器无法访问 Claude Code 的本地回调服务器时会发生，这在 WSL2、SSH 会话和容器中很常见。
+如果登录后浏览器显示登录代码而不是重定向回来，请在终端的 `Paste code here if prompted` 提示处粘贴该代码。
 
 登录完成后，终端会显示 `Login successful`，并提示您按 `Enter` 继续。
 
-您可以使用以下任何账户类型进行身份验证：
+您可以使用以下任一账户类型进行身份验证：
 
-* **Claude Pro 或 Max 订阅**：使用您的 claude.ai 账户登录。在 [claude.com/pricing](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_pro_max) 订阅。
-* **Claude for Teams 或 Enterprise**：使用您的团队管理员邀请您的 claude.ai 账户登录。
-* **Claude Console**：使用您的 Console 凭证登录。您的管理员必须先 [邀请您](#claude-console-authentication)。您可以在有或没有 [创建 API 密钥](#sign-in-without-an-api-key) 的情况下登录。
-* **云提供商**：如果您的组织使用 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)，请在运行 `claude` 之前设置所需的环境变量，或在登录提示符处选择 **3rd-party platform**，这将为 Bedrock 和 Vertex AI 启动交互式设置向导。不需要浏览器登录。
-* **云网关**：如果您的组织运行自托管的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，请通过 `/login` 使用企业 SSO 登录。网关颁发的令牌是会话的唯一凭证。
+* **Claude Pro 或 Max 订阅**：使用您的 claude.ai 账户登录。请在 [claude.com/pricing](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_pro_max) 订阅。
+* **Claude for Teams 或 Enterprise**：使用团队管理员邀请您加入的 claude.ai 账户登录。
+* **Claude Console**：使用您的 Console 凭据登录。您的管理员必须先[邀请您](#claude-console-authentication)。您可以在[创建 API 密钥](#sign-in-without-an-api-key)或不创建 API 密钥的情况下登录。
+* **云提供商**：如果您的组织使用 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)，请在运行 `claude` 之前设置所需的环境变量，或在登录提示处选择 **3rd-party platform**，这会启动 Bedrock 和 Vertex AI 的交互式设置向导。无需浏览器登录。
+* **Cloud gateway**：如果您的组织运行自托管的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，请通过 `/login` 使用企业 SSO 登录。网关颁发的令牌是该会话的唯一凭据。
 
-管理员可以指导开发人员使用哪种登录方法，并要求 claude.ai 登录属于特定组织；请参阅 [限制登录到您的组织](#restrict-login-to-your-organization)。
+管理员可以指定开发人员使用的登录方式，并要求 claude.ai 登录必须属于特定组织；请参阅[将登录限制为您的组织](#restrict-login-to-your-organization)。
 
-要登出并重新身份验证，请在 Claude Code 提示符处输入 `/logout`。登出还会重置您的首次启动设置状态，因此下次运行 `claude` 时，它会再次引导您完成登录和设置。
+要注销并重新进行身份验证，请在 Claude Code 输入框中输入 `/logout`。注销还会重置您的首次启动设置状态，因此下次运行 `claude` 时，它会再次引导您完成登录和设置。
 
-如果您在登录时遇到问题，请参阅 [身份验证故障排除](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#login-and-authentication)。
+如果您在登录时遇到问题，请参阅[身份验证故障排除](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#login-and-authentication)。
 
 ### 之前已登录但仍出现登录提示
 
-如果您之前已登录，但首次启动设置仍显示登录提示而没有 [跳过它](#log-in-to-claude-code)，请检查以下可能的原因：
+如果您之前已登录，但首次启动设置显示了登录提示而不是[跳过它](#log-in-to-claude-code)，请检查以下可能的原因：
 
-* **登录已过期**：您之前的登录已过期，且 Claude Code 无法刷新它。请在提示处重新登录。
-* **登录仅限于特定组织**：管理员在托管设置中设置了 [`forceLoginOrgUUID`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginorguuid)，以 [要求使用特定组织的账户登录](#restrict-login-to-your-organization)。无论您的账户是否属于这些组织之一，都会出现该提示。请使用属于所要求组织的账户登录。如果您没有这样的账户，请联系管理员将您添加进去。
-* **要求特定登录方法**：您的登录类型不符合设置文件中 [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) 的要求。设置为 `"claudeai"` 时，之前通过 Claude Console 登录获得的 API 密钥不算作已有登录。设置为 `"console"` 时，claude.ai 账户不算作已有登录。请使用该设置所指定类型的账户登录。
-* **旧版本**：在 v2.1.290 之前，无论您是否已登录，设置过程中都会出现该提示。[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code) 即可跳过它。
+* **登录已过期**：您之前的登录已过期，且 Claude Code 无法刷新。请在提示处重新登录。
+* **登录限制为特定组织**：管理员在托管设置中设置了 [`forceLoginOrgUUID`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginorguuid)，以[要求从特定组织登录](#restrict-login-to-your-organization)。无论您的账户是否属于这些组织，都会出现该提示。请使用属于所需组织的账户登录。如果您没有此类账户，请让管理员将您添加进去。
+* **要求的登录方式**：您的登录类型不符合设置文件中 [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) 的要求。设置为 `"claudeai"` 时，之前通过 Claude Console 登录获得的 API 密钥不算作现有登录。设置为 `"console"` 时，claude.ai 账户不算作现有登录。请使用该设置所指定类型的账户登录。
+* **旧版本**：在 v2.1.290 之前，无论您是否已登录，设置期间都会出现该提示。请[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code) 以跳过它。
 
 ### 使用多个账户登录
 
-要同时保持登录多个账户（例如工作和个人账户），请为每个账户提供自己的配置目录。启动 `claude` 时，将 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量设置为您要使用的账户的目录。每个目录都有自己的设置、会话历史记录和 claude.ai 登录或 API 密钥。例如，在 Bash 或 Zsh 中，将此别名添加到 `~/.bashrc` 或 `~/.zshrc`，以便 `claude-work` 使用您的工作账户，而 `claude` 保持您的个人账户：
+要同时保持多个账户的登录状态（例如工作账户和个人账户），请为每个账户提供单独的配置目录。启动 `claude` 时，将 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量设置为您要使用的账户所对应的目录。每个目录都有自己的设置、会话历史记录以及 claude.ai 登录或 API 密钥。例如，在 Bash 或 Zsh 中，将以下别名添加到 `~/.bashrc` 或 `~/.zshrc`，这样 `claude-work` 使用您的工作账户，而 `claude` 保留您的个人账户：
 
 ```bash theme={null}
 alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 ```
 
-首次打开新终端并运行 `claude-work` 后，Claude Code 会引导您完成新目录的登录和设置。单独的目录不会将两个 Claude Console 登录 [不带 API 密钥](#sign-in-without-an-api-key) 分开，因为 Claude Code 将这种类型的登录存储在配置目录之外。
+打开新终端并首次运行 `claude-work` 后，Claude Code 会引导您为新目录完成登录和设置。对于[不使用 API 密钥](#sign-in-without-an-api-key)的两个 Claude Console 登录，单独的目录无法将它们区分开，因为 Claude Code 将此类登录存储在配置目录之外。
 
 ## 设置团队身份验证
 
@@ -183,7 +183,7 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 * **`claude setup-token` 和 `/install-github-app`**：仅强制执行 `forceLoginMethod`，因此它们可以在不同的组织中铸造令牌
 * **[网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 登录**：由 `forceLoginMethod: "gateway"` 选择而不是受其限制，并且不针对 Anthropic 组织进行身份验证，因此 `forceLoginOrgUUID` 不适用；使用您的网关身份提供商来限制访问
 
-通过您的设备管理工具部署密钥。[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 仅到达已经通过您的组织身份验证的账户，因此它们无法重定向开发人员的首次登录。如果您的组织也分发服务器托管设置，请在两个地方设置密钥：托管设置源 [不合并](https://code.claude.com/docs/zh-CN/server-managed-settings.md#settings-precedence)，缓存的服务器托管设置替换设备托管文件，除了几个 [按密钥例外](https://code.claude.com/docs/zh-CN/server-managed-settings.md#per-key-exceptions-across-managed-sources)。`forceLoginOrgUUID` 和 `forceLoginMethod` 的 `"claudeai"` 和 `"console"` 值不在这些例外中，因此在两个地方都保留它们。
+通过您的设备管理工具部署 `forceLoginMethod` 和 `forceLoginOrgUUID`。开发人员只有在通过您的组织身份验证之后才会收到 [服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)，因此您无法使用这些设置重定向首次登录。如果您还从 claude.ai 分发服务器托管设置，请在每个客户端都运行 v2.1.299 或更高版本之前，也在那里设置这两个设置项。有关此后在何处设置这些设置项以及应用哪个源的值，请参阅 [哪个托管源提供登录设置项](https://code.claude.com/docs/zh-CN/managed-settings.md#which-managed-source-supplies-login-keys)。
 
 在 [网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 部署中，也要将 `forceLoginMethod` 和 `forceLoginOrgUUID` 保留在 [网关提供的设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#managed) 之外。
 

@@ -938,7 +938,7 @@ claude --agent my-plugin:security-reviewer
 
 要在 Claude 等待期间继续工作，请在终端中按 **Ctrl+B**，或在 VS Code 中点击 [**Run in background**](https://code.claude.com/docs/zh-CN/vs-code.md#move-a-running-command-or-subagent-to-the-background)。
 
-如果您不关闭 fork 模式，而是将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars) 环境变量设置为 `1`，Claude 会等待每一个子代理。后台命令也会被关闭，并且 **Ctrl+B** 不会将任何内容移到后台。
+如果您不关闭 fork 模式，而是将 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars) 环境变量设置为 `1`，Claude 会等待子代理完成后再继续。后台命令也会被关闭，并且 **Ctrl+B** 不会将任何内容移到后台。
 
 #### 后台子代理的工具、权限和结果
 

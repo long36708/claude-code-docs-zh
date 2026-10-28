@@ -133,7 +133,7 @@ Claude Code 还可以在其他编辑器和容器中运行：
   当前模型支持 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)时，选择器还会显示 **Effort** 行，模型名称按钮也会显示所选级别。当您选择 `max` 以外的级别时，Claude Code 会将其保存为当前模型的默认值，存储在用户设置的 [`modelSettings`](https://code.claude.com/docs/zh-CN/settings-reference#modelsettings) 下；`max` 仅适用于当前会话。模型名称按钮和 **Effort** 行需要 Claude Code v2.1.257 或更高版本。
 
   启用[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)且当前模型支持时，**Effort** 行下方会出现 **Ultracode** 开关。打开它后，Claude 会以所选 effort 级别，为本会话中的每项实质性任务规划一个[工作流](https://code.claude.com/docs/zh-CN/workflows.md#let-claude-decide-with-ultracode)。开关打开期间，模型名称按钮会在级别后显示 `· Ultracode`。该开关需要 Claude Code v2.1.284 或更高版本。
-* **命令菜单**：点击 `/` 或输入 `/` 即可打开命令菜单。选项包括附加文件、切换模型以及开关扩展思考。
+* **命令菜单**：点击 `/` 或输入 `/` 即可打开命令菜单。选项包括附加文件和切换模型。
 
   Customize 部分包含 MCP 服务器、命令、输出样式、hook、记忆、指令、权限和插件等条目。带有终端图标的项目会在集成终端中打开。
 
@@ -191,7 +191,11 @@ Claude Code 还可以在其他编辑器和容器中运行：
   如果没有显示 Agent 计数（例如 Claude 启动了后台 shell 但没有子代理），要打开地图，请在输入框中输入 `/tasks`。地图中的后台任务和输入的 `/tasks` 需要 Claude Code v2.1.277 或更高版本。
 
   在 Claude Code v2.1.286 或更高版本中，当您点击 **Stop** 或按 `Esc` 时，当前轮次会结束。后台 Agent 会继续运行，直到完成或您从地图中将其停止。
-* **扩展思考**：让 Claude 花更多时间推理复杂问题。通过命令菜单（`/`）将其打开。Claude 的推理过程会以折叠块的形式出现在对话中：点击某个块即可阅读，或按 `Ctrl+O` 展开或折叠会话中的所有思考块。详情请参阅[扩展思考](https://code.claude.com/docs/zh-CN/model-config.md#extended-thinking)。
+* **扩展思考**：让 Claude 花更多时间推理复杂问题。要将其关闭或重新打开，请使用命令菜单（`/`）Model 部分中的 **Thinking** 开关。在[无法关闭思考](https://code.claude.com/docs/zh-CN/model-config.md#extended-thinking)的模型上，菜单中没有 **Thinking** 开关，思考会始终保持开启。
+
+  仅显示标签（例如 `Thought for 12s`）的思考块不包含文本，点击时也不会展开。要查看思考摘要，请在 `~/.claude/settings.json` 中将 [`showThinkingSummaries`](https://code.claude.com/docs/zh-CN/settings-reference#showthinkingsummaries) 设置为 `true`，然后从命令面板运行 **Developer: Reload Window**。
+
+  已有的思考块仍保持为空。在重新加载之后的回复中，点击某个块或按 `Ctrl+O` 即可将它们全部展开。
 * **多行输入**：按 `Shift+Enter` 可添加新行而不发送。这在问题对话框的"Other"自由文本输入中同样适用。
 
 ### 引用文件和文件夹
@@ -580,6 +584,12 @@ summarize the changes I've made to the auth module
 
 创建拉取请求时，Claude 会根据实际代码更改生成描述，并可以添加有关测试或实现决策的上下文。
 
+### 重新打开已移入 worktree 的对话
+
+在重新打开的对话中，**This session is in worktree** 横幅表示该对话的工作目录是横幅中所指的 [worktree](https://code.claude.com/docs/zh-CN/worktrees.md)，而不是此窗口当前打开的文件夹。要在新的 VS Code 窗口中打开该 worktree，请点击横幅上的 **Open worktree**。
+
+例如，当您[要求 Claude 在某个 worktree 中工作](https://code.claude.com/docs/zh-CN/worktrees.md#ask-claude-to-create-a-worktree)时，对话就会移入该 worktree。当您重新打开该对话，或面板[在窗口重新加载后重新打开它](#continue-conversations-after-a-reload)时，如果该 worktree 是由 Claude Code 在 `.claude/worktrees/` 下创建的且仍然存在，对话将在该 worktree 中恢复。在 Claude Code v2.1.300 之前，打开的会是一个空对话。如果您使用的是这些版本，请更新扩展。
+
 ## 在后台运行工作
 
 将长时间运行的命令或子代理发送到后台，然后从输入框中查看其状态。
@@ -633,7 +643,7 @@ summarize the changes I've made to the auth module
 | Insert @-Mention Reference | `Option+K` (Mac) / `Alt+K` (Windows/Linux) | 插入对当前文件和所选内容的引用（需要编辑器处于焦点状态） |
 | Accept Change at Cursor | - | 在逐个[审阅建议的编辑](#get-started)时，接受光标处的更改。需要 Claude Code v2.1.275 或更高版本 |
 | Reject Change at Cursor | - | 在逐个审阅建议的编辑时，还原光标处的更改。需要 Claude Code v2.1.275 或更高版本 |
-| Toggle Focus view | `Ctrl+Option+F` (Mac) / `Ctrl+Alt+F` (Windows/Linux) | 隐藏或显示对话中的工具活动。在 Claude 面板或侧边栏可见时生效。需要 Claude Code v2.1.221 或更高版本 |
+| Toggle Focus view | `Ctrl+Option+F` (Mac) / `Ctrl+Alt+F` (Windows/Linux) | 隐藏或显示对话中的工具活动。在 Claude 面板或侧边栏可见时生效。在 Windows/Linux 上，当焦点位于调试控制台或可搜索列表（例如资源管理器）中时，`Ctrl+Alt+F` 会改为打开 VS Code 的查找功能。请将焦点移至编辑器或 Claude 面板，然后再次按下该快捷键。需要 Claude Code v2.1.221 或更高版本 |
 | Rename Session Tab | - | 重命名当前活动 Claude 标签页中的会话。需要 Claude Code v2.1.257 或更高版本 |
 | Add Session Tab to Group | - | 将当前活动 Claude 标签页中的会话添加到您选择或创建的[会话组](#organize-sessions-into-groups)中。需要 Claude Code v2.1.257 或更高版本 |
 | Mark Session as Unread | - | 在会话列表中将当前活动 Claude 标签页中的会话标记为未读。需要 Claude Code v2.1.257 或更高版本 |
@@ -679,7 +689,7 @@ start "" "vscode://anthropic.claude-code/open"
 | 参数 | 描述 |
 | - | - |
 | `prompt` | 预先填入提示词输入框的文本。必须经过 URL 编码。提示词会被预先填入，但不会自动提交。 |
-| `session` | 要恢复的会话 ID，用于代替开始新对话。该会话必须属于 VS Code 中当前打开的工作区。如果找不到该会话，则会开始一个新对话。如果该会话已在某个标签页中打开，则会聚焦到该标签页。要以编程方式获取会话 ID，请参阅[继续对话](https://code.claude.com/docs/zh-CN/headless.md#continue-conversations)。 |
+| `session` | 要恢复的会话 ID，该会话须来自 VS Code 中当前打开的文件夹。在 Claude Code v2.1.300 或更高版本中，来自该文件夹所在仓库的主检出目录或某个 [worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 的会话也可以恢复。如果找不到该会话，则会开始一个新对话。如果该会话已在某个标签页中打开，则会聚焦到该标签页。要以编程方式获取会话 ID，请参阅[继续对话](https://code.claude.com/docs/zh-CN/headless.md#continue-conversations)。 |
 
 例如，要打开一个预先填入"review my changes"的标签页：
 
@@ -916,6 +926,7 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 | `Claude Code process exited with code 1` 或其他代码 | [Claude Code process exited with code N](https://code.claude.com/docs/zh-CN/errors.md#claude-code-process-exited-with-code-n) |
 | `Could not locate the Claude CLI on PATH` | [Could not locate the Claude CLI on PATH](https://code.claude.com/docs/zh-CN/errors.md#could-not-locate-the-claude-cli-on-path) |
 | `The connection to Claude Code ended before this message completed` | [The connection to Claude Code ended before this message completed](https://code.claude.com/docs/zh-CN/errors.md#the-connection-to-claude-code-ended-before-this-message-completed) |
+| `The Claude Code program for this computer, the <build> build, could not be found` | [The Claude Code program for this computer could not be found](https://code.claude.com/docs/zh-CN/errors.md#the-claude-code-program-for-this-computer-could-not-be-found) |
 | 在 VS Code 的集成终端中找不到 `claude` | [在 VS Code 中运行 CLI](#run-cli-in-vs-code) |
 
 ### 扩展无法安装

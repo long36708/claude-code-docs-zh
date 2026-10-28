@@ -96,7 +96,7 @@
 }
 ```
 
-在您的 shell 中，推送前在仓库中运行 `claude plugin validate .`。有关该运行检查的内容，请参阅[验证目录](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#validate-a-directory)。
+将 `your-marketplace` 替换为其他作者不太可能选用的名称，因为用户[不能拥有两个同名的市场](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#marketplace-file)。在您的 shell 中，推送前在仓库中运行 `claude plugin validate .`。有关该运行检查的内容，请参阅[验证目录](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#validate-a-directory)。
 
 [创建市场](https://code.claude.com/docs/zh-CN/plugins/create-marketplace.md)涵盖了一个存储库中有多个插件的布局。
 

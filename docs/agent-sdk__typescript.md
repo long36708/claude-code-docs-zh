@@ -4704,10 +4704,11 @@ type CronCreateOutput = {
   humanSchedule: string;
   recurring: boolean;
   durable?: boolean; // true when persisted to .claude/scheduled_tasks.json; false when session-only
+  nextFireAt?: number;
 };
 ```
 
-返回作业 ID 和计划的人类可读描述。
+返回作业 ID、计划的人类可读描述以及下次运行时间。`nextFireAt` 以纪元毫秒给出该时间，且已应用[抖动](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#jitter)，因此它就是作业被设定的运行时间。该字段需要 TypeScript Agent SDK v0.3.299 或更高版本以及 Claude Code v2.1.299 或更高版本。
 
 ### CronDelete
 
@@ -4734,11 +4735,14 @@ type CronListOutput = {
     prompt: string;
     recurring?: boolean;
     durable?: boolean;
+    nextFireAt?: number;
   }[];
 };
 ```
 
 返回计划的 cron 作业：来自 `.claude/scheduled_tasks.json` 的持久作业和来自当前会话的仅会话作业。仅会话作业携带 `durable: false`；从磁盘读取的作业省略该字段。
+
+`nextFireAt` 是作业的下次运行时间（以纪元毫秒表示），已包含[抖动](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#jitter)。任何值都不会早于 `CronList` 调用的时间：对于运行时间[已过但未运行](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#how-scheduled-tasks-run)的作业，该字段携带调用时的时间。该字段需要 TypeScript Agent SDK v0.3.299 或更高版本以及 Claude Code v2.1.299 或更高版本。
 
 ### ScheduleWakeup
 
@@ -5457,6 +5461,8 @@ type McpSetServersResult = {
 };
 ```
 
+`setMcpServers()` 返回的 Promise 会在新添加的 stdio、HTTP 和 SSE 服务器连接成功或失败后 resolve，因此已连接服务器的工具在下一轮次即可使用。
+
 调用 `setMcpServers()` 时，Claude Code 会应用以下规则：
 
 * **调用未指定的服务器**：在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)之外，Claude Code 会断开先前 `setMcpServers()` 调用添加的服务器以及进程内 SDK 服务器的连接，并在 `removed` 中列出它们。其他服务器会继续运行，且不会列在 `removed` 中，其中包括来自 [`mcpServers`](#options) 选项的 stdio、HTTP 和 SSE 服务器、来自设置文件的服务器以及插件提供的服务器。
@@ -5466,9 +5472,12 @@ type McpSetServersResult = {
 * **CLI 在启动时启动的内置服务器**：如果调用指定了其中之一，Claude Code 会丢弃该条目并在 `errors` 中报告它。
 * **与 MCP 安装作用域（例如 `.mcp.json`）中的服务器同名的 stdio、HTTP 或 SSE 服务器**：在该名称下，会话使用您的服务器的工具，而不是[安装作用域服务器](https://code.claude.com/docs/zh-CN/mcp.md#mcp-installation-scopes)的工具。在 Claude Code v2.1.305 之前，当您的应用[重新加载插件](#query-object)时，Claude Code 可能会断开您的服务器的连接并改为连接安装作用域服务器。
 
-Promise 会在新添加的 stdio、HTTP 和 SSE 服务器连接成功或失败后 resolve，因此已连接服务器的工具在下一轮次即可使用。
-
 `added` 列出 Claude Code 添加或替换的服务器，无论它们是否已连接。连接失败的服务器会同时出现在 `added` 和 `errors` 中，失败文本位于 `errors` 下，并在 [`mcpServerStatus()`](#methods) 中有一行 `failed`。在 Claude Code v2.1.257 之前，连接尝试抛出异常的服务器只会在 `errors` 下报告。
+
+以 `Blocked by enterprise` 开头的 `errors` 值表示策略拒绝了该服务器，而不是连接失败：
+
+* `Blocked by enterprise policy (allowedMcpServers/deniedMcpServers)`：该服务器不在 `added` 中。某个 [`deniedMcpServers`](https://code.claude.com/docs/zh-CN/managed-mcp#policy-based-control-with-allowlists-and-denylists) 条目与其匹配，或者设置了 `allowedMcpServers` 列表但其中未包含该服务器。如果该列表位于您通过 [`settingSources`](#options) 加载的设置文件中，请编辑该文件。如果它位于托管设置中，请让您的管理员进行更改。
+* `Blocked by enterprise managed policy`：该服务器在 `added` 中，并在 `mcpServerStatus()` 中有一行 `failed`。请询问管理员是哪项策略阻止了它。
 
 ### `RewindFilesResult`
 

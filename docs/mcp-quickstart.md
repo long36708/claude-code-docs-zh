@@ -65,6 +65,7 @@ claude mcp list
 | `✘ Connection error` | 连接尝试抛出错误。请参阅 [故障排除](#troubleshooting) |
 | ``⏸ Pending approval (run `claude` to approve)`` | 您尚未批准的项目范围服务器。请参阅 [直接编辑 .mcp.json](#edit-mcp-json-directly) |
 | `⊘ Disabled for this project (re-enable via /mcp)` | 由项目的 `disabledMcpServers` 列表为此项目关闭的服务器。请参阅 [禁用服务器而不删除它](https://code.claude.com/docs/zh-CN/mcp.md#disable-a-server-without-removing-it) |
+| `✘ Blocked by enterprise managed policy` | 您组织的某项策略阻止了此服务器，因此 Claude Code 不会连接。请询问您的管理员是哪项策略。请参阅 [服务器状态](https://code.claude.com/docs/zh-CN/mcp.md#server-status) |
 
 某些旧版 Windows 控制台，例如 Windows 10 上的默认控制台，不支持这些 Unicode 字形，并显示 `√` 和 `×` 代替 `✔` 和 `✘`。
 

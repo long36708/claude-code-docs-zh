@@ -2424,12 +2424,12 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 
 对于满足以下所有条件的对话，空闲压缩默认开启：
 
-* **会话**：您处于交互式终端会话中，或者在 [Anthropic 选定的账户](#idle-compaction-in-vs-code-and-the-desktop-app)上使用 VS Code 扩展的聊天面板或桌面应用的 Code 标签页
+* **会话**：您处于交互式终端会话中、VS Code 扩展的聊天面板中，或者在会话运行于您的计算机上或通过 SSH 运行时处于桌面应用的 Code 标签页中
 * **自动压缩**：[`autoCompactEnabled`](#autocompactenabled) 已开启
 * **提示缓存**：该对话使用[一小时提示缓存 TTL](https://code.claude.com/docs/zh-CN/prompt-caching.md#which-ttl-each-request-gets)
 * **功能标志**：Claude Code 可以[从 Anthropic 获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)
 * **大小**：对话的上下文已达到 token 阈值，您可以将其从默认的 200,000 进行[更改](#change-the-idle-compaction-threshold)
-* **空闲时间**：自上次请求以来已过去约 54 分钟，且此时您的计算机处于唤醒状态
+* **空闲时间**：自上次请求以来已过去约一小时，且在此期间您的计算机保持唤醒状态
 
 要关闭空闲压缩，请将此键设置为 `false`。
 
@@ -2475,9 +2475,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 Compacted using a summary written while you were away · turn off with "idleCompaction": false in settings.json
 ```
 
-您无需执行任何操作。要关闭空闲压缩，请在 `~/.claude/settings.json` 或其他[设置文件](https://code.claude.com/docs/zh-CN/settings.md#settings-files-and-who-they-affect)中将 `idleCompaction` 设置为 `false`。
-
-在 VS Code 扩展的聊天面板和桌面应用的 Code 标签页中，空闲压缩会为 Anthropic 选定的账户运行。Claude Code 会在您离开期间编写摘要，然后仅当您的下一条消息距上次请求一小时或更久时，才使用该摘要进行压缩。
+您无需执行任何操作。要关闭空闲压缩，请在运行该会话的计算机或 WSL 发行版上的 `~/.claude/settings.json` 中，或在其他[设置文件](https://code.claude.com/docs/zh-CN/settings.md#settings-files-and-who-they-affect)中，将 `idleCompaction` 设置为 `false`。
 
 ### `plansDirectory`
 
@@ -5587,7 +5585,7 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 | 限制类允许列表 | 从设置了该列表的最高来源整体采用该列表，不添加较低来源中的条目。当最高来源未设置时，从下一个来源整体采用 | [`availableModels`](#availablemodels)、[`allowedMcpServers`](#allowedmcpservers)、[`allowedProviders`](#allowedproviders)、[`strictKnownMarketplaces`](#strictknownmarketplaces)、[`allowedChannelPlugins`](#allowedchannelplugins) 以及 [`fallbackModel`](#fallbackmodel) 链 |
 | 整体采用的值 | 从设置了该值的最高来源整体采用该值，不合并较低来源中的条目或字段。当最高来源未设置时，从下一个来源整体采用 | [`sandbox.credentials.awsPairs`](#sandbox-credentials-awspairs)、[`sandbox.ripgrep`](#sandbox-ripgrep) |
 | 提供的 MCP 服务器 | 合并所有来源中的服务器名称。当两个来源设置了相同的名称时，应用较高来源的完整条目 | [`managedMcpServers`](#managedmcpservers) |
-| 仅从最高优先级来源读取 | 仅从包含策略键的最高优先级来源读取该键，因此即使最高来源未设置该键，较低来源的值也会被忽略 | [`apiKeyHelper`](#apikeyhelper)、[`awsAuthRefresh`](#awsauthrefresh)、[`awsCredentialExport`](#awscredentialexport)、[`gcpAuthRefresh`](#gcpauthrefresh)、[`otelHeadersHelper`](#otelheadershelper)、`proxyAuthHelper`、[`forceLoginOrgUUID`](#forceloginorguuid)、[`forceLoginMethod`](#forceloginmethod) 的 `"claudeai"` 和 `"console"` 值、[`parentSettingsBehavior`](#parentsettingsbehavior)、[`modelPicker`](#modelpicker)、[`policyHelper`](#policyhelper)、[`permissions.defaultMode`](#permissions-defaultmode) |
+| 仅从最高优先级来源读取 | 仅从包含策略键的最高优先级来源读取该键，因此即使最高来源未设置该键，较低来源的值也会被忽略 | [`apiKeyHelper`](#apikeyhelper)、[`awsAuthRefresh`](#awsauthrefresh)、[`awsCredentialExport`](#awscredentialexport)、[`gcpAuthRefresh`](#gcpauthrefresh)、[`otelHeadersHelper`](#otelheadershelper)、`proxyAuthHelper`、[`parentSettingsBehavior`](#parentsettingsbehavior)、[`modelPicker`](#modelpicker)、[`policyHelper`](#policyhelper)、[`permissions.defaultMode`](#permissions-defaultmode) |
 | `env` | 在 `"first-wins"` 和 `"merge"` 下均[按变量跨管理员来源合并](https://code.claude.com/docs/zh-CN/managed-settings.md#keys-read-from-every-admin-source) | [`env`](#env) |
 | 其他所有键 | 从设置了该值的最高来源采用该值 | [`cleanupPeriodDays`](#cleanupperioddays)、[`model`](#model) |
 
@@ -5598,6 +5596,7 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 * **[`policyHelper`](#policyhelper)**：仅当包含策略键的最高来源是 MDM 策略或托管设置文件时，Claude Code 才会遵循此键，因此在服务器托管设置下它不生效。
 * **[`modelOverrides`](#modeloverrides)**：与 `availableModels` 配对。Claude Code 从设置了 `modelOverrides` 的最高来源采用它，除非某个更高的来源设置了 `availableModels` 但未设置 `modelOverrides`。在这种情况下，它会忽略所有来源中的 `modelOverrides`。
 * **[`forceLoginGatewayUrl`](#forcelogingatewayurl)、[`gatewayInternalNetworks`](#gatewayinternalnetworks) 以及 [`forceLoginMethod`](#forceloginmethod) 的 `"gateway"` 值**：Claude Code 从不从服务器托管设置中读取这些项，因此其中的值既不会生效，也不会覆盖 MDM 策略或托管设置文件中设置的值。在计算机上的管理员来源中，仅由包含策略键的排名最高的来源提供这些项，无论是否同时存在服务器托管设置。
+* **[`forceLoginOrgUUID`](#forceloginorguuid) 以及 [`forceLoginMethod`](#forceloginmethod) 的 `"claudeai"` 和 `"console"` 值**：请在[哪个托管来源提供登录键](https://code.claude.com/docs/zh-CN/managed-settings.md#which-managed-source-supplies-login-keys)中查找适用的值，而不是在表中查找。
 * **[`allowedProviders`](#allowedproviders)**：在应用表中的规则之后，计算机自身的列表仍会限制结果，如其条目的作用域说明所述。
 
 要确认计算机上合并了哪些来源，请运行 `/status` 并[查看 `Setting sources` 行](https://code.claude.com/docs/zh-CN/managed-settings#read-the-source-in-/status)。

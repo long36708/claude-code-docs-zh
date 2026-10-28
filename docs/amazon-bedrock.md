@@ -24,21 +24,21 @@ Contact sales
 
 ## 使用 Bedrock 登录
 
-如果您拥有 AWS 凭证并想通过 Amazon Bedrock 开始使用 Claude Code，登录向导会引导您完成整个过程。您需要在每个账户上完成一次 AWS 端的先决条件；向导会处理 Claude Code 端的事务。
+如果您拥有 AWS 凭据，并希望通过 Amazon Bedrock 开始使用 Claude Code，登录向导会引导您完成整个过程。每个账户只需完成一次 AWS 端的前提条件；Claude Code 端的设置由向导处理。
 
 **1. 在您的 AWS 账户中启用 Anthropic 模型**
 
-在 [Amazon Bedrock 控制台](https://console.aws.amazon.com/bedrock/)中，打开模型目录，选择一个 Anthropic 模型，并提交用例表单。提交后立即授予访问权限。有关 AWS Organizations 的信息，请参阅[提交用例详情](#1-submit-use-case-details)；有关您的角色所需的权限，请参阅 [IAM 配置](#iam-configuration)。
+在 [Amazon Bedrock 控制台](https://console.aws.amazon.com/bedrock/)中，打开 Model catalog，选择一个 Anthropic 模型，然后提交用例表单。提交后即可立即获得访问权限。有关 AWS Organizations，请参阅[提交用例详细信息](#1-submit-use-case-details)；有关您的角色所需的权限，请参阅 [IAM 配置](#iam-configuration)。
 
 **2. 启动 Claude Code 并选择 Amazon Bedrock**
 
-运行 `claude`。在登录提示处，选择**第三方平台**，然后选择 **Amazon Bedrock**。如果您已经登录并看到聊天提示，请运行 `/setup-bedrock` 打开向导。在设置 `CLAUDE_CODE_USE_BEDROCK=1` 之前，Claude Code [会从命令菜单中隐藏该命令](https://code.claude.com/docs/zh-CN/commands.md#how-the-command-menu-matches-what-you-type)；请完整输入它。
+运行 `claude`。在登录提示中，选择 **3rd-party platform**，然后选择 **Amazon Bedrock**。如果您已经登录并看到的是聊天输入框，请运行 `/setup-bedrock` 打开向导。在设置 `CLAUDE_CODE_USE_BEDROCK=1` 之前，Claude Code 会[在命令菜单中隐藏该命令](https://code.claude.com/docs/zh-CN/commands.md#how-the-command-menu-matches-what-you-type)；请完整输入该命令。
 
 **3. 按照向导提示操作**
 
-选择您如何向 AWS 进行身份验证：从您的 `~/.aws` 目录检测到的 AWS 配置文件、Amazon Bedrock API 密钥、访问密钥和密钥，或已在您的环境中的凭证。向导会询问您的区域，验证您的账户可以调用哪些 Claude 模型，并让您固定它们。它将结果保存到您的[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)的 `env` 块中，因此您无需自己导出环境变量。
+选择您向 AWS 进行身份验证的方式：从您的 `~/.aws` 目录中检测到的 AWS 配置文件、Amazon Bedrock API 密钥、访问密钥和密钥，或环境中已有的凭据。向导会询问您的区域，验证您的账户可以调用哪些 Claude 模型，并允许您固定这些模型。它会将结果保存到您的[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)的 `env` 块中，因此您无需自行导出环境变量。
 
-登录后，随时运行 `/setup-bedrock` 重新打开向导并更改您的凭证、区域或模型固定。模型固定步骤从您当前固定的模型开始。向导写入 `~/.claude/settings.json`，或在设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars#variables) 时写入 `$CLAUDE_CONFIG_DIR/settings.json`。
+登录后，您可以随时运行 `/setup-bedrock` 重新打开向导，以更改您的凭据、区域或固定的模型。模型固定步骤会从您当前固定的模型开始。向导会写入 `~/.claude/settings.json`；如果设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars#variables)，则写入 `$CLAUDE_CONFIG_DIR/settings.json`。
 
 ## 手动设置
 

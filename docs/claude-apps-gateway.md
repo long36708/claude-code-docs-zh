@@ -446,7 +446,7 @@ Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](h
 
 即使设置了全部五个锁定，以下父进程提供的设置仍会通过过滤器：
 
-* **`forceLoginOrgUUID`**：当最高优先级的管理员来源未设置组织 UUID 时，Claude Code 会采用父进程提供的值。网关登录不检查此键。最高优先级管理员来源中的组织 UUID 会阻止父进程的值，并成为 Claude Code 强制执行的值。
+* **`forceLoginOrgUUID`**：当 Claude Code 应用的托管设置未设置组织 UUID 时，Claude Code 会采用父进程提供的值。网关登录不检查此键。Claude Code 应用的托管设置中的组织 UUID 会阻止父进程的值，并成为 Claude Code 强制执行的组织 UUID。如果您的机器群固定了某个 Anthropic 组织，请参阅[哪个托管来源提供登录键](https://code.claude.com/docs/zh-CN/managed-settings.md#which-managed-source-supplies-login-keys)，了解应在何处设置 `forceLoginOrgUUID`。
 * **`allowedMcpServers`**：当没有生效的管理员列表时，Claude Code 会采用父进程提供的允许列表。`allowManagedMcpServersOnly` 不会阻止它，因为该锁定会将胜出的列表作为托管值强制执行，在没有管理员来源提供列表时，这也包括父进程提供的列表。最高优先级管理员来源中的列表会阻止父进程的列表，并成为 Claude Code 强制执行的列表，因此请在那里、在锁定旁边设置 `allowedMcpServers`。在 v2.1.223 之前，任何管理员来源中这两个键之一的值都会阻止父进程的值。
 * **`availableModels`**：当胜出的托管来源未设置模型列表时，Claude Code 会采用父进程提供的模型列表。如果您的机器群限制模型，请在胜出来源中设置 `availableModels`。
 * **`allowedProviders`**：当胜出的托管来源未设置 API 提供商允许列表时，Claude Code 会采用父进程提供的该列表。如果您的机器群限制开发人员可以使用的 API 提供商，请在胜出来源中设置 `allowedProviders`。需要 Claude Code v2.1.285 或更高版本。
@@ -454,7 +454,7 @@ Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](h
 * **`blockedMarketplaces`**：父进程提供的市场拒绝列表会通过，并添加到托管来源设置的任何拒绝列表中，因为拒绝列表只会进一步增加限制。需要 Claude Code v2.1.282 或更高版本。
 * **`strictPluginOnlyCustomization`**：无论设置了何种锁定，此键都会通过过滤器，并且它会让 Claude Code 忽略开发人员自己的自定义内容，包括保护性 hook。没有任何锁定能阻止它。
 
-在默认的“先到先得”设置下，只有当管理员值位于最高优先级管理员来源中时，才会阻止父进程的值，但在 [MCP 服务器锁定](#lock-behavior-across-sources)开启期间的 `allowedMcpServers` 除外。在 `managedSourcesBehavior` 合并选项下，改由 [Claude Code 如何组合托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说明应用哪个来源的值。
+如果您将 `managedSourcesBehavior` 设置为 `"merge"`，请查看[每种键应用哪个来源的值](https://code.claude.com/docs/zh-CN/managed-settings.md#compose-every-managed-source)。
 
 #### 父设置中的 hook 和 skill 键如何生效
 

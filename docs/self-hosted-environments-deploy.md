@@ -583,7 +583,14 @@ secrets:
 
 ## 关闭时序
 
-收到 `SIGTERM` 后，运行器需要时间在编排器将其终止之前干净地关闭其会话。运行器会在启动时记录所需时长，在默认设置下，该日志行包含 `This runner needs up to 80s`。请将编排器的停止超时时间设置为至少该秒数：在 Kubernetes 上为 `terminationGracePeriodSeconds`，在 Docker Compose 上为 `stop_grace_period`，或您所用平台的等效设置。Kubernetes 默认为 30 秒，因此如果不进行此设置，它可能会在运行器完成之前停止 pod。
+> [!NOTE]
+>
+> 这些时序适用于运行器。`claude self-hosted-runner orchestrator` 进程有其自己的时序：请参阅[调整 `--shutdown-drain-sec` 和编排器的停止超时时间](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#size-shutdown-drain-sec-and-the-supervisors-stop-timeout-for-the-orchestrator)。
+
+每个运行器会在启动时记录收到 `SIGTERM` 后干净地关闭其会话最多需要多长时间，例如在默认设置下为 `This runner needs up to 80s`。停止超时时间是指您的进程管理器在发送 `SIGTERM` 后、终止运行器之前等待的时长。请将其设置为至少该记录时间：
+
+* **Kubernetes**：`terminationGracePeriodSeconds`。Kubernetes 默认为 30 秒，因此如果不进行此设置，它可能会在运行器完成之前停止 pod。
+* **Docker Compose**：`stop_grace_period`
 
 收到 `SIGTERM` 时，运行器停止接受新会话。随后，除非您设置了 [`--defer-shutdown-max-min`](#defer-the-drain-past-the-first-signal) 来推迟，否则它会开始一次优雅关闭，称为排空。排空包含三个步骤：
 
@@ -744,11 +751,12 @@ secrets:
 
 **2. 启动运行器**
 
-在您的 shell 中，使用 `--hold-idle-file`、`--release-idle-session-min` 和 [`--max-hold-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，后者是保留的上限，从会话进入空闲时开始计算。如果不设置，上限为一天。请将其设置为高于 `--release-idle-session-min`，否则不会保留任何会话。此示例在 30 分钟后释放空闲会话，并在被保留的会话进入空闲后最多 4 小时将其释放：
+在您的 shell 中，使用 `--hold-idle-file`、`--release-idle-session-min` 和 [`--max-hold-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，后者是保留的上限，从会话进入空闲时开始计算。如果不设置，上限为一天。请将其设置为高于 `--release-idle-session-min`，否则不会保留任何会话。按照[快速入门](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-manually)中的说明替换 `<writable-dir>`。此示例在 30 分钟后释放空闲会话，并在被保留的会话进入空闲后最多 4 小时将其释放：
 
 ```bash theme={null}
 claude self-hosted-runner \
   --environment-secret-file /etc/claude/environment-secret \
+  --base-dir '<writable-dir>' \
   --release-idle-session-min 30 \
   --hold-idle-file /var/lib/claude-hold/hold-idle \
   --max-hold-min 240
@@ -816,6 +824,7 @@ Anthropic 从其自己的基础设施而不是从您的运行器调用连接器�
   * **未提交的更改仍会丢失**：要提示 Claude 在完成响应时提交并推送，请参阅[提示会话推送其工作](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#prompt-sessions-to-push-their-work)
 * **因运行器丢失而中断的命令可能会再次运行**：当会话在另一个运行器上恢复时，Claude 会看到被中断的工具调用，其结果表明该调用的执行结果未知。
 * **会话中途添加的仓库可能无法克隆**：Claude 通过 HTTPS 使用 `git clone` 克隆它。在未启用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 的运行器上，如果主机上没有任何内容能够读取该仓库，克隆会因 git 身份验证错误而失败。如有可能，请在创建会话时选择会话所需的每个仓库。
+  * **会话恢复时**：[`checkout` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 也会为添加的仓库运行，此时 [`CLAUDE_RUNNER_REPO_REF`](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 为空，因此请确保您的 hook 能够处理这种情况。
 * **某些连接器不出现在自托管会话中**：您在 claude.ai Settings 中尚未连接的连接器不在自托管会话中列出，会话不会提示您连接它。首先在 Settings 中连接它，然后启动新会话。向已运行的会话添加连接器也不会使其工具对 Claude 可用；启动新会话以获取新添加的连接器。
 * **当有人归档或删除会话，或从会话菜单中释放其运行器时**：不要依赖 [`--push-outcome-on-release`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 的推送。要在这些情况下保存提交，请从 [`post-session` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#post-session) 将 `HEAD` 推送到一个救援分支。如果您以那里的示例为基础，请让它在没有任何未提交内容时也执行推送，因为该示例仅在创建快照提交之后才推送。
 
@@ -833,17 +842,17 @@ claude self-hosted-runner doctor
 
 常见问题：
 
-* **运行器未出现在环境中**：确认主机可以通过 HTTPS 到达 `api.anthropic.com`，环境密钥是最新的，并且主机时钟与实际时间相差在五分钟以内；更大的时间偏差会导致身份验证失败。运行器在身份验证失败时会记录 `[runner:fatal]` 和拒绝原因。
+* **运行器未出现在环境中**：确认主机可以通过 HTTPS 到达 `api.anthropic.com`，并且环境密钥是最新的。运行器在身份验证失败时会记录 `[runner:fatal]` 和拒绝原因。
 * **运行器在启动时退出，显示 `cannot create or write to base directory`**：运行器无法创建或写入 `--base-dir`，其默认值为 `/workspace`。修复目录的所有权或将 `--base-dir` 指向可写路径，如 [保持基础目录和容量在运行器之间相同](#keep-the-base-directory-and-capacity-identical-across-runners) 中所述。如果运行器改为记录 `[runner:fatal]` 说基础目录检查超时，则该目录位于挂起的 NFS 或 CSI 挂载上。检查挂载健康状况而不是权限。运行器在打开 `--log-file` 之前将这两个启动失败打印到 stderr，因此请在终端或您的平台的容器日志中查找它们，而不是日志文件。在 v2.1.225 之前，运行器在启动时不检查基础目录，此错误配置在拾取后失败会话。
 * **运行器在启动时退出，显示 `RegisterRunner failed:` 和 TLS 证书错误**：例如，错误可能是 `self signed certificate in certificate chain`。运行器不信任其收到的证书背后的证书颁发机构（CA），在执行 TLS 检查的代理之后就会发生这种情况。在运行器的环境中将 [`NODE_EXTRA_CA_CERTS`](https://code.claude.com/docs/zh-CN/network-config#custom-ca-certificates) 设置为包含代理根 CA 的 PEM 文件。
 
   您无需再为会话设置它，会话会继承它。Git 不读取它：对于通过该代理进行的克隆，还需设置 [`GIT_SSL_CAINFO`](#trust-a-private-certificate-authority-with-anthropic-managed-git)。
 * **您的启动脚本打印包含 `Resource temporarily unavailable` 的写入错误并退出**：您的脚本与其启动的 `claude self-hosted-runner` 或 [编排器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners) 进程共享 stdout 或 stderr，而该进程已将该共享管道或套接字切换为非阻塞模式。当管道已满时，脚本的写入会因该操作系统错误而失败，而不是等待；在 `set -e` 下，脚本会退出。
 
-  要消除该错误，请将运行器或编排器的输出发送到您脚本的用户可以创建的文件。在启动它的命令后追加 `>> "$HOME/claude-runner.log" 2>&1`，并放在任何将其置于后台运行的 `&` 之前：
+  要消除该错误，请将运行器或编排器的输出发送到您脚本的用户可以创建的文件。在启动它的命令后追加 `>> "$HOME/claude-runner.log" 2>&1`，并放在任何将其置于后台运行的 `&` 之前，然后按照 [快速入门](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-manually) 中的说明替换 `<writable-dir>`：
 
   ```bash theme={null}
-  claude self-hosted-runner --environment-secret-file /etc/claude/environment-secret >> "$HOME/claude-runner.log" 2>&1
+  claude self-hosted-runner --environment-secret-file /etc/claude/environment-secret --base-dir '<writable-dir>' >> "$HOME/claude-runner.log" 2>&1
   ```
 
   您脚本自身的输出仍然输出到原来的位置，而运行器写入 stdout 和 stderr 的内容（包括其启动错误）会写入该文件。请使用此 shell 重定向，而不是仅使用 [`--log-file`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，后者会将日志镜像到文件，同时运行器仍继续写入 stdout 和 stderr。如果您已经传递了 `--log-file`，也请保留它，因为重定向不会改变该文件接收的内容。
@@ -901,6 +910,8 @@ claude self-hosted-runner doctor
   在 v2.1.274 之前，运行器在几次尝试后停止重试失败的获取，并等待下一个计划的获取。失败的轮次不会触发获取，因此每个轮次都会失败，显示 401，直到下一个计划的获取。
 * **轮次在 claude.ai/code 中失败，显示 `This model needs a newer version of Claude Code`**：您的运行器用于启动会话的 Claude Code 版本低于该会话的模型所要求的版本，因此 API [拒绝了该请求](https://code.claude.com/docs/zh-CN/errors.md#claude-code-does-not-support-this-model)。按照 [固定版本](#pin-the-version) 中的说明，将运行器升级到消息要求的版本或更高版本。在此之前，用户可以在会话中选择其他模型。
 * **Pod 在耗尽中途被杀死**：将 `terminationGracePeriodSeconds` 提高到至少运行器在启动时记录的值。请参阅 [关闭时序](#shutdown-timing)。
+* **运行器记录一条以 `was paused or too slow` 结尾的 `[runner:log]` 行**：运行器仍在运行，无需重新启动。在该行中指明的 stdout 或 stderr 流被再次读取之前，运行器丢弃了该流中除最新 256 KiB 之外的所有行。如果您传递了 [`--log-file`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，请在该文件中查找被丢弃的行。
+* **运行器记录 `Nobody can read this process's stdout anymore`**：读取运行器 stdout 的一方已不存在，因此运行器在其剩余运行期间不再向 stdout 写入，并继续运行。只要 stderr 仍处于打开状态，此行以及运行器之后的状态行（包括 `[runner:fatal]` 行）都会写入 stderr，因此请在 stderr 中读取它们。
 
 初始化日志后，运行器将其生命周期日志（包括 `[runner:fatal]` 行）写入 stdout，将调试输出写入 stderr，全部作为纯文本行而不是 JSON。上述故障排除条目中描述的基础目录失败在该点之前打印到 stderr。使用 `--log-file` 捕获两个流，这也让 `self-hosted-runner doctor` 能够跟踪它们，或使用您的平台的日志收集。
 
