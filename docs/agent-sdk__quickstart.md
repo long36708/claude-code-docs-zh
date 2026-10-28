@@ -16,7 +16,7 @@
 
 ## 前置条件
 
-* **Node.js 18+** 或 **Python 3.10+**
+* **Node.js 18.14+** 或 **Python 3.10+**
 * 一个 **Anthropic 账户**。如果您还没有账户，[在此注册](https://platform.claude.com/)。
 
 ## 设置

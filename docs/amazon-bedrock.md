@@ -251,6 +251,8 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:
 | 主要模型 | Opus 5.5，例如 `us-*` 区域中的 `us.anthropic.claude-opus-5-5` |
 | 小型/快速模型 | Sonnet 4.5，例如 `us-*` 区域中的 `us.anthropic.claude-sonnet-4-5-20250929-v1:0` |
 
+在 v2.1.280 之前，Amazon Bedrock 上的主要模型默认为 Opus 5，`opus` 别名从 v2.1.219 起解析为 Opus 5。
+
 后台任务（如会话标题生成）使用小型/快速模型，通常是 Haiku 级别的模型。在 Amazon Bedrock 上，Claude Code 为后台任务使用默认 Sonnet 模型，因为 Haiku 可能不会在每个账户或区域中启用。两个选择改变哪个模型执行它们：
 
 * 当您使用 `--model`、`ANTHROPIC_MODEL` 或 `model` 设置选择主要模型时，后台任务使用该模型。当 Claude Code 在您使用 [`ANTHROPIC_DEFAULT_MODEL`](https://code.claude.com/docs/zh-CN/model-config#set-a-default-model-for-new-sessions) 设置的模型上启动会话时，后台任务也使用该模型。设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 而不设置 `ANTHROPIC_DEFAULT_SONNET_MODEL` 也算作选择，因为内置 Sonnet 模型可能在引导自己的 Opus 的账户中不启用。
@@ -259,8 +261,6 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:
 > [!WARNING]
 >
 > Opus 模型的每 token 价格高于 Sonnet 模型，因此如果您不固定主要模型，将按 Opus 费率计费。要将 Sonnet 4.5 用作主要模型，请将 `ANTHROPIC_MODEL` 设置为其完整模型 ID。使用 `ANTHROPIC_DEFAULT_SONNET_MODEL` 引导默认值且不设置 `ANTHROPIC_DEFAULT_OPUS_MODEL` 的部署保留其引导的 Sonnet 模型作为默认值。
-
-在 v2.1.280 之前，Amazon Bedrock 上的主要模型默认为 Opus 5，`opus` 别名从 v2.1.219 解析为 Opus 5。在 v2.1.207 到 v2.1.218 上，Amazon Bedrock 上的主要模型默认为 Opus 4.8，`opus` 别名解析为 Opus 4.8。
 
 要进一步自定义模型，请使用以下方法之一：
 

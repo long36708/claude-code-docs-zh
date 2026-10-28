@@ -37,7 +37,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 * **[Skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)**：随附 skill。它的工作方式与您自己编写的 skill 相同：是交给 Claude 的提示词。
   * `/verify` 仅在您调用时运行。在 v2.1.215 之前，Claude 也可以自行运行 `/verify`。
 * **[工作流](https://code.claude.com/docs/zh-CN/workflows.md#bundled-workflows)**：随附的[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)，会将工作分发到多个子代理并在后台运行。
-  * `/deep-research` 仅在您调用时运行。在 v2.1.218 之前，Claude 也可以自行启动它。
+  * `/deep-research` 仅在您调用时运行。
 
 要添加您自己的命令，请参阅 [skill](https://code.claude.com/docs/zh-CN/skills.md)。
 
@@ -54,7 +54,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/agents` | 输出一条提醒，提示您请 Claude 创建或管理[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)，或直接编辑 `.claude/agents/` 或 `~/.claude/agents/`。在 v2.1.197 及更早版本中，打开用于创建和管理子代理配置的交互式界面 |
 | `/artifact-capabilities` | **[Skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)。** 加载已发布的 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 可使用的运行时功能参考，例如[调用您的连接器](https://code.claude.com/docs/zh-CN/artifacts.md#pull-live-data-with-mcp-connectors)或[提供文件下载](https://code.claude.com/docs/zh-CN/artifacts.md#offer-a-file-download)，包括您的账户拥有哪些功能。Claude 通常会在构建使用其中某项功能的页面之前自行加载它。在 [Artifact 可用](https://code.claude.com/docs/zh-CN/artifacts.md#availability)的地方可用 |
 | `/artifact-diagramming` | **[Skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)。** 加载供 Claude 在 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 中遵循的绘图指导：何时使用图表有帮助、绘制什么，以及如何编写在浅色和深色主题下都清晰可读的内联 SVG。需要 Claude Code v2.1.221 或更高版本 |
-| `/artifacts` | 列出您拥有的或与您共享的 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#find-an-artifact-again)，然后将其中一个附加到会话、在浏览器中打开，或复制其链接。在 [Artifact 可用](https://code.claude.com/docs/zh-CN/artifacts.md#availability)的地方可用。需要 Claude Code v2.1.208 或更高版本；使用 `Enter` 附加需要 v2.1.216 |
+| `/artifacts` | 列出您拥有的或与您共享的 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#find-an-artifact-again)，然后将其中一个附加到会话、在浏览器中打开，或复制其链接。在 [Artifact 可用](https://code.claude.com/docs/zh-CN/artifacts.md#availability)的地方可用 |
 | `/auto-mode-setup` | 根据您的项目和最近的会话[起草 `autoMode.environment` 条目](https://code.claude.com/docs/zh-CN/auto-mode-config#generate-environment-entries)，然后审阅草稿并将其保存到您的用户设置中。在 Pro、Max 或 Team 套餐上，需要 Claude Code v2.1.228 或更高版本，在原生 Windows 上则需要 v2.1.233 或更高版本。在 Enterprise 套餐上或使用 Claude Console API 密钥时，需要 v2.1.283 或更高版本。如果该命令不存在，请参阅 [`/auto-mode-setup` 返回 "Unknown command"](https://code.claude.com/docs/zh-CN/auto-mode-config#auto-mode-setup-returns-unknown-command) |
 | `/autocompact [auto\|<tokens>]` | 设置自动压缩窗口：即上下文窗口填充到多满时 Claude Code 会自动压缩。传递大小（例如 `500k`），或传递 `auto` 以恢复为针对您的模型调整的窗口。Claude Code 会将该值保存到用户设置并应用于当前会话。有关接受的值以及哪些设置会覆盖它，请参阅[设置自动压缩窗口](https://code.claude.com/docs/zh-CN/model-config.md#set-the-auto-compact-window)。不带参数时，打开显示当前窗口的对话框。需要 Claude Code v2.1.221 或更高版本 |
 | `/autofix-pr [prompt]` | 生成一个[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#auto-fix-pull-requests)，监视当前分支的 PR，并在 CI 失败或审阅者留下评论时推送修复。通过 `gh pr view` 从您检出的分支检测打开的 PR；要监视其他 PR，请先检出其分支。默认情况下，云端会话会被指示修复每个 CI 失败和审阅评论；传递提示词可给出不同的指令，例如 `/autofix-pr only fix lint and type errors`。需要 `gh` CLI 以及[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)访问权限 |

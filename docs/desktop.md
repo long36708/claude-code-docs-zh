@@ -164,7 +164,7 @@ Claude 第一次在外部网站上操作时，会出现权限卡，Claude 等待
 
 ### 使用 diff 视图审查更改
 
-Claude 对您的代码进行更改后，diff 视图让您在创建 Pull Request 之前逐个文件审查修改。要打开 diff 视图，请点击[会话详情面板](#see-session-details)的 **Changes** 卡片中的行数统计，例如 `+12 -1`。您也可以点击会话标题栏中的 **Changes**。
+Claude 对您的代码进行更改后，diff 视图让您在创建 Pull Request 之前逐个文件审查修改。要打开 diff 视图，请点击[会话详情面板](#see-session-details)的 **Changes** 卡片中的行数统计，例如 `+12 -1`。您也可以点击会话标题栏中的 **Changes**。云端会话相对于基础分支的 diff 可能[不包含尚未推送的更改](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#troubleshoot-a-missing-file-in-the-diff-view)。
 
 要对特定行进行评论，请将鼠标悬停在某一行上，然后点击其行号旁出现的 **+** 以打开评论框。输入您的反馈并按 **Enter** 添加评论。在多行添加评论后，一次提交所有评论：
 

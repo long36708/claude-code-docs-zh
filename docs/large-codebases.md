@@ -158,7 +158,9 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
 拒绝规则可以覆盖在存储库中工作的每个人、仅你自己或机器上的每个会话，具体取决于你将它们放在哪个设置文件中：
 
 * **在存储库中工作的每个人**：将规则提交到 `.claude/settings.json`，位于存储库根目录（如果你从那里启动 Claude），或位于每个包的 `.claude/`（如果你从子目录启动）。与本页面的其他项目设置一样，该文件不会从父目录继承。
-* **仅你自己**：使用位于存储库根目录的 `.claude/settings.local.json`，它在存储库内的每个 CLI 会话中加载，无论启动目录如何，除了 Claude Code [不使用存储库根目录](https://code.claude.com/docs/zh-CN/settings.md#where-claude-code-looks-for-each-file)的情况，例如在 Windows 上。相对模式（如示例中的 `Read(./**/vendor/**/*)`）仍然[锚定在会话的当前工作目录](https://code.claude.com/docs/zh-CN/permissions.md#read-and-edit)而不是存储库根目录，所以如果你从子目录启动会话，请在此文件中将规则写为 `//` 绝对路径，例如 `Read(//absolute/path/to/repo/**/vendor/**/*)`。在 v2.1.211 之前，`.claude/settings.local.json` 也仅从启动目录加载。
+* **仅您自己**：使用位于仓库根目录的 `.claude/settings.local.json`。它在仓库内的每个 CLI 会话中加载，无论启动目录如何，除了 Claude Code [不使用仓库根目录](https://code.claude.com/docs/zh-CN/settings.md#where-claude-code-looks-for-each-file)的情况，例如在 Windows 上。
+
+  相对模式（如示例中的 `Read(./**/vendor/**/*)`）仍然[锚定在会话的当前工作目录](https://code.claude.com/docs/zh-CN/permissions.md#read-and-edit)而不是仓库根目录。如果您从子目录启动会话，请在此文件中将规则写为 `//` 绝对路径，例如 `Read(//absolute/path/to/repo/**/vendor/**/*)`。
 * **每个人，在每个会话中强制执行**：在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置规则，用户和项目设置无法覆盖。
 
 下面的示例阻止构建工件和供应商 SDK。其目录模式以 `/**/*` 而不是 `/**` 结尾，以便每个规则覆盖目录内的所有内容，但不覆盖目录本身。Claude 仍然可以列出这些目录或进入它们，例如使用 `ls dist` 或 `cd build`。
@@ -376,7 +378,7 @@ description: API 包的测试模式。在 packages/api/ 中编写或修改测试
 将约定和参考内容从始终加载的 CLAUDE.md 移出到按需加载的机制中：
 
 * [Skills](https://code.claude.com/docs/zh-CN/skills.md)：Claude 仅在与任务相关时加载的参考材料
-* [Plugins](https://code.claude.com/docs/zh-CN/plugins/overview.md)：平台团队集中拥有的 skills、hooks 和命令的版本化包
+* [插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)：由 skill、hook 和命令组成的版本化包，由平台团队集中拥有，并可[通过托管设置为所有人安装](https://code.claude.com/docs/zh-CN/plugins/org.md#pre-install-and-require-plugins)
 * [MCP servers](https://code.claude.com/docs/zh-CN/mcp.md)：如果你的组织已经在存储库上运行代码搜索或 RAG 索引，将其公开为 MCP 工具，以便 Claude 查询它而不是直接读取文件
 
 有关平台团队如何集中强制这些的信息，请参阅[服务器管理或端点管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#choose-between-server-managed-and-endpoint-managed-settings)。

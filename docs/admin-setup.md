@@ -191,6 +191,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 * [Server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md)：从 Claude 管理控制台传递托管策略
 * [All settings](https://code.claude.com/docs/zh-CN/settings-reference.md)：每个设置键、文件位置和示例
 * [Which value Claude Code uses](https://code.claude.com/docs/zh-CN/settings.md#which-value-claude-code-uses)：跨托管、项目、本地和用户设置的优先级规则
+* [Manage plugins for your organization](https://code.claude.com/docs/zh-CN/plugins/org.md)：通过托管设置在每台机器上安装共享插件
 * [Monorepos and large repos](https://code.claude.com/docs/zh-CN/large-codebases.md)：为部署到 monorepo 的组织提供的按目录配置模式
 * [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)、[Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)：提供商特定部署
 * [Claude Enterprise Administrator Guide](https://claude.com/resources/tutorials/claude-enterprise-administrator-guide)：SSO、SCIM、座位管理和推出手册

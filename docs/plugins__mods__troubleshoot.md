@@ -341,7 +341,7 @@ mod 运行，您所做的更改或它保留的值不存在。
 
 ### `settings.read` hook 返回的某个键不生效
 
-返回的 `env` 条目不会成为环境变量。返回的 `allow`、`ask` 和 `deny` 规则不会在工具调用时被检查。请在[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中设置这些内容，或对环境变量调用 [`$.env.set`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)。
+如果您在 [Claude Code 自身的读取](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#settings-read-hook)中返回权限规则或 `env`，这些规则不会在工具调用时被检查，`env` 条目也不会成为环境变量。对这两者请使用[设置文件](https://code.claude.com/docs/zh-CN/settings.md)，或对 `env` 使用 [`$.env.set`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)。
 
 对于其他键，请查看[哪些 mod 会收到 `settings.read` 以及从哪个版本开始](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-hook)，然后在[调试日志](#read-the-debug-log)中搜索 `settings.read`，并查找以下某一行：
 
@@ -349,37 +349,44 @@ mod 运行，您所做的更改或它保留的值不存在。
 | :- | :- |
 | `settings.read hook skipped`，位于您的 mod 名称之后 | 您的 hook 失败。[修复该行报告的错误](#hook-skipped)。 |
 | `settings.read bypassed by cc-plugin-sec-default`，所在行在其前面列出了您的 mod | [内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)跳过了您的 hook。请让您组织的管理员[将该 mod 安装为组织的 mod 之一](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)。 |
-| `settings.read: the answer for <key> is no value the key can hold` | 返回的值不符合该键的 schema。[返回一个它允许的值](#settings-read-key-refused)。 |
+| `settings.read: the answer for <key> is no value the key can hold` | Claude Code 拒绝了某个 hook 为该键返回的值。该 hook 可能是您的，也可能是其他 mod 的。请按照[适用于您情况的步骤](#settings-read-key-refused)操作。 |
 | `settings.read: the merge never settles for <key>` | 该行列出的键保留设置来源中的值。请在设置文件中设置它们。 |
-| `answered settings.read without next()`，位于某个 mod 名称之后 | 仅当该 mod [在您的 mod 之前运行](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)时才相关。此时您的 hook 在该次读取中未运行。[关闭该 mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off)，或者如果它是由您的组织部署的，请让其管理员关闭。 |
-| `settings.read: refused to the engine` | 读取被拒绝，因此没有任何 hook 的 `{ value }` 生效。[找出拒绝它的原因](#settings-read-refused)。 |
+| `answered settings.read without next()`，位于某个 mod 名称之后 | 如果所列 mod [在您的 mod 之前运行](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)，则您的 hook 会受到影响。此时您的 hook 在该次读取中未运行。[关闭该 mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off)，或者如果它是由您的组织部署的，请让其管理员关闭。 |
+| `settings.read: refused to the engine` | 您的值未生效，因为 Claude Code 自身的读取被拒绝。[找出拒绝它的原因](#settings-read-refused)。 |
 
 如果没有任何一行能解释该键，请检查在您的 mod 之前运行的 mod 中是否有[更改该键](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#settings-read-example)的 `settings.read` hook。关闭该 mod，或让您组织的管理员关闭。如果没有 hook 更改该键，请在设置文件中设置该键。
 
 ### `the answer for <key> is no value the key can hold`
 
-此[调试日志](#read-the-debug-log)行表示 Claude Code 拒绝了您的 [`settings.read`](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-hook) hook 为所列键返回的值，且仅针对该键：
+此[调试日志](#read-the-debug-log)行表示 Claude Code 拒绝了某个 [`settings.read`](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-hook) hook 为所列键返回的值，且仅针对该键：
 
 ```text theme={null}
 settings.read: the answer for <key> is no value the key can hold; the settings' own value stands
 ```
 
-您为所列键返回的值不符合该键的 schema，例如类型或范围不符。请返回该键的[设置参考](https://code.claude.com/docs/zh-CN/settings-reference.md)条目所允许的值。在您的值不符合要求期间，该键保留在任何 hook 应答之前从设置来源合并得到的值。该行将其称为设置自身的值。
+为所列键返回的值不符合该键的 schema，例如类型或范围不符。
+
+* **您的值不符合该键的 schema**：请返回该键的[设置参考](https://code.claude.com/docs/zh-CN/settings-reference.md)条目所允许的值。
+* **您的值符合要求**：不符合要求的值来自其他 mod 的 `settings.read` hook。要找出该 mod，请按照[逐个关闭 mod 的步骤](#settings-read-refused)操作。在每个新日志中搜索此行，而不是 `refused to the engine`。
+
+在该值不符合要求期间，该键保留在任何 hook 应答之前从设置来源合并得到的值。该行将其称为设置自身的值。
 
 ### `settings.read: refused to the engine`
 
-此[调试日志](#read-the-debug-log)行表示 [Claude Code 自身的读取](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#settings-read-hook)被拒绝，因此没有任何 hook 的 `{ value }` 生效，包括您的 hook。当某个 `settings.read` hook 使用 [`{ deny: reason }`](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-returns) 拒绝该读取时，该行会带有该 hook 的原因：
+当 [Claude Code 自身的读取](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#settings-read-hook)被拒绝时，您会在[调试日志](#read-the-debug-log)中看到此行，此时 Claude Code 会丢弃所有 hook 的值。当某个 `settings.read` hook 使用 [`{ deny: reason }`](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-returns) 拒绝该读取时，该行会带有该 hook 的原因：
 
 ```text theme={null}
 settings.read: refused to the engine (engine: $.settings.read: <reason>); the settings' own values stand
 ```
 
-在您自己的 hook 代码中搜索 `<reason>` 文本：
+在您的代码中搜索括号中的原因：
 
 * **您的代码中有该文本**：您的 hook 拒绝了读取。当 [`next.origin`](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-origin) 显示为 Claude Code 自身的读取时，让它返回 `{ value }`。
-* **您的代码中没有该文本**：逐个[关闭](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off)您的其他 mod。每关闭一个后，从 shell 重新运行本会话的命令，并使用一个指向新路径的 `--debug-file`，然后在该文件中搜索 `refused to the engine`。如果该行存在，则关闭下一个 mod。如果不存在，则说明您最后关闭的 mod 拒绝了读取，请保持其关闭状态。
+* **您的代码中没有该原因**：逐个[关闭](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off)您的其他 mod。如果某个 mod 是由您的组织部署的，请让其管理员将其关闭。每关闭一个后：
+  1. 从 shell 使用 `claude --debug-file ./settings-read-2.log` 启动会话，后接会话启动时所用的标志。每次使用一个新路径。
+  2. 在该文件中搜索 `refused to the engine`。如果该行存在，则关闭下一个 mod。如果不存在，则说明您最后关闭的 mod 拒绝了读取，请保持其关闭状态。
 
-如果已没有其他 mod，请对您的 hook 返回的键使用[设置文件](https://code.claude.com/docs/zh-CN/settings.md)。在读取被拒绝期间，其中的值仍然有效。
+如果已没有其他 mod 而该行仍然存在，请在[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中设置您的 hook 返回的键。在读取被拒绝期间，其中的值仍然有效。
 
 ## 阅读调试日志
 

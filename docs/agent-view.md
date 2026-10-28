@@ -320,7 +320,7 @@ agent view 对会话进行分组，使需要输入的会话位于顶部，`Ready
 
 #### 恢复过往会话
 
-在 Claude Code v2.1.212 或更高版本上，要恢复会话，请在[分派输入框](#dispatch-an-agent-from-agent-view)中输入 `/resume`。此时会打开一个选择器，按从新到旧的顺序列出您打开 agent view 所在仓库的过往会话，包括您从列表中删除的会话。已有行的会话不会列出。按 `Enter` 将选中的会话作为后台会话恢复，使其以行的形式重新加入列表。
+要恢复会话，请在[分派输入框](#dispatch-an-agent-from-agent-view)中输入 `/resume`。此时会打开一个选择器，按从新到旧的顺序列出您打开 agent view 所在仓库的过往会话，包括您从列表中删除的会话。已有行的会话不会列出。按 `Enter` 将选中的会话作为后台会话恢复，使其以行的形式重新加入列表。
 
 在以下情况下，`/resume` 会失败并显示 `isn't available in agent view`：
 
@@ -410,7 +410,7 @@ agent view 对会话进行分组，使需要输入的会话位于顶部，`Ready
 * `/logout` 将您注销
 * `/model`、`/effort` 和 `/fast` 设置 [您接下来分派的会话启动时使用的配置](#set-the-model-effort-and-fast-mode)。`/effort` 和 `/fast` 需要 Claude Code v2.1.299 或更高版本。
 * `/login` 打开登录对话框，以便您无需附加到会话即可重新登录
-* 不带参数的 `/resume` 或其别名 `/continue` 会打开该仓库过去会话的选择器，以将其中一个作为后台会话 [恢复](#bring-back-a-past-session)。需要 Claude Code v2.1.212 或更高版本
+* 不带参数的 `/resume` 或其别名 `/continue` 会打开该仓库过去会话的选择器，以将其中一个作为后台会话 [恢复](#bring-back-a-past-session)
 
 Skill、您自己的命令以及会展开为提示词的内置命令（如 `/init`）会作为第一条提示词发送到新的后台会话。`isn't available in agent view` 提示表示您输入的内置命令没有运行。要运行它，请 [附加到会话](#attach-to-a-session) 并在其中输入。您输入的所有内容都会保留在该提示旁边的输入框中，以便您进行编辑。
 
@@ -454,9 +454,13 @@ fork 之后，两个对话彼此独立：副本所做的任何事情都不会自
 
 当 [Agent 视图已关闭](#turn-off-agent-view) 时，`/fork` 会启动一个 [fork 出的子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，而不是复制会话。
 
+##### 向副本发送提示词并打开其会话
+
 传递一个提示词，例如 `/fork open a draft pull request with the work so far`，副本会立即开始处理。不带提示词时，副本会等待第一条指令：在 `claude agents` 中选择其行并按 `Space` 发送一条，或运行 `claude attach <id>`。等待期间，所选行会显示 `space to send it a prompt`。
 
 `/fork` 的确认信息只有一行，显示副本的状态（例如 `session running`）、其在 Agent 视图中的行名称，以及用于 `claude attach` 的会话 ID。单击名称即可切换到副本：此会话会移到后台（与按 `←` 相同），Agent 视图随即打开副本的会话。
+
+##### 副本运行的位置
 
 除非副本 [就地编辑](#how-file-edits-are-isolated)，Claude Code 会指示它在进行代码更改前创建自己的 worktree。在 git 仓库外，只有从 hook 创建的 worktree 移出的副本才会获得该指令；没有 [`WorktreeCreate` hook](https://code.claude.com/docs/zh-CN/hooks#worktreecreate) 时，副本就地编辑。无论隔离设置如何，从您的 worktree 移出的副本还会被告知绝不要编辑该 worktree、在其中运行命令或进入该 worktree。
 
@@ -466,6 +470,8 @@ fork 之后，两个对话彼此独立：副本所做的任何事情都不会自
 * 当您的会话在启动后移入其链接的 [worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 时，副本会回到会话移动前的位置启动，并且除非它 [就地编辑](#how-file-edits-are-isolated)，否则会在那里自己的 worktree 中进行代码更改。当您的 worktree 检出在某个分支上时，该指令还会告诉任务建立在您工作之上的副本将其新分支基于您的分支，因为您的分支仍检出在您的 worktree 中。确认信息以 `runs in the origin tree` 结尾。
 * 当您在拥有主工作树的仓库的链接 worktree 内启动会话时，副本会在该主工作树中启动，同样遵循使用自己 worktree 的规则，但没有分支指令。此时确认信息同样以 `runs in the origin tree` 结尾。
 * 在裸仓库布局的 worktree 内启动的会话没有可返回的主工作树，因此副本留在原处，确认信息以 `edits this checkout` 结尾。当在不位于链接 worktree 内的会话中 [关闭了](#how-file-edits-are-isolated) worktree 隔离时，也会出现相同的说明，因为此时副本会编辑您打开的文件。
+
+##### 无法 fork 的会话
 
 使用副本无法继承的启动标志（例如替换的系统提示词或 `--tools` 允许列表）启动的会话无法 fork；Claude Code 会说明这一点，而不是创建不完整的副本。从 Agent 视图分派的会话可以正常 fork：副本会使用与来源会话相同的 [Agent 定义](https://code.claude.com/docs/zh-CN/sub-agents.md) 和附加指令启动。
 

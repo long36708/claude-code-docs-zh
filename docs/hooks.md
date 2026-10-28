@@ -679,7 +679,7 @@ Subagents 在其 YAML frontmatter 中使用相同的格式。
 
 项目技能中的 Frontmatter hooks 遵循与设置文件中的 hooks 相同的 [工作区信任规则](#workspace-trust)。Claude Code 在您或 Claude 调用技能时注册它们，包括在您未信任的文件夹中的 `-p` 运行。
 
-项目子代理中的 Frontmatter hooks 仅在您接受代理文件来自的文件夹的 [工作区信任对话](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust) 后运行。`-p` 会话不计为接受它。[在您信任文件夹前运行的内容](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 将此与设置文件规则进行比较，subagents 页面列出 [哪些范围被豁免](https://code.claude.com/docs/zh-CN/sub-agents.md#hooks-in-subagent-frontmatter)。在 v2.1.218 之前，这些 hooks 可以从您未信任的文件夹运行。
+项目子代理中的 frontmatter hook 仅在您接受 Agent 文件所在文件夹的 [工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust) 后运行。`-p` 会话不算作接受。[在您信任文件夹前运行的内容](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 将此与设置文件规则进行比较，子代理页面列出了 [哪些作用域被豁免](https://code.claude.com/docs/zh-CN/sub-agents.md#hooks-in-subagent-frontmatter)。
 
 #### skill hook 的限制
 
@@ -3195,11 +3195,9 @@ WorktreeCreate hook 不使用标准的允许/阻止决策模型。相反，由 h
 * **命令 hook**（`type: "command"`）：将路径作为 stdout 的最后一个非空行打印。Claude Code 在读取该行之前会去除 ANSI 转义码，因此在您的 `echo` 之前打印的 shell 启动横幅会被忽略。请将其他所有 hook 输出重定向到 stderr。
 * **HTTP hook**（`type: "http"`）：在响应正文中返回 `{ "hookSpecificOutput": { "hookEventName": "WorktreeCreate", "worktreePath": "/absolute/path" } }`。
 
-如果 hook 失败或未生成路径，worktree 创建将失败并报错。
+如果 hook 失败或未生成路径，worktree 创建将失败并报错。Claude Code 会相对于 hook 运行时所在的目录解析相对路径，并折叠其中的 `.` 或 `..` 片段。如果得到的路径不是 Claude Code 可以进入的目录，会话会打印一条指明该路径的错误，并以代码 1 退出。
 
-Claude Code 会相对于 hook 运行时所在的目录解析相对路径，并折叠其中的任何 `.` 或 `..` 片段。如果得到的路径不是 Claude Code 可以进入的目录，会话会打印一条指明该路径的错误，并以代码 1 退出。
-
-Claude Code 会拒绝包含 `.` 或 `..` 片段的绝对路径，以及任何经过仓库根目录下符号链接的路径，因为提交到仓库中的符号链接可能会将 worktree 重定向到仓库之外。错误会指明被拒绝的组成部分。请返回一个不经过仓库内符号链接的规范化路径。在 v2.1.216 之前，worktree 创建会直接使用 hook 的路径，不进行此项检查。
+Claude Code 会拒绝包含 `.` 或 `..` 片段的绝对路径，以及任何经过仓库根目录下符号链接的路径。错误信息会指明被拒绝的组成部分。提交到仓库中的符号链接可能会将 worktree 重定向到仓库之外。请返回一个不经过仓库内符号链接的规范化路径。
 
 ### WorktreeRemove
 
@@ -3227,11 +3225,9 @@ Claude Code 使用 git 查找已更改或未跟踪的文件，因此对于不是
 * **Hook 以 0 退出**：worktree 被视为已删除。Claude Code 不会从 hook 读取其他任何内容，因此请确保您的 hook 已删除该目录。
 * **Hook 以非零退出**：如果之后 `worktree_path` 处的目录仍然存在，则删除失败，worktree 保留在磁盘上，且不会回退到 git。在以非零退出之前已删除目录的 hook 被视为已删除。有关如何报告该失败，请参阅 [WorktreeRemove 输入](#worktreeremove-input)。
 
-Claude Code 从不删除属于由 hook 创建的 worktree 的分支，因为它只知道您的 WorktreeCreate hook 返回的路径。如果您的 WorktreeCreate hook 创建了分支，请在 WorktreeRemove hook 中将其删除。
+Claude Code 从不删除属于 hook 创建的 worktree 的分支，因为它只知道您的 WorktreeCreate hook 返回的路径。如果您的 WorktreeCreate hook 创建了分支，请在 WorktreeRemove hook 中将其删除。Claude Code 会丢弃 WorktreeRemove hook 的 [JSON 输出字段](#json-output)，例如 `systemMessage` 和 `continue`。
 
-Claude Code 会丢弃 WorktreeRemove hook 的 [JSON 输出字段](#json-output)，例如 `systemMessage` 和 `continue`。
-
-对于删除后台会话的情况，Claude Code 会在运行 hook 之前验证存储的 worktree 路径，并拒绝本身是符号链接或经过仓库根目录下符号链接的路径。在该路径上，只有当您在 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)中确认删除时，hook 才会针对仍包含文件的 worktree 运行；对于此类 worktree，[`claude rm`](https://code.claude.com/docs/zh-CN/agent-view#manage-sessions-from-the-shell) 会改为保留会话和 worktree。在 v2.1.216 之前，hook 会在未经这些检查的情况下针对存储的路径运行。
+对于后台会话删除，Claude Code 会在运行 hook 之前验证存储的 worktree 路径，拒绝本身是符号链接或经过仓库根目录下符号链接的路径。在该途径上，只有当您在 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)中确认删除时，hook 才会针对仍包含文件的 worktree 运行。对于此类 worktree，[`claude rm`](https://code.claude.com/docs/zh-CN/agent-view#manage-sessions-from-the-shell) 则会保留会话和 worktree。
 
 Claude Code 会将 WorktreeCreate 返回的路径作为 hook 输入中的 `worktree_path` 传递。此示例读取该路径并删除目录：
 

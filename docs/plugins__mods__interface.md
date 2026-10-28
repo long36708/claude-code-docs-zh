@@ -421,7 +421,7 @@ Input({
 Note: Type a note and press Enter
 ```
 
-添加 `rows` 可让该字段容纳多行。Enter 仍会提交，在 Enter 前输入反斜杠会开始新行，在[终端支持的情况下](https://code.claude.com/docs/zh-CN/terminal-config.md#enter-multiline-prompts)按 Shift+Enter 也可以。图库展示了[带有 `rows` 的字段](https://code.claude.com/docs/zh-CN/plugins/mods/gallery#input)。
+将 `rows` 设为 2 或更大，即可获得[可容纳多行的字段](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#input)。
 
 [界面图库](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md)提供了大多数元素的示例和屏幕截图。此表列出了每个元素：
 
@@ -546,7 +546,7 @@ Claude Code 仅在输入框为空且没有其他内容拥有键盘焦点时授�
 | 键 | 它做什么 |
 | :- | :- |
 | Tab | 移动到下一个控件 |
-| 上和下 | 在绘制内容能完整显示时在控件之间移动。当窗格或条带的行数超过它可以显示的行数时，它们会滚动它。在 `Input` 中，它们会先[在字段的各行之间移动](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#input)。 |
+| 上和下 | 在绘制内容能完整显示时在控件之间移动。当窗格或条带的行数超过它可以显示的行数时，它们会滚动它。在终端中的 `Input` 中，它们会[在字段的各行之间移动](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#input)，并在位于字段的第一行或最后一行时移动到其前一个或后一个控件。 |
 | Enter | 按下获得焦点的 `Button`、提交获得焦点的 `Input` 或在 `Select` 中选择 |
 | 按钮的快捷键 | 按下该按钮。当 `Input` 拥有焦点时，每个可打印键都进入字段。 |
 | Page Up、Page Down、Home 和 End | 当您的窗格或条带的行数超过它可以显示的行数时，滚动它 |

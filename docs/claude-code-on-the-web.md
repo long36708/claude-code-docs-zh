@@ -264,6 +264,15 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 * **完整演练（包括 PR 创建）**：请参阅[审查和迭代](https://code.claude.com/docs/zh-CN/web-quickstart.md#review-and-iterate)
 * **让 Claude 自动监控 PR 的 CI 失败和审查评论**：请参阅[自动修复 Pull Request](#auto-fix-pull-requests)
 
+#### 排查 diff 视图中缺失的文件
+
+当 diff 视图与基础分支进行比较时，无论会话是否已推送更改，您预期的某个文件都可能未出现在 diff 视图的文件列表中：
+
+* **尚未推送更改**：列表包含 Claude 自己所做的编辑，但不包含 Claude 运行的命令（例如格式化工具）所做的更改
+* **已推送更改**：列表包含已推送的提交，但不包含上次推送之后所做的更改
+
+要将缺失的更改添加到列表中，请让 Claude 提交并推送。
+
 ### 管理上下文
 
 云会话支持产生文本输出的[内置命令](https://code.claude.com/docs/zh-CN/commands.md)。仅在终端界面中运行的命令，如 `/plugin` 或 `/resume`，不可用。在云会话中打开选择器或面板的命令表现不同：

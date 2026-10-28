@@ -83,7 +83,7 @@ Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命�
 | 子命令 | 作用 | 最低版本 |
 | :- | :- | :- |
 | `migrate` | 将您现有的 Claude API 代码更新到更新的模型 | 早于 v2.1.221 |
-| `upgrade` | 跨主要版本移动您的项目的 Anthropic SDK 依赖项，目前是 Python `anthropic` 包从 0.x 到 1.x | v2.1.236 或更高版本 |
+| `upgrade` | 将您项目的 Anthropic SDK 升级到新的主要版本，并针对其破坏性变更更新您的代码 | v2.1.236 或更高版本 |
 | `api-version` | 针对更新的 [API 版本](https://platform.claude.com/docs/en/api/versioning)更新您的 Claude API 代码，然后将您的请求切换到该版本 | v2.1.307 或更高版本 |
 | `managed-agents-onboard` | 逐步完成创建新的托管代理 | 早于 v2.1.221 |
 | `managed-agents-onboard <url>` | 构建该 URL 所指页面描述的 Managed Agent，例如 [Managed Agents 文档](https://platform.claude.com/docs/en/managed-agents/overview)中的某个页面 | v2.1.290 或更高版本 |
@@ -388,11 +388,9 @@ allowed-tools: Read Grep
 Your skill instructions here...
 ```
 
-所有字段都是可选的。仅建议设置 `description`，以便 Claude 知道何时使用该 skill。字段名必须与表格完全一致，包括连字符：Claude Code 会忽略无法识别的字段，且不会报告错误。
+所有字段都是可选的。仅建议设置 `description`，以便 Claude 知道何时使用该 skill。字段名必须与表格完全一致，包括连字符：Claude Code 会忽略无法识别的字段，且不会报告错误。除 `true` 和 `false` 外，布尔字段还接受任意大小写的 `yes`、`no`、`on`、`off`、`1` 和 `0`。
 
 仅当开头的 `---` 位于文件第一行时，Claude Code 才会读取 frontmatter。否则，它会将整个文件（包括 `---` 标记）视为 skill 内容。如果标记之间的 YAML 无法解析，skill 仍会加载，但不会设置任何字段；请参阅 [Skill 未触发](#skill-not-triggering)以查找并修复错误。
-
-除 `true` 和 `false` 外，布尔字段还接受任意大小写的 `yes`、`no`、`on`、`off`、`1` 和 `0`。在 v2.1.218 之前，Claude Code 仅识别 `true` 和 `false`。
 
 | 字段 | 必需 | 描述 |
 | :- | :- | :- |
@@ -409,7 +407,7 @@ Your skill instructions here...
 | `effort` | 否 | 此 skill 处于活动状态时的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)。覆盖会话的 effort 级别。省略该字段时，级别由 [effort 解析顺序](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)决定。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型。 |
 | `context` | 否 | 设置为 `fork` 可在分叉的子代理上下文中运行。请参阅[在子代理中运行 skill](#run-skills-in-a-subagent)。 |
 | `agent` | 否 | 设置 `context: fork` 时使用的子代理类型。 |
-| `background` | 否 | 仅在使用 `context: fork` 时适用。设置为 `false` 可在调用该 skill 的轮次中等待分叉子代理的结果，而不是[在后台运行它](#run-skills-in-a-subagent)。默认值：`true`。需要 Claude Code v2.1.218 或更高版本。 |
+| `background` | 否 | 仅在使用 `context: fork` 时适用。设置为 `false` 可在调用该 skill 的轮次中等待分叉子代理的结果，而不是[在后台运行它](#run-skills-in-a-subagent)。默认值：`true`。 |
 | `hooks` | 否 | Claude Code 在调用该 skill 时注册并在会话剩余时间内持续运行的 hook。有关配置格式、`once` 选项以及 [skill hook 的限制](https://code.claude.com/docs/zh-CN/hooks.md#limits-on-skill-hooks)，请参阅 [skill 和 Agent 中的 hook](https://code.claude.com/docs/zh-CN/hooks.md#hooks-in-skills-and-agents)。 |
 | `paths` | 否 | 限制此 skill 何时激活的 Glob 模式。接受以逗号分隔的字符串或 YAML 列表。设置后，仅当处理与这些模式匹配的文件时，Claude 才会自动加载该 skill。模式相对于 Claude 的当前工作目录，该目录之外的文件不会匹配。使用与[特定路径规则](https://code.claude.com/docs/zh-CN/memory.md#path-specific-rules)相同的 glob 格式。 |
 | `shell` | 否 | 此 skill 中 `` !`command` `` 和 ` ```! ` 块使用的 shell。接受 `bash`（默认）或 `powershell`。当 [PowerShell 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#powershell-tool)启用时，设置 `powershell` 会通过 PowerShell 运行内联 shell 命令：在没有 Git Bash 的 Windows 上默认启用，对于 claude.ai 和 Console 账户在有 Git Bash 时默认启用，而在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 会话中以及在 macOS、Linux 和 WSL 上需要设置 `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`。将其设置为 `0` 可关闭该工具。 |
@@ -800,7 +798,7 @@ PowerShell 工具对它运行的命令应用相同的超时、后台化和输出
 >
 > 尽管名称如此，具有 `context: fork` 的技能不会在[当前对话的分叉](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)中运行，这会将你迄今为止讨论的所有内容交给子代理。当任务依赖于该历史时，分叉对话而不是使用 `context: fork`。
 
-分叉的子代理在[后台](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)运行：你继续工作，而它运行，其结果在完成时到达你的对话。在 frontmatter 中设置 `background: false` 以改为在调用技能的轮次中等待结果。在 v2.1.218 之前，分叉的技能总是阻止轮次直到它们完成。
+分叉的子代理在[后台](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)运行：它运行期间您可以继续工作，完成后其结果会出现在您的对话中。在 frontmatter 中设置 `background: false`，即可改为在调用 skill 的轮次中等待结果。
 
 Claude Code 也会等待结果，即使技能没有设置 `background: false`，在这些情况下：
 

@@ -361,8 +361,6 @@ Claude Code 默认缓存助手的输出五分钟，并在缓存生命周期过�
 
 网关承载模型请求，但 Claude Code 也向网关路径外发送非必要的后台流量，发送到 Anthropic 和第三方服务（如 GitHub）：版本检查、遥测、发行说明和类似请求。在仅允许出站到网关的网络上，这些请求失败，并可能在您的出站监控中显示为被阻止的连接。
 
-Claude Code 仅在请求发送到凭证所属的主机时才将凭证附加到遥测或使用指标请求。当 `ANTHROPIC_BASE_URL` 指向网关时，Claude Code 将其遥测事件发送到 Anthropic，不使用您的网关凭证。使用[凭证变量](#set-the-credential-variable)或 `apiKeyHelper` 时，Claude Code 不会向控制台[分析仪表板](https://code.claude.com/docs/zh-CN/analytics.md#access-analytics-for-api-customers)报告使用指标。在 v2.1.246 之前，Claude Code 可能会将网关凭证附加到发往 Anthropic 主机的遥测和使用指标请求；模型请求始终使用网关期望的凭证发送到网关。
-
 要关闭该流量，请在与网关变量相同的 shell 导出或设置文件 `env` 块中设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`：
 
 **Bash or Zsh**

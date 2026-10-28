@@ -77,7 +77,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 **2. 命名任务并编写提示词**
 
-为定时任务取一个描述性名称，并编写 Claude 每次运行的提示词。提示词是最重要的部分：任务是自主运行的，因此提示词必须是自包含的，并明确说明要做什么以及怎样算成功。在提示词输入框的模型选择器中选择一个模型。Claude 在每次运行时都会使用该模型。
+为定时任务取一个描述性名称，并编写 Claude 每次运行的提示词。提示词是最重要的部分：任务是自主运行的，因此提示词必须是自包含的，并明确说明要做什么以及怎样算成功。
 
 当触发器触发时，会话会将已保存的提示词作为其分配的任务接收并执行，而不是将其视为在对话中途到达的不受信任内容。触发器仅证明该提示词是由您账户上的授权会话预先存储的。因此，触发的提示词不是实时用户输入，不能充当运行期间操作的批准或同意。会话在运行期间获取的内容仍按正常方式处理。
 
@@ -115,11 +115,15 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 如果您的任务需要直接访问您自己的服务或该列表之外的域名，请在运行前编辑环境的[网络访问](https://code.claude.com/docs/zh-CN/cloud-environments.md#network-access)。要使用单独的环境，请先[创建一个](https://code.claude.com/docs/zh-CN/cloud-environments.md#configure-your-environment)。
 
-**6. 检查连接器**
+**6. 选择模型和 effort 级别**
+
+在提示词输入框的模型选择器中选择一个模型，供 Claude 在每次运行时使用。对于 Claude Code 任务，如果该模型提供 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)，同一选择器中的 **Effort** 会显示当前级别。要更改级别，请选择其他级别。选择器的 **Default** 选项不提供任何级别。
+
+**7. 检查连接器**
 
 切换到 **Advanced settings** 的 **Connectors** 标签页。默认包含您所有已连接的 [MCP 连接器](https://code.claude.com/docs/zh-CN/mcp.md)。请移除任务不需要的连接器：Claude 可以在运行期间使用所包含的连接器，包括写入操作。有关运行何时会停下来先询问您，请参阅[运行期间的权限提示](#permission-prompts-during-a-run)。
 
-**7. 创建任务**
+**8. 创建任务**
 
 点击 **Create**。对话框关闭后，新任务的详情页将打开。任务会在其某个触发器下次匹配时运行。要立即启动一次运行，请在详情页上点击 **Run now**。
 
@@ -136,7 +140,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 在 Desktop 应用中，如果打开了包含 **Local** 和 **Cloud** 的菜单，请选择 **Cloud**。随后会打开一个标题为 **New routine** 或 **New scheduled task** 的页面。填写其中的字段：
 
 * **Name**：输入一个名称。
-* **Instructions**：输入提示词。在同一个输入框中，选择模型、仓库和环境。有关每一项所控制的内容，请参阅[从 Web 创建](#create-from-the-web)下的步骤。
+* **Instructions**：输入提示词。在同一个输入框中，选择模型、effort 级别（如果该模型提供）、仓库和环境。有关每一项所控制的内容，请参阅[从 Web 创建](#create-from-the-web)下的步骤。
 * **Select a trigger**：选择 **Schedule**、**GitHub event** 或 **API**。对于计划，请参阅[添加计划触发器](#add-a-schedule-trigger)。对于 [GitHub 事件](#add-a-github-trigger)，请选择一个仓库。对于 [API 触发器](#add-an-api-trigger)，请从点击 **Create** 后打开的 **API token** 对话框中复制令牌，因为它只显示一次。要组合多个触发器，请点击 **Add another trigger**。
 * **Connectors**：默认包含您所有已连接的连接器，因此请移除任务不需要的连接器。
 
@@ -153,7 +157,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 * **API 触发器**：在 Web 端的 [claude.ai/code/routines](https://claude.ai/code/routines) 编辑任务
 * **[GitHub 触发器](#add-a-github-trigger)**：在 Web 端编辑任务，或在 CLI 中询问 Claude。从 CLI 添加需要 Claude Code v2.1.225 或更高版本
 
-没有计划触发器的定时任务（例如仅由 API 调用或 GitHub 事件启动的任务）没有下次运行时间。当 Claude 保存或更新此类任务时，CLI 不会显示下次运行时间。在 v2.1.211 之前，CLI 会为这些任务报告一个位于公元 1 年的下次运行时间。
+没有计划触发器的定时任务（例如仅由 API 调用或 GitHub 事件启动的任务）没有下次运行时间。当 Claude 保存或更新此类任务时，CLI 不会显示下次运行时间。
 
 ## 配置触发器
 

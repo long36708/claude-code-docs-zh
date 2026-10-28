@@ -504,7 +504,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 * 只读 HTTP 请求
 * 推送到您正在处理的仓库的任何分支，包括默认分支。名称表明其为部署或发布目标的非默认分支（例如 `production` 或 `gh-pages`）不在此列：分类器会单独判断推送到这类分支的操作。
 
-  推送的内容仍会根据分类器的其他规则进行检查，[`permissions.deny` 规则](https://code.claude.com/docs/zh-CN/permissions#manage-permissions)在所有模式下仍可按[命令的书写形式](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)阻止推送命令。远程仓库自身的分支保护仍然适用。从 v2.1.203 到 v2.1.211 之前，默认仅允许对默认分支的常规推送，以及推送到您开始时所在的分支或 Claude 创建的分支。
+  推送的内容仍会根据分类器的其他规则进行检查，[`permissions.deny` 规则](https://code.claude.com/docs/zh-CN/permissions#manage-permissions)在所有模式下仍可按[命令的书写形式](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)阻止推送命令。远程仓库自身的分支保护仍然适用。
 * 删除 Claude 在同一会话中先前创建的确切作业
 * 作为任务的一部分，读取、审查或编写与安全相关的代码、配置和威胁模型
 * 在同一多 Agent 会话中协同工作的 Agent 之间的消息

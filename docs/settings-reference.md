@@ -1293,7 +1293,7 @@ Claude Code 会分别判断每个文件。如果某个文件位于沙箱中的�
 * 以 `sudo`、`eval` 或 `xargs` 开头的命令
 * `cd`、`pushd` 或 `popd`，无论出现在调用中的哪个位置
 * 命令替换、子 shell，或 `if`、`for` 等控制流块
-* 重定向，例如 `docker build . > build.log`，但仅复制文件描述符的重定向（如 `2>&1`）除外
+* 重定向，例如 `docker build . > build.log` 或 `<<EOF` heredoc，仅复制文件描述符的重定向（如 `2>&1`）除外
 * 命令名来自变量
 * 带有绝对路径、以 `~` 开头或包含 `..` 段的路径参数的 `git clone`、`git init`、`git worktree add`、`git worktree move` 或 `git bundle create`
 
@@ -1521,7 +1521,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 
 ### `sandbox.filesystem.disabled`
 
-跳过文件系统隔离，同时保留网络隔离。沙箱化命令获得对主机文件系统不受限制的读写权限，其网络出站流量仍限制在 [`network.allowedDomains`](#sandbox-network-alloweddomains) 范围内。当您使用沙箱是为了控制命令连接到哪里而不是它们写入什么时，请使用此设置。需要 Claude Code v2.1.216 或更高版本。
+跳过文件系统隔离，同时保留网络隔离。沙箱化命令可以不受限制地读写主机文件系统，而其网络出站流量仍限制在 [`network.allowedDomains`](#sandbox-network-alloweddomains) 范围内。当您使用沙箱是为了控制命令连接到哪里而非写入什么时使用此设置。
 
 * **作用域**：[`User or managed`](#scopes)。当托管设置配置了任何 `sandbox.filesystem` 内容，或列出了带有 `"mode": "deny"` 的 `sandbox.credentials.files` 条目时，只有托管设置可以设置它。
 * **类型**：布尔值
@@ -1545,7 +1545,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-关闭该层后，Claude Code 不会强制执行 `denyRead` 或 `credentials.files` 的 `deny` 条目，而 `credentials.envVars` 条目和已应用的 `mask` 条目仍然有效。[`autoAllowBashIfSandboxed`](#sandbox-autoallowbashifsandboxed) 仍默认为 `true`，因此如需继续提示，请将其设置为 `false`。有关可以设置它的完整来源列表以及关闭隔离后的变化，请参阅[禁用文件系统隔离](https://code.claude.com/docs/zh-CN/sandboxing.md#disable-filesystem-isolation)。需要 Claude Code v2.1.216 或更高版本。
+关闭该层后，Claude Code 不会强制执行 `denyRead` 或 `credentials.files` 的 `deny` 条目，而 `credentials.envVars` 条目和已应用的 `mask` 条目仍然有效。[`autoAllowBashIfSandboxed`](#sandbox-autoallowbashifsandboxed) 仍默认为 `true`，因此请将其设置为 `false` 以继续显示提示。有关可以设置它的完整来源列表以及关闭隔离后的变化，请参阅[禁用文件系统隔离](https://code.claude.com/docs/zh-CN/sandboxing.md#disable-filesystem-isolation)。
 
 ### `sandbox.ignoreViolations`
 
@@ -2717,7 +2717,7 @@ Compacted using a summary written while you were away · turn off with "idleComp
 }
 ```
 
-请参阅 [Emoji 短代码](https://code.claude.com/docs/zh-CN/interactive-mode.md#emoji-shortcodes)。需要 Claude Code v2.1.217 或更高版本。
+请参阅 [Emoji 短代码](https://code.claude.com/docs/zh-CN/interactive-mode.md#emoji-shortcodes)。
 
 ### `fileSuggestion`
 
@@ -3692,7 +3692,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 ### `workflowSizeGuideline`
 
-设置 Claude 在其编写的动态工作流中[力求达到的 Agent 数量](https://code.claude.com/docs/zh-CN/workflows.md#set-a-size-guideline)。Claude Code 会将该值作为建议而非强制上限发送给 Claude：`"small"` 要求少于 5 个 Agent，`"medium"` 少于 10 个，`"large"` 少于 50 个。如果您希望限制工作流的开销，请选择 `"small"`。需要 Claude Code v2.1.219 或更高版本。
+设置 Claude 在其编写的动态工作流中[力求达到的 Agent 数量](https://code.claude.com/docs/zh-CN/workflows.md#set-a-size-guideline)。Claude Code 会将该值作为建议而非强制上限发送给 Claude：`"small"` 要求少于 5 个 Agent，`"medium"` 少于 10 个，`"large"` 少于 50 个。如果您希望限制工作流的开销，请选择 `"small"`。
 
 * **作用域**：[`Any file`](#scopes)。在设置文件中设置的值优先于 `/config` 中的 **Dynamic workflow size** 选项（Claude Code 将其存储在 `~/.claude.json` 中），并且当设置文件设置了此键时，Claude Code 会隐藏该行。
 * **类型**：字符串，取值为以下之一：
@@ -3707,8 +3707,6 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
   "workflowSizeGuideline": "small"
 }
 ```
-
-需要 Claude Code v2.1.219 或更高版本；在 v2.1.202 至 v2.1.218 版本中，请改为在 `/config` 中设置该指导值。
 
 ## 插件与 skill
 

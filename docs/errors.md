@@ -146,6 +146,7 @@
 | `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.` | [网络](#sessions-ended-while-this-machine-was-offline) |
 | `Couldn't share the transcript.` | [网络](#couldnt-share-the-transcript) |
 | `Couldn't send feedback` | [网络](#couldnt-send-feedback) |
+| `Feedback payload too large. Try again without the transcript, or shorten the details.` | [网络](#feedback-payload-too-large) |
 | `MCP server "<name>" connection timed out. Your computer went to sleep or its clock changed while connecting.` | [网络](#mcp-server-connection-timed-out-during-a-sleep-or-clock-change) |
 | `Prompt is too long` / `Input is too long for requested model` | [请求错误](#prompt-is-too-long) |
 | `Prompt is too long · automatic compaction failed:` | [请求错误](#prompt-is-too-long) |
@@ -335,6 +336,7 @@
 | `Failed to write the plan approval request to the lead's inbox — plan not submitted` | [工具错误](#failed-to-write-to-a-teammate-inbox) |
 | `Its agent definition was not restored: the folder its definition file came from is not trusted` | [工具错误](#teammate-agent-definition-not-restored) |
 | `Only a teammate can approve a shutdown request` | [工具错误](#only-a-teammate-can-approve-a-shutdown-request) |
+| `A command-line deny rule cannot be handed to a teammate intact` | [工具错误](#command-line-deny-rule-cannot-be-handed-to-a-teammate) |
 | `Message too large for cross-session delivery` | [工具错误](#message-too-large-for-cross-session-delivery) |
 | `Too many messages to this session just now` | [工具错误](#too-many-messages-to-this-session-just-now) |
 | `Cross-session message was dropped at the recipient session's inbox` | [工具错误](#cross-session-message-dropped-at-the-inbox) |
@@ -2188,9 +2190,9 @@ Couldn't share the transcript.
 
 ### Couldn't send feedback
 
-以 `Couldn't send feedback` 开头的消息表示您从 [`/feedback`、`/bug` 或 `/share` 对话框](https://code.claude.com/docs/zh-CN/commands#all-commands)提交的报告，或者已排队的[反馈草稿](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)，未能发送。如果冒号之后是一句关于您组织的说明，则表示您的组织拒绝接收反馈，同一份报告再次发送也会得到相同的结果。
+以 `Couldn't send feedback` 开头的消息表示反馈服务未确认收到您从 [`/feedback`、`/bug` 或 `/share` 对话框](https://code.claude.com/docs/zh-CN/commands#all-commands)提交的报告，或者已排队的[反馈草稿](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)。请将其视为未收到。如果冒号之后是一句关于您组织的说明，则表示您的组织拒绝接收反馈，同一份报告再次发送也会得到相同的结果。
 
-以下两个示例中，第一个是网络故障，第二个是组织拒绝：
+以下两个示例中，第二个是组织拒绝：
 
 ```text wrap theme={null}
 Couldn't send feedback (couldn't reach the service). If it keeps failing, you can file at https://github.com/anthropics/claude-code/issues instead.
@@ -2203,12 +2205,24 @@ Couldn't send feedback: Feedback has not been enabled for your organization. To 
 * **未登录**：消息后续为 `: not signed in. Run /login, then retry.`。请运行 `/login`，然后再次发送
 * **您的组织拒绝**：例如 `: Feedback has not been enabled for your organization.` 或 `: Feedback collection is not available for organizations with custom data retention policies.`。如果消息附有 `To report a bug, open an issue`，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交 issue。已排队的草稿会保留在队列中，您可以[将其丢弃](https://code.claude.com/docs/zh-CN/tools-reference.md#discard-or-keep-a-draft)
 * **凭据被拒绝**：消息后续为 `: the sign-in this session uses is not allowed to send feedback` 或 `: the server did not accept the credentials this session uses`。请在 Claude Code 提示符处运行 `/status`，查看此会话发送的是哪个登录、令牌或 API 密钥
-* **紧跟在 `Couldn't send feedback` 之后的 `(request timed out)` 或 `(couldn't reach the service)`**：这些是网络故障。请再次发送报告或已排队的草稿。对话框会保留您的文本，已排队草稿的消息会显示 `The draft is still queued.`。如果其他请求也在失败，请检查您的网络连接，并参阅 [Unable to connect to API](#unable-to-connect-to-api)。如果持续失败，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交报告
+* **紧跟在 `Couldn't send feedback` 之后的 `(request timed out)` 或 `(couldn't reach the service)`**：请再次发送报告或已排队的草稿。对话框会保留您的文本，已排队草稿的消息会显示 `The draft is still queued.`。如果其他请求也在失败，请检查您的网络连接，并参阅 [Unable to connect to API](#unable-to-connect-to-api)。如果持续失败，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交报告
 * **紧跟在 `Couldn't send feedback` 之后的 `(server returned <status>)`，或没有任何原因**：该状态码是服务的响应代码。如果服务发送了自己的消息，该消息会跟在状态码之后，例如 `(server returned 403: Access Forbidden)`。如果持续失败，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交报告
 
 github.com/anthropics/claude-code 上的 issue 是公开的，因此在提交时请勿包含代码、会话记录以及其他任何机密内容。
 
 在 v2.1.281 之前，如果在对话框打开期间收到了 Remote Control **Stop** 或紧急的跨会话消息，之后的每次发送都会以此消息失败。在这些版本上，请关闭对话框，重新打开，然后再次发送。
+
+### Feedback payload too large
+
+在[反馈草稿](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)的[审阅界面](https://code.claude.com/docs/zh-CN/tools-reference.md#review-and-edit-a-draft)中出现此消息，表示 Claude Code 未收到服务已接受该草稿的确认。请将其视为未收到。该草稿会保留在您的 `/feedback` 队列中，因此您可以再次发送。
+
+```text wrap theme={null}
+Feedback payload too large. Try again without the transcript, or shorten the details.
+```
+
+**解决方法：**
+
+* 在审阅界面中，将 **Send transcript** 设置为 `no`，然后再次发送该草稿。缩短详细信息最多只能减少 10 KB 文本，这已是草稿详细信息所能容纳的全部内容。
 
 ### 在睡眠或时钟更改期间 MCP 服务器连接超时
 
@@ -3281,7 +3295,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了非标志的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请省略此标志。若要在本次运行中信任它，请将 PR 编号或基础分支放在标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
 
@@ -3476,7 +3490,7 @@ Claude Code 在每次连接尝试时都会重新运行该辅助程序，因此�
 
 ### MCP server rejected the elicitation capability
 
-基于 Java MCP SDK 0.11.0 至 0.17.0 构建的 MCP 服务器拒绝了连接。这些 SDK 版本无法解析 Claude Code 在握手中声明的 `form` 和 `url` [elicitation 模式](https://code.claude.com/docs/zh-CN/mcp.md#elicitation-modes-claude-code-declares)。`claude mcp list` 会将该服务器显示为失败，并以此消息代替服务器自身的错误：
+一个基于 Java MCP SDK 0.11.0 至 0.17.0 构建的 MCP 服务器拒绝了连接。这些 SDK 版本无法解析 Claude Code 在握手中声明的 `form` 和 `url` [elicitation 模式](https://code.claude.com/docs/zh-CN/mcp.md#elicitation-modes-claude-code-declares)。消息为：
 
 ```text theme={null}
 This server (Java MCP SDK 0.17.0 or older) rejected Claude Code's elicitation capability. Set "bareElicitationCapability": true for it, or upgrade to Java MCP SDK 0.17.1+ (Spring AI 1.0.7+ or 1.1.6+).
@@ -3573,9 +3587,9 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许其运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求在没有 bash 的机器上使用 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
-* `No shell command in <name> was run`：该文件的某个 `!` 命令包含制表符或换行符以外的原始控制字符，因此所有命令都不会运行。请参阅[如何查找并删除该字符](#no-shell-command-was-run)
+* `Shell command permission check failed for pattern "..."`：命令的权限检查未允许其运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：skill 的 frontmatter 要求 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `No shell command in <name> was run`：文件中某个 `!` 命令包含制表符或换行符以外的原始控制字符，因此所有命令都不会运行。请参阅[如何找到并删除该字符](#no-shell-command-was-run)
 
 **解决方法：**
 
@@ -3725,7 +3739,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并报错 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
 
 **解决方法：**
 
@@ -4677,6 +4691,19 @@ Only a teammate can approve a shutdown request, and this session is not running 
 * 如果该拒绝出现在您的负责人会话中，请先检查该队友此后是否已经关闭。该拒绝会连同改为发送 `shutdown_request` 的指示一起返回给 Claude，轮次继续进行。在交互式负责人会话中，当队友批准关闭请求时，会出现 `<name> has shut down.`。
 * 如果该队友仍在运行，请在负责人的输入框中要求它关闭该队友，例如 `Ask the researcher teammate to shut down`。请参阅[关闭队友](https://code.claude.com/docs/zh-CN/agent-teams.md#shut-down-teammates)。
 * 如果您自己使用 `claude --resume` 恢复的前队友收到了此拒绝，则没有发送任何内容。如需结束该会话，请在其输入框中运行 `/exit`。
+
+### A command-line deny rule cannot be handed to a teammate intact
+
+此消息表示 Claude Code 没有在您的 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 中启动[分屏](https://code.claude.com/docs/zh-CN/agent-teams.md#choose-a-display-mode)队友。Claude Code 会通过队友自己的命令行，将负责人的命令行拒绝规则传递给分屏队友；当队友对其中某条规则的解读会有所不同时，Claude Code 就会停止：
+
+```text wrap theme={null}
+A command-line deny rule cannot be handed to a teammate intact, so the teammate would not enforce it — spawn aborted
+```
+
+**处理方法：**
+
+* 在负责人会话中运行 `/config`，将 **Teammate mode** 设置为 `in-process`，然后让 Claude 再次启动该队友。您无需找出该规则，也无需重新启动负责人。进程内队友[在负责人的实时拒绝规则下运行](https://code.claude.com/docs/zh-CN/agent-teams.md#permissions)。
+* 之后从您的用户设置中读取 [`teammateMode`](https://code.claude.com/docs/zh-CN/settings-reference#teammatemode) 的会话也会以进程内方式启动队友，因为 `/config` 会将该选择保存在那里。如需在之后的会话中改回分屏，请将 **Teammate mode** 设置为 `auto`、`tmux` 或 `iterm2`，即您之前使用的那一项。
 
 ### Message too large for cross-session delivery
 

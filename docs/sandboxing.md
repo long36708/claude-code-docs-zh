@@ -320,6 +320,7 @@ Claude Code 会将您的条目与每次 Bash 和 Monitor 调用进行比对。�
 * **调用中的每条命令都必须匹配**：`npm ci && docker compose build` 会保持在沙箱中，除非有另一个条目覆盖 `npm ci`
 * **Claude Code 匹配的是调用的文本**：在内部调用 `docker` 的脚本或 `make` 目标不会匹配，`/usr/local/bin/docker` 也不会匹配
 * **某些调用会保持在沙箱中**：重定向到文件、`cd` 或诸如 `$(...)` 的命令替换会使整个调用保持在沙箱中。[参考条目](https://code.claude.com/docs/zh-CN/settings-reference.md#sandbox-excludedcommands)列出了更多会保持在沙箱中的调用
+* **`git clone` 需要使用相对路径**：如果克隆指定了绝对路径、以 `~` 开头的路径或包含 `..` 段的路径，您的条目不会覆盖该克隆。如果克隆可以放在您的工作目录内，请让 Claude 使用不含 `..` 段的相对路径，例如 `vendor/lib`
 * **条目的保存位置可能很重要**：当沙箱为[管理员强制要求](#repository-settings-under-an-admin-required-sandbox)时，Claude Code 会忽略 `.claude/settings.json` 和 `.claude/settings.local.json` 中的条目
 
 被排除的命令会经过常规的权限流程：
@@ -354,7 +355,7 @@ Claude Code 会将您的条目与每次 Bash 和 Monitor 调用进行比对。�
 
 沙箱有两个相互独立的层：[文件系统隔离](#filesystem-isolation)控制沙箱命令可以读写哪些路径，[网络隔离](#network-isolation)控制它们可以访问哪些域名。关闭文件系统层后，沙箱命令将获得对主机文件系统不受限制的读写访问权限，而其网络出站流量仍限于您允许的域名。当您使用沙箱的目的是控制命令连接到哪里，而不是控制它们写入什么时，请关闭该层。
 
-`sandbox.filesystem.disabled` 默认为 `false`。需要 Claude Code v2.1.216 或更高版本。
+`sandbox.filesystem.disabled` 默认为 `false`。
 
 > [!WARNING]
 >

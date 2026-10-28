@@ -198,16 +198,12 @@ Ultracode 是一个 Claude Code 设置，它为会话启用自动工作流编排
 * `.claude/workflows/` 在您的项目中：与克隆仓库的每个人共享
 * `~/.claude/workflows/` 在您的主目录中：在每个项目中可用，仅对您可见。如果您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，此位置是该路径下的 `workflows/` 目录。
 
-保存对话显示个人位置的已解析路径。
+保存对话框显示个人位置的已解析路径。按 Enter 保存。工作流在未来的会话中可从任一位置作为 `/<name>` 运行。
 
-按 Enter 保存。工作流在未来会话中从任一位置作为 `/<name>` 运行。
-
-Claude Code 在写入前检查保存位置是否有符号链接，并显示错误而不是通过一个写入。它检查的内容取决于您保存的位置：
+Claude Code 在写入前检查保存位置是否存在符号链接，如有则显示错误，而不是通过符号链接写入：
 
 * 项目位置：如果 `.claude`、`.claude/workflows` 或目标文件是符号链接，Claude Code 拒绝。
 * 个人位置：Claude Code 仅在目标文件本身是符号链接时拒绝，所以由点文件工具管理的 `~/.claude` 目录仍然有效。
-
-在 v2.1.216 之前，Claude Code 跟随链接，这可能会将文件放在您选择的位置之外。
 
 在具有多个 `.claude/` 目录的单体仓库中，您可以将工作流保存在它们适用的包旁边。保存到项目位置会写入您的工作目录和仓库根之间已存在的最近的 `.claude/workflows/` 目录，或如果尚不存在则写入仓库根。项目工作流也从该路径上的每个 `.claude/workflows/` 加载，当多个定义相同名称时 Claude Code 运行最接近工作目录的那个。
 
@@ -469,9 +465,9 @@ Claude Code 为每个工作流 Agent 选择模型的顺序与[为子代理选择
 | `medium` | 少于 10 个 Agent |
 | `large` | 少于 50 个 Agent |
 
-默认值为 `medium`，如果您使用 Pro 套餐登录且 Claude Code 为 v2.1.271 或更高版本，则默认值为 `small`。在您选择某个值之前，`/config` 中的该行会将该值标记为默认值，工作流的 `Running in background` 行会显示当前生效的规模。需要 Claude Code v2.1.219 或更高版本；更早的版本默认为 `unrestricted`。
+默认值为 `medium`，如果您使用 Pro 套餐登录且 Claude Code 为 v2.1.271 或更高版本，则默认值为 `small`。在您选择某个值之前，`/config` 中的该行会将该值标记为默认值，工作流的 `Running in background` 行会显示当前生效的规模。
 
-要更改指导，请在 `/config` 中为 Dynamic workflow size 设置选择一个值，或运行 `/config workflowSizeGuideline=small`。在 v2.1.219 及更高版本中，您还可以在任意设置文件中设置 [`workflowSizeGuideline` 键](https://code.claude.com/docs/zh-CN/settings-reference#workflowsizeguideline)；该值优先于 `/config`，并且当设置文件提供了该值时，Claude Code 会隐藏 `/config` 中的该行。
+要更改指导，请在 `/config` 中为 Dynamic workflow size 设置选择一个值，或运行 `/config workflowSizeGuideline=small`。您还可以在任意设置文件中设置 [`workflowSizeGuideline` 键](https://code.claude.com/docs/zh-CN/settings-reference#workflowsizeguideline)；该值优先于 `/config`，并且当设置文件提供了该值时，Claude Code 会隐藏 `/config` 中的该行。
 
 更改会在下一个提示词时生效。无论该设置如何，[运行时 Agent 上限](#behavior-and-limits)仍然适用。
 

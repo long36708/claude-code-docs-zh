@@ -182,7 +182,7 @@ Claude 将其更改推送到分支后，聊天旁边面板中的 **Changes** 卡
 * 您也可以点击会话标题栏中的 **Changes**，或标题栏 **⋮** 菜单中的该选项。
 * 若面板处于隐藏状态，要显示它，请点击会话标题栏中的 **Show session rail** 图标，或标题栏 **⋮** 菜单中的该选项。
 
-差异默认将会话的更改与其基础分支进行比较。要与不同的分支进行比较，选择**Compare against**并选择一个。
+差异默认将会话的更改与其基础分支进行比较。要与不同的分支进行比较，选择**Compare against**并选择一个。与基础分支比较时，diff 可能会[遗漏尚未推送的更改](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#troubleshoot-a-missing-file-in-the-diff-view)。
 
 **2. 留下内联注释**
 

@@ -92,7 +92,7 @@
 | `/` 在开始 | 命令或 skill | 请参阅[命令](#commands)和[skills](https://code.claude.com/docs/zh-CN/skills.md) |
 | `!` 在开始 | Shell 模式 | 直接运行命令，将其输出添加到会话，并让 Claude 对其进行响应 |
 | `@` | 文件路径提及 | 触发文件路径自动完成。在具有[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#message-another-session)的会话中，当您在 `@` 后键入至少一个字母时，Claude Code 也会建议您在此机器上的其他实时会话，以便您可以告诉 Claude 向您选择的会话发送消息。需要 Claude Code v2.1.232 或更高版本 |
-| `:` | 表情符号简码 | 键入完整的 `:name:` 以插入表情符号，或键入两个或更多字符以获取建议。请参阅[表情符号简码](#emoji-shortcodes)。需要 Claude Code v2.1.217 或更高版本 |
+| `:` | 表情符号简码 | 键入完整的 `:name:` 以插入表情符号，或键入两个或更多字符以获取建议。请参阅[表情符号简码](#emoji-shortcodes) |
 | `?` 在空输入上 | 切换快捷键帮助面板 | 当输入已包含文本时键入 `?` 会插入该字符 |
 
 ### 记录查看器
@@ -197,7 +197,7 @@ Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](h
 
 > [!NOTE]
 >
-> 在 vim NORMAL 模式中，如果光标在输入的开始或结束处且无法进一步移动，`j`/`k` 和 `↑`/`↓` 会导航命令历史。在空提示符上按 `←` 也会从 NORMAL 模式和 INSERT 模式打开[代理视图](https://code.claude.com/docs/zh-CN/agent-view.md)；在 v2.1.219 之前，在空提示符上按 `←` 在 NORMAL 模式下不执行任何操作。
+> 在 vim NORMAL 模式中，如果光标在输入的开始或结束处且无法进一步移动，`j`/`k` 和 `↑`/`↓` 会改为导航命令历史。在空输入框上按 `←` 会打开 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)，在 NORMAL 模式和 INSERT 模式下均适用。
 
 ### 编辑（NORMAL 模式）
 
@@ -513,7 +513,7 @@ Claude Code 会将您最近的提示以及您标记为已知的主题保存在 `
 
 ## 表情符号速记代码
 
-在提示输入中输入 `:` 后跟表情符号速记代码来插入表情符号。需要 Claude Code v2.1.217 或更高版本。
+在提示词输入框中输入 `:` 后跟表情符号速记代码来插入表情符号。
 
 * 输入完整的速记代码，例如 `:heart:`，Claude Code 会在您输入结束的 `:` 时立即将其替换为 ❤️
 * 输入 `:` 加上名称的至少两个字符，例如 `:hea`，打开建议弹出窗口，然后按 `Tab` 或 `Enter` 插入突出显示的表情符号

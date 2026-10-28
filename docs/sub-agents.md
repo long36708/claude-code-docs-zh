@@ -352,7 +352,7 @@ experimental:
 * **完整模型 ID**：使用完整模型 ID，例如 `claude-opus-5-5` 或 `claude-sonnet-5`。接受与 `--model` 标志相同的值
 * **inherit**：使用与主对话相同的模型
 
-当 Claude 调用子代理时，它还可以为该次调用传入 `model` 参数。Claude Code 按以下顺序确定子代理的模型：
+当 Claude 调用子代理时，它还可以为该次调用传入 `model` 参数。在 Agent 工具调用中，该参数接受模型别名：`sonnet`、`opus`、`haiku` 或 `fable`。Claude 无法在该调用中传入完整模型 ID 或 `inherit`。Claude Code 按以下顺序确定子代理的模型：
 
 1. 单次调用的 `model` 参数
 2. 子代理定义中的 `model` frontmatter，其中 `inherit` 选择主对话的模型
@@ -762,7 +762,7 @@ claude --disallowedTools "Agent(Explore)"
 
 若要让项目级子代理的 frontmatter hook 运行，请为包含该 Agent 文件的文件夹接受[工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)。来自 `~/.claude/agents/` 中用户级子代理以及您通过 `--agents` 传入的定义的 hook 无需此步骤即可运行。如果您通过 `--add-dir` 添加了位于受信任工作区仓库之外的文件夹，请单独信任该文件夹：其 `.claude/agents/` 中的 hook 不会继承工作区的授权。
 
-在您信任该文件夹之前，子代理仍会运行，但 Claude Code 会跳过其 frontmatter hook，并在调试日志中记录一条说明如何信任该文件夹的错误。这一规则比设置文件中 hook 的规则更严格：信任父文件夹是不够的，并且 `-p` 会话不算作受信任。[信任文件夹之前会运行什么](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)对这两者进行了比较。在 v2.1.218 之前，frontmatter hook 可以从您未信任的文件夹中运行，包括在非交互式会话中。
+在您信任该文件夹之前，子代理仍会运行，但 Claude Code 会跳过其 frontmatter hook，并在调试日志中记录一条说明如何信任该文件夹的错误。这一规则比设置文件中 hook 的规则更严格：信任父文件夹是不够的，并且 `-p` 会话不算作受信任。[信任文件夹之前会运行什么](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)对这两者进行了比较。
 
 支持所有 [hook 事件](https://code.claude.com/docs/zh-CN/hooks.md#hook-events)。子代理最常用的事件有：
 
@@ -1074,13 +1074,6 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 嵌套子代理的配置方式与顶层子代理相同，并从相同的[作用域](#choose-the-subagent-scope)中解析。要在嵌套开启时阻止某个子代理生成子代理（例如应保持只读的审查者），请从其 [`tools`](#available-tools) 列表中省略 `Agent`，或将其添加到 `disallowedTools`。
 
 在终端中，Claude Code 会在输入框下方的子代理面板中以树形显示嵌套子代理，并为面板中仍有后代的每一行标注 `(+N)`，表示其后代数量。打开某一行即可查看该子代理的同级和直接子级，以及返回 `main` 的路径。
-
-> [!NOTE]
->
-> 早期版本使用不同的默认值：
->
-> * **v2.1.172 至 v2.1.216**：子代理默认可以嵌套，最多五层，且该限制无法更改。
-> * **v2.1.217 至 v2.1.218**：该限制默认为一，因此除非您调高，否则子代理无法生成自己的子代理；v2.1.219 将默认值提高到三。
 
 ### 并发子代理限制
 

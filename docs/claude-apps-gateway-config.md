@@ -996,9 +996,7 @@ managed:
 
 [批准记忆](https://code.claude.com/docs/zh-CN/server-managed-settings.md#approval-memory)介绍了批准的有效期以及对话框何时会再次出现。
 
-Claude Code 会应用某些交付的 `env` 变量而不向开发者显示批准对话框，例如模型选择设置和数值限制。其他交付的变量可能需要开发者批准后才能生效；非空的代理、基础 URL 或 `OTEL_EXPORTER_OTLP_ENDPOINT` 值始终需要批准。当交付的变量需要批准时，对话框会指明它。
-
-[环境变量和批准对话框](https://code.claude.com/docs/zh-CN/server-managed-settings.md#environment-variables-and-the-approval-dialog)提供了详细信息，包括四个隐私开关，其交付值决定了它们是否需要批准。在 v2.1.218 之前，Claude Code 不询问开发者就应用的变量较少，因此更多交付的变量会触发对话框。
+Claude Code 应用某些交付的 `env` 变量时不会向开发者显示批准对话框，例如模型选择设置和数值限制。其他交付的变量可能需要开发者批准；非空的代理、base-URL 或 `OTEL_EXPORTER_OTLP_ENDPOINT` 值始终需要。当交付的变量需要批准时，对话框会列出它的名称。[环境变量与批准对话框](https://code.claude.com/docs/zh-CN/server-managed-settings.md#environment-variables-and-the-approval-dialog)提供了详细信息，包括四个隐私开关，其交付值决定它们是否需要批准。
 
 网关的[遥测](#telemetry)配置会推送 `OTEL_EXPORTER_OTLP_ENDPOINT`，因此设置 `telemetry.forward_to` 会在每个交互式客户端上触发对话框。该对话框保护的是开发者的机器免受被入侵或恶意网关的影响，而不是保护组织免受开发者的影响。
 

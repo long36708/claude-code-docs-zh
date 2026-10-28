@@ -648,7 +648,7 @@ Claude Code 导出以下指标。"单位"列显示附加到每个指标的 OpenT
 | `claude_code.code_edit_tool.decision` | 代码编辑工具权限决策的计数 | 无 |
 | `claude_code.active_time.total` | 总活跃时间 | s |
 
-当 `prometheus` 是 `OTEL_METRICS_EXPORTER` 中列出的唯一导出器时，Claude Code 会从导出的指标中省略 `USD`、`tokens` 和 `s` 单位，以使抓取结果保持为有效的 Prometheus 文本格式。指标名称不会改变，组合多个导出器的配置（例如 `otlp,prometheus`）会保留单位。在 v2.1.216 之前，Prometheus 抓取结果包含仅适用于 OpenMetrics 的 `# UNIT` 行，某些抓取器会拒绝这些行。
+当 `prometheus` 是 `OTEL_METRICS_EXPORTER` 中列出的唯一导出器时，Claude Code 会从导出的指标中省略 `USD`、`tokens` 和 `s` 单位，以使抓取结果保持为有效的 Prometheus 文本格式。指标名称不会改变，组合多个导出器的配置（例如 `otlp,prometheus`）会保留单位。
 
 ### 指标详情
 
@@ -995,11 +995,11 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
     `source` 值并不表明匹配的是其中哪个来源。要查明是哪个来源拒绝了调用，请查找具有相同 `tool_use_id` 的[安全事件](#safety-event)，并读取其 `category` 和 `rule_source` 属性。部分被拒绝的调用[没有安全事件](#calls-without-a-safety-event)。
 
-    当权限提示请求本身失败时，Claude Code 也会报告 `"config"`。例如，当 Agent SDK 的 [`canUseTool`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#canusetool) 回调或 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 工具返回无效结果时，或者当请求挂起期间输入流关闭时，该请求就会失败。在 v2.1.216 之前，Claude Code 将这些失败报告为 `"user_reject"`。
+    当权限提示请求本身失败时，Claude Code 也会报告 `"config"`。例如，当 Agent SDK 的 [`canUseTool`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#canusetool) 回调或 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 工具返回无效结果时，或者当请求挂起期间输入流关闭时，该请求都会失败。
   * `"hook"`：由 `PreToolUse` 或 `PermissionRequest` hook 返回了该决策。
-  * `"user_permanent"`：当用户在权限提示中选择 "Yes, and don't ask again for ..." 时发出，这会将一条允许规则保存到其个人设置中。在交互式 CLI 中，仅针对该选择本身发出；之后匹配所保存规则的调用会改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，初次选择以及之后的规则匹配都会发出 `"user_permanent"`。视为接受。
-  * `"user_temporary"`：当用户在权限提示中选择 "Yes" 进行一次性批准，或在文件编辑或读取提示中选择了在会话剩余时间内授予访问权限的选项时发出。在交互式 CLI 中，仅针对该选择本身发出；之后由该会话级授权允许的调用会改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，该选择以及之后的匹配都会发出 `"user_temporary"`。视为接受。
-  * `"user_abort"`：当用户未作回答即关闭权限提示时发出。在 Agent SDK 和非交互式 `-p` 会话中，这包括在 `canUseTool` 或 `--permission-prompt-tool` 权限请求挂起时中断该轮次；在 v2.1.216 之前，Claude Code 将这种中断报告为 `"user_reject"`。视为拒绝。
+  * `"user_permanent"`：当用户在权限提示中选择 "Yes, and don't ask again for ..." 时发出，这会将一条允许规则保存到其个人设置中。在交互式 CLI 中，仅针对该选择本身发出；之后匹配已保存规则的调用会改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，初始选择和之后的规则匹配都会发出 `"user_permanent"`。视为接受。
+  * `"user_temporary"`：当用户在权限提示中选择 "Yes" 进行一次性批准，或在文件编辑或读取提示中选择了在会话剩余时间内授予访问权限的选项时发出。在交互式 CLI 中，仅针对该选择本身发出；之后由该会话范围许可允许的调用会改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，该选择和之后的匹配都会发出 `"user_temporary"`。视为接受。
+  * `"user_abort"`：当用户未作回答就关闭了权限提示时发出。在 Agent SDK 和非交互式 `-p` 会话中，这包括在 `canUseTool` 或 `--permission-prompt-tool` 权限请求挂起期间中断轮次。视为拒绝。
   * `"user_reject"`：当用户在提示时选择 "No" 时发出。在交互式 CLI 中，仅针对该选择本身发出；匹配用户个人设置中拒绝规则的调用会改为发出 `"config"`。在 Agent SDK 或非交互式 `-p` 会话中，匹配个人设置中拒绝规则的调用会发出 `"user_reject"`。视为拒绝。
 * `classifier_verdict`：自动模式[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#how-the-classifier-evaluates-actions)对该调用的判定结果，或在没有判定结果时 Claude Code 拒绝该调用的原因。需要 Claude Code v2.1.301 或更高版本
 

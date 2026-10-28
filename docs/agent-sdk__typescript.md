@@ -105,6 +105,8 @@ function startup(params?: {
 
 返回一个 `Promise<`[`WarmQuery`](#warmquery)`>`，在子进程启动并完成初始化握手后解析。
 
+对于 `SessionStart` 或 `Setup` hook 在握手完成之前发出的 [`hook_progress`](#sdkhookprogressmessage) 消息，您只会收到最新的一条，其中包含该 hook 截至当时的全部输出。`startup()` 会暂存该消息、该 hook 的 [`hook_started`](#sdkhookstartedmessage) 消息，以及子进程在握手完成之前发出的所有其他内容。当您对 `WarmQuery` 调用 `.query()` 并迭代结果时，这些暂存的消息才会传递给您。
+
 #### 示例
 
 尽早调用 `startup()`（例如在应用程序启动时），然后在提示词就绪后对返回的句柄调用 `.query()`。这样可以将子进程的启动和初始化移出关键路径。
@@ -524,7 +526,7 @@ console.log(`Set by: ${provenance.cleanupPeriodDays?.source}`);
 | `managedSettings` | `Settings` | `undefined` | 由您的宿主进程提供给所生成会话的策略层级设置。在部署了管理员托管设置的机器上，除非管理员优先级最高的托管源设置了 `parentSettingsBehavior: 'merge'`，否则 Claude Code 会忽略这些设置；并且当 [`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper) 提供托管设置时，永远不会合并它们。合并的值会经过一个仅限收紧的过滤器；[限制父级设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway#restrict-parent-settings)介绍了过滤器允许的内容以及 `allowManaged*Only` 锁定。设置了 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](https://code.claude.com/docs/zh-CN/env-vars) 的宿主会改为直接从此负载中读取三个键：在 Claude Code v2.1.222 或更高版本中读取其[模型配置](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)；在 v2.1.246 或更高版本中，当没有托管源设置 [`modelPricing`](https://code.claude.com/docs/zh-CN/settings-reference#modelpricing) 时读取该键；在 v2.1.247 或更高版本中读取其 `ENABLE_TOOL_SEARCH` env 条目 |
 | `maxBudgetUsd` | `number` | `undefined` | 当客户端成本估算达到此美元值时停止查询。估算值可能超过此值，因此请[留出余量](https://code.claude.com/docs/zh-CN/agent-sdk/agent-loop.md#budget-headroom)。仅计算本次调用自身的花费；从恢复的会话中还原的总计不计入。有关准确性注意事项和重置行为，请参阅[跟踪成本和用量](https://code.claude.com/docs/zh-CN/agent-sdk/cost-tracking.md) |
 | `maxThinkingTokens` | `number` | `undefined` | *已弃用：* 请改用 `thinking`。思考过程的最大 token 数 |
-| `maxTurns` | `number` | `undefined` | 最大 agentic 轮次（工具使用往返次数） |
+| `maxTurns` | `number` | `undefined` | 最大 Agent [轮次](https://code.claude.com/docs/zh-CN/agent-sdk/agent-loop.md#turns-and-messages) |
 | `mcpServers` | `Record<string, [`McpServerConfig`](#mcpserverconfig)>` | `{}` | MCP 服务器配置 |
 | `model` | `string` | 来自 CLI 的默认值 | Claude 模型别名或完整模型名称。请参阅[可接受的值和特定于提供商的 ID](https://code.claude.com/docs/zh-CN/model-config.md#available-models) |
 | `onElicitation` | `(request: ElicitationRequest, options: { signal: AbortSignal }) => Promise<ElicitationResult>` | `undefined` | 用于处理 MCP elicitation 请求的回调。当 MCP 服务器请求用户输入且没有 hook 先行处理时调用。未提供时，未处理的 elicitation 请求会被自动拒绝 |
@@ -1403,6 +1405,8 @@ type PermissionResult =
     };
 ```
 
+如果您返回 `allow` 且 `updatedPermissions` 中的项超过 4,096 个，Claude Code 会将结果视为无效并拒绝该工具调用。每个更新计为一项，其 `rules` 或 `directories` 列表中的每个条目也各计为一项。拒绝消息以 `updatedPermissions may hold at most 4096 updates, rules and directories in all` 结尾。要使调用被允许，请返回不超过 4,096 项。
+
 ### `ToolConfig`
 
 内置工具行为的配置。
@@ -1692,7 +1696,7 @@ type SDKAssistantMessage = {
 
 当中断或中止在流完成前截断助手消息时，`aborted` 为 `true`：消息没有 `stop_reason`，内容可能在单词中间结束。该字段在正常完成的消息上不存在。它需要 Agent SDK v0.3.214 或更高版本。
 
-`agent_id` 标识生成该消息的子代理，主线程消息中不包含此字段。其值等于该子代理的 [`task_started`](#sdktaskstartedmessage) 及其他任务事件上的 `task_id`，并且在子代理被[恢复](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md#resume-subagents)时保持不变。该字段需要 Agent SDK v0.3.292 或更高版本。
+`agent_id` 标识产生该消息的子代理，在主线程消息上不存在。其值等于该子代理的 [`task_started`](#sdktaskstartedmessage) 及其他任务事件上的 `task_id`，并且在子代理被[恢复](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md#resume-subagents)时保持不变。对于来自[嵌套子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#let-subagents-spawn-their-own-subagents)的消息，它指向该嵌套子代理，而不是生成它的子代理。该字段需要 Agent SDK v0.3.292 或更高版本。
 
 请通过 `agent_id` 将子代理的消息与其任务事件进行匹配，而不是将消息的 `parent_tool_use_id` 与任务事件的 `tool_use_id` 配对。当某个工具调用恢复子代理时，任务事件携带的是该调用的 `tool_use_id`，而消息保留的是最初启动该子代理的工具调用的 `parent_tool_use_id`，因此两者不再匹配。
 
@@ -3271,7 +3275,9 @@ type ToolInputSchemas =
 
 ### Agent
 
-**工具名称：** `Agent`。之前的名称 `Task` 仍然被接受作为别名，[`SDKSystemMessage`](#sdksystemmessage) 初始化消息中的 `tools` 数组目前为了向后兼容仍将此工具列为 `Task`。
+**工具名称：** `Agent`。当此工具对会话可用时，之前的名称 `Task` 仍被接受作为别名。
+
+[`SDKSystemMessage`](#sdksystemmessage) 初始化消息中的 `tools` 数组为了向后兼容将此工具列为 `Task`。
 
 > [!NOTE]
 >
@@ -4008,7 +4014,7 @@ type ToolOutputSchemas =
 
 ### Agent
 
-**工具名称：** `Agent`。之前的名称 `Task` 仍然被接受作为别名，[`SDKSystemMessage`](#sdksystemmessage) 初始化消息中的 `tools` 数组目前为了向后兼容仍将此工具列为 `Task`。
+**工具名称：** `Agent`。当此工具对会话可用时，之前的名称 `Task` 仍然被接受作为别名。
 
 ```typescript theme={null}
 type AgentOutput =
@@ -5551,6 +5557,8 @@ type SDKToolUseSummaryMessage = {
 
 Claude Code 会立即将此消息、[`SDKHookProgressMessage`](#sdkhookprogressmessage) 和 [`SDKHookResponseMessage`](#sdkhookresponsemessage) 传递到消息流，包括在会话启动期间 `SessionStart` 或 `Setup` hook 仍在运行时。Claude Code v2.1.169 至 v2.1.203 会在 `SessionStart` 或 `Setup` hook 完成后一次性批量传递这些消息；v2.1.204 恢复了实时传递。
 
+如果您使用 [`startup()`](#startup) 启动会话，则这些消息会在您调用 `.query()` 并迭代其结果后到达。
+
 ```typescript theme={null}
 type SDKHookStartedMessage = {
   type: "system";
@@ -6070,7 +6078,7 @@ type SandboxNetworkConfig = {
 | `allowManagedDomainsOnly` | `boolean` | `false` | 仅限托管设置。在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置时，仅采用托管设置中的 `allowedDomains` 条目和 `WebFetch(domain:...)` 允许规则，而用户、项目或本地设置中的允许条目将被忽略。在 SDK 中，请通过 [`managedSettings`](#options) 选项传入 |
 | `allowLocalBinding` | `boolean` | `false` | 允许进程绑定到本地端口（例如用于开发服务器） |
 | `allowUnixSockets` | `string[]` | `[]` | 进程可以访问的 Unix 套接字路径（例如 Docker 套接字） |
-| `allowAllUnixSockets` | `boolean` | `false` | 允许访问所有 Unix 套接字 |
+| `allowAllUnixSockets` | `boolean` | `false` | 允许访问所有 Unix 套接字，在 Linux 上还允许访问 VM 套接字（`AF_VSOCK`） |
 | `httpProxyPort` | `number` | `undefined` | 用于网络请求的 HTTP 代理端口 |
 | `socksProxyPort` | `number` | `undefined` | 用于网络请求的 SOCKS 代理端口 |
 

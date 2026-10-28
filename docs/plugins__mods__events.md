@@ -313,14 +313,20 @@ Claude 的回复会像没有该 mod 时一样以流式方式显示在屏幕上�
 
 要查看 API 在请求期间自行运行的工具调用（例如对 [advisor 工具](https://code.claude.com/docs/zh-CN/advisor.md)的调用），请读取 `result.serverToolUses`。Claude Code 不会运行这些调用，因此不会为它们触发任何 `tool.call` 或 `tool.check` hook。当响应中没有此类调用时，该字段不存在；该字段需要 Claude Code v2.1.290 或更高版本。
 
+#### 将请求发送到不同的模型
+
+如果在 `model` 为别名（例如 `haiku`）时 `turn.step` 请求因模型错误而失败，请更新到 Claude Code v2.1.309 或更高版本，或使用完整的模型 ID。在 v2.1.309 之前，别名会按原样发出。
+
+要将请求发送到不同的模型，请将更改了 `model` 的事件传给 `next`，例如 `yield* next({ ...e, model: 'haiku' })`。
+
 ### 更改或拒绝设置读取
 
-`settings.read` hook 会在 mod 的读取和 Claude Code 自身的读取时运行：
+使用 `settings.read` hook 可以更改或拒绝设置读取，无论是 mod 的读取还是 Claude Code 自身的读取：
 
 * **mod 的读取**：某个 mod 调用 [`$.settings.read`](https://code.claude.com/docs/zh-CN/plugins/mods/api#read-one-source-or-one-key)。
-* **Claude Code 自身的读取**：Claude Code 构建会话的合并设置。当设置或已加载的插件发生变化时，此读取会再次进行。
+* **Claude Code 自身的读取**：您的 hook 首次运行于 Claude Code 合并会话设置时，此时会话的 mod 已加载完毕。当设置或已加载的插件发生变化时，您的 hook 会再次运行。
 
-在依赖任一读取之前，请检查守卫和您的版本：
+请检查哪些 mod 会收到此事件以及您的 Claude Code 版本：
 
 * **内置守卫**：存在托管设置时，或者以 Team 或 Enterprise [`/login`](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence) 作为会话的凭据时，[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)可能会跳过您安装或通过 `--plugin-dir` 加载的 mod 中的此 hook。要进行检查，请在[调试日志](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#read-the-debug-log)中搜索 `settings.read bypassed by cc-plugin-sec-default`。如果包含该文本的行指明了您的 mod，请让您组织的管理员[将该 mod 安装为组织的 mod 之一](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)。
 * **版本**：该事件在 Claude Code 自身的读取上触发，以及 `e.layers` 字段，都需要 Claude Code v2.1.304 或更高版本。
@@ -336,15 +342,18 @@ Claude 的回复会像没有该 mod 时一样以流式方式显示在屏幕上�
 
 #### 区分 Claude Code 自身的读取与 mod 的读取
 
-在 [Claude Code 自身的读取](#settings-read-hook)中，[`next.origin`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#the-hook-function) 为 `{ plugin: 'engine', tier: 'core' }`；在 mod 的读取中，`next.origin.plugin` 为发起调用的 mod 的名称。
+检查 [`next.origin`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#the-hook-function)：
+
+* **Claude Code 自身的读取**：`{ plugin: 'engine', tier: 'core' }`
+* **mod 的读取**：`plugin` 为发起调用的 mod 的名称
 
 #### `settings.read` hook 可以返回的内容
 
-您的 hook 可以原样返回 [`next(e)`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#the-hook-function) 的结果、返回自己的 `{ value }`，或返回 `{ deny: reason }`。在 [Claude Code 自身的读取](#settings-read-hook)和 mod 的读取中，`{ value }` 会替换读取所给出的内容，`{ deny: reason }` 会拒绝该读取：
+原样返回 [`next(e)`](#settings-read-next) 的结果以保持读取不变，或返回以下内容之一：
 
-| 返回 | 在 Claude Code 自身的读取中 | 在 mod 的读取中 |
+| 返回 | 在 [Claude Code 自身的读取](#settings-read-hook)中 | 在 mod 的读取中 |
 | :- | :- | :- |
-| `{ value }` | 对于您更改的每个键，如果您返回的内容[符合该键的 schema](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#settings-read-key-refused)，它会替换会话合并设置中该键的整个值 | 该 mod 的调用会解析为您的 `value`，或解析为从您的 `value` 中取出的、它所请求的 `key`，因此请返回一个完整的对象，而不是数组 |
+| `{ value }` | 对于每个被更改的键，如果您的值[符合该键的 schema](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#settings-read-key-refused)，您将替换会话合并设置中该键的整个值 | 该 mod 的调用将解析为您的 `value`，或解析为从您的 `value` 中取出的它所请求的 `key`，因此请返回一个完整的对象，而不是数组 |
 | `{ deny: reason }` | 会话保留在任何 hook 作出响应之前合并得到的设置，并且[调试日志会记录您的 `reason`](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#settings-read-refused) | 该 mod 的调用会以 `<calling mod>: $.settings.read: <reason>` reject |
 
 在 Claude Code 自身的读取中，请基于 [`next(e)` 的 `value`](#settings-read-next) 构建您的 `{ value }`，因为您遗漏的键会变为未设置。对于 Claude Code 从每个来源分别读取的键（例如 `env`），在您的 `value` 中更改它[不会产生效果](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#settings-read-key-no-effect)。
@@ -373,7 +382,7 @@ on('settings.read', async ($, e, next) => {
 })
 ```
 
-在 Claude Code 自身的读取中，如果您的 hook 返回了超出该键 schema 的值（例如字符串），则仅该键会保留在任何 hook 作出响应之前合并得到的值。调试日志随后会显示 [`the answer for <key> is no value the key can hold`](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#settings-read-key-refused)。如果您的值符合要求但该键仍未更改，请参阅[返回的键为何不产生效果](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#settings-read-key-no-effect)。
+在 Claude Code 自身的读取中，如果您的 hook 返回了超出该键 schema 的值（例如字符串），则仅该键会保留在任何 hook 作出响应之前合并得到的值。调试日志随后会显示 [`the answer for <key> is no value the key can hold`](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#settings-read-key-refused)。如果您的值符合要求但该键仍未更改，请参阅[某个键为何不生效](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#settings-read-key-no-effect)。
 
 ### 处理设置 hook 事件
 

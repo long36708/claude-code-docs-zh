@@ -84,7 +84,9 @@ claude mcp add --transport http secure-api https://api.example.com/mcp \
 
 只有 SDK 主机应用程序（例如 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md) 应用程序或 [桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)）可以注册进程内 `"type": "sdk"` 服务器。Claude Code 跳过 `.mcp.json`、`~/.claude.json` 或设置中的 `"type": "sdk"` 条目，并报告 `Skipped — MCP server "<name>" declares type "sdk", which only an SDK host application can register`。
 
-在 `--output-format stream-json` 运行中，Claude Code 还在 `system/init` 事件的 [`mcp_server_errors` 字段](https://code.claude.com/docs/zh-CN/headless#stream-responses) 中报告跳过的 `--mcp-config` 条目，以便脚本可以检测到服务器从未加载。这需要 Claude Code v2.1.219 或更高版本。
+> [!NOTE]
+>
+> 在 `--output-format stream-json` 运行中，Claude Code 还会在 `system/init` 事件的 [`mcp_server_errors` 字段](https://code.claude.com/docs/zh-CN/headless#stream-responses)中报告被跳过的 `--mcp-config` 条目，以便脚本检测到该服务器从未加载。
 
 ### 选项 2：添加远程 SSE 服务器
 
@@ -276,7 +278,11 @@ Claude Code 也应用来自未跟踪的 `.claude/settings.local.json` 的批准�
 
 当您从 `/mcp` 中的服务器菜单选择 **Disable** 或 **Clear authentication** 时，Claude Code 也会丢弃该服务器的缓存条目。**Reconnect** 在已连接或失败的服务器上也会丢弃它；在 `cached` 服务器上，**Reconnect** 会立即连接服务器并保留条目。丢弃条目后，Claude Code 下次连接到服务器时，会从服务器而不是从缓存获取工具列表。
 
-当服务器的状态为 `✘ Failed to connect` 时，`claude mcp list` 将失败详情附加到该状态行，`claude mcp get <name>` 在 `Issue:` 行上显示它：HTTP 状态或错误代码，加上服务器返回的任何错误文本。`/mcp` 中的服务器详情视图在其 `Issue:` 行中包含相同的服务器报告文本。Claude Code 从此详情中编辑掉类似凭据的文本，并且永远不包括展开后的服务器 URL，它可能携带机密。Claude Code 不向 `✘ Connection error` 状态附加详情，因为它会打印的异常文本可能嵌入该 URL。在 v2.1.219 之前，两个命令仅显示裸失败状态，没有状态代码或服务器的错误文本。
+##### 连接失败与未配置的服务器
+
+当服务器状态为 `✘ Failed to connect` 时，`claude mcp list` 会在该状态行后附加失败详情，而 `claude mcp get <name>` 会在 `Issue:` 行中显示它。详情包括 HTTP 状态或错误代码，以及服务器返回的任何错误文本。`/mcp` 中服务器的详情视图会在其 `Issue:` 行中包含同样由服务器报告的文本。
+
+Claude Code 会从这些详情中删除类似凭据的文本，并且绝不包含展开后的服务器 URL，因为它可能携带机密信息。Claude Code 不会在 `✘ Connection error` 状态后附加任何详情，因为它在那里打印的异常文本可能嵌入该 URL。
 
 当您从 `/mcp` 完成身份验证且连接仍然因 HTTP 状态或传输错误代码失败时，Claude Code 在尝试后打印的消息中添加该代码和服务器 URL 的来源。来源是方案和主机，加上 URL 命名的端口（如果有），例如 `https://mcp.example.com`。
 

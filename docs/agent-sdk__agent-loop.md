@@ -41,7 +41,7 @@ TypeScript 和 Python SDK 都捆绑了原生 Claude Code 二进制文件，因�
 
 那是四个轮次：三个有工具调用，一个最终仅包含文本的响应。
 
-你可以使用 `max_turns` / `maxTurns` 限制循环，它仅计算工具使用轮次。例如，上面循环中的 `max_turns=2` 会在编辑步骤之前停止。你也可以使用 `max_budget_usd` / `maxBudgetUsd` 根据支出阈值限制轮次。
+您可以使用 `max_turns` / `maxTurns` 限制循环。每个包含工具调用的轮次计为一轮，最终仅包含文本的回复再额外计一轮。如果没有这额外的一轮，运行将以子类型为 `error_max_turns` 的 `ResultMessage` 结束，且没有最终回复。例如，上面循环中的 `max_turns=2` 会在编辑步骤之前停止。您也可以使用 `max_budget_usd` / `maxBudgetUsd` 根据支出阈值限制轮次。
 
 没有限制的情况下，循环运行直到 Claude 自己完成，这对于范围明确的任务很好，但对于开放式提示（"改进这个代码库"）可能运行很长时间。为生产代理设置预算是一个很好的默认值。有关选项参考，请参阅下面的 [轮次和预算](#turns-and-budget)。
 
@@ -191,7 +191,7 @@ Claude 根据任务确定调用哪些工具，但你控制这些调用是否被�
 
 | 选项 | 它控制什么 | 默认值 |
 | :- | :- | :- |
-| 最大轮次（`max_turns` / `maxTurns`） | 最大工具使用往返次数 | 无限制 |
+| 最大轮次（`max_turns` / `maxTurns`） | 最大[轮次](#turns-and-messages)数 | 无限制 |
 | 最大预算（`max_budget_usd` / `maxBudgetUsd`） | 循环停止时的预估支出 | 无限制 |
 
 当达到任一限制时，SDK 返回一个 `ResultMessage`，包含相应的错误子类型（`error_max_turns` 或 `error_max_budget_usd`）。有关如何检查这些子类型，请参阅 [处理结果](#handle-the-result)，有关语法，请参阅 [`ClaudeAgentOptions`](https://code.claude.com/docs/zh-CN/agent-sdk/python#claudeagentoptions) / [`Options`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)。
