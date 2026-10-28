@@ -738,14 +738,14 @@ Claude Code 等待时，会话底部的几行会显示您的限制何时重置�
 
 ```text theme={null}
 Usage limit reached · limit resets 3:45pm
-Continuing automatically at 3:45pm · esc to cancel
+Continuing automatically at 3:45pm · Esc to cancel
 ```
 
 这两行在这些文字之后都可能带有更多内容，例如第一行中的帮助链接，或第二行中的 `/usage-credits to continue now`。当等待自动开始时，对话中也会记录一行 `Usage limit reached · continuing automatically at 3:45pm · esc to cancel`。
 
 保持会话打开。接下来发生的情况取决于等待如何结束：
 
-* **在重置时**：第二行变为 `Continuing shortly · esc to cancel`。然后对话中出现 `Usage limit reset · continuing automatically`，Claude Code 提示 Claude 从停止的地方继续任务。它不会重新发送您的最后一条消息。
+* **在重置时**：第二行变为 `Continuing shortly · Esc to cancel`。然后对话中出现 `Usage limit reset · Continuing automatically`，Claude Code 提示 Claude 从停止的地方继续任务。它不会重新发送您的最后一条消息。
 * **计算机睡眠后**：如果睡眠超过约 30 分钟，并且限制在睡眠期间重置，第一行显示 `Your usage limit has reset`，第二行显示 `Press enter to continue`。按 `Enter` 继续。如果睡眠时间较短，或睡眠在重置之前结束，Claude Code 会自动继续。
 * **提前**：当您使用 `/usage-credits` 完成添加 [使用额度](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)、在 `/upgrade` 后重新登录或在等待期间使用 `/model` 切换模型时，Claude Code 会检查使用情况是否再次可用，如果可用则立即继续。它不会在您在浏览器中自行进行的升级或购买后进行检查。在 [`opusplan`](https://code.claude.com/docs/zh-CN/model-config#opusplan-model-setting) 和其他在不同模型上运行计划模式的模型设置下，Claude Code 会等待重置。
 
