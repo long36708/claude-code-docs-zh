@@ -338,6 +338,7 @@ on('turn.complete', async ($, e, next) => {
 | 使用 CronCreate 等工具安排、在用户下一次输入之前到期的周期性作业 | 此时不启动轮次。该作业会错过这次运行，并保留其计划。 | 无需处理 |
 | 来自您的 mod 启动的监视器的事件 | 监视器继续运行。监视器在用户下一次输入之前触发的事件会被丢弃，但监视器结束的通知除外，该通知会在该输入之后到达。 | 无法处理 |
 | 您的 mod 生成并随后通过 `$.session.send` 恢复、在用户下一次输入之前完成的子代理 | 其完成通知会等待，并在该输入之后到达对话 | 无需处理 |
+| 来自 `$.tool.call`、在用户停止轮次时已在运行、并在用户下一次输入之前达到超时的前台 Bash 或 PowerShell 命令 | 在超时时被停止，而不是[移至后台](https://code.claude.com/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background)。调用解析时会设置 `isError`，输出中包含以下行：`Ended instead of moving to the background: plugins' input is held, by a Stop or by the host's limits.` | 在用户下一次输入之后，按照[重试被拒绝或被丢弃的调用](#retry-a-refused-or-dropped-call)所示再次运行 |
 
 当计划作业到期或监视器在用户下一次输入之前触发事件时，用户可能会看到 [`Stopped:` toast](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#stopped-type-a-message-to-continue)。
 
