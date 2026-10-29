@@ -8,7 +8,7 @@
 
 Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、设置、skills、subagents 和内存。将项目文件提交到 git 以与您的团队共享；`~/.claude` 中的文件是个人配置，适用于您的所有项目。
 
-在 Windows 上，`~/.claude` 解析为 `%USERPROFILE%\.claude`。如果您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，此页面上的每个 `~/.claude` 路径都将位于该目录下。
+在 Windows 上，`~/.claude` 解析为 `%USERPROFILE%\.claude`。如果您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，此页面上的每个 `~/.claude` 路径都将位于该目录下。这同样适用于 `.claude.json`，否则它位于 `~/.claude.json`。
 
 大多数用户只编辑 `CLAUDE.md` 和 `settings.json`。如果您的仓库已经有一个供其他编码 Agent 使用的 `AGENTS.md`，Claude Code [可以读取它](https://code.claude.com/docs/zh-CN/memory.md#agents-md)来代替 `CLAUDE.md`。目录的其余部分是可选的：根据需要添加 skill、规则或子代理。
 
@@ -76,7 +76,7 @@ Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、�
 | [`agents/*.md`](#ce-agents) | 项目和全局 | ✓ | Subagent 定义及其自己的提示和工具 | [Subagents](https://code.claude.com/docs/zh-CN/sub-agents.md) |
 | [`workflows/*.js`](#ce-workflows) | 项目和全局 | ✓ | 由 Claude 编写并从 `/workflows` 保存的动态工作流脚本；每个文件都成为一个 `/<name>` 命令 | [动态工作流](https://code.claude.com/docs/zh-CN/workflows.md) |
 | [`agent-memory/<name>/`](#ce-agent-memory) | 项目和全局 | ✓ | Subagents 的持久内存 | [持久内存](https://code.claude.com/docs/zh-CN/sub-agents.md#enable-persistent-memory) |
-| [`~/.claude.json`](#ce-claude-json) | 仅全局 | | 应用状态、账户详情、UI 切换、个人 MCP 服务器 | [全局配置](https://code.claude.com/docs/zh-CN/settings-reference.md#global-config-settings) |
+| [`~/.claude.json`](#ce-claude-json) | 仅全局 | | 应用状态、账户详情、UI 切换、个人 MCP 服务器。如果该文件不存在，Claude Code 会在您启动会话或运行 `claude auth status` 等子命令时创建它，但运行 `--version` 或 `--help` 时不会创建。 | [全局配置](https://code.claude.com/docs/zh-CN/settings-reference.md#global-config-settings) |
 | [`projects/<project>/memory/`](#ce-global-projects) | 仅全局 | | 自动内存：Claude 在会话间对自己的笔记 | [自动内存](https://code.claude.com/docs/zh-CN/memory.md#auto-memory) |
 | [`keybindings.json`](#ce-keybindings) | 仅全局 | | 自定义快捷键 | [快捷键](https://code.claude.com/docs/zh-CN/keybindings.md) |
 | [`themes/*.json`](#ce-themes) | 仅全局 | | 自定义颜色主题 | [自定义主题](https://code.claude.com/docs/zh-CN/terminal-config.md#create-a-custom-theme) |
