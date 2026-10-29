@@ -294,7 +294,7 @@ Settings precedence, highest first: managed settings, command line, project loca
 
 #### 权限规则组合方式与您预期不同
 
-* **您在权限提示上选择了"是的，不要再问"但仍然为相同的工具获得提示。** 该选择将 `allow` 规则保存到您的本地文件，本地的 `allow` 规则不优先于项目或托管文件中的 `ask` 规则；[权限规则如何组合](https://code.claude.com/docs/zh-CN/permissions.md#settings-precedence)解释顺序。在 VS Code 扩展中，批准卡让您选择目标文件，包括项目的共享文件，这改变了每个人的规则；在 CLI 中，Claude Code 仅写入您的本地文件。
+* **您在权限提示上选择了"Yes, and don't ask again"但仍然为相同的工具获得提示。** 该选择将 `allow` 规则保存到您的本地文件，本地的 `allow` 规则不优先于项目或托管文件中的 `ask` 规则；[权限规则如何组合](https://code.claude.com/docs/zh-CN/permissions.md#settings-precedence)解释顺序。在 VS Code 扩展中，批准卡让您选择目标文件，包括项目的共享文件，这改变了每个人的规则；在 CLI 中，Claude Code 仅写入您的本地文件。
 * **您的组织的允许规则仍然与您的一起应用。** 这是预期的：Claude Code 跨作用域合并 [`permissions.allow`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-allow)，除非您的组织设置 [`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly)。
 
 ### 托管设置优先级的例外

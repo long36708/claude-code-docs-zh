@@ -201,15 +201,19 @@ View: https://claude.ai/code/session_01DiUkqY2kzbUbDmW1w96rfi?from=cli&m=0
 
 使用以下任何方法将云会话拉入您的终端：
 
-* **使用 `--teleport`**：从命令行运行 `claude --teleport` 以获得交互式会话选择器，或 `claude --teleport <session-id>` 以直接恢复特定会话。如果您有未提交的更改，系统会提示您先隐藏它们。
+* **使用 `--teleport`**：从命令行运行 `claude --teleport` 以获得交互式会话选择器，或 `claude --teleport <session-id>` 以直接恢复特定会话。如果您有未提交的更改，系统会提示您先隐藏它们。[`--resume`](https://code.claude.com/docs/zh-CN/sessions#resume-a-session) 从此机器的本地历史记录重新打开对话，不列出云端会话。
 * **使用 `/teleport`**：在现有 CLI 会话内，运行 `/teleport` 或 `/tp` 以打开相同的会话选择器，无需重启 Claude Code。
 * **从 `/tasks`**：运行 `/tasks` 以查看您的后台会话，然后按 `t` 以 teleport 到其中一个。
 * **从 claude.ai/code**：从会话菜单中选择 **Open in > Terminal** 以复制可以粘贴到终端的命令。
 * **从云会话内部**：键入 `/teleport`，Claude Code 会回复该会话的确切 `claude --teleport <session-id>` 命令，准备从存储库的检出运行。需要会话环境中的 Claude Code v2.1.223 或更高版本。
 
-当您 teleport 会话时，Claude 验证您在正确的存储库中，从云会话获取并检出分支，并将完整的对话历史记录加载到您的终端。终端获得会话的自己的副本：那里的新工作保持本地，不会出现在 claude.ai 上的云会话或 Claude 移动应用中。在 teleport 后继续从您的手机引导，在本地会话中启动 [`/remote-control`](https://code.claude.com/docs/zh-CN/remote-control)。
+当您 teleport 会话时，Claude 验证您在正确的仓库中，从云端会话获取并检出分支，并将对话加载到您的终端。
 
-`--teleport` 与 `--resume` 不同。`--resume` 从此机器的本地历史记录重新打开对话，不列出云会话；`--teleport` 拉取云会话及其分支。
+> [!NOTE]
+>
+> 如果 Claude Code 已对云端会话进行了[压缩](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)（在较长的会话中会自动进行），则被其汇总的较早消息不会复制到您的终端。Claude 会从摘要继续。要阅读原始消息，请在 claude.ai 或 Claude 移动应用的云端会话中向上滚动。
+
+终端获得会话的自己的副本：那里的新工作保持本地，不会出现在 claude.ai 上的云端会话或 Claude 移动应用中。要在 teleport 后继续从您的手机引导，请在本地会话中启动 [`/remote-control`](https://code.claude.com/docs/zh-CN/remote-control)。
 
 #### Teleport 要求
 

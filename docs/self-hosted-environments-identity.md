@@ -84,7 +84,9 @@ https://api.anthropic.com/v1/code/.well-known/jwks.json
 
 **7. 读取身份**
 
-创建者的用户身份位于 `act` 声明中：`act.sub` 是其 Anthropic 用户 ID，采用带前缀的形式 `user:<id>`；`act.email`（当创建会话的使用入口记录了该信息时）是其电子邮件地址。由您组织的服务身份创建的会话（包括 Claude Tag 频道会话）则携带 `agent:` 主体，因此，仅当 `act.sub` 带有 `user:` 前缀时才将会话视为用户创建，而不是通过检测身份声明是否缺失来判断。有关完整结构和扁平的重复声明，请参阅[声明参考](#claims-reference)。
+创建者的用户身份位于 `act` 声明中。`act.sub` 是其 Anthropic 用户 ID，采用带前缀的形式 `user:<id>`；`act.email`（当创建会话的使用入口记录了该信息时）是其电子邮件地址。由您组织的服务身份创建的会话则携带 `agent:` 主体。仅当 `act.sub` 带有 `user:` 前缀时才将会话视为用户创建，而不是通过检测身份声明是否缺失来判断。
+
+有关完整结构和扁平的重复声明，请参阅[声明参考](#claims-reference)。
 
 这些检查可以直接对应到标准 JWT 库。以下示例分别在 Node.js 中使用 [`jose`](https://www.npmjs.com/package/jose)（它负责 JWKS 的获取、缓存和 `kid` 选择），以及在 Python 中使用 [`PyJWT`](https://pyjwt.readthedocs.io/) 及其内置的 JWKS 客户端，实现了完整的检查流程。
 
@@ -185,7 +187,9 @@ def verify_session_token(raw: str) -> dict:
 
 ## 声明参考
 
-下表列出了与验证相关的会话令牌声明。从 `ccr:*` 命名空间和 `act` 链读取身份；平面 `account_email`、`organization_uuid` 和 `account_uuid` 声明是可能被删除的向后兼容性重复项。您组织的服务身份创建的会话（包括 Claude Tag 频道会话）在 `act.sub` 中携带 `agent:` 主题，并省略 `act.email`、`ccr:account_id`、`account_email` 和 `account_uuid`。两个电子邮件声明对于用户创建的会话也是可选的：Anthropic 仅在创建请求的凭证携带电子邮件时在会话创建时记录它们，从 CLI 分派的会话可能两者都缺少，因此根据 `act.sub` 或 `ccr:account_id` 而不是电子邮件来确定身份。令牌也可以携带此表之外的其他声明；忽略您不认识的声明。
+从 `ccr:*` 命名空间和 `act` 链读取身份；平面 `account_email`、`organization_uuid` 和 `account_uuid` 声明是可能被删除的向后兼容性重复项。您组织的服务身份创建的会话在 `act.sub` 中携带 `agent:` 主题，并省略 `act.email`、`ccr:account_id`、`account_email` 和 `account_uuid`。
+
+两个电子邮件声明对于用户创建的会话也是可选的。Anthropic 仅在创建请求的凭据携带电子邮件时才会在会话创建时记录它们，从 CLI 分派的会话可能两者都缺少。请根据 `act.sub` 或 `ccr:account_id` 而不是电子邮件来确定身份。令牌也可以携带此表之外的其他声明；忽略您不认识的声明。下表列出了与验证相关的会话令牌声明。
 
 | 声明 | 类型 | 描述 |
 | :- | :- | :- |
@@ -211,7 +215,7 @@ def verify_session_token(raw: str) -> dict:
 
 | 路径 | 描述 |
 | :- | :- |
-| `act.sub` | 创建用户的 Anthropic 用户 ID，形式为 `user:<id>`，或当您组织的服务身份创建会话时为 `agent:<id>`，就像它对 Claude Tag 频道会话所做的那样。 |
+| `act.sub` | 创建用户的 Anthropic 用户 ID，形式为 `user:<id>`，或当您组织的服务身份创建会话时为 `agent:<id>`。 |
 | `act.email` | 创建用户的电子邮件地址，当在会话创建时记录了一个时。不要求它；根据 `act.sub` 确定身份。 |
 | `act.attested_by` | 保留用于上游身份提供程序对创建用户的证明。预期它不存在，请勿依赖它。根据 `act.sub` 确定身份。如果您需要地址，请在 `act.email` 存在时读取它。 |
 | `act.act` | 生成会话的运行程序。`act.act.sub` 是 `ccr:runner:<runner_id>`。 |

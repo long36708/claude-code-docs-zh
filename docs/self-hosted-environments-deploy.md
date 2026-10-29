@@ -63,6 +63,7 @@
 
 | 主机 | 端口 | 何时需要 |
 | :- | :- | :- |
+| `api.github.com` | 443 | 无论是否设置 `--use-anthropic-git-proxy`，当运行器镜像包含 [GitHub CLI](#github-api-access-with-the-github-cli) 且您为会话提供 github.com 凭据（例如 `GH_TOKEN`）时 |
 | `downloads.claude.ai` | 443 | 在安装时，当您使用本机安装程序在主机上安装或更新 Claude Code 时；`install.sh` 脚本本身从 `claude.ai` 提供。在会话运行时，仅当会话从官方 Anthropic 市场安装插件时。 |
 | `storage.googleapis.com` | 443 | 在会话运行时，用于 `/plugin` 中显示的插件安装计数和元数据。 |
 | `code.claude.com` 和 `claude.com` | 443 | 内置 claude-code-guide 代理的文档查找和会话期间预批准的 WebFetch 请求。阻止这些主机仅影响文档查找。 |
@@ -287,7 +288,11 @@ gh api repos/{owner}/{repo}/pulls -f title='Fix' -f head='my-branch' -f base='ma
 * **`jq`**：如果您希望 `--jq` 可用，请在镜像中安装 `jq`
 * **[`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](https://code.claude.com/docs/zh-CN/env-vars)**：如果会话环境设置了它，Claude Code 不会提供内置 `gh`，会话也就没有 `gh`
 
-当镜像包含 GitHub CLI 时，会话使用它。
+#### 使用 GitHub CLI 访问 GitHub API
+
+如果您的运行器镜像包含供会话使用的 GitHub CLI，请让您的[包装脚本](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#provision-credentials-scoped-to-the-session-creator)按会话为会话创建者铸造一个短期、最小范围的 `GH_TOKEN`。当 `gh` 位于 Claude Code 启动时所用的 `PATH` 上时，会话使用该 `gh`，而没有[内置 `gh`](#github-api-access-without-the-github-cli)。借助该令牌，该 `gh` 以令牌授予的任何访问权限、在 Anthropic 管理的 git 之外访问 GitHub，因此请允许 [`api.github.com`](#network-requirements)。
+
+使用 Anthropic 管理的 git 时，请勿在镜像中包含 GitHub CLI，以改用内置 `gh`。
 
 #### 使用 Anthropic 管理的 git 信任专用证书颁发机构
 

@@ -113,7 +113,7 @@
 
 * **控制平面**：运行器轮询 `api.anthropic.com` 以获取工作并发布设置进度和失败事件，全部出站 HTTPS。轮询充当运行器的心跳。
 * **Git**：运行器通过 HTTPS 或 SSH 从您的 git 主机克隆和推送，使用您的部署提供的凭据进行身份验证。请参阅[配置 git](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#configure-git)了解各选项，包括每个会话铸造的凭据。使用 [Anthropic git 代理](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#use-the-anthropic-git-proxy)时，github.com 上仓库的 git 流量改为经由 `api.anthropic.com` 传输。
-* **会话子进程**：子 Claude Code 进程将会话的事件流保持到 `api.anthropic.com`，并为模型推理和会话期间运行的 git 命令进行自己的出站调用。在使用 [Anthropic 托管 git](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#use-the-anthropic-git-proxy) 的会话中，子进程通过其打开到 `api.anthropic.com` 的 WebSocket 连接发送 github.com 的 `git` 和 `gh` 流量。
+* **会话子进程**：子 Claude Code 进程保持与 `api.anthropic.com` 之间的会话事件流，并自行发起出站调用，用于模型推理以及会话期间运行的 git 命令。在使用 [Anthropic 托管 git](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#use-the-anthropic-git-proxy) 的会话中，子进程会打开一个到 `api.anthropic.com` 的 WebSocket 连接，该连接承载来自 `git` 和 `gh` 的 github.com 流量。
 * **SCM 连接器**：可选的编排器 [SCM 连接器](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#scm-connector-flags)不可用，因此其隧道不会打开。该隧道是到 `api.anthropic.com` 的 WebSocket 连接。
 
 请参阅[网络要求](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#network-requirements)了解完整的出站列表。[上面的图](#how-self-hosted-environments-work)显示了这些路径，但可选的 SCM 连接器和 Anthropic 托管的 git 连接除外。

@@ -200,7 +200,7 @@ Claude Tag 适用于 Team 和 Enterprise 计划。要连接工作区，请先使
 
 ### 来自 Claude Tag 频道的会话启动失败
 
-此条目适用于使用 [Claude Tag](https://claude.com/docs/claude-tag/overview) 的工作区，其中 Claude 在频道中作为您组织的共享身份工作，而不是作为任何成员的账户。如果您在 [claude.ai/code](https://claude.ai/code) 创建了频道的云环境，它属于您的个人账户，Claude 无法在个人环境中启动频道会话。Claude Code 会立即使会话失败，重试也无法帮助。
+此条目适用于使用 [Claude Tag](https://claude.com/docs/claude-tag/overview) 的工作区。如果您在 [claude.ai/code](https://claude.ai/code) 创建了频道的云环境，它属于您的个人账户，Claude 无法在个人环境中启动频道会话。Claude Code 会立即使会话失败，重试也无法帮助。
 
 如果您是所有者且环境是您自己的，请从环境选择器中[与组织共享](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments)。否则，所有者可从[管理设置](https://claude.ai/admin-settings)中的**云环境**页面将其重新创建为组织共享环境。
 

@@ -556,7 +556,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 在为云会话配置遥测时，请记住这些约束：
 
 * **让会话到达收集器**：Claude Code 通过会话的网络发送导出，因此它是否到达您的 `OTEL_EXPORTER_OTLP_ENDPOINT` 中的主机取决于环境的[网络访问级别](https://code.claude.com/docs/zh-CN/cloud-environments.md#access-levels)。如果会话无法在您选择的级别上到达收集器的域，请[将域添加到环境的允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#allow-specific-domains)，因为没有服务器管理的设置会将域添加到环境的网络允许列表。
-* **Claude Tag 频道使用组织级别的环境**：频道会话在组织级别的环境中运行，而不是成员的个人环境中，因此请在[共享环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments)上进行允许列表和任何环境变量更改，该环境设置为您组织的默认环境或固定到频道。
+* **Claude Tag 频道**：请在设置为您组织默认环境或固定到频道的[共享环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments)上进行允许列表和任何环境变量更改。
 * **Cowork 单独配置**：如[表面覆盖表](https://code.claude.com/docs/zh-CN/model-config.md#surface-coverage)所示，Cowork 会话不会接收服务器管理的设置，因此服务器管理的 `env` 块不会配置其遥测。
 
 ### 将遥测属性分配给云会话

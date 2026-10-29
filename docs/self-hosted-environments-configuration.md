@@ -307,7 +307,7 @@ claude self-hosted-runner orchestrator \
 | `CLAUDE_RUNNER_ATTEMPT` | 用于日志记录的按会话计数器。它不是重试次数，也不是请求次数。对于预热请求为 `0`，但针对某个会话的请求也可能携带 `0`。 |
 | `CLAUDE_RUNNER_ORDER_SERVER_TIME` | 来自轮询响应的 HTTP `Date` 标头的服务器时间。当 hook 验证工作单 JWT 的 `exp` 时，与此值进行比较而不是本地时钟，以容忍时钟偏差。当网关省略标头时为空。 |
 | `CLAUDE_RUNNER_POOL_ID` | 新运行器应加入的环境的 ID，采用 `ccpool_...` 形式 |
-| `CLAUDE_RUNNER_ACCOUNT_ID` | 排队会话的帐户的标记 ID。请将其用于按帐户路由、配额或费用分摊，而不要用作去重密钥。当不可用时为空，对于 Claude Tag 频道会话始终为空，这些会话没有帐户排队。 |
+| `CLAUDE_RUNNER_ACCOUNT_ID` | 排队会话的帐户的标记 ID。请将其用于按帐户路由、配额或费用分摊，而不要用作去重密钥。当不可用时为空。 |
 | `CLAUDE_RUNNER_ACCOUNT_EMAIL` | 排队会话的帐户的电子邮件。当不可用时为空。将电子邮件视为个人可识别信息，不要记录它。 |
 | `CLAUDE_RUNNER_PRIMARY_REPO_URL` | 会话的第一个 git 源的 URL，用于路由到已预热该仓库的运行器。当会话没有 git 源时为空。 |
 | `CLAUDE_RUNNER_PRIMARY_REPO_REVISION` | 会话的第一个 git 源的修订版本：分支、SHA、标签或完整引用名称。当未指定时为空。 |

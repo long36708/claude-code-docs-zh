@@ -25,7 +25,7 @@
 
 > [!NOTE]
 >
-> [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话将网页和移动界面连接到您自己机器上的会话，该会话使用您机器的网络和文件，而不是云环境。Claude Tag 频道会话仅使用组织级别的环境，即[共享环境](#organization-shared-environments)或[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)。
+> [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话将网页和移动界面连接到您自己机器上的会话，该会话使用您机器的网络和文件，而不是云环境。要选择 Claude Tag 频道使用的环境，请参阅[设置 Claude Tag 频道使用的环境](#set-the-environment-a-claude-tag-channel-uses)。
 
 ## Default 环境
 

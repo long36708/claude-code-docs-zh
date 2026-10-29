@@ -353,10 +353,10 @@ Channels 是一个研究预览功能。可用性正在逐步推出，`--channels
 
 | 功能 | 它做什么 | 适合 |
 | - | - | - |
-| [网络上的 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) | 在新的云沙箱中运行任务，从 GitHub 克隆 | 委派您稍后检查的自包含异步工作 |
-| [Slack 中的 Claude](https://code.claude.com/docs/zh-CN/slack.md) | 从频道或线程中的 `@Claude` 提及生成网络会话 | 直接从团队对话上下文启动任务 |
+| [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) | 在新的云沙箱中运行任务，从 GitHub 克隆 | 委派您稍后检查的自包含异步工作 |
+| [Slack 中的 Claude](https://code.claude.com/docs/zh-CN/slack.md) | 从频道或线程中的 `@Claude` 提及生成云端会话 | 直接从团队对话上下文启动任务 |
 | 标准 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md) | Claude 在任务期间查询它；没有任何内容被推送到会话 | 给 Claude 按需访问以读取或查询系统 |
-| [远程控制](https://code.claude.com/docs/zh-CN/remote-control.md) | 您从 claude.ai 或 Claude 移动应用程序驱动您的本地会话 | 在离开您的办公桌时指导进行中的会话 |
+| [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) | 您从 claude.ai 或 Claude 移动应用程序驱动您的本地会话 | 在离开您的办公桌时指导进行中的会话 |
 
 Channels 通过将来自非 Claude 源的事件推送到您已经运行的本地会话中，填补了该列表中的空白。
 
@@ -368,5 +368,5 @@ Channels 通过将来自非 Claude 源的事件推送到您已经运行的本地
 一旦您有一个 channel 运行，请探索这些相关功能：
 
 * [构建您自己的 channel](https://code.claude.com/docs/zh-CN/channels-reference.md)，用于尚未有插件的系统
-* [远程控制](https://code.claude.com/docs/zh-CN/remote-control.md)，从您的手机驱动本地会话，而不是将事件转发到其中
+* [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)，从您的手机驱动本地会话，而不是将事件转发到其中
 * [会话范围的定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)，按计时器轮询而不是对推送事件做出反应

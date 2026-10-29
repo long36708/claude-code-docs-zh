@@ -369,7 +369,7 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
 | 要求 | 可用时间 |
 | :- | :- |
 | 计划 | Pro、Max、Team 或 Enterprise。在 Pro 和 Max 计划上，artifacts 仅对您私有，直到您共享它们，不适用任何管理员管理。在 Team 和 Enterprise 计划上，artifacts 默认启用，Owner 可以在 claude.ai 管理设置中 [关闭它们](#manage-artifacts-for-your-organization)。 |
-| 身份验证 | 会话由 claude.ai 账户支持：在 CLI 或桌面应用中使用 `/login` 登录。Claude Tag 会话通过代理的身份登录，因此不需要任何步骤。使用 API 密钥、[网关令牌](https://code.claude.com/docs/zh-CN/llm-gateway) 或云提供商凭证的会话无法发布。 |
+| 身份验证 | 会话由 claude.ai 账户支持：在 CLI 或桌面应用中使用 `/login` 登录。Claude Tag 会话无需登录步骤。使用 API 密钥、[网关令牌](https://code.claude.com/docs/zh-CN/llm-gateway) 或云提供商凭据的会话无法发布。 |
 | 模型提供商 | Anthropic API。在 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md) 上不可用。 |
 | 组织策略 | 客户管理的加密密钥 (CMEK)、HIPAA 和 [零数据保留](https://code.claude.com/docs/zh-CN/zero-data-retention.md) 未为组织启用。 |
 | 使用入口 | Claude Code CLI，或 Claude 桌面应用版本 1.13576.0 或更高版本。当 Claude Tag 和 artifacts 都为组织启用时，[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话也可以发布 artifacts。由 [`claude remote-control`](https://code.claude.com/docs/zh-CN/remote-control) 提供服务的会话，在会话由您自己启动时可以发布 artifacts。需要 Claude Code v2.1.281 或更高版本。在 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md)、GitHub Action 和 MCP 服务器上下文中默认关闭；当您从自己的终端或脚本中使用 [`-p`](https://code.claude.com/docs/zh-CN/headless) 运行 Claude Code 时，以及设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](https://code.claude.com/docs/zh-CN/env-vars) 时，也默认关闭。 |
