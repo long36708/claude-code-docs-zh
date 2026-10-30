@@ -735,7 +735,7 @@ Hook 事件接收这些字段作为 JSON，除了每个 [hook 事件](#hook-even
 | `cwd` | 调用 hook 时的当前工作目录 |
 | `scratchpad_dir` | 会话的 [scratchpad 目录](https://code.claude.com/docs/zh-CN/claude-directory.md#session-scratchpad-directory)的路径，Claude 在其中保存临时工作文件。当会话没有 scratchpad 或 temp 目录不可用时不存在。需要 Claude Code v2.1.257 或更高版本 |
 | `permission_mode` | 当前[权限模式](https://code.claude.com/docs/zh-CN/permissions.md#permission-modes)：`"default"`、`"plan"`、`"acceptEdits"`、`"auto"`、`"dontAsk"` 或 `"bypassPermissions"`。标记为**手动**的模式作为 `"default"` 到达，从不作为 `"manual"`，因此匹配 `"default"` 的脚本继续工作。并非所有事件都接收此字段。检查每个 [hook 事件](#hook-events)部分中的 JSON 示例 |
-| `effort` | 对象，其 `level` 字段保存 hook 运行时生效的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)：`"low"`、`"medium"`、`"high"`、`"xhigh"` 或 `"max"`。如果您设置了活跃模型不支持的级别，`level` 会报告 Claude Code 实际运行的级别；[调整 effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)说明它如何选择该级别。该对象与[状态栏](https://code.claude.com/docs/zh-CN/statusline.md#available-data) `effort` 字段匹配。对于在工具使用上下文中触发的事件（如 `PreToolUse`、`PostToolUse`、`Stop` 和 `SubagentStop`），当当前模型支持 effort 参数时存在。该级别也可作为 `$CLAUDE_EFFORT` 环境变量供 hook 命令和 Bash 工具使用。 |
+| `effort` | 对象，其 `level` 为 hook 运行时的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)设置，包括 skill、子代理或 `ultrathink` 的级别：`"low"`、`"medium"`、`"high"`、`"xhigh"` 或 `"max"`。在支持 effort 的模型上，对于 `PreToolUse`、`PostToolUse`、`Stop`、`SubagentStop` 以及其他具有工具使用上下文的事件存在。如果模型不支持您的级别，`level` 为实际运行的级别。您更改的级别可能会在其[生效](https://code.claude.com/docs/zh-CN/model-config.md#when-a-new-effort-level-starts)之前就显示在此处。`$CLAUDE_EFFORT` 保存相同的级别。 |
 | `hook_event_name` | 触发的事件的名称 |
 
 `agent_id` 和 `agent_type` 告诉您的脚本 hook 是在哪个 Agent 中触发的，例如子代理、[进程内队友](https://code.claude.com/docs/zh-CN/agent-teams.md#choose-a-display-mode)，或您通过 `--agent` 选择的 Agent：
@@ -1898,6 +1898,7 @@ Windows 上的 `Write` 调用会传递：
 | `query` | string | `"react hooks best practices"` | 搜索查询 |
 | `allowed_domains` | array | `["docs.example.com"]` | 可选：仅包含来自这些域名的结果 |
 | `blocked_domains` | array | `["spam.example.com"]` | 可选：排除来自这些域名的结果 |
+| `mode` | string | `"extended"` | 可选：搜索类型。`"standard"` 请求较轻量的搜索，`"extended"` 请求完整搜索。某些会话不会发送 `mode`，不带该字段的调用会执行完整搜索。需要 Claude Code v2.1.282 或更高版本 |
 
 ##### Agent
 
@@ -1968,8 +1969,6 @@ Windows 上的 `Write` 调用会传递：
 
 当 hook 返回 `"ask"` 时，显示给用户的权限提示会包含一个标签，标明该 hook 的来源：来自任何设置文件或 Agent frontmatter 的 hook 为 `[settings]`，插件的 hook 为 `[plugin:<name>]`，来自 skill frontmatter 的 hook 为 `[skill]`。这有助于用户了解是哪个配置来源在请求确认。
 
-在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，hook 的 `"ask"` 也会强制显示权限提示：分类器仍然可以拒绝该工具调用，但无法静默批准该调用。
-
 ```json theme={null}
 {
   "hookSpecificOutput": {
@@ -1987,6 +1986,15 @@ Windows 上的 `Write` 调用会传递：
 > [!NOTE]
 >
 > PreToolUse 以前使用顶层的 `decision` 和 `reason` 字段，但这些字段在此事件中已弃用。请改用 `hookSpecificOutput.permissionDecision` 和 `hookSpecificOutput.permissionDecisionReason`。已弃用的值 `"approve"` 和 `"block"` 分别映射到 `"allow"` 和 `"deny"`。PostToolUse 和 Stop 等其他事件继续使用顶层 `decision` 和 `reason` 作为其当前格式。
+
+#### 自动模式下的 PreToolUse `ask` 决策
+
+在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，PreToolUse hook 返回的 `"ask"` 通常会将工具调用发送到权限提示，[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#how-the-classifier-evaluates-actions)不会对其做出决定。某些调用会走不同的路径：
+
+* **Claude Code 自身检查也会标记的调用**：包括写入[受保护路径](https://code.claude.com/docs/zh-CN/permission-modes.md#protected-paths)以及请求[在沙箱外运行](https://code.claude.com/docs/zh-CN/sandboxing.md#the-unsandboxed-retry-escape-hatch)的命令。分类器可以在任何提示出现之前拒绝此类调用。如果分类器批准，该调用通常仍会进入提示。
+* **`SubagentHandback` 调用**：此工具用于提交子代理的报告。它不会出现任何提示，即使分类器反对，调用也会运行。
+
+要阻止 `SubagentHandback` 调用，请返回 `"deny"`。随后 Claude Code 会最多三次告知子代理其报告未送达，并要求它再次调用该工具。如果您的 hook 持续拒绝，子代理将在未通过此工具提交报告的情况下结束，而等待它的对话会收到一条说明此情况的提示。
 
 #### 需要用户交互的工具
 

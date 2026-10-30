@@ -375,12 +375,7 @@ fi
 
 ## 后台令牌使用
 
-Claude Code 即使在空闲时也会为某些后台功能使用令牌：
-
-* **对话总结**：为 `claude --resume` 功能总结以前对话的后台作业
-* **命令处理**：某些命令（如 `/usage`）可能会生成请求以检查状态
-
-这些后台进程即使没有活跃交互也会消耗少量令牌（通常每个会话不到 \$0.04）。
+会话回顾和空闲压缩可能会在您空闲时使用 token。有关各自的运行时机以及如何关闭，请参阅[会话回顾](https://code.claude.com/docs/zh-CN/interactive-mode.md#session-recap)和[空闲压缩](https://code.claude.com/docs/zh-CN/settings-reference.md#idlecompaction)。
 
 启用提示建议时，Claude Code 在 Claude 响应后还会向您的会话使用的模型发送一个简短请求，以[建议您的下一个提示](https://code.claude.com/docs/zh-CN/interactive-mode.md#prompt-suggestions)。该请求重用对话的提示缓存，因此主要是缓存读取加上少量输出令牌。当您的账户接近或达到使用限制时，Claude Code [会跳过这些请求](https://code.claude.com/docs/zh-CN/interactive-mode.md#when-claude-code-skips-suggestions)。要停止这些请求，[关闭提示建议](https://code.claude.com/docs/zh-CN/interactive-mode.md#turn-prompt-suggestions-off)。
 

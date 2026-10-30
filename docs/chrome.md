@@ -107,6 +107,15 @@ Chrome 未运行时，Claude Code 会正常启动。
 >
 > 默认启用 Chrome 会增加上下文使用量，因为浏览器工具及其说明会始终被加载。如果您注意到上下文消耗增加，请关闭该设置，仅在需要时连接：在 CLI 中使用 `--chrome`，或在 VS Code 输入框中输入 [`@browser`](https://code.claude.com/docs/zh-CN/vs-code#automate-browser-tasks-with-chrome)。
 
+### 回答启动对话框
+
+如果启动 `claude` 时出现“Claude in Chrome extension detected”对话框，您的回答会更改[**默认启用**设置](#enable-chrome-by-default)：
+
+* **Yes, use my browser**：启用该设置并连接本次会话
+* **No, keep browser tools off** 或 Esc：关闭该设置，Claude Code 将不再提供设置 Chrome 的选项
+
+如需为以后的会话更改您的回答，请运行 `/chrome`。
+
 ### 管理站点权限
 
 站点级权限继承自 Chrome 扩展程序。在 Chrome 扩展程序设置中管理权限，以控制 Claude 可以在哪些站点上浏览、点击和输入。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，当自动模式分类器本身批准了对某个站点的浏览器调用时，扩展程序会跳过该调用的逐站点检查，除非您的权限规则拒绝 Claude in Chrome 访问任何站点。

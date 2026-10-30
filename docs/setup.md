@@ -39,7 +39,7 @@ Claude Code 在以下平台和配置上运行：
 
 **macOS、Linux、WSL：**
 
-```bash theme={null}
+```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 curl -fsSL https://claude.ai/install.sh | bash
 ```
 
@@ -47,13 +47,13 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 **Windows PowerShell：**
 
-```powershell theme={null}
+```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 irm https://claude.ai/install.ps1 | iex
 ```
 
 **Windows CMD：**
 
-```batch theme={null}
+```batch theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 ```
 
@@ -71,7 +71,7 @@ curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del in
 
 **Homebrew**
 
-```bash theme={null}
+```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 brew install --cask claude-code
 ```
 
@@ -83,7 +83,7 @@ Homebrew 提供两个 casks。`claude-code` 跟踪稳定发布渠道，通常比
 
 **WinGet**
 
-```powershell theme={null}
+```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 winget install Anthropic.ClaudeCode
 ```
 
@@ -457,6 +457,10 @@ echo "https://downloads.claude.ai/claude-code/apk/latest" >> /etc/apk/repositori
 要稍后升级，请运行 `apk update && apk upgrade claude-code`。
 
 ### 使用 npm 安装
+
+> [!NOTE]
+>
+> 如果在您的 shell 中 `npm --version` 打印的版本以 `12` 开头，请改为按照[修复 npm 12 安装](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#fix-an-npm-12-install)进行操作。不要使用 `sudo` 安装。Claude Code 在自我更新时运行 npm 不使用 `sudo`，因此需要 `sudo` 的安装无法自动更新。
 
 您也可以将 Claude Code 安装为全局 npm 包。npm 包需要 [Node.js 22 或更高版本](https://nodejs.org/en/download)。在较旧的 Node.js 版本上，npm 在安装期间打印 `EBADENGINE` 警告而不是失败；安装完成，`claude` 仍然运行，因为该包下载了在运行时不使用您的 Node.js 的原生二进制文件。
 

@@ -3322,7 +3322,7 @@ Grep 在每种输出模式下都返回这种 dict 形状。存在哪些可选键
 
 ### TaskStop
 
-**工具名称：** `TaskStop`。先前的名称 `KillShell` 和 `KillBash` 仍作为别名被接受。
+**工具名称：** `TaskStop`。您仍然可以在权限规则、hook 匹配器以及 `tools`、`allowed_tools` 和 `disallowed_tools` 选项中使用先前的名称 `KillShell` 和 `KillBash`。
 
 **输入：**
 

@@ -499,7 +499,8 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 * **速率限制**：云端会话与您账户内所有其他 Claude 和 Claude Code 使用共享速率限制。并行运行多个任务会按比例消耗更多速率限制。
 * **时间限制**：Claude 运行的命令和 SessionStart hooks 有你可以更改的默认超时，设置脚本仅在大约五分钟内完成时才被缓存。请参阅[时间限制](https://code.claude.com/docs/zh-CN/cloud-environments.md#time-limits)
 * **存储库身份验证**：你只能在认证到相同账户时将云会话拉入你的终端
-* **平台限制**：存储库克隆和拉取请求创建需要 GitHub。自托管[GitHub Enterprise Server](https://code.claude.com/docs/zh-CN/github-enterprise-server.md) 实例支持 Team 和 Enterprise 计划。你可以通过设置 `CCR_FORCE_BUNDLE=1` 将 GitLab、Bitbucket 或其他非 GitHub 存储库作为[本地捆绑](#send-local-repositories-without-github)发送到云会话，但会话无法将结果推送回该远程
+* **平台限制**：在 Anthropic 托管环境中克隆仓库以及创建 Pull Request 需要 GitHub。Team 和 Enterprise 计划支持自托管的 [GitHub Enterprise Server](https://code.claude.com/docs/zh-CN/github-enterprise-server.md) 实例。您可以通过设置 `CCR_FORCE_BUNDLE=1` 将 GitLab、Bitbucket 或其他非 GitHub 仓库作为[本地捆绑](#send-local-repositories-without-github)发送到云端会话，但会话无法将结果推送回该远程
+  * **自托管环境**：对于托管在其他 git 平台上的仓库，请参阅[使用 `--environment` 启动会话的要求](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy#start-a-session-on-a-repository-outside-github)。
 * **组织 IP 允许列表**：云端会话从 Anthropic 管理的基础设施（而非您的网络）调用 Anthropic API，而[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中的会话则从您自己的网络调用它。如果您的组织启用了 [IP 允许列表](https://support.claude.com/en/articles/13200993-restrict-access-to-claude-with-ip-allowlisting)，每个 Anthropic 托管的云端会话都会因身份验证错误而失败。
   * **Code Review 和定时任务**：这同样适用于 [Code Review](https://code.claude.com/docs/zh-CN/code-review.md) 以及在 Anthropic 托管环境中运行的[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)。路由到自托管环境的定时任务会从您自己的网络调用 API。
   * **获取豁免**：请联系 [Anthropic 支持](https://support.claude.com/)，将 Anthropic 托管的服务从您组织的 IP 允许列表中豁免。

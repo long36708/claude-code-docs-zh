@@ -188,7 +188,7 @@ Claude Code 通过 stdin 向您的脚本发送以下 JSON 字段：
 | `context_window.current_usage` | 上一次 API 调用的 token 数，详见[上下文窗口字段](#context-window-fields) |
 | `exceeds_200k_tokens` | 最近一次 API 响应的 token 总数（输入、缓存和输出 token 之和）是否超过 200k。这是一个固定阈值，与实际上下文窗口大小无关。 |
 | `fast_mode` | 会话是否启用了[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md) |
-| `effort.level` | 当前推理努力程度（`low`、`medium`、`high`、`xhigh` 或 `max`）。反映会话的实时值，包括会话中途通过 `/effort` 进行的更改。当前模型不支持 effort 参数时不存在 |
+| `effort.level` | 为会话设置的推理 effort 级别（`low`、`medium`、`high`、`xhigh` 或 `max`），而不是由 skill、子代理或 `ultrathink` 设置的级别。如果您设置了模型不支持的级别，此处显示 Claude Code 实际运行时使用的级别。您更改的级别即使在[生效](https://code.claude.com/docs/zh-CN/model-config.md#when-a-new-effort-level-starts)之前也会显示在此处。如果在 `CLAUDE_CODE_EFFORT_LEVEL` 中设置了级别，此处显示该级别。当前模型不支持 effort 参数时不存在 |
 | `thinking.enabled` | 会话是否启用了扩展思考 |
 | `rate_limits.five_hour.used_percentage`、`rate_limits.seven_day.used_percentage` | 5 小时或 7 天速率限制的已用百分比，范围为 0 到 100 |
 | `rate_limits.five_hour.resets_at`、`rate_limits.seven_day.resets_at` | 5 小时或 7 天速率限制窗口重置的时间（Unix 纪元秒） |

@@ -995,7 +995,7 @@ claude() {
 
 ### WSL 中的 npm 安装错误
 
-如果您在 WSL 内使用 `npm install -g` 安装了 Claude Code，这些问题适用。如果您使用了[本机安装程序](https://code.claude.com/docs/zh-CN/setup.md)，请跳过本部分。
+如果您在 WSL 内使用 `npm install -g` 安装了 Claude Code，这些问题适用。如果您使用了[本机安装程序](https://code.claude.com/docs/zh-CN/setup.md)，请跳过本部分。在 npm 12 上，请按照[修复 npm 12 安装](#fix-an-npm-12-install)中的说明进行安装。
 
 **OS 或平台检测问题。** 如果 npm 在安装期间报告平台不匹配，WSL 可能正在选择 Windows `npm`。首先运行 `npm config set os linux`，然后使用 `npm install -g @anthropic-ai/claude-code --force` 安装。不要使用 `sudo`。
 
@@ -1037,7 +1037,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 ### npm 安装后找不到本机二进制文件
 
-`@anthropic-ai/claude-code` npm 包下载本机二进制文件作为每个平台的可选依赖项，例如 `@anthropic-ai/claude-code-darwin-arm64`。npm 然后运行包的 postinstall 脚本，将该二进制文件复制到位作为 `claude` 命令；在它运行之前，`claude` 是一个占位符脚本。如果下载或 postinstall 步骤被跳过，占位符保留在位，在 macOS 和 Linux 上运行 `claude` 打印：
+`@anthropic-ai/claude-code` npm 包将本机二进制文件作为每个平台的可选依赖项下载，例如 `@anthropic-ai/claude-code-darwin-arm64`。在 `@anthropic-ai/claude-code` 包的 postinstall 步骤运行并用该二进制文件替换占位符之前，`claude` 是一个占位符脚本。如果下载或 postinstall 步骤被跳过，占位符保留在位，在 macOS 和 Linux 上运行 `claude` 打印：
 
 ```text theme={null}
 Error: claude native binary not installed.
@@ -1056,10 +1056,42 @@ Or reinstall without --ignore-scripts / --omit=optional.
 
 检查以下原因：
 
+* **npm 12 默认跳过 postinstall 步骤。** 当您使用 npm 12 安装或更新 Claude Code 时，npm 仍会在不运行该步骤的情况下完成安装。请参阅[修复 npm 12 安装](#fix-an-npm-12-install)。
 * **可选依赖项被禁用。** 从您的 npm install 命令中删除 `--omit=optional`，从 pnpm 中删除 `--no-optional`，或从 yarn 中删除 `--ignore-optional`，并检查 `.npmrc` 不设置 `optional=false`。然后重新安装。本机二进制文件仅作为可选依赖项交付，因此如果跳过它，没有 JavaScript 回退，再次运行 `install.cjs` 无法放置从未下载的二进制文件。
 * **安装脚本被禁用。** `--ignore-scripts` 和某些 pnpm 配置跳过 postinstall 步骤但仍然下载平台包。运行 `node node_modules/@anthropic-ai/claude-code/install.cjs`，如消息所示，或不使用该标志重新安装。如果 postinstall 在您的环境中根本无法运行，`node node_modules/@anthropic-ai/claude-code/cli-wrapper.cjs` 找到下载的包并启动它，代价是每次启动时额外的 Node 进程。如果包装器改为打印 `Could not find native binary package`，平台包从未被下载，因此首先修复上面的可选依赖项原因。
 * **不支持的平台。** 为 `darwin-arm64`、`darwin-x64`、`linux-x64`、`linux-arm64`、`linux-x64-musl`、`linux-arm64-musl`、`win32-x64` 和 `win32-arm64` 发布预构建二进制文件。Claude Code 不为其他平台提供二进制文件；请参阅[系统要求](https://code.claude.com/docs/zh-CN/setup.md#system-requirements)。在 FreeBSD 上，安装程序将平台报告为不支持。在 v2.1.205 之前，它将 FreeBSD 视为 Linux 并下载了无法运行的二进制文件。
 * **公司 npm 镜像缺少平台包。** 确保您的注册表除了元包外还镜像所有八个 `@anthropic-ai/claude-code-*` 平台包。
+
+#### 修复 npm 12 安装
+
+如果 `claude` 在 npm 安装或更新后打印 `Error: claude native binary not installed.`，或者在 Windows 上 shell 无法运行它，请运行 `npm --version`。以 `12` 开头的版本意味着，除非您的 npm 配置允许，否则 npm 跳过了 Claude Code 的 postinstall 步骤，而该步骤负责将二进制文件放置到位。对于任何其他版本，请检查[其他原因](#native-binary-not-found-after-npm-install)。
+
+要修复 npm 12 安装，请切换到本机安装程序或允许该步骤：
+
+* **切换到本机安装程序**：[使用本机安装程序安装](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)，然后[卸载 npm 包](https://code.claude.com/docs/zh-CN/setup.md#uninstall-with-npm)。之后更新不再使用 npm，因此该错误不会再出现。
+* **继续使用 npm**：对于全局 npm 安装，请将 Claude Code 添加到用户 npm 配置中的 `allow-scripts`。之后 npm 会在以后的每次安装和更新中运行 Claude Code 的安装脚本，在 `package.json` 未设置 `allowScripts` 的项目安装中也是如此。
+
+  对于 `~/.claude/local` 中的本地安装，请使用本机安装程序。如果您的 `package.json` 脚本调用 `npm install`，并且您使用 pnpm 9、pnpm 10、Yarn 1 或其他会将此设置传递给它们的工具运行这些脚本，也请使用本机安装程序。在 npm 12.1 及更高版本上，一旦保存该设置，这些安装可能会因 `EALLOWSCRIPTS` 而失败。
+
+  1. 如果 `npm --version` 打印的是 12.0.x，请将 npm 更新到 12.1 或更高版本，例如使用 `npm install -g npm@latest`。在 12.0.x 上，一旦保存该设置，由 `npx` 工具或 `npm run` 脚本启动的项目安装可能会因 `EALLOWSCRIPTS` 而失败。
+
+  2. 运行 `npm config get allow-scripts` 并记下它列出的所有包，因为下一条命令会替换整个值。保存设置时将这些包放在引号内，例如 `"allow-scripts=@anthropic-ai/claude-code,<package>"`：
+
+     ```bash theme={null}
+     npm config set "allow-scripts=@anthropic-ai/claude-code" --location=user
+     ```
+
+  3. 重新安装：
+
+     ```bash theme={null}
+     npm install -g @anthropic-ai/claude-code
+     ```
+
+     如果此命令或第 1 步因 `EACCES` 失败，请切换到本机安装程序，而不是使用 `sudo` 重新运行。Claude Code 在自我更新时不使用 `sudo` 运行 npm，因此自动更新也会以同样的方式失败。
+
+  4. 如果 `claude --version` 没有打印版本号，请检查[其他原因](#native-binary-not-found-after-npm-install)。
+
+  要撤销，请在不包含 `@anthropic-ai/claude-code` 的情况下重新设置该列表，或使用 `npm config delete allow-scripts --location=user` 删除整个列表。在 npm 12 上，该错误会在您下次更新后再次出现。
 
 ### npm `ENOTEMPTY` 更新或重新安装期间的错误
 
@@ -1094,7 +1126,7 @@ rm -rf "$(npm root -g)/@anthropic-ai/.claude-code-"*
 Remove-Item -Recurse -Force "$(npm root -g)/@anthropic-ai/claude-code", "$(npm root -g)/@anthropic-ai/.claude-code-*"
 ```
 
-然后重新安装：
+然后重新安装。在 npm 12 上，请按照[修复 npm 12 安装](#fix-an-npm-12-install)操作。否则，请运行：
 
 ```bash theme={null}
 npm install -g @anthropic-ai/claude-code

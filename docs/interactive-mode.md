@@ -395,7 +395,7 @@ Shell 模式：
 
 Claude Code 在您发送某些命令时立即运行它们，而不是排队它们，其中包括 `/model`、`/effort` 和 `/fast`。这三个命令各改变一个设置：模型、effort 级别或快速模式。Claude Code 是将新设置应用于 Claude 已在处理的轮次，还是仅从您的下一轮次应用，因命令而异：
 
-* [`/model`](https://code.claude.com/docs/zh-CN/model-config#setting-your-model)：一旦您确认[缓存警告](https://code.claude.com/docs/zh-CN/prompt-caching.md#switching-models)（如果 Claude Code 显示），Claude Code 会将您的更改应用于该轮次中它发出的下一个请求
+* [`/model`](https://code.claude.com/docs/zh-CN/model-config#setting-your-model)：一旦您确认[缓存警告](https://code.claude.com/docs/zh-CN/prompt-caching.md#switching-models)（如果 Claude Code 显示），Claude Code 会从该轮次中它发出的下一个请求开始使用新模型
 * `/effort`：您发送的下一条消息将以新级别运行。要[在 Claude 已在处理的轮次中启用新级别](https://code.claude.com/docs/zh-CN/model-config.md#when-a-new-effort-level-starts)，请在 Claude 运行工具调用时排队一条消息
 * [`/fast`](https://code.claude.com/docs/zh-CN/fast-mode#toggle-fast-mode)：Claude Code 保持轮次开始时活跃的快速模式设置，因此您的速度更改从您的下一轮次应用。如果您当前的模型不支持快速模式，打开它也会[切换您的模型](https://code.claude.com/docs/zh-CN/prompt-caching.md#turning-on-fast-mode)，Claude Code 会在该轮次中从其下一个请求使用新模型
 
@@ -761,7 +761,7 @@ Continuing automatically at 3:45pm · Esc to cancel
 
 * **您发送提示词**：Claude Code 发送您的提示词而不是等待。如果您的提示词也达到了限制，它会保留在对话中，并且 Claude Code 会重新开始等待。
 * **您退出 Claude Code**：当您恢复会话时，等待不会重新启动。
-* **对话转手**：您使用 `/login` 切换账户、清除或倒带对话、`/resume` 另一个会话、使用 `/teleport` 拉取一个会话、使用 `/tui` 重新启动，或将会话交给 Claude Desktop、后台会话或云端。
+* **对话转手**：您使用 `/login` 切换账户、清除或倒带对话、`/resume` 另一个会话、使用 `/teleport` 拉取一个会话、使用 `/tui` 或 [`/restart`](https://code.claude.com/docs/zh-CN/commands#all-commands) 重新启动，或将会话移至 Claude Desktop、后台会话或云端。
 * **设置关闭，或重置超过 24 小时**：这仅结束 Claude Code 自动启动的等待。您从 `/rate-limit-options` 中选择的等待会继续倒计时。
 * **继续被阻止**：一个阻止继续提示的 [`UserPromptSubmit` hook](https://code.claude.com/docs/zh-CN/hooks#userpromptsubmit)，或在到达模型之前的失败，会结束等待。Claude Code 会告诉您继续没有运行。发送提示以继续。
 

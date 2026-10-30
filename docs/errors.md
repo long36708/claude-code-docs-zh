@@ -277,6 +277,8 @@
 | `Windows reported an error (EBADF) when Claude Code read this session's transcript file` | [命令行错误](#windows-reported-an-error-ebadf) |
 | `Cannot switch renderers in this session` | [命令行错误](#cannot-switch-renderers-in-this-session) |
 | `Cannot switch renderers while work is running in the background` | [命令行错误](#cannot-switch-renderers-in-this-session) |
+| `Can't restart while work is running in the background — wait for it to finish (or stop it via /tasks), then try again.` | [命令行错误](#cant-restart-while-work-is-running-or-remote-control-is-connected) |
+| `Can't restart while Remote Control is connected. To use the installed version, exit and start Claude Code again, then run /resume.` | [命令行错误](#cant-restart-while-work-is-running-or-remote-control-is-connected) |
 | `Claude Code couldn't restart` | [命令行错误](#claude-code-couldnt-restart) |
 | `Couldn't open Claude Desktop` | [命令行错误](#couldnt-open-claude-desktop) |
 | `Failed to open Claude Desktop. Please try opening it manually.` | [命令行错误](#couldnt-open-claude-desktop) |
@@ -858,7 +860,7 @@ API Error: Usage credits required for 1M context · run /usage-credits to turn t
 
 ### The prompt to confirm went unanswered
 
-如果您的账户需要 [Fable usage-credits consent](https://code.claude.com/docs/zh-CN/model-config.md#fable-and-usage-credits)，Claude Code 会在 Fable 请求计费使用额度之前要求您确认。当同意提示关闭且没有人回答时，Claude Code 会以以下消息之一结束轮次：
+当 [Fable usage-credits consent prompt](https://code.claude.com/docs/zh-CN/model-config.md#fable-and-usage-credits) 在无人回答的情况下关闭时，Claude Code 会以以下消息之一结束轮次：
 
 ```text theme={null}
 Fable limit reached · continuing on Fable 5.1 uses usage credits, and the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
@@ -3298,7 +3300,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了非标志的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请省略此标志。要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
 
@@ -3590,8 +3592,8 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许其运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查没有允许它。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何通过 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，而机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
 
 **解决方法：**
 
@@ -3744,7 +3746,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在克隆中**：Claude Code 在比较前已从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并报错 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
 
 **解决方法：**
 
@@ -3973,6 +3975,10 @@ Cannot switch renderers in this session — it has restrictions a restart can't 
 **解决方法：**
 
 * 在不带这些限制启动的会话中运行 `/tui fullscreen`，或运行 `/tui default` 切换回来。Claude Code 会在那里保存 [`tui` 设置](https://code.claude.com/docs/zh-CN/settings-reference#tui)
+
+### Can't restart while work is running or Remote Control is connected
+
+Claude Code 没有重启，您的会话会保持原样继续运行。请按照消息中的修复方法操作。
 
 ### Claude Code couldn't restart
 

@@ -94,7 +94,7 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 上的[自动模型回退](https
 
 在大多数模型上，在会话中途更改 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)意味着下一个请求会读取整个对话历史记录而没有缓存命中。当缓存仍然温暖时，Claude Code 会要求您先确认更改。
 
-在 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 5.1 上使用 API 密钥或 Claude 订阅时，更改 effort 会保持缓存，Claude Code 会在不询问的情况下应用新级别。这不适用于 Amazon Bedrock、Google Cloud 的 Agent Platform 或 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，也不适用于您设置了 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](https://code.claude.com/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 或您的组织具有 HIPAA 配置的情况。
+在 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 5.1 上使用 API 密钥或 Claude 订阅时，更改 effort 会保持缓存。Claude Code 会在不询问的情况下[应用新级别](https://code.claude.com/docs/zh-CN/model-config.md#when-a-new-effort-level-starts)。在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)上，或者当您设置了 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`](https://code.claude.com/docs/zh-CN/llm-gateway-protocol#disable-pre-release-capabilities) 或您的组织具有 HIPAA 配置时，其行为与大多数模型相同。
 
 在 v2.1.260 之前，在 Fable 5.1 上使用 API 密钥或 Claude 订阅更改 effort 也会使缓存失效。
 

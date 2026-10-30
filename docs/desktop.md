@@ -1930,6 +1930,24 @@ IT 团队可以通过 macOS 上的 MDM、Windows 上的组策略或 Linux 上的
 * **Windows**：通过 `SOFTWARE\Policies\Claude` 处的注册表配置
 * **Linux**：通过位于 `/etc/claude-desktop/managed-settings.json` 的 root 所有的文件配置，该文件以 JSON 对象形式保存策略键。如果除 root 之外的任何人可以写入该文件或其所在文件夹，Desktop 将拒绝使用该文件。它与 Claude Code 的[托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md)是不同的文件。
 
+#### 将登录限制为您的组织
+
+要限制哪些 claude.ai 组织可以登录 Claude Desktop，请在 Claude Desktop 策略中设置 `forceLoginOrgUUID`。
+
+该键需要 Claude Desktop v1.2581.0 或更高版本。
+
+在 Linux 上，仅设置此键的策略文件如下：
+
+```json /etc/claude-desktop/managed-settings.json theme={null}
+{
+  "forceLoginOrgUUID": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+}
+```
+
+将占位符替换为您的 claude.ai 组织 ID，该 ID 显示在 [claude.ai 管理员设置](https://claude.ai/admin-settings/organization)中。它与 Claude Code 的 [`forceLoginOrgUUID`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginorguuid) 设置所采用的 ID 相同。有关设置此键的 macOS 和 Windows 示例，请参阅面向 HIPAA 就绪组织的 Cowork 指南中的[部署 Claude Desktop 策略](https://claude.com/docs/cowork/hipaa-setup#deploy-the-claude-desktop-policy)。
+
+如果您在 Claude Code 的[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `forceLoginMethod` 和 `forceLoginOrgUUID`，并不会改变 Claude Desktop 的登录屏幕。
+
 ### 网络访问要求
 
 Desktop 从 Anthropic CDN 主机加载其应用程序代码和用户内容。

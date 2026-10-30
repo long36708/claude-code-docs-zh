@@ -4846,7 +4846,7 @@ Claude Code 在非交互模式下从不显示回顾。
 
 ### `disableDeepLinkRegistration`
 
-阻止 Claude Code 向操作系统注册 `claude-cli://` 协议处理程序；否则，Claude Code 会在您发送交互式会话的第一条提示词后进行注册。[深度链接](https://code.claude.com/docs/zh-CN/deep-links.md)允许外部工具打开带有预填提示词的 Claude Code 会话。在协议处理程序注册受限或单独管理的环境中设置此项。
+阻止 Claude Code 向操作系统注册 `claude-cli://` 协议处理程序。[深度链接](https://code.claude.com/docs/zh-CN/deep-links.md)允许外部工具打开带有预填提示词的 Claude Code 会话。在协议处理程序注册受限或单独管理的环境中设置此项。
 
 * **作用域**：[`Any file`](#scopes)
 * **类型**：字符串 `"disable"`
@@ -5801,7 +5801,7 @@ Claude Code 会忽略 `settings.json` 中的此键。
 
 在每个交互式 CLI 会话启动时开启 [Chrome 集成](https://code.claude.com/docs/zh-CN/chrome.md)，无需每次都传入 `--chrome`。如果您运行 [`claude remote-control`](https://code.claude.com/docs/zh-CN/remote-control)，它为您的某个[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)线程启动的会话也会遵循此键，`bypassPermissions` 模式除外。在 Claude Code v2.1.287 或更高版本中，此键也适用于 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome)中的会话：请参阅[默认启用 Chrome](https://code.claude.com/docs/zh-CN/chrome.md#enable-chrome-by-default)。
 
-运行 `/chrome` 并选择 **Enabled by default** 会自动设置此键。此项在 `/config` 中显示为 **Claude in Chrome enabled by default**。
+运行 `/chrome` 并选择 **Enabled by default** 会自动设置此键，回应 [“Claude in Chrome extension detected” 对话框](https://code.claude.com/docs/zh-CN/chrome.md#answer-the-startup-dialog)也会设置此键。此项在 `/config` 中显示为 **Claude in Chrome enabled by default**。
 
 * **作用域**：[`Global config`](#scopes)
 * **类型**：Boolean

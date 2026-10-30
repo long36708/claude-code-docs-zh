@@ -40,7 +40,10 @@
 * **零数据保留和 HIPAA**：对于启用了[零数据保留](https://code.claude.com/docs/zh-CN/zero-data-retention.md)或应用了 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)的组织不可用。
 * **模型推理**：会话使用 Anthropic API，除非您将 runner 配置为[将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#send-model-requests-to-bedrock-or-agent-platform)。在这两种情况下，会话内容都会发送给 Anthropic。在以这种方式配置的 runner 上，来自 claude.ai 的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)和组织策略不会作用于会话。
 * **使用入口**：从 [claude.ai/code](https://claude.ai/code)、移动和桌面应用、[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)以及终端启动的会话，带有 [`claude --cloud`](https://code.claude.com/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud) 或 [`--environment` 调度](https://code.claude.com/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop)，可以在自托管环境中运行。[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话也可以在其中运行，但 Claude 还不能在这些会话中使用[访问包](https://claude.com/docs/claude-tag/concepts/glossary#access-bundle)。[Claude Security](https://code.claude.com/docs/zh-CN/claude-security.md) 和 [Code Review](https://code.claude.com/docs/zh-CN/code-review.md) 会话还不能路由到它们。对这两个使用入口的支持将单独跟进。
-* **存储库**：会话从 GitHub 检出存储库；请参阅 [GitHub 身份验证选项](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#github-authentication-options)。对于 GitHub Enterprise Server 主机，请参阅其[网络要求](https://code.claude.com/docs/zh-CN/github-enterprise-server.md#network-requirements)。
+* **仓库**：会话从 GitHub 或 GitHub Enterprise Server 检出仓库。通过 `--environment` 调度启动的会话还可以使用其他 git 主机：
+  * **GitHub**：请参阅 [GitHub 身份验证选项](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#github-authentication-options)。
+  * **GitHub Enterprise Server**：请参阅其[网络要求](https://code.claude.com/docs/zh-CN/github-enterprise-server.md#network-requirements)。
+  * **其他 git 主机**：请参阅[使用 `--environment` 启动会话的要求](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy#start-a-session-on-a-repository-outside-github)。
 * **计费**：自托管环境中的会话消耗您的组织的 Claude Code 使用情况，与 Anthropic 托管环境中的会话相同。
 
 ## 为什么选择自托管

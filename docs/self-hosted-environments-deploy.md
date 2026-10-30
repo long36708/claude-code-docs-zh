@@ -168,7 +168,7 @@ RUN git config --system user.name "Claude" && \
 
 * 运行器设置 `GIT_TERMINAL_PROMPT=0`，所以 git 不要求用户名或密码。
 * 运行器使用 `BatchMode=yes` 运行 SSH，如果您设置了一个，则附加到您的 `GIT_SSH_COMMAND`，所以 SSH 不要求密码短语或主机确认。
-* 运行器设置 `GCM_INTERACTIVE=never`，所以 Git Credential Manager 不打开登录对话框。
+* 运行器设置 `GCM_INTERACTIVE=never`，所以 Git Credential Manager 不打开登录对话框。在 v2.1.229 之前，仓库准备可能会因 Git Credential Manager 提示而挂起。
 * 运行器清除 `core.askPass`，所以如果您使用 askpass 助手，改为通过 `GIT_ASKPASS` 环境变量设置它。
 
 如果您的 git 主机拒绝凭证，或您没有配置凭证，运行器重试几次然后失败存储库准备（当存储库是会话推送结果的存储库时）。对于会话仅从中读取的存储库，[故障排除](#troubleshooting)涵盖运行器何时改为跳过它。运行器不会将这些设置传递到会话的环境中。
@@ -347,6 +347,25 @@ gh api repos/{owner}/{repo}/pulls -f title='Fix' -f head='my-branch' -f base='ma
 * `--git-ssh-rewrite <host>`：适用于仅接受 SSH 的 git 主机，或仅有 SSH 密钥的运行器主机。例如，要通过 SSH 克隆 github.com 仓库，请将 `--git-ssh-rewrite github.com` 添加到运行器命令中。运行器随后会将 `https://github.com/owner/repo` 重写为 `git@github.com:owner/repo`。SSH 必须[无需提示即可连接](#git-must-work-without-a-prompt)。
 
 主机重写首先运行，因此如果您需要两者，请在 `--git-ssh-rewrite` 中列出内部主机名。为了完全控制检出，使用 [`checkout` 生命周期钩子](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout)。
+
+### 在 GitHub 之外的仓库上启动会话
+
+要在 GitHub 以外的 git 主机上的仓库中运行会话，请从终端在该仓库的检出中启动会话。首先检查运行器的 git 凭据、网络和 git 代理、仓库地址以及您的分支：
+
+* **Git 凭据和网络**：为运行器克隆的地址 `https://<host>/<owner>/<name>` [提供](#ship-git-config-in-your-image)[无需提示即可工作](#git-must-work-without-a-prompt)的凭据，并按照[网络要求](#network-requirements)所列，允许运行器访问您的 git 主机。对于仅接受 SSH 的 git 主机，请参阅 [`--git-ssh-rewrite`](#rewrite-git-urls-for-private-networks)。
+* **Git 代理**：如果该环境的运行器使用 Anthropic git 代理，请[将其关闭](#turn-the-anthropic-git-proxy-off)。
+* **仓库地址**：检查检出的 `origin` 远程。其主机必须是域名，例如 `git.example.com`，其路径必须采用 `<owner>/<name>` 形式。诸如 `group/subgroup/name` 的嵌套路径无法通过。
+* **分支**：将您当前所在的分支推送到您的 git 主机，因为运行器会克隆该分支。
+
+在检出中，按照[从 CI 进行身份验证](https://code.claude.com/docs/zh-CN/self-hosted-environments-testing.md#authenticate-from-ci)中的说明登录 claude.ai 后，使用 [`--environment`](https://code.claude.com/docs/zh-CN/self-hosted-environments-testing#run-the-test-loop) 和您环境的 `ccpool_...` ID 运行 `claude -p`：
+
+```bash theme={null}
+claude -p "Fix the login bug" --environment ccpool_abc123 --output-format json
+```
+
+创建会话后，该命令会打印一行以 `{"ok":true` 开头的 JSON。如果 `origin` 远程不符合要求，命令会失败并显示 `requires a git source, but no GitHub remote was detected`。
+
+在您的 git 主机上审查并合并会话[推送](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#prompt-sessions-to-push-their-work)的分支。
 
 ## 构建运行器镜像
 
@@ -622,7 +641,7 @@ secrets:
 
 ### 在重启前让正在运行的轮次完成
 
-若要在滚动重启前让正在运行的轮次完成，请设置 `--drain-wait-sec`，并将停止超时时间提高到至少该等待时间加 80 秒。在默认等待时间为 `0` 的情况下，重启会中断任何仍在运行的轮次，会话将在另一个运行器上恢复，但不包含其[未推送的工作](#additional-limitations)。
+若要在滚动重启前让正在运行的轮次完成，请设置 `--drain-wait-sec`，并将停止超时时间提高到至少该等待时间加 80 秒。在默认等待时间为 `0` 的情况下，重启会中断任何仍在运行的轮次，会话将在另一个运行器上恢复，但不包含其[未推送的工作](#resumed-sessions-lose-unpushed-work)。
 
 * **`--drain-wait-sec`**：大致设为您希望等待完成的轮次和后台任务所需的时长。这是一个上限：如果它们先完成，等待会提前结束。
 * **您的停止超时时间**：Kubernetes 中的 `terminationGracePeriodSeconds`，Docker Compose 中的 `stop_grace_period`。例如，使用 `--drain-wait-sec 120` 时，将 [Kubernetes](#kubernetes) 或 [Docker Compose](#docker-compose) 配方中的 `90` 替换为 `200`。
@@ -740,7 +759,7 @@ secrets:
 
 要释放空闲会话，请使用 [`--release-idle-session-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 及以分钟为单位的该时间启动每个运行器，例如 `--release-idle-session-min 30`。之后，运行器会释放任何空闲达到该时长的会话，无论该会话是由定时任务还是由人启动的，除非您[为其遗留运行的进程保留该会话](#keep-an-idle-session-while-its-processes-run)。
 
-* **未推送的工作**：被释放的会话会在收到下一条消息时恢复，但不包含其尚未推送的工作。要保留其提交，请参阅[恢复的会话会丢失未推送的工作](#additional-limitations)。
+* **未推送的工作**：被释放的会话会在收到下一条消息时恢复，但不包含其尚未推送的工作。要保留其提交，请参阅[恢复的会话会丢失未推送的工作](#resumed-sessions-lose-unpushed-work)。
 * **运行器退出**：释放其最后一个会话的运行器会开始[正常退出](#when-the-runner-exits)。请让您的监管程序在全新的文件系统上重新启动它，如[加固您的部署](#harden-your-deployment)所述。
 * **从不进入空闲的会话**：还需设置 [`--kill-session-after-min`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，因为[某些会话不计为空闲](#some-sessions-don’t-count-as-idle)
 
@@ -816,22 +835,32 @@ Anthropic 从其自己的基础设施而不是从您的运行器调用连接器�
 * 如果转向仍在运行，运行器等待转向完成，或会话下一次等待其用户，然后释放它。
 * 如果会话在宽限窗口结束时仍在运行器上，运行器终止它，任何运行转向的工作丢失。等待从运行中工具调用内请求的批准的转向是会话超过窗口的一种方式。
 
-释放的会话从新克隆恢复，所以它未推送的工作无论如何都消失了；请参阅[恢复的会话丢失未推送的工作](#additional-limitations)。在 v2.1.260 之前，运行器在限制处终止每个会话，最多等待宽限窗口以完成运行转向。
+释放的会话从新克隆恢复，所以它未推送的工作无论如何都消失了；请参阅[恢复的会话丢失未推送的工作](#resumed-sessions-lose-unpushed-work)。在 v2.1.260 之前，运行器在限制处终止每个会话，最多等待宽限窗口以完成正在运行的轮次。
 
 将该标志设置为高于您预期的最长会话时长，例如 `--kill-session-after-min 480` 为 8 小时。要从空闲的对话释放槽，改用 `--release-idle-session-min`。
 
+### 恢复的会话丢失未推送的工作
+
+在新运行器上恢复的会话会丢失其未推送的工作，因为该运行器会从其起始分支重新克隆仓库。
+
+要保留已提交的工作，请在环境中的每个运行器上设置 [`--push-outcome-on-release`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)。设置了该标志的运行器会在释放之前尽力推送会话的结果分支，恢复的会话将从这些提交开始。未设置该标志的运行器会从起始分支恢复会话。推送使用运行器主机自身的 git 凭据，在使用 [Anthropic 托管 git](#use-the-anthropic-git-proxy) 的运行器上也是如此。
+
+> [!WARNING]
+>
+> 设置该标志之前，请限制谁可以推送到源远程上的 `claude/*` refs。在恢复时，运行器会获取之前推送的分支，而不验证是谁推送的。
+
+即使设置了该标志，也请通过其他方式保存以下工作：
+
+* **未提交的更改**：这些更改仍会丢失。请参阅[提示会话推送其工作](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#prompt-sessions-to-push-their-work)。
+* **通过 [`checkout` 生命周期 hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 检出的仓库**：这些仓库不会被推送。请从 [`post-session` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#post-session) 对其进行快照。
+* **在被某人归档或删除的会话中，或其运行器被某人从会话菜单中释放的会话中的提交**：不要依赖该标志的推送。要保存这些提交，请从 [`post-session` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#post-session) 将 `HEAD` 推送到一个救援分支。那里的示例仅在创建快照提交之后才推送，因此请让您的 hook 在没有任何未提交内容时也执行推送。
+
 ### 其他限制
 
-* **恢复的会话丢失未推送的工作**：新的运行器会从其起始分支重新克隆仓库，因此会话未推送的工作会丢失。
-  * **要保留已提交的工作**：在环境中的每个运行器上设置 [`--push-outcome-on-release`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，因为未设置该标志的运行器会从起始分支恢复会话。设置了该标志的运行器会在释放之前尽力推送会话的结果分支，恢复的会话将从这些提交开始。推送使用运行器主机自身的 git 凭据，在使用 [Anthropic 托管 git](#use-the-anthropic-git-proxy) 的运行器上也是如此。
-  * **使用 `checkout` hook 时**：通过 [`checkout` 生命周期 hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 检出的仓库不会被推送。请改为从 [`post-session` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#post-session) 对其进行快照。
-  * **启用该标志之前**：限制谁可以推送到源远程上的 `claude/*` refs。在恢复时，运行器会获取之前推送的分支，而不验证是谁推送的。
-  * **未提交的更改仍会丢失**：要提示 Claude 在完成响应时提交并推送，请参阅[提示会话推送其工作](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#prompt-sessions-to-push-their-work)
 * **因运行器丢失而中断的命令可能会再次运行**：当会话在另一个运行器上恢复时，Claude 会看到被中断的工具调用，其结果表明该调用的执行结果未知。
 * **会话中途添加的仓库可能无法克隆**：Claude 通过 HTTPS 使用 `git clone` 克隆它。在未启用 [`--use-anthropic-git-proxy`](#use-the-anthropic-git-proxy) 的运行器上，如果主机上没有任何内容能够读取该仓库，克隆会因 git 身份验证错误而失败。如有可能，请在创建会话时选择会话所需的每个仓库。
   * **会话恢复时**：[`checkout` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 也会为添加的仓库运行，此时 [`CLAUDE_RUNNER_REPO_REF`](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 为空，因此请确保您的 hook 能够处理这种情况。
 * **某些连接器不出现在自托管会话中**：您在 claude.ai Settings 中尚未连接的连接器不在自托管会话中列出，会话不会提示您连接它。首先在 Settings 中连接它，然后启动新会话。向已运行的会话添加连接器也不会使其工具对 Claude 可用；启动新会话以获取新添加的连接器。
-* **当有人归档或删除会话，或从会话菜单中释放其运行器时**：不要依赖 [`--push-outcome-on-release`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 的推送。要在这些情况下保存提交，请从 [`post-session` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#post-session) 将 `HEAD` 推送到一个救援分支。如果您以那里的示例为基础，请让它在没有任何未提交内容时也执行推送，因为该示例仅在创建快照提交之后才推送。
 
 ### 报告问题
 

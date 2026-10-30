@@ -108,7 +108,7 @@ Check recent commits to main and the last successful build.
 
 ### 从 shell 打开链接
 
-你也可以从 shell 脚本、别名或自动化中打开深链接，而不是通过点击它。使用链接作为参数调用你的操作系统的 URL 打开命令。这些命令依赖于 Claude Code [在你在机器上发送交互式会话的第一个提示时注册的](#registration-and-supported-platforms)处理程序。
+您也可以从 shell 脚本、别名或自动化中打开深链接，而不是通过点击它。使用链接作为参数调用您的操作系统的 URL 打开命令。这些命令依赖于 Claude Code 在机器上[注册](#registration-and-supported-platforms)的处理程序。
 
 **macOS**
 
@@ -148,7 +148,12 @@ start "" "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
 
 ## 注册和支持的平台
 
-在 macOS、Linux 和 Windows 上，当您在交互式会话中发送第一个提示词时，Claude Code 会向您的操作系统注册 `claude-cli://` 处理程序。启动 `claude` 并在不发送提示词的情况下退出不会注册处理程序。您不需要运行单独的安装命令。注册仅写入用户级位置：
+在 macOS、Linux 和 Windows 上，当您执行以下任一操作时，Claude Code 会向您的操作系统注册 `claude-cli://` 处理程序：
+
+* 向交互式 `claude` 会话发送任何内容，例如一条消息或 `/help`。仅启动会话而不发送任何内容不会注册处理程序。
+* 在您已[信任](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)的文件夹中以 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)启动 Claude Code，例如使用 `claude agents`
+
+您不需要运行单独的安装命令。注册仅写入用户级位置：
 
 | 平台 | 处理程序位置 |
 | - | - |
@@ -172,7 +177,7 @@ Claude Desktop 会自行处理其 `claude://` 链接。要通过 SSH 在远程�
 
 ### 点击链接没有反应
 
-处理程序可能还没有注册。注册发生在你发送交互式会话的第一个提示时，而不是在会话启动时。在该机器上启动一个交互式 `claude` 会话，发送任何提示，退出，然后再试一次链接。如果你在没有桌面环境的 Linux 上，`xdg-open` 可能没有东西可以分派。
+处理程序可能还没有注册。在交互式会话中，注册发生在您发送内容时，而不是在会话启动时。在该机器上启动一个交互式 `claude` 会话，发送任意提示词，退出，然后再试一次链接。如果您在没有桌面环境的 Linux 上，`xdg-open` 可能没有东西可以分派。
 
 ### 在 Linux 上找不到 xdg-open
 

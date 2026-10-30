@@ -1467,10 +1467,11 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `result`：清理已运行时为 `"complete"`，Claude Code 暂停清理时为 `"skipped"`
 * `period_days`：合并后设置中的 `cleanupPeriodDays` 值（以天为单位），如果没有任何来源设置该值，则为 `30`。在 skipped 事件中，为清理本应使用的值，根据 Claude Code 能够读取的设置来源计算得出
 * `used_default`：没有可读取的设置来源设置 `cleanupPeriodDays` 时为 `"true"`，否则为 `"false"`。在 complete 事件中，`"true"` 表示应用了 30 天的默认值
-* `skip_reason`：Claude Code 暂停清理的原因。仅在 `result` 为 `"skipped"` 时存在：
-  * `"user_source_disabled"`：用户设置被排除（例如通过 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 标志或 SDK 的 [`settingSources`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 选项），且没有已启用的来源提供 `cleanupPeriodDays`
-  * `"settings_unknowable"`：某个设置文件无法读取或解析，因此 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 可能被设置为 Claude Code 无法看到的值
+* `skip_reason`：Claude Code 暂停清理的原因。仅当 `result` 为 `"skipped"` 时存在：
+  * `"user_source_disabled"`：用户设置被排除（例如通过 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 标志或 SDK 的 [`settingSources`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 选项），且没有启用的来源提供 `cleanupPeriodDays`
+  * `"settings_unknowable"`：某个设置文件无法读取或解析，因此 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 可能被设置为 Claude Code 看不到的值
   * `"settings_invalid_key_set"`：设置存在验证错误，且显式设置了 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays`，因此回退到默认值可能会违背该设置删除或保留文件
+  * `"remote_settings_unknowable"`：第三方部署上 Claude Desktop 的 Code 选项卡中的某个会话请求了[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)。它没有收到可用的响应，因此 `cleanupPeriodDays` 可能被设置为 Claude Code 看不到的值
 * `transcripts_deleted`：清理删除的会话记录数量，即顶层的 `~/.claude/projects/*/*.jsonl` 文件
 * `transcripts_exempted_desktop`：已超过保留期限、但清理根据 [Claude Desktop 和 Cowork 规则](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)予以保留的会话记录数量。这些不计入 `files_past_cutoff`。需要 Claude Code v2.1.248 或更高版本
 * `session_files_deleted`：会话文件清理删除的文件数量：会话记录加上每个会话的配套文件，例如附属文件、录制文件和工具结果

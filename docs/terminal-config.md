@@ -72,7 +72,13 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 
 当 Claude 完成任务或暂停以等待权限提示，且您似乎离开了终端时，它会触发通知事件。请参阅[每种通知类型何时触发](https://code.claude.com/docs/zh-CN/hooks.md#notification)以了解确切的时间。将其显示为终端铃声或桌面通知可让您在长任务运行时切换到其他工作。
 
-默认情况下，Claude Code 仅在 Ghostty、Kitty 和 iTerm2 中发送桌面通知。在其他终端中，将 [`preferredNotifChannel`](https://code.claude.com/docs/zh-CN/settings-reference#preferrednotifchannel) 设置为 `"terminal_bell"` 以改为响铃终端铃声，或配置[通知 hook](#play-a-sound-with-a-notification-hook) 以获得自定义声音或命令。以下设置条目打开终端铃声：
+默认情况下，Claude Code 在某些终端中发送桌面通知，在其他终端中则发送铃声字符或不发送任何内容：
+
+* **Ghostty、Kitty 和 iTerm2**：发送桌面通知，其中 iTerm2 仅在您启用其警报设置后才会显示。
+* **Apple Terminal**：没有声音；当 Claude Code 发现最前方 Terminal 窗口的描述文件中"Audible bell"已关闭时，发送静音铃声字符，否则不发送任何内容。如果该描述文件的"Visual bell"或 Dock 弹跳选项已启用，该铃声字符会显示为窗口闪烁，或在 Terminal 处于后台时显示为 Dock 图标弹跳。
+* **其他终端**：不发送任何内容。
+
+若要让 Claude Code 无论使用何种终端或描述文件都发送铃声字符，请将 [`preferredNotifChannel`](https://code.claude.com/docs/zh-CN/settings-reference#preferrednotifchannel) 设置为 `"terminal_bell"`。在 Apple Terminal 中，还需在 **Settings > Profiles > Advanced** 下启用 **Audible bell** 才能听到铃声。以下设置条目用于设置该通道：
 
 ```json ~/.claude/settings.json theme={null}
 {

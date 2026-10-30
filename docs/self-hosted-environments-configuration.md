@@ -42,6 +42,7 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 | `CLAUDE_CODE_REMOTE_MCP_CONFIG` | 指向 `CLAUDE_CONFIG_DIR` 中某个文件的路径，该文件保存 Anthropic 控制平面为此会话交付的 MCP 服务器定义。如果您的包装脚本重建子进程的环境，请携带此变量。如果缺少此变量，当控制平面更新交付的服务器时，子进程会关闭您的包装脚本通过 [`--mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 添加但不在更新中的任何 stdio、HTTP 或 SSE 服务器。需要 Claude Code v2.1.299 或更高版本。 |
 | `ANTHROPIC_BASE_URL` | 子进程将使用的 API 基础 URL，由控制平面按会话交付，通常为 `https://api.anthropic.com`。不要覆盖它：会话的推理凭据是 Anthropic 颁发的 OAuth 令牌，其他提供者不接受。 |
 | `CLAUDE_CODE_OAUTH_TOKEN` | 子进程用于模型推理的短期 OAuth 访问令牌，生命周期约为 30 分钟。运行器在过期前重新生成它，并通过子进程的 stdin 交付轮换，因此不 [keep stdin attached](#keep-stdin-and-file-descriptor-3-attached) 的包装脚本只看到初始值。不要依赖您的组织 IP 允许列表来限制此令牌的使用：将其视为持有者凭据，如果泄露，大约 30 分钟内仍可使用，不要记录它、写入磁盘或在会话容器外转发它。 |
+| `CLAUDE_RUNNER_ALIVE_EVERY_MS` | 当[轮次在子进程初始化之前开始](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#session-startup-timeout)时，运行器通过此变量设置子进程报告自身存活的频率（以毫秒为单位）。如果您的包装脚本重建子进程的环境，请携带此变量，否则运行器可能会在该轮次期间释放会话并记录 `no child output for <n> — releasing`。需要运行器和子进程均为 v2.1.309 或更高版本。 |
 
 包装脚本还继承子进程的其余托管环境，包括任何服务器提供的环境变量。`exec` 自动传播所有内容；如果您的包装脚本以其他方式生成子进程，请转发完整环境。
 
@@ -381,7 +382,7 @@ name="runner-${CLAUDE_RUNNER_ORDER_ID}"
 
 | 标志及示例值 | 传递给 | 作用 |
 | :- | :- | :- |
-| `--release-idle-session-min 30` | 您的 hook 启动的每个运行器 | 运行器在空闲达到该分钟数后释放其会话，然后以 0 退出。当会话的用户发送下一条消息时，会话会恢复，但[其尚未推送的工作将会丢失](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#additional-limitations)。对于会话遗留的仍在运行的进程，请[保留会话](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#keep-an-idle-session-while-its-processes-run)。 |
+| `--release-idle-session-min 30` | 您的 hook 启动的每个运行器 | 运行器在空闲达到该分钟数后释放其会话，然后以 0 退出。当会话的用户发送下一条消息时，会话会恢复，但[其尚未推送的工作将会丢失](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#resumed-sessions-lose-unpushed-work)。对于会话遗留的仍在运行的进程，请[保留会话](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#keep-an-idle-session-while-its-processes-run)。 |
 | `--kill-session-after-min 480` | 您的 hook 启动的每个运行器 | 将每个会话限制为该分钟数，作为[不计为空闲的会话](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#some-sessions-don’t-count-as-idle)的兜底措施，因此请将其设置为高于您预期的最长会话时长 |
 | `--exit-if-unused-min 60` | 待命运行器，即您的 hook 为预热请求启动的运行器 | 从未接收会话的待命运行器会在该分钟数后退出。如果您设置了 [`--min-idle`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags)，除非该待命运行器是多余的，否则您会获得替代运行器，因此请使用远高于启动时间的值。 |
 
@@ -761,7 +762,7 @@ Stop hook 只负责提示 Claude。要使提交和推送能够成功，请完成
 
 * **git 身份**：在运行器镜像中设置 `user.name` 和 `user.email`，或使用 [`--configure-git`](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy#let-the-runner-configure-git) 启动运行器
 * **推送凭据**：使用 [Anthropic 托管的 git](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#use-the-anthropic-git-proxy)，或按照[在镜像中提供 git 配置](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#ship-git-config-in-your-image)中的说明提供凭据
-* **对于恢复的会话**：在环境中的每个运行器上设置 [`--push-outcome-on-release`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)。这样，恢复的会话将从 Claude 推送到该会话分支的提交开始。有关该标志的限制，请参阅[恢复的会话会丢失未推送的工作](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#additional-limitations)。
+* **对于恢复的会话**：在环境中的每个运行器上设置 [`--push-outcome-on-release`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)。这样，恢复的会话将从 Claude 推送到该会话分支的提交开始。有关该标志的限制，请参阅[恢复的会话会丢失未推送的工作](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#resumed-sessions-lose-unpushed-work)。
 
 Stop hook 每个轮次最多提示一次。如果提交或推送失败，该轮次仍会结束。请在会话中查找 git 的错误信息，并修复其中指出的问题。
 

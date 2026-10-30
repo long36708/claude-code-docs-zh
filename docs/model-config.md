@@ -92,7 +92,7 @@
 
 根据您的套餐和席位等级，Fable 的使用可能计入[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，而不是从您套餐包含的限额中扣除。在这种情况下，`/model` 选择器会在 Fable 行上显示"Requires usage credits"。要管理使用额度，请参阅 [Add usage credits to your subscription](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)。
 
-在交互式会话中，Claude Code 会在 Fable 请求计入使用额度之前显示同意提示。使用组织计费的企业套餐成员不会看到该提示。您可以选择使用使用额度继续使用 Fable，或切换到您的默认模型。您也可以关闭提示：
+在交互式会话中，Claude Code 可能会显示 Fable 使用额度同意提示。使用组织计费的企业套餐成员不会看到该提示。您可以选择使用使用额度继续使用 Fable，或切换到您的默认模型。您也可以关闭提示：
 
 * 当您使用 `/model` 选择 Fable 模型时，将保持当前模型。
 * 在会话中途，Claude Code 会在您的默认模型上继续该轮次。
@@ -544,7 +544,7 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 运行安全分类器，最常�
 * **您自己的更改**：一旦您选择了 effort 级别、在 `/model` 中选择了模型或稍后恢复会话，被标记请求的级别就不再沿用。
 * **为单个轮次设置的 effort**：如果您使用 `ultrathink` 提升了被标记的轮次，或 skill 的 `effort` frontmatter 设置了其级别，该级别适用于该轮次。后续轮次以 [effort 解析顺序](#adjust-effort-level)为备用模型给出的级别运行。
 
-在会话中，运行 `/effort status` 查看当前生效的级别，或运行 `/effort` 更改它。
+要查看回退后为您的会话设置的级别，请运行 `/effort status`。要更改它，请运行 `/effort`。
 
 #### 检查触发回退的原因
 
@@ -607,9 +607,11 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 运行安全分类器，最常�
 
 Claude Code 按此顺序解析会话的 effort 级别，采用首先适用的：
 
-1. 明确选择：[`CLAUDE_CODE_EFFORT_LEVEL`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量、使用 `--effort` 启动或会话中的 `/effort`（[非交互式 `/effort` 的效果更窄](#non-interactive-effort)）
-2. 您的设置：您为模型保存的级别或 [`effortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#effortlevel) 键，在 [`modelSettings`](https://code.claude.com/docs/zh-CN/settings-reference#modelsettings) 中说明它们之间和跨设置文件的优先级
-3. 模型的默认 effort：在支持 effort 的每个模型上为 `high`，除了 Opus 5.5、Sonnet 5.5 和 Haiku 5.5 默认为 `medium`、Opus 4.7 默认为 `xhigh`，当您的组织为其[组织默认模型](#organization-default-model)设置默认 effort 级别时，当您运行该模型时该级别是默认值
+1. [`CLAUDE_CODE_EFFORT_LEVEL`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量
+2. 您在会话中选择的级别，例如通过 `/effort`、`/model` 选择器或 [`applyFlagSettings()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#applyflagsettings)
+3. 使用 `--effort` 启动
+4. 您的设置：您为模型保存的级别或 [`effortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#effortlevel) 键，在 [`modelSettings`](https://code.claude.com/docs/zh-CN/settings-reference#modelsettings) 中说明它们之间和跨设置文件的优先级
+5. 模型的默认 effort：在支持 effort 的每个模型上为 `high`，除了 Opus 5.5、Sonnet 5.5 和 Haiku 5.5 默认为 `medium`、Opus 4.7 默认为 `xhigh`。如果您的组织为其[组织默认模型](#organization-default-model)设置了默认 effort 级别，则当您运行该模型时，该级别即为默认值。
 
 自动模型回退后适用的级别，请参阅[回退后的 effort 级别](#effort-level-after-a-fallback)。
 
@@ -687,20 +689,20 @@ Opus 5.5 [默认为 `medium`](#adjust-effort-level)，比 Opus 5 的默认值 `h
 您可以通过以下任何方式更改 effort：
 
 * **`/effort`**：运行 `/effort` 不带参数以打开交互式滑块，`/effort` 后跟级别名称以直接设置它，或 `/effort auto` 以清除活动模型的保存级别
-* **在 `/model` 中**：选择模型时使用左/右箭头键调整 effort 滑块
+* **在 `/model` 中**：选择模型时使用左/右箭头键调整 effort 滑块。新级别最迟从您的下一条消息开始生效。在此之前，Claude 可能继续以旧级别工作，即使是在新模型上。当[优先级高于您所选级别的来源](#adjust-effort-level)（例如 `CLAUDE_CODE_EFFORT_LEVEL`）适用时，Claude 改为以该来源的级别工作。
 * **`--effort` 标志**：启动 Claude Code 时传递级别名称以为单个会话设置它
 * **环境变量**：将 `CLAUDE_CODE_EFFORT_LEVEL` 设置为级别名称。要让 Claude Code [不发送 effort 级别](#send-no-effort-level)，请改为将其设置为 `auto` 或 `unset`
 * **设置**：在 [`modelSettings`](https://code.claude.com/docs/zh-CN/settings-reference#modelsettings) 中设置每个模型的级别，或将 [`effortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#effortlevel) 设置为 `low`、`medium`、`high` 或 `xhigh` 作为没有级别的模型的默认值。`max` 在任一键中都不被接受为级别，`ultracode` 有其自己的 [`ultracode`](https://code.claude.com/docs/zh-CN/settings-reference#ultracode) 键
 * **从连接的设备**：在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#what-connected-devices-see) 会话中，从您的手机或浏览器上的 effort 控件中选择级别。该级别仅适用于当前会话。需要 Claude Code v2.1.234 或更高版本
 * **Skill 和子代理 frontmatter**：在 [skill](https://code.claude.com/docs/zh-CN/skills.md#frontmatter-reference) 或[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#supported-frontmatter-fields) markdown 文件中设置 `effort` 以在该 skill 或子代理运行时覆盖 effort 级别
 
-Frontmatter effort 在该 skill 或子代理活跃时应用，覆盖会话级别但不覆盖环境变量。一个 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel) 或[组织 effort 上限](#organization-effort-limits)仍然限制 skill 或子代理运行的级别。
+skill 的 `effort` 在其运行所在的轮次结束前一直适用；使用 `context: fork` 时，则在分叉出的子代理运行期间适用。子代理的 `effort` 在子代理运行期间适用，除非[其调用覆盖了它](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-an-effort-level)。当其中任一项适用时，skill 或子代理都以其级别运行，无论您启动时使用、保存或选择的是什么级别。如果设置了 `CLAUDE_CODE_EFFORT_LEVEL`，则改为应用该级别。
 
-如果您在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `effortLevel`，Claude Code 在 [effort 解析顺序](#adjust-effort-level)的设置步骤处应用它，用户仍然可以使用 `/effort` 或 `--effort` 更改级别。要将用户保持在或低于某个级别，设置 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel)。
+[`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel) 或[组织 effort 上限](#organization-effort-limits)仍然限制 skill 或子代理运行的级别。如果您在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `effortLevel`，Claude Code 在 [effort 解析顺序](#adjust-effort-level)的设置步骤处应用它，用户仍然可以使用 `/effort` 或 `--effort` 更改级别。要将用户保持在或低于某个级别，设置 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel)。
 
 #### 检查您设置的 effort 级别
 
-选择支持的模型时，effort 滑块会出现在 `/model` 中。会话标题中显示的级别（例如"with low effort"）来自您的 effort 设置，即使 Claude [仍在以旧级别工作](#when-a-new-effort-level-starts)。页脚也会在启动时和级别更改时简要显示 effort 级别。
+选择支持的模型时，effort 滑块会出现在 `/model` 中。会话标题中显示的级别（例如"with low effort"）来自您的 effort 设置，即使 Claude [仍在以旧级别工作](#when-a-new-effort-level-starts)。在启动时以及您更改级别时，页脚也会简要显示为您的会话设置的级别。
 
 #### 新 effort 级别何时生效
 

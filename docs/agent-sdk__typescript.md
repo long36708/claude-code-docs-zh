@@ -730,13 +730,14 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 
 只有部分键会在会话中途生效：
 
-* **在下一轮生效**：`effortLevel`、`ultracode`、`permissions`、`hooks`、`skillOverrides`、`fastMode`、`agent`。切换 `agent` 还会在下一轮应用该 Agent 的模型覆盖和 hook。其系统提示词在下一轮生效；或者，在[复用已记录系统提示词](https://code.claude.com/docs/zh-CN/agent-sdk/modifying-system-prompts.md#change-the-prompt-of-an-existing-session)的会话中，在会话被压缩后生效。
+* **在下一轮生效**：`ultracode`、`permissions`、`hooks`、`skillOverrides`、`fastMode`、`agent`。切换 `agent` 还会在下一轮应用该 Agent 的模型覆盖和 hook。其系统提示词在下一轮生效。在[复用已记录系统提示词](https://code.claude.com/docs/zh-CN/agent-sdk/modifying-system-prompts.md#change-the-prompt-of-an-existing-session)的会话中，它会在会话被压缩后生效。
 * **在当前轮次生效**：`model`。如果您在 Claude 处理某一轮时切换 `model`，Claude 正在生成的回复会使用旧模型完成，而该轮的其余部分（从 Claude Code 对模型发起的下一次调用开始）会使用新模型。子代理保留各自的模型。在 v2.1.212 之前，轮次中途的切换会等到下一轮才生效。
+* **最迟在下一轮生效**：`effortLevel`。该级别从 Claude Code 对模型的下一次调用开始生效。如果[更改 effort 会保留提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md#changing-effort-level)（例如在使用 API 密钥或 Claude 订阅的 Claude Opus 5.5 上），则预计会在下一轮生效。
 * **会话中途无效**：系统提示词选项。这些选项在启动时解析一次，因此即使调用成功，正在运行的会话也会保留原始值。要更改它们，请启动新会话。
 
 `effortLevel` 接受一个 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)名称。它还接受 `"ultracode"`，表示请求 `xhigh` effort 并开启 [ultracode](https://code.claude.com/docs/zh-CN/workflows.md#let-claude-decide-with-ultracode)。`applyFlagSettings()` 声明的 `effortLevel` 不包含该值，因此在 TypeScript 中请传递 `{ ultracode: true, effortLevel: "xhigh" }` 以获得相同效果，或者单独传递 [`ultracode`](https://code.claude.com/docs/zh-CN/settings-reference#ultracode) 键，以在会话当前的 effort 级别下开启 ultracode。`ultracode` 值需要 Claude Code v2.1.203 或更高版本，并且只被 `applyFlagSettings()` 接受，设置文件中的 `effortLevel` 键不接受该值。在 v2.1.284 之前，单独传递 `ultracode` 键也会将级别设置为 `xhigh`。
 
-这些值会写入标志设置层，合并在 `query()` 的内联 `settings` 选项于启动时设置的值之上。这与[本页优先级部分](#settings-precedence)所称的编程选项属于同一层级。
+这些值会写入标志设置层，合并覆盖在启动时 `query()` 的内联 `settings` 选项所设置的内容之上。这与[本页优先级章节](#settings-precedence)中所称的编程选项属于同一层级。`effortLevel` 是个例外：如 [effort 解析顺序](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)所示，您传递的级别会替换来自 `--effort` 或设置（包括托管设置）的级别。
 
 连续调用会对顶层键进行浅合并。第二次调用 `{ permissions: {...} }` 会替换先前调用中的整个 `permissions` 对象，而不是深度合并到其中。
 
@@ -1327,7 +1328,7 @@ const result = query({
 2. 项目设置（`.claude/settings.json`）
 3. 用户设置（`~/.claude/settings.json`）
 
-`agents`、`allowedTools` 和 `settings` 等编程选项会覆盖用户、项目和本地文件系统设置。托管策略设置优先于编程选项。
+`agents`、`allowedTools` 和 `settings` 等编程选项会覆盖用户、项目和本地文件系统设置。如果托管策略设置和编程选项设置了相同的键，则以托管值为准，但存在例外，例如传给 [`applyFlagSettings()`](#applyflagsettings) 的 `effortLevel`。
 
 ### `PermissionMode`
 
@@ -2095,7 +2096,7 @@ type SDKSystemMessage = {
 `terminal_slash_commands` 命名 `slash_commands` 中的条目，其接口绑定到本地终端，例如 `exit`。您可以像 `slash_commands` 中的任何其他条目一样发送它们；该字段存在以便远程或移动客户端可以从其命令菜单中隐藏它们。该字段仅在非空时存在，需要 Agent SDK v0.3.229 或更高版本。
 
 * `source` 在每个 `mcp_servers` 条目上：服务器定义的来源，与 [`McpServerStatus`](#mcpserverstatus) 的 `source` 值相同。需要 Agent SDK v0.3.274 或更高版本。
-* `effort`：Claude Code 在会话的下一个请求上发送的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)，或当它不发送任何时为 `null`。Claude Code 仅在它发送到 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 客户端的初始化消息上设置该字段，并从您的应用程序读取的初始化消息中省略它。需要 Agent SDK v0.3.234 或更高版本。
+* `effort`：为会话下一轮次设置的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)，当 Claude Code 不发送任何级别时为 `null`。Claude Code 仅在发送给 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 客户端的 init 消息上设置该字段，并在您的应用读取的 init 消息中省略它。需要 Agent SDK v0.3.234 或更高版本。
 
 `capabilities` 数组命名此 CLI 实现的协议行为，因此您可以进行功能检测而不是比较 `claude_code_version` 字符串。这是一个开放集：忽略您不认识的值，并检查您依赖其行为的特定功能。该字段需要 Claude Code v2.1.205 或更高版本，在早期 CLI 上不存在。
 
