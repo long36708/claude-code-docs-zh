@@ -181,21 +181,21 @@ export function register(on) {
 
 窗格和条带在 mod 填充之前都是空的。选择一个选项卡，查看每个站点是什么以及如何在其中绘制：
 
-**Pane**
+> [tab] Pane
+>
+> 窗格在宽幅全屏终端中是会话记录旁边的侧边栏，在其他情况下是输入框上方的带边框区域。打开多个窗格时，每个窗格都会获得一个显示其标题的选项卡。
+>
+> 当您的 mod 使用您选择的 `id` 调用 `$.ui.open` 时，窗格就会出现，如 `$.ui.open({ id: 'hello-tabs' })`。[在正确的时间打开窗格](#open-a-pane-at-the-right-time) 介绍了其他字段以及窗格何时会等待更宽的终端。
+>
+> 要在您的窗格中绘制，请过滤 `{ component: 'Pane' }` 并检查 `e.requestId` 是否为您的 `id`。
 
-窗格在宽幅全屏终端中是会话记录旁边的侧边栏，在其他情况下是输入框上方的带边框区域。打开多个窗格时，每个窗格都会获得一个显示其标题的选项卡。
-
-当您的 mod 使用您选择的 `id` 调用 `$.ui.open` 时，窗格就会出现，如 `$.ui.open({ id: 'hello-tabs' })`。[在正确的时间打开窗格](#open-a-pane-at-the-right-time) 介绍了其他字段以及窗格何时会等待更宽的终端。
-
-要在您的窗格中绘制，请过滤 `{ component: 'Pane' }` 并检查 `e.requestId` 是否为您的 `id`。
-
-**Band above the prompt**
-
-条带是紧贴输入框上方的一条区域。它始终存在，并由所有 mod 共享。
-
-您的 hook 返回一棵树以在条带中显示内容，或返回 `next(e)` 以不显示任何内容。一棵树会替换[在您之后](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)运行的 mod 在那里绘制的内容。要保留它们的内容，请将 `await next(e)` 的结果放在您树中某个 [`Box`](#build-a-tree-from-elements) 的子项中。
-
-要在条带中绘制，请过滤 `{ component: 'AbovePrompt' }`。
+> [tab] Band above the prompt
+>
+> 条带是紧贴输入框上方的一条区域。它始终存在，并由所有 mod 共享。
+>
+> 您的 hook 返回一棵树以在条带中显示内容，或返回 `next(e)` 以不显示任何内容。一棵树会替换[在您之后](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)运行的 mod 在那里绘制的内容。要保留它们的内容，请将 `await next(e)` 的结果放在您树中某个 [`Box`](#build-a-tree-from-elements) 的子项中。
+>
+> 要在条带中绘制，请过滤 `{ component: 'AbovePrompt' }`。
 
 ### 更改 Claude Code 已经绘制的内容
 
@@ -214,58 +214,58 @@ Claude Code 自己绘制大部分界面：消息、工具调用行、加载指�
 
 在 Claude Code 已经绘制的站点上，您的 hook 可以更改某个细节、替换绘制内容，或保持不变。选择一个选项卡，查看每种方式应用于加载指示器的效果。这些示例读取由另一个 hook 计数的 `calls` 变量，如[教程 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 中所示。
 
-**Change a detail**
+> [tab] Change a detail
+>
+> 要保留 Claude Code 的绘制内容并更改其中一部分，请向 `next` 传递一个更改了 `props` 的事件副本。此 hook 更改加载指示器单词后面的文本：
+>
+> ```javascript theme={null}
+> on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
+>   // Keep Claude Code's spinner, and change the text after its word
+>   return next({ ...e, props: { ...e.props, suffix: ' · tool calls: ' + calls + '…' } })
+> })
+> ```
+>
+> 加载指示器保留其动画和单词，您的文本跟在单词后面：
+>
+> ```text theme={null}
+> Thinking · tool calls: 2…
+> ```
 
-要保留 Claude Code 的绘制内容并更改其中一部分，请向 `next` 传递一个更改了 `props` 的事件副本。此 hook 更改加载指示器单词后面的文本：
+> [tab] Replace the drawing
+>
+> 要在站点的位置绘制您自己的内容，请返回一棵树，并且不要调用 `next`。此 hook 在加载指示器所在的位置绘制一行文本：
+>
+> ```javascript theme={null}
+> on('ui.render', { component: 'Spinner' }, async ($, e) => {
+>   const { Text } = $.ui.resolve(e)
+>   // No call to next, so this line is drawn in the spinner's place
+>   return Text({ children: ['Claude has made ' + calls + ' tool calls'] })
+> })
+> ```
+>
+> 当 Claude 工作时，显示的是您的这一行，而不是 Claude Code 的加载指示器：
+>
+> ```text theme={null}
+> Claude has made 2 tool calls
+> ```
 
-```javascript theme={null}
-on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
-  // Keep Claude Code's spinner, and change the text after its word
-  return next({ ...e, props: { ...e.props, suffix: ' · tool calls: ' + calls + '…' } })
-})
-```
-
-加载指示器保留其动画和单词，您的文本跟在单词后面：
-
-```text theme={null}
-Thinking · tool calls: 2…
-```
-
-**Replace the drawing**
-
-要在站点的位置绘制您自己的内容，请返回一棵树，并且不要调用 `next`。此 hook 在加载指示器所在的位置绘制一行文本：
-
-```javascript theme={null}
-on('ui.render', { component: 'Spinner' }, async ($, e) => {
-  const { Text } = $.ui.resolve(e)
-  // No call to next, so this line is drawn in the spinner's place
-  return Text({ children: ['Claude has made ' + calls + ' tool calls'] })
-})
-```
-
-当 Claude 工作时，显示的是您的这一行，而不是 Claude Code 的加载指示器：
-
-```text theme={null}
-Claude has made 2 tool calls
-```
-
-**Leave it alone**
-
-要让站点保持 Claude Code 绘制的样子，请返回 `next(e)`。hook 通常对某些事件这样做，而对其他事件不这样做。此 hook 在出现可计数的调用之前保持加载指示器不变：
-
-```javascript theme={null}
-on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
-  // Nothing to show yet, so pass the event on unchanged
-  if (calls === 0) return next(e)
-  return next({ ...e, props: { ...e.props, suffix: ' · tool calls: ' + calls + '…' } })
-})
-```
-
-在第一次工具调用之前，加载指示器看起来与没有该 mod 时一样：
-
-```text theme={null}
-Thinking…
-```
+> [tab] Leave it alone
+>
+> 要让站点保持 Claude Code 绘制的样子，请返回 `next(e)`。hook 通常对某些事件这样做，而对其他事件不这样做。此 hook 在出现可计数的调用之前保持加载指示器不变：
+>
+> ```javascript theme={null}
+> on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
+>   // Nothing to show yet, so pass the event on unchanged
+>   if (calls === 0) return next(e)
+>   return next({ ...e, props: { ...e.props, suffix: ' · tool calls: ' + calls + '…' } })
+> })
+> ```
+>
+> 在第一次工具调用之前，加载指示器看起来与没有该 mod 时一样：
+>
+> ```text theme={null}
+> Thinking…
+> ```
 
 在这些站点上，`next(e)` 会返回对 Claude Code 绘制内容的引用 `{ type: 'engine', ref }`，除非在您之后运行的某个 mod 返回了它自己的树。要更改该绘制内容中的内容，请向 `next` 传递一个具有不同 props 的事件副本，就像 **Change a detail** 选项卡所做的那样。您可以原样返回该引用，也可以将其与您自己的元素一起放在一个 `Box` 中：
 
@@ -357,71 +357,71 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 
 选择一个选项卡以查看每个最常用的元素以及终端如何绘制它：
 
-**Text**
+> [tab] Text
+>
+> `Text` 绘制一个字符串，带有可选的样式，如 `bold` 和 `color`：
+>
+> ```javascript theme={null}
+> Text({ children: ['This is the first tab.'] })
+> ```
+>
+> ```text theme={null}
+> This is the first tab.
+> ```
 
-`Text` 绘制一个字符串，带有可选的样式，如 `bold` 和 `color`：
+> [tab] Box
+>
+> `Box` 排列其中的内容，在一行或一列中。这个把一个按钮和一行文本并排放在一起，相隔两列：
+>
+> ```javascript theme={null}
+> Box({
+>   flexDirection: 'row',
+>   columnGap: 2,
+>   children: [
+>     Button({ key: 'more', label: 'Add one', onPress: addOne }),
+>     Text({ children: ['Count: 0'] }),
+>   ],
+> })
+> ```
+>
+> ```text theme={null}
+> [ Add one ]  Count: 0
+> ```
 
-```javascript theme={null}
-Text({ children: ['This is the first tab.'] })
-```
+> [tab] Button
+>
+> `Button` 是用户可以按下的控件。它运行您的 `onPress` 回调。使用 `plain: true` 时，它没有括号并显示其快捷键：
+>
+> ```javascript theme={null}
+> Button({ key: 'more', label: 'Add one', onPress: addOne })
+> Button({ key: 'tab-one', label: 'One', hotkey: '1', plain: true, onPress: showTabOne })
+> ```
+>
+> ```text theme={null}
+> [ Add one ]
+> 1: One
+> ```
 
-```text theme={null}
-This is the first tab.
-```
-
-**Box**
-
-`Box` 排列其中的内容，在一行或一列中。这个把一个按钮和一行文本并排放在一起，相隔两列：
-
-```javascript theme={null}
-Box({
-  flexDirection: 'row',
-  columnGap: 2,
-  children: [
-    Button({ key: 'more', label: 'Add one', onPress: addOne }),
-    Text({ children: ['Count: 0'] }),
-  ],
-})
-```
-
-```text theme={null}
-[ Add one ]  Count: 0
-```
-
-**Button**
-
-`Button` 是用户可以按下的控件。它运行您的 `onPress` 回调。使用 `plain: true` 时，它没有括号并显示其快捷键：
-
-```javascript theme={null}
-Button({ key: 'more', label: 'Add one', onPress: addOne })
-Button({ key: 'tab-one', label: 'One', hotkey: '1', plain: true, onPress: showTabOne })
-```
-
-```text theme={null}
-[ Add one ]
-1: One
-```
-
-**Input**
-
-`Input` 是一个文本字段。当用户按 Enter 时，它使用文本运行您的 `onSubmit` 回调：
-
-```javascript theme={null}
-Input({
-  key: 'new-note',
-  label: 'Note',
-  placeholder: 'Type a note and press Enter',
-  value: '',
-  submitLabel: 'add',
-  onSubmit: addNote,
-})
-```
-
-```text theme={null}
-Note: Type a note and press Enter
-```
-
-将 `rows` 设为 2 或更大，即可获得[可容纳多行的字段](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#input)。
+> [tab] Input
+>
+> `Input` 是一个文本字段。当用户按 Enter 时，它使用文本运行您的 `onSubmit` 回调：
+>
+> ```javascript theme={null}
+> Input({
+>   key: 'new-note',
+>   label: 'Note',
+>   placeholder: 'Type a note and press Enter',
+>   value: '',
+>   submitLabel: 'add',
+>   onSubmit: addNote,
+> })
+> ```
+>
+> ```text theme={null}
+> Note: Type a note and press Enter
+> ```
+>
+> 将 `rows` 设为 2 或更大，即可获得[可容纳多行的字段](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#input)。
 
 [界面图库](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md)提供了大多数元素的示例和屏幕截图。此表列出了每个元素：
 

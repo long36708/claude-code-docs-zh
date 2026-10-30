@@ -119,17 +119,17 @@ claude --settings '{"sandbox": {"enabled": true, "allowUnsandboxedCommands": fal
 
 使用您的发行版的包管理器安装它们：
 
-**Ubuntu/Debian**
+> [tab] Ubuntu/Debian
+>
+> ```bash theme={null}
+> sudo apt-get install bubblewrap socat
+> ```
 
-```bash theme={null}
-sudo apt-get install bubblewrap socat
-```
-
-**Fedora**
-
-```bash theme={null}
-sudo dnf install bubblewrap socat
-```
+> [tab] Fedora
+>
+> ```bash theme={null}
+> sudo dnf install bubblewrap socat
+> ```
 
 当缺少依赖时，`/sandbox` 中的 Dependencies 选项卡会列出您的平台缺少 `ripgrep`、`bubblewrap`、`socat` 和 seccomp 过滤器中的哪些。如果在安装并重启 Claude Code 后没有看到该选项卡，则说明所有依赖都已就绪。
 
@@ -137,7 +137,7 @@ Ripgrep 已随原生 Claude Code 二进制文件捆绑提供。seccomp 过滤器
 
 当缺少必需的依赖时，在安装之前 Dependencies 选项卡是唯一显示的选项卡。当仅缺少可选的 seccomp 过滤器时，Dependencies 选项卡会与其他选项卡一起显示。依赖检查在启动时运行，因此安装软件包后请重启 Claude Code，以便 `/sandbox` 检测到它们。
 
-> **Ubuntu 24.04 及更高版本：允许 bubblewrap 创建用户命名空间**
+> [accordion] Ubuntu 24.04 及更高版本：允许 bubblewrap 创建用户命名空间
 >
 > 在 Ubuntu 24.04 及更高版本上，默认的 AppArmor 策略会阻止 bubblewrap 创建其隔离所需的用户命名空间。
 >
@@ -161,7 +161,7 @@ Ripgrep 已随原生 Claude Code 二进制文件捆绑提供。seccomp 过滤器
 > sudo systemctl reload apparmor
 > ```
 
-> **WSL2 注意事项**
+> [accordion] WSL2 注意事项
 >
 > 在 PowerShell 中使用 `wsl -l -v` 检查您的 WSL 版本。如果看到 `Sandboxing requires WSL2`，则说明您的发行版运行的是 WSL1。请将其升级到 WSL2，或在不使用沙箱隔离的情况下运行 Claude Code。
 >

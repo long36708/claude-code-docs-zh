@@ -1039,44 +1039,44 @@ claude mcp add --transport http \
 
 这些选项卡涵盖两个命令：`claude mcp add` 将您的客户端 ID 和回调端口作为标志，`claude mcp add-json` 在 `oauth` 对象中获取它们。如果您注册了重定向 URI，请将回调端口设置为该 URI 中的端口。
 
-**claude mcp add**
+> [tab] claude mcp add
+>
+> 使用 `--client-id` 传递您的应用的客户端 ID。`--client-secret` 标志使用掩码输入提示输入密钥：
+>
+> ```bash theme={null}
+> claude mcp add --transport http \
+>   --client-id your-client-id --client-secret --callback-port 8080 \
+>   my-server https://mcp.example.com/mcp
+> ```
 
-使用 `--client-id` 传递您的应用的客户端 ID。`--client-secret` 标志使用掩码输入提示输入密钥：
+> [tab] claude mcp add-json
+>
+> 在 JSON 配置中包含 `oauth` 对象，并将 `--client-secret` 作为单独的标志传递：
+>
+> ```bash theme={null}
+> claude mcp add-json my-server \
+>   '{"type":"http","url":"https://mcp.example.com/mcp","oauth":{"clientId":"your-client-id","callbackPort":8080}}' \
+>   --client-secret
+> ```
 
-```bash theme={null}
-claude mcp add --transport http \
-  --client-id your-client-id --client-secret --callback-port 8080 \
-  my-server https://mcp.example.com/mcp
-```
+> [tab] claude mcp add-json (仅回调端口)
+>
+> 要仅固定回调端口并让 Claude Code 自动注册客户端，请单独设置 `callbackPort`：
+>
+> ```bash theme={null}
+> claude mcp add-json my-server \
+>   '{"type":"http","url":"https://mcp.example.com/mcp","oauth":{"callbackPort":8080}}'
+> ```
 
-**claude mcp add-json**
-
-在 JSON 配置中包含 `oauth` 对象，并将 `--client-secret` 作为单独的标志传递：
-
-```bash theme={null}
-claude mcp add-json my-server \
-  '{"type":"http","url":"https://mcp.example.com/mcp","oauth":{"clientId":"your-client-id","callbackPort":8080}}' \
-  --client-secret
-```
-
-**claude mcp add-json (仅回调端口)**
-
-要仅固定回调端口并让 Claude Code 自动注册客户端，请单独设置 `callbackPort`：
-
-```bash theme={null}
-claude mcp add-json my-server \
-  '{"type":"http","url":"https://mcp.example.com/mcp","oauth":{"callbackPort":8080}}'
-```
-
-**CI / 环境变量**
-
-通过环境变量设置密钥以跳过交互式提示：
-
-```bash theme={null}
-MCP_CLIENT_SECRET=your-secret claude mcp add --transport http \
-  --client-id your-client-id --client-secret --callback-port 8080 \
-  my-server https://mcp.example.com/mcp
-```
+> [tab] CI / 环境变量
+>
+> 通过环境变量设置密钥以跳过交互式提示：
+>
+> ```bash theme={null}
+> MCP_CLIENT_SECRET=your-secret claude mcp add --transport http \
+>   --client-id your-client-id --client-secret --callback-port 8080 \
+>   my-server https://mcp.example.com/mcp
+> ```
 
 **3. 在 Claude Code 中进行身份验证**
 

@@ -85,17 +85,17 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 在 **Trigger** 行中，选择任务的启动方式。要组合多个触发器，请点击该行末尾的 **+**。
 
-**Schedule**
+> [tab] Schedule
+>
+> 为定期运行选择一个预设频率。有关时区处理、延迟启动、自定义 cron 间隔和一次性运行，请参阅[添加计划触发器](#add-a-schedule-trigger)。
 
-为定期运行选择一个预设频率。有关时区处理、延迟启动、自定义 cron 间隔和一次性运行，请参阅[添加计划触发器](#add-a-schedule-trigger)。
+> [tab] GitHub event
+>
+> 选择仓库、要响应的事件以及可选的筛选条件。有关支持的事件和筛选字段的完整列表，请参阅[添加 GitHub 触发器](#add-a-github-trigger)。
 
-**GitHub event**
-
-选择仓库、要响应的事件以及可选的筛选条件。有关支持的事件和筛选字段的完整列表，请参阅[添加 GitHub 触发器](#add-a-github-trigger)。
-
-**API**
-
-在此处选择 **API**。当您点击 **Create** 时，**API token** 对话框会显示一次令牌，因此请在关闭对话框之前复制它。要复制 URL 或生成新令牌，请参阅[添加 API 触发器](#add-an-api-trigger)。
+> [tab] API
+>
+> 在此处选择 **API**。当您点击 **Create** 时，**API token** 对话框会显示一次令牌，因此请在关闭对话框之前复制它。要复制 URL 或生成新令牌，请参阅[添加 API 触发器](#add-an-api-trigger)。
 
 **4. 选择仓库**
 

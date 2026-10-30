@@ -59,34 +59,34 @@ Claude Code GitHub Action 通过 GitHub 身份推送提交和发布评论。[快
 
 配置您的云以信任 GitHub 向工作流颁发的 OIDC 令牌，以便每个工作流运行都获得短期的云凭证。每个选项卡中的项目总结了要创建的内容，每个选项卡都链接到云供应商自己的控制台级步骤指南。
 
-**Amazon Bedrock**
+> [tab] Amazon Bedrock
+>
+> 在您的 AWS 账户中创建信任配置，遵循 [AWS 创建 OIDC 身份提供商指南](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html)：
+>
+> * 添加一个 GitHub OIDC 身份提供商，提供商 URL 为 `https://token.actions.githubusercontent.com`，受众为 `sts.amazonaws.com`
+> * 创建一个由该提供商作为 Web 身份信任的 IAM 角色，并附加来自 [IAM 配置](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#iam-configuration) 的作用域调用策略，该策略授予 `bedrock:InvokeModel`、`bedrock:InvokeModelWithResponseStream`、`bedrock:ListInferenceProfiles` 和 `bedrock:GetInferenceProfile`，以及两个 `aws-marketplace` 订阅操作
+> * 使用主题条件（例如 `repo:your-org/your-repo:*`）将角色的信任策略限制在您的存储库。有关声明格式，请参阅 [GitHub 的 OIDC 加固指南](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect)
+>
+> 记下角色的 ARN。您将在下一步中将其添加为密钥。
 
-在您的 AWS 账户中创建信任配置，遵循 [AWS 创建 OIDC 身份提供商指南](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html)：
+> [tab] Google Cloud 的 Agent Platform
+>
+> 在您的 Google Cloud 项目中创建联合资源，遵循 [Workload Identity Federation 文档](https://cloud.google.com/iam/docs/workload-identity-federation)：
+>
+> * 启用三个 API：IAM Credentials、Security Token Service (STS) 和 Agent Platform API，其服务名称为 `aiplatform.googleapis.com`
+> * 创建一个 Workload Identity Pool，其中包含一个 GitHub OIDC 提供商，其颁发者为 `https://token.actions.githubusercontent.com`，并添加一个属性条件，将池限制在您的存储库
+> * 创建一个仅具有 `Vertex AI User` 角色（即 `roles/aiplatform.user`）的专用服务账户，并允许池模拟它
+>
+> 记下提供商的完整资源名称和服务账户的电子邮件地址。您将在下一步中将它们添加为密钥。
 
-* 添加一个 GitHub OIDC 身份提供商，提供商 URL 为 `https://token.actions.githubusercontent.com`，受众为 `sts.amazonaws.com`
-* 创建一个由该提供商作为 Web 身份信任的 IAM 角色，并附加来自 [IAM 配置](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#iam-configuration) 的作用域调用策略，该策略授予 `bedrock:InvokeModel`、`bedrock:InvokeModelWithResponseStream`、`bedrock:ListInferenceProfiles` 和 `bedrock:GetInferenceProfile`，以及两个 `aws-marketplace` 订阅操作
-* 使用主题条件（例如 `repo:your-org/your-repo:*`）将角色的信任策略限制在您的存储库。有关声明格式，请参阅 [GitHub 的 OIDC 加固指南](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect)
-
-记下角色的 ARN。您将在下一步中将其添加为密钥。
-
-**Google Cloud 的 Agent Platform**
-
-在您的 Google Cloud 项目中创建联合资源，遵循 [Workload Identity Federation 文档](https://cloud.google.com/iam/docs/workload-identity-federation)：
-
-* 启用三个 API：IAM Credentials、Security Token Service (STS) 和 Agent Platform API，其服务名称为 `aiplatform.googleapis.com`
-* 创建一个 Workload Identity Pool，其中包含一个 GitHub OIDC 提供商，其颁发者为 `https://token.actions.githubusercontent.com`，并添加一个属性条件，将池限制在您的存储库
-* 创建一个仅具有 `Vertex AI User` 角色（即 `roles/aiplatform.user`）的专用服务账户，并允许池模拟它
-
-记下提供商的完整资源名称和服务账户的电子邮件地址。您将在下一步中将它们添加为密钥。
-
-**Microsoft Foundry**
-
-创建一个 Microsoft Entra 应用程序，其中包含您的存储库的联合凭证，遵循 [Microsoft 的 GitHub Actions 身份验证指南](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-openid-connect)：
-
-* 注册一个 Microsoft Entra 应用程序，并添加一个联合身份凭证，该凭证信任 GitHub 向您的存储库颁发的令牌。用户分配的托管身份可以代替应用程序。两者都有您在下面记下的客户端 ID
-* 在您的 Foundry 资源上为应用程序分配 `Azure AI User` 角色。有关更窄的自定义角色，请参阅 [Azure RBAC 配置](https://code.claude.com/docs/zh-CN/microsoft-foundry.md#azure-rbac-configuration)
-
-记下应用程序的客户端 ID、您的租户 ID 和您的订阅 ID。您将在下一步中将它们添加为密钥。
+> [tab] Microsoft Foundry
+>
+> 创建一个 Microsoft Entra 应用程序，其中包含您的存储库的联合凭证，遵循 [Microsoft 的 GitHub Actions 身份验证指南](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-openid-connect)：
+>
+> * 注册一个 Microsoft Entra 应用程序，并添加一个联合身份凭证，该凭证信任 GitHub 向您的存储库颁发的令牌。用户分配的托管身份可以代替应用程序。两者都有您在下面记下的客户端 ID
+> * 在您的 Foundry 资源上为应用程序分配 `Azure AI User` 角色。有关更窄的自定义角色，请参阅 [Azure RBAC 配置](https://code.claude.com/docs/zh-CN/microsoft-foundry.md#azure-rbac-configuration)
+>
+> 记下应用程序的客户端 ID、您的租户 ID 和您的订阅 ID。您将在下一步中将它们添加为密钥。
 
 **3. 添加存储库密钥**
 
@@ -116,176 +116,176 @@ Claude Code GitHub Action 通过 GitHub 身份推送提交和发布评论。[快
 >
 > 在公共存储库上，来自任何用户的包含触发短语的评论会启动此工作流。凭证步骤在 Claude Code GitHub Action 检查评论者的写入访问权限之前运行，因此该操作仅在工作流生成应用令牌并登录到您的云提供商后才拒绝未授权用户，这会留下审计日志条目并消耗 Actions 分钟。为了避免这些运行，请添加一个步骤，在凭证步骤之前验证评论者的写入访问权限。
 
-**Amazon Bedrock**
-
-将 `aws-region` 值替换为您自己的值。凭证步骤将其导出为 `AWS_REGION` 供作业的其余部分使用。
-
-```yaml theme={null}
-name: Claude PR Action
-
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
-  id-token: write
-
-on:
-  issue_comment:
-    types: [created]
-  pull_request_review_comment:
-    types: [created]
-  issues:
-    types: [opened]
-
-jobs:
-  claude-pr:
-    if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
-      - name: Configure AWS Credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-west-2
-
-      - uses: anthropics/claude-code-action@v1
-        with:
-          github_token: ${{ steps.app-token.outputs.token }}
-          use_bedrock: "true"
-          claude_args: '--model us.anthropic.claude-sonnet-4-6'
-```
-
-> [!TIP]
+> [tab] Amazon Bedrock
 >
-> Bedrock 模型 ID 包含跨区域推理配置文件前缀，例如 `us.`。使用您授予模型访问权限的区域组的前缀。
-
-**Google Cloud 的 Agent Platform**
-
-将 `CLOUD_ML_REGION` 值替换为您自己的值。您无需硬编码项目 ID，因为工作流从 `auth` 步骤的输出中读取它。
-
-```yaml theme={null}
-name: Claude PR Action
-
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
-  id-token: write
-
-on:
-  issue_comment:
-    types: [created]
-  pull_request_review_comment:
-    types: [created]
-  issues:
-    types: [opened]
-
-jobs:
-  claude-pr:
-    if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
-      - name: Authenticate to Google Cloud
-        id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-
-      - uses: anthropics/claude-code-action@v1
-        with:
-          github_token: ${{ steps.app-token.outputs.token }}
-          use_vertex: "true"
-          claude_args: '--model claude-sonnet-5'
-        env:
-          ANTHROPIC_VERTEX_PROJECT_ID: ${{ steps.auth.outputs.project_id }}
-          CLOUD_ML_REGION: us-east5
-```
-
-**Microsoft Foundry**
-
-将 `your-resource-name` 替换为您的 Foundry 资源名称。Claude Code 从它构建端点 URL。`azure/login` 步骤使用工作流的 OIDC 令牌登录，Claude Code 通过 Azure [默认凭证链](https://learn.microsoft.com/en-us/azure/developer/javascript/sdk/authentication/credential-chains#defaultazurecredential-overview) 获取凭证。
-
-```yaml theme={null}
-name: Claude PR Action
-
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
-  id-token: write
-
-on:
-  issue_comment:
-    types: [created]
-  pull_request_review_comment:
-    types: [created]
-  issues:
-    types: [opened]
-
-jobs:
-  claude-pr:
-    if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
-      - name: Authenticate to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - uses: anthropics/claude-code-action@v1
-        with:
-          github_token: ${{ steps.app-token.outputs.token }}
-          use_foundry: "true"
-          claude_args: '--model claude-sonnet-5'
-        env:
-          ANTHROPIC_FOUNDRY_RESOURCE: your-resource-name
-```
-
-> [!TIP]
+> 将 `aws-region` 值替换为您自己的值。凭证步骤将其导出为 `AWS_REGION` 供作业的其余部分使用。
 >
-> 使用与您的 Foundry 资源中的 Claude 部署相匹配的模型 ID。有关模型配置和版本固定，请参阅 [Microsoft Foundry 上的 Claude Code](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)。
+> ```yaml theme={null}
+> name: Claude PR Action
+>
+> permissions:
+>   contents: write
+>   pull-requests: write
+>   issues: write
+>   id-token: write
+>
+> on:
+>   issue_comment:
+>     types: [created]
+>   pull_request_review_comment:
+>     types: [created]
+>   issues:
+>     types: [opened]
+>
+> jobs:
+>   claude-pr:
+>     if: |
+>       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+>       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+>       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+>     runs-on: ubuntu-latest
+>     steps:
+>       - name: Checkout repository
+>         uses: actions/checkout@v6
+>
+>       - name: Generate GitHub App token
+>         id: app-token
+>         uses: actions/create-github-app-token@v2
+>         with:
+>           app-id: ${{ secrets.APP_ID }}
+>           private-key: ${{ secrets.APP_PRIVATE_KEY }}
+>
+>       - name: Configure AWS Credentials (OIDC)
+>         uses: aws-actions/configure-aws-credentials@v4
+>         with:
+>           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+>           aws-region: us-west-2
+>
+>       - uses: anthropics/claude-code-action@v1
+>         with:
+>           github_token: ${{ steps.app-token.outputs.token }}
+>           use_bedrock: "true"
+>           claude_args: '--model us.anthropic.claude-sonnet-4-6'
+> ```
+>
+> > [!TIP]
+> >
+> > Bedrock 模型 ID 包含跨区域推理配置文件前缀，例如 `us.`。使用您授予模型访问权限的区域组的前缀。
+
+> [tab] Google Cloud 的 Agent Platform
+>
+> 将 `CLOUD_ML_REGION` 值替换为您自己的值。您无需硬编码项目 ID，因为工作流从 `auth` 步骤的输出中读取它。
+>
+> ```yaml theme={null}
+> name: Claude PR Action
+>
+> permissions:
+>   contents: write
+>   pull-requests: write
+>   issues: write
+>   id-token: write
+>
+> on:
+>   issue_comment:
+>     types: [created]
+>   pull_request_review_comment:
+>     types: [created]
+>   issues:
+>     types: [opened]
+>
+> jobs:
+>   claude-pr:
+>     if: |
+>       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+>       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+>       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+>     runs-on: ubuntu-latest
+>     steps:
+>       - name: Checkout repository
+>         uses: actions/checkout@v6
+>
+>       - name: Generate GitHub App token
+>         id: app-token
+>         uses: actions/create-github-app-token@v2
+>         with:
+>           app-id: ${{ secrets.APP_ID }}
+>           private-key: ${{ secrets.APP_PRIVATE_KEY }}
+>
+>       - name: Authenticate to Google Cloud
+>         id: auth
+>         uses: google-github-actions/auth@v2
+>         with:
+>           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+>           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+>
+>       - uses: anthropics/claude-code-action@v1
+>         with:
+>           github_token: ${{ steps.app-token.outputs.token }}
+>           use_vertex: "true"
+>           claude_args: '--model claude-sonnet-5'
+>         env:
+>           ANTHROPIC_VERTEX_PROJECT_ID: ${{ steps.auth.outputs.project_id }}
+>           CLOUD_ML_REGION: us-east5
+> ```
+
+> [tab] Microsoft Foundry
+>
+> 将 `your-resource-name` 替换为您的 Foundry 资源名称。Claude Code 从它构建端点 URL。`azure/login` 步骤使用工作流的 OIDC 令牌登录，Claude Code 通过 Azure [默认凭证链](https://learn.microsoft.com/en-us/azure/developer/javascript/sdk/authentication/credential-chains#defaultazurecredential-overview) 获取凭证。
+>
+> ```yaml theme={null}
+> name: Claude PR Action
+>
+> permissions:
+>   contents: write
+>   pull-requests: write
+>   issues: write
+>   id-token: write
+>
+> on:
+>   issue_comment:
+>     types: [created]
+>   pull_request_review_comment:
+>     types: [created]
+>   issues:
+>     types: [opened]
+>
+> jobs:
+>   claude-pr:
+>     if: |
+>       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+>       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+>       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+>     runs-on: ubuntu-latest
+>     steps:
+>       - name: Checkout repository
+>         uses: actions/checkout@v6
+>
+>       - name: Generate GitHub App token
+>         id: app-token
+>         uses: actions/create-github-app-token@v2
+>         with:
+>           app-id: ${{ secrets.APP_ID }}
+>           private-key: ${{ secrets.APP_PRIVATE_KEY }}
+>
+>       - name: Authenticate to Azure
+>         uses: azure/login@v2
+>         with:
+>           client-id: ${{ secrets.AZURE_CLIENT_ID }}
+>           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+>           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+>
+>       - uses: anthropics/claude-code-action@v1
+>         with:
+>           github_token: ${{ steps.app-token.outputs.token }}
+>           use_foundry: "true"
+>           claude_args: '--model claude-sonnet-5'
+>         env:
+>           ANTHROPIC_FOUNDRY_RESOURCE: your-resource-name
+> ```
+>
+> > [!TIP]
+> >
+> > 使用与您的 Foundry 资源中的 Claude 部署相匹配的模型 ID。有关模型配置和版本固定，请参阅 [Microsoft Foundry 上的 Claude Code](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)。
 
 对于任何提供商，您可以通过将 `--max-turns` 添加到 `claude_args` 来限制运行长度和成本。请参阅 [管理成本](https://code.claude.com/docs/zh-CN/github-actions.md#manage-costs)。
 

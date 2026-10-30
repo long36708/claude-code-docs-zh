@@ -77,7 +77,7 @@ TypeScript 和 Python SDK 都捆绑了原生 Claude Code 二进制文件，因�
 * **Python：** 使用从 `claude_agent_sdk` 导入的类的 `isinstance()` 检查消息类型（例如，`isinstance(message, ResultMessage)`）。
 * **TypeScript：** 检查 `type` 字符串字段（例如，`message.type === "result"`）。`AssistantMessage` 和 `UserMessage` 在 `.message` 字段中包装原始 API 消息，因此内容块位于 `message.message.content`，而不是 `message.content`。
 
-> **示例：检查消息类型并处理结果**
+> [accordion] 示例：检查消息类型并处理结果
 >
 > ```python Python theme={null}
 > import asyncio
@@ -273,7 +273,7 @@ Claude Code 在模型响应到达后才将支出与 `max_budget_usd` / `maxBudge
 * **`PreCompact` hook：** 在压缩发生前运行自定义逻辑，例如存档完整成绩单。hook 接收一个 `trigger` 字段（`manual` 或 `auto`）。请参阅 [hooks](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)。
 * **手动压缩：** 发送 `/compact` 作为提示字符串以按需触发压缩。以这种方式发送的命令是普通的 SDK 输入。请参阅[通过名称分派命令](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md#dispatch-commands-by-name)。
 
-> **示例：CLAUDE.md 中的总结指令**
+> [accordion] 示例：CLAUDE.md 中的总结指令
 >
 > 向你的项目的 CLAUDE.md 添加一个部分，告诉压缩器保留什么。标题名称不特殊；使用任何清晰的标签。
 >

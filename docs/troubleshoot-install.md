@@ -75,19 +75,19 @@
 
 安装程序从 `downloads.claude.ai` 下载。验证您可以访问它：
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> ```bash theme={null}
+> curl -sI https://downloads.claude.ai/claude-code-releases/latest
+> ```
 
-```bash theme={null}
-curl -sI https://downloads.claude.ai/claude-code-releases/latest
-```
-
-**Windows PowerShell**
-
-```powershell theme={null}
-curl.exe -sI https://downloads.claude.ai/claude-code-releases/latest
-```
-
-PowerShell 将 `curl` 别名为 `Invoke-WebRequest`，它拒绝 `-sI` 标志，因此请显式调用 `curl.exe`。
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> curl.exe -sI https://downloads.claude.ai/claude-code-releases/latest
+> ```
+>
+> PowerShell 将 `curl` 别名为 `Invoke-WebRequest`，它拒绝 `-sI` 标志，因此请显式调用 `curl.exe`。
 
 如果第一行显示 `200` 状态，则表示您已到达服务器。在 macOS 和 Linux 上您会看到 `HTTP/2 200`，从 Windows 附带的 `curl.exe` 会看到 `HTTP/1.1 200 OK`。其他结果指向原因：
 
@@ -104,21 +104,21 @@ PowerShell 将 `curl` 别名为 `Invoke-WebRequest`，它拒绝 `-sI` 标志，�
 
 此示例设置两个代理变量，然后通过您的代理运行安装程序：
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> ```bash theme={null}
+> export HTTP_PROXY=http://proxy.example.com:8080
+> export HTTPS_PROXY=http://proxy.example.com:8080
+> curl -fsSL https://claude.ai/install.sh | bash
+> ```
 
-```bash theme={null}
-export HTTP_PROXY=http://proxy.example.com:8080
-export HTTPS_PROXY=http://proxy.example.com:8080
-curl -fsSL https://claude.ai/install.sh | bash
-```
-
-**Windows PowerShell**
-
-```powershell theme={null}
-$env:HTTP_PROXY = 'http://proxy.example.com:8080'
-$env:HTTPS_PROXY = 'http://proxy.example.com:8080'
-irm https://claude.ai/install.ps1 | iex
-```
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> $env:HTTP_PROXY = 'http://proxy.example.com:8080'
+> $env:HTTPS_PROXY = 'http://proxy.example.com:8080'
+> irm https://claude.ai/install.ps1 | iex
+> ```
 
 ### 验证您的 PATH
 
@@ -132,180 +132,180 @@ irm https://claude.ai/install.ps1 | iex
 
 首先检查程序是否存在，然后检查其所在文件夹是否在您的 PATH 中。PATH 修复是永久性的，因此只需执行一次。选择您平台对应的选项卡并在相应环境中运行其中的命令：在 macOS 和 Linux 上使用终端，在 Windows 上使用 PowerShell 或命令提示符。
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> 检查安装程序是否已将程序放置到位：
+>
+> ```bash theme={null}
+> ls -la ~/.local/bin/claude
+> ```
+>
+> * **`No such file or directory`**：没有本机安装。如果您尚未通过其他方式（例如 npm、Homebrew 或 Linux 包管理器）安装 Claude Code，请[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
+> * **显示该文件的列表信息**：程序已存在。接下来检查您的 PATH。
+>
+> 列出您的 PATH 条目并过滤出安装文件夹：
+>
+> ```bash theme={null}
+> echo $PATH | tr ':' '\n' | grep -Fx "$HOME/.local/bin"
+> ```
+>
+> 如果这打印 `/Users/you/.local/bin` 或 `/home/you/.local/bin`，该目录在您的 PATH 中，您可以跳到[检查冲突的安装](#check-for-conflicting-installations)。如果没有输出，请使用对应您 shell 的两条命令将其添加到您的 shell 配置中。`echo` 命令会为每个新终端保存该设置，`source` 则将其应用到当前窗口。`echo` 命令成功时不会打印任何内容。
+>
+> 对于 Zsh（macOS 上的默认值）：
+>
+> ```bash theme={null}
+> echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+> source ~/.zshrc
+> ```
+>
+> 对于 Linux 上的 Bash（大多数发行版上的默认值）：
+>
+> ```bash theme={null}
+> echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+> source ~/.bashrc
+> ```
+>
+> 对于 macOS 上的 Bash，请改为将该行添加到 `~/.bash_profile`。macOS 上的终端将 Bash 作为登录 shell 启动，它忽略 `~/.bashrc` 并仅读取存在的 `~/.bash_profile`、`~/.bash_login` 或 `~/.profile` 中的第一个。如果您已经有 `~/.bash_login` 或 `~/.profile` 且没有 `~/.bash_profile`，请将该行放在该文件中，而不是创建 `~/.bash_profile`：
+>
+> ```bash theme={null}
+> echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bash_profile
+> source ~/.bash_profile
+> ```
+>
+> 或者，关闭并重新打开您的终端。
+>
+> 如果 `echo` 命令打印 `permission denied`，请参阅[添加到 PATH 时出现 `permission denied`](#permission-denied-when-adding-to-your-path)。
+>
+> 对于其他 shell（如 fish 或 Nushell），使用您的 shell 自己的配置语法将 `~/.local/bin` 添加到您的 PATH，然后重启您的终端。
+>
+> 验证修复是否有效：
+>
+> ```bash theme={null}
+> claude --version
+> ```
+>
+> 如果仍然找不到 `claude`，请检查以下原因：
+>
+> * **终端在更改之前就已打开**：已经打开的窗口会保留其旧的 PATH，而编辑器内的终端从编辑器获取其 PATH。请打开一个新窗口，或退出并重新打开编辑器。
+> * **该行未被保存**：运行 `grep -n '.local/bin' ~/.zshrc`，并使用您的 shell 对应的文件名。如果该行存在，它会打印该行及其行号。如果没有打印任何内容，请再次运行这两条 PATH 命令。
+> * **该行被写入了另一个 shell 的文件**：运行 `echo $0` 查看您的 shell，然后运行对应该 shell 的两条 PATH 命令。
 
-检查安装程序是否已将程序放置到位：
+> [tab] Windows PowerShell
+>
+> 检查安装程序是否已将程序放置到位：
+>
+> ```powershell theme={null}
+> Test-Path "$env:USERPROFILE\.local\bin\claude.exe"
+> ```
+>
+> * **`False`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
+> * **`True`**：程序已存在。接下来检查您的 PATH。
+>
+> 列出您的 PATH 条目并过滤出安装文件夹：
+>
+> ```powershell theme={null}
+> $env:PATH -split ';' | Select-String '\.local\\bin'
+> ```
+>
+> 如果这打印 `C:\Users\you\.local\bin`，该目录在您的 PATH 中，您可以跳到[检查冲突的安装](#check-for-conflicting-installations)。如果没有输出，请将安装目录添加到您的用户 PATH：
+>
+> ```powershell theme={null}
+> $currentPath = [Environment]::GetEnvironmentVariable('PATH', 'User')
+> [Environment]::SetEnvironmentVariable('PATH', "$currentPath;$env:USERPROFILE\.local\bin", 'User')
+> ```
+>
+> 重启您的终端以使更改生效。
+>
+> 验证修复是否有效：
+>
+> ```powershell theme={null}
+> claude --version
+> ```
+>
+> 如果在新终端中仍然找不到 `claude`，请检查以下原因：
+>
+> * **终端运行在编辑器内**：它从编辑器获取其 PATH，因此请退出并重新打开编辑器。
+> * **更改未被保存**：运行 `[Environment]::GetEnvironmentVariable('PATH', 'User')`，并在其打印的 PATH 中查找 `.local\bin`。如果缺失，请再次运行这两条命令。
 
-```bash theme={null}
-ls -la ~/.local/bin/claude
-```
-
-* **`No such file or directory`**：没有本机安装。如果您尚未通过其他方式（例如 npm、Homebrew 或 Linux 包管理器）安装 Claude Code，请[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
-* **显示该文件的列表信息**：程序已存在。接下来检查您的 PATH。
-
-列出您的 PATH 条目并过滤出安装文件夹：
-
-```bash theme={null}
-echo $PATH | tr ':' '\n' | grep -Fx "$HOME/.local/bin"
-```
-
-如果这打印 `/Users/you/.local/bin` 或 `/home/you/.local/bin`，该目录在您的 PATH 中，您可以跳到[检查冲突的安装](#check-for-conflicting-installations)。如果没有输出，请使用对应您 shell 的两条命令将其添加到您的 shell 配置中。`echo` 命令会为每个新终端保存该设置，`source` 则将其应用到当前窗口。`echo` 命令成功时不会打印任何内容。
-
-对于 Zsh（macOS 上的默认值）：
-
-```bash theme={null}
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-对于 Linux 上的 Bash（大多数发行版上的默认值）：
-
-```bash theme={null}
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-对于 macOS 上的 Bash，请改为将该行添加到 `~/.bash_profile`。macOS 上的终端将 Bash 作为登录 shell 启动，它忽略 `~/.bashrc` 并仅读取存在的 `~/.bash_profile`、`~/.bash_login` 或 `~/.profile` 中的第一个。如果您已经有 `~/.bash_login` 或 `~/.profile` 且没有 `~/.bash_profile`，请将该行放在该文件中，而不是创建 `~/.bash_profile`：
-
-```bash theme={null}
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bash_profile
-source ~/.bash_profile
-```
-
-或者，关闭并重新打开您的终端。
-
-如果 `echo` 命令打印 `permission denied`，请参阅[添加到 PATH 时出现 `permission denied`](#permission-denied-when-adding-to-your-path)。
-
-对于其他 shell（如 fish 或 Nushell），使用您的 shell 自己的配置语法将 `~/.local/bin` 添加到您的 PATH，然后重启您的终端。
-
-验证修复是否有效：
-
-```bash theme={null}
-claude --version
-```
-
-如果仍然找不到 `claude`，请检查以下原因：
-
-* **终端在更改之前就已打开**：已经打开的窗口会保留其旧的 PATH，而编辑器内的终端从编辑器获取其 PATH。请打开一个新窗口，或退出并重新打开编辑器。
-* **该行未被保存**：运行 `grep -n '.local/bin' ~/.zshrc`，并使用您的 shell 对应的文件名。如果该行存在，它会打印该行及其行号。如果没有打印任何内容，请再次运行这两条 PATH 命令。
-* **该行被写入了另一个 shell 的文件**：运行 `echo $0` 查看您的 shell，然后运行对应该 shell 的两条 PATH 命令。
-
-**Windows PowerShell**
-
-检查安装程序是否已将程序放置到位：
-
-```powershell theme={null}
-Test-Path "$env:USERPROFILE\.local\bin\claude.exe"
-```
-
-* **`False`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
-* **`True`**：程序已存在。接下来检查您的 PATH。
-
-列出您的 PATH 条目并过滤出安装文件夹：
-
-```powershell theme={null}
-$env:PATH -split ';' | Select-String '\.local\\bin'
-```
-
-如果这打印 `C:\Users\you\.local\bin`，该目录在您的 PATH 中，您可以跳到[检查冲突的安装](#check-for-conflicting-installations)。如果没有输出，请将安装目录添加到您的用户 PATH：
-
-```powershell theme={null}
-$currentPath = [Environment]::GetEnvironmentVariable('PATH', 'User')
-[Environment]::SetEnvironmentVariable('PATH', "$currentPath;$env:USERPROFILE\.local\bin", 'User')
-```
-
-重启您的终端以使更改生效。
-
-验证修复是否有效：
-
-```powershell theme={null}
-claude --version
-```
-
-如果在新终端中仍然找不到 `claude`，请检查以下原因：
-
-* **终端运行在编辑器内**：它从编辑器获取其 PATH，因此请退出并重新打开编辑器。
-* **更改未被保存**：运行 `[Environment]::GetEnvironmentVariable('PATH', 'User')`，并在其打印的 PATH 中查找 `.local\bin`。如果缺失，请再次运行这两条命令。
-
-**Windows CMD**
-
-检查安装程序是否已将程序放置到位：
-
-```batch theme={null}
-dir "%USERPROFILE%\.local\bin\claude.exe"
-```
-
-* **`File Not Found` 或 `The system cannot find the path specified.`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
-* **显示 `claude.exe` 的列表信息**：程序已存在。接下来检查您的 PATH。
-
-列出您的 PATH 条目并过滤出安装文件夹：
-
-```batch theme={null}
-echo %PATH% | findstr /i "local\bin"
-```
-
-如果没有输出，打开系统设置，转到环境变量，并将 `%USERPROFILE%\.local\bin` 添加到您的用户 PATH 变量。重启您的终端。
-
-验证修复是否有效：
-
-```batch theme={null}
-claude --version
-```
-
-如果在新终端中仍然找不到 `claude`，编辑器内的终端会从编辑器获取其 PATH，因此也请退出并重新打开编辑器。
+> [tab] Windows CMD
+>
+> 检查安装程序是否已将程序放置到位：
+>
+> ```batch theme={null}
+> dir "%USERPROFILE%\.local\bin\claude.exe"
+> ```
+>
+> * **`File Not Found` 或 `The system cannot find the path specified.`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)。如果您通过其他方式安装了它，请参阅[检查冲突的安装](#check-for-conflicting-installations)。
+> * **显示 `claude.exe` 的列表信息**：程序已存在。接下来检查您的 PATH。
+>
+> 列出您的 PATH 条目并过滤出安装文件夹：
+>
+> ```batch theme={null}
+> echo %PATH% | findstr /i "local\bin"
+> ```
+>
+> 如果没有输出，打开系统设置，转到环境变量，并将 `%USERPROFILE%\.local\bin` 添加到您的用户 PATH 变量。重启您的终端。
+>
+> 验证修复是否有效：
+>
+> ```batch theme={null}
+> claude --version
+> ```
+>
+> 如果在新终端中仍然找不到 `claude`，编辑器内的终端会从编辑器获取其 PATH，因此也请退出并重新打开编辑器。
 
 ### 检查冲突的安装
 
 多个 Claude Code 安装可能导致版本不匹配或意外行为。检查已安装的内容：
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> 列出在您的 PATH 中找到的所有 `claude` 二进制文件：
+>
+> ```bash theme={null}
+> which -a claude
+> ```
+>
+> 如果这打印 `claude not found`、一行 `no claude in` 或不打印任何内容，则您的 PATH 上没有 `claude`。接下来的检查会显示是否安装了 `claude`。
+>
+> 检查 `claude` 二进制文件可以来自的三个位置。`~/.local/bin/claude` 是本机安装程序，`~/.claude/local/` 是由较旧版本的 Claude Code 创建的旧版本本地 npm 安装，npm 全局列表显示 `-g` 安装：
+>
+> ```bash theme={null}
+> ls -la ~/.local/bin/claude
+> ```
+>
+> 一个本机安装显示一个指向 `~/.local/share/claude/versions/` 的符号链接。您在此路径创建的脚本或符号链接是自定义启动程序，[自动更新会将其保留在原位](https://code.claude.com/docs/zh-CN/setup.md#auto-updates)。
+>
+> 如果任一 `ls` 命令打印 `No such file or directory`，这不是错误。这意味着该位置没有安装任何内容，因此继续进行下一个检查。
+>
+> ```bash theme={null}
+> ls -la ~/.claude/local/
+> ```
+>
+> ```bash theme={null}
+> npm -g ls @anthropic-ai/claude-code 2>/dev/null
+> ```
+>
+> 如果 `ls -la ~/.local/bin/claude` 打印了 `No such file or directory`，则没有本机安装。如果您尚未通过其他方式（例如 npm、Homebrew 或 Linux 包管理器）安装 Claude Code，请[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)。如果 `~/.local/bin/claude` 存在但 `which -a claude` 未列出它，则该文件夹不在您的 PATH 中：请参阅[验证您的 PATH](#verify-your-path)。
 
-列出在您的 PATH 中找到的所有 `claude` 二进制文件：
-
-```bash theme={null}
-which -a claude
-```
-
-如果这打印 `claude not found`、一行 `no claude in` 或不打印任何内容，则您的 PATH 上没有 `claude`。接下来的检查会显示是否安装了 `claude`。
-
-检查 `claude` 二进制文件可以来自的三个位置。`~/.local/bin/claude` 是本机安装程序，`~/.claude/local/` 是由较旧版本的 Claude Code 创建的旧版本本地 npm 安装，npm 全局列表显示 `-g` 安装：
-
-```bash theme={null}
-ls -la ~/.local/bin/claude
-```
-
-一个本机安装显示一个指向 `~/.local/share/claude/versions/` 的符号链接。您在此路径创建的脚本或符号链接是自定义启动程序，[自动更新会将其保留在原位](https://code.claude.com/docs/zh-CN/setup.md#auto-updates)。
-
-如果任一 `ls` 命令打印 `No such file or directory`，这不是错误。这意味着该位置没有安装任何内容，因此继续进行下一个检查。
-
-```bash theme={null}
-ls -la ~/.claude/local/
-```
-
-```bash theme={null}
-npm -g ls @anthropic-ai/claude-code 2>/dev/null
-```
-
-如果 `ls -la ~/.local/bin/claude` 打印了 `No such file or directory`，则没有本机安装。如果您尚未通过其他方式（例如 npm、Homebrew 或 Linux 包管理器）安装 Claude Code，请[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)。如果 `~/.local/bin/claude` 存在但 `which -a claude` 未列出它，则该文件夹不在您的 PATH 中：请参阅[验证您的 PATH](#verify-your-path)。
-
-**Windows PowerShell**
-
-列出在您的 PATH 中找到的所有 `claude` 二进制文件：
-
-```powershell theme={null}
-where.exe claude
-```
-
-如果这打印 `INFO: Could not find files for the given pattern(s).`，则您的 PATH 上没有 `claude`。
-
-检查本机安装程序是否放置了二进制文件：
-
-```powershell theme={null}
-Test-Path "$env:USERPROFILE\.local\bin\claude.exe"
-```
-
-* **`True`**：本机安装存在。如果 `where.exe` 未找到任何内容，则其所在文件夹不在您的 PATH 中：请参阅[验证您的 PATH](#verify-your-path)。
-* **`False`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)。
+> [tab] Windows PowerShell
+>
+> 列出在您的 PATH 中找到的所有 `claude` 二进制文件：
+>
+> ```powershell theme={null}
+> where.exe claude
+> ```
+>
+> 如果这打印 `INFO: Could not find files for the given pattern(s).`，则您的 PATH 上没有 `claude`。
+>
+> 检查本机安装程序是否放置了二进制文件：
+>
+> ```powershell theme={null}
+> Test-Path "$env:USERPROFILE\.local\bin\claude.exe"
+> ```
+>
+> * **`True`**：本机安装存在。如果 `where.exe` 未找到任何内容，则其所在文件夹不在您的 PATH 中：请参阅[验证您的 PATH](#verify-your-path)。
+> * **`False`**：没有本机安装。如果您尚未通过其他方式（例如 npm 或 WinGet）安装 Claude Code，请[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)。
 
 如果您找到多个安装，只保留一个。macOS/Linux 上 `~/.local/bin/claude` 或 Windows 上 `%USERPROFILE%\.local\bin\claude.exe` 的本机安装是推荐的。删除额外的：
 
@@ -317,17 +317,17 @@ npm uninstall -g @anthropic-ai/claude-code
 
 删除旧版本本地 npm 安装：
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> ```bash theme={null}
+> rm -rf ~/.claude/local
+> ```
 
-```bash theme={null}
-rm -rf ~/.claude/local
-```
-
-**Windows PowerShell**
-
-```powershell theme={null}
-Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\local"
-```
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\local"
+> ```
 
 在 macOS 上删除 Homebrew 安装。如果您安装了 `claude-code@latest` cask，请替换该名称：
 
@@ -376,17 +376,17 @@ sudo chown -R $(whoami) ~/.local
 
 确认二进制文件存在且可执行：
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> ```bash theme={null}
+> ls -la "$(command -v claude)"
+> ```
 
-```bash theme={null}
-ls -la "$(command -v claude)"
-```
-
-**Windows PowerShell**
-
-```powershell theme={null}
-Get-Command claude | Select-Object Source
-```
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> Get-Command claude | Select-Object Source
+> ```
 
 在 Linux 上，检查缺失的共享库。如果 `ldd` 显示缺失的库，您可能需要安装系统包。在 Alpine Linux 和其他基于 musl 的发行版上，请参阅 [Alpine Linux setup](https://code.claude.com/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)。
 
@@ -568,33 +568,33 @@ brew list --cask | grep claude-code
 
 3. **检查代理或防火墙干扰**：执行 TLS 检查的公司代理可能会导致这些错误，包括 `unable to get local issuer certificate` 和 `SELF_SIGNED_CERT_IN_CHAIN`。对于安装步骤，使安装下载信任您的公司代理的 CA：
 
-   **macOS/Linux**
+   > [tab] macOS/Linux
+   >
+   > ```bash theme={null}
+   > curl --cacert /path/to/corporate-ca.pem -fsSL https://claude.ai/install.sh | bash
+   > ```
 
-   ```bash theme={null}
-   curl --cacert /path/to/corporate-ca.pem -fsSL https://claude.ai/install.sh | bash
-   ```
-
-   **Windows PowerShell**
-
-   PowerShell 安装程序通过 .NET 下载，该 .NET 针对 Windows 证书存储验证 TLS。如果代理的 CA 证书尚未在 Windows 存储中，请要求您的 IT 团队添加它，然后运行安装程序：
-
-   ```powershell theme={null}
-   irm https://claude.ai/install.ps1 | iex
-   ```
+   > [tab] Windows PowerShell
+   >
+   > PowerShell 安装程序通过 .NET 下载，该 .NET 针对 Windows 证书存储验证 TLS。如果代理的 CA 证书尚未在 Windows 存储中，请要求您的 IT 团队添加它，然后运行安装程序：
+   >
+   > ```powershell theme={null}
+   > irm https://claude.ai/install.ps1 | iex
+   > ```
 
    对于安装后的 Claude Code 本身，设置 `NODE_EXTRA_CA_CERTS` 以便 API 请求信任相同的包：
 
-   **macOS/Linux**
+   > [tab] macOS/Linux
+   >
+   > ```bash theme={null}
+   > export NODE_EXTRA_CA_CERTS=/path/to/corporate-ca.pem
+   > ```
 
-   ```bash theme={null}
-   export NODE_EXTRA_CA_CERTS=/path/to/corporate-ca.pem
-   ```
-
-   **Windows PowerShell**
-
-   ```powershell theme={null}
-   $env:NODE_EXTRA_CA_CERTS = 'C:\path\to\corporate-ca.pem'
-   ```
+   > [tab] Windows PowerShell
+   >
+   > ```powershell theme={null}
+   > $env:NODE_EXTRA_CA_CERTS = 'C:\path\to\corporate-ca.pem'
+   > ```
 
    如果您没有证书文件，请向您的 IT 团队索取。您也可以尝试直接连接来确认代理是原因。
 
@@ -827,17 +827,17 @@ Claude Code v2.1.246 及更高版本在 `claude install` 或 `claude update` 期
 
 在所有其他配置中，重新运行安装程序会绕过此错误，因为即使您要求它安装较旧版本，脚本也会运行最新版本的 `install` 命令。为您的平台重新运行命令：
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> ```bash theme={null}
+> curl -fsSL https://claude.ai/install.sh | bash
+> ```
 
-```bash theme={null}
-curl -fsSL https://claude.ai/install.sh | bash
-```
-
-**Windows PowerShell**
-
-```powershell theme={null}
-irm https://claude.ai/install.ps1 | iex
-```
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> irm https://claude.ai/install.ps1 | iex
+> ```
 
 `claude --version` 打印重新运行安装的版本。
 
@@ -1108,23 +1108,23 @@ npm error ENOTEMPTY: directory not empty, rename '...'
 
 `npm error path` 行命名 npm 无法移动的目录。删除该目录和其旁边的任何剩余 `.claude-code-*` 目录，这些目录可能由较早的中断运行留下。以下命令使用 `npm root -g` 找到您的全局包目录；如果 `npm error path` 行命名的目录不在 `npm root -g` 打印的目录下，例如因为您使用 nvm 切换了 Node 版本，请改为删除错误命名的目录：
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> ```bash theme={null}
+> rm -rf "$(npm root -g)/@anthropic-ai/claude-code"
+> ```
+>
+> 然后删除任何剩余的临时目录。如果 Zsh 打印 `no matches found`，则没有要删除的目录：
+>
+> ```bash theme={null}
+> rm -rf "$(npm root -g)/@anthropic-ai/.claude-code-"*
+> ```
 
-```bash theme={null}
-rm -rf "$(npm root -g)/@anthropic-ai/claude-code"
-```
-
-然后删除任何剩余的临时目录。如果 Zsh 打印 `no matches found`，则没有要删除的目录：
-
-```bash theme={null}
-rm -rf "$(npm root -g)/@anthropic-ai/.claude-code-"*
-```
-
-**Windows PowerShell**
-
-```powershell theme={null}
-Remove-Item -Recurse -Force "$(npm root -g)/@anthropic-ai/claude-code", "$(npm root -g)/@anthropic-ai/.claude-code-*"
-```
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> Remove-Item -Recurse -Force "$(npm root -g)/@anthropic-ai/claude-code", "$(npm root -g)/@anthropic-ai/.claude-code-*"
+> ```
 
 然后重新安装。在 npm 12 上，请按照[修复 npm 12 安装](#fix-an-npm-12-install)操作。否则，请运行：
 
@@ -1183,19 +1183,19 @@ npm install -g @anthropic-ai/claude-code
 
 要改用您的订阅，请取消设置环境变量并从您的 shell 配置文件中删除它：
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> ```bash theme={null}
+> unset ANTHROPIC_API_KEY
+> claude
+> ```
 
-```bash theme={null}
-unset ANTHROPIC_API_KEY
-claude
-```
-
-**Windows PowerShell**
-
-```powershell theme={null}
-Remove-Item Env:ANTHROPIC_API_KEY
-claude
-```
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> Remove-Item Env:ANTHROPIC_API_KEY
+> claude
+> ```
 
 检查 `~/.zshrc`、`~/.bashrc` 或 `~/.profile` 中的 `export ANTHROPIC_API_KEY=...` 行并删除它们以使更改永久生效。在 Windows 上，检查您的 PowerShell 配置文件（位于 `$PROFILE`）和您的用户环境变量中的 `ANTHROPIC_API_KEY`。在 Claude Code 内运行 `/status` 以确认哪种身份验证方法处于活跃状态。
 

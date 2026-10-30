@@ -10,15 +10,15 @@
 
 Claude Code 位于应用侧边栏顶部的 **Code** 选项卡中。本页面将指导您安装应用并在其中开始您的第一个会话。Claude Code 需要 [Pro、Max、Team 或 Enterprise 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_pricing)。
 
-> **[下载 macOS 版本](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)**
+> [card] [下载 macOS 版本](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)
 >
 > 适用于 Intel 和 Apple Silicon 的通用版本
 
-> **[下载 Windows 版本](https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)**
+> [card] [下载 Windows 版本](https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)
 >
 > 适用于 x64 处理器
 
-> **[获取 Claude for Linux（测试版）](https://code.claude.com/docs/zh-CN/desktop-linux.md)**
+> [card] [获取 Claude for Linux（测试版）](https://code.claude.com/docs/zh-CN/desktop-linux.md)
 >
 > Ubuntu 和 Debian 的 apt 或 .deb
 

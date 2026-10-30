@@ -68,115 +68,115 @@ Claude Code 在会话期间的特定点运行 hooks。当事件触发且匹配�
 
 要了解事件、匹配器和处理程序如何组合在一起，请考虑这个 `PreToolUse` hook，它阻止破坏性 shell 命令。
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> `matcher` 缩小到 Bash 工具调用，`if` 条件进一步缩小到匹配 `rm *` 的 Bash 子命令，因此 `block-rm.sh` 仅在两个过滤器都匹配时生成：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "PreToolUse": [
+>       {
+>         "matcher": "Bash",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "if": "Bash(rm *)",
+>             "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.sh",
+>             "args": []
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
+>
+> 该脚本从 stdin 读取 JSON 输入，提取命令，如果包含 `rm -rf`，则返回 `permissionDecision` 为 `"deny"`。将其保存到项目中的 `.claude/hooks/block-rm.sh`，并使用 `chmod +x .claude/hooks/block-rm.sh` 使其可执行，以便 Claude Code 可以运行它：
+>
+> ```bash theme={null}
+> #!/bin/bash
+> # .claude/hooks/block-rm.sh
+> COMMAND=$(jq -r '.tool_input.command')
+>
+> if echo "$COMMAND" | grep -q 'rm -rf'; then
+>   jq -n '{
+>     hookSpecificOutput: {
+>       hookEventName: "PreToolUse",
+>       permissionDecision: "deny",
+>       permissionDecisionReason: "Destructive command blocked by hook"
+>     }
+>   }'
+> else
+>   exit 0  # no decision; normal permission flow applies
+> fi
+> ```
+>
+> 此脚本与本页面上解析 JSON 输入的其他 Bash 示例一样，使用 `jq`，因此在尝试它们之前，请安装 `jq` 并确保它在您的 `PATH` 上。
 
-`matcher` 缩小到 Bash 工具调用，`if` 条件进一步缩小到匹配 `rm *` 的 Bash 子命令，因此 `block-rm.sh` 仅在两个过滤器都匹配时生成：
-
-```json theme={null}
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "if": "Bash(rm *)",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.sh",
-            "args": []
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-该脚本从 stdin 读取 JSON 输入，提取命令，如果包含 `rm -rf`，则返回 `permissionDecision` 为 `"deny"`。将其保存到项目中的 `.claude/hooks/block-rm.sh`，并使用 `chmod +x .claude/hooks/block-rm.sh` 使其可执行，以便 Claude Code 可以运行它：
-
-```bash theme={null}
-#!/bin/bash
-# .claude/hooks/block-rm.sh
-COMMAND=$(jq -r '.tool_input.command')
-
-if echo "$COMMAND" | grep -q 'rm -rf'; then
-  jq -n '{
-    hookSpecificOutput: {
-      hookEventName: "PreToolUse",
-      permissionDecision: "deny",
-      permissionDecisionReason: "Destructive command blocked by hook"
-    }
-  }'
-else
-  exit 0  # no decision; normal permission flow applies
-fi
-```
-
-此脚本与本页面上解析 JSON 输入的其他 Bash 示例一样，使用 `jq`，因此在尝试它们之前，请安装 `jq` 并确保它在您的 `PATH` 上。
-
-**Windows (PowerShell)**
-
-匹配器 `Bash|PowerShell` 涵盖 [PowerShell 工具](#powershell)以及 Bash。单个 `if` 规则仅匹配一个工具的调用，因此每个工具都有自己的处理程序：第一个缩小到匹配 `rm *` 的 Bash 子命令，第二个缩小到匹配 `Remove-Item *` 的 PowerShell 命令。两者都通过 `powershell.exe` 运行相同的脚本：
-
-```json theme={null}
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash|PowerShell",
-        "hooks": [
-          {
-            "type": "command",
-            "if": "Bash(rm *)",
-            "command": "powershell.exe",
-            "args": [
-              "-NoProfile",
-              "-ExecutionPolicy",
-              "Bypass",
-              "-File",
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.ps1"
-            ]
-          },
-          {
-            "type": "command",
-            "if": "PowerShell(Remove-Item *)",
-            "command": "powershell.exe",
-            "args": [
-              "-NoProfile",
-              "-ExecutionPolicy",
-              "Bypass",
-              "-File",
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.ps1"
-            ]
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-`-NoProfile` 标志跳过加载您的 PowerShell 配置文件，以便 hook 快速启动，`-ExecutionPolicy Bypass` 让 PowerShell 运行本地脚本文件。
-
-该脚本从 stdin 读取 JSON 输入，提取命令，如果包含 `rm -rf` 或 `Remove-Item` 后跟 `-Recurse`，则返回 `permissionDecision` 为 `"deny"`。将其保存到项目中的 `.claude/hooks/block-rm.ps1`：
-
-```powershell theme={null}
-# .claude/hooks/block-rm.ps1
-$callInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
-$command = $callInput.tool_input.command
-
-if ($command -match 'rm -rf|Remove-Item.*-Recurse') {
-  @{
-    hookSpecificOutput = @{
-      hookEventName = "PreToolUse"
-      permissionDecision = "deny"
-      permissionDecisionReason = "Destructive command blocked by hook"
-    }
-  } | ConvertTo-Json
-} else {
-  exit 0  # no decision; normal permission flow applies
-}
-```
+> [tab] Windows (PowerShell)
+>
+> 匹配器 `Bash|PowerShell` 涵盖 [PowerShell 工具](#powershell)以及 Bash。单个 `if` 规则仅匹配一个工具的调用，因此每个工具都有自己的处理程序：第一个缩小到匹配 `rm *` 的 Bash 子命令，第二个缩小到匹配 `Remove-Item *` 的 PowerShell 命令。两者都通过 `powershell.exe` 运行相同的脚本：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "PreToolUse": [
+>       {
+>         "matcher": "Bash|PowerShell",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "if": "Bash(rm *)",
+>             "command": "powershell.exe",
+>             "args": [
+>               "-NoProfile",
+>               "-ExecutionPolicy",
+>               "Bypass",
+>               "-File",
+>               "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.ps1"
+>             ]
+>           },
+>           {
+>             "type": "command",
+>             "if": "PowerShell(Remove-Item *)",
+>             "command": "powershell.exe",
+>             "args": [
+>               "-NoProfile",
+>               "-ExecutionPolicy",
+>               "Bypass",
+>               "-File",
+>               "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.ps1"
+>             ]
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
+>
+> `-NoProfile` 标志跳过加载您的 PowerShell 配置文件，以便 hook 快速启动，`-ExecutionPolicy Bypass` 让 PowerShell 运行本地脚本文件。
+>
+> 该脚本从 stdin 读取 JSON 输入，提取命令，如果包含 `rm -rf` 或 `Remove-Item` 后跟 `-Recurse`，则返回 `permissionDecision` 为 `"deny"`。将其保存到项目中的 `.claude/hooks/block-rm.ps1`：
+>
+> ```powershell theme={null}
+> # .claude/hooks/block-rm.ps1
+> $callInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
+> $command = $callInput.tool_input.command
+>
+> if ($command -match 'rm -rf|Remove-Item.*-Recurse') {
+>   @{
+>     hookSpecificOutput = @{
+>       hookEventName = "PreToolUse"
+>       permissionDecision = "deny"
+>       permissionDecisionReason = "Destructive command blocked by hook"
+>     }
+>   } | ConvertTo-Json
+> } else {
+>   exit 0  # no decision; normal permission flow applies
+> }
+> ```
 
 现在假设 Claude Code 决定针对 macOS/Linux 配置运行 `Bash "rm -rf /tmp/build"`。以下是发生的情况：
 
@@ -601,57 +601,57 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 的�
 
 对于任何引用路径占位符的 hook，优先使用 [exec 形式](#exec-form-and-shell-form)。在 shell 形式中，用双引号包装每个占位符。
 
-**项目脚本**
+> [tab] 项目脚本
+>
+> 此示例使用 `${CLAUDE_PROJECT_DIR}` 在任何 `Write` 或 `Edit` 工具调用后从项目的 `.claude/hooks/` 目录运行样式检查器：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "PostToolUse": [
+>       {
+>         "matcher": "Write|Edit",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/check-style.sh",
+>             "args": []
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
 
-此示例使用 `${CLAUDE_PROJECT_DIR}` 在任何 `Write` 或 `Edit` 工具调用后从项目的 `.claude/hooks/` 目录运行样式检查器：
-
-```json theme={null}
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/check-style.sh",
-            "args": []
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**插件脚本**
-
-在 `hooks/hooks.json` 中定义插件 hooks，带有可选的顶级 `description` 字段。启用插件时，其 hooks 与您的用户和项目 hooks 合并。
-
-此示例运行与插件捆绑的格式化脚本：
-
-```json theme={null}
-{
-  "description": "Automatic code formatting",
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format.sh",
-            "args": [],
-            "timeout": 30
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-有关创建插件 hooks 的详细信息，请参阅 [插件组件参考](https://code.claude.com/docs/zh-CN/plugins/components.md#hooks)。
+> [tab] 插件脚本
+>
+> 在 `hooks/hooks.json` 中定义插件 hooks，带有可选的顶级 `description` 字段。启用插件时，其 hooks 与您的用户和项目 hooks 合并。
+>
+> 此示例运行与插件捆绑的格式化脚本：
+>
+> ```json theme={null}
+> {
+>   "description": "Automatic code formatting",
+>   "hooks": {
+>     "PostToolUse": [
+>       {
+>         "matcher": "Write|Edit",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format.sh",
+>             "args": [],
+>             "timeout": 30
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
+>
+> 有关创建插件 hooks 的详细信息，请参阅 [插件组件参考](https://code.claude.com/docs/zh-CN/plugins/components.md#hooks)。
 
 ### Skills 和代理中的 Hooks
 
@@ -1180,48 +1180,48 @@ Claude Code 在会话记录中保存注入的文本。对于 `PostToolUse` 或 `
 
 以下是每种模式的实际示例：
 
-**顶级 decision**
+> [tab] 顶级 decision
+>
+> `decision` 的唯一值是 `"block"`。要允许操作继续，请从您的 JSON 中省略 `decision`，或退出 0 且不输出任何 JSON：
+>
+> ```json theme={null}
+> {
+>   "decision": "block",
+>   "reason": "Test suite must pass before proceeding"
+> }
+> ```
 
-`decision` 的唯一值是 `"block"`。要允许操作继续，请从您的 JSON 中省略 `decision`，或退出 0 且不输出任何 JSON：
+> [tab] PreToolUse
+>
+> 使用 `hookSpecificOutput` 进行更丰富的控制：允许、拒绝或升级给用户。您也可以在工具运行前修改工具输入，或为 Claude 注入额外上下文。请参阅 [PreToolUse 决策控制](#pretooluse-decision-control)了解完整的选项集。
+>
+> ```json theme={null}
+> {
+>   "hookSpecificOutput": {
+>     "hookEventName": "PreToolUse",
+>     "permissionDecision": "deny",
+>     "permissionDecisionReason": "Database writes are not allowed"
+>   }
+> }
+> ```
 
-```json theme={null}
-{
-  "decision": "block",
-  "reason": "Test suite must pass before proceeding"
-}
-```
-
-**PreToolUse**
-
-使用 `hookSpecificOutput` 进行更丰富的控制：允许、拒绝或升级给用户。您也可以在工具运行前修改工具输入，或为 Claude 注入额外上下文。请参阅 [PreToolUse 决策控制](#pretooluse-decision-control)了解完整的选项集。
-
-```json theme={null}
-{
-  "hookSpecificOutput": {
-    "hookEventName": "PreToolUse",
-    "permissionDecision": "deny",
-    "permissionDecisionReason": "Database writes are not allowed"
-  }
-}
-```
-
-**PermissionRequest**
-
-使用 `hookSpecificOutput` 代表用户允许或拒绝权限请求。允许时，您也可以修改工具的输入或应用权限规则，使用户不会再次被询问。请参阅 [PermissionRequest 决策控制](#permissionrequest-decision-control)了解完整的选项集。
-
-```json theme={null}
-{
-  "hookSpecificOutput": {
-    "hookEventName": "PermissionRequest",
-    "decision": {
-      "behavior": "allow",
-      "updatedInput": {
-        "command": "npm run lint"
-      }
-    }
-  }
-}
-```
+> [tab] PermissionRequest
+>
+> 使用 `hookSpecificOutput` 代表用户允许或拒绝权限请求。允许时，您也可以修改工具的输入或应用权限规则，使用户不会再次被询问。请参阅 [PermissionRequest 决策控制](#permissionrequest-decision-control)了解完整的选项集。
+>
+> ```json theme={null}
+> {
+>   "hookSpecificOutput": {
+>     "hookEventName": "PermissionRequest",
+>     "decision": {
+>       "behavior": "allow",
+>       "updatedInput": {
+>         "command": "npm run lint"
+>       }
+>     }
+>   }
+> }
+> ```
 
 有关扩展示例，包括 Bash 命令验证、提示词过滤和自动批准脚本，请参阅指南中的[您可以自动化什么](https://code.claude.com/docs/zh-CN/hooks-guide.md#what-you-can-automate)和 [Bash 命令验证器参考实现](https://github.com/anthropics/claude-code/blob/main/examples/hooks/bash_command_validator_example.py)。
 
@@ -1656,77 +1656,77 @@ MessageDisplay hook 没有决策控制。它们无法阻止消息，也无法更
 
 此示例从 Claude 的回复中去除 markdown 格式，以进行纯文本显示。该脚本从 stdin 读取每一批，从 `delta` 中移除粗体标记和行内代码反引号，并将结果作为 `displayContent` 返回。
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> 在您的设置文件中为该事件注册一个命令 hook：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "MessageDisplay": [
+>       {
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/plain-display.sh",
+>             "args": []
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
+>
+> 将此脚本保存到项目中的 `.claude/hooks/plain-display.sh`，并使用 `chmod +x` 使其可执行：
+>
+> ```bash theme={null}
+> #!/bin/bash
+> jq '{hookSpecificOutput: {hookEventName: "MessageDisplay", displayContent: (.delta | gsub("\\*\\*"; "") | gsub("`"; ""))}}'
+> ```
 
-在您的设置文件中为该事件注册一个命令 hook：
-
-```json theme={null}
-{
-  "hooks": {
-    "MessageDisplay": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/plain-display.sh",
-            "args": []
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-将此脚本保存到项目中的 `.claude/hooks/plain-display.sh`，并使用 `chmod +x` 使其可执行：
-
-```bash theme={null}
-#!/bin/bash
-jq '{hookSpecificOutput: {hookEventName: "MessageDisplay", displayContent: (.delta | gsub("\\*\\*"; "") | gsub("`"; ""))}}'
-```
-
-**Windows (PowerShell)**
-
-注册一个通过 PowerShell 运行脚本的命令 hook：
-
-```json theme={null}
-{
-  "hooks": {
-    "MessageDisplay": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell.exe",
-            "args": [
-              "-NoProfile",
-              "-ExecutionPolicy",
-              "Bypass",
-              "-File",
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/plain-display.ps1"
-            ]
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-`-NoProfile` 标志会跳过加载您的 PowerShell 配置文件，使 hook 快速启动；`-ExecutionPolicy Bypass` 则允许 PowerShell 运行本地脚本文件。
-
-将此脚本保存到项目中的 `.claude/hooks/plain-display.ps1`：
-
-```powershell theme={null}
-$batch = [Console]::In.ReadToEnd() | ConvertFrom-Json
-$text = $batch.delta -replace '\*\*', '' -replace '`', ''
-@{
-  hookSpecificOutput = @{
-    hookEventName = "MessageDisplay"
-    displayContent = $text
-  }
-} | ConvertTo-Json
-```
+> [tab] Windows (PowerShell)
+>
+> 注册一个通过 PowerShell 运行脚本的命令 hook：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "MessageDisplay": [
+>       {
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "powershell.exe",
+>             "args": [
+>               "-NoProfile",
+>               "-ExecutionPolicy",
+>               "Bypass",
+>               "-File",
+>               "${CLAUDE_PROJECT_DIR}/.claude/hooks/plain-display.ps1"
+>             ]
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
+>
+> `-NoProfile` 标志会跳过加载您的 PowerShell 配置文件，使 hook 快速启动；`-ExecutionPolicy Bypass` 则允许 PowerShell 运行本地脚本文件。
+>
+> 将此脚本保存到项目中的 `.claude/hooks/plain-display.ps1`：
+>
+> ```powershell theme={null}
+> $batch = [Console]::In.ReadToEnd() | ConvertFrom-Json
+> $text = $batch.delta -replace '\*\*', '' -replace '`', ''
+> @{
+>   hookSpecificOutput = @{
+>     hookEventName = "MessageDisplay"
+>     displayContent = $text
+>   }
+> } | ConvertTo-Json
+> ```
 
 不含 markdown 的批次会原样通过。如果脚本失败（例如因为缺少 `jq`），Claude Code 会显示原始文本，并且只在[调试输出](#debug-hooks)中记录该失败，而不会在会话中显示。
 
@@ -3356,67 +3356,67 @@ Claude Code 会将匹配器与会话将要切换到的模型的规范名称进�
 
 将匹配器写为精确名称、以 `|` 分隔的列表（例如 `claude-opus-4-6|claude-opus-5`），或正则表达式（例如 `.*opus.*`）。此示例使用精确名称匹配器，同时检查 hook 输入中的 `to_model`，因此它会通过以代码 2 退出来拒绝切换到 Opus 4.6，并允许切换到任何其他目标：
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> 该命令使用 `jq` 检查 `to_model`：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "PreModelSwitch": [
+>       {
+>         "matcher": "claude-opus-4-6",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "jq -e '.to_model | test(\"opus-4-6\")' > /dev/null && { echo 'Opus 4.6 is retired for this project. Use a newer model.' >&2; exit 2; }; exit 0"
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
 
-该命令使用 `jq` 检查 `to_model`：
-
-```json theme={null}
-{
-  "hooks": {
-    "PreModelSwitch": [
-      {
-        "matcher": "claude-opus-4-6",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -e '.to_model | test(\"opus-4-6\")' > /dev/null && { echo 'Opus 4.6 is retired for this project. Use a newer model.' >&2; exit 2; }; exit 0"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**Windows (PowerShell)**
-
-注册一个通过 PowerShell 运行脚本的命令 hook：
-
-```json theme={null}
-{
-  "hooks": {
-    "PreModelSwitch": [
-      {
-        "matcher": "claude-opus-4-6",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell.exe",
-            "args": [
-              "-NoProfile",
-              "-ExecutionPolicy",
-              "Bypass",
-              "-File",
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-opus-46.ps1"
-            ]
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-将此脚本保存到项目中的 `.claude/hooks/block-opus-46.ps1`：
-
-```powershell theme={null}
-$hookInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
-if ($hookInput.to_model -match 'opus-4-6') {
-  [Console]::Error.WriteLine('Opus 4.6 is retired for this project. Use a newer model.')
-  exit 2
-}
-exit 0
-```
+> [tab] Windows (PowerShell)
+>
+> 注册一个通过 PowerShell 运行脚本的命令 hook：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "PreModelSwitch": [
+>       {
+>         "matcher": "claude-opus-4-6",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "powershell.exe",
+>             "args": [
+>               "-NoProfile",
+>               "-ExecutionPolicy",
+>               "Bypass",
+>               "-File",
+>               "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-opus-46.ps1"
+>             ]
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
+>
+> 将此脚本保存到项目中的 `.claude/hooks/block-opus-46.ps1`：
+>
+> ```powershell theme={null}
+> $hookInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
+> if ($hookInput.to_model -match 'opus-4-6') {
+>   [Console]::Error.WriteLine('Opus 4.6 is retired for this project. Use a newer model.')
+>   exit 2
+> }
+> exit 0
+> ```
 
 要确认该 hook 是否正常工作，请在运行其他模型的会话中运行 `/model claude-opus-4-6`。Claude Code 会保留当前模型，并报告 PreModelSwitch hook 阻止了切换，以您的消息作为原因。
 
@@ -3703,86 +3703,86 @@ fi
 
 此示例代替用户回答一个反复出现的问题。名为 `issue-tracker` 的 MCP 服务器在表单中询问项目键，hook 会填入 `DOCS`。当 `project_key` 是表单的唯一字段时，脚本会接受。对于其他任何请求，它不打印任何内容，因此会出现对话框。
 
-**macOS/Linux**
+> [tab] macOS/Linux
+>
+> 在设置文件中为该事件注册一个命令 hook，以服务器名称作为匹配器：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "Elicitation": [
+>       {
+>         "matcher": "issue-tracker",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/answer-project-key.sh",
+>             "args": []
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
+>
+> 将此脚本保存到项目中的 `.claude/hooks/answer-project-key.sh`，并使用 `chmod +x` 使其可执行：
+>
+> ```bash theme={null}
+> #!/bin/bash
+> input=$(cat)
+> fields=$(jq -c '.requested_schema.properties // {} | keys' <<<"$input")
+>
+> if [ "$fields" = '["project_key"]' ]; then
+>   jq -n '{hookSpecificOutput: {hookEventName: "Elicitation", action: "accept", content: {project_key: "DOCS"}}}'
+> fi
+> ```
 
-在设置文件中为该事件注册一个命令 hook，以服务器名称作为匹配器：
-
-```json theme={null}
-{
-  "hooks": {
-    "Elicitation": [
-      {
-        "matcher": "issue-tracker",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/answer-project-key.sh",
-            "args": []
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-将此脚本保存到项目中的 `.claude/hooks/answer-project-key.sh`，并使用 `chmod +x` 使其可执行：
-
-```bash theme={null}
-#!/bin/bash
-input=$(cat)
-fields=$(jq -c '.requested_schema.properties // {} | keys' <<<"$input")
-
-if [ "$fields" = '["project_key"]' ]; then
-  jq -n '{hookSpecificOutput: {hookEventName: "Elicitation", action: "accept", content: {project_key: "DOCS"}}}'
-fi
-```
-
-**Windows (PowerShell)**
-
-注册一个通过 PowerShell 运行脚本的命令 hook，以服务器名称作为匹配器：
-
-```json theme={null}
-{
-  "hooks": {
-    "Elicitation": [
-      {
-        "matcher": "issue-tracker",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell.exe",
-            "args": [
-              "-NoProfile",
-              "-ExecutionPolicy",
-              "Bypass",
-              "-File",
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/answer-project-key.ps1"
-            ]
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-将此脚本保存到项目中的 `.claude/hooks/answer-project-key.ps1`：
-
-```powershell theme={null}
-$request = [Console]::In.ReadToEnd() | ConvertFrom-Json
-$fields = @($request.requested_schema.properties.PSObject.Properties.Name)
-
-if ($fields.Count -eq 1 -and $fields[0] -eq 'project_key') {
-  @{
-    hookSpecificOutput = @{
-      hookEventName = "Elicitation"
-      action = "accept"
-      content = @{ project_key = "DOCS" }
-    }
-  } | ConvertTo-Json -Depth 3
-}
-```
+> [tab] Windows (PowerShell)
+>
+> 注册一个通过 PowerShell 运行脚本的命令 hook，以服务器名称作为匹配器：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "Elicitation": [
+>       {
+>         "matcher": "issue-tracker",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "powershell.exe",
+>             "args": [
+>               "-NoProfile",
+>               "-ExecutionPolicy",
+>               "Bypass",
+>               "-File",
+>               "${CLAUDE_PROJECT_DIR}/.claude/hooks/answer-project-key.ps1"
+>             ]
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
+>
+> 将此脚本保存到项目中的 `.claude/hooks/answer-project-key.ps1`：
+>
+> ```powershell theme={null}
+> $request = [Console]::In.ReadToEnd() | ConvertFrom-Json
+> $fields = @($request.requested_schema.properties.PSObject.Properties.Name)
+>
+> if ($fields.Count -eq 1 -and $fields[0] -eq 'project_key') {
+>   @{
+>     hookSpecificOutput = @{
+>       hookEventName = "Elicitation"
+>       action = "accept"
+>       content = @{ project_key = "DOCS" }
+>     }
+>   } | ConvertTo-Json -Depth 3
+> }
+> ```
 
 要确认该 hook 是否正常工作，请使用 `claude --debug` 启动 Claude Code，并给 Claude 一个会让服务器询问项目键的任务。不会出现对话框，并且[调试日志](#debug-hooks)中会有一行以 `Elicitation resolved by hook: {"action":"accept","content":{"project_key":"DOCS"}}` 结尾。
 

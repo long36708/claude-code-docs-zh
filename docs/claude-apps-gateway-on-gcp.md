@@ -203,85 +203,85 @@ upstreams:
 
 **7. 部署**
 
-**Cloud Run**
-
-下面的命令在内部负载均衡器后面部署用于生产。
-
-```bash theme={null}
-gcloud run deploy claude-gateway \
-  --image="${REGION}-docker.pkg.dev/${PROJECT_ID}/claude-gateway/gateway:<version>" \
-  --region="$REGION" \
-  --service-account="claude-gateway@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --min-instances=1 \
-  --max-instances=8 \
-  --timeout=3600 \
-  --ingress=internal \
-  --network="$VPC" --subnet=cc-gateway-subnet --vpc-egress=private-ranges-only \
-  --set-secrets=/etc/claude/gateway.yaml=gateway-config:latest,GATEWAY_JWT_SECRET=gateway-jwt-secret:latest,OIDC_CLIENT_SECRET=gateway-oidc-client-secret:latest,GATEWAY_POSTGRES_URL=gateway-postgres-url:latest \
-  --no-invoker-iam-check
-```
-
-直接 VPC 出口，通过 `--network`、`--subnet` 和 `--vpc-egress=private-ranges-only`，让服务直接到达 Cloud SQL 私有 IP。到 Google Cloud 的 Agent Platform 端点和 `accounts.google.com` 的公共出口直接进入互联网，而不是通过 VPC，因此不需要 Cloud NAT。
-
-> [!NOTE]
+> [tab] Cloud Run
 >
-> 每个实例最多持有 [`store.max_connections`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#store) 个 Postgres 连接，默认为 5 个。请参阅[调整连接池大小](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#size-the-connection-pool)，根据数据库为网关剩余的连接数检查 `--max-instances=8`，并将滚动更新启动的额外实例计算在内。
+> 下面的命令在内部负载均衡器后面部署用于生产。
+>
+> ```bash theme={null}
+> gcloud run deploy claude-gateway \
+>   --image="${REGION}-docker.pkg.dev/${PROJECT_ID}/claude-gateway/gateway:<version>" \
+>   --region="$REGION" \
+>   --service-account="claude-gateway@${PROJECT_ID}.iam.gserviceaccount.com" \
+>   --min-instances=1 \
+>   --max-instances=8 \
+>   --timeout=3600 \
+>   --ingress=internal \
+>   --network="$VPC" --subnet=cc-gateway-subnet --vpc-egress=private-ranges-only \
+>   --set-secrets=/etc/claude/gateway.yaml=gateway-config:latest,GATEWAY_JWT_SECRET=gateway-jwt-secret:latest,OIDC_CLIENT_SECRET=gateway-oidc-client-secret:latest,GATEWAY_POSTGRES_URL=gateway-postgres-url:latest \
+>   --no-invoker-iam-check
+> ```
+>
+> 直接 VPC 出口，通过 `--network`、`--subnet` 和 `--vpc-egress=private-ranges-only`，让服务直接到达 Cloud SQL 私有 IP。到 Google Cloud 的 Agent Platform 端点和 `accounts.google.com` 的公共出口直接进入互联网，而不是通过 VPC，因此不需要 Cloud NAT。
+>
+> > [!NOTE]
+> >
+> > 每个实例最多持有 [`store.max_connections`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#store) 个 Postgres 连接，默认为 5 个。请参阅[调整连接池大小](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#size-the-connection-pool)，根据数据库为网关剩余的连接数检查 `--max-instances=8`，并将滚动更新启动的额外实例计算在内。
+>
+> 调用者 IAM 检查必须打开或禁用。网关运行自己的 OIDC，其客户端不携带 GCP 令牌，因此 Cloud Run 的调用者检查必须允许未经身份验证的请求。网关的 OIDC 登录在请求到达容器后对其进行身份验证，`allowed_email_domains` 限制哪些域可以登录。
+>
+> 两个标志允许未经身份验证的请求：
+>
+> * `--no-invoker-iam-check`：禁用检查，无需管理 `allUsers` 绑定，并在域受限共享下工作
+> * `--allow-unauthenticated`：向 `allUsers` 授予 `run.invoker` 角色；如果您的组织不允许 `--no-invoker-iam-check`，请使用它
+>
+> 通过 `--ingress` 的入口限制是与调用者检查分离的独立层；保持设置以将服务限制在您的公司网络。
+>
+> 默认情况下，Cloud Run `*.run.app` URL 解析为公共地址，`/login` [私有网络检查](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)拒绝该地址。两种拓扑为开发者提供私有可解析的主机名，Cloud Run 都不为您配置：
+>
+> * **内部应用负载均衡器**，此页面的 `gateway.yaml` 假设的拓扑：在服务前面配置一个内部应用负载均衡器，具有内部 DNS 名称和证书，并将 `listen.public_url` 设置为该主机名。`internal` 入口设置已允许来自内部应用负载均衡器的流量；`internal-and-cloud-load-balancing` 还允许外部应用负载均衡器，其公共地址 `/login` 私有网络检查拒绝，因此此页面上的任何拓扑都不需要它。
+> * **仅内部入口，无负载均衡器**：保持部署命令不变，将 `listen.public_url` 保留为 `*.run.app` URL，下面[参考资产](#terraform-reference)中的默认值。为了让 `*.run.app` 私有解析，您的网络团队必须已经运行 Google API 的私有服务连接端点、将 `*.run.app` 解析到它的 Cloud DNS 私有区域，以及到该端点的本地路由。
+>
+> Google 的 [Cloud Run 私有网络指南](https://cloud.google.com/run/docs/securing/private-networking)涵盖了两个选项都需要的基础设施。一旦网关在私有主机名上提供服务，验证登录；在此之前，从 Cloud Run 中的日志确认容器已启动。
+>
+> 在首次登录前更新 OAuth 客户端的授权重定向 URI 为 `<public_url>/oauth/callback`。更改 `public_url` 后重新部署，因为网关仅从该设置构建其公共源，忽略 `X-Forwarded-Host` 和 `X-Forwarded-Proto`。仅当设置 `listen.trusted_proxies` 时，才会为客户端 IP 遵守 `X-Forwarded-For`。
 
-调用者 IAM 检查必须打开或禁用。网关运行自己的 OIDC，其客户端不携带 GCP 令牌，因此 Cloud Run 的调用者检查必须允许未经身份验证的请求。网关的 OIDC 登录在请求到达容器后对其进行身份验证，`allowed_email_domains` 限制哪些域可以登录。
-
-两个标志允许未经身份验证的请求：
-
-* `--no-invoker-iam-check`：禁用检查，无需管理 `allUsers` 绑定，并在域受限共享下工作
-* `--allow-unauthenticated`：向 `allUsers` 授予 `run.invoker` 角色；如果您的组织不允许 `--no-invoker-iam-check`，请使用它
-
-通过 `--ingress` 的入口限制是与调用者检查分离的独立层；保持设置以将服务限制在您的公司网络。
-
-默认情况下，Cloud Run `*.run.app` URL 解析为公共地址，`/login` [私有网络检查](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)拒绝该地址。两种拓扑为开发者提供私有可解析的主机名，Cloud Run 都不为您配置：
-
-* **内部应用负载均衡器**，此页面的 `gateway.yaml` 假设的拓扑：在服务前面配置一个内部应用负载均衡器，具有内部 DNS 名称和证书，并将 `listen.public_url` 设置为该主机名。`internal` 入口设置已允许来自内部应用负载均衡器的流量；`internal-and-cloud-load-balancing` 还允许外部应用负载均衡器，其公共地址 `/login` 私有网络检查拒绝，因此此页面上的任何拓扑都不需要它。
-* **仅内部入口，无负载均衡器**：保持部署命令不变，将 `listen.public_url` 保留为 `*.run.app` URL，下面[参考资产](#terraform-reference)中的默认值。为了让 `*.run.app` 私有解析，您的网络团队必须已经运行 Google API 的私有服务连接端点、将 `*.run.app` 解析到它的 Cloud DNS 私有区域，以及到该端点的本地路由。
-
-Google 的 [Cloud Run 私有网络指南](https://cloud.google.com/run/docs/securing/private-networking)涵盖了两个选项都需要的基础设施。一旦网关在私有主机名上提供服务，验证登录；在此之前，从 Cloud Run 中的日志确认容器已启动。
-
-在首次登录前更新 OAuth 客户端的授权重定向 URI 为 `<public_url>/oauth/callback`。更改 `public_url` 后重新部署，因为网关仅从该设置构建其公共源，忽略 `X-Forwarded-Host` 和 `X-Forwarded-Proto`。仅当设置 `listen.trusted_proxies` 时，才会为客户端 IP 遵守 `X-Forwarded-For`。
-
-**GKE**
-
-集群必须在 Cloud SQL 步骤中创建的 `$VPC` 上，以便 Pod 可以到达数据库的私有 IP；仅 VPC 对等不起作用，因为 Cloud SQL 私有 IP 本身是对等网络，对等是非传递的。要在该 VPC 上创建新集群，请将 `--network="$VPC" --subnetwork=cc-gateway-subnet` 传递给 `gcloud container clusters create`。
-
-在集群及其节点池上启用 Workload Identity，然后将 Google 服务账户绑定到 Kubernetes 服务账户，以便 Pod 继承其凭证：
-
-```bash theme={null}
-gcloud container clusters update <cluster> --region="$REGION" \
-  --workload-pool="${PROJECT_ID}.svc.id.goog"
-# 在标准集群上，现有节点池也需要 GKE_METADATA；
-# Autopilot 默认启用此功能。
-gcloud container node-pools update <pool> --cluster=<cluster> \
-  --region="$REGION" --workload-metadata=GKE_METADATA
-
-kubectl create namespace claude-gateway
-kubectl create serviceaccount gateway -n claude-gateway
-
-gcloud iam service-accounts add-iam-policy-binding \
-  "claude-gateway@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --role roles/iam.workloadIdentityUser \
-  --member "serviceAccount:${PROJECT_ID}.svc.id.goog[claude-gateway/gateway]"
-
-kubectl annotate serviceaccount gateway -n claude-gateway \
-  iam.gke.io/gcp-service-account="claude-gateway@${PROJECT_ID}.iam.gserviceaccount.com"
-```
-
-将网关部署为标准 Deployment 加上 Service 和内部 Ingress，类 `gce-internal`，如 [Kubernetes 部署](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#kubernetes)中所述，具有：
-
-* `serviceAccountName: gateway`
-* Secret Manager CSI 驱动程序在 `/secrets` 处挂载密钥
-* 就绪探针指向 `GET /readyz`
-
-将具有提高的 `timeoutSec` 的 BackendConfig 附加到网关 Service：GKE Ingress 后面的负载均衡器后端服务默认为 30 秒超时，这会切断长流式响应。
-
-不要在 Workload Identity 集群上应用阻止 `169.254.169.254` 的出口 NetworkPolicy；Pod 必须到达元数据服务器以获取凭证。网关的内置 [SSRF 防护](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#threat-model-summary)是那里的防御。
-
-网关记录一个启动警告，指出元数据端点可达，并建议应用出口 NetworkPolicy。在 Workload Identity 下，该警告是预期的，因为 Pod 需要端点。
+> [tab] GKE
+>
+> 集群必须在 Cloud SQL 步骤中创建的 `$VPC` 上，以便 Pod 可以到达数据库的私有 IP；仅 VPC 对等不起作用，因为 Cloud SQL 私有 IP 本身是对等网络，对等是非传递的。要在该 VPC 上创建新集群，请将 `--network="$VPC" --subnetwork=cc-gateway-subnet` 传递给 `gcloud container clusters create`。
+>
+> 在集群及其节点池上启用 Workload Identity，然后将 Google 服务账户绑定到 Kubernetes 服务账户，以便 Pod 继承其凭证：
+>
+> ```bash theme={null}
+> gcloud container clusters update <cluster> --region="$REGION" \
+>   --workload-pool="${PROJECT_ID}.svc.id.goog"
+> # 在标准集群上，现有节点池也需要 GKE_METADATA；
+> # Autopilot 默认启用此功能。
+> gcloud container node-pools update <pool> --cluster=<cluster> \
+>   --region="$REGION" --workload-metadata=GKE_METADATA
+>
+> kubectl create namespace claude-gateway
+> kubectl create serviceaccount gateway -n claude-gateway
+>
+> gcloud iam service-accounts add-iam-policy-binding \
+>   "claude-gateway@${PROJECT_ID}.iam.gserviceaccount.com" \
+>   --role roles/iam.workloadIdentityUser \
+>   --member "serviceAccount:${PROJECT_ID}.svc.id.goog[claude-gateway/gateway]"
+>
+> kubectl annotate serviceaccount gateway -n claude-gateway \
+>   iam.gke.io/gcp-service-account="claude-gateway@${PROJECT_ID}.iam.gserviceaccount.com"
+> ```
+>
+> 将网关部署为标准 Deployment 加上 Service 和内部 Ingress，类 `gce-internal`，如 [Kubernetes 部署](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#kubernetes)中所述，具有：
+>
+> * `serviceAccountName: gateway`
+> * Secret Manager CSI 驱动程序在 `/secrets` 处挂载密钥
+> * 就绪探针指向 `GET /readyz`
+>
+> 将具有提高的 `timeoutSec` 的 BackendConfig 附加到网关 Service：GKE Ingress 后面的负载均衡器后端服务默认为 30 秒超时，这会切断长流式响应。
+>
+> 不要在 Workload Identity 集群上应用阻止 `169.254.169.254` 的出口 NetworkPolicy；Pod 必须到达元数据服务器以获取凭证。网关的内置 [SSRF 防护](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#threat-model-summary)是那里的防御。
+>
+> 网关记录一个启动警告，指出元数据端点可达，并建议应用出口 NetworkPolicy。在 Workload Identity 下，该警告是预期的，因为 Pod 需要端点。
 
 **8. 将网关 URL 推送到开发者机器**
 

@@ -89,93 +89,93 @@ hook 让您可以在 Claude Code 生命周期的关键节点运行代码：在�
 
 下面的每个选项卡都使用该平台的原生通知命令。将以下内容添加到 `~/.claude/settings.json`：
 
-**macOS**
-
-```json theme={null}
-{
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "osascript -e 'display notification \"Claude Code needs your attention\" with title \"Claude Code\"'"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-> **如果没有出现通知**
+> [tab] macOS
 >
-> `osascript` 通过内置的“脚本编辑器”应用发送通知。如果“脚本编辑器”没有通知权限，该命令会静默失败，并且 macOS 不会提示您授予权限。
->
-> 在终端中运行一次以下命令，使“脚本编辑器”出现在通知设置中：
->
-> ```bash theme={null}
-> osascript -e 'display notification "test"'
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "Notification": [
+>       {
+>         "matcher": "",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "osascript -e 'display notification \"Claude Code needs your attention\" with title \"Claude Code\"'"
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
 > ```
 >
-> 此时还不会显示任何内容。打开 **System Settings > Notifications**，在列表中找到 **Script Editor**，然后打开 **Allow Notifications**。再次运行该命令，确认测试通知出现。
+> > [accordion] 如果没有出现通知
+> >
+> > `osascript` 通过内置的“脚本编辑器”应用发送通知。如果“脚本编辑器”没有通知权限，该命令会静默失败，并且 macOS 不会提示您授予权限。
+> >
+> > 在终端中运行一次以下命令，使“脚本编辑器”出现在通知设置中：
+> >
+> > ```bash theme={null}
+> > osascript -e 'display notification "test"'
+> > ```
+> >
+> > 此时还不会显示任何内容。打开 **System Settings > Notifications**，在列表中找到 **Script Editor**，然后打开 **Allow Notifications**。再次运行该命令，确认测试通知出现。
 
-**Linux**
-
-```json theme={null}
-{
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "notify-send 'Claude Code' 'Claude Code needs your attention'"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-> **如果没有出现通知**
+> [tab] Linux
 >
-> `notify-send` 需要桌面通知守护进程，而无头服务器、SSH 会话和大多数容器都没有该进程。请先直接测试该命令：
->
-> ```bash theme={null}
-> notify-send 'Claude Code' 'test'
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "Notification": [
+>       {
+>         "matcher": "",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "notify-send 'Claude Code' 'Claude Code needs your attention'"
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
 > ```
 >
-> 如果找不到该命令，请在 Debian 和 Ubuntu 上安装 `libnotify-bin` 软件包，或安装您所用发行版中的等效软件包。
+> > [accordion] 如果没有出现通知
+> >
+> > `notify-send` 需要桌面通知守护进程，而无头服务器、SSH 会话和大多数容器都没有该进程。请先直接测试该命令：
+> >
+> > ```bash theme={null}
+> > notify-send 'Claude Code' 'test'
+> > ```
+> >
+> > 如果找不到该命令，请在 Debian 和 Ubuntu 上安装 `libnotify-bin` 软件包，或安装您所用发行版中的等效软件包。
 
-**Windows (PowerShell)**
-
-```json theme={null}
-{
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell.exe -Command \"[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.MessageBox]::Show('Claude Code needs your attention', 'Claude Code')\""
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-> **如果没有出现对话框**
+> [tab] Windows (PowerShell)
 >
-> 此命令打开的是一个对话框，而不是屏幕角落的通知，因此该对话框可能会在终端窗口后面打开。请先在 PowerShell 中直接测试该命令。
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "Notification": [
+>       {
+>         "matcher": "",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "powershell.exe -Command \"[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.MessageBox]::Show('Claude Code needs your attention', 'Claude Code')\""
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
 >
-> 如果您在 WSL 中运行 Claude Code，则 `powershell.exe` 必须能够通过 Windows 互操作在您的 `PATH` 中使用。
+> > [accordion] 如果没有出现对话框
+> >
+> > 此命令打开的是一个对话框，而不是屏幕角落的通知，因此该对话框可能会在终端窗口后面打开。请先在 PowerShell 中直接测试该命令。
+> >
+> > 如果您在 WSL 中运行 Claude Code，则 `powershell.exe` 必须能够通过 Windows 互操作在您的 `PATH` 中使用。
 
 空的 `matcher` 会对所有通知类型触发。若只想在特定事件时触发，请将其设置为以下值之一：
 
@@ -705,73 +705,73 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 
 下面的选项卡显示不同事件类型上的更多匹配器示例。
 
-**记录每个 Bash 命令**
+> [tab] 记录每个 Bash 命令
+>
+> 仅匹配 `Bash` 工具调用并将每个命令记录到文件。`PostToolUse` 事件在命令完成后触发，因此 `tool_input.command` 包含运行的内容。hook 在 stdin 上接收事件数据作为 JSON，`jq -r '.tool_input.command'` 仅提取命令字符串，`>>` 将其附加到日志文件：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "PostToolUse": [
+>       {
+>         "matcher": "Bash",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "jq -r '.tool_input.command' >> ~/.claude/command-log.txt"
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
 
-仅匹配 `Bash` 工具调用并将每个命令记录到文件。`PostToolUse` 事件在命令完成后触发，因此 `tool_input.command` 包含运行的内容。hook 在 stdin 上接收事件数据作为 JSON，`jq -r '.tool_input.command'` 仅提取命令字符串，`>>` 将其附加到日志文件：
+> [tab] 匹配 MCP 工具
+>
+> MCP 工具使用与内置工具不同的命名约定：`mcp__<server>__<tool>`，其中 `<server>` 是 MCP 服务器名称，`<tool>` 是它提供的工具。例如，`mcp__github__search_repositories` 或 `mcp__filesystem__read_file`。来自 [插件提供的 MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md#plugin-provided-mcp-servers) 的工具使用作用域服务器段，例如 `mcp__plugin_my-plugin_db__query`。使用正则表达式匹配器来针对来自特定服务器的所有工具，或使用 `mcp__.*__write.*` 之类的模式跨服务器匹配。有关完整的示例列表，请参阅参考中的 [匹配 MCP 工具](https://code.claude.com/docs/zh-CN/hooks.md#match-mcp-tools)。
+>
+> 下面的命令使用 `jq` 从 hook 的 JSON 输入中提取工具名称，并将其写入 stderr。将其写入 stderr 保持 stdout 清洁以用于 JSON 输出，并将消息发送到 [调试日志](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks)：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "PreToolUse": [
+>       {
+>         "matcher": "mcp__github__.*",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "echo \"GitHub tool called: $(jq -r '.tool_name')\" >&2"
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
 
-```json theme={null}
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -r '.tool_input.command' >> ~/.claude/command-log.txt"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**匹配 MCP 工具**
-
-MCP 工具使用与内置工具不同的命名约定：`mcp__<server>__<tool>`，其中 `<server>` 是 MCP 服务器名称，`<tool>` 是它提供的工具。例如，`mcp__github__search_repositories` 或 `mcp__filesystem__read_file`。来自 [插件提供的 MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md#plugin-provided-mcp-servers) 的工具使用作用域服务器段，例如 `mcp__plugin_my-plugin_db__query`。使用正则表达式匹配器来针对来自特定服务器的所有工具，或使用 `mcp__.*__write.*` 之类的模式跨服务器匹配。有关完整的示例列表，请参阅参考中的 [匹配 MCP 工具](https://code.claude.com/docs/zh-CN/hooks.md#match-mcp-tools)。
-
-下面的命令使用 `jq` 从 hook 的 JSON 输入中提取工具名称，并将其写入 stderr。将其写入 stderr 保持 stdout 清洁以用于 JSON 输出，并将消息发送到 [调试日志](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks)：
-
-```json theme={null}
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "mcp__github__.*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo \"GitHub tool called: $(jq -r '.tool_name')\" >&2"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**在会话结束时清理**
-
-`SessionEnd` 事件支持会话结束原因的匹配器。此 hook 仅在 `clear` 原因时触发（当你运行 `/clear` 时），而不是在正常退出时：
-
-```json theme={null}
-{
-  "hooks": {
-    "SessionEnd": [
-      {
-        "matcher": "clear",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "rm -f /tmp/claude-scratch-*.txt"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
+> [tab] 在会话结束时清理
+>
+> `SessionEnd` 事件支持会话结束原因的匹配器。此 hook 仅在 `clear` 原因时触发（当你运行 `/clear` 时），而不是在正常退出时：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "SessionEnd": [
+>       {
+>         "matcher": "clear",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "rm -f /tmp/claude-scratch-*.txt"
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
 
 #### 使用 `if` 字段按工具名称和参数过滤
 

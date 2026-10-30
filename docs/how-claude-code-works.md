@@ -223,10 +223,10 @@ Claude Code 是对话式的。您不需要完美的提示。从您想要的开�
 
 ## 接下来是什么
 
-> **[使用功能扩展](https://code.claude.com/docs/zh-CN/features-overview.md)**
+> [card] [使用功能扩展](https://code.claude.com/docs/zh-CN/features-overview.md)
 >
 > 添加 skills 和 MCP 连接
 
-> **[常见工作流](https://code.claude.com/docs/zh-CN/common-workflows.md)**
+> [card] [常见工作流](https://code.claude.com/docs/zh-CN/common-workflows.md)
 >
 > 典型任务的分步指南

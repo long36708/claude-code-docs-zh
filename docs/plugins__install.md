@@ -27,105 +27,105 @@
 
 选择运行 Claude Code 的位置的选项卡。
 
-**Terminal**
+> [tab] Terminal
+>
+> 在您的项目中使用 `claude` 启动 Claude Code，然后：
+>
+> **1. 使用安装命令打开插件的详细信息**
+>
+> 使用插件的名称和市场运行 `/plugin install`。在会话中，此命令不会立即安装：它在该插件的详细信息上打开 `/plugin` 面板，以便您可以查看它并首先选择范围。
+>
+> ```text theme={null}
+> /plugin install commit-commands@claude-plugins-official
+> ```
+>
+> 要浏览，请运行不带插件名称的 `/plugin`：面板在 **Discover** 选项卡上打开，该选项卡列出您的市场中的插件，您可以输入搜索，然后在插件上按 **Enter** 打开其详细信息。
+>
+> **2. 查看插件添加的内容**
+>
+> 详细信息窗格显示插件的描述。它还可以显示：
+>
+> * **Will install**：插件添加的命令、agents、skills、hooks 和 MCP 及 LSP servers。
+> * **Last updated**：为 Anthropic 官方市场中的插件显示。
+> * **Context cost**：对于 Anthropic 官方市场中的插件，有两个令牌估计。**Every turn** 是插件添加到您发送的每条消息的内容，**When invoked** 是其 skills 和 agents 在 Claude 加载它们后添加的内容。当您通过命名其市场打开插件时（如第 1 步命令所做的那样）或从 **Marketplaces** 选项卡打开时，估计会出现。从 **Discover** 列表到达的详细信息窗格不显示它们。
+>
+> 来自本地或自定义市场的插件可以改为显示 `Components will be discovered at installation`。
+>
+> 插件可以运行 hooks 和 MCP servers，因此在安装前请阅读窗格。请参阅 [Plugin security and trust](https://code.claude.com/docs/zh-CN/plugins/security.md)。
+>
+> **3. 选择范围**
+>
+> 选择三个安装选项之一：
+>
+> * **Install for you (user scope)**：您在此机器上的每个项目中获得该插件
+> * **Install for all collaborators on this repository (project scope)**：为在此存储库中工作的每个人启用它
+> * **Install for you, in this repo only (local scope)**：您仅在此存储库中获得它
+>
+> [Choose an install scope](#choose-an-install-scope) 说明每个选项写入哪个设置文件，以及当同一插件在多个位置设置时哪个适用。
+>
+> 选择范围后，Claude Code 安装插件及其声明的任何依赖项，然后打印安装摘要。
+>
+> **4. 读取安装摘要**
+>
+> 摘要的最后一句告诉您插件在此会话中是否可用：
+>
+> * **已激活**：`Plugin is now active.` 无需重新加载。
+> * **已激活，但服务器需要设置**：`Plugin is now active.` 后跟 `Its bundled MCP server needs configuration before it can start`。在您设置其选项之前，插件的[捆绑 MCP 服务器](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)无法启动。在 `/plugin` 的 **Installed** 选项卡上选择该插件，然后选择 **Configure** 以设置服务器的选项。
+> * **需要重新加载**：`Run /reload-plugins to apply.` 面板会关闭，Claude Code 会为您运行该重新加载。如果重新加载会[使提示缓存失效](https://code.claude.com/docs/zh-CN/prompt-caching.md#enabling-or-disabling-a-plugin)，它会发出警告，并改为让插件保持待处理状态。运行 `/reload-plugins --force` 可强制激活它，这会产生一次未缓存的请求。
+> * **加载失败**：`The plugin couldn't be loaded`。在 `/plugin` 中打开 **Errors** 选项卡查看原因，然后参阅[安装后：插件不工作](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-installed-but-not-working)。
+>
+> **5. 确认插件正常工作**
+>
+> 输入 `/`，并在插件名称下查找其 skill，形式为 `/<plugin>:<skill>`。对于 `commit-commands`，会出现 `/commit-commands:commit`。另外还有两个地方会列出该插件：
+>
+> * 在 `/plugin` 中打开 **Installed** 选项卡，该选项卡列出带有其范围的插件。
+> * 在您的 shell 中，运行 `claude plugin list`，它打印相同的列表，带有 `Version`、`Scope` 和 `Status` 行。
+>
+> 如果 `/commit-commands:commit` 没有出现，请参阅 [After install: plugin not working](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-installed-but-not-working)。
+>
+> 从任何其他市场安装需要先执行一个额外步骤：[add the marketplace](#add-a-marketplace)。Claude Code 在您第一次启动交互式终端会话时为您添加 Anthropic 的官方市场，这就是为什么示例跳过该步骤。如果您在 [claude.com/marketplace](https://claude.com/marketplace) 上找到了插件，其 **Claude Code** 按钮会复制其 [shell form](#install-from-your-shell) 中的安装命令，`claude plugin install <name>@claude-plugins-official`。
 
-在您的项目中使用 `claude` 启动 Claude Code，然后：
+> [tab] Desktop app
+>
+> 在桌面应用的 **Code** 选项卡中的本地或 SSH 会话中：
+>
+> **1. 打开插件浏览器**
+>
+> 单击提示框旁边的 **+** 按钮，然后选择 **Add plugins**。如果 **+** 菜单显示的是 **Plugins** 而不是 **Add plugins**，请选择 **Plugins**，然后选择 **Browse plugins**。插件浏览器打开，显示来自您的市场的插件。
+>
+> **2. 选择插件**
+>
+> 找到 `commit-commands` 并选择它。
+>
+> **3. 选择作用域**
+>
+> 选择 [作用域](#choose-an-install-scope)：您的用户账户、此项目或仅本地。
+>
+> 要稍后启用、禁用或卸载插件，请参阅 [Install plugins in the desktop app](https://code.claude.com/docs/zh-CN/desktop.md#install-plugins)。
 
-**1. 使用安装命令打开插件的详细信息**
+> [tab] VS Code
+>
+> 在 VS Code 中的 Claude Code 面板中：
+>
+> **1. 打开 Manage plugins**
+>
+> 在提示框中输入 `/plugins` 以打开 **Manage plugins**。
+>
+> **2. 安装插件**
+>
+> 在 **Plugins** 选项卡上，搜索 `commit-commands` 并单击 **Install**。如果选项卡未列出任何插件，请先在 **Marketplaces** 选项卡上添加 `anthropics/claude-plugins-official`。
+>
+> **3. 选择范围**
+>
+> 选择 [scope](#choose-an-install-scope)：**Install for you**、**Install for this project** 或 **Install locally**。
+>
+> 您的更改应用于打开的会话，无需重新启动。请参阅 [Manage plugins in VS Code](https://code.claude.com/docs/zh-CN/vs-code.md#manage-plugins)。
 
-使用插件的名称和市场运行 `/plugin install`。在会话中，此命令不会立即安装：它在该插件的详细信息上打开 `/plugin` 面板，以便您可以查看它并首先选择范围。
-
-```text theme={null}
-/plugin install commit-commands@claude-plugins-official
-```
-
-要浏览，请运行不带插件名称的 `/plugin`：面板在 **Discover** 选项卡上打开，该选项卡列出您的市场中的插件，您可以输入搜索，然后在插件上按 **Enter** 打开其详细信息。
-
-**2. 查看插件添加的内容**
-
-详细信息窗格显示插件的描述。它还可以显示：
-
-* **Will install**：插件添加的命令、agents、skills、hooks 和 MCP 及 LSP servers。
-* **Last updated**：为 Anthropic 官方市场中的插件显示。
-* **Context cost**：对于 Anthropic 官方市场中的插件，有两个令牌估计。**Every turn** 是插件添加到您发送的每条消息的内容，**When invoked** 是其 skills 和 agents 在 Claude 加载它们后添加的内容。当您通过命名其市场打开插件时（如第 1 步命令所做的那样）或从 **Marketplaces** 选项卡打开时，估计会出现。从 **Discover** 列表到达的详细信息窗格不显示它们。
-
-来自本地或自定义市场的插件可以改为显示 `Components will be discovered at installation`。
-
-插件可以运行 hooks 和 MCP servers，因此在安装前请阅读窗格。请参阅 [Plugin security and trust](https://code.claude.com/docs/zh-CN/plugins/security.md)。
-
-**3. 选择范围**
-
-选择三个安装选项之一：
-
-* **Install for you (user scope)**：您在此机器上的每个项目中获得该插件
-* **Install for all collaborators on this repository (project scope)**：为在此存储库中工作的每个人启用它
-* **Install for you, in this repo only (local scope)**：您仅在此存储库中获得它
-
-[Choose an install scope](#choose-an-install-scope) 说明每个选项写入哪个设置文件，以及当同一插件在多个位置设置时哪个适用。
-
-选择范围后，Claude Code 安装插件及其声明的任何依赖项，然后打印安装摘要。
-
-**4. 读取安装摘要**
-
-摘要的最后一句告诉您插件在此会话中是否可用：
-
-* **已激活**：`Plugin is now active.` 无需重新加载。
-* **已激活，但服务器需要设置**：`Plugin is now active.` 后跟 `Its bundled MCP server needs configuration before it can start`。在您设置其选项之前，插件的[捆绑 MCP 服务器](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)无法启动。在 `/plugin` 的 **Installed** 选项卡上选择该插件，然后选择 **Configure** 以设置服务器的选项。
-* **需要重新加载**：`Run /reload-plugins to apply.` 面板会关闭，Claude Code 会为您运行该重新加载。如果重新加载会[使提示缓存失效](https://code.claude.com/docs/zh-CN/prompt-caching.md#enabling-or-disabling-a-plugin)，它会发出警告，并改为让插件保持待处理状态。运行 `/reload-plugins --force` 可强制激活它，这会产生一次未缓存的请求。
-* **加载失败**：`The plugin couldn't be loaded`。在 `/plugin` 中打开 **Errors** 选项卡查看原因，然后参阅[安装后：插件不工作](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-installed-but-not-working)。
-
-**5. 确认插件正常工作**
-
-输入 `/`，并在插件名称下查找其 skill，形式为 `/<plugin>:<skill>`。对于 `commit-commands`，会出现 `/commit-commands:commit`。另外还有两个地方会列出该插件：
-
-* 在 `/plugin` 中打开 **Installed** 选项卡，该选项卡列出带有其范围的插件。
-* 在您的 shell 中，运行 `claude plugin list`，它打印相同的列表，带有 `Version`、`Scope` 和 `Status` 行。
-
-如果 `/commit-commands:commit` 没有出现，请参阅 [After install: plugin not working](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-installed-but-not-working)。
-
-从任何其他市场安装需要先执行一个额外步骤：[add the marketplace](#add-a-marketplace)。Claude Code 在您第一次启动交互式终端会话时为您添加 Anthropic 的官方市场，这就是为什么示例跳过该步骤。如果您在 [claude.com/marketplace](https://claude.com/marketplace) 上找到了插件，其 **Claude Code** 按钮会复制其 [shell form](#install-from-your-shell) 中的安装命令，`claude plugin install <name>@claude-plugins-official`。
-
-**Desktop app**
-
-在桌面应用的 **Code** 选项卡中的本地或 SSH 会话中：
-
-**1. 打开插件浏览器**
-
-单击提示框旁边的 **+** 按钮，然后选择 **Add plugins**。如果 **+** 菜单显示的是 **Plugins** 而不是 **Add plugins**，请选择 **Plugins**，然后选择 **Browse plugins**。插件浏览器打开，显示来自您的市场的插件。
-
-**2. 选择插件**
-
-找到 `commit-commands` 并选择它。
-
-**3. 选择作用域**
-
-选择 [作用域](#choose-an-install-scope)：您的用户账户、此项目或仅本地。
-
-要稍后启用、禁用或卸载插件，请参阅 [Install plugins in the desktop app](https://code.claude.com/docs/zh-CN/desktop.md#install-plugins)。
-
-**VS Code**
-
-在 VS Code 中的 Claude Code 面板中：
-
-**1. 打开 Manage plugins**
-
-在提示框中输入 `/plugins` 以打开 **Manage plugins**。
-
-**2. 安装插件**
-
-在 **Plugins** 选项卡上，搜索 `commit-commands` 并单击 **Install**。如果选项卡未列出任何插件，请先在 **Marketplaces** 选项卡上添加 `anthropics/claude-plugins-official`。
-
-**3. 选择范围**
-
-选择 [scope](#choose-an-install-scope)：**Install for you**、**Install for this project** 或 **Install locally**。
-
-您的更改应用于打开的会话，无需重新启动。请参阅 [Manage plugins in VS Code](https://code.claude.com/docs/zh-CN/vs-code.md#manage-plugins)。
-
-**Cloud session**
-
-[cloud session](https://code.claude.com/docs/zh-CN/cloud-environments.md)（包括 [the browser at claude.ai/code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)）没有插件浏览器，不会加载您在自己的机器上安装的插件或您的存储库的 `.claude/settings.json` 打开的插件。对于您的组织通过托管设置分发的插件，请参阅 [Manage plugins for your organization](https://code.claude.com/docs/zh-CN/plugins/org.md)。
-
-请参阅 [which parts of your setup are also available in a cloud session](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup) 了解您设置的其余部分。
+> [tab] Cloud session
+>
+> [cloud session](https://code.claude.com/docs/zh-CN/cloud-environments.md)（包括 [the browser at claude.ai/code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)）没有插件浏览器，不会加载您在自己的机器上安装的插件或您的存储库的 `.claude/settings.json` 打开的插件。对于您的组织通过托管设置分发的插件，请参阅 [Manage plugins for your organization](https://code.claude.com/docs/zh-CN/plugins/org.md)。
+>
+> 请参阅 [which parts of your setup are also available in a cloud session](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup) 了解您设置的其余部分。
 
 ### Choose an install scope
 

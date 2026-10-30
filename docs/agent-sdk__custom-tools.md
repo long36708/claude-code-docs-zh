@@ -42,17 +42,17 @@
 
 本页中发出 HTTP 请求的 Python 示例使用 [httpx](https://www.python-httpx.org/)。请使用您项目所用的包管理器添加它：
 
-**Python (uv)**
+> [tab] Python (uv)
+>
+> ```bash theme={null}
+> uv add httpx
+> ```
 
-```bash theme={null}
-uv add httpx
-```
-
-**Python (pip)**
-
-```bash theme={null}
-pip install httpx
-```
+> [tab] Python (pip)
+>
+> ```bash theme={null}
+> pip install httpx
+> ```
 
 ### 天气工具示例
 
@@ -198,25 +198,25 @@ for await (const message of query({
 
 将此代码片段与[天气工具示例](#weather-tool-example)中的工具和服务器定义合并到一个文件（`weather.py` 或 `weather.ts`）中，然后在终端中运行它：
 
-**TypeScript**
+> [tab] TypeScript
+>
+> ```bash theme={null}
+> npx tsx weather.ts
+> ```
 
-```bash theme={null}
-npx tsx weather.ts
-```
+> [tab] Python (uv)
+>
+> ```bash theme={null}
+> uv run weather.py
+> ```
 
-**Python (uv)**
-
-```bash theme={null}
-uv run weather.py
-```
-
-**Python (pip)**
-
-激活您安装了 SDK 的虚拟环境，然后运行：
-
-```bash theme={null}
-python weather.py
-```
+> [tab] Python (pip)
+>
+> 激活您安装了 SDK 的虚拟环境，然后运行：
+>
+> ```bash theme={null}
+> python weather.py
+> ```
 
 Claude 调用 `get_temperature`，脚本打印一行答案，显示旧金山的当前温度。
 

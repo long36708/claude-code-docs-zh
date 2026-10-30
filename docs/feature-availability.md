@@ -229,67 +229,67 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 每个选项卡列出了该提供商上不可用或部分支持的内容，以及存在替代方案的地方。未列出的所有内容的工作方式与 Claude 订阅上相同，除了上面注明的[提供商特定的差异](#features-available-on-every-provider)。在 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 和 Claude Platform on AWS 上，错误报告和遥测到 Anthropic 默认处于关闭状态。请参阅[按 API 提供商的默认行为](https://code.claude.com/docs/zh-CN/data-usage.md#default-behaviors-by-api-provider)了解哪些流量仍然到达 Anthropic 以及如何选择退出。
 
-**Amazon Bedrock**
+> [tab] Amazon Bedrock
+>
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)、[fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+>
+> **部分支持：**
+>
+> * [Desktop](https://code.claude.com/docs/zh-CN/desktop.md)：仅通过 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
+> * [Auto mode](https://code.claude.com/docs/zh-CN/auto-mode-config.md)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
+> * [Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)：仅在此机器上的您的会话之间 <sup>[5](#fn5)</sup>
+> * [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md)：受您的 AWS 协议约束
+>
+> **替代方案：** 对于调度，使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 而不是 `/schedule`。对于云会话，使用 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 或 [GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。对于网络查询，使用带有特定 URL 的 [WebFetch tool](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)。
 
-**不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)、[fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+> [tab] Claude Platform on AWS
+>
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+>
+> **Amazon Bedrock 不可用的地方可用：** [web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)。
+>
+> **部分支持：**
+>
+> * [Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)：仅在此机器上的您的会话之间 <sup>[5](#fn5)</sup>
+>
+> **替代方案：** 对于调度，使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 而不是 `/schedule`。对于云会话，使用 [GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。
 
-**部分支持：**
+> [tab] Google Cloud's Agent Platform
+>
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+>
+> **部分支持：**
+>
+> * [Desktop](https://code.claude.com/docs/zh-CN/desktop.md)：通过[托管设置](https://claude.com/docs/third-party/claude-desktop/configuration)或 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
+> * [Web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)：Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型
+> * [Auto mode](https://code.claude.com/docs/zh-CN/auto-mode-config.md)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
+> * [Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)：仅在此机器上的您的会话之间 <sup>[5](#fn5)</sup>
+> * [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md)：受您的 Google Cloud 协议约束
+>
+> **替代方案：** 对于调度，使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 而不是 `/schedule`。对于云会话，使用 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 或 [GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。
 
-* [Desktop](https://code.claude.com/docs/zh-CN/desktop.md)：仅通过 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
-* [Auto mode](https://code.claude.com/docs/zh-CN/auto-mode-config.md)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
-* [Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)：仅在此机器上的您的会话之间 <sup>[5](#fn5)</sup>
-* [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md)：受您的 AWS 协议约束
+> [tab] Microsoft Foundry
+>
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+>
+> **部分支持：**
+>
+> * [Desktop](https://code.claude.com/docs/zh-CN/desktop.md)：仅通过 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
+> * [Auto mode](https://code.claude.com/docs/zh-CN/auto-mode-config.md)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
+> * [Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)：仅在此机器上的您的会话之间 <sup>[5](#fn5)</sup>
+> * [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md)：受您的 Azure 协议约束
+>
+> **替代方案：** 对于调度，使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 而不是 `/schedule`。对于云会话，使用 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)。
 
-**替代方案：** 对于调度，使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 而不是 `/schedule`。对于云会话，使用 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 或 [GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。对于网络查询，使用带有特定 URL 的 [WebFetch tool](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)。
-
-**Claude Platform on AWS**
-
-**不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
-
-**Amazon Bedrock 不可用的地方可用：** [web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)。
-
-**部分支持：**
-
-* [Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)：仅在此机器上的您的会话之间 <sup>[5](#fn5)</sup>
-
-**替代方案：** 对于调度，使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 而不是 `/schedule`。对于云会话，使用 [GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。
-
-**Google Cloud's Agent Platform**
-
-**不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
-
-**部分支持：**
-
-* [Desktop](https://code.claude.com/docs/zh-CN/desktop.md)：通过[托管设置](https://claude.com/docs/third-party/claude-desktop/configuration)或 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
-* [Web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)：Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型
-* [Auto mode](https://code.claude.com/docs/zh-CN/auto-mode-config.md)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
-* [Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)：仅在此机器上的您的会话之间 <sup>[5](#fn5)</sup>
-* [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md)：受您的 Google Cloud 协议约束
-
-**替代方案：** 对于调度，使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 而不是 `/schedule`。对于云会话，使用 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 或 [GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。
-
-**Microsoft Foundry**
-
-**不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
-
-**部分支持：**
-
-* [Desktop](https://code.claude.com/docs/zh-CN/desktop.md)：仅通过 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
-* [Auto mode](https://code.claude.com/docs/zh-CN/auto-mode-config.md)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
-* [Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)：仅在此机器上的您的会话之间 <sup>[5](#fn5)</sup>
-* [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md)：受您的 Azure 协议约束
-
-**替代方案：** 对于调度，使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 而不是 `/schedule`。对于云会话，使用 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)。
-
-**Anthropic Console**
-
-**不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)。
-
-[按提供商变化的 CLI 功能](#cli-capabilities-that-vary-by-provider)中的所有内容都可用，除了使用 Claude Opus 5 或 Claude Opus 4.8 的 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md) 需要[预配置访问](https://code.claude.com/docs/zh-CN/fast-mode.md#enable-fast-mode-for-your-organization)。在 claude.ai Team 或 Enterprise 组织中配置的 [Server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 不会作用于使用 Console API 密钥进行身份验证的会话。有关如何覆盖这些会话，请参阅[平台可用性](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)。
-
-**部分支持：**
-
-* [Desktop](https://code.claude.com/docs/zh-CN/desktop.md)：通过[结合 Claude API 使用的 Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/claude-api)
+> [tab] Anthropic Console
+>
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)。
+>
+> [按提供商变化的 CLI 功能](#cli-capabilities-that-vary-by-provider)中的所有内容都可用，除了使用 Claude Opus 5 或 Claude Opus 4.8 的 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md) 需要[预配置访问](https://code.claude.com/docs/zh-CN/fast-mode.md#enable-fast-mode-for-your-organization)。在 claude.ai Team 或 Enterprise 组织中配置的 [Server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 不会作用于使用 Console API 密钥进行身份验证的会话。有关如何覆盖这些会话，请参阅[平台可用性](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)。
+>
+> **部分支持：**
+>
+> * [Desktop](https://code.claude.com/docs/zh-CN/desktop.md)：通过[结合 Claude API 使用的 Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/claude-api)
 
 ## 按订阅计划的可用性
 

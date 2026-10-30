@@ -294,47 +294,47 @@ MCP 工具定义[默认被延迟](https://code.claude.com/docs/zh-CN/mcp.md#scal
 
 例如，此 PreToolUse hook 过滤测试输出以仅显示失败：
 
-**settings.json**
+> [tab] settings.json
+>
+> 将此添加到您的 [settings.json](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)，以在每个 Bash 命令之前运行 hook：
+>
+> ```json theme={null}
+> {
+>   "hooks": {
+>     "PreToolUse": [
+>       {
+>         "matcher": "Bash",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "~/.claude/hooks/filter-test-output.sh"
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
 
-将此添加到您的 [settings.json](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)，以在每个 Bash 命令之前运行 hook：
-
-```json theme={null}
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/filter-test-output.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**filter-test-output.sh**
-
-hook 调用此脚本。使用 `mkdir -p ~/.claude/hooks` 创建文件夹，将下面的脚本保存为 `~/.claude/hooks/filter-test-output.sh`，并使用 `chmod +x ~/.claude/hooks/filter-test-output.sh` 使其可执行。它检查命令是否为测试运行器并修改它以仅显示失败：
-
-```bash theme={null}
-#!/bin/bash
-input=$(cat)
-cmd=$(echo "$input" | jq -r '.tool_input.command')
-
-# If running tests, filter to show only failures
-pattern='^(npm test|pytest|go test)( [^;&|<>`$#\\[:cntrl:]]*)?$'
-if [[ "$cmd" =~ $pattern ]]; then
-  filtered_cmd="$cmd 2>&1 | grep -A 5 -E '(FAIL|ERROR|error:)' | head -100"
-  echo "$input" | jq --arg filtered "$filtered_cmd" \
-    '{hookSpecificOutput: {hookEventName: "PreToolUse", updatedInput: (.tool_input + {command: $filtered})}}'
-else
-  echo "{}"
-fi
-```
+> [tab] filter-test-output.sh
+>
+> hook 调用此脚本。使用 `mkdir -p ~/.claude/hooks` 创建文件夹，将下面的脚本保存为 `~/.claude/hooks/filter-test-output.sh`，并使用 `chmod +x ~/.claude/hooks/filter-test-output.sh` 使其可执行。它检查命令是否为测试运行器并修改它以仅显示失败：
+>
+> ```bash theme={null}
+> #!/bin/bash
+> input=$(cat)
+> cmd=$(echo "$input" | jq -r '.tool_input.command')
+>
+> # If running tests, filter to show only failures
+> pattern='^(npm test|pytest|go test)( [^;&|<>`$#\\[:cntrl:]]*)?$'
+> if [[ "$cmd" =~ $pattern ]]; then
+>   filtered_cmd="$cmd 2>&1 | grep -A 5 -E '(FAIL|ERROR|error:)' | head -100"
+>   echo "$input" | jq --arg filtered "$filtered_cmd" \
+>     '{hookSpecificOutput: {hookEventName: "PreToolUse", updatedInput: (.tool_input + {command: $filtered})}}'
+> else
+>   echo "{}"
+> fi
+> ```
 
 要验证设置，运行 `/hooks` 并检查 hook 是否出现在 PreToolUse 下。您也可以使用 `claude --debug-file ./claude-debug.txt` 启动 Claude Code 并要求 Claude 运行 `npm test`。当 hook 重写命令时，该日志文件包含一个 `modified tool input keys` 行，列出 `command` 和其他 Bash 输入字段。
 

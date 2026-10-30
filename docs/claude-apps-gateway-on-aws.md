@@ -325,146 +325,146 @@ docker push "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/claude-gateway:<v
 
 **7. 部署**
 
-**ECS Fargate**
+> [tab] ECS Fargate
+>
+> 创建集群和 gateway 的日志组，用于其 stderr，其中包含其审计事件和操作日志。保留期需要通过单独的调用来设置；如果不设置，CloudWatch 会永远保留日志；将 90 天与您的审计保留策略对齐：
+>
+> ```bash theme={null}
+> aws ecs create-cluster --cluster-name claude-gateway
+> aws logs create-log-group --log-group-name /ecs/claude-gateway
+> aws logs put-retention-policy --log-group-name /ecs/claude-gateway \
+>   --retention-in-days 90
+> ```
+>
+> 编写任务定义。任务角色携带 Bedrock 权限，执行角色注入机密；使用 Secrets Manager 步骤中的机密 ARN：
+>
+> ```json claude-gateway-task.json theme={null}
+> {
+>   "family": "claude-gateway",
+>   "networkMode": "awsvpc",
+>   "requiresCompatibilities": ["FARGATE"],
+>   "cpu": "1024",
+>   "memory": "2048",
+>   "runtimePlatform": { "cpuArchitecture": "X86_64", "operatingSystemFamily": "LINUX" },
+>   "executionRoleArn": "arn:aws:iam::<account-id>:role/claude-gateway-execution",
+>   "taskRoleArn": "arn:aws:iam::<account-id>:role/claude-gateway-task",
+>   "containerDefinitions": [
+>     {
+>       "name": "gateway",
+>       "image": "<account-id>.dkr.ecr.<region>.amazonaws.com/claude-gateway:<version>",
+>       "portMappings": [{ "containerPort": 8080 }],
+>       "secrets": [
+>         { "name": "GATEWAY_JWT_SECRET",   "valueFrom": "<gateway-jwt-secret ARN>" },
+>         { "name": "OIDC_CLIENT_SECRET",   "valueFrom": "<gateway-oidc-client-secret ARN>" },
+>         { "name": "GATEWAY_POSTGRES_URL", "valueFrom": "<gateway-postgres-url ARN>" }
+>       ],
+>       "logConfiguration": {
+>         "logDriver": "awslogs",
+>         "options": {
+>           "awslogs-group": "/ecs/claude-gateway",
+>           "awslogs-region": "<region>",
+>           "awslogs-stream-prefix": "gateway"
+>         }
+>       }
+>     }
+>   ]
+> }
+> ```
+>
+> 注册它：
+>
+> ```bash theme={null}
+> aws ecs register-task-definition --cli-input-json file://claude-gateway-task.json
+> ```
+>
+> 在前面放一个内部 ALB，带有一个对 gateway 进行健康检查的目标组。`--ip-address-type ipv4` 很重要：内部双栈 ALB 发布公共范围 AAAA 记录，`/login` 私有网络检查拒绝：
+>
+> ```bash theme={null}
+> ALB_ARN="$(aws elbv2 create-load-balancer --name claude-gateway \
+>   --scheme internal --type application --ip-address-type ipv4 \
+>   --subnets $PRIVATE_SUBNETS --security-groups "$ALB_SG" \
+>   --query 'LoadBalancers[0].LoadBalancerArn' --output text)"
+>
+> TG_ARN="$(aws elbv2 create-target-group --name claude-gateway \
+>   --protocol HTTP --port 8080 --vpc-id "$VPC_ID" --target-type ip \
+>   --health-check-path /readyz \
+>   --query 'TargetGroups[0].TargetGroupArn' --output text)"
+> ```
+>
+> 添加 HTTPS 侦听器。`--ssl-policy` 固定现代 TLS 下限，因为省略它会回退到遗留 `ELBSecurityPolicy-2016-08` 默认值，仍然接受 TLS 1.0/1.1。
+>
+> ALB 在默认情况下 60 秒无数据后关闭连接。gateway 的保活 ping 保持流在该默认值内，因此提高超时在 ping 节奏上方增加余量；[故障排除](#troubleshooting)行关于丢弃的流涵盖了机制和较旧的 gateway。下面的命令添加侦听器并提高超时：
+>
+> ```bash theme={null}
+> aws elbv2 create-listener --load-balancer-arn "$ALB_ARN" \
+>   --protocol HTTPS --port 443 \
+>   --ssl-policy ELBSecurityPolicy-TLS13-1-2-2021-06 \
+>   --certificates CertificateArn=<your-acm-certificate-arn> \
+>   --default-actions Type=forward,TargetGroupArn="$TG_ARN"
+>
+> aws elbv2 modify-load-balancer-attributes --load-balancer-arn "$ALB_ARN" \
+>   --attributes Key=idle_timeout.timeout_seconds,Value=3600
+> ```
+>
+> 创建服务。部署断路器将其任务持续失败的部署（来自坏镜像或无法启动的配置）回滚到最后的稳定状态，而不是永远重新启动失败的任务：
+>
+> ```bash theme={null}
+> aws ecs create-service --cluster claude-gateway --service-name claude-gateway \
+>   --task-definition claude-gateway --desired-count 1 --launch-type FARGATE \
+>   --deployment-configuration "deploymentCircuitBreaker={enable=true,rollback=true}" \
+>   --health-check-grace-period-seconds 60 \
+>   --network-configuration "awsvpcConfiguration={subnets=[$(echo $PRIVATE_SUBNETS | tr ' ' ',')],securityGroups=[$GW_SG],assignPublicIp=DISABLED}" \
+>   --load-balancers "targetGroupArn=$TG_ARN,containerName=gateway,containerPort=8080"
+> ```
+>
+> 60 秒的宽限期给冷任务时间拉取镜像、连接到存储并在 ECS 开始计算针对部署的失败之前回答其第一个健康检查。
+>
+> 目标组对 `GET /readyz` 的健康检查验证存储是否可达，因此无法到达 Postgres 的任务永远不会进入轮换。要通过短数据库中断（例如 RDS 故障转移）保持任务通过检查，请按照[中断行为](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#outage-behavior)中所述设置 `store.readiness_grace_seconds`，其中也涵盖了 `/healthz` 替代方案。
+>
+> 任务在私有子网中运行，没有公共 IP，因此所有出站（到 Bedrock、您的 IdP、Secrets Manager、ECR 和 CloudWatch Logs）都通过 NAT 网关。要将 Bedrock 流量保持在公共路径之外，创建一个 `bedrock-runtime` 接口 VPC 端点并将上游的 `base_url` 指向它，如 [Bedrock 上游参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#amazon-bedrock)所示；IdP 仍然需要互联网出站。
+>
+> 最后，为开发人员提供一个可私有解析的主机名：在 Route 53 私有托管区域中，将 gateway 的内部 DNS 名称别名到 ALB，并将 `listen.public_url` 设置为该主机名。ALB 自己的 `*.elb.amazonaws.com` 名称在内部 ALB 上解析为私有地址，但它不能携带您的 ACM 证书，因此使用您自己的名称。
+>
+> 在第一次登录之前，将 OAuth 客户端的授权重定向 URI 更新为 `<public_url>/oauth/callback`。更改 `public_url` 后，在新标签下重建并推送镜像，注册新的任务定义修订版本，然后重新部署。在 ECS 上，该设置位于镜像的嵌入式 `gateway.yaml` 中，gateway 仅从该设置构建其公共源，忽略 `X-Forwarded-Host` 和 `X-Forwarded-Proto`。`X-Forwarded-For` 仅在设置 `listen.trusted_proxies` 时才被遵守用于客户端 IP。
 
-创建集群和 gateway 的日志组，用于其 stderr，其中包含其审计事件和操作日志。保留期需要通过单独的调用来设置；如果不设置，CloudWatch 会永远保留日志；将 90 天与您的审计保留策略对齐：
-
-```bash theme={null}
-aws ecs create-cluster --cluster-name claude-gateway
-aws logs create-log-group --log-group-name /ecs/claude-gateway
-aws logs put-retention-policy --log-group-name /ecs/claude-gateway \
-  --retention-in-days 90
-```
-
-编写任务定义。任务角色携带 Bedrock 权限，执行角色注入机密；使用 Secrets Manager 步骤中的机密 ARN：
-
-```json claude-gateway-task.json theme={null}
-{
-  "family": "claude-gateway",
-  "networkMode": "awsvpc",
-  "requiresCompatibilities": ["FARGATE"],
-  "cpu": "1024",
-  "memory": "2048",
-  "runtimePlatform": { "cpuArchitecture": "X86_64", "operatingSystemFamily": "LINUX" },
-  "executionRoleArn": "arn:aws:iam::<account-id>:role/claude-gateway-execution",
-  "taskRoleArn": "arn:aws:iam::<account-id>:role/claude-gateway-task",
-  "containerDefinitions": [
-    {
-      "name": "gateway",
-      "image": "<account-id>.dkr.ecr.<region>.amazonaws.com/claude-gateway:<version>",
-      "portMappings": [{ "containerPort": 8080 }],
-      "secrets": [
-        { "name": "GATEWAY_JWT_SECRET",   "valueFrom": "<gateway-jwt-secret ARN>" },
-        { "name": "OIDC_CLIENT_SECRET",   "valueFrom": "<gateway-oidc-client-secret ARN>" },
-        { "name": "GATEWAY_POSTGRES_URL", "valueFrom": "<gateway-postgres-url ARN>" }
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/claude-gateway",
-          "awslogs-region": "<region>",
-          "awslogs-stream-prefix": "gateway"
-        }
-      }
-    }
-  ]
-}
-```
-
-注册它：
-
-```bash theme={null}
-aws ecs register-task-definition --cli-input-json file://claude-gateway-task.json
-```
-
-在前面放一个内部 ALB，带有一个对 gateway 进行健康检查的目标组。`--ip-address-type ipv4` 很重要：内部双栈 ALB 发布公共范围 AAAA 记录，`/login` 私有网络检查拒绝：
-
-```bash theme={null}
-ALB_ARN="$(aws elbv2 create-load-balancer --name claude-gateway \
-  --scheme internal --type application --ip-address-type ipv4 \
-  --subnets $PRIVATE_SUBNETS --security-groups "$ALB_SG" \
-  --query 'LoadBalancers[0].LoadBalancerArn' --output text)"
-
-TG_ARN="$(aws elbv2 create-target-group --name claude-gateway \
-  --protocol HTTP --port 8080 --vpc-id "$VPC_ID" --target-type ip \
-  --health-check-path /readyz \
-  --query 'TargetGroups[0].TargetGroupArn' --output text)"
-```
-
-添加 HTTPS 侦听器。`--ssl-policy` 固定现代 TLS 下限，因为省略它会回退到遗留 `ELBSecurityPolicy-2016-08` 默认值，仍然接受 TLS 1.0/1.1。
-
-ALB 在默认情况下 60 秒无数据后关闭连接。gateway 的保活 ping 保持流在该默认值内，因此提高超时在 ping 节奏上方增加余量；[故障排除](#troubleshooting)行关于丢弃的流涵盖了机制和较旧的 gateway。下面的命令添加侦听器并提高超时：
-
-```bash theme={null}
-aws elbv2 create-listener --load-balancer-arn "$ALB_ARN" \
-  --protocol HTTPS --port 443 \
-  --ssl-policy ELBSecurityPolicy-TLS13-1-2-2021-06 \
-  --certificates CertificateArn=<your-acm-certificate-arn> \
-  --default-actions Type=forward,TargetGroupArn="$TG_ARN"
-
-aws elbv2 modify-load-balancer-attributes --load-balancer-arn "$ALB_ARN" \
-  --attributes Key=idle_timeout.timeout_seconds,Value=3600
-```
-
-创建服务。部署断路器将其任务持续失败的部署（来自坏镜像或无法启动的配置）回滚到最后的稳定状态，而不是永远重新启动失败的任务：
-
-```bash theme={null}
-aws ecs create-service --cluster claude-gateway --service-name claude-gateway \
-  --task-definition claude-gateway --desired-count 1 --launch-type FARGATE \
-  --deployment-configuration "deploymentCircuitBreaker={enable=true,rollback=true}" \
-  --health-check-grace-period-seconds 60 \
-  --network-configuration "awsvpcConfiguration={subnets=[$(echo $PRIVATE_SUBNETS | tr ' ' ',')],securityGroups=[$GW_SG],assignPublicIp=DISABLED}" \
-  --load-balancers "targetGroupArn=$TG_ARN,containerName=gateway,containerPort=8080"
-```
-
-60 秒的宽限期给冷任务时间拉取镜像、连接到存储并在 ECS 开始计算针对部署的失败之前回答其第一个健康检查。
-
-目标组对 `GET /readyz` 的健康检查验证存储是否可达，因此无法到达 Postgres 的任务永远不会进入轮换。要通过短数据库中断（例如 RDS 故障转移）保持任务通过检查，请按照[中断行为](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#outage-behavior)中所述设置 `store.readiness_grace_seconds`，其中也涵盖了 `/healthz` 替代方案。
-
-任务在私有子网中运行，没有公共 IP，因此所有出站（到 Bedrock、您的 IdP、Secrets Manager、ECR 和 CloudWatch Logs）都通过 NAT 网关。要将 Bedrock 流量保持在公共路径之外，创建一个 `bedrock-runtime` 接口 VPC 端点并将上游的 `base_url` 指向它，如 [Bedrock 上游参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#amazon-bedrock)所示；IdP 仍然需要互联网出站。
-
-最后，为开发人员提供一个可私有解析的主机名：在 Route 53 私有托管区域中，将 gateway 的内部 DNS 名称别名到 ALB，并将 `listen.public_url` 设置为该主机名。ALB 自己的 `*.elb.amazonaws.com` 名称在内部 ALB 上解析为私有地址，但它不能携带您的 ACM 证书，因此使用您自己的名称。
-
-在第一次登录之前，将 OAuth 客户端的授权重定向 URI 更新为 `<public_url>/oauth/callback`。更改 `public_url` 后，在新标签下重建并推送镜像，注册新的任务定义修订版本，然后重新部署。在 ECS 上，该设置位于镜像的嵌入式 `gateway.yaml` 中，gateway 仅从该设置构建其公共源，忽略 `X-Forwarded-Host` 和 `X-Forwarded-Proto`。`X-Forwarded-For` 仅在设置 `listen.trusted_proxies` 时才被遵守用于客户端 IP。
-
-**EKS**
-
-此轨道需要本地安装 `kubectl` 和 `eksctl`，以及具有 IAM OIDC 提供程序和已安装 AWS Load Balancer Controller 的现有 EKS 集群。集群必须在 `$VPC_ID` 上，以便 pod 可以到达 RDS 私有端点，`claude-gateway-db` 安全组必须允许集群的 pod 或节点安全组而不是 `$GW_SG`。
-
-在 EKS 上，gateway 通过 IRSA 而不是 ECS 角色获得其 Bedrock 凭据。IAM 步骤中的 `ecs-tasks.amazonaws.com` 信任策略在这里不适用；IRSA 需要一个信任策略在集群的 OIDC 提供程序上联合的角色，范围为 `system:serviceaccount:claude-gateway:gateway`。`eksctl create iamserviceaccount` 在一个步骤中创建该角色、附加策略并使用角色 ARN 注解 Kubernetes 服务账户。将 IAM 步骤中的两个策略文档转换为它可以附加的托管策略：
-
-```bash theme={null}
-BEDROCK_POLICY_ARN="$(aws iam create-policy --policy-name claude-gateway-bedrock-invoke \
-  --policy-document file://bedrock-invoke.json --query Policy.Arn --output text)"
-SECRETS_POLICY_ARN="$(aws iam create-policy --policy-name claude-gateway-secrets-read \
-  --policy-document file://secrets-read.json --query Policy.Arn --output text)"
-
-kubectl create namespace claude-gateway
-eksctl create iamserviceaccount --cluster <your-cluster> --region "$AWS_REGION" \
-  --namespace claude-gateway --name gateway --role-name claude-gateway \
-  --attach-policy-arn "$BEDROCK_POLICY_ARN" \
-  --attach-policy-arn "$SECRETS_POLICY_ARN" \
-  --approve
-```
-
-机密策略仅在 pod 自己读取 Secrets Manager 时需要，如 Secrets Store CSI 驱动程序的 AWS 提供程序使用挂载 pod 的服务账户所做的那样；如果您以其他方式创建 Kubernetes Secrets，则删除它。提供程序需要策略的两个操作：它在协调轮换的机密时调用 `DescribeSecret`，因此仅 `GetSecretValue` 授予在第一次部署时挂载但停止拾取轮换。
-
-将 gateway 部署为标准 Deployment 加上 Service 和 Ingress，如[Kubernetes 部署](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#kubernetes)中所述，具有：
-
-* `serviceAccountName: gateway`
-* 从 ConfigMap 挂载的 `gateway.yaml` 和在 `/secrets` 挂载的机密
-* 就绪探针指向 `GET /readyz`
-
-对于前端，由 AWS Load Balancer Controller 管理的 Ingress 配置内部 ALB。使用以下注解：
-
-* `alb.ingress.kubernetes.io/scheme: internal` 和 `alb.ingress.kubernetes.io/target-type: ip`
-* `alb.ingress.kubernetes.io/ip-address-type: ipv4`，因此不会发布会被 `/login` [私有网络检查](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)拒绝的公共范围 AAAA 记录
-* `alb.ingress.kubernetes.io/inbound-cidrs: <your-corporate-cidr>`，因此控制器管理的前端安全组仅允许您的企业网络而不是其 `0.0.0.0/0` 默认值
-* `alb.ingress.kubernetes.io/certificate-arn` 与 ACM 证书
-* `alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06`，因此侦听器不会回退到接受 TLS 1.0 和 1.1 的遗留默认策略
-* `alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600`，gateway 流式保活上方的余量；请参阅[故障排除](#troubleshooting)
-
-使用 IRSA，AWS SDK 读取投影的服务账户令牌并与 AWS STS 交换它，因此 pod 永远不需要 EC2 实例元数据服务；出站 NetworkPolicy 可能会为 gateway pod 阻止 `169.254.169.254`。下面[故障排除](#troubleshooting)中的节点跳跃限制问题仅适用于跳过 IRSA 并依赖节点实例角色的集群。
+> [tab] EKS
+>
+> 此轨道需要本地安装 `kubectl` 和 `eksctl`，以及具有 IAM OIDC 提供程序和已安装 AWS Load Balancer Controller 的现有 EKS 集群。集群必须在 `$VPC_ID` 上，以便 pod 可以到达 RDS 私有端点，`claude-gateway-db` 安全组必须允许集群的 pod 或节点安全组而不是 `$GW_SG`。
+>
+> 在 EKS 上，gateway 通过 IRSA 而不是 ECS 角色获得其 Bedrock 凭据。IAM 步骤中的 `ecs-tasks.amazonaws.com` 信任策略在这里不适用；IRSA 需要一个信任策略在集群的 OIDC 提供程序上联合的角色，范围为 `system:serviceaccount:claude-gateway:gateway`。`eksctl create iamserviceaccount` 在一个步骤中创建该角色、附加策略并使用角色 ARN 注解 Kubernetes 服务账户。将 IAM 步骤中的两个策略文档转换为它可以附加的托管策略：
+>
+> ```bash theme={null}
+> BEDROCK_POLICY_ARN="$(aws iam create-policy --policy-name claude-gateway-bedrock-invoke \
+>   --policy-document file://bedrock-invoke.json --query Policy.Arn --output text)"
+> SECRETS_POLICY_ARN="$(aws iam create-policy --policy-name claude-gateway-secrets-read \
+>   --policy-document file://secrets-read.json --query Policy.Arn --output text)"
+>
+> kubectl create namespace claude-gateway
+> eksctl create iamserviceaccount --cluster <your-cluster> --region "$AWS_REGION" \
+>   --namespace claude-gateway --name gateway --role-name claude-gateway \
+>   --attach-policy-arn "$BEDROCK_POLICY_ARN" \
+>   --attach-policy-arn "$SECRETS_POLICY_ARN" \
+>   --approve
+> ```
+>
+> 机密策略仅在 pod 自己读取 Secrets Manager 时需要，如 Secrets Store CSI 驱动程序的 AWS 提供程序使用挂载 pod 的服务账户所做的那样；如果您以其他方式创建 Kubernetes Secrets，则删除它。提供程序需要策略的两个操作：它在协调轮换的机密时调用 `DescribeSecret`，因此仅 `GetSecretValue` 授予在第一次部署时挂载但停止拾取轮换。
+>
+> 将 gateway 部署为标准 Deployment 加上 Service 和 Ingress，如[Kubernetes 部署](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#kubernetes)中所述，具有：
+>
+> * `serviceAccountName: gateway`
+> * 从 ConfigMap 挂载的 `gateway.yaml` 和在 `/secrets` 挂载的机密
+> * 就绪探针指向 `GET /readyz`
+>
+> 对于前端，由 AWS Load Balancer Controller 管理的 Ingress 配置内部 ALB。使用以下注解：
+>
+> * `alb.ingress.kubernetes.io/scheme: internal` 和 `alb.ingress.kubernetes.io/target-type: ip`
+> * `alb.ingress.kubernetes.io/ip-address-type: ipv4`，因此不会发布会被 `/login` [私有网络检查](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)拒绝的公共范围 AAAA 记录
+> * `alb.ingress.kubernetes.io/inbound-cidrs: <your-corporate-cidr>`，因此控制器管理的前端安全组仅允许您的企业网络而不是其 `0.0.0.0/0` 默认值
+> * `alb.ingress.kubernetes.io/certificate-arn` 与 ACM 证书
+> * `alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06`，因此侦听器不会回退到接受 TLS 1.0 和 1.1 的遗留默认策略
+> * `alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600`，gateway 流式保活上方的余量；请参阅[故障排除](#troubleshooting)
+>
+> 使用 IRSA，AWS SDK 读取投影的服务账户令牌并与 AWS STS 交换它，因此 pod 永远不需要 EC2 实例元数据服务；出站 NetworkPolicy 可能会为 gateway pod 阻止 `169.254.169.254`。下面[故障排除](#troubleshooting)中的节点跳跃限制问题仅适用于跳过 IRSA 并依赖节点实例角色的集群。
 
 **8. 将 gateway URL 推送到开发人员机器**
 

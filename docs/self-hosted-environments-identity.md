@@ -90,84 +90,84 @@ https://api.anthropic.com/v1/code/.well-known/jwks.json
 
 这些检查可以直接对应到标准 JWT 库。以下示例分别在 Node.js 中使用 [`jose`](https://www.npmjs.com/package/jose)（它负责 JWKS 的获取、缓存和 `kid` 选择），以及在 Python 中使用 [`PyJWT`](https://pyjwt.readthedocs.io/) 及其内置的 JWKS 客户端，实现了完整的检查流程。
 
-**Node.js (jose)**
+> [tab] Node.js (jose)
+>
+> ```typescript theme={null}
+> import { createRemoteJWKSet, jwtVerify } from "jose";
+>
+> const JWKS = createRemoteJWKSet(
+>   new URL("https://api.anthropic.com/v1/code/.well-known/jwks.json")
+> );
+>
+> const PREFIX = "sk-ant-cc-";
+> const EXPECTED_POOL_ID = "ccpool_...";
+>
+> export async function verifySessionToken(raw: string) {
+>   if (!raw.startsWith(PREFIX)) {
+>     throw new Error("not a self-hosted runner session token");
+>   }
+>   const jwt = raw.slice(PREFIX.length);
+>
+>   const { payload } = await jwtVerify(jwt, JWKS, {
+>     issuer: "ccr",
+>     audience: EXPECTED_POOL_ID,
+>     algorithms: ["ES256"],
+>   });
+>
+>   if (payload["ccr:role"] !== "session_worker") {
+>     throw new Error("token is not a session_worker token");
+>   }
+>
+>   const act = payload.act as { email?: string; sub?: string };
+>   return {
+>     sessionId: payload["ccr:session_id"] as string,
+>     poolId: payload["ccr:pool_id"] as string,
+>     orgId: payload["ccr:org_id"] as string,
+>     creatorEmail: act?.email,
+>     creatorSub: act?.sub,
+>   };
+> }
+> ```
 
-```typescript theme={null}
-import { createRemoteJWKSet, jwtVerify } from "jose";
-
-const JWKS = createRemoteJWKSet(
-  new URL("https://api.anthropic.com/v1/code/.well-known/jwks.json")
-);
-
-const PREFIX = "sk-ant-cc-";
-const EXPECTED_POOL_ID = "ccpool_...";
-
-export async function verifySessionToken(raw: string) {
-  if (!raw.startsWith(PREFIX)) {
-    throw new Error("not a self-hosted runner session token");
-  }
-  const jwt = raw.slice(PREFIX.length);
-
-  const { payload } = await jwtVerify(jwt, JWKS, {
-    issuer: "ccr",
-    audience: EXPECTED_POOL_ID,
-    algorithms: ["ES256"],
-  });
-
-  if (payload["ccr:role"] !== "session_worker") {
-    throw new Error("token is not a session_worker token");
-  }
-
-  const act = payload.act as { email?: string; sub?: string };
-  return {
-    sessionId: payload["ccr:session_id"] as string,
-    poolId: payload["ccr:pool_id"] as string,
-    orgId: payload["ccr:org_id"] as string,
-    creatorEmail: act?.email,
-    creatorSub: act?.sub,
-  };
-}
-```
-
-**Python (PyJWT)**
-
-```python theme={null}
-import jwt
-from jwt import PyJWKClient
-
-JWKS_URL = "https://api.anthropic.com/v1/code/.well-known/jwks.json"
-PREFIX = "sk-ant-cc-"
-EXPECTED_POOL_ID = "ccpool_..."
-
-jwks = PyJWKClient(JWKS_URL)
-
-
-def verify_session_token(raw: str) -> dict:
-    if not raw.startswith(PREFIX):
-        raise ValueError("not a self-hosted runner session token")
-    token = raw.removeprefix(PREFIX)
-
-    signing_key = jwks.get_signing_key_from_jwt(token)
-    payload = jwt.decode(
-        token,
-        signing_key.key,
-        algorithms=["ES256"],
-        issuer="ccr",
-        audience=EXPECTED_POOL_ID,
-    )
-
-    if payload.get("ccr:role") != "session_worker":
-        raise ValueError("token is not a session_worker token")
-
-    act = payload.get("act") or {}
-    return {
-        "session_id": payload["ccr:session_id"],
-        "pool_id": payload["ccr:pool_id"],
-        "org_id": payload["ccr:org_id"],
-        "creator_email": act.get("email"),
-        "creator_sub": act.get("sub"),
-    }
-```
+> [tab] Python (PyJWT)
+>
+> ```python theme={null}
+> import jwt
+> from jwt import PyJWKClient
+>
+> JWKS_URL = "https://api.anthropic.com/v1/code/.well-known/jwks.json"
+> PREFIX = "sk-ant-cc-"
+> EXPECTED_POOL_ID = "ccpool_..."
+>
+> jwks = PyJWKClient(JWKS_URL)
+>
+>
+> def verify_session_token(raw: str) -> dict:
+>     if not raw.startswith(PREFIX):
+>         raise ValueError("not a self-hosted runner session token")
+>     token = raw.removeprefix(PREFIX)
+>
+>     signing_key = jwks.get_signing_key_from_jwt(token)
+>     payload = jwt.decode(
+>         token,
+>         signing_key.key,
+>         algorithms=["ES256"],
+>         issuer="ccr",
+>         audience=EXPECTED_POOL_ID,
+>     )
+>
+>     if payload.get("ccr:role") != "session_worker":
+>         raise ValueError("token is not a session_worker token")
+>
+>     act = payload.get("act") or {}
+>     return {
+>         "session_id": payload["ccr:session_id"],
+>         "pool_id": payload["ccr:pool_id"],
+>         "org_id": payload["ccr:org_id"],
+>         "creator_email": act.get("email"),
+>         "creator_sub": act.get("sub"),
+>     }
+> ```
 
 ### 在会话内验证令牌
 

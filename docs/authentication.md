@@ -300,23 +300,23 @@ claude setup-token
 
 该命令会打开与 `/login` 相同的浏览器授权流程，在您在浏览器中批准访问后，令牌会打印到终端。它不会将令牌保存在任何地方；复制它并将其设置为 `CLAUDE_CODE_OAUTH_TOKEN` 环境变量，无论您想在何处进行身份验证：
 
-**macOS, Linux, WSL**
+> [tab] macOS, Linux, WSL
+>
+> ```bash theme={null}
+> export CLAUDE_CODE_OAUTH_TOKEN=your-token
+> ```
 
-```bash theme={null}
-export CLAUDE_CODE_OAUTH_TOKEN=your-token
-```
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> $env:CLAUDE_CODE_OAUTH_TOKEN = "your-token"
+> ```
 
-**Windows PowerShell**
-
-```powershell theme={null}
-$env:CLAUDE_CODE_OAUTH_TOKEN = "your-token"
-```
-
-**Windows CMD**
-
-```batch theme={null}
-set CLAUDE_CODE_OAUTH_TOKEN=your-token
-```
+> [tab] Windows CMD
+>
+> ```batch theme={null}
+> set CLAUDE_CODE_OAUTH_TOKEN=your-token
+> ```
 
 此令牌使用您的 Claude 订阅进行身份验证，需要 Pro、Max、Team 或 Enterprise 计划。它只能进行模型请求，因此无法建立 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话或获取 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)。您在本地配置的 MCP 服务器仍然有效。
 

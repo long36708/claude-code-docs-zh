@@ -32,23 +32,23 @@
 
 根据您需要完成的操作选择相应页面：
 
-> **[设置 Code Review](https://code.claude.com/docs/zh-CN/code-review-setup.md)**
+> [card] [设置 Code Review](https://code.claude.com/docs/zh-CN/code-review-setup.md)
 >
 > 检查要求、安装 Claude GitHub App，并选择仓库、审查级别以及审查的运行时机
 
-> **[自定义 Code Review](https://code.claude.com/docs/zh-CN/code-review-customize.md)**
+> [card] [自定义 Code Review](https://code.claude.com/docs/zh-CN/code-review-customize.md)
 >
 > 通过仓库中的 `REVIEW.md` 和 `CLAUDE.md` 文件调整标记的内容
 
-> **[在 Pull Request 上阅读和请求审查](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md)**
+> [card] [在 Pull Request 上阅读和请求审查](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md)
 >
 > 阅读发现及其严重程度，并通过评论请求再次审查
 
-> **[Code Review 故障排除](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md)**
+> [card] [Code Review 故障排除](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md)
 >
 > 修复未启动、失败或因预算而被跳过的审查
 
-> **[Code Review 成本和使用情况](https://code.claude.com/docs/zh-CN/code-review-costs.md)**
+> [card] [Code Review 成本和使用情况](https://code.claude.com/docs/zh-CN/code-review-costs.md)
 >
 > 了解审查的计费方式、估算支出、设置每月支出上限并跟踪审查活动
 

@@ -531,28 +531,28 @@ runner 仍会向 Anthropic 轮询会话，且每个会话仍会将其事件流�
 
 使用 [`--confine-repo-settings enforce`](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy#harden-your-deployment) 启动这些 runner。它会拒绝那些已提交设置被其标记的仓库上的会话，因此请先在默认的 `warn` 模式下运行，并清理其记录的问题。
 
-**Amazon Bedrock**
+> [tab] Amazon Bedrock
+>
+> 将区域替换为您自己的区域：
+>
+> ```bash theme={null}
+> export CLAUDE_CODE_USE_BEDROCK=1
+> export AWS_REGION=us-east-1
+> ```
+>
+> 有关 Claude Code 如何解析区域，请参阅[配置 Claude Code](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#3-configure-claude-code)。有关 Claude Code 针对您的区域使用哪个推理配置文件前缀，请参阅[跨区域推理配置文件前缀](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#cross-region-inference-profile-prefixes)。
 
-将区域替换为您自己的区域：
-
-```bash theme={null}
-export CLAUDE_CODE_USE_BEDROCK=1
-export AWS_REGION=us-east-1
-```
-
-有关 Claude Code 如何解析区域，请参阅[配置 Claude Code](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#3-configure-claude-code)。有关 Claude Code 针对您的区域使用哪个推理配置文件前缀，请参阅[跨区域推理配置文件前缀](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#cross-region-inference-profile-prefixes)。
-
-**Google Cloud's Agent Platform**
-
-将区域和项目 ID 替换为您自己的值：
-
-```bash theme={null}
-export CLAUDE_CODE_USE_VERTEX=1
-export CLOUD_ML_REGION=global
-export ANTHROPIC_VERTEX_PROJECT_ID=YOUR-PROJECT-ID
-```
-
-要选择区域，请参阅[区域配置](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#region-configuration)。
+> [tab] Google Cloud's Agent Platform
+>
+> 将区域和项目 ID 替换为您自己的值：
+>
+> ```bash theme={null}
+> export CLAUDE_CODE_USE_VERTEX=1
+> export CLOUD_ML_REGION=global
+> export ANTHROPIC_VERTEX_PROJECT_ID=YOUR-PROJECT-ID
+> ```
+>
+> 要选择区域，请参阅[区域配置](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#region-configuration)。
 
 **4. 检查变量是否已传递到会话**
 

@@ -62,24 +62,24 @@
 * `<gateway-key>` 是任何让您现在调用网关的凭证：管理密钥、测试密钥或您自己的开发者密钥（如果您已经颁发了一个）。并非每个网关产品都有单独的管理凭证；如果您的没有，请先在[颁发开发者凭证](#issue-developer-credentials)中为自己颁发开发者密钥
 * `model` 是您的网关配置为路由的 Claude 模型名称。示例使用 `claude-sonnet-4-6`；替换为您配置的名称
 
-**Bash 或 Zsh**
+> [tab] Bash 或 Zsh
+>
+> ```bash theme={null}
+> curl -X POST "https://llm-gateway.example.com/v1/messages" \
+>   -H "Authorization: Bearer <gateway-key>" \
+>   -H "anthropic-version: 2023-06-01" \
+>   -H "content-type: application/json" \
+>   -d '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
+> ```
 
-```bash theme={null}
-curl -X POST "https://llm-gateway.example.com/v1/messages" \
-  -H "Authorization: Bearer <gateway-key>" \
-  -H "anthropic-version: 2023-06-01" \
-  -H "content-type: application/json" \
-  -d '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
-```
-
-**PowerShell**
-
-```powershell theme={null}
-Invoke-RestMethod -Method Post -Uri "https://llm-gateway.example.com/v1/messages" `
-  -Headers @{ "Authorization" = "Bearer <gateway-key>"; "anthropic-version" = "2023-06-01" } `
-  -ContentType "application/json" `
-  -Body '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> Invoke-RestMethod -Method Post -Uri "https://llm-gateway.example.com/v1/messages" `
+>   -Headers @{ "Authorization" = "Bearer <gateway-key>"; "anthropic-version" = "2023-06-01" } `
+>   -ContentType "application/json" `
+>   -Body '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
+> ```
 
 **检查点**：带有 `content` 字段的 `200` 意味着网关以该模型名称到达了提供商。`404` 意味着该名称在网关处未路由；来自提供商的 `401` 意味着网关的提供商凭证错误。
 
@@ -95,24 +95,24 @@ Invoke-RestMethod -Method Post -Uri "https://llm-gateway.example.com/v1/messages
 
 使用与[确认网关路由您的模型](#confirm-the-gateway-routes-your-models)相同的请求确认新颁发的密钥对网关有效，将 `<gateway-key>` 替换为新的 `<developer-key>`：
 
-**Bash 或 Zsh**
+> [tab] Bash 或 Zsh
+>
+> ```bash theme={null}
+> curl -X POST "https://llm-gateway.example.com/v1/messages" \
+>   -H "Authorization: Bearer <developer-key>" \
+>   -H "anthropic-version: 2023-06-01" \
+>   -H "content-type: application/json" \
+>   -d '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
+> ```
 
-```bash theme={null}
-curl -X POST "https://llm-gateway.example.com/v1/messages" \
-  -H "Authorization: Bearer <developer-key>" \
-  -H "anthropic-version: 2023-06-01" \
-  -H "content-type: application/json" \
-  -d '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
-```
-
-**PowerShell**
-
-```powershell theme={null}
-Invoke-RestMethod -Method Post -Uri "https://llm-gateway.example.com/v1/messages" `
-  -Headers @{ "Authorization" = "Bearer <developer-key>"; "anthropic-version" = "2023-06-01" } `
-  -ContentType "application/json" `
-  -Body '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> Invoke-RestMethod -Method Post -Uri "https://llm-gateway.example.com/v1/messages" `
+>   -Headers @{ "Authorization" = "Bearer <developer-key>"; "anthropic-version" = "2023-06-01" } `
+>   -ContentType "application/json" `
+>   -Body '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
+> ```
 
 **检查点**：带有 `content` 字段的 `200` 意味着开发者密钥到达网关，网关转发它。当[前一步](#confirm-the-gateway-routes-your-models)成功时，这里的 `401` 意味着开发者密钥错误或尚未在网关处生效。
 
@@ -122,19 +122,19 @@ Invoke-RestMethod -Method Post -Uri "https://llm-gateway.example.com/v1/messages
 
 在分发任何内容之前，使用推出将交付的相同配置自己通过网关运行 Claude Code。直接在终端中键入这些，而不是在 `.env` 或设置文件中；它们仅在此终端会话中持续，因此关闭它会将您的机器返回到其正常配置。如果您的网关读取 `x-api-key` 标头，请使用 `ANTHROPIC_API_KEY` 而不是 `ANTHROPIC_AUTH_TOKEN`：
 
-**Bash 或 Zsh**
+> [tab] Bash 或 Zsh
+>
+> ```bash theme={null}
+> export ANTHROPIC_BASE_URL=https://llm-gateway.example.com
+> export ANTHROPIC_AUTH_TOKEN="<developer-key>"
+> ```
 
-```bash theme={null}
-export ANTHROPIC_BASE_URL=https://llm-gateway.example.com
-export ANTHROPIC_AUTH_TOKEN="<developer-key>"
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$env:ANTHROPIC_BASE_URL = "https://llm-gateway.example.com"
-$env:ANTHROPIC_AUTH_TOKEN = "<developer-key>"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $env:ANTHROPIC_BASE_URL = "https://llm-gateway.example.com"
+> $env:ANTHROPIC_AUTH_TOKEN = "<developer-key>"
+> ```
 
 然后通过网关发送一次性提示：
 
@@ -224,26 +224,26 @@ claude -p "Reply with one word: connected"
 
 从开发者机器而不是网关主机确认一切工作，以便测试涵盖开发者使用的网络路径。发送流式请求，它一次检查端点、流式传输传递和模型路由：
 
-**Bash 或 Zsh**
+> [tab] Bash 或 Zsh
+>
+> ```bash theme={null}
+> curl -N -X POST "https://llm-gateway.example.com/v1/messages" \
+>   -H "Authorization: Bearer <developer-key>" \
+>   -H "anthropic-version: 2023-06-01" \
+>   -H "content-type: application/json" \
+>   -d '{"model": "claude-sonnet-4-6", "max_tokens": 16, "stream": true, "messages": [{"role": "user", "content": "count to 3"}]}'
+> ```
 
-```bash theme={null}
-curl -N -X POST "https://llm-gateway.example.com/v1/messages" \
-  -H "Authorization: Bearer <developer-key>" \
-  -H "anthropic-version: 2023-06-01" \
-  -H "content-type: application/json" \
-  -d '{"model": "claude-sonnet-4-6", "max_tokens": 16, "stream": true, "messages": [{"role": "user", "content": "count to 3"}]}'
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$body = '{"model": "claude-sonnet-4-6", "max_tokens": 16, "stream": true, "messages": [{"role": "user", "content": "count to 3"}]}'
-$body | curl.exe -N -X POST "https://llm-gateway.example.com/v1/messages" `
-  -H "Authorization: Bearer <developer-key>" `
-  -H "anthropic-version: 2023-06-01" `
-  -H "content-type: application/json" `
-  --data-binary '@-'
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $body = '{"model": "claude-sonnet-4-6", "max_tokens": 16, "stream": true, "messages": [{"role": "user", "content": "count to 3"}]}'
+> $body | curl.exe -N -X POST "https://llm-gateway.example.com/v1/messages" `
+>   -H "Authorization: Bearer <developer-key>" `
+>   -H "anthropic-version: 2023-06-01" `
+>   -H "content-type: application/json" `
+>   --data-binary '@-'
+> ```
 
 您应该看到 `data:` 行逐步到达。整个响应在暂停后一次到达意味着网关正在缓冲，这会停滞 Claude Code；`404` 意味着模型名称未路由。每个模型名称重复。
 

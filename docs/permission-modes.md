@@ -102,27 +102,27 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 
 以下示例展示了 CLI 和每个 SDK 的自动模式写法：
 
-**CLI**
+> [tab] CLI
+>
+> ```bash theme={null}
+> claude -p "Run the test suite and fix any failures" --permission-mode auto
+> ```
 
-```bash theme={null}
-claude -p "Run the test suite and fix any failures" --permission-mode auto
-```
+> [tab] TypeScript
+>
+> ```typescript theme={null}
+> const options = {
+>   permissionMode: "auto"
+> };
+> ```
 
-**TypeScript**
-
-```typescript theme={null}
-const options = {
-  permissionMode: "auto"
-};
-```
-
-**Python**
-
-```python theme={null}
-from claude_agent_sdk import ClaudeAgentOptions
-
-options = ClaudeAgentOptions(permission_mode="auto")
-```
+> [tab] Python
+>
+> ```python theme={null}
+> from claude_agent_sdk import ClaudeAgentOptions
+>
+> options = ClaudeAgentOptions(permission_mode="auto")
+> ```
 
 在 v2.1.302 之前，如果这些运行不[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，例如在[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)上或设置了 `DISABLE_TELEMETRY` 时，它们可能以自动模式启动。
 
@@ -166,100 +166,100 @@ options = ClaudeAgentOptions(permission_mode="auto")
 
 每个界面都有自己的控件用于在会话期间切换权限模式，以及自己的方式来选择新会话启动的权限模式。选择您的界面以查看其控件。
 
-**CLI**
+> [tab] CLI
+>
+> **在会话期间**：按 `Shift+Tab` 循环权限模式。从 `auto` 开始，第一次按下会切换到 `default`，之后循环依次为 `default` → `acceptEdits` → `plan`。可选模式在 `plan` 之后插入。状态栏显示活动模式为灰色 `⏸ manual mode on`（对于 `default`），或为 `⏵⏵ accept edits on`、`⏸ plan mode on`、`⏵⏵ auto mode on`、`⏵⏵ don't ask on` 或 `⏵⏵ bypass permissions on`。
+>
+> 请观察此片段中状态栏的变化，该会话以自动模式启动。每次按下 `Shift+Tab`，状态栏都会从 `auto mode on` 依次变为 `manual mode on`、`accept edits on`、`plan mode on`，然后回到 `auto mode on`。
+>
+> <video autoPlay muted loop playsInline src="https://mintcdn.com/claude-code/tA-x-5L2YsYSVdee/images/permission-modes-cycle-light.mp4?fit=max&auto=format&n=tA-x-5L2YsYSVdee&q=85&s=3927dd62d59b01efd81b3578f2a6f971" aria-label="每次按下 Shift+Tab，Claude Code 输入框下方的状态栏都会变化：auto mode on、manual mode on、accept edits on、plan mode on，然后再次变为 auto mode on。" />
+>
+> 并非每个模式都在默认循环中：
+>
+> * `auto`：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现；循环到它会在没有确认提示的情况下切换权限模式
+> * `bypassPermissions`：在您使用 `--permission-mode bypassPermissions`、`--dangerously-skip-permissions`、`--allow-dangerously-skip-permissions` 或[用户、`--settings` 或托管设置](https://code.claude.com/docs/zh-CN/settings-reference#permissions-defaultmode)中的 `permissions.defaultMode: "bypassPermissions"` 启动后出现。`--allow-` 变体将权限模式添加到循环中而不激活它
+> * `dontAsk`：永远不会在循环中出现；使用 `--permission-mode dontAsk` 设置它
+>
+> 启用的可选模式在 `plan` 之后插入，`bypassPermissions` 优先，`auto` 最后。如果您同时启用了两者，您将在循环到 `auto` 的途中循环通过 `bypassPermissions`。
+>
+> **从 Bash 权限提示**：在 Manual 和 `acceptEdits` 权限模式下，当[自动模式](#eliminate-prompts-with-auto-mode)可用时，Claude Code 将**是的，并切换到自动模式**添加到 Bash 命令的权限提示。选择它以批准命令并将会话切换到自动模式。[PowerShell 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#powershell-tool)提示不提供该选项。需要 Claude Code v2.1.247 或更高版本。
+>
+> Claude Code 不会将该选项添加到由您的[`ask` 规则](https://code.claude.com/docs/zh-CN/permissions#manage-permissions)之一或[hook](https://code.claude.com/docs/zh-CN/hooks.md#pretooluse-decision-control)强制的提示，因为自动模式仍然向您显示这些提示，所以切换不会移除它们。
+>
+> **在启动时**：将权限模式作为标志传递。
+>
+> ```bash theme={null}
+> claude --permission-mode plan
+> ```
+>
+> **作为默认值**：在您想要的范围设置 `permissions.defaultMode`，如[以不同的权限模式启动](#start-in-a-different-mode)中所述。
+>
+> 相同的 `--permission-mode` 标志适用于 `-p` 用于[非交互式运行](https://code.claude.com/docs/zh-CN/headless.md)。
 
-**在会话期间**：按 `Shift+Tab` 循环权限模式。从 `auto` 开始，第一次按下会切换到 `default`，之后循环依次为 `default` → `acceptEdits` → `plan`。可选模式在 `plan` 之后插入。状态栏显示活动模式为灰色 `⏸ manual mode on`（对于 `default`），或为 `⏵⏵ accept edits on`、`⏸ plan mode on`、`⏵⏵ auto mode on`、`⏵⏵ don't ask on` 或 `⏵⏵ bypass permissions on`。
+> [tab] VS Code
+>
+> **在会话期间**：点击提示框底部的模式指示器。它为此页面上的模式使用这些标签：
+>
+> | UI 标签 | 模式 |
+> | :- | :- |
+> | Manual | `default` |
+> | Edit automatically | `acceptEdits` |
+> | Plan | `plan` |
+> | Auto | `auto` |
+> | Bypass permissions | `bypassPermissions` |
+>
+> **作为默认值**：要固定对话启动的权限模式，请在您的 VS Code 用户设置中将 `claudeCode.initialPermissionMode` 设置为 `default`、`manual`、`acceptEdits`、`plan` 或 `bypassPermissions`。该设置不接受 `auto`；要以 Auto 启动，请将其保留未设置并从模式指示器中选择**Auto**一次，如下面的第 2 项所述。扩展在以下第一个适用的中启动每个新对话：
+>
+> 1. `claudeCode.initialPermissionMode`
+> 2. 您从模式指示器最后选择的模式，如果它是 Manual、Edit automatically 或 Auto。选择 Plan 或 Bypass permissions 仅适用于该对话
+> 3. 来自[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)或 `~/.claude/settings.json` 的 `permissions.defaultMode`
+> 4. 您的计划、提供商和组织设置的[内置默认值](#which-mode-a-session-starts-in)
+>
+> 扩展永远不会从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 读取起始权限模式。当 `claudeCode.claudeProcessWrapper` 被设置时，第 3 和 4 项不适用：这些对话以 Manual 启动，除非第 1 或第 2 项设置权限模式。
+>
+> 在 v2.1.283 之前，第 3 项仅在 Pro、Max 和 Team 计划上应用，在[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中。
+>
+> 当[自动模式可用](#eliminate-prompts-with-auto-mode)时，Auto 出现在模式指示器中。
+>
+> Bypass permissions 需要扩展设置中的**Allow dangerously skip permissions**切换。没有它，权限模式不会出现在指示器中，来自第 1 或第 3 项的 `bypassPermissions` 值以 Manual 启动对话。来自任何项的 Auto 同样在自动模式不可用时以 Manual 启动对话。
+>
+> 有关扩展特定的详细信息，请参阅 [VS Code 指南](https://code.claude.com/docs/zh-CN/vs-code.md)。
 
-请观察此片段中状态栏的变化，该会话以自动模式启动。每次按下 `Shift+Tab`，状态栏都会从 `auto mode on` 依次变为 `manual mode on`、`accept edits on`、`plan mode on`，然后回到 `auto mode on`。
+> [tab] JetBrains
+>
+> JetBrains 插件在 IDE 终端中运行 Claude Code，因此切换权限模式的工作方式与 CLI 中相同：按 `Shift+Tab` 循环，或在启动时传递 `--permission-mode`。
 
-<video autoPlay muted loop playsInline src="https://mintcdn.com/claude-code/tA-x-5L2YsYSVdee/images/permission-modes-cycle-light.mp4?fit=max&auto=format&n=tA-x-5L2YsYSVdee&q=85&s=3927dd62d59b01efd81b3578f2a6f971" aria-label="每次按下 Shift+Tab，Claude Code 输入框下方的状态栏都会变化：auto mode on、manual mode on、accept edits on、plan mode on，然后再次变为 auto mode on。" />
+> [tab] Desktop
+>
+> **在会话期间**：在 Code 选项卡中，使用输入框下方那一行中的模式选择器。并非每个模式都出现在选择器中：
+>
+> * **Auto**：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现
+> * **Bypass permissions**：在 Pro 和 Max 计划上需要 Desktop 设置中的**Allow bypass permissions mode**切换；在 Team 和 Enterprise 计划上，组织策略控制它
+>
+> Cowork 不使用这些模式。它有自己的权限模式，需单独启用；在为您的账户启用超出其默认值的模式之前，它根本不显示模式选择器。请参阅 [Cowork 文档](https://claude.com/docs/cowork/overview)。
+>
+> 有关 desktop 特定的详细信息，请参阅 Desktop 指南中的[选择权限模式](https://code.claude.com/docs/zh-CN/desktop.md#choose-a-permission-mode)。
+>
+> **作为默认值**：在[设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中设置 `defaultMode`。桌面应用读取与 CLI 相同的设置文件，并将权限模式应用于新的本地会话。
+>
+> 您在模式选择器中选择的模式会按文件夹记住，并对该文件夹优先于 `defaultMode`。Plan 是例外：选择它仅适用于当前会话。
+>
+> 有关 `defaultMode` 在设置文件中的位置，请参阅[以不同的权限模式启动](#start-in-a-different-mode)下的示例。
 
-并非每个模式都在默认循环中：
-
-* `auto`：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现；循环到它会在没有确认提示的情况下切换权限模式
-* `bypassPermissions`：在您使用 `--permission-mode bypassPermissions`、`--dangerously-skip-permissions`、`--allow-dangerously-skip-permissions` 或[用户、`--settings` 或托管设置](https://code.claude.com/docs/zh-CN/settings-reference#permissions-defaultmode)中的 `permissions.defaultMode: "bypassPermissions"` 启动后出现。`--allow-` 变体将权限模式添加到循环中而不激活它
-* `dontAsk`：永远不会在循环中出现；使用 `--permission-mode dontAsk` 设置它
-
-启用的可选模式在 `plan` 之后插入，`bypassPermissions` 优先，`auto` 最后。如果您同时启用了两者，您将在循环到 `auto` 的途中循环通过 `bypassPermissions`。
-
-**从 Bash 权限提示**：在 Manual 和 `acceptEdits` 权限模式下，当[自动模式](#eliminate-prompts-with-auto-mode)可用时，Claude Code 将**是的，并切换到自动模式**添加到 Bash 命令的权限提示。选择它以批准命令并将会话切换到自动模式。[PowerShell 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#powershell-tool)提示不提供该选项。需要 Claude Code v2.1.247 或更高版本。
-
-Claude Code 不会将该选项添加到由您的[`ask` 规则](https://code.claude.com/docs/zh-CN/permissions#manage-permissions)之一或[hook](https://code.claude.com/docs/zh-CN/hooks.md#pretooluse-decision-control)强制的提示，因为自动模式仍然向您显示这些提示，所以切换不会移除它们。
-
-**在启动时**：将权限模式作为标志传递。
-
-```bash theme={null}
-claude --permission-mode plan
-```
-
-**作为默认值**：在您想要的范围设置 `permissions.defaultMode`，如[以不同的权限模式启动](#start-in-a-different-mode)中所述。
-
-相同的 `--permission-mode` 标志适用于 `-p` 用于[非交互式运行](https://code.claude.com/docs/zh-CN/headless.md)。
-
-**VS Code**
-
-**在会话期间**：点击提示框底部的模式指示器。它为此页面上的模式使用这些标签：
-
-| UI 标签 | 模式 |
-| :- | :- |
-| Manual | `default` |
-| Edit automatically | `acceptEdits` |
-| Plan | `plan` |
-| Auto | `auto` |
-| Bypass permissions | `bypassPermissions` |
-
-**作为默认值**：要固定对话启动的权限模式，请在您的 VS Code 用户设置中将 `claudeCode.initialPermissionMode` 设置为 `default`、`manual`、`acceptEdits`、`plan` 或 `bypassPermissions`。该设置不接受 `auto`；要以 Auto 启动，请将其保留未设置并从模式指示器中选择**Auto**一次，如下面的第 2 项所述。扩展在以下第一个适用的中启动每个新对话：
-
-1. `claudeCode.initialPermissionMode`
-2. 您从模式指示器最后选择的模式，如果它是 Manual、Edit automatically 或 Auto。选择 Plan 或 Bypass permissions 仅适用于该对话
-3. 来自[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)或 `~/.claude/settings.json` 的 `permissions.defaultMode`
-4. 您的计划、提供商和组织设置的[内置默认值](#which-mode-a-session-starts-in)
-
-扩展永远不会从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 读取起始权限模式。当 `claudeCode.claudeProcessWrapper` 被设置时，第 3 和 4 项不适用：这些对话以 Manual 启动，除非第 1 或第 2 项设置权限模式。
-
-在 v2.1.283 之前，第 3 项仅在 Pro、Max 和 Team 计划上应用，在[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中。
-
-当[自动模式可用](#eliminate-prompts-with-auto-mode)时，Auto 出现在模式指示器中。
-
-Bypass permissions 需要扩展设置中的**Allow dangerously skip permissions**切换。没有它，权限模式不会出现在指示器中，来自第 1 或第 3 项的 `bypassPermissions` 值以 Manual 启动对话。来自任何项的 Auto 同样在自动模式不可用时以 Manual 启动对话。
-
-有关扩展特定的详细信息，请参阅 [VS Code 指南](https://code.claude.com/docs/zh-CN/vs-code.md)。
-
-**JetBrains**
-
-JetBrains 插件在 IDE 终端中运行 Claude Code，因此切换权限模式的工作方式与 CLI 中相同：按 `Shift+Tab` 循环，或在启动时传递 `--permission-mode`。
-
-**Desktop**
-
-**在会话期间**：在 Code 选项卡中，使用输入框下方那一行中的模式选择器。并非每个模式都出现在选择器中：
-
-* **Auto**：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现
-* **Bypass permissions**：在 Pro 和 Max 计划上需要 Desktop 设置中的**Allow bypass permissions mode**切换；在 Team 和 Enterprise 计划上，组织策略控制它
-
-Cowork 不使用这些模式。它有自己的权限模式，需单独启用；在为您的账户启用超出其默认值的模式之前，它根本不显示模式选择器。请参阅 [Cowork 文档](https://claude.com/docs/cowork/overview)。
-
-有关 desktop 特定的详细信息，请参阅 Desktop 指南中的[选择权限模式](https://code.claude.com/docs/zh-CN/desktop.md#choose-a-permission-mode)。
-
-**作为默认值**：在[设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中设置 `defaultMode`。桌面应用读取与 CLI 相同的设置文件，并将权限模式应用于新的本地会话。
-
-您在模式选择器中选择的模式会按文件夹记住，并对该文件夹优先于 `defaultMode`。Plan 是例外：选择它仅适用于当前会话。
-
-有关 `defaultMode` 在设置文件中的位置，请参阅[以不同的权限模式启动](#start-in-a-different-mode)下的示例。
-
-**Web and mobile**
-
-在 [claude.ai/code](https://claude.ai/code) 上，使用输入框下方那一行中的模式下拉菜单。在移动应用中，点击输入框中的 **+** 按钮，然后点击 **Permission**。云端会话和 Remote Control 会话提供不同的权限模式：
-
-* **[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云端会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。Auto 模式仅在您的组织允许且所选模型支持时出现。Bypass permissions 不可用。
-* 您本地机器上的 **[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话**：Manual、Accept edits、Plan 和 Auto（对于您自己启动的会话），您无法从应用中选择 Bypass permissions。要使用 Auto，会话必须满足自动模式的[可用性要求](#eliminate-prompts-with-auto-mode)。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](https://code.claude.com/docs/zh-CN/claude-projects.md#run-a-thread-on-your-own-computer)。
-  * 除了 Bypass permissions，下拉菜单显示本地会话所在的权限模式，包括从终端设置的模式。它在应用或终端中权限模式更改时更新。
-  * 由[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)或 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)托管的会话在权限模式更改时向 claude.ai 报告，与在终端中托管的会话相同。
-
-对于 Remote Control，运行会话的本地机器必须使用您的 claude.ai 账户登录；不支持 API 密钥。您也可以在启动该本地会话时设置起始权限模式：
-
-```bash theme={null}
-claude remote-control --permission-mode acceptEdits
-```
+> [tab] Web and mobile
+>
+> 在 [claude.ai/code](https://claude.ai/code) 上，使用输入框下方那一行中的模式下拉菜单。在移动应用中，点击输入框中的 **+** 按钮，然后点击 **Permission**。云端会话和 Remote Control 会话提供不同的权限模式：
+>
+> * **[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云端会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。Auto 模式仅在您的组织允许且所选模型支持时出现。Bypass permissions 不可用。
+> * 您本地机器上的 **[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话**：Manual、Accept edits、Plan 和 Auto（对于您自己启动的会话），您无法从应用中选择 Bypass permissions。要使用 Auto，会话必须满足自动模式的[可用性要求](#eliminate-prompts-with-auto-mode)。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](https://code.claude.com/docs/zh-CN/claude-projects.md#run-a-thread-on-your-own-computer)。
+>   * 除了 Bypass permissions，下拉菜单显示本地会话所在的权限模式，包括从终端设置的模式。它在应用或终端中权限模式更改时更新。
+>   * 由[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)或 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)托管的会话在权限模式更改时向 claude.ai 报告，与在终端中托管的会话相同。
+>
+> 对于 Remote Control，运行会话的本地机器必须使用您的 claude.ai 账户登录；不支持 API 密钥。您也可以在启动该本地会话时设置起始权限模式：
+>
+> ```bash theme={null}
+> claude remote-control --permission-mode acceptEdits
+> ```
 
 ## 使用 acceptEdits 模式自动批准文件编辑
 
@@ -566,7 +566,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 以下各节介绍 Claude Code 评估操作的顺序、分类器如何审查子代理的工作，以及分类器调用在成本和延迟方面带来的额外开销。
 
-> **分类器如何评估操作**
+> [accordion] 分类器如何评估操作
 >
 > 每个操作都会经过固定的决策顺序。第一个匹配的步骤生效：
 >
@@ -608,7 +608,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 >
 > 一个独立的服务器端探测器会扫描传入的工具结果，并在 Claude 读取之前标记可疑内容。有关这些层如何协同工作的更多信息，请参阅[自动模式公告](https://claude.com/blog/auto-mode)和[工程深度解析](https://www.anthropic.com/engineering/claude-code-auto-mode)。
 
-> **自动模式如何处理子代理**
+> [accordion] 自动模式如何处理子代理
 >
 > 分类器会在三个时间点检查[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)的工作：
 >
@@ -616,7 +616,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 > 2. 在子代理运行期间，它的每个操作都会经过与父会话相同的[决策顺序](#how-the-classifier-evaluates-actions)，并使用相同的阻止和允许规则。子代理 frontmatter 中的任何 `permissionMode` 都会被忽略。
 > 3. 当子代理完成时，分类器会在父级读取报告之前审查其工作和最终报告。当分类器标记了子代理的工作或报告，或者独立的 API 安全检查拒绝了该审查时，报告仍会被送达，但会在前面附加安全警告。当分类器无法进行审查时，报告送达时会附带一条说明，提醒您在据此采取行动之前先核实子代理的工作。
 
-> **成本和延迟**
+> [accordion] 成本和延迟
 >
 > Claude Code 的分类器请求可以在您通过 `/model` 选择的模型以外的模型上运行。请参阅[它们在哪个模型上运行](#default-classifier-model)。
 >
@@ -964,26 +964,26 @@ Claude Code 对关键路径移除的处理取决于您的权限模式：
 
 要在 `bypassPermissions` 模式下不经提示运行针对[关键路径](#critical-paths)的 Bash `rm` 和 `rmdir` 命令，请在环境中设置 [`CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS=1`](https://code.claude.com/docs/zh-CN/env-vars#variables) 后启动 Claude Code。这需要 Claude Code v2.1.311 或更高版本。Claude Code 仅从启动环境读取该变量，并会[忽略设置文件 `env` 块中的该变量](https://code.claude.com/docs/zh-CN/settings-reference#variables-claude-code-ignores-in-env)。例如，在[您的 shell](https://code.claude.com/docs/zh-CN/env-vars.md#set-variables-in-your-shell) 中设置该变量，然后从中启动 `claude`：
 
-**macOS, Linux, WSL**
+> [tab] macOS, Linux, WSL
+>
+> ```bash theme={null}
+> export CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS=1
+> claude --permission-mode bypassPermissions
+> ```
 
-```bash theme={null}
-export CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS=1
-claude --permission-mode bypassPermissions
-```
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> $env:CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS = "1"
+> claude --permission-mode bypassPermissions
+> ```
 
-**Windows PowerShell**
-
-```powershell theme={null}
-$env:CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS = "1"
-claude --permission-mode bypassPermissions
-```
-
-**Windows CMD**
-
-```batch theme={null}
-set CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS=1
-claude --permission-mode bypassPermissions
-```
+> [tab] Windows CMD
+>
+> ```batch theme={null}
+> set CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS=1
+> claude --permission-mode bypassPermissions
+> ```
 
 > [!WARNING]
 >

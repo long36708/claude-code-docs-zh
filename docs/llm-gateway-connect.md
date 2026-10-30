@@ -73,19 +73,19 @@
 
 将值替换为您的网关团队给您的值：
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> ```bash theme={null}
+> export ANTHROPIC_BASE_URL=https://llm-gateway.example.com
+> export ANTHROPIC_AUTH_TOKEN=sk-gateway-key
+> ```
 
-```bash theme={null}
-export ANTHROPIC_BASE_URL=https://llm-gateway.example.com
-export ANTHROPIC_AUTH_TOKEN=sk-gateway-key
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$env:ANTHROPIC_BASE_URL = "https://llm-gateway.example.com"
-$env:ANTHROPIC_AUTH_TOKEN = "sk-gateway-key"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $env:ANTHROPIC_BASE_URL = "https://llm-gateway.example.com"
+> $env:ANTHROPIC_AUTH_TOKEN = "sk-gateway-key"
+> ```
 
 Shell 导出仅适用于该终端会话和从它启动的程序。从 dock 或开始菜单启动的编辑器不会看到它们。要使值在新终端中持续，请将相同的行添加到您的 shell 配置文件，例如 `~/.zshrc`、`~/.bashrc` 或您的 PowerShell `$PROFILE`。
 
@@ -119,24 +119,24 @@ Shell 导出仅适用于该终端会话和从它启动的程序。从 dock 或�
 
 使用在 shell 中导出的变量，向网关直接发送一个单令牌请求。这在您打开 Claude Code 之前确认 URL 和凭证有效，因此失败指向网关而不是您的配置。下面的命令读取 shell 变量，因此即使您也将值放在设置文件中，它们也需要[shell 导出](#set-as-shell-environment-variables)。
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> ```bash theme={null}
+> curl -sS -w '\n%{http_code}\n' -X POST "$ANTHROPIC_BASE_URL/v1/messages" \
+>   -H "Authorization: Bearer $ANTHROPIC_AUTH_TOKEN" \
+>   -H "anthropic-version: 2023-06-01" \
+>   -H "content-type: application/json" \
+>   -d '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
+> ```
 
-```bash theme={null}
-curl -sS -w '\n%{http_code}\n' -X POST "$ANTHROPIC_BASE_URL/v1/messages" \
-  -H "Authorization: Bearer $ANTHROPIC_AUTH_TOKEN" \
-  -H "anthropic-version: 2023-06-01" \
-  -H "content-type: application/json" \
-  -d '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
-```
-
-**PowerShell**
-
-```powershell theme={null}
-Invoke-RestMethod -Method Post -Uri "$env:ANTHROPIC_BASE_URL/v1/messages" `
-  -Headers @{ "Authorization" = "Bearer $env:ANTHROPIC_AUTH_TOKEN"; "anthropic-version" = "2023-06-01" } `
-  -ContentType "application/json" `
-  -Body '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> Invoke-RestMethod -Method Post -Uri "$env:ANTHROPIC_BASE_URL/v1/messages" `
+>   -Headers @{ "Authorization" = "Bearer $env:ANTHROPIC_AUTH_TOKEN"; "anthropic-version" = "2023-06-01" } `
+>   -ContentType "application/json" `
+>   -Body '{"model": "claude-sonnet-4-6", "max_tokens": 1, "messages": [{"role": "user", "content": "."}]}'
+> ```
 
 如果您的网关期望 `x-api-key` 标头中的密钥，请在 Bash 命令中将 `Authorization` 标头替换为 `x-api-key: $ANTHROPIC_API_KEY`，或在 PowerShell 命令中将 `"Authorization"` 哈希表条目替换为 `"x-api-key" = "$env:ANTHROPIC_API_KEY"`。
 
@@ -274,17 +274,17 @@ options = ClaudeAgentOptions(
 
 某些网关使用除凭证外的自定义标头来路由或标记请求，例如租户标识符或路由密钥。要发送一个，请设置 [`ANTHROPIC_CUSTOM_HEADERS`](https://code.claude.com/docs/zh-CN/env-vars)，每行一个 `Name: Value` 对。下面的示例添加了一个名为 `X-Org-Route` 的路由标头：
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> ```bash theme={null}
+> export ANTHROPIC_CUSTOM_HEADERS="X-Org-Route: prod"
+> ```
 
-```bash theme={null}
-export ANTHROPIC_CUSTOM_HEADERS="X-Org-Route: prod"
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$env:ANTHROPIC_CUSTOM_HEADERS = "X-Org-Route: prod"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $env:ANTHROPIC_CUSTOM_HEADERS = "X-Org-Route: prod"
+> ```
 
 您也可以在设置文件的 `env` 块中设置 `ANTHROPIC_CUSTOM_HEADERS`。在那里使用 `\n` 在对之间，因为 JSON 字符串不能跨多行：
 
@@ -318,38 +318,38 @@ $env:ANTHROPIC_CUSTOM_HEADERS = "X-Org-Route: prod"
 
 助手是任何将当前凭证打印到 stdout 的 shell 命令。Claude Code 通过您的系统 shell 运行它，因此在 Windows 上它可以是可执行文件或 PowerShell 调用。使命令仅打印凭证，不打印其他内容。在 Claude Code v2.1.227 或更高版本上，与密钥一起打印的横幅或日志行会使[助手失败](https://code.claude.com/docs/zh-CN/errors.md#your-apikeyhelper-script-is-failing)。编写脚本，使其可执行，并从您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中的 `apiKeyHelper` 引用它：
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> 例如，从保管库读取的脚本：
+>
+> ```bash theme={null}
+> #!/bin/bash
+> vault kv get -field=api_key secret/llm-gateway/claude-code
+> ```
+>
+> 在 `~/.claude/settings.json` 中引用其路径：
+>
+> ```json theme={null}
+> {
+>   "apiKeyHelper": "~/bin/get-gateway-key.sh"
+> }
+> ```
 
-例如，从保管库读取的脚本：
-
-```bash theme={null}
-#!/bin/bash
-vault kv get -field=api_key secret/llm-gateway/claude-code
-```
-
-在 `~/.claude/settings.json` 中引用其路径：
-
-```json theme={null}
-{
-  "apiKeyHelper": "~/bin/get-gateway-key.sh"
-}
-```
-
-**PowerShell**
-
-例如，从保管库读取的脚本：
-
-```powershell theme={null}
-vault kv get -field=api_key secret/llm-gateway/claude-code
-```
-
-在 `%USERPROFILE%\.claude\settings.json` 中引用 PowerShell 调用，转义 JSON 字符串中的反斜杠：
-
-```json theme={null}
-{
-  "apiKeyHelper": "powershell -NoProfile -File C:\\scripts\\get-gateway-key.ps1"
-}
-```
+> [tab] PowerShell
+>
+> 例如，从保管库读取的脚本：
+>
+> ```powershell theme={null}
+> vault kv get -field=api_key secret/llm-gateway/claude-code
+> ```
+>
+> 在 `%USERPROFILE%\.claude\settings.json` 中引用 PowerShell 调用，转义 JSON 字符串中的反斜杠：
+>
+> ```json theme={null}
+> {
+>   "apiKeyHelper": "powershell -NoProfile -File C:\\scripts\\get-gateway-key.ps1"
+> }
+> ```
 
 Claude Code 默认缓存助手的输出五分钟，并在缓存生命周期过期后重新运行助手。要更改生命周期，请以毫秒为单位设置 `CLAUDE_CODE_API_KEY_HELPER_TTL_MS`，例如 `CLAUDE_CODE_API_KEY_HELPER_TTL_MS=900000` 表示 15 分钟。
 
@@ -363,17 +363,17 @@ Claude Code 默认缓存助手的输出五分钟，并在缓存生命周期过�
 
 要关闭该流量，请在与网关变量相同的 shell 导出或设置文件 `env` 块中设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`：
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> ```bash theme={null}
+> export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+> ```
 
-```bash theme={null}
-export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$env:CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $env:CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
+> ```
 
 设置该变量具有以下效果和限制：
 
@@ -398,45 +398,45 @@ $env:CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
 
 当网关发出自己的凭证时，将 `AWS_BEARER_TOKEN_BEDROCK` 保留为未设置。如果您设置它，Claude Code 会将该 [Amazon Bedrock API 密钥](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#2-configure-aws-credentials)作为 `Authorization` 标头发送，而不是您的网关令牌，即使设置了 `CLAUDE_CODE_SKIP_BEDROCK_AUTH`。
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> ```bash theme={null}
+> export ANTHROPIC_BEDROCK_BASE_URL=https://llm-gateway.example.com/bedrock
+> export CLAUDE_CODE_SKIP_BEDROCK_AUTH=1
+> export CLAUDE_CODE_USE_BEDROCK=1
+> ```
 
-```bash theme={null}
-export ANTHROPIC_BEDROCK_BASE_URL=https://llm-gateway.example.com/bedrock
-export CLAUDE_CODE_SKIP_BEDROCK_AUTH=1
-export CLAUDE_CODE_USE_BEDROCK=1
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$env:ANTHROPIC_BEDROCK_BASE_URL = "https://llm-gateway.example.com/bedrock"
-$env:CLAUDE_CODE_SKIP_BEDROCK_AUTH = "1"
-$env:CLAUDE_CODE_USE_BEDROCK = "1"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $env:ANTHROPIC_BEDROCK_BASE_URL = "https://llm-gateway.example.com/bedrock"
+> $env:CLAUDE_CODE_SKIP_BEDROCK_AUTH = "1"
+> $env:CLAUDE_CODE_USE_BEDROCK = "1"
+> ```
 
 #### Google Cloud 的 Agent Platform
 
 将项目 ID 和区域替换为您自己的值。Claude Code 在它发送到网关的每个请求的路径中包含两者：
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> ```bash theme={null}
+> export ANTHROPIC_VERTEX_BASE_URL=https://llm-gateway.example.com/vertex
+> export ANTHROPIC_VERTEX_PROJECT_ID=your-gcp-project-id
+> export CLAUDE_CODE_SKIP_VERTEX_AUTH=1
+> export CLAUDE_CODE_USE_VERTEX=1
+> export CLOUD_ML_REGION=us-east5
+> ```
 
-```bash theme={null}
-export ANTHROPIC_VERTEX_BASE_URL=https://llm-gateway.example.com/vertex
-export ANTHROPIC_VERTEX_PROJECT_ID=your-gcp-project-id
-export CLAUDE_CODE_SKIP_VERTEX_AUTH=1
-export CLAUDE_CODE_USE_VERTEX=1
-export CLOUD_ML_REGION=us-east5
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$env:ANTHROPIC_VERTEX_BASE_URL = "https://llm-gateway.example.com/vertex"
-$env:ANTHROPIC_VERTEX_PROJECT_ID = "your-gcp-project-id"
-$env:CLAUDE_CODE_SKIP_VERTEX_AUTH = "1"
-$env:CLAUDE_CODE_USE_VERTEX = "1"
-$env:CLOUD_ML_REGION = "us-east5"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $env:ANTHROPIC_VERTEX_BASE_URL = "https://llm-gateway.example.com/vertex"
+> $env:ANTHROPIC_VERTEX_PROJECT_ID = "your-gcp-project-id"
+> $env:CLAUDE_CODE_SKIP_VERTEX_AUTH = "1"
+> $env:CLAUDE_CODE_USE_VERTEX = "1"
+> $env:CLOUD_ML_REGION = "us-east5"
+> ```
 
 该块涵盖路由和身份验证。来自 [Agent Platform 设置](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#4-configure-claude-code)的区域覆盖和模型固定也通过网关应用：
 
@@ -450,43 +450,43 @@ $env:CLOUD_ML_REGION = "us-east5"
 
 对于注入自己的 `Authorization` 标头的网关，设置 `CLAUDE_CODE_SKIP_FOUNDRY_AUTH=1` 并将两个凭据变量都保留为未设置。Claude Code 然后发送没有 Azure 凭据的请求，并保留您提供的 `Authorization` 标头，例如通过 `ANTHROPIC_CUSTOM_HEADERS`。
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> ```bash theme={null}
+> export ANTHROPIC_FOUNDRY_BASE_URL=https://llm-gateway.example.com/foundry
+> export ANTHROPIC_FOUNDRY_API_KEY=sk-gateway-key
+> export CLAUDE_CODE_USE_FOUNDRY=1
+> ```
 
-```bash theme={null}
-export ANTHROPIC_FOUNDRY_BASE_URL=https://llm-gateway.example.com/foundry
-export ANTHROPIC_FOUNDRY_API_KEY=sk-gateway-key
-export CLAUDE_CODE_USE_FOUNDRY=1
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$env:ANTHROPIC_FOUNDRY_BASE_URL = "https://llm-gateway.example.com/foundry"
-$env:ANTHROPIC_FOUNDRY_API_KEY = "sk-gateway-key"
-$env:CLAUDE_CODE_USE_FOUNDRY = "1"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $env:ANTHROPIC_FOUNDRY_BASE_URL = "https://llm-gateway.example.com/foundry"
+> $env:ANTHROPIC_FOUNDRY_API_KEY = "sk-gateway-key"
+> $env:CLAUDE_CODE_USE_FOUNDRY = "1"
+> ```
 
 #### AWS 上的 Claude Platform
 
 有关工作区 ID，请参阅 [AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)。
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> ```bash theme={null}
+> export ANTHROPIC_AWS_BASE_URL=https://llm-gateway.example.com/anthropic-aws
+> export ANTHROPIC_AWS_WORKSPACE_ID=wrkspc_01ABCDEFGHIJKLMN
+> export CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH=1
+> export CLAUDE_CODE_USE_ANTHROPIC_AWS=1
+> ```
 
-```bash theme={null}
-export ANTHROPIC_AWS_BASE_URL=https://llm-gateway.example.com/anthropic-aws
-export ANTHROPIC_AWS_WORKSPACE_ID=wrkspc_01ABCDEFGHIJKLMN
-export CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH=1
-export CLAUDE_CODE_USE_ANTHROPIC_AWS=1
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$env:ANTHROPIC_AWS_BASE_URL = "https://llm-gateway.example.com/anthropic-aws"
-$env:ANTHROPIC_AWS_WORKSPACE_ID = "wrkspc_01ABCDEFGHIJKLMN"
-$env:CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH = "1"
-$env:CLAUDE_CODE_USE_ANTHROPIC_AWS = "1"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $env:ANTHROPIC_AWS_BASE_URL = "https://llm-gateway.example.com/anthropic-aws"
+> $env:ANTHROPIC_AWS_WORKSPACE_ID = "wrkspc_01ABCDEFGHIJKLMN"
+> $env:CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH = "1"
+> $env:CLAUDE_CODE_USE_ANTHROPIC_AWS = "1"
+> ```
 
 #### 确认提供商路由
 

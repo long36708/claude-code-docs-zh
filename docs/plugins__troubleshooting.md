@@ -302,17 +302,17 @@ Claude Code 在您的 `PATH` 上查找 `git`，并拒绝运行仅在当前目录
 
 克隆市场和重新克隆一个以更新它，默认获得 120 秒。对于大型存储库或缓慢的连接，提高限制。该值以毫秒为单位：
 
-**Bash 或 Zsh**
+> [tab] Bash 或 Zsh
+>
+> ```bash theme={null}
+> export CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=300000
+> ```
 
-```bash theme={null}
-export CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=300000
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$env:CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS = "300000"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $env:CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS = "300000"
+> ```
 
 然后在同一 shell 中重试。
 
@@ -328,17 +328,17 @@ $env:CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS = "300000"
 
 设置此变量以跳过重新克隆尝试，并在检查无法到达主机时继续使用现有检出：
 
-**Bash 或 Zsh**
+> [tab] Bash 或 Zsh
+>
+> ```bash theme={null}
+> export CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1
+> ```
 
-```bash theme={null}
-export CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1
-```
-
-**PowerShell**
-
-```powershell theme={null}
-$env:CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE = "1"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> $env:CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE = "1"
+> ```
 
 设置变量后，Claude Code 仅对已包含 `.claude-plugin/marketplace.json` 的检出跳过重新克隆。从未克隆或其克隆停止中途的市场仍然获得克隆尝试，因此请在在线时添加一次。
 

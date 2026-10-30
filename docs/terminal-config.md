@@ -48,23 +48,23 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 
 某些 Claude Code 快捷键使用 Option 键，例如 Option+Enter 用于换行或 Option+P 用于切换模型。在 macOS 上，大多数终端默认不会将 Option 作为修饰符发送，因此这些快捷键在启用之前不会起作用。终端设置通常标记为"Use Option as Meta Key"；Meta 是现在标记为 Option 或 Alt 的键的历史 Unix 名称。
 
-**Apple Terminal**
+> [tab] Apple Terminal
+>
+> 打开"设置"→"配置文件"→"键盘"并勾选"Use Option as Meta Key"。
+>
+> 如果您接受了 Claude Code 的首次运行终端设置提示，这已经完成。该提示为您运行 `/terminal-setup`，它启用 Option 作为 Meta 并在您的 Apple Terminal 配置文件中关闭可听见的铃声。
+>
+> 在[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)中，`/terminal-setup` 保持铃声设置不变，以便终端铃声保持可听见。如果较早的运行关闭了铃声，请在"设置"→"描述文件"→"高级"→"可听见的铃声"下将其重新打开。
 
-打开"设置"→"配置文件"→"键盘"并勾选"Use Option as Meta Key"。
+> [tab] iTerm2
+>
+> 打开"设置"→"描述文件"→"键"→"常规"并将"Left Option key"和"Right Option key"设置为"Esc+"。
+>
+> 在 iTerm2 中运行 `/terminal-setup` 会在"设置"→"常规"→"选择"下启用"Applications in terminal may access clipboard"，以便 `/copy` 命令可以写入您的系统剪贴板。该命令即使在 tmux 内运行时也能检测到 iTerm2。重启 iTerm2 以使更改生效。
 
-如果您接受了 Claude Code 的首次运行终端设置提示，这已经完成。该提示为您运行 `/terminal-setup`，它启用 Option 作为 Meta 并在您的 Apple Terminal 配置文件中关闭可听见的铃声。
-
-在[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)中，`/terminal-setup` 保持铃声设置不变，以便终端铃声保持可听见。如果较早的运行关闭了铃声，请在"设置"→"描述文件"→"高级"→"可听见的铃声"下将其重新打开。
-
-**iTerm2**
-
-打开"设置"→"描述文件"→"键"→"常规"并将"Left Option key"和"Right Option key"设置为"Esc+"。
-
-在 iTerm2 中运行 `/terminal-setup` 会在"设置"→"常规"→"选择"下启用"Applications in terminal may access clipboard"，以便 `/copy` 命令可以写入您的系统剪贴板。该命令即使在 tmux 内运行时也能检测到 iTerm2。重启 iTerm2 以使更改生效。
-
-**VS Code**
-
-将 `"terminal.integrated.macOptionIsMeta": true` 添加到您的 VS Code 设置中。
+> [tab] VS Code
+>
+> 将 `"terminal.integrated.macOptionIsMeta": true` 添加到您的 VS Code 设置中。
 
 对于 Ghostty、Kitty 和其他终端，请在终端的配置文件中查找 Option-as-Alt 或 Option-as-Meta 设置。
 
@@ -188,7 +188,7 @@ Claude Code 会监视 `~/.claude/themes/`，并在添加或更改文件时重新
 
 以下参考涵盖了可在 `overrides` 中设置的 token。`/theme` 中的交互式编辑器会显示相同的 token 并提供实时预览，此外还有一些单一用途的强调色（例如引导界面颜色），此处未列出。
 
-> **颜色 token 参考**
+> [accordion] 颜色 token 参考
 >
 > 以下示例组合了下面几个分组中的 token：品牌强调色、计划模式边框、diff 背景以及消息背景。
 >

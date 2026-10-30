@@ -537,41 +537,41 @@ Claude Code 可以在您输入时在提示输入框中为拼写错误的单词�
 
 Claude Code 从三个地方读取 [`spellcheck`](https://code.claude.com/docs/zh-CN/settings-reference#spellcheck) 设置，并在项目的 `.claude/settings.json` 和 `.claude/settings.local.json` 中忽略它。从您使用的任何一个地方打开它：
 
-**用户设置**
+> [tab] 用户设置
+>
+> 将 `spellcheck` 添加到 `~/.claude/settings.json`。它适用于您打开的每个项目，就像您的其他[用户设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)一样：
+>
+> ```json theme={null}
+> {
+>   "spellcheck": { "enabled": true }
+> }
+> ```
 
-将 `spellcheck` 添加到 `~/.claude/settings.json`。它适用于您打开的每个项目，就像您的其他[用户设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)一样：
+> [tab] 命令行
+>
+> 将 `spellcheck` 保存在 JSON 文件中，例如 `spellcheck.json`：
+>
+> ```json theme={null}
+> {
+>   "spellcheck": { "enabled": true }
+> }
+> ```
+>
+> 然后将文件传递给 `--settings`。它仅适用于该会话：
+>
+> ```bash theme={null}
+> claude --settings spellcheck.json
+> ```
 
-```json theme={null}
-{
-  "spellcheck": { "enabled": true }
-}
-```
-
-**命令行**
-
-将 `spellcheck` 保存在 JSON 文件中，例如 `spellcheck.json`：
-
-```json theme={null}
-{
-  "spellcheck": { "enabled": true }
-}
-```
-
-然后将文件传递给 `--settings`。它仅适用于该会话：
-
-```bash theme={null}
-claude --settings spellcheck.json
-```
-
-**托管设置**
-
-将 `spellcheck` 添加到您的组织的[托管设置源](https://code.claude.com/docs/zh-CN/permissions.md#managed-settings)之一。它适用于接收这些设置的每个用户，他们无法关闭它：
-
-```json theme={null}
-{
-  "spellcheck": { "enabled": true }
-}
-```
+> [tab] 托管设置
+>
+> 将 `spellcheck` 添加到您的组织的[托管设置源](https://code.claude.com/docs/zh-CN/permissions.md#managed-settings)之一。它适用于接收这些设置的每个用户，他们无法关闭它：
+>
+> ```json theme={null}
+> {
+>   "spellcheck": { "enabled": true }
+> }
+> ```
 
 要检查拼写检查是否打开，请输入一个拼写错误的单词和一个空格。Claude Code 会为该单词加下划线。如果没有，请参阅[当 Claude Code 不加下划线时](#when-claude-code-underlines-nothing)。要再次关闭拼写检查，请在同一位置将 `enabled` 设置为 `false`，或删除 `spellcheck`。
 

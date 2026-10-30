@@ -552,7 +552,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 
 使用 **Trusted** 网络访问，会话默认可以访问以下域。标记为 `*` 的域表示通配符子域匹配，因此 `*.gcr.io` 允许 `gcr.io` 的任何子域。
 
-> **Anthropic 服务**
+> [accordion] Anthropic 服务
 >
 > * api.anthropic.com
 > * docs.claude.com
@@ -564,7 +564,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * anthropic.com
 > * [www.anthropic.com](http://www.anthropic.com)
 
-> **版本控制**
+> [accordion] 版本控制
 >
 > * github.com
 > * [www.github.com](http://www.github.com)
@@ -585,7 +585,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * [www.bitbucket.org](http://www.bitbucket.org)
 > * api.bitbucket.org
 
-> **容器注册表**
+> [accordion] 容器注册表
 >
 > * registry-1.docker.io
 > * auth.docker.io
@@ -602,7 +602,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * \*.data.mcr.microsoft.com
 > * public.ecr.aws
 
-> **云平台**
+> [accordion] 云平台
 >
 > * cloud.google.com
 > * accounts.google.com
@@ -633,7 +633,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * yum.oracle.com
 > * \*.r2.cloudflarestorage.com
 
-> **JavaScript 和 Node 包管理器**
+> [accordion] JavaScript 和 Node 包管理器
 >
 > * registry.npmjs.org
 > * [www.npmjs.com](http://www.npmjs.com)
@@ -645,7 +645,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * jsr.io
 > * npm.jsr.io
 
-> **Python 包管理器**
+> [accordion] Python 包管理器
 >
 > * pypi.org
 > * [www.pypi.org](http://www.pypi.org)
@@ -656,7 +656,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * pypa.io
 > * [www.pypa.io](http://www.pypa.io)
 
-> **Ruby 包管理器**
+> [accordion] Ruby 包管理器
 >
 > * rubygems.org
 > * [www.rubygems.org](http://www.rubygems.org)
@@ -671,7 +671,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * rvm.io
 > * get.rvm.io
 
-> **Rust 包管理器**
+> [accordion] Rust 包管理器
 >
 > * crates.io
 > * [www.crates.io](http://www.crates.io)
@@ -681,7 +681,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * static.rust-lang.org
 > * [www.rust-lang.org](http://www.rust-lang.org)
 
-> **Go 包管理器**
+> [accordion] Go 包管理器
 >
 > * proxy.golang.org
 > * sum.golang.org
@@ -691,7 +691,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * goproxy.io
 > * pkg.go.dev
 
-> **JVM 包管理器**
+> [accordion] JVM 包管理器
 >
 > * maven.org
 > * repo.maven.org
@@ -710,7 +710,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * spring.io
 > * repo.spring.io
 
-> **其他包管理器**
+> [accordion] 其他包管理器
 >
 > * packagist.org (PHP Composer)
 > * [www.packagist.org](http://www.packagist.org)
@@ -736,7 +736,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * swift.org
 > * [www.swift.org](http://www.swift.org)
 
-> **Linux 发行版**
+> [accordion] Linux 发行版
 >
 > * archive.ubuntu.com
 > * security.ubuntu.com
@@ -748,7 +748,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * [www.launchpad.net](http://www.launchpad.net)
 > * \*.nixos.org
 
-> **开发工具和平台**
+> [accordion] 开发工具和平台
 >
 > * dl.k8s.io (Kubernetes)
 > * pkgs.k8s.io
@@ -780,14 +780,14 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * pkg.stainless.com
 > * binaries.prisma.sh
 
-> **云服务和监控**
+> [accordion] 云服务和监控
 >
 > * http-intake.logs.datadoghq.com
 > * \*.datadoghq.com
 > * \*.datadoghq.eu
 > * api.honeycomb.io
 
-> **内容分发和镜像**
+> [accordion] 内容分发和镜像
 >
 > * sourceforge.net
 > * \*.sourceforge.net
@@ -796,14 +796,14 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 > * fonts.googleapis.com
 > * fonts.gstatic.com
 
-> **架构和配置**
+> [accordion] 架构和配置
 >
 > * json-schema.org
 > * [www.json-schema.org](http://www.json-schema.org)
 > * json.schemastore.org
 > * [www.schemastore.org](http://www.schemastore.org)
 
-> **Model Context Protocol**
+> [accordion] Model Context Protocol
 >
 > * \*.modelcontextprotocol.io
 

@@ -95,39 +95,39 @@
 
 在没有运行 Claude Code 会话的 shell 中，创建该目录并进入其中：
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> ```bash theme={null}
+> mkdir -p ~/claude-clean/empty && cd ~/claude-clean/empty
+> ```
 
-```bash theme={null}
-mkdir -p ~/claude-clean/empty && cd ~/claude-clean/empty
-```
-
-**PowerShell**
-
-```powershell theme={null}
-New-Item -ItemType Directory -Force "$HOME/claude-clean/empty" | Out-Null
-Set-Location "$HOME/claude-clean/empty"
-```
+> [tab] PowerShell
+>
+> ```powershell theme={null}
+> New-Item -ItemType Directory -Force "$HOME/claude-clean/empty" | Out-Null
+> Set-Location "$HOME/claude-clean/empty"
+> ```
 
 **2. 使用干净的配置目录启动 Claude Code**
 
 在同一个 shell 中，将 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars) 设置为一个新目录以替代 `~/.claude`，并传入 [`--setting-sources user`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 以关闭项目配置，例如 `.claude/settings.json`、`CLAUDE.md` 和 `.mcp.json`：
 
-**Bash or Zsh**
+> [tab] Bash or Zsh
+>
+> 该变量仅对本次启动生效。
+>
+> ```bash theme={null}
+> CLAUDE_CONFIG_DIR=~/claude-clean/config claude --setting-sources user
+> ```
 
-该变量仅对本次启动生效。
-
-```bash theme={null}
-CLAUDE_CONFIG_DIR=~/claude-clean/config claude --setting-sources user
-```
-
-**PowerShell**
-
-该变量在此 PowerShell 会话的剩余时间内保持设置，因此之后在同一窗口中启动的 `claude` 会继续使用这个干净目录。要恢复使用您的常用目录，请在下次启动前运行 `Remove-Item Env:CLAUDE_CONFIG_DIR`。
-
-```powershell theme={null}
-$env:CLAUDE_CONFIG_DIR = "$HOME/claude-clean/config"
-claude --setting-sources user
-```
+> [tab] PowerShell
+>
+> 该变量在此 PowerShell 会话的剩余时间内保持设置，因此之后在同一窗口中启动的 `claude` 会继续使用这个干净目录。要恢复使用您的常用目录，请在下次启动前运行 `Remove-Item Env:CLAUDE_CONFIG_DIR`。
+>
+> ```powershell theme={null}
+> $env:CLAUDE_CONFIG_DIR = "$HOME/claude-clean/config"
+> claude --setting-sources user
+> ```
 
 首次启动时，您会再次经历首次运行设置屏幕，这表明干净配置目录已生效。托管设置仍然适用；如果您使用 claude.ai 账户登录，[连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)仍会加载。
 

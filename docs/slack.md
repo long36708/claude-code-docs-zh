@@ -235,22 +235,22 @@ Claude Tag 适用于 Team 和 Enterprise 计划。要连接工作区，请先使
 
 ## 相关资源
 
-> **[云端 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)**
+> [card] [云端 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)
 >
 > 了解有关云端会话的更多信息
 
-> **[Claude for Slack](https://claude.com/claude-and-slack)**
+> [card] [Claude for Slack](https://claude.com/claude-and-slack)
 >
 > Claude for Slack 常规文档
 
-> **[Claude Tag](https://claude.com/docs/claude-tag/overview)**
+> [card] [Claude Tag](https://claude.com/docs/claude-tag/overview)
 >
 > Slack 中由组织管理的 @Claude，具有管理员配置的访问权限
 
-> **[Slack 应用程序市场](https://slack.com/marketplace/A08SF47R6P4)**
+> [card] [Slack 应用程序市场](https://slack.com/marketplace/A08SF47R6P4)
 >
 > 从 Slack 市场安装 Claude 应用程序
 
-> **[Claude 帮助中心](https://support.claude.com)**
+> [card] [Claude 帮助中心](https://support.claude.com)
 >
 > 获取额外支持

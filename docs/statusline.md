@@ -212,7 +212,7 @@ Claude Code 通过 stdin 向您的脚本发送以下 JSON 字段：
 | `worktree.original_cwd` | Claude 进入 worktree 之前所在的目录 |
 | `worktree.original_branch` | 进入 worktree 之前检出的 Git 分支。对于基于 hook 的 worktree 不存在 |
 
-> **完整 JSON schema**
+> [accordion] 完整 JSON schema
 >
 > 您的状态栏命令通过 stdin 接收以下 JSON 结构：
 >

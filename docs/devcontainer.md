@@ -17,7 +17,7 @@
 > 仅在使用受信任的存储库进行开发时使用开发容器，并监控 Claude 的活动。
 > 避免将主机密钥（如 `~/.ssh` 或云凭证文件）挂载到容器中；优先使用存储库范围或短期令牌。
 
-> **开发容器如何与您的编辑器配合工作**
+> [accordion] 开发容器如何与您的编辑器配合工作
 >
 > ![显示主机上的编辑器连接到 Docker 开发容器的图表。Claude Code、终端和构建工具在容器内运行。主机存储库绑定挂载到容器中作为工作区。](https://mintcdn.com/claude-code/YvJyjZfd9yMihr0i/images/devcontainer-architecture.svg?fit=max\&auto=format\&n=YvJyjZfd9yMihr0i\&q=85\&s=9017b1d16a446c6cc37ba562f35b9aae)
 >

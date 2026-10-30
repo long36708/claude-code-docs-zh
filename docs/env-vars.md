@@ -23,52 +23,52 @@
 
 在启动 `claude` 之前设置变量：
 
-**macOS, Linux, WSL**
+> [tab] macOS, Linux, WSL
+>
+> ```bash theme={null}
+> export API_TIMEOUT_MS="1200000"
+> claude
+> ```
+>
+> 要为每个会话设置它，请将 `export` 行添加到 `~/.bashrc`、`~/.zshrc` 或您的 shell 配置文件中。
 
-```bash theme={null}
-export API_TIMEOUT_MS="1200000"
-claude
-```
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> $env:API_TIMEOUT_MS = "1200000"
+> claude
+> ```
+>
+> 要为每个会话设置它，请运行 `[Environment]::SetEnvironmentVariable("API_TIMEOUT_MS", "1200000", "User")` 并打开一个新终端。
 
-要为每个会话设置它，请将 `export` 行添加到 `~/.bashrc`、`~/.zshrc` 或您的 shell 配置文件中。
-
-**Windows PowerShell**
-
-```powershell theme={null}
-$env:API_TIMEOUT_MS = "1200000"
-claude
-```
-
-要为每个会话设置它，请运行 `[Environment]::SetEnvironmentVariable("API_TIMEOUT_MS", "1200000", "User")` 并打开一个新终端。
-
-**Windows CMD**
-
-```batch theme={null}
-set API_TIMEOUT_MS=1200000
-claude
-```
-
-要为每个会话设置它，请运行 `setx API_TIMEOUT_MS "1200000"` 并打开一个新终端。
+> [tab] Windows CMD
+>
+> ```batch theme={null}
+> set API_TIMEOUT_MS=1200000
+> claude
+> ```
+>
+> 要为每个会话设置它，请运行 `setx API_TIMEOUT_MS "1200000"` 并打开一个新终端。
 
 赋值行在成功时不会打印任何内容。要确认变量已设置，请在同一 shell 中打印它：
 
-**macOS, Linux, WSL**
+> [tab] macOS, Linux, WSL
+>
+> ```bash theme={null}
+> echo $API_TIMEOUT_MS
+> ```
 
-```bash theme={null}
-echo $API_TIMEOUT_MS
-```
+> [tab] Windows PowerShell
+>
+> ```powershell theme={null}
+> echo $env:API_TIMEOUT_MS
+> ```
 
-**Windows PowerShell**
-
-```powershell theme={null}
-echo $env:API_TIMEOUT_MS
-```
-
-**Windows CMD**
-
-```batch theme={null}
-echo %API_TIMEOUT_MS%
-```
+> [tab] Windows CMD
+>
+> ```batch theme={null}
+> echo %API_TIMEOUT_MS%
+> ```
 
 ### 在设置文件中设置变量
 

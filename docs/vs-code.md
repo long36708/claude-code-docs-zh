@@ -656,33 +656,33 @@ summarize the changes I've made to the auth module
 
 使用操作系统的 URL 打开程序来调用该处理程序。
 
-**macOS**
+> [tab] macOS
+>
+> ```bash theme={null}
+> open "vscode://anthropic.claude-code/open"
+> ```
 
-```bash theme={null}
-open "vscode://anthropic.claude-code/open"
-```
+> [tab] Linux
+>
+> ```bash theme={null}
+> xdg-open "vscode://anthropic.claude-code/open"
+> ```
+>
+> `xdg-open` 命令来自 `xdg-utils` 软件包。如果 shell 报告找不到该命令，请参阅 [Linux 上找不到 xdg-open](https://code.claude.com/docs/zh-CN/deep-links.md#xdg-open-is-not-found-on-linux)。
 
-**Linux**
-
-```bash theme={null}
-xdg-open "vscode://anthropic.claude-code/open"
-```
-
-`xdg-open` 命令来自 `xdg-utils` 软件包。如果 shell 报告找不到该命令，请参阅 [Linux 上找不到 xdg-open](https://code.claude.com/docs/zh-CN/deep-links.md#xdg-open-is-not-found-on-linux)。
-
-**Windows**
-
-在 PowerShell 中：
-
-```powershell theme={null}
-Start-Process "vscode://anthropic.claude-code/open"
-```
-
-在 `cmd.exe` 中，`start` 会将其第一个带引号的参数视为窗口标题，因此请在 URL 之前传入一个空标题：
-
-```cmd theme={null}
-start "" "vscode://anthropic.claude-code/open"
-```
+> [tab] Windows
+>
+> 在 PowerShell 中：
+>
+> ```powershell theme={null}
+> Start-Process "vscode://anthropic.claude-code/open"
+> ```
+>
+> 在 `cmd.exe` 中，`start` 会将其第一个带引号的参数视为窗口标题，因此请在 URL 之前传入一个空标题：
+>
+> ```cmd theme={null}
+> start "" "vscode://anthropic.claude-code/open"
+> ```
 
 该处理程序接受两个可选的查询参数：
 

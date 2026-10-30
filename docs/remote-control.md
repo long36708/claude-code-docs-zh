@@ -41,101 +41,101 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
 您可以从 CLI、[Claude Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md)或 VS Code 扩展启动 Remote Control 会话。CLI 提供三种调用模式；Desktop 应用和 VS Code 使用 `/remote-control` 命令。
 
-**服务器模式**
+> [tab] 服务器模式
+>
+> 在项目目录中运行：
+>
+> ```bash theme={null}
+> claude remote-control
+> ```
+>
+> 在您接受 Remote Control 的一次性确认之前，`claude remote-control` 会先说明其作用，并在启动服务器前询问 `Enable Remote Control? (y/n)`。回答 `y` 即可接受并启动服务器。如果您拒绝，Claude Code 会退出而不启动服务器，并在您下次运行该命令时再次询问。
+>
+> 在服务器模式下，该进程会在终端中持续运行，等待远程连接。它会显示一个会话 URL，您可以用它[从另一台设备连接](#connect-from-another-device)，还可以按空格键显示二维码，以便从手机快速访问。远程会话处于活动状态时，终端会显示连接状态和工具活动。
+>
+> 在 `remote-control` 之后传入以下任意标志：
+>
+> | 标志 | 描述 |
+> | - | - |
+> | `--name "My Project"` | 设置自定义会话标题，该标题会显示在 claude.ai/code 的会话列表中。 |
+> | `--remote-control-session-name-prefix <prefix>` | 未设置显式名称时，自动生成的会话名称所用的前缀。默认为您机器的主机名，生成类似 `myhost-graceful-unicorn` 的名称。设置 `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` 可达到相同效果。 |
+> | `-c`, `--continue` | 恢复此目录中上一个服务器启动时使用的会话，而不是创建新会话。请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。不能与 `--session-id`、`--spawn`、`--capacity` 或 `--create-session-in-dir` 组合使用。需要 Claude Code v2.1.200 或更高版本。 |
+> | `--session-id <id>` | 按 ID 恢复某个会话。请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。不能与 `--continue`、`--spawn`、`--capacity` 或 `--create-session-in-dir` 组合使用。需要 Claude Code v2.1.200 或更高版本。 |
+> | `--spawn <mode>` | 服务器创建会话的方式。 • `same-dir`（未保存模式时的默认值）：所有会话共享当前工作目录，因此编辑相同文件时可能会发生冲突。 • `worktree`：每个按需创建的会话都有自己的 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md)。需要 git 仓库或 [`WorktreeCreate` hook](https://code.claude.com/docs/zh-CN/hooks#worktreecreate)。 • `session`：单会话模式。仅服务一个会话并拒绝其他连接。只能在启动时设置。 在运行时按 `w` 可在 `same-dir` 和 `worktree` 之间切换。您切换到的模式会成为[此项目的默认模式](#set-the-default-spawn-mode-for-a-project)。 |
+> | `--capacity <N>` | 最大并发会话数。默认为 32。不能与 `--spawn=session` 一起使用。 |
+> | `--[no-]create-session-in-dir` | 服务器启动时在当前目录中预先创建一个会话，以便您可以立即开始输入。在 `worktree` 模式下，此会话保留在当前目录中，而按需创建的会话则获得独立的 worktree。默认开启。如果您传入 `--no-create-session-in-dir` 以不带任何会话启动，Claude Code 会在您停止服务器时归档服务器的会话，因此将没有可[恢复](#resume-sessions-after-stopping-the-server)的会话。 |
+> | `--permission-mode <mode>` | 为服务器的会话设置初始[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)，例如 `acceptEdits`。接受 `manual` 作为 `default` 的别名；无法识别的模式会使服务器在启动时停止并列出有效模式。 |
+> | `--chrome` / `--no-chrome` | 在服务器创建的会话中打开或关闭 [Chrome 集成](https://code.claude.com/docs/zh-CN/chrome.md)，以便您在另一台设备上工作时 Claude 可以使用您机器上的 Chrome。如果不带任一标志，服务器预先创建的会话以及您自己从 claude.ai/code 或 Claude 应用启动的任何会话都会以关闭 Chrome 的状态开始，即使您已[默认启用 Chrome](https://code.claude.com/docs/zh-CN/chrome.md#enable-chrome-by-default)。服务器为您的某个[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)线程启动的会话则遵循该设置，但 `bypassPermissions` 模式除外。需要 Claude Code v2.1.273 或更高版本。 |
+> | `-d`, `--debug[=<filter>]` | 为服务器开启调试日志，可选择按类别过滤。只能以 `=` 形式传入过滤器，例如 `--debug=api,hooks`。需要 Claude Code v2.1.282 或更高版本。 |
+> | `--debug-file <path>` | 将调试日志写入指定文件。 |
+> | `--verbose` | 显示详细的连接和会话日志。 |
+> | `--sandbox`, `--no-sandbox` | 已在 v2.1.300 中移除。如果您传入任一标志，服务器会[报错退出](https://code.claude.com/docs/zh-CN/errors.md#sandbox-is-not-supported-by-claude-remote-control)，而不是启动。 |
+>
+> 如果您在 `remote-control` 之前传入全局 `claude` 标志，或者包装脚本添加了此类标志，Claude Code 不会将该标志传递给服务器创建的会话。只有在确知丢弃该标志不会改变这些会话的能力时，Claude Code 才会放行该标志，例如 `--verbose` 或 `--model`。对于任何其他标志，例如 `--settings`，Claude Code 会[拒绝启动](https://code.claude.com/docs/zh-CN/errors.md#not-carried-over-to-the-sessions-remote-control-starts)并指出需要移除的标志。
+>
+> 要对服务器启动的会话进行沙箱隔离，请在设置文件中开启[沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md)。
+>
+> 要在终端中打印 `remote-control` 的标志，请运行 `claude remote-control --help`。在 v2.1.302 之前，如果没有符合条件的登录，该命令会返回[故障排除](#troubleshooting)中列出的某个错误。
 
-在项目目录中运行：
+> [tab] 交互式会话
+>
+> 要启动启用了 Remote Control 的普通交互式 Claude Code 会话，请使用 `--remote-control` 标志（或 `--rc`）：
+>
+> ```bash theme={null}
+> claude --remote-control
+> ```
+>
+> 可以选择为会话传入一个名称：
+>
+> ```bash theme={null}
+> claude --remote-control "My Project"
+> ```
+>
+> 这会在终端中为您提供一个完整的交互式会话，您还可以从 claude.ai 或 Claude 应用控制它。与 `claude remote-control`（服务器模式）不同，您可以在本地输入消息，同时该会话也可供远程使用。
 
-```bash theme={null}
-claude remote-control
-```
+> [tab] 从现有会话
+>
+> 如果您已经在 Claude Code 会话中，并希望远程继续该会话，请使用 `/remote-control`（或 `/rc`）命令：
+>
+> ```text theme={null}
+> /remote-control
+> ```
+>
+> 传入名称作为参数以设置自定义会话标题：
+>
+> ```text theme={null}
+> /remote-control My Project
+> ```
+>
+> 这会启动一个 Remote Control 会话，并沿用您当前的对话历史。
+>
+> 在您接受 Remote Control 的一次性确认之前，`/remote-control` 连接前会出现一个对话框。选择 **Enable Remote Control** 即可接受并连接。如果您选择 **Never mind** 或按 Esc，Claude Code 不会连接，并会在您下次运行 `/remote-control` 时再次询问。
+>
+> 此命令不支持 `--verbose` 标志。
 
-在您接受 Remote Control 的一次性确认之前，`claude remote-control` 会先说明其作用，并在启动服务器前询问 `Enable Remote Control? (y/n)`。回答 `y` 即可接受并启动服务器。如果您拒绝，Claude Code 会退出而不启动服务器，并在您下次运行该命令时再次询问。
+> [tab] VS Code
+>
+> 在 [Claude Code VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)中，在输入框中输入 `/remote-control` 或 `/rc`。
+>
+> ```text theme={null}
+> /remote-control
+> ```
+>
+> Remote Control 开启期间，Claude Code 会在输入框底部显示 **Remote Control** 指示器。会话连接后，点击该指示器即可直接进入会话，或在 [claude.ai/code](https://claude.ai/code) 的会话列表中找到它。Claude Code 还会在对话中发布会话 URL。要断开连接，请再次运行 `/remote-control`。
+>
+> 与 CLI 不同，VS Code 命令不接受名称参数，也不显示二维码。会话标题来自您的对话历史或第一条提示词。
 
-在服务器模式下，该进程会在终端中持续运行，等待远程连接。它会显示一个会话 URL，您可以用它[从另一台设备连接](#connect-from-another-device)，还可以按空格键显示二维码，以便从手机快速访问。远程会话处于活动状态时，终端会显示连接状态和工具活动。
-
-在 `remote-control` 之后传入以下任意标志：
-
-| 标志 | 描述 |
-| - | - |
-| `--name "My Project"` | 设置自定义会话标题，该标题会显示在 claude.ai/code 的会话列表中。 |
-| `--remote-control-session-name-prefix <prefix>` | 未设置显式名称时，自动生成的会话名称所用的前缀。默认为您机器的主机名，生成类似 `myhost-graceful-unicorn` 的名称。设置 `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` 可达到相同效果。 |
-| `-c`, `--continue` | 恢复此目录中上一个服务器启动时使用的会话，而不是创建新会话。请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。不能与 `--session-id`、`--spawn`、`--capacity` 或 `--create-session-in-dir` 组合使用。需要 Claude Code v2.1.200 或更高版本。 |
-| `--session-id <id>` | 按 ID 恢复某个会话。请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。不能与 `--continue`、`--spawn`、`--capacity` 或 `--create-session-in-dir` 组合使用。需要 Claude Code v2.1.200 或更高版本。 |
-| `--spawn <mode>` | 服务器创建会话的方式。 • `same-dir`（未保存模式时的默认值）：所有会话共享当前工作目录，因此编辑相同文件时可能会发生冲突。 • `worktree`：每个按需创建的会话都有自己的 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md)。需要 git 仓库或 [`WorktreeCreate` hook](https://code.claude.com/docs/zh-CN/hooks#worktreecreate)。 • `session`：单会话模式。仅服务一个会话并拒绝其他连接。只能在启动时设置。 在运行时按 `w` 可在 `same-dir` 和 `worktree` 之间切换。您切换到的模式会成为[此项目的默认模式](#set-the-default-spawn-mode-for-a-project)。 |
-| `--capacity <N>` | 最大并发会话数。默认为 32。不能与 `--spawn=session` 一起使用。 |
-| `--[no-]create-session-in-dir` | 服务器启动时在当前目录中预先创建一个会话，以便您可以立即开始输入。在 `worktree` 模式下，此会话保留在当前目录中，而按需创建的会话则获得独立的 worktree。默认开启。如果您传入 `--no-create-session-in-dir` 以不带任何会话启动，Claude Code 会在您停止服务器时归档服务器的会话，因此将没有可[恢复](#resume-sessions-after-stopping-the-server)的会话。 |
-| `--permission-mode <mode>` | 为服务器的会话设置初始[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)，例如 `acceptEdits`。接受 `manual` 作为 `default` 的别名；无法识别的模式会使服务器在启动时停止并列出有效模式。 |
-| `--chrome` / `--no-chrome` | 在服务器创建的会话中打开或关闭 [Chrome 集成](https://code.claude.com/docs/zh-CN/chrome.md)，以便您在另一台设备上工作时 Claude 可以使用您机器上的 Chrome。如果不带任一标志，服务器预先创建的会话以及您自己从 claude.ai/code 或 Claude 应用启动的任何会话都会以关闭 Chrome 的状态开始，即使您已[默认启用 Chrome](https://code.claude.com/docs/zh-CN/chrome.md#enable-chrome-by-default)。服务器为您的某个[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)线程启动的会话则遵循该设置，但 `bypassPermissions` 模式除外。需要 Claude Code v2.1.273 或更高版本。 |
-| `-d`, `--debug[=<filter>]` | 为服务器开启调试日志，可选择按类别过滤。只能以 `=` 形式传入过滤器，例如 `--debug=api,hooks`。需要 Claude Code v2.1.282 或更高版本。 |
-| `--debug-file <path>` | 将调试日志写入指定文件。 |
-| `--verbose` | 显示详细的连接和会话日志。 |
-| `--sandbox`, `--no-sandbox` | 已在 v2.1.300 中移除。如果您传入任一标志，服务器会[报错退出](https://code.claude.com/docs/zh-CN/errors.md#sandbox-is-not-supported-by-claude-remote-control)，而不是启动。 |
-
-如果您在 `remote-control` 之前传入全局 `claude` 标志，或者包装脚本添加了此类标志，Claude Code 不会将该标志传递给服务器创建的会话。只有在确知丢弃该标志不会改变这些会话的能力时，Claude Code 才会放行该标志，例如 `--verbose` 或 `--model`。对于任何其他标志，例如 `--settings`，Claude Code 会[拒绝启动](https://code.claude.com/docs/zh-CN/errors.md#not-carried-over-to-the-sessions-remote-control-starts)并指出需要移除的标志。
-
-要对服务器启动的会话进行沙箱隔离，请在设置文件中开启[沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md)。
-
-要在终端中打印 `remote-control` 的标志，请运行 `claude remote-control --help`。在 v2.1.302 之前，如果没有符合条件的登录，该命令会返回[故障排除](#troubleshooting)中列出的某个错误。
-
-**交互式会话**
-
-要启动启用了 Remote Control 的普通交互式 Claude Code 会话，请使用 `--remote-control` 标志（或 `--rc`）：
-
-```bash theme={null}
-claude --remote-control
-```
-
-可以选择为会话传入一个名称：
-
-```bash theme={null}
-claude --remote-control "My Project"
-```
-
-这会在终端中为您提供一个完整的交互式会话，您还可以从 claude.ai 或 Claude 应用控制它。与 `claude remote-control`（服务器模式）不同，您可以在本地输入消息，同时该会话也可供远程使用。
-
-**从现有会话**
-
-如果您已经在 Claude Code 会话中，并希望远程继续该会话，请使用 `/remote-control`（或 `/rc`）命令：
-
-```text theme={null}
-/remote-control
-```
-
-传入名称作为参数以设置自定义会话标题：
-
-```text theme={null}
-/remote-control My Project
-```
-
-这会启动一个 Remote Control 会话，并沿用您当前的对话历史。
-
-在您接受 Remote Control 的一次性确认之前，`/remote-control` 连接前会出现一个对话框。选择 **Enable Remote Control** 即可接受并连接。如果您选择 **Never mind** 或按 Esc，Claude Code 不会连接，并会在您下次运行 `/remote-control` 时再次询问。
-
-此命令不支持 `--verbose` 标志。
-
-**VS Code**
-
-在 [Claude Code VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)中，在输入框中输入 `/remote-control` 或 `/rc`。
-
-```text theme={null}
-/remote-control
-```
-
-Remote Control 开启期间，Claude Code 会在输入框底部显示 **Remote Control** 指示器。会话连接后，点击该指示器即可直接进入会话，或在 [claude.ai/code](https://claude.ai/code) 的会话列表中找到它。Claude Code 还会在对话中发布会话 URL。要断开连接，请再次运行 `/remote-control`。
-
-与 CLI 不同，VS Code 命令不接受名称参数，也不显示二维码。会话标题来自您的对话历史或第一条提示词。
-
-**Desktop 应用**
-
-在 [Claude Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md) Code 标签页的本地会话中，在输入框中输入 `/remote-control` 或 `/rc`。
-
-```text theme={null}
-/remote-control
-```
-
-会话连接后，在 [claude.ai/code](https://claude.ai/code) 的会话列表中找到它。要断开连接，请再次运行 `/remote-control`。
-
-如果要改为默认为每个会话开启 Remote Control，请参阅[为所有会话启用 Remote Control](#enable-remote-control-for-all-sessions)。
+> [tab] Desktop 应用
+>
+> 在 [Claude Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md) Code 标签页的本地会话中，在输入框中输入 `/remote-control` 或 `/rc`。
+>
+> ```text theme={null}
+> /remote-control
+> ```
+>
+> 会话连接后，在 [claude.ai/code](https://claude.ai/code) 的会话列表中找到它。要断开连接，请再次运行 `/remote-control`。
+>
+> 如果要改为默认为每个会话开启 Remote Control，请参阅[为所有会话启用 Remote Control](#enable-remote-control-for-all-sessions)。
 
 ### 检查连接状态
 

@@ -158,59 +158,59 @@ Claude 定位错误，实现修复，并更新分支或打开新的 MR。
 
 对于企业环境，您可以在自己的云基础设施上完全运行 Claude Code，并获得相同的开发者体验。
 
-**Amazon Bedrock**
+> [tab] Amazon Bedrock
+>
+> ### 前置条件
+>
+> 在使用 Amazon Bedrock 设置 Claude Code 之前，您需要：
+>
+> 1. 一个 AWS 账户，具有对所需 Claude 模型的 Amazon Bedrock 访问权限
+> 2. 在 AWS IAM 中配置为 OIDC 身份提供商的 GitLab
+> 3. 一个具有 Amazon Bedrock 权限的 IAM 角色和限制为您的 GitLab 项目/引用的信任策略
+> 4. 用于角色假设的 GitLab CI/CD 变量：
+>    * `AWS_ROLE_TO_ASSUME`（角色 ARN）
+>    * `AWS_REGION`（Amazon Bedrock 区域）
+>
+> ### 设置说明
+>
+> 配置 AWS 以允许 GitLab CI 作业通过 OIDC 假设 IAM 角色（无静态密钥）。
+>
+> **必需的设置：**
+>
+> 1. 启用 Amazon Bedrock 并请求访问您的目标 Claude 模型
+> 2. 为 GitLab 创建 IAM OIDC 提供商（如果尚未存在）
+> 3. 创建由 GitLab OIDC 提供商信任的 IAM 角色，限制为您的项目和受保护的引用
+> 4. 为 Amazon Bedrock 调用 API 附加最小权限
+>
+> 使用 [Amazon Bedrock 作业示例](#configuration-examples) 在运行时将作业的 OIDC 令牌交换为临时 AWS 凭证。
 
-### 前置条件
-
-在使用 Amazon Bedrock 设置 Claude Code 之前，您需要：
-
-1. 一个 AWS 账户，具有对所需 Claude 模型的 Amazon Bedrock 访问权限
-2. 在 AWS IAM 中配置为 OIDC 身份提供商的 GitLab
-3. 一个具有 Amazon Bedrock 权限的 IAM 角色和限制为您的 GitLab 项目/引用的信任策略
-4. 用于角色假设的 GitLab CI/CD 变量：
-   * `AWS_ROLE_TO_ASSUME`（角色 ARN）
-   * `AWS_REGION`（Amazon Bedrock 区域）
-
-### 设置说明
-
-配置 AWS 以允许 GitLab CI 作业通过 OIDC 假设 IAM 角色（无静态密钥）。
-
-**必需的设置：**
-
-1. 启用 Amazon Bedrock 并请求访问您的目标 Claude 模型
-2. 为 GitLab 创建 IAM OIDC 提供商（如果尚未存在）
-3. 创建由 GitLab OIDC 提供商信任的 IAM 角色，限制为您的项目和受保护的引用
-4. 为 Amazon Bedrock 调用 API 附加最小权限
-
-使用 [Amazon Bedrock 作业示例](#configuration-examples) 在运行时将作业的 OIDC 令牌交换为临时 AWS 凭证。
-
-**Google Cloud's Agent Platform**
-
-### 前置条件
-
-在使用 Google Cloud's Agent Platform 设置 Claude Code 之前，您需要：
-
-1. 一个 Google Cloud 项目，具有：
-   * 启用的 Google Cloud's Agent Platform API
-   * 配置为信任 GitLab OIDC 的工作负载身份联合
-2. 一个仅具有所需 Google Cloud's Agent Platform 角色的专用服务账户
-3. GitLab CI/CD 变量：
-   * `GCP_WORKLOAD_IDENTITY_PROVIDER`（提供商资源名称，不包括 `//iam.googleapis.com/` 前缀，例如 `projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider`）
-   * `GCP_SERVICE_ACCOUNT`（服务账户电子邮件）
-   * `GCP_PROJECT_ID`（Google Cloud 项目 ID）
-
-### 设置说明
-
-配置 Google Cloud 以允许 GitLab CI 作业通过工作负载身份联合模拟服务账户。
-
-**必需的设置：**
-
-1. 启用 IAM Credentials API、STS API 和 Google Cloud's Agent Platform API
-2. 为 GitLab OIDC 创建工作负载身份池和提供商
-3. 创建具有 Google Cloud's Agent Platform 角色的专用服务账户
-4. 授予 WIF 主体权限以模拟服务账户
-
-使用 [Agent Platform 作业示例](#configuration-examples) 进行身份验证，无需存储密钥。
+> [tab] Google Cloud's Agent Platform
+>
+> ### 前置条件
+>
+> 在使用 Google Cloud's Agent Platform 设置 Claude Code 之前，您需要：
+>
+> 1. 一个 Google Cloud 项目，具有：
+>    * 启用的 Google Cloud's Agent Platform API
+>    * 配置为信任 GitLab OIDC 的工作负载身份联合
+> 2. 一个仅具有所需 Google Cloud's Agent Platform 角色的专用服务账户
+> 3. GitLab CI/CD 变量：
+>    * `GCP_WORKLOAD_IDENTITY_PROVIDER`（提供商资源名称，不包括 `//iam.googleapis.com/` 前缀，例如 `projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider`）
+>    * `GCP_SERVICE_ACCOUNT`（服务账户电子邮件）
+>    * `GCP_PROJECT_ID`（Google Cloud 项目 ID）
+>
+> ### 设置说明
+>
+> 配置 Google Cloud 以允许 GitLab CI 作业通过工作负载身份联合模拟服务账户。
+>
+> **必需的设置：**
+>
+> 1. 启用 IAM Credentials API、STS API 和 Google Cloud's Agent Platform API
+> 2. 为 GitLab OIDC 创建工作负载身份池和提供商
+> 3. 创建具有 Google Cloud's Agent Platform 角色的专用服务账户
+> 4. 授予 WIF 主体权限以模拟服务账户
+>
+> 使用 [Agent Platform 作业示例](#configuration-examples) 进行身份验证，无需存储密钥。
 
 ## 配置示例
 

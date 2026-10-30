@@ -110,41 +110,41 @@ Check recent commits to main and the last successful build.
 
 您也可以从 shell 脚本、别名或自动化中打开深链接，而不是通过点击它。使用链接作为参数调用您的操作系统的 URL 打开命令。这些命令依赖于 Claude Code 在机器上[注册](#registration-and-supported-platforms)的处理程序。
 
-**macOS**
+> [tab] macOS
+>
+> 内置的 `open` 命令将 URL 传递给注册的 `claude-cli://` 处理程序：
+>
+> ```bash theme={null}
+> open "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
+> ```
+>
+> 成功时，会打开一个新的终端窗口，Claude Code 运行，提示已预填充。
 
-内置的 `open` 命令将 URL 传递给注册的 `claude-cli://` 处理程序：
+> [tab] Linux
+>
+> 大多数桌面环境提供 `xdg-open`，它将 URL 传递给注册的处理程序：
+>
+> ```bash theme={null}
+> xdg-open "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
+> ```
+>
+> 成功时，会打开一个新的终端窗口，Claude Code 运行，提示已预填充。如果 shell 报告找不到 `xdg-open`，请参阅[故障排除](#xdg-open-is-not-found-on-linux)。
 
-```bash theme={null}
-open "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
-```
-
-成功时，会打开一个新的终端窗口，Claude Code 运行，提示已预填充。
-
-**Linux**
-
-大多数桌面环境提供 `xdg-open`，它将 URL 传递给注册的处理程序：
-
-```bash theme={null}
-xdg-open "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
-```
-
-成功时，会打开一个新的终端窗口，Claude Code 运行，提示已预填充。如果 shell 报告找不到 `xdg-open`，请参阅[故障排除](#xdg-open-is-not-found-on-linux)。
-
-**Windows**
-
-在 PowerShell 中，`Start-Process` 将 URL 传递给注册的处理程序：
-
-```powershell theme={null}
-Start-Process "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
-```
-
-在 `cmd.exe` 中，`start` 将其第一个带引号的参数视为窗口标题，所以在 URL 之前传递一个空标题：
-
-```cmd theme={null}
-start "" "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
-```
-
-成功时，会打开一个新的终端窗口，Claude Code 运行，提示已预填充。
+> [tab] Windows
+>
+> 在 PowerShell 中，`Start-Process` 将 URL 传递给注册的处理程序：
+>
+> ```powershell theme={null}
+> Start-Process "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
+> ```
+>
+> 在 `cmd.exe` 中，`start` 将其第一个带引号的参数视为窗口标题，所以在 URL 之前传递一个空标题：
+>
+> ```cmd theme={null}
+> start "" "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
+> ```
+>
+> 成功时，会打开一个新的终端窗口，Claude Code 运行，提示已预填充。
 
 ## 注册和支持的平台
 

@@ -8,15 +8,15 @@
 
 在 Claude Desktop 应用中，Claude Code 就是 **Code** 选项卡。该应用还包含聊天和 [Cowork](https://claude.com/product/cowork)，后者负责 Dispatch 和更长的代理工作。本页是 Code 选项卡的参考。
 
-> **[下载 macOS 版本](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)**
+> [card] [下载 macOS 版本](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)
 >
 > 适用于 Intel 和 Apple Silicon 的通用版本
 
-> **[下载 Windows 版本](https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)**
+> [card] [下载 Windows 版本](https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)
 >
 > 适用于 x64 处理器
 
-> **[获取 Claude for Linux（测试版）](https://code.claude.com/docs/zh-CN/desktop-linux.md)**
+> [card] [获取 Claude for Linux（测试版）](https://code.claude.com/docs/zh-CN/desktop-linux.md)
 >
 > Ubuntu 和 Debian 的 apt 或 .deb
 
@@ -738,70 +738,70 @@ Localhost 地址直接打开，完全像默认端口地址一样。这包括 `lo
 
 这些配置显示了不同项目类型的常见设置：
 
-**Next.js**
+> [tab] Next.js
+>
+> 此配置使用 Yarn 在端口 3000 上运行 Next.js 应用：
+>
+> ```json theme={null}
+> {
+>   "version": "0.0.1",
+>   "configurations": [
+>     {
+>       "name": "web",
+>       "runtimeExecutable": "yarn",
+>       "runtimeArgs": ["dev"],
+>       "port": 3000
+>     }
+>   ]
+> }
+> ```
 
-此配置使用 Yarn 在端口 3000 上运行 Next.js 应用：
+> [tab] 多个服务器
+>
+> 对于具有前端和 API 服务器的 monorepo，定义多个配置。前端使用 `autoPort: true`，因此如果 3000 被占用，它会选择空闲端口，而 API 服务器需要端口 8080：
+>
+> ```json theme={null}
+> {
+>   "version": "0.0.1",
+>   "configurations": [
+>     {
+>       "name": "frontend",
+>       "runtimeExecutable": "npm",
+>       "runtimeArgs": ["run", "dev"],
+>       "cwd": "apps/web",
+>       "port": 3000,
+>       "autoPort": true
+>     },
+>     {
+>       "name": "api",
+>       "runtimeExecutable": "npm",
+>       "runtimeArgs": ["run", "start"],
+>       "cwd": "server",
+>       "port": 8080,
+>       "env": { "NODE_ENV": "development" },
+>       "autoPort": false
+>     }
+>   ]
+> }
+> ```
 
-```json theme={null}
-{
-  "version": "0.0.1",
-  "configurations": [
-    {
-      "name": "web",
-      "runtimeExecutable": "yarn",
-      "runtimeArgs": ["dev"],
-      "port": 3000
-    }
-  ]
-}
-```
-
-**多个服务器**
-
-对于具有前端和 API 服务器的 monorepo，定义多个配置。前端使用 `autoPort: true`，因此如果 3000 被占用，它会选择空闲端口，而 API 服务器需要端口 8080：
-
-```json theme={null}
-{
-  "version": "0.0.1",
-  "configurations": [
-    {
-      "name": "frontend",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "cwd": "apps/web",
-      "port": 3000,
-      "autoPort": true
-    },
-    {
-      "name": "api",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start"],
-      "cwd": "server",
-      "port": 8080,
-      "env": { "NODE_ENV": "development" },
-      "autoPort": false
-    }
-  ]
-}
-```
-
-**Node.js 脚本**
-
-要直接运行 Node.js 脚本而不是使用包管理器命令，使用 `program` 字段：
-
-```json theme={null}
-{
-  "version": "0.0.1",
-  "configurations": [
-    {
-      "name": "server",
-      "program": "server.js",
-      "args": ["--verbose"],
-      "port": 4000
-    }
-  ]
-}
-```
+> [tab] Node.js 脚本
+>
+> 要直接运行 Node.js 脚本而不是使用包管理器命令，使用 `program` 字段：
+>
+> ```json theme={null}
+> {
+>   "version": "0.0.1",
+>   "configurations": [
+>     {
+>       "name": "server",
+>       "program": "server.js",
+>       "args": ["--verbose"],
+>       "port": 4000
+>     }
+>   ]
+> }
+> ```
 
 ## 环境配置
 
@@ -1327,7 +1327,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 * **工作流**：Desktop 会在每个新[工作流](https://code.claude.com/docs/zh-CN/workflows.md)启动前对其进行检查，因此在 Desktop 断开连接期间，新工作流最多等待 10 分钟，然后失败
 * **MCP 服务器**：Claude Code 在远程计算机上启动的 MCP 服务器不通过 Desktop 运行，因此 Claude 仍可调用其工具。仅当 Desktop 未使用其[内置 SSH 客户端](#worktree-edits-while-disconnected)时，来自 `claude_desktop_config.json` 的服务器才属于这一类。否则，以及在[某些 Windows 远程计算机](#windows-remote-machines)上，Desktop 断开连接期间 Claude 无法调用其工具。
 
-> **worktree 中的编辑何时可以继续工作**
+> [accordion] worktree 中的编辑何时可以继续工作
 >
 > 在 Linux 或 macOS 远程计算机上，该检查不经过 Desktop，因此在 Desktop 断开连接期间，worktree 内的编辑可以继续工作。在 Claude Desktop v2.37337.0 之前，这仅适用于 Linux 远程计算机。
 >
@@ -1368,7 +1368,7 @@ Claude Code 在任何权限模式（包括 Bypass permissions）下都不会自�
 * **记住的密码**：您让 Desktop 记住的密码也可以无需提示登录，但若长时间离开，最好使用由您的 SSH agent 持有的密钥。如果使用该密码的登录中断或挂起，Desktop 可能会停止重新连接并等待您。
 * **任何其他提示**：如果远程计算机提示输入其他内容（例如一次性验证码），您可能会在计算机上收到通知。点击该通知或在会话中发送消息，Desktop 就会显示该提示。
 
-> **如果跳板机要求登录、中断时间较长、输出缺失或进程已不存在**
+> [accordion] 如果跳板机要求登录、中断时间较长、输出缺失或进程已不存在
 >
 > * **跳板机，您不在时推送停止**：当无人响应跳板机的登录（例如向手机发送的推送）时，macOS 或 Linux 上的 Desktop 可能会出现这种情况。此时，在无人使用您的计算机期间，Desktop 会停止重新连接。当您解锁或使用计算机时，您可能会收到另一条推送，因为 Desktop 可能会再次尝试。在三次无人响应的尝试后，它会等到您重试或发送消息。
 > * **跳板机，推送持续不断**：在 Desktop 无法判断无人响应的情况下（例如 Windows 上的 Desktop），只要有可重新接入的进程，无论该进程是否仍在运行，它都会持续尝试。每次尝试您都可能收到另一条推送。若要结束尝试，请退出 Desktop，但这[可能会让您失去正在运行的任务](#reopen-a-session-after-you-quit-desktop)。
