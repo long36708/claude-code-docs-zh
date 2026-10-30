@@ -10,8 +10,8 @@
 
 ### 数据训练政策
 
-**消费者用户（Free、Pro 和 Max 计划）**：
-我们让您自行选择是否允许将您的数据用于改进未来的 Claude 模型。当此设置开启时，我们将使用来自 Free、Pro 和 Max 账户的数据训练新模型（包括您通过这些账户使用 Claude Code 时）。
+**消费者用户（Free、Pro、Max 和 Ultra 计划）**：
+我们让您自行选择是否允许将您的数据用于改进未来的 Claude 模型。当此设置开启时，我们将使用来自 Free、Pro、Max 和 Ultra 账户的数据训练新模型（包括您通过这些账户使用 Claude Code 时）。
 
 **商业用户**：（Team 和 Enterprise 计划、API、第三方平台以及 Claude Gov）维持现有政策：Anthropic 不会使用在商业条款下发送给 Claude Code 的代码或提示词来训练生成式模型，除非客户已选择向我们提供其数据以用于模型改进（例如 [Developer Partner Program](https://support.claude.com/en/articles/11174108-about-the-development-partner-program)）。
 
@@ -43,7 +43,7 @@
 
 Anthropic 根据您的账户类型和偏好保留 Claude Code 数据。
 
-**消费者用户（Free、Pro 和 Max 计划）**：
+**消费者用户（Free、Pro、Max 和 Ultra 计划）**：
 
 * 允许将数据用于模型改进的用户：保留期为 5 年，以支持模型开发和安全性改进
 * 不允许将数据用于模型改进的用户：保留期为 30 天
@@ -61,7 +61,7 @@ Anthropic 根据您的账户类型和偏好保留 Claude Code 数据。
 
 在我们的[隐私中心](https://privacy.anthropic.com/)了解有关数据保留做法的更多信息。
 
-有关完整详情，请查阅我们的[商业服务条款](https://www.anthropic.com/legal/commercial-terms)（适用于 Team、Enterprise 和 API 用户）或[消费者条款](https://www.anthropic.com/legal/consumer-terms)（适用于 Free、Pro 和 Max 用户）以及[隐私政策](https://www.anthropic.com/legal/privacy)。
+有关完整详情，请查阅我们的[商业服务条款](https://www.anthropic.com/legal/commercial-terms)（适用于 Team、Enterprise 和 API 用户）或[消费者条款](https://www.anthropic.com/legal/consumer-terms)（适用于 Free、Pro、Max 和 Ultra 用户）以及[隐私政策](https://www.anthropic.com/legal/privacy)。
 
 ## 数据访问
 
@@ -107,7 +107,7 @@ Claude Code 发送两种操作遥测：使用指标和错误报告。您可以�
 
 错误报告仅在以下所有条件都适用时才启用：
 
-* 您使用 Claude Pro 或 Max 订阅登录
+* 您使用 Claude Pro、Max 或 Ultra 订阅登录
 * 您运行的是 Claude Code v2.1.198 或更高版本
 * 您直接连接到 Claude API
 * 您的组织没有零数据保留或 HIPAA 协议
@@ -123,7 +123,7 @@ Claude Code 发送两种操作遥测：使用指标和错误报告。您可以�
 | 服务 | Claude API | Google Cloud 的 Agent Platform API | Amazon Bedrock API | Microsoft Foundry API | Claude Platform on AWS |
 | - | - | - | - | - | - |
 | **Metrics** | 默认开启。 `DISABLE_TELEMETRY=1` 禁用。 | 默认关闭。 `CLAUDE_CODE_USE_VERTEX` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_BEDROCK` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_FOUNDRY` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_ANTHROPIC_AWS` 必须为 1。 |
-| **Error reports** | v2.1.198+ 上 Pro 和 Max 登录默认开启，否则关闭。 `DISABLE_ERROR_REPORTING=1` 禁用。 | 默认关闭。 `CLAUDE_CODE_USE_VERTEX` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_BEDROCK` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_FOUNDRY` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_ANTHROPIC_AWS` 必须为 1。 |
+| **Error reports** | v2.1.198+ 上 Pro、Max 和 Ultra 登录默认开启，否则关闭。 `DISABLE_ERROR_REPORTING=1` 禁用。 | 默认关闭。 `CLAUDE_CODE_USE_VERTEX` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_BEDROCK` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_FOUNDRY` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_ANTHROPIC_AWS` 必须为 1。 |
 | **Claude API（`/feedback` 报告）** | 默认开启。 `DISABLE_FEEDBACK_COMMAND=1` 禁用。 | 默认关闭。 `CLAUDE_CODE_USE_VERTEX` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_BEDROCK` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_FOUNDRY` 必须为 1。 | 默认关闭。 `CLAUDE_CODE_USE_ANTHROPIC_AWS` 必须为 1。 |
 | **会话质量调查** | 默认开启。 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` 禁用。 | 默认开启。 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` 禁用。 | 默认开启。 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` 禁用。 | 默认开启。 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` 禁用。 | 默认开启。 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` 禁用。 |
 | **WebFetch 域安全检查** | 默认开启。 [settings](https://code.claude.com/docs/zh-CN/settings.md) 中 `skipWebFetchPreflight: true` 禁用。 | 默认开启。 [settings](https://code.claude.com/docs/zh-CN/settings.md) 中 `skipWebFetchPreflight: true` 禁用。 | 默认开启。 [settings](https://code.claude.com/docs/zh-CN/settings.md) 中 `skipWebFetchPreflight: true` 禁用。 | 默认开启。 [settings](https://code.claude.com/docs/zh-CN/settings.md) 中 `skipWebFetchPreflight: true` 禁用。 | 默认开启。 [settings](https://code.claude.com/docs/zh-CN/settings.md) 中 `skipWebFetchPreflight: true` 禁用。 |

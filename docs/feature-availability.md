@@ -14,7 +14,7 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 
 您的身份验证方式决定了 Claude Code 可以访问哪些功能。有关您的提供商上缺少的内容的单一列表，请参阅[按提供商汇总](#summary-by-provider)选项卡。要在表格中找到您的列：
 
-* **Claude 订阅**：您使用 claude.ai 账户登录 Pro、Max、Team 或 Enterprise 计划
+* **Claude 订阅**：您使用 claude.ai 账户登录 Pro、Max、Ultra、Team 或 Enterprise 套餐
 * **Anthropic Console**：您使用 Anthropic API 密钥进行身份验证，或者[在没有 API 密钥的情况下登录 Console 账户](https://code.claude.com/docs/zh-CN/authentication.md#sign-in-without-an-api-key)
 * **Amazon Bedrock**：您从 Amazon Bedrock 模型目录中使用 Claude 模型并设置 `CLAUDE_CODE_USE_BEDROCK`。[Mantle 端点](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#use-the-mantle-endpoint)（`CLAUDE_CODE_USE_MANTLE`）由此列涵盖
 * **Claude Platform on AWS**：您通过 AWS Marketplace 购买了 Claude，但调用 Anthropic API，并设置 `CLAUDE_CODE_USE_ANTHROPIC_AWS`
@@ -46,15 +46,15 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 这些需要使用 claude.ai 账户登录，无法通过 Anthropic Console API 密钥或第三方提供商访问：
 
 * [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)和移动设备上的 Claude Code
-* [Slack 中的 Claude Code](https://code.claude.com/docs/zh-CN/slack.md)：Pro 和 Max 计划
+* [Slack 中的 Claude Code](https://code.claude.com/docs/zh-CN/slack.md)：Pro、Max 和 Ultra 套餐
 * [Claude Code Desktop](https://code.claude.com/docs/zh-CN/desktop.md)
 * [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)（`/schedule`）
 * [Ultrareview](https://code.claude.com/docs/zh-CN/ultrareview.md)
 * [Code Review](https://code.claude.com/docs/zh-CN/code-review.md)：Team 和 Enterprise 计划
 * [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)
 * [Chrome 扩展](https://code.claude.com/docs/zh-CN/chrome.md)
-* [Computer use](https://code.claude.com/docs/zh-CN/computer-use.md)：Pro 和 Max 计划
-* [Artifacts](https://code.claude.com/docs/zh-CN/artifacts.md)：Pro、Max、Team 和 Enterprise 计划
+* [Computer use](https://code.claude.com/docs/zh-CN/computer-use.md)：Pro、Max 和 Ultra 套餐
+* [Artifacts](https://code.claude.com/docs/zh-CN/artifacts.md)：Pro、Max、Ultra、Team 和 Enterprise 套餐
 * [Voice dictation](https://code.claude.com/docs/zh-CN/voice-dictation.md)
 
 Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#desktop-app)。[Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview) 还可以在 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 或自托管 LLM 网关上运行 Code 选项卡。它还可以使用 Anthropic Console API 密钥在 [Claude API](https://claude.com/docs/third-party/claude-desktop/claude-api) 上运行 Code 选项卡。有关这些功能的按计划可用性，请参阅[按订阅计划的可用性](#availability-by-subscription-plan)。
@@ -297,29 +297,35 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 在已应用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)的 Enterprise 组织中，此表中的部分功能会被关闭。
 
-| 功能 | Pro | Max | Team | Enterprise |
-| :- | :- | :- | :- | :- |
-| [网络上的 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) | ✓ | ✓ | ✓ | ✓ <sup>[6](#fn6)</sup> |
-| [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md) | ✓ | ✓ | ✓ | ✓ |
-| [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) | ✓ | ✓ | Admin-enabled | Admin-enabled |
-| [Channels](https://code.claude.com/docs/zh-CN/channels.md) | ✓ | ✓ | Admin-enabled | Admin-enabled |
-| [Computer use](https://code.claude.com/docs/zh-CN/computer-use.md) | ✓ | ✓ | ✗ | ✗ |
-| Dispatch ([Desktop](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch)) | ✓ | ✓ | ✗ | ✗ |
-| [Code Review](https://code.claude.com/docs/zh-CN/code-review.md) | ✗ | ✗ | ✓ | ✓ |
-| [Artifacts](https://code.claude.com/docs/zh-CN/artifacts.md) | ✓ | ✓ | ✓ | ✓ |
-| [分析仪表板和贡献指标](https://code.claude.com/docs/zh-CN/analytics.md) | ✗ | ✗ | ✓ | ✓ |
-| [Enterprise Analytics API](https://code.claude.com/docs/zh-CN/analytics.md#access-data-programmatically) | ✗ | ✗ | ✗ | ✓ |
-| [Server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) | ✗ | ✗ | ✓ | ✓ |
-| [SSO](https://support.claude.com/en/articles/9266767-what-is-the-team-plan) | ✗ | ✗ | ✓ | ✓ |
-| SCIM | ✗ | ✗ | ✗ | ✓ |
-| [Compliance API](https://platform.claude.com/docs/en/api/compliance) | ✗ | ✗ | ✗ | ✓ |
-| [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md) | ✗ | ✗ | ✗ | ✓ <sup>[7](#fn7)</sup> |
+| 功能 | Pro | Max | Ultra | Team | Enterprise |
+| :- | :- | :- | :- | :- | :- |
+| [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) | ✓ | ✓ | ✓ | ✓ | ✓ <sup>[6](#fn6)</sup> |
+| [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) | ✓ | ✓ | ✓ | Admin-enabled | Admin-enabled |
+| [Channels](https://code.claude.com/docs/zh-CN/channels.md) | ✓ | ✓ | ✓ | Admin-enabled | Admin-enabled |
+| [Computer use](https://code.claude.com/docs/zh-CN/computer-use.md) | ✓ | ✓ | ✓ | ✗ | ✗ |
+| Dispatch ([Desktop](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch)) | ✓ | ✓ | ✓ | ✗ | ✗ |
+| [Code Review](https://code.claude.com/docs/zh-CN/code-review.md) | ✗ | ✗ | ✗ | ✓ | ✓ |
+| [Artifacts](https://code.claude.com/docs/zh-CN/artifacts.md) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| [分析仪表板和贡献指标](https://code.claude.com/docs/zh-CN/analytics.md) | ✗ | ✗ | ✗ | ✓ | ✓ |
+| [Enterprise Analytics API](https://code.claude.com/docs/zh-CN/analytics.md#access-data-programmatically) | ✗ | ✗ | ✗ | ✗ | ✓ |
+| [Server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) | ✗ | ✗ | ✗ | ✓ | ✓ |
+| [SSO](https://support.claude.com/en/articles/9266767-what-is-the-team-plan) | ✗ | ✗ | ✗ | ✓ | ✓ |
+| SCIM | ✗ | ✗ | ✗ | ✗ | ✓ |
+| [Compliance API](https://platform.claude.com/docs/en/api/compliance) | ✗ | ✗ | ✗ | ✗ | ✓ |
+| [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md) | ✗ | ✗ | ✗ | ✗ | ✓ <sup>[7](#fn7)</sup> |
 
 <sup>6</sup> 在 Enterprise 上，需要高级座位或 Chat + Claude Code 座位。请参阅[网络上的 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)。\
 
 <sup>7</sup> 不包含在标准 Enterprise 计划中。需要 Anthropic 为合格账户单独启用。请参阅 [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md)。
 
 有关定价和完整的计划比较，请参阅 [Team 计划](https://support.claude.com/en/articles/9266767-what-is-the-team-plan)和 [Enterprise 计划](https://support.claude.com/en/articles/9797531-what-is-the-enterprise-plan)。
+
+### Ultra 套餐
+
+Ultra 是 Max 20x 套餐的新名称，Max 是 Max 5x 的新名称。要查看您当前使用的套餐，请在 claude.ai 上查看您的订阅。
+
+在 Claude Code 中，Max 和 Ultra 具有相同的功能，详见[可用性表](#availability-by-subscription-plan)中的 Max 和 Ultra 列。有关用量限制和定价，请参阅 [Claude 定价页面](https://claude.com/pricing)。
 
 ## 模型可用性
 

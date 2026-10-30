@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> Computer use 是 macOS 上的研究预览版，需要 Pro 或 Max 计划。它在 Team 或 Enterprise 计划上不可用。它需要交互式会话，因此在使用 `-p` 标志的非交互式模式下不可用。
+> Computer use 是 macOS 上的研究预览版，需要 Pro、Max 或 Ultra 计划。它在 Team 或 Enterprise 计划上不可用。它需要交互式会话，因此在使用 `-p` 标志的非交互模式下不可用。
 
 Computer use 让 Claude 能够打开应用、控制您的屏幕，并以您的方式在您的机器上工作。从 CLI 中，Claude 可以编译 Swift 应用、启动它、点击每个按钮，并截图结果，所有这些都在编写代码的同一对话中进行。
 
@@ -196,7 +196,7 @@ CLI 和 Desktop 表面共享相同的 computer use 引擎，有一些差异：
 服务器仅在符合条件的设置上出现。检查：
 
 * 您在 macOS 上。Computer use 在 CLI 中在 Linux 或 Windows 上不可用。在 Windows 上，改用 [Desktop 中的 computer use](https://code.claude.com/docs/zh-CN/desktop.md#let-claude-use-your-computer)。
-* 您在 Pro 或 Max 计划上。运行 `/status` 来确认您的订阅。
+* 您使用的是 Pro、Max 或 Ultra 套餐。运行 `/status` 来确认您的订阅。
 * 您通过 claude.ai 进行身份验证。Computer use 不适用于第三方提供商，如 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry。如果您仅通过第三方提供商访问 Claude，您需要单独的 claude.ai 账户来使用此功能。
 * 您在交互式会话中。Computer use 在使用 `-p` 标志的非交互式模式下不可用。
 

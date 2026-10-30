@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> iOS Simulator 窗格在 macOS 上的 Claude Code Desktop 中处于公开测试版。它在 Pro、Max、Team 和 Enterprise 计划中可用，但在启用了 HIPAA 配置的 Enterprise 组织中不可用。
+> iOS Simulator 窗格在 macOS 上的 Claude Code Desktop 中处于公开测试版。它在 Pro、Max、Ultra、Team 和 Enterprise 计划中可用，但在启用了 HIPAA 配置的 Enterprise 组织中不可用。
 
 iOS Simulator 窗格在 Claude Code Desktop 中的对话旁边显示你的应用在 Apple 的 iOS Simulator 中运行。当 Claude 在模拟器中构建、安装、启动或检查你的应用时，该窗格会自动打开并实时流式传输设备屏幕。使用它来观看 Claude 运行和测试你的应用，或者在 Claude 继续工作时自己点击浏览应用。
 

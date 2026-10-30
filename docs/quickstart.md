@@ -18,7 +18,7 @@
 
 * 打开的终端或命令提示符
 * 一个可以使用的代码项目
-* 一个 [Claude 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_prereq)（Pro、Max、Team 或 Enterprise）、[Claude Console](https://platform.claude.com/) 账户，或通过[支持的云提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)的访问权限
+* 一个 [Claude 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_prereq)（Pro、Max、Ultra、Team 或 Enterprise）、[Claude Console](https://platform.claude.com/) 账户，或通过[支持的云提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)的访问权限
 
 > [!NOTE]
 >
@@ -112,7 +112,7 @@ claude
 
 您可以使用以下任一账户类型登录：
 
-* [Claude Pro、Max、Team 或 Enterprise](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_login)（推荐）
+* [Claude Pro、Max、Ultra、Team 或 Enterprise](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_login)（推荐）
 * [Claude Console](https://platform.claude.com/)（使用预付额度的 API 访问）。首次登录时，系统会在 Console 中自动创建一个"Claude Code"工作区，用于集中跟踪费用。
 * [Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry](https://code.claude.com/docs/zh-CN/third-party-integrations.md)（企业云服务提供商）
 * 自托管的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)（如果您的组织部署了该网关）：管理员会预先配置网关 URL，`/login` 将直接打开 **Cloud gateway** 界面，供您使用企业 SSO 登录

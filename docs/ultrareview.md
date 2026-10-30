@@ -120,8 +120,9 @@ Ultrareview 是一项高级功能，按额外使用量而不是您计划的包�
 | - | - | - |
 | Pro | 3 次免费运行 | 按 [额外使用量](https://support.claude.com/zh-CN/articles/12429409-extra-usage-for-paid-claude-plans) 计费 |
 | Max | 3 次免费运行 | 按 [额外使用量](https://support.claude.com/zh-CN/articles/12429409-extra-usage-for-paid-claude-plans) 计费 |
+| Ultra | 3 次免费运行 | 按 [使用额度](https://support.claude.com/zh-CN/articles/12429409-extra-usage-for-paid-claude-plans) 计费 |
 
-* **免费运行**：Pro 和 Max 的三次运行是每个账户的一次性分配，不会刷新。
+* **免费运行**：Pro、Max 和 Ultra 的三次运行是每个账户的一次性分配，不会刷新。
 * **每次审查的成本**：使用完免费运行后，通常花费 \$5 到 \$25 的使用额度，具体取决于更改的大小，与启动对话框在每次运行前显示的估计相匹配。
 * **何时计数一次运行**：一旦云会话启动。您提前停止或未能完成的审查仍然会使用一次免费运行；付费审查仅对运行的部分计费。
 

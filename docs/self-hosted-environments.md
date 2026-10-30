@@ -14,7 +14,11 @@
 
 在自托管环境中，这些相同的会话在您的网络内执行。除了[可用性和限制](#availability-and-limitations)中的差异以及部署页面的[已知问题](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#known-issues-and-limitations)之外，开发者体验完全相同。
 
-如果您的团队不使用云会话，这里没有什么需要配置的：终端或 IDE 中的会话始终在开发者自己的机器上运行。如果您想在自己的常开机器上运行 Claude Code 并从其他设备驱动它，请使用[远程控制](https://code.claude.com/docs/zh-CN/remote-control.md)，它也可在 Pro 和 Max 计划上使用。当您准备好设置时，直接转到[快速入门](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md)；如果您想先审查安全态势，请从[部署到生产](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md)开始。本页的其余部分解释自托管的工作原理以及何时选择它。
+* 如果您的团队不使用云端会话，这里没有什么需要配置的：终端或 IDE 中的会话始终在开发者自己的机器上运行
+* 如需在自己的常开机器上运行 Claude Code 并从其他设备驱动它，请使用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)，它也可在 Pro、Max 和 Ultra 计划上使用
+* 当您准备好设置时，直接转到[快速入门](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md)；如需先审查安全态势，请从[部署到生产](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md)开始
+
+要了解自托管的工作原理以及何时选择它，请阅读[自托管环境的工作原理](#how-self-hosted-environments-work)和[为什么选择自托管](#why-self-host)。
 
 ## 自托管环境如何工作
 

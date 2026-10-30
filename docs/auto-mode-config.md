@@ -161,7 +161,7 @@
 
 > [!NOTE]
 >
-> `/auto-mode-setup` 适用于 Pro、Max、Team 和 Enterprise 计划，以及使用 Claude Console API 密钥的情况。在 Pro、Max 或 Team 计划中，您需要 v2.1.228 或更高版本，在原生 Windows 上则需要 v2.1.233 或更高版本。在 Enterprise 计划中或使用 Claude Console API 密钥时，您需要 v2.1.283 或更高版本。如果您的会话中没有该命令，请参阅 [`/auto-mode-setup` 返回 "Unknown command"](#auto-mode-setup-returns-unknown-command)。
+> `/auto-mode-setup` 适用于 Pro、Max、Ultra、Team 和 Enterprise 计划，以及使用 Claude Console API 密钥的情况。在 Pro、Max、Ultra 或 Team 计划中，您需要 v2.1.228 或更高版本，在原生 Windows 上则需要 v2.1.233 或更高版本。在 Enterprise 计划中或使用 Claude Console API 密钥时，您需要 v2.1.283 或更高版本。如果您的会话中没有该命令，请参阅 [`/auto-mode-setup` 返回 "Unknown command"](#auto-mode-setup-returns-unknown-command)。
 
 ### `/auto-mode-setup` 读取的内容
 

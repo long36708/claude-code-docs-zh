@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> Projects 目前在 Pro 和 Max 计划上以公开测试版提供，并正在逐步推出。推出首先面向已使用过[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)且在 claude.ai 聊天或 Cowork 中没有现有项目的账户。Projects 目前尚未在 Team 或 Enterprise 计划上提供。
+> Projects 目前在 Pro、Max 和 Ultra 计划上以公开测试版提供，并正在逐步推出。推出首先面向已使用过[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)且在 claude.ai 聊天或 Cowork 中没有现有项目的账户。Projects 目前尚未在 Team 或 Enterprise 计划上提供。
 >
 > 如果您在 [claude.ai/code](https://claude.ai/code) 的侧边栏中或[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)的代码选项卡中没有看到 **Projects**，请在其中的 **More** 下查看。如果那里也没有，说明推出尚未覆盖到您的账户。您可以[加入等待列表](https://claude.com/form/projects)，并参阅[并行运行 Agent](https://code.claude.com/docs/zh-CN/agents.md)，了解您在此期间可以使用的功能。
 
@@ -78,7 +78,7 @@
 
 在创建项目之前，检查您的计划、GitHub 设置以及工作需要到达的内容：
 
-* **计划**：您使用的是 Pro 或 Max，并且 **Projects** 显示在您的侧边栏中（直接显示或位于 **More** 下）。选择 **Projects** 并检查它是否提供 **New project** 或 **Get started**。
+* **计划**：您使用的是 Pro、Max 或 Ultra，并且 **Projects** 显示在您的侧边栏中（直接显示或位于 **More** 下）。选择 **Projects** 并检查它是否提供 **New project** 或 **Get started**。
 * **GitHub，如果项目将处理代码**：您的代码在 github.com 上而不是 GitHub Enterprise Server、GitLab 或 Bitbucket 上，您连接的 GitHub 账户对其有推送访问权限，Claude GitHub App 已安装在其上。如果您使用 [`/web-setup`](https://code.claude.com/docs/zh-CN/web-quickstart#connect-from-your-terminal) 连接了 GitHub，该令牌让您的其他云会话可以访问代码库，但对于项目线程来说还不够，项目线程需要 Claude GitHub App。[设置 GitHub 访问](#set-up-github-access)有相关步骤。
 * **网络访问、密钥和工具**：对于云端线程，这些来自项目的[云环境](#choose-an-environment-for-threads)。默认环境已经可以访问[常见的包注册表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)，因此仅在工作需要其他域、密钥或未预装的工具时检查此项。如果工作需要 MCP 服务器，检查它是否在您的 [claude.ai 连接器](https://claude.ai/customize/connectors)中显示为已连接。
 
@@ -421,7 +421,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 在 **Project settings** 中打开 **Usage** 以按线程和按模型查看令牌使用，以及有多少进入项目对话。要降低它：
 
-* 路由到已闲置超过[缓存生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime)（Pro 和 Max 在您计划限制内为一小时）的线程的后续，在做任何事情之前重新读取该线程的整个对话。对于新工作，要求 Claude 启动新线程可以使用比恢复大的旧线程更少的。
+* 在 Pro、Max 和 Ultra 计划限制内，[缓存生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime)为一小时。闲置时间超过该时长的线程在收到后续消息时，会先重新读取其整个对话，然后再执行任何操作。对于新工作，请要求 Claude 启动一个新线程，这可能比恢复一个大型旧线程使用得更少。
 * 对于不需要最大模型的工作，为线程、对话或两者[选择更小的模型或更低的努力级别](#choose-models-and-let-claude-manage-context)。
 * 在项目对话中要求 Claude 一次运行更少的线程，或自己回答小问题而不是启动线程。
 
@@ -429,7 +429,9 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 几个 Claude Code 功能让多个会话同时工作，因此并行运行工作本身不是项目的目的。在项目中，Claude 启动和跟踪会话而不是您，每个都从相同的说明开始。这是每个相邻功能如何连接到项目的方式：
 
-* **Claude Tag**：[Claude Tag](https://claude.com/docs/claude-tag/overview) 是您团队 Slack 频道中的 Claude，在 Team 和 Enterprise 计划上。频道中的任何人都可以给它工作，频道中的每个人都看到并引导它，它使用管理员为该频道设置的连接。项目是您的：您是唯一给它工作或看到其线程的人，它使用您自己的 GitHub 访问和连接器，它在 Pro 和 Max 上。[Claude Tag 与 Cowork 和 Claude Code 的不同之处](https://claude.com/docs/claude-tag/concepts/how-it-works#how-claude-tag-differs-from-cowork-and-claude-code)有并排比较。
+* **Claude Tag**：[Claude Tag](https://claude.com/docs/claude-tag/overview) 是您团队 Slack 频道中的 Claude，在 Team 和 Enterprise 计划上提供。频道中的任何人都可以给它分配工作，频道中的每个人都能看到并引导它，它使用管理员为该频道设置的连接。
+
+  项目在 Pro、Max 和 Ultra 上提供。项目仅属于您一人：您是唯一给它分配工作或看到其线程的人，它使用您自己的 GitHub 访问权限和连接器。[Claude Tag 与 Cowork 和 Claude Code 的不同之处](https://claude.com/docs/claude-tag/concepts/how-it-works#how-claude-tag-differs-from-cowork-and-claude-code)有并排比较。
 * **云端会话**：每个线程都是一个[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，除非您要求 Claude 在您的机器上运行它。无论哪种方式，Claude 启动和跟踪它而不是您。您还可以将自己启动的云端会话的工作带入项目：在该会话的侧边栏菜单中选择 [**Continue in project**](#start-from-an-existing-cloud-session)。
 * **定时任务**：当您在项目中请求定时工作时，Claude 会创建一个[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)，它作为该项目中的线程运行，并显示在项目的 **Scheduled tasks** 标签页上。您在项目之外创建的定时任务会继续独立运行。
 * **Remote Control**：[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 连接 claude.ai 到在您的机器上运行的 Claude Code 会话。当您在项目中要求 Claude 在您的计算机上运行线程时，项目[使用 Remote Control 来执行](#run-a-thread-on-your-own-computer)。

@@ -25,7 +25,7 @@
 * 仅有 API 触发器的任务会在您调用其端点时运行。
 * 仅有 GitHub 触发器的任务会在发生匹配的仓库事件时运行。
 
-定时任务适用于 Pro、Max、Team 和 Enterprise 套餐。您可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理它们，也可以在 CLI 中使用 `/schedule`。旧名称 Routine [仍会出现](#where-the-name-routines-still-appears)。
+定时任务适用于 Pro、Max、Ultra、Team 和 Enterprise 套餐。您可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理它们，也可以在 CLI 中使用 `/schedule`。旧名称 Routine [仍会出现](#where-the-name-routines-still-appears)。
 
 > [!NOTE]
 >
@@ -502,7 +502,7 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 * Owner 为您的 Team 或 Enterprise 组织[关闭了定时任务](#routines-are-disabled-by-your-organizations-policy)。在 v2.1.227 之前，这种情况下命令仍会显示，而当 Claude 尝试创建或运行任务时，claude.ai 会拒绝该任务
 * 您的 Enterprise 组织通过[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，而您的所有角色都不包含 **Remote sessions** 下的定时任务权限。请联系 Owner 将该权限添加到您的某个角色中
 
-如果原因在于您的 CLI 登录方式或您处于云端会话中，您仍可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理定时任务。您需要在该处使用 Pro、Max、Team 或 Enterprise 账户。如果您的组织关闭了定时任务或云端会话，或者您的角色中缺少相应权限，您也无法在 Web 端创建定时任务。
+如果原因在于您的 CLI 登录方式或您处于云端会话中，您仍可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理定时任务。您需要在该处使用 Pro、Max、Ultra、Team 或 Enterprise 账户。如果您的组织关闭了定时任务或云端会话，或者您的角色中缺少相应权限，您也无法在 Web 端创建定时任务。
 
 ### "Routines are disabled by your organization's policy"
 

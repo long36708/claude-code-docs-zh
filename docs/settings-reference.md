@@ -3865,7 +3865,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 * **类型**：Boolean
   * `true`：Claude Code 为您的组织允许频道
   * `false`：与未设置相同；频道是否被阻止取决于您的计划，如默认值所述
-* **默认值**：未设置；在 Team 和 Enterprise 计划以及具有托管设置的 Console 账户上阻止频道，在 Pro 和 Max 计划以及没有托管设置的 Console 账户上允许频道
+* **默认值**：未设置；在 Team 和 Enterprise 计划以及具有托管设置的 Console 账户上阻止频道，在 Pro、Max 和 Ultra 计划以及没有托管设置的 Console 账户上允许频道
 
 ```json managed-settings.json theme={null}
 {

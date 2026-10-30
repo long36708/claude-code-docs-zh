@@ -341,7 +341,7 @@ Claude Code 通过 stdin 向您的脚本发送以下 JSON 字段：
 > * `agent`：仅在使用 `--agent` 标志运行或配置了 Agent 设置时出现
 > * `pr`：仅在为当前分支找到已打开的 PR 或 GitLab merge request 时出现，并在其合并或关闭后移除。`pr.review_state` 和 `pr.kind` 可能单独缺失
 > * `worktree`：仅在会话处于 [worktree 会话](https://code.claude.com/docs/zh-CN/worktrees.md)时出现。存在时，对于基于 hook 的 worktree，`branch` 和 `original_branch` 也可能不存在
-> * `rate_limits`：仅对 claude.ai Pro 和 Max 订阅用户，或在为您设置了支出限额的 Claude apps 网关后方时出现，并且仅在会话中第一次 API 响应之后出现。每个窗口（`five_hour`、`seven_day`、`spend_limit`）都可能单独缺失，并且一旦某个窗口的 `resets_at` 时间已过，Claude Code 就会移除该窗口。使用 `jq -r '.rate_limits.five_hour.used_percentage // empty'` 可以妥善处理字段缺失的情况。
+> * `rate_limits`：仅对 claude.ai Pro、Max 和 Ultra 订阅用户，或在为您设置了支出限额的 Claude apps 网关后方时出现。即便如此，它也仅在会话中第一次 API 响应之后出现。每个窗口（`five_hour`、`seven_day`、`spend_limit`）都可能单独缺失，并且一旦某个窗口的 `resets_at` 时间已过，Claude Code 就会移除该窗口。使用 `jq -r '.rate_limits.five_hour.used_percentage // empty'` 可以妥善处理字段缺失的情况。
 > * `prompt_cache`：在主对话的第一次 API 响应之后出现。请参阅[提示缓存字段](#prompt-cache-fields)
 >
 > **可能为 `null` 的字段**：
@@ -819,9 +819,9 @@ process.stdin.on('end', () => {
 
 ### 速率限制使用情况
 
-在状态栏中显示 claude.ai 订阅速率限制使用情况，或您相对于 Claude 应用网关支出限制的支出。对于订阅者，`rate_limits` 对象包含一个滚动的 `five_hour` 窗口和一个每周的 `seven_day` 窗口。每个窗口提供 `used_percentage`（从 0 到 100）和 `resets_at`（窗口重置时的 Unix 纪元秒数）。在网关后面时，请读取 `spend_limit` 对象，详见[支出限制字段](#spend-limit-fields)。
+在状态栏中显示 claude.ai 订阅速率限制使用情况，或您相对于 Claude 应用网关支出限制的支出。对于订阅者，`rate_limits` 对象可以包含一个滚动的 `five_hour` 窗口和一个每周的 `seven_day` 窗口。每个窗口提供 `used_percentage`（从 0 到 100）和 `resets_at`（窗口重置时的 Unix 纪元秒数）。在网关后面时，请读取 `spend_limit` 对象，详见[支出限制字段](#spend-limit-fields)。
 
-`rate_limits` 对象仅对 claude.ai Pro 和 Max 订阅者或具有支出限制的 Claude 应用网关后面的用户出现，并且仅在第一次 API 响应后出现。每个脚本都会优雅地处理缺失的字段，并且在网关后面时打印 `spend: $314.12 / $500`，或在美元字段缺失时打印 `spend: 63%`：
+`rate_limits` 对象仅对 claude.ai Pro、Max 和 Ultra 订阅者或具有支出限制的 Claude 应用网关后面的用户出现，并且仅在第一次 API 响应后出现。每个脚本都会优雅地处理缺失的字段，并且在网关后面时打印 `spend: $314.12 / $500`，或在美元字段缺失时打印 `spend: 63%`：
 
 ```bash Bash theme={null}
 #!/bin/bash

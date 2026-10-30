@@ -163,7 +163,7 @@ Checkpoints 独立于 git，在您恢复对话时仍然可用。它们仅涵盖�
 
 选择一个权限模式来设置 Claude 可以在不询问您的情况下做什么。按 `Shift+Tab` 循环通过权限模式：
 
-* **Auto**：分类器在后台审查大多数操作，并阻止风险操作而不是询问您。在 Claude Code v2.1.283 或更高版本中，它是[交互式终端和 VS Code 会话的内置起始权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)，在早期版本中仅在 Pro、Max 和 Team 计划上可用
+* **Auto**：分类器在后台审查大多数操作，并阻止风险操作而不是询问您。在 Claude Code v2.1.283 或更高版本中，它是交互式终端和 VS Code 会话的[内置起始权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)。在早期版本中，它仅在 Pro、Max、Ultra 和 Team 计划上是内置起始权限模式。
 * **Manual**：Claude 在文件编辑和 shell 命令之前询问
 * **Accept edits**：Claude 编辑文件并运行常见的文件系统命令（如 `mkdir` 和 `mv`）而不询问，仍然询问其他命令
 * **Plan**：Claude 探索并提出计划而不编辑您的源文件

@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> 云环境适用于[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，这些会话在 Pro、Max 和 Team 计划上可用，以及具有[高级席位或 Chat + Claude Code 席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)的 Enterprise 用户。
+> 云环境适用于[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，这些会话在 Pro、Max、Ultra 和 Team 计划上可用，以及具有[高级席位或 Chat + Claude Code 席位](https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan)的 Enterprise 用户。
 
 每个[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)都在云环境中运行。您可以配置环境以允许或拒绝[网络访问](#access-levels)、为会话[设置环境变量](#set-environment-variables)、存储会话使用但无法看到的[网络密钥](#add-network-secrets)，以及在 Claude 开始工作前运行[设置脚本](#setup-scripts)。
 
@@ -32,7 +32,7 @@
 如果您还没有环境，引导设置会为您设置 **Default** 环境。具体方式取决于您在哪里进行引导：
 
 * **CLI 流程（例如 `/web-setup`）**：为您创建 **Default**
-* **Pro 和 Max 上的网页引导**：为您创建 **Default**
+* **Pro、Max 和 Ultra 上的网页引导**：自动为您提供 **Default**
 * **Team 和 Enterprise 上的网页引导**：显示 **Create your first cloud environment** 表单，除非所有者已启用[快速设置](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#quick-setup-for-team-and-enterprise)；保持表单的默认值并点击 **Create & finish** 以获得相同的 **Default** 环境
 
 **Default** 本身不带有任何配置：
@@ -93,7 +93,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 网络机密是您存储在云环境中的 API 密钥或令牌，使 Claude 可以从该环境中的任何会话调用该 API，而无需看到密钥。每个请求离开会话的 VM 后，Anthropic 的 Agent 代理会将密钥添加到发往您所列主机的请求中，因此密钥本身始终位于 VM 之外。
 
-网络机密适用于 Pro、Max、Team 和 Enterprise 计划。要确认您是否可以自行添加，请参阅[要求](#requirements)。
+网络机密适用于 Pro、Max、Ultra、Team 和 Enterprise 计划。要确认您是否可以自行添加，请参阅[要求](#requirements)。
 
 #### 要求
 

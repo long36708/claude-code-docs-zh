@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> Artifacts 在 Pro、Max、Team 和 Enterprise 计划中可用，需要使用 [`/login`](https://code.claude.com/docs/zh-CN/setup#authenticate) 登录的会话。有关完整的要求集，请参阅 [可用性](#availability)。
+> Artifacts 在 Pro、Max、Ultra、Team 和 Enterprise 计划中可用，需要使用 [`/login`](https://code.claude.com/docs/zh-CN/setup#authenticate) 登录的会话。有关完整的要求集，请参阅 [可用性](#availability)。
 
 [Artifact](https://claude.com/features/artifacts) 是一个实时交互式网页，Claude Code 从您的会话发布到 claude.ai 上的私密 URL。您在浏览器中打开它，随着会话的继续，它会实时更新。当您希望其他人也看到它时，可以从页面标题中共享它。
 
@@ -197,12 +197,12 @@ Claude 只能回复或解决已激活的线程。其他线程保持打开状态�
 
 ## 使用 MCP 连接器拉取实时数据
 
-artifact 可以在每次有人查看它时调用 [MCP 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)，因此页面显示的是当前数据而不是构建它的会话中的快照。来自 artifact 的连接器调用在 Pro、Max、Team 和 Enterprise 计划上可用，需要 Claude Code v2.1.209 或更高版本。在早期版本上，Claude 会发布该页面，其中包含会话在构建时收集的任何数据。
+Artifact 可以在每次有人查看它时调用 [MCP 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)，因此页面显示的是当前数据，而不是构建它的会话中的快照。来自 Artifact 的连接器调用在 Pro、Max、Ultra、Team 和 Enterprise 计划上可用，需要 Claude Code v2.1.209 或更高版本。在早期版本上，Claude 会发布该页面，其中包含会话在构建时收集的任何数据。
 
 要创建一个由连接器支持的页面，请在提示中命名连接器和您想要的数据：
 
 ```text wrap theme={null}
-构建一个我们开放拉取请求的 dashboard artifact，当页面加载时通过我的 GitHub 连接器拉取实时列表。
+构建一个我们未关闭的 Pull Request 的 dashboard Artifact，当页面加载时通过我的 GitHub 连接器拉取实时列表。
 ```
 
 Claude 声明该页面可能调用哪些连接器作为发布的一部分，该页面无法调用该声明之外的连接器。只有来自您 claude.ai 账户的连接器符合条件：Claude 在声明中命名它们，当有人查看页面时，每个调用都会[通过查看账户自己的连接](#how-connector-calls-work-for-viewers)运行到该连接器。您在 Claude Code 中配置的本地 MCP 服务器（例如来自 `.mcp.json` 的服务器）可以在 Claude 构建页面时提供数据，但已发布的页面无法调用它们。
@@ -314,7 +314,7 @@ Claude 可以从您的 claude.ai 账户上的模板开始创建工件，而不�
 
 > [!NOTE]
 >
-> 模板处于测试阶段。它们在 Pro、Max 和 Team 计划上默认启用。在 Enterprise 计划上，所有者在**组织设置 > 工件**下[启用每个模板](https://support.claude.com/en/articles/16994751-artifacts-admin-guide-for-team-and-enterprise-plans)。如果您的组织关闭了 Slides 模板，`/slides` 不会出现；如果关闭了 Design 模板，`/design` 不会草拟设计。两个命令都需要 Claude Code v2.1.265 或更高版本以及一个[工件可用](#availability)的会话。
+> 模板处于测试阶段。它们在 Pro、Max、Ultra 和 Team 计划上默认启用。在 Enterprise 计划上，所有者在**组织设置 > Artifacts**下[启用每个模板](https://support.claude.com/en/articles/16994751-artifacts-admin-guide-for-team-and-enterprise-plans)。如果您的组织关闭了 Slides 模板，`/slides` 不会出现；如果关闭了 Design 模板，`/design` 不会草拟设计。两个命令都需要 Claude Code v2.1.265 或更高版本以及一个[Artifact 可用](#availability)的会话。
 
 ### 制作幻灯片演示文稿
 
@@ -368,7 +368,7 @@ Artifacts 需要以下所有条件。当不满足其中一个时，Claude 写入
 
 | 要求 | 可用时间 |
 | :- | :- |
-| 计划 | Pro、Max、Team 或 Enterprise。在 Pro 和 Max 计划上，artifacts 仅对您私有，直到您共享它们，不适用任何管理员管理。在 Team 和 Enterprise 计划上，artifacts 默认启用，Owner 可以在 claude.ai 管理设置中 [关闭它们](#manage-artifacts-for-your-organization)。 |
+| 计划 | Pro、Max、Ultra、Team 或 Enterprise。在 Pro、Max 和 Ultra 计划上，artifacts 仅对您私有，直到您共享它们，不适用任何管理员管理。在 Team 和 Enterprise 计划上，artifacts 默认启用，Owner 可以在 claude.ai 管理设置中 [为组织关闭它们](#manage-artifacts-for-your-organization)。 |
 | 身份验证 | 会话由 claude.ai 账户支持：在 CLI 或桌面应用中使用 `/login` 登录。Claude Tag 会话无需登录步骤。使用 API 密钥、[网关令牌](https://code.claude.com/docs/zh-CN/llm-gateway) 或云提供商凭据的会话无法发布。 |
 | 模型提供商 | Anthropic API。在 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md) 上不可用。 |
 | 组织策略 | 客户管理的加密密钥 (CMEK)、HIPAA 和 [零数据保留](https://code.claude.com/docs/zh-CN/zero-data-retention.md) 未为组织启用。 |

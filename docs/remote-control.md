@@ -25,7 +25,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
 在使用 Remote Control 之前，请确认您的环境满足以下条件：
 
-* **订阅**：在 Pro、Max、Team 和 Enterprise 计划中可用。不支持 API 密钥。在 Team 和 Enterprise 上，Owner 必须首先在 [Claude Code 管理员设置](https://claude.ai/admin-settings/claude-code)中启用 Remote Control 切换。
+* **订阅**：在 Pro、Max、Ultra、Team 和 Enterprise 套餐中可用。不支持 API 密钥。在 Team 和 Enterprise 上，Owner 必须首先在 [Claude Code 管理员设置](https://claude.ai/admin-settings/claude-code)中启用 Remote Control 切换。
 * **自定义角色**：如果您的 Enterprise 组织使用[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，您的角色必须同时授予您云端会话权限和 **Claude Code remote control** 权限。如果缺少其中任何一项，启动 Remote Control 时会显示 [`Remote Control is disabled by your organization's policy`](#remote-control-is-disabled-by-your-organizations-policy)。请让 Owner 在 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles) 中检查您的角色并添加缺少的权限。
 * **身份验证**：运行 `claude` 并使用 `/login` 通过 claude.ai 登录（如果您还没有登录）。如果没有符合条件的登录，`claude remote-control` 会以错误退出，而 `claude --remote-control` 仍会启动交互式会话，并在启动后不久显示 Remote Control 失败通知。
 * **API 端点**：在以下任何配置中都不可用：
@@ -250,9 +250,9 @@ Remote Control 连接时，会话记录（包括您的消息、Claude 的响应�
 >
 > 受信任的设备目前处于测试阶段。功能和特性可能会随着体验的完善而演变。
 >
-> 受信任的设备在 Pro、Max、Team 和 Enterprise 计划中可用，默认处于关闭状态。在 Team 和 Enterprise 计划中，所有者为组织启用它。在 Pro 和 Max 计划中，您可以在设置中的 Cowork 或 Account 页面上自行启用**需要受信任的设备**。
+> 受信任的设备在 Pro、Max、Ultra、Team 和 Enterprise 计划中可用，默认处于关闭状态。在 Team 和 Enterprise 计划中，所有者为组织启用它。在 Pro、Max 和 Ultra 计划中，您可以在设置中的 Cowork 或 Account 页面上自行启用**需要受信任的设备**。
 
-受信任的设备要求您的组织的每个成员，或在 Pro 或 Max 计划上仅您自己，在从 claude.ai、Claude 移动应用或 Claude Desktop 查看或控制 Remote Control 会话之前验证其设备。它将 Remote Control 访问权限与已知设备和最近的身份验证绑定，而不仅仅是已登录的账户。
+受信任的设备要求您在从 claude.ai、Claude 移动应用或 Claude Desktop 查看或控制 Remote Control 会话之前拥有经过验证的设备。该要求适用于您组织的每个成员，或在 Pro、Max 或 Ultra 计划上仅适用于您自己。它将 Remote Control 访问权限与已知设备和最近的身份验证绑定，而不仅仅是已登录的账户。
 
 当设置打开时，与 Remote Control 会话交互需要以下两项：
 
@@ -310,7 +310,7 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 | [Dispatch](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch) | 从 Claude 移动应用发送任务消息 | 您的机器（Desktop） | [将移动应用与 Desktop 配对](https://support.claude.com/en/articles/13947068) | 在您离开时委派工作，最少设置 |
 | [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) | 从 [claude.ai/code](https://claude.ai/code) 或 Claude 移动应用驱动正在运行的会话 | 您的机器（CLI、Desktop 或 VS Code） | 运行 [`claude remote-control` 或 `/remote-control`](https://code.claude.com/docs/zh-CN/remote-control#start-a-remote-control-session) | 从另一台设备控制进行中的工作 |
 | [Channels](https://code.claude.com/docs/zh-CN/channels.md) | 从聊天应用（如 Telegram 或 Discord）或您自己的服务器推送事件 | 您的机器（CLI） | [安装频道插件](https://code.claude.com/docs/zh-CN/channels.md#quickstart) 或 [构建您自己的](https://code.claude.com/docs/zh-CN/channels-reference.md) | 对外部事件（如 CI 失败或聊天消息）做出反应 |
-| [Slack](https://code.claude.com/docs/zh-CN/slack.md) | 在团队频道中提及 `@Claude` | Anthropic 云 | [安装 Slack 应用](https://code.claude.com/docs/zh-CN/slack.md#setting-up-claude-code-in-slack)，启用 [Claude Code on the web](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，在 Pro 和 Max 计划上 | 从团队聊天进行 PR 和审查 |
+| [Slack](https://code.claude.com/docs/zh-CN/slack.md) | 在团队频道中提及 `@Claude` | Anthropic 云 | [安装 Slack 应用](https://code.claude.com/docs/zh-CN/slack.md#setting-up-claude-code-in-slack)，启用 [Claude Code on the web](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，在 Pro、Max 和 Ultra 计划上 | 从团队聊天进行 PR 和审查 |
 | [Self-hosted environments](https://code.claude.com/docs/zh-CN/self-hosted-environments) | 启动 [云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)并选择您组织的环境 | 您组织的基础设施 | [部署运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md)，在 Team 和 Enterprise 计划上 | 必须在您的网络内运行的云会话 |
 | [Scheduled tasks](https://code.claude.com/docs/zh-CN/scheduled-tasks.md) | 设置计划 | [CLI](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)、[Desktop](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md) 或 [云](https://code.claude.com/docs/zh-CN/routines.md) | 选择频率 | 定期自动化，如每日审查 |
 
@@ -444,7 +444,7 @@ Claude Code 无法访问功能标志服务来检查是否为您的账户启用�
 设置了[环境变量](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)来关闭功能标志评估，完整消息命名了 Claude Code 找到的变量。在 2.1.154 之前的版本上，相同的配置会产生"Remote Control is not yet enabled for your account"。要做什么取决于消息命名的变量：
 
 * **`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 或 `DISABLE_GROWTHBOOK`**：在设置它的任何地方取消设置变量，在您的 shell 环境或[`settings.json` 文件](https://code.claude.com/docs/zh-CN/settings-reference#all-settings)的 `env` 块中。
-* **`DISABLE_TELEMETRY` 或 `DO_NOT_TRACK`**：在 Pro、Max、Team 或 Enterprise 计划上，且 `DISABLE_GROWTHBOOK` 未设置，这些变量会保留 Remote Control 可用，除非您的组织需要[可信设备](#trusted-devices)。如果需要，在设置它的任何地方取消设置变量以使用 Remote Control。在 v2.1.154 到 v2.1.282 上，设置任一变量都会看到此消息，因此请将 Claude Code 更新到满足[这些变量的要求](#requirements)的版本。
+* **`DISABLE_TELEMETRY` 或 `DO_NOT_TRACK`**：在 Pro、Max、Ultra、Team 或 Enterprise 套餐上，且 `DISABLE_GROWTHBOOK` 未设置，这些变量会保留 Remote Control 可用，除非您的组织需要[可信设备](#trusted-devices)。如果需要，在设置它的任何地方取消设置变量以使用 Remote Control。在 v2.1.154 到 v2.1.282 上，设置任一变量都会看到此消息，因此请将 Claude Code 更新到满足[这些变量的要求](#requirements)的版本。
 
 ### "Remote Control is only available when using Claude via api.anthropic.com"
 
@@ -457,7 +457,7 @@ Claude Code 无法访问功能标志服务来检查是否为您的账户启用�
 策略阻止了 Remote Control。按顺序检查这些原因：
 
 * **错误提到 `disableRemoteControl`**：您的 IT 管理员已通过[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)在此设备上禁用了 Remote Control，独立于组织范围的切换和您的登录方式。
-* **您的 claude.ai 计划是 Pro 或 Max**：Claude Code 仍然以来自较早登录的 Team 或 Enterprise 组织身份登录，因此它检查该组织的 Remote Control 策略。运行 `/status` 以查看您的登录使用的计划和组织。运行 `claude auth logout` 然后 `claude auth login` 以在您当前的计划下重新登录。
+* **您的 claude.ai 套餐是 Pro、Max 或 Ultra**：Claude Code 仍然以来自较早登录的 Team 或 Enterprise 组织身份登录，因此它检查该组织的 Remote Control 策略。运行 `/status` 以查看您的登录使用的套餐和组织。运行 `claude auth logout` 然后 `claude auth login` 以在您当前的套餐下重新登录。
 * **消息未说联系您的组织管理员**：您的组织应用了 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)，该配置会关闭 Remote Control。要确认这一点，请运行 `/status` 并在 `Organization configuration` 行中查找 `HIPAA`。所有者会在[管理设置](https://claude.ai/admin-settings/claude-code)中看到 **Remote Control** 切换呈灰显状态，且无法将其打开。如果您对该配置有疑问，请询问所有者，所有者可以联系您组织的 Anthropic 客户团队。在 v2.1.267 之前，此情况显示"Remote Control isn't available for your organization due to its compliance policy"。
 * **Remote Control 对组织中的其他人有效，但对您无效**：如果您的 Enterprise 组织使用[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，则原因可能在于您的角色。Remote Control 同时需要云端会话权限和 **Claude Code remote control** 权限。请让所有者检查您的角色是否同时包含这两项权限，并在 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles) 中添加缺少的权限。
 * **否则，所有者尚未为您的组织启用它**：Remote Control 在 Team 和 Enterprise 计划上默认关闭。所有者可以在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 通过打开 **Remote Control** 切换来启用它。此切换是服务器端组织设置。

@@ -830,7 +830,7 @@ Claude Code 会阻止进一步的请求，直到消息中显示的重置时间�
 * 在 [Desktop app](https://code.claude.com/docs/zh-CN/desktop.md) 的 Code 选项卡中，会话限制卡提供 **Auto-continue when limits reset** 复选框。周限制卡没有。选中后，Desktop app 会在重置后重试中断的轮次，并在卡上显示重试时间。Desktop 复选框和 CLI 中 `/config` 中的 **Continue automatically at usage limit** 设置是分开的，因此需要分别关闭每一个。
 * 对于 Opus 或 Sonnet 限制，运行 `/model` 并切换到该系列之外的模型以继续工作。每个模型都有自己的提示缓存，因此下一个请求会重新读取整个对话，没有缓存命中；请参阅 [Switching models](https://code.claude.com/docs/zh-CN/prompt-caching.md#switching-models)
 * 运行 `/usage` 查看您的套餐限制以及何时重置
-* 运行 `/usage-credits` 在 Pro 和 Max 上购买额外用量，或在 Team 和 Enterprise 上向您的管理员请求。有关如何计费的信息，请参阅 [usage credits for paid plans](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)。
+* 运行 `/usage-credits` 在 Pro、Max 和 Ultra 上购买额外用量，或在 Team 和 Enterprise 上向您的管理员请求。有关如何计费的信息，请参阅 [usage credits for paid plans](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)。
 * 要升级您的套餐以获得更高的基础限制，请参阅 [claude.com/pricing](https://claude.com/pricing)
 
 在窗口用完之前，Claude Code 可以警告您已使用了大部分额度，显示类似 `You've used 85% of your session limit · resets 3:45pm` 的消息。要持续监视您的剩余额度，请将 `rate_limits` 字段添加到 [custom status line](https://code.claude.com/docs/zh-CN/statusline.md#rate-limit-usage)，或在 Desktop app 中单击模型选择器旁边的 [usage ring](https://code.claude.com/docs/zh-CN/desktop.md#check-usage)。
@@ -852,7 +852,7 @@ API Error: Usage credits required for 1M context · run /usage-credits to turn t
 **要做什么：**
 
 * 运行 `/model` 并选择不带 `[1m]` 后缀的变体以回退到标准上下文窗口
-* 在消息命名 `/usage-credits` 的地方，运行它以在 Pro 和 Max 上为 1M 变体启用按量计费，或在 Team 和 Enterprise 上向您的管理员请求使用额度。启用使用额度后，重启 Claude Code 或启动新会话，按消息所说的进行。在此之前，会话保持在标准上下文限制。
+* 在消息命名 `/usage-credits` 的地方，运行它以在 Pro、Max 和 Ultra 上为 1M 变体启用按量计费，或在 Team 和 Enterprise 上向您的管理员请求使用额度。启用使用额度后，重启 Claude Code 或启动新会话，按消息所说的进行。在此之前，会话保持在标准上下文限制。
 * 如果在 `/model` 后错误仍然存在，1M 模型 ID 可能在其他地方设置。有关要按优先级检查的配置位置，请参阅 [Setting your model](https://code.claude.com/docs/zh-CN/model-config.md#setting-your-model)。
 * 要从模型选择器中完全删除 1M 变体，请设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](https://code.claude.com/docs/zh-CN/env-vars)
 
@@ -933,7 +933,7 @@ You've hit your channel's monthly spend limit · an org owner or channel manager
 
 **要做什么：**
 
-* 在 Pro 和 Max 上，在 claude.ai 的 [**Settings > Usage**](https://claude.ai/settings/usage) 中增加您的月度支出限制，或运行 `/usage-credits`
+* 在 Pro、Max 和 Ultra 上，在 claude.ai 的 [**Settings > Usage**](https://claude.ai/settings/usage) 中增加您的月度支出限制，或运行 `/usage-credits`
 * 在 Team 和 Enterprise 上，如果您管理计费，在 [**Organization settings > Usage**](https://claude.ai/admin-settings/usage) 中增加限制，或要求管理员这样做。`/usage-credits` 会代您向管理员发送该请求
 * 对于频道的限制，要求组织所有者或频道的管理员在 claude.ai 上提高它。请参阅 Claude Tag 文档中的 [Per-channel limits](https://claude.com/docs/claude-tag/admins/set-spend-limit#per-channel-limits)
 * 如果消息命名您的套餐窗口的重置时间，您可以改为等待它
@@ -966,7 +966,7 @@ Credit balance is too low
 
 **要做什么：**
 
-* 如果您有 Pro、Max、Team 或 Enterprise 套餐并看到这个，运行 `/status` 并检查 `API key` 行。环境中已批准的 `ANTHROPIC_API_KEY` 通过该密钥而不是您的订阅路由请求。在当前 shell 中取消设置它并从您的 shell 配置文件中删除它，然后重新启动 `claude`。如果您还没有使用您的订阅登录，运行 `/login`。
+* 如果您有 Pro、Max、Ultra、Team 或 Enterprise 套餐并看到这个，运行 `/status` 并检查 `API key` 行。环境中已批准的 `ANTHROPIC_API_KEY` 通过该密钥而不是您的订阅路由请求。在当前 shell 中取消设置它并从您的 shell 配置文件中删除它，然后重新启动 `claude`。如果您还没有使用您的订阅登录，运行 `/login`。
 * 在 [platform.claude.com/settings/billing](https://platform.claude.com/settings/billing) 添加额度，并考虑在那里启用自动充值，以便余额在达到零之前重新填充
 * 在 Console 中设置每个工作区的支出上限，以防止单个项目耗尽组织余额。请参阅 [Manage costs effectively](https://code.claude.com/docs/zh-CN/costs.md)。
 
@@ -1120,7 +1120,7 @@ API Error: 400 ... This organization has been disabled.
 
 `·` 之后的提示取决于您已保存的凭据：当您取消设置该密钥后有已存储的 `/login` 可以接替时，显示第一种形式；当该密钥是您唯一的凭据时，显示第二种形式。
 
-环境变量优先于 `/login`，因此即使您拥有可用的 Pro 或 Max 订阅，在 shell 配置文件中导出或从 `.env` 文件加载的密钥仍会被使用。在非交互模式（`-p`）下，只要存在该密钥，就总会使用它。
+如果您在 shell 配置文件中导出了密钥，或从 `.env` 加载了密钥，即使您拥有可用的 Pro、Max 或 Ultra 订阅，Claude Code 也会使用该密钥而不是 `/login`。在非交互模式（`-p`）下，只要存在密钥就始终会使用它。
 
 **解决方法：**
 

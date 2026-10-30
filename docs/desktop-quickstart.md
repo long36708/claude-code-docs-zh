@@ -6,9 +6,9 @@
 
 > 安装 Claude 桌面应用，打开 Code 选项卡，并在您计算机上的项目文件夹中开始您的第一个 Claude Code 会话。
 
-桌面应用为您提供具有图形界面的 Claude Code。您可以要求 Claude 处理计算机上文件夹中的代码，并查看其更改，而无需使用终端。
+桌面应用为您提供具有图形界面的 Claude Code。您可以要求 Claude 处理计算机上文件夹中的代码，然后自行查看更改，而无需使用终端。
 
-Claude Code 位于应用侧边栏顶部的 **Code** 选项卡中。本页面将指导您安装应用并在其中开始您的第一个会话。Claude Code 需要 [Pro、Max、Team 或 Enterprise 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_pricing)。
+Claude Code 位于应用侧边栏顶部的 **Code** 选项卡中。本页面将指导您安装应用并在其中开始您的第一个会话。Claude Code 需要 [Pro、Max、Ultra、Team 或 Enterprise 订阅](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=desktop_quickstart_pricing)。
 
 > [card] [下载 macOS 版本](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)
 >

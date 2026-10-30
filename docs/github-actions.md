@@ -74,7 +74,7 @@ Claude Code 会将凭据保存为仓库密钥：API 密钥命名为 `ANTHROPIC_A
 根据您的身份验证方式，向仓库添加以下密钥之一。请参阅 GitHub 的[在 GitHub Actions 中使用密钥](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)指南。
 
 * `ANTHROPIC_API_KEY`：来自 [Claude Console](https://platform.claude.com) 的 Claude API 密钥
-* `CLAUDE_CODE_OAUTH_TOKEN`：使用您的 Claude 订阅进行身份验证的 OAuth 令牌，适用于 Pro、Max、Team 和 Enterprise 套餐。在本地运行 `claude setup-token` 即可生成。请参阅[生成长期令牌](https://code.claude.com/docs/zh-CN/authentication.md#generate-a-long-lived-token)
+* `CLAUDE_CODE_OAUTH_TOKEN`：使用您的 Claude 订阅进行身份验证的 OAuth 令牌，适用于 Pro、Max、Ultra、Team 和 Enterprise 套餐。在本地运行 `claude setup-token` 即可生成。请参阅[生成长期令牌](https://code.claude.com/docs/zh-CN/authentication.md#generate-a-long-lived-token)
 
 在工作流文件中，将密钥传递给对应的输入：API 密钥使用 `anthropic_api_key`，OAuth 令牌使用 `claude_code_oauth_token`。
 

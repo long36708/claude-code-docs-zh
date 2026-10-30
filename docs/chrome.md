@@ -39,7 +39,7 @@ Claude 为浏览器任务打开新标签页，并共享您浏览器的登录状�
 * [Google Chrome](https://www.google.com/chrome/)、[Microsoft Edge](https://www.microsoft.com/edge) 或其他基于 Chromium 的浏览器，如 Brave、Arc、Vivaldi 或 Opera
 * [Claude in Chrome 扩展程序](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn) 版本 1.0.36 或更高版本，可在 Chrome Web Store 中获得
 * [Claude Code](https://code.claude.com/docs/zh-CN/quickstart.md#step-1-install-claude-code)
-* 直接 Anthropic 计划（Pro、Max、Team 或 Enterprise）
+* 直接 Anthropic 计划（Pro、Max、Ultra、Team 或 Enterprise）
 
 在已启用 HIPAA 的 Enterprise 组织中，Claude in Chrome 默认处于关闭状态，[Owner](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control) 可以在 [**Organization settings > Claude in Chrome**](https://claude.ai/admin-settings/browser-extension) 中将其启用。您与 Anthropic 签订的商业伙伴协议（BAA）不涵盖通过 Claude in Chrome 发送到第三方网站的数据。有关合格服务（Eligible Services）的列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
 

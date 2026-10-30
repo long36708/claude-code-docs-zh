@@ -54,7 +54,10 @@ Claude 根据您的更正和偏好为自己编写的笔记，按 git 存储库�
 
 ### Auto mode
 
-一种[权限模式](#permission-mode)，其中单独的分类器模型审查操作而不是您，因此 Claude Code 可以在不询问您的情况下运行大多数操作。Claude Code 仍然会在您的显式 ask 规则匹配的操作之前询问您。在 Claude Code v2.1.283 或更高版本中，auto mode 是交互式终端和 VS Code 会话的[内置起始权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)，在早期版本中仅在 Pro、Max 和 Team 计划上可用。分类器阻止范围升级、不受信任的基础设施和[提示注入](#prompt-injection)。工具结果从它看到的内容中被剥离，因此文件或网页中的恶意内容无法直接操纵它。
+一种[权限模式](#permission-mode)，其中单独的分类器模型审查操作而不是您，因此 Claude Code 可以在不询问您的情况下运行大多数操作。Claude Code 仍然会在您的显式 ask 规则匹配的操作之前询问您。分类器阻止范围升级、不受信任的基础设施和[提示词注入](#prompt-injection)。工具结果从它看到的内容中被剥离，因此文件或网页中的恶意内容无法直接操纵它。
+
+* **Claude Code v2.1.283 或更高版本**：自动模式是交互式终端和 VS Code 会话的[内置起始权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)
+* **早期版本**：自动模式仅在 Pro、Max、Ultra 和 Team 计划上是内置起始权限模式
 
 了解更多：[使用 auto mode 消除提示](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)
 
@@ -140,7 +143,7 @@ Claude Code 读取项目范围配置的目录：settings、hooks、skills、suba
 
 ### Dispatch
 
-一个电话启动的任务路由器，当您从 Claude 移动应用发送编码任务时，在 Desktop 应用中生成 Claude Code 会话。您的提示自动路由到正确的工具。在 Pro 和 Max 计划上可用。
+一个电话启动的任务路由器，当您从 Claude 移动应用发送编码任务时，在 Desktop 应用中生成 Claude Code 会话。您的提示自动路由到正确的工具。在 Pro、Max 和 Ultra 计划上可用。
 
 了解更多：[来自 Dispatch 的会话](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch)
 

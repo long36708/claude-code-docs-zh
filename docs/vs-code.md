@@ -23,7 +23,7 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 安装前，请确保您拥有：
 
 * VS Code 1.94.0 或更高版本
-* Anthropic 账户：任何付费 Claude 订阅（Pro、Max、Team 或 Enterprise）或 Claude Console 账户都可以使用，无需 API 密钥。首次打开扩展时，您将[使用此账户登录](https://code.claude.com/docs/zh-CN/authentication.md#log-in-to-claude-code)。如果您通过第三方提供商（如 Amazon Bedrock 或 Google Cloud 的 Agent Platform）访问 Claude，请参阅[使用第三方提供商](#use-third-party-providers)了解设置说明。
+* Anthropic 账户：任何付费 Claude 订阅（Pro、Max、Ultra、Team 或 Enterprise）或 Claude Console 账户都可以使用，无需 API 密钥。首次打开扩展时，您将[使用此账户登录](https://code.claude.com/docs/zh-CN/authentication.md#log-in-to-claude-code)。如果您通过第三方提供商（如 Amazon Bedrock 或 Google Cloud 的 Agent Platform）访问 Claude，请参阅[使用第三方提供商](#use-third-party-providers)了解设置说明。
 
 > [!TIP]
 >
@@ -38,11 +38,15 @@ VS Code 扩展为 Claude Code 提供了原生图形界面，直接集成到您�
 
 或者在 VS Code 中，按 `Cmd+Shift+X`（Mac）或 `Ctrl+Shift+X`（Windows/Linux）打开扩展视图，搜索"Claude Code"，然后点击 **Install**。
 
+> [!NOTE]
+>
+> 扩展市场属于第三方软件，Anthropic 不为其背书、维护或审计。Anthropic 会将扩展提交至 Visual Studio Marketplace 和 Open VSX Registry 进行发布。
+
 扩展的版本号即其捆绑的 Claude Code 版本。例如，需要 Claude Code v2.1.286 或更高版本的功能，需要 2.1.286 或更高版本的扩展，版本号可在扩展视图中查看。
 
 Claude Code 还可以在其他编辑器和容器中运行：
 
-* **其他 VS Code 分支**：该扩展也可以安装在 Devin Desktop 或 Kiro 等分支中。在编辑器的扩展视图中搜索"Claude Code"，或从 [Open VSX 注册表](https://open-vsx.org/extension/Anthropic/claude-code)安装。
+* **其他 VS Code 分支版本**：该扩展也可以安装在 Devin Desktop 或 Kiro 等分支版本中。在编辑器的扩展视图中搜索"Claude Code"，或从 [Open VSX Registry](https://open-vsx.org/extension/Anthropic/claude-code) 安装。
 * **无法安装该扩展的编辑器**：请[安装 CLI](https://code.claude.com/docs/zh-CN/quickstart.md)，然后在编辑器的集成终端中运行 `claude`。CLI 可在任何终端中使用。
 * **开发容器**：要在开发容器中运行 Claude Code，请参阅[开发容器](https://code.claude.com/docs/zh-CN/devcontainer.md)。
 
@@ -117,7 +121,7 @@ Claude Code 还可以在其他编辑器和容器中运行：
 
 输入框支持以下几项功能：
 
-* **权限模式**：点击输入框底部的模式指示器即可切换权限模式。在 Claude Code v2.1.283 或更高版本中，Auto 是内置的初始权限模式；在更早的版本中，仅 Pro、Max 和 Team 套餐如此。请参阅[扩展如何选择初始权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)，了解哪些因素会改变初始模式，以及指示器提供的所有权限模式。
+* **权限模式**：点击输入框底部的模式指示器即可切换权限模式。在 Claude Code v2.1.283 或更高版本中，Auto 是内置的初始权限模式；在更早的版本中，仅 Pro、Max、Ultra 和 Team 套餐如此。请参阅[扩展如何选择初始权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)，了解哪些因素会改变初始模式，以及指示器提供的所有权限模式。
   * **Auto**：由分类器审查大多数操作，而不是询问您。请参阅[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，了解它会审查和阻止哪些操作。
   * **Manual**：Claude 在编辑文件和执行大多数 shell 命令之前会请求权限。
   * **Plan**：Claude 会描述它将要执行的操作，并在进行更改前等待批准。VS Code 会自动将计划作为完整的 Markdown 文档打开，您可以在 Claude 开始之前添加行内评论来提供反馈。
@@ -704,7 +708,7 @@ vscode://anthropic.claude-code/open?prompt=review%20my%20changes
 您可以在两个位置配置该扩展：VS Code 的扩展设置和 Claude Code 设置文件：
 
 * VS Code 中的**扩展设置**：控制扩展在 VS Code 中的行为。使用 `Cmd+,`（Mac）或 `Ctrl+,`（Windows/Linux）打开，然后转到 **Extensions > Claude Code**。也可以输入 `/` 并选择 **General config…** 来打开设置。
-* `~/.claude/settings.json` 中的 **Claude Code 设置**：由扩展和 CLI 共享。用于配置允许的命令、环境变量、hook 和 MCP 服务器。在 Claude Code v2.1.283 或更高版本中，它也是决定对话起始权限模式的输入之一；在更早的版本中，仅适用于 Pro、Max 和 Team 计划。[切换权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)列出了优先顺序。详情请参阅[设置](https://code.claude.com/docs/zh-CN/settings.md)。
+* `~/.claude/settings.json` 中的 **Claude Code 设置**：由扩展和 CLI 共享。用于配置允许的命令、环境变量、hook 和 MCP 服务器。在 Claude Code v2.1.283 或更高版本中，它也是决定对话起始权限模式的输入之一；在更早的版本中，仅适用于 Pro、Max、Ultra 和 Team 计划。[切换权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)列出了优先顺序。详情请参阅[设置](https://code.claude.com/docs/zh-CN/settings.md)。
 
 > [!TIP]
 >
@@ -933,7 +937,7 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 
 * 确保您的 VS Code 版本兼容（1.94.0 或更高版本）
 * 检查 VS Code 是否具有安装扩展的权限
-* 尝试直接从 [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code) 安装
+* 尝试直接从 [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code) 安装
 
 ### Spark 图标不可见
 

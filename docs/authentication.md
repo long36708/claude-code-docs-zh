@@ -23,7 +23,7 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 
 您可以使用以下任一账户类型进行身份验证：
 
-* **Claude Pro 或 Max 订阅**：使用您的 claude.ai 账户登录。请在 [claude.com/pricing](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_pro_max) 订阅。
+* **Claude Pro、Max 或 Ultra 订阅**：使用您的 claude.ai 账户登录。请在 [claude.com/pricing](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_pro_max) 订阅。
 * **Claude for Teams 或 Enterprise**：使用团队管理员邀请您加入的 claude.ai 账户登录。
 * **Claude Console**：使用您的 Console 凭据登录。您的管理员必须先[邀请您](#claude-console-authentication)。您可以在[创建 API 密钥](#sign-in-without-an-api-key)或不创建 API 密钥的情况下登录。
 * **云提供商**：如果您的组织使用 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)，请在运行 `claude` 之前设置所需的环境变量，或在登录提示处选择 **3rd-party platform**，这会启动 Bedrock 和 Vertex AI 的交互式设置向导。无需浏览器登录。
@@ -253,7 +253,7 @@ Claude Code 安全地管理您的身份验证凭证：
 4. [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 脚本输出。用于动态或轮换凭证，例如从保管库获取的短期令牌。
 5. `CLAUDE_CODE_OAUTH_TOKEN` 环境变量。由 [`claude setup-token`](#generate-a-long-lived-token) 生成的长期 OAuth 令牌。用于 CI 管道和脚本，其中浏览器登录不可用。如果您在设置了该变量时运行 `/login`，Claude Code 会将当前会话切换到新登录，但在每个新会话中都会再次读取该变量，直到您从 shell 配置文件或[设置文件](https://code.claude.com/docs/zh-CN/settings.md)的 `env` 块中删除它。
 6. Anthropic 配置文件和联合凭证，即 `ant` CLI 和 Workload Identity Federation 使用的凭证。`ant auth login` 写入的配置文件仅在您在 `ANTHROPIC_PROFILE` 中命名它时才排在此处；否则它排在 `/login` 下方。请参阅 [Anthropic 配置文件和联合凭证](#anthropic-profiles-and-federation-credentials)。
-7. 来自 `/login` 的订阅 OAuth 凭证。这是 Claude Pro、Max、Team 和 Enterprise 用户的默认设置。
+7. 来自 `/login` 的订阅 OAuth 凭据。这是 Claude Pro、Max、Ultra、Team 和 Enterprise 用户的默认设置。
 
 一个已签名的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话位于此列表之外：它是一个提供商选择，如 Amazon Bedrock 或 Google Cloud 的 Agent Platform，并且它优先于它们。当网关会话存在时，即使设置了 `CLAUDE_CODE_USE_BEDROCK`、`CLAUDE_CODE_USE_VERTEX` 或 `CLAUDE_CODE_USE_FOUNDRY`，CLI 也会使用网关令牌进行身份验证，上面的持有者令牌、API 密钥、`apiKeyHelper` 和配置文件等凭证源不会被使用。
 
@@ -318,6 +318,6 @@ claude setup-token
 > set CLAUDE_CODE_OAUTH_TOKEN=your-token
 > ```
 
-此令牌使用您的 Claude 订阅进行身份验证，需要 Pro、Max、Team 或 Enterprise 计划。它只能进行模型请求，因此无法建立 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话或获取 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)。您在本地配置的 MCP 服务器仍然有效。
+此令牌使用您的 Claude 订阅进行身份验证，需要 Pro、Max、Ultra、Team 或 Enterprise 套餐。它只能进行模型请求，因此无法建立 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话或获取 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)。您在本地配置的 MCP 服务器仍然有效。
 
 [裸模式](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode)不读取 `CLAUDE_CODE_OAUTH_TOKEN`。如果您的脚本传递 `--bare`，请改用 `ANTHROPIC_API_KEY` 或 `apiKeyHelper` 进行身份验证。

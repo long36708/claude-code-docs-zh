@@ -92,7 +92,7 @@ Claude 回复后，Code 选项卡可能会在空的输入框中以灰色文本�
 | **Accept edits** | `acceptEdits` | Claude 自动接受文件编辑和常见的文件系统命令，如 `mkdir`、`touch` 和 `mv`，但在运行其他终端命令之前仍会询问。当您信任文件更改并希望更快迭代时，请使用此选项。 |
 | **Plan** | `plan` | Claude 读取文件并运行命令进行探索，然后提出计划而不编辑您的源代码。适合复杂任务，您想先审查方法。 |
 | **Auto** | `auto` | Claude 运行时不需要常规提示；在执行 shell 命令和网络请求等操作之前，后台分类器会检查它们是否与您的请求一致。当[自动模式可用](#auto-mode-availability)时出现；没有单独的设置切换。 |
-| **Bypass permissions** | `bypassPermissions` | Claude 运行时不需要权限提示，除了[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)、当 Claude [在外部网站上操作](#browse-external-sites)时的安全分类器，或删除会话等桌面操作（但[归档会话](#work-across-sessions)不在此列）。等同于 CLI 中的 `--dangerously-skip-permissions`。在 Pro 和 Max 计划上，请在 **Settings > Code** 或 **Settings > Claude Code** 中启用"Allow bypass permissions mode"。在 Team 和 Enterprise 计划上没有设置切换，而是由组织策略控制它。仅在沙箱容器或虚拟机中使用。 |
+| **Bypass permissions** | `bypassPermissions` | Claude 运行时不需要权限提示，除了[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)、当 Claude [在外部网站上操作](#browse-external-sites)时的安全分类器，或删除会话等桌面操作（但[归档会话](#work-across-sessions)不在此列）。等同于 CLI 中的 `--dangerously-skip-permissions`。在 Pro、Max 和 Ultra 计划上，请在 **Settings > Code** 或 **Settings > Claude Code** 中启用"Allow bypass permissions mode"。在 Team 和 Enterprise 计划上没有设置切换，而是由组织策略控制它。仅在沙箱容器或虚拟机中使用。 |
 
 Code 选项卡的早期版本将这些模式标记为 Ask permissions、Auto accept edits 和 Plan mode。
 
@@ -320,7 +320,7 @@ Computer use 让 Claude 能够打开您的应用、控制您的屏幕，并像�
 
 > [!NOTE]
 >
-> Computer use 是 macOS 和 Windows 上的研究预览版功能，需要 Pro 或 Max 计划。Team 或 Enterprise 计划不提供此功能。Claude Desktop 应用必须处于运行状态。在 macOS 上，computer use 需要 macOS 14 或更高版本。
+> Computer use 是 macOS 和 Windows 上的研究预览版功能，需要 Pro、Max 或 Ultra 计划。Team 或 Enterprise 计划不提供此功能。Claude Desktop 应用必须处于运行状态。在 macOS 上，computer use 需要 macOS 14 或更高版本。
 
 Computer use 默认处于关闭状态。在 Claude 能够控制您的屏幕之前，请先[在设置中启用它](#enable-computer-use)。在 macOS 上，您还需要授予辅助功能和屏幕录制权限。
 
@@ -362,7 +362,7 @@ Computer use 默认处于关闭状态。如果在其关闭时您要求 Claude �
 * **Windows**：开关立即生效，设置完成
 * **macOS**：继续下一步
 
-如果您没有看到该开关，请确认您使用的是 macOS 或 Windows，并且拥有 Pro 或 Max 计划，然后更新并重启应用。
+如果您没有看到该开关，请确认您使用的是 macOS 或 Windows，并且拥有 Pro、Max 或 Ultra 计划，然后更新并重启应用。
 
 **3. 授予 macOS 权限**
 
@@ -562,7 +562,8 @@ Dispatch 启动的会话会与您的其他会话一起出现在 Code 选项卡�
 
 #### 设置 Dispatch
 
-有关设置、配对和 Dispatch 设置，请参阅 [Dispatch 帮助文章](https://support.claude.com/en/articles/13947068)。Dispatch 需要 Pro 或 Max 计划，Team 或 Enterprise 计划不可用。
+* **计划**：Dispatch 需要 Pro、Max 或 Ultra 计划，Team 或 Enterprise 计划不可用
+* **设置、配对和 Dispatch 设置**：请参阅 [Dispatch 帮助文章](https://support.claude.com/en/articles/13947068)
 
 Dispatch 是您离开终端时与 Claude 协作的几种方式之一。有关与其他选项的比较，请参阅[平台和集成](https://code.claude.com/docs/zh-CN/platforms.md#work-when-you-are-away-from-your-terminal)。
 
@@ -1592,18 +1593,18 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
 >
 > 通过命令创建的连接需要在 macOS 或 Linux 上使用 Claude Desktop v3.6556.0 或更高版本，并使用 Claude 账户登录。管理员可以[将命令分发给团队](#distribute-commands-to-your-team)。
 
-每个条目对应一个连接，一次只有一个主机。Desktop 仅在您创建连接或[替换其主机](#replace-the-host)时运行命令，而不是每次连接时都运行。要同时保留两台机器，请添加第二个条目。
+Desktop 仅在您创建连接或[创建另一台机器](#create-another-machine)时运行该命令，而不是每次连接时都运行。每个条目对应一个连接，指向 Desktop 最近一次从该条目的命令中保存的主机。
 
 > [!WARNING]
 >
 > Desktop 不会停止或删除机器。以下每一项都会持续运行，并可能持续产生费用，直到您使用自己的工具将其删除：
 >
-> * 您已替换的主机
-> * 您已从文件中移除的条目的主机，或您已更改其 `id` 的条目的主机
+> * 在您[创建另一台](#create-another-machine)之前某个条目所指向的机器
+> * 您从文件中移除的条目或更改了 `id` 的条目所对应的机器
 > * 您的命令创建了但 Desktop 未保存其主机的机器，例如以下情况：
 >   * 命令失败或超时
 >   * Desktop 无法使用输出的主机、另一个连接已在使用该主机，或您的组织不允许该主机
->   * 在命令运行期间，您取消了它、移除了其条目、更改了其 `command` 或 `id`，或退出了 Desktop
+>   * 在命令运行期间，您取消了命令、移除了其条目、更改了其 `command` 或 `id`，或退出了 Desktop
 
 以下示例添加一个名为 Dev box 的连接。如果该文件不存在，请创建它。如果文件中已有设置，请将该键添加在它们旁边。命令 `acme-dev create` 代表您自己的工具，`~/project` 是 Desktop 在您的命令创建的每台机器上选择的文件夹：
 
@@ -1624,7 +1625,7 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
 
 | 字段 | 值 |
 | :- | :- |
-| `id` | 最多 64 个 ASCII 字母、数字、`.`、`_` 和 `-`，以字母或数字开头。请使用 `sshHostCommands` 或 [`sshConfigs`](#pre-configure-ssh-connections-for-your-team) 中其他条目均未使用的 `id`。Desktop 以它为键保存连接的主机，因此如果您更改它，连接会重新开始且没有主机，而旧机器会继续运行。 |
+| `id` | 最多 64 个 ASCII 字母、数字、`.`、`_` 和 `-`，以字母或数字开头。使用 `sshHostCommands` 或 [`sshConfigs`](#pre-configure-ssh-connections-for-your-team) 中其他条目都未使用的 `id`。Desktop 以它为键保存连接的主机，因此如果您更改它，该连接会从无主机状态重新开始，其机器会继续运行，且 Desktop [仍可连接到它们](#remove-an-entry)。 |
 | `name` | 连接在环境选择器中的名称，最多 200 个字符，且为单行 |
 | `command` | 一个程序及其参数，如[编写命令](#write-the-command)所述 |
 | `sshIdentityFile` | 您的私钥路径，例如 `~/.ssh/id_ed25519`。省略此项则使用您的 SSH 配置或 SSH agent。 |
@@ -1677,14 +1678,39 @@ tail -n 1 "$out"
 
 请为这些主机保持启用主机密钥检查，并为它们保留 `known_hosts` 文件。如果 `StrictHostKeyChecking` 为 `no` 或 `accept-new`，且 `UserKnownHostsFile` 也为 `/dev/null` 或 `none`，则不会记录任何密钥。之后当您的工具重复使用某个名称时，您可能会在没有任何警告的情况下连接到另一台机器。
 
-##### 替换主机
+即使计算机前没有人，复用的名称也会造成影响，因为 Desktop 会自行连接到这些主机。例如，它会在主机恢复响应后，投递您在主机无法访问时发送的消息。即使开启了主机密钥检查，在以下情况下该消息也可能送达使用该名称的新机器，因此请在删除机器之前[停止使用该机器](#stop-using-a-machine)：
 
-Dev box 有了主机后，选择器会在您的 SSH 连接中列出 Dev box，并且 **Create Dev box** 会变为 **Replace Dev box's host**。如果该项不在列表中，请在 **More** 下查找。
+* 您、您的命令或其他程序将新密钥添加到了 `known_hosts`，或移除了旧密钥所在的行，正如您的命令在添加主机密钥时所做的那样
+* 您工具创建的机器共享同一个主机密钥
+* 您工具创建的机器共享一个受 `known_hosts` 信任的证书颁发机构
+* 您或您的管理员设置了 `KnownHostsCommand` 或 `VerifyHostKeyDNS yes`，使 SSH 接受来自 `known_hosts` 之外的密钥
 
-当机器已不存在或您想要一台新机器时，请选择该项。在新建会话页面上，提示 Desktop 无法访问主机的消息中也会提供此选项。Desktop 会再次运行命令，新会话将使用新主机。
+##### 创建另一台机器
 
-* **新主机**：Desktop 保存主机后的 10 分钟内，该项显示为灰色，因为新机器可能需要一段时间才能启动。在新主机无响应期间，新建会话页面会在这 10 分钟内持续尝试连接。
-* **旧主机上的会话**：这些会话保留在旧主机上，除非您将其重新添加，否则 Desktop 不会连接到该主机。要继续某个会话，请打开该会话并选择 **Add SSH connection**。Desktop 会填入旧主机。将其另存为一个独立的连接。
+选择 **Create another Dev box** 后，您在之前机器上的会话仍可继续使用，新会话则使用新机器。在环境选择器中选择该项，可以创建一台全新的机器，或替换一台已不存在的机器。在新建会话页面上，提示 Desktop 无法访问主机的消息中也提供该选项。
+
+* **之前机器上的会话**：从侧边栏继续这些会话，因为选择器只列出 Dev box 当前的机器，而不列出之前的机器。Desktop 可能会自行连接到它们的机器，例如在 Desktop 启动时，因此用完某台机器后请[停止使用该机器](#stop-using-a-machine)。
+* **在 Claude Desktop v4.4212.0 之前替换的主机**：这些版本显示 **Replace Dev box's host**，并停止连接到被替换的主机。要在该主机上继续会话，请打开会话，选择 **Add SSH connection**，然后保存 Desktop 填入的连接。在替换另一个主机之前请先更新 Desktop。
+* **在两台机器上新建会话**：向 [`sshHostCommands`](#create-an-ssh-connection-from-a-command) 添加第二个条目
+* **尚未响应的新主机**：在新建会话页面持续尝试连接期间，将其保持打开最多 10 分钟。如果主机仍无响应，请在页面的消息中选择 **Create another Dev box**。
+* **紧接着再创建一台机器**：在一小时内多次运行该命令后，每次后续运行都需要在 Desktop 打开的对话框中确认，该对话框会显示该命令
+
+##### 停止使用某台机器
+
+要阻止 Desktop 自行连接到由命令创建的机器，请归档该机器上的所有会话：
+
+1. 在侧边栏中找到该机器的会话。会话的[详细信息面板](#see-session-details)会显示其运行所在的主机。
+2. [归档每个会话](#archive-a-session)，并保持其归档状态。
+3. 如果自创建这台机器以来，您尚未从同一个 `sshHostCommands` 条目创建另一台机器，也请[创建一台](#create-another-machine)或[移除该条目](#remove-an-entry)。在此之前，该机器是该条目已保存的连接，当您在选中该连接的情况下打开新建会话页面时，Desktop 可能会连接到它。
+4. 在应用中删除指向该机器的任何其他 SSH 连接，或移除其 [`sshConfigs`](#pre-configure-ssh-connections-for-your-team) 条目。
+5. 退出并重新打开 Desktop，这会关闭它与该机器的连接，并停止其访问该机器的尝试。
+6. 用您的工具删除该机器。
+
+##### 移除条目
+
+从设置文件中移除某个条目或更改其 `id` 后，其机器上的会话仍会保留，因此 Desktop 仍可连接到这些机器。即使计算机前没有人，它也可能这样做，例如重新加入会话正在运行的进程，或投递一条等待发送的消息。要阻止这种情况，请按照[停止使用某台机器](#stop-using-a-machine)中的说明归档这些会话。
+
+如果您是管理员并移除了一个托管条目，您用户的会话也会保留，每个用户都必须归档自己的会话。要自行阻止该条目的机器，请设置一个 [`sshHostAllowlist`](#restrict-which-ssh-hosts-users-can-connect-to)，使其匹配您的用户仍需要的主机，而不匹配这些机器的主机名。只有在某个模式能够区分两者的情况下，您才能这样做。
 
 ##### 将命令分发给团队
 
@@ -1711,7 +1737,7 @@ Dev box 有了主机后，选择器会在您的 SSH 连接中列出 Dev box，�
 * **`id`**：如果用户的 `sshHostCommands` 条目使用了您的 `id`，则只有您的条目生效。如果其他任何 SSH 连接使用了它（例如用户 `sshConfigs` 中的连接），您的条目会显示为灰色。请选择用户不太可能使用的 `id`。
 * **程序**：请提供其完整路径，因为 Desktop 会在每个用户自己的 `PATH` 中查找裸名称。程序以该用户身份运行，使用其登录 shell 导出的变量。
 * **用户自己的条目**：Desktop 将用户的条目视同 [hook](https://code.claude.com/docs/zh-CN/hooks.md)，因为两者都会在计算机上运行程序。要仅允许您的条目，请将 [`strictPluginOnlyCustomization`](https://code.claude.com/docs/zh-CN/settings-reference#strictpluginonlycustomization) 设置为 `["hooks"]`，或将 `"hooks"` 添加到其列表中。这样也会阻止来自用户、项目和本地设置的 Claude Code hook，且无法保留它们。如果您改为将该键或 [`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 设置为 `true`，则会阻止更多内容，具体见每个键的条目说明。
-* **所有条目**：要同时关闭您的条目，请在托管设置中设置 [`disableAllHooks`](https://code.claude.com/docs/zh-CN/settings-reference#disableallhooks)。如果您设置了 [`disableDesktopLocalSessions`](https://code.claude.com/docs/zh-CN/settings-reference#disabledesktoplocalsessions)，或设置了不允许任何主机的 `sshHostAllowlist`，选择器将不会列出任何 **Create** 或 **Replace** 项。
+* **所有条目**：要同时关闭您的条目，请在托管设置中设置 [`disableAllHooks`](https://code.claude.com/docs/zh-CN/settings-reference#disableallhooks)。如果您设置了 [`disableDesktopLocalSessions`](https://code.claude.com/docs/zh-CN/settings-reference#disabledesktoplocalsessions)，或设置了不允许任何主机的 `sshHostAllowlist`，选择器将不会列出任何 **Create** 或 **Create another** 项。
 * **锁定在哪里生效**：对于这些条目，Desktop 会从服务器托管设置以及计算机自身的文件或策略中读取 `allowManagedHooksOnly`、`strictPluginOnlyCustomization` 和 `disableAllHooks`，并应用更严格的结果。在 Desktop 检查 claude.ai 上的服务器托管设置之前，所有条目都保持灰色，即使您的组织没有任何服务器托管设置也是如此。
 * **允许的主机**：如果您设置了 [`sshHostAllowlist`](#restrict-which-ssh-hosts-users-can-connect-to)，请确保有一个模式能匹配您的工具打印的每个主机名，并且模式中不要包含 `user@`。Desktop 只在命令运行后才检查打印的名称，因此被列表拒绝的机器已经存在，用户必须使用您的工具将其删除。每次连接时，解析后的 `HostName` 也必须匹配。
 
@@ -1719,7 +1745,7 @@ Dev box 有了主机后，选择器会在您的 SSH 连接中列出 Dev box，�
 
 ##### 如果命令缺失或显示为灰色
 
-在以下情况下，环境选择器不会列出任何 **Create** 或 **Replace** 项：
+在以下情况下，环境选择器不会列出任何 **Create** 或 **Create another** 项：
 
 * **文件**：`~/.claude/settings.json` 包含[无效的 JSON 或被 schema 拒绝的值](https://code.claude.com/docs/zh-CN/settings.md#fix-a-broken-settings-file)、您拼错了键名，或者您将其放在了项目的设置中。请修复该文件。
 * **平台和账户**：您使用的是 Windows，或者使用的是[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)而非 Claude 账户。请自行将每个主机添加为 [SSH 连接](#ssh-sessions)。
@@ -1730,7 +1756,7 @@ Dev box 有了主机后，选择器会在您的 SSH 连接中列出 Dev box，�
 
 * **条目中有错误**：修复消息中指出的字段或命令。如果 `id` 已被使用，请为该条目指定另一个。
 * **设置文件损坏**：当您自己的设置文件损坏时，管理员的条目可能显示为灰色，并附带指出该文件的消息。[修复该文件](https://code.claude.com/docs/zh-CN/settings.md#fix-a-broken-settings-file)。
-* **新主机**：主机保存满 10 分钟后，您才能[替换主机](#replace-the-host)。
+* **新主机**：Desktop 保存主机后的一分钟内，[**Create another**](#create-another-machine) 显示为灰色。请在一分钟后再选择它。在 Claude Desktop v4.4212.0 之前，**Replace Dev box's host** 会显示为灰色 10 分钟。
 * **hook 已关闭或受限**：您自己的条目只在您自己的 hook 可以运行的地方生效。请从您的设置中移除 `disableAllHooks`，或询问您的管理员。
 * **设置仍在加载**：在 Desktop 加载您组织的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)之前，所有条目都显示为灰色，通常在启动后几秒钟内完成。如果条目一直是灰色，请检查您与 claude.ai 的连接。
 
@@ -1946,6 +1972,10 @@ IT 团队可以通过 macOS 上的 MDM、Windows 上的组策略或 Linux 上的
 
 将占位符替换为您的 claude.ai 组织 ID，该 ID 显示在 [claude.ai 管理员设置](https://claude.ai/admin-settings/organization)中。它与 Claude Code 的 [`forceLoginOrgUUID`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginorguuid) 设置所采用的 ID 相同。有关设置此键的 macOS 和 Windows 示例，请参阅面向 HIPAA 就绪组织的 Cowork 指南中的[部署 Claude Desktop 策略](https://claude.com/docs/cowork/hipaa-setup#deploy-the-claude-desktop-policy)。
 
+> [!WARNING]
+>
+> 部署之前，请检查 `forceLoginOrgUUID` 值。如果该 ID 不是您组织的 ID，您组织中的人员将无法使用 Claude Desktop，除非他们同时属于具有该 ID 的组织。要恢复，请部署正确的 ID，并让他们重新启动 Claude Desktop。
+
 如果您在 Claude Code 的[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `forceLoginMethod` 和 `forceLoginOrgUUID`，并不会改变 Claude Desktop 的登录屏幕。
 
 ### 网络访问要求
@@ -2055,7 +2085,7 @@ Desktop 继续相同的会话而不是副本，所以之后在终端中 `claude 
 | `--model sonnet` | 输入框下方一行中的模型选择器 |
 | `--resume`, `--continue` | 点击侧边栏中的会话，或在输入框中输入 `/resume` 来选择您从 CLI 启动的会话 |
 | `--permission-mode` | 输入框下方一行中的模式选择器 |
-| `--dangerously-skip-permissions` | 绕过权限模式。在 Pro 和 Max 套餐上，在 **设置 > Code** 或 **设置 > Claude Code** 中启用"允许绕过权限模式"；在 Team 和 Enterprise 套餐上，由组织策略控制 |
+| `--dangerously-skip-permissions` | 绕过权限模式。在 Pro、Max 和 Ultra 套餐上，在 **设置 > Code** 或 **设置 > Claude Code** 中启用"允许绕过权限模式"；在 Team 和 Enterprise 套餐上，由组织策略控制 |
 | `--add-dir` | 在本地和 SSH 会话中[向会话添加文件夹](#add-folders-to-a-session)，或在云端会话中选择[多个仓库](#run-long-running-tasks-in-the-cloud) |
 | `--allowedTools`, `--disallowedTools` | 无每个会话的等效项。[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中的权限规则仍然适用。 |
 | `--verbose` | [Verbose 视图模式](#switch-view-modes) |
@@ -2091,7 +2121,7 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 
 | 功能 | CLI | Desktop |
 | - | - | - |
-| 权限模式 | 所有模式，包括 `dontAsk` | Manual、Accept edits、Plan 和 Auto。启用后，绕过权限会出现在模式选择器中：在 Pro 和 Max 套餐上通过设置开关启用，在 Team 和 Enterprise 套餐上通过组织策略启用 |
+| 权限模式 | 所有模式，包括 `dontAsk` | Manual、Accept edits、Plan 和 Auto。启用后，绕过权限会出现在模式选择器中：在 Pro、Max 和 Ultra 套餐上通过设置开关启用，在 Team 和 Enterprise 套餐上通过组织策略启用 |
 | [第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md) | Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry | 默认使用 Anthropic 的 API。对于网关路由，请参阅[将桌面应用连接到网关](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#desktop-app)。要在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或自托管 LLM 网关上运行 Code 选项卡，请参阅 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)。 |
 | [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md) | 在设置文件中配置 | 本地和 SSH 会话的连接器 UI，或设置文件 |
 | [插件](https://code.claude.com/docs/zh-CN/plugins/overview.md) | `/plugin` 命令 | 插件管理器 UI |
@@ -2153,7 +2183,7 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 如果在使用 Code 选项卡时看到 `Error 403: Forbidden` 或其他身份验证失败：
 
 1. 从应用菜单中注销并重新登录。这是最常见的修复。
-2. 验证你有活跃的付费订阅：Pro、Max、Team 或 Enterprise。
+2. 验证您有活跃的付费订阅：Pro、Max、Ultra、Team 或 Enterprise。
 3. 如果 CLI 工作但 Desktop 不工作，完全退出桌面应用，而不仅仅是关闭窗口，然后重新打开并登录。
 4. 检查你的互联网连接和代理设置。
 

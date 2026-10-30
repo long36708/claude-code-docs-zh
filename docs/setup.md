@@ -188,7 +188,7 @@ claude doctor
 
 ## 身份验证
 
-Claude Code 需要 Pro、Max、Team、Enterprise 或 Console 账户。免费的 claude.ai 计划不包括 Claude Code 访问权限。您也可以通过第三方 API 提供商（如 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)）使用 Claude Code。
+Claude Code 需要 Pro、Max、Ultra、Team、Enterprise 或 Console 账户。免费的 claude.ai 计划不包括 Claude Code 访问权限。您也可以通过第三方 API 提供商（如 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)）使用 Claude Code。
 
 安装后，通过运行 `claude` 并按照浏览器提示登录。如果设置了 `ANTHROPIC_API_KEY` 环境变量，并且在 Claude Code 询问是否使用该密钥时您批准了它，Claude Code 将跳过登录提示。有关所有账户类型和团队设置选项，请参阅[身份验证](https://code.claude.com/docs/zh-CN/authentication.md)。
 

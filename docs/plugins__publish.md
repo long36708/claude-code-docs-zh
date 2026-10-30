@@ -132,7 +132,7 @@ Anthropic 的官方市场 `claude-plugins-official` 不通过目录门户接受�
 
 **1. 确认您可以提交**
 
-提交需要付费的 claude.ai 计划。在 Pro 和 Max 上，您可以从自己的账户提交。在 Team 和 Enterprise 上，Owner 可以提交，在 Enterprise 上，Owner 还可以通过 **Organization settings > Roles** 下的自定义角色向其他成员授予 **Directory** 权限。请参阅 [Confirm you can submit to the directory](https://claude.com/docs/directory/publish#confirm-you-can-submit-to-the-directory)。
+提交需要付费的 claude.ai 计划。在 Pro、Max 和 Ultra 上，您可以从自己的账户提交。在 Team 和 Enterprise 上，Owner 可以提交，在 Enterprise 上，Owner 还可以通过 **Organization settings > Roles** 下的自定义角色向其他成员授予 **Directory** 权限。请参阅 [Confirm you can submit to the directory](https://claude.com/docs/directory/publish#confirm-you-can-submit-to-the-directory)。
 
 **2. 在本地验证插件**
 

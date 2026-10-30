@@ -308,7 +308,7 @@ iMessage 的工作方式不同：给自己发短信会自动绕过门禁，您�
 | `channelsEnabled` | 主开关。必须为 `true` 才能让任何 channel 传递消息。阻止所有 channels，包括开发标志（关闭时）。请参阅[为您的组织启用 channels](#enable-channels-for-your-organization)。 | claude.ai Team 和 Enterprise：channels 被阻止。控制台：channels 被允许，除非您的组织部署托管设置，在这种情况下 channels 被阻止，直到设置此密钥 |
 | `allowedChannelPlugins` | 启用 channels 后哪些插件可以注册。设置时替换 Anthropic 维护的列表。 | 应用 Anthropic 默认列表 |
 
-没有组织的 Pro 和 Max 用户完全跳过这些检查：channels 可用，用户使用 `--channels` 按会话选择加入。
+没有组织的 Pro、Max 和 Ultra 用户完全跳过这些检查：频道可用，用户使用 `--channels` 按会话选择加入。
 
 ### 为您的组织启用 channels
 

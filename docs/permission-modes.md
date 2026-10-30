@@ -8,7 +8,7 @@
 
 权限模式设置 Claude 在会话中可以在不先询问您的情况下执行哪些操作。在 Manual 模式下，Claude Code 会在大多数编辑文件、运行 shell 命令或访问网络的操作前停止并询问您。在[自动模式](#eliminate-prompts-with-auto-mode)中，第二个模型（分类器）会审查操作而不是您；[分类器如何评估操作](#how-the-classifier-evaluates-actions)列出了它审查的操作以及哪些跳过它。
 
-在 Claude Code v2.1.283 或更高版本中，自动模式是交互式终端和 VS Code 会话的内置起始权限模式。在早期版本中，它仅在 Pro、Max 和 Team 计划上是内置的起始权限模式。[会话在哪个模式下启动](#which-mode-a-session-starts-in)涵盖了改变起始权限模式的表面和设置。您也可以随时更改正在运行的会话的权限模式。
+在 Claude Code v2.1.283 或更高版本中，自动模式是交互式终端和 VS Code 会话的内置起始权限模式。在早期版本中，它仅在 Pro、Max、Ultra 和 Team 计划上是内置的起始权限模式。[会话在哪个模式下启动](#which-mode-a-session-starts-in)涵盖了改变起始权限模式的使用入口和设置。您也可以随时更改正在运行的会话的权限模式。
 
 ## 可用的模式
 
@@ -80,7 +80,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 | 任何设置文件将 `disableAutoMode` 设置为 `"disable"` | `default` |
 | `claude -p` 或 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#permission-modes) | `default` |
 | 您的组织已应用 [HIPAA 配置](#hipaa-configuration)，且该会话[符合其适用条件](https://code.claude.com/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect) | Claude Code v2.1.285 或更高版本中为 `default`；仍可切换到自动模式 |
-| 在终端或通过 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md) | Claude Code v2.1.283 或更高版本中为 `auto`；在较早的版本上，在 Pro、Max 或 Team 计划中为 `auto`（在[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中），否则为 `default` |
+| 在终端或通过 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md) | Claude Code v2.1.283 或更高版本中为 `auto`；在较早的版本上，在 Pro、Max、Ultra 或 Team 计划中为 `auto`（在[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中），否则为 `default` |
 
 当标志、设置文件或内置默认值选择 `auto` 但自动模式对会话不可用时，Claude Code 以 Manual 启动会话。自动模式在会话不满足[可用性要求](#eliminate-prompts-with-auto-mode)时不可用，例如设置文件关闭它或不支持它的模型，或当 Anthropic 已在服务器端临时关闭它时。
 
@@ -89,7 +89,9 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 * 在终端中，一次，在会话顶部
 * 在 VS Code 扩展中，作为新对话屏幕上的卡片，保留直到您关闭它
 
-如果您的 `~/.claude/settings.json` 将 `defaultMode` 设置为 `auto` 以外的值，且没有其他设置文件设置它，您的会话继续以该模式启动。在 Pro、Max 和 Team 计划上，以及在[不获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中，Claude Code 在终端或 VS Code 扩展中询问一次是否将设置更改为自动模式。如果您拒绝，您的设置保持原样。
+如果您的 `~/.claude/settings.json` 将 `defaultMode` 设置为 `auto` 以外的值，且没有其他设置文件设置它，您的会话继续以该模式启动。
+
+在 Pro、Max、Ultra 和 Team 计划上，以及在[不获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中，Claude Code 会询问一次是否将设置更改为自动模式。该询问出现在终端或 VS Code 扩展中，如果您拒绝，您的设置保持原样。
 
 ### 在 `claude -p` 和 Agent SDK 运行中被拒绝的工具调用
 
@@ -217,7 +219,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 >
 > 扩展永远不会从项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 读取起始权限模式。当 `claudeCode.claudeProcessWrapper` 被设置时，第 3 和 4 项不适用：这些对话以 Manual 启动，除非第 1 或第 2 项设置权限模式。
 >
-> 在 v2.1.283 之前，第 3 项仅在 Pro、Max 和 Team 计划上应用，在[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中。
+> 在 v2.1.283 之前，第 3 项仅在 Pro、Max、Ultra 和 Team 计划上应用，在[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中。
 >
 > 当[自动模式可用](#eliminate-prompts-with-auto-mode)时，Auto 出现在模式指示器中。
 >
@@ -234,7 +236,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 > **在会话期间**：在 Code 选项卡中，使用输入框下方那一行中的模式选择器。并非每个模式都出现在选择器中：
 >
 > * **Auto**：当[自动模式可用](#eliminate-prompts-with-auto-mode)时出现
-> * **Bypass permissions**：在 Pro 和 Max 计划上需要 Desktop 设置中的**Allow bypass permissions mode**切换；在 Team 和 Enterprise 计划上，组织策略控制它
+> * **Bypass permissions**：在 Pro、Max 和 Ultra 计划上需要 Desktop 设置中的**Allow bypass permissions mode**切换；在 Team 和 Enterprise 计划上，组织策略控制它
 >
 > Cowork 不使用这些模式。它有自己的权限模式，需单独启用；在为您的账户启用超出其默认值的模式之前，它根本不显示模式选择器。请参阅 [Cowork 文档](https://claude.com/docs/cowork/overview)。
 >
@@ -327,7 +329,7 @@ claude --permission-mode plan
 
 自动模式让 Claude 无需经过常规权限提示即可执行操作。一个独立的分类器模型会在操作运行前对其进行审查，阻止任何超出您请求范围、针对无法识别的基础设施，或看起来受 Claude 读取的恶意内容驱动的操作。显式的 [ask 规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)仍会强制弹出提示。
 
-在 Claude Code v2.1.283 或更高版本中，对于所有计划和提供商，自动模式都是交互式终端和 VS Code 会话的[内置初始权限模式](#which-mode-a-session-starts-in)。在更早的版本中，它仅在 Pro、Max 和 Team 计划中是内置初始权限模式。
+在 Claude Code v2.1.283 或更高版本中，对于所有计划和提供商，自动模式都是交互式终端和 VS Code 会话的[内置初始权限模式](#which-mode-a-session-starts-in)。在更早的版本中，它仅在 Pro、Max、Ultra 和 Team 计划中是内置初始权限模式。
 
 分类器还会在 Claude Code 投递之前审查 Claude 通过 [`SendMessage`](https://code.claude.com/docs/zh-CN/tools-reference) 发送给另一个 Agent 的每条消息，无论是纯文本还是结构化的 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 消息，这在自动模式和[分类器审查命令时的计划模式](#analyze-before-you-edit-with-plan-mode)中均适用；发送审查需要 Claude Code v2.1.222 或更高版本。
 
@@ -367,7 +369,10 @@ claude --permission-mode plan
 
 在自动模式下，Claude Code 可以在会话的模型请求中请求服务器检查由[决策顺序](#how-the-classifier-evaluates-actions)送交审查的操作，以代替发送其自身的分类器请求。以下会话会请求服务器审查：
 
-* **直接连接到 Anthropic API**：在交互式终端会话以及 `-p`、Agent SDK、[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)和[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)会话中，无论您的计划或账户类型如何，随 Anthropic 逐步推出而生效。在交互式终端会话中，Pro、Max 和 Team 计划需要 Claude Code v2.1.271 或更高版本，Enterprise 计划和 Claude API 账户需要 v2.1.278 或更高版本。在 `-p`、Agent SDK、VS Code 扩展和桌面应用会话中，需要 Claude Code v2.1.281 或更高版本。从 v2.1.282 起，[不获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话（例如因为您关闭了遥测）在任何类型的会话中都会默认请求服务器审查。
+* **直接连接到 Anthropic API**：在交互式终端会话以及 `-p`、Agent SDK、[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)和[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)会话中，无论您的计划或账户类型如何，随 Anthropic 逐步推出而生效。请根据以下最低 Claude Code 版本核对您的会话类型：
+  * 在交互式终端会话中，Pro、Max、Ultra 和 Team 计划请求服务器审查需要 Claude Code v2.1.271 或更高版本。在 Enterprise 计划和 Claude API 账户上，这些会话需要 v2.1.278 或更高版本。
+  * 在 `-p`、Agent SDK、VS Code 扩展和桌面应用会话中，请求服务器审查需要 Claude Code v2.1.281 或更高版本
+  * 从 v2.1.282 起，[不获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话（例如因为您关闭了遥测）在任何类型的会话中都会默认请求服务器审查
 * **云提供商，或 LLM 网关或代理**：在 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry 上，以及每当您将 `ANTHROPIC_BASE_URL` 指向 [LLM 网关或代理](https://code.claude.com/docs/zh-CN/llm-gateway)时，无论您的计划如何。默认请求服务器审查需要 Claude Code v2.1.278 或更高版本。
 * **已登录的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话**：需要 Claude Code v2.1.280 或更高版本
 * **Anthropic 托管环境中的[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)**：无论您的计划如何，当您在选择了 **Cloud** 的情况下从网页、移动应用或桌面应用启动该会话时。由[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)启动的会话会随 Anthropic 逐步推出而请求服务器审查。

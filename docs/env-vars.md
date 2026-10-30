@@ -130,7 +130,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 
 | 变量 | 用途 |
 | :- | :- |
-| `ANTHROPIC_API_KEY` | 作为 `X-Api-Key` 标头发送的 API 密钥。设置后，即使您已登录，也会使用此密钥，而不是您的 Claude Pro、Max、Team 或 Enterprise 订阅。在非交互模式（`-p`）下，只要存在该密钥就始终使用。在交互模式下，系统会提示您批准该密钥一次，之后它才会覆盖您的订阅。若要改用您的订阅，请运行 `unset ANTHROPIC_API_KEY` |
+| `ANTHROPIC_API_KEY` | 作为 `X-Api-Key` 标头发送的 API 密钥。设置后，即使您已登录，也会使用此密钥，而不是您的 Claude Pro、Max、Ultra、Team 或 Enterprise 订阅。在非交互模式（`-p`）下，只要存在该密钥就始终会使用它。在交互模式下，系统会提示您批准一次该密钥，之后它才会覆盖您的订阅。如需改用您的订阅，请运行 `unset ANTHROPIC_API_KEY` |
 | `ANTHROPIC_AUTH_TOKEN` | `Authorization` 标头的自定义值（您在此设置的值将以 `Bearer ` 为前缀） |
 | `ANTHROPIC_AWS_API_KEY` | 用于 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 的工作区 API 密钥，在 AWS Console 中生成。作为 `x-api-key` 发送，优先于 AWS SigV4 |
 | `ANTHROPIC_AWS_BASE_URL` | 覆盖 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 端点 URL。用于自定义区域或通过 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)路由时。默认为 `https://aws-external-anthropic.{region}.api.aws`。Claude Code 按照[与 Amazon Bedrock 相同的优先级](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#3-configure-claude-code)解析区域 |
@@ -575,7 +575,7 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 * 在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#requirements) 不可用时[向本机以外的会话发送消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#message-sessions-on-other-machines)。关闭获取后，本机上会话之间的消息传递仍可正常工作
 * 运行 [`claude import` 或 `/import` 命令](https://code.claude.com/docs/zh-CN/cli-reference#cli-commands)
 * 运行 [`/skill-doctor`](https://code.claude.com/docs/zh-CN/skills#find-unused-skills) 或在 `/plugin` 的 **Stats** 选项卡中打开其报告
-* 在 Pro 和 Max 计划中运行 [`/restart`](https://code.claude.com/docs/zh-CN/commands)
+* 在 Pro、Max 和 Ultra 计划中运行 [`/restart`](https://code.claude.com/docs/zh-CN/commands)
 * 将您的 claude.ai 账户中启用的 [skill](https://code.claude.com/docs/zh-CN/skills.md#where-synced-skills-load) 和[插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)同步到终端会话中
 * 启用 [You should know mod](https://code.claude.com/docs/zh-CN/interactive-mode.md#you-should-know-suggestions)
 * 使用 [advisor 工具](https://code.claude.com/docs/zh-CN/advisor.md#requirements)

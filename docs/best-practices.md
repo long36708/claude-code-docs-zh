@@ -489,7 +489,7 @@ and report only the gaps that affect correctness. Skip style.
 
 由于大多数当前模型拥有 1M token 的窗口，并且在接近上限时进行压缩，您很少会用完上下文。不过，您仍然可能为不需要的上下文*付费*。每个请求都会发送整个对话，因此一个累积了三个无关任务的会话，在处理第四个任务的每个轮次时都会重新读取前三个。在[缓存有效期间会有折扣](https://code.claude.com/docs/zh-CN/costs.md#why-usage-climbs-in-a-long-session)，而缓存过期后则按全价计费。
 
-[`/usage`](https://code.claude.com/docs/zh-CN/costs) 是首先要查看的地方。在 Pro、Max、Team 和 Enterprise 上，它会按 skill、子代理、插件和 MCP 服务器细分您的用量。当长上下文或频繁缓存未命中等模式之一超过您用量的 10% 时，它也会标记出来。常见的解决方法有：
+[`/usage`](https://code.claude.com/docs/zh-CN/costs) 是首先要查看的地方。在 Pro、Max、Ultra、Team 和 Enterprise 上，它会按 skill、子代理、插件和 MCP 服务器细分您的用量。当长上下文或频繁缓存未命中等模式之一超过您用量的 10% 时，它也会标记出来。常见的解决方法有：
 
 * 在不相关的任务之间使用 `/clear`。它不花任何成本，并且意味着下一个任务不必继续为上一个任务的历史付费。`/clear oauth-migration` 会为您离开的会话命名，以便您之后回到它。
 * 带焦点地使用 `/compact`，比如 `/compact keep the API changes and the test commands`。在长会话中，`/compact` 本身就是一个大请求，因为它要读取整个对话来进行总结，缓存过期后更是如此。

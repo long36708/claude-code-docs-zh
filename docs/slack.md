@@ -4,13 +4,13 @@
 
 # Slack 中的 Claude Code
 
-> 从 Slack 委派编码任务。此早期版本仅在未连接到 Claude Tag 的工作区中回应来自 Pro 和 Max 账户的频道提及。
+> 从 Slack 委派编码任务。此早期版本仅在未连接到 Claude Tag 的工作区中回应来自 Pro、Max 和 Ultra 账户的提及。
 
 > [!WARNING]
 >
-> 本页面记录了早期的 Slack 中的 Claude Code，它在每个会话中以单个用户的账户运行。它仅回应来自 Pro 和 Max 账户的频道 @提及，并且仅在尚未有任何组织将其连接到 [Claude Tag](https://claude.com/product/tag) 的 Slack 工作区中回应。Claude Tag 以您组织的共享身份运行 @Claude，具有管理员配置的访问权限。
+> 此早期版本的 Slack 中的 Claude Code 仅回应来自 Pro、Max 和 Ultra 账户的频道 @提及，并且仅在尚未有任何组织将其连接到 [Claude Tag](https://claude.com/product/tag) 的 Slack 工作区中回应。每个会话都以单个用户的账户运行。Claude Tag 以您组织的共享身份运行 @Claude，具有管理员配置的访问权限。
 >
-> * **Pro 和 Max 计划：** Claude Tag 在个人计划上不可用，因此在未连接到 Claude Tag 的工作区中，本页面仍然是设置路径。
+> * **Pro、Max 和 Ultra 计划：** Claude Tag 在个人计划上不可用，因此请在未连接到 Claude Tag 的工作区中[设置此版本](#setting-up-claude-code-in-slack)。
 > * **Team 和 Enterprise 计划：** 您现有的 Slack 应用和 @Claude 用户名保持不变。为新工作区[设置 Claude Tag](https://claude.com/docs/claude-tag/overview)；要迁移已经使用此版本的工作区，请参阅[从早期 Claude in Slack 迁移](https://claude.com/docs/claude-tag/admins/migrate-from-earlier)。
 > * **收到通知而非回答：** 请查阅 @Claude 回复的[设置通知](#this-workspace-isnt-set-up-for-claude-tag-yet)或[停用通知](#the-legacy-claude-in-slack-bot-is-retired)。
 
@@ -31,7 +31,7 @@ Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack
 
 | 要求 | 详情 |
 | :- | :- |
-| Claude 计划 | Pro 或 Max |
+| Claude 计划 | Pro、Max 或 Ultra |
 | Slack 工作区 | 未被任何组织连接到 [Claude Tag](https://claude.com/docs/claude-tag/overview)。如果 @Claude 回复了[停用通知](#the-legacy-claude-in-slack-bot-is-retired)，则说明该工作区已被连接 |
 | 云端会话 | [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)已为您的账户启用 |
 | GitHub 账户 | 在 [claude.ai/code](https://claude.ai/code) 连接，至少有一个仓库已通过身份验证 |
@@ -178,13 +178,13 @@ Slack 工作区管理员控制 Claude 应用程序是否可以在其工作区中
 当以下两个条件同时满足时，@Claude 会在话题中回复此通知，而不是给出答案：
 
 * 没有任何组织将您的 Slack 工作区连接到 [Claude Tag](https://claude.com/docs/claude-tag/overview)。
-* 您在 Slack 中关联的 Claude 账户不属于 Pro 或 Max 计划。
+* 您在 Slack 中关联的 Claude 账户不属于 Pro、Max 或 Ultra 计划。
 
 Claude Tag 适用于 Team 和 Enterprise 计划。要连接工作区，请先使用通知中提到的 `@Claude connect` 命令，然后按照[设置 Claude Tag](https://claude.com/docs/claude-tag/overview) 进行操作。
 
 ### "The legacy Claude in Slack bot is retired"
 
-该通知以 `The legacy Claude in Slack bot is retired effective October 5, 2026 and no longer responds in channels.` 开头。这表示您的 Slack 工作区已连接到某个 Claude 组织，但在该组织的 Claude Tag 设置中，频道、工作区或组织默认值仍选择了早期版本。此通知与您自己的计划无关，因此 Pro 和 Max 账户也会收到。
+该通知以 `The legacy Claude in Slack bot is retired effective October 5, 2026 and no longer responds in channels.` 开头。您的 Slack 工作区已连接到某个 Claude 组织。在该组织的 Claude Tag 设置中，频道、工作区或组织默认值仍选择了早期版本。此通知与您自己的计划无关，因此 Pro、Max 和 Ultra 账户也会收到。
 
 如果您是该组织的所有者，请打开 [Claude 管理设置](https://claude.ai/admin-settings/claude-tag)，并为该频道启用 Claude Tag。要修复所有继承该设置的频道，请改为在工作区或组织默认值上更改该设置。有关完整的迁移步骤，请参阅[从早期版本的 Claude in Slack 迁移](https://claude.com/docs/claude-tag/admins/migrate-from-earlier)。如果您不是所有者，请将此条目发送给所有者。
 

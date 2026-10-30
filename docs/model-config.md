@@ -455,11 +455,11 @@ Claude Enterprise 计划上的组织管理员可以为每个自定义角色按�
 
 `default` 的行为取决于您的账户类型：
 
-* **Pro、Max、Team、Enterprise 和 Anthropic API**：默认为 Opus 5.5
+* **Pro、Max、Ultra、Team、Enterprise 和 Anthropic API**：默认为 Opus 5.5
 * **Claude Platform on AWS、Amazon Bedrock 和 Google Cloud's Agent Platform**：默认为 Opus 5.5
 * **Microsoft Foundry**：默认为 Sonnet 4.5
 
-在 v2.1.280 之前，`default` 在 Pro 和 Team Standard 上解析为 Sonnet 5，在 Max、Team Premium、Enterprise、Anthropic API、Claude Platform on AWS、Amazon Bedrock 和 Google Cloud's Agent Platform 上从 v2.1.219 开始解析为 Opus 5。在 v2.1.219 之前，`default` 在 Anthropic API、Max、Team Premium 和 Enterprise 按量付费上从 v2.1.154 开始解析为 Opus 4.8，在 Claude Platform on AWS、Amazon Bedrock 和 Google Cloud's Agent Platform 上从 v2.1.207 开始解析为 Opus 4.8。在 v2.1.207 之前，`default` 在 Claude Platform on AWS 上解析为 Opus 4.7，在 Amazon Bedrock 和 Google Cloud's Agent Platform 上解析为 Sonnet 4.5。
+在 v2.1.280 之前，`default` 在 Pro 和 Team Standard 上解析为 Sonnet 5，在 Max、Ultra、Team Premium、Enterprise、Anthropic API、Claude Platform on AWS、Amazon Bedrock 和 Google Cloud's Agent Platform 上从 v2.1.219 开始解析为 Opus 5。在 v2.1.219 之前，`default` 在 Anthropic API、Max、Ultra、Team Premium 和 Enterprise 按量付费上从 v2.1.154 开始解析为 Opus 4.8，在 Claude Platform on AWS、Amazon Bedrock 和 Google Cloud's Agent Platform 上从 v2.1.207 开始解析为 Opus 4.8。在 v2.1.207 之前，`default` 在 Claude Platform on AWS 上解析为 Opus 4.7，在 Amazon Bedrock 和 Google Cloud's Agent Platform 上解析为 Sonnet 4.5。
 
 当管理员设置了[组织默认模型](#organization-default-model)时，`default` 会解析为该模型，而不是上面的账户类型默认值。需要 Claude Code v2.1.196 或更高版本。`default` 也可以解析为您使用 [`ANTHROPIC_DEFAULT_MODEL`](#set-a-default-model-for-new-sessions) 设置的模型，具体条件见其部分说明，或解析为[记录在您账户上的](#setting-your-model)模型。
 
@@ -758,11 +758,11 @@ Fable 5.1、Fable 5、Sonnet 5 及更高版本、Haiku 5.5、Opus 4.6 及更高�
 
 Fable 5.1、Fable 5、Sonnet 5 及更高版本、Haiku 5.5 和 Opus 4.7 及更高版本默认运行 1M 窗口，无需 `[1m]` 后缀。这包括 Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry 上的会话，以及 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话。要改为以 200K 窗口运行它们，请参阅[关闭 1M 上下文](#turn-off-1m-context)。
 
-Opus 4.6 和 Sonnet 4.6 仅通过其 `[1m]` 变体达到 1M，对该变体的访问取决于您的套餐。在 Max、Team 和 Enterprise 套餐上，包括 Team Standard 和 Team Premium 席位，Opus 4.6 与 1M 上下文包含在您的订阅中。Sonnet 4.6 与 1M 上下文在每个订阅套餐上都需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，包括 Max。
+Opus 4.6 和 Sonnet 4.6 仅通过其 `[1m]` 变体达到 1M，对该变体的访问取决于您的套餐。在 Max、Ultra、Team 和 Enterprise 套餐上，包括 Team Standard 和 Team Premium 席位，Opus 4.6 与 1M 上下文包含在您的订阅中。Sonnet 4.6 与 1M 上下文在每个订阅套餐上都需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，包括 Max 和 Ultra。
 
 | 套餐 | Opus 4.6 与 1M 上下文 | Sonnet 4.6 与 1M 上下文 |
 | - | - | - |
-| Max、Team 和 Enterprise | 包含在订阅中 | 需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) |
+| Max、Ultra、Team 和 Enterprise | 包含在订阅中 | 需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) |
 | Pro | 需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) | 需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) |
 | API 和按量付费 | 完全访问 | 完全访问 |
 

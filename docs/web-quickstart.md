@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> 云会话可在 Pro、Max 和 Team 计划上使用，以及拥有高级席位或 Chat + Claude Code 席位的企业用户。
+> 云端会话可在 Pro、Max、Ultra 和 Team 计划上使用，以及拥有高级席位或 Chat + Claude Code 席位的企业用户。
 
 云会话在云基础设施上运行 Claude Code，而不是在您的机器上，默认由 Anthropic 管理。此快速入门从浏览器中的 [claude.ai/code](https://claude.ai/code) 启动一个会话。您也可以从 Claude 移动应用、Desktop 应用或终端使用 `claude --cloud` 启动一个会话。
 
@@ -77,7 +77,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 
 [云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)是保存的配置，控制会话期间 Claude 拥有的网络访问权限以及会话启动时运行的内容。连接 GitHub 后发生的情况取决于您的计划：
 
-* **Pro 和 Max**：入门流程为您创建一个名为**Default**的环境。
+* **Pro、Max 和 Ultra**：您会自动获得一个名为**Default**的环境。
 * **Team 和 Enterprise**：入门流程显示**Create your first cloud environment**表单。保持预填充的名称和网络访问不变，然后单击**Create & finish**以创建**Default**环境。如果所有者已打开[Quick setup](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#quick-setup-for-team-and-enterprise)，入门流程会为您创建**Default**。
 
 **Default** 使用[`Trusted` 网络访问](https://code.claude.com/docs/zh-CN/cloud-environments#access-levels)：会话可以访问[常见包注册表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)和其他允许列表中的域，以及通过会话网络的其他任何内容都无法访问。有关无需任何配置即可使用的内容，请参阅[已安装的工具](https://code.claude.com/docs/zh-CN/cloud-environments.md#installed-tools)。

@@ -20,8 +20,8 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 * 使用 `/fast` 在 Claude Code CLI 中切换快速模式。[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)在选定的模型支持快速模式时提供**切换快速模式**命令。Claude Code 将该切换保存到您的 [`fastMode` 设置](#toggle-fast-mode)。
 * 快速模式定价在 Opus 5.5 上为 $8/$40 MTok 输入/输出，在 Opus 5 和 Opus 4.8 上为 $10/$50 MTok 输入/输出。
-* 可供订阅计划（Pro/Max/Team/Enterprise）上的 Claude Code 用户和 Claude 控制台使用。Team 和 Enterprise 组织需要所有者先启用它，Console 组织需要先配置访问权限才能在 Opus 5 或 Opus 4.8 上使用它。[要求](#requirements)对这两者进行了说明。
-* 对于订阅计划（Pro/Max/Team/Enterprise）上的 Claude Code 用户，快速模式仅通过使用额度提供，不包含在订阅速率限制中。
+* 可供订阅套餐（Pro/Max/Ultra/Team/Enterprise）上的 Claude Code 用户和 Claude 控制台使用。Team 和 Enterprise 组织需要所有者先启用它，Console 组织需要先配置访问权限才能在 Opus 5 或 Opus 4.8 上使用它。[要求](#requirements)对这两者进行了说明。
+* 对于订阅套餐（Pro/Max/Ultra/Team/Enterprise）上的 Claude Code 用户，快速模式仅通过使用额度提供，不包含在订阅速率限制中。
 
 ## 切换快速模式
 
@@ -86,7 +86,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 您看到快速模式支出的位置取决于您如何登录，因此首先运行 [`/status`](https://code.claude.com/docs/zh-CN/commands) 来检查。如果它显示 `Login method` 行（例如 `Claude Max account`），则您使用 Claude 订阅登录。如果它显示 `API key` 行，则您的请求计费到 Claude Console 组织。
 
-* **Pro 和 Max**：您从使用额度中支付快速模式费用。转到 claude.ai 上的 [**Settings > Usage**](https://claude.ai/settings/usage)，其中 **Usage credits** 部分显示您本月在使用额度中花费了多少。该数字包括快速模式，但不单独列出。
+* **Pro、Max 和 Ultra**：您从使用额度中支付快速模式费用。转到 claude.ai 上的 [**Settings > Usage**](https://claude.ai/settings/usage)，其中 **Usage credits** 部分显示您本月在使用额度中花费了多少。该数字包括快速模式，但不单独列出。
 * **Team 和 Enterprise**：您的组织从其使用额度中支付您的快速模式使用费用。要查看您自己的使用额度支出，运行 [`/usage`](https://code.claude.com/docs/zh-CN/costs#check-your-usage-credits-spend)。有关您的组织在哪里看到该支出，请参阅 [Claude for Teams and Enterprise](https://code.claude.com/docs/zh-CN/costs.md#claude-for-teams-and-enterprise)。
 * **Claude Console**：您的组织使用其 API 使用的其余部分支付快速模式费用。在 Console [Usage](https://platform.claude.com/usage) 和 [Cost](https://platform.claude.com/cost) 页面上，在 **Group by** 菜单中选择 **Speed (Research Preview)** 以将快速模式与标准速度使用分开。只有当选定的日期范围包括快速模式使用时，您才会看到该选项。
 
@@ -120,8 +120,8 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 快速模式需要以下所有条件：
 
 * **仅限 Anthropic API 或订阅**：快速模式可通过 Anthropic 控制台 API 和使用使用额度的 Claude 订阅套餐获得。它在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 AWS 上的 Claude Platform 上不可用。控制台组织还必须[配置快速模式访问权限](#enable-fast-mode-for-your-organization)，才能在 Opus 5 或 Opus 4.8 上使用快速模式。
-* **为订阅计划启用使用额度**：在 Pro、Max、Team 或 Enterprise 计划上，您的账户必须[启用使用额度](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)，这允许在您的计划包含的使用量之外进行计费。在启用之前，`/fast` 显示"Fast mode requires usage credits"。您启用它们的方式取决于您的计划：
-  * 在 Pro 和 Max 上，在 claude.ai 上的[**Settings > Usage**](https://claude.ai/settings/usage)的**Usage credits**部分中启用它们，或运行 `/usage-credits` 来打开该页面。
+* **为订阅套餐启用使用额度**：在 Pro、Max、Ultra、Team 或 Enterprise 套餐上，您的账户必须[启用使用额度](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)，这允许在您的套餐包含的使用量之外进行计费。在启用之前，`/fast` 显示"Fast mode requires usage credits"。要启用它们，请按照适用于您套餐的步骤操作：
+  * 在 Pro、Max 和 Ultra 上，在 claude.ai 上的[**Settings > Usage**](https://claude.ai/settings/usage)的**Usage credits**部分中启用它们，或运行 `/usage-credits` 来打开该页面。
   * 在 Team 和 Enterprise 上，具有计费访问权限的成员在[**Organization settings > Usage**](https://claude.ai/admin-settings/usage)处为组织启用它们，没有访问权限的成员运行 `/usage-credits` 向组织的管理员发送请求。
 
 > [!NOTE]
