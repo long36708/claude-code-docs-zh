@@ -26,6 +26,7 @@ Claude Code 在以下平台和配置上运行：
 ### 其他依赖项
 
 * **ripgrep**：通常包含在 Claude Code 中。如果搜索失败，请参阅[搜索故障排除](https://code.claude.com/docs/zh-CN/troubleshooting.md#search-and-discovery-issues)。
+* **Git**：可选。如果已安装 git，[`claude plugin eval`](https://code.claude.com/docs/zh-CN/plugin-evals#requirements) 需要 2.31 或更高版本。从 macOS、Linux 或 WSL [将本地仓库上传到云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github)需要 git 2.31 或更高版本。运行 `git --version` 查看您的版本。
 
 ## 安装 Claude Code
 
@@ -39,7 +40,7 @@ Claude Code 在以下平台和配置上运行：
 >
 > **macOS、Linux、WSL：**
 >
-> ```bash theme={null}
+> ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > curl -fsSL https://claude.ai/install.sh | bash
 > ```
 >
@@ -47,13 +48,13 @@ Claude Code 在以下平台和配置上运行：
 >
 > **Windows PowerShell：**
 >
-> ```powershell theme={null}
+> ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > irm https://claude.ai/install.ps1 | iex
 > ```
 >
 > **Windows CMD：**
 >
-> ```batch theme={null}
+> ```batch theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 > ```
 >
@@ -71,7 +72,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [tab] Homebrew
 >
-> ```bash theme={null}
+> ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > brew install --cask claude-code
 > ```
 >
@@ -83,7 +84,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [tab] WinGet
 >
-> ```powershell theme={null}
+> ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > winget install Anthropic.ClaudeCode
 > ```
 >

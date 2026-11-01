@@ -120,7 +120,7 @@ Claude 可以启动开发服务器并在浏览器窗格中打开它以验证其�
 
 > [!NOTE]
 >
-> 在 [SSH 会话](#ssh-sessions)中，Claude 无法在浏览器窗格中打开您的应用，因为它在那里没有该窗格的工具。要自己查看应用，请[将其端口转发到您的计算机](#reach-a-port-on-the-remote-machine)。
+> 在 [SSH 会话](#ssh-sessions)中，Claude 没有浏览器窗格的工具，因此无法在窗格中打开您的应用，也无法[自动验证](#auto-verify-changes)其更改。该窗格的 **Dev servers** 菜单和您[配置的预览服务器](#configure-preview-servers)也不可用。要自己查看应用，请在远程机器上启动其服务器，然后[将其端口转发到您的计算机](#reach-a-port-on-the-remote-machine)。
 
 如果在本地会话中 Claude 启动服务器后浏览器窗格没有打开，请点击聊天中该服务器卡片上的 **Open**。
 
@@ -1002,7 +1002,7 @@ Linux 或 macOS 远程计算机需要受支持的处理器、带 SFTP 的 SSH �
 * **使用 `MaxSessions 1` 时的一次性验证码**：如果每次登录都会提示您（例如使用一次性验证码时），`!` 命令会失败。请改为在终端选项卡中运行这些命令，终端选项卡会在其自己的窗格中提示。
 * **安装文件夹**：Desktop 会在您主目录下的 `~/.claude/remote/` 中安装一个辅助程序和 Claude Code。它从该位置运行这些程序，因此该文件夹不能位于以 `noexec` 挂载的文件系统上。请在每个连接用户的主目录中预留约 1 GB 的磁盘空间。有关该文件夹包含的内容，请参阅[远程计算机上的文件和进程](#files-and-processes-on-the-remote-machine)。
 * **Shell**：远程计算机上为您的账户设置的 shell 必须能运行通过 SSH 发送的命令，Bash、Zsh 和 `sh` 均可
-* **网络**：Claude Code 在远程计算机上运行，并从那里发出网络请求，因此该计算机需要具备 [Claude Code 所需的网络访问](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)。如果该计算机无法下载 Claude Code，Desktop 会在您的计算机上下载并上传它。Claude Code 的其他请求仍从远程计算机发出。在 Linux 远程计算机上，如果这些请求需要代理，请[为 SSH 会话设置代理](#set-a-proxy-or-a-ca-certificate-for-ssh-sessions)。
+* **网络**：Claude Code 在远程计算机上运行并从那里发出网络请求，因此该计算机需要具备 [Claude Code 所需的网络访问](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)。如果该计算机无法下载 Claude Code，Desktop 会在您的计算机上下载并上传它。Claude Code 的其他请求仍从远程计算机发出。如果 Linux 远程计算机需要代理或 CA 证书，请[为 SSH 会话设置它](#set-a-proxy-or-a-ca-certificate-for-ssh-sessions)。
 
 #### 检查远程机器的主机密钥
 
@@ -1030,7 +1030,7 @@ Linux 或 macOS 远程计算机需要受支持的处理器、带 SFTP 的 SSH �
 
 如果 Linux 远程计算机通过代理访问互联网或需要 CA 证书，请在该计算机上的 `~/.claude/settings.json` 中的 `env` 下添加[代理和 CA 变量](https://code.claude.com/docs/zh-CN/network-config.md)。即使您已在该计算机上的 `~/.profile`、`~/.bash_profile`、`~/.zprofile` 或 `~/.zshrc` 中导出它们，也要添加。
 
-在 SSH 会话中，Claude Code 不会从这些文件中获取变量，即使在该机器终端中运行的 `claude` 能获取到。此时会话可能会挂起，或显示 **The connection from … to the API failed** 或 **Authentication failed**，且重新登录也无济于事。
+在 SSH 会话中，Claude Code 不会从这些文件中获取变量，即使在该计算机的终端中运行的 `claude` 能够获取。这时会话可能会挂起，或显示 **The connection from … to the API failed**、**Authentication failed** 或 **Claude Code on … couldn’t verify the API connection’s certificate**。重新登录也无济于事。
 
 **1. 添加变量**
 
@@ -1948,6 +1948,28 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 
 有关仅托管源可以设置的权限、插件和交付键，请参阅[仅托管设置可以设置的键](https://code.claude.com/docs/zh-CN/managed-settings.md#managed-only-settings)。
 
+#### 在 Code 选项卡中行为不同的 Claude Code 设置
+
+在本地会话中，以下键（以及其他一些键）的效果有所不同或没有可见效果，因为 Code 选项卡取代了终端界面。它们在终端中仍然适用，因此您可以保留这些设置。
+
+| 键 | 在本地会话中 |
+| - | - |
+| `askUserQuestionTimeout` | 超时不适用，因此 Claude 提出的问题会保持打开状态，等待用户回答 |
+| `awaySummaryEnabled` | 该键无效 |
+| `bashEditDiffEnabled` | Code 选项卡不显示 Bash 命令更改的文件列表 |
+| `companyAnnouncements` | Code 选项卡不显示公告 |
+| `defaultShell` | 用户在 `!` 之后键入的命令在应用选择的 shell 中运行：macOS 和 Linux 上为其登录 shell，Windows 上为 PowerShell |
+| `fileSuggestion` | `@` 文件选择器构建自己的文件列表，不运行您设置的命令 |
+| `modelPicker` | 模型选择器列出每个用户帐户可用的模型。要限制这些模型，请设置 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection)。 |
+| `pluginTrustMessage` | 用户安装插件时看到的警告不包含您设置的消息 |
+| `prUrlTemplate` | Pull Request 链接使用 Pull Request 自身的 URL，而不是模板 |
+| `respectGitignore` | `@` 文件选择器构建自己的文件列表，不读取此键 |
+| `respondToBashCommands` | 无论值如何，Claude 都会响应用户使用 `!` 运行的命令的输出 |
+| `showClearContextOnPlanAccept` | 用户在批准计划时没有清除上下文的选项 |
+| `skipDangerousModePermissionPrompt` | Code 选项卡对[绕过权限模式](#choose-a-permission-mode)有自己的确认，此键不会跳过该确认 |
+| `verbose`, `viewMode` | 每个用户在[会话菜单中的 **Transcript view**](#switch-view-modes) 下选择视图 |
+| `worktree.baseRef`, `worktree.sparsePaths`, `worktree.symlinkDirectories` | 不用于 Code 选项卡为会话创建的 worktree |
+
 ### 设备管理策略
 
 IT 团队可以通过 macOS 上的 MDM、Windows 上的组策略或 Linux 上的策略文件管理桌面应用。可用的策略包括启用或禁用 Claude Code 功能、在 macOS 和 Windows 上控制自动更新以及设置自定义部署 URL。
@@ -2100,7 +2122,7 @@ Desktop 和 CLI 读取相同的配置文件，因此您的设置会沿用：
 * 项目中的 **[CLAUDE.md](https://code.claude.com/docs/zh-CN/memory.md)** 和 `CLAUDE.local.md` 文件由两者共同使用
 * 在 `~/.claude.json` 或 `.mcp.json` 中配置的 **[MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)** 在两者中均可使用
 * 在设置中定义的 **[hook](https://code.claude.com/docs/zh-CN/hooks.md)** 和 **[skill](https://code.claude.com/docs/zh-CN/skills.md)** 适用于两者
-* `~/.claude.json` 和 `~/.claude/settings.json` 中的 **[设置](https://code.claude.com/docs/zh-CN/settings.md)** 是共享的。权限规则、允许的工具和 `settings.json` 中的其他设置适用于 Desktop 会话。
+* `~/.claude.json` 和 `~/.claude/settings.json` 中的 **[设置](https://code.claude.com/docs/zh-CN/settings.md)** 是共享的。权限规则、允许的工具和 `settings.json` 中的其他设置适用于 Desktop 会话。某些设置项[在 Code 选项卡中的行为有所不同](#claude-code-settings-that-behave-differently-in-the-code-tab)。
 * **模型**：相同的[模型](https://code.claude.com/docs/zh-CN/model-config.md#available-models)在两者中都可用。在 Desktop 中，从输入框下方一行中的模型选择器中选择模型。您可以在会话期间从同一选择器更改模型。
 
 #### 来自 Claude Desktop 聊天应用的 MCP 服务器
@@ -2281,7 +2303,12 @@ Desktop 拒绝密钥，通常是因为它与您计算机上保存的密钥不同
 
 在发送这些文件之前，请先检查其内容，因为其中可能包含来自您环境的名称和其他详细信息。`<host>` 和 `<user>` 代表 Desktop 已替换的名称。Desktop 不会替换所有名称，SSH 主机名或用户名仍可能按原样出现。如果您将 zip 文件发送给他人，请告诉对方哪个主机在何时失败，因为日志中可能不会提及该主机。
 
-该 zip 文件不包含 Desktop 在远程机器上安装的辅助程序的日志。要同时获取该日志，请从建立连接的用户的主目录中 [`~/.claude/remote/run/`](#files-and-processes-on-the-remote-machine) 下的辅助程序文件夹中复制 `remote-server.log`。在发送之前，也请检查该文件的内容。
+该 zip 文件不包含 Desktop 在远程机器上安装的辅助程序的日志。要同时获取该日志，请从建立连接的用户的主目录中 [`~/.claude/remote/run/`](#files-and-processes-on-the-remote-machine) 下的辅助程序文件夹中复制以下文件：
+
+* **`remote-server.log`**：辅助程序最近一次运行的日志。
+* **`remote-server.log.old`**（如果存在）：再之前一次运行的日志。请尽快复制该文件，因为下次 Desktop 连接并需要再次启动辅助程序时，该文件就会丢失。
+
+在发送之前，也请检查这些文件的内容。
 
 ### 应用无法退出
 
