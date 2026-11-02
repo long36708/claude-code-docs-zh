@@ -253,7 +253,7 @@ Most of this retry logic matches on the upstream's error wording, so forward err
 
 On v2.1.305 or later, a request carrying [`defer_loading` fields and `tool_reference` blocks](https://code.claude.com/docs/en/mcp#tool-search-through-a-gateway) can arrive again without them after a `400` or `422` whose cause Claude Code doesn't recognize. After a successful retry, later requests omit them too.
 
-The developer's requests keep working without any change on the gateway, with their MCP tools loaded upfront. Claude Code tries tool search again later, so the gateway can see another rejected request followed by its retry. To keep the fields out of every request, have developers set `ENABLE_TOOL_SEARCH=false`. For tool search itself, Claude Code expects the gateway to forward the `defer_loading` fields and `tool_reference` blocks with their `anthropic-beta` value.
+The developer's requests keep working without any change on the gateway, with their MCP tools loaded upfront. Claude Code tries tool search again later, so the gateway can see another rejected request followed by its retry. For tool search itself, Claude Code expects the gateway to forward the `defer_loading` fields and `tool_reference` blocks with their `anthropic-beta` value.
 
 ### Disable pre-release capabilities
 
